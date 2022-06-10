@@ -30,6 +30,7 @@
 #include "vtkExporter.h"
 #include "vtkIOExportModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkLight;
 class vtkActor;
 
@@ -62,4 +63,5 @@ private:
   void operator=(const vtkOOGLExporter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

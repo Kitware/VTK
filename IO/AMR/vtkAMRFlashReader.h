@@ -24,6 +24,7 @@
 #include "vtkAMRBaseReader.h"
 #include "vtkIOAMRModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkOverlappingAMR;
 class vtkFlashReaderInternal;
 
@@ -101,4 +102,5 @@ private:
   vtkFlashReaderInternal* Internal;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif /* vtkAMRFlashReader_h */

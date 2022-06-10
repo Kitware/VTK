@@ -25,6 +25,7 @@
 #include <functional>
 #include <numeric>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkArrayExtents::vtkArrayExtents() = default;
 
 vtkArrayExtents::vtkArrayExtents(const CoordinateT i)
@@ -231,3 +232,4 @@ ostream& operator<<(ostream& stream, const vtkArrayExtents& rhs)
 
   return stream;
 }
+VTK_ABI_NAMESPACE_END

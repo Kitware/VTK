@@ -35,6 +35,7 @@
 #include "vtkRenderingVolumeModule.h" // For export macro
 #include "vtkThreadedImageAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataArray;
 
 class VTKRENDERINGVOLUME_EXPORT vtkVolumeRayCastSpaceLeapingImageFilter
@@ -262,4 +263,5 @@ private:
   void operator=(const vtkVolumeRayCastSpaceLeapingImageFilter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

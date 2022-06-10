@@ -29,6 +29,7 @@
 #include "vtkMatrix4x4.h"
 #include "vtkOpenXR.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkOpenXRUtilities : public vtkObject
 {
 public:
@@ -513,5 +514,6 @@ inline const char* vtkOpenXRUtilities::GetStructureTypeAsString(
   }
 }
 
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkOpenXRUtilities.h

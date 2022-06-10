@@ -29,6 +29,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtksys/FStream.hxx"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPipelineSize);
 
 // Returns size in kibibytes (1024 bytes)
@@ -360,3 +361,4 @@ void vtkPipelineSize::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

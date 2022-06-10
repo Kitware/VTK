@@ -34,6 +34,7 @@
 
 #include <algorithm>
 
+VTK_ABI_NAMESPACE_BEGIN
 static const unsigned char MASKED_CELL_VALUE =
   vtkDataSetAttributes::HIDDENCELL | vtkDataSetAttributes::REFINEDCELL;
 
@@ -1252,3 +1253,4 @@ void vtkExplicitStructuredGrid::ReorderCellsPoints(const int* ptsMap, const int 
     }
   }
 }
+VTK_ABI_NAMESPACE_END

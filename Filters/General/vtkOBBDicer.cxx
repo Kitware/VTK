@@ -26,6 +26,7 @@
 #include "vtkPoints.h"
 #include "vtkShortArray.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOBBDicer);
 
 void vtkOBBDicer::BuildTree(vtkIdList* ptIds, vtkOBBNode* OBBptr, vtkDataSet* input)
@@ -231,3 +232,4 @@ void vtkOBBDicer::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

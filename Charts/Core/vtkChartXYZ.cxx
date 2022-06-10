@@ -45,6 +45,7 @@
 #include <list>
 #include <sstream>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkChartXYZ);
 
 //------------------------------------------------------------------------------
@@ -1974,3 +1975,4 @@ void vtkChartXYZ::SetClippingPlanesEnabled(bool v)
     this->Scene->SetDirty(true);
   }
 }
+VTK_ABI_NAMESPACE_END

@@ -8,6 +8,7 @@
 
 namespace RTW
 {
+VTK_ABI_NAMESPACE_BEGIN
     class Texture : public Object
     {
         friend class Renderer;
@@ -79,4 +80,5 @@ namespace RTW
     private:
         VisRTX::Texture* texture = nullptr;
     };
+VTK_ABI_NAMESPACE_END
 }

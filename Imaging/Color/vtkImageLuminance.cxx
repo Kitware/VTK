@@ -23,6 +23,7 @@
 
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImageLuminance);
 
 //------------------------------------------------------------------------------
@@ -113,3 +114,4 @@ void vtkImageLuminance::ThreadedExecute(
       return;
   }
 }
+VTK_ABI_NAMESPACE_END

@@ -61,14 +61,17 @@ typedef vtkLineIntegralConvolution2D vtkLIC2D;
 #include <sstream>
 using std::ostringstream;
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 static std::string mpifn(vtkPainterCommunicator* comm, const char* fn)
 {
   ostringstream oss;
   oss << comm->GetRank() << "_" << fn;
   return oss.str();
 }
+VTK_ABI_NAMESPACE_END
 #endif
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkObjectFactoryNewMacro(vtkSurfaceLICInterface);
 
 //------------------------------------------------------------------------------
@@ -1172,3 +1175,4 @@ void vtkSurfaceLICInterface::PrintSelf(ostream& os, vtkIndent indent)
      << indent << "AlwaysUpdate=" << this->AlwaysUpdate << endl
      << indent << "CompositeStrategy=" << this->CompositeStrategy << endl;
 }
+VTK_ABI_NAMESPACE_END

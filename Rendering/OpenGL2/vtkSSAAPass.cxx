@@ -32,6 +32,7 @@
 #include "vtkSSAAPassFS.h"
 #include "vtkTextureObjectVS.h" // a pass through shader
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkSSAAPass);
 
 vtkCxxSetObjectMacro(vtkSSAAPass, DelegatePass, vtkRenderPass);
@@ -291,3 +292,4 @@ void vtkSSAAPass::ReleaseGraphicsResources(vtkWindow* w)
     this->DelegatePass->ReleaseGraphicsResources(w);
   }
 }
+VTK_ABI_NAMESPACE_END

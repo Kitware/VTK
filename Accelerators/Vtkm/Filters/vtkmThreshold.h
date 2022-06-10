@@ -35,6 +35,7 @@
 #include "vtkThreshold.h"
 #include "vtkmlib/vtkmInitializer.h" // Need for initializing vtk-m
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKACCELERATORSVTKMFILTERS_EXPORT vtkmThreshold : public vtkThreshold
 {
 public:
@@ -69,4 +70,5 @@ private:
   vtkmInitializer Initializer;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkmThreshold_h

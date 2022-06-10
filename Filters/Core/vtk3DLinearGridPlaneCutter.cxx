@@ -52,6 +52,7 @@
 #include <algorithm>
 #include <numeric>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtk3DLinearGridPlaneCutter);
 vtkCxxSetObjectMacro(vtk3DLinearGridPlaneCutter, Plane, vtkPlane);
 
@@ -1315,3 +1316,4 @@ void vtk3DLinearGridPlaneCutter::PrintSelf(ostream& os, vtkIndent indent)
 #undef EXECUTE_SMPFOR
 #undef EXECUTE_REDUCED_SMPFOR
 #undef MAX_CELL_VERTS
+VTK_ABI_NAMESPACE_END

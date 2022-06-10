@@ -29,6 +29,7 @@
 #include "vtkRenderingCoreModule.h" // For export macro
 //#include "vtkTexture.h" // used to include texture unit enum.
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPolyData;
 class vtkRenderer;
 class vtkRenderWindow;
@@ -178,4 +179,5 @@ private:
   void operator=(const vtkPolyDataMapper&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -26,6 +26,7 @@
 #include "vtkPolyData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkProbePolyhedron);
 
 //------------------------------------------------------------------------------
@@ -252,3 +253,4 @@ void vtkProbePolyhedron::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Probe Cell Data: " << (this->ProbeCellData ? "true" : "false") << "\n";
 }
+VTK_ABI_NAMESPACE_END

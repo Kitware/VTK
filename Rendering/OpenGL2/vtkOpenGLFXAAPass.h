@@ -38,6 +38,7 @@
 #include "vtkOpenGLFXAAFilter.h"       // For vtkOpenGLFXAAFilter
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkFXAAOptions;
 
 class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLFXAAPass : public vtkImageProcessingPass
@@ -71,4 +72,5 @@ private:
   void operator=(const vtkOpenGLFXAAPass&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

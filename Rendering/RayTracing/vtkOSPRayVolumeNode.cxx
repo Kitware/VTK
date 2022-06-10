@@ -33,6 +33,7 @@
 #include "RTWrapper/RTWrapper.h"
 
 //============================================================================
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOSPRayVolumeNode);
 
 //------------------------------------------------------------------------------
@@ -85,3 +86,4 @@ vtkMTimeType vtkOSPRayVolumeNode::GetMTime()
   }
   return mtime;
 }
+VTK_ABI_NAMESPACE_END

@@ -50,6 +50,7 @@
 #include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkScalarTree.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkScalarNode;
 class vtkSimpleScalarTree;
 
@@ -173,4 +174,5 @@ private:
   void operator=(const vtkSimpleScalarTree&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

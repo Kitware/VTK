@@ -15,6 +15,7 @@
 
 #include "PyVTKExtras.h"
 #include "PyVTKReference.h"
+#include "vtkABINamespace.h"
 #include "vtkPythonCompatibility.h"
 
 // Silence warning like

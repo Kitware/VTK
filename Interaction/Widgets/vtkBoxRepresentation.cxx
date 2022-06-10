@@ -44,6 +44,7 @@
 
 #include <cassert>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkBoxRepresentation);
 
 //------------------------------------------------------------------------------
@@ -1860,3 +1861,4 @@ void vtkBoxRepresentation::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Outline Cursor Wires: " << (this->OutlineCursorWires ? "On\n" : "Off\n");
   os << indent << "Inside Out: " << (this->InsideOut ? "On\n" : "Off\n");
 }
+VTK_ABI_NAMESPACE_END

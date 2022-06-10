@@ -60,6 +60,7 @@
 // clang-format on
 
 //============================================================================
+VTK_ABI_NAMESPACE_BEGIN
 template <>
 struct vtkDIYGhostUtilities::DataSetTypeToBlockTypeConverter<vtkImageData>
 {
@@ -98,9 +99,11 @@ struct vtkDIYGhostUtilities::DataSetTypeToBlockTypeConverter<vtkPolyData>
   typedef PolyDataBlock BlockType;
   static constexpr bool IsUnstructuredData = true;
 };
+VTK_ABI_NAMESPACE_END
 
 namespace vtkDIYGhostUtilities_detail
 {
+VTK_ABI_NAMESPACE_BEGIN
 //============================================================================
 template <class ValueT, bool IsIntegerT = std::numeric_limits<ValueT>::is_integer>
 struct Limits;
@@ -333,7 +336,10 @@ vtkSmartPointer<DataSetT> RemoveGhostArraysIfNeeded(
   }
   return ds;
 }
+VTK_ABI_NAMESPACE_END
 } // namesapce vtkDIYGhostUtilities_detail
+
+VTK_ABI_NAMESPACE_BEGIN
 
 //----------------------------------------------------------------------------
 template <class DataSetT>
@@ -697,4 +703,5 @@ int vtkDIYGhostUtilities::GenerateGhostCells(std::vector<DataSetT*>& inputs,
   return 1;
 }
 
+VTK_ABI_NAMESPACE_END
 #endif

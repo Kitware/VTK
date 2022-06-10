@@ -28,6 +28,7 @@
 #include "vtkObject.h"
 #include "vtkRenderingSceneGraphModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkViewNode;
 
 class VTKRENDERINGSCENEGRAPH_EXPORT vtkViewNodeFactory : public vtkObject
@@ -60,4 +61,5 @@ private:
   vtkInternals* Internals;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

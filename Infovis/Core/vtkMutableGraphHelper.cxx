@@ -24,6 +24,7 @@
 #include "vtkMutableUndirectedGraph.h"
 #include "vtkObjectFactory.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkCxxSetObjectMacro(vtkMutableGraphHelper, InternalGraph, vtkGraph);
 vtkStandardNewMacro(vtkMutableGraphHelper);
 //------------------------------------------------------------------------------
@@ -195,3 +196,4 @@ void vtkMutableGraphHelper::PrintSelf(ostream& os, vtkIndent indent)
     this->InternalGraph->PrintSelf(os, indent.GetNextIndent());
   }
 }
+VTK_ABI_NAMESPACE_END

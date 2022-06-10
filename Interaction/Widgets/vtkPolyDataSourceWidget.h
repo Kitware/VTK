@@ -40,6 +40,7 @@
 #include "vtk3DWidget.h"
 #include "vtkInteractionWidgetsModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPolyDataAlgorithm;
 
 class VTKINTERACTIONWIDGETS_EXPORT vtkPolyDataSourceWidget : public vtk3DWidget
@@ -103,4 +104,5 @@ private:
   void operator=(const vtkPolyDataSourceWidget&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

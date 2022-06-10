@@ -19,6 +19,7 @@
 #endif
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkInformationDataObjectKey::vtkInformationDataObjectKey(const char* name, const char* location)
   : vtkInformationKey(name, location)
 {
@@ -63,3 +64,4 @@ void vtkInformationDataObjectKey::Report(vtkInformation* info, vtkGarbageCollect
 {
   this->ReportAsObjectBase(info, collector);
 }
+VTK_ABI_NAMESPACE_END

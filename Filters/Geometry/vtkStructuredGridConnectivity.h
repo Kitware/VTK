@@ -48,6 +48,7 @@
 #include <vector>   // For STL vector
 
 // Forward Declarations
+VTK_ABI_NAMESPACE_BEGIN
 class vtkIdList;
 class vtkUnsignedCharArray;
 class vtkPointData;
@@ -999,4 +1000,5 @@ inline void vtkStructuredGridConnectivity::SetNumberOfGrids(const unsigned int N
   this->Neighbors.resize(N);
   this->BlockTopology.resize(N);
 }
+VTK_ABI_NAMESPACE_END
 #endif /* vtkStructuredGridConnectivity_h */

@@ -22,6 +22,7 @@
 #include "vtkPointData.h"
 #include "vtkPoints.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkVertex);
 
 //------------------------------------------------------------------------------
@@ -260,3 +261,4 @@ void vtkVertex::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

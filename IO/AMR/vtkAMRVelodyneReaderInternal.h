@@ -32,6 +32,7 @@
 #include <unordered_map>
 #include <vector>
 
+#include "vtkABINamespace.h"
 #include "vtkByteSwap.h"
 #include "vtkCellData.h"
 #include "vtkDataArray.h"
@@ -48,6 +49,7 @@
 //================================================================================
 //                          INTERNAL VELODYNE READER
 //================================================================================
+VTK_ABI_NAMESPACE_BEGIN
 
 class vtkAMRVelodyneReaderInternal
 {
@@ -98,5 +100,6 @@ private:
   std::unordered_map<std::string, int> typeMap;
   std::unordered_map<std::string, int> arrayMap;
 };
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkAMRVelodyneReaderInternal.h

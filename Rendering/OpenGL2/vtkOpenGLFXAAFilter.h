@@ -46,6 +46,7 @@
 
 #include <string> // For std::string
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkFXAAOptions;
 class vtkOpenGLRenderer;
 class vtkOpenGLRenderTimer;
@@ -148,4 +149,5 @@ private:
   void operator=(const vtkOpenGLFXAAFilter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkOpenGLFXAAFilter_h

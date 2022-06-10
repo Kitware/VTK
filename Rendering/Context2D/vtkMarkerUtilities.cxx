@@ -21,6 +21,7 @@
 #include <cmath>
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkMarkerUtilities::vtkMarkerUtilities() = default;
 
 //------------------------------------------------------------------------------
@@ -185,3 +186,4 @@ void vtkMarkerUtilities::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

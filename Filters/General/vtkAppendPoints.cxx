@@ -28,6 +28,7 @@
 #include <set>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkAppendPoints);
 
 //------------------------------------------------------------------------------
@@ -209,3 +210,4 @@ int vtkAppendPoints::FillInputPortInformation(int port, vtkInformation* info)
   info->Set(vtkAlgorithm::INPUT_IS_OPTIONAL(), 1);
   return 1;
 }
+VTK_ABI_NAMESPACE_END

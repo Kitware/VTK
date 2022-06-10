@@ -59,6 +59,7 @@
 #include "vtkActor.h"
 #include "vtkRenderingLODModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkMapper;
 class vtkMapperCollection;
 class vtkPolyDataAlgorithm;
@@ -163,4 +164,5 @@ private:
   void operator=(const vtkLODActor&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -28,6 +28,7 @@
 #include <memory>
 #include <sstream>
 
+VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
 // When exporting a VTK render window, we must also write the datasets
@@ -202,3 +203,4 @@ void vtkJSONRenderWindowExporter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

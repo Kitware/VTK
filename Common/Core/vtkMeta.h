@@ -16,6 +16,8 @@
 #ifndef vtkMeta_h
 #define vtkMeta_h
 
+#include "vtkABINamespace.h"
+
 #include <type_traits>
 #include <utility>
 
@@ -26,17 +28,20 @@
  */
 
 // Forward decs for StripPointers:
+VTK_ABI_NAMESPACE_BEGIN
 template <typename ArrayType>
 class vtkNew;
 template <typename ArrayType>
 class vtkSmartPointer;
 template <typename ArrayType>
 class vtkWeakPointer;
+VTK_ABI_NAMESPACE_END
 
 namespace vtk
 {
 namespace detail
 {
+VTK_ABI_NAMESPACE_BEGIN
 
 //------------------------------------------------------------------------------
 // Strip vtkNew, vtkSmartPointer, etc from a type.
@@ -86,6 +91,7 @@ public:
   static constexpr bool value = bool_constant::value;
 };
 
+VTK_ABI_NAMESPACE_END
 }
 } // end namespace vtk::detail
 

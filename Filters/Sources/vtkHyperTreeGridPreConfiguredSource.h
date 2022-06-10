@@ -26,6 +26,7 @@
 #ifndef vtkHyperTreeGridPreConfiguredSource_h
 #define vtkHyperTreeGridPreConfiguredSource_h
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkHyperTreeGrid;
 class vtkHyperTreeGridNonOrientedCursor;
 class vtkDoubleArray;
@@ -192,5 +193,6 @@ protected:
   ///@}
 
 }; // vtkHyperTreeGridPreConfiguredSource
+VTK_ABI_NAMESPACE_END
 
 #endif // vtkHyperTreeGridPreConfiguredSource_h

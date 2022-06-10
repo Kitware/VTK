@@ -31,6 +31,7 @@
 #include "vtkVector.h"
 #include "vtkVectorOperators.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
 float vtkComputePosition(int alignment, float pos, float size, int vp_size, int margin)
@@ -275,3 +276,4 @@ void vtkBlockItem::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

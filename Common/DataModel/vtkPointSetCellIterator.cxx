@@ -20,6 +20,7 @@
 #include "vtkPointSet.h"
 #include "vtkPoints.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPointSetCellIterator);
 
 //------------------------------------------------------------------------------
@@ -94,3 +95,4 @@ void vtkPointSetCellIterator::FetchPoints()
   vtkIdList* pointIds = this->GetPointIds();
   this->PointSetPoints->GetPoints(pointIds, this->Points);
 }
+VTK_ABI_NAMESPACE_END

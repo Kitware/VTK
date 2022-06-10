@@ -30,6 +30,7 @@
 
 #include <string> // for std::string
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkAbstractArray;
 class vtkCallbackCommand;
 class vtkCommand;
@@ -451,4 +452,5 @@ private:
   vtkCommand* ParserErrorObserver;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

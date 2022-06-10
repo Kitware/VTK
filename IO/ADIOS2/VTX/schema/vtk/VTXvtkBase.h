@@ -38,6 +38,7 @@ namespace vtx
 {
 namespace schema
 {
+VTK_ABI_NAMESPACE_BEGIN
 
 class VTXvtkBase : public VTXSchema
 {
@@ -66,6 +67,7 @@ protected:
   std::string DataSetType(const types::DataSetType type) const noexcept;
 };
 
+VTK_ABI_NAMESPACE_END
 } // end namespace schema
 } // end namespace vtx
 

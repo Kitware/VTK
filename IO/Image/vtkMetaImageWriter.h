@@ -70,6 +70,7 @@ namespace vtkmetaio
 class MetaImage;
 } // forward declaration
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKIOIMAGE_EXPORT vtkMetaImageWriter : public vtkImageWriter
 {
 public:
@@ -120,4 +121,5 @@ private:
   vtkmetaio::MetaImage* MetaImagePtr;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

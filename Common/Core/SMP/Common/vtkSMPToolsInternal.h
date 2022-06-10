@@ -25,6 +25,7 @@ namespace detail
 {
 namespace smp
 {
+VTK_ABI_NAMESPACE_BEGIN
 
 template <typename InputIt, typename OutputIt, typename Functor>
 class UnaryTransformCall
@@ -100,6 +101,8 @@ public:
 
   T operator()(T vtkNotUsed(inValue)) { return Value; }
 };
+
+VTK_ABI_NAMESPACE_END
 
 } // namespace smp
 } // namespace detail

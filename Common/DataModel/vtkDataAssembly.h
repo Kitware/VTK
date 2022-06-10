@@ -125,6 +125,7 @@
 #include <string> // for std::string
 #include <vector> // for std::vector
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataAssemblyVisitor;
 
 class VTKCOMMONDATAMODEL_EXPORT vtkDataAssembly : public vtkObject
@@ -474,4 +475,5 @@ private:
   std::unique_ptr<vtkInternals> Internals;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

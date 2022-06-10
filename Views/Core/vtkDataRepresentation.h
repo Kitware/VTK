@@ -53,6 +53,7 @@
 #include "vtkPassInputTypeAlgorithm.h"
 #include "vtkViewsCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkAlgorithmOutput;
 class vtkAnnotationLayers;
 class vtkAnnotationLink;
@@ -324,4 +325,5 @@ private:
   Internals* Implementation;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -26,6 +26,7 @@
 #include "vtkAlgorithm.h"
 #include "vtkFiltersParallelModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataObject;
 
 class VTKFILTERSPARALLEL_EXPORT vtkPieceRequestFilter : public vtkAlgorithm
@@ -95,4 +96,5 @@ private:
   void operator=(const vtkPieceRequestFilter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

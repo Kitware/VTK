@@ -29,6 +29,7 @@
 #define ENABLE_CACHING
 #define SEVEN_POINT_TRIANGLE
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkLagrangeTriangle);
 //------------------------------------------------------------------------------
 vtkLagrangeTriangle::vtkLagrangeTriangle() = default;
@@ -210,3 +211,4 @@ vtkHigherOrderCurve* vtkLagrangeTriangle::GetEdgeCell()
 {
   return EdgeCell;
 }
+VTK_ABI_NAMESPACE_END

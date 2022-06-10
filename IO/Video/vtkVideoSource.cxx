@@ -66,6 +66,7 @@
 // Finally, when Execute() is reading from the FrameBuffer it must do
 // so from within a mutex lock.  Otherwise tearing artifacts might result.
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkVideoSource);
 
 #if defined(_MSC_VER)
@@ -1195,3 +1196,4 @@ int vtkVideoSource::RequestData(vtkInformation* vtkNotUsed(request),
 
   return 1;
 }
+VTK_ABI_NAMESPACE_END

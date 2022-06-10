@@ -22,6 +22,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkWidgetCallbackMapper.h"
 #include "vtkWidgetEvent.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkVRMenuWidget);
 
 class vtkVRMenuWidget::InternalElement
@@ -249,3 +250,4 @@ void vtkVRMenuWidget::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "WidgetState: " << this->WidgetState << "\n";
 }
+VTK_ABI_NAMESPACE_END

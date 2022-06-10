@@ -83,6 +83,7 @@
 //// This may or may not work with the netCDF 4 library reading in netCDF 3 files.
 //#define nc_get_vars_vtkIdType nc_get_vars_longlong
 //#else // NC_INT64
+VTK_ABI_NAMESPACE_BEGIN
 static int nc_get_vars_vtkIdType(int ncid, int varid, const size_t start[], const size_t count[],
   const ptrdiff_t stride[], vtkIdType* ip)
 {
@@ -111,12 +112,14 @@ static int nc_get_vars_vtkIdType(int ncid, int varid, const size_t start[], cons
 
   return NC_NOERR;
 }
+VTK_ABI_NAMESPACE_END
 //#endif // NC_INT64
 #else // VTK_USE_64_BIT_IDS
 #define nc_get_vars_vtkIdType nc_get_vars_int
 #endif // VTK_USE_64BIT_IDS
 
 //=============================================================================
+VTK_ABI_NAMESPACE_BEGIN
 static int NetCDFTypeToVTKType(nc_type type)
 {
   switch (type)
@@ -210,7 +213,7 @@ static void SynchronizeBlocks(vtkMultiBlockDataSet* blocks, vtkMultiProcessContr
 //=============================================================================
 // Structures used by ReadMidpointCoordinates to store and transfer midpoint
 // information.
-namespace vtkPSLACReaderTypes
+namespace
 {
 struct EdgeEndpointsHash
 {
@@ -318,7 +321,6 @@ static void GatherMidpoints(vtkMultiProcessController* controller,
     &topologyLengths.at(0), &topologyOffsets.at(0), process);
 }
 };
-using namespace vtkPSLACReaderTypes;
 
 //------------------------------------------------------------------------------
 // Simple hash function for vtkIdType.
@@ -1163,3 +1165,4 @@ int vtkPSLACReader::MeshUpToDate()
   this->Controller->AllReduce(&localflag, &globalflag, 1, vtkCommunicator::LOGICAL_AND_OP);
   return globalflag;
 }
+VTK_ABI_NAMESPACE_END

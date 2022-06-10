@@ -22,6 +22,7 @@
 #include "vtkVariantArray.h"
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkCategoryLegend);
 vtkCxxSetObjectMacro(vtkCategoryLegend, Values, vtkVariantArray);
 
@@ -301,3 +302,4 @@ void vtkCategoryLegend::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "TitleProperties: \n";
   this->TitleProperties->PrintSelf(os, indent.GetNextIndent());
 }
+VTK_ABI_NAMESPACE_END

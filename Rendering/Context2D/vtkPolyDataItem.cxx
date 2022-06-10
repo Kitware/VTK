@@ -23,6 +23,7 @@
 #include "vtkPolyData.h"
 #include "vtkUnsignedCharArray.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPolyDataItem);
 
 vtkCxxSetObjectMacro(vtkPolyDataItem, PolyData, vtkPolyData);
@@ -127,3 +128,4 @@ void vtkPolyDataItem::PrintSelf(ostream& os, vtkIndent indent)
 {
   Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

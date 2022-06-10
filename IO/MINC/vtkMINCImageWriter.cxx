@@ -90,6 +90,7 @@ POSSIBILITY OF SUCH DAMAGES.
 #define VTK_MINC_MAX_DIMS 8
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkMINCImageWriter);
 
 vtkCxxSetObjectMacro(vtkMINCImageWriter, DirectionCosines, vtkMatrix4x4);
@@ -2106,3 +2107,4 @@ int vtkMINCImageWriter::RequestData(vtkInformation* vtkNotUsed(request),
 
   return 1;
 }
+VTK_ABI_NAMESPACE_END

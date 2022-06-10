@@ -15,6 +15,7 @@
 #include "vtkImagePermute.h"
 #include "vtkObjectFactory.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImagePermute);
 
 vtkImagePermute::vtkImagePermute()
@@ -42,3 +43,4 @@ void vtkImagePermute::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "FilteredAxes: ( " << this->FilteredAxes[0] << ", " << this->FilteredAxes[1]
      << ", " << this->FilteredAxes[2] << " )\n";
 }
+VTK_ABI_NAMESPACE_END

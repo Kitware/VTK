@@ -24,6 +24,7 @@
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImageImportExecutive);
 
 //------------------------------------------------------------------------------
@@ -45,3 +46,4 @@ vtkTypeBool vtkImageImportExecutive::ProcessRequest(
 
   return this->Superclass::ProcessRequest(request, inInfoVec, outInfoVec);
 }
+VTK_ABI_NAMESPACE_END

@@ -27,6 +27,7 @@
 #include "vtkFiltersParallelModule.h" // For export macro
 #include "vtkMaskPoints.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkMultiProcessController;
 
 class VTKFILTERSPARALLEL_EXPORT vtkPMaskPoints : public vtkMaskPoints
@@ -66,4 +67,5 @@ private:
   void operator=(const vtkPMaskPoints&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

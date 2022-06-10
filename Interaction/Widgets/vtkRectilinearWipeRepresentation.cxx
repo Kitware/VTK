@@ -30,6 +30,7 @@
 #include "vtkProperty2D.h"
 #include "vtkRenderer.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkRectilinearWipeRepresentation);
 
 vtkCxxSetObjectMacro(vtkRectilinearWipeRepresentation, RectilinearWipe, vtkImageRectilinearWipe);
@@ -488,3 +489,4 @@ void vtkRectilinearWipeRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Tolerance: " << this->Tolerance << "\n";
 }
+VTK_ABI_NAMESPACE_END

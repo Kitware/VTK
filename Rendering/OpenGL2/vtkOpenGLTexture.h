@@ -27,6 +27,7 @@
 #include "vtkTexture.h"
 #include "vtkWeakPointer.h" // needed for vtkWeakPointer.
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkRenderWindow;
 class vtkTextureObject;
 
@@ -121,4 +122,5 @@ private:
   void operator=(const vtkOpenGLTexture&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

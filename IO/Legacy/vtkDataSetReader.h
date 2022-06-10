@@ -37,6 +37,7 @@
 #include "vtkDataReader.h"
 #include "vtkIOLegacyModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataSet;
 class vtkPolyData;
 class vtkRectilinearGrid;
@@ -103,4 +104,5 @@ private:
   void operator=(const vtkDataSetReader&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

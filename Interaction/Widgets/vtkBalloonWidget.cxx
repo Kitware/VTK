@@ -32,6 +32,7 @@
 #include <cassert>
 #include <map>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkBalloonWidget);
 
 //-- Define the PIMPLd array of vtkProp and vtkString --
@@ -361,3 +362,4 @@ void vtkBalloonWidget::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Picker: " << this->Picker << "\n";
 }
+VTK_ABI_NAMESPACE_END

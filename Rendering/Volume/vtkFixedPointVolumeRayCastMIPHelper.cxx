@@ -27,6 +27,7 @@
 
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkFixedPointVolumeRayCastMIPHelper);
 
 // Construct a new vtkFixedPointVolumeRayCastMIPHelper with default values
@@ -666,3 +667,4 @@ void vtkFixedPointVolumeRayCastMIPHelper::PrintSelf(ostream& os, vtkIndent inden
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

@@ -27,6 +27,7 @@
 #include "vtkIOXMLModule.h" // For export macro
 #include "vtkXMLParser.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKIOXML_EXPORT vtkXMLFileReadTester : public vtkXMLParser
 {
 public:
@@ -80,4 +81,5 @@ private:
   void operator=(const vtkXMLFileReadTester&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

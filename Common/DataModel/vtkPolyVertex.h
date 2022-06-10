@@ -26,6 +26,7 @@
 #include "vtkCell.h"
 #include "vtkCommonDataModelModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkVertex;
 class vtkIncrementalPointLocator;
 
@@ -80,4 +81,5 @@ private:
   void operator=(const vtkPolyVertex&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

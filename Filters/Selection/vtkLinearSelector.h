@@ -33,6 +33,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkFiltersSelectionModule.h" // For export macro
 #include "vtkSelectionAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkAlgorithmOutput;
 class vtkDataSet;
 class vtkDoubleArray;
@@ -150,4 +151,5 @@ private:
   ///@}
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkLinearSelector_h

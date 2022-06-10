@@ -25,6 +25,7 @@
 #include "vtkRenderingRayTracingModule.h" // For export macro
 #include "vtkVolumeNode.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkVolume;
 class vtkCompositeDataDisplayAttributes;
 class vtkDataArray;
@@ -55,4 +56,5 @@ private:
   vtkOSPRayVolumeNode(const vtkOSPRayVolumeNode&) = delete;
   void operator=(const vtkOSPRayVolumeNode&) = delete;
 };
+VTK_ABI_NAMESPACE_END
 #endif

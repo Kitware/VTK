@@ -24,6 +24,7 @@
 #include <iostream>
 #include <numeric>
 
+VTK_ABI_NAMESPACE_BEGIN
 constexpr int MAX_NCOMPS = 4;
 using max_ncomps_array_t = std::array<int, MAX_NCOMPS>;
 
@@ -567,3 +568,4 @@ void vtkImageDifference::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "AllowShift: " << this->AllowShift << "\n";
   os << indent << "Averaging: " << this->Averaging << "\n";
 }
+VTK_ABI_NAMESPACE_END

@@ -27,6 +27,7 @@
 
 #include <cstddef>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImageBSplineCoefficients);
 
 //------------------------------------------------------------------------------
@@ -527,3 +528,4 @@ double vtkImageBSplineCoefficients::Evaluate(double x, double y, double z)
 
   return 0;
 }
+VTK_ABI_NAMESPACE_END

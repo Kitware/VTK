@@ -27,6 +27,7 @@
 
 #include "vtkFiltersParallelModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
+VTK_ABI_NAMESPACE_BEGIN
 class vtkSocketController;
 class vtkMultiProcessController;
 
@@ -109,4 +110,5 @@ private:
   void operator=(const vtkDuplicatePolyData&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

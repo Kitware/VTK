@@ -36,6 +36,7 @@
 #include "vtkChartsCoreModule.h" // For export macro
 #include "vtkPlotPoints.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPen;
 
 class VTKCHARTSCORE_EXPORT vtkPlotBag : public vtkPlotPoints
@@ -140,4 +141,5 @@ private:
   void operator=(const vtkPlotBag&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkPlotBag_h

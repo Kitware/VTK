@@ -29,6 +29,7 @@
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkPointSetAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSGENERAL_EXPORT vtkWarpVector : public vtkPointSetAlgorithm
 {
 public:
@@ -78,4 +79,5 @@ private:
   void operator=(const vtkWarpVector&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

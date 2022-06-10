@@ -41,6 +41,7 @@ namespace vtx
 {
 namespace schema
 {
+VTK_ABI_NAMESPACE_BEGIN
 
 VTXvtkVTI::VTXvtkVTI(const std::string& schema, adios2::IO& io, adios2::Engine& engine)
   : VTXvtkBase("vti", schema, io, engine)
@@ -257,5 +258,6 @@ adios2::Box<adios2::Dims> VTXvtkVTI::GetSelection(const types::DataSetType type)
 VTK_IO_ADIOS2_VTX_ARRAY_TYPE(declare_type)
 #undef declare_type
 
+VTK_ABI_NAMESPACE_END
 } // end namespace schema
 } // end namespace vtx

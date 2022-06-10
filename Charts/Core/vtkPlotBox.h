@@ -28,6 +28,7 @@
 #include "vtkChartsCoreModule.h" // For export macro
 #include "vtkPlot.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkBrush;
 class vtkTextProperty;
 class vtkTable;
@@ -160,4 +161,5 @@ private:
   void operator=(const vtkPlotBox&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkPlotBox_h

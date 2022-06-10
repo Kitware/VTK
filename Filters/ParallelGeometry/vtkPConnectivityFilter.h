@@ -139,6 +139,7 @@
 #include "vtkConnectivityFilter.h"
 #include "vtkFiltersParallelGeometryModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSPARALLELGEOMETRY_EXPORT vtkPConnectivityFilter : public vtkConnectivityFilter
 {
 public:
@@ -158,4 +159,5 @@ private:
   void operator=(const vtkPConnectivityFilter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

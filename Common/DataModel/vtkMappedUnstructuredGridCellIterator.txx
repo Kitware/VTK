@@ -20,6 +20,7 @@
 #include "vtkPoints.h"
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 template <class Implementation>
 vtkMappedUnstructuredGridCellIterator<Implementation>*
 vtkMappedUnstructuredGridCellIterator<Implementation>::New()
@@ -132,3 +133,4 @@ void vtkMappedUnstructuredGridCellIterator<Implementation>::SetMappedUnstructure
     this->Points->SetDataType(this->GridPoints->GetDataType());
   }
 }
+VTK_ABI_NAMESPACE_END

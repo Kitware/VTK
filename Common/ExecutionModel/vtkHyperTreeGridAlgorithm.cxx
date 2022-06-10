@@ -26,6 +26,7 @@
 #include "vtkUnstructuredGrid.h"
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkHyperTreeGridAlgorithm::vtkHyperTreeGridAlgorithm()
 {
   // By default, only one input and one output ports
@@ -300,3 +301,4 @@ void vtkHyperTreeGridAlgorithm::AddInputData(int index, vtkDataObject* input)
 {
   this->AddInputDataInternal(index, input);
 }
+VTK_ABI_NAMESPACE_END

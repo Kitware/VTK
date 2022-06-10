@@ -40,6 +40,7 @@
 
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkGhostCellsGenerator);
 vtkCxxSetObjectMacro(vtkGhostCellsGenerator, Controller, vtkMultiProcessController);
 
@@ -225,3 +226,4 @@ void vtkGhostCellsGenerator::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
   os << indent << "Controller: " << this->Controller << endl;
 }
+VTK_ABI_NAMESPACE_END

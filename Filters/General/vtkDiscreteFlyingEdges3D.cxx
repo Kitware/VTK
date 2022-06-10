@@ -33,6 +33,7 @@
 
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkDiscreteFlyingEdges3D);
 
 //------------------------------------------------------------------------------
@@ -1561,3 +1562,4 @@ void vtkDiscreteFlyingEdges3D::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Interpolate Attributes: " << (this->InterpolateAttributes ? "On\n" : "Off\n");
   os << indent << "ArrayComponent: " << this->ArrayComponent << endl;
 }
+VTK_ABI_NAMESPACE_END

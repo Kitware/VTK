@@ -29,6 +29,7 @@
 #include "vtkAbstractPointLocator.h"
 #include "vtkCommonDataModelModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkIdList;
 class vtkKdTree;
 
@@ -96,4 +97,5 @@ private:
   void operator=(const vtkKdTreePointLocator&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

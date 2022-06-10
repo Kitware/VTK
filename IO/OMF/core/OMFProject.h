@@ -17,13 +17,18 @@
 #ifndef OMFProject_h
 #define OMFProject_h
 
+#include "vtkABINamespace.h"
+
 #include <memory> // for std::unique_ptr
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataArraySelection;
 class vtkPartitionedDataSetCollection;
+VTK_ABI_NAMESPACE_END
 
 namespace omf
 {
+VTK_ABI_NAMESPACE_BEGIN
 
 class OMFProject
 {
@@ -50,6 +55,7 @@ private:
   std::unique_ptr<ProjectImpl> Impl;
 };
 
+VTK_ABI_NAMESPACE_END
 } // end namespace omf
 
 #endif

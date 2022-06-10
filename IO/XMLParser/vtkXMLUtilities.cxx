@@ -31,6 +31,7 @@
 
 typedef std::vector<vtkXMLDataElement*> vtkXMLUtilitiesDataElementContainer;
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkXMLUtilities);
 
 void vtkXMLUtilities::PrintSelf(ostream& os, vtkIndent indent)
@@ -703,3 +704,4 @@ int vtkXMLUtilities::UnFactorElementsInternal(vtkXMLDataElement* tree, vtkXMLDat
 
   return res ? 1 : 0;
 }
+VTK_ABI_NAMESPACE_END

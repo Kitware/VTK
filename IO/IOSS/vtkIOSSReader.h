@@ -177,6 +177,7 @@
 
 #include <map> // for std::map
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataArraySelection;
 class vtkDataAssembly;
 class vtkMultiProcessController;
@@ -631,4 +632,5 @@ private:
   static vtkInformationIntegerKey* ENTITY_TYPE();
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -26,6 +26,7 @@
 #include "vtkSystemIncludes.h"
 
 // The superclass that all commands should be subclasses of
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONMISC_EXPORT vtkErrorCode
 {
 public:
@@ -54,6 +55,7 @@ public:
   };
 };
 
+VTK_ABI_NAMESPACE_END
 #endif /* vtkErrorCode_h */
 
 // VTK-HeaderTest-Exclude: vtkErrorCode.h

@@ -47,6 +47,7 @@
 using EdgeToPointMap = std::map<std::pair<vtkIdType, vtkIdType>, vtkIdType>;
 using TriangleFaceToPointMap = std::map<std::tuple<vtkIdType, vtkIdType, vtkIdType>, vtkIdType>;
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkCellTypeSource);
 
 namespace
@@ -2615,3 +2616,4 @@ void vtkCellTypeSource::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "OutputPrecision: " << this->OutputPrecision << "\n";
   os << indent << "PolynomialFieldOrder: " << this->PolynomialFieldOrder << "\n";
 }
+VTK_ABI_NAMESPACE_END

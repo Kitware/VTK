@@ -16,6 +16,7 @@
 #include "vtkMultiProcessController.h"
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkProcess::vtkProcess()
 {
   this->Controller = nullptr;
@@ -60,3 +61,4 @@ void vtkProcess::PrintSelf(ostream& os, vtkIndent indent)
     os << "(none)" << endl;
   }
 }
+VTK_ABI_NAMESPACE_END

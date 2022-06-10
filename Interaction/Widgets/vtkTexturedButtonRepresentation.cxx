@@ -34,6 +34,7 @@
 #include "vtkTexture.h"
 #include <map>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkTexturedButtonRepresentation);
 
 vtkCxxSetObjectMacro(vtkTexturedButtonRepresentation, Property, vtkProperty);
@@ -478,3 +479,4 @@ void vtkTexturedButtonRepresentation::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Selecting Property: (none)\n";
   }
 }
+VTK_ABI_NAMESPACE_END

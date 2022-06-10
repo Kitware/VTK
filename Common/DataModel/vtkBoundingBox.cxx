@@ -27,6 +27,7 @@
 #include <cmath>
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
 inline double Sign(const double& a)
@@ -991,3 +992,4 @@ void vtkBoundingBox::ComputeLocalBounds(
   }
   bbox.GetBounds(outputBounds);
 }
+VTK_ABI_NAMESPACE_END

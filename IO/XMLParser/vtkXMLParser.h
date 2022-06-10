@@ -29,6 +29,7 @@
 #include "vtkIOXMLParserModule.h" // For export macro
 #include "vtkObject.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 extern "C"
 {
   void vtkXMLParserStartElement(void*, const char*, const char**);
@@ -220,4 +221,5 @@ inline void vtkXMLParserCharacterDataHandler(void* parser, const char* data, int
   static_cast<vtkXMLParser*>(parser)->CharacterDataHandler(data, length);
 }
 
+VTK_ABI_NAMESPACE_END
 #endif

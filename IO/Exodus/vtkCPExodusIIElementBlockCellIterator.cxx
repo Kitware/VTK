@@ -22,6 +22,7 @@
 
 #include <algorithm>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkCPExodusIIElementBlockCellIterator);
 
 //------------------------------------------------------------------------------
@@ -109,3 +110,4 @@ void vtkCPExodusIIElementBlockCellIterator::SetStorage(vtkCPExodusIIElementBlock
   }
   this->CellId = 0;
 }
+VTK_ABI_NAMESPACE_END

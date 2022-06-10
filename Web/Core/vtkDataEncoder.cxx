@@ -40,6 +40,7 @@
 
 namespace detail
 {
+VTK_ABI_NAMESPACE_BEGIN
 
 struct vtkWork
 {
@@ -221,8 +222,10 @@ public:
     });
   }
 };
+VTK_ABI_NAMESPACE_END
 } // namespace detail
 
+VTK_ABI_NAMESPACE_BEGIN
 //****************************************************************************
 class vtkDataEncoder::vtkInternals
 {
@@ -338,3 +341,4 @@ void vtkDataEncoder::Finalize()
 {
   this->Internals.reset(new vtkDataEncoder::vtkInternals(0));
 }
+VTK_ABI_NAMESPACE_END

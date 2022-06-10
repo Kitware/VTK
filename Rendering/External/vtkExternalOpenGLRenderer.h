@@ -37,6 +37,7 @@
 #include "vtkRenderingExternalModule.h" // For export macro
 
 // Forward declarations
+VTK_ABI_NAMESPACE_BEGIN
 class vtkLightCollection;
 class vtkExternalLight;
 
@@ -120,4 +121,5 @@ private:
   void operator=(const vtkExternalOpenGLRenderer&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkExternalOpenGLRenderer_h

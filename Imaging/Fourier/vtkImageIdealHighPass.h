@@ -34,6 +34,7 @@
 #include "vtkImagingFourierModule.h" // For export macro
 #include "vtkThreadedImageAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKIMAGINGFOURIER_EXPORT vtkImageIdealHighPass : public vtkThreadedImageAlgorithm
 {
 public:
@@ -73,4 +74,5 @@ private:
   void operator=(const vtkImageIdealHighPass&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

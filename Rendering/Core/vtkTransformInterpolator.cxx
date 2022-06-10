@@ -23,6 +23,7 @@
 #include "vtkTupleInterpolator.h"
 #include <list>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkTransformInterpolator);
 
 // PIMPL STL encapsulation for list of transforms, and list of
@@ -441,3 +442,4 @@ void vtkTransformInterpolator::PrintSelf(ostream& os, vtkIndent indent)
     os << "(null)\n";
   }
 }
+VTK_ABI_NAMESPACE_END

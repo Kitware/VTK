@@ -37,6 +37,7 @@
 #include "vtkDomainsChemistryModule.h" // For export macro
 #include "vtkMoleculeToPolyDataFilter.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkMolecule;
 
 class VTKDOMAINSCHEMISTRY_EXPORT vtkMoleculeToAtomBallFilter : public vtkMoleculeToPolyDataFilter
@@ -78,4 +79,5 @@ private:
   void operator=(const vtkMoleculeToAtomBallFilter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

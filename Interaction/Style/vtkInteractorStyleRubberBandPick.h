@@ -36,6 +36,7 @@
 #include "vtkInteractionStyleModule.h" // For export macro
 #include "vtkInteractorStyleTrackballCamera.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkUnsignedCharArray;
 
 class VTKINTERACTIONSTYLE_EXPORT vtkInteractorStyleRubberBandPick
@@ -79,4 +80,5 @@ private:
   void operator=(const vtkInteractorStyleRubberBandPick&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

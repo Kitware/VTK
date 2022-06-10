@@ -36,6 +36,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkTree.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkSimple2DLayoutStrategy);
 
 // Cool-down function.
@@ -345,3 +346,4 @@ void vtkSimple2DLayoutStrategy::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Jitter: " << (this->Jitter ? "True" : "False") << endl;
   os << indent << "RestDistance: " << this->RestDistance << endl;
 }
+VTK_ABI_NAMESPACE_END

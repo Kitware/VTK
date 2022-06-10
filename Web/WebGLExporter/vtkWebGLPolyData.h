@@ -23,6 +23,7 @@
 #include "vtkWebGLExporterModule.h" // needed for export macro
 #include "vtkWebGLObject.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkActor;
 class vtkMatrix4x4;
 class vtkMapper;
@@ -73,4 +74,5 @@ private:
   vtkInternal* Internal;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

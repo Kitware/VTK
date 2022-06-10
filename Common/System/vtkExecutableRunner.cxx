@@ -23,6 +23,7 @@
 
 namespace details
 {
+VTK_ABI_NAMESPACE_BEGIN
 // trim strings. This should go in vtksys at some point
 static inline void ltrim(std::string& s)
 {
@@ -78,8 +79,10 @@ std::vector<std::string> ParseCommand(std::string command)
 
   return res;
 }
+VTK_ABI_NAMESPACE_END
 }
 
+VTK_ABI_NAMESPACE_BEGIN
 //------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkExecutableRunner);
 
@@ -194,3 +197,4 @@ void vtkExecutableRunner::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Timeout: " << this->GetTimeout() << std::endl;
   os << indent << "RightTrimResult: " << this->GetRightTrimResult() << std::endl;
 }
+VTK_ABI_NAMESPACE_END

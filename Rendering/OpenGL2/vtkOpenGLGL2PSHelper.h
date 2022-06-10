@@ -31,6 +31,7 @@
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include <string>                      // For string usage
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkActor;
 class vtkImageData;
 class vtkMatrix4x4;
@@ -190,4 +191,5 @@ private:
   void operator=(const vtkOpenGLGL2PSHelper&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkOpenGLGL2PSHelper_h

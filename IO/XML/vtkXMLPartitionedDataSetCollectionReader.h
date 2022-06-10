@@ -32,6 +32,7 @@
 #include "vtkIOXMLModule.h" // For export macro
 #include "vtkXMLCompositeDataReader.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkMultiBlockDataSet;
 
 class VTKIOXML_EXPORT vtkXMLPartitionedDataSetCollectionReader : public vtkXMLCompositeDataReader
@@ -61,4 +62,5 @@ private:
   void operator=(const vtkXMLPartitionedDataSetCollectionReader&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

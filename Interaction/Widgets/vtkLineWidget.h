@@ -71,6 +71,7 @@
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkLineSource.h"               // For passing calls to it
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkActor;
 class vtkPolyDataMapper;
 class vtkPoints;
@@ -290,4 +291,5 @@ private:
   void operator=(const vtkLineWidget&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

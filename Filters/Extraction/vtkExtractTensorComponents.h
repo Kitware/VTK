@@ -61,6 +61,7 @@
 #define VTK_EXTRACT_NONNEGATIVE_DETERMINANT 3
 #define VTK_EXTRACT_TRACE 4
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSEXTRACTION_EXPORT vtkExtractTensorComponents : public vtkDataSetAlgorithm
 {
 public:
@@ -249,4 +250,5 @@ private:
   void operator=(const vtkExtractTensorComponents&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -40,6 +40,7 @@
 
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
 void setOrientation(vtkTransform* trans, const double* orientation)
@@ -526,3 +527,4 @@ vtkTextProperty* vtkOpenGLAvatar::GetLabelTextProperty()
 {
   return this->LabelActor->GetTextProperty();
 }
+VTK_ABI_NAMESPACE_END

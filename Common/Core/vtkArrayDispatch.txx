@@ -23,12 +23,15 @@
 
 #include <utility> // For std::forward
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataArray;
+VTK_ABI_NAMESPACE_END
 
 namespace vtkArrayDispatch
 {
 namespace impl
 {
+VTK_ABI_NAMESPACE_BEGIN
 
 //------------------------------------------------------------------------------
 // Implementation of the single-array dispatch mechanism.
@@ -390,8 +393,10 @@ public:
   }
 };
 
+VTK_ABI_NAMESPACE_END
 } // end namespace impl
 
+VTK_ABI_NAMESPACE_BEGIN
 //------------------------------------------------------------------------------
 // FilterArraysByValueType implementation:
 //------------------------------------------------------------------------------
@@ -764,6 +769,7 @@ public:
   }
 };
 
+VTK_ABI_NAMESPACE_END
 } // end namespace vtkArrayDispatch
 
 #endif // vtkArrayDispatch_txx

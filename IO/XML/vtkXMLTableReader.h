@@ -29,6 +29,7 @@
 
 #include <map> // needed for std::map
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCellArray;
 class vtkIdTypeArray;
 class vtkUnsignedCharArray;
@@ -204,4 +205,5 @@ private:
   void operator=(const vtkXMLTableReader&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -28,6 +28,7 @@
 
 #include "vtkPlot.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCHARTSCORE_EXPORT vtkPlotArea : public vtkPlot
 {
 public:
@@ -130,4 +131,5 @@ private:
   vtkTimeStamp UpdateTime;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

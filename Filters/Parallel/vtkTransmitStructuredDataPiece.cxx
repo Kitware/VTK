@@ -22,6 +22,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkTransmitStructuredDataPiece);
 
 vtkCxxSetObjectMacro(vtkTransmitStructuredDataPiece, Controller, vtkMultiProcessController);
@@ -199,3 +200,4 @@ void vtkTransmitStructuredDataPiece::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Controller: (" << this->Controller << ")\n";
 }
+VTK_ABI_NAMESPACE_END

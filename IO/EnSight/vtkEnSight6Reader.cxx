@@ -33,6 +33,7 @@
 #include <cctype>
 #include <string>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkEnSight6Reader);
 
 //------------------------------------------------------------------------------
@@ -2194,3 +2195,4 @@ void vtkEnSight6Reader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

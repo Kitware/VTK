@@ -25,6 +25,7 @@
 #include "vtkTransform.h"
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkWidgetRepresentation::vtkWidgetRepresentation()
 {
   this->Renderer = nullptr;
@@ -388,3 +389,4 @@ void vtkWidgetRepresentation::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Need to Render: " << (this->NeedToRender ? "On\n" : "Off\n");
   os << indent << "Place Factor: " << this->PlaceFactor << "\n";
 }
+VTK_ABI_NAMESPACE_END

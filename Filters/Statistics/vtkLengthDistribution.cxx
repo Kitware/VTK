@@ -27,6 +27,7 @@
 
 #include <array>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkLengthDistribution);
 
 void vtkLengthDistribution::PrintSelf(ostream& os, vtkIndent indent)
@@ -126,3 +127,4 @@ int vtkLengthDistribution::RequestData(
   }
   return 1;
 }
+VTK_ABI_NAMESPACE_END

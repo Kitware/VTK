@@ -32,6 +32,7 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkVolumeMapper.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkVolumeOutlineSource);
 
 vtkCxxSetObjectMacro(vtkVolumeOutlineSource, VolumeMapper, vtkVolumeMapper);
@@ -768,3 +769,4 @@ void vtkVolumeOutlineSource::CreateColorValues(
     }
   }
 }
+VTK_ABI_NAMESPACE_END

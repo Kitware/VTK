@@ -20,6 +20,7 @@
 #include "vtkPythonUtil.h"
 #include "vtkSmartPyObject.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPythonAlgorithm);
 
 void vtkPythonAlgorithm::PrintSelf(ostream& os, vtkIndent indent)
@@ -239,3 +240,4 @@ int vtkPythonAlgorithm::FillOutputPortInformation(int port, vtkInformation* info
 
   return CheckResult(mname, result);
 }
+VTK_ABI_NAMESPACE_END

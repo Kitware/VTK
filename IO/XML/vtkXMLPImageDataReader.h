@@ -32,6 +32,7 @@
 #include "vtkIOXMLModule.h" // For export macro
 #include "vtkXMLPStructuredDataReader.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkImageData;
 
 class VTKIOXML_EXPORT vtkXMLPImageDataReader : public vtkXMLPStructuredDataReader
@@ -79,4 +80,5 @@ private:
   void operator=(const vtkXMLPImageDataReader&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

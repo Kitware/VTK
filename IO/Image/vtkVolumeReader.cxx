@@ -16,6 +16,7 @@
 
 // Construct object with nullptr file prefix; file pattern "%s.%d"; image range
 // set to (1,1);
+VTK_ABI_NAMESPACE_BEGIN
 vtkVolumeReader::vtkVolumeReader()
 {
   this->FilePrefix = nullptr;
@@ -45,3 +46,4 @@ void vtkVolumeReader::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "FilePattern: " << (this->FilePattern ? this->FilePattern : "(none)") << "\n";
   os << indent << "Image Range: (" << this->ImageRange[0] << ", " << this->ImageRange[1] << ")\n";
 }
+VTK_ABI_NAMESPACE_END

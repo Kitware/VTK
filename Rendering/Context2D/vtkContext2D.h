@@ -30,6 +30,7 @@
 #include "vtkObject.h"
 #include "vtkRenderingContext2DModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkWindow;
 
 class vtkContext3D;
@@ -578,4 +579,5 @@ inline int vtkContext2D::FloatToInt(float x)
   return static_cast<int>(x + tol);
 }
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkContext2D_h

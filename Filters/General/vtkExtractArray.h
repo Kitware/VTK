@@ -35,6 +35,7 @@
 #include "vtkArrayDataAlgorithm.h"
 #include "vtkFiltersGeneralModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSGENERAL_EXPORT vtkExtractArray : public vtkArrayDataAlgorithm
 {
 public:
@@ -65,4 +66,5 @@ private:
   vtkIdType Index;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

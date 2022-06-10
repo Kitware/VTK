@@ -46,6 +46,7 @@
 #include "vtkPolyDataNormals.h"
 #include "vtkmlib/vtkmInitializer.h" // Need for initializing vtk-m
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKACCELERATORSVTKMFILTERS_EXPORT vtkmPolyDataNormals : public vtkPolyDataNormals
 {
 public:
@@ -79,4 +80,5 @@ private:
   vtkmInitializer Initializer;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkmPolyDataNormals_h

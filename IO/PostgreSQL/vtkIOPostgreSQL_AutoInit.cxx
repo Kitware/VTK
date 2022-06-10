@@ -20,6 +20,7 @@
 #include <string>
 
 // Registration of PostgreSQL dynamically with the vtkSQLDatabase factory method.
+VTK_ABI_NAMESPACE_BEGIN
 vtkSQLDatabase* PostgreSQLCreateFunction(const char* URL)
 {
   std::string urlstr(URL ? URL : "");
@@ -50,3 +51,4 @@ VTKIOPOSTGRESQL_EXPORT void vtkIOPostgreSQL_AutoInit_Construct()
     vtkSQLDatabase::RegisterCreateFromURLCallback(PostgreSQLCreateFunction);
   }
 }
+VTK_ABI_NAMESPACE_END

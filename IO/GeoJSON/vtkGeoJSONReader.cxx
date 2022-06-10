@@ -38,6 +38,7 @@
 #include <iostream>
 #include <sstream>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkGeoJSONReader);
 
 //------------------------------------------------------------------------------
@@ -473,3 +474,4 @@ void vtkGeoJSONReader::PrintSelf(ostream& os, vtkIndent indent)
   os << "vtkGeoJSONReader" << std::endl;
   os << "Filename: " << this->FileName << std::endl;
 }
+VTK_ABI_NAMESPACE_END

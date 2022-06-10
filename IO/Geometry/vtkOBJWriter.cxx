@@ -32,6 +32,7 @@
 
 #include <utility>
 
+VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
 //------------------------------------------------------------------------------
@@ -425,3 +426,4 @@ int vtkOBJWriter::FillInputPortInformation(int port, vtkInformation* info)
   }
   return 0;
 }
+VTK_ABI_NAMESPACE_END

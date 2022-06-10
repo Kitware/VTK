@@ -45,6 +45,7 @@
 #include "vtkRenderingCoreModule.h" // For export macro
 
 /* need for virtual function */
+VTK_ABI_NAMESPACE_BEGIN
 class vtkInformation;
 class vtkRenderer;
 class vtkMatrix4x4;
@@ -323,4 +324,5 @@ private:
   void operator=(const vtkLight&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

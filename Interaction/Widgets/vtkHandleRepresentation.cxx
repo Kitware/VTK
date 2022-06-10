@@ -23,6 +23,7 @@
 
 #include <cassert>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkCxxSetObjectMacro(vtkHandleRepresentation, PointPlacer, vtkPointPlacer);
 
 //------------------------------------------------------------------------------
@@ -298,3 +299,4 @@ void vtkHandleRepresentation::PrintSelf(ostream& os, vtkIndent indent)
   // this->InteractionState is printed in superclass
   // this is commented to avoid PrintSelf errors
 }
+VTK_ABI_NAMESPACE_END

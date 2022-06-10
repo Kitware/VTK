@@ -36,6 +36,7 @@
 #include "vtkTreeDFSIterator.h"
 #include "vtkTreeFieldAggregator.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkAreaLayout);
 vtkCxxSetObjectMacro(vtkAreaLayout, LayoutStrategy, vtkAreaLayoutStrategy);
 
@@ -191,3 +192,4 @@ vtkMTimeType vtkAreaLayout::GetMTime()
   }
   return mTime;
 }
+VTK_ABI_NAMESPACE_END

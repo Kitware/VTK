@@ -50,6 +50,7 @@
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkSystemIncludes.h"      // For VTK_COLOR_MODE_*
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkImageData;
 class vtkScalarsToColors;
 class vtkRenderer;
@@ -367,4 +368,5 @@ private:
   void operator=(const vtkTexture&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

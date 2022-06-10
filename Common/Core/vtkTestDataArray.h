@@ -33,6 +33,7 @@
 #include "vtkGenericDataArray.h"
 #include "vtkObjectFactory.h" // For VTK_STANDARD_NEW_BODY
 
+VTK_ABI_NAMESPACE_BEGIN
 template <class ArrayT>
 class vtkTestDataArray
   : public vtkGenericDataArray<vtkTestDataArray<ArrayT>, typename ArrayT::ValueType>
@@ -94,5 +95,6 @@ private:
   void operator=(const vtkTestDataArray&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkTestDataArray.h

@@ -25,6 +25,7 @@
 #include "vtkPolyData.h"
 #include "vtkTransform.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkEllipticalButtonSource);
 
 //------------------------------------------------------------------------------
@@ -445,3 +446,4 @@ void vtkEllipticalButtonSource::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Output Points Precision: " << this->OutputPointsPrecision << "\n";
 }
+VTK_ABI_NAMESPACE_END

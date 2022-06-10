@@ -17,6 +17,7 @@
 #include "vtkInformation.h"
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkInformationDoubleKey::vtkInformationDoubleKey(const char* name, const char* location)
   : vtkInformationKey(name, location)
 {
@@ -108,3 +109,4 @@ double* vtkInformationDoubleKey::GetWatchAddress(vtkInformation* info)
   }
   return nullptr;
 }
+VTK_ABI_NAMESPACE_END

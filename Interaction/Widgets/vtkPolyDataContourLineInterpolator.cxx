@@ -21,6 +21,7 @@
 #include "vtkPolyDataCollection.h"
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkPolyDataContourLineInterpolator::vtkPolyDataContourLineInterpolator()
 {
   this->Polys = vtkPolyDataCollection::New();
@@ -40,3 +41,4 @@ void vtkPolyDataContourLineInterpolator::PrintSelf(ostream& os, vtkIndent indent
   os << indent << "Polys: \n";
   this->Polys->PrintSelf(os, indent.GetNextIndent());
 }
+VTK_ABI_NAMESPACE_END

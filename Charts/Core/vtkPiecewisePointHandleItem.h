@@ -31,6 +31,7 @@
 #include "vtkContextItem.h"
 #include "vtkWeakPointer.h" // Needed for weak pointer to the PiecewiseFunction.
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkContext2D;
 class vtkPiecewiseFunction;
 class vtkCallbackCommand;
@@ -121,4 +122,5 @@ private:
   InternalPiecewisePointHandleInfo* Internal;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkPiecewisePointHandleItem_h

@@ -40,6 +40,7 @@
 
 #include <map>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkAVSucdReader);
 
 // Internal Classes/Structures
@@ -1183,3 +1184,4 @@ int vtkAVSucdReader::ReadFloatBlock(int n, float* block)
     return count;
   }
 }
+VTK_ABI_NAMESPACE_END

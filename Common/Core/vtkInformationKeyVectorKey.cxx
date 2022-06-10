@@ -19,6 +19,7 @@
 #include <vector>
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkInformationKeyVectorKey::vtkInformationKeyVectorKey(const char* name, const char* location)
   : vtkInformationKey(name, location)
 {
@@ -185,3 +186,4 @@ void vtkInformationKeyVectorKey::Print(ostream& os, vtkInformation* info)
     }
   }
 }
+VTK_ABI_NAMESPACE_END

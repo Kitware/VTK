@@ -59,6 +59,7 @@
 
 #include "vtkContourValues.h" // Needed for direct access to ContourValues
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkIncrementalPointLocator;
 class vtkScalarTree;
 
@@ -252,4 +253,5 @@ inline void vtkMarchingContourFilter::GenerateValues(
   this->ContourValues->GenerateValues(numContours, rangeStart, rangeEnd);
 }
 
+VTK_ABI_NAMESPACE_END
 #endif

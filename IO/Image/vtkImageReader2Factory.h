@@ -38,6 +38,7 @@
 #include "vtkIOImageModule.h" // For export macro
 #include "vtkObject.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkImageReader2;
 class vtkImageReader2Collection;
 class vtkImageReader2FactoryCleanup;
@@ -99,4 +100,5 @@ private:
   friend class vtkImageReader2FactoryCleanup;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

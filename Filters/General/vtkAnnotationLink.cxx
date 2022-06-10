@@ -27,6 +27,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkTable.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkAnnotationLink);
 // vtkCxxSetObjectMacro(vtkAnnotationLink, AnnotationLayers, vtkAnnotationLayers);
 
@@ -343,3 +344,4 @@ void vtkAnnotationLink::PrintSelf(ostream& os, vtkIndent indent)
     os << "(none)\n";
   }
 }
+VTK_ABI_NAMESPACE_END

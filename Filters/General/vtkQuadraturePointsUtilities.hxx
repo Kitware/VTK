@@ -26,6 +26,7 @@
 
 namespace vtkQuadraturePointsUtilities
 {
+VTK_ABI_NAMESPACE_BEGIN
 
 // Description:
 // For all cells in the input "usg", for a specific array
@@ -119,6 +120,7 @@ void ApplyShapeFunction(double* r, double N_j, T* A, int nComps)
   }
 }
 
-};
+VTK_ABI_NAMESPACE_END
+}
 
 #endif

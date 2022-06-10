@@ -32,6 +32,7 @@
 #include "vtkTexturedActor2D.h"
 #include "vtkWindow.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkBalloonRepresentation);
 
 vtkCxxSetObjectMacro(vtkBalloonRepresentation, TextProperty, vtkTextProperty);
@@ -544,3 +545,4 @@ void vtkBalloonRepresentation::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Text Property: (none)\n";
   }
 }
+VTK_ABI_NAMESPACE_END

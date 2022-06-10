@@ -27,6 +27,7 @@
 #include "vtkFiltersExtractionModule.h" // For export macro
 #include "vtkMultiBlockDataSetAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSEXTRACTION_EXPORT vtkExtractLevel : public vtkMultiBlockDataSetAlgorithm
 {
 public:
@@ -64,4 +65,5 @@ private:
   vtkSet* Levels;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

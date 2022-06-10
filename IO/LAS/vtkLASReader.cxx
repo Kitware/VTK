@@ -33,6 +33,7 @@
 #include <iostream>
 #include <valarray>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkLASReader);
 
 //------------------------------------------------------------------------------
@@ -173,3 +174,4 @@ void vtkLASReader::PrintSelf(ostream& os, vtkIndent indent)
   os << "vtkLASReader" << std::endl;
   os << "Filename: " << this->FileName << std::endl;
 }
+VTK_ABI_NAMESPACE_END

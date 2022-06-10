@@ -17,6 +17,7 @@
 
 //------------------------------------------------------------------------------
 // Return nullptr if no override is supplied.
+VTK_ABI_NAMESPACE_BEGIN
 vtkAbstractObjectFactoryNewMacro(vtkRayCastImageDisplayHelper);
 //------------------------------------------------------------------------------
 
@@ -38,3 +39,4 @@ void vtkRayCastImageDisplayHelper::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Pixel Scale: " << this->PixelScale << endl;
 }
+VTK_ABI_NAMESPACE_END

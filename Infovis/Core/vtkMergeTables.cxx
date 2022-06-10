@@ -28,6 +28,7 @@
 #include "vtkStringArray.h"
 #include "vtkTable.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkMergeTables);
 //------------------------------------------------------------------------------
 vtkMergeTables::vtkMergeTables()
@@ -237,3 +238,4 @@ void vtkMergeTables::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "MergeColumnsByName: " << (this->MergeColumnsByName ? "on" : "off") << endl;
   os << indent << "PrefixAllButMerged: " << (this->PrefixAllButMerged ? "on" : "off") << endl;
 }
+VTK_ABI_NAMESPACE_END

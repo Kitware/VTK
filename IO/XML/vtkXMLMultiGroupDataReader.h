@@ -26,6 +26,7 @@
 #include "vtkIOXMLModule.h" // For export macro
 #include "vtkXMLMultiBlockDataReader.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKIOXML_EXPORT vtkXMLMultiGroupDataReader : public vtkXMLMultiBlockDataReader
 {
 public:
@@ -45,4 +46,5 @@ private:
   void operator=(const vtkXMLMultiGroupDataReader&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

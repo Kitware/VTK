@@ -50,6 +50,7 @@ public:
 };
 }
 
+VTK_ABI_NAMESPACE_BEGIN
 //------------------------------------------------------------------------------
 std::mutex InstanceLock; // XXX(c++17): use a `shared_mutex`
 vtkSmartPointer<vtkOutputWindow> vtkOutputWindowGlobalInstance;
@@ -368,3 +369,4 @@ void vtkOutputWindow::SetInstance(vtkOutputWindow* instance)
 
   vtkOutputWindowGlobalInstance = vtk::MakeSmartPointer(instance);
 }
+VTK_ABI_NAMESPACE_END

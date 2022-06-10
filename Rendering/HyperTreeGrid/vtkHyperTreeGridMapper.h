@@ -41,6 +41,7 @@
 
 #include "vtkRenderingHyperTreeGridModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkHyperTreeGrid;
 class vtkCompositeDataSet;
 class vtkPolyData;
@@ -133,4 +134,5 @@ private:
   void operator=(const vtkHyperTreeGridMapper&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -34,6 +34,7 @@
 struct XrGraphicsBindingD3D11KHR;
 struct XrSwapchainImageD3D11KHR;
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKRENDERINGOPENXRREMOTING_EXPORT vtkOpenXRManagerD3DGraphics
   : public vtkOpenXRManagerGraphics
 {
@@ -120,4 +121,5 @@ private:
   PIMPL* Private;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

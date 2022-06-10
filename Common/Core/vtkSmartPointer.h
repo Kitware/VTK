@@ -31,6 +31,7 @@
 #include <type_traits> // for is_base_of
 #include <utility>     // for std::move
 
+VTK_ABI_NAMESPACE_BEGIN
 template <class T>
 class vtkSmartPointer : public vtkSmartPointerBase
 {
@@ -330,9 +331,11 @@ VTK_SMART_POINTER_DEFINE_OPERATOR(>)
 VTK_SMART_POINTER_DEFINE_OPERATOR(>=)
 
 #undef VTK_SMART_POINTER_DEFINE_OPERATOR
+VTK_ABI_NAMESPACE_END
 
 namespace vtk
 {
+VTK_ABI_NAMESPACE_BEGIN
 
 /// Construct a vtkSmartPointer<T> containing @a obj. A new reference is added
 /// to @a obj.
@@ -350,8 +353,10 @@ vtkSmartPointer<T> TakeSmartPointer(T* obj)
   return vtkSmartPointer<T>::Take(obj);
 }
 
+VTK_ABI_NAMESPACE_END
 } // end namespace vtk
 
+VTK_ABI_NAMESPACE_BEGIN
 /**
  * Streaming operator to print smart pointer like regular pointers.
  */
@@ -361,5 +366,6 @@ inline ostream& operator<<(ostream& os, const vtkSmartPointer<T>& p)
   return os << static_cast<const vtkSmartPointerBase&>(p);
 }
 
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkSmartPointer.h

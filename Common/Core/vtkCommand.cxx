@@ -17,6 +17,7 @@
 #include "vtkDebugLeaks.h"
 
 //----------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkCommand::vtkCommand()
   : AbortFlag(0)
   , PassiveObserver(0)
@@ -110,3 +111,4 @@ const char* vtkCommand::GetDebugClassName() const
 {
   return "vtkCommand or subclass";
 }
+VTK_ABI_NAMESPACE_END

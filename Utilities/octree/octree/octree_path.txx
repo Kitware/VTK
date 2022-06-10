@@ -68,6 +68,7 @@
 
 /**\brief Default constructor.
  */
+VTK_ABI_NAMESPACE_BEGIN
 template <typename T_, typename R_, typename P_, typename O_, typename OP_, int d_>
 octree_path<T_, R_, P_, O_, OP_, d_>::octree_path()
 {
@@ -165,3 +166,4 @@ octree_path<T_, R_, P_, O_, OP_, d_>::octree_path(
  * Iterators are considered equal iff they have the same octree and point to the same node
  *currently. The rest of the paths' state is ignored by the test.
  */
+VTK_ABI_NAMESPACE_END

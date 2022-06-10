@@ -25,6 +25,7 @@
 // vtkStandardNewMacro(vtkOpenGLVolumeLookupTable);
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkOpenGLVolumeLookupTable::~vtkOpenGLVolumeLookupTable()
 {
   if (this->TextureObject)
@@ -230,3 +231,4 @@ void vtkOpenGLVolumeLookupTable::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Last Range: (" << this->LastRange[0] << ", " << this->LastRange[1] << ")"
      << endl;
 }
+VTK_ABI_NAMESPACE_END

@@ -31,6 +31,7 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkUniformGridAMR.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkAMRBox;
 class vtkCompositeDataIterator;
 class vtkUniformGrid;
@@ -194,4 +195,5 @@ private:
   void operator=(const vtkOverlappingAMR&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

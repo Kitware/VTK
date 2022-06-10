@@ -37,6 +37,7 @@ namespace vtx
 {
 namespace schema
 {
+VTK_ABI_NAMESPACE_BEGIN
 class VTXvtkVTI : public VTXvtkBase
 {
 public:
@@ -68,6 +69,7 @@ private:
     adios2::Variable<T> variable, const types::DataArray& dataArray, const size_t step);
 };
 
+VTK_ABI_NAMESPACE_END
 } // end namespace schema
 } // end namespace vtx
 

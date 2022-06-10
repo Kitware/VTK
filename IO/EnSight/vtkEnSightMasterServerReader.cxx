@@ -23,6 +23,7 @@
 #include <string>
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkEnSightMasterServerReader);
 
 static int vtkEnSightMasterServerReaderStartsWith(const char* str1, const char* str2)
@@ -208,3 +209,4 @@ void vtkEnSightMasterServerReader::PrintSelf(ostream& os, vtkIndent indent)
      << endl;
   os << indent << "Maximum number of pieces: " << this->MaxNumberOfPieces << endl;
 }
+VTK_ABI_NAMESPACE_END

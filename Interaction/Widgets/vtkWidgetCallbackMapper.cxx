@@ -20,6 +20,7 @@
 #include "vtkWidgetEventTranslator.h"
 #include <map>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkWidgetCallbackMapper);
 
 // Callbacks are stored as a pair of (Object,Method) in the map.
@@ -148,3 +149,4 @@ void vtkWidgetCallbackMapper::PrintSelf(ostream& os, vtkIndent indent)
     os << "(none)\n";
   }
 }
+VTK_ABI_NAMESPACE_END

@@ -15,6 +15,7 @@
 #include "vtkPlaneCollection.h"
 #include "vtkObjectFactory.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPlaneCollection);
 
 void vtkPlaneCollection::PrintSelf(ostream& os, vtkIndent indent)
@@ -26,3 +27,4 @@ vtkPlane* vtkPlaneCollection::GetNextPlane(vtkCollectionSimpleIterator& cookie)
 {
   return static_cast<vtkPlane*>(this->GetNextItemAsObject(cookie));
 }
+VTK_ABI_NAMESPACE_END

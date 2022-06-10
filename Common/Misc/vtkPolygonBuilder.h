@@ -34,6 +34,7 @@
 #include <utility>   //for private data members
 #include <vector>    // for private data members
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkIdListCollection;
 
 class VTKCOMMONMISC_EXPORT vtkPolygonBuilder
@@ -72,5 +73,6 @@ private:
   EdgeMap Edges;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkPolygonBuilder.h

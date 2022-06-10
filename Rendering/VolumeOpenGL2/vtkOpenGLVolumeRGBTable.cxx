@@ -20,6 +20,7 @@
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkTextureObject.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOpenGLVolumeRGBTable);
 
 //------------------------------------------------------------------------------
@@ -51,3 +52,4 @@ void vtkOpenGLVolumeRGBTable::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

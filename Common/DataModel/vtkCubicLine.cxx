@@ -26,6 +26,7 @@
 #include "vtkPointData.h"
 #include "vtkPoints.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkCubicLine);
 
 //------------------------------------------------------------------------------
@@ -445,3 +446,4 @@ void vtkCubicLine::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
   os << indent << "Line: " << this->Line << endl;
 }
+VTK_ABI_NAMESPACE_END

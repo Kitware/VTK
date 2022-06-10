@@ -38,6 +38,8 @@ namespace pdal
 class Stage;
 };
 
+VTK_ABI_NAMESPACE_BEGIN
+
 class VTKIOPDAL_EXPORT vtkPDALReader : public vtkPolyDataAlgorithm
 {
 public:
@@ -71,4 +73,5 @@ protected:
   char* FileName;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkPDALReader_h

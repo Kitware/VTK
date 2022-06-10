@@ -30,6 +30,7 @@
 #include "vtkImageSpatialAlgorithm.h"
 #include "vtkImagingGeneralModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkImageEllipsoidSource;
 
 class VTKIMAGINGGENERAL_EXPORT vtkImageVariance3D : public vtkImageSpatialAlgorithm
@@ -65,4 +66,5 @@ private:
   void operator=(const vtkImageVariance3D&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

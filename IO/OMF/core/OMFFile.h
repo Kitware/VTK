@@ -24,11 +24,14 @@
 #include <string>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataArray;
 class vtkImageData;
+VTK_ABI_NAMESPACE_END
 
 namespace omf
 {
+VTK_ABI_NAMESPACE_BEGIN
 
 struct OMFFile
 {
@@ -56,5 +59,6 @@ private:
   std::unique_ptr<FileImpl> Impl;
 };
 
+VTK_ABI_NAMESPACE_END
 } // end namespace omf
 #endif

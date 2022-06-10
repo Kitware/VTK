@@ -37,6 +37,7 @@
 #include "vtkTree.h"
 #include "vtkTreeDFSIterator.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkTreeLayoutStrategy);
 
 vtkTreeLayoutStrategy::vtkTreeLayoutStrategy()
@@ -401,3 +402,4 @@ void vtkTreeLayoutStrategy::PrintSelf(ostream& os, vtkIndent indent)
      << endl;
   os << indent << "ReverseEdges: " << this->ReverseEdges << endl;
 }
+VTK_ABI_NAMESPACE_END

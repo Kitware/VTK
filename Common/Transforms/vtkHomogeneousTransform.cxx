@@ -18,6 +18,7 @@
 #include "vtkMatrix4x4.h"
 #include "vtkPoints.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
 void TransformVector(double M[4][4], double* outPnt, double f, double* inVec, double* outVec)
@@ -223,3 +224,4 @@ void vtkHomogeneousTransform::InternalDeepCopy(vtkAbstractTransform* transform)
 
   this->Matrix->DeepCopy(t->Matrix);
 }
+VTK_ABI_NAMESPACE_END

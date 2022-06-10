@@ -19,6 +19,7 @@
 #include "vtkChartsCoreModule.h" // For export macro
 #include "vtkColorTransferFunctionItem.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPiecewiseFunction;
 
 // Description:
@@ -49,4 +50,5 @@ private:
   void operator=(const vtkCompositeTransferFunctionItem&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

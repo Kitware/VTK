@@ -37,12 +37,15 @@
 #include <QApplication>
 
 #ifdef VTK_USE_TDX
+VTK_ABI_NAMESPACE_BEGIN
 class vtkTDxDevice;
 #if defined(Q_WS_X11) || defined(Q_OS_LINUX)
 class vtkTDxQtUnixDevices;
 #endif
+VTK_ABI_NAMESPACE_END
 #endif
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKGUISUPPORTQT_EXPORT QVTKApplication : public QApplication
 {
   Q_OBJECT
@@ -82,4 +85,5 @@ protected:
 #endif
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

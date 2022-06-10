@@ -45,6 +45,7 @@
 #include "vtkDataObject.h" // needed for the smart pointer
 #include <vector>          //needed for a private variable
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkInformationDoubleVectorKey;
 class vtkMultiBlockDataSet;
 class VTKCOMMONEXECUTIONMODEL_EXPORT vtkMultiTimeStepAlgorithm : public vtkAlgorithm
@@ -135,4 +136,5 @@ private:
   std::vector<TimeCache> Cache;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

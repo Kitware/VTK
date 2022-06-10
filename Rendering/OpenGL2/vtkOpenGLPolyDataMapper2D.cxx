@@ -53,6 +53,7 @@
 #include "vtkPolyDataWideLineGS.h"
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOpenGLPolyDataMapper2D);
 
 //------------------------------------------------------------------------------
@@ -734,3 +735,4 @@ void vtkOpenGLPolyDataMapper2D::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

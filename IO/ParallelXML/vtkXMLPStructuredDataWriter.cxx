@@ -24,6 +24,7 @@
 #include "vtkXMLStructuredDataWriter.h"
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkXMLPStructuredDataWriter::vtkXMLPStructuredDataWriter() = default;
 
 //------------------------------------------------------------------------------
@@ -174,3 +175,4 @@ int vtkXMLPStructuredDataWriter::WritePiece(int index)
   }
   return result;
 }
+VTK_ABI_NAMESPACE_END

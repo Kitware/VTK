@@ -34,6 +34,7 @@
 #include "vtkUnstructuredGrid.h"
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkTemporalInterpolatedVelocityField);
 
 //------------------------------------------------------------------------------
@@ -701,3 +702,4 @@ void vtkTemporalInterpolatedVelocityField::PrintSelf(ostream& os, vtkIndent inde
     os << "(none)" << endl;
   }
 }
+VTK_ABI_NAMESPACE_END

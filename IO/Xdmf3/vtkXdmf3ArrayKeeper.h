@@ -34,6 +34,8 @@
 
 class XdmfArray;
 
+VTK_ABI_NAMESPACE_BEGIN
+
 #ifdef _MSC_VER
 #pragma warning(push)           // save
 #pragma warning(disable : 4251) // needs to have dll-interface to be used by clients of class
@@ -76,5 +78,6 @@ private:
 #pragma warning(pop) // restore
 #endif
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkXdmf3ArrayKeeper_h
 // VTK-HeaderTest-Exclude: vtkXdmf3ArrayKeeper.h

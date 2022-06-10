@@ -32,6 +32,7 @@
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkResliceCursorLineRepresentation.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKINTERACTIONWIDGETS_EXPORT vtkResliceCursorThickLineRepresentation
   : public vtkResliceCursorLineRepresentation
 {
@@ -74,4 +75,5 @@ private:
   void operator=(const vtkResliceCursorThickLineRepresentation&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

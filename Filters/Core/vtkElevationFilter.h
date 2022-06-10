@@ -41,6 +41,7 @@
 #include "vtkDataSetAlgorithm.h"
 #include "vtkFiltersCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSCORE_EXPORT vtkElevationFilter : public vtkDataSetAlgorithm
 {
 public:
@@ -89,4 +90,5 @@ private:
   void operator=(const vtkElevationFilter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

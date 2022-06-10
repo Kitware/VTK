@@ -41,6 +41,7 @@
 #include <map>
 #include <sstream>
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkWebApplication::vtkInternals
 {
 public:
@@ -472,3 +473,4 @@ std::string vtkWebApplication::GetObjectId(vtkObject* obj)
   oss << std::hex << static_cast<void*>(obj);
   return oss.str();
 }
+VTK_ABI_NAMESPACE_END

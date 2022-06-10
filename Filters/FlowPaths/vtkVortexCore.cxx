@@ -34,6 +34,7 @@
 #include <array>
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
 // Computes A*b = x given a 3-matrix A and a 3-vector b.
@@ -495,3 +496,4 @@ void vtkVortexCore::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

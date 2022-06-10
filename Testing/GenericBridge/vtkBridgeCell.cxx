@@ -66,6 +66,7 @@
 #include "vtkQuadraticTriangle.h"
 #include "vtkQuadraticWedge.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkBridgeCell);
 
 //------------------------------------------------------------------------------
@@ -1035,3 +1036,4 @@ void vtkBridgeCell::InterpolationFunctions(const double pcoords[3], double* weig
 {
   this->Cell->InterpolateFunctions(pcoords, weights);
 }
+VTK_ABI_NAMESPACE_END

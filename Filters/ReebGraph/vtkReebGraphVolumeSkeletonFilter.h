@@ -47,6 +47,7 @@
 #include "vtkDataObjectAlgorithm.h"
 #include "vtkFiltersReebGraphModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkReebGraph;
 class vtkTable;
 
@@ -104,4 +105,5 @@ private:
   void operator=(const vtkReebGraphVolumeSkeletonFilter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

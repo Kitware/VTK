@@ -38,6 +38,7 @@
 #include "vtkDirectedGraphAlgorithm.h"
 #include "vtkFiltersReebGraphModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkReebGraph;
 
 class VTKFILTERSREEBGRAPH_EXPORT vtkReebGraphToJoinSplitTreeFilter
@@ -87,4 +88,5 @@ private:
   void operator=(const vtkReebGraphToJoinSplitTreeFilter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

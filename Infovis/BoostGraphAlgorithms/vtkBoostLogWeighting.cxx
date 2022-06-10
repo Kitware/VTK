@@ -41,6 +41,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 // vtkBoostLogWeighting
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkBoostLogWeighting);
 
 vtkBoostLogWeighting::vtkBoostLogWeighting()
@@ -143,3 +144,4 @@ int vtkBoostLogWeighting::RequestData(
 
   return 1;
 }
+VTK_ABI_NAMESPACE_END

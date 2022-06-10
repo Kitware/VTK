@@ -18,10 +18,13 @@
 #include "vtkParallelMPIModule.h" // For export macro
 
 // Forward declarations
+VTK_ABI_NAMESPACE_BEGIN
 class vtkMPIController;
+VTK_ABI_NAMESPACE_END
 
 namespace vtkMPIUtilities
 {
+VTK_ABI_NAMESPACE_BEGIN
 
 // Description:
 // Rank 0 prints the user-supplied formatted message to stdout.
@@ -40,6 +43,7 @@ void Printf(vtkMPIController* comm, const char* format, ...);
 VTKPARALLELMPI_EXPORT
 void SynchronizedPrintf(vtkMPIController* comm, const char* format, ...);
 
+VTK_ABI_NAMESPACE_END
 } // END namespace vtkMPIUtilities
 
 #endif // vtkMPIUtilities_h

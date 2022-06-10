@@ -43,6 +43,7 @@
 #include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkImageAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONEXECUTIONMODEL_EXPORT vtkSimpleImageToImageFilter : public vtkImageAlgorithm
 {
 public:
@@ -67,4 +68,5 @@ private:
   void operator=(const vtkSimpleImageToImageFilter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

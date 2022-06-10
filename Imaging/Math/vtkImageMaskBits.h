@@ -28,6 +28,7 @@
 #include "vtkImagingMathModule.h" // For export macro
 #include "vtkThreadedImageAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKIMAGINGMATH_EXPORT vtkImageMaskBits : public vtkThreadedImageAlgorithm
 {
 public:
@@ -79,4 +80,5 @@ private:
   void operator=(const vtkImageMaskBits&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

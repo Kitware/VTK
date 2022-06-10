@@ -73,6 +73,7 @@
 
 #include <vector> // for std::vector
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkOpenGLIndexBufferObject;
 class vtkOpenGLBufferObject;
 class vtkPolyData;
@@ -168,4 +169,5 @@ private:
   bool ColorLOD = false;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkOpenGLInstanceCulling_h

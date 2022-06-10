@@ -6,6 +6,7 @@
 
 namespace RTW
 {
+VTK_ABI_NAMESPACE_BEGIN
     class Data : public Object
     {
     public:
@@ -168,4 +169,5 @@ namespace RTW
         bool shared = false;
         bool dirty = true;
     };
+VTK_ABI_NAMESPACE_END
 }

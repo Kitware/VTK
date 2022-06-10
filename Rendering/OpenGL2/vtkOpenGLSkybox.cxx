@@ -32,6 +32,7 @@
 
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOpenGLSkybox);
 
 vtkOpenGLSkybox::vtkOpenGLSkybox()
@@ -260,3 +261,4 @@ void vtkOpenGLSkybox::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

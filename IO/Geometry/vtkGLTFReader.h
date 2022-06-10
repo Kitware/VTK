@@ -66,6 +66,7 @@
 #include <string> // For std::string
 #include <vector> // For std::vector
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataArraySelection;
 class vtkFieldData;
 class vtkGLTFDocumentLoader;
@@ -236,4 +237,5 @@ private:
   void operator=(const vtkGLTFReader&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

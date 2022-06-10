@@ -39,6 +39,7 @@
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkUnstructuredGridAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataSetAttributes;
 class vtkDataSetCollection;
 
@@ -148,4 +149,5 @@ private:
     vtkUnstructuredGrid* output, vtkIdType totalNumberOfElements);
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -35,6 +35,7 @@
 
 #include "RTWrapper/RTWrapper.h" // for handle types
 
+VTK_ABI_NAMESPACE_BEGIN
 template <class T>
 class VTKRENDERINGRAYTRACING_EXPORT vtkOSPRayCache
 {
@@ -126,5 +127,6 @@ public:
   RTW::Backend* backend = nullptr;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkOSPRayCache_h
 // VTK-HeaderTest-Exclude: vtkOSPRayCache.h

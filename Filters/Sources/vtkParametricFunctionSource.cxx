@@ -30,6 +30,7 @@
 #include <cmath>
 #include <string>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkParametricFunctionSource);
 vtkCxxSetObjectMacro(vtkParametricFunctionSource, ParametricFunction, vtkParametricFunction);
 
@@ -635,3 +636,4 @@ void vtkParametricFunctionSource::PrintSelf(ostream& os, vtkIndent indent)
      << "\n";
   os << indent << "Output Points Precision: " << this->OutputPointsPrecision << "\n";
 }
+VTK_ABI_NAMESPACE_END

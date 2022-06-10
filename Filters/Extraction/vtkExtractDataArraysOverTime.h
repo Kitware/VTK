@@ -64,6 +64,7 @@
 #include "vtkMultiBlockDataSetAlgorithm.h"
 #include "vtkSmartPointer.h" // for vtkSmartPointer.
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataSet;
 class vtkTable;
 class vtkDataSetAttributes;
@@ -160,4 +161,5 @@ private:
   friend class vtkInternal;
   vtkInternal* Internal;
 };
+VTK_ABI_NAMESPACE_END
 #endif

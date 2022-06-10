@@ -27,6 +27,7 @@
 #include "vtkVector.h"
 #include "vtkVectorOperators.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkHigherOrderCurve::vtkHigherOrderCurve()
 {
   this->Approx = nullptr;
@@ -416,3 +417,4 @@ bool vtkHigherOrderCurve::TransformApproxToCellParams(int subCell, double* pcoor
   }
   return true;
 }
+VTK_ABI_NAMESPACE_END

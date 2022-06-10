@@ -93,6 +93,7 @@
 #include "vtkDeprecation.h"              // For VTK_DEPRECATED_IN_9_2_0
 #include "vtkInteractionWidgetsModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCoordinateFrameRepresentation;
 class vtkCoordinateFrameWidgetInteractionCallback;
 
@@ -184,4 +185,5 @@ private:
   void operator=(const vtkCoordinateFrameWidget&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

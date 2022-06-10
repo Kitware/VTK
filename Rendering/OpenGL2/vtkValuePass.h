@@ -46,6 +46,7 @@
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkSmartPointer.h"           //for ivar
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkAbstractArray;
 class vtkActor;
 class vtkDataArray;
@@ -219,4 +220,5 @@ private:
   void operator=(const vtkValuePass&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

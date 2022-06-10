@@ -40,6 +40,7 @@
 
 #include <array> // To store matrices
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkFXAAOptions;
 class vtkRenderWindow;
 class vtkVolume;
@@ -1211,4 +1212,5 @@ inline vtkCullerCollection* vtkRenderer::GetCullers()
   return this->Cullers;
 }
 
+VTK_ABI_NAMESPACE_END
 #endif

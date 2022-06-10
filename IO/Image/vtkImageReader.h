@@ -30,6 +30,7 @@
 #include "vtkIOImageModule.h" // For export macro
 #include "vtkImageReader2.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkTransform;
 
 #define VTK_FILE_BYTE_ORDER_BIG_ENDIAN 0
@@ -126,4 +127,5 @@ private:
   void operator=(const vtkImageReader&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

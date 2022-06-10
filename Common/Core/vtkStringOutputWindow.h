@@ -28,6 +28,7 @@
 #include "vtkOutputWindow.h"
 #include <sstream> // for ivar
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONCORE_EXPORT vtkStringOutputWindow : public vtkOutputWindow
 {
 public:
@@ -60,4 +61,5 @@ private:
   void operator=(const vtkStringOutputWindow&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

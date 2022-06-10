@@ -35,6 +35,7 @@
 
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkAbstractCellLocator;
 class vtkBilinearQuadIntersection;
 class vtkDataSet;
@@ -494,5 +495,6 @@ protected:
   bool PManualShift;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkLagrangianParticle.h

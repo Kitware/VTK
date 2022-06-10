@@ -34,6 +34,7 @@
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkGraphAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkGraph;
 
 class VTKFILTERSGENERAL_EXPORT vtkGraphWeightFilter : public vtkGraphAlgorithm
@@ -67,4 +68,5 @@ private:
   void operator=(const vtkGraphWeightFilter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

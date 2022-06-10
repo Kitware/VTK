@@ -19,6 +19,7 @@
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkProgrammableDataObjectSource);
 
 // Construct programmable filter with empty execute method.
@@ -101,3 +102,4 @@ void vtkProgrammableDataObjectSource::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "An ExecuteMethod has NOT been defined\n";
   }
 }
+VTK_ABI_NAMESPACE_END

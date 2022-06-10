@@ -23,6 +23,7 @@
 
 #include <algorithm> // for std::max()
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkArrayRange::vtkArrayRange()
   : Begin(0)
   , End(0)
@@ -75,3 +76,4 @@ ostream& operator<<(ostream& stream, const vtkArrayRange& rhs)
   stream << "[" << rhs.Begin << ", " << rhs.End << ")";
   return stream;
 }
+VTK_ABI_NAMESPACE_END

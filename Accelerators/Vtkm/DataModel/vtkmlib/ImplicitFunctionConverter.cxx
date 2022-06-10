@@ -26,6 +26,7 @@
 
 namespace tovtkm
 {
+VTK_ABI_NAMESPACE_BEGIN
 
 inline vtkm::Vec<vtkm::FloatDefault, 3> MakeFVec3(const double x[3])
 {
@@ -141,4 +142,5 @@ const vtkm::ImplicitFunctionGeneral& ImplicitFunctionConverter::Get()
   return this->OutFunction;
 }
 
+VTK_ABI_NAMESPACE_END
 } // tovtkm

@@ -18,6 +18,7 @@
 #include <QWidget>
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkQtView::vtkQtView() = default;
 
 //------------------------------------------------------------------------------
@@ -46,3 +47,4 @@ bool vtkQtView::SaveImage(const char* filename)
 {
   return this->GetWidget() != nullptr ? this->GetWidget()->grab().save(filename) : false;
 }
+VTK_ABI_NAMESPACE_END

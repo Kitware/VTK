@@ -29,6 +29,7 @@
 #include "vtkFiltersAMRModule.h" // For export macro
 #include "vtkMultiBlockDataSetAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkInformation;
 class vtkInformationVector;
 class vtkIndent;
@@ -75,4 +76,5 @@ private:
   void operator=(const vtkAMRToMultiBlockFilter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif /* vtkAMRToMultiBlockFilter_h */

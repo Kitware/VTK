@@ -46,6 +46,7 @@
 #include "vtkAbstractWidget.h"
 #include "vtkInteractionWidgetsModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkHandleWidget;
 class vtkLightRepresentation;
 
@@ -90,4 +91,5 @@ private:
   void operator=(const vtkLightWidget&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

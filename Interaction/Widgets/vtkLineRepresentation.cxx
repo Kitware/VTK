@@ -37,6 +37,7 @@
 #include "vtkVectorText.h"
 #include "vtkWindow.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkLineRepresentation);
 
 vtkCxxSetObjectMacro(vtkLineRepresentation, HandleRepresentation, vtkPointHandleRepresentation3D);
@@ -1087,3 +1088,4 @@ void vtkLineRepresentation::PrintSelf(ostream& os, vtkIndent indent)
   // this->InteractionState is printed in superclass
   // this is commented to avoid PrintSelf errors
 }
+VTK_ABI_NAMESPACE_END

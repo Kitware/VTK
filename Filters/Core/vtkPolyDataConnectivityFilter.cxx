@@ -29,6 +29,7 @@
 
 #include <algorithm> // for fill_n
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPolyDataConnectivityFilter);
 
 // Construct with default extraction mode to extract largest regions.
@@ -646,3 +647,4 @@ void vtkPolyDataConnectivityFilter::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Output Points Precision: " << this->OutputPointsPrecision << "\n";
 }
+VTK_ABI_NAMESPACE_END

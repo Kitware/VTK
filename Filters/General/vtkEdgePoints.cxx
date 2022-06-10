@@ -26,6 +26,7 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkEdgePoints);
 
 // Construct object with contour value of 0.0.
@@ -235,3 +236,4 @@ void vtkEdgePoints::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Contour Value: " << this->Value << "\n";
 }
+VTK_ABI_NAMESPACE_END

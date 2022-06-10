@@ -19,6 +19,7 @@
 #include <string>                      // used for std::string
 #include <vector>                      // used for method args
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCellArray;
 class vtkDataArray;
 class vtkPoints;
@@ -136,4 +137,5 @@ inline bool vtkOpenGLBufferObject::Upload(
   return this->UploadInternal(array, numElements * sizeof(T), objectType);
 }
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -29,6 +29,7 @@
 #include "vtkRect.h"         // Needed for vtkRectf
 #include "vtkSmartPointer.h" // Needed for SP ivars
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkImageData;
 class vtkScalarsToColors;
 
@@ -140,4 +141,5 @@ private:
   void operator=(const vtkPlotHistogram2D&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkPlotHistogram2D_h

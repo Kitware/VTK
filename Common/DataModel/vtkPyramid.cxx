@@ -31,6 +31,7 @@
 #include <cassert>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPyramid);
 
 namespace
@@ -1073,3 +1074,4 @@ void vtkPyramid::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Quad:\n";
   this->Quad->PrintSelf(os, indent.GetNextIndent());
 }
+VTK_ABI_NAMESPACE_END

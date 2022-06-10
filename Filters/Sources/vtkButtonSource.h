@@ -50,6 +50,7 @@
 #define VTK_TEXTURE_STYLE_FIT_IMAGE 0
 #define VTK_TEXTURE_STYLE_PROPORTIONAL 1
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSSOURCES_EXPORT vtkButtonSource : public vtkPolyDataAlgorithm
 {
 public:
@@ -120,4 +121,5 @@ private:
   void operator=(const vtkButtonSource&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

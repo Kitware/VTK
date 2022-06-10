@@ -22,6 +22,7 @@
 
 #include <algorithm>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkCxxSetObjectMacro(vtkImplicitFunction, Transform, vtkAbstractTransform);
 
 vtkImplicitFunction::vtkImplicitFunction()
@@ -258,3 +259,4 @@ void vtkImplicitFunction::SetTransform(const double elements[16])
   this->SetTransform(transform);
   transform->Delete();
 }
+VTK_ABI_NAMESPACE_END

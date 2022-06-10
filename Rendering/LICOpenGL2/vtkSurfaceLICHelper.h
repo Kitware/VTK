@@ -29,6 +29,7 @@
 
 #include <deque> // for methods
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkOpenGLFramebufferObject;
 class vtkOpenGLRenderWindow;
 class vtkPainterCommunicator;
@@ -229,5 +230,6 @@ public:
 protected:
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkSurfaceLICHelper.h

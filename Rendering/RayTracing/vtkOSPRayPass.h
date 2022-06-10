@@ -42,6 +42,7 @@
 
 #include <string> // for std::string
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCameraPass;
 class vtkLightsPass;
 class vtkOSPRayPassInternals;
@@ -124,4 +125,5 @@ private:
   static int RTDeviceRefCount;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

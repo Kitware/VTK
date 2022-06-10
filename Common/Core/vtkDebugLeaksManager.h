@@ -28,6 +28,7 @@
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkSystemIncludes.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONCORE_EXPORT vtkDebugLeaksManager
 {
 public:
@@ -45,5 +46,6 @@ private:
 // static object destroyed.
 static vtkDebugLeaksManager vtkDebugLeaksManagerInstance;
 
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkDebugLeaksManager.h

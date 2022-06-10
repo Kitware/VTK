@@ -28,6 +28,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkRenderingVRModule.h" // For export macro
 #include <deque>                  // for ivar
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkEventData;
 class vtkVRMenuRepresentation;
 
@@ -117,4 +118,5 @@ private:
   vtkVRMenuWidget(const vtkVRMenuWidget&) = delete;
   void operator=(const vtkVRMenuWidget&) = delete;
 };
+VTK_ABI_NAMESPACE_END
 #endif

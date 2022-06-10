@@ -32,6 +32,7 @@
 #include "vtkIOXMLModule.h" // For export macro
 #include "vtkXMLUnstructuredDataReader.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPolyData;
 
 class VTKIOXML_EXPORT vtkXMLPolyDataReader : public vtkXMLUnstructuredDataReader
@@ -118,4 +119,5 @@ private:
   void operator=(const vtkXMLPolyDataReader&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

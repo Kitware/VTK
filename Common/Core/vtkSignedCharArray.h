@@ -32,6 +32,7 @@
 #ifndef __VTK_WRAP__
 #define vtkDataArray vtkAOSDataArrayTemplate<signed char>
 #endif
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONCORE_EXPORT vtkSignedCharArray : public vtkDataArray
 {
 public:
@@ -82,4 +83,5 @@ private:
 // Define vtkArrayDownCast implementation:
 vtkArrayDownCast_FastCastMacro(vtkSignedCharArray);
 
+VTK_ABI_NAMESPACE_END
 #endif

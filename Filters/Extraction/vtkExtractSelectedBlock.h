@@ -49,6 +49,7 @@
 #include "vtkExtractSelectionBase.h"
 #include "vtkFiltersExtractionModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTK_DEPRECATED_IN_9_2_0("Use vtkExtractSelection instead of vtkExtractSelectedBlock.")
   VTKFILTERSEXTRACTION_EXPORT vtkExtractSelectedBlock : public vtkExtractSelectionBase
 {
@@ -77,6 +78,7 @@ private:
   void operator=(const vtkExtractSelectedBlock&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
 
 // VTK-HeaderTest-Exclude: vtkExtractSelectedBlock.h

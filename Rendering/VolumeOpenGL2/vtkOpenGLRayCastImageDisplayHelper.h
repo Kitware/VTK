@@ -30,6 +30,7 @@
 #include "vtkRayCastImageDisplayHelper.h"
 #include "vtkRenderingVolumeOpenGL2Module.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkFixedPointRayCastImage;
 class vtkOpenGLHelper;
 class vtkRenderer;
@@ -75,4 +76,5 @@ private:
   void operator=(const vtkOpenGLRayCastImageDisplayHelper&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -26,6 +26,7 @@
 #include "vtkRenderingExternalModule.h" // For export macro
 
 // Class that maintains an external render window.
+VTK_ABI_NAMESPACE_BEGIN
 class VTKRENDERINGEXTERNAL_EXPORT ExternalVTKWidget : public vtkObject
 {
 public:
@@ -58,4 +59,6 @@ private:
   void operator=(const ExternalVTKWidget&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif //__ExternalVTKWidget_h
+/* VTK-HeaderTest-Exclude: INCLUDES */

@@ -285,7 +285,9 @@ static vtkMarchingCubesPolygonCases VTK_MARCHING_CUBES_POLYGONCASES[] = {
   { { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } }  // 255 0
 };
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkMarchingCubesPolygonCases* vtkMarchingCubesPolygonCases::GetCases()
 {
   return VTK_MARCHING_CUBES_POLYGONCASES;
 }
+VTK_ABI_NAMESPACE_END

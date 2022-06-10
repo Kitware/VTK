@@ -32,6 +32,7 @@
 #include "vtkIOXMLModule.h" // For export macro
 #include "vtkXMLUnstructuredDataReader.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkUnstructuredGrid;
 class vtkIdTypeArray;
 
@@ -90,4 +91,5 @@ private:
   void operator=(const vtkXMLUnstructuredGridReader&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

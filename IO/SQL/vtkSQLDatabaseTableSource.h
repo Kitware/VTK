@@ -34,6 +34,7 @@
 #include "vtkStdString.h"   // for vtkStdString
 #include "vtkTableAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkEventForwarderCommand;
 
 class VTKIOSQL_EXPORT vtkSQLDatabaseTableSource : public vtkTableAlgorithm
@@ -93,4 +94,5 @@ private:
   implementation* const Implementation;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

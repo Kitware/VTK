@@ -29,6 +29,7 @@
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkSystemIncludes.h"   // For VTKCOMMONCORE_EXPORT
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONCORE_EXPORT vtkFloatingPointExceptions
 {
 public:
@@ -48,5 +49,6 @@ private:
   void operator=(const vtkFloatingPointExceptions&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkFloatingPointExceptions.h

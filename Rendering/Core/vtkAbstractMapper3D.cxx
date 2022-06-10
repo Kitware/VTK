@@ -19,6 +19,7 @@
 #include "vtkPlaneCollection.h"
 
 // Construct with initial range (0,1).
+VTK_ABI_NAMESPACE_BEGIN
 vtkAbstractMapper3D::vtkAbstractMapper3D()
 {
   vtkMath::UninitializeBounds(this->Bounds);
@@ -99,3 +100,4 @@ void vtkAbstractMapper3D::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

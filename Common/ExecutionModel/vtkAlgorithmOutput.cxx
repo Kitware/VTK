@@ -16,6 +16,7 @@
 
 #include "vtkObjectFactory.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkAlgorithmOutput);
 
 //------------------------------------------------------------------------------
@@ -66,3 +67,4 @@ void vtkAlgorithmOutput::SetProducer(vtkAlgorithm* producer)
 {
   this->Producer = producer;
 }
+VTK_ABI_NAMESPACE_END

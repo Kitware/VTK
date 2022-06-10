@@ -16,6 +16,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkVersionFull.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkVersion);
 
 void vtkVersion::PrintSelf(ostream& os, vtkIndent indent)
@@ -34,3 +35,4 @@ const char* GetVTKVersion()
 {
   return vtkVersion::GetVTKVersion();
 }
+VTK_ABI_NAMESPACE_END

@@ -77,6 +77,7 @@ POSSIBILITY OF SUCH DAMAGES.
 #include <vtksys/SystemTools.hxx>
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkMNITransformWriter);
 
 //------------------------------------------------------------------------------
@@ -576,3 +577,4 @@ void vtkMNITransformWriter::AddTransform(vtkAbstractTransform* transform)
     this->Modified();
   }
 }
+VTK_ABI_NAMESPACE_END

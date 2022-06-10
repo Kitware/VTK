@@ -31,6 +31,7 @@
 #include <cmath>
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkColorTransferFunctionItem);
 
 //------------------------------------------------------------------------------
@@ -151,3 +152,4 @@ bool vtkColorTransferFunctionItem::ConfigurePlotBar()
   }
   return ret;
 }
+VTK_ABI_NAMESPACE_END

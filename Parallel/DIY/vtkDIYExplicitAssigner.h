@@ -44,6 +44,7 @@
                                    dll-interface class */
 #endif
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKPARALLELDIY_EXPORT vtkDIYExplicitAssigner : public diy::StaticAssigner
 {
 public:
@@ -57,5 +58,6 @@ private:
   std::vector<int> IScanBlockCounts;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkDIYExplicitAssigner.h

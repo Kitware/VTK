@@ -29,6 +29,7 @@
 #include "vtkIOExportPDFModule.h" // For export macro
 #include "vtkNew.h"               // For vtkNew!
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkColor3ub;
 class vtkPath;
 class vtkRenderer;
@@ -170,4 +171,5 @@ private:
   void operator=(const vtkPDFContextDevice2D&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkPDFContextDevice2D_h

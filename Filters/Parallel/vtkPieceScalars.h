@@ -31,6 +31,7 @@
 #include "vtkDataSetAlgorithm.h"
 #include "vtkFiltersParallelModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkFloatArray;
 class vtkIntArray;
 
@@ -75,4 +76,5 @@ private:
   void operator=(const vtkPieceScalars&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

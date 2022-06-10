@@ -35,6 +35,7 @@
 
 #include <map>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkMergeGraphs);
 //------------------------------------------------------------------------------
 vtkMergeGraphs::vtkMergeGraphs()
@@ -281,3 +282,4 @@ void vtkMergeGraphs::PrintSelf(ostream& os, vtkIndent indent)
      << (this->EdgeWindowArrayName ? this->EdgeWindowArrayName : "(none)") << endl;
   os << indent << "EdgeWindow: " << this->EdgeWindow << endl;
 }
+VTK_ABI_NAMESPACE_END

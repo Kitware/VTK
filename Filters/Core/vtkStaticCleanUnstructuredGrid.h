@@ -76,6 +76,7 @@
 #include "vtkUnstructuredGridAlgorithm.h"
 #include <vector> // API to vtkStaticCleanUnstructuredGrid
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCellArray;
 class vtkCellData;
 class vtkPointData;
@@ -249,4 +250,5 @@ private:
   void operator=(const vtkStaticCleanUnstructuredGrid&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

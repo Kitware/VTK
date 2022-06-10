@@ -32,6 +32,7 @@
 #include "vtkSMPTools.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 struct vtkAnimateModesWorker
 {
   template <typename PointsArray, typename DisplacementsArray>
@@ -232,3 +233,4 @@ void vtkAnimateModes::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "DisplacementPreapplied: " << this->DisplacementPreapplied << endl;
   os << indent << "TimeRange: " << this->TimeRange[0] << ", " << this->TimeRange[1] << endl;
 }
+VTK_ABI_NAMESPACE_END

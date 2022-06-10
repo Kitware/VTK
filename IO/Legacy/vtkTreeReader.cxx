@@ -25,6 +25,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTree.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkTreeReader);
 
 #ifdef read
@@ -221,3 +222,4 @@ void vtkTreeReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

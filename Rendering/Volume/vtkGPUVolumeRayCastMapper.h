@@ -35,6 +35,7 @@
 #include "vtkRenderingVolumeModule.h" // For export macro
 #include "vtkVolumeMapper.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkContourValues;
 class vtkRenderWindow;
 class vtkVolumeProperty;
@@ -642,4 +643,5 @@ private:
   void operator=(const vtkGPUVolumeRayCastMapper&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

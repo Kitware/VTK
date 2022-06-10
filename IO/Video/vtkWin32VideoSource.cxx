@@ -33,6 +33,7 @@
 #pragma warning(pop)
 #endif
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkWin32VideoSourceInternal
 {
 public:
@@ -1162,3 +1163,4 @@ void vtkWin32VideoSource::DoVFWFormatSetup()
   }
   this->DoVFWFormatCheck();
 }
+VTK_ABI_NAMESPACE_END

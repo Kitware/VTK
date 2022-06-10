@@ -32,6 +32,7 @@
 #include <qobject.h>
 
 // constructor
+VTK_ABI_NAMESPACE_BEGIN
 vtkQtConnection::vtkQtConnection(vtkEventQtSlotConnect* owner)
   : Owner(owner)
 {
@@ -137,3 +138,4 @@ void vtkQtConnection::PrintSelf(ostream& os, vtkIndent indent)
        << this->QtObject->metaObject()->className() << "::" << this->QtSlot.toUtf8().data() << "\n";
   }
 }
+VTK_ABI_NAMESPACE_END

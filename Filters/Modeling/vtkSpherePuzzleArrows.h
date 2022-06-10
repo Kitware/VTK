@@ -25,6 +25,7 @@
 #include "vtkFiltersModelingModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCellArray;
 class vtkPoints;
 class vtkSpherePuzzle;
@@ -66,4 +67,5 @@ private:
   void operator=(const vtkSpherePuzzleArrows&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

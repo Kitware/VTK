@@ -31,6 +31,7 @@
 #include "vtkMapper.h"
 #include "vtkRenderingCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPolyDataMapper;
 class vtkInformation;
 class vtkRenderer;
@@ -129,4 +130,5 @@ private:
   void operator=(const vtkCompositePolyDataMapper&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

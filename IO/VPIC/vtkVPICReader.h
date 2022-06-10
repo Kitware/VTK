@@ -32,15 +32,16 @@
 #include "vtkIOVPICModule.h" // For export macro
 #include "vtkImageAlgorithm.h"
 
+class VPICDataSet;
+class GridExchange;
+
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCallbackCommand;
 class vtkDataArraySelection;
 class vtkFloatArray;
 class vtkStdString;
 class vtkMultiProcessController;
 class vtkInformation;
-
-class VPICDataSet;
-class GridExchange;
 
 class VTKIOVPIC_EXPORT vtkVPICReader : public vtkImageAlgorithm
 {
@@ -174,4 +175,5 @@ private:
   void operator=(const vtkVPICReader&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -47,6 +47,7 @@
 #include <set>
 #include <sstream>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkQtTreeModelAdapter::vtkQtTreeModelAdapter(QObject* p, vtkTree* t)
   : vtkQtAbstractModelAdapter(p)
 {
@@ -572,3 +573,4 @@ Qt::DropActions vtkQtTreeModelAdapter::supportedDragActions() const
 {
   return Qt::CopyAction;
 }
+VTK_ABI_NAMESPACE_END

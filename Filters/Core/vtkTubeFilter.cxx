@@ -27,6 +27,7 @@
 
 #include <algorithm>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkTubeFilter);
 
 // Construct object with radius 0.5, radius variation turned off, the number
@@ -844,3 +845,4 @@ void vtkTubeFilter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Texture Length: " << this->TextureLength << endl;
   os << indent << "Output Points Precision: " << this->OutputPointsPrecision << endl;
 }
+VTK_ABI_NAMESPACE_END

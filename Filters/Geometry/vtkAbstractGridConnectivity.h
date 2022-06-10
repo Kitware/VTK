@@ -51,15 +51,18 @@
 #include "vtkUnsignedCharArray.h" // for vtkUnsignedCharArray definition
 
 // Forward declarations
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPointData;
 class vtkCellData;
 class vtkUnsignedCharArray;
 class vtkPoints;
 
 // C++ include directives
+VTK_ABI_NAMESPACE_END
 #include <cassert> // For assert
 #include <vector>  // For STL vector
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSGEOMETRY_EXPORT vtkAbstractGridConnectivity : public vtkObject
 {
 public:
@@ -490,4 +493,5 @@ inline void vtkAbstractGridConnectivity::RegisterGridNodes(const int gridID, vtk
   }
 }
 
+VTK_ABI_NAMESPACE_END
 #endif /* vtkAbstractGridConnectivity_h */

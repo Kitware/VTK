@@ -39,6 +39,7 @@
 #include "vtkObject.h"
 #include "vtkPythonInterpreterModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPythonInterpreter;
 
 class VTKPYTHONINTERPRETER_EXPORT vtkPythonInteractiveInterpreter : public vtkObject
@@ -99,4 +100,5 @@ private:
   vtkInternals* Internals;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

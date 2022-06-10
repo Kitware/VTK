@@ -55,6 +55,8 @@
 
 #include <memory> // For unique_ptr
 
+VTK_ABI_NAMESPACE_BEGIN
+
 class VTKFILTERSGENERAL_EXPORT vtkTableFFT : public vtkTableAlgorithm
 {
 public:
@@ -313,4 +315,5 @@ private:
   std::unique_ptr<vtkInternal> Internals;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkTableFFT_h

@@ -31,6 +31,7 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkGenericSubdivisionErrorMetric.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkGenericAttributeCollection;
 class vtkGenericDataSet;
 
@@ -160,4 +161,5 @@ private:
   void operator=(const vtkAttributesErrorMetric&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

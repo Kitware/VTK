@@ -33,6 +33,7 @@
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkImplicitFunction.h"
+VTK_ABI_NAMESPACE_BEGIN
 class vtkBoundingBox;
 
 class VTKCOMMONDATAMODEL_EXPORT vtkBox : public vtkImplicitFunction
@@ -181,4 +182,5 @@ inline void vtkBox::SetXMax(double p[3])
   this->SetXMax(p[0], p[1], p[2]);
 }
 
+VTK_ABI_NAMESPACE_END
 #endif

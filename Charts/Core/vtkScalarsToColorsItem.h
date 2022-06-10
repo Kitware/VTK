@@ -34,6 +34,7 @@
 #include "vtkNew.h"              // For vtkNew
 #include "vtkPlot.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCallbackCommand;
 class vtkImageData;
 class vtkPlotBar;
@@ -170,4 +171,5 @@ private:
   void operator=(const vtkScalarsToColorsItem&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

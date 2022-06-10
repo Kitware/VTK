@@ -19,6 +19,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPoints.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkIdentityTransform);
 
 //------------------------------------------------------------------------------
@@ -184,3 +185,4 @@ void vtkIdentityTransform::TransformVectors(vtkDataArray* inNms, vtkDataArray* o
     outNms->InsertNextTuple(vect);
   }
 }
+VTK_ABI_NAMESPACE_END

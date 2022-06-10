@@ -17,6 +17,7 @@
 #include "vtkObjectFactory.h"
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkParametricSuperEllipsoid);
 
 namespace
@@ -112,3 +113,4 @@ void vtkParametricSuperEllipsoid::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Squareness in the z-axis: " << this->N1 << "\n";
   os << indent << "Squareness in the x-y plane: " << this->N2 << "\n";
 }
+VTK_ABI_NAMESPACE_END

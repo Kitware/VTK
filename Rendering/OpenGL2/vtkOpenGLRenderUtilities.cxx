@@ -24,6 +24,7 @@
 #include "vtkShaderProgram.h"
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkOpenGLRenderUtilities::vtkOpenGLRenderUtilities() = default;
 
 //------------------------------------------------------------------------------
@@ -223,3 +224,4 @@ void vtkOpenGLRenderUtilities::MarkDebugEvent(const std::string& event)
   vtkOpenGLClearErrorMacro();
 #endif // VTK_OPENGL_ENABLE_STREAM_ANNOTATIONS
 }
+VTK_ABI_NAMESPACE_END

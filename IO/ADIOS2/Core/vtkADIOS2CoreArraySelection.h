@@ -36,6 +36,7 @@
 #pragma warning(push)           // save
 #pragma warning(disable : 4251) // needs to have dll-interface to be used by clients of class
 #endif
+VTK_ABI_NAMESPACE_BEGIN
 class VTKIOADIOS2_EXPORT vtkADIOS2ArraySelection : public std::map<std::string, bool>
 {
 public:
@@ -76,5 +77,6 @@ public:
 #pragma warning(pop) // restore
 #endif
 
+VTK_ABI_NAMESPACE_END
 #endif //# vtkADIOS2CoreArraySelection_h
 // VTK-HeaderTest-Exclude: vtkADIOS2CoreArraySelection.h

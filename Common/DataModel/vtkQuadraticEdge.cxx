@@ -20,6 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPoints.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkQuadraticEdge);
 
 //------------------------------------------------------------------------------
@@ -275,3 +276,4 @@ void vtkQuadraticEdge::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Line:\n";
   this->Line->PrintSelf(os, indent.GetNextIndent());
 }
+VTK_ABI_NAMESPACE_END

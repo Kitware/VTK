@@ -96,6 +96,7 @@
 #include "vtkImageAlgorithm.h"
 #include "vtkImagingMorphologicalModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkIdTypeArray;
 class vtkIntArray;
 class vtkDataSet;
@@ -314,4 +315,5 @@ private:
   void operator=(const vtkImageConnectivityFilter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

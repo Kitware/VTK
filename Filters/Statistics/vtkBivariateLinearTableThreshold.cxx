@@ -30,6 +30,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include <map>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkBivariateLinearTableThreshold);
 
 class vtkBivariateLinearTableThreshold::Internals
@@ -377,3 +378,4 @@ int vtkBivariateLinearTableThreshold::ThresholdBetween(double x, double y)
 {
   return (this->ThresholdAbove(x, y) && this->ThresholdBelow(x, y));
 }
+VTK_ABI_NAMESPACE_END

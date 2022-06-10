@@ -22,6 +22,7 @@
 #include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImageMandelbrotSource);
 
 //------------------------------------------------------------------------------
@@ -447,3 +448,4 @@ double vtkImageMandelbrotSource::EvaluateSet(double p[4])
 
   return static_cast<double>(count) + (4.0 - v0) / (v1 - v0);
 }
+VTK_ABI_NAMESPACE_END

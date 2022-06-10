@@ -34,6 +34,7 @@
 #include "vtkOpenGLState.h"
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 QVTKOpenGLNativeWidget::QVTKOpenGLNativeWidget(QWidget* parentWdg, Qt::WindowFlags f)
   : QVTKOpenGLNativeWidget(
       vtkSmartPointer<vtkGenericOpenGLRenderWindow>::New().GetPointer(), parentWdg, f)
@@ -293,3 +294,4 @@ bool QVTKOpenGLNativeWidget::event(QEvent* evt)
   }
   return this->Superclass::event(evt);
 }
+VTK_ABI_NAMESPACE_END

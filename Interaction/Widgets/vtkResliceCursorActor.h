@@ -30,6 +30,7 @@
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkProp3D.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkResliceCursor;
 class vtkResliceCursorPolyDataAlgorithm;
 class vtkPolyDataMapper;
@@ -122,4 +123,5 @@ private:
   void operator=(const vtkResliceCursorActor&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

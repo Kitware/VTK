@@ -27,6 +27,7 @@
 
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkEarthSource);
 
 // Description:
@@ -51,8 +52,10 @@ void vtkEarthSource::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 // NOLINTNEXTLINE(bugprone-suspicious-include)
+VTK_ABI_NAMESPACE_END
 #include "vtkEarthSourceData.cxx"
 
+VTK_ABI_NAMESPACE_BEGIN
 int vtkEarthSource::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
@@ -183,3 +186,4 @@ int vtkEarthSource::RequestData(vtkInformation* vtkNotUsed(request),
 
   return 1;
 }
+VTK_ABI_NAMESPACE_END

@@ -29,6 +29,7 @@
 
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkGreedyTerrainDecimation);
 
 // Define some constants describing vertices
@@ -1312,3 +1313,4 @@ void vtkGreedyTerrainDecimation::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "BoundaryVertexDeletion: " << (this->BoundaryVertexDeletion ? "On\n" : "Off\n");
   os << indent << "ComputeNormals: " << (this->ComputeNormals ? "On\n" : "Off\n");
 }
+VTK_ABI_NAMESPACE_END

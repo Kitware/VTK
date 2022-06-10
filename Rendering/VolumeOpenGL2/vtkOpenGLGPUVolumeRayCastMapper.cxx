@@ -101,6 +101,7 @@
 #include <sstream>
 #include <string>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOpenGLGPUVolumeRayCastMapper);
 
 //------------------------------------------------------------------------------
@@ -4110,3 +4111,4 @@ void vtkOpenGLGPUVolumeRayCastMapper::SetShaderParametersRenderPass()
     }
   }
 }
+VTK_ABI_NAMESPACE_END

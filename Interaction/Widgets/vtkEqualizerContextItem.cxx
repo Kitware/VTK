@@ -34,6 +34,7 @@
 
 namespace equalizer
 {
+VTK_ABI_NAMESPACE_BEGIN
 struct EqualizerPoint
 {
   static const int radius{ 4 };
@@ -98,8 +99,10 @@ bool isNearLine(
   bool res = { onLine && t < 1.0 && t > 0.0 };
   return res;
 }
+VTK_ABI_NAMESPACE_END
 }
 
+VTK_ABI_NAMESPACE_BEGIN
 // using namespace equalizer;
 
 class vtkEqualizerContextItem::vtkInternal
@@ -465,3 +468,4 @@ void vtkEqualizerContextItem::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Pen = " << this->Pen << endl;
   os << indent << "Brush = " << this->Brush << endl;
 }
+VTK_ABI_NAMESPACE_END

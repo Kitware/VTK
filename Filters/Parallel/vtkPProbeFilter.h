@@ -27,6 +27,7 @@
 #include "vtkCompositeDataProbeFilter.h"
 #include "vtkFiltersParallelModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkMultiProcessController;
 
 class VTKFILTERSPARALLEL_EXPORT vtkPProbeFilter : public vtkCompositeDataProbeFilter
@@ -66,4 +67,5 @@ private:
   void operator=(const vtkPProbeFilter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

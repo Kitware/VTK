@@ -21,6 +21,7 @@
 #include <sys/types.h>
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkSegYIOUtils::vtkSegYIOUtils()
 {
   this->IsBigEndian = checkIfBigEndian();
@@ -170,3 +171,4 @@ std::streamoff vtkSegYIOUtils::getFileSize(std::istream& in)
   in.seekg(0, std::istream::end);
   return in.tellg();
 }
+VTK_ABI_NAMESPACE_END

@@ -27,6 +27,7 @@
 #include <cassert>
 #include <numeric>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkCxxSetObjectMacro(vtkXMLWriter2, Controller, vtkMultiProcessController);
 //----------------------------------------------------------------------------
 vtkXMLWriter2::vtkXMLWriter2()
@@ -221,3 +222,4 @@ void vtkXMLWriter2::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Controller: " << this->Controller << endl;
   os << indent << "NumberOfGhostLevels: " << this->NumberOfGhostLevels << endl;
 }
+VTK_ABI_NAMESPACE_END

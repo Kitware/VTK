@@ -21,6 +21,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImageSeparableConvolution);
 vtkCxxSetObjectMacro(vtkImageSeparableConvolution, XKernel, vtkFloatArray);
 vtkCxxSetObjectMacro(vtkImageSeparableConvolution, YKernel, vtkFloatArray);
@@ -407,3 +408,4 @@ void vtkImageSeparableConvolution::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "ZKernel: (not defined)\n";
   }
 }
+VTK_ABI_NAMESPACE_END

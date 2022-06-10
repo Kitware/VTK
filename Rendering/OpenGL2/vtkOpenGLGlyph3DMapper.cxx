@@ -38,6 +38,7 @@
 
 #include <map>
 
+VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
 int getNumberOfChildren(vtkDataObjectTree* tree)
@@ -1023,3 +1024,4 @@ void vtkOpenGLGlyph3DMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

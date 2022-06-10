@@ -23,6 +23,7 @@
 #include "vtkTransform.h"
 #include "vtkTransformPolyDataFilter.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkFixedSizeHandleRepresentation3D);
 
 //------------------------------------------------------------------------------
@@ -150,3 +151,4 @@ void vtkFixedSizeHandleRepresentation3D::BuildRepresentation()
     this->SetHandle(this->SphereSource->GetOutput());
   }
 }
+VTK_ABI_NAMESPACE_END

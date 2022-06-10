@@ -26,6 +26,7 @@
 #include <set>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkColorTransferFunction);
 
 #define MY_MAX(x, y) ((x) > (y) ? (x) : (y))
@@ -2034,3 +2035,4 @@ void vtkColorTransferFunction::PrintSelf(ostream& os, vtkIndent indent)
        << " Midpoint: " << this->Internal->Nodes[i]->Midpoint << endl;
   }
 }
+VTK_ABI_NAMESPACE_END

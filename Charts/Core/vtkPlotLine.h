@@ -28,6 +28,7 @@
 #include "vtkChartsCoreModule.h" // For export macro
 #include "vtkPlotPoints.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCHARTSCORE_EXPORT vtkPlotLine : public vtkPlotPoints
 {
 public:
@@ -79,4 +80,5 @@ private:
   void operator=(const vtkPlotLine&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkPlotLine_h

@@ -42,6 +42,7 @@
 #include "vtkTransform.h"
 #include "vtkTransformPolyDataFilter.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkConstrainedPointHandleRepresentation);
 
 vtkCxxSetObjectMacro(vtkConstrainedPointHandleRepresentation, ObliquePlane, vtkPlane);
@@ -734,3 +735,4 @@ void vtkConstrainedPointHandleRepresentation::PrintSelf(ostream& os, vtkIndent i
     os << "(none)\n";
   }
 }
+VTK_ABI_NAMESPACE_END

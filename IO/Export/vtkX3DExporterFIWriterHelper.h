@@ -30,6 +30,7 @@
 #ifndef max
 #define max(a, b) (((a) > (b)) ? (a) : (b))
 #endif
+VTK_ABI_NAMESPACE_BEGIN
 class vtkX3DExporterFIWriterHelper
 {
 public:
@@ -396,5 +397,6 @@ public:
   }
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkX3DExporterFIWriterHelper.h

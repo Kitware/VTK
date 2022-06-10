@@ -21,6 +21,7 @@
 
 #include "vtkArrayCoordinates.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkArrayCoordinates::vtkArrayCoordinates() = default;
 
 vtkArrayCoordinates::vtkArrayCoordinates(CoordinateT i)
@@ -95,3 +96,4 @@ ostream& operator<<(ostream& stream, const vtkArrayCoordinates& rhs)
 
   return stream;
 }
+VTK_ABI_NAMESPACE_END

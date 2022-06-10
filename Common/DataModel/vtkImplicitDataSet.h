@@ -43,6 +43,7 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkImplicitFunction.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataSet;
 
 class VTKCOMMONDATAMODEL_EXPORT vtkImplicitDataSet : public vtkImplicitFunction
@@ -118,4 +119,5 @@ private:
   void operator=(const vtkImplicitDataSet&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

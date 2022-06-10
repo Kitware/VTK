@@ -30,6 +30,7 @@
 #include "vtkCommonMiscModule.h" // For export macro
 #include "vtkObject.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDoubleArray;
 
 class VTKCOMMONMISC_EXPORT vtkContourValues : public vtkObject
@@ -106,4 +107,5 @@ private:
   void operator=(const vtkContourValues&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

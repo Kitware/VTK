@@ -29,6 +29,7 @@
 #include "vtkProp3D.h"
 #include "vtkRenderingCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCamera;
 class vtkFrustumSource;
 class vtkPolyDataMapper;
@@ -114,4 +115,5 @@ private:
   void operator=(const vtkCameraActor&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

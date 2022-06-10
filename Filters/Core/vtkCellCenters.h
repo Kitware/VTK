@@ -42,6 +42,7 @@
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDoubleArray;
 
 class VTKFILTERSCORE_EXPORT vtkCellCenters : public vtkPolyDataAlgorithm
@@ -96,4 +97,5 @@ private:
   void operator=(const vtkCellCenters&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

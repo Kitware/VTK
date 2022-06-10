@@ -18,6 +18,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkRect.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkRenderWidget);
 
 vtkRenderWidget::vtkRenderWidget()
@@ -91,3 +92,4 @@ void vtkRenderWidget::PrintSelf(ostream& os, vtkIndent indent)
   // FIXME: Add methods for this...
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

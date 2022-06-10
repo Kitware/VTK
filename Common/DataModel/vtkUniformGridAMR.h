@@ -28,6 +28,7 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkCompositeDataSet.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCompositeDataIterator;
 class vtkUniformGrid;
 class vtkAMRInformation;
@@ -184,4 +185,5 @@ private:
   friend class vtkUniformGridAMRDataIterator;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

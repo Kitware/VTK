@@ -17,6 +17,7 @@
 #include "vtkMatrix4x4.h"
 #include "vtkObjectFactory.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkMatrixToHomogeneousTransform);
 vtkCxxSetObjectMacro(vtkMatrixToHomogeneousTransform, Input, vtkMatrix4x4);
 
@@ -103,3 +104,4 @@ vtkMTimeType vtkMatrixToHomogeneousTransform::GetMTime()
   }
   return mtime;
 }
+VTK_ABI_NAMESPACE_END

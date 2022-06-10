@@ -64,6 +64,7 @@
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkUnstructuredGridAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCellData;
 class vtkDataArray;
 class vtkIdList;
@@ -238,4 +239,5 @@ private:
   void operator=(const vtkClipVolume&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

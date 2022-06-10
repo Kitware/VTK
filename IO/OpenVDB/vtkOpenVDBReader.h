@@ -32,6 +32,7 @@
 #include "vtkPartitionedDataSetCollectionAlgorithm.h"
 #include "vtkSmartPointer.h" // needed for smart pointers
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkOpenVDBReaderInternals;
 
 class VTKIOOPENVDB_EXPORT vtkOpenVDBReader : public vtkPartitionedDataSetCollectionAlgorithm
@@ -176,4 +177,5 @@ private:
   std::unique_ptr<vtkOpenVDBReaderInternals> Internals;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

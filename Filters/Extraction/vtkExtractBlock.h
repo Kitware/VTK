@@ -35,6 +35,7 @@
 #include "vtkFiltersExtractionModule.h" // For export macro
 #include "vtkPassInputTypeAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataObjectTreeIterator;
 class vtkPartitionedDataSet;
 class vtkMultiBlockDataSet;
@@ -123,4 +124,5 @@ private:
   vtkSet* Indices;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

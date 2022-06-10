@@ -31,6 +31,7 @@ using std::vector;
 #define vtkSurfaceLICCompositeDEBUG 0
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkObjectFactoryNewMacro(vtkSurfaceLICComposite);
 
 //------------------------------------------------------------------------------
@@ -384,3 +385,4 @@ ostream& operator<<(ostream& os, vtkSurfaceLICComposite& ss)
   }
   return os;
 }
+VTK_ABI_NAMESPACE_END

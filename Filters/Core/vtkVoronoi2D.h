@@ -94,6 +94,7 @@
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkStaticPointLocator2D;
 class vtkAbstractTransform;
 class vtkPointSet;
@@ -276,4 +277,5 @@ private:
   void operator=(const vtkVoronoi2D&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

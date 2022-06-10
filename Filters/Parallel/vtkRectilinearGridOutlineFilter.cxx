@@ -22,6 +22,7 @@
 #include "vtkRectilinearGrid.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkRectilinearGridOutlineFilter);
 
 int vtkRectilinearGridOutlineFilter::RequestData(vtkInformation* vtkNotUsed(request),
@@ -252,3 +253,4 @@ void vtkRectilinearGridOutlineFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

@@ -18,6 +18,7 @@
 #include "vtkInformation.h"
 #include "vtkObjectFactory.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkTrivialConsumer);
 
 //------------------------------------------------------------------------------
@@ -48,3 +49,4 @@ int vtkTrivialConsumer::FillOutputPortInformation(int, vtkInformation*)
 {
   return 1;
 }
+VTK_ABI_NAMESPACE_END

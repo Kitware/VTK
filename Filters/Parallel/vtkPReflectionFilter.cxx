@@ -18,6 +18,7 @@
 #include "vtkMultiProcessController.h"
 #include "vtkObjectFactory.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPReflectionFilter);
 vtkCxxSetObjectMacro(vtkPReflectionFilter, Controller, vtkMultiProcessController);
 //------------------------------------------------------------------------------
@@ -59,3 +60,4 @@ void vtkPReflectionFilter::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
   os << indent << "Controller: " << this->Controller << endl;
 }
+VTK_ABI_NAMESPACE_END

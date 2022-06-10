@@ -60,6 +60,7 @@
 #include <mutex> // for mutexes
 #include <queue> // for new particles
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkAbstractArray;
 class vtkAbstractCellLocator;
 class vtkCell;
@@ -655,4 +656,5 @@ private:
   void operator=(const vtkLagrangianBasicIntegrationModel&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

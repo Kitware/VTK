@@ -46,6 +46,7 @@
 #include "vtkRenderingVolumeModule.h" // For export macro
 #include "vtkUnstructuredGridVolumeRayIntegrator.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPartialPreIntegrationTransferFunction;
 class vtkVolumeProperty;
 
@@ -159,4 +160,5 @@ inline void vtkUnstructuredGridPartialPreIntegration::IntegrateRay(double length
   color[3] += (1 - color[3]) * alpha;
 }
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkUnstructuredGridPartialPreIntegration_h

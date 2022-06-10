@@ -23,6 +23,7 @@
 #include "vtkTrivialProducer.h"
 #include "vtkViewport.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkCubeAxesActor2D);
 
 vtkCxxSetObjectMacro(vtkCubeAxesActor2D, Camera, vtkCamera);
@@ -1069,3 +1070,4 @@ static int IsInBounds(double x[3], double bounds[6])
     return 1;
   }
 }
+VTK_ABI_NAMESPACE_END

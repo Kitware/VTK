@@ -60,6 +60,7 @@
 #define VTK_EXTRACT_ALL_CLUSTERS 4
 #define VTK_EXTRACT_CLOSEST_POINT_CLUSTER 5
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataArray;
 class vtkFloatArray;
 class vtkIdList;
@@ -264,4 +265,5 @@ inline const char* vtkEuclideanClusterExtraction::GetExtractionModeAsString()
   }
 }
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -53,6 +53,7 @@
 
 #include <cassert> // For assert macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataObject;
 class vtkDataSet;
 class vtkTextMapper;
@@ -285,4 +286,5 @@ private:
   void operator=(const vtkLabeledDataMapper&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

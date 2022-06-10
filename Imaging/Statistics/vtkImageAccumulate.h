@@ -40,6 +40,7 @@
 #include "vtkImageAlgorithm.h"
 #include "vtkImagingStatisticsModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkImageStencilData;
 
 class VTKIMAGINGSTATISTICS_EXPORT vtkImageAccumulate : public vtkImageAlgorithm
@@ -163,4 +164,5 @@ private:
   void operator=(const vtkImageAccumulate&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

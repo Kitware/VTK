@@ -27,6 +27,7 @@
 #include "vtkPointData.h"
 #include "vtkUnstructuredGrid.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkExplicitStructuredGridToUnstructuredGrid);
 
 //------------------------------------------------------------------------------
@@ -124,3 +125,4 @@ int vtkExplicitStructuredGridToUnstructuredGrid::FillInputPortInformation(
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkExplicitStructuredGrid");
   return 1;
 }
+VTK_ABI_NAMESPACE_END

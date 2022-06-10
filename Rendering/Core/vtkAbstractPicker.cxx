@@ -19,6 +19,7 @@
 
 // Construct object with initial tolerance of 1/40th of window. There are no
 // pick methods and picking is performed from the renderer's actors.
+VTK_ABI_NAMESPACE_BEGIN
 vtkAbstractPicker::vtkAbstractPicker()
 {
   this->Renderer = nullptr;
@@ -96,3 +97,4 @@ void vtkAbstractPicker::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Pick Position: (" << this->PickPosition[0] << "," << this->PickPosition[1] << ","
      << this->PickPosition[2] << ")\n";
 }
+VTK_ABI_NAMESPACE_END

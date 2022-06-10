@@ -28,6 +28,7 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtksys/FStream.hxx"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPTSReader);
 
 //------------------------------------------------------------------------------
@@ -400,3 +401,4 @@ int vtkPTSReader::RequestData(vtkInformation* vtkNotUsed(request),
   this->UpdateProgress(1.0);
   return 1;
 }
+VTK_ABI_NAMESPACE_END

@@ -44,6 +44,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 using namespace boost;
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkBoostKruskalMinimumSpanningTree);
 
 // Constructor/Destructor
@@ -176,3 +177,4 @@ void vtkBoostKruskalMinimumSpanningTree::PrintSelf(ostream& os, vtkIndent indent
 
   os << indent << "EdgeWeightMultiplier: " << this->EdgeWeightMultiplier << endl;
 }
+VTK_ABI_NAMESPACE_END

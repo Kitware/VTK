@@ -102,6 +102,7 @@
 #define VTK_ACCUMULATION_MODE_MAX 1
 #define VTK_ACCUMULATION_MODE_SUM 2
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDoubleArray;
 class vtkCompositeDataSet;
 
@@ -339,4 +340,5 @@ private:
   void operator=(const vtkCheckerboardSplatter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -29,6 +29,7 @@
 #include <vector>
 
 // Define the edge list class--------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 struct vtkEdge
 {
   vtkEdge(vtkIdType v1, vtkIdType v2)
@@ -549,3 +550,4 @@ void vtkProjectedTerrainPath::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Height Tolerance: " << this->HeightTolerance << "\n";
   os << indent << "Maximum Number Of Lines: " << this->MaximumNumberOfLines << "\n";
 }
+VTK_ABI_NAMESPACE_END

@@ -20,6 +20,7 @@
 #include "vtkVector.h"              // For member variables.
 #include <string>                   // For member variables.
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkAbstractInteractionDevice;
 class vtkAbstractRenderDevice;
 
@@ -98,4 +99,5 @@ private:
   void operator=(const vtkRenderWidget&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

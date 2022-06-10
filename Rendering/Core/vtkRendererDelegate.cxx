@@ -15,6 +15,7 @@
 
 #include "vtkRendererDelegate.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkRendererDelegate::vtkRendererDelegate()
 {
   this->Used = false;
@@ -37,3 +38,4 @@ void vtkRendererDelegate::PrintSelf(ostream& os, vtkIndent indent)
   }
   os << endl;
 }
+VTK_ABI_NAMESPACE_END

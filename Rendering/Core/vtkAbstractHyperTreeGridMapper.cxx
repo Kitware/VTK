@@ -29,6 +29,7 @@
 #include "vtkRenderer.h"
 #include "vtkUniformHyperTreeGrid.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkCxxSetObjectMacro(vtkAbstractHyperTreeGridMapper, ColorMap, vtkScalarsToColors);
 
 //------------------------------------------------------------------------------
@@ -339,3 +340,4 @@ vtkMTimeType vtkAbstractHyperTreeGridMapper::GetMTime()
 }
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_END

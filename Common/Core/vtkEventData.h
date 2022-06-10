@@ -22,6 +22,7 @@
 #include "vtkCommand.h"
 
 // enumeration of possible devices
+VTK_ABI_NAMESPACE_BEGIN
 enum class vtkEventDataDevice
 {
   Unknown = -1,
@@ -245,6 +246,7 @@ private:
   void operator=(const vtkEventDataDevice3D&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
 
 // VTK-HeaderTest-Exclude: vtkEventData.h

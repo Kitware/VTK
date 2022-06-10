@@ -86,6 +86,7 @@
   } while (false)
 
 // ------------------------------------------------------------------- CONSTANTS
+VTK_ABI_NAMESPACE_BEGIN
 static int obj_types[] = { EX_EDGE_BLOCK, EX_FACE_BLOCK, EX_ELEM_BLOCK, EX_NODE_SET, EX_EDGE_SET,
   EX_FACE_SET, EX_SIDE_SET, EX_ELEM_SET, EX_NODE_MAP, EX_EDGE_MAP, EX_FACE_MAP, EX_ELEM_MAP,
   EX_NODAL };
@@ -139,10 +140,12 @@ extern "C"
 }
 
 // --------------------------------------------------- PRIVATE CLASS DECLARATION
+VTK_ABI_NAMESPACE_END
 #include "vtkExodusIIReaderPrivate.h"
 #include "vtkExodusIIReaderVariableCheck.h"
 
 // --------------------------------------------------- PRIVATE CLASS Implementations
+VTK_ABI_NAMESPACE_BEGIN
 vtkExodusIIReaderPrivate::BlockSetInfoType::BlockSetInfoType(
   const vtkExodusIIReaderPrivate::BlockSetInfoType& block)
   : vtkExodusIIReaderPrivate::ObjectInfoType(block)
@@ -6762,3 +6765,4 @@ void vtkExodusIIReader::ResetCache()
 {
   this->Metadata->ResetCache();
 }
+VTK_ABI_NAMESPACE_END

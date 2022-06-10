@@ -33,6 +33,7 @@
 
 using namespace vtkX3D;
 
+VTK_ABI_NAMESPACE_BEGIN
 struct XMLInfo
 {
 
@@ -356,3 +357,4 @@ void vtkX3DExporterXMLWriter::SubDepth()
 {
   this->ActTab.erase(0, 2);
 }
+VTK_ABI_NAMESPACE_END

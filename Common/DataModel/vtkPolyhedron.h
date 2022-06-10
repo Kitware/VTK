@@ -38,6 +38,7 @@
 #include "vtkCell3D.h"
 #include "vtkCommonDataModelModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkIdTypeArray;
 class vtkCellArray;
 class vtkTriangle;
@@ -345,4 +346,5 @@ inline int vtkPolyhedron::GetParametricCenter(double pcoords[3])
   return 0;
 }
 
+VTK_ABI_NAMESPACE_END
 #endif

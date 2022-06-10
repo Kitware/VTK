@@ -15,6 +15,7 @@
 #include "vtkPolygonBuilder.h"
 #include "vtkIdListCollection.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkPolygonBuilder::vtkPolygonBuilder() = default;
 
 void vtkPolygonBuilder::InsertTriangle(const vtkIdType* abc)
@@ -170,3 +171,4 @@ void vtkPolygonBuilder::Reset()
   this->EdgeCounter.clear();
   this->Edges.clear();
 }
+VTK_ABI_NAMESPACE_END

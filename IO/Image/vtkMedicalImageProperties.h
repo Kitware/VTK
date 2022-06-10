@@ -30,6 +30,7 @@
 #include "vtkIOImageModule.h" // For export macro
 #include "vtkObject.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkMedicalImagePropertiesInternals;
 
 class VTKIOIMAGE_EXPORT vtkMedicalImageProperties : public vtkObject
@@ -527,4 +528,5 @@ private:
   void operator=(const vtkMedicalImageProperties&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

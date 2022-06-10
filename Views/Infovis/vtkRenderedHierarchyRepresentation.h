@@ -29,6 +29,7 @@
 #include "vtkRenderedGraphRepresentation.h"
 #include "vtkViewsInfovisModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKVIEWSINFOVIS_EXPORT vtkRenderedHierarchyRepresentation
   : public vtkRenderedGraphRepresentation
 {
@@ -143,4 +144,5 @@ private:
   void operator=(const vtkRenderedHierarchyRepresentation&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

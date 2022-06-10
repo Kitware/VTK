@@ -82,6 +82,7 @@
 
 #include "vtkNew.h" // For vtkNew
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPropCollection;
 
 class VTKIOEXPORTGL2PS_EXPORT vtkGL2PSExporter : public vtkExporter
@@ -413,4 +414,5 @@ inline const char* vtkGL2PSExporter::GetFileFormatAsString(void)
   }
 }
 
+VTK_ABI_NAMESPACE_END
 #endif

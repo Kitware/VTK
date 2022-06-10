@@ -42,6 +42,7 @@
 
 #define VTK_IMAGE_BSPLINE_DEGREE_MAX 9
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkImageData;
 struct vtkInterpolationInfo;
 
@@ -152,4 +153,5 @@ private:
   void operator=(const vtkImageBSplineInterpolator&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

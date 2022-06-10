@@ -25,6 +25,7 @@
 #include "vtkCamera.h"
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkOpenGLRenderer;
 class vtkMatrix3x3;
 class vtkMatrix4x4;
@@ -62,4 +63,5 @@ private:
   void operator=(const vtkOpenGLCamera&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

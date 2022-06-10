@@ -48,6 +48,7 @@
 #include "vtkObject.h"
 #include "vtkRenderingCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkFrameBufferObjectBase;
 class vtkRenderState;
 class vtkWindow;
@@ -137,4 +138,5 @@ private:
   void operator=(const vtkRenderPass&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

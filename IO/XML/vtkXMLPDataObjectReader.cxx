@@ -21,6 +21,7 @@
 #include <sstream>
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkXMLPDataObjectReader::vtkXMLPDataObjectReader()
 {
   this->NumberOfPieces = 0;
@@ -191,3 +192,4 @@ int vtkXMLPDataObjectReader::ReadPiece(vtkXMLDataElement* ePiece, int index)
   this->Piece = index;
   return this->ReadPiece(ePiece);
 }
+VTK_ABI_NAMESPACE_END

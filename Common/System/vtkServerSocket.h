@@ -25,6 +25,7 @@
 #include "vtkCommonSystemModule.h" // For export macro
 #include "vtkSocket.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkClientSocket;
 class VTKCOMMONSYSTEM_EXPORT vtkServerSocket : public vtkSocket
 {
@@ -60,4 +61,5 @@ private:
   void operator=(const vtkServerSocket&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

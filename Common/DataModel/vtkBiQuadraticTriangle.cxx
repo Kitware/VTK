@@ -22,6 +22,7 @@
 #include "vtkQuadraticEdge.h"
 #include "vtkTriangle.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkBiQuadraticTriangle);
 
 //------------------------------------------------------------------------------
@@ -504,3 +505,4 @@ void vtkBiQuadraticTriangle::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Face: " << this->Face << endl;
   os << indent << "Scalars: " << this->Scalars << endl;
 }
+VTK_ABI_NAMESPACE_END

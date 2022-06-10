@@ -37,6 +37,7 @@
 
 //------------------------------------------------------------------------------
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkUnstructuredGridPreIntegration);
 
 vtkCxxSetObjectMacro(
@@ -422,3 +423,4 @@ void vtkUnstructuredGridPreIntegration::Integrate(vtkDoubleArray* intersectionLe
     color[3] += newcolor[3] * coef;
   }
 }
+VTK_ABI_NAMESPACE_END

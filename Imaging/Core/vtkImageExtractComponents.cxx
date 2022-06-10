@@ -22,6 +22,7 @@
 
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImageExtractComponents);
 
 //------------------------------------------------------------------------------
@@ -251,3 +252,4 @@ void vtkImageExtractComponents::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Components: ( " << this->Components[0] << ", " << this->Components[1] << ", "
      << this->Components[2] << " )\n";
 }
+VTK_ABI_NAMESPACE_END

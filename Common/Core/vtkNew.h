@@ -49,6 +49,7 @@
 
 #include <type_traits> // for is_base_of
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkObjectBase;
 
 template <class T>
@@ -171,5 +172,6 @@ private:
   T* Object;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkNew.h

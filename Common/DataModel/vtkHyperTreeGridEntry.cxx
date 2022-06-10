@@ -22,6 +22,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <cassert>
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 void vtkHyperTreeGridEntry::PrintSelf(ostream& os, vtkIndent indent)
 {
   os << indent << "--vtkHyperTreeGridEntry--" << endl;
@@ -139,3 +140,4 @@ void vtkHyperTreeGridEntry::ToChild(
   assert("pre: is_masked" && !IsMasked(grid, tree));
   this->Index = tree->GetElderChildIndex(this->Index) + ichild;
 }
+VTK_ABI_NAMESPACE_END

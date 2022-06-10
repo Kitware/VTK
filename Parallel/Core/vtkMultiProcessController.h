@@ -54,6 +54,7 @@
 
 #include "vtkCommunicator.h" // Needed for direct access to communicator
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkBoundingBox;
 class vtkCollection;
 class vtkDataObject;
@@ -1906,4 +1907,5 @@ inline vtkIdType vtkMultiProcessController::GetCount()
   return 0;
 }
 
+VTK_ABI_NAMESPACE_END
 #endif

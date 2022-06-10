@@ -33,6 +33,7 @@
 #include "vtkDataObjectAlgorithm.h"
 #include "vtkIOXdmf3Module.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkXdmf3ArraySelection;
 class vtkGraph;
 
@@ -206,4 +207,5 @@ private:
   Internals* Internal;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

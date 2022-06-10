@@ -26,6 +26,7 @@
 #include "vtkActor.h"
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkInformationIntegerKey;
 class vtkOpenGLRenderer;
 class vtkMatrix4x4;
@@ -75,4 +76,5 @@ private:
   void operator=(const vtkOpenGLActor&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

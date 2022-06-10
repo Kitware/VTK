@@ -43,6 +43,7 @@
 #include <sstream>
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkAMRSliceFilter);
 vtkCxxSetObjectMacro(vtkAMRSliceFilter, Controller, vtkMultiProcessController);
 
@@ -632,3 +633,4 @@ int vtkAMRSliceFilter::RequestData(vtkInformation* vtkNotUsed(request),
   vtkTimerLog::MarkEndEvent(eventName.c_str());
   return 1;
 }
+VTK_ABI_NAMESPACE_END

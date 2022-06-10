@@ -36,6 +36,7 @@
 
 //------------------------------------------------------------------------------
 typedef std::vector<vtkSmartPointer<vtkIdList>> vtkEnSightReaderCellIdsTypeBase;
+VTK_ABI_NAMESPACE_BEGIN
 class vtkEnSightReaderCellIdsType : public vtkEnSightReaderCellIdsTypeBase
 {
 };
@@ -2168,3 +2169,4 @@ void vtkEnSightReader::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "UseTimeSets: " << this->UseTimeSets << endl;
   os << indent << "UseFileSets: " << this->UseFileSets << endl;
 }
+VTK_ABI_NAMESPACE_END

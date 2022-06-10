@@ -37,6 +37,7 @@
 #define VTK_EPSILON 1.e-6
 
 // Anonymous namespace
+VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
 //------------------------------------------------------------------------------
@@ -478,3 +479,4 @@ void vtkPointDataToCellData::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Categorical Data: " << (this->CategoricalData ? "On\n" : "Off\n");
   os << indent << "Pass Point Data: " << (this->PassPointData ? "On\n" : "Off\n");
 }
+VTK_ABI_NAMESPACE_END

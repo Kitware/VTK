@@ -26,6 +26,7 @@
 #include "vtkBridgeExport.h" //for module export macro
 #include "vtkGenericDataSet.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataSet;
 
 class VTKTESTINGGENERICBRIDGE_EXPORT vtkBridgeDataSet : public vtkGenericDataSet
@@ -179,4 +180,5 @@ private:
   void operator=(const vtkBridgeDataSet&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -25,6 +25,7 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkArcPlotter);
 
 vtkCxxSetObjectMacro(vtkArcPlotter, Camera, vtkCamera);
@@ -456,3 +457,4 @@ void vtkArcPlotter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Height: " << this->Height << "\n";
   os << indent << "Offset: " << this->Offset << "\n";
 }
+VTK_ABI_NAMESPACE_END

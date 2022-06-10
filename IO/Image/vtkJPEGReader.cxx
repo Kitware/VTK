@@ -25,10 +25,14 @@
 extern "C"
 {
 #include "vtk_jpeg.h"
-#include <csetjmp>
+#include <setjmp.h>
 }
 
+VTK_ABI_NAMESPACE_BEGIN
+
 vtkStandardNewMacro(vtkJPEGReader);
+
+VTK_ABI_NAMESPACE_END
 
 #if defined(_MSC_VER)
 #if defined(_WIN64)
@@ -46,8 +50,10 @@ struct vtk_jpeg_error_mgr
   FILE* fp;
 };
 
+namespace
+{
 // this is called on jpeg error conditions
-extern "C" void vtk_jpeg_error_exit(j_common_ptr cinfo)
+void vtk_jpeg_error_exit(j_common_ptr cinfo)
 {
   /* cinfo->err really points to a my_error_mgr struct, so coerce pointer */
   vtk_jpeg_error_mgr* err = reinterpret_cast<vtk_jpeg_error_mgr*>(cinfo->err);
@@ -56,7 +62,7 @@ extern "C" void vtk_jpeg_error_exit(j_common_ptr cinfo)
   longjmp(err->setjmp_buffer, 1);
 }
 
-extern "C" void vtk_jpeg_output_message(j_common_ptr cinfo)
+void vtk_jpeg_output_message(j_common_ptr cinfo)
 {
   char buffer[JMSG_LENGTH_MAX];
 
@@ -67,15 +73,15 @@ extern "C" void vtk_jpeg_output_message(j_common_ptr cinfo)
   cinfo->err->num_warnings++;
 }
 
-extern "C" void jpg_null(j_decompress_ptr vtkNotUsed(cinfo)) {}
+void jpg_null(j_decompress_ptr vtkNotUsed(cinfo)) {}
 
-extern "C" boolean fill_input_buffer(j_decompress_ptr vtkNotUsed(cinfo))
+boolean fill_input_buffer(j_decompress_ptr vtkNotUsed(cinfo))
 {
   vtkGenericWarningMacro(<< "libjpeg error: unexpected end of JPEG data!");
   return FALSE;
 }
 
-extern "C" void skip_input_data(j_decompress_ptr cinfo, long num_bytes)
+void skip_input_data(j_decompress_ptr cinfo, long num_bytes)
 {
   struct jpeg_source_mgr* src = (struct jpeg_source_mgr*)cinfo->src;
 
@@ -88,9 +94,9 @@ extern "C" void skip_input_data(j_decompress_ptr cinfo, long num_bytes)
 
 // Read JPEG image from a memory buffer
 #if JPEG_LIB_VERSION >= 80 || defined(MEM_SRCDST_SUPPORTED)
-extern "C" void jMemSrc(j_decompress_ptr cinfo, const void* buffer, long nbytes)
+void jMemSrc(j_decompress_ptr cinfo, const void* buffer, long nbytes)
 #else
-extern "C" void jpeg_mem_src(j_decompress_ptr cinfo, const void* buffer, long nbytes)
+void jpeg_mem_src(j_decompress_ptr cinfo, const void* buffer, long nbytes)
 #endif
 {
   cinfo->src = (struct jpeg_source_mgr*)(*cinfo->mem->alloc_small)(
@@ -104,6 +110,7 @@ extern "C" void jpeg_mem_src(j_decompress_ptr cinfo, const void* buffer, long nb
   cinfo->src->bytes_in_buffer = nbytes;
   cinfo->src->next_input_byte = (const JOCTET*)buffer;
 }
+}
 
 #ifdef _MSC_VER
 // Let us get rid of this funny warning on /W4:
@@ -111,6 +118,8 @@ extern "C" void jpeg_mem_src(j_decompress_ptr cinfo, const void* buffer, long nb
 // destruction is non-portable
 #pragma warning(disable : 4611)
 #endif
+
+VTK_ABI_NAMESPACE_BEGIN
 
 void vtkJPEGReader::ExecuteInformation()
 {
@@ -466,3 +475,4 @@ void vtkJPEGReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

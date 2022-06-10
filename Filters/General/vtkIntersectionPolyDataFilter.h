@@ -66,6 +66,7 @@
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSGENERAL_EXPORT vtkIntersectionPolyDataFilter : public vtkPolyDataAlgorithm
 {
 public:
@@ -208,4 +209,5 @@ private:
   class Impl; // Implementation class
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkIntersectionPolyDataFilter_h

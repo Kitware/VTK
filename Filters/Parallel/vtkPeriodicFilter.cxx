@@ -23,6 +23,7 @@
 #include "vtkMultiProcessController.h"
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkPeriodicFilter::vtkPeriodicFilter()
 {
   this->IterationMode = VTK_ITERATION_MODE_MAX;
@@ -171,3 +172,4 @@ int vtkPeriodicFilter::RequestData(vtkInformation* vtkNotUsed(request),
   }
   return 1;
 }
+VTK_ABI_NAMESPACE_END

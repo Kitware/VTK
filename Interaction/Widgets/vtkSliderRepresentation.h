@@ -33,6 +33,7 @@
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkWidgetRepresentation.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKINTERACTIONWIDGETS_EXPORT vtkSliderRepresentation : public vtkWidgetRepresentation
 {
 public:
@@ -215,4 +216,5 @@ private:
   void operator=(const vtkSliderRepresentation&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

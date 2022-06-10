@@ -29,6 +29,7 @@
 #include "vtkTransform.h"
 #include "vtkTransformPolyDataFilter.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkCameraRepresentation);
 
 vtkCxxSetObjectMacro(vtkCameraRepresentation, Camera, vtkCamera);
@@ -262,3 +263,4 @@ void vtkCameraRepresentation::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Camera: " << this->Camera << "\n";
   os << indent << "Number of Frames: " << this->NumberOfFrames << "\n";
 }
+VTK_ABI_NAMESPACE_END

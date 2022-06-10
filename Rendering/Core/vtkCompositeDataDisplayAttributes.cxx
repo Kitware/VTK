@@ -24,6 +24,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkCompositeDataDisplayAttributes);
 
 vtkCompositeDataDisplayAttributes::vtkCompositeDataDisplayAttributes() = default;
@@ -371,3 +372,4 @@ vtkDataObject* vtkCompositeDataDisplayAttributes::DataObjectFromIndex(
   }
   return nullptr;
 }
+VTK_ABI_NAMESPACE_END

@@ -29,6 +29,7 @@
 #include "vtkRenderingContext2DModule.h" // For export macro
 #include "vtkSmartPointer.h"             // For SP ivars.
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkImageData;
 
 class VTKRENDERINGCONTEXT2D_EXPORT vtkImageItem : public vtkContextItem
@@ -83,4 +84,5 @@ private:
   void operator=(const vtkImageItem&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkImageItem_h

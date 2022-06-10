@@ -31,6 +31,7 @@
 #include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkCompositeDataPipeline.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkInformationVector;
 class vtkInformation;
 
@@ -62,4 +63,5 @@ private:
   friend class ProcessBlock;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

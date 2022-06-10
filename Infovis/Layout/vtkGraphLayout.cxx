@@ -35,6 +35,7 @@
 #include "vtkPoints.h"
 #include "vtkTable.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkGraphLayout);
 vtkCxxSetObjectMacro(vtkGraphLayout, Transform, vtkAbstractTransform);
 
@@ -288,3 +289,4 @@ void vtkGraphLayout::PrintSelf(ostream& os, vtkIndent indent)
   }
   os << indent << "UseTransform: " << (this->UseTransform ? "True" : "False") << endl;
 }
+VTK_ABI_NAMESPACE_END

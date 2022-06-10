@@ -39,6 +39,7 @@
 
 #include <algorithm>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkExtractSelectedThresholds);
 
 //------------------------------------------------------------------------------
@@ -772,3 +773,4 @@ int vtkExtractSelectedThresholds::EvaluateValue(vtkDataArray* scalars, int comp_
     *InsideCount = inside;
   return keepCell;
 }
+VTK_ABI_NAMESPACE_END

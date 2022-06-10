@@ -31,6 +31,7 @@
 #include "vtkExtractSelectedArraysOverTime.h"
 #include "vtkFiltersParallelModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkMultiProcessController;
 class VTKFILTERSPARALLEL_EXPORT vtkPExtractSelectedArraysOverTime
   : public vtkExtractSelectedArraysOverTime
@@ -57,4 +58,5 @@ private:
   void operator=(const vtkPExtractSelectedArraysOverTime&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

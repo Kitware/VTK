@@ -23,6 +23,7 @@
 #include "vtkMPIController.h"
 #include "vtkObjectFactory.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 int vtkMPIEventLog::LastEventId = 0;
 
 vtkStandardNewMacro(vtkMPIEventLog);
@@ -95,3 +96,4 @@ void vtkMPIEventLog::StopLogging()
 }
 
 vtkMPIEventLog::~vtkMPIEventLog() {}
+VTK_ABI_NAMESPACE_END

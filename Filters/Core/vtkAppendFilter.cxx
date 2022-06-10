@@ -32,6 +32,7 @@
 #include <string>
 #include <unordered_map>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkAppendFilter);
 
 //------------------------------------------------------------------------------
@@ -521,3 +522,4 @@ void vtkAppendFilter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "OutputPointsPrecision: " << this->OutputPointsPrecision << "\n";
   os << indent << "Tolerance: " << this->Tolerance << "\n";
 }
+VTK_ABI_NAMESPACE_END

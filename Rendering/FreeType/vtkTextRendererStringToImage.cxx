@@ -22,6 +22,7 @@
 #include "vtkTextRenderer.h"
 #include "vtkVector.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkTextRendererStringToImage::Internals
 {
 public:
@@ -84,3 +85,4 @@ void vtkTextRendererStringToImage::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

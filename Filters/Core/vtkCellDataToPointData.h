@@ -57,6 +57,7 @@
 #include "vtkDataSetAlgorithm.h"
 #include "vtkFiltersCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataSet;
 
 class VTKFILTERSCORE_EXPORT vtkCellDataToPointData : public vtkDataSetAlgorithm
@@ -191,4 +192,5 @@ private:
   void operator=(const vtkCellDataToPointData&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

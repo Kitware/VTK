@@ -61,6 +61,7 @@
 #include "vtkInfovisCoreModule.h" // For export macro
 #include "vtkTableAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKINFOVISCORE_EXPORT vtkDotProductSimilarity : public vtkTableAlgorithm
 {
 public:
@@ -171,4 +172,5 @@ private:
   int SecondFirst;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -18,6 +18,7 @@
 #include "vtkObjectFactory.h"
 #include <cassert>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImplicitHalo);
 
 //------------------------------------------------------------------------------
@@ -75,3 +76,4 @@ void vtkImplicitHalo::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Radius: " << this->Radius << endl;
   os << indent << "FadeOut: " << this->FadeOut << endl;
 }
+VTK_ABI_NAMESPACE_END

@@ -18,6 +18,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkWebGLExporter.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkWebGLDataSet);
 
 std::string vtkWebGLDataSet::GetMD5()
@@ -243,3 +244,4 @@ void vtkWebGLDataSet::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

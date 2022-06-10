@@ -35,6 +35,7 @@
 #include "vtkActor.h"
 #include "vtkRenderingCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCamera;
 
 class VTKRENDERINGCORE_EXPORT vtkFollower : public vtkActor
@@ -102,4 +103,5 @@ private:
   void Render(vtkRenderer*, vtkMapper*) override {}
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

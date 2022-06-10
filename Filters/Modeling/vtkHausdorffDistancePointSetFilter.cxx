@@ -52,6 +52,7 @@
 #include "vtkPointSet.h"
 #include "vtkSmartPointer.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkHausdorffDistancePointSetFilter);
 
 //------------------------------------------------------------------------------
@@ -266,3 +267,4 @@ void vtkHausdorffDistancePointSetFilter::PrintSelf(ostream& os, vtkIndent indent
      << this->GetRelativeDistance()[1] << "\n";
   os << indent << "TargetDistanceMethod: " << this->GetTargetDistanceMethodAsString() << "\n";
 }
+VTK_ABI_NAMESPACE_END

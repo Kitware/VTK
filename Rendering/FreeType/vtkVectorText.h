@@ -38,6 +38,7 @@
 #include "vtkPolyDataAlgorithm.h"
 #include "vtkRenderingFreeTypeModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKRENDERINGFREETYPE_EXPORT vtkVectorText : public vtkPolyDataAlgorithm
 {
 public:
@@ -65,4 +66,5 @@ private:
   void operator=(const vtkVectorText&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

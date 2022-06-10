@@ -31,6 +31,7 @@
 #include <sstream>
 #include <string>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOpenGLGL2PSExporter);
 
 //------------------------------------------------------------------------------
@@ -194,3 +195,4 @@ bool vtkOpenGLGL2PSExporter::CaptureVectorProps()
 
   return true;
 }
+VTK_ABI_NAMESPACE_END

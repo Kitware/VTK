@@ -24,6 +24,7 @@
 #include "vtkStringArray.h"
 #include "vtkTable.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
 // FIXME: Put this in a central header, as it is used across several classes.
@@ -346,3 +347,4 @@ std::vector<vtkVector3f> vtkPlot3D::GetPoints()
 {
   return this->Points;
 }
+VTK_ABI_NAMESPACE_END

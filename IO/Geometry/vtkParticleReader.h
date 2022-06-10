@@ -40,6 +40,7 @@
 #define VTK_FILE_BYTE_ORDER_BIG_ENDIAN 0
 #define VTK_FILE_BYTE_ORDER_LITTLE_ENDIAN 1
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKIOGEOMETRY_EXPORT vtkParticleReader : public vtkPolyDataAlgorithm
 {
 public:
@@ -219,4 +220,5 @@ private:
   void operator=(const vtkParticleReader&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

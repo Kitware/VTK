@@ -30,6 +30,7 @@
 #include "vtkWidgetCallbackMapper.h"
 #include "vtkWidgetEvent.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkDisplaySizedImplicitPlaneWidget);
 
 // The display sized implicit plane widget observes its representation. The representation
@@ -662,3 +663,4 @@ void vtkDisplaySizedImplicitPlaneWidget::PrintSelf(ostream& os, vtkIndent indent
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

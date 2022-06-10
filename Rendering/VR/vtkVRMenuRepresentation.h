@@ -32,6 +32,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkWidgetRepresentation.h"
 #include <deque> // for ivar
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKRENDERINGVR_EXPORT vtkVRMenuRepresentation : public vtkWidgetRepresentation
 {
 public:
@@ -102,4 +103,5 @@ private:
   void operator=(const vtkVRMenuRepresentation&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

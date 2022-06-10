@@ -41,6 +41,7 @@
 #include <utility>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkGraphToPolyData);
 
 vtkGraphToPolyData::vtkGraphToPolyData()
@@ -215,3 +216,4 @@ void vtkGraphToPolyData::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "EdgeGlyphOutput: " << (this->EdgeGlyphOutput ? "on" : "off") << endl;
   os << indent << "EdgeGlyphPosition: " << this->EdgeGlyphPosition << endl;
 }
+VTK_ABI_NAMESPACE_END

@@ -46,6 +46,7 @@
 #include "vtkTransformCoordinateSystems.h"
 
 // From: http://www.flipcode.com/archives/2D_OBB_Intersection.shtml
+VTK_ABI_NAMESPACE_BEGIN
 class LabelRect
 {
 public:
@@ -903,3 +904,4 @@ void vtkLabelPlacementMapper::PrintSelf(ostream& os, vtkIndent indent)
      << this->BackgroundColor[1] << ", " << this->BackgroundColor[2] << endl;
   os << indent << "BackgroundOpacity: " << this->BackgroundOpacity << "\n";
 }
+VTK_ABI_NAMESPACE_END

@@ -46,6 +46,7 @@
 #include "vtkRenderingVolumeModule.h" // For export macro
 #include "vtkUnstructuredGridVolumeRayIntegrator.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkLinearRayIntegratorTransferFunction;
 class vtkVolumeProperty;
 
@@ -94,4 +95,5 @@ private:
   void operator=(const vtkUnstructuredGridLinearRayIntegrator&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkUnstructuredGridLinearRayIntegrator_h

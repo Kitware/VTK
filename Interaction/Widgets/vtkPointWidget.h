@@ -68,6 +68,7 @@
 #include "vtkCursor3D.h"                 // Needed for faster access to the Cursor3D
 #include "vtkInteractionWidgetsModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkActor;
 class vtkPolyDataMapper;
 class vtkCellPicker;
@@ -268,4 +269,5 @@ private:
   void operator=(const vtkPointWidget&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

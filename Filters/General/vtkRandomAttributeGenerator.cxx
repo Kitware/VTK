@@ -41,6 +41,7 @@
 #include "vtkUnsignedLongLongArray.h"
 #include "vtkUnsignedShortArray.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkRandomAttributeGenerator);
 
 //------------------------------------------------------------------------------
@@ -567,3 +568,4 @@ int vtkRandomAttributeGenerator::FillInputPortInformation(
   info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkCompositeDataSet");
   return 1;
 }
+VTK_ABI_NAMESPACE_END

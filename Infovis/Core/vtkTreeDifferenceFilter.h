@@ -35,6 +35,7 @@
 #include "vtkSmartPointer.h" // For ivars
 #include <vector>            // For ivars
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDoubleArray;
 class vtkTree;
 
@@ -125,4 +126,5 @@ private:
   void operator=(const vtkTreeDifferenceFilter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

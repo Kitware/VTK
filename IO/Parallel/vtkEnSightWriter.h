@@ -36,6 +36,7 @@
 #include "vtkIOParallelModule.h" // For export macro
 #include "vtkWriter.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkUnstructuredGrid;
 
 class VTKIOPARALLEL_EXPORT vtkEnSightWriter : public vtkWriter
@@ -184,4 +185,5 @@ protected:
   void operator=(const vtkEnSightWriter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

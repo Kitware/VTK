@@ -24,6 +24,7 @@
 #include <cmath>
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkVRHMDCamera::vtkVRHMDCamera()
 {
   // approximate for Vive
@@ -186,3 +187,4 @@ void vtkVRHMDCamera::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "PhysicalToProjectionMatrixForRightEye: ";
   this->PhysicalToProjectionMatrixForRightEye->PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

@@ -43,6 +43,7 @@
 #include "vtkCommand.h"          // For vtkCommand enum
 #include "vtkPlot.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkBrush;
 
 class VTKCHARTSCORE_EXPORT vtkPlotRangeHandlesItem : public vtkPlot
@@ -253,4 +254,5 @@ protected:
   int HandleOrientation = VERTICAL;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkPlotRangeHandlesItem_h

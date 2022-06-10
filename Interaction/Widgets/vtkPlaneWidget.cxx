@@ -39,6 +39,7 @@
 #include "vtkSphereSource.h"
 #include "vtkTransform.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPlaneWidget);
 
 vtkCxxSetObjectMacro(vtkPlaneWidget, PlaneProperty, vtkProperty);
@@ -1683,3 +1684,4 @@ void vtkPlaneWidget::UpdatePlacement()
   this->PlaneSource->Update();
   this->PositionHandles();
 }
+VTK_ABI_NAMESPACE_END

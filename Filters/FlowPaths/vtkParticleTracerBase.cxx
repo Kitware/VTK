@@ -60,6 +60,7 @@
 // We support up to 6th order hexahedra.
 #define VTK_MAXIMUM_NUMBER_OF_POINTS 216
 
+VTK_ABI_NAMESPACE_BEGIN
 const double vtkParticleTracerBase::Epsilon = 1.0E-12;
 
 using namespace vtkParticleTracerBaseNamespace;
@@ -87,6 +88,7 @@ ParticleTracerSetMacro(ComputeVorticity, bool);
 ParticleTracerSetMacro(RotationScale, double);
 ParticleTracerSetMacro(ForceReinjectionEveryNSteps, int);
 ParticleTracerSetMacro(TerminalSpeed, double);
+VTK_ABI_NAMESPACE_END
 
 namespace
 {
@@ -110,6 +112,7 @@ inline int FindInterval(double a, const std::vector<double>& A)
 }
 };
 
+VTK_ABI_NAMESPACE_BEGIN
 //------------------------------------------------------------------------------
 vtkParticleTracerBase::vtkParticleTracerBase()
 {
@@ -766,9 +769,11 @@ int vtkParticleTracerBase::ProcessInput(vtkInformationVector** inputVector)
   return 1;
 }
 
+VTK_ABI_NAMESPACE_END
 //------------------------------------------------------------------------------
 namespace vtkParticleTracerBaseNamespace
 {
+VTK_ABI_NAMESPACE_BEGIN
 struct ParticleTracerFunctor
 {
   vtkParticleTracerBase* PT;
@@ -847,8 +852,10 @@ struct ParticleTracerFunctor
     this->PT->ResizeArrays(this->ParticleCount);
   }
 };
+VTK_ABI_NAMESPACE_END
 }
 
+VTK_ABI_NAMESPACE_BEGIN
 void vtkParticleTracerBase::ResizeArrays(vtkIdType numTuples)
 {
   // resize first so that if you already have data, you don't lose them
@@ -1881,3 +1888,4 @@ void vtkParticleTracerBase::PrintParticleHistories()
   }
   cout << endl;
 }
+VTK_ABI_NAMESPACE_END

@@ -17,6 +17,7 @@
 #include <iostream>
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 void vtkADIOS2ArraySelection::AddArray(const char* name, bool status)
 {
   (*this)[name] = status;
@@ -74,3 +75,4 @@ int vtkADIOS2ArraySelection::GetNumberOfArrays()
 {
   return static_cast<int>(this->size());
 }
+VTK_ABI_NAMESPACE_END

@@ -17,6 +17,7 @@
 #include "vtkObjectFactory.h"
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkArrayIterator::vtkArrayIterator() = default;
 
 //------------------------------------------------------------------------------
@@ -27,3 +28,4 @@ void vtkArrayIterator::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

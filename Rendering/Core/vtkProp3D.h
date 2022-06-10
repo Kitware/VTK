@@ -38,6 +38,7 @@
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkWeakPointer.h"         // For vtkWeakPointer
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkLinearTransform;
 class vtkMatrix4x4;
 class vtkRenderer;
@@ -416,4 +417,5 @@ private:
   void operator=(const vtkProp3D&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

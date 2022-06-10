@@ -23,6 +23,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkTransform.h"
 #include "vtkVRRenderWindow.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkVRHardwarePicker);
 
 vtkSelection* vtkVRHardwarePicker::GetSelection()
@@ -117,3 +118,4 @@ void vtkVRHardwarePicker::PrintSelf(ostream& os, vtkIndent indent)
     this->Selection->PrintSelf(os, indent);
   }
 }
+VTK_ABI_NAMESPACE_END

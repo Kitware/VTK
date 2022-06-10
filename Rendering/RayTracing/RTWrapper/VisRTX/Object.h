@@ -13,6 +13,7 @@
 
 namespace RTW
 {
+VTK_ABI_NAMESPACE_BEGIN
     class Data;
 
     class Object
@@ -362,4 +363,5 @@ namespace RTW
 
         RTWDataType dataType;
     };
+VTK_ABI_NAMESPACE_END
 }

@@ -40,6 +40,7 @@
 #include "vtkIOExodusModule.h" // For export macro
 #include "vtkMultiBlockDataSetAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataArray;
 class vtkDataSet;
 class vtkExodusIICache;
@@ -920,4 +921,5 @@ private:
   bool UseLegacyBlockNames;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

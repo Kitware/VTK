@@ -45,6 +45,7 @@
 
 //------------------------------------------------------------------------------
 // Helper typedefs and data structures.
+VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
 
@@ -2539,3 +2540,4 @@ int vtkIntersectionPolyDataFilter::FillInputPortInformation(int port, vtkInforma
 }
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_END

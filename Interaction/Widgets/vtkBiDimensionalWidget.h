@@ -97,6 +97,7 @@
 #include "vtkAbstractWidget.h"
 #include "vtkInteractionWidgetsModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkBiDimensionalRepresentation;
 class vtkHandleWidget;
 class vtkBiDimensionalWidgetCallback;
@@ -243,4 +244,5 @@ private:
   void operator=(const vtkBiDimensionalWidget&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

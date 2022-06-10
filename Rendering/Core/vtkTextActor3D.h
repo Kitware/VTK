@@ -37,6 +37,7 @@
 #include "vtkRenderingCoreModule.h" // For export macro
 #include <string>                   // for ivar
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkImageActor;
 class vtkImageData;
 class vtkTextProperty;
@@ -150,4 +151,5 @@ private:
   void operator=(const vtkTextActor3D&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

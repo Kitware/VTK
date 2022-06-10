@@ -33,6 +33,7 @@
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkObject.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkIdList;
 class vtkPoints;
 
@@ -104,4 +105,5 @@ private:
   friend class implementation;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkCoincidentPoints_h

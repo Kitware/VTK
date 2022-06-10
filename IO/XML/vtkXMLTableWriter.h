@@ -26,6 +26,7 @@
 #include "vtkIOXMLModule.h" // For export macro
 #include "vtkXMLWriter.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkTable;
 
 class VTKIOXML_EXPORT vtkXMLTableWriter : public vtkXMLWriter
@@ -126,4 +127,5 @@ private:
   void operator=(const vtkXMLTableWriter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

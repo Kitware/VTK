@@ -28,6 +28,7 @@
 #include "vtkImageReslice.h"
 #include "vtkImagingCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKIMAGINGCORE_EXPORT vtkImageResample : public vtkImageReslice
 {
 public:
@@ -93,4 +94,5 @@ private:
   void operator=(const vtkImageResample&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

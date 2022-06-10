@@ -38,10 +38,11 @@
 #include <sstream>
 #include <vector>
 
+using namespace OT;
+
+VTK_ABI_NAMESPACE_BEGIN
 vtkInformationKeyMacro(vtkOTDensityMap, DENSITY, Double);
 vtkStandardNewMacro(vtkOTDensityMap);
-
-using namespace OT;
 
 class vtkOTDensityMap::OTDistributionCache
 {
@@ -536,3 +537,4 @@ vtkMTimeType vtkOTDensityMap::GetMTime()
 {
   return vtkMath::Max(this->Superclass::GetMTime(), this->ContourValues->GetMTime());
 }
+VTK_ABI_NAMESPACE_END

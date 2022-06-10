@@ -19,6 +19,7 @@
 #include "vtkChartsCoreModule.h" // For export macro
 #include "vtkScalarsToColorsItem.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkColorTransferFunction;
 class vtkImageData;
 
@@ -57,4 +58,5 @@ private:
   void operator=(const vtkColorTransferFunctionItem&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

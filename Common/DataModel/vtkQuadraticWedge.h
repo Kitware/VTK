@@ -39,6 +39,7 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkNonLinearCell.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkQuadraticEdge;
 class vtkQuadraticQuad;
 class vtkQuadraticTriangle;
@@ -162,4 +163,5 @@ inline int vtkQuadraticWedge::GetParametricCenter(double pcoords[3])
   return 0;
 }
 
+VTK_ABI_NAMESPACE_END
 #endif

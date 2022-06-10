@@ -37,6 +37,7 @@
 #include <set>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
 inline bool vtkIsBadPoint(const vtkVector2f& vec)
@@ -667,3 +668,4 @@ void vtkPlotArea::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

@@ -40,6 +40,7 @@
 #define VTK_ASCII 1
 #define VTK_BINARY 2
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkAbstractArray;
 class vtkCharArray;
 class vtkCellArray;
@@ -620,4 +621,5 @@ private:
   void ConvertGhostLevelsToGhostType(FieldType fieldType, vtkAbstractArray* data) const;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

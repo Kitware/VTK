@@ -32,6 +32,7 @@
 #include "vtkTriangle.h"
 
 //----------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkCellQuality);
 
 //----------------------------------------------------------------------------
@@ -476,3 +477,4 @@ double vtkCellQuality::PolygonArea(vtkCell* cell)
   }
   return quality;
 }
+VTK_ABI_NAMESPACE_END

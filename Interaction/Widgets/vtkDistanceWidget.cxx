@@ -27,6 +27,7 @@
 #include "vtkWidgetEvent.h"
 #include "vtkWidgetEventTranslator.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkDistanceWidget);
 
 // The distance widget observes its two handles.
@@ -581,3 +582,4 @@ void vtkDistanceWidget::PrintSelf(ostream& os, vtkIndent indent)
   // Superclass typedef defined in vtkTypeMacro() found in vtkSetGet.h
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

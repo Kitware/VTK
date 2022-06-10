@@ -26,6 +26,7 @@
 #include "vtkImagingGeneralModule.h" // For export macro
 #include "vtkThreadedImageAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKIMAGINGGENERAL_EXPORT vtkImageGaussianSmooth : public vtkThreadedImageAlgorithm
 {
 public:
@@ -99,4 +100,5 @@ private:
   void operator=(const vtkImageGaussianSmooth&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

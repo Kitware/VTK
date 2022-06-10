@@ -16,6 +16,7 @@
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkGeneralTransform);
 
 //------------------------------------------------------------------------------
@@ -310,3 +311,4 @@ vtkMTimeType vtkGeneralTransform::GetMTime()
   }
   return mtime;
 }
+VTK_ABI_NAMESPACE_END

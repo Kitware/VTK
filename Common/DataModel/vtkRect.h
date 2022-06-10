@@ -31,6 +31,7 @@
 
 #include "vtkMath.h" // for Min, Max
 
+VTK_ABI_NAMESPACE_BEGIN
 template <typename T>
 class vtkRect : public vtkVector<T, 4>
 {
@@ -360,5 +361,6 @@ public:
   }
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkRect_h
 // VTK-HeaderTest-Exclude: vtkRect.h

@@ -30,6 +30,7 @@
 #include "vtkSmartPointer.h"    // For SP ivars
 #include "vtkViewsCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkConvertSelectionDomain;
 
 class VTKVIEWSCORE_EXPORT vtkEmptyRepresentation : public vtkDataRepresentation
@@ -65,4 +66,5 @@ private:
   vtkSmartPointer<vtkConvertSelectionDomain> ConvertDomains;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

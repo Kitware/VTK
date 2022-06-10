@@ -31,6 +31,7 @@
 #include "vtkSmartPointer.h" // For protected ivars.
 #include <vector>            // For protected ivars
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSFLOWPATHS_EXPORT ParticlePathFilterInternal
 {
 public:
@@ -90,4 +91,5 @@ private:
   vtkIntArray* SimulationTimeStep;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

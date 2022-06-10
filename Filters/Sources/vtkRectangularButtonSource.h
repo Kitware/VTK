@@ -47,6 +47,7 @@
 #include "vtkButtonSource.h"
 #include "vtkFiltersSourcesModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCellArray;
 class vtkFloatArray;
 class vtkPoints;
@@ -153,4 +154,5 @@ private:
   void operator=(const vtkRectangularButtonSource&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

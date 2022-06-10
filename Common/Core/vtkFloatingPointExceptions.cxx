@@ -47,6 +47,7 @@ void signal_handler(int signal)
 //------------------------------------------------------------------------------
 // Description:
 // Enable floating point exceptions.
+VTK_ABI_NAMESPACE_BEGIN
 void vtkFloatingPointExceptions::Enable()
 {
 #ifdef _MSC_VER
@@ -76,3 +77,4 @@ void vtkFloatingPointExceptions::Disable()
   fedisableexcept(FE_DIVBYZERO | FE_INVALID);
 #endif
 }
+VTK_ABI_NAMESPACE_END

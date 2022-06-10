@@ -39,6 +39,7 @@ PURPOSE.  See the above copyright notice for more information.
 // the 2D blending shaders we use
 #include "vtkOrderIndependentTranslucentPassFinalFS.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOrderIndependentTranslucentPass);
 vtkCxxSetObjectMacro(vtkOrderIndependentTranslucentPass, TranslucentPass, vtkRenderPass);
 
@@ -391,3 +392,4 @@ bool vtkOrderIndependentTranslucentPass::PostReplaceShaderValues(
 
   return true;
 }
+VTK_ABI_NAMESPACE_END

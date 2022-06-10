@@ -34,6 +34,7 @@
 #include "vtkInfovisCoreModule.h" // For export macro
 #include "vtkTreeAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkStdString;
 
 class VTKINFOVISCORE_EXPORT vtkNetworkHierarchy : public vtkTreeAlgorithm
@@ -72,4 +73,5 @@ private:
   char* IPArrayName;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

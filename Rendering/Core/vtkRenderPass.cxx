@@ -20,6 +20,7 @@
 //------------------------------------------------------------------------------
 // Description:
 // Default constructor. Do nothing.
+VTK_ABI_NAMESPACE_BEGIN
 vtkRenderPass::vtkRenderPass()
 {
   this->NumberOfRenderedProps = 0;
@@ -108,3 +109,4 @@ void vtkRenderPass::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "NumberOfRenderedProps:" << this->NumberOfRenderedProps << endl;
 }
+VTK_ABI_NAMESPACE_END

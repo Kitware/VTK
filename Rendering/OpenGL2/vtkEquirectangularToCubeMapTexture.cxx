@@ -27,6 +27,7 @@
 
 #include <sstream>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkEquirectangularToCubeMapTexture);
 vtkCxxSetObjectMacro(vtkEquirectangularToCubeMapTexture, InputTexture, vtkOpenGLTexture);
 
@@ -170,3 +171,4 @@ void vtkEquirectangularToCubeMapTexture::Load(vtkRenderer* ren)
 
   this->TextureObject->Activate();
 }
+VTK_ABI_NAMESPACE_END

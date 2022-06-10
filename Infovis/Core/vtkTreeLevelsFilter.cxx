@@ -33,6 +33,7 @@
 #include "vtkGraph.h"
 #include "vtkTree.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkTreeLevelsFilter);
 
 vtkTreeLevelsFilter::vtkTreeLevelsFilter() = default;
@@ -88,3 +89,4 @@ void vtkTreeLevelsFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

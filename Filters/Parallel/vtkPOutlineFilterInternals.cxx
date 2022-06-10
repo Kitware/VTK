@@ -32,6 +32,7 @@
 #include "vtkUniformGrid.h"
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 class AddBoundsListOperator : public vtkCommunicator::Operation
 {
   // Description:
@@ -329,3 +330,4 @@ vtkSmartPointer<vtkPolyData> vtkPOutlineFilterInternals::GenerateOutlineGeometry
   }
   return output;
 }
+VTK_ABI_NAMESPACE_END

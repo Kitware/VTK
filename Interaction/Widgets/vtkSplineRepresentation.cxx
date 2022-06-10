@@ -24,6 +24,7 @@
 #include "vtkVectorOperators.h"
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkSplineRepresentation);
 
 //------------------------------------------------------------------------------
@@ -400,3 +401,4 @@ void vtkSplineRepresentation::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << ")\n";
   }
 }
+VTK_ABI_NAMESPACE_END

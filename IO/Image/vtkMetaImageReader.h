@@ -68,6 +68,8 @@ namespace vtkmetaio
 class MetaImage;
 } // forward declaration
 
+VTK_ABI_NAMESPACE_BEGIN
+
 class VTKIOIMAGE_EXPORT vtkMetaImageReader : public vtkImageReader2
 {
 public:
@@ -198,4 +200,5 @@ private:
   char AnatomicalOrientation[255];
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

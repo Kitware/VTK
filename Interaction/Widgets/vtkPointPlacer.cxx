@@ -18,6 +18,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkRenderer.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPointPlacer);
 
 //------------------------------------------------------------------------------
@@ -97,3 +98,4 @@ int vtkPointPlacer::UpdateNodeWorldPosition(
 {
   return 1;
 }
+VTK_ABI_NAMESPACE_END

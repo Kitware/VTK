@@ -26,6 +26,7 @@
 #include "vtkPolyDataMapperNode.h"
 #include "vtkRenderingRayTracingModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkOSPRayActorNode;
 class vtkPolyData;
 
@@ -67,4 +68,5 @@ private:
   void operator=(const vtkOSPRayPolyDataMapperNode&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

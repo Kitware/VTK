@@ -20,6 +20,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 
 //----------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkPartitionedDataSetAlgorithm::vtkPartitionedDataSetAlgorithm()
 {
   this->SetNumberOfInputPorts(1);
@@ -95,3 +96,4 @@ void vtkPartitionedDataSetAlgorithm::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

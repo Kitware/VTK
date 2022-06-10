@@ -30,6 +30,7 @@
 
 #include "vtkDebugLeaksManager.h" // DebugLeaks exists longer than info keys.
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkInformationKey;
 
 class VTKCOMMONCORE_EXPORT vtkCommonInformationKeyManager
@@ -61,5 +62,6 @@ private:
 // initialized before and destroyed after it is used.
 static vtkCommonInformationKeyManager vtkCommonInformationKeyManagerInstance;
 
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkCommonInformationKeyManager.h

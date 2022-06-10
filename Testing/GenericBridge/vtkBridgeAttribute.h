@@ -28,6 +28,7 @@
 #include "vtkBridgeExport.h" //for module export macro
 #include "vtkGenericAttribute.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPointData;
 class vtkCellData;
 class vtkDataSetAttributes;
@@ -248,4 +249,5 @@ private:
   void operator=(const vtkBridgeAttribute&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

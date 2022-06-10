@@ -42,6 +42,7 @@
 #include "vtkArrayDataAlgorithm.h"
 #include "vtkmlib/vtkmInitializer.h" // Need for initializing vtk-m
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKACCELERATORSVTKMFILTERS_EXPORT vtkmNDHistogram : public vtkArrayDataAlgorithm
 {
 public:
@@ -80,4 +81,5 @@ private:
   vtkmInitializer Initializer;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkmNDHistogram_h

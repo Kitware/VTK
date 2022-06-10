@@ -44,6 +44,7 @@
 #include "vtkStdString.h"    // For SetGet ivars
 #include "vtkVector.h"       // For vtkVector2f ivar
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkColorLegend;
 class vtkDoubleArray;
 class vtkGraphLayout;
@@ -419,4 +420,5 @@ private:
   vtkStdString VertexNameArrayName;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

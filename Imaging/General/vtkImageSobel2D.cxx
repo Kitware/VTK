@@ -22,6 +22,7 @@
 
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImageSobel2D);
 
 //------------------------------------------------------------------------------
@@ -210,3 +211,4 @@ void vtkImageSobel2D::ThreadedRequestData(vtkInformation* vtkNotUsed(request),
       return;
   }
 }
+VTK_ABI_NAMESPACE_END

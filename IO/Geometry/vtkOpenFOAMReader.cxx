@@ -226,14 +226,17 @@
 #include <vector>
 
 #if VTK_FOAMFILE_OMIT_CRCCHECK
+VTK_ABI_NAMESPACE_BEGIN
 uLong ZEXPORT crc32(uLong, const Bytef*, uInt)
 {
   return 0;
 }
+VTK_ABI_NAMESPACE_END
 #endif
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOpenFOAMReader);
 
 #if VTK_FOAMFILE_FINITE_AREA
@@ -11650,3 +11653,4 @@ void vtkOpenFOAMReader::UpdateProgress(double amount)
     (static_cast<double>(this->Parent->CurrentReaderIndex) + amount) /
     static_cast<double>(this->Parent->NumberOfReaders));
 }
+VTK_ABI_NAMESPACE_END

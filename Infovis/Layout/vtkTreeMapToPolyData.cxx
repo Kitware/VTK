@@ -30,6 +30,7 @@
 #include "vtkPointData.h"
 #include "vtkTree.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkTreeMapToPolyData);
 
 vtkTreeMapToPolyData::vtkTreeMapToPolyData()
@@ -154,3 +155,4 @@ void vtkTreeMapToPolyData::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "LevelDeltaZ: " << this->LevelDeltaZ << endl;
   os << indent << "AddNormals: " << this->AddNormals << endl;
 }
+VTK_ABI_NAMESPACE_END

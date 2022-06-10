@@ -46,6 +46,7 @@
 
 #include "vtkTypedArray.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkArrayExtents;
 class vtkArraySlices;
 class vtkArrayWeights;
@@ -57,6 +58,7 @@ void vtkInterpolate(vtkTypedArray<T>* source_array, const vtkArraySlices& source
   const vtkArrayWeights& source_weights, const vtkArrayExtents& target_slice,
   vtkTypedArray<T>* target_array);
 
+VTK_ABI_NAMESPACE_END
 #include "vtkArrayInterpolate.txx"
 
 #endif

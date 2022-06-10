@@ -18,7 +18,10 @@
 #include "vtkSystemIncludes.h" // include it first
 #include <string>              // for string
 #include <vector>              // for vector
+
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataObject;
+VTK_ABI_NAMESPACE_END
 
 // Description:
 // Internal test driver. Used by serial and parallel

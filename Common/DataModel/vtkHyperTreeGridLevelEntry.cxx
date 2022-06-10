@@ -23,6 +23,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <cassert>
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkHyperTreeGridLevelEntry::vtkHyperTreeGridLevelEntry(
   vtkHyperTreeGrid* grid, vtkIdType treeIndex, bool create)
   : Tree(grid->GetTree(treeIndex, create))
@@ -169,3 +170,4 @@ void vtkHyperTreeGridLevelEntry::ToChild(const vtkHyperTreeGrid* grid, unsigned 
   this->Index = this->Tree->GetElderChildIndex(this->Index) + ichild;
   this->Level++;
 }
+VTK_ABI_NAMESPACE_END

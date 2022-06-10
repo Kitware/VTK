@@ -56,6 +56,7 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDistributedGraphHelperInternals;
 struct vtkEdgeType;
 class vtkGraph;
@@ -272,4 +273,5 @@ private:
   friend class vtkGraph;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkDistributedGraphHelper_h

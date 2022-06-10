@@ -22,6 +22,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImageFlip);
 
 //------------------------------------------------------------------------------
@@ -110,3 +111,4 @@ void vtkImageFlip::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "FlipAboutOrigin: " << (this->FlipAboutOrigin ? "On\n" : "Off\n");
   os << indent << "PreserveImageExtent: " << (this->PreserveImageExtent ? "On\n" : "Off\n");
 }
+VTK_ABI_NAMESPACE_END

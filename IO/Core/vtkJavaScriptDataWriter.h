@@ -30,6 +30,7 @@
 #include "vtkIOCoreModule.h" // For export macro
 #include "vtkWriter.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkTable;
 
 class VTKIOCORE_EXPORT vtkJavaScriptDataWriter : public vtkWriter
@@ -108,4 +109,5 @@ private:
   ostream* OutputFile;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -29,6 +29,7 @@
 #include "vtkSMPTools.h"
 #include "vtkUnsignedCharArray.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 //------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkOctreeImageToPointSetFilter);
 
@@ -388,3 +389,4 @@ int vtkOctreeImageToPointSetFilter::RequestData(
 
   return 1;
 }
+VTK_ABI_NAMESPACE_END

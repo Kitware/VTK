@@ -38,6 +38,7 @@
 
 #include <sstream>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkHeatmapItem);
 
 //------------------------------------------------------------------------------
@@ -1229,3 +1230,4 @@ void vtkHeatmapItem::PrintSelf(ostream& os, vtkIndent indent)
     this->Table->PrintSelf(os, indent.GetNextIndent());
   }
 }
+VTK_ABI_NAMESPACE_END

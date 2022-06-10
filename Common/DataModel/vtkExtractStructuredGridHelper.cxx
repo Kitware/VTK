@@ -49,6 +49,7 @@ namespace vtk
 {
 namespace detail
 {
+VTK_ABI_NAMESPACE_BEGIN
 
 // Index mapping works as:
 // inputExtent = Mapping[dim][outputExtent - this->OutputWholeExtent[2*dim]]
@@ -57,9 +58,11 @@ struct vtkIndexMap
   std::vector<int> Mapping[3];
 };
 
+VTK_ABI_NAMESPACE_END
 } // End namespace detail
 } // End namespace vtk
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkExtractStructuredGridHelper);
 
 //------------------------------------------------------------------------------
@@ -257,6 +260,7 @@ int vtkExtractStructuredGridHelper::GetSize(const int dim)
   assert("pre: dimension dim is out-of-bounds!" && (dim >= 0) && (dim < 3));
   return (static_cast<int>(this->IndexMap->Mapping[dim].size()));
 }
+VTK_ABI_NAMESPACE_END
 
 //------------------------------------------------------------------------------
 namespace
@@ -267,6 +271,7 @@ int roundToInt(double r)
 }
 }
 
+VTK_ABI_NAMESPACE_BEGIN
 //------------------------------------------------------------------------------
 void vtkExtractStructuredGridHelper::ComputeBeginAndEnd(
   int inExt[6], int voi[6], int begin[3], int end[3])
@@ -657,3 +662,4 @@ void vtkExtractStructuredGridHelper::GetPartitionedOutputExtent(const int global
     }
   }
 }
+VTK_ABI_NAMESPACE_END

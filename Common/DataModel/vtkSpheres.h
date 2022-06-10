@@ -35,6 +35,7 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkImplicitFunction.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkSphere;
 class vtkPoints;
 class vtkDataArray;
@@ -116,4 +117,5 @@ private:
   void operator=(const vtkSpheres&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -35,6 +35,7 @@
 
 #include <vtkm/filter/field_transform/WarpScalar.h>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkmWarpScalar);
 
 //------------------------------------------------------------------------------
@@ -185,3 +186,4 @@ void vtkmWarpScalar::PrintSelf(std::ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

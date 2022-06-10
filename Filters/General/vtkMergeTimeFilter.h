@@ -37,6 +37,7 @@
 
 #include <vector> // Use of dynamically allocated array
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSGENERAL_EXPORT vtkMergeTimeFilter : public vtkMultiBlockDataSetAlgorithm
 {
 public:
@@ -136,4 +137,5 @@ private:
   void operator=(const vtkMergeTimeFilter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

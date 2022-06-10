@@ -43,6 +43,7 @@
 #include <iostream>
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 shared_ptr<vtkXdmf3LightDataHandler> vtkXdmf3LightDataHandler::New(vtkXdmf3SILBuilder* sb,
   vtkXdmf3ArraySelection* f, vtkXdmf3ArraySelection* ce, vtkXdmf3ArraySelection* pn,
   vtkXdmf3ArraySelection* gc, vtkXdmf3ArraySelection* sc, unsigned int processor,
@@ -490,3 +491,4 @@ bool vtkXdmf3LightDataHandler::ShouldRead(unsigned int piece, unsigned int npiec
   }
 #endif
 }
+VTK_ABI_NAMESPACE_END

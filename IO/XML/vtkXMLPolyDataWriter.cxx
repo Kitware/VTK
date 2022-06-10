@@ -28,6 +28,7 @@
 #include "vtkXMLOffsetsManager.h"
 #undef vtkXMLOffsetsManager_DoNotInclude
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkXMLPolyDataWriter);
 
 //------------------------------------------------------------------------------
@@ -391,3 +392,4 @@ int vtkXMLPolyDataWriter::FillInputPortInformation(int, vtkInformation* info)
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPolyData");
   return 1;
 }
+VTK_ABI_NAMESPACE_END

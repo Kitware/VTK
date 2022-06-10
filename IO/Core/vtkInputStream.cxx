@@ -15,6 +15,7 @@
 #include "vtkInputStream.h"
 #include "vtkObjectFactory.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkInputStream);
 
 //------------------------------------------------------------------------------
@@ -69,3 +70,4 @@ size_t vtkInputStream::ReadStream(char* data, size_t length)
   this->Stream->read(data, length);
   return this->Stream->gcount();
 }
+VTK_ABI_NAMESPACE_END

@@ -59,6 +59,7 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkLocator.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkTimerLog;
 class vtkIdList;
 class vtkIdTypeArray;
@@ -912,4 +913,5 @@ protected:
   vtkKdTree(const vtkKdTree&) = delete;
   void operator=(const vtkKdTree&) = delete;
 };
+VTK_ABI_NAMESPACE_END
 #endif

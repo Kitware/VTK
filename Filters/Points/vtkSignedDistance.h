@@ -72,6 +72,7 @@
 #include "vtkFiltersPointsModule.h" // For export macro
 #include "vtkImageAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPolyData;
 class vtkAbstractPointLocator;
 
@@ -174,4 +175,5 @@ private:
   void operator=(const vtkSignedDistance&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

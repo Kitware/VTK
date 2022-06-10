@@ -21,6 +21,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPassThrough);
 
 //------------------------------------------------------------------------------
@@ -98,3 +99,4 @@ int vtkPassThrough::FillInputPortInformation(int port, vtkInformation* info)
   }
   return 0;
 }
+VTK_ABI_NAMESPACE_END

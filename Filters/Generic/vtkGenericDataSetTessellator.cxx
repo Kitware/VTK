@@ -35,6 +35,7 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkGenericDataSetTessellator);
 
 vtkCxxSetObjectMacro(vtkGenericDataSetTessellator, Locator, vtkIncrementalPointLocator);
@@ -281,3 +282,4 @@ vtkMTimeType vtkGenericDataSetTessellator::GetMTime()
   }
   return mTime;
 }
+VTK_ABI_NAMESPACE_END

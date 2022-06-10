@@ -36,6 +36,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUnstructuredGrid.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPChacoReader);
 
 //------------------------------------------------------------------------------
@@ -543,3 +544,4 @@ void vtkPChacoReader::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "NumProcesses: " << this->NumProcesses << endl;
   os << indent << "Controller: " << this->Controller << endl;
 }
+VTK_ABI_NAMESPACE_END

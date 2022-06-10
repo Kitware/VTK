@@ -22,6 +22,7 @@
 #include "vtkPlanes.h"
 #include "vtkRenderer.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkFocalPlanePointPlacer);
 
 //------------------------------------------------------------------------------
@@ -223,3 +224,4 @@ void vtkFocalPlanePointPlacer::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "  Zmin,Zmax: (" << this->PointBounds[4] << ", " << this->PointBounds[5] << ")\n";
   os << indent << "Offset: " << this->Offset << endl;
 }
+VTK_ABI_NAMESPACE_END

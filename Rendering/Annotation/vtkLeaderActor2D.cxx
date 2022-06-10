@@ -25,6 +25,7 @@
 #include "vtkViewport.h"
 #include "vtkWindow.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkLeaderActor2D);
 
 vtkCxxSetObjectMacro(vtkLeaderActor2D, LabelTextProperty, vtkTextProperty);
@@ -752,3 +753,4 @@ void vtkLeaderActor2D::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Angle: " << this->Angle << "\n";
   os << indent << "Length: " << this->Length << "\n";
 }
+VTK_ABI_NAMESPACE_END

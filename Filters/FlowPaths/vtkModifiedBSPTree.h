@@ -164,6 +164,7 @@
 #include "vtkFiltersFlowPathsModule.h" // For export macro
 #include "vtkSmartPointer.h"           // required because it is nice
 
+VTK_ABI_NAMESPACE_BEGIN
 class Sorted_cell_extents_Lists;
 class BSPNode;
 class vtkGenericCell;
@@ -351,4 +352,5 @@ public:
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
+VTK_ABI_NAMESPACE_END
 #endif

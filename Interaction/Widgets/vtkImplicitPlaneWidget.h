@@ -67,6 +67,7 @@
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkPolyDataSourceWidget.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkActor;
 class vtkPolyDataMapper;
 class vtkCellPicker;
@@ -410,4 +411,5 @@ private:
   void operator=(const vtkImplicitPlaneWidget&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -41,6 +41,7 @@
 #include "vtkIONetCDFModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataArraySelection;
 class vtkIdTypeArray;
 class vtkInformationIntegerKey;
@@ -87,4 +88,5 @@ private:
   void operator=(const vtkSLACParticleReader&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkSLACParticleReader_h

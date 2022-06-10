@@ -28,6 +28,7 @@
 #include "vtkQuadraticTriangle.h"
 #include "vtkWedge.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkQuadraticLinearWedge);
 
 //------------------------------------------------------------------------------
@@ -672,3 +673,4 @@ void vtkQuadraticLinearWedge::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Scalars:\n";
   this->Scalars->PrintSelf(os, indent.GetNextIndent());
 }
+VTK_ABI_NAMESPACE_END

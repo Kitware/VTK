@@ -33,6 +33,7 @@
 #include "vtkRenderingContext2DModule.h" // For export macro
 #include "vtkVector.h"                   // For the vector coordinates.
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkMatrix4x4;
 class vtkViewport;
 class vtkPen;
@@ -144,4 +145,5 @@ private:
   void operator=(const vtkContextDevice3D&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -20,8 +20,10 @@
 #ifndef vtkHDFReaderVersion_h
 #define vtkHDFReaderVersion_h
 
+VTK_ABI_NAMESPACE_BEGIN
 const int vtkHDFReaderMajorVersion = 1;
 const int vtkHDFReaderMinorVersion = 0;
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkHDFReaderVersion_h
 // VTK-HeaderTest-Exclude: vtkHDFReaderVersion.h

@@ -24,6 +24,7 @@
 #include "vtkAMRBaseParticlesReader.h"
 #include "vtkIOAMRModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkIndent;
 class vtkPolyData;
 class vtkPointData;
@@ -73,4 +74,5 @@ private:
   void operator=(const vtkAMRFlashParticlesReader&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif /* vtkAMRFlashParticlesReader_h */

@@ -28,6 +28,7 @@
 #include "vtkCompositeDataSetAlgorithm.h"
 #include "vtkFiltersParallelImagingModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkImageData;
 class vtkPolyData;
 class vtkRectilinearGrid;
@@ -68,4 +69,5 @@ private:
   void operator=(const vtkExtractPiece&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

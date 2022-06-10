@@ -27,6 +27,7 @@
 
 #include <cassert>
 
+VTK_ABI_NAMESPACE_BEGIN
 static int vtkGetArrayIndex(vtkDataSetAttributes* dsa, vtkAbstractArray* array)
 {
   for (int cc = 0; cc < dsa->GetNumberOfArrays(); cc++)
@@ -371,3 +372,4 @@ void vtkAssignAttribute::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Input attribute type: " << this->InputAttributeType << endl;
   os << indent << "Attribute location: " << this->AttributeLocationAssignment << endl;
 }
+VTK_ABI_NAMESPACE_END

@@ -29,6 +29,7 @@
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkObjectBase.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONCORE_EXPORT vtkSmartPointerBase
 {
 public:
@@ -135,5 +136,6 @@ VTK_SMART_POINTER_BASE_DEFINE_OPERATOR(>=)
  */
 VTKCOMMONCORE_EXPORT ostream& operator<<(ostream& os, const vtkSmartPointerBase& p);
 
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkSmartPointerBase.h

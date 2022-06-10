@@ -47,6 +47,7 @@
 #include <cmath>
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkCxxSetObjectMacro(vtkProjectedTetrahedraMapper, VisibilitySort, vtkVisibilitySort);
 
 //------------------------------------------------------------------------------
@@ -80,6 +81,7 @@ void vtkProjectedTetrahedraMapper::ReportReferences(vtkGarbageCollector* collect
   vtkGarbageCollectorReport(collector, this->VisibilitySort, "VisibilitySort");
 }
 
+VTK_ABI_NAMESPACE_END
 //------------------------------------------------------------------------------
 namespace
 {
@@ -157,6 +159,7 @@ struct TransformPointsWorker
 };
 } // end anon namespace
 
+VTK_ABI_NAMESPACE_BEGIN
 //------------------------------------------------------------------------------
 void vtkProjectedTetrahedraMapper::TransformPoints(vtkPoints* inPoints,
   const float projection_mat[16], const float modelview_mat[16], vtkFloatArray* outPoints)
@@ -171,10 +174,12 @@ void vtkProjectedTetrahedraMapper::TransformPoints(vtkPoints* inPoints,
   vtkArrayDispatch::Dispatch::Execute(inPoints->GetData(), worker);
 }
 
+VTK_ABI_NAMESPACE_END
 //------------------------------------------------------------------------------
 
 namespace vtkProjectedTetrahedraMapperNamespace
 {
+VTK_ABI_NAMESPACE_BEGIN
 template <typename ColorArrayT, typename ScalarArrayT>
 void MapScalarsToColorsImpl(
   ColorArrayT* colors, vtkVolumeProperty* property, ScalarArrayT* scalars);
@@ -202,8 +207,10 @@ struct Worker
     MapScalarsToColorsImpl(colors, this->Property, scalars);
   }
 };
+VTK_ABI_NAMESPACE_END
 }
 
+VTK_ABI_NAMESPACE_BEGIN
 void vtkProjectedTetrahedraMapper::MapScalarsToColors(
   vtkDataArray* colors, vtkVolumeProperty* property, vtkDataArray* scalars)
 {
@@ -259,10 +266,12 @@ void vtkProjectedTetrahedraMapper::MapScalarsToColors(
     tmpColors->Delete();
   }
 }
+VTK_ABI_NAMESPACE_END
 
 //------------------------------------------------------------------------------
 namespace vtkProjectedTetrahedraMapperNamespace
 {
+VTK_ABI_NAMESPACE_BEGIN
 template <typename ColorArrayT, typename ScalarArrayT>
 void MapScalarsToColorsImpl(ColorArrayT* colors, vtkVolumeProperty* property, ScalarArrayT* scalars)
 {
@@ -389,4 +398,5 @@ void Map4DependentComponents(ColorArrayT* colors, ScalarArrayT* scalars)
   }
 }
 
+VTK_ABI_NAMESPACE_END
 }

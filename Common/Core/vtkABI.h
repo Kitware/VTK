@@ -58,6 +58,8 @@
 #define VTK_ABI_HIDDEN
 #endif
 
+#include "vtkABINamespace.h"
+
 /*--------------------------------------------------------------------------*/
 /* If not already defined, define vtkTypeBool. When VTK was started, some   */
 /* compilers did not yet support the bool type, and so VTK often used int,  */

@@ -19,6 +19,7 @@
 #include <vector>
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkInformationDoubleVectorKey ::vtkInformationDoubleVectorKey(
   const char* name, const char* location, int length)
   : vtkInformationKey(name, location)
@@ -151,3 +152,4 @@ void vtkInformationDoubleVectorKey::Print(ostream& os, vtkInformation* info)
     }
   }
 }
+VTK_ABI_NAMESPACE_END

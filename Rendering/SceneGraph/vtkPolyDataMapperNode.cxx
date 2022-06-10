@@ -26,6 +26,7 @@
 #include "vtkProperty.h"
 
 //============================================================================
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPolyDataMapperNode);
 
 //------------------------------------------------------------------------------
@@ -423,3 +424,4 @@ void vtkPolyDataMapperNode::MakeConnectivity(
     }
   }
 }
+VTK_ABI_NAMESPACE_END

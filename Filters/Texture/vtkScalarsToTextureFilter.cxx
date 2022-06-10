@@ -27,6 +27,7 @@
 #include "vtkTextureMapToPlane.h"
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkScalarsToTextureFilter);
 
 //------------------------------------------------------------------------------
@@ -186,3 +187,4 @@ void vtkScalarsToTextureFilter::SetTransferFunction(vtkScalarsToColors* stc)
     this->Modified();
   }
 }
+VTK_ABI_NAMESPACE_END

@@ -26,6 +26,7 @@
 #include "vtkRenderingVolumeOpenGL2Module.h" // For export macro
 #include "vtkUnstructuredGridVolumeMapper.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataObjectTree;
 class vtkDataSet;
 class vtkMatrix4x4;
@@ -155,4 +156,5 @@ private:
   vtkMTimeType BlockLoadingTime;
   vtkMTimeType BoundsComputeTime;
 };
+VTK_ABI_NAMESPACE_END
 #endif

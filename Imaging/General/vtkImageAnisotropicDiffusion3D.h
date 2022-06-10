@@ -44,6 +44,7 @@
 #include "vtkImageSpatialAlgorithm.h"
 #include "vtkImagingGeneralModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKIMAGINGGENERAL_EXPORT vtkImageAnisotropicDiffusion3D : public vtkImageSpatialAlgorithm
 {
 public:
@@ -135,4 +136,5 @@ private:
   void operator=(const vtkImageAnisotropicDiffusion3D&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

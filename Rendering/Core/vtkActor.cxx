@@ -33,6 +33,7 @@
 
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkCxxSetObjectMacro(vtkActor, Texture, vtkTexture);
 vtkCxxSetObjectMacro(vtkActor, Mapper, vtkMapper);
 vtkCxxSetObjectMacro(vtkActor, BackfaceProperty, vtkProperty);
@@ -587,3 +588,4 @@ void vtkActor::ProcessSelectorPixelBuffers(
     this->Mapper->ProcessSelectorPixelBuffers(sel, pixeloffsets, this);
   }
 }
+VTK_ABI_NAMESPACE_END

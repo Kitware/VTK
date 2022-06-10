@@ -36,11 +36,13 @@
 // Forward Qt class declarations
 class Ui_EasyView;
 
+VTK_ABI_NAMESPACE_BEGIN
 // Forward VTK class declarations
 class vtkXMLTreeReader;
 class vtkGraphLayoutView;
 class vtkQtTableView;
 class vtkQtTreeView;
+VTK_ABI_NAMESPACE_END
 
 class EasyView : public QMainWindow
 {

@@ -32,6 +32,7 @@
 #include "vtkPointData.h"
 #include "vtkPoints.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkEdgeLayout);
 
 //------------------------------------------------------------------------------
@@ -171,3 +172,4 @@ void vtkEdgeLayout::PrintSelf(ostream& os, vtkIndent indent)
     this->InternalGraph->PrintSelf(os, indent.GetNextIndent());
   }
 }
+VTK_ABI_NAMESPACE_END

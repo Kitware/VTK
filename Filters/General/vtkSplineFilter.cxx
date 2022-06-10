@@ -26,6 +26,7 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkSplineFilter);
 vtkCxxSetObjectMacro(vtkSplineFilter, Spline, vtkSpline);
 
@@ -375,3 +376,4 @@ void vtkSplineFilter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Generate TCoords: " << this->GetGenerateTCoordsAsString() << endl;
   os << indent << "Texture Length: " << this->TextureLength << endl;
 }
+VTK_ABI_NAMESPACE_END

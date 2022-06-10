@@ -22,6 +22,7 @@
 #include <algorithm>
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 class vtkImageStencilIteratorFriendship
 {
 public:
@@ -438,3 +439,4 @@ void vtkImagePointDataIterator::ReportProgress()
   }
   this->Count++;
 }
+VTK_ABI_NAMESPACE_END

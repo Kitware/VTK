@@ -49,6 +49,7 @@
 #include "vtkObjectFactory.h"
 
 //==============================================================================
+VTK_ABI_NAMESPACE_BEGIN
 static unsigned int vtkTimerLogCleanupCounter = 0;
 std::vector<vtkTimerLogEntry>* vtkTimerLogEntryVectorPtr = nullptr;
 
@@ -798,3 +799,4 @@ int vtkTimerLog::GetMaxEntries()
 {
   return vtkTimerLog::MaxEntries;
 }
+VTK_ABI_NAMESPACE_END

@@ -31,6 +31,7 @@
 #include "vtkFiltersExtractionModule.h" // For export macro
 #include "vtkPointSetAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSEXTRACTION_EXPORT vtkExtractDataOverTime : public vtkPointSetAlgorithm
 {
 public:
@@ -74,4 +75,5 @@ private:
   void operator=(const vtkExtractDataOverTime&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

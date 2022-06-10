@@ -27,6 +27,7 @@
 #include "vtkUniformGrid.h"
 #include "vtkUnsignedCharArray.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImageDataToUniformGrid);
 
 //------------------------------------------------------------------------------
@@ -259,3 +260,4 @@ int vtkImageDataToUniformGrid::Process(
 
   return VTK_OK;
 }
+VTK_ABI_NAMESPACE_END

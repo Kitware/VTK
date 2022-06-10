@@ -25,6 +25,7 @@
 #include "vtkSMPTools.h"
 #include "vtkVector.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkDeflectNormals);
 
 //------------------------------------------------------------------------------
@@ -173,3 +174,4 @@ void vtkDeflectNormals::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "User Normal: " << this->UserNormal[0] << ", " << this->UserNormal[1] << ", "
      << this->UserNormal[2] << "\n";
 }
+VTK_ABI_NAMESPACE_END

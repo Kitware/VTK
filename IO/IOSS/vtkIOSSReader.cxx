@@ -87,6 +87,7 @@
 #include <string>
 #include <utility>
 
+VTK_ABI_NAMESPACE_BEGIN
 struct DatabaseParitionInfo
 {
   int ProcessCount = 0;
@@ -3070,3 +3071,4 @@ void vtkIOSSReader::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "NodeSetFieldSelection: " << endl;
   this->GetNodeSetFieldSelection()->PrintSelf(os, indent.GetNextIndent());
 }
+VTK_ABI_NAMESPACE_END

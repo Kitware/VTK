@@ -25,6 +25,7 @@
 #include <ctime>  // for strftime
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkMedicalImageProperties);
 
 static const char* vtkMedicalImagePropertiesOrientationString[] = { "AXIAL", "CORONAL", "SAGITTAL",
@@ -1066,3 +1067,4 @@ void vtkMedicalImageProperties::PrintSelf(ostream& os, vtkIndent indent)
 
   this->Internals->Print(os, indent);
 }
+VTK_ABI_NAMESPACE_END

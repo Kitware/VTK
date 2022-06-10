@@ -21,6 +21,7 @@
 #include <vtkIOSegYModule.h> // For export macro
 
 // Forward declarations
+VTK_ABI_NAMESPACE_BEGIN
 class vtkImageData;
 class vtkSegYReaderInternal;
 
@@ -166,4 +167,5 @@ private:
   void operator=(const vtkSegYReader&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkSegYReader_h

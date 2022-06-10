@@ -25,6 +25,7 @@
 #include "vtkWidgetEvent.h"
 #include "vtkWidgetEventTranslator.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkFinitePlaneWidget);
 
 //------------------------------------------------------------------------------
@@ -197,3 +198,4 @@ int vtkFinitePlaneWidget::UpdateCursorShape(int state)
 
   return 0;
 }
+VTK_ABI_NAMESPACE_END

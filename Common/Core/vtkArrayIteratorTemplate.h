@@ -33,6 +33,7 @@
 #include "vtkStdString.h" // For template instantiation
 #include "vtkVariant.h"   // For template instantiation
 
+VTK_ABI_NAMESPACE_BEGIN
 template <class T>
 class VTKCOMMONCORE_EXPORT vtkArrayIteratorTemplate : public vtkArrayIterator
 {
@@ -133,6 +134,7 @@ extern template class VTKCOMMONCORE_EXPORT vtkArrayIteratorTemplate<vtkVariant>;
 #endif
 #endif // VTK_USE_EXTERN_TEMPLATE
 
+VTK_ABI_NAMESPACE_END
 #endif
 
 // VTK-HeaderTest-Exclude: vtkArrayIteratorTemplate.h

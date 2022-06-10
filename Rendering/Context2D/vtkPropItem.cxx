@@ -21,6 +21,7 @@
 #include "vtkProp3D.h"
 #include "vtkRenderer.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkObjectFactoryNewMacro(vtkPropItem);
 vtkCxxSetObjectMacro(vtkPropItem, PropObject, vtkProp);
 
@@ -96,3 +97,4 @@ void vtkPropItem::PrintSelf(std::ostream& os, vtkIndent indent)
     os << "(nullptr)\n";
   }
 }
+VTK_ABI_NAMESPACE_END

@@ -43,6 +43,7 @@
 #include "vtkIOMPIImageModule.h" // For export macro
 #include "vtkNrrdReader.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCharArray;
 class vtkMultiProcessController;
 class vtkMPIOpaqueFileHandle;
@@ -128,4 +129,5 @@ private:
   void operator=(const vtkPNrrdReader&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkPNrrdReader_h

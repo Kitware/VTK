@@ -17,6 +17,7 @@
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkSPHQuinticKernel);
 
 //------------------------------------------------------------------------------
@@ -56,3 +57,4 @@ void vtkSPHQuinticKernel::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

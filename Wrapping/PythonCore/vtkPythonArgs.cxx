@@ -26,11 +26,13 @@ resulting in wrapper code that is faster and more compact.
 
 #include "vtkPythonArgs.h"
 #include "PyVTKReference.h"
+#include "vtkABINamespace.h"
 #include "vtkPythonUtil.h"
 
 #include "vtkObject.h"
 #include "vtkSmartPointerBase.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 //------------------------------------------------------------------------------
 // Extract various C++ types from python objects.  The rules are
 // identical to PyArg_ParseTuple except that range checking is done
@@ -1715,3 +1717,4 @@ vtkPythonArgs::Array<T>::Array(size_t n)
 
 // Instantiate the Array class template over all types:
 vtkPythonArgsTemplateMacro(template class VTKWRAPPINGPYTHONCORE_EXPORT vtkPythonArgs::Array);
+VTK_ABI_NAMESPACE_END

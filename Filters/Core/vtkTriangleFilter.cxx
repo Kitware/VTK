@@ -24,6 +24,7 @@
 #include "vtkPolygon.h"
 #include "vtkTriangleStrip.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkTriangleFilter);
 
 //-------------------------------------------------------------------------
@@ -240,3 +241,4 @@ void vtkTriangleFilter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Pass Verts: " << (this->PassVerts ? "On\n" : "Off\n");
   os << indent << "Pass Lines: " << (this->PassLines ? "On\n" : "Off\n");
 }
+VTK_ABI_NAMESPACE_END

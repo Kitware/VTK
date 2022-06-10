@@ -32,6 +32,7 @@
 #include <utility>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkArcParallelEdgeStrategy);
 
 vtkArcParallelEdgeStrategy::vtkArcParallelEdgeStrategy()
@@ -266,3 +267,4 @@ void vtkArcParallelEdgeStrategy::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
   os << indent << "NumberOfSubdivisions: " << this->NumberOfSubdivisions << endl;
 }
+VTK_ABI_NAMESPACE_END

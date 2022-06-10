@@ -22,6 +22,7 @@
 // clang-format on
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkXdmf3ArrayKeeper::vtkXdmf3ArrayKeeper()
 {
   generation = 0;
@@ -65,3 +66,4 @@ void vtkXdmf3ArrayKeeper::Release(bool force)
   }
   // cerr << "released " << cnt << "/" << total << " arrays" << endl;
 }
+VTK_ABI_NAMESPACE_END

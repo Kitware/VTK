@@ -34,6 +34,7 @@
 #include "vtkObject.h"
 #include "vtkViewsInfovisModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkActor;
 class vtkActor2D;
 class vtkAlgorithmOutput;
@@ -204,4 +205,5 @@ private:
   void operator=(const vtkHierarchicalGraphPipeline&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

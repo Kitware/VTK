@@ -39,6 +39,7 @@
 #include <cassert>
 #include <sstream>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOpenGLGL2PSHelperImpl);
 
 namespace
@@ -1241,3 +1242,4 @@ void vtkOpenGLGL2PSHelperImpl::DrawPathSVG(vtkPath* path, double rasterPos[3], d
   gl2psForceRasterPos(&gl2psRasterPos);
   gl2psSpecial(gl2psGetFileFormat(), out.str().c_str());
 }
+VTK_ABI_NAMESPACE_END

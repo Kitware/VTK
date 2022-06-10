@@ -23,6 +23,7 @@
 #include "vtkUnsignedCharArray.h"
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOverlappingAMR);
 
 vtkInformationKeyMacro(vtkOverlappingAMR, NUMBER_OF_BLANKED_POINTS, IdType);
@@ -246,3 +247,4 @@ bool vtkOverlappingAMR::FindGrid(double q[3], unsigned int& level, unsigned int&
 {
   return this->AMRInfo->FindGrid(q, level, gridId);
 }
+VTK_ABI_NAMESPACE_END

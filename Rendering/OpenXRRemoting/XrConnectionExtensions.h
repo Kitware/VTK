@@ -77,6 +77,7 @@
 
 namespace xr
 {
+VTK_ABI_NAMESPACE_BEGIN
 struct ConnectionExtensionDispatchTable
 {
   FOR_EACH_EXTENSION_FUNCTION(DEFINE_PROC_MEMBER);
@@ -87,6 +88,7 @@ struct ConnectionExtensionDispatchTable
     FOR_EACH_EXTENSION_FUNCTION(GET_INSTANCE_PROC_ADDRESS);
   }
 };
+VTK_ABI_NAMESPACE_END
 } // namespace xr
 
 #undef DEFINE_PROC_MEMBER

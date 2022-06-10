@@ -32,6 +32,7 @@
 #include <numeric>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
 template <typename ArrayT>
@@ -269,3 +270,4 @@ void vtkRemoveUnusedPoints::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "OriginalPointIdsArrayName: "
      << (this->OriginalPointIdsArrayName ? this->OriginalPointIdsArrayName : "(null)") << endl;
 }
+VTK_ABI_NAMESPACE_END

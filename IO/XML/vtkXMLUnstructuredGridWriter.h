@@ -33,6 +33,7 @@
 #include "vtkIOXMLModule.h" // For export macro
 #include "vtkXMLUnstructuredDataWriter.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkUnstructuredGridBase;
 
 class VTKIOXML_EXPORT vtkXMLUnstructuredGridWriter : public vtkXMLUnstructuredDataWriter
@@ -83,4 +84,5 @@ private:
   void operator=(const vtkXMLUnstructuredGridWriter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

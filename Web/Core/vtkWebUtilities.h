@@ -27,6 +27,7 @@
 #include "vtkWebCoreModule.h" // needed for exports
 #include <string>             // for std::string
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataSet;
 
 class VTKWEBCORE_EXPORT vtkWebUtilities : public vtkObject
@@ -59,4 +60,5 @@ private:
   void operator=(const vtkWebUtilities&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

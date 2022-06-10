@@ -26,6 +26,8 @@
 
 class GDALDataset;
 
+VTK_ABI_NAMESPACE_BEGIN
+
 class VTKGEOVISGDAL_EXPORT vtkGDALRasterReprojection : public vtkObject
 {
 public:
@@ -87,4 +89,5 @@ private:
   void operator=(const vtkGDALRasterReprojection&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkGDALRasterReprojection_h

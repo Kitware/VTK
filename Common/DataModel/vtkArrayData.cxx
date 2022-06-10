@@ -32,6 +32,7 @@
 // Standard functions
 //
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkArrayData);
 
 class vtkArrayData::implementation
@@ -188,3 +189,4 @@ void vtkArrayData::DeepCopy(vtkDataObject* other)
 
   Superclass::DeepCopy(other);
 }
+VTK_ABI_NAMESPACE_END

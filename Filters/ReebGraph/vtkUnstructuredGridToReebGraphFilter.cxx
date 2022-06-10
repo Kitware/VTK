@@ -22,6 +22,7 @@
 #include "vtkReebGraph.h"
 #include "vtkUnstructuredGrid.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkUnstructuredGridToReebGraphFilter);
 
 //------------------------------------------------------------------------------
@@ -93,3 +94,4 @@ int vtkUnstructuredGridToReebGraphFilter::RequestData(
 
   return 1;
 }
+VTK_ABI_NAMESPACE_END

@@ -38,6 +38,7 @@
 
 namespace details
 {
+VTK_ABI_NAMESPACE_BEGIN
 static constexpr std::size_t DataFormatSize[] = { 4, 4, 8 };
 
 inline void SwapByteOrder4(char* data)
@@ -82,7 +83,10 @@ bool DimensionIsInRange(int dim)
 {
   return dim >= 0 && dim < SEP_READER_MAX_DIMENSION;
 }
+VTK_ABI_NAMESPACE_END
 }
+
+VTK_ABI_NAMESPACE_BEGIN
 
 std::ostream& operator<<(std::ostream& os, details::EndiannessType& type)
 {
@@ -573,3 +577,4 @@ bool vtkSEPReader::CanReadFile(const char* filename)
   std::string extension = vtksys::SystemTools::GetFilenameLastExtension(filename);
   return extension == ".H";
 }
+VTK_ABI_NAMESPACE_END

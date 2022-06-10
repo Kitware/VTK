@@ -50,6 +50,7 @@
 #include VTK_DIY2(diy/algorithms.hpp)
 // clang-format on
 
+VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
 struct PointTT
@@ -590,3 +591,4 @@ void vtkDIYKdTreeUtilities::ResizeCuts(std::vector<vtkBoundingBox>& cuts, int si
   cuts.swap(new_cuts);
   assert(static_cast<int>(cuts.size()) == size);
 }
+VTK_ABI_NAMESPACE_END

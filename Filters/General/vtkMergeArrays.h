@@ -36,6 +36,7 @@
 
 #include <string> // Needed for protected method argument
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataSet;
 class vtkFieldData;
 
@@ -86,4 +87,5 @@ private:
   void operator=(const vtkMergeArrays&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

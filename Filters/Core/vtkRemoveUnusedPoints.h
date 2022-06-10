@@ -26,6 +26,7 @@
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkUnstructuredGridAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSCORE_EXPORT vtkRemoveUnusedPoints : public vtkUnstructuredGridAlgorithm
 {
 public:
@@ -67,4 +68,5 @@ private:
   char* OriginalPointIdsArrayName;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

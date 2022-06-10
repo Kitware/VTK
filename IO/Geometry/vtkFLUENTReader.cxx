@@ -60,6 +60,7 @@
 #include <cctype>
 #include <sys/stat.h>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkFLUENTReader);
 
 #define VTK_FILE_BYTE_ORDER_BIG_ENDIAN 0
@@ -4201,3 +4202,4 @@ void vtkFLUENTReader::GetSpeciesVariableNames()
     }
   }
 }
+VTK_ABI_NAMESPACE_END

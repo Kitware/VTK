@@ -3,6 +3,7 @@
 
 #include <iterator>
 
+VTK_ABI_NAMESPACE_BEGIN
 template <typename T_, int d_, typename A_>
 class octree;
 
@@ -57,4 +58,5 @@ struct octree_node
   const_reference operator*() const { return m_data; }
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // octree_node_

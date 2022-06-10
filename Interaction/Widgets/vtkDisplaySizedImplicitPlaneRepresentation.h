@@ -42,6 +42,7 @@
 #include "vtkNew.h"                      // For vtkNew command
 #include "vtkWidgetRepresentation.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkActor;
 class vtkBox;
 class vtkCellPicker;
@@ -665,4 +666,5 @@ private:
   void operator=(const vtkDisplaySizedImplicitPlaneRepresentation&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -97,9 +97,9 @@ VTK_ITER_OPTIMIZE_START
 
 namespace vtk
 {
-
 namespace detail
 {
+VTK_ABI_NAMESPACE_BEGIN
 
 // Internal detail: This utility is not directly needed by users of
 // DataArrayRange.
@@ -147,6 +147,7 @@ public:
       TupleSize>(std::declval<ArrayType*>()))>::type;
 };
 
+VTK_ABI_NAMESPACE_END
 } // end namespace detail
 
 /**
@@ -253,6 +254,7 @@ public:
  * }
  * ```
  */
+VTK_ABI_NAMESPACE_BEGIN
 template <ComponentIdType TupleSize = detail::DynamicTupleSize,
   typename ArrayTypePtr = vtkDataArray*>
 VTK_ITER_INLINE auto DataArrayTupleRange(const ArrayTypePtr& array, TupleIdType start = -1,
@@ -375,6 +377,7 @@ VTK_ITER_INLINE auto DataArrayValueRange(const ArrayTypePtr& array, ValueIdType 
   return RangeType(array, start < 0 ? 0 : start, end < 0 ? array->GetNumberOfValues() : end);
 }
 
+VTK_ABI_NAMESPACE_END
 } // end namespace vtk
 
 VTK_ITER_OPTIMIZE_END

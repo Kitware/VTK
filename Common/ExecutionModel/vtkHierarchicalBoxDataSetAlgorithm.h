@@ -28,6 +28,7 @@
 #include "vtkAlgorithm.h"
 #include "vtkCommonExecutionModelModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkHierarchicalBoxDataSet;
 class VTKCOMMONEXECUTIONMODEL_EXPORT vtkHierarchicalBoxDataSetAlgorithm : public vtkAlgorithm
 {
@@ -116,4 +117,5 @@ private:
   void operator=(const vtkHierarchicalBoxDataSetAlgorithm&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

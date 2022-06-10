@@ -33,6 +33,7 @@
 #include "vtkTextProperty.h" // For axes text properties
 #include <vector>            // For ivars
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkAnnotationLink;
 class vtkAxis;
 class vtkContext3D;
@@ -702,4 +703,5 @@ private:
   void operator=(const vtkChartXYZ&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

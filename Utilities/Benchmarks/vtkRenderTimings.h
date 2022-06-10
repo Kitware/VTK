@@ -25,6 +25,7 @@
 #include <map>
 #include <vtksys/CommandLineArguments.hxx>
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkRTTestResult;
 class vtkRTTestSequence;
 class vtkRenderTimings;
@@ -189,5 +190,6 @@ private:
   int RenderHeight;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkRenderTimings.h

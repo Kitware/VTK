@@ -16,6 +16,7 @@
 
 #include "vtkObjectFactory.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkWebInteractionEvent);
 //------------------------------------------------------------------------------
 vtkWebInteractionEvent::vtkWebInteractionEvent()
@@ -44,3 +45,4 @@ void vtkWebInteractionEvent::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "RepeatCount: " << this->RepeatCount << endl;
   os << indent << "Scroll: " << this->Scroll << endl;
 }
+VTK_ABI_NAMESPACE_END

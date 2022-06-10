@@ -29,6 +29,7 @@
 #include "vtkObject.h"
 #include "vtkRenderingCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkViewport;
 
 #define VTK_BACKGROUND_LOCATION 0
@@ -143,4 +144,5 @@ private:
   void operator=(const vtkProperty2D&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

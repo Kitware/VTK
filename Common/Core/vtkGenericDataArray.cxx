@@ -25,5 +25,7 @@
 
 namespace vtkDataArrayPrivate
 {
+VTK_ABI_NAMESPACE_BEGIN
 VTK_INSTANTIATE_VALUERANGE_ARRAYTYPE(vtkDataArray, double)
+VTK_ABI_NAMESPACE_END
 } // namespace vtkDataArrayPrivate

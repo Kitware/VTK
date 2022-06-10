@@ -52,6 +52,7 @@
 #include <pdal/PointView.hpp>
 #include <pdal/StageFactory.hpp>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPDALReader);
 
 //------------------------------------------------------------------------------
@@ -400,3 +401,4 @@ void vtkPDALReader::PrintSelf(ostream& os, vtkIndent indent)
   os << "vtkPDALReader" << std::endl;
   os << "Filename: " << this->FileName << std::endl;
 }
+VTK_ABI_NAMESPACE_END

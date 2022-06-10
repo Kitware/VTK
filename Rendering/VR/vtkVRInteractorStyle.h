@@ -31,6 +31,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <map>    // for std::map
 #include <vector> // for std::vector
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCallbackCommand;
 class vtkCell;
 class vtkPlane;
@@ -291,4 +292,5 @@ private:
   void operator=(const vtkVRInteractorStyle&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

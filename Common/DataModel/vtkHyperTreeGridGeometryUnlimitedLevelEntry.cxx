@@ -24,6 +24,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <cassert>
 #include <limits>
 
+VTK_ABI_NAMESPACE_BEGIN
 //------------------------------------------------------------------------------
 void vtkHyperTreeGridGeometryUnlimitedLevelEntry::Initialize(
   vtkHyperTree* tree, unsigned int level, vtkIdType index, const double* origin)
@@ -253,3 +254,4 @@ void vtkHyperTreeGridGeometryUnlimitedLevelEntry::GetPoint(double point[3]) cons
   point[1] = this->Origin[1] + sizeChild[1] / 2.;
   point[2] = this->Origin[2] + sizeChild[2] / 2.;
 }
+VTK_ABI_NAMESPACE_END

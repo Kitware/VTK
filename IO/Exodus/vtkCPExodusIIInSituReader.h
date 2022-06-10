@@ -34,6 +34,7 @@
 #include <string>   // For std::string
 #include <vector>   // For std::vector
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataArrayCollection;
 class vtkPointData;
 class vtkPoints;
@@ -115,4 +116,5 @@ private:
   int CurrentTimeStep;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkCPExodusIIInSituReader_h

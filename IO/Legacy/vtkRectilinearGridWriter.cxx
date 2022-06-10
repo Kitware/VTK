@@ -24,6 +24,7 @@
 #include <io.h> /* unlink */
 #endif
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkRectilinearGridWriter);
 
 void vtkRectilinearGridWriter::WriteData()
@@ -131,3 +132,4 @@ void vtkRectilinearGridWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

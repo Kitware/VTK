@@ -36,6 +36,7 @@
 #include "vtkFiltersParallelStatisticsModule.h" // For export macro
 #include "vtkPCAStatistics.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkMultiProcessController;
 
 class VTKFILTERSPARALLELSTATISTICS_EXPORT vtkPPCAStatistics : public vtkPCAStatistics
@@ -76,4 +77,5 @@ private:
   void operator=(const vtkPPCAStatistics&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

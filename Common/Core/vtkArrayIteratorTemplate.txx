@@ -21,6 +21,7 @@
 #include "vtkObjectFactory.h"
 
 //-----------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 template <class T>
 vtkArrayIteratorTemplate<T>* vtkArrayIteratorTemplate<T>::New()
 {
@@ -130,4 +131,5 @@ void vtkArrayIteratorTemplate<T>::PrintSelf(ostream& os, vtkIndent indent)
   }
 }
 
+VTK_ABI_NAMESPACE_END
 #endif

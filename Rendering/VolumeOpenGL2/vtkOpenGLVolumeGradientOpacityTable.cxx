@@ -19,6 +19,7 @@
 #include "vtkPiecewiseFunction.h"
 #include "vtkTextureObject.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOpenGLVolumeGradientOpacityTable);
 
 // Update opacity transfer function texture.
@@ -48,3 +49,4 @@ void vtkOpenGLVolumeGradientOpacityTable::PrintSelf(ostream& os, vtkIndent inden
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

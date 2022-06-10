@@ -55,6 +55,7 @@
 #include "vtkFiltersModelingModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSMODELING_EXPORT vtkCookieCutter : public vtkPolyDataAlgorithm
 {
 public:
@@ -165,4 +166,5 @@ private:
   void operator=(const vtkCookieCutter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

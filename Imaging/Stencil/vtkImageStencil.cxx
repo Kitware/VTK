@@ -25,6 +25,7 @@
 
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImageStencil);
 
 //------------------------------------------------------------------------------
@@ -345,3 +346,4 @@ void vtkImageStencil::PrintSelf(ostream& os, vtkIndent indent)
      << this->BackgroundColor[1] << ", " << this->BackgroundColor[2] << ", "
      << this->BackgroundColor[3] << ")\n";
 }
+VTK_ABI_NAMESPACE_END

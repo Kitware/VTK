@@ -25,6 +25,8 @@
 #include "vtkIdList.h"
 #include "vtkWriter.h"
 
+VTK_ABI_NAMESPACE_BEGIN
+
 class VTKIOCESIUM3DTILES_EXPORT vtkCesiumPointCloudWriter : public vtkWriter
 {
 public:
@@ -63,5 +65,6 @@ private:
   void operator=(const vtkCesiumPointCloudWriter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkCesiumPointCloudWriter.h

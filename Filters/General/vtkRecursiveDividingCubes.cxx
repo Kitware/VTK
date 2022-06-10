@@ -26,6 +26,7 @@
 #include "vtkPolyData.h"
 #include "vtkVoxel.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkRecursiveDividingCubes);
 
 vtkRecursiveDividingCubes::vtkRecursiveDividingCubes()
@@ -345,3 +346,4 @@ void vtkRecursiveDividingCubes::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Distance: " << this->Distance << "\n";
   os << indent << "Increment: " << this->Increment << "\n";
 }
+VTK_ABI_NAMESPACE_END

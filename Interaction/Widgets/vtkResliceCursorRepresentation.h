@@ -30,6 +30,7 @@
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkWidgetRepresentation.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkTextProperty;
 class vtkActor2D;
 class vtkTextMapper;
@@ -368,4 +369,5 @@ private:
   void operator=(const vtkResliceCursorRepresentation&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -18,6 +18,7 @@
 #include "vtkLargeInteger.h"
 #include "vtkObjectFactory.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkExtentTranslator);
 
 vtkInformationKeyMacro(vtkExtentTranslator, DATA_SPLIT_MODE, Integer);
@@ -376,3 +377,4 @@ void vtkExtentTranslator::PrintSelf(ostream& os, vtkIndent indent)
     os << "Unknown\n";
   }
 }
+VTK_ABI_NAMESPACE_END

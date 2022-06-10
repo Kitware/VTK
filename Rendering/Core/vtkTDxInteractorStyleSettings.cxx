@@ -16,6 +16,7 @@
 #include "vtkTDxInteractorStyleSettings.h"
 #include "vtkObjectFactory.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkTDxInteractorStyleSettings);
 
 //------------------------------------------------------------------------------
@@ -47,3 +48,4 @@ void vtkTDxInteractorStyleSettings::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "TranslationYSensitivity: " << this->TranslationYSensitivity << endl;
   os << indent << "TranslationZSensitivity: " << this->TranslationZSensitivity << endl;
 }
+VTK_ABI_NAMESPACE_END

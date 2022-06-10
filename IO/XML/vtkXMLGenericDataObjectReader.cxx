@@ -45,6 +45,7 @@
 
 #include <cassert>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkXMLGenericDataObjectReader);
 
 //------------------------------------------------------------------------------
@@ -444,3 +445,4 @@ vtkIdType vtkXMLGenericDataObjectReader::GetNumberOfCells()
   }
   return numCells;
 }
+VTK_ABI_NAMESPACE_END

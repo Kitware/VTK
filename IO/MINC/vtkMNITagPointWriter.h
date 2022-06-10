@@ -68,6 +68,7 @@ POSSIBILITY OF SUCH DAMAGES.
 #include "vtkIOMINCModule.h" // For export macro
 #include "vtkWriter.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataSet;
 class vtkPointSet;
 class vtkStringArray;
@@ -195,4 +196,5 @@ private:
   void operator=(const vtkMNITagPointWriter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

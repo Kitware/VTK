@@ -55,6 +55,7 @@
 #define VTK_ICON_SCALING_OFF 0
 #define VTK_ICON_SCALING_USE_SCALING_ARRAY 1
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSGENERAL_EXPORT vtkIconGlyphFilter : public vtkPolyDataAlgorithm
 {
 public:
@@ -189,4 +190,5 @@ inline void vtkIconGlyphFilter::IconConvertIndex(int id, int& j, int& k)
   k = dimY - static_cast<int>(id / dimX) - 1;
 }
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -71,6 +71,7 @@
 #include <stack>                       // for ivar
 #include <string>                      // for ivar
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkOpenGLFramebufferObject;
 class vtkOpenGLRenderWindow;
 class vtkOpenGLShaderCache;
@@ -501,4 +502,5 @@ private:
   void operator=(const vtkOpenGLState&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

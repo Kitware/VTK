@@ -28,6 +28,7 @@
 
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkFixedPointVolumeRayCastCompositeShadeHelper);
 
 // Construct a new vtkFixedPointVolumeRayCastCompositeShadeHelper with default values
@@ -787,3 +788,4 @@ void vtkFixedPointVolumeRayCastCompositeShadeHelper::PrintSelf(ostream& os, vtkI
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

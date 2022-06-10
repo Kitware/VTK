@@ -32,6 +32,7 @@
 
 #include "vtkAssemblyPath.h" // Needed for inline methods
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkProp;
 
 class VTKRENDERINGCORE_EXPORT vtkAssemblyPaths : public vtkCollection
@@ -113,4 +114,5 @@ inline vtkAssemblyPath* vtkAssemblyPaths::GetNextItem()
   return static_cast<vtkAssemblyPath*>(this->GetNextItemAsObject());
 }
 
+VTK_ABI_NAMESPACE_END
 #endif

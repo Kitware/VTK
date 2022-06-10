@@ -30,6 +30,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <algorithm>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkTextCodecFactory);
 
 class vtkTextCodecFactory::CallbackVector : public std::vector<vtkTextCodecFactory::CreateFunction>
@@ -191,3 +192,4 @@ void vtkTextCodecFactory::Initialize()
 vtkTextCodecFactory::vtkTextCodecFactory() = default;
 
 vtkTextCodecFactory::~vtkTextCodecFactory() = default;
+VTK_ABI_NAMESPACE_END

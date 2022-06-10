@@ -28,6 +28,7 @@
 #include <cassert>
 #include <set>
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkExtractBlock::vtkSet : public std::set<unsigned int>
 {
 };
@@ -251,3 +252,4 @@ void vtkExtractBlock::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "PruneOutput: " << this->PruneOutput << endl;
   os << indent << "MaintainStructure: " << this->MaintainStructure << endl;
 }
+VTK_ABI_NAMESPACE_END

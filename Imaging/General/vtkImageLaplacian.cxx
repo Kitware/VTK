@@ -22,6 +22,7 @@
 
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImageLaplacian);
 
 //------------------------------------------------------------------------------
@@ -209,3 +210,4 @@ void vtkImageLaplacian::ThreadedRequestData(vtkInformation* vtkNotUsed(request),
       return;
   }
 }
+VTK_ABI_NAMESPACE_END

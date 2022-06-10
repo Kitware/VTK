@@ -23,6 +23,7 @@
 
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImageDivergence);
 
 void vtkImageDivergence::PrintSelf(ostream& os, vtkIndent indent)
@@ -221,3 +222,4 @@ void vtkImageDivergence::ThreadedExecute(
       return;
   }
 }
+VTK_ABI_NAMESPACE_END

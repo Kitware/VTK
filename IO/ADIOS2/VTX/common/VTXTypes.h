@@ -34,6 +34,7 @@ namespace vtx
 {
 namespace types
 {
+VTK_ABI_NAMESPACE_BEGIN
 
 /** key: variable name, value: DataArray */
 using DataSet = std::map<std::string, DataArray>;
@@ -61,6 +62,7 @@ using Piece = std::map<DataSetType, DataSet>;
   MACRO(float)                                                                                     \
   MACRO(double)
 
+VTK_ABI_NAMESPACE_END
 } // end namespace types
 } // end namespace vtx
 

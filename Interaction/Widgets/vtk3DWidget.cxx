@@ -23,6 +23,7 @@
 #include "vtkRenderer.h"
 #include "vtkTrivialProducer.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkCxxSetObjectMacro(vtk3DWidget, Prop3D, vtkProp3D);
 
 class vtk3DWidgetConnection : public vtkAlgorithm
@@ -205,3 +206,4 @@ vtkDataSet* vtk3DWidget::GetInput()
 {
   return vtkDataSet::SafeDownCast(this->ConnectionHolder->GetInputDataObject(0, 0));
 }
+VTK_ABI_NAMESPACE_END

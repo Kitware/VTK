@@ -28,6 +28,7 @@
 
 //------------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
+VTK_ABI_NAMESPACE_BEGIN
 vtkObjectFactoryNewMacro(vtkCamera);
 
 vtkCxxSetObjectMacro(vtkCamera, Information, vtkInformation);
@@ -1990,3 +1991,4 @@ void vtkCamera::SetModelTransformMatrix(const double elements[16])
   this->ModelTransformMatrix->Element[3][3] = elements[15];
   this->Modified();
 }
+VTK_ABI_NAMESPACE_END

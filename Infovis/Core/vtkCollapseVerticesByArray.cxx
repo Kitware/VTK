@@ -36,6 +36,7 @@
 #include <string> // Using STL.
 #include <vector> // Using STL.
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkCollapseVerticesByArray);
 
 //------------------------------------------------------------------------------
@@ -516,3 +517,4 @@ void vtkCollapseVerticesByArray::FindEdge(
     }
   }
 }
+VTK_ABI_NAMESPACE_END

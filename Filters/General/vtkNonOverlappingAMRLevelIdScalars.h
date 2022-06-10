@@ -27,6 +27,7 @@
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkNonOverlappingAMRAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkUniformGrid;
 class vtkUniformGridAMR;
 
@@ -52,4 +53,5 @@ private:
   void operator=(const vtkNonOverlappingAMRLevelIdScalars&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

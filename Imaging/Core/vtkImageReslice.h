@@ -60,6 +60,7 @@
 #define VTK_RESLICE_LINEAR VTK_LINEAR_INTERPOLATION
 #define VTK_RESLICE_CUBIC VTK_CUBIC_INTERPOLATION
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkImageData;
 class vtkAbstractTransform;
 class vtkMatrix4x4;
@@ -589,4 +590,5 @@ private:
   void operator=(const vtkImageReslice&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -29,6 +29,7 @@
 // Construct with the following defaults: origin(0,0,0)
 // position=(0,0,0) and orientation=(0,0,0). No user defined
 // matrix and no texture map.
+VTK_ABI_NAMESPACE_BEGIN
 vtkProp3D::vtkProp3D()
 {
   this->Origin[0] = 0.0;
@@ -798,3 +799,4 @@ void vtkProp3D::PrintSelf(ostream& os, vtkIndent indent)
     os << "(none)\n";
   }
 }
+VTK_ABI_NAMESPACE_END

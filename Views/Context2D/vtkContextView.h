@@ -32,6 +32,7 @@
 #include "vtkSmartPointer.h"         // Needed for SP ivars
 #include "vtkViewsContext2DModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkContext2D;
 class vtkContextScene;
 
@@ -75,4 +76,5 @@ private:
   void operator=(const vtkContextView&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

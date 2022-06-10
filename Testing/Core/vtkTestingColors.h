@@ -3,6 +3,7 @@
 
 // Standard colors used by many vtk scripts
 
+VTK_ABI_NAMESPACE_BEGIN
 static float vtk_antique_white[3] = { 0.9804, 0.9216, 0.8431 };
 static float vtk_azure[3] = { 0.9412, 1.0000, 1.0000 };
 static float vtk_bisque[3] = { 1.0000, 0.8941, 0.7686 };
@@ -215,5 +216,6 @@ static float vtk_violet_red[3] = { 0.8157, 0.1255, 0.5647 };
 static float vtk_violet_red_medium[3] = { 0.7804, 0.0824, 0.5216 };
 static float vtk_violet_red_pale[3] = { 0.8588, 0.4392, 0.5765 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkTestingColors_h
 // VTK-HeaderTest-Exclude: vtkTestingColors.h

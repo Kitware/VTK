@@ -30,6 +30,7 @@
 #include "vtkDataSet.h"
 #include "vtkSOADataArrayTemplate.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkIndent;
 
 //==============================================================================
@@ -313,5 +314,6 @@ void vtkAMReXGridReaderInternal::CreateVTKAttributeArray(vtkAOSDataArrayTemplate
 // ----------------------------------------------------------------------------
 //                     Class  vtkAMReXGridReaderInternal ( end )
 // ----------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_END
 #endif /* vtkAMReXGridReaderInternal_h */
 // VTK-HeaderTest-Exclude: vtkAMReXGridReaderInternal.h

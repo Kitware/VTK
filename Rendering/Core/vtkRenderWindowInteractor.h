@@ -50,6 +50,7 @@
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkSmartPointer.h"        // For InteractorStyle
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkTimerIdMap;
 
 // Timer flags for win32/X compatibility
@@ -926,4 +927,5 @@ private:
   void operator=(const vtkRenderWindowInteractor&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

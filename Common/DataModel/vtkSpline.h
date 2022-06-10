@@ -57,6 +57,7 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPiecewiseFunction;
 
 class VTKCOMMONDATAMODEL_EXPORT vtkSpline : public vtkObject
@@ -200,4 +201,5 @@ private:
   void operator=(const vtkSpline&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

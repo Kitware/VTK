@@ -34,6 +34,7 @@
 #include <list>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkCirclePackFrontChainLayoutStrategy);
 
 class vtkCirclePackFrontChainLayoutStrategyImplementation
@@ -629,3 +630,4 @@ void vtkCirclePackFrontChainLayoutStrategy::PrintSelf(ostream& os, vtkIndent ind
   os << indent << "Width: " << this->Width << endl;
   os << indent << "Height: " << this->Height << endl;
 }
+VTK_ABI_NAMESPACE_END

@@ -49,6 +49,7 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataSet;
 class vtkDataArray;
 class vtkAbstractArray;
@@ -103,4 +104,5 @@ private:
   void operator=(const vtkReebGraphSimplificationMetric&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

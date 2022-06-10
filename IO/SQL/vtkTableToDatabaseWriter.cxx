@@ -29,6 +29,7 @@
 #include "vtkTableToDatabaseWriter.h"
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkTableToDatabaseWriter::vtkTableToDatabaseWriter()
 {
   this->Database = nullptr;
@@ -119,3 +120,4 @@ void vtkTableToDatabaseWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

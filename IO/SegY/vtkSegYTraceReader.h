@@ -16,6 +16,8 @@
 #ifndef vtkSegYTraceReader_h
 #define vtkSegYTraceReader_h
 
+#include "vtkABINamespace.h"
+
 #include <fstream>
 #include <vector>
 
@@ -24,6 +26,7 @@
 /*
  * Single Seg-Y trace
  */
+VTK_ABI_NAMESPACE_BEGIN
 class vtkSegYTrace
 {
 public:
@@ -59,5 +62,6 @@ public:
   int GetTraceSize(int numSamples, int formatCode);
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkSegYTraceReader_h
 // VTK-HeaderTest-Exclude: vtkSegYTraceReader.h

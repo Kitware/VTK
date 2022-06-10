@@ -41,6 +41,7 @@
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkTypeTraits.h"       // For type metadata
 
+VTK_ABI_NAMESPACE_BEGIN
 template <class Scalar>
 class vtkTypedDataArrayIterator;
 
@@ -184,8 +185,10 @@ private:
 vtkArrayDownCast_TemplateFastCastMacro(vtkTypedDataArray);
 
 // Included here to resolve chicken/egg issue with container/iterator:
+VTK_ABI_NAMESPACE_END
 #include "vtkTypedDataArrayIterator.h" // For iterator
 
+VTK_ABI_NAMESPACE_BEGIN
 template <class Scalar>
 inline typename vtkTypedDataArray<Scalar>::Iterator vtkTypedDataArray<Scalar>::Begin()
 {
@@ -198,6 +201,7 @@ inline typename vtkTypedDataArray<Scalar>::Iterator vtkTypedDataArray<Scalar>::E
   return Iterator(this, this->MaxId + 1);
 }
 
+VTK_ABI_NAMESPACE_END
 #include "vtkTypedDataArray.txx"
 
 #endif // vtkTypedDataArray_h

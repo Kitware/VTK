@@ -64,6 +64,7 @@ WARRANTY OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
 /* memory allocation */
 #define myalloc(mem_size) vtkPLY::my_alloc((mem_size), __LINE__, __FILE__)
 
+VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
 const int LINE_LENGTH = 4096;
@@ -2775,3 +2776,4 @@ void* vtkPLY::my_alloc(size_t size, int lnum, const char* fname)
 
   return (ptr);
 }
+VTK_ABI_NAMESPACE_END

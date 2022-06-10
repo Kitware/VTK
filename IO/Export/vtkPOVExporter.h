@@ -79,6 +79,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkExporter.h"
 #include "vtkIOExportModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkRenderer;
 class vtkActor;
 class vtkCamera;
@@ -127,4 +128,5 @@ private:
   vtkPOVInternals* Internals;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

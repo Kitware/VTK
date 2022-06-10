@@ -46,6 +46,7 @@
 
 namespace tovtkm
 {
+VTK_ABI_NAMESPACE_BEGIN
 
 namespace
 {
@@ -228,10 +229,12 @@ vtkm::cont::UnknownCellSet Convert(
   return cells->Visit(BuildExplicitCellSetVisitor{}, ShapeConverter::Wrap(types), numberOfPoints);
 }
 
+VTK_ABI_NAMESPACE_END
 } // namespace tovtkm
 
 namespace fromvtkm
 {
+VTK_ABI_NAMESPACE_BEGIN
 
 bool Convert(const vtkm::cont::UnknownCellSet& toConvert, vtkCellArray* cells,
   vtkUnsignedCharArray* typesArray)
@@ -285,4 +288,5 @@ bool Convert(const vtkm::cont::UnknownCellSet& toConvert, vtkCellArray* cells,
   return true;
 }
 
+VTK_ABI_NAMESPACE_END
 } // namespace fromvtkm

@@ -9,6 +9,7 @@
 
 namespace RTW
 {
+VTK_ABI_NAMESPACE_BEGIN
     class GeometricModel : public Object
     {
         friend class World;
@@ -60,4 +61,5 @@ namespace RTW
     private:
         Geometry *geometry;
     };
+VTK_ABI_NAMESPACE_END
 }

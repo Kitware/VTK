@@ -26,6 +26,7 @@
 
 namespace tovtkm
 {
+VTK_ABI_NAMESPACE_BEGIN
 
 struct vtkPortalOfVecOfVecValues;
 struct vtkPortalOfVecOfValues;
@@ -142,6 +143,7 @@ struct vtkPortalTraits<const vtkm::Vec<vtkm::Vec<T, N>, M>>
   }
 };
 
+VTK_ABI_NAMESPACE_END
 } // namespace vtkmlib
 
 #endif // vtkmlib_PortalsTraits_h

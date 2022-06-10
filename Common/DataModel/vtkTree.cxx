@@ -28,6 +28,7 @@
 
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkTree);
 //------------------------------------------------------------------------------
 vtkTree::vtkTree()
@@ -218,3 +219,4 @@ void vtkTree::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
   os << indent << "Root: " << this->Root << endl;
 }
+VTK_ABI_NAMESPACE_END

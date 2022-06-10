@@ -38,6 +38,7 @@
 #include "vtkCell3D.h"
 #include "vtkCommonDataModelModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkLine;
 class vtkPolygon;
 class vtkQuad;
@@ -207,4 +208,5 @@ inline int vtkHexagonalPrism::GetParametricCenter(double pcoords[3])
   pcoords[2] = 0.5;
   return 0;
 }
+VTK_ABI_NAMESPACE_END
 #endif

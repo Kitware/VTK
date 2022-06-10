@@ -20,6 +20,7 @@
 #include "vtkObjectFactory.h"
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkGraphGeodesicPath::vtkGraphGeodesicPath()
 {
   this->StartVertex = 0;
@@ -37,3 +38,4 @@ void vtkGraphGeodesicPath::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "StartVertex: " << this->StartVertex << endl;
   os << indent << "EndVertex: " << this->EndVertex << endl;
 }
+VTK_ABI_NAMESPACE_END

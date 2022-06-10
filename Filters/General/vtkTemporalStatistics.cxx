@@ -46,6 +46,7 @@
 #include <functional>
 
 //=============================================================================
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkTemporalStatistics);
 
 namespace
@@ -721,3 +722,4 @@ vtkDataArray* vtkTemporalStatistics::GetArray(
 
   return outArray;
 }
+VTK_ABI_NAMESPACE_END

@@ -41,6 +41,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 //------------------------------------------------------------------------------
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkSpanTreeLayoutStrategy);
 
 vtkSpanTreeLayoutStrategy::vtkSpanTreeLayoutStrategy()
@@ -332,3 +333,4 @@ void vtkSpanTreeLayoutStrategy::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "DepthFirstSpanningTree: " << (this->DepthFirstSpanningTree ? "On" : "Off")
      << endl;
 }
+VTK_ABI_NAMESPACE_END

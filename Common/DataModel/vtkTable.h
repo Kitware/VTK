@@ -59,6 +59,7 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkDataObject.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkAbstractArray;
 class vtkDataSetAttributes;
 class vtkVariant;
@@ -316,4 +317,5 @@ private:
   void operator=(const vtkTable&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

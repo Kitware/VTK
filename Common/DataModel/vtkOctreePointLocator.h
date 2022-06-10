@@ -40,6 +40,7 @@
 #include "vtkAbstractPointLocator.h"
 #include "vtkCommonDataModelModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCellArray;
 class vtkIdTypeArray;
 class vtkOctreePointLocatorNode;
@@ -282,4 +283,5 @@ protected:
   vtkOctreePointLocator(const vtkOctreePointLocator&) = delete;
   void operator=(const vtkOctreePointLocator&) = delete;
 };
+VTK_ABI_NAMESPACE_END
 #endif

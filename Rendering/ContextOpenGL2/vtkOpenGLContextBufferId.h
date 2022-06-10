@@ -28,6 +28,7 @@
 #include "vtkAbstractContextBufferId.h"
 #include "vtkRenderingContextOpenGL2Module.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkTextureObject;
 class vtkOpenGLRenderWindow;
 
@@ -103,4 +104,5 @@ private:
   void operator=(const vtkOpenGLContextBufferId&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // #ifndef vtkOpenGLContextBufferId_h

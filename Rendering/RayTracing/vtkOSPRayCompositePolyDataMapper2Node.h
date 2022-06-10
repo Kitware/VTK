@@ -27,6 +27,7 @@
 #include "vtkRenderingRayTracingModule.h" // For export macro
 #include <stack>                          // used for ivars
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataObject;
 class vtkCompositePolyDataMapper2;
 class vtkOSPRayRendererNode;
@@ -72,4 +73,5 @@ private:
   vtkOSPRayCompositePolyDataMapper2Node(const vtkOSPRayCompositePolyDataMapper2Node&) = delete;
   void operator=(const vtkOSPRayCompositePolyDataMapper2Node&) = delete;
 };
+VTK_ABI_NAMESPACE_END
 #endif

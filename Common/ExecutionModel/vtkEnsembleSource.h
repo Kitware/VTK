@@ -30,6 +30,7 @@
 #include "vtkAlgorithm.h"
 #include "vtkCommonExecutionModelModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 struct vtkEnsembleSourceInternal;
 class vtkTable;
 class vtkInformationDataObjectMetaDataKey;
@@ -112,4 +113,5 @@ private:
   void operator=(const vtkEnsembleSource&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -30,6 +30,7 @@
 
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkCell3D::vtkCell3D()
 {
   this->Triangulator = nullptr;
@@ -519,3 +520,4 @@ void vtkCell3D::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Merge Tolerance: " << this->MergeTolerance << "\n";
 }
+VTK_ABI_NAMESPACE_END

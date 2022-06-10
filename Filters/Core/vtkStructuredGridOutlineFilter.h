@@ -27,6 +27,7 @@
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSCORE_EXPORT vtkStructuredGridOutlineFilter : public vtkPolyDataAlgorithm
 {
 public:
@@ -46,4 +47,5 @@ private:
   void operator=(const vtkStructuredGridOutlineFilter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

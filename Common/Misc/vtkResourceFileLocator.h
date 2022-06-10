@@ -38,6 +38,7 @@
 #include <string> // needed for std::string
 #include <vector> // needed for std::vector
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONMISC_EXPORT vtkResourceFileLocator : public vtkObject
 {
 public:
@@ -110,4 +111,5 @@ private:
   vtkResourceFileLocator::GetLibraryPathForSymbolUnix(#function)
 #endif
 
+VTK_ABI_NAMESPACE_END
 #endif

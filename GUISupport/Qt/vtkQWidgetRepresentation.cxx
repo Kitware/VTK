@@ -32,6 +32,7 @@
 
 #include "vtk_glew.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkQWidgetRepresentation);
 
 //------------------------------------------------------------------------------
@@ -243,3 +244,4 @@ void vtkQWidgetRepresentation::RegisterPickers()
   }
   pm->AddPicker(this->Picker, this);
 }
+VTK_ABI_NAMESPACE_END

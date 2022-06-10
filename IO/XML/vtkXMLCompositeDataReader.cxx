@@ -46,6 +46,7 @@
 #include <set>
 #include <vtksys/SystemTools.hxx>
 
+VTK_ABI_NAMESPACE_BEGIN
 struct vtkXMLCompositeDataReaderEntry
 {
   const char* extension;
@@ -567,3 +568,4 @@ const vtkXMLCompositeDataReaderEntry vtkXMLCompositeDataReaderInternals::ReaderL
   { "vts", "vtkXMLStructuredGridReader" }, { "vtt", "vtkXMLTableReader" },
   { "htg", "vtkXMLHyperTreeGridReader" }, { nullptr, nullptr }
 };
+VTK_ABI_NAMESPACE_END

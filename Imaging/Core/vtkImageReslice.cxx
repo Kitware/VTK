@@ -42,6 +42,7 @@
 #include <cmath>
 #include <cstdint>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImageReslice);
 vtkCxxSetObjectMacro(vtkImageReslice, InformationInput, vtkImageData);
 vtkCxxSetObjectMacro(vtkImageReslice, ResliceAxes, vtkMatrix4x4);
@@ -3082,3 +3083,4 @@ void vtkImageReslice::ThreadedRequestData(vtkInformation* vtkNotUsed(request),
       outExt, threadId, newmat, newtrans);
   }
 }
+VTK_ABI_NAMESPACE_END

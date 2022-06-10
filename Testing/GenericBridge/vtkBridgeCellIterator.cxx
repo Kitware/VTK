@@ -33,6 +33,7 @@
 #include "vtkBridgeCellIteratorOnDataSet.h"
 #include "vtkBridgeCellIteratorOne.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkBridgeCellIterator);
 
 //------------------------------------------------------------------------------
@@ -245,3 +246,4 @@ void vtkBridgeCellIterator::InitWithPoints(
   this->IteratorOneCell->InitWithPoints(coords, pts, dim, cellid);
   this->CurrentIterator = this->IteratorOneCell;
 }
+VTK_ABI_NAMESPACE_END

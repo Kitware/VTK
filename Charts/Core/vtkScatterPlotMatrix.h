@@ -34,6 +34,7 @@
 #include "vtkStdString.h"        // For ivars
 #include "vtkWeakPointer.h"      // For currentPainter
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkStringArray;
 class vtkTable;
 class vtkAxis;
@@ -506,4 +507,5 @@ private:
   void ApplyAxisSetting(vtkChart* chart, const vtkStdString& x, const vtkStdString& y);
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkScatterPlotMatrix_h

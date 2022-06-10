@@ -33,6 +33,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderingUIModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 struct AInputEvent;
 
 class VTKRENDERINGUI_EXPORT vtkAndroidRenderWindowInteractor : public vtkRenderWindowInteractor
@@ -164,4 +165,5 @@ private:
   void operator=(const vtkAndroidRenderWindowInteractor&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

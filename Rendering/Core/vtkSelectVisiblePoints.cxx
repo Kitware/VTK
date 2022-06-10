@@ -27,6 +27,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkSelectVisiblePoints);
 
 // Instantiate object with no renderer; window selection turned off;
@@ -281,3 +282,4 @@ bool vtkSelectVisiblePoints::IsPointOccluded(const double x[3], const float* zPt
 
   return false;
 }
+VTK_ABI_NAMESPACE_END

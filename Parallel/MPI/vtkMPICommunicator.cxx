@@ -28,6 +28,7 @@
 #include <cassert>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 static inline void vtkMPICommunicatorDebugBarrier(MPI_Comm* handle)
 {
   // If NDEBUG is defined, do nothing.
@@ -1579,3 +1580,4 @@ int vtkMPICommunicator::Iprobe(
   return CheckForMPIError(vtkMPICommunicatorIprobe(
     source, tag, flag, actualSource, MPI_DOUBLE, size, this->MPIComm->Handle));
 }
+VTK_ABI_NAMESPACE_END

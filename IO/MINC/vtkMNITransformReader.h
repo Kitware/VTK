@@ -67,6 +67,7 @@ POSSIBILITY OF SUCH DAMAGES.
 #include "vtkAlgorithm.h"
 #include "vtkIOMINCModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkAbstractTransform;
 class vtkDoubleArray;
 class vtkCollection;
@@ -160,4 +161,5 @@ private:
   void operator=(const vtkMNITransformReader&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -21,6 +21,7 @@
 
 #include "vtkArrayExtentsList.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkArrayExtentsList::vtkArrayExtentsList() = default;
 
 vtkArrayExtentsList::vtkArrayExtentsList(const vtkArrayExtents& i)
@@ -74,3 +75,4 @@ const vtkArrayExtents& vtkArrayExtentsList::operator[](vtkIdType i) const
 {
   return this->Storage[i];
 }
+VTK_ABI_NAMESPACE_END

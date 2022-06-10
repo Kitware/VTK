@@ -24,8 +24,11 @@
 #include <iostream>
 
 #define MIN_GLTF_VERSION "2.0"
+namespace vtkGLTFUtils
+{
 //------------------------------------------------------------------------------
-bool vtkGLTFUtils::GetBoolValue(const nlohmann::json& root, const std::string& key, bool& value)
+VTK_ABI_NAMESPACE_BEGIN
+bool GetBoolValue(const nlohmann::json& root, const std::string& key, bool& value)
 {
   auto it = root.find(key);
   if (it == root.end() || !it.value().is_boolean())
@@ -37,7 +40,7 @@ bool vtkGLTFUtils::GetBoolValue(const nlohmann::json& root, const std::string& k
 }
 
 //------------------------------------------------------------------------------
-bool vtkGLTFUtils::GetIntValue(const nlohmann::json& root, const std::string& key, int& value)
+bool GetIntValue(const nlohmann::json& root, const std::string& key, int& value)
 {
   auto it = root.find(key);
   if (it == root.end() || !it.value().is_number_integer())
@@ -49,8 +52,7 @@ bool vtkGLTFUtils::GetIntValue(const nlohmann::json& root, const std::string& ke
 }
 
 //------------------------------------------------------------------------------
-bool vtkGLTFUtils::GetUIntValue(
-  const nlohmann::json& root, const std::string& key, unsigned int& value)
+bool GetUIntValue(const nlohmann::json& root, const std::string& key, unsigned int& value)
 {
   auto it = root.find(key);
   if (it == root.end() || !it.value().is_number_unsigned())
@@ -62,7 +64,7 @@ bool vtkGLTFUtils::GetUIntValue(
 }
 
 //------------------------------------------------------------------------------
-bool vtkGLTFUtils::GetDoubleValue(const nlohmann::json& root, const std::string& key, double& value)
+bool GetDoubleValue(const nlohmann::json& root, const std::string& key, double& value)
 {
   auto it = root.find(key);
   if (it == root.end() || !it.value().is_number())
@@ -74,8 +76,7 @@ bool vtkGLTFUtils::GetDoubleValue(const nlohmann::json& root, const std::string&
 }
 
 //------------------------------------------------------------------------------
-bool vtkGLTFUtils::GetIntArray(
-  const nlohmann::json& root, const std::string& key, std::vector<int>& value)
+bool GetIntArray(const nlohmann::json& root, const std::string& key, std::vector<int>& value)
 {
   auto it = root.find(key);
   if (it == root.end() || !it.value().is_array())
@@ -101,7 +102,7 @@ bool vtkGLTFUtils::GetIntArray(
 }
 
 //------------------------------------------------------------------------------
-bool vtkGLTFUtils::GetUIntArray(
+bool GetUIntArray(
   const nlohmann::json& root, const std::string& key, std::vector<unsigned int>& value)
 {
   auto it = root.find(key);
@@ -128,8 +129,7 @@ bool vtkGLTFUtils::GetUIntArray(
 }
 
 //------------------------------------------------------------------------------
-bool vtkGLTFUtils::GetFloatArray(
-  const nlohmann::json& root, const std::string& key, std::vector<float>& value)
+bool GetFloatArray(const nlohmann::json& root, const std::string& key, std::vector<float>& value)
 {
   auto it = root.find(key);
   if (it == root.end() || !it.value().is_array())
@@ -155,8 +155,7 @@ bool vtkGLTFUtils::GetFloatArray(
 }
 
 //------------------------------------------------------------------------------
-bool vtkGLTFUtils::GetDoubleArray(
-  const nlohmann::json& root, const std::string& key, std::vector<double>& value)
+bool GetDoubleArray(const nlohmann::json& root, const std::string& key, std::vector<double>& value)
 {
   auto it = root.find(key);
   if (it == root.end() || !it.value().is_array())
@@ -182,8 +181,7 @@ bool vtkGLTFUtils::GetDoubleArray(
 }
 
 //------------------------------------------------------------------------------
-bool vtkGLTFUtils::GetStringValue(
-  const nlohmann::json& root, const std::string& key, std::string& value)
+bool GetStringValue(const nlohmann::json& root, const std::string& key, std::string& value)
 {
   auto it = root.find(key);
   if (it == root.end() || !it.value().is_string())
@@ -195,7 +193,7 @@ bool vtkGLTFUtils::GetStringValue(
 }
 
 //------------------------------------------------------------------------------
-bool vtkGLTFUtils::CheckVersion(const nlohmann::json& glTFAsset)
+bool CheckVersion(const nlohmann::json& glTFAsset)
 {
   auto assetMinVersionIt = glTFAsset.find("minVersion");
   auto assetVersionIt = glTFAsset.find("version");
@@ -222,8 +220,7 @@ bool vtkGLTFUtils::CheckVersion(const nlohmann::json& glTFAsset)
 }
 
 //------------------------------------------------------------------------------
-std::string vtkGLTFUtils::GetResourceFullPath(
-  const std::string& resourcePath, const std::string& glTFFilePath)
+std::string GetResourceFullPath(const std::string& resourcePath, const std::string& glTFFilePath)
 {
   // Check for relative path
   if (!vtksys::SystemTools::FileIsFullPath(resourcePath.c_str()))
@@ -236,7 +233,7 @@ std::string vtkGLTFUtils::GetResourceFullPath(
 }
 
 //------------------------------------------------------------------------------
-std::string vtkGLTFUtils::GetDataUriMimeType(const std::string& uri)
+std::string GetDataUriMimeType(const std::string& uri)
 {
   vtksys::RegularExpression regex("^data:.*;");
   if (regex.find(uri))
@@ -250,7 +247,7 @@ std::string vtkGLTFUtils::GetDataUriMimeType(const std::string& uri)
 }
 
 //------------------------------------------------------------------------------
-bool vtkGLTFUtils::GetBinaryBufferFromUri(const std::string& uri, const std::string& glTFFilePath,
+bool GetBinaryBufferFromUri(const std::string& uri, const std::string& glTFFilePath,
   std::vector<char>& buffer, size_t bufferSize)
 {
   // Check for data-uri
@@ -293,8 +290,8 @@ bool vtkGLTFUtils::GetBinaryBufferFromUri(const std::string& uri, const std::str
 }
 
 //------------------------------------------------------------------------------
-bool vtkGLTFUtils::ExtractGLBFileInformation(const std::string& fileName, std::string& magic,
-  uint32_t& version, uint32_t& fileLength, std::vector<vtkGLTFUtils::ChunkInfoType>& chunkInfo)
+bool ExtractGLBFileInformation(const std::string& fileName, std::string& magic, uint32_t& version,
+  uint32_t& fileLength, std::vector<vtkGLTFUtils::ChunkInfoType>& chunkInfo)
 {
   vtksys::ifstream fin;
   fin.open(fileName.c_str(), std::ios::binary | std::ios::in);
@@ -338,7 +335,7 @@ bool vtkGLTFUtils::ExtractGLBFileInformation(const std::string& fileName, std::s
 }
 
 //------------------------------------------------------------------------------
-bool vtkGLTFUtils::ValidateGLBFile(const std::string& magic, uint32_t version, uint32_t fileLength,
+bool ValidateGLBFile(const std::string& magic, uint32_t version, uint32_t fileLength,
   std::vector<vtkGLTFUtils::ChunkInfoType> chunkInfo)
 {
   // Check header
@@ -367,4 +364,6 @@ bool vtkGLTFUtils::ValidateGLBFile(const std::string& magic, uint32_t version, u
   lengthSum += vtkGLTFUtils::GLBHeaderSize + chunkInfo.size() * vtkGLTFUtils::GLBChunkHeaderSize;
   // Check for inconsistent chunk sizes
   return fileLength == lengthSum;
+}
+VTK_ABI_NAMESPACE_END
 }

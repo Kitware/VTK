@@ -37,6 +37,7 @@
 #include "vtkObject.h"
 
 // Support PIMPL encapsulation of internal STL map
+VTK_ABI_NAMESPACE_BEGIN
 class vtkEventMap;
 class vtkRenderWindowInteractor;
 class vtkCallbackCommand;
@@ -131,4 +132,5 @@ private:
   void operator=(const vtkWidgetEventTranslator&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif /* vtkWidgetEventTranslator_h */

@@ -27,6 +27,7 @@ PURPOSE.  See the above copyright Nonice for more information.
 #include <limits>
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkHyperTreeGridNonOrientedSuperCursorLight* vtkHyperTreeGridNonOrientedSuperCursorLight::Clone()
 {
   vtkHyperTreeGridNonOrientedSuperCursorLight* clone = this->NewInstance();
@@ -462,3 +463,4 @@ vtkHyperTreeGridNonOrientedSuperCursorLight::~vtkHyperTreeGridNonOrientedSuperCu
   default;
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_END

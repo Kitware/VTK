@@ -35,6 +35,7 @@
 #include "vtkFiltersTextureModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSTEXTURE_EXPORT vtkTriangularTCoords : public vtkPolyDataAlgorithm
 {
 public:
@@ -54,4 +55,5 @@ private:
   void operator=(const vtkTriangularTCoords&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

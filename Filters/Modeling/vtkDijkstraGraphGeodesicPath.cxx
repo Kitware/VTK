@@ -26,6 +26,7 @@
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkDijkstraGraphGeodesicPath);
 vtkCxxSetObjectMacro(vtkDijkstraGraphGeodesicPath, RepelVertices, vtkPoints);
 
@@ -408,3 +409,4 @@ void vtkDijkstraGraphGeodesicPath::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "IdList: " << this->IdList << endl;
   os << indent << "Number of vertices in input data: " << this->NumberOfVertices << endl;
 }
+VTK_ABI_NAMESPACE_END

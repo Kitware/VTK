@@ -19,6 +19,7 @@
 #include <iostream>
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkSegYTraceReader::vtkSegYTraceReader()
 {
   this->XCoordinate = 72;
@@ -175,3 +176,4 @@ int vtkSegYTraceReader::GetTraceSize(int numSamples, int formatCode)
   std::cerr << "Unsupported data format code : " << formatCode << std::endl;
   return -1;
 }
+VTK_ABI_NAMESPACE_END

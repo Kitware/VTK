@@ -19,6 +19,7 @@
 #include "vtkFiltersHybridModule.h" // For export macro
 #include "vtkPassInputTypeAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSHYBRID_EXPORT vtkForceTime : public vtkPassInputTypeAlgorithm
 {
 public:
@@ -57,4 +58,5 @@ private:
   vtkDataObject* Cache;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkForceTime_h

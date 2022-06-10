@@ -23,6 +23,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkUnsignedCharArray.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkBlockIdScalars);
 //------------------------------------------------------------------------------
 vtkBlockIdScalars::vtkBlockIdScalars() = default;
@@ -129,3 +130,4 @@ void vtkBlockIdScalars::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

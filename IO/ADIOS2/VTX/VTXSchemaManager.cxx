@@ -32,6 +32,7 @@
 
 namespace vtx
 {
+VTK_ABI_NAMESPACE_BEGIN
 
 // PUBLIC
 void VTXSchemaManager::Update(
@@ -160,4 +161,5 @@ bool VTXSchemaManager::InitReaderXMLVTK()
   return success;
 }
 
-} // end var namespace
+VTK_ABI_NAMESPACE_END
+} // end vtx namespace

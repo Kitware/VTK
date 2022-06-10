@@ -73,6 +73,7 @@ POSSIBILITY OF SUCH DAMAGES.
 #endif
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkMNITagPointWriter);
 
 vtkCxxSetObjectMacro(vtkMNITagPointWriter, LabelText, vtkStringArray);
@@ -547,3 +548,4 @@ void vtkMNITagPointWriter::CloseFile(ostream* fp)
 
   delete fp;
 }
+VTK_ABI_NAMESPACE_END

@@ -25,6 +25,7 @@
 
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkGridTransform);
 
 class vtkGridTransformConnectionHolder : public vtkAlgorithm
@@ -1179,3 +1180,4 @@ vtkImageData* vtkGridTransform::GetDisplacementGrid()
 {
   return vtkImageData::SafeDownCast(this->ConnectionHolder->GetInputDataObject(0, 0));
 }
+VTK_ABI_NAMESPACE_END

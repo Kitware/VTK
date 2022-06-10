@@ -25,6 +25,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPolygonalHandleRepresentation3D);
 
 //------------------------------------------------------------------------------
@@ -61,3 +62,4 @@ void vtkPolygonalHandleRepresentation3D::PrintSelf(ostream& os, vtkIndent indent
 
   os << indent << "Offset: (" << this->Offset[0] << "," << this->Offset[1] << ")\n";
 }
+VTK_ABI_NAMESPACE_END

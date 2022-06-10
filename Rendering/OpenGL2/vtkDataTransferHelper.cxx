@@ -24,6 +24,7 @@
 #include "vtkTextureObject.h"
 #include <cassert>
 
+VTK_ABI_NAMESPACE_BEGIN
 static void vtkGetDimensions(int extents[6], int dims[3])
 {
   dims[0] = extents[1] - extents[0] + 1;
@@ -553,3 +554,4 @@ void vtkDataTransferHelper::PrintSelf(ostream& os, vtkIndent indent)
      << ", " << this->TextureExtent[2] << ", " << this->TextureExtent[3] << ", "
      << this->TextureExtent[4] << ", " << this->TextureExtent[5] << ")" << endl;
 }
+VTK_ABI_NAMESPACE_END

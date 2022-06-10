@@ -41,6 +41,7 @@
 #include <vector>     // needed for vector
 
 // forward declarations for ExprTk tools
+VTK_ABI_NAMESPACE_BEGIN
 struct vtkExprTkTools;
 
 class VTKCOMMONMISC_EXPORT vtkExprTkFunctionParser : public vtkObject
@@ -362,4 +363,5 @@ private:
   void operator=(const vtkExprTkFunctionParser&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

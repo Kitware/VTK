@@ -43,6 +43,7 @@
 #include "vtkImagingCoreModule.h" // For export macro
 
 // Forward Declarations
+VTK_ABI_NAMESPACE_BEGIN
 class vtkExtractStructuredGridHelper;
 
 class VTKIMAGINGCORE_EXPORT vtkExtractVOI : public vtkImageAlgorithm
@@ -119,4 +120,5 @@ private:
   void operator=(const vtkExtractVOI&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

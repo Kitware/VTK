@@ -24,6 +24,7 @@
 
 #include <sstream>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkResliceCursorThickLineRepresentation);
 
 //------------------------------------------------------------------------------
@@ -89,3 +90,4 @@ void vtkResliceCursorThickLineRepresentation::PrintSelf(ostream& os, vtkIndent i
   // Superclass typedef defined in vtkTypeMacro() found in vtkSetGet.h
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

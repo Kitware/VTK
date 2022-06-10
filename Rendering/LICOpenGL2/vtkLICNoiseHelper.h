@@ -23,6 +23,7 @@
 
 #include "vtkMinimalStandardRandomSequence.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkImageData;
 
 /**
@@ -146,5 +147,6 @@ private:
   vtkLICRandomNumberGeneratorInterface ProbGen;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkLICNoiseHelper.h

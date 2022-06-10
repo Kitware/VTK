@@ -17,4 +17,6 @@
 
 #include "vtkImageProgressIterator.txx"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkInstantiateTemplateMacro(template class VTKCOMMONEXECUTIONMODEL_EXPORT vtkImageProgressIterator);
+VTK_ABI_NAMESPACE_END

@@ -25,6 +25,7 @@
 
 #include <algorithm>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkTreeHeatmapItem);
 
 //------------------------------------------------------------------------------
@@ -614,3 +615,4 @@ void vtkTreeHeatmapItem::PrintSelf(ostream& os, vtkIndent indent)
   this->Dendrogram->PrintSelf(os, indent);
   this->Heatmap->PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

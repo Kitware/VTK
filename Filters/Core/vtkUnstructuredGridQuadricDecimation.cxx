@@ -28,6 +28,7 @@
 #include <map>
 #include <utility>
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkUnstructuredGridQuadricDecimationEdge;
 class vtkUnstructuredGridQuadricDecimationFace;
 class vtkUnstructuredGridQuadricDecimationFaceHash;
@@ -1594,3 +1595,4 @@ int vtkUnstructuredGridQuadricDecimation::RequestData(vtkInformation* vtkNotUsed
   myMesh.SaveUnstructuredGrid(output);
   return 1;
 }
+VTK_ABI_NAMESPACE_END

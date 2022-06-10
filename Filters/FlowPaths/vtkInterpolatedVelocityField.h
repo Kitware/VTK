@@ -62,6 +62,7 @@
 #include "vtkDeprecation.h"            // For VTK_DEPRECATED_IN_9_2_0
 #include "vtkFiltersFlowPathsModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTK_DEPRECATED_IN_9_2_0(
   "Use vtkCompositeInterpolatedVelocityField instead of vtkCellLocatorInterpolatedVelocityField "
   "and set the desired strategy.") VTKFILTERSFLOWPATHS_EXPORT vtkInterpolatedVelocityField
@@ -90,6 +91,7 @@ private:
   void operator=(const vtkInterpolatedVelocityField&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
 
 // VTK-HeaderTest-Exclude: vtkInterpolatedVelocityField.h

@@ -29,6 +29,7 @@
 
 #include "vtkm/filter/vector_analysis/SurfaceNormals.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkmTriangleMeshPointNormals);
 
 //------------------------------------------------------------------------------
@@ -109,3 +110,4 @@ int vtkmTriangleMeshPointNormals::RequestData(
 
   return 1;
 }
+VTK_ABI_NAMESPACE_END

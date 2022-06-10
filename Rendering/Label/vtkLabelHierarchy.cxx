@@ -72,6 +72,7 @@
 // in the VTK code base, this is one way to do it. Feel free to change it
 // if you have a better solution. But make sure it works on Borland 5.5...
 //
+VTK_ABI_NAMESPACE_BEGIN
 vtkLabelHierarchy* vtkLabelHierarchy::Implementation::Current;
 
 //------------------------------------------------------------------------------
@@ -2608,3 +2609,4 @@ void vtkLabelHierarchy::GetAnchorFrustumPlanes(
   frustumPlanes[22] = 1.0;
   frustumPlanes[23] = VTK_DOUBLE_MAX;
 }
+VTK_ABI_NAMESPACE_END

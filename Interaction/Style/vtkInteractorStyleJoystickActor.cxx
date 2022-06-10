@@ -25,6 +25,7 @@
 #include "vtkRenderer.h"
 #include "vtkTransform.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkInteractorStyleJoystickActor);
 
 //------------------------------------------------------------------------------
@@ -583,3 +584,4 @@ void vtkInteractorStyleJoystickActor::Prop3DTransform(
   oldMatrix->Delete();
   newTransform->Delete();
 }
+VTK_ABI_NAMESPACE_END

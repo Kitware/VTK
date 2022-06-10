@@ -38,6 +38,7 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkVoxel.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 static const unsigned int MooreCursors1D[2] = { 0, 2 };
 static const unsigned int MooreCursors2D[8] = { 0, 1, 2, 3, 5, 6, 7, 8 };
 static const unsigned int MooreCursors3D[26] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 14, 15,
@@ -639,3 +640,4 @@ void vtkHyperTreeGridContour::RecursivelyProcessTree(
     }   // cornerIdx
   }     // else if ( ! this->InMask || this->InMask->GetTuple1( id ) )
 }
+VTK_ABI_NAMESPACE_END

@@ -7,6 +7,7 @@
 // Super cursor traversal table to retrieve the child index for each cursor
 // of the parent node. There are (2*d+1)*f^d entries in the table.
 // d = 1 f = 2
+VTK_ABI_NAMESPACE_BEGIN
 static const unsigned int VonNeumannChildCursorToParentCursorTable12[6] = {
   0, 1, 1,
   1, 1, 2,
@@ -168,6 +169,7 @@ static const unsigned int* VonNeumannChildCursorToChildTable[3][2] = {
    VonNeumannChildCursorToChildTable33}
 };
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_END
 
 // clang-format off
 #endif /* end of include guard: vtkHyperTreeGridNonOrientedVonNeumannSuperCursorData_h */

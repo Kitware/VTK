@@ -32,6 +32,7 @@
 #include <string>
 
 // Setup static variables
+VTK_ABI_NAMESPACE_BEGIN
 vtkNew<vtkBlueObeliskData> vtkPeriodicTable::BlueObeliskData;
 
 //------------------------------------------------------------------------------
@@ -220,3 +221,4 @@ vtkColor3f vtkPeriodicTable::GetDefaultRGBTuple(unsigned short atomicNum)
   vtkPeriodicTable::BlueObeliskData->GetDefaultColors()->GetTypedTuple(atomicNum, result.GetData());
   return result;
 }
+VTK_ABI_NAMESPACE_END

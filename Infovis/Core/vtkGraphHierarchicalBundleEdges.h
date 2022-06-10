@@ -58,6 +58,7 @@
 #include "vtkGraphAlgorithm.h"
 #include "vtkInfovisCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKINFOVISCORE_EXPORT vtkGraphHierarchicalBundleEdges : public vtkGraphAlgorithm
 {
 public:
@@ -111,4 +112,5 @@ private:
   void operator=(const vtkGraphHierarchicalBundleEdges&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

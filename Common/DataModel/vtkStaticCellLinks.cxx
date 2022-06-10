@@ -15,6 +15,7 @@
 #include "vtkStaticCellLinks.h"
 #include "vtkObjectFactory.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkStaticCellLinks);
 
 //------------------------------------------------------------------------------
@@ -36,3 +37,4 @@ void vtkStaticCellLinks::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
   os << indent << "Implementation: " << this->Impl << "\n";
 }
+VTK_ABI_NAMESPACE_END

@@ -29,6 +29,7 @@
 #include "vtkSmartPointer.h"
 #define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkQImageToImageSource);
 
 //------------------------------------------------------------------------------
@@ -144,3 +145,4 @@ void vtkQImageToImageSource::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

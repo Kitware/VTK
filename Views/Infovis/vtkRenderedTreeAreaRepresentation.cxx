@@ -76,6 +76,7 @@
 
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkRenderedTreeAreaRepresentation::Internals
 {
 public:
@@ -1041,3 +1042,4 @@ void vtkRenderedTreeAreaRepresentation::PrintSelf(ostream& os, vtkIndent indent)
     os << "(none)\n";
   }
 }
+VTK_ABI_NAMESPACE_END

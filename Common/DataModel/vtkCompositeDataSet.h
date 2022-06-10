@@ -38,6 +38,7 @@
 
 #include <vector> // For GetDataSets
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCompositeDataIterator;
 class vtkCompositeDataSetInternals;
 class vtkDataSet;
@@ -196,6 +197,7 @@ private:
   void operator=(const vtkCompositeDataSet&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #include "vtkCompositeDataSet.txx" // for template implementations
 
 #endif

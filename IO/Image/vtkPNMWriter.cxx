@@ -19,6 +19,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPNMWriter);
 
 void vtkPNMWriter::WriteFileHeader(ostream* file, vtkImageData* cache, int wExt[6])
@@ -109,3 +110,4 @@ void vtkPNMWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

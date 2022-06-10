@@ -63,6 +63,7 @@
 #include "vtkWidgetRepresentation.h"
 #include <vector> // STL Header; Required for vector
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkContourLineInterpolator;
 class vtkIncrementalOctreePointLocator;
 class vtkPointPlacer;
@@ -562,4 +563,5 @@ private:
   void operator=(const vtkContourRepresentation&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

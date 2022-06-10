@@ -40,6 +40,7 @@
 #include "vtkHandleRepresentation.h"
 #include "vtkInteractionWidgetsModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkProperty;
 class vtkActor;
 class vtkPolyDataMapper;
@@ -298,4 +299,5 @@ private:
   void operator=(const vtkConstrainedPointHandleRepresentation&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

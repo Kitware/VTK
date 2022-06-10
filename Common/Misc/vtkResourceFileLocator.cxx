@@ -36,6 +36,7 @@
 #include <dlfcn.h>
 #endif
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkResourceFileLocator);
 //------------------------------------------------------------------------------
 vtkResourceFileLocator::vtkResourceFileLocator()
@@ -134,3 +135,4 @@ void vtkResourceFileLocator::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
   os << indent << "LogVerbosity: " << this->LogVerbosity << endl;
 }
+VTK_ABI_NAMESPACE_END

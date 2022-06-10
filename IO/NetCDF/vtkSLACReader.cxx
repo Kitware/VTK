@@ -93,6 +93,7 @@
 //#define nc_get_var_vtkIdType nc_get_var_longlong
 //#define nc_get_vars_vtkIdType nc_get_vars_longlong
 //#else // NC_INT64
+VTK_ABI_NAMESPACE_BEGIN
 static int nc_get_var_vtkIdType(int ncid, int varid, vtkIdType* ip)
 {
   // Step 1, figure out how many entries in the given variable.
@@ -151,6 +152,7 @@ static int nc_get_vars_vtkIdType(int ncid, int varid, const size_t start[], cons
 
   return NC_NOERR;
 }
+VTK_ABI_NAMESPACE_END
 //#endif // NC_INT64
 #else // VTK_USE_64_BIT_IDS
 #define nc_get_var_vtkIdType nc_get_var_int
@@ -160,6 +162,7 @@ static int nc_get_vars_vtkIdType(int ncid, int varid, const size_t start[], cons
 //------------------------------------------------------------------------------
 // This convenience function gets a scalar variable as a double, doing the
 // appropriate checks.
+VTK_ABI_NAMESPACE_BEGIN
 static int nc_get_scalar_double(int ncid, const char* name, double* dp)
 {
   int varid;
@@ -1776,3 +1779,4 @@ int vtkSLACReader::RestoreMeshCache(vtkMultiBlockDataSet* surfaceOutput,
 
   return 1;
 }
+VTK_ABI_NAMESPACE_END

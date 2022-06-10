@@ -36,6 +36,7 @@
 #include "vtkPassInputTypeAlgorithm.h"
 #include "vtkSmartPointer.h" // for ivar
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSGENERAL_EXPORT vtkDateToNumeric : public vtkPassInputTypeAlgorithm
 {
 public:
@@ -66,4 +67,5 @@ private:
   void operator=(const vtkDateToNumeric&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -32,6 +32,7 @@
 #include "vtkInfovisCoreModule.h" // For export macro
 #include "vtkTreeAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkTree;
 class vtkPVXMLElement;
 
@@ -73,4 +74,5 @@ private:
   void operator=(const vtkPruneTreeFilter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

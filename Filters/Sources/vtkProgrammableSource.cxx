@@ -28,6 +28,7 @@
 #include "vtkTable.h"
 #include "vtkUnstructuredGrid.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkProgrammableSource);
 
 void vtkProgrammableSource::PrintSelf(ostream& os, vtkIndent indent)
@@ -434,3 +435,4 @@ int vtkProgrammableSource::RequestInformation(
 
   return 1;
 }
+VTK_ABI_NAMESPACE_END

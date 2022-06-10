@@ -34,6 +34,7 @@
 #include <map>
 #include <utility>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkMapArrayValues);
 
 typedef std::map<vtkVariant, vtkVariant, vtkVariantLessThan> MapBase;
@@ -314,3 +315,4 @@ void vtkMapArrayValues::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "PassArray: " << this->PassArray << endl;
   os << indent << "FillValue: " << this->FillValue << endl;
 }
+VTK_ABI_NAMESPACE_END

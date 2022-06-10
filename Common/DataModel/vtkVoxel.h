@@ -31,6 +31,7 @@
 #include "vtkCell3D.h"
 #include "vtkCommonDataModelModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkLine;
 class vtkPixel;
 class vtkIncrementalPointLocator;
@@ -214,4 +215,5 @@ private:
   vtkPixel* Pixel;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

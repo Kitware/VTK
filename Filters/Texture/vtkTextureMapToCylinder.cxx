@@ -26,6 +26,7 @@
 #include "vtkPointData.h"
 #include "vtkPoints.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkTextureMapToCylinder);
 
 // Create object with cylinder axis parallel to z-axis (points (0,0,-0.5)
@@ -191,3 +192,4 @@ void vtkTextureMapToCylinder::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Point2: (" << this->Point2[0] << ", " << this->Point2[1] << ", "
      << this->Point2[2] << ")\n";
 }
+VTK_ABI_NAMESPACE_END

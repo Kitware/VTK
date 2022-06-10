@@ -21,6 +21,7 @@
 #include "vtkVariant.h" // for vtkVariant
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 template <class Scalar>
 vtkMappedDataArray<Scalar>::vtkMappedDataArray()
 {
@@ -173,4 +174,5 @@ void vtkMappedDataArray<Scalar>::Modified()
   this->TemporaryScalarPointerSize = 0;
 }
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkMappedDataArray_txx

@@ -42,6 +42,7 @@
 
 #include "vtkDataSetAttributes.h" // Needed for CopyCells() method
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkIdList;
 
 class VTKFILTERSGENERAL_EXPORT vtkBooleanOperationPolyDataFilter : public vtkPolyDataAlgorithm
@@ -139,4 +140,5 @@ private:
   ///@}
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -44,6 +44,7 @@
 
 #include <string> // for std::string
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkMultiBlockDataSet;
 class VTKIOGEOMETRY_EXPORT vtkGLTFWriter : public vtkWriter
 {
@@ -167,4 +168,5 @@ private:
   void operator=(const vtkGLTFWriter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

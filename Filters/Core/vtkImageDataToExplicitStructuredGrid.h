@@ -23,6 +23,7 @@
 #include "vtkExplicitStructuredGridAlgorithm.h"
 #include "vtkFiltersCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSCORE_EXPORT vtkImageDataToExplicitStructuredGrid
   : public vtkExplicitStructuredGridAlgorithm
 {
@@ -44,4 +45,5 @@ private:
   void operator=(const vtkImageDataToExplicitStructuredGrid&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

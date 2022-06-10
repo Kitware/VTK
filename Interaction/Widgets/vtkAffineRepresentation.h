@@ -43,6 +43,7 @@
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkWidgetRepresentation.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkTransform;
 
 class VTKINTERACTIONWIDGETS_EXPORT vtkAffineRepresentation : public vtkWidgetRepresentation
@@ -125,4 +126,5 @@ private:
   void operator=(const vtkAffineRepresentation&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

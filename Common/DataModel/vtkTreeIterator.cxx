@@ -17,6 +17,7 @@
 
 #include "vtkTree.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkTreeIterator::vtkTreeIterator()
 {
   this->Tree = nullptr;
@@ -81,3 +82,4 @@ void vtkTreeIterator::Restart()
 {
   this->Initialize();
 }
+VTK_ABI_NAMESPACE_END

@@ -17,6 +17,7 @@
 #include "vtkObjectFactory.h"
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkBase64InputStream);
 
 //------------------------------------------------------------------------------
@@ -164,3 +165,4 @@ size_t vtkBase64InputStream::Read(void* data_in, size_t length)
 
   return (out - data);
 }
+VTK_ABI_NAMESPACE_END

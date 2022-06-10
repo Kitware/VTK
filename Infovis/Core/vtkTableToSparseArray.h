@@ -52,6 +52,7 @@
 #include "vtkArrayDataAlgorithm.h"
 #include "vtkInfovisCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkArrayExtents;
 
 class VTKINFOVISCORE_EXPORT vtkTableToSparseArray : public vtkArrayDataAlgorithm
@@ -102,4 +103,5 @@ private:
   implementation* const Implementation;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

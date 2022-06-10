@@ -29,6 +29,7 @@
 #include "vtkIOAsynchronousModule.h" // For export macro
 #include "vtkObject.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkImageData;
 
 class VTKIOASYNCHRONOUS_EXPORT vtkThreadedImageWriter : public vtkObject
@@ -81,4 +82,5 @@ private:
   vtkTypeUInt32 MaxThreads;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

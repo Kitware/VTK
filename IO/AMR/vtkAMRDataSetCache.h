@@ -29,6 +29,7 @@
 #include "vtkObject.h"
 #include <map> // For STL map used as the data-structure for the cache.
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkUniformGrid;
 class vtkDataArray;
 
@@ -105,4 +106,5 @@ private:
   void operator=(const vtkAMRDataSetCache&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif /* vtkAMRDataSetCache_h */

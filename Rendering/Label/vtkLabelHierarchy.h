@@ -64,6 +64,7 @@
 #include "vtkPointSet.h"
 #include "vtkRenderingLabelModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkAbstractArray;
 class vtkCamera;
 class vtkCoincidentPoints;
@@ -290,4 +291,5 @@ private:
   void operator=(const vtkLabelHierarchy&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkLabelHierarchy_h

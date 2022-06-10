@@ -38,6 +38,7 @@
 
 #include <vector> // For vtkHypertreeGridGhostCellsGenerator::ExtractInterface
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkBitArray;
 class vtkCellData;
 class vtkHyperTreeGrid;
@@ -119,4 +120,5 @@ private:
   void operator=(const vtkHyperTreeGridGhostCellsGenerator&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif /* vtkHyperTreeGridGhostCellsGenerator */

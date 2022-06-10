@@ -18,6 +18,7 @@
 #include "vtkDebugLeaks.h"
 #include "vtkInformation.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkInformationKeyToInformationFriendship
 {
 public:
@@ -147,3 +148,4 @@ void vtkInformationKey::ReportAsObjectBase(vtkInformation* info, vtkGarbageColle
 
 //------------------------------------------------------------------------------
 void vtkInformationKey::ConstructClass(const char*) {}
+VTK_ABI_NAMESPACE_END

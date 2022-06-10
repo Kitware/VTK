@@ -24,6 +24,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkRenderWindowInteractor.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkInteractorStyleSwitch);
 
 //------------------------------------------------------------------------------
@@ -296,3 +297,4 @@ void vtkInteractorStyleSwitch::SetCurrentRenderer(vtkRenderer* renderer)
   this->TrackballActor->SetCurrentRenderer(renderer);
   this->TrackballCamera->SetCurrentRenderer(renderer);
 }
+VTK_ABI_NAMESPACE_END

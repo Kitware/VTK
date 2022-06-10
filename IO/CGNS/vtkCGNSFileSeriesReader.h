@@ -42,6 +42,7 @@
 #include <string> // for std::string
 #include <vector> // for std::vector
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCGNSReader;
 class vtkCGNSSubsetInclusionLattice;
 class vtkFileSeriesHelper;
@@ -144,4 +145,5 @@ private:
   std::vector<std::string> ActiveFiles;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

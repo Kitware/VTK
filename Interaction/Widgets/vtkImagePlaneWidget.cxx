@@ -44,6 +44,7 @@
 #include "vtkTexture.h"
 #include "vtkTransform.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImagePlaneWidget);
 
 vtkCxxSetObjectMacro(vtkImagePlaneWidget, PlaneProperty, vtkProperty);
@@ -3073,3 +3074,4 @@ void vtkImagePlaneWidget::Scale(double* p1, double* p2, int vtkNotUsed(X), int Y
   this->PlaneSource->SetPoint1(point1);
   this->PlaneSource->SetPoint2(point2);
 }
+VTK_ABI_NAMESPACE_END

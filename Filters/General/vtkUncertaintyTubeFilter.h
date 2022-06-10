@@ -38,6 +38,7 @@
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkTubeArray;
 
 class VTKFILTERSGENERAL_EXPORT vtkUncertaintyTubeFilter : public vtkPolyDataAlgorithm
@@ -86,4 +87,5 @@ private:
   void operator=(const vtkUncertaintyTubeFilter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

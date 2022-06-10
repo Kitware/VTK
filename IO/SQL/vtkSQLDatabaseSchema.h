@@ -56,6 +56,7 @@ PURPOSE.  See the above copyright notice for more information.
 #define VTK_SQL_POSTGRESQL "vtkPostgreSQLDatabase"
 #define VTK_SQL_SQLITE "vtkSQLiteDatabase"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkSQLDatabaseSchemaInternals;
 
 class VTKIOSQL_EXPORT vtkSQLDatabaseSchema : public vtkObject
@@ -427,4 +428,5 @@ private:
   void operator=(const vtkSQLDatabaseSchema&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkSQLDatabaseSchema_h

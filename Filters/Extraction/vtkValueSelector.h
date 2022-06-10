@@ -44,6 +44,7 @@
 
 #include <memory> // unique_ptr
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkConvertSelection;
 
 class VTKFILTERSEXTRACTION_EXPORT vtkValueSelector : public vtkSelector
@@ -73,4 +74,5 @@ private:
   std::unique_ptr<vtkInternals> Internals;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

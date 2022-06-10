@@ -25,6 +25,7 @@
 #include "vtkInformationVector.h"
 #include "vtkPointData.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkCachedStreamingDemandDrivenPipeline);
 
 //------------------------------------------------------------------------------
@@ -273,3 +274,4 @@ int vtkCachedStreamingDemandDrivenPipeline ::ExecuteData(
 
   return result;
 }
+VTK_ABI_NAMESPACE_END

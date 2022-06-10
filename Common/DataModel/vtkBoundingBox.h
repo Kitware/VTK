@@ -31,6 +31,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkSystemIncludes.h"
 #include <atomic> // For threaded bounding box computation
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPoints;
 
 class VTKCOMMONDATAMODEL_EXPORT vtkBoundingBox
@@ -567,5 +568,6 @@ inline void vtkBoundingBox::GetCorner(int corner, double p[3]) const
   p[2] = pts[iz][2];
 }
 
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkBoundingBox.h

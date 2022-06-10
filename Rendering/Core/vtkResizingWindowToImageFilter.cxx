@@ -27,6 +27,7 @@
 #include <cmath>
 #include <set>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkResizingWindowToImageFilter);
 
 //------------------------------------------------------------------------------
@@ -358,3 +359,4 @@ void vtkResizingWindowToImageFilter::GetScaleFactorsAndSize(
     *approximate |= (actualSize[1] * scale[1] != requestedSize[1]);
   }
 }
+VTK_ABI_NAMESPACE_END

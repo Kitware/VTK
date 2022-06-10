@@ -27,6 +27,7 @@
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkSkybox.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkOpenGLActor;
 class vtkOpenGLPolyDataMapper;
 
@@ -61,4 +62,5 @@ private:
   void operator=(const vtkOpenGLSkybox&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

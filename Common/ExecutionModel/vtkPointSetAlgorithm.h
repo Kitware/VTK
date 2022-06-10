@@ -35,6 +35,7 @@
 #include "vtkAlgorithm.h"
 #include "vtkCommonExecutionModelModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPointSet;
 class vtkPolyData;
 class vtkStructuredGrid;
@@ -154,4 +155,5 @@ private:
   void operator=(const vtkPointSetAlgorithm&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -28,6 +28,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkRandomHyperTreeGridSource);
 
 //------------------------------------------------------------------------------
@@ -211,3 +212,4 @@ bool vtkRandomHyperTreeGridSource::ShouldRefine(vtkIdType level)
   this->RNG->Next();
   return level < this->MaxDepth && this->RNG->GetValue() < this->SplitFraction;
 }
+VTK_ABI_NAMESPACE_END

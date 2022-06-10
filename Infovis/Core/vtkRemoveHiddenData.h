@@ -39,6 +39,7 @@
 #include "vtkPassInputTypeAlgorithm.h"
 #include "vtkSmartPointer.h" // For Smartpointer
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkExtractSelectedGraph;
 class vtkExtractSelectedRows;
 
@@ -71,4 +72,5 @@ private:
   vtkSmartPointer<vtkExtractSelectedRows> ExtractTable;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

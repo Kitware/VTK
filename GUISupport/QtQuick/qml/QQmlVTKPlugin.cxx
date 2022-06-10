@@ -24,6 +24,7 @@
 #include <QQmlEngine>
 
 //-------------------------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 void QQmlVTKPlugin::registerTypes(const char* uri)
 {
   Q_ASSERT(QString::compare(uri, "VTK") == 0);
@@ -48,3 +49,4 @@ void QQmlVTKPlugin::initializeEngine(QQmlEngine* engine, const char* uri)
 
 //-------------------------------------------------------------------------------------------------
 void QQmlVTKPlugin::cleanup() {}
+VTK_ABI_NAMESPACE_END

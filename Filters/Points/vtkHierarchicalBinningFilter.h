@@ -75,6 +75,7 @@
 
 #define VTK_MAX_LEVEL 12
 
+VTK_ABI_NAMESPACE_BEGIN
 struct vtkBinTree;
 
 class VTKFILTERSPOINTS_EXPORT vtkHierarchicalBinningFilter : public vtkPolyDataAlgorithm
@@ -209,4 +210,5 @@ private:
   void operator=(const vtkHierarchicalBinningFilter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

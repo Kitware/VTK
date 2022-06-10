@@ -38,6 +38,7 @@
 #include "vtkIOGeometryModule.h" // For export macro
 #include "vtkMultiBlockDataSetAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataArraySelection;
 class vtkPoints;
 class vtkTriangle;
@@ -252,4 +253,5 @@ private:
   vtkFLUENTReader(const vtkFLUENTReader&) = delete;
   void operator=(const vtkFLUENTReader&) = delete;
 };
+VTK_ABI_NAMESPACE_END
 #endif

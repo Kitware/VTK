@@ -44,6 +44,7 @@
 #include "vtkAbstractPropPicker.h"
 #include "vtkRenderingCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkAbstractMapper3D;
 class vtkCompositeDataSet;
 class vtkDataSet;
@@ -204,4 +205,5 @@ private:
   void operator=(const vtkPicker&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

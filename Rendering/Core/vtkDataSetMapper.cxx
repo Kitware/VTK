@@ -24,6 +24,7 @@
 #include "vtkPolyDataMapper.h"
 #include "vtkScalarsToColors.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkDataSetMapper);
 
 //------------------------------------------------------------------------------
@@ -212,3 +213,4 @@ void vtkDataSetMapper::ReportReferences(vtkGarbageCollector* collector)
   vtkGarbageCollectorReport(collector, this->GeometryExtractor, "GeometryExtractor");
   vtkGarbageCollectorReport(collector, this->PolyDataMapper, "PolyDataMapper");
 }
+VTK_ABI_NAMESPACE_END

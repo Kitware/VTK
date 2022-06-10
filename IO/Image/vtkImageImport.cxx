@@ -27,6 +27,7 @@
 #include <cctype>
 #include <exception>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImageImport);
 
 #define tryCatchMacro(invocation, messagePrepend)                                                  \
@@ -501,3 +502,4 @@ void vtkImageImport::LegacyCheckWholeExtent()
                   "SetImportVoidPointer.  Both should be called even if the extents are\n"
                   "the same.");
 }
+VTK_ABI_NAMESPACE_END

@@ -34,6 +34,7 @@ using std::ostringstream;
 using std::string;
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 static vtkFloatArray* DownloadTexture(vtkTextureObject* texture, const unsigned int* sub)
 {
   int tt = texture->GetVTKDataType();
@@ -155,3 +156,4 @@ void vtkTextureIO::Write(const char* filename, vtkTextureObject* texture,
   w->Delete();
   mb->Delete();
 }
+VTK_ABI_NAMESPACE_END

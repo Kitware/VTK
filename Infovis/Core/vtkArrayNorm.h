@@ -41,6 +41,7 @@
 #include "vtkArrayRange.h"        // for vtkArrayRange
 #include "vtkInfovisCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKINFOVISCORE_EXPORT vtkArrayNorm : public vtkArrayDataAlgorithm
 {
 public:
@@ -98,4 +99,5 @@ private:
   vtkArrayRange Window;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

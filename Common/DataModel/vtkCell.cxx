@@ -27,6 +27,7 @@
 
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
 //----------------------------------------------------------------------------
@@ -596,3 +597,4 @@ double* vtkCell::GetParametricCoords()
 {
   return nullptr;
 }
+VTK_ABI_NAMESPACE_END

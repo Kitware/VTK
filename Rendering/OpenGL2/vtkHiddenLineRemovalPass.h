@@ -30,6 +30,7 @@
 
 #include <vector> // For std::vector!
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkProp;
 class vtkViewport;
 
@@ -59,4 +60,5 @@ private:
   void operator=(const vtkHiddenLineRemovalPass&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkHiddenLineRemovalPass_h

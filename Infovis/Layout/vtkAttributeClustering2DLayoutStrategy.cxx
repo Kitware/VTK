@@ -44,6 +44,7 @@
 
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkAttributeClustering2DLayoutStrategy::Internals
 {
 public:
@@ -662,3 +663,4 @@ void vtkAttributeClustering2DLayoutStrategy::PrintSelf(ostream& os, vtkIndent in
   os << indent << "VertexAttribute: " << (this->VertexAttribute ? this->VertexAttribute : "(none)")
      << endl;
 }
+VTK_ABI_NAMESPACE_END

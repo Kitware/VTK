@@ -31,6 +31,7 @@
 #include "vtkFiltersParallelModule.h" // For export macro
 #include "vtkUnstructuredGridAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataSet;
 class vtkIdList;
 class vtkInformation;
@@ -151,4 +152,5 @@ public:
   };
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

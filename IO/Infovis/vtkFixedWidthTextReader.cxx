@@ -35,6 +35,7 @@
 
 #include <cctype>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkFixedWidthTextReader);
 vtkCxxSetObjectMacro(vtkFixedWidthTextReader, TableErrorObserver, vtkCommand);
 
@@ -287,3 +288,4 @@ static int my_getline(istream& in, std::string& out, char delimiter)
 
   return numCharactersRead;
 }
+VTK_ABI_NAMESPACE_END

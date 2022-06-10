@@ -23,6 +23,7 @@
 
 #include <algorithm>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkSubGroup);
 
 vtkSubGroup::vtkSubGroup()
@@ -645,3 +646,4 @@ void vtkSubGroup::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "comm: " << this->comm;
   os << indent << endl;
 }
+VTK_ABI_NAMESPACE_END

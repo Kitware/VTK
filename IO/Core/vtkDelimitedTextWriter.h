@@ -30,6 +30,7 @@
 #include "vtkIOCoreModule.h" // For export macro
 #include "vtkWriter.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkStdString;
 class vtkTable;
 
@@ -123,4 +124,5 @@ private:
   void operator=(const vtkDelimitedTextWriter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

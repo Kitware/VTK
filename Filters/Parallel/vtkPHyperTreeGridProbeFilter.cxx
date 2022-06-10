@@ -36,6 +36,7 @@
 #include <numeric>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 //------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkPHyperTreeGridProbeFilter);
 
@@ -148,3 +149,4 @@ bool vtkPHyperTreeGridProbeFilter::Reduce(
   }
   return true;
 }
+VTK_ABI_NAMESPACE_END

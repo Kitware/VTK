@@ -35,6 +35,7 @@
 #include "vtkIOImageModule.h" // For export macro
 #include "vtkImageAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKIOIMAGE_EXPORT vtkImageExport : public vtkImageAlgorithm
 {
 public:
@@ -229,4 +230,5 @@ private:
   vtkInformation* GetInputInformation();
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -24,6 +24,7 @@
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkTextActor3D.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkOpenGLGL2PSHelper;
 
 class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLTextActor3D : public vtkTextActor3D
@@ -46,4 +47,5 @@ private:
   void operator=(const vtkOpenGLTextActor3D&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkOpenGLTextActor3D_h

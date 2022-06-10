@@ -41,6 +41,7 @@
 
 using namespace boost;
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkBoostBrandesCentrality);
 
 //------------------------------------------------------------------------------
@@ -185,3 +186,4 @@ int vtkBoostBrandesCentrality::RequestData(vtkInformation* vtkNotUsed(request),
 
   return 1;
 }
+VTK_ABI_NAMESPACE_END

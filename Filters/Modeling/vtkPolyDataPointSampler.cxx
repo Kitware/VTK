@@ -27,6 +27,7 @@
 #include "vtkPolyData.h"
 #include "vtkTriangle.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPolyDataPointSampler);
 
 namespace
@@ -643,3 +644,4 @@ void vtkPolyDataPointSampler::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Interpolate Point Data: " << (this->GenerateVertices ? "On\n" : "Off\n");
 }
+VTK_ABI_NAMESPACE_END

@@ -22,6 +22,7 @@
 
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImageGridSource);
 
 //------------------------------------------------------------------------------
@@ -181,3 +182,4 @@ void vtkImageGridSource::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "DataOrigin: (" << this->DataOrigin[0] << ", " << this->DataOrigin[1] << ", "
      << this->DataOrigin[2] << ")\n";
 }
+VTK_ABI_NAMESPACE_END

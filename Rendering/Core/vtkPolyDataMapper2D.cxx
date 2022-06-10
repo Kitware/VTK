@@ -27,6 +27,7 @@
 
 //------------------------------------------------------------------------------
 // Return nullptr if no override is supplied.
+VTK_ABI_NAMESPACE_BEGIN
 vtkObjectFactoryNewMacro(vtkPolyDataMapper2D);
 //------------------------------------------------------------------------------
 
@@ -376,3 +377,4 @@ int vtkPolyDataMapper2D::FillInputPortInformation(int vtkNotUsed(port), vtkInfor
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPolyData");
   return 1;
 }
+VTK_ABI_NAMESPACE_END

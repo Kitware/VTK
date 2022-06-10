@@ -27,6 +27,7 @@
 #include "vtkGraphAlgorithm.h"
 #include "vtkInfovisCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKINFOVISCORE_EXPORT vtkThresholdGraph : public vtkGraphAlgorithm
 {
 public:
@@ -67,4 +68,5 @@ private:
   void operator=(const vtkThresholdGraph&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkThresholdGraph_h

@@ -24,6 +24,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkTriangleFilter.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImplicitPolyDataDistance);
 
 //------------------------------------------------------------------------------
@@ -354,3 +355,4 @@ void vtkImplicitPolyDataDistance::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Input : (none)\n";
   }
 }
+VTK_ABI_NAMESPACE_END

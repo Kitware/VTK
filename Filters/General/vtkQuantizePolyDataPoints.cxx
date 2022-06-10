@@ -16,6 +16,7 @@
 #include "vtkMergePoints.h"
 #include "vtkObjectFactory.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkQuantizePolyDataPoints);
 
 //------------------------------------------------------------------------------
@@ -52,3 +53,4 @@ void vtkQuantizePolyDataPoints::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "QFactor: " << this->QFactor << "\n";
 }
+VTK_ABI_NAMESPACE_END

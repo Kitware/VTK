@@ -49,6 +49,7 @@
 #include "vtkGraphLayoutStrategy.h"
 #include "vtkInfovisLayoutModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPoints;
 
 class VTKINFOVISLAYOUT_EXPORT vtkConeLayoutStrategy : public vtkGraphLayoutStrategy
@@ -135,4 +136,5 @@ private:
   void operator=(const vtkConeLayoutStrategy&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

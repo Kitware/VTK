@@ -26,6 +26,7 @@
 #include <boost/algorithm/string/trim.hpp>
 #include <boost/tokenizer.hpp>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkBoostSplitTableField);
 
 /// Ecapsulates private implementation details of vtkBoostSplitTableField
@@ -175,3 +176,4 @@ int vtkBoostSplitTableField::RequestData(
 
   return 1;
 }
+VTK_ABI_NAMESPACE_END

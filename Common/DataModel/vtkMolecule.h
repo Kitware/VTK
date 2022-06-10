@@ -78,6 +78,7 @@
 
 #include "vtkVector.h" // Small templated vector convenience class
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkAbstractElectronicData;
 class vtkDataArray;
 class vtkInformation;
@@ -479,4 +480,5 @@ private:
   void operator=(const vtkMolecule&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

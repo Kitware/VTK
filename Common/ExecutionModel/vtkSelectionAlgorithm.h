@@ -41,6 +41,7 @@
 #include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkSelection.h"                  // makes things a bit easier
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataSet;
 
 class VTKCOMMONEXECUTIONMODEL_EXPORT vtkSelectionAlgorithm : public vtkAlgorithm
@@ -100,4 +101,5 @@ private:
   void operator=(const vtkSelectionAlgorithm&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

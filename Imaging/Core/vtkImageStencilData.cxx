@@ -26,6 +26,7 @@
 #include <algorithm>
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImageStencilData);
 
 //------------------------------------------------------------------------------
@@ -1537,3 +1538,4 @@ void vtkImageStencilRaster::FillStencilData(
     }
   }
 }
+VTK_ABI_NAMESPACE_END

@@ -22,6 +22,7 @@
 #include "vtkVariantCast.h"
 #include "vtkVariantCreate.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 template <typename T>
 void vtkTypedArray<T>::PrintSelf(ostream& os, vtkIndent indent)
 {
@@ -94,3 +95,4 @@ void vtkTypedArray<T>::CopyValue(
   this->SetValueN(
     target_index, static_cast<vtkTypedArray<T>*>(source)->GetValue(source_coordinates));
 }
+VTK_ABI_NAMESPACE_END

@@ -41,6 +41,7 @@
 #include "vtkIOSQLModule.h" // For export macro
 #include "vtkTableAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkRowQuery;
 
 class VTKIOSQL_EXPORT vtkRowQueryToTable : public vtkTableAlgorithm
@@ -76,4 +77,5 @@ private:
   void operator=(const vtkRowQueryToTable&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

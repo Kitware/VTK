@@ -28,6 +28,7 @@
 #include <array>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkSphericalHarmonics);
 
 namespace
@@ -228,3 +229,4 @@ int vtkSphericalHarmonics::FillOutputPortInformation(int vtkNotUsed(port), vtkIn
   info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkTable");
   return 1;
 }
+VTK_ABI_NAMESPACE_END

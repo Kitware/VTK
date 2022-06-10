@@ -22,6 +22,7 @@
 #include <cassert>
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkAttributesErrorMetric);
 
 //------------------------------------------------------------------------------
@@ -268,3 +269,4 @@ void vtkAttributesErrorMetric::ComputeSquareAbsoluteAttributeTolerance()
     }
   }
 }
+VTK_ABI_NAMESPACE_END

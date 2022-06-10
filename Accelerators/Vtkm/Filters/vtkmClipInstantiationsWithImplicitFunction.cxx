@@ -19,6 +19,7 @@
 #include <vtkm/filter/contour/ClipWithImplicitFunction.h>
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkm::cont::DataSet vtkmClip::internals::ExecuteClipWithImplicitFunction(vtkm::cont::DataSet& in)
 {
   auto function = this->ClipFunctionConverter->Get();
@@ -30,3 +31,4 @@ vtkm::cont::DataSet vtkmClip::internals::ExecuteClipWithImplicitFunction(vtkm::c
 
   return result;
 }
+VTK_ABI_NAMESPACE_END

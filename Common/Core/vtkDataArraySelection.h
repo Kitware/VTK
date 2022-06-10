@@ -41,6 +41,7 @@
 
 #include <memory> // for std::unique_ptr
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONCORE_EXPORT vtkDataArraySelection : public vtkObject
 {
 public:
@@ -247,4 +248,5 @@ private:
   int UnknownArraySetting;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

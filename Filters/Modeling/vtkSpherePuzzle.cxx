@@ -30,6 +30,7 @@
 
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkSpherePuzzle);
 
 //------------------------------------------------------------------------------
@@ -462,3 +463,4 @@ void vtkSpherePuzzle::PrintSelf(ostream& os, vtkIndent indent)
   }
   os << endl;
 }
+VTK_ABI_NAMESPACE_END

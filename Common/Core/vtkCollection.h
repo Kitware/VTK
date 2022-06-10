@@ -34,6 +34,7 @@
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkObject.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCollectionElement //;prevents pick-up by man page generator
 {
 public:
@@ -205,4 +206,5 @@ inline vtkObject* vtkCollection::GetNextItemAsObject(void*& cookie)
   }
 }
 
+VTK_ABI_NAMESPACE_END
 #endif

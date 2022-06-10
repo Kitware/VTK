@@ -46,6 +46,7 @@
 #include <sstream>
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 class vtkQtTableModelAdapter::vtkInternal
 {
 public:
@@ -870,3 +871,4 @@ void vtkQtTableModelAdapter::SetIconSize(int w, int h)
   this->IconSize[0] = w;
   this->IconSize[1] = h;
 }
+VTK_ABI_NAMESPACE_END

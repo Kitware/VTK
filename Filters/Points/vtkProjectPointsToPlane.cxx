@@ -28,6 +28,7 @@
 #include "vtkPoints.h"
 #include "vtkSMPTools.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkProjectPointsToPlane);
 
 // Projection algorithms
@@ -299,3 +300,4 @@ void vtkProjectPointsToPlane::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Output Points Precision: " << this->OutputPointsPrecision << "\n";
 }
+VTK_ABI_NAMESPACE_END

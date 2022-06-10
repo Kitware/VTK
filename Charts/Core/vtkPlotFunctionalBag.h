@@ -36,6 +36,7 @@
 #include "vtkNew.h"              // Needed to hold SP ivars
 #include "vtkPlot.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataArray;
 class vtkPlotFuntionalBagInternal;
 class vtkPlotLine;
@@ -165,4 +166,5 @@ private:
   void operator=(const vtkPlotFunctionalBag&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkPlotFunctionalBag_h

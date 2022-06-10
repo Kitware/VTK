@@ -24,6 +24,7 @@
 #include <vtksys/FStream.hxx>
 #include <vtksys/SystemTools.hxx>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOpenXRRenderWindowInteractor);
 
 //------------------------------------------------------------------------------
@@ -840,3 +841,4 @@ bool vtkOpenXRRenderWindowInteractor::ApplyVibration(const std::string& actionNa
   return vtkOpenXRManager::GetInstance().ApplyVibration(
     actionData->ActionStruct, hand, amplitude, duration, frequency);
 }
+VTK_ABI_NAMESPACE_END

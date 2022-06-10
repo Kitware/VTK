@@ -46,6 +46,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include <stack>                       // for ivar
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKRENDERINGOPENGL2_EXPORT vtkCocoaRenderWindow : public vtkOpenGLRenderWindow
 {
 public:
@@ -446,4 +447,5 @@ private:
   int DisplayIndex = 0;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

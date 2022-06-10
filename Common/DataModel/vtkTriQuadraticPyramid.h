@@ -94,6 +94,7 @@
 #include "vtkNew.h"                   // initialize cells that are used for the implementation
 #include "vtkNonLinearCell.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkQuadraticEdge;
 class vtkBiQuadraticQuad;
 class vtkBiQuadraticTriangle;
@@ -226,4 +227,5 @@ inline int vtkTriQuadraticPyramid::GetParametricCenter(double pcoords[3])
   return 0;
 }
 
+VTK_ABI_NAMESPACE_END
 #endif

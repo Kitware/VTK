@@ -18,6 +18,7 @@
 #include "vtkVariant.h"
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 template <class Scalar>
 void vtkPeriodicDataArray<Scalar>::PrintSelf(ostream& os, vtkIndent indent)
 {
@@ -718,3 +719,4 @@ vtkPeriodicDataArray<Scalar>::~vtkPeriodicDataArray()
 {
   this->Initialize();
 }
+VTK_ABI_NAMESPACE_END

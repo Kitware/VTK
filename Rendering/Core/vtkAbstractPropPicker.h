@@ -67,6 +67,7 @@
 #include "vtkAbstractPicker.h"
 #include "vtkRenderingCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkProp;
 class vtkPropAssembly;
 class vtkAssembly;
@@ -156,4 +157,5 @@ private:
   void operator=(const vtkAbstractPropPicker&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

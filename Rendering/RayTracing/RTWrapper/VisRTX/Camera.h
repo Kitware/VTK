@@ -10,6 +10,7 @@
 
 namespace RTW
 {
+VTK_ABI_NAMESPACE_BEGIN
     class Camera : public Object
     {
         friend class Renderer;
@@ -113,4 +114,5 @@ namespace RTW
     private:
         VisRTX::Camera* camera = nullptr;
     };
+VTK_ABI_NAMESPACE_END
 }

@@ -52,6 +52,7 @@
 #define vtkSwap8Range vtkByteSwap::Swap8BERange
 #endif
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkClientSocket;
 class vtkServerSocket;
 
@@ -300,4 +301,5 @@ private:
   vtkMessageBuffer* ReceivedMessageBuffer;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

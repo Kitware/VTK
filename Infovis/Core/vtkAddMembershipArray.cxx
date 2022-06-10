@@ -44,6 +44,7 @@
 #include "vtkVariant.h"
 #include "vtkVariantArray.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkAddMembershipArray);
 vtkCxxSetObjectMacro(vtkAddMembershipArray, InputValues, vtkAbstractArray);
 
@@ -276,3 +277,4 @@ void vtkAddMembershipArray::PrintSelf(ostream& os, vtkIndent indent)
     }
   }
 }
+VTK_ABI_NAMESPACE_END

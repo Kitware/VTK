@@ -37,6 +37,8 @@
 
 class QApplication;
 
+VTK_ABI_NAMESPACE_BEGIN
+
 class VTKRENDERINGQT_EXPORT vtkQtInitialization : public vtkObject
 {
 public:
@@ -55,4 +57,5 @@ private:
   QApplication* Application;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkQtInitialization_h

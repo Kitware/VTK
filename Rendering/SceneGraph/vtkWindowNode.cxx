@@ -24,6 +24,7 @@
 #include "vtkUnsignedCharArray.h"
 
 //============================================================================
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkWindowNode);
 
 //------------------------------------------------------------------------------
@@ -117,3 +118,4 @@ void vtkWindowNode::Synchronize(bool prepass)
     }
   }
 }
+VTK_ABI_NAMESPACE_END

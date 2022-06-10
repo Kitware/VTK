@@ -64,6 +64,7 @@
 #include "vtkFiltersGenericModule.h" // For export macro
 #include "vtkUnstructuredGridAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkImplicitFunction;
 
 class vtkPointData;
@@ -216,4 +217,5 @@ private:
   void operator=(const vtkGenericClip&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

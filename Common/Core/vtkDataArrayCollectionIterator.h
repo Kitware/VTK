@@ -27,6 +27,7 @@
 #include "vtkCollectionIterator.h"
 #include "vtkCommonCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataArray;
 class vtkDataArrayCollection;
 
@@ -60,4 +61,5 @@ private:
   void operator=(const vtkDataArrayCollectionIterator&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -24,6 +24,7 @@
 #include "vtkPointData.h"
 #include "vtkSMPTools.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkExtractTensorComponents);
 
 //------------------------------------------------------------------------------
@@ -354,3 +355,4 @@ void vtkExtractTensorComponents::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Output Precision: " << this->OutputPrecision << "\n";
 }
+VTK_ABI_NAMESPACE_END

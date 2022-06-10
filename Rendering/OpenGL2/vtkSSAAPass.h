@@ -40,6 +40,7 @@
 #include "vtkRenderPass.h"
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkOpenGLFramebufferObject;
 class vtkOpenGLHelper;
 class vtkTextureObject;
@@ -103,4 +104,5 @@ private:
   void operator=(const vtkSSAAPass&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

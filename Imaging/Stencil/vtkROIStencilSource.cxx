@@ -25,6 +25,7 @@
 
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkROIStencilSource);
 
 //------------------------------------------------------------------------------
@@ -430,3 +431,4 @@ int vtkROIStencilSource::RequestData(
 
   return result;
 }
+VTK_ABI_NAMESPACE_END

@@ -23,6 +23,7 @@
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkObject.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONCORE_EXPORT VTK_WRAPEXCLUDE vtkLargeInteger
 {
 public:
@@ -107,6 +108,7 @@ private:
   void Minus(const vtkLargeInteger& n);           // unsigned
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
 
 // VTK-HeaderTest-Exclude: vtkLargeInteger.h

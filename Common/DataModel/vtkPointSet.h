@@ -60,6 +60,7 @@
 #include "vtkGenericCell.h" // For GetCell
 #include "vtkPoints.h"      // Needed for inline methods
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkAbstractPointLocator;
 class vtkAbstractCellLocator;
 
@@ -295,4 +296,5 @@ inline vtkIdType vtkPointSet::GetNumberOfPoints()
   }
 }
 
+VTK_ABI_NAMESPACE_END
 #endif

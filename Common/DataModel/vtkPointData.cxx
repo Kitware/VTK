@@ -17,6 +17,7 @@
 #include "vtkDataSetAttributes.h"
 #include "vtkObjectFactory.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPointData);
 vtkStandardExtendedNewMacro(vtkPointData);
 
@@ -31,3 +32,4 @@ void vtkPointData::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

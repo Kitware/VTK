@@ -47,6 +47,7 @@
 #include <cassert>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 struct vtkValuePass::Parameters
 {
   Parameters()
@@ -1061,3 +1062,4 @@ vtkAbstractArray* vtkValuePass::GetArrayFromCompositeData(vtkMapper* mapper, Par
 
   return abstractArray;
 }
+VTK_ABI_NAMESPACE_END

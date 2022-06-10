@@ -36,6 +36,7 @@
 #include <string>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkSpiderPlotActor);
 
 vtkCxxSetObjectMacro(vtkSpiderPlotActor, LabelTextProperty, vtkTextProperty);
@@ -956,3 +957,4 @@ void vtkSpiderPlotActor::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Legend Actor: " << this->LegendActor << "\n";
   this->LegendActor->PrintSelf(os, indent.GetNextIndent());
 }
+VTK_ABI_NAMESPACE_END

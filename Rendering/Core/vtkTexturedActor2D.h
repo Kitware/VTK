@@ -30,6 +30,7 @@
 #include "vtkActor2D.h"
 #include "vtkRenderingCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkProp;
 class vtkTexture;
 class vtkViewport;
@@ -89,4 +90,5 @@ private:
   void operator=(const vtkTexturedActor2D&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

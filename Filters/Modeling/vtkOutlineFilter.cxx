@@ -25,6 +25,7 @@
 
 #include <set>
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkOutlineFilter::vtkIndexSet : public std::set<unsigned int>
 {
 };
@@ -322,3 +323,4 @@ void vtkOutlineFilter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent
      << "Composite indices: " << (!this->Indices->empty() ? "(Specified)\n" : "(Not specified)\n");
 }
+VTK_ABI_NAMESPACE_END

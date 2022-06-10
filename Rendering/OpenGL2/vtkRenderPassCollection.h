@@ -30,6 +30,7 @@
 #include "vtkCollection.h"
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkRenderPass;
 
 class VTKRENDERINGOPENGL2_EXPORT vtkRenderPassCollection : public vtkCollection
@@ -73,4 +74,5 @@ private:
   void operator=(const vtkRenderPassCollection&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

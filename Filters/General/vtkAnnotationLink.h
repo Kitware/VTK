@@ -47,6 +47,7 @@
 #include "vtkAnnotationLayersAlgorithm.h"
 #include "vtkFiltersGeneralModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCommand;
 class vtkDataObjectCollection;
 class vtkInformation;
@@ -143,4 +144,5 @@ private:
   Command* Observer;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

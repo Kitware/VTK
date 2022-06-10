@@ -23,6 +23,7 @@
 #include <sstream>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkAxisExtended);
 
 vtkAxisExtended::vtkAxisExtended()
@@ -526,3 +527,4 @@ void vtkAxisExtended::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Precision: " << this->Precision << endl;
   os << indent << "LabelFormat: " << this->LabelFormat << endl;
 }
+VTK_ABI_NAMESPACE_END

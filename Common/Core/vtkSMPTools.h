@@ -46,6 +46,7 @@ namespace detail
 {
 namespace smp
 {
+VTK_ABI_NAMESPACE_BEGIN
 template <typename T>
 class vtkSMPTools_Has_Initialize
 {
@@ -218,11 +219,13 @@ public:
 
 template <typename T>
 using resolvedNotInt = typename std::enable_if<!std::is_integral<T>::value, void>::type;
+VTK_ABI_NAMESPACE_END
 } // namespace smp
 } // namespace detail
 } // namespace vtk
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONCORE_EXPORT vtkSMPTools
 {
 public:
@@ -602,5 +605,6 @@ public:
   }
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkSMPTools.h

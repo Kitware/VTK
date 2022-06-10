@@ -28,6 +28,7 @@ Copyright and License information
 #include "vtkRenderingVolumeOpenGL2Module.h" // For export macro
 
 // Forward declarations
+VTK_ABI_NAMESPACE_BEGIN
 class vtkOpenGLRenderWindow;
 class vtkTextureObject;
 class vtkWindow;
@@ -120,4 +121,5 @@ private:
   void operator=(const vtkOpenGLVolumeLookupTable&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkOpenGLVolumeLookupTable_h

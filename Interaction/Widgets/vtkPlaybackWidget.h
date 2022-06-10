@@ -31,6 +31,7 @@
 #include "vtkBorderWidget.h"
 #include "vtkInteractionWidgetsModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPlaybackRepresentation;
 
 class VTKINTERACTIONWIDGETS_EXPORT vtkPlaybackWidget : public vtkBorderWidget
@@ -79,4 +80,5 @@ private:
   void operator=(const vtkPlaybackWidget&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

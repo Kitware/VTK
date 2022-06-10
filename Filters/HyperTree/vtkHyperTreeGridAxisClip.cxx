@@ -33,6 +33,7 @@
 
 #include <set>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkHyperTreeGridAxisClip);
 vtkCxxSetObjectMacro(vtkHyperTreeGridAxisClip, Quadric, vtkQuadric);
 
@@ -504,3 +505,4 @@ void vtkHyperTreeGridAxisClip::RecursivelyProcessTree(
   // Mask output cell if necessary
   this->OutMask->InsertTuple1(outId, clipped);
 }
+VTK_ABI_NAMESPACE_END

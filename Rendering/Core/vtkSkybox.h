@@ -25,6 +25,7 @@
 #include "vtkActor.h"
 #include "vtkRenderingCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKRENDERINGCORE_EXPORT vtkSkybox : public vtkActor
 {
 public:
@@ -94,4 +95,5 @@ private:
   void operator=(const vtkSkybox&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkSkybox_h

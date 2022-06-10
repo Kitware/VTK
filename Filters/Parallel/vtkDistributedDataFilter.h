@@ -40,6 +40,7 @@
 
 #include <vector> // for vector
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkBSPCuts;
 class vtkMultiProcessController;
 class vtkPKdTree;
@@ -261,4 +262,5 @@ private:
   vtkDistributedDataFilter(const vtkDistributedDataFilter&) = delete;
   void operator=(const vtkDistributedDataFilter&) = delete;
 };
+VTK_ABI_NAMESPACE_END
 #endif

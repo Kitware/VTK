@@ -45,6 +45,7 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkPlanes.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPoints;
 class vtkPointsProjectedHull;
 class vtkCell;
@@ -131,4 +132,5 @@ private:
   vtkPlanesIntersection(const vtkPlanesIntersection&) = delete;
   void operator=(const vtkPlanesIntersection&) = delete;
 };
+VTK_ABI_NAMESPACE_END
 #endif

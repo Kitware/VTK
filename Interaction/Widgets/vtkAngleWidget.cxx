@@ -25,6 +25,7 @@
 #include "vtkWidgetEvent.h"
 #include "vtkWidgetEventTranslator.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkAngleWidget);
 
 // The angle widget observes the handles.
@@ -546,3 +547,4 @@ void vtkAngleWidget::PrintSelf(ostream& os, vtkIndent indent)
   // Superclass typedef defined in vtkTypeMacro() found in vtkSetGet.h
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

@@ -40,6 +40,7 @@
 #include "vtkPassInputTypeAlgorithm.h"
 #include "vtkRenderingLabelModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkIntArray;
 class vtkTextRenderer;
 class vtkStringArray;
@@ -107,4 +108,5 @@ private:
   void operator=(const vtkLabelSizeCalculator&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkLabelSizeCalculator_h

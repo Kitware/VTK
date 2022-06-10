@@ -39,6 +39,7 @@
 #include "vtkFiltersSourcesModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSSOURCES_EXPORT vtkTextSource : public vtkPolyDataAlgorithm
 {
 public:
@@ -109,4 +110,5 @@ private:
   void operator=(const vtkTextSource&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

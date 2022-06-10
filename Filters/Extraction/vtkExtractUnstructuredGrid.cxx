@@ -25,6 +25,7 @@
 #include "vtkPointData.h"
 #include "vtkUnstructuredGrid.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkExtractUnstructuredGrid);
 
 // Construct with all types of clipping turned off.
@@ -338,3 +339,4 @@ void vtkExtractUnstructuredGrid::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Locator: (none)\n";
   }
 }
+VTK_ABI_NAMESPACE_END

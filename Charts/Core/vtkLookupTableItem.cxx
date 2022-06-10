@@ -24,6 +24,7 @@
 #include <cassert>
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkLookupTableItem);
 
 //------------------------------------------------------------------------------
@@ -125,3 +126,4 @@ void vtkLookupTableItem::ComputeTexture()
     }
   }
 }
+VTK_ABI_NAMESPACE_END

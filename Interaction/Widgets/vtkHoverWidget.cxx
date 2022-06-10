@@ -21,6 +21,7 @@
 #include "vtkWidgetEvent.h"
 #include "vtkWidgetEventTranslator.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkHoverWidget);
 
 //------------------------------------------------------------------------------
@@ -155,3 +156,4 @@ void vtkHoverWidget::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Timer Duration: " << this->TimerDuration << "\n";
 }
+VTK_ABI_NAMESPACE_END

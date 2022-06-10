@@ -31,6 +31,7 @@
 #include <algorithm> // For min, max, swap, etc.
 #include <list>      // For internal store
 
+VTK_ABI_NAMESPACE_BEGIN
 template <class T>
 bool IsZero(T value)
 {
@@ -663,3 +664,4 @@ void vtkSimple3DCirclesStrategy::Transform(double Local[], double Global[])
   Global[1] = this->Origin[1] + Global[1];
   Global[2] = this->Origin[2] + Global[2];
 }
+VTK_ABI_NAMESPACE_END

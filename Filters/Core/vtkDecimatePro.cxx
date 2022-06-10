@@ -28,6 +28,7 @@
 #include "vtkPriorityQueue.h"
 #include "vtkTriangle.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkDecimatePro);
 
 #define VTK_TOLERANCE 1.0e-05
@@ -1728,3 +1729,4 @@ void vtkDecimatePro::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Output Points Precision: " << this->OutputPointsPrecision << "\n";
 }
+VTK_ABI_NAMESPACE_END

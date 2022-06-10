@@ -27,6 +27,7 @@
 #include "vtkRenderingSceneGraphModule.h" // For export macro
 #include "vtkViewNode.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKRENDERINGSCENEGRAPH_EXPORT vtkActorNode : public vtkViewNode
 {
 public:
@@ -48,4 +49,5 @@ private:
   void operator=(const vtkActorNode&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

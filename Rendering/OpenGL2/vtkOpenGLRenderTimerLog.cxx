@@ -22,6 +22,7 @@
 #include <cassert>
 #include <utility>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOpenGLRenderTimerLog);
 
 //------------------------------------------------------------------------------
@@ -421,3 +422,4 @@ void vtkOpenGLRenderTimerLog::ForceCloseEvent(OGLEvent& event)
     this->ForceCloseEvent(subEvent);
   }
 }
+VTK_ABI_NAMESPACE_END

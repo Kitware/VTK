@@ -36,6 +36,7 @@
 #include <cassert>
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 class TemporalFractalOutputUtil : public vtkObject
 {
 public:
@@ -1570,3 +1571,4 @@ void vtkTemporalFractal::PrintSelf(ostream& os, vtkIndent indent)
   os << indent
      << "GenerateRectilinearGrids: " << (this->GenerateRectilinearGrids ? "True" : "False") << endl;
 }
+VTK_ABI_NAMESPACE_END

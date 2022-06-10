@@ -31,6 +31,7 @@
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkObject.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCollection;
 class vtkCollectionElement;
 
@@ -93,4 +94,5 @@ private:
   void operator=(const vtkCollectionIterator&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

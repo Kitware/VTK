@@ -17,6 +17,7 @@
 #include "vtkTransform.h"
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkAffineRepresentation::vtkAffineRepresentation()
 {
   this->InteractionState = vtkAffineRepresentation::Outside;
@@ -49,3 +50,4 @@ void vtkAffineRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Tolerance: " << this->Tolerance << "\n";
 }
+VTK_ABI_NAMESPACE_END

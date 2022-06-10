@@ -40,6 +40,7 @@
 #include "vtkVertex.h"
 #include "vtkVolume.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPicker);
 
 //------------------------------------------------------------------------------
@@ -891,3 +892,4 @@ void vtkPicker::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "MapperPosition: (" << this->MapperPosition[0] << "," << this->MapperPosition[1]
      << "," << this->MapperPosition[2] << ")\n";
 }
+VTK_ABI_NAMESPACE_END

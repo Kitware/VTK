@@ -34,6 +34,7 @@
 #include VTKLIBXML2_HEADER(parser.h)
 #include VTKLIBXML2_HEADER(tree.h)
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkXMLTreeReader);
 
 const char* vtkXMLTreeReader::TagNameField = ".tagname";
@@ -299,3 +300,4 @@ int vtkXMLTreeReader::RequestData(
 
   return 1;
 }
+VTK_ABI_NAMESPACE_END

@@ -21,6 +21,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImageSeedConnectivity);
 
 //------------------------------------------------------------------------------
@@ -289,3 +290,4 @@ void vtkImageSeedConnectivity::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "OutputConnectedValue: " << this->OutputConnectedValue << "\n";
   os << indent << "OutputUnconnectedValue: " << this->OutputUnconnectedValue << "\n";
 }
+VTK_ABI_NAMESPACE_END

@@ -23,6 +23,7 @@
 //=============================================================================
 namespace vtkThreadedTaskQueueInternals
 {
+VTK_ABI_NAMESPACE_BEGIN
 
 template <typename R>
 class TaskQueue
@@ -166,8 +167,10 @@ private:
   bool StrictOrdering;
 };
 
+VTK_ABI_NAMESPACE_END
 }
 
+VTK_ABI_NAMESPACE_BEGIN
 //-----------------------------------------------------------------------------
 template <typename R, typename... Args>
 vtkThreadedTaskQueue<R, Args...>::vtkThreadedTaskQueue(
@@ -343,3 +346,4 @@ void vtkThreadedTaskQueue<void, Args...>::Flush()
   std::unique_lock<std::mutex> lk(this->NextResultIdMutex);
   this->ResultsCV.wait(lk, [this] { return this->IsEmpty(); });
 }
+VTK_ABI_NAMESPACE_END

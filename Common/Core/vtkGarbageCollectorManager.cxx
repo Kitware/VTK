@@ -18,6 +18,7 @@
 
 // Must NOT be initialized.  Default initialization to zero is
 // necessary.
+VTK_ABI_NAMESPACE_BEGIN
 static unsigned int vtkGarbageCollectorManagerCount;
 
 vtkGarbageCollectorManager::vtkGarbageCollectorManager()
@@ -35,3 +36,4 @@ vtkGarbageCollectorManager::~vtkGarbageCollectorManager()
     vtkGarbageCollector::ClassFinalize();
   }
 }
+VTK_ABI_NAMESPACE_END

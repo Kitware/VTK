@@ -49,6 +49,7 @@
 
 #define VTK_MAX_CIRCLE_RESOLUTION 1024
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPoints;
 class vtkUnsignedCharArray;
 class vtkCellArray;
@@ -232,4 +233,5 @@ private:
   void operator=(const vtkGlyphSource2D&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

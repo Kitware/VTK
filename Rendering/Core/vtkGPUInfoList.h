@@ -30,6 +30,7 @@
 #include "vtkObject.h"
 #include "vtkRenderingCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkGPUInfoListArray; // STL Pimpl
 class vtkGPUInfo;
 
@@ -84,4 +85,5 @@ private:
   void operator=(const vtkGPUInfoList&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

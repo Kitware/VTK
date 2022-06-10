@@ -34,6 +34,7 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkHigherOrderTetra.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkTetra;
 class vtkBezierCurve;
 class vtkBezierTriangle;
@@ -71,4 +72,5 @@ private:
   void operator=(const vtkBezierTetra&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

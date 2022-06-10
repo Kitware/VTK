@@ -23,6 +23,7 @@
 #include <dxgi.h>
 #include <wrl/client.h> // For Microsoft::WRL::ComPtr
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkWin32OpenGLDXRenderWindow::PIMPL
 {
 public:
@@ -278,3 +279,4 @@ void vtkWin32OpenGLDXRenderWindow::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Shared Texture Handle: " << this->GLSharedTextureHandle << "\n";
   os << indent << "Registered GL texture: " << this->TextureId << "\n";
 }
+VTK_ABI_NAMESPACE_END

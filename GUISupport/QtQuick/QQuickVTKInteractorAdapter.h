@@ -23,7 +23,7 @@
 #include <QList>    // for QList
 #include <QPointer> // for QPointer
 
-// Forward declarations
+// Qt Forward declarations
 class QEnterEvent;
 class QEvent;
 class QFocusEvent;
@@ -33,6 +33,9 @@ class QMouseEvent;
 class QQuickItem;
 class QQuickWindow;
 class QWheelEvent;
+
+VTK_ABI_NAMESPACE_BEGIN
+// VTK Forward declarations
 class vtkRenderWindowInteractor;
 class vtkRenderer;
 
@@ -89,4 +92,5 @@ private:
   Q_DISABLE_COPY(QQuickVTKInteractorAdapter)
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // QQuickVTKInteractorAdapter_h

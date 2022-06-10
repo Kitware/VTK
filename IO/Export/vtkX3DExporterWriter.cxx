@@ -17,6 +17,7 @@
 #include "vtkObjectFactory.h"
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkX3DExporterWriter::vtkX3DExporterWriter()
 {
   this->WriteToOutputString = 0;
@@ -54,3 +55,4 @@ char* vtkX3DExporterWriter::RegisterAndGetOutputString()
 
   return tmp;
 }
+VTK_ABI_NAMESPACE_END

@@ -42,6 +42,7 @@
 #include <cstdio>
 #include <cstring>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkNIFTIImageWriter);
 vtkCxxSetObjectMacro(vtkNIFTIImageWriter, QFormMatrix, vtkMatrix4x4);
 vtkCxxSetObjectMacro(vtkNIFTIImageWriter, SFormMatrix, vtkMatrix4x4);
@@ -935,3 +936,4 @@ int vtkNIFTIImageWriter::RequestData(vtkInformation* vtkNotUsed(request),
 
   return 1;
 }
+VTK_ABI_NAMESPACE_END

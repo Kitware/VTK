@@ -18,6 +18,7 @@
 #include "vtkInformationKey.h"
 #include "vtkObjectFactory.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkInformationKeyLookup);
 
 //------------------------------------------------------------------------------
@@ -65,3 +66,4 @@ vtkInformationKeyLookup::KeyMap& vtkInformationKeyLookup::Keys()
   static vtkInformationKeyLookup::KeyMap keys;
   return keys;
 }
+VTK_ABI_NAMESPACE_END

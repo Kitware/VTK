@@ -35,6 +35,7 @@
 
 #include <sstream> // For ostringstream ivar
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkAbstractArray;
 class vtkArrayIterator;
 
@@ -302,4 +303,5 @@ private:
   void operator=(const vtkXMLWriter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -26,6 +26,7 @@
 #include "vtkActor.h"
 #include "vtkRenderingCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKRENDERINGCORE_EXPORT vtkAvatar : public vtkActor
 {
 public:
@@ -113,4 +114,5 @@ private:
   void operator=(const vtkAvatar&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkAvatar_h

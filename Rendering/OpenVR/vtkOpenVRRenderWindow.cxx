@@ -27,6 +27,7 @@ https://github.com/ValveSoftware/openvr/blob/master/LICENSE
 #include "vtkRendererCollection.h"
 #include "vtkVRCamera.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOpenVRRenderWindow);
 
 //------------------------------------------------------------------------------
@@ -485,3 +486,4 @@ vtkEventDataDevice vtkOpenVRRenderWindow::GetDeviceForOpenVRHandle(vr::TrackedDe
 
   return vtkEventDataDevice::Unknown;
 }
+VTK_ABI_NAMESPACE_END

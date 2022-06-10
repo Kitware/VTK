@@ -25,6 +25,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkMergeDataObjectFilter);
 
 //------------------------------------------------------------------------------
@@ -173,3 +174,4 @@ void vtkMergeDataObjectFilter::PrintSelf(ostream& os, vtkIndent indent)
     os << "CellDataField\n";
   }
 }
+VTK_ABI_NAMESPACE_END

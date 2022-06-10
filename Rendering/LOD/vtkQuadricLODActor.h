@@ -53,6 +53,7 @@
 #include "vtkActor.h"
 #include "vtkRenderingLODModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkQuadricClustering;
 class vtkPolyDataMapper;
 class vtkCamera;
@@ -239,4 +240,5 @@ private:
   void operator=(const vtkQuadricLODActor&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

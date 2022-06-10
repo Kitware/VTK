@@ -35,6 +35,7 @@
 #include "vtkSmartPointer.h"            // needed for vtkSmartPointer.
 #include "vtkUnsignedCharArray.h"       // needed for vtkUnsignedCharArray.
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkFXAAOptions;
 class vtkRenderer;
 class vtkMultiProcessController;
@@ -313,4 +314,5 @@ private:
   bool FixBackground;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

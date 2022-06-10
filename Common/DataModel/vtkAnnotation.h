@@ -39,6 +39,7 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkDataObject.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkInformationStringKey;
 class vtkInformationDoubleVectorKey;
 class vtkInformationIntegerVectorKey;
@@ -144,4 +145,5 @@ private:
   void operator=(const vtkAnnotation&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

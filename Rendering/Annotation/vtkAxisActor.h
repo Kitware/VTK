@@ -53,6 +53,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkActor.h"
 #include "vtkRenderingAnnotationModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkAxisFollower;
 class vtkCamera;
 class vtkCoordinate;
@@ -963,4 +964,5 @@ private:
   ///@}
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

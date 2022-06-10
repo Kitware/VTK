@@ -29,6 +29,7 @@
 #include "vtkVariant.h"
 #include "vtkVariantArray.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkThresholdTable);
 
 vtkThresholdTable::vtkThresholdTable()
@@ -150,3 +151,4 @@ int vtkThresholdTable::RequestData(
 
   return 1;
 }
+VTK_ABI_NAMESPACE_END

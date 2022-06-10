@@ -41,6 +41,7 @@
 #include "vtkContourLineInterpolator.h"
 #include "vtkInteractionWidgetsModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDijkstraImageGeodesicPath;
 class vtkImageData;
 
@@ -94,4 +95,5 @@ private:
   void operator=(const vtkDijkstraImageContourLineInterpolator&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

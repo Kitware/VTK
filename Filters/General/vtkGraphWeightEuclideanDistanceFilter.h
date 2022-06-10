@@ -27,6 +27,7 @@
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkGraphWeightFilter.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkGraph;
 
 class VTKFILTERSGENERAL_EXPORT vtkGraphWeightEuclideanDistanceFilter : public vtkGraphWeightFilter
@@ -56,4 +57,5 @@ private:
   void operator=(const vtkGraphWeightEuclideanDistanceFilter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

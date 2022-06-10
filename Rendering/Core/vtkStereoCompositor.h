@@ -30,6 +30,7 @@
 #include "vtkObject.h"
 #include "vtkRenderingCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkUnsignedCharArray;
 
 class VTKRENDERINGCORE_EXPORT vtkStereoCompositor : public vtkObject
@@ -76,4 +77,5 @@ private:
   void operator=(const vtkStereoCompositor&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -26,6 +26,7 @@
 #include "vtkGraphLayoutStrategy.h"
 #include "vtkInfovisLayoutModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPoints;
 class vtkTree;
 
@@ -88,4 +89,5 @@ private:
   void operator=(const vtkTreeOrbitLayoutStrategy&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

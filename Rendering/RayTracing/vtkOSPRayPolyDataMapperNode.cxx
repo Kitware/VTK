@@ -48,6 +48,7 @@
 
 namespace vtkosp
 {
+VTK_ABI_NAMESPACE_BEGIN
 void VToOPointNormals(
   vtkDataArray* vNormals, std::vector<osp::vec3f>& normals, vtkMatrix3x3* matrix)
 {
@@ -808,8 +809,10 @@ OSPMaterial MakeActorMaterial(vtkOSPRayRendererNode* orn, OSPRenderer oRenderer,
     false, dontcare1, dontcare2, "");
 };
 
+VTK_ABI_NAMESPACE_END
 }
 
+VTK_ABI_NAMESPACE_BEGIN
 //============================================================================
 vtkStandardNewMacro(vtkOSPRayPolyDataMapperNode);
 
@@ -1409,3 +1412,4 @@ void vtkOSPRayPolyDataMapperNode::ClearGeometricModels()
   }
   this->Instances.clear();
 }
+VTK_ABI_NAMESPACE_END

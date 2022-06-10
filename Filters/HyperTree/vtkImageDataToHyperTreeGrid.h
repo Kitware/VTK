@@ -32,6 +32,7 @@
 #include "vtkFiltersHyperTreeModule.h" // For export macro
 #include "vtkHyperTreeGridAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkBitArray;
 class vtkIntArray;
 class vtkUnsignedCharArray;
@@ -80,4 +81,5 @@ private:
   int GlobalId;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkImageDataToHyperTreeGrid_h

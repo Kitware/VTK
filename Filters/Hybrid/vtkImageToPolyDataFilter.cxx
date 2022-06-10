@@ -30,6 +30,7 @@
 
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImageToPolyDataFilter);
 
 vtkCxxSetObjectMacro(vtkImageToPolyDataFilter, LookupTable, vtkScalarsToColors);
@@ -1353,3 +1354,4 @@ void vtkImageToPolyDataFilter::DecimateEdges(
     } // if manifold
   }   // for all points
 }
+VTK_ABI_NAMESPACE_END

@@ -23,12 +23,15 @@
 #include <memory>
 #include <string>
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPartitionedDataSet;
 class vtkPartitionedDataSetCollection;
 class vtkTexture;
+VTK_ABI_NAMESPACE_END
 
 namespace omf
 {
+VTK_ABI_NAMESPACE_BEGIN
 
 struct OMFFile;
 
@@ -110,6 +113,7 @@ protected:
   size_t Dimensions[3];
 };
 
+VTK_ABI_NAMESPACE_END
 } // end namespace omf
 
 #endif // OMFElement_h

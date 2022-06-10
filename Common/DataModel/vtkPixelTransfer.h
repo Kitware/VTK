@@ -33,6 +33,7 @@
 #include "vtkSetGet.h"                // for macros
 #include <cstring>                    // for memcpy
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONDATAMODEL_EXPORT vtkPixelTransfer
 {
 public:
@@ -162,5 +163,6 @@ int vtkPixelTransfer::Blit(const vtkPixelExtent& srcWholeExt, const vtkPixelExte
   return 0;
 }
 
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkPixelTransfer.h

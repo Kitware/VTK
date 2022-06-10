@@ -34,6 +34,7 @@
 // STL headers
 #include <vector> // Needed for STL vector.
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkContext2D;
 
 //-----------------------------------------------------------------------------
@@ -177,5 +178,6 @@ public:
   ///@}
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkContextScenePrivate_h
 // VTK-HeaderTest-Exclude: vtkContextScenePrivate.h

@@ -29,6 +29,7 @@
 
 #include <string> // For std::string
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkAbstractMapper;
 class vtkInformationObjectBaseVectorKey;
 class vtkProp;
@@ -101,4 +102,5 @@ private:
   void operator=(const vtkOpenGLRenderPass&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkOpenGLRenderPass_h

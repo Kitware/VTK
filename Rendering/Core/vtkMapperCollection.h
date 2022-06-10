@@ -32,6 +32,7 @@
                                     // inline functions
 #include "vtkRenderingCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKRENDERINGCORE_EXPORT vtkMapperCollection : public vtkCollection
 {
 public:
@@ -79,4 +80,5 @@ private:
   void operator=(const vtkMapperCollection&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

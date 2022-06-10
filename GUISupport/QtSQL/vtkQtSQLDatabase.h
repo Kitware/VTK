@@ -33,6 +33,7 @@
 
 #include <QtSql/QSqlDatabase> // For the database member
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkSQLQuery;
 class vtkStringArray;
 
@@ -203,5 +204,6 @@ private:
   void operator=(const vtkQtSQLDatabase&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkQtSQLDatabase_h
 // VTK-HeaderTest-Exclude: vtkQtSQLDatabase.h

@@ -25,6 +25,7 @@
 #include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkPiecewiseFunctionAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPiecewiseFunction;
 
 class VTKCOMMONEXECUTIONMODEL_EXPORT vtkPiecewiseFunctionShiftScale
@@ -61,4 +62,5 @@ private:
   void operator=(const vtkPiecewiseFunctionShiftScale&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

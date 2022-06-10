@@ -34,6 +34,7 @@
 #include "vtkIOCoreModule.h" // For export macro
 #include "vtkWriter.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKIOCORE_EXPORT vtkAbstractParticleWriter : public vtkWriter
 {
 public:
@@ -99,4 +100,5 @@ private:
   void operator=(const vtkAbstractParticleWriter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

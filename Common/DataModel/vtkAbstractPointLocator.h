@@ -33,6 +33,7 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkLocator.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkIdList;
 
 class VTKCOMMONDATAMODEL_EXPORT vtkAbstractPointLocator : public vtkLocator
@@ -117,4 +118,5 @@ private:
   void operator=(const vtkAbstractPointLocator&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

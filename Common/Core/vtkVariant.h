@@ -52,6 +52,7 @@
   vtkArrayIteratorTemplateMacro(call);                                                             \
   vtkArrayIteratorTemplateMacroCase(VTK_VARIANT, vtkVariant, call)
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkStdString;
 class vtkObjectBase;
 class vtkAbstractArray;
@@ -426,6 +427,7 @@ private:
   friend struct vtkVariantStrictEquality;
 };
 
+VTK_ABI_NAMESPACE_END
 #include "vtkVariantInlineOperators.h" // needed for operator== and company
 
 // A STL-style function object so you can compare two variants using
@@ -434,6 +436,7 @@ private:
 // compare values.  It satisfies the STL requirement for a comparison
 // function for ordered containers like map and set.
 
+VTK_ABI_NAMESPACE_BEGIN
 struct VTKCOMMONCORE_EXPORT vtkVariantLessThan
 {
 public:
@@ -461,5 +464,6 @@ public:
   bool operator()(const vtkVariant& s1, const vtkVariant& s2) const;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkVariant.h

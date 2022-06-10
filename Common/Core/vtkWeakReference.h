@@ -28,6 +28,7 @@
 #include "vtkObject.h"
 #include "vtkWeakPointer.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONCORE_EXPORT vtkWeakReference : public vtkObject
 {
 public:
@@ -50,6 +51,7 @@ private:
   vtkWeakPointer<vtkObject> Object;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
 
 // VTK-HeaderTest-Exclude: vtkWeakReference.h

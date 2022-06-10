@@ -59,6 +59,7 @@
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkInteractorObserver.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtk3DWidgetConnection;
 class vtkAlgorithmOutput;
 class vtkDataSet;
@@ -162,4 +163,5 @@ private:
   void operator=(const vtk3DWidget&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

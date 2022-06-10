@@ -27,6 +27,7 @@
 
 #include <vector> //for results
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkAbstractArray;
 class vtkDataSet;
 class vtkMapper;
@@ -50,4 +51,5 @@ private:
   void operator=(const vtkMapperNode&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

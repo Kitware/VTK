@@ -38,6 +38,7 @@
 #include "vtkFiltersSourcesModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSSOURCES_EXPORT vtkTessellatedBoxSource : public vtkPolyDataAlgorithm
 {
 public:
@@ -159,4 +160,5 @@ private:
   void operator=(const vtkTessellatedBoxSource&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

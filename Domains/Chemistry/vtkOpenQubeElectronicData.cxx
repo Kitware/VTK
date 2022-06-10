@@ -24,6 +24,7 @@
 #include <openqube/cube.h>
 
 // Internal class to store queue/qube information along with the image
+VTK_ABI_NAMESPACE_BEGIN
 class OQEDImageData : public vtkImageData
 {
 public:
@@ -429,3 +430,4 @@ void vtkOpenQubeElectronicData::FillImageDataFromQube(OpenQube::Cube* qube, vtkI
   vtkDebugMacro(<< "Copied " << qubeSize << " (actual: " << qubeInd + 1
                 << ") points from qube to vtkImageData.");
 }
+VTK_ABI_NAMESPACE_END

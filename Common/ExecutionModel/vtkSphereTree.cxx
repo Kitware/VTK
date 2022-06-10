@@ -35,6 +35,7 @@
 
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkSphereTree);
 vtkCxxSetObjectMacro(vtkSphereTree, DataSet, vtkDataSet);
 
@@ -1617,3 +1618,4 @@ void vtkSphereTree::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Maximum Number Of Levels: " << this->MaxLevel << "\n";
   os << indent << "Build Hierarchy: " << (this->BuildHierarchy ? "On\n" : "Off\n");
 }
+VTK_ABI_NAMESPACE_END

@@ -23,6 +23,7 @@
 #include <cmath>
 
 //----------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 template <typename T>
 vtkQuaternion<T>::vtkQuaternion()
 {
@@ -628,4 +629,5 @@ vtkQuaternion<T> vtkQuaternion<T>::NormalizedWithAngleInDegrees() const
   return unitVTK;
 }
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -16,6 +16,7 @@
 #include "vtkTestingInteractor.h"
 #include "vtkVersion.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkTestingObjectFactory);
 
 VTK_CREATE_CREATE_FUNCTION(vtkTestingInteractor);
@@ -36,3 +37,4 @@ void vtkTestingObjectFactory::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
   os << indent << "Description: " << this->GetDescription() << endl;
 }
+VTK_ABI_NAMESPACE_END

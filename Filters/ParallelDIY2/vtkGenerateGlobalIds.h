@@ -28,6 +28,7 @@
 #include "vtkFiltersParallelDIY2Module.h" // for export macros
 #include "vtkPassInputTypeAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkMultiProcessController;
 
 class VTKFILTERSPARALLELDIY2_EXPORT vtkGenerateGlobalIds : public vtkPassInputTypeAlgorithm
@@ -71,4 +72,5 @@ private:
   double Tolerance;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

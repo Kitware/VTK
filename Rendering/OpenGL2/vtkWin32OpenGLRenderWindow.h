@@ -30,6 +30,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include "vtkWindows.h" // For windows API
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkIdList;
 
 class VTKRENDERINGOPENGL2_EXPORT vtkWin32OpenGLRenderWindow : public vtkOpenGLRenderWindow
@@ -342,4 +343,5 @@ private:
   void operator=(const vtkWin32OpenGLRenderWindow&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

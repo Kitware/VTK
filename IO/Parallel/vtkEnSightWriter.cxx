@@ -78,6 +78,7 @@
 #endif
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkEnSightWriter);
 
 //------------------------------------------------------------------------------
@@ -1135,3 +1136,4 @@ void vtkEnSightWriter::ComputeNames()
 
   delete[] buf;
 }
+VTK_ABI_NAMESPACE_END

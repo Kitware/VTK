@@ -27,6 +27,7 @@
 #include "vtkSmartPointer.h"
 
 //============================================================================
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOSPRayCompositePolyDataMapper2Node);
 
 //------------------------------------------------------------------------------
@@ -217,3 +218,4 @@ void vtkOSPRayCompositePolyDataMapper2Node::RenderBlock(vtkOSPRayRendererNode* o
     this->BlockState.Material.pop();
   }
 }
+VTK_ABI_NAMESPACE_END

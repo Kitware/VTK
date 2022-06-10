@@ -30,6 +30,7 @@
 #include "vtkRenderingContext2DModule.h" // For export macro
 #include "vtkSmartPointer.h"             // Needed for SP ivars.
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKRENDERINGCONTEXT2D_EXPORT vtkContextClip : public vtkAbstractContextItem
 {
 public:
@@ -87,4 +88,5 @@ inline void vtkContextClip::GetRect(float rect[4])
   rect[3] = this->Dims[3];
 }
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkContextClip_h

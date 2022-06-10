@@ -17,6 +17,7 @@
 
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkWindowLevelLookupTable);
 
 //------------------------------------------------------------------------------
@@ -141,3 +142,4 @@ void vtkWindowLevelLookupTable::PrintSelf(ostream& os, vtkIndent indent)
      << this->MaximumTableValue[1] << ", " << this->MaximumTableValue[2] << ", "
      << this->MaximumTableValue[3] << ")\n";
 }
+VTK_ABI_NAMESPACE_END

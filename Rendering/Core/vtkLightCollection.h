@@ -30,6 +30,7 @@
 #include "vtkCollection.h"
 #include "vtkRenderingCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkLight;
 
 class VTKRENDERINGCORE_EXPORT vtkLightCollection : public vtkCollection
@@ -69,4 +70,5 @@ private:
   void operator=(const vtkLightCollection&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -78,6 +78,7 @@
 #include "vtk3DWidget.h"
 #include "vtkInteractionWidgetsModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkActor;
 class vtkCellPicker;
 class vtkPlanes;
@@ -354,4 +355,5 @@ private:
   void operator=(const vtkBoxWidget&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

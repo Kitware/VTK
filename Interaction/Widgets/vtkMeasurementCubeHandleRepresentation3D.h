@@ -26,6 +26,7 @@
 #include "vtkHandleRepresentation.h"
 #include "vtkInteractionWidgetsModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkProperty;
 class vtkPolyDataMapper;
 class vtkCellPicker;
@@ -306,4 +307,5 @@ private:
   void operator=(const vtkMeasurementCubeHandleRepresentation3D&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

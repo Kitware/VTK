@@ -23,6 +23,7 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkVectorOperators.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkInteractorStyleDrawPolygon);
 
 //------------------------------------------------------------------------------
@@ -225,3 +226,4 @@ void vtkInteractorStyleDrawPolygon::PrintSelf(ostream& os, vtkIndent indent)
      << endl;
   os << indent << "EndPosition: " << this->EndPosition[0] << "," << this->EndPosition[1] << endl;
 }
+VTK_ABI_NAMESPACE_END

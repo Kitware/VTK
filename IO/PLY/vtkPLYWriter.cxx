@@ -29,6 +29,7 @@
 
 #include <cstddef>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPLYWriter);
 
 vtkCxxSetObjectMacro(vtkPLYWriter, LookupTable, vtkScalarsToColors);
@@ -513,3 +514,4 @@ int vtkPLYWriter::FillInputPortInformation(int, vtkInformation* info)
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPolyData");
   return 1;
 }
+VTK_ABI_NAMESPACE_END

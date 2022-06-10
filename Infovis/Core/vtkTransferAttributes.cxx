@@ -41,6 +41,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <map>
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 template <typename T>
 vtkVariant vtkGetValue(T* arr, vtkIdType index)
 {
@@ -324,3 +325,4 @@ void vtkTransferAttributes::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "SourceFieldType: " << this->SourceFieldType << endl;
   os << indent << "TargetFieldType: " << this->TargetFieldType << endl;
 }
+VTK_ABI_NAMESPACE_END

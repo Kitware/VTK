@@ -18,6 +18,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointSet.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 //------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkKdTreePointLocator);
 
@@ -139,3 +140,4 @@ void vtkKdTreePointLocator::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "KdTree " << this->KdTree << "\n";
 }
+VTK_ABI_NAMESPACE_END

@@ -37,6 +37,7 @@
 #define COMMIT_TRANSACTION "COMMIT"
 #define ROLLBACK_TRANSACTION "ROLLBACK"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkSQLiteQuery::Priv
 {
 public:
@@ -808,3 +809,4 @@ bool vtkSQLiteQuery::BindParameter(int index, vtkVariant value)
 {
   return this->Superclass::BindParameter(index, value);
 }
+VTK_ABI_NAMESPACE_END

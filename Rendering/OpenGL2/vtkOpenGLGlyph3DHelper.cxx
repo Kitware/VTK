@@ -51,6 +51,7 @@
 #include <numeric>
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOpenGLGlyph3DHelper);
 
 //------------------------------------------------------------------------------
@@ -617,3 +618,4 @@ void vtkOpenGLGlyph3DHelper::SetLODColoring(bool val)
 {
   this->InstanceCulling->SetColorLOD(val);
 }
+VTK_ABI_NAMESPACE_END

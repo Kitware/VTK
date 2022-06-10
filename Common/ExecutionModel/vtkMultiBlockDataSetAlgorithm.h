@@ -27,6 +27,7 @@
 #include "vtkAlgorithm.h"
 #include "vtkCommonExecutionModelModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkMultiBlockDataSet;
 
 class VTKCOMMONEXECUTIONMODEL_EXPORT vtkMultiBlockDataSetAlgorithm : public vtkAlgorithm
@@ -116,4 +117,5 @@ private:
   void operator=(const vtkMultiBlockDataSetAlgorithm&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

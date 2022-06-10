@@ -36,6 +36,7 @@
 
 #include "vtkStructuredData.h" // Needed for inline methods
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataArray;
 class vtkLine;
 class vtkMatrix3x3;
@@ -701,4 +702,5 @@ inline int vtkImageData::GetDataDimension()
   return vtkStructuredData::GetDataDimension(this->DataDescription);
 }
 
+VTK_ABI_NAMESPACE_END
 #endif

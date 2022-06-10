@@ -24,6 +24,7 @@
 #include "vtkObject.h"
 #include <vtkIOGDALModule.h> // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkInformationStringKey;
 class vtkInformationIntegerVectorKey;
 
@@ -45,4 +46,5 @@ private:
   void operator=(const vtkGDAL&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkGDAL_h

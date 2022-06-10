@@ -43,6 +43,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkFiltersStatisticsModule.h" // For export macro
 #include "vtkStatisticsAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkMultiBlockDataSet;
 class vtkStringArray;
 class vtkTable;
@@ -121,4 +122,5 @@ private:
   void operator=(const vtkAutoCorrelativeStatistics&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

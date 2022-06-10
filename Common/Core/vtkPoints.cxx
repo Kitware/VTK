@@ -22,6 +22,7 @@
 #include "vtkObjectFactory.h"
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkPoints* vtkPoints::New(int dataType)
 {
   // First try to create the object from the vtkObjectFactory
@@ -284,3 +285,4 @@ void vtkPoints::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "  Ymin,Ymax: (" << bounds[2] << ", " << bounds[3] << ")\n";
   os << indent << "  Zmin,Zmax: (" << bounds[4] << ", " << bounds[5] << ")\n";
 }
+VTK_ABI_NAMESPACE_END

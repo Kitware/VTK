@@ -33,6 +33,7 @@
 
 #include "vtkImagePointDataIterator.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKIMAGINGCORE_EXPORT vtkImagePointIterator : public vtkImagePointDataIterator
 {
 public:
@@ -144,5 +145,6 @@ protected:
   double Position[3];
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkImagePointIterator.h

@@ -31,6 +31,7 @@
 #include "vtkCommunicator.h"
 #include "vtkParallelCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKPARALLELCORE_EXPORT vtkDummyCommunicator : public vtkCommunicator
 {
 public:
@@ -64,4 +65,5 @@ private:
   void operator=(const vtkDummyCommunicator&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkDummyCommunicator_h

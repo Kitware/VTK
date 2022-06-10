@@ -35,6 +35,7 @@
 #include "vtkSphereSource.h"
 #include "vtkTransform.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkSplineWidget);
 
 vtkCxxSetObjectMacro(vtkSplineWidget, HandleProperty, vtkProperty);
@@ -1485,3 +1486,4 @@ int vtkSplineWidget::IsClosed()
 
   return result;
 }
+VTK_ABI_NAMESPACE_END

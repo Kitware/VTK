@@ -44,6 +44,7 @@
 #include "vtkMultiBlockDataSetAlgorithm.h"
 #include "vtkSmartPointer.h" // for using smartpointer
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkAppendPolyData;
 class vtkContourFilter;
 class vtkDataArray;
@@ -256,4 +257,5 @@ private:
   friend class ScaledProgress;
   vtkExtractCTHPartInternal* Internals;
 };
+VTK_ABI_NAMESPACE_END
 #endif

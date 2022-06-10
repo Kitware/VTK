@@ -34,6 +34,7 @@
 #include "vtkDistanceRepresentation.h"
 #include "vtkInteractionWidgetsModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkAxisActor2D;
 class vtkProperty2D;
 
@@ -117,4 +118,5 @@ private:
   void operator=(const vtkDistanceRepresentation2D&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

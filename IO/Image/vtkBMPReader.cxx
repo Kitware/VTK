@@ -21,6 +21,7 @@
 #include "vtkPointData.h"
 #include <vtksys/SystemTools.hxx>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkBMPReader);
 
 vtkBMPReader::vtkBMPReader()
@@ -611,3 +612,4 @@ int vtkBMPReader::CanReadFile(const char* fname)
   fclose(fp);
   return !errorOccurred;
 }
+VTK_ABI_NAMESPACE_END

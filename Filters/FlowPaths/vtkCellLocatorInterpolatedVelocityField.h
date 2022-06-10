@@ -55,6 +55,7 @@
 #include "vtkDeprecation.h"            // For VTK_DEPRECATED_IN_9_2_0
 #include "vtkFiltersFlowPathsModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkAbstractCellLocator;
 
 class VTK_DEPRECATED_IN_9_2_0(
@@ -85,6 +86,7 @@ private:
   void operator=(const vtkCellLocatorInterpolatedVelocityField&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
 
 // VTK-HeaderTest-Exclude: vtkCellLocatorInterpolatedVelocityField.h

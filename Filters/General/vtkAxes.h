@@ -28,6 +28,7 @@
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSGENERAL_EXPORT vtkAxes : public vtkPolyDataAlgorithm
 {
 public:
@@ -89,4 +90,5 @@ private:
   void operator=(const vtkAxes&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

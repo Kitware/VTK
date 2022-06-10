@@ -101,6 +101,7 @@ WARRANTY OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
 #define PLY_SCALAR 0
 #define PLY_LIST 1
 
+VTK_ABI_NAMESPACE_BEGIN
 typedef struct PlyProperty
 { /* description of a property */
 
@@ -231,6 +232,7 @@ public:
   static int get_prop_type(const char*);
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
 
 // VTK-HeaderTest-Exclude: vtkPLY.h

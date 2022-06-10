@@ -38,6 +38,7 @@
 #include "vtkVertex.h"
 #include "vtkWedge.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkGenericAdaptorCell::vtkGenericAdaptorCell()
 {
   this->Tetra = vtkTetra::New();
@@ -1078,3 +1079,4 @@ void vtkGenericAdaptorCell::AllocateTuples(int size)
     this->TuplesCapacity = size;
   }
 }
+VTK_ABI_NAMESPACE_END

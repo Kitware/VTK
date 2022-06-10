@@ -25,6 +25,7 @@
 #include "vtkObjectFactory.h"
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkIdTypeArray);
 vtkStandardExtendedNewMacro(vtkIdTypeArray);
 
@@ -39,3 +40,4 @@ void vtkIdTypeArray::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->RealSuperclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

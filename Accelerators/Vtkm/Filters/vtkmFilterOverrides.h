@@ -19,6 +19,7 @@
 
 /// A class with static methods to turn vtkm filter overrides on/off at runtime
 ///
+VTK_ABI_NAMESPACE_BEGIN
 class VTKACCELERATORSVTKMFILTERS_EXPORT vtkmFilterOverrides
 {
 public:
@@ -36,5 +37,6 @@ public:
   ///@}
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkmFilterOverrides_h
 // VTK-HeaderTest-Exclude: vtkmFilterOverrides.h

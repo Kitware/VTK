@@ -32,6 +32,7 @@
 
 #include <cctype>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkMoleculeReaderBase::vtkMoleculeReaderBase()
 {
   this->FileName = nullptr;
@@ -426,3 +427,4 @@ void vtkMoleculeReaderBase::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "HBScale: " << this->HBScale << endl;
   os << indent << "BScale: " << this->BScale << endl;
 }
+VTK_ABI_NAMESPACE_END

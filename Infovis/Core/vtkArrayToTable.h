@@ -34,6 +34,7 @@
 #include "vtkInfovisCoreModule.h" // For export macro
 #include "vtkTableAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKINFOVISCORE_EXPORT vtkArrayToTable : public vtkTableAlgorithm
 {
 public:
@@ -54,4 +55,5 @@ private:
   void operator=(const vtkArrayToTable&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -30,6 +30,7 @@
 #include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkObject.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkAlgorithm;
 class vtkAlgorithmOutput;
 class vtkAlgorithmToExecutiveFriendship;
@@ -293,4 +294,5 @@ private:
   void operator=(const vtkExecutive&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

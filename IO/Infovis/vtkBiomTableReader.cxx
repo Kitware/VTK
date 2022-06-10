@@ -32,6 +32,7 @@
 #include <algorithm>
 #include <sstream>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkBiomTableReader);
 
 #ifdef read
@@ -635,3 +636,4 @@ void vtkBiomTableReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

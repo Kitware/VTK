@@ -46,6 +46,7 @@
 #include "vtkImageAlgorithm.h"
 #include "vtkImagingColorModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkLookupTable;
 
 class VTKIMAGINGCOLOR_EXPORT vtkImageQuantizeRGBToIndex : public vtkImageAlgorithm
@@ -123,4 +124,5 @@ private:
   void operator=(const vtkImageQuantizeRGBToIndex&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

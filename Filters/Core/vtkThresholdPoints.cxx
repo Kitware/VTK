@@ -24,6 +24,7 @@
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkThresholdPoints);
 
 //------------------------------------------------------------------------------
@@ -252,3 +253,4 @@ void vtkThresholdPoints::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Upper Threshold: " << this->UpperThreshold << "\n";
   os << indent << "Output Points Precision: " << this->OutputPointsPrecision << "\n";
 }
+VTK_ABI_NAMESPACE_END

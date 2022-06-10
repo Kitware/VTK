@@ -28,6 +28,7 @@
 #include "vtkExtractDataSets.h"
 #include "vtkFiltersExtractionModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 struct vtkHierarchicalDataExtractDataSetsInternals;
 
 class VTKFILTERSEXTRACTION_EXPORT vtkHierarchicalDataExtractDataSets : public vtkExtractDataSets
@@ -46,4 +47,5 @@ private:
   void operator=(const vtkHierarchicalDataExtractDataSets&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

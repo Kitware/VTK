@@ -28,6 +28,7 @@
 
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkLODActor);
 vtkCxxSetObjectMacro(vtkLODActor, LowResFilter, vtkPolyDataAlgorithm);
 vtkCxxSetObjectMacro(vtkLODActor, MediumResFilter, vtkPolyDataAlgorithm);
@@ -363,3 +364,4 @@ void vtkLODActor::ShallowCopy(vtkProp* prop)
   // Now do superclass
   this->vtkActor::ShallowCopy(prop);
 }
+VTK_ABI_NAMESPACE_END

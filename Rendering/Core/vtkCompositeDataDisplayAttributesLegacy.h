@@ -32,6 +32,7 @@
 
 #include <map> // for std::map
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkBoundingBox;
 class vtkDataObject;
 
@@ -192,4 +193,5 @@ private:
   std::map<unsigned int, bool> BlockPickabilities;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkCompositeDataDisplayAttributesLegacy_h

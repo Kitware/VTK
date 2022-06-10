@@ -26,6 +26,7 @@
 #include "vtkRenderingUIModule.h" // For export macro
 #include <map>                    // for ivar
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKRENDERINGUI_EXPORT vtkSDL2RenderWindowInteractor : public vtkRenderWindowInteractor
 {
 public:
@@ -98,4 +99,5 @@ private:
   void operator=(const vtkSDL2RenderWindowInteractor&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

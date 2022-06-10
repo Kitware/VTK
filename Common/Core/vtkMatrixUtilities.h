@@ -27,10 +27,13 @@
 #ifndef vtkMatrixUtilities_h
 #define vtkMatrixUtilities_h
 
+#include "vtkABINamespace.h"
+
 #include <type_traits> // for type traits
 
 namespace vtkMatrixUtilities
 {
+VTK_ABI_NAMESPACE_BEGIN
 //=============================================================================
 /**
  * This struct determines a prior transform to input matrices, changing the
@@ -353,6 +356,7 @@ public:
       MatrixLayoutIs2D<MatrixT>()>::template Get<RowT, ColT>(M);
   }
 };
+VTK_ABI_NAMESPACE_END
 } // namespace vtkMatrixUtilities
 #endif
 

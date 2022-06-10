@@ -22,6 +22,7 @@
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkCxxSetObjectMacro(vtkSPHKernel, CutoffArray, vtkDataArray);
 vtkCxxSetObjectMacro(vtkSPHKernel, DensityArray, vtkDataArray);
 vtkCxxSetObjectMacro(vtkSPHKernel, MassArray, vtkDataArray);
@@ -168,3 +169,4 @@ void vtkSPHKernel::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Density Array: " << this->DensityArray << "\n";
   os << indent << "Mass Array: " << this->MassArray << "\n";
 }
+VTK_ABI_NAMESPACE_END

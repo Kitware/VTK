@@ -30,6 +30,7 @@
 #include "vtkIOXMLModule.h" // For export macro
 #include "vtkXMLPDataReader.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkAbstractArray;
 class vtkExtentSplitter;
 class vtkXMLStructuredDataReader;
@@ -101,4 +102,5 @@ private:
   void operator=(const vtkXMLPStructuredDataReader&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -32,6 +32,7 @@
 #include "vtkPOrderStatistics.h"
 #include "vtkTable.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPPCAStatistics);
 vtkCxxSetObjectMacro(vtkPPCAStatistics, Controller, vtkMultiProcessController);
 //------------------------------------------------------------------------------
@@ -96,3 +97,4 @@ vtkOrderStatistics* vtkPPCAStatistics::CreateOrderStatisticsInstance()
 {
   return vtkPOrderStatistics::New();
 }
+VTK_ABI_NAMESPACE_END

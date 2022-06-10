@@ -43,6 +43,7 @@
 #include "vtkTesting.h"           // Required for testing framework
 #include "vtkTestingInteractor.h" // Required for testing framework
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKTESTINGRENDERING_EXPORT vtkTestingObjectFactory : public vtkObjectFactory
 {
 public:
@@ -62,4 +63,5 @@ private:
   vtkTestingObjectFactory(const vtkTestingObjectFactory&) = delete;
   void operator=(const vtkTestingObjectFactory&) = delete;
 };
+VTK_ABI_NAMESPACE_END
 #endif

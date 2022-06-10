@@ -42,6 +42,7 @@
 #include <numeric>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
 
@@ -638,3 +639,4 @@ void vtkExtractCells::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "ExtractAllCells: " << this->ExtractAllCells << endl;
   os << indent << "AssumeSortedAndUniqueIds: " << this->AssumeSortedAndUniqueIds << endl;
 }
+VTK_ABI_NAMESPACE_END

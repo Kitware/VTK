@@ -26,6 +26,7 @@
 
 #include "vtkFiltersSourcesModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
+VTK_ABI_NAMESPACE_BEGIN
 class vtkOutlineCornerSource;
 
 class VTKFILTERSSOURCES_EXPORT vtkOutlineCornerFilter : public vtkPolyDataAlgorithm
@@ -63,4 +64,5 @@ private:
   void operator=(const vtkOutlineCornerFilter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

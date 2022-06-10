@@ -23,6 +23,7 @@
 #include <numeric>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImageHybridMedian2D);
 
 //------------------------------------------------------------------------------
@@ -282,3 +283,4 @@ void vtkImageHybridMedian2D::ThreadedRequestData(vtkInformation* vtkNotUsed(requ
       return;
   }
 }
+VTK_ABI_NAMESPACE_END

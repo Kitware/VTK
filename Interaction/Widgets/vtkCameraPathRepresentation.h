@@ -31,6 +31,7 @@
 #include "vtkAbstractSplineRepresentation.h"
 #include "vtkInteractionWidgetsModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCameraHandleSource;
 class vtkCamera;
 
@@ -148,4 +149,5 @@ private:
   std::vector<vtkSmartPointer<vtkActor>> HandleActors;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

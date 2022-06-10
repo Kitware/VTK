@@ -29,6 +29,7 @@
 #include "vtkShaderProgram.h"
 #include "vtkTextureObject.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkToneMappingPass);
 
 //------------------------------------------------------------------------------
@@ -328,3 +329,4 @@ void vtkToneMappingPass::PreComputeAnchorCurveGenericFilmic()
         (powf(m, a * d) * n - n * powf(this->HdrMax, a * d)),
       0.f);
 }
+VTK_ABI_NAMESPACE_END

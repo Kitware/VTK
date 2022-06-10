@@ -19,6 +19,7 @@
 #include <vtkm/filter/contour/ClipWithField.h>
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkm::cont::DataSet vtkmClip::internals::ExecuteClipWithField(
   vtkm::cont::DataSet& in, vtkDataArray* scalars, int assoc)
 {
@@ -37,3 +38,4 @@ vtkm::cont::DataSet vtkmClip::internals::ExecuteClipWithField(
   fieldFilter.SetClipValue(this->ClipValue);
   return fieldFilter.Execute(in);
 }
+VTK_ABI_NAMESPACE_END

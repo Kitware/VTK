@@ -33,6 +33,7 @@
 #include <array>
 #include <sstream>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOpenGLInstanceCulling);
 
 void vtkOpenGLInstanceCulling::PrintSelf(ostream& os, vtkIndent indent)
@@ -465,3 +466,4 @@ vtkIdType vtkOpenGLInstanceCulling::GetNumberOfLOD()
 {
   return static_cast<vtkIdType>(this->LODList.size());
 }
+VTK_ABI_NAMESPACE_END

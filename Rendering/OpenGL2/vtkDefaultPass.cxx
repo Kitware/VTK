@@ -20,6 +20,7 @@
 #include "vtkRenderer.h"
 #include <cassert>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkDefaultPass);
 
 //------------------------------------------------------------------------------
@@ -210,3 +211,4 @@ void vtkDefaultPass::RenderFilteredOverlay(const vtkRenderState* s)
     ++i;
   }
 }
+VTK_ABI_NAMESPACE_END

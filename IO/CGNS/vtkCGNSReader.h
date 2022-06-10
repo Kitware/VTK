@@ -35,15 +35,18 @@
 
 #include <string> // for std::string
 
-class vtkDataArraySelection;
-class vtkInformationStringKey;
-
 namespace CGNSRead
 {
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCGNSMetaData;
+VTK_ABI_NAMESPACE_END
 }
 
+VTK_ABI_NAMESPACE_BEGIN
+class vtkDataArraySelection;
+class vtkInformationStringKey;
 class vtkMultiProcessController;
+
 class VTKIOCGNSREADER_EXPORT vtkCGNSReader : public vtkMultiBlockDataSetAlgorithm
 {
 public:
@@ -338,4 +341,5 @@ private:
   friend class vtkPrivate;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkCGNSReader_h

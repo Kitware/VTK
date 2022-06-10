@@ -31,6 +31,7 @@
 #include "vtkDepthImageProcessingPass.h"
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDepthPeelingPassLayerList; // Pimpl
 class vtkOpenGLFramebufferObject;
 class vtkOpenGLQuadHelper;
@@ -107,4 +108,5 @@ private:
   void operator=(const vtkPointFillPass&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

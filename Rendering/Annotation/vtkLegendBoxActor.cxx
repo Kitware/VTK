@@ -33,6 +33,7 @@
 #include "vtkTransformPolyDataFilter.h"
 #include "vtkViewport.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkLegendBoxActor);
 
 vtkCxxSetObjectMacro(vtkLegendBoxActor, EntryTextProperty, vtkTextProperty);
@@ -1049,3 +1050,4 @@ void vtkLegendBoxActor::ShallowCopy(vtkProp* prop)
   // Now do superclass
   this->vtkActor2D::ShallowCopy(prop);
 }
+VTK_ABI_NAMESPACE_END

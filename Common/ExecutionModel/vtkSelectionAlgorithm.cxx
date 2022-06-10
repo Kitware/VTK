@@ -21,6 +21,7 @@
 #include "vtkSelection.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkSelectionAlgorithm);
 
 //------------------------------------------------------------------------------
@@ -125,3 +126,4 @@ int vtkSelectionAlgorithm::RequestData(vtkInformation* vtkNotUsed(request),
 {
   return 0;
 }
+VTK_ABI_NAMESPACE_END

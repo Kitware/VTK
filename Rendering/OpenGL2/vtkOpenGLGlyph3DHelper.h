@@ -28,6 +28,7 @@
 #include "vtkOpenGLPolyDataMapper.h"
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkBitArray;
 
 class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLGlyph3DHelper : public vtkOpenGLPolyDataMapper
@@ -111,4 +112,5 @@ private:
   void operator=(const vtkOpenGLGlyph3DHelper&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

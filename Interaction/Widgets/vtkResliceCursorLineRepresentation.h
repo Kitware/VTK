@@ -35,6 +35,7 @@
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkResliceCursorRepresentation.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPolyData;
 class vtkResliceCursorActor;
 class vtkResliceCursorPolyDataAlgorithm;
@@ -146,4 +147,5 @@ private:
   void operator=(const vtkResliceCursorLineRepresentation&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

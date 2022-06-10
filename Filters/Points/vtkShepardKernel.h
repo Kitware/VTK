@@ -38,6 +38,7 @@
 #include "vtkFiltersPointsModule.h" // For export macro
 #include "vtkGeneralizedKernel.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkIdList;
 class vtkDoubleArray;
 
@@ -94,4 +95,5 @@ private:
   void operator=(const vtkShepardKernel&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

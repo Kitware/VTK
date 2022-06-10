@@ -15,6 +15,7 @@
 #include "vtkStructuredAMRNeighbor.h"
 #include "vtkStructuredExtent.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStructuredAMRNeighbor::vtkStructuredAMRNeighbor()
 {
   this->GridLevel = -1;
@@ -200,3 +201,4 @@ void vtkStructuredAMRNeighbor::ComputeSendAndReceiveExtent(int gridRealExtent[6]
   vtkStructuredExtent::Clamp(this->RcvExtent, neiRealExtent);
   vtkStructuredExtent::Clamp(this->SendExtent, gridRealExtent);
 }
+VTK_ABI_NAMESPACE_END

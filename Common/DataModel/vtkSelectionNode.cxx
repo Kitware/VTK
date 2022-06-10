@@ -34,6 +34,7 @@
 #include <utility>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkSelectionNode);
 vtkCxxSetObjectMacro(vtkSelectionNode, SelectionData, vtkDataSetAttributes);
 
@@ -551,3 +552,4 @@ int vtkSelectionNode::ConvertAttributeTypeToSelectionField(int attrType)
       return vtkSelectionNode::CELL;
   }
 }
+VTK_ABI_NAMESPACE_END

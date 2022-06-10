@@ -39,6 +39,7 @@
 #include "vtkDataObjectAlgorithm.h"
 #include "vtkFiltersSourcesModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSSOURCES_EXPORT vtkProgrammableDataObjectSource : public vtkDataObjectAlgorithm
 {
 public:
@@ -83,4 +84,5 @@ private:
   void operator=(const vtkProgrammableDataObjectSource&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

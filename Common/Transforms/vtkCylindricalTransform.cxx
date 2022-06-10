@@ -18,6 +18,7 @@
 #include <cmath>
 #include <cstdlib>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkCylindricalTransform);
 
 //------------------------------------------------------------------------------
@@ -148,3 +149,4 @@ void vtkCylindricalTransform::InverseTransformDerivative(
   vtkRectangularToCylindrical(inPoint, outPoint);
   vtkCylindricalToRectangular(outPoint, tmp, derivative);
 }
+VTK_ABI_NAMESPACE_END

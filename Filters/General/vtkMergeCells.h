@@ -51,6 +51,7 @@
 #include "vtkObject.h"
 #include "vtkSmartPointer.h" // for vtkSmartPointer
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCellData;
 class vtkDataSet;
 class vtkMergeCellsSTLCloak;
@@ -227,4 +228,5 @@ private:
   vtkMergeCells(const vtkMergeCells&) = delete;
   void operator=(const vtkMergeCells&) = delete;
 };
+VTK_ABI_NAMESPACE_END
 #endif

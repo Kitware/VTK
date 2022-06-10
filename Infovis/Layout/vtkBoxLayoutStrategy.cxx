@@ -35,6 +35,7 @@
 #include "vtkTree.h"
 #include "vtkTreeDFSIterator.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkBoxLayoutStrategy);
 
 vtkBoxLayoutStrategy::vtkBoxLayoutStrategy() = default;
@@ -134,3 +135,4 @@ void vtkBoxLayoutStrategy::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

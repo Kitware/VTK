@@ -23,6 +23,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkTextProperty.h"
 #include "vtkXYPlotActor.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkXYPlotRepresentation);
 
 //------------------------------------------------------------------------------
@@ -676,3 +677,4 @@ void vtkXYPlotRepresentation::SetYLabelFormat(const char* arg)
     this->XYPlotActor->SetYLabelFormat(arg);
   }
 }
+VTK_ABI_NAMESPACE_END

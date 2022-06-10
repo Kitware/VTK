@@ -31,6 +31,7 @@
 #include <vector> // For C++ vector
 
 // Forward declarations
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataArray;
 class vtkFieldData;
 class vtkOverlappingAMR;
@@ -105,4 +106,5 @@ private:
   static void MergeGhostArrays(vtkDataArray* existingArray, vtkUnsignedCharArray* ghosts);
 };
 
+VTK_ABI_NAMESPACE_END
 #endif /* vtkAMRUtilities_h */

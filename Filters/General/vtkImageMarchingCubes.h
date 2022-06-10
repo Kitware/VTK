@@ -41,6 +41,7 @@
 
 #include "vtkContourValues.h" // Needed for direct access to ContourValues
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCellArray;
 class vtkFloatArray;
 class vtkImageData;
@@ -233,4 +234,5 @@ inline void vtkImageMarchingCubes::GenerateValues(
   this->ContourValues->GenerateValues(numContours, rangeStart, rangeEnd);
 }
 
+VTK_ABI_NAMESPACE_END
 #endif

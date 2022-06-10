@@ -37,6 +37,7 @@
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkStructuredGridAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkRectilinearGrid;
 class vtkStructuredData;
 
@@ -64,4 +65,5 @@ private:
   int CopyStructure(vtkStructuredGrid* outData, vtkRectilinearGrid* inData);
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkRectilinearGridToPointSet_h

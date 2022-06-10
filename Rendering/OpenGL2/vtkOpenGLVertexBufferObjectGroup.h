@@ -66,6 +66,7 @@
 #include <string>                      // for ivars
 #include <vector>                      // for ivars
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataArray;
 class vtkOpenGLVertexArrayObject;
 class vtkOpenGLVertexBufferObject;
@@ -183,4 +184,5 @@ private:
   void operator=(const vtkOpenGLVertexBufferObjectGroup&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

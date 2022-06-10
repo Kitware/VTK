@@ -31,6 +31,7 @@
 #include "vtkUnstructuredGrid.h"
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkCxxSetObjectMacro(vtkAbstractInterpolatedVelocityField, FindCellStrategy, vtkFindCellStrategy);
 
 //------------------------------------------------------------------------------
@@ -605,3 +606,4 @@ void vtkAbstractInterpolatedVelocityField::PrintSelf(ostream& os, vtkIndent inde
   os << indent << "FindCell Strategy: " << endl;
   this->FindCellStrategy->PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

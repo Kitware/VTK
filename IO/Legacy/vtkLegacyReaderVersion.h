@@ -20,8 +20,10 @@
 #ifndef vtkLegacyReaderVersion_h
 #define vtkLegacyReaderVersion_h
 
+VTK_ABI_NAMESPACE_BEGIN
 const int vtkLegacyReaderMajorVersion = 5;
 const int vtkLegacyReaderMinorVersion = 1;
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkLegacyReaderVersion_h
 // VTK-HeaderTest-Exclude: vtkLegacyReaderVersion.h

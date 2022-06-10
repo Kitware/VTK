@@ -22,6 +22,7 @@
 #include "vtkTreeCompositer.h"
 #include "vtkUnsignedCharArray.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkCompositedSynchronizedRenderers);
 vtkCxxSetObjectMacro(vtkCompositedSynchronizedRenderers, Compositer, vtkCompositer);
 //------------------------------------------------------------------------------
@@ -116,3 +117,4 @@ void vtkCompositedSynchronizedRenderers::PrintSelf(ostream& os, vtkIndent indent
     os << "(none)" << endl;
   }
 }
+VTK_ABI_NAMESPACE_END

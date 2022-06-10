@@ -20,6 +20,7 @@
 #include "vtkPoints.h"
 #include "vtkSMPTools.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkExtractPoints);
 vtkCxxSetObjectMacro(vtkExtractPoints, ImplicitFunction, vtkImplicitFunction);
 
@@ -137,3 +138,4 @@ void vtkExtractPoints::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Implicit Function: " << static_cast<void*>(this->ImplicitFunction) << "\n";
   os << indent << "Extract Inside: " << (this->ExtractInside ? "On\n" : "Off\n");
 }
+VTK_ABI_NAMESPACE_END

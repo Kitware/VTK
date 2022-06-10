@@ -38,6 +38,7 @@
 
 #include <cassert>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkCxxSetObjectMacro(vtkAbstractPolygonalHandleRepresentation3D, Property, vtkProperty);
 vtkCxxSetObjectMacro(vtkAbstractPolygonalHandleRepresentation3D, SelectedProperty, vtkProperty);
 
@@ -792,3 +793,4 @@ void vtkAbstractPolygonalHandleRepresentation3D::PrintSelf(ostream& os, vtkInden
   // WaitingForMotion;
   // WaitCount;
 }
+VTK_ABI_NAMESPACE_END

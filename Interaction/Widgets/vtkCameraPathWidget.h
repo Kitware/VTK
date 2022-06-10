@@ -31,6 +31,7 @@
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkNew.h"                      // for vtkNew
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCameraPathRepresentation;
 
 class VTKINTERACTIONWIDGETS_EXPORT vtkCameraPathWidget : public vtkAbstractWidget
@@ -89,4 +90,5 @@ private:
   void operator=(const vtkCameraPathWidget&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

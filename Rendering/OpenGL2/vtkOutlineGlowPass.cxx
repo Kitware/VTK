@@ -45,6 +45,7 @@
 #include "vtkOutlineGlowUpscalePassFS.h"
 #include "vtkTextureObjectVS.h" // a pass through shader
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOutlineGlowPass);
 
 // ----------------------------------------------------------------------------
@@ -498,3 +499,4 @@ void vtkOutlineGlowPass::ReleaseGraphicsResources(vtkWindow* w)
     this->BlurPass2 = nullptr;
   }
 }
+VTK_ABI_NAMESPACE_END

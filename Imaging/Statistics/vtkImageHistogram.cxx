@@ -35,6 +35,7 @@
 #undef VTK_USE_UINT64
 #define VTK_USE_UINT64 0
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImageHistogram);
 
 //------------------------------------------------------------------------------
@@ -1004,3 +1005,4 @@ void vtkImageHistogram::ComputeImageScalarRange(vtkImageData* data, double range
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
   }
 }
+VTK_ABI_NAMESPACE_END

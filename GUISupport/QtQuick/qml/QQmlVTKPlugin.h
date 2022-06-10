@@ -15,6 +15,8 @@
 #ifndef QQmlVTKPlugin_h
 #define QQmlVTKPlugin_h
 
+#include "vtkABINamespace.h"
+
 // Qt includes
 #include <QQmlExtensionPlugin>
 
@@ -57,6 +59,7 @@
  * The VTK QML module follows the version number of the VTK source tree. For example, if compiled
  * against VTK 9.0.x, the VTK module version will be 9.0
  */
+VTK_ABI_NAMESPACE_BEGIN
 class QQmlVTKPlugin : public QQmlExtensionPlugin
 {
   Q_OBJECT
@@ -99,4 +102,5 @@ private:
   Q_DISABLE_COPY(QQmlVTKPlugin);
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // QQmlVTKPlugin_h

@@ -83,6 +83,7 @@
 
   \return  \c an hdf5 handle to the native type of the data
 */
+VTK_ABI_NAMESPACE_BEGIN
 static hid_t H5PartGetNativeDatasetType(H5PartFile* f, const char* name)
 {
   hid_t dataset, datatype, datatypen;
@@ -842,3 +843,4 @@ void vtkH5PartReader::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "NumberOfSteps: " << this->NumberOfTimeSteps << "\n";
 }
+VTK_ABI_NAMESPACE_END

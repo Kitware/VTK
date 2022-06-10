@@ -36,6 +36,7 @@
 #include "vtkObject.h"
 #include "vtkViewsCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkScalarsToColors;
 class vtkTextProperty;
 
@@ -339,4 +340,5 @@ private:
   void operator=(const vtkViewTheme&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

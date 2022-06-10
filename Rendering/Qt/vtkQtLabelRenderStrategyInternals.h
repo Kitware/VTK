@@ -33,6 +33,8 @@
 
 class QPainter;
 
+VTK_ABI_NAMESPACE_BEGIN
+
 struct vtkQtLabelMapEntry
 {
   QString Text;
@@ -72,5 +74,6 @@ public:
   }
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkQtLabelRenderStrategyInternals_h
 // VTK-HeaderTest-Exclude: vtkQtLabelRenderStrategyInternals.h

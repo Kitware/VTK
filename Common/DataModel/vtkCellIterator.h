@@ -71,6 +71,7 @@
 #include "vtkNew.h"                   // For vtkNew
 #include "vtkObject.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkGenericCell;
 class vtkPoints;
 
@@ -384,4 +385,5 @@ inline vtkIdType vtkCellIterator::GetNumberOfFaces()
   return 0;
 }
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkCellIterator_h

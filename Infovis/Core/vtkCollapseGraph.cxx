@@ -38,6 +38,7 @@ typedef std::vector<vtkEdgeType> EdgeListT;
 ///////////////////////////////////////////////////////////////////////////////////
 // BuildGraph
 
+VTK_ABI_NAMESPACE_BEGIN
 template <typename GraphT>
 static void BuildGraph(vtkGraph* input_graph, const std::vector<vtkIdType>& vertex_map,
   const EdgeListT& edge_list, vtkGraph* destination_graph)
@@ -204,3 +205,4 @@ int vtkCollapseGraph::RequestData(vtkInformation* vtkNotUsed(request),
 
   return 1;
 }
+VTK_ABI_NAMESPACE_END

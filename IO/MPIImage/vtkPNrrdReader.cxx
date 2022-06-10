@@ -90,6 +90,7 @@
 
 //------------------------------------------------------------------------------
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPNrrdReader);
 vtkCxxSetObjectMacro(vtkPNrrdReader, Controller, vtkMultiProcessController);
 vtkCxxSetObjectMacro(vtkPNrrdReader, GroupedController, vtkMultiProcessController);
@@ -561,3 +562,4 @@ int vtkPNrrdReader::ReadHeader(vtkCharArray* headerBuffer)
 {
   return this->Superclass::ReadHeader(headerBuffer);
 }
+VTK_ABI_NAMESPACE_END

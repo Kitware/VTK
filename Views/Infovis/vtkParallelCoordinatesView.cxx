@@ -49,6 +49,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <cassert>
 #include <sstream>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkParallelCoordinatesView);
 
 //------------------------------------------------------------------------------
@@ -929,3 +930,4 @@ void vtkParallelCoordinatesView::ApplyViewTheme(vtkViewTheme* theme)
   this->Balloon->GetFrameProperty()->SetColor(theme->GetBackgroundColor()); // CellColor());
   this->Balloon->GetTextProperty()->SetColor(theme->GetCellColor());        // BackgroundColor());
 }
+VTK_ABI_NAMESPACE_END

@@ -41,6 +41,7 @@
 #include <stack>
 #include <string>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkObjectFactoryNewMacro(vtkXdmf3Writer);
 
 //=============================================================================
@@ -507,3 +508,4 @@ int vtkXdmf3Writer::CheckParameters()
 {
   return this->CheckParametersInternal(1, 0);
 }
+VTK_ABI_NAMESPACE_END

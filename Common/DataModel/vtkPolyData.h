@@ -69,6 +69,7 @@
 #include "vtkCellLinks.h"         // Needed for inline methods
 #include "vtkPolyDataInternals.h" // Needed for inline methods
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkVertex;
 class vtkPolyVertex;
 class vtkLine;
@@ -994,4 +995,5 @@ inline void vtkPolyData::GetCellPoints(
   cells->GetCellAtId(tag.GetCellId(), npts, pts, ptIds);
 }
 
+VTK_ABI_NAMESPACE_END
 #endif

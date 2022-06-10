@@ -20,6 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImageMirrorPad);
 
 //------------------------------------------------------------------------------
@@ -235,3 +236,4 @@ void vtkImageMirrorPad::ThreadedRequestData(vtkInformation* vtkNotUsed(request),
       return;
   }
 }
+VTK_ABI_NAMESPACE_END

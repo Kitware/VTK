@@ -24,6 +24,7 @@
 #include "vtkStructuredGrid.h"
 #include "vtkUnstructuredGrid.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPointSetAlgorithm);
 
 //------------------------------------------------------------------------------
@@ -202,3 +203,4 @@ void vtkPointSetAlgorithm::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

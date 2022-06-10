@@ -31,6 +31,7 @@
 
 namespace vtx
 {
+VTK_ABI_NAMESPACE_BEGIN
 
 template <class T>
 void VTXSchema::GetDataArrayCommon(
@@ -167,6 +168,7 @@ void VTXSchema::GetTimesCommon(const std::string& variableName)
   }
 }
 
+VTK_ABI_NAMESPACE_END
 } // end namespace vtx
 
 #endif /* VTK_IO_ADIOS2_SCHEMA_VTXSchema_tcc */

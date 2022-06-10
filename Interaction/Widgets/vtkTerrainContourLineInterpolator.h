@@ -44,6 +44,7 @@
 #include "vtkContourLineInterpolator.h"
 #include "vtkInteractionWidgetsModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkImageData;
 class vtkProjectedTerrainPath;
 
@@ -112,4 +113,5 @@ private:
   void operator=(const vtkTerrainContourLineInterpolator&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

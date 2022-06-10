@@ -104,6 +104,7 @@
 #include "vtkRenderingAnnotationModule.h" // For export macro
 #include "vtkSmartPointer.h"              // For SP
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkXYPlotActorConnections;
 class vtkAlgorithmOutput;
 class vtkAppendPolyData;
@@ -981,4 +982,5 @@ private:
   ///@}
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

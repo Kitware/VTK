@@ -46,6 +46,7 @@
 #include <algorithm>
 #include <sstream>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkCompassRepresentation);
 
 //------------------------------------------------------------------------------
@@ -846,3 +847,4 @@ void vtkCompassRepresentation::SetRenderer(vtkRenderer* renderer)
   this->TiltRepresentation->SetRenderer(renderer);
   this->DistanceRepresentation->SetRenderer(renderer);
 }
+VTK_ABI_NAMESPACE_END

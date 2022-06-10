@@ -28,6 +28,7 @@
 #include "vtkIOMPIParallelModule.h" // For export macro
 #include "vtkMultiBlockPLOT3DReader.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKIOMPIPARALLEL_EXPORT vtkMPIMultiBlockPLOT3DReader : public vtkMultiBlockPLOT3DReader
 {
 public:
@@ -71,4 +72,5 @@ private:
   void operator=(const vtkMPIMultiBlockPLOT3DReader&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

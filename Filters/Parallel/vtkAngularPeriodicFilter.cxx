@@ -35,6 +35,7 @@
 
 #include <sstream>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkAngularPeriodicFilter);
 
 //------------------------------------------------------------------------------
@@ -415,3 +416,4 @@ void vtkAngularPeriodicFilter::GeneratePieceName(vtkCompositeDataSet* input,
   ss << "_period" << outputId;
   output->GetMetaData(outputId)->Set(vtkCompositeDataSet::NAME(), ss.str().c_str());
 }
+VTK_ABI_NAMESPACE_END

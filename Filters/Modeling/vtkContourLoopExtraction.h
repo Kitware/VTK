@@ -82,6 +82,7 @@
 #define VTK_OUTPUT_POLYLINES 1
 #define VTK_OUTPUT_BOTH 2
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSMODELING_EXPORT vtkContourLoopExtraction : public vtkPolyDataAlgorithm
 {
 public:
@@ -186,4 +187,5 @@ private:
   void operator=(const vtkContourLoopExtraction&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -44,6 +44,7 @@
 
 #include <vector> // Required for vector
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkTimerLog;
 class vtkMultiProcessController;
 
@@ -190,4 +191,5 @@ private:
   void operator=(const vtkPExodusIIReader&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

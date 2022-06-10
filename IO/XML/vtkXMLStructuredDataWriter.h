@@ -26,6 +26,7 @@
 #include "vtkIOXMLModule.h" // For export macro
 #include "vtkXMLWriter.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkAbstractArray;
 class vtkInformation;
 class vtkInformationVector;
@@ -131,4 +132,5 @@ private:
   void operator=(const vtkXMLStructuredDataWriter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -32,6 +32,7 @@
 #include <limits>
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPiecewiseControlPointsItem);
 
 //------------------------------------------------------------------------------
@@ -200,3 +201,4 @@ vtkIdType vtkPiecewiseControlPointsItem::RemovePoint(double* currentPoint)
 
   return removedPoint;
 }
+VTK_ABI_NAMESPACE_END

@@ -25,6 +25,7 @@
 #include "vtkTransform.h"
 #include "vtkUnsignedCharArray.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkGlyph2D);
 
 int vtkGlyph2D::RequestData(vtkInformation* vtkNotUsed(request), vtkInformationVector** inputVector,
@@ -490,3 +491,4 @@ void vtkGlyph2D::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

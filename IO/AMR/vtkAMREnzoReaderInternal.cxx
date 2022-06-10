@@ -38,6 +38,7 @@
 //                       Functions for Parsing File Names
 //------------------------------------------------------------------------------
 
+VTK_ABI_NAMESPACE_BEGIN
 static std::string GetEnzoMajorFileName(const std::string& path)
 {
   return vtksys::SystemTools::GetFilenameName(path);
@@ -1120,3 +1121,4 @@ void vtkEnzoReaderInternal::ReadMetaData()
   // verify the initial set of attribute names
   this->CheckAttributeNames();
 }
+VTK_ABI_NAMESPACE_END

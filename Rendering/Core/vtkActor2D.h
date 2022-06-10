@@ -33,6 +33,7 @@
 #include "vtkProp.h"
 #include "vtkRenderingCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkMapper2D;
 class vtkProperty2D;
 
@@ -179,4 +180,5 @@ private:
   void operator=(const vtkActor2D&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -16,6 +16,7 @@
 #include "vtkActor2DCollection.h"
 #include "vtkObjectFactory.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkActor2DCollection);
 
 void vtkActor2DCollection::PrintSelf(ostream& os, vtkIndent indent)
@@ -174,3 +175,4 @@ void vtkActor2DCollection::Sort()
 
   delete[] actorPtrArr;
 }
+VTK_ABI_NAMESPACE_END

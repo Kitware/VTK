@@ -23,6 +23,7 @@
 #include <gdalwarper.h>
 #include <ogr_spatialref.h>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkGDALRasterReprojection);
 //------------------------------------------------------------------------------
 vtkGDALRasterReprojection::vtkGDALRasterReprojection()
@@ -159,3 +160,4 @@ bool vtkGDALRasterReprojection::Reproject(GDALDataset* input, GDALDataset* outpu
 
   return true;
 }
+VTK_ABI_NAMESPACE_END

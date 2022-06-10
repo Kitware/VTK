@@ -28,6 +28,7 @@
 #include "vtkPolyData.h"
 #include "vtkUnsignedCharArray.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPSimpleBondPerceiver);
 
 //------------------------------------------------------------------------------
@@ -130,3 +131,4 @@ void vtkPSimpleBondPerceiver::ComputeBonds(vtkMolecule* molecule)
 
   this->Superclass::ComputeBonds(molecule);
 }
+VTK_ABI_NAMESPACE_END

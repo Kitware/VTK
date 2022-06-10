@@ -27,6 +27,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 // vtkDenseArray::MemoryBlock
 
+VTK_ABI_NAMESPACE_BEGIN
 template <typename T>
 vtkDenseArray<T>::MemoryBlock::~MemoryBlock() = default;
 
@@ -370,4 +371,5 @@ void vtkDenseArray<T>::Reconfigure(const vtkArrayExtents& extents, MemoryBlock* 
   }
 }
 
+VTK_ABI_NAMESPACE_END
 #endif

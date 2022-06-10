@@ -30,6 +30,8 @@
 #include "vtkWidgetRepresentation.h"
 
 class QWidget;
+
+VTK_ABI_NAMESPACE_BEGIN
 class vtkActor;
 class vtkCellPicker;
 class vtkOpenGLTexture;
@@ -156,4 +158,5 @@ private:
   void operator=(const vtkQWidgetRepresentation&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

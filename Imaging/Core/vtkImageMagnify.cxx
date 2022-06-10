@@ -22,6 +22,7 @@
 
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImageMagnify);
 
 //------------------------------------------------------------------------------
@@ -318,3 +319,4 @@ void vtkImageMagnify::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Interpolate: " << (this->Interpolate ? "On\n" : "Off\n");
 }
+VTK_ABI_NAMESPACE_END

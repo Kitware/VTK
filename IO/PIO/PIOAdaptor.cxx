@@ -35,11 +35,16 @@
 #include <vtksys/FStream.hxx>
 
 #ifdef _WIN32
+VTK_ABI_NAMESPACE_BEGIN
 const static char* Slash = "\\/";
+VTK_ABI_NAMESPACE_END
 #else
+VTK_ABI_NAMESPACE_BEGIN
 const static char* Slash = "/";
+VTK_ABI_NAMESPACE_END
 #endif
 
+VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
 bool sort_desc(const std::pair<int, int>& a, const std::pair<int, int>& b)
@@ -2337,3 +2342,4 @@ void PIOAdaptor::add_amr_UG_scalar(vtkMultiBlockDataSet* grid, vtkStdString varN
     }
   }
 }
+VTK_ABI_NAMESPACE_END

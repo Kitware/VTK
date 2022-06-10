@@ -62,6 +62,7 @@
 
 namespace
 {
+VTK_ABI_NAMESPACE_BEGIN
 struct FileHeader
 {
   uint32_t Magic = 0x46546C67; // glTF
@@ -85,8 +86,10 @@ struct ChunkHeader
   uint32_t Type;
 };
 
+VTK_ABI_NAMESPACE_END
 }
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkGLTFWriter);
 
 vtkGLTFWriter::vtkGLTFWriter()
@@ -883,3 +886,4 @@ int vtkGLTFWriter::FillInputPortInformation(int, vtkInformation* info)
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkMultiBlockDataSet");
   return 1;
 }
+VTK_ABI_NAMESPACE_END

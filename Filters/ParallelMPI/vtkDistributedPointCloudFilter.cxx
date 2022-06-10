@@ -33,6 +33,7 @@
 #include <algorithm>
 
 // Histogram precision to divide space in two
+VTK_ABI_NAMESPACE_BEGIN
 static const int HISTOGRAM_SIZE = 1024;
 
 vtkStandardNewMacro(vtkDistributedPointCloudFilter);
@@ -610,3 +611,4 @@ void vtkDistributedPointCloudFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

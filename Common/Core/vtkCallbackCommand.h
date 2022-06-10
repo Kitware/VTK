@@ -41,6 +41,7 @@
 #include "vtkCommand.h"
 #include "vtkCommonCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONCORE_EXPORT vtkCallbackCommand : public vtkCommand
 {
 public:
@@ -90,6 +91,7 @@ protected:
   ~vtkCallbackCommand() override;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
 
 // VTK-HeaderTest-Exclude: vtkCallbackCommand.h

@@ -31,6 +31,7 @@
 
 #include <sstream>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkRowQueryToTable);
 
 vtkRowQueryToTable::vtkRowQueryToTable()
@@ -159,3 +160,4 @@ int vtkRowQueryToTable::RequestData(vtkInformation*, vtkInformationVector** vtkN
 
   return 1;
 }
+VTK_ABI_NAMESPACE_END

@@ -38,6 +38,7 @@
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkTexturedActor2D.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkImageData;
 class vtkPoints;
 class vtkPolyData;
@@ -335,4 +336,5 @@ private:
   void operator=(const vtkTextActor&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

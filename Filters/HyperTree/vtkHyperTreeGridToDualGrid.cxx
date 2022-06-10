@@ -29,6 +29,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkPoints.h"
 #include "vtkUnstructuredGrid.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkHyperTreeGridToDualGrid);
 
 static const unsigned int CornerNeighborCursorsTable3D0[8] = { 0, 1, 3, 4, 9, 10, 12, 13 };
@@ -1320,3 +1321,4 @@ void vtkHyperTreeGridToDualGrid::GenerateDualCornerFromLeaf3D(
     } // if ( owner )
   }   // c
 }
+VTK_ABI_NAMESPACE_END

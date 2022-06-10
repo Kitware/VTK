@@ -21,6 +21,7 @@
 #include "vtkPartitionedDataSetCollection.h"
 #include "vtkSmartPointer.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkObjectFactoryNewMacro(vtkConvertToMultiBlockDataSet);
 //----------------------------------------------------------------------------
 vtkConvertToMultiBlockDataSet::vtkConvertToMultiBlockDataSet() = default;
@@ -77,3 +78,4 @@ void vtkConvertToMultiBlockDataSet::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

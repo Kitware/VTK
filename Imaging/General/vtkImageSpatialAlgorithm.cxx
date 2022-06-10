@@ -24,6 +24,7 @@
 
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImageSpatialAlgorithm);
 
 //------------------------------------------------------------------------------
@@ -156,3 +157,4 @@ void vtkImageSpatialAlgorithm::InternalRequestUpdateExtent(
     }
   }
 }
+VTK_ABI_NAMESPACE_END

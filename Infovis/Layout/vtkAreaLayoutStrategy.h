@@ -41,6 +41,7 @@
 #include "vtkInfovisLayoutModule.h" // For export macro
 #include "vtkObject.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkTree;
 class vtkDataArray;
 
@@ -94,4 +95,5 @@ private:
   void operator=(const vtkAreaLayoutStrategy&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -20,6 +20,7 @@
 
 #include "vtksys/Encoding.hxx"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkWin32OutputWindow);
 
 HWND vtkWin32OutputWindowOutputWindow = 0;
@@ -262,3 +263,4 @@ void vtkWin32OutputWindow::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "OutputWindow: (null)\n";
   }
 }
+VTK_ABI_NAMESPACE_END

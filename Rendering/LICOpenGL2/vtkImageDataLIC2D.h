@@ -39,6 +39,7 @@
 #include "vtkRenderingLICOpenGL2Module.h" // For export macro
 #include "vtkWeakPointer.h"               // needed for vtkWeakPointer.
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkRenderWindow;
 class vtkOpenGLRenderWindow;
 class vtkImageNoiseSource;
@@ -146,4 +147,5 @@ private:
   void operator=(const vtkImageDataLIC2D&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

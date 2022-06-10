@@ -32,6 +32,7 @@
 #include "vtkIOXMLModule.h" // For export macro
 #include "vtkXMLWriter.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCallbackCommand;
 
 class VTKIOXML_EXPORT vtkXMLDataObjectWriter : public vtkXMLWriter
@@ -81,4 +82,5 @@ private:
   void operator=(const vtkXMLDataObjectWriter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

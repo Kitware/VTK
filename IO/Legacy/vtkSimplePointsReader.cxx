@@ -21,6 +21,7 @@
 #include "vtkSmartPointer.h"
 #include "vtksys/FStream.hxx"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkSimplePointsReader);
 
 //------------------------------------------------------------------------------
@@ -83,3 +84,4 @@ int vtkSimplePointsReader::RequestData(
 
   return 1;
 }
+VTK_ABI_NAMESPACE_END

@@ -28,6 +28,7 @@
 #include "RTWrapper/RTWrapper.h" // for handle types
 #include <vector>                // for std::vector
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKRENDERINGRAYTRACING_EXPORT vtkOSPRayMoleculeMapperNode : public vtkPolyDataMapperNode
 {
 public:
@@ -52,4 +53,5 @@ private:
   vtkOSPRayMoleculeMapperNode(const vtkOSPRayMoleculeMapperNode&) = delete;
   void operator=(const vtkOSPRayMoleculeMapperNode&) = delete;
 };
+VTK_ABI_NAMESPACE_END
 #endif

@@ -32,6 +32,7 @@
 #include <sstream>
 #include <vtksys/SystemTools.hxx>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkQtSQLDatabase);
 
 int vtkQtSQLDatabase::id = 0;
@@ -322,3 +323,4 @@ vtkStdString vtkQtSQLDatabase::GetURL()
   url += this->GetDatabaseName();
   return url;
 }
+VTK_ABI_NAMESPACE_END

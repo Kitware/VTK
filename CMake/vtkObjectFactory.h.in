@@ -19,6 +19,8 @@
 #include "@_vtk_object_factory_library_name@Module.h" // For export macro
 #include "vtkObjectFactory.h"
 
+VTK_ABI_NAMESPACE_BEGIN
+
 class @_vtk_object_factory_configure_EXPORT_MACRO@ @_vtk_object_factory_library_name@ObjectFactory : public vtkObjectFactory
 {
 public:
@@ -38,5 +40,7 @@ private:
   @_vtk_object_factory_library_name@ObjectFactory(const @_vtk_object_factory_library_name@ObjectFactory&) = delete;
   void operator=(const @_vtk_object_factory_library_name@ObjectFactory&) = delete;
 };
+
+VTK_ABI_NAMESPACE_END
 
 #endif // @_vtk_object_factory_library_name@ObjectFactory_h

@@ -17,7 +17,9 @@
 #include "vtkObjectFactory.h"
 #include "vtkWindows.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkMultiThreader);
+VTK_ABI_NAMESPACE_END
 
 // Need to define "vtkExternCThreadFunctionType" to avoid warning on some
 // platforms about passing function pointer to an argument expecting an
@@ -39,6 +41,7 @@ typedef vtkThreadFunctionType vtkExternCThreadFunctionType;
 #endif
 
 // Initialize static member that controls global maximum number of threads
+VTK_ABI_NAMESPACE_BEGIN
 static int vtkMultiThreaderGlobalMaximumNumberOfThreads = 0;
 
 void vtkMultiThreader::SetGlobalMaximumNumberOfThreads(int val)
@@ -642,3 +645,4 @@ void vtkMultiThreader::PrintSelf(ostream& os, vtkIndent indent)
 #endif
      << endl;
 }
+VTK_ABI_NAMESPACE_END

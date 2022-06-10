@@ -38,6 +38,7 @@
 #include "vtkViewport.h"
 #include "vtkWindow.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkLabeledTreeMapDataMapper);
 
 vtkLabeledTreeMapDataMapper::vtkLabeledTreeMapDataMapper()
@@ -990,3 +991,4 @@ void vtkLabeledTreeMapDataMapper::GetLevelRange(int range[2])
   range[0] = this->StartLevel;
   range[1] = this->EndLevel;
 }
+VTK_ABI_NAMESPACE_END

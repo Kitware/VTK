@@ -30,6 +30,7 @@ namespace detail
 {
 namespace smp
 {
+VTK_ABI_NAMESPACE_BEGIN
 
 int VTKCOMMONCORE_EXPORT GetNumberOfThreadsSTDThread();
 bool VTKCOMMONCORE_EXPORT GetSingleThreadSTDThread();
@@ -168,6 +169,7 @@ int vtkSMPToolsImpl<BackendType::STDThread>::GetEstimatedNumberOfThreads();
 template <>
 bool vtkSMPToolsImpl<BackendType::STDThread>::GetSingleThread();
 
+VTK_ABI_NAMESPACE_END
 } // namespace smp
 } // namespace detail
 } // namespace vtk

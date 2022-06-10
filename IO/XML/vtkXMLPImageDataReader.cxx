@@ -23,6 +23,7 @@
 #include "vtkXMLDataElement.h"
 #include "vtkXMLImageDataReader.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkXMLPImageDataReader);
 
 //------------------------------------------------------------------------------
@@ -146,3 +147,4 @@ int vtkXMLPImageDataReader::FillOutputPortInformation(int, vtkInformation* info)
   info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkImageData");
   return 1;
 }
+VTK_ABI_NAMESPACE_END

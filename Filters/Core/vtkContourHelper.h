@@ -31,6 +31,7 @@
 #include "vtkPolygonBuilder.h"    //for a member variable
 #include "vtkSmartPointer.h"      //for a member variable
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkIncrementalPointLocator;
 class vtkCellArray;
 class vtkPointData;
@@ -68,5 +69,6 @@ private:
   bool GenerateTriangles;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkContourHelper.h

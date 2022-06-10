@@ -30,6 +30,7 @@
 #include "vtkDataObject.h"
 #include "vtkImagingCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKIMAGINGCORE_EXPORT vtkImageStencilData : public vtkDataObject
 {
 public:
@@ -306,4 +307,5 @@ private:
   void operator=(const vtkImageStencilRaster&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

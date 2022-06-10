@@ -29,6 +29,7 @@
 #include "vtkGraphAlgorithm.h"
 #include "vtkInfovisBoostGraphAlgorithmsModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkGraph;
 
 class VTKINFOVISBOOSTGRAPHALGORITHMS_EXPORT vtkBoostExtractLargestComponent
@@ -68,4 +69,5 @@ private:
   void operator=(const vtkBoostExtractLargestComponent&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

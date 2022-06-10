@@ -32,6 +32,7 @@
 #include "vtkRenderingCoreModule.h" // For export macro
 #include <vector>                   // for method args
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkAssemblyPath;
 class vtkAssemblyPaths;
 class vtkHardwareSelector;
@@ -481,4 +482,5 @@ private:
   void operator=(const vtkProp&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

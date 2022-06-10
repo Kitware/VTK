@@ -37,6 +37,7 @@
 #include "vtkMultiBlockDataSetAlgorithm.h"
 #include <vector> // For STL vector
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkInformation;
 class vtkInformationVector;
 class vtkUniformGrid;
@@ -376,4 +377,5 @@ private:
   void operator=(const vtkAMRResampleFilter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif /* vtkAMRResampleFilter_h */

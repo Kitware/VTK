@@ -34,6 +34,7 @@
 #include "vtkSMPTools.h"
 #include "vtkSmartPointer.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkWarpVector);
 
 //------------------------------------------------------------------------------
@@ -253,3 +254,4 @@ void vtkWarpVector::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Scale Factor: " << this->ScaleFactor << "\n";
   os << indent << "Output Points Precision: " << this->OutputPointsPrecision << "\n";
 }
+VTK_ABI_NAMESPACE_END

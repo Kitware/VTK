@@ -33,6 +33,7 @@
 
 #include "vtkOpenXR.h" // For OpenXR types
 #include <vector>      // For std::vector
+VTK_ABI_NAMESPACE_BEGIN
 
 class vtkOpenGLRenderWindow;
 
@@ -113,4 +114,5 @@ private:
   void operator=(const vtkOpenXRManagerGraphics&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

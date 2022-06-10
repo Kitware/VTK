@@ -23,6 +23,7 @@
 #include "vtkRenderer.h"
 #include "vtkUnsignedCharArray.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkInteractorStyleRubberBandPick);
 
 #define VTKISRBP_ORIENT 0
@@ -364,3 +365,4 @@ void vtkInteractorStyleRubberBandPick::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

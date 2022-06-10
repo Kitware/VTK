@@ -37,6 +37,7 @@
 #include <map>    // For left and right key maps
 #include <string> // For LeftKey and RightKey
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSGENERAL_EXPORT vtkJoinTables : public vtkTableAlgorithm
 {
 public:
@@ -132,6 +133,7 @@ private:
   void operator=(const vtkJoinTables&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #include "vtkJoinTables.txx" // for template implementations
 
 #endif

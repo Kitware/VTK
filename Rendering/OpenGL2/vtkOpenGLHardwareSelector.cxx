@@ -37,6 +37,7 @@
 
 #define ID_OFFSET 1
 
+VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
 void annotate(const std::string& str)
@@ -255,3 +256,4 @@ void vtkOpenGLHardwareSelector::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

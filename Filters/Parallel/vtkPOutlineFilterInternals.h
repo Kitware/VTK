@@ -31,6 +31,7 @@
 #include "vtkFiltersParallelModule.h" // For export macro
 #include <vector>                     // needed for std::vector
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkBoundingBox;
 class vtkDataObject;
 class vtkDataObjectTree;
@@ -95,5 +96,6 @@ private:
   double CornerFactor = 0.2;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkPOutlineFilterInternals.h

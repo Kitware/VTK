@@ -38,6 +38,7 @@
 #include "vtkWebCoreModule.h" // needed for exports
 #include <memory>             // for std::unique_ptr
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkUnsignedCharArray;
 class vtkImageData;
 
@@ -117,4 +118,5 @@ private:
   std::unique_ptr<vtkInternals> Internals;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

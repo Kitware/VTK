@@ -37,6 +37,7 @@
 #include "vtkDomainsChemistryModule.h" // For export macro
 #include "vtkMoleculeAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataSet;
 class vtkMolecule;
 class vtkPeriodicTable;
@@ -92,4 +93,5 @@ private:
   void operator=(const vtkSimpleBondPerceiver&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

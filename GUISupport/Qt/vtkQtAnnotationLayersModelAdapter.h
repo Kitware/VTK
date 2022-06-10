@@ -35,6 +35,7 @@
 #include "vtkGUISupportQtModule.h" // For export macro
 #include "vtkQtAbstractModelAdapter.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkAnnotationLayers;
 class vtkSelection;
 
@@ -104,5 +105,6 @@ private:
   void operator=(const vtkQtAnnotationLayersModelAdapter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkQtAnnotationLayersModelAdapter.h

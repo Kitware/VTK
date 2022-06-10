@@ -19,6 +19,7 @@
 -----------------------------------------------------------------------*/
 
 #include "PyVTKNamespace.h"
+#include "vtkABINamespace.h"
 #include "vtkPythonUtil.h"
 
 // Silence warning like

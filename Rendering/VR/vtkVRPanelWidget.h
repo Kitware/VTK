@@ -29,6 +29,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkDeprecation.h"       // For VTK_DEPRECATED_IN_9_2_0
 #include "vtkRenderingVRModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkVRPanelRepresentation;
 
 class VTKRENDERINGVR_EXPORT vtkVRPanelWidget : public vtkAbstractWidget
@@ -86,4 +87,5 @@ private:
   vtkVRPanelWidget(const vtkVRPanelWidget&) = delete;
   void operator=(const vtkVRPanelWidget&) = delete;
 };
+VTK_ABI_NAMESPACE_END
 #endif

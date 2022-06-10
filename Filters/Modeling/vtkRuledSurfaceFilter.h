@@ -57,6 +57,7 @@
 #include "vtkFiltersModelingModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkIdList;
 class vtkPoints;
 class vtkPolyData;
@@ -196,4 +197,5 @@ private:
   void operator=(const vtkRuledSurfaceFilter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

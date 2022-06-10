@@ -22,6 +22,7 @@
 #include <cmath>
 #include <cstdlib>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkCollection);
 
 // Construct with empty list.
@@ -344,3 +345,4 @@ void vtkCollection::ReportReferences(vtkGarbageCollector* collector)
     vtkGarbageCollectorReport(collector, elem->Item, "Element");
   }
 }
+VTK_ABI_NAMESPACE_END

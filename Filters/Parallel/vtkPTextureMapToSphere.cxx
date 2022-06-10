@@ -22,6 +22,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkTextureMapToSphere.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPTextureMapToSphere);
 vtkCxxSetObjectMacro(vtkPTextureMapToSphere, Controller, vtkMultiProcessController);
 
@@ -84,3 +85,4 @@ void vtkPTextureMapToSphere::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Controller: (none)" << endl;
   }
 }
+VTK_ABI_NAMESPACE_END

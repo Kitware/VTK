@@ -37,6 +37,7 @@
 #include "vtkStdString.h"            // Needed for vtkStdString
 #include "vtkTableAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKIOTECPLOTTABLE_EXPORT vtkTecplotTableReader : public vtkTableAlgorithm
 {
 public:
@@ -141,4 +142,5 @@ private:
   void operator=(const vtkTecplotTableReader&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

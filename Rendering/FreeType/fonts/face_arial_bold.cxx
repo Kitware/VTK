@@ -4,6 +4,7 @@
 // URW Gothic L Demi
 // Contributed by URW
 
+VTK_ABI_NAMESPACE_BEGIN
 size_t face_arial_bold_buffer_length = 35937;
 
 unsigned char face_arial_bold_buffer[] = {
@@ -2255,3 +2256,4 @@ unsigned char face_arial_bold_buffer[] = {
    48,  48,  13,  99, 108, 101,  97, 114, 116, 111, 109,  97, 114, 107,  10, 128,
     3,
 };
+VTK_ABI_NAMESPACE_END

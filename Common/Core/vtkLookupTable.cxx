@@ -24,6 +24,7 @@
 
 #include <cassert>
 
+VTK_ABI_NAMESPACE_BEGIN
 const vtkIdType vtkLookupTable::REPEATED_LAST_COLOR_INDEX = 0;
 const vtkIdType vtkLookupTable::BELOW_RANGE_COLOR_INDEX = 1;
 const vtkIdType vtkLookupTable::ABOVE_RANGE_COLOR_INDEX = 2;
@@ -424,6 +425,7 @@ double vtkLookupTable::GetOpacity(double v)
 
   return rgb8[3] / 255.0;
 }
+VTK_ABI_NAMESPACE_END
 
 namespace
 {
@@ -639,6 +641,7 @@ inline void vtkLookupShiftAndScale(
 
 } // end anonymous namespace
 
+VTK_ABI_NAMESPACE_BEGIN
 //------------------------------------------------------------------------------
 void vtkLookupTable::GetLogRange(const double range[2], double log_range[2])
 {
@@ -798,6 +801,7 @@ const unsigned char* vtkLookupTable::MapValue(double v)
 
   return this->Table->GetPointer(0) + 4 * index;
 }
+VTK_ABI_NAMESPACE_END
 
 namespace
 {
@@ -1190,6 +1194,7 @@ void vtkLookupTableIndexedMapData(vtkLookupTable* self, const T* input, unsigned
 
 } // end anonymous namespace
 
+VTK_ABI_NAMESPACE_BEGIN
 //------------------------------------------------------------------------------
 void vtkLookupTable::MapScalarsThroughTable2(void* input, unsigned char* output, int inputDataType,
   int numberOfValues, int inputIncrement, int outputFormat)
@@ -1465,3 +1470,4 @@ void vtkLookupTable::ResizeTableForSpecialColors()
     this->Table->Resize(neededColors);
   }
 }
+VTK_ABI_NAMESPACE_END

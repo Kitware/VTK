@@ -27,6 +27,7 @@
 #include <stack>
 using std::stack;
 
+VTK_ABI_NAMESPACE_BEGIN
 struct vtkTreeDFSIteratorPosition
 {
   vtkTreeDFSIteratorPosition(vtkIdType vertex, vtkIdType index)
@@ -197,3 +198,4 @@ vtkIdType vtkTreeDFSIterator::NextInternal()
   // cout << "DFS no more!" << endl;
   return -1;
 }
+VTK_ABI_NAMESPACE_END

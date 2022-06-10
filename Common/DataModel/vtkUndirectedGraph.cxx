@@ -31,6 +31,7 @@
 //------------------------------------------------------------------------------
 // class vtkUndirectedGraph
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkUndirectedGraph);
 //------------------------------------------------------------------------------
 vtkUndirectedGraph::vtkUndirectedGraph() = default;
@@ -130,3 +131,4 @@ void vtkUndirectedGraph::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

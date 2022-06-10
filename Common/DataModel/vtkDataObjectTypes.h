@@ -30,6 +30,7 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataObject;
 
 class VTKCOMMONDATAMODEL_EXPORT vtkDataObjectTypes : public vtkObject
@@ -90,4 +91,5 @@ private:
   void operator=(const vtkDataObjectTypes&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

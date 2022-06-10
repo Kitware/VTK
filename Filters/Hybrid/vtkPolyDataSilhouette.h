@@ -41,6 +41,7 @@
 #include "vtkFiltersHybridModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCamera;
 class vtkProp3D;
 class vtkTransform;
@@ -189,4 +190,5 @@ private:
   void operator=(const vtkPolyDataSilhouette&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

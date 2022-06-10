@@ -35,6 +35,7 @@
 #include "vtkImageDecomposeFilter.h"
 #include "vtkImagingGeneralModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKIMAGINGGENERAL_EXPORT vtkImageCityBlockDistance : public vtkImageDecomposeFilter
 {
 public:
@@ -57,4 +58,5 @@ private:
   void operator=(const vtkImageCityBlockDistance&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

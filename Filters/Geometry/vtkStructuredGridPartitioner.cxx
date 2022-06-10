@@ -27,6 +27,7 @@
 
 #include <cassert>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkStructuredGridPartitioner);
 
 //------------------------------------------------------------------------------
@@ -172,3 +173,4 @@ int vtkStructuredGridPartitioner::RequestData(vtkInformation* vtkNotUsed(request
   extentPartitioner->Delete();
   return 1;
 }
+VTK_ABI_NAMESPACE_END

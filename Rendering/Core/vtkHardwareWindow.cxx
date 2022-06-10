@@ -17,6 +17,7 @@
 #include "vtkObjectFactory.h"
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkObjectFactoryNewMacro(vtkHardwareWindow);
 
 vtkHardwareWindow::vtkHardwareWindow()
@@ -40,3 +41,4 @@ void vtkHardwareWindow::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Borders: " << this->Borders << "\n";
 }
+VTK_ABI_NAMESPACE_END

@@ -30,6 +30,7 @@
 #include "vtkSmartPointer.h" // for API
 #include "vtkXMLDataReader.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkHierarchicalBoxDataSet;
 class vtkMultiBlockDataSet;
 class vtkImageData;
@@ -121,4 +122,5 @@ private:
   void operator=(const vtkXMLGenericDataObjectReader&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

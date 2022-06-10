@@ -18,6 +18,7 @@
 #include "vtkMath.h"
 
 // Instantiate object.
+VTK_ABI_NAMESPACE_BEGIN
 vtkDicer::vtkDicer()
 {
   this->NumberOfPointsPerPiece = 5000;
@@ -86,3 +87,4 @@ void vtkDicer::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Dice Mode: Memory Limit\n";
   }
 }
+VTK_ABI_NAMESPACE_END

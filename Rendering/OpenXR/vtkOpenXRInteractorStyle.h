@@ -23,6 +23,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkRenderingOpenXRModule.h" // For export macro
 #include "vtkVRInteractorStyle.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKRENDERINGOPENXR_EXPORT vtkOpenXRInteractorStyle : public vtkVRInteractorStyle
 {
 public:
@@ -51,4 +52,5 @@ private:
   void operator=(const vtkOpenXRInteractorStyle&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -47,6 +47,7 @@
 #include "vtkObject.h"
 #include "vtkRenderingParallelModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDoubleArray;
 class vtkMultiProcessController;
 class vtkMultiProcessStream;
@@ -684,4 +685,5 @@ private:
   void operator=(const vtkParallelRenderManager&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkParalleRenderManager_h

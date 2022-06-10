@@ -75,6 +75,7 @@
 #include <cassert>     // for assert
 #include <type_traits> // for std::enable_if
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONDATAMODEL_EXPORT vtkCellArrayIterator : public vtkObject
 {
 public:
@@ -255,4 +256,5 @@ private:
   void operator=(const vtkCellArrayIterator&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkCellArrayIterator_h

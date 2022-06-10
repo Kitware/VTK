@@ -38,6 +38,7 @@
 #include "vtkDataSetAlgorithm.h"
 #include "vtkFiltersTextureModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSTEXTURE_EXPORT vtkTransformTextureCoords : public vtkDataSetAlgorithm
 {
 public:
@@ -135,4 +136,5 @@ private:
   void operator=(const vtkTransformTextureCoords&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

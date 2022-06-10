@@ -37,6 +37,7 @@
 #include "vtkInteractionStyleModule.h" // For export macro
 #include "vtkInteractorStyle.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCellPicker;
 
 // motion flags
@@ -92,4 +93,5 @@ private:
   void operator=(const vtkInteractorStyleJoystickActor&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

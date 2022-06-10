@@ -18,6 +18,7 @@
 #include "vtkObjectFactory.h"
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkObjectFactoryNewMacro(vtkAvatar);
 
 //------------------------------------------------------------------------------
@@ -74,3 +75,4 @@ vtkAvatar::vtkAvatar()
 
 //------------------------------------------------------------------------------
 vtkAvatar::~vtkAvatar() = default;
+VTK_ABI_NAMESPACE_END

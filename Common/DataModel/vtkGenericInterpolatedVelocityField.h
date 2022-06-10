@@ -45,6 +45,7 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkFunctionSet.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkGenericDataSet;
 class vtkGenericCellIterator;
 class vtkGenericAdaptorCell;
@@ -168,4 +169,5 @@ private:
   void operator=(const vtkGenericInterpolatedVelocityField&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

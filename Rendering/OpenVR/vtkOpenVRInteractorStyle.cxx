@@ -20,6 +20,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkOpenVRRenderWindow.h"
 #include "vtkOpenVRRenderWindowInteractor.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOpenVRInteractorStyle);
 
 //------------------------------------------------------------------------------
@@ -59,3 +60,4 @@ vtkVRControlsHelper* vtkOpenVRInteractorStyle::MakeControlsHelper()
   vtkVRControlsHelper* helper = vtkOpenVRControlsHelper::New();
   return helper;
 }
+VTK_ABI_NAMESPACE_END

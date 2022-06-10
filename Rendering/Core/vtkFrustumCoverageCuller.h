@@ -42,6 +42,7 @@
 #define VTK_CULLER_SORT_FRONT_TO_BACK 1
 #define VTK_CULLER_SORT_BACK_TO_FRONT 2
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkProp;
 class vtkRenderer;
 
@@ -105,4 +106,5 @@ private:
   void operator=(const vtkFrustumCoverageCuller&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

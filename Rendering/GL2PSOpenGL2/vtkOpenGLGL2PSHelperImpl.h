@@ -25,6 +25,7 @@
 #include "vtkOpenGLGL2PSHelper.h"
 #include "vtkRenderingGL2PSOpenGL2Module.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkMatrix4x4;
 class vtkPoints;
 
@@ -108,4 +109,5 @@ private:
   void operator=(const vtkOpenGLGL2PSHelperImpl&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkOpenGLGL2PSHelperImpl_h

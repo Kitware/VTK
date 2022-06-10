@@ -32,6 +32,7 @@
 #include "vtkTimerLog.h"
 #include "vtkTransform.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkInteractorStyle3D);
 
 //------------------------------------------------------------------------------
@@ -303,3 +304,4 @@ void vtkInteractorStyle3D::SetScale(vtkCamera* camera, double newScale)
     this->CurrentRenderer->ResetCameraClippingRange();
   }
 }
+VTK_ABI_NAMESPACE_END

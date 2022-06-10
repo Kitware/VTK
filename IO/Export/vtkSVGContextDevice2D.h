@@ -45,6 +45,7 @@
 
 #include <array> // For std::array!
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkColor3ub;
 class vtkColor4ub;
 class vtkPath;
@@ -265,4 +266,5 @@ private:
   void operator=(const vtkSVGContextDevice2D&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkSVGContextDevice2D_h

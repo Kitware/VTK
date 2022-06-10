@@ -49,6 +49,7 @@
 
 #include <algorithm>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkCellPicker);
 
 //------------------------------------------------------------------------------
@@ -1861,3 +1862,4 @@ double vtkCellPicker::ComputeVolumeOpacity(const int xi[3], const double pcoords
 
   return opacity;
 }
+VTK_ABI_NAMESPACE_END

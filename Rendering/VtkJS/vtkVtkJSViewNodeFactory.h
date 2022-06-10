@@ -34,6 +34,7 @@
 
 #include "vtkViewNodeFactory.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkVtkJSSceneGraphSerializer;
 
 class VTKRENDERINGVTKJS_EXPORT vtkVtkJSViewNodeFactory : public vtkViewNodeFactory
@@ -62,4 +63,5 @@ private:
   void operator=(const vtkVtkJSViewNodeFactory&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

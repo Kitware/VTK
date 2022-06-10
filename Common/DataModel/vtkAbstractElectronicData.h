@@ -25,6 +25,7 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkDataObject.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkImageData;
 
 class VTKCOMMONDATAMODEL_EXPORT vtkAbstractElectronicData : public vtkDataObject
@@ -119,4 +120,5 @@ private:
   void operator=(const vtkAbstractElectronicData&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

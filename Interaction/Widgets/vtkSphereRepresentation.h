@@ -50,6 +50,7 @@
 #include "vtkSphereSource.h"             // Needed for fast access to the sphere source
 #include "vtkWidgetRepresentation.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkActor;
 class vtkPolyDataMapper;
 class vtkSphere;
@@ -420,4 +421,5 @@ private:
   void operator=(const vtkSphereRepresentation&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

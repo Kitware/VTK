@@ -27,6 +27,7 @@
 using namespace OT;
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkOTFilter::vtkOTFilter()
 {
   this->SetInputArrayToProcess(
@@ -78,3 +79,4 @@ void vtkOTFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

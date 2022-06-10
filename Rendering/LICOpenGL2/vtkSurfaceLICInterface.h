@@ -59,6 +59,7 @@
 #include "vtkObject.h"
 #include "vtkRenderingLICOpenGL2Module.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkRenderWindow;
 class vtkRenderer;
 class vtkActor;
@@ -599,4 +600,5 @@ private:
   void operator=(const vtkSurfaceLICInterface&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

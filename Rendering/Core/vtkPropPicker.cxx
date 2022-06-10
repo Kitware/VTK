@@ -25,6 +25,7 @@
 #include "vtkTransform.h"
 #include "vtkWorldPointPicker.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPropPicker);
 
 vtkPropPicker::vtkPropPicker()
@@ -351,3 +352,4 @@ void vtkPropPicker::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "PickFrom List: (none)" << endl;
   }
 }
+VTK_ABI_NAMESPACE_END

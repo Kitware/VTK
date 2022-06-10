@@ -28,6 +28,7 @@
 #include <iostream>
 #include <iterator>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkSegYReader);
 
 //------------------------------------------------------------------------------
@@ -211,3 +212,4 @@ int vtkSegYReader::RequestDataObject(vtkInformation*,
   }
   return 1;
 }
+VTK_ABI_NAMESPACE_END

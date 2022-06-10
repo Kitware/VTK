@@ -33,6 +33,7 @@
 #include <tuple>  // for tuple
 #include <vector> // for vector
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCellArray;
 class vtkGenericOpenGLResourceFreeCallback;
 class vtkMatrix4x4;
@@ -530,4 +531,5 @@ private:
   void operator=(const vtkOpenGLPolyDataMapper&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

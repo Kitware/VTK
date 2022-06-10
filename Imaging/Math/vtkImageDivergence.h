@@ -30,6 +30,7 @@
 #include "vtkImagingMathModule.h" // For export macro
 #include "vtkThreadedImageAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKIMAGINGMATH_EXPORT vtkImageDivergence : public vtkThreadedImageAlgorithm
 {
 public:
@@ -50,4 +51,5 @@ private:
   void operator=(const vtkImageDivergence&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

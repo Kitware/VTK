@@ -28,6 +28,7 @@
 #include "vtkPointSetAlgorithm.h"
 #include "vtkmlib/vtkmInitializer.h" // Need for initializing vtk-m
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkHomogeneousTransform;
 
 class VTKACCELERATORSVTKMFILTERS_EXPORT vtkmPointTransform : public vtkPointSetAlgorithm
@@ -62,4 +63,5 @@ private:
   vtkmInitializer Initializer;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

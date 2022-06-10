@@ -15,6 +15,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkPParticleTracer.h"
 #include "vtkObjectFactory.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPParticleTracer);
 
 vtkPParticleTracer::vtkPParticleTracer()
@@ -32,3 +33,4 @@ void vtkPParticleTracer::PrintSelf(ostream& os, vtkIndent indent)
 {
   Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

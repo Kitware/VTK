@@ -35,6 +35,7 @@
 #include "vtkShaderProperty.h"
 #include <map> // used for ivar
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkOpenGLUniforms;
 
 class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLShaderProperty : public vtkShaderProperty
@@ -113,4 +114,5 @@ private:
   void operator=(const vtkOpenGLShaderProperty&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

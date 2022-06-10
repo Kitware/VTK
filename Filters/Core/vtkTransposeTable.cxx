@@ -43,6 +43,7 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkTransposeTableInternal
 {
 public:
@@ -296,3 +297,4 @@ int vtkTransposeTable::RequestData(
   vtkTransposeTableInternal intern(this);
   return intern.TransposeTable(inTable, outTable) ? 1 : 0;
 }
+VTK_ABI_NAMESPACE_END

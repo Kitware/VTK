@@ -27,6 +27,7 @@
 
 #include <memory> // for std::unique_ptr
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSGENERAL_EXPORT vtkFiniteElementFieldDistributor
   : public vtkPartitionedDataSetCollectionAlgorithm
 {
@@ -50,4 +51,5 @@ private:
   std::unique_ptr<vtkInternals> Internals;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

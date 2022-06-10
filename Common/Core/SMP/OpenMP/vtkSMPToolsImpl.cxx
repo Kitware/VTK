@@ -26,6 +26,7 @@ namespace detail
 {
 namespace smp
 {
+VTK_ABI_NAMESPACE_BEGIN
 static int specifiedNumThreads = 0;
 static std::stack<int> threadIdStack;
 
@@ -107,6 +108,7 @@ void vtkSMPToolsImplForOpenMP(vtkIdType first, vtkIdType last, vtkIdType grain,
   threadIdStack.pop();
 }
 
+VTK_ABI_NAMESPACE_END
 } // namespace smp
 } // namespace detail
 } // namespace vtk

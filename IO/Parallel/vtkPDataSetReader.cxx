@@ -39,6 +39,7 @@
 
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPDataSetReader);
 
 //------------------------------------------------------------------------------
@@ -1253,3 +1254,4 @@ void vtkPDataSetReader::PrintSelf(ostream& os, vtkIndent indent)
   }
   os << indent << "DataType: " << this->DataType << endl;
 }
+VTK_ABI_NAMESPACE_END

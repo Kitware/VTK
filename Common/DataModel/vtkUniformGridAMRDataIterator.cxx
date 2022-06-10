@@ -23,6 +23,7 @@
 #include <cassert>
 
 //----------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 class AMRIndexIterator : public vtkObject
 {
 public:
@@ -216,3 +217,4 @@ int vtkUniformGridAMRDataIterator::IsDoneWithTraversal()
 {
   return (!this->Iter) || this->Iter->IsDone();
 }
+VTK_ABI_NAMESPACE_END

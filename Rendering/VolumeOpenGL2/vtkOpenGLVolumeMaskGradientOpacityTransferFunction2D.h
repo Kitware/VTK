@@ -20,6 +20,7 @@
 #include "vtkRenderingVolumeOpenGL2Module.h" // For export macro
 
 // Forward declarations
+VTK_ABI_NAMESPACE_BEGIN
 class vtkOpenGLRenderWindow;
 
 /**
@@ -63,4 +64,5 @@ private:
   void operator=(const vtkOpenGLVolumeMaskGradientOpacityTransferFunction2D&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkOpenGLVolumeMaskTransferFunction2D_h

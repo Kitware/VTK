@@ -34,6 +34,7 @@
 #include <mutex>
 
 //-----------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPolyDataNormals);
 
 //-----------------------------------------------------------------------------
@@ -805,3 +806,4 @@ void vtkPolyDataNormals::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Non-manifold Traversal: " << (this->NonManifoldTraversal ? "On\n" : "Off\n");
   os << indent << "Precision of the output points: " << this->OutputPointsPrecision << "\n";
 }
+VTK_ABI_NAMESPACE_END

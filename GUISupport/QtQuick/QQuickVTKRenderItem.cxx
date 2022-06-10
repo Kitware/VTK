@@ -24,6 +24,7 @@
 #include <QQuickWindow>
 
 //-------------------------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 QQuickVTKRenderItem::QQuickVTKRenderItem(QQuickItem* parent)
   : Superclass(parent)
 {
@@ -324,3 +325,4 @@ void QQuickVTKRenderItem::removeWidgetByName(QString name)
 
   this->removeWidget(w);
 }
+VTK_ABI_NAMESPACE_END

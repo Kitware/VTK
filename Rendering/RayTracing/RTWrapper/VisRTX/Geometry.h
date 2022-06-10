@@ -8,6 +8,7 @@
 
 namespace RTW
 {
+VTK_ABI_NAMESPACE_BEGIN
     class Geometry : public Object
     {
         friend class World;
@@ -389,4 +390,5 @@ namespace RTW
         VisRTX::Geometry* geometry = nullptr;
         Material* material = nullptr;
     };
+VTK_ABI_NAMESPACE_END
 }

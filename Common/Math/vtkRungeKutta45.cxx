@@ -19,6 +19,7 @@
 
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkRungeKutta45);
 
 //------------------------------------------------------------------------------
@@ -298,3 +299,4 @@ void vtkRungeKutta45::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

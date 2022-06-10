@@ -27,6 +27,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkRenderWindowInteractor.h"
 #include "vtkViewport.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkParallelCoordinatesInteractorStyle);
 
 //------------------------------------------------------------------------------
@@ -402,3 +403,4 @@ void vtkParallelCoordinatesInteractorStyle::GetCursorLastPosition(
   pos[0] = static_cast<double>(this->CursorLastPosition[0]) / size[0];
   pos[1] = static_cast<double>(this->CursorLastPosition[1]) / size[1];
 }
+VTK_ABI_NAMESPACE_END

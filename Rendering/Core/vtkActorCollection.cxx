@@ -17,6 +17,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkProperty.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkActorCollection);
 
 void vtkActorCollection::ApplyProperties(vtkProperty* p)
@@ -40,3 +41,4 @@ void vtkActorCollection::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

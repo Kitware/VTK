@@ -27,6 +27,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkUnsignedCharArray.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkStripper);
 
 // Construct object with MaximumLength set to 1000.
@@ -744,3 +745,4 @@ void vtkStripper::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "PassThroughPointIds: " << this->PassThroughPointIds << endl;
   os << indent << "JoinContiguousSegments: " << this->JoinContiguousSegments << endl;
 }
+VTK_ABI_NAMESPACE_END

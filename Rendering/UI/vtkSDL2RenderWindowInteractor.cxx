@@ -32,6 +32,7 @@
 #include "vtkCommand.h"
 #include "vtkObjectFactory.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkSDL2RenderWindowInteractor);
 
 //------------------------------------------------------------------------------
@@ -360,3 +361,4 @@ void vtkSDL2RenderWindowInteractor::ExitCallback()
 
   this->TerminateApp();
 }
+VTK_ABI_NAMESPACE_END

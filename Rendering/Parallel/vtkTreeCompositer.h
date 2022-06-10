@@ -59,6 +59,7 @@
 #include "vtkCompositer.h"
 #include "vtkRenderingParallelModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKRENDERINGPARALLEL_EXPORT vtkTreeCompositer : public vtkCompositer
 {
 public:
@@ -78,4 +79,5 @@ private:
   void operator=(const vtkTreeCompositer&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -54,6 +54,7 @@
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include <vector>                      // STL Header
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkOpenGLFramebufferObject;
 class vtkTextureObject;
 class vtkOpenGLRenderWindow;
@@ -206,4 +207,5 @@ private:
   void operator=(const vtkDepthPeelingPass&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

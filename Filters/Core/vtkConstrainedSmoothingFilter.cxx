@@ -32,7 +32,9 @@
 #include "vtkStaticCellLinksTemplate.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkConstrainedSmoothingFilter);
+VTK_ABI_NAMESPACE_END
 
 // The following code defines core methods for the
 // vtkConstrainedSmoothingFilter class.
@@ -394,6 +396,7 @@ struct AttrWorker
 
 } // anonymous namespace
 
+VTK_ABI_NAMESPACE_BEGIN
 //=================Begin VTK class proper=======================================
 //------------------------------------------------------------------------------
 vtkConstrainedSmoothingFilter::vtkConstrainedSmoothingFilter()
@@ -567,3 +570,4 @@ void vtkConstrainedSmoothingFilter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Generate Error Vectors: " << (this->GenerateErrorVectors ? "On\n" : "Off\n");
   os << indent << "Output Points Precision: " << this->OutputPointsPrecision << "\n";
 }
+VTK_ABI_NAMESPACE_END

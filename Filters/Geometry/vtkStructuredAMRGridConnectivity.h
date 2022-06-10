@@ -42,6 +42,7 @@
 #include <set>     // For STL set
 #include <vector>  // For STL vector
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSGEOMETRY_EXPORT vtkStructuredAMRGridConnectivity
   : public vtkAbstractGridConnectivity
 {
@@ -739,4 +740,5 @@ inline void vtkStructuredAMRGridConnectivity::InsertGridAtLevel(const int level,
   }
 }
 
+VTK_ABI_NAMESPACE_END
 #endif /* VTKSTRUCTUREDAMRGRIDCONNECTIVITY_H_ */

@@ -25,6 +25,7 @@
 #include "vtkOpenXRRenderWindow.h"
 #include "vtkRenderingOpenXRRemotingModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKRENDERINGOPENXRREMOTING_EXPORT vtkOpenXRRemotingRenderWindow : public vtkOpenXRRenderWindow
 {
 public:
@@ -61,5 +62,6 @@ private:
   void operator=(const vtkOpenXRRemotingRenderWindow&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkOpenXRRemotingRenderWindow.h

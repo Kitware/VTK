@@ -16,6 +16,7 @@
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkParametricConicSpiral);
 
 //------------------------------------------------------------------------------
@@ -91,3 +92,4 @@ void vtkParametricConicSpiral::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "C: " << this->C << "\n";
   os << indent << "N: " << this->N << "\n";
 }
+VTK_ABI_NAMESPACE_END

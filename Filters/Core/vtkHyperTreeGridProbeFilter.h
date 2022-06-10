@@ -29,6 +29,7 @@
 #include "vtkNew.h"               //For init in header
 #include "vtkSmartPointer.h"      //For members
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCharArray;
 class vtkIdList;
 class vtkIdTypeArray;
@@ -220,4 +221,5 @@ private:
 
 }; // vtkHyperTreeGridProbeFilter
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkHyperTreeGridProbeFilter_h

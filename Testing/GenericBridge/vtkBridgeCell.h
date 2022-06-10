@@ -28,6 +28,7 @@
 #include "vtkBridgeExport.h" //for module export macro
 #include "vtkGenericAdaptorCell.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCell;
 class vtkBridgeDataSet;
 class vtkBridgeCellIterator;
@@ -532,4 +533,5 @@ private:
   void operator=(const vtkBridgeCell&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

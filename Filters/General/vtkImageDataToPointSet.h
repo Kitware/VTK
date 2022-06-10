@@ -36,6 +36,7 @@
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkStructuredGridAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkImageData;
 class vtkStructuredData;
 
@@ -61,4 +62,5 @@ private:
   void operator=(const vtkImageDataToPointSet&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkImageDataToPointSet_h

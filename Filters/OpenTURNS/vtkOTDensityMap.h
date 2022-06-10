@@ -32,6 +32,7 @@
 
 #include <map> // For map
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkIdList;
 class vtkInformationDoubleKey;
 class vtkPolyData;
@@ -174,4 +175,5 @@ private:
   void operator=(const vtkOTDensityMap&) = delete;
   vtkOTDensityMap(const vtkOTDensityMap&) = delete;
 };
+VTK_ABI_NAMESPACE_END
 #endif

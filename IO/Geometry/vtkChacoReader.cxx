@@ -35,6 +35,7 @@
 #include <cstdio>
 #include <vtksys/SystemTools.hxx>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkChacoReader);
 
 //------------------------------------------------------------------------------
@@ -1482,3 +1483,4 @@ void vtkChacoReader::FlushLine(FILE* infile)
     c = getc(infile);
   }
 }
+VTK_ABI_NAMESPACE_END

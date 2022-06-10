@@ -45,6 +45,7 @@
 #include "vtkTclUtil.h"
 #endif
 
+VTK_ABI_NAMESPACE_BEGIN
 struct vtkTkRenderWidget
 {
   Tk_Window TkWin;    /* Tk window structure */
@@ -58,5 +59,6 @@ struct vtkTkRenderWidget
 #endif
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkTkRenderWidget.h

@@ -51,6 +51,7 @@
 #include "vtkExtractSelectionBase.h"
 #include "vtkFiltersExtractionModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkSelection;
 class vtkSelectionNode;
 
@@ -80,6 +81,7 @@ private:
   void operator=(const vtkExtractSelectedIds&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
 
 // VTK-HeaderTest-Exclude: vtkExtractSelectedIds.h

@@ -65,6 +65,7 @@
 #define VTK_SCALE_LINEAR 0
 #define VTK_SCALE_LOG10 1
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONCORE_EXPORT vtkLookupTable : public vtkScalarsToColors
 {
 public:
@@ -467,4 +468,5 @@ inline unsigned char* vtkLookupTable::WritePointer(vtkIdType id, int number)
   return this->Table->WritePointer(4 * id, 4 * number);
 }
 
+VTK_ABI_NAMESPACE_END
 #endif

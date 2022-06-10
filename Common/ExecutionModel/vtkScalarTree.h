@@ -45,6 +45,7 @@
 #include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkObject.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCell;
 class vtkDataArray;
 class vtkDataSet;
@@ -156,4 +157,5 @@ private:
   void operator=(const vtkScalarTree&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

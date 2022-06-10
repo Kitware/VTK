@@ -28,6 +28,7 @@
 #include "vtkVector.h"
 #include "vtkVectorOperators.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkLagrangeQuadrilateral);
 
 vtkLagrangeQuadrilateral::vtkLagrangeQuadrilateral() = default;
@@ -109,3 +110,4 @@ vtkHigherOrderCurve* vtkLagrangeQuadrilateral::GetEdgeCell()
 {
   return EdgeCell;
 }
+VTK_ABI_NAMESPACE_END

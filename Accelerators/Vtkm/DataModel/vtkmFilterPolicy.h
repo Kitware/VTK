@@ -30,6 +30,7 @@
 #include <vtkm/filter/PolicyDefault.h>
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 class vtkmOutputFilterPolicy : public vtkm::filter::PolicyBase<vtkmOutputFilterPolicy>
 {
 public:
@@ -40,5 +41,6 @@ public:
   using AllCellSetList = tovtkm::CellListAllOutVTK;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkmFilterPolicy.h

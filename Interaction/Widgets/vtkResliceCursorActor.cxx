@@ -27,6 +27,7 @@
 #include "vtkResliceCursorPolyDataAlgorithm.h"
 #include "vtkViewport.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkResliceCursorActor);
 
 //------------------------------------------------------------------------------
@@ -344,3 +345,4 @@ void vtkResliceCursorActor::PrintSelf(ostream& os, vtkIndent indent)
   // this->ThickSlabProperty[3];
   // this->CursorAlgorithm;
 }
+VTK_ABI_NAMESPACE_END

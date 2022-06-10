@@ -21,6 +21,7 @@
 #include "vtkXMLReaderVersion.h"
 #include "vtkZLibDataCompressor.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkCxxSetObjectMacro(vtkXMLWriterBase, Compressor, vtkDataCompressor);
 //----------------------------------------------------------------------------
 vtkXMLWriterBase::vtkXMLWriterBase()
@@ -271,3 +272,4 @@ void vtkXMLWriterBase::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "EncodeAppendedData: " << this->EncodeAppendedData << "\n";
   os << indent << "BlockSize: " << this->BlockSize << "\n";
 }
+VTK_ABI_NAMESPACE_END

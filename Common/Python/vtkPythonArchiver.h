@@ -43,6 +43,7 @@
 #include "vtkArchiver.h"
 #include "vtkCommonPythonModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkSmartPyObject;
 
 class VTKCOMMONPYTHON_EXPORT vtkPythonArchiver : public vtkArchiver
@@ -100,5 +101,6 @@ private:
   PyObject* Object;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
 #endif

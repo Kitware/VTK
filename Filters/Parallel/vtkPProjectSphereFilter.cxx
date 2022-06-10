@@ -21,6 +21,7 @@
 
 #include <map>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPProjectSphereFilter);
 
 //------------------------------------------------------------------------------
@@ -69,3 +70,4 @@ double vtkPProjectSphereFilter::GetZTranslation(vtkPointSet* input)
 
   return globalMax;
 }
+VTK_ABI_NAMESPACE_END

@@ -34,6 +34,7 @@
 #include "vtkInfovisLayoutModule.h" // For export macro
 #include "vtkSmartPointer.h"        // For ivars
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkSpline;
 
 class VTKINFOVISLAYOUT_EXPORT vtkSplineGraphEdges : public vtkGraphAlgorithm
@@ -101,4 +102,5 @@ private:
   void operator=(const vtkSplineGraphEdges&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

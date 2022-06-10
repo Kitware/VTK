@@ -26,6 +26,7 @@
 #include "vtkTetra.h"
 #include "vtkTriangle.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkConvexPointSet);
 
 //------------------------------------------------------------------------------
@@ -416,3 +417,4 @@ void vtkConvexPointSet::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "ParametricCoords: (null)\n";
   }
 }
+VTK_ABI_NAMESPACE_END

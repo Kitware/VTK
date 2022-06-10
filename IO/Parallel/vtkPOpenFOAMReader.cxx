@@ -83,6 +83,7 @@
 
 //------------------------------------------------------------------------------
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPOpenFOAMReader);
 vtkCxxSetObjectMacro(vtkPOpenFOAMReader, Controller, vtkMultiProcessController);
 
@@ -867,3 +868,4 @@ void vtkPOpenFOAMReader::AllGather(vtkDataArraySelection* s)
   }
   delete[] allContents;
 }
+VTK_ABI_NAMESPACE_END

@@ -33,6 +33,7 @@
 #include "vtkIOGeometryModule.h" // For export macro
 #include "vtkWriter.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCellArray;
 class vtkPoints;
 class vtkPolyData;
@@ -112,4 +113,5 @@ private:
   void operator=(const vtkSTLWriter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

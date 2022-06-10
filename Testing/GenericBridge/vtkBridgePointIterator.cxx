@@ -31,6 +31,7 @@
 #include "vtkBridgePointIteratorOnDataSet.h"
 #include "vtkBridgePointIteratorOne.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkBridgePointIterator);
 
 //------------------------------------------------------------------------------
@@ -172,3 +173,4 @@ void vtkBridgePointIterator::InitWithCell(vtkBridgeCell* cell)
   this->IteratorOnCell->InitWithCell(cell);
   this->CurrentIterator = this->IteratorOnCell;
 }
+VTK_ABI_NAMESPACE_END

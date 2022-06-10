@@ -24,6 +24,7 @@
 #include <cassert>
 #include <set>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkAMRInformation);
 
 namespace
@@ -989,3 +990,4 @@ bool vtkAMRInformation::FindGrid(double q[3], int level, unsigned int& gridId)
   }
   return false;
 }
+VTK_ABI_NAMESPACE_END

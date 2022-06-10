@@ -25,6 +25,7 @@
 #include "vtkIOCoreModule.h" // For export macro
 #include "vtkObject.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKIOCORE_EXPORT vtkBase64Utilities : public vtkObject
 {
 public:
@@ -94,4 +95,5 @@ private:
   void operator=(const vtkBase64Utilities&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -30,6 +30,7 @@
 
 #include "RTWrapper/RTWrapper.h" // for handle types
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKRENDERINGRAYTRACING_EXPORT vtkOSPRayUnstructuredVolumeMapperNode
   : public vtkVolumeMapperNode
 
@@ -67,4 +68,5 @@ private:
   void operator=(const vtkOSPRayUnstructuredVolumeMapperNode&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -28,6 +28,7 @@
 
 #include <vtkSmartPointer.h> // for vtkSmartPointer
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPointSet;
 class vtkCellArray;
 class vtkCellIterator;
@@ -174,4 +175,5 @@ private:
   void operator=(const vtkXMLUnstructuredDataWriter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

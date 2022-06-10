@@ -30,6 +30,7 @@
 #include <string> // For string
 #include <vector> // For vector
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkGLTFDocumentLoaderInternals
 {
 public:
@@ -206,6 +207,7 @@ private:
     const nlohmann::json& root, vtkGLTFDocumentLoader::Extensions::KHRLightsPunctual::Light& light);
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
 
 // VTK-HeaderTest-Exclude: vtkGLTFDocumentLoaderInternals.h

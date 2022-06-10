@@ -25,6 +25,7 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkRotationalExtrusionFilter);
 
 //------------------------------------------------------------------------------
@@ -356,3 +357,4 @@ void vtkRotationalExtrusionFilter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Rotation axis: (" << this->RotationAxis[0] << ", " << this->RotationAxis[1]
      << ", " << this->RotationAxis[2] << ")\n";
 }
+VTK_ABI_NAMESPACE_END

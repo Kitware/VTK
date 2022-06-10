@@ -33,6 +33,7 @@
 
 #include <string> // STL Header; Required for string
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKTESTINGRENDERING_EXPORT vtkTestingInteractor : public vtkRenderWindowInteractor
 {
 public:
@@ -65,4 +66,5 @@ private:
   void operator=(const vtkTestingInteractor&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

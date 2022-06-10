@@ -21,6 +21,7 @@
 #include <vector>
 
 //============================================================================
+VTK_ABI_NAMESPACE_BEGIN
 class vtkInformationQuadratureSchemeDefinitionVectorValue : public vtkObjectBase
 {
 public:
@@ -392,3 +393,4 @@ void vtkInformationQuadratureSchemeDefinitionVectorKey::Print(ostream& os, vtkIn
     }
   }
 }
+VTK_ABI_NAMESPACE_END

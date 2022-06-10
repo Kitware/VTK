@@ -35,6 +35,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 // vtkNormalizeMatrixVectors
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkNormalizeMatrixVectors);
 
 vtkNormalizeMatrixVectors::vtkNormalizeMatrixVectors()
@@ -119,3 +120,4 @@ int vtkNormalizeMatrixVectors::RequestData(
 
   return 1;
 }
+VTK_ABI_NAMESPACE_END

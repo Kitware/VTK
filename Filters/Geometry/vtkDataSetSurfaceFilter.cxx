@@ -297,6 +297,7 @@ bool StructuredExecuteWithBlanking(
 
 }
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataSetSurfaceFilter::vtkEdgeInterpolationMap
 {
 public:
@@ -2781,3 +2782,4 @@ void vtkDataSetSurfaceFilter::RecordOrigPointId(vtkIdType destIndex, vtkIdType o
     this->OriginalPointIds->InsertValue(destIndex, originalId);
   }
 }
+VTK_ABI_NAMESPACE_END

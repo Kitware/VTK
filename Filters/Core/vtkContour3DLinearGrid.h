@@ -117,6 +117,7 @@
 #include "vtkDataObjectAlgorithm.h"
 #include "vtkFiltersCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPolyData;
 class vtkUnstructuredGrid;
 class vtkScalarTree;
@@ -372,4 +373,5 @@ inline void vtkContour3DLinearGrid::GenerateValues(
   this->ContourValues->GenerateValues(numContours, rangeStart, rangeEnd);
 }
 
+VTK_ABI_NAMESPACE_END
 #endif

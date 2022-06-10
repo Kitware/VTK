@@ -20,6 +20,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <X11/Xlib.h> // Needed for X types used in the public interface
 #include <map>
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkLessThanWindowId
 {
 public:
@@ -110,3 +111,4 @@ void vtkTDxQtUnixDevices::ProcessEvent(vtkTDxUnixDeviceXEvent* e)
     }
   }
 }
+VTK_ABI_NAMESPACE_END

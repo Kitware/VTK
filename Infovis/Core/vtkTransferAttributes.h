@@ -42,6 +42,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkPassInputTypeAlgorithm.h"
 #include "vtkVariant.h" //For vtkVariant method arguments
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKINFOVISCORE_EXPORT vtkTransferAttributes : public vtkPassInputTypeAlgorithm
 {
 public:
@@ -138,4 +139,5 @@ private:
   void operator=(const vtkTransferAttributes&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

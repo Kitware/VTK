@@ -29,9 +29,6 @@
 
 #include <type_traits> // for std::underlying_type
 
-class vtkDataArray;
-class vtkPoints;
-
 namespace vtkm
 {
 namespace cont
@@ -40,8 +37,14 @@ class CoordinateSystem;
 }
 }
 
+VTK_ABI_NAMESPACE_BEGIN
+class vtkDataArray;
+class vtkPoints;
+VTK_ABI_NAMESPACE_END
+
 namespace tovtkm
 {
+VTK_ABI_NAMESPACE_BEGIN
 
 /// Temporary name for arrays converted from VTK that do not have a name.
 /// Unnamed arrays seem to be supported by VTK, but VTK-m requires all fields to have a name.
@@ -114,10 +117,12 @@ enum class FieldsFlag
   PointsAndCells = Points | Cells
 };
 
+VTK_ABI_NAMESPACE_END
 }
 
 namespace fromvtkm
 {
+VTK_ABI_NAMESPACE_BEGIN
 
 VTKACCELERATORSVTKMCORE_EXPORT
 vtkDataArray* Convert(const vtkm::cont::Field& input);
@@ -128,8 +133,10 @@ vtkDataArray* Convert(const vtkm::cont::UnknownArrayHandle& input, const char* n
 VTKACCELERATORSVTKMCORE_EXPORT
 vtkPoints* Convert(const vtkm::cont::CoordinateSystem& input);
 
+VTK_ABI_NAMESPACE_END
 }
 
+VTK_ABI_NAMESPACE_BEGIN
 inline tovtkm::FieldsFlag operator&(const tovtkm::FieldsFlag& a, const tovtkm::FieldsFlag& b)
 {
   using T = std::underlying_type<tovtkm::FieldsFlag>::type;
@@ -141,5 +148,7 @@ inline tovtkm::FieldsFlag operator|(const tovtkm::FieldsFlag& a, const tovtkm::F
   using T = std::underlying_type<tovtkm::FieldsFlag>::type;
   return static_cast<tovtkm::FieldsFlag>(static_cast<T>(a) | static_cast<T>(b));
 }
+VTK_ABI_NAMESPACE_END
 
 #endif // vtkmlib_ArrayConverters_h
+/* VTK-HeaderTest-Exclude: DataArrayConverters.h */

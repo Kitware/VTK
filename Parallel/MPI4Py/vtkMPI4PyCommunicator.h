@@ -34,6 +34,7 @@
 #include "vtkObject.h"
 #include "vtkParallelMPI4PyModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkMPICommunicator;
 
 class VTKPARALLELMPI4PY_EXPORT vtkMPI4PyCommunicator : public vtkObject
@@ -60,5 +61,6 @@ private:
   void operator=(const vtkMPI4PyCommunicator&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
 #endif

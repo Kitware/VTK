@@ -31,6 +31,7 @@
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkPointSetAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPoints;
 class vtkDataArray;
 
@@ -82,4 +83,5 @@ private:
   double Center[3];
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

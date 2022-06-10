@@ -21,6 +21,7 @@
 #include "vtkOutlineCornerSource.h"
 #include "vtkPolyData.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOutlineCornerFilter);
 
 vtkOutlineCornerFilter::vtkOutlineCornerFilter()
@@ -74,3 +75,4 @@ void vtkOutlineCornerFilter::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
   os << indent << "CornerFactor: " << this->CornerFactor << "\n";
 }
+VTK_ABI_NAMESPACE_END

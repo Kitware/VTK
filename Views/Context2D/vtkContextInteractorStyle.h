@@ -30,6 +30,7 @@
 #include "vtkViewsContext2DModule.h" // For export macro
 #include "vtkWeakPointer.h"          // For ivars
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkContextMouseEvent;
 class vtkContextScene;
 
@@ -195,4 +196,5 @@ private:
   bool ProcessMousePress(const vtkContextMouseEvent& event);
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -29,6 +29,7 @@
 #include "vtkAlgorithm.h"
 #include "vtkCommonExecutionModelModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataObject;
 
 class VTKCOMMONEXECUTIONMODEL_EXPORT vtkTrivialProducer : public vtkAlgorithm
@@ -95,4 +96,5 @@ private:
   void operator=(const vtkTrivialProducer&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

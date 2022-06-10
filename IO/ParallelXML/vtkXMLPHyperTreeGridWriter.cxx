@@ -26,6 +26,7 @@
 
 #include <cassert>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkXMLPHyperTreeGridWriter);
 
 //------------------------------------------------------------------------------
@@ -156,3 +157,4 @@ int vtkXMLPHyperTreeGridWriter::FillInputPortInformation(int, vtkInformation* in
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkHyperTreeGrid");
   return 1;
 }
+VTK_ABI_NAMESPACE_END

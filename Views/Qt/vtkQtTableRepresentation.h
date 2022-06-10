@@ -55,6 +55,7 @@
 #include "vtkDataRepresentation.h"
 #include "vtkViewsQtModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDoubleArray;
 class vtkLookupTable;
 class vtkQtTableModelAdapter;
@@ -143,4 +144,5 @@ private:
   void operator=(const vtkQtTableRepresentation&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

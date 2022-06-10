@@ -42,6 +42,7 @@
 #include <utility>
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkXMLUnstructuredDataWriter::vtkXMLUnstructuredDataWriter()
 {
   this->NumberOfPieces = 1;
@@ -1140,3 +1141,4 @@ void vtkXMLUnstructuredDataWriter::SetInputUpdateExtent(int piece, int numPieces
   inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(), piece);
   inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(), ghostLevel);
 }
+VTK_ABI_NAMESPACE_END

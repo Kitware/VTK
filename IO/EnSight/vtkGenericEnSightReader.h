@@ -26,6 +26,7 @@
 #include "vtkIOEnSightModule.h" // For export macro
 #include "vtkMultiBlockDataSetAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCallbackCommand;
 class vtkDataArrayCollection;
 class vtkDataArraySelection;
@@ -464,4 +465,5 @@ private:
   void operator=(const vtkGenericEnSightReader&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -37,6 +37,7 @@
 
 #include <sstream>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImageReader2Factory);
 
 //----------------------------------------------------------------------------
@@ -213,3 +214,4 @@ void vtkImageReader2Factory::GetRegisteredReaders(vtkImageReader2Collection* col
     collection->AddItem(ret);
   }
 }
+VTK_ABI_NAMESPACE_END

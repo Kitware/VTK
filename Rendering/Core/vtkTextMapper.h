@@ -34,6 +34,7 @@
 
 #include "vtkNew.h" // For vtkNew
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkActor2D;
 class vtkImageData;
 class vtkPoints;
@@ -149,4 +150,5 @@ private:
   vtkNew<vtkTexture> Texture;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

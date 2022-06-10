@@ -34,6 +34,7 @@
 #include "vtkDomainsParallelChemistryModule.h" // For export macro
 #include "vtkSimpleBondPerceiver.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKDOMAINSPARALLELCHEMISTRY_EXPORT vtkPSimpleBondPerceiver : public vtkSimpleBondPerceiver
 {
 public:
@@ -60,4 +61,5 @@ private:
   vtkPSimpleBondPerceiver(const vtkPSimpleBondPerceiver&) = delete;
   void operator=(const vtkPSimpleBondPerceiver&) = delete;
 };
+VTK_ABI_NAMESPACE_END
 #endif

@@ -24,6 +24,7 @@
 #include <cmath>
 
 // Construct a vtkVolumeMapper with empty scalar input and clipping off.
+VTK_ABI_NAMESPACE_BEGIN
 vtkVolumeMapper::vtkVolumeMapper()
 {
   int i;
@@ -198,3 +199,4 @@ double vtkVolumeMapper::SpacingAdjustedSampleDistance(double inputSpacing[3], in
 
   return dist;
 }
+VTK_ABI_NAMESPACE_END

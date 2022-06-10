@@ -23,6 +23,7 @@
 #include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkFieldDataToAttributeDataFilter);
 
 // Instantiate object with no input and no defined output.
@@ -1147,3 +1148,4 @@ int vtkFieldDataToAttributeDataFilter::RequestUpdateExtent(vtkInformation* vtkNo
     outInfo->Get(vtkStreamingDemandDrivenPipeline::EXACT_EXTENT()));
   return 1;
 }
+VTK_ABI_NAMESPACE_END

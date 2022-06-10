@@ -29,6 +29,7 @@
 #include <openvr.h>                   // for ivars
 #include <vector>                     // ivars
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkJPEGReader;
 class vtkOpenVROverlaySpot;
 class vtkOpenVRRenderWindow;
@@ -157,4 +158,5 @@ private:
   void operator=(const vtkOpenVROverlay&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

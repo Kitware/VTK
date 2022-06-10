@@ -40,6 +40,7 @@
 #include "vtkIOCoreModule.h" // For export macro
 #include "vtkStdString.h"    // for vtkStdString
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkArrayData;
 
 class VTKIOCORE_EXPORT vtkArrayDataReader : public vtkArrayDataAlgorithm
@@ -102,4 +103,5 @@ private:
   void operator=(const vtkArrayDataReader&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

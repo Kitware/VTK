@@ -19,6 +19,7 @@
 #include "vtkInformationKey.h"
 #include "vtkObjectFactory.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkInformationIterator);
 
 class vtkInformationIteratorInternals
@@ -143,3 +144,4 @@ void vtkInformationIterator::PrintSelf(ostream& os, vtkIndent indent)
     os << "(none)" << endl;
   }
 }
+VTK_ABI_NAMESPACE_END

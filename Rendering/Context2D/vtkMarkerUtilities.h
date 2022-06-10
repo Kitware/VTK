@@ -32,6 +32,7 @@
 
 #include "vtkObject.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkImageData;
 
 class VTKRENDERINGCONTEXT2D_EXPORT vtkMarkerUtilities : public vtkObject
@@ -67,4 +68,5 @@ private:
   void operator=(const vtkMarkerUtilities&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkMarkerUtilities_h

@@ -43,6 +43,7 @@
 #include "vtkButtonRepresentation.h"
 #include "vtkInteractionWidgetsModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPropPicker;
 class vtkProp3D;
 class vtkProp3DFollower;
@@ -144,4 +145,5 @@ private:
   void operator=(const vtkProp3DButtonRepresentation&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

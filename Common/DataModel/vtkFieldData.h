@@ -52,8 +52,9 @@
 #include <tuple>  // For CachedGhostRangeType
 #include <vector> // For list indices
 
-class vtkDoubleArray;
+VTK_ABI_NAMESPACE_BEGIN
 class vtkIdList;
+class vtkDoubleArray;
 class vtkUnsignedCharArray;
 
 class VTKCOMMONDATAMODEL_EXPORT vtkFieldData : public vtkObject
@@ -558,4 +559,5 @@ public:
   };
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

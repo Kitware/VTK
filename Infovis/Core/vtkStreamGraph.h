@@ -39,6 +39,7 @@
 #include "vtkGraphAlgorithm.h"
 #include "vtkInfovisCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkBitArray;
 class vtkMergeGraphs;
 class vtkMutableDirectedGraph;
@@ -99,4 +100,5 @@ private:
   void operator=(const vtkStreamGraph&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

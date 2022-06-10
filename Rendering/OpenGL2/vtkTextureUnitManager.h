@@ -33,6 +33,7 @@
 #include "vtkObject.h"
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkOpenGLRenderWindow;
 
 class VTKRENDERINGOPENGL2_EXPORT vtkTextureUnitManager : public vtkObject
@@ -115,4 +116,5 @@ private:
   void operator=(const vtkTextureUnitManager&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

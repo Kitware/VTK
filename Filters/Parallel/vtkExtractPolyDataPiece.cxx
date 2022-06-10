@@ -28,6 +28,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUnsignedCharArray.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkExtractPolyDataPiece);
 
 //=============================================================================
@@ -321,3 +322,4 @@ void vtkExtractPolyDataPiece::AddGhostLevel(vtkPolyData* input, vtkIntArray* cel
     }
   }
 }
+VTK_ABI_NAMESPACE_END

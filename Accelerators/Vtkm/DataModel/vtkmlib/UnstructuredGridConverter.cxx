@@ -41,6 +41,7 @@
 
 namespace tovtkm
 {
+VTK_ABI_NAMESPACE_BEGIN
 
 //------------------------------------------------------------------------------
 // convert an unstructured grid type
@@ -74,10 +75,12 @@ vtkm::cont::DataSet Convert(vtkUnstructuredGrid* input, FieldsFlag fields)
   return dataset;
 }
 
+VTK_ABI_NAMESPACE_END
 } // namespace tovtkm
 
 namespace fromvtkm
 {
+VTK_ABI_NAMESPACE_BEGIN
 
 //------------------------------------------------------------------------------
 bool Convert(const vtkm::cont::DataSet& voutput, vtkUnstructuredGrid* output, vtkDataSet* input)
@@ -118,4 +121,5 @@ bool Convert(const vtkm::cont::DataSet& voutput, vtkUnstructuredGrid* output, vt
   return arraysConverted;
 }
 
+VTK_ABI_NAMESPACE_END
 } // namespace fromvtkm

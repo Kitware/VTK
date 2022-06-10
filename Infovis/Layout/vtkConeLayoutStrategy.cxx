@@ -32,6 +32,7 @@ the U.S. Government retains certain rights in this software.
 #include "vtkSmartPointer.h"
 #define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkConeLayoutStrategy);
 
 vtkConeLayoutStrategy::vtkConeLayoutStrategy()
@@ -283,3 +284,4 @@ void vtkConeLayoutStrategy::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Compactness: " << this->Compactness << endl;
   os << indent << "Compression: " << this->Compression << endl;
 }
+VTK_ABI_NAMESPACE_END

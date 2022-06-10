@@ -27,6 +27,7 @@
 #include "vtkCutter.h"
 #include "vtkFiltersCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSCORE_EXPORT vtkCompositeCutter : public vtkCutter
 {
 public:
@@ -48,4 +49,5 @@ private:
   void operator=(const vtkCompositeCutter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

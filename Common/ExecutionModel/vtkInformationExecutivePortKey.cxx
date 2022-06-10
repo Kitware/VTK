@@ -19,6 +19,7 @@
 #include "vtkSmartPointer.h"
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkInformationExecutivePortKey::vtkInformationExecutivePortKey(
   const char* name, const char* location)
   : vtkInformationKey(name, location)
@@ -144,3 +145,4 @@ void vtkInformationExecutivePortKey::Report(vtkInformation* info, vtkGarbageColl
     v->Executive.Report(collector, this->GetName());
   }
 }
+VTK_ABI_NAMESPACE_END

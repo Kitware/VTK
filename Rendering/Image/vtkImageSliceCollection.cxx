@@ -18,6 +18,7 @@
 #include "vtkImageSlice.h"
 #include "vtkObjectFactory.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImageSliceCollection);
 
 //------------------------------------------------------------------------------
@@ -158,3 +159,4 @@ void vtkImageSliceCollection::Sort()
     delete[] layerArray;
   }
 }
+VTK_ABI_NAMESPACE_END

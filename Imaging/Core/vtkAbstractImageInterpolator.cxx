@@ -30,6 +30,7 @@
 
 //------------------------------------------------------------------------------
 // default do-nothing interpolation functions
+VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
 
@@ -958,3 +959,4 @@ void vtkAbstractImageInterpolator::FreePrecomputedWeights(vtkInterpolationWeight
 
   weights = nullptr;
 }
+VTK_ABI_NAMESPACE_END

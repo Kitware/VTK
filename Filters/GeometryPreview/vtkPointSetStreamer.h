@@ -35,6 +35,7 @@
 #include "vtkFiltersGeometryPreviewModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkStaticPointLocator;
 
 class VTKFILTERSGEOMETRYPREVIEW_EXPORT vtkPointSetStreamer : public vtkPolyDataAlgorithm
@@ -102,4 +103,5 @@ private:
   vtkNew<vtkStaticPointLocator> PointLocator;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkPointSetStreamer_h

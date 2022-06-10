@@ -19,6 +19,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkOpenVRRenderWindow.h"
 #include "vtkRenderer.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOpenVRControlsHelper);
 
 //------------------------------------------------------------------------------
@@ -87,3 +88,4 @@ void vtkOpenVRControlsHelper::InitControlPosition()
     }
   }
 }
+VTK_ABI_NAMESPACE_END

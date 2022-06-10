@@ -21,6 +21,7 @@
 #include "vtk_glew.h"
 #include <cassert>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkClearZPass);
 
 //------------------------------------------------------------------------------
@@ -55,3 +56,4 @@ void vtkClearZPass::Render(const vtkRenderState* s)
   ostate->vtkglClearDepth(this->Depth);
   ostate->vtkglClear(GL_DEPTH_BUFFER_BIT);
 }
+VTK_ABI_NAMESPACE_END

@@ -25,6 +25,7 @@
 #include <algorithm>
 #include <limits>
 
+VTK_ABI_NAMESPACE_BEGIN
 template <typename T>
 vtkSparseArray<T>* vtkSparseArray<T>::New()
 {
@@ -613,4 +614,5 @@ vtkStdString vtkSparseArray<T>::InternalGetDimensionLabel(DimensionT i)
   return this->DimensionLabels[i];
 }
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -37,6 +37,7 @@
 
 #include <mutex> // for std::mutex
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkTimerLog;
 class vtkMultiThreader;
 class vtkScalarsToColors;
@@ -376,4 +377,5 @@ private:
   void operator=(const vtkVideoSource&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

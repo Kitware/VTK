@@ -25,6 +25,7 @@
 #include "vtkThreadedImageAlgorithm.h"
 #include "vtkmyImagingModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkBar;
 
 class VTKMYIMAGING_EXPORT vtkImageFoo : public vtkThreadedImageAlgorithm
@@ -80,4 +81,5 @@ private:
   void operator=(const vtkImageFoo&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

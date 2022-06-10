@@ -23,6 +23,7 @@
 #include "vtkXMLDataParser.h"
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkXMLStructuredDataReader::vtkXMLStructuredDataReader()
 {
   this->PieceExtents = nullptr;
@@ -550,3 +551,4 @@ int vtkXMLStructuredDataReader::ReadSubExtent(int* inExtent, int* inDimensions,
   }
   return 1;
 }
+VTK_ABI_NAMESPACE_END

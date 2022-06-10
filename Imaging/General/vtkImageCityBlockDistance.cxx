@@ -20,6 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImageCityBlockDistance);
 
 //------------------------------------------------------------------------------
@@ -217,3 +218,4 @@ int vtkImageCityBlockDistance::IterativeRequestData(vtkInformation* vtkNotUsed(r
 
   return 1;
 }
+VTK_ABI_NAMESPACE_END

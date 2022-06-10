@@ -31,6 +31,7 @@ namespace vtx
 {
 namespace helper
 {
+VTK_ABI_NAMESPACE_BEGIN
 
 template<class T>
 std::vector<T> StringToVector(const std::string& input) noexcept
@@ -75,6 +76,7 @@ void Print(const std::vector<T>& input, const std::string& name)
   std::cout << oss.str() << "\n";
 }
 
+VTK_ABI_NAMESPACE_END
 } // end namespace helper
 } // end namespace vtx
 

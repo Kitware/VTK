@@ -60,6 +60,7 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkDataObject.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCellTypes;
 class vtkGenericCellIterator;
 class vtkGenericAttributeCollection;
@@ -303,4 +304,5 @@ private:
   void operator=(const vtkGenericDataSet&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -34,6 +34,7 @@
 #pragma warning(default : 4018)
 #endif
 
+VTK_ABI_NAMESPACE_BEGIN
 class DICOMParser;
 
 // Function object for sorting strings
@@ -413,4 +414,5 @@ private:
 #pragma warning(pop)
 #endif
 
+VTK_ABI_NAMESPACE_END
 #endif

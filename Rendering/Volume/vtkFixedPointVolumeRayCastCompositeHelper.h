@@ -33,6 +33,7 @@
 #include "vtkFixedPointVolumeRayCastHelper.h"
 #include "vtkRenderingVolumeModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkFixedPointVolumeRayCastMapper;
 class vtkVolume;
 
@@ -57,4 +58,5 @@ private:
   void operator=(const vtkFixedPointVolumeRayCastCompositeHelper&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -31,6 +31,7 @@
 #include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkDistanceToCamera);
 
 vtkDistanceToCamera::vtkDistanceToCamera()
@@ -249,3 +250,4 @@ void vtkDistanceToCamera::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "ScreenSize: " << this->ScreenSize << endl;
   os << indent << "Scaling: " << (this->Scaling ? "on" : "off") << endl;
 }
+VTK_ABI_NAMESPACE_END

@@ -32,6 +32,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkADIOS2VTXReader);
 
 vtkADIOS2VTXReader::vtkADIOS2VTXReader()
@@ -94,3 +95,4 @@ void vtkADIOS2VTXReader::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
   os << indent << "File Name: " << (this->FileName ? this->FileName : "(none)") << "\n";
 }
+VTK_ABI_NAMESPACE_END

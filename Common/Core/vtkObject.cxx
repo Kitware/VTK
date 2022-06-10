@@ -26,6 +26,7 @@
 #include <vector>
 
 // Initialize static member that controls warning display
+VTK_ABI_NAMESPACE_BEGIN
 static int vtkObjectGlobalWarningDisplay = 1;
 
 //------------------------------------------------------------------------------
@@ -1008,3 +1009,4 @@ std::string vtkObject::GetObjectDescription() const
   }
   return s.str();
 }
+VTK_ABI_NAMESPACE_END

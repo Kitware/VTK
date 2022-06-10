@@ -34,6 +34,7 @@
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkType.h"                   // For vtkTypeUint64, etc
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLRenderTimer
 {
 public:
@@ -148,6 +149,7 @@ private:
   void operator=(const vtkOpenGLRenderTimer&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkOpenGLRenderTimer_h
 
 // VTK-HeaderTest-Exclude: vtkOpenGLRenderTimer.h

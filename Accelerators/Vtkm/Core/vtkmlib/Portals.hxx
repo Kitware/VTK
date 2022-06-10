@@ -52,6 +52,7 @@ struct fillComponents<1>
 
 namespace tovtkm
 {
+VTK_ABI_NAMESPACE_BEGIN
 
 //------------------------------------------------------------------------------
 template <typename VType, typename VTKDataArrayType>
@@ -136,6 +137,7 @@ VTKM_EXEC void vtkPointsPortal<Type>::Set(vtkm::Id index, const ValueType& value
   // use template magic to auto unroll insertion
   fillComponents<NUM_COMPONENTS>()(rawArray, value);
 }
+VTK_ABI_NAMESPACE_END
 }
 
 #endif // vtkmlib_Portals_hxx

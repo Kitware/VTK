@@ -37,6 +37,7 @@
 #include "vtkFiltersModelingModule.h" // For export macro
 #include "vtkUnstructuredGridAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSMODELING_EXPORT vtkVolumeOfRevolutionFilter : public vtkUnstructuredGridAlgorithm
 {
 public:
@@ -111,4 +112,5 @@ private:
   void operator=(const vtkVolumeOfRevolutionFilter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

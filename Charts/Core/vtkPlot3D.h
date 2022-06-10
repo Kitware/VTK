@@ -34,6 +34,7 @@
 #include "vtkVector.h"       // For Points ivar
 #include <vector>            // For ivars
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkChartXYZ;
 class vtkDataArray;
 class vtkIdTypeArray;
@@ -199,4 +200,5 @@ private:
   void operator=(const vtkPlot3D&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkPlot3D_h

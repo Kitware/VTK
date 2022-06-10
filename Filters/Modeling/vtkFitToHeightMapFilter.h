@@ -66,6 +66,7 @@
 #include "vtkFiltersModelingModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkImageData;
 
 class VTKFILTERSMODELING_EXPORT vtkFitToHeightMapFilter : public vtkPolyDataAlgorithm
@@ -171,4 +172,5 @@ private:
   void operator=(const vtkFitToHeightMapFilter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

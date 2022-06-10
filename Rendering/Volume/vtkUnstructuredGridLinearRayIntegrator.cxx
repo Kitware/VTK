@@ -53,6 +53,7 @@
 // VTK's native classes for defining transfer functions is actually slow to
 // access, so we have to cache it somehow.  This class is straightforward
 // copy of the transfer function.
+VTK_ABI_NAMESPACE_BEGIN
 class vtkLinearRayIntegratorTransferFunction
 {
 public:
@@ -694,3 +695,4 @@ float vtkUnstructuredGridLinearRayIntegrator::Psi(
     }
   }
 }
+VTK_ABI_NAMESPACE_END

@@ -26,6 +26,7 @@
 
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImageOpenClose3D);
 
 //------------------------------------------------------------------------------
@@ -295,3 +296,4 @@ void vtkImageOpenClose3D::ReportReferences(vtkGarbageCollector* collector)
   vtkGarbageCollectorReport(collector, this->Filter0, "Filter0");
   vtkGarbageCollectorReport(collector, this->Filter1, "Filter1");
 }
+VTK_ABI_NAMESPACE_END

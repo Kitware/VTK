@@ -32,6 +32,7 @@
 using namespace vtkX3D;
 
 /*======================================================================== */
+VTK_ABI_NAMESPACE_BEGIN
 struct NodeInfo
 {
   NodeInfo(int _nodeId)
@@ -240,9 +241,11 @@ void vtkX3DExporterFIByteWriter::PutBits(const std::string& bitstring)
   }
 }
 
+VTK_ABI_NAMESPACE_END
 #include "vtkX3DExporterFIWriterHelper.h"
 
 /* ------------------------------------------------------------------------- */
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkX3DExporterFIWriter);
 //------------------------------------------------------------------------------
 vtkX3DExporterFIWriter::~vtkX3DExporterFIWriter()
@@ -697,3 +700,4 @@ void vtkX3DExporterFIWriter::SetField(int attributeID, const char* value, bool v
 
 //------------------------------------------------------------------------------
 void vtkX3DExporterFIWriter::Flush() {}
+VTK_ABI_NAMESPACE_END

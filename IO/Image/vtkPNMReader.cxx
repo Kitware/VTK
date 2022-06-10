@@ -19,6 +19,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include <vtksys/SystemTools.hxx>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPNMReader);
 
 static char vtkPNMReaderGetChar(FILE* fp)
@@ -222,3 +223,4 @@ void vtkPNMReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

@@ -31,6 +31,7 @@
 #include "vtkIOMovieModule.h" // For export macro
 #include "vtkImageAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkImageData;
 
 class VTKIOMOVIE_EXPORT vtkGenericMovieWriter : public vtkImageAlgorithm
@@ -91,4 +92,5 @@ private:
   void operator=(const vtkGenericMovieWriter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

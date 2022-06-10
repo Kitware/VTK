@@ -23,6 +23,7 @@
 #include "vtkFiltersGeometryModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkExplicitStructuredGrid;
 class vtkIdTypeArray;
 class vtkMultiProcessController;
@@ -96,4 +97,5 @@ private:
   void operator=(const vtkExplicitStructuredGridSurfaceFilter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

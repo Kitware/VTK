@@ -27,6 +27,7 @@
 
 #include "vtkDataWriter.h"
 #include "vtkIOLegacyModule.h" // For export macro
+VTK_ABI_NAMESPACE_BEGIN
 class vtkUnstructuredGridBase;
 
 class VTKIOLEGACY_EXPORT vtkUnstructuredGridWriter : public vtkDataWriter
@@ -59,4 +60,5 @@ private:
   void operator=(const vtkUnstructuredGridWriter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

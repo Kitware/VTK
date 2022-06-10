@@ -17,6 +17,7 @@
 #include "vtkObjectFactory.h"
 #include <cassert>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOpaquePass);
 
 //------------------------------------------------------------------------------
@@ -42,3 +43,4 @@ void vtkOpaquePass::Render(const vtkRenderState* s)
   this->NumberOfRenderedProps = 0;
   this->RenderFilteredOpaqueGeometry(s);
 }
+VTK_ABI_NAMESPACE_END

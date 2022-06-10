@@ -16,6 +16,7 @@
 #include "vtkTextPropertyCollection.h"
 #include "vtkObjectFactory.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkTextPropertyCollection);
 
 //------------------------------------------------------------------------------
@@ -29,3 +30,4 @@ vtkTextPropertyCollection::vtkTextPropertyCollection() = default;
 
 //------------------------------------------------------------------------------
 vtkTextPropertyCollection::~vtkTextPropertyCollection() = default;
+VTK_ABI_NAMESPACE_END

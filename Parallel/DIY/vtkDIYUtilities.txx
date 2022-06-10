@@ -35,6 +35,7 @@
 // clang-format on
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 template <class DummyT>
 void vtkDIYUtilities::Link(diy::Master& master, const diy::Assigner& assigner,
   const std::vector<std::map<int, DummyT>>& linksMap)
@@ -52,4 +53,5 @@ void vtkDIYUtilities::Link(diy::Master& master, const diy::Assigner& assigner,
   }
 }
 
+VTK_ABI_NAMESPACE_END
 #endif

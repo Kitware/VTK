@@ -39,6 +39,7 @@
 #include "vtkBorderRepresentation.h"
 #include "vtkInteractionWidgetsModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkRenderer;
 class vtkCaptionActor2D;
 class vtkConeSource;
@@ -143,4 +144,5 @@ private:
   void operator=(const vtkCaptionRepresentation&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -32,6 +32,7 @@
 #include "vtkTable.h"
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPlotFunctionalBag);
 
 //------------------------------------------------------------------------------
@@ -356,3 +357,4 @@ void vtkPlotFunctionalBag::CreateDefaultLookupTable()
   this->LookupTable->Register(this);
   this->LookupTable->Delete();
 }
+VTK_ABI_NAMESPACE_END

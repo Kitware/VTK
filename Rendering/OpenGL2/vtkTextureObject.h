@@ -28,6 +28,7 @@
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkWeakPointer.h"            // for render context
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkOpenGLBufferObject;
 class vtkOpenGLHelper;
 class vtkOpenGLRenderWindow;
@@ -800,4 +801,5 @@ private:
   void operator=(const vtkTextureObject&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

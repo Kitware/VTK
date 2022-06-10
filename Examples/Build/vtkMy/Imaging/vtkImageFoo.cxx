@@ -19,6 +19,7 @@
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 //------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkImageFoo);
 
@@ -161,3 +162,4 @@ void vtkImageFoo::ThreadedRequestData(vtkInformation*, vtkInformationVector**,
       return;
   }
 }
+VTK_ABI_NAMESPACE_END

@@ -46,6 +46,7 @@
 #include <map>    // To store the TimeMap
 #include <vector> // To store the TimeMap
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKIOINFOVIS_EXPORT vtkTemporalDelimitedTextReader : public vtkDelimitedTextReader
 {
 public:
@@ -143,4 +144,5 @@ private:
   void operator=(const vtkTemporalDelimitedTextReader&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -25,6 +25,7 @@
 #include "vtkTextProperty.h"
 #include "vtkWindow.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkCxxSetObjectMacro(vtkAngleRepresentation, HandleRepresentation, vtkHandleRepresentation);
 
 //------------------------------------------------------------------------------
@@ -220,3 +221,4 @@ void vtkAngleRepresentation::PrintSelf(ostream& os, vtkIndent indent)
     os << "(none)\n";
   }
 }
+VTK_ABI_NAMESPACE_END

@@ -42,6 +42,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkIOCoreModule.h" // For export macro
 #include "vtkObject.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkTextCodec;
 
 class VTKIOCORE_EXPORT vtkTextCodecFactory : public vtkObject
@@ -104,4 +105,5 @@ private:
   ///@}
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkTextCodecFactory_h

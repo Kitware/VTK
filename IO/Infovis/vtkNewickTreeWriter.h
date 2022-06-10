@@ -27,6 +27,7 @@
 #include "vtkIOInfovisModule.h" // For export macro
 #include "vtkStdString.h"       // For get/set ivars
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkTree;
 
 class VTKIOINFOVIS_EXPORT vtkNewickTreeWriter : public vtkDataWriter
@@ -93,4 +94,5 @@ private:
   void operator=(const vtkNewickTreeWriter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

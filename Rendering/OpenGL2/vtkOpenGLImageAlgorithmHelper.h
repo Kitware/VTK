@@ -28,6 +28,7 @@
 #include "vtkOpenGLHelper.h" // used for ivars
 #include "vtkSmartPointer.h" // for ivar
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkOpenGLRenderWindow;
 class vtkRenderWindow;
 class vtkImageData;
@@ -74,4 +75,5 @@ private:
   void operator=(const vtkOpenGLImageAlgorithmHelper&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

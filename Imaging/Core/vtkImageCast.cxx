@@ -21,6 +21,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImageCast);
 
 //------------------------------------------------------------------------------
@@ -150,3 +151,4 @@ void vtkImageCast::PrintSelf(ostream& os, vtkIndent indent)
     os << "Off\n";
   }
 }
+VTK_ABI_NAMESPACE_END

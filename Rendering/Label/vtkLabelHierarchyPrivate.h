@@ -8,6 +8,7 @@
 //----------------------------------------------------------------------------
 // vtkLabelHierarchy::Implementation
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkLabelHierarchy::Implementation
 {
 public:
@@ -243,5 +244,6 @@ inline void vtkLabelHierarchy::Implementation::LabelSet::AddChildren(
   this->SetChildGeometry(self);
 }
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkLabelHierarchyPrivate_h
 // VTK-HeaderTest-Exclude: vtkLabelHierarchyPrivate.h

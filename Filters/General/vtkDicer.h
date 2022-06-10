@@ -51,6 +51,7 @@
 #define VTK_DICE_MODE_SPECIFIED_NUMBER 1
 #define VTK_DICE_MODE_MEMORY_LIMIT 2
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSGENERAL_EXPORT vtkDicer : public vtkDataSetAlgorithm
 {
 public:
@@ -143,4 +144,5 @@ private:
   void operator=(const vtkDicer&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

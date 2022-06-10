@@ -16,6 +16,7 @@
 #include "vtkDoubleArray.h"
 #include "vtkObjectFactory.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkContourValues);
 
 // Construct object with a single contour value at 0.0.
@@ -177,3 +178,4 @@ void vtkContourValues::DeepCopy(vtkContourValues* other)
 {
   this->Contours->DeepCopy(other->Contours);
 }
+VTK_ABI_NAMESPACE_END

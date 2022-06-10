@@ -61,6 +61,7 @@
 #include "vtkFiltersFlowPathsModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSFLOWPATHS_EXPORT vtkVortexCore : public vtkPolyDataAlgorithm
 {
 public:
@@ -105,4 +106,5 @@ private:
   void operator=(const vtkVortexCore&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

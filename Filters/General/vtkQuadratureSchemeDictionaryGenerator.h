@@ -33,6 +33,7 @@
 #include "vtkDataSetAlgorithm.h"
 #include "vtkFiltersGeneralModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPolyData;
 class vtkUnstructuredGrid;
 class vtkInformation;
@@ -67,4 +68,5 @@ private:
   ///@}
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

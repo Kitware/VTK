@@ -30,6 +30,7 @@
 #include "vtkUnstructuredGridAlgorithm.h"
 #include "vtkmlib/vtkmInitializer.h" // Need for initializing vtk-m
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataSet;
 class vtkUnstructuredGrid;
 
@@ -67,4 +68,5 @@ private:
   vtkmInitializer Initializer;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkmCleanGrid_h

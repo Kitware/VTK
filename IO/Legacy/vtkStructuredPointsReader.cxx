@@ -24,6 +24,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStructuredPoints.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkStructuredPointsReader);
 
 vtkStructuredPointsReader::vtkStructuredPointsReader() = default;
@@ -524,3 +525,4 @@ void vtkStructuredPointsReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

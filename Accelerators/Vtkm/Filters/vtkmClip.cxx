@@ -41,6 +41,7 @@
 
 #include <algorithm>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkmClip);
 
 //------------------------------------------------------------------------------
@@ -214,3 +215,4 @@ int vtkmClip::FillInputPortInformation(int, vtkInformation* info)
   info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkImageData");
   return 1;
 }
+VTK_ABI_NAMESPACE_END

@@ -34,6 +34,7 @@
 
 #include <map>
 
+VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
 void ConvertXYZToLatLonDepth(double xyz[3], double lonLatDepth[3], double center[3])
@@ -553,3 +554,4 @@ void vtkProjectSphereFilter::SetCellInformation(
     }
   }
 }
+VTK_ABI_NAMESPACE_END

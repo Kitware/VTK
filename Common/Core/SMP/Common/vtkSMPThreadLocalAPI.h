@@ -44,6 +44,7 @@ namespace detail
 {
 namespace smp
 {
+VTK_ABI_NAMESPACE_BEGIN
 
 template <typename T>
 class vtkSMPThreadLocalAPI
@@ -214,6 +215,7 @@ private:
   }
 };
 
+VTK_ABI_NAMESPACE_END
 } // namespace smp
 } // namespace detail
 } // namespace vtk

@@ -30,6 +30,7 @@
 #include "vtkObject.h"
 #include "vtkRenderingContext2DModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkContext2D;
 class vtkContextMouseEvent;
 class vtkContextKeyEvent;
@@ -322,4 +323,5 @@ private:
   void operator=(const vtkAbstractContextItem&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkContextItem_h

@@ -18,6 +18,7 @@
 #include "vtkExporter.h"
 #include "vtkWebGLExporterModule.h" // needed for export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKWEBGLEXPORTER_EXPORT vtkPVWebGLExporter : public vtkExporter
 {
 public:
@@ -43,4 +44,5 @@ private:
   void operator=(const vtkPVWebGLExporter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

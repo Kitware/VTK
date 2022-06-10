@@ -32,6 +32,7 @@
 #include "vtkPolyDataAlgorithm.h"        // needed for vtkPolyDataAlgorithm
 #include "vtkWidgetRepresentation.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkActor;
 class vtkCellPicker;
 class vtkDoubleArray;
@@ -372,4 +373,5 @@ private:
   vtkCurveRepresentation(const vtkCurveRepresentation&) = delete;
   void operator=(const vtkCurveRepresentation&) = delete;
 };
+VTK_ABI_NAMESPACE_END
 #endif

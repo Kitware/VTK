@@ -27,6 +27,7 @@
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkAppendLocationAttributes);
 
 //------------------------------------------------------------------------------
@@ -107,3 +108,4 @@ void vtkAppendLocationAttributes::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "AppendPointLocations: " << (this->AppendPointLocations ? "On\n" : "Off\n");
   os << indent << "AppendCellCenters: " << (this->AppendCellCenters ? "On" : "Off") << endl;
 }
+VTK_ABI_NAMESPACE_END

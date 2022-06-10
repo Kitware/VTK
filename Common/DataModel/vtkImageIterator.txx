@@ -19,6 +19,7 @@
 #include "vtkImageIterator.h"
 
 //----------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 template <class DType>
 vtkImageIterator<DType>::vtkImageIterator()
 {
@@ -70,4 +71,5 @@ void vtkImageIterator<DType>::NextSpan()
   }
 }
 
+VTK_ABI_NAMESPACE_END
 #endif

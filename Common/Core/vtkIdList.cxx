@@ -16,6 +16,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkSMPTools.h" //for parallel sort
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkIdList);
 
 //------------------------------------------------------------------------------
@@ -301,3 +302,4 @@ void vtkIdList::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Number of Ids: " << this->NumberOfIds << "\n";
 }
+VTK_ABI_NAMESPACE_END

@@ -16,6 +16,8 @@
 #ifndef OMFHelpers_h
 #define OMFHelpers_h
 
+#include "vtkABINamespace.h"
+
 #include "vtk_jsoncpp_fwd.h" // For Json fwd declaration
 
 #include <string>
@@ -25,6 +27,7 @@ namespace omf
 {
 namespace helper
 {
+VTK_ABI_NAMESPACE_BEGIN
 
 /**
  * print names of members of root. Just used for debugging
@@ -81,6 +84,7 @@ bool GetFloatArray(const Json::Value& root, std::vector<float>& value);
  */
 bool GetDoubleArray(const Json::Value& root, std::vector<double>& value);
 
+VTK_ABI_NAMESPACE_END
 } // end namespace helper
 } // end namespace omf
 

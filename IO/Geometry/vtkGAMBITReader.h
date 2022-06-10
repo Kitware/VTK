@@ -35,6 +35,7 @@
 #include "vtkIOGeometryModule.h" // For export macro
 #include "vtkUnstructuredGridAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDoubleArray;
 class VTKIOGEOMETRY_EXPORT vtkGAMBITReader : public vtkUnstructuredGridAlgorithm
 {
@@ -120,4 +121,5 @@ private:
   void operator=(const vtkGAMBITReader&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -17,6 +17,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkParallelopipedWidget.h" // REMOVE
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkWidgetSet);
 
 //------------------------------------------------------------------------------
@@ -91,3 +92,4 @@ void vtkWidgetSet::PrintSelf(ostream& os, vtkIndent indent)
   // Superclass typedef defined in vtkTypeMacro() found in vtkSetGet.h
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

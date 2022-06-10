@@ -30,6 +30,7 @@
 
 #define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkDIMACSGraphWriter);
 
 void vtkDIMACSGraphWriter::WriteData()
@@ -114,3 +115,4 @@ void vtkDIMACSGraphWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

@@ -27,6 +27,7 @@ PURPOSE.  See the above copyright Nonice for more information.
 
 #include <cassert>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkHyperTreeGridNonOrientedUnlimitedMooreSuperCursor);
 
 //------------------------------------------------------------------------------
@@ -372,3 +373,4 @@ vtkHyperTreeGridNonOrientedUnlimitedMooreSuperCursor::
   ~vtkHyperTreeGridNonOrientedUnlimitedMooreSuperCursor() = default;
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_END

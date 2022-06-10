@@ -34,6 +34,7 @@
 #include <map>                 // For map
 #include <vector>              // For string
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkActor;
 class vtkTexture;
 
@@ -87,4 +88,5 @@ private:
   void operator=(const vtkOBJExporter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

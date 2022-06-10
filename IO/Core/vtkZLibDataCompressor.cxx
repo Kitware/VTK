@@ -16,6 +16,7 @@
 #include "vtkObjectFactory.h"
 #include "vtk_zlib.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkZLibDataCompressor);
 
 //------------------------------------------------------------------------------
@@ -110,3 +111,4 @@ size_t vtkZLibDataCompressor::GetMaximumCompressionSpace(size_t size)
   // ZLib specifies that destination buffer must be 0.1% larger + 12 bytes.
   return size + (size + 999) / 1000 + 12;
 }
+VTK_ABI_NAMESPACE_END

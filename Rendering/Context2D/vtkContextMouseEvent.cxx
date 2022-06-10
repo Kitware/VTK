@@ -16,6 +16,7 @@
 #include "vtkContextMouseEvent.h"
 #include "vtkRenderWindowInteractor.h" // AIX include order issues.
 
+VTK_ABI_NAMESPACE_BEGIN
 int vtkContextMouseEvent::GetModifiers() const
 {
   int modifier = vtkContextMouseEvent::NO_MODIFIER;
@@ -36,3 +37,4 @@ int vtkContextMouseEvent::GetModifiers() const
   }
   return modifier;
 }
+VTK_ABI_NAMESPACE_END

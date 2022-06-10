@@ -19,6 +19,7 @@
 #include "vtkRenderWindow.h"
 
 // Static allocation:
+VTK_ABI_NAMESPACE_BEGIN
 vtkOpenGLGL2PSHelper* vtkOpenGLGL2PSHelper::Instance = nullptr;
 
 //------------------------------------------------------------------------------
@@ -76,3 +77,4 @@ vtkOpenGLGL2PSHelper::~vtkOpenGLGL2PSHelper()
 {
   this->SetRenderWindow(nullptr);
 }
+VTK_ABI_NAMESPACE_END

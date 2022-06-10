@@ -32,6 +32,7 @@
 #include "vtkImagingCoreModule.h" // For export macro
 #include "vtkThreadedImageAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkScalarsToColors;
 
 class VTKIMAGINGCORE_EXPORT vtkImageMapToColors : public vtkThreadedImageAlgorithm
@@ -121,4 +122,5 @@ private:
   void operator=(const vtkImageMapToColors&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -35,6 +35,7 @@
 
 #include <random>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkSSAOPass);
 
 //------------------------------------------------------------------------------
@@ -605,3 +606,4 @@ void vtkSSAOPass::ReleaseGraphicsResources(vtkWindow* w)
     this->DepthTexture = nullptr;
   }
 }
+VTK_ABI_NAMESPACE_END

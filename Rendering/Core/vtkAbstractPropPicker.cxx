@@ -23,6 +23,7 @@
 #include "vtkPropAssembly.h"
 #include "vtkVolume.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkCxxSetObjectMacro(vtkAbstractPropPicker, Path, vtkAssemblyPath);
 
 vtkAbstractPropPicker::vtkAbstractPropPicker()
@@ -153,3 +154,4 @@ void vtkAbstractPropPicker::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Path: (none)" << endl;
   }
 }
+VTK_ABI_NAMESPACE_END

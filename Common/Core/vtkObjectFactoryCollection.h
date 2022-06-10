@@ -31,6 +31,7 @@
 
 #include "vtkObjectFactory.h" // Needed for inline methods
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONCORE_EXPORT vtkObjectFactoryCollection : public vtkCollection
 {
 public:
@@ -74,4 +75,5 @@ private:
   void operator=(const vtkObjectFactoryCollection&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

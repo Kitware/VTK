@@ -31,6 +31,7 @@
 #include "vtkDataWriter.h"
 #include "vtkIOLegacyModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCompositeDataSet;
 class vtkHierarchicalBoxDataSet;
 class vtkMultiBlockDataSet;
@@ -81,4 +82,5 @@ private:
   void operator=(const vtkCompositeDataWriter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

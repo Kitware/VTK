@@ -40,6 +40,7 @@
 #include <sstream>
 #include <vtksys/SystemTools.hxx>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkTesting);
 vtkCxxSetObjectMacro(vtkTesting, RenderWindow, vtkRenderWindow);
 
@@ -1001,3 +1002,4 @@ void vtkTesting::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "BorderOffset: " << this->GetBorderOffset() << endl;
   os << indent << "Verbose: " << this->GetVerbose() << endl;
 }
+VTK_ABI_NAMESPACE_END

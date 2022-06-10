@@ -27,6 +27,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUnstructuredGrid.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkObjectFactoryNewMacro(vtkAggregateDataSetFilter);
 
 //------------------------------------------------------------------------------
@@ -204,3 +205,4 @@ void vtkAggregateDataSetFilter::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
   os << indent << "NumberOfTargetProcesses: " << this->NumberOfTargetProcesses << endl;
 }
+VTK_ABI_NAMESPACE_END

@@ -30,6 +30,7 @@
 
 #include "vtkSMPTools.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 struct TangentComputation
 {
   TangentComputation(vtkIdType offset, vtkPoints* points, vtkCellArray* triangles,
@@ -210,3 +211,4 @@ void vtkPolyDataTangents::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Compute Point Tangents: " << (this->ComputePointTangents ? "On\n" : "Off\n");
   os << indent << "Compute Cell Tangents: " << (this->ComputeCellTangents ? "On\n" : "Off\n");
 }
+VTK_ABI_NAMESPACE_END

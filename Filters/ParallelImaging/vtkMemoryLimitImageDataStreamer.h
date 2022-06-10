@@ -27,6 +27,7 @@
 #include "vtkFiltersParallelImagingModule.h" // For export macro
 #include "vtkImageDataStreamer.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSPARALLELIMAGING_EXPORT vtkMemoryLimitImageDataStreamer : public vtkImageDataStreamer
 {
 public:
@@ -57,4 +58,5 @@ private:
   void operator=(const vtkMemoryLimitImageDataStreamer&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

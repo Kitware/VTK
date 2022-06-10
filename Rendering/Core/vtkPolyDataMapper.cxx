@@ -23,6 +23,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkObjectFactoryNewMacro(vtkPolyDataMapper);
 
 //------------------------------------------------------------------------------
@@ -254,3 +255,4 @@ vtkTypeBool vtkPolyDataMapper::Update(vtkInformation* requests)
   }
   return this->Superclass::Update(requests);
 }
+VTK_ABI_NAMESPACE_END

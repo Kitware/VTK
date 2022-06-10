@@ -37,6 +37,7 @@
 #include <atomic>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkWindowedSincPolyDataFilter);
 
 //------------------------------------------------------------------------------
@@ -1567,3 +1568,4 @@ void vtkWindowedSincPolyDataFilter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Generate Error Scalars: " << (this->GenerateErrorScalars ? "On\n" : "Off\n");
   os << indent << "Generate Error Vectors: " << (this->GenerateErrorVectors ? "On\n" : "Off\n");
 }
+VTK_ABI_NAMESPACE_END

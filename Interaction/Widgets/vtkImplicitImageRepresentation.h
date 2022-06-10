@@ -38,6 +38,7 @@
 #include "vtkImplicitPlaneRepresentation.h"
 #include "vtkInteractionWidgetsModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkActor;
 class vtkImageData;
 class vtkImageMapToColors;
@@ -183,4 +184,5 @@ private:
   void operator=(const vtkImplicitImageRepresentation&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

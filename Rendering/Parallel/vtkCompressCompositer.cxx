@@ -47,6 +47,7 @@
 
 #include "vtkTimerLog.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkCompressCompositer);
 
 // Different pixel types to template.
@@ -648,3 +649,4 @@ void vtkCompressCompositer::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

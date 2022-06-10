@@ -34,6 +34,7 @@
 #include "vtkTableAlgorithm.h"
 #include "vtkVariant.h" // For vtkVariant arguments
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKINFOVISCORE_EXPORT vtkThresholdTable : public vtkTableAlgorithm
 {
 public:
@@ -127,4 +128,5 @@ private:
   void operator=(const vtkThresholdTable&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

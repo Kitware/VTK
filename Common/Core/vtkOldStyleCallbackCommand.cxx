@@ -21,6 +21,7 @@
 #include <cstring>
 
 //----------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkOldStyleCallbackCommand::vtkOldStyleCallbackCommand()
 {
   this->ClientData = nullptr;
@@ -43,3 +44,4 @@ void vtkOldStyleCallbackCommand::Execute(vtkObject*, unsigned long, void*)
     this->Callback(this->ClientData);
   }
 }
+VTK_ABI_NAMESPACE_END

@@ -41,6 +41,7 @@
 #include "vtkSelectionNode.h" // for vtkSelectionNode::SelectionContent
 #include "vtkSmartPointer.h"  // for smart pointer
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkSignedCharArray;
 class vtkSelection;
 class vtkSelectionNode;
@@ -142,4 +143,5 @@ private:
   void operator=(const vtkExtractSelection&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

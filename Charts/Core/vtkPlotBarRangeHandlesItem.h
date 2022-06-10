@@ -35,6 +35,7 @@
 #include "vtkPlotRangeHandlesItem.h"
 #include "vtkSmartPointer.h" // Needed for vtkSmartPointer attribute
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCHARTSCORE_EXPORT vtkPlotBarRangeHandlesItem : public vtkPlotRangeHandlesItem
 {
 public:
@@ -72,4 +73,5 @@ private:
   vtkSmartPointer<vtkPlotBar> PlotBar;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkPlotBarRangeHandlesItem_h

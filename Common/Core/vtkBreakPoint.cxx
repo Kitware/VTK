@@ -19,6 +19,7 @@
 #endif
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 void vtkBreakPoint::Break()
 {
 #ifndef _WIN32
@@ -32,3 +33,4 @@ void vtkBreakPoint::Break()
   }
 #endif
 }
+VTK_ABI_NAMESPACE_END

@@ -50,6 +50,7 @@
 #include "vtkGraphAlgorithm.h"
 #include "vtkInfovisCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkBitArray;
 class vtkMutableGraphHelper;
 class vtkStringArray;
@@ -114,4 +115,5 @@ private:
   void operator=(const vtkMergeGraphs&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

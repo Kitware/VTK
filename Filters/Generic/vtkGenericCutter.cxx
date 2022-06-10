@@ -40,6 +40,7 @@
 
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkGenericCutter);
 vtkCxxSetObjectMacro(vtkGenericCutter, CutFunction, vtkImplicitFunction);
 vtkCxxSetObjectMacro(vtkGenericCutter, Locator, vtkIncrementalPointLocator);
@@ -395,3 +396,4 @@ int vtkGenericCutter::FillInputPortInformation(int port, vtkInformation* info)
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkGenericDataSet");
   return 1;
 }
+VTK_ABI_NAMESPACE_END

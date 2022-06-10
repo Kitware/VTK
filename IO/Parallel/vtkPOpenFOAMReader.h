@@ -33,6 +33,7 @@
 #include "vtkIOParallelModule.h" // For export macro
 #include "vtkOpenFOAMReader.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataArraySelection;
 class vtkMultiProcessController;
 
@@ -89,4 +90,5 @@ private:
   void AllGather(vtkDataArraySelection*);
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -48,6 +48,7 @@
 #include "vtkCommonComputationalGeometryModule.h" // For export macro
 #include "vtkSpline.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONCOMPUTATIONALGEOMETRY_EXPORT vtkKochanekSpline : public vtkSpline
 {
 public:
@@ -116,4 +117,5 @@ private:
   void operator=(const vtkKochanekSpline&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

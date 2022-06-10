@@ -33,6 +33,7 @@
 #include <typeinfo>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
 
@@ -287,3 +288,4 @@ int vtkPartitionedDataSetSource::RequestData(
 
   return 1;
 }
+VTK_ABI_NAMESPACE_END

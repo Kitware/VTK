@@ -24,6 +24,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkXMLDataElement.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkXMLPartitionedDataSetReader);
 
 //------------------------------------------------------------------------------
@@ -96,3 +97,4 @@ void vtkXMLPartitionedDataSetReader::ReadComposite(vtkXMLDataElement* element,
     }
   }
 }
+VTK_ABI_NAMESPACE_END

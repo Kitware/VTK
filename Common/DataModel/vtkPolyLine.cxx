@@ -30,6 +30,7 @@
 
 #include <algorithm>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPolyLine);
 
 //------------------------------------------------------------------------------
@@ -501,3 +502,4 @@ void vtkPolyLine::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Line:\n";
   this->Line->PrintSelf(os, indent.GetNextIndent());
 }
+VTK_ABI_NAMESPACE_END

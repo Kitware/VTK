@@ -27,6 +27,7 @@
 #include "vtkSMPTools.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkSampleFunction);
 vtkCxxSetObjectMacro(vtkSampleFunction, ImplicitFunction, vtkImplicitFunction);
 
@@ -527,3 +528,4 @@ void vtkSampleFunction::ReportReferences(vtkGarbageCollector* collector)
   this->Superclass::ReportReferences(collector);
   vtkGarbageCollectorReport(collector, this->ImplicitFunction, "ImplicitFunction");
 }
+VTK_ABI_NAMESPACE_END

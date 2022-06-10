@@ -40,6 +40,7 @@
 
 #include <limits>
 
+VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
 // For C format strings
@@ -754,3 +755,4 @@ void vtkVRMLExporter::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Speed: " << this->Speed << "\n";
 }
+VTK_ABI_NAMESPACE_END

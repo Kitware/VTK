@@ -65,6 +65,7 @@
 #define VTKKW_FP_MASK 0x7fff
 #define VTKKW_FP_SCALE 32767.0
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkMatrix4x4;
 class vtkMultiThreader;
 class vtkPlaneCollection;
@@ -741,4 +742,5 @@ inline int vtkFixedPointVolumeRayCastMapper::CheckIfCropped(unsigned int pos[3])
   return !(static_cast<unsigned int>(this->CroppingRegionFlags) & this->CroppingRegionMask[idx]);
 }
 
+VTK_ABI_NAMESPACE_END
 #endif

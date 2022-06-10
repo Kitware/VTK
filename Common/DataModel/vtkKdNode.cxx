@@ -26,6 +26,7 @@
 #include "vtkPlanesIntersection.h"
 #include "vtkPoints.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkKdNode);
 vtkCxxSetObjectMacro(vtkKdNode, Left, vtkKdNode);
 vtkCxxSetObjectMacro(vtkKdNode, Right, vtkKdNode);
@@ -993,3 +994,4 @@ void vtkKdNode::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "MaxVal: " << this->MaxVal[0] << " " << this->MaxVal[1] << " " << this->MaxVal[2]
      << endl;
 }
+VTK_ABI_NAMESPACE_END

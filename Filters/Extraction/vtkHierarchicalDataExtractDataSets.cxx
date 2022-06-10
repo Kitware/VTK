@@ -15,6 +15,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkHierarchicalDataExtractDataSets.h"
 
 #include "vtkObjectFactory.h"
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkHierarchicalDataExtractDataSets);
 
 //------------------------------------------------------------------------------
@@ -28,3 +29,4 @@ void vtkHierarchicalDataExtractDataSets::PrintSelf(ostream& os, vtkIndent indent
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

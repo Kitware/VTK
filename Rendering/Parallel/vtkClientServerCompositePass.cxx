@@ -19,6 +19,7 @@
 #include "vtkRenderState.h"
 #include "vtkSynchronizedRenderers.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkClientServerCompositePass);
 vtkCxxSetObjectMacro(vtkClientServerCompositePass, Controller, vtkMultiProcessController);
 vtkCxxSetObjectMacro(vtkClientServerCompositePass, RenderPass, vtkRenderPass);
@@ -151,3 +152,4 @@ void vtkClientServerCompositePass::PrintSelf(ostream& os, vtkIndent indent)
     os << this->PostProcessingRenderPass << endl;
   }
 }
+VTK_ABI_NAMESPACE_END

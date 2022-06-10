@@ -49,6 +49,7 @@
 #include "vtkTable.h"
 #include "vtkViewTheme.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkQtListView);
 
 //------------------------------------------------------------------------------
@@ -374,3 +375,4 @@ void vtkQtListView::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "ApplyRowColors: " << (this->ApplyRowColors ? "true" : "false") << endl;
 }
+VTK_ABI_NAMESPACE_END

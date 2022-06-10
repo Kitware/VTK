@@ -33,6 +33,7 @@
 #include <vector>
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkObjectFactoryNewMacro(vtkSimpleBondPerceiver);
 
 //------------------------------------------------------------------------------
@@ -193,3 +194,4 @@ double vtkSimpleBondPerceiver::GetCovalentRadiusWithTolerance(
   return this->IsToleranceAbsolute ? table->GetCovalentRadius(atomicNumber) + this->Tolerance / 2
                                    : table->GetCovalentRadius(atomicNumber) * this->Tolerance;
 }
+VTK_ABI_NAMESPACE_END

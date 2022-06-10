@@ -60,6 +60,7 @@ private:
   void operator=(const SCOPED_SET&) = delete;
 };
 }
+VTK_ABI_NAMESPACE_BEGIN
 
 vtkStandardNewMacro(vtkCGNSFileSeriesReader);
 vtkCxxSetObjectMacro(vtkCGNSFileSeriesReader, Controller, vtkMultiProcessController);
@@ -214,9 +215,11 @@ int vtkCGNSFileSeriesReader::ProcessRequest(
   this->FileSeriesHelper->FillTimeInformation(outInfo);
   return 1;
 }
+VTK_ABI_NAMESPACE_END
 
 namespace vtkCGNSFileSeriesReaderNS
 {
+VTK_ABI_NAMESPACE_BEGIN
 static bool SetFileNameCallback(vtkAlgorithm* reader, const std::string& fname)
 {
   if (vtkCGNSReader* cgnsReader = vtkCGNSReader::SafeDownCast(reader))
@@ -226,8 +229,10 @@ static bool SetFileNameCallback(vtkAlgorithm* reader, const std::string& fname)
   }
   return false;
 };
+VTK_ABI_NAMESPACE_END
 }
 
+VTK_ABI_NAMESPACE_BEGIN
 //----------------------------------------------------------------------------
 bool vtkCGNSFileSeriesReader::UpdateActiveFileSet(vtkInformation* outInfo)
 {
@@ -285,6 +290,7 @@ void vtkCGNSFileSeriesReader::ChooseActiveFile(int index)
 // data structure, we ignore this warning.
 #pragma warning(disable : 4503)
 #endif
+VTK_ABI_NAMESPACE_END
 
 namespace
 {
@@ -449,6 +455,7 @@ private:
 };
 }
 
+VTK_ABI_NAMESPACE_BEGIN
 //----------------------------------------------------------------------------
 int vtkCGNSFileSeriesReader::RequestData(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
@@ -496,3 +503,4 @@ int vtkCGNSFileSeriesReader::RequestData(
   output->ShallowCopy(hierarchy.Get());
   return 1;
 }
+VTK_ABI_NAMESPACE_END

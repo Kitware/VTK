@@ -39,6 +39,7 @@
 // new motion flag
 #define VTKIS_USERINTERACTION 8
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKINTERACTIONSTYLE_EXPORT vtkInteractorStyleUser : public vtkInteractorStyle
 {
 public:
@@ -151,4 +152,5 @@ private:
   void operator=(const vtkInteractorStyleUser&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -18,6 +18,7 @@
 #include "vtkObjectFactory.h"
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkStringToImage::vtkStringToImage()
 {
   this->Antialias = true;
@@ -43,3 +44,4 @@ void vtkStringToImage::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
   os << indent << "ScaleToPowerOfTwo: " << this->ScaleToPowerOfTwo << endl;
 }
+VTK_ABI_NAMESPACE_END

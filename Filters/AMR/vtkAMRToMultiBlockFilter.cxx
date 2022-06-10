@@ -24,6 +24,7 @@
 
 #include <cassert>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkAMRToMultiBlockFilter);
 vtkCxxSetObjectMacro(vtkAMRToMultiBlockFilter, Controller, vtkMultiProcessController);
 
@@ -123,3 +124,4 @@ int vtkAMRToMultiBlockFilter::RequestData(vtkInformation* vtkNotUsed(rqst),
 
   return 1;
 }
+VTK_ABI_NAMESPACE_END

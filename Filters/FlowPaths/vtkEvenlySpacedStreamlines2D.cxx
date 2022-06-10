@@ -53,6 +53,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <iostream>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkObjectFactoryNewMacro(vtkEvenlySpacedStreamlines2D);
 vtkCxxSetObjectMacro(vtkEvenlySpacedStreamlines2D, Integrator, vtkInitialValueProblemSolver);
 vtkCxxSetObjectMacro(
@@ -869,3 +870,4 @@ void vtkEvenlySpacedStreamlines2D::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Integrator: " << this->Integrator << endl;
   os << indent << "Vorticity computation: " << (this->ComputeVorticity ? " On" : " Off") << endl;
 }
+VTK_ABI_NAMESPACE_END

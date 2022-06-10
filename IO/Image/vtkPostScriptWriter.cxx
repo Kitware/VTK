@@ -18,6 +18,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPostScriptWriter);
 
 #define VTK_MARGIN 0.95
@@ -194,3 +195,4 @@ void vtkPostScriptWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

@@ -18,6 +18,7 @@
 #include "vtkObjectFactory.h"
 #include <cassert>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkBoxMuellerRandomSequence);
 
 //------------------------------------------------------------------------------
@@ -94,3 +95,4 @@ void vtkBoxMuellerRandomSequence::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

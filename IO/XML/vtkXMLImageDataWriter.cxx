@@ -18,6 +18,7 @@
 #include "vtkMatrix3x3.h"
 #include "vtkObjectFactory.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkXMLImageDataWriter);
 
 //------------------------------------------------------------------------------
@@ -72,3 +73,4 @@ int vtkXMLImageDataWriter::FillInputPortInformation(int vtkNotUsed(port), vtkInf
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkImageData");
   return 1;
 }
+VTK_ABI_NAMESPACE_END

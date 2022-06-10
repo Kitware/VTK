@@ -34,6 +34,7 @@
 #include <vector>
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 class vtkLSDynaPartCollection::LSDynaPartStorage
 {
 protected:
@@ -943,3 +944,4 @@ void vtkLSDynaPartCollection::FillPointProperty(const vtkIdType& numTuples,
   }
   p->Fam.SkipWords(numPointsToSkipEnd * numComps);
 }
+VTK_ABI_NAMESPACE_END

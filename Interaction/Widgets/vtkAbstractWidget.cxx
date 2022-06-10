@@ -24,6 +24,7 @@
 #include "vtkWidgetRepresentation.h"
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkAbstractWidget::vtkAbstractWidget()
 {
   // Setup event processing
@@ -344,3 +345,4 @@ void vtkAbstractWidget::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Parent: " << this->Parent << "\n";
 }
+VTK_ABI_NAMESPACE_END

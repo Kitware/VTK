@@ -33,6 +33,7 @@
 #define VTK_BOX_TYPE_AXIS_ALIGNED 0
 #define VTK_BOX_TYPE_ORIENTED 1
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSSOURCES_EXPORT vtkOutlineSource : public vtkPolyDataAlgorithm
 {
 public:
@@ -111,4 +112,5 @@ private:
   void operator=(const vtkOutlineSource&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -24,6 +24,7 @@
 
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImageGradientMagnitude);
 
 //------------------------------------------------------------------------------
@@ -248,3 +249,4 @@ void vtkImageGradientMagnitude::ThreadedExecute(
       return;
   }
 }
+VTK_ABI_NAMESPACE_END

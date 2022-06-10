@@ -17,6 +17,7 @@
 #define X3DATTRIBUTENUM 348
 #define X3DELEMENTNUM 171
 
+VTK_ABI_NAMESPACE_BEGIN
 const char* x3dElementString[X3DELEMENTNUM] = {
   "Shape",
   "Appearance",
@@ -539,3 +540,4 @@ const char* x3dAttributeString[X3DATTRIBUTENUM] = {
   "programs",
   "matrix",
 };
+VTK_ABI_NAMESPACE_END

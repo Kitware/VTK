@@ -26,6 +26,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkSMPTools.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkMergeVectorComponents);
 
 //------------------------------------------------------------------------------
@@ -209,3 +210,4 @@ void vtkMergeVectorComponents::PrintSelf(ostream& os, vtkIndent indent)
      << endl;
   os << indent << "AttributeType: " << this->AttributeType << endl;
 }
+VTK_ABI_NAMESPACE_END

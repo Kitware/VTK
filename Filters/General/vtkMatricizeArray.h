@@ -39,6 +39,7 @@
 #include "vtkArrayDataAlgorithm.h"
 #include "vtkFiltersGeneralModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSGENERAL_EXPORT vtkMatricizeArray : public vtkArrayDataAlgorithm
 {
 public:
@@ -75,4 +76,5 @@ private:
   vtkIdType SliceDimension;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

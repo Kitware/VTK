@@ -76,6 +76,7 @@
 #include <string> // STL Header
 #include <vector> // STL Header
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkModelMetadata;
 class vtkDoubleArray;
 class vtkIntArray;
@@ -369,4 +370,5 @@ private:
   void operator=(const vtkExodusIIWriter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

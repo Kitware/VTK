@@ -36,6 +36,7 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkPartitionedDataSet.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataSet;
 class VTKCOMMONDATAMODEL_EXPORT vtkMultiPieceDataSet : public vtkPartitionedDataSet
 {
@@ -96,4 +97,5 @@ private:
   void operator=(const vtkMultiPieceDataSet&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

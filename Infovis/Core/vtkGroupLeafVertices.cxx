@@ -39,6 +39,7 @@
 #include <utility>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkGroupLeafVertices);
 
 // Forward function reference (definition at bottom :)
@@ -461,3 +462,4 @@ static int splitString(const vtkStdString& input, std::vector<vtkStdString>& res
   results.emplace_back(currentField);
   return static_cast<int>(results.size());
 }
+VTK_ABI_NAMESPACE_END

@@ -97,6 +97,7 @@
 #include "vtkWeakPointer.h"               // for ren context
 #include <deque>                          // for deque
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkOpenGLFramebufferObject;
 class vtkOpenGLHelper;
 class vtkOpenGLRenderWindow;
@@ -428,4 +429,5 @@ private:
   void operator=(const vtkLineIntegralConvolution2D&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

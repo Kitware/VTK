@@ -27,6 +27,7 @@
 #include "vtkCompositeDataIterator.h"
 #include "vtkSmartPointer.h" //to store data sets
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataObjectTree;
 class vtkDataObjectTreeInternals;
 class vtkDataObjectTreeIndex;
@@ -158,4 +159,5 @@ private:
   void UpdateLocation();
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -26,6 +26,7 @@
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include <vector>                      // for ivar
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkOpenGLPointGaussianMapperHelper;
 
 class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLPointGaussianMapper : public vtkPointGaussianMapper
@@ -116,4 +117,5 @@ private:
   void operator=(const vtkOpenGLPointGaussianMapper&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

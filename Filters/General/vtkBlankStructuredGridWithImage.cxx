@@ -25,6 +25,7 @@
 #include "vtkStructuredGrid.h"
 #include "vtkUnsignedCharArray.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkBlankStructuredGridWithImage);
 
 //------------------------------------------------------------------------------
@@ -136,3 +137,4 @@ void vtkBlankStructuredGridWithImage::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

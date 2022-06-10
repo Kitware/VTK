@@ -24,6 +24,7 @@ namespace omf
 {
 namespace helper
 {
+VTK_ABI_NAMESPACE_BEGIN
 
 //------------------------------------------------------------------------------
 void PrintMemberNames(const Json::Value& root)
@@ -211,5 +212,6 @@ bool GetDoubleArray(const Json::Value& root, std::vector<double>& value)
   return true;
 }
 
+VTK_ABI_NAMESPACE_END
 } // end namespace helper
 } // end namespace omf

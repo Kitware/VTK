@@ -29,6 +29,7 @@
 #include "vtkUnsignedCharArray.h"
 #include <cassert>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkStructuredGridAppend);
 
 //------------------------------------------------------------------------------
@@ -396,3 +397,4 @@ void vtkStructuredGridAppend::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

@@ -30,6 +30,7 @@ Copyright and License information
 #include <vector> // for std::vector
 
 // Forward declarations
+VTK_ABI_NAMESPACE_BEGIN
 class vtkWindow;
 
 template <class T>
@@ -72,6 +73,7 @@ private:
   void operator=(const vtkOpenGLVolumeLookupTables&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #include "vtkOpenGLVolumeLookupTables.txx" // template implementations
 
 #endif // vtkOpenGLVolumeLookupTables_h

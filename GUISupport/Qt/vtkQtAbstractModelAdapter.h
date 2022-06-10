@@ -39,6 +39,7 @@
 #include <QAbstractItemModel>
 #include <QItemSelection> // Needed for selection methods
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataObject;
 class vtkSelection;
 
@@ -157,5 +158,6 @@ protected:
   int DataEndColumn;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkQtAbstractModelAdapter.h

@@ -28,6 +28,7 @@
 #include <vector>
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkXMLPMultiBlockDataWriter);
 
 vtkCxxSetObjectMacro(vtkXMLPMultiBlockDataWriter, Controller, vtkMultiProcessController);
@@ -350,3 +351,4 @@ void vtkXMLPMultiBlockDataWriter::RemoveWrittenFiles(const char* SubDirectory)
     this->Superclass::RemoveWrittenFiles(SubDirectory);
   }
 }
+VTK_ABI_NAMESPACE_END

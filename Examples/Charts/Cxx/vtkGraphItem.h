@@ -27,8 +27,10 @@
 
 #include "vtkContextItem.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkContext2D;
 class vtkGraph;
+VTK_ABI_NAMESPACE_END
 
 class vtkGraphItem : public vtkContextItem
 {

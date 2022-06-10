@@ -21,6 +21,7 @@
 #include "vtkTransform2D.h"
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 class vtkContextPolygonPrivate
 {
 public:
@@ -130,3 +131,4 @@ vtkContextPolygon& vtkContextPolygon::operator=(const vtkContextPolygon& other)
 
   return *this;
 }
+VTK_ABI_NAMESPACE_END

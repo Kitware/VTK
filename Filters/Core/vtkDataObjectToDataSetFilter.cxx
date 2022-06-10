@@ -28,6 +28,7 @@
 #include "vtkStructuredPoints.h"
 #include "vtkUnstructuredGrid.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkDataObjectToDataSetFilter);
 
 //------------------------------------------------------------------------------
@@ -1403,3 +1404,4 @@ int vtkDataObjectToDataSetFilter::RequestDataObject(
   }
   return 1;
 }
+VTK_ABI_NAMESPACE_END

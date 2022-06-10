@@ -40,6 +40,7 @@
 
 #include <set> // for time step indices
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSEXTRACTION_EXPORT vtkExtractTimeSteps : public vtkPassInputTypeAlgorithm
 {
 public:
@@ -151,4 +152,5 @@ private:
   void operator=(const vtkExtractTimeSteps&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkExtractTimeSteps_h

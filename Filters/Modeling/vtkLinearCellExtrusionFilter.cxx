@@ -27,6 +27,7 @@
 #include <array>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkLinearCellExtrusionFilter);
 
 //------------------------------------------------------------------------------
@@ -237,3 +238,4 @@ int vtkLinearCellExtrusionFilter::FillOutputPortInformation(
   info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkUnstructuredGrid");
   return 1;
 }
+VTK_ABI_NAMESPACE_END

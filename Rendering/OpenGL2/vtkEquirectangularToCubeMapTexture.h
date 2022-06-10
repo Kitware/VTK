@@ -29,6 +29,7 @@
 #include "vtkOpenGLTexture.h"
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkOpenGLFramebufferObject;
 class vtkOpenGLRenderWindow;
 class vtkOpenGLTexture;
@@ -88,4 +89,5 @@ private:
   void operator=(const vtkEquirectangularToCubeMapTexture&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

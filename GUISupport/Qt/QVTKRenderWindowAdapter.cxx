@@ -52,6 +52,7 @@
       QOpenGLDebugMessage::createApplicationMessage(QString(str.str().c_str())));                  \
   }
 
+VTK_ABI_NAMESPACE_BEGIN
 class QVTKRenderWindowAdapter::QVTKInternals
 {
   void renderWindowEventHandler(vtkObject*, unsigned long eventid, void* callData);
@@ -619,3 +620,4 @@ QSurfaceFormat QVTKRenderWindowAdapter::defaultFormat(bool stereo_capable)
                      // multisamples independently
   return fmt;
 }
+VTK_ABI_NAMESPACE_END

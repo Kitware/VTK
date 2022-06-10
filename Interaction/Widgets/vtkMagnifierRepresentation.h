@@ -34,6 +34,7 @@
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkWidgetRepresentation.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPropCollection;
 class vtkPoints;
 class vtkPolyData;
@@ -197,4 +198,5 @@ private:
   void operator=(const vtkMagnifierRepresentation&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -65,6 +65,7 @@
 #include "vtkGraphLayoutStrategy.h"
 #include "vtkInfovisLayoutModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKINFOVISLAYOUT_EXPORT vtkSpanTreeLayoutStrategy : public vtkGraphLayoutStrategy
 {
 public:
@@ -103,4 +104,5 @@ private:
   void operator=(const vtkSpanTreeLayoutStrategy&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

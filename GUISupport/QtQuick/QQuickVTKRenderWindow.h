@@ -126,11 +126,15 @@
 
 #include "vtkGUISupportQtQuickModule.h" // for export macro
 
-// Forward declarations
+// Qt Forward declarations
 class QEvent;
-class QQuickVTKInteractorAdapter;
 class QQuickWindow;
 class QWheelEvent;
+
+VTK_ABI_NAMESPACE_BEGIN
+
+// VTK Forward declarations
+class QQuickVTKInteractorAdapter;
 class vtkGenericOpenGLRenderWindow;
 class vtkImageData;
 class vtkRenderWindow;
@@ -292,4 +296,5 @@ private:
   void operator=(const QQuickVTKRenderWindow) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // QQuickVTKRenderWindow_h

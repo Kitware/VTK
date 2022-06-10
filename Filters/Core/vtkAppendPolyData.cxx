@@ -32,6 +32,7 @@
 #include <cassert>
 #include <cstdlib>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkAppendPolyData);
 
 //------------------------------------------------------------------------------
@@ -603,3 +604,4 @@ int vtkAppendPolyData::FillInputPortInformation(int port, vtkInformation* info)
   info->Set(vtkAlgorithm::INPUT_IS_REPEATABLE(), 1);
   return 1;
 }
+VTK_ABI_NAMESPACE_END

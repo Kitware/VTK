@@ -32,6 +32,7 @@
 #include "vtkFiltersModelingModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSMODELING_EXPORT vtkImageDataOutlineFilter : public vtkPolyDataAlgorithm
 {
 public:
@@ -78,4 +79,5 @@ private:
   void operator=(const vtkImageDataOutlineFilter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

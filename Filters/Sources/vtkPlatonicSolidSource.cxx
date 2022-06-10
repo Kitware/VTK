@@ -22,7 +22,9 @@
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPlatonicSolidSource);
+VTK_ABI_NAMESPACE_END
 
 // Wrapping this in namespaces because the short names (a, b, c, etc) are
 // throwing warnings on MSVC when inlined methods in vtkGenericDataArray are
@@ -166,6 +168,7 @@ constexpr vtkIdType IcosaVerts[] = {
 } // end namespace detail
 } // end anon namespace
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkPlatonicSolidSource::vtkPlatonicSolidSource()
 {
   this->SolidType = VTK_SOLID_TETRAHEDRON;
@@ -318,3 +321,4 @@ void vtkPlatonicSolidSource::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Output Points Precision: " << this->OutputPointsPrecision << "\n";
 }
+VTK_ABI_NAMESPACE_END

@@ -27,6 +27,7 @@
 #include <cassert>
 #include <set>
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkExtractDataSets::vtkInternals
 {
 public:
@@ -152,3 +153,4 @@ void vtkExtractDataSets::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

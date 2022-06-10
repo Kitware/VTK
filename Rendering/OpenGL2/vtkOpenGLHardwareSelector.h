@@ -30,6 +30,7 @@
 #include "vtkHardwareSelector.h"
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLHardwareSelector : public vtkHardwareSelector
 {
 public:
@@ -82,4 +83,5 @@ private:
   void operator=(const vtkOpenGLHardwareSelector&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

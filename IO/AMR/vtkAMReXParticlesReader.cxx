@@ -42,6 +42,7 @@
 
 using vtksystools = vtksys::SystemTools;
 
+VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
 // returns empty string on failure.
@@ -832,3 +833,4 @@ bool vtkAMReXParticlesReader::ReadLevel(
 
   return true;
 }
+VTK_ABI_NAMESPACE_END

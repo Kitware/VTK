@@ -30,6 +30,7 @@
 #include "vtkRenderingVolumeAMRModule.h" // For export macro
 #include "vtkVolumeMapper.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkAMRResampleFilter;
 class vtkCamera;
 class vtkImageData;
@@ -346,4 +347,5 @@ private:
   void operator=(const vtkAMRVolumeMapper&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

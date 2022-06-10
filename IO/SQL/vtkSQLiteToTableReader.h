@@ -26,6 +26,7 @@
 #include "vtkDatabaseToTableReader.h"
 #include "vtkIOSQLModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkSQLiteDatabase;
 
 class VTKIOSQL_EXPORT vtkSQLiteToTableReader : public vtkDatabaseToTableReader
@@ -45,4 +46,5 @@ private:
   void operator=(const vtkSQLiteToTableReader&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

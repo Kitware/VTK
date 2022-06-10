@@ -26,6 +26,7 @@
 
 #include <algorithm>
 
+VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
 // vtkViewportSpecification is a helper class that makes it easier to do some
@@ -258,3 +259,4 @@ void vtkContextActor::PrintSelf(ostream& os, vtkIndent indent)
     this->Context->PrintSelf(os, indent.GetNextIndent());
   }
 }
+VTK_ABI_NAMESPACE_END

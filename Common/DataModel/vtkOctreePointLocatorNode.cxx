@@ -26,6 +26,7 @@
 #include "vtkPlanesIntersection.h"
 #include "vtkPoints.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOctreePointLocatorNode);
 
 //------------------------------------------------------------------------------
@@ -631,3 +632,4 @@ void vtkOctreePointLocatorNode::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "MaxDataBounds: " << this->MaxDataBounds[0] << " " << this->MaxDataBounds[1]
      << " " << this->MaxDataBounds[2] << endl;
 }
+VTK_ABI_NAMESPACE_END

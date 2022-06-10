@@ -40,6 +40,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkDepthPeelingPassFinalFS.h"
 #include "vtkDepthPeelingPassIntermediateFS.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkDepthPeelingPass);
 vtkCxxSetObjectMacro(vtkDepthPeelingPass, TranslucentPass, vtkRenderPass);
 
@@ -691,3 +692,4 @@ bool vtkDepthPeelingPass::SetShaderParameters(vtkShaderProgram* program, vtkAbst
 
   return true;
 }
+VTK_ABI_NAMESPACE_END

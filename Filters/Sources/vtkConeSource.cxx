@@ -27,6 +27,7 @@
 
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkConeSource);
 
 //------------------------------------------------------------------------------
@@ -345,3 +346,4 @@ void vtkConeSource::PrintSelf(ostream& os, vtkIndent indent)
      << this->Direction[2] << ")\n";
   os << indent << "Output Points Precision: " << this->OutputPointsPrecision << "\n";
 }
+VTK_ABI_NAMESPACE_END

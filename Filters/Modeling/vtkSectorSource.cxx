@@ -26,6 +26,7 @@
 #include "vtkSmartPointer.h"
 #define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkSectorSource);
 
 vtkSectorSource::vtkSectorSource()
@@ -121,3 +122,4 @@ void vtkSectorSource::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "CircumferentialResolution: " << this->CircumferentialResolution << "\n";
   os << indent << "RadialResolution: " << this->RadialResolution << "\n";
 }
+VTK_ABI_NAMESPACE_END

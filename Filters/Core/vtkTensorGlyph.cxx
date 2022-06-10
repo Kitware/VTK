@@ -28,6 +28,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTransform.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkTensorGlyph);
 
 //------------------------------------------------------------------------------
@@ -561,3 +562,4 @@ void vtkTensorGlyph::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Symmetric: " << (this->Symmetric ? "On\n" : "Off\n");
   os << indent << "Length: " << this->Length << "\n";
 }
+VTK_ABI_NAMESPACE_END

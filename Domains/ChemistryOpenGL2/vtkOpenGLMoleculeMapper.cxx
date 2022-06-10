@@ -25,6 +25,7 @@
 #include "vtkTrivialProducer.h"
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOpenGLMoleculeMapper);
 
 //------------------------------------------------------------------------------
@@ -155,3 +156,4 @@ void vtkOpenGLMoleculeMapper::SetMapScalars(bool map)
   this->FastBondMapper->SetColorMode(
     map ? VTK_COLOR_MODE_MAP_SCALARS : VTK_COLOR_MODE_DIRECT_SCALARS);
 }
+VTK_ABI_NAMESPACE_END

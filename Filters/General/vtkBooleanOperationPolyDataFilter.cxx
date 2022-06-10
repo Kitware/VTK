@@ -26,6 +26,7 @@
 #include "vtkPointData.h"
 #include "vtkSmartPointer.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkBooleanOperationPolyDataFilter);
 
 //------------------------------------------------------------------------------
@@ -346,3 +347,4 @@ void vtkBooleanOperationPolyDataFilter ::CopyCells(vtkPolyData* in, vtkPolyData*
     newCellPts->Reset();
   } // for all cells
 }
+VTK_ABI_NAMESPACE_END

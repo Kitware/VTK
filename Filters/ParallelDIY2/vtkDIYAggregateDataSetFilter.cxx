@@ -56,6 +56,7 @@
 #include VTK_DIY2(diy/decomposition.hpp)
 // clang-format on
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkDIYAggregateDataSetFilter);
 
 namespace
@@ -691,3 +692,4 @@ void vtkDIYAggregateDataSetFilter::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
   os << indent << "OutputInitialized: " << this->OutputInitialized << endl;
 }
+VTK_ABI_NAMESPACE_END

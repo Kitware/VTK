@@ -26,6 +26,7 @@
 #include "vtkRenderingOpenGL2Module.h" // for export macro
 #include "vtkWeakPointer.h"            // for render context
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkRenderWindow;
 class vtkWindow;
 
@@ -119,4 +120,5 @@ private:
   void operator=(const vtkRenderbuffer&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

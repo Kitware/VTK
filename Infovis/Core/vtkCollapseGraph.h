@@ -46,6 +46,7 @@
 #include "vtkGraphAlgorithm.h"
 #include "vtkInfovisCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKINFOVISCORE_EXPORT vtkCollapseGraph : public vtkGraphAlgorithm
 {
 public:
@@ -71,4 +72,5 @@ private:
   void operator=(const vtkCollapseGraph&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

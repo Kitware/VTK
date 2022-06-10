@@ -38,6 +38,7 @@ namespace vtx
 {
 namespace helper
 {
+VTK_ABI_NAMESPACE_BEGIN
 
 MPI_Comm MPIGetComm()
 {
@@ -357,5 +358,6 @@ bool EndsWith(const std::string& input, const std::string& ends) noexcept
   return false;
 }
 
+VTK_ABI_NAMESPACE_END
 } // end helper namespace
 } // end adios2vtk namespace

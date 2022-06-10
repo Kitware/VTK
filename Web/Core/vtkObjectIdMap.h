@@ -24,6 +24,7 @@
 #include "vtkObject.h"
 #include "vtkWebCoreModule.h" // needed for exports
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKWEBCORE_EXPORT vtkObjectIdMap : public vtkObject
 {
 public:
@@ -81,4 +82,5 @@ private:
   vtkInternals* Internals;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

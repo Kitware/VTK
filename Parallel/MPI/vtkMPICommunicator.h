@@ -39,6 +39,7 @@
 #include "vtkCommunicator.h"
 #include "vtkParallelMPIModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkMPIController;
 class vtkProcessGroup;
 
@@ -319,4 +320,5 @@ private:
   void operator=(const vtkMPICommunicator&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

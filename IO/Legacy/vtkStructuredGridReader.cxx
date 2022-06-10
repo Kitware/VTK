@@ -25,6 +25,7 @@
 #include "vtkStructuredGrid.h"
 #include "vtkUnsignedCharArray.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkStructuredGridReader);
 
 vtkStructuredGridReader::vtkStructuredGridReader() = default;
@@ -387,3 +388,4 @@ void vtkStructuredGridReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

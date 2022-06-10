@@ -26,6 +26,7 @@
 
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImageViewer);
 
 //------------------------------------------------------------------------------
@@ -281,3 +282,4 @@ void vtkImageViewer::SetRenderWindow(vtkRenderWindow* renWin)
   vtkSetObjectBodyMacro(RenderWindow, vtkRenderWindow, renWin);
   renWin->AddRenderer(this->GetRenderer());
 }
+VTK_ABI_NAMESPACE_END

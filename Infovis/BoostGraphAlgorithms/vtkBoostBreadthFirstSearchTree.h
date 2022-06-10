@@ -42,6 +42,7 @@
 
 #include "vtkTreeAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKINFOVISBOOSTGRAPHALGORITHMS_EXPORT vtkBoostBreadthFirstSearchTree : public vtkTreeAlgorithm
 {
 public:
@@ -116,4 +117,5 @@ private:
   void operator=(const vtkBoostBreadthFirstSearchTree&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

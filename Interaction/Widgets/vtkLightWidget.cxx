@@ -24,6 +24,7 @@
 #include "vtkWidgetCallbackMapper.h"
 #include "vtkWidgetEvent.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkLightWidget);
 
 //------------------------------------------------------------------------------
@@ -198,3 +199,4 @@ void vtkLightWidget::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "WidgetActive: " << this->WidgetActive << endl;
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

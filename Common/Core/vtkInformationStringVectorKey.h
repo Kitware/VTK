@@ -30,6 +30,7 @@
 
 #include <string> // for std::string compat
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONCORE_EXPORT vtkInformationStringVectorKey : public vtkInformationKey
 {
 public:
@@ -84,4 +85,5 @@ private:
   void operator=(const vtkInformationStringVectorKey&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -18,6 +18,7 @@
 #include <algorithm>
 #include <cctype>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkFunctionParser);
 
 static double vtkParserVectorErrorResult[3] = { VTK_PARSER_ERROR_RESULT, VTK_PARSER_ERROR_RESULT,
@@ -2419,3 +2420,4 @@ bool vtkFunctionParser::GetVectorVariableNeeded(const char* inVariableName)
     return false;
   }
 }
+VTK_ABI_NAMESPACE_END

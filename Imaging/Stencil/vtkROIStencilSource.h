@@ -32,6 +32,7 @@
 #include "vtkImageStencilSource.h"
 #include "vtkImagingStencilModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKIMAGINGSTENCIL_EXPORT vtkROIStencilSource : public vtkImageStencilSource
 {
 public:
@@ -86,4 +87,5 @@ private:
   void operator=(const vtkROIStencilSource&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

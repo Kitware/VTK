@@ -19,6 +19,7 @@
 #include <algorithm>
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 template <class Implementation, class CellIterator>
 void vtkMappedUnstructuredGrid<Implementation, CellIterator>::PrintSelf(
   ostream& os, vtkIndent indent)
@@ -226,3 +227,4 @@ Implementation* vtkMappedUnstructuredGrid<Implementation, CellIterator>::GetImpl
 {
   return this->Impl;
 }
+VTK_ABI_NAMESPACE_END

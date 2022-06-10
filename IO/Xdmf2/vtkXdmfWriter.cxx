@@ -74,6 +74,8 @@ using namespace xdmf2;
 
 struct _xmlNode;
 typedef _xmlNode* XdmfXmlNode;
+
+VTK_ABI_NAMESPACE_BEGIN
 struct vtkXW2NodeHelp
 {
   xdmf2::XdmfDOM* DOM;
@@ -1354,3 +1356,4 @@ void vtkXdmfWriter::ConvertVToXArray(vtkDataArray* vda, XdmfArray* xda, vtkIdTyp
       vda->GetNumberOfTuples() * vda->GetNumberOfComponents() * vda->GetElementComponentSize());
   }
 }
+VTK_ABI_NAMESPACE_END

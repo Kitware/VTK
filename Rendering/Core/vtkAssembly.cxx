@@ -22,6 +22,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkVolume.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkAssembly);
 
 // Construct object with no children.
@@ -445,3 +446,4 @@ void vtkAssembly::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "There are: " << this->Parts->GetNumberOfItems() << " parts in this assembly\n";
 }
+VTK_ABI_NAMESPACE_END

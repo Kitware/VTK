@@ -29,6 +29,7 @@
 #include "vtkFiltersHybridModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSHYBRID_EXPORT vtkEarthSource : public vtkPolyDataAlgorithm
 {
 public:
@@ -81,4 +82,5 @@ private:
   void operator=(const vtkEarthSource&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

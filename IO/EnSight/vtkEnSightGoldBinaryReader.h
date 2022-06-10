@@ -43,6 +43,7 @@
 #include "vtkEnSightReader.h"
 #include "vtkIOEnSightModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkMultiBlockDataSet;
 
 class VTKIOENSIGHT_EXPORT vtkEnSightGoldBinaryReader : public vtkEnSightReader
@@ -279,4 +280,5 @@ private:
   friend class vtkUtilities;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

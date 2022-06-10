@@ -21,6 +21,7 @@
 
 #include <sstream>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkBMPWriter);
 
 vtkCxxSetObjectMacro(vtkBMPWriter, Result, vtkUnsignedCharArray);
@@ -211,3 +212,4 @@ void vtkBMPWriter::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Result: " << this->Result << "\n";
 }
+VTK_ABI_NAMESPACE_END

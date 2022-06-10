@@ -25,6 +25,7 @@
 #include "vtkPoints.h"
 #include "vtkTriangle.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkQuad);
 
 static const double VTK_DIVERGED = 1.e6;
@@ -1020,3 +1021,4 @@ void vtkQuad::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Triangle:\n";
   this->Triangle->PrintSelf(os, indent.GetNextIndent());
 }
+VTK_ABI_NAMESPACE_END

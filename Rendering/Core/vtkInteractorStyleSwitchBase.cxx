@@ -20,6 +20,7 @@
 // This is largely here to confirm the approach works, and will be replaced
 // with standard factory override logic in the modularized source tree.
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkObjectFactoryNewMacro(vtkInteractorStyleSwitchBase);
 
 //------------------------------------------------------------------------------
@@ -45,3 +46,4 @@ void vtkInteractorStyleSwitchBase::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

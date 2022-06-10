@@ -36,6 +36,7 @@
 #endif
 
 //----------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 class vtkInformationInternals
 {
 public:
@@ -79,5 +80,6 @@ private:
 
 #undef VTK_INFORMATION_USE_HASH_MAP
 
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkInformationInternals.h

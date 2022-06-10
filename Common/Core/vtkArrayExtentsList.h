@@ -48,6 +48,7 @@
 #include "vtkCommonCoreModule.h" // For export macro
 #include <vector>                // STL Header
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONCORE_EXPORT vtkArrayExtentsList
 {
 public:
@@ -103,6 +104,7 @@ private:
   std::vector<vtkArrayExtents> Storage;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
 
 // VTK-HeaderTest-Exclude: vtkArrayExtentsList.h

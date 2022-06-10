@@ -35,6 +35,7 @@
 #include "vtkInfovisCoreModule.h" // For export macro
 #include "vtkTreeAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKINFOVISCORE_EXPORT vtkTableToTreeFilter : public vtkTreeAlgorithm
 {
 public:
@@ -56,4 +57,5 @@ private:
   void operator=(const vtkTableToTreeFilter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

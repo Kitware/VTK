@@ -28,6 +28,7 @@ namespace detail
 {
 namespace smp
 {
+VTK_ABI_NAMESPACE_BEGIN
 
 //------------------------------------------------------------------------------
 vtkSMPToolsAPI::vtkSMPToolsAPI()
@@ -246,6 +247,7 @@ bool vtkSMPToolsAPI::GetSingleThread()
   }
 }
 
+VTK_ABI_NAMESPACE_END
 } // namespace smp
 } // namespace detail
 } // namespace vtk

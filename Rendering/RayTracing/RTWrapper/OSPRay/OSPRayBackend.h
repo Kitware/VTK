@@ -13,6 +13,7 @@
 
 namespace RTW
 {
+VTK_ABI_NAMESPACE_BEGIN
 
   OSPFrameBufferFormat convert(RTWFrameBufferFormat format)
   {
@@ -360,4 +361,5 @@ namespace RTW
       return 0;
     }
   };
+VTK_ABI_NAMESPACE_END
 }

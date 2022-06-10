@@ -16,6 +16,7 @@
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkCone);
 
 // Construct cone with angle of 45 degrees.
@@ -46,3 +47,4 @@ void vtkCone::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Angle: " << this->Angle << "\n";
 }
+VTK_ABI_NAMESPACE_END

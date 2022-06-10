@@ -174,6 +174,7 @@
  */
 #define VTK_CELL_ARRAY_V2
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCellArrayIterator;
 class vtkIdTypeArray;
 
@@ -1377,9 +1378,11 @@ vtkCellArray::VisitState<ArrayT>::GetCellRange(vtkIdType cellId)
   return vtk::DataArrayValueRange<1>(
     this->GetConnectivity(), this->GetBeginOffset(cellId), this->GetEndOffset(cellId));
 }
+VTK_ABI_NAMESPACE_END
 
 namespace vtkCellArray_detail
 {
+VTK_ABI_NAMESPACE_BEGIN
 
 struct InsertNextCellImpl
 {
@@ -1522,8 +1525,10 @@ struct ResetImpl
   }
 };
 
+VTK_ABI_NAMESPACE_END
 } // end namespace vtkCellArray_detail
 
+VTK_ABI_NAMESPACE_BEGIN
 //----------------------------------------------------------------------------
 inline void vtkCellArray::InitTraversal()
 {
@@ -1639,4 +1644,5 @@ inline void vtkCellArray::Reset()
   this->Visit(vtkCellArray_detail::ResetImpl{});
 }
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkCellArray.h

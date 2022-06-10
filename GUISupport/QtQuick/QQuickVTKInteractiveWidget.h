@@ -32,6 +32,7 @@
 #include "vtkGUISupportQtQuickModule.h" // for export macro
 
 // Forward declarations
+VTK_ABI_NAMESPACE_BEGIN
 class vtkAbstractWidget;
 class vtkRenderer;
 
@@ -80,4 +81,5 @@ private:
   void operator=(const QQuickVTKInteractiveWidget) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // QQuickVTKInteractiveWidget_h

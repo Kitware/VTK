@@ -71,6 +71,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkTypedArray.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 template <typename T>
 class vtkSparseArray : public vtkTypedArray<T>
 {
@@ -254,6 +255,7 @@ private:
   ///@}
 };
 
+VTK_ABI_NAMESPACE_END
 #include "vtkSparseArray.txx"
 
 #endif

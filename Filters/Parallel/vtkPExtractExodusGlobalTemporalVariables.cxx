@@ -20,6 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPExtractExodusGlobalTemporalVariables);
 vtkCxxSetObjectMacro(
   vtkPExtractExodusGlobalTemporalVariables, Controller, vtkMultiProcessController);
@@ -89,3 +90,4 @@ void vtkPExtractExodusGlobalTemporalVariables::PrintSelf(ostream& os, vtkIndent 
   this->Superclass::PrintSelf(os, indent);
   os << indent << "Controller: " << this->Controller << endl;
 }
+VTK_ABI_NAMESPACE_END

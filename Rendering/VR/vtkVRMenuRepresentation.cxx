@@ -24,6 +24,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkVRRenderWindow.h"
 #include "vtkWidgetEvent.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkVRMenuRepresentation);
 
 class vtkVRMenuRepresentation::InternalElement
@@ -323,3 +324,4 @@ void vtkVRMenuRepresentation::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "PlacedOrientation: (" << this->PlacedOrientation[0] << ", "
      << this->PlacedOrientation[1] << "," << this->PlacedOrientation[2] << ")\n";
 }
+VTK_ABI_NAMESPACE_END

@@ -43,6 +43,7 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCellArray;
 class vtkDoubleArray;
 class vtkCollection;
@@ -211,4 +212,5 @@ private:
   void operator=(const vtkGenericCellTessellator&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

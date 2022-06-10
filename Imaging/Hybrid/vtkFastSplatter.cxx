@@ -31,6 +31,7 @@
 
 #include <algorithm>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkFastSplatter);
 
 //------------------------------------------------------------------------------
@@ -458,3 +459,4 @@ void vtkFastSplatter::SetSplatConnection(vtkAlgorithmOutput* input)
 {
   this->SetInputConnection(1, input);
 }
+VTK_ABI_NAMESPACE_END

@@ -45,6 +45,7 @@ DEALINGS IN THE SOFTWARE.
 
 #define RAY_EPSILON 1e-12 // some small epsilon for flt pt
 
+VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
 
@@ -303,3 +304,4 @@ bool vtkBilinearQuadIntersection::RayIntersection(
       return false;
   }
 }
+VTK_ABI_NAMESPACE_END

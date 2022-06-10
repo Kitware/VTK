@@ -21,6 +21,7 @@
 #include "vtkParallelTimer.h"
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPLineIntegralConvolution2D);
 
 //------------------------------------------------------------------------------
@@ -110,3 +111,4 @@ void vtkPLineIntegralConvolution2D::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
   os << indent << "LogFileName=" << this->LogFileName << endl;
 }
+VTK_ABI_NAMESPACE_END

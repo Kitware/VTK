@@ -73,6 +73,7 @@
 #include "vtkAbstractWidget.h"
 #include "vtkInteractionWidgetsModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKINTERACTIONWIDGETS_EXPORT vtkHoverWidget : public vtkAbstractWidget
 {
 public:
@@ -151,4 +152,5 @@ private:
   void operator=(const vtkHoverWidget&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

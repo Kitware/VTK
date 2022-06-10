@@ -33,6 +33,7 @@
 #include "vtkFiltersSourcesModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkTransform;
 
 class VTKFILTERSSOURCES_EXPORT vtkDiskSource : public vtkPolyDataAlgorithm
@@ -125,4 +126,5 @@ private:
   void operator=(const vtkDiskSource&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

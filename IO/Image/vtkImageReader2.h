@@ -44,6 +44,7 @@
 #include "vtkIOImageModule.h" // For export macro
 #include "vtkImageAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkStringArray;
 
 #define VTK_FILE_BYTE_ORDER_BIG_ENDIAN 0
@@ -340,4 +341,5 @@ private:
   void operator=(const vtkImageReader2&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

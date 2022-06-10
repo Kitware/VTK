@@ -53,6 +53,7 @@
 #include "vtkFiltersHybridModule.h" // For export macro
 #include "vtkMultiBlockDataSetAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkFloatArray;
 class vtkPointSet;
 
@@ -134,4 +135,5 @@ private:
   double* meanshape;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

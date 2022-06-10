@@ -45,6 +45,7 @@
 #include "vtkRenderView.h"
 #include "vtkViewsInfovisModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkEdgeLayoutStrategy;
 class vtkGraphLayoutStrategy;
 class vtkRenderedGraphRepresentation;
@@ -402,4 +403,5 @@ private:
   bool EdgeLabelsRequested;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

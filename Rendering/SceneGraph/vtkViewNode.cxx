@@ -20,6 +20,7 @@
 #include "vtkViewNodeFactory.h"
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 const char* vtkViewNode::operation_type_strings[] = { "noop", "build", "synchronize", "render",
   nullptr };
 
@@ -276,3 +277,4 @@ vtkViewNode* vtkViewNode::GetFirstChildOfType(const char* type)
   }
   return nullptr;
 }
+VTK_ABI_NAMESPACE_END

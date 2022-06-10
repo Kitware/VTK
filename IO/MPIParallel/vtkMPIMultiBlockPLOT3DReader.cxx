@@ -35,6 +35,7 @@
     static MPI_Datatype type() { return mpitype; }                                                 \
   };
 
+VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
 template <class T>
@@ -324,3 +325,4 @@ void vtkMPIMultiBlockPLOT3DReader::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
   os << indent << "UseMPIIO: " << this->UseMPIIO << endl;
 }
+VTK_ABI_NAMESPACE_END

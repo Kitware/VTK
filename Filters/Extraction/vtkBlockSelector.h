@@ -28,6 +28,7 @@
 
 #include "vtkSelector.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSEXTRACTION_EXPORT vtkBlockSelector : public vtkSelector
 {
 public:
@@ -61,4 +62,5 @@ private:
   vtkInternals* Internals;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

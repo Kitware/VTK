@@ -28,6 +28,7 @@
 //
 // Standard methods
 //
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImageToStructuredGrid);
 
 vtkImageToStructuredGrid::vtkImageToStructuredGrid() = default;
@@ -126,3 +127,4 @@ void vtkImageToStructuredGrid::CopyCellData(vtkImageData* img, vtkStructuredGrid
     sgrid->GetCellData()->AddArray(myArray);
   } // END for all cell arrays
 }
+VTK_ABI_NAMESPACE_END

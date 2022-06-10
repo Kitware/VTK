@@ -19,6 +19,7 @@
 #include "vtkPiecewiseFunction.h"
 #include "vtkTextureObject.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOpenGLVolumeOpacityTable);
 
 // Update opacity transfer function texture.
@@ -96,3 +97,4 @@ void vtkOpenGLVolumeOpacityTable::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Last Blend Mode: " << this->LastBlendMode << endl;
   os << indent << "Last Sample Distance: " << this->LastSampleDistance << endl;
 }
+VTK_ABI_NAMESPACE_END

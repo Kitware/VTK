@@ -55,6 +55,7 @@
 #define VTK_STAT_FUNC stat64
 #endif
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkEnSightGoldBinaryReader::vtkUtilities
 {
   static int GetDestinationComponent(int srcComponent, int numComponents)
@@ -3624,3 +3625,4 @@ void vtkEnSightGoldBinaryReader::AddFileIndexToCache(const char* fileName)
   }
   this->GoldIFile->seekg(0l, ios::beg);
 }
+VTK_ABI_NAMESPACE_END

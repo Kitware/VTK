@@ -42,6 +42,7 @@
 #define LAGRANGIAN_PARTICLE_CONTROL_TAG 625
 
 // Class used to serialize and stream a particle
+VTK_ABI_NAMESPACE_BEGIN
 class MessageStream
 {
 public:
@@ -1179,3 +1180,4 @@ void vtkPLagrangianParticleTracker::DeleteParticle(vtkLagrangianParticle* partic
     this->OutOfDomainParticleMap[particle->GetId()] = particle;
   }
 }
+VTK_ABI_NAMESPACE_END

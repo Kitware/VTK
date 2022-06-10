@@ -35,6 +35,7 @@
 #include "vtkRenderPass.h"
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKRENDERINGOPENGL2_EXPORT vtkCameraPass : public vtkRenderPass
 {
 public:
@@ -100,4 +101,5 @@ private:
   void operator=(const vtkCameraPass&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

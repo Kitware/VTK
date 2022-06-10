@@ -35,6 +35,7 @@
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkIdList;
 
 class VTKRENDERINGOPENGL2_EXPORT vtkEGLRenderWindow : public vtkOpenGLRenderWindow
@@ -238,4 +239,5 @@ private:
   bool DeviceExtensionsPresent;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -34,6 +34,7 @@
 #include "vtkCell3D.h"
 #include "vtkCommonDataModelModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkLine;
 class vtkQuad;
 class vtkIncrementalPointLocator;
@@ -200,4 +201,5 @@ private:
   void operator=(const vtkHexahedron&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

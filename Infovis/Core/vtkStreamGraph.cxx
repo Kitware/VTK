@@ -35,6 +35,7 @@
 
 #include <map>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkStreamGraph);
 //------------------------------------------------------------------------------
 vtkStreamGraph::vtkStreamGraph()
@@ -127,3 +128,4 @@ void vtkStreamGraph::PrintSelf(ostream& os, vtkIndent indent)
      << (this->EdgeWindowArrayName ? this->EdgeWindowArrayName : "(none)") << endl;
   os << indent << "EdgeWindow: " << this->EdgeWindow << endl;
 }
+VTK_ABI_NAMESPACE_END

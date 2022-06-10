@@ -29,6 +29,7 @@
 
 #include <vector> // for time steps
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSHYBRID_EXPORT vtkGenerateTimeSteps : public vtkPassInputTypeAlgorithm
 {
 public:
@@ -86,5 +87,6 @@ private:
   vtkGenerateTimeSteps(const vtkGenerateTimeSteps&) = delete;
   void operator=(const vtkGenerateTimeSteps&) = delete;
 };
+VTK_ABI_NAMESPACE_END
 
 #endif // vtkGenerateTimeSteps_h

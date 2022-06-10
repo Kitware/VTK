@@ -36,6 +36,7 @@
 #include <map>    // STL required.
 #include <string> // for ivars
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKIOGDAL_EXPORT vtkGDALVectorReader : public vtkMultiBlockDataSetAlgorithm
 {
 public:
@@ -159,4 +160,5 @@ private:
   void operator=(const vtkGDALVectorReader&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkGDALVectorReader_h

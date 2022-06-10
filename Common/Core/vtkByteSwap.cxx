@@ -19,6 +19,7 @@
 #include <cstdint>
 #include <memory.h>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkByteSwap);
 
 //------------------------------------------------------------------------------
@@ -361,3 +362,4 @@ void vtkByteSwap::SwapVoidRange(void* buffer, size_t numWords, size_t wordSize)
     buf += half;
   }
 }
+VTK_ABI_NAMESPACE_END

@@ -36,6 +36,7 @@
 #include "vtkRenderer.h"
 #include "vtkVolume.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkAreaPicker);
 
 //------------------------------------------------------------------------------
@@ -422,3 +423,4 @@ void vtkAreaPicker::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Mapper: " << this->Mapper << "\n";
   os << indent << "DataSet: " << this->DataSet << "\n";
 }
+VTK_ABI_NAMESPACE_END

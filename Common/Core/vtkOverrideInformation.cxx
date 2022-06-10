@@ -16,6 +16,7 @@
 
 #include "vtkObjectFactory.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOverrideInformation);
 vtkCxxSetObjectMacro(vtkOverrideInformation, ObjectFactory, vtkObjectFactory);
 
@@ -64,3 +65,4 @@ void vtkOverrideInformation::PrintSelf(ostream& os, vtkIndent indent)
     os << n << "(none)\n";
   }
 }
+VTK_ABI_NAMESPACE_END

@@ -43,6 +43,7 @@
 #include "vtkCommonComputationalGeometryModule.h" // For export macro
 #include "vtkParametricFunction.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONCOMPUTATIONALGEOMETRY_EXPORT vtkParametricSuperEllipsoid
   : public vtkParametricFunction
 {
@@ -149,4 +150,5 @@ private:
   void operator=(const vtkParametricSuperEllipsoid&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

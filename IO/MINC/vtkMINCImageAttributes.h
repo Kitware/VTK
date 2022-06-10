@@ -71,6 +71,7 @@ POSSIBILITY OF SUCH DAMAGES.
 #include "vtkIOMINCModule.h" // For export macro
 #include "vtkObject.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataArray;
 class vtkStringArray;
 class vtkIdTypeArray;
@@ -317,4 +318,5 @@ private:
   void operator=(const vtkMINCImageAttributes&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif /* vtkMINCImageAttributes_h */

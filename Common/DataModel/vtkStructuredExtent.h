@@ -29,6 +29,7 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONDATAMODEL_EXPORT vtkStructuredExtent : public vtkObject
 {
 public:
@@ -177,4 +178,5 @@ inline void vtkStructuredExtent::GetDimensions(const int ext[6], int dims[3])
   dims[2] = ext[5] - ext[4] + 1;
 }
 
+VTK_ABI_NAMESPACE_END
 #endif

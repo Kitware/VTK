@@ -19,6 +19,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkReebGraph.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkReebGraphSimplificationFilter);
 
 //------------------------------------------------------------------------------
@@ -91,3 +92,4 @@ int vtkReebGraphSimplificationFilter::RequestData(vtkInformation* vtkNotUsed(req
 
   return 1;
 }
+VTK_ABI_NAMESPACE_END

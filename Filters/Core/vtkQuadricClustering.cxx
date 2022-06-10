@@ -29,6 +29,7 @@
 
 #include <unordered_set> // keep track of inserted triangles
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkQuadricClustering);
 
 //------------------------------------------------------------------------------
@@ -1529,3 +1530,4 @@ void vtkQuadricClustering::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Prevent Duplicate Cells : " << (this->PreventDuplicateCells ? "On\n" : "Off\n");
 }
+VTK_ABI_NAMESPACE_END

@@ -20,6 +20,7 @@
 #include "vtkPlane.h"
 #include "vtkRenderer.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImageActorPointPlacer);
 
 vtkCxxSetObjectMacro(vtkImageActorPointPlacer, ImageActor, vtkImageActor);
@@ -265,3 +266,4 @@ void vtkImageActorPointPlacer::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Image Actor: " << this->ImageActor << "\n";
 }
+VTK_ABI_NAMESPACE_END

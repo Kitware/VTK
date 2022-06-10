@@ -36,6 +36,7 @@
 #include "vtkImageAlgorithm.h"
 #include "vtkImagingMorphologicalModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkImageDilateErode3D;
 
 class VTKIMAGINGMORPHOLOGICAL_EXPORT vtkImageOpenClose3D : public vtkImageAlgorithm
@@ -128,4 +129,5 @@ private:
   void operator=(const vtkImageOpenClose3D&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

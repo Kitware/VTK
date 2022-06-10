@@ -25,6 +25,7 @@
 #include "vtkRenderer.h"
 #include "vtkTransform.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkInteractorStyleTrackballActor);
 
 //------------------------------------------------------------------------------
@@ -580,3 +581,4 @@ void vtkInteractorStyleTrackballActor::Prop3DTransform(
   oldMatrix->Delete();
   newTransform->Delete();
 }
+VTK_ABI_NAMESPACE_END

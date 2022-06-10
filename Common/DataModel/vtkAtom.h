@@ -24,6 +24,7 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h"                // For macros, defines, etc
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkMolecule;
 class vtkVector3d;
 class vtkVector3f;
@@ -82,5 +83,6 @@ inline vtkMolecule* vtkAtom::GetMolecule()
   return this->Molecule;
 }
 
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkAtom.h

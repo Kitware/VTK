@@ -146,6 +146,7 @@
 #include "vtkNew.h"                                // For vtkNew
 #include "vtkSmartPointer.h"                       // For vtkSmartPointer
 
+VTK_ABI_NAMESPACE_BEGIN
 template <class Implementation,
   class CellIterator = vtkMappedUnstructuredGridCellIterator<Implementation>>
 class vtkMappedUnstructuredGrid : public vtkUnstructuredGridBase
@@ -200,6 +201,7 @@ private:
   vtkNew<vtkGenericCell> TempCell;
 };
 
+VTK_ABI_NAMESPACE_END
 #include "vtkMappedUnstructuredGrid.txx"
 
 // We need to fake the superclass for the wrappers, otherwise they will choke on

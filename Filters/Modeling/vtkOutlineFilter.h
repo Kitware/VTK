@@ -38,6 +38,7 @@
 #include "vtkFiltersModelingModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSMODELING_EXPORT vtkOutlineFilter : public vtkPolyDataAlgorithm
 {
 public:
@@ -130,4 +131,5 @@ private:
   void operator=(const vtkOutlineFilter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -21,6 +21,7 @@
 
 #include <string>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOpenGLBillboardTextActor3D);
 
 //------------------------------------------------------------------------------
@@ -74,3 +75,4 @@ int vtkOpenGLBillboardTextActor3D::RenderGL2PS(vtkViewport* viewport, vtkOpenGLG
 
   return 1;
 }
+VTK_ABI_NAMESPACE_END

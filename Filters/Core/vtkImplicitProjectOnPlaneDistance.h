@@ -37,6 +37,7 @@
 #include "vtkFiltersCoreModule.h"   // For export macro
 #include "vtkSmartPointer.h"        // It has vtkSmartPointer fields
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkGenericCell;
 class vtkPolyData;
 class vtkPlane;
@@ -146,4 +147,5 @@ private:
   void operator=(const vtkImplicitProjectOnPlaneDistance&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -40,6 +40,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include "vtkSelectionAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKINFOVISBOOSTGRAPHALGORITHMS_EXPORT vtkBoostKruskalMinimumSpanningTree
   : public vtkSelectionAlgorithm
 {
@@ -101,4 +102,5 @@ private:
   void operator=(const vtkBoostKruskalMinimumSpanningTree&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

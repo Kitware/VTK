@@ -32,6 +32,7 @@
 #include "vtkTriangle.h"
 #include "vtkVertex.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkBridgeCellIteratorOne);
 
 //------------------------------------------------------------------------------
@@ -272,3 +273,4 @@ void vtkBridgeCellIteratorOne::InitWithPoints(
   this->cIsAtEnd = 1;
   this->Cell->InitWithCell(this->InternalCell, this->Id);
 }
+VTK_ABI_NAMESPACE_END

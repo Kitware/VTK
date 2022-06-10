@@ -41,6 +41,7 @@
 #include <string> // string is required
 #include <vector> // vector is required
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKIOGDAL_EXPORT vtkGDALRasterReader : public vtkImageReader2
 {
 public:
@@ -168,4 +169,5 @@ private:
   void operator=(const vtkGDALRasterReader&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkGDALRasterReader_h

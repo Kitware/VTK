@@ -29,6 +29,7 @@
 #include <vtksys/FStream.hxx>
 #include <vtksys/SystemTools.hxx>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkJSONImageWriter);
 
 //------------------------------------------------------------------------------
@@ -159,3 +160,4 @@ void vtkJSONImageWriter::Write()
   this->Modified();
   this->UpdateWholeExtent();
 }
+VTK_ABI_NAMESPACE_END

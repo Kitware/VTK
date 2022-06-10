@@ -41,6 +41,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkTrivialProducer.h"
 #include "vtkUniformGrid.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkCompositeDataPipeline);
 
 vtkInformationKeyMacro(vtkCompositeDataPipeline, LOAD_REQUESTED_BLOCKS, Integer);
@@ -1126,3 +1127,4 @@ void vtkCompositeDataPipeline::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

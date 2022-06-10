@@ -24,6 +24,7 @@
 #ifndef PyVTKMethodDescriptor_h
 #define PyVTKMethodDescriptor_h
 
+#include "vtkABINamespace.h"
 #include "vtkPython.h"
 #include "vtkSystemIncludes.h"
 #include "vtkWrappingPythonCoreModule.h" // For export macro

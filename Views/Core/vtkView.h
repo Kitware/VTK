@@ -44,6 +44,7 @@
 #include "vtkObject.h"
 #include "vtkViewsCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkAlgorithmOutput;
 class vtkCommand;
 class vtkDataObject;
@@ -251,4 +252,5 @@ private:
   vtkInternal* Internal;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

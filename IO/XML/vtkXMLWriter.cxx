@@ -76,6 +76,8 @@
 #include <cctype> // for isalnum
 #include <locale> // C++ locale
 
+VTK_ABI_NAMESPACE_BEGIN
+
 //*****************************************************************************
 // Friend class to enable access for template functions to the protected
 // writer methods.
@@ -3145,3 +3147,5 @@ void vtkXMLWriter::WriteNextTime(double time)
     os.seekp(returnPos);
   }
 }
+
+VTK_ABI_NAMESPACE_END

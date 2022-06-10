@@ -37,6 +37,7 @@
 
 namespace internals
 {
+VTK_ABI_NAMESPACE_BEGIN
 
 using AOSArrays = vtkTypeList::Unique<
   vtkTypeList::Create<vtkAOSDataArrayTemplate<vtkTypeInt8>, vtkAOSDataArrayTemplate<vtkTypeInt16>,
@@ -201,7 +202,10 @@ conduit_cpp::DataType::Id GetTypeId(conduit_cpp::DataType::Id type, bool force_s
   }
 }
 
+VTK_ABI_NAMESPACE_END
 } // internals
+
+VTK_ABI_NAMESPACE_BEGIN
 
 vtkStandardNewMacro(vtkConduitArrayUtilities);
 //----------------------------------------------------------------------------
@@ -459,8 +463,11 @@ vtkSmartPointer<vtkCellArray> vtkConduitArrayUtilities::MCArrayToVTKCellArray(
   return cellArray;
 }
 
+VTK_ABI_NAMESPACE_END
+
 namespace
 {
+VTK_ABI_NAMESPACE_BEGIN
 
 struct O2MRelationToVTKCellArrayWorker
 {
@@ -495,7 +502,11 @@ struct O2MRelationToVTKCellArrayWorker
     }
   }
 };
+VTK_ABI_NAMESPACE_END
 }
+
+VTK_ABI_NAMESPACE_BEGIN
+
 //----------------------------------------------------------------------------
 vtkSmartPointer<vtkCellArray> vtkConduitArrayUtilities::O2MRelationToVTKCellArray(
   const conduit_node* c_o2mrelation, const std::string& leafname)
@@ -542,3 +553,4 @@ void vtkConduitArrayUtilities::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

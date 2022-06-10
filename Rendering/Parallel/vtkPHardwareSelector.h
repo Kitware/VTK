@@ -33,6 +33,7 @@
 #include "vtkOpenGLHardwareSelector.h"
 #include "vtkRenderingParallelModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKRENDERINGPARALLEL_EXPORT vtkPHardwareSelector : public vtkOpenGLHardwareSelector
 {
 public:
@@ -77,4 +78,5 @@ private:
   vtkObserver* Observer;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

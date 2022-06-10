@@ -26,6 +26,7 @@
 #include "vtkDatabaseToTableReader.h"
 #include "vtkIOPostgreSQLModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPostgreSQLDatabase;
 
 class VTKIOPOSTGRESQL_EXPORT vtkPostgreSQLToTableReader : public vtkDatabaseToTableReader
@@ -45,4 +46,5 @@ private:
   void operator=(const vtkPostgreSQLToTableReader&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -55,6 +55,7 @@
 #include <sstream>
 #include <string>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkJSONSceneExporter);
 
 //------------------------------------------------------------------------------
@@ -1050,3 +1051,4 @@ void vtkJSONSceneExporter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

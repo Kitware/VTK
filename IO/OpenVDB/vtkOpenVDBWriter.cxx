@@ -43,6 +43,7 @@
 #include <openvdb/openvdb.h>
 #include <openvdb/points/PointConversion.h>
 
+VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
 std::string GetVDBGridName(const char* arrayName, int component, int numberOfComponents)
@@ -958,3 +959,4 @@ void vtkOpenVDBWriter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "EnableColoring: " << this->EnableColoring << endl;
   os << indent << "EnableAlpha: " << this->EnableAlpha << endl;
 }
+VTK_ABI_NAMESPACE_END

@@ -28,6 +28,7 @@
 
 #include "vtkm/filter/entity_extraction/ExtractStructured.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkmExtractVOI);
 
 //------------------------------------------------------------------------------
@@ -96,3 +97,4 @@ int vtkmExtractVOI::RequestData(
 
   return 1;
 }
+VTK_ABI_NAMESPACE_END

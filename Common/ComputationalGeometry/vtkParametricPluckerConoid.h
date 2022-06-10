@@ -34,6 +34,7 @@
 #include "vtkCommonComputationalGeometryModule.h" // For export macro
 #include "vtkParametricFunction.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONCOMPUTATIONALGEOMETRY_EXPORT vtkParametricPluckerConoid
   : public vtkParametricFunction
 {
@@ -93,4 +94,5 @@ private:
   void operator=(const vtkParametricPluckerConoid&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -32,6 +32,7 @@
 
 #include "vtkMath.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkCxxSetObjectMacro(vtkGenericCellTessellator, ErrorMetrics, vtkCollection);
 
 //------------------------------------------------------------------------------
@@ -226,3 +227,4 @@ void vtkGenericCellTessellator::SetGenericCell(vtkGenericAdaptorCell* cell)
     e = static_cast<vtkGenericSubdivisionErrorMetric*>(this->ErrorMetrics->GetNextItemAsObject());
   }
 }
+VTK_ABI_NAMESPACE_END

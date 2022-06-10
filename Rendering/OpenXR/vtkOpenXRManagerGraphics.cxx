@@ -17,6 +17,7 @@
 #include "vtkOpenXRManager.h"
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 uint32_t vtkOpenXRManagerGraphics::GetChainLength(XrSwapchain swapchain)
 {
   uint32_t chainLength;
@@ -26,3 +27,4 @@ uint32_t vtkOpenXRManagerGraphics::GetChainLength(XrSwapchain swapchain)
 
   return chainLength;
 }
+VTK_ABI_NAMESPACE_END

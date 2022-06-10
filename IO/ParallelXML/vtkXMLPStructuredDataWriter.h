@@ -29,6 +29,7 @@
 #include <map>    // for keeping track of extents
 #include <vector> // for keeping track of extents
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkXMLStructuredDataWriter;
 
 class VTKIOPARALLELXML_EXPORT vtkXMLPStructuredDataWriter : public vtkXMLPDataWriter
@@ -59,4 +60,5 @@ private:
   ExtentsType Extents;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

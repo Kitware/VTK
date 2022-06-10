@@ -28,6 +28,7 @@
 
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImageQuantizeRGBToIndex);
 
 class vtkColorQuantizeNode
@@ -735,3 +736,4 @@ void vtkImageQuantizeRGBToIndex::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Execute Time (in build tree stage): " << this->BuildTreeExecuteTime << endl;
   os << indent << "Execute Time (in lookup index stage): " << this->LookupIndexExecuteTime << endl;
 }
+VTK_ABI_NAMESPACE_END

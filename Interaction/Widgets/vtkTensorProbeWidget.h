@@ -34,6 +34,7 @@
 #include "vtkAbstractWidget.h"
 #include "vtkInteractionWidgetsModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkTensorProbeRepresentation;
 class vtkPolyData;
 
@@ -95,4 +96,5 @@ private:
   void operator=(const vtkTensorProbeWidget&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

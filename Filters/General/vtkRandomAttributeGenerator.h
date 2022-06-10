@@ -53,6 +53,7 @@
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkPassInputTypeAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataSet;
 class vtkCompositeDataSet;
 
@@ -387,4 +388,5 @@ private:
   void operator=(const vtkRandomAttributeGenerator&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -87,6 +87,7 @@ const std::string ArrayBaseName(const std::string& arrayName)
 
 namespace vtkvolume
 {
+VTK_ABI_NAMESPACE_BEGIN
 //--------------------------------------------------------------------------
 std::string ComputeClipPositionImplementation(
   vtkRenderer* vtkNotUsed(ren), vtkVolumeMapper* vtkNotUsed(mapper), vtkVolume* vtkNotUsed(vol))
@@ -3908,6 +3909,7 @@ std::string ImageSampleImplementationFrag(
   shader += " return;\n";
   return shader;
 }
+VTK_ABI_NAMESPACE_END
 }
 
 #endif // vtkVolumeShaderComposer_h

@@ -36,6 +36,7 @@
 #include "vtkFiltersHybridModule.h" // For export macro
 #include "vtkGeometryFilter.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkBitArray;
 class vtkCamera;
 class vtkHyperTreeGrid;
@@ -271,4 +272,5 @@ private:
   void operator=(const vtkAdaptiveDataSetSurfaceFilter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkAdaptiveDataSetSurfaceFilter_h

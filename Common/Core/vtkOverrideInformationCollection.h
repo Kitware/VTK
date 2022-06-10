@@ -30,6 +30,7 @@
 
 #include "vtkOverrideInformation.h" // Needed for inline methods
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONCORE_EXPORT vtkOverrideInformationCollection : public vtkCollection
 {
 public:
@@ -79,4 +80,5 @@ inline vtkOverrideInformation* vtkOverrideInformationCollection::GetNextItem()
   return static_cast<vtkOverrideInformation*>(this->GetNextItemAsObject());
 }
 
+VTK_ABI_NAMESPACE_END
 #endif

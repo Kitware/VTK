@@ -56,6 +56,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include <array> // array
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkMatrix4x4;
 
 class VTKRENDERINGOPENXR_EXPORT vtkOpenXRRenderWindow : public vtkVRRenderWindow
@@ -170,5 +171,6 @@ private:
   void operator=(const vtkOpenXRRenderWindow&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkOpenXRRenderWindow.h

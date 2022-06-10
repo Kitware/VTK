@@ -25,6 +25,7 @@
 #include "vtkNonLinearCell.h"
 #include "vtkSmartPointer.h" // For member variable.
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCellData;
 class vtkDoubleArray;
 class vtkIdList;
@@ -114,4 +115,5 @@ inline int vtkHigherOrderCurve::GetParametricCenter(double center[3])
   return 0;
 }
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkHigherOrderCurve_h

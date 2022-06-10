@@ -22,6 +22,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include <deque>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkUniformHyperTreeGrid);
 
 // Helper macros to quickly fetch a HT at a given index or iterator
@@ -461,3 +462,4 @@ unsigned long vtkUniformHyperTreeGrid::GetActualMemorySizeBytes()
 
   return size;
 }
+VTK_ABI_NAMESPACE_END

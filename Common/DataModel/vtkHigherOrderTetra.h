@@ -40,6 +40,7 @@
 
 #include <vector> //For caching
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkTetra;
 class vtkHigherOrderCurve;
 class vtkHigherOrderTriangle;
@@ -134,4 +135,5 @@ private:
   void operator=(const vtkHigherOrderTetra&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -72,6 +72,7 @@
 #include "vtkAbstractWidget.h"
 #include "vtkInteractionWidgetsModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDistanceRepresentation;
 class vtkHandleWidget;
 class vtkDistanceWidgetCallback;
@@ -198,4 +199,5 @@ private:
   void operator=(const vtkDistanceWidget&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

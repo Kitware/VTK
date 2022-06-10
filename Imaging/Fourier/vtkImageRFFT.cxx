@@ -22,6 +22,7 @@
 
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImageRFFT);
 
 //------------------------------------------------------------------------------
@@ -218,3 +219,4 @@ void vtkImageRFFT::ThreadedRequestData(vtkInformation* vtkNotUsed(request),
       return;
   }
 }
+VTK_ABI_NAMESPACE_END

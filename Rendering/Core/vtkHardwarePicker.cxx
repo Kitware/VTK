@@ -44,6 +44,7 @@
 
 #include <limits>
 
+VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
 constexpr double DEFAULT_VALUE = std::numeric_limits<double>::quiet_NaN();
@@ -588,3 +589,4 @@ void vtkHardwarePicker::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "PCoords: (" << this->PCoords[0] << ", " << this->PCoords[1] << ", "
      << this->PCoords[2] << ")" << endl;
 }
+VTK_ABI_NAMESPACE_END

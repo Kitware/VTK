@@ -38,6 +38,7 @@
 #include "vtkIOGeometryModule.h" // For export macro
 #include "vtkUnstructuredGridAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataArraySelection;
 class vtkDoubleArray;
 class vtkStringArray;
@@ -288,4 +289,5 @@ private:
   void GetAllTimes(vtkInformationVector* outputVector);
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

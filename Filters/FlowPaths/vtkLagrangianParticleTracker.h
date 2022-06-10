@@ -96,6 +96,7 @@
 #include <mutex>  // for mutexes
 #include <queue>  // for particle queue
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkBoundingBox;
 class vtkCellArray;
 class vtkDataSet;
@@ -410,4 +411,5 @@ private:
   void operator=(const vtkLagrangianParticleTracker&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

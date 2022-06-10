@@ -32,6 +32,7 @@
 
 namespace tovtkm
 {
+VTK_ABI_NAMESPACE_BEGIN
 void ProcessFields(vtkDataSet* input, vtkm::cont::DataSet& dataset, tovtkm::FieldsFlag fields)
 {
   if ((fields & tovtkm::FieldsFlag::Points) != tovtkm::FieldsFlag::None)
@@ -125,10 +126,12 @@ vtkm::cont::Field Convert(vtkDataArray* input, int association)
   }
   return field;
 }
+VTK_ABI_NAMESPACE_END
 } // namespace tovtkm
 
 namespace fromvtkm
 {
+VTK_ABI_NAMESPACE_BEGIN
 
 bool ConvertArrays(const vtkm::cont::DataSet& input, vtkDataSet* output)
 {
@@ -157,4 +160,5 @@ bool ConvertArrays(const vtkm::cont::DataSet& input, vtkDataSet* output)
   }
   return true;
 }
+VTK_ABI_NAMESPACE_END
 } // namespace fromvtkm

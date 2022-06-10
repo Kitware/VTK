@@ -28,6 +28,7 @@
 
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkEncodedGradientShader);
 
 vtkEncodedGradientShader::vtkEncodedGradientShader()
@@ -558,3 +559,4 @@ void vtkEncodedGradientShader::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Zero Normal Specular Intensity: " << this->ZeroNormalSpecularIntensity << endl;
   os << indent << "ActiveComponent: " << this->ActiveComponent << endl;
 }
+VTK_ABI_NAMESPACE_END

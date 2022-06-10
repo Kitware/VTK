@@ -34,6 +34,7 @@
 #include "vtkImagingStatisticsModule.h" // For export macro
 #include "vtkThreadedImageAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkImageStencilData;
 class vtkIdTypeArray;
 class vtkImageHistogramThreadData;
@@ -238,4 +239,5 @@ private:
   friend class vtkImageHistogramFunctor;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

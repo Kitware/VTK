@@ -50,6 +50,7 @@
 #include <limits>
 #include <sstream>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkObjectFactoryNewMacro(vtkLagrangianParticleTracker);
 vtkCxxSetObjectMacro(
   vtkLagrangianParticleTracker, IntegrationModel, vtkLagrangianBasicIntegrationModel);
@@ -1363,3 +1364,4 @@ void vtkLagrangianParticleTracker::DeleteParticle(vtkLagrangianParticle* particl
   this->IntegrationModel->ParticleAboutToBeDeleted(particle);
   delete particle;
 }
+VTK_ABI_NAMESPACE_END

@@ -43,6 +43,7 @@
 #include <mutex>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImprintFilter);
 
 //------------------------------------------------------------------------------
@@ -3041,3 +3042,4 @@ void vtkImprintFilter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Debug Output Type: " << this->DebugOutputType << "\n";
   os << indent << "Debug Cell Id: " << this->DebugCellId << "\n";
 }
+VTK_ABI_NAMESPACE_END

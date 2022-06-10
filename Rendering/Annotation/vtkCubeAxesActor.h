@@ -59,6 +59,7 @@ All rights reserve
 #include "vtkActor.h"
 #include "vtkRenderingAnnotationModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkAxisActor;
 class vtkCamera;
 class vtkTextProperty;
@@ -888,4 +889,5 @@ private:
   double AutoScale(vtkViewport* viewport, double screenSize, double position[3]);
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -34,6 +34,7 @@
 
 #include "vtkVector.h" // For vector ivars
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkGraph;
 
 class VTKINFOVISLAYOUT_EXPORT vtkIncrementalForceLayout : public vtkObject
@@ -156,4 +157,5 @@ private:
   vtkIncrementalForceLayout(const vtkIncrementalForceLayout&) = delete;
   void operator=(const vtkIncrementalForceLayout&) = delete;
 };
+VTK_ABI_NAMESPACE_END
 #endif

@@ -29,6 +29,7 @@
 #include "vtkTriangle.h"
 #include "vtkUnstructuredGrid.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkDelaunay3D);
 
 //------------------------------------------------------------------------------
@@ -1132,3 +1133,4 @@ int vtkDelaunay3D::FillInputPortInformation(int port, vtkInformation* info)
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPointSet");
   return 1;
 }
+VTK_ABI_NAMESPACE_END

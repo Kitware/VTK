@@ -31,13 +31,16 @@
 #include "vtkUniformGrid.h"
 #include "vtkUnstructuredGrid.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkExtractCellsByType);
 
+VTK_ABI_NAMESPACE_END
 #include <set>
 
 // Special token marks any cell type
 #define VTK_ANY_CELL_TYPE 1000000
 
+VTK_ABI_NAMESPACE_BEGIN
 struct vtkCellTypeSet : public std::set<unsigned int>
 {
 };
@@ -431,3 +434,4 @@ void vtkExtractCellsByType::PrintSelf(ostream& os, vtkIndent indent)
   // Output the number of types specified
   os << indent << "Number of types specified: " << this->CellTypes->size() << "\n";
 }
+VTK_ABI_NAMESPACE_END

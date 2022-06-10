@@ -40,6 +40,7 @@
 
 #include "vtkGraphAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKINFOVISBOOSTGRAPHALGORITHMS_EXPORT vtkBoostBrandesCentrality : public vtkGraphAlgorithm
 {
 public:
@@ -83,4 +84,5 @@ private:
   void operator=(const vtkBoostBrandesCentrality&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -31,6 +31,7 @@
 #include "vtk_glew.h" // Needed for GLuint.
 #include <string>     // for std::string
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkOpenGLBufferObject;
 class vtkOpenGLRenderWindow;
 class vtkOpenGLVertexArrayObject;
@@ -133,4 +134,5 @@ private:
   void operator=(const vtkOpenGLRenderUtilities&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

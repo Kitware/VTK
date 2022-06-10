@@ -29,6 +29,7 @@
 #include "vtkFiltersHybridModule.h" // For export macro
 #include "vtkMultiTimeStepAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSHYBRID_EXPORT vtkTemporalArrayOperatorFilter : public vtkMultiTimeStepAlgorithm
 {
 public:
@@ -107,4 +108,5 @@ private:
   void operator=(const vtkTemporalArrayOperatorFilter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

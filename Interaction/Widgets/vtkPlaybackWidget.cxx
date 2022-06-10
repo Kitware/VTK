@@ -17,6 +17,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPlaybackRepresentation.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPlaybackWidget);
 
 //------------------------------------------------------------------------------
@@ -74,3 +75,4 @@ void vtkPlaybackWidget::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

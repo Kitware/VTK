@@ -53,6 +53,7 @@
 #include "vtkSelectionAlgorithm.h"
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCollection;
 class vtkDoubleArray;
 class vtkIdTypeArray;
@@ -145,4 +146,5 @@ private:
   void operator=(const vtkComputeHistogram2DOutliers&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

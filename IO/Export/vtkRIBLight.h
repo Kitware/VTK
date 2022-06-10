@@ -30,6 +30,7 @@
 #include "vtkIOExportModule.h" // For export macro
 #include "vtkLight.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkRIBRenderer;
 
 class VTKIOEXPORT_EXPORT vtkRIBLight : public vtkLight
@@ -57,4 +58,5 @@ private:
   void operator=(const vtkRIBLight&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

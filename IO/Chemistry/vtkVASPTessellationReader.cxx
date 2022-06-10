@@ -45,7 +45,9 @@
 #include <sstream>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkVASPTessellationReader);
+VTK_ABI_NAMESPACE_END
 
 typedef vtksys::RegularExpression RegEx;
 typedef vtkStreamingDemandDrivenPipeline vtkSDDP;
@@ -116,6 +118,8 @@ bool parseVariableLists(
 }
 
 } // end anon namespace
+
+VTK_ABI_NAMESPACE_BEGIN
 
 //------------------------------------------------------------------------------
 void vtkVASPTessellationReader::PrintSelf(std::ostream& os, vtkIndent indent)
@@ -622,3 +626,4 @@ bool vtkVASPTessellationReader::ReadTimeStep(
 
   return true;
 }
+VTK_ABI_NAMESPACE_END

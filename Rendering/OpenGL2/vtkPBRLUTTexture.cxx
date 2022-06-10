@@ -27,6 +27,7 @@
 
 #include <sstream>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPBRLUTTexture);
 
 //------------------------------------------------------------------------------
@@ -181,3 +182,4 @@ void vtkPBRLUTTexture::Load(vtkRenderer* ren)
 
   this->TextureObject->Activate();
 }
+VTK_ABI_NAMESPACE_END

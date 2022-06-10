@@ -34,6 +34,7 @@
 #include "vtkDefaultPass.h"
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkInformationIntegerKey;
 
 class VTKRENDERINGOPENGL2_EXPORT vtkLightingMapPass : public vtkDefaultPass
@@ -100,4 +101,5 @@ private:
   RenderMode RenderType;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

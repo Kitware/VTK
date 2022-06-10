@@ -39,6 +39,7 @@
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCellArray;
 class vtkDataArray;
 class vtkPoints;
@@ -156,4 +157,5 @@ private:
   void operator=(const vtkAppendPolyData&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

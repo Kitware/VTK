@@ -22,6 +22,7 @@
 
 #include "vtkObjectFactory.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkGraphEdge);
 //------------------------------------------------------------------------------
 vtkGraphEdge::vtkGraphEdge()
@@ -42,3 +43,4 @@ void vtkGraphEdge::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Target: " << this->Target << endl;
   os << indent << "Id: " << this->Id << endl;
 }
+VTK_ABI_NAMESPACE_END

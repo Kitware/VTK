@@ -42,6 +42,7 @@
 
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkSMPContourGrid);
 
 //------------------------------------------------------------------------------
@@ -664,3 +665,4 @@ void vtkSMPContourGrid::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Merge Pieces: " << (this->MergePieces ? "On\n" : "Off\n");
 }
+VTK_ABI_NAMESPACE_END

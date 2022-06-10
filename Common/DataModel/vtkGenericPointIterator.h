@@ -36,6 +36,7 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONDATAMODEL_EXPORT vtkGenericPointIterator : public vtkObject
 {
 public:
@@ -97,4 +98,5 @@ private:
   void operator=(const vtkGenericPointIterator&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -22,6 +22,7 @@
 #include "vtkPoints.h"
 #include "vtkPolygon.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImplicitSelectionLoop);
 vtkCxxSetObjectMacro(vtkImplicitSelectionLoop, Loop, vtkPoints);
 
@@ -208,3 +209,4 @@ void vtkImplicitSelectionLoop::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Normal: (" << this->Normal[0] << ", " << this->Normal[1] << ", "
      << this->Normal[2] << ")\n";
 }
+VTK_ABI_NAMESPACE_END

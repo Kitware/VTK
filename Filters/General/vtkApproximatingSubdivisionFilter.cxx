@@ -27,6 +27,7 @@
 #include "vtkUnsignedCharArray.h"
 
 // Construct object with number of subdivisions set to 1.
+VTK_ABI_NAMESPACE_BEGIN
 vtkApproximatingSubdivisionFilter::vtkApproximatingSubdivisionFilter() = default;
 
 int vtkApproximatingSubdivisionFilter::RequestData(
@@ -253,3 +254,4 @@ void vtkApproximatingSubdivisionFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

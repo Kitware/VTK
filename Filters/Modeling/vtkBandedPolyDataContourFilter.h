@@ -46,6 +46,7 @@
 
 #include "vtkContourValues.h" // Needed for inline methods
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPoints;
 class vtkCellArray;
 class vtkPointData;
@@ -258,4 +259,5 @@ inline void vtkBandedPolyDataContourFilter::GenerateValues(
   this->ContourValues->GenerateValues(numContours, rangeStart, rangeEnd);
 }
 
+VTK_ABI_NAMESPACE_END
 #endif

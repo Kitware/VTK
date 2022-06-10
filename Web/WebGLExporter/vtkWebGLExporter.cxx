@@ -575,6 +575,7 @@ vtkTriangleFilter* vtkWebGLExporter::GetPolyData(vtkMapper* mapper, vtkMTimeType
     { "id": ,"LookAt": ,"Background1": ,"Background2":
     "Objects": [{"id": ,"md5": ,"parts": },  {"id": ,"md5": ,"parts": }] }
 */
+VTK_ABI_NAMESPACE_BEGIN
 const char* vtkWebGLExporter::GenerateMetadata()
 {
   double max = std::max(this->SceneSize[0], this->SceneSize[1]);
@@ -798,3 +799,4 @@ void vtkWebGLExporter::ComputeMD5(const unsigned char* content, int size, std::s
 
   hash = md5Hash;
 }
+VTK_ABI_NAMESPACE_END

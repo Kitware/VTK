@@ -24,6 +24,7 @@
 
 #include <fontconfig/fontconfig.h>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkFontConfigFreeTypeTools);
 
 namespace
@@ -186,3 +187,4 @@ bool vtkFontConfigFreeTypeTools::LookupFaceFontConfig(
 
   return !error;
 }
+VTK_ABI_NAMESPACE_END

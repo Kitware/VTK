@@ -28,6 +28,7 @@
 #include "vtkRenderingFreeTypeModule.h" // For export macro
 #include "vtkTextRenderer.h"            // for metrics
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkImageData;
 class vtkPath;
 class vtkTextProperty;
@@ -144,4 +145,5 @@ private:
   ///@}
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

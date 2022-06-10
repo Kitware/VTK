@@ -21,6 +21,7 @@
 
 //------------------------------------------------------------------------------
 // Can't use vtkStandardNewMacro on a templated class.
+VTK_ABI_NAMESPACE_BEGIN
 template <class Scalar>
 vtkAngularPeriodicDataArray<Scalar>* vtkAngularPeriodicDataArray<Scalar>::New()
 {
@@ -185,3 +186,4 @@ vtkAngularPeriodicDataArray<Scalar>::~vtkAngularPeriodicDataArray()
 {
   this->RotationMatrix->Delete();
 }
+VTK_ABI_NAMESPACE_END

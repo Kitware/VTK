@@ -38,6 +38,7 @@
 #include "vtkInfovisCoreModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKINFOVISCORE_EXPORT vtkEdgeCenters : public vtkPolyDataAlgorithm
 {
 public:
@@ -72,4 +73,5 @@ private:
   void operator=(const vtkEdgeCenters&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

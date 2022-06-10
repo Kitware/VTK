@@ -17,6 +17,7 @@
 #include "vtkObjectFactory.h"
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkCompositeDataIterator::vtkCompositeDataIterator()
 {
   this->Reverse = 0;
@@ -61,3 +62,4 @@ void vtkCompositeDataIterator::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Reverse: " << (this->Reverse ? "On" : "Off") << endl;
   os << indent << "SkipEmptyNodes: " << (this->SkipEmptyNodes ? "On" : "Off") << endl;
 }
+VTK_ABI_NAMESPACE_END

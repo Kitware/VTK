@@ -16,6 +16,7 @@
 #include "vtkObjectFactory.h"
 #include <cassert>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkMinimalStandardRandomSequence);
 
 const int VTK_K_A = 16807;
@@ -121,3 +122,4 @@ void vtkMinimalStandardRandomSequence::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

@@ -3,6 +3,7 @@
 // Do not edit. Any modifications may be lost.
 
 namespace vtkBlueObeliskData_ {
+VTK_ABI_NAMESPACE_BEGIN
 
 static const unsigned int numberOfElements = 118;
 
@@ -2324,5 +2325,6 @@ static const unsigned short Groups[119][1] = {
   { 18 }
 };
 
+VTK_ABI_NAMESPACE_END
 } // end namespace vtkBlueObeliskData_
 // VTK-HeaderTest-Exclude: vtkBlueObeliskDataInternal.h

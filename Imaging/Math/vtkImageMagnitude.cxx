@@ -25,6 +25,7 @@
 
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImageMagnitude);
 
 //------------------------------------------------------------------------------
@@ -118,3 +119,4 @@ void vtkImageMagnitude::ThreadedExecute(
       return;
   }
 }
+VTK_ABI_NAMESPACE_END

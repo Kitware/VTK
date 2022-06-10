@@ -70,6 +70,7 @@ POSSIBILITY OF SUCH DAMAGES.
 #include <vtksys/SystemTools.hxx>
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkMNITagPointReader);
 
 //------------------------------------------------------------------------------
@@ -717,3 +718,4 @@ int vtkMNITagPointReader::RequestData(vtkInformation* vtkNotUsed(request),
   // read the file
   return this->ReadFile(output1, output2);
 }
+VTK_ABI_NAMESPACE_END

@@ -33,6 +33,7 @@
 #include "vtkParallelRenderManager.h"
 #include "vtkRenderingParallelModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKRENDERINGPARALLEL_EXPORT vtkImageRenderManager : public vtkParallelRenderManager
 {
 public:
@@ -52,4 +53,5 @@ private:
   void operator=(const vtkImageRenderManager&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkImageRenderManager_h

@@ -32,6 +32,7 @@
 #include "vtkPolyDataAlgorithm.h"
 #include "vtkSmartPointer.h" // For smart pointer
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkImageData;
 class vtkPolyData;
 class vtkScalarsToColors;
@@ -91,4 +92,5 @@ private:
   int TextureDimensions[2];
   bool UseTransferFunction = true;
 };
+VTK_ABI_NAMESPACE_END
 #endif

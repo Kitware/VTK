@@ -34,6 +34,7 @@
 #include "vtkIOVideoModule.h" // For export macro
 #include "vtkVideoSource.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkWin32VideoSourceInternal;
 
 class VTKIOVIDEO_EXPORT vtkWin32VideoSource : public vtkVideoSource
@@ -141,4 +142,5 @@ private:
   void operator=(const vtkWin32VideoSource&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

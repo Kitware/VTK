@@ -31,6 +31,7 @@
 #include "vtkTextProperty.h"
 #include "vtkTreeMapToPolyData.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkTreeMapView);
 //------------------------------------------------------------------------------
 vtkTreeMapView::vtkTreeMapView()
@@ -131,3 +132,4 @@ void vtkTreeMapView::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

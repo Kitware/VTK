@@ -22,6 +22,7 @@
 
 #include "vtkTree.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkCirclePackLayoutStrategy::vtkCirclePackLayoutStrategy() = default;
 
 vtkCirclePackLayoutStrategy::~vtkCirclePackLayoutStrategy() = default;
@@ -30,3 +31,4 @@ void vtkCirclePackLayoutStrategy::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

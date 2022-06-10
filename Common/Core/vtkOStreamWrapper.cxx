@@ -38,6 +38,7 @@
   }
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkOStreamWrapper::vtkOStreamWrapper(ostream& os)
   : ostr(os)
 {
@@ -136,3 +137,4 @@ void vtkOStreamWrapper::flush()
 {
   this->ostr.flush();
 }
+VTK_ABI_NAMESPACE_END

@@ -41,6 +41,7 @@
 #include "vtkDataObjectAlgorithm.h"
 #include "vtkFiltersSourcesModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkGraph;
 class vtkMolecule;
 class vtkPolyData;
@@ -122,4 +123,5 @@ private:
   void operator=(const vtkProgrammableSource&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

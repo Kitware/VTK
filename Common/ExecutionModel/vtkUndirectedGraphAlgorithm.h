@@ -44,6 +44,7 @@
 #include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkUndirectedGraph.h"            // makes things a bit easier
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataSet;
 
 class VTKCOMMONEXECUTIONMODEL_EXPORT vtkUndirectedGraphAlgorithm : public vtkAlgorithm
@@ -103,4 +104,5 @@ private:
   void operator=(const vtkUndirectedGraphAlgorithm&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

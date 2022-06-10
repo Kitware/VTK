@@ -28,6 +28,7 @@
 #include "vtkIOParallelXMLModule.h" // For export macro
 #include "vtkXMLWriter2.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPartitionedDataSetCollection;
 
 class VTKIOPARALLELXML_EXPORT vtkXMLPartitionedDataSetCollectionWriter : public vtkXMLWriter2
@@ -74,4 +75,5 @@ private:
     const std::vector<std::vector<std::string>>& allFilenames);
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -17,6 +17,7 @@
 #include "vtkGarbageCollector.h"
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkSmartPointerBase::vtkSmartPointerBase() noexcept
   : Object(nullptr)
 {
@@ -123,3 +124,4 @@ ostream& operator<<(ostream& os, const vtkSmartPointerBase& p)
   // Just print the pointer value into the stream.
   return os << static_cast<void*>(p.GetPointer());
 }
+VTK_ABI_NAMESPACE_END

@@ -47,6 +47,7 @@
 #include "vtkTimeStamp.h"
 #include "vtkWeakPointerBase.h" // needed for vtkWeakPointer
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkSubjectHelper;
 class vtkCommand;
 
@@ -420,5 +421,6 @@ private:
   ///@}
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkObject.h

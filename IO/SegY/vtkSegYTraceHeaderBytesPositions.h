@@ -16,6 +16,7 @@
 #ifndef vtkSegYTraceHeaderBytesPositions_h
 #define vtkSegYTraceHeaderBytesPositions_h
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkSegYTraceHeaderBytesPositions
 {
 public:
@@ -45,5 +46,6 @@ private:
   }
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkSegYTraceHeaderBytesPositions_h
 // VTK-HeaderTest-Exclude: vtkSegYTraceHeaderBytesPositions.h

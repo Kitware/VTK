@@ -31,6 +31,7 @@
 #include "vtkObject.h"
 #include "vtkRenderingCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKRENDERINGCORE_EXPORT vtkGenericVertexAttributeMapping : public vtkObject
 {
 public:
@@ -106,4 +107,5 @@ private:
   vtkInternal* Internal;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

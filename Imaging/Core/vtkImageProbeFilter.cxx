@@ -30,6 +30,7 @@
 #include <algorithm>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImageProbeFilter);
 
 vtkCxxSetObjectMacro(vtkImageProbeFilter, Interpolator, vtkAbstractImageInterpolator);
@@ -398,3 +399,4 @@ void vtkImageProbeFilter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Source: " << source << "\n";
   os << indent << "Interpolator: " << interpolator << "\n";
 }
+VTK_ABI_NAMESPACE_END

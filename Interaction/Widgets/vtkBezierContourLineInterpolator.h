@@ -30,6 +30,7 @@
 #include "vtkContourLineInterpolator.h"
 #include "vtkInteractionWidgetsModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKINTERACTIONWIDGETS_EXPORT vtkBezierContourLineInterpolator
   : public vtkContourLineInterpolator
 {
@@ -103,4 +104,5 @@ private:
   void operator=(const vtkBezierContourLineInterpolator&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

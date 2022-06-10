@@ -34,6 +34,7 @@
 #include "vtkFiltersExtractionModule.h" // For export macro
 #include "vtkUnstructuredGridAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkIdList;
 class vtkExtractCellsSTLCloak;
 
@@ -117,4 +118,5 @@ private:
   void operator=(const vtkExtractCells&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

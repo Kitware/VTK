@@ -32,6 +32,7 @@
 #include "vtkNew.h"                    // For vtkNew
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkOpenGLGlyph3DHelper;
 class vtkBitArray;
 
@@ -116,4 +117,5 @@ private:
   void operator=(const vtkOpenGLGlyph3DMapper&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -75,6 +75,7 @@
 #include "vtkDataObjectAlgorithm.h"
 #include "vtkFiltersCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPlane;
 class vtkUnstructuredGrid;
 class vtkPolyData;
@@ -216,4 +217,5 @@ private:
   void operator=(const vtk3DLinearGridPlaneCutter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

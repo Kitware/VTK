@@ -36,6 +36,7 @@
 
 namespace vtx
 {
+VTK_ABI_NAMESPACE_BEGIN
 /**
  * Abstract common class to supported ADIOS2 schemas
  */
@@ -126,6 +127,7 @@ private:
     types::DataArray& dataArray);
 };
 
+VTK_ABI_NAMESPACE_END
 } // end namespace vtx
 
 #endif /* VTK_IO_ADIOS2_VTX_SCHEMA_VTXSchema_h */

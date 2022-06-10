@@ -26,6 +26,7 @@
 #include "vtkFiltersParallelModule.h" // For export macro
 #include "vtkProjectSphereFilter.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSPARALLEL_EXPORT vtkPProjectSphereFilter : public vtkProjectSphereFilter
 {
 public:
@@ -56,4 +57,5 @@ private:
   void operator=(const vtkPProjectSphereFilter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkPProjectSphereFilter_h

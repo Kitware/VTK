@@ -32,6 +32,7 @@
 #include <cassert>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
 // Data type used to store a 3-tuple of doubles.
@@ -484,3 +485,4 @@ vtkDataSet* vtkXMLUniformGridAMRReader::ReadDataset(
   }
   return ds;
 }
+VTK_ABI_NAMESPACE_END

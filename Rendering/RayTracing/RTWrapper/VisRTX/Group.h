@@ -9,6 +9,7 @@
 
 namespace RTW
 {
+VTK_ABI_NAMESPACE_BEGIN
     class Group : public Object
     {
         friend class World;
@@ -56,4 +57,5 @@ namespace RTW
         std::set<GeometricModel *> geometricModels;
 
     };
+VTK_ABI_NAMESPACE_END
 }

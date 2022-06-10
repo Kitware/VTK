@@ -39,6 +39,7 @@
 
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkTreeFieldAggregator);
 
 vtkTreeFieldAggregator::vtkTreeFieldAggregator()
@@ -233,3 +234,4 @@ void vtkTreeFieldAggregator::SetDoubleValue(vtkAbstractArray* arr, vtkIdType id,
     vtkArrayDownCast<vtkStringArray>(arr)->SetValue(id, vtkVariant(value).ToString());
   }
 }
+VTK_ABI_NAMESPACE_END

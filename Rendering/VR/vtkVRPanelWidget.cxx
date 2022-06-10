@@ -21,6 +21,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkWidgetCallbackMapper.h"
 #include "vtkWidgetEvent.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkVRPanelWidget);
 
 //------------------------------------------------------------------------------
@@ -151,3 +152,4 @@ void vtkVRPanelWidget::EndSelectAction3D(vtkAbstractWidget* w)
   self->EndInteraction();
   self->InvokeEvent(vtkCommand::EndInteractionEvent, nullptr);
 }
+VTK_ABI_NAMESPACE_END

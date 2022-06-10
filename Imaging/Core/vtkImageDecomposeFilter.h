@@ -29,6 +29,7 @@
 #include "vtkImageIterateFilter.h"
 #include "vtkImagingCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKIMAGINGCORE_EXPORT vtkImageDecomposeFilter : public vtkImageIterateFilter
 {
 public:
@@ -69,4 +70,5 @@ private:
   void operator=(const vtkImageDecomposeFilter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

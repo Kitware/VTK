@@ -25,6 +25,7 @@
 
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDiscretizableColorTransferFunction::vtkInternals
 {
 public:
@@ -456,3 +457,4 @@ void vtkDiscretizableColorTransferFunction::PrintSelf(ostream& os, vtkIndent ind
   os << indent << "EnableOpacityMapping: " << this->EnableOpacityMapping << endl;
   os << indent << "ScalarOpacityFunction: " << this->ScalarOpacityFunction << endl;
 }
+VTK_ABI_NAMESPACE_END

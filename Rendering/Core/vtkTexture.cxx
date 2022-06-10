@@ -26,6 +26,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTransform.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkCxxSetObjectMacro(vtkTexture, LookupTable, vtkScalarsToColors);
 //------------------------------------------------------------------------------
 // Return nullptr if no override is supplied.
@@ -371,3 +372,4 @@ int vtkTexture::IsTranslucent()
   this->TranslucentComputationTime.Modified();
   return this->TranslucentCachedResult;
 }
+VTK_ABI_NAMESPACE_END

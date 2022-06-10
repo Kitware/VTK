@@ -27,6 +27,7 @@
 #include <cmath>
 #include <limits>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkAxisActor2D);
 
 vtkCxxSetObjectMacro(vtkAxisActor2D, LabelTextProperty, vtkTextProperty);
@@ -905,3 +906,4 @@ void vtkAxisActor2D::ShallowCopy(vtkProp* prop)
   // Now do superclass
   this->vtkActor2D::ShallowCopy(prop);
 }
+VTK_ABI_NAMESPACE_END

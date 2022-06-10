@@ -22,6 +22,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImplicitTextureCoords);
 vtkCxxSetObjectMacro(vtkImplicitTextureCoords, SFunction, vtkImplicitFunction);
 vtkCxxSetObjectMacro(vtkImplicitTextureCoords, RFunction, vtkImplicitFunction);
@@ -223,3 +224,4 @@ void vtkImplicitTextureCoords::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "R Function defined\n";
   }
 }
+VTK_ABI_NAMESPACE_END

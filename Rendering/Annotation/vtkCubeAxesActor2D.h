@@ -49,6 +49,7 @@
 #include "vtkActor2D.h"
 #include "vtkRenderingAnnotationModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkAlgorithmOutput;
 class vtkAxisActor2D;
 class vtkCamera;
@@ -389,4 +390,5 @@ private:
   void operator=(const vtkCubeAxesActor2D&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -46,6 +46,7 @@
 #include <stdexcept>
 
 /// Convert a 1D array to a table with one column ...
+VTK_ABI_NAMESPACE_BEGIN
 template <typename ValueT, typename ColumnT>
 static bool ConvertVector(vtkArray* Array, vtkTable* Output)
 {
@@ -250,3 +251,4 @@ int vtkArrayToTable::RequestData(
 
   return 0;
 }
+VTK_ABI_NAMESPACE_END

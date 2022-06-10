@@ -35,6 +35,7 @@
 #include "vtkCommonMathModule.h" // For export macro
 #include "vtkObject.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkFunctionSet;
 
 class VTKCOMMONMATH_EXPORT vtkInitialValueProblemSolver : public vtkObject
@@ -166,4 +167,5 @@ private:
   void operator=(const vtkInitialValueProblemSolver&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

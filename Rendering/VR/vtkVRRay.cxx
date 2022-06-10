@@ -29,6 +29,7 @@ PURPOSE.  See the above copyright notice for more information.
 /*=========================================================================
 vtkVRRay
 =========================================================================*/
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkVRRay);
 
 //------------------------------------------------------------------------------
@@ -147,3 +148,4 @@ void vtkVRRay::Render(vtkOpenGLRenderWindow* win, vtkMatrix4x4* poseMatrix)
 
   glDrawArrays(GL_LINES, 0, 6);
 }
+VTK_ABI_NAMESPACE_END

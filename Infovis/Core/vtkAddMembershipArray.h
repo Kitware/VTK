@@ -34,6 +34,7 @@
 #include "vtkInfovisCoreModule.h" // For export macro
 #include "vtkPassInputTypeAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkAbstractArray;
 
 class VTKINFOVISCORE_EXPORT vtkAddMembershipArray : public vtkPassInputTypeAlgorithm
@@ -95,4 +96,5 @@ private:
   void operator=(const vtkAddMembershipArray&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

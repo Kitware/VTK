@@ -32,6 +32,7 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkExtractUserDefinedPiece);
 
 vtkExtractUserDefinedPiece::vtkExtractUserDefinedPiece()
@@ -259,3 +260,4 @@ void vtkExtractUserDefinedPiece::ComputeCellTagsWithFunction(
 
   cellPtIds->Delete();
 }
+VTK_ABI_NAMESPACE_END

@@ -28,6 +28,7 @@
 
 #include "vtkIOParallelModule.h" // For export macro
 #include "vtkImageWriter.h"
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPipelineSize;
 
 class VTKIOPARALLEL_EXPORT vtkPImageWriter : public vtkImageWriter
@@ -67,4 +68,5 @@ private:
   void operator=(const vtkPImageWriter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

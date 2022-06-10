@@ -56,6 +56,7 @@
 #include "vtkIOSQLModule.h" // For export macro
 #include "vtkObject.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkVariant;
 class vtkVariantArray;
 
@@ -151,4 +152,5 @@ private:
   void operator=(const vtkRowQuery&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkRowQuery_h

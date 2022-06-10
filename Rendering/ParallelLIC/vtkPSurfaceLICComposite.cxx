@@ -133,6 +133,7 @@ static void MPIAPI vtkPixelExtentUnion(void* in, void* out, int* len, MPI_Dataty
   }
 }
 
+VTK_ABI_NAMESPACE_BEGIN
 // Description:
 // Container for our custom MPI_Op's
 class vtkPPixelExtentOps
@@ -194,6 +195,7 @@ void MPITypeFree(deque<MPI_Datatype>& types)
     MPI_Type_free(&types[i]);
   }
 }
+VTK_ABI_NAMESPACE_END
 
 // ****************************************************************************
 static size_t Size(deque<deque<vtkPixelExtent>> exts)
@@ -275,6 +277,7 @@ static int ScanMPIStatusForError(vector<MPI_Status>& stat)
 }
 #endif
 
+VTK_ABI_NAMESPACE_BEGIN
 //------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkPSurfaceLICComposite);
 
@@ -1706,3 +1709,4 @@ ostream& operator<<(ostream& os, vtkPSurfaceLICComposite& ss)
   }
   return os;
 }
+VTK_ABI_NAMESPACE_END

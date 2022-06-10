@@ -27,6 +27,7 @@
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkEdgeCenters);
 
 // Construct object with vertex cell generation turned off.
@@ -188,3 +189,4 @@ void vtkEdgeCenters::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Vertex Cells: " << (this->VertexCells ? "On\n" : "Off\n");
 }
+VTK_ABI_NAMESPACE_END

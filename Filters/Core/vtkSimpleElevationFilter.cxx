@@ -26,6 +26,7 @@
 #include "vtkPointSet.h"
 #include "vtkSMPTools.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkSimpleElevationFilter);
 
 namespace
@@ -200,3 +201,4 @@ void vtkSimpleElevationFilter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Vector: (" << this->Vector[0] << ", " << this->Vector[1] << ", "
      << this->Vector[2] << ")\n";
 }
+VTK_ABI_NAMESPACE_END

@@ -34,6 +34,7 @@
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSCORE_EXPORT vtkReverseSense : public vtkPolyDataAlgorithm
 {
 public:
@@ -79,4 +80,5 @@ private:
   void operator=(const vtkReverseSense&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

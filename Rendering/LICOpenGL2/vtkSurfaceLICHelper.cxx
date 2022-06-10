@@ -42,6 +42,7 @@
 // Description
 // find min/max of unmasked fragments across all regions
 // download each search each region individually
+VTK_ABI_NAMESPACE_BEGIN
 void vtkSurfaceLICHelper::StreamingFindMinMax(
   vtkOpenGLFramebufferObject* fbo, std::deque<vtkPixelExtent>& blockExts, float& min, float& max)
 {
@@ -553,3 +554,4 @@ void vtkSurfaceLICHelper::GetPixelBounds(float* rgba, int ni, std::deque<vtkPixe
     }
   }
 }
+VTK_ABI_NAMESPACE_END

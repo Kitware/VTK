@@ -43,6 +43,7 @@
 
 #include "vtkHyperTreeGridNonOrientedSuperCursor.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkHyperTreeGrid;
 
 class VTKCOMMONDATAMODEL_EXPORT vtkHyperTreeGridNonOrientedVonNeumannSuperCursor
@@ -77,4 +78,5 @@ private:
   void operator=(const vtkHyperTreeGridNonOrientedVonNeumannSuperCursor&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

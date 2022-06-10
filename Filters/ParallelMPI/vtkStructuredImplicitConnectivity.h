@@ -43,6 +43,7 @@
 #include "vtkObject.h"
 
 // Forward declarations
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataArray;
 class vtkImageData;
 class vtkMPIController;
@@ -51,19 +52,23 @@ class vtkPointData;
 class vtkPoints;
 class vtkRectilinearGrid;
 class vtkStructuredGrid;
+VTK_ABI_NAMESPACE_END
 
 namespace vtk
 {
 namespace detail
 {
+VTK_ABI_NAMESPACE_BEGIN
 
 class CommunicationManager;
 struct DomainMetaData;
 struct StructuredGrid;
 
+VTK_ABI_NAMESPACE_END
 } // END namespace detail
 } // END namespace vtk
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSPARALLELMPI_EXPORT vtkStructuredImplicitConnectivity : public vtkObject
 {
 public:
@@ -217,4 +222,5 @@ private:
   vtkStructuredImplicitConnectivity(const vtkStructuredImplicitConnectivity&) = delete;
   void operator=(const vtkStructuredImplicitConnectivity&) = delete;
 };
+VTK_ABI_NAMESPACE_END
 #endif

@@ -22,6 +22,7 @@
 #include "d3d11.h" // Required headers for the XrGraphicsRequirementsD3D11KHR struct
 #include <vtkOpenXRPlatform.h>
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkOpenXRManagerD3DGraphics::PIMPL
 {
 public:
@@ -163,3 +164,4 @@ const char* vtkOpenXRManagerD3DGraphics::GetBackendExtensionName()
 {
   return XR_KHR_D3D11_ENABLE_EXTENSION_NAME;
 }
+VTK_ABI_NAMESPACE_END

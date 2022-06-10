@@ -45,6 +45,7 @@
 #include "vtkObject.h"
 #include "vtkParallelCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkMultiProcessController;
 class vtkCommunicator;
 
@@ -146,4 +147,5 @@ private:
   vtkSubGroup(const vtkSubGroup&) = delete;
   void operator=(const vtkSubGroup&) = delete;
 };
+VTK_ABI_NAMESPACE_END
 #endif

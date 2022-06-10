@@ -20,6 +20,7 @@
 #include "vtkPolyData.h"
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkCursor2D);
 
 //------------------------------------------------------------------------------
@@ -336,3 +337,4 @@ void vtkCursor2D::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Wrap: " << (this->Wrap ? "On\n" : "Off\n");
   os << indent << "Translation Mode: " << (this->TranslationMode ? "On\n" : "Off\n");
 }
+VTK_ABI_NAMESPACE_END

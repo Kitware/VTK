@@ -34,6 +34,7 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkTreeIterator.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkTreeBFSIteratorInternals;
 class vtkIntArray;
 
@@ -66,4 +67,5 @@ private:
   void operator=(const vtkTreeBFSIterator&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

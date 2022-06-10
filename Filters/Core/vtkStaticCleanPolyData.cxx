@@ -32,6 +32,7 @@
 
 #include <algorithm>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkStaticCleanPolyData);
 
 // This filter uses methods found in vtkStaticCleanUnstructuredGrid.
@@ -535,3 +536,4 @@ void vtkStaticCleanPolyData::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Output Points Precision: " << this->OutputPointsPrecision << "\n";
   os << indent << "PieceInvariant: " << (this->PieceInvariant ? "On\n" : "Off\n");
 }
+VTK_ABI_NAMESPACE_END

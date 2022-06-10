@@ -23,6 +23,7 @@
 #include "vtkPiecewiseFunction.h"
 #include "vtkPointData.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkVolumeProperty);
 
 //------------------------------------------------------------------------------
@@ -996,3 +997,4 @@ void vtkVolumeProperty::PrintSelf(ostream& os, vtkIndent indent)
   // this->LabelScalarOpacityMTime
   // this->LabelGradientOpacityMTime
 }
+VTK_ABI_NAMESPACE_END

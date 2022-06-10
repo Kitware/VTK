@@ -23,6 +23,7 @@
 
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImageLogic);
 
 //------------------------------------------------------------------------------
@@ -291,3 +292,4 @@ void vtkImageLogic::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Operation: " << this->Operation << "\n";
   os << indent << "OutputTrueValue: " << this->OutputTrueValue << "\n";
 }
+VTK_ABI_NAMESPACE_END

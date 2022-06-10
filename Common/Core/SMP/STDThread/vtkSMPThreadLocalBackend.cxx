@@ -28,6 +28,7 @@ namespace smp
 {
 namespace STDThread
 {
+VTK_ABI_NAMESPACE_BEGIN
 
 static ThreadIdType GetThreadId()
 {
@@ -216,6 +217,7 @@ size_t ThreadSpecific::GetSize() const
   return this->Size;
 }
 
+VTK_ABI_NAMESPACE_END
 } // STDThread
 } // namespace smp
 } // namespace detail

@@ -31,6 +31,7 @@
 #include "vtkSmartPointer.h" //for storing smart pointers to blocks
 #include <vector>            //for storing blocks
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkUniformGrid;
 class VTKCOMMONDATAMODEL_EXPORT vtkAMRDataInternals : public vtkObject
 {
@@ -77,4 +78,5 @@ private:
   void operator=(const vtkAMRDataInternals&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

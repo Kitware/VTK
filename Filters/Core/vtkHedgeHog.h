@@ -31,6 +31,7 @@
 #define VTK_USE_VECTOR 0
 #define VTK_USE_NORMAL 1
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSCORE_EXPORT vtkHedgeHog : public vtkPolyDataAlgorithm
 {
 public:
@@ -100,4 +101,5 @@ inline const char* vtkHedgeHog::GetVectorModeAsString()
     return "Unknown";
   }
 }
+VTK_ABI_NAMESPACE_END
 #endif

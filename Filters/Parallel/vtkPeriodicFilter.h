@@ -41,6 +41,7 @@
 #include <set>    // For block selection
 #include <vector> // For pieces number
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCompositeDataIterator;
 class vtkCompositeDataSet;
 class vtkDataObjectTreeIterator;
@@ -130,4 +131,5 @@ private:
   std::set<vtkIdType> Indices; // Selected indices
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

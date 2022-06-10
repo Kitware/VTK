@@ -48,6 +48,7 @@
 
 #include <cfloat> //for FLT_EPSILON
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImplicitPlaneRepresentation);
 
 //------------------------------------------------------------------------------
@@ -1779,3 +1780,4 @@ void vtkImplicitPlaneRepresentation::RegisterPickers()
   }
   pm->AddPicker(this->Picker, this);
 }
+VTK_ABI_NAMESPACE_END

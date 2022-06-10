@@ -47,6 +47,7 @@
 #include <sys/types.h>
 #endif
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkOSPRayPassInternals : public vtkRenderPass
 {
 public:
@@ -503,3 +504,4 @@ bool vtkOSPRayPass::IsBackendAvailable(const char* choice)
   }
   return false;
 }
+VTK_ABI_NAMESPACE_END

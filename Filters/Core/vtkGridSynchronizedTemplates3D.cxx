@@ -41,6 +41,7 @@
 #include "vtkUnsignedShortArray.h"
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkGridSynchronizedTemplates3D);
 
 //------------------------------------------------------------------------------
@@ -994,3 +995,4 @@ int vtkGridSynchronizedTemplates3D::RequestData(vtkInformation* vtkNotUsed(reque
 
   return 1;
 }
+VTK_ABI_NAMESPACE_END

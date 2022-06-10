@@ -26,6 +26,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUndirectedGraph.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkUndirectedGraphAlgorithm);
 
 //------------------------------------------------------------------------------
@@ -132,3 +133,4 @@ int vtkUndirectedGraphAlgorithm::RequestData(vtkInformation* vtkNotUsed(request)
 {
   return 0;
 }
+VTK_ABI_NAMESPACE_END

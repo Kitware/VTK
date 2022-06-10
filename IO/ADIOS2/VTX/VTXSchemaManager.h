@@ -35,6 +35,7 @@
 
 namespace vtx
 {
+VTK_ABI_NAMESPACE_BEGIN
 
 class VTXSchemaManager
 {
@@ -92,6 +93,7 @@ private:
   bool InitReaderXMLVTK();
 };
 
+VTK_ABI_NAMESPACE_END
 } // end namespace adios2vtk
 
 #endif /* VTK_IO_ADIOS2_VTX_VTXSchemaManager_h */

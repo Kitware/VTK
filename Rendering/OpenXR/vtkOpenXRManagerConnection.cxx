@@ -16,4 +16,6 @@
 
 #include "vtkObjectFactory.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOpenXRManagerConnection);
+VTK_ABI_NAMESPACE_END

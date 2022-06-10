@@ -44,6 +44,7 @@
 
 #include <sstream>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkRIBExporter);
 
 typedef double RtColor[3];
@@ -1367,3 +1368,4 @@ void vtkRIBExporter::ModifyArrayName(char* newname, const char* name)
   }
   newname[cc] = 0;
 }
+VTK_ABI_NAMESPACE_END

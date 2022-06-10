@@ -39,6 +39,7 @@
 #include <cassert>
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 class vtkSynchronizedRenderers::vtkObserver : public vtkCommand
 {
 public:
@@ -757,3 +758,4 @@ vtkRenderer* vtkSynchronizedRenderers::GetRenderer()
                 << this->Renderer);
   return this->Renderer;
 }
+VTK_ABI_NAMESPACE_END

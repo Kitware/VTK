@@ -51,6 +51,7 @@
 
 #include <memory> // for std::unique_ptr
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSEXTRACTION_EXPORT vtkExtractExodusGlobalTemporalVariables : public vtkTableAlgorithm
 {
 public:
@@ -103,4 +104,5 @@ private:
   bool AutoDetectGlobalTemporalDataArrays;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

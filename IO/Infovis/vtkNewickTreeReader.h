@@ -34,6 +34,7 @@
 #include "vtkDataReader.h"
 #include "vtkIOInfovisModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDoubleArray;
 class vtkMutableDirectedGraph;
 class vtkStringArray;
@@ -75,4 +76,5 @@ private:
   void operator=(const vtkNewickTreeReader&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

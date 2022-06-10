@@ -24,12 +24,15 @@
 
 #include <clocale>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkVectorText);
 
 // NOLINTNEXTLINE(bugprone-suspicious-include)
+VTK_ABI_NAMESPACE_END
 #include "vtkVectorTextData.cxx"
 
 // Construct object with no string set and backing enabled.
+VTK_ABI_NAMESPACE_BEGIN
 vtkVectorText::vtkVectorText()
 {
   this->Text = nullptr;
@@ -141,3 +144,4 @@ vtkVectorText::~vtkVectorText()
 {
   delete[] this->Text;
 }
+VTK_ABI_NAMESPACE_END

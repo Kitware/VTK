@@ -29,6 +29,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderingUIModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKRENDERINGUI_EXPORT vtkGenericRenderWindowInteractor : public vtkRenderWindowInteractor
 {
 public:
@@ -81,4 +82,5 @@ private:
   void operator=(const vtkGenericRenderWindowInteractor&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

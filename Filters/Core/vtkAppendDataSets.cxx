@@ -33,6 +33,7 @@
 #include "vtkType.h"
 #include "vtkUnstructuredGrid.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkAppendDataSets);
 
 //------------------------------------------------------------------------------
@@ -231,3 +232,4 @@ void vtkAppendDataSets::PrintSelf(ostream& os, vtkIndent indent)
      << "\n";
   os << indent << "OutputPointsPrecision: " << this->OutputPointsPrecision << "\n";
 }
+VTK_ABI_NAMESPACE_END

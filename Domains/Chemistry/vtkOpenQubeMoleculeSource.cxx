@@ -28,6 +28,7 @@
 #include <vector>
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOpenQubeMoleculeSource);
 
 //------------------------------------------------------------------------------
@@ -163,3 +164,4 @@ void vtkOpenQubeMoleculeSource::CopyOQMoleculeToVtkMolecule(
 
   // TODO copy bonds (OQ doesn't currently have bonds)
 }
+VTK_ABI_NAMESPACE_END

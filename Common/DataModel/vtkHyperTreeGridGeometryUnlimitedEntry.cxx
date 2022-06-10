@@ -22,6 +22,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <cassert>
 #include <limits>
 
+VTK_ABI_NAMESPACE_BEGIN
 //------------------------------------------------------------------------------
 vtkHyperTreeGridGeometryUnlimitedEntry::vtkHyperTreeGridGeometryUnlimitedEntry()
 {
@@ -254,3 +255,4 @@ void vtkHyperTreeGridGeometryUnlimitedEntry::ToChild(const vtkHyperTreeGrid* gri
     }
   }
 }
+VTK_ABI_NAMESPACE_END

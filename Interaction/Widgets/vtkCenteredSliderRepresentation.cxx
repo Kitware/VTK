@@ -43,6 +43,7 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkWindow.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkCenteredSliderRepresentation);
 
 //------------------------------------------------------------------------------
@@ -561,3 +562,4 @@ const char* vtkCenteredSliderRepresentation::GetTitleText()
 {
   return this->LabelActor->GetInput();
 }
+VTK_ABI_NAMESPACE_END

@@ -20,6 +20,7 @@
 #include "vtkMath.h"
 
 // Construct a vtkAbstractVolumeMapper
+VTK_ABI_NAMESPACE_BEGIN
 vtkAbstractVolumeMapper::vtkAbstractVolumeMapper()
 {
   vtkMath::UninitializeBounds(this->Bounds);
@@ -151,3 +152,4 @@ void vtkAbstractVolumeMapper::PrintSelf(ostream& os, vtkIndent indent)
     }
   }
 }
+VTK_ABI_NAMESPACE_END

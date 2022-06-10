@@ -19,6 +19,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImageConvolve);
 
 //------------------------------------------------------------------------------
@@ -455,3 +456,4 @@ void vtkImageConvolve::ThreadedRequestData(vtkInformation* vtkNotUsed(request),
       return;
   }
 }
+VTK_ABI_NAMESPACE_END

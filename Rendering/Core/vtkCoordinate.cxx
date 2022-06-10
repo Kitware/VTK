@@ -17,6 +17,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkViewport.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkCoordinate);
 
 vtkCxxSetObjectMacro(vtkCoordinate, ReferenceCoordinate, vtkCoordinate);
@@ -468,3 +469,4 @@ double* vtkCoordinate::GetComputedValue(vtkViewport* viewport)
 
   return this->ComputedWorldValue;
 }
+VTK_ABI_NAMESPACE_END

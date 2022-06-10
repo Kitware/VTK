@@ -29,6 +29,7 @@
 #include "vtkRenderingContext2DModule.h" // For export macro
 #include "vtkSmartPointer.h"             // For ivars
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkContext2D;
 class vtkContext3D;
 class vtkContextDevice2D;
@@ -100,4 +101,5 @@ private:
   void operator=(const vtkContextActor&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

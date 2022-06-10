@@ -35,6 +35,7 @@
 
 // Description:
 // Enumerates all integer VTK types
+VTK_ABI_NAMESPACE_BEGIN
 typedef boost::mpl::vector<vtkTypeUInt8, vtkTypeInt8, vtkTypeUInt16, vtkTypeInt16, vtkTypeUInt32,
   vtkTypeInt32, vtkTypeUInt64, vtkTypeInt64, vtkIdType>
   vtkIntegerTypes;
@@ -188,5 +189,6 @@ bool vtkTryDowncast(vtkObject* source1, vtkObject* source2, vtkObject* source3, 
   return succeeded;
 }
 
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkTryDowncast.h

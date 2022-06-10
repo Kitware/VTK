@@ -43,6 +43,7 @@
 
 #include <vector> // For STL
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkBitArray;
 class vtkCellData;
 class vtkContourHelper;
@@ -250,4 +251,5 @@ inline void vtkHyperTreeGridContour::GenerateValues(
   this->ContourValues->GenerateValues(numContours, rangeStart, rangeEnd);
 }
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkHyperTreeGridContour_h

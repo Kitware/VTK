@@ -31,6 +31,7 @@
 
 #include "vtkFiltersParallelFlowPathsModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSPARALLELFLOWPATHS_EXPORT vtkPParticleTracer : public vtkPParticleTracerBase
 {
 public:
@@ -49,4 +50,5 @@ private:
   void operator=(const vtkPParticleTracer&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

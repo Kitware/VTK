@@ -32,6 +32,7 @@
 
 #include <map>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkObjectFactoryNewMacro(vtkConnectivityFilter);
 
 // Construct with default extraction mode to extract largest regions.
@@ -756,3 +757,4 @@ void vtkConnectivityFilter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Scalar Range: (" << range[0] << ", " << range[1] << ")\n";
   os << indent << "Output Points Precision: " << this->OutputPointsPrecision << "\n";
 }
+VTK_ABI_NAMESPACE_END

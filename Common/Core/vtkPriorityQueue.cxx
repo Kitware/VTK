@@ -15,6 +15,7 @@
 #include "vtkPriorityQueue.h"
 #include "vtkObjectFactory.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPriorityQueue);
 
 // Instantiate priority queue with default size and extension size of 1000.
@@ -241,3 +242,4 @@ void vtkPriorityQueue::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Size: " << this->Size << "\n";
   os << indent << "Extend size: " << this->Extend << "\n";
 }
+VTK_ABI_NAMESPACE_END

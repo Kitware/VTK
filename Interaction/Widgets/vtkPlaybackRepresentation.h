@@ -30,6 +30,7 @@
 #include "vtkBorderRepresentation.h"
 #include "vtkInteractionWidgetsModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkRenderer;
 class vtkRenderWindowInteractor;
 class vtkPoints;
@@ -113,4 +114,5 @@ private:
   void operator=(const vtkPlaybackRepresentation&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

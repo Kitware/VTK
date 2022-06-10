@@ -30,6 +30,7 @@
 // vtkStandardNewMacro(vtkHigherOrderInterpolation);
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 static constexpr double hexCorner[8][3] = { { 0., 0., 0. }, { +1., 0., 0. }, { +1., +1., 0. },
   { 0., +1., 0. }, { 0., 0., +1. }, { +1., 0., +1. }, { +1., +1., +1. }, { 0., +1., +1. } };
 
@@ -1279,3 +1280,4 @@ void vtkHigherOrderInterpolation::PrepareForOrder(
     this->DerivSpace.resize(maxDeriv);
   }
 }
+VTK_ABI_NAMESPACE_END

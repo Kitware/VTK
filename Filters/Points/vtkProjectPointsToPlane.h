@@ -41,6 +41,7 @@
 #include "vtkFiltersPointsModule.h" // For export macro
 #include "vtkPointSetAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSPOINTS_EXPORT vtkProjectPointsToPlane : public vtkPointSetAlgorithm
 {
 public:
@@ -130,4 +131,5 @@ private:
   void operator=(const vtkProjectPointsToPlane&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

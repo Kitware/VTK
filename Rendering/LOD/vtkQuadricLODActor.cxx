@@ -29,6 +29,7 @@
 #include "vtkRenderer.h"
 #include "vtkTexture.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkQuadricLODActor);
 
 //------------------------------------------------------------------------------
@@ -369,3 +370,4 @@ void vtkQuadricLODActor::PrintSelf(ostream& os, vtkIndent indent)
     os << "(none)\n";
   }
 }
+VTK_ABI_NAMESPACE_END

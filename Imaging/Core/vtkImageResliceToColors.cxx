@@ -34,6 +34,7 @@
 #include <climits>
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImageResliceToColors);
 vtkCxxSetObjectMacro(vtkImageResliceToColors, LookupTable, vtkScalarsToColors);
 
@@ -172,3 +173,4 @@ void vtkImageResliceToColors::ConvertScalars(void* inPtr, void* outPtr, int inpu
       inputComponents, this->OutputFormat);
   }
 }
+VTK_ABI_NAMESPACE_END

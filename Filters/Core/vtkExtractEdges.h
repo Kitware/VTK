@@ -44,6 +44,7 @@
 #include "vtkIncrementalPointLocator.h" // Support vtkSmartPointer<>
 #include "vtkPolyDataAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSCORE_EXPORT vtkExtractEdges : public vtkPolyDataAlgorithm
 {
 public:
@@ -105,5 +106,6 @@ private:
   vtkExtractEdges(const vtkExtractEdges&) = delete;
   void operator=(const vtkExtractEdges&) = delete;
 };
+VTK_ABI_NAMESPACE_END
 
 #endif

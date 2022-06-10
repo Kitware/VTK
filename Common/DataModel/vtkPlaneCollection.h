@@ -30,6 +30,7 @@
 
 #include "vtkPlane.h" // Needed for inline methods
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONDATAMODEL_EXPORT vtkPlaneCollection : public vtkCollection
 {
 public:
@@ -81,4 +82,5 @@ inline vtkPlane* vtkPlaneCollection::GetNextItem()
   return static_cast<vtkPlane*>(this->GetNextItemAsObject());
 }
 
+VTK_ABI_NAMESPACE_END
 #endif

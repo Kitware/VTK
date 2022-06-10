@@ -24,6 +24,7 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkExtractPolyDataGeometry);
 vtkCxxSetObjectMacro(vtkExtractPolyDataGeometry, ImplicitFunction, vtkImplicitFunction);
 
@@ -403,3 +404,4 @@ void vtkExtractPolyDataGeometry::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Extract Boundary Cells: " << (this->ExtractBoundaryCells ? "On\n" : "Off\n");
   os << indent << "Pass Points: " << (this->PassPoints ? "On\n" : "Off\n");
 }
+VTK_ABI_NAMESPACE_END

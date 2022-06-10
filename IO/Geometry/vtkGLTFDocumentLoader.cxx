@@ -63,6 +63,7 @@
 #define GL_NEAREST 0x2600
 #define GL_LINEAR 0x2601
 
+VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
 //------------------------------------------------------------------------------
@@ -1539,3 +1540,4 @@ void vtkGLTFDocumentLoader::ComputeJointMatrices(const Model& model, const Skin&
     jointMats.emplace_back(jointMat);
   }
 }
+VTK_ABI_NAMESPACE_END

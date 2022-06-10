@@ -47,6 +47,7 @@
 #include "vtkButtonRepresentation.h"
 #include "vtkInteractionWidgetsModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkProperty2D;
 class vtkImageData;
 class vtkTextureArray; // PIMPLd
@@ -179,4 +180,5 @@ private:
   void operator=(const vtkTexturedButtonRepresentation2D&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

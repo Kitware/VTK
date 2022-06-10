@@ -27,6 +27,7 @@
 #include "vtkCurveRepresentation.h"
 #include "vtkInteractionWidgetsModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkParametricFunctionSource;
 class vtkParametricSpline;
 class vtkPolyDataMapper;
@@ -102,4 +103,5 @@ private:
   void operator=(const vtkAbstractSplineRepresentation&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

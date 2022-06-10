@@ -95,6 +95,7 @@
 #include "vtkFiltersModelingModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkOBBTree;
 class vtkPolyData;
 class vtkPoints;
@@ -298,4 +299,5 @@ private:
   void operator=(const vtkCollisionDetectionFilter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

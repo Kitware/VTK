@@ -26,6 +26,7 @@
 #include "vtkImageReslice.h"
 #include "vtkImagingCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKIMAGINGCORE_EXPORT vtkImageFlip : public vtkImageReslice
 {
 public:
@@ -98,4 +99,5 @@ private:
   void operator=(const vtkImageFlip&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

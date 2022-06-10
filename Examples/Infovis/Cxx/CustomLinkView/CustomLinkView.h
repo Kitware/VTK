@@ -36,6 +36,7 @@
 // Forward Qt class declarations
 class Ui_CustomLinkView;
 
+VTK_ABI_NAMESPACE_BEGIN
 // Forward VTK class declarations
 class vtkCommand;
 class vtkEventQtSlotConnect;
@@ -44,6 +45,7 @@ class vtkObject;
 class vtkQtTableView;
 class vtkQtTreeView;
 class vtkXMLTreeReader;
+VTK_ABI_NAMESPACE_END
 
 class CustomLinkView : public QMainWindow
 {

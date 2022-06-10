@@ -23,6 +23,7 @@
 #include "vtkPoints.h"
 #include "vtkVertex.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPolyVertex);
 
 //------------------------------------------------------------------------------
@@ -233,3 +234,4 @@ void vtkPolyVertex::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Vertex:\n";
   this->Vertex->PrintSelf(os, indent.GetNextIndent());
 }
+VTK_ABI_NAMESPACE_END

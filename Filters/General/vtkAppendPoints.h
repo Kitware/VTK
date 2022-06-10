@@ -31,6 +31,7 @@
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSGENERAL_EXPORT vtkAppendPoints : public vtkPolyDataAlgorithm
 {
 public:
@@ -78,4 +79,5 @@ private:
   void operator=(const vtkAppendPoints&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

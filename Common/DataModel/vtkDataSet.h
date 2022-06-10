@@ -44,6 +44,7 @@
 #include "vtkDataObject.h"
 #include "vtkDeprecation.h" // for VTK_DEPRECATED_IN_9_3_0
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCell;
 class vtkCellData;
 class vtkCellIterator;
@@ -573,4 +574,5 @@ inline void vtkDataSet::GetPoint(vtkIdType id, double x[3])
   x[2] = pt[2];
 }
 
+VTK_ABI_NAMESPACE_END
 #endif

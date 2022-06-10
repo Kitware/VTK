@@ -79,6 +79,7 @@
 #include "vtkNew.h"                   // for data members
 #include "vtkPolyDataAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSMODELING_EXPORT vtkPolyDataPointSampler : public vtkPolyDataAlgorithm
 {
 public:
@@ -203,4 +204,5 @@ private:
   void operator=(const vtkPolyDataPointSampler&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

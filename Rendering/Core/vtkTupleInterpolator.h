@@ -47,6 +47,7 @@
 #include "vtkObject.h"
 #include "vtkRenderingCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkSpline;
 class vtkPiecewiseFunction;
 
@@ -176,4 +177,5 @@ private:
   void operator=(const vtkTupleInterpolator&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

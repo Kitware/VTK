@@ -17,6 +17,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkUniformGridAMRDataIterator.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkHierarchicalBoxDataSet);
 
 //------------------------------------------------------------------------------
@@ -50,3 +51,4 @@ vtkHierarchicalBoxDataSet* vtkHierarchicalBoxDataSet::GetData(vtkInformationVect
 {
   return vtkHierarchicalBoxDataSet::GetData(v->GetInformationObject(i));
 }
+VTK_ABI_NAMESPACE_END

@@ -32,6 +32,7 @@
 #include <vector>
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkModifiedBSPTree);
 
 //------------------------------------------------------------------------------
@@ -1117,3 +1118,4 @@ bool BSPNode::Inside(double point[3]) const
     this->Bounds[2] <= point[1] && point[1] <= this->Bounds[3] && this->Bounds[4] <= point[2] &&
     point[2] <= this->Bounds[5];
 }
+VTK_ABI_NAMESPACE_END

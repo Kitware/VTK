@@ -19,6 +19,7 @@
 #include "vtkTypedDataArray.h"
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 template <typename Scalar>
 vtkTypedDataArray<Scalar>::vtkTypedDataArray() = default;
 
@@ -95,4 +96,5 @@ inline vtkTypedDataArray<Scalar>* vtkTypedDataArray<Scalar>::FastDownCast(vtkAbs
   return nullptr;
 }
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkTypedDataArray_txx

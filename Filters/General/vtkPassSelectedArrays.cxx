@@ -20,6 +20,7 @@
 #include "vtkInformation.h"
 #include "vtkObjectFactory.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPassSelectedArrays);
 //------------------------------------------------------------------------------
 vtkPassSelectedArrays::vtkPassSelectedArrays()
@@ -147,3 +148,4 @@ void vtkPassSelectedArrays::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "RowDataArraySelection: " << endl;
   this->GetRowDataArraySelection()->PrintSelf(os, indent.GetNextIndent());
 }
+VTK_ABI_NAMESPACE_END

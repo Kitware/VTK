@@ -70,6 +70,7 @@ POSSIBILITY OF SUCH DAMAGES.
 
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPolyDataToImageStencil);
 
 //------------------------------------------------------------------------------
@@ -784,3 +785,4 @@ int vtkPolyDataToImageStencil::FillInputPortInformation(int, vtkInformation* inf
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPolyData");
   return 1;
 }
+VTK_ABI_NAMESPACE_END

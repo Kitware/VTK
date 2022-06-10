@@ -19,6 +19,7 @@
 
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
 
@@ -59,3 +60,4 @@ bool vtkmFilterOverrides::GetEnabled()
 {
   return vtkmFilterOverridesEnabled;
 }
+VTK_ABI_NAMESPACE_END

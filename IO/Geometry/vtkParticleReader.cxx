@@ -36,6 +36,7 @@
 #include <string>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkParticleReader);
 
 namespace
@@ -993,3 +994,4 @@ void vtkParticleReader::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Alliquot: " << (unsigned int)this->Alliquot << "\n";
   os << indent << "Count: " << (unsigned int)this->Count << "\n";
 }
+VTK_ABI_NAMESPACE_END

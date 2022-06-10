@@ -46,6 +46,7 @@
 #include "vtkFiltersGenericModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkContourValues;
 class vtkIncrementalPointLocator;
 class vtkPointData;
@@ -171,4 +172,5 @@ private:
   vtkGenericContourFilter(const vtkGenericContourFilter&) = delete;
   void operator=(const vtkGenericContourFilter&) = delete;
 };
+VTK_ABI_NAMESPACE_END
 #endif

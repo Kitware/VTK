@@ -22,6 +22,7 @@
 #include "vtkWidgetRepresentation.h"
 
 //-------------------------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 QQuickVTKInteractiveWidget::QQuickVTKInteractiveWidget(QObject* parent)
   : Superclass(parent)
 {
@@ -71,3 +72,4 @@ void QQuickVTKInteractiveWidget::sync(vtkRenderer* ren)
   this->m_widget->SetEnabled(this->m_enabled);
   this->m_widget->SetProcessEvents(this->m_enabled);
 }
+VTK_ABI_NAMESPACE_END

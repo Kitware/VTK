@@ -44,6 +44,7 @@
 #include "vtkGraphAlgorithm.h"
 #include "vtkInfovisCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkIntArray;
 
 class VTKINFOVISCORE_EXPORT vtkKCoreDecomposition : public vtkGraphAlgorithm
@@ -117,4 +118,5 @@ private:
   void operator=(const vtkKCoreDecomposition&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

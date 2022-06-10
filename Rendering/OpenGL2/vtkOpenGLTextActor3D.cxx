@@ -28,6 +28,7 @@
 #include <sstream>
 #include <string>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOpenGLTextActor3D);
 
 //------------------------------------------------------------------------------
@@ -150,3 +151,4 @@ int vtkOpenGLTextActor3D::RenderGL2PS(vtkViewport* vp, vtkOpenGLGL2PSHelper* gl2
 
   return 1;
 }
+VTK_ABI_NAMESPACE_END

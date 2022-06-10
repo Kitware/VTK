@@ -26,6 +26,7 @@
 
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkObjectFactoryNewMacro(vtkImageReader);
 
 vtkCxxSetObjectMacro(vtkImageReader, Transform, vtkTransform);
@@ -660,3 +661,4 @@ void vtkImageReader::ComputeInverseTransformedIncrements(vtkIdType inIncr[3], vt
                   << outIncr[2]);
   }
 }
+VTK_ABI_NAMESPACE_END

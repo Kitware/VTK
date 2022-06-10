@@ -21,6 +21,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkVectorOperators.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkOpenVRCameraPose : public vtkVRCamera::Pose
 {
 public:
@@ -83,6 +84,7 @@ public:
   vtkOpenVROverlaySpot& operator=(const vtkOpenVROverlaySpot&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkPVOpenVROverlayInternal_h
 
 //****************************************************************************

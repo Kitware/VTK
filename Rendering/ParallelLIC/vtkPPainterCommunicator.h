@@ -29,6 +29,7 @@
 #include "vtkPainterCommunicator.h"
 #include "vtkRenderingParallelLICModule.h" // for export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPPainterCommunicatorInternals;
 class vtkMPICommunicatorOpaqueComm;
 
@@ -121,5 +122,6 @@ private:
   vtkPPainterCommunicatorInternals* Internals;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkPPainterCommunicator.h

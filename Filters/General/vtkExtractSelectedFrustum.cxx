@@ -37,6 +37,7 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtkVoxel.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkExtractSelectedFrustum);
 vtkCxxSetObjectMacro(vtkExtractSelectedFrustum, Frustum, vtkPlanes);
 
@@ -1124,3 +1125,4 @@ void vtkExtractSelectedFrustum::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "InsideOut: " << (this->InsideOut ? "On\n" : "Off\n");
 }
+VTK_ABI_NAMESPACE_END

@@ -32,6 +32,7 @@
 #include "vtkIOXMLModule.h" // For export macro
 #include "vtkXMLStructuredDataReader.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkRectilinearGrid;
 
 class VTKIOXML_EXPORT vtkXMLRectilinearGridReader : public vtkXMLStructuredDataReader
@@ -73,4 +74,5 @@ private:
   void operator=(const vtkXMLRectilinearGridReader&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

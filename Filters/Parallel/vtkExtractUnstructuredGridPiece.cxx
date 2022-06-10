@@ -30,6 +30,7 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
 
@@ -450,3 +451,4 @@ void vtkExtractUnstructuredGridPiece::AddGhostLevel(
     }
   }
 }
+VTK_ABI_NAMESPACE_END

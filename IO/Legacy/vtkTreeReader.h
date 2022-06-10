@@ -34,6 +34,7 @@
 #include "vtkDataReader.h"
 #include "vtkIOLegacyModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkTree;
 
 class VTKIOLEGACY_EXPORT vtkTreeReader : public vtkDataReader
@@ -68,4 +69,5 @@ private:
   void operator=(const vtkTreeReader&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

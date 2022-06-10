@@ -19,6 +19,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPiecewiseFunction.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPiecewiseFunctionShiftScale);
 
 vtkPiecewiseFunctionShiftScale::vtkPiecewiseFunctionShiftScale()
@@ -66,3 +67,4 @@ void vtkPiecewiseFunctionShiftScale::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "ValueShift: " << this->ValueShift << "\n";
   os << indent << "ValueScale: " << this->ValueScale << "\n";
 }
+VTK_ABI_NAMESPACE_END

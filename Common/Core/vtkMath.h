@@ -71,19 +71,24 @@
 #endif // DBL_EPSILON
 #endif // VTK_DBL_EPSILON
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataArray;
 class vtkPoints;
 class vtkMathInternal;
 class vtkMinimalStandardRandomSequence;
 class vtkBoxMuellerRandomSequence;
+VTK_ABI_NAMESPACE_END
 
 namespace vtk_detail
 {
+VTK_ABI_NAMESPACE_BEGIN
 // forward declaration
 template <typename OutT>
 void RoundDoubleToIntegralIfNecessary(double val, OutT* ret);
+VTK_ABI_NAMESPACE_END
 } // end namespace vtk_detail
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONCORE_EXPORT vtkMath : public vtkObject
 {
 public:
@@ -1932,6 +1937,7 @@ inline void vtkMath::TensorFromSymmetricTensor(T tensor[9])
   tensor[2] = tensor[6]; // XZ
   tensor[1] = tensor[3]; // XY
 }
+VTK_ABI_NAMESPACE_END
 
 namespace
 {
@@ -1975,6 +1981,7 @@ inline void vtkQuaternionToMatrix3x3(const QuaternionT& quat, MatrixT& A)
 }
 } // anonymous namespace
 
+VTK_ABI_NAMESPACE_BEGIN
 //------------------------------------------------------------------------------
 inline void vtkMath::QuaternionToMatrix3x3(const float quat[4], float A[3][3])
 {
@@ -1993,6 +2000,7 @@ inline void vtkMath::QuaternionToMatrix3x3(const QuaternionT& q, MatrixT&& A)
 {
   vtkQuaternionToMatrix3x3(q, A);
 }
+VTK_ABI_NAMESPACE_END
 
 namespace
 {
@@ -2049,6 +2057,7 @@ inline void vtkMatrix3x3ToQuaternion(const MatrixT& A, QuaternionT& quat)
 }
 } // anonymous namespace
 
+VTK_ABI_NAMESPACE_BEGIN
 //------------------------------------------------------------------------------
 inline void vtkMath::Matrix3x3ToQuaternion(const float A[3][3], float quat[4])
 {
@@ -2067,9 +2076,11 @@ inline void vtkMath::Matrix3x3ToQuaternion(const MatrixT& A, QuaternionT&& q)
 {
   vtkMatrix3x3ToQuaternion(A, q);
 }
+VTK_ABI_NAMESPACE_END
 
 namespace vtk_detail
 {
+VTK_ABI_NAMESPACE_BEGIN
 // Can't specialize templates inside a template class, so we move the impl here.
 template <typename OutT>
 void RoundDoubleToIntegralIfNecessary(double val, OutT* ret)
@@ -2101,8 +2112,10 @@ inline void RoundDoubleToIntegralIfNecessary(double val, float* retVal)
 
   *retVal = static_cast<float>(val);
 }
+VTK_ABI_NAMESPACE_END
 } // end namespace vtk_detail
 
+VTK_ABI_NAMESPACE_BEGIN
 //-----------------------------------------------------------------------------
 #if defined(VTK_HAS_ISINF) || defined(VTK_HAS_STD_ISINF)
 #define VTK_MATH_ISINF_IS_INLINE
@@ -2144,4 +2157,5 @@ inline bool vtkMath::IsFinite(double x)
 }
 #endif
 
+VTK_ABI_NAMESPACE_END
 #endif

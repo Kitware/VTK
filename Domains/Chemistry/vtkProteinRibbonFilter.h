@@ -30,6 +30,7 @@
 #include "vtkColor.h" // For vtkColor3ub.
 #include <map>        // For element to color map.
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkVector3f;
 class vtkStringArray;
 
@@ -116,4 +117,5 @@ private:
   void operator=(const vtkProteinRibbonFilter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkProteinRibbonFilter_h

@@ -28,6 +28,7 @@
 #include "vtkMapper.h"
 #include "vtkNew.h" // For vtkNew
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkActor;
 class vtkGlyph3DMapper;
 class vtkIdTypeArray;
@@ -374,4 +375,5 @@ private:
   void operator=(const vtkMoleculeMapper&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

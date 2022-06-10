@@ -48,6 +48,7 @@
 //#define VTK_SHADOW_MAP_BAKER_PASS_DEBUG
 //#define DONT_DUPLICATE_LIGHTS
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkShadowMapBakerPass);
 vtkCxxSetObjectMacro(vtkShadowMapBakerPass, OpaqueSequence, vtkRenderPass);
 vtkCxxSetObjectMacro(vtkShadowMapBakerPass, CompositeZPass, vtkRenderPass);
@@ -712,3 +713,4 @@ void vtkShadowMapBakerPass::ReleaseGraphicsResources(vtkWindow* w)
   delete this->LightCameras;
   this->LightCameras = nullptr;
 }
+VTK_ABI_NAMESPACE_END

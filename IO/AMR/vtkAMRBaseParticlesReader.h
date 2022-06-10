@@ -24,6 +24,7 @@
 #include "vtkIOAMRModule.h" // For export macro
 #include "vtkMultiBlockDataSetAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkInformation;
 class vtkInformationVector;
 class vtkIndent;
@@ -229,4 +230,5 @@ private:
   void operator=(const vtkAMRBaseParticlesReader&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif /* vtkAMRBaseParticlesReader_h */

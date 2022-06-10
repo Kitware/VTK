@@ -18,6 +18,7 @@
 #include "vtkSphereSource.h"
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPointHandleSource);
 
 //------------------------------------------------------------------------------
@@ -127,3 +128,4 @@ void vtkPointHandleSource::PrintSelf(ostream& os, vtkIndent indent)
     }
   }
 }
+VTK_ABI_NAMESPACE_END

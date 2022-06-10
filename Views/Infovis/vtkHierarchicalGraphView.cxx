@@ -27,6 +27,7 @@
 #include "vtkTree.h"
 #include "vtkTrivialProducer.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkHierarchicalGraphView);
 //------------------------------------------------------------------------------
 vtkHierarchicalGraphView::vtkHierarchicalGraphView() = default;
@@ -200,3 +201,4 @@ void vtkHierarchicalGraphView::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

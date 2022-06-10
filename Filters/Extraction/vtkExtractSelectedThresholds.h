@@ -53,6 +53,7 @@
 #include "vtkExtractSelectionBase.h"
 #include "vtkFiltersExtractionModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataArray;
 class vtkSelection;
 class vtkSelectionNode;
@@ -130,6 +131,7 @@ private:
   void operator=(const vtkExtractSelectedThresholds&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
 
 // VTK-HeaderTest-Exclude: vtkExtractSelectedThresholds.h

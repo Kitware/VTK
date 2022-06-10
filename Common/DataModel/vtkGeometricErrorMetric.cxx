@@ -22,6 +22,7 @@
 #include "vtkObjectFactory.h"
 #include <cassert>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkGeometricErrorMetric);
 
 //------------------------------------------------------------------------------
@@ -233,3 +234,4 @@ void vtkGeometricErrorMetric::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "AbsoluteGeometricTolerance: " << this->AbsoluteGeometricTolerance << endl;
 }
+VTK_ABI_NAMESPACE_END

@@ -55,6 +55,7 @@
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkInteractorObserver.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkWidgetEventTranslator;
 class vtkWidgetCallbackMapper;
 class vtkWidgetRepresentation;
@@ -206,4 +207,5 @@ private:
   void operator=(const vtkAbstractWidget&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

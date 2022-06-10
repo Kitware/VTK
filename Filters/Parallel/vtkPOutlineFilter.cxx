@@ -26,6 +26,7 @@
 #include "vtkPolyData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPOutlineFilter);
 vtkCxxSetObjectMacro(vtkPOutlineFilter, Controller, vtkMultiProcessController);
 
@@ -70,3 +71,4 @@ void vtkPOutlineFilter::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
   os << indent << "Controller: " << this->Controller << endl;
 }
+VTK_ABI_NAMESPACE_END

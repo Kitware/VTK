@@ -29,6 +29,7 @@
 #include <set>
 #include <string>
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkBlockSelector::vtkInternals
 {
 public:
@@ -209,3 +210,4 @@ void vtkBlockSelector::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

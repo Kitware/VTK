@@ -18,6 +18,7 @@
 #include "vtkMolecule.h"
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkMoleculeToPolyDataFilter::vtkMoleculeToPolyDataFilter()
 {
   this->SetNumberOfInputPorts(1);
@@ -48,3 +49,4 @@ void vtkMoleculeToPolyDataFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

@@ -35,6 +35,7 @@
 #include <string>                      // For API.
 #include <vector>                      //for ivars
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkActor2D;
 class vtkGenericOpenGLResourceFreeCallback;
 class vtkMatrix4x4;
@@ -149,4 +150,5 @@ private:
   void operator=(const vtkOpenGLPolyDataMapper2D&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

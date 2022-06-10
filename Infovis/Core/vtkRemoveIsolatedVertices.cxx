@@ -34,6 +34,7 @@
 
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkRemoveIsolatedVertices);
 //------------------------------------------------------------------------------
 vtkRemoveIsolatedVertices::vtkRemoveIsolatedVertices() = default;
@@ -120,3 +121,4 @@ void vtkRemoveIsolatedVertices::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

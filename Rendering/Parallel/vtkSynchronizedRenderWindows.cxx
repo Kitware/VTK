@@ -24,6 +24,7 @@
 #include <map>
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 class vtkSynchronizedRenderWindows::vtkObserver : public vtkCommand
 {
 public:
@@ -310,3 +311,4 @@ void vtkSynchronizedRenderWindows::RenderWindowInfo::CopyTo(vtkRenderWindow* win
   win->SetTileViewport(this->TileViewport);
   win->SetDesiredUpdateRate(this->DesiredUpdateRate);
 }
+VTK_ABI_NAMESPACE_END

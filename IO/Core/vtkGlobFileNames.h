@@ -39,6 +39,7 @@
 #include "vtkIOCoreModule.h" // For export macro
 #include "vtkObject.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkStringArray;
 
 class VTKIOCORE_EXPORT vtkGlobFileNames : public vtkObject
@@ -135,4 +136,5 @@ private:
   void operator=(const vtkGlobFileNames&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

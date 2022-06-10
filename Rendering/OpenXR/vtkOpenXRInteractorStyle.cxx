@@ -18,6 +18,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkOpenXRRenderWindowInteractor.h"
 
 // Map controller inputs to interaction states
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOpenXRInteractorStyle);
 
 //------------------------------------------------------------------------------
@@ -37,3 +38,4 @@ void vtkOpenXRInteractorStyle::SetupActions(vtkRenderWindowInteractor* iren)
     oiren->AddAction("triggeraction", vtkCommand::Select3DEvent);
   }
 }
+VTK_ABI_NAMESPACE_END

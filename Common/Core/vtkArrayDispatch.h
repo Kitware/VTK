@@ -201,6 +201,7 @@
 
 namespace vtkArrayDispatch
 {
+VTK_ABI_NAMESPACE_BEGIN
 
 /**
  * A TypeList containing all real ValueTypes.
@@ -415,6 +416,7 @@ struct Dispatch3BySameValueType;
 template <typename ArrayList, typename ValueList>
 struct FilterArraysByValueType;
 
+VTK_ABI_NAMESPACE_END
 } // end namespace vtkArrayDispatch
 
 #include "vtkArrayDispatch.txx"

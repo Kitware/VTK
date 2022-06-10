@@ -33,6 +33,7 @@
 #include "vtkRect.h"                // for ivar
 #include "vtkRenderingCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkHomogeneousTransform;
 class vtkInformation;
 class vtkMatrix4x4;
@@ -873,4 +874,5 @@ private:
   void operator=(const vtkCamera&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

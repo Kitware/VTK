@@ -23,6 +23,7 @@
 
 #include <algorithm>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOpenGLVolumeMaskGradientOpacityTransferFunction2D);
 
 //------------------------------------------------------------------------------
@@ -95,3 +96,4 @@ void vtkOpenGLVolumeMaskGradientOpacityTransferFunction2D::PrintSelf(ostream& os
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

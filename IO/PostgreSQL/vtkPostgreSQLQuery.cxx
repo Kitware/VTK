@@ -37,6 +37,7 @@
 
 #define DECLARE_CONVERTER(TargetType) vtkVariant ConvertStringTo##TargetType(bool, const char*);
 
+VTK_ABI_NAMESPACE_BEGIN
 DECLARE_CONVERTER(Boolean);
 DECLARE_CONVERTER(SignedChar);
 DECLARE_CONVERTER(UnsignedChar);
@@ -1030,3 +1031,4 @@ int vtkPostgreSQLQuery::GetNumberOfRows()
     return PQntuples(this->QueryInternals->QueryResults);
   }
 }
+VTK_ABI_NAMESPACE_END

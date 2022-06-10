@@ -32,6 +32,7 @@
 #include "vtkWidgetEventTranslator.h"
 #include "vtkWidgetSet.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkParallelopipedWidget);
 
 //------------------------------------------------------------------------------
@@ -472,3 +473,4 @@ void vtkParallelopipedWidget::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Chair Creation: " << (this->EnableChairCreation ? "On\n" : "Off\n");
 }
+VTK_ABI_NAMESPACE_END

@@ -67,6 +67,7 @@
 #include "vtkFiltersModelingModule.h" // For export macro
 #include "vtkPointSetAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSMODELING_EXPORT vtkHausdorffDistancePointSetFilter : public vtkPointSetAlgorithm
 {
 public:
@@ -141,4 +142,5 @@ inline const char* vtkHausdorffDistancePointSetFilter::GetTargetDistanceMethodAs
     return "PointToCell";
   }
 }
+VTK_ABI_NAMESPACE_END
 #endif

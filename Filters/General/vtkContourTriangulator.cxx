@@ -33,6 +33,7 @@
 #include <utility>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkContourTriangulator);
 
 //------------------------------------------------------------------------------
@@ -2627,3 +2628,4 @@ int vtkContourTriangulator::TriangulatePolygon(
   }
   return success;
 }
+VTK_ABI_NAMESPACE_END

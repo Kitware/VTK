@@ -485,6 +485,7 @@ bool FillConduitNodeFromDataSet(vtkDataSet* data_set, conduit_cpp::Node& conduit
 
 namespace vtkDataObjectToConduit
 {
+VTK_ABI_NAMESPACE_BEGIN
 
 //----------------------------------------------------------------------------
 bool FillConduitNode(vtkDataObject* data_object, conduit_cpp::Node& conduit_node)
@@ -499,4 +500,5 @@ bool FillConduitNode(vtkDataObject* data_object, conduit_cpp::Node& conduit_node
   return FillConduitNodeFromDataSet(data_set, conduit_node);
 }
 
+VTK_ABI_NAMESPACE_END
 } // vtkDataObjectToConduit namespace

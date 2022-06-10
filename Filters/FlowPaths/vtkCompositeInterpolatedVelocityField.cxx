@@ -23,6 +23,7 @@
 
 #include <array>
 
+VTK_ABI_NAMESPACE_BEGIN
 //------------------------------------------------------------------------------
 vtkCompositeInterpolatedVelocityField::DataSetBoundsInformation::DataSetBoundsInformation()
   : DataSet(nullptr)
@@ -258,3 +259,4 @@ void vtkCompositeInterpolatedVelocityField::PrintSelf(ostream& os, vtkIndent ind
   os << indent << "CacheDataSetHit: " << this->CacheDataSetHit << endl;
   os << indent << "CacheDataSetMiss: " << this->CacheDataSetMiss << endl;
 }
+VTK_ABI_NAMESPACE_END

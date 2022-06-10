@@ -24,6 +24,7 @@
 #include "vtkXMLOffsetsManager.h"
 #undef vtkXMLOffsetsManager_DoNotInclude
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkXMLStructuredGridWriter);
 
 //------------------------------------------------------------------------------
@@ -171,3 +172,4 @@ int vtkXMLStructuredGridWriter::FillInputPortInformation(int, vtkInformation* in
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkStructuredGrid");
   return 1;
 }
+VTK_ABI_NAMESPACE_END

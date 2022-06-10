@@ -31,6 +31,7 @@
 
 namespace detail
 {
+VTK_ABI_NAMESPACE_BEGIN
 template <typename T, bool>
 struct has_NaN;
 
@@ -52,8 +53,10 @@ bool isnan(T x)
   // Select the correct partially specialized type.
   return has_NaN<T, std::numeric_limits<T>::has_quiet_NaN>::isnan(x);
 }
+VTK_ABI_NAMESPACE_END
 } // namespace detail
 
+VTK_ABI_NAMESPACE_BEGIN
 template <class ArrayTypeT>
 class vtkGenericDataArrayLookupHelper
 {
@@ -128,7 +131,7 @@ private:
     for (vtkIdType i = 0; i < num; ++i)
     {
       auto value = this->AssociatedArray->GetValue(i);
-      if (::detail::isnan(value))
+      if (detail::isnan(value))
       {
         NanIndices.push_back(i);
       }
@@ -141,7 +144,7 @@ private:
   std::vector<vtkIdType>* FindIndexVec(ValueType value)
   {
     std::vector<vtkIdType>* indices{ nullptr };
-    if (::detail::isnan(value) && !this->NanIndices.empty())
+    if (detail::isnan(value) && !this->NanIndices.empty())
     {
       indices = &this->NanIndices;
     }
@@ -158,5 +161,6 @@ private:
   std::vector<vtkIdType> NanIndices;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkGenericDataArrayLookupHelper.h

@@ -80,6 +80,7 @@
     vtkGenericWarningMacro(<< #name << " not supported for floating point numbers");               \
   }
 
+VTK_ABI_NAMESPACE_BEGIN
 STANDARD_OPERATION_DEFINITION(Max, (A[i] < B[i] ? B[i] : A[i]));
 STANDARD_OPERATION_DEFINITION(Min, (A[i] < B[i] ? A[i] : B[i]));
 STANDARD_OPERATION_DEFINITION(Sum, A[i] + B[i]);
@@ -1778,3 +1779,4 @@ int vtkCommunicator::Receive(vtkMultiProcessStream& stream, int remoteId, int ta
   }
   return 1;
 }
+VTK_ABI_NAMESPACE_END

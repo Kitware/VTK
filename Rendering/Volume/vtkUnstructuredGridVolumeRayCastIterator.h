@@ -36,6 +36,7 @@
 #include "vtkObject.h"
 #include "vtkRenderingVolumeModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkIdList;
 class vtkDoubleArray;
 class vtkDataArray;
@@ -96,4 +97,5 @@ private:
   void operator=(const vtkUnstructuredGridVolumeRayCastIterator&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkUnstructuredGridRayCastIterator_h

@@ -24,6 +24,7 @@
 
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkRTAnalyticSource);
 
 //------------------------------------------------------------------------------
@@ -295,3 +296,4 @@ void vtkRTAnalyticSource::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "SubsampleRate: " << this->SubsampleRate << endl;
 }
+VTK_ABI_NAMESPACE_END

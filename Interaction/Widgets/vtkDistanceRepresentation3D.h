@@ -32,6 +32,7 @@
 #include "vtkDistanceRepresentation.h"
 #include "vtkInteractionWidgetsModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPoints;
 class vtkPolyData;
 class vtkPolyDataMapper;
@@ -224,4 +225,5 @@ private:
   void UpdateLabelPosition();
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

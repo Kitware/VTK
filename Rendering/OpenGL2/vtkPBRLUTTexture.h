@@ -27,6 +27,7 @@
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkSmartPointer.h"           // For vtkSmartPointer
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkOpenGLFramebufferObject;
 class vtkOpenGLRenderWindow;
 class vtkOpenGLTexture;
@@ -79,4 +80,5 @@ private:
   void operator=(const vtkPBRLUTTexture&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

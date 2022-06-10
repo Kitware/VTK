@@ -20,6 +20,7 @@
 
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImplicitSum);
 
 //------------------------------------------------------------------------------
@@ -188,3 +189,4 @@ void vtkImplicitSum::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Weights:\n";
   this->Weights->PrintSelf(os, indent.GetNextIndent());
 }
+VTK_ABI_NAMESPACE_END

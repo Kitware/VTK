@@ -23,6 +23,7 @@
 #include <map>
 #include <string>
 
+VTK_ABI_NAMESPACE_BEGIN
 struct vtkPartitionedArchiver::Internal
 {
   std::map<std::string, std::pair<size_t, char*>> Buffers;
@@ -179,3 +180,4 @@ void vtkPartitionedArchiver::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

@@ -25,6 +25,7 @@
 #include "vtkSocketController.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkDuplicatePolyData);
 
 vtkCxxSetObjectMacro(vtkDuplicatePolyData, Controller, vtkMultiProcessController);
@@ -336,3 +337,4 @@ void vtkDuplicatePolyData::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "MemorySize: " << this->MemorySize << endl;
 }
+VTK_ABI_NAMESPACE_END

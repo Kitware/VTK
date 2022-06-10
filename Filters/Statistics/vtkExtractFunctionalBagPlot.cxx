@@ -29,6 +29,7 @@
 #include <sstream>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkExtractFunctionalBagPlot);
 
 //------------------------------------------------------------------------------
@@ -232,3 +233,4 @@ int vtkExtractFunctionalBagPlot::RequestData(vtkInformation* /*request*/,
 
   return 1;
 }
+VTK_ABI_NAMESPACE_END

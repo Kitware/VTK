@@ -29,6 +29,7 @@
 
 #include <algorithm>
 
+VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
 
@@ -248,3 +249,4 @@ bool vtkPlotPie::UpdateCache()
   this->BuildTime.Modified();
   return true;
 }
+VTK_ABI_NAMESPACE_END

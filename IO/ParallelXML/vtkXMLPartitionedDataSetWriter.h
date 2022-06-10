@@ -31,6 +31,7 @@
 #include <string> // for std::string
 #include <vector> // for std::vector
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPartitionedDataSet;
 
 class VTKIOPARALLELXML_EXPORT vtkXMLPartitionedDataSetWriter : public vtkXMLWriter2
@@ -75,4 +76,5 @@ private:
   bool WriteSummaryXML(vtkPartitionedDataSet* input, const std::vector<std::string>& allFilenames);
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

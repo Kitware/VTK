@@ -27,6 +27,7 @@
 #include <map>    // For member variables.
 #include <string> // For member variables.
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkMatrix3x3;
 class vtkMatrix4x4;
 class vtkTransformFeedback;
@@ -398,4 +399,5 @@ private:
   char* FileNamePrefixForDebugging;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

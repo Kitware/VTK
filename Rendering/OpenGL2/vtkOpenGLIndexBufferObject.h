@@ -24,6 +24,7 @@
  * GPU.
  */
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLIndexBufferObject : public vtkOpenGLBufferObject
 {
 public:
@@ -104,4 +105,5 @@ private:
   void operator=(const vtkOpenGLIndexBufferObject&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -26,6 +26,7 @@
 
 #include "vtkFiltersParallelModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
+VTK_ABI_NAMESPACE_BEGIN
 class vtkOutlineSource;
 class vtkMultiProcessController;
 
@@ -57,4 +58,5 @@ private:
   vtkPOutlineFilter(const vtkPOutlineFilter&) = delete;
   void operator=(const vtkPOutlineFilter&) = delete;
 };
+VTK_ABI_NAMESPACE_END
 #endif

@@ -25,6 +25,7 @@
 
 namespace vtkMPIUtilities
 {
+VTK_ABI_NAMESPACE_BEGIN
 
 void Printf(vtkMPIController* comm, const char* format, ...)
 {
@@ -110,4 +111,5 @@ void SynchronizedPrintf(vtkMPIController* comm, const char* format, ...)
   comm->Barrier();
 }
 
+VTK_ABI_NAMESPACE_END
 } // END namespace vtkMPIUtilities

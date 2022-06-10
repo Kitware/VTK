@@ -34,6 +34,7 @@
 #include <string>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkXMLHierarchicalBoxDataFileConverter);
 //------------------------------------------------------------------------------
 vtkXMLHierarchicalBoxDataFileConverter::vtkXMLHierarchicalBoxDataFileConverter()
@@ -299,3 +300,4 @@ void vtkXMLHierarchicalBoxDataFileConverter::PrintSelf(ostream& os, vtkIndent in
   os << indent << "OutputFileName: " << (this->OutputFileName ? this->OutputFileName : "(none)")
      << endl;
 }
+VTK_ABI_NAMESPACE_END

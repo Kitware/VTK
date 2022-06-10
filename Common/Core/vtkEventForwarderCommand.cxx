@@ -17,6 +17,7 @@
 #include "vtkObject.h"
 
 //----------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkEventForwarderCommand::vtkEventForwarderCommand()
 {
   this->Target = nullptr;
@@ -30,3 +31,4 @@ void vtkEventForwarderCommand::Execute(vtkObject*, unsigned long event, void* ca
     this->Target->InvokeEvent(event, call_data);
   }
 }
+VTK_ABI_NAMESPACE_END

@@ -34,6 +34,7 @@
 #include "vtkImagingMorphologicalModule.h" // For export macro
 #include "vtkThreadedImageAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKIMAGINGMORPHOLOGICAL_EXPORT vtkImageNonMaximumSuppression
   : public vtkThreadedImageAlgorithm
 {
@@ -88,4 +89,5 @@ private:
   void operator=(const vtkImageNonMaximumSuppression&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

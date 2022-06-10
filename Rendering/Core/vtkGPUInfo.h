@@ -29,6 +29,7 @@
 #include "vtkObject.h"
 #include "vtkRenderingCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKRENDERINGCORE_EXPORT vtkGPUInfo : public vtkObject
 {
 public:
@@ -81,4 +82,5 @@ private:
   void operator=(const vtkGPUInfo&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

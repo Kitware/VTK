@@ -52,6 +52,7 @@
 
 // this method checks all the cached state to make sure
 // nothing is out of sync. It can be slow.
+VTK_ABI_NAMESPACE_BEGIN
 void vtkOpenGLState::CheckState()
 {
   bool error = false;
@@ -312,6 +313,7 @@ bool reportOpenGLErrors(std::string& result)
     }                                                                                              \
   }
 
+VTK_ABI_NAMESPACE_END
 #else // VTK_REPORT_OPENGL_ERRORS
 
 #define vtkCheckOpenGLErrorsWithStack(message)
@@ -322,6 +324,7 @@ bool reportOpenGLErrors(std::string& result)
 //
 //////////////////////////////////////////////////////////////////////////////
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkOpenGLState::BufferBindingState::BufferBindingState()
 {
   // this->Framebuffer = nullptr;
@@ -2188,3 +2191,4 @@ void vtkOpenGLState::InitializeTextureInternalFormats()
   this->TextureInternalFormats[VTK_SHORT][1][4] = GL_RGBA32F;
 #endif
 }
+VTK_ABI_NAMESPACE_END

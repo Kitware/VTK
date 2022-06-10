@@ -36,6 +36,7 @@
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkStreamerBase.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkAppendPolyData;
 
 class VTKFILTERSGENERAL_EXPORT vtkPolyDataStreamer : public vtkStreamerBase
@@ -87,4 +88,5 @@ private:
   vtkAppendPolyData* Append;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

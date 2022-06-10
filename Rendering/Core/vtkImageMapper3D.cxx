@@ -35,6 +35,7 @@
 #include "vtkTemplateAliasMacro.h"
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkImageMapper3D::vtkImageMapper3D()
 {
   // Default color conversion
@@ -1171,3 +1172,4 @@ void vtkImageMapper3D::CheckerboardRGBA(unsigned char* data, int xsize, int ysiz
     gy += fy;
   }
 }
+VTK_ABI_NAMESPACE_END

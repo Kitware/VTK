@@ -17,6 +17,7 @@
 
 // this list should only contain the initial, contiguous
 // set of events and should not include UserEvent
+VTK_ABI_NAMESPACE_BEGIN
 static const char* vtkWidgetEventStrings[] = {
   "NoEvent",
   "Select",
@@ -89,3 +90,4 @@ void vtkWidgetEvent::PrintSelf(ostream& os, vtkIndent indent)
   // Superclass typedef defined in vtkTypeMacro() found in vtkSetGet.h
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

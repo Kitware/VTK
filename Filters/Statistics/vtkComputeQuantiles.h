@@ -38,6 +38,7 @@
 #include "vtkFiltersStatisticsModule.h" // For export macro
 #include "vtkTableAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataSet;
 class vtkDoubleArray;
 class vtkFieldData;
@@ -84,4 +85,5 @@ private:
   vtkFieldData* GetInputFieldData(vtkDataObject* input);
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

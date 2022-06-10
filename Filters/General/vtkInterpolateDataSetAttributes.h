@@ -36,6 +36,7 @@
 #include "vtkDataSetAlgorithm.h"
 #include "vtkFiltersGeneralModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataSetCollection;
 
 class VTKFILTERSGENERAL_EXPORT vtkInterpolateDataSetAttributes : public vtkDataSetAlgorithm
@@ -75,4 +76,5 @@ private:
   void operator=(const vtkInterpolateDataSetAttributes&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

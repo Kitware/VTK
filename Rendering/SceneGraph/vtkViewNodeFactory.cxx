@@ -20,6 +20,7 @@
 #include <string>
 
 //============================================================================
+VTK_ABI_NAMESPACE_BEGIN
 class vtkViewNodeFactory::vtkInternals
 {
 public:
@@ -110,3 +111,4 @@ void vtkViewNodeFactory::RegisterOverride(const char* name, vtkViewNode* (*func)
 {
   this->Internals->Overrides[name] = func;
 }
+VTK_ABI_NAMESPACE_END

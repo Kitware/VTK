@@ -19,6 +19,7 @@
 #include "vtkDataObjectAlgorithm.h"
 #include "vtkIOOMFModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataArraySelection;
 class vtkStringArray;
 
@@ -112,4 +113,5 @@ private:
   ReaderImpl* Impl;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

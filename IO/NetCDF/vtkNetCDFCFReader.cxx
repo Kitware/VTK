@@ -76,6 +76,7 @@
 //=============================================================================
 // Convenience function for getting the text attribute on a variable.  Returns
 // true if the attribute exists, false otherwise.
+VTK_ABI_NAMESPACE_BEGIN
 static bool ReadTextAttribute(int ncFD, int varId, const char* name, std::string& result)
 {
   size_t length;
@@ -2070,3 +2071,4 @@ bool vtkNetCDFCFReader::DimensionsAreForPointData(vtkIntArray* dimensions)
       return true;
   }
 }
+VTK_ABI_NAMESPACE_END

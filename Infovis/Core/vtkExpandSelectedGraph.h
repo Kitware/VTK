@@ -40,6 +40,7 @@
 #include "vtkInfovisCoreModule.h" // For export macro
 #include "vtkSelectionAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkGraph;
 class vtkIdTypeArray;
 
@@ -119,4 +120,5 @@ private:
   void BFSExpandSelection(vtkIdTypeArray* selection, vtkGraph* graph);
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

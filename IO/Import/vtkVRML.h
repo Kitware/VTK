@@ -39,6 +39,7 @@
 #include <new>
 
 // Use a user-managed heap to remove memory leaks
+VTK_ABI_NAMESPACE_BEGIN
 struct vtkVRMLAllocator
 {
   static void Initialize()
@@ -664,5 +665,6 @@ PROTO WorldInfo [ \n\
 ] { }",
   "" };
 
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkVRML.h

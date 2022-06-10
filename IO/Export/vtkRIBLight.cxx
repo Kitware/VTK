@@ -15,6 +15,7 @@
 #include "vtkRIBLight.h"
 #include "vtkObjectFactory.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkRIBLight);
 
 vtkRIBLight::vtkRIBLight()
@@ -48,3 +49,4 @@ void vtkRIBLight::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Shadows: " << (this->Shadows ? "On\n" : "Off\n");
 }
+VTK_ABI_NAMESPACE_END

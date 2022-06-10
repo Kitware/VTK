@@ -27,6 +27,7 @@
 #include "vtkPoints.h"
 #include "vtkStaticPointLocator.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkEuclideanClusterExtraction);
 vtkCxxSetObjectMacro(vtkEuclideanClusterExtraction, Locator, vtkAbstractPointLocator);
 
@@ -448,3 +449,4 @@ void vtkEuclideanClusterExtraction::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Locator: " << this->Locator << "\n";
 }
+VTK_ABI_NAMESPACE_END

@@ -32,6 +32,7 @@
 
 #include "vtkObjectFactory.h" // for vtkStandardNewMacro
 
+VTK_ABI_NAMESPACE_BEGIN
 template <class Scalar>
 class vtkCPExodusIINodalCoordinatesTemplate : public vtkMappedDataArray<Scalar>
 {
@@ -125,6 +126,7 @@ private:
   double* TempDoubleArray;
 };
 
+VTK_ABI_NAMESPACE_END
 #include "vtkCPExodusIINodalCoordinatesTemplate.txx"
 
 #endif // vtkCPExodusIINodalCoordinatesTemplate_h

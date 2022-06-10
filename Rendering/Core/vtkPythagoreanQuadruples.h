@@ -9,6 +9,10 @@
  */
 #ifndef vtkPythagoreanQuadruples_h
 #define vtkPythagoreanQuadruples_h
+
+#include "vtkABINamespace.h"
+
+VTK_ABI_NAMESPACE_BEGIN
 const int vtkPythagoreanQuadruples[] = {
 /* R^2  i   j   k */
     0,  0,  0,  0,
@@ -12356,5 +12360,6 @@ const int vtkPythagoreanQuadruples[] = {
 };
 
 static const int vtkMaxPythagoreanQuadrupleId = sizeof(vtkPythagoreanQuadruples)/sizeof(vtkPythagoreanQuadruples[0])/4 - 1;
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkPythagoreanQuadruples.h

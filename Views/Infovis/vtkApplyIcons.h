@@ -67,6 +67,7 @@
 #include "vtkVariant.h"            // For variant arguments.
 #include "vtkViewsInfovisModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKVIEWSINFOVIS_EXPORT vtkApplyIcons : public vtkPassInputTypeAlgorithm
 {
 public:
@@ -189,4 +190,5 @@ private:
   void operator=(const vtkApplyIcons&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

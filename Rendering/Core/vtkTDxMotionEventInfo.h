@@ -29,6 +29,7 @@
 #include "vtkObject.h"              // for the export macro
 #include "vtkRenderingCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKRENDERINGCORE_EXPORT vtkTDxMotionEventInfo
 {
 public:
@@ -61,5 +62,6 @@ public:
   ///@}
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkTDxMotionEventInfo.h

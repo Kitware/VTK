@@ -39,6 +39,7 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkDataObject.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkKdNode;
 
 class VTKCOMMONDATAMODEL_EXPORT vtkBSPCuts : public vtkDataObject
@@ -169,4 +170,5 @@ protected:
   void operator=(const vtkBSPCuts&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

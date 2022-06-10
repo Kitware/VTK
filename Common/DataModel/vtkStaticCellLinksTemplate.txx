@@ -35,6 +35,7 @@
 
 //----------------------------------------------------------------------------
 // Default constructor. BuildLinks() does most of the work.
+VTK_ABI_NAMESPACE_BEGIN
 template <typename TIds>
 vtkStaticCellLinksTemplate<TIds>::vtkStaticCellLinksTemplate()
   : LinksSize(0)
@@ -167,9 +168,11 @@ void vtkStaticCellLinksTemplate<TIds>::BuildLinks(vtkDataSet* ds)
 
   cellPts->Delete();
 }
+VTK_ABI_NAMESPACE_END
 
 namespace vtkSCLT_detail
 {
+VTK_ABI_NAMESPACE_BEGIN
 
 struct CountPoints
 {
@@ -252,8 +255,10 @@ struct BuildLinksThreaded
   }
 };
 
+VTK_ABI_NAMESPACE_END
 } // end namespace vtkSCLT_detail
 
+VTK_ABI_NAMESPACE_BEGIN
 //----------------------------------------------------------------------------
 // Build the link list array for unstructured grids. Note this is a serial
 // implementation: while there is another method (threaded) that is usually
@@ -290,6 +295,7 @@ void vtkStaticCellLinksTemplate<TIds>::SerialBuildLinks(
 
   this->Offsets[numPts] = this->LinksSize;
 }
+VTK_ABI_NAMESPACE_END
 
 //----------------------------------------------------------------------------
 // Threaded implementation of BuildLinks() using vtkSMPTools and std::atomic.
@@ -340,6 +346,7 @@ struct InsertLinks
 
 } // anonymous
 
+VTK_ABI_NAMESPACE_BEGIN
 //----------------------------------------------------------------------------
 // Build the link list array for unstructured grids. Note this is a threaded
 // implementation: it uses SMPTools and atomics to prevent race situations.
@@ -672,4 +679,5 @@ void vtkStaticCellLinksTemplate<TIds>::SelectCells(
     }); // end lambda
 }
 
+VTK_ABI_NAMESPACE_END
 #endif

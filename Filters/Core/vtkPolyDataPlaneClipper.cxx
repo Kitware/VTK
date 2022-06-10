@@ -38,6 +38,7 @@
 #include "vtkStaticEdgeLocatorTemplate.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkObjectFactoryNewMacro(vtkPolyDataPlaneClipper);
 
 //------------------------------------------------------------------------------
@@ -939,3 +940,4 @@ void vtkPolyDataPlaneClipper::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Output Points Precision: " << this->OutputPointsPrecision << "\n";
   os << indent << "Batch Size: " << this->BatchSize << "\n";
 }
+VTK_ABI_NAMESPACE_END

@@ -30,6 +30,8 @@
 #include <QPointF>                 // for ivar
 
 class QWidget;
+
+VTK_ABI_NAMESPACE_BEGIN
 class vtkQWidgetRepresentation;
 
 class VTKGUISUPPORTQT_EXPORT vtkQWidgetWidget : public vtkAbstractWidget
@@ -109,4 +111,5 @@ private:
   void operator=(const vtkQWidgetWidget&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

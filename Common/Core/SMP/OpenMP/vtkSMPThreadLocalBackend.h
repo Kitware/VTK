@@ -46,6 +46,7 @@ namespace smp
 {
 namespace OpenMP
 {
+VTK_ABI_NAMESPACE_BEGIN
 
 typedef void* ThreadIdType;
 typedef vtkTypeUInt32 HashType;
@@ -177,6 +178,7 @@ private:
   size_t CurrentSlot;
 };
 
+VTK_ABI_NAMESPACE_END
 } // OpenMP;
 } // namespace smp
 } // namespace detail

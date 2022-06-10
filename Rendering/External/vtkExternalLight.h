@@ -59,6 +59,7 @@
 #include "vtkLight.h"
 #include "vtkRenderingExternalModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKRENDERINGEXTERNAL_EXPORT vtkExternalLight : public vtkLight
 {
 public:
@@ -259,4 +260,5 @@ private:
   void operator=(const vtkExternalLight&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkExternalLight_h

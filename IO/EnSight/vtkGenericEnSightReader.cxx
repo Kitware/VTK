@@ -36,6 +36,7 @@
 #include <map>
 #include <string>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkGenericEnSightReader);
 
 vtkCxxSetObjectMacro(vtkGenericEnSightReader, TimeSets, vtkDataArrayCollection);
@@ -1618,3 +1619,4 @@ int vtkGenericEnSightReader::FillOutputPortInformation(int vtkNotUsed(port), vtk
   info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkMultiBlockDataSet");
   return 1;
 }
+VTK_ABI_NAMESPACE_END

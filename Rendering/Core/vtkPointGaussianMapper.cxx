@@ -17,6 +17,7 @@
 #include "vtkPiecewiseFunction.h"
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkObjectFactoryNewMacro(vtkPointGaussianMapper);
 
 vtkCxxSetObjectMacro(vtkPointGaussianMapper, ScaleFunction, vtkPiecewiseFunction);
@@ -69,3 +70,4 @@ void vtkPointGaussianMapper::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "ScaleTableSize: " << this->ScaleTableSize << "\n";
   os << indent << "TriangleScale: " << this->TriangleScale << "\n";
 }
+VTK_ABI_NAMESPACE_END

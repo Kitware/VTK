@@ -141,6 +141,7 @@
 #include <cassert> // Used internally
 #include <memory>  // std::shared_ptr
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkBitArray;
 class vtkIdList;
 class vtkHyperTreeGridScales;
@@ -554,4 +555,5 @@ private:
   void operator=(const vtkHyperTree&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

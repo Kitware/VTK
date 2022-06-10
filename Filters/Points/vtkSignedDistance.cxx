@@ -29,6 +29,7 @@
 #include "vtkStaticPointLocator.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkSignedDistance);
 vtkCxxSetObjectMacro(vtkSignedDistance, Locator, vtkAbstractPointLocator);
 
@@ -447,3 +448,4 @@ void vtkSignedDistance::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Locator: " << this->Locator << "\n";
 }
+VTK_ABI_NAMESPACE_END

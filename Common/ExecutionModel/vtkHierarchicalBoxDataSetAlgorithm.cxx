@@ -21,6 +21,7 @@
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkHierarchicalBoxDataSetAlgorithm);
 //------------------------------------------------------------------------------
 vtkHierarchicalBoxDataSetAlgorithm::vtkHierarchicalBoxDataSetAlgorithm()
@@ -128,3 +129,4 @@ void vtkHierarchicalBoxDataSetAlgorithm::PrintSelf(ostream& os, vtkIndent indent
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

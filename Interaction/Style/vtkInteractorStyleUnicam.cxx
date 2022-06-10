@@ -36,19 +36,24 @@
 #include "vtkTransform.h"
 #include "vtkWorldPointPicker.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkInteractorStyleUnicam);
 
 // define 'TheTime()' function-- returns time in elapsed seconds
 #if defined(_WIN32)
+VTK_ABI_NAMESPACE_END
 #include "vtkWindows.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 static double TheTime()
 {
   return GetTickCount() / 1000.0;
 }
 #else
+VTK_ABI_NAMESPACE_END
 #include <sys/time.h>
 
+VTK_ABI_NAMESPACE_BEGIN
 static double TheTime()
 {
   struct timeval ts;
@@ -678,3 +683,4 @@ void vtkInteractorStyleUnicam::MyTranslateCamera(double v[3])
     this->CurrentRenderer->ResetCameraClippingRange();
   }
 }
+VTK_ABI_NAMESPACE_END

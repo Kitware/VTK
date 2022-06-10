@@ -41,6 +41,7 @@
 using namespace xdmf2;
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkXdmfDataArray);
 
 //------------------------------------------------------------------------------
@@ -463,3 +464,4 @@ void vtkXdmfDataArray::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

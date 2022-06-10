@@ -40,6 +40,7 @@
 #define VTK_BSPLINE_KERNEL_TABLE_DIVISIONS 256
 #endif
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImageBSplineInterpolator);
 
 //------------------------------------------------------------------------------
@@ -851,3 +852,4 @@ void vtkImageBSplineInterpolator::FreeKernelLookupTable()
   delete[] kernel;
 #endif
 }
+VTK_ABI_NAMESPACE_END

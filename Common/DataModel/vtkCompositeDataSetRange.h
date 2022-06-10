@@ -27,6 +27,7 @@
 
 namespace vtk
 {
+VTK_ABI_NAMESPACE_BEGIN
 
 // Pass these to vtk::Range(cds, options):
 enum class CompositeDataSetOptions : unsigned int
@@ -35,15 +36,18 @@ enum class CompositeDataSetOptions : unsigned int
   SkipEmptyNodes = 1 << 1 // Skip null datasets.
 };
 
+VTK_ABI_NAMESPACE_END
 } // end namespace vtk (for bitflag op definition)
 
+VTK_ABI_NAMESPACE_BEGIN
 VTK_GENERATE_BITFLAG_OPS(vtk::CompositeDataSetOptions)
+VTK_ABI_NAMESPACE_END
 
 namespace vtk
 {
-
 namespace detail
 {
+VTK_ABI_NAMESPACE_BEGIN
 
 struct CompositeDataSetRange;
 struct CompositeDataSetIterator;
@@ -263,6 +267,7 @@ private:
   CompositeDataSetOptions Options;
 };
 
+VTK_ABI_NAMESPACE_END
 }
 } // end namespace vtk::detail
 

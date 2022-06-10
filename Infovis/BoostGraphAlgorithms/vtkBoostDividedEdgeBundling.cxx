@@ -35,6 +35,7 @@
 #include <boost/graph/johnson_all_pairs_shortest.hpp>
 #include <boost/property_map/property_map.hpp>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkBoostDividedEdgeBundling);
 
 vtkBoostDividedEdgeBundling::vtkBoostDividedEdgeBundling() = default;
@@ -595,3 +596,4 @@ void vtkBoostDividedEdgeBundling::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

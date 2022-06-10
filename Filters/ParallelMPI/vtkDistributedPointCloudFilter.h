@@ -37,6 +37,7 @@
 
 #include <vector> // for vector
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkMPIController;
 class vtkMultiProcessController;
 
@@ -94,4 +95,5 @@ private:
   vtkMultiProcessController* Controller;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

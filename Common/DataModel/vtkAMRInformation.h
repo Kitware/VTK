@@ -39,6 +39,7 @@
 
 typedef std::vector<vtkAMRBox> vtkAMRBoxList;
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkUnsignedIntArray;
 class vtkIntArray;
 class vtkDoubleArray;
@@ -290,4 +291,5 @@ private:
   std::vector<std::vector<std::vector<unsigned int>>> AllParents;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

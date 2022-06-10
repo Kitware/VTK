@@ -17,6 +17,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPoints.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkNonMergingPointLocator);
 
 //------------------------------------------------------------------------------
@@ -31,3 +32,4 @@ void vtkNonMergingPointLocator::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

@@ -34,6 +34,7 @@
 #include "vtkImageAlgorithm.h"
 #include "vtkImagingHybridModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKIMAGINGHYBRID_EXPORT vtkTriangularTexture : public vtkImageAlgorithm
 {
 public:
@@ -99,4 +100,5 @@ private:
   void operator=(const vtkTriangularTexture&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

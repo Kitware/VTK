@@ -31,6 +31,7 @@
 #include <array>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkActor;
 class vtkCompositeDataSet;
 class vtkIdList;
@@ -181,5 +182,6 @@ private:
   nlohmann::json RootJson;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: TreeInformation.h

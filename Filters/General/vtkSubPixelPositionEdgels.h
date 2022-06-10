@@ -40,6 +40,7 @@
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkStructuredPoints;
 class vtkDataArray;
 
@@ -91,4 +92,5 @@ private:
   void operator=(const vtkSubPixelPositionEdgels&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

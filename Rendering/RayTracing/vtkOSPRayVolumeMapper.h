@@ -27,6 +27,7 @@
 #include "vtkOSPRayVolumeInterface.h"
 #include "vtkRenderingRayTracingModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkOSPRayPass;
 class vtkRenderer;
 class vtkWindow;
@@ -67,4 +68,5 @@ private:
   void operator=(const vtkOSPRayVolumeMapper&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

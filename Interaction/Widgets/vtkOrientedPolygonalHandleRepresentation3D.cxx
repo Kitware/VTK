@@ -23,6 +23,7 @@
 #include "vtkRenderer.h"
 #include "vtkTransformPolyDataFilter.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOrientedPolygonalHandleRepresentation3D);
 
 //------------------------------------------------------------------------------
@@ -64,3 +65,4 @@ void vtkOrientedPolygonalHandleRepresentation3D::PrintSelf(ostream& os, vtkInden
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

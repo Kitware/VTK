@@ -46,6 +46,7 @@
 #include <string>                      // For member variables.
 #include <vector>                      // STL Header
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkOpenGLRenderWindow;
 class vtkInformationIntegerKey;
 class vtkCamera;
@@ -176,4 +177,5 @@ private:
   void operator=(const vtkShadowMapPass&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

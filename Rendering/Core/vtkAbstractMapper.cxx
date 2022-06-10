@@ -25,6 +25,7 @@
 #include "vtkTimerLog.h"
 #include "vtkUnsignedCharArray.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkCxxSetObjectMacro(vtkAbstractMapper, ClippingPlanes, vtkPlaneCollection);
 
 // Construct object.
@@ -271,3 +272,4 @@ int vtkAbstractMapper::GetNumberOfClippingPlanes()
 
   return n;
 }
+VTK_ABI_NAMESPACE_END

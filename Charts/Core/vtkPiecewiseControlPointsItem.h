@@ -31,6 +31,7 @@
 #include "vtkChartsCoreModule.h" // For export macro
 #include "vtkControlPointsItem.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPiecewiseFunction;
 
 class VTKCHARTSCORE_EXPORT vtkPiecewiseControlPointsItem : public vtkControlPointsItem
@@ -89,4 +90,5 @@ private:
   void operator=(const vtkPiecewiseControlPointsItem&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

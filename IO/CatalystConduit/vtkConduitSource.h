@@ -38,6 +38,7 @@
 
 #include <memory> // for std::unique_ptr
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKIOCATALYSTCONDUIT_EXPORT vtkConduitSource : public vtkDataObjectAlgorithm
 {
 public:
@@ -110,5 +111,6 @@ private:
   bool UseMultiMeshProtocol;
   bool OutputMultiBlock;
 };
+VTK_ABI_NAMESPACE_END
 
 #endif

@@ -26,6 +26,7 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkGenericAttributeInternalVector;
 class vtkIntInternalVector;
 class vtkGenericAttribute;
@@ -278,4 +279,5 @@ private:
   vtkGenericAttributeCollection(const vtkGenericAttributeCollection&) = delete;
   void operator=(const vtkGenericAttributeCollection&) = delete;
 };
+VTK_ABI_NAMESPACE_END
 #endif

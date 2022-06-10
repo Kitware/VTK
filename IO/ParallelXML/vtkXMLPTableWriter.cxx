@@ -27,6 +27,7 @@
 
 #include <cassert>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkXMLPTableWriter);
 
 //------------------------------------------------------------------------------
@@ -193,3 +194,4 @@ int vtkXMLPTableWriter::FillInputPortInformation(int, vtkInformation* info)
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkTable");
   return 1;
 }
+VTK_ABI_NAMESPACE_END

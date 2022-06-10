@@ -27,6 +27,7 @@
 #include "vtkStdString.h"      //needed for vtkStdString
 #include "vtkXMLParser.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class LSDynaMetaData;
 class VTKIOLSDYNA_EXPORT vtkLSDynaSummaryParser : public vtkXMLParser
 {
@@ -59,4 +60,5 @@ private:
   void operator=(const vtkLSDynaSummaryParser&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkLSDynaReader_h

@@ -17,6 +17,7 @@
 #include "vtkmInitializer.h"
 #include <vtkm/cont/Initialize.h>
 
+VTK_ABI_NAMESPACE_BEGIN
 void InitializeVTKm()
 {
 // Only Kokkos HIP backend needs to be initialized
@@ -36,3 +37,4 @@ vtkmInitializer::vtkmInitializer()
 {
   (void)InitializeVTKm();
 }
+VTK_ABI_NAMESPACE_END

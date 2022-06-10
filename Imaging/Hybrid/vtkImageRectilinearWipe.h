@@ -58,6 +58,7 @@
 #define VTK_WIPE_UPPER_LEFT 5
 #define VTK_WIPE_UPPER_RIGHT 6
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKIMAGINGHYBRID_EXPORT vtkImageRectilinearWipe : public vtkThreadedImageAlgorithm
 {
 public:
@@ -136,4 +137,5 @@ private:
   void operator=(const vtkImageRectilinearWipe&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

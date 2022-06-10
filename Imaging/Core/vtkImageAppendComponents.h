@@ -29,6 +29,7 @@
 #include "vtkImagingCoreModule.h" // For export macro
 #include "vtkThreadedImageAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKIMAGINGCORE_EXPORT vtkImageAppendComponents : public vtkThreadedImageAlgorithm
 {
 public:
@@ -89,4 +90,5 @@ private:
   void operator=(const vtkImageAppendComponents&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

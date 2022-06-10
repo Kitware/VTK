@@ -47,6 +47,7 @@
 #include "vtkFiltersGeometryModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSGEOMETRY_EXPORT vtkStructuredGridGeometryFilter : public vtkPolyDataAlgorithm
 {
 public:
@@ -87,4 +88,5 @@ private:
   void operator=(const vtkStructuredGridGeometryFilter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

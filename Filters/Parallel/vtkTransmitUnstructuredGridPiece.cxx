@@ -24,6 +24,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUnstructuredGrid.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkTransmitUnstructuredGridPiece);
 
 vtkCxxSetObjectMacro(vtkTransmitUnstructuredGridPiece, Controller, vtkMultiProcessController);
@@ -174,3 +175,4 @@ void vtkTransmitUnstructuredGridPiece::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Controller: (" << this->Controller << ")\n";
 }
+VTK_ABI_NAMESPACE_END

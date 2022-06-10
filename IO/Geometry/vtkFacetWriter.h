@@ -42,6 +42,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkIOGeometryModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkInformation;
 
 class VTKIOGEOMETRY_EXPORT vtkFacetWriter : public vtkPolyDataAlgorithm
@@ -87,4 +88,5 @@ private:
   void operator=(const vtkFacetWriter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -52,6 +52,7 @@
 #include "vtkActor2D.h"
 #include "vtkRenderingAnnotationModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkAlgorithmOutput;
 class vtkAxisActor2D;
 class vtkDataObject;
@@ -293,4 +294,5 @@ private:
   void operator=(const vtkSpiderPlotActor&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

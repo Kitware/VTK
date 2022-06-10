@@ -68,6 +68,7 @@ POSSIBILITY OF SUCH DAMAGES.
 #include "vtkIOMINCModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkProperty;
 class vtkPolyData;
 class vtkFloatArray;
@@ -151,4 +152,5 @@ private:
   void operator=(const vtkMNIObjectReader&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

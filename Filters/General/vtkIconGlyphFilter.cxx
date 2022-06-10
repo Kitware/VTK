@@ -28,6 +28,7 @@
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkIconGlyphFilter);
 
 //------------------------------------------------------------------------------
@@ -243,3 +244,4 @@ int vtkIconGlyphFilter::RequestData(vtkInformation* vtkNotUsed(request),
 
   return 1;
 }
+VTK_ABI_NAMESPACE_END

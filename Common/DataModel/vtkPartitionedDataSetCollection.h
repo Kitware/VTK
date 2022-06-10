@@ -30,6 +30,7 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkDataObjectTree.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPartitionedDataSet;
 class vtkDataAssembly;
 class vtkDataSet;
@@ -186,4 +187,5 @@ private:
   vtkDataAssembly* DataAssembly;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

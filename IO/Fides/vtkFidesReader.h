@@ -39,6 +39,7 @@
 #include <memory>             // for std::unique_ptr
 #include <string>             // for std::string
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataArraySelection;
 class vtkInformationIntegerKey;
 
@@ -183,4 +184,5 @@ private:
   void operator=(const vtkFidesReader&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

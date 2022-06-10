@@ -40,6 +40,7 @@
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkFileOutputWindow.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONCORE_EXPORT vtkXMLFileOutputWindow : public vtkFileOutputWindow
 {
 public:
@@ -78,4 +79,5 @@ private:
   void operator=(const vtkXMLFileOutputWindow&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

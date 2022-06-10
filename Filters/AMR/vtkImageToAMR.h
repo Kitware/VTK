@@ -29,6 +29,7 @@
 #include "vtkFiltersAMRModule.h" // For export macro
 #include "vtkOverlappingAMRAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSAMR_EXPORT vtkImageToAMR : public vtkOverlappingAMRAlgorithm
 {
 public:
@@ -88,4 +89,5 @@ private:
   void operator=(const vtkImageToAMR&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

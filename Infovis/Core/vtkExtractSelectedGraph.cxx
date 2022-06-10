@@ -49,6 +49,7 @@
 
 #include <map>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkExtractSelectedGraph);
 //------------------------------------------------------------------------------
 vtkExtractSelectedGraph::vtkExtractSelectedGraph()
@@ -465,3 +466,4 @@ void vtkExtractSelectedGraph::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "RemoveIsolatedVertices: " << (this->RemoveIsolatedVertices ? "on" : "off")
      << endl;
 }
+VTK_ABI_NAMESPACE_END

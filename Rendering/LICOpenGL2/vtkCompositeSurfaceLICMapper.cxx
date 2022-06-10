@@ -57,6 +57,7 @@
 
 typedef std::map<vtkPolyData*, vtkCompositeMapperHelperData*>::iterator dataIter;
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCompositeLICHelper : public vtkCompositeMapperHelper2
 {
 public:
@@ -312,3 +313,4 @@ void vtkCompositeSurfaceLICMapper::Render(vtkRenderer* ren, vtkActor* actor)
 
   ostate->PopFramebufferBindings();
 }
+VTK_ABI_NAMESPACE_END

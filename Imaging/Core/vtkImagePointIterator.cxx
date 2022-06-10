@@ -17,6 +17,7 @@
 #include "vtkImageData.h"
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkImagePointIterator::vtkImagePointIterator()
 {
   this->Origin[0] = 0.0;
@@ -49,3 +50,4 @@ void vtkImagePointIterator::Initialize(vtkImageData* image, const int extent[6],
   image->GetSpacing(this->Spacing);
   this->UpdatePosition();
 }
+VTK_ABI_NAMESPACE_END

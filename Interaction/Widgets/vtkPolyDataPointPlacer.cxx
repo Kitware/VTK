@@ -23,6 +23,7 @@
 #include "vtkPropPicker.h"
 #include "vtkRenderer.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPolyDataPointPlacer);
 
 //------------------------------------------------------------------------------
@@ -180,3 +181,4 @@ void vtkPolyDataPointPlacer::PrintSelf(ostream& os, vtkIndent indent)
     this->SurfaceProps->PrintSelf(os, indent.GetNextIndent());
   }
 }
+VTK_ABI_NAMESPACE_END

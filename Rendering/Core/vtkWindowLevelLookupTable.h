@@ -39,6 +39,7 @@
 #include "vtkLookupTable.h"
 #include "vtkRenderingCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKRENDERINGCORE_EXPORT vtkWindowLevelLookupTable : public vtkLookupTable
 {
 public:
@@ -127,4 +128,5 @@ private:
   void operator=(const vtkWindowLevelLookupTable&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

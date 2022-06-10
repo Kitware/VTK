@@ -29,6 +29,7 @@
 #include "vtkIdList.h"
 #include "vtkPolyData.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataObject;
 class vtkInitialValueProblemSolver;
 
@@ -57,5 +58,6 @@ struct VTKFILTERSFLOWPATHS_EXPORT vtkLagrangianThreadedData
   ~vtkLagrangianThreadedData() { delete this->BilinearQuadIntersection; }
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkLagrangianThreadedData_h
 // VTK-HeaderTest-Exclude: vtkLagrangianThreadedData.h

@@ -28,6 +28,7 @@
 
 #include <cassert>
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkLocationSelector::vtkInternals
 {
 public:
@@ -227,3 +228,4 @@ void vtkLocationSelector::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

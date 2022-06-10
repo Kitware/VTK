@@ -59,6 +59,7 @@
 #include "vtkStdString.h"    // For vtkStdString ivars
 #include "vtkVector.h"       // For position variables
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkContext2D;
 class vtkFloatArray;
 class vtkDoubleArray;
@@ -794,4 +795,5 @@ private:
   bool InRange(double value);
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkAxis_h

@@ -60,6 +60,7 @@ namespace ospray
 {
 namespace opengl
 {
+VTK_ABI_NAMESPACE_BEGIN
 
 // code borrowed from ospray::modules::opengl to facilitate updating
 // and linking
@@ -172,9 +173,11 @@ OSPTexture getOSPDepthTextureFromOpenGLPerspective(const double& fovy, const dou
 
   return depthTexture;
 }
+VTK_ABI_NAMESPACE_END
 }
 }
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkInformationKeyMacro(vtkOSPRayRendererNode, SAMPLES_PER_PIXEL, Integer);
 vtkInformationKeyMacro(vtkOSPRayRendererNode, MAX_CONTRIBUTION, Double);
 vtkInformationKeyMacro(vtkOSPRayRendererNode, MAX_DEPTH, Integer);
@@ -1772,3 +1775,4 @@ RTW::Backend* vtkOSPRayRendererNode::GetBackend()
 {
   return this->Internal->Backend;
 }
+VTK_ABI_NAMESPACE_END

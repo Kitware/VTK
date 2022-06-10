@@ -14,6 +14,7 @@
 =========================================================================*/
 
 #include "vtkPythonUtil.h"
+#include "vtkABINamespace.h"
 #include "vtkPythonOverload.h"
 
 #include "PyVTKMethodDescriptor.h"
@@ -42,6 +43,7 @@
 #include <cstdint>
 #endif
 
+VTK_ABI_NAMESPACE_BEGIN
 //------------------------------------------------------------------------------
 // A ghost object, can be used to recreate a deleted PyVTKObject
 class PyVTKObjectGhost
@@ -1160,3 +1162,4 @@ void vtkPythonVoidFuncArgDelete(void* arg)
     Py_DECREF(func);
   }
 }
+VTK_ABI_NAMESPACE_END

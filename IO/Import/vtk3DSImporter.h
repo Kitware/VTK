@@ -29,6 +29,7 @@
 #include "vtkIOImportModule.h" // For export macro
 #include "vtkImporter.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPolyData;
 
 class VTKIOIMPORT_EXPORT vtk3DSImporter : public vtkImporter
@@ -96,4 +97,5 @@ private:
   void operator=(const vtk3DSImporter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

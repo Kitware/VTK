@@ -38,6 +38,7 @@
 #include "vtkCommonCoreModule.h" // For export macro
 
 // the old style void fund(void *) callbacks
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONCORE_EXPORT vtkOldStyleCallbackCommand : public vtkCommand
 {
 public:
@@ -68,6 +69,7 @@ protected:
   ~vtkOldStyleCallbackCommand() override;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif /* vtkOldStyleCallbackCommand_h */
 
 // VTK-HeaderTest-Exclude: vtkOldStyleCallbackCommand.h

@@ -42,6 +42,7 @@
 #include "vtkPassInputTypeAlgorithm.h"
 #include "vtkRenderingCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkMapType;
 class vtkVariant;
 
@@ -165,4 +166,5 @@ private:
   void operator=(const vtkMapArrayValues&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

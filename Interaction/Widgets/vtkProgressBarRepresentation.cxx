@@ -28,6 +28,7 @@
 #include "vtkTransformPolyDataFilter.h"
 #include "vtkUnsignedCharArray.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkProgressBarRepresentation);
 
 vtkProgressBarRepresentation::vtkProgressBarRepresentation()
@@ -295,3 +296,4 @@ void vtkProgressBarRepresentation::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "BackgroundColor: " << this->BackgroundColor[0] << " " << this->BackgroundColor[1]
      << " " << this->BackgroundColor[2] << "\n";
 }
+VTK_ABI_NAMESPACE_END

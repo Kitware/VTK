@@ -25,6 +25,7 @@
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkLightActor);
 vtkCxxSetObjectMacro(vtkLightActor, Light, vtkLight);
 
@@ -325,3 +326,4 @@ void vtkLightActor::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "ClippingRange: " << this->ClippingRange[0] << "," << this->ClippingRange[1]
      << endl;
 }
+VTK_ABI_NAMESPACE_END

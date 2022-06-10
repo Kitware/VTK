@@ -23,6 +23,7 @@
 #include "PyVTKNamespace.h"
 #include "PyVTKObject.h"
 #include "PyVTKSpecialObject.h"
+#include "vtkABINamespace.h"
 #include "vtkPython.h"
 #include "vtkPythonCompatibility.h"
 
@@ -31,6 +32,12 @@
 #pragma warning(disable : 4125)
 #endif
 
+extern "C" void vtkPythonUtilDelete();
+
+VTK_ABI_NAMESPACE_BEGIN
+class vtkStdString;
+class vtkUnicodeString;
+class vtkVariant;
 class vtkPythonClassMap;
 class vtkPythonClassNameMap;
 class vtkPythonCommand;
@@ -42,8 +49,6 @@ class vtkPythonNamespaceMap;
 class vtkPythonEnumMap;
 class vtkPythonModuleList;
 class vtkVariant;
-
-extern "C" void vtkPythonUtilDelete();
 
 class VTKWRAPPINGPYTHONCORE_EXPORT vtkPythonUtil
 {
@@ -284,6 +289,8 @@ private:
 // For use by SetXXMethod() , SetXXMethodArgDelete()
 extern VTKWRAPPINGPYTHONCORE_EXPORT void vtkPythonVoidFunc(void*);
 extern VTKWRAPPINGPYTHONCORE_EXPORT void vtkPythonVoidFuncArgDelete(void*);
+
+VTK_ABI_NAMESPACE_END
 
 #endif
 // VTK-HeaderTest-Exclude: vtkPythonUtil.h

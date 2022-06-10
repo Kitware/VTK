@@ -31,6 +31,7 @@ namespace detail
 {
 namespace smp
 {
+VTK_ABI_NAMESPACE_BEGIN
 
 template <typename T>
 class vtkSMPThreadLocalImpl<BackendType::OpenMP, T> : public vtkSMPThreadLocalImplAbstract<T>
@@ -126,6 +127,7 @@ private:
   void operator=(const vtkSMPThreadLocalImpl&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 } // namespace smp
 } // namespace detail
 } // namespace vtk

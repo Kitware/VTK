@@ -25,6 +25,7 @@
 #include "vtkWidgetCallbackMapper.h"
 #include "vtkWidgetEvent.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkScalarBarWidget);
 
 //------------------------------------------------------------------------------
@@ -132,3 +133,4 @@ void vtkScalarBarWidget::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Repositionable: " << this->Repositionable << endl;
 }
+VTK_ABI_NAMESPACE_END

@@ -38,6 +38,7 @@
 #include <vtkm/filter/contour/Contour.h>
 #include <vtkm/worklet/WorkletMapField.h>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkmContour);
 
 //------------------------------------------------------------------------------
@@ -257,3 +258,4 @@ int vtkmContour::RequestData(
   // we got this far, everything is good
   return 1;
 }
+VTK_ABI_NAMESPACE_END

@@ -34,6 +34,7 @@
  * The octree_iterator class simply traverses the tree in depth-first order
  * and can be configured to visit only leaf nodes or to include all nodes.
  */
+VTK_ABI_NAMESPACE_BEGIN
 template <typename T_, int d_ = 3, typename A_ = std::allocator<T_>>
 class octree
 {
@@ -119,4 +120,5 @@ protected:
   double m_size;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // octree_h_

@@ -55,6 +55,7 @@
 #include "vtkFiltersPointsModule.h" // For export macro
 #include "vtkPointCloudFilter.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkImplicitFunction;
 class vtkPointSet;
 
@@ -111,4 +112,5 @@ private:
   void operator=(const vtkFitImplicitFunction&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

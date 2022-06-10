@@ -38,6 +38,7 @@
 #include "vtkImageFourierFilter.h"
 #include "vtkImagingFourierModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKIMAGINGFOURIER_EXPORT vtkImageRFFT : public vtkImageFourierFilter
 {
 public:
@@ -61,4 +62,5 @@ private:
   void operator=(const vtkImageRFFT&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

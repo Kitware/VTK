@@ -32,6 +32,7 @@
 
 #include <map>
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataSetRegionSurfaceFilter::Internals
 {
 public:
@@ -1169,3 +1170,4 @@ vtkFastGeomQuad* vtkDataSetRegionSurfaceFilter::GetNextVisibleQuadFromHash()
 
   return quad;
 }
+VTK_ABI_NAMESPACE_END

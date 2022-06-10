@@ -25,6 +25,7 @@
 #include "vtkProcessGroup.h"
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkSubCommunicator);
 
 //------------------------------------------------------------------------------
@@ -90,3 +91,4 @@ void vtkSubCommunicator::SetGroup(vtkProcessGroup* group)
     this->MaximumNumberOfProcesses = 0;
   }
 }
+VTK_ABI_NAMESPACE_END

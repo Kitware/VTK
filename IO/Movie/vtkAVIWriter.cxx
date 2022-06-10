@@ -32,6 +32,7 @@
 #pragma warning(pop)
 #endif
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkAVIWriterInternal
 {
 public:
@@ -293,3 +294,4 @@ void vtkAVIWriter::PrintSelf(ostream& os, vtkIndent indent)
      << "CompressorFourCC: " << (this->CompressorFourCC ? this->CompressorFourCC : "(None)")
      << endl;
 }
+VTK_ABI_NAMESPACE_END

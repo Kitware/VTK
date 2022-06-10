@@ -26,6 +26,7 @@
 #include "vtkFiltersGeometryModule.h" // For export macro
 #include "vtkPointSetAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCell;
 class vtkCellArray;
 class vtkDataSetAttributes;
@@ -114,4 +115,5 @@ private:
   bool TranslateZ;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkProjectSphereFilter_h

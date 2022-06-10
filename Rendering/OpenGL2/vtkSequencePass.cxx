@@ -18,6 +18,7 @@
 #include "vtkRenderPassCollection.h"
 #include <cassert>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkSequencePass);
 vtkCxxSetObjectMacro(vtkSequencePass, Passes, vtkRenderPassCollection);
 
@@ -94,3 +95,4 @@ void vtkSequencePass::ReleaseGraphicsResources(vtkWindow* w)
     }
   }
 }
+VTK_ABI_NAMESPACE_END

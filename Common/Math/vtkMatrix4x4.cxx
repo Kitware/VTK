@@ -19,6 +19,7 @@
 #include <cmath>
 #include <cstdlib>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkMatrix4x4);
 
 //------------------------------------------------------------------------------
@@ -307,3 +308,4 @@ void vtkMatrix4x4::PrintSelf(ostream& os, vtkIndent indent)
     os << "\n";
   }
 }
+VTK_ABI_NAMESPACE_END

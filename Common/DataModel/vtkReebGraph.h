@@ -121,6 +121,7 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkMutableDirectedGraph.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataArray;
 class vtkDataSet;
 class vtkIdList;
@@ -363,4 +364,5 @@ private:
   void operator=(const vtkReebGraph&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

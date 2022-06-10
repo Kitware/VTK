@@ -35,6 +35,7 @@
 #include <string>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkQtSQLQueryInternals
 {
 public:
@@ -224,3 +225,4 @@ vtkVariant vtkQtSQLQuery::DataValue(vtkIdType c)
       return vtkVariant(v.toString().toUtf8().data());
   }
 }
+VTK_ABI_NAMESPACE_END

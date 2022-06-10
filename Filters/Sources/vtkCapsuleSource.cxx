@@ -48,6 +48,7 @@
 
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkCapsuleSource);
 
 //------------------------------------------------------------------------------
@@ -364,3 +365,4 @@ int vtkCapsuleSource::RequestInformation(vtkInformation* vtkNotUsed(request),
     this->Center[2] + this->Radius);
   return 1;
 }
+VTK_ABI_NAMESPACE_END

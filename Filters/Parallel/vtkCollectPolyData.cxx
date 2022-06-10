@@ -25,6 +25,7 @@
 #include "vtkSocketController.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkCollectPolyData);
 
 vtkCxxSetObjectMacro(vtkCollectPolyData, Controller, vtkMultiProcessController);
@@ -173,3 +174,4 @@ void vtkCollectPolyData::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Controller: (" << this->Controller << ")\n";
   os << indent << "SocketController: (" << this->SocketController << ")\n";
 }
+VTK_ABI_NAMESPACE_END

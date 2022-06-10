@@ -57,6 +57,7 @@
 #define VTK_SORT_BY_VALUE 0
 #define VTK_SORT_BY_CELL 1
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkGridSynchronizedTemplates3D;
 class vtkImplicitFunction;
 class vtkIncrementalPointLocator;
@@ -272,4 +273,5 @@ inline const char* vtkCutter::GetSortByAsString()
   }
 }
 
+VTK_ABI_NAMESPACE_END
 #endif

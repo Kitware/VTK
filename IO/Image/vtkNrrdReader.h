@@ -39,6 +39,7 @@
 #include "vtkIOImageModule.h" // For export macro
 #include "vtkImageReader.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCharArray;
 
 class VTKIOIMAGE_EXPORT vtkNrrdReader : public vtkImageReader
@@ -86,4 +87,5 @@ private:
   void operator=(const vtkNrrdReader&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkNrrdReader_h

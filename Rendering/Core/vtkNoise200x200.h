@@ -19,6 +19,7 @@
  * Resource generated for file:
  *    noise.vtk (base64) (binary file)
  */
+VTK_ABI_NAMESPACE_BEGIN
 static const unsigned long file_noise200x200_vtk_length = 106884;
 static const unsigned long file_noise200x200_vtk_decoded_length = 80162;
 
@@ -1563,5 +1564,6 @@ static const unsigned char* file_noise200x200_vtk_sections[4] = { file_noise200x
 
 static const unsigned int file_noise200x200_vtk_nb_sections = 4;
 
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkNoise200x200.h

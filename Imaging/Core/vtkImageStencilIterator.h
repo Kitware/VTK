@@ -28,6 +28,7 @@
 
 #include "vtkImagePointDataIterator.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 template <class DType>
 class VTKIMAGINGCORE_EXPORT vtkImageStencilIterator : public vtkImagePointDataIterator
 {
@@ -141,5 +142,6 @@ vtkExternTemplateMacro(extern template class VTKIMAGINGCORE_EXPORT vtkImageStenc
 #endif
 #endif
 
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkImageStencilIterator.h

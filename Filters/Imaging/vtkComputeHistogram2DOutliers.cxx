@@ -37,6 +37,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkSortDataArray.h"
 #include "vtkTable.h"
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkComputeHistogram2DOutliers);
 //------------------------------------------------------------------------------
 vtkComputeHistogram2DOutliers::vtkComputeHistogram2DOutliers()
@@ -428,3 +429,4 @@ vtkTable* vtkComputeHistogram2DOutliers::GetOutputTable()
     this->Update();
   return vtkTable::SafeDownCast(this->GetOutputDataObject(OUTPUT_SELECTED_TABLE_DATA));
 }
+VTK_ABI_NAMESPACE_END

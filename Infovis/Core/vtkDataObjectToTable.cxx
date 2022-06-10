@@ -31,6 +31,7 @@
 #include "vtkPointData.h"
 #include "vtkTable.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkDataObjectToTable);
 //------------------------------------------------------------------------------
 vtkDataObjectToTable::vtkDataObjectToTable()
@@ -129,3 +130,4 @@ void vtkDataObjectToTable::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
   os << indent << "FieldType: " << this->FieldType << endl;
 }
+VTK_ABI_NAMESPACE_END

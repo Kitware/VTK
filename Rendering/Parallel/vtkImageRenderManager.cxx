@@ -22,6 +22,7 @@
 #include "vtkTimerLog.h"
 #include "vtkUnsignedCharArray.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImageRenderManager);
 
 //------------------------------------------------------------------------------
@@ -62,3 +63,4 @@ void vtkImageRenderManager::PostRenderProcessing()
   }
   this->RenderWindow->Frame();
 }
+VTK_ABI_NAMESPACE_END

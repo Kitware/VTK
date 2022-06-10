@@ -28,6 +28,7 @@
 
 #include "vtkm/filter/vector_analysis/SurfaceNormals.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkmPolyDataNormals);
 
 //------------------------------------------------------------------------------
@@ -130,3 +131,4 @@ int vtkmPolyDataNormals::RequestData(
 
   return 1;
 }
+VTK_ABI_NAMESPACE_END

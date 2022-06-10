@@ -37,6 +37,7 @@
 
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkSynchronizedTemplates2D);
 
 //------------------------------------------------------------------------------
@@ -520,3 +521,4 @@ void vtkSynchronizedTemplates2D::PrintSelf(ostream& os, vtkIndent indent)
   }
   os << indent << "ArrayComponent: " << this->ArrayComponent << endl;
 }
+VTK_ABI_NAMESPACE_END

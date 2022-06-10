@@ -24,6 +24,7 @@
 
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkGenericInterpolatedVelocityField);
 
 typedef std::vector<vtkGenericDataSet*> DataSetsTypeBase;
@@ -308,3 +309,4 @@ void vtkGenericInterpolatedVelocityField::PrintSelf(ostream& os, vtkIndent inden
      << endl;
   os << indent << "LastDataSet : " << this->LastDataSet << endl;
 }
+VTK_ABI_NAMESPACE_END

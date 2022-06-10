@@ -29,6 +29,7 @@
 #include "vtkRenderingContext2DModule.h" // For export macro
 #include "vtkSmartPointer.h"             // For vtkSmartPointer
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkActor;
 class vtkContext2D;
 class vtkDoubleArray;
@@ -154,4 +155,5 @@ private:
   Private* Internal;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

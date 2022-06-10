@@ -30,6 +30,7 @@
 #include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkGenericProbeFilter);
 
 //------------------------------------------------------------------------------
@@ -253,3 +254,4 @@ int vtkGenericProbeFilter::FillInputPortInformation(int port, vtkInformation* in
   }
   return 1;
 }
+VTK_ABI_NAMESPACE_END

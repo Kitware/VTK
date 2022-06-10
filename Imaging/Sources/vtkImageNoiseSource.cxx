@@ -22,6 +22,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImageNoiseSource);
 
 //------------------------------------------------------------------------------
@@ -125,3 +126,4 @@ void vtkImageNoiseSource::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Minimum: " << this->Minimum << "\n";
   os << indent << "Maximum: " << this->Maximum << "\n";
 }
+VTK_ABI_NAMESPACE_END

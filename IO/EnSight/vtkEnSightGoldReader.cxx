@@ -37,6 +37,7 @@
 #include <string>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkEnSightGoldReader);
 
 class vtkEnSightGoldReader::FileOffsetMapInternal
@@ -2694,3 +2695,4 @@ void vtkEnSightGoldReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

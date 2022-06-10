@@ -65,6 +65,7 @@ extern "C"
 //
 /////////////////////////////////////////////////////////////////////////
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkFFMPEGVideoSourceInternal
 {
 public:
@@ -954,3 +955,4 @@ void vtkFFMPEGVideoSource::SetOutputFormat(int format)
 
   this->Modified();
 }
+VTK_ABI_NAMESPACE_END

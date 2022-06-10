@@ -29,6 +29,7 @@
 #include "vtkVector.h"
 #include "vtkVectorOperators.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkBezierQuadrilateral);
 
 vtkBezierQuadrilateral::vtkBezierQuadrilateral() = default;
@@ -187,3 +188,4 @@ vtkHigherOrderCurve* vtkBezierQuadrilateral::GetEdgeCell()
 {
   return EdgeCell;
 }
+VTK_ABI_NAMESPACE_END

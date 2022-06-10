@@ -16,6 +16,7 @@
 
 #include "vtkObjectFactory.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkHierarchicalDataLevelFilter);
 
 // Construct object with PointIds and CellIds on; and ids being generated
@@ -28,3 +29,4 @@ void vtkHierarchicalDataLevelFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

@@ -66,6 +66,7 @@
 #include "vtkFiltersPointsModule.h" // For export macro
 #include "vtkInterpolationKernel.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSPOINTS_EXPORT vtkGeneralizedKernel : public vtkInterpolationKernel
 {
 public:
@@ -190,4 +191,5 @@ private:
   void operator=(const vtkGeneralizedKernel&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

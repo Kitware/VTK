@@ -25,6 +25,7 @@
 #include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPieceScalars);
 
 //------------------------------------------------------------------------------
@@ -137,3 +138,4 @@ void vtkPieceScalars::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "ScalarMode: PointData\n";
   }
 }
+VTK_ABI_NAMESPACE_END

@@ -19,6 +19,7 @@
 #include <vector>
 
 //============================================================================
+VTK_ABI_NAMESPACE_BEGIN
 class vtkInformationObjectBaseVectorValue : public vtkObjectBase
 {
 public:
@@ -327,3 +328,4 @@ void vtkInformationObjectBaseVectorKey::Print(ostream& os, vtkInformation* info)
     }
   }
 }
+VTK_ABI_NAMESPACE_END

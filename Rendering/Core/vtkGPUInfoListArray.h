@@ -25,11 +25,13 @@
 #include "vtkGPUInfo.h"
 #include <vector> // STL Header
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkGPUInfoListArray
 {
 public:
   std::vector<vtkGPUInfo*> v;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkGPUInfoListArray.h

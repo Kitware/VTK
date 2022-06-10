@@ -35,6 +35,7 @@
 
 #include <vector> // Use of dynamically allocated array
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSGENERAL_EXPORT vtkSynchronizeTimeFilter : public vtkPassInputTypeAlgorithm
 {
 public:
@@ -94,4 +95,5 @@ private:
   double RelativeTolerance;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

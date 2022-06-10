@@ -31,6 +31,7 @@
 #include "vtkPropItem.h"
 #include "vtkRenderingContextOpenGL2Module.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCamera;
 
 class VTKRENDERINGCONTEXTOPENGL2_EXPORT vtkOpenGLPropItem : public vtkPropItem
@@ -60,4 +61,5 @@ private:
   void operator=(const vtkOpenGLPropItem&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkOpenGLPropItem_h

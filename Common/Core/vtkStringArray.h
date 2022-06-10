@@ -31,6 +31,7 @@
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkStdString.h"        // needed for vtkStdString definition
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkStringArrayLookup;
 
 class VTKCOMMONCORE_EXPORT vtkStringArray : public vtkAbstractArray
@@ -369,4 +370,5 @@ private:
   void UpdateLookup();
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

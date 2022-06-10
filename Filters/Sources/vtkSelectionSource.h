@@ -49,6 +49,7 @@
 #include <memory> // for std::shared_ptr
 #include <vector> // for std::vector
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSSOURCES_EXPORT vtkSelectionSource : public vtkSelectionAlgorithm
 {
 public:
@@ -453,4 +454,5 @@ private:
   void operator=(const vtkSelectionSource&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -17,6 +17,7 @@
 #include "vtkInformation.h"
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkInformationIdTypeKey::vtkInformationIdTypeKey(const char* name, const char* location)
   : vtkInformationKey(name, location)
 {
@@ -108,3 +109,4 @@ vtkIdType* vtkInformationIdTypeKey::GetWatchAddress(vtkInformation* info)
   }
   return nullptr;
 }
+VTK_ABI_NAMESPACE_END

@@ -19,6 +19,7 @@
 #include "vtkChartsCoreModule.h" // For export macro
 #include "vtkScalarsToColorsItem.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkLookupTable;
 
 // Description:
@@ -50,4 +51,5 @@ private:
   void operator=(const vtkLookupTableItem&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

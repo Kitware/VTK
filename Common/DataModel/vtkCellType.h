@@ -26,6 +26,8 @@
 #ifndef vtkCellType_h
 #define vtkCellType_h
 
+#include "vtkABINamespace.h"
+
 // To add a new cell type, define a new integer type flag here, then
 // create a subclass of vtkCell to implement the proper behavior. You
 // may have to modify the following methods: vtkDataSet (and subclasses)
@@ -40,6 +42,7 @@
 // unsigned char array. Therefore, the maximum encoding number for a cell type
 // is 255.
 
+VTK_ABI_NAMESPACE_BEGIN
 typedef enum
 {
   // Linear cells
@@ -127,5 +130,6 @@ typedef enum
   VTK_NUMBER_OF_CELL_TYPES
 } VTKCellType;
 
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkCellType.h

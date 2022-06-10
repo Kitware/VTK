@@ -31,6 +31,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include <map>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPBivariateLinearTableThreshold);
 vtkCxxSetObjectMacro(vtkPBivariateLinearTableThreshold, Controller, vtkMultiProcessController);
 
@@ -116,3 +117,4 @@ int vtkPBivariateLinearTableThreshold::RequestData(
 
   return 1;
 }
+VTK_ABI_NAMESPACE_END

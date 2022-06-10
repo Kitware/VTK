@@ -48,6 +48,7 @@
 #include "vtkInteractionStyleModule.h" // For export macro
 #include "vtkInteractorStyleTrackballCamera.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkViewport;
 
 class VTKINTERACTIONSTYLE_EXPORT vtkParallelCoordinatesInteractorStyle
@@ -135,4 +136,5 @@ private:
   void operator=(const vtkParallelCoordinatesInteractorStyle&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

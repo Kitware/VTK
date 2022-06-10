@@ -24,6 +24,7 @@
 #include "vtkRenderingParallelModule.h" // For export macro
 #include "vtkSynchronizedRenderers.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkFloatArray;
 class vtkCompositer;
 
@@ -58,4 +59,5 @@ private:
   void operator=(const vtkCompositedSynchronizedRenderers&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

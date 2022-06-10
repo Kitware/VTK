@@ -39,6 +39,7 @@
 // since we last build the vtkStringArrayLookup.
 typedef std::multimap<vtkStdString, vtkIdType> vtkStringCachedUpdates;
 
+VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
 auto DefaultDeleteFunction = [](void* ptr) { delete[] reinterpret_cast<vtkStdString*>(ptr); };
@@ -1032,3 +1033,4 @@ void vtkStringArray::LookupValue(const char* value, vtkIdList* ids)
 }
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_END

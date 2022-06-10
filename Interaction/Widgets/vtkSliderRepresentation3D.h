@@ -34,6 +34,7 @@
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkSliderRepresentation.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkActor;
 class vtkPolyDataMapper;
 class vtkSphereSource;
@@ -259,4 +260,5 @@ private:
   void operator=(const vtkSliderRepresentation3D&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

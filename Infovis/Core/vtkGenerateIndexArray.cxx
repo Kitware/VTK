@@ -27,6 +27,7 @@
 
 #include <map>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkGenerateIndexArray);
 
 vtkGenerateIndexArray::vtkGenerateIndexArray()
@@ -214,3 +215,4 @@ int vtkGenerateIndexArray::RequestData(vtkInformation* vtkNotUsed(request),
 
   return 1;
 }
+VTK_ABI_NAMESPACE_END

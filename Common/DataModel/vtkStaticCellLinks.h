@@ -47,6 +47,7 @@
 #include "vtkCommonDataModelModule.h"   // For export macro
 #include "vtkStaticCellLinksTemplate.h" // For implementations
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataSet;
 class vtkCellArray;
 
@@ -143,4 +144,5 @@ private:
   void operator=(const vtkStaticCellLinks&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

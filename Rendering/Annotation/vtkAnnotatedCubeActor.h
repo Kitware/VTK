@@ -42,6 +42,7 @@
 #include "vtkProp3D.h"
 #include "vtkRenderingAnnotationModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkActor;
 class vtkAppendPolyData;
 class vtkAssembly;
@@ -246,4 +247,5 @@ private:
   void operator=(const vtkAnnotatedCubeActor&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

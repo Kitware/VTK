@@ -18,6 +18,7 @@
 
 #include <cstdlib>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPerspectiveTransform);
 
 //------------------------------------------------------------------------------
@@ -465,3 +466,4 @@ void vtkPerspectiveTransform::SetupCamera(double p0, double p1, double p2, doubl
 
   this->SetupCamera(p, fp, vup);
 }
+VTK_ABI_NAMESPACE_END

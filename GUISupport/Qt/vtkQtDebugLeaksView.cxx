@@ -30,6 +30,10 @@
 #include <QVBoxLayout>
 
 //------------------------------------------------------------------------------
+Q_DECLARE_METATYPE(vtkObjectBase*);
+
+//------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 class vtkQtDebugLeaksView::qInternal
 {
 public:
@@ -211,9 +215,6 @@ void vtkQtDebugLeaksView::setFilterText(const QString& text)
 }
 
 //------------------------------------------------------------------------------
-Q_DECLARE_METATYPE(vtkObjectBase*);
-
-//------------------------------------------------------------------------------
 void vtkQtDebugLeaksView::onRowDoubleClicked(const QModelIndex& index)
 {
   if (index.model() == this->Internal->ReferenceTableView->model())
@@ -247,3 +248,4 @@ void vtkQtDebugLeaksView::onClassNameDoubleClicked(const QString& className)
 {
   Q_UNUSED(className);
 }
+VTK_ABI_NAMESPACE_END

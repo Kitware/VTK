@@ -31,6 +31,7 @@
 #include "vtkGraphLayoutStrategy.h"
 #include "vtkInfovisLayoutModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKINFOVISLAYOUT_EXPORT vtkCircularLayoutStrategy : public vtkGraphLayoutStrategy
 {
 public:
@@ -53,4 +54,5 @@ private:
   void operator=(const vtkCircularLayoutStrategy&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

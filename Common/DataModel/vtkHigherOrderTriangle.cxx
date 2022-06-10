@@ -30,6 +30,7 @@
 #define ENABLE_CACHING
 #define SEVEN_POINT_TRIANGLE
 
+VTK_ABI_NAMESPACE_BEGIN
 //------------------------------------------------------------------------------
 vtkHigherOrderTriangle::vtkHigherOrderTriangle()
 {
@@ -907,3 +908,4 @@ void vtkHigherOrderTriangle::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

@@ -41,6 +41,7 @@
 #include "vtkVectorText.h"
 #include "vtkWindow.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkSliderRepresentation3D);
 
 //------------------------------------------------------------------------------
@@ -755,3 +756,4 @@ void vtkSliderRepresentation3D::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Slider Shape: Cylinder\n";
   }
 }
+VTK_ABI_NAMESPACE_END

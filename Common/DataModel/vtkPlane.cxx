@@ -26,6 +26,7 @@
 #include <algorithm>
 #include <array>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPlane);
 
 //------------------------------------------------------------------------------
@@ -628,3 +629,4 @@ void vtkPlane::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Origin: (" << this->Origin[0] << ", " << this->Origin[1] << ", "
      << this->Origin[2] << ")\n";
 }
+VTK_ABI_NAMESPACE_END

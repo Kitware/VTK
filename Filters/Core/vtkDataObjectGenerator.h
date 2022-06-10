@@ -40,6 +40,7 @@
 #include "vtkDataObjectAlgorithm.h"
 #include "vtkFiltersCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkInternalStructureCache;
 
 class VTKFILTERSCORE_EXPORT vtkDataObjectGenerator : public vtkDataObjectAlgorithm
@@ -115,4 +116,5 @@ private:
   void operator=(const vtkDataObjectGenerator&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

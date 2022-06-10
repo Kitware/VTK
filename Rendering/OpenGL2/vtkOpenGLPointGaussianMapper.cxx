@@ -52,6 +52,7 @@
 
 #include "vtk_glew.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkOpenGLPointGaussianMapperHelper : public vtkOpenGLPolyDataMapper
 {
 public:
@@ -1095,3 +1096,4 @@ void vtkOpenGLPointGaussianMapper::ProcessSelectorPixelBuffers(
     }
   }
 }
+VTK_ABI_NAMESPACE_END

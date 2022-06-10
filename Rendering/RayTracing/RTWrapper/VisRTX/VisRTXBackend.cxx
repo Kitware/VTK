@@ -24,6 +24,7 @@
 
 namespace RTW
 {
+VTK_ABI_NAMESPACE_BEGIN
     RTWError VisRTXBackend::Init()
     {
 #ifdef VISRTX_DYNLOAD
@@ -346,4 +347,5 @@ namespace RTW
 
         return reinterpret_cast<FrameBuffer*>(frameBuffer)->GetDepthTextureGL();
     }
+VTK_ABI_NAMESPACE_END
 }

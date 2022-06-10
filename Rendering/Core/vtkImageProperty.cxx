@@ -18,6 +18,7 @@
 #include "vtkLookupTable.h"
 #include "vtkObjectFactory.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImageProperty);
 
 vtkCxxSetObjectMacro(vtkImageProperty, LookupTable, vtkScalarsToColors);
@@ -146,3 +147,4 @@ void vtkImageProperty::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "BackingColor: " << this->BackingColor[0] << " " << this->BackingColor[1] << " "
      << this->BackingColor[2] << "\n";
 }
+VTK_ABI_NAMESPACE_END

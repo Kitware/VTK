@@ -27,6 +27,7 @@ https://github.com/ValveSoftware/openvr/blob/master/LICENSE
 #include "vtkVRRenderWindow.h"
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkVRRenderer::vtkVRRenderer()
 {
   this->FloorActor->PickableOff();
@@ -330,3 +331,4 @@ void vtkVRRenderer::ResetCameraClippingRange(const double bounds[6])
 
   this->ActiveCamera->SetClippingRange(range[0] * physicalScale, range[1] * physicalScale);
 }
+VTK_ABI_NAMESPACE_END

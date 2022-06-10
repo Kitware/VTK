@@ -42,6 +42,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkTree.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkConstrained2DLayoutStrategy);
 
 // Cool-down function.
@@ -566,3 +567,4 @@ void vtkConstrained2DLayoutStrategy::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "InputArrayName: " << (this->InputArrayName ? this->InputArrayName : "(none)")
      << endl;
 }
+VTK_ABI_NAMESPACE_END

@@ -29,6 +29,7 @@
 #include "vtkAlgorithm.h"
 #include "vtkRenderingContext2DModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkContext2D;
 class vtkTable;
 class vtkDataArray;
@@ -76,4 +77,5 @@ private:
   void operator=(const vtkContextMapper2D&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkContextMapper2D_h

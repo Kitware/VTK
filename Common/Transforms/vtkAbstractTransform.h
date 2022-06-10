@@ -44,6 +44,7 @@
 
 #include <mutex> // for std::mutex
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataArray;
 class vtkMatrix4x4;
 class vtkPoints;
@@ -512,4 +513,5 @@ private:
   void operator=(const vtkTransformConcatenationStack&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -36,6 +36,7 @@
 #include "vtkNew.h"
 #include "vtkTimerLog.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkAMRVolumeMapper);
 
 // Construct a vtkAMRVolumeMapper
@@ -630,3 +631,4 @@ void vtkAMRVolumeMapper::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "FreezeFocalPoint: " << this->FreezeFocalPoint << "\n";
 }
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_END

@@ -35,6 +35,7 @@
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPolyData;
 class vtkUnstructuredGrid;
 class vtkInformation;
@@ -69,4 +70,5 @@ private:
   void operator=(const vtkQuadraturePointsGenerator&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

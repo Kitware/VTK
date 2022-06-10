@@ -20,6 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPoints.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkMergePoints);
 
 //------------------------------------------------------------------------------
@@ -170,3 +171,4 @@ void vtkMergePoints::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

@@ -44,6 +44,7 @@
 
 using namespace boost;
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkBoostBreadthFirstSearchTree);
 
 #if BOOST_VERSION >= 104800 // Boost 1.48.x
@@ -326,3 +327,4 @@ void vtkBoostBreadthFirstSearchTree::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "ReverseEdges: " << (this->ReverseEdges ? "on" : "off") << endl;
 }
+VTK_ABI_NAMESPACE_END

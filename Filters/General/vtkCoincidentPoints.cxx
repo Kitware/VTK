@@ -33,6 +33,7 @@
 //------------------------------------------------------------------------------
 // vtkCoincidentPoints::implementation
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCoincidentPoints::implementation
 {
 public:
@@ -219,3 +220,4 @@ void vtkCoincidentPoints::SpiralPoints(vtkIdType num, vtkPoints* offsets)
     offsets->SetPoint(i, x, y, 0);
   }
 }
+VTK_ABI_NAMESPACE_END

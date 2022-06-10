@@ -34,6 +34,7 @@
 #include <unordered_set>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPoissonDiskSampler);
 vtkCxxSetObjectMacro(vtkPoissonDiskSampler, Locator, vtkAbstractPointLocator);
 
@@ -189,3 +190,4 @@ void vtkPoissonDiskSampler::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

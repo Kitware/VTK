@@ -25,6 +25,7 @@
 
 #include <cctype>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkObjectFactoryCollection* vtkObjectFactory::RegisteredFactories = nullptr;
 static unsigned int vtkObjectFactoryRegistryCleanupCounter = 0;
 
@@ -646,3 +647,4 @@ void vtkObjectFactory::CreateAllInstance(const char* vtkclassname, vtkCollection
     }
   }
 }
+VTK_ABI_NAMESPACE_END

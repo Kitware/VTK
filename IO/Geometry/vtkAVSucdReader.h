@@ -39,6 +39,7 @@
 #include "vtkIOGeometryModule.h" // For export macro
 #include "vtkUnstructuredGridAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkIntArray;
 class vtkFloatArray;
 class vtkIdTypeArray;
@@ -226,4 +227,5 @@ private:
   void operator=(const vtkAVSucdReader&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

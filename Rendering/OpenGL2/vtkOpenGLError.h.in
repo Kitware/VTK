@@ -65,6 +65,7 @@
  * Convert an OpenGL error code into a descriptive
  * string.
  */
+VTK_ABI_NAMESPACE_BEGIN
 inline
 const char *vtkOpenGLStrError(unsigned int code)
 {
@@ -292,5 +293,6 @@ void vtkClearOpenGLErrors(const unsigned int maxErrors = 16)
   vtkOpenGLStaticCheckErrorMacro(message)
 #endif
 
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkOpenGLError.h

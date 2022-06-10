@@ -2,6 +2,7 @@
 
 namespace detail
 {
+VTK_ABI_NAMESPACE_BEGIN
 
 Type select_widget(int argc, char* argv[])
 {
@@ -227,4 +228,5 @@ QImage grab_framebuffer(std::shared_ptr<QObject> widgetOrWindow)
 
   return QImage();
 }
+VTK_ABI_NAMESPACE_END
 }

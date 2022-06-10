@@ -28,8 +28,11 @@
 #include "vtkGeovisGDALModule.h" // For export macro
 #include "vtkObject.h"
 
-// Forward declarations
+// GDAL Forward declarations
 class GDALDataset;
+
+VTK_ABI_NAMESPACE_BEGIN
+// VTK Forward declarations
 class vtkImageData;
 class vtkUniformGrid;
 
@@ -124,4 +127,5 @@ private:
   void operator=(const vtkGDALRasterConverter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkGDALRasterConverter_h

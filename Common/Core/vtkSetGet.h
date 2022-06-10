@@ -758,6 +758,7 @@
 // This is to avoid vtkObject #include of vtkOutputWindow
 // while vtkOutputWindow #includes vtkObject
 
+VTK_ABI_NAMESPACE_BEGIN
 extern VTKCOMMONCORE_EXPORT void vtkOutputWindowDisplayText(const char*);
 extern VTKCOMMONCORE_EXPORT void vtkOutputWindowDisplayErrorText(const char*);
 extern VTKCOMMONCORE_EXPORT void vtkOutputWindowDisplayWarningText(const char*);
@@ -775,6 +776,7 @@ extern VTKCOMMONCORE_EXPORT void vtkOutputWindowDisplayGenericWarningText(
   const char*, int, const char*);
 extern VTKCOMMONCORE_EXPORT void vtkOutputWindowDisplayDebugText(
   const char*, int, const char*, vtkObject* sourceObj);
+VTK_ABI_NAMESPACE_END
 
 //
 // This macro is used for any output that may not be in an instance method

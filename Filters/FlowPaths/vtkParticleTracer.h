@@ -30,6 +30,7 @@
 #include "vtkParticleTracerBase.h"
 #include "vtkSmartPointer.h" // For protected ivars.
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSFLOWPATHS_EXPORT vtkParticleTracer : public vtkParticleTracerBase
 {
 public:
@@ -46,4 +47,5 @@ protected:
   int OutputParticles(vtkPolyData* poly) override;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

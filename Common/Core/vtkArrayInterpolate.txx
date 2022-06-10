@@ -25,6 +25,7 @@
 #include "vtkArrayExtentsList.h"
 #include "vtkArrayWeights.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 template <typename T>
 void vtkInterpolate(vtkTypedArray<T>* source_array, const vtkArrayExtentsList& source_slices,
   const vtkArrayWeights& source_weights, const vtkArrayExtents& target_slice,
@@ -77,4 +78,5 @@ void vtkInterpolate(vtkTypedArray<T>* source_array, const vtkArrayExtentsList& s
   }
 }
 
+VTK_ABI_NAMESPACE_END
 #endif

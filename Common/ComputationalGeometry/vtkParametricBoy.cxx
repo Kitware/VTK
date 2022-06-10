@@ -16,6 +16,7 @@
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkParametricBoy);
 
 //------------------------------------------------------------------------------
@@ -117,3 +118,4 @@ void vtkParametricBoy::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "ZScale: " << this->ZScale << "\n";
 }
+VTK_ABI_NAMESPACE_END

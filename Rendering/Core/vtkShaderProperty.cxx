@@ -18,6 +18,7 @@
 #include "vtkUniforms.h"
 #include <algorithm>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkAbstractObjectFactoryNewMacro(vtkShaderProperty);
 
 vtkShaderProperty::vtkShaderProperty()
@@ -69,3 +70,4 @@ void vtkShaderProperty::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

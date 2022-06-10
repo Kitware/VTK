@@ -58,6 +58,7 @@
 #include "vtkFiltersPointsModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkAbstractPointLocator;
 class vtkIdList;
 
@@ -169,4 +170,5 @@ private:
   void operator=(const vtkPCANormalEstimation&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

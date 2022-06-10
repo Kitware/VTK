@@ -39,6 +39,7 @@
 #include <numeric>
 #include <utility>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkInformationKeyMacro(vtkFidesReader, NUMBER_OF_BLOCKS, Integer);
 
 vtkStandardNewMacro(vtkFidesReader);
@@ -626,3 +627,4 @@ int vtkFidesReader::FillOutputPortInformation(int vtkNotUsed(port), vtkInformati
   info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkPartitionedDataSet");
   return 1;
 }
+VTK_ABI_NAMESPACE_END

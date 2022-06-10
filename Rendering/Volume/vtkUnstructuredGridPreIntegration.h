@@ -47,6 +47,7 @@
 #include "vtkRenderingVolumeModule.h" // For export macro
 #include "vtkUnstructuredGridVolumeRayIntegrator.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkVolumeProperty;
 
 class VTKRENDERINGVOLUME_EXPORT vtkUnstructuredGridPreIntegration
@@ -195,4 +196,5 @@ inline float* vtkUnstructuredGridPreIntegration::GetTableEntry(
   return this->GetIndexedTableEntry(sfi, sbi, li, component);
 }
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkUnstructuredGridPreIntegration_h

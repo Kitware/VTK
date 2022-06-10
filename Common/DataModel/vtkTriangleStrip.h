@@ -30,6 +30,7 @@
 #include "vtkCell.h"
 #include "vtkCommonDataModelModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkLine;
 class vtkTriangle;
 class vtkIncrementalPointLocator;
@@ -93,4 +94,5 @@ private:
   void operator=(const vtkTriangleStrip&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

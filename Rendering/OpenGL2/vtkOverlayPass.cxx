@@ -17,6 +17,7 @@
 #include "vtkObjectFactory.h"
 #include <cassert>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOverlayPass);
 
 //------------------------------------------------------------------------------
@@ -42,3 +43,4 @@ void vtkOverlayPass::Render(const vtkRenderState* s)
   this->NumberOfRenderedProps = 0;
   this->RenderFilteredOverlay(s);
 }
+VTK_ABI_NAMESPACE_END

@@ -30,6 +30,7 @@
 #include "vtkIOParallelXMLModule.h" // For export macro
 #include "vtkXMLWriter.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCompositeDataSet;
 class vtkXMLDataElement;
 class vtkXMLWriter2;
@@ -107,4 +108,5 @@ private:
   int DataSetVersion[2];
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

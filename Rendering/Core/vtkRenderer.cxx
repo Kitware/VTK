@@ -41,6 +41,7 @@
 
 #include <sstream>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkCxxSetObjectMacro(vtkRenderer, Information, vtkInformation);
 vtkCxxSetObjectMacro(vtkRenderer, Delegate, vtkRendererDelegate);
 vtkCxxSetObjectMacro(vtkRenderer, BackgroundTexture, vtkTexture);
@@ -2121,3 +2122,4 @@ const std::array<double, 16>& vtkRenderer::GetProjectionTransformationMatrix()
   }
   return this->ProjectionTransformationMatrix;
 }
+VTK_ABI_NAMESPACE_END

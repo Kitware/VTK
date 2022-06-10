@@ -29,6 +29,7 @@
 #include "vtkImageStencilSource.h"
 #include "vtkImagingStencilModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkImplicitFunction;
 
 class VTKIMAGINGSTENCIL_EXPORT vtkImplicitFunctionToImageStencil : public vtkImageStencilSource
@@ -73,4 +74,5 @@ private:
   void operator=(const vtkImplicitFunctionToImageStencil&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

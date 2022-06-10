@@ -25,6 +25,7 @@
 
 #include <cassert>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkNonOverlappingAMRLevelIdScalars);
 //------------------------------------------------------------------------------
 vtkNonOverlappingAMRLevelIdScalars::vtkNonOverlappingAMRLevelIdScalars() {}
@@ -123,3 +124,4 @@ void vtkNonOverlappingAMRLevelIdScalars::PrintSelf(ostream& os, vtkIndent indent
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

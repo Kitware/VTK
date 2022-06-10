@@ -34,6 +34,7 @@
 #include <map>     // For specific gutter
 #include <utility> // For specific gutter
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkChart;
 
 class VTKCHARTSCORE_EXPORT vtkChartMatrix : public vtkAbstractContextItem
@@ -307,4 +308,5 @@ private:
   PIMPL* Private;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkChartMatrix_h

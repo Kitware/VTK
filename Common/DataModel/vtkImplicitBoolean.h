@@ -38,6 +38,7 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkImplicitFunction.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkImplicitFunctionCollection;
 
 class VTKCOMMONDATAMODEL_EXPORT vtkImplicitBoolean : public vtkImplicitFunction
@@ -141,4 +142,5 @@ inline const char* vtkImplicitBoolean::GetOperationTypeAsString()
   }
 }
 
+VTK_ABI_NAMESPACE_END
 #endif

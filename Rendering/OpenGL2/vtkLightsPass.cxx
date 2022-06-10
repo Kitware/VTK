@@ -19,6 +19,7 @@
 #include "vtkRenderer.h"
 #include <cassert>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkLightsPass);
 
 //------------------------------------------------------------------------------
@@ -47,3 +48,4 @@ void vtkLightsPass::Render(const vtkRenderState* s)
   this->UpdateLightGeometry(s->GetRenderer());
   this->UpdateLights(s->GetRenderer());
 }
+VTK_ABI_NAMESPACE_END

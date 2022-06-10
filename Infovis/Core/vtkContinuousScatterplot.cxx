@@ -38,6 +38,7 @@
 #include "vtkTriangleFilter.h"
 #include "vtkUnstructuredGrid.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkContinuousScatterplot);
 
 // Data structure to store the fragment faces.
@@ -946,3 +947,4 @@ int vtkContinuousScatterplot::RequestData(
 
   return 1;
 }
+VTK_ABI_NAMESPACE_END

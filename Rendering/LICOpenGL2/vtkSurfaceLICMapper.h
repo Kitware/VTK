@@ -59,6 +59,7 @@
 #include "vtkOpenGLPolyDataMapper.h"
 #include "vtkRenderingLICOpenGL2Module.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkSurfaceLICInterface;
 class vtkPainterCommunicator;
 
@@ -130,4 +131,5 @@ private:
   void operator=(const vtkSurfaceLICMapper&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

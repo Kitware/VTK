@@ -25,6 +25,7 @@
 #include "vtkFollower.h"
 #include "vtkRenderingVRModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKRENDERINGVR_EXPORT vtkVRFollower : public vtkFollower
 {
 public:
@@ -51,4 +52,5 @@ private:
   void operator=(const vtkVRFollower&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

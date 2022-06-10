@@ -37,6 +37,7 @@
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkSmartPointer.h"        // for SP ivars
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDistanceToCamera;
 class vtkGraphToPoints;
 class vtkGlyph3D;
@@ -144,4 +145,5 @@ private:
   void operator=(const vtkGraphToGlyphs&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

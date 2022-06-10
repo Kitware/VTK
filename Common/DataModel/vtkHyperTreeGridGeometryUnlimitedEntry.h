@@ -40,6 +40,7 @@ JB
 
 #include "vtkObject.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkHyperTree;
 class vtkHyperTreeGrid;
 
@@ -228,5 +229,6 @@ private:
   double Origin[3];
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkHyperTreeGridGeometryUnlimitedEntry_h
 // VTK-HeaderTest-Exclude: vtkHyperTreeGridGeometryUnlimitedEntry.h

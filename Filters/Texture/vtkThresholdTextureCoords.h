@@ -41,6 +41,7 @@
 #include "vtkDataSetAlgorithm.h"
 #include "vtkFiltersTextureModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSTEXTURE_EXPORT vtkThresholdTextureCoords : public vtkDataSetAlgorithm
 {
 public:
@@ -125,4 +126,5 @@ private:
   void operator=(const vtkThresholdTextureCoords&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -24,6 +24,7 @@
 #include "vtkUnsignedCharArray.h"
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPlotPoints3D);
 
 //------------------------------------------------------------------------------
@@ -104,3 +105,4 @@ bool vtkPlotPoints3D::Paint(vtkContext2D* painter)
 
   return true;
 }
+VTK_ABI_NAMESPACE_END

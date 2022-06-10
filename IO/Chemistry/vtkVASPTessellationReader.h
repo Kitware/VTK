@@ -32,6 +32,8 @@ namespace vtksys
 class RegularExpression;
 }
 
+VTK_ABI_NAMESPACE_BEGIN
+
 class vtkUnstructuredGrid;
 
 class VTKIOCHEMISTRY_EXPORT vtkVASPTessellationReader : public vtkMoleculeAlgorithm
@@ -90,4 +92,5 @@ private:
   void operator=(const vtkVASPTessellationReader&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkVASPTessellationReader_h

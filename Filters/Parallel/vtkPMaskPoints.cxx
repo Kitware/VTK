@@ -21,6 +21,7 @@
 #include "vtkSmartPointer.h"
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPMaskPoints);
 
 vtkCxxSetObjectMacro(vtkPMaskPoints, Controller, vtkMultiProcessController);
@@ -122,3 +123,4 @@ void vtkPMaskPoints::InternalResetController()
   this->Controller = this->OriginalController;
   this->OriginalController = nullptr;
 }
+VTK_ABI_NAMESPACE_END

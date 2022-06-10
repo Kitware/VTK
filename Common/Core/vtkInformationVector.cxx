@@ -20,6 +20,7 @@
 
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkInformationVector);
 
 class vtkInformationVectorInternals
@@ -227,3 +228,4 @@ void vtkInformationVector::ReportReferences(vtkGarbageCollector* collector)
     vtkGarbageCollectorReport(collector, this->Internal->Vector[i], "Entry");
   }
 }
+VTK_ABI_NAMESPACE_END

@@ -16,6 +16,7 @@
 // vtkOBJReader vtkPLYReader vtkSTLReader
 #include "vtkAbstractPolyDataReader.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkAbstractPolyDataReader::vtkAbstractPolyDataReader()
 {
   this->FileName = nullptr;
@@ -32,3 +33,4 @@ void vtkAbstractPolyDataReader::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
   os << indent << "FileName: " << (this->FileName ? this->FileName : "NONE") << endl;
 }
+VTK_ABI_NAMESPACE_END

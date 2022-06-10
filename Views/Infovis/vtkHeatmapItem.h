@@ -37,6 +37,7 @@
 #include <set>               // For blank row support
 #include <vector>            // For row mapping
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkBitArray;
 class vtkCategoryLegend;
 class vtkColorLegend;
@@ -313,4 +314,5 @@ private:
   bool LegendPositionSet;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

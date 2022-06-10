@@ -29,6 +29,7 @@
 
 #include "vtkOpenXR.h" // For XrInstance/XrSystemId
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKRENDERINGOPENXRREMOTING_EXPORT vtkOpenXRManagerRemoteConnection
   : public vtkOpenXRManagerConnection
 {
@@ -58,4 +59,5 @@ private:
   void operator=(const vtkOpenXRManagerRemoteConnection&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

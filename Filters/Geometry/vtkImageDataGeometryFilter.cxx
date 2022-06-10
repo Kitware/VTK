@@ -23,6 +23,7 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImageDataGeometryFilter);
 
 // Construct with initial extent of all the data
@@ -475,3 +476,4 @@ void vtkImageDataGeometryFilter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "ThresholdValue " << this->ThresholdValue << "\n";
   os << indent << "ThresholdCells " << this->ThresholdCells << "\n";
 }
+VTK_ABI_NAMESPACE_END

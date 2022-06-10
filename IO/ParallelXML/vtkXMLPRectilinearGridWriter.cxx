@@ -20,6 +20,7 @@
 #include "vtkRectilinearGrid.h"
 #include "vtkXMLRectilinearGridWriter.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkXMLPRectilinearGridWriter);
 
 //------------------------------------------------------------------------------
@@ -81,3 +82,4 @@ int vtkXMLPRectilinearGridWriter::FillInputPortInformation(
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkRectilinearGrid");
   return 1;
 }
+VTK_ABI_NAMESPACE_END

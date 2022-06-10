@@ -21,6 +21,7 @@
 
 #include "vtkLargeInteger.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 const unsigned int BIT_INCREMENT = 32;
 
 static int maximum(int a, int b)
@@ -869,3 +870,4 @@ istream& operator>>(istream& s, vtkLargeInteger& n)
   }
   return s;
 }
+VTK_ABI_NAMESPACE_END

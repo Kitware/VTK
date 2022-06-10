@@ -17,6 +17,7 @@
 #include "vtkInformation.h"
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkInformationInformationKey::vtkInformationInformationKey(const char* name, const char* location)
   : vtkInformationKey(name, location)
 {
@@ -58,3 +59,4 @@ void vtkInformationInformationKey::DeepCopy(vtkInformation* from, vtkInformation
   this->Set(to, toInfo);
   toInfo->Delete();
 }
+VTK_ABI_NAMESPACE_END

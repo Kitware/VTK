@@ -28,6 +28,7 @@
 #include "vtkIOInfovisModule.h" // For export macro
 #include "vtkTableReader.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkTable;
 class vtkVariant;
 
@@ -79,4 +80,5 @@ private:
   void operator=(const vtkBiomTableReader&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

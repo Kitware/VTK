@@ -27,6 +27,7 @@
 #include <algorithm>
 #include <cassert>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPartitionedDataSetCollection);
 vtkCxxSetObjectMacro(vtkPartitionedDataSetCollection, DataAssembly, vtkDataAssembly);
 //------------------------------------------------------------------------------
@@ -249,3 +250,4 @@ void vtkPartitionedDataSetCollection::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
   os << indent << "DataAssembly: " << this->DataAssembly << endl;
 }
+VTK_ABI_NAMESPACE_END

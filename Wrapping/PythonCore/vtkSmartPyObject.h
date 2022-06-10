@@ -22,10 +22,12 @@
 #define vtkSmartPyObject_h
 
 // this must be included first
+#include "vtkABINamespace.h"
 #include "vtkPython.h" // PyObject can't be forward declared
 
 #include "vtkWrappingPythonCoreModule.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKWRAPPINGPYTHONCORE_EXPORT vtkSmartPyObject
 {
 public:
@@ -97,6 +99,7 @@ public:
 private:
   PyObject* Object;
 };
+VTK_ABI_NAMESPACE_END
 
 #endif
 // VTK-HeaderTest-Exclude: vtkSmartPyObject.h

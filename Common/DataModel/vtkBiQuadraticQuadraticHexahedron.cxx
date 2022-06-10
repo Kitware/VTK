@@ -30,6 +30,7 @@
 #include "vtkQuadraticQuad.h"
 #include <cassert>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkBiQuadraticQuadraticHexahedron);
 
 //------------------------------------------------------------------------------
@@ -828,3 +829,4 @@ void vtkBiQuadraticQuadraticHexahedron::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Scalars:\n";
   this->Scalars->PrintSelf(os, indent.GetNextIndent());
 }
+VTK_ABI_NAMESPACE_END

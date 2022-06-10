@@ -62,6 +62,7 @@
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkImplicitFunction;
 class vtkIncrementalPointLocator;
 
@@ -196,4 +197,5 @@ private:
   void operator=(const vtkClipPolyData&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

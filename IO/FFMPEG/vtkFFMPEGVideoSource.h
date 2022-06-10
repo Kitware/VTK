@@ -35,6 +35,7 @@
 #include <functional>         // for audio callback
 #include <mutex>              // for std::mutex
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkFFMPEGVideoSourceInternal;
 class vtkFFMPEGVideoSource;
 
@@ -223,4 +224,5 @@ private:
   void operator=(const vtkFFMPEGVideoSource&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

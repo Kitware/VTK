@@ -35,6 +35,7 @@
 //============================================================================
 
 //----------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkFileSeriesHelper::vtkTimeInformation::vtkTimeInformation()
   : TimeRange(0, 0)
   , TimeRangeValid(false)
@@ -544,3 +545,4 @@ void vtkFileSeriesHelper::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Controller: " << this->Controller << endl;
   os << indent << "IgnoreReaderTime: " << this->IgnoreReaderTime << endl;
 }
+VTK_ABI_NAMESPACE_END

@@ -49,6 +49,7 @@
 #include "vtkApproximatingSubdivisionFilter.h"
 #include "vtkFiltersModelingModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPolyData;
 class vtkIntArray;
 class vtkPoints;
@@ -83,4 +84,5 @@ private:
   void operator=(const vtkLoopSubdivisionFilter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

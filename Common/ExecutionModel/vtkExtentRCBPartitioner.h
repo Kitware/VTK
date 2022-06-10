@@ -27,6 +27,7 @@
 #include <string>  // For std::string
 #include <vector>  // For STL vector
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONEXECUTIONMODEL_EXPORT vtkExtentRCBPartitioner : public vtkObject
 {
 public:
@@ -220,4 +221,5 @@ private:
   void operator=(const vtkExtentRCBPartitioner&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif /* VTKEXTENTRCBPARTITIONER_H_ */

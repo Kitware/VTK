@@ -33,6 +33,7 @@
 
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImageSlab);
 
 //------------------------------------------------------------------------------
@@ -558,3 +559,4 @@ const char* vtkImageSlab::GetOperationAsString()
       return "";
   }
 }
+VTK_ABI_NAMESPACE_END

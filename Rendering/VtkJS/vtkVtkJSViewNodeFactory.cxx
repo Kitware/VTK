@@ -34,6 +34,7 @@
 
 #include <type_traits>
 
+VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
 // A template for performing a compile-time check if a scene element inherits
@@ -135,3 +136,4 @@ void vtkVtkJSViewNodeFactory::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

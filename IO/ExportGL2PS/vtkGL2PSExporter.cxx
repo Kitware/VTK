@@ -23,6 +23,7 @@
 
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkAbstractObjectFactoryNewMacro(vtkGL2PSExporter);
 vtkCxxSetObjectMacro(vtkGL2PSExporter, RasterExclusions, vtkPropCollection);
 
@@ -190,3 +191,4 @@ void vtkGL2PSExporter::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "RasterExclusions: (null)\n";
   }
 }
+VTK_ABI_NAMESPACE_END

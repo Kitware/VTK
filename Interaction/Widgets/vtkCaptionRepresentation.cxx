@@ -26,6 +26,7 @@
 #include "vtkTextProperty.h"
 #include "vtkTextRenderer.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkCaptionRepresentation);
 
 //------------------------------------------------------------------------------
@@ -288,3 +289,4 @@ void vtkCaptionRepresentation::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Anchor Representation:\n";
   this->AnchorRepresentation->PrintSelf(os, indent.GetNextIndent());
 }
+VTK_ABI_NAMESPACE_END

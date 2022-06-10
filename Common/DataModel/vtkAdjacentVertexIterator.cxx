@@ -23,6 +23,7 @@
 #include "vtkGraph.h"
 #include "vtkObjectFactory.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkCxxSetObjectMacro(vtkAdjacentVertexIterator, Graph, vtkGraph);
 vtkStandardNewMacro(vtkAdjacentVertexIterator);
 //------------------------------------------------------------------------------
@@ -64,3 +65,4 @@ void vtkAdjacentVertexIterator::PrintSelf(ostream& os, vtkIndent indent)
   }
   os << indent << "Vertex: " << this->Vertex << endl;
 }
+VTK_ABI_NAMESPACE_END

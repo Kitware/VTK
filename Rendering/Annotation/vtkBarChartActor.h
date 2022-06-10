@@ -37,6 +37,7 @@
 #include "vtkActor2D.h"
 #include "vtkRenderingAnnotationModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkAxisActor2D;
 class vtkDataObject;
 class vtkPolyData;
@@ -244,4 +245,5 @@ private:
   void operator=(const vtkBarChartActor&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

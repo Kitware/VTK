@@ -16,6 +16,7 @@
 
 #include "vtkObjectFactory.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkObjectFactoryNewMacro(vtkOSPRayVolumeInterface);
 
 //------------------------------------------------------------------------------
@@ -35,3 +36,4 @@ void vtkOSPRayVolumeInterface::Render(vtkRenderer* vtkNotUsed(ren), vtkVolume* v
 {
   cerr << "Warning VTK is not linked to OSPRay so can not VolumeRender with it" << endl;
 }
+VTK_ABI_NAMESPACE_END

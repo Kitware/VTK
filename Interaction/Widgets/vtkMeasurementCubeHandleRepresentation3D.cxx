@@ -42,6 +42,7 @@
 
 #include <sstream>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkMeasurementCubeHandleRepresentation3D);
 vtkCxxSetObjectMacro(vtkMeasurementCubeHandleRepresentation3D, Property, vtkProperty);
 vtkCxxSetObjectMacro(vtkMeasurementCubeHandleRepresentation3D, SelectedProperty, vtkProperty);
@@ -834,3 +835,4 @@ void vtkMeasurementCubeHandleRepresentation3D::PrintSelf(ostream& os, vtkIndent 
   os << indent << "SideLength: " << this->SideLength << "\n";
   os << indent << "LengthUnit: " << this->LengthUnit << "\n";
 }
+VTK_ABI_NAMESPACE_END

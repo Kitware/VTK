@@ -51,6 +51,7 @@
 #include "vtkImageData.h"           // makes things a bit easier
 #include "vtkRenderingCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkRenderer;
 
 class VTKRENDERINGCORE_EXPORT vtkRendererSource : public vtkAlgorithm
@@ -167,4 +168,5 @@ private:
   void operator=(const vtkRendererSource&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

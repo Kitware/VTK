@@ -22,6 +22,7 @@
 #include "vtkRenderer.h"
 #include "vtkWindow.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkAngleRepresentation2D);
 
 //------------------------------------------------------------------------------
@@ -381,3 +382,4 @@ void vtkAngleRepresentation2D::PrintSelf(ostream& os, vtkIndent indent)
     os << "(none)\n";
   }
 }
+VTK_ABI_NAMESPACE_END

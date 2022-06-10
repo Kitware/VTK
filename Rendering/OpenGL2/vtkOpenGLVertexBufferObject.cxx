@@ -24,6 +24,7 @@
 
 #include "vtk_glew.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOpenGLVertexBufferObject);
 
 vtkOpenGLVertexBufferObject::vtkOpenGLVertexBufferObject()
@@ -689,3 +690,4 @@ void vtkOpenGLVertexBufferObject::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Stride: " << this->Stride << "\n";
   os << indent << "Number of Values (floats): " << this->PackedVBO.size() << "\n";
 }
+VTK_ABI_NAMESPACE_END

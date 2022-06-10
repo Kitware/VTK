@@ -34,6 +34,7 @@
 #include "vtkStdString.h"        // For vtkStdString ivars
 #include "vtkVector.h"           // For vtkRectf
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkScalarsToColors;
 class vtkTextProperty;
 class vtkVariantArray;
@@ -120,4 +121,5 @@ private:
   void operator=(const vtkCategoryLegend&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

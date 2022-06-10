@@ -36,6 +36,7 @@
 #include <string>                   // member function parameters
 #include <vector>                   // member function parameters
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkMatrix3x3;
 class vtkMatrix4x4;
 
@@ -190,4 +191,5 @@ private:
   void operator=(const vtkUniforms&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

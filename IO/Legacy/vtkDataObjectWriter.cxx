@@ -18,6 +18,7 @@
 #include "vtkInformation.h"
 #include "vtkObjectFactory.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkDataObjectWriter);
 
 vtkDataObjectWriter::vtkDataObjectWriter()
@@ -95,3 +96,4 @@ int vtkDataObjectWriter::FillInputPortInformation(int, vtkInformation* info)
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataObject");
   return 1;
 }
+VTK_ABI_NAMESPACE_END

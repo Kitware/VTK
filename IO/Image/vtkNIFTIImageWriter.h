@@ -36,6 +36,7 @@
 #include "vtkIOImageModule.h" // For export macro
 #include "vtkImageWriter.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkMatrix4x4;
 class vtkNIFTIImageHeader;
 
@@ -234,4 +235,5 @@ private:
   void operator=(const vtkNIFTIImageWriter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkNIFTIImageWriter_h

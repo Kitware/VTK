@@ -32,6 +32,7 @@
 
 #include "vtkm/filter/Probe.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkmProbe);
 
 //------------------------------------------------------------------------------
@@ -263,3 +264,4 @@ void vtkmProbe::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "PassCellArrays: " << this->PassCellArrays << "\n";
   os << indent << "PassFieldArray: " << this->PassFieldArrays << "\n";
 }
+VTK_ABI_NAMESPACE_END

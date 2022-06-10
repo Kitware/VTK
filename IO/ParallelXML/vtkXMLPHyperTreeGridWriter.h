@@ -32,6 +32,7 @@
 
 #include "vtkXMLPDataObjectWriter.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCallbackCommand;
 class vtkMultiProcessController;
 class vtkHyperTreeGrid;
@@ -106,4 +107,5 @@ private:
   void SetupPieceFileNameExtension() override;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

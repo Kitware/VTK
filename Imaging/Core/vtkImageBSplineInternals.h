@@ -40,6 +40,7 @@
 #include "vtkImagingCoreModule.h"         // For export macro
 #include "vtkSystemIncludes.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKIMAGINGCORE_EXPORT vtkImageBSplineInternals
 {
 public:
@@ -90,5 +91,6 @@ private:
   void operator=(const vtkImageBSplineInternals&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkImageBSplineInternals.h

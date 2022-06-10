@@ -37,6 +37,7 @@ Ph.D. thesis of Christian BOUCHENY.
 #include "vtkImageProcessingPass.h"
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkOpenGLRenderWindow;
 class vtkDepthPeelingPassLayerList; // Pimpl
 class vtkOpenGLFramebufferObject;
@@ -91,4 +92,5 @@ private:
   void operator=(const vtkDepthImageProcessingPass&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

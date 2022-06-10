@@ -36,6 +36,7 @@
 #include "vtkFiltersExtractionModule.h" // For export macro
 #include "vtkSelectionAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCompositeDataSet;
 class vtkGraph;
 class vtkIdTypeArray;
@@ -206,4 +207,5 @@ private:
   void operator=(const vtkConvertSelection&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

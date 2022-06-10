@@ -26,6 +26,7 @@
 #include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkProcessIdScalars);
 
 vtkCxxSetObjectMacro(vtkProcessIdScalars, Controller, vtkMultiProcessController);
@@ -163,3 +164,4 @@ void vtkProcessIdScalars::PrintSelf(ostream& os, vtkIndent indent)
     os << "(none)" << endl;
   }
 }
+VTK_ABI_NAMESPACE_END

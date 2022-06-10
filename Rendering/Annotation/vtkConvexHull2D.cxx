@@ -31,6 +31,7 @@
 
 #include <algorithm>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkConvexHull2D);
 
 //------------------------------------------------------------------------------
@@ -347,3 +348,4 @@ void vtkConvexHull2D::PrintSelf(ostream& os, vtkIndent indent)
     os << "(none)" << endl;
   }
 }
+VTK_ABI_NAMESPACE_END

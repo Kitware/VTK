@@ -24,6 +24,7 @@
 #include "vtkOpenGLState.h"
 #include "vtkRendererCollection.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkGenericOpenGLRenderWindow);
 
 vtkGenericOpenGLRenderWindow::vtkGenericOpenGLRenderWindow()
@@ -306,3 +307,4 @@ int vtkGenericOpenGLRenderWindow::SetRGBACharPixelData(
   vtkWarningMacro("`SetRGBACharPixelData` called before window is ready for rendering; ignoring.");
   return VTK_ERROR;
 }
+VTK_ABI_NAMESPACE_END

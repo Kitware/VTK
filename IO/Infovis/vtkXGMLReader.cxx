@@ -41,6 +41,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <sstream>
 
 // Copied from vtkTulipReader.cxx ..
+VTK_ABI_NAMESPACE_BEGIN
 static int my_getline(std::istream& stream, std::string& output, char delim = '\n');
 
 vtkStandardNewMacro(vtkXGMLReader);
@@ -495,3 +496,4 @@ static int my_getline(std::istream& in, std::string& out, char delimiter)
 
   return numCharactersRead;
 }
+VTK_ABI_NAMESPACE_END

@@ -33,6 +33,7 @@
 #include <set>                         // for ivar
 #include <string>                      // for ivar
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkIdList;
 class vtkOpenGLBufferObject;
 class vtkOpenGLFramebufferObject;
@@ -558,4 +559,5 @@ private:
   vtkOpenGLState* State;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -37,6 +37,7 @@
 #include "vtkGraphAlgorithm.h"
 #include "vtkInfovisBoostGraphAlgorithmsModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKINFOVISBOOSTGRAPHALGORITHMS_EXPORT vtkBoostConnectedComponents : public vtkGraphAlgorithm
 {
 public:
@@ -55,4 +56,5 @@ private:
   void operator=(const vtkBoostConnectedComponents&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

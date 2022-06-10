@@ -28,6 +28,7 @@
 #include "vtkWebCoreModule.h" // needed for exports
 #include <string>             // needed for std::string
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkObjectIdMap;
 class vtkRenderWindow;
 class vtkUnsignedCharArray;
@@ -151,4 +152,5 @@ private:
   vtkInternals* Internals;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

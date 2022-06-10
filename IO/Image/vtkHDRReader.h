@@ -28,6 +28,7 @@
 #include <string> // for std::string
 #include <vector> // for std::vector
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKIOIMAGE_EXPORT vtkHDRReader : public vtkImageReader
 {
 public:
@@ -163,4 +164,5 @@ private:
   vtkHDRReader(const vtkHDRReader&) = delete;
   void operator=(const vtkHDRReader&) = delete;
 };
+VTK_ABI_NAMESPACE_END
 #endif

@@ -39,13 +39,16 @@
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPoints;
 class vtkCellArray;
 class vtkMergePoints;
 class vtkFloatArray;
 
+VTK_ABI_NAMESPACE_END
 #include "vtkSmartPointer.h" // for memory safety
 #include <set>               // Because we want to use it
+VTK_ABI_NAMESPACE_BEGIN
 class ParticleTrail;
 class vtkTemporalPathLineFilterInternals;
 typedef vtkSmartPointer<ParticleTrail> TrailPointer;
@@ -206,4 +209,5 @@ private:
   void operator=(const vtkTemporalPathLineFilter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

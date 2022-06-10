@@ -36,6 +36,7 @@
 #include "vtkDataObjectAlgorithm.h"
 #include "vtkFiltersParallelDIY2Module.h" // for export macros
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkMultiProcessController;
 
 class VTKFILTERSPARALLELDIY2_EXPORT vtkExtractSubsetWithSeed : public vtkDataObjectAlgorithm
@@ -106,4 +107,5 @@ private:
   vtkMultiProcessController* Controller = nullptr;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

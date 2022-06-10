@@ -31,6 +31,8 @@ class BasisSet;
 class Cube;
 }
 
+VTK_ABI_NAMESPACE_BEGIN
+
 class vtkImageData;
 class vtkDataSetCollection;
 
@@ -143,4 +145,5 @@ private:
   void operator=(const vtkOpenQubeElectronicData&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

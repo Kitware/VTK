@@ -65,6 +65,7 @@
 #define DEBUG_OUT(out)
 #endif // DEBUG
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPExtractRectilinearGrid);
 vtkCxxSetObjectMacro(vtkPExtractRectilinearGrid, Controller, vtkMPIController);
 
@@ -262,3 +263,4 @@ int vtkPExtractRectilinearGrid::RequestUpdateExtent(
 
   return this->Superclass::RequestUpdateExtent(request, inputVector, outputVector);
 }
+VTK_ABI_NAMESPACE_END

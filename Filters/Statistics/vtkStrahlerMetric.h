@@ -47,6 +47,7 @@
 #include "vtkFiltersStatisticsModule.h" // For export macro
 #include "vtkTreeAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkFloatArray;
 
 class VTKFILTERSSTATISTICS_EXPORT vtkStrahlerMetric : public vtkTreeAlgorithm
@@ -100,4 +101,5 @@ private:
   void operator=(const vtkStrahlerMetric&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

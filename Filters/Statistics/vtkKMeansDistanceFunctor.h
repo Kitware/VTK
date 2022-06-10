@@ -16,6 +16,7 @@
 #include "vtkFiltersStatisticsModule.h" // For export macro
 #include "vtkObject.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkVariantArray;
 class vtkAbstractArray;
 class vtkTable;
@@ -116,4 +117,5 @@ private:
   void operator=(const vtkKMeansDistanceFunctor&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkKMeansDistanceFunctor_h

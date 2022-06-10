@@ -29,6 +29,7 @@
 #include "vtkNew.h"
 #include "vtkSmartPointer.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkWarpLens);
 
 //
@@ -234,3 +235,4 @@ void vtkWarpLens::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "ImageWidth: " << this->ImageWidth << " in pixels\n";
   os << indent << "ImageHeight: " << this->ImageHeight << " in pixels\n";
 }
+VTK_ABI_NAMESPACE_END

@@ -25,6 +25,7 @@
 #include "vtkTransform.h"
 #include "vtkTransformFilter.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkArrowSource);
 
 //------------------------------------------------------------------------------
@@ -182,3 +183,4 @@ void vtkArrowSource::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Invert: " << this->Invert << "\n";
   os << indent << "Arrow Origin: " << this->GetArrowOriginAsString() << endl;
 }
+VTK_ABI_NAMESPACE_END

@@ -41,6 +41,7 @@
 #include <cmath>
 #include <numeric>
 #include <vector>
+VTK_ABI_NAMESPACE_BEGIN
 
 //------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkHyperTreeGridProbeFilter);
@@ -516,3 +517,4 @@ vtkIdTypeArray* vtkHyperTreeGridProbeFilter::GetValidPoints()
 
   return this->ValidPoints;
 }
+VTK_ABI_NAMESPACE_END

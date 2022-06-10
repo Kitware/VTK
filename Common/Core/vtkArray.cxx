@@ -32,6 +32,7 @@
 
 //------------------------------------------------------------------------------
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkArray::vtkArray() = default;
 
 //------------------------------------------------------------------------------
@@ -246,3 +247,4 @@ vtkStdString vtkArray::GetDimensionLabel(DimensionT i)
 
   return this->InternalGetDimensionLabel(i);
 }
+VTK_ABI_NAMESPACE_END

@@ -35,6 +35,7 @@
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCutter;
 class vtkResliceCursor;
 class vtkPlane;
@@ -153,4 +154,5 @@ private:
   void operator=(const vtkResliceCursorPolyDataAlgorithm&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

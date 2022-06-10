@@ -47,6 +47,7 @@
 #include "vtkFiltersExtractionModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkImplicitFunction;
 
 class VTKFILTERSEXTRACTION_EXPORT vtkExtractPolyDataGeometry : public vtkPolyDataAlgorithm
@@ -137,4 +138,5 @@ inline vtkIdType vtkExtractPolyDataGeometry::InsertPointInMap(
 }
 ///@}
 
+VTK_ABI_NAMESPACE_END
 #endif

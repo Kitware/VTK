@@ -19,6 +19,7 @@
 
 #include <cassert>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkContextKeyEvent::vtkContextKeyEvent() = default;
 
 void vtkContextKeyEvent::SetInteractor(vtkRenderWindowInteractor* interactor)
@@ -43,3 +44,4 @@ char vtkContextKeyEvent::GetKeyCode() const
     return 0;
   }
 }
+VTK_ABI_NAMESPACE_END

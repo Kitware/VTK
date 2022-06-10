@@ -31,6 +31,7 @@
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkSynchronizedTemplates3D.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkImplicitFunction;
 
 class VTKFILTERSCORE_EXPORT vtkSynchronizedTemplatesCutter3D : public vtkSynchronizedTemplates3D
@@ -78,4 +79,5 @@ private:
   void operator=(const vtkSynchronizedTemplatesCutter3D&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

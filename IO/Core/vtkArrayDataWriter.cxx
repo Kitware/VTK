@@ -25,6 +25,7 @@
 #include <sstream>
 #include <stdexcept>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkArrayDataWriter);
 
 vtkArrayDataWriter::vtkArrayDataWriter()
@@ -140,3 +141,4 @@ vtkStdString vtkArrayDataWriter::Write(vtkArrayData* array_data, bool WriteBinar
   vtkArrayDataWriter::Write(array_data, oss, WriteBinary);
   return oss.str();
 }
+VTK_ABI_NAMESPACE_END

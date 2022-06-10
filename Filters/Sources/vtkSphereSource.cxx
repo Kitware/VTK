@@ -27,6 +27,7 @@
 
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkSphereSource);
 
 //------------------------------------------------------------------------------
@@ -344,3 +345,4 @@ int vtkSphereSource::RequestInformation(vtkInformation* vtkNotUsed(request),
 
   return 1;
 }
+VTK_ABI_NAMESPACE_END

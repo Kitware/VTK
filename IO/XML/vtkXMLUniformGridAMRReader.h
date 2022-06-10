@@ -35,6 +35,7 @@
 #include "vtkSmartPointer.h" // needed for vtkSmartPointer.
 #include "vtkXMLCompositeDataReader.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkOverlappingAMR;
 class vtkUniformGridAMR;
 
@@ -127,4 +128,5 @@ private:
   vtkSetStringMacro(OutputDataType);
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

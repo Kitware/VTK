@@ -22,6 +22,7 @@
 #include "vtkXMLDataElement.h"
 #include "vtkXMLDataParser.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkXMLRectilinearGridReader);
 
 //------------------------------------------------------------------------------
@@ -255,3 +256,4 @@ int vtkXMLRectilinearGridReader::FillOutputPortInformation(int, vtkInformation* 
   info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkRectilinearGrid");
   return 1;
 }
+VTK_ABI_NAMESPACE_END

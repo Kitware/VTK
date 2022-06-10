@@ -24,6 +24,7 @@
 #include "vtkViewport.h"
 #include <cassert>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkViewDependentErrorMetric);
 
 //------------------------------------------------------------------------------
@@ -212,3 +213,4 @@ void vtkViewDependentErrorMetric::PrintSelf(ostream& os, vtkIndent indent)
     os << "(none)" << endl;
   }
 }
+VTK_ABI_NAMESPACE_END

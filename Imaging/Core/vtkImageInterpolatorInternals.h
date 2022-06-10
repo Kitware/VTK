@@ -25,6 +25,7 @@
 #include "vtkMath.h"
 
 // The interpolator info struct
+VTK_ABI_NAMESPACE_BEGIN
 struct vtkInterpolationInfo
 {
   const void* Pointer;
@@ -228,5 +229,6 @@ inline int vtkInterpolationMath::Mirror(int a, int b, int c)
 #endif
 }
 
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkImageInterpolatorInternals.h

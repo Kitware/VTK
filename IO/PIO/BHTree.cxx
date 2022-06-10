@@ -55,6 +55,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 /////////////////////////////////////////////////////////////////////////
 
+VTK_ABI_NAMESPACE_BEGIN
 BHLeaf::BHLeaf()
 {
   for (int dim = 0; dim < MAX_DIM; dim++)
@@ -316,3 +317,4 @@ int BHTree::getChildIndex(BHNode* node, double* loc)
   }
   return index;
 }
+VTK_ABI_NAMESPACE_END

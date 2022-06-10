@@ -37,6 +37,7 @@
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSGENERAL_EXPORT vtkVertexGlyphFilter : public vtkPolyDataAlgorithm
 {
 public:
@@ -56,4 +57,5 @@ private:
   void operator=(const vtkVertexGlyphFilter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif //_vtkVertexGlyphFilter_h

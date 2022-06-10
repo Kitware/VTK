@@ -43,6 +43,7 @@
 #include <set>    // For ivar
 #include <vector> // For ivar
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkVariant;
 
 class VTKINFOVISCORE_EXPORT vtkReduceTable : public vtkTableAlgorithm
@@ -167,4 +168,5 @@ private:
   void operator=(const vtkReduceTable&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

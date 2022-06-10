@@ -47,6 +47,7 @@ Ph.D. thesis of Christian BOUCHENY.
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkSmartPointer.h"           // needed for vtkSmartPointer
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkOpenGLRenderWindow;
 class vtkOpenGLFramebufferObject;
 class vtkTextureObject;
@@ -154,4 +155,5 @@ private:
   void operator=(const vtkEDLShading&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

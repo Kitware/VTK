@@ -35,6 +35,7 @@
 #include <utility> // for std::swap
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkObjectFactoryNewMacro(vtkRenderWindow);
 
 // Construct an instance of  vtkRenderWindow with its screen size
@@ -682,3 +683,4 @@ const char* vtkRenderWindow::GetStereoTypeAsString(int type)
       return "";
   }
 }
+VTK_ABI_NAMESPACE_END

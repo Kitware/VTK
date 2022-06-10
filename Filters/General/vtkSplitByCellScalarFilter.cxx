@@ -32,6 +32,7 @@
 #include <sstream>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkSplitByCellScalarFilter);
 
 //------------------------------------------------------------------------------
@@ -238,3 +239,4 @@ void vtkSplitByCellScalarFilter::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Pass All Points: " << (this->GetPassAllPoints() ? "On" : "Off") << std::endl;
 }
+VTK_ABI_NAMESPACE_END

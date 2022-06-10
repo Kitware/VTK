@@ -34,6 +34,7 @@
 #include <string>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkBarChartActor);
 
 vtkCxxSetObjectMacro(vtkBarChartActor, Input, vtkDataObject);
@@ -678,3 +679,4 @@ void vtkBarChartActor::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "YTitle: " << (this->YTitle ? this->YTitle : "(none)") << "\n";
 }
+VTK_ABI_NAMESPACE_END

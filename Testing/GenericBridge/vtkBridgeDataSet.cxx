@@ -39,6 +39,7 @@
 #include "vtkPoints.h"
 #include "vtkSimpleCellTessellator.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkBridgeDataSet);
 
 //------------------------------------------------------------------------------
@@ -503,3 +504,4 @@ void vtkBridgeDataSet::ComputeBounds()
     this->ComputeTime.Modified();
   }
 }
+VTK_ABI_NAMESPACE_END

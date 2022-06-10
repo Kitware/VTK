@@ -31,6 +31,7 @@
 #include "vtkAbstractImageInterpolator.h"
 #include "vtkImagingCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKIMAGINGCORE_EXPORT vtkImageInterpolator : public vtkAbstractImageInterpolator
 {
 public:
@@ -127,4 +128,5 @@ private:
   void operator=(const vtkImageInterpolator&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

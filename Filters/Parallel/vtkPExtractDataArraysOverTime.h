@@ -37,6 +37,7 @@
 #include "vtkExtractDataArraysOverTime.h"
 #include "vtkFiltersParallelModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkMultiProcessController;
 
 class VTKFILTERSPARALLEL_EXPORT vtkPExtractDataArraysOverTime : public vtkExtractDataArraysOverTime
@@ -69,4 +70,5 @@ private:
   void ReorganizeData(vtkMultiBlockDataSet* dataset);
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

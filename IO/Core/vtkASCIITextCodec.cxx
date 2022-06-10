@@ -25,6 +25,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include <stdexcept>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkASCIITextCodec);
 
 const char* vtkASCIITextCodec::Name()
@@ -64,3 +65,4 @@ void vtkASCIITextCodec::PrintSelf(ostream& os, vtkIndent indent)
   indent = indent.GetNextIndent();
   this->Superclass::PrintSelf(os, indent.GetNextIndent());
 }
+VTK_ABI_NAMESPACE_END

@@ -33,6 +33,7 @@
 #include <sstream>
 #include <string>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkComputeQuantiles);
 //------------------------------------------------------------------------------
 vtkComputeQuantiles::vtkComputeQuantiles()
@@ -235,3 +236,4 @@ vtkOrderStatistics* vtkComputeQuantiles::CreateOrderStatisticsFilter()
 {
   return vtkOrderStatistics::New();
 }
+VTK_ABI_NAMESPACE_END

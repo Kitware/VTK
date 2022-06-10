@@ -43,6 +43,7 @@
 #include "vtkTextProperty.h"
 #include "vtkViewTheme.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkHierarchicalGraphPipeline);
 
 vtkHierarchicalGraphPipeline::vtkHierarchicalGraphPipeline()
@@ -291,3 +292,4 @@ void vtkHierarchicalGraphPipeline::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "HoverArrayName: " << (this->HoverArrayName ? this->HoverArrayName : "(none)")
      << "\n";
 }
+VTK_ABI_NAMESPACE_END

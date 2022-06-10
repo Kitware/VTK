@@ -29,6 +29,7 @@
 #include "vtkSmartPointer.h"
 #include <map>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkProp3DButtonRepresentation);
 
 struct vtkScaledProp
@@ -395,3 +396,4 @@ void vtkProp3DButtonRepresentation::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "  (" << i << "): " << (*iter).second.Prop << "\n";
   }
 }
+VTK_ABI_NAMESPACE_END

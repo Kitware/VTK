@@ -24,6 +24,7 @@
 #include <vector>
 
 // PIMPL'd std::vector
+VTK_ABI_NAMESPACE_BEGIN
 class StdVectorOfImageDataPointers : public std::vector<vtkSmartPointer<vtkImageData>>
 {
 };
@@ -176,3 +177,4 @@ void vtkProgrammableElectronicData::DeepCopy(vtkDataObject* obj)
     this->SetElectronDensity(newImage);
   }
 }
+VTK_ABI_NAMESPACE_END

@@ -18,6 +18,7 @@
 #include "vtkImageData.h"
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkGenericMovieWriter::vtkGenericMovieWriter()
 {
   this->FileName = nullptr;
@@ -73,3 +74,4 @@ const char* vtkGenericMovieWriter::GetStringFromErrorCode(unsigned long error)
     return "Unknown Error";
   }
 }
+VTK_ABI_NAMESPACE_END

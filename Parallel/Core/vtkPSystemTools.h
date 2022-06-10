@@ -30,6 +30,7 @@
 #include "vtkParallelCoreModule.h" // For export macro
 #include <string>                  // for string functions in SystemTools
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKPARALLELCORE_EXPORT vtkPSystemTools : public vtkObject
 {
 public:
@@ -113,4 +114,5 @@ private:
   void operator=(const vtkPSystemTools&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

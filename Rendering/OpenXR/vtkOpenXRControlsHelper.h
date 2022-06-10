@@ -27,6 +27,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkRenderingOpenXRModule.h" // For export macro
 #include "vtkVRControlsHelper.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKRENDERINGOPENXR_EXPORT vtkOpenXRControlsHelper : public vtkVRControlsHelper
 {
 public:
@@ -48,4 +49,5 @@ private:
   void operator=(const vtkOpenXRControlsHelper&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

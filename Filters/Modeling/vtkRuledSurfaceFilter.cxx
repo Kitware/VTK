@@ -23,6 +23,7 @@
 #include "vtkPolyData.h"
 #include "vtkPolyLine.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkRuledSurfaceFilter);
 
 //------------------------------------------------------------------------------
@@ -557,3 +558,4 @@ void vtkRuledSurfaceFilter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Orient Loops: " << (this->OrientLoops ? "On\n" : "Off\n");
   os << indent << "Pass Lines: " << (this->PassLines ? "On\n" : "Off\n");
 }
+VTK_ABI_NAMESPACE_END

@@ -19,6 +19,7 @@
 #include "vtkIOLSDynaModule.h" // For export macro
 #include "vtkObject.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataArray;
 class vtkUnstructuredGrid;
 class vtkPoints;
@@ -157,4 +158,5 @@ private:
   LSDynaPartStorage* Storage;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkLSDynaPartCollection_h

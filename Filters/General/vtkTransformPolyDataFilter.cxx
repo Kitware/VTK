@@ -25,6 +25,7 @@
 #include "vtkPolyData.h"
 #include "vtkSmartPointer.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkTransformPolyDataFilter);
 vtkCxxSetObjectMacro(vtkTransformPolyDataFilter, Transform, vtkAbstractTransform);
 
@@ -224,3 +225,4 @@ void vtkTransformPolyDataFilter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Transform: " << this->Transform << "\n";
   os << indent << "Output Points Precision: " << this->OutputPointsPrecision << "\n";
 }
+VTK_ABI_NAMESPACE_END

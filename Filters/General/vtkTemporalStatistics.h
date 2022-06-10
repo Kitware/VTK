@@ -55,6 +55,7 @@
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkPassInputTypeAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCompositeDataSet;
 class vtkDataSet;
 class vtkFieldData;
@@ -169,4 +170,5 @@ private:
   ///@}
 };
 
+VTK_ABI_NAMESPACE_END
 #endif //_vtkTemporalStatistics_h

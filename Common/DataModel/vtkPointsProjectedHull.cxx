@@ -20,6 +20,7 @@
 #include "vtkPointsProjectedHull.h"
 #include "vtkObjectFactory.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPointsProjectedHull);
 
 static const int xdim = 0, ydim = 1, zdim = 2;
@@ -187,6 +188,7 @@ int vtkPointsProjectedHull::RectangleIntersection(
 
   return 1;
 }
+VTK_ABI_NAMESPACE_END
 //
 // Suppose the points are projected orthogonally in the dir
 // of the positive x, y or z axis.  Compute the points (2 components)
@@ -209,6 +211,7 @@ extern "C"
   int vtkPointsProjectedHullCCW(const void* p1, const void* p2);
 }
 
+VTK_ABI_NAMESPACE_BEGIN
 int vtkPointsProjectedHull::GrahamScanAlgorithm(int dir)
 {
   int horizAxis = 0, vertAxis = 0;
@@ -724,6 +727,7 @@ int vtkPointsProjectedHull::RectangleOutside1DPolygon(
 
   return 1;
 }
+VTK_ABI_NAMESPACE_END
 
 // The sort functions
 
@@ -772,6 +776,7 @@ extern "C"
   }
 }
 
+VTK_ABI_NAMESPACE_BEGIN
 void vtkPointsProjectedHull::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -801,3 +806,4 @@ void vtkPointsProjectedHull::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "HullSize Z: " << this->HullSize[2] << endl;
   os << indent << "HullTime Z: " << this->HullTime[2] << endl;
 }
+VTK_ABI_NAMESPACE_END

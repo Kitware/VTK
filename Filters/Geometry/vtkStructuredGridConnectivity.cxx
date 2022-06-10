@@ -22,12 +22,15 @@
 #include "vtkStructuredNeighbor.h"
 #include "vtkUnsignedCharArray.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkStructuredGridConnectivity);
+VTK_ABI_NAMESPACE_END
 
 // Description:
 // An enum to define the 6 block faces
 namespace BlockFace
 {
+VTK_ABI_NAMESPACE_BEGIN
 enum
 {
   FRONT = 0,  // (+k diretion)
@@ -38,8 +41,10 @@ enum
   BOTTOM = 5, // (-j direction)
   NOT_ON_BLOCK_FACE = 6
 };
+VTK_ABI_NAMESPACE_END
 }
 
+VTK_ABI_NAMESPACE_BEGIN
 //------------------------------------------------------------------------------
 vtkStructuredGridConnectivity::vtkStructuredGridConnectivity()
 {
@@ -1532,3 +1537,4 @@ void vtkStructuredGridConnectivity::CreateGhostLayers(const int N)
     this->TransferGhostDataFromNeighbors(i);
   } // END for all grids
 }
+VTK_ABI_NAMESPACE_END

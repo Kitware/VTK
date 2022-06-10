@@ -21,6 +21,7 @@
 #include "vtkRenderer.h"
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkAbstractSplineRepresentation::vtkAbstractSplineRepresentation()
 {
   // Initialize pipeline configuration
@@ -160,3 +161,4 @@ void vtkAbstractSplineRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Resolution: " << this->Resolution << "\n";
 }
+VTK_ABI_NAMESPACE_END

@@ -99,6 +99,7 @@
 #include "vtkObject.h"
 #include <vector> // Required for vector
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkAbstractWidget;
 
 // Pointer to a member function that takes a vtkAbstractWidget (the active
@@ -200,4 +201,5 @@ private:
   void operator=(const vtkWidgetSet&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

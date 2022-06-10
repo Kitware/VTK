@@ -19,9 +19,11 @@
 
 #include "vtkAcceleratorsVTKmCoreModule.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 struct VTKACCELERATORSVTKMCORE_EXPORT vtkmInitializer
 {
   vtkmInitializer();
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

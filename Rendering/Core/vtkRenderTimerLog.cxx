@@ -20,6 +20,7 @@
 #include <iomanip>
 #include <utility>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkObjectFactoryNewMacro(vtkRenderTimerLog);
 
 //------------------------------------------------------------------------------
@@ -138,3 +139,4 @@ void vtkRenderTimerLog::Event::Print(
     event.Print(os, thisTime, threshMs, nextIndent);
   }
 }
+VTK_ABI_NAMESPACE_END

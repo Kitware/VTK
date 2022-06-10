@@ -31,6 +31,7 @@
 #include "vtkPolyDataAlgorithm.h"
 #include "vtkStreamTracer.h" // for vtkStreamSurface::CELL_LENGTH_UNIT
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkGradientFilter;
 class vtkImageData;
 class vtkPolyData;
@@ -515,4 +516,5 @@ private:
 
   vtkNew<vtkStreamSurface> StreamSurface;
 };
+VTK_ABI_NAMESPACE_END
 #endif

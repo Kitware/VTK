@@ -25,6 +25,7 @@
 #include "vtkRenderer.h"
 #include "vtkTransform.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOpenGLPropItem);
 
 void vtkOpenGLPropItem::PrintSelf(ostream& os, vtkIndent indent)
@@ -163,3 +164,4 @@ bool vtkOpenGLPropItem::Paint(vtkContext2D* painter)
 
   return result;
 }
+VTK_ABI_NAMESPACE_END

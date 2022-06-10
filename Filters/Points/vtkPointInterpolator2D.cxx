@@ -37,6 +37,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkVoronoiKernel.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPointInterpolator2D);
 
 //------------------------------------------------------------------------------
@@ -299,3 +300,4 @@ void vtkPointInterpolator2D::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Interpolate Z: " << (this->InterpolateZ ? "On" : " Off") << "\n";
 }
+VTK_ABI_NAMESPACE_END

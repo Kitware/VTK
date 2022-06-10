@@ -30,6 +30,7 @@
 #include "vtkIOLegacyModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKIOLEGACY_EXPORT vtkSimplePointsReader : public vtkPolyDataAlgorithm
 {
 public:
@@ -58,4 +59,5 @@ private:
   void operator=(const vtkSimplePointsReader&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

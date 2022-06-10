@@ -18,6 +18,7 @@
 #include "vtkHierarchicalBoxDataIterator.h"
 #include "vtkObjectFactory.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkHierarchicalBoxDataIterator);
 
 vtkHierarchicalBoxDataIterator::vtkHierarchicalBoxDataIterator() = default;
@@ -30,3 +31,4 @@ void vtkHierarchicalBoxDataIterator::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

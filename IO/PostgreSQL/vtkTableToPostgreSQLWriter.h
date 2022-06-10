@@ -26,6 +26,7 @@
 #include "vtkIOPostgreSQLModule.h" // For export macro
 #include "vtkTableToDatabaseWriter.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPostgreSQLDatabase;
 
 class VTKIOPOSTGRESQL_EXPORT vtkTableToPostgreSQLWriter : public vtkTableToDatabaseWriter
@@ -55,4 +56,5 @@ private:
   void operator=(const vtkTableToPostgreSQLWriter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

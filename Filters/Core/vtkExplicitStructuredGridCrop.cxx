@@ -21,6 +21,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkExplicitStructuredGridCrop);
 
 //------------------------------------------------------------------------------
@@ -169,3 +170,4 @@ int vtkExplicitStructuredGridCrop::RequestData(vtkInformation* vtkNotUsed(reques
   this->UpdateProgress(1.);
   return 1;
 }
+VTK_ABI_NAMESPACE_END

@@ -31,6 +31,7 @@ namespace vtx
 {
 namespace schema
 {
+VTK_ABI_NAMESPACE_BEGIN
 
 template <class T>
 void VTXvtkVTU::SetBlocksCommon(
@@ -59,6 +60,7 @@ void VTXvtkVTU::SetBlocksCommon(
   }
 }
 
+VTK_ABI_NAMESPACE_END
 } // end namespace schema
 } // end namespace vtx
 

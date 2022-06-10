@@ -29,6 +29,7 @@
 #include <cassert>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkTetra);
 
 //------------------------------------------------------------------------------
@@ -1209,3 +1210,4 @@ void vtkTetra::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Triangle:\n";
   this->Triangle->PrintSelf(os, indent.GetNextIndent());
 }
+VTK_ABI_NAMESPACE_END

@@ -59,6 +59,7 @@
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkEdgeTable;
 class vtkIdList;
 class vtkPointData;
@@ -282,4 +283,5 @@ private:
   void operator=(const vtkQuadricDecimation&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

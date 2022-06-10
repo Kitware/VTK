@@ -21,6 +21,7 @@
 #include "vtkOutlineSource.h"
 #include "vtkPolyData.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkHyperTreeGridOutlineFilter);
 
 //------------------------------------------------------------------------------
@@ -113,3 +114,4 @@ void vtkHyperTreeGridOutlineFilter::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Generate Faces: " << (this->GenerateFaces ? "On\n" : "Off\n");
 }
+VTK_ABI_NAMESPACE_END

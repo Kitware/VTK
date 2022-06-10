@@ -48,6 +48,7 @@
 #include "vtkSystemIncludes.h"
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONCORE_EXPORT vtkArraySort
 {
 public:
@@ -115,6 +116,7 @@ private:
   std::vector<DimensionT> Storage;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
 
 // VTK-HeaderTest-Exclude: vtkArraySort.h

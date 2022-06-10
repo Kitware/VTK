@@ -30,6 +30,7 @@
 
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkVoxelGrid);
 vtkCxxSetObjectMacro(vtkVoxelGrid, Kernel, vtkInterpolationKernel);
 
@@ -285,3 +286,4 @@ void vtkVoxelGrid::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Number of Points Per Bin: " << this->NumberOfPointsPerBin << endl;
 }
+VTK_ABI_NAMESPACE_END

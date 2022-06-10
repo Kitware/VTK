@@ -21,10 +21,14 @@
 #ifndef vtkOTUtilities_h
 #define vtkOTUtilities_h
 
+#include "vtkABINamespace.h"
+
 namespace OT
 {
 class Sample;
 }
+
+VTK_ABI_NAMESPACE_BEGIN
 
 class vtkDataArray;
 class vtkDataArrayCollection;
@@ -62,5 +66,6 @@ public:
   static vtkDataArray* SampleToArray(OT::Sample* ns);
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkOTUtilities.h

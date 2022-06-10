@@ -71,6 +71,7 @@
 // myself.
 // This function is also defined in Infovis/vtkDelimitedTextReader.cxx,
 // so it would be nice to put this in a common file.
+VTK_ABI_NAMESPACE_BEGIN
 static int my_getline(istream& in, std::string& output, char delim = '\n');
 
 vtkStandardNewMacro(vtkDataReader);
@@ -3902,3 +3903,4 @@ void vtkDataReader::SetScalarLut(const char* lut)
     } while (--n);
   }
 }
+VTK_ABI_NAMESPACE_END

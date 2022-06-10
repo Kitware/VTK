@@ -31,6 +31,7 @@
 #include <cassert>
 #include <map> // needed for std::map
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkXMLDataReader::MapStringToInt : public std::map<std::string, int>
 {
 };
@@ -675,3 +676,4 @@ int vtkXMLDataReader::CellDataNeedToReadTimeStep(vtkXMLDataElement* eNested)
   // all other cases we don't need to read:
   return 0;
 }
+VTK_ABI_NAMESPACE_END

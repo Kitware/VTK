@@ -78,6 +78,7 @@
 
 // This function is a friend of the collector so that it can call the
 // internal report method.
+VTK_ABI_NAMESPACE_BEGIN
 void VTKCOMMONCORE_EXPORT vtkGarbageCollectorReportInternal(
   vtkGarbageCollector*, vtkObjectBase*, void*, const char*);
 
@@ -199,4 +200,5 @@ void vtkGarbageCollectorReport(vtkGarbageCollector* collector, T*& ptr, const ch
   vtkGarbageCollectorReportInternal(collector, ptr, &ptr, desc);
 }
 
+VTK_ABI_NAMESPACE_END
 #endif

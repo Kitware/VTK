@@ -28,9 +28,12 @@
 #ifndef vtkLabelMapLookup_h
 #define vtkLabelMapLookup_h
 
+#include "vtkCommonDataModelModule.h"
+
 #include <unordered_set>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 // Determine whether an image label/object has been specified for output.
 // This requires looking up an image pixel/scalar value and determining
 // whether it's part of a segmented object. Since this can be relatively
@@ -184,5 +187,6 @@ vtkLabelMapLookup<T>* vtkLabelMapLookup<T>::CreateLabelLookup(
   }
 }
 
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkLabelMapLookup.h

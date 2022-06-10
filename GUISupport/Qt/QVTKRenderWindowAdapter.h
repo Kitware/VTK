@@ -44,6 +44,8 @@ class QOpenGLContext;
 class QSurfaceFormat;
 class QWidget;
 class QWindow;
+
+VTK_ABI_NAMESPACE_BEGIN
 class vtkGenericOpenGLRenderWindow;
 class vtkObject;
 
@@ -193,4 +195,5 @@ private:
   QCursor DefaultCursor;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

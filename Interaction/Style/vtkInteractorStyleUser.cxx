@@ -19,6 +19,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkRenderWindowInteractor.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkInteractorStyleUser);
 
 //------------------------------------------------------------------------------
@@ -382,3 +383,4 @@ void vtkInteractorStyleUser::OnLeave()
     this->InvokeEvent(vtkCommand::LeaveEvent, nullptr);
   }
 }
+VTK_ABI_NAMESPACE_END

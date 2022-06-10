@@ -31,6 +31,7 @@
 #pragma warning(disable : 4996) // 'function': was declared deprecated
 #endif
 
+VTK_ABI_NAMESPACE_BEGIN
 struct vtkTestUtilities
 {
   /**
@@ -157,5 +158,6 @@ inline char* vtkTestUtilities::ExpandFileNameWithArgOrEnvOrDefault(const char* a
   return fullName;
 }
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkTestUtilities_h
 // VTK-HeaderTest-Exclude: vtkTestUtilities.h

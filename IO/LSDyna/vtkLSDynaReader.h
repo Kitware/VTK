@@ -156,6 +156,7 @@
 #include "vtkMultiBlockDataSetAlgorithm.h"
 #include <string> // for method signature
 
+VTK_ABI_NAMESPACE_BEGIN
 class LSDynaMetaData;
 class vtkLSDynaPartCollection;
 class vtkPoints;
@@ -1071,4 +1072,5 @@ inline int vtkLSDynaReader::GetPartArrayStatus(const char* partName)
   return 0;
 }
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkLSDynaReader_h

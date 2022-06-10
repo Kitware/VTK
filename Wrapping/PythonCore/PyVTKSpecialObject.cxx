@@ -31,6 +31,7 @@
 
 #include "PyVTKSpecialObject.h"
 #include "PyVTKMethodDescriptor.h"
+#include "vtkABINamespace.h"
 #include "vtkPythonUtil.h"
 
 #include <sstream>
@@ -42,6 +43,7 @@
 #pragma GCC diagnostic ignored "-Wstrict-aliasing"
 #endif
 
+VTK_ABI_NAMESPACE_BEGIN
 //------------------------------------------------------------------------------
 PyVTKSpecialType::PyVTKSpecialType(
   PyTypeObject* typeobj, PyMethodDef* cmethods, PyMethodDef* ccons, vtkcopyfunc copyfunc)
@@ -51,6 +53,7 @@ PyVTKSpecialType::PyVTKSpecialType(
   this->vtk_constructors = ccons;
   this->vtk_copy = copyfunc;
 }
+VTK_ABI_NAMESPACE_END
 
 //------------------------------------------------------------------------------
 // Object protocol

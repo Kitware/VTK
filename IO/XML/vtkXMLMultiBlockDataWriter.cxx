@@ -21,6 +21,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkXMLDataElement.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkXMLMultiBlockDataWriter);
 //------------------------------------------------------------------------------
 vtkXMLMultiBlockDataWriter::vtkXMLMultiBlockDataWriter() = default;
@@ -130,3 +131,4 @@ void vtkXMLMultiBlockDataWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

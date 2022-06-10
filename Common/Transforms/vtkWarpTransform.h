@@ -28,6 +28,7 @@
 #include "vtkAbstractTransform.h"
 #include "vtkCommonTransformsModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONTRANSFORMS_EXPORT vtkWarpTransform : public vtkAbstractTransform
 {
 public:
@@ -187,4 +188,5 @@ private:
   void operator=(const vtkWarpTransform&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

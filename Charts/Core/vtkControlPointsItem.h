@@ -36,6 +36,7 @@
 #include "vtkVector.h"           // For vtkVector2f
 #include <string>                // Used by GetControlPointLabel
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCallbackCommand;
 class vtkContext2D;
 class vtkControlPointsAddPointItem;
@@ -525,4 +526,5 @@ private:
   bool UseAddPointItem = false;
   vtkNew<vtkControlPointsAddPointItem> AddPointItem;
 };
+VTK_ABI_NAMESPACE_END
 #endif

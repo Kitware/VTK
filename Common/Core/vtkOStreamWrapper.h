@@ -33,6 +33,7 @@
 Do_not_include_vtkOStreamWrapper_directly_vtkSystemIncludes_includes_it;
 #endif
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkIndent;
 class vtkObjectBase;
 class vtkLargeInteger;
@@ -168,5 +169,6 @@ private:
   vtkOStreamWrapper& operator<<(std_string const&);
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkOStreamWrapper.h

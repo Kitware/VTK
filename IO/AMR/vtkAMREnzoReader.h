@@ -29,6 +29,7 @@
 #include <map>    // For STL map
 #include <string> // For std::string
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkOverlappingAMR;
 class vtkEnzoReaderInternal;
 
@@ -153,4 +154,5 @@ private:
   std::map<int, double> conversionFactors;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif /* vtkAMREnzoReader_h */

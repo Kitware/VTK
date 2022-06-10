@@ -34,6 +34,7 @@
 #include "vtkHyperTreeGridProbeFilter.h"
 #include "vtkSmartPointer.h" //For Locator member
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkMultiProcessController;
 class vtkIdList;
 class vtkDataSet;
@@ -93,4 +94,5 @@ private:
 
 }; // vtkPHyperTreeGridProbeFilter
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkPHyperTreeGridProbeFilter_h

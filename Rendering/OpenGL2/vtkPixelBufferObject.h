@@ -37,6 +37,7 @@
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkWeakPointer.h"            // needed for vtkWeakPointer.
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkRenderWindow;
 class vtkOpenGLExtensionManager;
 
@@ -365,4 +366,5 @@ private:
   void operator=(const vtkPixelBufferObject&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

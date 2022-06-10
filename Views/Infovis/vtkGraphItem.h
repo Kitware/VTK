@@ -35,6 +35,7 @@
 #include "vtkNew.h"    // For vtkNew ivars
 #include "vtkVector.h" // For vector types in API
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkGraph;
 class vtkImageData;
 class vtkIncrementalForceLayout;
@@ -229,4 +230,5 @@ private:
   vtkNew<vtkTooltipItem> Tooltip;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

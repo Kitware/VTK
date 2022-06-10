@@ -24,6 +24,7 @@
 
 #include <algorithm>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkReduceTable);
 //------------------------------------------------------------------------------
 vtkReduceTable::vtkReduceTable()
@@ -309,3 +310,4 @@ void vtkReduceTable::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "NumericalReductionMethod: " << this->NumericalReductionMethod << endl;
   os << indent << "NonNumericalReductionMethod: " << this->NonNumericalReductionMethod << endl;
 }
+VTK_ABI_NAMESPACE_END

@@ -25,6 +25,7 @@
 
 #include <cassert>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkXMLUniformGridAMRWriter);
 //------------------------------------------------------------------------------
 vtkXMLUniformGridAMRWriter::vtkXMLUniformGridAMRWriter() = default;
@@ -156,3 +157,4 @@ void vtkXMLUniformGridAMRWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

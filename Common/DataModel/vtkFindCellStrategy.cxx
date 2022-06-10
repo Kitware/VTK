@@ -18,6 +18,7 @@
 #include "vtkPointSet.h"
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkFindCellStrategy::vtkFindCellStrategy()
 {
   this->PointSet = nullptr;
@@ -60,3 +61,4 @@ void vtkFindCellStrategy::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "vtkPointSet: " << this->PointSet << "\n";
 }
+VTK_ABI_NAMESPACE_END

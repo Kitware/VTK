@@ -17,6 +17,7 @@
 
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkRecursiveSphereDirectionEncoder);
 
 // Construct the object. Initialize the index table which will be
@@ -352,3 +353,4 @@ void vtkRecursiveSphereDirectionEncoder::PrintSelf(ostream& os, vtkIndent indent
 
   os << indent << "Recursion depth: " << this->RecursionDepth << endl;
 }
+VTK_ABI_NAMESPACE_END

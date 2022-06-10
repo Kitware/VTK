@@ -34,6 +34,7 @@
 #include "vtkIOSQLModule.h" // For export macro
 #include "vtkStdString.h"   // for vtkStdString
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkEventForwarderCommand;
 
 class VTKIOSQL_EXPORT vtkSQLDatabaseGraphSource : public vtkGraphAlgorithm
@@ -114,4 +115,5 @@ private:
   bool Directed;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

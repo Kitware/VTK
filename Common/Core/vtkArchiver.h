@@ -33,6 +33,7 @@
 
 #include <ios> // For std::streamsize
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONCORE_EXPORT vtkArchiver : public vtkObject
 {
 public:
@@ -88,4 +89,5 @@ private:
   void operator=(const vtkArchiver&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

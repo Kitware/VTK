@@ -31,6 +31,7 @@
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkWidgetRepresentation.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkHandleList;
 class vtkHandleRepresentation;
 
@@ -157,4 +158,5 @@ private:
   void operator=(const vtkSeedRepresentation&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

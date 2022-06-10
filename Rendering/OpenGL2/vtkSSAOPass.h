@@ -34,6 +34,7 @@
 
 #include <vector> // For vector
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkMatrix4x4;
 class vtkOpenGLFramebufferObject;
 class vtkOpenGLQuadHelper;
@@ -145,4 +146,5 @@ private:
   void operator=(const vtkSSAOPass&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

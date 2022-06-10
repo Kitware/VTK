@@ -16,6 +16,7 @@
 #include "vtkDummyCommunicator.h"
 #include "vtkObjectFactory.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkDummyController);
 
 vtkCxxSetObjectMacro(vtkDummyController, Communicator, vtkCommunicator);
@@ -80,3 +81,4 @@ void vtkDummyController::MultipleMethodExecute()
     vtkWarningMacro("MultipleMethod " << i << " not set.");
   }
 }
+VTK_ABI_NAMESPACE_END

@@ -50,6 +50,7 @@
 
 #include <vector> // for vector in return type
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCompositeDataSet;
 class vtkCompositeDataIterator;
 class vtkInformationDoubleKey;
@@ -211,4 +212,5 @@ private:
   void operator=(const vtkCompositeDataPipeline&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

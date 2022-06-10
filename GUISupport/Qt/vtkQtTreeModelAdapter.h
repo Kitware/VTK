@@ -39,11 +39,12 @@
 #include <QHash>     // Needed for the decoration map
 #include <QVector>   // Needed for the index map
 
+class QMimeData;
+
+VTK_ABI_NAMESPACE_BEGIN
 class vtkSelection;
 class vtkTree;
 class vtkAdjacentVertexIterator;
-
-class QMimeData;
 
 class VTKGUISUPPORTQT_EXPORT vtkQtTreeModelAdapter : public vtkQtAbstractModelAdapter
 {
@@ -125,5 +126,6 @@ private:
   void operator=(const vtkQtTreeModelAdapter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkQtTreeModelAdapter.h

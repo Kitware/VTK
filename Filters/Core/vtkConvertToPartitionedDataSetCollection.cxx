@@ -32,6 +32,7 @@
 #include <functional>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkConvertToPartitionedDataSetCollection);
 //----------------------------------------------------------------------------
 vtkConvertToPartitionedDataSetCollection::vtkConvertToPartitionedDataSetCollection() = default;
@@ -86,3 +87,4 @@ void vtkConvertToPartitionedDataSetCollection::PrintSelf(ostream& os, vtkIndent 
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

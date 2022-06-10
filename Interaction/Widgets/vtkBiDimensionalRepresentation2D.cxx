@@ -33,6 +33,7 @@
 
 #include <sstream>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkBiDimensionalRepresentation2D);
 
 //------------------------------------------------------------------------------
@@ -856,3 +857,4 @@ void vtkBiDimensionalRepresentation2D::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Selected Line Property: (none)\n";
   }
 }
+VTK_ABI_NAMESPACE_END

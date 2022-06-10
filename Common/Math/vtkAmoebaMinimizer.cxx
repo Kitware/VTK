@@ -20,6 +20,7 @@
 #define N_STEPS_NO_VALUE_IMPROVEMENT 2
 #define N_STEPS_NO_PARAM_IMPROVEMENT 18
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkAmoebaMinimizer);
 
 //------------------------------------------------------------------------------
@@ -772,3 +773,4 @@ int vtkAmoebaMinimizer::PerformAmoeba()
 
   return (improvement_found);
 }
+VTK_ABI_NAMESPACE_END

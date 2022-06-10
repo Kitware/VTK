@@ -32,6 +32,7 @@
 #include "vtkIOXMLModule.h" // For export macro
 #include "vtkXMLCompositeDataReader.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkMultiBlockDataSet;
 
 class VTKIOXML_EXPORT vtkXMLMultiBlockDataReader : public vtkXMLCompositeDataReader
@@ -71,4 +72,5 @@ private:
   bool DistributePiecesInMultiPieces;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

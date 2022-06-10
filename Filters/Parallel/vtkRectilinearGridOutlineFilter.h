@@ -28,6 +28,7 @@
 #include "vtkFiltersParallelModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSPARALLEL_EXPORT vtkRectilinearGridOutlineFilter : public vtkPolyDataAlgorithm
 {
 public:
@@ -46,4 +47,5 @@ private:
   void operator=(const vtkRectilinearGridOutlineFilter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -29,6 +29,7 @@
 #include "vtkGPUInfoList.h"
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKRENDERINGOPENGL2_EXPORT vtkDummyGPUInfoList : public vtkGPUInfoList
 {
 public:
@@ -56,4 +57,5 @@ private:
   void operator=(const vtkDummyGPUInfoList&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

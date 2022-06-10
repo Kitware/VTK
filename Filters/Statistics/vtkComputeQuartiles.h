@@ -40,6 +40,7 @@
 #include "vtkComputeQuantiles.h"
 #include "vtkFiltersStatisticsModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSSTATISTICS_EXPORT vtkComputeQuartiles : public vtkComputeQuantiles
 {
 public:
@@ -56,4 +57,5 @@ private:
   vtkComputeQuartiles(const vtkComputeQuartiles&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -21,6 +21,7 @@
 
 #include "vtkArraySort.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkArraySort::vtkArraySort() = default;
 
 vtkArraySort::vtkArraySort(DimensionT i)
@@ -85,3 +86,4 @@ ostream& operator<<(ostream& stream, const vtkArraySort& rhs)
 
   return stream;
 }
+VTK_ABI_NAMESPACE_END

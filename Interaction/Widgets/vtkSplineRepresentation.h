@@ -31,6 +31,7 @@
 #include "vtkAbstractSplineRepresentation.h"
 #include "vtkInteractionWidgetsModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPointHandleSource;
 
 class VTKINTERACTIONWIDGETS_EXPORT vtkSplineRepresentation : public vtkAbstractSplineRepresentation
@@ -116,4 +117,5 @@ private:
   std::vector<vtkSmartPointer<vtkActor>> HandleActors;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

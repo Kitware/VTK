@@ -25,6 +25,7 @@
 
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImageMathematics);
 
 //------------------------------------------------------------------------------
@@ -564,3 +565,4 @@ void vtkImageMathematics::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "ConstantC: " << this->ConstantC << "\n";
   os << indent << "DivideByZeroToC: " << (this->DivideByZeroToC ? "On" : "Off") << "\n";
 }
+VTK_ABI_NAMESPACE_END

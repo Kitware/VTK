@@ -22,6 +22,7 @@
 #include "vtkXMLUnstructuredDataWriter.h"
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkXMLPUnstructuredDataWriter::vtkXMLPUnstructuredDataWriter() = default;
 
 //------------------------------------------------------------------------------
@@ -61,3 +62,4 @@ void vtkXMLPUnstructuredDataWriter::WritePData(vtkIndent indent)
   vtkPointSet* input = this->GetInputAsPointSet();
   this->WritePPoints(input->GetPoints(), indent);
 }
+VTK_ABI_NAMESPACE_END

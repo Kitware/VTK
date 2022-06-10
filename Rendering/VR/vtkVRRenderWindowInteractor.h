@@ -27,6 +27,7 @@
 
 #include <string> // for ivar
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkMatrix4x4;
 class vtkVRRenderWindow;
 
@@ -188,4 +189,5 @@ private:
   void operator=(const vtkVRRenderWindowInteractor&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

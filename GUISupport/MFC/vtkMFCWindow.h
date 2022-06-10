@@ -19,6 +19,7 @@
 #include "afxwin.h"
 #include "vtkGUISupportMFCModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkWin32OpenGLRenderWindow;
 class vtkRenderWindowInteractor;
 
@@ -76,6 +77,7 @@ protected:
   DECLARE_MESSAGE_MAP()
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
 
 // VTK-HeaderTest-Exclude: vtkMFCWindow.h

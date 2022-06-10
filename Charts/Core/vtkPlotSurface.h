@@ -29,6 +29,7 @@
 #include "vtkNew.h"              //  For vtkNew ivar
 #include "vtkPlot3D.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkContext2D;
 class vtkLookupTable;
 class vtkTable;
@@ -165,4 +166,5 @@ private:
   void operator=(const vtkPlotSurface&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkPlotSurface_h

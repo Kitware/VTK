@@ -30,6 +30,7 @@
 
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkAxisFollower);
 
 // List of vectors per axis (depending on which one needs to be
@@ -531,3 +532,4 @@ bool vtkAxisFollower::IsTextUpsideDown(double* a, double* b)
   double angle = vtkMath::RadiansFromDegrees(this->Orientation[2]);
   return (b[0] - a[0]) * cos(angle) - (b[1] - a[1]) * sin(angle) < 0;
 }
+VTK_ABI_NAMESPACE_END

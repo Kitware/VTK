@@ -25,6 +25,7 @@ PURPOSE.  See the above copyright notice for more information.
 /*=========================================================================
 vtkOpenXRModel
 =========================================================================*/
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOpenXRModel);
 
 //------------------------------------------------------------------------------
@@ -130,3 +131,4 @@ void vtkOpenXRModel::LoadModelAndTexture(vtkOpenGLRenderWindow* win)
     this->Loaded = true;
   }
 }
+VTK_ABI_NAMESPACE_END

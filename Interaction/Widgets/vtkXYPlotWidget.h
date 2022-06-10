@@ -35,6 +35,7 @@
 
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkInteractorObserver.h"
+VTK_ABI_NAMESPACE_BEGIN
 class vtkXYPlotActor;
 
 class VTKINTERACTIONWIDGETS_EXPORT vtkXYPlotWidget : public vtkInteractorObserver
@@ -105,4 +106,5 @@ private:
   void operator=(const vtkXYPlotWidget&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

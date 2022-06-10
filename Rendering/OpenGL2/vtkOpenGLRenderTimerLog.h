@@ -22,6 +22,7 @@
 #include <deque> // for deque!
 #include <queue> // for queue!
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkOpenGLRenderTimer;
 
 /**
@@ -133,4 +134,5 @@ private:
   void operator=(const vtkOpenGLRenderTimerLog&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkOpenGLRenderTimerLog_h

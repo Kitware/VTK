@@ -37,6 +37,7 @@
 #include <map>    // used for the cache
 #include <vector> // used for the timestep records
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSHYBRID_EXPORT vtkTemporalDataSetCache : public vtkAlgorithm
 {
 public:
@@ -115,4 +116,5 @@ private:
   vtkDataObject* Ejected;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

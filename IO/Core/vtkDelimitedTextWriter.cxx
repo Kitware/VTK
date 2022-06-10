@@ -34,6 +34,7 @@
 #include <sstream>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkDelimitedTextWriter);
 //------------------------------------------------------------------------------
 vtkDelimitedTextWriter::vtkDelimitedTextWriter()
@@ -281,3 +282,4 @@ void vtkDelimitedTextWriter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "FileName: " << (this->FileName ? this->FileName : "none") << endl;
   os << indent << "WriteToOutputString: " << this->WriteToOutputString << endl;
 }
+VTK_ABI_NAMESPACE_END

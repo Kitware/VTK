@@ -19,6 +19,7 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtkXMLUnstructuredGridWriter.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkXMLPUnstructuredGridWriter);
 
 //------------------------------------------------------------------------------
@@ -66,3 +67,4 @@ int vtkXMLPUnstructuredGridWriter::FillInputPortInformation(int, vtkInformation*
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkUnstructuredGridBase");
   return 1;
 }
+VTK_ABI_NAMESPACE_END

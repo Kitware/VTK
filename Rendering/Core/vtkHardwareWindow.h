@@ -32,6 +32,7 @@
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkWindow.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKRENDERINGCORE_EXPORT vtkHardwareWindow : public vtkWindow
 {
 public:
@@ -56,4 +57,5 @@ private:
   void operator=(const vtkHardwareWindow&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

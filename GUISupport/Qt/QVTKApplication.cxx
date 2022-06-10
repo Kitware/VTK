@@ -21,6 +21,7 @@
 #endif
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 QVTKApplication::QVTKApplication(int& Argc, char** Argv)
   : QApplication(Argc, Argv)
 {
@@ -62,3 +63,4 @@ void QVTKApplication::setDevice(vtkTDxDevice* device)
 #endif
 }
 #endif
+VTK_ABI_NAMESPACE_END

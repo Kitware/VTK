@@ -37,6 +37,7 @@
 #include <set>
 #include <sstream>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOBJImporter);
 vtkStandardNewMacro(vtkOBJPolyDataProcessor);
 
@@ -1128,3 +1129,4 @@ vtkPolyData* vtkOBJPolyDataProcessor::GetOutput(int idx)
     return nullptr;
   }
 }
+VTK_ABI_NAMESPACE_END

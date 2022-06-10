@@ -25,6 +25,7 @@
 #include <limits>
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 OSPTexture vtkOSPRayMaterialHelpers::NewTexture2D(RTW::Backend* backend, const osp::vec2i& size,
   const OSPTextureFormat type, void* data, const uint32_t _flags)
 {
@@ -387,3 +388,4 @@ OSPMaterial vtkOSPRayMaterialHelpers::NewMaterial(
   ospCommit(result);
   return result;
 }
+VTK_ABI_NAMESPACE_END

@@ -20,6 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImageRectilinearWipe);
 
 //------------------------------------------------------------------------------
@@ -377,3 +378,4 @@ void vtkImageRectilinearWipe::PrintSelf(ostream& os, vtkIndent indent)
       break;
   }
 }
+VTK_ABI_NAMESPACE_END

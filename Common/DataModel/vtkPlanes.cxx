@@ -21,6 +21,7 @@
 
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPlanes);
 vtkCxxSetObjectMacro(vtkPlanes, Points, vtkPoints);
 
@@ -377,3 +378,4 @@ void vtkPlanes::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Normals: (none)\n";
   }
 }
+VTK_ABI_NAMESPACE_END

@@ -31,6 +31,7 @@
 #  define VTK_TESSELLATOR_INCR_SUBCASE_COUNT(cs,sc)
 #endif // PARAVIEW_DEBUG_TESSELLATOR
 
+VTK_ABI_NAMESPACE_BEGIN
 static void DefaultFacet3Callback(
   const double* a, const double* b, const double* c, const double* d,
   vtkEdgeSubdivisionCriterion*, void* pd, const void* )
@@ -2214,3 +2215,4 @@ vtkIdType vtkStreamingTessellator::TetrahedralDecompositions[] =
 
 };
 
+VTK_ABI_NAMESPACE_END

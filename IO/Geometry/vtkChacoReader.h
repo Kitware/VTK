@@ -36,6 +36,7 @@
 #include "vtkIOGeometryModule.h" // For export macro
 #include "vtkUnstructuredGridAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKIOGEOMETRY_EXPORT vtkChacoReader : public vtkUnstructuredGridAlgorithm
 {
 public:
@@ -247,4 +248,5 @@ private:
   void ClearWeightArrayNames();
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -52,7 +52,9 @@
 
 //------------------------------------------------------------------------------
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkObjectFactoryNewMacro(vtkGradientFilter);
+VTK_ABI_NAMESPACE_END
 
 namespace
 {
@@ -163,6 +165,7 @@ int GetOutputDataType(DataT vtkNotUsed(data))
 
 } // end anonymous namespace
 
+VTK_ABI_NAMESPACE_BEGIN
 //------------------------------------------------------------------------------
 vtkGradientFilter::vtkGradientFilter()
 {
@@ -1129,6 +1132,8 @@ int vtkGradientFilter::GetOutputArrayType(vtkDataArray* array)
   }
   return retType;
 }
+
+VTK_ABI_NAMESPACE_END
 
 namespace // anonymous
 {

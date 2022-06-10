@@ -36,6 +36,7 @@
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkObject.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataSetAttributes;
 class vtkMatrix4x4;
 class vtkStreamingTessellator;
@@ -193,4 +194,5 @@ inline int vtkEdgeSubdivisionCriterion::GetNumberOfFields() const
   return this->NumberOfFields;
 }
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkEdgeSubdivisionCriterion_h

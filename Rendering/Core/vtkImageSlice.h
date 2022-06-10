@@ -38,6 +38,7 @@
 #include "vtkProp3D.h"
 #include "vtkRenderingCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkRenderer;
 class vtkPropCollection;
 class vtkImageProperty;
@@ -174,4 +175,5 @@ private:
   void operator=(const vtkImageSlice&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

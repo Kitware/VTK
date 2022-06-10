@@ -55,6 +55,7 @@
 #include "vtkPriorityQueue.h"
 #include "vtkTriangle.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkQuadricDecimation);
 
 //------------------------------------------------------------------------------
@@ -1477,3 +1478,4 @@ void vtkQuadricDecimation::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "TCoords Weight: " << this->TCoordsWeight << "\n";
   os << indent << "Tensors Weight: " << this->TensorsWeight << "\n";
 }
+VTK_ABI_NAMESPACE_END

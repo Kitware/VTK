@@ -24,6 +24,7 @@
 
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImageNonMaximumSuppression);
 
 //------------------------------------------------------------------------------
@@ -326,3 +327,4 @@ void vtkImageNonMaximumSuppression::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "HandleBoundaries: " << (this->HandleBoundaries ? "On\n" : "Off\n");
 }
+VTK_ABI_NAMESPACE_END

@@ -29,6 +29,7 @@
 #include "vtkFiltersFlowPathsModule.h" // For export macro
 #include "vtkStreamTracer.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkAppendPolyData;
 class vtkRuledSurfaceFilter;
 
@@ -92,4 +93,5 @@ private:
   vtkNew<vtkStreamTracer> StreamTracer;
   vtkNew<vtkAppendPolyData> AppendSurfaces;
 };
+VTK_ABI_NAMESPACE_END
 #endif

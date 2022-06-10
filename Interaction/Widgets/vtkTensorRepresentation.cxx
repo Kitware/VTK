@@ -45,6 +45,7 @@
 
 #include <cassert>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkTensorRepresentation);
 
 //------------------------------------------------------------------------------
@@ -1966,3 +1967,4 @@ void vtkTensorRepresentation::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Tensor Ellipsoid: " << (this->TensorEllipsoid ? "On\n" : "Off\n");
   os << indent << "Inside Out: " << (this->InsideOut ? "On\n" : "Off\n");
 }
+VTK_ABI_NAMESPACE_END

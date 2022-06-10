@@ -26,6 +26,7 @@
 
 #include <cassert>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOpenGLProperty);
 
 vtkOpenGLProperty::vtkOpenGLProperty() = default;
@@ -119,3 +120,4 @@ void vtkOpenGLProperty::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

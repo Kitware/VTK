@@ -29,6 +29,7 @@
 #include <set>
 #include <sstream>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkHighestDensityRegionsStatistics);
 
 //------------------------------------------------------------------------------
@@ -247,3 +248,4 @@ double vtkHighestDensityRegionsStatistics::ComputeSmoothGaussianKernel(
 
   return (exp(-d * 0.5)) / (2.0 * vtkMath::Pi() * this->Determinant);
 }
+VTK_ABI_NAMESPACE_END

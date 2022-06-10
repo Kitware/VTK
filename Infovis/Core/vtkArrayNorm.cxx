@@ -36,6 +36,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 // vtkArrayNorm
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkArrayNorm);
 
 vtkArrayNorm::vtkArrayNorm()
@@ -164,3 +165,4 @@ int vtkArrayNorm::RequestData(
 
   return 1;
 }
+VTK_ABI_NAMESPACE_END

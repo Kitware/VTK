@@ -35,6 +35,7 @@
 #include "vtkSmartPointer.h"   // Needed to hold SP ivars
 #include "vtkStdString.h"      // Needed to hold TooltipLabelFormat ivar
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkVariant;
 class vtkTable;
 class vtkIdTypeArray;
@@ -561,4 +562,5 @@ private:
   void operator=(const vtkPlot&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkPlot_h

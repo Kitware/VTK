@@ -22,6 +22,7 @@
 #include "vtkMultiPieceDataSet.h"
 #include "vtkObjectFactory.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkCompositeDataDisplayAttributesLegacy);
 
 vtkCompositeDataDisplayAttributesLegacy::vtkCompositeDataDisplayAttributesLegacy() = default;
@@ -258,3 +259,4 @@ void vtkCompositeDataDisplayAttributesLegacy::ComputeVisibleBoundsInternal(
     }
   }
 }
+VTK_ABI_NAMESPACE_END

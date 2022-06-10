@@ -44,6 +44,7 @@
 #include "vtkObject.h"
 #include <vtk_jsoncpp.h> // For Json::Value
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkActor;
 class vtkAlgorithm;
 class vtkCamera;
@@ -166,4 +167,5 @@ private:
   void extractRequiredFields(Json::Value& extractedFields, vtkMapper* mapper, vtkDataSet* dataSet);
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -21,6 +21,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkExplicitStructuredGridAlgorithm);
 
 //------------------------------------------------------------------------------
@@ -178,3 +179,4 @@ int vtkExplicitStructuredGridAlgorithm::FillInputPortInformation(
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkExplicitStructuredGrid");
   return 1;
 }
+VTK_ABI_NAMESPACE_END

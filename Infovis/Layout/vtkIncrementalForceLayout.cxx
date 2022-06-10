@@ -15,6 +15,7 @@
 #include <utility>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 class Quad
 {
 public:
@@ -421,3 +422,4 @@ void vtkIncrementalForceLayout::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

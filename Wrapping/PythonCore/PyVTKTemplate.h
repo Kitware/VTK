@@ -23,6 +23,7 @@
 #ifndef PyVTKTemplate_h
 #define PyVTKTemplate_h
 
+#include "vtkABINamespace.h"
 #include "vtkPython.h"
 #include "vtkSystemIncludes.h"
 #include "vtkWrappingPythonCoreModule.h" // For export macro

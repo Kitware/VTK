@@ -33,6 +33,7 @@
 #include <vtkUniformGridAMR.h>
 
 //----------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkStreamSurface);
 
 //----------------------------------------------------------------------------
@@ -458,3 +459,4 @@ int vtkStreamSurface::RequestData(vtkInformation* vtkNotUsed(request),
   }
   return finishedSuccessfully;
 }
+VTK_ABI_NAMESPACE_END

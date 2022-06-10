@@ -16,6 +16,7 @@
 #ifndef PyVTKEnum_h
 #define PyVTKEnum_h
 
+#include "vtkABINamespace.h"
 #include "vtkPython.h"
 #include "vtkSystemIncludes.h"
 #include "vtkWrappingPythonCoreModule.h" // For export macro

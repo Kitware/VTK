@@ -94,6 +94,7 @@
 #define VTK_EXTRACT_CLOSEST_POINT_REGION 6
 #define VTK_EXTRACT_LARGE_REGIONS 7
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataArray;
 class vtkCharArray;
 class vtkIdList;
@@ -442,4 +443,5 @@ inline const char* vtkPolyDataEdgeConnectivityFilter::GetExtractionModeAsString(
   }
 }
 
+VTK_ABI_NAMESPACE_END
 #endif

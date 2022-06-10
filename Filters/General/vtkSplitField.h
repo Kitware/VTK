@@ -51,6 +51,7 @@
 
 #include "vtkDataSetAttributes.h" // Needed for NUM_ATTRIBUTES
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkFieldData;
 
 class VTKFILTERSGENERAL_EXPORT vtkSplitField : public vtkDataSetAlgorithm
@@ -159,4 +160,5 @@ private:
   void operator=(const vtkSplitField&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

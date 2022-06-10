@@ -27,6 +27,7 @@
 #include "vtkUnstructuredGrid.h"
 
 // Methods and functors for processing in parallel
+VTK_ABI_NAMESPACE_BEGIN
 namespace
 { // begin anonymous namespace
 
@@ -722,3 +723,4 @@ void vtkSpanSpace::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Compute Resolution: " << (this->ComputeResolution ? "On\n" : "Off\n");
   os << indent << "Number of Cells Per Bucket: " << this->NumberOfCellsPerBucket << "\n";
 }
+VTK_ABI_NAMESPACE_END

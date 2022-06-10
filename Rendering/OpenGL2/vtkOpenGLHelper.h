@@ -18,6 +18,7 @@
 #include "vtkRenderingOpenGL2Module.h" // for export macro
 #include "vtkTimeStamp.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkOpenGLIndexBufferObject;
 class vtkOpenGLShaderCache;
 class vtkOpenGLVertexArrayObject;
@@ -48,6 +49,7 @@ private:
   vtkOpenGLHelper& operator=(const vtkOpenGLHelper&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkOpenGLHelper_h
 
 // VTK-HeaderTest-Exclude: vtkOpenGLHelper.h

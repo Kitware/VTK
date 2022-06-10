@@ -23,6 +23,7 @@ PURPOSE.  See the above copyright notice for more information.
 /*=========================================================================
 vtkOpenVRModel
 =========================================================================*/
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOpenVRModel);
 
 //------------------------------------------------------------------------------
@@ -120,3 +121,4 @@ void vtkOpenVRModel::LoadModelAndTexture(vtkOpenGLRenderWindow* win)
     }
   }
 }
+VTK_ABI_NAMESPACE_END

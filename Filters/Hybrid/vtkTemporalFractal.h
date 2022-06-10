@@ -33,6 +33,7 @@
 #include "vtkFiltersHybridModule.h" // For export macro
 #include "vtkSmartPointer.h"        //for ivars
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCompositeDataSet;
 class vtkDataSet;
 class vtkHierarchicalBoxDataSet;
@@ -238,4 +239,5 @@ private:
   void operator=(const vtkTemporalFractal&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

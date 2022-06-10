@@ -37,6 +37,7 @@
 #include <utility>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkGeoEdgeStrategy);
 
 vtkGeoEdgeStrategy::vtkGeoEdgeStrategy()
@@ -185,3 +186,4 @@ void vtkGeoEdgeStrategy::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "ExplodeFactor: " << this->ExplodeFactor << endl;
   os << indent << "NumberOfSubdivisions: " << this->NumberOfSubdivisions << endl;
 }
+VTK_ABI_NAMESPACE_END

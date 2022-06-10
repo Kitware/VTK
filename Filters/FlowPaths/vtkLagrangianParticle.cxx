@@ -20,6 +20,7 @@
 #include "vtkSetGet.h"
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkLagrangianParticle::vtkLagrangianParticle(int numberOfVariables, vtkIdType seedId,
   vtkIdType particleId, vtkIdType seedArrayTupleIndex, double integrationTime,
   vtkPointData* seedData, int numberOfTrackedUserData)
@@ -387,3 +388,4 @@ void vtkLagrangianParticle::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "ThreadedData: " << this->ThreadedData << std::endl;
 }
+VTK_ABI_NAMESPACE_END

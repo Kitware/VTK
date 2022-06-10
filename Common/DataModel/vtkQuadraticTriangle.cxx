@@ -22,6 +22,7 @@
 #include "vtkQuadraticEdge.h"
 #include "vtkTriangle.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkQuadraticTriangle);
 
 //------------------------------------------------------------------------------
@@ -441,3 +442,4 @@ void vtkQuadraticTriangle::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Scalars:\n";
   this->Scalars->PrintSelf(os, indent.GetNextIndent());
 }
+VTK_ABI_NAMESPACE_END

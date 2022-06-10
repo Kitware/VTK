@@ -18,11 +18,13 @@
 
 #include "vtk_sqlite.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkSQLiteDatabaseInternals
 {
 public:
   sqlite3* SQLiteInstance;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkSQLiteDatabaseInternals.h

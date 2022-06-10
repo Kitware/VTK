@@ -73,6 +73,7 @@
 #define VTKIS_IMAGE3D 3
 #define VTKIS_IMAGE_SLICING 4
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkImageProperty;
 
 class VTKINTERACTIONSTYLE_EXPORT vtkInteractorStyleImage : public vtkInteractorStyleTrackballCamera
@@ -213,4 +214,5 @@ private:
   void operator=(const vtkInteractorStyleImage&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

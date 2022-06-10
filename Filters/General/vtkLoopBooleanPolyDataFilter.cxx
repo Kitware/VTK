@@ -49,6 +49,7 @@
 
 //------------------------------------------------------------------------------
 // Helper typedefs and data structures.
+VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
 
@@ -1494,3 +1495,4 @@ void vtkLoopBooleanPolyDataFilter::Impl::ThresholdRegions(vtkPolyData** surfaces
     booleanCells[i]->Delete();
   }
 }
+VTK_ABI_NAMESPACE_END

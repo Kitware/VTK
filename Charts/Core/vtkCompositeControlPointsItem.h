@@ -33,6 +33,7 @@
 #include "vtkChartsCoreModule.h" // For export macro
 #include "vtkColorTransferControlPointsItem.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPiecewiseFunction;
 class vtkPiecewisePointHandleItem;
 
@@ -168,4 +169,5 @@ private:
   void operator=(const vtkCompositeControlPointsItem&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

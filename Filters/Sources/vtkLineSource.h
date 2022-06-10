@@ -55,6 +55,7 @@
 #include "vtkPolyDataAlgorithm.h"
 
 #include <vector> //  for std::vector
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPoints;
 
 class VTKFILTERSSOURCES_EXPORT vtkLineSource : public vtkPolyDataAlgorithm
@@ -162,4 +163,5 @@ private:
   void operator=(const vtkLineSource&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

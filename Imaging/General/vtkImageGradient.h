@@ -29,6 +29,7 @@
 #include "vtkImagingGeneralModule.h" // For export macro
 #include "vtkThreadedImageAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKIMAGINGGENERAL_EXPORT vtkImageGradient : public vtkThreadedImageAlgorithm
 {
 public:
@@ -75,4 +76,5 @@ private:
   void operator=(const vtkImageGradient&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

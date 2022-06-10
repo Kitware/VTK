@@ -41,6 +41,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkVRRenderWindowInteractor.h"
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkVRInteractorStyle::vtkVRInteractorStyle()
 {
   this->InteractionProps.resize(vtkEventDataNumberOfDevices);
@@ -1499,3 +1500,4 @@ bool vtkVRInteractorStyle::HardwareSelect(vtkEventDataDevice controller, bool ac
 
   return true;
 }
+VTK_ABI_NAMESPACE_END

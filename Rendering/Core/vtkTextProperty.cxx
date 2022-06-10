@@ -15,6 +15,7 @@
 #include "vtkTextProperty.h"
 #include "vtkObjectFactory.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkTextProperty);
 
 //------------------------------------------------------------------------------
@@ -196,3 +197,4 @@ void vtkTextProperty::GetBackgroundRGBA(double& r, double& g, double& b, double&
   this->GetBackgroundColor(r, g, b);
   a = this->GetBackgroundOpacity();
 }
+VTK_ABI_NAMESPACE_END

@@ -35,6 +35,7 @@
 
 #define VTK_EXPONENT_AXES_ACTOR_RTOL (1. - 10. * VTK_DBL_EPSILON)
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPolarAxesActor);
 vtkCxxSetObjectMacro(vtkPolarAxesActor, Camera, vtkCamera);
 vtkCxxSetObjectMacro(vtkPolarAxesActor, PolarAxisLabelTextProperty, vtkTextProperty);
@@ -2567,3 +2568,4 @@ double vtkPolarAxesActor::ComputeEllipseAngle(double angleInDegrees, double rati
   }
   return miniAngleEllipse;
 }
+VTK_ABI_NAMESPACE_END

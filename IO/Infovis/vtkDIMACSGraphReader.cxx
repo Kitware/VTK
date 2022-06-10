@@ -39,6 +39,7 @@ using std::istringstream;
 
 #define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
+VTK_ABI_NAMESPACE_BEGIN
 typedef enum problemTypes
 {
   GENERIC,
@@ -539,3 +540,4 @@ int vtkDIMACSGraphReader::RequestDataObject(
   }
   return 1;
 }
+VTK_ABI_NAMESPACE_END

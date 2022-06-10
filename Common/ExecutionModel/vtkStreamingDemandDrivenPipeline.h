@@ -32,6 +32,7 @@
 #define VTK_UPDATE_EXTENT_COMBINE 1
 #define VTK_UPDATE_EXTENT_REPLACE 2
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkInformationDoubleKey;
 class vtkInformationDoubleVectorKey;
 class vtkInformationIdTypeKey;
@@ -321,4 +322,5 @@ private:
   void operator=(const vtkStreamingDemandDrivenPipeline&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

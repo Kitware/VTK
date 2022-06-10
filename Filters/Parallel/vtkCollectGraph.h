@@ -30,6 +30,7 @@
 #include "vtkFiltersParallelModule.h" // For export macro
 #include "vtkGraphAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkMultiProcessController;
 class vtkSocketController;
 
@@ -108,4 +109,5 @@ private:
   void operator=(const vtkCollectGraph&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

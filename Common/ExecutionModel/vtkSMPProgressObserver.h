@@ -31,6 +31,7 @@
 #include "vtkProgressObserver.h"
 #include "vtkSMPThreadLocalObject.h" // For thread local observers.
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONEXECUTIONMODEL_EXPORT vtkSMPProgressObserver : public vtkProgressObserver
 {
 public:
@@ -61,4 +62,5 @@ private:
   void operator=(const vtkSMPProgressObserver&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

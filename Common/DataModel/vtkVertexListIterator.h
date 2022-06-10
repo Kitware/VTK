@@ -39,6 +39,7 @@
 
 #include "vtkGraph.h" // For edge type definitions
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkGraphEdge;
 
 class VTKCOMMONDATAMODEL_EXPORT vtkVertexListIterator : public vtkObject
@@ -90,4 +91,5 @@ private:
   void operator=(const vtkVertexListIterator&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

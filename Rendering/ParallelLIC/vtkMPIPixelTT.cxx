@@ -18,6 +18,7 @@
   MPI_Datatype vtkMPIPixelTT<_ctype>::MPIType = _mpiEnum;                                          \
   int vtkMPIPixelTT<_ctype>::VTKType = _vtkEnum
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkMPIPixelTTMacro2(void, MPI_BYTE, VTK_VOID);
 vtkMPIPixelTTMacro2(char, MPI_CHAR, VTK_CHAR);
 vtkMPIPixelTTMacro2(signed char, MPI_CHAR, VTK_SIGNED_CHAR);
@@ -33,3 +34,4 @@ vtkMPIPixelTTMacro2(double, MPI_DOUBLE, VTK_DOUBLE);
 // vtkMPIPixelTTMacro2(vtkIdType, MPI_LONG_LONG, VTK_IDTYPE);
 vtkMPIPixelTTMacro2(long long, MPI_LONG_LONG, VTK_LONG_LONG);
 vtkMPIPixelTTMacro2(unsigned long long, MPI_UNSIGNED_LONG_LONG, VTK_UNSIGNED_LONG_LONG);
+VTK_ABI_NAMESPACE_END

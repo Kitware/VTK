@@ -29,6 +29,7 @@
 #include "vtkPointSet.h"
 #include "vtkPoints.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkAssignCoordinates);
 
 vtkAssignCoordinates::vtkAssignCoordinates()
@@ -196,3 +197,4 @@ void vtkAssignCoordinates::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Jitter: " << (this->Jitter ? "True" : "False") << endl;
 }
+VTK_ABI_NAMESPACE_END

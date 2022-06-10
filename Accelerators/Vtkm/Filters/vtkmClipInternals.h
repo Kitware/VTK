@@ -22,6 +22,7 @@
 
 #include <vtkm/cont/DataSet.h>
 
+VTK_ABI_NAMESPACE_BEGIN
 struct vtkmClip::internals
 {
   double ClipValue = .0;
@@ -34,5 +35,6 @@ struct vtkmClip::internals
   vtkm::cont::DataSet ExecuteClipWithField(vtkm::cont::DataSet&, vtkDataArray*, int);
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkmClipInternals.h

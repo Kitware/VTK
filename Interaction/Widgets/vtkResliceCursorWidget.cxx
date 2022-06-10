@@ -29,6 +29,7 @@
 #include "vtkWidgetEvent.h"
 #include "vtkWidgetEventTranslator.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkResliceCursorWidget);
 
 //------------------------------------------------------------------------------
@@ -474,3 +475,4 @@ void vtkResliceCursorWidget::PrintSelf(ostream& os, vtkIndent indent)
   // this->ModifierActive;
   // this->WidgetState;
 }
+VTK_ABI_NAMESPACE_END

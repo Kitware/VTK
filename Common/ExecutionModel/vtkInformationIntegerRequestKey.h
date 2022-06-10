@@ -38,6 +38,7 @@
 
 #include "vtkCommonInformationKeyManager.h" // Manage instances of this type.
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONEXECUTIONMODEL_EXPORT vtkInformationIntegerRequestKey
   : public vtkInformationIntegerKey
 {
@@ -88,4 +89,5 @@ private:
   void operator=(const vtkInformationIntegerRequestKey&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

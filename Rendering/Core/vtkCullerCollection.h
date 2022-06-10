@@ -31,6 +31,7 @@
 #include "vtkCuller.h"              // for inline functions
 #include "vtkRenderingCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKRENDERINGCORE_EXPORT vtkCullerCollection : public vtkCollection
 {
 public:
@@ -87,4 +88,5 @@ inline vtkCuller* vtkCullerCollection::GetLastItem()
   }
 }
 
+VTK_ABI_NAMESPACE_END
 #endif

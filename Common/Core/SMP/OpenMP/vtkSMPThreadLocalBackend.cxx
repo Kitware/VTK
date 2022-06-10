@@ -28,6 +28,7 @@ namespace smp
 {
 namespace OpenMP
 {
+VTK_ABI_NAMESPACE_BEGIN
 
 static ThreadIdType GetThreadId()
 {
@@ -261,7 +262,7 @@ StoragePointerType& ThreadSpecific::GetStorage()
   }
   return slot->Storage;
 }
-
+VTK_ABI_NAMESPACE_END
 } // OpenMP
 } // namespace smp
 } // namespace detail

@@ -23,6 +23,7 @@ See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
 #include <cmath>
 #include <cstring>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkNIFTIImageHeader);
 
 //------------------------------------------------------------------------------
@@ -453,3 +454,4 @@ void vtkNIFTIImageHeader::SetAuxFile(const char* val)
 {
   this->SetStringValue(this->AuxFile, val, 24);
 }
+VTK_ABI_NAMESPACE_END

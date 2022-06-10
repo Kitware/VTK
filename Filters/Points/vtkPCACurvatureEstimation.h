@@ -54,6 +54,7 @@
 #include "vtkFiltersPointsModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkAbstractPointLocator;
 
 class VTKFILTERSPOINTS_EXPORT vtkPCACurvatureEstimation : public vtkPolyDataAlgorithm
@@ -106,4 +107,5 @@ private:
   void operator=(const vtkPCACurvatureEstimation&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

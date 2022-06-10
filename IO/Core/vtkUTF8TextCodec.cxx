@@ -25,6 +25,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include <vtk_utf8.h>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkUTF8TextCodec);
 
 void vtkUTF8TextCodec::ToUnicode(istream& InputStream, vtkTextCodec::OutputIterator& Output)
@@ -87,3 +88,4 @@ void vtkUTF8TextCodec::PrintSelf(ostream& os, vtkIndent indent)
   indent = indent.GetNextIndent();
   this->Superclass::PrintSelf(os, indent.GetNextIndent());
 }
+VTK_ABI_NAMESPACE_END

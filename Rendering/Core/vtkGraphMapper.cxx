@@ -50,6 +50,7 @@
 #include "vtkUndirectedGraph.h"
 #include "vtkVertexGlyphFilter.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkGraphMapper);
 
 #define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
@@ -763,3 +764,4 @@ void vtkGraphMapper::ReportReferences(vtkGarbageCollector* collector)
 }
 
 #endif
+VTK_ABI_NAMESPACE_END

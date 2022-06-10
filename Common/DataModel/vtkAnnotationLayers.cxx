@@ -33,6 +33,7 @@
 #include <algorithm>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkAnnotationLayers);
 vtkCxxSetObjectMacro(vtkAnnotationLayers, CurrentAnnotation, vtkAnnotation);
 
@@ -219,3 +220,4 @@ vtkAnnotationLayers* vtkAnnotationLayers::GetData(vtkInformationVector* v, int i
 {
   return vtkAnnotationLayers::GetData(v->GetInformationObject(i));
 }
+VTK_ABI_NAMESPACE_END

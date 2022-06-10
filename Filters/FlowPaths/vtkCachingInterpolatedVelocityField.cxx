@@ -30,6 +30,7 @@
 #include <vector>
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkCachingInterpolatedVelocityField);
 //------------------------------------------------------------------------------
 const double IVFDataSetInfo::TOLERANCE_SCALE = 1.0E-8;
@@ -462,3 +463,4 @@ void vtkCachingInterpolatedVelocityField::PrintSelf(ostream& os, vtkIndent inden
   os << indent << "LastCacheIndex : " << this->LastCacheIndex << endl;
 }
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_END

@@ -26,6 +26,7 @@
 #include <cassert>
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPath);
 
 //------------------------------------------------------------------------------
@@ -129,3 +130,4 @@ vtkIntArray* vtkPath::GetCodes()
 {
   return vtkArrayDownCast<vtkIntArray>(this->PointData->GetScalars());
 }
+VTK_ABI_NAMESPACE_END

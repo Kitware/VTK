@@ -25,6 +25,7 @@
 
 #include "vtkDataSetSurfaceFilter.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCharArray;
 
 class VTKFILTERSGEOMETRY_EXPORT vtkDataSetRegionSurfaceFilter : public vtkDataSetSurfaceFilter
@@ -140,4 +141,5 @@ private:
   Internals* Internal;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

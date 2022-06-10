@@ -27,6 +27,7 @@
 
 #include "RTWrapper/RTWrapper.h" // for handle types
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkInformationIntegerKey;
 class vtkCamera;
 
@@ -55,4 +56,5 @@ private:
   void operator=(const vtkOSPRayCameraNode&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

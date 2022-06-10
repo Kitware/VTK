@@ -36,6 +36,7 @@
 #include <string>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkExtractExodusGlobalTemporalVariables::vtkInternals
 {
   std::map<std::string, vtkSmartPointer<vtkAbstractArray>> Arrays;
@@ -414,3 +415,4 @@ void vtkExtractExodusGlobalTemporalVariables::PrintSelf(ostream& os, vtkIndent i
   os << indent << "AutoDetectGlobalTemporalDataArrays: " << this->AutoDetectGlobalTemporalDataArrays
      << endl;
 }
+VTK_ABI_NAMESPACE_END

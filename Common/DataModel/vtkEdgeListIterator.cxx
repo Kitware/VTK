@@ -27,6 +27,7 @@
 #include "vtkInformation.h"
 #include "vtkObjectFactory.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkEdgeListIterator);
 //------------------------------------------------------------------------------
 vtkEdgeListIterator::vtkEdgeListIterator()
@@ -209,3 +210,4 @@ void vtkEdgeListIterator::PrintSelf(ostream& os, vtkIndent indent)
     this->Graph->PrintSelf(os, indent.GetNextIndent());
   }
 }
+VTK_ABI_NAMESPACE_END

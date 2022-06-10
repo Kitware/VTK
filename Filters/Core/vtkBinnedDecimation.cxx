@@ -39,6 +39,7 @@
 #include <atomic>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkBinnedDecimation);
 
 //----------------------------------------------------------------------------
@@ -1651,3 +1652,4 @@ void vtkBinnedDecimation::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Pass Point Data : " << this->ProducePointData << endl;
   os << indent << "Produce Cell Data : " << this->ProduceCellData << endl;
 }
+VTK_ABI_NAMESPACE_END

@@ -54,6 +54,7 @@
 /// Output iterator object that parses a stream of Unicode characters into records and
 /// fields, inserting them into a vtkTable.
 
+VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
 
@@ -631,3 +632,4 @@ int vtkDelimitedTextReader::ReadData(vtkTable* const output_table)
 
   return 1;
 }
+VTK_ABI_NAMESPACE_END

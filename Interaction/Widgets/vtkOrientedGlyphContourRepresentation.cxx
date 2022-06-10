@@ -40,6 +40,7 @@
 #include "vtkTransform.h"
 #include "vtkTransformPolyDataFilter.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOrientedGlyphContourRepresentation);
 
 //------------------------------------------------------------------------------
@@ -1052,3 +1053,4 @@ void vtkOrientedGlyphContourRepresentation::PrintSelf(ostream& os, vtkIndent ind
     os << indent << "Lines Property: (none)\n";
   }
 }
+VTK_ABI_NAMESPACE_END

@@ -65,6 +65,7 @@
 #include "vtkFiltersParallelModule.h" // for export macros
 #include "vtkPartitionedDataSetAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkMultiProcessController;
 
 class VTKFILTERSPARALLEL_EXPORT vtkPartitionBalancer : public vtkPartitionedDataSetAlgorithm
@@ -148,4 +149,5 @@ private:
   void operator=(const vtkPartitionBalancer&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

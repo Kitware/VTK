@@ -56,6 +56,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkFiltersStatisticsModule.h" // For export macro
 #include "vtkMultiCorrelativeStatistics.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDoubleArray;
 class vtkIdTypeArray;
 
@@ -291,4 +292,5 @@ private:
   void operator=(const vtkPCAStatistics&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkPCAStatistics_h

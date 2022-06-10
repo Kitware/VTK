@@ -22,6 +22,7 @@
 #include "vtkSmartPointer.h"
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPolyPointSource);
 
 vtkCxxSetObjectMacro(vtkPolyPointSource, Points, vtkPoints);
@@ -154,3 +155,4 @@ void vtkPolyPointSource::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Points: " << this->Points << "\n";
 }
+VTK_ABI_NAMESPACE_END

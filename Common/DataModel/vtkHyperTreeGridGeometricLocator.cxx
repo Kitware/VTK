@@ -31,6 +31,7 @@
 #include <numeric>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 //------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkHyperTreeGridGeometricLocator);
 
@@ -695,3 +696,4 @@ std::vector<int> vtkHyperTreeGridGeometricLocator::GetSortingMap(
   std::sort(map.begin(), map.end(), [&other](int i0, int i1) { return (other[i0] < other[i1]); });
   return map;
 }
+VTK_ABI_NAMESPACE_END

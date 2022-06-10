@@ -28,6 +28,7 @@
 #include "vtkPoints.h"
 #include "vtkVertex.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkBridgeCellIteratorOnCellBoundaries);
 
 //------------------------------------------------------------------------------
@@ -268,3 +269,4 @@ void vtkBridgeCellIteratorOnCellBoundaries::InitWithCellBoundaries(vtkBridgeCell
     this->NumberOfVertices = 0;
   }
 }
+VTK_ABI_NAMESPACE_END

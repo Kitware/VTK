@@ -56,6 +56,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkRenderWindow.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 QVTKInteractorInternal::QVTKInteractorInternal(QVTKInteractor* p)
   : Parent(p)
 {
@@ -266,3 +267,4 @@ int QVTKInteractor::InternalDestroyTimer(int platformTimerId)
   }
   return 0;
 }
+VTK_ABI_NAMESPACE_END

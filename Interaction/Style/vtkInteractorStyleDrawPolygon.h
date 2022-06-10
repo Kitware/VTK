@@ -30,6 +30,7 @@
 #include "vtkVector.h" // For Polygon Points
 #include <vector>      // For returning Polygon Points
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkUnsignedCharArray;
 
 class VTKINTERACTIONSTYLE_EXPORT vtkInteractorStyleDrawPolygon : public vtkInteractorStyle
@@ -84,4 +85,5 @@ private:
   vtkInternal* Internal;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

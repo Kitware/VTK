@@ -38,6 +38,7 @@
 #include "vtkGraphLayoutStrategy.h"
 #include "vtkInfovisLayoutModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkFloatArray;
 
 class VTKINFOVISLAYOUT_EXPORT vtkSimple2DLayoutStrategy : public vtkGraphLayoutStrategy
@@ -185,4 +186,5 @@ private:
   void operator=(const vtkSimple2DLayoutStrategy&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

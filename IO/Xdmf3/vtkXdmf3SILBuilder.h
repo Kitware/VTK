@@ -32,6 +32,7 @@
 #include "vtkIOXdmf3Module.h" // For export macro
 #include "vtkType.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkMutableDirectedGraph;
 class vtkStringArray;
 class vtkUnsignedCharArray;
@@ -77,5 +78,6 @@ public:
   vtkXdmf3SILBuilder(const vtkXdmf3SILBuilder&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkXdmf3SILBuilder_h
 // VTK-HeaderTest-Exclude: vtkXdmf3SILBuilder.h

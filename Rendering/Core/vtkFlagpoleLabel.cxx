@@ -33,6 +33,7 @@
 #include "vtkTexture.h"
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkObjectFactoryNewMacro(vtkFlagpoleLabel);
 vtkCxxSetObjectMacro(vtkFlagpoleLabel, TextProperty, vtkTextProperty);
 
@@ -505,3 +506,4 @@ void vtkFlagpoleLabel::PreRender()
   this->PoleActor->SetPropertyKeys(this->GetPropertyKeys());
   this->QuadActor->SetPropertyKeys(this->GetPropertyKeys());
 }
+VTK_ABI_NAMESPACE_END

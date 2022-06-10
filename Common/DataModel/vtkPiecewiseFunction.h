@@ -40,6 +40,7 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkDataObject.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPiecewiseFunctionInternals;
 
 class VTKCOMMONDATAMODEL_EXPORT vtkPiecewiseFunction : public vtkDataObject
@@ -283,4 +284,5 @@ private:
   void operator=(const vtkPiecewiseFunction&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -26,6 +26,7 @@
 #include "vtkCell.h"
 #include "vtkCommonDataModelModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONDATAMODEL_EXPORT vtkEmptyCell : public vtkCell
 {
 public:
@@ -70,4 +71,5 @@ private:
   void operator=(const vtkEmptyCell&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

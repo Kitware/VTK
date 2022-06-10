@@ -21,6 +21,7 @@
 #include "vtkPythonUtil.h"
 #include "vtkSmartPyObject.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPythonItem);
 
 //------------------------------------------------------------------------------
@@ -179,3 +180,4 @@ bool vtkPythonItem::Paint(vtkContext2D* painter)
 
   return CheckResult(mname, result);
 }
+VTK_ABI_NAMESPACE_END

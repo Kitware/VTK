@@ -34,6 +34,7 @@
 #include "vtkTreeAreaView.h"
 #include "vtkViewsInfovisModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKVIEWSINFOVIS_EXPORT vtkIcicleView : public vtkTreeAreaView
 {
 public:
@@ -84,4 +85,5 @@ private:
   void operator=(const vtkIcicleView&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

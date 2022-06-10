@@ -22,6 +22,7 @@
 #include "vtkPointSet.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkExtractDataOverTime);
 
 //------------------------------------------------------------------------------
@@ -191,3 +192,4 @@ int vtkExtractDataOverTime::AllocateOutputData(vtkPointSet* input, vtkPointSet* 
 
   return 1;
 }
+VTK_ABI_NAMESPACE_END

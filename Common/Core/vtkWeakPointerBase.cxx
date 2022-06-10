@@ -15,6 +15,7 @@
 #include "vtkWeakPointerBase.h"
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 class vtkWeakPointerBaseToObjectBaseFriendship
 {
 public:
@@ -203,3 +204,4 @@ ostream& operator<<(ostream& os, const vtkWeakPointerBase& p)
   // Just print the pointer value into the stream.
   return os << static_cast<void*>(p.GetPointer());
 }
+VTK_ABI_NAMESPACE_END

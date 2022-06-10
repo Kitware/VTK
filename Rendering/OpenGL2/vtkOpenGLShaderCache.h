@@ -27,6 +27,7 @@
 #include "vtkShader.h"                 // for vtkShader::Type
 #include <map>                         // for methods
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkTransformFeedback;
 class vtkShaderProgram;
 class vtkWindow;
@@ -103,4 +104,5 @@ private:
   void operator=(const vtkOpenGLShaderCache&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

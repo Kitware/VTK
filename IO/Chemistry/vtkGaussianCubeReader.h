@@ -30,6 +30,7 @@
 #include "vtkIOChemistryModule.h" // For export macro
 #include "vtkMoleculeReaderBase.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkImageData;
 class vtkTransform;
 
@@ -61,4 +62,5 @@ private:
   void operator=(const vtkGaussianCubeReader&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

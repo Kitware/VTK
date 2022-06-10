@@ -44,6 +44,7 @@
 #include "vtkAbstractPolyDataReader.h"
 #include "vtkIOPLYModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkStringArray;
 
 class VTKIOPLY_EXPORT vtkPLYReader : public vtkAbstractPolyDataReader
@@ -116,4 +117,5 @@ private:
   bool DuplicatePointsForFaceTexture;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

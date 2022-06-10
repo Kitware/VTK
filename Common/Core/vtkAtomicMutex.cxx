@@ -26,6 +26,8 @@ static inline __attribute__((always_inline)) void _mm_pause()
 #define _mm_pause()
 #endif
 
+VTK_ABI_NAMESPACE_BEGIN
+
 //------------------------------------------------------------------------------
 vtkAtomicMutex::vtkAtomicMutex()
   : Locked(false)
@@ -76,3 +78,4 @@ void vtkAtomicMutex::unlock()
 {
   this->Locked.store(false, std::memory_order_release);
 }
+VTK_ABI_NAMESPACE_END

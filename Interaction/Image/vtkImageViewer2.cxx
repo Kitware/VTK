@@ -28,6 +28,7 @@
 #include "vtkRenderer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImageViewer2);
 
 //------------------------------------------------------------------------------
@@ -752,3 +753,4 @@ void vtkImageViewer2::PrintSelf(ostream& os, vtkIndent indent)
     os << "None";
   }
 }
+VTK_ABI_NAMESPACE_END

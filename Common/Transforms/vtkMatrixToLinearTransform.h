@@ -32,6 +32,7 @@
 #include "vtkCommonTransformsModule.h" // For export macro
 #include "vtkLinearTransform.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkMatrix4x4;
 
 class VTKCOMMONTRANSFORMS_EXPORT vtkMatrixToLinearTransform : public vtkLinearTransform
@@ -81,4 +82,5 @@ private:
   void operator=(const vtkMatrixToLinearTransform&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

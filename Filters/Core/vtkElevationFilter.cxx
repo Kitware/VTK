@@ -28,6 +28,7 @@
 #include "vtkSMPTools.h"
 #include "vtkSmartPointer.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkElevationFilter);
 
 namespace
@@ -236,3 +237,4 @@ int vtkElevationFilter::RequestData(
 
   return 1;
 }
+VTK_ABI_NAMESPACE_END

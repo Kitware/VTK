@@ -36,6 +36,7 @@
 #include "vtkMultiBlockDataSetAlgorithm.h"
 #include "vtkSmartPointer.h" // for vtkSmartPointer.
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataSet;
 class vtkDataSetAttributes;
 class vtkExtractDataArraysOverTime;
@@ -144,4 +145,5 @@ private:
   bool IsExecuting;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

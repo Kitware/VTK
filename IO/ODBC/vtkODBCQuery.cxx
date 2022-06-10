@@ -44,6 +44,7 @@
 
 //------------------------------------------------------------------------------
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkODBCQuery);
 
 static std::string GetErrorMessage(SQLSMALLINT handleType, SQLHANDLE handle, int* code = nullptr);
@@ -1715,3 +1716,4 @@ bool vtkODBCQuery::ClearParameterBindings()
   this->Internals->ClearBoundParameters();
   return true;
 }
+VTK_ABI_NAMESPACE_END

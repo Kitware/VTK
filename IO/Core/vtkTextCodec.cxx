@@ -21,6 +21,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkTextCodec.h"
 #include <vtk_utf8.h>
 
+VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
 // iterator to throw away input.
@@ -119,3 +120,4 @@ void vtkTextCodec::PrintSelf(ostream& os, vtkIndent indent)
   indent = indent.GetNextIndent();
   this->Superclass::PrintSelf(os, indent.GetNextIndent());
 }
+VTK_ABI_NAMESPACE_END

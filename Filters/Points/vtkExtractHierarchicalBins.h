@@ -43,6 +43,7 @@
 #include "vtkFiltersPointsModule.h" // For export macro
 #include "vtkPointCloudFilter.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkHierarchicalBinningFilter;
 class vtkPointSet;
 
@@ -119,4 +120,5 @@ private:
   void operator=(const vtkExtractHierarchicalBins&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

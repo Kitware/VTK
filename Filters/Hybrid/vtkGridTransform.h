@@ -31,6 +31,7 @@
 #include "vtkFiltersHybridModule.h" // For export macro
 #include "vtkWarpTransform.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkAlgorithmOutput;
 class vtkGridTransformConnectionHolder;
 class vtkImageData;
@@ -176,4 +177,5 @@ inline const char* vtkGridTransform::GetInterpolationModeAsString()
   }
 }
 
+VTK_ABI_NAMESPACE_END
 #endif

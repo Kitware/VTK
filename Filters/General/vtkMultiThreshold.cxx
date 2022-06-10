@@ -34,6 +34,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUnstructuredGrid.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkMultiThreshold);
 
 // Prevent lots of error messages on the inner loop of the filter by keeping track of how many we
@@ -788,3 +789,4 @@ void vtkMultiThreshold::PrintGraph(ostream& os)
   }
   os << "}" << endl;
 }
+VTK_ABI_NAMESPACE_END

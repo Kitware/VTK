@@ -44,6 +44,7 @@
 #include "vtkGenericOpenGLRenderWindow.h"
 #include "vtkRenderingExternalModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKRENDERINGEXTERNAL_EXPORT vtkExternalOpenGLRenderWindow
   : public vtkGenericOpenGLRenderWindow
 {
@@ -102,4 +103,5 @@ private:
   vtkExternalOpenGLRenderWindow(const vtkExternalOpenGLRenderWindow&) = delete;
   void operator=(const vtkExternalOpenGLRenderWindow&) = delete;
 };
+VTK_ABI_NAMESPACE_END
 #endif // vtkExternalOpenGLRenderWindow_h

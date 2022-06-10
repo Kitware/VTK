@@ -47,6 +47,7 @@
 #include "vtkProp.h"
 #include "vtkWeakPointer.h" // needed for vtkWeakPointer iVar.
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkAbstractPropPicker;
 class vtkAbstractWidget;
 class vtkMatrix4x4;
@@ -321,4 +322,5 @@ private:
   void operator=(const vtkWidgetRepresentation&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -54,6 +54,7 @@
 
 #include "vtkSphereSource.h" // For VTK_MAX_SPHERE_RESOLUTION
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSSOURCES_EXPORT vtkCapsuleSource : public vtkPolyDataAlgorithm
 {
 public:
@@ -151,4 +152,5 @@ private:
   void operator=(const vtkCapsuleSource&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

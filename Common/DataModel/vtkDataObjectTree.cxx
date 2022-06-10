@@ -25,6 +25,7 @@
 #include "vtkObjectFactory.h"
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkDataObjectTree::vtkDataObjectTree()
 {
   this->Internals = new vtkDataObjectTreeInternals;
@@ -663,3 +664,4 @@ void vtkDataObjectTree::PrintSelf(ostream& os, vtkIndent indent)
     }
   }
 }
+VTK_ABI_NAMESPACE_END

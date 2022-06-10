@@ -33,6 +33,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkBivariateLinearTableThreshold.h"
 #include "vtkFiltersParallelStatisticsModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkIdTypeArray;
 class vtkMultiProcessController;
 
@@ -66,4 +67,5 @@ private:
   void operator=(const vtkPBivariateLinearTableThreshold&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

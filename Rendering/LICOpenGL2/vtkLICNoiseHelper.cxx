@@ -20,6 +20,7 @@
 
 #include <cassert>
 
+VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
 
@@ -401,3 +402,4 @@ vtkImageData* vtkLICRandomNoise2D::GetNoiseResource()
   reader->Delete();
   return data;
 }
+VTK_ABI_NAMESPACE_END

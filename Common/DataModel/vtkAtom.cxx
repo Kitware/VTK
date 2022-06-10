@@ -20,6 +20,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <cassert>
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkAtom::vtkAtom(vtkMolecule* parent, vtkIdType id)
   : Molecule(parent)
   , Id(id)
@@ -82,3 +83,4 @@ void vtkAtom::SetPosition(const vtkVector3f& pos)
 {
   this->Molecule->SetAtomPosition(this->Id, pos);
 }
+VTK_ABI_NAMESPACE_END

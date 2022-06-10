@@ -27,6 +27,7 @@ PURPOSE.  See the above copyright notice for more information.
 // TODO
 // - add option to remove crop planes
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkVRPanelRepresentation);
 
 //------------------------------------------------------------------------------
@@ -565,3 +566,4 @@ void vtkVRPanelRepresentation::SetText(const char* text)
   this->TextActor->SetInput(this->Text.c_str());
   this->Modified();
 }
+VTK_ABI_NAMESPACE_END

@@ -15,6 +15,7 @@
 
 #include "vtkTestingIOSQLModule.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkSQLDatabaseSchema;
 
 class VTKTESTINGIOSQL_EXPORT DatabaseSchemaWith2Tables
@@ -35,3 +36,4 @@ private:
 };
 
 // VTK-HeaderTest-Exclude: DatabaseSchemaWith2Tables.h
+VTK_ABI_NAMESPACE_END

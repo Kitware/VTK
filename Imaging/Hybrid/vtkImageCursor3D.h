@@ -25,6 +25,7 @@
 #include "vtkImageInPlaceFilter.h"
 #include "vtkImagingHybridModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKIMAGINGHYBRID_EXPORT vtkImageCursor3D : public vtkImageInPlaceFilter
 {
 public:
@@ -73,4 +74,5 @@ private:
   void operator=(const vtkImageCursor3D&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

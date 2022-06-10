@@ -20,6 +20,7 @@
 #include <string>
 
 // Registration of MySQL dynamically with the vtkSQLDatabase factory method.
+VTK_ABI_NAMESPACE_BEGIN
 vtkSQLDatabase* MySQLCreateFunction(const char* URL)
 {
   std::string urlstr(URL ? URL : "");
@@ -44,3 +45,4 @@ VTKIOMYSQL_EXPORT void vtkIOMySQL_AutoInit_Construct()
     vtkSQLDatabase::RegisterCreateFromURLCallback(MySQLCreateFunction);
   }
 }
+VTK_ABI_NAMESPACE_END

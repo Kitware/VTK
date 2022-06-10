@@ -39,6 +39,7 @@
 #include <cassert>
 #include <queue>
 
+VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
 class TimeLog // Similar to vtkTimerLogScope, but can be disabled at runtime.
@@ -3785,3 +3786,4 @@ void vtkPKdTree::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "NextPtArray: " << this->NextPtArray << endl;
   os << indent << "SelectBuffer (size): " << this->SelectBuffer.size() << endl;
 }
+VTK_ABI_NAMESPACE_END

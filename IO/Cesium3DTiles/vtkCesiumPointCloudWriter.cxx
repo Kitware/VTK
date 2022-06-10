@@ -124,6 +124,7 @@ struct SaveRgbArray
 
 }
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkCesiumPointCloudWriter);
 
 vtkCesiumPointCloudWriter::vtkCesiumPointCloudWriter()
@@ -284,3 +285,4 @@ int vtkCesiumPointCloudWriter::FillInputPortInformation(int, vtkInformation* inf
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPointSet");
   return 1;
 }
+VTK_ABI_NAMESPACE_END

@@ -22,10 +22,13 @@
 
 #include "vtkm/ImplicitFunction.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkImplicitFunction;
+VTK_ABI_NAMESPACE_END
 
 namespace tovtkm
 {
+VTK_ABI_NAMESPACE_BEGIN
 
 class VTKACCELERATORSVTKMDATAMODEL_EXPORT ImplicitFunctionConverter
 {
@@ -41,6 +44,7 @@ private:
   mutable vtkMTimeType MTime;
 };
 
+VTK_ABI_NAMESPACE_END
 }
 
 #endif // vtkmlib_ImplicitFunctionConverter_h

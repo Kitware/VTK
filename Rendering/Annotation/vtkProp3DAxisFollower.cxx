@@ -28,6 +28,7 @@
 
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkProp3DAxisFollower);
 
 // List of vectors per axis (depending on which one needs to be
@@ -573,3 +574,4 @@ int vtkProp3DAxisFollower::RenderVolumetricGeometry(vtkViewport* viewport)
   this->SetViewport(viewport);
   return this->Superclass::RenderVolumetricGeometry(viewport);
 }
+VTK_ABI_NAMESPACE_END

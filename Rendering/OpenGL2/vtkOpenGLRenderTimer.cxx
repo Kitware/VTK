@@ -26,6 +26,7 @@
 #endif
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkOpenGLRenderTimer::vtkOpenGLRenderTimer()
   : StartReady(false)
   , EndReady(false)
@@ -388,3 +389,4 @@ float vtkOpenGLRenderTimer::GetReusableElapsedSeconds()
   return 0.f;
 #endif // NO_TIMESTAMP_QUERIES
 }
+VTK_ABI_NAMESPACE_END

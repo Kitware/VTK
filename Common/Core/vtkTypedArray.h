@@ -49,6 +49,7 @@
 
 #include "vtkArray.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkArrayCoordinates;
 
 template <typename T>
@@ -128,6 +129,7 @@ private:
   void operator=(const vtkTypedArray&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #include "vtkTypedArray.txx"
 
 #endif

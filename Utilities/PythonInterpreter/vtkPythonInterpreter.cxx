@@ -163,9 +163,9 @@ inline void vtkPrependPythonPath(const char* pathtoadd)
   }
   Py_DECREF(newpath);
 }
-
 }
 
+VTK_ABI_NAMESPACE_BEGIN
 // Schwarz counter idiom for GlobalInterpreters object
 static unsigned int vtkPythonInterpretersCounter;
 vtkPythonGlobalInterpreters::vtkPythonGlobalInterpreters()
@@ -909,3 +909,4 @@ vtkWideArgsConverter::~vtkWideArgsConverter()
   }
 }
 #endif
+VTK_ABI_NAMESPACE_END

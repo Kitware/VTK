@@ -29,6 +29,7 @@
 #include <cassert>
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 void vtkBridgeCellIteratorStrategy::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -43,3 +44,4 @@ vtkGenericAdaptorCell* vtkBridgeCellIteratorStrategy::NewCell()
   assert("check: should not be called: see vtkBridgeCellIterator::NewCell()" && 0);
   return nullptr;
 }
+VTK_ABI_NAMESPACE_END

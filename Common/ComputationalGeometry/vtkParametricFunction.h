@@ -59,6 +59,7 @@
 #include "vtkCommonComputationalGeometryModule.h" // For export macro
 #include "vtkObject.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONCOMPUTATIONALGEOMETRY_EXPORT vtkParametricFunction : public vtkObject
 {
 public:
@@ -266,4 +267,5 @@ private:
   void operator=(const vtkParametricFunction&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

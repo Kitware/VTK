@@ -77,6 +77,7 @@
 #include "vtkDeprecation.h"              // For VTK_DEPRECATED_IN_9_2_0
 #include "vtkInteractionWidgetsModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkBorderRepresentation;
 
 class VTKINTERACTIONWIDGETS_EXPORT vtkBorderWidget : public vtkAbstractWidget
@@ -198,4 +199,5 @@ private:
   void operator=(const vtkBorderWidget&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

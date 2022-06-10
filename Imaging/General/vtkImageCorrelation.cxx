@@ -20,6 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImageCorrelation);
 
 //------------------------------------------------------------------------------
@@ -238,3 +239,4 @@ void vtkImageCorrelation::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Dimensionality: " << this->Dimensionality << "\n";
 }
+VTK_ABI_NAMESPACE_END

@@ -55,6 +55,7 @@
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPlaneCollection;
 class vtkUnsignedCharArray;
 class vtkDoubleArray;
@@ -324,4 +325,5 @@ private:
   void operator=(const vtkClipClosedSurface&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

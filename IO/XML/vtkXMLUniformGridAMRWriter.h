@@ -27,6 +27,7 @@
 #include "vtkIOXMLModule.h" // For export macro
 #include "vtkXMLCompositeDataWriter.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKIOXML_EXPORT vtkXMLUniformGridAMRWriter : public vtkXMLCompositeDataWriter
 {
 public:
@@ -63,4 +64,5 @@ private:
   void operator=(const vtkXMLUniformGridAMRWriter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

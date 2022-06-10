@@ -38,6 +38,7 @@
 #include <vector>
 
 // Static density values for now
+VTK_ABI_NAMESPACE_BEGIN
 static const int nDensityValues = 3;
 static const double densityValues[3] = { 0.1, 0.5, 0.9 };
 
@@ -249,3 +250,4 @@ void vtkOTScatterPlotMatrix::SetTransferFunction(vtkScalarsToColors* stc)
     this->Modified();
   }
 }
+VTK_ABI_NAMESPACE_END

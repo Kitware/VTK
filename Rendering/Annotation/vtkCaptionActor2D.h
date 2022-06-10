@@ -58,6 +58,7 @@
 #include "vtkActor2D.h"
 #include "vtkRenderingAnnotationModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkActor;
 class vtkAlgorithmOutput;
 class vtkAppendPolyData;
@@ -271,4 +272,5 @@ private:
   void operator=(const vtkCaptionActor2D&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

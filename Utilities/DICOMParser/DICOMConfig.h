@@ -17,6 +17,8 @@
 #ifndef __DICOM_CONFIG_H_
 #define __DICOM_CONFIG_H_
 
+#include "vtkABINamespace.h"
+
 //
 // CMake Hook
 //

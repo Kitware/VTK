@@ -5,6 +5,7 @@
 
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataArray;
 class vtkTable;
 
@@ -37,5 +38,6 @@ public:
   std::vector<double> EmptyTuple; // Used to quickly initialize Tuple for each datum
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkMultiCorrelativeStatisticsAssessFunctor_h
 // VTK-HeaderTest-Exclude: vtkMultiCorrelativeStatisticsAssessFunctor.h

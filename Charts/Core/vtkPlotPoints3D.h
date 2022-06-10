@@ -32,6 +32,7 @@
 #include "vtkChartsCoreModule.h" // For export macro
 #include "vtkPlot3D.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkContext2D;
 
 class VTKCHARTSCORE_EXPORT vtkPlotPoints3D : public vtkPlot3D
@@ -65,4 +66,5 @@ private:
   void operator=(const vtkPlotPoints3D&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkPlotPoints3D_h

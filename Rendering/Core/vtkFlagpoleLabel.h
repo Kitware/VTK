@@ -30,6 +30,7 @@
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkSmartPointer.h"        // For.... vtkSmartPointer!
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkActor;
 class vtkImageData;
 class vtkLineSource;
@@ -168,4 +169,5 @@ private:
   void operator=(const vtkFlagpoleLabel&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkFlagpoleLabel_h

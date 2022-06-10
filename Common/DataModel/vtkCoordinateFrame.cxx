@@ -21,6 +21,7 @@
 
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkCoordinateFrame);
 
 double vtkCoordinateFrame::EvaluateFunction(double x[3])
@@ -81,3 +82,4 @@ void vtkCoordinateFrame::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "ZAxis: " << this->ZAxis[0] << " " << this->ZAxis[1] << " " << this->ZAxis[2]
      << "\n";
 }
+VTK_ABI_NAMESPACE_END

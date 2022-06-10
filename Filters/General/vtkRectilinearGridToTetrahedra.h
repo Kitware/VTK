@@ -54,6 +54,7 @@
 
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkUnstructuredGridAlgorithm.h"
+VTK_ABI_NAMESPACE_BEGIN
 class vtkRectilinearGrid;
 class vtkSignedCharArray;
 class vtkIdList;
@@ -153,4 +154,5 @@ private:
   static inline void TetrahedralizeAddCenterPoint(vtkIdList* VoxelCorners, vtkPoints* NodeList);
 };
 
+VTK_ABI_NAMESPACE_END
 #endif /* vtkRectilinearGridToTetrahedra_h */

@@ -35,6 +35,7 @@
 #include "vtkPointSetAlgorithm.h"
 #include "vtkRenderingCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkRenderer;
 
 class VTKRENDERINGCORE_EXPORT vtkDistanceToCamera : public vtkPointSetAlgorithm
@@ -105,4 +106,5 @@ private:
   void operator=(const vtkDistanceToCamera&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

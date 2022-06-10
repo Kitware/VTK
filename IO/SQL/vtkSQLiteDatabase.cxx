@@ -33,6 +33,7 @@
 
 #include "vtk_sqlite.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkSQLiteDatabase);
 
 //------------------------------------------------------------------------------
@@ -477,3 +478,4 @@ const char* vtkSQLiteDatabase::GetLastErrorText()
 {
   return sqlite3_errmsg(this->Internal->SQLiteInstance);
 }
+VTK_ABI_NAMESPACE_END

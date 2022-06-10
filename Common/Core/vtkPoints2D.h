@@ -28,6 +28,7 @@
 
 #include "vtkDataArray.h" // Needed for inline methods
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkIdList;
 
 class VTKCOMMONCORE_EXPORT vtkPoints2D : public vtkObject
@@ -250,4 +251,5 @@ inline vtkIdType vtkPoints2D::InsertNextPoint(double x, double y)
   return this->Data->InsertNextTuple(p);
 }
 
+VTK_ABI_NAMESPACE_END
 #endif

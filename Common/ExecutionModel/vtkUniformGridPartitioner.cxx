@@ -27,6 +27,7 @@
 
 #include <cassert>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkUniformGridPartitioner);
 
 //------------------------------------------------------------------------------
@@ -147,3 +148,4 @@ int vtkUniformGridPartitioner::RequestData(vtkInformation* vtkNotUsed(request),
   extentPartitioner->Delete();
   return 1;
 }
+VTK_ABI_NAMESPACE_END

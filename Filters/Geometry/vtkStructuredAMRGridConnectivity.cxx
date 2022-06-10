@@ -34,6 +34,7 @@
 
 namespace AMRBlockFace
 {
+VTK_ABI_NAMESPACE_BEGIN
 enum
 {
   FRONT = 0,  // (+k diretion)
@@ -44,8 +45,10 @@ enum
   BOTTOM = 5, // (-j direction)
   NOT_ON_BLOCK_FACE = 6
 };
+VTK_ABI_NAMESPACE_END
 }
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkStructuredAMRGridConnectivity);
 
 //------------------------------------------------------------------------------
@@ -2128,3 +2131,4 @@ void vtkStructuredAMRGridConnectivity::ComputeWholeExtent()
   this->DataDescription = vtkStructuredData::GetDataDescriptionFromExtent(this->WholeExtent);
   this->DataDimension = vtkStructuredData::GetDataDimension(this->DataDescription);
 }
+VTK_ABI_NAMESPACE_END

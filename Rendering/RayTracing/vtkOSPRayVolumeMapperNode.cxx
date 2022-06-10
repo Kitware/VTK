@@ -37,6 +37,7 @@
 #include <vector>
 
 //============================================================================
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOSPRayVolumeMapperNode);
 
 //------------------------------------------------------------------------------
@@ -418,3 +419,4 @@ void vtkOSPRayVolumeMapperNode::UpdateTransferFunction(
 
   this->PropertyTime.Modified();
 }
+VTK_ABI_NAMESPACE_END

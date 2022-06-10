@@ -27,6 +27,7 @@
 #include <string>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkDSPFilterDefinition);
 
 class vtkDSPFilterDefinitionVectorDoubleSTLCloak
@@ -218,3 +219,4 @@ void vtkDSPFilterDefinition::PrintSelf(ostream& os, vtkIndent indent)
 
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

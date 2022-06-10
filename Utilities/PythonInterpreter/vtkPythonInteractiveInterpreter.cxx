@@ -22,6 +22,7 @@
 #include "vtkSmartPointer.h"
 
 #include <string>
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPythonInteractiveInterpreter::vtkInternals
 {
   PyObject* InteractiveConsole;
@@ -262,3 +263,4 @@ void vtkPythonInteractiveInterpreter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

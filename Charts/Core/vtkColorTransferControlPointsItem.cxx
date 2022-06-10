@@ -32,6 +32,7 @@
 #include <limits>
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkColorTransferControlPointsItem);
 
 //------------------------------------------------------------------------------
@@ -241,3 +242,4 @@ void vtkColorTransferControlPointsItem::ComputeBounds(double* bounds)
     this->Superclass::ComputeBounds(bounds);
   }
 }
+VTK_ABI_NAMESPACE_END

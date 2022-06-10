@@ -21,6 +21,7 @@
 #include "vtkPointData.h"
 #include "vtkVoxel.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImplicitVolume);
 vtkCxxSetObjectMacro(vtkImplicitVolume, Volume, vtkImageData);
 
@@ -172,3 +173,4 @@ void vtkImplicitVolume::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Volume: (none)\n";
   }
 }
+VTK_ABI_NAMESPACE_END

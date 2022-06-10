@@ -26,6 +26,7 @@ using std::ostringstream;
 #include <string>
 using std::string;
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkQuadratureSchemeDefinition);
 
 //------------------------------------------------------------------------------
@@ -481,3 +482,4 @@ int vtkQuadratureSchemeDefinition::RestoreState(vtkXMLDataElement* root)
 
   return 1;
 }
+VTK_ABI_NAMESPACE_END

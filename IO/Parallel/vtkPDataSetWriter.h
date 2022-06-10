@@ -29,6 +29,7 @@
 #include <map>    // for keeping track of extents
 #include <vector> // for keeping track of extents
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkImageData;
 class vtkRectilinearGrid;
 class vtkStructuredGrid;
@@ -141,4 +142,5 @@ private:
   void operator=(const vtkPDataSetWriter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

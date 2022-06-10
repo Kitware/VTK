@@ -33,6 +33,7 @@
 #include "vtkStaticCellLinksTemplate.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkRemovePolyData);
 vtkCxxSetObjectMacro(vtkRemovePolyData, CellIds, vtkIdTypeArray);
 vtkCxxSetObjectMacro(vtkRemovePolyData, PointIds, vtkIdTypeArray);
@@ -813,3 +814,4 @@ void vtkRemovePolyData::PrintSelf(ostream& os, vtkIndent indent)
   os << "Point Ids: " << this->PointIds << endl;
   os << "Exact Match: " << (this->ExactMatch ? "On" : "Off") << endl;
 }
+VTK_ABI_NAMESPACE_END

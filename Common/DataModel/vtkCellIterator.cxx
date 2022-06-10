@@ -21,6 +21,7 @@
 #include "vtkPoints.h"
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 void vtkCellIterator::PrintSelf(ostream& os, vtkIndent indent)
 {
   os << indent << "CacheFlags: ";
@@ -169,3 +170,4 @@ vtkCellIterator::vtkCellIterator()
 
 //------------------------------------------------------------------------------
 vtkCellIterator::~vtkCellIterator() = default;
+VTK_ABI_NAMESPACE_END

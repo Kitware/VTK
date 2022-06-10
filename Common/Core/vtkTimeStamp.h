@@ -29,6 +29,7 @@
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkSystemIncludes.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONCORE_EXPORT vtkTimeStamp
 {
 public:
@@ -70,5 +71,6 @@ private:
   vtkMTimeType ModifiedTime;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkTimeStamp.h

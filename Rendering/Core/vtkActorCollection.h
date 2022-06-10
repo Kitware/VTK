@@ -31,6 +31,7 @@
 #include "vtkPropCollection.h"
 #include "vtkRenderingCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkProperty;
 
 class VTKRENDERINGCORE_EXPORT vtkActorCollection : public vtkPropCollection
@@ -125,4 +126,5 @@ inline vtkActor* vtkActorCollection::GetLastItem()
   return this->GetLastActor();
 }
 
+VTK_ABI_NAMESPACE_END
 #endif

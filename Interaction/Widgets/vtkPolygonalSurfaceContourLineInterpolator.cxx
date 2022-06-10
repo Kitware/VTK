@@ -26,6 +26,7 @@
 #include "vtkPolyData.h"
 #include "vtkPolygonalSurfacePointPlacer.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPolygonalSurfaceContourLineInterpolator);
 
 //------------------------------------------------------------------------------
@@ -227,3 +228,4 @@ void vtkPolygonalSurfaceContourLineInterpolator::PrintSelf(ostream& os, vtkInden
 
   os << indent << "DistanceOffset: " << this->DistanceOffset << endl;
 }
+VTK_ABI_NAMESPACE_END

@@ -42,6 +42,7 @@
 #include <libpq-fe.h>
 #include <map>
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPostgreSQLDatabasePrivate
 {
 public:
@@ -77,5 +78,6 @@ public:
   std::map<Oid, int> DataTypeMap;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkPostgreSQLDatabasePrivate_h
 // VTK-HeaderTest-Exclude: vtkPostgreSQLDatabasePrivate.h

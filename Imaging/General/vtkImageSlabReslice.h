@@ -47,6 +47,7 @@
 #include "vtkImageReslice.h"
 #include "vtkImagingGeneralModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKIMAGINGGENERAL_EXPORT vtkImageSlabReslice : public vtkImageReslice
 {
 public:
@@ -117,4 +118,5 @@ private:
   void operator=(const vtkImageSlabReslice&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

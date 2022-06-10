@@ -62,6 +62,7 @@
 #include "vtkVRMLImporter_Yacc.h"
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 class vtkVRMLImporterInternal
 {
 public:
@@ -1414,3 +1415,4 @@ std::string vtkVRMLImporter::GetOutputsDescription()
   }
   return ss.str();
 }
+VTK_ABI_NAMESPACE_END

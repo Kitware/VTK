@@ -58,19 +58,24 @@
 VTK_ITER_OPTIMIZE_START
 
 // For IsAOSDataArray:
+VTK_ABI_NAMESPACE_BEGIN
 template <typename ValueType>
 class vtkAOSDataArrayTemplate;
+VTK_ABI_NAMESPACE_END
 
 namespace vtk
 {
+VTK_ABI_NAMESPACE_BEGIN
 
 // Typedef for data array indices:
 using ComponentIdType = int;
 using TupleIdType = vtkIdType;
 using ValueIdType = vtkIdType;
+VTK_ABI_NAMESPACE_END
 
 namespace detail
 {
+VTK_ABI_NAMESPACE_BEGIN
 
 //------------------------------------------------------------------------------
 // Used by ranges/iterators when tuple size is unknown at compile time
@@ -180,16 +185,22 @@ struct GetAPITypeImpl<vtkDataArray>
   using APIType = double;
 };
 
+VTK_ABI_NAMESPACE_END
 } // end namespace detail
+
+VTK_ABI_NAMESPACE_BEGIN
 
 //------------------------------------------------------------------------------
 // Typedef for double if vtkDataArray, or the array's ValueType for subclasses.
 template <typename ArrayType, typename = detail::EnableIfVtkDataArray<ArrayType>>
 using GetAPIType = typename detail::GetAPITypeImpl<ArrayType>::APIType;
 
+VTK_ABI_NAMESPACE_END
+
 //------------------------------------------------------------------------------
 namespace detail
 {
+VTK_ABI_NAMESPACE_BEGIN
 
 template <typename ArrayType>
 struct IsAOSDataArrayImpl
@@ -198,13 +209,16 @@ struct IsAOSDataArrayImpl
   static constexpr bool value = std::is_base_of<vtkAOSDataArrayTemplate<APIType>, ArrayType>::value;
 };
 
+VTK_ABI_NAMESPACE_END
 } // end namespace detail
 
+VTK_ABI_NAMESPACE_BEGIN
 //------------------------------------------------------------------------------
 // True if ArrayType inherits some specialization of vtkAOSDataArrayTemplate
 template <typename ArrayType>
 using IsAOSDataArray = std::integral_constant<bool, detail::IsAOSDataArrayImpl<ArrayType>::value>;
 
+VTK_ABI_NAMESPACE_END
 } // end namespace vtk
 
 VTK_ITER_OPTIMIZE_END

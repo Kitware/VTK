@@ -48,6 +48,7 @@ SOFTWARE.
 
 namespace CIEDE2000
 {
+VTK_ABI_NAMESPACE_BEGIN
 
 //------------------------------------------------------------------------------
 static const int COLORSPACE_SIZE_X = 17;
@@ -398,4 +399,5 @@ double GetColorPath(
 }
 //------------------------------------------------------------------------------
 
+VTK_ABI_NAMESPACE_END
 } // namespace CIEDE2000

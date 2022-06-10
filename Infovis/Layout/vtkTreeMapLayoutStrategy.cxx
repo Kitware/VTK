@@ -24,6 +24,7 @@
 #include "vtkFloatArray.h"
 #include "vtkTree.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkTreeMapLayoutStrategy::vtkTreeMapLayoutStrategy() = default;
 
 vtkTreeMapLayoutStrategy::~vtkTreeMapLayoutStrategy() = default;
@@ -93,3 +94,4 @@ vtkIdType vtkTreeMapLayoutStrategy::FindVertex(vtkTree* otree, vtkDataArray* arr
 
   return vertex;
 }
+VTK_ABI_NAMESPACE_END

@@ -22,6 +22,7 @@
 #include <cassert>
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkRenderbuffer);
 
 //------------------------------------------------------------------------------
@@ -199,3 +200,4 @@ void vtkRenderbuffer::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Handle=" << this->Handle << endl
      << indent << "Context=" << this->Context << endl;
 }
+VTK_ABI_NAMESPACE_END

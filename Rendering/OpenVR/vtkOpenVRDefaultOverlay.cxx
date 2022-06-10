@@ -21,6 +21,7 @@
 
 #include <sstream>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOpenVRDefaultOverlay);
 
 void handleMotionFactor(vtkObject* caller, unsigned long eid, void* clientdata, void* calldata)
@@ -283,3 +284,4 @@ void vtkOpenVRDefaultOverlay::Render()
 
   this->Superclass::Render();
 }
+VTK_ABI_NAMESPACE_END

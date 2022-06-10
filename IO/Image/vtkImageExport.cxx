@@ -25,6 +25,7 @@
 #include <cctype>
 #include <cstring>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImageExport);
 
 //------------------------------------------------------------------------------
@@ -660,3 +661,4 @@ void vtkImageExport::GetDataDirection(double* ptr)
   this->GetInputAlgorithm()->UpdateInformation();
   this->GetInputInformation()->Get(vtkDataObject::DIRECTION(), ptr);
 }
+VTK_ABI_NAMESPACE_END

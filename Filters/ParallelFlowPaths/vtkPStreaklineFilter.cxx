@@ -31,6 +31,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <cassert>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPStreaklineFilter);
 
 vtkPStreaklineFilter::vtkPStreaklineFilter()
@@ -86,3 +87,4 @@ void vtkPStreaklineFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

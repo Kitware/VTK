@@ -40,6 +40,7 @@
 
 #include <vector> // for std::vector
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPartitionedDataSet;
 class vtkPartitionedDataSetCollection;
 class vtkMultiBlockDataSet;
@@ -76,4 +77,5 @@ private:
   vtkSmartPointer<vtkDataObject> AccumulatedData;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -32,6 +32,7 @@
 #include "vtkCommonMathModule.h" // For export macro
 #include "vtkObject.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONMATH_EXPORT vtkMatrix4x4 : public vtkObject
 {
 public:
@@ -313,4 +314,5 @@ inline bool vtkMatrix4x4::IsIdentity()
     M[12] == 0.0 && M[13] == 0.0 && M[14] == 0.0 && M[15] == 1.0;
 }
 
+VTK_ABI_NAMESPACE_END
 #endif

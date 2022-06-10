@@ -18,6 +18,7 @@
 #include "vtkObjectFactory.h"
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkDynamicLoader* vtkDynamicLoader::New()
 {
   VTK_STANDARD_NEW_BODY(vtkDynamicLoader);
@@ -70,3 +71,4 @@ const char* vtkDynamicLoader::LastError()
 {
   return vtksys::DynamicLoader::LastError();
 }
+VTK_ABI_NAMESPACE_END

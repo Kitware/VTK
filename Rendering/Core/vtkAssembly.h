@@ -60,6 +60,7 @@
 #include "vtkProp3D.h"
 #include "vtkRenderingCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkAssemblyPaths;
 class vtkProp3DCollection;
 class vtkMapper;
@@ -185,4 +186,5 @@ private:
   void operator=(const vtkAssembly&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

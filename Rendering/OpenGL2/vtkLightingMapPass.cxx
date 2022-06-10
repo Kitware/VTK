@@ -25,6 +25,7 @@
 
 #include <cassert>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkLightingMapPass);
 
 vtkInformationKeyMacro(vtkLightingMapPass, RENDER_LUMINANCE, Integer);
@@ -119,3 +120,4 @@ void vtkLightingMapPass::RenderOpaqueGeometry(const vtkRenderState* s)
     ++i;
   }
 }
+VTK_ABI_NAMESPACE_END

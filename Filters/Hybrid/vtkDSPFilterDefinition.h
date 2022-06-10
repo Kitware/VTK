@@ -32,6 +32,7 @@
 #include "vtkFiltersHybridModule.h" // For export macro
 #include "vtkObject.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDSPFilterDefinitionVectorDoubleSTLCloak;
 class vtkDSPFilterDefinitionStringSTLCloak;
 
@@ -81,4 +82,5 @@ private:
   void operator=(const vtkDSPFilterDefinition&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

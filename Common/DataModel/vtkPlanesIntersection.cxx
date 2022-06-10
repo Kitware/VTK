@@ -24,6 +24,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointsProjectedHull.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPlanesIntersection);
 
 // Experiment shows that we get plane equation values on the
@@ -900,3 +901,4 @@ void vtkPlanesIntersection::PrintSelf(ostream& os, vtkIndent indent)
     }
   }
 }
+VTK_ABI_NAMESPACE_END

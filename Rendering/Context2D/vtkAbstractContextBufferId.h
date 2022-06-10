@@ -41,6 +41,7 @@
 #include "vtkObject.h"
 #include "vtkRenderingContext2DModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkRenderWindow;
 
 class VTKRENDERINGCONTEXT2D_EXPORT vtkAbstractContextBufferId : public vtkObject
@@ -140,4 +141,5 @@ private:
   void operator=(const vtkAbstractContextBufferId&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // #ifndef vtkAbstractContextBufferId_h

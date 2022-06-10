@@ -39,6 +39,7 @@
 //------------------------------------------------------------------------------
 // Contain all of the internal data structures, and macros, in the
 // implementation.
+VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
 //------------------------------------------------------------------------------
@@ -3381,3 +3382,4 @@ inline vtkIdType vtkReebGraph::Implementation::AddArc(vtkIdType nodeId0, vtkIdTy
   vtkIdType nodevtkReebArcble[] = { nodeId0, nodeId1 };
   return AddPath(2, nodevtkReebArcble, 0);
 }
+VTK_ABI_NAMESPACE_END

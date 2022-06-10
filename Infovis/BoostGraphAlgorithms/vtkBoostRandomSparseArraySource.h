@@ -34,6 +34,7 @@
 #include "vtkArrayExtents.h"                      // for extents
 #include "vtkInfovisBoostGraphAlgorithmsModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKINFOVISBOOSTGRAPHALGORITHMS_EXPORT vtkBoostRandomSparseArraySource
   : public vtkArrayDataAlgorithm
 {
@@ -114,4 +115,5 @@ private:
   double MaxValue;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -30,6 +30,7 @@
 
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkStaticPointLocator2D);
 
 // There are stack-allocated bucket neighbor lists. This is the initial
@@ -2086,3 +2087,4 @@ void vtkStaticPointLocator2D::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Large IDs: " << this->LargeIds << "\n";
 }
+VTK_ABI_NAMESPACE_END

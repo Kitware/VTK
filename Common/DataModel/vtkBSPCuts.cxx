@@ -23,6 +23,7 @@
 #include "vtkKdTree.h"
 #include "vtkObjectFactory.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkBSPCuts);
 
 //------------------------------------------------------------------------------
@@ -611,3 +612,4 @@ void vtkBSPCuts::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "UpperDataCoord: " << this->UpperDataCoord << endl;
   os << indent << "Npoints: " << this->Npoints << endl;
 }
+VTK_ABI_NAMESPACE_END

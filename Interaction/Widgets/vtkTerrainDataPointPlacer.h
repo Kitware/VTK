@@ -40,6 +40,7 @@
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkPointPlacer.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPropCollection;
 class vtkProp;
 class vtkPropPicker;
@@ -136,4 +137,5 @@ private:
   void operator=(const vtkTerrainDataPointPlacer&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -35,6 +35,7 @@
 #include "vtkFiltersParallelMPIModule.h" // For export macro
 
 // Forward declarations
+VTK_ABI_NAMESPACE_BEGIN
 class vtkMPIController;
 
 class VTKFILTERSPARALLELMPI_EXPORT vtkPExtractGrid : public vtkExtractGrid
@@ -61,4 +62,5 @@ private:
   void operator=(const vtkPExtractGrid&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -34,6 +34,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkSphereSource.h"
 #include "vtkTransform.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkBrokenLineWidget);
 
 vtkCxxSetObjectMacro(vtkBrokenLineWidget, HandleProperty, vtkProperty);
@@ -1361,3 +1362,4 @@ void vtkBrokenLineWidget::InitializeHandles(vtkPoints* points)
     this->Interactor->Render();
   }
 }
+VTK_ABI_NAMESPACE_END

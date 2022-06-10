@@ -29,6 +29,7 @@
 #include <vector>
 
 //=============================================================================
+VTK_ABI_NAMESPACE_BEGIN
 class vtkLogger::LogScopeRAII::LSInternals
 {
 public:
@@ -70,9 +71,11 @@ vtkLogger::LogScopeRAII::~LogScopeRAII()
   delete this->Internals;
 }
 //=============================================================================
+VTK_ABI_NAMESPACE_END
 
 namespace detail
 {
+VTK_ABI_NAMESPACE_BEGIN
 #if VTK_MODULE_ENABLE_VTK_loguru
 using scope_pair = std::pair<std::string, std::shared_ptr<loguru::LogScopeRAII>>;
 static std::mutex g_mutex;
@@ -109,8 +112,10 @@ static void pop_scope(const char* id)
 #endif
 
 static VTK_THREAD_LOCAL std::string ThreadName;
+VTK_ABI_NAMESPACE_END
 }
 
+VTK_ABI_NAMESPACE_BEGIN
 //=============================================================================
 bool vtkLogger::EnableUnsafeSignalHandler = true;
 vtkLogger::Verbosity vtkLogger::InternalVerbosityLevel = vtkLogger::VERBOSITY_1;
@@ -446,3 +451,4 @@ vtkLogger::Verbosity vtkLogger::ConvertToVerbosity(const char* text)
   }
   return vtkLogger::VERBOSITY_INVALID;
 }
+VTK_ABI_NAMESPACE_END

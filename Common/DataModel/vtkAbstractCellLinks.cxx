@@ -18,6 +18,7 @@
 #include "vtkObjectFactory.h"
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkAbstractCellLinks::vtkAbstractCellLinks()
 {
   this->SequentialProcessing = false;
@@ -57,3 +58,4 @@ void vtkAbstractCellLinks::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Sequential Processing: " << (this->SequentialProcessing ? "true\n" : "false\n");
   os << indent << "Type: " << this->Type << "\n";
 }
+VTK_ABI_NAMESPACE_END

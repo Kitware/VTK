@@ -34,6 +34,7 @@
 #include "vtk_hdf5.h"
 
 #include "vtkAMRVelodyneReaderInternal.h"
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkAMRVelodyneReader);
 
 //-------------------------------------------------------------------
@@ -352,3 +353,4 @@ vtkOverlappingAMR* vtkAMRVelodyneReader::GetOutput()
   amr->GenerateParentChildInformation();
   return amr;
 }
+VTK_ABI_NAMESPACE_END

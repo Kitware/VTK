@@ -4,6 +4,7 @@
 // Courier 10 Pitch Bold Italic (c0611bt_.pfb)
 // Contributed by Bitstream (XFree86)
 
+VTK_ABI_NAMESPACE_BEGIN
 size_t face_courier_bold_italic_buffer_length = 39871;
 
 unsigned char face_courier_bold_italic_buffer[] = {
@@ -2856,3 +2857,4 @@ unsigned char face_courier_bold_italic_buffer[] = {
    48,  48,  48,  48,  48,  48,  48,  48,  48,  48,  48,  48,  13,  99,
   108, 101,  97, 114, 116, 111, 109,  97, 114, 107,  13, 128,   3,
 };
+VTK_ABI_NAMESPACE_END

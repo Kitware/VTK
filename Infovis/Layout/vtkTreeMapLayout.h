@@ -46,6 +46,7 @@
 #include "vtkInfovisLayoutModule.h" // For export macro
 #include "vtkTreeAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkTreeMapLayoutStrategy;
 
 class VTKINFOVISLAYOUT_EXPORT vtkTreeMapLayout : public vtkTreeAlgorithm
@@ -112,4 +113,5 @@ private:
   void operator=(const vtkTreeMapLayout&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

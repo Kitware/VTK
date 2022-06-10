@@ -34,6 +34,7 @@
 #include "vtkInfovisLayoutModule.h" // For export macro
 #include "vtkPassInputTypeAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKINFOVISLAYOUT_EXPORT vtkAssignCoordinates : public vtkPassInputTypeAlgorithm
 {
 public:
@@ -90,4 +91,5 @@ private:
   void operator=(const vtkAssignCoordinates&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -85,6 +85,7 @@
 
 #include "vtkCell.h" // Needed for VTK_CELL_SIZE
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDoubleArray;
 class vtkPriorityQueue;
 
@@ -429,4 +430,5 @@ private:
   void operator=(const vtkDecimatePro&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

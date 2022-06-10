@@ -37,6 +37,7 @@
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkIdList;
 
 /*!
@@ -146,4 +147,5 @@ private:
   class Impl;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

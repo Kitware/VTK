@@ -47,6 +47,7 @@
 #include <memory> // For std::shared_ptr
 #include <vector> // For std::vector
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkHyperTree;
 class vtkHyperTreeGrid;
 class vtkHyperTreeGridScales;
@@ -227,4 +228,5 @@ private:
   vtkHyperTreeGridOrientedGeometryCursor(const vtkHyperTreeGridOrientedGeometryCursor&) = delete;
   void operator=(const vtkHyperTreeGridOrientedGeometryCursor&) = delete;
 };
+VTK_ABI_NAMESPACE_END
 #endif

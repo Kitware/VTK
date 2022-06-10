@@ -34,6 +34,7 @@ void rtrim(std::string& s)
 }
 }
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkIOSSFilesScanner);
 //----------------------------------------------------------------------------
 vtkIOSSFilesScanner::vtkIOSSFilesScanner() = default;
@@ -284,3 +285,4 @@ void vtkIOSSFilesScanner::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

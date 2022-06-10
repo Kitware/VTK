@@ -37,6 +37,7 @@
 // Standard functions
 //
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkTable);
 vtkStandardExtendedNewMacro(vtkTable);
 vtkCxxSetObjectMacro(vtkTable, RowData, vtkDataSetAttributes);
@@ -804,3 +805,4 @@ vtkIdType vtkTable::GetNumberOfElements(int type)
   }
   return this->Superclass::GetNumberOfElements(type);
 }
+VTK_ABI_NAMESPACE_END

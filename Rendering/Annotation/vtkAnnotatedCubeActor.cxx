@@ -31,6 +31,7 @@
 #include "vtkTransformFilter.h"
 #include "vtkVectorText.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkAnnotatedCubeActor);
 
 //------------------------------------------------------------------------------
@@ -565,3 +566,4 @@ void vtkAnnotatedCubeActor::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "ZFaceTextRotation: " << this->ZFaceTextRotation << endl;
 }
+VTK_ABI_NAMESPACE_END

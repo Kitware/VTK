@@ -44,6 +44,7 @@
 
 #include <string> // std::string used as parameters in a few methods
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataSet;
 class vtkDataArray;
 class vtkDataSetAttributes;
@@ -152,4 +153,5 @@ private:
   void operator=(const vtkJSONDataSetWriter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

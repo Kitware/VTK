@@ -22,6 +22,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkDataObjectAlgorithm);
 
 //------------------------------------------------------------------------------
@@ -179,3 +180,4 @@ bool vtkDataObjectAlgorithm::SetOutputDataObject(
   }
   return true;
 }
+VTK_ABI_NAMESPACE_END

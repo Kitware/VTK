@@ -39,6 +39,7 @@
 #include "vtkAbstractCellLinks.h"
 #include "vtkCommonDataModelModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataSet;
 class vtkCellArray;
 
@@ -264,4 +265,5 @@ inline void vtkCellLinks::ResizeCellList(vtkIdType ptId, int size)
   this->Array[ptId].cells = cells;
 }
 
+VTK_ABI_NAMESPACE_END
 #endif

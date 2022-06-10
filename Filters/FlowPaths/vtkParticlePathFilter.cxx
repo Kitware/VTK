@@ -29,6 +29,7 @@
 
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkObjectFactoryNewMacro(vtkParticlePathFilter);
 
 void ParticlePathFilterInternal::Initialize(vtkParticleTracerBase* filter)
@@ -255,3 +256,4 @@ int vtkParticlePathFilter::RequestInformation(
 
   return this->Superclass::RequestInformation(request, inputVector, outputVector);
 }
+VTK_ABI_NAMESPACE_END

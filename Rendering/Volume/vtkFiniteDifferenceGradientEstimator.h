@@ -42,6 +42,7 @@
 #include "vtkEncodedGradientEstimator.h"
 #include "vtkRenderingVolumeModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKRENDERINGVOLUME_EXPORT vtkFiniteDifferenceGradientEstimator
   : public vtkEncodedGradientEstimator
 {
@@ -81,4 +82,5 @@ private:
   void operator=(const vtkFiniteDifferenceGradientEstimator&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

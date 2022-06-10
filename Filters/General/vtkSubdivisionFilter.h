@@ -27,6 +27,7 @@
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCellArray;
 class vtkCellData;
 class vtkIdList;
@@ -74,4 +75,5 @@ private:
   void operator=(const vtkSubdivisionFilter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

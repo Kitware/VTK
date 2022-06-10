@@ -20,6 +20,7 @@
 // Construct an instance of vtkRenderWindow with its screen size
 // set to 300x300, borders turned on, positioned at (0,0), double
 // buffering turned on.
+VTK_ABI_NAMESPACE_BEGIN
 vtkWindow::vtkWindow()
 {
   this->ShowWindow = true;
@@ -138,3 +139,4 @@ void vtkWindow::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "TileViewport: (" << this->TileViewport[0] << ", " << this->TileViewport[1]
      << ", " << this->TileViewport[2] << ", " << this->TileViewport[3] << ")\n";
 }
+VTK_ABI_NAMESPACE_END

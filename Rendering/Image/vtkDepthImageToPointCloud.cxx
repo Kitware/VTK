@@ -32,6 +32,7 @@
 #include "vtkSMPTools.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkDepthImageToPointCloud);
 vtkCxxSetObjectMacro(vtkDepthImageToPointCloud, Camera, vtkCamera);
 
@@ -446,3 +447,4 @@ void vtkDepthImageToPointCloud::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "OutputPointsPrecision: " << this->OutputPointsPrecision << "\n";
 }
+VTK_ABI_NAMESPACE_END

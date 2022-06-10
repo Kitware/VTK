@@ -99,6 +99,7 @@
 #define VTK_INDEXING_BY_SCALAR 1
 #define VTK_INDEXING_BY_VECTOR 2
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSGENERIC_EXPORT vtkGenericGlyph3DFilter : public vtkPolyDataAlgorithm
 {
 public:
@@ -384,4 +385,5 @@ inline const char* vtkGenericGlyph3DFilter::GetIndexModeAsString()
   }
 }
 
+VTK_ABI_NAMESPACE_END
 #endif

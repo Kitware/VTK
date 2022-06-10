@@ -29,6 +29,7 @@
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkStateStorage.h"           // used for ivars
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCellArray;
 class vtkPoints;
 
@@ -83,4 +84,5 @@ private:
   void operator=(const vtkOpenGLCellToVTKCellMap&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

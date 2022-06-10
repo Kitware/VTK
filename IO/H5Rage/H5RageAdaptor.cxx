@@ -36,11 +36,16 @@
 #include <vtk_hdf5.h>
 
 #if defined(_WIN32) && !defined(__CYGWIN__)
+VTK_ABI_NAMESPACE_BEGIN
 const static char* Slash = "\\";
+VTK_ABI_NAMESPACE_END
 #else
+VTK_ABI_NAMESPACE_BEGIN
 const static char* Slash = "/";
+VTK_ABI_NAMESPACE_END
 #endif
 
+VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
 // mpi tag
@@ -871,3 +876,4 @@ void H5RageAdaptor::ConvertHDFData(int ndims, int* dimensions, T* hdfData)
   }
   delete[] convertedData;
 }
+VTK_ABI_NAMESPACE_END

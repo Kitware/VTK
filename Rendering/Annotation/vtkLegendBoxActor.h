@@ -41,6 +41,7 @@
 #include "vtkActor2D.h"
 #include "vtkRenderingAnnotationModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkActor;
 class vtkDoubleArray;
 class vtkImageData;
@@ -289,4 +290,5 @@ private:
   void operator=(const vtkLegendBoxActor&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

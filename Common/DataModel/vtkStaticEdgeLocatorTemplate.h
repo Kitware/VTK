@@ -63,6 +63,8 @@
 #ifndef vtkStaticEdgeLocatorTemplate_h
 #define vtkStaticEdgeLocatorTemplate_h
 
+#include "vtkABINamespace.h"
+
 #include <algorithm>
 #include <vector>
 
@@ -72,6 +74,7 @@
  * sort) by using smaller types (32-int versus 64-bit vtkIdType). It is
  * required that V0 < V1; the tuple constructor enforces this.
  */
+VTK_ABI_NAMESPACE_BEGIN
 template <typename TId, typename TED>
 struct EdgeTuple
 {
@@ -298,6 +301,7 @@ private:
   void operator=(const vtkStaticEdgeLocatorTemplate&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #include "vtkStaticEdgeLocatorTemplate.txx"
 
 #endif

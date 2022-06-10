@@ -23,6 +23,7 @@
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkAppendArcLength);
 //------------------------------------------------------------------------------
 vtkAppendArcLength::vtkAppendArcLength() = default;
@@ -93,3 +94,4 @@ void vtkAppendArcLength::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

@@ -32,6 +32,7 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkImageData.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONDATAMODEL_EXPORT vtkStructuredPoints : public vtkImageData
 {
 public:
@@ -53,4 +54,5 @@ private:
   void operator=(const vtkStructuredPoints&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

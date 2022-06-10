@@ -38,6 +38,7 @@
 
 // format of the arrays LeftPoint, MidPoint, RightPoint is global, parametric,
 // attributes: xyz rst [abc de...]
+VTK_ABI_NAMESPACE_BEGIN
 const int PARAMETRIC_OFFSET = 3;
 const int ATTRIBUTES_OFFSET = 6;
 
@@ -2789,3 +2790,4 @@ int vtkSimpleCellTessellator::FacesAreEqual(const vtkIdType* originalFace, const
   }
   return result;
 }
+VTK_ABI_NAMESPACE_END

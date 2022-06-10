@@ -64,6 +64,7 @@ constexpr double BOUNDING_BOX_INFLATION_RATIO = 0.01;
 
 namespace detail
 {
+VTK_ABI_NAMESPACE_BEGIN
 vtkBoundingBox GetBounds(vtkDataObject* dobj, diy::mpi::communicator& comm)
 {
   auto lbounds = vtkDIYUtilities::GetLocalBounds(dobj);
@@ -240,8 +241,10 @@ void SetPartitionCount(vtkPartitionedDataSet* pdc, unsigned int target)
   pdc->SetNumberOfPartitions(target);
 }
 
+VTK_ABI_NAMESPACE_END
 }
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkRedistributeDataSetFilter);
 vtkCxxSetObjectMacro(vtkRedistributeDataSetFilter, Controller, vtkMultiProcessController);
 //------------------------------------------------------------------------------
@@ -1136,3 +1139,4 @@ void vtkRedistributeDataSetFilter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "EnableDebugging: " << this->EnableDebugging << endl;
   os << indent << "LoadBalanceAcrossAllBlocks: " << this->LoadBalanceAcrossAllBlocks << endl;
 }
+VTK_ABI_NAMESPACE_END

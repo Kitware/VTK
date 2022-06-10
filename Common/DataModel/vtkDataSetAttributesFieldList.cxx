@@ -32,6 +32,7 @@
 
 namespace detail
 {
+VTK_ABI_NAMESPACE_BEGIN
 /**
  * FieldInfo is used to store metadata about a field.
  */
@@ -301,7 +302,10 @@ void remove_if(Container& cont, ForwardIt first, ForwardIt second, UnaryPredicat
     }
   }
 }
+VTK_ABI_NAMESPACE_END
 } // namespace detail
+
+VTK_ABI_NAMESPACE_BEGIN
 
 class vtkDataSetAttributesFieldList::vtkInternals
 {
@@ -827,3 +831,4 @@ void vtkDataSetAttributesFieldList::PrintSelf(ostream& os, vtkIndent indent)
     pair.second.PrintSelf(os, indent.GetNextIndent());
   }
 }
+VTK_ABI_NAMESPACE_END

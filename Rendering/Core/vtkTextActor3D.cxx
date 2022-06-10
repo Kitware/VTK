@@ -28,6 +28,7 @@
 #include "vtkTransform.h"
 #include "vtkWindow.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkObjectFactoryNewMacro(vtkTextActor3D);
 
 vtkCxxSetObjectMacro(vtkTextActor3D, TextProperty, vtkTextProperty);
@@ -340,3 +341,4 @@ void vtkTextActor3D::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Text Property: (none)\n";
   }
 }
+VTK_ABI_NAMESPACE_END

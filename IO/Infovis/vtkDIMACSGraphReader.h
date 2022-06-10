@@ -60,6 +60,7 @@
 #include "vtkIOInfovisModule.h" // For export macro
 #include "vtkStdString.h"       // For string API
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKIOINFOVIS_EXPORT vtkDIMACSGraphReader : public vtkGraphAlgorithm
 {
 
@@ -127,4 +128,5 @@ private:
   void operator=(const vtkDIMACSGraphReader&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkDIMACSGraphReader_h

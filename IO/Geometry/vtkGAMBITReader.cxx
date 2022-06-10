@@ -31,6 +31,7 @@
 #include "vtksys/Encoding.hxx"
 #include "vtksys/FStream.hxx"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkGAMBITReader);
 
 //------------------------------------------------------------------------------
@@ -492,3 +493,4 @@ void vtkGAMBITReader::ReadXYZCoords(vtkDoubleArray* coords)
     vtkErrorMacro("Error reading ENDOFSECTION tag at end of coordinates section");
   }
 }
+VTK_ABI_NAMESPACE_END

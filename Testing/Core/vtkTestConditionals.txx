@@ -17,6 +17,7 @@
 
 namespace vtk
 {
+VTK_ABI_NAMESPACE_BEGIN
 
 /**\brief Conditionals for use in unit tests.
  *
@@ -196,6 +197,7 @@ inline bool testNearlyEqual(
   return false;
 }
 
+VTK_ABI_NAMESPACE_END
 } // namespace vtk
 
 #endif // vtkTestConditionals_txx

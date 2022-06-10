@@ -14,6 +14,7 @@
  =========================================================================*/
 #include "vtkAbstractGridConnectivity.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkAbstractGridConnectivity::vtkAbstractGridConnectivity()
 {
   this->NumberOfGrids = 0;
@@ -35,3 +36,4 @@ void vtkAbstractGridConnectivity::PrintSelf(std::ostream& os, vtkIndent indent)
   os << "NumberOfGrids: " << this->NumberOfGrids << std::endl;
   os << "NumberOfGhostLayers: " << this->NumberOfGhostLayers << std::endl;
 }
+VTK_ABI_NAMESPACE_END

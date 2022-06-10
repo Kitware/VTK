@@ -35,6 +35,7 @@
 #include "vtkTree.h"
 #include "vtkTreeDFSIterator.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkTreeOrbitLayoutStrategy);
 
 vtkTreeOrbitLayoutStrategy::vtkTreeOrbitLayoutStrategy()
@@ -191,3 +192,4 @@ void vtkTreeOrbitLayoutStrategy::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "LeafSpacing: " << this->LeafSpacing << endl;
   os << indent << "ChildRadiusFactor: " << this->ChildRadiusFactor << endl;
 }
+VTK_ABI_NAMESPACE_END

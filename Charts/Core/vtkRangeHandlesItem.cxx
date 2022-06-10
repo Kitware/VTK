@@ -28,6 +28,7 @@
 #include "vtkTransform2D.h"
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkRangeHandlesItem);
 vtkCxxSetObjectMacro(vtkRangeHandlesItem, ColorTransferFunction, vtkColorTransferFunction);
 
@@ -159,3 +160,4 @@ void vtkRangeHandlesItem::SetActiveHandlePosition(double position)
     this->TransformScreenToData(position, 1, this->ActiveHandleRangeValue, unused);
   }
 }
+VTK_ABI_NAMESPACE_END

@@ -27,6 +27,7 @@
 
 #include <cassert>
 
+VTK_ABI_NAMESPACE_BEGIN
 //****************************************************************************
 vtkStandardNewMacro(vtkExtractSelectedArraysOverTime);
 //------------------------------------------------------------------------------
@@ -277,3 +278,4 @@ int vtkExtractSelectedArraysOverTime::DetermineSelectionType(vtkSelection* sel)
   }
   return 1;
 }
+VTK_ABI_NAMESPACE_END

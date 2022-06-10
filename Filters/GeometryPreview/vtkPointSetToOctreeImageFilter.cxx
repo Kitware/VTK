@@ -31,6 +31,7 @@
 
 #include <mutex>
 
+VTK_ABI_NAMESPACE_BEGIN
 //------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkPointSetToOctreeImageFilter);
 
@@ -419,3 +420,4 @@ int vtkPointSetToOctreeImageFilter::RequestData(
 
   return 1;
 }
+VTK_ABI_NAMESPACE_END

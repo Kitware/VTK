@@ -30,6 +30,8 @@
 #include "vtkCommonCoreModule.h" // For export macro
 #include <atomic>                // For std::atomic
 
+VTK_ABI_NAMESPACE_BEGIN
+
 class VTKCOMMONCORE_EXPORT vtkAtomicMutex
 {
 public:
@@ -54,5 +56,6 @@ private:
   std::atomic_bool Locked;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkAtomicMutex_h
 // VTK-HeaderTest-Exclude: vtkAtomicMutex.h

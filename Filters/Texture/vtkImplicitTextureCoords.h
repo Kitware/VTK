@@ -52,6 +52,7 @@
 #include "vtkDataSetAlgorithm.h"
 #include "vtkFiltersTextureModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkImplicitFunction;
 
 class VTKFILTERSTEXTURE_EXPORT vtkImplicitTextureCoords : public vtkDataSetAlgorithm
@@ -116,4 +117,5 @@ private:
   void operator=(const vtkImplicitTextureCoords&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

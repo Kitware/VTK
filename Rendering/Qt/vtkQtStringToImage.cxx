@@ -35,6 +35,7 @@
 #include <QTextDocument>
 #include <QTextStream>
 
+VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
 struct vtkQtLabelMapEntry
@@ -195,3 +196,4 @@ void vtkQtStringToImage::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

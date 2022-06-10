@@ -28,6 +28,7 @@
 #include "vtkCell.h"
 #include "vtkCommonDataModelModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDoubleArray;
 class vtkIdTypeArray;
 class vtkLine;
@@ -318,4 +319,5 @@ private:
   void operator=(const vtkPolygon&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

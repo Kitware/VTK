@@ -52,6 +52,7 @@
 #include <string> // STL Header
 #include <vector> // STL Header
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkBitArray;
 class vtkDataArray;
 class vtkHyperTreeGridNonOrientedCursor;
@@ -334,4 +335,5 @@ private:
   void operator=(const vtkHyperTreeGridSource&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

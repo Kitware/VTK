@@ -55,6 +55,7 @@
 #include "vtkDataSetAttributesFieldList.h" // for vtkDataSetAttributesFieldList
 #include "vtkFieldData.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkLookupTable;
 
 class VTKCOMMONDATAMODEL_EXPORT vtkDataSetAttributes : public vtkFieldData
@@ -679,4 +680,5 @@ private:
   friend class vtkDataSetAttributesFieldList;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

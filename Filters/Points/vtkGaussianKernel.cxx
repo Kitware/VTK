@@ -22,6 +22,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkGaussianKernel);
 
 //------------------------------------------------------------------------------
@@ -95,3 +96,4 @@ void vtkGaussianKernel::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Sharpness: " << this->GetSharpness() << endl;
 }
+VTK_ABI_NAMESPACE_END

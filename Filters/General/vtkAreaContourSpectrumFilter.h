@@ -47,6 +47,7 @@
 #include "vtkDataObjectAlgorithm.h"
 #include "vtkFiltersGeneralModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkTable;
 
 class VTKFILTERSGENERAL_EXPORT vtkAreaContourSpectrumFilter : public vtkDataObjectAlgorithm
@@ -103,4 +104,5 @@ private:
   void operator=(const vtkAreaContourSpectrumFilter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

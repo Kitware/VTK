@@ -23,6 +23,7 @@
 #include "vtkPointData.h"
 #include "vtkTextureObject.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOpenGLVolumeTransferFunction2D);
 
 //------------------------------------------------------------------------------
@@ -84,3 +85,4 @@ void vtkOpenGLVolumeTransferFunction2D::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

@@ -46,6 +46,8 @@ All rights reserved.
 
 #include <memory> // For std::unique_ptr
 
+VTK_ABI_NAMESPACE_BEGIN
+
 class vtkInformationDoubleVectorKey;
 
 class VTKIOOCCT_EXPORT vtkOCCTReader : public vtkMultiBlockDataSetAlgorithm
@@ -140,4 +142,5 @@ private:
   char* FileName = nullptr;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

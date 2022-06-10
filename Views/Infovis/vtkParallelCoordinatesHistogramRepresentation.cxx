@@ -55,6 +55,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkUnsignedIntArray.h"
 #include "vtkViewTheme.h"
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkParallelCoordinatesHistogramRepresentation);
 //------------------------------------------------------------------------------
 vtkParallelCoordinatesHistogramRepresentation::vtkParallelCoordinatesHistogramRepresentation()
@@ -574,3 +575,4 @@ vtkTable* vtkParallelCoordinatesHistogramRepresentation::GetOutlierData()
 {
   return this->OutlierFilter->GetOutputTable();
 }
+VTK_ABI_NAMESPACE_END

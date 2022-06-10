@@ -34,6 +34,7 @@
 #include "vtkDefaultPass.h"
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKRENDERINGOPENGL2_EXPORT vtkOpaquePass : public vtkDefaultPass
 {
 public:
@@ -63,4 +64,5 @@ private:
   void operator=(const vtkOpaquePass&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

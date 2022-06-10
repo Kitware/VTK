@@ -28,6 +28,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <atomic> // for ivars
 #include <vector> // for ivars
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKRENDERINGOPENXR_EXPORT vtkOpenXRModel : public vtkVRModel
 {
 public:
@@ -56,4 +57,5 @@ private:
   void operator=(const vtkOpenXRModel&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

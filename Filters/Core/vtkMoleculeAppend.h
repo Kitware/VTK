@@ -33,6 +33,7 @@
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkMoleculeAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSCORE_EXPORT vtkMoleculeAppend : public vtkMoleculeAlgorithm
 {
 public:
@@ -80,4 +81,5 @@ private:
   void operator=(const vtkMoleculeAppend&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

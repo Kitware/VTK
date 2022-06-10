@@ -78,6 +78,7 @@
 #include "vtkTuple.h" // needed for vtkTuple
 #include <vector>     // needed for vector
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataSet;
 
 class VTKFILTERSCORE_EXPORT vtkArrayCalculator : public vtkPassInputTypeAlgorithm
@@ -378,4 +379,5 @@ private:
   int ProcessDataObject(vtkDataObject* input, vtkDataObject* output);
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

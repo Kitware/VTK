@@ -60,6 +60,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include <openvr.h> // for ivars
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkMatrix4x4;
 class vtkOpenVRModel;
 
@@ -178,4 +179,5 @@ private:
   void operator=(const vtkOpenVRRenderWindow&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -28,6 +28,7 @@
 #include "vtkFiltersGeometryModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPolyData;
 
 class VTKFILTERSGEOMETRY_EXPORT vtkCompositeDataGeometryFilter : public vtkPolyDataAlgorithm
@@ -59,4 +60,5 @@ private:
   void operator=(const vtkCompositeDataGeometryFilter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -42,6 +42,7 @@ using std::ostringstream;
 
 #include "vtkQuadraturePointsUtilities.hxx"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkQuadraturePointInterpolator);
 
 //------------------------------------------------------------------------------
@@ -203,3 +204,4 @@ void vtkQuadraturePointInterpolator::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "No state." << endl;
 }
+VTK_ABI_NAMESPACE_END

@@ -26,6 +26,7 @@
 #include "vtkFiltersSourcesModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPoints;
 
 class VTKFILTERSSOURCES_EXPORT vtkPolyPointSource : public vtkPolyDataAlgorithm
@@ -79,4 +80,5 @@ private:
   void operator=(const vtkPolyPointSource&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

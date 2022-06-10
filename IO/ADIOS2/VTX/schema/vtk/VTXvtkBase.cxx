@@ -28,6 +28,7 @@ namespace vtx
 {
 namespace schema
 {
+VTK_ABI_NAMESPACE_BEGIN
 const std::set<std::string> VTXvtkBase::TIMENames = { "TIME", "CYCLE" };
 const std::set<std::string> VTXvtkBase::SpecialNames = { "TIME", "CYCLE", "connectivity", "types",
   "vertices" };
@@ -96,5 +97,6 @@ std::string VTXvtkBase::DataSetType(const types::DataSetType type) const noexcep
   return VTXvtkBase::DataSetTypes.at(type);
 }
 
+VTK_ABI_NAMESPACE_END
 } // end namespace schema
 } // end namespace adios2vtk

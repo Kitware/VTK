@@ -39,6 +39,8 @@ extern "C"
 }
 #endif
 
+VTK_ABI_NAMESPACE_BEGIN
+
 //------------------------------------------------------------------------------
 class vtkFFMPEGWriterInternal
 {
@@ -786,3 +788,4 @@ void vtkFFMPEGWriter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "BitRate: " << this->BitRate << endl;
   os << indent << "BitRateTolerance: " << this->BitRateTolerance << endl;
 }
+VTK_ABI_NAMESPACE_END

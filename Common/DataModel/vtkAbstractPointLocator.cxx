@@ -18,6 +18,7 @@
 #include "vtkIdList.h"
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkAbstractPointLocator::vtkAbstractPointLocator()
 {
   for (int i = 0; i < 6; i++)
@@ -85,3 +86,4 @@ void vtkAbstractPointLocator::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Number of Buckets: " << this->NumberOfBuckets << "\n";
 }
+VTK_ABI_NAMESPACE_END

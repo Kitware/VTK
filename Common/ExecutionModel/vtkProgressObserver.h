@@ -33,6 +33,7 @@
 #include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkObject.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONEXECUTIONMODEL_EXPORT vtkProgressObserver : public vtkObject
 {
 public:
@@ -64,4 +65,5 @@ private:
   void operator=(const vtkProgressObserver&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

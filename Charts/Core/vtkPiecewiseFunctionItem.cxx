@@ -28,6 +28,7 @@
 #include <vector>
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPiecewiseFunctionItem);
 
 //------------------------------------------------------------------------------
@@ -143,3 +144,4 @@ void vtkPiecewiseFunctionItem::ComputeTexture()
     }
   }
 }
+VTK_ABI_NAMESPACE_END

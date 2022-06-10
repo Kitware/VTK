@@ -51,15 +51,19 @@
 #include "vtkTuple.h"               // For metrics struct
 #include "vtkVector.h"              // For metrics struct
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkImageData;
 class vtkPath;
 class vtkStdString;
 class vtkTextProperty;
+VTK_ABI_NAMESPACE_END
 
 namespace vtksys
 {
 class RegularExpression;
 }
+
+VTK_ABI_NAMESPACE_BEGIN
 
 class VTKRENDERINGCORE_EXPORT vtkTextRendererCleanup
 {
@@ -322,4 +326,5 @@ private:
   void operator=(const vtkTextRenderer&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkTextRenderer_h

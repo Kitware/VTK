@@ -25,6 +25,7 @@
 #include "vtkRenderer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImageActor);
 
 //------------------------------------------------------------------------------
@@ -551,3 +552,4 @@ vtkTypeBool vtkImageActor::HasTranslucentPolygonalGeometry()
 
   return this->TranslucentCachedResult;
 }
+VTK_ABI_NAMESPACE_END

@@ -50,6 +50,7 @@
 #include "vtkObject.h"
 #include "vtkVariant.h" // Set/get annotation methods require variants.
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkAbstractArray;
 class vtkDataArray;
 class vtkUnsignedCharArray;
@@ -483,4 +484,5 @@ inline unsigned char vtkScalarsToColors::ColorToUChar(float t)
 }
 ///@}
 
+VTK_ABI_NAMESPACE_END
 #endif

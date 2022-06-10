@@ -18,6 +18,7 @@
 #include "vtkMath.h"
 #include "vtkTransform.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkSphericalDirectionEncoder);
 
 float vtkSphericalDirectionEncoder::DecodedGradientTable[65536 * 3];
@@ -146,3 +147,4 @@ void vtkSphericalDirectionEncoder::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Number of encoded directions: " << this->GetNumberOfEncodedDirections() << endl;
 }
+VTK_ABI_NAMESPACE_END

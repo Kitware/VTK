@@ -27,6 +27,7 @@
 #include "vtkParallelMPIModule.h" // For export macro
 #include "vtkSystemIncludes.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKPARALLELMPI_EXPORT vtkMPICommunicatorOpaqueComm
 {
 public:
@@ -67,5 +68,6 @@ public:
   MPI_Request Handle;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkMPI_h
 // VTK-HeaderTest-Exclude: vtkMPI.h

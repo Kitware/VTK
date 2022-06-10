@@ -21,6 +21,7 @@
 //------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPen);
 
 //------------------------------------------------------------------------------
@@ -163,3 +164,4 @@ void vtkPen::PrintSelf(ostream& os, vtkIndent indent)
      << ", " << this->Color[3] << endl;
   os << indent << "Width: " << this->Width << endl;
 }
+VTK_ABI_NAMESPACE_END

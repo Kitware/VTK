@@ -9,6 +9,7 @@
 
 namespace RTW
 {
+VTK_ABI_NAMESPACE_BEGIN
     class FrameBuffer : public Object
     {
         friend class Renderer;
@@ -96,4 +97,5 @@ namespace RTW
         RTWFrameBufferFormat format;
         uint32_t channels;
     };
+VTK_ABI_NAMESPACE_END
 }

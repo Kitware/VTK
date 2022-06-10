@@ -23,6 +23,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkMassProperties);
 
 //------------------------------------------------------------------------------
@@ -314,3 +315,4 @@ void vtkMassProperties::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Max Cell Area: " << this->GetMaxCellArea() << "\n";
   os << indent << "Normalized Shape Index: " << this->GetNormalizedShapeIndex() << "\n";
 }
+VTK_ABI_NAMESPACE_END

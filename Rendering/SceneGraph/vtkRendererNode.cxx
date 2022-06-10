@@ -27,6 +27,7 @@
 #include "vtkRenderer.h"
 
 //============================================================================
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkRendererNode);
 
 //------------------------------------------------------------------------------
@@ -77,3 +78,4 @@ void vtkRendererNode::Build(bool prepass)
     this->RemoveUnusedNodes();
   }
 }
+VTK_ABI_NAMESPACE_END

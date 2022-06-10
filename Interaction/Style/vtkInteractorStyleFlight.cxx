@@ -23,6 +23,7 @@
 #include "vtkRenderer.h"
 #include "vtkWindows.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkInteractorStyleFlight);
 
 class CPIDControl
@@ -812,3 +813,4 @@ void vtkInteractorStyleFlight::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "DefaultUpVector: " << this->DefaultUpVector[0] << " " << this->DefaultUpVector[1]
      << " " << this->DefaultUpVector[2] << "\n";
 }
+VTK_ABI_NAMESPACE_END

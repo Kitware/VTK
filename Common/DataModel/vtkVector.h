@@ -33,6 +33,7 @@
 
 #include <cmath> // For math functions
 
+VTK_ABI_NAMESPACE_BEGIN
 template <typename T, int Size>
 class vtkVector : public vtkTuple<T, Size>
 {
@@ -519,5 +520,6 @@ public:
   vtkVectorDerivedMacro(vtkVector4d, double, 4);
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkVector_h
 // VTK-HeaderTest-Exclude: vtkVector.h

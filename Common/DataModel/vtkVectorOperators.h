@@ -22,6 +22,7 @@
 
 // Description:
 // Unary minus / negation of vector.
+VTK_ABI_NAMESPACE_BEGIN
 template <typename A, int Size>
 vtkVector<A, Size> operator-(const vtkVector<A, Size>& v)
 {
@@ -190,5 +191,6 @@ vtkVectorOperatorMacro(vtkVector3i, int, 3);
 vtkVectorOperatorMacro(vtkVector3f, float, 3);
 vtkVectorOperatorMacro(vtkVector3d, double, 3);
 
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkVectorOperators.h

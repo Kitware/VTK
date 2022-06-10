@@ -35,6 +35,7 @@
 #include "vtkFiltersPointsModule.h" // For export macro
 #include "vtkPointSetAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkAbstractPointLocator;
 class vtkIdList;
 
@@ -94,4 +95,5 @@ private:
   void operator=(const vtkPoissonDiskSampler&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

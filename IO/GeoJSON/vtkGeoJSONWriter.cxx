@@ -26,6 +26,7 @@
 
 #include <sstream>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkGeoJSONWriter);
 
 #define VTK_GJWRITER_MAXPOINTS 32000
@@ -528,3 +529,4 @@ vtkStdString vtkGeoJSONWriter::GetOutputStdString()
 
 //------------------------------------------------------------------------------
 vtkCxxSetObjectMacro(vtkGeoJSONWriter, LookupTable, vtkLookupTable);
+VTK_ABI_NAMESPACE_END

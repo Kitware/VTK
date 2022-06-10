@@ -26,6 +26,7 @@ using std::ostringstream;
 using std::string;
 #include <locale> // C++ locale
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkXMLDataElement);
 
 //------------------------------------------------------------------------------
@@ -1129,3 +1130,4 @@ void vtkXMLDataElement::PrintSelf(ostream& os, vtkIndent indent)
      << endl;
   os << indent << "CharacterDataWidth: " << this->CharacterDataWidth << endl;
 }
+VTK_ABI_NAMESPACE_END

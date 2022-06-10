@@ -29,6 +29,7 @@
 
 #include <vector> // For STL vector
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkInformation;
 class vtkInformationVector;
 class vtkOverlappingAMR;
@@ -184,4 +185,5 @@ private:
   void operator=(const vtkAMRSliceFilter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif /* vtkAMRSliceFilter_h */

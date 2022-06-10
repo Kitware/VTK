@@ -22,6 +22,7 @@
 
 #include <string>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPDirectory);
 
 //------------------------------------------------------------------------------
@@ -246,3 +247,4 @@ void vtkPDirectory::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << this->Files->GetValue(i) << "\n";
   }
 }
+VTK_ABI_NAMESPACE_END

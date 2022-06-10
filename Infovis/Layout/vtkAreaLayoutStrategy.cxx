@@ -22,6 +22,7 @@
 
 #include "vtkTree.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkAreaLayoutStrategy::vtkAreaLayoutStrategy()
 {
   this->ShrinkPercentage = 0.0;
@@ -41,3 +42,4 @@ void vtkAreaLayoutStrategy::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
   os << indent << "ShrinkPercentage: " << this->ShrinkPercentage << endl;
 }
+VTK_ABI_NAMESPACE_END

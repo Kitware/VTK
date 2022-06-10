@@ -27,6 +27,7 @@
 #include "vtkVector.h"
 #include "vtkVectorOperators.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkLagrangeCurve);
 vtkLagrangeCurve::vtkLagrangeCurve() = default;
 
@@ -85,3 +86,4 @@ void vtkLagrangeCurve::InterpolateDerivs(const double pcoords[3], double* derivs
 {
   vtkLagrangeInterpolation::Tensor1ShapeDerivatives(this->GetOrder(), pcoords, derivs);
 }
+VTK_ABI_NAMESPACE_END

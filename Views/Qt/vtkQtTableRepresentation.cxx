@@ -37,6 +37,7 @@
 //------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkCxxSetObjectMacro(vtkQtTableRepresentation, ColorTable, vtkLookupTable);
 
 //------------------------------------------------------------------------------
@@ -266,3 +267,4 @@ void vtkQtTableRepresentation::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Series color table: ";
   this->SeriesColors->PrintSelf(os, indent.GetNextIndent());
 }
+VTK_ABI_NAMESPACE_END

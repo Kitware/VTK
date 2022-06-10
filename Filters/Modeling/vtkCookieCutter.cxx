@@ -29,6 +29,7 @@
 #include <set>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkCookieCutter);
 vtkCxxSetObjectMacro(vtkCookieCutter, Locator, vtkIncrementalPointLocator);
 
@@ -1681,3 +1682,4 @@ void vtkCookieCutter::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Locator: (none)\n";
   }
 }
+VTK_ABI_NAMESPACE_END

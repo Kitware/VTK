@@ -34,6 +34,7 @@
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include <memory>                    // for std::unique_ptr
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSGENERAL_EXPORT vtkGroupDataSetsFilter : public vtkDataObjectAlgorithm
 {
 public:
@@ -92,4 +93,5 @@ private:
   std::unique_ptr<vtkInternals> Internals;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

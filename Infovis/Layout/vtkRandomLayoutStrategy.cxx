@@ -32,6 +32,7 @@
 #include "vtkPoints.h"
 #include "vtkTree.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkRandomLayoutStrategy);
 
 vtkRandomLayoutStrategy::vtkRandomLayoutStrategy()
@@ -118,3 +119,4 @@ void vtkRandomLayoutStrategy::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Three Dimensional Layout: " << (this->ThreeDimensionalLayout ? "On\n" : "Off\n");
 }
+VTK_ABI_NAMESPACE_END

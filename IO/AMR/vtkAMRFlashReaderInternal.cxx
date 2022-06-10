@@ -17,6 +17,7 @@
 #include <vector>
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 void vtkFlashReaderInternal::GetBlockAttribute(
   const char* attribute, int blockIdx, vtkDataSet* pDataSet)
 {
@@ -1469,3 +1470,4 @@ void vtkFlashReaderInternal::ReadParticleAttributesFLASH3()
   H5Sclose(pointSpaceId);
   H5Dclose(pointId);
 }
+VTK_ABI_NAMESPACE_END

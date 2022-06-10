@@ -35,6 +35,7 @@
 #include <vtkAndroidRenderWindowInteractor.h>
 #endif
 
+VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
 typedef void* EGLDeviceEXT;
@@ -785,3 +786,4 @@ void vtkEGLRenderWindow::SetWindowId(void* window)
   vtkInternals* impl = this->Internals;
   impl->Window = reinterpret_cast<EGLNativeWindowType>(window);
 }
+VTK_ABI_NAMESPACE_END

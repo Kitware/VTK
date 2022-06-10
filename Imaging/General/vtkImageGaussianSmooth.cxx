@@ -22,6 +22,7 @@
 
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImageGaussianSmooth);
 
 //------------------------------------------------------------------------------
@@ -448,3 +449,4 @@ void vtkImageGaussianSmooth::ThreadedRequestData(vtkInformation* vtkNotUsed(requ
       break;
   }
 }
+VTK_ABI_NAMESPACE_END

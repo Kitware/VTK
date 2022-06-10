@@ -37,6 +37,7 @@
 
 #include <iostream>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImplicitImageRepresentation);
 vtkCxxSetObjectMacro(vtkImplicitImageRepresentation, ColorMap, vtkImageMapToColors);
 
@@ -471,3 +472,4 @@ void vtkImplicitImageRepresentation::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "ColorMap: (none)\n";
   }
 }
+VTK_ABI_NAMESPACE_END

@@ -29,6 +29,7 @@
 #include "vtkTransform.h"
 #include "vtkTransformPolyDataFilter.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPlaybackRepresentation);
 
 vtkPlaybackRepresentation::vtkPlaybackRepresentation()
@@ -252,3 +253,4 @@ void vtkPlaybackRepresentation::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Property: (none)\n";
   }
 }
+VTK_ABI_NAMESPACE_END

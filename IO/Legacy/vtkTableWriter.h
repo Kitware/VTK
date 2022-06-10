@@ -27,6 +27,7 @@
 
 #include "vtkDataWriter.h"
 #include "vtkIOLegacyModule.h" // For export macro
+VTK_ABI_NAMESPACE_BEGIN
 class vtkTable;
 
 class VTKIOLEGACY_EXPORT vtkTableWriter : public vtkDataWriter
@@ -57,4 +58,5 @@ private:
   void operator=(const vtkTableWriter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

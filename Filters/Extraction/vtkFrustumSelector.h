@@ -29,6 +29,7 @@
 
 #include "vtkSmartPointer.h" // for smart pointer
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataSet;
 class vtkPlanes;
 class vtkSignedCharArray;
@@ -92,4 +93,5 @@ private:
   void operator=(const vtkFrustumSelector&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -28,6 +28,7 @@
  * depending on the frequency characteristics.
  */
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSGENERAL_EXPORT vtkEqualizerFilter : public vtkTableAlgorithm
 {
 public:
@@ -103,4 +104,5 @@ private:
   vtkInternal* Internal;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

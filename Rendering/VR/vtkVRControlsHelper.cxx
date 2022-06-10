@@ -27,6 +27,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkVRRenderWindow.h"
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkVRControlsHelper::vtkVRControlsHelper()
 {
   // The text
@@ -449,3 +450,4 @@ vtkRenderer* vtkVRControlsHelper::GetRenderer()
 {
   return this->Renderer;
 }
+VTK_ABI_NAMESPACE_END

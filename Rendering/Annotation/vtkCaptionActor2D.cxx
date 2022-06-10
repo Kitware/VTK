@@ -33,6 +33,7 @@
 #include "vtkTrivialProducer.h"
 #include "vtkViewport.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkCaptionActor2D);
 
 vtkCxxSetObjectMacro(vtkCaptionActor2D, CaptionTextProperty, vtkTextProperty);
@@ -602,3 +603,4 @@ void vtkCaptionActor2D::ShallowCopy(vtkProp* prop)
   // Now do superclass
   this->vtkActor2D::ShallowCopy(prop);
 }
+VTK_ABI_NAMESPACE_END

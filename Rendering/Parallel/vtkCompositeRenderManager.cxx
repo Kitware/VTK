@@ -23,6 +23,7 @@
 #include "vtkTimerLog.h"
 #include "vtkUnsignedCharArray.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkCompositeRenderManager);
 
 vtkCxxSetObjectMacro(vtkCompositeRenderManager, Compositer, vtkCompositer);
@@ -120,3 +121,4 @@ void vtkCompositeRenderManager::PostRenderProcessing()
 
   vtkTimerLog::MarkEndEvent("Compositing");
 }
+VTK_ABI_NAMESPACE_END

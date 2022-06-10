@@ -30,6 +30,7 @@
 #include <string> // for std::string
 #include <vector> // for std::vector
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCompositeDataSet;
 class vtkDataAssembly;
 class vtkDataObject;
@@ -135,4 +136,5 @@ private:
   void operator=(const vtkDataAssemblyUtilities&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

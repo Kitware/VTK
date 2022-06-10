@@ -33,6 +33,8 @@ namespace vtksys
 class RegularExpression;
 }
 
+VTK_ABI_NAMESPACE_BEGIN
+
 class VTKIOCHEMISTRY_EXPORT vtkVASPAnimationReader : public vtkMoleculeAlgorithm
 {
 public:
@@ -87,4 +89,5 @@ private:
   void operator=(const vtkVASPAnimationReader&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkVASPAnimationReader_h

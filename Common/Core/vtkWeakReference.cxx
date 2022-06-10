@@ -18,6 +18,7 @@
 #include "vtkWeakPointer.h"
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkWeakReference);
 
 //------------------------------------------------------------------------------
@@ -37,3 +38,4 @@ vtkObject* vtkWeakReference::Get()
 {
   return this->Object;
 }
+VTK_ABI_NAMESPACE_END

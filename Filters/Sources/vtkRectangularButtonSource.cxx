@@ -25,6 +25,7 @@
 #include "vtkPolyData.h"
 #include "vtkTransform.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkRectangularButtonSource);
 
 //------------------------------------------------------------------------------
@@ -294,3 +295,4 @@ void vtkRectangularButtonSource::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "TextureHeightRatio: " << this->TextureHeightRatio << "\n";
   os << indent << "Output Points Precision: " << this->OutputPointsPrecision << "\n";
 }
+VTK_ABI_NAMESPACE_END

@@ -24,6 +24,7 @@
 
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImplicitFunctionToImageStencil);
 vtkCxxSetObjectMacro(vtkImplicitFunctionToImageStencil, Input, vtkImplicitFunction);
 
@@ -144,3 +145,4 @@ int vtkImplicitFunctionToImageStencil::RequestData(
 
   return 1;
 }
+VTK_ABI_NAMESPACE_END

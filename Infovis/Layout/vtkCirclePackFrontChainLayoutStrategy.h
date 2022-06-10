@@ -48,6 +48,7 @@
 #include "vtkCirclePackLayoutStrategy.h"
 #include "vtkInfovisLayoutModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCirclePackFrontChainLayoutStrategyImplementation;
 
 class VTKINFOVISLAYOUT_EXPORT vtkCirclePackFrontChainLayoutStrategy
@@ -92,4 +93,5 @@ private:
   void operator=(const vtkCirclePackFrontChainLayoutStrategy&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

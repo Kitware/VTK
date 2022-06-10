@@ -42,6 +42,7 @@
 #include <iterator>
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkCurveRepresentation::vtkCurveRepresentation()
 {
   this->LastEventPosition[0] = VTK_DOUBLE_MAX;
@@ -1022,3 +1023,4 @@ void vtkCurveRepresentation::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Closed: " << (this->Closed ? "On" : "Off") << "\n";
   os << indent << "InteractionState: " << this->InteractionState << endl;
 }
+VTK_ABI_NAMESPACE_END

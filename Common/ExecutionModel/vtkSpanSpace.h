@@ -42,6 +42,7 @@
 #include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkScalarTree.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkSpanSpace;
 struct vtkInternalSpanSpace;
 
@@ -214,4 +215,5 @@ private:
   void operator=(const vtkSpanSpace&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

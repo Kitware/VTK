@@ -37,6 +37,7 @@
 
 #include "vtkTypedDataArray.h" // For vtkTypedDataArray
 
+VTK_ABI_NAMESPACE_BEGIN
 template <class Scalar>
 class vtkTypedDataArrayIterator
 {
@@ -165,6 +166,7 @@ private:
   vtkIdType Index;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkTypedDataArrayIterator_h
 
 // VTK-HeaderTest-Exclude: vtkTypedDataArrayIterator.h

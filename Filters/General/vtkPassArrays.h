@@ -74,6 +74,7 @@
 #include "vtkDataObjectAlgorithm.h"
 #include "vtkFiltersGeneralModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSGENERAL_EXPORT vtkPassArrays : public vtkDataObjectAlgorithm
 {
 public:
@@ -179,4 +180,5 @@ private:
   void operator=(const vtkPassArrays&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

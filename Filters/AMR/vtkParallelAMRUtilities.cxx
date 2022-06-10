@@ -25,6 +25,7 @@
 #include <limits>
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 void vtkParallelAMRUtilities::PrintSelf(std::ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -144,3 +145,4 @@ void vtkParallelAMRUtilities::BlankCells(
     vtkAMRUtilities::BlankGridsAtLevel(amr, i, info->GetChildrenAtLevel(i), processorMap);
   }
 }
+VTK_ABI_NAMESPACE_END

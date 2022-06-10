@@ -27,6 +27,7 @@
 #include "vtkRenderingVolumeModule.h" // For export macro
 #include "vtkVolumeMapper.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkRenderer;
 class vtkVolume;
 
@@ -51,4 +52,5 @@ private:
   void operator=(const vtkOSPRayVolumeInterface&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

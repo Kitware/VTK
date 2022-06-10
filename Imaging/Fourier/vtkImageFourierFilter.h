@@ -32,6 +32,7 @@
                         COMPLEX number stuff
 *******************************************************************/
 
+VTK_ABI_NAMESPACE_BEGIN
 struct vtkImageComplex_t
 {
   double Real;
@@ -147,4 +148,5 @@ private:
   void operator=(const vtkImageFourierFilter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

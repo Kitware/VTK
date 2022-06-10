@@ -36,6 +36,7 @@ extern "C"
 #include "openslide/openslide.h" // For openslide support
 }
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKDOMAINSMICROSCOPY_EXPORT vtkOpenSlideReader : public vtkImageReader2
 {
 public:
@@ -78,4 +79,5 @@ private:
   vtkOpenSlideReader(const vtkOpenSlideReader&) = delete;
   void operator=(const vtkOpenSlideReader&) = delete;
 };
+VTK_ABI_NAMESPACE_END
 #endif

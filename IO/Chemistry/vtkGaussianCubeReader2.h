@@ -28,6 +28,7 @@
 #include "vtkIOChemistryModule.h" // For export macro
 #include "vtkMoleculeAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkMolecule;
 class vtkImageData;
 
@@ -74,4 +75,5 @@ private:
   void operator=(const vtkGaussianCubeReader2&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

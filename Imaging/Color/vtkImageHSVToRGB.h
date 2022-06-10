@@ -30,6 +30,7 @@
 #include "vtkImagingColorModule.h" // For export macro
 #include "vtkThreadedImageAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKIMAGINGCOLOR_EXPORT vtkImageHSVToRGB : public vtkThreadedImageAlgorithm
 {
 public:
@@ -62,4 +63,5 @@ private:
   void operator=(const vtkImageHSVToRGB&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

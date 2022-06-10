@@ -26,6 +26,7 @@
 
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkProp3DFollower);
 
 vtkCxxSetObjectMacro(vtkProp3DFollower, Camera, vtkCamera);
@@ -320,3 +321,4 @@ void vtkProp3DFollower::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Camera: (none)\n";
   }
 }
+VTK_ABI_NAMESPACE_END

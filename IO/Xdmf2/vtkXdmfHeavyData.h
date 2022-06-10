@@ -20,6 +20,7 @@
 #include VTKXDMF2_HEADER(XdmfGrid.h) //won't compile without it
 #include "vtkIOXdmf2Module.h"        // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkAlgorithm;
 class vtkDataArray;
 class vtkDataObject;
@@ -155,6 +156,7 @@ private:
   vtkDataSet* ExtractEdges(xdmf2::XdmfSet* xmfSet, vtkDataSet* dataSet);
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
 
 // VTK-HeaderTest-Exclude: vtkXdmfHeavyData.h

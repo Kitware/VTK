@@ -28,6 +28,7 @@
 #include "vtkChartsCoreModule.h" // For export macro
 #include "vtkSmartPointer.h"     // For SP ivars
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkColorLegend;
 class vtkPlotHistogram2D;
 class vtkImageData;
@@ -85,4 +86,5 @@ private:
   void operator=(const vtkChartHistogram2D&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkChartHistogram2D_h

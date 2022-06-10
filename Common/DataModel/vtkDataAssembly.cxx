@@ -32,6 +32,7 @@
 #include <unordered_map>
 #include <unordered_set>
 
+VTK_ABI_NAMESPACE_BEGIN
 static constexpr const char* DATASET_NODE_NAME = "dataset";
 
 //============================================================================
@@ -1333,3 +1334,4 @@ void vtkDataAssembly::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "XML Representation : " << endl << endl;
   this->Internals->Document.save(os, "    ");
 }
+VTK_ABI_NAMESPACE_END

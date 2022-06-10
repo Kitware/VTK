@@ -19,6 +19,7 @@
 #include <cstring>
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkBackgroundColorMonitor);
 
 //------------------------------------------------------------------------------
@@ -87,3 +88,4 @@ void vtkBackgroundColorMonitor::PrintSelf(ostream& os, vtkIndent indent)
   os << endl;
   os << indent << "UpTime=" << this->UpTime << endl;
 }
+VTK_ABI_NAMESPACE_END

@@ -39,6 +39,7 @@
 #include "vtkTransform.h"
 #include "vtkTubeFilter.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImplicitPlaneWidget);
 
 //------------------------------------------------------------------------------
@@ -1279,3 +1280,4 @@ void vtkImplicitPlaneWidget::SizeHandles()
 
   this->EdgesTuber->SetRadius(0.25 * radius);
 }
+VTK_ABI_NAMESPACE_END

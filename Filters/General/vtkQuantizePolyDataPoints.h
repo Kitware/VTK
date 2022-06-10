@@ -45,6 +45,7 @@
 #include "vtkCleanPolyData.h"
 #include "vtkFiltersGeneralModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSGENERAL_EXPORT vtkQuantizePolyDataPoints : public vtkCleanPolyData
 {
 public:
@@ -81,4 +82,5 @@ private:
   void operator=(const vtkQuantizePolyDataPoints&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

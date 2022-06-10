@@ -55,6 +55,7 @@
 #include <utility>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
 
@@ -2384,3 +2385,4 @@ void vtkPDFContextDevice2D::HPDFTransformToMatrix3(
   mat3[7] = 0.;
   mat3[8] = 1.;
 }
+VTK_ABI_NAMESPACE_END

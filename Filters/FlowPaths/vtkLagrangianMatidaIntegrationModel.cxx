@@ -26,6 +26,7 @@
 
 #include <cstring>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkObjectFactoryNewMacro(vtkLagrangianMatidaIntegrationModel);
 
 //------------------------------------------------------------------------------
@@ -180,3 +181,4 @@ double vtkLagrangianMatidaIntegrationModel::GetDragCoefficient(const double* flo
   double reynolds = flowDensity * relativeSpeed * particleDiameter / dynVisc;
   return (1.0 + 0.15 * pow(reynolds, 0.687));
 }
+VTK_ABI_NAMESPACE_END

@@ -39,6 +39,7 @@
 
 #include <map>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPolyDataSilhouette);
 
 vtkCxxSetObjectMacro(vtkPolyDataSilhouette, Camera, vtkCamera);
@@ -482,3 +483,4 @@ void vtkPolyDataSilhouette::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "EnableFeatureAngle: " << this->EnableFeatureAngle << "\n";
   os << indent << "BorderEdges: " << this->BorderEdges << "\n";
 }
+VTK_ABI_NAMESPACE_END

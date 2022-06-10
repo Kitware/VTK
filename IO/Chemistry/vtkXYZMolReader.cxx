@@ -26,6 +26,7 @@
 #include <vtksys/SystemTools.hxx>
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkXYZMolReader);
 
 //------------------------------------------------------------------------------
@@ -354,3 +355,4 @@ void vtkXYZMolReader::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "TimeStep: " << this->TimeStep << endl;
   os << indent << "MaxTimeStep: " << this->MaxTimeStep;
 }
+VTK_ABI_NAMESPACE_END

@@ -33,6 +33,7 @@
 #include "vtkTree.h"
 #include "vtkTreeMapLayoutStrategy.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkTreeMapLayout);
 
 vtkTreeMapLayout::vtkTreeMapLayout()
@@ -211,3 +212,4 @@ vtkMTimeType vtkTreeMapLayout::GetMTime()
   }
   return mTime;
 }
+VTK_ABI_NAMESPACE_END

@@ -27,6 +27,7 @@
 #include "vtkPolyData.h"
 #include "vtkTriangleFilter.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkSelectPolyData);
 
 vtkCxxSetObjectMacro(vtkSelectPolyData, Loop, vtkPoints);
@@ -914,3 +915,4 @@ void vtkSelectPolyData::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Loop not defined\n";
   }
 }
+VTK_ABI_NAMESPACE_END

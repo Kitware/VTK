@@ -25,6 +25,7 @@
 #include <algorithm>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 //------------------------------------------------------------------------------
 static constexpr const vtkIdType SMP_THRESHOLD = 10000;
 
@@ -1937,3 +1938,4 @@ const char* vtkDataSetAttributes::GetLongAttributeTypeAsString(int attributeType
   }
   return vtkDataSetAttributes::LongAttributeNames[attributeType];
 }
+VTK_ABI_NAMESPACE_END

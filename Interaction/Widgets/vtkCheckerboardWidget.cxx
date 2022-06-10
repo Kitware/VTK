@@ -22,6 +22,7 @@
 #include "vtkSliderRepresentation3D.h"
 #include "vtkSliderWidget.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkCheckerboardWidget);
 
 // The checkerboard simply observes the behavior of four vtkSliderWidgets.
@@ -270,3 +271,4 @@ void vtkCheckerboardWidget::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Left Slider: (none)\n";
   }
 }
+VTK_ABI_NAMESPACE_END

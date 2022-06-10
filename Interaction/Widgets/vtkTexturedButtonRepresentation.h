@@ -50,6 +50,7 @@
 #include "vtkButtonRepresentation.h"
 #include "vtkInteractionWidgetsModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCellPicker;
 class vtkActor;
 class vtkProperty;
@@ -199,4 +200,5 @@ private:
   void operator=(const vtkTexturedButtonRepresentation&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

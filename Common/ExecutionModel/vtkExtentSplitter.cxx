@@ -20,6 +20,7 @@
 #include <queue>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkExtentSplitter);
 
 //------------------------------------------------------------------------------
@@ -467,3 +468,4 @@ int vtkExtentSplitter::Max(int a, int b)
 {
   return (a > b) ? a : b;
 }
+VTK_ABI_NAMESPACE_END

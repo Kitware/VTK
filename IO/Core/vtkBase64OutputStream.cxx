@@ -17,6 +17,7 @@
 #include "vtkObjectFactory.h"
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkBase64OutputStream);
 
 //------------------------------------------------------------------------------
@@ -139,3 +140,4 @@ int vtkBase64OutputStream::Write(void const* data, size_t length)
   }
   return 1;
 }
+VTK_ABI_NAMESPACE_END

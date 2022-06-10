@@ -87,6 +87,7 @@
 #include <sstream>
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkCellValidator);
 
 //------------------------------------------------------------------------------
@@ -1982,3 +1983,4 @@ void vtkCellValidator::PrintState(vtkCellValidator::State state, ostream& os, vt
     }
   }
 }
+VTK_ABI_NAMESPACE_END

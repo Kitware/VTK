@@ -26,6 +26,7 @@
 #include <cassert>
 #include <string>
 
+VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
 struct FlipTrue
@@ -1386,3 +1387,4 @@ void vtkTIFFReader::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "SpacingSpecifiedFlag: " << this->SpacingSpecifiedFlag << endl;
   os << indent << "IgnoreColorMap: " << this->IgnoreColorMap << endl;
 }
+VTK_ABI_NAMESPACE_END

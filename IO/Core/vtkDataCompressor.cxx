@@ -16,6 +16,7 @@
 #include "vtkUnsignedCharArray.h"
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkDataCompressor::vtkDataCompressor() = default;
 
 //------------------------------------------------------------------------------
@@ -97,3 +98,4 @@ vtkUnsignedCharArray* vtkDataCompressor::Uncompress(
 
   return outputArray;
 }
+VTK_ABI_NAMESPACE_END

@@ -53,10 +53,12 @@
 
 struct _object;
 typedef struct _object PyObject;
-class vtkSmartPyObject;
+
+VTK_ABI_NAMESPACE_BEGIN
 class vtkImageData;
 class vtkPath;
 class vtkPythonInterpreter;
+class vtkSmartPyObject;
 class vtkTextProperty;
 struct TextColors;
 
@@ -251,4 +253,5 @@ private:
   bool DrawInteriorLines(vtkImageData* image, int bbox[4], vtkTextProperty* tprop);
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

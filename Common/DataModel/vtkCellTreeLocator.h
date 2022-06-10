@@ -57,14 +57,17 @@
 
 namespace detail
 {
+VTK_ABI_NAMESPACE_BEGIN
 // Forward declarations for PIMPL
 struct vtkCellTree;
 template <typename T>
 struct CellTree;
 template <typename T>
 struct CellTreeBuilder;
+VTK_ABI_NAMESPACE_END
 }
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONDATAMODEL_EXPORT vtkCellTreeLocator : public vtkAbstractCellLocator
 {
   template <typename>
@@ -190,5 +193,6 @@ private:
   vtkCellTreeLocator(const vtkCellTreeLocator&) = delete;
   void operator=(const vtkCellTreeLocator&) = delete;
 };
+VTK_ABI_NAMESPACE_END
 
 #endif
