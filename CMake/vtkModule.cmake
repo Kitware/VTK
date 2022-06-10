@@ -3569,6 +3569,15 @@ function (vtk_module_add_module name)
       "The ${_vtk_build_module} module has no source files.")
   endif ()
 
+  set(_vtk_add_module_has_cxx FALSE)
+  foreach (source IN LISTS _vtk_add_module_SOURCES)
+    get_filename_component(source_ext "${source}" EXT)
+    if (source_ext MATCHES "cxx$")
+      set(_vtk_add_module_has_cxx TRUE)
+      break()
+    endif ()
+  endforeach ()
+
   get_property(_vtk_add_module_third_party GLOBAL
     PROPERTY  "_vtk_module_${_vtk_build_module}_third_party")
 
@@ -3942,6 +3951,16 @@ function (vtk_module_add_module name)
     set_property(TARGET "${_vtk_add_module_real_target}"
       PROPERTY
         "INTERFACE_vtk_module_implementable" 1)
+  endif ()
+
+  # Include the ABI Namespace macros if this is a module with C++ sources
+  if (_vtk_add_module_has_cxx)
+    # Include the ABI Namespace macros
+    string(APPEND _vtk_add_module_module_content
+      "
+/* Include ABI Namespace */
+#include \"vtkABINamespace.h\"
+")
   endif ()
 
   if (_vtk_add_module_implementable OR _vtk_add_module_implements)
