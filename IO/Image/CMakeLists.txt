@@ -46,3 +46,4 @@ set(private_headers
 vtk_module_add_module(VTK::IOImage
   PRIVATE_HEADERS ${private_headers}
   CLASSES ${classes})
+vtk_add_test_mangling(VTK::IOImage)

@@ -19,3 +19,4 @@ vtk_module_find_package(PACKAGE FontConfig)
 vtk_module_link(VTK::RenderingFreeTypeFontConfig
   PRIVATE
     FontConfig::FontConfig)
+vtk_add_test_mangling(VTK::RenderingFreeTypeFontConfig)

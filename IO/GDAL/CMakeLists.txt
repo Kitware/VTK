@@ -10,3 +10,4 @@ vtk_module_add_module(VTK::IOGDAL
 vtk_module_link(VTK::IOGDAL
   PRIVATE
     GDAL::GDAL)
+vtk_add_test_mangling(VTK::IOGDAL)

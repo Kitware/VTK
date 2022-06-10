@@ -11,3 +11,4 @@ vtk_module_add_module(VTK::RenderingExternal
 vtk_module_definitions(VTK::RenderingExternal
   PRIVATE
     VTK_OPENGL2)
+vtk_add_test_mangling(VTK::RenderingExternal)

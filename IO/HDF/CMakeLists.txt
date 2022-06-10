@@ -10,3 +10,4 @@ vtk_module_add_module(VTK::IOHDF
   PRIVATE_CLASSES ${private_classes}
   PRIVATE_HEADERS vtkHDFReaderVersion.h
   )
+vtk_add_test_mangling(VTK::IOHDF)

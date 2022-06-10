@@ -16,3 +16,4 @@ vtk_module_find_package(
   VERSION_VAR         "Qt${vtk_qt_major_version}_VERSION")
 vtk_module_link(VTK::GUISupportQtSQL
   PUBLIC "Qt${vtk_qt_major_version}::Sql" "Qt${vtk_qt_major_version}::Widgets")
+vtk_add_test_mangling(VTK::GUISupportQtSQL)

@@ -30,12 +30,9 @@
 #include "vtkObject.h"
 
 VTK_ABI_NAMESPACE_BEGIN
-extern "C"
-{
-  void vtkXMLParserStartElement(void*, const char*, const char**);
-  void vtkXMLParserEndElement(void*, const char*);
-  void vtkXMLParserCharacterDataHandler(void*, const char*, int);
-}
+void vtkXMLParserStartElement(void*, const char*, const char**);
+void vtkXMLParserEndElement(void*, const char*);
+void vtkXMLParserCharacterDataHandler(void*, const char*, int);
 
 class VTKIOXMLPARSER_EXPORT vtkXMLParser : public vtkObject
 {

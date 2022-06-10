@@ -406,3 +406,4 @@ if (NOT ANDROID AND
     TARGETS vtkProbeOpenGLVersion
     MODULES VTK::RenderingOpenGL2)
 endif ()
+vtk_add_test_mangling(VTK::RenderingOpenGL2)

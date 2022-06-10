@@ -17,3 +17,4 @@ vtk_module_add_module(VTK::IOOMF
   CLASSES           ${classes}
   PRIVATE_CLASSES   ${private_classes}
   PRIVATE_HEADERS   ${private_headers_core})
+vtk_add_test_mangling(VTK::IOOMF)

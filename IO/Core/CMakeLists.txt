@@ -32,3 +32,4 @@ set(headers
 vtk_module_add_module(VTK::IOCore
   CLASSES ${classes}
   HEADERS ${headers})
+vtk_add_test_mangling(VTK::IOCore)

@@ -193,3 +193,4 @@ if (VTK_DEFAULT_RENDER_WINDOW_OFFSCREEN)
     PRIVATE
       VTK_DEFAULT_RENDER_WINDOW_OFFSCREEN)
 endif()
+vtk_add_test_mangling(VTK::RenderingCore)

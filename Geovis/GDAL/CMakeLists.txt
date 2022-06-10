@@ -10,3 +10,4 @@ vtk_module_add_module(VTK::GeovisGDAL
 vtk_module_link(VTK::GeovisGDAL
   PRIVATE
     GDAL::GDAL)
+vtk_add_test_mangling(VTK::GeovisGDAL)

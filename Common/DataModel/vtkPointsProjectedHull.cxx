@@ -205,10 +205,10 @@ VTK_ABI_NAMESPACE_END
 //
 // Algorithm comes from Graphics Gems IV
 //
-extern "C"
+namespace
 {
-  int vtkPointsProjectedHullIncrVertAxis(const void* p1, const void* p2);
-  int vtkPointsProjectedHullCCW(const void* p1, const void* p2);
+int vtkPointsProjectedHullIncrVertAxis(const void* p1, const void* p2);
+int vtkPointsProjectedHullCCW(const void* p1, const void* p2);
 }
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -731,49 +731,49 @@ VTK_ABI_NAMESPACE_END
 
 // The sort functions
 
-extern "C"
+namespace
 {
-  int vtkPointsProjectedHullIncrVertAxis(const void* p1, const void* p2)
+int vtkPointsProjectedHullIncrVertAxis(const void* p1, const void* p2)
+{
+  const double* a = static_cast<const double*>(p1);
+  const double* b = static_cast<const double*>(p2);
+
+  if (a[1] < b[1])
   {
-    const double* a = static_cast<const double*>(p1);
-    const double* b = static_cast<const double*>(p2);
-
-    if (a[1] < b[1])
-    {
-      return -1;
-    }
-    else if (a[1] == b[1])
-    {
-      return 0;
-    }
-    else
-    {
-      return 1;
-    }
+    return -1;
   }
-
-  int vtkPointsProjectedHullCCW(const void* p1, const void* p2)
+  else if (a[1] == b[1])
   {
-    const double* a = static_cast<const double*>(p1);
-    const double* b = static_cast<const double*>(p2);
-
-    // sort in counter clockwise order from first point
-
-    double val = VTK_ISLEFT(firstPt, a, b);
-
-    if (val < 0)
-    {
-      return 1; // b is right of line firstPt->a
-    }
-    else if (val == 0)
-    {
-      return 0; // b is on line firstPt->a
-    }
-    else
-    {
-      return -1; // b is left of line firstPt->a
-    }
+    return 0;
   }
+  else
+  {
+    return 1;
+  }
+}
+
+int vtkPointsProjectedHullCCW(const void* p1, const void* p2)
+{
+  const double* a = static_cast<const double*>(p1);
+  const double* b = static_cast<const double*>(p2);
+
+  // sort in counter clockwise order from first point
+
+  double val = VTK_ISLEFT(firstPt, a, b);
+
+  if (val < 0)
+  {
+    return 1; // b is right of line firstPt->a
+  }
+  else if (val == 0)
+  {
+    return 0; // b is on line firstPt->a
+  }
+  else
+  {
+    return -1; // b is left of line firstPt->a
+  }
+}
 }
 
 VTK_ABI_NAMESPACE_BEGIN

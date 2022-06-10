@@ -13,3 +13,4 @@ vtk_module_link(VTK::IOPDAL
 vtk_module_include(VTK::IOPDAL
   PRIVATE
     ${PDAL_INCLUDE_DIRS})
+vtk_add_test_mangling(VTK::IOPDAL)

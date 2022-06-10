@@ -29,3 +29,4 @@ vtk_module_link(VTK::FiltersOpenTURNS
 vtk_module_include(VTK::FiltersOpenTURNS
   PRIVATE
     ${OPENTURNS_INCLUDE_DIRS})
+vtk_add_test_mangling(VTK::FiltersOpenTURNS)

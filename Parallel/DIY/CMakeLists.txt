@@ -14,3 +14,4 @@ vtk_module_add_module(VTK::ParallelDIY
 
 vtk_module_definitions(VTK::ParallelDIY
   PUBLIC DIY_NO_THREADS)
+vtk_add_test_mangling(VTK::ParallelDIY)

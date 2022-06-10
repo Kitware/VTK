@@ -557,6 +557,8 @@ vtk_module_add_module(VTK::CommonCore
   NOWRAP_HEADERS    ${nowrap_headers}
   PRIVATE_HEADERS   ${private_headers}
   PRIVATE_TEMPLATES ${private_templates})
+vtk_add_test_mangling(VTK::CommonCore
+  EXEMPTIONS GetVTKVersion)
 if (vtk_include_dirs)
   vtk_module_include(VTK::CommonCore
     PRIVATE

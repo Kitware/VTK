@@ -32,3 +32,4 @@ vtk_module_link(VTK::IOLAS
 vtk_module_include(VTK::IOLAS
   PRIVATE
     ${libLAS_INCLUDE_DIRS})
+vtk_add_test_mangling(VTK::IOLAS)

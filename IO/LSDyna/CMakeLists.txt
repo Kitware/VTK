@@ -11,3 +11,4 @@ set(nowrap_classes
 vtk_module_add_module(VTK::IOLSDyna
   CLASSES ${classes}
   NOWRAP_CLASSES ${nowrap_classes})
+vtk_add_test_mangling(VTK::IOLSDyna)

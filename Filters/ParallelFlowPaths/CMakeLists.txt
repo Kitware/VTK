@@ -29,3 +29,4 @@ vtk_module_add_module(VTK::FiltersParallelFlowPaths
   CLASSES ${classes}
   SOURCES ${vtk_object_factory_source}
   HEADERS ${vtk_object_factory_header})
+vtk_add_test_mangling(VTK::FiltersParallelFlowPaths)

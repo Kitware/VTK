@@ -7,3 +7,4 @@ vtk_module_add_module(VTK::IOH5part
 vtk_module_definitions(VTK::IOH5part
   PRIVATE
     H5_USE_16_API)
+vtk_add_test_mangling(VTK::IOH5part)

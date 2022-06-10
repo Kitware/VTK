@@ -13,3 +13,4 @@ vtk_module_find_package(
 vtk_module_link(VTK::InfovisBoost
   INTERFACE
     Boost::serialization)
+vtk_add_test_mangling(VTK::InfovisBoost)

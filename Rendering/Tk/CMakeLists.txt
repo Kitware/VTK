@@ -67,3 +67,4 @@ vtk_module_include(VTK::RenderingTk
     ${TCL_INCLUDE_PATH}
     ${TK_INCLUDE_PATH}
     ${TK_INTERNAL_PATH})
+vtk_add_test_mangling(VTK::RenderingTk)

@@ -301,3 +301,4 @@ vtk_module_add_module(VTK::CommonDataModel
   HEADERS           ${headers}
   NOWRAP_HEADERS    ${nowrap_headers}
   PRIVATE_TEMPLATES ${private_templates})
+vtk_add_test_mangling(VTK::CommonDataModel)

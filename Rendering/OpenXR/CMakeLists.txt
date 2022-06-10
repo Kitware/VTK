@@ -55,3 +55,4 @@ install(
   DESTINATION "${CMAKE_INSTALL_BINDIR}"
   COMPONENT   runtime
 )
+vtk_add_test_mangling(VTK::RenderingOpenXR)

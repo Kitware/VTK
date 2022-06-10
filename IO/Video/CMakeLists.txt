@@ -44,3 +44,4 @@ if (WIN32 AND VTK_USE_VIDEO_FOR_WINDOWS)
     PRIVATE
       vfw32)
 endif ()
+vtk_add_test_mangling(VTK::IOVideo)

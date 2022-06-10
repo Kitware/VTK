@@ -29,3 +29,4 @@ set(nowrap_headers
 vtk_module_add_module(VTK::FiltersFlowPaths
   CLASSES ${classes}
   NOWRAP_HEADERS ${nowrap_headers})
+vtk_add_test_mangling(VTK::FiltersFlowPaths)

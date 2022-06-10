@@ -28,3 +28,4 @@ set(classes
 
 vtk_module_add_module(VTK::CommonComputationalGeometry
   CLASSES ${classes})
+vtk_add_test_mangling(VTK::CommonComputationalGeometry)

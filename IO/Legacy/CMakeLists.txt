@@ -31,3 +31,4 @@ set(classes
 
 vtk_module_add_module(VTK::IOLegacy
   CLASSES ${classes})
+vtk_add_test_mangling(VTK::IOLegacy)

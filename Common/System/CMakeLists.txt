@@ -33,3 +33,4 @@ vtk_module_link(VTK::CommonSystem
   PRIVATE
     $<$<PLATFORM_ID:WIN32>:wsock32>
     Threads::Threads)
+vtk_add_test_mangling(VTK::CommonSystem)

@@ -10,3 +10,4 @@ set(classes
 
 vtk_module_add_module(VTK::IOXdmf3
   CLASSES ${classes})
+vtk_add_test_mangling(VTK::IOXdmf3)

@@ -10,3 +10,4 @@ vtk_module_find_package(PACKAGE ODBC)
 vtk_module_link(VTK::IOODBC
   PRIVATE
     ODBC::ODBC)
+vtk_add_test_mangling(VTK::IOODBC)

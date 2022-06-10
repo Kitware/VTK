@@ -15,4 +15,5 @@ vtk_module_link(VTK::IOCatalystConduit
   PUBLIC
     catalyst::catalyst)
 
+vtk_add_test_mangling(VTK::IOCatalystConduit)
 add_subdirectory(Catalyst)

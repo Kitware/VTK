@@ -23,3 +23,4 @@ set(classes
 
 vtk_module_add_module(VTK::IOExport
   CLASSES ${classes})
+vtk_add_test_mangling(VTK::IOExport)
