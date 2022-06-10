@@ -102,7 +102,7 @@ struct vtkSMPTools_FunctorInternal<Functor, false>
   }
   vtkSMPTools_FunctorInternal<Functor, false>& operator=(
     const vtkSMPTools_FunctorInternal<Functor, false>&);
-  vtkSMPTools_FunctorInternal<Functor, false>(const vtkSMPTools_FunctorInternal<Functor, false>&);
+  vtkSMPTools_FunctorInternal(const vtkSMPTools_FunctorInternal<Functor, false>&);
 };
 
 template <typename Functor>
@@ -133,7 +133,7 @@ struct vtkSMPTools_FunctorInternal<Functor, true>
   }
   vtkSMPTools_FunctorInternal<Functor, true>& operator=(
     const vtkSMPTools_FunctorInternal<Functor, true>&);
-  vtkSMPTools_FunctorInternal<Functor, true>(const vtkSMPTools_FunctorInternal<Functor, true>&);
+  vtkSMPTools_FunctorInternal(const vtkSMPTools_FunctorInternal<Functor, true>&);
 };
 
 template <typename Functor>
