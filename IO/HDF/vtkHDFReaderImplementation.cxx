@@ -125,7 +125,7 @@ std::vector<hsize_t> vtkHDFReader::Implementation::GetDimensions(const char* dat
 
   if (rank > 0)
   {
-    dims.resize(rank, -1);
+    dims.resize(rank, 0);
     if (H5Sget_simple_extent_dims(dataspace, dims.data(), nullptr) < 0)
     {
       vtkErrorWithObjectMacro(
@@ -569,7 +569,7 @@ bool vtkHDFReader::Implementation::GetAttribute(
     return false;
   }
 
-  hsize_t ne = -1;
+  hsize_t ne = 0;
   if (H5Sget_simple_extent_dims(space, &ne, nullptr) < 0)
   {
     vtkErrorWithObjectMacro(
@@ -1040,10 +1040,10 @@ bool vtkHDFReader::Implementation::FillAMR(vtkOverlappingAMR* data,
     return true;
   }
 
-  int numberOfLoadedLevels = maximumLevelsToReadByDefault == 0
+  size_t numberOfLoadedLevels = maximumLevelsToReadByDefault == 0
     ? blocksPerLevels.size()
-    : std::min((unsigned int)blocksPerLevels.size(), maximumLevelsToReadByDefault);
-  data->Initialize(numberOfLoadedLevels, blocksPerLevels.data());
+    : std::min(blocksPerLevels.size(), (size_t)maximumLevelsToReadByDefault);
+  data->Initialize((int)numberOfLoadedLevels, blocksPerLevels.data());
   data->SetOrigin(origin);
   data->SetGridDescription(VTK_XYZ_GRID);
 
@@ -1131,8 +1131,8 @@ bool vtkHDFReader::Implementation::ReadLevelTopology(
     return false;
   }
 
-  size_t numberOfDatasets = amrBoxRawData.size() / 6;
-  for (size_t dataSetIndex = 0; dataSetIndex < numberOfDatasets; ++dataSetIndex)
+  unsigned int numberOfDatasets = (unsigned int)(amrBoxRawData.size() / 6);
+  for (unsigned int dataSetIndex = 0; dataSetIndex < numberOfDatasets; ++dataSetIndex)
   {
     int* currentAMRBoxRawData = amrBoxRawData.data() + (6 * dataSetIndex);
     vtkAMRBox amrBox(currentAMRBoxRawData);
@@ -1171,7 +1171,7 @@ bool vtkHDFReader::Implementation::ReadLevelData(unsigned int level,
 
   // Now read actual data - one array at a time
   std::array<const char*, 3> groupNames = { "PointData", "CellData", "FieldData" };
-  for (size_t attributeType = 0; attributeType < 3; ++attributeType)
+  for (int attributeType = 0; attributeType < 3; ++attributeType)
   {
     vtkHDF::ScopedH5GHandle groupID = H5Gopen(levelGroupID, groupNames[attributeType], H5P_DEFAULT);
     if (groupID == H5I_INVALID_HID)
@@ -1205,7 +1205,7 @@ bool vtkHDFReader::Implementation::ReadLevelData(unsigned int level,
       hsize_t dataOffset = 0;
       hsize_t dataSize = 0;
       unsigned int numberOfDatasets = data->GetNumberOfDataSets(level);
-      for (size_t dataSetIndex = 0; dataSetIndex < numberOfDatasets; ++dataSetIndex)
+      for (unsigned int dataSetIndex = 0; dataSetIndex < numberOfDatasets; ++dataSetIndex)
       {
         const vtkAMRBox& amrBox = data->GetAMRBox(level, dataSetIndex);
         auto dataSet = data->GetDataSet(level, dataSetIndex);
