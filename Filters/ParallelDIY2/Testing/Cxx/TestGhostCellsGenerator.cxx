@@ -29,9 +29,11 @@
 #include "vtkDataArray.h"
 #include "vtkDataSet.h"
 #include "vtkDoubleArray.h"
+#include "vtkGenerateGlobalIds.h"
 #include "vtkGhostCellsGenerator.h"
 #include "vtkIdTypeArray.h"
 #include "vtkImageData.h"
+#include "vtkIntArray.h"
 #include "vtkLogger.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkMultiPieceDataSet.h"
@@ -43,12 +45,14 @@
 #include "vtkPointDataToCellData.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
+#include "vtkProcessIdScalars.h"
 #include "vtkRectilinearGrid.h"
 #include "vtkRemoveGhosts.h"
 #include "vtkStaticPointLocator.h"
 #include "vtkStructuredData.h"
 #include "vtkStructuredGrid.h"
 #include "vtkTestUtilities.h"
+#include "vtkThreshold.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
 
@@ -399,6 +403,56 @@ bool TestMixedTypes(int myrank)
 }
 
 //----------------------------------------------------------------------------
+bool AllRanksShareSamePointData(vtkMultiProcessController* controller, vtkDataSet* ds)
+{
+  constexpr int TAG = 104256;
+  vtkPointData* pd = ds->GetPointData();
+
+  vtkIdTypeArray* gidArray = vtkArrayDownCast<vtkIdTypeArray>(pd->GetGlobalIds());
+  double gidRange[2];
+  double maxGid;
+  gidArray->GetRange(gidRange);
+
+  controller->AllReduce(gidRange + 1, &maxGid, 1, vtkCommunicator::MAX_OP);
+
+  vtkIntArray* pidArray = vtkArrayDownCast<vtkIntArray>(pd->GetAbstractArray("ProcessId"));
+
+  vtkNew<vtkIntArray> processId;
+  processId->SetNumberOfValues(maxGid + 1);
+  processId->Fill(-1);
+
+  for (vtkIdType id = 0; id < pidArray->GetNumberOfValues(); ++id)
+  {
+    processId->SetValue(gidArray->GetValue(id), pidArray->GetValue(id));
+  }
+
+  if (controller->GetLocalProcessId() == 0)
+  {
+    vtkNew<vtkIntArray> receivedProcessId;
+    receivedProcessId->SetNumberOfValues(maxGid + 1);
+
+    controller->Receive(receivedProcessId->GetPointer(0), maxGid + 1, 1, TAG);
+
+    for (vtkIdType id = 0; id < processId->GetNumberOfValues(); ++id)
+    {
+      if (processId->GetValue(id) == -1 || receivedProcessId->GetValue(id) == -1)
+      {
+        continue;
+      }
+      if (processId->GetValue(id) != receivedProcessId->GetValue(id))
+      {
+        return false;
+      }
+    }
+  }
+  else if (controller->GetLocalProcessId() == 1)
+  {
+    controller->Send(processId->GetPointer(0), maxGid + 1, 0, TAG);
+  }
+  return true;
+}
+
+//----------------------------------------------------------------------------
 bool TestZeroLevels(vtkMultiProcessController* controller, int myrank)
 {
   vtkLog(INFO, "Testing zero levels of ghosts");
@@ -422,13 +476,6 @@ bool TestZeroLevels(vtkMultiProcessController* controller, int myrank)
 
   {
     auto output = vtkImageData::SafeDownCast(generator->GetOutputDataObject(0));
-    if (vtkArrayDownCast<vtkDoubleArray>(output->GetPointData()->GetAbstractArray(0))
-          ->GetPointer(0) !=
-      vtkArrayDownCast<vtkDoubleArray>(image->GetPointData()->GetAbstractArray(0))->GetPointer(0))
-    {
-      vtkLog(ERROR, "No shallow-copy when generating zero layers of ghosts.");
-      retVal = false;
-    }
 
     if (output->GetCellGhostArray())
     {
@@ -492,6 +539,66 @@ bool TestZeroLevels(vtkMultiProcessController* controller, int myrank)
     {
       vtkLog(ERROR, "Ghost Point tagging failed when generating zero layers of ghosts.");
     }
+  }
+
+  return retVal;
+}
+
+//----------------------------------------------------------------------------
+bool TestInterfacePointsSharing(vtkMultiProcessController* controller, int myrank)
+{
+  vtkLog(INFO, "Testing interface points sharing");
+
+  bool retVal = true;
+
+  vtkNew<vtkImageData> image;
+  image->SetExtent(myrank == 0 ? -MaxExtent : 0, myrank == 0 ? 0 : MaxExtent, -MaxExtent, MaxExtent,
+    -MaxExtent, MaxExtent);
+  FillImage(image);
+
+  vtkNew<vtkGenerateGlobalIds> GIDGenerator;
+  GIDGenerator->SetInputData(image);
+
+  vtkNew<vtkProcessIdScalars> PIDGenerator;
+  PIDGenerator->SetInputConnection(GIDGenerator->GetOutputPort());
+
+  vtkNew<vtkGhostCellsGenerator> generator;
+  generator->SetInputConnection(PIDGenerator->GetOutputPort());
+  generator->BuildIfRequiredOff();
+  generator->SetController(controller);
+  generator->SetNumberOfGhostLayers(1);
+  generator->Update();
+
+  {
+    auto output = vtkImageData::SafeDownCast(generator->GetOutputDataObject(0));
+    if (!AllRanksShareSamePointData(controller, output))
+    {
+      vtkLog(ERROR,
+        "All point data are not the same across blocks."
+          << " This is likely happening at the interfaces. The process id of a ghost point needs"
+          << " to be the process id of the owner of the point, even at the interfaces.");
+      retVal = false;
+    }
+  }
+
+  // Testing point tagging at the interfaces on UG
+  vtkNew<vtkThreshold> UGConverter;
+  UGConverter->SetInputConnection(PIDGenerator->GetOutputPort());
+
+  vtkNew<vtkGhostCellsGenerator> UGGenerator;
+  UGGenerator->SetInputConnection(UGConverter->GetOutputPort());
+  UGGenerator->BuildIfRequiredOff();
+  UGGenerator->SetNumberOfGhostLayers(0);
+  UGGenerator->Update();
+
+  if (!AllRanksShareSamePointData(
+        controller, vtkDataSet::SafeDownCast(UGGenerator->GetOutputDataObject(0))))
+  {
+    vtkLog(ERROR,
+      "All point data are not the same across blocks."
+        << " This is likely happening at the interfaces. The process id of a ghost point needs"
+        << " to be the process id of the owner of the point, even at the interfaces.");
+    retVal = false;
   }
 
   return retVal;
@@ -1224,11 +1331,11 @@ bool Test3DGrids(vtkMultiProcessController* controller, int myrank, int numberOf
 
   // Adding hidden points and hidden cells in image3. They should be propagated when exchanging
   // ghosts
-  vtkNew<vtkUnsignedCharArray> ghostCells3;
-  ghostCells3->SetNumberOfValues(image3->GetNumberOfCells());
-  ghostCells3->SetName(vtkDataSetAttributes::GhostArrayName());
-  ghostCells3->Fill(vtkDataSetAttributes::HIDDENCELL);
-  image3->GetCellData()->AddArray(ghostCells3);
+  vtkNew<vtkUnsignedCharArray> ghostCells2;
+  ghostCells2->SetNumberOfValues(image2->GetNumberOfCells());
+  ghostCells2->SetName(vtkDataSetAttributes::GhostArrayName());
+  ghostCells2->Fill(vtkDataSetAttributes::HIDDENCELL);
+  image2->GetCellData()->AddArray(ghostCells2);
 
   // Adding ghost arrays to other partitions
   vtkNew<vtkUnsignedCharArray> ghostCells0;
@@ -1243,18 +1350,18 @@ bool Test3DGrids(vtkMultiProcessController* controller, int myrank, int numberOf
   ghostCells1->Fill(0);
   image1->GetCellData()->AddArray(ghostCells1);
 
-  vtkNew<vtkUnsignedCharArray> ghostCells2;
-  ghostCells2->SetNumberOfValues(image2->GetNumberOfCells());
-  ghostCells2->SetName(vtkDataSetAttributes::GhostArrayName());
-  ghostCells2->Fill(0);
-  image2->GetCellData()->AddArray(ghostCells2);
+  vtkNew<vtkUnsignedCharArray> ghostCells3;
+  ghostCells3->SetNumberOfValues(image3->GetNumberOfCells());
+  ghostCells3->SetName(vtkDataSetAttributes::GhostArrayName());
+  ghostCells3->Fill(0);
+  image3->GetCellData()->AddArray(ghostCells3);
 
   // Same with points
-  vtkNew<vtkUnsignedCharArray> ghostPoints3;
-  ghostPoints3->SetNumberOfValues(image3->GetNumberOfPoints());
-  ghostPoints3->SetName(vtkDataSetAttributes::GhostArrayName());
-  ghostPoints3->Fill(vtkDataSetAttributes::HIDDENPOINT);
-  image3->GetPointData()->AddArray(ghostPoints3);
+  vtkNew<vtkUnsignedCharArray> ghostPoints2;
+  ghostPoints2->SetNumberOfValues(image2->GetNumberOfPoints());
+  ghostPoints2->SetName(vtkDataSetAttributes::GhostArrayName());
+  ghostPoints2->Fill(vtkDataSetAttributes::HIDDENPOINT);
+  image2->GetPointData()->AddArray(ghostPoints2);
 
   vtkNew<vtkUnsignedCharArray> ghostPoints0;
   ghostPoints0->SetNumberOfValues(image0->GetNumberOfPoints());
@@ -1268,11 +1375,11 @@ bool Test3DGrids(vtkMultiProcessController* controller, int myrank, int numberOf
   ghostPoints1->Fill(0);
   image1->GetPointData()->AddArray(ghostPoints1);
 
-  vtkNew<vtkUnsignedCharArray> ghostPoints2;
-  ghostPoints2->SetNumberOfValues(image2->GetNumberOfPoints());
-  ghostPoints2->SetName(vtkDataSetAttributes::GhostArrayName());
-  ghostPoints2->Fill(0);
-  image2->GetPointData()->AddArray(ghostPoints2);
+  vtkNew<vtkUnsignedCharArray> ghostPoints3;
+  ghostPoints3->SetNumberOfValues(image3->GetNumberOfPoints());
+  ghostPoints3->SetName(vtkDataSetAttributes::GhostArrayName());
+  ghostPoints3->Fill(0);
+  image3->GetPointData()->AddArray(ghostPoints3);
 
   {
     // This preGenerator is testing if the peeling ghosts layers from input is done correctly
@@ -1352,16 +1459,17 @@ bool Test3DGrids(vtkMultiProcessController* controller, int myrank, int numberOf
     vtkPartitionedDataSet* outPDS =
       vtkPartitionedDataSet::SafeDownCast(generator->GetOutputDataObject(0));
 
-    vtkIdType numberOfHiddenGhostCells[4] = { MaxExtent * (MaxExtent + numberOfGhostLayers) *
-        numberOfGhostLayers,
-      numberOfGhostLayers * numberOfGhostLayers * (MaxExtent + numberOfGhostLayers),
+    vtkIdType numberOfHiddenGhostCells[4] = { numberOfGhostLayers * numberOfGhostLayers *
+        (MaxExtent + numberOfGhostLayers),
       MaxExtent * (MaxExtent + numberOfGhostLayers) * numberOfGhostLayers,
-      image3->GetNumberOfCells() + MaxExtent * MaxExtent * numberOfGhostLayers };
-    vtkIdType numberOfHiddenGhostPoints[4] = { (MaxExtent + 1) *
-        (MaxExtent + 1 + numberOfGhostLayers) * numberOfGhostLayers,
-      numberOfGhostLayers * numberOfGhostLayers * (MaxExtent + 1 + numberOfGhostLayers),
-      (MaxExtent + 1) * (MaxExtent + 1 + numberOfGhostLayers) * numberOfGhostLayers,
-      image3->GetNumberOfPoints() + (MaxExtent + 1) * (MaxExtent + 1) * numberOfGhostLayers };
+      image3->GetNumberOfCells() + MaxExtent * MaxExtent * numberOfGhostLayers,
+      MaxExtent * (MaxExtent + numberOfGhostLayers) * numberOfGhostLayers };
+    vtkIdType numberOfHiddenGhostPoints[4] = { numberOfGhostLayers * (numberOfGhostLayers + 1) *
+        (MaxExtent + 1 + numberOfGhostLayers),
+      (MaxExtent + 1) * (MaxExtent + 1 + numberOfGhostLayers) * (numberOfGhostLayers),
+      image3->GetNumberOfPoints() + (MaxExtent + 1) * (MaxExtent + 1) * numberOfGhostLayers -
+        (MaxExtent + 1) * (MaxExtent + 1 + numberOfGhostLayers),
+      MaxExtent * (MaxExtent + 1 + numberOfGhostLayers) * (numberOfGhostLayers + 1) };
 
     for (unsigned int partitionId = 0; partitionId < outPDS->GetNumberOfPartitions(); ++partitionId)
     {
@@ -2026,28 +2134,24 @@ bool TestVoxelCellsVolume(vtkDataSet* ds)
     vtkMath::Subtract(p2, p1, diff);
     if (std::fabs(diff[0] - 1.0) > eps || std::fabs(diff[1]) > eps || std::fabs(diff[2]) > eps)
     {
-      vtkLog(INFO, "p2diff " << diff[0] << ", " << diff[1] << ", " << diff[2]);
       return false;
     }
 
     vtkMath::Subtract(p3, p1, diff);
     if (std::fabs(diff[0]) > eps || std::fabs(diff[1] - 1.0) > eps || std::fabs(diff[2]) > eps)
     {
-      vtkLog(INFO, "p3diff " << diff[0] << ", " << diff[1] << ", " << diff[2]);
       return false;
     }
 
     vtkMath::Subtract(p4, p1, diff);
     if (std::fabs(diff[0] - 1.0) > eps || std::fabs(diff[1] - 1) > eps || std::fabs(diff[2]) > eps)
     {
-      vtkLog(INFO, "p4diff " << diff[0] << ", " << diff[1] << ", " << diff[2]);
       return false;
     }
 
     vtkMath::Subtract(p5, p1, diff);
     if (std::fabs(diff[0]) > eps || std::fabs(diff[1]) > eps || std::fabs(diff[2] - 1.0) > eps)
     {
-      vtkLog(INFO, "p5diff " << diff[0] << ", " << diff[1] << ", " << diff[2]);
       return false;
     }
 
@@ -2055,7 +2159,6 @@ bool TestVoxelCellsVolume(vtkDataSet* ds)
     if (std::fabs(diff[0] - 1.0) > eps || std::fabs(diff[1]) > eps ||
       std::fabs(diff[2] - 1.0) > eps)
     {
-      vtkLog(INFO, "p6diff " << diff[0] << ", " << diff[1] << ", " << diff[2]);
       return false;
     }
 
@@ -2063,7 +2166,6 @@ bool TestVoxelCellsVolume(vtkDataSet* ds)
     if (std::fabs(diff[0]) > eps || std::fabs(diff[1] - 1.0) > eps ||
       std::fabs(diff[2] - 1.0) > eps)
     {
-      vtkLog(INFO, "p7diff " << diff[0] << ", " << diff[1] << ", " << diff[2]);
       return false;
     }
 
@@ -2071,7 +2173,6 @@ bool TestVoxelCellsVolume(vtkDataSet* ds)
     if (std::fabs(diff[0] - 1.0) > eps || std::fabs(diff[1] - 1.0) > eps ||
       std::fabs(diff[2] - 1.0) > eps)
     {
-      vtkLog(INFO, "p8diff " << diff[0] << ", " << diff[1] << ", " << diff[2]);
       return false;
     }
   }
@@ -3142,6 +3243,11 @@ int TestGhostCellsGenerator(int argc, char* argv[])
   }
 
   if (!TestZeroLevels(contr, myrank))
+  {
+    retVal = EXIT_FAILURE;
+  }
+
+  if (!TestInterfacePointsSharing(contr, myrank))
   {
     retVal = EXIT_FAILURE;
   }
