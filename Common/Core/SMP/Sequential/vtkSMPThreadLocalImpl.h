@@ -177,3 +177,4 @@ VTK_ABI_NAMESPACE_END
 } // namespace vtk
 
 #endif
+/* VTK-HeaderTest-Exclude: vtkSMPThreadLocalImpl.h */

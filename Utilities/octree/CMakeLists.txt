@@ -12,4 +12,5 @@ vtk_module_add_module(VTK::octree
   TEMPLATE_CLASSES ${template_classes}
   HEADERS ${headers}
   HEADERS_SUBDIR "octree"
-  HEADER_ONLY)
+  HEADER_ONLY
+  EXCLUDE_HEADER_TEST)

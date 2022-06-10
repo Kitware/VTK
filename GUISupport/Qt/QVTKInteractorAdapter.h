@@ -79,3 +79,4 @@ protected:
 
 VTK_ABI_NAMESPACE_END
 #endif
+// VTK-HeaderTest-Exclude: QVTKInteractorAdapter.h

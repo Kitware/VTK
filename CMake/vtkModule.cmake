@@ -3502,7 +3502,7 @@ function (vtk_module_add_module name)
   endforeach ()
 
   cmake_parse_arguments(PARSE_ARGV 1 _vtk_add_module
-    "FORCE_STATIC;HEADER_ONLY;HEADER_DIRECTORIES"
+    "FORCE_STATIC;HEADER_ONLY;HEADER_DIRECTORIES;EXCLUDE_HEADER_TEST"
     "EXPORT_MACRO_PREFIX;HEADERS_SUBDIR;LIBRARY_NAME_SUFFIX"
     "${_vtk_add_module_source_keywords};SOURCES;NOWRAP_CLASSES;NOWRAP_TEMPLATE_CLASSES;NOWRAP_HEADERS")
 
@@ -3898,7 +3898,10 @@ function (vtk_module_add_module name)
     _vtk_module_write_wrap_hierarchy()
   endif ()
 
-  set(_vtk_add_module_module_content)
+  # Make sure this file is excluded from the header tests
+  set(_vtk_add_module_module_content "
+/* VTK-HeaderTest-Exclude: ${_vtk_add_module_library_name}Module.h */
+")
 
   if (NOT _vtk_add_module_AUTOINIT_INCLUDE)
     get_property(_vtk_add_module_AUTOINIT_INCLUDE GLOBAL
@@ -4056,13 +4059,20 @@ function (_vtk_module_add_header_tests)
     return ()
   endif ()
 
-  add_test(
-    NAME    "${_vtk_build_module}-HeaderTest"
-    COMMAND "${Python${VTK_PYTHON_VERSION}_EXECUTABLE}"
-            # TODO: What to do when using this from a VTK install?
-            "${VTK_SOURCE_DIR}/Testing/Core/HeaderTesting.py"
-            "${CMAKE_CURRENT_SOURCE_DIR}"
-            "${_vtk_add_module_EXPORT_MACRO}")
+  if (NOT _vtk_add_module_EXCLUDE_HEADER_TEST)
+    add_test(
+      NAME    "${_vtk_build_module}-HeaderTest"
+      COMMAND "${Python${VTK_PYTHON_VERSION}_EXECUTABLE}"
+              # TODO: What to do when using this from a VTK install?
+              "${VTK_SOURCE_DIR}/Testing/Core/HeaderTesting.py"
+              "${CMAKE_CURRENT_SOURCE_DIR}"
+              "--export-macro"
+              "${_vtk_add_module_EXPORT_MACRO}"
+              "--headers"
+              "${_vtk_add_module_HEADERS}"
+              "${_vtk_add_module_NOWRAP_HEADERS}"
+              "${_vtk_add_module_TEMPLATES}")
+  endif ()
 endfunction ()
 
 #[==[

@@ -6,7 +6,8 @@ set(classes
   vtkExternalOpenGLRenderer)
 
 vtk_module_add_module(VTK::RenderingExternal
-  CLASSES ${classes})
+  CLASSES ${classes}
+  EXCLUDE_HEADER_TEST)
 vtk_module_definitions(VTK::RenderingExternal
   PRIVATE
     VTK_OPENGL2)

@@ -89,3 +89,4 @@ extern "C"
 }
 
 #endif
+/* VTK-HeaderTest-Exclude: PyVTKSpecialObject.h */

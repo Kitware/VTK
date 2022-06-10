@@ -110,3 +110,4 @@ VTK_ABI_NAMESPACE_END
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 #endif
+/* VTK-HeaderTest-Exclude: vtkSMPToolsInternal.h */

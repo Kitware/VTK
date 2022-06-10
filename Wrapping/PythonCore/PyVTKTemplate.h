@@ -42,3 +42,4 @@ extern "C"
 }
 
 #endif
+/* VTK-HeaderTest-Exclude: PyVTKTemplate.h */

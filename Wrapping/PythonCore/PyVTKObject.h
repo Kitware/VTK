@@ -116,3 +116,4 @@ extern "C"
 }
 
 #endif
+/* VTK-HeaderTest-Exclude: PyVTKObject.h */

@@ -29,7 +29,8 @@ unset(CMAKE_VISIBILITY_INLINES_HIDDEN)
 
 vtk_module_add_module(VTK::DICOMParser
   SOURCES ${sources}
-  HEADERS ${headers})
+  HEADERS ${headers}
+  EXCLUDE_HEADER_TEST)
 vtk_module_compile_features(VTK::DICOMParser
   PUBLIC
     cxx_std_11)
