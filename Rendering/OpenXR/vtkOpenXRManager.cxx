@@ -114,7 +114,7 @@ void vtkOpenXRManager::Finalize()
 }
 
 //------------------------------------------------------------------------------
-std::tuple<uint32_t, uint32_t> vtkOpenXRManager::GetRecommandedImageRectSize()
+std::tuple<uint32_t, uint32_t> vtkOpenXRManager::GetRecommendedImageRectSize()
 {
   if (this->RenderResources->ConfigViews.size() == 0)
   {
