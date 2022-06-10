@@ -46,7 +46,7 @@ void PopulateMatrixPlot(vtkScatterPlotMatrix* matrix, int numberOfPoints)
   tangent->SetName("tan(x)");
   table->AddColumn(tangent);
   // Test the chart scatter plot matrix
-  float inc = 4.0 * vtkMath::Pi() / (numberOfPoints - 1);
+  double inc = 4.0 * vtkMath::Pi() / (numberOfPoints - 1);
   table->SetNumberOfRows(numberOfPoints);
   for (int i = 0; i < numberOfPoints; ++i)
   {

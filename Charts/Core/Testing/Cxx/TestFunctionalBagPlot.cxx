@@ -47,7 +47,7 @@ int TestFunctionalBagPlot(int, char*[])
     for (int j = 0; j < numVals; j++)
     {
       arr[i]->SetValue(j,
-        (i + 1) * fabs(sin((j * 2.f * vtkMath::Pi()) / static_cast<float>(numVals))) * j + i * 20);
+        (i + 1) * fabs(sin((j * 2.0 * vtkMath::Pi()) / static_cast<double>(numVals))) * j + i * 20);
     }
     inputTable->AddColumn(arr[i]);
   }

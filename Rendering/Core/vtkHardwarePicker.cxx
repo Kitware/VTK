@@ -48,7 +48,7 @@ namespace
 {
 constexpr double DEFAULT_VALUE = std::numeric_limits<double>::quiet_NaN();
 constexpr double IntersectionTolerance = 0.0000000001;
-constexpr double PI_2 = vtkMath::Pi() / 2.0f;
+constexpr double PI_2 = vtkMath::Pi() / 2.0;
 }
 
 //------------------------------------------------------------------------------

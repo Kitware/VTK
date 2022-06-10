@@ -75,13 +75,12 @@ vtkEDLShading::vtkEDLShading()
   // init neighbours in image space
   for (int c = 0; c < 8; c++)
   {
-    float x, y;
-    x = cos(2 * vtkMath::Pi() * float(c) / 8.);
-    y = sin(2 * vtkMath::Pi() * float(c) / 8.);
+    double x = cos(2.0 * vtkMath::Pi() * static_cast<double>(c) / 8.0);
+    double y = sin(2.0 * vtkMath::Pi() * static_cast<double>(c) / 8.0);
     this->EDLNeighbours[c][0] = x / sqrt(x * x + y * y);
     this->EDLNeighbours[c][1] = y / sqrt(x * x + y * y);
-    this->EDLNeighbours[c][2] = 0.;
-    this->EDLNeighbours[c][3] = 0.;
+    this->EDLNeighbours[c][2] = 0.0;
+    this->EDLNeighbours[c][3] = 0.0;
   }
   this->EDLLowResFactor = 2;
   this->Zn = 0.1;
