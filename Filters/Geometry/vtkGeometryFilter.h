@@ -70,6 +70,10 @@
  * output polydata cells.
  *
  * @warning
+ * This class is templated. It may run slower than serial execution if the code
+ * is not optimized during compilation. Build in Release or ReleaseWithDebugInfo.
+ *
+ * @warning
  * This class has been threaded with vtkSMPTools. Using TBB or other
  * non-sequential type (set in the CMake variable
  * VTK_SMP_IMPLEMENTATION_TYPE) may improve performance significantly.
@@ -92,7 +96,6 @@ class vtkUnstructuredGridBase;
 class vtkGeometryFilter;
 class vtkDataSetSurfaceFilter;
 struct vtkGeometryFilterHelper;
-struct vtkExcludedFaces;
 
 // Used to coordinate delegation to vtkDataSetSurfaceFilter
 struct VTKFILTERSGEOMETRY_EXPORT vtkGeometryFilterHelper
@@ -375,19 +378,19 @@ public:
    * algorithm without using it as a filter (i.e., no pipeline updates).
    * Also some internal methods with additional options.
    */
-  int PolyDataExecute(vtkDataSet* input, vtkPolyData* output, vtkExcludedFaces* exc);
+  int PolyDataExecute(vtkDataSet* input, vtkPolyData* output, vtkPolyData* exc);
   virtual int PolyDataExecute(vtkDataSet*, vtkPolyData*);
 
   int UnstructuredGridExecute(
-    vtkDataSet* input, vtkPolyData* output, vtkGeometryFilterHelper* info, vtkExcludedFaces* exc);
+    vtkDataSet* input, vtkPolyData* output, vtkGeometryFilterHelper* info, vtkPolyData* exc);
   virtual int UnstructuredGridExecute(vtkDataSet* input, vtkPolyData* output);
 
   int StructuredExecute(vtkDataSet* input, vtkPolyData* output, vtkInformation* inInfo,
-    vtkExcludedFaces* exc, bool* extractFace = nullptr);
+    vtkPolyData* exc, bool* extractFace = nullptr);
   virtual int StructuredExecute(
     vtkDataSet* input, vtkPolyData* output, vtkInformation* inInfo, bool* extractFace = nullptr);
 
-  int DataSetExecute(vtkDataSet* input, vtkPolyData* output, vtkExcludedFaces* exc);
+  int DataSetExecute(vtkDataSet* input, vtkPolyData* output, vtkPolyData* exc);
   virtual int DataSetExecute(vtkDataSet* input, vtkPolyData* output);
   ///@}
 

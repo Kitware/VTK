@@ -493,7 +493,8 @@ void vtkStaticCellLinksTemplate<TIds>::BuildLinks(vtkPolyData* pd)
 //----------------------------------------------------------------------------
 // Indicate whether the point ids provided form part of at least one cell.
 template <typename TIds>
-bool vtkStaticCellLinksTemplate<TIds>::MatchesCell(vtkIdType npts, const vtkIdType* pts)
+template <typename TGivenIds>
+bool vtkStaticCellLinksTemplate<TIds>::MatchesCell(TGivenIds npts, const TGivenIds* pts)
 {
   // Find the shortest cell links list.
   int minList = 0;
