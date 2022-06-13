@@ -29,7 +29,8 @@
 #include "vtkIOGeometryModule.h" // For export macro
 #include "vtkWrappingHints.h"
 
-#include "vtk_jsoncpp_fwd.h" // For Json forward declaration
+#include <vtk_nlohmannjson.h>
+#include VTK_NLOHMANN_JSON(json.hpp)
 #include <ostream>
 
 class vtkBase64OutputStream;
@@ -42,9 +43,9 @@ public:
   VTK_WRAPEXCLUDE static void WriteValues(vtkDataArray* ca, std::ostream& myFile);
   VTK_WRAPEXCLUDE static void WriteValues(vtkDataArray* ca, vtkBase64OutputStream* ostr);
   VTK_WRAPEXCLUDE static void WriteBufferAndView(vtkDataArray* inda, const char* fileName,
-    bool inlineData, Json::Value& buffers, Json::Value& bufferViews);
-  VTK_WRAPEXCLUDE static void WriteBufferAndView(vtkCellArray* ca, const char* fileName,
-    bool inlineData, Json::Value& buffers, Json::Value& bufferViews);
+    bool inlineData, nlohmann::json& buffers, nlohmann::json& bufferViews);
+  VTK_WRAPEXCLUDE static void WriteCellBufferAndView(vtkCellArray* ca, const char* fileName,
+    bool inlineData, nlohmann::json& buffers, nlohmann::json& bufferViews);
 };
 
 // gltf uses hard coded numbers to represent data types
@@ -65,6 +66,9 @@ public:
 
 #define GL_NEAREST 0x2600
 #define GL_LINEAR 0x2601
+
+#define ARRAY_BUFFER 34962
+#define ELEMENT_ARRAY_BUFFER 34963
 
 #endif
 

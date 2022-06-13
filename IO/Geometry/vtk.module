@@ -13,7 +13,7 @@ DEPENDS
   VTK::CommonExecutionModel
   VTK::IOCore
   VTK::IOLegacy
-  VTK::jsoncpp
+  VTK::nlohmannjson
 PRIVATE_DEPENDS
   VTK::CommonMisc
   VTK::CommonSystem

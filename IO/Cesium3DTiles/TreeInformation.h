@@ -33,8 +33,11 @@
 
 class vtkActor;
 class vtkCompositeDataSet;
+class vtkIdList;
+class vtkImageData;
 class vtkIntArray;
 class vtkPolyData;
+class vtkPointSet;
 class vtkRenderWindow;
 class vtkRenderWindowInteractor;
 class vtkIncrementalOctreeNode;
@@ -42,10 +45,20 @@ class vtkIncrementalOctreeNode;
 class TreeInformation
 {
 public:
+  //@{
+  /**
+   * Constructors for buildings, points and meshes.
+   */
   TreeInformation(vtkIncrementalOctreeNode* root, int numberOfNodes,
-    const std::vector<vtkSmartPointer<vtkCompositeDataSet>>& buildings,
-    const std::string& outputDir, const std::string& texturePath, bool saveTextures,
-    int contentType, const char* crs);
+    const std::vector<vtkSmartPointer<vtkCompositeDataSet>>* buildings,
+    const std::string& textureBaseDirectory, bool saveTextures, bool contentGLTF, const char* crs,
+    const std::string& outputDir);
+  TreeInformation(vtkIncrementalOctreeNode* root, int numberOfNodes, vtkPointSet* points,
+    bool contentGLTF, const char* crs, const std::string& output);
+  TreeInformation(vtkIncrementalOctreeNode* root, int numberOfNodes, vtkPolyData* mesh,
+    const std::string& textureBaseDirectory, bool saveTextures, bool contentGLTF, const char* crs,
+    const std::string& output);
+  //@}
 
   void PrintNode(vtkIncrementalOctreeNode* node);
 
@@ -55,9 +68,9 @@ public:
    * The versions that returns a bool returns true if the node is not empty,
    * false otherwise. For the third version we read the node index from 'node'.
    */
-  std::array<double, 6> GetNodeBounds(int i) { return NodeBounds[i]; }
-  bool GetNodeBounds(int i, double* bounds);
-  static bool GetNodeBounds(void* data, vtkIncrementalOctreeNode* node, double* bounds);
+  std::array<double, 6> GetNodeTightBounds(int i) { return NodeTightBounds[i]; }
+  bool GetNodeTightBounds(int i, double* bounds);
+  static bool GetNodeTightBounds(void* data, vtkIncrementalOctreeNode* node, double* bounds);
   //@}
 
   /**
@@ -73,7 +86,9 @@ public:
    * and the geometric error.
    */
   void Compute();
-  void SaveTiles(bool mergeTilePolyData);
+  void SaveTilesBuildings(bool mergeTilePolyData);
+  void SaveTilesMesh();
+  void SaveTilesPoints();
   void SaveTileset(const std::string& output);
   static void PrintBounds(const char* name, const double* bounds);
   static void PrintBounds(const std::string& name, const double* bounds)
@@ -85,34 +100,84 @@ public:
 protected:
   void PostOrderTraversal(void (TreeInformation::*Visit)(vtkIncrementalOctreeNode* node, void* aux),
     vtkIncrementalOctreeNode* node, void* aux);
+  void PreOrderTraversal(void (TreeInformation::*Visit)(vtkIncrementalOctreeNode* node, void* aux),
+    vtkIncrementalOctreeNode* node, void* aux);
   void SaveTileset(vtkIncrementalOctreeNode* root, const std::string& output);
   nlohmann::json GenerateTileJson(vtkIncrementalOctreeNode* node);
+  bool ConvertTileCartesianBuildings(vtkIncrementalOctreeNode* node);
+  bool ConvertDataSetCartesian(vtkPointSet* points);
+
+  ///@{
   /**
    * Computes the additional information for 'node'. This includes
    * the tight bounding box around the buildings, if the node is empty or not,
    * and the geometric error.
    */
-  void Compute(vtkIncrementalOctreeNode* node, void* aux);
-  void SaveTile(vtkIncrementalOctreeNode* node, void* aux);
-  double ComputeTilesetGeometricError();
+  void VisitCompute(vtkIncrementalOctreeNode* node, void* aux);
+  void VisitComputeGeometricError(vtkIncrementalOctreeNode* node, void* aux);
+  ///@}
+  void SaveTileBuildings(vtkIncrementalOctreeNode* node, void* auxData);
+  void SaveTileMesh(vtkIncrementalOctreeNode* node, void* auxData);
+  /**
+   * Compute the texture image for the tile and recompute texture coordinates
+   */
+  vtkSmartPointer<vtkImageData> ComputeTileMeshTexture(
+    vtkPolyData* tileMesh, vtkImageData* textureImage);
+  void SaveTilePoints(vtkIncrementalOctreeNode* node, void* auxData);
+
+  ///@{
+  /**
+   * Compute geometric error for the tileset and for a node.
+   */
+  double ComputeGeometricErrorTilesetBuildings();
+  double ComputeGeometricErrorTilesetPoints();
+  double ComputeGeometricErrorTilesetMesh();
+  double ComputeGeometricErrorTileset();
+  double ComputeGeometricErrorNodeBuildings(vtkIncrementalOctreeNode* node, void* aux);
+  double ComputeGeometricErrorNodePoints(vtkIncrementalOctreeNode* node, void* aux);
+  double ComputeGeometricErrorNodeMesh(vtkIncrementalOctreeNode* node, void* aux);
+  double ComputeGeometricErrorNode(vtkIncrementalOctreeNode* node, void* aux);
+  ///@}
+  std::array<double, 6> ComputeTightBB(vtkIdList* tileBuildings);
+  std::string ContentTypeExtension() const;
+  void Initialize();
+  double GetRootLength2();
 
 private:
+  /**
+   * Buildings, Points or Mesh. @see vtkCesium3DTilesWriter::InputType
+   */
+  int InputType;
   vtkIncrementalOctreeNode* Root;
-  // buildings indexed by building ID
-  const std::vector<vtkSmartPointer<vtkCompositeDataSet>>& Buildings;
+  ///@{
+  /**
+   * buildings indexed by building ID, Points or Mesh input.
+   */
+  const std::vector<vtkSmartPointer<vtkCompositeDataSet>>* Buildings;
+  vtkPointSet* Points;
+  vtkPolyData* Mesh;
+  ///@}
+
   std::string OutputDir;
-  std::string TexturePath;
+  std::string TextureBaseDirectory;
   bool SaveTextures;
-  int ContentType;
+  bool ContentGLTF;
+
   const char* CRS;
-  // tight bounds indexed by tile ID
-  std::vector<std::array<double, 6>> NodeBounds;
+  /**
+   * tight bounds indexed by tile ID
+   */
+  std::vector<std::array<double, 6>> NodeTightBounds;
+  /**
+   * You can have leaf nodes that are empty, that is they don't have any points.
+   * indexed by tile ID.
+   */
   std::vector<bool> EmptyNode;
-  // geometric error = pow(VolumeError, 1/3)
+  /**
+   * volume difference between rendering this node and rendering the most detailed model.
+   * indexed by tile ID
+   */
   std::vector<double> GeometricError;
-  // volume difference between rendering this node and rendering the most detailed model.
-  // indexed by node ID
-  std::vector<double> VolumeError;
   nlohmann::json RootJson;
 };
 

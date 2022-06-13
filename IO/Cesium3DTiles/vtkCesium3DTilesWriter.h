@@ -14,8 +14,13 @@
 =========================================================================*/
 /**
  * @class   vtkCesium3DTilesWriter
- * @brief   Converts a vtkMultiBlockDataSet (as created by vtkCityGMLReader) into
- *          3D Tiles format.
+ * @brief   Writes a dataset into 3D Tiles format.
+ *
+ *
+ * Valid inputs include the vtkMultiBlockDataSet (as created by
+ * vtkCityGMLReader) storing 3D buidlings, vtkPointSet storing a point
+ * cloud or vtkPolyData for storing a mesh.
+ *
  */
 
 #ifndef vtkCesium3DTilesWriter_h
@@ -31,11 +36,11 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
   vtkTypeMacro(vtkCesium3DTilesWriter, vtkWriter);
 
-  enum ContentType
+  enum InputType
   {
-    B3DM,
-    GLB,
-    GLTF
+    Buildings,
+    Points,
+    Mesh
   };
 
   ///@{
@@ -51,8 +56,8 @@ public:
    * Path used to prefix all texture paths stored as fields in the input data.
    * @see vtkCityGMLReader
    */
-  vtkSetFilePathMacro(TexturePath);
-  vtkGetFilePathMacro(TexturePath);
+  vtkSetFilePathMacro(TextureBaseDirectory);
+  vtkGetFilePathMacro(TextureBaseDirectory);
   ///@}
 
   //@{
@@ -101,24 +106,33 @@ public:
 
   //@{
   /**
-   * What is the ContentType used for tiles. Default is B3DM.
-   * For ContentType GLB and GLTF we use 3DTILES_content_gltf extension.
-   * For ContentType B3DM and GLB, external programs are needed to convert
-   * GLTF -> GLB -> B3DM.
+   * What is the file type used to save tiles. If ContentGLTF is false
+   * (the default) we use B3DM for Buildings or Mesh and PNTS for
+   * PointCloud otherwise  we use GLB (3DTILES_content_gltf
+   * extension).  If the file type is B3DM or GLB, external programs are
+   * needed to convert GLTF -> GLB -> B3DM.
    *
    */
-  vtkSetMacro(ContentType, int);
-  vtkGetMacro(ContentType, int);
-  vtkBooleanMacro(ContentType, int);
+  vtkSetMacro(ContentGLTF, bool);
+  vtkGetMacro(ContentGLTF, bool);
+  vtkBooleanMacro(ContentGLTF, bool);
   //@
 
   //@{
   /**
-   * Maximum number of buildings per tile. Default is 100.
+   * Input is Buildings, Points or Mesh.
    */
-  vtkSetMacro(NumberOfBuildingsPerTile, int);
-  vtkGetMacro(NumberOfBuildingsPerTile, int);
-  vtkBooleanMacro(NumberOfBuildingsPerTile, int);
+  vtkSetMacro(InputType, int);
+  vtkGetMacro(InputType, int);
+  //@
+
+  //@{
+  /**
+   * Maximum number of buildings per tile in case of buildings input or
+   * the number of points per tile in case of point cloud input. Default is 100.
+   */
+  vtkSetMacro(NumberOfFeaturesPerTile, int);
+  vtkGetMacro(NumberOfFeaturesPerTile, int);
   //@
 
   ///@{
@@ -142,13 +156,14 @@ protected:
   void WriteData() override;
 
   char* DirectoryName;
-  char* TexturePath;
+  char* TextureBaseDirectory;
   double Offset[3];
   bool SaveTextures;
-  int ContentType;
+  int InputType;
+  bool ContentGLTF;
   bool SaveTiles;
   bool MergeTilePolyData;
-  int NumberOfBuildingsPerTile;
+  int NumberOfFeaturesPerTile;
   char* CRS;
 
 private:

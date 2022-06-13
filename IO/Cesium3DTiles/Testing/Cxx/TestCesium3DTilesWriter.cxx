@@ -13,30 +13,33 @@
 
 =========================================================================*/
 
+#include "vtkAppendPolyData.h"
+#include "vtkCellData.h"
 #include "vtkCesium3DTilesWriter.h"
+#include "vtkCityGMLReader.h"
+#include "vtkCompositeDataIterator.h"
+#include "vtkDataObject.h"
+#include "vtkDirectory.h"
+#include "vtkDoubleArray.h"
+#include "vtkGLTFReader.h"
+#include "vtkIncrementalOctreeNode.h"
+#include "vtkIncrementalOctreePointLocator.h"
+#include "vtkLogger.h"
+#include "vtkMathUtilities.h"
+#include "vtkMultiBlockDataSet.h"
+#include "vtkNew.h"
+#include "vtkOBJReader.h"
+#include "vtkPointData.h"
+#include "vtkPoints.h"
+#include "vtkSmartPointer.h"
+#include "vtkStringArray.h"
 #include "vtkTesting.h"
-#include <vtkCellData.h>
-#include <vtkCityGMLReader.h>
-#include <vtkCompositeDataIterator.h>
-#include <vtkDataObject.h>
-#include <vtkDirectory.h>
-#include <vtkDoubleArray.h>
-#include <vtkGLTFReader.h>
-#include <vtkIncrementalOctreeNode.h>
-#include <vtkIncrementalOctreePointLocator.h>
-#include <vtkLogger.h>
-#include <vtkMathUtilities.h>
-#include <vtkMultiBlockDataSet.h>
-#include <vtkNew.h>
-#include <vtkOBJReader.h>
-#include <vtkPoints.h>
-#include <vtkSmartPointer.h>
-#include <vtkStringArray.h>
-#include <vtksys/FStream.hxx>
-#include <vtksys/SystemTools.hxx>
+#include "vtksys/FStream.hxx"
+#include "vtksys/SystemTools.hxx"
 
 #include <algorithm>
 #include <array>
+#include <exception>
 #include <set>
 #include <sstream>
 
@@ -96,10 +99,11 @@ std::array<double, 3> ReadOBJOffset(const char* comment)
 std::string GetOBJTextureFileName(const std::string& file)
 {
   std::string fileNoExt = SystemTools::GetFilenameWithoutExtension(file);
-  return fileNoExt + ".png";
+  std::string textureFileName = fileNoExt + ".png";
+  return SystemTools::FileExists(textureFileName, true /*isFile*/) ? textureFileName : "";
 }
 
-vtkSmartPointer<vtkMultiBlockDataSet> ReadOBJFiles(int numberOfBuildings, int vtkNotUsed(lod),
+vtkSmartPointer<vtkMultiBlockDataSet> ReadOBJBuildings(int numberOfBuildings, int vtkNotUsed(lod),
   const std::vector<std::string>& files, std::array<double, 3>& fileOffset)
 {
   auto root = vtkSmartPointer<vtkMultiBlockDataSet>::New();
@@ -114,7 +118,10 @@ vtkSmartPointer<vtkMultiBlockDataSet> ReadOBJFiles(int numberOfBuildings, int vt
     }
     auto polyData = reader->GetOutput();
     std::string textureFileName = GetOBJTextureFileName(files[i]);
-    SetField(polyData, "texture_uri", textureFileName.c_str());
+    if (!textureFileName.empty())
+    {
+      SetField(polyData, "texture_uri", textureFileName.c_str());
+    }
     auto building = vtkSmartPointer<vtkMultiBlockDataSet>::New();
     building->SetBlock(0, polyData);
     root->SetBlock(root->GetNumberOfBlocks(), building);
@@ -122,7 +129,27 @@ vtkSmartPointer<vtkMultiBlockDataSet> ReadOBJFiles(int numberOfBuildings, int vt
   return root;
 }
 
-vtkSmartPointer<vtkMultiBlockDataSet> ReadCityGMLFiles(int numberOfBuildings, int lod,
+vtkSmartPointer<vtkPolyData> ReadOBJMesh(int numberOfBuildings, int vtkNotUsed(lod),
+  const std::vector<std::string>& files, std::array<double, 3>& fileOffset)
+{
+  vtkNew<vtkAppendPolyData> append;
+  for (size_t i = 0; i < files.size() && i < static_cast<size_t>(numberOfBuildings); ++i)
+  {
+    vtkNew<vtkOBJReader> reader;
+    reader->SetFileName(files[i].c_str());
+    reader->Update();
+    if (i == 0)
+    {
+      fileOffset = ReadOBJOffset(reader->GetComment());
+    }
+    auto polyData = reader->GetOutput();
+    append->AddInputDataObject(polyData);
+  }
+  append->Update();
+  return append->GetOutput();
+}
+
+vtkSmartPointer<vtkMultiBlockDataSet> ReadCityGMLBuildings(int numberOfBuildings, int lod,
   const std::vector<std::string>& files, std::array<double, 3>& fileOffset)
 {
   if (files.size() > 1)
@@ -147,8 +174,8 @@ vtkSmartPointer<vtkMultiBlockDataSet> ReadCityGMLFiles(int numberOfBuildings, in
 //------------------------------------------------------------------------------
 using ReaderType = vtkSmartPointer<vtkMultiBlockDataSet> (*)(int numberOfBuildings, int lod,
   const std::vector<std::string>& files, std::array<double, 3>& fileOffset);
-std::map<std::string, ReaderType> READER = { { ".obj", ReadOBJFiles },
-  { ".gml", ReadCityGMLFiles } };
+std::map<std::string, ReaderType> READER = { { ".obj", ReadOBJBuildings },
+  { ".gml", ReadCityGMLBuildings } };
 
 //------------------------------------------------------------------------------
 bool isSupported(const char* file)
@@ -196,47 +223,67 @@ std::vector<std::string> getFiles(const std::vector<std::string>& input)
 }
 
 //------------------------------------------------------------------------------
-struct Input
-{
-  Input()
-  {
-    this->Data = nullptr;
-    std::fill(Offset.begin(), Offset.end(), 0);
-  }
-  vtkSmartPointer<vtkMultiBlockDataSet> Data;
-  std::array<double, 3> Offset;
-};
 
-Input tiler(const std::vector<std::string>& input, const std::string& output, int numberOfBuildings,
-  int buildingsPerTile, int lod, const std::vector<double>& inputOffset, bool saveTiles,
-  bool saveTextures, std::string crs, const int utmZone, char utmHemisphere)
+void tiler(const std::vector<std::string>& input, int inputType, bool addColor,
+  const std::string& output, bool contentGLTF, int numberOfBuildings, int buildingsPerTile, int lod,
+  const std::vector<double>& inputOffset, bool saveTiles, bool saveTextures, std::string crs,
+  const int utmZone, char utmHemisphere)
 {
-  Input ret;
+  vtkSmartPointer<vtkMultiBlockDataSet> mbData;
+  vtkSmartPointer<vtkPolyData> polyData;
   std::vector<std::string> files = getFiles(input);
   if (files.empty())
   {
-    vtkLog(ERROR, "No valid input files");
-    return ret;
+    throw std::runtime_error("No valid input files");
   }
   vtkLog(INFO, "Parsing " << files.size() << " files...")
 
     std::array<double, 3>
       fileOffset = { { 0, 0, 0 } };
-  ret.Data =
-    READER[SystemTools::GetFilenameExtension(files[0])](numberOfBuildings, lod, files, fileOffset);
+  if (inputType == vtkCesium3DTilesWriter::Buildings || inputType == vtkCesium3DTilesWriter::Mesh)
+  {
+    mbData = READER[SystemTools::GetFilenameExtension(files[0])](
+      numberOfBuildings, lod, files, fileOffset);
+  }
+  else /*Points*/
+  {
+    polyData = ReadOBJMesh(numberOfBuildings, lod, files, fileOffset);
+    if (addColor)
+    {
+      vtkNew<vtkUnsignedCharArray> rgb;
+      rgb->SetNumberOfComponents(3);
+      rgb->SetNumberOfTuples(3);
+      std::array<unsigned char, 3> a;
+      a = { { 255, 0, 0 } };
+      rgb->SetTypedTuple(0, &a[0]);
+      a = { { 0, 255, 0 } };
+      rgb->SetTypedTuple(1, &a[0]);
+      a = { { 0, 0, 255 } };
+      rgb->SetTypedTuple(2, &a[0]);
+      rgb->SetName("rgb");
+      polyData->GetPointData()->SetScalars(rgb);
+    }
+  }
   std::transform(fileOffset.begin(), fileOffset.end(), inputOffset.begin(), fileOffset.begin(),
     std::plus<double>());
-  ret.Offset = fileOffset;
-
-  std::string texturePath = SystemTools::GetFilenamePath(files[0]);
+  std::string textureBaseDirectory = SystemTools::GetFilenamePath(files[0]);
 
   vtkNew<vtkCesium3DTilesWriter> writer;
-  writer->SetInputDataObject(ret.Data);
+  if (inputType == vtkCesium3DTilesWriter::Buildings || inputType == vtkCesium3DTilesWriter::Mesh)
+  {
+    writer->SetInputDataObject(mbData);
+  }
+  else
+  {
+    writer->SetInputDataObject(polyData);
+  }
+  writer->SetContentGLTF(contentGLTF);
+  writer->SetInputType(inputType);
   writer->SetDirectoryName(output.c_str());
-  writer->SetTexturePath(texturePath.c_str());
+  writer->SetTextureBaseDirectory(textureBaseDirectory.c_str());
   writer->SetOffset(&fileOffset[0]);
   writer->SetSaveTextures(saveTextures);
-  writer->SetNumberOfBuildingsPerTile(buildingsPerTile);
+  writer->SetNumberOfFeaturesPerTile(buildingsPerTile);
   writer->SetSaveTiles(saveTiles);
   if (crs.empty())
   {
@@ -246,7 +293,6 @@ Input tiler(const std::vector<std::string>& input, const std::string& output, in
   }
   writer->SetCRS(crs.c_str());
   writer->Write();
-  return ret;
 }
 
 bool TrianglesDiffer(std::array<std::array<double, 3>, 3>& in, std::string gltfFileName)
@@ -281,7 +327,7 @@ bool TrianglesDiffer(std::array<std::array<double, 3>, 3>& in, std::string gltfF
   return false;
 }
 
-bool jsonEqual(json& l, json& r) noexcept
+bool JsonEqual(json& l, json& r) noexcept
 {
   try
   {
@@ -318,7 +364,7 @@ bool jsonEqual(json& l, json& r) noexcept
         {
           return false;
         }
-        if (!jsonEqual(itL.value(), itR.value()))
+        if (!JsonEqual(itL.value(), itR.value()))
         {
           return false;
         }
@@ -337,7 +383,7 @@ bool jsonEqual(json& l, json& r) noexcept
       json::iterator itR = r.begin();
       while (itL != l.end() && itR != r.end())
       {
-        if (!jsonEqual(*itL, *itR))
+        if (!JsonEqual(*itL, *itR))
         {
           return false;
         }
@@ -358,6 +404,126 @@ bool jsonEqual(json& l, json& r) noexcept
   return false;
 }
 
+std::array<std::array<double, 3>, 3> triangleJacksonville = {
+  { { { 799099.7216079829959199, -5452032.6613515587523580, 3201501.3033391013741493 } },
+    { { 797899.9930383440805599, -5452124.7368548354133964, 3201444.7161126118153334 } },
+    { { 797971.0970941731939092, -5452573.6701772613450885, 3200667.5626786206848919 } } }
+};
+
+json ReadTileset(const std::string& fileName)
+{
+  vtksys::ifstream fileStream(fileName.c_str());
+  if (fileStream.fail())
+  {
+    std::ostringstream ostr;
+    ostr << "Cannot open: " << fileName << std::endl;
+    throw std::runtime_error(ostr.str());
+  }
+  json tilesetJson = json::parse(fileStream);
+  return tilesetJson;
+}
+
+void TestJacksonvilleBuildings(const std::string& dataRoot, const std::string& tempDirectory)
+{
+  std::cout << "Test jacksonville buildings" << std::endl;
+  tiler(std::vector<std::string>{ { dataRoot + "/Data/3DTiles/jacksonville-triangle.obj" } },
+    vtkCesium3DTilesWriter::Buildings, false /*addColor*/, tempDirectory + "/jacksonville-3dtiles",
+    true /*contentGLTF*/, 1, 1, 2, std::vector<double>{ { 0, 0, 0 } }, true /*saveTiles*/,
+    false /*saveTextures*/, "", 17, 'N');
+  std::string gltfFile = tempDirectory + "/jacksonville-3dtiles/0/0.gltf";
+  if (TrianglesDiffer(triangleJacksonville, gltfFile))
+  {
+    throw std::runtime_error("Triangles differ: " + gltfFile);
+  }
+  std::string baselineFile = dataRoot + "/Data/3DTiles/jacksonville-tileset.json";
+  std::string testFile = tempDirectory + "/jacksonville-3dtiles/tileset.json";
+  json baseline = ReadTileset(baselineFile);
+  json test = ReadTileset(testFile);
+  if (!JsonEqual(baseline, test))
+  {
+    std::ostringstream ostr;
+    ostr << "Error: different tileset than expected:" << std::endl
+         << baselineFile << std::endl
+         << testFile << std::endl;
+    throw std::runtime_error(ostr.str());
+  }
+}
+
+void TestJacksonvillePoints(
+  const std::string& dataRoot, const std::string& tempDirectory, bool contentGLTF)
+{
+  std::string destDir =
+    tempDirectory + "/jacksonville-3dtiles-points-" + (contentGLTF ? "gltf" : "pnts");
+  std::cout << "Test jacksonville points " << (contentGLTF ? "gltf" : "pnts") << std::endl;
+  tiler(std::vector<std::string>{ { dataRoot + "/Data/3DTiles/jacksonville-triangle.obj" } },
+    vtkCesium3DTilesWriter::Points, false /*addColor*/, destDir, contentGLTF, 3, 3, 2,
+    std::vector<double>{ { 0, 0, 0 } }, true /*saveTiles*/, false /*saveTextures*/, "", 17, 'N');
+  std::string gltfFile = tempDirectory + "/jacksonville-3dtiles-points-gltf/0/0.gltf";
+  if (contentGLTF && TrianglesDiffer(triangleJacksonville, gltfFile))
+  {
+    throw std::runtime_error("Triangles differ: " + gltfFile);
+  }
+}
+
+void TestJacksonvilleColorPoints(
+  const std::string& dataRoot, const std::string& tempDirectory, bool contentGLTF)
+{
+  std::string destDir =
+    tempDirectory + "/jacksonville-3dtiles-colorpoints-" + (contentGLTF ? "gltf" : "pnts");
+  std::cout << "Test jacksonville color points " << (contentGLTF ? "gltf" : "pnts") << std::endl;
+  tiler(std::vector<std::string>{ { dataRoot + "/Data/3DTiles/jacksonville-triangle.obj" } },
+    vtkCesium3DTilesWriter::Points, true /*addColor*/, destDir, contentGLTF, 3, 3, 2,
+    std::vector<double>{ { 0, 0, 0 } }, true /*saveTiles*/, false /*saveTextures*/, "", 17, 'N');
+  std::string gltfFile = tempDirectory + "/jacksonville-3dtiles-colorpoints-gltf/0/0.gltf";
+  if (contentGLTF && TrianglesDiffer(triangleJacksonville, gltfFile))
+  {
+    throw std::runtime_error("Triangles differ: " + gltfFile);
+  }
+}
+
+void TestJacksonvilleMesh(const std::string& dataRoot, const std::string& tempDirectory)
+{
+  std::string destDir = tempDirectory + "/jacksonville-3dtiles-mesh";
+  std::cout << "Test jacksonville mesh" << std::endl;
+  tiler(std::vector<std::string>{ { dataRoot + "/Data/3DTiles/jacksonville-triangle.obj" } },
+    vtkCesium3DTilesWriter::Mesh, false /*addColor*/, destDir, true /*contentGLTF*/, 3, 3, 2,
+    std::vector<double>{ { 0, 0, 0 } }, true /*saveTiles*/, false /*saveTextures*/, "", 17, 'N');
+  std::string gltfFile = tempDirectory + "/jacksonville-3dtiles-mesh/0/0.gltf";
+  if (TrianglesDiffer(triangleJacksonville, gltfFile))
+  {
+    throw std::runtime_error("Triangles differ: " + gltfFile);
+  }
+}
+
+void TestBerlinBuildings(const std::string& dataRoot, const std::string& tempDirectory)
+{
+  std::array<std::array<double, 3>, 3> in;
+  std::cout << "Test berlin buildings (citygml)" << std::endl;
+  tiler(std::vector<std::string>{ { dataRoot + "/Data/3DTiles/berlin-triangle.gml" } },
+    vtkCesium3DTilesWriter::Buildings, false /*addColor*/, tempDirectory + "/berlin-3dtiles",
+    true /*contentGLTF*/, 1, 1, 2, std::vector<double>{ { 0, 0, 0 } }, true /*saveTiles*/,
+    false /*saveTextures*/, "", 33, 'N');
+  in = { { { { 3782648.3888294636271894, 894381.1232001162134111, 5039949.8578473944216967 } },
+    { { 3782647.9758559409528971, 894384.6010377000784501, 5039955.8512009736150503 } },
+    { { 3782645.8996075680479407, 894380.4562150554265827, 5039951.8311523543670774 } } } };
+  if (TrianglesDiffer(in, tempDirectory + "/berlin-3dtiles/0/0.gltf"))
+  {
+    throw std::runtime_error("Triangles differ failure");
+  }
+  std::string basefname = dataRoot + "/Data/3DTiles/berlin-tileset.json";
+  json baseline = ReadTileset(basefname);
+  std::string testfname = tempDirectory + "/berlin-3dtiles/tileset.json";
+  json test = ReadTileset(testfname);
+  if (!JsonEqual(baseline, test))
+  {
+    std::ostringstream ostr;
+    ostr << "Error: different tileset than expected" << std::endl
+         << basefname << std::endl
+         << testfname << std::endl;
+    throw std::runtime_error(ostr.str());
+  }
+}
+
 int TestCesium3DTilesWriter(int argc, char* argv[])
 {
   vtkNew<vtkTesting> testHelper;
@@ -375,85 +541,23 @@ int TestCesium3DTilesWriter(int argc, char* argv[])
 
   std::string dataRoot = testHelper->GetDataRoot();
   std::string tempDirectory = testHelper->GetTempDirectory();
+  try
+  {
+    TestJacksonvilleBuildings(dataRoot, tempDirectory);
+    TestBerlinBuildings(dataRoot, tempDirectory);
 
-  auto ret =
-    tiler(std::vector<std::string>{ { dataRoot + "/Data/3DTiles/jacksonville-triangle.obj" } },
-      tempDirectory + "/jacksonville-3dtiles", 1, 1, 2, std::vector<double>{ { 0, 0, 0 } },
-      true /*saveTiles*/, false /*saveTextures*/, "", 17, 'N');
-  if (!ret.Data)
+    TestJacksonvillePoints(dataRoot, tempDirectory, false /*contentGLTF*/);
+    TestJacksonvillePoints(dataRoot, tempDirectory, true /*contentGLTF*/);
+    TestJacksonvilleColorPoints(dataRoot, tempDirectory, false /*contentGLTF*/);
+    TestJacksonvilleColorPoints(dataRoot, tempDirectory, true /*contentGLTF*/);
+
+    TestJacksonvilleMesh(dataRoot, tempDirectory);
+  }
+  catch (std::runtime_error& e)
   {
+    vtkLog(ERROR, << e.what());
     return EXIT_FAILURE;
   }
-  std::array<std::array<double, 3>, 3> in = {
-    { { { 799099.7216079829959199, -5452032.6613515587523580, 3201501.3033391013741493 } },
-      { { 797899.9930383440805599, -5452124.7368548354133964, 3201444.7161126118153334 } },
-      { { 797971.0970941731939092, -5452573.6701772613450885, 3200667.5626786206848919 } } }
-  };
-  if (TrianglesDiffer(in, tempDirectory + "/jacksonville-3dtiles/0/0.gltf"))
-  {
-    return EXIT_FAILURE;
-  }
-  std::string basefname = dataRoot + "/Data/3DTiles/jacksonville-tileset.json";
-  vtksys::ifstream baselineFile(basefname.c_str());
-  if (baselineFile.fail())
-  {
-    std::cerr << "Cannot open: " << basefname << std::endl;
-    return EXIT_FAILURE;
-  }
-  json baseline = json::parse(baselineFile);
-  std::string testfname = tempDirectory + "/jacksonville-3dtiles/tileset.json";
-  vtksys::ifstream testFile(testfname.c_str());
-  if (testFile.fail())
-  {
-    std::cerr << "Cannot open: " << testfname << std::endl;
-    return EXIT_FAILURE;
-  }
-  json test = json::parse(testFile);
-  if (!jsonEqual(baseline, test))
-  {
-    std::cerr << "Jacksonville data produced a different tileset than expected:" << std::endl
-              << basefname << std::endl
-              << testfname << std::endl;
-    return EXIT_FAILURE;
-  }
-  ret = tiler(std::vector<std::string>{ { dataRoot + "/Data/3DTiles/berlin-triangle.gml" } },
-    tempDirectory + "/berlin-3dtiles", 1, 1, 2, std::vector<double>{ { 0, 0, 0 } },
-    true /*saveTiles*/, false /*saveTextures*/, "", 33, 'N');
-  if (!ret.Data)
-  {
-    return EXIT_FAILURE;
-  }
-  in = { { { { 3782648.3888294636271894, 894381.1232001162134111, 5039949.8578473944216967 } },
-    { { 3782647.9758559409528971, 894384.6010377000784501, 5039955.8512009736150503 } },
-    { { 3782645.8996075680479407, 894380.4562150554265827, 5039951.8311523543670774 } } } };
-  if (TrianglesDiffer(in, tempDirectory + "/berlin-3dtiles/0/0.gltf"))
-  {
-    return EXIT_FAILURE;
-  }
-  baselineFile.close();
-  basefname = dataRoot + "/Data/3DTiles/berlin-tileset.json";
-  baselineFile.open(basefname.c_str());
-  if (baselineFile.fail())
-  {
-    std::cerr << "Cannot open: " << basefname << std::endl;
-    return EXIT_FAILURE;
-  }
-  baseline = json::parse(baselineFile);
-  testFile.close();
-  testfname = tempDirectory + "/berlin-3dtiles/tileset.json";
-  testFile.open(testfname.c_str());
-  if (testFile.fail())
-  {
-    std::cerr << "Cannot open: " << testfname << std::endl;
-    return EXIT_FAILURE;
-  }
-  test = json::parse(testFile);
-  if (!jsonEqual(baseline, test))
-  {
-    std::cerr << "Berlin data produced a different tileset than expected" << std::endl
-              << basefname << std::endl
-              << testfname << std::endl;
-    return EXIT_FAILURE;
-  }
+
   return EXIT_SUCCESS;
 }

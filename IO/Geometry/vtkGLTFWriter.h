@@ -18,15 +18,22 @@
  *
  * vtkGLTFWriter is a concrete subclass of vtkWriter that writes GLTF
  * 2.0 files. Its input is a multiblock dataset as it is produced by
- * the CityGML reader. The dataset contains a list of buildings, each
- * building is made of pieces (polydata), each piece could potentially
- * have a different texture. Materials, including textures, are
- * described as fields in the polydata. If InlineData is false, we
- * only refer to textures files refered in the data, otherwise we read
- * the textures and save them encoded in the file.
+ * the CityGML reader. The dataset contains a list of buildings, a mesh
+ * or a point cloud.
+ *
+ * For buildings, each building is made of pieces (polydata), each
+ * piece could potentially have a different texture. The mesh input
+ * is the same as one building. The point cloud input, is the same as
+ * mesh input but with Verts instead of Polys.
+
+ * Materials, including textures, are described as fields in the
+ * polydata. If InlineData is false, we only refer to textures files
+ * refered in the data, otherwise we read the textures and save them
+ * encoded in the file.
  *
  * @sa
  * vtkCityGMLReader
+ * vtkPolyData
  */
 
 #ifndef vtkGLTFWriter_h
@@ -101,10 +108,31 @@ public:
 
   ///@{
   /**
+   * If true (default) we save textures. We only include a reference to the
+   * texture file unless you want to include the binary data in the json file using
+   * InlineData in which case we have to load the texture in memory and save
+   * it encoded in the json file.
+   * @sa
+   * TextureBaseDirectory
    */
   vtkGetMacro(SaveTextures, bool);
   vtkSetMacro(SaveTextures, bool);
   vtkBooleanMacro(SaveTextures, bool);
+  ///@}
+
+  ///@{
+  /**
+   * If true, the writer looks at the active scalar and if it finds a
+   * 3 or 4 component, float, unsigned char or unsigned short it
+   * stores a RGB or RGBA attribute called COLOR_0 in the GLTF
+   * file. The default is false.  Note a float component has to be
+   * bewtween [0, 1] while the unsigned chars and unsigned short are
+   * OpenGL normalized integers (are used to store a float between [0,
+   * 1]).
+   */
+  vtkGetMacro(SaveActivePointColor, bool);
+  vtkSetMacro(SaveActivePointColor, bool);
+  vtkBooleanMacro(SaveActivePointColor, bool);
   ///@}
 
   /**
@@ -115,7 +143,7 @@ public:
   /**
    * Write the result to a provided ostream
    */
-  void WriteToStream(ostream& out, vtkMultiBlockDataSet* in);
+  void WriteToStream(ostream& out, vtkDataObject* in);
 
 protected:
   vtkGLTFWriter();
@@ -123,6 +151,7 @@ protected:
 
   void WriteData() override;
   int FillInputPortInformation(int port, vtkInformation* info) override;
+  void WriteToStreamMultiBlock(ostream& out, vtkMultiBlockDataSet* in);
 
   char* FileName;
   char* TextureBaseDirectory;
@@ -130,6 +159,7 @@ protected:
   bool SaveNormal;
   bool SaveBatchId;
   bool SaveTextures;
+  bool SaveActivePointColor;
 
 private:
   vtkGLTFWriter(const vtkGLTFWriter&) = delete;
