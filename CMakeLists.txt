@@ -181,7 +181,11 @@ if (VTK_USE_TK)
   set(VTK_GROUP_ENABLE_Tk YES)
 endif ()
 if (VTK_USE_MPI)
-  set(VTK_GROUP_ENABLE_MPI YES)
+  if (VTK_GROUP_ENABLE_MPI STREQUAL "DEFAULT")
+    set(VTK_GROUP_ENABLE_MPI "WANT")
+  elseif (VTK_GROUP_ENABLE_MPI STREQUAL "NO")
+    message(FATAL_ERROR "VTK_USE_MPI=ON is not compatible with VTK_GROUP_ENABLE_MPI=NO")
+  endif ()
 else ()
   # Reject `VTK::mpi`, but allow those which happen to be part of the group to
   # be built.
