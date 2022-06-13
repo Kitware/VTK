@@ -649,13 +649,13 @@ namespace {
   bool define_field(size_t nmatch, size_t match_length, char **names,
                     std::vector<Ioss::Suffix> &suffices, size_t entity_count,
                     Ioss::Field::RoleType fld_role, std::vector<Ioss::Field> &fields,
-                    bool strip_trailing_, char suffix_separator)
+                    bool strip_trailing_, bool ignore_realn_fields, char suffix_separator)
   {
     // Try to define a field of size 'nmatch' with the suffices in 'suffices'.
     // If this doesn't define a known field, then assume it is a scalar instead
     // and return false.
     if (nmatch > 1) {
-      const Ioss::VariableType *type = Ioss::VariableType::factory(suffices);
+      const Ioss::VariableType *type = Ioss::VariableType::factory(suffices, ignore_realn_fields);
       if (type == nullptr) {
         nmatch = 1;
       }
@@ -782,8 +782,9 @@ void Ioss::Utils::get_fields(int64_t entity_count, // The number of objects in t
         }
         else {
 
-          bool multi_component = define_field(nmatch, pmat, &names[ibeg], suffices, entity_count,
-                                              fld_role, fields, strip_trailing_, suffix_separator);
+          bool multi_component =
+              define_field(nmatch, pmat, &names[ibeg], suffices, entity_count, fld_role, fields,
+                           strip_trailing_, ignore_realn_fields, suffix_separator);
           if (!multi_component) {
             // Although we matched multiple suffices, it wasn't a
             // higher-order field, so we only used 1 name instead of
@@ -808,8 +809,9 @@ void Ioss::Utils::get_fields(int64_t entity_count, // The number of objects in t
     // that had been gathered.
     if (ibeg < num_names) {
       if (local_truth == nullptr || local_truth[ibeg] == 1) {
-        bool multi_component = define_field(nmatch, pmat, &names[ibeg], suffices, entity_count,
-                                            fld_role, fields, strip_trailing_, suffix_separator);
+        bool multi_component =
+            define_field(nmatch, pmat, &names[ibeg], suffices, entity_count, fld_role, fields,
+                         strip_trailing_, ignore_realn_fields, suffix_separator);
         clear(suffices);
         if (nmatch > 1 && !multi_component) {
           ibeg++;
