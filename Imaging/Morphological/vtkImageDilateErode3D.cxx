@@ -20,6 +20,8 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
+#include <algorithm>
+
 vtkStandardNewMacro(vtkImageDilateErode3D);
 
 //------------------------------------------------------------------------------
