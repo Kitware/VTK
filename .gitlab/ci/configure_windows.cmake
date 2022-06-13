@@ -29,6 +29,7 @@ set(VTK_ENABLE_CATALYST OFF CACHE BOOL "") # catalyst
 set(VTK_USE_MICROSOFT_MEDIA_FOUNDATION ON CACHE BOOL "")
 set(VTK_USE_VIDEO_FOR_WINDOWS ON CACHE BOOL "")
 set(VTK_USE_VIDEO_FOR_WINDOWS_CAPTURE ON CACHE BOOL "")
+set(VTK_DISABLE_QT_MULTICONFIG_WINDOWS_WARNING ON CACHE BOOL "")
 
 # Set some flags to avoid copious warnings.
 #   - /wd4251: warnings about dll-interface of inherited classes

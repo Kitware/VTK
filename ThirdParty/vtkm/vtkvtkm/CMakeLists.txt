@@ -59,6 +59,9 @@ set(VTKm_SKIP_LIBRARY_VERSIONS "${VTK_WHEEL_BUILD}")
 set(VTKm_ENABLE_DEVELOPER_FLAGS OFF)
 set(VTKm_NO_DEPRECATED_VIRTUAL ON)
 
+# Ignore existing CMake variable in vtk-m
+set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
+
 add_subdirectory(vtk-m)
 vtkm_setup_job_pool()
 

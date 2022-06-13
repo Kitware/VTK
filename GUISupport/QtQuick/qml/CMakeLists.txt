@@ -97,12 +97,13 @@ endif ()
 
 if (NOT copy_qmlplugintypes)
   if (WIN32 AND ("DEBUG" IN_LIST qt_config) AND ("RELEASE" IN_LIST qt_config))
-    message(AUTHOR_WARNING
-      "Qt5 is configured in both Debug and Release modes. Due to Qt issue "
-      "47774 (https://bugreports.qt.io/browse/QTBUG-47774), skipping "
-      "generation of qmltypes file. Using the one provided with the source "
-      "tree instead.")
-  
+    if (NOT VTK_DISABLE_QT_MULTICONFIG_WINDOWS_WARNING)
+      message(AUTHOR_WARNING
+        "Qt5 is configured in both Debug and Release modes. Due to Qt issue "
+        "47774 (https://bugreports.qt.io/browse/QTBUG-47774), skipping "
+        "generation of qmltypes file. Using the one provided with the source "
+        "tree instead.")
+    endif ()
     set(copy_qmlplugintypes TRUE)
   else ()
     add_custom_command(
