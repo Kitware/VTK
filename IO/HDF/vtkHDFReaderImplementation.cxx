@@ -1042,8 +1042,8 @@ bool vtkHDFReader::Implementation::FillAMR(vtkOverlappingAMR* data,
 
   size_t numberOfLoadedLevels = maximumLevelsToReadByDefault == 0
     ? blocksPerLevels.size()
-    : std::min(blocksPerLevels.size(), (size_t)maximumLevelsToReadByDefault);
-  data->Initialize((int)numberOfLoadedLevels, blocksPerLevels.data());
+    : std::min(blocksPerLevels.size(), static_cast<size_t>(maximumLevelsToReadByDefault));
+  data->Initialize(static_cast<int>(numberOfLoadedLevels), blocksPerLevels.data());
   data->SetOrigin(origin);
   data->SetGridDescription(VTK_XYZ_GRID);
 
@@ -1131,7 +1131,7 @@ bool vtkHDFReader::Implementation::ReadLevelTopology(
     return false;
   }
 
-  unsigned int numberOfDatasets = (unsigned int)(amrBoxRawData.size() / 6);
+  unsigned int numberOfDatasets = static_cast<unsigned int>(amrBoxRawData.size() / 6);
   for (unsigned int dataSetIndex = 0; dataSetIndex < numberOfDatasets; ++dataSetIndex)
   {
     int* currentAMRBoxRawData = amrBoxRawData.data() + (6 * dataSetIndex);
