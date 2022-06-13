@@ -27,7 +27,7 @@ namespace RTW
         RTWData NewCopyData3D(const void *source, RTWDataType, size_t numElements1, size_t numElements2, size_t numElements3) override;
         RTWData NewSharedData1D(const void *source, RTWDataType, uint32_t numElements) override;
         RTWData NewSharedData2D(const void *source, RTWDataType, uint32_t numElements1, uint32_t numElements2) override;
-        RTWData NewSharedData3D(const void *soruce, RTWDataType, uint32_t numElements1, uint32_t numElements2, uint32_t numElements3) override;
+        RTWData NewSharedData3D(const void *source, RTWDataType, uint32_t numElements1, uint32_t numElements2, uint32_t numElements3) override;
         RTWGeometry NewGeometry(const char *type) override;
         RTWGroup NewInstance(RTWGroup group) override;
         RTWGroup NewGroup() override;
