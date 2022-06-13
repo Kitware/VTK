@@ -194,6 +194,11 @@ public:
   bool UsesGarbageCollector() const override { return true; }
   ///@}
 
+  /**
+   *  Set AbortExecute Flag and update LastAbortTime.
+   */
+  void SetAbortExecuteAndUpdateTime();
+
   ///@{
   /**
    * Set/Get the AbortExecute flag for the process object. Process objects
@@ -217,6 +222,41 @@ public:
    * should range between (0,1).
    */
   void UpdateProgress(double amount);
+
+  /**
+   * Checks to see if this filter should abort.
+   */
+  bool CheckAbort();
+
+  ///@{
+  /**
+   * Set/get a Container algorithm for this algorithm. Allows this algorithm
+   * to check to abort status of its Container algorithm as well as have access
+   * to its Container's information.
+   */
+  void SetContainerAlgorithm(vtkAlgorithm* containerAlg)
+  {
+    this->ContainerAlgorithm = containerAlg;
+  };
+  vtkAlgorithm* GetContainerAlgorithm() { return this->ContainerAlgorithm; };
+  ///@}
+
+  ///@{
+  /**
+   * Set/Get an internal variable used to comunicate between the algorithm and
+   * executive. If the executive sees this value is set, it will initialize
+   * the output data and pass the ABORTED flag downstream.
+   *
+   * CheckAbort sets this value to true if the function returns true.
+   */
+  vtkSetMacro(AbortOutput, bool);
+  vtkGetMacro(AbortOutput, bool);
+  ///@}
+
+  /**
+   * Check to see if any inputs have ABORTED flag set.
+   */
+  int CheckAbortedInput();
 
   ///@{
   /**
@@ -257,7 +297,7 @@ public:
   ///@}
 
   // left public for performance since it is used in inner loops
-  vtkTypeBool AbortExecute;
+  std::atomic<vtkTypeBool> AbortExecute;
 
   /**
    * Keys used to specify input port requirements.
@@ -312,6 +352,12 @@ public:
    * \ingroup InformationKeys
    */
   static vtkInformationIntegerKey* CAN_HANDLE_PIECE_REQUEST();
+
+  /**
+   *
+   * \ingroup InformationKeys
+   */
+  static vtkInformationIntegerKey* ABORTED();
 
   ///@{
   /**
@@ -700,12 +746,25 @@ protected:
   vtkAlgorithm();
   ~vtkAlgorithm() override;
 
+  // Time stamp to store the last time any filter was aborted.
+  static vtkTimeStamp* LastAbortTime;
+
+  // Time stamp to store the last time this filter checked for an
+  // abort.
+  vtkTimeStamp LastAbortCheckTime;
+
   // Keys used to indicate that input/output port information has been
   // filled.
   static vtkInformationIntegerKey* PORT_REQUIREMENTS_FILLED();
 
   // Arbitrary extra information associated with this algorithm
   vtkInformation* Information;
+
+  /**
+   * Checks to see if an upstream filter has been aborted. If an abort
+   * has occured, return true.
+   */
+  bool CheckUpstreamAbort();
 
   /**
    * Fill the input port information objects for this algorithm.  This
@@ -895,6 +954,8 @@ private:
 
   double ProgressShift;
   double ProgressScale;
+  vtkAlgorithm* ContainerAlgorithm;
+  bool AbortOutput;
 };
 
 #endif

@@ -63,8 +63,10 @@ vtkInformationKeyMacro(vtkAlgorithm, INPUT_CONNECTION, Integer);
 vtkInformationKeyMacro(vtkAlgorithm, INPUT_ARRAYS_TO_PROCESS, InformationVector);
 vtkInformationKeyMacro(vtkAlgorithm, CAN_PRODUCE_SUB_EXTENT, Integer);
 vtkInformationKeyMacro(vtkAlgorithm, CAN_HANDLE_PIECE_REQUEST, Integer);
+vtkInformationKeyMacro(vtkAlgorithm, ABORTED, Integer);
 
 vtkExecutive* vtkAlgorithm::DefaultExecutivePrototype = nullptr;
+vtkTimeStamp* vtkAlgorithm::LastAbortTime = vtkTimeStamp::New();
 
 //------------------------------------------------------------------------------
 class vtkAlgorithmInternals
@@ -102,6 +104,8 @@ vtkAlgorithm::vtkAlgorithm()
   this->Information->Delete();
   this->ProgressShift = 0.0;
   this->ProgressScale = 1.0;
+  this->AbortOutput = false;
+  this->ContainerAlgorithm = nullptr;
 }
 
 //------------------------------------------------------------------------------
@@ -173,6 +177,87 @@ void vtkAlgorithm::UpdateProgress(double amount)
     this->Progress = amount;
     this->InvokeEvent(vtkCommand::ProgressEvent, static_cast<void*>(&amount));
   }
+}
+
+//------------------------------------------------------------------------------
+// Check to see if an input's ABORTED flag is set or if an upstream
+// algorithm's AbortExecute is set. If either is set, return true.
+bool vtkAlgorithm::CheckAbort()
+{
+  if (this->GetAbortExecute())
+  {
+    this->LastAbortCheckTime.Modified();
+    this->AbortOutput = true;
+    return true;
+  }
+
+  if (this->ContainerAlgorithm)
+  {
+    this->LastAbortCheckTime.Modified();
+    bool containerResult = this->ContainerAlgorithm->CheckAbort();
+    if (containerResult)
+    {
+      this->AbortOutput = true;
+    }
+    return containerResult;
+  }
+
+  if (this->LastAbortTime->GetMTime() > this->LastAbortCheckTime.GetMTime())
+  {
+    this->LastAbortCheckTime.Modified();
+    for (int port = 0; port < this->GetNumberOfInputPorts(); port++)
+    {
+      for (int index = 0; index < this->GetNumberOfInputConnections(port); index++)
+      {
+        if (this->GetInputAlgorithm(port, index)->CheckUpstreamAbort())
+        {
+          this->AbortOutput = true;
+          return true;
+        }
+      }
+    }
+  }
+
+  return this->AbortOutput;
+}
+
+//------------------------------------------------------------------------------
+// Set AbortExecute flag and update LastAbortTime.
+void vtkAlgorithm::SetAbortExecuteAndUpdateTime()
+{
+  this->AbortExecute = 1;
+  this->LastAbortTime->Modified();
+}
+
+//------------------------------------------------------------------------------
+// Check to see if an input's ABORTED flag is set or if an upstream
+// algorithm's AbortExecute is set. If either is set, return true.
+// This is used by upstream algorithms to check for abort without
+// setting any variables.
+bool vtkAlgorithm::CheckUpstreamAbort()
+{
+  if (this->GetAbortExecute())
+  {
+    this->LastAbortCheckTime.Modified();
+    return true;
+  }
+
+  if (this->LastAbortTime->GetMTime() > this->LastAbortCheckTime.GetMTime())
+  {
+    this->LastAbortCheckTime.Modified();
+    for (int port = 0; port < this->GetNumberOfInputPorts(); port++)
+    {
+      for (int index = 0; index < this->GetNumberOfInputConnections(port); index++)
+      {
+        if (this->GetInputAlgorithm(port, index)->CheckUpstreamAbort())
+        {
+          return true;
+        }
+      }
+    }
+  }
+
+  return this->GetAbortOutput();
 }
 
 //------------------------------------------------------------------------------

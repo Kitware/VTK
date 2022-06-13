@@ -245,6 +245,12 @@ protected:
   // construct the error message.
   int CheckAlgorithm(const char* method, vtkInformation* request);
 
+  /**
+   * Checks to see if an inputs have ABORTED set. Returns true if any
+   * ABORTED values true set. Returns false otherwise.
+   */
+  bool CheckAbortedInput(vtkInformationVector** inInfoVec);
+
   virtual int ForwardDownstream(vtkInformation* request);
   virtual int ForwardUpstream(vtkInformation* request);
   virtual void CopyDefaultInformation(vtkInformation* request, int direction,

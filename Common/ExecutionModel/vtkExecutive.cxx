@@ -259,9 +259,9 @@ vtkExecutive* vtkExecutive::GetInputExecutive(int port, int index)
   if (index < 0 || index >= this->GetNumberOfInputConnections(port))
   {
     vtkErrorMacro("Attempt to get executive for connection index "
-      << index << " on input port " << port << " of algorithm "
-      << this->Algorithm->GetObjectDescription() << ", which has "
-      << this->GetNumberOfInputConnections(port) << " connections.");
+      << index << " on input port " << port << " of algorithm " << this->Algorithm->GetClassName()
+      << "(" << this->Algorithm << "), which has " << this->GetNumberOfInputConnections(port)
+      << " connections.");
     return nullptr;
   }
   if (vtkAlgorithmOutput* input = this->Algorithm->GetInputConnection(port, index))
@@ -350,9 +350,9 @@ int vtkExecutive::InputPortIndexInRange(int port, const char* action)
   if (port < 0 || port >= this->Algorithm->GetNumberOfInputPorts())
   {
     vtkErrorMacro("Attempt to " << (action ? action : "access") << " input port index " << port
-                                << " for algorithm " << this->Algorithm->GetObjectDescription()
-                                << ", which has " << this->Algorithm->GetNumberOfInputPorts()
-                                << " input ports.");
+                                << " for algorithm " << this->Algorithm->GetClassName() << "("
+                                << this->Algorithm << "), which has "
+                                << this->Algorithm->GetNumberOfInputPorts() << " input ports.");
     return 0;
   }
   return 1;
@@ -373,9 +373,9 @@ int vtkExecutive::OutputPortIndexInRange(int port, const char* action)
   if (port < 0 || port >= this->Algorithm->GetNumberOfOutputPorts())
   {
     vtkErrorMacro("Attempt to " << (action ? action : "access") << " output port index " << port
-                                << " for algorithm " << this->Algorithm->GetObjectDescription()
-                                << ", which has " << this->Algorithm->GetNumberOfOutputPorts()
-                                << " output ports.");
+                                << " for algorithm " << this->Algorithm->GetClassName() << "("
+                                << this->Algorithm << "), which has "
+                                << this->Algorithm->GetNumberOfOutputPorts() << " output ports.");
     return 0;
   }
   return 1;
@@ -737,8 +737,8 @@ int vtkExecutive::CallAlgorithm(vtkInformation* request, int direction,
   // If the algorithm failed report it now.
   if (!result)
   {
-    vtkErrorMacro("Algorithm " << this->Algorithm->GetObjectDescription()
-                               << " returned failure for request: " << *request);
+    vtkErrorMacro("Algorithm " << this->Algorithm->GetClassName() << "(" << this->Algorithm
+                               << ") returned failure for request: " << *request);
   }
 
   return result;
@@ -764,7 +764,7 @@ int vtkExecutive::CheckAlgorithm(const char* method, vtkInformation* request)
       vtkErrorMacro(<< method
                     << " invoked during another request.  "
                        "Returning failure to algorithm "
-                    << this->Algorithm->GetObjectDescription() << ".");
+                    << this->Algorithm->GetClassName() << "(" << this->Algorithm << ").");
     }
 
     // Tests should fail when this happens because there is a bug in
@@ -776,4 +776,22 @@ int vtkExecutive::CheckAlgorithm(const char* method, vtkInformation* request)
     return 0;
   }
   return 1;
+}
+
+//------------------------------------------------------------------------------
+// Look at all inputs and check ABORTED flag. If it is set, return true.
+// Otherwise return false.
+bool vtkExecutive::CheckAbortedInput(vtkInformationVector** inInfoVec)
+{
+  for (int i = 0; i < this->GetNumberOfInputPorts(); i++)
+  {
+    for (int j = 0; j < inInfoVec[i]->GetNumberOfInformationObjects(); j++)
+    {
+      if (inInfoVec[i]->GetInformationObject(j)->Get(vtkAlgorithm::ABORTED()))
+      {
+        return true;
+      }
+    }
+  }
+  return false;
 }

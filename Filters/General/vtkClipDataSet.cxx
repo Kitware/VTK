@@ -94,10 +94,6 @@ void vtkClipDataSet::InternalProgressCallback(vtkAlgorithm* algorithm)
 {
   float progress = algorithm->GetProgress();
   this->UpdateProgress(progress);
-  if (this->AbortExecute)
-  {
-    algorithm->SetAbortExecute(1);
-  }
 }
 
 //------------------------------------------------------------------------------
@@ -376,7 +372,7 @@ int vtkClipDataSet::RequestData(vtkInformation* vtkNotUsed(request),
     if (!(cellId % updateTime))
     {
       this->UpdateProgress(static_cast<double>(cellId) / numCells);
-      abort = this->GetAbortExecute();
+      abort = this->CheckAbort();
     }
 
     input->GetCell(cellId, cell);

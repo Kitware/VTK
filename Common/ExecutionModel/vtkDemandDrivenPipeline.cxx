@@ -96,16 +96,17 @@ int vtkDemandDrivenPipeline::ComputePipelineMTime(vtkInformation* request,
   {
     if (request)
     {
-      vtkErrorMacro("Algorithm " << this->Algorithm->GetObjectDescription()
-                                 << " returned failure for pipeline"
+      vtkErrorMacro("Algorithm " << this->Algorithm->GetClassName() << "(" << this->Algorithm
+                                 << ") returned failure for pipeline"
                                  << " modified time request from output port "
                                  << requestFromOutputPort << ": " << *request);
     }
     else
     {
-      vtkErrorMacro(
-        "Algorithm " << this->Algorithm->GetObjectDescription() << " returned failure for pipeline"
-                     << " modified time request from output port " << requestFromOutputPort << ".");
+      vtkErrorMacro("Algorithm " << this->Algorithm->GetClassName() << "(" << this->Algorithm
+                                 << ") returned failure for pipeline"
+                                 << " modified time request from output port "
+                                 << requestFromOutputPort << ".");
     }
     return 0;
   }
@@ -518,8 +519,18 @@ void vtkDemandDrivenPipeline::ExecuteDataStart(
   // Tell observers the algorithm is about to execute.
   this->Algorithm->InvokeEvent(vtkCommand::StartEvent, nullptr);
 
+  // If there is an aborted input, set AbortOutput. Otherwise, run as normal
+  this->Algorithm->SetAbortOutput(this->CheckAbortedInput(inInfo));
+
+  // Clear ABORTED from outputs.
+  vtkDataObject* data = vtkDataObject::GetData(outputs);
+  for (i = 0; i < outputs->GetNumberOfInformationObjects(); ++i)
+  {
+    vtkInformation* outInfo = outputs->GetInformationObject(i);
+    outInfo->Set(vtkAlgorithm::ABORTED(), 0);
+  }
+
   // The algorithm has not yet made any progress.
-  this->Algorithm->SetAbortExecute(0);
   this->Algorithm->UpdateProgress(0.0);
 }
 
@@ -529,6 +540,23 @@ void vtkDemandDrivenPipeline::ExecuteDataEnd(
 {
   this->Algorithm->UpdateProgress(1.0);
 
+  int i, j;
+  // The algorithm has either finished or aborted.
+  if (this->Algorithm->GetAbortOutput())
+  {
+    // Algorithm aborted. Initialize data and set ABORTED
+    for (i = 0; i < outputs->GetNumberOfInformationObjects(); ++i)
+    {
+      vtkInformation* outInfo = outputs->GetInformationObject(i);
+      vtkDataObject* data = vtkDataObject::GetData(outInfo);
+      if (data)
+      {
+        data->Initialize();
+      }
+      outInfo->Set(vtkAlgorithm::ABORTED(), 1);
+    }
+  }
+
   // Tell observers the algorithm is done executing.
   this->Algorithm->InvokeEvent(vtkCommand::EndEvent, nullptr);
 
@@ -536,7 +564,6 @@ void vtkDemandDrivenPipeline::ExecuteDataEnd(
   this->MarkOutputsGenerated(request, inInfoVec, outputs);
 
   // Remove any not-generated mark.
-  int i, j;
   for (i = 0; i < outputs->GetNumberOfInformationObjects(); ++i)
   {
     vtkInformation* outInfo = outputs->GetInformationObject(i);
@@ -604,8 +631,8 @@ int vtkDemandDrivenPipeline::CheckDataObject(int port, vtkInformationVector* out
     if (!data)
     {
       // The algorithm has a bug and did not create the data object.
-      vtkErrorMacro("Algorithm " << this->Algorithm->GetObjectDescription()
-                                 << " did not create output for port " << port
+      vtkErrorMacro("Algorithm " << this->Algorithm->GetClassName() << "(" << this->Algorithm
+                                 << ") did not create output for port " << port
                                  << " when asked by REQUEST_DATA_OBJECT and does not"
                                  << " specify a concrete DATA_TYPE_NAME.");
       return 0;
@@ -622,8 +649,8 @@ int vtkDemandDrivenPipeline::CheckDataObject(int port, vtkInformationVector* out
   {
     // The algorithm did not specify its output data type and no
     // object exists.
-    vtkErrorMacro("Algorithm " << this->Algorithm->GetObjectDescription()
-                               << " did not create output for port " << port
+    vtkErrorMacro("Algorithm " << this->Algorithm->GetClassName() << "(" << this->Algorithm
+                               << ") did not create output for port " << port
                                << " when asked by REQUEST_DATA_OBJECT and does not"
                                << " specify any DATA_TYPE_NAME.");
     return 0;
@@ -658,8 +685,8 @@ int vtkDemandDrivenPipeline::InputCountIsValid(int port, vtkInformationVector** 
   // If the input port is optional, there may be less than one connection.
   if (!this->InputIsOptional(port) && (connections < 1))
   {
-    vtkErrorMacro("Input port " << port << " of algorithm "
-                                << this->Algorithm->GetObjectDescription() << " has " << connections
+    vtkErrorMacro("Input port " << port << " of algorithm " << this->Algorithm->GetClassName()
+                                << "(" << this->Algorithm << ") has " << connections
                                 << " connections but is not optional.");
     return 0;
   }
@@ -667,8 +694,8 @@ int vtkDemandDrivenPipeline::InputCountIsValid(int port, vtkInformationVector** 
   // If the input port is repeatable, there may be more than one connection.
   if (!this->InputIsRepeatable(port) && (connections > 1))
   {
-    vtkErrorMacro("Input port " << port << " of algorithm "
-                                << this->Algorithm->GetObjectDescription() << " has " << connections
+    vtkErrorMacro("Input port " << port << " of algorithm " << this->Algorithm->GetClassName()
+                                << "(" << this->Algorithm << ") has " << connections
                                 << " connections but is not repeatable.");
     return 0;
   }
@@ -728,7 +755,7 @@ int vtkDemandDrivenPipeline::InputTypeIsValid(int port, int index, vtkInformatio
     {
       vtkErrorMacro("Input for connection index "
         << index << " on input port index " << port << " for algorithm "
-        << this->Algorithm->GetObjectDescription() << " is nullptr, but a "
+        << this->Algorithm->GetClassName() << "(" << this->Algorithm << ") is nullptr, but a "
         << info->Get(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), 0) << " is required.");
       return 0;
     }
@@ -750,8 +777,9 @@ int vtkDemandDrivenPipeline::InputTypeIsValid(int port, int index, vtkInformatio
     {
       vtkErrorMacro("Input for connection index "
         << index << " on input port index " << port << " for algorithm "
-        << this->Algorithm->GetObjectDescription() << " is of type " << input->GetClassName()
-        << ", but a " << info->Get(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), 0) << " is required.");
+        << this->Algorithm->GetClassName() << "(" << this->Algorithm << ") is of type "
+        << input->GetClassName() << ", but a "
+        << info->Get(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), 0) << " is required.");
       return 0;
     }
   }
@@ -989,9 +1017,16 @@ int vtkDemandDrivenPipeline ::NeedToExecuteData(
 
   if (outputPort >= 0)
   {
+    vtkInformation* info = outInfoVec->GetInformationObject(outputPort);
+
+    // If the filter was ABORTED last time, the filter will need to run.
+    if (info->Get(vtkAlgorithm::ABORTED()))
+    {
+      return 1;
+    }
+
     // If the output on the port making the request is out-of-date
     // then we must execute.
-    vtkInformation* info = outInfoVec->GetInformationObject(outputPort);
     vtkDataObject* data = info->Get(vtkDataObject::DATA_OBJECT());
     if (!data || this->PipelineMTime > data->GetUpdateTime())
     {
