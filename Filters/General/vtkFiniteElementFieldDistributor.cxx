@@ -30,6 +30,7 @@
 #include "vtkWedge.h"
 
 #include <numeric>
+#include <set>
 #include <string>
 #include <unordered_map>
 #include <unordered_set>
@@ -435,7 +436,7 @@ private:
 //----------------------------------------------------------------------------
 void vtkFiniteElementFieldDistributor::vtkInternals::InitializeReferenceElement(const int& order)
 {
-  std::unordered_set<VTKCellType> cellTypes;
+  std::set<VTKCellType> cellTypes;
   cellTypes.insert(this->hCurlSpec().RefElement);
   cellTypes.insert(this->hDivSpec().RefElement);
   cellTypes.insert(this->hGradSpec().RefElement);
