@@ -1197,7 +1197,8 @@ int vtkFiniteElementFieldDistributor::RequestData(vtkInformation* vtkNotUsed(req
           {
             const char* name = hGradFields->GetArrayName(i);
             newPd->AddArray(arr);
-            newCd->RemoveArray(name); // less clutter in the drop down menu in paraview.
+            // remove the HGrad cell-centered DG arrays from output.
+            newCd->RemoveArray(name);
           }
         }
       }
