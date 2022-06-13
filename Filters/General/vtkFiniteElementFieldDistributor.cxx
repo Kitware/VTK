@@ -622,6 +622,10 @@ void vtkFiniteElementFieldDistributor::vtkInternals::ExplodeCell(const vtkIdType
       cellId, oldPoints, newPoints, oldCells, newCells, newCellTypes, oldPd, newPd, oldCd, nComps);
   }
 
+  if (this->hGradSpec().Fields.empty())
+  {
+    return;
+  }
   // explode n-component cell centered HGrad DG (Discontinuous Galerkin) field from cell -> nodes.
   vtkIdType newNpts = 0;
   const vtkIdType* newPts = nullptr;
@@ -1029,10 +1033,8 @@ int vtkFiniteElementFieldDistributor::RequestData(vtkInformation* vtkNotUsed(req
     {
       continue;
     }
-    if (basisType == "HGRAD")
-    { // only element block has a HGRAD basis definition
-      elementBlockNames.insert(blockName);
-    }
+    // our concern is only those element blocks which have FEM element type callouts.
+    elementBlockNames.insert(blockName);
 
     femSpec = &(this->Internals->femSpecs[basisType]);
 
