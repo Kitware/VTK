@@ -8,9 +8,8 @@
 #ifndef vtkVectorBasisLagrangeProducts_h
 #define vtkVectorBasisLagrangeProducts_h
 
-#include <vtkCellType.h>
-#include <vtkFiltersGeneralModule.h>
-#include <vtkType.h>
+#include "vtkCellType.h"
+#include "vtkFiltersGeneralModule.h"
 
 #include <functional>
 #include <vector>
@@ -42,3 +41,4 @@ private:
 };
 
 #endif
+// VTK-HeaderTest-Exclude: vtkVectorBasisLagrangeProducts.h

@@ -22,7 +22,7 @@
 #ifndef vtkFiniteElementFieldDistributor_h
 #define vtkFiniteElementFieldDistributor_h
 
-#include "vtkFiltersGeneralModule.h"
+#include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkPartitionedDataSetCollectionAlgorithm.h"
 
 #include <memory> // for std::unique_ptr
