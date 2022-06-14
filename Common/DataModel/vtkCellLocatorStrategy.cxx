@@ -85,8 +85,12 @@ int vtkCellLocatorStrategy::Initialize(vtkPointSet* ps)
   {
     if (this->CellLocator != nullptr)
     {
-      this->CellLocator->SetDataSet(ps);
-      this->CellLocator->BuildLocator();
+      // only the owner of the locator can change it
+      if (this->OwnsLocator)
+      {
+        this->CellLocator->SetDataSet(ps);
+        this->CellLocator->BuildLocator();
+      }
     }
     else
     {
@@ -152,7 +156,11 @@ void vtkCellLocatorStrategy::CopyParameters(vtkFindCellStrategy* from)
 
   if (auto strategy = vtkCellLocatorStrategy::SafeDownCast(from))
   {
-    this->CellLocator = strategy->CellLocator;
+    if (strategy->CellLocator)
+    {
+      this->CellLocator = strategy->CellLocator;
+      this->OwnsLocator = false;
+    }
   }
 }
 

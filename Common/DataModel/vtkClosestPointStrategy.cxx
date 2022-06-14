@@ -91,8 +91,12 @@ int vtkClosestPointStrategy::Initialize(vtkPointSet* ps)
   {
     if (this->PointLocator != nullptr)
     {
-      this->PointLocator->SetDataSet(ps);
-      this->PointLocator->BuildLocator();
+      // only the owner of the locator can change it
+      if (this->OwnsLocator)
+      {
+        this->PointLocator->SetDataSet(ps);
+        this->PointLocator->BuildLocator();
+      }
     }
     else
     {
@@ -381,7 +385,11 @@ void vtkClosestPointStrategy::CopyParameters(vtkFindCellStrategy* from)
 
   if (auto strategy = vtkClosestPointStrategy::SafeDownCast(from))
   {
-    this->PointLocator = strategy->PointLocator;
+    if (strategy->PointLocator)
+    {
+      this->PointLocator = strategy->PointLocator;
+      this->OwnsLocator = false;
+    }
   }
 }
 
