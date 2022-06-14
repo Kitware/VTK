@@ -262,7 +262,7 @@ public:
         if (!this->MaskArray[ptid])
         {
           this->CellGhostArray->SetValue(
-            i, this->CellGhostArray->GetValue(i) | vtkDataSetAttributes::HIDDENPOINT);
+            i, this->CellGhostArray->GetValue(i) | vtkDataSetAttributes::HIDDENCELL);
           break;
         }
       }
