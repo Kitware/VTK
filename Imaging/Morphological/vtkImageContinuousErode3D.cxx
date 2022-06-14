@@ -23,6 +23,8 @@
 #include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
+#include <algorithm>
+
 vtkStandardNewMacro(vtkImageContinuousErode3D);
 
 //------------------------------------------------------------------------------
