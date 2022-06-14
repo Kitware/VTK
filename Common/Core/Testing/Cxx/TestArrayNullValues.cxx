@@ -32,7 +32,7 @@ void VerifyType(const T& DefaultNull, const T& AlternateNull)
   vtkSmartPointer<vtkSparseArray<T>> array = vtkSmartPointer<vtkSparseArray<T>>::New();
   array->Resize(2);
 
-  // Verify that the default nullptr value is iniitialized correctly ...
+  // Verify that the default nullptr value is initialized correctly ...
   if (array->GetNullValue() != DefaultNull)
   {
     throw std::runtime_error(
@@ -54,7 +54,7 @@ void VerifyType(const T& DefaultNull, const T& AlternateNull)
       "Error overriding nullptr value for " + std::string(array->GetClassName()));
   }
 
-  // Verify that GetValue() returns the alternate nullptr value forr nullptr elements ...
+  // Verify that GetValue() returns the alternate nullptr value for nullptr elements ...
   if (array->GetValue(1) != AlternateNull)
   {
     throw std::runtime_error(

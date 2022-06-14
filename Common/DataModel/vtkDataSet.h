@@ -161,7 +161,7 @@ public:
    * THIS METHOD IS THREAD SAFE IF FIRST CALLED FROM A SINGLE THREAD AND
    * THE DATASET IS NOT MODIFIED
    *
-   * @warning This method MUST be overriden for performance reasons.
+   * @warning This method MUST be overridden for performance reasons.
    * Default implementation is very unefficient.
    */
   virtual vtkIdType GetCellSize(vtkIdType cellId);

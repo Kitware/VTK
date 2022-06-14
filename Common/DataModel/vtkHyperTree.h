@@ -53,7 +53,7 @@
  * Attributes are associated with (all) cells, not with points. The
  * attributes that are associated with coarses, it's used for LoD
  * (Level-of-Detail). The attributes on coarse cells can be given by the
- * code or/and computed by the use of a specifc filter exploiting the
+ * code or/and computed by the use of a specific filter exploiting the
  * values from its children (which can be leaves or not).
  *
  * The geometry is implicitly given by the size of the root node on each
@@ -164,7 +164,7 @@ struct vtkHyperTreeData
   // Offset start for the implicit global index mapping fixed by
   // SetGlobalIndexStart after create a tree.
   // If you don't choose implicit global index mapping then this
-  // value is -1. Then, you must to describ explicit global index
+  // value is -1. Then, you must to descrieb explicit global index
   // mapping by using then SetGlobalIndexFromLocal for each cell
   // in tree.
   // The extra cost is equivalent to the cost of a field of values
@@ -202,7 +202,7 @@ public:
    * valid level.
    * @param isParent: a binary decomposition tree by level with
    * constraint all describe children. It is useless to declare
-   * all the lastest values to False, especially the last level
+   * all the latest values to False, especially the last level
    * may not be defined.
    * @param isMasked: a binary mask corresponding. It is useless
    * to declare all the latest values to False.
@@ -341,7 +341,7 @@ public:
 
   /**
    * Return the number of children per node of the tree.
-   * This value is branchfactoring scale spatial dimenion (f^d).
+   * This value is branchfactoring scale spatial dimension (f^d).
    */
   vtkIdType GetNumberOfChildren() const { return this->NumberOfChildren; }
 
@@ -357,8 +357,8 @@ public:
 
   /**
    * In an hypertree, all cells are the same size by level. This
-   * fonction initialize this cache system is particular used by
-   * the symetric filter.
+   * function initializes this cache system and is particularly
+   * used by the symmetric filter.
    */
   std::shared_ptr<vtkHyperTreeGridScales> InitializeScales(
     const double* scales, bool reinitialize = false) const;
@@ -391,7 +391,7 @@ public:
   }
 
   /**
-   * Return if implicit global index maping has been used.
+   * Return if implicit global index mapping has been used.
    * If true, the initialize has been done by SetGlobalIndexStart (one call
    * by hypertree).
    * If false, the initialize has been done by SetGlobalIndexFromLocal (one
@@ -494,9 +494,9 @@ public:
   ///@{
   /**
    * In an hypertree, all cells are the same size by level. This
-   * fonction initializes this cache system is particulary used by
-   * the symetric filter.
-   * Here, you set a scales since extern description (sharing).
+   * function initializes this cache system and is particularly used
+   * by the symmetric filter.
+   * Here, you set 'scales' since extern description (sharing).
    */
   void SetScales(std::shared_ptr<vtkHyperTreeGridScales> scales) const { this->Scales = scales; }
   ///@}

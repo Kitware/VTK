@@ -1101,7 +1101,7 @@ void vtkGenericDataArray<DerivedT, ValueTypeT>::ComputeValueRange(
   // For array / value types without specific implementations compiled into
   // vtkGenericDataArray.cxx, fall back to the GetRange computations in
   // vtkDataArray. In these cases, either a) the ValueType's full range is
-  // expressable as a double, or b) we aren't aware of the array type.
+  // expressible as a double, or b) we aren't aware of the array type.
   // This reduces the number of specialized range implementations we need to
   // compile, and is also faster since we're able to cache the GetValue
   // computation (See #17666).
@@ -1170,7 +1170,7 @@ void vtkGenericDataArray<DerivedT, ValueTypeT>::ComputeFiniteValueRange(
   // For array / value types without specific implementations compiled into
   // vtkGenericDataArray.cxx, fall back to the GetRange computations in
   // vtkDataArray. In these cases, either a) the ValueType's full range is
-  // expressable as a double, or b) we aren't aware of the array type.
+  // expressible as a double, or b) we aren't aware of the array type.
   // This reduces the number of specialized range implementations we need to
   // compile, and is also faster since we're able to cache the GetValue
   // computation (See #17666).

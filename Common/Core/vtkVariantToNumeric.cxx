@@ -92,7 +92,7 @@ T vtkVariant::ToNumeric(bool* valid, T* vtkNotUsed(ignored)) const
     if (this->Data.VTKObject->IsA("vtkDataArray"))
     {
       // Note: This are not the best conversion.
-      //       We covert the first value to double, then
+      //       We convert the first value to double, then
       //       cast it back to the appropriate numeric type.
       vtkDataArray* da = vtkDataArray::SafeDownCast(this->Data.VTKObject);
       return static_cast<T>(da->GetTuple1(0));
@@ -100,7 +100,7 @@ T vtkVariant::ToNumeric(bool* valid, T* vtkNotUsed(ignored)) const
     if (this->Data.VTKObject->IsA("vtkVariantArray"))
     {
       // Note: This are not the best conversion.
-      //       We covert the first value to double, then
+      //       We convert the first value to double, then
       //       cast it back to the appropriate numeric type.
       vtkVariantArray* va = vtkVariantArray::SafeDownCast(this->Data.VTKObject);
       return static_cast<T>(va->GetValue(0).ToDouble());

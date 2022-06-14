@@ -27,7 +27,7 @@
  *
  * 2)
  * The number of quadrature points and cell nodes. These parameters
- * size the matrix, and allow for convinent evaluation by users
+ * size the matrix, and allow for convenient evaluation by users
  * of the definition.
  * </pre>
  */
@@ -52,7 +52,7 @@ public:
   static vtkInformationStringKey* QUADRATURE_OFFSET_ARRAY_NAME();
 
   /**
-   * New object in an unsuable state. You'll have to call
+   * New object in an unusable state. You'll have to call
    * "Initilaize" to get the definition in to a usable state.
    */
   static vtkQuadratureSchemeDefinition* New();

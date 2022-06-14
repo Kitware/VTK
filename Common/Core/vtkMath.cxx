@@ -1264,7 +1264,7 @@ vtkTypeBool vtkMath::SolveLeastSquares(int numberOfSamples, double** xt, int xOr
 // if inverse not computed.
 // -----------------------
 // For thread safe behavior, temporary arrays tmp1SIze and tmp2Size
-// of length size must be passsed in.
+// of length size must be passed in.
 vtkTypeBool vtkMath::InvertMatrix(
   double** A, double** AI, int size, int* tmp1Size, double* tmp2Size)
 {

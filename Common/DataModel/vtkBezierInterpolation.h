@@ -42,13 +42,13 @@ public:
 
   // see Geometrically Exact and Analysis Suitable Mesh Generation Using Rational Bernstein–Bezier
   // Elements https://scholar.colorado.edu/cgi/viewcontent.cgi?article=1170&context=mcen_gradetds
-  // Chapter 3, pg 25. given a dimmension ( 2 triangle, 3 tetrahedron ) and the degree of the
+  // Chapter 3, pg 25. given a dimension ( 2 triangle, 3 tetrahedron ) and the degree of the
   // simplex flatten a simplicial bezier function's coordinate to an integer
   VTK_DEPRECATED_IN_9_1_0("renamed to FlattenSimplex")
   static int flattenSimplex(const int dim, const int deg, const vtkVector3i coord);
   static int FlattenSimplex(const int dim, const int deg, const vtkVector3i coord);
 
-  // given a dimmension ( 2 triangle, 3 tetrahedron ) and the degree of the simplex,
+  // given a dimension ( 2 triangle, 3 tetrahedron ) and the degree of the simplex,
   // unflatten a simplicial bezier function integer to a simplicial coordinate
   VTK_DEPRECATED_IN_9_1_0("renamed to UnFlattenSimplex")
   static vtkVector3i unflattenSimplex(const int dim, const int deg, const vtkIdType flat);

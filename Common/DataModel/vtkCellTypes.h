@@ -89,8 +89,8 @@ public:
   /**
    * Return the location of the cell in the associated vtkCellArray.
    *
-   * \deprecated This method will go away in future releases. Please do not realy on `CellLocation`
-   * in this class.
+   * \deprecated This method will go away in future releases.
+   * Please do not rely on `CellLocation` in this class.
    */
   VTK_DEPRECATED_IN_9_2_0("The Location API will disappear.")
   vtkIdType GetCellLocation(vtkIdType cellId) { return this->LocationArray->GetValue(cellId); }

@@ -42,7 +42,7 @@
  * in a graph, create an instance of vtkEdgeListIterator and call graph->GetEdges(it).
  * it->Next() returns lightweight vtkEdgeType structures, which contain the public
  * fields Id, Source and Target. Id is the identifier for the edge, which may
- * be used to look up values in assiciated edge data arrays. Source and Target
+ * be used to look up values in associated edge data arrays. Source and Target
  * store the ids of the source and target vertices of the edge. Note that the
  * edge list iterator DOES NOT necessarily iterate over edges in order of ascending
  * id. To traverse edges from wrapper code (Python, Java), use

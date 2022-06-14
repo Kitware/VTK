@@ -127,7 +127,7 @@ void UpdateRange(A& min0, A& max0, const A& value,
   UpdateRangeImpl<A>(min0, max0, value);
 }
 
-template <class A> // Floating point implementation specificaly considering NaN
+template <class A> // Floating point implementation specifically considering NaN
 void UpdateRange(A& min0, A& max0, const A& value,
   typename std::enable_if<std::is_floating_point<A>::value>::type* = 0)
 {

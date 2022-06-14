@@ -57,7 +57,7 @@ public:
   int GetDataObjectType() override { return VTK_PARTITIONED_DATA_SET; }
 
   /**
-   * Set the number of partitionss. This will cause allocation if the new number of
+   * Set the number of partitions. This will cause allocation if the new number of
    * partitions is greater than the current size. All new partitions are initialized to
    * null.
    */

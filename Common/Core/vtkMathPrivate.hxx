@@ -263,7 +263,7 @@ struct ContractRowWithColSwitch<ScalarT, RowsT, MidDimT, ColsT, RowT, ColT, Layo
     std::is_same<LayoutT2, vtkMatrixUtilities::Layout::Diag>::value;
 
   // If on of the diagonal matrix is rectangular and we are out of the diagonal
-  // length, all remaning values are null.
+  // length, all remaining values are null.
   static constexpr bool UseNullContractRowWithCol =
     (IsDiagonal1 && RowT >= MidDimT) || (IsDiagonal2 && ColT >= MidDimT);
 
@@ -480,7 +480,7 @@ public:
 // x ColsDimT
 //
 // RemainingRowSizeT should be disregarded when first instantiating this class. It is
-// the number of remaning elements in the current row to process.
+// the number of remaining elements in the current row to process.
 //
 // To compute the multiplication, each component of the output matrix
 // is computed chunk by chunk (of size VTK_MATH_PRIVATE_PACK_SIZE),

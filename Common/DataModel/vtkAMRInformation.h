@@ -17,7 +17,7 @@
  * @brief   Meta data that describes the structure of an AMR data set
  *
  *
- * vtkAMRInformation encaspulates the following meta information for an AMR data set
+ * vtkAMRInformation encapsulates the following meta information for an AMR data set
  * - a list of vtkAMRBox objects
  * - Refinement ratio between AMR levels
  * - Grid spacing for each level

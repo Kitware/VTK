@@ -109,7 +109,7 @@ void vtkExecutableRunner::Execute()
     vtksysProcess_SetTimeout(process, this->Timeout);
     vtksysProcess_Execute(process);
 
-    // Get ouput streams
+    // Get output streams
     int pipe;
     std::string out;
     std::string err;

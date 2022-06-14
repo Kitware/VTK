@@ -257,7 +257,7 @@ public:
    * The cell is assumed to be non-degenerate and to have no
    * edge of length zero for linear 2D cells.
    * If it is not the case, then no inflation is performed.
-   * This method needs to be overriden by inheriting non-linear / non-2D cells.
+   * This method needs to be overridden by inheriting non-linear / non-2D cells.
    *
    * \return 1 if inflation was successful, 0 if no inflation was performed
    */

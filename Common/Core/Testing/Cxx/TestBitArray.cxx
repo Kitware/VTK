@@ -20,7 +20,7 @@
 #include <bitset>
 #include <string>
 
-// This test makes sure that the unsused reachable bits of the last byte are set
+// This test makes sure that the unused reachable bits of the last byte are set
 // to zero.
 int TestBitArray(int, char*[])
 {

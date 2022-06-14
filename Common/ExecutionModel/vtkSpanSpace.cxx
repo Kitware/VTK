@@ -541,7 +541,7 @@ void vtkSpanSpace::BuildTree()
   }
   this->SpanSpace = new vtkInternalSpanSpace(this->Resolution, range[0], range[1], numCells);
 
-  // Acclerated span space construction (for unstructured grids).  Templated
+  // Accelerated span space construction (for unstructured grids).  Templated
   // over scalar type; direct access to vtkUnstructuredGrid innards.
   vtkUnstructuredGrid* ugrid = vtkUnstructuredGrid::SafeDownCast(this->DataSet);
   if (ugrid != nullptr)

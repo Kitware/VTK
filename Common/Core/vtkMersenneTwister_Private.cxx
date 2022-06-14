@@ -558,7 +558,7 @@ static int pivot_reduction(eqdeg_t *eq, int v)
 
 
 /********************************/
-/** allocate momory for Vector **/
+/** allocate memory for Vector **/
 /********************************/
 static Vector *newVector_t(int nnn)
 {

@@ -279,7 +279,7 @@ private:
 
   /**
    * Following classes (vtkClassMemberCallbackBase,
-   * vtkClassMemberCallback, and vtkClassMemberHanderPointer)
+   * vtkClassMemberCallback, and vtkClassMemberHandlerPointer)
    * along with vtkObjectCommandInternal are for supporting
    * templated AddObserver() overloads that allow developers
    * to add event callbacks that are class member functions.

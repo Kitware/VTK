@@ -33,7 +33,7 @@ namespace vtkMatrixUtilities
 {
 //=============================================================================
 /**
- * This struct determines a prior transform to input matrices, chaging the
+ * This struct determines a prior transform to input matrices, changing the
  * way they are indexed
  */
 struct Layout

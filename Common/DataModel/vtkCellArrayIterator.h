@@ -88,12 +88,12 @@ public:
   ///@}
 
   /**
-   * Return the vtkCellArray object over which iteration is occuring.
+   * Return the vtkCellArray object over which iteration is occurring.
    */
   vtkCellArray* GetCellArray() { return this->CellArray; }
 
   /**
-   * Intialize the iterator to a specific cell. This will revalidate the
+   * Initialize the iterator to a specific cell. This will revalidate the
    * iterator if the underlying vtkCellArray has been modified. This method
    * can always be used to set the starting location for forward iteration,
    * and it is also used to support random access.

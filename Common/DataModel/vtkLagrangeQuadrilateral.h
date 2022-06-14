@@ -50,7 +50,7 @@ public:
   vtkHigherOrderCurve* GetEdgeCell() override;
 
 protected:
-  // The verion of GetApproximateQuad between Lagrange and Bezier is different because Bezier is
+  // The version of GetApproximateQuad between Lagrange and Bezier is different because Bezier is
   // non-interpolatory
   vtkQuad* GetApproximateQuad(
     int subId, vtkDataArray* scalarsIn = nullptr, vtkDataArray* scalarsOut = nullptr) override;

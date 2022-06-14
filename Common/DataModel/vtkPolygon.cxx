@@ -736,7 +736,7 @@ int vtkPolygon::PointInPolygon(double x[3], int numPts, double* pts, double boun
   // If here, begin computation of the winding number. This method works for
   // points/polygons arbitrarily oriented in 3D space.  Hence a projection
   // onto one of the x-y-z coordinate planes using the maximum normal
-  // component. The computation will be peformed in the (axis0,axis1) plane.
+  // component. The computation will be performed in the (axis0,axis1) plane.
   int axis0, axis1;
   if (fabs(n[0]) > fabs(n[1]))
   {

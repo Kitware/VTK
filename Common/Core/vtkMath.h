@@ -373,7 +373,7 @@ public:
   /**
    * Subtraction of two 3-vectors (templated version). Result is stored in c according to c = a - b.
    *
-   * Each paramameter needs to implement `operator[]`.
+   * Each parameter needs to implement `operator[]`.
    */
   template <class VectorT1, class VectorT2, class VectorT3>
   static void Subtract(const VectorT1& a, const VectorT2& b, VectorT3&& c)
@@ -824,7 +824,7 @@ public:
    * of MatrixLayout.
    *
    * Matrix M is assumed to be a 1D array implementing `operator[]`. The matrix
-   * is indexed row by row. If the input array is indexed columns by colums.
+   * is indexed row by row. If the input array is indexed columns by columns.
    * If LayoutT == vtkMatrixUtilities::Layout::Identity (default), then M indexing is untouched.
    * If LayoutT == vtkMatrixUtilities::Layout::Transpose, then M is read column-wise.
    * If LayoutT == vtkMatrixUtilities::Layout::Diag, then M is considered to be composed
@@ -863,7 +863,7 @@ public:
    * of MatrixLayout.
    *
    * Matrix M is assumed to be a 1D array implementing `operator[]`. The matrix
-   * is indexed row by row. If the input array is indexed columns by colums.
+   * is indexed row by row. If the input array is indexed columns by columns.
    * If LayoutT == vtkMatrixUtilities::Layout::Identity (default), then M indexing is untouched.
    * If LayoutT == vtkMatrixUtilities::Layout::Transpose, then M is read column-wise.
    * If LayoutT == vtkMatrixUtilities::Layout::Diag, then M is considered to be composed
@@ -885,7 +885,7 @@ public:
    * of MatrixLayout.
    *
    * Matrix M is assumed to be a 1D array implementing `operator[]`. The matrix
-   * is indexed row by row. If the input array is indexed columns by colums.
+   * is indexed row by row. If the input array is indexed columns by columns.
    * If LayoutT == vtkMatrixUtilities::Layout::Identity (default), then M indexing is untouched.
    * If LayoutT == vtkMatrixUtilities::Layout::Transpose, then M is read column-wise.
    * If LayoutT == vtkMatrixUtilities::Layout::Diag, then M is considered to be composed
@@ -907,7 +907,7 @@ public:
    * of MatrixLayout.
    *
    * Matrix M is assumed to be a 1D array implementing `operator[]`. The matrix
-   * is indexed row by row. If the input array is indexed columns by colums.
+   * is indexed row by row. If the input array is indexed columns by columns.
    * If LayoutT == vtkMatrixUtilities::Layout::Identity (default), then M indexing is untouched.
    * If LayoutT == vtkMatrixUtilities::Layout::Transpose, then M is read column-wise.
    * If LayoutT == vtkMatrixUtilities::Layout::Diag, then M is considered to be composed
@@ -928,7 +928,7 @@ public:
    * `operator[]`.
    *
    * Matrix M is assumed to be a 1D array implementing `operator[]`. The matrix
-   * is indexed row by row. If the input array is indexed columns by colums.
+   * is indexed row by row. If the input array is indexed columns by columns.
    * If LayoutT == vtkMatrixUtilities::Layout::Identity (default), then M indexing is untouched.
    * If LayoutT == vtkMatrixUtilities::Layout::Transpose, then M is read column-wise.
    * If LayoutT == vtkMatrixUtilities::Layout::Diag, then M is considered to be composed
@@ -1546,7 +1546,7 @@ public:
    * available:
    *
    * The "full" mode (default), returning the convolution at each point of overlap between
-   * the sample and the kernel. The ouput size is equal to sampleSize + kernelSize + 1.
+   * the sample and the kernel. The output size is equal to sampleSize + kernelSize + 1.
    *
    * The "same" mode, where the convolution is computed only if the center of the kernel
    * overlaps with the sample. The output size is equal to the sampleSize.

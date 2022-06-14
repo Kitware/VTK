@@ -340,7 +340,7 @@ void TestTupleRangeAPI(ArrayT* someArray)
   // Math
   assert((compEnd - compIter) == std::distance(compIter, compEnd)); // distance
 
-  // Suppress unsed variable warnings:
+  // Suppress unused variable warnings:
   (void)cend;
   (void)constCompEnd;
   (void)tuple;
@@ -553,7 +553,7 @@ void TestValueRangeAPI(ArrayT* someArray)
   // Math
   assert((end - iter) == std::distance(iter, end)); // distance
 
-  // Suppress unsed variable warnings:
+  // Suppress unused variable warnings:
   (void)cend;
   (void)constValueRef;
   (void)value;

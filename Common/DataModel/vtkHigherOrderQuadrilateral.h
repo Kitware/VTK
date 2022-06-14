@@ -103,7 +103,7 @@ protected:
   ~vtkHigherOrderQuadrilateral() override;
 
   vtkQuad* GetApprox();
-  // The verion of GetApproximateQuad between Lagrange and Bezier is different because Bezier is
+  // The version of GetApproximateQuad between Lagrange and Bezier is different because Bezier is
   // non-interpolatory
   void PrepareApproxData(
     vtkPointData* pd, vtkCellData* cd, vtkIdType cellId, vtkDataArray* cellScalars);

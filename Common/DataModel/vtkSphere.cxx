@@ -180,7 +180,7 @@ void vtkSphereComputeBoundingSphere(T* pts, vtkIdType numPts, T sphere[4], vtkId
     _x[3] = _y[3];                                                                                 \
   }
 // An approximation to the bounding sphere of a set of spheres. The algorithm
-// creates an iniitial approximation from two spheres that are expected to be
+// creates an initial approximation from two spheres that are expected to be
 // the farthest apart (taking into account their radius). A second pass may
 // grow the bounding sphere if the remaining spheres are not contained within
 // it. The hints[2] array indicates two spheres that are expected to be the

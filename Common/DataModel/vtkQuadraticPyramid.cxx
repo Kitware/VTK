@@ -516,7 +516,7 @@ int vtkQuadraticPyramid::IntersectWithLine(
     else
     {
       // No need to set the PointIds. They are set in the Face constructor
-      // Points need to be set to correspond with the contructor's PointIds.
+      // Points need to be set to correspond with the constructor's PointIds.
       for (int i = 0; i < 8; i++)
       {
         this->Face->Points->SetPoint(i, this->Points->GetPoint(PyramidFaces[faceNum][i]));

@@ -1090,7 +1090,7 @@ FOUND_N:
 }
 
 //------------------------------------------------------------------------------
-// The Radius defines a block of buckets which the sphere of radis R may
+// The Radius defines a block of buckets which the sphere of radius R may
 // touch.
 template <typename TIds>
 void BucketList2D<TIds>::FindPointsWithinRadius(double R, const double x[3], vtkIdList* result)
