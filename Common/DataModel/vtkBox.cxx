@@ -327,20 +327,40 @@ char vtkBox::IntersectBox(const double bounds[6], const double origin[3], const 
   int i, whichPlane = 0;
   double maxT[3], candidatePlane[3];
 
+  // Make sure tolerance is non-zero
+  double tol = (tolerance <= 0 ? FLT_EPSILON : tolerance);
+
+  // Make sure bounds are not degenerate (i.e., have positive volume); pad by
+  // tolerance if it is.
+  double bds[6];
+  for (i = 0; i < 3; ++i)
+  {
+    if ((bounds[2 * i + 1] - bounds[2 * i]) > 0)
+    {
+      bds[2 * i] = bounds[2 * i];
+      bds[2 * i + 1] = bounds[2 * i + 1];
+    }
+    else
+    {
+      bds[2 * i] = bounds[2 * i] - tol;
+      bds[2 * i + 1] = bounds[2 * i + 1] + tol;
+    }
+  }
+
   //  First find closest planes
   //
   for (i = 0; i < 3; i++)
   {
-    if (origin[i] < bounds[2 * i])
+    if (origin[i] < bds[2 * i])
     {
       quadrant[i] = VTK_LEFT;
-      candidatePlane[i] = bounds[2 * i];
+      candidatePlane[i] = bds[2 * i];
       inside = false;
     }
-    else if (origin[i] > bounds[2 * i + 1])
+    else if (origin[i] > bds[2 * i + 1])
     {
       quadrant[i] = VTK_RIGHT;
-      candidatePlane[i] = bounds[2 * i + 1];
+      candidatePlane[i] = bds[2 * i + 1];
       inside = false;
     }
     else
@@ -402,7 +422,7 @@ char vtkBox::IntersectBox(const double bounds[6], const double origin[3], const 
     if (whichPlane != i)
     {
       coord[i] = origin[i] + maxT[whichPlane] * dir[i];
-      if ((coord[i] < bounds[2 * i] - tolerance) || (coord[i] > bounds[2 * i + 1] + tolerance))
+      if ((coord[i] < bds[2 * i] - tol) || (coord[i] > bds[2 * i + 1] + tol))
       {
         return 0;
       }
