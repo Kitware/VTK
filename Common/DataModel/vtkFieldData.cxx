@@ -678,6 +678,13 @@ bool vtkFieldData::GetRange(const char* name, double range[2], int comp)
 {
   int index;
   this->GetAbstractArray(name, index);
+  if (index == -1)
+  {
+    constexpr double NaN = std::numeric_limits<double>::quiet_NaN();
+    range[0] = NaN;
+    range[1] = NaN;
+    return false;
+  }
   return this->GetRange(index, range, comp);
 }
 
@@ -693,6 +700,13 @@ bool vtkFieldData::GetFiniteRange(const char* name, double range[2], int comp)
 {
   int index;
   this->GetAbstractArray(name, index);
+  if (index == -1)
+  {
+    constexpr double NaN = std::numeric_limits<double>::quiet_NaN();
+    range[0] = NaN;
+    range[1] = NaN;
+    return false;
+  }
   return this->GetFiniteRange(index, range, comp);
 }
 
