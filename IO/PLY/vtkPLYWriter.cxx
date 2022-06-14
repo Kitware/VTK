@@ -16,6 +16,7 @@
 
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
+#include "vtkErrorCode.h"
 #include "vtkFloatArray.h"
 #include "vtkInformation.h"
 #include "vtkObjectFactory.h"
@@ -148,6 +149,7 @@ void vtkPLYWriter::WriteData()
   if (ply == nullptr)
   {
     vtkErrorMacro(<< "Error opening PLY file");
+    this->SetErrorCode(vtkErrorCode::CannotOpenFileError);
     return;
   }
 
