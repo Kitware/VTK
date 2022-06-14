@@ -43,21 +43,23 @@ vtkStandardNewMacro(vtkProbeFilter);
 vtkCxxSetObjectMacro(vtkProbeFilter, CellLocatorPrototype, vtkAbstractCellLocator);
 vtkCxxSetObjectMacro(vtkProbeFilter, FindCellStrategy, vtkFindCellStrategy);
 
-#define CELL_TOLERANCE_FACTOR_SQR 1e-6
+namespace
+{
+constexpr double CELL_TOLERANCE_FACTOR_SQR = 1e-6;
 
-static inline bool IsBlankedCell(vtkUnsignedCharArray* gcells, vtkIdType cellId)
+constexpr unsigned char CELL_GHOST_MASK =
+  vtkDataSetAttributes::HIDDENCELL | vtkDataSetAttributes::DUPLICATECELL;
+
+inline bool IsBlankedCell(vtkUnsignedCharArray* gcells, vtkIdType cellId)
 {
   if (gcells)
   {
     const auto flag = gcells->GetTypedComponent(cellId, 0);
-    return (flag & (vtkDataSetAttributes::HIDDENCELL | vtkDataSetAttributes::DUPLICATECELL)) != 0;
+    return (flag & CELL_GHOST_MASK) != 0;
   }
   return false;
 }
-
-class vtkProbeFilter::vtkVectorOfArrays : public std::vector<vtkDataArray*>
-{
-};
+}
 
 //------------------------------------------------------------------------------
 vtkProbeFilter::vtkProbeFilter()
@@ -69,7 +71,6 @@ vtkProbeFilter::vtkProbeFilter()
   this->SetNumberOfInputPorts(2);
   this->ValidPointMaskArrayName = nullptr;
   this->SetValidPointMaskArrayName("vtkValidPointMask");
-  this->CellArrays = new vtkVectorOfArrays();
 
   this->CellLocatorPrototype = nullptr;
   this->FindCellStrategy = nullptr;
@@ -97,7 +98,6 @@ vtkProbeFilter::~vtkProbeFilter()
   this->SetCellLocatorPrototype(nullptr);
   this->SetFindCellStrategy(nullptr);
 
-  delete this->CellArrays;
   delete this->PointList;
   delete this->CellList;
 }
@@ -302,15 +302,15 @@ void vtkProbeFilter::InitializeForProbing(vtkDataSet* input, vtkDataSet* output)
   // All input PD is passed to output as PD. Those arrays in input CD that are
   // not present in output PD will be passed as output PD.
   vtkPointData* outPD = output->GetPointData();
-  outPD->InterpolateAllocate((*this->PointList), numPts, numPts);
+  outPD->InterpolateAllocate(*this->PointList, numPts, numPts);
 
   vtkCellData* tempCellData = vtkCellData::New();
   // We're okay with copying global ids for cells. we just don't flag them as
   // such.
   tempCellData->CopyAllOn(vtkDataSetAttributes::COPYTUPLE);
-  tempCellData->CopyAllocate((*this->CellList), numPts, numPts);
+  tempCellData->CopyAllocate(*this->CellList, numPts, numPts);
 
-  this->CellArrays->clear();
+  this->CellArrays.clear();
   int numCellArrays = tempCellData->GetNumberOfArrays();
   for (int cc = 0; cc < numCellArrays; cc++)
   {
@@ -318,7 +318,7 @@ void vtkProbeFilter::InitializeForProbing(vtkDataSet* input, vtkDataSet* output)
     if (inArray && inArray->GetName() && !outPD->GetArray(inArray->GetName()))
     {
       outPD->AddArray(inArray);
-      this->CellArrays->push_back(inArray);
+      this->CellArrays.push_back(inArray);
     }
   }
   tempCellData->Delete();
@@ -386,8 +386,8 @@ void vtkProbeFilter::ProbeEmptyPoints(
   vtkPointData *pd, *outPD;
   vtkCellData* cd;
   int subId;
-  double pcoords[3], *weights;
-  double fastweights[256];
+  double pcoords[3];
+  std::vector<double> weights;
 
   vtkDebugMacro(<< "Probing data");
 
@@ -398,15 +398,7 @@ void vtkProbeFilter::ProbeEmptyPoints(
     vtkUnsignedCharArray::SafeDownCast(cd->GetArray(vtkDataSetAttributes::GhostArrayName()));
 
   // lets use a stack allocated array if possible for performance reasons
-  int mcs = source->GetMaxCellSize();
-  if (mcs <= 256)
-  {
-    weights = fastweights;
-  }
-  else
-  {
-    weights = new double[mcs];
-  }
+  weights.reserve(static_cast<size_t>(source->GetMaxCellSize()));
 
   numPts = input->GetNumberOfPoints();
   outPD = output->GetPointData();
@@ -447,8 +439,7 @@ void vtkProbeFilter::ProbeEmptyPoints(
   // vtkDataSet::FindCell() is used to accelerate the search.
   vtkFindCellStrategy* strategy = nullptr;
   vtkNew<vtkCellLocatorStrategy> cellLocStrategy;
-  vtkPointSet* ps;
-  if ((ps = vtkPointSet::SafeDownCast(source)) != nullptr)
+  if (auto ps = vtkPointSet::SafeDownCast(source))
   {
     if (this->FindCellStrategy != nullptr)
     {
@@ -457,11 +448,20 @@ void vtkProbeFilter::ProbeEmptyPoints(
     }
     else if (this->CellLocatorPrototype != nullptr)
     {
-      cellLocStrategy->SetCellLocator(this->CellLocatorPrototype->NewInstance());
-      cellLocStrategy->GetCellLocator()->SetDataSet(source);
-      cellLocStrategy->GetCellLocator()->Update();
-      strategy = static_cast<vtkFindCellStrategy*>(cellLocStrategy.GetPointer());
-      cellLocStrategy->GetCellLocator()->UnRegister(this); // strategy took ownership
+      // if the existing locator is not the same type, set the locator of dataset instead of the
+      // strategy to allow other filters to reuse the locator.
+      auto existingLocator = ps->GetCellLocator();
+      bool sameLocatorType =
+        existingLocator ? this->CellLocatorPrototype->IsA(existingLocator->GetClassName()) : false;
+      if (!sameLocatorType)
+      {
+        auto cellLocator = vtk::TakeSmartPointer(this->CellLocatorPrototype->NewInstance());
+        ps->SetCellLocator(cellLocator);
+        cellLocator->SetDataSet(ps);
+        cellLocator->BuildLocator();
+      }
+      cellLocStrategy->Initialize(ps);
+      strategy = cellLocStrategy;
     }
   }
 
@@ -499,8 +499,8 @@ void vtkProbeFilter::ProbeEmptyPoints(
     input->GetPoint(ptId, x);
 
     vtkIdType cellId = (strategy != nullptr)
-      ? strategy->FindCell(x, nullptr, gcell.GetPointer(), -1, tol2, subId, pcoords, weights)
-      : source->FindCell(x, nullptr, -1, tol2, subId, pcoords, weights);
+      ? strategy->FindCell(x, nullptr, gcell, -1, tol2, subId, pcoords, weights.data())
+      : source->FindCell(x, nullptr, -1, tol2, subId, pcoords, weights.data());
 
     vtkCell* cell = nullptr;
     if (cellId >= 0 && !::IsBlankedCell(sourceGhostFlags, cellId))
@@ -512,25 +512,21 @@ void vtkProbeFilter::ProbeEmptyPoints(
         // cell length.
         double dist2;
         double closestPoint[3];
-        cell->EvaluatePosition(x, closestPoint, subId, pcoords, dist2, weights);
+        cell->EvaluatePosition(x, closestPoint, subId, pcoords, dist2, weights.data());
         if (dist2 > (cell->GetLength2() * CELL_TOLERANCE_FACTOR_SQR))
         {
           continue;
         }
       }
-    }
 
-    if (cell)
-    {
       // Interpolate the point data
-      outPD->InterpolatePoint((*this->PointList), pd, srcIdx, ptId, cell->PointIds, weights);
-      vtkVectorOfArrays::iterator iter;
-      for (iter = this->CellArrays->begin(); iter != this->CellArrays->end(); ++iter)
+      outPD->InterpolatePoint(*this->PointList, pd, srcIdx, ptId, cell->PointIds, weights.data());
+      for (auto& cellArray : this->CellArrays)
       {
-        vtkDataArray* inArray = cd->GetArray((*iter)->GetName());
+        vtkDataArray* inArray = cd->GetArray(cellArray->GetName());
         if (inArray)
         {
-          outPD->CopyTuple(inArray, *iter, cellId, ptId);
+          outPD->CopyTuple(inArray, cellArray, cellId, ptId);
         }
       }
       maskArray[ptId] = static_cast<char>(1);
@@ -538,10 +534,6 @@ void vtkProbeFilter::ProbeEmptyPoints(
   }
 
   this->MaskPoints->Modified();
-  if (mcs > 256)
-  {
-    delete[] weights;
-  }
 }
 
 //------------------------------------------------------------------------------
@@ -629,17 +621,15 @@ void vtkProbeFilter::ProbeImagePointsInCell(vtkCell* cell, vtkIdType cellId, vtk
           vtkIdType ptId = ix + dim[0] * (iy + dim[1] * iz);
 
           // Interpolate the point data
-          outPD->InterpolatePoint(
-            (*this->PointList), pd, srcBlockId, ptId, cell->PointIds, wtsBuff);
+          outPD->InterpolatePoint(*this->PointList, pd, srcBlockId, ptId, cell->PointIds, wtsBuff);
 
           // Assign cell data
-          vtkVectorOfArrays::iterator iter;
-          for (iter = this->CellArrays->begin(); iter != this->CellArrays->end(); ++iter)
+          for (auto& cellArray : this->CellArrays)
           {
-            vtkDataArray* inArray = cd->GetArray((*iter)->GetName());
+            vtkDataArray* inArray = cd->GetArray(cellArray->GetName());
             if (inArray)
             {
-              outPD->CopyTuple(inArray, *iter, cellId, ptId);
+              outPD->CopyTuple(inArray, cellArray, cellId, ptId);
             }
           }
 
@@ -684,7 +674,7 @@ public:
     {
       std::vector<double>& dynamicweights = this->WeightsBuffer.Local();
       dynamicweights.resize(this->MaxCellSize);
-      weights = &dynamicweights[0];
+      weights = dynamicweights.data();
     }
 
     auto sourceGhostFlags = vtkUnsignedCharArray::SafeDownCast(
@@ -897,14 +887,13 @@ void vtkProbeFilter::ProbeImageDataPointsSMP(vtkDataSet* input, vtkImageData* so
       source->GetCellPoints(cellId, pointIds);
 
       // Interpolate the point data
-      outPD->InterpolatePoint((*this->PointList), pd, srcIdx, ptId, pointIds, weights);
-      vtkVectorOfArrays::iterator iter;
-      for (iter = this->CellArrays->begin(); iter != this->CellArrays->end(); ++iter)
+      outPD->InterpolatePoint(*this->PointList, pd, srcIdx, ptId, pointIds, weights);
+      for (auto& cellArray : this->CellArrays)
       {
-        vtkDataArray* inArray = cd->GetArray((*iter)->GetName());
+        vtkDataArray* inArray = cd->GetArray(cellArray->GetName());
         if (inArray)
         {
-          outPD->CopyTuple(inArray, *iter, cellId, ptId);
+          outPD->CopyTuple(inArray, cellArray, cellId, ptId);
         }
       }
       maskArray[ptId] = static_cast<char>(1);
