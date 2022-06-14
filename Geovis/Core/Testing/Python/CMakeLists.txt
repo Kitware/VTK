@@ -1,4 +1,5 @@
 vtk_add_test_python(
+  TestGeoProjectionBounds.py,NO_DATA,NO_VALID,
   TestGeoProjection.py,NO_DATA,NO_VALID,
   )
 
