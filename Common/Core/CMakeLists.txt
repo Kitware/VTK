@@ -144,6 +144,7 @@ set(classes
   vtkArrayRange
   vtkArraySort
   vtkArrayWeights
+  vtkAtomicMutex
   vtkBitArray
   vtkBitArrayIterator
   vtkBoxMuellerRandomSequence

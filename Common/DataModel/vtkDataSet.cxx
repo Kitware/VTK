@@ -1063,18 +1063,62 @@ vtkUnsignedCharArray* vtkDataSet::AllocateCellGhostArray()
   return this->CellGhostArray;
 }
 
+namespace
+{
+struct IsAnyBitSetFunctor
+{
+  unsigned char* BitSet;
+  int BitFlag;
+  int IsAnyBit;
+  vtkSMPThreadLocal<unsigned char> TLIsAnyBit;
+
+  IsAnyBitSetFunctor(vtkUnsignedCharArray* BitSet, int BitFlag)
+    : BitSet(BitSet->GetPointer(0))
+    , BitFlag(BitFlag)
+  {
+  }
+
+  void Initialize() { this->TLIsAnyBit.Local() = 0; }
+
+  void operator()(vtkIdType begin, vtkIdType end)
+  {
+    if (this->TLIsAnyBit.Local())
+    {
+      return;
+    }
+    for (vtkIdType i = begin; i < end; ++i)
+    {
+      if (this->BitSet[i] & this->BitFlag)
+      {
+        this->TLIsAnyBit.Local() = 1;
+        return;
+      }
+    }
+  }
+
+  void Reduce()
+  {
+    this->IsAnyBit = 0;
+    for (auto& isAnyBit : this->TLIsAnyBit)
+    {
+      if (isAnyBit)
+      {
+        this->IsAnyBit = 1;
+        break;
+      }
+    }
+  }
+};
+}
+
 //------------------------------------------------------------------------------
 bool vtkDataSet::IsAnyBitSet(vtkUnsignedCharArray* a, int bitFlag)
 {
   if (a)
   {
-    for (vtkIdType i = 0; i < a->GetNumberOfTuples(); ++i)
-    {
-      if (a->GetValue(i) & bitFlag)
-      {
-        return true;
-      }
-    }
+    IsAnyBitSetFunctor isAnyBitSetFunctor(a, bitFlag);
+    vtkSMPTools::For(0, a->GetNumberOfTuples(), isAnyBitSetFunctor);
+    return isAnyBitSetFunctor.IsAnyBit;
   }
   return false;
 }

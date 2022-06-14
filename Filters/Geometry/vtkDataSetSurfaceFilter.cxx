@@ -628,7 +628,7 @@ int vtkDataSetSurfaceFilter::StructuredExecute(
       TRACE, "StructuredExecute Using GeometryFilter (fastMode=%d)", (int)this->GetFastMode());
     vtkNew<vtkGeometryFilter> geometryFilter;
     vtkGeometryFilterHelper::CopyFilterParams(this, geometryFilter);
-    return geometryFilter->StructuredExecute(input, output, nullptr, nullptr);
+    return geometryFilter->StructuredExecute(input, output, nullptr, nullptr, nullptr);
   }
 
   if (::StructuredExecuteWithBlanking(vtkImageData::SafeDownCast(input), output, this) ||
@@ -1281,7 +1281,8 @@ void vtkDataSetSurfaceFilter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "OriginalCellIdsName: " << this->GetOriginalCellIdsName() << endl;
   os << indent << "OriginalPointIdsName: " << this->GetOriginalPointIdsName() << endl;
   os << indent << "NonlinearSubdivisionLevel: " << this->GetNonlinearSubdivisionLevel() << endl;
-  os << indent << "FastMode: " << this->FastMode << endl;
+  os << indent << "FastMode: " << this->GetFastMode() << endl;
+  os << indent << "Delegation: " << this->GetDelegation() << endl;
 }
 
 //========================================================================
