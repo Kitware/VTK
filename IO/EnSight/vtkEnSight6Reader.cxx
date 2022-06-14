@@ -584,6 +584,8 @@ int vtkEnSight6Reader::ReadScalarsPerNode(const char* fileName, const char* desc
     {
       this->ReadLine(line);
     }
+
+    scalars->SetName(description);
     if (!measured)
     {
       for (i = 0; i < this->UnstructuredPartIds->GetNumberOfIds(); i++)
@@ -594,7 +596,6 @@ int vtkEnSight6Reader::ReadScalarsPerNode(const char* fileName, const char* desc
         {
           if (component == 0)
           {
-            scalars->SetName(description);
             output->GetPointData()->AddArray(scalars);
             if (!output->GetPointData()->GetScalars())
             {
@@ -610,7 +611,6 @@ int vtkEnSight6Reader::ReadScalarsPerNode(const char* fileName, const char* desc
     }
     else
     {
-      scalars->SetName(description);
       output = static_cast<vtkDataSet*>(
         this->GetDataSetFromBlock(compositeOutput, this->NumberOfGeometryParts));
       if (output)
@@ -792,6 +792,7 @@ int vtkEnSight6Reader::ReadVectorsPerNode(const char* fileName, const char* desc
     vectors = vtkFloatArray::New();
     vectors->SetNumberOfTuples(numPts);
     vectors->SetNumberOfComponents(3);
+    vectors->SetName(description);
     vectors->Allocate(numPts * 3);
     for (i = 0; i < numLines; i++)
     {
@@ -813,23 +814,25 @@ int vtkEnSight6Reader::ReadVectorsPerNode(const char* fileName, const char* desc
     {
       this->ReadLine(line);
     }
+
     if (!measured)
     {
       for (i = 0; i < this->UnstructuredPartIds->GetNumberOfIds(); i++)
       {
         partId = this->UnstructuredPartIds->GetId(i);
-        vectors->SetName(description);
         output = static_cast<vtkDataSet*>(this->GetDataSetFromBlock(compositeOutput, partId));
-        output->GetPointData()->AddArray(vectors);
-        if (!output->GetPointData()->GetVectors())
+        if (output)
         {
-          output->GetPointData()->SetVectors(vectors);
+          output->GetPointData()->AddArray(vectors);
+          if (!output->GetPointData()->GetVectors())
+          {
+            output->GetPointData()->SetVectors(vectors);
+          }
         }
       }
     }
     else
     {
-      vectors->SetName(description);
       output = static_cast<vtkDataSet*>(
         this->GetDataSetFromBlock(compositeOutput, this->NumberOfGeometryParts));
       output->GetPointData()->AddArray(vectors);
@@ -856,6 +859,7 @@ int vtkEnSight6Reader::ReadVectorsPerNode(const char* fileName, const char* desc
     vectors = vtkFloatArray::New();
     vectors->SetNumberOfTuples(numPts);
     vectors->SetNumberOfComponents(3);
+    vectors->SetName(description);
     vectors->Allocate(numPts * 3);
 
     for (k = 0; k < 3; k++)
@@ -882,7 +886,6 @@ int vtkEnSight6Reader::ReadVectorsPerNode(const char* fileName, const char* desc
         }
       }
     }
-    vectors->SetName(description);
     output->GetPointData()->AddArray(vectors);
     if (!output->GetPointData()->GetVectors())
     {
@@ -987,6 +990,7 @@ int vtkEnSight6Reader::ReadTensorsPerNode(const char* fileName, const char* desc
     tensors = vtkFloatArray::New();
     tensors->SetNumberOfTuples(numPts);
     tensors->SetNumberOfComponents(6);
+    tensors->SetName(description);
     tensors->Allocate(numPts * 6);
     for (i = 0; i < numLines; i++)
     {
@@ -999,8 +1003,11 @@ int vtkEnSight6Reader::ReadTensorsPerNode(const char* fileName, const char* desc
     for (i = 0; i < this->UnstructuredPartIds->GetNumberOfIds(); i++)
     {
       partId = this->UnstructuredPartIds->GetId(i);
-      tensors->SetName(description);
-      this->GetDataSetFromBlock(compositeOutput, partId)->GetPointData()->AddArray(tensors);
+      output = this->GetDataSetFromBlock(compositeOutput, partId);
+      if (output)
+      {
+        output->GetPointData()->AddArray(tensors);
+      }
     }
     tensors->Delete();
   }
@@ -1022,6 +1029,7 @@ int vtkEnSight6Reader::ReadTensorsPerNode(const char* fileName, const char* desc
     tensors = vtkFloatArray::New();
     tensors->SetNumberOfTuples(numPts);
     tensors->SetNumberOfComponents(6);
+    tensors->SetName(description);
     tensors->Allocate(numPts * 6);
 
     for (k = 0; k < 6; k++)
@@ -1048,7 +1056,6 @@ int vtkEnSight6Reader::ReadTensorsPerNode(const char* fileName, const char* desc
         }
       }
     }
-    tensors->SetName(description);
     output->GetPointData()->AddArray(tensors);
     tensors->Delete();
     lineRead = this->ReadNextDataLine(line);
@@ -1309,6 +1316,7 @@ int vtkEnSight6Reader::ReadVectorsPerElement(const char* fileName, const char* d
     this->ReadNextDataLine(line); // element type or "block"
     vectors->SetNumberOfTuples(numCells);
     vectors->SetNumberOfComponents(3);
+    vectors->SetName(description);
     vectors->Allocate(numCells * 3);
 
     // need to find out from CellIds how many cells we have of this element
@@ -1382,7 +1390,6 @@ int vtkEnSight6Reader::ReadVectorsPerElement(const char* fileName, const char* d
         lineRead = this->ReadNextDataLine(line);
       } // end while
     }   // end else
-    vectors->SetName(description);
     output->GetCellData()->AddArray(vectors);
     if (!output->GetCellData()->GetVectors())
     {
@@ -1481,6 +1488,7 @@ int vtkEnSight6Reader::ReadTensorsPerElement(const char* fileName, const char* d
     this->ReadNextDataLine(line); // element type or "block"
     tensors->SetNumberOfTuples(numCells);
     tensors->SetNumberOfComponents(6);
+    tensors->SetName(description);
     tensors->Allocate(numCells * 6);
 
     // need to find out from CellIds how many cells we have of this element
@@ -1543,7 +1551,6 @@ int vtkEnSight6Reader::ReadTensorsPerElement(const char* fileName, const char* d
         lineRead = this->ReadNextDataLine(line);
       } // end while
     }   // end else
-    tensors->SetName(description);
     output->GetCellData()->AddArray(tensors);
     tensors->Delete();
   }
