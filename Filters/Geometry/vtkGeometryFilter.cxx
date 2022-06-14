@@ -2313,7 +2313,7 @@ int ExecutePolyData(vtkGeometryFilter* self, vtkDataSet* dataSetInput, vtkPolyDa
   unsigned char* cellGhosts = nullptr;
   vtkStaticCellLinksTemplate<TInputIdType>* links = (exc == nullptr ? nullptr : exc->Links);
 
-  vtkDebugMacro(<< "Executing geometry filter for poly data input");
+  vtkDebugWithObjectMacro(self, << "Executing geometry filter for poly data input");
 
   vtkUnsignedCharArray* temp = nullptr;
   if (cd)
@@ -2322,7 +2322,7 @@ int ExecutePolyData(vtkGeometryFilter* self, vtkDataSet* dataSetInput, vtkPolyDa
   }
   if (!temp)
   {
-    vtkDebugMacro("No appropriate ghost levels field available.");
+    vtkDebugWithObjectMacro(self, "No appropriate ghost levels field available.");
   }
   else
   {
@@ -2407,7 +2407,7 @@ int ExecutePolyData(vtkGeometryFilter* self, vtkDataSet* dataSetInput, vtkPolyDa
     // Progress and abort method support
     if (!(cellId % progressInterval))
     {
-      vtkDebugMacro(<< "Process cell #" << cellId);
+      vtkDebugWithObjectMacro(self, << "Process cell #" << cellId);
       self->UpdateProgress(static_cast<double>(cellId) / numCells);
     }
 
@@ -2459,8 +2459,8 @@ int ExecutePolyData(vtkGeometryFilter* self, vtkDataSet* dataSetInput, vtkPolyDa
   //
   output->Squeeze();
 
-  vtkDebugMacro(<< "Extracted " << output->GetNumberOfPoints() << " points,"
-                << output->GetNumberOfCells() << " cells.");
+  vtkDebugWithObjectMacro(self, << "Extracted " << output->GetNumberOfPoints() << " points,"
+                                << output->GetNumberOfCells() << " cells.");
 
   return 1;
 }
@@ -2686,7 +2686,7 @@ int ExecuteUnstructuredGrid(vtkGeometryFilter* self, vtkDataSet* dataSetInput, v
   vtkUnstructuredGridBase* uGridBase = vtkUnstructuredGridBase::SafeDownCast(dataSetInput);
   if (uGridBase->GetNumberOfCells() == 0)
   {
-    vtkDebugMacro(<< "Nothing to extract");
+    vtkDebugWithObjectMacro(self, << "Nothing to extract");
     return 0;
   }
   vtkUnstructuredGrid* uGrid = vtkUnstructuredGrid::SafeDownCast(uGridBase);
@@ -2734,7 +2734,7 @@ int ExecuteUnstructuredGrid(vtkGeometryFilter* self, vtkDataSet* dataSetInput, v
   unsigned char* cellGhosts = nullptr;
   unsigned char* pointGhosts = nullptr;
 
-  vtkDebugMacro(<< "Executing geometry filter for unstructured grid input");
+  vtkDebugWithObjectMacro(self, << "Executing geometry filter for unstructured grid input");
 
   vtkDataArray* temp = nullptr;
   if (inCD)
@@ -2743,7 +2743,7 @@ int ExecuteUnstructuredGrid(vtkGeometryFilter* self, vtkDataSet* dataSetInput, v
   }
   if ((!temp) || (temp->GetDataType() != VTK_UNSIGNED_CHAR) || (temp->GetNumberOfComponents() != 1))
   {
-    vtkDebugMacro("No appropriate ghost levels field available.");
+    vtkDebugWithObjectMacro(self, "No appropriate ghost levels field available.");
   }
   else
   {
@@ -2755,7 +2755,7 @@ int ExecuteUnstructuredGrid(vtkGeometryFilter* self, vtkDataSet* dataSetInput, v
   }
   if ((!temp) || (temp->GetDataType() != VTK_UNSIGNED_CHAR) || (temp->GetNumberOfComponents() != 1))
   {
-    vtkDebugMacro("No appropriate ghost levels field available.");
+    vtkDebugWithObjectMacro(self, "No appropriate ghost levels field available.");
   }
   else
   {
@@ -2935,8 +2935,8 @@ int ExecuteUnstructuredGrid(vtkGeometryFilter* self, vtkDataSet* dataSetInput, v
     }
   }
 
-  vtkDebugMacro(<< "Extracted " << output->GetNumberOfPoints() << " points,"
-                << output->GetNumberOfCells() << " cells.");
+  vtkDebugWithObjectMacro(self, << "Extracted " << output->GetNumberOfPoints() << " points,"
+                                << output->GetNumberOfCells() << " cells.");
 
   // Clean up and get out
   delete extract;
@@ -3141,8 +3141,8 @@ int ExecuteStructured(vtkGeometryFilter* self, vtkDataSet* input, vtkPolyData* o
     }
   }
 
-  vtkDebugMacro(<< "Extracted " << output->GetNumberOfPoints() << " points,"
-                << output->GetNumberOfCells() << " cells.");
+  vtkDebugWithObjectMacro(self, << "Extracted " << output->GetNumberOfPoints() << " points,"
+                                << output->GetNumberOfCells() << " cells.");
 
   delete extStr;
   return 1;
@@ -3218,7 +3218,7 @@ int ExecuteDataSet(vtkGeometryFilter* self, vtkDataSet* input, vtkPolyData* outp
   unsigned char* cellGhosts = nullptr;
   unsigned char* pointGhosts = nullptr;
 
-  vtkDebugMacro(<< "Executing geometry filter");
+  vtkDebugWithObjectMacro(self, << "Executing geometry filter");
 
   vtkDataArray* temp = nullptr;
   if (inCD)
@@ -3227,7 +3227,7 @@ int ExecuteDataSet(vtkGeometryFilter* self, vtkDataSet* input, vtkPolyData* outp
   }
   if ((!temp) || (temp->GetDataType() != VTK_UNSIGNED_CHAR) || (temp->GetNumberOfComponents() != 1))
   {
-    vtkDebugMacro("No appropriate ghost levels field available.");
+    vtkDebugWithObjectMacro(self, "No appropriate ghost levels field available.");
   }
   else
   {
@@ -3239,7 +3239,7 @@ int ExecuteDataSet(vtkGeometryFilter* self, vtkDataSet* input, vtkPolyData* outp
   }
   if ((!temp) || (temp->GetDataType() != VTK_UNSIGNED_CHAR) || (temp->GetNumberOfComponents() != 1))
   {
-    vtkDebugMacro("No appropriate ghost levels field available.");
+    vtkDebugWithObjectMacro(self, "No appropriate ghost levels field available.");
   }
   else
   {
@@ -3399,8 +3399,8 @@ int ExecuteDataSet(vtkGeometryFilter* self, vtkDataSet* input, vtkPolyData* outp
     }
   }
 
-  vtkDebugMacro(<< "Extracted " << output->GetNumberOfPoints() << " points,"
-                << output->GetNumberOfCells() << " cells.");
+  vtkDebugWithObjectMacro(self, << "Extracted " << output->GetNumberOfPoints() << " points,"
+                                << output->GetNumberOfCells() << " cells.");
 
   return 1;
 }
