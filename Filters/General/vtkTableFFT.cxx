@@ -64,6 +64,46 @@ constexpr static std::array<vtkFFT::WindowGenerator, vtkTableFFT::MAX_WINDOWING_
   vtkFFT::RectangularGenerator
 };
 // clang-format on
+
+//------------------------------------------------------------------------------
+template <typename T>
+void CopyTuple(vtkDataArray* source, size_t sindex, std::vector<T>& target, size_t tindex)
+{
+  target[tindex] = source->GetTuple1(sindex + tindex);
+}
+template <>
+void CopyTuple(
+  vtkDataArray* source, size_t sindex, std::vector<vtkFFT::ComplexNumber>& target, size_t tindex)
+{
+  double* tuple = source->GetTuple2(sindex + tindex);
+  target[tindex].r = tuple[0];
+  target[tindex].i = tuple[1];
+}
+
+//------------------------------------------------------------------------------
+template <typename T>
+T Zero()
+{
+  return 0.0;
+}
+template <>
+vtkFFT::ComplexNumber Zero()
+{
+  return vtkFFT::ComplexNumber{ 0.0, 0.0 };
+}
+
+//------------------------------------------------------------------------------
+template <typename T>
+std::vector<vtkFFT::ComplexNumber> DispatchFFT(const std::vector<T>& in, bool realFft)
+{
+  return realFft ? vtkFFT::RFft(in) : vtkFFT::Fft(in);
+}
+template <>
+std::vector<vtkFFT::ComplexNumber> DispatchFFT(
+  const std::vector<vtkFFT::ComplexNumber>& in, bool vtkNotUsed(realFft))
+{
+  return vtkFFT::Fft(in);
+}
 }
 
 //------------------------------------------------------------------------------
@@ -88,6 +128,53 @@ struct vtkTableFFT::vtkInternal
     this->WindowPonderation = (window == vtkTableFFT::RECTANGULAR)
       ? 1.0
       : details::WindowEnergy(this->Window.begin(), this->Window.end());
+  }
+
+  template <typename T>
+  std::vector<vtkFFT::ComplexNumber> DoWelchMethod(vtkDataArray* input, size_t nblocks,
+    size_t blocksize, bool normalize, bool windowing, bool optimize = false)
+  {
+    nblocks = this->Average ? std::max(size_t(1), nblocks) : 1;
+    const std::size_t nsamples = input->GetNumberOfTuples();
+    const std::size_t outSize = this->OutputSize;
+    const std::size_t stepSize = (nblocks <= 1) ? 0 : (nsamples - blocksize - 1) / (nblocks - 1);
+
+    std::vector<vtkFFT::ComplexNumber> resFft(outSize, vtkFFT::ComplexNumber{ 0.0, 0.0 });
+    const double blockCoef = 1.0 / nblocks;
+    for (std::size_t b = 0; b < nblocks; ++b)
+    {
+      // Copy data from input to block
+      vtkIdType startBlock = b * stepSize;
+      std::vector<T> block(blocksize);
+      for (std::size_t i = 0; i < blocksize; ++i)
+      {
+        details::CopyTuple<T>(input, startBlock, block, i);
+      }
+
+      // Remove mean signal for each block and apply windowing function
+      if (normalize || windowing)
+      {
+        T mean = details::Zero<T>();
+        if (normalize)
+        {
+          mean = std::accumulate(block.begin(), block.end(), details::Zero<T>()) / blocksize;
+        }
+        const auto& window = this->Window;
+        for (std::size_t i = 0; i < blocksize; ++i)
+        {
+          block[i] = (block[i] - mean) * window[i];
+        }
+      }
+
+      // Compute fft and increment
+      std::vector<vtkFFT::ComplexNumber> fft = details::DispatchFFT(block, optimize);
+      for (std::size_t i = 0; i < fft.size(); ++i)
+      {
+        resFft[i] = resFft[i] + fft[i] * blockCoef;
+      }
+    }
+
+    return resFft;
   }
 };
 
@@ -139,7 +226,9 @@ int vtkTableFFT::RequestData(vtkInformation* vtkNotUsed(request),
     }
     // else if we can and should process the data array for the FFT, do it
     else if (dataArray && !vtksys::SystemTools::StringStartsWith(arrayName, "vtk") &&
-      dataArray->GetNumberOfComponents() == 1 && !array->IsA("vtkIdTypeArray"))
+      (dataArray->GetNumberOfComponents() == 1 ||
+        (dataArray->GetNumberOfComponents() == 2 && !this->OptimizeForRealInput)) &&
+      !array->IsA("vtkIdTypeArray"))
     {
       vtkSmartPointer<vtkDataArray> fft = this->DoFFT(dataArray);
       std::string newArrayName =
@@ -197,14 +286,26 @@ void vtkTableFFT::Initialize(vtkTable* input)
   std::size_t nsamples = input->GetNumberOfRows();
   vtkDataArray* timeArray = nullptr;
   vtkIdType numColumns = input->GetNumberOfColumns();
+  bool imaginaryColumnFound = false;
   for (vtkIdType col = 0; col < numColumns; col++)
   {
-    if (vtksys::SystemTools::Strucmp(input->GetColumn(col)->GetName(), "time") == 0)
+    vtkAbstractArray* column = input->GetColumn(col);
+
+    if (vtksys::SystemTools::Strucmp(column->GetName(), "time") == 0)
     {
       timeArray = vtkDataArray::SafeDownCast(input->GetColumn(col));
       break;
     }
+
+    imaginaryColumnFound |= (column->GetNumberOfComponents() == 2);
   }
+
+  if (this->OptimizeForRealInput && imaginaryColumnFound)
+  {
+    vtkWarningMacro("OptimizeForRealInput is True but found columns with 2 components"
+                    " (interpreted as imaginary data). Imaginary columns will be ignored.");
+  }
+
   if (timeArray && timeArray->GetNumberOfTuples() > 1)
   {
     double deltaT = timeArray->GetTuple1(1) - timeArray->GetTuple1(0);
@@ -248,45 +349,19 @@ void vtkTableFFT::Initialize(vtkTable* input)
 //------------------------------------------------------------------------------
 vtkSmartPointer<vtkDataArray> vtkTableFFT::DoFFT(vtkDataArray* input)
 {
-  const std::size_t nsamples = input->GetNumberOfValues();
-  const std::size_t nblocks =
-    this->Internals->Average ? static_cast<std::size_t>(std::max(1, this->NumberOfBlock)) : 1;
-  const double blockCoef = 1.0 / nblocks;
-  const std::size_t nfft = this->Internals->Window.size();
-  const std::size_t outSize = this->Internals->OutputSize;
-  const std::size_t stepSize = (nblocks <= 1) ? 0 : (nsamples - nfft - 1) / (nblocks - 1);
+  const std::size_t blocksize = this->Internals->Window.size();
 
-  std::vector<vtkFFT::ComplexNumber> resFft(outSize, vtkFFT::ComplexNumber{ 0.0, 0.0 });
-  for (std::size_t b = 0; b < nblocks; ++b)
+  std::vector<vtkFFT::ComplexNumber> fft;
+  if (input->GetNumberOfComponents() == 1)
   {
-    // Copy data from input to block
-    vtkIdType startBlock = b * stepSize;
-    std::vector<vtkFFT::ScalarNumber> block(nfft);
-    for (std::size_t i = 0; i < nfft; ++i)
-    {
-      block[i] = input->GetTuple1(startBlock + i);
-    }
-
-    // Remove mean signal for each block and apply windowing function
-    if (this->Normalize || this->WindowingFunction != RECTANGULAR)
-    {
-      const double mean =
-        this->Normalize ? std::accumulate(block.begin(), block.end(), 0.0) / nfft : 0.0;
-      const auto& window = this->Internals->Window;
-      for (std::size_t i = 0; i < nfft; ++i)
-      {
-        block[i] = (block[i] - mean) * window[i];
-      }
-    }
-
-    // Compute fft and increment
-    std::vector<vtkFFT::ComplexNumber> fft =
-      this->OptimizeForRealInput ? vtkFFT::RFft(block) : vtkFFT::Fft(block);
-    for (std::size_t i = 0; i < fft.size(); ++i)
-    {
-      resFft[i].r += blockCoef * fft[i].r;
-      resFft[i].i += blockCoef * fft[i].i;
-    }
+    fft =
+      this->Internals->DoWelchMethod<vtkFFT::ScalarNumber>(input, this->NumberOfBlock, blocksize,
+        this->Normalize, this->WindowingFunction != RECTANGULAR, this->OptimizeForRealInput);
+  }
+  else if (input->GetNumberOfComponents() == 2)
+  {
+    fft = this->Internals->DoWelchMethod<vtkFFT::ComplexNumber>(input, this->NumberOfBlock,
+      blocksize, this->Normalize, this->WindowingFunction != RECTANGULAR);
   }
 
   vtkSmartPointer<vtkDataArray> output;
@@ -294,23 +369,23 @@ vtkSmartPointer<vtkDataArray> vtkTableFFT::DoFFT(vtkDataArray* input)
   if (this->Normalize)
   {
     const double norm =
-      1.0 / (this->Internals->WindowPonderation * nfft * this->Internals->SampleRate);
+      1.0 / (this->Internals->WindowPonderation * blocksize * this->Internals->SampleRate);
     output->SetNumberOfComponents(1);
-    output->SetNumberOfTuples(outSize);
+    output->SetNumberOfTuples(fft.size());
 
-    output->SetTuple1(0, vtkFFT::Abs(resFft[0]) * norm);
-    for (std::size_t i = 1; i < outSize; ++i)
+    output->SetTuple1(0, vtkFFT::Abs(fft[0]) * norm);
+    for (std::size_t i = 1; i < fft.size(); ++i)
     {
-      output->SetTuple1(i, vtkFFT::Abs(resFft[i]) * 2.0 * norm);
+      output->SetTuple1(i, vtkFFT::Abs(fft[i]) * 2.0 * norm);
     }
   }
   else
   {
     output->SetNumberOfComponents(2);
-    output->SetNumberOfTuples(outSize);
-    for (std::size_t i = 0; i < outSize; ++i)
+    output->SetNumberOfTuples(fft.size());
+    for (std::size_t i = 0; i < fft.size(); ++i)
     {
-      output->SetTuple2(i, resFft[i].r, resFft[i].i);
+      output->SetTuple2(i, fft[i].r, fft[i].i);
     }
   }
 

@@ -159,6 +159,41 @@ private:
 };
 
 //------------------------------------------------------------------------------
+inline vtkFFT::ComplexNumber operator+(
+  const vtkFFT::ComplexNumber& lhs, const vtkFFT::ComplexNumber& rhs)
+{
+  return vtkFFT::ComplexNumber{ lhs.r + rhs.r, lhs.i + rhs.i };
+}
+inline vtkFFT::ComplexNumber operator-(
+  const vtkFFT::ComplexNumber& lhs, const vtkFFT::ComplexNumber& rhs)
+{
+  return vtkFFT::ComplexNumber{ lhs.r - rhs.r, lhs.i - rhs.i };
+}
+inline vtkFFT::ComplexNumber operator*(
+  const vtkFFT::ComplexNumber& lhs, const vtkFFT::ComplexNumber& rhs)
+{
+  return vtkFFT::ComplexNumber{ (lhs.r * rhs.r) - (lhs.i * rhs.i),
+    (lhs.r * rhs.i) + (lhs.i * rhs.r) };
+}
+inline vtkFFT::ComplexNumber operator*(
+  const vtkFFT::ComplexNumber& lhs, const vtkFFT::ScalarNumber& rhs)
+{
+  return vtkFFT::ComplexNumber{ lhs.r * rhs, lhs.i * rhs };
+}
+inline vtkFFT::ComplexNumber operator/(
+  const vtkFFT::ComplexNumber& lhs, const vtkFFT::ComplexNumber& rhs)
+{
+  const double divisor = rhs.r * rhs.r + rhs.i * rhs.i;
+  return vtkFFT::ComplexNumber{ ((lhs.r * rhs.r) + (lhs.i * rhs.i)) / divisor,
+    ((lhs.i * rhs.r) - (lhs.r * rhs.i)) / divisor };
+}
+inline vtkFFT::ComplexNumber operator/(
+  const vtkFFT::ComplexNumber& lhs, const vtkFFT::ScalarNumber& rhs)
+{
+  return vtkFFT::ComplexNumber{ lhs.r / rhs, lhs.i / rhs };
+}
+
+//------------------------------------------------------------------------------
 double vtkFFT::Abs(const ComplexNumber& in)
 {
   return std::sqrt(in.r * in.r + in.i * in.i);
