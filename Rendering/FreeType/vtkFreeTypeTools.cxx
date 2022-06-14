@@ -972,9 +972,9 @@ bool vtkFreeTypeTools::LookupFace(vtkTextProperty* tprop, FT_Library lib, FT_Fac
   // If font family is unknown, fall back to Arial.
   if (family == VTK_UNKNOWN_FONT)
   {
-    vtkWarningWithObjectMacro(tprop, << "Requested font '" << tprop->GetFontFamilyAsString()
-                                     << "'"
-                                        " unavailable. Substituting Arial.");
+    vtkDebugWithObjectMacro(tprop, << "Requested font '" << tprop->GetFontFamilyAsString()
+                                   << "'"
+                                      " unavailable. Substituting Arial.");
     family = VTK_ARIAL;
   }
   else if (family == VTK_FONT_FILE)
@@ -987,7 +987,7 @@ bool vtkFreeTypeTools::LookupFace(vtkTextProperty* tprop, FT_Library lib, FT_Fac
       return true;
     }
 
-    vtkWarningWithObjectMacro(tprop,
+    vtkDebugWithObjectMacro(tprop,
       << "Error loading font from file '" << tprop->GetFontFile() << "'. Falling back to arial.");
     family = VTK_ARIAL;
   }
@@ -2413,7 +2413,7 @@ void vtkFreeTypeTools::GetLineMetrics(std::string::const_iterator begin,
     {
       // FIXME: do something more elegant here.
       // We should render an empty rectangle to adhere to the specs...
-      vtkWarningMacro(<< "Unrecognized character: " << *begin);
+      vtkDebugMacro(<< "Unrecognized character: " << *begin);
       continue;
     }
 
