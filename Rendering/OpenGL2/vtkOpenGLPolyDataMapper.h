@@ -162,6 +162,18 @@ public:
   vtkGetMacro(PauseShiftScale, bool);
   vtkBooleanMacro(PauseShiftScale, bool);
 
+  /**
+   * Allow the shader code to set the point size (with gl_PointSize variable)
+   * instead of using the one defined by the property. Note that this flag is
+   * not available on OpenGLES as the feature is enabled by default. With
+   * OpenGL, the feature is turned off by default.
+   * Warning: on MacOS, enabling the feature result in non point drawing
+   * if the shaders do not set the point size.
+   */
+  vtkGetMacro(UseProgramPointSize, bool);
+  vtkSetMacro(UseProgramPointSize, bool);
+  vtkBooleanMacro(UseProgramPointSize, bool);
+
   enum PrimitiveTypes
   {
     PrimitiveStart = 0,
@@ -440,6 +452,7 @@ protected:
   vtkNew<vtkMatrix4x4> VBOShiftScale;
   int ShiftScaleMethod; // for points
   bool PauseShiftScale;
+  bool UseProgramPointSize;
 
   // if set to true, tcoords will be passed to the
   // VBO even if the mapper knows of no texture maps
