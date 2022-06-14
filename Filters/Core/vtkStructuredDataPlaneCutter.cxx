@@ -373,7 +373,7 @@ struct EvaluateCellsStructuredFunctor
     vtkIdType cellId, batchSize, npts, numberOfCells, cellsConnectivitySize;
     TInputIdType pointIndex1, pointIndex2;
     vtkIdType cellIds[8];
-    EDGE_LIST* edge;
+    int* edge;
     int caseIndex, point1Index, point2Index, i;
     double s[8], point1ToPoint2, point1ToIso, point1Weight;
     bool needCell;
@@ -676,7 +676,7 @@ struct ExtractCellsStructuredFunctor
     vtkIdType cellId, npts, offset, outputCellId;
     TInputIdType pointIndex1, pointIndex2;
     vtkIdType cellIds[8], newCellIds[12];
-    EDGE_LIST* edge;
+    int* edge;
     int caseIndex, point1Index, point2Index, i;
     double s[8];
 

@@ -171,7 +171,7 @@ struct ComputeGradientWorker
     vtkIdType sliceSize;
     static const int CASE_MASK[8] = { 1, 2, 4, 8, 16, 32, 64, 128 };
     vtkMarchingCubesTriangleCases *triCase, *triCases;
-    EDGE_LIST* edge;
+    int* edge;
     int contNum, jOffset, ii, index, *vert;
     vtkIdType kOffset, idx;
     vtkIdType ptIds[3];

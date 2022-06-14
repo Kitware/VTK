@@ -123,10 +123,9 @@ constexpr vtkIdType valenceAtPoint[vtkPyramid::NumberOfPoints] = {
   3  // 4
 };
 
-typedef int EDGE_LIST;
 struct TRIANGLE_CASES_t
 {
-  EDGE_LIST edges[13];
+  int edges[13];
 };
 using TRIANGLE_CASES = struct TRIANGLE_CASES_t;
 TRIANGLE_CASES triCases[] = {
@@ -521,7 +520,7 @@ void vtkPyramid::Contour(double value, vtkDataArray* cellScalars,
 {
   static const int CASE_MASK[5] = { 1, 2, 4, 8, 16 };
   TRIANGLE_CASES* triCase;
-  EDGE_LIST* edge;
+  int* edge;
   int i, j, index, v1, v2, newCellId;
   const vtkIdType* vert;
   vtkIdType pts[3];

@@ -455,7 +455,7 @@ void vtkVoxel::Contour(double value, vtkDataArray* cellScalars, vtkIncrementalPo
 {
   static const int CASE_MASK[8] = { 1, 2, 4, 8, 16, 32, 64, 128 };
   vtkMarchingCubesTriangleCases* triCase;
-  EDGE_LIST* edge;
+  int* edge;
   int i, j, index;
   const vtkIdType* vert;
   static const int vertMap[8] = { 0, 1, 3, 2, 4, 5, 7, 6 };

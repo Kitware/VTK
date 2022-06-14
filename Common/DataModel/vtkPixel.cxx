@@ -306,7 +306,7 @@ void vtkPixel::Contour(double value, vtkDataArray* cellScalars, vtkIncrementalPo
 {
   static const int CASE_MASK[4] = { 1, 2, 8, 4 }; // note differenceom quad!
   vtkMarchingSquaresLineCases* lineCase;
-  EDGE_LIST* edge;
+  int* edge;
   int i, j, index, *vert;
   int newCellId;
   vtkIdType pts[2];

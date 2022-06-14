@@ -148,7 +148,7 @@ int vtkSliceCubesContour(T* slice, S* scalars, int imageRange[2], int dims[3], d
   int i, j, k, idx, jOffset, ii, index, *vert, jj, sliceSize = 0;
   static const int CASE_MASK[8] = { 1, 2, 4, 8, 16, 32, 64, 128 };
   vtkMarchingCubesTriangleCases *triCase, *triCases;
-  EDGE_LIST* edge;
+  int* edge;
   double pts[8][3], grad[8][3];
   double t, *x1, *x2, *n1, *n2;
   double xp, yp, zp;
