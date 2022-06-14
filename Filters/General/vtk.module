@@ -40,4 +40,5 @@ TEST_DEPENDS
   VTK::RenderingOpenGL2
   VTK::TestingRendering
 TEST_OPTIONAL_DEPENDS
+  VTK::AcceleratorsVTKmFilters
   VTK::IOIOSS

@@ -22,6 +22,7 @@
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
+#include "vtkUnstructuredGrid.h"
 
 #include "vtkmlib/ArrayConverters.h"
 #include "vtkmlib/DataSetConverters.h"
@@ -29,6 +30,8 @@
 
 #include "vtkmFilterPolicy.h"
 
+#include <vtkm/cont/ArrayHandleTransform.h>
+#include <vtkm/cont/ErrorFilterExecution.h>
 #include <vtkm/filter/field_conversion/PointAverage.h>
 #include <vtkm/filter/vector_analysis/Gradient.h>
 
@@ -42,6 +45,34 @@ inline vtkm::cont::DataSet CopyDataSetStructure(const vtkm::cont::DataSet& ds)
   vtkm::cont::DataSet cp;
   cp.CopyStructure(ds);
   return cp;
+}
+
+class MaskBits
+{
+public:
+  VTKM_EXEC_CONT MaskBits() {}
+
+  explicit MaskBits(int mask)
+    : Mask(mask)
+  {
+  }
+
+  VTKM_EXEC_CONT int operator()(unsigned char in) const
+  {
+    return static_cast<int>(in) & this->Mask;
+  }
+
+private:
+  int Mask = 0;
+};
+
+inline bool HasGhostFlagsSet(vtkUnsignedCharArray* ghostArray, int flags)
+{
+  auto ah =
+    tovtkm::DataArrayToArrayHandle<vtkAOSDataArrayTemplate<unsigned char>, 1>::Wrap(ghostArray);
+  int result = vtkm::cont::Algorithm::Reduce(
+    vtkm::cont::make_ArrayHandleTransform(ah, MaskBits(flags)), 0, vtkm::LogicalOr());
+  return result;
 }
 
 } // anonymous namespace
@@ -59,6 +90,32 @@ void vtkmGradient::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //------------------------------------------------------------------------------
+bool vtkmGradient::CanProcessInput(vtkDataSet* input)
+{
+  auto unstructuredGrid = vtkUnstructuredGrid::SafeDownCast(input);
+  if (unstructuredGrid)
+  {
+    auto cellTypes = unstructuredGrid->GetDistinctCellTypesArray();
+    if (cellTypes)
+    {
+      for (vtkIdType i = 0; i < cellTypes->GetNumberOfValues(); ++i)
+      {
+        unsigned char cellType = cellTypes->GetValue(i);
+        // VTK-m only supports some cell types
+        if (cellType == VTK_EMPTY_CELL || cellType == VTK_POLY_VERTEX ||
+          cellType == VTK_POLY_LINE || cellType == VTK_TRIANGLE_STRIP || cellType > VTK_PYRAMID)
+        {
+          return false;
+        }
+      }
+    }
+    return true;
+  }
+
+  return true;
+}
+
+//------------------------------------------------------------------------------
 int vtkmGradient::RequestData(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -68,20 +125,47 @@ int vtkmGradient::RequestData(
 
   vtkDataSet* output = vtkDataSet::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  output->ShallowCopy(input);
-
   // grab the input array to process to determine the field want to compute
   // the gradient for
   int association = this->GetInputArrayAssociation(0, inputVector);
   vtkDataArray* inputArray = this->GetInputArrayToProcess(0, inputVector);
-  if (inputArray == nullptr || inputArray->GetName() == nullptr || inputArray->GetName()[0] == '\0')
+
+  // Some early exit checks
+  if (input->GetNumberOfCells() == 0)
   {
-    vtkErrorMacro("Invalid input array.");
+    // need cells to compute the gradient so if we don't have cells. we can't compute anything.
+    // if we have points and an array with values provide a warning letting the user know that
+    // no gradient will be computed because of the lack of cells. otherwise the dataset is
+    // assumed empty and we can skip providing a warning message to the user.
+    if (input->GetNumberOfPoints() && inputArray && inputArray->GetNumberOfTuples())
+    {
+      vtkWarningMacro("Cannot compute gradient for datasets without cells");
+    }
+    output->ShallowCopy(input);
+    return 1;
+  }
+  if (inputArray == nullptr)
+  {
+    vtkErrorMacro("No input array. If this dataset is part of a composite dataset"
+      << " check to make sure that all non-empty blocks have this array.");
+    return 0;
+  }
+  if (inputArray->GetNumberOfComponents() == 0)
+  {
+    vtkErrorMacro("Input array must have at least one component.");
     return 0;
   }
 
+  output->ShallowCopy(input);
+
   try
   {
+    if (!this->CanProcessInput(input))
+    {
+      throw vtkm::cont::ErrorFilterExecution(
+        "Input dataset/parameters not supported by vtkmGradient.");
+    }
+
     // convert the input dataset to a vtkm::cont::DataSet. We explicitly drop
     // all arrays from the conversion as this algorithm doesn't change topology
     // and therefore doesn't need input fields converted through the VTK-m filter
@@ -97,11 +181,40 @@ int vtkmGradient::RequestData(
     const bool fieldValid =
       (fieldIsPoint || fieldIsCell) && fieldIsScalar && !field.GetName().empty();
 
+    // ignore cell gradients on structured and rectilinear grids as the algorithm for
+    // VTK-m differs from VTK. Once VTK-m is able to do stencil based
+    // gradients for points and cells, we can remove this check.
+    if (fieldIsCell && (input->IsA("vtkStructuredGrid") || input->IsA("vtkRectilinearGrid")))
+    {
+      throw vtkm::cont::ErrorFilterExecution(
+        std::string("cell gradient of ") + input->GetClassName() + " is not supported.");
+    }
+
+    if (input->IsA("vtkImageData") || input->IsA("vtkStructuredGrid") ||
+      input->IsA("vtkRectilinearGrid"))
+    {
+      vtkUnsignedCharArray* ghostArray = nullptr;
+      int hidden = 0;
+      if (fieldIsCell)
+      {
+        ghostArray = input->GetCellData()->GetGhostArray();
+        hidden = vtkDataSetAttributes::HIDDENCELL;
+      }
+      else if (fieldIsPoint)
+      {
+        ghostArray = input->GetPointData()->GetGhostArray();
+        hidden = vtkDataSetAttributes::HIDDENPOINT;
+      }
+
+      if (ghostArray && HasGhostFlagsSet(ghostArray, hidden))
+      {
+        throw vtkm::cont::ErrorFilterExecution("hidden points/cells not supported.");
+      }
+    }
+
     if (!fieldValid)
     {
-      vtkWarningMacro(<< "Unsupported field type\n"
-                      << "Falling back to vtkGradientFilter.");
-      return this->Superclass::RequestData(request, inputVector, outputVector);
+      throw vtkm::cont::ErrorFilterExecution("Unsupported field type.");
     }
 
     auto passNoFields = vtkm::filter::FieldSelection(vtkm::filter::FieldSelection::Mode::None);
@@ -114,6 +227,12 @@ int vtkmGradient::RequestData(
       filter.SetComputeDivergence(this->ComputeDivergence != 0);
       filter.SetComputeVorticity(this->ComputeVorticity != 0);
       filter.SetComputeQCriterion(this->ComputeQCriterion != 0);
+    }
+    else if (this->ComputeQCriterion || this->ComputeVorticity || this->ComputeDivergence)
+    {
+      vtkWarningMacro("Input array must have exactly three components with "
+        << "ComputeDivergence, ComputeVorticity or ComputeQCriterion flag enabled."
+        << "Skipping divergence, vorticity and Q-criterion computation.");
     }
 
     if (this->ResultArrayName)
@@ -222,8 +341,7 @@ int vtkmGradient::RequestData(
     // convert arrays back to VTK
     if (!fromvtkm::ConvertArrays(result, output))
     {
-      vtkErrorMacro(<< "Unable to convert VTKm DataSet back to VTK");
-      return 0;
+      throw vtkm::cont::ErrorFilterExecution("Unable to convert VTKm result dataSet back to VTK.");
     }
   }
   catch (const vtkm::cont::Error& e)
@@ -236,7 +354,7 @@ int vtkmGradient::RequestData(
     else
     {
       vtkWarningMacro(<< "VTK-m error: " << e.GetMessage()
-                      << "Falling back to serial implementation.");
+                      << " Falling back to VTK implementation.");
       return this->Superclass::RequestData(request, inputVector, outputVector);
     }
   }
