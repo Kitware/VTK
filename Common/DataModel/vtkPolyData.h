@@ -379,11 +379,15 @@ public:
    */
   void BuildLinks(int initialSize = 0);
 
+  ///@{
   /**
    * Set/Get the links that you created possibly without using BuildLinks.
+   *
+   * Note: Only vtkCellLinks are currently supported.
    */
-  vtkSetSmartPointerMacro(Links, vtkCellLinks);
-  vtkGetSmartPointerMacro(Links, vtkCellLinks);
+  virtual void SetLinks(vtkAbstractCellLinks* links);
+  vtkGetSmartPointerMacro(Links, vtkAbstractCellLinks);
+  ///@}
 
   /**
    * Release data structure that allows random access of the cells. This must

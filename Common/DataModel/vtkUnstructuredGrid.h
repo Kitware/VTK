@@ -261,11 +261,13 @@ public:
    */
   void BuildLinks();
 
+  ///@{
   /**
    * Set/Get the links that you created possibly without using BuildLinks.
    */
   vtkSetSmartPointerMacro(Links, vtkAbstractCellLinks);
   vtkGetSmartPointerMacro(Links, vtkAbstractCellLinks);
+  ///@}
 
   /**
    * Get the cell links. The cell links will be one of nullptr=0;

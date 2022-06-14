@@ -996,6 +996,23 @@ void vtkPolyData::BuildLinks(int initialSize)
 }
 
 //------------------------------------------------------------------------------
+void vtkPolyData::SetLinks(vtkAbstractCellLinks* links)
+{
+  if (this->Links != links)
+  {
+    if (auto cellLinks = vtkCellLinks::SafeDownCast(links))
+    {
+      this->Links = cellLinks;
+      this->Modified();
+    }
+    else
+    {
+      vtkErrorMacro("Only vtkCellLinks are currently supported.");
+    }
+  }
+}
+
+//------------------------------------------------------------------------------
 // Copy a cells point ids into list provided. (Less efficient.)
 void vtkPolyData::GetCellPoints(vtkIdType cellId, vtkIdList* ptIds)
 {
