@@ -538,7 +538,7 @@ int vtkHDFReader::Read(vtkInformation* outInfo, vtkUnstructuredGrid* data)
 }
 
 //------------------------------------------------------------------------------
-int vtkHDFReader::Read(vtkInformation* outInfo, vtkOverlappingAMR* data)
+int vtkHDFReader::Read(vtkInformation* vtkNotUsed(outInfo), vtkOverlappingAMR* data)
 {
   data->SetOrigin(this->Origin);
 
