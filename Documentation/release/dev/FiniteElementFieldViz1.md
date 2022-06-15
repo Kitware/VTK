@@ -21,7 +21,7 @@ Supported H(Grad) discretizationsfor reference elements:
 
 While it is not accurate, the filter uses Lagrange reference elements (linear, quadratic, cubic) for HCurl/HDiv edge-nodal and face-nodal field interpolation. The Lagrange points of a cell correspond to the parametric coordinates of `vtkLagrangeXXXX`. A vector basis (HCurl/HDiv) field is evaluated on these new Lagrange points. The process followed is straightforward. After cell explosion, the filter uses pre-computed vector basis lagrange product matrices to interpolate coefficients given on edge (or) face degrees of freedom for each cell onto Lagrange points of a reference cell corresponding to that cell. These coefficients are expected on the input dataset as cell-centered (`vtkCellData`) n-component arrays named `EDGE_COEFF_YOUR_FIELD_NAME` and `FACE_COEFF_YOUR_FIELD_NAME` for edge and face degrees of freedom respectively, where `n = no. of degrees of freedom i.e, no. of edges or no. of faces`. Note the `EDGE_COEFF` and `FACE_COEFF` prefixes.
 
-Supported H(Grad) discretizationsfor reference elements:
+Supported H(Curl)/H(Div) discretizationsfor reference elements:
 || VTKCellType | supported order with no. of points per cell |
 |-|-------------|--------------------------------------------|
 |1.| VTK_TRIANGLE   | linear, quadratic (6 point), cubic (10 point)|
