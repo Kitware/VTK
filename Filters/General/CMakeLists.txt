@@ -44,6 +44,7 @@ set(classes
   vtkExtractGhostCells
   vtkExtractSelectedFrustum
   vtkExtractSelectionBase
+  vtkFiniteElementFieldDistributor
   vtkGradientFilter
   vtkGraphLayoutFilter
   vtkGraphToPoints
