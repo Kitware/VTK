@@ -600,7 +600,7 @@ vtkSmartPointer<vtkImageData> TreeInformation::ComputeTileMeshTexture(
     average = average + (scatteredRegions[i].Region[1] - scatteredRegions[i].Region[0] + 1);
   }
   average /= scatteredRegions.size();
-  size_t width = std::sqrt(scatteredRegions.size()) * average;
+  size_t width = std::round(std::sqrt(scatteredRegions.size())) * average;
 
   // place cells in the new image using Next-Fit Decreasing Height (NFDH) algorithm
   // https://cgi.csc.liv.ac.uk/~epa/surveyhtml.html
