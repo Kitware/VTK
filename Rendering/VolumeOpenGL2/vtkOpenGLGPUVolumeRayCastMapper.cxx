@@ -563,7 +563,7 @@ template <unsigned N, typename T>
 std::array<float, N> vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::ToFloat(T* in)
 {
   std::array<float, N> out;
-  for (int i = 0; i < N; i++)
+  for (size_t i = 0; i < N; i++)
   {
     out[i] = static_cast<float>(in[i]);
   }

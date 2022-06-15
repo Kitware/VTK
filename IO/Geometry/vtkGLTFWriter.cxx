@@ -718,7 +718,7 @@ void vtkGLTFWriter::WriteData()
   output.close();
 }
 
-void vtkGLTFWriter::WriteToStream(ostream& output, vtkDataObject* data)
+void vtkGLTFWriter::WriteToStream(ostream& output, vtkDataObject* vtkNotUsed(data))
 {
   vtkMultiBlockDataSet* mb = vtkMultiBlockDataSet::SafeDownCast(this->GetInput());
   if (mb == nullptr)

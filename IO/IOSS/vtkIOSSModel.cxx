@@ -614,8 +614,8 @@ struct vtkElementBlock : public vtkGroupingEntity
           }
         }
       }
-      assert(elementIds.size() == elementCount);
-      assert(connectivity.size() == elementCount * nodeCount);
+      assert(elementIds.size() == static_cast<size_t>(elementCount));
+      assert(connectivity.size() == static_cast<size_t>(elementCount * nodeCount));
       block->put_field_data("ids", elementIds);
       block->put_field_data("connectivity", connectivity);
     }
@@ -627,11 +627,9 @@ struct vtkElementBlock : public vtkGroupingEntity
     for (auto& pair : this->ElementCounts)
     {
       unsigned char vtk_cell_type = pair.first;
-      const int64_t elementCount = pair.second;
 
       const auto* element = vtkIOSSUtilities::GetElementTopology(vtk_cell_type);
       const auto& elementType = element->name();
-      const int nodeCount = element->number_nodes();
       const std::string bname =
         (this->ElementCounts.size() == 1) ? this->RootName : this->RootName + "_" + elementType;
 
@@ -789,7 +787,7 @@ struct vtkSideSet : public vtkGroupingEntity
       }
     }
 
-    assert(elementSide.size() == this->Count * 2);
+    assert(elementSide.size() == static_cast<size_t>(this->Count * 2));
     sideblock->put_field_data("element_side", elementSide);
   }
 

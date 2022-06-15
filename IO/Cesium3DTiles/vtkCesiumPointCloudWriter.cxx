@@ -75,7 +75,7 @@ struct Header
 struct NoOpRgbArrayTypes
 {
   template <typename ArrayT>
-  void operator()(ArrayT* array)
+  void operator()(ArrayT* vtkNotUsed(array))
   {
   }
 };
