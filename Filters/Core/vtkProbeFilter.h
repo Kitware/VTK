@@ -309,6 +309,8 @@ private:
 
   class ProbeImageDataPointsWorklet;
 
+  class ProbeEmptyPointsWorklet;
+
   std::vector<vtkDataArray*> CellArrays;
 };
 
