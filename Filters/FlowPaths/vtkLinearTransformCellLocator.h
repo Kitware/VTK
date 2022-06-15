@@ -122,7 +122,7 @@ public:
   void FindClosestPoint(const double x[3], double closestPoint[3], vtkGenericCell* cell,
     vtkIdType& cellId, int& subId, double& dist2) override
   {
-    this->FindClosestPoint(x, closestPoint, cell, cellId, subId, dist2);
+    this->Superclass::FindClosestPoint(x, closestPoint, cell, cellId, subId, dist2);
   }
 
   /**
@@ -155,7 +155,7 @@ public:
   void FindCellsAlongLine(
     const double p1[3], const double p2[3], double tolerance, vtkIdList* cellsIds) override
   {
-    this->FindCellsAlongLine(p1, p2, tolerance, cellsIds);
+    this->Superclass::FindCellsAlongLine(p1, p2, tolerance, cellsIds);
   }
 
   /**
