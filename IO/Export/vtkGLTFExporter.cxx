@@ -233,7 +233,7 @@ void WriteMesh(nlohmann::json& accessors, nlohmann::json& buffers, nlohmann::jso
     accessors.emplace_back(acc);
 
     attribs["POSITION"] = pointAccessor;
-    int userAccessor = userAccessorsStart;
+    size_t userAccessor = userAccessorsStart;
     for (size_t i = 0; i < arraysToSave.size(); ++i)
     {
       attribs[arraysToSave[i]->GetName()] = userAccessor++;
@@ -271,7 +271,7 @@ void WriteMesh(nlohmann::json& accessors, nlohmann::json& buffers, nlohmann::jso
     accessors.emplace_back(acc);
 
     attribs["POSITION"] = pointAccessor;
-    int userAccessor = userAccessorsStart;
+    size_t userAccessor = userAccessorsStart;
     for (size_t i = 0; i < arraysToSave.size(); ++i)
     {
       attribs[arraysToSave[i]->GetName()] = userAccessor++;
@@ -309,7 +309,7 @@ void WriteMesh(nlohmann::json& accessors, nlohmann::json& buffers, nlohmann::jso
     accessors.emplace_back(acc);
 
     attribs["POSITION"] = pointAccessor;
-    int userAccessor = userAccessorsStart;
+    size_t userAccessor = userAccessorsStart;
     for (size_t i = 0; i < arraysToSave.size(); ++i)
     {
       attribs[arraysToSave[i]->GetName()] = userAccessor++;
@@ -455,7 +455,8 @@ void WriteTexture(nlohmann::json& buffers, nlohmann::json& bufferViews, nlohmann
   textures.emplace_back(texture);
 }
 
-void WriteMaterial(nlohmann::json& materials, int textureIndex, bool haveTexture, vtkActor* aPart)
+void WriteMaterial(
+  nlohmann::json& materials, size_t textureIndex, bool haveTexture, vtkActor* aPart)
 {
   nlohmann::json mat;
   nlohmann::json model;

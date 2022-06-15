@@ -481,7 +481,7 @@ void WriteMesh(nlohmann::json& accessors, nlohmann::json& buffers, nlohmann::jso
     accessors.emplace_back(acc);
 
     attribs["POSITION"] = pointAccessor;
-    int userAccessor = userAccessorsStart;
+    size_t userAccessor = userAccessorsStart;
     for (size_t i = 0; i < arraysToSave.size(); ++i)
     {
       attribs[arraysToSave[i]->GetName()] = userAccessor++;
@@ -515,7 +515,7 @@ void WriteMesh(nlohmann::json& accessors, nlohmann::json& buffers, nlohmann::jso
     accessors.emplace_back(acc);
 
     attribs["POSITION"] = pointAccessor;
-    int userAccessor = userAccessorsStart;
+    size_t userAccessor = userAccessorsStart;
     for (size_t i = 0; i < arraysToSave.size(); ++i)
     {
       attribs[arraysToSave[i]->GetName()] = userAccessor++;
@@ -549,7 +549,7 @@ void WriteMesh(nlohmann::json& accessors, nlohmann::json& buffers, nlohmann::jso
     accessors.emplace_back(acc);
 
     attribs["POSITION"] = pointAccessor;
-    int userAccessor = userAccessorsStart;
+    size_t userAccessor = userAccessorsStart;
     for (size_t i = 0; i < arraysToSave.size(); ++i)
     {
       attribs[arraysToSave[i]->GetName()] = userAccessor++;
@@ -601,7 +601,7 @@ void WriteCamera(nlohmann::json& cameras, vtkRenderer* ren)
 
 void WriteTexture(nlohmann::json& buffers, nlohmann::json& bufferViews, nlohmann::json& textures,
   nlohmann::json& samplers, nlohmann::json& images, bool inlineData,
-  std::map<std::string, unsigned int>& textureMap, const char* textureBaseDirectory,
+  std::map<std::string, size_t>& textureMap, const char* textureBaseDirectory,
   const char* textureFileName, const char* gltfFileName)
 {
   size_t textureSource = 0;
@@ -660,7 +660,8 @@ void WriteTexture(nlohmann::json& buffers, nlohmann::json& bufferViews, nlohmann
   textures.emplace_back(texture);
 }
 
-void WriteMaterial(vtkPolyData* pd, nlohmann::json& materials, int textureIndex, bool haveTexture)
+void WriteMaterial(
+  vtkPolyData* pd, nlohmann::json& materials, size_t textureIndex, bool haveTexture)
 {
   nlohmann::json mat;
   nlohmann::json model;
@@ -745,7 +746,7 @@ void vtkGLTFWriter::WriteToStreamMultiBlock(ostream& output, vtkMultiBlockDataSe
   std::vector<size_t> topNodes;
 
   // support sharing texture maps
-  std::map<std::string, unsigned int> textureMap;
+  std::map<std::string, size_t> textureMap;
 
   vtkNew<vtkRenderer> ren;
   double bounds[6];
