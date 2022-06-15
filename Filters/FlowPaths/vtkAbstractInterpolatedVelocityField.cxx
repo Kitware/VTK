@@ -14,6 +14,8 @@
 =========================================================================*/
 #include "vtkAbstractInterpolatedVelocityField.h"
 
+#include "vtkAbstractCellLocator.h"
+#include "vtkAbstractPointLocator.h"
 #include "vtkCellLocatorStrategy.h"
 #include "vtkClosestPointStrategy.h"
 #include "vtkCompositeDataSet.h"
@@ -148,7 +150,25 @@ void vtkAbstractInterpolatedVelocityField::Initialize(vtkCompositeDataSet* compD
   {
     if (auto pointSet = vtkPointSet::SafeDownCast(datasetInfo.DataSet))
     {
-      datasetInfo.Strategy->CopyParameters(strategy);
+      if (auto closestPointStrategy = vtkClosestPointStrategy::SafeDownCast(datasetInfo.Strategy))
+      {
+        auto providedClosestPointStrategy = vtkClosestPointStrategy::SafeDownCast(strategy);
+        // if locator is set, create a new instance of it and set it on the strategy
+        if (auto pointLocator = providedClosestPointStrategy->GetPointLocator())
+        {
+          closestPointStrategy->SetPointLocator(vtk::TakeSmartPointer(pointLocator->NewInstance()));
+        }
+      }
+      else if (auto cellLocatorStrategy =
+                 vtkCellLocatorStrategy::SafeDownCast(datasetInfo.Strategy))
+      {
+        auto providedCellLocatorStrategy = vtkCellLocatorStrategy::SafeDownCast(strategy);
+        // if locator is set, create a new instance of it and set it on the strategy
+        if (auto cellLocator = providedCellLocatorStrategy->GetCellLocator())
+        {
+          cellLocatorStrategy->SetCellLocator(vtk::TakeSmartPointer(cellLocator->NewInstance()));
+        }
+      }
       datasetInfo.Strategy->Initialize(pointSet);
     }
   }
@@ -160,7 +180,10 @@ void vtkAbstractInterpolatedVelocityField::Initialize(vtkCompositeDataSet* compD
     if (auto polyData = vtkPolyData::SafeDownCast(datasetInfo.DataSet))
     {
       // build cells is needed for both vtkClosestPointStrategy and vtkCellLocatorStrategy
-      polyData->BuildCells();
+      if (polyData->NeedToBuildCells())
+      {
+        polyData->BuildCells();
+      }
     }
     if (vtkClosestPointStrategy::SafeDownCast(datasetInfo.Strategy))
     {

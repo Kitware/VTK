@@ -286,7 +286,10 @@ void vtkTemporalInterpolatedVelocityField::InitializeWithLocators(
     if (auto polyData = vtkPolyData::SafeDownCast(datasetInfo.DataSet))
     {
       // build cells is needed for both vtkClosestPointStrategy and vtkCellLocatorStrategy
-      polyData->BuildCells();
+      if (polyData->NeedToBuildCells())
+      {
+        polyData->BuildCells();
+      }
     }
     if (vtkClosestPointStrategy::SafeDownCast(datasetInfo.Strategy))
     {
