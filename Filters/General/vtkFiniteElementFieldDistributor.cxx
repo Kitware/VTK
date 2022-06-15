@@ -26,9 +26,9 @@
 #include "vtkTetra.h"
 #include "vtkTriangle.h"
 #include "vtkUnstructuredGrid.h"
-#include "vtkVectorBasisLagrangeProducts.h"
 #include "vtkWedge.h"
 
+#include <cstddef>
 #include <numeric>
 #include <set>
 #include <string>
@@ -133,37 +133,6 @@ std::vector<double> GetFaceAttributes(
   attrs.resize(nFaces);
   coeffs->GetTuple(cellId, attrs.data());
   return attrs;
-}
-
-using VblpMatrixType = vtkVectorBasisLagrangeProducts::VblpMatrixType;
-using SpaceType = vtkVectorBasisLagrangeProducts::SpaceType;
-
-void InterpolateToNodes(const VblpMatrixType& vblpmat, const std::vector<double>& coeffs,
-  const vtkIdType& npts, const vtkIdType* pts, vtkDataArray* result)
-{
-  const std::size_t& nDofs = coeffs.size();
-  assert(vblpmat.size() == 3);
-  assert(vblpmat[0].size() == npts);
-  assert(vblpmat[1].size() == npts);
-  assert(vblpmat[2].size() == npts);
-
-  for (vtkIdType j = 0; j < npts; ++j)
-  {
-    const vtkIdType& ptId = pts[j];
-    double value[3] = { 0, 0, 0 };
-
-    // interpolate field from edge -> nodal dof
-    for (std::size_t k = 0; k < vblpmat.size(); ++k)
-    {
-      assert(vblpmat[k][j].size() == nDofs);
-      for (std::size_t i = 0; i < nDofs; ++i)
-      {
-        value[k] += vblpmat[k][j][i] * coeffs[i];
-      } // for i'th edge.
-    }   // for every component of vector basis function.
-    // save new values.
-    result->InsertTuple(ptId, value);
-  }
 }
 
 std::vector<int> GetIOSSTransformation(const VTKCellType& cellType, const int& npts)
@@ -354,7 +323,591 @@ std::vector<int> GetIOSSTransformation(const VTKCellType& cellType, const int& n
   }
   return result;
 }
+
+/*
+ * Vector Basis Lagrange Product Matrices
+ * Generated from
+ * [intrepid2](https://github.com/trilinos/Trilinos/tree/master/packages/intrepid2/src/Discretization/Basis)
+ *
+ */
+using VblpMatrixType = std::vector<std::vector<std::vector<double>>>;
+using VbfuncType = std::function<std::vector<double>(const double[3])>[3];
+
+class vtkVectorBasisLagrangeProducts
+{
+public:
+  vtkVectorBasisLagrangeProducts()
+  {
+    for (const auto& cellType : { VTK_HEXAHEDRON, VTK_QUAD, VTK_TETRA, VTK_TRIANGLE, VTK_WEDGE })
+    {
+      switch (cellType)
+      {
+        case VTK_HEXAHEDRON:
+        {
+          auto& hCurlPhi0 = this->HexVbf[0][0];
+          auto& hCurlPhi1 = this->HexVbf[0][1];
+          auto& hCurlPhi2 = this->HexVbf[0][2];
+          // clang-format off
+          hCurlPhi0 = [](const double p[3]) -> std::vector<double> {
+            const double& y = p[1];
+            const double& z = p[2];
+            return std::vector<double>({
+              (1.0 - y)*(1.0 - z)/4.0,
+              0.0,
+              -(1.0 + y)*(1.0 - z)/4.0,
+              0.0,
+              (1.0 - y)*(1.0 + z)/4.0,
+              0.0,
+              -(1.0 + y)*(1.0 + z)/4.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            });
+          };
+          hCurlPhi1 = [](const double p[3]) -> std::vector<double> {
+            const double& x = p[0];
+            const double& z = p[2];
+            return std::vector<double>({
+              0.0,
+              (1.0 + x)*(1.0 - z)/4.0,
+              0.0,
+              -(1.0 - x)*(1.0 - z)/4.0,
+              0.0,
+              (1.0 + x)*(1.0 + z)/4.0,
+              0.0,
+              -(1.0 - x)*(1.0 + z)/4.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            });
+          };
+          hCurlPhi2 = [](const double p[3]) -> std::vector<double> {
+            const double& x = p[0];
+            const double& y = p[1];
+            return std::vector<double>({
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              (1.0 - x)*(1.0 - y)/4.0,
+              (1.0 + x)*(1.0 - y)/4.0,
+              (1.0 + x)*(1.0 + y)/4.0,
+              (1.0 - x)*(1.0 + y)/4.0
+            });
+          };
+          // clang-format on
+          auto& hDivPhi0 = this->HexVbf[1][0];
+          auto& hDivPhi1 = this->HexVbf[1][1];
+          auto& hDivPhi2 = this->HexVbf[1][2];
+          // clang-format off
+          hDivPhi0 = [](const double p[3]) -> std::vector<double> {
+            const double& x = p[0];
+            return std::vector<double>({
+              0.0,
+              (1.0 + x)/2.0,
+              0.0,
+              (x - 1.0)/2.0,
+              0.0,
+              0.0
+            });
+          };
+          hDivPhi1 = [](const double p[3]) -> std::vector<double> {
+            const double& y = p[1];
+            return std::vector<double>({
+              (y - 1.0)/2.0,
+              0.0,
+              (1.0 + y)/2.0,
+              0.0,
+              0.0,
+              0.0
+            });
+          };
+          hDivPhi2 = [](const double p[3]) -> std::vector<double> {
+            const double& z = p[2];
+            return std::vector<double>({
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              (z - 1.0)/2.0,
+              (1.0 + z)/2.0
+            });
+          };
+          // clang-format on
+          break;
+        }
+        case VTK_QUAD:
+        {
+          auto& hCurlPhi0 = this->QuadVbf[0][0];
+          auto& hCurlPhi1 = this->QuadVbf[0][1];
+          auto& hCurlPhi2 = this->QuadVbf[0][2];
+          // clang-format off
+          hCurlPhi0 = [](const double p[3]) -> std::vector<double> {
+            const double& y = p[1];
+            return std::vector<double>({
+              0.5 * (1. - y),
+              0.,
+              -0.5 * (1. + y),
+              0.
+            });
+          };
+          hCurlPhi1 = [](const double p[3]) -> std::vector<double> {
+            const double& x = p[0];
+            return std::vector<double>({
+              0,
+              0.5 * (1. + x),
+              0,
+              -0.5 * (1. - x)
+            });
+          };
+          hCurlPhi2 = [](const double p[3]) -> std::vector<double> {
+            (void)p;
+            return std::vector<double>({
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            });
+          };
+          // clang-format on
+          auto& hDivPhi0 = this->QuadVbf[1][0];
+          auto& hDivPhi1 = this->QuadVbf[1][1];
+          auto& hDivPhi2 = this->QuadVbf[1][2];
+          // clang-format off
+          hDivPhi0 = [](const double p[3]) -> std::vector<double> {
+            const double& x = p[0];
+            return std::vector<double>({
+              0.0,
+              0.5*(1.0 + x),
+              0.0,
+              0.5*(x - 1.0)
+            });
+          };
+          hDivPhi1 = [](const double p[3]) -> std::vector<double> {
+            const double& y = p[1];
+            return std::vector<double>({
+              0.5*(y - 1.0),
+              0.0,
+              0.5*(1.0 + y),
+              0.0
+            });
+          };
+          hDivPhi2 = [](const double p[3]) -> std::vector<double> {
+            (void)p;
+            return std::vector<double>({
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            });
+          };
+          // clang-format on
+          break;
+        }
+        case VTK_TETRA:
+        {
+          auto& hCurlPhi0 = this->TetVbf[0][0];
+          auto& hCurlPhi1 = this->TetVbf[0][1];
+          auto& hCurlPhi2 = this->TetVbf[0][2];
+          // clang-format off
+          hCurlPhi0 = [](const double p[3]) -> std::vector<double> {
+            const double& y = p[1];
+            const double& z = p[2];
+            return std::vector<double>({
+              2.0 * (1.0 - y - z),
+              -2.0 * y,
+              -2.0 * y,
+              2.0 * z,
+              -2.0 * z,
+              0.0
+            });
+          };
+          hCurlPhi1 = [](const double p[3]) -> std::vector<double> {
+            const double& x = p[0];
+            const double& z = p[2];
+            return std::vector<double>({
+              2.0 * x,
+              2.0 * x,
+              2.0 * (-1.0 + x + z),
+              2.0 * z,
+              0.0,
+              -2.0 * z
+            });
+          };
+          hCurlPhi2 = [](const double p[3]) -> std::vector<double> {
+            const double& x = p[0];
+            const double& y = p[1];
+            return std::vector<double>({
+              2.0 * x,
+              0.0,
+              -2.0 * y,
+              2.0 * (1.0 - x - y),
+              2.0 * x,
+              2.0 * y
+            });
+          };
+          // clang-format on
+          auto& hDivPhi0 = this->TetVbf[1][0];
+          auto& hDivPhi1 = this->TetVbf[1][1];
+          auto& hDivPhi2 = this->TetVbf[1][2];
+          // clang-format off
+          hDivPhi0 = [](const double p[3]) -> std::vector<double> {
+            const double& x = p[0];
+            return std::vector<double>({
+              x,
+              x,
+              x - 1.0,
+              x
+            });
+          };
+          hDivPhi1 = [](const double p[3]) -> std::vector<double> {
+            const double& y = p[1];
+            return std::vector<double>({
+              y - 1.0,
+              y,
+              y,
+              y
+            });
+          };
+          hDivPhi2 = [](const double p[3]) -> std::vector<double> {
+            const double& z = p[2];
+            return std::vector<double>({
+              z,
+              z,
+              z,
+              z - 1.0
+            });
+          };
+          // clang-format on
+          break;
+        }
+        case VTK_TRIANGLE:
+        {
+          auto& hCurlPhi0 = this->TriVbf[0][0];
+          auto& hCurlPhi1 = this->TriVbf[0][1];
+          auto& hCurlPhi2 = this->TriVbf[0][2];
+          // clang-format off
+          hCurlPhi0 = [](const double p[3]) -> std::vector<double> {
+            const double& y = p[1];
+            return std::vector<double>({
+              2.0 * (1. - y),
+              -2.0 * y,
+              -2.0 * y
+            });
+          };
+          hCurlPhi1 = [](const double p[3]) -> std::vector<double> {
+            const double& x = p[0];
+            return std::vector<double>({
+              2.0 * x,
+              2.0 * x,
+              2.0 * (-1. + x)
+            });
+          };
+          hCurlPhi2 = [](const double p[3]) -> std::vector<double> {
+            (void)p;
+            return std::vector<double>({
+              0.0,
+              0.0,
+              0.0
+            });
+          };
+          // clang-format on
+          auto& hDivPhi0 = this->TriVbf[1][0];
+          auto& hDivPhi1 = this->TriVbf[1][1];
+          auto& hDivPhi2 = this->TriVbf[1][2];
+          // clang-format off
+          hDivPhi0 = [](const double p[3]) -> std::vector<double> {
+            const double& x = p[0];
+            return std::vector<double>({
+              2.0 * x,
+              2.0 * x,
+              2.0 * (x - 1.0)
+            });
+          };
+          hDivPhi1 = [](const double p[3]) -> std::vector<double> {
+            const double& y = p[1];
+            return std::vector<double>({
+              2.0 * (y - 1.0),
+              2.0 * y,
+              2.0 * y
+            });
+          };
+          hDivPhi2 = [](const double p[3]) -> std::vector<double> {
+            (void)p;
+            return std::vector<double>({
+              0.0,
+              0.0,
+              0.0
+            });
+          };
+          // clang-format on
+          break;
+        }
+        case VTK_WEDGE:
+        {
+          auto& hCurlPhi0 = this->WedgeVbf[0][0];
+          auto& hCurlPhi1 = this->WedgeVbf[0][1];
+          auto& hCurlPhi2 = this->WedgeVbf[0][2];
+          // clang-format off
+            hCurlPhi0 = [](const double p[3]) -> std::vector<double> {
+              const double& y = p[1];
+              const double& z = p[2];
+              return std::vector<double>({
+                (1.0 - z)*(1.0 - y),
+                y*(z - 1.0),
+                y*(z - 1.0),
+                (1.0 - y)*(1.0 + z),
+                -y*(1.0 + z),
+                -y*(1.0 + z),
+                0.0,
+                0.0,
+                0.0
+              });
+            };
+            hCurlPhi1 = [](const double p[3]) -> std::vector<double> {
+              const double& x = p[0];
+              const double& z = p[2];
+              return std::vector<double>({
+                x*(1.0 - z),
+                x*(1.0 - z),
+                (1.0 - x)*(z - 1.0),
+                x*(1.0 + z),
+                x*(1.0 + z),
+                (x - 1.0)*(1.0 + z),
+                0.0,
+                0.0,
+                0.0
+              });
+            };
+            hCurlPhi2 = [](const double p[3]) -> std::vector<double> {
+              const double& x = p[0];
+              const double& y = p[1];
+              return std::vector<double>({
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                (1.0 - x - y),
+                x,
+                y
+              });
+            };
+          // clang-format on
+          auto& hDivPhi0 = this->WedgeVbf[1][0];
+          auto& hDivPhi1 = this->WedgeVbf[1][1];
+          auto& hDivPhi2 = this->WedgeVbf[1][2];
+          // clang-format off
+          hDivPhi0 = [](const double p[3]) -> std::vector<double> {
+            const double& x = p[0];
+            return std::vector<double>({
+              2.0 * x,
+              2.0 * x,
+              2.0 * (x - 1.0),
+              0.0,
+              0.0
+            });
+          };
+          hDivPhi1 = [](const double p[3]) -> std::vector<double> {
+            const double& y = p[1];
+            return std::vector<double>({
+              2.0 * (y - 1.0),
+              2.0 * y,
+              2.0 * y,
+              0.0,
+              0.0
+            });
+          };
+          hDivPhi2 = [](const double p[3]) -> std::vector<double> {
+            const double& z = p[2];
+            return std::vector<double>({
+              0.0,
+              0.0,
+              0.0,
+              (z - 1.0) / 2.0,
+              (1.0 + z) / 2.0
+            });
+          };
+          // clang-format on
+          break;
+        }
+        default:
+          break;
+      }
+    }
+  }
+
+  ~vtkVectorBasisLagrangeProducts() = default;
+
+  enum class SpaceType : int
+  {
+    HCurl = 0,
+    HDiv
+  };
+
+  void Initialize(const VTKCellType& cellType, const double* coords, const int& npts)
+  {
+    auto hCurlMats = this->GetVblp(SpaceType::HCurl, cellType);
+    auto hDivMats = this->GetVblp(SpaceType::HDiv, cellType);
+
+    const auto hCurlVbfs = this->GetVbFunctions(SpaceType::HCurl, cellType);
+    const auto hDivVbfs = this->GetVbFunctions(SpaceType::HDiv, cellType);
+
+    if (hCurlMats == nullptr || hDivMats == nullptr || hCurlVbfs == nullptr || hDivVbfs == nullptr)
+    {
+      return;
+    }
+
+    hCurlMats->clear();
+    hDivMats->clear();
+    hCurlMats->resize(3);
+    hDivMats->resize(3);
+
+    for (int k = 0; k < 3; ++k)
+    {
+      auto& hCurlMatrix = (*hCurlMats)[k];
+      auto& hDivMatrix = (*hDivMats)[k];
+      auto& hCurlVbFunc = (*hCurlVbfs)[k];
+      auto& hDivVbfunc = (*hDivVbfs)[k];
+      for (int j = 0; j < npts; ++j)
+      {
+        ptrdiff_t ofst = static_cast<ptrdiff_t>(j) * 3;
+        double coord[3] = { coords[ofst], coords[++ofst], coords[++ofst] };
+        hCurlMatrix.emplace_back(hCurlVbFunc(coord));
+        hDivMatrix.emplace_back(hDivVbfunc(coord));
+      }
+    }
+  }
+
+  bool RequiresInitialization(const VTKCellType& cellType, const int& npts)
+  {
+    auto hCurlMats = this->GetVblp(SpaceType::HCurl, cellType);
+    auto hDivMats = this->GetVblp(SpaceType::HDiv, cellType);
+    if (hCurlMats == nullptr || hDivMats == nullptr)
+    {
+      return false;
+    }
+
+    if (hCurlMats->size() == 3 && hDivMats->size() == 3)
+    {
+      bool reqInit = false;
+      for (std::size_t i = 0; i < 3; ++i)
+      {
+        reqInit |= (*hCurlMats)[i].size() != npts;
+        reqInit |= (*hDivMats)[i].size() != npts;
+      }
+      return reqInit;
+    }
+    else
+    {
+      return true;
+    }
+  }
+
+  void Clear(const VTKCellType& cellType)
+  {
+    auto hCurlMats = this->GetVblp(SpaceType::HCurl, cellType);
+    auto hDivMats = this->GetVblp(SpaceType::HDiv, cellType);
+    if (hCurlMats == nullptr || hDivMats == nullptr)
+    {
+      return;
+    }
+    hCurlMats->clear();
+    hDivMats->clear();
+  }
+
+  ::VblpMatrixType* GetVblp(const SpaceType& space, const VTKCellType& cellType)
+  {
+    ::VblpMatrixType* mats = nullptr;
+    switch (cellType)
+    {
+      case VTK_HEXAHEDRON:
+        mats = &(this->HexVblpMats[static_cast<int>(space)]);
+        break;
+      case VTK_QUAD:
+        mats = &(this->QuadVblpMats[static_cast<int>(space)]);
+        break;
+      case VTK_TETRA:
+        mats = &(this->TetVblpMats[static_cast<int>(space)]);
+        break;
+      case VTK_TRIANGLE:
+        mats = &(this->TriVblpMats[static_cast<int>(space)]);
+        break;
+      case VTK_WEDGE:
+        mats = &(this->WedgeVblpMats[static_cast<int>(space)]);
+        break;
+      default:
+        break;
+    }
+    return mats;
+  }
+
+  ::VbfuncType* GetVbFunctions(const SpaceType& space, const VTKCellType& cellType)
+  {
+    const int space_int = static_cast<int>(space);
+    switch (cellType)
+    {
+      case VTK_HEXAHEDRON:
+        return &this->HexVbf[space_int];
+      case VTK_QUAD:
+        return &this->QuadVbf[space_int];
+      case VTK_TETRA:
+        return &this->TetVbf[space_int];
+      case VTK_TRIANGLE:
+        return &this->TriVbf[space_int];
+      case VTK_WEDGE:
+        return &this->WedgeVbf[space_int];
+      default:
+        break;
+    }
+    return nullptr;
+  }
+
+private:
+  ::VblpMatrixType HexVblpMats[2], QuadVblpMats[2], TetVblpMats[2], TriVblpMats[2],
+    WedgeVblpMats[2];
+  ::VbfuncType HexVbf[2], QuadVbf[2], TetVbf[2], TriVbf[2], WedgeVbf[2];
+}; // end vtkVectorBasisLagrangeProducts
+
+using SpaceType = vtkVectorBasisLagrangeProducts::SpaceType;
+
+void InterpolateToNodes(const ::VblpMatrixType& vblpmat, const std::vector<double>& coeffs,
+  const vtkIdType& npts, const vtkIdType* pts, vtkDataArray* result)
+{
+  const std::size_t& nDofs = coeffs.size();
+  assert(vblpmat.size() == 3);
+  assert(static_cast<int>(vblpmat[0].size()) == npts);
+  assert(static_cast<int>(vblpmat[1].size()) == npts);
+  assert(static_cast<int>(vblpmat[2].size()) == npts);
+
+  for (vtkIdType j = 0; j < npts; ++j)
+  {
+    const vtkIdType& ptId = pts[j];
+    double value[3] = { 0, 0, 0 };
+
+    // interpolate field from edge -> nodal dof
+    for (std::size_t k = 0; k < vblpmat.size(); ++k)
+    {
+      assert(vblpmat[k][j].size() == nDofs);
+      for (std::size_t i = 0; i < nDofs; ++i)
+      {
+        value[k] += vblpmat[k][j][i] * coeffs[i];
+      } // for i'th edge.
+    }   // for every component of vector basis function.
+    // save new values.
+    result->InsertTuple(ptId, value);
+  }
 }
+
+} // end anonymous namespace
 
 class vtkFiniteElementFieldDistributor::vtkInternals
 {
@@ -381,9 +934,8 @@ public:
 
   // Interpolates edge -> nodal dofs.
   // Interpolates face -> nodal dofs.
-  void InterpolateCellToNodes(const vtkIdType& cellId, vtkCellArray* oldCells,
-    vtkCellArray* newCells, vtkCellData* oldCd, vtkPointData* hCurlFields,
-    vtkPointData* hDivFields);
+  void InterpolateCellToNodes(const vtkIdType& cellId, vtkCellArray* newCells, vtkCellData* oldCd,
+    vtkPointData* hCurlFields, vtkPointData* hDivFields);
 
   // clear the three slots of femSpecs.
   void ResetFemSpecs();
@@ -410,7 +962,7 @@ private:
 
   void ExplodeHigherOrderCell(const vtkIdType& cellId, vtkPoints* oldPoints, vtkPoints* newPoints,
     vtkCellArray* oldCells, vtkCellArray* newCells, vtkUnsignedCharArray* newCellTypes,
-    vtkPointData* oldPd, vtkPointData* newPd, vtkCellData* oldCd, const int& nComps);
+    vtkPointData* oldPd, vtkPointData* newPd, const int& nComps);
 
   std::vector<double> GetLagrangePCoords(const VTKCellType& cellType, const vtkIdType& npts);
 
@@ -620,7 +1172,7 @@ void vtkFiniteElementFieldDistributor::vtkInternals::ExplodeCell(const vtkIdType
 
     int nComps = *(nCompsSet.begin());
     this->ExplodeHigherOrderCell(
-      cellId, oldPoints, newPoints, oldCells, newCells, newCellTypes, oldPd, newPd, oldCd, nComps);
+      cellId, oldPoints, newPoints, oldCells, newCells, newCellTypes, oldPd, newPd, nComps);
   }
 
   if (this->hGradSpec().Fields.empty())
@@ -650,7 +1202,7 @@ void vtkFiniteElementFieldDistributor::vtkInternals::ExplodeLinearCell(const vtk
   vtkPoints* oldPoints, vtkPoints* newPoints, vtkCellArray* oldCells, vtkCellArray* newCells,
   vtkUnsignedCharArray* newCellTypes, vtkPointData* oldPd, vtkPointData* newPd)
 {
-  vtkIdType newNpts = 0, oldNpts = 0, ind = newPoints->GetNumberOfPoints();
+  vtkIdType oldNpts = 0, ind = newPoints->GetNumberOfPoints();
   const vtkIdType* oldPts = nullptr;
   double coord[3] = {};
 
@@ -672,8 +1224,7 @@ void vtkFiniteElementFieldDistributor::vtkInternals::ExplodeLinearCell(const vtk
 //----------------------------------------------------------------------------
 void vtkFiniteElementFieldDistributor::vtkInternals::ExplodeHigherOrderCell(const vtkIdType& cellId,
   vtkPoints* oldPoints, vtkPoints* newPoints, vtkCellArray* oldCells, vtkCellArray* newCells,
-  vtkUnsignedCharArray* newCellTypes, vtkPointData* oldPd, vtkPointData* newPd, vtkCellData* oldCd,
-  const int& nComps)
+  vtkUnsignedCharArray* newCellTypes, vtkPointData* oldPd, vtkPointData* newPd, const int& nComps)
 {
   vtkNonLinearCell* nonLinCell = nullptr;
   vtkCell* linearCell = nullptr;
@@ -853,7 +1404,8 @@ void vtkFiniteElementFieldDistributor::vtkInternals::ExplodeHigherOrderCell(cons
       pCoords = nonLinCell->GetParametricCoords();
       for (unsigned short i = oldNpts; i < newNpts; ++i, ++ind)
       {
-        linearCell->EvaluateLocation(subId, &pCoords[3 * i], coord, this->weights->GetPointer(0));
+        linearCell->EvaluateLocation(
+          subId, &pCoords[3 * static_cast<ptrdiff_t>(i)], coord, this->weights->GetPointer(0));
         newPoints->InsertPoint(ind, coord);
         newCells->InsertCellPoint(ind);
         // interpolate the non-dg fields from old -> new point data
@@ -878,7 +1430,7 @@ void vtkFiniteElementFieldDistributor::vtkInternals::ExplodeDGHGradCellCenteredF
 
   if (inArr->GetNumberOfComponents() == npts)
   {
-    if (orderingTransform.size() == npts)
+    if (static_cast<int>(orderingTransform.size()) == npts)
     {
       for (vtkIdType i = 0; i < npts; ++i)
       {
@@ -905,14 +1457,13 @@ void vtkFiniteElementFieldDistributor::vtkInternals::ExplodeDGHGradCellCenteredF
 
 //----------------------------------------------------------------------------
 void vtkFiniteElementFieldDistributor::vtkInternals::InterpolateCellToNodes(const vtkIdType& cellId,
-  vtkCellArray* oldCells, vtkCellArray* newCells, vtkCellData* oldCd, vtkPointData* hCurlFields,
-  vtkPointData* hDivFields)
+  vtkCellArray* newCells, vtkCellData* oldCd, vtkPointData* hCurlFields, vtkPointData* hDivFields)
 {
   // we will interpolate onto the points found at new point ids. (from cell explosion)
   const vtkIdType* newPts = nullptr;
   vtkIdType newNpts = 0;
   newCells->GetCellAtId(cellId, newNpts, newPts);
-  if (this->Vblps.RequiresInitialization(this->RefElement, nullptr, newNpts))
+  if (this->Vblps.RequiresInitialization(this->RefElement, newNpts))
   {
     auto pCoords = this->GetLagrangePCoords(this->RefElement, newNpts);
     // for all others, need to shift center of element to (0,0,0)
@@ -1167,8 +1718,7 @@ int vtkFiniteElementFieldDistributor::RequestData(vtkInformation* vtkNotUsed(req
       {
         this->Internals->ExplodeCell(c, oldPoints, newPoints, oldCells, newCells, newCellTypes,
           oldPd, newPd, oldCd, hGradFields);
-        this->Internals->InterpolateCellToNodes(
-          c, oldCells, newCells, oldCd, hCurlFields, hDivFields);
+        this->Internals->InterpolateCellToNodes(c, newCells, oldCd, hCurlFields, hDivFields);
 
         newCd->CopyData(oldCd, c, c);
 

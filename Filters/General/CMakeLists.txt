@@ -120,7 +120,6 @@ set(classes
   vtkTransformFilter
   vtkTransformPolyDataFilter
   vtkUncertaintyTubeFilter
-  vtkVectorBasisLagrangeProducts
   vtkVertexGlyphFilter
   vtkVolumeContourSpectrumFilter
   vtkVoxelContoursToSurfaceFilter
