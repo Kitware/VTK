@@ -921,7 +921,8 @@ double TreeInformation::ComputeGeometricErrorTilesetMesh()
 }
 
 //------------------------------------------------------------------------------
-double TreeInformation::ComputeGeometricErrorNodeMesh(vtkIncrementalOctreeNode* node, void* aux)
+double TreeInformation::ComputeGeometricErrorNodeMesh(
+  vtkIncrementalOctreeNode* vtkNotUsed(node), void* aux)
 {
   double* parentError = static_cast<double*>(aux);
   return *parentError / 2;

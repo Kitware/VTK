@@ -216,7 +216,7 @@ void vtkCesium3DTilesWriter::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //------------------------------------------------------------------------------
-int vtkCesium3DTilesWriter::FillInputPortInformation(int port, vtkInformation* info)
+int vtkCesium3DTilesWriter::FillInputPortInformation(int vtkNotUsed(port), vtkInformation* info)
 {
   if (this->InputType == Buildings)
   {

@@ -75,7 +75,7 @@ struct Header
 struct NoOpRgbArrayTypes
 {
   template <typename ArrayT>
-  void operator()(ArrayT* array)
+  void operator()(ArrayT* vtkNotUsed(array))
   {
   }
 };
@@ -200,7 +200,8 @@ void vtkCesiumPointCloudWriter::WriteData()
 
   // build the header
   header.version = 1;
-  header.featureTableJSONByteLength = ostr.str().length(); // includes padding
+  header.featureTableJSONByteLength =
+    static_cast<uint32_t>(ostr.str().length()); // includes padding
   header.featureTableBinaryByteLength = featureTableBinarySize + featureTableBinaryPadding;
   header.batchTableJSONByteLength = 0;
   header.batchTableBinaryByteLength = 0;

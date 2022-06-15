@@ -330,7 +330,7 @@ void WriteMesh(nlohmann::json& accessors, nlohmann::json& buffers, nlohmann::jso
   vtkPolyData* tris = trif->GetOutput();
 
   // write the point locations
-  int pointAccessor = 0;
+  size_t pointAccessor = 0;
   {
     vtkDataArray* da = tris->GetPoints()->GetData();
     vtkGLTFWriterUtils::WriteBufferAndView(da, fileName, inlineData, buffers, bufferViews);
@@ -415,7 +415,7 @@ void WriteMesh(nlohmann::json& accessors, nlohmann::json& buffers, nlohmann::jso
           << " number of components: " << (da ? da->GetNumberOfComponents() : 0));
     }
   }
-  int userAccessorsStart = accessors.size();
+  size_t userAccessorsStart = accessors.size();
   for (size_t i = 0; i < arraysToSave.size(); ++i)
   {
     vtkDataArray* da = arraysToSave[i];
@@ -435,7 +435,7 @@ void WriteMesh(nlohmann::json& accessors, nlohmann::json& buffers, nlohmann::jso
 
   // if we have tcoords then write them out
   // first check for colortcoords
-  int tcoordAccessor = -1;
+  size_t tcoordAccessor = 0;
   vtkDataArray* tcoords = tris->GetPointData()->GetTCoords();
   if (tcoords)
   {
@@ -486,7 +486,7 @@ void WriteMesh(nlohmann::json& accessors, nlohmann::json& buffers, nlohmann::jso
     {
       attribs[arraysToSave[i]->GetName()] = userAccessor++;
     }
-    if (tcoordAccessor >= 0)
+    if (tcoords)
     {
       attribs["TEXCOORD_0"] = tcoordAccessor;
     }
@@ -520,7 +520,7 @@ void WriteMesh(nlohmann::json& accessors, nlohmann::json& buffers, nlohmann::jso
     {
       attribs[arraysToSave[i]->GetName()] = userAccessor++;
     }
-    if (tcoordAccessor >= 0)
+    if (tcoords)
     {
       attribs["TEXCOORD_0"] = tcoordAccessor;
     }
@@ -554,7 +554,7 @@ void WriteMesh(nlohmann::json& accessors, nlohmann::json& buffers, nlohmann::jso
     {
       attribs[arraysToSave[i]->GetName()] = userAccessor++;
     }
-    if (tcoordAccessor >= 0)
+    if (tcoords)
     {
       attribs["TEXCOORD_0"] = tcoordAccessor;
     }
@@ -604,7 +604,7 @@ void WriteTexture(nlohmann::json& buffers, nlohmann::json& bufferViews, nlohmann
   std::map<std::string, unsigned int>& textureMap, const char* textureBaseDirectory,
   const char* textureFileName, const char* gltfFileName)
 {
-  unsigned int textureSource = 0;
+  size_t textureSource = 0;
   if (textureMap.find(textureFileName) == textureMap.end())
   {
     // compute the relative texture base directory from the gltFile
@@ -718,7 +718,7 @@ void vtkGLTFWriter::WriteData()
   output.close();
 }
 
-void vtkGLTFWriter::WriteToStream(ostream& output, vtkDataObject* data)
+void vtkGLTFWriter::WriteToStream(ostream& output, vtkDataObject* vtkNotUsed(data))
 {
   vtkMultiBlockDataSet* mb = vtkMultiBlockDataSet::SafeDownCast(this->GetInput());
   if (mb == nullptr)
@@ -742,7 +742,7 @@ void vtkGLTFWriter::WriteToStreamMultiBlock(ostream& output, vtkMultiBlockDataSe
   nlohmann::json images;
   nlohmann::json samplers;
   nlohmann::json materials;
-  std::vector<unsigned int> topNodes;
+  std::vector<size_t> topNodes;
 
   // support sharing texture maps
   std::map<std::string, unsigned int> textureMap;
@@ -791,7 +791,7 @@ void vtkGLTFWriter::WriteToStreamMultiBlock(ostream& output, vtkMultiBlockDataSe
           WriteMesh(accessors, buffers, bufferViews, meshes, nodes, pd, this->FileName,
             this->InlineData, this->SaveNormal, this->SaveBatchId, this->SaveActivePointColor);
           rendererNode["children"].emplace_back(nodes.size() - 1);
-          unsigned int oldTextureCount = textures.size();
+          size_t oldTextureCount = textures.size();
           std::string textureFileName = GetFieldAsString(pd, "texture_uri");
           if (this->SaveTextures && !textureFileName.empty())
           {

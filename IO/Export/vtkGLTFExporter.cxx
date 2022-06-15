@@ -102,7 +102,7 @@ void WriteMesh(nlohmann::json& accessors, nlohmann::json& buffers, nlohmann::jso
   vtkPolyData* tris = trif->GetOutput();
 
   // write the point locations
-  int pointAccessor = 0;
+  size_t pointAccessor = 0;
   {
     vtkDataArray* da = tris->GetPoints()->GetData();
     vtkGLTFWriterUtils::WriteBufferAndView(da, fileName, inlineData, buffers, bufferViews);
@@ -147,7 +147,7 @@ void WriteMesh(nlohmann::json& accessors, nlohmann::json& buffers, nlohmann::jso
       arraysToSave.push_back(a);
     }
   }
-  int userAccessorsStart = accessors.size();
+  size_t userAccessorsStart = accessors.size();
   for (size_t i = 0; i < arraysToSave.size(); ++i)
   {
     vtkDataArray* da = arraysToSave[i];
@@ -164,9 +164,10 @@ void WriteMesh(nlohmann::json& accessors, nlohmann::json& buffers, nlohmann::jso
   }
 
   // if we have vertex colors then write them out
-  int vertColorAccessor = -1;
+  size_t vertColorAccessor = 0;
   aPart->GetMapper()->MapScalars(tris, 1.0);
-  if (aPart->GetMapper()->GetColorMapColors())
+  bool vertColor = aPart->GetMapper()->GetColorMapColors() != nullptr;
+  if (vertColor)
   {
     vtkUnsignedCharArray* da = aPart->GetMapper()->GetColorMapColors();
     vtkGLTFWriterUtils::WriteBufferAndView(da, fileName, inlineData, buffers, bufferViews);
@@ -185,7 +186,7 @@ void WriteMesh(nlohmann::json& accessors, nlohmann::json& buffers, nlohmann::jso
 
   // if we have tcoords then write them out
   // first check for colortcoords
-  int tcoordAccessor = -1;
+  size_t tcoordAccessor = 0;
   vtkFloatArray* tcoords = aPart->GetMapper()->GetColorCoordinates();
   if (!tcoords)
   {
@@ -237,11 +238,11 @@ void WriteMesh(nlohmann::json& accessors, nlohmann::json& buffers, nlohmann::jso
     {
       attribs[arraysToSave[i]->GetName()] = userAccessor++;
     }
-    if (vertColorAccessor >= 0)
+    if (vertColor)
     {
       attribs["COLOR_0"] = vertColorAccessor;
     }
-    if (tcoordAccessor >= 0)
+    if (tcoords)
     {
       attribs["TEXCOORD_0"] = tcoordAccessor;
     }
@@ -275,11 +276,11 @@ void WriteMesh(nlohmann::json& accessors, nlohmann::json& buffers, nlohmann::jso
     {
       attribs[arraysToSave[i]->GetName()] = userAccessor++;
     }
-    if (vertColorAccessor >= 0)
+    if (vertColor)
     {
       attribs["COLOR_0"] = vertColorAccessor;
     }
-    if (tcoordAccessor >= 0)
+    if (tcoords)
     {
       attribs["TEXCOORD_0"] = tcoordAccessor;
     }
@@ -313,11 +314,11 @@ void WriteMesh(nlohmann::json& accessors, nlohmann::json& buffers, nlohmann::jso
     {
       attribs[arraysToSave[i]->GetName()] = userAccessor++;
     }
-    if (vertColorAccessor >= 0)
+    if (vertColor)
     {
       attribs["COLOR_0"] = vertColorAccessor;
     }
-    if (tcoordAccessor >= 0)
+    if (tcoords)
     {
       attribs["TEXCOORD_0"] = tcoordAccessor;
     }
@@ -375,7 +376,7 @@ void WriteCamera(nlohmann::json& cameras, vtkRenderer* ren)
 
 void WriteTexture(nlohmann::json& buffers, nlohmann::json& bufferViews, nlohmann::json& textures,
   nlohmann::json& samplers, nlohmann::json& images, vtkPolyData* pd, vtkActor* aPart,
-  const char* fileName, bool inlineData, std::map<vtkUnsignedCharArray*, unsigned int>& textureMap)
+  const char* fileName, bool inlineData, std::map<vtkUnsignedCharArray*, size_t>& textureMap)
 {
   // do we have a texture
   aPart->GetMapper()->MapScalars(pd, 1.0);
@@ -397,7 +398,7 @@ void WriteTexture(nlohmann::json& buffers, nlohmann::json& bufferViews, nlohmann
     return;
   }
 
-  unsigned int textureSource = 0;
+  size_t textureSource = 0;
 
   if (textureMap.find(da) == textureMap.end())
   {
@@ -535,10 +536,10 @@ void vtkGLTFExporter::WriteToStream(ostream& output)
   nlohmann::json samplers;
   nlohmann::json materials;
 
-  std::vector<unsigned int> topNodes;
+  std::vector<size_t> topNodes;
 
   // support sharing texture maps
-  std::map<vtkUnsignedCharArray*, unsigned int> textureMap;
+  std::map<vtkUnsignedCharArray*, size_t> textureMap;
 
   for (auto ren : vtk::Range(this->RenderWindow->GetRenderers()))
   {
@@ -608,7 +609,7 @@ void vtkGLTFExporter::WriteToStream(ostream& output)
               WriteMesh(accessors, buffers, bufferViews, meshes, nodes, pd, aPart, this->FileName,
                 this->InlineData, this->SaveNormal, this->SaveBatchId);
               rendererNode["children"].emplace_back(nodes.size() - 1);
-              unsigned int oldTextureCount = textures.size();
+              size_t oldTextureCount = textures.size();
               WriteTexture(buffers, bufferViews, textures, samplers, images, pd, aPart,
                 this->FileName, this->InlineData, textureMap);
               meshes[meshes.size() - 1]["primitives"][0]["material"] = materials.size();
