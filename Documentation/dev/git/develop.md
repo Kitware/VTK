@@ -478,25 +478,25 @@ It should clearly appears at the bottom of the log.
 Possible failures are:
  - Timeouts: please rerun the job and report to CI maintainers
  - Memory related errors: please rerun the job and report to CI maintainers
- - Testing errors: please consult the CDash for more information, usually an issue in your code
- - Non disclosed error: please consult the CDash, usually a build error in your code
+ - Testing errors: please consult CDash for more information, usually an issue in your code
+ - Non disclosed error: please consult CDash, usually a build error in your code
 
-To read the CDash result, on the job page, click on the "cdash-commit" external job which
+To read CDash results, on the job page, click on the "cdash-commit" external job which
 will open the commit-specific CDash page. Once it is open, make sure to show "All Build" on the bottom left of the page.
-CDash results disply error, warnings, and test failures for all the jobs.
-It is expected to be green *except* for the "NoRun" and "Test Timings" category, which can be ignored.
+CDash results displays error, warnings, and test failures for all the jobs.
+It is expected to be green *except* for the "NoRun" and "Test Timings" categories, which can be ignored.
 
- - Configure warnings: there must not be any; to fix before the merge
- - Configure errors: there must not be any; to fix before the merge
- - Build warnings: there must not be any; to fix before the merge. If unrelated to your code, report to CI maintainers.
- - Build errors: there must be any; to fix before the merge. If unrelated to your code, rerun the job and report to CI maintainers.
+ - Configure warnings: there **must** not be any; to fix before the merge
+ - Configure errors: there **must** not be any; to fix before the merge
+ - Build warnings: there **must** not be any; to fix before the merge. If unrelated to your code, report to CI maintainers.
+ - Build errors: there **must** be any; to fix before the merge. If unrelated to your code, rerun the job and report to CI maintainers.
  - NotRun test : ignore; these tests have self-diagnosed that they are not relevant on the testing machine.
- - Testing failure: there should not be any, ideally, to fix before the merge. If unrelated to your code, check the test history to see if it is a flaky test and report to CI maintainers.
+ - Testing failure: there **should** not be any, ideally, to fix before the merge. If unrelated to your code, check the test history to see if it is a flaky test and report to CI maintainers.
  - Testing success: if your MR creates or modifies tests, please check that your test are listed there.
  - Test timings errors: can be ignored, but if it is all red, you may want to report it to CI maintainers.
 
 To check the history of a failing test, on the test page, click on the "Summary" link to see a summary of the test for the day,
-then click on the date controls on top to go back in time.
+then click on the date controls on the top of the page to go back in time.
 If the test fails on other MRs or on master, this is probably a flaky test, currently in the process of being fixed or excluded.
 A flaky test can be ignored.
 
@@ -504,7 +504,7 @@ As a reminder, here is our current policy regarding CI results.
 All the jobs must be run before merging, *including tidy*.
 Configure warnings and errors are not acceptable to merge and must be fixed.
 Build warning and errors are not acceptable to merge and must be fixed.
-Testing failure should be fixed before the merged but can be accepted if a flaky test has been clearly identified.
+Testing failure should be fixed before merging but can be accepted if a flaky test has been clearly identified.
 
 Revise a Topic
 --------------
