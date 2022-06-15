@@ -33,9 +33,6 @@ vtkAtomicMutex::vtkAtomicMutex()
 }
 
 //------------------------------------------------------------------------------
-vtkAtomicMutex::~vtkAtomicMutex() = default;
-
-//------------------------------------------------------------------------------
 vtkAtomicMutex::vtkAtomicMutex(const vtkAtomicMutex& other)
   : Locked(other.Locked.load(std::memory_order_acquire))
 {
