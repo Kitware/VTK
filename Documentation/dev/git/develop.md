@@ -331,7 +331,6 @@ like merge requests and commits in other repositories.
 [GitLab Flavored Markdown]: https://gitlab.kitware.com/help/markdown/markdown
 [Special GitLab References]: https://gitlab.kitware.com/help/markdown/markdown#special-gitlab-references
 
-
 Lines of specific forms will be extracted during
 [merging](#merge-a-topic) and included as trailing lines of the
 generated merge commit message.
@@ -408,9 +407,9 @@ A re-check may be explicitly requested by adding a comment with a single
 A topic cannot be [merged](#merge-a-topic) until the automatic review
 succeeds.
 
-### Testing ###
+### Continuous Integration ###
 
-VTK uses [gitlab-ci](https://gitlab.kitware.com/help/ci/examples/README.md) to
+VTK uses [GitLab CI](https://gitlab.kitware.com/help/ci/examples/README.md) to
 test its functionality. CI results are published to CDash and a link is added
 to the `External` stage of the CI pipeline by `@kwrobot`. Developers and
 reviewers should start jobs which make sense for the change using the following
@@ -425,7 +424,10 @@ methods:
   the "Play" button on one or more jobs manually. If the merge request has the
   "Allow commits from members who can merge to the target branch" check box
   enabled, VTK developers and maintainers may use the "Play" button as well.
-  This flag is visible when editing the merge request.
+  This flag is visible when editing the merge request. When in doubt, it's a
+  good idea to run a few jobs as smoke tests to catch early build/test failures
+  before a full CI run that would tie up useful resources. Note that, as detailed below,
+  a full CI run is necessary before the request can be merged.
 
 - VTK Project developers may trigger CI on a merge request by adding a comment
   with a command among the [trailing lines][#trailing-lines]:
@@ -434,14 +436,14 @@ methods:
 
   `@kwrobot` will add an award emoji to the comment to indicate that it was
   processed and trigger all jobs that are awaiting manual interaction in the
-  merge request's pipeline.
+  merge request's pipelines.
 
   The `Do: test` command accepts the following arguments:
 
   * `--named <regex>` or `-n <regex>`: Trigger jobs matching `<regex>` anywhere
-    in their name. Job names may be seen on the merge request's pipeline page.
+    in their name. Job names may be seen on the merge request's Pipelines tab.
   * `--stage <stage>` or `-s <stage>`: Only affect jobs in a given stage. Stage
-    names may be seen on the merge request's pipeline page. Note that the stage
+    names may be seen on the merge request's Pipelines tab. Note that the stage
     names are determined by what is in the `.gitlab-ci.yml` file and may be
     capitalized in the web page, so lowercasing the webpage's display name for
     stages may be required.
@@ -456,6 +458,53 @@ methods:
 
 If the merge request topic branch is updated by a push, a new manual trigger
 using one of the above methods is needed to start CI again.
+
+Before the merge, all the jobs, including tidy, must be run and reviewed, see below.
+
+If you have any question about the CI process, do not hesitate to ask a CI maintainer:
+ - @ben.boeckel
+ - @mathieu.westphal
+
+### Reading CI Results ###
+
+Reading CI results is a very important part of the merge request process
+and is the responsibility of the author of the merge request, although reviewers
+can usually help. There are two locations to read the results, GitLab CI and CDash.
+Both should be checked and considered clean before merging.
+
+To read GitLab CI result, click on the Pipelines tab then on the last pipeline.
+It is expected to be fully green. If it is not, click on the red jobs to see the reason for the failure.
+It should clearly appears at the bottom of the log.
+Possible failures are:
+ - Timeouts: please rerun the job and report to CI maintainers
+ - Memory related errors: please rerun the job and report to CI maintainers
+ - Testing errors: please consult the CDash for more information, usually an issue in your code
+ - Non disclosed error: please consult the CDash, usually a build error in your code
+
+To read the CDash result, on the job page, click on the "cdash-commit" external job which
+will open the commit-specific CDash page. Once it is open, make sure to show "All Build" on the bottom left of the page.
+CDash results disply error, warnings, and test failures for all the jobs.
+It is expected to be green *except* for the "NoRun" and "Test Timings" category, which can be ignored.
+
+ - Configure warnings: there must not be any; to fix before the merge
+ - Configure errors: there must not be any; to fix before the merge
+ - Build warnings: there must not be any; to fix before the merge. If unrelated to your code, report to CI maintainers.
+ - Build errors: there must be any; to fix before the merge. If unrelated to your code, rerun the job and report to CI maintainers.
+ - NotRun test : ignore; these tests have self-diagnosed that they are not relevant on the testing machine.
+ - Testing failure: there should not be any, ideally, to fix before the merge. If unrelated to your code, check the test history to see if it is a flaky test and report to CI maintainers.
+ - Testing success: if your MR creates or modifies tests, please check that your test are listed there.
+ - Test timings errors: can be ignored, but if it is all red, you may want to report it to CI maintainers.
+
+To check the history of a failing test, on the test page, click on the "Summary" link to see a summary of the test for the day,
+then click on the date controls on top to go back in time.
+If the test fails on other MRs or on master, this is probably a flaky test, currently in the process of being fixed or excluded.
+A flaky test can be ignored.
+
+As a reminder, here is our current policy regarding CI results.
+All the jobs must be run before merging, *including tidy*.
+Configure warnings and errors are not acceptable to merge and must be fixed.
+Build warning and errors are not acceptable to merge and must be fixed.
+Testing failure should be fixed before the merged but can be accepted if a flaky test has been clearly identified.
 
 Revise a Topic
 --------------
@@ -525,7 +574,6 @@ comment instead):
   It is also used in merge commits constructed by `Do: stage`.
   The `-t` option to a `Do: merge` command overrides any topic
   rename set in the MR description.
-
 
 ### Merge Success ###
 
