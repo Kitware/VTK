@@ -221,6 +221,11 @@ int vtkHyperTreeGridGeometricLocator::IntersectWithLine(const double p0[3], cons
     vtkNew<vtkHyperTreeGridNonOrientedGeometryCursor> cursor;
     bool rootFound = false;
     {
+      // WARNING
+      // A choice was made here to use buffers of size nTrees here to simplify the logic in the for
+      // loop. In cases were nTrees is large these buffers could possibly become too memory
+      // intensive. If this becomes an issue, the for loop should be refactored to use smaller
+      // buffers.
       unsigned int nTrees = this->HTG->GetNumberOfNonEmptyTrees();
       std::vector<bool> intersects(nTrees, false);
       std::vector<int> subIds(nTrees, 0);

@@ -581,8 +581,8 @@ vtkCell* vtkVoxel::GetFace(int faceId)
 //
 // Intersect voxel with line using "bounding box" intersection.
 //
-int vtkVoxel::IntersectWithLine(const double p1[3], const double p2[3], double vtkNotUsed(tol),
-  double& t, double x[3], double pcoords[3], int& subId)
+int vtkVoxel::IntersectWithLine(const double p1[3], const double p2[3], double tol, double& t,
+  double x[3], double pcoords[3], int& subId)
 {
   double minPt[3], maxPt[3];
   double bounds[6];
@@ -601,7 +601,7 @@ int vtkVoxel::IntersectWithLine(const double p1[3], const double p2[3], double v
     bounds[2 * i + 1] = maxPt[i];
   }
 
-  if (!vtkBox::IntersectBox(bounds, p1, p21, x, t))
+  if (!vtkBox::IntersectBox(bounds, p1, p21, x, t, tol))
   {
     return 0;
   }

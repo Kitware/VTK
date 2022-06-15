@@ -247,8 +247,8 @@ public:
       vtkIdType id = this->Locator->Search(pt.data());
       if (!(id < 0))
       {
-        this->ThreadLocal.Local().pointIds.push_back(iP);
-        this->ThreadLocal.Local().cellIds.push_back(id);
+        this->ThreadLocal.Local().pointIds.emplace_back(iP);
+        this->ThreadLocal.Local().cellIds.emplace_back(id);
       }
     }
   }
@@ -263,16 +263,17 @@ public:
     this->ThreadGlobPointIds->SetNumberOfIds(nPointsFound);
     this->ThreadGlobCellIds->SetNumberOfIds(nPointsFound);
     nPointsFound = 0;
-    for (auto it = this->ThreadLocal.begin(); it != this->ThreadLocal.end(); it++)
-    {
+
+    auto mergeThreadResults = [&](LocalData& loc) {
       std::copy(
-        it->pointIds.begin(), it->pointIds.end(), this->ThreadGlobPointIds->begin() + nPointsFound);
+        loc.pointIds.begin(), loc.pointIds.end(), this->ThreadGlobPointIds->begin() + nPointsFound);
       std::copy(
-        it->cellIds.begin(), it->cellIds.end(), this->ThreadGlobCellIds->begin() + nPointsFound);
-      nPointsFound += it->pointIds.size();
-      it->pointIds.resize(0);
-      it->cellIds.resize(0);
-    }
+        loc.cellIds.begin(), loc.cellIds.end(), this->ThreadGlobCellIds->begin() + nPointsFound);
+      nPointsFound += loc.pointIds.size();
+      loc.pointIds.resize(0);
+      loc.cellIds.resize(0);
+    };
+    std::for_each(this->ThreadLocal.begin(), this->ThreadLocal.end(), mergeThreadResults);
   }
 };
 

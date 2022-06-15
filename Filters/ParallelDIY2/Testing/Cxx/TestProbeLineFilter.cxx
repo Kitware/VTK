@@ -126,7 +126,7 @@ int Check2DHTG(vtkMultiProcessController* contr, vtkDataSet* outDataSet)
           continue;
         }
       }
-      for (int d = 0; d < 4; d++) // iterate over depth
+      for (int d = 0; d < 4; d++) // iterate over levels
       {
         double demarcation = 0.5 / std::pow(2, d);
         if (std::abs(pt[0]) < demarcation && std::abs(pt[1]) < demarcation)
@@ -143,6 +143,11 @@ int Check2DHTG(vtkMultiProcessController* contr, vtkDataSet* outDataSet)
           break;
         }
       }
+      /*
+       * Check here if the depth array has the correct value computed above specifically for this
+       * HTG Slight indetermination due to the INTERSECT_WITH_CELLS mode for points which are
+       * exactly in between two depth zones. The second part of the check takes care of that.
+       */
       if (!((foundDepth - da->GetComponent(i, 0) < 1) ||
             (isDemarcation && ((foundDepth - da->GetComponent(i, 0) + 1) < 1))))
       {
@@ -173,18 +178,18 @@ int Check3DHTG(vtkMultiProcessController* contr, vtkDataSet* outDataSet)
       bool isDemarcation = false;
       if (std::abs(pt[0]) < 1.0 && std::abs(pt[1]) < 1.0 && std::abs(pt[2]))
       {
-        foundDepth = 0.0;
+        foundDepth = 0;
       }
       else if ((std::abs(pt[0]) - 1.0) < eps && (std::abs(pt[1]) - 1.0) < eps &&
         (std::abs(pt[2]) - 1.0) < eps)
       {
-        foundDepth = 0.0;
+        foundDepth = 0;
         if (vtkMath::IsNan(da->GetComponent(i, 0)))
         {
           continue;
         }
       }
-      for (int d = 0; d < 4; d++) // iterate over depth
+      for (int d = 0; d < 4; d++) // iterate over levels
       {
         double demarcation = 0.5 / std::pow(2, d);
         if (std::abs(pt[0]) < demarcation && std::abs(pt[1]) < demarcation &&
@@ -197,20 +202,27 @@ int Check3DHTG(vtkMultiProcessController* contr, vtkDataSet* outDataSet)
           (std::abs(pt[2]) - demarcation) < eps)
         {
           isDemarcation = true;
+          foundDepth = d;
+          continue;
         }
         else
         {
           break;
         }
       }
+      /*
+       * Check here if the depth array has the correct value computed above specifically for this
+       * HTG Slight indetermination due to the INTERSECT_WITH_CELLS mode for points which are
+       * exactly in between two depth zones. The second part of the check takes care of that.
+       */
       if (!((foundDepth - da->GetComponent(i, 0) < 1) ||
             (isDemarcation && ((foundDepth - da->GetComponent(i, 0) + 1) < 1))))
       {
-        vtkLog(ERROR, << "Probe Line on HTG 3D failed for point " << pt[0] << ", " << pt[1]
-                      << " with depth " << da->GetComponent(i, 0) << " when it should be "
-                      << foundDepth);
+        vtkLog(ERROR, << "Probe Line on HTG 3D failed for " << i << "th point " << pt[0] << ", "
+                      << pt[1] << ", " << pt[2] << " with depth " << da->GetComponent(i, 0)
+                      << " when it should be " << foundDepth);
         retVal = EXIT_FAILURE;
-        break;
+        // break;
       }
     }
   }
@@ -462,8 +474,8 @@ int Test3DProbingHTG(vtkMultiProcessController* contr)
 
   vtkNew<vtkLineSource> line;
   line->SetResolution(1);
-  line->SetPoint1(0.01, 0.01, 0.01);
-  line->SetPoint2(0.99, 0.99, 0.99);
+  line->SetPoint1(0.02, 0.01, 0.03);
+  line->SetPoint2(0.99, 0.98, 0.99);
   line->Update();
 
   vtkNew<vtkProbeLineFilter> probeLine;

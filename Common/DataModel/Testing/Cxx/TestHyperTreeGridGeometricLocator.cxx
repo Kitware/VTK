@@ -368,8 +368,7 @@ bool runAllIntersectsDiagonal(vtkHyperTreeGridGeometricLocator* htgLoc, TestResu
         break;
       }
 
-      vtkIdType cellId =
-        htgLoc->FindCell(points->GetPoint(iP), 0.0, cell, subId, pcoords.data(), weights.data());
+      htgLoc->FindCell(points->GetPoint(iP), 0.0, cell, subId, pcoords.data(), weights.data());
       double t = 0.0;
       std::vector<double> x(3, 0.0);
       success &= (cell->IntersectWithLine(origin.data(), diagPt.data(), epsilon, t, x.data(),
@@ -438,7 +437,7 @@ int TestHyperTreeGridGeometricLocator(int vtkNotUsed(argc), char* vtkNotUsed(arg
   commonPoints.emplace_back(std::vector<double>(3, 1.0 - epsilon), false);
   {
     std::vector<double> randPt = { -0.2, 0.6, -0.7 };
-    commonPoints.push_back(std::make_pair(randPt, false));
+    commonPoints.emplace_back(randPt, false);
   }
 
   unsigned int iHTG = 0;
