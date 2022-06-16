@@ -399,8 +399,17 @@ class vtkProbeFilter::ProbeEmptyPointsWorklet
   struct LocalData
   {
     vtkSmartPointer<vtkFindCellStrategy> Strategy;
-    vtkSmartPointer<vtkGenericCell> Cell;
+    vtkCellLocatorStrategy* CellLocatorStrategy;
+    vtkClosestPointStrategy* ClosestPointStrategy;
+    vtkSmartPointer<vtkGenericCell> CurrentCell;
+    vtkSmartPointer<vtkGenericCell> LastCell;
     std::vector<double> Weights;
+    double LastPCoords[3];
+    int LastSubId;
+    double LastClosestPoint[3];
+    double LastCellBounds[6];
+    double LastLength2;
+    vtkIdType LastCellId;
   };
   vtkSMPThreadLocal<LocalData> TLData;
 
@@ -434,13 +443,32 @@ public:
       tlData.Strategy = vtk::TakeSmartPointer(this->Strategy->NewInstance());
       tlData.Strategy->CopyParameters(this->Strategy);
       tlData.Strategy->Initialize(vtkPointSet::SafeDownCast(this->Source));
+      tlData.CellLocatorStrategy = vtkCellLocatorStrategy::SafeDownCast(tlData.Strategy);
+      tlData.ClosestPointStrategy = vtkClosestPointStrategy::SafeDownCast(tlData.Strategy);
     }
     else
     {
       tlData.Strategy = nullptr;
+      tlData.CellLocatorStrategy = nullptr;
+      tlData.ClosestPointStrategy = nullptr;
     }
-    tlData.Cell = vtkSmartPointer<vtkGenericCell>::New();
+    tlData.CurrentCell = vtkSmartPointer<vtkGenericCell>::New();
+    tlData.LastCell = vtkSmartPointer<vtkGenericCell>::New();
     tlData.Weights.resize(static_cast<size_t>(this->MaxCellSize));
+    tlData.LastCellId = -1;
+  }
+
+  static double GetLength2(const double bounds[6])
+  {
+    double diff, l = 0.0;
+    int i;
+
+    for (i = 0; i < 3; i++)
+    {
+      diff = bounds[2 * i + 1] - bounds[2 * i];
+      l += diff * diff;
+    }
+    return l;
   }
 
   void operator()(vtkIdType beginPointId, vtkIdType endPointId)
@@ -450,13 +478,21 @@ public:
     // thread local data
     auto& tlData = this->TLData.Local();
     auto& strategy = tlData.Strategy;
-    auto& cell = tlData.Cell;
+    auto& cellLocatorStrategy = tlData.CellLocatorStrategy;
+    auto& closestPointStrategy = tlData.ClosestPointStrategy;
+    auto& currentCell = tlData.CurrentCell;
+    auto& lastCell = tlData.LastCell;
     auto weights = tlData.Weights.data();
+    auto& lastPCoords = tlData.LastPCoords;
+    auto& lastSubId = tlData.LastSubId;
+    auto& lastClosestPoint = tlData.LastClosestPoint;
+    auto& lastCellBounds = tlData.LastCellBounds;
+    auto& lastLength2 = tlData.LastLength2;
+    auto& lastCellId = tlData.LastCellId;
     // local data
-    double x[3], pcoords[3];
-    int subId;
-    double dist2;
-    double closestPoint[3];
+    double x[3], dist2;
+    int inside;
+    bool foundInCache, insideCellBounds;
 
     for (vtkIdType pointId = beginPointId; pointId < endPointId; ++pointId)
     {
@@ -470,23 +506,90 @@ public:
       // Get the xyz coordinate of the point in the input dataset
       this->Input->GetPoint(pointId, x);
 
-      vtkIdType cellId = (strategy != nullptr)
-        ? strategy->FindCell(x, nullptr, cell, -1, this->Tol2, subId, pcoords, weights)
-        : this->Source->FindCell(x, nullptr, -1, this->Tol2, subId, pcoords, weights);
-
-      if (cellId >= 0 && !::IsBlankedCell(this->SourceGhostFlags, cellId))
+      foundInCache = false;
+      if (lastCellId != -1)
       {
-        // if there is a strategy, then we already have the cell, because the strategy returns it.
-        if (strategy == nullptr)
+        // check if it's inside cell bounds
+        insideCellBounds = lastCellBounds[0] <= x[0] && x[0] <= lastCellBounds[1] &&
+          lastCellBounds[2] <= x[1] && x[1] <= lastCellBounds[3] && lastCellBounds[4] <= x[2] &&
+          x[2] <= lastCellBounds[5];
+        if (insideCellBounds)
         {
-          this->Source->GetCell(cellId, cell);
+          // Use cache cell only if point is inside
+          inside = currentCell->EvaluatePosition(
+            x, lastClosestPoint, lastSubId, lastPCoords, dist2, weights);
+          if (inside == 1)
+          {
+            foundInCache = true;
+          }
         }
+      }
+      if (!foundInCache)
+      {
+        // strategies are used for subclasses of vtkPointSet
+        if (strategy)
+        {
+          if (cellLocatorStrategy)
+          {
+            // this location strategy uses a cell locator
+            lastCellId = cellLocatorStrategy->FindCell(x, nullptr, currentCell, -1,
+              this->Tol2 /*not used*/, lastSubId, lastPCoords, weights);
+            // this strategy once it finds a cell where the given point is inside it stops
+            // immediately, so currentCell contains the cell we want
+          }
+          else // vtkClosestPointStrategy
+          {
+            // this location strategy will first look at the neighbor cells of the cached cell (if
+            // any) and if that fails it will use jump and walk technique
+            if (lastCellId != -1)
+            {
+              // Use cache cell only if point is inside
+              this->Source->GetCell(lastCellId, lastCell);
+              lastCellId = closestPointStrategy->FindCell(
+                x, lastCell, currentCell, lastCellId, this->Tol2, lastSubId, lastPCoords, weights);
+              foundInCache = lastCellId != -1;
+            }
+            else
+            {
+              lastCellId = closestPointStrategy->FindCell(
+                x, nullptr, currentCell, -1, this->Tol2, lastSubId, lastPCoords, weights);
+            }
+            // this strategy once it finds a cell where the given point is inside it stops
+            // immediately, so currentCell contains the cell we want
+          }
+        }
+        else
+        {
+          // the classes that do not use a strategy are vtkImageData, vtkRectilinearGrid
+          lastCellId = this->Source->FindCell(
+            x, nullptr, currentCell, -1, this->Tol2, lastSubId, lastPCoords, weights);
+          // these classes don't use currentCell, so we will need to extract it if we found anything
+        }
+        if (lastCellId != -1)
+        {
+          // extract the cell that we found if we didn't use a strategy
+          if (!strategy)
+          {
+            this->Source->GetCell(lastCellId, currentCell);
+          }
+          // pcoords, weights and subid are all valid, so we can compute the closest point
+          // using EvaluateLocation
+          currentCell->EvaluateLocation(lastSubId, lastPCoords, lastClosestPoint, weights);
+          // copy bounds
+          std::copy_n(currentCell->GetBounds(), 6, lastCellBounds);
+          // compute lastLength2
+          lastLength2 = this->GetLength2(lastCellBounds);
+        }
+      }
+
+      if (lastCellId >= 0 && !::IsBlankedCell(this->SourceGhostFlags, lastCellId))
+      {
         if (this->ProbeFilter->ComputeTolerance)
         {
           // If ComputeTolerance is set, compute a tolerance proportional to the
           // cell length.
-          cell->EvaluatePosition(x, closestPoint, subId, pcoords, dist2, weights);
-          if (dist2 > (cell->GetLength2() * CELL_TOLERANCE_FACTOR_SQR))
+          dist2 = vtkMath::Distance2BetweenPoints(x, lastClosestPoint);
+          if (dist2 > (lastLength2 * CELL_TOLERANCE_FACTOR_SQR))
           {
             continue;
           }
@@ -494,13 +597,13 @@ public:
 
         // Interpolate the point data
         this->OutputPD->InterpolatePoint(*this->ProbeFilter->PointList, this->SourcePD,
-          this->SourceIdx, pointId, cell->PointIds, weights);
+          this->SourceIdx, pointId, currentCell->PointIds, weights);
         for (auto& cellArray : this->ProbeFilter->CellArrays)
         {
           vtkDataArray* inArray = this->SourceCD->GetArray(cellArray->GetName());
           if (inArray)
           {
-            this->OutputPD->CopyTuple(inArray, cellArray, cellId, pointId);
+            this->OutputPD->CopyTuple(inArray, cellArray, lastCellId, pointId);
           }
         }
         maskArray[pointId] = static_cast<char>(1);
