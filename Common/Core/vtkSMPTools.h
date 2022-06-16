@@ -37,7 +37,6 @@
 #include "vtkSMPThreadLocal.h" // For Initialized
 
 #include <functional>  // For std::function
-#include <iterator>    // For std::iterator
 #include <type_traits> // For std:::enable_if
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS

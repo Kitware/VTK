@@ -54,21 +54,17 @@ using CompositeDataSetIteratorReference =
 //------------------------------------------------------------------------------
 // vtkCompositeDataSet iterator. Returns vtk::CompositeDataSetNodeReference.
 struct CompositeDataSetIterator
-  : public std::iterator<std::forward_iterator_tag, vtkDataObject*, int,
-      CompositeDataSetIteratorReference, CompositeDataSetIteratorReference>
 {
 private:
-  using Superclass = std::iterator<std::forward_iterator_tag, vtkDataObject*, int,
-    CompositeDataSetIteratorReference, CompositeDataSetIteratorReference>;
   using InternalIterator = vtkCompositeDataIterator;
   using SmartIterator = vtkSmartPointer<InternalIterator>;
 
 public:
-  using iterator_category = typename Superclass::iterator_category;
-  using value_type = typename Superclass::value_type;
-  using difference_type = typename Superclass::difference_type;
-  using pointer = typename Superclass::pointer;
-  using reference = typename Superclass::reference;
+  using iterator_category = std::forward_iterator_tag;
+  using value_type = vtkDataObject*;
+  using difference_type = int;
+  using pointer = CompositeDataSetIteratorReference;
+  using reference = CompositeDataSetIteratorReference;
 
   CompositeDataSetIterator(const CompositeDataSetIterator& o)
     : Iterator(o.Iterator ? SmartIterator::Take(o.Iterator->NewInstance()) : nullptr)
