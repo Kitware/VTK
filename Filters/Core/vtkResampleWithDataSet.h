@@ -152,6 +152,20 @@ public:
   ///@}
 
   ///@{
+  /**
+   * Set/Get whether to snap to the cell with the closest point, if no cell has been found while
+   * FindCell is executed.
+   *
+   * Default is off.
+   *
+   * Note: This is useful only when the source is a vtkPointSet.
+   */
+  void SetSnapToCellWithClosestPoint(bool arg);
+  bool GetSnapToCellWithClosestPoint();
+  vtkBooleanMacro(SnapToCellWithClosestPoint, bool);
+  ///@}
+
+  ///@{
   /*
    * Set/Get the prototype cell locator to use for probing the source dataset.
    * The value is forwarded to the underlying probe filter.

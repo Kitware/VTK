@@ -86,6 +86,7 @@ vtkProbeFilter::vtkProbeFilter()
   this->PassFieldArrays = 1;
   this->Tolerance = 1.0;
   this->ComputeTolerance = true;
+  this->SnapToCellWithClosestPoint = false;
 }
 
 //------------------------------------------------------------------------------
@@ -396,6 +397,8 @@ class vtkProbeFilter::ProbeEmptyPointsWorklet
   double Tol2;
   int MaxCellSize;
 
+  static constexpr double SnappingRadius = std::numeric_limits<double>::infinity();
+
   struct LocalData
   {
     vtkSmartPointer<vtkFindCellStrategy> Strategy;
@@ -491,6 +494,7 @@ public:
     auto& lastCellId = tlData.LastCellId;
     // local data
     double x[3], dist2;
+    vtkIdType closestPointFound;
     int inside;
     bool foundInCache, insideCellBounds;
 
@@ -578,7 +582,33 @@ public:
           // copy bounds
           std::copy_n(currentCell->GetBounds(), 6, lastCellBounds);
           // compute lastLength2
-          lastLength2 = this->GetLength2(lastCellBounds);
+          lastLength2 = ProbeEmptyPointsWorklet::GetLength2(lastCellBounds);
+        }
+        else
+        {
+          if (this->ProbeFilter->SnapToCellWithClosestPoint && strategy)
+          {
+            // Find the closest point and the cell that it belong to
+            closestPointFound = strategy->FindClosestPointWithinRadius(x, this->SnappingRadius,
+              lastClosestPoint, currentCell, lastCellId, lastSubId, dist2, inside);
+            if (closestPointFound)
+            {
+              // pcoords, weights and subid are all valid, so we can compute the closest point
+              // using EvaluateLocation
+              this->Source->GetCell(lastCellId, currentCell);
+              // we don't need to calculate the closest point, but we do need to calculate the
+              // weights
+              currentCell->EvaluateLocation(lastSubId, lastPCoords, lastClosestPoint, weights);
+              // copy bounds
+              std::copy_n(currentCell->GetBounds(), 6, lastCellBounds);
+              // compute lastLength2
+              lastLength2 = ProbeEmptyPointsWorklet::GetLength2(lastCellBounds);
+            }
+            else
+            {
+              lastCellId = -1;
+            }
+          }
         }
       }
 

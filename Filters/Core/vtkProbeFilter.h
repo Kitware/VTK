@@ -191,6 +191,20 @@ public:
 
   ///@{
   /**
+   * Set/Get whether to snap to the cell with the closest point, if no cell has been found while
+   * FindCell is executed.
+   *
+   * Default is off.
+   *
+   * Note: This is useful only when the source is a vtkPointSet.
+   */
+  vtkSetMacro(SnapToCellWithClosestPoint, bool);
+  vtkBooleanMacro(SnapToCellWithClosestPoint, bool);
+  vtkGetMacro(SnapToCellWithClosestPoint, bool);
+  ///@}
+
+  ///@{
+  /**
    * Set whether to use the Tolerance field or precompute the tolerance.
    * When on, the tolerance will be computed and the field
    * value is ignored. On by default.
@@ -271,6 +285,7 @@ protected:
 
   double Tolerance;
   bool ComputeTolerance;
+  bool SnapToCellWithClosestPoint;
 
   char* ValidPointMaskArrayName;
   vtkIdTypeArray* ValidPoints;
