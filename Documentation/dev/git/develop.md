@@ -489,7 +489,7 @@ It is expected to be green *except* for the "NoRun" and "Test Timings" categorie
  - Configure warnings: there **must** not be any; to fix before the merge
  - Configure errors: there **must** not be any; to fix before the merge
  - Build warnings: there **must** not be any; to fix before the merge. If unrelated to your code, report to CI maintainers.
- - Build errors: there **must** be any; to fix before the merge. If unrelated to your code, rerun the job and report to CI maintainers.
+ - Build errors: there **must** not be any; to fix before the merge. If unrelated to your code, rerun the job and report to CI maintainers.
  - NotRun test : ignore; these tests have self-diagnosed that they are not relevant on the testing machine.
  - Testing failure: there **should** not be any, ideally, to fix before the merge. If unrelated to your code, check the test history to see if it is a flaky test and report to CI maintainers.
  - Testing success: if your MR creates or modifies tests, please check that your test are listed there.
