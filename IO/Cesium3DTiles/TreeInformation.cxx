@@ -600,7 +600,7 @@ vtkSmartPointer<vtkImageData> TreeInformation::ComputeTileMeshTexture(
     average = average + (scatteredRegions[i].Region[1] - scatteredRegions[i].Region[0] + 1);
   }
   average /= scatteredRegions.size();
-  size_t width = std::sqrt(scatteredRegions.size()) * average;
+  size_t width = std::round(std::sqrt(scatteredRegions.size())) * average;
 
   // place cells in the new image using Next-Fit Decreasing Height (NFDH) algorithm
   // https://cgi.csc.liv.ac.uk/~epa/surveyhtml.html
@@ -921,7 +921,8 @@ double TreeInformation::ComputeGeometricErrorTilesetMesh()
 }
 
 //------------------------------------------------------------------------------
-double TreeInformation::ComputeGeometricErrorNodeMesh(vtkIncrementalOctreeNode* node, void* aux)
+double TreeInformation::ComputeGeometricErrorNodeMesh(
+  vtkIncrementalOctreeNode* vtkNotUsed(node), void* aux)
 {
   double* parentError = static_cast<double*>(aux);
   return *parentError / 2;
