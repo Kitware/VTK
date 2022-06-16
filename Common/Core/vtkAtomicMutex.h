@@ -35,7 +35,7 @@ class VTKCOMMONCORE_EXPORT vtkAtomicMutex
 public:
   // left public purposely to allow for copy construction
   vtkAtomicMutex();
-  ~vtkAtomicMutex();
+  ~vtkAtomicMutex() = default;
   vtkAtomicMutex(const vtkAtomicMutex& other);
   vtkAtomicMutex& operator=(const vtkAtomicMutex& other);
 
