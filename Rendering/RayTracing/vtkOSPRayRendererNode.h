@@ -23,7 +23,10 @@
 #define vtkOSPRayRendererNode_h
 
 #include "RTWrapper/RTWrapper.h" // for handle types
-#include "vtkOSPRayCache.h"      // For common cache infrastructure
+#include "vtkDeprecation.h"      // For deprecation macro
+#include "vtkInformation.h"
+#include "vtkOSPRayCache.h" // For common cache infrastructure
+#include "vtkRenderer.h"
 #include "vtkRendererNode.h"
 #include "vtkRenderingRayTracingModule.h" // For export macro
 
@@ -150,6 +153,11 @@ public:
    * When present on renderer, affects path traced rendering phase function.
    *
    * valid values are between -1.0 and 1.0. The default is 0.0.
+   *
+   * VTK_DEPRECATED_IN_9_2_0
+   * This key is now deprecated, see vtkOSPRayRendererNode::SetVolumeAnisotropy.
+   * It is replaced by vtkVolumeProperty::ScatteringAnisotropy.
+   * It is not explicitely deprecated with the macro to avoid compilation warnings.
    */
   static vtkInformationDoubleKey* VOLUME_ANISOTROPY();
 
@@ -157,8 +165,31 @@ public:
   /**
    * Convenience method to set/get VOLUME_ANISOTROPY on a vtkRenderer.
    */
-  static void SetVolumeAnisotropy(double, vtkRenderer* renderer);
-  static double GetVolumeAnisotropy(vtkRenderer* renderer);
+  VTK_DEPRECATED_IN_9_2_0("Use vtkVolumeProperty::SetScatteringAnisotropy instead")
+  static void SetVolumeAnisotropy(double value, vtkRenderer* renderer)
+  {
+    if (!renderer)
+    {
+      return;
+    }
+    vtkInformation* info = renderer->GetInformation();
+    info->Set(vtkOSPRayRendererNode::VOLUME_ANISOTROPY(), value);
+  };
+  VTK_DEPRECATED_IN_9_2_0("Use vtkVolumeProperty::GetScatteringAnisotropy instead")
+  static double GetVolumeAnisotropy(vtkRenderer* renderer)
+  {
+    constexpr double DEFAULT_VOLUME_ANISOTROPY = 0.0;
+    if (!renderer)
+    {
+      return DEFAULT_VOLUME_ANISOTROPY;
+    }
+    vtkInformation* info = renderer->GetInformation();
+    if (info && info->Has(vtkOSPRayRendererNode::VOLUME_ANISOTROPY()))
+    {
+      return (info->Get(vtkOSPRayRendererNode::VOLUME_ANISOTROPY()));
+    }
+    return DEFAULT_VOLUME_ANISOTROPY;
+  };
   ///@}
 
   /**
