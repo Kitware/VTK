@@ -208,7 +208,7 @@ bool vtkPlotParallelCoordinates::SetSelectionRange(int axis, std::vector<float> 
       this->Selection->GetTypedTuple(i, &id);
 
       size_t size = axisSelection.size() - axisSelection.size() % 2;
-      for (int j = 0; j < size; j += 2)
+      for (size_t j = 0; j < size; j += 2)
       {
         float low = axisSelection[j];
         float high = axisSelection[j + 1];
@@ -230,7 +230,7 @@ bool vtkPlotParallelCoordinates::SetSelectionRange(int axis, std::vector<float> 
     for (size_t i = 0; i < col.size(); ++i)
     {
       size_t size = axisSelection.size() - axisSelection.size() % 2;
-      for (int j = 0; j < size; j += 2)
+      for (size_t j = 0; j < size; j += 2)
       {
         float low = axisSelection[j];
         float high = axisSelection[j + 1];

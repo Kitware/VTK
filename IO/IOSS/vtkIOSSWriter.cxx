@@ -261,7 +261,7 @@ int vtkIOSSWriter::RequestData(vtkInformation* request, vtkInformationVector** i
   model.Transient(*internals.Region, /*time=*/time);
 
   ++internals.CurrentTimeStep;
-  if (internals.CurrentTimeStep < internals.TimeSteps.size())
+  if (static_cast<size_t>(internals.CurrentTimeStep) < internals.TimeSteps.size())
   {
     request->Set(vtkStreamingDemandDrivenPipeline::CONTINUE_EXECUTING(), 1);
   }

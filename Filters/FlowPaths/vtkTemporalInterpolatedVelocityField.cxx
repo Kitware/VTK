@@ -316,7 +316,7 @@ void vtkTemporalInterpolatedVelocityField::Initialize(
   }
 
   std::vector<vtkDataSet*> datasets[2];
-  datasets[1] = std::move(vtkCompositeDataSet::GetDataSets(t1));
+  datasets[1] = vtkCompositeDataSet::GetDataSets(t1);
   if (t0 == t1) // First time calling this method
   {
     if (vtkClosestPointStrategy::SafeDownCast(strategy))
@@ -339,7 +339,7 @@ void vtkTemporalInterpolatedVelocityField::Initialize(
   }
   else // t0 != t1
   {
-    datasets[0] = std::move(vtkCompositeDataSet::GetDataSets(t0));
+    datasets[0] = vtkCompositeDataSet::GetDataSets(t0);
     switch (this->MeshOverTime)
     {
       case MeshOverTimeTypes::DIFFERENT:

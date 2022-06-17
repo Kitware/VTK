@@ -31,14 +31,12 @@ int TestLengthDistribution(int argc, char* argv[])
 {
   int result = 0;
   vtkNew<vtkUnstructuredGridReader> mr;
-  vtkUnstructuredGrid* ug;
   vtkNew<vtkLengthDistribution> ld;
   char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/uGridEx.vtk");
 
   mr->SetFileName(fname);
   mr->Update();
 
-  ug = mr->GetOutput();
   ld->SetInputConnection(mr->GetOutputPort());
   ld->Update();
 

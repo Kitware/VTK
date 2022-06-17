@@ -148,7 +148,7 @@ protected:
    * Contructor setup
    */
   vtkHyperTreeGridPreConfiguredSource();
-  virtual ~vtkHyperTreeGridPreConfiguredSource() = default;
+  ~vtkHyperTreeGridPreConfiguredSource() override = default;
   vtkHyperTreeGridPreConfiguredSource(const vtkHyperTreeGridPreConfiguredSource&) = delete;
 
   void operator=(const vtkHyperTreeGridPreConfiguredSource&) = delete;
