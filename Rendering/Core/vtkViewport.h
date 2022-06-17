@@ -78,7 +78,7 @@ public:
   /**
    * Remove all props from the list of props.
    */
-  void RemoveAllViewProps(void);
+  void RemoveAllViewProps();
 
   ///@{
   /**

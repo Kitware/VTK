@@ -234,7 +234,7 @@ public:
   /**
    * Get the ID of the appropriate pick LOD index
    */
-  int GetPickLODID(void);
+  int GetPickLODID();
 
   ///@{
   /**
@@ -317,7 +317,7 @@ protected:
   vtkLODProp3D();
   ~vtkLODProp3D() override;
 
-  int GetAutomaticPickPropIndex(void);
+  int GetAutomaticPickPropIndex();
 
   // Assumes that SelectedLODIndex has already been validated:
   void UpdateKeysForSelectedProp();

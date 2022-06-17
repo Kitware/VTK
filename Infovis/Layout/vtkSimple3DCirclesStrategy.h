@@ -121,7 +121,7 @@ public:
    * Set or get MarkedValue. See: MarkedStartVertices.
    */
   virtual void SetMarkedValue(vtkVariant _arg);
-  virtual vtkVariant GetMarkedValue(void);
+  virtual vtkVariant GetMarkedValue();
   ///@}
   ///@{
   /**
@@ -156,7 +156,7 @@ public:
    * minimum radian will be changed.
    */
   virtual void SetMinimumDegree(double degree);
-  virtual double GetMinimumDegree(void);
+  virtual double GetMinimumDegree();
   ///@}
   ///@{
   /**
@@ -179,7 +179,7 @@ public:
   /**
    * Standard layout method
    */
-  void Layout(void) override;
+  void Layout() override;
   /**
    * Set graph (warning: HierarchicalOrder and HierarchicalLayers will set to zero. These reference
    * counts will be decreased!)

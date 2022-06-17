@@ -215,7 +215,7 @@ public:
   vtkGetMacro(ProcessMode, int);
   void SetProcessModeToPerVoxel() { this->SetProcessMode(VTK_VOXEL_MODE); }
   void SetProcessModeToPerCell() { this->SetProcessMode(VTK_CELL_MODE); }
-  const char* GetProcessModeAsString(void);
+  const char* GetProcessModeAsString();
   ///@}
 
   ///@{

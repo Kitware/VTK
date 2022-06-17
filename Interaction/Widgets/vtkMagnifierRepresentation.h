@@ -88,7 +88,7 @@ public:
   vtkPropCollection* GetViewProps() { return this->Props; }
   int HasViewProp(vtkProp*);
   void RemoveViewProp(vtkProp*);
-  void RemoveAllViewProps(void);
+  void RemoveAllViewProps();
   ///@{
 
   ///@{

@@ -60,12 +60,12 @@ public:
   /**
    * Lock the vtkMutexLock
    */
-  void Lock(void);
+  void Lock();
 
   /**
    * Unlock the vtkMutexLock
    */
-  void Unlock(void);
+  void Unlock();
 
 protected:
   friend class vtkSimpleConditionVariable;
@@ -88,12 +88,12 @@ public:
   /**
    * Lock the vtkMutexLock
    */
-  void Lock(void);
+  void Lock();
 
   /**
    * Unlock the vtkMutexLock
    */
-  void Unlock(void);
+  void Unlock();
 
 protected:
   friend class vtkConditionVariable; // needs to get at SimpleMutexLock.
@@ -106,12 +106,12 @@ private:
   void operator=(const vtkMutexLock&) = delete;
 };
 
-inline void vtkMutexLock::Lock(void)
+inline void vtkMutexLock::Lock()
 {
   this->SimpleMutexLock.Lock();
 }
 
-inline void vtkMutexLock::Unlock(void)
+inline void vtkMutexLock::Unlock()
 {
   this->SimpleMutexLock.Unlock();
 }

@@ -58,7 +58,7 @@ public:
   /**
    * Return the number of encoded directions
    */
-  int GetNumberOfEncodedDirections(void) override;
+  int GetNumberOfEncodedDirections() override;
 
   /**
    * Get the decoded gradient table. There are
@@ -66,7 +66,7 @@ public:
    * containing a normal (direction) vector. This is a flat structure -
    * 3 times the number of directions floats in an array.
    */
-  float* GetDecodedGradientTable(void) override;
+  float* GetDecodedGradientTable() override;
 
   ///@{
   /**
@@ -109,7 +109,7 @@ protected:
   // Method to initialize the index table and variable that
   // stored the recursion depth the last time the table was
   // built
-  void InitializeIndexTable(void);
+  void InitializeIndexTable();
   int IndexTableRecursionDepth;
 
   int OuterSize;

@@ -66,7 +66,7 @@ public:
   {
     this->SetElevationReference(REFERENCE_ELEVATION_BOUNDS);
   }
-  const char* GetElevationReferenceAsString(void);
+  const char* GetElevationReferenceAsString();
   ///@}
 
   ///@{

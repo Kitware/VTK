@@ -37,7 +37,7 @@ public:
   // Since this is a special environment, the methods are limited to use
   // vtkExternalOpenGLRenderWindow only.
   // \sa vtkExternalOpenGLRenderWindow
-  vtkExternalOpenGLRenderWindow* GetRenderWindow(void);
+  vtkExternalOpenGLRenderWindow* GetRenderWindow();
   void SetRenderWindow(vtkExternalOpenGLRenderWindow* renWin);
 
   // Creates a new renderer and adds it to the render window.

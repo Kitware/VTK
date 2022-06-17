@@ -176,7 +176,7 @@ protected:
   /**
    * Free boundary edges are weighted
    */
-  void AddBoundaryConstraints(void);
+  void AddBoundaryConstraints();
 
   /**
    * Compute quadric for this vertex.
@@ -213,7 +213,7 @@ protected:
   int IsGoodPlacement(vtkIdType pt0Id, vtkIdType pt1Id, const double* x);
   int TrianglePlaneCheck(
     const double t0[3], const double t1[3], const double t2[3], const double* x);
-  void ComputeNumberOfComponents(void);
+  void ComputeNumberOfComponents();
   void UpdateEdgeData(vtkIdType pt0Id, vtkIdType pt1Id);
 
   ///@{

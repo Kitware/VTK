@@ -114,7 +114,7 @@ public:
    */
   void SetBounds(const double bounds[6]);
   void SetBounds(double xmin, double xmax, double ymin, double ymax, double zmin, double zmax);
-  double* GetBounds(void) VTK_SIZEHINT(6) override;
+  double* GetBounds() VTK_SIZEHINT(6) override;
   void GetBounds(double bounds[6]);
   ///@}
 
@@ -196,9 +196,9 @@ public:
   vtkGetMacro(TickLocation, int);
   ///@}
 
-  void SetTickLocationToInside(void) { this->SetTickLocation(VTK_TICKS_INSIDE); }
-  void SetTickLocationToOutside(void) { this->SetTickLocation(VTK_TICKS_OUTSIDE); }
-  void SetTickLocationToBoth(void) { this->SetTickLocation(VTK_TICKS_BOTH); }
+  void SetTickLocationToInside() { this->SetTickLocation(VTK_TICKS_INSIDE); }
+  void SetTickLocationToOutside() { this->SetTickLocation(VTK_TICKS_OUTSIDE); }
+  void SetTickLocationToBoth() { this->SetTickLocation(VTK_TICKS_BOTH); }
 
   ///@{
   /**
@@ -418,9 +418,9 @@ public:
    */
   vtkSetClampMacro(AxisType, int, VTK_AXIS_TYPE_X, VTK_AXIS_TYPE_Z);
   vtkGetMacro(AxisType, int);
-  void SetAxisTypeToX(void) { this->SetAxisType(VTK_AXIS_TYPE_X); }
-  void SetAxisTypeToY(void) { this->SetAxisType(VTK_AXIS_TYPE_Y); }
-  void SetAxisTypeToZ(void) { this->SetAxisType(VTK_AXIS_TYPE_Z); }
+  void SetAxisTypeToX() { this->SetAxisType(VTK_AXIS_TYPE_X); }
+  void SetAxisTypeToY() { this->SetAxisType(VTK_AXIS_TYPE_Y); }
+  void SetAxisTypeToZ() { this->SetAxisType(VTK_AXIS_TYPE_Z); }
   ///@}
 
   enum AxisPosition
@@ -452,10 +452,10 @@ public:
   vtkGetMacro(AxisPosition, int);
   ///@}
 
-  void SetAxisPositionToMinMin(void) { this->SetAxisPosition(VTK_AXIS_POS_MINMIN); }
-  void SetAxisPositionToMinMax(void) { this->SetAxisPosition(VTK_AXIS_POS_MINMAX); }
-  void SetAxisPositionToMaxMax(void) { this->SetAxisPosition(VTK_AXIS_POS_MAXMAX); }
-  void SetAxisPositionToMaxMin(void) { this->SetAxisPosition(VTK_AXIS_POS_MAXMIN); }
+  void SetAxisPositionToMinMin() { this->SetAxisPosition(VTK_AXIS_POS_MINMIN); }
+  void SetAxisPositionToMinMax() { this->SetAxisPosition(VTK_AXIS_POS_MINMAX); }
+  void SetAxisPositionToMaxMax() { this->SetAxisPosition(VTK_AXIS_POS_MAXMAX); }
+  void SetAxisPositionToMaxMin() { this->SetAxisPosition(VTK_AXIS_POS_MAXMIN); }
 
   ///@{
   /**
@@ -788,7 +788,7 @@ private:
 
   void BuildTitle2D(vtkViewport* viewport, bool);
 
-  void SetAxisPointsAndLines(void);
+  void SetAxisPointsAndLines();
 
   bool BuildTickPoints(double p1[3], double p2[3], bool force);
 
@@ -806,7 +806,7 @@ private:
 
   void BuildAxisGridLines(double p1[3], double p2[3], double localCoordSys[3][3]);
 
-  bool TickVisibilityChanged(void);
+  bool TickVisibilityChanged();
   vtkProperty* NewTitleProperty();
   vtkProperty2D* NewTitleProperty2D();
   vtkProperty* NewLabelProperty();

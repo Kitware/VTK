@@ -64,7 +64,7 @@ public:
    * Satisfies the superclass API.  This will change the state of the widget
    * to match changes that have been made to the underlying PolyDataSource
    */
-  void UpdatePlacement(void);
+  void UpdatePlacement();
 
   ///@{
   /**

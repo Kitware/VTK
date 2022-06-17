@@ -47,7 +47,7 @@ public:
   /**
    * End the rendering process and display the image.
    */
-  void Frame(void) override;
+  void Frame() override;
 
   // override as some EGL systems cannot show the window
   void SetShowWindow(bool) override;
@@ -55,7 +55,7 @@ public:
   /**
    * Initialize the window for rendering.
    */
-  virtual void WindowInitialize(void);
+  virtual void WindowInitialize();
 
   /**
    * Initialize the rendering window.  This will setup all system-specific
@@ -63,14 +63,14 @@ public:
    * should be possible to call them multiple times, even changing WindowId
    * in-between.  This is what WindowRemap does.
    */
-  void Initialize(void) override;
+  void Initialize() override;
 
   /**
    * "Deinitialize" the rendering window.  This will shutdown all system-specific
    * resources.  After having called this, it should be possible to destroy
    * a window that was used for a SetWindowId() call without any ill effects.
    */
-  void Finalize(void) override;
+  void Finalize() override;
 
   /**
    * Change the window to fill the entire screen.
@@ -80,12 +80,12 @@ public:
   /**
    * Resize the window.
    */
-  void WindowRemap(void) override;
+  void WindowRemap() override;
 
   /**
    * Set the preferred window size to full screen.
    */
-  virtual void PrefFullScreen(void);
+  virtual void PrefFullScreen();
 
   /**
    * Set the size (width and height) of the rendering window in
