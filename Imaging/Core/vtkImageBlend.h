@@ -157,7 +157,7 @@ public:
   vtkGetMacro(BlendMode, int);
   void SetBlendModeToNormal() { this->SetBlendMode(VTK_IMAGE_BLEND_MODE_NORMAL); }
   void SetBlendModeToCompound() { this->SetBlendMode(VTK_IMAGE_BLEND_MODE_COMPOUND); }
-  const char* GetBlendModeAsString(void);
+  const char* GetBlendModeAsString();
   ///@}
 
   ///@{

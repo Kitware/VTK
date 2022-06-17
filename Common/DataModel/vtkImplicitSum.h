@@ -102,7 +102,7 @@ protected:
   vtkDoubleArray* Weights;
   double TotalWeight;
 
-  void CalculateTotalWeight(void);
+  void CalculateTotalWeight();
   vtkTypeBool NormalizeByWeight;
 
 private:

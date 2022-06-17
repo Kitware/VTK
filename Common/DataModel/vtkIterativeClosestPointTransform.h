@@ -176,19 +176,19 @@ protected:
   /**
    * Release source and target
    */
-  void ReleaseSource(void);
-  void ReleaseTarget(void);
+  void ReleaseSource();
+  void ReleaseTarget();
   ///@}
 
   /**
    * Release locator
    */
-  void ReleaseLocator(void);
+  void ReleaseLocator();
 
   /**
    * Create default locator. Used to create one when none is specified.
    */
-  void CreateDefaultLocator(void);
+  void CreateDefaultLocator();
 
   /**
    * Get the MTime of this object also considering the locator.

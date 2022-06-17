@@ -53,7 +53,7 @@ public:
   /**
    * Render the resulting image.
    */
-  virtual void Render(void);
+  virtual void Render();
 
   ///@{
   /**

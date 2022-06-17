@@ -206,7 +206,7 @@ private:
 
   // Uses the list of cell ids (this->Wave) to propagate a wave of
   // checked and properly ordered polygons.
-  void TraverseAndOrder(void);
+  void TraverseAndOrder();
 
   // Check the point id give to see whether it lies on a feature
   // edge. If so, split the point (i.e., duplicate it) to topologically

@@ -469,9 +469,9 @@ public:
   vtkGetMacro(TickLocation, int);
   ///@}
 
-  void SetTickLocationToInside(void) { this->SetTickLocation(VTK_TICKS_INSIDE); }
-  void SetTickLocationToOutside(void) { this->SetTickLocation(VTK_TICKS_OUTSIDE); }
-  void SetTickLocationToBoth(void) { this->SetTickLocation(VTK_TICKS_BOTH); }
+  void SetTickLocationToInside() { this->SetTickLocation(VTK_TICKS_INSIDE); }
+  void SetTickLocationToOutside() { this->SetTickLocation(VTK_TICKS_OUTSIDE); }
+  void SetTickLocationToBoth() { this->SetTickLocation(VTK_TICKS_BOTH); }
 
   void SetLabelScaling(bool, int, int, int);
 
@@ -878,7 +878,7 @@ private:
   void AdjustRange(const double bounds[6]);
   void BuildAxes(vtkViewport*);
   void DetermineRenderAxes(vtkViewport*);
-  void SetNonDependentAttributes(void);
+  void SetNonDependentAttributes();
   void BuildLabels(vtkAxisActor* axes[NUMBER_OF_ALIGNED_AXIS]);
   void AdjustTicksComputeRange(
     vtkAxisActor* axes[NUMBER_OF_ALIGNED_AXIS], double rangeMin, double rangeMax);

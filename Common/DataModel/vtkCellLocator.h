@@ -184,7 +184,7 @@ public:
    * Return number of buckets available. Ensure that the locator has been
    * built before attempting to access buckets (octants).
    */
-  virtual int GetNumberOfBuckets(void);
+  virtual int GetNumberOfBuckets();
 
   /**
    * Shallow copy of a vtkCellLocator.

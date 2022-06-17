@@ -227,7 +227,7 @@ private:
   /**
    * Return a random number between 0 and 1.
    */
-  double Rand(void);
+  double Rand();
 
   /**
    * A random sequence generator.
@@ -240,7 +240,7 @@ private:
    * the u, v coordinates of each hill, their variances in the u, v directions
    * and their amplitudes.
    */
-  void MakeTheHillData(void);
+  void MakeTheHillData();
 
   /**
    * True if any parameters have changed.

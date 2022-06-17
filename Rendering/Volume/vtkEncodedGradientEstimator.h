@@ -94,12 +94,12 @@ public:
   /**
    * Recompute the encoded normals and gradient magnitudes.
    */
-  void Update(void);
+  void Update();
 
   /**
    * Get the encoded normals.
    */
-  unsigned short* GetEncodedNormals(void);
+  unsigned short* GetEncodedNormals();
 
   ///@{
   /**
@@ -112,7 +112,7 @@ public:
   /**
    * Get the gradient magnitudes
    */
-  unsigned char* GetGradientMagnitudes(void);
+  unsigned char* GetGradientMagnitudes();
 
   ///@{
   /**
@@ -223,7 +223,7 @@ protected:
 
   vtkDirectionEncoder* DirectionEncoder;
 
-  virtual void UpdateNormals(void) = 0;
+  virtual void UpdateNormals() = 0;
 
   float GradientMagnitudeScale;
   float GradientMagnitudeBias;

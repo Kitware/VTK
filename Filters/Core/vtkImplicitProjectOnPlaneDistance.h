@@ -128,7 +128,7 @@ protected:
    * Create a default locator (vtkStaticCellLocator).
    * Used to create one when none is specified by the user.
    */
-  void CreateDefaultLocator(void);
+  void CreateDefaultLocator();
 
   double Tolerance;
   NormType Norm;

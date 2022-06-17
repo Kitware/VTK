@@ -80,7 +80,7 @@ public:
   void SetSortingStyleToNone() { this->SetSortingStyle(VTK_CULLER_SORT_NONE); }
   void SetSortingStyleToBackToFront() { this->SetSortingStyle(VTK_CULLER_SORT_BACK_TO_FRONT); }
   void SetSortingStyleToFrontToBack() { this->SetSortingStyle(VTK_CULLER_SORT_FRONT_TO_BACK); }
-  const char* GetSortingStyleAsString(void);
+  const char* GetSortingStyleAsString();
   ///@}
 
   /**

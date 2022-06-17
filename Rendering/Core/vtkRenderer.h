@@ -116,7 +116,7 @@ public:
   /**
    * Create and add a light to renderer.
    */
-  void CreateLight(void);
+  void CreateLight();
 
   /**
    * Create a new Light sutible for use with this type of Renderer.
@@ -175,7 +175,7 @@ public:
    * (for instance, Headlights or CameraLights that are attached to the
    * camera) to update their geometry to match the active camera.
    */
-  virtual vtkTypeBool UpdateLightsGeometryToFollowCamera(void);
+  virtual vtkTypeBool UpdateLightsGeometryToFollowCamera();
 
   /**
    * Return the collection of volumes.
@@ -318,7 +318,7 @@ public:
    * Internal method temporarily removes lights before reloading them
    * into graphics pipeline.
    */
-  virtual void ClearLights(void) {}
+  virtual void ClearLights() {}
 
   /**
    * Clear the image to the background color.
@@ -1028,20 +1028,20 @@ protected:
    * Ask the active camera to do whatever it needs to do prior to rendering.
    * Creates a camera if none found active.
    */
-  virtual int UpdateCamera(void);
+  virtual int UpdateCamera();
 
   /**
    * Update the geometry of the lights in the scene that are not in world
    * space (for instance, Headlights or CameraLights that are attached to the
    * camera).
    */
-  virtual vtkTypeBool UpdateLightGeometry(void);
+  virtual vtkTypeBool UpdateLightGeometry();
 
   /**
    * Ask all lights to load themselves into rendering pipeline.
    * This method will return the actual number of lights that were on.
    */
-  virtual int UpdateLights(void) { return 0; }
+  virtual int UpdateLights() { return 0; }
 
   /**
    * Get the current camera and reset it only if it gets created

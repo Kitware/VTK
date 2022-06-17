@@ -74,7 +74,7 @@ public:
   /**
    * Get the number of cell arrays available in the input.
    */
-  int GetNumberOfCellArrays(void);
+  int GetNumberOfCellArrays();
 
   /**
    * Get the name of the cell array with the given index in

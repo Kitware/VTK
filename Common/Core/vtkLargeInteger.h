@@ -26,7 +26,7 @@
 class VTKCOMMONCORE_EXPORT VTK_WRAPEXCLUDE vtkLargeInteger
 {
 public:
-  vtkLargeInteger(void);
+  vtkLargeInteger();
   vtkLargeInteger(long n);
   vtkLargeInteger(unsigned long n);
   vtkLargeInteger(int n);
@@ -35,23 +35,23 @@ public:
   vtkLargeInteger(long long n);
   vtkLargeInteger(unsigned long long n);
 
-  ~vtkLargeInteger(void);
+  ~vtkLargeInteger();
 
-  char CastToChar(void) const;
-  short CastToShort(void) const;
-  int CastToInt(void) const;
-  long CastToLong(void) const;
-  unsigned long CastToUnsignedLong(void) const;
+  char CastToChar() const;
+  short CastToShort() const;
+  int CastToInt() const;
+  long CastToLong() const;
+  unsigned long CastToUnsignedLong() const;
 
-  int IsEven(void) const;
-  int IsOdd(void) const;
-  int GetLength(void) const;        // in bits
+  int IsEven() const;
+  int IsOdd() const;
+  int GetLength() const;            // in bits
   int GetBit(unsigned int p) const; // p'th bit (from zero)
   int IsZero() const;               // is zero
-  int GetSign(void) const;          // is negative
+  int GetSign() const;              // is negative
 
   void Truncate(unsigned int n); // reduce to lower n bits
-  void Complement(void);         // * -1
+  void Complement();             // * -1
 
   bool operator==(const vtkLargeInteger& n) const;
   bool operator!=(const vtkLargeInteger& n) const;
@@ -65,8 +65,8 @@ public:
   vtkLargeInteger& operator-=(const vtkLargeInteger& n);
   vtkLargeInteger& operator<<=(int n);
   vtkLargeInteger& operator>>=(int n);
-  vtkLargeInteger& operator++(void);
-  vtkLargeInteger& operator--(void);
+  vtkLargeInteger& operator++();
+  vtkLargeInteger& operator--();
   vtkLargeInteger operator++(int);
   vtkLargeInteger operator--(int);
   vtkLargeInteger& operator*=(const vtkLargeInteger& n);

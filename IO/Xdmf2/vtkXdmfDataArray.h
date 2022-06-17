@@ -39,9 +39,9 @@ public:
   vtkTypeMacro(vtkXdmfDataArray, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  vtkDataArray* FromArray(void);
+  vtkDataArray* FromArray();
 
-  char* ToArray(void);
+  char* ToArray();
 
   vtkDataArray* FromXdmfArray(char* ArrayName = nullptr, int CopyShape = 1, int rank = 1,
     int Components = 1, int MakeCopy = 1);
@@ -50,11 +50,11 @@ public:
 
   void SetArray(char* TagName);
 
-  char* GetArray(void);
+  char* GetArray();
 
   void SetVtkArray(vtkDataArray* array);
 
-  vtkDataArray* GetVtkArray(void);
+  vtkDataArray* GetVtkArray();
 
 protected:
   vtkXdmfDataArray();
