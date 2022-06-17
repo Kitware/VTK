@@ -111,6 +111,15 @@
 
 // APIs deprecated in the next release.
 #if defined(__VTK_WRAP__)
+#define VTK_DEPRECATED_IN_9_3_0(reason) [[vtk::deprecated(reason, "9.3.0")]]
+#elif VTK_DEPRECATION_LEVEL >= VTK_VERSION_CHECK(9, 2, 20220617)
+#define VTK_DEPRECATED_IN_9_3_0(reason) VTK_DEPRECATION(reason)
+#else
+#define VTK_DEPRECATED_IN_9_3_0(reason)
+#endif
+
+// APIs deprecated in 9.2.0.
+#if defined(__VTK_WRAP__)
 #define VTK_DEPRECATED_IN_9_2_0(reason) [[vtk::deprecated(reason, "9.2.0")]]
 #elif VTK_DEPRECATION_LEVEL >= VTK_VERSION_CHECK(9, 1, 20211001)
 #define VTK_DEPRECATED_IN_9_2_0(reason) VTK_DEPRECATION(reason)

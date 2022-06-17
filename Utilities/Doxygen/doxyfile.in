@@ -199,4 +199,5 @@ PREDEFINED  = "vtkSetMacro(name,type)= \
                "VTK_DEPRECATED_IN_9_0_0(msg)=" \
                "VTK_DEPRECATED_IN_9_1_0(msg)=" \
                "VTK_DEPRECATED_IN_9_2_0(msg)=" \
+               "VTK_DEPRECATED_IN_9_3_0(msg)=" \
                "DOXYGEN_SHOULD_SKIP_THIS"
