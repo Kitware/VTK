@@ -174,6 +174,44 @@ namespace {
     const std::vector<ex_assembly> &m_assemblies;
     mutable std::vector<bool>       m_visitedAssemblies;
   };
+
+  std::vector<ex_assembly> get_exodus_assemblies(int exoid)
+  {
+    std::vector<ex_assembly> assemblies;
+    int                      nassem = ex_inquire_int(exoid, EX_INQ_ASSEMBLY);
+    if (nassem > 0) {
+      assemblies.resize(nassem);
+
+      int max_name_length = ex_inquire_int(exoid, EX_INQ_DB_MAX_USED_NAME_LENGTH);
+      for (auto &assembly : assemblies) {
+        assembly.name = new char[max_name_length + 1];
+      }
+
+      int ierr = ex_get_assemblies(exoid, assemblies.data());
+      if (ierr < 0) {
+        Ioex::exodus_error(exoid, __LINE__, __func__, __FILE__);
+      }
+
+      // Now allocate space for member list and get assemblies again...
+      for (auto &assembly : assemblies) {
+        assembly.entity_list = new int64_t[assembly.entity_count];
+      }
+
+      ierr = ex_get_assemblies(exoid, assemblies.data());
+      if (ierr < 0) {
+        Ioex::exodus_error(exoid, __LINE__, __func__, __FILE__);
+      }
+    }
+    return assemblies;
+  }
+
+  void cleanup_exodus_assembly_vector(std::vector<ex_assembly> &assemblies)
+  {
+    for (auto &assembly : assemblies) {
+      delete[] assembly.entity_list;
+      delete[] assembly.name;
+    }
+  }
 } // namespace
 
 namespace Ioex {
@@ -658,30 +696,8 @@ namespace Ioex {
     std::vector<std::string> inclusions;
 
     // Query number of assemblies...
-    int nassem = ex_inquire_int(get_file_pointer(), EX_INQ_ASSEMBLY);
-
-    if (nassem > 0) {
-      std::vector<ex_assembly> assemblies(nassem);
-      int max_name_length = ex_inquire_int(m_exodusFilePtr, EX_INQ_DB_MAX_USED_NAME_LENGTH);
-      for (auto &assembly : assemblies) {
-        assembly.name = new char[max_name_length + 1];
-      }
-
-      int ierr = ex_get_assemblies(get_file_pointer(), assemblies.data());
-      if (ierr < 0) {
-        Ioex::exodus_error(get_file_pointer(), __LINE__, __func__, __FILE__);
-      }
-
-      // Now allocate space for member list and get assemblies again...
-      for (auto &assembly : assemblies) {
-        assembly.entity_list = new int64_t[assembly.entity_count];
-      }
-
-      ierr = ex_get_assemblies(get_file_pointer(), assemblies.data());
-      if (ierr < 0) {
-        Ioex::exodus_error(get_file_pointer(), __LINE__, __func__, __FILE__);
-      }
-
+    auto assemblies = get_exodus_assemblies(get_file_pointer());
+    if (!assemblies.empty()) {
       AssemblyTreeFilter inclusionFilter(get_region(), Ioss::ELEMENTBLOCK, assemblies);
       AssemblyTreeFilter exclusionFilter(get_region(), Ioss::ELEMENTBLOCK, assemblies);
 
@@ -705,10 +721,7 @@ namespace Ioex {
       exclusionFilter.update_assembly_filter_list(assemblyOmissions);
       inclusionFilter.update_assembly_filter_list(assemblyInclusions);
 
-      for (auto &assembly : assemblies) {
-        delete[] assembly.entity_list;
-        delete[] assembly.name;
-      }
+      cleanup_exodus_assembly_vector(assemblies);
 
       insert_sort_and_unique(exclusions, blockOmissions);
       insert_sort_and_unique(inclusions, blockInclusions);
@@ -718,31 +731,9 @@ namespace Ioex {
   void BaseDatabaseIO::get_assemblies()
   {
     Ioss::SerializeIO serializeIO__(this);
-    // Query number of assemblies...
-    int nassem = ex_inquire_int(get_file_pointer(), EX_INQ_ASSEMBLY);
 
-    if (nassem > 0) {
-      std::vector<ex_assembly> assemblies(nassem);
-      int max_name_length = ex_inquire_int(m_exodusFilePtr, EX_INQ_DB_MAX_USED_NAME_LENGTH);
-      for (auto &assembly : assemblies) {
-        assembly.name = new char[max_name_length + 1];
-      }
-
-      int ierr = ex_get_assemblies(get_file_pointer(), assemblies.data());
-      if (ierr < 0) {
-        Ioex::exodus_error(get_file_pointer(), __LINE__, __func__, __FILE__);
-      }
-
-      // Now allocate space for member list and get assemblies again...
-      for (auto &assembly : assemblies) {
-        assembly.entity_list = new int64_t[assembly.entity_count];
-      }
-
-      ierr = ex_get_assemblies(get_file_pointer(), assemblies.data());
-      if (ierr < 0) {
-        Ioex::exodus_error(get_file_pointer(), __LINE__, __func__, __FILE__);
-      }
-
+    auto assemblies = get_exodus_assemblies(get_file_pointer());
+    if (!assemblies.empty()) {
       for (const auto &assembly : assemblies) {
         auto *assem = new Ioss::Assembly(get_region()->get_database(), assembly.name);
         assem->property_add(Ioss::Property("id", assembly.id));
@@ -789,10 +780,7 @@ namespace Ioex {
           m_reductionValues[EX_ASSEMBLY][assembly.id].resize(size);
         }
       }
-      for (auto &assembly : assemblies) {
-        delete[] assembly.entity_list;
-        delete[] assembly.name;
-      }
+      cleanup_exodus_assembly_vector(assemblies);
 
       assert(assemblyOmissions.empty() || assemblyInclusions.empty()); // Only one can be non-empty
 
@@ -807,8 +795,8 @@ namespace Ioex {
       }
 
       if (!assemblyInclusions.empty()) {
-        const auto &assemblies = get_region()->get_assemblies();
-        for (auto &assembly : assemblies) {
+        const auto &ioss_assemblies = get_region()->get_assemblies();
+        for (auto &assembly : ioss_assemblies) {
           assembly->property_add(Ioss::Property(std::string("omitted"), 1));
         }
 
@@ -831,7 +819,7 @@ namespace Ioex {
 
     if (nblob > 0) {
       std::vector<ex_blob> blobs(nblob);
-      int max_name_length = ex_inquire_int(m_exodusFilePtr, EX_INQ_DB_MAX_USED_NAME_LENGTH);
+      int max_name_length = ex_inquire_int(get_file_pointer(), EX_INQ_DB_MAX_USED_NAME_LENGTH);
       for (auto &bl : blobs) {
         bl.name = new char[max_name_length + 1];
       }

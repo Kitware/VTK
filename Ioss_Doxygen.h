@@ -6,11 +6,11 @@
 \section avail Availability
 
 The IOSS library source code is available on Github at
-https://github.com/gsjaardema/seacas
+https://github.com/sandialabs/seacas
 
 For bug reports, documentation errors, and enhancement suggestions, contact:
 - Gregory D. Sjaardema
-- WEB:   https://github.com/gsjaardema/seacas/issues
+- WEB:   https://github.com/sandialabs/seacas/issues
 - EMAIL: gdsjaar@sandia.gov
 - EMAIL: gsjaardema@gmail.com
 - PHONE: (505) 844-2701 (office)
