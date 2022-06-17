@@ -35,15 +35,6 @@
 // clang-format on
 
 //------------------------------------------------------------------------------
-template <class DataSetT>
-std::vector<DataSetT*> vtkDIYUtilities::GetDataSets(vtkDataObject* dobj)
-{
-  VTK_LEGACY_REPLACED_BODY(
-    vtkDIYUtilities::GetDataSets, "VTK 9.1", vtkCompositeDataSet::GetDataSets);
-  return vtkCompositeDataSet::GetDataSets<DataSetT>(dobj);
-}
-
-//------------------------------------------------------------------------------
 template <class DummyT>
 void vtkDIYUtilities::Link(diy::Master& master, const diy::Assigner& assigner,
   const std::vector<std::map<int, DummyT>>& linksMap)

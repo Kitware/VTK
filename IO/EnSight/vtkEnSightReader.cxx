@@ -2049,12 +2049,6 @@ int vtkEnSightReader::GetElementType(const char* line)
 }
 
 //------------------------------------------------------------------------------
-void vtkEnSightReader::ReplaceWildcards(char* filename, int num)
-{
-  vtkGenericEnSightReader::ReplaceWildcardsHelper(filename, num);
-}
-
-//------------------------------------------------------------------------------
 void vtkEnSightReader::RemoveLeadingBlanks(char* line)
 {
   int count = 0;

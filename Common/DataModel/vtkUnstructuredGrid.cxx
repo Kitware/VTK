@@ -50,6 +50,7 @@
 #include "vtkLagrangeTetra.h"
 #include "vtkLagrangeTriangle.h"
 #include "vtkLagrangeWedge.h"
+#include "vtkLegacy.h"
 #include "vtkLine.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"

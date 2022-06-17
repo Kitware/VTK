@@ -153,7 +153,6 @@
 #define vtkLSDynaReader_h
 
 #include "vtkIOLSDynaModule.h" // For export macro
-#include "vtkLegacy.h"         // For VTK_LEGACY_REMOVE
 #include "vtkMultiBlockDataSetAlgorithm.h"
 #include <string> // for method signature
 
@@ -195,11 +194,7 @@ public:
    */
   virtual void SetDatabaseDirectory(VTK_FILEPATH const std::string&);
   virtual void SetDatabaseDirectory(VTK_FILEPATH const char*);
-#ifdef VTK_LEGACY_REMOVE
   VTK_FILEPATH std::string GetDatabaseDirectory();
-#else
-  VTK_LEGACY(VTK_FILEPATH const char* GetDatabaseDirectory());
-#endif
   int IsDatabaseValid();
   ///@}
 
@@ -212,11 +207,7 @@ public:
    */
   virtual void SetFileName(VTK_FILEPATH const std::string&);
   virtual void SetFileName(VTK_FILEPATH const char*);
-#ifdef VTK_LEGACY_REMOVE
   VTK_FILEPATH std::string GetFileName();
-#else
-  VTK_LEGACY(VTK_FILEPATH const char* GetFileName());
-#endif
   ///@}
 
   /**

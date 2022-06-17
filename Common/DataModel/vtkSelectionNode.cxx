@@ -76,7 +76,6 @@ vtkInformationKeyMacro(vtkSelectionNode, CONTAINING_CELLS, Integer);
 vtkInformationKeyMacro(vtkSelectionNode, CONNECTED_LAYERS, Integer);
 vtkInformationKeyMacro(vtkSelectionNode, PIXEL_COUNT, Integer);
 vtkInformationKeyMacro(vtkSelectionNode, INVERSE, Integer);
-vtkInformationKeyMacro(vtkSelectionNode, INDEXED_VERTICES, Integer);
 vtkInformationKeyMacro(vtkSelectionNode, COMPONENT_NUMBER, Integer);
 vtkInformationKeyMacro(vtkSelectionNode, ASSEMBLY_NAME, String);
 vtkInformationKeyMacro(vtkSelectionNode, SELECTORS, StringVector);

@@ -737,19 +737,10 @@ void vtkLSDynaReader::SetDatabaseDirectory(const char* f)
   }
 }
 
-#if defined(VTK_LEGACY_REMOVE)
 std::string vtkLSDynaReader::GetDatabaseDirectory()
 {
   return this->P->Fam.GetDatabaseDirectory();
 }
-#else
-const char* vtkLSDynaReader::GetDatabaseDirectory()
-{
-  static VTK_THREAD_LOCAL std::string surrogate;
-  surrogate = this->P->Fam.GetDatabaseDirectory();
-  return surrogate.c_str();
-}
-#endif
 
 int vtkLSDynaReader::IsDatabaseValid()
 {
@@ -801,20 +792,11 @@ void vtkLSDynaReader::SetFileName(const char* f)
   }
 }
 
-#if defined(VTK_LEGACY_REMOVE)
 std::string vtkLSDynaReader::GetFileName()
 {
   std::string filename = this->P->Fam.GetDatabaseDirectory() + "/d3plot";
   return filename;
 }
-#else
-const char* vtkLSDynaReader::GetFileName()
-{
-  static VTK_THREAD_LOCAL std::string surrogate;
-  surrogate = this->P->Fam.GetDatabaseDirectory() + "/d3plot";
-  return surrogate.c_str();
-}
-#endif
 
 char* vtkLSDynaReader::GetTitle()
 {

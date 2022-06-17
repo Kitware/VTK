@@ -16,7 +16,6 @@
 #define vtkType_h
 
 #include "vtkCompiler.h" // for VTK_USE_EXTERN_TEMPLATE
-#include "vtkLegacy.h"   // For VTK_LEGACY_REMOVE
 #include "vtkOptions.h"  // for VTK_USE_64BIT_IDS and VTK_USE_64BIT_TIMESTAMPS
 #include "vtk_kwiml.h"
 
@@ -253,12 +252,6 @@ typedef signed long vtkTypeInt64;
 #define VTK_TYPE_INT64_MAX VTK_LONG_MAX
 #else
 #error "No native data type can represent a 64-bit integer."
-#endif
-
-#if !defined(VTK_LEGACY_REMOVE)
-// Provide this define to facilitate apps that need to support older
-// versions that do not have vtkMTimeType
-#define VTK_HAS_MTIME_TYPE
 #endif
 
 // If this is a 64-bit platform, or the user has indicated that 64-bit

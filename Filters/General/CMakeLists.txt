@@ -71,7 +71,6 @@ set(classes
   vtkMergeTimeFilter
   vtkMergeVectorComponents
   vtkMultiBlockDataGroupFilter
-  vtkMultiBlockFromTimeSeriesFilter
   vtkMultiBlockMergeFilter
   vtkMultiThreshold
   vtkNormalizeMatrixVectors

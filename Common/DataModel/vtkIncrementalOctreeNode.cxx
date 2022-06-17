@@ -13,9 +13,6 @@
 
 =========================================================================*/
 
-// Hide VTK_DEPRECATED_IN_9_1_0() warnings for this class.
-#define VTK_DEPRECATION_LEVEL 0
-
 #include "vtkIncrementalOctreeNode.h"
 #include "vtkIdList.h"
 #include "vtkMath.h"
@@ -454,19 +451,6 @@ int vtkIncrementalOctreeNode::CreateChildNodes(vtkPoints* points, vtkIdList* pnt
 
   // notify vtkIncrementalOctreeNode::InsertPoint() to destroy pntIds
   return 1;
-}
-
-//------------------------------------------------------------------------------
-int vtkIncrementalOctreeNode::InsertPoint(
-  vtkPoints* points, const double newPnt[3], int maxPts, vtkIdType* pntId, int ptMode)
-{
-  VTK_LEGACY_REPLACED_BODY(vtkIncrementalOctreeNode::InsertPoint(vtkPoints * points,
-                             const double newPnt[3], int maxPts, vtkIdType* pntId, int ptMode),
-    "VTK 9.1",
-    vtkIncrementalOctreeNode::InsertPoint(vtkPoints * points, const double newPnt[3], int maxPts,
-      vtkIdType* pntId, int ptMode, int& numberOfNodes));
-  int numberOfNodes = 0;
-  return InsertPoint(points, newPnt, maxPts, pntId, ptMode, numberOfNodes);
 }
 
 //------------------------------------------------------------------------------

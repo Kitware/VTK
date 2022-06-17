@@ -78,18 +78,6 @@ vtkCell* vtkBezierQuadrilateral::GetEdge(int edgeId)
   return result;
 }
 
-/**\brief EvaluateLocation Given a point_id. This is required by Bezier because the interior points
- * are non-interpolatory .
- */
-void vtkBezierQuadrilateral::EvaluateLocationProjectedNode(
-  int& subId, const vtkIdType point_id, double x[3], double* weights)
-{
-  this->vtkHigherOrderQuadrilateral::SetParametricCoords();
-  double pcoords[3];
-  this->PointParametricCoordinates->GetPoint(this->PointIds->FindIdLocation(point_id), pcoords);
-  this->vtkHigherOrderQuadrilateral::EvaluateLocation(subId, pcoords, x, weights);
-}
-
 /**\brief Populate the linear quadrilateral returned by GetApprox() with point-data from one
  * voxel-like interval of this cell.
  *

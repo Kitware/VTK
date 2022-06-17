@@ -4,7 +4,6 @@
 // Do not include this file directly. It is only for use
 // from inside the ExodusII reader and its descendants.
 
-#include "vtkDeprecation.h"    // for deprecation macros
 #include "vtkExodusIICache.h"  // for vtkExodusIICacheKey
 #include "vtkExodusIIReader.h" // for vtkExodusIIReader
 #include "vtkObject.h"
@@ -31,8 +30,6 @@ class VTKIOEXODUS_EXPORT vtkExodusIIReaderPrivate : public vtkObject
 {
 public:
   static vtkExodusIIReaderPrivate* New();
-  VTK_DEPRECATED_IN_9_1_0("Renamed to PrintSelf")
-  void PrintData(ostream& os, vtkIndent indent) { this->PrintSelf(os, indent); }
   void PrintSelf(ostream& os, vtkIndent indent) override;
   vtkTypeMacro(vtkExodusIIReaderPrivate, vtkObject);
   // virtual void Modified();

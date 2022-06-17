@@ -40,7 +40,6 @@
 
 #include "vtkAlgorithm.h"
 #include "vtkCommonExecutionModelModule.h" // For export macro
-#include "vtkDeprecation.h"                // For VTK_DEPRECATED_IN_9_1_0
 #include "vtkSmartPointer.h"               //needed for a private variable
 
 #include "vtkDataObject.h" // needed for the smart pointer
@@ -86,16 +85,6 @@ protected:
     return 1;
   }
   ///@}
-
-  /**
-   * This is called by the superclass.
-   * This is the method you should override.
-   */
-  VTK_DEPRECATED_IN_9_1_0("cannot support all input data types; use `Execute` instead.")
-  virtual int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*)
-  {
-    return 1;
-  }
 
   /**
    * Subclasses should override this method to do the actual execution.

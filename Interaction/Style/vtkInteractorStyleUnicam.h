@@ -85,22 +85,6 @@
 class vtkCamera;
 class vtkWorldPointPicker;
 
-#ifndef VTK_LEGACY_REMOVE
-// Replaced with the enum types in the `vtkInteractorStyleUnicam` class.
-
-// buttons pressed
-#define VTK_UNICAM_NONE 0
-#define VTK_UNICAM_BUTTON_LEFT 1
-#define VTK_UNICAM_BUTTON_MIDDLE 2
-#define VTK_UNICAM_BUTTON_RIGHT 3
-//
-// camera modes
-#define VTK_UNICAM_CAM_INT_ROT 0
-#define VTK_UNICAM_CAM_INT_CHOOSE 1
-#define VTK_UNICAM_CAM_INT_PAN 2
-#define VTK_UNICAM_CAM_INT_DOLLY 3
-#endif
-
 class VTKINTERACTIONSTYLE_EXPORT vtkInteractorStyleUnicam : public vtkInteractorStyle
 {
 public:

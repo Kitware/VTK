@@ -41,7 +41,6 @@
 #ifndef vtkRenderWindow_h
 #define vtkRenderWindow_h
 
-#include "vtkDeprecation.h"         // For VTK_DEPRECATED_IN_9_1_0
 #include "vtkEventData.h"           // for enums
 #include "vtkNew.h"                 // For vtkNew
 #include "vtkRenderingCoreModule.h" // For export macro
@@ -643,16 +642,6 @@ public:
    * thread.
    */
   virtual bool IsCurrent() { return false; }
-
-  /**
-   * Test if the window has a valid drawable. This is
-   * currently only an issue on Mac OS X Cocoa where rendering
-   * to an invalid drawable results in all OpenGL calls to fail
-   * with "invalid framebuffer operation".
-   */
-  VTK_DEPRECATED_IN_9_1_0(
-    "Deprecated in 9.1 because no one knows what it's for and nothing uses it")
-  virtual bool IsDrawable();
 
   /**
    * If called, allow MakeCurrent() to skip cache-check when called.

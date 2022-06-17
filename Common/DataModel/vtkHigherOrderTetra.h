@@ -34,7 +34,6 @@
 #include <functional> //For std::function
 
 #include "vtkCommonDataModelModule.h" // For export macro
-#include "vtkDeprecation.h"           // For deprecation macros
 #include "vtkNew.h"                   // For member variable.
 #include "vtkNonLinearCell.h"
 #include "vtkSmartPointer.h" // For member variable.
@@ -102,11 +101,7 @@ public:
 
   static void BarycentricIndex(vtkIdType index, vtkIdType* bindex, vtkIdType order);
   static vtkIdType Index(const vtkIdType* bindex, vtkIdType order);
-  VTK_DEPRECATED_IN_9_1_0("renamed to GetEdgeCell")
-  virtual vtkHigherOrderCurve* getEdgeCell();
   virtual vtkHigherOrderCurve* GetEdgeCell() = 0;
-  VTK_DEPRECATED_IN_9_1_0("renamed to GetFaceCell")
-  virtual vtkHigherOrderTriangle* getFaceCell();
   virtual vtkHigherOrderTriangle* GetFaceCell() = 0;
 
 protected:

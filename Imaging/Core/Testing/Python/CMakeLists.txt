@@ -65,7 +65,6 @@ vtk_add_test_python(
   TestSeparableFilter.py
   TestShiftScale.py
   TestShiftScale2.py
-  TestSimpleImageExample.py
   TestSkeleton2D.py
   TestSobel2D.py
   TestSobel3D.py

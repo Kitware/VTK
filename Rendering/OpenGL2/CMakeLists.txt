@@ -102,13 +102,7 @@ set(headers
 
 set(nowrap_headers
   vtkCompositeMapperHelper2.h
-  vtkCompositePolyDataMapper2Internal.h
 )
-
-if (NOT VTK_LEGACY_REMOVE)
-  list(APPEND nowrap_headers
-    vtkOpenGL.h)
-endif ()
 
 # add opengl support test executable on windows
 if (WIN32 AND (NOT CMAKE_CROSSCOMPILING OR DEFINED CMAKE_CROSSCOMPILING_EMULATOR))

@@ -20,7 +20,6 @@
 #include "vtkDataObject.h"
 #include "vtkDataSetAttributes.h"
 #include "vtkInformation.h"
-#include "vtkLegacy.h" // For VTK_LEGACY_SILENT
 #include "vtkObjectFactory.h"
 #include "vtkSMPTools.h"
 #include "vtkSelectionNode.h"
@@ -537,12 +536,10 @@ void vtkValueSelector::Initialize(vtkSelectionNode* node)
       case vtkSelectionNode::THRESHOLDS:
         if (selectionList->GetNumberOfComponents() == 1)
         {
-#ifndef VTK_LEGACY_SILENT
           vtkWarningMacro(
             "Warning: range selections should use two-component arrays to specify the"
             " range.  Using single component arrays with a tuple for the low and high ends of the"
             " range is legacy behavior and may be removed in future releases.");
-#endif
           auto selList = vtkDataArray::SafeDownCast(selectionList.GetPointer());
           if (selList)
           {

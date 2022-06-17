@@ -13,9 +13,6 @@
 
   =========================================================================*/
 
-// Hide VTK_DEPRECATED_IN_9_1_0() warnings for this class.
-#define VTK_DEPRECATION_LEVEL 0
-
 #include "vtkBezierInterpolation.h"
 #include <array>
 #include <functional>
@@ -117,13 +114,6 @@ static vtkVector3i unflattenTetrahedron(const int deg, const vtkIdType flat)
   return { cv_tri[0], cv_tri[1], level };
 }
 
-int vtkBezierInterpolation::flattenSimplex(const int dim, const int deg, const vtkVector3i coord)
-{
-  VTK_LEGACY_REPLACED_BODY(
-    vtkBezierInterpolation::flattenSimplex, "VTK 9.1", vtkBezierInterpolation::FlattenSimplex);
-  return vtkBezierInterpolation::FlattenSimplex(dim, deg, coord);
-}
-
 int vtkBezierInterpolation::FlattenSimplex(const int dim, const int deg, const vtkVector3i coord)
 {
   switch (dim)
@@ -144,14 +134,6 @@ int vtkBezierInterpolation::FlattenSimplex(const int dim, const int deg, const v
     default:
       throw "flattenSimplex unsupported dim";
   }
-}
-
-vtkVector3i vtkBezierInterpolation::unflattenSimplex(
-  const int dim, const int deg, const vtkIdType flat)
-{
-  VTK_LEGACY_REPLACED_BODY(
-    vtkBezierInterpolation::unFlattenSimplex, "VTK 9.1", vtkBezierInterpolation::UnFlattenSimplex);
-  return vtkBezierInterpolation::UnFlattenSimplex(dim, deg, flat);
 }
 
 vtkVector3i vtkBezierInterpolation::UnFlattenSimplex(
@@ -200,14 +182,6 @@ void iterateSimplex(
   }
 }
 
-void vtkBezierInterpolation::deCasteljauSimplex(
-  const int dim, const int deg, const double pcoords[3], double* weights)
-{
-  VTK_LEGACY_REPLACED_BODY(vtkBezierInterpolation::deCasteljauSimplex, "VTK 9.1",
-    vtkBezierInterpolation::DeCasteljauSimplex);
-  vtkBezierInterpolation::DeCasteljauSimplex(dim, deg, pcoords, weights);
-}
-
 // FIXME this could be greatly optimized
 void vtkBezierInterpolation::DeCasteljauSimplex(
   const int dim, const int deg, const double pcoords[3], double* weights)
@@ -253,14 +227,6 @@ void vtkBezierInterpolation::DeCasteljauSimplex(
     }
     weights[bi] = coeffs[0];
   }
-}
-
-void vtkBezierInterpolation::deCasteljauSimplexDeriv(
-  const int dim, const int deg, const double pcoords[3], double* weights)
-{
-  VTK_LEGACY_REPLACED_BODY(vtkBezierInterpolation::deCasteljauSimplexDeriv, "VTK 9.1",
-    vtkBezierInterpolation::DeCasteljauSimplexDeriv);
-  vtkBezierInterpolation::DeCasteljauSimplexDeriv(dim, deg, pcoords, weights);
 }
 
 void vtkBezierInterpolation::DeCasteljauSimplexDeriv(

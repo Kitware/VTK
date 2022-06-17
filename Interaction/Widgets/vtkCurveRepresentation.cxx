@@ -1022,33 +1022,3 @@ void vtkCurveRepresentation::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Closed: " << (this->Closed ? "On" : "Off") << "\n";
   os << indent << "InteractionState: " << this->InteractionState << endl;
 }
-
-//=============================================================================
-void vtkCurveRepresentation::SetDirectionalLine(bool val)
-{
-  VTK_LEGACY_REPLACED_BODY(
-    vtkCurveRepresentation::SetDirectionalLine, "VTK 9.1", vtkCurveRepresentation::SetDirectional);
-  this->SetDirectional(val);
-}
-
-bool vtkCurveRepresentation::GetDirectionalLine()
-{
-  VTK_LEGACY_REPLACED_BODY(
-    vtkCurveRepresentation::GetDirectionalLine, "VTK 9.1", vtkCurveRepresentation::GetDirectional);
-  return this->GetDirectional();
-}
-
-void vtkCurveRepresentation::DirectionalLineOn()
-{
-  VTK_LEGACY_REPLACED_BODY(
-    vtkCurveRepresentation::DirectionalLineOn, "VTK 9.1", vtkCurveRepresentation::DirectionalOn);
-  this->DirectionalOn();
-}
-
-void vtkCurveRepresentation::DirectionalLineOff()
-{
-  VTK_LEGACY_REPLACED_BODY(
-    vtkCurveRepresentation::DirectionalLineOff, "VTK 9.1", vtkCurveRepresentation::DirectionalOff);
-  this->DirectionalOff();
-}
-//=============================================================================

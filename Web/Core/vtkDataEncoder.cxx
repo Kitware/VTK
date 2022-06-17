@@ -270,17 +270,6 @@ void vtkDataEncoder::Initialize()
 }
 
 //------------------------------------------------------------------------------
-void vtkDataEncoder::PushAndTakeReference(
-  vtkTypeUInt32 key, vtkImageData*& data, int quality, int encoding)
-{
-  if (data)
-  {
-    this->Push(key, data, quality, encoding);
-    data->UnRegister(this);
-  }
-}
-
-//------------------------------------------------------------------------------
 void vtkDataEncoder::Push(vtkTypeUInt32 key, vtkImageData* data, int quality, int encoding)
 {
   auto& internals = (*this->Internals);

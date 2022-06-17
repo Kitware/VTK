@@ -1,7 +1,6 @@
 set(classes
   vtkAbstractGridConnectivity
   vtkCompositeDataGeometryFilter
-  vtkDataSetGhostGenerator
   vtkDataSetRegionSurfaceFilter
   vtkDataSetSurfaceFilter
   vtkExplicitStructuredGridSurfaceFilter
@@ -18,11 +17,9 @@ set(classes
   vtkStructuredAMRNeighbor
   vtkStructuredGridConnectivity
   vtkStructuredGridGeometryFilter
-  vtkStructuredGridGhostDataGenerator
   vtkStructuredGridPartitioner
   vtkStructuredNeighbor
   vtkStructuredPointsGeometryFilter
-  vtkUniformGridGhostDataGenerator
   vtkUnstructuredGridGeometryFilter)
 
 vtk_module_add_module(VTK::FiltersGeometry

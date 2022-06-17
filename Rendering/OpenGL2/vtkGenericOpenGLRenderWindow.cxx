@@ -13,9 +13,6 @@
 
 =========================================================================*/
 
-// Hide VTK_DEPRECATED_IN_9_1_0() warnings for this class.
-#define VTK_DEPRECATION_LEVEL 0
-
 #include "vtkGenericOpenGLRenderWindow.h"
 
 #include "vtkCommand.h"
@@ -308,12 +305,4 @@ int vtkGenericOpenGLRenderWindow::SetRGBACharPixelData(
 
   vtkWarningMacro("`SetRGBACharPixelData` called before window is ready for rendering; ignoring.");
   return VTK_ERROR;
-}
-
-//----------------------------------------------------------------------------
-bool vtkGenericOpenGLRenderWindow::IsDrawable()
-{
-  VTK_LEGACY_BODY(vtkGenericOpenGLRenderWindow::IsDrawable, "VTK 9.1");
-
-  return this->ReadyForRendering;
 }

@@ -25,8 +25,7 @@
 #ifndef vtkOpenGLRenderWindow_h
 #define vtkOpenGLRenderWindow_h
 
-#include "vtkDeprecation.h" // for VTK_DEPRECATED_IN_9_1_0
-#include "vtkRect.h"        // for vtkRecti
+#include "vtkRect.h" // for vtkRecti
 #include "vtkRenderWindow.h"
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkType.h"                   // for ivar
@@ -184,21 +183,6 @@ public:
    */
   void GetOpenGLVersion(int& major, int& minor);
 
-  ///@{
-  VTK_DEPRECATED_IN_9_1_0("Removed in 9.1, now always returns 0")
-  unsigned int GetBackLeftBuffer();
-  VTK_DEPRECATED_IN_9_1_0("Removed in 9.1, now always returns 0")
-  unsigned int GetBackRightBuffer();
-  VTK_DEPRECATED_IN_9_1_0("Removed in 9.1, now always returns 0")
-  unsigned int GetFrontLeftBuffer();
-  VTK_DEPRECATED_IN_9_1_0("Removed in 9.1, now always returns 0")
-  unsigned int GetFrontRightBuffer();
-  VTK_DEPRECATED_IN_9_1_0("Removed in 9.1, now always returns 0")
-  unsigned int GetBackBuffer();
-  VTK_DEPRECATED_IN_9_1_0("Removed in 9.1, now always returns 0")
-  unsigned int GetFrontBuffer();
-  ///@}
-
   /**
    * Get the time when the OpenGL context was created.
    */
@@ -219,8 +203,6 @@ public:
    * Returns the render framebuffer object.
    */
   vtkGetObjectMacro(RenderFramebuffer, vtkOpenGLFramebufferObject);
-  VTK_DEPRECATED_IN_9_1_0("Removed in 9.1")
-  vtkOpenGLFramebufferObject* GetOffScreenFramebuffer() { return this->RenderFramebuffer; }
   ///@}
 
   /**

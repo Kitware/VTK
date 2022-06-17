@@ -12,8 +12,6 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// Hide VTK_DEPRECATED_IN_9_1_0() warnings for this class.
-#define VTK_DEPRECATION_LEVEL 0
 
 #include "vtkBlueObeliskData.h"
 
@@ -21,10 +19,6 @@
 #include "vtkBlueObeliskDataInternal.h"
 #include "vtkBlueObeliskDataParser.h"
 #include "vtkFloatArray.h"
-#include "vtkLegacy.h" // For VTK_LEGACY_REMOVE
-#if !defined(VTK_LEGACY_REMOVE)
-#include "vtkMutexLock.h"
-#endif
 #include "vtkObjectFactory.h"
 #include "vtkStringArray.h"
 #include "vtkTypeTraits.h"
@@ -41,12 +35,7 @@ vtkStandardNewMacro(vtkBlueObeliskData);
 
 //------------------------------------------------------------------------------
 vtkBlueObeliskData::vtkBlueObeliskData()
-  :
-#if !defined(VTK_LEGACY_REMOVE)
-  WriteMutex(vtkSimpleMutexLock::New())
-  ,
-#endif
-  Initialized(false)
+  : Initialized(false)
   , NumberOfElements(0)
   , Arrays(new MyStdVectorOfVtkAbstractArrays)
 {
@@ -115,9 +104,6 @@ vtkBlueObeliskData::vtkBlueObeliskData()
 vtkBlueObeliskData::~vtkBlueObeliskData()
 {
   delete Arrays;
-#if !defined(VTK_LEGACY_REMOVE)
-  this->WriteMutex->Delete();
-#endif
 }
 
 //------------------------------------------------------------------------------
@@ -202,21 +188,13 @@ void LoadDataArray(
 //------------------------------------------------------------------------------
 void vtkBlueObeliskData::LockWriteMutex()
 {
-#if !defined(VTK_LEGACY_REMOVE)
-  this->WriteMutex->Lock();
-#else
   this->NewWriteMutex.lock();
-#endif
 }
 
 //------------------------------------------------------------------------------
 void vtkBlueObeliskData::UnlockWriteMutex()
 {
-#if !defined(VTK_LEGACY_REMOVE)
-  this->WriteMutex->Unlock();
-#else
   this->NewWriteMutex.unlock();
-#endif
 }
 
 //------------------------------------------------------------------------------

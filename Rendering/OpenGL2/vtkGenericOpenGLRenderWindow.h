@@ -165,13 +165,6 @@ public:
   vtkSetMacro(Mapped, vtkTypeBool);
 
   /**
-   * Overridden to simply call `GetReadyForRendering`
-   */
-  VTK_DEPRECATED_IN_9_1_0(
-    "Deprecated in 9.1 because no one knows what it's for and nothing uses it")
-  bool IsDrawable() override;
-
-  /**
    * Initialize OpenGL for this window.
    */
   void OpenGLInit() override;

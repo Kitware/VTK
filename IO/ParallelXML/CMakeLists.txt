@@ -11,7 +11,6 @@ set(classes
   vtkXMLPHyperTreeGridWriter
   vtkXMLPImageDataWriter
   vtkXMLPMultiBlockDataWriter
-  vtkXMLPPartitionedDataSetWriter
   vtkXMLPPolyDataWriter
   vtkXMLPRectilinearGridWriter
   vtkXMLPStructuredDataWriter

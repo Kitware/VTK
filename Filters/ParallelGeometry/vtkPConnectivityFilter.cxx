@@ -13,9 +13,6 @@
 
 =========================================================================*/
 
-// Hide VTK_DEPRECATED_IN_9_1_0() warnings for this class.
-#define VTK_DEPRECATION_LEVEL 0
-
 #include "vtkPConnectivityFilter.h"
 
 #include "vtkAOSDataArrayTemplate.h"
@@ -874,7 +871,6 @@ int vtkPConnectivityFilter::RequestData(
       // vtkUnstructuredGrid output.
       vtkNew<vtkDataSetSurfaceFilter> surfaceFilter;
       surfaceFilter->SetInputConnection(thresholder->GetOutputPort());
-      surfaceFilter->UseStripsOff();
       surfaceFilter->PassThroughCellIdsOff();
       surfaceFilter->PassThroughPointIdsOff();
       surfaceFilter->Update();

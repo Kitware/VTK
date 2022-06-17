@@ -107,18 +107,6 @@ vtkCell* vtkBezierTetra::GetFace(int faceId)
   return result;
 }
 
-/**\brief EvaluateLocation Given a point_id. This is required by Bezier because the interior points
- * are non-interpolatory .
- */
-void vtkBezierTetra::EvaluateLocationProjectedNode(
-  int& subId, const vtkIdType point_id, double x[3], double* weights)
-{
-  this->vtkHigherOrderTetra::SetParametricCoords();
-  double pcoords[3];
-  this->PointParametricCoordinates->GetPoint(this->PointIds->FindIdLocation(point_id), pcoords);
-  this->vtkHigherOrderTetra::EvaluateLocation(subId, pcoords, x, weights);
-}
-
 /**\brief Set the rational weight of the cell, given a vtkDataSet
  */
 void vtkBezierTetra::SetRationalWeightsFromPointData(

@@ -198,16 +198,6 @@ public:
   bool IsCurrent() override;
 
   /**
-   * Test if the window has a valid drawable. This is
-   * currently only an issue on Mac OS X IOS where rendering
-   * to an invalid drawable results in all OpenGL calls to fail
-   * with "invalid framebuffer operation".
-   */
-  VTK_DEPRECATED_IN_9_1_0(
-    "Deprecated in 9.1 because no one knows what it's for and nothing uses it")
-  bool IsDrawable() override;
-
-  /**
    * Update this window's OpenGL context, e.g. when the window is resized.
    */
   void UpdateContext();

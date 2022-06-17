@@ -127,24 +127,6 @@ public:
 
   ///@{
   /**
-   * Triangle strip support was dropped in 9.1. Please use vtkStripper to
-   * generate triangle strips, if needed.
-   */
-  VTK_DEPRECATED_IN_9_1_0("no longer supported")
-  vtkTypeBool GetUseStrips();
-
-  VTK_DEPRECATED_IN_9_1_0("no longer supported")
-  void SetUseStrips(vtkTypeBool);
-
-  VTK_DEPRECATED_IN_9_1_0("no longer supported")
-  void UseStripsOn();
-
-  VTK_DEPRECATED_IN_9_1_0("no longer supported")
-  void UseStripsOff();
-  ///@}
-
-  ///@{
-  /**
    * If PieceInvariant is true, vtkDataSetSurfaceFilter requests
    * 1 ghost level from input in order to remove internal surface
    * that are between processes. False by default.
@@ -340,11 +322,6 @@ protected:
   class vtkEdgeInterpolationMap;
 
   vtkEdgeInterpolationMap* EdgeMap;
-  VTK_DEPRECATED_IN_9_1_0(
-    "Use GetInterpolatedPointId(vtkIdType edgePtA, vtkIdType edgePtB, vtkDataSet* input, vtkCell* "
-    "cell, double pcoords[3], double* weights, vtkPoints* outPts, vtkPointData* outPD) instead")
-  vtkIdType GetInterpolatedPointId(vtkIdType edgePtA, vtkIdType edgePtB, vtkDataSet* input,
-    vtkCell* cell, double pcoords[3], vtkPoints* outPts, vtkPointData* outPD);
   vtkIdType GetInterpolatedPointId(vtkIdType edgePtA, vtkIdType edgePtB, vtkDataSet* input,
     vtkCell* cell, double pcoords[3], double* weights, vtkPoints* outPts, vtkPointData* outPD);
   vtkIdType GetInterpolatedPointId(vtkDataSet* input, vtkCell* cell, double pcoords[3],

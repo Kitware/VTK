@@ -29,7 +29,6 @@
 
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkCompiler.h"
-#include "vtkLegacy.h"
 #include "vtkOptions.h"
 #include "vtkSystemIncludes.h"
 #include "vtksys/SystemTools.hxx"
