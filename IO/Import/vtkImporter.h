@@ -138,7 +138,7 @@ public:
   virtual void SetCamera(vtkIdType vtkNotUsed(camIndex)) {}
 
   /**
-   * Get temporal informations for the currently enabled animations.
+   * Get temporal information for the currently enabled animations.
    * the three return arguments can be defined or not.
    * Return true in case of success, false otherwise.
    */

@@ -14,7 +14,7 @@
 =========================================================================*/
 
 /**
- * The whole pupose of this header file is to allow us to 'wrap' a c library
+ * The whole purpose of this header file is to allow us to 'wrap' a c library
  * into Fortran. Here are the basic goals we should reach:
  *
  * 1. The symbol mangling in fortran is different than is C. For example if

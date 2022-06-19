@@ -51,7 +51,7 @@ int TestTemporalDelimitedTextReader(int argc, char* argv[])
     if (table->GetNumberOfColumns() != 7)
     {
       cout << "ERROR in test 1: Wrong number of columns:" << endl;
-      cout << table->GetNumberOfColumns() << " sould be 7." << endl;
+      cout << table->GetNumberOfColumns() << " should be 7." << endl;
       cout << "Printing reader info..." << endl;
       reader->Print(cout);
       return 1;
@@ -59,7 +59,7 @@ int TestTemporalDelimitedTextReader(int argc, char* argv[])
     if (table->GetNumberOfRows() != 392)
     {
       cout << "ERROR in test 1: Wrong number of rows:" << endl;
-      cout << table->GetNumberOfRows() << " sould be 392." << endl;
+      cout << table->GetNumberOfRows() << " should be 392." << endl;
       cout << "Printing reader info..." << endl;
       reader->Print(cout);
       return 1;
@@ -80,7 +80,7 @@ int TestTemporalDelimitedTextReader(int argc, char* argv[])
     {
       // The time column have been removed
       cout << "ERROR in test 2: Wrong number of columns:";
-      cout << table->GetNumberOfColumns() << " sould be 6." << endl;
+      cout << table->GetNumberOfColumns() << " should be 6." << endl;
       cout << "Printing reader info..." << endl;
       reader->Print(cout);
       return 1;
@@ -103,7 +103,7 @@ int TestTemporalDelimitedTextReader(int argc, char* argv[])
     {
       // The time column is back again
       cout << "ERROR in test 3: Wrong number of columns:" << endl;
-      cout << table->GetNumberOfColumns() << " sould be 7." << endl;
+      cout << table->GetNumberOfColumns() << " should be 7." << endl;
       cout << "Printing reader info..." << endl;
       reader->Print(cout);
       return 1;

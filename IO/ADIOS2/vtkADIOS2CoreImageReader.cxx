@@ -507,13 +507,13 @@ int vtkADIOS2CoreImageReader::RequestData(vtkInformation* vtkNotUsed(request),
     this->RequestTimeStep = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP());
     if (!this->Impl->TimeStepsReverseMap.count(this->RequestTimeStep))
     {
-      vtkErrorMacro("The requested time step " << this->RequestTimeStep << " is not avaible!");
+      vtkErrorMacro("The requested time step " << this->RequestTimeStep << " is not available!");
       return 0;
     }
     this->Impl->RequestStep = this->Impl->TimeStepsReverseMap[this->RequestTimeStep];
   }
 
-  // Initailize work distribution for each rank
+  // Initialize work distribution for each rank
   if (!this->InitWorkDistribution())
   {
     this->Impl->Adios.reset(nullptr);

@@ -428,7 +428,7 @@ int vtkEnSightGoldBinaryReader::ReadGeometryFile(
       }
     }
 
-    // use do-while here to initialize 'line' before 'strncmp' is appllied
+    // use do-while here to initialize 'line' before 'strncmp' is applied
     // Thanks go to Brancois for care of this issue
     do
     {

@@ -326,7 +326,7 @@ int vtkRectilinearGridReader::ReadMeshSimple(const std::string& fname, vtkDataOb
       vtkWarningMacro(<< "No dimensions read.");
     if (!output->GetXCoordinates() || output->GetXCoordinates()->GetNumberOfTuples() < 1)
     {
-      vtkWarningMacro(<< "No x coordinatess read.");
+      vtkWarningMacro(<< "No x coordinates read.");
     }
     if (!output->GetYCoordinates() || output->GetYCoordinates()->GetNumberOfTuples() < 1)
     {

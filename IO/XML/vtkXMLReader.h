@@ -241,7 +241,7 @@ protected:
    */
   int GetLocalDataType(vtkXMLDataElement* da, int datatype);
 
-  // Create a vtkAbstractArray from its cooresponding XML representation.
+  // Create a vtkAbstractArray from its corresponding XML representation.
   // Does not allocate.
   vtkAbstractArray* CreateArray(vtkXMLDataElement* da);
 

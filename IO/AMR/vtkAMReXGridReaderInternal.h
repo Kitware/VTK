@@ -99,7 +99,7 @@ public:
   // vector variable name (contains a proper postfix)
   std::string vectorNamePrefix = "amrexvec";
 
-  // delimeter must be the same after prefix and before postfix
+  // delimiter must be the same after prefix and before postfix
   char nameDelim = '_';
 
   // variableNames map to (potentially a collection of) variableNames indices

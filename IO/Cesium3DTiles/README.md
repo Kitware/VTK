@@ -1,6 +1,6 @@
 # vtk3DTilesWriter - Convert a multiblock dataset to the 3D Tiles format.
 
-Currently, to create a valid 3D Tiles dataset we may need aditional
+Currently, to create a valid 3D Tiles dataset we may need additional
 conversions: from GLTF to GLB and from GLB to B3DM. We can use
 JavaScript tools to do these conversions.
 

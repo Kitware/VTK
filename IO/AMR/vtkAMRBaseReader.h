@@ -134,7 +134,7 @@ protected:
   vtkAMRBaseReader();
   ~vtkAMRBaseReader() override;
 
-  // Desscription:
+  // Description:
   // Checks if this reader instance is attached to a communicator
   // with more than one MPI processes.
   bool IsParallel();

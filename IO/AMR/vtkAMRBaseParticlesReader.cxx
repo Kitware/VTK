@@ -69,7 +69,7 @@ int vtkAMRBaseParticlesReader::GetNumberOfParticleArrays()
 //------------------------------------------------------------------------------
 const char* vtkAMRBaseParticlesReader::GetParticleArrayName(int index)
 {
-  assert("pre: array inded out-of-bounds!" && (index >= 0) &&
+  assert("pre: array index out-of-bounds!" && (index >= 0) &&
     (index < this->ParticleDataArraySelection->GetNumberOfArrays()));
 
   return this->ParticleDataArraySelection->GetArrayName(index);

@@ -746,7 +746,7 @@ void vtkXdmfDomain::CollectLeafMetaData(XdmfGrid* xmfGrid, vtkIdType silParent)
 //------------------------------------------------------------------------------
 bool vtkXdmfDomain::UpdateGridAttributeInSIL(XdmfAttribute* xmfAttribute, vtkIdType silVertex)
 {
-  // Check if the grid centered attribute is an single component integeral
+  // Check if the grid centered attribute is an single component integral
   // value, (or a string, in future). If that's the case, then these become
   // part of the SIL.
   XdmfDataItem xmfDataItem;
@@ -780,7 +780,7 @@ bool vtkXdmfDomain::UpdateGridAttributeInSIL(XdmfAttribute* xmfAttribute, vtkIdT
       break;
 
     default:
-      return false; // skip non-integeral types.
+      return false; // skip non-integral types.
   }
 
   const char* name = xmfAttribute->GetName();

@@ -14,7 +14,7 @@
 =========================================================================*/
 /**
  * @class TreeInformation
- * @brief Additional information and routins for 3D Tiles octree nodes.
+ * @brief Additional information and routines for 3D Tiles octree nodes.
  *
  * Additional information for all nodes in the octree used to generate
  * the 3D Tiles representation.

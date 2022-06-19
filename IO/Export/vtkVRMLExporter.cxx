@@ -562,7 +562,7 @@ void vtkVRMLExporter::WriteShapeBegin(vtkActor* actor, FILE* fileP, vtkPolyData*
   fprintf(
     fileP, "              shininess %.*g\n", max_double_digits, props->GetSpecularPower() / 128.0);
   fprintf(fileP, "              transparency %.*g\n", max_double_digits, 1.0 - props->GetOpacity());
-  fprintf(fileP, "              }\n"); // close matrial
+  fprintf(fileP, "              }\n"); // close material
 
   // is there a texture map
   if (actor->GetTexture())

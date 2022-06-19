@@ -243,7 +243,7 @@ struct Converter
 template <int cellLength>
 struct Converter<8, 4, cellLength>
 {
-  // specilization of 64bit machine and 32bit file
+  // specialization of 64bit machine and 32bit file
   // so we have to copy each item individually
   vtkIdType* convert(int* buff, const vtkIdType& size)
   {
@@ -259,7 +259,7 @@ struct Converter<8, 4, cellLength>
 template <int cellLength>
 struct Converter<4, 8, cellLength>
 {
-  // specilization for reading 64 bit files on a 32 bit machine
+  // specialization for reading 64 bit files on a 32 bit machine
   // which means reading the bottom half of the long long
   vtkIdType* convert(int* buff, const vtkIdType& size)
   {

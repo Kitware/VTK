@@ -388,7 +388,7 @@ bool FillFields(
     auto name = array->GetName();
     if (!name)
     {
-      vtkLogF(WARNING, "Unamed array, it will be ignored.");
+      vtkLogF(WARNING, "Unnamed array, it will be ignored.");
       continue;
     }
 

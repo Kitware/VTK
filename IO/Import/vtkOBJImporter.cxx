@@ -917,7 +917,7 @@ int vtkOBJPolyDataProcessor::RequestData(vtkInformation* vtkNotUsed(request),
 
   if (everything_ok) // (otherwise just release allocated memory and return)
   {
-    // -- now turn this lot into a useable vtkPolyData --
+    // -- now turn this lot into a usable vtkPolyData --
     // loop over the materials found in the obj file
     for (size_t outputIndex = 0; outputIndex < poly_list.size(); ++outputIndex)
     {

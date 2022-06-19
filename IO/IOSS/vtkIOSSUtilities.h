@@ -104,7 +104,7 @@ private:
 };
 
 /**
- * A helper to instantiate on stack to temporarily redirect non-critical messsages
+ * A helper to instantiate on stack to temporarily redirect non-critical messages
  * emanating from IOSS. See paraview/paraview#21193
  */
 class CaptureNonErrorMessages

@@ -153,7 +153,7 @@ void TestADIOS2BPReaderMPIMultiTimeSteps2D(vtkMultiProcessController* controller
   {
     rendWin->Render();
 
-    // Do the test comparsion
+    // Do the test comparison
     int retval = vtkRegressionTestImage(rendWin);
     if (retval == vtkRegressionTester::DO_INTERACTOR)
     {

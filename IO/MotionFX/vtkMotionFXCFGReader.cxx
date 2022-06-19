@@ -362,7 +362,7 @@ struct RotateAxisMotion : public Motion
     if (theta != 0.0)
     {
       // theta is in radians.
-      // convert to degress
+      // convert to degrees
       theta = vtkMath::DegreesFromRadians(theta);
 
       vtkNew<vtkTransform> transform;
@@ -550,7 +550,7 @@ struct PlanetaryMotion : public Motion
       transform->Translate(-this->orbit_cntr[0], -this->orbit_cntr[1], -this->orbit_cntr[2]);
 
       // day_theta is in radians.
-      // convert to degress
+      // convert to degrees
       day_theta = vtkMath::DegreesFromRadians(day_theta);
 
       transform->Translate(this->initial_centerOfDayRotation.GetData());

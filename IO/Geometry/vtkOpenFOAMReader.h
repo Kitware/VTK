@@ -28,7 +28,7 @@
  *
  * Takuya Oshima of Niigata University, Japan (oshima@eng.niigata-u.ac.jp)
  * provided the major bulk of improvements (rewrite) that made the reader
- * truly functional and icluded the following features:
+ * truly functional and included the following features:
  * Token-based FoamFile format lexer/parser,
  * performance/stability/compatibility enhancements, gzipped file
  * support, lagrangian field support, variable timestep support,

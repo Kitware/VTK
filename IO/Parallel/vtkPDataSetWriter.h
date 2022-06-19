@@ -42,7 +42,7 @@ public:
   static vtkPDataSetWriter* New();
 
   /**
-   * Write the pvtk file and cooresponding vtk files.
+   * Write the pvtk file and corresponding vtk files.
    */
   int Write() override;
 

@@ -126,7 +126,7 @@ protected:
   //@{
   /**
    * Reads the 'data' requested in 'outInfo' (through extents or
-   * pieces). Returns 1 if successfull, 0 otherwise.
+   * pieces). Returns 1 if successful, 0 otherwise.
    */
   int Read(vtkInformation* outInfo, vtkImageData* data);
   int Read(vtkInformation* outInfo, vtkUnstructuredGrid* data);

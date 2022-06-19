@@ -497,7 +497,7 @@ vtkUnstructuredGrid* vtkLSDynaPart::GenerateGrid()
   }
   else
   {
-    // we threshold the datset on the ghost cells and return
+    // we threshold the dataset on the ghost cells and return
     // the new dataset
     return this->RemoveDeletedCells();
   }

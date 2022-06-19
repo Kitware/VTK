@@ -807,7 +807,7 @@ int vtkOBJReader::RequestData(vtkInformation* vtkNotUsed(request),
 
   if (everything_ok) // (otherwise just release allocated memory and return)
   {
-    // -- now turn this lot into a useable vtkPolyData --
+    // -- now turn this lot into a usable vtkPolyData --
 
     // if there are no tcoords or normals or they match exactly
     // then we can just copy the data into the output (easy!)

@@ -155,7 +155,7 @@ use it.
  * Start of modifications to get minc working with netcdf 3.5.
  *
  * Revision 6.1  1999/10/19 14:45:08  neelin
- * Fixed Log subsitutions for CVS
+ * Fixed Log substitutions for CVS
  *
  * Revision 6.0  1997/09/12 13:24:54  neelin
  * Release of minc version 0.6

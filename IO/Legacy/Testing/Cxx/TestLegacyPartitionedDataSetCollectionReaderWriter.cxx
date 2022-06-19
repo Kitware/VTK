@@ -35,8 +35,8 @@ int TestLegacyPartitionedDataSetCollectionReaderWriter(int, char*[])
     "Expected input data-set 1 to have no data on partition-index 0");
   vtkLogIf(ERROR, nullptr == partitionedCollection->GetPartition(1u, 1),
     "Expected input data-set 1 to have data on partition-index 1");
-  vtkLogIf(ERROR, !partitionedCollection->HasMetaData(0u), "Expected metatdata on partition 0");
-  vtkLogIf(ERROR, !partitionedCollection->HasMetaData(1u), "Expected metatdata on partition 1");
+  vtkLogIf(ERROR, !partitionedCollection->HasMetaData(0u), "Expected metadata on partition 0");
+  vtkLogIf(ERROR, !partitionedCollection->HasMetaData(1u), "Expected metadata on partition 1");
   vtkLogIf(ERROR, 1 != partitionedCollection->GetMetaData(0u)->GetNumberOfKeys(),
     "Expected 1 key on the partition 0 metadata");
   vtkLogIf(ERROR, 1 != partitionedCollection->GetMetaData(1u)->GetNumberOfKeys(),
@@ -72,8 +72,8 @@ int TestLegacyPartitionedDataSetCollectionReaderWriter(int, char*[])
     "Expected result data-set 1 to have no data on partition-index 0");
   vtkLogIf(ERROR, nullptr == readCollection->GetPartition(1u, 1),
     "Expected result data-set 1 to have data on partition-index 1");
-  vtkLogIf(ERROR, !readCollection->HasMetaData(0u), "Expected metatdata on result partition 0");
-  vtkLogIf(ERROR, !readCollection->HasMetaData(1u), "Expected metatdata on result partition 1");
+  vtkLogIf(ERROR, !readCollection->HasMetaData(0u), "Expected metadata on result partition 0");
+  vtkLogIf(ERROR, !readCollection->HasMetaData(1u), "Expected metadata on result partition 1");
   vtkLogIf(ERROR, 1 != readCollection->GetMetaData(0u)->GetNumberOfKeys(),
     "Expected 1 key on the result partition 0 metadata");
   vtkLogIf(ERROR, 1 != readCollection->GetMetaData(1u)->GetNumberOfKeys(),

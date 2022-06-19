@@ -196,7 +196,7 @@ static int NetCDFTypeToVTKType(nc_type type)
 }
 
 //=============================================================================
-// This class automatically closes a netCDF file descripter when it goes out
+// This class automatically closes a netCDF file descriptor when it goes out
 // of scope.  This allows us to exit on error without having to close the
 // file at every instance.
 class vtkSLACReaderAutoCloseNetCDF

@@ -238,7 +238,7 @@ int vtkH5RageReader::RequestData(vtkInformation* vtkNotUsed(reqInfo),
   }
   else
   {
-    // Pipeline actived from python script
+    // Pipeline activated from python script
     if (this->CurrentTimeStep < 0 || this->CurrentTimeStep >= this->NumberOfTimeSteps)
     {
       this->CurrentTimeStep = 0;

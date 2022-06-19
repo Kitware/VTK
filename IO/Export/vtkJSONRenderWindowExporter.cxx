@@ -32,7 +32,7 @@ namespace
 {
 // When exporting a VTK render window, we must also write the datasets
 // associated with the render window into the same archive. To do this, we
-// construct an intermediate archiver that neither opens nore closes the
+// construct an intermediate archiver that neither opens nor closes the
 // archive and simply pipes its contents into a subdirectory of a parent
 // archive.
 class vtkJSONDataSetArchiver : public vtkArchiver

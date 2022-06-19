@@ -17,7 +17,7 @@
  * @class   vtkXdmf3HeavyDataHandler
  * @brief   internal helper for vtkXdmf3Reader
  *
- * vtkXdmf3Reader uses this class to read the heave data from the XDMF
+ * vtkXdmf3Reader uses this class to read the heavy data from the XDMF
  * file(s).
  *
  * This file is a helper for the vtkXdmf3Reader and not intended to be

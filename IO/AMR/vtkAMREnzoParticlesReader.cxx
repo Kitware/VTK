@@ -347,7 +347,7 @@ vtkPolyData* vtkAMREnzoParticlesReader::GetParticles(const char* file, const int
 //------------------------------------------------------------------------------
 void vtkAMREnzoParticlesReader::SetupParticleDataSelections()
 {
-  assert("pre: Intenal reader is nullptr" && (this->Internal != nullptr));
+  assert("pre: Internal reader is nullptr" && (this->Internal != nullptr));
 
   unsigned int N = static_cast<unsigned int>(this->Internal->ParticleAttributeNames.size());
   for (unsigned int i = 0; i < N; ++i)

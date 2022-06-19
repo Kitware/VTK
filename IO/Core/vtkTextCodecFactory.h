@@ -23,7 +23,7 @@ PURPOSE.  See the above copyright notice for more information.
  *
  *
  * A single class to hold registered codecs and return instances of them based
- * on either a decriptive name (UTF16 or latin-1) or by asking who can handle a
+ * on either a descriptive name (UTF16 or latin-1) or by asking who can handle a
  * given std::vector<unsigned char>
  *
  * @par Thanks:

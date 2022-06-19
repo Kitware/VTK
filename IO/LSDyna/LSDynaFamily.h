@@ -155,7 +155,7 @@ public:
   // Setup reading of a number of words to be split across multiple
   // bufferChunk. This is used to read really large buffer sections
   // in more reasonable sizes. The parameters are used to specify the total buffer
-  // size. The buffer size will always be evenly divisable by numComps and total
+  // size. The buffer size will always be evenly divisible by numComps and total
   // word size of all buffers will be numTuples*numComps
   vtkIdType InitPartialChunkBuffering(const vtkIdType& numTuples, const vtkIdType& numComps);
   vtkIdType GetNextChunk(const WordType& wType);
@@ -196,7 +196,7 @@ public:
   /// Print all adaptation and time step marker information.
   void DumpMarks(std::ostream& os);
 
-  // Closes the current file descripter. This is called after
+  // Closes the current file descriptor. This is called after
   // we are done reading in request data
   void CloseFileHandles();
 

@@ -139,7 +139,7 @@ public:
   void SetCamera(vtkIdType camIndex) override;
 
   /**
-   * Get temporal informations for the currently enabled animations.
+   * Get temporal information for the currently enabled animations.
    * frameRate is used to define the number of frames for one second of simulation.
    * the three return arguments are defined in this implementation.
    */

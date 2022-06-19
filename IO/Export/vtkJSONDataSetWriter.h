@@ -103,7 +103,7 @@ public:
 
   ///@{
   /**
-   * For backwards compatiblity, this static method writes a data array's
+   * For backwards compatibility, this static method writes a data array's
    * contents directly to a file.
    */
   static bool WriteArrayAsRAW(vtkDataArray*, VTK_FILEPATH const char* filePath);

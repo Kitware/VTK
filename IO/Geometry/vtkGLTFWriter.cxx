@@ -251,7 +251,7 @@ std::string WriteTextureBufferAndView(const char* gltfRelativeTexturePath, const
 
     vtkNew<vtkTrivialProducer> triv;
     triv->SetOutput(id);
-    // no need to flip Y the texture as we filp the texture coordinates
+    // no need to flip Y the texture as we flip the texture coordinates
 
     // convert to png
     vtkNew<vtkPNGWriter> png;

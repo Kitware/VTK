@@ -49,13 +49,13 @@
  *   accelerate the obtaining of a result which will be less precise and to
  *   allow the loading of a part of a mesh which would not hold in memory:
  *      - loading by limiting the maximum level to load;
- *      - loading by selecting (differentes description possibilities are
+ *      - loading by selecting (different description possibilities are
  *        offered) the HTs to take into account.
  *
  * The default version of the VTK XML HyperTreeGrid file format is the latest
  * version, now version 1.0.
  *
- * For developpers:
+ * For developers:
  * To ensure the durability of this storage format over time, at least, the drive
  * must continue to support playback of previous format.
  */

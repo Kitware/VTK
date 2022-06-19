@@ -147,7 +147,7 @@ std::size_t TotalElements(const std::vector<std::size_t>& dimensions) noexcept;
  * @param dataSetNode input
  * @param specialNames input check for vector components even if
  * NumberOfComponents wasn't declared
- * @return initialiazed DataSet
+ * @return initialized DataSet
  */
 types::DataSet XMLInitDataSet(
   const pugi::xml_node& dataSetNode, const std::set<std::string>& specialNames);

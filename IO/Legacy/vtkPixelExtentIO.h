@@ -36,7 +36,7 @@ public:
    * Writes deque of extents for each MPI rank to disk
    * as an unstructured grid. Each extent is converted to
    * a QUAD cell. Rank is encoded in a cell data array.
-   * It's aassumed that the data is duplicated on all
+   * It's assumed that the data is duplicated on all
    * ranks thus only rank 0 writes the data to disk.
    */
   static void Write(int commRank, VTK_FILEPATH const char* fileName,
@@ -47,7 +47,7 @@ public:
    * unstructured grid. It's expected that the index into
    * the deque identifies the rank. Each extent is converted
    * to a QUAD cell. Rank is encoded in a cell data array.
-   * It's aassumed that the data is duplicated on all
+   * It's assumed that the data is duplicated on all
    * ranks thus only rank 0 writes the data to disk.
    */
   static void Write(
