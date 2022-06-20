@@ -1,3 +1,5 @@
+# Check that numpy is available
+include(FindPythonModules)
 find_python_module(numpy numpy_found)
 if (numpy_found)
   vtk_add_test_python(
