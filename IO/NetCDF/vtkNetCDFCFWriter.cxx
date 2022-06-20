@@ -71,7 +71,7 @@ nc_type VTKTypeToNetCDFType(int type)
   switch (type)
   {
       // we use BYTE for char and signed char because NC_CHAR is an ascii character.
-      // and NetCDF reports an error if you store somthing else.
+      // and NetCDF reports an error if you store something else.
     case VTK_CHAR:
     case VTK_SIGNED_CHAR:
     case VTK_UNSIGNED_CHAR:
@@ -607,7 +607,7 @@ void vtkNetCDFCFWriter::WriteData()
     vtkImageData* id = vtkImageData::SafeDownCast(dataset);
     if (!id)
     {
-      throw std::runtime_error("Writer expectes an input of type vtkImageData");
+      throw std::runtime_error("Writer expects an input of type vtkImageData");
     }
     vtkDataSetAttributes* attributes = dataset->GetAttributes(this->AttributeType);
     if (!attributes || !attributes->GetNumberOfArrays())

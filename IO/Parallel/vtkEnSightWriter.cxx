@@ -516,7 +516,7 @@ void vtkEnSightWriter::WriteData()
             this->WriteIntToFile(CellId, fd);
           }
 
-          // element conenctivity information
+          // element connectivity information
           for (k = 0; k < CellsByElement[elementType].size(); k++)
           {
             int CellId = CellsByElement[elementType][k];

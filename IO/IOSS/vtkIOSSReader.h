@@ -117,7 +117,7 @@
  * provides the partition information.
  *
  * Note, the database need not be split into multiple files. Thus, a writer may
- * generate a single `can.e` file that has all the timesteps and paritions and
+ * generate a single `can.e` file that has all the timesteps and partitions and
  * still provide all information available when the database is split among
  * multiple files.
  *

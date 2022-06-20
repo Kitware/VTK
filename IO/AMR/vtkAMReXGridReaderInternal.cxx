@@ -251,7 +251,7 @@ int vtkAMReXGridHeader::CheckComponent(const std::string& name)
 {
   const std::size_t pos = name.find_last_of(this->nameDelim);
   // we expect to use the character just past pos
-  // so we don't want to accidentially jump outside the string
+  // so we don't want to accidentally jump outside the string
   if (pos > name.size() - 1)
   {
     return -1;

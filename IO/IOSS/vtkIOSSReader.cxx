@@ -229,7 +229,7 @@ class vtkIOSSReader::vtkInternals
     EntityNames;
   vtkTimeStamp SelectionsMTime;
 
-  // Keeps track of idx of a paritioned dataset in the output.
+  // Keeps track of idx of a partitioned dataset in the output.
   std::map<std::pair<Ioss::EntityType, std::string>, unsigned int> DatasetIndexMap;
 
   std::map<DatabaseHandle, std::shared_ptr<Ioss::Region>> RegionMap;
@@ -306,7 +306,7 @@ public:
    *
    * This is called after successful call to `UpdateDatabaseNames` which should
    * populate the list of Ioss databases. This method iterates over all
-   * databases and gathers informations about timesteps available in those
+   * databases and gathers information about timesteps available in those
    * databases. When running in parallel, only the root node opens the Ioss
    * databases and reads the time information. That information is then
    * exchanged with all ranks thus at the end of this method all ranks should
@@ -523,7 +523,7 @@ private:
     vtkIOSSReader::EntityType vtk_entity_type, const DatabaseHandle& handle);
 
   /**
-   * Add "id" array to the dataset using the id for the groupping entity, if
+   * Add "id" array to the dataset using the id for the grouping entity, if
    * any. The array named "object_id" is added as a cell-data array to follow
    * the pattern used by vtkExodusIIReader.
    */
@@ -643,7 +643,7 @@ std::vector<int> vtkIOSSReader::vtkInternals::GetFileIds(
 
   // this logic is same as diy::ContiguousAssigner::local_gids(..)
   // the goal is split the available set of files into number of ranks in
-  // continguous chunks.
+  // contiguous chunks.
   const int div = nfiles / numRanks;
   const int mod = nfiles % numRanks;
 

@@ -74,7 +74,7 @@ int vtkBase64InputStream::Seek(vtkTypeInt64 offset)
     return 0;
   }
 
-  // Decode the first triplet if it is paritally skipped.
+  // Decode the first triplet if it is partially skipped.
   if (skipLength == 0)
   {
     this->BufferLength = 0;

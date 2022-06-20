@@ -65,7 +65,7 @@ public:
 
   /**
    * Create a vtkImageReader2 from a (dotted or not) file extension.
-   * If mulitple readers support the same extension, only one reader
+   * If multiple readers support the same extension, only one reader
    * will be returned.
    * It is the callers responsibility to call Delete on the returned object.
    * If no reader is found, nullptr is returned.

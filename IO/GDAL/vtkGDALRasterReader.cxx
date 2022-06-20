@@ -957,7 +957,7 @@ int vtkGDALRasterReader::RequestData(vtkInformation* vtkNotUsed(request),
   this->Impl->UniformGridData->GetFieldData()->AddArray(projectionData);
 
   // Add NoDataValue as field data
-  // GDALDatset can have 1 value for each raster band
+  // GDALDataset can have 1 value for each raster band
   // Use NaN for undefined values
   vtkSmartPointer<vtkDoubleArray> noDataArray = vtkSmartPointer<vtkDoubleArray>::New();
   noDataArray->SetName("NO_DATA_VALUE");

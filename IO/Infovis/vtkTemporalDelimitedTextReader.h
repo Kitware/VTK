@@ -89,7 +89,7 @@ public:
   ///@}
 
   /** Internal fields of this reader use a specific MTime (InternalMTime).
-   * This mechamism ensure the actual data is only re-read when necessary.
+   * This mechanism ensures the actual data is only re-read when necessary.
    * Here, we ensure the GetMTime of this reader stay consistent by returning
    * the latest between the MTime of this reader and the internal one.
    *

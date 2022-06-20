@@ -153,7 +153,7 @@ int vtkOggTheoraWriterInternal::Start()
   // the frame rate (as a fraction)
   thInfo.fps_numerator = this->FrameRate;
   thInfo.fps_denominator = 1;
-  // pixel ascpect ratio
+  // pixel aspect ratio
   thInfo.aspect_numerator = 1;
   thInfo.aspect_denominator = 1;
 
@@ -356,7 +356,7 @@ void vtkOggTheoraWriterInternal::RGB2YCbCr(vtkImageData* id, th_ycbcr_buffer ycb
   typedef unsigned char uchar;
 
   //
-  // constant coefficiens
+  // constant coefficients
   //
 
   static const uchar OffY = 16, OffCr = 128, OffCb = 128;

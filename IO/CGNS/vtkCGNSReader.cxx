@@ -3272,7 +3272,7 @@ int vtkCGNSReader::GetUnstructuredZone(
 
                   // sort face Bnd Element to Read
                   std::sort(faceElemToRead.begin(), faceElemToRead.end());
-                  // Generate partial contiguous chuncks to read
+                  // Generate partial contiguous chunks to read
                   vtkIdType curFaceId = faceElemToRead[0].first;
                   std::vector<vtkIdType> rangeIdx;
                   rangeIdx.push_back(0);
@@ -3880,7 +3880,7 @@ int vtkCGNSReader::GetUnstructuredZone(
 
                   // sort face Bnd Element to Read
                   std::sort(elemToRead.begin(), elemToRead.end());
-                  // Generate partial contiguous chuncks to read
+                  // Generate partial contiguous chunks to read
                   vtkIdType curElemId = elemToRead[0].first;
                   std::vector<vtkIdType> rangeIdx;
                   rangeIdx.push_back(0);
@@ -3905,7 +3905,7 @@ int vtkCGNSReader::GetUnstructuredZone(
                     //----------------
                     std::vector<vtkIdType> bcElementsArr;
                     //
-                    // Partial read of section chunck
+                    // Partial read of section chunk
                     if (elemType != CGNS_ENUMV(MIXED))
                     {
                       // All cells are of the same type.

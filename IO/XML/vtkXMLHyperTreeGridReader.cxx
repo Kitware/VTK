@@ -720,7 +720,7 @@ void vtkXMLHyperTreeGridReader::ReadTrees_1(vtkXMLDataElement* elem)
     int numberOfLevels;
     eTree->GetScalarAttribute("Index", treeIndxInHTG);
 
-    // Functionnality not available on older versions
+    // Functionality not available on older versions
     if (!this->IsSelectedHT(output, treeIndxInHTG))
     {
       continue;

@@ -266,7 +266,7 @@ void vtkExodusIIReaderParser::FinishedParsing()
     {
       if (this->Part_To_VertexID.find(iterIS->second) == this->Part_To_VertexID.end())
       {
-        // This block blongs to a part not present in the assembly.
+        // This block belongs to a part not present in the assembly.
         continue;
       }
       vtkIdType partVertex = this->Part_To_VertexID[iterIS->second];

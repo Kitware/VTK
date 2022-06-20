@@ -21,7 +21,7 @@
  * giving the number of bytes within the block.  The number of data
  * variables dumped varies.  There are 3 output ports with the first
  * being a structured grid with irregular spacing in the Z dimension.
- * The second is an unstructured grid only read on on process 0 and
+ * The second is an unstructured grid only read on process 0 and
  * used to represent the blade.  The third is also a structured grid
  * with irregular spacing on the Z dimension.  Only the first and
  * second output ports have time dependent data.

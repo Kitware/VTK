@@ -206,5 +206,5 @@ void vtkEnSightMasterServerReader::PrintSelf(ostream& os, vtkIndent indent)
   os << indent
      << "Piece Case File name: " << (this->PieceCaseFileName ? this->PieceCaseFileName : "<none>")
      << endl;
-  os << indent << "Maximum numbe of pieces: " << this->MaxNumberOfPieces << endl;
+  os << indent << "Maximum number of pieces: " << this->MaxNumberOfPieces << endl;
 }

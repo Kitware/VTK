@@ -212,7 +212,7 @@ writer.SetFileName(filename)
 if withAscii:
   writer.SetDataModeToAscii()
 writer.Write()
-#print('Write Defaut(1.0) '+filename)
+#print('Write Default(1.0) '+filename)
 #
 #print("Avant writer 0.?")
 writer.SetDataSetMajorVersion(0)
@@ -252,7 +252,7 @@ writer.SetFileName(filename)
 # default c'est en appended, data en fin du fichier
 writer.SetDataModeToAscii()
 writer.Write()
-#print('Write Defaut(1.0)')
+#print('Write Default(1.0)')
 
 ex.Update() #The format 1.0 (ascii or binary)
 

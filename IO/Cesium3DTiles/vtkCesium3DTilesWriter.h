@@ -62,7 +62,7 @@ public:
 
   //@{
   /**
-   * Data coordinates are relative to this origin. To get the actuall
+   * Data coordinates are relative to this origin. To get the actual
    * coordinates data has to be translated with the Offset.
    */
   vtkSetVector3Macro(Offset, double);

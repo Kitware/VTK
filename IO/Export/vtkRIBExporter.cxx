@@ -219,7 +219,7 @@ void vtkRIBExporter::WriteData()
 void vtkRIBExporter::WriteHeader(vtkRenderer* aRen)
 {
 
-  // create a FileName to hold the renderered image
+  // create a FileName to hold the rendered image
   size_t length = strlen(this->FilePrefix) + strlen(".tif") + 1;
   char* imageFileName = new char[length];
   snprintf(imageFileName, length, "%s%s", this->FilePrefix, ".tif");

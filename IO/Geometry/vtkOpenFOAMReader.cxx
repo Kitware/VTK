@@ -2046,7 +2046,7 @@ public:
 
 //------------------------------------------------------------------------------
 // class vtkFoamFile
-// Read and tokenize the input. Retains format and label/scalar size informatio
+// Read and tokenize the input. Retains format and label/scalar size information
 struct vtkFoamFile
   : public vtkFoamStreamOption
   , public vtkFoamFileStack
@@ -7302,12 +7302,12 @@ void vtkOpenFOAMReaderPrivate::InsertCellsToGrid(
       }
     }
 
-    // Cell shape constructor based on the one implementd by Terry
+    // Cell shape constructor based on the one implemented by Terry
     // Jordan, with lots of improvements. Not as elegant as the one in
     // OpenFOAM but it's simple and works reasonably fast.
 
     // Note: faces are flipped around their 0 point (as per OpenFOAM)
-    // to keep predicable face point ordering
+    // to keep predictable face point ordering
 
     // OpenFOAM "hex" | vtkHexahedron
     if (cellType == VTK_HEXAHEDRON)

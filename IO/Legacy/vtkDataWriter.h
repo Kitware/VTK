@@ -82,7 +82,7 @@ public:
 
   ///@{
   /**
-   * Specify the VTK file version to write. See the enum documentaion above
+   * Specify the VTK file version to write. See the enum documentation above
    * (VTKFileVersion) for additional information about supported versions.
    * It is possible to get the file major and minor versions separately.  See
    * also vtkDataReader for related methods. (Note, the parsing of the

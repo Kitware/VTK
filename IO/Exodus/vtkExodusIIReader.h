@@ -387,7 +387,7 @@ public:
   /**
    * By default arrays are not loaded.  These methods allow the user to select
    * which arrays they want to load.  You can get information about the arrays
-   * by first caling UpdateInformation, and using GetPointArrayName ...
+   * by first calling UpdateInformation, and using GetPointArrayName ...
    * (Developer Note) This meta data is all accessed through vtkExodusMetadata
    */
   int GetNumberOfObjectArrays(int objectType);
@@ -407,7 +407,7 @@ public:
   /**
    * By default attributes are not loaded.  These methods allow the user to select
    * which attributes they want to load.  You can get information about the attributes
-   * by first caling UpdateInformation, and using GetObjectAttributeName ...
+   * by first calling UpdateInformation, and using GetObjectAttributeName ...
    * (Developer Note) This meta data is all accessed through vtkExodusMetadata
    */
   int GetNumberOfObjectAttributes(int objectType, int objectIndex);
@@ -436,7 +436,7 @@ public:
   /**
    * By default all parts are loaded. These methods allow the user to select
    * which parts they want to load.  You can get information about the parts
-   * by first caling UpdateInformation, and using GetPartArrayName ...
+   * by first calling UpdateInformation, and using GetPartArrayName ...
    */
   int GetNumberOfPartArrays();
   const char* GetPartArrayName(int arrayIdx);
@@ -452,7 +452,7 @@ public:
   /**
    * By default all materials are loaded. These methods allow the user to
    * select which materials they want to load.  You can get information
-   * about the materials by first caling UpdateInformation, and using
+   * about the materials by first calling UpdateInformation, and using
    * GetMaterialArrayName ...
    */
   int GetNumberOfMaterialArrays();
@@ -468,7 +468,7 @@ public:
   /**
    * By default all assemblies are loaded. These methods allow the user to
    * select which assemblies they want to load.  You can get information
-   * about the assemblies by first caling UpdateInformation, and using
+   * about the assemblies by first calling UpdateInformation, and using
    * GetAssemblyArrayName ...
    */
   int GetNumberOfAssemblyArrays();
@@ -485,7 +485,7 @@ public:
    * By default all hierarchy entries are loaded. These methods allow
    * the user to
    * select which hierarchy entries they want to load.  You can get information
-   * about the hierarchy entries by first caling UpdateInformation, and using
+   * about the hierarchy entries by first calling UpdateInformation, and using
    * GetHierarchyArrayName ...
    * these methods do not call functions in metaData. They call functions on
    * the ExodusXMLParser since it seemed silly to duplicate all the information

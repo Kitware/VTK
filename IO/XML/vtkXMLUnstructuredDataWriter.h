@@ -100,7 +100,7 @@ protected:
   void WriteCellsInline(
     const char* name, vtkCellArray* cells, vtkDataArray* types, vtkIndent indent);
 
-  // New API with face infomration for polyhedron cell support.
+  // New API with face information for polyhedron cell support.
   void WriteCellsInline(const char* name, vtkCellArray* cells, vtkDataArray* types,
     vtkIdTypeArray* faces, vtkIdTypeArray* faceOffsets, vtkIndent indent);
 
@@ -121,7 +121,7 @@ protected:
   void WriteCellsAppendedData(vtkCellIterator* cellIter, vtkIdType numCells,
     vtkIdType cellSizeEstimate, int timestep, OffsetsManagerGroup* cellsManager);
 
-  // New API with face infomration for polyhedron cell support.
+  // New API with face information for polyhedron cell support.
   void WriteCellsAppendedData(vtkCellArray* cells, vtkDataArray* types, vtkIdTypeArray* faces,
     vtkIdTypeArray* faceOffsets, int timestep, OffsetsManagerGroup* cellsManager);
 

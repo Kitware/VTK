@@ -104,7 +104,7 @@ int TestADIOS2BPReaderSingleTimeStep(int argc, char* argv[])
   rendWin->AddRenderer(renderer);
   rendWin->Render();
 
-  // Do the test comparsion
+  // Do the test comparison
   int retval = vtkRegressionTestImage(rendWin);
   if (retval == vtkRegressionTester::DO_INTERACTOR)
   {

@@ -28,7 +28,7 @@
 
  * Materials, including textures, are described as fields in the
  * polydata. If InlineData is false, we only refer to textures files
- * refered in the data, otherwise we read the textures and save them
+ * referred in the data, otherwise we read the textures and save them
  * encoded in the file.
  *
  * @sa

@@ -100,7 +100,7 @@ protected:
 
   /**
    * Read scalars per element for this dataset.  If an error occurred, 0 is
-   * returned; otherwise 1.  If there will be more than one componenet in the
+   * returned; otherwise 1.  If there will be more than one component in the
    * data array, it is assumed that 0 is the first component added.
    */
   int ReadScalarsPerElement(const char* fileName, const char* description, int timeStep,

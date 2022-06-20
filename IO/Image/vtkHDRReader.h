@@ -137,13 +137,13 @@ protected:
 
   /**
    * Read the file from is into outPtr with no RLE encoding.
-   * Return false if a reading error occured, else true.
+   * Return false if a reading error occurred, else true.
    */
   bool ReadAllFileNoRLE(istream* is, float* outPtr, int decrPtr, int* outExt);
 
   /**
    * Read a line of the file from is into lineBuffer with RLE encoding.
-   * Return false if a reading error occured, else true.
+   * Return false if a reading error occurred, else true.
    */
   bool ReadLineRLE(istream* is, unsigned char* lineBufferPtr);
 

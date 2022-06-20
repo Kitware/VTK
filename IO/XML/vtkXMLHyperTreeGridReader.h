@@ -23,7 +23,7 @@
  *       But each htg file is considered one piece for the parallel reader
  *       Later may want to treat individual HyperTrees as separate pieces.
  *
- * For developpers:
+ * For developers:
  * To ensure the durability of this storage format over time, at least,
  * the drive must continue to support playback of previous format.
  *
@@ -71,7 +71,7 @@ public:
   ///@{
   /**
    * Set/Get the fixed level to read.
-   * Option avaiblable in 1.0
+   * Option available in 1.0
    */
   vtkSetMacro(FixedLevel, unsigned int);
   vtkGetMacro(FixedLevel, unsigned int);
@@ -85,7 +85,7 @@ public:
    * by set indices coordinates bounding box, exclusive or
    * by set indices HTs (ClearAndAdd and more Add).
    * Only available for files whose major version > 1
-   * Option avaiblable in 1.0
+   * Option available in 1.0
    */
   void SetCoordinatesBoundingBox(
     double xmin, double xmax, double ymin, double ymax, double zmin, double zmax);

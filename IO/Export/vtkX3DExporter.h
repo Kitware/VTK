@@ -16,7 +16,7 @@
  * @class   vtkX3DExporter
  * @brief   create an x3d file
  *
- * vtkX3DExporter is a render window exporter which writes out the renderered
+ * vtkX3DExporter is a render window exporter which writes out the rendered
  * scene into an X3D file. X3D is an XML-based format for representation
  * 3D scenes (similar to VRML). Check out http://www.web3d.org/x3d/ for more
  * details.
