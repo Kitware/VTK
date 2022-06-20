@@ -435,6 +435,10 @@ public:
   {
     this->Cache.Clear();
     this->RegionMap.clear();
+    this->DatabaseNames.clear();
+    this->IOSSReader->RemoveAllSelections();
+    this->DatabaseNamesMTime = vtkTimeStamp();
+    this->SelectionsMTime = vtkTimeStamp();
     this->TimestepValuesMTime = vtkTimeStamp();
   }
 
@@ -1304,11 +1308,6 @@ Ioss::Region* vtkIOSSReader::vtkInternals::GetRegion(const std::string& dbasenam
       properties.add(Ioss::Property("processor_count", iter->second.ProcessCount));
     }
 
-    // fixme: should this be configurable? it won't really work if we made it
-    // configurable since our vtkDataArraySelection object would need to purged
-    // and refilled.
-    properties.add(Ioss::Property("FIELD_SUFFIX_SEPARATOR", ""));
-
     // tell the reader to read all blocks, even if empty. necessary to avoid
     // having to read all files to gather metadata, if possible
     // see paraview/paraview#20873.
@@ -1322,9 +1321,6 @@ Ioss::Region* vtkIOSSReader::vtkInternals::GetRegion(const std::string& dbasenam
     // Do not convert variable names to lower case. The default is on.
     // For ex: this resolves a misunderstanding b/w T (temperature) vs t (time)
     properties.add(Ioss::Property("LOWER_CASE_VARIABLE_NAMES", "off"));
-
-    // Do not treat numeric suffixes for a variable as vector components.
-    properties.add(Ioss::Property("IGNORE_REALN_FIELDS", "on"));
 
     // Only read timestep information from 0th file.
     properties.add(Ioss::Property("EXODUS_CALL_GET_ALL_TIMES", processor == 0 ? "on" : "off"));
@@ -1355,6 +1351,35 @@ Ioss::Region* vtkIOSSReader::vtkInternals::GetRegion(const std::string& dbasenam
       default:
         dtype = "exodusII";
         break;
+    }
+
+    if (vtkLogger::GetCurrentVerbosityCutoff() >= vtkLogger::VERBOSITY_TRACE)
+    {
+      vtkLogScopeF(TRACE, "Set IOSS database properties");
+      for (const auto& name : properties.describe())
+      {
+        switch (properties.get(name).get_type())
+        {
+          case vtkioss_Ioss::Property::BasicType::POINTER:
+            vtkLog(TRACE, << name << " : " << properties.get(name).get_pointer());
+            break;
+          case vtkioss_Ioss::Property::BasicType::INTEGER:
+            vtkLog(TRACE, << name << " : " << std::to_string(properties.get(name).get_int()));
+            break;
+          case vtkioss_Ioss::Property::BasicType::INVALID:
+            vtkLog(TRACE, << name << " : "
+                          << "invalid type");
+            break;
+          case vtkioss_Ioss::Property::BasicType::REAL:
+            vtkLog(TRACE, << name << " : " << std::to_string(properties.get(name).get_real()));
+            break;
+          case vtkioss_Ioss::Property::BasicType::STRING:
+            vtkLog(TRACE, << name << " : " << properties.get(name).get_string());
+            break;
+          default:
+            break;
+        }
+      }
     }
 
     auto dbase = std::unique_ptr<Ioss::DatabaseIO>(Ioss::IOFactory::create(
@@ -2378,6 +2403,10 @@ vtkIOSSReader::vtkIOSSReader()
   , Internals(new vtkIOSSReader::vtkInternals(this))
 {
   this->SetController(vtkMultiProcessController::GetGlobalController());
+  // default - treat numeric suffixes as components of a vector. respect ioss library default.
+  this->AddProperty("IGNORE_REALN_FIELDS", "off");
+  // default - empty field suffix separators, fieldX, fieldY, fieldZ are recognized
+  this->AddProperty("FIELD_SUFFIX_SEPARATOR", "");
 }
 
 //----------------------------------------------------------------------------
@@ -2409,6 +2438,32 @@ void vtkIOSSReader::SetDisplacementMagnitude(double magnitude)
 double vtkIOSSReader::GetDisplacementMagnitude()
 {
   return this->Internals->GetDisplacementMagnitude();
+}
+
+//----------------------------------------------------------------------------
+void vtkIOSSReader::SetIgnoreRealNFields(bool value)
+{
+  vtkDebugMacro("Setting IGNORE_REALN_FIELDS " << (value ? "on" : "off"));
+  this->AddProperty("IGNORE_REALN_FIELDS", value ? "on" : "off");
+}
+
+//----------------------------------------------------------------------------
+bool vtkIOSSReader::GetIgnoreRealNFields()
+{
+  return this->Internals->DatabaseProperties.get("IGNORE_REALN_FIELDS").get_string() == "on";
+}
+
+//----------------------------------------------------------------------------
+void vtkIOSSReader::SetFieldSuffixSeparator(const char* value)
+{
+  vtkDebugMacro("Setting FIELD_SUFFIX_SEPARATOR " << (value ? "on" : "off"));
+  this->AddProperty("FIELD_SUFFIX_SEPARATOR", value);
+}
+
+//----------------------------------------------------------------------------
+std::string vtkIOSSReader::GetFieldSuffixSeparator()
+{
+  return this->Internals->DatabaseProperties.get("FIELD_SUFFIX_SEPARATOR").get_string();
 }
 
 //----------------------------------------------------------------------------
