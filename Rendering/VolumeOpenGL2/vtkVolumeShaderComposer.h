@@ -1027,7 +1027,7 @@ std::string ComputeOpacityEvaluationCall(vtkOpenGLGPUVolumeRayCastMapper* vtkNot
 
       if (requestColor)
       {
-        resStr += "    color = lutRes.xyz\n";
+        resStr += "    color = lutRes.xyz;\n";
       }
     }
   }
