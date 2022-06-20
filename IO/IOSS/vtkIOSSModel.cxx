@@ -777,7 +777,7 @@ struct vtkSideSet : public vtkGroupingEntity
     auto datasets = vtkCompositeDataSet::GetDataSets<vtkUnstructuredGrid>(this->PartitionedDataSet);
     for (auto& ug : datasets)
     {
-      for (const auto& tuple : vtk::DataArrayTupleRange(
+      for (auto&& tuple : vtk::DataArrayTupleRange(
              vtkIntArray::SafeDownCast(ug->GetCellData()->GetArray("element_side"))))
       {
         for (const auto& comp : tuple)

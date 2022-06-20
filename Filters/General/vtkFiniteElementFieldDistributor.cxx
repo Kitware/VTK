@@ -816,8 +816,8 @@ public:
       bool reqInit = false;
       for (std::size_t i = 0; i < 3; ++i)
       {
-        reqInit |= (*hCurlMats)[i].size() != npts;
-        reqInit |= (*hDivMats)[i].size() != npts;
+        reqInit |= (*hCurlMats)[i].size() != static_cast<size_t>(npts);
+        reqInit |= (*hDivMats)[i].size() != static_cast<size_t>(npts);
       }
       return reqInit;
     }
@@ -1510,11 +1510,11 @@ void vtkFiniteElementFieldDistributor::vtkInternals::InterpolateCellToNodes(cons
     std::vector<double> coeffs;
     if (this->RefElement == VTK_QUAD || this->RefElement == VTK_TRIANGLE)
     {
-      coeffs = std::move(::GetEdgeAttributes(fieldName, oldCd, cellId));
+      coeffs = ::GetEdgeAttributes(fieldName, oldCd, cellId);
     }
     else
     {
-      coeffs = std::move(::GetFaceAttributes(fieldName, oldCd, cellId));
+      coeffs = ::GetFaceAttributes(fieldName, oldCd, cellId);
     }
     if (coeffs.empty())
     {

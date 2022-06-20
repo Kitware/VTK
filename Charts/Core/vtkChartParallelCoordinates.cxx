@@ -227,17 +227,17 @@ bool vtkChartParallelCoordinates::Paint(vtkContext2D* painter)
   }
 
   // Draw all stored range
-  for (int axis = 0; axis < this->Storage->AxesSelections.size(); ++axis)
+  for (size_t axis = 0; axis < this->Storage->AxesSelections.size(); ++axis)
   {
     size_t size = this->Storage->AxesSelections[axis].size();
     size = size - size % 2;
-    for (int j = 0; j < size; j += 2)
+    for (size_t j = 0; j < size; j += 2)
     {
       float min = this->Storage->AxesSelections[axis][j];
       float max = this->Storage->AxesSelections[axis][j + 1];
       if (min != max)
       {
-        this->PaintRect(painter, axis, min, max);
+        this->PaintRect(painter, static_cast<int>(axis), min, max);
       }
     }
   }
@@ -734,7 +734,7 @@ void vtkChartParallelCoordinates::ResetSelection()
 //------------------------------------------------------------------------------
 void vtkChartParallelCoordinates::ResetAxeSelection(int axe)
 {
-  for (int i = 0; i < this->Storage->AxesSelections[axe].size(); i += 2)
+  for (size_t i = 0; i < this->Storage->AxesSelections[axe].size(); i += 2)
   {
     float& min = this->Storage->AxesSelections[axe][i];
     float& max = this->Storage->AxesSelections[axe][i + 1];
@@ -794,7 +794,7 @@ void vtkChartParallelCoordinates::UpdateCurrentAxisSelection(int axisId)
   size_t size = this->Storage->AxesSelections[axisId].size();
   size =
     this->Storage->AxesSelections[axisId].size() - this->Storage->AxesSelections[axisId].size() % 2;
-  for (int i = 0; i < size; i += 2)
+  for (size_t i = 0; i < size; i += 2)
   {
     if (this->GetSelectionMode() == vtkContextScene::SELECTION_TOGGLE)
     {

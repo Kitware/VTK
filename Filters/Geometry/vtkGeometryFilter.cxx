@@ -562,6 +562,12 @@ public:
   {
   }
 
+  // Copy ctor.
+  FaceMemoryPool(const FaceMemoryPool&) = default;
+
+  // Copy assignment operator.
+  FaceMemoryPool& operator=(const FaceMemoryPool&) = default;
+
   ~FaceMemoryPool() { this->Destroy(); }
 
   void Initialize(const vtkIdType& numberOfPoints)
@@ -2099,15 +2105,15 @@ struct CompositeCells
     , Extractor(extract)
     , Threads(threads)
     , Verts(verts)
-    , Lines(lines)
-    , Polys(polys)
-    , Strips(strips)
     , VertsConnPtr(nullptr)
     , VertsOffsetPtr(nullptr)
+    , Lines(lines)
     , LinesConnPtr(nullptr)
     , LinesOffsetPtr(nullptr)
+    , Polys(polys)
     , PolysConnPtr(nullptr)
     , PolysOffsetPtr(nullptr)
+    , Strips(strips)
     , StripsConnPtr(nullptr)
     , StripsOffsetPtr(nullptr)
   {
