@@ -62,7 +62,7 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkDataObject.h"
 
-#include "vtkDeprecation.h"  // for deprecation macro
+#include "vtkDeprecation.h"  // For VTK_DEPRECATED_IN_9_2_0
 #include "vtkNew.h"          // vtkSmartPointer
 #include "vtkSmartPointer.h" // vtkSmartPointer
 

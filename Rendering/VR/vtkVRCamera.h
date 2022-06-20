@@ -22,7 +22,7 @@
 #ifndef vtkVRCamera_h
 #define vtkVRCamera_h
 
-#include "vtkDeprecation.h" // for old method sig
+#include "vtkDeprecation.h" // for VTK_DEPRECATED_IN_9_2_0
 #include "vtkNew.h"         // for iavr
 #include "vtkOpenGLCamera.h"
 #include "vtkRenderingVRModule.h" // For export macro
