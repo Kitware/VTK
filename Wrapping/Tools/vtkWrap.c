@@ -728,7 +728,7 @@ void vtkWrap_FindCountHints(ClassInfo* data, FileInfo* finfo, HierarchyInfo* hin
       if (count)
       {
         char counttext[24];
-        sprintf(counttext, "%d", count);
+        snprintf(counttext, sizeof(counttext), "%d", count);
         theFunc->Parameters[0]->Count = count;
         vtkParse_AddStringToArray(&theFunc->Parameters[0]->Dimensions,
           &theFunc->Parameters[0]->NumberOfDimensions,
@@ -1047,14 +1047,15 @@ void vtkWrap_DeclareVariable(
   {
     /* use a typedef to work around compiler issues when someone used
        the same name for the enum type as for a variable or method */
-    newTypeName = (char*)malloc(strlen(name) + 16);
+    size_t newTypeNameLen = strlen(name) + 19 + 5 + 1;
+    newTypeName = (char*)malloc(newTypeNameLen);
     if (i >= 0)
     {
-      sprintf(newTypeName, "%s%i_type", name, i);
+      snprintf(newTypeName, newTypeNameLen, "%s%i_type", name, i);
     }
     else
     {
-      sprintf(newTypeName, "%s_type", name);
+      snprintf(newTypeName, newTypeNameLen, "%s_type", name);
     }
     fprintf(fp, "  typedef %s::%s %s;\n", data->Name, typeName, newTypeName);
     typeName = newTypeName;
@@ -1184,7 +1185,7 @@ void vtkWrap_DeclareVariableSize(FILE* fp, ValueInfo* val, const char* name, int
   idx[0] = '\0';
   if (i >= 0)
   {
-    sprintf(idx, "%d", i);
+    snprintf(idx, sizeof(idx), "%d", i);
   }
 
   if (val->NumberOfDimensions > 1)

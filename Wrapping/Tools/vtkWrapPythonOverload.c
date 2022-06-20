@@ -220,7 +220,7 @@ static char* vtkWrapPython_ArgCheckString(ClassInfo* data, FunctionInfo* current
     if (vtkWrap_IsEnumMember(data, arg))
     {
       c = 'E';
-      sprintf(classname, "%.200s.%.200s", data->Name, arg->Class);
+      snprintf(classname, sizeof(classname), "%.200s.%.200s", data->Name, arg->Class);
     }
     else if (arg->IsEnum)
     {
@@ -489,7 +489,7 @@ void vtkWrapPython_OverloadMethodDef(FILE* fp, const char* classname, ClassInfo*
     occSuffix[0] = '\0';
     if (numberOfOccurrences > 1)
     {
-      sprintf(occSuffix, "_s%d", occCounter);
+      snprintf(occSuffix, sizeof(occSuffix), "_s%d", occCounter);
     }
 
     fprintf(fp,

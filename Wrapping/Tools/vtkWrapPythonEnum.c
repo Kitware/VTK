@@ -177,13 +177,13 @@ void vtkWrapPython_GenerateEnumType(
   if (classname)
   {
     /* join with "_" for identifier, and with "." for type name */
-    sprintf(enumname, "%.200s_%.200s", classname, data->Name);
-    sprintf(tpname, "%.200s.%.200s", classname, data->Name);
+    snprintf(enumname, sizeof(enumname), "%.200s_%.200s", classname, data->Name);
+    snprintf(tpname, sizeof(tpname), "%.200s.%.200s", classname, data->Name);
   }
   else
   {
-    sprintf(enumname, "%.200s", data->Name);
-    sprintf(tpname, "%.200s", data->Name);
+    snprintf(enumname, sizeof(enumname), "%.200s", data->Name);
+    snprintf(tpname, sizeof(tpname), "%.200s", data->Name);
   }
 
   /* generate all functions and protocols needed for the type */

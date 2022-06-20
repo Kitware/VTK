@@ -220,7 +220,7 @@ void vtkWrapPython_GetSingleArgument(
   if (static_call)
   {
     prefix = "vtkPythonArgs::";
-    sprintf(argname, "arg%d, ", i);
+    snprintf(argname, sizeof(argname), "arg%d, ", i);
   }
 
   if (vtkWrap_IsEnumMember(data, arg))
@@ -846,22 +846,22 @@ static void vtkWrapPython_GenerateMethodCall(
     if (k == 1)
     {
       /* unbound method call */
-      sprintf(methodname, "op->%s::%s", data->Name, currentFunction->Name);
+      snprintf(methodname, sizeof(methodname), "op->%s::%s", data->Name, currentFunction->Name);
     }
     else if (currentFunction->IsStatic)
     {
       /* static method call */
-      sprintf(methodname, "%s::%s", data->Name, currentFunction->Name);
+      snprintf(methodname, sizeof(methodname), "%s::%s", data->Name, currentFunction->Name);
     }
     else if (is_constructor)
     {
       /* constructor call */
-      sprintf(methodname, "new %s", currentFunction->Name);
+      snprintf(methodname, sizeof(methodname), "new %s", currentFunction->Name);
     }
     else
     {
       /* standard bound method call */
-      sprintf(methodname, "op->%s", currentFunction->Name);
+      snprintf(methodname, sizeof(methodname), "op->%s", currentFunction->Name);
     }
 
     if (is_constructor)
@@ -1160,7 +1160,7 @@ void vtkWrapPython_GenerateOneMethod(FILE* fp, const char* classname, ClassInfo*
       occSuffix[0] = '\0';
       if (numberOfOccurrences > 1)
       {
-        sprintf(occSuffix, "_s%d", occCounter);
+        snprintf(occSuffix, sizeof(occSuffix), "_s%d", occCounter);
       }
 
       /* declare the method */

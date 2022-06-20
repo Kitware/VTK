@@ -232,34 +232,23 @@ void vtkWrapPython_ClassDoc(
     comment = (char*)malloc(n);
     cp = comment;
     *cp = '\0';
+    size_t written = 0;
 
     if (file_info->Description)
     {
-      strcpy(cp, file_info->Description);
-      cp += strlen(cp);
-      *cp++ = '\n';
-      *cp++ = '\n';
-      *cp = '\0';
+      written += snprintf(cp + written, n - written, "%s\n\n", file_info->Description);
     }
 
     if (file_info->Caveats)
     {
-      sprintf(cp, ".SECTION Caveats\n\n");
-      cp += strlen(cp);
-      strcpy(cp, file_info->Caveats);
-      cp += strlen(cp);
-      *cp++ = '\n';
-      *cp++ = '\n';
-      *cp = '\0';
+      written +=
+        snprintf(cp + written, n - written, ".SECTION Caveats\n\n%s\n\n", file_info->Caveats);
     }
 
     if (file_info->SeeAlso)
     {
-      sprintf(cp, ".SECTION See Also\n\n");
-      cp += strlen(cp);
-      strcpy(cp, file_info->SeeAlso);
-      cp += strlen(cp);
-      *cp = '\0';
+      written +=
+        snprintf(cp + written, n - written, ".SECTION See Also\n\n%s\n\n", file_info->SeeAlso);
     }
 
     ccp = vtkWrapText_FormatComment(comment, 70);

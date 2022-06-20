@@ -9493,7 +9493,7 @@ static void set_return(
   if (count)
   {
     val->Count = count;
-    sprintf(text, "%i", count);
+    snprintf(text, sizeof(text), "%i", count);
     vtkParse_AddStringToArray(&val->Dimensions, &val->NumberOfDimensions, vtkstrdup(text));
   }
 
@@ -10382,7 +10382,7 @@ int vtkParse_ReadHints(FileInfo* file_info, FILE* hfile, FILE* errfile)
                 if (func_info->ReturnValue->NumberOfDimensions == 0)
                 {
                   char text[64];
-                  sprintf(text, "%i", h_value);
+                  snprintf(text, sizeof(text), "%i", h_value);
                   func_info->ReturnValue->Count = h_value;
                   vtkParse_AddStringToArray(&func_info->ReturnValue->Dimensions,
                     &func_info->ReturnValue->NumberOfDimensions,
