@@ -71,6 +71,7 @@ vtk_add_test_cxx(vtkRenderingOpenGL2CxxTests tests
   TestPointGaussianMapper.cxx
   TestPointGaussianMapperOpacity.cxx
   TestPointGaussianSelection.cxx,NO_DATA
+  TestProgramPointSize.cxx
   TestPropPicker2Renderers.cxx,NO_DATA
   TestRemoveActorNonCurrentContext.cxx
   TestRenderToImage.cxx
