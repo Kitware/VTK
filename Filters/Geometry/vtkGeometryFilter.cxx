@@ -2520,8 +2520,13 @@ struct CharacterizeGrid
   vtkUnstructuredGridBase* GridBase;
   vtkUnstructuredGrid* Grid;
   unsigned char* Types;
+
+  using CellTypesInformation = vtkGeometryFilterHelper::CellTypesInformation;
+  using CellType = vtkGeometryFilterHelper::CellType;
+  vtkSMPThreadLocal<CellTypesInformation> TLCellTypesInfo;
+
+  CellTypesInformation CellTypesInfo;
   unsigned char IsLinear;
-  vtkSMPThreadLocal<unsigned char> LocalIsLinear;
 
   CharacterizeGrid(vtkUnstructuredGridBase* gridBase)
     : GridBase(gridBase)
@@ -2533,54 +2538,103 @@ struct CharacterizeGrid
     }
   }
 
-  void Initialize() { this->LocalIsLinear.Local() = 1; }
+  void Initialize()
+  {
+    CellTypesInformation& cellTypesInfo = this->TLCellTypesInfo.Local();
+    std::fill(cellTypesInfo.begin(), cellTypesInfo.end(), false);
+  }
+
+  static void AssignCellTypeInfo(const unsigned char& cellType, CellTypesInformation& cellTypesInfo)
+  {
+    switch (cellType)
+    {
+      case VTK_VERTEX:
+      case VTK_POLY_VERTEX:
+        if (!cellTypesInfo[CellType::VERTS])
+        {
+          cellTypesInfo[CellType::VERTS] = true;
+        }
+        break;
+      case VTK_LINE:
+      case VTK_POLY_LINE:
+        if (!cellTypesInfo[CellType::LINES])
+        {
+          cellTypesInfo[CellType::LINES] = true;
+        }
+        break;
+      case VTK_TRIANGLE:
+      case VTK_QUAD:
+      case VTK_POLYGON:
+        if (!cellTypesInfo[CellType::POLYS])
+        {
+          cellTypesInfo[CellType::POLYS] = true;
+        }
+        break;
+      case VTK_TRIANGLE_STRIP:
+        if (!cellTypesInfo[CellType::STRIPS])
+        {
+          cellTypesInfo[CellType::STRIPS] = true;
+        }
+        break;
+      case VTK_EMPTY_CELL:
+      case VTK_PIXEL:
+      case VTK_TETRA:
+      case VTK_VOXEL:
+      case VTK_HEXAHEDRON:
+      case VTK_WEDGE:
+      case VTK_PYRAMID:
+      case VTK_PENTAGONAL_PRISM:
+      case VTK_HEXAGONAL_PRISM:
+      case VTK_CONVEX_POINT_SET:
+      case VTK_POLYHEDRON:
+        if (!cellTypesInfo[CellType::OTHER_LINEAR_CELLS])
+        {
+          cellTypesInfo[CellType::OTHER_LINEAR_CELLS] = true;
+        }
+        break;
+      default:
+        if (!cellTypesInfo[CellType::NON_LINEAR_CELLS])
+        {
+          cellTypesInfo[CellType::NON_LINEAR_CELLS] = true;
+        }
+    }
+  }
 
   void operator()(vtkIdType cellId, vtkIdType endCellId)
   {
-    if (!this->LocalIsLinear.Local())
-    {
-      return;
-    }
+    CellTypesInformation& cellTypesInfo = this->TLCellTypesInfo.Local();
     if (this->Grid)
     {
-      // Check against linear cell types
       for (; cellId < endCellId; ++cellId)
       {
-        if (!vtkCellTypes::IsLinear(this->Types[cellId]))
-        {
-          this->LocalIsLinear.Local() = 0;
-          break;
-        }
+        CharacterizeGrid::AssignCellTypeInfo(this->Types[cellId], cellTypesInfo);
       }
     }
     else
     {
-      // Check against linear cell types
       for (; cellId < endCellId; ++cellId)
       {
-        if (!vtkCellTypes::IsLinear(
-              static_cast<unsigned char>(this->GridBase->GetCellType(cellId))))
-        {
-          this->LocalIsLinear.Local() = 0;
-          return;
-        }
+        CharacterizeGrid::AssignCellTypeInfo(
+          static_cast<unsigned char>(this->GridBase->GetCellType(cellId)), cellTypesInfo);
       }
     }
   }
 
   void Reduce()
   {
-    this->IsLinear = 1;
-    auto tItr = this->LocalIsLinear.begin();
-    auto tEnd = this->LocalIsLinear.end();
-    for (; tItr != tEnd; ++tItr)
+    // initialize
+    std::fill(this->CellTypesInfo.begin(), this->CellTypesInfo.end(), false);
+    for (const auto& cellTypesInfo : this->TLCellTypesInfo)
     {
-      if (*tItr == 0)
+      for (auto i = 0; i < CellType::NUM_CELL_TYPES; ++i)
       {
-        this->IsLinear = 0;
-        return;
+        if (cellTypesInfo[i] && !this->CellTypesInfo[i])
+        {
+          this->CellTypesInfo[i] = true;
+        }
       }
     }
+    this->IsLinear = static_cast<unsigned char>(!this->CellTypesInfo[CellType::NON_LINEAR_CELLS]);
   }
 };
 
@@ -2639,10 +2693,10 @@ vtkGeometryFilterHelper* vtkGeometryFilterHelper::CharacterizeUnstructuredGrid(
 
   // Check to see if the data actually has nonlinear cells.  Handling
   // nonlinear cells requires delegation to the appropriate filter.
-  vtkIdType numCells = input->GetNumberOfCells();
   CharacterizeGrid characterize(input);
-  vtkSMPTools::For(0, numCells, characterize);
+  vtkSMPTools::For(0, input->GetNumberOfCells(), characterize);
 
+  info->CellTypesInfo = characterize.CellTypesInfo;
   info->IsLinear = characterize.IsLinear;
 
   return info;
@@ -2712,6 +2766,36 @@ int ExecuteUnstructuredGrid(vtkGeometryFilter* self, vtkDataSet* dataSetInput, v
     dssf->UnstructuredGridExecute(dataSetInput, output, info);
     delete info;
     return 1;
+  }
+  // fast conversion when input is actually polydata with one cell array
+  if (uGrid &&
+    (info->HasOnlyVerts() || info->HasOnlyLines() || info->HasOnlyPolys() || info->HasOnlyStrips()))
+  {
+    vtkNew<vtkPolyData> polyDataInput;
+    polyDataInput->SetPoints(uGrid->GetPoints());
+    polyDataInput->GetPointData()->ShallowCopy(uGrid->GetPointData());
+    if (info->HasOnlyVerts())
+    {
+      polyDataInput->SetVerts(uGrid->GetCells());
+    }
+    else if (info->HasOnlyLines())
+    {
+      polyDataInput->SetLines(uGrid->GetCells());
+    }
+    else if (info->HasOnlyPolys())
+    {
+      polyDataInput->SetPolys(uGrid->GetCells());
+    }
+    else if (info->HasOnlyStrips())
+    {
+      polyDataInput->SetStrips(uGrid->GetCells());
+    }
+    polyDataInput->GetCellData()->ShallowCopy(uGrid->GetCellData());
+    if (info_owned)
+    {
+      delete info;
+    }
+    return ExecutePolyData<TInputIdType>(self, polyDataInput, output, exc);
   }
   if (info_owned)
   {

@@ -90,6 +90,8 @@
 #include "vtkFiltersGeometryModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
+#include <array> // For std::array
+
 class vtkIncrementalPointLocator;
 class vtkStructuredGrid;
 class vtkUnstructuredGridBase;
@@ -100,10 +102,46 @@ struct vtkGeometryFilterHelper;
 // Used to coordinate delegation to vtkDataSetSurfaceFilter
 struct VTKFILTERSGEOMETRY_EXPORT vtkGeometryFilterHelper
 {
+  enum CellType
+  {
+    VERTS = 0,
+    LINES = 1,
+    POLYS = 2,
+    STRIPS = 3,
+    OTHER_LINEAR_CELLS = 4,
+    NON_LINEAR_CELLS = 5,
+    NUM_CELL_TYPES
+  };
+  using CellTypesInformation = std::array<bool, NUM_CELL_TYPES>;
+  CellTypesInformation CellTypesInfo;
   unsigned char IsLinear;
   static vtkGeometryFilterHelper* CharacterizeUnstructuredGrid(vtkUnstructuredGridBase*);
   static void CopyFilterParams(vtkGeometryFilter* gf, vtkDataSetSurfaceFilter* dssf);
   static void CopyFilterParams(vtkDataSetSurfaceFilter* dssf, vtkGeometryFilter* gf);
+  bool HasOnlyVerts()
+  {
+    return this->CellTypesInfo[VERTS] && !this->CellTypesInfo[LINES] &&
+      !this->CellTypesInfo[POLYS] && !this->CellTypesInfo[STRIPS] &&
+      !this->CellTypesInfo[OTHER_LINEAR_CELLS] && !this->CellTypesInfo[NON_LINEAR_CELLS];
+  }
+  bool HasOnlyLines()
+  {
+    return !this->CellTypesInfo[VERTS] && this->CellTypesInfo[LINES] &&
+      !this->CellTypesInfo[POLYS] && !this->CellTypesInfo[STRIPS] &&
+      !this->CellTypesInfo[OTHER_LINEAR_CELLS] && !this->CellTypesInfo[NON_LINEAR_CELLS];
+  }
+  bool HasOnlyPolys()
+  {
+    return !this->CellTypesInfo[VERTS] && !this->CellTypesInfo[LINES] &&
+      this->CellTypesInfo[POLYS] && !this->CellTypesInfo[STRIPS] &&
+      !this->CellTypesInfo[OTHER_LINEAR_CELLS] && !this->CellTypesInfo[NON_LINEAR_CELLS];
+  }
+  bool HasOnlyStrips()
+  {
+    return !this->CellTypesInfo[VERTS] && !this->CellTypesInfo[LINES] &&
+      !this->CellTypesInfo[POLYS] && this->CellTypesInfo[STRIPS] &&
+      !this->CellTypesInfo[OTHER_LINEAR_CELLS] && !this->CellTypesInfo[NON_LINEAR_CELLS];
+  }
 };
 
 class VTKFILTERSGEOMETRY_EXPORT vtkGeometryFilter : public vtkPolyDataAlgorithm
