@@ -257,18 +257,32 @@ vtkSmartPointer<vtkDataSet> GetMesh(
     vtkNew<vtkRectilinearGrid> rg;
     conduit_cpp::Node values_x = coords["values/x"];
     conduit_cpp::Node values_y = coords["values/y"];
-    conduit_cpp::Node values_z = coords["values/z"];
+    conduit_cpp::Node values_z;
+    bool has_z_values = coords.has_path("values/z");
+    if (has_z_values)
+    {
+      values_z = coords["values/z"];
+    }
+
     auto xArray =
       vtkConduitArrayUtilities::MCArrayToVTKArray(conduit_cpp::c_node(&values_x), "xcoords");
     auto yArray =
       vtkConduitArrayUtilities::MCArrayToVTKArray(conduit_cpp::c_node(&values_y), "ycoords");
-    auto zArray =
-      vtkConduitArrayUtilities::MCArrayToVTKArray(conduit_cpp::c_node(&values_z), "zcoords");
-    rg->SetDimensions(
-      xArray->GetNumberOfTuples(), yArray->GetNumberOfTuples(), zArray->GetNumberOfTuples());
+    vtkSmartPointer<vtkDataArray> zArray;
+    vtkIdType z_dimension = 1;
+    if (has_z_values)
+    {
+      zArray =
+        vtkConduitArrayUtilities::MCArrayToVTKArray(conduit_cpp::c_node(&values_z), "zcoords");
+      z_dimension = zArray->GetNumberOfTuples();
+    }
+    rg->SetDimensions(xArray->GetNumberOfTuples(), yArray->GetNumberOfTuples(), z_dimension);
     rg->SetXCoordinates(xArray);
-    rg->SetYCoordinates(xArray);
-    rg->SetZCoordinates(xArray);
+    rg->SetYCoordinates(yArray);
+    if (has_z_values)
+    {
+      rg->SetZCoordinates(zArray);
+    }
     return rg;
   }
   else if (topologyNode["type"].as_string() == "structured" &&
