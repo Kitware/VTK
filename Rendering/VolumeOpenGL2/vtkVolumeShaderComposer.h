@@ -311,11 +311,11 @@ uniform float in_volumetricScatteringBlending;
 
       if (glMapper->GetVolumetricScatteringBlending() > 0.0)
       {
-        toShaderStr << "vec3 g_lightDirectionTex[TOTAL_NUMBER_LIGHTS];";
+        toShaderStr << "vec3 g_lightDirectionTex[TOTAL_NUMBER_LIGHTS];\n";
 
         if (numberPositionalLights > 0)
         {
-          toShaderStr << "vec3 g_lightPositionTex[NUMBER_POS_LIGHTS];";
+          toShaderStr << "vec3 g_lightPositionTex[NUMBER_POS_LIGHTS];\n";
         }
       }
     }
@@ -1027,7 +1027,7 @@ std::string ComputeOpacityEvaluationCall(vtkOpenGLGPUVolumeRayCastMapper* vtkNot
 
       if (requestColor)
       {
-        resStr += "    color = lutRes.xyz\n";
+        resStr += "    color = lutRes.xyz;\n";
       }
     }
   }
