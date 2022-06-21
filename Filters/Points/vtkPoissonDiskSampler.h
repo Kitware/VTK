@@ -25,7 +25,7 @@
  * proposed by <a
  * href="http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.476.9482&rep=rep1&type=pdf">
  * Dipp\'e and Wold in 1986</a>. Points are drawn randomly one by one and added
- * in the output. Points withing a range of `Radius` (input parameter) are discarded from the
+ * in the output. Points within a range of `Radius` (input parameter) are discarded from the
  * output. This process is repeated until there are no more points unprocessed.
  */
 

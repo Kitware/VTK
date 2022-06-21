@@ -4,7 +4,7 @@ from vtk.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # Test sub pixel positioning (A round about way of getting an iso surface.)
-# See cubed sphere for the surface before sub pixel poisitioning.
+# See cubed sphere for the surface before sub pixel positioning.
 sphere = vtk.vtkSphere()
 sphere.SetCenter(1,1,1)
 sphere.SetRadius(0.9)

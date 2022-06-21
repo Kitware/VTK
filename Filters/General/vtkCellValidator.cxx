@@ -351,7 +351,7 @@ bool vtkCellValidator::Convex(vtkCell* cell, double vtkNotUsed(tolerance))
         polyhedron_pointIds[i] = i;
       }
 
-      // udpate the face ids
+      // update the face ids
       vtkIdType cpt = 0;
       for (vtkIdType i = 0; i < faces_n; i++)
       {

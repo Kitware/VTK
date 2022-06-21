@@ -51,7 +51,7 @@ int vtkPSphereSource::RequestData(vtkInformation* vtkNotUsed(request),
   int piece = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
   int numPieces = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
 
-  // I want to modify the ivars resoultion start theta and end theta,
+  // I want to modify the ivars resolution start theta and end theta,
   // so I will make local copies of them.  THese might be able to be merged
   // with the other copies of them, ...
   int localThetaResolution = this->ThetaResolution;

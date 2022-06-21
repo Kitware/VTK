@@ -587,7 +587,7 @@ int vtkExtractSubsetWithSeed::RequestData(
         for (const auto& neighbor : cp.link()->neighbors())
         {
           vtkLogF(
-            TRACE, "r=%d: enqueing %d --> (%d, %d)", round, cp.gid(), neighbor.gid, neighbor.proc);
+            TRACE, "r=%d: enqueuing %d --> (%d, %d)", round, cp.gid(), neighbor.gid, neighbor.proc);
           cp.enqueue(neighbor, next_seeds);
         }
       }

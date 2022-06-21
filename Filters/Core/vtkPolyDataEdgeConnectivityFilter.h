@@ -42,7 +42,7 @@
  *
  * Barrier edges add a unique twist to the filter. By using them, it is
  * possible to segment out portions of a mesh with very small, very large, or
- * inbetween polygon-sized features.
+ * in between polygon-sized features.
  *
  * Due to the nature of edge connectivity, the filter only operates on
  * polygons. Vertices, lines, and triangle strips are ignored (and not passed
@@ -400,7 +400,7 @@ protected:
   vtkSmartPointer<vtkIdList> CellIds;
   vtkSmartPointer<vtkIdList> CellNeighbors;
   vtkSmartPointer<vtkIdList> CellEdgeNeighbors;
-  double BRange2[2]; // BarrierEdgeLenght[0,1]**2 of edge lengths defining barriers
+  double BRange2[2]; // BarrierEdgeLength[0,1]**2 of edge lengths defining barriers
 
 private:
   vtkPolyDataEdgeConnectivityFilter(const vtkPolyDataEdgeConnectivityFilter&) = delete;

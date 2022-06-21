@@ -386,7 +386,7 @@ void vtkSPHInterpolator::Probe(vtkDataSet* input, vtkDataSet* source, vtkDataSet
           vtkTemplateMacro(NormalizeArray<VTK_TT>::Execute(
             numPts, (VTK_TT*)ptr, da->GetNumberOfComponents(), shepardArray));
         }
-      } // not denisty array
+      } // not density array
     }   // for all arrays
   }     // if Shepard normalization
 

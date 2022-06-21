@@ -145,7 +145,7 @@ public:
 
 protected:
   /**
-   * Contructor setup
+   * Constructor setup
    */
   vtkHyperTreeGridPreConfiguredSource();
   ~vtkHyperTreeGridPreConfiguredSource() override = default;

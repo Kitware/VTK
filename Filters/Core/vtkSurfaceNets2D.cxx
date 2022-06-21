@@ -442,7 +442,7 @@ struct SurfaceNets
   }
 
   // Generate the 2-tuple scalar cell data for the generated
-  // line segements. Used when multiple labeled regions are
+  // line segments. Used when multiple labeled regions are
   // being extracted. Since only line segments can be created
   // in the +x and +y directions, only the dyads to the right
   // and top of the square is needed.
@@ -972,7 +972,7 @@ struct NetsWorker
 
       // Pass1 does not process the bottom and top edges (because there is no
       // underlying image pixels). Here set the trim information on the
-      // bottom and top rows to be consistent with the inbetween rows.
+      // bottom and top rows to be consistent with the in between rows.
       vtkIdType* eMD = this->Algo->EdgeMetaData;
       eMD[3] = this->Algo->DyadDims[0];
       eMD[4] = 0;

@@ -152,7 +152,7 @@ public:
   ///@{
   /**
    * If this is on (default is off), we will use the continuous interval
-   * [minimum cell scalar, maxmimum cell scalar] to intersect the threshold bound
+   * [minimum cell scalar, maximum cell scalar] to intersect the threshold bound
    * , rather than the set of discrete scalar values from the vertices
    * *WARNING*: For higher order cells, the scalar range of the cell is
    * not the same as the vertex scalar interval used here, so the

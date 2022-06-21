@@ -18,7 +18,7 @@
  *
  *  A concrete implementation of vtkMultiBlockDataSetAlgorithm that provides
  *  functionality for partitioning a VTK rectilinear dataset. The partitioning
- *  methd used is Recursive Coordinate Bisection (RCB) where each time the
+ *  method used is Recursive Coordinate Bisection (RCB) where each time the
  *  longest dimension is split.
  *
  * @sa

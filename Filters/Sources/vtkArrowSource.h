@@ -55,7 +55,7 @@ public:
   ///@{
   /**
    * Set the resolution of the tip.  The tip behaves the same as a cone.
-   * Resoultion 1 gives a single triangle, 2 gives two crossed triangles.
+   * Resolution 1 gives a single triangle, 2 gives two crossed triangles.
    */
   vtkSetClampMacro(TipResolution, int, 1, 128);
   vtkGetMacro(TipResolution, int);

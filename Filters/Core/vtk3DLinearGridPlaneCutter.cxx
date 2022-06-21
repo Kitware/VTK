@@ -341,7 +341,7 @@ struct ExtractEdges : public ExtractEdgesBase<IDType, TIP>
             double deltaScalar = s[v1] - s[v0];
             // the t here is computed for each edges of each cell
             // so it is computed twice for most edges.
-            // This could be improved by deffering the computation
+            // This could be improved by deferring the computation
             // of t to the last moment (when we are producing points / attributes)
             // This way, we should be able to compute t only once per output edge.
             double t = (deltaScalar == 0.0 ? 0.0 : (-s[v0] / deltaScalar));

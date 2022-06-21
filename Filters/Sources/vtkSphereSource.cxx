@@ -90,7 +90,7 @@ int vtkSphereSource::RequestData(vtkInformation* vtkNotUsed(request),
     return 1;
   }
 
-  // I want to modify the ivars resoultion start theta and end theta,
+  // I want to modify the ivars resolution start theta and end theta,
   // so I will make local copies of them.  THese might be able to be merged
   // with the other copies of them, ...
   int localThetaResolution = this->ThetaResolution;

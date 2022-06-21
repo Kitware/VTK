@@ -35,7 +35,7 @@
  *
  * @warning
  * The method CanFullyProcessDataObject() is available to see whether the
- * input data can be successully processed by this filter. Use this method
+ * input data can be successfully processed by this filter. Use this method
  * sparingly because it can be slow.
  *
  * @warning

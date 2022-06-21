@@ -167,7 +167,7 @@ public:
   /**
    * Specify a threshold for normal angles. If AlignedNormalsOn is set, then
    * points are connected if the angle between their normals is within this
-   * angle threshold (expressed in degress).
+   * angle threshold (expressed in degrees).
    */
   vtkSetClampMacro(NormalAngle, double, 0.0001, 90.0);
   vtkGetMacro(NormalAngle, double);

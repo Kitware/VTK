@@ -1166,7 +1166,7 @@ void AvePointsDecimate(vtkIdType numPts, PointsT* pts, vtkPointData* inPD, vtkPo
 
   // Generate the cell output (decimated list of triangles), with the
   // triangle connectivity based on bin ids (not point ids). We'll directly
-  // create the offet and connectivity arrays for the output polydata.
+  // create the offset and connectivity arrays for the output polydata.
   vtkCellArray* outTrisArray = output->GetPolys();
   vtkNew<vtkIdTypeArray> outConn;
   vtkIdType* outTris = outConn->WritePointer(0, numOutTris * 3);

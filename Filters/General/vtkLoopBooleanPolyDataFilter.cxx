@@ -315,7 +315,7 @@ int vtkLoopBooleanPolyDataFilter::Impl::FindRegionTipToe(int inputIndex, int fil
           this->Mesh[inputIndex]->GetCellEdgeNeighbors(cellId, p1, p2, neighbors);
           vtkIdType numNeighbors = neighbors->GetNumberOfIds();
 
-          // Check to make sure it is an oustide surface cell,
+          // Check to make sure it is an outside surface cell,
           // i.e. one neighbor
           if (numNeighbors == 1)
           {

@@ -660,7 +660,7 @@ void vtkQuadricClustering::AddEdge(vtkIdType* binIds, double* pt0, double* pt1, 
   // Compute dot(m, d);
   md = m[0] * d[0] + m[1] * d[1] + m[2] * d[2];
 
-  // We save nine coefficients of the error function cooresponding to:
+  // We save nine coefficients of the error function corresponding to:
   // 0: Px^2
   // 1: PxPy
   // 2: PxPz
@@ -775,7 +775,7 @@ void vtkQuadricClustering::AddVertex(
 
   // Compute quadric for the vertex.
 
-  // We save nine coefficients of the error function cooresponding to:
+  // We save nine coefficients of the error function corresponding to:
   // 0: Px^2
   // 1: PxPy
   // 2: PxPz
@@ -1328,7 +1328,7 @@ void vtkQuadricClustering::EndAppendVertexGeometry(vtkPolyData* input, vtkPolyDa
       outPtId = this->QuadricArray[binId].VertexId;
       if (outPtId >= 0)
       {
-        // Do not use this point.  Destroy infomration in Quadric array.
+        // Do not use this point.  Destroy information in Quadric array.
         this->QuadricArray[binId].VertexId = -1;
         tmp[tmpIdx] = outPtId;
         ++tmpIdx;

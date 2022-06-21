@@ -213,7 +213,7 @@ int vtkAdaptiveSubdivisionFilter::RequestData(vtkInformation* vtkNotUsed(request
   // without neighbor "links" (i.e.,cell links) and new points are merged
   // into the locator. Since the algorithm treats edges on triangles in an
   // identical way, the end result is that triangle neighbors remain
-  // compatible (due to conincident point merging).
+  // compatible (due to coincident point merging).
   auto cellIter = vtk::TakeSmartPointer(inTris->NewIterator());
   vtkCellArray *swapTris, *newTris = vtkCellArray::New();
   newTris->AllocateEstimate(2 * numTris, 3);

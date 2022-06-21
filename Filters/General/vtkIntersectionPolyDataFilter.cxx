@@ -879,7 +879,7 @@ vtkCellArray* vtkIntersectionPolyDataFilter::Impl ::SplitCell(vtkPolyData* input
     // If we have more than one point mapping back to the same point
     // in the input mesh, just use the first one. This will give a
     // preference for using cell points when an intersection line shares
-    // a point with a a cell and prevent introducing accidental holes
+    // a point with a cell and prevent introducing accidental holes
     // in the mesh.
     if (reverseIdMap.find(iter->second) == reverseIdMap.end())
     {

@@ -253,7 +253,7 @@ protected:
    * A helper function for interpolating a new point along an edge.  It
    * stores the index of the interpolated point in "i", and returns 1 if
    * a new point was added to the points.  The values i0, i1, v0, v1 are
-   * the edge enpoints and scalar values, respectively.
+   * the edge endpoints and scalar values, respectively.
    */
   static int InterpolateEdge(vtkPoints* points, vtkPointData* pointData,
     vtkCCSEdgeLocator* edgeLocator, double tol, vtkIdType i0, vtkIdType i1, double v0, double v1,

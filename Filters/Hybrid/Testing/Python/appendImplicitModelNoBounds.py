@@ -5,7 +5,7 @@ VTK_DATA_ROOT = vtkGetDataRoot()
 
 # this demonstrates appending data to generate an implicit model
 # contrast this with appendImplicitModel.tcl which set the bounds
-# explicitly. this scrip should produce the same results.
+# explicitly. this script should produce the same results.
 cubeForBounds = vtk.vtkCubeSource()
 cubeForBounds.SetBounds(-2.5,2.5,-2.5,2.5,-2.5,2.5)
 cubeForBounds.Update()

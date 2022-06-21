@@ -51,7 +51,7 @@
 namespace
 { // anonymous namespace
 
-//========================= CELL MACHINARY ====================================
+//========================= CELL MACHINERY ====================================
 
 // Implementation note: this filter currently handles 3D linear cells. It
 // could be extended to handle other 3D cell types.

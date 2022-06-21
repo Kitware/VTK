@@ -112,7 +112,7 @@ public:
 
   ///@{
   /**
-   * Set/get the tolerance usued for the locator.
+   * Set/get the tolerance used for the locator.
    */
   vtkGetMacro(Tolerance, double);
   vtkSetMacro(Tolerance, double);

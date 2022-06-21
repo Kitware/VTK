@@ -25,7 +25,7 @@
  * are segregated into two subsets: those that may intersect the imprint
  * surface (the candidate cells determined by bounding box checks), and those
  * that do not. 2) The non-candidates are sent to the output, the candidate
- * intersection cells are further proceesed - eventually they will be
+ * intersection cells are further processed - eventually they will be
  * triangulated as a result of contact with the imprint, with the result of
  * the triangulation appended to the output. 3) The imprint points are projected
  * onto the candidate cells, determining a classification (on a target point,

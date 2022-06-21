@@ -72,7 +72,7 @@ int TestQuadraturePoints(int argc, char* argv[])
   std::string tempFile = tempDir + "/tmp.vtu";
   std::string tempBaseline = tempDir + "/TestQuadraturePoints.png";
 
-  // Raed, xml or legacy file.
+  // Read, xml or legacy file.
   vtkUnstructuredGrid* input = nullptr;
   vtkSmartPointer<vtkXMLUnstructuredGridReader> xusgr =
     vtkSmartPointer<vtkXMLUnstructuredGridReader>::New();

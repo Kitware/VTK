@@ -759,7 +759,7 @@ vtkExtractCellsAlongPolyLine::~vtkExtractCellsAlongPolyLine() = default;
 int vtkExtractCellsAlongPolyLine::RequestData(
   vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
-  // Check inputs / ouputs
+  // Check inputs / outputs
   vtkInformation* inputInfo = inputVector[0]->GetInformationObject(0);
   vtkInformation* samplerInfo = inputVector[1]->GetInformationObject(0);
   vtkInformation* outInfo = outputVector->GetInformationObject(0);

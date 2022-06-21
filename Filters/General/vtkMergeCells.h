@@ -49,7 +49,7 @@
 #include "vtkDataSetAttributes.h"    // Needed for FieldList
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkObject.h"
-#include "vtkSmartPointer.h" //fot vtkSmartPointer
+#include "vtkSmartPointer.h" // for vtkSmartPointer
 
 class vtkCellData;
 class vtkDataSet;

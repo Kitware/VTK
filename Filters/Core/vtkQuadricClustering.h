@@ -34,7 +34,7 @@
  * visited, initialize its quadric to the 0 matrix.) The algorithm computes
  * the error quadric for this triangle and adds it to the existing quadric of
  * the bin in which each vertex is contained. Then, if 2 or more vertices of
- * the triangle fall in the same bin, the triangle is dicarded.  If the
+ * the triangle fall in the same bin, the triangle is discarded.  If the
  * triangle is not discarded, it adds the triangle to the list of output
  * triangles as a list of vertex identifiers.  (There is one vertex id per
  * bin.)  After all the triangles have been read, the representative vertex

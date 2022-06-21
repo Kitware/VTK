@@ -57,7 +57,7 @@ int TestPartitionedDataSetSource(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
     pds = pdsSource->GetOutput();
     if (pds->GetNumberOfPartitions() != 0)
     {
-      vtkLogF(ERROR, "GetOuput(rank2) returns empty PartitionedDataSet");
+      vtkLogF(ERROR, "GetOutput(rank2) returns empty PartitionedDataSet");
       return EXIT_FAILURE;
     }
 

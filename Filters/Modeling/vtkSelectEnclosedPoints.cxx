@@ -316,7 +316,7 @@ int vtkSelectEnclosedPoints::IsInsideSurface(double x[3])
 // General method uses ray casting to determine in/out. Since this is a
 // numerically delicate operation, we use a crude "statistical" method (based
 // on voting) to provide a better answer. Plus there is a process to merge
-// nearly conincident points along the intersection rays.
+// nearly coincident points along the intersection rays.
 //
 // This is a static method so it can be used by other filters; hence the
 // many parameters used.

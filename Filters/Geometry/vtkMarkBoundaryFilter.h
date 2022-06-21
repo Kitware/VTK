@@ -39,7 +39,7 @@
  * cells and points. However, vtkGeometryFilter produces output boundary faces
  * and points as output. vtkMarkBoundaryFilter simply identifies which cells
  * and points are on the boundary. (This filter is often used in parallel
- * computing applications to help distrbute data across multiple processes.)
+ * computing applications to help distribute data across multiple processes.)
  *
  * @warning
  * The points and cells boundary arrays are of type unsigned char.  The

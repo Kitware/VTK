@@ -66,7 +66,7 @@ public:
 
   ///@{
   /**
-   * Set/Get for active the circle selection viewport (defaut true)
+   * Set/Get for active the circle selection viewport (default true)
    */
   vtkSetMacro(CircleSelection, bool);
   vtkGetMacro(CircleSelection, bool);
@@ -74,7 +74,7 @@ public:
 
   ///@{
   /**
-   * Set/Get for active the bounding box selection viewport (defaut false)
+   * Set/Get for active the bounding box selection viewport (default false)
    * JB C'est un facteur supplementaire d'acceleration possible
    * JB uniquement si l'on ne peut faire de rotation dans la vue.
    */
@@ -92,7 +92,7 @@ public:
 
   ///@{
   /**
-   * Set/Get for forced a fixed the level max (lost dynamicity) (defaut -1)
+   * Set/Get for forced a fixed the level max (lost dynamicity) (default -1)
    */
   vtkSetMacro(FixedLevelMax, int);
   vtkGetMacro(FixedLevelMax, int);

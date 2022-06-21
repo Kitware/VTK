@@ -151,8 +151,8 @@ int vtkTubeBender::RequestData(vtkInformation* vtkNotUsed(request),
           vtkMath::Normalize(rotationPointVector);
           // While the rotation point and the offset are usually of radius size, if the angle is too
           // acute, it will cause the outer edge of the tube to bulge because sin(angle/2) < radius
-          // To reduce this bulging, we are offseting the rotation point by an approximation towards
-          // the inside of the curve
+          // To reduce this bulging, we are offsetting the rotation point by an approximation
+          // towards the inside of the curve
           auto quarterPi = vtkMath::Pi() / 4;
           if ((angle / 2.0) >= quarterPi)
           {
