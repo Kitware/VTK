@@ -208,12 +208,32 @@ bool ValidateFieldData()
 
   return true;
 }
+
+bool ValidateRectlinearGridWithDifferentDimensions()
+{
+  conduit_cpp::Node mesh;
+  conduit_cpp::BlueprintMesh::Example::basic("rectilinear", 3, 2, 1, mesh);
+  auto data = Convert(mesh);
+  VERIFY(vtkPartitionedDataSet::SafeDownCast(data) != nullptr,
+    "incorrect data type, expected vtkPartitionedDataSet, got %s", vtkLogIdentifier(data));
+  auto pds = vtkPartitionedDataSet::SafeDownCast(data);
+  VERIFY(pds->GetNumberOfPartitions() == 1, "incorrect number of partitions, expected 1, got %d",
+    pds->GetNumberOfPartitions());
+  auto rg = vtkRectilinearGrid::SafeDownCast(pds->GetPartition(0));
+  VERIFY(rg != nullptr, "missing partition 0");
+  VERIFY(vtkVector3i(rg->GetDimensions()) == vtkVector3i(3, 2, 1),
+    "incorrect dimensions, expected=3x2x1, got=%dx%dx%d", rg->GetDimensions()[0],
+    rg->GetDimensions()[1], rg->GetDimensions()[2]);
+
+  return true;
+}
 }
 
 int TestConduitSource(int, char*[])
 {
   return ValidateMeshTypeUniform() && ValidateMeshTypeRectilinear() &&
-      ValidateMeshTypeStructured() && ValidateMeshTypeUnstructured() && ValidateFieldData()
+      ValidateMeshTypeStructured() && ValidateMeshTypeUnstructured() && ValidateFieldData() &&
+      ValidateRectlinearGridWithDifferentDimensions()
     ? EXIT_SUCCESS
     : EXIT_FAILURE;
 }
