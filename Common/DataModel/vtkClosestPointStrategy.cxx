@@ -113,6 +113,12 @@ int vtkClosestPointStrategy::Initialize(vtkPointSet* ps)
       this->PointLocator = psPL;
       this->OwnsLocator = false;
     }
+    // ensure that the point-set's locator is up-to-date
+    // this should be done only by one thread
+    if (!this->IsACopy)
+    {
+      this->PointLocator->BuildLocator();
+    }
   }
   this->VisitedCells.resize(static_cast<size_t>(ps->GetNumberOfCells()));
   this->Weights.resize(8);

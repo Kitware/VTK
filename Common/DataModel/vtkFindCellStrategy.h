@@ -115,6 +115,8 @@ public:
    * generally is used to copy from instance prototype to another, or to copy
    * strategies between thread instances.  Sub-classes can contribute to
    * the parameter copying process via chaining.
+   *
+   * Note: CopyParameters should ALWAYS be called BEFORE Initialize.
    */
   virtual void CopyParameters(vtkFindCellStrategy* from);
 
@@ -127,6 +129,9 @@ protected:
   // together; resulting in memory leaks etc, So this defines if the locator specified or taken from
   // another strategy instance or the dataset.
   bool OwnsLocator;
+  // IsACopy is needed to ensure the point-set's locator is up-to-date
+  // otherwise thread-safety issue can arise.
+  bool IsACopy;
   vtkPointSet* PointSet; // vtkPointSet which this strategy is associated with
   double Bounds[6];      // bounding box of vtkPointSet
 

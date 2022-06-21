@@ -107,6 +107,12 @@ int vtkCellLocatorStrategy::Initialize(vtkPointSet* ps)
       this->CellLocator = psCL;
       this->OwnsLocator = false;
     }
+    // ensure that the point-set's locator is up-to-date
+    // this should be done only by one thread
+    if (!this->IsACopy)
+    {
+      this->CellLocator->BuildLocator();
+    }
   }
 
   this->InitializeTime.Modified();
