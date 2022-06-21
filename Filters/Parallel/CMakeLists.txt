@@ -14,6 +14,7 @@ set(classes
   vtkExtractUnstructuredGridPiece
   vtkExtractUserDefinedPiece
   vtkHyperTreeGridGhostCellsGenerator
+  vtkHyperTreeGridPProbeFilter
   vtkIntegrateAttributes
   vtkPassThroughFilter
   vtkPeriodicFilter

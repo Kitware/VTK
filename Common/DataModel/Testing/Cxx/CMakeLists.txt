@@ -99,6 +99,7 @@ vtk_add_test_cxx(vtkCommonDataModelCxxTests tests
   UnitTestLine.cxx
   UnitTestPlanesIntersection.cxx
   UnitTestTriangleIntersection.cxx
+  TestHyperTreeGridGeometricLocator.cxx
   )
 vtk_add_test_cxx(vtkCommonDataModelCxxTests data_tests
   TestImageDataOrientation2.cxx,NO_DATA
