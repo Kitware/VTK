@@ -18,7 +18,7 @@
 
 #include "vtkLegacy.h"
 
-#ifndef VTK_LEGACY_SILENT
+#ifndef VTK_LEGACY_SILENT // VTK_DEPRECATED_IN_9_2_0
 #ifdef _MSC_VER
 #pragma message("vtkMFCConfigure.h is deprecated; there is no need for the header.")
 #else

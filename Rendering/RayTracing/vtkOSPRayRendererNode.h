@@ -23,7 +23,7 @@
 #define vtkOSPRayRendererNode_h
 
 #include "RTWrapper/RTWrapper.h" // for handle types
-#include "vtkDeprecation.h"      // For deprecation macro
+#include "vtkDeprecation.h"      // For VTK_DEPRECATED_IN_9_2_0
 #include "vtkInformation.h"
 #include "vtkOSPRayCache.h" // For common cache infrastructure
 #include "vtkRenderer.h"

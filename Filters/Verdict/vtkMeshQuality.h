@@ -72,7 +72,7 @@
 #define vtkMeshQuality_h
 
 #include "vtkDataSetAlgorithm.h"
-#include "vtkDeprecation.h"          // For deprecation
+#include "vtkDeprecation.h"          // For VTK_DEPRECATED_IN_9_2_0
 #include "vtkFiltersVerdictModule.h" // For export macro
 
 class vtkCell;

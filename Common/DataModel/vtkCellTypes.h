@@ -40,7 +40,7 @@
 #include "vtkObject.h"
 
 #include "vtkCellType.h"          // Needed for inline methods
-#include "vtkDeprecation.h"       // Needed for deprecation
+#include "vtkDeprecation.h"       // For VTK_DEPRECATED_IN_9_2_0
 #include "vtkIdTypeArray.h"       // Needed for inline methods
 #include "vtkSmartPointer.h"      // Needed for internals
 #include "vtkUnsignedCharArray.h" // Needed for inline methods
