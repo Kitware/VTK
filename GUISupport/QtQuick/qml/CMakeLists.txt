@@ -60,8 +60,8 @@ file(GENERATE
 # Generate the qmltypes file for the VTK QML plugin
 
 # First, find the qmlplugindump executable
-get_target_property(qt_core_location "Qt${vtk_qt_major_version}::Core" LOCATION)
-get_filename_component(qt_bin_dir "${qt_core_location}" PATH)
+get_target_property(qt_qmake_location "Qt${vtk_qt_major_version}::qmake" LOCATION)
+get_filename_component(qt_bin_dir "${qt_qmake_location}" PATH)
 if (APPLE)
   get_filename_component(qt_bin_dir "${qt_bin_dir}" PATH)
 endif ()
