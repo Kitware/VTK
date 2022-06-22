@@ -239,7 +239,8 @@ public:
    *
    * Note: This method is thread-safe.
    */
-  void GetCellPoints(vtkIdType cellId, vtkIdType& npts, vtkIdType const*& pts, vtkIdList* ptIds)
+  void GetCellPoints(
+    vtkIdType cellId, vtkIdType& npts, vtkIdType const*& pts, vtkIdList* ptIds) override
   {
     this->Connectivity->GetCellAtId(cellId, npts, pts, ptIds);
   }

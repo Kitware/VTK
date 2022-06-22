@@ -90,6 +90,7 @@ public:
   int GetCellType(vtkIdType cellId) override;
   vtkIdType GetCellSize(vtkIdType cellId) override;
   vtkIdType GetNumberOfCells() override;
+  using vtkDataSet::GetCellPoints;
   void GetCellPoints(vtkIdType cellId, vtkIdList* ptIds) override;
   void GetPointCells(vtkIdType ptId, vtkIdList* cellIds) override
   {

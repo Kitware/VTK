@@ -291,6 +291,13 @@ void vtkExplicitStructuredGrid::GetCellPoints(vtkIdType cellId, vtkIdType& npts,
 }
 
 //------------------------------------------------------------------------------
+void vtkExplicitStructuredGrid::GetCellPoints(
+  vtkIdType cellId, vtkIdType& npts, vtkIdType const*& pts, vtkIdList* ptIds)
+{
+  this->Cells->GetCellAtId(cellId, npts, pts, ptIds);
+}
+
+//------------------------------------------------------------------------------
 void vtkExplicitStructuredGrid::GetCellNeighbors(
   vtkIdType cellId, vtkIdType neighbors[6], int* wholeExtent)
 {

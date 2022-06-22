@@ -68,6 +68,7 @@ public:
   vtkCell* FindAndGetCell(double x[3], vtkCell* cell, vtkIdType cellId, double tol2, int& subId,
     double pcoords[3], double* weights) override;
   int GetCellType(vtkIdType cellId) override;
+  using vtkDataSet::GetCellPoints;
   void GetCellPoints(vtkIdType cellId, vtkIdList* ptIds) override
   {
     vtkStructuredData::GetCellPoints(
