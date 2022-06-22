@@ -406,10 +406,9 @@ constexpr vtkIdType edges[4][2] = {
   { 0, 3 },
 };
 
-typedef int EDGE_LIST;
 struct LINE_CASES_t
 {
-  EDGE_LIST edges[5];
+  int edges[5];
 };
 using LINE_CASES = struct LINE_CASES_t;
 
@@ -446,7 +445,7 @@ void vtkQuad::Contour(double value, vtkDataArray* cellScalars, vtkIncrementalPoi
 {
   static const int CASE_MASK[4] = { 1, 2, 4, 8 };
   LINE_CASES* lineCase;
-  EDGE_LIST* edge;
+  int* edge;
   int i, j, index;
   const vtkIdType* vert;
   int newCellId;

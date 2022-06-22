@@ -547,7 +547,7 @@ void vtkImageMarchingCubesHandleCube(vtkImageMarchingCubes* self, int cellX, int
     {
       // Get edges.
       triCase = triCases + cubeIndex;
-      EDGE_LIST* edge = triCase->edges;
+      int* edge = triCase->edges;
       // loop over triangles
       while (*edge > -1)
       {

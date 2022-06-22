@@ -124,7 +124,7 @@ struct ContourImageWorker
     static const int CASE_MASK[4] = { 1, 2, 8, 4 };
     vtkMarchingSquaresLineCases *lineCase, *lineCases;
     static int edges[4][2] = { { 0, 1 }, { 1, 3 }, { 2, 3 }, { 0, 2 } };
-    EDGE_LIST* edge;
+    int* edge;
     double value, s[4];
 
     lineCases = vtkMarchingSquaresLineCases::GetCases();

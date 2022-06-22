@@ -108,19 +108,26 @@ cutter.Update()
 CT = cutter_timer.GetElapsedWallClockTime()
 print("vtkCutter:", CT)
 
+# Time the execution of the filter w/o sphere tree
+snCutter_timer = vtk.vtkExecutionTimer()
+snCutter_timer.SetFilter(snCutter)
+snCutter.Update()
+ST = snCutter_timer.GetElapsedWallClockTime()
+print("vtkPlaneCutter: Without sphere tree:", ST)
+
 # Time the execution of the filter w/ sphere tree
 sCutter_timer = vtk.vtkExecutionTimer()
 sCutter_timer.SetFilter(sCutter)
 sCutter.Update()
 ST = sCutter_timer.GetElapsedWallClockTime()
-print("Build sphere tree + execute once:", ST)
+print("vtkPlaneCutter: Build sphere tree + execute once:", ST)
 
 sCutter_timer = vtk.vtkExecutionTimer()
 sCutter_timer.SetFilter(sCutter)
 plane.Modified()
 sCutter.Update()
 SC = sCutter_timer.GetElapsedWallClockTime()
-print("vtkPlaneCutter:", SC)
+print("vtkPlaneCutter: with prebuilt sphere-tree", SC)
 
 # Add the actors to the renderer, set the background and size
 ren0.AddActor(outlineActor)

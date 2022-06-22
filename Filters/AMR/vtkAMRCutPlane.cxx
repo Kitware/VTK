@@ -13,14 +13,13 @@
 
  =========================================================================*/
 #include "vtkAMRCutPlane.h"
-#include "vtkAMRUtilities.h"
+
 #include "vtkCell.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkCompositeDataPipeline.h"
 #include "vtkCutter.h"
 #include "vtkDoubleArray.h"
-#include "vtkIdList.h"
 #include "vtkIndent.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
@@ -46,7 +45,7 @@ vtkAMRCutPlane::vtkAMRCutPlane()
   this->SetNumberOfInputPorts(1);
   this->SetNumberOfOutputPorts(1);
   this->LevelOfResolution = 0;
-  this->initialRequest = true;
+  this->InitialRequest = true;
   for (int i = 0; i < 3; ++i)
   {
     this->Center[i] = 0.0;
@@ -177,13 +176,12 @@ int vtkAMRCutPlane::RequestData(vtkInformation* vtkNotUsed(rqst),
       {
         if (grid != nullptr)
         {
-          vtkCutter* myCutter = vtkCutter::New();
+          vtkNew<vtkCutter> myCutter;
           myCutter->SetInputData(grid);
           myCutter->SetCutFunction(cutPlane);
           myCutter->Update();
           mbds->SetBlock(blockIdx, myCutter->GetOutput());
           ++blockIdx;
-          myCutter->Delete();
         }
         else
         {
@@ -454,7 +452,7 @@ void vtkAMRCutPlane::ComputeAMRBlocksToLoad(vtkPlane* p, vtkOverlappingAMR* m)
 //------------------------------------------------------------------------------
 void vtkAMRCutPlane::InitializeCenter(double min[3], double max[3])
 {
-  if (!this->initialRequest)
+  if (!this->InitialRequest)
   {
     return;
   }
@@ -462,7 +460,7 @@ void vtkAMRCutPlane::InitializeCenter(double min[3], double max[3])
   this->Center[0] = 0.5 * (max[0] - min[0]);
   this->Center[1] = 0.5 * (max[1] - min[1]);
   this->Center[2] = 0.5 * (max[2] - min[2]);
-  this->initialRequest = false;
+  this->InitialRequest = false;
 }
 
 //------------------------------------------------------------------------------

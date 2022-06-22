@@ -336,10 +336,9 @@ constexpr vtkIdType pointToOneRingPoints[vtkTetra::NumberOfPoints][vtkTetra::Max
   { 0, 1, 2 }, // 3
 };
 
-typedef int EDGE_LIST;
 struct TRIANGLE_CASES_t
 {
-  EDGE_LIST edges[7];
+  int edges[7];
 };
 using TRIANGLE_CASES = struct TRIANGLE_CASES_t;
 
@@ -370,7 +369,7 @@ void vtkTetra::Contour(double value, vtkDataArray* cellScalars, vtkIncrementalPo
 {
   static const int CASE_MASK[4] = { 1, 2, 4, 8 };
   TRIANGLE_CASES* triCase;
-  EDGE_LIST* edge;
+  int* edge;
   int i, j, index, v1, v2, newCellId;
   const vtkIdType* vert;
   vtkIdType pts[3];

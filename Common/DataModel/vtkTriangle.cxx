@@ -393,10 +393,9 @@ int vtkTriangle::CellBoundary(int vtkNotUsed(subId), const double pcoords[3], vt
 //
 namespace
 { // required so we don't violate ODR
-typedef int EDGE_LIST;
 struct LINE_CASES_t
 {
-  EDGE_LIST edges[3];
+  int edges[3];
 };
 using LINE_CASES = struct LINE_CASES_t;
 
@@ -428,7 +427,7 @@ void vtkTriangle::Contour(double value, vtkDataArray* cellScalars,
 {
   static const int CASE_MASK[3] = { 1, 2, 4 };
   LINE_CASES* lineCase;
-  EDGE_LIST* edge;
+  int* edge;
   int i, j, index;
   const vtkIdType* vert;
   vtkIdType pts[2];

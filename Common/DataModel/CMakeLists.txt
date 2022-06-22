@@ -142,6 +142,7 @@ set(classes
   vtkLine
   vtkLocator
   vtkMarchingCubesTriangleCases
+  vtkMarchingCubesPolygonCases
   vtkMarchingSquaresLineCases
   vtkMeanValueCoordinatesInterpolator
   vtkMergePoints

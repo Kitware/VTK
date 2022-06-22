@@ -20,10 +20,9 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkSystemIncludes.h"
 
-typedef int EDGE_LIST;
 struct VTKCOMMONDATAMODEL_EXPORT vtkMarchingCubesTriangleCases
 {
-  EDGE_LIST edges[16];
+  int edges[16];
   static vtkMarchingCubesTriangleCases* GetCases();
 };
 

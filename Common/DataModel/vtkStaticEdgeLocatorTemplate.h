@@ -109,25 +109,19 @@ struct EdgeTuple
     }
   }
 
-  bool operator==(const EdgeTuple& et) const
-  {
-    return ((this->V0 == et.V0 && this->V1 == et.V1) ? true : false);
-  }
+  bool operator==(const EdgeTuple& et) const { return this->V0 == et.V0 && this->V1 == et.V1; }
 
-  bool operator!=(const EdgeTuple& et) const
-  {
-    return ((this->V0 != et.V0 || this->V1 != et.V1) ? true : false);
-  }
+  bool operator!=(const EdgeTuple& et) const { return this->V0 != et.V0 || this->V1 != et.V1; }
 
   bool IsEdge(TId v0, TId v1) const
   {
     if (v0 < v1) // ordered properly
     {
-      return ((this->V0 == v0 && this->V1 == v1) ? true : false);
+      return this->V0 == v0 && this->V1 == v1;
     }
     else // swap comparison required
     {
-      return ((this->V0 == v1 && this->V1 == v0) ? true : false);
+      return this->V0 == v1 && this->V1 == v0;
     }
   }
   // Sort on v0 first, then v1.
@@ -166,8 +160,8 @@ public:
     , NumEdgesPerBin(5)
     , EdgeArray(nullptr)
     , EdgeOffsets(nullptr)
-    , MinV0(0)
-    , MaxV0(0)
+    , MinV0(-1)
+    , MaxV0(-1)
     , V0Range(0)
     , NDivs(0)
     , MergeArray(nullptr)
@@ -217,60 +211,57 @@ public:
    */
   IDType IsInsertedEdge(IDType v0, IDType v1) const
   {
+    // Ensure that BuildLocator has been called by checking MinV0, MaxV0
+    if (this->MinV0 < 0 || this->MaxV0 < 0)
+    {
+      return -1;
+    }
     // Ensure that data is consistent with what is expected.
-    IDType V0, V1;
-    if (v0 < v1)
+    if (v0 > v1)
     {
-      V0 = v0;
-      V1 = v1;
+      std::swap(v0, v1);
     }
-    else
-    {
-      V0 = v1;
-      V1 = v0;
-    }
-    if (V0 < this->MinV0 || V0 > this->MaxV0)
+    if (v0 < this->MinV0 || v0 > this->MaxV0)
     {
       return -1;
     }
 
     // Bin and search for matching edge
-    IDType curBin = this->HashBin(V0);
+    const IDType curBin = this->HashBin(v0);
+    const IDType num = this->GetNumberOfEdgesInBin(curBin);
+    // check if there are no edges
+    if (num < 1)
+    {
+      return -1;
+    }
     IDType curId = this->EdgeOffsets[curBin];
     IDType curV0 = this->EdgeArray[curId].V0;
-    IDType num = this->GetNumberOfEdgesInBin(curBin);
-    for (IDType i = 0; i < num; ++i)
+    while (curV0 < v0)
     {
-      while (curV0 < V0)
+      curId++;
+      curV0 = this->EdgeArray[curId].V0;
+    }
+    if (curV0 > v0)
+    {
+      return -1;
+    }
+    else // matched v0, now find v1
+    {
+      IDType curV1 = this->EdgeArray[curId].V1;
+      while (curV1 < v1)
       {
         curId++;
-        curV0 = this->EdgeArray[curId].V0;
+        curV1 = this->EdgeArray[curId].V1;
       }
-      if (curV0 > V0)
+      if (curV1 > v1)
       {
         return -1;
       }
-      else // matched v0, now find v1
+      else
       {
-        IDType curV1 = this->EdgeArray[curId].V1;
-        while (curV1 < V1)
-        {
-          curId++;
-          curV1 = this->EdgeArray[curId].V1;
-        }
-        if (curV1 > V1)
-        {
-          return -1;
-        }
-        else
-        {
-          return curId;
-        }
+        return curId;
       }
-    } // loop over maximum possible candidates
-
-    // Nothing found
-    return -1;
+    }
   }
 
   /**
