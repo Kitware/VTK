@@ -172,13 +172,28 @@ public:
 
   /**
    * Get direct raw pointer to the 8 points indices of an hexahedra.
+   *
+   * Note: This method MAY NOT be thread-safe. (See GetCellAtId at vtkCellArray)
    */
   vtkIdType* GetCellPoints(vtkIdType cellId);
 
   /**
    * More efficient method to obtain cell points.
+   *
+   * Note: This method MAY NOT be thread-safe. (See GetCellAtId at vtkCellArray)
    */
   void GetCellPoints(vtkIdType cellId, vtkIdType& npts, vtkIdType*& pts);
+
+  /**
+   * More efficient method to obtain cell points.
+   *
+   * This function MAY use ptIds, which is an object that is created by each thread,
+   * to guarantee thread safety.
+   *
+   * Note: This method is thread-safe. (See GetCellAtId at vtkCellArray)
+   */
+  void GetCellPoints(
+    vtkIdType cellId, vtkIdType& npts, vtkIdType const*& pts, vtkIdList* ptIds) override;
 
   /**
    * Get cell neighbors of the cell for every faces.

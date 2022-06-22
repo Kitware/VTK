@@ -93,6 +93,7 @@ public:
     double pcoords[3], double* weights) override;
   int GetCellType(vtkIdType cellId) override;
   vtkIdType GetCellSize(vtkIdType cellId) override;
+  using vtkDataSet::GetCellPoints;
   void GetCellPoints(vtkIdType cellId, vtkIdList* ptIds) override
   {
     int dimensions[3];

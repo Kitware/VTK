@@ -99,6 +99,7 @@ public:
   /**
    * Topological inquiry to get points defining cell.
    */
+  using vtkDataSet::GetCellPoints;
   void GetCellPoints(vtkIdType cellId, vtkIdList* ptIds) override;
 
   /**
