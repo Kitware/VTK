@@ -956,7 +956,8 @@ void vtkTecplotReader::GetStructuredGridFromBlockPackingZone(int iDimSize, int j
   pntCords = nullptr;
 
   if ((this->Internal->TopologyDim == 2 || this->Internal->TopologyDim == 3) ||
-    (this->Internal->TopologyDim == 0 && this->Internal->GeometryDim > 1))
+    ((this->Internal->TopologyDim == 0 || this->Internal->TopologyDim == 1) &&
+      this->Internal->GeometryDim > 1))
   {
     multZone->SetBlock(zoneIndx, strcGrid);
     multZone->GetMetaData(zoneIndx)->Set(vtkCompositeDataSet::NAME(), zoneName);
