@@ -255,30 +255,64 @@ vtkSmartPointer<vtkDataSet> GetMesh(
     coords["type"].as_string() == "rectilinear")
   {
     vtkNew<vtkRectilinearGrid> rg;
-    conduit_cpp::Node values_x = coords["values/x"];
-    conduit_cpp::Node values_y = coords["values/y"];
+
+    conduit_cpp::Node values_x;
+    const bool has_x_values = coords.has_path("values/x");
+    if (has_x_values)
+    {
+      values_x = coords["values/x"];
+    }
+
+    conduit_cpp::Node values_y;
+    const bool has_y_values = coords.has_path("values/y");
+    if (has_y_values)
+    {
+      values_y = coords["values/y"];
+    }
+
     conduit_cpp::Node values_z;
-    bool has_z_values = coords.has_path("values/z");
+    const bool has_z_values = coords.has_path("values/z");
     if (has_z_values)
     {
       values_z = coords["values/z"];
     }
 
-    auto xArray =
-      vtkConduitArrayUtilities::MCArrayToVTKArray(conduit_cpp::c_node(&values_x), "xcoords");
-    auto yArray =
-      vtkConduitArrayUtilities::MCArrayToVTKArray(conduit_cpp::c_node(&values_y), "ycoords");
-    vtkSmartPointer<vtkDataArray> zArray;
+    vtkIdType x_dimension = 1;
+    vtkSmartPointer<vtkDataArray> xArray;
+    if (has_x_values)
+    {
+      xArray =
+        vtkConduitArrayUtilities::MCArrayToVTKArray(conduit_cpp::c_node(&values_x), "xcoords");
+      x_dimension = xArray->GetNumberOfTuples();
+    }
+
+    vtkIdType y_dimension = 1;
+    vtkSmartPointer<vtkDataArray> yArray;
+    if (has_y_values)
+    {
+      yArray =
+        vtkConduitArrayUtilities::MCArrayToVTKArray(conduit_cpp::c_node(&values_y), "ycoords");
+      y_dimension = yArray->GetNumberOfTuples();
+    }
+
     vtkIdType z_dimension = 1;
+    vtkSmartPointer<vtkDataArray> zArray;
     if (has_z_values)
     {
       zArray =
         vtkConduitArrayUtilities::MCArrayToVTKArray(conduit_cpp::c_node(&values_z), "zcoords");
       z_dimension = zArray->GetNumberOfTuples();
     }
-    rg->SetDimensions(xArray->GetNumberOfTuples(), yArray->GetNumberOfTuples(), z_dimension);
-    rg->SetXCoordinates(xArray);
-    rg->SetYCoordinates(yArray);
+    rg->SetDimensions(x_dimension, y_dimension, z_dimension);
+
+    if (has_x_values)
+    {
+      rg->SetXCoordinates(xArray);
+    }
+    if (has_z_values)
+    {
+      rg->SetYCoordinates(yArray);
+    }
     if (has_z_values)
     {
       rg->SetZCoordinates(zArray);

@@ -220,20 +220,51 @@ bool ValidateRectlinearGridWithDifferentDimensions()
   VERIFY(pds->GetNumberOfPartitions() == 1, "incorrect number of partitions, expected 1, got %d",
     pds->GetNumberOfPartitions());
   auto rg = vtkRectilinearGrid::SafeDownCast(pds->GetPartition(0));
-  VERIFY(rg != nullptr, "missing partition 0");
+  VERIFY(rg != nullptr, "invalid partition at index 0");
   VERIFY(vtkVector3i(rg->GetDimensions()) == vtkVector3i(3, 2, 1),
     "incorrect dimensions, expected=3x2x1, got=%dx%dx%d", rg->GetDimensions()[0],
     rg->GetDimensions()[1], rg->GetDimensions()[2]);
 
   return true;
 }
+
+bool Validate1DRectilinearGrid()
+{
+  conduit_cpp::Node mesh;
+  auto coords = mesh["coordsets/coords"];
+  coords["type"] = "rectilinear";
+  coords["values/x"].set_float64_vector({ 5.0, 6.0, 7.0 });
+  auto topo_mesh = mesh["topologies/mesh"];
+  topo_mesh["type"] = "rectilinear";
+  topo_mesh["coordset"] = "coords";
+  auto field = mesh["fields/field"];
+  field["association"] = "element";
+  field["topology"] = "mesh";
+  field["volume_dependent"] = "false";
+  field["values"].set_float64_vector({ 0.0, 1.0 });
+
+  auto data = Convert(mesh);
+  VERIFY(vtkPartitionedDataSet::SafeDownCast(data) != nullptr,
+    "incorrect data type, expected vtkPartitionedDataSet, got %s", vtkLogIdentifier(data));
+  auto pds = vtkPartitionedDataSet::SafeDownCast(data);
+  VERIFY(pds->GetNumberOfPartitions() == 1, "incorrect number of partitions, expected 1, got %d",
+    pds->GetNumberOfPartitions());
+  auto rg = vtkRectilinearGrid::SafeDownCast(pds->GetPartition(0));
+  VERIFY(rg != nullptr, "invalid partition at index 0");
+  VERIFY(vtkVector3i(rg->GetDimensions()) == vtkVector3i(3, 1, 1),
+    "incorrect dimensions, expected=3x1x1, got=%dx%dx%d", rg->GetDimensions()[0],
+    rg->GetDimensions()[1], rg->GetDimensions()[2]);
+
+  return true;
+}
+
 }
 
 int TestConduitSource(int, char*[])
 {
   return ValidateMeshTypeUniform() && ValidateMeshTypeRectilinear() &&
       ValidateMeshTypeStructured() && ValidateMeshTypeUnstructured() && ValidateFieldData() &&
-      ValidateRectlinearGridWithDifferentDimensions()
+      ValidateRectlinearGridWithDifferentDimensions() && Validate1DRectilinearGrid()
     ? EXIT_SUCCESS
     : EXIT_FAILURE;
 }
