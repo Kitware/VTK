@@ -33,7 +33,6 @@
 #ifndef vtkDataEncoder_h
 #define vtkDataEncoder_h
 
-#include "vtkDeprecation.h" // needed for exports
 #include "vtkObject.h"
 #include "vtkSmartPointer.h"  // needed for vtkSmartPointer
 #include "vtkWebCoreModule.h" // needed for exports
@@ -63,18 +62,6 @@ public:
    * and clear internal data-structures.
    */
   void Initialize();
-
-  /**
-   * Push an image into the encoder. It is not safe to modify the image
-   * after this point, including changing the reference counts for it.
-   * You may run into thread safety issues. Typically,
-   * the caller code will simply release reference to the data and stop using
-   * it. vtkDataEncoder takes over the reference for the image and will call
-   * vtkObject::UnRegister() on it when it's done.
-   * encoding can be set to 0 to skip encoding.
-   */
-  VTK_DEPRECATED_IN_9_1_0("replaced by Push")
-  void PushAndTakeReference(vtkTypeUInt32 key, vtkImageData*& data, int quality, int encoding = 1);
 
   /**
    * Push an image into the encoder. The data is considered unchanging and thus

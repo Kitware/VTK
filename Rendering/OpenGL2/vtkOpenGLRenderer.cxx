@@ -844,11 +844,6 @@ vtkOpenGLRenderer::~vtkOpenGLRenderer()
   }
 }
 
-bool vtkOpenGLRenderer::HaveApplePrimitiveIdBug()
-{
-  return false;
-}
-
 //------------------------------------------------------------------------------
 bool vtkOpenGLRenderer::HaveAppleQueryAllocationBug()
 {

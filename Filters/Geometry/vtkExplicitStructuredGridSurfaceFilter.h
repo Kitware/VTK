@@ -39,9 +39,7 @@ public:
    * If on, the output polygonal dataset will have a celldata array that
    * holds the cell index of the original 3D cell that produced each output
    * cell. This is useful for cell picking. The default is off to conserve
-   * memory. Note that PassThroughCellIds will be ignored if UseStrips is on,
-   * since in that case each tringle strip can represent more than on of the
-   * input cells.
+   * memory.
    */
   vtkSetMacro(PassThroughCellIds, int);
   vtkGetMacro(PassThroughCellIds, int);

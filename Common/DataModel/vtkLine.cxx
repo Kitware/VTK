@@ -205,23 +205,6 @@ int vtkLine::Intersection(const double a1[3], const double a2[3], const double b
   return NoIntersect;
 }
 
-//------------------------------------------------------------------------------
-int vtkLine::Intersection3D(double a1[3], double a2[3], double b1[3], double b2[3], double& u,
-  double& v, const double tolerance)
-{
-  // Description:
-  // Performs intersection of two finite 3D lines. An intersection is found if
-  // the projection of the two lines onto the plane perpendicular to the cross
-  // product of the two lines intersect, and if the distance between the
-  // closest points of approach are within a relative tolerance. The parameters
-  // (u,v) are the parametric coordinates of the lines at the position of
-  // closest approach.
-  //
-  // Note: Legacy method; vtkLine::Intersection() now performs the check that the
-  // distance between the closest points is within a relative tolerance.
-  return vtkLine::Intersection(a1, a2, b1, b2, u, v, tolerance);
-}
-
 int vtkLine::Inflate(double dist)
 {
   auto pointRange = vtk::DataArrayTupleRange<3>(this->Points->GetData());

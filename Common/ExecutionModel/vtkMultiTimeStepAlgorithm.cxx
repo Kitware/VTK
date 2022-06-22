@@ -12,8 +12,6 @@ the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
 PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// Hide VTK_DEPRECATED_IN_9_1_0() warnings for this class.
-#define VTK_DEPRECATION_LEVEL 0
 
 #include "vtkMultiTimeStepAlgorithm.h"
 
@@ -156,25 +154,6 @@ vtkTypeBool vtkMultiTimeStepAlgorithm::ProcessRequest(
       }
 
       retVal = this->Execute(request, inputs, outputVector);
-      if (retVal == -1)
-      {
-        vtkWarningMacro("Using legacy `RequestData`. That will not work for all input data-types. "
-                        "Please update code to override `Execute` instead.");
-        vtkNew<vtkMultiBlockDataSet> mb;
-        for (size_t i = 0; i < nTimeSteps; i++)
-        {
-          if (this->IsInCache(this->UpdateTimeSteps[i], idx))
-          {
-            mb->SetBlock(static_cast<unsigned int>(i), this->Cache[idx].Data);
-          }
-        }
-
-        // change the input to the multiblock data and let child class to do the work
-        // make sure to set the input back to what it was to not break anything upstream
-        inInfo->Set(vtkDataObject::DATA_OBJECT(), mb);
-        retVal = this->RequestData(request, inputVector, outputVector);
-        inInfo->Set(vtkDataObject::DATA_OBJECT(), inData);
-      }
 
       this->UpdateTimeSteps.clear();
       this->RequestUpdateIndex = 0;

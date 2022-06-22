@@ -21,7 +21,6 @@
 
 #include "vtkCellType.h"              // For GetCellType.
 #include "vtkCommonDataModelModule.h" // For export macro
-#include "vtkDeprecation.h"           // For VTK_DEPRECATED_IN_9_1_0
 #include "vtkHigherOrderCurve.h"
 #include "vtkNew.h"          // For member variable.
 #include "vtkSmartPointer.h" // For member variable.
@@ -44,10 +43,6 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   int GetCellType() override { return VTK_BEZIER_CURVE; }
-  VTK_DEPRECATED_IN_9_1_0(
-    "EvaluateLocationProjectedNode is deprecated, use instead EvaluateLocation.")
-  void EvaluateLocationProjectedNode(
-    int& subId, const vtkIdType point_id, double x[3], double* weights);
   void SetRationalWeightsFromPointData(vtkPointData* point_data, const vtkIdType numPts);
   void InterpolateFunctions(const double pcoords[3], double* weights) override;
   void InterpolateDerivs(const double pcoords[3], double* derivs) override;

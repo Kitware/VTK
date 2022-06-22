@@ -20,6 +20,7 @@
 #include "vtkGenericCell.h"
 #include "vtkIdTypeArray.h"
 #include "vtkIntArray.h"
+#include "vtkLegacy.h"
 #include "vtkObjectFactory.h"
 #include "vtkUnsignedCharArray.h"
 

@@ -43,7 +43,6 @@ set(classes
   vtkPolyDataAlgorithm
   vtkProgressObserver
   vtkReaderAlgorithm
-  vtkReaderExecutive
   vtkRectilinearGridAlgorithm
   vtkSMPProgressObserver
   vtkScalarTree

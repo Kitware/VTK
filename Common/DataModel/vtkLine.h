@@ -24,7 +24,6 @@
 
 #include "vtkCell.h"
 #include "vtkCommonDataModelModule.h" // For export macro
-#include "vtkDeprecation.h"           // For VTK_DEPRECATED_IN_9_1_0
 class vtkIncrementalPointLocator;
 
 class VTKCOMMONDATAMODEL_EXPORT vtkLine : public vtkCell
@@ -124,22 +123,6 @@ public:
   static int Intersection(const double p1[3], const double p2[3], const double x1[3],
     const double x2[3], double& u, double& v, const double tolerance = 1e-6,
     int toleranceType = ToleranceType::Relative);
-
-  /**
-   * Performs intersection of two finite 3D lines. An intersection is found if
-   * the projection of the two lines onto the plane perpendicular to the cross
-   * product of the two lines intersect, and if the distance between the
-   * closest points of approach are within a relative tolerance. The parameters
-   * (u,v) are the parametric coordinates of the lines at the position of
-   * closest approach.
-   *
-   * The results are of type vtkLine::IntersectionType.
-   *
-   * NOTE: Legacy method, returns vtkLine::Intersection(...).
-   */
-  VTK_DEPRECATED_IN_9_1_0("Use vtkLine::Intersection(...) instead.")
-  static int Intersection3D(double p1[3], double p2[3], double x1[3], double x2[3], double& u,
-    double& v, const double tolerance = 1e-6);
 
   /**
    * Compute the distance of a point x to a finite line (p1,p2). The method

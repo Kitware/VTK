@@ -78,18 +78,6 @@ vtkCell* vtkBezierTriangle::GetEdge(int edgeId)
   return result;
 }
 
-/**\brief EvaluateLocation Given a point_id. This is required by Bezier because the interior points
- * are non-interpolatory .
- */
-void vtkBezierTriangle::EvaluateLocationProjectedNode(
-  int& subId, const vtkIdType point_id, double x[3], double* weights)
-{
-  this->vtkHigherOrderTriangle::SetParametricCoords();
-  double pcoords[3];
-  this->PointParametricCoordinates->GetPoint(this->PointIds->FindIdLocation(point_id), pcoords);
-  this->vtkHigherOrderTriangle::EvaluateLocation(subId, pcoords, x, weights);
-}
-
 /**\brief Set the rational weight of the cell, given a vtkDataSet
  */
 void vtkBezierTriangle::SetRationalWeightsFromPointData(

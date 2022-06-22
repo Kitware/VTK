@@ -21,8 +21,7 @@ set(classes
   vtkImageSobel2D
   vtkImageSobel3D
   vtkImageSpatialAlgorithm
-  vtkImageVariance3D
-  vtkSimpleImageFilterExample)
+  vtkImageVariance3D)
 
 vtk_module_add_module(VTK::ImagingGeneral
   CLASSES ${classes})

@@ -23,7 +23,6 @@
 #ifndef vtkOpenGLRenderer_h
 #define vtkOpenGLRenderer_h
 
-#include "vtkDeprecation.h" // for VTK_DEPRECATED_IN_9_1_0
 #include "vtkRenderer.h"
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkSmartPointer.h"           // For vtkSmartPointer
@@ -84,16 +83,6 @@ public:
    * (Used by vtkOpenGLProperty or vtkOpenGLTexture)
    */
   int GetDepthPeelingHigherLayer();
-
-  /**
-   * Indicate if this system is subject to the Apple/AMD bug
-   * of not having a working glPrimitiveId <rdar://20747550>.
-   * The bug is fixed on macOS 10.11 and later, and this method
-   * will return false when the OS is new enough.
-   */
-  VTK_DEPRECATED_IN_9_1_0(
-    "Removed in 9.1.0 as this bug does not affect any macOS release that VTK supports")
-  bool HaveApplePrimitiveIdBug();
 
   /**
    * Indicate if this system is subject to the apple/NVIDIA bug that causes

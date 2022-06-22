@@ -13,9 +13,6 @@
 
 =========================================================================*/
 
-// Hide VTK_DEPRECATED_IN_9_1_0() warnings for this class.
-#define VTK_DEPRECATION_LEVEL 0
-
 #include "vtkHigherOrderWedge.h"
 
 #include "vtkCellData.h"
@@ -175,34 +172,6 @@ static bool linearWedgeLocationFromSubId(
   }
 
   return true;
-}
-
-vtkHigherOrderQuadrilateral* vtkHigherOrderWedge::getBdyQuad()
-{
-  VTK_LEGACY_REPLACED_BODY(
-    vtkHigherOrderWedge::getBdyQuad, "VTK 9.1", vtkHigherOrderWedge::GetBoundaryQuad);
-  return this->GetBoundaryQuad();
-}
-
-vtkHigherOrderTriangle* vtkHigherOrderWedge::getBdyTri()
-{
-  VTK_LEGACY_REPLACED_BODY(
-    vtkHigherOrderWedge::getBdyTri, "VTK 9.1", vtkHigherOrderWedge::GetBoundaryTri);
-  return this->GetBoundaryTri();
-}
-
-vtkHigherOrderCurve* vtkHigherOrderWedge::getEdgeCell()
-{
-  VTK_LEGACY_REPLACED_BODY(
-    vtkHigherOrderWedge::getEdgeCell, "VTK 9.1", vtkHigherOrderWedge::GetEdgeCell);
-  return this->GetEdgeCell();
-}
-
-vtkHigherOrderInterpolation* vtkHigherOrderWedge::getInterp()
-{
-  VTK_LEGACY_REPLACED_BODY(
-    vtkHigherOrderWedge::getInterp, "VTK 9.1", vtkHigherOrderWedge::GetInterpolation);
-  return this->GetInterpolation();
 }
 
 vtkHigherOrderWedge::vtkHigherOrderWedge()

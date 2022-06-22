@@ -2104,14 +2104,6 @@ int vtkCGNSReader::GetUnstructuredZone(
                     << "This may cause unexpected issues. If so, please recompile with "
                     << "VTK_USE_64BIT_IDS=ON.");
   }
-////========================================================================
-#if !defined(VTK_LEGACY_REMOVE)
-  if (!this->LoadMesh)
-  {
-    vtkWarningMacro(<< "Ability to not load mesh is currently only supported"
-                    << "for curvilinear grids and will be ignored.");
-  }
-#endif
   ////========================================================================
 
   int rind[6];

@@ -21,7 +21,6 @@
 
 #include "vtkCellType.h"              // For GetCellType.
 #include "vtkCommonDataModelModule.h" // For export macro
-#include "vtkDeprecation.h"           // For VTK_DEPRECATED_IN_9_1_0
 #include "vtkHigherOrderQuadrilateral.h"
 #include "vtkNew.h"          // For member variable.
 #include "vtkSmartPointer.h" // For member variable.
@@ -47,10 +46,6 @@ public:
   int GetCellType() override { return VTK_BEZIER_QUADRILATERAL; }
 
   vtkCell* GetEdge(int edgeId) override;
-  VTK_DEPRECATED_IN_9_1_0(
-    "EvaluateLocationProjectedNode is deprecated, use instead EvaluateLocation.")
-  void EvaluateLocationProjectedNode(
-    int& subId, const vtkIdType point_id, double x[3], double* weights);
   void InterpolateFunctions(const double pcoords[3], double* weights) override;
   void InterpolateDerivs(const double pcoords[3], double* derivs) override;
 

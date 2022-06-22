@@ -28,7 +28,6 @@
 #ifndef vtkCurveRepresentation_h
 #define vtkCurveRepresentation_h
 
-#include "vtkDeprecation.h"              // For VTK_DEPRECATED_IN_9_2_0
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"        // needed for vtkPolyDataAlgorithm
 #include "vtkWidgetRepresentation.h"
@@ -152,20 +151,6 @@ public:
    */
   virtual void SetNumberOfHandles(int npts) = 0;
   vtkGetMacro(NumberOfHandles, int);
-  ///@}
-
-  ///@{
-  /**
-   * @deprecated VTK 9.1. Use `GetDirectional`  and `SetDirectional` instead.
-   */
-  VTK_DEPRECATED_IN_9_1_0("renamed to SetDirectional")
-  virtual void SetDirectionalLine(bool val);
-  VTK_DEPRECATED_IN_9_1_0("renamed to GetDirectional")
-  virtual bool GetDirectionalLine();
-  VTK_DEPRECATED_IN_9_1_0("renamed to DirectionalOn")
-  virtual void DirectionalLineOn();
-  VTK_DEPRECATED_IN_9_1_0("renamed to DirectionalOff")
-  virtual void DirectionalLineOff();
   ///@}
 
   ///@{

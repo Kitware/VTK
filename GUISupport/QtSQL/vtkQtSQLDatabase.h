@@ -28,7 +28,6 @@
 #ifndef vtkQtSQLDatabase_h
 #define vtkQtSQLDatabase_h
 
-#include "vtkDeprecation.h"           // For deprecation macros
 #include "vtkGUISupportQtSQLModule.h" // For export macro
 #include "vtkSQLDatabase.h"
 
@@ -143,14 +142,6 @@ public:
    */
   vtkSetStringMacro(ConnectOptions);
   vtkGetStringMacro(ConnectOptions);
-  ///@}
-
-  // VTK_DEPRECATED_IN_9_1_0: Remove header test exclusion when this is removed.
-  ///@{
-  VTK_DEPRECATED_IN_9_1_0("Renamed to DbPort to avoid Windows macro collisions")
-  void SetPort(int port) { this->SetDbPort(port); }
-  VTK_DEPRECATED_IN_9_1_0("Renamed to DbPort to avoid Windows macro collisions")
-  int GetPort() { return this->GetDbPort(); }
   ///@}
 
   ///@{

@@ -385,42 +385,6 @@ vtkOpenGLVertexBufferObjectCache* vtkOpenGLRenderWindow::GetVBOCache()
 }
 
 //------------------------------------------------------------------------------
-unsigned int vtkOpenGLRenderWindow::GetBackLeftBuffer()
-{
-  return 0;
-}
-
-//------------------------------------------------------------------------------
-unsigned int vtkOpenGLRenderWindow::GetBackRightBuffer()
-{
-  return 0;
-}
-
-//------------------------------------------------------------------------------
-unsigned int vtkOpenGLRenderWindow::GetFrontLeftBuffer()
-{
-  return 0;
-}
-
-//------------------------------------------------------------------------------
-unsigned int vtkOpenGLRenderWindow::GetFrontRightBuffer()
-{
-  return 0;
-}
-
-//------------------------------------------------------------------------------
-unsigned int vtkOpenGLRenderWindow::GetBackBuffer()
-{
-  return 0;
-}
-
-//------------------------------------------------------------------------------
-unsigned int vtkOpenGLRenderWindow::GetFrontBuffer()
-{
-  return 0;
-}
-
-//------------------------------------------------------------------------------
 void vtkOpenGLRenderWindow::OpenGLInit()
 {
   this->OpenGLInitContext();

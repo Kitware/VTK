@@ -28,7 +28,6 @@
 
 #include "vtkCellType.h"              // For GetCellType.
 #include "vtkCommonDataModelModule.h" // For export macro
-#include "vtkDeprecation.h"           // For deprecation macros
 #include "vtkNew.h"                   // For member variable.
 #include "vtkNonLinearCell.h"
 #include "vtkSmartPointer.h" // For member variable.
@@ -106,14 +105,8 @@ public:
   bool TransformApproxToCellParams(int subCell, double* pcoords);
   bool TransformFaceToCellParams(int bdyFace, double* pcoords);
   virtual vtkHigherOrderCurve* GetEdgeCell() = 0;
-  VTK_DEPRECATED_IN_9_1_0("renamed to GetEdgeCell")
-  virtual vtkHigherOrderCurve* getEdgeCell();
   virtual vtkHigherOrderQuadrilateral* GetFaceCell() = 0;
-  VTK_DEPRECATED_IN_9_1_0("renamed to GetFaceCell")
-  virtual vtkHigherOrderQuadrilateral* getFaceCell();
   virtual vtkHigherOrderInterpolation* GetInterpolation() = 0;
-  VTK_DEPRECATED_IN_9_1_0("renamed to GetInterpolation")
-  virtual vtkHigherOrderInterpolation* getInterp();
 
   static vtkIdType NodeNumberingMappingFromVTK8To9(
     const int order[3], const vtkIdType node_id_vtk8);

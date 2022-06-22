@@ -13,9 +13,6 @@
 
 =========================================================================*/
 
-// Hide VTK_DEPRECATED_IN_9_1_0() warnings for this class.
-#define VTK_DEPRECATION_LEVEL 0
-
 #include "vtkThreshold.h"
 
 #include "vtkCell.h"
@@ -67,44 +64,6 @@ int vtkThreshold::Upper(double s) const
 int vtkThreshold::Between(double s) const
 {
   return (s >= this->LowerThreshold ? (s <= this->UpperThreshold ? 1 : 0) : 0);
-}
-
-// Criterion is cells whose scalars are less or equal to lower threshold.
-void vtkThreshold::ThresholdByLower(double lower)
-{
-  VTK_LEGACY_BODY(vtkThreshold::ThresholdByLower, "VTK 9.1");
-  if (this->LowerThreshold != lower || this->ThresholdFunction != &vtkThreshold::Lower)
-  {
-    this->LowerThreshold = lower;
-    this->ThresholdFunction = &vtkThreshold::Lower;
-    this->Modified();
-  }
-}
-
-// Criterion is cells whose scalars are greater or equal to upper threshold.
-void vtkThreshold::ThresholdByUpper(double upper)
-{
-  VTK_LEGACY_BODY(vtkThreshold::ThresholdByUpper, "VTK 9.1");
-  if (this->UpperThreshold != upper || this->ThresholdFunction != &vtkThreshold::Upper)
-  {
-    this->UpperThreshold = upper;
-    this->ThresholdFunction = &vtkThreshold::Upper;
-    this->Modified();
-  }
-}
-
-// Criterion is cells whose scalars are between lower and upper thresholds.
-void vtkThreshold::ThresholdBetween(double lower, double upper)
-{
-  VTK_LEGACY_BODY(vtkThreshold::ThresholdBetween, "VTK 9.1");
-  if (this->LowerThreshold != lower || this->UpperThreshold != upper ||
-    this->ThresholdFunction != &vtkThreshold::Between)
-  {
-    this->LowerThreshold = lower;
-    this->UpperThreshold = upper;
-    this->ThresholdFunction = &vtkThreshold::Between;
-    this->Modified();
-  }
 }
 
 //------------------------------------------------------------------------------

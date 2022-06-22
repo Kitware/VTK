@@ -27,14 +27,6 @@ vtkPointData::vtkPointData()
 }
 
 //------------------------------------------------------------------------------
-void vtkPointData::NullPoint(vtkIdType ptId)
-{
-  VTK_LEGACY_REPLACED_BODY(
-    vtkPointData::NullPoint(vtkIdType), "VTK 9.1", vtkFieldData::NullData(vtkIdType));
-  this->NullData(ptId);
-}
-
-//------------------------------------------------------------------------------
 void vtkPointData::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

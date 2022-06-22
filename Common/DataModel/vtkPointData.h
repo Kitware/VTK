@@ -30,7 +30,6 @@
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkDataSetAttributes.h"
-#include "vtkDeprecation.h" // for VTK_DEPRECATED_IN_9_1_0
 
 class VTKCOMMONDATAMODEL_EXPORT vtkPointData : public vtkDataSetAttributes
 {
@@ -40,8 +39,6 @@ public:
 
   vtkTypeMacro(vtkPointData, vtkDataSetAttributes);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  VTK_DEPRECATED_IN_9_1_0("Use vtkFieldData::NullData")
-  void NullPoint(vtkIdType ptId);
 
 protected:
   vtkPointData();

@@ -14,9 +14,6 @@
 
 =========================================================================*/
 
-// Hide VTK_DEPRECATED_IN_9_1_0() warning for this class
-#define VTK_DEPRECATION_LEVEL 0
-
 #include "vtkGhostCellsGenerator.h"
 
 #include "vtkCompositeDataIterator.h"

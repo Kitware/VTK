@@ -13,9 +13,6 @@ PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
 
-// Hide VTK_DEPRECATED_IN_9_1_0() warnings for this class.
-#define VTK_DEPRECATION_LEVEL 0
-
 #include "vtkOpenGLRenderWindow.h"
 
 #import "vtkCommand.h"
@@ -190,18 +187,6 @@ void vtkIOSRenderWindow::MakeCurrent()
 // Tells if this window is the current OpenGL context for the calling thread.
 bool vtkIOSRenderWindow::IsCurrent()
 {
-  return true;
-}
-
-//----------------------------------------------------------------------------
-bool vtkIOSRenderWindow::IsDrawable()
-{
-  VTK_LEGACY_BODY(vtkGenericOpenGLRenderWindow::IsDrawable, "VTK 9.1");
-
-  // you must initialize it first
-  // else it always evaluates false
-  this->Initialize();
-
   return true;
 }
 

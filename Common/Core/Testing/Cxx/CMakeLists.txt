@@ -121,7 +121,6 @@ vtk_add_test_cxx(vtkCommonCoreCxxTests tests
   TestBitArray.cxx
   TestCLI11.cxx
   TestCollection.cxx
-  TestConditionVariable.cxx
   # TestCxxFeatures.cxx # This is in its own exe too.
   TestDataArray.cxx
   TestDataArrayComponentNames.cxx
