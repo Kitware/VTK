@@ -326,68 +326,107 @@ int vtkCutter::RequestData(
     return 1;
   }
 
-  auto executeCutter = [&]() {
-    if (vtkImageData::SafeDownCast(input) &&
-      static_cast<vtkImageData*>(input)->GetDataDimension() == 3)
-    {
-      this->StructuredPointsCutter(input, output, request, inputVector, outputVector);
-    }
-    else if (vtkStructuredGrid::SafeDownCast(input) &&
-      static_cast<vtkStructuredGrid*>(input)->GetDataDimension() == 3)
-    {
-      this->StructuredGridCutter(input, output);
-    }
-    else if (vtkRectilinearGrid::SafeDownCast(input) &&
-      static_cast<vtkRectilinearGrid*>(input)->GetDataDimension() == 3)
-    {
-      this->RectilinearGridCutter(input, output);
-    }
-    else if (vtkUnstructuredGridBase::SafeDownCast(input))
-    {
-      vtkDebugMacro(<< "Executing Unstructured Grid Cutter");
-      this->UnstructuredGridCutter(input, output);
-    }
-    else
-    {
-      vtkDebugMacro(<< "Executing DataSet Cutter");
-      this->DataSetCutter(input, output);
-    }
-  };
-
   vtkPlane* plane = vtkPlane::SafeDownCast(this->CutFunction);
   auto executePlaneCutter = [&]() {
     if (this->Locator == nullptr)
     {
       this->CreateDefaultLocator();
     }
+    // Create a copy of vtkPlane and nudge it by the single contour
+    vtkNew<vtkPlane> newPlane;
+    newPlane->SetNormal(plane->GetNormal());
+    newPlane->SetOrigin(plane->GetOrigin());
+
+    // Evaluate the distance the origin is from the original plane. This accommodates
+    // subclasses of vtkPlane that may have an additional offset parameter not
+    // accessible through the vtkPlane interface. Use this distance to adjust the origin
+    // in newPlane.
+    double d = plane->EvaluateFunction(plane->GetOrigin());
+    // In addition. We'll need to shift by the contour value.
+    newPlane->Push(-d + this->GetValue(0));
+
     this->PlaneCutter->SetInputData(input);
-    this->PlaneCutter->SetPlane(plane);
+    this->PlaneCutter->SetPlane(newPlane);
     bool mergePoints = this->GetLocator() && !this->GetLocator()->IsA("vtkNonMergingPointLocator");
     this->PlaneCutter->SetMergePoints(mergePoints);
     this->PlaneCutter->SetOutputPointsPrecision(this->GetOutputPointsPrecision());
     this->PlaneCutter->SetGeneratePolygons(!this->GetGenerateTriangles());
+    this->PlaneCutter->SetInputArrayToProcess(0, this->GetInputArrayInformation(0));
     this->PlaneCutter->BuildTreeOff();
     this->PlaneCutter->ComputeNormalsOff();
     this->PlaneCutter->Update();
     output->ShallowCopy(this->PlaneCutter->GetOutput());
   };
-  // delegate to vtkPlaneCutter if possible
-  if (plane && this->GetNumberOfContours() == 1 && this->GetGenerateCutScalars() == 0)
+  if (vtkImageData::SafeDownCast(input) &&
+    static_cast<vtkImageData*>(input)->GetDataDimension() == 3)
   {
-    // delegate to vtkCutter
-    if ((vtkUnstructuredGridBase::SafeDownCast(input) || vtkPolyData::SafeDownCast(input)) &&
-      this->GetGenerateTriangles() == 0)
+    if (plane && this->GetNumberOfContours() == 1 && this->GetGenerateCutScalars() == 0)
     {
-      executeCutter();
+      executePlaneCutter();
     }
     else
     {
+      if (input->GetDataObjectType() == VTK_UNIFORM_GRID)
+      {
+        this->DataSetCutter(input, output);
+      }
+      else
+      {
+        this->StructuredPointsCutter(input, output, request, inputVector, outputVector);
+      }
+    }
+  }
+  else if (vtkStructuredGrid::SafeDownCast(input) &&
+    static_cast<vtkStructuredGrid*>(input)->GetDataDimension() == 3)
+  {
+    if (plane && this->GetNumberOfContours() == 1 && this->GetGenerateCutScalars() == 0)
+    {
       executePlaneCutter();
+    }
+    else
+    {
+      this->StructuredGridCutter(input, output);
+    }
+  }
+  else if (vtkRectilinearGrid::SafeDownCast(input) &&
+    static_cast<vtkRectilinearGrid*>(input)->GetDataDimension() == 3)
+  {
+    if (plane && this->GetNumberOfContours() == 1 && this->GetGenerateCutScalars() == 0)
+    {
+      executePlaneCutter();
+    }
+    else
+    {
+      this->RectilinearGridCutter(input, output);
+    }
+  }
+  else if (vtkUnstructuredGridBase::SafeDownCast(input))
+  {
+    if (plane && this->GetNumberOfContours() == 1 && this->GetGenerateCutScalars() == 0 &&
+      this->GetGenerateTriangles() == 1)
+    {
+      executePlaneCutter();
+    }
+    else
+    {
+      this->UnstructuredGridCutter(input, output);
+    }
+  }
+  else if (vtkPolyData::SafeDownCast(input))
+  {
+    if (plane && this->GetNumberOfContours() == 1 && this->GetGenerateCutScalars() == 0 &&
+      this->GetGenerateTriangles() == 1)
+    {
+      executePlaneCutter();
+    }
+    else
+    {
+      this->DataSetCutter(input, output);
     }
   }
   else
   {
-    executeCutter();
+    this->DataSetCutter(input, output);
   }
 
   return 1;
