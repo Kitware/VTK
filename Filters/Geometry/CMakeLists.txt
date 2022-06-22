@@ -1,5 +1,6 @@
 set(classes
   vtkAbstractGridConnectivity
+  vtkAttributeSmoothingFilter
   vtkCompositeDataGeometryFilter
   vtkDataSetGhostGenerator
   vtkDataSetRegionSurfaceFilter
