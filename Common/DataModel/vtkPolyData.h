@@ -432,8 +432,8 @@ public:
     VTK_SIZEHINT(pts, npts);
 
   /**
-   * Get a list of point ids that define a cell. The cell type is
-   * returned. Requires the the cells have been built with BuildCells.
+   * Get a list of point ids that define a cell.
+   * Requires the the cells have been built with BuildCells.
    *
    * This function MAY use ptIds, which is an object that is created by each thread,
    * to guarantee thread safety.
@@ -445,8 +445,8 @@ public:
    *
    * Note: This method is thread-safe.
    */
-  unsigned char GetCellPoints(vtkIdType cellId, vtkIdType& npts, vtkIdType const*& pts,
-    vtkIdList* ptIds) VTK_SIZEHINT(pts, npts);
+  void GetCellPoints(vtkIdType cellId, vtkIdType& npts, vtkIdType const*& pts, vtkIdList* ptIds)
+    VTK_SIZEHINT(pts, npts) override;
 
   /**
    * Given three vertices, determine whether it's a triangle. Make sure
@@ -952,7 +952,7 @@ inline unsigned char vtkPolyData::GetCellPoints(
 }
 
 //------------------------------------------------------------------------------
-inline unsigned char vtkPolyData::GetCellPoints(
+inline void vtkPolyData::GetCellPoints(
   vtkIdType cellId, vtkIdType& npts, vtkIdType const*& pts, vtkIdList* ptIds)
 {
   if (!this->Cells)
@@ -965,12 +965,10 @@ inline unsigned char vtkPolyData::GetCellPoints(
   {
     npts = 0;
     pts = nullptr;
-    return VTK_EMPTY_CELL;
   }
 
   vtkCellArray* cells = this->GetCellArrayInternal(tag);
   cells->GetCellAtId(tag.GetCellId(), npts, pts, ptIds);
-  return tag.GetCellType();
 }
 
 #endif

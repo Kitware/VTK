@@ -385,6 +385,15 @@ void vtkDataSet::GetCellTypes(vtkCellTypes* types)
 }
 
 //------------------------------------------------------------------------------
+void vtkDataSet::GetCellPoints(
+  vtkIdType cellId, vtkIdType& npts, vtkIdType const*& pts, vtkIdList* ptIds)
+{
+  this->GetCellPoints(cellId, ptIds);
+  npts = ptIds->GetNumberOfIds();
+  pts = ptIds->GetPointer(0);
+}
+
+//------------------------------------------------------------------------------
 void vtkDataSet::SetCellOrderAndRationalWeights(vtkIdType cellId, vtkGenericCell* cell)
 {
   switch (cell->GetCellType())
