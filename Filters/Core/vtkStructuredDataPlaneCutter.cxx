@@ -312,6 +312,7 @@ struct EvaluateCellsStructuredFunctor
   const unsigned char* InOut;
   const double* Slice;
   bool GeneratePolygons;
+  bool AllCellsVisible;
   const unsigned int BatchSize;
   vtkIdType NumberOfInputCells;
 
@@ -330,7 +331,7 @@ struct EvaluateCellsStructuredFunctor
 
   EvaluateCellsStructuredFunctor(TGrid* input, TPointsArray* pointsArray, double* origin,
     double* normal, const unsigned char* selected, const unsigned char* inOut, const double* slice,
-    bool generatePolygons, unsigned int batchSize)
+    bool generatePolygons, bool allCellsVisible, unsigned int batchSize)
     : Input(input)
     , InPointsArray(pointsArray)
     , Origin(origin)
@@ -339,6 +340,7 @@ struct EvaluateCellsStructuredFunctor
     , InOut(inOut)
     , Slice(slice)
     , GeneratePolygons(generatePolygons)
+    , AllCellsVisible(allCellsVisible)
     , BatchSize(batchSize)
     , NumberOfInputCells(input->GetNumberOfCells())
   {
@@ -396,25 +398,28 @@ struct EvaluateCellsStructuredFunctor
       for (cellId = batch.BeginCellId; cellId < batch.EndCellId; ++cellId)
       {
         needCell = false;
-        if (this->Selected)
+        if (this->AllCellsVisible || this->Input->IsCellVisible(cellId))
         {
-          if (*selected++)
+          if (this->Selected)
           {
-            needCell = true;
+            if (*selected++)
+            {
+              needCell = true;
+            }
           }
-        }
-        else // this->InOut
-        {
-          ::ComputeCellPointIds(cellId, cellIds, this->CellDimensions, this->Dimensions,
-            this->CellSliceOffset, this->SliceOffset);
+          else // this->InOut
+          {
+            ::ComputeCellPointIds(cellId, cellIds, this->CellDimensions, this->Dimensions,
+              this->CellSliceOffset, this->SliceOffset);
 
-          // ArePointsAroundPlane
-          unsigned char onOneSideOfPlane = this->InOut[cellIds[0]];
-          for (i = 1; onOneSideOfPlane && i < 8; ++i)
-          {
-            onOneSideOfPlane &= this->InOut[cellIds[i]];
+            // ArePointsAroundPlane
+            unsigned char onOneSideOfPlane = this->InOut[cellIds[0]];
+            for (i = 1; onOneSideOfPlane && i < 8; ++i)
+            {
+              onOneSideOfPlane &= this->InOut[cellIds[i]];
+            }
+            needCell = (!onOneSideOfPlane);
           }
-          needCell = (!onOneSideOfPlane);
         }
 
         numberOfCells = 0;
@@ -576,10 +581,11 @@ struct EvaluateCellsStructuredWorker
   template <typename TPointsArray>
   void operator()(TPointsArray* pointsArray, TGrid* input, double* origin, double* normal,
     const unsigned char* selected, const unsigned char* inOut, const double* slice,
-    bool generatePolygons, unsigned int batchSize)
+    bool generatePolygons, bool allCellsVisible, unsigned int batchSize)
   {
-    EvaluateCellsStructuredFunctor<TGrid, TPointsArray, TInputIdType> evaluateCellsStructured(
-      input, pointsArray, origin, normal, selected, inOut, slice, generatePolygons, batchSize);
+    EvaluateCellsStructuredFunctor<TGrid, TPointsArray, TInputIdType> evaluateCellsStructured(input,
+      pointsArray, origin, normal, selected, inOut, slice, generatePolygons, allCellsVisible,
+      batchSize);
     vtkSMPTools::For(0, static_cast<vtkIdType>(evaluateCellsStructured.BatchInfo.Batches.size()),
       evaluateCellsStructured);
     this->ConnectivitySize = evaluateCellsStructured.ConnectivitySize;
@@ -841,7 +847,7 @@ struct ExtractPointsWorker
 template <typename TGrid, typename TInputIdType>
 vtkSmartPointer<vtkPolyData> SliceStructuredData(TGrid* inputGrid, vtkDataArray* pointsArray,
   int outputPointsPrecision, vtkSphereTree* tree, double* origin, double* normal, bool interpolate,
-  bool generatePolygons, unsigned int batchSize)
+  bool generatePolygons, bool allCellsVisible, unsigned int batchSize)
 {
   // Evaluate points or get the selected cells using the sphere-tree
   const unsigned char* selected = nullptr;
@@ -868,10 +874,10 @@ vtkSmartPointer<vtkPolyData> SliceStructuredData(TGrid* inputGrid, vtkDataArray*
   // batchInfo, cellsMap, edges
   EvaluateCellsStructuredWorker<TGrid, TInputIdType> evaluateCellsStructuredWorker;
   if (!DispatcherPoints::Execute(pointsArray, evaluateCellsStructuredWorker, inputGrid, origin,
-        normal, selected, inOut, slice, generatePolygons, batchSize))
+        normal, selected, inOut, slice, generatePolygons, allCellsVisible, batchSize))
   {
-    evaluateCellsStructuredWorker(
-      pointsArray, inputGrid, origin, normal, selected, inOut, slice, generatePolygons, batchSize);
+    evaluateCellsStructuredWorker(pointsArray, inputGrid, origin, normal, selected, inOut, slice,
+      generatePolygons, allCellsVisible, batchSize);
   }
 
   using TEdge = EdgeType<TInputIdType>;
@@ -1012,7 +1018,7 @@ int vtkStructuredDataPlaneCutter::RequestData(vtkInformation* vtkNotUsed(request
 
   // Make sure there is input
   vtkIdType numPts = input->GetNumberOfPoints(), numCells = input->GetNumberOfCells();
-  if ((numPts = input->GetNumberOfPoints()) < 1 || (numCells = input->GetNumberOfCells()) < 1)
+  if (numPts < 1 || numCells < 1)
   {
     vtkDebugMacro("No input");
     return 1;
@@ -1025,6 +1031,8 @@ int vtkStructuredDataPlaneCutter::RequestData(vtkInformation* vtkNotUsed(request
     vtkDebugMacro(<< "Cutting requires vtkPlane");
     return 0;
   }
+
+  bool allCellsVisible = !(input->HasAnyGhostCells() || input->HasAnyBlankCells());
 
   // Set up the cut operation
   double planeOrigin[3], planeNormal[3];
@@ -1047,7 +1055,7 @@ int vtkStructuredDataPlaneCutter::RequestData(vtkInformation* vtkNotUsed(request
   }
 
   // delegate to flying edges if possible
-  if (inputImage && this->GetGeneratePolygons() == 0)
+  if (inputImage && this->GetGeneratePolygons() == 0 && allCellsVisible)
   {
     vtkDataSet* tmpInput = input;
     bool elevationFlag = false;
@@ -1110,7 +1118,7 @@ int vtkStructuredDataPlaneCutter::RequestData(vtkInformation* vtkNotUsed(request
   }
 
   vtkSmartPointer<vtkPolyData> result;
-  if (inputImage && this->GetGeneratePolygons() == 1)
+  if (inputImage && (this->GetGeneratePolygons() == 1 || !allCellsVisible))
   {
     int i, j;
     int dataDims[3];
@@ -1151,7 +1159,7 @@ int vtkStructuredDataPlaneCutter::RequestData(vtkInformation* vtkNotUsed(request
       using TInputIdType = vtkTypeInt64;
       result = SliceStructuredData<vtkRectilinearGrid, TInputIdType>(rectGrid, pointsArray,
         this->OutputPointsPrecision, this->SphereTree, planeOrigin, planeNormal,
-        this->InterpolateAttributes, this->GeneratePolygons, this->BatchSize);
+        this->InterpolateAttributes, this->GeneratePolygons, allCellsVisible, this->BatchSize);
     }
     else
 #endif
@@ -1159,7 +1167,7 @@ int vtkStructuredDataPlaneCutter::RequestData(vtkInformation* vtkNotUsed(request
       using TInputIdType = vtkTypeInt32;
       result = SliceStructuredData<vtkRectilinearGrid, TInputIdType>(rectGrid, pointsArray,
         this->OutputPointsPrecision, this->SphereTree, planeOrigin, planeNormal,
-        this->InterpolateAttributes, this->GeneratePolygons, this->BatchSize);
+        this->InterpolateAttributes, this->GeneratePolygons, allCellsVisible, this->BatchSize);
     }
   }
   else if (inputSG)
@@ -1172,7 +1180,7 @@ int vtkStructuredDataPlaneCutter::RequestData(vtkInformation* vtkNotUsed(request
       using TInputIdType = vtkTypeInt64;
       result = SliceStructuredData<vtkStructuredGrid, TInputIdType>(inputSG, pointsArray,
         this->OutputPointsPrecision, this->SphereTree, planeOrigin, planeNormal,
-        this->InterpolateAttributes, this->GeneratePolygons, this->BatchSize);
+        this->InterpolateAttributes, this->GeneratePolygons, allCellsVisible, this->BatchSize);
     }
     else
 #endif
@@ -1180,7 +1188,7 @@ int vtkStructuredDataPlaneCutter::RequestData(vtkInformation* vtkNotUsed(request
       using TInputIdType = vtkTypeInt32;
       result = SliceStructuredData<vtkStructuredGrid, TInputIdType>(inputSG, pointsArray,
         this->OutputPointsPrecision, this->SphereTree, planeOrigin, planeNormal,
-        this->InterpolateAttributes, this->GeneratePolygons, this->BatchSize);
+        this->InterpolateAttributes, this->GeneratePolygons, allCellsVisible, this->BatchSize);
     }
   }
   else // inputRG
@@ -1195,7 +1203,7 @@ int vtkStructuredDataPlaneCutter::RequestData(vtkInformation* vtkNotUsed(request
       using TInputIdType = vtkTypeInt64;
       result = SliceStructuredData<vtkRectilinearGrid, TInputIdType>(inputRG, pointsArray,
         this->OutputPointsPrecision, this->SphereTree, planeOrigin, planeNormal,
-        this->InterpolateAttributes, this->GeneratePolygons, this->BatchSize);
+        this->InterpolateAttributes, this->GeneratePolygons, allCellsVisible, this->BatchSize);
     }
     else
 #endif
@@ -1203,7 +1211,7 @@ int vtkStructuredDataPlaneCutter::RequestData(vtkInformation* vtkNotUsed(request
       using TInputIdType = vtkTypeInt32;
       result = SliceStructuredData<vtkRectilinearGrid, TInputIdType>(inputRG, pointsArray,
         this->OutputPointsPrecision, this->SphereTree, planeOrigin, planeNormal,
-        this->InterpolateAttributes, this->GeneratePolygons, this->BatchSize);
+        this->InterpolateAttributes, this->GeneratePolygons, allCellsVisible, this->BatchSize);
     }
   }
   output->ShallowCopy(result);
