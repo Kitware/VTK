@@ -52,7 +52,7 @@
 
 //------------------------------------------------------------------------------
 
-vtkStandardNewMacro(vtkGradientFilter);
+vtkObjectFactoryNewMacro(vtkGradientFilter);
 
 namespace
 {

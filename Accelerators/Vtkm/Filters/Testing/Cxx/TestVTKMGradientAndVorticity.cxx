@@ -28,6 +28,8 @@
 #include "vtkStructuredGridReader.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkUnstructuredGridReader.h"
+
+#include "vtkmFilterOverrides.h"
 #include "vtkmGradient.h"
 
 #include <vector>
@@ -258,52 +260,74 @@ int PerformTest(vtkDataSet* grid)
 
   const char resultName[] = "Result";
 
-  VTK_CREATE(vtkmGradient, cellGradients);
-  cellGradients->ForceVTKmOn();
-  cellGradients->SetInputData(grid);
-  cellGradients->SetInputScalars(vtkDataObject::FIELD_ASSOCIATION_CELLS, fieldName);
-  cellGradients->SetResultArrayName(resultName);
+  // cell stuff ---------------------------------------------------------------
 
-  VTK_CREATE(vtkGradientFilter, correctCellGradients);
-  correctCellGradients->SetInputData(grid);
-  correctCellGradients->SetInputScalars(vtkDataObject::FIELD_ASSOCIATION_CELLS, fieldName);
-  correctCellGradients->SetResultArrayName(resultName);
+  // don't test cell gradients on structured and rectilinear grids as it is currently
+  // unsupported
+  if (!grid->IsA("vtkStructuredGrid") && !grid->IsA("vtkRectilinearGrid"))
+  {
+    VTK_CREATE(vtkmGradient, cellGradients);
+    cellGradients->ForceVTKmOn();
+    cellGradients->SetInputData(grid);
+    cellGradients->SetInputScalars(vtkDataObject::FIELD_ASSOCIATION_CELLS, fieldName);
+    cellGradients->SetResultArrayName(resultName);
 
+    vtkmFilterOverrides::EnabledOff(); // Turn off override to instantiate VTK filter
+    VTK_CREATE(vtkGradientFilter, correctCellGradients);
+    vtkmFilterOverrides::EnabledOn();
+    correctCellGradients->SetInputData(grid);
+    correctCellGradients->SetInputScalars(vtkDataObject::FIELD_ASSOCIATION_CELLS, fieldName);
+    correctCellGradients->SetResultArrayName(resultName);
+
+    cellGradients->Update();
+    correctCellGradients->Update();
+
+    vtkDoubleArray* gradCellArray = vtkArrayDownCast<vtkDoubleArray>(
+      vtkDataSet::SafeDownCast(cellGradients->GetOutput())->GetCellData()->GetArray(resultName));
+
+    vtkDoubleArray* correctCellArray =
+      vtkArrayDownCast<vtkDoubleArray>(vtkDataSet::SafeDownCast(correctCellGradients->GetOutput())
+                                         ->GetCellData()
+                                         ->GetArray(resultName));
+
+    if (!IsGradientCorrect(gradCellArray, correctCellArray))
+    {
+      return EXIT_FAILURE;
+    }
+
+    // now check on the vorticity calculations
+    VTK_CREATE(vtkmGradient, cellVorticity);
+    cellVorticity->ForceVTKmOn();
+    cellVorticity->SetInputData(grid);
+    cellVorticity->SetInputScalars(vtkDataObject::FIELD_ASSOCIATION_CELLS, fieldName);
+    cellVorticity->SetResultArrayName(resultName);
+    cellVorticity->SetComputeVorticity(1);
+    cellVorticity->Update();
+
+    vtkDoubleArray* vorticityCellArray = vtkArrayDownCast<vtkDoubleArray>(
+      vtkDataSet::SafeDownCast(cellVorticity->GetOutput())->GetCellData()->GetArray("Vorticity"));
+    if (!IsVorticityCorrect(gradCellArray, vorticityCellArray))
+    {
+      return EXIT_FAILURE;
+    }
+  }
+
+  // point stuff --------------------------------------------------------------
   VTK_CREATE(vtkmGradient, pointGradients);
   pointGradients->ForceVTKmOn();
   pointGradients->SetInputData(grid);
   pointGradients->SetInputScalars(vtkDataObject::FIELD_ASSOCIATION_POINTS, fieldName);
   pointGradients->SetResultArrayName(resultName);
 
+  vtkmFilterOverrides::EnabledOff(); // Turn off override to instantiate VTK filter
   VTK_CREATE(vtkGradientFilter, correctPointGradients);
+  vtkmFilterOverrides::EnabledOn();
   correctPointGradients->SetInputData(grid);
   correctPointGradients->SetInputScalars(vtkDataObject::FIELD_ASSOCIATION_POINTS, fieldName);
   correctPointGradients->SetResultArrayName(resultName);
 
-  cellGradients->Update();
   pointGradients->Update();
-
-  correctCellGradients->Update();
   correctPointGradients->Update();
-
-  vtkDoubleArray* gradCellArray = vtkArrayDownCast<vtkDoubleArray>(
-    vtkDataSet::SafeDownCast(cellGradients->GetOutput())->GetCellData()->GetArray(resultName));
-
-  vtkDoubleArray* correctCellArray =
-    vtkArrayDownCast<vtkDoubleArray>(vtkDataSet::SafeDownCast(correctCellGradients->GetOutput())
-                                       ->GetCellData()
-                                       ->GetArray(resultName));
-
-  if (!grid->IsA("vtkStructuredGrid"))
-  {
-    // ignore cell gradients on structured grids as the version for
-    // VTK-m differs from VTK. Once VTK-m is able to do stencil based
-    // gradients for point and cells, we can enable this check.
-    if (!IsGradientCorrect(gradCellArray, correctCellArray))
-    {
-      return EXIT_FAILURE;
-    }
-  }
 
   vtkDoubleArray* gradPointArray = vtkArrayDownCast<vtkDoubleArray>(
     vtkDataSet::SafeDownCast(pointGradients->GetOutput())->GetPointData()->GetArray(resultName));
@@ -319,14 +343,6 @@ int PerformTest(vtkDataSet* grid)
   }
 
   // now check on the vorticity calculations
-  VTK_CREATE(vtkmGradient, cellVorticity);
-  cellVorticity->ForceVTKmOn();
-  cellVorticity->SetInputData(grid);
-  cellVorticity->SetInputScalars(vtkDataObject::FIELD_ASSOCIATION_CELLS, fieldName);
-  cellVorticity->SetResultArrayName(resultName);
-  cellVorticity->SetComputeVorticity(1);
-  cellVorticity->Update();
-
   VTK_CREATE(vtkmGradient, pointVorticity);
   pointVorticity->ForceVTKmOn();
   pointVorticity->SetInputData(grid);
@@ -337,15 +353,6 @@ int PerformTest(vtkDataSet* grid)
   pointVorticity->SetComputeDivergence(1);
   pointVorticity->Update();
 
-  // cell stuff
-  vtkDoubleArray* vorticityCellArray = vtkArrayDownCast<vtkDoubleArray>(
-    vtkDataSet::SafeDownCast(cellVorticity->GetOutput())->GetCellData()->GetArray("Vorticity"));
-  if (!IsVorticityCorrect(gradCellArray, vorticityCellArray))
-  {
-    return EXIT_FAILURE;
-  }
-
-  // point stuff
   vtkDoubleArray* vorticityPointArray = vtkArrayDownCast<vtkDoubleArray>(
     vtkDataSet::SafeDownCast(pointVorticity->GetOutput())->GetPointData()->GetArray("Vorticity"));
   if (!IsVorticityCorrect(gradPointArray, vorticityPointArray))

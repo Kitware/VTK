@@ -26,7 +26,9 @@
 #include "vtkPointData.h"
 #include "vtkRTAnalyticSource.h"
 #include "vtkUnstructuredGrid.h"
+
 #include "vtkmCleanGrid.h"
+#include "vtkmFilterOverrides.h"
 #include "vtkmGradient.h"
 
 #include <vtkm/testing/Testing.h>
@@ -215,7 +217,9 @@ int PerformTest(vtkDataSet* grid)
   pointGradients->SetInputScalars(vtkDataObject::FIELD_ASSOCIATION_POINTS, fieldName);
   pointGradients->SetResultArrayName(resultName);
 
+  vtkmFilterOverrides::EnabledOff(); // Turn off override to instantiate VTK filter
   vtkNew<vtkGradientFilter> correctPointGradients;
+  vtkmFilterOverrides::EnabledOn();
   correctPointGradients->SetInputConnection(calculator->GetOutputPort());
   correctPointGradients->SetInputScalars(vtkDataObject::FIELD_ASSOCIATION_POINTS, fieldName);
   correctPointGradients->SetResultArrayName(resultName);
