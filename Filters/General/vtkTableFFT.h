@@ -39,6 +39,7 @@
 #ifndef vtkTableFFT_h
 #define vtkTableFFT_h
 
+#include "vtkDeprecation.h"          // For VTK_DEPRECATED_IN_9_2_0
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkSmartPointer.h"         // For internal method.
 #include "vtkTableAlgorithm.h"
@@ -163,6 +164,21 @@ public:
   virtual void SetWindowingFunction(int);
   //@}
 
+  ///@{
+  /**
+   * Specify if output array should be prefixed by "FFT_" or not.
+   * This behavior was introduced in v9.1. Default is false.
+   *
+   * Deprecated in v9.2.
+   */
+  VTK_DEPRECATED_IN_9_2_0(
+    "Deprecated in favor of always keeping the output array names the same as the input.")
+  vtkGetMacro(PrefixOutputArrays, bool);
+  VTK_DEPRECATED_IN_9_2_0(
+    "Deprecated in favor of always keeping the output array names the same as the input.")
+  vtkSetMacro(PrefixOutputArrays, bool);
+  ///@}
+
 protected:
   vtkTableFFT();
   ~vtkTableFFT() override;
@@ -194,6 +210,8 @@ private:
   vtkIdType BlockSize = 1024;
   int WindowingFunction = RECTANGULAR;
   double DefaultSampleRate = 1e4;
+
+  bool PrefixOutputArrays = false;
 
   struct vtkInternal;
   std::unique_ptr<vtkInternal> Internals;
