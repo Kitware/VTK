@@ -75,6 +75,8 @@ if (build_result)
     "Failed to build")
 endif ()
 
+file(WRITE "${CTEST_SOURCE_DIRECTORY}/compile_num_warnings.log" "${num_warnings}")
+
 # Default to a reasonable test timeout.
 set(CTEST_TEST_TIMEOUT 100)
 

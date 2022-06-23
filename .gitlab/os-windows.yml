@@ -184,6 +184,7 @@
 
 .cmake_build_windows:
     stage: build
+    extends: .warning_policy
 
     script:
         - *before_script_windows
@@ -202,6 +203,8 @@
         - ctest -VV -S .gitlab/ci/ctest_build.cmake | Out-File -FilePath compile_output.log
         - sccache --show-stats
         - sccache --stop-server
+        - .gitlab\ci\check_warnings.ps1 -BuildPath . # This will call exit in case of warnings
+
     interruptible: true
 
 .cmake_test_windows:
@@ -222,6 +225,7 @@
 
 .cmake_test_external_windows:
     stage: test-ext
+    extends: .warning_policy
 
     script:
         - *before_script_windows
@@ -234,11 +238,13 @@
         - Set-Item -Force -Path "env:PATH" -Value "$pwdpath\build\install\bin;$env:PATH"
         - Invoke-Expression -Command .gitlab/ci/vcvarsall.ps1
         - ctest -V --output-on-failure -S .gitlab/ci/ctest_test_external.cmake
+        - .gitlab\ci\check_warnings.ps1 -BuildPath .\Testing\External\ # This will call exit in case of warnings
 
     interruptible: true
 
 .cmake_build_wheel_windows:
     stage: build
+    extends: .warning_policy
 
     script:
         - *before_script_windows
@@ -266,6 +272,8 @@
         # - pip install delvewheel
         # - delvewheel show (Get-ChildItem dist\*.whl | % FullName) | Out-File -FilePath "$env:GIT_CLONE_PATH\wheel_output.log"
         # - delvewheel repair (Get-ChildItem dist\*.whl | % FullName) | Out-File -Append -FilePath "$env:GIT_CLONE_PATH\wheel_output.log"
+        - cd ..
+        - .gitlab\ci\check_warnings.ps1 -BuildPath . # This will call exit in case of warnings
     interruptible: true
 
 .cmake_test_wheel_windows:

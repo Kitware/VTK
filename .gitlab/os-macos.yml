@@ -171,6 +171,7 @@
 
 .cmake_build_macos:
     stage: build
+    extends: .warning_policy
 
     script:
         - *before_script_macos
@@ -181,6 +182,7 @@
         - ctest -VV -S .gitlab/ci/ctest_configure.cmake
         - ctest -VV -S .gitlab/ci/ctest_build.cmake &> $GIT_CLONE_PATH/compile_output.log
         - sccache --show-stats
+        - exec .gitlab/ci/check_warnings.sh .
 
     interruptible: true
 
@@ -194,15 +196,18 @@
 
 .cmake_test_external_macos:
     stage: test-ext
+    extends: .warning_policy
 
     script:
         - *before_script_macos
         - ctest -V --output-on-failure -S .gitlab/ci/ctest_test_external.cmake
+        - exec .gitlab/ci/check_warnings.sh ./Testing/External
 
     interruptible: true
 
 .cmake_build_wheel_macos:
     stage: build
+    extends: .warning_policy
 
     script:
         - *before_script_macos
@@ -226,6 +231,8 @@
         # - venv/bin/pip install delocate
         # - venv/bin/delocate-listdeps dist/*.whl > $GIT_CLONE_PATH/wheel_output.log
         # - venv/bin/delocate-wheel -v dist/*.whl >> $GIT_CLONE_PATH/wheel_output.log
+        - cd ..
+        - exec .gitlab/ci/check_warnings.sh .
     interruptible: true
 
 .cmake_test_wheel_macos:

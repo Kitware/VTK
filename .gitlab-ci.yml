@@ -4,6 +4,7 @@ include:
     - local: .gitlab/artifacts.yml
     - local: .gitlab/upload.yml
     - local: .gitlab/vtk-mixins.yml
+    - local: .gitlab/warning-policy.yml
 
     # OS builds.
     - local: .gitlab/os-linux.yml

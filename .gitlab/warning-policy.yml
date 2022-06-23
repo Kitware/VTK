@@ -1,0 +1,4 @@
+.warning_policy:
+    allow_failure:
+      exit_codes:
+        - 47 # Warnings detected

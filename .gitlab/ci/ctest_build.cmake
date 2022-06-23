@@ -85,6 +85,8 @@ if (build_result)
     "Failed to build")
 endif ()
 
+file(WRITE "${CTEST_SOURCE_DIRECTORY}/compile_num_warnings.log" "${num_warnings}")
+
 if ("$ENV{CTEST_NO_WARNINGS_ALLOWED}" AND num_warnings GREATER 0)
   message(FATAL_ERROR
     "Found ${num_warnings} warnings (treating as fatal).")
