@@ -27,18 +27,13 @@
 #include "vtkIncrementalPointLocator.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkIntArray.h"
 #include "vtkMergePoints.h"
 #include "vtkObjectFactory.h"
-#include "vtkPlane.h"
 #include "vtkPointData.h"
 #include "vtkPolyhedron.h"
 #include "vtkSmartPointer.h"
-#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
-
-#include <cmath>
 
 vtkStandardNewMacro(vtkClipDataSet);
 vtkCxxSetObjectMacro(vtkClipDataSet, ClipFunction, vtkImplicitFunction);
@@ -306,10 +301,11 @@ int vtkClipDataSet::RequestData(vtkInformation* vtkNotUsed(request),
     {
       inPD->SetScalars(tmpScalars);
     }
+    double pt[3];
     for (i = 0; i < numPts; i++)
     {
-      s = this->ClipFunction->FunctionValue(input->GetPoint(i));
-      tmpScalars->SetTuple1(i, s);
+      input->GetPoint(i, pt);
+      tmpScalars->SetValue(i, this->ClipFunction->FunctionValue(pt));
     }
     clipScalars = tmpScalars;
   }
@@ -506,9 +502,10 @@ int vtkClipDataSet::ClipPoints(
   }
   if (this->ClipFunction)
   {
+    double pt[3];
     for (vtkIdType i = 0; i < numPts; i++)
     {
-      double* pt = input->GetPoint(i);
+      input->GetPoint(i, pt);
       double fv = this->ClipFunction->FunctionValue(pt);
       int addPoint = 0;
       if (this->InsideOut)
@@ -527,7 +524,7 @@ int vtkClipDataSet::ClipPoints(
       }
       if (addPoint)
       {
-        vtkIdType id = outPoints->InsertNextPoint(input->GetPoint(i));
+        vtkIdType id = outPoints->InsertNextPoint(pt);
         outPD->CopyData(inPD, i, id);
       }
     }
@@ -537,10 +534,12 @@ int vtkClipDataSet::ClipPoints(
     vtkDataArray* clipScalars = this->GetInputArrayToProcess(0, inputVector);
     if (clipScalars)
     {
+      double pt[3];
       for (vtkIdType i = 0; i < numPts; i++)
       {
         int addPoint = 0;
-        double fv = clipScalars->GetTuple1(i);
+        double fv;
+        clipScalars->GetTuple(i, &fv);
         if (this->InsideOut)
         {
           if (fv <= value)
@@ -557,7 +556,8 @@ int vtkClipDataSet::ClipPoints(
         }
         if (addPoint)
         {
-          vtkIdType id = outPoints->InsertNextPoint(input->GetPoint(i));
+          input->GetPoint(i, pt);
+          vtkIdType id = outPoints->InsertNextPoint(pt);
           outPD->CopyData(inPD, i, id);
         }
       }

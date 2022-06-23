@@ -17,9 +17,7 @@
 #include "vtkBoundingBox.h"
 #include "vtkCell.h"
 #include "vtkCellData.h"
-#include "vtkDataArrayRange.h"
 #include "vtkDataSetCollection.h"
-#include "vtkExecutive.h"
 #include "vtkIdTypeArray.h"
 #include "vtkIncrementalOctreePointLocator.h"
 #include "vtkInformation.h"
@@ -29,7 +27,6 @@
 #include "vtkPointData.h"
 #include "vtkSmartPointer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
 
 #include <string>
@@ -313,7 +310,8 @@ int vtkAppendFilter::RequestData(vtkInformation* vtkNotUsed(request),
         else
         {
           vtkIdType globalPtId = 0;
-          ptInserter->InsertUniquePoint(dataSet->GetPoint(ptId), globalPtId);
+          dataSet->GetPoint(ptId, p);
+          ptInserter->InsertUniquePoint(p, globalPtId);
           globalIndices[ptId + ptOffset] = globalPtId;
           // The point inserter puts the point into newPts, so we don't have to do that here.
         }
@@ -321,7 +319,8 @@ int vtkAppendFilter::RequestData(vtkInformation* vtkNotUsed(request),
       else
       {
         globalIndices[ptId + ptOffset] = ptId + ptOffset;
-        newPts->SetPoint(ptId + ptOffset, dataSet->GetPoint(ptId));
+        dataSet->GetPoint(ptId, p);
+        newPts->SetPoint(ptId + ptOffset, p);
       }
 
       // Update progress

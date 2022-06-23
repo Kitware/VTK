@@ -216,10 +216,11 @@ int vtkClipVolume::RequestData(vtkInformation* vtkNotUsed(request),
     {
       inPD->SetScalars(tmpScalars);
     }
+    double pt[3];
     for (i = 0; i < numPts; i++)
     {
-      s = this->ClipFunction->FunctionValue(input->GetPoint(i));
-      tmpScalars->InsertTuple(i, &s);
+      input->GetPoint(i, pt);
+      tmpScalars->InsertValue(i, this->ClipFunction->FunctionValue(pt));
     }
     clipScalars = tmpScalars;
   }
