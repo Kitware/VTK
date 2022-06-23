@@ -324,7 +324,7 @@ void vtkTableFFT::SetAverageFft(bool _arg)
   vtkDebugMacro(<< this->GetClassName() << " (" << this << "): setting AverageFft to " << _arg);
   if (this->AverageFft != _arg)
   {
-    this->BlockSize = _arg;
+    this->AverageFft = _arg;
     this->Internals->WindowTimeStamp.Modified();
     this->Modified();
   }
