@@ -194,7 +194,7 @@ int vtkTableFFT::RequestData(vtkInformation* vtkNotUsed(request),
 void vtkTableFFT::Initialize(vtkTable* input)
 {
   // Find time array and compute sample rate
-  std::size_t nTimestep = input->GetNumberOfRows();
+  std::size_t nsamples = input->GetNumberOfRows();
   vtkDataArray* timeArray = nullptr;
   vtkIdType numColumns = input->GetNumberOfColumns();
   for (vtkIdType col = 0; col < numColumns; col++)
@@ -216,53 +216,52 @@ void vtkTableFFT::Initialize(vtkTable* input)
   }
 
   // Check if we can average and compute the size of the windowing function
-  std::size_t actualSize = nTimestep;
+  std::size_t nfft = nsamples;
   this->Internals->Average = this->AverageFft;
   if (this->AverageFft)
   {
-    actualSize = vtkMath::NearestPowerOfTwo(static_cast<int>(this->BlockSize));
-    if (actualSize > (nTimestep - this->NumberOfBlock))
+    nfft = vtkMath::NearestPowerOfTwo(static_cast<int>(this->BlockSize));
+    if (nfft > (nsamples - this->NumberOfBlock))
     {
       vtkWarningMacro(
         "Cannot average FFT per block : block size is too large compared to the input. "
         << "Computing FFT on the whole input.");
       this->Internals->Average = false;
-      actualSize = nTimestep;
+      nfft = nsamples;
     }
   }
 
   // Generate windowing function
   // We're caching the windowing function for more efficiency when applying this filter
   // on different tables multiple times
-  if (this->Internals->WindowLastUpdated < this->Internals->WindowTimeStamp.GetMTime())
+  if (this->Internals->WindowLastUpdated < this->Internals->WindowTimeStamp.GetMTime() ||
+    nfft != this->Internals->Window.size())
   {
-    this->Internals->UpdateWindow(this->WindowingFunction, actualSize);
+    this->Internals->UpdateWindow(this->WindowingFunction, nfft);
     this->Internals->WindowLastUpdated = this->Internals->WindowTimeStamp.GetMTime();
   }
 
   // Get output size
-  const std::size_t nfft = this->Internals->Window.size();
   this->Internals->OutputSize = this->OptimizeForRealInput ? (nfft / 2) + 1 : nfft;
 }
 
 //------------------------------------------------------------------------------
 vtkSmartPointer<vtkDataArray> vtkTableFFT::DoFFT(vtkDataArray* input)
 {
-  const std::size_t nvalues = input->GetNumberOfValues();
+  const std::size_t nsamples = input->GetNumberOfValues();
   const std::size_t nblocks =
     this->Internals->Average ? static_cast<std::size_t>(std::max(1, this->NumberOfBlock)) : 1;
   const double blockCoef = 1.0 / nblocks;
   const std::size_t nfft = this->Internals->Window.size();
   const std::size_t outSize = this->Internals->OutputSize;
-  const std::size_t stepSize = (nblocks <= 1) ? 0 : (nvalues - nfft - 1) / (nblocks - 1);
+  const std::size_t stepSize = (nblocks <= 1) ? 0 : (nsamples - nfft - 1) / (nblocks - 1);
 
-  std::vector<vtkFFT::ScalarNumber> block(nfft);
   std::vector<vtkFFT::ComplexNumber> resFft(outSize, vtkFFT::ComplexNumber{ 0.0, 0.0 });
-
   for (std::size_t b = 0; b < nblocks; ++b)
   {
     // Copy data from input to block
     vtkIdType startBlock = b * stepSize;
+    std::vector<vtkFFT::ScalarNumber> block(nfft);
     for (std::size_t i = 0; i < nfft; ++i)
     {
       block[i] = input->GetTuple1(startBlock + i);
