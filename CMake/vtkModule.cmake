@@ -2525,6 +2525,11 @@ function (vtk_module_build)
     _vtk_module_debug(building "@_vtk_build_module@ is being built")
 
     get_filename_component(_vtk_build_module_dir "${_vtk_build_module_file}" DIRECTORY)
+    if (COMMAND cmake_path) # XXX(cmake-3.20)
+      cmake_path(NORMAL_PATH _vtk_build_module_dir)
+    else ()
+      get_filename_component(_vtk_build_module_dir "${_vtk_build_module_dir}" ABSOLUTE)
+    endif ()
     file(RELATIVE_PATH _vtk_build_module_subdir "${CMAKE_SOURCE_DIR}" "${_vtk_build_module_dir}")
     add_subdirectory(
       "${CMAKE_SOURCE_DIR}/${_vtk_build_module_subdir}"
@@ -2793,6 +2798,11 @@ function (vtk_module_build)
 
     if (NOT _vtk_build_TEST_DIRECTORY_NAME STREQUAL "NONE")
       get_filename_component(_vtk_build_module_dir "${_vtk_build_module_file}" DIRECTORY)
+      if (COMMAND cmake_path) # XXX(cmake-3.20)
+        cmake_path(NORMAL_PATH _vtk_build_module_dir)
+      else ()
+        get_filename_component(_vtk_build_module_dir "${_vtk_build_module_dir}" ABSOLUTE)
+      endif ()
       file(RELATIVE_PATH _vtk_build_module_subdir "${CMAKE_SOURCE_DIR}" "${_vtk_build_module_dir}")
       if (EXISTS "${CMAKE_SOURCE_DIR}/${_vtk_build_module_subdir}/${_vtk_build_TEST_DIRECTORY_NAME}")
         get_property(_vtk_build_test_labels GLOBAL
