@@ -158,7 +158,7 @@ class VTKGUISUPPORTQTQUICK_EXPORT QQuickVTKRenderItem
 
 public:
   QQuickVTKRenderItem(QQuickItem* parent = nullptr);
-  ~QQuickVTKRenderItem() = default;
+  ~QQuickVTKRenderItem() override = default;
 
   ///@{
   /**

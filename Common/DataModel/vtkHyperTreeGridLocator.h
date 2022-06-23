@@ -121,7 +121,7 @@ public:
 protected:
   // Constructor/Destructor defaults
   vtkHyperTreeGridLocator() = default;
-  virtual ~vtkHyperTreeGridLocator() = default;
+  ~vtkHyperTreeGridLocator() override = default;
 
   /**
    * Internal reference to the HyperTreeGrid one wants to search over

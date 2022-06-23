@@ -116,7 +116,7 @@ public:
 
 protected:
   vtkHyperTreeGridGeometricLocator() = default;
-  virtual ~vtkHyperTreeGridGeometricLocator() = default;
+  ~vtkHyperTreeGridGeometricLocator() override = default;
 
   /**
    * The recursive part of the point search
