@@ -51,10 +51,10 @@ constexpr std::array<double, Length> col1 = { { Length, 0.0, 0.0, 0.0, 0.0, 0.0,
 constexpr std::array<double, Length> col2 = { { 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 } };
 constexpr std::array<double, Length> time = { { 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0 } };
 // Expected output
-constexpr std::array<double, Length* 2> e_col1 = { { Length, 0.0, Length, 0.0, Length, 0.0, Length,
+constexpr std::array<double, Length* 2l> e_col1 = { { Length, 0.0, Length, 0.0, Length, 0.0, Length,
   0.0, Length, 0.0, Length, 0.0, Length, 0.0, Length, 0.0 } };
-constexpr std::array<double, Length* 2> e_col2 = { { Length, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
-  0.0, 0.0, 0.0, 0.0, 0.0, 0.0 } };
+constexpr std::array<double, Length* 2l> e_col2 = { { Length, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+  0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 } };
 constexpr std::array<double, Length> e_freq = { { 0.0, 0.125, 0.25, 0.375, -0.5, -0.375, -0.25,
   -0.125 } };
 constexpr std::array<double, Length> e_freq2 = { { 0.0, 1.25, 2.5, 3.75, -5.0, -3.75, -2.5,
@@ -87,18 +87,41 @@ void InitializeTableInput(vtkTable* table)
 }
 
 // ----------------------------------------------------------------------------
+void InitializeTableComplex(vtkTable* input, vtkTable* output)
+{
+  vtkNew<vtkDoubleArray> data;
+  data->SetNumberOfComponents(2);
+  data->SetNumberOfTuples(Length);
+  data->SetName("Data");
+  for (vtkIdType i = 0; i < Length; ++i)
+  {
+    data->SetTuple2(i, (i + 1) % 2, i % 2);
+  }
+  input->AddColumn(data);
+
+  vtkNew<vtkDoubleArray> result;
+  result->SetNumberOfComponents(2);
+  result->SetNumberOfTuples(Length);
+  result->SetName("Data");
+  result->Fill(0.0);
+  result->SetTuple2(0, Length * 0.5, Length * 0.5);
+  result->SetTuple2(Length / 2, Length * 0.5, -Length * 0.5);
+  output->AddColumn(result);
+}
+
+// ----------------------------------------------------------------------------
 void InitializeTableReference(vtkTable* table)
 {
   vtkNew<vtkDoubleArray> column1;
   column1->SetNumberOfTuples(Length);
   column1->SetNumberOfComponents(2);
-  column1->SetArray(const_cast<double*>(e_col1.data()), Length * 2, /*save*/ 1);
+  column1->SetArray(const_cast<double*>(e_col1.data()), Length * 2l, /*save*/ 1);
   column1->SetName("Data1");
 
   vtkNew<vtkDoubleArray> column2;
   column2->SetNumberOfTuples(Length);
   column2->SetNumberOfComponents(2);
-  column2->SetArray(const_cast<double*>(e_col2.data()), Length * 2, /*save*/ 1);
+  column2->SetArray(const_cast<double*>(e_col2.data()), Length * 2l, /*save*/ 1);
   column2->SetName("Data2");
 
   vtkNew<vtkDoubleArray> columnFreq;
@@ -177,13 +200,12 @@ int TestTableFFT(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   // Test actual data
   vtkNew<vtkTable> input;
   details::InitializeTableInput(input);
-  vtkNew<vtkTable> reference;
-  details::InitializeTableReference(reference);
-
   fftFilter->SetInputData(input);
   fftFilter->CreateFrequencyColumnOn();
   fftFilter->SetWindowingFunction(vtkTableFFT::RECTANGULAR);
   fftFilter->Update();
+  vtkNew<vtkTable> reference;
+  details::InitializeTableReference(reference);
   status += static_cast<int>(!details::FuzzyCompare(fftFilter->GetOutput(), reference, 1.0e-6));
 
   // Test with a different sampling rate
@@ -193,6 +215,18 @@ int TestTableFFT(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   fftFilter->Update();
   auto* result = vtkDoubleArray::SafeDownCast(fftFilter->GetOutput()->GetColumnByName("Frequency"));
   auto* expected = vtkDoubleArray::SafeDownCast(reference->GetColumnByName("Frequency2"));
+  status += static_cast<int>(!details::FuzzyCompare(result, expected, 1.0e-6));
+
+  // Test with complex numbers input
+  input->RemoveAllColumns();
+  reference->RemoveAllColumns();
+  details::InitializeTableComplex(input, reference);
+  fftFilter->SetInputData(input);
+  fftFilter->OptimizeForRealInputOff();
+  fftFilter->CreateFrequencyColumnOff();
+  fftFilter->Update();
+  result = vtkDoubleArray::SafeDownCast(fftFilter->GetOutput()->GetColumn(0));
+  expected = vtkDoubleArray::SafeDownCast(reference->GetColumnByName("Data"));
   status += static_cast<int>(!details::FuzzyCompare(result, expected, 1.0e-6));
 
   return status;
