@@ -15,6 +15,7 @@ vtk_add_test_cxx(vtkFiltersHybridCxxTests tests
   TestTemporalCacheSimple.cxx,NO_VALID
   TestTemporalCacheTemporal.cxx,NO_VALID
   TestTemporalCacheMemkind.cxx,NO_VALID
+  TestTemporalCacheUndefinedTimeStep.cxx
   TestTemporalFractal.cxx
   TestTemporalInterpolator.cxx
   )

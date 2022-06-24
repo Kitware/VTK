@@ -419,22 +419,19 @@ int vtkTemporalDataSetCache::RequestData(vtkInformation* vtkNotUsed(request),
   // otherwise it better be in the input
   else
   {
-    if (input->GetInformation()->Has(vtkDataObject::DATA_TIME_STEP()))
+    bool hasDataTimeStep = input->GetInformation()->Has(vtkDataObject::DATA_TIME_STEP());
+    auto eject = this->GetEjected();
+    if (hasDataTimeStep && inTime != upTime && eject)
     {
-      if (inTime == upTime)
-      {
-        vtkTDSCMemkindRAII(this);
-        output.TakeReference(input->NewInstance());
-        output->ShallowCopy(input);
-      }
-      else
-      {
-        output = this->GetEjected()->NewInstance();
-        output->ShallowCopy(this->GetEjected());
-      }
+      output.TakeReference(eject->NewInstance());
+      output->ShallowCopy(eject);
     }
     else
     {
+      if (hasDataTimeStep && inTime == upTime)
+      {
+        auto mkhold = vtkTDSCMemkindRAII(this);
+      }
       // just shallow copy input to output
       output.TakeReference(input->NewInstance());
       output->ShallowCopy(input);
