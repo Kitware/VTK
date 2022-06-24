@@ -31,11 +31,6 @@ set(VTK_USE_VIDEO_FOR_WINDOWS ON CACHE BOOL "")
 set(VTK_USE_VIDEO_FOR_WINDOWS_CAPTURE ON CACHE BOOL "")
 set(VTK_DISABLE_QT_MULTICONFIG_WINDOWS_WARNING ON CACHE BOOL "")
 
-# Set some flags to avoid copious warnings.
-#   - /wd4251: warnings about dll-interface of inherited classes
-#   - /EHsc: set exception handler semantics
-set(CMAKE_CXX_FLAGS "/wd4251 /EHsc" CACHE STRING "")
-
 # Set DLL paths for Python modules to work.
 if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "python")
   file(TO_CMAKE_PATH "$ENV{CI_PROJECT_DIR}" ci_project_dir)
