@@ -35,7 +35,7 @@ vtkPiecewiseFunctionItem::vtkPiecewiseFunctionItem()
 {
   this->PolyLinePen->SetLineType(vtkPen::SOLID_LINE);
   this->PiecewiseFunction = nullptr;
-  this->SetColor(1., 1., 1.);
+  this->SetColorF(1., 1., 1.);
 }
 
 //------------------------------------------------------------------------------

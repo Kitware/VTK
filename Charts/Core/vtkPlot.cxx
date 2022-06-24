@@ -237,25 +237,27 @@ void vtkPlot::SetColor(unsigned char r, unsigned char g, unsigned char b, unsign
 }
 
 //------------------------------------------------------------------------------
-void vtkPlot::SetColor(double r, double g, double b)
+void vtkPlot::SetColorF(double r, double g, double b, double a)
+{
+  this->Pen->SetColorF(r, g, b, a);
+}
+
+//------------------------------------------------------------------------------
+void vtkPlot::SetColorF(double r, double g, double b)
 {
   this->Pen->SetColorF(r, g, b);
 }
 
 //------------------------------------------------------------------------------
-void vtkPlot::GetColor(double rgb[3])
+void vtkPlot::GetColor(unsigned char rgb[3])
 {
-  this->Pen->GetColorF(rgb);
+  this->Pen->GetColor(rgb);
 }
 
 //------------------------------------------------------------------------------
-void vtkPlot::GetColor(unsigned char rgb[3])
+void vtkPlot::GetColorF(double rgb[3])
 {
-  double rgbF[3];
-  this->GetColor(rgbF);
-  rgb[0] = static_cast<unsigned char>(255. * rgbF[0] + 0.5);
-  rgb[1] = static_cast<unsigned char>(255. * rgbF[1] + 0.5);
-  rgb[2] = static_cast<unsigned char>(255. * rgbF[2] + 0.5);
+  this->Pen->GetColorF(rgb);
 }
 
 //------------------------------------------------------------------------------

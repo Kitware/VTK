@@ -709,15 +709,21 @@ void vtkPlotBar::SetColor(unsigned char r, unsigned char g, unsigned char b, uns
 }
 
 //------------------------------------------------------------------------------
-void vtkPlotBar::SetColor(double r, double g, double b)
+void vtkPlotBar::SetColorF(double r, double g, double b, double a)
+{
+  this->Brush->SetColorF(r, g, b, a);
+}
+
+//------------------------------------------------------------------------------
+void vtkPlotBar::SetColorF(double r, double g, double b)
 {
   this->Brush->SetColorF(r, g, b);
 }
 
 //------------------------------------------------------------------------------
-void vtkPlotBar::GetColor(double rgb[3])
+void vtkPlotBar::GetColorF(double rgb[3])
 {
-  double rgba[4];
+  double rgba[4] = { 0.0, 0.0, 0.0, 0.0 };
   this->Brush->GetColorF(rgba);
   rgb[0] = rgba[0];
   rgb[1] = rgba[1];
