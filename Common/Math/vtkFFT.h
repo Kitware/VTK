@@ -125,29 +125,28 @@ public:
    *
    * Can be used with @c GenerateKernel1D and @c GenerateKernel2D for generating full kernels.
    */
-  using WindowGenerator = double (*)(const std::size_t, const std::size_t);
+  using WindowGenerator = double (*)(std::size_t, std::size_t);
 
-  static inline double HanningGenerator(const std::size_t x, const std::size_t size);
-  static inline double BartlettGenerator(const std::size_t x, const std::size_t size);
-  static inline double SineGenerator(const std::size_t x, const std::size_t size);
-  static inline double BlackmanGenerator(const std::size_t x, const std::size_t size);
-  static inline double RectangularGenerator(const std::size_t x, const std::size_t size);
+  static inline double HanningGenerator(std::size_t x, std::size_t size);
+  static inline double BartlettGenerator(std::size_t x, std::size_t size);
+  static inline double SineGenerator(std::size_t x, std::size_t size);
+  static inline double BlackmanGenerator(std::size_t x, std::size_t size);
+  static inline double RectangularGenerator(std::size_t x, std::size_t size);
   ///@}
 
   /**
    * Given a window generator function, create a symmetric 1D kernel.
    * @c kernel is the pointer to the raw data array
    */
-  template <typename Array1D>
-  static void GenerateKernel1D(Array1D* kernel, const std::size_t n, WindowGenerator generator);
+  template <typename T>
+  static void GenerateKernel1D(T* kernel, std::size_t n, WindowGenerator generator);
 
   /**
    * Given a window generator function, create a symmetric 2D kernel.
    * @c kernel is the pointer to the raw 2D data array.
    */
-  template <typename Array2D>
-  static void GenerateKernel2D(
-    Array2D* kernel, const std::size_t n, const std::size_t m, WindowGenerator generator);
+  template <typename T>
+  static void GenerateKernel2D(T* kernel, std::size_t n, std::size_t m, WindowGenerator generator);
 
 protected:
   vtkFFT() = default;
@@ -206,39 +205,39 @@ double vtkFFT::SquaredAbs(const ComplexNumber& in)
 }
 
 //------------------------------------------------------------------------------
-double vtkFFT::HanningGenerator(const std::size_t x, const std::size_t size)
+double vtkFFT::HanningGenerator(std::size_t x, std::size_t size)
 {
   return 0.5 * (1.0 - std::cos(2.0 * vtkMath::Pi() * x / (size - 1)));
 }
 
 //------------------------------------------------------------------------------
-double vtkFFT::BartlettGenerator(const std::size_t x, const std::size_t size)
+double vtkFFT::BartlettGenerator(std::size_t x, std::size_t size)
 {
   return 2.0 * x / (size - 1);
 }
 
 //------------------------------------------------------------------------------
-double vtkFFT::SineGenerator(const std::size_t x, const std::size_t size)
+double vtkFFT::SineGenerator(std::size_t x, std::size_t size)
 {
   return std::sin(vtkMath::Pi() * x / size);
 }
 
 //------------------------------------------------------------------------------
-double vtkFFT::BlackmanGenerator(const std::size_t x, const std::size_t size)
+double vtkFFT::BlackmanGenerator(std::size_t x, std::size_t size)
 {
   return 0.42 - 0.5 * std::cos((2.0 * vtkMath::Pi() * x) / size) +
     0.08 * std::cos((4.0 * vtkMath::Pi() * x) / size);
 }
 
 //------------------------------------------------------------------------------
-double vtkFFT::RectangularGenerator(const std::size_t, const std::size_t)
+double vtkFFT::RectangularGenerator(std::size_t, std::size_t)
 {
   return 1.0;
 }
 
 //------------------------------------------------------------------------------
-template <typename Array1D>
-void vtkFFT::GenerateKernel1D(Array1D* kernel, const std::size_t n, WindowGenerator generator)
+template <typename T>
+void vtkFFT::GenerateKernel1D(T* kernel, std::size_t n, WindowGenerator generator)
 {
   const std::size_t half = (n / 2) + (n % 2);
   for (std::size_t i = 0; i < half; ++i)
@@ -248,9 +247,8 @@ void vtkFFT::GenerateKernel1D(Array1D* kernel, const std::size_t n, WindowGenera
 }
 
 //------------------------------------------------------------------------------
-template <typename Array2D>
-void vtkFFT::GenerateKernel2D(
-  Array2D* kernel, const std::size_t n, const std::size_t m, WindowGenerator generator)
+template <typename T>
+void vtkFFT::GenerateKernel2D(T* kernel, std::size_t n, std::size_t m, WindowGenerator generator)
 {
   const std::size_t halfX = (n / 2) + (n % 2);
   const std::size_t halfY = (m / 2) + (m % 2);
