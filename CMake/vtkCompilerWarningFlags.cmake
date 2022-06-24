@@ -73,11 +73,28 @@ if (VTK_ENABLE_EXTRA_BUILD_WARNINGS_EVERYTHING)
   vtk_add_flag(-Wno-zero-as-null-pointer-constant ${langs})
 elseif (VTK_ENABLE_EXTRA_BUILD_WARNINGS)
   # C flags.
+  set(langs C)
 
   # C++ flags.
-  vtk_add_flag(-Winconsistent-missing-destructor-override CXX)
+  set(langs CXX)
+  vtk_add_flag(-Winconsistent-missing-destructor-override ${langs})
+  vtk_add_flag(-Wnon-virtual-dtor ${langs})
+  vtk_add_flag(-Wpessimizing-move ${langs})
+  vtk_add_flag(-Wrange-loop-bind-reference ${langs})
+  vtk_add_flag(-Wreorder-ctor ${langs})
+  vtk_add_flag(-Wunused-lambda-capture ${langs})
+  vtk_add_flag(-Wunused-private-field ${langs})
 
   # C and C++ flags.
+  set(langs C CXX)
+  vtk_add_flag(-Wabsolute-value ${langs})
+  vtk_add_flag(-Wsign-compare ${langs})
+  vtk_add_flag(-Wunreachable-code ${langs})
+  vtk_add_flag(-Wunused-but-set-variable ${langs})
+  vtk_add_flag(-Wunused-function ${langs})
+  vtk_add_flag(-Wunused-local-typedef ${langs})
+  vtk_add_flag(-Wunused-parameter ${langs})
+  vtk_add_flag(-Wunused-variable ${langs})
 
   # Fortran flags.
 endif ()
