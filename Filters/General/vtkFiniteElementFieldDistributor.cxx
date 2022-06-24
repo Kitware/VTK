@@ -768,7 +768,7 @@ public:
     HDiv
   };
 
-  void Initialize(const VTKCellType& cellType, const double* coords, const int& npts)
+  void Initialize(const VTKCellType& cellType, const double* coords, size_t npts)
   {
     auto hCurlMats = this->GetVblp(SpaceType::HCurl, cellType);
     auto hDivMats = this->GetVblp(SpaceType::HDiv, cellType);
@@ -792,7 +792,7 @@ public:
       auto& hDivMatrix = (*hDivMats)[k];
       auto& hCurlVbFunc = (*hCurlVbfs)[k];
       auto& hDivVbfunc = (*hDivVbfs)[k];
-      for (int j = 0; j < npts; ++j)
+      for (size_t j = 0; j < npts; ++j)
       {
         ptrdiff_t ofst = static_cast<ptrdiff_t>(j) * 3;
         double coord[3] = { coords[ofst], coords[++ofst], coords[++ofst] };
@@ -802,7 +802,7 @@ public:
     }
   }
 
-  bool RequiresInitialization(const VTKCellType& cellType, const int& npts)
+  bool RequiresInitialization(const VTKCellType& cellType, size_t npts)
   {
     auto hCurlMats = this->GetVblp(SpaceType::HCurl, cellType);
     auto hDivMats = this->GetVblp(SpaceType::HDiv, cellType);

@@ -1053,7 +1053,7 @@ int vtkTRUCHASReader::RequestData(
           if (strncmp(array_name, "VOF", 3) == 0)
           {
             // For the VOF field, name the components by the given FIELDNAMEX attribute.
-            for (int i = 0; i < dims[1]; i++)
+            for (size_t i = 0; i < dims[1]; i++)
             {
               std::string attr_name = "FIELDNAME" + std::to_string(i + 1);
               if (!H5Aexists_by_name(now_gid, array_name, attr_name.c_str(), H5P_DEFAULT))
