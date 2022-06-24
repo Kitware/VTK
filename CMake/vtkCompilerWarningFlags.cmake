@@ -14,6 +14,12 @@ endfunction ()
 option(VTK_ENABLE_EXTRA_BUILD_WARNINGS "Enable extra build warnings" OFF)
 mark_as_advanced(VTK_ENABLE_EXTRA_BUILD_WARNINGS)
 
+check_compiler_flag(C "-Weverything" vtk_have_compiler_flag_Weverything)
+include(CMakeDependentOption)
+cmake_dependent_option(VTK_ENABLE_EXTRA_BUILD_WARNINGS_EVERYTHING "Enable *all* warnings (except known problems)" OFF
+  "VTK_ENABLE_EXTRA_BUILD_WARNINGS;vtk_have_compiler_flag_Weverything" OFF)
+mark_as_advanced(VTK_ENABLE_EXTRA_BUILD_WARNINGS_EVERYTHING)
+
 # MSVC
 # Disable flags about `dll-interface` of inherited classes.
 vtk_add_flag(-wd4251 CXX)
@@ -21,7 +27,11 @@ vtk_add_flag(-wd4251 CXX)
 # exceptions.
 vtk_add_flag(-EHsc CXX)
 
-if (VTK_ENABLE_EXTRA_BUILD_WARNINGS)
+if (VTK_ENABLE_EXTRA_BUILD_WARNINGS_EVERYTHING)
+  vtk_add_flag(-Weverything C CXX)
+
+  # Instead of enabling warnings, this mode *disables* warnings.
+elseif (VTK_ENABLE_EXTRA_BUILD_WARNINGS)
   # C flags.
 
   # C++ flags.

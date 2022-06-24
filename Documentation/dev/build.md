@@ -227,6 +227,9 @@ More advanced options:
     build.
   * `VTK_ENABLE_EXTRA_BUILD_WARNINGS` (default `OFF`): If set, VTK will enable
     additional build warnings.
+  * `VTK_ENABLE_EXTRA_BUILD_WARNINGS_EVERYTHING` (default `OFF`; requires
+    `VTK_ENABLE_EXTRA_BUILD_WARNINGS` and `-Weverything` support): If set, VTK
+    will enable all build warnings (with some explicitly turned off).
   * `VTK_USE_EXTERNAL` (default `OFF`): Whether to prefer external third
     party libraries or the versions VTK's source contains.
   * `VTK_TARGET_SPECIFIC_COMPONENTS` (default `OFF`): Whether to install
