@@ -31,6 +31,7 @@ set(CMAKE_INSTALL_LIBDIR "lib" CACHE STRING "")
 
 # Enable extra build warnings in CI.
 set(VTK_ENABLE_EXTRA_BUILD_WARNINGS ON CACHE BOOL "")
+set(VTK_ENABLE_EXTRA_BUILD_WARNINGS_EVERYTHING ON CACHE BOOL "")
 
 include("${CMAKE_CURRENT_LIST_DIR}/configure_options.cmake")
 
