@@ -190,6 +190,10 @@ if (VTK_USE_MPI)
   elseif (VTK_GROUP_ENABLE_MPI STREQUAL "NO")
     message(FATAL_ERROR "VTK_USE_MPI=ON is not compatible with VTK_GROUP_ENABLE_MPI=NO")
   endif ()
+  list(APPEND vtk_requested_modules
+    VTK::ParallelMPI)
+  set("_vtk_module_reason_VTK::ParallelMPI"
+    "via `VTK_USE_MPI`")
 else ()
   # Reject `VTK::mpi`, but allow those which happen to be part of the group to
   # be built.
