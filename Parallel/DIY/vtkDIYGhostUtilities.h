@@ -148,6 +148,8 @@ protected:
 
   struct DataSetInformation
   {
+    virtual ~DataSetInformation() = default;
+
     /**
      * @warning This method does not work before the link map between blocks is computed.
      */
@@ -199,6 +201,8 @@ protected:
    */
   struct GridInformation : public DataSetInformation
   {
+    ~GridInformation() override = default;
+
     bool InputNeedsGhostsPeeledOff() const override { return this->Extent != this->InputExtent; }
 
     /**
@@ -216,6 +220,8 @@ protected:
 
   struct ImageDataInformation : public GridInformation
   {
+    ~ImageDataInformation() override = default;
+
     vtkImageData* Input;
   };
 
@@ -259,6 +265,8 @@ protected:
 
   struct RectilinearGridInformation : public GridInformation
   {
+    ~RectilinearGridInformation() override = default;
+
     ///@{
     /**
      * Point coordinates without ghosts.
@@ -308,6 +316,8 @@ protected:
 
   struct StructuredGridInformation : public GridInformation
   {
+    ~StructuredGridInformation() override = default;
+
     /**
      * This structure represents the set of points and their corresponding extent
      * of an external face of the structured grid.
