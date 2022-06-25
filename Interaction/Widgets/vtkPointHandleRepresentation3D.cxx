@@ -506,21 +506,6 @@ void vtkPointHandleRepresentation3D::WidgetInteraction(double eventPos[2])
           if (this->PointPlacer->ComputeWorldPosition(
                 this->Renderer, newCenterPointRequested, newCenterPoint, worldOrient))
           {
-
-            // Once the placer has validated us, update the handle
-            // position and its bounds.
-            double* p = this->GetWorldPosition();
-
-            // Get the motion vector
-            double v[3] = { newCenterPoint[0] - p[0], newCenterPoint[1] - p[1],
-              newCenterPoint[2] - p[2] };
-            double *bounds = this->Cursor3D->GetModelBounds(), newBounds[6];
-            for (int i = 0; i < 3; i++)
-            {
-              newBounds[2 * i] = bounds[2 * i] + v[i];
-              newBounds[2 * i + 1] = bounds[2 * i + 1] + v[i];
-            }
-
             this->SetWorldPosition(newCenterPoint);
           }
         }
