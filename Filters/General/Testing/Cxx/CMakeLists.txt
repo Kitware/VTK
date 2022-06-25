@@ -18,6 +18,7 @@ vtk_add_test_cxx(vtkFiltersGeneralCxxTests tests
   TestContourTriangulator.cxx
   TestContourTriangulatorBadData.cxx
   TestContourTriangulatorCutter.cxx
+  TestContourTriangulatorHoles.cxx
   TestContourTriangulatorMarching.cxx
   TestCountFaces.cxx,NO_VALID
   TestCountVertices.cxx,NO_VALID
