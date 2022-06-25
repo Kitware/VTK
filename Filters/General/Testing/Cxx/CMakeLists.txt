@@ -16,6 +16,7 @@ vtk_add_test_cxx(vtkFiltersGeneralCxxTests tests
   TestBooleanOperationPolyDataFilter2.cxx
   TestCellValidator.cxx,NO_VALID
   TestContourTriangulator.cxx
+  TestContourTriangulatorBadData.cxx
   TestContourTriangulatorCutter.cxx
   TestContourTriangulatorMarching.cxx
   TestCountFaces.cxx,NO_VALID
