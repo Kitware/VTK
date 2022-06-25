@@ -73,7 +73,7 @@ struct ActorInfo
 };
 
 //------------------------------------------------------------------------------
-int TestFreeTypeTextMapperWithColumns(int argc, char* argv[])
+int TestFreeTypeTextMapperWithColumns(int argc, char* /*argv*/[])
 {
   if (argc < 2)
   {
