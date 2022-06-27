@@ -312,9 +312,9 @@ private:
     T Cnt;
 
     Bucket()
-      : Cnt(0)
-      , Min(VTK_DOUBLE_MAX)
+      : Min(VTK_DOUBLE_MAX)
       , Max(-VTK_DOUBLE_MAX)
+      , Cnt(0)
     {
     }
 
