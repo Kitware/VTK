@@ -36,7 +36,7 @@ class VTKRENDERINGPARALLELLIC_EXPORT vtkPPainterCommunicator : public vtkPainter
 {
 public:
   vtkPPainterCommunicator();
-  virtual ~vtkPPainterCommunicator();
+  ~vtkPPainterCommunicator() override;
 
   /**
    * Copier and assignment operators.
@@ -56,35 +56,35 @@ public:
   /**
    * Copy the communicator.
    */
-  virtual void Copy(const vtkPainterCommunicator* other, bool ownership);
+  void Copy(const vtkPainterCommunicator* other, bool ownership) override;
 
   /**
    * Duplicate the communicator.
    */
-  virtual void Duplicate(const vtkPainterCommunicator* other);
+  void Duplicate(const vtkPainterCommunicator* other) override;
 
   ///@{
   /**
    * Query MPI for information about the communicator.
    */
-  virtual int GetRank();
-  virtual int GetSize();
-  virtual bool GetIsNull();
+  int GetRank() override;
+  int GetSize() override;
+  bool GetIsNull() override;
   ///@}
 
   ///@{
   /**
    * Query MPI for information about the world communicator.
    */
-  virtual int GetWorldRank();
-  virtual int GetWorldSize();
+  int GetWorldRank() override;
+  int GetWorldSize() override;
   ///@}
 
   /**
    * Query MPI state.
    */
-  virtual bool GetMPIInitialized() { return this->MPIInitialized(); }
-  virtual bool GetMPIFinalized() { return this->MPIFinalized(); }
+  bool GetMPIInitialized() override { return this->MPIInitialized(); }
+  bool GetMPIFinalized() override { return this->MPIFinalized(); }
 
   static bool MPIInitialized();
   static bool MPIFinalized();

@@ -163,7 +163,7 @@ public:
   {
   }
 
-  ~vtkPPixelTransfer() {}
+  ~vtkPPixelTransfer() = default;
 
   /**
    * Set/Get the MPI rank of source and destination
