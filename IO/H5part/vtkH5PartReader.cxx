@@ -73,7 +73,6 @@
 #include "vtkUnsignedShortArray.h"
 
 #include <algorithm>
-#include <functional>
 
 #include "vtk_h5part.h"
 // clang-format off
@@ -480,17 +479,13 @@ int GetVTKDataType(hid_t datatype)
     H5Dclose(dataset);                                                                             \
   }
 
-class H5PartToleranceCheck : public std::binary_function<double, double, bool>
+class H5PartToleranceCheck
 {
 public:
   H5PartToleranceCheck(double tol) { this->tolerance = tol; }
   double tolerance;
   //
-  result_type operator()(first_argument_type a, second_argument_type b) const
-  {
-    bool result = (fabs(a - b) <= (this->tolerance));
-    return (result_type)result;
-  }
+  bool operator()(double a, double b) const { return (fabs(a - b) <= (this->tolerance)); }
 };
 //------------------------------------------------------------------------------
 int vtkH5PartReader::RequestData(vtkInformation* vtkNotUsed(request),
