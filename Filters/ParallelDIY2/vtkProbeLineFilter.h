@@ -59,6 +59,7 @@ class vtkMultiProcessController;
 class vtkPoints;
 class vtkPolyData;
 class vtkVector3d;
+class vtkHyperTreeGrid;
 
 class VTKFILTERSPARALLELDIY2_EXPORT vtkProbeLineFilter : public vtkDataObjectAlgorithm
 {
@@ -222,6 +223,8 @@ protected:
 
   vtkSmartPointer<vtkPolyData> IntersectCells(
     const vtkVector3d& p1, const vtkVector3d& p2, vtkDataSet* dataset, double tolerance) const;
+  vtkSmartPointer<vtkPolyData> IntersectCells(
+    const vtkVector3d& p1, const vtkVector3d& p2, vtkHyperTreeGrid* htg, double tolerance) const;
 
   vtkMultiProcessController* Controller = nullptr;
 

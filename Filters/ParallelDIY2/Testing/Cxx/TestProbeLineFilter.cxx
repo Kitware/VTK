@@ -126,7 +126,7 @@ int Check2DHTG(vtkMultiProcessController* contr, vtkDataSet* outDataSet)
     for (int i = 0; i < numPoints; i++)
     {
       outDataSet->GetPoint(i, pt.data());
-      int foundDepth = vtkMath::Nan();
+      int foundDepth = -1;
       bool isDemarcation = false;
       if (std::abs(pt[0]) < 1.0 && std::abs(pt[1]) < 1.0)
       {
@@ -188,7 +188,7 @@ int Check3DHTG(vtkMultiProcessController* contr, vtkDataSet* outDataSet)
     for (int i = 0; i < numPoints; i++)
     {
       outDataSet->GetPoint(i, pt.data());
-      int foundDepth = vtkMath::Nan();
+      int foundDepth = -1;
       bool isDemarcation = false;
       if (std::abs(pt[0]) < 1.0 && std::abs(pt[1]) < 1.0 && std::abs(pt[2]))
       {

@@ -32,6 +32,8 @@
 #include "vtkDataSet.h"
 #include "vtkDoubleArray.h"
 #include "vtkFindCellStrategy.h"
+#include "vtkHyperTreeGrid.h"
+#include "vtkHyperTreeGridGeometricLocator.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkLineSource.h"
@@ -41,7 +43,6 @@
 #include "vtkMultiProcessController.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
-#include "vtkPHyperTreeGridProbeFilter.h"
 #include "vtkPProbeFilter.h"
 #include "vtkPlane.h"
 #include "vtkPointData.h"
@@ -66,14 +67,31 @@
 #include <vector>
 
 //------------------------------------------------------------------------------
-vtkStandardNewMacro(vtkProbeLineFilter);
-
-//------------------------------------------------------------------------------
-vtkCxxSetObjectMacro(vtkProbeLineFilter, Controller, vtkMultiProcessController);
-
-//------------------------------------------------------------------------------
 namespace
 {
+//------------------------------------------------------------------------------
+/**
+ * Store the information of the intersection between a cell and a ray. InT and OutT
+ * are the parametric distances on the ray for the first (and second for 3D cells)
+ * intersection between the ray and the cell. CellId is the id of the intersected cell.
+ * A value of -1 means that the intersection is happening outside the cell.
+ */
+struct HitCellInfo
+{
+  double InT = -1.0;
+  double OutT = -1.0;
+  std::array<double, 3> InPCoords = { 0.0, 0.0, 0.0 };
+  std::array<double, 3> OutPCoords = { 0.0, 0.0, 0.0 };
+  std::array<double, 3> InPos = { 0.0, 0.0, 0.0 };
+  std::array<double, 3> OutPos = { 0.0, 0.0, 0.0 };
+  vtkIdType CellId = -1;
+
+  operator bool() const noexcept { return this->InT >= 0.0 && this->OutT >= 0.0; }
+
+  bool operator<(const HitCellInfo& r) const noexcept { return this->InT < r.InT; }
+};
+
+//------------------------------------------------------------------------------
 void FillDefaultValues(vtkAbstractArray* array, double defaultValue = 0.0)
 {
   if (auto* strArray = vtkStringArray::SafeDownCast(array))
@@ -96,7 +114,94 @@ void FillDefaultValues(vtkAbstractArray* array, double defaultValue = 0.0)
     vtkSMPTools::Fill(range.begin(), range.end(), defaultValue);
   }
 }
-};
+
+//------------------------------------------------------------------------------
+vtkSmartPointer<vtkDoubleArray> CreatePoints(
+  const std::vector<HitCellInfo>& intersections, vtkPoints* linePoints, double lengthFactor)
+{
+  linePoints->SetNumberOfPoints(intersections.size() * 2);
+  auto arclengthArray = vtkSmartPointer<vtkDoubleArray>::New();
+  arclengthArray->SetName("arc_length");
+  arclengthArray->SetNumberOfValues(linePoints->GetNumberOfPoints());
+  vtkSMPTools::For(0, intersections.size(), [&](vtkIdType begin, vtkIdType end) {
+    for (vtkIdType i = begin; i < end; ++i)
+    {
+      const auto& inter = intersections[i];
+      linePoints->SetPoint(i * 2, inter.InPos.data());
+      arclengthArray->SetValue(i * 2, inter.InT * lengthFactor);
+
+      linePoints->SetPoint(i * 2 + 1, inter.OutPos.data());
+      arclengthArray->SetValue(i * 2 + 1, inter.OutT * lengthFactor);
+    }
+  });
+
+  return arclengthArray;
+}
+vtkSmartPointer<vtkAbstractArray> AddAttribute(
+  vtkAbstractArray* attribute, vtkDataSetAttributes* dsAttributes, vtkIdType npts)
+{
+  const char* name = attribute->GetName();
+  vtkSmartPointer<vtkAbstractArray> targetArray;
+  if (!dsAttributes->GetAbstractArray(name))
+  {
+    targetArray = vtk::TakeSmartPointer(attribute->NewInstance());
+    targetArray->SetName(name);
+    targetArray->SetNumberOfComponents(attribute->GetNumberOfComponents());
+    targetArray->SetNumberOfTuples(npts);
+    dsAttributes->AddArray(targetArray);
+  }
+  return targetArray;
+}
+void AddCellData(const std::vector<HitCellInfo>& intersections, vtkCellData* inputCellAttribute,
+  vtkPointData* resultPointData, vtkIdType npts)
+{
+  for (int i = 0; i < inputCellAttribute->GetNumberOfArrays(); ++i)
+  {
+    vtkAbstractArray* sourceArray = inputCellAttribute->GetAbstractArray(i);
+    if (auto targetArray = ::AddAttribute(sourceArray, resultPointData, npts))
+    {
+      vtkSMPTools::For(0, intersections.size(), [&](vtkIdType begin, vtkIdType end) {
+        for (vtkIdType j = begin; j < end; ++j)
+        {
+          const auto& inter = intersections[j];
+          targetArray->SetTuple(j * 2, inter.CellId, sourceArray);
+          targetArray->SetTuple(j * 2 + 1, inter.CellId, sourceArray);
+        }
+      });
+    }
+  }
+}
+
+//------------------------------------------------------------------------------
+// Return the entry point and exit point of a given cell for the segment [p1,p2].
+HitCellInfo GetInOutCell(const vtkVector3d& p1, const vtkVector3d& p2, vtkIdType cellId,
+  vtkDataSet* input, double tolerance)
+{
+  HitCellInfo res;
+  res.CellId = cellId;
+
+  vtkCell* cell = input->GetCell(cellId);
+  double t;
+  int subId;
+  if (cell->IntersectWithLine(
+        p1.GetData(), p2.GetData(), tolerance, t, res.InPos.data(), res.InPCoords.data(), subId))
+  {
+    res.InT = t;
+  }
+  if (cell->IntersectWithLine(
+        p2.GetData(), p1.GetData(), tolerance, t, res.OutPos.data(), res.OutPCoords.data(), subId))
+  {
+    res.OutT = 1.0 - t;
+  }
+
+  if (cell->GetCellDimension() == 3 && vtkMathUtilities::NearlyEqual(res.InT, res.OutT, tolerance))
+  {
+    res.InT = res.OutT = -1.0;
+  }
+
+  return res;
+}
+}
 
 //------------------------------------------------------------------------------
 class vtkRemoteProbeLineMerger : public vtkPolyDataAlgorithm
@@ -107,7 +212,7 @@ public:
 
   vtkVector3d P1 = { 0.0, 0.0, 0.0 };
   vtkVector3d P2 = { 0.0, 0.0, 0.0 };
-  double Tolerance = std::numeric_limits<double>::epsilon();
+  double Tolerance = 0;
   bool SegmentCenters = false;
 
 protected:
@@ -640,100 +745,61 @@ protected:
 vtkStandardNewMacro(vtkLocalProbeLineMerger);
 
 //------------------------------------------------------------------------------
+vtkStandardNewMacro(vtkProbeLineFilter);
+
+//------------------------------------------------------------------------------
+vtkCxxSetObjectMacro(vtkProbeLineFilter, Controller, vtkMultiProcessController);
+
+//------------------------------------------------------------------------------
 struct vtkProbeLineFilter::vtkInternals
 {
   vtkMTimeType PreviousInputTime = 0;
   std::map<vtkDataSet*, vtkSmartPointer<vtkFindCellStrategy>> Strategies;
+  std::map<vtkHyperTreeGrid*, vtkSmartPointer<vtkHyperTreeGridLocator>> HTGLocators;
 
-  void UpdateLocators(vtkDataObject* input, int pattern, const double tolerance)
+  void UpdateLocators(vtkDataObject* input, const double tolerance)
   {
     vtkMTimeType inputTime = input->GetMTime();
-    bool isInputDifferent = inputTime != this->PreviousInputTime;
-    bool needLocators = pattern == vtkProbeLineFilter::SAMPLE_LINE_AT_CELL_BOUNDARIES ||
-      pattern == vtkProbeLineFilter::SAMPLE_LINE_AT_SEGMENT_CENTERS;
-    if (isInputDifferent && needLocators)
+    if (inputTime != this->PreviousInputTime)
     {
       this->PreviousInputTime = inputTime;
 
-      const auto& inputs = vtkCompositeDataSet::GetDataSets(input);
-      for (vtkDataSet* ds : inputs)
+      const auto& inputs = vtkCompositeDataSet::GetDataSets<vtkDataObject>(input);
+      for (vtkDataObject* dobject : inputs)
       {
-        if (!ds || !ds->GetNumberOfCells())
+        if (auto* ds = vtkDataSet::SafeDownCast(dobject))
         {
-          continue;
+          if (ds->GetNumberOfCells() == 0)
+          {
+            continue;
+          }
+
+          vtkNew<vtkStaticCellLocator> locator;
+          locator->SetDataSet(ds);
+          locator->SetTolerance(tolerance);
+          locator->BuildLocator();
+          vtkCellLocatorStrategy* strategy = vtkCellLocatorStrategy::New();
+          strategy->SetCellLocator(locator);
+
+          this->Strategies[ds] =
+            vtkSmartPointer<vtkFindCellStrategy>::Take(static_cast<vtkFindCellStrategy*>(strategy));
         }
+        else if (auto* htg = vtkHyperTreeGrid::SafeDownCast(dobject))
+        {
+          if (htg->GetNumberOfCells() == 0)
+          {
+            continue;
+          }
 
-        vtkNew<vtkStaticCellLocator> locator;
-        locator->SetDataSet(ds);
-        locator->SetTolerance(tolerance);
-        locator->BuildLocator();
-
-        vtkCellLocatorStrategy* strategy = vtkCellLocatorStrategy::New();
-        strategy->SetCellLocator(locator);
-
-        this->Strategies[ds] =
-          vtkSmartPointer<vtkFindCellStrategy>::Take(static_cast<vtkFindCellStrategy*>(strategy));
+          vtkNew<vtkHyperTreeGridGeometricLocator> htgLocator;
+          htgLocator->SetHTG(htg);
+          htgLocator->SetTolerance(tolerance);
+          this->HTGLocators[htg] = htgLocator;
+        }
       }
     }
   }
 };
-
-namespace
-{
-//==============================================================================
-/**
- * Store the information of the intersection between a cell and a ray. InT and OutT
- * are the parametric distances on the ray for the first (and second for 3D cells)
- * intersection between the ray and the cell. CellId is the id of the intersected cell.
- * A value of -1 means that the intersection is happening outside the cell.
- */
-struct HitCellInfo
-{
-  double InT = -1.0;
-  double OutT = -1.0;
-  std::array<double, 3> InPCoords = { 0.0, 0.0, 0.0 };
-  std::array<double, 3> OutPCoords = { 0.0, 0.0, 0.0 };
-  std::array<double, 3> InPos = { 0.0, 0.0, 0.0 };
-  std::array<double, 3> OutPos = { 0.0, 0.0, 0.0 };
-  vtkIdType CellId = -1;
-
-  operator bool() const noexcept { return this->InT >= 0.0 && this->OutT >= 0.0; }
-
-  bool operator<(const HitCellInfo& r) const noexcept { return this->InT < r.InT; }
-};
-
-//==============================================================================
-/**
- * Return the entry point and exit point of a given cell for the segment [p1,p2].
- */
-HitCellInfo GetInOutCell(const vtkVector3d& p1, const vtkVector3d& p2, vtkIdType cellId,
-  vtkDataSet* input, double tolerance)
-{
-  HitCellInfo res;
-  res.CellId = cellId;
-
-  vtkCell* cell = input->GetCell(cellId);
-  double t;
-  int subId;
-  if (cell->IntersectWithLine(
-        p1.GetData(), p2.GetData(), tolerance, t, res.InPos.data(), res.InPCoords.data(), subId))
-  {
-    res.InT = t;
-  }
-  if (cell->IntersectWithLine(
-        p2.GetData(), p1.GetData(), tolerance, t, res.OutPos.data(), res.OutPCoords.data(), subId))
-  {
-    res.OutT = 1.0 - t;
-  }
-
-  if (cell->GetCellDimension() == 3 && vtkMathUtilities::NearlyEqual(res.InT, res.OutT, tolerance))
-  {
-    res.InT = res.OutT = -1.0;
-  }
-
-  return res;
-}
-}
 
 //------------------------------------------------------------------------------
 vtkProbeLineFilter::vtkProbeLineFilter()
@@ -801,13 +867,17 @@ int vtkProbeLineFilter::RequestData(
     {
       ds->GetBounds(bounds);
     }
+    else if (auto htg = vtkHyperTreeGrid::SafeDownCast(input))
+    {
+      htg->GetBounds(bounds);
+    }
     vtkBoundingBox bb(bounds);
     if (bb.IsValid())
     {
       tolerance = std::numeric_limits<float>::epsilon() * bb.GetDiagonalLength();
     }
   }
-  this->Internal->UpdateLocators(input, this->SamplingPattern, tolerance);
+  this->Internal->UpdateLocators(input, tolerance);
 
   // For each cell create the line that probe all data and add it to the resulting multiblock
   auto samplerCellsIt = vtkSmartPointer<vtkCellIterator>::Take(sampler->NewCellIterator());
@@ -917,9 +987,9 @@ vtkSmartPointer<vtkPolyData> vtkProbeLineFilter::SampleLineUniformly(
   prober->SetPassFieldArrays(this->PassFieldArrays);
   prober->SetComputeTolerance(this->ComputeTolerance);
   prober->SetTolerance(tolerance);
-  prober->SetSourceData(input);
   prober->SetFindCellStrategyMap(this->Internal->Strategies);
   prober->SetInputData(lineSource->GetOutput());
+  prober->SetSourceData(input);
   prober->Update();
 
   vtkNew<vtkAppendArcLength> arcs;
@@ -933,7 +1003,7 @@ vtkSmartPointer<vtkPolyData> vtkProbeLineFilter::SampleLineUniformly(
 vtkSmartPointer<vtkPolyData> vtkProbeLineFilter::SampleLineAtEachCell(
   const vtkVector3d& p1, const vtkVector3d& p2, vtkDataObject* input, const double tolerance) const
 {
-  std::vector<vtkDataSet*> inputs = vtkCompositeDataSet::GetDataSets(input);
+  std::vector<vtkDataObject*> inputs = vtkCompositeDataSet::GetDataSets<vtkDataObject>(input);
   if (vtkMathUtilities::NearlyEqual(p1[0], p2[0], tolerance) &&
     vtkMathUtilities::NearlyEqual(p1[1], p2[1], tolerance) &&
     vtkMathUtilities::NearlyEqual(p1[2], p2[2], tolerance))
@@ -949,7 +1019,14 @@ vtkSmartPointer<vtkPolyData> vtkProbeLineFilter::SampleLineAtEachCell(
   vtkNew<vtkLocalProbeLineMerger> localMerger;
   for (std::size_t dsId = 0; dsId < inputs.size(); ++dsId)
   {
-    localMerger->AddInputData(0, this->IntersectCells(p1, p2, inputs[dsId], tolerance));
+    if (auto* ds = vtkDataSet::SafeDownCast(inputs[dsId]))
+    {
+      localMerger->AddInputData(0, this->IntersectCells(p1, p2, ds, tolerance));
+    }
+    else if (auto* htg = vtkHyperTreeGrid::SafeDownCast(inputs[dsId]))
+    {
+      localMerger->AddInputData(0, this->IntersectCells(p1, p2, htg, tolerance));
+    }
   }
   localMerger->Update();
 
@@ -1029,35 +1106,9 @@ vtkSmartPointer<vtkPolyData> vtkProbeLineFilter::IntersectCells(
 
   // Create a point cloud also storing point and cells data for these intersections
   vtkNew<vtkPoints> linePoints;
-  linePoints->SetNumberOfPoints(intersections.size() * 2);
-  vtkNew<vtkDoubleArray> arclengthArray;
-  arclengthArray->SetName("arc_length");
-  arclengthArray->SetNumberOfValues(linePoints->GetNumberOfPoints());
   const double lineLength = (p2 - p1).Norm();
-  for (size_t i = 0; i < intersections.size(); ++i)
-  {
-    const vtkIdType idx = static_cast<vtkIdType>(i) * 2;
-    linePoints->SetPoint(idx, intersections[i].InPos.data());
-    arclengthArray->SetValue(idx, intersections[i].InT * lineLength);
-    linePoints->SetPoint(idx + 1, intersections[i].OutPos.data());
-    arclengthArray->SetValue(idx + 1, intersections[i].OutT * lineLength);
-  }
+  auto arclengthArray = ::CreatePoints(intersections, linePoints, lineLength);
   result->SetPoints(linePoints);
-
-  auto lambdaAddAttribute = [&linePoints](
-                              vtkAbstractArray* attribute, vtkDataSetAttributes* dsAttributes) {
-    const char* name = attribute->GetName();
-    vtkSmartPointer<vtkAbstractArray> targetArray;
-    if (!dsAttributes->GetAbstractArray(name))
-    {
-      targetArray = vtk::TakeSmartPointer(attribute->NewInstance());
-      targetArray->SetName(name);
-      targetArray->SetNumberOfComponents(attribute->GetNumberOfComponents());
-      targetArray->SetNumberOfTuples(linePoints->GetNumberOfPoints());
-      dsAttributes->AddArray(targetArray);
-    }
-    return targetArray;
-  };
 
   // Interpolate point data to intersection locations
   vtkPointData* resultPointData = result->GetPointData();
@@ -1066,7 +1117,8 @@ vtkSmartPointer<vtkPolyData> vtkProbeLineFilter::IntersectCells(
   for (int i = 0; i < inputPointData->GetNumberOfArrays(); ++i)
   {
     vtkAbstractArray* sourceArray = inputPointData->GetAbstractArray(i);
-    if (auto targetArray = lambdaAddAttribute(sourceArray, resultPointData))
+    if (auto targetArray =
+          ::AddAttribute(sourceArray, resultPointData, linePoints->GetNumberOfPoints()))
     {
       for (size_t j = 0; j < intersections.size(); ++j)
       {
@@ -1084,20 +1136,99 @@ vtkSmartPointer<vtkPolyData> vtkProbeLineFilter::IntersectCells(
   }
 
   // Translate cell data to point data
-  auto* inputCellData = dataset->GetCellData();
-  for (int i = 0; i < inputCellData->GetNumberOfArrays(); ++i)
+  ::AddCellData(
+    intersections, dataset->GetCellData(), resultPointData, linePoints->GetNumberOfPoints());
+
+  return result;
+}
+
+//------------------------------------------------------------------------------
+vtkSmartPointer<vtkPolyData> vtkProbeLineFilter::IntersectCells(const vtkVector3d& p1,
+  const vtkVector3d& p2, vtkHyperTreeGrid* htg, double vtkNotUsed(tolerance)) const
+{
+  auto result = vtkSmartPointer<vtkPolyData>::New();
+
+  // Get all cell intersections for the current dataset. There is some cases where there
+  // is no strategy associated to a dataset, usually because the dataset has 0 cells.
+  // In this case `intersections` will stay empty.
+  vtkHyperTreeGridLocator* locator = this->Internal->HTGLocators[htg];
+  std::vector<HitCellInfo> intersections;
+  if (locator)
   {
-    vtkAbstractArray* sourceArray = inputCellData->GetAbstractArray(i);
-    if (auto targetArray = lambdaAddAttribute(sourceArray, resultPointData))
+    vtkNew<vtkGenericCell> cell;
+    vtkNew<vtkIdList> forward;
+    vtkNew<vtkIdList> backward;
+    vtkNew<vtkPoints> fPoints;
+    vtkNew<vtkPoints> bPoints;
+    locator->IntersectWithLine(p1.GetData(), p2.GetData(), 0.0, fPoints, forward, cell);
+    locator->IntersectWithLine(p2.GetData(), p1.GetData(), 0.0, bPoints, backward, cell);
+    if (fPoints->GetNumberOfPoints() != bPoints->GetNumberOfPoints() ||
+      forward->GetNumberOfIds() != backward->GetNumberOfIds())
     {
-      for (size_t j = 0; j < intersections.size(); ++j)
+      vtkErrorMacro("Hyper tree grid line intersection gave incoherent result, ignoring it.");
+      return result;
+    }
+
+    vtkNew<vtkIdList> intersectedIds;
+    intersectedIds->SetNumberOfIds(forward->GetNumberOfIds() + backward->GetNumberOfIds());
+    std::copy(forward->begin(), forward->end(), intersectedIds->begin());
+    std::copy(
+      backward->begin(), backward->end(), intersectedIds->begin() + forward->GetNumberOfIds());
+    vtkNew<vtkPoints> pointsFound;
+    pointsFound->SetNumberOfPoints(fPoints->GetNumberOfPoints() + bPoints->GetNumberOfPoints());
+    pointsFound->InsertPoints(0, fPoints->GetNumberOfPoints(), 0, fPoints);
+    pointsFound->InsertPoints(
+      fPoints->GetNumberOfPoints(), bPoints->GetNumberOfPoints(), 0, bPoints);
+
+    intersections.resize(forward->GetNumberOfIds());
+    std::map<vtkIdType, HitCellInfo> intersectionMap;
+    for (vtkIdType i = 0; i < intersectedIds->GetNumberOfIds(); ++i)
+    {
+      vtkIdType cellId = intersectedIds->GetId(i);
+      if (htg->HasAnyGhostCells() && htg->GetGhostCells()->GetValue(cellId))
       {
-        const auto& inter = intersections[j];
-        targetArray->SetTuple(j * 2, inter.CellId, sourceArray);
-        targetArray->SetTuple(j * 2 + 1, inter.CellId, sourceArray);
+        continue;
+      }
+
+      // Add intersected cell
+      auto& intersection = intersectionMap[cellId];
+      intersection.CellId = cellId;
+      vtkVector3d pt;
+      pointsFound->GetPoint(i, pt.GetData());
+      double thisT = (pt - p1).Norm();
+      if (i < static_cast<vtkIdType>(intersections.size()))
+      {
+        intersection.InT = thisT;
+        intersection.InPos = { pt.GetX(), pt.GetY(), pt.GetZ() };
+      }
+      else
+      {
+        intersection.OutT = thisT;
+        intersection.OutPos = { pt.GetX(), pt.GetY(), pt.GetZ() };
       }
     }
+
+    int counter = 0;
+    for (const auto& it : intersectionMap)
+    {
+      intersections[counter] = it.second;
+      counter++;
+    }
   }
+
+  // Make sure our intersections are sorted
+  vtkSMPTools::Sort(intersections.begin(), intersections.end());
+
+  // Create a point cloud also storing point and cells data for these intersections
+  vtkNew<vtkPoints> linePoints;
+  auto arclengthArray = ::CreatePoints(intersections, linePoints, 1.0);
+  result->SetPoints(linePoints);
+
+  // Translate cell data to point data
+  vtkPointData* resultPointData = result->GetPointData();
+  resultPointData->AddArray(arclengthArray);
+  ::AddCellData(
+    intersections, htg->GetCellData(), resultPointData, linePoints->GetNumberOfPoints());
 
   return result;
 }
@@ -1105,12 +1236,12 @@ vtkSmartPointer<vtkPolyData> vtkProbeLineFilter::IntersectCells(
 //------------------------------------------------------------------------------
 int vtkProbeLineFilter::FillInputPortInformation(int port, vtkInformation* info)
 {
-
   switch (port)
   {
     case 0:
       info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
       info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkCompositeDataSet");
+      info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkHyperTreeGrid");
       break;
 
     case 1:
