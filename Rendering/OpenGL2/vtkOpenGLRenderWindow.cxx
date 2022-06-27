@@ -20,6 +20,8 @@
 #include <cassert>
 
 #include "vtkFloatArray.h"
+#include "vtkImageData.h"
+#include "vtkJPEGReader.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLActor.h"
@@ -49,6 +51,7 @@
 #include "vtkTimerLog.h"
 #include "vtkUnsignedCharArray.h"
 
+#include "BlueNoiseTexture64x64.h"
 #include "vtkTextureObjectVS.h" // a pass through shader
 
 #include <sstream>
@@ -2263,9 +2266,12 @@ int vtkOpenGLRenderWindow::GetNoiseTextureUnit()
 
   if (this->NoiseTextureObject->GetHandle() == 0)
   {
-    vtkNew<vtkPerlinNoise> generator;
-    generator->SetFrequency(64, 64, 1.0);
-    generator->SetAmplitude(0.5);
+    vtkNew<vtkJPEGReader> imgReader;
+
+    imgReader->SetMemoryBuffer(BlueNoiseTexture64x64);
+    imgReader->SetMemoryBufferLength(sizeof(BlueNoiseTexture64x64));
+    imgReader->Update();
+    vtkImageData* textureReader = imgReader->GetOutput();
 
     int const bufferSize = 64 * 64;
     float* noiseTextureData = new float[bufferSize];
@@ -2273,7 +2279,7 @@ int vtkOpenGLRenderWindow::GetNoiseTextureUnit()
     {
       int const x = i % 64;
       int const y = i / 64;
-      noiseTextureData[i] = static_cast<float>(generator->EvaluateFunction(x, y, 0.0) + 0.5);
+      noiseTextureData[i] = textureReader->GetScalarComponentAsFloat(x, y, 0, 0) / 255.0f;
     }
 
     // Prepare texture

@@ -171,6 +171,14 @@ foreach(file IN LISTS shader_files)
     "${header}")
 endforeach()
 
+vtk_encode_string(
+  INPUT "textures/BlueNoiseTexture64x64.jpg"
+  HEADER_OUTPUT BlueNoiseTexture64x64_header
+  SOURCE_OUTPUT BlueNoiseTexture64x64_source
+  BINARY)
+list(APPEND sources "${BlueNoiseTexture64x64_source}")
+list(APPEND private_headers "${BlueNoiseTexture64x64_header}")
+
 # setup factory overrides
 set(opengl_overrides
   Actor

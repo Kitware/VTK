@@ -348,7 +348,7 @@ public:
 
   // Activate and return thje texture unit for a generic 2d 64x64
   // float greyscale noise texture ranging from 0 to 1. The texture is
-  // generated using PerlinNoise.  This textur eunit will automatically
+  // a hard-coded blue noise texture.  This texture unit will automatically
   // be deactivated at the end of the render process.
   int GetNoiseTextureUnit();
 
