@@ -1510,11 +1510,11 @@ void vtkFiniteElementFieldDistributor::vtkInternals::InterpolateCellToNodes(cons
     std::vector<double> coeffs;
     if (this->RefElement == VTK_QUAD || this->RefElement == VTK_TRIANGLE)
     {
-      coeffs = std::move(::GetEdgeAttributes(fieldName, oldCd, cellId));
+      coeffs = ::GetEdgeAttributes(fieldName, oldCd, cellId);
     }
     else
     {
-      coeffs = std::move(::GetFaceAttributes(fieldName, oldCd, cellId));
+      coeffs = ::GetFaceAttributes(fieldName, oldCd, cellId);
     }
     if (coeffs.empty())
     {
