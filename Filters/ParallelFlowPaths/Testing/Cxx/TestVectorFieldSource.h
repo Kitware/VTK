@@ -21,5 +21,4 @@ protected:
 private:
   int Extent[6];
   double BoundingBox[6];
-  int Spacing;
 };
