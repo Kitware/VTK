@@ -268,7 +268,6 @@ private:
   std::vector<double> TimeSteps;
   int Extent[6];
   double BoundingBox[6];
-  int Spacing;
 };
 
 vtkStandardNewMacro(TestTimeSource);
