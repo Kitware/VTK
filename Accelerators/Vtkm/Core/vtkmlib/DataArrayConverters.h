@@ -88,7 +88,7 @@ struct DataArrayToArrayHandle<vtkSOADataArrayTemplate<T>, NumComponents>
           numValues, vtkm::CopyFlag::Off));
     }
 
-    return handle;
+    return std::move(handle);
   }
 };
 
