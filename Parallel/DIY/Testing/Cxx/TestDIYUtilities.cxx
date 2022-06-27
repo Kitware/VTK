@@ -118,35 +118,34 @@ bool TestFieldDataExchange(vtkMultiProcessController* controller, int nComponent
     /*dim*/ 1, diy::interval(0, assigner.nblocks() - 1), assigner.nblocks());
   decomposer.decompose(comm.rank(), assigner, master);
 
-  diy::all_to_all(
-    master, assigner, [&master, &fd](FieldDataBlock* block, const diy::ReduceProxy& srp) {
-      int myBlockId = srp.gid();
-      if (srp.round() == 0)
+  diy::all_to_all(master, assigner, [&fd](FieldDataBlock* block, const diy::ReduceProxy& srp) {
+    int myBlockId = srp.gid();
+    if (srp.round() == 0)
+    {
+      for (int i = 0; i < srp.out_link().size(); ++i)
       {
-        for (int i = 0; i < srp.out_link().size(); ++i)
+        const diy::BlockID& blockId = srp.out_link().target(i);
+        if (blockId.gid != myBlockId)
         {
-          const diy::BlockID& blockId = srp.out_link().target(i);
-          if (blockId.gid != myBlockId)
-          {
-            srp.enqueue<vtkFieldData*>(blockId, fd);
-          }
+          srp.enqueue<vtkFieldData*>(blockId, fd);
         }
       }
-      else
+    }
+    else
+    {
+      for (int i = 0; i < static_cast<int>(srp.in_link().size()); ++i)
       {
-        for (int i = 0; i < static_cast<int>(srp.in_link().size()); ++i)
+        const diy::BlockID& blockId = srp.in_link().target(i);
+        if (blockId.gid != myBlockId)
         {
-          const diy::BlockID& blockId = srp.in_link().target(i);
-          if (blockId.gid != myBlockId)
-          {
-            vtkFieldData* tmp = nullptr;
-            srp.dequeue(blockId, tmp);
-            block->FieldData.insert({ blockId.gid, tmp });
-            tmp->FastDelete();
-          }
+          vtkFieldData* tmp = nullptr;
+          srp.dequeue(blockId, tmp);
+          block->FieldData.insert({ blockId.gid, tmp });
+          tmp->FastDelete();
         }
       }
-    });
+    }
+  });
 
   if (rank > 1)
   {
