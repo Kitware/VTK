@@ -59,7 +59,6 @@
 class vtkIOSSWriter::vtkInternals
 {
   Ioss::Init::Initializer io;
-  vtkIOSSWriter* Self = nullptr;
 
 public:
   std::unique_ptr<Ioss::Region> Region;
@@ -68,10 +67,7 @@ public:
   int RestartIndex{ 0 };
   std::string LastMD5;
 
-  vtkInternals(vtkIOSSWriter* self)
-    : Self(self)
-  {
-  }
+  vtkInternals() = default;
   ~vtkInternals() = default;
 };
 
@@ -79,7 +75,7 @@ vtkStandardNewMacro(vtkIOSSWriter);
 vtkCxxSetObjectMacro(vtkIOSSWriter, Controller, vtkMultiProcessController);
 //----------------------------------------------------------------------------
 vtkIOSSWriter::vtkIOSSWriter()
-  : Internals(new vtkIOSSWriter::vtkInternals(this))
+  : Internals(new vtkIOSSWriter::vtkInternals)
   , Controller(nullptr)
   , FileName(nullptr)
   , OffsetGlobalIds(false)
