@@ -112,6 +112,10 @@ void vtkOpenGLImageMapper::ReleaseGraphicsResources(vtkWindow* renWin)
     (x) = static_cast<unsigned char>(val);                                                         \
   }
 /* should do proper rounding, as follows:
+ *
+ * XXX(ben.boeckel): This is not proper rounding. This will round the value
+ * just less than 0.5 to 1.0 due to IEEE floating point rounding rules. *That*
+ * is the number to add.
   (x) = (unsigned char)(val + 0.5f); \
 */
 
