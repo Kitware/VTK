@@ -169,11 +169,11 @@ int vtkHyperTreeGridGeometricLocator::IntersectWithLine(const double p0[3], cons
   std::vector<double> origin(dim, 0.0);
   this->GetZeroLevelOriginAndSize(origin.data(), sizes.data());
   // find intersection point with entire grid
-  auto checkIsInCell = [dim](const double* origin, const double* sizes, const double* query) {
+  auto checkIsInCell = [dim](const double* origin_, const double* sizes_, const double* query) {
     bool isIn = true;
     for (unsigned int d = 0; d < dim; d++)
     {
-      isIn &= ((query[d] - origin[d]) < sizes[d]);
+      isIn &= ((query[d] - origin_[d]) < sizes_[d]);
     }
     return isIn;
   };

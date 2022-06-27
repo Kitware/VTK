@@ -1081,9 +1081,9 @@ struct IsAnyBitSetFunctor
   int IsAnyBit;
   vtkSMPThreadLocal<unsigned char> TLIsAnyBit;
 
-  IsAnyBitSetFunctor(vtkUnsignedCharArray* BitSet, int BitFlag)
-    : BitSet(BitSet->GetPointer(0))
-    , BitFlag(BitFlag)
+  IsAnyBitSetFunctor(vtkUnsignedCharArray* bitSet, int bitFlag)
+    : BitSet(bitSet->GetPointer(0))
+    , BitFlag(bitFlag)
   {
   }
 
