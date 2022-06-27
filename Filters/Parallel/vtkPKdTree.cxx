@@ -102,11 +102,11 @@ const int vtkPKdTree::UserDefinedAssignment = 2;
 const int vtkPKdTree::RoundRobinAssignment = 3;
 
 #define FreeList(list)                                                                             \
-  if (list)                                                                                        \
+  do                                                                                               \
   {                                                                                                \
     delete[] list;                                                                                 \
     list = nullptr;                                                                                \
-  }
+  } while (false)
 #define FreeObject(item)                                                                           \
   if (item)                                                                                        \
   {                                                                                                \
