@@ -527,7 +527,7 @@ void vtkModelMetadata::SetSideSetNumDFPerSide(int* s)
 }
 int vtkModelMetadata::SetSideSetNumberOfDistributionFactors(int* df)
 {
-  FREE(this->SideSetNumberOfDistributionFactors)
+  FREE(this->SideSetNumberOfDistributionFactors);
 
   if (df)
   {

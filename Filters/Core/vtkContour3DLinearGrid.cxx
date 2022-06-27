@@ -272,11 +272,11 @@ struct ContourCellsBase
     // Copy points output to VTK structures. Only point coordinates are
     // copied for now; later we'll define the triangle topology.
     ProducePoints<TOP> producePts(&localPts, &localPtOffsets, pts);
-    EXECUTE_SMPFOR(this->Sequential, this->NumThreadsUsed, producePts)
+    EXECUTE_SMPFOR(this->Sequential, this->NumThreadsUsed, producePts);
 
     // Now produce the output triangles (topology) for this contour n parallel
     ProduceTriangles produceTris(this->TotalTris, this->NewPolys);
-    EXECUTE_SMPFOR(this->Sequential, this->NumTris, produceTris)
+    EXECUTE_SMPFOR(this->Sequential, this->NumTris, produceTris);
   } // Reduce
 };  // ContourCellsBase
 

@@ -320,7 +320,7 @@ void vtkOOGLExporter::WriteAnActor(vtkActor* anActor, FILE* fp, int count)
   // start an INST object
   fprintf(fp, "%s{ INST\n", indent);
 
-  VTK_INDENT_MORE
+  VTK_INDENT_MORE;
 
   // start a LIST object
   fprintf(fp, "%sgeom { LIST\n", indent);

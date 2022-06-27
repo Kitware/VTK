@@ -132,7 +132,8 @@ bool TestExpandPDS1(vtkPartitionedDataSet* outPDS1, int rank)
   {
     if (!outDS100)
     {
-      vtkLog(ERROR, "Output partitioned data set r0 - PD1 has a nullptr partition.") retVal = false;
+      vtkLog(ERROR, "Output partitioned data set r0 - PD1 has a nullptr partition.");
+      retVal = false;
     }
     else if (!outDS100->GetFieldData()->GetAbstractArray(names[0][3]))
     {
@@ -143,8 +144,8 @@ bool TestExpandPDS1(vtkPartitionedDataSet* outPDS1, int rank)
   {
     if (outDS100)
     {
-      vtkLog(ERROR, "Output partitioned data set r1 - PD1 should have a nullptr partition.")
-        retVal = false;
+      vtkLog(ERROR, "Output partitioned data set r1 - PD1 should have a nullptr partition.");
+      retVal = false;
     }
   }
 
@@ -239,7 +240,8 @@ bool TestSquashPDS1(vtkPartitionedDataSet* outPDS1, int rank)
   {
     if (!outDS100)
     {
-      vtkLog(ERROR, "Output partitioned data set r0 - PD1 has a nullptr partition.") retVal = false;
+      vtkLog(ERROR, "Output partitioned data set r0 - PD1 has a nullptr partition.");
+      retVal = false;
     }
     else if (!outDS100->GetFieldData()->GetAbstractArray(names[0][3]))
     {
@@ -250,8 +252,8 @@ bool TestSquashPDS1(vtkPartitionedDataSet* outPDS1, int rank)
   {
     if (outDS100)
     {
-      vtkLog(ERROR, "Output partitioned data set r1 - PD1 should have a nullptr partition.")
-        retVal = false;
+      vtkLog(ERROR, "Output partitioned data set r1 - PD1 should have a nullptr partition.");
+      retVal = false;
     }
   }
 

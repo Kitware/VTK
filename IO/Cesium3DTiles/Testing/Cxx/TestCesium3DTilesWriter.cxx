@@ -236,10 +236,9 @@ void tiler(const std::vector<std::string>& input, int inputType, bool addColor,
   {
     throw std::runtime_error("No valid input files");
   }
-  vtkLog(INFO, "Parsing " << files.size() << " files...")
+  vtkLog(INFO, "Parsing " << files.size() << " files...");
 
-    std::array<double, 3>
-      fileOffset = { { 0, 0, 0 } };
+  std::array<double, 3> fileOffset = { { 0, 0, 0 } };
   if (inputType == vtkCesium3DTilesWriter::Buildings || inputType == vtkCesium3DTilesWriter::Mesh)
   {
     mbData = READER[SystemTools::GetFilenameExtension(files[0])](

@@ -77,15 +77,15 @@ int TestAMRInterpolatedVelocityField(int, char*[])
   res = func->FunctionValues(Points[1], v) != 0;
   RETURNONFALSE(res);
   func->GetLastDataSetLocation(level, id);
-  RETURNONFALSE(level == 1)
+  RETURNONFALSE(level == 1);
   res = func->FunctionValues(Points[2], v) != 0;
   RETURNONFALSE(res);
   func->GetLastDataSetLocation(level, id);
-  RETURNONFALSE(level == 0)
+  RETURNONFALSE(level == 0);
   res = func->FunctionValues(Points[3], v) != 0;
   RETURNONFALSE(res);
   func->GetLastDataSetLocation(level, id);
-  RETURNONFALSE(level == 1)
+  RETURNONFALSE(level == 1);
 
   vtkAlgorithm::SetDefaultExecutivePrototype(nullptr);
   return EXIT_SUCCESS;
