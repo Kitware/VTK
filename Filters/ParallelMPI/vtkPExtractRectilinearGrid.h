@@ -48,7 +48,7 @@ public:
 
 protected:
   vtkPExtractRectilinearGrid();
-  virtual ~vtkPExtractRectilinearGrid();
+  ~vtkPExtractRectilinearGrid() override;
 
   // Standard VTK Pipeline methods
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
