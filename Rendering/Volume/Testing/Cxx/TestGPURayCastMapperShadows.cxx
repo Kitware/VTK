@@ -43,14 +43,6 @@
 #include <vtkVolume.h>
 #include <vtkVolumeProperty.h>
 
-static inline void idxToCoords(int idx[3], double spacing[3], double origin[3], double res[3])
-{
-  for (int s = 0; s < 3; s++)
-  {
-    res[s] = origin[s] + spacing[s] * idx[s];
-  }
-}
-
 static inline void coordsToIdx(double coords[3], double spacing[3], double origin[3], int res[3])
 {
   for (int s = 0; s < 3; s++)
