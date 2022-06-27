@@ -52,6 +52,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <map>
 #include <set>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include <cassert>
@@ -2452,19 +2453,12 @@ REAL newtonSearchPolynomialFunc(
 FUNC_DECL
 uchar3 sortTriangle(uchar3 t, unsigned char* i)
 {
-#define SWAP(a, b)                                                                                 \
-  {                                                                                                \
-    unsigned char tmp = a;                                                                         \
-    a = b;                                                                                         \
-    b = tmp;                                                                                       \
-  }
   if (i[t.y] < i[t.x])
-    SWAP(t.x, t.y);
+    std::swap(t.x, t.y);
   if (i[t.z] < i[t.y])
-    SWAP(t.y, t.z);
+    std::swap(t.y, t.z);
   if (i[t.y] < i[t.x])
-    SWAP(t.x, t.y);
-#undef SWAP
+    std::swap(t.x, t.y);
   return t;
 }
 
@@ -2476,12 +2470,6 @@ FUNC_DECL
 void sortVertices(const int n, const REAL3* vertices, const REAL3 normal, IntType* indices)
 {
   // insertion sort : slow but symmetrical across all instances
-#define SWAP(a, b)                                                                                 \
-  {                                                                                                \
-    IntType t = indices[a];                                                                        \
-    indices[a] = indices[b];                                                                       \
-    indices[b] = t;                                                                                \
-  }
   for (int i = 0; i < n; i++)
   {
     int imin = i;
@@ -2492,21 +2480,14 @@ void sortVertices(const int n, const REAL3* vertices, const REAL3 normal, IntTyp
       imin = (d < dmin) ? j : imin;
       dmin = min(dmin, d);
     }
-    SWAP(i, imin);
+    std::swap(i, imin);
   }
-#undef SWAP
 }
 
 FUNC_DECL
 void sortVertices(const int n, const REAL2* vertices, const REAL2 normal, IntType* indices)
 {
   // insertion sort : slow but symmetrical across all instances
-#define SWAP(a, b)                                                                                 \
-  {                                                                                                \
-    IntType t = indices[a];                                                                        \
-    indices[a] = indices[b];                                                                       \
-    indices[b] = t;                                                                                \
-  }
   for (int i = 0; i < n; i++)
   {
     int imin = i;
@@ -2517,33 +2498,25 @@ void sortVertices(const int n, const REAL2* vertices, const REAL2 normal, IntTyp
       imin = (d < dmin) ? j : imin;
       dmin = min(dmin, d);
     }
-    SWAP(i, imin);
+    std::swap(i, imin);
   }
-#undef SWAP
 }
 
 FUNC_DECL
 uchar4 sortTetra(uchar4 t, IntType* i)
 {
-#define SWAP(a, b)                                                                                 \
-  {                                                                                                \
-    IntType tmp = a;                                                                               \
-    a = b;                                                                                         \
-    b = tmp;                                                                                       \
-  }
   if (i[t.y] < i[t.x])
-    SWAP(t.x, t.y);
+    std::swap(t.x, t.y);
   if (i[t.w] < i[t.z])
-    SWAP(t.z, t.w);
+    std::swap(t.z, t.w);
   if (i[t.z] < i[t.y])
-    SWAP(t.y, t.z);
+    std::swap(t.y, t.z);
   if (i[t.y] < i[t.x])
-    SWAP(t.x, t.y);
+    std::swap(t.x, t.y);
   if (i[t.w] < i[t.z])
-    SWAP(t.z, t.w);
+    std::swap(t.z, t.w);
   if (i[t.z] < i[t.y])
-    SWAP(t.y, t.z);
-#undef SWAP
+    std::swap(t.y, t.z);
   return t;
 }
 
