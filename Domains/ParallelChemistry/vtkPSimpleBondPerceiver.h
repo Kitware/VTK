@@ -43,7 +43,7 @@ public:
 
 protected:
   vtkPSimpleBondPerceiver() = default;
-  ~vtkPSimpleBondPerceiver() = default;
+  ~vtkPSimpleBondPerceiver() override = default;
 
   /**
    * Create ghosts level in molecule.
