@@ -60,7 +60,7 @@ protected:
   typedef std::vector<RemoteParticleInfo> RemoteParticleVector;
 
   vtkPParticleTracerBase();
-  ~vtkPParticleTracerBase();
+  ~vtkPParticleTracerBase() override;
 
   virtual int RequestUpdateExtent(vtkInformation* request, vtkInformationVector** inputVector,
     vtkInformationVector* outputVector) override;

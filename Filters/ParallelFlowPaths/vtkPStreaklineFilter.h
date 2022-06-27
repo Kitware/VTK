@@ -41,7 +41,7 @@ public:
 
 protected:
   vtkPStreaklineFilter();
-  ~vtkPStreaklineFilter() {}
+  ~vtkPStreaklineFilter() override = default;
   vtkPStreaklineFilter(const vtkPStreaklineFilter&) = delete;
   void operator=(const vtkPStreaklineFilter&) = delete;
   int OutputParticles(vtkPolyData* poly) override;

@@ -11,7 +11,7 @@ public:
 
 protected:
   TestVectorFieldSource();
-  ~TestVectorFieldSource();
+  ~TestVectorFieldSource() override;
   int RequestInformation(vtkInformation* request, vtkInformationVector** inputInfoVectors,
     vtkInformationVector* outputInfoVector) override;
   void GetSpacing(double dx[3]);
