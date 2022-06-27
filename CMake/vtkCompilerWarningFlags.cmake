@@ -71,6 +71,11 @@ if (VTK_ENABLE_EXTRA_BUILD_WARNINGS_EVERYTHING)
   vtk_add_flag(-Wno-weak-template-vtables ${langs})
   vtk_add_flag(-Wno-weak-vtables ${langs})
   vtk_add_flag(-Wno-zero-as-null-pointer-constant ${langs})
+
+  # These should be fixed at some point prior to updating VTK's standard
+  # version. See #18585.
+  vtk_add_flag(-Wno-deprecated-copy-dtor ${langs})
+  vtk_add_flag(-Wno-deprecated-copy ${langs})
 elseif (VTK_ENABLE_EXTRA_BUILD_WARNINGS)
   # C flags.
   set(langs C)
