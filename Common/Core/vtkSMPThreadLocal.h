@@ -90,10 +90,7 @@ public:
   /**
    * Default constructor. Creates a default exemplar.
    */
-  vtkSMPThreadLocal()
-    : ThreadLocalAPI()
-  {
-  }
+  vtkSMPThreadLocal() = default;
 
   /**
    * Constructor that allows the specification of an exemplar object
