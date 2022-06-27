@@ -848,12 +848,6 @@ vtkStandardNewMacro(AMRPStreamTracerUtils);
 //------------------------------------------------------------------------------
 namespace
 {
-inline double normvec3(double* x, double* y)
-{
-  return sqrt(
-    (x[0] - y[0]) * (x[0] - y[0]) + (x[1] - y[1]) * (x[1] - y[1]) + (x[2] - y[2]) * (x[2] - y[2]));
-}
-
 inline vtkIdType LastPointIndex(vtkPolyData* pathPoly)
 {
   vtkCellArray* pathCells = pathPoly->GetLines();
