@@ -428,13 +428,15 @@ int vtkTemporalDataSetCache::RequestData(vtkInformation* vtkNotUsed(request),
     }
     else
     {
+      vtkTDSCMemkindRAII* mkhold = nullptr;
       if (hasDataTimeStep && inTime == upTime)
       {
-        auto mkhold = vtkTDSCMemkindRAII(this);
+        mkhold = new vtkTDSCMemkindRAII(this);
       }
       // just shallow copy input to output
       output.TakeReference(input->NewInstance());
       output->ShallowCopy(input);
+      delete mkhold;
     }
   }
   // set the data times
