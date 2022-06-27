@@ -39,9 +39,11 @@
 // Set to 1 to generate debugging trace if grammar match fails.
 #include "vtkMotionFXCFGGrammar.h" // grammar
 
+#include <cassert>
 #include <cctype>
 #include <fstream>
 #include <map>
+#include <memory>
 #include <string>
 #include <vector>
 
