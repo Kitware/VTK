@@ -1565,7 +1565,6 @@ void vtkKdTree::Select_(int dim, float* X, int* ids, int L, int R, int K)
 
       while (Xcomponent[(++I) * 3] < T)
       {
-        ;
       }
 
       while ((J > L) && (Xcomponent[(--J) * 3] >= T))
@@ -1602,14 +1601,12 @@ void vtkKdTree::Select_(int dim, float* X, int* ids, int L, int R, int K)
       {
         while ((++I < J) && (Xcomponent[I * 3] == T))
         {
-          ;
         }
         if (I == J)
           break;
 
         while ((--J > I) && (Xcomponent[J * 3] > T))
         {
-          ;
         }
         if (J == I)
           break;

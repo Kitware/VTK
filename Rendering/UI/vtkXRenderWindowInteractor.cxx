@@ -929,7 +929,6 @@ void vtkXRenderWindowInteractor::DispatchEvent(XEvent* event)
 
           reply.type = ClientMessage;
           reply.xclient.window = this->XdndSource;
-          ;
           reply.xclient.message_type = this->XdndFinishedAtom;
           reply.xclient.format = 32;
           reply.xclient.data.l[0] = this->WindowId;

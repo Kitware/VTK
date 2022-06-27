@@ -191,11 +191,9 @@ void vtkXMLDataParser::SeekInlineDataPosition(vtkXMLDataElement* element)
     this->SeekG(element->GetXMLByteIndex());
     while (stream->get(c) && (c != '>'))
     {
-      ;
     }
     while (stream->get(c) && vtkXMLDataElement::IsSpace(c))
     {
-      ;
     }
     vtkTypeInt64 pos = this->TellG();
     element->SetInlineDataPosition(pos - 1);
@@ -287,11 +285,9 @@ void vtkXMLDataParser::FindAppendedDataPosition()
   this->SeekG(this->GetXMLByteIndex());
   while (this->Stream->get(c) && (c != '>'))
   {
-    ;
   }
   while (this->Stream->get(c) && vtkXMLDataParser::IsSpace(c))
   {
-    ;
   }
 
   // Store the start of the appended data.  We skip the first

@@ -76,7 +76,7 @@ std::vector<int> GenerateAllocations(const std::vector<int>& allocs, const int n
     for (size_t i = 0; i < static_cast<size_t>(partsToAlloc); ++i)
     {
       ++(*ranksToAllocIters[i % ranksToAllocSize]);
-    };
+    }
   }
 
   if (std::accumulate(partsPerRank.begin(), partsPerRank.end(), 0) != numPartitions)

@@ -85,7 +85,6 @@ protected:
   void GetAMRGridPointData(const int vtkNotUsed(blockIdx), vtkUniformGrid* vtkNotUsed(block),
     const char* vtkNotUsed(field)) override
   {
-    ;
   }
 
   /**

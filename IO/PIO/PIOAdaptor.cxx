@@ -1249,7 +1249,7 @@ void PIOAdaptor::create_amr_UG(vtkMultiBlockDataSet* grid)
     for (int d = 0; d < this->Impl->dimension; d++)
     {
       cell_center[d] = &center[d][0];
-    };
+    }
 
     numberOfCells = this->Impl->countCell[0];
     for (int rank = 1; rank < this->TotalRank; rank++)
@@ -1662,7 +1662,7 @@ void PIOAdaptor::create_amr_HTG(vtkMultiBlockDataSet* grid)
     for (int d = 0; d < this->Impl->dimension; d++)
     {
       cell_center[d] = &center[d][0];
-    };
+    }
   }
 
   // Allocate space on other processors for all cells

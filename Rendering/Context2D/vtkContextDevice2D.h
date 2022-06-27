@@ -113,12 +113,12 @@ public:
   /**
    * Draw a quad using the specified number of points.
    */
-  virtual void DrawQuad(float*, int) { ; }
+  virtual void DrawQuad(float*, int) {}
 
   /**
    * Draw a quad using the specified number of points.
    */
-  virtual void DrawQuadStrip(float*, int) { ; }
+  virtual void DrawQuadStrip(float*, int) {}
 
   /**
    * Draw a polygon using the specified number of points.

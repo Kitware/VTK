@@ -422,7 +422,7 @@ void vtkCameraInterpolator::InitializeInterpolation()
     }
     else
     {
-      ; // manual override, user manipulates interpolators directly
+      // manual override, user manipulates interpolators directly
     }
 
     // Okay, now we can load the interpolators with data

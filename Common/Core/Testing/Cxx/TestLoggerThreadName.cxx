@@ -30,7 +30,7 @@ void Thread1()
   const std::string threaName = "T1";
   while (!wait1.load())
   {
-  };
+  }
 
   vtkLogger::SetThreadName(threaName);
 
@@ -50,7 +50,7 @@ void Thread2()
   wait1.store(true);
   while (!wait2.load())
   {
-  };
+  }
 
   vtkLogger::Init();
 

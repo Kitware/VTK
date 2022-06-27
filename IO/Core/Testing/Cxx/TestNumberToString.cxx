@@ -30,7 +30,7 @@ int ConvertNumericLimitsValue(const char* t, T);
 int TestNumberToString(int, char*[])
 {
   int status = EXIT_SUCCESS;
-  ;
+
   std::cout << "Testing <numeric_limits>..." << std::endl;
   if (ConvertNumericLimitsValue("unsigned short", static_cast<unsigned short>(0)) == EXIT_FAILURE)
   {

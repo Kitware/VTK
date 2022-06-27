@@ -38,11 +38,14 @@ resulting in wrapper code that is faster and more compact.
 
 // Macro to mimic a check done in PyArg_ParseTuple
 #define VTK_PYTHON_FLOAT_CHECK()                                                                   \
-  if (PyFloat_Check(o))                                                                            \
+  do                                                                                               \
   {                                                                                                \
-    PyErr_SetString(PyExc_TypeError, "integer argument expected, got float");                      \
-    return false;                                                                                  \
-  }
+    if (PyFloat_Check(o))                                                                          \
+    {                                                                                              \
+      PyErr_SetString(PyExc_TypeError, "integer argument expected, got float");                    \
+      return false;                                                                                \
+    }                                                                                              \
+  } while (false)
 
 inline bool vtkPythonGetValue(PyObject* o, long& a)
 {

@@ -1686,7 +1686,7 @@ int vtkMINCImageWriter::WriteMINCData(
   size_t bufferSize = 0;
   switch (fileType)
   {
-    vtkMINCImageWriterTemplateMacro(bufferSize = sizeof(VTK_TT) * chunkSize;);
+    vtkMINCImageWriterTemplateMacro(bufferSize = sizeof(VTK_TT) * chunkSize);
   }
   std::vector<unsigned char> buffer(bufferSize);
 

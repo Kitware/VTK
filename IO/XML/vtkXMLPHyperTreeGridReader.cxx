@@ -368,7 +368,7 @@ void vtkXMLPHyperTreeGridReader::SetupOutputInformation(vtkInformation* vtkNotUs
   {
     vtkErrorMacro("Should not still be processing output information if have set InformationError");
     return;
-  };
+  }
 }
 
 //------------------------------------------------------------------------------

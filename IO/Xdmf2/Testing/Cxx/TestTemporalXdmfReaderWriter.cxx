@@ -29,11 +29,14 @@
 #include "vtksys/SystemTools.hxx"
 
 #define ASSERT_TEST(_cond_, _msg_)                                                                 \
-  if (!(_cond_))                                                                                   \
+  do                                                                                               \
   {                                                                                                \
-    std::cerr << _msg_ << std::endl;                                                               \
-    return VTK_ERROR;                                                                              \
-  }
+    if (!(_cond_))                                                                                 \
+    {                                                                                              \
+      std::cerr << _msg_ << std::endl;                                                             \
+      return VTK_ERROR;                                                                            \
+    }                                                                                              \
+  } while (false)
 
 int TestStaticMesh(vtkXdmfReader* reader)
 {

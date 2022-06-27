@@ -236,7 +236,6 @@ struct vtkBinTree
   {
     for (level = this->NumLevels - 1; globalBin < this->Tree[level]->LevelOffset; --level)
     {
-      ;
     }
     localBin = globalBin - this->Tree[level]->LevelOffset;
   }
@@ -387,7 +386,6 @@ struct BinTree : public vtkBinTree
 
         for (level = numLevels - 1; idx < this->Thresh[level]; --level)
         {
-          ;
         }
         t->Bin = this->Tree->Tree[level]->GetBinIndex(p);
       } // for all points in this batch
@@ -450,7 +448,7 @@ struct BinTree : public vtkBinTree
       {
         for (; curPt->Bin == prevPt->Bin && curPt <= endBatchPt; ++curPt)
         {
-          ; // advance
+          // advance
         }
         // Fill in any gaps in the offset array
         std::fill_n(offsets + prevPt->Bin + 1, curPt->Bin - prevPt->Bin, curPt - this->Tree->Map);

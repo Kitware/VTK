@@ -46,8 +46,8 @@ namespace vtk
 class BenchmarkTest
 {
 public:
-  BenchmarkTest() { ; }
-  virtual ~BenchmarkTest() { ; }
+  BenchmarkTest() = default;
+  virtual ~BenchmarkTest() = default;
 
   virtual vtkIdType Build(vtkRenderer*, const vtkVector2i&) { return 0; }
 };

@@ -431,7 +431,6 @@ void vtkDistanceRepresentation3D::SetLabelPosition(double labelPosition)
 
   if (this->LabelPosition == labelPosition)
   {
-    ;
   }
   else
   {

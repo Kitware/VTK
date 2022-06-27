@@ -181,7 +181,7 @@ int vtkDIMACSGraphReader::buildGenericGraph(vtkGraph* output,
           break;
         default:
           break;
-      };
+      }
     }
   }
 
@@ -316,7 +316,7 @@ int vtkDIMACSGraphReader::buildMaxflowGraph(vtkGraph* output)
           break;
         default:
           break;
-      };
+      }
     }
   }
 
@@ -396,7 +396,7 @@ int vtkDIMACSGraphReader::buildColoringGraph(vtkGraph* output)
         break;
         default:
           break;
-      };
+      }
     }
   }
 
@@ -455,7 +455,7 @@ int vtkDIMACSGraphReader::ReadGraphMetaData()
         {
           foundMultipleProblemLines = true;
         }
-    };
+    }
   }
   IFP.close();
 

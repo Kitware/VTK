@@ -83,7 +83,6 @@ public:
   void SetFileName(const char* filename)
   {
     std::string newFileName(filename ? filename : "");
-    ;
     if (newFileName != this->FileName)
     {
       this->FileName = filename;

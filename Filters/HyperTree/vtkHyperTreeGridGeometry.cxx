@@ -1033,7 +1033,7 @@ void vtkHyperTreeGridGeometry::AddFace2(vtkIdType inId, vtkIdType useId, const d
             else
             {
               pair[0] = i;
-            };
+            }
             ++indPair;
           } // if ( A * B < 0 )
         }   // p
@@ -1095,7 +1095,7 @@ void vtkHyperTreeGridGeometry::AddFace2(vtkIdType inId, vtkIdType useId, const d
             else
             {
               pairA[0] = i;
-            };
+            }
             ++indPairA;
           } // if ( A1 < 0. && A1 * B1 < 0. )
           if (A2 * B2 < 0.)
@@ -1121,7 +1121,7 @@ void vtkHyperTreeGridGeometry::AddFace2(vtkIdType inId, vtkIdType useId, const d
             else
             {
               pairB[0] = i;
-            };
+            }
             ++indPairB;
           } // if ( A2 * B2 < 0. )
           if (A1 > 0. && A1 * B1 < 0.)
@@ -1147,7 +1147,7 @@ void vtkHyperTreeGridGeometry::AddFace2(vtkIdType inId, vtkIdType useId, const d
             else
             {
               pairA[0] = i;
-            };
+            }
             ++indPairA;
           } // if ( A1 > 0. && A1 * B1 < 0. )
         }   // p
@@ -1206,7 +1206,7 @@ void vtkHyperTreeGridGeometry::AddFace2(vtkIdType inId, vtkIdType useId, const d
             else
             {
               pair[0] = i;
-            };
+            }
             ++indPair;
           } // if ( A * B < 0. )
         }   // p

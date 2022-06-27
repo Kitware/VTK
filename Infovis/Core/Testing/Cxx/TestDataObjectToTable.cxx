@@ -79,7 +79,7 @@ int TestDataObjectToTable(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
       case 2:
         cerr << "cell data";
         break;
-    };
+    }
     cerr << " to a table ..." << endl;
     toTable->SetFieldType(type);
     toTable->Update();

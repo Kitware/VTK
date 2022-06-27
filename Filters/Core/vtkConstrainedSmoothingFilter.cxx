@@ -497,7 +497,7 @@ int vtkConstrainedSmoothingFilter::RequestData(vtkInformation* vtkNotUsed(reques
   double* cArray = (constraints ? constraints->GetPointer(0) : nullptr);
   if (this->ConstraintStrategy == DEFAULT)
   {
-    ; // preference is constraint array
+    // preference is constraint array
   }
   else if (this->ConstraintStrategy == CONSTRAINT_DISTANCE)
   {

@@ -330,7 +330,7 @@ void vtkXMLPTableReader::SetupOutputInformation(vtkInformation* outInfo)
   {
     vtkErrorMacro("Should not still be processing output information if have set InformationError");
     return;
-  };
+  }
 
   // Initialize DataArraySelections to enable all that are present
   this->SetDataArraySelections(this->PRowElement, this->ColumnSelection);

@@ -410,7 +410,7 @@ int vtkAVSucdReader::RequestInformation(vtkInformation* vtkNotUsed(request),
         for (j = 0; j < ncomp_list[i]; j++)
         {
           this->CellDataInfo[i].min[j] = mx[k];
-        };
+        }
         k++;
       }
       // read now the maximums for cell_data

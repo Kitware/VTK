@@ -1804,7 +1804,7 @@ struct ProduceIntersectionPoints
       if (pStart.Classification == PointClassification::Outside ||
         pEnd.Classification == PointClassification::Outside)
       {
-        ; // nothing output
+        // nothing output
       }
 
       // Is one of the points inside? Create fragment if so.

@@ -109,31 +109,31 @@ extern "C"
         {
           self->DataObject = vtkSmartPointer<vtkPolyData>::New();
           self->Writer = vtkSmartPointer<vtkXMLPolyDataWriter>::New();
-        };
+        }
         break;
         case VTK_UNSTRUCTURED_GRID:
         {
           self->DataObject = vtkSmartPointer<vtkUnstructuredGrid>::New();
           self->Writer = vtkSmartPointer<vtkXMLUnstructuredGridWriter>::New();
-        };
+        }
         break;
         case VTK_STRUCTURED_GRID:
         {
           self->DataObject = vtkSmartPointer<vtkStructuredGrid>::New();
           self->Writer = vtkSmartPointer<vtkXMLStructuredGridWriter>::New();
-        };
+        }
         break;
         case VTK_RECTILINEAR_GRID:
         {
           self->DataObject = vtkSmartPointer<vtkRectilinearGrid>::New();
           self->Writer = vtkSmartPointer<vtkXMLRectilinearGridWriter>::New();
-        };
+        }
         break;
         case VTK_IMAGE_DATA:
         {
           self->DataObject = vtkSmartPointer<vtkImageData>::New();
           self->Writer = vtkSmartPointer<vtkXMLImageDataWriter>::New();
-        };
+        }
         break;
       }
 

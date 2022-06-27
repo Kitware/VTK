@@ -79,18 +79,15 @@ vtkDataObjectToDataSetFilter::vtkDataObjectToDataSetFilter()
 
   this->DefaultNormalize = 0;
 
-  this->DimensionsArray = nullptr;
-  ; // the name of the array
+  this->DimensionsArray = nullptr; // the name of the array
   this->DimensionsArrayComponent = -1;
   this->DimensionsComponentRange[0] = this->DimensionsComponentRange[1] = -1;
 
-  this->SpacingArray = nullptr;
-  ; // the name of the array
+  this->SpacingArray = nullptr; // the name of the array
   this->SpacingArrayComponent = -1;
   this->SpacingComponentRange[0] = this->SpacingComponentRange[1] = -1;
 
-  this->OriginArray = nullptr;
-  ; // the name of the array
+  this->OriginArray = nullptr; // the name of the array
   this->OriginArrayComponent = -1;
   this->OriginComponentRange[0] = this->OriginComponentRange[1] = -1;
 

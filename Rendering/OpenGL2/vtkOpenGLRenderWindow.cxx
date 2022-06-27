@@ -823,7 +823,6 @@ int vtkOpenGLRenderWindow::ReadPixels(
   // Must clear previous errors first.
   while (glGetError() != GL_NO_ERROR)
   {
-    ;
   }
 
   this->GetState()->vtkglDisable(GL_SCISSOR_TEST);
@@ -1401,7 +1400,6 @@ int vtkOpenGLRenderWindow::SetPixelData(
   // Must clear previous errors first.
   while (glGetError() != GL_NO_ERROR)
   {
-    ;
   }
 
   this->GetState()->PushDrawFramebufferBinding();
@@ -1580,7 +1578,6 @@ int vtkOpenGLRenderWindow::SetRGBAPixelData(
   // Must clear previous errors first.
   while (glGetError() != GL_NO_ERROR)
   {
-    ;
   }
 
   this->GetState()->PushDrawFramebufferBinding();
@@ -1763,7 +1760,6 @@ int vtkOpenGLRenderWindow::SetRGBACharPixelData(
   // Must clear previous errors first.
   while (glGetError() != GL_NO_ERROR)
   {
-    ;
   }
 
   this->GetState()->PushDrawFramebufferBinding();
@@ -1845,7 +1841,6 @@ int vtkOpenGLRenderWindow::GetZbufferData(int x1, int y1, int x2, int y2, float*
   // Must clear previous errors first.
   while (glGetError() != GL_NO_ERROR)
   {
-    ;
   }
 
   this->GetState()->vtkglDisable(GL_SCISSOR_TEST);

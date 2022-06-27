@@ -107,7 +107,6 @@ static void ReadStringVersion(const char* version, int& major, int& minor)
 
   for (s = begin; (s != end) && (*s != '.'); ++s)
   {
-    ;
   }
 
   if (s > begin)

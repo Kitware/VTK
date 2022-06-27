@@ -970,7 +970,7 @@ struct MapOffsets
     {
       for (; curPt->Bin == prevPt->Bin && curPt <= endBatchPt; ++curPt)
       {
-        ; // advance
+        // advance
       }
       // Fill in any gaps in the offset array
       if (curPt < endPt) // still within range of points

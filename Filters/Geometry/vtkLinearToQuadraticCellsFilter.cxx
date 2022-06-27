@@ -101,7 +101,6 @@ void DegreeElevate(vtkCell* lowerOrderCell, vtkIncrementalPointLocator* pointLoc
       //     must use local indexing here (i.e. <lp> instead of
       //     <lowerOrderCell->GetPointIds()->GetId(lp)>).
       lowerOrderCell->GetPoints()->GetPoint(lp, lowerOrderPoint);
-      ;
       for (int i = 0; i < 3; i++)
       {
         higherOrderPoint[i] += lowerOrderPoint[i] * lowerOrderCoeffs[lp];

@@ -173,7 +173,7 @@ vtkPythonGlobalInterpreters::vtkPythonGlobalInterpreters()
   if (vtkPythonInterpretersCounter++ == 0)
   {
     GlobalInterpreters = new std::vector<vtkWeakPointer<vtkPythonInterpreter>>();
-  };
+  }
 }
 
 vtkPythonGlobalInterpreters::~vtkPythonGlobalInterpreters()

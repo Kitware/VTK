@@ -208,14 +208,13 @@ void vtkDynamic2DLabelMapper::RenderOpaqueGeometry(vtkViewport* viewport, vtkAct
         }
         numericData = vtkArrayDownCast<vtkDataArray>(abstractData);
         stringData = vtkArrayDownCast<vtkStringArray>(abstractData);
-      };
+      }
       break;
     }
 
     // determine number of components and check input
     if (pointIdLabels)
     {
-      ;
     }
     else if (numericData)
     {

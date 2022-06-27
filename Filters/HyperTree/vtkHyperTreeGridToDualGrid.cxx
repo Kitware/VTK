@@ -284,13 +284,11 @@ void vtkHyperTreeGridToDualGrid::GenerateDualCornerFromLeaf1D(
   {
     // Move to left corner
     pt[input->GetOrientation()] -= .5 * cursor->GetSize()[input->GetOrientation()];
-    ;
   }
   if (!cursorR->HasTree())
   {
     // Move to right corner
     pt[input->GetOrientation()] += .5 * cursor->GetSize()[input->GetOrientation()];
-    ;
   }
 
   // Retrieve global index of center cursor

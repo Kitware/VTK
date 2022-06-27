@@ -288,7 +288,7 @@ void vtkLeaderActor2D::BuildLeader(vtkViewport* viewport)
   // Build the arrows---------------------------------------
   if (this->ArrowPlacement == vtkLeaderActor2D::VTK_ARROW_NONE)
   {
-    ; // do nothin
+    // do nothin
   }
   else // we are creating arrows
   {
@@ -510,7 +510,7 @@ void vtkLeaderActor2D::BuildCurvedLeader(double p1[3], double p2[3], double ray[
   if ((theta1 >= 0.0 && theta1 <= vtkMath::Pi() && theta2 >= 0.0 && theta2 <= vtkMath::Pi()) ||
     (theta1 <= 0.0 && theta1 >= -vtkMath::Pi() && theta2 <= 0.0 && theta2 >= -vtkMath::Pi()))
   {
-    ; // do nothin angles are fine
+    // do nothin angles are fine
   }
   else if (theta1 >= 0.0 && theta2 <= 0.0)
   {

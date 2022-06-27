@@ -244,7 +244,7 @@ bool vtkSQLiteDatabase::IsSupported(int feature)
       vtkErrorMacro(<< "Unknown SQL feature code " << feature << "!  See "
                     << "vtkSQLDatabase.h for a list of possible features.");
       return false;
-    };
+    }
   }
 }
 

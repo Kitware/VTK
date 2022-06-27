@@ -263,7 +263,6 @@ int vtkFLUENTReader::RequestData(vtkInformation* vtkNotUsed(request),
     size_t location = std::find(this->CellZones->value.begin(), this->CellZones->value.end(),
                         this->Cells->value[i].zone) -
       this->CellZones->value.begin();
-    ;
     if (this->Cells->value[i].type == 1)
     {
       for (int j = 0; j < 3; j++)

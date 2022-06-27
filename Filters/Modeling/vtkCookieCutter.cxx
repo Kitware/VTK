@@ -537,7 +537,6 @@ int ClassifyPolyline(
 
     if (currClass == SortPoint::VERTEX)
     { // propagate forward
-      ;
     }
     else if (currClass == SortPoint::INTERSECTION)
     { // Flip classification
@@ -606,7 +605,6 @@ int ClassifyPolygon(
 
     if (currClass == SortPoint::VERTEX)
     { // Propagate the classification forward
-      ;
     }
     else if (currClass == SortPoint::INTERSECTION)
     { // Flip the classification
@@ -1085,7 +1083,7 @@ int vtkCookieCutterHelper::ResolveTopology(vtkPolyData* pd)
     pd->GetPointCells(pid, ncells, cells);
     if (ncells == 0 || ncells == 2)
     {
-      ; // skip is ok
+      // skip is ok
     }
     else if (ncells == 1)
     {

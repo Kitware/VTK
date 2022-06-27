@@ -1135,7 +1135,6 @@ void vtkDiscreteClipperAlgorithm<T>::ClassifyYEdges(T* inPtr0, vtkIdType row)
   // Grab the dyad cases bounding this pixel. Remember this is trimmed.
   inPtr0 += xL;
   T* inPtr1 = inPtr0 + this->Inc1;
-  ;
   T* inPtr0x = inPtr0 + 1;
   T* inPtr1x = inPtr0x + this->Inc1;
 

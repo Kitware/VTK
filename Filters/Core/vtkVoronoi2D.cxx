@@ -505,7 +505,6 @@ struct VTile
     int ij[2];
     vtkIdType bucket, i, ptId, nPts, numClips = 0, numClipAttempts = 0;
     vtkIdType prevNumClips, numPts = this->NPts;
-    ;
 
     // Use a spiral iterator to visit locator buckets starting at the bucket
     // containing the tile generating point, and then spiraling out and

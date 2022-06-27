@@ -214,7 +214,6 @@ void vtkOBJExporter::WriteAnActor(
 
   // Actor has the texture
   bool hasTexture = anActor->GetTexture() != nullptr;
-  ;
 
   // Actor's property has the texture. We choose the albedo texture
   // since it seems to be similar to the texture we expect

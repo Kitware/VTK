@@ -127,7 +127,7 @@ vtkIdType vtkCompositeDataSet::GetNumberOfElements(int type)
   {
     assert(vtkCompositeDataSet::SafeDownCast(block) == nullptr && block != nullptr);
     numElements += block->GetNumberOfElements(type);
-  };
+  }
 
   // Call superclass to ensure we don't miss field data tuples.
   return numElements += this->Superclass::GetNumberOfElements(type);

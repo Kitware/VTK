@@ -119,7 +119,7 @@ void ComputeModelBounds(vtkPolyData* input, int dims[3], int adjustBounds, doubl
     (modelBounds[0] < modelBounds[1] && modelBounds[2] < modelBounds[3] &&
       modelBounds[4] < modelBounds[5]))
   {
-    ; // do nothing
+    // do nothing
   }
 
   else // automatically adjust the bounds
