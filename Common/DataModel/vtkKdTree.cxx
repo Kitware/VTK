@@ -1420,6 +1420,7 @@ void vtkKdTree::AddNewRegions(vtkKdNode* kd, float* c1, int midpt, int dim, doub
 // elements X[j], j > k satisfy X[j] >= X[K].
 
 #define Exchange(array, ids, x, y)                                                                 \
+  do                                                                                               \
   {                                                                                                \
     float temp[3];                                                                                 \
     temp[0] = array[3 * x];                                                                        \
@@ -1437,7 +1438,7 @@ void vtkKdTree::AddNewRegions(vtkKdNode* kd, float* c1, int midpt, int dim, doub
       ids[x] = ids[y];                                                                             \
       ids[y] = tempid;                                                                             \
     }                                                                                              \
-  }
+  } while (false)
 
 #define sign(x) (((x) < 0) ? (-1) : (1))
 
@@ -3589,6 +3590,7 @@ void vtkKdTree::GenerateRepresentation(int* regions, int len, vtkPolyData* pd)
 #define SORTLIST(l, lsize) std::sort(l, (l) + (lsize))
 
 #define REMOVEDUPLICATES(l, lsize, newsize)                                                        \
+  do                                                                                               \
   {                                                                                                \
     int ii, jj;                                                                                    \
     for (ii = 0, jj = 0; ii < (lsize); ii++)                                                       \
@@ -3604,7 +3606,7 @@ void vtkKdTree::GenerateRepresentation(int* regions, int len, vtkPolyData* pd)
       jj++;                                                                                        \
     }                                                                                              \
     newsize = jj;                                                                                  \
-  }
+  } while (false)
 
 //------------------------------------------------------------------------------
 int vtkKdTree::FoundId(vtkIntArray* idArray, int id)

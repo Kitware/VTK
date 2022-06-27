@@ -33,6 +33,7 @@ vtkStandardNewMacro(vtkNetCDFPOPReader);
 
 //============================================================================
 #define CALL_NETCDF(call)                                                                          \
+  do                                                                                               \
   {                                                                                                \
     int errorcode = call;                                                                          \
     if (errorcode != NC_NOERR)                                                                     \
@@ -40,7 +41,7 @@ vtkStandardNewMacro(vtkNetCDFPOPReader);
       vtkErrorMacro(<< "netCDF Error: " << nc_strerror(errorcode));                                \
       return 0;                                                                                    \
     }                                                                                              \
-  }
+  } while (false)
 //============================================================================
 
 class vtkNetCDFPOPReaderInternal

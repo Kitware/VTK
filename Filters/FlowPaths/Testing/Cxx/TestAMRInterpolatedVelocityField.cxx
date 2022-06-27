@@ -21,11 +21,14 @@
 #include <vtkNew.h>
 #include <vtkOverlappingAMR.h>
 #define RETURNONFALSE(b)                                                                           \
-  if (!(b))                                                                                        \
+  do                                                                                               \
   {                                                                                                \
-    vtkAlgorithm::SetDefaultExecutivePrototype(nullptr);                                           \
-    return EXIT_FAILURE;                                                                           \
-  }
+    if (!(b))                                                                                      \
+    {                                                                                              \
+      vtkAlgorithm::SetDefaultExecutivePrototype(nullptr);                                         \
+      return EXIT_FAILURE;                                                                         \
+    }                                                                                              \
+  } while (false)
 
 int TestAMRInterpolatedVelocityField(int, char*[])
 {

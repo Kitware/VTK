@@ -23,11 +23,14 @@
 #include "vtkTestUtilities.h"
 
 #define ensure(x, msg)                                                                             \
-  if (!(x))                                                                                        \
+  do                                                                                               \
   {                                                                                                \
-    cerr << "FAILED: " << msg << endl;                                                             \
-    return EXIT_FAILURE;                                                                           \
-  }
+    if (!(x))                                                                                      \
+    {                                                                                              \
+      cerr << "FAILED: " << msg << endl;                                                           \
+      return EXIT_FAILURE;                                                                         \
+    }                                                                                              \
+  } while (false)
 
 int Validate(vtkMultiBlockDataSet* mb)
 {

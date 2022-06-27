@@ -726,12 +726,15 @@ static int TestColorConvert(
   Triple result1;
 
 #define COMPARE(testname, target, dest)                                                            \
-  if ((target) != (dest))                                                                          \
+  do                                                                                               \
   {                                                                                                \
-    vtkGenericWarningMacro(<< "Incorrect " #testname " conversion.  Got " << (dest)                \
-                           << " expected " << (target));                                           \
-    return 0;                                                                                      \
-  }
+    if ((target) != (dest))                                                                        \
+    {                                                                                              \
+      vtkGenericWarningMacro(<< "Incorrect " #testname " conversion.  Got " << (dest)              \
+                             << " expected " << (target));                                         \
+      return 0;                                                                                    \
+    }                                                                                              \
+  } while (false)
 
   // Test conversion between RGB and HSV.
   vtkMath::RGBToHSV(rgb(), result1());

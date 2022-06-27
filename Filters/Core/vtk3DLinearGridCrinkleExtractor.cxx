@@ -49,27 +49,33 @@ vtkCxxSetObjectMacro(vtk3DLinearGridCrinkleExtractor, ImplicitFunction, vtkImpli
 // parallel processing mode. The _REDUCE_ version is used to called functors
 // with a Reduce() method).
 #define EXECUTE_SMPFOR(_seq, _num, _op)                                                            \
-  if (!_seq)                                                                                       \
+  do                                                                                               \
   {                                                                                                \
-    vtkSMPTools::For(0, _num, _op);                                                                \
-  }                                                                                                \
-  else                                                                                             \
-  {                                                                                                \
-    _op(0, _num);                                                                                  \
-  }
+    if (!_seq)                                                                                     \
+    {                                                                                              \
+      vtkSMPTools::For(0, _num, _op);                                                              \
+    }                                                                                              \
+    else                                                                                           \
+    {                                                                                              \
+      _op(0, _num);                                                                                \
+    }                                                                                              \
+  } while (false)
 
 #define EXECUTE_REDUCED_SMPFOR(_seq, _num, _op, _nt)                                               \
-  if (!_seq)                                                                                       \
+  do                                                                                               \
   {                                                                                                \
-    vtkSMPTools::For(0, _num, _op);                                                                \
-  }                                                                                                \
-  else                                                                                             \
-  {                                                                                                \
-    _op.Initialize();                                                                              \
-    _op(0, _num);                                                                                  \
-    _op.Reduce();                                                                                  \
-  }                                                                                                \
-  _nt = _op.NumThreadsUsed;
+    if (!_seq)                                                                                     \
+    {                                                                                              \
+      vtkSMPTools::For(0, _num, _op);                                                              \
+    }                                                                                              \
+    else                                                                                           \
+    {                                                                                              \
+      _op.Initialize();                                                                            \
+      _op(0, _num);                                                                                \
+      _op.Reduce();                                                                                \
+    }                                                                                              \
+    _nt = _op.NumThreadsUsed;                                                                      \
+  } while (false)
 
 namespace
 { // anonymous

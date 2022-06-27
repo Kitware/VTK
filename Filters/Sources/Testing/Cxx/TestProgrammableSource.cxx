@@ -44,6 +44,7 @@ EXECUTE_METHOD(Molecule);
 EXECUTE_METHOD(Table);
 
 #define TEST_PROGRAMMABLE_SOURCE(_type)                                                            \
+  do                                                                                               \
   {                                                                                                \
     vtkNew<vtkProgrammableSource> ps;                                                              \
     ps->SetExecuteMethod(&_type##ExecuteMethod, ps.Get());                                         \
@@ -54,7 +55,7 @@ EXECUTE_METHOD(Table);
       std::cerr << "Source output type is not of type " #_type "!" << std::endl;                   \
       return EXIT_FAILURE;                                                                         \
     }                                                                                              \
-  }
+  } while (false)
 
 int TestProgrammableSource(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {

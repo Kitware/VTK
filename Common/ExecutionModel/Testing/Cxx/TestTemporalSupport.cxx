@@ -28,11 +28,14 @@
 #include <cassert>
 
 #define CHECK(b, errors)                                                                           \
-  if (!(b))                                                                                        \
+  do                                                                                               \
   {                                                                                                \
-    errors++;                                                                                      \
-    cerr << "Error on Line " << __LINE__ << ":" << endl;                                           \
-  }
+    if (!(b))                                                                                      \
+    {                                                                                              \
+      errors++;                                                                                    \
+      cerr << "Error on Line " << __LINE__ << ":" << endl;                                         \
+    }                                                                                              \
+  } while (false)
 
 class TestAlgorithm : public vtkAlgorithm
 {

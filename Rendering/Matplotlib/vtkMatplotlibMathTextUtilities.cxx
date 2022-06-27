@@ -57,10 +57,13 @@ vtkMatplotlibMathTextUtilities::Availability vtkMatplotlibMathTextUtilities::MPL
 // is defined in the environment. Use vtkGenericWarningMacro to allow this to
 // work in release mode builds.
 #define vtkMplStartUpDebugMacro(x)                                                                 \
-  if (debug)                                                                                       \
+  do                                                                                               \
   {                                                                                                \
-    vtkGenericWarningMacro(x);                                                                     \
-  }
+    if (debug)                                                                                     \
+    {                                                                                              \
+      vtkGenericWarningMacro(x);                                                                   \
+    }                                                                                              \
+  } while (false)
 
 vtkObjectFactoryNewMacro(vtkMatplotlibMathTextUtilities);
 

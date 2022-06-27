@@ -26,11 +26,14 @@
 #include "vtkTestUtilities.h"
 
 #define expect(x, msg)                                                                             \
-  if (!(x))                                                                                        \
+  do                                                                                               \
   {                                                                                                \
-    cerr << __LINE__ << ": " msg << endl;                                                          \
-    return false;                                                                                  \
-  }
+    if (!(x))                                                                                      \
+    {                                                                                              \
+      cerr << __LINE__ << ": " msg << endl;                                                        \
+      return false;                                                                                \
+    }                                                                                              \
+  } while (false)
 
 namespace
 {

@@ -2,10 +2,13 @@
 #include "vtkNew.h"
 
 #define TASSERT(x)                                                                                 \
-  if (!(x))                                                                                        \
+  do                                                                                               \
   {                                                                                                \
-    cerr << "ERROR: failed at " << __LINE__ << "!" << endl; /*return EXIT_FAILURE;*/               \
-  }
+    if (!(x))                                                                                      \
+    {                                                                                              \
+      cerr << "ERROR: failed at " << __LINE__ << "!" << endl; /*return EXIT_FAILURE;*/             \
+    }                                                                                              \
+  } while (false)
 
 int TestDataArraySelection(int, char*[])
 {

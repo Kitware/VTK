@@ -17,11 +17,14 @@
 namespace
 {
 #define vtk_assert(x)                                                                              \
-  if (!(x))                                                                                        \
+  do                                                                                               \
   {                                                                                                \
-    cerr << "ERROR: Condition FAILED!! : " << #x << endl;                                          \
-    return false;                                                                                  \
-  }
+    if (!(x))                                                                                      \
+    {                                                                                              \
+      cerr << "ERROR: Condition FAILED!! : " << #x << endl;                                        \
+      return false;                                                                                \
+    }                                                                                              \
+  } while (false)
 
 bool Validate(vtkOverlappingAMR* input, vtkOverlappingAMR* result)
 {

@@ -2523,14 +2523,17 @@ void vtkUnstructuredGridVolumeZSweepMapper::SetMaxPixelListSize(int size)
 
 //------------------------------------------------------------------------------
 #define ESTABLISH_INTEGRATOR(classname)                                                            \
-  if (!this->RealRayIntegrator || (!this->RealRayIntegrator->IsA(#classname)))                     \
+  do                                                                                               \
   {                                                                                                \
-    if (this->RealRayIntegrator)                                                                   \
-      this->RealRayIntegrator->UnRegister(this);                                                   \
-    this->RealRayIntegrator = classname::New();                                                    \
-    this->RealRayIntegrator->Register(this);                                                       \
-    this->RealRayIntegrator->Delete();                                                             \
-  }
+    if (!this->RealRayIntegrator || (!this->RealRayIntegrator->IsA(#classname)))                   \
+    {                                                                                              \
+      if (this->RealRayIntegrator)                                                                 \
+        this->RealRayIntegrator->UnRegister(this);                                                 \
+      this->RealRayIntegrator = classname::New();                                                  \
+      this->RealRayIntegrator->Register(this);                                                     \
+      this->RealRayIntegrator->Delete();                                                           \
+    }                                                                                              \
+  } while (false)
 
 //------------------------------------------------------------------------------
 // Description:

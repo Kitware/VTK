@@ -23,12 +23,15 @@
 #include "vtkUnsignedShortArray.h"
 
 #define CheckNumbers(name, first, second)                                                          \
-  if (first != second)                                                                             \
+  do                                                                                               \
   {                                                                                                \
-    cerr << "Error : wrong number of " << #name << ". Got " << first << " but expects " << second  \
-         << endl;                                                                                  \
-    return EXIT_FAILURE;                                                                           \
-  }
+    if (first != second)                                                                           \
+    {                                                                                              \
+      cerr << "Error : wrong number of " << #name << ". Got " << first << " but expects "          \
+           << second << endl;                                                                      \
+      return EXIT_FAILURE;                                                                         \
+    }                                                                                              \
+  } while (false)
 
 // Used to creates different atoms and data for each molecule
 static int NB_OF_MOL = 0;

@@ -20,11 +20,14 @@ vtkSmartPointer<T> CreateArray(const char* aname, int num_comps, vtkIdType numTu
 }
 
 #define EXPECT_THAT(v, m)                                                                          \
-  if ((v) != (m))                                                                                  \
+  do                                                                                               \
   {                                                                                                \
-    cerr << "FAILED at line " << __LINE__ << ": \n     " << #v << " must match " << #m << endl;    \
-    return EXIT_FAILURE;                                                                           \
-  }
+    if ((v) != (m))                                                                                \
+    {                                                                                              \
+      cerr << "FAILED at line " << __LINE__ << ": \n     " << #v << " must match " << #m << endl;  \
+      return EXIT_FAILURE;                                                                         \
+    }                                                                                              \
+  } while (false)
 }
 
 int TestFieldList(int, char*[])

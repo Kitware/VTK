@@ -31,21 +31,27 @@
 vtkStandardNewMacro(vtkBSPIntersections);
 
 #define REGIONCHECK(err)                                                                           \
-  if (this->BuildRegionList())                                                                     \
+  do                                                                                               \
   {                                                                                                \
-    return err;                                                                                    \
-  }
+    if (this->BuildRegionList())                                                                   \
+    {                                                                                              \
+      return err;                                                                                  \
+    }                                                                                              \
+  } while (false)
 
 #define REGIONIDCHECK_RETURNERR(id, err)                                                           \
-  if (this->BuildRegionList())                                                                     \
+  do                                                                                               \
   {                                                                                                \
-    return err;                                                                                    \
-  }                                                                                                \
-  if (((id) < 0) || ((id) >= this->NumberOfRegions))                                               \
-  {                                                                                                \
-    vtkErrorMacro(<< "Invalid region ID");                                                         \
-    return (err);                                                                                  \
-  }
+    if (this->BuildRegionList())                                                                   \
+    {                                                                                              \
+      return err;                                                                                  \
+    }                                                                                              \
+    if (((id) < 0) || ((id) >= this->NumberOfRegions))                                             \
+    {                                                                                              \
+      vtkErrorMacro(<< "Invalid region ID");                                                       \
+      return (err);                                                                                \
+    }                                                                                              \
+  } while (false)
 
 //------------------------------------------------------------------------------
 

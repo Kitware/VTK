@@ -47,18 +47,24 @@ std::size_t NumErrors = 0;
 
 // Various properties required by random access iterators:
 #define CHECK_ITER_TYPE(type)                                                                      \
-  static_assert(std::is_default_constructible<Iter>::value,                                        \
-    "Iterator types must be default constructable at " LOCATION());                                \
-  static_assert(std::is_copy_constructible<Iter>::value,                                           \
-    "Iterator types must be copy constructible at " LOCATION());                                   \
-  static_assert(std::is_copy_assignable<Iter>::value,                                              \
-    "Iterator types must be copy assignable at " LOCATION());                                      \
-  static_assert(                                                                                   \
-    std::is_destructible<Iter>::value, "Iterator types must be destructible at " LOCATION());
+  do                                                                                               \
+  {                                                                                                \
+    static_assert(std::is_default_constructible<Iter>::value,                                      \
+      "Iterator types must be default constructable at " LOCATION());                              \
+    static_assert(std::is_copy_constructible<Iter>::value,                                         \
+      "Iterator types must be copy constructible at " LOCATION());                                 \
+    static_assert(std::is_copy_assignable<Iter>::value,                                            \
+      "Iterator types must be copy assignable at " LOCATION());                                    \
+    static_assert(                                                                                 \
+      std::is_destructible<Iter>::value, "Iterator types must be destructible at " LOCATION());    \
+  } while (false)
 
 #define LOG_ERROR(message)                                                                         \
-  ++NumErrors;                                                                                     \
-  std::cerr << NumErrors << ": " << message << "\n"
+  do                                                                                               \
+  {                                                                                                \
+    ++NumErrors;                                                                                   \
+    std::cerr << NumErrors << ": " << message << "\n";                                             \
+  } while (false)
 
 #define CHECK_TRUE(expr)                                                                           \
   do                                                                                               \

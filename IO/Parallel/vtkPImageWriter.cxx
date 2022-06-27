@@ -23,16 +23,19 @@
 #include "vtksys/FStream.hxx"
 
 #define vtkPIWCloseFile                                                                            \
-  if (file && fileOpenedHere)                                                                      \
+  do                                                                                               \
   {                                                                                                \
-    this->WriteFileTrailer(file, cache);                                                           \
-    vtksys::ofstream* ofile = dynamic_cast<vtksys::ofstream*>(file);                               \
-    if (ofile)                                                                                     \
+    if (file && fileOpenedHere)                                                                    \
     {                                                                                              \
-      ofile->close();                                                                              \
+      this->WriteFileTrailer(file, cache);                                                         \
+      vtksys::ofstream* ofile = dynamic_cast<vtksys::ofstream*>(file);                             \
+      if (ofile)                                                                                   \
+      {                                                                                            \
+        ofile->close();                                                                            \
+      }                                                                                            \
+      delete file;                                                                                 \
     }                                                                                              \
-    delete file;                                                                                   \
-  }
+  } while (false)
 
 vtkStandardNewMacro(vtkPImageWriter);
 

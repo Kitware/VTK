@@ -93,22 +93,24 @@ int TestVariantComparison(int, char*[])
   int overallErrorCount = 0;
 
 #define CHECK_EXPRESSION_FALSE(expr)                                                               \
+  do                                                                                               \
   {                                                                                                \
     if ((expr))                                                                                    \
     {                                                                                              \
       ++errorCount;                                                                                \
       cerr << "TEST FAILED: " << #expr << " should have been false\n\n";                           \
     }                                                                                              \
-  }
+  } while (false)
 
 #define CHECK_EXPRESSION_TRUE(expr)                                                                \
+  do                                                                                               \
   {                                                                                                \
     if (!(expr))                                                                                   \
     {                                                                                              \
       ++errorCount;                                                                                \
       cerr << "TEST FAILED: " << #expr << " should have been true\n\n";                            \
     }                                                                                              \
-  }
+  } while (false)
 
   cerr << "Testing same-type comparisons... ";
   CHECK_EXPRESSION_FALSE(positiveCharVariant < negativeCharVariant);

@@ -135,6 +135,7 @@ int UnitTestWordCloud(int argc, char* argv[])
 
   // Check modified times for containers
 #define CHECK_CONTAINER_MTIMES(name)                                                               \
+  do                                                                                               \
   {                                                                                                \
     auto name = wordCloud->Get##name();                                                            \
     auto mtime = wordCloud->GetMTime();                                                            \
@@ -153,7 +154,7 @@ int UnitTestWordCloud(int argc, char* argv[])
       std::cout << "\n Modify time is bad for " #name;                                             \
       status2++;                                                                                   \
     }                                                                                              \
-  }
+  } while (false)
 
   std::cout << "Testing Container MTimes...";
   auto status2 = 0;

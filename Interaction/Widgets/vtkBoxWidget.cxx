@@ -420,9 +420,12 @@ void vtkBoxWidget::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 #define VTK_AVERAGE(a, b, c)                                                                       \
-  c[0] = (a[0] + b[0]) / 2.0;                                                                      \
-  c[1] = (a[1] + b[1]) / 2.0;                                                                      \
-  c[2] = (a[2] + b[2]) / 2.0;
+  do                                                                                               \
+  {                                                                                                \
+    c[0] = (a[0] + b[0]) / 2.0;                                                                    \
+    c[1] = (a[1] + b[1]) / 2.0;                                                                    \
+    c[2] = (a[2] + b[2]) / 2.0;                                                                    \
+  } while (false)
 
 void vtkBoxWidget::PositionHandles()
 {

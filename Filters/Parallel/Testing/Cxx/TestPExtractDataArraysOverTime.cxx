@@ -31,11 +31,14 @@
 #include <string>
 
 #define expect(x, msg)                                                                             \
-  if (!(x))                                                                                        \
+  do                                                                                               \
   {                                                                                                \
-    cerr << "rank=" << rank << ", line=" << __LINE__ << ": " msg << endl;                          \
-    return false;                                                                                  \
-  }
+    if (!(x))                                                                                      \
+    {                                                                                              \
+      cerr << "rank=" << rank << ", line=" << __LINE__ << ": " msg << endl;                        \
+      return false;                                                                                \
+    }                                                                                              \
+  } while (false)
 
 namespace
 {

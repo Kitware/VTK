@@ -109,13 +109,16 @@ PURPOSE.  See the above copyright notice for more information.
   vtkTemplateMacroCase(VTK_SIGNED_CHAR, signed char, call) /* ncbyte */
 
 #define vtkNcDispatch(type, call)                                                                  \
-  switch (type)                                                                                    \
+  do                                                                                               \
   {                                                                                                \
-    vtkNcTemplateMacro(call);                                                                      \
-    default:                                                                                       \
-      vtkErrorMacro(<< "Unsupported data type: " << (type));                                       \
-      abort();                                                                                     \
-  }
+    switch (type)                                                                                  \
+    {                                                                                              \
+      vtkNcTemplateMacro(call);                                                                    \
+      default:                                                                                     \
+        vtkErrorMacro(<< "Unsupported data type: " << (type));                                     \
+        abort();                                                                                   \
+    }                                                                                              \
+  } while (false)
 
 namespace
 {
@@ -868,22 +871,28 @@ int vtkMPASReader::Internal::nc_att_id(const char* name, bool msg_on_err) const
 //------------------------------------------------------------------------------
 
 #define CHECK_DIM(name, out)                                                                       \
-  if ((out = this->Internals->nc_dim_id(name)) == -1)                                              \
+  do                                                                                               \
   {                                                                                                \
-    vtkErrorMacro(<< "Cannot find dimension: " << name << endl);                                   \
-    return 0;                                                                                      \
-  }
+    if ((out = this->Internals->nc_dim_id(name)) == -1)                                            \
+    {                                                                                              \
+      vtkErrorMacro(<< "Cannot find dimension: " << name << endl);                                 \
+      return 0;                                                                                    \
+    }                                                                                              \
+  } while (false)
 
 //------------------------------------------------------------------------------
 // Macro to check if the named NetCDF variable exists
 //------------------------------------------------------------------------------
 
 #define CHECK_VAR(name, out)                                                                       \
-  if ((out = this->Internals->nc_var_id(name)) == -1)                                              \
+  do                                                                                               \
   {                                                                                                \
-    vtkErrorMacro(<< "Cannot find variable: " << name << endl);                                    \
-    return 0;                                                                                      \
-  }
+    if ((out = this->Internals->nc_var_id(name)) == -1)                                            \
+    {                                                                                              \
+      vtkErrorMacro(<< "Cannot find variable: " << name << endl);                                  \
+      return 0;                                                                                    \
+    }                                                                                              \
+  } while (false)
 
 //------------------------------------------------------------------------------
 //  Function to convert cartesian coordinates to spherical, for use in

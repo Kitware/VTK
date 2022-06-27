@@ -53,11 +53,13 @@ void vtkSphere::EvaluateGradient(double x[3], double n[3])
 // The following methods are used to compute bounding spheres.
 //
 #define VTK_ASSIGN_POINT(_x, _y)                                                                   \
+  do                                                                                               \
   {                                                                                                \
     _x[0] = _y[0];                                                                                 \
     _x[1] = _y[1];                                                                                 \
     _x[2] = _y[2];                                                                                 \
-  }
+  } while (false)
+
 //------------------------------------------------------------------------------
 // Inspired by Graphics Gems Vol. I ("An Efficient Bounding Sphere" by Jack Ritter).
 // The algorithm works in two parts: first an initial estimate of the largest sphere;
@@ -173,12 +175,13 @@ void vtkSphereComputeBoundingSphere(T* pts, vtkIdType numPts, T sphere[4], vtkId
 #undef VTK_ASSIGN_POINT
 
 #define VTK_ASSIGN_SPHERE(_x, _y)                                                                  \
+  do                                                                                               \
   {                                                                                                \
     _x[0] = _y[0];                                                                                 \
     _x[1] = _y[1];                                                                                 \
     _x[2] = _y[2];                                                                                 \
     _x[3] = _y[3];                                                                                 \
-  }
+  } while (false)
 // An approximation to the bounding sphere of a set of spheres. The algorithm
 // creates an initial approximation from two spheres that are expected to be
 // the farthest apart (taking into account their radius). A second pass may

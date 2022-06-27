@@ -173,6 +173,7 @@ int TestGenericDataArrayAPI(int, char*[])
 #define DataArrayAPICreateTestArray(name) vtkNew<ArrayT> name
 
 #define DataArrayAPINonFatalError(x)                                                               \
+  do                                                                                               \
   {                                                                                                \
     ArrayT* errorTempArray = ArrayT::New();                                                        \
     std::cerr << "Line " << __LINE__ << ": "                                                       \
@@ -182,9 +183,11 @@ int TestGenericDataArrayAPI(int, char*[])
               << x << std::endl;                                                                   \
     errorTempArray->Delete();                                                                      \
     ++errors;                                                                                      \
-  }
+  } while (false)
 
-#define DataArrayAPIError(x) DataArrayAPINonFatalError(x) return errors;
+#define DataArrayAPIError(x)                                                                       \
+  DataArrayAPINonFatalError(x);                                                                    \
+  return errors
 
 namespace
 {

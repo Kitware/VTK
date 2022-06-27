@@ -99,6 +99,7 @@ void vtkOpenGLImageMapper::ReleaseGraphicsResources(vtkWindow* renWin)
 // be predefined to the same type as y
 
 #define vtkClampToUnsignedChar(x, y)                                                               \
+  do                                                                                               \
   {                                                                                                \
     val = (y);                                                                                     \
     if (val < 0)                                                                                   \
@@ -110,7 +111,7 @@ void vtkOpenGLImageMapper::ReleaseGraphicsResources(vtkWindow* renWin)
       val = 255;                                                                                   \
     }                                                                                              \
     (x) = static_cast<unsigned char>(val);                                                         \
-  }
+  } while (false)
 /* should do proper rounding, as follows:
  *
  * XXX(ben.boeckel): This is not proper rounding. This will round the value
@@ -122,6 +123,7 @@ void vtkOpenGLImageMapper::ReleaseGraphicsResources(vtkWindow* renWin)
 // the bit-shift must be done after the comparison to zero
 // because bit-shift is undefined behaviour for negative numbers
 #define vtkClampIntToUnsignedChar(x, y, shift)                                                     \
+  do                                                                                               \
   {                                                                                                \
     val = (y);                                                                                     \
     if (val < 0)                                                                                   \
@@ -134,7 +136,7 @@ void vtkOpenGLImageMapper::ReleaseGraphicsResources(vtkWindow* renWin)
       val = 255;                                                                                   \
     }                                                                                              \
     (x) = static_cast<unsigned char>(val);                                                         \
-  }
+  } while (false)
 
 // pad an integer to a multiply of four, for OpenGL
 inline int vtkPadToFour(int n)

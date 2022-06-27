@@ -57,11 +57,14 @@ int timesLambdaFreeCalled = 0;
 
 //------------------------------------------------------------------------------
 #define testAssert(expr, errorMessage)                                                             \
-  if (!(expr))                                                                                     \
+  do                                                                                               \
   {                                                                                                \
-    ++errors;                                                                                      \
-    vtkGenericWarningMacro(<< "Assertion failed: " #expr << "\n" << errorMessage);                 \
-  }
+    if (!(expr))                                                                                   \
+    {                                                                                              \
+      ++errors;                                                                                    \
+      vtkGenericWarningMacro(<< "Assertion failed: " #expr << "\n" << errorMessage);               \
+    }                                                                                              \
+  } while (false)
 
 //------------------------------------------------------------------------------
 void* make_allocation(UseFree, std::size_t size, int)

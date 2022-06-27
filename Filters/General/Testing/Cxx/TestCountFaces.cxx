@@ -113,6 +113,7 @@ int TestCountFaces(int, char*[])
   }
 
 #define TEST_FACES(idx, expected)                                                                  \
+  do                                                                                               \
   {                                                                                                \
     vtkIdType numFaces = faces->GetTypedComponent(idx, 0);                                         \
     if (numFaces != (expected))                                                                    \
@@ -121,7 +122,7 @@ int TestCountFaces(int, char*[])
                 << " faces, but found " << numFaces << "\n";                                       \
       return EXIT_FAILURE;                                                                         \
     }                                                                                              \
-  }
+  } while (false)
 
   int idx = 0;
   // VTK_VERTEX = 0

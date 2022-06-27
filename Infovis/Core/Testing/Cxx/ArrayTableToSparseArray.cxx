@@ -32,10 +32,11 @@
 #include <stdexcept>
 
 #define test_expression(expression)                                                                \
+  do                                                                                               \
   {                                                                                                \
     if (!(expression))                                                                             \
       throw std::runtime_error("Expression failed: " #expression);                                 \
-  }
+  } while (false)
 
 int ArrayTableToSparseArray(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {

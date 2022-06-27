@@ -54,6 +54,7 @@
 #include "vtk_netcdf.h"
 
 #define CALL_NETCDF_GENERIC(call, on_error)                                                        \
+  do                                                                                               \
   {                                                                                                \
     int errorcode = call;                                                                          \
     if (errorcode != NC_NOERR)                                                                     \
@@ -61,7 +62,7 @@
       const char* errorstring = nc_strerror(errorcode);                                            \
       on_error;                                                                                    \
     }                                                                                              \
-  }
+  } while (false)
 
 #define CALL_NETCDF(call)                                                                          \
   CALL_NETCDF_GENERIC(call, vtkErrorMacro(<< "netCDF Error: " << errorstring); return 0)

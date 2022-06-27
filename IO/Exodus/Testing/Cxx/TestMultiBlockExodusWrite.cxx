@@ -19,7 +19,7 @@
 #include "vtkWindowToImageFilter.h"
 
 #include "vtkSmartPointer.h"
-#define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New();
+#define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
 int TestMultiBlockExodusWrite(int argc, char* argv[])
 {
