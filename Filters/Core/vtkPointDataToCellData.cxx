@@ -44,16 +44,12 @@ class PointDataToCellDataFunctor
 {
 private:
   vtkDataSet* Input;
-  vtkPointData* InPD;
-  vtkCellData* OutCD;
   ArrayList Arrays;
   vtkSMPThreadLocalObject<vtkIdList> TLCellPts; // scratch array
 
 public:
   PointDataToCellDataFunctor(vtkDataSet* input, vtkPointData* inPD, vtkCellData* outCD)
     : Input(input)
-    , InPD(inPD)
-    , OutCD(outCD)
   {
     vtkIdType numCells = input->GetNumberOfCells();
     this->Arrays.AddArrays(numCells, inPD, outCD);
@@ -216,8 +212,6 @@ class PointDataToCellDataCategoricalFunctor
 {
 private:
   vtkDataSet* Input;
-  vtkPointData* InPD;
-  vtkCellData* OutCD;
   ArrayType* Scalars;
   using ScalarsValueT = vtk::GetAPIType<ArrayType>;
 
@@ -230,8 +224,6 @@ public:
   PointDataToCellDataCategoricalFunctor(
     vtkDataSet* input, vtkPointData* inPD, vtkCellData* outCD, ArrayType* scalars)
     : Input(input)
-    , InPD(inPD)
-    , OutCD(outCD)
     , Scalars(scalars)
   {
     vtkIdType numCells = input->GetNumberOfCells();
