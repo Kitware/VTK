@@ -337,7 +337,7 @@ struct vtkProbeLineFilter::vtkInternals
     decomposer.decompose(comm.rank(), assigner, master);
 
     diy::all_to_all(
-        master, assigner, [&master, &intersections](PointSetBlock* block, const diy::ReduceProxy& srp)
+        master, assigner, [&intersections](PointSetBlock* block, const diy::ReduceProxy& srp)
         {
           int myBlockId = srp.gid();
           if (srp.round() == 0)
