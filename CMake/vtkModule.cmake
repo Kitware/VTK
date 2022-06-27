@@ -2666,7 +2666,7 @@ function (vtk_module_build)
         "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/vtk_module_kit_${_vtk_build_target_name}.c")
       file(GENERATE
         OUTPUT  "${_vtk_kit_source_file}"
-        CONTENT "void vtk_module_kit_${_vtk_build_target_name}() {}\n")
+        CONTENT "void vtk_module_kit_${_vtk_build_target_name}(void);\nvoid vtk_module_kit_${_vtk_build_target_name}(void) {}\n")
       add_library("${_vtk_build_target_name}"
         "${_vtk_kit_source_file}")
       get_property(_vtk_build_namespace GLOBAL
