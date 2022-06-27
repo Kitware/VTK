@@ -44,7 +44,7 @@ class VTKGUISUPPORTQTQUICK_EXPORT QQuickVTKInteractiveWidget : public QObject
 
 public:
   QQuickVTKInteractiveWidget(QObject* parent = nullptr);
-  ~QQuickVTKInteractiveWidget() = default;
+  ~QQuickVTKInteractiveWidget() override = default;
 
   ///@{
   /**
