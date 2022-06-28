@@ -2327,33 +2327,6 @@ void vtkPKdTree::FreeSelectBuffer()
   this->SelectBuffer.clear();
 }
 
-#define FreeListOfLists(list, len)                                                                 \
-  {                                                                                                \
-    int i;                                                                                         \
-    if (list)                                                                                      \
-    {                                                                                              \
-      for (i = 0; i < (len); i++)                                                                  \
-      {                                                                                            \
-        if (list[i])                                                                               \
-          delete[] list[i];                                                                        \
-      }                                                                                            \
-      delete[] list;                                                                               \
-      list = nullptr;                                                                              \
-    }                                                                                              \
-  }
-
-#define MakeList(field, type, len)                                                                 \
-  {                                                                                                \
-    if ((len) > 0)                                                                                 \
-    {                                                                                              \
-      field = new type[len];                                                                       \
-      if (field)                                                                                   \
-      {                                                                                            \
-        memset(field, 0, (len) * sizeof(type));                                                    \
-      }                                                                                            \
-    }                                                                                              \
-  }
-
 // global index lists -----------------------------------------------
 
 void vtkPKdTree::InitializeGlobalIndexLists()

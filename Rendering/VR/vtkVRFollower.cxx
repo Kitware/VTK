@@ -58,7 +58,7 @@ void vtkVRFollower::ComputeMatrix()
 
     if (this->Camera)
     {
-      double *pos, *cvup, *vup, distance;
+      double *pos, *vup, distance;
       double Rx[3], Ry[3], Rz[3];
 
       vtkMatrix4x4* matrix = this->InternalMatrix;
@@ -67,7 +67,6 @@ void vtkVRFollower::ComputeMatrix()
       // do the rotation
       // first rotate y
       pos = this->Camera->GetPosition();
-      cvup = this->Camera->GetViewUp();
       vup = this->LastViewUp;
 
       if (this->Camera->GetParallelProjection())
@@ -94,20 +93,8 @@ void vtkVRFollower::ComputeMatrix()
       double dop[3], vur[3];
       this->Camera->GetDirectionOfProjection(dop);
 
-      // if vup is close to Rz then use cvup instead
-      // aka if we are looking mostly up or down
-      // then use the headsets view up
-      // if (fabs(vtkMath::Dot(vup,Rz)) > 0.9)
-      // {
-      //   vup = cvup;
-      // }
-
       vtkMath::Cross(vup, Rz, vur);
       vtkMath::Normalize(vur);
-
-      // vtkMath::Cross(vup,Rz,Rx);
-      // vtkMath::Normalize(Rx);
-      // vtkMath::Cross(vup,Rx,Rz);
 
       vtkMath::Cross(Rz, vur, Ry);
       vtkMath::Normalize(Ry);

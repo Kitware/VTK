@@ -35,18 +35,18 @@ class QVTKTableModelAdapterTestClass : public QAbstractTableModel
 public:
   QVTKTableModelAdapterTestClass(QObject* parent = nullptr);
 
-  virtual int rowCount(const QModelIndex& parent = QModelIndex()) const;
-  virtual int columnCount(const QModelIndex& parent = QModelIndex()) const;
+  int rowCount(const QModelIndex& parent = QModelIndex()) const override;
+  int columnCount(const QModelIndex& parent = QModelIndex()) const override;
 
-  virtual bool insertRows(int row, int count, const QModelIndex& parent = QModelIndex());
-  virtual bool removeRows(int row, int count, const QModelIndex& parent = QModelIndex());
+  bool insertRows(int row, int count, const QModelIndex& parent = QModelIndex()) override;
+  bool removeRows(int row, int count, const QModelIndex& parent = QModelIndex()) override;
 
-  virtual bool insertColumns(int column, int count, const QModelIndex& parent = QModelIndex());
-  virtual bool removeColumns(int column, int count, const QModelIndex& parent = QModelIndex());
+  bool insertColumns(int column, int count, const QModelIndex& parent = QModelIndex()) override;
+  bool removeColumns(int column, int count, const QModelIndex& parent = QModelIndex()) override;
 
-  virtual QVariant data(const QModelIndex& index, int role) const;
-  virtual bool setData(const QModelIndex& index, const QVariant& value, int role);
-  virtual QVariant headerData(int section, Qt::Orientation orientation, int role) const;
+  QVariant data(const QModelIndex& index, int role) const override;
+  bool setData(const QModelIndex& index, const QVariant& value, int role) override;
+  QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
 
 public Q_SLOTS:
   void runTests();

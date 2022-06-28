@@ -189,23 +189,6 @@ vtkSmartPointer<vtkAbstractArray> JoinArrays(
   return result;
 }
 
-std::vector<std::string> Split(const std::string& inString, const std::string& delimeter)
-{
-  std::vector<std::string> subStrings;
-  size_t sIdx = 0;
-  size_t eIdx = 0;
-  while ((eIdx = inString.find(delimeter, sIdx)) < inString.size())
-  {
-    subStrings.push_back(inString.substr(sIdx, eIdx - sIdx));
-    sIdx = eIdx + delimeter.size();
-  }
-  if (sIdx < inString.size())
-  {
-    subStrings.push_back(inString.substr(sIdx));
-  }
-  return subStrings;
-}
-
 } // end of namespace {}
 
 class vtkIOSSReader::vtkInternals

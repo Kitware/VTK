@@ -195,7 +195,7 @@ public:
 
 protected:
   vtkParallelTimer();
-  virtual ~vtkParallelTimer();
+  ~vtkParallelTimer() override;
 
 private:
   vtkParallelTimer(const vtkParallelTimer&) = delete;

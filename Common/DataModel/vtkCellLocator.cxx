@@ -1174,15 +1174,13 @@ void vtkCellLocator::FindCellsWithinBounds(double* bbox, vtkIdList* cells)
   cells->Reset();
 
   // Get the locator locations for the two extreme corners of the bounding box
-  double p1[3], p2[3], *p[2];
+  double p1[3], p2[3];
   p1[0] = bbox[0];
   p1[1] = bbox[2];
   p1[2] = bbox[4];
   p2[0] = bbox[1];
   p2[1] = bbox[3];
   p2[2] = bbox[5];
-  p[0] = p1;
-  p[1] = p2;
   int ijk[2][3];
 
   //  Find bucket the points are in

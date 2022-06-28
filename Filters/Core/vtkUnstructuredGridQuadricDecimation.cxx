@@ -47,10 +47,6 @@ class vtkUnstructuredGridQuadricDecimationTetMesh;
     a = b;                                                                                         \
     b = t;                                                                                         \
   }
-#define VTK_PRECHECK(pointer)                                                                      \
-  if (pointer)                                                                                     \
-    delete[](pointer);                                                                             \
-  (pointer)
 
 // =============================================================================
 // Vector 4 class
@@ -1157,10 +1153,14 @@ void vtkUnstructuredGridQuadricDecimationTetMesh::AddCorner(
 // Clean the mesh
 void vtkUnstructuredGridQuadricDecimationTetMesh::clear()
 {
-  VTK_PRECHECK(Verts) = nullptr;
-  VTK_PRECHECK(tets) = nullptr;
-  VTK_PRECHECK(PT) = nullptr;
-  VTK_PRECHECK(L) = nullptr;
+  delete this->Verts;
+  this->Verts = nullptr;
+  delete this->tets;
+  this->tets = nullptr;
+  delete this->PT;
+  this->PT = nullptr;
+  delete this->L;
+  this->L = nullptr;
   faces.clear();
   unusedTets = 0;
   unusedVerts = 0;
@@ -1377,7 +1377,8 @@ int vtkUnstructuredGridQuadricDecimationTetMesh::LoadUnstructuredGrid(
   clear();
   // Read all the vertices first
   vCount = vgrid->GetNumberOfPoints();
-  VTK_PRECHECK(Verts) = new vtkUnstructuredGridQuadricDecimationVertex[vCount];
+  delete this->Verts;
+  this->Verts = new vtkUnstructuredGridQuadricDecimationVertex[vCount];
   vtkPoints* vp = vgrid->GetPoints();
   vtkDataArray* vs = nullptr;
   if (scalarsName)
@@ -1413,9 +1414,12 @@ int vtkUnstructuredGridQuadricDecimationTetMesh::LoadUnstructuredGrid(
     return vtkUnstructuredGridQuadricDecimation::NO_CELLS;
   }
   maxTet = tCount;
-  VTK_PRECHECK(tets) = new vtkUnstructuredGridQuadricDecimationTetra[tCount];
-  VTK_PRECHECK(PT) = new vtkUnstructuredGridQuadricDecimationTetra*[tCount];
-  VTK_PRECHECK(L) = new int[4 * tCount];
+  delete this->tets;
+  this->tets = new vtkUnstructuredGridQuadricDecimationTetra[tCount];
+  delete this->PT;
+  this->PT = new vtkUnstructuredGridQuadricDecimationTetra*[tCount];
+  delete this->L;
+  this->L = new int[4 * tCount];
   vtkCellArray* vt = vgrid->GetCells();
   vtkIdType npts;
   const vtkIdType* idx;
@@ -1500,7 +1504,6 @@ int vtkUnstructuredGridQuadricDecimationTetMesh::SaveUnstructuredGrid(vtkUnstruc
   return vtkUnstructuredGridQuadricDecimation::NON_ERROR;
 }
 
-#undef VTK_PRECHECK
 #undef VTK_FEPS
 #undef VTK_TEPS
 #undef VTK_SWAP

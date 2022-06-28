@@ -84,20 +84,6 @@ void BroadcastStringVector(
   }
 }
 
-void BroadcastStringList(
-  vtkMultiProcessController* controller, std::list<std::string>& slist, int rank)
-{
-  unsigned long len = static_cast<unsigned long>(slist.size());
-  controller->Broadcast(&len, 1, 0);
-  if (rank)
-    slist.resize(len);
-  std::list<std::string>::iterator it;
-  for (it = slist.begin(); it != slist.end(); ++it)
-  {
-    BroadcastString(controller, *it, rank);
-  }
-}
-
 void BroadcastDoubleVector(
   vtkMultiProcessController* controller, std::vector<double>& dvec, int rank)
 {

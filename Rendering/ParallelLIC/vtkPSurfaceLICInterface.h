@@ -47,7 +47,7 @@ public:
 
 protected:
   vtkPSurfaceLICInterface();
-  ~vtkPSurfaceLICInterface();
+  ~vtkPSurfaceLICInterface() override;
 
   /**
    * Get the min/max across all ranks. min/max are in/out.
