@@ -50,6 +50,8 @@ inline vtkm::cont::DataSet CopyDataSetStructure(const vtkm::cont::DataSet& ds)
 class MaskBits
 {
 public:
+  // We are not using `= default` here as nvcc does not allow it.
+  // NOLINTNEXTLINE(modernize-use-equals-default)
   VTKM_EXEC_CONT MaskBits() {}
 
   explicit MaskBits(int mask)
