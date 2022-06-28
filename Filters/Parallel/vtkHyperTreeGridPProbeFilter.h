@@ -178,6 +178,8 @@ private:
   vtkHyperTreeGridPProbeFilter(const vtkHyperTreeGridPProbeFilter&) = delete;
   void operator=(const vtkHyperTreeGridPProbeFilter&) = delete;
 
+  void FillDefaultArray(vtkDataArray* da) const;
+
   class ProbingWorklet;
 }; // vtkHyperTreeGridPProbeFilter
 

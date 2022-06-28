@@ -32,6 +32,7 @@
 #include "vtkPointData.h"
 #include "vtkSMPTools.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkStringArray.h"
 
 #include <numeric>
 #include <vector>
@@ -395,7 +396,7 @@ bool vtkHyperTreeGridPProbeFilter::Reduce(
       localInstance->DeepCopy(da);
       remoteOutput->GetPointData()->AddArray(localInstance);
       da->SetNumberOfTuples(output->GetNumberOfPoints());
-      da->Fill(vtkMath::Nan());
+      this->FillDefaultArray(da);
     }
     dealWithRemote(localPointIds, remoteOutput, source, output);
     remoteOutput->Initialize();
@@ -422,6 +423,27 @@ bool vtkHyperTreeGridPProbeFilter::Reduce(
     }
   }
   return true;
+}
+
+//------------------------------------------------------------------------------
+void vtkHyperTreeGridPProbeFilter::FillDefaultArray(vtkDataArray* da) const
+{
+  if (da->IsA("vtkDoubleArray") || da->IsA("vtkFloatArray"))
+  {
+    da->Fill(vtkMath::Nan());
+  }
+  else if (da->IsA("vtkIntArray") || da->IsA("vtkIdTypeArray"))
+  {
+    da->Fill(0);
+  }
+  else if (da->IsA("vtkStringArray"))
+  {
+    vtkStringArray* sa = vtkStringArray::SafeDownCast(da);
+    for (int iT = 0; iT < da->GetNumberOfTuples(); iT++)
+    {
+      sa->SetValue(iT, "");
+    }
+  }
 }
 
 //------------------------------------------------------------------------------
