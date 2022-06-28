@@ -36,7 +36,7 @@ void vtkIdentityTransform::PrintSelf(ostream& os, vtkIndent indent)
 //------------------------------------------------------------------------------
 void vtkIdentityTransform::InternalDeepCopy(vtkAbstractTransform*)
 {
-  // nothin' to do
+  // nothing to do
 }
 
 //------------------------------------------------------------------------------
