@@ -30,9 +30,9 @@
 #ifndef vtkHyperTreeGridPProbeFilter_h
 #define vtkHyperTreeGridPProbeFilter_h
 
-#include "vtkDataSetAlgorithm.h"
 #include "vtkFiltersParallelModule.h" //For export Macro
-#include "vtkSmartPointer.h"          //For Locator member
+#include "vtkHyperTreeGridProbeFilter.h"
+#include "vtkSmartPointer.h" //For Locator member
 
 class vtkMultiProcessController;
 class vtkIdList;
@@ -40,33 +40,14 @@ class vtkDataSet;
 class vtkHyperTreeGrid;
 class vtkHyperTreeGridLocator;
 
-class VTKFILTERSPARALLEL_EXPORT vtkHyperTreeGridPProbeFilter : public vtkDataSetAlgorithm
+class VTKFILTERSPARALLEL_EXPORT vtkHyperTreeGridPProbeFilter : public vtkHyperTreeGridProbeFilter
 {
 public:
-  vtkTypeMacro(vtkHyperTreeGridPProbeFilter, vtkDataSetAlgorithm);
+  vtkTypeMacro(vtkHyperTreeGridPProbeFilter, vtkHyperTreeGridProbeFilter);
 
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   static vtkHyperTreeGridPProbeFilter* New();
-
-  ///@{
-  /**
-   * Specify the data set that will be probed at the input points.
-   * The Input gives the geometry (the points and cells) for the output,
-   * while the Source is probed (interpolated) to generate the scalars,
-   * vectors, etc. for the output points based on the point locations.
-   */
-  void SetSourceData(vtkHyperTreeGrid* source);
-  vtkHyperTreeGrid* GetSource();
-  ///@}
-
-  /**
-   * Specify the data set that will be probed at the input points.
-   * The Input gives the geometry (the points and cells) for the output,
-   * while the Source is probed (interpolated) to generate the scalars,
-   * vectors, etc. for the output points based on the point locations.
-   */
-  void SetSourceConnection(vtkAlgorithmOutput* algOutput);
 
   ///@{
   /**
@@ -76,42 +57,6 @@ public:
   vtkGetObjectMacro(Controller, vtkMultiProcessController);
   ///@}
 
-  ///@{
-  /**
-   * Set and get the locator object
-   */
-  virtual vtkHyperTreeGridLocator* GetLocator();
-  virtual void SetLocator(vtkHyperTreeGridLocator*);
-  ///@}
-
-  ///@{
-  /**
-   * Shallow copy the input cell data arrays to the output.
-   * Off by default.
-   */
-  vtkSetMacro(PassCellArrays, vtkTypeBool);
-  vtkBooleanMacro(PassCellArrays, vtkTypeBool);
-  vtkGetMacro(PassCellArrays, vtkTypeBool);
-  ///@}
-  ///@{
-  /**
-   * Shallow copy the input point data arrays to the output
-   * Off by default.
-   */
-  vtkSetMacro(PassPointArrays, vtkTypeBool);
-  vtkBooleanMacro(PassPointArrays, vtkTypeBool);
-  vtkGetMacro(PassPointArrays, vtkTypeBool);
-  ///@}
-
-  ///@{
-  /**
-   * Set whether to pass the field-data arrays from the Input i.e. the input
-   * providing the geometry to the output. On by default.
-   */
-  vtkSetMacro(PassFieldArrays, vtkTypeBool);
-  vtkBooleanMacro(PassFieldArrays, vtkTypeBool);
-  vtkGetMacro(PassFieldArrays, vtkTypeBool);
-  ///@}
 protected:
   ///@{
   /**
@@ -122,39 +67,6 @@ protected:
   ///@}
 
   ///@{
-  /**
-   * Methods for processing requests
-   */
-  int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
-  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
-  int RequestUpdateExtent(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
-  ///@}
-
-  ///@{
-  /**
-   * Input port should have 2 inputs: input (a dataset) and a source (an HTG).
-   * Output should be same as input
-   */
-  int FillInputPortInformation(int, vtkInformation*) override;
-  ///@}
-
-  ///@{
-  /**
-   * Helper method for initializing the output and local arrays for all processes
-   */
-  bool Initialize(vtkDataSet* input, vtkHyperTreeGrid* source, vtkDataSet* output);
-
-  /**
-   * Helper method for passing data from input to output
-   */
-  bool PassAttributeData(vtkDataSet* input, vtkDataSet* output);
-
-  /**
-   * Helper method for perfoming the probing
-   */
-  bool DoProbing(
-    vtkDataSet* input, vtkHyperTreeGrid* source, vtkDataSet* output, vtkIdList* localPointIds);
-
   /**
    * Helper method for reducing the distributed data to the master process
    */
@@ -168,19 +80,10 @@ protected:
 
   vtkMultiProcessController* Controller = nullptr;
 
-  vtkSmartPointer<vtkHyperTreeGridLocator> Locator;
-
-  vtkTypeBool PassCellArrays = false;
-  vtkTypeBool PassPointArrays = false;
-  vtkTypeBool PassFieldArrays = true;
-
 private:
   vtkHyperTreeGridPProbeFilter(const vtkHyperTreeGridPProbeFilter&) = delete;
   void operator=(const vtkHyperTreeGridPProbeFilter&) = delete;
 
-  void FillDefaultArray(vtkDataArray* da) const;
-
-  class ProbingWorklet;
 }; // vtkHyperTreeGridPProbeFilter
 
 #endif // vtkHyperTreeGridPProbeFilter_h

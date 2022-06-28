@@ -55,6 +55,7 @@ set(classes
   vtkGridSynchronizedTemplates3D
   vtkHedgeHog
   vtkHull
+  vtkHyperTreeGridProbeFilter
   vtkIdFilter
   vtkImageAppend
   vtkImageDataToExplicitStructuredGrid
