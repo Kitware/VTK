@@ -85,12 +85,11 @@ public:
   static int TriangulatePolygon(vtkIdList* polygon, vtkPoints* points, vtkCellArray* triangles);
 
   /**
-   * Given some closed contour lines, create a triangle mesh that fills those
-   * lines.  The input lines must be single-segment lines, not polylines.
-   * The input lines do not have to be in order.  Only numLines starting from
-   * firstLine will be used. Note that holes are indicated by connecting lines
-   * that form loops whose normal are in the opposite direction to the provided
-   * normal.
+   * Given some closed contour lines, create a triangle mesh that fills
+   * those lines.  The input lines do not have to be in tail-to-tip order.
+   * Only numLines starting from firstLine will be used.  Note that holes
+   * can be indicated by contour loops whose normals are in the opposite
+   * direction to the provided normal.
    */
   static int TriangulateContours(vtkPolyData* data, vtkIdType firstLine, vtkIdType numLines,
     vtkCellArray* outputPolys, const double normal[3]);
