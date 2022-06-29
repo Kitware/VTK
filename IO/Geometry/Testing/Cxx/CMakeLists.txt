@@ -58,6 +58,7 @@ LIST(APPEND tecplotFiles
     tecplot_fepolygon.dat
     tecplot_fepolyhedron.dat
     tiny.dat
+    1dgeom.dat
 )
 foreach(item IN LISTS tecplotFiles)
     get_filename_component(name "${item}" NAME_WE)
