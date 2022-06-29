@@ -397,8 +397,6 @@ class vtkProbeFilter::ProbeEmptyPointsWorklet
   double Tol2;
   int MaxCellSize;
 
-  static constexpr double SnappingRadius = std::numeric_limits<double>::infinity();
-
   struct LocalData
   {
     vtkSmartPointer<vtkFindCellStrategy> Strategy;
@@ -589,7 +587,8 @@ public:
           if (this->ProbeFilter->SnapToCellWithClosestPoint && strategy)
           {
             // Find the closest point and the cell that it belong to
-            closestPointFound = strategy->FindClosestPointWithinRadius(x, this->SnappingRadius,
+            constexpr double snappingRadius = std::numeric_limits<double>::infinity();
+            closestPointFound = strategy->FindClosestPointWithinRadius(x, snappingRadius,
               lastClosestPoint, currentCell, lastCellId, lastSubId, dist2, inside);
             if (closestPointFound)
             {
