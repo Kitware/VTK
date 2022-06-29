@@ -21,7 +21,7 @@
 #include <vtkStaticCellLocator.h>
 #include <vtkXMLPolyDataReader.h>
 
-int TestCell(vtkDataSet* ds, int cellId, double x1[3], double x2[3], double tol)
+static int TestCell(vtkDataSet* ds, int cellId, double x1[3], double x2[3], double tol)
 {
   double t = 0.0;
   double x[3] = { 0.0, 0.0, 0.0 };

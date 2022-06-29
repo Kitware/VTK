@@ -22,7 +22,7 @@
 #include "vtkStaticCellLocator.h"
 #include "vtkXMLPolyDataReader.h"
 
-bool TestCell(vtkDataSet* ds, vtkIdType cellId, double x1[3], double x2[3], double tol)
+static bool TestCell(vtkDataSet* ds, vtkIdType cellId, double x1[3], double x2[3], double tol)
 {
   double t = 0.0;
   double x[3] = { 0.0, 0.0, 0.0 };
@@ -34,7 +34,7 @@ bool TestCell(vtkDataSet* ds, vtkIdType cellId, double x1[3], double x2[3], doub
   return static_cast<bool>(cell->IntersectWithLine(x1, x2, tol, t, x, pcoords, subId));
 }
 
-bool TestLocator(vtkDataSet* ds, vtkAbstractCellLocator* loc)
+static bool TestLocator(vtkDataSet* ds, vtkAbstractCellLocator* loc)
 {
   std::cout << "\nTesting " << loc->GetClassName() << std::endl;
   loc->SetDataSet(ds);
