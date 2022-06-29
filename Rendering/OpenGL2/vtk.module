@@ -13,6 +13,7 @@ DEPENDS
   VTK::CommonCore
   VTK::CommonDataModel
   VTK::FiltersGeneral
+  VTK::IOImage
   VTK::RenderingCore
   VTK::RenderingHyperTreeGrid
   VTK::RenderingUI
