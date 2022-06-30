@@ -26,6 +26,7 @@
 #include "vtkPoints.h"
 #include "vtkUnstructuredGrid.h"
 #include <map>
+#include <utility>
 
 class vtkUnstructuredGridQuadricDecimationEdge;
 class vtkUnstructuredGridQuadricDecimationFace;
@@ -41,12 +42,6 @@ class vtkUnstructuredGridQuadricDecimationTetMesh;
 // floating point epsilons
 #define VTK_FEPS 1e-6
 #define VTK_TEPS 1e-6
-#define VTK_SWAP(a, b, type)                                                                       \
-  {                                                                                                \
-    type t = a;                                                                                    \
-    a = b;                                                                                         \
-    b = t;                                                                                         \
-  }
 
 // =============================================================================
 // Vector 4 class
@@ -553,17 +548,17 @@ public:
   {
     if (Verts[1] < Verts[0] && Verts[1] < Verts[2])
     {
-      VTK_SWAP(Verts[0], Verts[1], vtkUnstructuredGridQuadricDecimationVertex*);
+      std::swap(Verts[0], Verts[1]);
     }
 
     if (Verts[2] < Verts[0] && Verts[2] < Verts[1])
     {
-      VTK_SWAP(Verts[0], Verts[2], vtkUnstructuredGridQuadricDecimationVertex*);
+      std::swap(Verts[0], Verts[2]);
     }
 
     if (Verts[2] < Verts[1])
     {
-      VTK_SWAP(Verts[1], Verts[2], vtkUnstructuredGridQuadricDecimationVertex*);
+      std::swap(Verts[1], Verts[2]);
     }
   }
 
@@ -961,11 +956,11 @@ void vtkUnstructuredGridQuadricDecimationTetra::FixOrientation()
 {
   if (Orientation() < 0)
   {
-    VTK_SWAP(Verts[2], Verts[3], vtkUnstructuredGridQuadricDecimationVertex*);
+    std::swap(Verts[2], Verts[3]);
   }
   if (Orientation() < 0)
   {
-    VTK_SWAP(Verts[1], Verts[2], vtkUnstructuredGridQuadricDecimationVertex*);
+    std::swap(Verts[1], Verts[2]);
   }
 }
 
@@ -1506,7 +1501,6 @@ int vtkUnstructuredGridQuadricDecimationTetMesh::SaveUnstructuredGrid(vtkUnstruc
 
 #undef VTK_FEPS
 #undef VTK_TEPS
-#undef VTK_SWAP
 
 ////////////////////////////////////////////////////////////////////////////////
 /* ========================================================================== */
