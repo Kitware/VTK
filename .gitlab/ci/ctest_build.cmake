@@ -51,6 +51,10 @@ foreach (target IN LISTS targets_to_build)
   math(EXPR num_warnings "${num_warnings} + ${num_warnings_target}")
 
   ctest_submit(PARTS Build)
+
+  if (build_result)
+    break ()
+  endif ()
 endforeach ()
 
 if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "doxygen")
