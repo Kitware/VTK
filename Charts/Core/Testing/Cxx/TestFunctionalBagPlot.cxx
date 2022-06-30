@@ -99,12 +99,12 @@ int TestFunctionalBagPlot(int, char*[])
 
   // Create the functional bag plots
   vtkNew<vtkPlotFunctionalBag> q3Plot;
-  q3Plot->SetColor(0.5, 0, 0);
+  q3Plot->SetColorF(0.5, 0, 0);
   q3Plot->SetInputData(inputTable, "X", "Q3");
   chart->AddPlot(q3Plot);
 
   vtkNew<vtkPlotFunctionalBag> q2Plot;
-  q2Plot->SetColor(1., 0, 0);
+  q2Plot->SetColorF(1., 0, 0);
   q2Plot->SetInputData(inputTable, "X", "Q2");
   chart->AddPlot(q2Plot);
 
@@ -117,7 +117,7 @@ int TestFunctionalBagPlot(int, char*[])
     vtkNew<vtkPlotFunctionalBag> plot;
     double rgb[3];
     lookup->GetColor(j, rgb);
-    plot->SetColor(rgb[0], rgb[1], rgb[2]);
+    plot->SetColorF(rgb[0], rgb[1], rgb[2]);
     plot->SetInputData(inputTable, "X", inputTable->GetColumn(j)->GetName());
     chart->AddPlot(plot);
   }

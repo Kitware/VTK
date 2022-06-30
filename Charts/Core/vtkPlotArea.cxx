@@ -649,10 +649,17 @@ void vtkPlotArea::SetColor(unsigned char r, unsigned char g, unsigned char b, un
 }
 
 //------------------------------------------------------------------------------
-void vtkPlotArea::SetColor(double r, double g, double b)
+void vtkPlotArea::SetColorF(double r, double g, double b, double a)
+{
+  this->Brush->SetColorF(r, g, b, a);
+  this->Superclass::SetColorF(r, g, b);
+}
+
+//------------------------------------------------------------------------------
+void vtkPlotArea::SetColorF(double r, double g, double b)
 {
   this->Brush->SetColorF(r, g, b);
-  this->Superclass::SetColor(r, g, b);
+  this->Superclass::SetColorF(r, g, b);
 }
 
 //------------------------------------------------------------------------------

@@ -66,7 +66,7 @@ int TestHistogram2D(int, char*[])
 
   vtkPlotLine* plot = vtkPlotLine::SafeDownCast(chart->AddPlot(vtkChart::LINE));
   plot->SetInputData(table, 0, 1);
-  plot->SetColor(1.0, 0.0, 0.0);
+  plot->SetColorF(1.0, 0.0, 0.0);
   plot->SetWidth(5);
 
   vtkContextMouseEvent mouseEvent;
