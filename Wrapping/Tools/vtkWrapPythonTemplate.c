@@ -287,11 +287,11 @@ int vtkWrapPython_WrapTemplatedClass(
         {
           if (nargs == 0)
           {
-            sprintf(classname, "%s", entry->Name);
+            snprintf(classname, sizeof(classname), "%s", entry->Name);
           }
           else
           {
-            sprintf(classname, "%s<%s>", entry->Name, types[i]);
+            snprintf(classname, sizeof(classname), "%s<%s>", entry->Name, types[i]);
           }
         }
 

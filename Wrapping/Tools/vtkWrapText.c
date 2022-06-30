@@ -938,7 +938,7 @@ const char* vtkWrapText_PythonSignature(FunctionInfo* currentFunction)
     {
       /* PEP 484 recommends underscores for position-only arguments */
       char argname[4];
-      sprintf(argname, "__%c", 'a' + (i % 26));
+      snprintf(argname, sizeof(argname), "__%c", 'a' + (i % 26));
       vtkWPString_Append(result, argname);
     }
 
@@ -1043,7 +1043,7 @@ static void vtkWrapText_PythonTypeSignature(
   }
   else if (vtkWrap_IsArray(arg))
   {
-    sprintf(text, "%d", arg->Count);
+    snprintf(text, sizeof(text), "%d", arg->Count);
     dimension = text;
     vtkWrapText_PythonArraySignature(result, classname, braces, 1, &dimension);
   }

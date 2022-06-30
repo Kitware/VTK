@@ -1170,8 +1170,9 @@ int VTK_PARSE_MAIN(int argc, char* argv[])
     /*const */ char javaDone[] = "VTKJavaWrapped";
     FILE* tfp;
     fname = options->OutputFileName;
-    dir = (char*)malloc(strlen(fname) + strlen(javaDone) + 2);
-    sprintf(dir, "%s", fname);
+    size_t dirlen = strlen(fname) + strlen(javaDone) + 2;
+    dir = (char*)malloc(dirlen);
+    snprintf(dir, dirlen, "%s", fname);
     len = strlen(dir);
     for (cc = len - 1; cc > 0; cc--)
     {

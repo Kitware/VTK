@@ -249,12 +249,12 @@ static void merge_function(FileInfo* finfo, FunctionInfo* merge, const FunctionI
               if (name)
               {
                 /* change it to the new parameter name */
-                l += sprintf(&text[l], "%s", name);
+                l += snprintf(&text[l], sizeof(text) - l, "%s", name);
               }
               else
               {
                 /* parameter has no name, use a number */
-                l += sprintf(&text[l], "(#%d)", j);
+                l += snprintf(&text[l], sizeof(text) - l, "(#%d)", j);
               }
               break;
             }
