@@ -16,14 +16,19 @@
 
 #include "vtkAbstractArray.h"
 #include "vtkCellData.h"
+#include "vtkCharArray.h"
 #include "vtkDataArray.h"
+#include "vtkDataArrayRange.h"
 #include "vtkDataSet.h"
+#include "vtkDoubleArray.h"
 #include "vtkExecutive.h"
 #include "vtkFieldData.h"
+#include "vtkFloatArray.h"
 #include "vtkHyperTreeGrid.h"
 #include "vtkHyperTreeGridGeometricLocator.h"
 #include "vtkHyperTreeGridLocator.h"
 #include "vtkIdList.h"
+#include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkMath.h"
@@ -45,8 +50,12 @@ vtkCxxSetSmartPointerMacro(vtkHyperTreeGridProbeFilter, Locator, vtkHyperTreeGri
 //------------------------------------------------------------------------------
 vtkHyperTreeGridProbeFilter::vtkHyperTreeGridProbeFilter()
   : Locator(vtkSmartPointer<vtkHyperTreeGridGeometricLocator>::New())
+  , ValidPointMaskArrayName(nullptr)
+  , ValidPoints(vtkSmartPointer<vtkIdTypeArray>::New())
+  , MaskPoints(nullptr)
 {
   this->SetNumberOfInputPorts(2);
+  this->SetValidPointMaskArrayName("vtkValidPointMask");
 }
 
 //------------------------------------------------------------------------------
@@ -322,6 +331,22 @@ bool vtkHyperTreeGridProbeFilter::Initialize(
   }
 
   this->Locator->SetHTG(source);
+
+  // if this is repeatedly called by the pipeline for a composite mesh,
+  // you need a new array for each block
+  // (that is you need to reinitialize the object)
+  if (this->MaskPoints)
+  {
+    this->MaskPoints->Delete();
+  }
+  this->MaskPoints = vtk::TakeSmartPointer(vtkCharArray::New());
+  this->MaskPoints->SetNumberOfComponents(1);
+  this->MaskPoints->SetNumberOfTuples(input->GetNumberOfPoints());
+  this->FillDefaultArray(this->MaskPoints);
+  this->MaskPoints->SetName(
+    this->ValidPointMaskArrayName ? this->ValidPointMaskArrayName : "vtkValidPointMask");
+  output->GetPointData()->AddArray(this->MaskPoints);
+
   return true;
 }
 
@@ -331,7 +356,7 @@ bool vtkHyperTreeGridProbeFilter::Reduce(
 {
   vtkIdType numPointsFound = localPointIds->GetNumberOfIds();
 
-  auto dealWithRemote = [](vtkIdList* remotePointIds, vtkDataSet* remoteOutput,
+  auto dealWithRemote = [&](vtkIdList* remotePointIds, vtkDataSet* remoteOutput,
                           vtkHyperTreeGrid* source, vtkDataSet* totOutput) {
     if (remotePointIds->GetNumberOfIds() > 0)
     {
@@ -347,6 +372,14 @@ bool vtkHyperTreeGridProbeFilter::Reduce(
           totOutput->GetPointData()->GetArray(source->GetCellData()->GetArray(iA)->GetName());
         totArray->InsertTuples(remotePointIds, iotaIds, remoteArray);
       }
+      vtkNew<vtkCharArray> ones;
+      ones->SetNumberOfComponents(1);
+      ones->SetNumberOfTuples(remotePointIds->GetNumberOfIds());
+      auto range = vtk::DataArrayValueRange<1>(ones);
+      vtkSMPTools::Fill(range.begin(), range.end(), static_cast<char>(1));
+      totOutput->GetPointData()
+        ->GetArray(this->GetValidPointMaskArrayName())
+        ->InsertTuples(remotePointIds, iotaIds, ones);
     }
   };
   vtkIdType numRemotePoints = 0;
@@ -372,23 +405,31 @@ bool vtkHyperTreeGridProbeFilter::Reduce(
 }
 
 //------------------------------------------------------------------------------
-void vtkHyperTreeGridProbeFilter::FillDefaultArray(vtkDataArray* da) const
+void vtkHyperTreeGridProbeFilter::FillDefaultArray(vtkDataArray* array) const
 {
-  if (da->IsA("vtkDoubleArray") || da->IsA("vtkFloatArray"))
+  if (auto* strArray = vtkStringArray::SafeDownCast(array))
   {
-    da->Fill(vtkMath::Nan());
+    vtkSMPTools::For(0, strArray->GetNumberOfValues(), [strArray](vtkIdType start, vtkIdType end) {
+      for (vtkIdType i = start; i < end; ++i)
+      {
+        strArray->SetValue(i, "");
+      }
+    });
   }
-  else if (da->IsA("vtkIntArray") || da->IsA("vtkIdTypeArray"))
+  else if (auto* doubleArray = vtkDoubleArray::SafeDownCast(array))
   {
-    da->Fill(0);
+    auto range = vtk::DataArrayValueRange(doubleArray);
+    vtkSMPTools::Fill(range.begin(), range.end(), vtkMath::Nan());
   }
-  else if (da->IsA("vtkStringArray"))
+  else if (auto* floatArray = vtkFloatArray::SafeDownCast(array))
   {
-    vtkStringArray* sa = vtkStringArray::SafeDownCast(da);
-    for (int iT = 0; iT < da->GetNumberOfTuples(); iT++)
-    {
-      sa->SetValue(iT, "");
-    }
+    auto range = vtk::DataArrayValueRange(floatArray);
+    vtkSMPTools::Fill(range.begin(), range.end(), vtkMath::Nan());
+  }
+  else
+  {
+    auto range = vtk::DataArrayValueRange(array);
+    vtkSMPTools::Fill(range.begin(), range.end(), 0);
   }
 }
 
@@ -453,4 +494,27 @@ bool vtkHyperTreeGridProbeFilter::PassAttributeData(vtkDataSet* input, vtkDataSe
     output->GetFieldData()->Initialize();
   }
   return true;
+}
+
+//------------------------------------------------------------------------------
+// Straight up copy from vtkProbeFilter
+vtkIdTypeArray* vtkHyperTreeGridProbeFilter::GetValidPoints()
+{
+  if (this->MaskPoints && this->MaskPoints->GetMTime() > this->ValidPoints->GetMTime())
+  {
+    char* maskArray = this->MaskPoints->GetPointer(0);
+    vtkIdType numPts = this->MaskPoints->GetNumberOfTuples();
+    vtkIdType numValidPoints = std::count(maskArray, maskArray + numPts, static_cast<char>(1));
+    this->ValidPoints->Allocate(numValidPoints);
+    for (vtkIdType i = 0; i < numPts; ++i)
+    {
+      if (maskArray[i])
+      {
+        this->ValidPoints->InsertNextValue(i);
+      }
+    }
+    this->ValidPoints->Modified();
+  }
+
+  return this->ValidPoints;
 }

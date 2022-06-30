@@ -16,7 +16,9 @@
 
 #include "vtkAbstractArray.h"
 #include "vtkCellData.h"
+#include "vtkCharArray.h"
 #include "vtkDataArray.h"
+#include "vtkDataArrayRange.h"
 #include "vtkDataSet.h"
 #include "vtkFieldData.h"
 #include "vtkHyperTreeGrid.h"
@@ -87,7 +89,7 @@ bool vtkHyperTreeGridPProbeFilter::Reduce(
   }
   else
   {
-    auto dealWithRemote = [](vtkIdList* remotePointIds, vtkDataSet* remoteOutput,
+    auto dealWithRemote = [&](vtkIdList* remotePointIds, vtkDataSet* remoteOutput,
                             vtkHyperTreeGrid* htgSource, vtkDataSet* totOutput) {
       if (remotePointIds->GetNumberOfIds() > 0)
       {
@@ -103,6 +105,14 @@ bool vtkHyperTreeGridPProbeFilter::Reduce(
             totOutput->GetPointData()->GetArray(htgSource->GetCellData()->GetArray(iA)->GetName());
           totArray->InsertTuples(remotePointIds, iotaIds, remoteArray);
         }
+        vtkNew<vtkCharArray> ones;
+        ones->SetNumberOfComponents(1);
+        ones->SetNumberOfTuples(remotePointIds->GetNumberOfIds());
+        auto range = vtk::DataArrayValueRange<1>(ones);
+        vtkSMPTools::Fill(range.begin(), range.end(), static_cast<char>(1));
+        totOutput->GetPointData()
+          ->GetArray(this->GetValidPointMaskArrayName())
+          ->InsertTuples(remotePointIds, iotaIds, ones);
       }
     };
     vtkIdType numRemotePoints = 0;

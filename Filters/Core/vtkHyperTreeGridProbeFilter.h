@@ -26,9 +26,11 @@
 
 #include "vtkDataSetAlgorithm.h"
 #include "vtkFiltersCoreModule.h" //For export Macro
-#include "vtkSmartPointer.h"      //For Locator member
+#include "vtkSmartPointer.h"      //For members
 
+class vtkCharArray;
 class vtkIdList;
+class vtkIdTypeArray;
 class vtkDataSet;
 class vtkHyperTreeGrid;
 class vtkHyperTreeGridLocator;
@@ -97,13 +99,31 @@ public:
   vtkBooleanMacro(PassFieldArrays, vtkTypeBool);
   vtkGetMacro(PassFieldArrays, vtkTypeBool);
   ///@}
+
+  ///@{
+  /**
+   * Returns the name of the char array added to the output with values 1 for
+   * valid points and 0 for invalid points.
+   * Set to "vtkValidPointMask" by default.
+   */
+  vtkSetStringMacro(ValidPointMaskArrayName);
+  vtkGetStringMacro(ValidPointMaskArrayName);
+  ///@}
+
+  ///@{
+  /**
+   * Get the list of point ids in the output that contain attribute data
+   * from the source.
+   */
+  vtkIdTypeArray* GetValidPoints();
+  ///@}
 protected:
   ///@{
   /**
    * Construction methods
    */
   vtkHyperTreeGridProbeFilter();
-  virtual ~vtkHyperTreeGridProbeFilter() = default;
+  virtual ~vtkHyperTreeGridProbeFilter() { this->SetValidPointMaskArrayName(nullptr); };
   ///@}
 
   ///@{
@@ -156,6 +176,10 @@ protected:
   vtkTypeBool PassCellArrays = false;
   vtkTypeBool PassPointArrays = false;
   vtkTypeBool PassFieldArrays = true;
+
+  char* ValidPointMaskArrayName;
+  vtkSmartPointer<vtkIdTypeArray> ValidPoints;
+  vtkSmartPointer<vtkCharArray> MaskPoints;
 
 private:
   vtkHyperTreeGridProbeFilter(const vtkHyperTreeGridProbeFilter&) = delete;
