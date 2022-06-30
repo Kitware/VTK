@@ -51,6 +51,10 @@ foreach (target IN LISTS targets_to_build)
   math(EXPR num_warnings "${num_warnings} + ${num_warnings_target}")
 
   ctest_submit(PARTS Build)
+
+  if (build_result)
+    break ()
+  endif ()
 endforeach ()
 
 if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "doxygen")
@@ -84,6 +88,8 @@ if (build_result)
   message(FATAL_ERROR
     "Failed to build")
 endif ()
+
+file(WRITE "${CTEST_SOURCE_DIRECTORY}/compile_num_warnings.log" "${num_warnings}")
 
 if ("$ENV{CTEST_NO_WARNINGS_ALLOWED}" AND num_warnings GREATER 0)
   message(FATAL_ERROR

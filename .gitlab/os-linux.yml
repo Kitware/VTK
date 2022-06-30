@@ -347,6 +347,7 @@
 
 .cmake_build_linux:
     stage: build
+    extends: .warning_policy
 
     script:
         - *before_script_linux
@@ -356,6 +357,7 @@
         - $LAUNCHER ctest -VV -S .gitlab/ci/ctest_configure.cmake
         - $LAUNCHER ctest -VV -S .gitlab/ci/ctest_build.cmake &> $GIT_CLONE_PATH/compile_output.log
         - sccache --show-stats
+        - exec .gitlab/ci/check_warnings.sh .
 
     interruptible: true
 
@@ -370,10 +372,12 @@
 
 .cmake_test_external_linux:
     stage: test-ext
+    extends: .warning_policy
 
     script:
         - *before_script_linux
         - ctest -V --output-on-failure -S .gitlab/ci/ctest_test_external.cmake
+        - exec .gitlab/ci/check_warnings.sh ./Testing/External
 
     interruptible: true
 
@@ -387,6 +391,7 @@
 
 .cmake_build_wheel_linux:
     stage: build
+    extends: .warning_policy
 
     script:
         - yum install -y --setopt=install_weak_deps=False libX11-devel libXcursor-devel mesa-libGL-devel mesa-libGLU-devel git-core git-lfs gcc-c++
@@ -404,6 +409,8 @@
         - mv -v dist/ dist-orig/
         - mv -v wheelhouse/ dist/
         - "$PYTHON_PREFIX/bin/python $GIT_CLONE_PATH/.gitlab/ci/create_wheel_sdk_archive.py"
+        - cd ..
+        - exec .gitlab/ci/check_warnings.sh .
 
     interruptible: true
 
