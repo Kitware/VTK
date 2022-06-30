@@ -1,11 +1,13 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkConduitSource.h"
-
+#include "vtkAMRBox.h"
+#include "vtkAMRUtilities.h"
 #include "vtkArrayDispatch.h"
 #include "vtkArrayIteratorIncludes.h"
 #include "vtkCellArray.h"
 #include "vtkCellArrayIterator.h"
+#include "vtkCellData.h"
 #include "vtkConduitArrayUtilities.h"
 #include "vtkConvertToMultiBlockDataSet.h"
 #include "vtkDataArray.h"
@@ -18,9 +20,12 @@
 #include "vtkInformationVector.h"
 #include "vtkIntArray.h"
 #include "vtkLogger.h"
+#include "vtkMPIController.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
+#include "vtkOverlappingAMR.h"
+#include "vtkParallelAMRUtilities.h"
 #include "vtkPartitionedDataSet.h"
 #include "vtkPartitionedDataSetCollection.h"
 #include "vtkPoints.h"
@@ -29,6 +34,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStringArray.h"
 #include "vtkStructuredGrid.h"
+#include "vtkUniformGrid.h"
 #include "vtkUnstructuredGrid.h"
 
 #include <catalyst_conduit.hpp>
@@ -37,6 +43,7 @@
 #include <algorithm>
 #include <functional>
 #include <map>
+#include <numeric>
 #include <set>
 
 namespace detail
@@ -593,6 +600,7 @@ bool RequestMesh(vtkPartitionedDataSet* output, const conduit_cpp::Node& node)
 
   // process "topologies".
   auto topologies = node["topologies"];
+
   conduit_index_t nchildren = topologies.number_of_children();
   for (conduit_index_t i = 0; i < nchildren; ++i)
   {
@@ -697,7 +705,7 @@ bool AddGlobalData(vtkDataObject* output, const conduit_cpp::Node& globalFields)
   return true;
 }
 
-bool AddFieldData(vtkDataObject* output, const conduit_cpp::Node& stateFields)
+bool AddFieldData(vtkDataObject* output, const conduit_cpp::Node& stateFields, bool isAMR = false)
 {
   auto field_data = output->GetFieldData();
   auto number_of_children = stateFields.number_of_children();
@@ -735,9 +743,14 @@ bool AddFieldData(vtkDataObject* output, const conduit_cpp::Node& stateFields)
             conduit_cpp::c_node(&field_node), field_name);
         }
 
-        if (dataArray)
+        if (!isAMR && dataArray)
         {
           field_data->AddArray(dataArray);
+        }
+        if (isAMR && dataArray)
+        {
+          auto ug = vtkUniformGrid::SafeDownCast(output);
+          ug->GetCellData()->AddArray(dataArray);
         }
       }
     }
@@ -748,6 +761,225 @@ bool AddFieldData(vtkDataObject* output, const conduit_cpp::Node& stateFields)
       return false;
     }
   }
+  return true;
+}
+
+bool GetAMRMesh(vtkOverlappingAMR* amr, const conduit_cpp::Node& node)
+{
+  const int default_refinement_ratio = 2;
+
+  vtkMPIController* ctrlr = vtkMPIController::SafeDownCast(vtkMPIController::GetGlobalController());
+
+  int nprocs = 1;
+  int rank = 0;
+  if (ctrlr && ctrlr->GetNumberOfProcesses() > 1)
+  {
+    nprocs = ctrlr->GetNumberOfProcesses();
+    rank = ctrlr->GetLocalProcessId();
+  }
+
+  // pre-allocate the levels
+  const auto leaves_on_node = node.number_of_children();
+  std::vector<int> blocksPerLevelLocal(1);
+  std::vector<vtkIdType> global_offsets(nprocs);
+  std::map<int, std::pair<int, int>> domainID2LvlID;
+  vtkIdType blocks_local = 0;
+  vtkIdType levels_global = 0;
+  vtkIdType blocks_global = 0;
+  vtkIdType offset_local = 0;
+  std::vector<vtkIdType> blocksPerRank(nprocs);
+  double local_origin[3] = { vtkMath::Inf(), vtkMath::Inf(), vtkMath::Inf() };
+  double global_origin[3] = { vtkMath::Inf(), vtkMath::Inf(), vtkMath::Inf() };
+  double origin[3] = { 0, 0, 0 };
+  double spacing[3] = { 0, 0, 0 };
+
+  for (conduit_index_t cc = 0; cc < leaves_on_node; ++cc)
+  {
+    const auto child = node.child(cc);
+    if (child.has_path("state"))
+    {
+      const int level = child["state/level"].to_int32();
+      const int domain_id = child["state/domain_id"].to_int32();
+      if (level >= blocksPerLevelLocal.size())
+      {
+        blocksPerLevelLocal.resize(level + 1);
+        blocksPerLevelLocal[level] = 0;
+      }
+      blocksPerLevelLocal[level]++;
+      domainID2LvlID[domain_id] = { level, blocksPerLevelLocal[level] - 1 };
+
+      origin[0] = child["coordsets/coords/origin/x"].to_float64();
+      origin[1] = child["coordsets/coords/origin/y"].to_float64();
+      origin[2] = child["coordsets/coords/origin/z"].to_float64();
+      // check global origin
+      if (origin[0] <= local_origin[0] && origin[1] <= local_origin[1] &&
+        origin[2] <= local_origin[2])
+      {
+        local_origin[0] = origin[0];
+        local_origin[1] = origin[1];
+        local_origin[2] = origin[2];
+      }
+    }
+  }
+
+  const vtkIdType levels_local = vtkIdType(blocksPerLevelLocal.size());
+
+  if (ctrlr && ctrlr->GetNumberOfProcesses() > 1)
+  {
+    ctrlr->AllReduce(&levels_local, &levels_global, 1, vtkCommunicator::MAX_OP);
+    ctrlr->AllReduce(local_origin, global_origin, 3, vtkCommunicator::MIN_OP);
+  }
+  else
+  {
+    levels_global = levels_local;
+    global_origin[0] = local_origin[0];
+    global_origin[1] = local_origin[1];
+    global_origin[2] = local_origin[2];
+  }
+
+  // need the total number of blocks across all processes
+  blocksPerLevelLocal.resize(levels_global);
+
+  std::vector<int> blocksPerLevelGlobal(levels_global);
+  if (ctrlr && ctrlr->GetNumberOfProcesses() > 1)
+  {
+    ctrlr->AllReduce(blocksPerLevelLocal.data(), blocksPerLevelGlobal.data(), levels_global,
+      vtkCommunicator::SUM_OP);
+  }
+  else
+  {
+    blocksPerLevelGlobal = blocksPerLevelLocal;
+  }
+  blocks_local = vtkIdType(domainID2LvlID.size());
+  blocks_global = std::accumulate(blocksPerLevelGlobal.begin(), blocksPerLevelGlobal.end(), 0);
+
+  // get global offset for process
+
+  if (ctrlr && ctrlr->GetNumberOfProcesses() > 1)
+  {
+    ctrlr->AllGather(&blocks_local, blocksPerRank.data(), vtkIdType(1));
+    vtkIdType current_offset(0);
+    for (int i = 0; i < nprocs; ++i)
+    {
+      global_offsets[i] = current_offset;
+      current_offset += blocksPerRank[i];
+    }
+
+    offset_local = global_offsets[rank];
+  }
+
+  amr->Initialize(levels_global, blocksPerLevelGlobal.data());
+  for (int l = 0; l < levels_global; ++l)
+  {
+    for (int b = 0; b < blocksPerLevelGlobal[l]; ++b)
+    {
+      amr->SetDataSet(l, b, nullptr);
+    }
+  }
+
+  // set origin
+  amr->SetOrigin(global_origin);
+
+  for (conduit_index_t cc = 0; cc < leaves_on_node; ++cc)
+  {
+    // set the spacing for each level via amr->SetSpacing();
+    const auto child = node.child(cc);
+    if (child.has_path("state"))
+    {
+      int dims[3] = { 0, 0, 0 };
+      const int domain_id = child["state/domain_id"].to_int32();
+      const int level = child["state/level"].to_int32();
+
+      origin[0] = child["coordsets/coords/origin/x"].to_float64();
+      origin[1] = child["coordsets/coords/origin/y"].to_float64();
+      origin[2] = child["coordsets/coords/origin/z"].to_float64();
+      spacing[0] = child["coordsets/coords/spacing/dx"].to_float64();
+      spacing[1] = child["coordsets/coords/spacing/dy"].to_float64();
+      spacing[2] = child["coordsets/coords/spacing/dz"].to_float64();
+      dims[0] = child["coordsets/coords/dims/i"].to_int32();
+      dims[1] = child["coordsets/coords/dims/j"].to_int32();
+      dims[2] = child["coordsets/coords/dims/k"].to_int32();
+
+      vtkNew<vtkUniformGrid> ug;
+      ug->Initialize();
+      ug->SetOrigin(origin);
+      ug->SetSpacing(spacing);
+      ug->SetDimensions(dims);
+
+      const auto fields = child["fields"];
+      detail::AddFieldData(ug, fields, true);
+
+      vtkAMRBox box(origin, dims, spacing, global_origin, amr->GetGridDescription());
+
+      // set level spacing
+      amr->SetSpacing(level, spacing);
+      amr->SetAMRBox(
+        domainID2LvlID[domain_id].first, domainID2LvlID[domain_id].second + offset_local, box);
+      amr->SetDataSet(
+        domainID2LvlID[domain_id].first, domainID2LvlID[domain_id].second + offset_local, ug);
+      amr->SetRefinementRatio(level, default_refinement_ratio);
+      if (child.has_path("nestsets/nest/windows"))
+      {
+        const auto& windows = child["nestsets/nest/windows"];
+        const auto window_count = windows.number_of_children();
+        for (int i = 0; i < window_count; ++i)
+        {
+          const auto& window = windows.child(i);
+          if (window.has_path("ratio") && window.has_path("domain_type"))
+          {
+            amr->SetRefinementRatio(level, window["ratio/i"].to_int32());
+            break;
+          }
+        }
+      }
+    }
+  }
+
+  // distribute AMRBoxes to all processes
+  if (ctrlr && ctrlr->GetNumberOfProcesses() > 1)
+  {
+    std::vector<vtkIdType> boxBoundsOffsets(nprocs);
+    std::vector<vtkIdType> boxBoundsCounts(nprocs);
+    std::vector<int> boxExtentsLocal(8 * blocks_local, 0);
+    std::vector<int> boxExtentsGlobal(8 * blocks_global, 0);
+
+    for (int i = 0; i < nprocs; ++i)
+    {
+      boxBoundsOffsets[i] = global_offsets[i] * 8;
+      boxBoundsCounts[i] = blocksPerRank[i] * 8;
+    }
+
+    for (int i = 0; i < blocks_local; ++i)
+    {
+      int level = domainID2LvlID[i].first;
+      int id = domainID2LvlID[i].second + offset_local;
+      vtkAMRBox box = amr->GetAMRBox(level, id);
+      const int* loCorner = box.GetLoCorner();
+      const int* hiCorner = box.GetHiCorner();
+      boxExtentsLocal[8 * i + 0] = level;
+      boxExtentsLocal[8 * i + 1] = id;
+      boxExtentsLocal[8 * i + 2] = loCorner[0];
+      boxExtentsLocal[8 * i + 3] = loCorner[1];
+      boxExtentsLocal[8 * i + 4] = loCorner[2];
+      boxExtentsLocal[8 * i + 5] = hiCorner[0];
+      boxExtentsLocal[8 * i + 6] = hiCorner[1];
+      boxExtentsLocal[8 * i + 7] = hiCorner[2];
+    }
+
+    ctrlr->AllGatherV(boxExtentsLocal.data(), boxExtentsGlobal.data(), boxExtentsLocal.size(),
+      boxBoundsCounts.data(), boxBoundsOffsets.data());
+
+    for (int i = 0; i < blocks_global; ++i)
+    {
+      int level = boxExtentsGlobal[8 * i + 0];
+      int id = boxExtentsGlobal[8 * i + 1];
+      int* dims = &boxExtentsGlobal[8 * i + 2];
+      vtkAMRBox box(dims[0], dims[1], dims[2], dims[3], dims[4], dims[5]);
+      amr->SetAMRBox(level, id, box);
+    }
+  }
+
+  vtkParallelAMRUtilities::BlankCells(amr, ctrlr);
   return true;
 }
 
@@ -771,6 +1003,7 @@ vtkStandardNewMacro(vtkConduitSource);
 vtkConduitSource::vtkConduitSource()
   : Internals(new vtkConduitSource::vtkInternals())
   , UseMultiMeshProtocol(false)
+  , UseAMRMeshProtocol(false)
   , OutputMultiBlock(false)
 {
   this->SetNumberOfInputPorts(0);
@@ -829,9 +1062,10 @@ void vtkConduitSource::SetAssemblyNode(const conduit_node* node)
 int vtkConduitSource::RequestDataObject(
   vtkInformation*, vtkInformationVector**, vtkInformationVector* outputVector)
 {
-  const int dataType = this->OutputMultiBlock
-    ? VTK_MULTIBLOCK_DATA_SET
-    : this->UseMultiMeshProtocol ? VTK_PARTITIONED_DATA_SET_COLLECTION : VTK_PARTITIONED_DATA_SET;
+  const int dataType = this->OutputMultiBlock ? VTK_MULTIBLOCK_DATA_SET
+                                              : this->UseMultiMeshProtocol
+      ? VTK_PARTITIONED_DATA_SET_COLLECTION
+      : this->UseAMRMeshProtocol ? VTK_OVERLAPPING_AMR : VTK_PARTITIONED_DATA_SET;
 
   return this->SetOutputDataObject(dataType, outputVector->GetInformationObject(0), /*exact=*/true)
     ? 1
@@ -844,7 +1078,19 @@ int vtkConduitSource::RequestData(
 {
   auto& internals = (*this->Internals);
   vtkDataObject* real_output = vtkDataObject::GetData(outputVector, 0);
-  if (this->UseMultiMeshProtocol)
+
+  if (this->UseAMRMeshProtocol)
+  {
+    vtkNew<vtkOverlappingAMR> amr_output;
+    const auto& node = internals.Node;
+
+    if (!detail::GetAMRMesh(amr_output, node))
+    {
+      vtkLogF(ERROR, "Failed reading AMR mesh '%s'", node.name().c_str());
+    }
+    real_output->ShallowCopy(amr_output);
+  }
+  else if (this->UseMultiMeshProtocol)
   {
     vtkNew<vtkPartitionedDataSetCollection> pdc_output;
     const auto& node = internals.Node;
@@ -872,6 +1118,11 @@ int vtkConduitSource::RequestData(
       if (child.has_path("state/fields"))
       {
         detail::AddFieldData(pd, child["state/fields"]);
+      }
+      // fields may be located in node at same level as state
+      if (child.has_path("fields"))
+      {
+        detail::AddFieldData(pd, child["fields"]);
       }
     }
 

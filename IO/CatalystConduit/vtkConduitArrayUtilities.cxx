@@ -240,6 +240,13 @@ vtkSmartPointer<vtkDataArray> vtkConduitArrayUtilities::MCArrayToVTKArrayImpl(
       return vtkConduitArrayUtilities::MCArrayToVTKArrayImpl(
         conduit_cpp::c_node(&temp), force_signed);
     }
+    // in some cases, the array is inside a values subnode. handle that
+    else if (mcarray.has_path("values"))
+    {
+      const auto& tmp = mcarray["values"];
+      return vtkConduitArrayUtilities::MCArrayToVTKArrayImpl(
+        conduit_cpp::c_node(&tmp), force_signed);
+    }
     else
     {
       vtkLogF(ERROR, "invalid node of type '%s'", mcarray.dtype().name().c_str());
