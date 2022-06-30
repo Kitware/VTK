@@ -28,29 +28,19 @@ vtkCxxSetObjectMacro(vtkHandleRepresentation, PointPlacer, vtkPointPlacer);
 vtkHandleRepresentation::vtkHandleRepresentation()
 {
   // Positions are maintained via a vtkCoordinate
-  this->DisplayPosition = vtkCoordinate::New();
   this->DisplayPosition->SetCoordinateSystemToDisplay();
-
-  this->WorldPosition = vtkCoordinate::New();
   this->WorldPosition->SetCoordinateSystemToWorld();
 
   this->InteractionState = vtkHandleRepresentation::Outside;
-  this->Tolerance = 15;
-  this->ActiveRepresentation = 0;
-  this->Constrained = 0;
   this->PointPlacer = vtkPointPlacer::New();
 
   this->DisplayPositionTime.Modified();
   this->WorldPositionTime.Modified();
-
-  this->TranslationAxis = Axis::NONE;
 }
 
 //------------------------------------------------------------------------------
 vtkHandleRepresentation::~vtkHandleRepresentation()
 {
-  this->DisplayPosition->Delete();
-  this->WorldPosition->Delete();
   this->SetPointPlacer(nullptr);
 }
 

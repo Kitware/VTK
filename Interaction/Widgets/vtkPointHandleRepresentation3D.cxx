@@ -623,17 +623,16 @@ void vtkPointHandleRepresentation3D::SetTranslationMode(vtkTypeBool mode)
 void vtkPointHandleRepresentation3D::Translate(const double* p1, const double* p2)
 {
   double v[3] = { 0, 0, 0 };
-  vtkHandleRepresentation::Translate(p1, p2);
   this->GetTranslationVector(p1, p2, v);
+  this->vtkHandleRepresentation::Translate(v);
 
   double* bounds = this->Cursor3D->GetModelBounds();
   double* pos = this->Cursor3D->GetFocalPoint();
   double newBounds[6], newFocus[3];
-  int i;
 
   if (this->ConstraintAxis >= 0)
-  { // move along axis
-    for (i = 0; i < 3; i++)
+  {
+    for (int i = 0; i < 3; i++)
     {
       if (i != this->ConstraintAxis)
       {
@@ -642,7 +641,7 @@ void vtkPointHandleRepresentation3D::Translate(const double* p1, const double* p
     }
   }
 
-  for (i = 0; i < 3; i++)
+  for (int i = 0; i < 3; i++)
   {
     newBounds[2 * i] = bounds[2 * i] + v[i];
     newBounds[2 * i + 1] = bounds[2 * i + 1] + v[i];

@@ -230,16 +230,16 @@ protected:
   vtkHandleRepresentation();
   ~vtkHandleRepresentation() override;
 
-  int Tolerance;
-  vtkTypeBool ActiveRepresentation;
-  vtkTypeBool Constrained;
+  int Tolerance = 15;
+  vtkTypeBool ActiveRepresentation = false;
+  vtkTypeBool Constrained = false;
 
   // Two vtkCoordinates are available to subclasses, one in display
   // coordinates and the other in world coordinates. These facilitate
   // the conversion between these two systems. Note that the WorldPosition
   // is the ultimate maintainer of position.
-  vtkCoordinate* DisplayPosition;
-  vtkCoordinate* WorldPosition;
+  vtkNew<vtkCoordinate> DisplayPosition;
+  vtkNew<vtkCoordinate> WorldPosition;
 
   // Keep track of when coordinates were changed
   vtkTimeStamp DisplayPositionTime;
@@ -249,7 +249,7 @@ protected:
   vtkPointPlacer* PointPlacer;
 
   // Constraint axis translation
-  int TranslationAxis;
+  int TranslationAxis = Axis::NONE;
 
 private:
   vtkHandleRepresentation(const vtkHandleRepresentation&) = delete;
