@@ -547,7 +547,7 @@ fedora34-tidy:build:
     dependencies: []
     # clang-tidy really hampers compilation cache improvements, so it takes
     # longer.
-    timeout: 180 minutes
+    timeout: 210 minutes
 
 ## Sanitizer builds
 
