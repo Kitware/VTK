@@ -36,7 +36,6 @@ vtkObjectFactoryNewMacro(vtkSurfaceLICComposite);
 //------------------------------------------------------------------------------
 vtkSurfaceLICComposite::vtkSurfaceLICComposite()
   : Pass(0)
-  , WindowExt()
   , Strategy(COMPOSITE_AUTO)
   , StepSize(0)
   , NumberOfSteps(0)

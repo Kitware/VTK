@@ -423,7 +423,6 @@ vtkIdType vtkTableBasedClipperEdgeHashTable::AddPoint(vtkIdType ap1, vtkIdType a
 
 vtkTableBasedClipperDataSetFromVolume::vtkTableBasedClipperDataSetFromVolume(vtkIdType ptSizeGuess)
   : numPrevPts(0)
-  , pt_list()
   , edges(ptSizeGuess, pt_list)
 {
 }
@@ -431,7 +430,6 @@ vtkTableBasedClipperDataSetFromVolume::vtkTableBasedClipperDataSetFromVolume(vtk
 vtkTableBasedClipperDataSetFromVolume::vtkTableBasedClipperDataSetFromVolume(
   vtkIdType nPts, vtkIdType ptSizeGuess)
   : numPrevPts(nPts)
-  , pt_list()
   , edges(ptSizeGuess, pt_list)
 {
 }
