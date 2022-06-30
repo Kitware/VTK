@@ -473,7 +473,7 @@ int vtkExtractSubsetWithSeed::RequestData(
       {
         const auto dest = rp.out_link().target(i);
         rp.enqueue(dest, bds, 6);
-      };
+      }
     }
     else
     {

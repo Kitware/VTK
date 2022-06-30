@@ -540,7 +540,7 @@ struct BucketList2D : public vtkBucketList2D
       {
         for (; curPt->Bucket == prevPt->Bucket && curPt <= endBatchPt; ++curPt)
         {
-          ; // advance
+          // advance
         }
         // Fill in any gaps in the offset array
         std::fill_n(

@@ -581,7 +581,7 @@ void vtkValueSelector::Initialize(vtkSelectionNode* node)
       default:
         vtkErrorMacro("vtkValueSelector doesn't support content-type: " << contentType);
         break;
-    };
+    }
   }
   catch (const std::runtime_error& e)
   {

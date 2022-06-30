@@ -1240,7 +1240,7 @@ bool vtkMatplotlibMathTextUtilities::RenderString(
       {
         vtkErrorMacro(<< "Failed to render cell number " << j);
         return false;
-      };
+      }
 
       colStart += cellCols;
     }

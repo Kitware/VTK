@@ -904,7 +904,7 @@ int vtkExodusIIWriter::ConstructBlockInfoMap()
             break;
           default:
             b.NodesPerElement = this->FlattenedInput[i]->GetCell(j)->GetNumberOfPoints();
-        };
+        }
 
         // TODO this could be a push if i is different.
         b.GridIndex = i;

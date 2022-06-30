@@ -137,7 +137,6 @@ void vtkHeap::CleanAll()
   }
   while (this->DeleteAndNext())
   {
-    ;
   }
   this->First = this->Current = this->Last = nullptr;
   this->Position = 0;

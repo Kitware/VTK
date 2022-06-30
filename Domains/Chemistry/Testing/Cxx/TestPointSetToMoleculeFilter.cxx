@@ -106,9 +106,9 @@ int TestPointSetToMoleculeFilter(int, char*[])
     cerr << "Error: No atomic numbers array was found." << endl;
     return EXIT_FAILURE;
   }
-  CheckNumbers("atomic number value", atomicNumbers->GetTuple1(0), firstAtomicNb)
+  CheckNumbers("atomic number value", atomicNumbers->GetTuple1(0), firstAtomicNb);
 
-    filter->ConvertLinesIntoBondsOff();
+  filter->ConvertLinesIntoBondsOff();
   filter->Update();
   molecule = filter->GetOutput();
 

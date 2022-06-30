@@ -369,7 +369,7 @@ void vtkLabeledDataMapper::BuildLabelsInternal(vtkDataSet* input)
     case VTK_LABEL_IDS:
     {
       pointIdLabels = 1;
-    };
+    }
     break;
     case VTK_LABEL_SCALARS:
       if (pd->GetScalars())
@@ -417,7 +417,7 @@ void vtkLabeledDataMapper::BuildLabelsInternal(vtkDataSet* input)
       }
       numericData = vtkArrayDownCast<vtkDataArray>(abstractData);
       stringData = vtkArrayDownCast<vtkStringArray>(abstractData);
-    };
+    }
     break;
   }
 

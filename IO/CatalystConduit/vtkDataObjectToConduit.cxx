@@ -407,7 +407,7 @@ bool FillFields(
             vtkLog(WARNING,
               "The string array '" << string_array->GetName()
                                    << "' contains more than one element. Only the first one will "
-                                      "be converted to conduit node.")
+                                      "be converted to conduit node.");
           }
         }
       }

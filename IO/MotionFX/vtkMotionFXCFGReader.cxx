@@ -174,7 +174,6 @@ protected:
     {
       // s = u*tA + 0.5 * a * (tA)^2
       const double tA = std::min(time - this->tstart_prescribe, this->t_damping);
-      ;
       assert(tA >= 0.0);
       const double tA2 = tA * tA;
       s = s + (init_velocity * tA + acceleration * (tA2 / 2.0));

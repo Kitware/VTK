@@ -152,7 +152,6 @@ struct ComputeTransformationWorker
       validTransformation = true;
       this->RotationMatrix = rotationMatrix.template cast<double>();
       this->TranslationVector = translationVector.template cast<double>();
-      ;
     }
     else
     {

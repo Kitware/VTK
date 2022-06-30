@@ -419,14 +419,13 @@ void vtkLabeledTreeMapDataMapper::RenderOpaqueGeometry(vtkViewport* viewport, vt
         }
         numericData = vtkArrayDownCast<vtkDataArray>(abstractData);
         stringData = vtkArrayDownCast<vtkStringArray>(abstractData);
-      };
+      }
       break;
     }
 
     // determine number of components and check input
     if (pointIdLabels)
     {
-      ;
     }
     else if (numericData)
     {

@@ -181,7 +181,7 @@ int TestDataSet(vtkDataSet* data, vtkDataSet* expectedData)
           return EXIT_FAILURE;
         }
       }
-    };
+    }
   }
   return EXIT_SUCCESS;
 }

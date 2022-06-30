@@ -145,7 +145,7 @@ bool vtkVariantStrictEquality::operator()(const vtkVariant& s1, const vtkVariant
         cerr << "Strings differ: '" << *(s1.Data.String) << "' and '" << *(s2.Data.String) << "'\n";
       }
       return (*(s1.Data.String) == *(s2.Data.String));
-    };
+    }
 
     case VTK_OBJECT:
       return (s1.Data.VTKObject == s2.Data.VTKObject);

@@ -731,7 +731,6 @@ void vtkImageNLCRowInterpolate<F, T>::Tricubic(
 
       *outPtr++ = result;
       cc++;
-      ;
     } while (--c);
   }
 }

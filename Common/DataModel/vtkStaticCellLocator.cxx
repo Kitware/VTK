@@ -481,7 +481,7 @@ struct MapOffsets
     {
       for (; curPt->BinId == prevPt->BinId && curPt <= endBatchPt; ++curPt)
       {
-        ; // advance
+        // advance
       }
       // Fill in any gaps in the offset array
       std::fill_n(offsets + prevPt->BinId + 1, curPt->BinId - prevPt->BinId, curPt - this->Map);

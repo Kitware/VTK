@@ -272,11 +272,11 @@ struct ContourCellsBase
     // Copy points output to VTK structures. Only point coordinates are
     // copied for now; later we'll define the triangle topology.
     ProducePoints<TOP> producePts(&localPts, &localPtOffsets, pts);
-    EXECUTE_SMPFOR(this->Sequential, this->NumThreadsUsed, producePts)
+    EXECUTE_SMPFOR(this->Sequential, this->NumThreadsUsed, producePts);
 
     // Now produce the output triangles (topology) for this contour n parallel
     ProduceTriangles produceTris(this->TotalTris, this->NewPolys);
-    EXECUTE_SMPFOR(this->Sequential, this->NumTris, produceTris)
+    EXECUTE_SMPFOR(this->Sequential, this->NumTris, produceTris);
   } // Reduce
 };  // ContourCellsBase
 
@@ -787,7 +787,7 @@ struct ProduceMergedTriangles
 
   void Initialize()
   {
-    ; // without this method Reduce() is not called
+    // without this method Reduce() is not called
   }
 
   struct Impl
@@ -965,7 +965,7 @@ int ProcessMerged(vtkIdType numCells, vtkPoints* inPts, CellIter* cellIter, int 
     default:
       vtkGenericWarningMacro(<< "Scalar type not supported");
       return 0;
-  };
+  }
   int nt = numThreads;
 
   // Make sure data was produced
@@ -1372,7 +1372,7 @@ void vtkContour3DLinearGrid::ProcessPiece(
         default:
           vtkGenericWarningMacro(<< "Scalar type not supported");
           return;
-      };
+      }
 
       // Multiple contour values require accumulating points & triangles
       totalPts = outPts->GetNumberOfPoints();

@@ -173,7 +173,7 @@ vtkPythonGlobalInterpreters::vtkPythonGlobalInterpreters()
   if (vtkPythonInterpretersCounter++ == 0)
   {
     GlobalInterpreters = new std::vector<vtkWeakPointer<vtkPythonInterpreter>>();
-  };
+  }
 }
 
 vtkPythonGlobalInterpreters::~vtkPythonGlobalInterpreters()
@@ -620,7 +620,7 @@ int vtkPythonInterpreter::PyMain(int argc, char** argv)
   using OwnedWideString = std::unique_ptr<wchar_t, CharDeleter>;
   std::vector<wchar_t*> argvForPythonWide;
   std::vector<OwnedWideString> argvCleanupWide;
-  for (int i = 0; i < argvCleanup.size(); i++)
+  for (size_t i = 0; i < argvCleanup.size(); i++)
   {
     OwnedWideString argCopy(vtk_Py_UTF8ToWide(argvCleanup[i].get()), CharDeleter());
     if (argCopy == nullptr)
@@ -628,7 +628,7 @@ int vtkPythonInterpreter::PyMain(int argc, char** argv)
       fprintf(stderr,
         "Fatal vtkpython error: "
         "unable to decode the command line argument #%i\n",
-        i + 1);
+        static_cast<int>(i + 1));
       return 1;
     }
 

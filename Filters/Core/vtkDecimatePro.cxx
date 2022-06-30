@@ -1002,7 +1002,7 @@ void vtkDecimatePro::SplitVertex(
 
     if (type == VTK_NON_MANIFOLD_VERTEX || type == VTK_HIGH_DEGREE_VERTEX)
     {
-      ; // use maxGroupSize
+      // use maxGroupSize
     }
     else
     {

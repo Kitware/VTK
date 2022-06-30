@@ -482,7 +482,7 @@ void vtkSelectionNode::SubtractSelectionList(vtkSelectionNode* other)
     {
       vtkErrorMacro(<< "Do not know how to subtract the given content type " << type << ".");
     }
-  };
+  }
 }
 
 //------------------------------------------------------------------------------

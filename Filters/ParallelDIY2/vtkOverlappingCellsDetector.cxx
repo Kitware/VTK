@@ -472,7 +472,7 @@ int vtkOverlappingCellsDetector::ExposeOverlappingCellsAmongBlocks(
             const auto dest = rp.out_link().target(i);
             rp.enqueue(dest, &connected, 1);
           }
-        };
+        }
       }
       else
       {

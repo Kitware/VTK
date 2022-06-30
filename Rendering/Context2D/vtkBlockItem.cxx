@@ -154,7 +154,6 @@ bool vtkBlockItem::Paint(vtkContext2D* painter)
   if (this->scalarFunction)
   {
     // We have a function pointer - do something...
-    ;
   }
   this->PaintChildren(painter);
 

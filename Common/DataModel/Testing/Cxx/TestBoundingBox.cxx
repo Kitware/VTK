@@ -74,7 +74,7 @@ int TestBoundingBox(int, char*[])
     bbox.GetBounds(bb);
     TestBoundingBoxFailMacro(
       !res && bb[0] == -1 && bb[1] == 1 && bb[2] == -1 && bb[3] == 1 && bb[4] == -1 && bb[5] == 1,
-      "Intersect Plane Failed!")
+      "Intersect Plane Failed!");
   }
   {
     double bb[6];

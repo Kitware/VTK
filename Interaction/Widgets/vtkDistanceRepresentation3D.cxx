@@ -429,11 +429,7 @@ void vtkDistanceRepresentation3D::SetLabelPosition(double labelPosition)
   vtkDebugMacro(<< this->GetClassName() << " (" << this << "): setting LabelPosition to "
                 << labelPosition);
 
-  if (this->LabelPosition == labelPosition)
-  {
-    ;
-  }
-  else
+  if (this->LabelPosition != labelPosition)
   {
     this->LabelPosition = labelPosition;
   }

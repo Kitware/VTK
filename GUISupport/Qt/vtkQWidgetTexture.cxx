@@ -37,10 +37,10 @@ void vtkQWidgetTexture::PrintSelf(ostream& os, vtkIndent indent)
 
 //------------------------------------------------------------------------------
 vtkQWidgetTexture::vtkQWidgetTexture()
-  : ImageBufferDimensions({ 0, 0 })
-  , Scene(nullptr)
+  : Scene(nullptr)
   , Widget(nullptr)
   , ImageBuffer(nullptr)
+  , ImageBufferDimensions({ 0, 0 })
 {
   this->SetMagnificationFilter(vtkTextureObject::Linear);
   this->SetMinificationFilter(vtkTextureObject::LinearMipmapLinear);

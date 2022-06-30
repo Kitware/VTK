@@ -439,7 +439,7 @@ int TestParticleTracers(int, char*[])
 
   pts = vtkPolyData::SafeDownCast(filter->GetOutputDataObject(0))->GetPoints();
   pts->GetPoint(0, p);
-  EXPECT(fabs(p[2] - 0.424) < 0.01, "Wrong termination point")
+  EXPECT(fabs(p[2] - 0.424) < 0.01, "Wrong termination point");
 
   filter->SetTerminationTime(5.5);
   filter->Update();
@@ -471,7 +471,7 @@ int TestParticleTracers(int, char*[])
   filter->SetIgnorePipelineTime(1);
   filter->UpdateTimeStep(6.5);
 
-  EXPECT(imageSource->GetNumRequestData() - numRequestData == 0, "Pipeline Time should be ignored")
+  EXPECT(imageSource->GetNumRequestData() - numRequestData == 0, "Pipeline Time should be ignored");
   numRequestData = imageSource->GetNumRequestData();
 
   filter->SetIgnorePipelineTime(0);

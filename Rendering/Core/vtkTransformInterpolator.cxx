@@ -330,7 +330,7 @@ void vtkTransformInterpolator::InitializeInterpolation()
     }
     else
     {
-      ; // manual override, user manipulates interpolators directly
+      // manual override, user manipulates interpolators directly
     }
 
     this->PositionInterpolator->Initialize();

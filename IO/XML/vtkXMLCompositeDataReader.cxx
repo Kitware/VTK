@@ -316,7 +316,7 @@ unsigned int vtkXMLCompositeDataReader::CountNestedElements(
   if (tagName.empty() || element == nullptr)
   {
     return 0;
-  };
+  }
 
   unsigned int count = 0;
   for (unsigned int cc = 0, max = element->GetNumberOfNestedElements(); cc < max; ++cc)

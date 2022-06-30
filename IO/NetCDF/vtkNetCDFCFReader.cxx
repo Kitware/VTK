@@ -64,10 +64,10 @@
   }
 
 #define CALL_NETCDF(call)                                                                          \
-  CALL_NETCDF_GENERIC(call, vtkErrorMacro(<< "netCDF Error: " << errorstring); return 0;)
+  CALL_NETCDF_GENERIC(call, vtkErrorMacro(<< "netCDF Error: " << errorstring); return 0)
 
 #define CALL_NETCDF_GW(call)                                                                       \
-  CALL_NETCDF_GENERIC(call, vtkGenericWarningMacro(<< "netCDF Error: " << errorstring); return 0;)
+  CALL_NETCDF_GENERIC(call, vtkGenericWarningMacro(<< "netCDF Error: " << errorstring); return 0)
 
 #include <algorithm>
 

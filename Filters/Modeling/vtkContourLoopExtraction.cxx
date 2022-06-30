@@ -146,7 +146,7 @@ void OutputPolygon(LoopPointType& sortedPoints, vtkPoints* inPts, vtkCellArray* 
 
   else if (loopClosure == VTK_LOOP_CLOSURE_ALL)
   {
-    ; // do nothing and it will close between the first and last points
+    // do nothing and it will close between the first and last points
   }
 
   // If here we assume that the loop begins and ends on the given bounding
@@ -166,8 +166,8 @@ void OutputPolygon(LoopPointType& sortedPoints, vtkPoints* inPts, vtkCellArray* 
     // if no change in either the x or y direction just return, the loop will complete
     if (delX < FLT_EPSILON || delY < FLT_EPSILON)
     {
-      ; // do nothing loop will complete; points are along same (horizontal or vertical) boundary
-        // edge
+      // do nothing loop will complete; points are along same (horizontal or vertical) boundary
+      // edge
     }
 
     // Otherwise check if the points are on the "boundary" and then complete the loop

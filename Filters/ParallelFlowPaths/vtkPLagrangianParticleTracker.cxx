@@ -657,7 +657,7 @@ void vtkPLagrangianParticleTracker::GenerateParticles(const vtkBoundingBox* boun
       // seeds pointData.
       // Recover this information from another rank.
       this->Controller->AllReduce(&dummyRank, &fullArrayRank, 1, vtkCommunicator::MAX_OP);
-      int source, size;
+      int source = 0, size = 0;
       char type;
       int probe = false;
       while (!probe)
@@ -776,7 +776,7 @@ void vtkPLagrangianParticleTracker::GenerateParticles(const vtkBoundingBox* boun
       {
         // Other ranks containing correct number of arrays, check metadata is correct
         char type;
-        int source, size;
+        int source = 0, size = 0;
         int probe = false;
         while (!probe)
         {

@@ -197,7 +197,7 @@ public:
       {
         if (sum[ptId] >= VTK_DOUBLE_MAX)
         {
-          ; // previously set, precise hit
+          // previously set, precise hit
         }
         else if (sum[ptId] != 0.0)
         {

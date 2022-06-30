@@ -613,7 +613,7 @@ struct BucketList : public vtkBucketList
       {
         for (; curPt->Bucket == prevPt->Bucket && curPt <= endBatchPt; ++curPt)
         {
-          ; // advance
+          // advance
         }
         // Fill in any gaps in the offset array
         std::fill_n(

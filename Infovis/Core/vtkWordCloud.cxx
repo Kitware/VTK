@@ -582,7 +582,6 @@ bool AddWordToFinal(vtkWordCloud* wordCloud, std::string word, int frequency, st
   if (frequency == 1000)
   {
     fontSize *= 1.2;
-    ;
   }
   textProperty->SetFontSize(fontSize);
   textProperty->SetOrientation(orientation);

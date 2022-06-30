@@ -615,7 +615,6 @@ void vtkContourWidget::Initialize(vtkPolyData* pd, int state, vtkIdList* idList)
     {
       while (rep->DeleteLastNode())
       {
-        ;
       }
       rep->ClosedLoopOff();
       this->Render();

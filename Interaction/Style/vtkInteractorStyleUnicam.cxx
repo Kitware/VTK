@@ -107,7 +107,7 @@ void vtkInteractorStyleUnicam::PrintSelf(ostream& os, vtkIndent indent)
 
 void vtkInteractorStyleUnicam::OnTimer()
 {
-  ; // timer just keeps ticking since we are using repeating timers
+  // timer just keeps ticking since we are using repeating timers
 }
 
 void vtkInteractorStyleUnicam::SetWorldUpVector(double x, double y, double z)

@@ -32,7 +32,6 @@
 #include "vtkTemporalInterpolator.h"
 #include "vtkThreshold.h"
 #include <algorithm>
-#include <functional>
 #include <vector>
 
 //
@@ -116,15 +115,12 @@ int vtkTemporalSphereSource::RequestInformation(
   return 1;
 }
 //------------------------------------------------------------------------------
-class vtkTestTemporalCacheSimpleWithinTolerance : public std::binary_function<double, double, bool>
+
+static bool vtkTestTemporalCacheSimpleWithinTolerance(double a, double b)
 {
-public:
-  result_type operator()(first_argument_type a, second_argument_type b) const
-  {
-    bool result = (fabs(a - b) <= (a * 1E-6));
-    return (result_type)result;
-  }
-};
+  return (fabs(a - b) <= (a * 1E-6));
+}
+
 //------------------------------------------------------------------------------
 int vtkTemporalSphereSource::RequestData(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
@@ -137,9 +133,11 @@ int vtkTemporalSphereSource::RequestData(
   if (this->TimeStep == 0 && outInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP()))
   {
     double requestedTimeValue = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP());
-    this->ActualTimeStep = std::find_if(this->TimeStepValues.begin(), this->TimeStepValues.end(),
-                             std::bind(vtkTestTemporalCacheSimpleWithinTolerance(),
-                               std::placeholders::_1, requestedTimeValue)) -
+    this->ActualTimeStep =
+      std::find_if(this->TimeStepValues.begin(), this->TimeStepValues.end(),
+        [requestedTimeValue](double const& v) {
+          return vtkTestTemporalCacheSimpleWithinTolerance(v, requestedTimeValue);
+        }) -
       this->TimeStepValues.begin();
     this->ActualTimeStep = this->ActualTimeStep + this->TimeStepRange[0];
   }
