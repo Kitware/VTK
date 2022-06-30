@@ -194,8 +194,9 @@ void vtkVRInteractorStyle::Movement3D(int interactionState, vtkEventData* edata)
 
   // If the input event is from a joystick and is away from the center then
   // call start. When the joystick returns to the center, call end.
-  if (edd->GetInput() == vtkEventDataDeviceInput::Joystick &&
-    this->InteractionState[idev] != interactionState && pos[1] != 0.0)
+  if ((edd->GetInput() == vtkEventDataDeviceInput::Joystick ||
+        edd->GetInput() == vtkEventDataDeviceInput::TrackPad) &&
+    this->InteractionState[idev] != interactionState && fabs(pos[1]) > 0.1)
   {
     this->StartAction(interactionState, edd);
     this->LastTrackPadPosition[0] = 0.0;
@@ -206,7 +207,9 @@ void vtkVRInteractorStyle::Movement3D(int interactionState, vtkEventData* edata)
   if (this->InteractionState[idev] == interactionState)
   {
     // Stop when returning to the center on the joystick
-    if (edd->GetInput() == vtkEventDataDeviceInput::Joystick && pos[1] == 0.0)
+    if ((edd->GetInput() == vtkEventDataDeviceInput::Joystick ||
+          edd->GetInput() == vtkEventDataDeviceInput::TrackPad) &&
+      fabs(pos[1]) < 0.1)
     {
       this->EndAction(interactionState, edd);
       return;
