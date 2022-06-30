@@ -312,9 +312,9 @@ private:
     T Cnt;
 
     Bucket()
-      : Cnt(0)
-      , Min(VTK_DOUBLE_MAX)
+      : Min(VTK_DOUBLE_MAX)
       , Max(-VTK_DOUBLE_MAX)
+      , Cnt(0)
     {
     }
 
@@ -1224,7 +1224,7 @@ void CellTree<T>::GenerateRepresentation(int level, vtkPolyData* pd)
     }
   }
   // For each node, add the bbox to our polydata
-  for (auto i = 0; i < bl.size(); i++)
+  for (size_t i = 0; i < bl.size(); i++)
   {
     double bounds[6];
     bl[i].first.GetBounds(bounds);

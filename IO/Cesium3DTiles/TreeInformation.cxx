@@ -594,13 +594,13 @@ vtkSmartPointer<vtkImageData> TreeInformation::ComputeTileMeshTexture(
       return (first.Region[3] - first.Region[2]) > (second.Region[3] - second.Region[2]);
     });
   // approximate the width in pixels of the new image
-  float average = 0;
+  float average = 0.0f;
   for (size_t i = 0; i < scatteredRegions.size(); ++i)
   {
     average = average + (scatteredRegions[i].Region[1] - scatteredRegions[i].Region[0] + 1);
   }
   average /= scatteredRegions.size();
-  size_t width = std::round(std::sqrt(scatteredRegions.size())) * average;
+  int width = std::round(std::sqrt(scatteredRegions.size())) * average;
 
   // place cells in the new image using Next-Fit Decreasing Height (NFDH) algorithm
   // https://cgi.csc.liv.ac.uk/~epa/surveyhtml.html
@@ -656,9 +656,9 @@ vtkSmartPointer<vtkImageData> TreeInformation::ComputeTileMeshTexture(
   tcoordsTile->DeepCopy(tcoordsDataset);
 
   // for all rows
-  for (int i = 0; i < groupedRegions.size(); ++i)
+  for (size_t i = 0; i < groupedRegions.size(); ++i)
   { // for all cells in a row
-    for (int j = 0; j < groupedRegions[i].size(); ++j, ++sortedIndex)
+    for (size_t j = 0; j < groupedRegions[i].size(); ++j, ++sortedIndex)
     {
       vtkIdType cellIndex = scatteredRegions[sortedIndex].CellId;
       auto datasetRegion = scatteredRegions[groupedRegions[i][j]].Region;
