@@ -9,7 +9,8 @@ list(INSERT CMAKE_MODULE_PATH 0
 vtk_module_find_package(PACKAGE OpenVDB)
 
 set(classes
-  vtkOpenVDBWriter)
+  vtkOpenVDBWriter
+  vtkOpenVDBReader)
 
 vtk_module_add_module(VTK::IOOpenVDB
   CLASSES ${classes})
