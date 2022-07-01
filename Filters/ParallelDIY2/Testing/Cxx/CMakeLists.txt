@@ -4,6 +4,7 @@ if (TARGET VTK::mpi)
     TESTING_DATA
     TestGhostCellsGenerator.cxx,NO_VALID
     TestOverlappingCellsDetector.cxx,NO_VALID
+    TestPResampleHyperTreeGridWithDataSet.cxx
     TestPResampleToImageCompositeDataSet.cxx
     TestPResampleToImage.cxx
     TestPResampleWithDataSet2.cxx

@@ -38,6 +38,8 @@ vtk_add_test_cxx(vtkFiltersCoreCxxTests tests
   TestGlyph3D.cxx
   TestGlyph3DFollowCamera.cxx,NO_VALID
   TestHedgeHog.cxx,NO_VALID
+  TestHyperTreeGridProbeFilter.cxx
+  TestResampleHyperTreeGridWithDataSet.cxx
   TestImageDataToExplicitStructuredGrid.cxx
   TestImplicitPolyDataDistance.cxx
   TestImplicitProjectOnPlaneDistance.cxx

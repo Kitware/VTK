@@ -858,9 +858,14 @@ void PerformResampling(DiyBlock* block, const diy::Master::ProxyWithLink& cp,
         continue;
       }
 
-      vtkDataSet* result = prober->GetOutput();
-      const char* maskArrayName = prober->GetValidPointMaskArrayName();
-      if (htgProbe)
+      vtkDataSet* result;
+      const char* maskArrayName;
+      if (!htgProbe)
+      {
+        result = prober->GetOutput();
+        maskArrayName = prober->GetValidPointMaskArrayName();
+      }
+      else
       {
         result = htgProbe->GetOutput();
         maskArrayName = htgProbe->GetValidPointMaskArrayName();
@@ -935,9 +940,14 @@ void PerformResampling(DiyBlock* block, const diy::Master::ProxyWithLink& cp,
           continue;
         }
 
-        vtkDataSet* result = prober->GetOutput();
-        const char* maskArrayName = prober->GetValidPointMaskArrayName();
-        if (htgProbe)
+        vtkDataSet* result;
+        const char* maskArrayName;
+        if (!htgProbe)
+        {
+          result = prober->GetOutput();
+          maskArrayName = prober->GetValidPointMaskArrayName();
+        }
+        else
         {
           result = htgProbe->GetOutput();
           maskArrayName = htgProbe->GetValidPointMaskArrayName();

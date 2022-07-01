@@ -418,6 +418,7 @@ bool vtkResampleWithDataSet::CopyProberToHyperTreeGridProber(
   htgProbe->SetPassCellArrays(this->Prober->GetPassCellArrays());
   htgProbe->SetPassPointArrays(this->Prober->GetPassPointArrays());
   htgProbe->SetPassFieldArrays(this->Prober->GetPassFieldArrays());
+  htgProbe->SetValidPointMaskArrayName(this->Prober->GetValidPointMaskArrayName());
   return true;
 }
 

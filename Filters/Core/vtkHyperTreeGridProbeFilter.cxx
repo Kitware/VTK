@@ -335,10 +335,6 @@ bool vtkHyperTreeGridProbeFilter::Initialize(
   // if this is repeatedly called by the pipeline for a composite mesh,
   // you need a new array for each block
   // (that is you need to reinitialize the object)
-  if (this->MaskPoints)
-  {
-    this->MaskPoints->Delete();
-  }
   this->MaskPoints = vtk::TakeSmartPointer(vtkCharArray::New());
   this->MaskPoints->SetNumberOfComponents(1);
   this->MaskPoints->SetNumberOfTuples(input->GetNumberOfPoints());
