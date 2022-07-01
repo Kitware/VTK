@@ -344,11 +344,7 @@ void vtkDICOMImageReader::ExecuteDataWithInformation(vtkDataObject* output, vtkI
       buffer = ((char*)buffer) + imageDataLengthInBytes;
 
       this->UpdateProgress(float(count) / float(numFiles));
-      int len = static_cast<int>(strlen((const char*)(*fiter).c_str()));
-      char* filename = new char[len + 1];
-      strcpy(filename, (const char*)(*fiter).c_str());
-      this->SetProgressText(filename);
-      delete[] filename;
+      this->SetProgressText(fiter->c_str());
     }
   }
 }
