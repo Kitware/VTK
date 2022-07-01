@@ -73,7 +73,7 @@ Required:
   * Supported compiler
     - GCC 4.8 or newer
     - Clang 3.3 or newer
-    - Apple Clang 5.0 (from Xcode 5.0) or newer
+    - Apple Clang 7.0 (from Xcode 7.2.1) or newer
     - Microsoft Visual Studio 2015 or newer
     - Intel 14.0 or newer
 
