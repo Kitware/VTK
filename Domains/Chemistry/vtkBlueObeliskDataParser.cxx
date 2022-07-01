@@ -360,6 +360,12 @@ void vtkBlueObeliskDataParser::SetCurrentValue(const char* data, int length)
 //------------------------------------------------------------------------------
 void vtkBlueObeliskDataParser::SetCurrentValue(const char* data)
 {
+  if (!data)
+  {
+    vtkWarningMacro(<< "Cannot parse `nullptr` for datatype " << this->CurrentValueType << ".");
+    return;
+  }
+
   vtkDebugMacro(<< "Parsing string '" << data << "' for datatype " << this->CurrentValueType
                 << ".");
   switch (this->CurrentValueType)
