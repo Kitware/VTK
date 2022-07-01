@@ -905,65 +905,37 @@ void vtkPolyData::BuildCells()
   this->Cells = vtkSmartPointer<CellMap>::New();
   this->Cells->SetCapacity(nCells);
 
-  try
+  if (nVerts > 0)
   {
-    if (nVerts > 0)
-    {
-      verts->Visit(BuildCellsImpl{}, this->Cells, [](vtkIdType size) -> VTKCellType {
-        if (size < 1)
-        {
-          throw std::runtime_error("Invalid cell size for verts.");
-        }
-        return size == 1 ? VTK_VERTEX : VTK_POLY_VERTEX;
-      });
-    }
-
-    if (nLines > 0)
-    {
-      lines->Visit(BuildCellsImpl{}, this->Cells, [](vtkIdType size) -> VTKCellType {
-        if (size < 2)
-        {
-          throw std::runtime_error("Invalid cell size for lines.");
-        }
-        return size == 2 ? VTK_LINE : VTK_POLY_LINE;
-      });
-    }
-
-    if (nPolys > 0)
-    {
-      polys->Visit(BuildCellsImpl{}, this->Cells, [](vtkIdType size) -> VTKCellType {
-        if (size < 3)
-        {
-          throw std::runtime_error("Invalid cell size for polys.");
-        }
-
-        switch (size)
-        {
-          case 3:
-            return VTK_TRIANGLE;
-          case 4:
-            return VTK_QUAD;
-          default:
-            return VTK_POLYGON;
-        }
-      });
-    }
-
-    if (nStrips > 0)
-    {
-      strips->Visit(BuildCellsImpl{}, this->Cells, [](vtkIdType size) -> VTKCellType {
-        if (size < 3)
-        {
-          throw std::runtime_error("Invalid cell size for polys.");
-        }
-        return VTK_TRIANGLE_STRIP;
-      });
-    }
+    verts->Visit(BuildCellsImpl{}, this->Cells,
+      [](vtkIdType size) -> VTKCellType { return size == 1 ? VTK_VERTEX : VTK_POLY_VERTEX; });
   }
-  catch (std::runtime_error& e)
+
+  if (nLines > 0)
   {
-    this->Cells = nullptr;
-    vtkErrorMacro("Error while constructing cell map: " << e.what());
+    lines->Visit(BuildCellsImpl{}, this->Cells,
+      [](vtkIdType size) -> VTKCellType { return size == 2 ? VTK_LINE : VTK_POLY_LINE; });
+  }
+
+  if (nPolys > 0)
+  {
+    polys->Visit(BuildCellsImpl{}, this->Cells, [](vtkIdType size) -> VTKCellType {
+      switch (size)
+      {
+        case 3:
+          return VTK_TRIANGLE;
+        case 4:
+          return VTK_QUAD;
+        default:
+          return VTK_POLYGON;
+      }
+    });
+  }
+
+  if (nStrips > 0)
+  {
+    strips->Visit(BuildCellsImpl{}, this->Cells,
+      [](vtkIdType size) -> VTKCellType { return VTK_TRIANGLE_STRIP; });
   }
 }
 //------------------------------------------------------------------------------
