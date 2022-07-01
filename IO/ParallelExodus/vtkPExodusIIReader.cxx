@@ -1457,8 +1457,9 @@ void vtkPExodusIIReader::Broadcast(vtkMultiProcessController* ctrl)
       std::vector<char> tmp;
       delete[] this->FilePattern;
       delete[] this->FilePrefix;
-      // this->SetFilePattern( BroadcastRecvString( ctrl, tmp ) ? tmp.data() : 0 ); // XXX Bad set
-      // this->SetFilePrefix(  BroadcastRecvString( ctrl, tmp ) ? tmp.data() : 0 ); // XXX Bad set
+      // XXX Bad set for these two calls
+      // this->SetFilePattern( BroadcastRecvString( ctrl, tmp ) ? tmp.data() : nullptr );
+      // this->SetFilePrefix(  BroadcastRecvString( ctrl, tmp ) ? tmp.data() : nullptr );
       this->FilePattern =
         BroadcastRecvString(ctrl, tmp) ? vtksys::SystemTools::DuplicateString(tmp.data()) : nullptr;
       this->FilePrefix =
