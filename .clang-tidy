@@ -45,6 +45,7 @@ clang-analyzer-*,\
 -clang-analyzer-unix.MismatchedDeallocator,\
 -clang-analyzer-valist.Unterminated,\
 misc-*,\
+-misc-const-correctness,\
 -misc-no-recursion,\
 -misc-non-private-member-variables-in-classes,\
 -misc-redundant-expression,\
