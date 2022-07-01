@@ -79,7 +79,7 @@ bool vtkGeoJSONFeature::CreatePoint(const Json::Value& coordinates, double point
   if (coordinates.size() == 1)
   {
     // Update the 3D Coordinates using the 1 Value in the array and rest of the 2 as 0
-    Json::Value x = coordinates[0];
+    Json::Value const& x = coordinates[0];
     point[0] = x.asDouble();
     point[1] = 0;
     point[2] = 0;
@@ -87,8 +87,8 @@ bool vtkGeoJSONFeature::CreatePoint(const Json::Value& coordinates, double point
   else if (coordinates.size() == 2)
   {
     // Update the 3D Coordinates using the 2 Values in the array and 3rd as 0
-    Json::Value x = coordinates[0];
-    Json::Value y = coordinates[1];
+    Json::Value const& x = coordinates[0];
+    Json::Value const& y = coordinates[1];
     point[0] = x.asDouble();
     point[1] = y.asDouble();
     point[2] = 0;
@@ -96,9 +96,9 @@ bool vtkGeoJSONFeature::CreatePoint(const Json::Value& coordinates, double point
   else if (coordinates.size() == 3)
   {
     // Update the 3D Coordinates using the 3 Values in the array
-    Json::Value x = coordinates[0];
-    Json::Value y = coordinates[1];
-    Json::Value z = coordinates[2];
+    Json::Value const& x = coordinates[0];
+    Json::Value const& y = coordinates[1];
+    Json::Value const& z = coordinates[2];
     point[0] = x.asDouble();
     point[1] = y.asDouble();
     point[2] = z.asDouble();
@@ -325,7 +325,7 @@ void vtkGeoJSONFeature::ExtractGeoJSONFeature(const Json::Value& root, vtkPolyDa
   this->featureRoot = root;
 
   // Check that type is Feature
-  Json::Value typeNode = root["type"];
+  Json::Value const& typeNode = root["type"];
   if (typeNode.isNull() || "Feature" != typeNode.asString())
   {
     vtkErrorMacro(<< "Unknown type. \"Feature\" expected");
@@ -333,7 +333,7 @@ void vtkGeoJSONFeature::ExtractGeoJSONFeature(const Json::Value& root, vtkPolyDa
   }
 
   // Check for geometry node
-  Json::Value geometryNode = root["geometry"];
+  Json::Value const& geometryNode = root["geometry"];
   if (geometryNode.isNull())
   {
     vtkErrorMacro(<< "Missing geometry node");
@@ -341,7 +341,7 @@ void vtkGeoJSONFeature::ExtractGeoJSONFeature(const Json::Value& root, vtkPolyDa
   }
 
   // Check for properties node
-  Json::Value propertiesNode = root["properties"];
+  Json::Value const& propertiesNode = root["properties"];
   if (propertiesNode.isNull())
   {
     vtkErrorMacro(<< "Missing properties node");
@@ -350,7 +350,7 @@ void vtkGeoJSONFeature::ExtractGeoJSONFeature(const Json::Value& root, vtkPolyDa
 
   // Check for feature id
   std::string featureString;
-  Json::Value idNode = root["id"];
+  Json::Value const& idNode = root["id"];
   // No Json::Value::toString() method, so homebrew one here
   std::stringstream oss;
   switch (idNode.type())
@@ -387,7 +387,7 @@ void vtkGeoJSONFeature::ExtractGeoJSONFeatureGeometry(
   const Json::Value& geometryRoot, vtkPolyData* outputData)
 {
   // Check for geometry-type node
-  Json::Value geometryTypeNode = geometryRoot["type"];
+  Json::Value const& geometryTypeNode = geometryRoot["type"];
   if (geometryTypeNode.isNull())
   {
     vtkErrorMacro(<< "Missing geometry-type node");
@@ -413,7 +413,7 @@ void vtkGeoJSONFeature::ExtractGeoJSONFeatureGeometry(
   }
 
   // (else)
-  Json::Value coordinates = geometryRoot["coordinates"];
+  Json::Value const& coordinates = geometryRoot["coordinates"];
   if (typeString == GeoJSON_POINT)
   {
     this->ExtractPoint(coordinates, outputData);
@@ -461,7 +461,7 @@ bool vtkGeoJSONFeature::IsLineString(const Json::Value& root)
 
   for (Json::Value::ArrayIndex i = 0; i < root.size(); i++)
   {
-    Json::Value child = root[i];
+    Json::Value const& child = root[i];
     if (!IsPoint(child))
     {
       return false;
@@ -488,7 +488,7 @@ bool vtkGeoJSONFeature::IsMultiLineString(const Json::Value& root)
 
   for (Json::Value::ArrayIndex i = 0; i < root.size(); i++)
   {
-    Json::Value child = root[i];
+    Json::Value const& child = root[i];
     if (!IsLineString(child))
     {
       return false;
@@ -517,7 +517,7 @@ bool vtkGeoJSONFeature::IsPoint(const Json::Value& root)
 
   for (Json::Value::ArrayIndex i = 0; i < root.size(); i++)
   {
-    Json::Value child = root[i];
+    Json::Value const& child = root[i];
     if (!child.isNumeric())
     {
       vtkErrorMacro(<< "Value not Numeric as expected at " << child);
@@ -545,7 +545,7 @@ bool vtkGeoJSONFeature::IsMultiPoint(const Json::Value& root)
 
   for (Json::Value::ArrayIndex i = 0; i < root.size(); i++)
   {
-    Json::Value child = root[i];
+    Json::Value const& child = root[i];
     if (!IsPoint(child))
     {
       return false;
@@ -572,7 +572,7 @@ bool vtkGeoJSONFeature::IsPolygon(const Json::Value& root)
 
   for (Json::Value::ArrayIndex i = 0; i < root.size(); i++)
   {
-    Json::Value child = root[i];
+    Json::Value const& child = root[i];
     if (!IsLineString(child))
     {
       return false;
@@ -601,7 +601,7 @@ bool vtkGeoJSONFeature::IsMultiPolygon(const Json::Value& root)
 
   for (Json::Value::ArrayIndex i = 0; i < root.size(); i++)
   {
-    Json::Value child = root[i];
+    Json::Value const& child = root[i];
     if (!IsPolygon(child))
     {
       return false;

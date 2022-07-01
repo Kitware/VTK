@@ -1565,7 +1565,7 @@ bool vtkGLTFDocumentLoaderInternals::LoadKHRLightsPunctualExtensionLight(
   {
     light.Type = vtkGLTFDocumentLoader::Extensions::KHRLightsPunctual::Light::LightType::SPOT;
     // Load innerConeAngle and outerConeAngle
-    auto glTFSpot = root["spot"];
+    auto const& glTFSpot = root["spot"];
     if (glTFSpot.is_null() || !glTFSpot.is_object())
     {
       vtkErrorWithObjectMacro(
