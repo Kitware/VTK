@@ -426,7 +426,7 @@ void vtkInteractorEventRecorder::ReadEvent(const std::string& line)
     // Parse the StreamVersion (not using >> since comment could be empty)
     // Expecting: # StreamVersion x.y
 
-    if (strlen(line.c_str()) > 16 && !strncmp(line.c_str(), "# StreamVersion ", 16))
+    if (line.size() > 16 && !strncmp(line.c_str(), "# StreamVersion ", 16))
     {
       int res = sscanf(line.c_str() + 16, "%f", &tempf);
       if (res && res != EOF)
