@@ -272,7 +272,7 @@ vtkGraph* vtkCollapseVerticesByArray::Create(vtkGraph* inGraph)
     bool alreadyAdded(false);
     for (size_t j = 0; j < this->Internal->AggregateEdgeArrays.size(); ++j)
     {
-      if (strcmp(absArray->GetName(), this->Internal->AggregateEdgeArrays[j].c_str()) == 0)
+      if (absArray->GetName() == this->Internal->AggregateEdgeArrays[j])
       {
         vtkDataArray* inDataArray = vtkArrayDownCast<vtkDataArray>(absArray);
         if (inDataArray)

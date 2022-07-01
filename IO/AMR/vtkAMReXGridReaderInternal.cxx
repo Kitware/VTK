@@ -1216,7 +1216,7 @@ int vtkAMReXGridReaderInternal::GetOffsetOfAttribute(const char* attribute)
 
   while (i < this->Header->variableNamesSize && !found)
   {
-    if (strcmp(this->Header->variableNames[i].c_str(), attribute) == 0)
+    if (this->Header->variableNames[i] == attribute)
     {
       found = true;
       position = i;

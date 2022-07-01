@@ -371,7 +371,7 @@ const char* vtkMINCImageAttributes::ConvertDataArrayToString(vtkDataArray* array
   for (j = 0; j < m; j++)
   {
     result = this->StringStore->GetValue(j);
-    if (strcmp(str.c_str(), result) == 0)
+    if (str == result)
     {
       break;
     }

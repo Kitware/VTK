@@ -941,7 +941,7 @@ void vtkFunctionParser::SetScalarVariableValue(const char* inVariableName, doubl
   char* variableName = this->RemoveSpacesFrom(inVariableName);
   for (int i = 0, max = this->GetNumberOfScalarVariables(); i < max; i++)
   {
-    if (strcmp(variableName, this->ScalarVariableNames[i].c_str()) == 0)
+    if (this->ScalarVariableNames[i] == variableName)
     {
       if (this->ScalarVariableValues[i] != value)
       {
@@ -978,7 +978,7 @@ double vtkFunctionParser::GetScalarVariableValue(const char* inVariableName)
   char* variableName = this->RemoveSpacesFrom(inVariableName);
   for (int i = 0, max = this->GetNumberOfScalarVariables(); i < max; i++)
   {
-    if (strcmp(variableName, this->ScalarVariableNames[i].c_str()) == 0)
+    if (this->ScalarVariableNames[i] == variableName)
     {
       delete[] variableName;
       return this->ScalarVariableValues[i];
@@ -1009,7 +1009,7 @@ void vtkFunctionParser::SetVectorVariableValue(
   char* variableName = this->RemoveSpacesFrom(inVariableName);
   for (int i = 0, max = this->GetNumberOfVectorVariables(); i < max; i++)
   {
-    if (strcmp(variableName, this->VectorVariableNames[i].c_str()) == 0)
+    if (this->VectorVariableNames[i] == variableName)
     {
       if (this->VectorVariableValues[i][0] != xValue ||
         this->VectorVariableValues[i][1] != yValue || this->VectorVariableValues[i][2] != zValue)
@@ -1058,7 +1058,7 @@ double* vtkFunctionParser::GetVectorVariableValue(const char* inVariableName)
 
   for (int i = 0, max = this->GetNumberOfVectorVariables(); i < max; i++)
   {
-    if (strcmp(variableName, this->VectorVariableNames[i].c_str()) == 0)
+    if (this->VectorVariableNames[i] == variableName)
     {
       delete[] variableName;
       return this->VectorVariableValues[i].GetData();

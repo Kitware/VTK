@@ -345,7 +345,7 @@ vtkIdType vtkChartBox::GetColumnId(const vtkStdString& name)
   vtkIdType nbColumn = table->GetNumberOfColumns();
   for (vtkIdType i = 0; i < nbColumn; i++)
   {
-    if (!strcmp(table->GetColumnName(i), name.c_str()))
+    if (table->GetColumnName(i) == name)
     {
       return i;
     }

@@ -321,7 +321,7 @@ int TestFieldDataMetaData()
   for (int i = 0; i < NumberOfArrays; ++i)
   {
     vtkDataArray* dataArray = field->GetArray(i);
-    if (strcmp(dataArray->GetName(), names[i].c_str()) != 0)
+    if (dataArray->GetName() != names[i])
     {
       rc++;
       cerr << "ERROR: Array name mismatch!\n";

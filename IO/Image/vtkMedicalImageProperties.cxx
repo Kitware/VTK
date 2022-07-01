@@ -73,7 +73,7 @@ public:
       UserDefinedValues::const_iterator it = UserDefinedValuePool.find(key);
       if (it != UserDefinedValuePool.end())
       {
-        assert(strcmp(it->Name.c_str(), name) == 0);
+        assert(it->Name == name);
         return it->Value.c_str();
       }
     }

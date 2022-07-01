@@ -144,7 +144,7 @@ void vtkPairwiseExtractHistogram2D::Learn(
       std::pair<vtkStdString, vtkStdString> colpair(
         inData->GetColumn(i)->GetName(), inData->GetColumn(i + 1)->GetName());
       f->AddColumnPair(colpair.first.c_str(), colpair.second.c_str());
-      f->SetSwapColumns(strcmp(colpair.first.c_str(), colpair.second.c_str()) >= 0);
+      f->SetSwapColumns(colpair.first.compare(colpair.second) >= 0);
       this->HistogramFilters->AddItem(f);
 
       // update the internals accordingly

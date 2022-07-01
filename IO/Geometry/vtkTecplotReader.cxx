@@ -618,7 +618,7 @@ int vtkTecplotReader::IsDataAttributeCellBased(const char* attrName)
   {
     for (unsigned int i = 0; i < this->Variables.size(); i++)
     {
-      if (strcmp(this->Variables[i].c_str(), attrName) == 0)
+      if (this->Variables[i] == attrName)
       {
         varIndex = i;
         break;

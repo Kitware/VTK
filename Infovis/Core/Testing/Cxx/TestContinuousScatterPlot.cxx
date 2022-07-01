@@ -236,7 +236,7 @@ int TestContinuousScatterPlot(int argc, char* argv[])
     } // end of console output
 
     /*********** comparing the strings ************/
-    if (strcmp(outputString.c_str(), dataToCompare[cmpIndex].c_str()) != 0)
+    if (outputString != dataToCompare[cmpIndex])
     {
       pass = false;
       { // writing to file

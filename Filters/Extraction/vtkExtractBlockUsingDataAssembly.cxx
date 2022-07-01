@@ -171,8 +171,7 @@ void vtkExtractBlockUsingDataAssembly::SetSelector(const char* selector)
   if (selector)
   {
     auto& internals = *this->Internals;
-    if (internals.Selectors.size() == 1 &&
-      strcmp(internals.Selectors.begin()->c_str(), selector) == 0)
+    if (internals.Selectors.size() == 1 && *internals.Selectors.begin() == selector)
     {
       return;
     }

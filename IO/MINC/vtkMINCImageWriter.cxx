@@ -714,7 +714,7 @@ int vtkMINCImageWriter::CreateMINCVariables(
     int nvars = static_cast<int>(variables.size());
     for (ivar = 0; ivar < nvars; ivar++)
     {
-      if (strcmp(variables[ivar].c_str(), varname) == 0)
+      if (variables[ivar] == varname)
       {
         break;
       }

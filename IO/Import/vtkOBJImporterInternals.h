@@ -61,7 +61,7 @@ public:
     {
       return;
     }
-    if (!strcmp(this->FileName.c_str(), arg))
+    if (this->FileName == arg)
     {
       return;
     }
@@ -73,7 +73,7 @@ public:
     {
       return;
     }
-    if (!strcmp(this->MTLFileName.c_str(), arg))
+    if (this->MTLFileName == arg)
     {
       return;
     }
