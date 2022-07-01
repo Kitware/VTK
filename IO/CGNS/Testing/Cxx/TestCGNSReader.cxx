@@ -57,7 +57,7 @@ int TestCGNSReader(int argc, char* argv[])
   std::string mixed = fname ? fname : "";
   delete[] fname;
 
-  cout << "Opening " << mixed.c_str() << endl;
+  cout << "Opening " << mixed << endl;
   vtkNew<vtkCGNSReader> mixedReader;
   mixedReader->SetFileName(mixed.c_str());
   mixedReader->Update();
@@ -73,7 +73,7 @@ int TestCGNSReader(int argc, char* argv[])
   std::string nfacen = fname ? fname : "";
   delete[] fname;
 
-  cout << "Opening " << nfacen.c_str() << endl;
+  cout << "Opening " << nfacen << endl;
   vtkNew<vtkCGNSReader> nfacenReader;
   nfacenReader->SetFileName(nfacen.c_str());
   nfacenReader->Update();

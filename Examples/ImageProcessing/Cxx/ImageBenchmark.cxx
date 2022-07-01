@@ -1395,7 +1395,7 @@ int IMAGE_BENCHMARK_MAIN(int argc, char* argv[])
     std::string opt = argv[argi];
     if (opt.compare(0, 1, "-") != 0)
     {
-      std::cerr << "expected an option, got " << opt.c_str() << "\n";
+      std::cerr << "expected an option, got " << opt << "\n";
     }
     if (opt == "-h" || opt == "-help" || opt == "--help")
     {

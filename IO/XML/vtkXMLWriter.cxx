@@ -3075,7 +3075,7 @@ void vtkXMLWriter::WritePrimaryElementAttributes(ostream& os, vtkIndent indent)
     for (int i = 0; i < this->NumberOfTimeSteps; i++)
     {
       this->NumberOfTimeValues[i] = os.tellp();
-      os << blankline.c_str() << "\n";
+      os << blankline << "\n";
     }
     os << "\"";
   }

@@ -1262,8 +1262,8 @@ void vtkCONVERGECFDReader::ReadTimeSteps(vtkInformation* outInfo)
   vtkNew<vtkDirectory> dir;
   if (!dir->Open(path.c_str()))
   {
-    vtkWarningMacro(<< "Could not open directory " << originalFile.c_str()
-                    << " is supposed to be from (" << path.c_str() << ")");
+    vtkWarningMacro(<< "Could not open directory " << originalFile << " is supposed to be from ("
+                    << path << ")");
     fileNames.emplace_back(originalFile);
     return;
   }

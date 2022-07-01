@@ -2060,7 +2060,7 @@ void vtkTecplotReader::ReadFile(vtkMultiBlockDataSet* multZone)
         else
         {
           // UNKNOWN FORMAT
-          vtkErrorMacro(<< this->FileName << ": The format " << format.c_str()
+          vtkErrorMacro(<< this->FileName << ": The format " << format
                         << " found in the file is unknown.");
           return;
         }
@@ -2151,8 +2151,7 @@ void vtkTecplotReader::ReadFile(vtkMultiBlockDataSet* multZone)
               if (pos != std::string::npos)
               {
                 exprDef.replace(pos, 1, "}");
-                vtkDebugMacro(
-                  "Expr name = " << exprName.c_str() << ", Expr def = " << exprDef.c_str());
+                vtkDebugMacro("Expr name = " << exprName << ", Expr def = " << exprDef);
               }
             }
           }
@@ -2173,7 +2172,7 @@ void vtkTecplotReader::ReadFile(vtkMultiBlockDataSet* multZone)
     else
     {
       // UNKNOWN RECORD TYPE
-      vtkErrorMacro(<< this->FileName << ": The record type " << tok.c_str()
+      vtkErrorMacro(<< this->FileName << ": The record type " << tok
                     << " found in the file is unknown.");
       return;
     }

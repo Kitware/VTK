@@ -581,7 +581,7 @@ const char* vtkWebGLExporter::GenerateMetadata()
   max = std::max(max, this->SceneSize[2]);
   std::stringstream ss;
 
-  ss << "{\"id\":" << this->SceneId.c_str() << ",";
+  ss << "{\"id\":" << this->SceneId << ",";
   ss << "\"MaxSize\":" << max << ",";
   ss << "\"Center\":[";
   for (int i = 0; i < 2; i++)

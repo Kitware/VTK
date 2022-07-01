@@ -556,7 +556,7 @@ void vtkParallelTimer::EndEvent(const char* event)
   const string eEventId = event;
   if (sEventId != eEventId)
   {
-    vtkErrorMacro(<< "Event mismatch " << sEventId.c_str() << " != " << eEventId.c_str());
+    vtkErrorMacro(<< "Event mismatch " << sEventId << " != " << eEventId);
   }
   this->EventId.pop_back();
 #endif

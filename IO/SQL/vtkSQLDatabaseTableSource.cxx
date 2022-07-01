@@ -182,7 +182,7 @@ int vtkSQLDatabaseTableSource::RequestData(
     this->Implementation->Database = vtkSQLDatabase::CreateFromURL(this->Implementation->URL);
     if (!this->Implementation->Database)
     {
-      vtkErrorMacro(<< "Error creating database using URL: " << this->Implementation->URL.c_str());
+      vtkErrorMacro(<< "Error creating database using URL: " << this->Implementation->URL);
       return 0;
     }
 
@@ -191,7 +191,7 @@ int vtkSQLDatabaseTableSource::RequestData(
       this->Implementation->Database->Delete();
       this->Implementation->Database = nullptr;
 
-      vtkErrorMacro(<< "Error opening database: " << this->Implementation->URL.c_str());
+      vtkErrorMacro(<< "Error opening database: " << this->Implementation->URL);
       return 0;
     }
   }
@@ -215,7 +215,7 @@ int vtkSQLDatabaseTableSource::RequestData(
   this->Implementation->Query->SetQuery(this->Implementation->QueryString.c_str());
   if (!this->Implementation->Query->Execute())
   {
-    vtkErrorMacro(<< "Error executing query: " << this->Implementation->QueryString.c_str());
+    vtkErrorMacro(<< "Error executing query: " << this->Implementation->QueryString);
     return 0;
   }
 

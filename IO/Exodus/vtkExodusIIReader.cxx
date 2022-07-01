@@ -217,20 +217,20 @@ static void printBlock(
   while (obj_types[b] >= 0 && obj_types[b] != btyp)
     ++b;
   const char* btypnam = objtype_names[b];
-  os << indent << btypnam << " " << binfo.Id << " \"" << binfo.Name.c_str() << "\" (" << binfo.Size
+  os << indent << btypnam << " " << binfo.Id << " \"" << binfo.Name << "\" (" << binfo.Size
      << ")\n";
   os << indent << "    FileOffset: " << binfo.FileOffset << "\n";
   os << indent << "    CachedConn: " << binfo.CachedConnectivity << " (" << binfo.Status << ")\n";
   os << indent << "    PointMap: " << binfo.PointMap.size() << " entries, "
      << "ReversePointMap: " << binfo.ReversePointMap.size() << " entries\n";
-  os << indent << "    Type: " << binfo.TypeName.c_str() << "\n";
+  os << indent << "    Type: " << binfo.TypeName << "\n";
   os << indent << "    Bounds per entry, Node: " << binfo.BdsPerEntry[0]
      << " Edge: " << binfo.BdsPerEntry[1] << " Face: " << binfo.BdsPerEntry[2] << "\n";
   os << indent << "    Attributes (" << binfo.AttributesPerEntry << "):";
   int a;
   for (a = 0; a < binfo.AttributesPerEntry; ++a)
   {
-    os << " \"" << binfo.AttributeNames[a].c_str() << "\"(" << binfo.AttributeStatus[a] << ")";
+    os << " \"" << binfo.AttributeNames[a] << "\"(" << binfo.AttributeStatus[a] << ")";
   }
   os << "\n";
 }
@@ -242,7 +242,7 @@ static void printSet(
   while (obj_types[s] >= 0 && obj_types[s] != styp)
     ++s;
   const char* stypnam = objtype_names[s];
-  os << indent << stypnam << " " << sinfo.Id << " \"" << sinfo.Name.c_str() << "\" (" << sinfo.Size
+  os << indent << stypnam << " " << sinfo.Id << " \"" << sinfo.Name << "\" (" << sinfo.Size
      << ")\n";
   os << indent << "    FileOffset: " << sinfo.FileOffset << "\n";
   os << indent << "    CachedConn: " << sinfo.CachedConnectivity << " (" << sinfo.Status << ")\n";
@@ -258,7 +258,7 @@ static void printMap(
   while (obj_types[m] >= 0 && obj_types[m] != mtyp)
     ++m;
   const char* mtypnam = objtype_names[m];
-  os << indent << mtypnam << " " << minfo.Id << " \"" << minfo.Name.c_str() << "\" (" << minfo.Size
+  os << indent << mtypnam << " " << minfo.Id << " \"" << minfo.Name << "\" (" << minfo.Size
      << ")\n";
   os << indent << "    Status: " << minfo.Status << "\n";
 }
@@ -267,7 +267,7 @@ static void printArray(
   ostream& os, vtkIndent indent, int atyp, vtkExodusIIReaderPrivate::ArrayInfoType& ainfo)
 {
   (void)atyp;
-  os << indent << "    " << ainfo.Name.c_str() << " [" << ainfo.Status << "] ( " << ainfo.Components
+  os << indent << "    " << ainfo.Name << " [" << ainfo.Status << "] ( " << ainfo.Components
      << " = { ";
   os << ainfo.OriginalIndices[0] << " \"" << ainfo.OriginalNames[0] << "\"";
   int i;
@@ -445,7 +445,7 @@ void vtkExodusIIReaderPrivate::GlomArrayNames(
   for ( varVec::iterator it = this->ArrayInfo[objtyp].begin(); it != this->ArrayInfo[objtyp].end();
   ++ it )
     {
-    cout << "Name: \"" << it->Name.c_str() << "\" (" << it->Components << ")\n";
+    cout << "Name: \"" << it->Name << "\" (" << it->Components << ")\n";
     }
     */
 
@@ -579,8 +579,7 @@ int vtkExodusIIReaderPrivate::AssembleOutputPointArrays(
     vtkDataArray* src = this->GetCacheOrRead(key);
     if (!src)
     {
-      vtkDebugMacro(
-        "Unable to read point array " << ai->Name.c_str() << " at time step " << timeStep);
+      vtkDebugMacro("Unable to read point array " << ai->Name << " at time step " << timeStep);
       status = 0;
       continue;
     }
@@ -912,7 +911,7 @@ int vtkExodusIIReaderPrivate::AssembleOutputGlobalArrays(
     vtkDataArray* temporalData = this->GetCacheOrRead(tdKey);
     if (!temporalData)
     {
-      vtkDebugMacro("Unable to read array " << ai->Name.c_str());
+      vtkDebugMacro("Unable to read array " << ai->Name);
       status = 0;
       continue;
     }
@@ -1000,8 +999,7 @@ int vtkExodusIIReaderPrivate::AssembleOutputPointMaps(
       this->GetCacheOrRead(vtkExodusIICacheKey(-1, vtkExodusIIReader::NODE_MAP, 0, midx)));
     if (!src)
     {
-      vtkDebugMacro(
-        "Unable to read point map array \"" << mi->Name.c_str() << "\" (" << midx << ")");
+      vtkDebugMacro("Unable to read point map array \"" << mi->Name << "\" (" << midx << ")");
       status = 0;
       continue;
     }
@@ -1470,8 +1468,7 @@ void vtkExodusIIReaderPrivate::InsertSetCellCopies(
         vtkExodusIICacheKey(-1, this->GetBlockConnTypeFromBlockType(otyp), bnum, 0)));
       if (!nconn)
       {
-        vtkErrorMacro(
-          "Unable to read block \"" << binfop->Name.c_str() << "\" (" << binfop->Id << ")");
+        vtkErrorMacro("Unable to read block \"" << binfop->Name << "\" (" << binfop->Id << ")");
         break;
       }
       nodeconn = nconn->GetPointer(0);
@@ -1644,7 +1641,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead(vtkExodusIICacheKey key)
       if (ex_get_var(exoid, key.Time + 1, static_cast<ex_entity_type>(key.ObjectType),
             ainfop->OriginalIndices[0], 0, arr->GetNumberOfTuples(), arr->GetVoidPointer(0)) < 0)
       {
-        vtkErrorMacro("Could not read nodal result variable " << ainfop->Name.c_str() << ".");
+        vtkErrorMacro("Could not read nodal result variable " << ainfop->Name << ".");
         arr->Delete();
         arr = nullptr;
       }
@@ -1663,8 +1660,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead(vtkExodusIICacheKey key)
         if (ex_get_var(exoid, key.Time + 1, static_cast<ex_entity_type>(key.ObjectType),
               ainfop->OriginalIndices[c], 0, arr->GetNumberOfTuples(), tmpVal[c].data()) < 0)
         {
-          vtkErrorMacro(
-            "Could not read nodal result variable " << ainfop->OriginalNames[c].c_str() << ".");
+          vtkErrorMacro("Could not read nodal result variable " << ainfop->OriginalNames[c] << ".");
           arr->Delete();
           arr = nullptr;
           return nullptr;
@@ -1725,8 +1721,8 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead(vtkExodusIICacheKey key)
         if (ex_get_var_time(exoid, EX_GLOBAL, ainfop->OriginalIndices[c], key.ObjectId, 1,
               this->GetNumberOfTimeSteps(), tmpVal[c].data()) < 0)
         {
-          vtkErrorMacro("Could not read temporal global result variable "
-            << ainfop->OriginalNames[c].c_str() << ".");
+          vtkErrorMacro(
+            "Could not read temporal global result variable " << ainfop->OriginalNames[c] << ".");
           arr->Delete();
           arr = nullptr;
           return nullptr;
@@ -1747,7 +1743,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead(vtkExodusIICacheKey key)
     else if (ex_get_var_time(exoid, EX_GLOBAL, ainfop->OriginalIndices[0], key.ObjectId, 1,
                this->GetNumberOfTimeSteps(), arr->GetVoidPointer(0)) < 0)
     {
-      vtkErrorMacro("Could not read global result variable " << ainfop->Name.c_str() << ".");
+      vtkErrorMacro("Could not read global result variable " << ainfop->Name << ".");
       arr->Delete();
       arr = nullptr;
     }
@@ -1769,7 +1765,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead(vtkExodusIICacheKey key)
       if (ex_get_var_time(exoid, EX_NODAL, ainfop->OriginalIndices[0], key.ObjectId, 1,
             this->GetNumberOfTimeSteps(), arr->GetVoidPointer(0)) < 0)
       {
-        vtkErrorMacro("Could not read nodal result variable " << ainfop->Name.c_str() << ".");
+        vtkErrorMacro("Could not read nodal result variable " << ainfop->Name << ".");
         arr->Delete();
         arr = nullptr;
       }
@@ -1788,8 +1784,8 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead(vtkExodusIICacheKey key)
         if (ex_get_var_time(exoid, EX_NODAL, ainfop->OriginalIndices[c], key.ObjectId, 1,
               this->GetNumberOfTimeSteps(), tmpVal[c].data()) < 0)
         {
-          vtkErrorMacro("Could not read temporal nodal result variable "
-            << ainfop->OriginalNames[c].c_str() << ".");
+          vtkErrorMacro(
+            "Could not read temporal nodal result variable " << ainfop->OriginalNames[c] << ".");
           arr->Delete();
           arr = nullptr;
           return nullptr;
@@ -1822,7 +1818,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead(vtkExodusIICacheKey key)
       if (ex_get_var_time(exoid, EX_ELEM_BLOCK, ainfop->OriginalIndices[0], key.ObjectId, 1,
             this->GetNumberOfTimeSteps(), arr->GetVoidPointer(0)) < 0)
       {
-        vtkErrorMacro("Could not read element result variable " << ainfop->Name.c_str() << ".");
+        vtkErrorMacro("Could not read element result variable " << ainfop->Name << ".");
         arr->Delete();
         arr = nullptr;
       }
@@ -1841,8 +1837,8 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead(vtkExodusIICacheKey key)
         if (ex_get_var_time(exoid, EX_ELEM_BLOCK, ainfop->OriginalIndices[c], key.ObjectId, 1,
               this->GetNumberOfTimeSteps(), tmpVal[c].data()) < 0)
         {
-          vtkErrorMacro("Could not read temporal element result variable "
-            << ainfop->OriginalNames[c].c_str() << ".");
+          vtkErrorMacro(
+            "Could not read temporal element result variable " << ainfop->OriginalNames[c] << ".");
           arr->Delete();
           arr = nullptr;
           return nullptr;
@@ -1892,7 +1888,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead(vtkExodusIICacheKey key)
             arr->GetVoidPointer(0)) < 0)
       {
         vtkErrorMacro("Could not read result variable "
-          << ainfop->Name.c_str() << " for " << objtype_names[otypidx] << " " << oinfop->Id << ".");
+          << ainfop->Name << " for " << objtype_names[otypidx] << " " << oinfop->Id << ".");
         arr->Delete();
         arr = nullptr;
       }
@@ -1914,8 +1910,8 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead(vtkExodusIICacheKey key)
               tmpVal[c].data()) < 0)
         {
           vtkErrorMacro("Could not read result variable "
-            << ainfop->OriginalNames[c].c_str() << " for " << objtype_names[otypidx] << " "
-            << oinfop->Id << ".");
+            << ainfop->OriginalNames[c] << " for " << objtype_names[otypidx] << " " << oinfop->Id
+            << ".");
           arr->Delete();
           arr = nullptr;
         }
@@ -1963,7 +1959,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead(vtkExodusIICacheKey key)
     if (ex_get_num_map(exoid, static_cast<ex_entity_type>(key.ObjectType), minfop->Id,
           (vtkIdType*)arr->GetVoidPointer(0)) < 0)
     {
-      vtkErrorMacro("Could not read nodal map variable " << minfop->Name.c_str() << ".");
+      vtkErrorMacro("Could not read nodal map variable " << minfop->Name << ".");
       arr->Delete();
       arr = nullptr;
     }
@@ -2525,7 +2521,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead(vtkExodusIICacheKey key)
       vtkIdType ssnllen; // side set node list length
       if (ex_get_side_set_node_list_len(exoid, sinfop->Id, &ssnllen) < 0)
       {
-        vtkErrorMacro("Unable to fetch side set \"" << sinfop->Name.c_str() << "\" (" << sinfop->Id
+        vtkErrorMacro("Unable to fetch side set \"" << sinfop->Name << "\" (" << sinfop->Id
                                                     << ") node list length");
         arr = nullptr;
         return nullptr;
@@ -2537,8 +2533,8 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead(vtkExodusIICacheKey key)
       auto* dat = iarr->GetPointer(0);
       if (ex_get_side_set_node_list(exoid, sinfop->Id, dat, dat + sinfop->Size) < 0)
       {
-        vtkErrorMacro("Unable to fetch side set \"" << sinfop->Name.c_str() << "\" (" << sinfop->Id
-                                                    << ") node list");
+        vtkErrorMacro(
+          "Unable to fetch side set \"" << sinfop->Name << "\" (" << sinfop->Id << ") node list");
         iarr->Delete();
         arr = nullptr;
         return nullptr;
@@ -2560,8 +2556,8 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead(vtkExodusIICacheKey key)
       if (ex_get_side_set(exoid, sinfop->Id, side_set_elem_list.data(), side_set_side_list.data()) <
         0)
       {
-        vtkErrorMacro("Unable to fetch side set \"" << sinfop->Name.c_str() << "\" (" << sinfop->Id
-                                                    << ") node list");
+        vtkErrorMacro(
+          "Unable to fetch side set \"" << sinfop->Name << "\" (" << sinfop->Id << ") node list");
         arr = nullptr;
         return nullptr;
       }
@@ -3269,7 +3265,7 @@ void vtkExodusIIReaderPrivate::DetermineVtkCellType(BlockInfoType& binfo)
   }
   else
   {
-    vtkErrorMacro("Unsupported element type: " << elemType.c_str());
+    vtkErrorMacro("Unsupported element type: " << elemType);
   }
 
   // cell types not currently handled

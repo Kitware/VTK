@@ -533,7 +533,7 @@ vtkStringArray* vtkODBCDatabase::GetRecord(const char* table)
 
     vtkErrorMacro(
       << "vtkODBCDatabase::GetRecord: Unable to retrieve column list (SQLColumns): error "
-      << error.c_str());
+      << error);
     this->SetLastErrorText(error.c_str());
     SQLFreeHandle(SQL_HANDLE_STMT, statement);
     return this->Record;
@@ -545,7 +545,7 @@ vtkStringArray* vtkODBCDatabase::GetRecord(const char* table)
     vtkStdString error = GetErrorMessage(SQL_HANDLE_STMT, statement);
     vtkErrorMacro(
       << "vtkODBCDatabase::GetRecord: Unable to retrieve column list (SQLFetchScroll): error "
-      << error.c_str());
+      << error);
     this->SetLastErrorText(error.c_str());
     SQLFreeHandle(SQL_HANDLE_STMT, statement);
     return this->Record;
@@ -650,7 +650,7 @@ bool vtkODBCDatabase::ParseURL(const char* URL)
   if (!vtksys::SystemTools::ParseURL(
         urlstr, protocol, username, unused, dsname, dataport, database))
   {
-    vtkErrorMacro("Invalid URL: \"" << urlstr.c_str() << "\"");
+    vtkErrorMacro("Invalid URL: \"" << urlstr << "\"");
     return false;
   }
 

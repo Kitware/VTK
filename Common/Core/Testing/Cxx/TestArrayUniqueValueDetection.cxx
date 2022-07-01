@@ -265,7 +265,7 @@ static bool CheckUniques(
     cout << "  comp " << c << " (" << numUniques << "): ";
     for (int n = 0; n <= uniques->GetMaxId(); ++n)
     {
-      cout << (n > 0 ? ", " : " ") << uniques->GetVariantValue(n).ToString().c_str();
+      cout << (n > 0 ? ", " : " ") << uniques->GetVariantValue(n).ToString();
     }
     cout << endl;
     if (uniqueSizeBds[2 * c] > numUniques || uniqueSizeBds[2 * c + 1] < numUniques)
@@ -282,7 +282,7 @@ static bool CheckUniques(
     cout << "  tuples (" << numUniques << "): ";
     for (int n = 0; n <= uniques->GetMaxId(); ++n)
     {
-      cout << (n > 0 && n % nc == 0 ? ", " : " ") << uniques->GetVariantValue(n).ToString().c_str();
+      cout << (n > 0 && n % nc == 0 ? ", " : " ") << uniques->GetVariantValue(n).ToString();
     }
     cout << endl;
     if (uniqueSizeBds[2 * nc] > numUniques || uniqueSizeBds[2 * nc + 1] < numUniques)

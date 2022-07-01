@@ -152,7 +152,7 @@ int TestPostgreSQLDatabase(int /*argc*/, char* /*argv*/[])
       {
         cerr << ", ";
       }
-      cerr << query->DataValue(field).ToString().c_str();
+      cerr << query->DataValue(field).ToString();
     }
     cerr << endl;
   }
@@ -183,7 +183,7 @@ int TestPostgreSQLDatabase(int /*argc*/, char* /*argv*/[])
       {
         cerr << ", ";
       }
-      cerr << va->GetValue(field).ToString().c_str();
+      cerr << va->GetValue(field).ToString();
     }
     cerr << endl;
   }
@@ -338,7 +338,7 @@ int TestPostgreSQLDatabase(int /*argc*/, char* /*argv*/[])
           }
           cerr << "     Column: ";
         }
-        cerr << query->DataValue(field).ToString().c_str();
+        cerr << query->DataValue(field).ToString();
       }
       cerr << endl;
     }
@@ -464,7 +464,7 @@ int TestPostgreSQLDatabase(int /*argc*/, char* /*argv*/[])
     return 1;
   }
 
-  cerr << query->DataValue(0).ToString().c_str() << "> ";
+  cerr << query->DataValue(0).ToString() << "> ";
   cerr << " done." << endl;
 
   // 9. Drop tables
@@ -492,7 +492,7 @@ int TestPostgreSQLDatabase(int /*argc*/, char* /*argv*/[])
 
   if (!db->DropDatabase(realDatabase.c_str()))
   {
-    cout << "Drop of \"" << realDatabase.c_str() << "\" failed.\n";
+    cout << "Drop of \"" << realDatabase << "\" failed.\n";
     cerr << "\"" << db->GetLastErrorText() << "\"" << endl;
   }
 

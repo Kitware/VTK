@@ -200,7 +200,7 @@ int vtkFacetReader::RequestData(vtkInformation* vtkNotUsed(request),
       error = 1;
       break;
     }
-    vtkDebugMacro("Part name: " << partName.c_str());
+    vtkDebugMacro("Part name: " << partName);
 
     // Read cell/point index and geometry information including the number of
     // points. cell/point index for points is always 0

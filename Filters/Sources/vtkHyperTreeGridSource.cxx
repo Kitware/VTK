@@ -768,9 +768,9 @@ int vtkHyperTreeGridSource::InitializeFromStringDescriptor()
           // Verify that level descriptor cardinality matches expected value
           if (descriptor.str().size() != nNextLevel)
           {
-            vtkErrorMacro(<< "String level descriptor " << descriptor.str().c_str()
-                          << " has cardinality " << descriptor.str().size()
-                          << " which is not expected value of " << nNextLevel);
+            vtkErrorMacro(<< "String level descriptor " << descriptor.str() << " has cardinality "
+                          << descriptor.str().size() << " which is not expected value of "
+                          << nNextLevel);
 
             return 0;
           }
@@ -829,7 +829,7 @@ int vtkHyperTreeGridSource::InitializeFromStringDescriptor()
   // Verify and append last level string
   if (descriptor.str().size() != nNextLevel)
   {
-    vtkErrorMacro(<< "String level descriptor " << descriptor.str().c_str() << " has cardinality "
+    vtkErrorMacro(<< "String level descriptor " << descriptor.str() << " has cardinality "
                   << descriptor.str().size() << " which is not expected value of " << nNextLevel);
 
     return 0;

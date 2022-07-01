@@ -364,7 +364,7 @@ int TestNIFTIReaderWriter(int argc, char* argv[])
     double err = TestReadWriteRead(infile, infile2, outpath.c_str(), planarRGB);
     if (err != 0.0)
     {
-      cerr << "Input " << infile << " differs from output " << outpath.c_str() << "\n";
+      cerr << "Input " << infile << " differs from output " << outpath << "\n";
       return 1;
     }
     delete[] infile;

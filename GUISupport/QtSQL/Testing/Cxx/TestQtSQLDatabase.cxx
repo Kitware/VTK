@@ -200,7 +200,7 @@ int TestQtSQLDatabase(int argc, char* argv[])
       {
         cerr << ", ";
       }
-      cerr << query->DataValue(field).ToString().c_str();
+      cerr << query->DataValue(field).ToString();
     }
     cerr << endl;
   }
@@ -229,7 +229,7 @@ int TestQtSQLDatabase(int argc, char* argv[])
       {
         cerr << ", ";
       }
-      cerr << va->GetValue(field).ToString().c_str();
+      cerr << va->GetValue(field).ToString();
     }
     cerr << endl;
   }

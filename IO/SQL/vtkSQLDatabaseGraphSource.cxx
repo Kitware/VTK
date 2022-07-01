@@ -273,7 +273,7 @@ int vtkSQLDatabaseGraphSource::RequestData(
     this->Implementation->Database = vtkSQLDatabase::CreateFromURL(this->Implementation->URL);
     if (!this->Implementation->Database)
     {
-      vtkErrorMacro(<< "Error creating database using URL: " << this->Implementation->URL.c_str());
+      vtkErrorMacro(<< "Error creating database using URL: " << this->Implementation->URL);
       return 0;
     }
 
@@ -282,7 +282,7 @@ int vtkSQLDatabaseGraphSource::RequestData(
       this->Implementation->Database->Delete();
       this->Implementation->Database = 0;
 
-      vtkErrorMacro(<< "Error opening database: " << this->Implementation->URL.c_str());
+      vtkErrorMacro(<< "Error opening database: " << this->Implementation->URL);
       return 0;
     }
   }
@@ -304,8 +304,7 @@ int vtkSQLDatabaseGraphSource::RequestData(
   this->Implementation->EdgeQuery->SetQuery(this->Implementation->EdgeQueryString.c_str());
   if (!this->Implementation->EdgeQuery->Execute())
   {
-    vtkErrorMacro(<< "Error executing edge query: "
-                  << this->Implementation->EdgeQueryString.c_str());
+    vtkErrorMacro(<< "Error executing edge query: " << this->Implementation->EdgeQueryString);
     return 0;
   }
 
@@ -337,8 +336,7 @@ int vtkSQLDatabaseGraphSource::RequestData(
     this->Implementation->VertexQuery->SetQuery(this->Implementation->VertexQueryString.c_str());
     if (!this->Implementation->VertexQuery->Execute())
     {
-      vtkErrorMacro(<< "Error executing vertex query: "
-                    << this->Implementation->VertexQueryString.c_str());
+      vtkErrorMacro(<< "Error executing vertex query: " << this->Implementation->VertexQueryString);
       return 0;
     }
 

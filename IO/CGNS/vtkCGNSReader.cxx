@@ -1191,7 +1191,7 @@ int vtkCGNSReader::vtkPrivate::readSolution(const std::string& solutionNameStr, 
     vtkErrorWithObjectMacro(self,
       "Mismatch in number of cells and number of values "
       "being read from Solution '"
-        << solutionNameStr.c_str()
+        << solutionNameStr
         << "'. "
            "Skipping reading. Please report as a bug.");
     return CG_ERROR;
@@ -1201,7 +1201,7 @@ int vtkCGNSReader::vtkPrivate::readSolution(const std::string& solutionNameStr, 
     vtkErrorWithObjectMacro(self,
       "Mismatch in number of points and number of values "
       "being read from Solution '"
-        << solutionNameStr.c_str()
+        << solutionNameStr
         << "'. "
            "Skipping reading. Please report as a bug.");
     return CG_ERROR;

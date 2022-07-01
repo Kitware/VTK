@@ -353,7 +353,7 @@ int vtkEnSightGoldBinaryReader::InitializeFile(const char* fileName)
       sfilename += "/";
     }
     sfilename += fileName;
-    vtkDebugMacro("full path to geometry file: " << sfilename.c_str());
+    vtkDebugMacro("full path to geometry file: " << sfilename);
   }
   else
   {
@@ -362,7 +362,7 @@ int vtkEnSightGoldBinaryReader::InitializeFile(const char* fileName)
 
   if (this->OpenFile(sfilename.c_str()) == 0)
   {
-    vtkErrorMacro("Unable to open file: " << sfilename.c_str());
+    vtkErrorMacro("Unable to open file: " << sfilename);
     return 0;
   }
 
@@ -1251,7 +1251,7 @@ int vtkEnSightGoldBinaryReader::ReadMeasuredGeometryFile(
       sfilename += "/";
     }
     sfilename += fileName;
-    vtkDebugMacro("full path to measured geometry file: " << sfilename.c_str());
+    vtkDebugMacro("full path to measured geometry file: " << sfilename);
   }
   else
   {
@@ -1260,7 +1260,7 @@ int vtkEnSightGoldBinaryReader::ReadMeasuredGeometryFile(
 
   if (this->OpenFile(sfilename.c_str()) == 0)
   {
-    vtkErrorMacro("Unable to open file: " << sfilename.c_str());
+    vtkErrorMacro("Unable to open file: " << sfilename);
     return 0;
   }
 
@@ -1403,7 +1403,7 @@ bool vtkEnSightGoldBinaryReader::OpenVariableFile(const char* fileName, const ch
       sfilename += "/";
     }
     sfilename += fileName;
-    vtkDebugMacro("full path to variable (" << type << ") file: " << sfilename.c_str());
+    vtkDebugMacro("full path to variable (" << type << ") file: " << sfilename);
   }
   else
   {
@@ -1412,7 +1412,7 @@ bool vtkEnSightGoldBinaryReader::OpenVariableFile(const char* fileName, const ch
 
   if (this->OpenFile(sfilename.c_str()) == 0)
   {
-    vtkErrorMacro("Unable to open file: " << sfilename.c_str());
+    vtkErrorMacro("Unable to open file: " << sfilename);
     return false;
   }
 

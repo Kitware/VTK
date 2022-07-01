@@ -62,7 +62,7 @@ int UnstructuredGridCellGradients(int argc, char* argv[])
   vtkStdString filename;
   filename = data_root;
   filename += "/Data/uGridEx.vtk";
-  cout << "Loading " << filename.c_str() << endl;
+  cout << "Loading " << filename << endl;
   VTK_CREATE(vtkUnstructuredGridReader, reader);
   reader->SetFileName(filename.c_str());
 

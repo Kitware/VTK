@@ -227,7 +227,7 @@ int TestSQLiteDatabase(int /*argc*/, char* /*argv*/[])
       {
         cerr << ", ";
       }
-      cerr << query->DataValue(field).ToString().c_str();
+      cerr << query->DataValue(field).ToString();
     }
     cerr << endl;
   }
@@ -256,7 +256,7 @@ int TestSQLiteDatabase(int /*argc*/, char* /*argv*/[])
       {
         cerr << ", ";
       }
-      cerr << va->GetValue(field).ToString().c_str();
+      cerr << va->GetValue(field).ToString();
     }
     cerr << endl;
   }
@@ -388,7 +388,7 @@ int TestSQLiteDatabase(int /*argc*/, char* /*argv*/[])
     return 1;
   }
 
-  cerr << query->DataValue(0).ToString().c_str() << "> ";
+  cerr << query->DataValue(0).ToString() << "> ";
   cerr << " done." << endl;
 
   // 6. Drop tables

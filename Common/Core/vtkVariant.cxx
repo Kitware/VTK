@@ -975,7 +975,7 @@ ostream& operator<<(ostream& os, const vtkVariant& val)
     case VTK_STRING:
       if (val.Data.String)
       {
-        os << "\"" << val.Data.String->c_str() << "\"";
+        os << "\"" << *val.Data.String << "\"";
       }
       else
       {

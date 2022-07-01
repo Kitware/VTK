@@ -909,8 +909,7 @@ bool vtkMultiCorrelativeAssessFunctor::Initialize(
     vtkDataArray* arr = vtkArrayDownCast<vtkDataArray>(inData->GetColumnByName(colname.c_str()));
     if (!arr)
     {
-      vtkGenericWarningMacro(
-        "Multicorrelative input data needs a \"" << colname.c_str() << "\" column");
+      vtkGenericWarningMacro("Multicorrelative input data needs a \"" << colname << "\" column");
       return false;
     }
     cols.push_back(arr);
@@ -918,8 +917,7 @@ bool vtkMultiCorrelativeAssessFunctor::Initialize(
       vtkArrayDownCast<vtkDoubleArray>(reqModel->GetColumnByName(colname.c_str()));
     if (!dar)
     {
-      vtkGenericWarningMacro(
-        "Multicorrelative request needs a \"" << colname.c_str() << "\" column");
+      vtkGenericWarningMacro("Multicorrelative request needs a \"" << colname << "\" column");
       return false;
     }
     chol.push_back(dar->GetPointer(1));

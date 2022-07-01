@@ -825,12 +825,10 @@ int vtkNetCDFReader::LoadVariable(int ncFD, const char* varName, double time, vt
   if (numDims != this->LoadingDimensions->GetNumberOfTuples())
   {
     vtkWarningMacro(<< "Variable " << varName << " dimensions ("
-                    << this->DescribeDimensions(ncFD, dimIds + timeIndexOffset, numDims).c_str()
+                    << this->DescribeDimensions(ncFD, dimIds + timeIndexOffset, numDims)
                     << ") are different than the other variable dimensions ("
-                    << this
-                         ->DescribeDimensions(ncFD, this->LoadingDimensions->GetPointer(0),
-                           this->LoadingDimensions->GetNumberOfTuples())
-                         .c_str()
+                    << this->DescribeDimensions(ncFD, this->LoadingDimensions->GetPointer(0),
+                         this->LoadingDimensions->GetNumberOfTuples())
                     << ").  Skipping");
     return 1;
   }
@@ -839,12 +837,10 @@ int vtkNetCDFReader::LoadVariable(int ncFD, const char* varName, double time, vt
     if (dimIds[i + timeIndexOffset] != this->LoadingDimensions->GetValue(i))
     {
       vtkWarningMacro(<< "Variable " << varName << " dimensions ("
-                      << this->DescribeDimensions(ncFD, dimIds + timeIndexOffset, numDims).c_str()
+                      << this->DescribeDimensions(ncFD, dimIds + timeIndexOffset, numDims)
                       << ") are different than the other variable dimensions ("
-                      << this
-                           ->DescribeDimensions(ncFD, this->LoadingDimensions->GetPointer(0),
-                             this->LoadingDimensions->GetNumberOfTuples())
-                           .c_str()
+                      << this->DescribeDimensions(ncFD, this->LoadingDimensions->GetPointer(0),
+                           this->LoadingDimensions->GetNumberOfTuples())
                       << ").  Skipping");
       return 1;
     }

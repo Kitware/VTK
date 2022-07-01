@@ -339,7 +339,7 @@ bool vtkMySQLDatabase::ParseURL(const char* URL)
   if (!vtksys::SystemTools::ParseURL(
         urlstr, protocol, username, password, hostname, dataport, database))
   {
-    vtkGenericWarningMacro("Invalid URL: \"" << urlstr.c_str() << "\"");
+    vtkGenericWarningMacro("Invalid URL: \"" << urlstr << "\"");
     return false;
   }
 

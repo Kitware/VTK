@@ -189,7 +189,7 @@ int vtkEnSight6Reader::ReadGeometryFile(
       sfilename += "/";
     }
     sfilename += fileName;
-    vtkDebugMacro("full path to geometry file: " << sfilename.c_str());
+    vtkDebugMacro("full path to geometry file: " << sfilename);
   }
   else
   {
@@ -199,7 +199,7 @@ int vtkEnSight6Reader::ReadGeometryFile(
   this->IS = new vtksys::ifstream(sfilename.c_str(), ios::in);
   if (this->IS->fail())
   {
-    vtkErrorMacro("Unable to open file: " << sfilename.c_str());
+    vtkErrorMacro("Unable to open file: " << sfilename);
     delete this->IS;
     this->IS = nullptr;
     return 0;
@@ -371,7 +371,7 @@ int vtkEnSight6Reader::ReadMeasuredGeometryFile(
       sfilename += "/";
     }
     sfilename += fileName;
-    vtkDebugMacro("full path to measured geometry file: " << sfilename.c_str());
+    vtkDebugMacro("full path to measured geometry file: " << sfilename);
   }
   else
   {
@@ -381,7 +381,7 @@ int vtkEnSight6Reader::ReadMeasuredGeometryFile(
   this->IS = new vtksys::ifstream(sfilename.c_str(), ios::in);
   if (this->IS->fail())
   {
-    vtkErrorMacro("Unable to open file: " << sfilename.c_str());
+    vtkErrorMacro("Unable to open file: " << sfilename);
     delete this->IS;
     this->IS = nullptr;
     return 0;
@@ -489,7 +489,7 @@ int vtkEnSight6Reader::ReadScalarsPerNode(const char* fileName, const char* desc
       sfilename += "/";
     }
     sfilename += fileName;
-    vtkDebugMacro("full path to scalar per node file: " << sfilename.c_str());
+    vtkDebugMacro("full path to scalar per node file: " << sfilename);
   }
   else
   {
@@ -499,7 +499,7 @@ int vtkEnSight6Reader::ReadScalarsPerNode(const char* fileName, const char* desc
   this->IS = new vtksys::ifstream(sfilename.c_str(), ios::in);
   if (this->IS->fail())
   {
-    vtkErrorMacro("Unable to open file: " << sfilename.c_str());
+    vtkErrorMacro("Unable to open file: " << sfilename);
     delete this->IS;
     this->IS = nullptr;
     return 0;
@@ -732,7 +732,7 @@ int vtkEnSight6Reader::ReadVectorsPerNode(const char* fileName, const char* desc
       sfilename += "/";
     }
     sfilename += fileName;
-    vtkDebugMacro("full path to vector per node file: " << sfilename.c_str());
+    vtkDebugMacro("full path to vector per node file: " << sfilename);
   }
   else
   {
@@ -742,7 +742,7 @@ int vtkEnSight6Reader::ReadVectorsPerNode(const char* fileName, const char* desc
   this->IS = new vtksys::ifstream(sfilename.c_str(), ios::in);
   if (this->IS->fail())
   {
-    vtkErrorMacro("Unable to open file: " << sfilename.c_str());
+    vtkErrorMacro("Unable to open file: " << sfilename);
     delete this->IS;
     this->IS = nullptr;
     return 0;
@@ -940,7 +940,7 @@ int vtkEnSight6Reader::ReadTensorsPerNode(const char* fileName, const char* desc
       sfilename += "/";
     }
     sfilename += fileName;
-    vtkDebugMacro("full path to tensor symm per node file: " << sfilename.c_str());
+    vtkDebugMacro("full path to tensor symm per node file: " << sfilename);
   }
   else
   {
@@ -950,7 +950,7 @@ int vtkEnSight6Reader::ReadTensorsPerNode(const char* fileName, const char* desc
   this->IS = new vtksys::ifstream(sfilename.c_str(), ios::in);
   if (this->IS->fail())
   {
-    vtkErrorMacro("Unable to open file: " << sfilename.c_str());
+    vtkErrorMacro("Unable to open file: " << sfilename);
     delete this->IS;
     this->IS = nullptr;
     return 0;
@@ -1095,7 +1095,7 @@ int vtkEnSight6Reader::ReadScalarsPerElement(const char* fileName, const char* d
       sfilename += "/";
     }
     sfilename += fileName;
-    vtkDebugMacro("full path to scalars per element file: " << sfilename.c_str());
+    vtkDebugMacro("full path to scalars per element file: " << sfilename);
   }
   else
   {
@@ -1105,7 +1105,7 @@ int vtkEnSight6Reader::ReadScalarsPerElement(const char* fileName, const char* d
   this->IS = new vtksys::ifstream(sfilename.c_str(), ios::in);
   if (this->IS->fail())
   {
-    vtkErrorMacro("Unable to open file: " << sfilename.c_str());
+    vtkErrorMacro("Unable to open file: " << sfilename);
     delete this->IS;
     this->IS = nullptr;
     return 0;
@@ -1268,7 +1268,7 @@ int vtkEnSight6Reader::ReadVectorsPerElement(const char* fileName, const char* d
       sfilename += "/";
     }
     sfilename += fileName;
-    vtkDebugMacro("full path to vector per element file: " << sfilename.c_str());
+    vtkDebugMacro("full path to vector per element file: " << sfilename);
   }
   else
   {
@@ -1278,7 +1278,7 @@ int vtkEnSight6Reader::ReadVectorsPerElement(const char* fileName, const char* d
   this->IS = new vtksys::ifstream(sfilename.c_str(), ios::in);
   if (this->IS->fail())
   {
-    vtkErrorMacro("Unable to open file: " << sfilename.c_str());
+    vtkErrorMacro("Unable to open file: " << sfilename);
     delete this->IS;
     this->IS = nullptr;
     return 0;
@@ -1440,7 +1440,7 @@ int vtkEnSight6Reader::ReadTensorsPerElement(const char* fileName, const char* d
       sfilename += "/";
     }
     sfilename += fileName;
-    vtkDebugMacro("full path to tensor per element file: " << sfilename.c_str());
+    vtkDebugMacro("full path to tensor per element file: " << sfilename);
   }
   else
   {
@@ -1450,7 +1450,7 @@ int vtkEnSight6Reader::ReadTensorsPerElement(const char* fileName, const char* d
   this->IS = new vtksys::ifstream(sfilename.c_str(), ios::in);
   if (this->IS->fail())
   {
-    vtkErrorMacro("Unable to open file: " << sfilename.c_str());
+    vtkErrorMacro("Unable to open file: " << sfilename);
     delete this->IS;
     this->IS = nullptr;
     return 0;

@@ -91,7 +91,7 @@ int ProjectedTetrahedraZoomIn(int argc, char* argv[])
   vtkStdString filename;
   filename = data_root;
   filename += "/Data/ironProt.vtk";
-  cout << "Loading " << filename.c_str() << endl;
+  cout << "Loading " << filename << endl;
   VTK_CREATE(vtkStructuredPointsReader, reader);
   reader->SetFileName(filename.c_str());
 
@@ -99,7 +99,7 @@ int ProjectedTetrahedraZoomIn(int argc, char* argv[])
   // displayed as a polygonal mesh.
   filename = data_root;
   filename += "/Data/neghip.slc";
-  cout << "Loading " << filename.c_str() << endl;
+  cout << "Loading " << filename << endl;
   VTK_CREATE(vtkSLCReader, reader2);
   reader2->SetFileName(filename.c_str());
 

@@ -416,8 +416,7 @@ void vtkDescriptiveStatistics::Learn(
     vtkStdString varName = *it;
     if (!inData->GetColumnByName(varName))
     {
-      vtkWarningMacro(
-        "InData table does not have a column " << varName.c_str() << ". Ignoring it.");
+      vtkWarningMacro("InData table does not have a column " << varName << ". Ignoring it.");
       continue;
     }
 
@@ -733,8 +732,7 @@ void vtkDescriptiveStatistics::Test(
     vtkStdString varName = *it;
     if (!inData->GetColumnByName(varName))
     {
-      vtkWarningMacro(
-        "InData table does not have a column " << varName.c_str() << ". Ignoring it.");
+      vtkWarningMacro("InData table does not have a column " << varName << ". Ignoring it.");
       continue;
     }
 
@@ -747,7 +745,7 @@ void vtkDescriptiveStatistics::Test(
     if (r >= nRowPrim)
     {
       vtkWarningMacro(
-        "Incomplete input: model does not have a row " << varName.c_str() << ". Cannot test.");
+        "Incomplete input: model does not have a row " << varName << ". Cannot test.");
       continue;
     }
 

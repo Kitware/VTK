@@ -538,7 +538,7 @@ void vtkLabeledDataMapper::BuildLabelsInternal(vtkDataSet* input)
       FormatString = "BUG - COULDN'T DETECT DATA TYPE";
     }
 
-    vtkDebugMacro(<< "Using default format string " << FormatString.c_str());
+    vtkDebugMacro(<< "Using default format string " << FormatString);
 
   } // Done building default format string
 

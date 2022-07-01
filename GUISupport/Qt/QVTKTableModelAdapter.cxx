@@ -59,7 +59,7 @@ vtkAbstractArray* QVTKTableModelAdapter::NewArray(const QVariant& type)
         QString("Unsupported QVariant::Type '%1' in QVTKTableModelAdapter::NewArray - "
                 "default to returning vtkDoubleArray::New()")
           .arg(type.typeName());
-      vtkGenericWarningMacro(<< warning.toStdString().c_str());
+      vtkGenericWarningMacro(<< warning.toStdString());
 
       return vtkDoubleArray::New();
   }

@@ -426,7 +426,7 @@ int vtkXMLPStructuredDataReader::ComputePieceSubExtents()
       }
     }
     e_with_warning_C4701 << "The UpdateExtent cannot be filled.";
-    vtkErrorMacro(<< e_with_warning_C4701.str().c_str());
+    vtkErrorMacro(<< e_with_warning_C4701.str());
     return 0;
   }
 

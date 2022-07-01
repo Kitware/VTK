@@ -3377,8 +3377,7 @@ int vtkLSDynaReader::WriteInputDeckSummary(const char* fname)
 #endif // _WIN32
     {
       // OK, we have an absolute path, so it should be safe to write it out.
-      xmlSummary << "  <database path=\"" << dbDir.c_str() << "\" name=\"" << dbName.c_str()
-                 << "\"/>" << endl;
+      xmlSummary << "  <database path=\"" << dbDir << "\" name=\"" << dbName << "\"/>" << endl;
     }
   }
 
@@ -3386,7 +3385,7 @@ int vtkLSDynaReader::WriteInputDeckSummary(const char* fname)
   {
     xmlSummary << "  <part id=\"" << this->P->PartIds[p] << "\" material_id=\""
                << this->P->PartMaterials[p] << "\" status=\"" << this->P->PartStatus[p]
-               << "\"><name>" << this->P->PartNames[p].c_str() << "</name></part>" << endl;
+               << "\"><name>" << this->P->PartNames[p] << "</name></part>" << endl;
   }
 
   xmlSummary << "</lsdyna>" << endl;

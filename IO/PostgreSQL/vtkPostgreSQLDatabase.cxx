@@ -385,7 +385,7 @@ bool vtkPostgreSQLDatabase::ParseURL(const char* URL)
   if (!vtksys::SystemTools::ParseURL(
         urlstr, protocol, username, password, hostname, dataport, database))
   {
-    vtkErrorMacro("Invalid URL: \"" << urlstr.c_str() << "\"");
+    vtkErrorMacro("Invalid URL: \"" << urlstr << "\"");
     return false;
   }
 

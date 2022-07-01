@@ -367,6 +367,6 @@ void vtkExtractBlockUsingDataAssembly::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Selectors: " << endl;
   for (const auto& selector : this->Internals->Selectors)
   {
-    os << indent.GetNextIndent() << selector.c_str() << endl;
+    os << indent.GetNextIndent() << selector << endl;
   }
 }

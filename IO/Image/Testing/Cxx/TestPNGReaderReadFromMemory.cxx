@@ -41,7 +41,7 @@ int TestPNGReaderReadFromMemory(int argc, char* argv[])
   vtksys::ifstream stream(filename.c_str(), std::ios::in | std::ios::binary);
   if (!stream.is_open())
   {
-    std::cerr << "Could not open file " << filename.c_str() << std::endl;
+    std::cerr << "Could not open file " << filename << std::endl;
   }
   // Get file size
   unsigned long len = vtksys::SystemTools::FileLength(filename);

@@ -454,7 +454,7 @@ bool vtkSQLiteDatabase::ParseURL(const char* URL)
 
   if (!vtksys::SystemTools::ParseURLProtocol(urlstr, protocol, dataglom))
   {
-    vtkErrorMacro("Invalid URL: \"" << urlstr.c_str() << "\"");
+    vtkErrorMacro("Invalid URL: \"" << urlstr << "\"");
     return false;
   }
 

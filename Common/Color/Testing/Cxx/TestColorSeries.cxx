@@ -148,8 +148,8 @@ int TestColorSeries(int argc, char* argv[])
   if (palName != expected)
   {
     vtkGenericWarningMacro(<< "Failure: Palette copy-on-write: name should have been "
-                           << "\"" << expected.c_str() << "\" but was "
-                           << "\"" << palName.c_str() << "\" instead.");
+                           << "\"" << expected << "\" but was "
+                           << "\"" << palName << "\" instead.");
     valResult = vtkTesting::FAILED;
   }
   if (palettes->GetNumberOfColors() != 10)

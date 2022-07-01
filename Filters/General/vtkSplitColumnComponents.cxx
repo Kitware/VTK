@@ -255,12 +255,12 @@ std::string vtkSplitColumnComponents::GetComponentLabel(vtkAbstractArray* array,
       break;
 
     case NAMES_WITH_PARENS:
-      stream << array->GetName() << " (" << vtkGetComponentName(array, component_no).c_str() << ")";
+      stream << array->GetName() << " (" << vtkGetComponentName(array, component_no) << ")";
       break;
 
     case NAMES_WITH_UNDERSCORES:
     default:
-      stream << array->GetName() << "_" << vtkGetComponentName(array, component_no).c_str();
+      stream << array->GetName() << "_" << vtkGetComponentName(array, component_no);
       break;
   }
   return stream.str();

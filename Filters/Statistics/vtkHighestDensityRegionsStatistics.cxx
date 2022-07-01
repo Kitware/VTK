@@ -118,8 +118,7 @@ void vtkHighestDensityRegionsStatistics::Learn(
     const vtkStdString& colY = *colIt;
     if (!inData->GetColumnByName(colY.c_str()))
     {
-      vtkWarningMacro(
-        "InData table does not have a column " << colY.c_str() << ". Ignoring this pair.");
+      vtkWarningMacro("InData table does not have a column " << colY << ". Ignoring this pair.");
       continue;
     }
 
@@ -127,8 +126,7 @@ void vtkHighestDensityRegionsStatistics::Learn(
     const vtkStdString& colX = *colIt;
     if (!inData->GetColumnByName(colX.c_str()))
     {
-      vtkWarningMacro(
-        "InData table does not have a column " << colX.c_str() << ". Ignoring this pair.");
+      vtkWarningMacro("InData table does not have a column " << colX << ". Ignoring this pair.");
       continue;
     }
 

@@ -370,8 +370,7 @@ void vtkXMLCompositeDataWriter::MakeDirectory(const char* name)
   if (!vtksys::SystemTools::MakeDirectory(name))
   {
     vtkErrorMacro(<< "Sorry unable to create directory: " << name << endl
-                  << "Last system error was: "
-                  << vtksys::SystemTools::GetLastSystemError().c_str());
+                  << "Last system error was: " << vtksys::SystemTools::GetLastSystemError());
   }
 }
 
@@ -381,8 +380,7 @@ void vtkXMLCompositeDataWriter::RemoveADirectory(const char* name)
   if (!vtksys::SystemTools::RemoveADirectory(name))
   {
     vtkErrorMacro(<< "Sorry unable to remove a directory: " << name << endl
-                  << "Last system error was: "
-                  << vtksys::SystemTools::GetLastSystemError().c_str());
+                  << "Last system error was: " << vtksys::SystemTools::GetLastSystemError());
   }
 }
 
@@ -589,8 +587,7 @@ vtkStdString vtkXMLCompositeDataWriter::CreatePieceFileName(int piece)
   }
 
   std::ostringstream stream;
-  stream << this->Internal->FilePrefix.c_str() << "/" << this->Internal->FilePrefix.c_str() << "_"
-         << piece << ".";
+  stream << this->Internal->FilePrefix << "/" << this->Internal->FilePrefix << "_" << piece << ".";
   const char* ext = this->GetDefaultFileExtensionForDataSet(this->Internal->DataTypes[piece]);
   stream << (ext ? ext : "");
   return stream.str();

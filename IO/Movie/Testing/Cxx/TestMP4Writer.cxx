@@ -95,12 +95,12 @@ int TestMP4Writer(int argc, char* argv[])
   if (!exists)
   {
     success = false;
-    vtkLog(ERROR, "Test failing because file '" << outputFile.c_str() << "' doesn't exist...");
+    vtkLog(ERROR, "Test failing because file '" << outputFile << "' doesn't exist...");
   }
   if (0 == length)
   {
     success = false;
-    vtkLog(ERROR, "Test failing because file '" << outputFile.c_str() << "' has zero length...");
+    vtkLog(ERROR, "Test failing because file '" << outputFile << "' has zero length...");
   }
 
   return success ? 0 : -1;

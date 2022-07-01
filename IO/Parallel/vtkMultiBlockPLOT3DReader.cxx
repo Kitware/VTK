@@ -2098,7 +2098,7 @@ int vtkMultiBlockPLOT3DReader::ReadArrays(
       mp->Broadcast(&error, 1, 0);
       if (error)
       {
-        vtkErrorMacro("Error reading file " << fname.c_str());
+        vtkErrorMacro("Error reading file " << fname);
         this->ClearGeometryCache();
         return 0;
       }

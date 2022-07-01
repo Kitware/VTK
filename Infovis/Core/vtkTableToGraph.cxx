@@ -503,7 +503,7 @@ int vtkTableToGraph::RequestData(
       vtkAbstractArray* arr = edgeTable->GetColumnByName(column);
       if (!arr)
       {
-        vtkErrorMacro("vtkTableToGraph cannot find edge array: " << column.c_str());
+        vtkErrorMacro("vtkTableToGraph cannot find edge array: " << column);
         vertexTable->Delete();
         return 0;
       }
@@ -599,7 +599,7 @@ int vtkTableToGraph::RequestData(
         vtkAbstractArray* arr = vertexTable->GetColumnByName(domain);
         if (!arr)
         {
-          vtkErrorMacro("vtkTableToGraph cannot find vertex array: " << domain.c_str());
+          vtkErrorMacro("vtkTableToGraph cannot find vertex array: " << domain);
           return 0;
         }
         for (vtkIdType i = 0; i < arr->GetNumberOfTuples(); ++i)
@@ -633,7 +633,7 @@ int vtkTableToGraph::RequestData(
         vtkAbstractArray* edgeArr = edgeTable->GetColumnByName(column);
         if (!edgeArr)
         {
-          vtkErrorMacro("vtkTableToGraph cannot find edge array: " << column.c_str());
+          vtkErrorMacro("vtkTableToGraph cannot find edge array: " << column);
           return 0;
         }
         switch (edgeArr->GetDataType())
@@ -731,7 +731,7 @@ int vtkTableToGraph::RequestData(
       vtkVariant valueSource;
       if (!columnSource)
       {
-        vtkErrorMacro("vtkTableToGraph cannot find array: " << columnNameSource.c_str());
+        vtkErrorMacro("vtkTableToGraph cannot find array: " << columnNameSource);
         return 0;
       }
       switch (columnSource->GetDataType())
@@ -742,7 +742,7 @@ int vtkTableToGraph::RequestData(
       vtkVariant valueTarget;
       if (!columnTarget)
       {
-        vtkErrorMacro("vtkTableToGraph cannot find array: " << columnNameTarget.c_str());
+        vtkErrorMacro("vtkTableToGraph cannot find array: " << columnNameTarget);
         return 0;
       }
       switch (columnTarget->GetDataType())

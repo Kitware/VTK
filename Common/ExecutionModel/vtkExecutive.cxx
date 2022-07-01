@@ -757,7 +757,7 @@ int vtkExecutive::CheckAlgorithm(const char* method, vtkInformation* request)
                     << " invoked during another request.  "
                        "Returning failure to algorithm "
                     << this->Algorithm->GetObjectDescription() << " for the recursive request:\n"
-                    << rqmsg.str().c_str());
+                    << rqmsg.str());
     }
     else
     {

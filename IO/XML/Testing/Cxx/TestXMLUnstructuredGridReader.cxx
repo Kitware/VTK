@@ -118,7 +118,7 @@ int TestXMLUnstructuredGridReader(int argc, char* argv[])
   std::string filename;
   filename = data_root;
   filename += "/Data/many_time_steps.vtu";
-  cout << "Loading " << filename.c_str() << endl;
+  cout << "Loading " << filename << endl;
   vtkNew<vtkXMLUnstructuredGridReader> reader1;
   reader1->SetFileName(filename.c_str());
   reader1->Update();
@@ -134,7 +134,7 @@ int TestXMLUnstructuredGridReader(int argc, char* argv[])
   // and each piece contains a pyramid cell and a polyhedron cell.
   filename = data_root;
   filename += "/Data/polyhedron2pieces.vtu";
-  cout << "Loading " << filename.c_str() << endl;
+  cout << "Loading " << filename << endl;
   vtkNew<vtkXMLUnstructuredGridReader> reader2;
   reader2->SetFileName(filename.c_str());
 

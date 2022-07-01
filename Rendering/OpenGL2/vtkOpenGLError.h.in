@@ -204,7 +204,7 @@ bool vtkOpenGLCheckErrors(const char* headerMessage = "")
   {
     std::ostringstream oss;
     vtkPrintOpenGLErrors(oss, maxNumErrors, numErrors, errCode, errDesc);
-    vtkGenericWarningMacro(<< headerMessage << oss.str().c_str());
+    vtkGenericWarningMacro(<< headerMessage << oss.str());
     return false;
   }
   return true;
@@ -271,7 +271,7 @@ void vtkClearOpenGLErrors(const unsigned int maxErrors = 16)
           errCode,                                   \
           errDesc);                                  \
                                                      \
-    ostr(<< message << " " << oss.str().c_str());    \
+    ostr(<< message << " " << oss.str());            \
   }                                                \
 }
 # define vtkOpenGLCheckErrorMacro(message) \

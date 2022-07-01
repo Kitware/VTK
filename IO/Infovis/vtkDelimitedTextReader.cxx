@@ -371,12 +371,9 @@ void vtkDelimitedTextReader::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "UnicodeCharacterSet: "
      << (this->UnicodeCharacterSet ? this->UnicodeCharacterSet : "(none)") << endl;
   os << indent << "MaxRecords: " << this->MaxRecords << endl;
-  os << indent << "UnicodeRecordDelimiters: '" << this->UnicodeRecordDelimiters.c_str() << "'"
-     << endl;
-  os << indent << "UnicodeFieldDelimiters: '" << this->UnicodeFieldDelimiters.c_str() << "'"
-     << endl;
-  os << indent << "UnicodeStringDelimiters: '" << this->UnicodeStringDelimiters.c_str() << "'"
-     << endl;
+  os << indent << "UnicodeRecordDelimiters: '" << this->UnicodeRecordDelimiters << "'" << endl;
+  os << indent << "UnicodeFieldDelimiters: '" << this->UnicodeFieldDelimiters << "'" << endl;
+  os << indent << "UnicodeStringDelimiters: '" << this->UnicodeStringDelimiters << "'" << endl;
   os << indent << "StringDelimiter: " << this->StringDelimiter << endl;
   os << indent << "ReplacementCharacter: " << this->ReplacementCharacter << endl;
   os << indent << "FieldDelimiterCharacters: "

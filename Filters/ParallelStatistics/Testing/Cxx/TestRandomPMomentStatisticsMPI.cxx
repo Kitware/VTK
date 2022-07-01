@@ -425,8 +425,8 @@ void RandomSampleStatistics(vtkMultiProcessController* controller, void* arg)
         } // if ( relDev )
         else
         {
-          vtkGenericWarningMacro("Column " << relDevName.str().c_str() << " on process " << myRank
-                                           << " is not of type double.");
+          vtkGenericWarningMacro(
+            "Column " << relDevName.str() << " on process " << myRank << " is not of type double.");
           *(args->retVal) = 1;
         }
 
@@ -434,7 +434,7 @@ void RandomSampleStatistics(vtkMultiProcessController* controller, void* arg)
       else
       {
         vtkGenericWarningMacro(
-          "No assessment column called " << relDevName.str().c_str() << " on process " << myRank);
+          "No assessment column called " << relDevName.str() << " on process " << myRank);
         *(args->retVal) = 1;
       }
     } // for ( int c = 0; c < nNormal; ++ c )

@@ -281,8 +281,7 @@ void vtkAutoCorrelativeStatistics::Learn(
     vtkStdString varName = *it;
     if (!inData->GetColumnByName(varName))
     {
-      vtkWarningMacro(
-        "InData table does not have a column " << varName.c_str() << ". Ignoring it.");
+      vtkWarningMacro("InData table does not have a column " << varName << ". Ignoring it.");
       continue;
     }
 

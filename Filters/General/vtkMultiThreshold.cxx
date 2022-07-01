@@ -193,7 +193,7 @@ void vtkMultiThreshold::Interval::PrintNode(ostream& os)
   }
   else
   {
-    os << this->Norm.Name.c_str();
+    os << this->Norm.Name;
   }
   if (this->Norm.Component < 0)
   {

@@ -70,9 +70,8 @@ public:
       }
       e = parent;
     }
-    stream
-      << ":"
-      << vtksys::SystemTools::GetFilenameName(entity->get_database()->decoded_filename()).c_str();
+    stream << ":"
+           << vtksys::SystemTools::GetFilenameName(entity->get_database()->decoded_filename());
     return stream.str();
   }
 };

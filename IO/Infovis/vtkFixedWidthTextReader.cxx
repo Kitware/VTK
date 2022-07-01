@@ -114,7 +114,7 @@ int vtkFixedWidthTextReader::RequestData(
 
   my_getline(infile, firstLine);
 
-  //  vtkDebugMacro(<<"First line of file: " << firstLine.c_str());
+  //  vtkDebugMacro(<<"First line of file: " << firstLine);
 
   if (this->HaveHeaders)
   {
@@ -176,7 +176,7 @@ int vtkFixedWidthTextReader::RequestData(
       this->InvokeEvent(vtkCommand::ProgressEvent, &numLinesRead);
     }
 
-    vtkDebugMacro(<< "Next line: " << nextLine.c_str());
+    vtkDebugMacro(<< "Next line: " << nextLine);
     std::vector<vtkStdString> dataVector;
 
     // Split string on the delimiters

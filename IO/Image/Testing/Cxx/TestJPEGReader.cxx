@@ -40,7 +40,7 @@ int TestJPEGReader(int argc, char* argv[])
   // Check the image can be read
   if (!JPEGReader->CanReadFile(filename.c_str()))
   {
-    cerr << "CanReadFile failed for " << filename.c_str() << "\n";
+    cerr << "CanReadFile failed for " << filename << "\n";
     return EXIT_FAILURE;
   }
 

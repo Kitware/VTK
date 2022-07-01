@@ -574,7 +574,7 @@ std::vector<int> vtkDataAssembly::AddNodes(const std::vector<std::string>& names
   {
     if (!vtkDataAssembly::IsNodeNameValid(name.c_str()))
     {
-      vtkErrorMacro("Invalid name specified '" << name.c_str() << "'.");
+      vtkErrorMacro("Invalid name specified '" << name << "'.");
       return std::vector<int>{};
     }
   }

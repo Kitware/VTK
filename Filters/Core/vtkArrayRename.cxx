@@ -136,7 +136,7 @@ const char* vtkArrayRename::GetArrayNewName(int attributeType, int idx)
 
   vtkDebugMacro(<< "Returning " << originalName << " "
                 << vtkDataObject::GetAssociationTypeAsString(attributeType) << " array name as "
-                << this->ArrayMapping[attributeType][originalName].c_str());
+                << this->ArrayMapping[attributeType][originalName]);
 
   return this->ArrayMapping[attributeType][originalName].c_str();
 }

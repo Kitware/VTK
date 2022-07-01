@@ -120,7 +120,7 @@ void vtkBYUWriter::WriteData()
     }
     unlink(this->ScalarFileName);
     errorMessage += this->ScalarFileName;
-    vtkErrorMacro(<< errorMessage.c_str());
+    vtkErrorMacro(<< errorMessage);
     return;
   }
   this->WriteTextureFile(numPts);
@@ -146,7 +146,7 @@ void vtkBYUWriter::WriteData()
     }
     unlink(this->TextureFileName);
     errorMessage += this->TextureFileName;
-    vtkErrorMacro(<< errorMessage.c_str());
+    vtkErrorMacro(<< errorMessage);
     return;
   }
 

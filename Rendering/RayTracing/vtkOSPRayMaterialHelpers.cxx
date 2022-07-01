@@ -355,7 +355,7 @@ OSPMaterial vtkOSPRayMaterialHelpers::MakeMaterial(
   else
   {
     vtkGenericWarningMacro(
-      "Warning: unrecognized material \"" << implname.c_str() << "\", using a default obj");
+      "Warning: unrecognized material \"" << implname << "\", using a default obj");
     return NewMaterial(orn, oRenderer, "obj");
   }
 

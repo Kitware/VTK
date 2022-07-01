@@ -235,7 +235,7 @@ vtkIntArray* vtkLabelSizeCalculator::LabelSizesForArray(
     if (this->GetDebug())
     {
       cout << "LSC: " << bds[0] << " " << bds[1] << " " << bds[2] << " " << bds[3] << " \""
-           << labels->GetVariantValue(i).ToString().c_str() << "\"\n";
+           << labels->GetVariantValue(i).ToString() << "\"\n";
     }
 
     bds += 4;

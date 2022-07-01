@@ -13,7 +13,7 @@ void AbortTest(vtkMPIController* controller, const std::string& message)
 {
   if (controller->GetLocalProcessId() == 0)
   {
-    vtkErrorWithObjectMacro(nullptr, << message.c_str());
+    vtkErrorWithObjectMacro(nullptr, << message);
   }
   controller->Finalize();
   exit(EXIT_FAILURE);
