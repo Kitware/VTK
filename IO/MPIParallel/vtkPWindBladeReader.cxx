@@ -91,11 +91,8 @@ int vtkPWindBladeReader::RequestData(
     std::ostringstream fileName;
     vtkStructuredGrid* field = this->GetFieldOutput();
     this->InitFieldData(outVector, fileName, field);
-    char* cchar = new char[strlen(fileName.str().c_str()) + 1];
-    strcpy(cchar, fileName.str().c_str());
-    MPICall(MPI_File_open(
-      MPI_COMM_WORLD, cchar, MPI_MODE_RDONLY, MPI_INFO_NULL, &this->PInternal->FilePtr));
-    delete[] cchar;
+    MPICall(MPI_File_open(MPI_COMM_WORLD, fileName.str().c_str(), MPI_MODE_RDONLY, MPI_INFO_NULL,
+      &this->PInternal->FilePtr));
     if (this->PInternal->FilePtr == nullptr)
     {
       vtkWarningMacro(<< "Could not open file " << fileName.str());
@@ -264,10 +261,8 @@ bool vtkPWindBladeReader::ReadGlobalData()
   std::vector<char> inBuf(vtkWindBladeReader::LINE_SIZE);
   MPI_File tempFile;
   char native[7] = "native";
-  char* cchar = new char[strlen(fileName.c_str()) + 1];
-  strcpy(cchar, fileName.c_str());
-  MPICall(MPI_File_open(MPI_COMM_WORLD, cchar, MPI_MODE_RDONLY, MPI_INFO_NULL, &tempFile));
-  delete[] cchar;
+  MPICall(
+    MPI_File_open(MPI_COMM_WORLD, fileName.c_str(), MPI_MODE_RDONLY, MPI_INFO_NULL, &tempFile));
 
   std::stringstream inStr;
   MPI_Offset i, tempSize;
@@ -312,11 +307,8 @@ bool vtkPWindBladeReader::FindVariableOffsets()
   fileName << this->RootDirectory << "/" << this->DataDirectory << "/" << this->DataBaseName
            << this->TimeStepFirst;
 
-  char* cchar = new char[strlen(fileName.str().c_str()) + 1];
-  strcpy(cchar, fileName.str().c_str());
-  MPICall(MPI_File_open(
-    MPI_COMM_WORLD, cchar, MPI_MODE_RDONLY, MPI_INFO_NULL, &this->PInternal->FilePtr));
-  delete[] cchar;
+  MPICall(MPI_File_open(MPI_COMM_WORLD, fileName.str().c_str(), MPI_MODE_RDONLY, MPI_INFO_NULL,
+    &this->PInternal->FilePtr));
 
   if (this->PInternal->FilePtr == nullptr)
   {
@@ -370,12 +362,9 @@ void vtkPWindBladeReader::CreateZTopography(float* zValues)
 
   int blockSize = this->Dimension[0] * this->Dimension[1];
   float* topoData = new float[blockSize];
-  char* cchar = new char[strlen(fileName.str().c_str()) + 1];
 
-  strcpy(cchar, fileName.str().c_str());
-  MPICall(MPI_File_open(
-    MPI_COMM_WORLD, cchar, MPI_MODE_RDONLY, MPI_INFO_NULL, &this->PInternal->FilePtr));
-  delete[] cchar;
+  MPICall(MPI_File_open(MPI_COMM_WORLD, fileName.str().c_str(), MPI_MODE_RDONLY, MPI_INFO_NULL,
+    &this->PInternal->FilePtr));
 
   MPI_Status status;
   char native[7] = "native";
@@ -405,10 +394,8 @@ void vtkPWindBladeReader::SetupBladeData()
 
   MPI_File tempFile;
   char native[7] = "native";
-  char* cchar = new char[strlen(fileName.str().c_str()) + 1];
-  strcpy(cchar, fileName.str().c_str());
-  MPICall(MPI_File_open(MPI_COMM_WORLD, cchar, MPI_MODE_RDONLY, MPI_INFO_NULL, &tempFile));
-  delete[] cchar;
+  MPICall(MPI_File_open(
+    MPI_COMM_WORLD, fileName.str().c_str(), MPI_MODE_RDONLY, MPI_INFO_NULL, &tempFile));
 
   std::stringstream inStr;
   MPI_Offset i, tempSize;
@@ -447,10 +434,8 @@ void vtkPWindBladeReader::SetupBladeData()
   fileName2 << this->RootDirectory << "/" << this->TurbineDirectory << "/" << this->TurbineBladeName
             << this->TimeStepFirst;
 
-  cchar = new char[strlen(fileName2.str().c_str()) + 1];
-  strcpy(cchar, fileName2.str().c_str());
-  MPICall(MPI_File_open(MPI_COMM_WORLD, cchar, MPI_MODE_RDONLY, MPI_INFO_NULL, &tempFile));
-  delete[] cchar;
+  MPICall(MPI_File_open(
+    MPI_COMM_WORLD, fileName2.str().c_str(), MPI_MODE_RDONLY, MPI_INFO_NULL, &tempFile));
 
   std::stringstream inStr2;
 
@@ -486,10 +471,8 @@ void vtkPWindBladeReader::SetupBladeData()
                 << this->TurbineBladeName << j;
       // std::cout << "Trying " << fileName3.str() << "...";
 
-      cchar = new char[strlen(fileName3.str().c_str()) + 1];
-      strcpy(cchar, fileName3.str().c_str());
-      MPICall(MPI_File_open(MPI_COMM_WORLD, cchar, MPI_MODE_RDONLY, MPI_INFO_NULL, &tempFile));
-      delete[] cchar;
+      MPICall(MPI_File_open(
+        MPI_COMM_WORLD, fileName3.str().c_str(), MPI_MODE_RDONLY, MPI_INFO_NULL, &tempFile));
 
       inStr2.clear();
       inStr2.str("");
@@ -571,11 +554,9 @@ void vtkPWindBladeReader::LoadBladeData(int timeStep)
   // only rank 0 reads this so we have to be careful
   MPI_File tempFile;
   char native[7] = "native";
-  char* cchar = new char[strlen(fileName.str().c_str()) + 1];
-  strcpy(cchar, fileName.str().c_str());
   // here only rank 0 opens it : MPI_COMM_SELF
-  MPICall(MPI_File_open(MPI_COMM_SELF, cchar, MPI_MODE_RDONLY, MPI_INFO_NULL, &tempFile));
-  delete[] cchar;
+  MPICall(MPI_File_open(
+    MPI_COMM_SELF, fileName.str().c_str(), MPI_MODE_RDONLY, MPI_INFO_NULL, &tempFile));
 
   std::stringstream inStr;
   MPI_Offset i, tempSize;
