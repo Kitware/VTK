@@ -38,9 +38,9 @@
 //                       Functions for Parsing File Names
 //------------------------------------------------------------------------------
 
-static std::string GetEnzoMajorFileName(const char* path)
+static std::string GetEnzoMajorFileName(const std::string& path)
 {
-  return (vtksys::SystemTools::GetFilenameName(std::string(path)));
+  return vtksys::SystemTools::GetFilenameName(path);
 }
 
 //------------------------------------------------------------------------------
@@ -724,7 +724,7 @@ void vtkEnzoReaderInternal::ReadBlockStructures()
 
       //      std::cout << "szname: " << szName << std::endl;
       //      std::cout.flush();
-      tmpBlk.BlockFileName = this->DirectoryName + "/" + GetEnzoMajorFileName(szName.c_str());
+      tmpBlk.BlockFileName = this->DirectoryName + "/" + GetEnzoMajorFileName(szName);
 
       // obtain the particle file name (szName includes the full path)
       while (theStr != "NumberOfParticles")
@@ -742,7 +742,7 @@ void vtkEnzoReaderInternal::ReadBlockStructures()
         }
         stream >> theStr; // '='
         stream >> szName;
-        tmpBlk.ParticleFileName = this->DirectoryName + "/" + GetEnzoMajorFileName(szName.c_str());
+        tmpBlk.ParticleFileName = this->DirectoryName + "/" + GetEnzoMajorFileName(szName);
       }
 
       tmpBlk.Level = levlId;
