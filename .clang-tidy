@@ -46,6 +46,7 @@ clang-analyzer-*,\
 -clang-analyzer-valist.Unterminated,\
 misc-*,\
 -misc-const-correctness,\
+-misc-confusable-identifiers,\
 -misc-no-recursion,\
 -misc-non-private-member-variables-in-classes,\
 -misc-redundant-expression,\
