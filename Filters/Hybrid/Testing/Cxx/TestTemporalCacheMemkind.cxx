@@ -100,7 +100,7 @@ int vtkTemporalSphereSource2::RequestInformation(
 }
 
 //------------------------------------------------------------------------------
-static bool vtkTestTemporalCacheSimpleWithinTolerance2(double a, double b)
+bool vtkTestTemporalCacheSimpleWithinTolerance2(double a, double b)
 {
   return (fabs(a - b) <= (a * 1E-6));
 }

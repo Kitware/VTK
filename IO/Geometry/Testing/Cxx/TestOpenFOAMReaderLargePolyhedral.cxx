@@ -36,7 +36,7 @@ namespace
 
 // Get any block of specified type
 template <class Type>
-static Type* findBlock(vtkMultiBlockDataSet* mb)
+Type* findBlock(vtkMultiBlockDataSet* mb)
 {
   Type* dataset = nullptr;
   const unsigned int nblocks = (mb ? mb->GetNumberOfBlocks() : 0u);
