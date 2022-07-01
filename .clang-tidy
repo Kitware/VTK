@@ -3,6 +3,7 @@ Checks: "-*,\
 boost-*,\
 bugprone-*,\
 -bugprone-argument-comment,\
+-bugprone-assignment-in-if-condition,\
 -bugprone-branch-clone,\
 -bugprone-easily-swappable-parameters,\
 -bugprone-fold-init-type,\
