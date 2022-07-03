@@ -463,7 +463,7 @@ const char* vtkPythonUtil::PythonicClassName(const char* classname)
   if (*cp != '\0')
   {
     /* look up class and get its pythonic name */
-    PyTypeObject* pytype = vtkPythonUtil::FindClassTypeObject(classname);
+    PyTypeObject* pytype = vtkPythonUtil::FindBaseTypeObject(classname);
     if (pytype)
     {
       classname = vtkPythonUtil::StripModule(pytype->tp_name);

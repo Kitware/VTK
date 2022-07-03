@@ -531,8 +531,7 @@ int vtkPythonOverload::CheckArg(PyObject* arg, const char* format, const char* n
         }
         else if (PyVTKObject_Check(arg))
         {
-          PyVTKClass* info = vtkPythonUtil::FindClass(classname);
-          PyTypeObject* pytype = (info ? info->py_type : nullptr);
+          PyTypeObject* pytype = vtkPythonUtil::FindBaseTypeObject(classname);
           if (Py_TYPE(arg) != pytype)
           {
             // Check superclasses
