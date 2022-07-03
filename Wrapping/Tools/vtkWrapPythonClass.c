@@ -406,7 +406,7 @@ static void vtkWrapPython_GenerateObjectNew(
     else /* superclass is in a different module */
     {
       fprintf(
-        fp, "  pytype->tp_base = vtkPythonUtil::FindClassTypeObject(\"%s\");\n\n", superclassname);
+        fp, "  pytype->tp_base = vtkPythonUtil::FindBaseTypeObject(\"%s\");\n\n", superclassname);
     }
   }
 

@@ -867,6 +867,27 @@ PyTypeObject* vtkPythonUtil::FindEnum(const char* name)
 }
 
 //------------------------------------------------------------------------------
+PyTypeObject* vtkPythonUtil::FindBaseTypeObject(const char* name)
+{
+  PyVTKClass* info = vtkPythonUtil::FindClass(name);
+  if (info)
+  {
+    // in case of override, drill down to get the original (non-override) type,
+    // that's what we need to use for the base class of other wrapped classes
+    for (PyTypeObject* pytype = info->py_type; pytype != nullptr; pytype = pytype->tp_base)
+    {
+      if (strcmp(vtkPythonUtil::StripModule(pytype->tp_name), name) == 0)
+      {
+        return pytype;
+      }
+    }
+    return info->py_type;
+  }
+
+  return nullptr;
+}
+
+//------------------------------------------------------------------------------
 PyTypeObject* vtkPythonUtil::FindClassTypeObject(const char* name)
 {
   PyVTKClass* info = vtkPythonUtil::FindClass(name);
