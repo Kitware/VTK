@@ -50,17 +50,19 @@ vtkIVExporter::~vtkIVExporter()
 static char indent[256];
 static int indent_now = 0;
 #define VTK_INDENT_MORE                                                                            \
+  do                                                                                               \
   {                                                                                                \
     indent[indent_now] = ' ';                                                                      \
     indent_now += 4;                                                                               \
     indent[indent_now] = 0;                                                                        \
-  }
+  } while (false)
 #define VTK_INDENT_LESS                                                                            \
+  do                                                                                               \
   {                                                                                                \
     indent[indent_now] = ' ';                                                                      \
     indent_now -= 4;                                                                               \
     indent[indent_now] = 0;                                                                        \
-  }
+  } while (false)
 
 void vtkIVExporter::WriteData()
 {

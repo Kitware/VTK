@@ -25,12 +25,15 @@
 #include "vtkPolyData.h"
 
 #define CheckNumbers(name, first, second)                                                          \
-  if (first != second)                                                                             \
+  do                                                                                               \
   {                                                                                                \
-    cerr << "Error : wrong number of " << #name << ". Got " << first << " but expects " << second  \
-         << endl;                                                                                  \
-    return EXIT_FAILURE;                                                                           \
-  }
+    if (first != second)                                                                           \
+    {                                                                                              \
+      cerr << "Error : wrong number of " << #name << ". Got " << first << " but expects "          \
+           << second << endl;                                                                      \
+      return EXIT_FAILURE;                                                                         \
+    }                                                                                              \
+  } while (false)
 
 int TestMoleculeToLines(int argc, char* argv[])
 {

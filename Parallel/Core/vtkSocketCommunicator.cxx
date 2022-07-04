@@ -75,10 +75,13 @@ public:
 };
 
 #define vtkSocketCommunicatorErrorMacro(msg)                                                       \
-  if (this->ReportErrors)                                                                          \
+  do                                                                                               \
   {                                                                                                \
-    vtkErrorMacro(msg);                                                                            \
-  }
+    if (this->ReportErrors)                                                                        \
+    {                                                                                              \
+      vtkErrorMacro(msg);                                                                          \
+    }                                                                                              \
+  } while (false)
 
 // The handshake checks that the client and server are using the same
 // version of this source file.  It first compares a fixed integer

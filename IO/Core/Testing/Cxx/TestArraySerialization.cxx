@@ -32,6 +32,7 @@
 #include <stdexcept>
 
 #define test_expression(expression)                                                                \
+  do                                                                                               \
   {                                                                                                \
     if (!(expression))                                                                             \
     {                                                                                              \
@@ -39,7 +40,7 @@
       buffer << "Expression failed at line " << __LINE__ << ": " << #expression;                   \
       throw std::runtime_error(buffer.str());                                                      \
     }                                                                                              \
-  }
+  } while (false)
 
 int TestArraySerialization(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {

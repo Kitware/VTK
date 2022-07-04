@@ -36,6 +36,7 @@ vtkStandardNewMacro(vtkPWindBladeReader);
 // Reporting errors is more important with file I/O because, unlike network I/O,
 // they usually don't terminate the program.
 #define MPICall(funcall)                                                                           \
+  do                                                                                               \
   {                                                                                                \
     int __my_result = funcall;                                                                     \
     if (__my_result != MPI_SUCCESS)                                                                \
@@ -48,7 +49,7 @@ vtkStandardNewMacro(vtkPWindBladeReader);
                     << endl                                                                        \
                     << errormsg);                                                                  \
     }                                                                                              \
-  }
+  } while (false)
 
 class PWindBladeReaderInternal
 {

@@ -18,12 +18,15 @@
 #include "vtkProgrammableElectronicData.h"
 
 #define CHECK_MO(num)                                                                              \
-  if (ed->GetMO(num) != mo##num)                                                                   \
+  do                                                                                               \
   {                                                                                                \
-    cerr << "MO number " << (num) << " has changed since being set: "                              \
-         << "Expected @" << mo##num << ", got @" << ed->GetMO(num) << ".\n";                       \
-    return EXIT_FAILURE;                                                                           \
-  }
+    if (ed->GetMO(num) != mo##num)                                                                 \
+    {                                                                                              \
+      cerr << "MO number " << (num) << " has changed since being set: "                            \
+           << "Expected @" << mo##num << ", got @" << ed->GetMO(num) << ".\n";                     \
+      return EXIT_FAILURE;                                                                         \
+    }                                                                                              \
+  } while (false)
 
 int TestProgrammableElectronicData(int, char*[])
 {

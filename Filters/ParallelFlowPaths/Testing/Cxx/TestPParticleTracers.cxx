@@ -32,13 +32,16 @@
 #include <vector>
 
 #define EXPECT(expected, actual, msg, so)                                                          \
-  if (!(expected == actual))                                                                       \
+  do                                                                                               \
   {                                                                                                \
-    vtkGenericWarningMacro(<< msg << " Expecting a value of " << expected                          \
-                           << " but getting a value of " << actual << " for static option of "     \
-                           << so);                                                                 \
-    return EXIT_FAILURE;                                                                           \
-  }
+    if (!(expected == actual))                                                                     \
+    {                                                                                              \
+      vtkGenericWarningMacro(<< msg << " Expecting a value of " << expected                        \
+                             << " but getting a value of " << actual << " for static option of "   \
+                             << so);                                                               \
+      return EXIT_FAILURE;                                                                         \
+    }                                                                                              \
+  } while (false)
 
 class TestTimeSource : public vtkAlgorithm
 {

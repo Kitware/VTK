@@ -23,11 +23,14 @@
 #define TEST_FAILED 1
 
 #define vtk_assert(x)                                                                              \
-  if (!(x))                                                                                        \
+  do                                                                                               \
   {                                                                                                \
-    cerr << "ERROR: Condition FAILED!! : " << #x << endl;                                          \
-    return TEST_FAILED;                                                                            \
-  }
+    if (!(x))                                                                                      \
+    {                                                                                              \
+      cerr << "ERROR: Condition FAILED!! : " << #x << endl;                                        \
+      return TEST_FAILED;                                                                          \
+    }                                                                                              \
+  } while (false)
 
 int Validate(vtkOverlappingAMR* input, vtkOverlappingAMR* result)
 {

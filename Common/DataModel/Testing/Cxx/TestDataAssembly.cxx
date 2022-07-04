@@ -40,11 +40,14 @@ struct TestFailed : public std::exception
 }
 
 #define VERIFY(x)                                                                                  \
-  if (!(x))                                                                                        \
+  do                                                                                               \
   {                                                                                                \
-    vtkLogF(ERROR, "Failed test '%s'", #x);                                                        \
-    throw TestFailed{};                                                                            \
-  }
+    if (!(x))                                                                                      \
+    {                                                                                              \
+      vtkLogF(ERROR, "Failed test '%s'", #x);                                                      \
+      throw TestFailed{};                                                                          \
+    }                                                                                              \
+  } while (false)
 
 int TestDataAssembly(int, char*[])
 {

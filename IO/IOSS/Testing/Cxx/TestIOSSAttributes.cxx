@@ -36,15 +36,18 @@ static std::string GetFileName(int argc, char* argv[], const char* fnameC)
 }
 
 #define VERIFY(x, y)                                                                               \
-  if ((x) == false)                                                                                \
+  do                                                                                               \
   {                                                                                                \
-    vtkLogF(ERROR, "%s -- failed!", (y));                                                          \
-    return EXIT_FAILURE;                                                                           \
-  }                                                                                                \
-  else                                                                                             \
-  {                                                                                                \
-    vtkLogF(1, "%s -- success", (y));                                                              \
-  }
+    if ((x) == false)                                                                              \
+    {                                                                                              \
+      vtkLogF(ERROR, "%s -- failed!", (y));                                                        \
+      return EXIT_FAILURE;                                                                         \
+    }                                                                                              \
+    else                                                                                           \
+    {                                                                                              \
+      vtkLogF(1, "%s -- success", (y));                                                            \
+    }                                                                                              \
+  } while (false)
 
 int TestIOSSAttributes(int argc, char* argv[])
 {

@@ -108,24 +108,27 @@ bool testCellIterator(vtkCellIterator* iter, vtkUnstructuredGrid* grid)
 }
 
 #define TEST_ITERATOR(iter_, className_)                                                           \
-  if (std::string(#className_) != std::string(iter->GetClassName()))                               \
+  do                                                                                               \
   {                                                                                                \
-    cerr << "Unexpected iterator type (expected " #className_ ", got " << (iter_)->GetClassName()  \
-         << ")" << endl;                                                                           \
-    return false;                                                                                  \
-  }                                                                                                \
+    if (std::string(#className_) != std::string(iter->GetClassName()))                             \
+    {                                                                                              \
+      cerr << "Unexpected iterator type (expected " #className_ ", got "                           \
+           << (iter_)->GetClassName() << ")" << endl;                                              \
+      return false;                                                                                \
+    }                                                                                              \
                                                                                                    \
-  if (!testCellIterator(iter_, grid))                                                              \
-  {                                                                                                \
-    cerr << #className_ << " test failed." << endl;                                                \
-    return false;                                                                                  \
-  }                                                                                                \
+    if (!testCellIterator(iter_, grid))                                                            \
+    {                                                                                              \
+      cerr << #className_ << " test failed." << endl;                                              \
+      return false;                                                                                \
+    }                                                                                              \
                                                                                                    \
-  if (!testCellIterator(iter_, grid))                                                              \
-  {                                                                                                \
-    cerr << #className_ << " test failed after rewind." << endl;                                   \
-    return false;                                                                                  \
-  }
+    if (!testCellIterator(iter_, grid))                                                            \
+    {                                                                                              \
+      cerr << #className_ << " test failed after rewind." << endl;                                 \
+      return false;                                                                                \
+    }                                                                                              \
+  } while (false)
 
 bool runValidation(vtkUnstructuredGrid* grid)
 {

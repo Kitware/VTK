@@ -574,7 +574,7 @@
   object->SetPlaceFactor(0.5);                                                                     \
   object->SetHandleSize(0.05);                                                                     \
   std::cout << "Done basic rep methods" << std::endl;                                              \
-  EXERCISE_BASIC_PROP_METHODS(className, object);
+  EXERCISE_BASIC_PROP_METHODS(className, object)
 
 /// test vtkAngleRepresentation methods
 #define EXERCISE_BASIC_ANGLE_REPRESENTATION_METHODS(className, object)                             \

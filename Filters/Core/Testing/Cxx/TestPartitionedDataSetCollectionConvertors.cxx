@@ -26,11 +26,14 @@
 
 #include <vector>
 #define VERIFY(x)                                                                                  \
-  if (!(x))                                                                                        \
+  do                                                                                               \
   {                                                                                                \
-    vtkLogF(ERROR, "Check Failed: '%s'", #x);                                                      \
-    return EXIT_FAILURE;                                                                           \
-  }
+    if (!(x))                                                                                      \
+    {                                                                                              \
+      vtkLogF(ERROR, "Check Failed: '%s'", #x);                                                    \
+      return EXIT_FAILURE;                                                                         \
+    }                                                                                              \
+  } while (false)
 
 int TestPartitionedDataSetCollectionConvertors(int argc, char* argv[])
 {

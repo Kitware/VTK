@@ -108,20 +108,25 @@ const int vtkPKdTree::RoundRobinAssignment = 3;
     list = nullptr;                                                                                \
   } while (false)
 #define FreeObject(item)                                                                           \
-  if (item)                                                                                        \
+  do                                                                                               \
   {                                                                                                \
-    item->Delete();                                                                                \
-    item = nullptr;                                                                                \
-  }
+    if (item)                                                                                      \
+    {                                                                                              \
+      item->Delete();                                                                              \
+      item = nullptr;                                                                              \
+    }                                                                                              \
+  } while (false)
 
 #define VTKERROR(s)                                                                                \
+  do                                                                                               \
   {                                                                                                \
     vtkErrorMacro(<< "(process " << this->MyId << ") " << s);                                      \
-  }
+  } while (false)
 #define VTKWARNING(s)                                                                              \
+  do                                                                                               \
   {                                                                                                \
     vtkWarningMacro(<< "(process " << this->MyId << ") " << s);                                    \
-  }
+  } while (false)
 
 vtkPKdTree::vtkPKdTree()
 {
@@ -287,6 +292,7 @@ void vtkPKdTree::AllCheckParameters()
 }
 
 #define BoundsToMinMax(bounds, min, max)                                                           \
+  do                                                                                               \
   {                                                                                                \
     min[0] = bounds[0];                                                                            \
     min[1] = bounds[2];                                                                            \
@@ -294,8 +300,9 @@ void vtkPKdTree::AllCheckParameters()
     max[0] = bounds[1];                                                                            \
     max[1] = bounds[3];                                                                            \
     max[2] = bounds[5];                                                                            \
-  }
+  } while (false)
 #define MinMaxToBounds(bounds, min, max)                                                           \
+  do                                                                                               \
   {                                                                                                \
     bounds[0] = min[0];                                                                            \
     bounds[2] = min[1];                                                                            \
@@ -303,8 +310,9 @@ void vtkPKdTree::AllCheckParameters()
     bounds[1] = max[0];                                                                            \
     bounds[3] = max[1];                                                                            \
     bounds[5] = max[2];                                                                            \
-  }
+  } while (false)
 #define BoundsToMinMaxUpdate(bounds, min, max)                                                     \
+  do                                                                                               \
   {                                                                                                \
     min[0] = (bounds[0] < min[0] ? bounds[0] : min[0]);                                            \
     min[1] = (bounds[2] < min[1] ? bounds[2] : min[1]);                                            \
@@ -312,7 +320,7 @@ void vtkPKdTree::AllCheckParameters()
     max[0] = (bounds[1] > max[0] ? bounds[1] : max[0]);                                            \
     max[1] = (bounds[3] > max[1] ? bounds[3] : max[1]);                                            \
     max[2] = (bounds[5] > max[2] ? bounds[5] : max[2]);                                            \
-  }
+  } while (false)
 
 bool vtkPKdTree::VolumeBounds(double* volBounds)
 {
@@ -617,6 +625,7 @@ typedef struct vtkNodeInfo_
 } * vtkNodeInfo;
 
 #define ENQUEUE(a, b, c, d)                                                                        \
+  do                                                                                               \
   {                                                                                                \
     vtkNodeInfo rec = new struct vtkNodeInfo_;                                                     \
     rec->kd = a;                                                                                   \
@@ -624,7 +633,7 @@ typedef struct vtkNodeInfo_
     rec->level = c;                                                                                \
     rec->tag = d;                                                                                  \
     Queue.push(rec);                                                                               \
-  }
+  } while (false)
 
 int vtkPKdTree::BreadthFirstDivide(double* volBounds)
 {

@@ -824,9 +824,12 @@ void vtkOpenGLProjectedTetrahedraMapper::ProjectTetrahedra(
       }
 
 #define VEC3SUB(Z, X, Y)                                                                           \
-  (Z)[0] = (X)[0] - (Y)[0];                                                                        \
-  (Z)[1] = (X)[1] - (Y)[1];                                                                        \
-  (Z)[2] = (X)[2] - (Y)[2];
+  do                                                                                               \
+  {                                                                                                \
+    (Z)[0] = (X)[0] - (Y)[0];                                                                      \
+    (Z)[1] = (X)[1] - (Y)[1];                                                                      \
+    (Z)[2] = (X)[2] - (Y)[2];                                                                      \
+  } while (false)
 #define P1 (tet_points + 3 * segment1[0])
 #define P2 (tet_points + 3 * segment1[1])
 #define P3 (tet_points + 3 * segment2[0])

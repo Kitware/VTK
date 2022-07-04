@@ -2923,12 +2923,15 @@ int vtkLSDynaReader::ReadSPHState(vtkIdType vtkNotUsed(step))
   p->Fam.SkipWords(p->SPHStateOffset);
 
 #define VTK_LS_SPHARRAY(cond, celltype, arrayname, numComps)                                       \
-  if ((cond) && this->GetCellArrayStatus(celltype, arrayname))                                     \
+  do                                                                                               \
   {                                                                                                \
-    this->Parts->AddProperty(celltype, arrayname, startPos, numComps);                             \
-  }                                                                                                \
-  if (cond)                                                                                        \
-    startPos += (numComps);
+    if ((cond) && this->GetCellArrayStatus(celltype, arrayname))                                   \
+    {                                                                                              \
+      this->Parts->AddProperty(celltype, arrayname, startPos, numComps);                           \
+    }                                                                                              \
+    if (cond)                                                                                      \
+      startPos += (numComps);                                                                      \
+  } while (false)
 
   // Smooth Particle ========================================================
 
@@ -3107,31 +3110,34 @@ void vtkLSDynaReader::ResetPartInfo()
   int arbitraryMaterials = p->Dict["NSORT"] < 0 ? 1 : 0;
 
 #define VTK_LSDYNA_PARTLABEL(dict, fmt)                                                            \
-  N = p->Dict[dict];                                                                               \
-  for (i = 0; i < N; ++i, ++mat)                                                                   \
+  do                                                                                               \
   {                                                                                                \
-    if (arbitraryMaterials)                                                                        \
+    N = p->Dict[dict];                                                                             \
+    for (i = 0; i < N; ++i, ++mat)                                                                 \
     {                                                                                              \
-      if (mat < static_cast<int>(p->MaterialsOrdered.size()))                                      \
+      if (arbitraryMaterials)                                                                      \
       {                                                                                            \
-        realMat = p->MaterialsOrdered[mat - 1];                                                    \
+        if (mat < static_cast<int>(p->MaterialsOrdered.size()))                                    \
+        {                                                                                          \
+          realMat = p->MaterialsOrdered[mat - 1];                                                  \
+        }                                                                                          \
+        else                                                                                       \
+        {                                                                                          \
+          realMat = mat;                                                                           \
+        }                                                                                          \
+        snprintf(partLabel, sizeof(partLabel), fmt " (Matl%d)", mat, realMat);                     \
       }                                                                                            \
       else                                                                                         \
       {                                                                                            \
         realMat = mat;                                                                             \
+        snprintf(partLabel, sizeof(partLabel), fmt, mat);                                          \
       }                                                                                            \
-      snprintf(partLabel, sizeof(partLabel), fmt " (Matl%d)", mat, realMat);                       \
+      p->PartNames.emplace_back(partLabel);                                                        \
+      p->PartIds.emplace_back(realMat);                                                            \
+      p->PartMaterials.emplace_back(mat);                                                          \
+      p->PartStatus.emplace_back(1);                                                               \
     }                                                                                              \
-    else                                                                                           \
-    {                                                                                              \
-      realMat = mat;                                                                               \
-      snprintf(partLabel, sizeof(partLabel), fmt, mat);                                            \
-    }                                                                                              \
-    p->PartNames.emplace_back(partLabel);                                                          \
-    p->PartIds.emplace_back(realMat);                                                              \
-    p->PartMaterials.emplace_back(mat);                                                            \
-    p->PartStatus.emplace_back(1);                                                                 \
-  }
+  } while (false)
 
   VTK_LSDYNA_PARTLABEL("NUMMAT8", "Part%d"); // was "PartSolid%d
   VTK_LSDYNA_PARTLABEL("NUMMATT", "Part%d"); // was "PartThickShell%d

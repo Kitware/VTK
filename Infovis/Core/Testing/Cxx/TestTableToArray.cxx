@@ -34,10 +34,11 @@
 #define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
 #define test_expression(expression)                                                                \
+  do                                                                                               \
   {                                                                                                \
     if (!(expression))                                                                             \
       throw std::runtime_error("Expression failed: " #expression);                                 \
-  }
+  } while (false)
 
 int TestTableToArray(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {

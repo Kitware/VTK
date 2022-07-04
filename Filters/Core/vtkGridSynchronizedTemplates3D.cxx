@@ -321,35 +321,38 @@ void ComputeGridPointGradient(
 
 //------------------------------------------------------------------------------
 #define VTK_CSP3PA(i2, j2, k2, s, p, grad, norm)                                                   \
-  if (NeedGradients)                                                                               \
+  do                                                                                               \
   {                                                                                                \
-    if (!g0)                                                                                       \
+    if (NeedGradients)                                                                             \
     {                                                                                              \
-      ComputeGridPointGradient(i, j, k, inExt, incY, incZ, s0, p0, n0);                            \
-      g0 = 1;                                                                                      \
+      if (!g0)                                                                                     \
+      {                                                                                            \
+        ComputeGridPointGradient(i, j, k, inExt, incY, incZ, s0, p0, n0);                          \
+        g0 = 1;                                                                                    \
+      }                                                                                            \
+      ComputeGridPointGradient(i2, j2, k2, inExt, incY, incZ, s, p, n1);                           \
+      for (jj = 0; jj < 3; jj++)                                                                   \
+      {                                                                                            \
+        grad[jj] = n0[jj] + t * (n1[jj] - n0[jj]);                                                 \
+      }                                                                                            \
+      if (ComputeGradients)                                                                        \
+      {                                                                                            \
+        newGradients->InsertNextTuple(grad);                                                       \
+      }                                                                                            \
+      if (ComputeNormals)                                                                          \
+      {                                                                                            \
+        norm[0] = -grad[0];                                                                        \
+        norm[1] = -grad[1];                                                                        \
+        norm[2] = -grad[2];                                                                        \
+        vtkMath::Normalize(norm);                                                                  \
+        newNormals->InsertNextTuple(norm);                                                         \
+      }                                                                                            \
     }                                                                                              \
-    ComputeGridPointGradient(i2, j2, k2, inExt, incY, incZ, s, p, n1);                             \
-    for (jj = 0; jj < 3; jj++)                                                                     \
+    if (ComputeScalars)                                                                            \
     {                                                                                              \
-      grad[jj] = n0[jj] + t * (n1[jj] - n0[jj]);                                                   \
+      newScalars->InsertNextTuple(&value);                                                         \
     }                                                                                              \
-    if (ComputeGradients)                                                                          \
-    {                                                                                              \
-      newGradients->InsertNextTuple(grad);                                                         \
-    }                                                                                              \
-    if (ComputeNormals)                                                                            \
-    {                                                                                              \
-      norm[0] = -grad[0];                                                                          \
-      norm[1] = -grad[1];                                                                          \
-      norm[2] = -grad[2];                                                                          \
-      vtkMath::Normalize(norm);                                                                    \
-      newNormals->InsertNextTuple(norm);                                                           \
-    }                                                                                              \
-  }                                                                                                \
-  if (ComputeScalars)                                                                              \
-  {                                                                                                \
-    newScalars->InsertNextTuple(&value);                                                           \
-  }
+  } while (false)
 
 namespace
 {

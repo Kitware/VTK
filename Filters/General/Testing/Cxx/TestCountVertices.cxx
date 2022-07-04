@@ -113,6 +113,7 @@ int TestCountVertices(int, char*[])
   }
 
 #define TEST_VERTICES(idx, expected)                                                               \
+  do                                                                                               \
   {                                                                                                \
     vtkIdType numVerts = verts->GetTypedComponent(idx, 0);                                         \
     if (numVerts != (expected))                                                                    \
@@ -121,7 +122,7 @@ int TestCountVertices(int, char*[])
                 << " vertices, but found " << numVerts << "\n";                                    \
       return EXIT_FAILURE;                                                                         \
     }                                                                                              \
-  }
+  } while (false)
 
   int idx = 0;
   // VTK_VERTEX = 1

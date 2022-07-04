@@ -20,11 +20,14 @@
 #include <limits>
 
 #define TestBoundingBoxFailMacro(b, msg)                                                           \
-  if (!(b))                                                                                        \
+  do                                                                                               \
   {                                                                                                \
-    std::cerr << msg << std::endl;                                                                 \
-    return EXIT_FAILURE;                                                                           \
-  }
+    if (!(b))                                                                                      \
+    {                                                                                              \
+      std::cerr << msg << std::endl;                                                               \
+      return EXIT_FAILURE;                                                                         \
+    }                                                                                              \
+  } while (false)
 
 int TestBoundingBox(int, char*[])
 {

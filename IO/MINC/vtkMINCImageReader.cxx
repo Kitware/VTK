@@ -318,6 +318,7 @@ int vtkMINCImageReader::CloseNetCDFFile(int ncid)
 //------------------------------------------------------------------------------
 // this is a macro so the vtkErrorMacro will report a useful line number
 #define vtkMINCImageReaderFailAndClose(ncid, status)                                               \
+  do                                                                                               \
   {                                                                                                \
     if ((status) != NC_NOERR)                                                                      \
     {                                                                                              \
@@ -326,7 +327,7 @@ int vtkMINCImageReader::CloseNetCDFFile(int ncid)
         << nc_strerror(status));                                                                   \
     }                                                                                              \
     nc_close(ncid);                                                                                \
-  }
+  } while (false)
 
 //------------------------------------------------------------------------------
 // Function for getting VTK dimension index from the dimension name.

@@ -46,7 +46,11 @@
 #include <vector>
 
 // Update progress only on root node.
-#define COUT(msg) vtkLogIf(INFO, controller->GetLocalProcessId() == 0, "" msg);
+#define COUT(msg)                                                                                  \
+  do                                                                                               \
+  {                                                                                                \
+    vtkLogIf(INFO, controller->GetLocalProcessId() == 0, "" msg);                                  \
+  } while (false)
 
 //=============================================================================
 // A simple structure for passing data in and out of the parallel function.

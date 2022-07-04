@@ -313,15 +313,18 @@ vtkActor* vtkResliceCursorActor::GetCenterlineActor(int axis)
 //------------------------------------------------------------------------------
 // Prints an object if it exists.
 #define vtkPrintMemberObjectMacro(obj, os, indent)                                                 \
-  os << (indent) << #obj << ": ";                                                                  \
-  if (this->obj)                                                                                   \
+  do                                                                                               \
   {                                                                                                \
-    os << this->obj << "\n";                                                                       \
-  }                                                                                                \
-  else                                                                                             \
-  {                                                                                                \
-    os << "(null)\n";                                                                              \
-  }
+    os << (indent) << #obj << ": ";                                                                \
+    if (this->obj)                                                                                 \
+    {                                                                                              \
+      os << this->obj << "\n";                                                                     \
+    }                                                                                              \
+    else                                                                                           \
+    {                                                                                              \
+      os << "(null)\n";                                                                            \
+    }                                                                                              \
+  } while (false)
 
 //------------------------------------------------------------------------------
 void vtkResliceCursorActor::PrintSelf(ostream& os, vtkIndent indent)

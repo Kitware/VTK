@@ -212,35 +212,38 @@ void vtkSTComputePointGradient(int i, int j, int k, T* s, int* inExt, vtkIdType 
 
 //------------------------------------------------------------------------------
 #define VTK_CSP3PA(i2, j2, k2, s)                                                                  \
-  if (NeedGradients)                                                                               \
+  do                                                                                               \
   {                                                                                                \
-    if (!g0)                                                                                       \
+    if (NeedGradients)                                                                             \
     {                                                                                              \
-      vtkSTComputePointGradient(i, j, k, s0, inExt, xInc, yInc, zInc, spacing, n0);                \
-      g0 = 1;                                                                                      \
+      if (!g0)                                                                                     \
+      {                                                                                            \
+        vtkSTComputePointGradient(i, j, k, s0, inExt, xInc, yInc, zInc, spacing, n0);              \
+        g0 = 1;                                                                                    \
+      }                                                                                            \
+      vtkSTComputePointGradient(i2, j2, k2, s, inExt, xInc, yInc, zInc, spacing, n1);              \
+      for (jj = 0; jj < 3; jj++)                                                                   \
+      {                                                                                            \
+        n[jj] = n0[jj] + t * (n1[jj] - n0[jj]);                                                    \
+      }                                                                                            \
+      if (ComputeGradients)                                                                        \
+      {                                                                                            \
+        newGradients->InsertNextTuple(n);                                                          \
+      }                                                                                            \
+      if (ComputeNormals)                                                                          \
+      {                                                                                            \
+        vtkMath::Normalize(n);                                                                     \
+        n[0] = -n[0];                                                                              \
+        n[1] = -n[1];                                                                              \
+        n[2] = -n[2];                                                                              \
+        newNormals->InsertNextTuple(n);                                                            \
+      }                                                                                            \
     }                                                                                              \
-    vtkSTComputePointGradient(i2, j2, k2, s, inExt, xInc, yInc, zInc, spacing, n1);                \
-    for (jj = 0; jj < 3; jj++)                                                                     \
+    if (ComputeScalars)                                                                            \
     {                                                                                              \
-      n[jj] = n0[jj] + t * (n1[jj] - n0[jj]);                                                      \
+      newScalars->InsertNextTuple(&value);                                                         \
     }                                                                                              \
-    if (ComputeGradients)                                                                          \
-    {                                                                                              \
-      newGradients->InsertNextTuple(n);                                                            \
-    }                                                                                              \
-    if (ComputeNormals)                                                                            \
-    {                                                                                              \
-      vtkMath::Normalize(n);                                                                       \
-      n[0] = -n[0];                                                                                \
-      n[1] = -n[1];                                                                                \
-      n[2] = -n[2];                                                                                \
-      newNormals->InsertNextTuple(n);                                                              \
-    }                                                                                              \
-  }                                                                                                \
-  if (ComputeScalars)                                                                              \
-  {                                                                                                \
-    newScalars->InsertNextTuple(&value);                                                           \
-  }
+  } while (false)
 
 //------------------------------------------------------------------------------
 //

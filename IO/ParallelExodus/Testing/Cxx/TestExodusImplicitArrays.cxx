@@ -11,7 +11,7 @@
 #include <vtkTestUtilities.h>
 #include <vtkTesting.h>
 
-#define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New();
+#define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
 int TestExodusImplicitArrays(int argc, char* argv[])
 {

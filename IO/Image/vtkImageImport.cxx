@@ -30,18 +30,21 @@
 vtkStandardNewMacro(vtkImageImport);
 
 #define tryCatchMacro(invocation, messagePrepend)                                                  \
-  try                                                                                              \
+  do                                                                                               \
   {                                                                                                \
-    invocation;                                                                                    \
-  }                                                                                                \
-  catch (std::exception & _e)                                                                      \
-  {                                                                                                \
-    vtkErrorMacro(<< messagePrepend << _e.what());                                                 \
-  }                                                                                                \
-  catch (...)                                                                                      \
-  {                                                                                                \
-    vtkErrorMacro(<< "Unknown exception.");                                                        \
-  }
+    try                                                                                            \
+    {                                                                                              \
+      invocation;                                                                                  \
+    }                                                                                              \
+    catch (std::exception & _e)                                                                    \
+    {                                                                                              \
+      vtkErrorMacro(<< messagePrepend << _e.what());                                               \
+    }                                                                                              \
+    catch (...)                                                                                    \
+    {                                                                                              \
+      vtkErrorMacro(<< "Unknown exception.");                                                      \
+    }                                                                                              \
+  } while (false)
 
 //------------------------------------------------------------------------------
 vtkImageImport::vtkImageImport()

@@ -22,15 +22,18 @@
 #include "vtkTable.h"
 
 #define GET_ARRAYS(arrays, out)                                                                    \
-  for (int cc = 0; cc < 10; ++cc)                                                                  \
+  do                                                                                               \
   {                                                                                                \
-    arrays[cc] = vtkArrayDownCast<vtkIntArray>(out->GetColumn(cc));                                \
-    if (arrays[cc] == nullptr)                                                                     \
+    for (int cc = 0; cc < 10; ++cc)                                                                \
     {                                                                                              \
-      vtkGenericWarningMacro(<< cc << ": one of the output arrays was zero - type change?");       \
-      return EXIT_FAILURE;                                                                         \
+      arrays[cc] = vtkArrayDownCast<vtkIntArray>(out->GetColumn(cc));                              \
+      if (arrays[cc] == nullptr)                                                                   \
+      {                                                                                            \
+        vtkGenericWarningMacro(<< cc << ": one of the output arrays was zero - type change?");     \
+        return EXIT_FAILURE;                                                                       \
+      }                                                                                            \
     }                                                                                              \
-  }
+  } while (false)
 
 int TestTableSplitColumnComponents(int, char*[])
 {

@@ -207,13 +207,16 @@ int TestCellValidator(int, char*[])
   vtkCellValidator::State state;
 
 #define CheckCell(cellPtr)                                                                         \
-  state = vtkCellValidator::Check(cellPtr, FLT_EPSILON);                                           \
-  if (state != vtkCellValidator::State::Valid)                                                     \
+  do                                                                                               \
   {                                                                                                \
-    cellPtr->Print(std::cout);                                                                     \
-    vtkCellValidator::PrintState(state, std::cout, vtkIndent(0));                                  \
-    return EXIT_FAILURE;                                                                           \
-  }
+    state = vtkCellValidator::Check(cellPtr, FLT_EPSILON);                                         \
+    if (state != vtkCellValidator::State::Valid)                                                   \
+    {                                                                                              \
+      cellPtr->Print(std::cout);                                                                   \
+      vtkCellValidator::PrintState(state, std::cout, vtkIndent(0));                                \
+      return EXIT_FAILURE;                                                                         \
+    }                                                                                              \
+  } while (false)
 
   CheckCell(emptyCell);
   CheckCell(vertex);

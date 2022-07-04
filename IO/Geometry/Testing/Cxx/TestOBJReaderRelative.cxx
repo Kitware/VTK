@@ -64,30 +64,42 @@ int TestOBJReaderRelative(int argc, char* argv[])
   vtkPolyData* data_abs = reader_abs->GetOutput();
 
 #define CHECK(obj, method)                                                                         \
-  if (obj##_rel->method != obj##_abs->method)                                                      \
+  do                                                                                               \
   {                                                                                                \
-    cerr << "Error: different values for " #obj "->" #method << endl;                              \
-    retVal = 1;                                                                                    \
-  }
+    if (obj##_rel->method != obj##_abs->method)                                                    \
+    {                                                                                              \
+      cerr << "Error: different values for " #obj "->" #method << endl;                            \
+      retVal = 1;                                                                                  \
+    }                                                                                              \
+  } while (false)
 #define CHECK_ARRAY(obj, idx)                                                                      \
-  if (obj##_rel[idx] != obj##_abs[idx])                                                            \
+  do                                                                                               \
   {                                                                                                \
-    cerr << "Error: different values for " #obj "[" << (idx) << "]" << endl;                       \
-    retVal = 1;                                                                                    \
-  }
+    if (obj##_rel[idx] != obj##_abs[idx])                                                          \
+    {                                                                                              \
+      cerr << "Error: different values for " #obj "[" << (idx) << "]" << endl;                     \
+      retVal = 1;                                                                                  \
+    }                                                                                              \
+  } while (false)
 #define CHECK_SCALAR(obj)                                                                          \
-  if (obj##_rel != obj##_abs)                                                                      \
+  do                                                                                               \
   {                                                                                                \
-    cerr << "Error: different values for " #obj << endl;                                           \
-    retVal = 1;                                                                                    \
-  }
+    if (obj##_rel != obj##_abs)                                                                    \
+    {                                                                                              \
+      cerr << "Error: different values for " #obj << endl;                                         \
+      retVal = 1;                                                                                  \
+    }                                                                                              \
+  } while (false)
 
 #define CHECK_ARRAY_EXISTS(array)                                                                  \
-  if (!(array))                                                                                    \
+  do                                                                                               \
   {                                                                                                \
-    cerr << "Array does not exist." << endl;                                                       \
-    retVal = 1;                                                                                    \
-  }
+    if (!(array))                                                                                  \
+    {                                                                                              \
+      cerr << "Array does not exist." << endl;                                                     \
+      retVal = 1;                                                                                  \
+    }                                                                                              \
+  } while (false)
 
   CHECK(data, GetNumberOfVerts());
   CHECK(data, GetNumberOfLines());

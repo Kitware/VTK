@@ -94,12 +94,15 @@ int TestVariantSerialization(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   }
 
 #define VTK_VARIANT_ARRAY_DATA_CHECK(Index, Function, Kind)                                        \
-  if (sourceArray->GetValue(Index).Function() != sinkArray->GetValue(Index).Function())            \
+  do                                                                                               \
   {                                                                                                \
-    cerr << Kind << " mismatch: \"" << sourceArray->GetValue(Index).Function() << "\" vs. \""      \
-         << sinkArray->GetValue(Index).Function() << "\".\n";                                      \
-    ++errors;                                                                                      \
-  }
+    if (sourceArray->GetValue(Index).Function() != sinkArray->GetValue(Index).Function())          \
+    {                                                                                              \
+      cerr << Kind << " mismatch: \"" << sourceArray->GetValue(Index).Function() << "\" vs. \""    \
+           << sinkArray->GetValue(Index).Function() << "\".\n";                                    \
+      ++errors;                                                                                    \
+    }                                                                                              \
+  } while (false)
 
   VTK_VARIANT_ARRAY_DATA_CHECK(0, ToChar, "Character");
   VTK_VARIANT_ARRAY_DATA_CHECK(1, ToFloat, "Float");

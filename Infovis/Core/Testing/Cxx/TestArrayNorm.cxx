@@ -32,10 +32,11 @@
 #include <stdexcept>
 
 #define test_expression(expression)                                                                \
+  do                                                                                               \
   {                                                                                                \
     if (!(expression))                                                                             \
       throw std::runtime_error("Expression failed: " #expression);                                 \
-  }
+  } while (false)
 
 static bool close_enough(const double lhs, const double rhs)
 {

@@ -228,11 +228,14 @@ private:
 vtkStandardNewMacro(TestTimeSource);
 
 #define EXPECT(a, msg)                                                                             \
-  if (!(a))                                                                                        \
+  do                                                                                               \
   {                                                                                                \
-    cerr << "Line " << __LINE__ << ":" << msg << endl;                                             \
-    return EXIT_FAILURE;                                                                           \
-  }
+    if (!(a))                                                                                      \
+    {                                                                                              \
+      cerr << "Line " << __LINE__ << ":" << msg << endl;                                           \
+      return EXIT_FAILURE;                                                                         \
+    }                                                                                              \
+  } while (false)
 
 int TestParticlePathFilter()
 {

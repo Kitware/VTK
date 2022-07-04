@@ -1224,11 +1224,11 @@ void CellTree<T>::GenerateRepresentation(int level, vtkPolyData* pd)
     }
   }
   // For each node, add the bbox to our polydata
-  for (size_t i = 0; i < bl.size(); i++)
+  for (auto const& b : bl)
   {
     double bounds[6];
-    bl[i].first.GetBounds(bounds);
-    AddBox(pd, bounds, bl[i].second);
+    b.first.GetBounds(bounds);
+    AddBox(pd, bounds, b.second);
   }
 }
 

@@ -212,37 +212,40 @@ void vtkRSTComputePointGradient(
 
 //------------------------------------------------------------------------------
 #define VTK_RECT_CSP3PA(i2, j2, k2, s)                                                             \
-  if (NeedGradients)                                                                               \
+  do                                                                                               \
   {                                                                                                \
-    if (!g0)                                                                                       \
+    if (NeedGradients)                                                                             \
     {                                                                                              \
-      self->ComputeSpacing(data, i, j, k, exExt, spacing);                                         \
-      vtkRSTComputePointGradient(i, j, k, s0, inExt, xInc, yInc, zInc, spacing, n0);               \
-      g0 = 1;                                                                                      \
+      if (!g0)                                                                                     \
+      {                                                                                            \
+        self->ComputeSpacing(data, i, j, k, exExt, spacing);                                       \
+        vtkRSTComputePointGradient(i, j, k, s0, inExt, xInc, yInc, zInc, spacing, n0);             \
+        g0 = 1;                                                                                    \
+      }                                                                                            \
+      self->ComputeSpacing(data, i2, j2, k2, exExt, spacing);                                      \
+      vtkRSTComputePointGradient(i2, j2, k2, s, inExt, xInc, yInc, zInc, spacing, n1);             \
+      for (jj = 0; jj < 3; jj++)                                                                   \
+      {                                                                                            \
+        n[jj] = n0[jj] + t * (n1[jj] - n0[jj]);                                                    \
+      }                                                                                            \
+      if (ComputeGradients)                                                                        \
+      {                                                                                            \
+        newGradients->InsertNextTuple(n);                                                          \
+      }                                                                                            \
+      if (ComputeNormals)                                                                          \
+      {                                                                                            \
+        vtkMath::Normalize(n);                                                                     \
+        n[0] = -n[0];                                                                              \
+        n[1] = -n[1];                                                                              \
+        n[2] = -n[2];                                                                              \
+        newNormals->InsertNextTuple(n);                                                            \
+      }                                                                                            \
     }                                                                                              \
-    self->ComputeSpacing(data, i2, j2, k2, exExt, spacing);                                        \
-    vtkRSTComputePointGradient(i2, j2, k2, s, inExt, xInc, yInc, zInc, spacing, n1);               \
-    for (jj = 0; jj < 3; jj++)                                                                     \
+    if (ComputeScalars)                                                                            \
     {                                                                                              \
-      n[jj] = n0[jj] + t * (n1[jj] - n0[jj]);                                                      \
+      newScalars->InsertNextTuple(&value);                                                         \
     }                                                                                              \
-    if (ComputeGradients)                                                                          \
-    {                                                                                              \
-      newGradients->InsertNextTuple(n);                                                            \
-    }                                                                                              \
-    if (ComputeNormals)                                                                            \
-    {                                                                                              \
-      vtkMath::Normalize(n);                                                                       \
-      n[0] = -n[0];                                                                                \
-      n[1] = -n[1];                                                                                \
-      n[2] = -n[2];                                                                                \
-      newNormals->InsertNextTuple(n);                                                              \
-    }                                                                                              \
-  }                                                                                                \
-  if (ComputeScalars)                                                                              \
-  {                                                                                                \
-    newScalars->InsertNextTuple(&value);                                                           \
-  }
+  } while (false)
 
 //------------------------------------------------------------------------------
 //

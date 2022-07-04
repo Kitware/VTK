@@ -23,11 +23,14 @@
 #include <cmath>
 
 #define vtk_assert(x)                                                                              \
-  if (!(x))                                                                                        \
+  do                                                                                               \
   {                                                                                                \
-    cerr << "On line " << __LINE__ << " ERROR: Condition FAILED!! : " << #x << endl;               \
-    return EXIT_FAILURE;                                                                           \
-  }
+    if (!(x))                                                                                      \
+    {                                                                                              \
+      cerr << "On line " << __LINE__ << " ERROR: Condition FAILED!! : " << #x << endl;             \
+      return EXIT_FAILURE;                                                                         \
+    }                                                                                              \
+  } while (false)
 
 int TestOutput(vtkMultiBlockDataSet* mb, double size)
 {

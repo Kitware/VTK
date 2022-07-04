@@ -32,6 +32,7 @@ vtkStandardNewMacro(vtkOBBTree);
 
 //------------------------------------------------------------------------------
 #define vtkCELLTRIANGLES(CELLPTIDS, TYPE, IDX, PTID0, PTID1, PTID2)                                \
+  do                                                                                               \
   {                                                                                                \
     switch (TYPE)                                                                                  \
     {                                                                                              \
@@ -50,7 +51,7 @@ vtkStandardNewMacro(vtkOBBTree);
       default:                                                                                     \
         PTID0 = PTID1 = PTID2 = -1;                                                                \
     }                                                                                              \
-  }
+  } while (false)
 
 //------------------------------------------------------------------------------
 vtkOBBNode::vtkOBBNode()

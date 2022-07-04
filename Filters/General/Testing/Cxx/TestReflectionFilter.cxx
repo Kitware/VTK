@@ -27,11 +27,14 @@
 #include <iostream>
 
 #define AssertMacro(b, cell)                                                                       \
-  if (!(b))                                                                                        \
+  do                                                                                               \
   {                                                                                                \
-    std::cerr << "Failed to reflect " << cell << std::endl;                                        \
-    return EXIT_FAILURE;                                                                           \
-  }
+    if (!(b))                                                                                      \
+    {                                                                                              \
+      std::cerr << "Failed to reflect " << cell << std::endl;                                      \
+      return EXIT_FAILURE;                                                                         \
+    }                                                                                              \
+  } while (false)
 
 int TestReflectionFilter(int, char*[])
 {

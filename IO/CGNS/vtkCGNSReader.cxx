@@ -138,12 +138,15 @@ public:
 };
 
 #define CGIOErrorSafe(x)                                                                           \
-  if (x != CG_OK)                                                                                  \
+  do                                                                                               \
   {                                                                                                \
-    char message[81];                                                                              \
-    cgio_error_message(message);                                                                   \
-    throw CGIOError(message);                                                                      \
-  }
+    if (x != CG_OK)                                                                                \
+    {                                                                                              \
+      char message[81];                                                                            \
+      cgio_error_message(message);                                                                 \
+      throw CGIOError(message);                                                                    \
+    }                                                                                              \
+  } while (false)
 
 //------------------------------------------------------------------------------
 /**

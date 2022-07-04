@@ -21,11 +21,15 @@
 #include "vtkXMLMultiBlockDataReader.h"
 
 #define Verify(x)                                                                                  \
-  if (!(x))                                                                                        \
+  do                                                                                               \
   {                                                                                                \
-    vtkLogF(ERROR, "check failed for " #x);                                                        \
-    return EXIT_FAILURE;                                                                           \
-  }
+    if (!(x))                                                                                      \
+    {                                                                                              \
+      vtkLogF(ERROR, "check failed for " #x);                                                      \
+      return EXIT_FAILURE;                                                                         \
+    }                                                                                              \
+  } while (false)
+
 int TestCompositeDataDisplayAttributes(int argc, char* argv[])
 {
   char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/mb_with_pieces.vtm");

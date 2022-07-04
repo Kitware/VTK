@@ -76,11 +76,14 @@
 #undef VTK_DBG_GLOM
 
 #define VTK_EXO_FUNC(funcall, errmsg)                                                              \
-  if ((funcall) < 0)                                                                               \
+  do                                                                                               \
   {                                                                                                \
-    vtkErrorMacro(errmsg);                                                                         \
-    return 1;                                                                                      \
-  }
+    if ((funcall) < 0)                                                                             \
+    {                                                                                              \
+      vtkErrorMacro(errmsg);                                                                       \
+      return 1;                                                                                    \
+    }                                                                                              \
+  } while (false)
 
 // ------------------------------------------------------------------- CONSTANTS
 static int obj_types[] = { EX_EDGE_BLOCK, EX_FACE_BLOCK, EX_ELEM_BLOCK, EX_NODE_SET, EX_EDGE_SET,

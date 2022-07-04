@@ -46,6 +46,7 @@
 
 //=============================================================================
 #define CALL_NETCDF(call)                                                                          \
+  do                                                                                               \
   {                                                                                                \
     int errorcode = call;                                                                          \
     if (errorcode != NC_NOERR)                                                                     \
@@ -53,14 +54,15 @@
       vtkErrorMacro(<< "netCDF Error: " << nc_strerror(errorcode));                                \
       return 0;                                                                                    \
     }                                                                                              \
-  }
+  } while (false)
 
 #define WRAP_NETCDF(call)                                                                          \
+  do                                                                                               \
   {                                                                                                \
     int errorcode = call;                                                                          \
     if (errorcode != NC_NOERR)                                                                     \
       return errorcode;                                                                            \
-  }
+  } while (false)
 
 #ifdef VTK_USE_64BIT_IDS
 #ifdef NC_INT64

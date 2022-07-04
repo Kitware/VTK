@@ -22,12 +22,15 @@
 
 // simple macro for performing tests
 #define TestAssert(t)                                                                              \
-  if (!(t))                                                                                        \
+  do                                                                                               \
   {                                                                                                \
-    cerr << "In " << __FILE__ << ":";                                                              \
-    cerr << " Test assertion failed line " << __LINE__ << ": " << #t << "\n";                      \
-    rval |= 1;                                                                                     \
-  }
+    if (!(t))                                                                                      \
+    {                                                                                              \
+      cerr << "In " << __FILE__ << ":";                                                            \
+      cerr << " Test assertion failed line " << __LINE__ << ": " << #t << "\n";                    \
+      rval |= 1;                                                                                   \
+    }                                                                                              \
+  } while (false)
 
 #define TestVector4d(t1, t2)                                                                       \
   TestAssert((vtkMathUtilities::FuzzyCompare<double>(t1[0], t2[0]) &&                              \

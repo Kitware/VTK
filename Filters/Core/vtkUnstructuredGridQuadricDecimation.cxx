@@ -164,7 +164,7 @@ public:
 // =============================================================================
 // Symmetric 4x4 Matrix class
 // Storing lower half
-#define SM4op(i, OP) result.values[i] = values[i] OP m.values[i];
+#define SM4op(i, OP) result.values[i] = values[i] OP m.values[i]
 
 class vtkUnstructuredGridQuadricDecimationSymMat4
 {

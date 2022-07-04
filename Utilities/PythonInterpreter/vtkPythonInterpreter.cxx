@@ -627,8 +627,8 @@ int vtkPythonInterpreter::PyMain(int argc, char** argv)
     {
       fprintf(stderr,
         "Fatal vtkpython error: "
-        "unable to decode the command line argument #%i\n",
-        static_cast<int>(i + 1));
+        "unable to decode the command line argument #%zu\n",
+        i + 1);
       return 1;
     }
 

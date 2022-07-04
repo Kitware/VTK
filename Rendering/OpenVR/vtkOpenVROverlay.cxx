@@ -139,9 +139,9 @@ void vtkOpenVROverlay::ReadCameraPoses(vtkXMLDataElement* topel)
   if (topel)
   {
     int numPoses = topel->GetNumberOfNestedElements();
-    for (size_t i = 0; i < numPoses; i++)
+    for (int i = 0; i < numPoses; i++)
     {
-      vtkXMLDataElement* el = topel->GetNestedElement(static_cast<int>(i));
+      vtkXMLDataElement* el = topel->GetNestedElement(i);
       int poseNum = 0;
       el->GetScalarAttribute("PoseNumber", poseNum);
       el->GetVectorAttribute("Position", 3, this->SavedCameraPoses[poseNum].Position);

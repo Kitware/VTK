@@ -179,7 +179,7 @@ bool vtkTransposeTableInternal::TransposeTable(vtkTable* inTable, vtkTable* outT
       vtkErrorWithObjectMacro(this->Parent, << "Unable to transpose column " << c);                \
       return false;                                                                                \
     }                                                                                              \
-    break;
+    break
 
       switch (column->GetDataType())
       {

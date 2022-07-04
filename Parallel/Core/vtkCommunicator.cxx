@@ -1529,7 +1529,7 @@ int vtkCommunicator::ReduceVoidArray(const void* sendBuffer, void* recvBuffer, v
 #define OP_CASE(id, opclass)                                                                       \
   case id:                                                                                         \
     opClass = new vtkCommunicator##opclass##Class;                                                 \
-    break;
+    break
 
   vtkCommunicator::Operation* opClass = nullptr;
 

@@ -29,6 +29,7 @@
 #include <stdexcept>
 
 #define test_expression(expression)                                                                \
+  do                                                                                               \
   {                                                                                                \
     if (!(expression))                                                                             \
     {                                                                                              \
@@ -36,7 +37,7 @@
       buffer << "Expression failed at line " << __LINE__ << ": " << #expression;                   \
       throw std::runtime_error(buffer.str());                                                      \
     }                                                                                              \
-  }
+  } while (false)
 
 // This test ensures that we handle denormalized floating-point numbers gracefully,
 // by truncating them to zero.  Otherwise, iostreams will refuse to load denormalized

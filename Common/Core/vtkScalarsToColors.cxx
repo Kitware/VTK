@@ -1485,10 +1485,13 @@ void vtkScalarsToColors::MapScalarsThroughTable2(void* inPtr, unsigned char* out
 // where 'array' is a vtkDataArray and
 //       'data' could be: array->GetVoidPointer(0)
 #define callForAnyType(array, call)                                                                \
-  switch (array->GetDataType())                                                                    \
+  do                                                                                               \
   {                                                                                                \
-    vtkTemplateMacro(call);                                                                        \
-  }
+    switch (array->GetDataType())                                                                  \
+    {                                                                                              \
+      vtkTemplateMacro(call);                                                                      \
+    }                                                                                              \
+  } while (false)
 
 //------------------------------------------------------------------------------
 vtkUnsignedCharArray* vtkScalarsToColors::ConvertToRGBA(
