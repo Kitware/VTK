@@ -50,12 +50,15 @@ vtkCxxSetSmartPointerMacro(vtkHyperTreeGridProbeFilter, Locator, vtkHyperTreeGri
 //------------------------------------------------------------------------------
 vtkHyperTreeGridProbeFilter::vtkHyperTreeGridProbeFilter()
   : Locator(vtkSmartPointer<vtkHyperTreeGridGeometricLocator>::New())
-  , ValidPointMaskArrayName(nullptr)
-  , ValidPoints(vtkSmartPointer<vtkIdTypeArray>::New())
-  , MaskPoints(nullptr)
 {
   this->SetNumberOfInputPorts(2);
   this->SetValidPointMaskArrayName("vtkValidPointMask");
+}
+
+//------------------------------------------------------------------------------
+vtkHyperTreeGridProbeFilter::~vtkHyperTreeGridProbeFilter()
+{
+  this->SetValidPointMaskArrayName(nullptr);
 }
 
 //------------------------------------------------------------------------------
@@ -136,21 +139,46 @@ int vtkHyperTreeGridProbeFilter::RequestInformation(vtkInformation* vtkNotUsed(r
 }
 
 //------------------------------------------------------------------------------
+int vtkHyperTreeGridProbeFilter::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
+{
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation* sourceInfo = inputVector[1]->GetInformationObject(0);
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
+
+  // the updating of ouput transfers directly into input while the source is entirely updated always
+  vtkDataObject* output = vtkDataObject::GetData(outInfo);
+  if (output && (output->IsA("vtkUnstructuredGrid") || output->IsA("vtkPolyData")))
+  {
+    inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(),
+      outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()));
+    inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(),
+      outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES()));
+    inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(),
+      outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS()));
+  }
+  else
+  {
+    inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
+      outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT()), 6);
+  }
+
+  sourceInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
+    sourceInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()), 6);
+  return 1;
+}
+
+//------------------------------------------------------------------------------
 int vtkHyperTreeGridProbeFilter::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   this->UpdateProgress(0.0);
 
-  // get the info objects
-  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
-  vtkInformation* sourceInfo = inputVector[1]->GetInformationObject(0);
-  vtkInformation* outInfo = outputVector->GetInformationObject(0);
-
   // get the input and output
-  vtkDataSet* input = vtkDataSet::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkDataSet* input = vtkDataSet::GetData(inputVector[0], 0);
   vtkHyperTreeGrid* source =
-    vtkHyperTreeGrid::SafeDownCast(sourceInfo->Get(vtkDataObject::DATA_OBJECT()));
-  vtkDataSet* output = vtkDataSet::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
+    vtkHyperTreeGrid::SafeDownCast(vtkDataObject::GetData(inputVector[1], 0));
+  vtkDataSet* output = vtkDataSet::GetData(outputVector, 0);
 
   if (!input || !source || !output)
   {
@@ -190,23 +218,53 @@ int vtkHyperTreeGridProbeFilter::RequestData(vtkInformation* vtkNotUsed(request)
 }
 
 //------------------------------------------------------------------------------
-int vtkHyperTreeGridProbeFilter::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
-  vtkInformationVector** inputVector, vtkInformationVector* vtkNotUsed(outputVector))
+bool vtkHyperTreeGridProbeFilter::Initialize(
+  vtkDataSet* input, vtkHyperTreeGrid* source, vtkDataSet* output)
 {
-  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
-  vtkInformation* sourceInfo = inputVector[1]->GetInformationObject(0);
+  output->Initialize();
 
-  inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(), 0);
-  inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(), 1);
-  inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(), 0);
+  output->CopyStructure(input);
 
-  sourceInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
-    sourceInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()), 6);
-  return 1;
+  if (!(this->PassAttributeData(input, output)))
+  {
+    vtkErrorMacro("Failed to pass attribute data from inpu to output");
+    return false;
+  }
+
+  unsigned int numSourceCellArrays = source->GetCellData()->GetNumberOfArrays();
+  for (unsigned int iA = 0; iA < numSourceCellArrays; iA++)
+  {
+    vtkDataArray* da = source->GetCellData()->GetArray(iA);
+    if (!(output->GetPointData()->HasArray(da->GetName())))
+    {
+      auto localInstance = vtk::TakeSmartPointer(da->NewInstance());
+      localInstance->SetName(da->GetName());
+      localInstance->SetNumberOfComponents(da->GetNumberOfComponents());
+      output->GetPointData()->AddArray(localInstance);
+      localInstance->Initialize();
+    }
+  }
+
+  this->Locator->SetHTG(source);
+
+  // if this is repeatedly called by the pipeline for a composite mesh,
+  // you need a new array for each block
+  // (that is you need to reinitialize the object)
+  this->MaskPoints = vtk::TakeSmartPointer(vtkCharArray::New());
+  this->MaskPoints->SetNumberOfComponents(1);
+  this->MaskPoints->SetNumberOfTuples(input->GetNumberOfPoints());
+  this->FillDefaultArray(this->MaskPoints);
+  this->MaskPoints->SetName(
+    this->ValidPointMaskArrayName ? this->ValidPointMaskArrayName : "vtkValidPointMask");
+  output->GetPointData()->AddArray(this->MaskPoints);
+
+  return true;
 }
 
+namespace
+{
 //------------------------------------------------------------------------------
-class vtkHyperTreeGridProbeFilter::ProbingWorklet
+class ProbingWorklet
 {
 public:
   vtkSmartPointer<vtkHyperTreeGridLocator> Locator;
@@ -254,10 +312,8 @@ public:
   void Reduce()
   {
     vtkIdType nPointsFound = 0;
-    for (auto it = this->ThreadLocal.begin(); it != this->ThreadLocal.end(); it++)
-    {
-      nPointsFound += it->pointIds.size();
-    }
+    std::for_each(this->ThreadLocal.begin(), this->ThreadLocal.end(),
+      [&nPointsFound](LocalData& ld) { nPointsFound += ld.pointIds.size(); });
     this->ThreadGlobPointIds->SetNumberOfIds(nPointsFound);
     this->ThreadGlobCellIds->SetNumberOfIds(nPointsFound);
     nPointsFound = 0;
@@ -268,12 +324,13 @@ public:
       std::copy(
         loc.cellIds.begin(), loc.cellIds.end(), this->ThreadGlobCellIds->begin() + nPointsFound);
       nPointsFound += loc.pointIds.size();
-      loc.pointIds.resize(0);
-      loc.cellIds.resize(0);
+      loc.pointIds.clear();
+      loc.cellIds.clear();
     };
     std::for_each(this->ThreadLocal.begin(), this->ThreadLocal.end(), mergeThreadResults);
   }
 };
+}
 
 //------------------------------------------------------------------------------
 bool vtkHyperTreeGridProbeFilter::DoProbing(
@@ -283,7 +340,7 @@ bool vtkHyperTreeGridProbeFilter::DoProbing(
   unsigned int nPoints = probe->GetNumberOfPoints();
   vtkNew<vtkIdList> locCellIds;
   locCellIds->Initialize();
-  ProbingWorklet worker(probe, this->Locator, localPointIds, locCellIds);
+  ::ProbingWorklet worker(probe, this->Locator, localPointIds, locCellIds);
   vtkSMPTools::For(0, nPoints, worker);
 
   // copy values from source
@@ -303,82 +360,9 @@ bool vtkHyperTreeGridProbeFilter::DoProbing(
 }
 
 //------------------------------------------------------------------------------
-bool vtkHyperTreeGridProbeFilter::Initialize(
-  vtkDataSet* input, vtkHyperTreeGrid* source, vtkDataSet* output)
-{
-  output->Initialize();
-
-  output->CopyStructure(input);
-
-  if (!(this->PassAttributeData(input, output)))
-  {
-    vtkErrorMacro("Failed to pass attribute data from inpu to output");
-    return false;
-  }
-
-  unsigned int numSourceCellArrays = source->GetCellData()->GetNumberOfArrays();
-  for (unsigned int iA = 0; iA < numSourceCellArrays; iA++)
-  {
-    vtkDataArray* da = source->GetCellData()->GetArray(iA);
-    if (!(output->GetPointData()->HasArray(da->GetName())))
-    {
-      auto localInstance = vtk::TakeSmartPointer(da->NewInstance());
-      localInstance->SetName(da->GetName());
-      localInstance->SetNumberOfComponents(da->GetNumberOfComponents());
-      output->GetPointData()->AddArray(localInstance);
-      localInstance->Initialize();
-    }
-  }
-
-  this->Locator->SetHTG(source);
-
-  // if this is repeatedly called by the pipeline for a composite mesh,
-  // you need a new array for each block
-  // (that is you need to reinitialize the object)
-  this->MaskPoints = vtk::TakeSmartPointer(vtkCharArray::New());
-  this->MaskPoints->SetNumberOfComponents(1);
-  this->MaskPoints->SetNumberOfTuples(input->GetNumberOfPoints());
-  this->FillDefaultArray(this->MaskPoints);
-  this->MaskPoints->SetName(
-    this->ValidPointMaskArrayName ? this->ValidPointMaskArrayName : "vtkValidPointMask");
-  output->GetPointData()->AddArray(this->MaskPoints);
-
-  return true;
-}
-
-//------------------------------------------------------------------------------
 bool vtkHyperTreeGridProbeFilter::Reduce(
   vtkHyperTreeGrid* source, vtkDataSet* output, vtkIdList* localPointIds)
 {
-  vtkIdType numPointsFound = localPointIds->GetNumberOfIds();
-
-  auto dealWithRemote = [&](vtkIdList* remotePointIds, vtkDataSet* remoteOutput,
-                          vtkHyperTreeGrid* source, vtkDataSet* totOutput) {
-    if (remotePointIds->GetNumberOfIds() > 0)
-    {
-      vtkNew<vtkIdList> iotaIds;
-      iotaIds->SetNumberOfIds(remotePointIds->GetNumberOfIds());
-      std::iota(iotaIds->begin(), iotaIds->end(), 0);
-      unsigned int numArrays = source->GetCellData()->GetNumberOfArrays();
-      for (unsigned int iA = 0; iA < numArrays; iA++)
-      {
-        vtkDataArray* remoteArray =
-          remoteOutput->GetPointData()->GetArray(source->GetCellData()->GetArray(iA)->GetName());
-        vtkDataArray* totArray =
-          totOutput->GetPointData()->GetArray(source->GetCellData()->GetArray(iA)->GetName());
-        totArray->InsertTuples(remotePointIds, iotaIds, remoteArray);
-      }
-      vtkNew<vtkCharArray> ones;
-      ones->SetNumberOfComponents(1);
-      ones->SetNumberOfTuples(remotePointIds->GetNumberOfIds());
-      auto range = vtk::DataArrayValueRange<1>(ones);
-      vtkSMPTools::Fill(range.begin(), range.end(), static_cast<char>(1));
-      totOutput->GetPointData()
-        ->GetArray(this->GetValidPointMaskArrayName())
-        ->InsertTuples(remotePointIds, iotaIds, ones);
-    }
-  };
-  vtkIdType numRemotePoints = 0;
   vtkSmartPointer<vtkDataSet> remoteOutput = vtk::TakeSmartPointer(output->NewInstance());
   vtkNew<vtkIdList> remotePointIds;
   // deal with master process
@@ -386,22 +370,51 @@ bool vtkHyperTreeGridProbeFilter::Reduce(
   unsigned int numArrays = source->GetCellData()->GetNumberOfArrays();
   for (unsigned int iA = 0; iA < numArrays; iA++)
   {
-    vtkDataArray* da =
-      output->GetPointData()->GetArray(source->GetCellData()->GetArray(iA)->GetName());
+    vtkAbstractArray* da = output->GetPointData()->GetAbstractArray(
+      source->GetCellData()->GetAbstractArray(iA)->GetName());
     auto localInstance = vtk::TakeSmartPointer(da->NewInstance());
     localInstance->DeepCopy(da);
     remoteOutput->GetPointData()->AddArray(localInstance);
     da->SetNumberOfTuples(output->GetNumberOfPoints());
     this->FillDefaultArray(da);
   }
-  dealWithRemote(localPointIds, remoteOutput, source, output);
+  this->DealWithRemote(localPointIds, remoteOutput, source, output);
   remoteOutput->Initialize();
 
   return true;
 }
 
 //------------------------------------------------------------------------------
-void vtkHyperTreeGridProbeFilter::FillDefaultArray(vtkDataArray* array) const
+void vtkHyperTreeGridProbeFilter::DealWithRemote(vtkIdList* remotePointIds,
+  vtkDataSet* remoteOutput, vtkHyperTreeGrid* source, vtkDataSet* totOutput)
+{
+  if (remotePointIds->GetNumberOfIds() > 0)
+  {
+    vtkNew<vtkIdList> iotaIds;
+    iotaIds->SetNumberOfIds(remotePointIds->GetNumberOfIds());
+    std::iota(iotaIds->begin(), iotaIds->end(), 0);
+    unsigned int numArrays = source->GetCellData()->GetNumberOfArrays();
+    for (unsigned int iA = 0; iA < numArrays; iA++)
+    {
+      vtkDataArray* remoteArray =
+        remoteOutput->GetPointData()->GetArray(source->GetCellData()->GetArray(iA)->GetName());
+      vtkDataArray* totArray =
+        totOutput->GetPointData()->GetArray(source->GetCellData()->GetArray(iA)->GetName());
+      totArray->InsertTuples(remotePointIds, iotaIds, remoteArray);
+    }
+    vtkNew<vtkCharArray> ones;
+    ones->SetNumberOfComponents(1);
+    ones->SetNumberOfTuples(remotePointIds->GetNumberOfIds());
+    auto range = vtk::DataArrayValueRange<1>(ones);
+    vtkSMPTools::Fill(range.begin(), range.end(), static_cast<char>(1));
+    totOutput->GetPointData()
+      ->GetArray(this->GetValidPointMaskArrayName())
+      ->InsertTuples(remotePointIds, iotaIds, ones);
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkHyperTreeGridProbeFilter::FillDefaultArray(vtkAbstractArray* array) const
 {
   if (auto* strArray = vtkStringArray::SafeDownCast(array))
   {
@@ -422,10 +435,15 @@ void vtkHyperTreeGridProbeFilter::FillDefaultArray(vtkDataArray* array) const
     auto range = vtk::DataArrayValueRange(floatArray);
     vtkSMPTools::Fill(range.begin(), range.end(), vtkMath::Nan());
   }
+  else if (auto* dArray = vtkDataArray::SafeDownCast(array))
+  {
+    auto range = vtk::DataArrayValueRange(dArray);
+    vtkSMPTools::Fill(range.begin(), range.end(), 0);
+  }
   else
   {
-    auto range = vtk::DataArrayValueRange(array);
-    vtkSMPTools::Fill(range.begin(), range.end(), 0);
+    vtkGenericWarningMacro("Array is not a vtkDataArray nor is it a vtkStringArray and will not be "
+                           "filled with default values.");
   }
 }
 

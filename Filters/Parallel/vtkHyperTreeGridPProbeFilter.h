@@ -68,6 +68,13 @@ protected:
 
   ///@{
   /**
+   * Overridden here because it is important that the input be updated on all processes
+   */
+  int RequestUpdateExtent(vtkInformation*, vtkInformationVector**, vtkInformationVector*);
+  ///@}
+
+  ///@{
+  /**
    * Helper method for reducing the distributed data to the master process
    */
   bool Reduce(vtkHyperTreeGrid* source, vtkDataSet* output, vtkIdList* localPointIds);

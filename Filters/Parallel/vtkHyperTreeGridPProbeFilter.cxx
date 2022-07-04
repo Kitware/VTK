@@ -63,6 +63,22 @@ void vtkHyperTreeGridPProbeFilter::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //------------------------------------------------------------------------------
+int vtkHyperTreeGridPProbeFilter::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* vtkNotUsed(outputVector))
+{
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation* sourceInfo = inputVector[1]->GetInformationObject(0);
+
+  inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(), 0);
+  inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(), 1);
+  inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(), 0);
+
+  sourceInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
+    sourceInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()), 6);
+  return 1;
+}
+
+//------------------------------------------------------------------------------
 bool vtkHyperTreeGridPProbeFilter::Reduce(
   vtkHyperTreeGrid* source, vtkDataSet* output, vtkIdList* localPointIds)
 {
@@ -89,32 +105,6 @@ bool vtkHyperTreeGridPProbeFilter::Reduce(
   }
   else
   {
-    auto dealWithRemote = [&](vtkIdList* remotePointIds, vtkDataSet* remoteOutput,
-                            vtkHyperTreeGrid* htgSource, vtkDataSet* totOutput) {
-      if (remotePointIds->GetNumberOfIds() > 0)
-      {
-        vtkNew<vtkIdList> iotaIds;
-        iotaIds->SetNumberOfIds(remotePointIds->GetNumberOfIds());
-        std::iota(iotaIds->begin(), iotaIds->end(), 0);
-        unsigned int numArrays = htgSource->GetCellData()->GetNumberOfArrays();
-        for (unsigned int iA = 0; iA < numArrays; iA++)
-        {
-          vtkDataArray* remoteArray = remoteOutput->GetPointData()->GetArray(
-            htgSource->GetCellData()->GetArray(iA)->GetName());
-          vtkDataArray* totArray =
-            totOutput->GetPointData()->GetArray(htgSource->GetCellData()->GetArray(iA)->GetName());
-          totArray->InsertTuples(remotePointIds, iotaIds, remoteArray);
-        }
-        vtkNew<vtkCharArray> ones;
-        ones->SetNumberOfComponents(1);
-        ones->SetNumberOfTuples(remotePointIds->GetNumberOfIds());
-        auto range = vtk::DataArrayValueRange<1>(ones);
-        vtkSMPTools::Fill(range.begin(), range.end(), static_cast<char>(1));
-        totOutput->GetPointData()
-          ->GetArray(this->GetValidPointMaskArrayName())
-          ->InsertTuples(remotePointIds, iotaIds, ones);
-      }
-    };
     vtkIdType numRemotePoints = 0;
     vtkSmartPointer<vtkDataSet> remoteOutput = vtk::TakeSmartPointer(output->NewInstance());
     vtkNew<vtkIdList> remotePointIds;
@@ -131,7 +121,7 @@ bool vtkHyperTreeGridPProbeFilter::Reduce(
       da->SetNumberOfTuples(output->GetNumberOfPoints());
       this->FillDefaultArray(da);
     }
-    dealWithRemote(localPointIds, remoteOutput, source, output);
+    this->DealWithRemote(localPointIds, remoteOutput, source, output);
     remoteOutput->Initialize();
 
     // deal with other processes
@@ -149,7 +139,7 @@ bool vtkHyperTreeGridPProbeFilter::Reduce(
           remotePointIds->SetNumberOfIds(numRemotePoints);
           this->Controller->Receive(remotePointIds->GetPointer(0), numRemotePoints, iProc,
             HYPERTREEGRID_PROBE_COMMUNICATION_TAG);
-          dealWithRemote(remotePointIds, remoteOutput, source, output);
+          this->DealWithRemote(remotePointIds, remoteOutput, source, output);
           remoteOutput->Initialize();
         }
       }

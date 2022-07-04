@@ -412,23 +412,21 @@ int vtkResampleWithDataSet::RequestData(vtkInformation* vtkNotUsed(request),
 }
 
 //------------------------------------------------------------------------------
-bool vtkResampleWithDataSet::CopyProberToHyperTreeGridProber(
+void vtkResampleWithDataSet::CopyProberToHyperTreeGridProber(
   vtkHyperTreeGridProbeFilter* htgProbe) const
 {
   htgProbe->SetPassCellArrays(this->Prober->GetPassCellArrays());
   htgProbe->SetPassPointArrays(this->Prober->GetPassPointArrays());
   htgProbe->SetPassFieldArrays(this->Prober->GetPassFieldArrays());
   htgProbe->SetValidPointMaskArrayName(this->Prober->GetValidPointMaskArrayName());
-  return true;
 }
 
 //------------------------------------------------------------------------------
-bool vtkResampleWithDataSet::ProbeHyperTreeGrid(
+void vtkResampleWithDataSet::ProbeHyperTreeGrid(
   vtkDataSet* input, vtkHyperTreeGrid* source, vtkHyperTreeGridProbeFilter* htgProbe)
 {
   this->CopyProberToHyperTreeGridProber(htgProbe);
   htgProbe->SetInputData(input);
   htgProbe->SetSourceData(source);
   htgProbe->Update();
-  return true;
 }

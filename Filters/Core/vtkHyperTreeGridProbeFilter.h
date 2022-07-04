@@ -14,7 +14,7 @@
 =========================================================================*/
 /**
  * @class   vtkHyperTreeGridProbeFilter
- * @brief   probe a vtkHyperTreeGrid
+ * @brief   Probe a vtkHyperTreeGrid
  *
  * Heavily modeled after the vtkProbeFilter, this class
  *  is meant to be used to probe vtkHyperTreeGrid objects.
@@ -26,6 +26,7 @@
 
 #include "vtkDataSetAlgorithm.h"
 #include "vtkFiltersCoreModule.h" //For export Macro
+#include "vtkNew.h"               //For init in header
 #include "vtkSmartPointer.h"      //For members
 
 class vtkCharArray;
@@ -123,7 +124,7 @@ protected:
    * Construction methods
    */
   vtkHyperTreeGridProbeFilter();
-  virtual ~vtkHyperTreeGridProbeFilter() { this->SetValidPointMaskArrayName(nullptr); };
+  ~vtkHyperTreeGridProbeFilter() override;
   ///@}
 
   ///@{
@@ -168,7 +169,13 @@ protected:
   /**
    * Helper method for filling arrays with default values
    */
-  void FillDefaultArray(vtkDataArray* da) const;
+  void FillDefaultArray(vtkAbstractArray* aa) const;
+
+  /**
+   * Helper method for dealing with arrays coming from remote locations during the reduce operation
+   */
+  void DealWithRemote(vtkIdList* remotePointIds, vtkDataSet* remoteOutput, vtkHyperTreeGrid* source,
+    vtkDataSet* totOutput);
   ///@}
 
   vtkSmartPointer<vtkHyperTreeGridLocator> Locator;
@@ -177,15 +184,14 @@ protected:
   vtkTypeBool PassPointArrays = false;
   vtkTypeBool PassFieldArrays = true;
 
-  char* ValidPointMaskArrayName;
-  vtkSmartPointer<vtkIdTypeArray> ValidPoints;
+  char* ValidPointMaskArrayName = nullptr;
+  vtkNew<vtkIdTypeArray> ValidPoints;
   vtkSmartPointer<vtkCharArray> MaskPoints;
 
 private:
   vtkHyperTreeGridProbeFilter(const vtkHyperTreeGridProbeFilter&) = delete;
   void operator=(const vtkHyperTreeGridProbeFilter&) = delete;
 
-  class ProbingWorklet;
 }; // vtkHyperTreeGridProbeFilter
 
 #endif // vtkHyperTreeGridProbeFilter_h

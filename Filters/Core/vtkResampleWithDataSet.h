@@ -200,17 +200,13 @@ protected:
 
   /**
    * Copy properties of Prober into HyperTreeGridProber if the source is a vtkHyperTreeGrid
-   *
-   * \return a boolean that indicates if the copy of properties went well or not
    */
-  bool CopyProberToHyperTreeGridProber(vtkHyperTreeGridProbeFilter*) const;
+  void CopyProberToHyperTreeGridProber(vtkHyperTreeGridProbeFilter*) const;
 
   /**
    * Run the probing of a vtkHyperTreeGrid source
-   *
-   * \return a boolean that indicates if the probe went well
    */
-  bool ProbeHyperTreeGrid(
+  void ProbeHyperTreeGrid(
     vtkDataSet* input, vtkHyperTreeGrid* source, vtkHyperTreeGridProbeFilter* htgProbe);
 
   vtkNew<vtkCompositeDataProbeFilter> Prober;

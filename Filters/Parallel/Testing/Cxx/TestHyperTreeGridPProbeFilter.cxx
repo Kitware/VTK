@@ -93,8 +93,7 @@ void MyProcess::Execute()
   prober->SetPassPointArrays(true);
 
   prober->Update();
-  prober->GetOutput()->GetPointData()->SetScalars(
-    prober->GetOutput()->GetPointData()->GetArray("Depth"));
+  prober->GetOutput()->GetPointData()->SetActiveScalars("Depth");
 
   vtkNew<vtkDataSetMapper> mapper;
   mapper->SetInputConnection(prober->GetOutputPort());

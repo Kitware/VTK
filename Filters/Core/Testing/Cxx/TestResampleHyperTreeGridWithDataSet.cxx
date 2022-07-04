@@ -56,7 +56,7 @@ int TestResampleHyperTreeGridWithDataSet(int argc, char* argv[])
 
   prober->Update();
   vtkDataSet* outDS = vtkDataSet::SafeDownCast(prober->GetOutput());
-  outDS->GetPointData()->SetScalars(outDS->GetPointData()->GetArray("Depth"));
+  outDS->GetPointData()->SetActiveScalars("Depth");
 
   vtkNew<vtkDataSetMapper> mapper;
   mapper->SetInputConnection(prober->GetOutputPort());
