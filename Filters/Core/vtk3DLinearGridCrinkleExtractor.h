@@ -20,7 +20,7 @@
  * specified implicit function, extracts unstructured grid cells that
  * intersect the implicit function. (Since the surface of these cells roughly
  * follows the implicit function but is "bumpy", it is referred to as a
- * "crinkle" suface.) This filter operates on vtkUnstructuredGrids consisting
+ * "crinkle" surface.) This filter operates on vtkUnstructuredGrids consisting
  * of 3D linear cells: tetrahedra, hexahedra, voxels, pyramids, and/or
  * wedges. (The cells are linear in the sense that each cell edge is a
  * straight line.)  The filter is designed for high-speed, specialized

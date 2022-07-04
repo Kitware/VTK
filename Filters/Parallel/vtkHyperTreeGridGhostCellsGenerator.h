@@ -87,8 +87,8 @@ protected:
    * @param indices An array produced by this filter mapping the nodes of the interface with their
    * location in the input data array.
    * @param grid Input vtkHyperTreeGrid used to have the neighborhood profile. This neighborhood
-   * profile is tested with the mask parameter to know wether to descend or not in the current hyper
-   * tree.
+   * profile is tested with the mask parameter to know whether to descend or not in the current
+   * hyper tree.
    * @param mask Input parameter which should be shaped as vtkHyperTreeGrid::GetChildMask() of the
    * input. This parameter is used to only descend on the interface with the other processes.
    * @param pos This parameter will be equal to the number of nodes in the hyper tree to send to the

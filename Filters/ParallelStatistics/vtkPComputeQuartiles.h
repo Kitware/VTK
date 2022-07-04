@@ -21,7 +21,7 @@ PURPOSE.  See the above copyright notice for more information.
  * @class   vtkPComputeQuartiles
  * @brief   A class for parallel univariate order statistics
  *
- * `vtkPComputeQuartiles` computes the quartiles of the input table in a a distributed
+ * `vtkPComputeQuartiles` computes the quartiles of the input table in a distributed
  * environment.
  *
  * @sa vtkPComputeQuartiles

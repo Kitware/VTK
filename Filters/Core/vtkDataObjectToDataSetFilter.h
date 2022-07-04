@@ -154,7 +154,7 @@ public:
    * that no normalization of the data is possible. Basically, you need to
    * define an array of values that (for each cell) includes the number of
    * points per cell, and then the cell connectivity. (This is the vtk file
-   * format described in in the textbook or User's Guide.)
+   * format described in the textbook or User's Guide.)
    */
   void SetVertsComponent(const char* arrayName, int arrayComp, int min, int max);
   void SetVertsComponent(const char* arrayName, int arrayComp)

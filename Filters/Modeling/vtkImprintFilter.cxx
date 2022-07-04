@@ -1789,7 +1789,7 @@ struct ProduceIntersectionPoints
   {
     vtkEdgeFragmentList& newEdges = this->LocalIntData.Local().NewEdges;
 
-    // Now process pairs of points to define edge fragments. These fragements
+    // Now process pairs of points to define edge fragments. These fragments
     // are classified, and if interior to a target cell, added as an edge
     // fragment.
     vtkIdType outputCellId;

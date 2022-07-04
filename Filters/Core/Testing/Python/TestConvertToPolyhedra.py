@@ -55,7 +55,7 @@ convert2.SetInputConnection(convert.GetOutputPort())
 convert2.OutputAllCellsOn()
 convert2.Update()
 
-# Make sure conversion only passes convertable types
+# Make sure conversion only passes convertible types
 convert3 = vtk.vtkConvertToPolyhedra()
 convert3.SetInputConnection(convert.GetOutputPort())
 convert3.OutputAllCellsOff()

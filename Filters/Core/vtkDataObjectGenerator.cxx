@@ -653,7 +653,7 @@ vtkDataObject* vtkDataObjectGenerator::FillOutputDataObjects(
     }
     case HBS:
     {
-      // Making octrees, structured can grid up space arbitratily though
+      // Making octrees, structured can grid up space arbitrarily though
 
       vtkHierarchicalBoxDataSet* hbo = vtkHierarchicalBoxDataSet::SafeDownCast(outData);
 

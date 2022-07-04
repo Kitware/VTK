@@ -190,7 +190,7 @@ vtkIdType vtkReflectionFilter::ReflectNon3DCell(
           {
             newCellPts[offset + 3 + contour] = cellPts->GetId(offset + 3 + contour_n - 1 - contour);
           }
-          if (order == 3) // This is is there is a single point in the middle
+          if (order == 3) // This is it, there is a single point in the middle
           {
             newCellPts[offset + 3 + contour_n] = cellPts->GetId(offset + 3 + contour_n);
           }

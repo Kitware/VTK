@@ -262,7 +262,7 @@ std::map<int, vtkSmartPointer<vtkUnstructuredGrid>> ExtractOverlappingCellCandid
 struct Block : public diy::Serialization<vtkPointSet*>
 {
   /**
-   * Bouding boxes of all spatial neighbor blocks
+   * Bounding boxes of all spatial neighbor blocks
    */
   std::map<int, vtkBoundingBox> BoundingBoxes;
 
@@ -501,7 +501,7 @@ int vtkOverlappingCellsDetector::ExposeOverlappingCellsAmongBlocks(
   vtkLogEndScope("relink master");
 
   // We share overlapping candidates with neighbor blocks.
-  vtkLogStartScope(TRACE, "send cell candidates accross ranks");
+  vtkLogStartScope(TRACE, "send cell candidates across ranks");
   master.foreach ([&master, &overlappingCellCandidatesDataSetsArray](
                     void*, const diy::Master::ProxyWithLink& cp) {
     int myBlockId = cp.gid();
@@ -530,7 +530,7 @@ int vtkOverlappingCellsDetector::ExposeOverlappingCellsAmongBlocks(
       }
     }
   });
-  vtkLogEndScope("send cell candidates accross ranks");
+  vtkLogEndScope("send cell candidates across ranks");
 
   std::vector<std::map<int, std::unordered_map<vtkIdType, std::set<vtkIdType>>>>
     collisionListMapListArray(outputs.size());
@@ -787,7 +787,7 @@ bool vtkOverlappingCellsDetector::DetectOverlappingCells(vtkDataSet* queryCellDa
                 !collisionListMapHandle->second.count(neighborId)))))
       {
         // Same procedure as for currentCell.
-        // We have a bank of cells to aleviate dynamic allocating when possible.
+        // We have a bank of cells to alleviate dynamic allocating when possible.
         int neighborCellType = cellDataSet->GetCellType(neighborId);
         auto neighborCellBankHandle = neighborCellBank.find(neighborCellType);
         vtkCell* neighborCell;

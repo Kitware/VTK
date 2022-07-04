@@ -271,7 +271,7 @@ void vtkGeometryFilter::SetExcludedFacesConnection(vtkAlgorithmOutput* algOutput
 }
 
 //------------------------------------------------------------------------------
-// Reutrn the input data or filter.
+// Return the input data or filter.
 vtkPolyData* vtkGeometryFilter::GetExcludedFaces()
 {
   if (this->GetNumberOfInputConnections(1) < 1)
@@ -2998,7 +2998,7 @@ int ExecuteUnstructuredGrid(vtkGeometryFilter* self, vtkDataSet* dataSetInput, v
   ThreadOutputType<TInputIdType> threads;
 
   // Perform the threaded boundary cell extraction. This performs some
-  // initial reduction and allocation of the output. It also computes offets
+  // initial reduction and allocation of the output. It also computes offsets
   // and sizes for allocation and writing of data.
   auto* extract =
     new ExtractUG<TInputIdType>(self, uGridBase, cellVis, cellGhosts, pointGhosts, exc, &threads);

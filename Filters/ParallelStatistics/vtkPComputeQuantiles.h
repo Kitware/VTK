@@ -21,7 +21,7 @@ PURPOSE.  See the above copyright notice for more information.
  * @class   vtkPComputeQuantiles
  * @brief   A class for parallel univariate order statistics
  *
- * `vtkPComputeQuantiles` computes the quantiles of the input table in a a distributed
+ * `vtkPComputeQuantiles` computes the quantiles of the input table in a distributed
  * environment.
  *
  * @sa vtkPComputeQuantiles

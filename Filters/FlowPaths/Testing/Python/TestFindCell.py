@@ -6,7 +6,7 @@ dim = 40
 numStreamlines = 50
 
 # Create three volumes of different resolution and butt them together.  This
-# tests vtkPointSet::FindCell() on incompatiable meshes (hanging and
+# tests vtkPointSet::FindCell() on incompatible meshes (hanging and
 # duplicate nodes).
 
 spacing = 1.0 / (2.0*dim - 1.0)

@@ -52,7 +52,7 @@ public:
   /**
    * Behave like a vtkAlgorithm::RequestData and compute the outline geometry
    * based on the parameters and provided inputs.
-   * Intented to be called in vtkOutlineCornerFilter::RequestData and in
+   * Intended to be called in vtkOutlineCornerFilter::RequestData and in
    * vtkOutlineFilter::RequestData.
    */
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*);

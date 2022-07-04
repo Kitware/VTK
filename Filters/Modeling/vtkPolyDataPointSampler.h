@@ -65,7 +65,7 @@
  *
  * @warning
  * When sampling polygons of five sides or more, the polygon is triangulated.
- * This can result in variations in point density near tesselation boudaries.
+ * This can result in variations in point density near tessellation boundaries.
  *
  * @sa
  * vtkTriangleFilter vtkImplicitModeller

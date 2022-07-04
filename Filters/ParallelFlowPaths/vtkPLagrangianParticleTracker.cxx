@@ -435,7 +435,7 @@ public:
 private:
   vtkMPIController* Controller;
   int StreamSize;
-  int ReceivedCounter; // Total number of particlesIds recieved
+  int ReceivedCounter; // Total number of particlesIds received
   MessageStream* ReceiveStream;
   ParticleIdManager(const ParticleIdManager&) {}
   std::vector<std::pair<vtkMPICommunicator::Request*, MessageStream*>> SendRequests;
@@ -444,11 +444,11 @@ private:
 // a class used to manage the feed of particles using GetGlobalStatus(status) function
 //  input a local partition 'status' and outputs the globalStatus
 //  status = 0 - INACTIVE - particle queue is empty and all sent particles have been confirmed as
-//  being recieved status = 1 - ACTIVE - either the particle queue has particles or we are waiting
+//  being received status = 1 - ACTIVE - either the particle queue has particles or we are waiting
 //  on confirmation of pariticles
-//               being recieved.
+//               being received.
 //  - each rank updates master when its status changes
-//  globalStatus is 0 when all paritition are INACTIVE and 1 if at least one partition is ACTIVE.
+//  globalStatus is 0 when all partitions are INACTIVE and 1 if at least one partition is ACTIVE.
 class ParticleFeedManager
 {
 public:
@@ -883,7 +883,7 @@ void vtkPLagrangianParticleTracker::GetParticleFeed(
     return;
   }
 
-  // local parition status 0 = parition inactive,  1 = active
+  // local partition status 0 = partition inactive,  1 = active
   int status;
 
   do

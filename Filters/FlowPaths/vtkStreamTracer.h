@@ -555,7 +555,7 @@ protected:
 
   // Only relevant for this derived parallel version of vtkStreamTracer,
   // but needs to be defined in this class to have a uniform interface
-  // betwen this class and the parallel override vtkPStreamTracer
+  // between this class and the parallel override vtkPStreamTracer
   bool UseLocalSeedSource;
 
   friend class PStreamTracerUtils;

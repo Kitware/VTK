@@ -26,7 +26,7 @@
  * objects next to each other will share the boundary that separates them.)
  *
  * While this filter is similar to a contouring operation, classic contouring
- * methods assume a continuous scalar field. In comparision, label maps are
+ * methods assume a continuous scalar field. In comparison, label maps are
  * not continuous in scalar function value, meaning that usual data
  * interpolation (e.g., along edges) is not possible. Instead, when the edge
  * endpoint pixels are labeled in differing regions, the edge is split and
@@ -102,7 +102,7 @@
  * that may not share common boundary cells, and may produce "gaps"
  * between segmented regions. For example, vtkDiscreteMarchingCubes will
  * share points between adjacent regions, but not triangle cells (which
- * will be conincident). Also, no center point is inserted into voxels,
+ * will be coincident). Also, no center point is inserted into voxels,
  * meaning that intermittent gaps may form between regions.
  *
  * @warning

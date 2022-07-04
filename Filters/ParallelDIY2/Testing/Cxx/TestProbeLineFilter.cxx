@@ -335,7 +335,7 @@ int Test3DProbing(vtkMultiProcessController* controller)
   probeLine->SetLineResolution(10);
 
   // ---------------------------------
-  // Check result for polydata ouput
+  // Check result for polydata output
   vtkLog(INFO, << "Testing vtkProbeLineFilter with polydata output");
   probeLine->AggregateAsPolyDataOn();
 
@@ -357,7 +357,7 @@ int Test3DProbing(vtkMultiProcessController* controller)
     ProbingUniformly.data(), ProbingUniformly.size(), "RTData", "SAMPLE_LINE_UNIFORMLY", myrank);
 
   // ---------------------------------
-  // Check result for multiblock ouput
+  // Check result for multiblock output
   vtkLog(INFO, << "Testing vtkProbeLineFilter with multiblock output");
   probeLine->AggregateAsPolyDataOff();
   vtkMultiBlockDataSet* mbds;

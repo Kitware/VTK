@@ -76,7 +76,7 @@ public:
   /**
    * Indicates whether all of the points of the input mesh should exist in
    * the output, i.e., whether point renumbering is permitted. By default,
-   * UseAllPoints is disabled, so that unusued points are omitted from the
+   * UseAllPoints is disabled, so that unused points are omitted from the
    * output.
    */
   vtkSetMacro(UseAllPoints, bool);

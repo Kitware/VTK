@@ -84,7 +84,7 @@ private:
     vtkDataObject* field, vtkPolyData* seeds, int integrationDirection, vtkPolyData* output);
 
   /**
-   * depending on this boolen the simple (fast) or iterative (correct) version is called
+   * depending on this boolean the simple (fast) or iterative (correct) version is called
    */
   bool UseIterativeSeeding = false;
 

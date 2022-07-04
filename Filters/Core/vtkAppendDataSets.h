@@ -33,7 +33,7 @@
  * there are global point ids. In the case of the presence of global point ids,
  * the filter exclusively relies on those ids, not checking if points are
  * coincident. It assumes that the global ids were properly set. In the case of
- * the absence of global ids, points withing Tolerance are merged.
+ * the absence of global ids, points within Tolerance are merged.
  *
  * @sa
  * vtkAppendFilter vtkAppendPolyData

@@ -26,7 +26,7 @@
 
 int TestMergeTimeFilter(int argc, char* argv[])
 {
-  // use full precision for outputing timesteps values.
+  // use full precision for outputting timesteps values.
   std::cerr << std::setprecision(std::numeric_limits<double>::digits10 + 1);
 
   char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/can.ex2");

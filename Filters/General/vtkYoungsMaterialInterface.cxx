@@ -1469,7 +1469,7 @@ int vtkYoungsMaterialInterface::RequestData(vtkInformation* vtkNotUsed(request),
       for (vtkIdType i = 0; i < Mats[m].cellCount; i++)
         cellTypesPtr[i] = Mats[m].cellTypes[i];
 
-      // attach conectivity arrays to data set
+      // attach connectivity arrays to data set
       ugOutput->SetCells(cellTypes, cellArray);
       cellArray->Delete();
       cellTypes->Delete();

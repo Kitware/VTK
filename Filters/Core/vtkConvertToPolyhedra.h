@@ -29,7 +29,7 @@
  *
  * @warning
  * This filter is typically used for testing. In general, processing linear cells
- * is preferrable to processing polyhedra due to differences in speed of processing,
+ * is preferable to processing polyhedra due to differences in speed of processing,
  * and memory requirements.
  *
  * @sa

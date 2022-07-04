@@ -36,7 +36,7 @@
  * This filter has one other unusual capability: it is possible to append
  * data in a sequence of operations to generate a single output. This is
  * useful when you have multiple point clouds (e.g., possibly from multiple
- * acqusition scans) and want to incrementally accumulate all the data.
+ * acquisition scans) and want to incrementally accumulate all the data.
  * However, the user must be careful to either specify the Bounds or
  * order the input such that the bounds of the first input completely
  * contains all other input data.  This is because the geometry and topology

@@ -70,7 +70,7 @@ public:
 
   ///@{
   /**
-   * Length of the extra lines. This a stricly positive value.
+   * Length of the extra lines. This a strictly positive value.
    * Initial value is 1.0.
    */
   vtkGetMacro(LinesLength, double);

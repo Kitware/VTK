@@ -1249,7 +1249,7 @@ int vtkDataSetSurfaceFilter::RequestUpdateExtent(vtkInformation* vtkNotUsed(requ
     // PolyData does not need any ghost levels.
     vtkDataObject* dobj = inInfo->Get(vtkDataObject::DATA_OBJECT());
     if (dobj && !strcmp(dobj->GetClassName(), "vtkUnstructuredGrid"))
-    { // Processing does nothing fo ghost levels yet so ...
+    { // Processing does nothing for ghost levels yet so ...
       // Be careful to set output ghost level value one less than default
       // when they are implemented.  I had trouble with multiple executes.
       ++ghostLevels;

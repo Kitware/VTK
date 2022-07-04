@@ -195,7 +195,7 @@ public:
    * point data (on by default). If the ProducePointData is set to
    * INPUT_POINTS, point data is simply passed from input to output (since
    * the points don't change). If the point generation mode is set to
-   * BIN_AVERAGES, then the average of all point data values withing a bin
+   * BIN_AVERAGES, then the average of all point data values within a bin
    * are associated with the point generated in the bin. If the point
    * generation mode is either BIN_POINTS or BIN_CENTERS, then the point
    * data values from one of the points falling into the bin is used.

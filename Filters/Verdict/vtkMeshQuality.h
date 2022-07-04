@@ -1115,7 +1115,7 @@ public:
    * corresponding edge lengths and normalized to the unit wedge:
    * q = min(  2 / sqrt(3) * ((L_2 X L_0) * L_3)_k / sqrt(mag(L_2) * mag(L_0) * mag(L_3))),
    * where ((L_2 X L_0) * L_3)_k is the determinant of the Jacobian of the tetrahedron defined
-   * at the kth corner node, and L_2, L_0 and L_3 are the egdes defined according to the
+   * at the kth corner node, and L_2, L_0 and L_3 are the edges defined according to the
    * standard for tetrahedral elements.
    */
   static double WedgeScaledJacobian(vtkCell* cell);

@@ -379,7 +379,7 @@ int vtkStreamTracer::SetupOutput(vtkInformation* inInfo, vtkInformation* outInfo
 {
   if (!inInfo || !outInfo)
   {
-    vtkErrorMacro("Input/Output informations are not set, aborting.");
+    vtkErrorMacro("Input/Output information is not set, aborting.");
     return 0;
   }
 

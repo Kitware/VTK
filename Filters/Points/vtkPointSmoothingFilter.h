@@ -145,7 +145,7 @@ public:
    * used; the next choice is to use isotropic scalar smoothing; and finally
    * if no frame field, tensors, or scalars are available, uniform smoothing
    * will be used. If both scalars, tensors, and /or a frame field are
-   * present, the user can specifiy which to use; or to use uniform or
+   * present, the user can specify which to use; or to use uniform or
    * geometric smoothing.
    */
   vtkSetClampMacro(SmoothingMode, int, DEFAULT_SMOOTHING, FRAME_FIELD_SMOOTHING);
@@ -211,7 +211,7 @@ public:
    * Enable or disable constraints on points. Point constraints are used to
    * prevent points from moving, or to move only on a plane. This can prevent
    * shrinking or growing point clouds. If enabled, a local topological
-   * anlysis is performed to determine whether a point should be marked
+   * analysis is performed to determine whether a point should be marked
    * "Fixed" i.e., never moves; "Plane", the point only moves on a plane; or
    * "Unconstrained", the point can move freely. If all points in the
    * neighborhood surrounding a point are in the cone defined by FixedAngle,

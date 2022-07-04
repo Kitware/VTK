@@ -170,7 +170,7 @@ static bool GenerateIds(vtkDataObject* dobj, vtkGenerateGlobalIds* self, bool ce
     }
     else
     {
-      // now dequeue owership information and process locally to assign ids
+      // now dequeue ownership information and process locally to assign ids
       // to locally owned points and flag ghost points.
       b->DequeueOwnershipInformation(rp);
     }

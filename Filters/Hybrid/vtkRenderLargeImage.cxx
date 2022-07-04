@@ -436,7 +436,7 @@ void vtkRenderLargeImage::Shift2DActors(int x, int y)
 }
 //------------------------------------------------------------------------------
 // On each tile we must subtract the origin of each actor to ensure
-// it appears in the corrrect relative location
+// it appears in the correct relative location
 void vtkRenderLargeImage::Restore2DActors()
 {
   vtkActor2D* actor;

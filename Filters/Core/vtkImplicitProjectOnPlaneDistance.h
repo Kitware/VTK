@@ -15,14 +15,14 @@
 /**
  * @class   vtkImplicitProjectOnPlaneDistance
  *
- * This class recieve a plannar polygon as input. Given a point, it can
+ * This class receive a plannar polygon as input. Given a point, it can
  * evaluate the L0 or L2 norm between the projection of this point on the plan
  * of the polygon and the polygon itself.
  *
  * An interesting use of this class is to enable the L0 norm and evaluate the
  * "projected distance" between every vertex of a mesh and the given plannar polygon.
- * As a reslut, all the vertices that project onto the polygon will corresond to the value 0
- * and ohter ones will recieve the value 1.
+ * As a result, all the vertices that project onto the polygon will correspond to the
+ * value 0 and other ones will receive the value 1.
  * From there, we can use a clip to keep only the part of the mesh "below" the polygon.
  *
  * TLDR: This filter allows to clip using the extrusion of any plannar polygon.
@@ -60,7 +60,7 @@ public:
   vtkMTimeType GetMTime() override;
 
   /**
-   * Project x onto the plane defined by the Input polydata and evalute the
+   * Project x onto the plane defined by the Input polydata and evaluate the
    * distance to the geometry defined by the Input polydata.
    */
   using vtkImplicitFunction::EvaluateFunction;
@@ -80,7 +80,7 @@ public:
 
   ///@{
   /**
-   * Set/get the tolerance usued for the locator.
+   * Set/get the tolerance used for the locator.
    * Default is 0.01.
    */
   vtkGetMacro(Tolerance, double);

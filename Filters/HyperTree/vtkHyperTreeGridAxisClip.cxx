@@ -39,13 +39,13 @@ vtkCxxSetObjectMacro(vtkHyperTreeGridAxisClip, Quadric, vtkQuadric);
 //------------------------------------------------------------------------------
 vtkHyperTreeGridAxisClip::vtkHyperTreeGridAxisClip()
 {
-  // Defaut clipping mode is by plane
+  // Default clipping mode is by plane
   this->ClipType = vtkHyperTreeGridAxisClip::PLANE;
 
-  // Defaut normal axis is Z
+  // Default normal axis is Z
   this->PlaneNormalAxis = 0;
 
-  // Defaut place intercept is 0
+  // Default place intercept is 0
   this->PlanePosition = 0.;
 
   // Default clipping box is a unit cube centered at origin
@@ -60,7 +60,7 @@ vtkHyperTreeGridAxisClip::vtkHyperTreeGridAxisClip()
   this->Quadric = vtkQuadric::New();
   this->Quadric->SetCoefficients(1., 1., 1., 0., 0., 0., 0., 0., 0., -1.);
 
-  // Defaut inside/out flag is false
+  // Default inside/out flag is false
   this->InsideOut = false;
 
   this->OutMask = nullptr;

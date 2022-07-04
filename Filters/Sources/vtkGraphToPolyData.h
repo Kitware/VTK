@@ -24,7 +24,7 @@
  *
  * Converts a vtkGraph to a vtkPolyData.  This assumes that the points
  * of the graph have already been filled (perhaps by vtkGraphLayout),
- * and coverts all the edge of the graph into lines in the polydata.
+ * and converts all the edge of the graph into lines in the polydata.
  * The vertex data is passed along to the point data, and the edge data
  * is passed along to the cell data.
  *

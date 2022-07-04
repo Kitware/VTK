@@ -159,7 +159,7 @@ vtkExtractEnclosedPoints::~vtkExtractEnclosedPoints() = default;
 
 //------------------------------------------------------------------------------
 // Partial implementation invokes vtkPointCloudFilter::RequestData(). This is
-// necessary to grab the seconf input.
+// necessary to grab the second input.
 //
 int vtkExtractEnclosedPoints::RequestData(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)

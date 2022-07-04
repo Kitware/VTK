@@ -243,7 +243,7 @@ int vtkTubeFilter::RequestData(vtkInformation* vtkNotUsed(request),
     this->UpdateProgress((double)inCellId / numLines);
     abort = this->GetAbortExecute();
 
-    // Make a copy of point indices to avoid modfiying input polydata cells
+    // Make a copy of point indices to avoid modifying input polydata cells
     // while removing degenerate lines.
     if (npts < 2)
     {

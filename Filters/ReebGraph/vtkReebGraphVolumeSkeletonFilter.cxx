@@ -112,7 +112,7 @@ int vtkReebGraphVolumeSkeletonFilter::RequestData(vtkInformation* vtkNotUsed(req
     if (output)
     {
 
-      // Retrieve the information regarding the critical noes.
+      // Retrieve the information regarding the critical nodes.
       vtkDataArray* vertexInfo =
         vtkArrayDownCast<vtkDataArray>(inputGraph->GetVertexData()->GetAbstractArray("Vertex Ids"));
       if (!vertexInfo)

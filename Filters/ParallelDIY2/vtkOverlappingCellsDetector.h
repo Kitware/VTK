@@ -24,7 +24,7 @@
  * To detect collisions, coarse bounding spheres are estimated for each cell of the input.
  * The center of those spheres is stored in a point cloud which is used to find potential
  * colliding cells candidates, querying with twice the bounding sphere radius to ensure
- * we do not miss other bouding sphere centers. Duplicate intersections might appear during
+ * we do not miss other bounding sphere centers. Duplicate intersections might appear during
  * this process, so a sphere id map is stored to avoid adding already added overlapping cell ids.
  *
  * This filter works in a multi-process environment. When so, each cell of the input

@@ -191,7 +191,7 @@ protected:
   vtkBitArray* InMask;
 
   /**
-   * Flag computed at plane creation to know wether it is aligned with x, y or z axis
+   * Flag computed at plane creation to know whether it is aligned with x, y or z axis
    */
   int AxisAlignment;
 

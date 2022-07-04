@@ -58,7 +58,7 @@
  * vtkCleanPolyData. However, vtkStaticCleanPolyData is non-incremental and
  * uses a much faster (especially for larger datasets) threading approach and
  * when merging points with a non-zero tolerance. However because of the
- * difference in the traveral order in the point merging process, the output
+ * difference in the traversal order in the point merging process, the output
  * of the filters may be different.
  *
  * @warning
