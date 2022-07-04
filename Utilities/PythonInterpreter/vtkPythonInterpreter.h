@@ -180,6 +180,8 @@ public:
   static int GetLogVerbosity();
   ///@}
 
+  static bool InitializeWithArgs(int initsigs, int argc, char* argv[]);
+
 protected:
   vtkPythonInterpreter();
   ~vtkPythonInterpreter() override;
@@ -198,8 +200,6 @@ protected:
   ///@}
 
 private:
-  static bool InitializeWithArgs(int initsigs, int argc, char* argv[]);
-
   vtkPythonInterpreter(const vtkPythonInterpreter&) = delete;
   void operator=(const vtkPythonInterpreter&) = delete;
 
