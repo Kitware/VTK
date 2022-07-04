@@ -2438,7 +2438,7 @@ int vtkCGNSReader::GetUnstructuredZone(
       cgio_children_names(this->cgioNum, elemIdList[osec], 1, n_child, CGIO_MAX_NAME_LENGTH + 1,
         &num_ret, child_names);
 
-      int hasNGonPE_loc = false;
+      bool hasNGonPE_loc = false;
       for (int j = 0; j < num_ret; ++j)
       {
         char* child_name = &child_names[j * (CGIO_MAX_NAME_LENGTH + 1)];
@@ -3185,7 +3185,8 @@ int vtkCGNSReader::GetUnstructuredZone(
   // Iterate over bnd sections.
   vtkPrivate::AddIsPatchArray(ugrid.Get(), false);
 
-  if (hasNFace && requiredPatch)
+  bool _hasNFace = hasNFace || hasNGonPE;
+  if (_hasNFace && requiredPatch)
   {
     //----------------------------------------------------------------------------
     // Handle boundary conditions (BC) patches for polyhedral grid
@@ -4318,7 +4319,7 @@ int vtkCGNSReader::GetUnstructuredZone(
     zoneChildren.clear();
   }
   //
-  if ((!bndSec.empty() || hasNFace) && requiredPatch)
+  if ((!bndSec.empty() || _hasNFace) && requiredPatch)
   {
     mbase->SetBlock(zone, mzone);
   }
