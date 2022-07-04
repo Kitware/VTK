@@ -959,13 +959,14 @@ static void BroadcastString(vtkMultiProcessController* controller, std::string& 
     {
       std::vector<char> tmp;
       tmp.resize(len);
-      controller->Broadcast(&(tmp[0]), len, 0);
-      str = &tmp[0];
+      controller->Broadcast(tmp.data(), len, 0);
+      str = tmp.data();
     }
     else
     {
       const char* start = str.c_str();
       std::vector<char> tmp(start, start + len);
+      // NOLINTNEXTLINE(readability-container-data-pointer): needs C++17
       controller->Broadcast(&tmp[0], len, 0);
     }
   }
@@ -982,7 +983,7 @@ static void BroadcastDoubleVector(
   }
   if (len)
   {
-    controller->Broadcast(&dvec[0], len, 0);
+    controller->Broadcast(dvec.data(), len, 0);
   }
 }
 //------------------------------------------------------------------------------
@@ -997,7 +998,7 @@ static void BroadcastIntVector(
   }
   if (len)
   {
-    controller->Broadcast(&ivec[0], len, 0);
+    controller->Broadcast(ivec.data(), len, 0);
   }
 }
 //------------------------------------------------------------------------------
@@ -1017,7 +1018,7 @@ static void BroadcastSelection(
       {
         const char* start = ite.first.c_str();
         std::vector<char> tmpVector(start, start + len2);
-        controller->Broadcast(&tmpVector[0], len2, 0);
+        controller->Broadcast(tmpVector.data(), len2, 0);
       }
       tmp = (int)ite.second;
       controller->Broadcast(&tmp, 1, 0);
@@ -1054,7 +1055,7 @@ static void BroadcastRefState(
       {
         const char* start = ite.first.c_str();
         std::vector<char> tmp(start, start + len2);
-        controller->Broadcast(&tmp[0], len2, 0);
+        controller->Broadcast(tmp.data(), len2, 0);
       }
       controller->Broadcast(&ite.second, 1, 0);
     }

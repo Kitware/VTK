@@ -132,7 +132,7 @@ int vtkAMRCutPlane::RequestUpdateExtent(vtkInformation* vtkNotUsed(rqst),
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
   assert("pre: inInfo is nullptr" && (inInfo != nullptr));
 
-  inInfo->Set(vtkCompositeDataPipeline::UPDATE_COMPOSITE_INDICES(), &this->BlocksToLoad[0],
+  inInfo->Set(vtkCompositeDataPipeline::UPDATE_COMPOSITE_INDICES(), this->BlocksToLoad.data(),
     static_cast<int>(this->BlocksToLoad.size()));
   return 1;
 }
@@ -258,7 +258,7 @@ void vtkAMRCutPlane::CutAMRBlock(
   }
 
   // Insert the cells
-  mesh->SetCells(&types[0], cells);
+  mesh->SetCells(types.data(), cells);
   cells->Delete();
 
   // Extract fields

@@ -133,8 +133,7 @@ int vtkTableToArray::RequestData(
         table->GetColumnByName(this->Implementation->Columns[i].ToString().c_str()));
       if (!columns.back())
       {
-        vtkErrorMacro(<< "Missing table column: "
-                      << this->Implementation->Columns[i].ToString().c_str());
+        vtkErrorMacro(<< "Missing table column: " << this->Implementation->Columns[i].ToString());
         return 0;
       }
     }

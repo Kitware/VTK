@@ -630,7 +630,7 @@ void vtkParametricFunctionSource::PrintSelf(ostream& os, vtkIndent indent)
     default:
       s = "Unknown scalar mode.";
   }
-  os << indent << "Scalar Mode: " << s.c_str() << "\n";
+  os << indent << "Scalar Mode: " << s << "\n";
   os << indent << "GenerateTextureCoordinates:" << (this->GenerateTextureCoordinates ? "On" : "Off")
      << "\n";
   os << indent << "Output Points Precision: " << this->OutputPointsPrecision << "\n";

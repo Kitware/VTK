@@ -24,7 +24,6 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkMathUtilities.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkNew.h"
-#include "vtkPCorrelativeStatistics.h"
 #include "vtkSmartPointer.h"
 #include "vtkTable.h"
 

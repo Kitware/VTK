@@ -1194,7 +1194,7 @@ int vtkCGNSReader::vtkPrivate::readSolution(const std::string& solutionNameStr, 
     vtkErrorWithObjectMacro(self,
       "Mismatch in number of cells and number of values "
       "being read from Solution '"
-        << solutionNameStr.c_str()
+        << solutionNameStr
         << "'. "
            "Skipping reading. Please report as a bug.");
     return CG_ERROR;
@@ -1204,7 +1204,7 @@ int vtkCGNSReader::vtkPrivate::readSolution(const std::string& solutionNameStr, 
     vtkErrorWithObjectMacro(self,
       "Mismatch in number of points and number of values "
       "being read from Solution '"
-        << solutionNameStr.c_str()
+        << solutionNameStr
         << "'. "
            "Skipping reading. Please report as a bug.");
     return CG_ERROR;
@@ -3588,7 +3588,7 @@ int vtkCGNSReader::GetUnstructuredZone(
                       if (0 !=
                         CGNSRead::get_section_start_offset(this->cgioNum, elemIdList[curSec], 1,
                           srcStart, srcEnd, srcStride, memStart, memEnd, memStride, memDim,
-                          &(bndElementsIdx[0])))
+                          bndElementsIdx.data()))
                       {
                         // no bndElementsIdx read so create it
                         // This is the worst case situation
@@ -3616,7 +3616,7 @@ int vtkCGNSReader::GetUnstructuredZone(
                         if (0 !=
                           CGNSRead::get_section_connectivity(this->cgioNum, elemIdList[curSec], 1,
                             srcStart, srcEnd, srcStride, memStart, memEnd, memStride, memDim,
-                            &(bndElements[0])))
+                            bndElements.data()))
                         {
                           vtkErrorMacro("FAILED to read MIXED boundary cells\n");
                           return 1;
@@ -3943,7 +3943,7 @@ int vtkCGNSReader::GetUnstructuredZone(
 
                       CGNSRead::get_section_connectivity(this->cgioNum, elemIdList[curSec], 2,
                         srcStart, srcEnd, srcStride, memStart, memEnd, memStride, memDim,
-                        &(bcElementsArr[0]));
+                        bcElementsArr.data());
                       // Add numptspercell and do -1 on indexes
                       for (vtkIdType icell = 0; icell < numElemToRead; ++icell)
                       {
@@ -3996,7 +3996,7 @@ int vtkCGNSReader::GetUnstructuredZone(
                       if (0 !=
                         CGNSRead::get_section_start_offset(this->cgioNum, elemIdList[curSec], 1,
                           srcStart, srcEnd, srcStride, memStart, memEnd, memStride, memDim,
-                          &(bndElementsIdx[0])))
+                          bndElementsIdx.data()))
                       {
                         // Fallback to old way because no Offset found
                         cgsize_t fDataSize(0);
@@ -4022,7 +4022,7 @@ int vtkCGNSReader::GetUnstructuredZone(
                         if (0 !=
                           CGNSRead::get_section_connectivity(this->cgioNum, elemIdList[curSec], 1,
                             srcStart, srcEnd, srcStride, memStart, memEnd, memStride, memDim,
-                            &(bcElementsArr[0])))
+                            bcElementsArr.data()))
                         {
                           vtkErrorMacro("FAILED to read MIXED boundary cells\n");
                           return 1;
@@ -4334,7 +4334,7 @@ int vtkCGNSReader::RequestData(vtkInformation* vtkNotUsed(request),
     if (!ts.empty())
     {
       int tsIndex =
-        vtkPrivate::GetTimeStepIndex(requestedTimeValue, &ts[0], static_cast<int>(ts.size()));
+        vtkPrivate::GetTimeStepIndex(requestedTimeValue, ts.data(), static_cast<int>(ts.size()));
       requestedTimeValue = ts[tsIndex];
       output->GetInformation()->Set(vtkDataObject::DATA_TIME_STEP(), requestedTimeValue);
     }

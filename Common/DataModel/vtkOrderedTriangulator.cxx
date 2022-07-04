@@ -154,10 +154,7 @@ typedef std::list<OTTetra*> TetraListType;
 typedef std::list<OTTetra*>::iterator TetraListIterator;
 struct TetraStackType : public std::stack<OTTetra*>
 {
-  TetraStackType()
-    : std::stack<OTTetra*>()
-  {
-  }
+  TetraStackType() = default;
   void clear()
   {
     while (!this->empty())

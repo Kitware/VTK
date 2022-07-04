@@ -30,8 +30,6 @@
 
 #include "vtkRenderWindowInteractor.h"
 
-#include "vtkOpenGLRenderWindow.h"
-
 namespace
 {
 void createData(vtkMultiBlockDataSet* data)

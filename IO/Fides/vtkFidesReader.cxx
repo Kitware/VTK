@@ -337,7 +337,7 @@ int vtkFidesReader::RequestInformation(
     timeRange[0] = times[0];
     timeRange[1] = times[nSteps - 1];
 
-    outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), &times[0], nSteps);
+    outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), times.data(), nSteps);
     outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_RANGE(), timeRange, 2);
   }
 

@@ -129,7 +129,7 @@ int TestODBCDatabase(int, char** const)
       {
         cerr << ", ";
       }
-      cerr << query->DataValue(field).ToString().c_str();
+      cerr << query->DataValue(field).ToString();
     }
     cerr << endl;
   }
@@ -158,7 +158,7 @@ int TestODBCDatabase(int, char** const)
       {
         cerr << ", ";
       }
-      cerr << va->GetValue(field).ToString().c_str();
+      cerr << va->GetValue(field).ToString();
     }
     cerr << endl;
   }

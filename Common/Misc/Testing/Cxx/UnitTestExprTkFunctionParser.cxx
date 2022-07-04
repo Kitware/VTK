@@ -145,7 +145,7 @@ bool TestUnaryOperations()
   parser->SetScalarVariableValue("y", 2.0);
   for (unsigned i = 0; i < 4; i++)
   {
-    parser->SetFunction(&formula[i][0]);
+    parser->SetFunction(formula[i].data());
     double result = parser->GetScalarResult();
     if (!vtkMathUtilities::FuzzyCompare(
           result, expected[i], std::numeric_limits<double>::epsilon() * 1.0))

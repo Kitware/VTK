@@ -272,11 +272,11 @@ vtkDataSet* vtkAdaptiveTemporalInterpolator ::InterpolateDataSet(
     if (arrays[1])
     {
       // do a quick check to see if all arrays have the same number of tuples
-      if (this->VerifyArrays(&arrays[0], 2) == MATCHED)
+      if (this->VerifyArrays(arrays.data(), 2) == MATCHED)
       {
         // allocate double for output if input is double - otherwise float
         vtkDataArray* outarray =
-          this->InterpolateDataArray(ratio, &arrays[0], arrays[0]->GetNumberOfTuples());
+          this->InterpolateDataArray(ratio, arrays.data(), arrays[0]->GetNumberOfTuples());
         output->GetPointData()->AddArray(outarray);
         outarray->Delete();
       }
@@ -328,11 +328,11 @@ vtkDataSet* vtkAdaptiveTemporalInterpolator ::InterpolateDataSet(
     if (arrays[1])
     {
       // do a quick check to see if all arrays have the same number of tuples
-      if (this->VerifyArrays(&arrays[0], 2) == MATCHED)
+      if (this->VerifyArrays(arrays.data(), 2) == MATCHED)
       {
         // allocate double for output if input is double - otherwise float
         vtkDataArray* outarray =
-          this->InterpolateDataArray(ratio, &arrays[0], arrays[0]->GetNumberOfTuples());
+          this->InterpolateDataArray(ratio, arrays.data(), arrays[0]->GetNumberOfTuples());
         output->GetCellData()->AddArray(outarray);
         outarray->Delete();
       }

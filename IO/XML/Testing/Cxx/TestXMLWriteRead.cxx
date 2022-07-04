@@ -16,7 +16,6 @@
 #include "vtkXMLPolyDataReader.h"
 #include "vtkXMLPolyDataWriter.h"
 
-#include "vtkPointSource.h"
 #include "vtkPoints.h"
 
 #include "vtkTestUtilities.h"

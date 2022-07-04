@@ -38,9 +38,9 @@
 //                       Functions for Parsing File Names
 //------------------------------------------------------------------------------
 
-static std::string GetEnzoMajorFileName(const char* path)
+static std::string GetEnzoMajorFileName(const std::string& path)
 {
-  return (vtksys::SystemTools::GetFilenameName(std::string(path)));
+  return vtksys::SystemTools::GetFilenameName(path);
 }
 
 //------------------------------------------------------------------------------
@@ -429,7 +429,7 @@ int vtkEnzoReaderInternal::LoadAttribute(const char* attribute, int blockIdx)
   if (attrIndx < 0)
   {
     vtkGenericWarningMacro(
-      "Attribute (" << attribute << ") data does not exist in file " << blckFile.c_str());
+      "Attribute (" << attribute << ") data does not exist in file " << blckFile);
     H5Gclose(rootIndx);
     H5Fclose(fileIndx);
     return 0;
@@ -590,8 +590,7 @@ void vtkEnzoReaderInternal::ReadBlockStructures()
   vtksys::ifstream stream(this->HierarchyFileName.c_str());
   if (!stream)
   {
-    vtkGenericWarningMacro(
-      "Invalid hierarchy file name: " << this->HierarchyFileName.c_str() << endl);
+    vtkGenericWarningMacro("Invalid hierarchy file name: " << this->HierarchyFileName << endl);
     return;
   }
 
@@ -723,9 +722,9 @@ void vtkEnzoReaderInternal::ReadBlockStructures()
       stream >> theStr; // '='
       stream >> szName;
 
-      //      std::cout << "szname: " << szName.c_str() << std::endl;
+      //      std::cout << "szname: " << szName << std::endl;
       //      std::cout.flush();
-      tmpBlk.BlockFileName = this->DirectoryName + "/" + GetEnzoMajorFileName(szName.c_str());
+      tmpBlk.BlockFileName = this->DirectoryName + "/" + GetEnzoMajorFileName(szName);
 
       // obtain the particle file name (szName includes the full path)
       while (theStr != "NumberOfParticles")
@@ -743,7 +742,7 @@ void vtkEnzoReaderInternal::ReadBlockStructures()
         }
         stream >> theStr; // '='
         stream >> szName;
-        tmpBlk.ParticleFileName = this->DirectoryName + "/" + GetEnzoMajorFileName(szName.c_str());
+        tmpBlk.ParticleFileName = this->DirectoryName + "/" + GetEnzoMajorFileName(szName);
       }
 
       tmpBlk.Level = levlId;
@@ -752,7 +751,7 @@ void vtkEnzoReaderInternal::ReadBlockStructures()
       if (static_cast<int>(this->Blocks.size()) != tmpBlk.Index)
       {
         vtkGenericWarningMacro("The blocks in the hierarchy file "
-          << this->HierarchyFileName.c_str() << " are currently expected to be "
+          << this->HierarchyFileName << " are currently expected to be "
           << " listed in order." << endl);
         return;
       }
@@ -819,7 +818,7 @@ void vtkEnzoReaderInternal::ReadGeneralParameters()
   vtksys::ifstream stream(this->MajorFileName.c_str());
   if (!stream)
   {
-    vtkGenericWarningMacro("Invalid parameter file " << this->MajorFileName.c_str() << endl);
+    vtkGenericWarningMacro("Invalid parameter file " << this->MajorFileName << endl);
     return;
   }
 
@@ -910,7 +909,7 @@ void vtkEnzoReaderInternal::GetAttributeNames()
 
   if (fileIndx < 0)
   {
-    vtkGenericWarningMacro("Failed to open HDF5 grid file " << blckFile.c_str());
+    vtkGenericWarningMacro("Failed to open HDF5 grid file " << blckFile);
     return;
   }
 

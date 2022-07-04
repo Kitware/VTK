@@ -168,7 +168,7 @@ int vtkPIOReader::RequestInformation(vtkInformation* vtkNotUsed(reqInfo),
   }
 
   // Set the current TIME_STEP() data based on requested TimeArrayName
-  if (strcmp(this->ActiveTimeDataArrayName, this->CurrentTimeDataArrayName.c_str()) != 0)
+  if (this->ActiveTimeDataArrayName != this->CurrentTimeDataArrayName)
   {
     this->CurrentTimeDataArrayName = this->ActiveTimeDataArrayName;
     if (strcmp(this->ActiveTimeDataArrayName, "SimulationTime") == 0)

@@ -133,7 +133,7 @@ void vtkPlot3DMetaReader::SetByteOrder(Json::Value* val)
   }
   else
   {
-    vtkErrorMacro("Unrecognized byte order: " << value.c_str()
+    vtkErrorMacro("Unrecognized byte order: " << value
                                               << ". Valid options are \"little\" and \"big\"."
                                                  " Setting to little endian");
     this->Reader->SetByteOrderToLittleEndian();
@@ -154,7 +154,7 @@ void vtkPlot3DMetaReader::SetLanguage(Json::Value* val)
   }
   else
   {
-    vtkErrorMacro("Unrecognized language: " << value.c_str()
+    vtkErrorMacro("Unrecognized language: " << value
                                             << ". Valid options are \"fortran\" and \"C\"."
                                                " Setting to little fortran");
     this->Reader->HasByteCountOn();
@@ -210,7 +210,7 @@ void vtkPlot3DMetaReader::SetFormat(Json::Value* val)
   }
   else
   {
-    vtkErrorMacro("Unrecognized file type: " << value.c_str()
+    vtkErrorMacro("Unrecognized file type: " << value
                                              << ". Valid options are \"binary\" and \"ascii\"."
                                                 " Setting to binary");
     this->Reader->BinaryFileOn();
@@ -376,8 +376,7 @@ int vtkPlot3DMetaReader::RequestInformation(vtkInformation* vtkNotUsed(request),
     }
     else
     {
-      vtkErrorMacro(
-        "Syntax error in file. Option \"" << memberIterator->c_str() << "\" is not valid.");
+      vtkErrorMacro("Syntax error in file. Option \"" << *memberIterator << "\" is not valid.");
     }
   }
 
@@ -391,7 +390,7 @@ int vtkPlot3DMetaReader::RequestInformation(vtkInformation* vtkNotUsed(request),
   size_t numSteps = timeValues.size();
   if (numSteps > 0)
   {
-    outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), &timeValues[0], (int)numSteps);
+    outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), timeValues.data(), (int)numSteps);
 
     double timeRange[2];
     timeRange[0] = timeValues[0];

@@ -72,7 +72,7 @@ vtkFileSeriesHelper::vtkTimeInformation::vtkTimeInformation(vtkInformation* info
     this->TimeSteps.resize(info->Length(vtkStreamingDemandDrivenPipeline::TIME_STEPS()));
     if (!this->TimeSteps.empty())
     {
-      info->Get(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), &this->TimeSteps[0]);
+      info->Get(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), this->TimeSteps.data());
     }
   }
 }
@@ -418,7 +418,7 @@ void vtkFileSeriesHelper::FillTimeInformation(vtkInformation* info) const
   }
   if (!this->AggregatedTimeSteps.empty())
   {
-    info->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), &this->AggregatedTimeSteps[0],
+    info->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), this->AggregatedTimeSteps.data(),
       static_cast<int>(this->AggregatedTimeSteps.size()));
   }
   else
@@ -444,7 +444,7 @@ std::vector<std::string> vtkFileSeriesHelper::GetActiveFiles(vtkInformation* out
     if (!this->AggregatedTimeSteps.empty())
     {
       tindex = vtkFileSeriesHelperNS::GetTimeStepIndex(
-        time, &this->AggregatedTimeSteps[0], static_cast<int>(this->AggregatedTimeSteps.size()));
+        time, this->AggregatedTimeSteps.data(), static_cast<int>(this->AggregatedTimeSteps.size()));
     }
   }
 

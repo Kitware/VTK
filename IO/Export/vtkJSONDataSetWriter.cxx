@@ -144,7 +144,7 @@ std::string vtkJSONDataSetWriter::WriteArray(
   bool needConvert;
   std::string id = vtkJSONDataSetWriter::GetUID(array, needConvert);
   std::stringstream arrayPath;
-  arrayPath << "data/" << id.c_str();
+  arrayPath << "data/" << id;
   bool success = vtkJSONDataSetWriter::WriteArrayContents(array, arrayPath.str().c_str());
 
   if (!success)
@@ -164,7 +164,7 @@ std::string vtkJSONDataSetWriter::WriteArray(
      << INDENT << "  \"ref\": {\n"
      << INDENT << "     \"encode\": \"LittleEndian\",\n"
      << INDENT << "     \"basepath\": \"data\",\n"
-     << INDENT << "     \"id\": \"" << id.c_str() << "\"\n"
+     << INDENT << "     \"id\": \"" << id << "\"\n"
      << INDENT << "  },\n"
      << INDENT << "  \"size\": " << array->GetNumberOfValues() << "\n"
      << INDENT << "}";
@@ -218,39 +218,35 @@ void vtkJSONDataSetWriter::Write(vtkDataSet* dataset)
 
     vtkPoints* points = polyData->GetPoints();
     metaJsonFile << ",\n  \"points\": "
-                 << this->WriteArray(points->GetData(), "vtkPoints", "points").c_str();
+                 << this->WriteArray(points->GetData(), "vtkPoints", "points");
 
     // Verts
     vtkNew<vtkIdTypeArray> cells;
     polyData->GetVerts()->ExportLegacyFormat(cells);
     if (cells->GetNumberOfValues())
     {
-      metaJsonFile << ",\n  \"verts\": "
-                   << this->WriteArray(cells, "vtkCellArray", "verts").c_str();
+      metaJsonFile << ",\n  \"verts\": " << this->WriteArray(cells, "vtkCellArray", "verts");
     }
 
     // Lines
     polyData->GetLines()->ExportLegacyFormat(cells);
     if (cells->GetNumberOfValues())
     {
-      metaJsonFile << ",\n  \"lines\": "
-                   << this->WriteArray(cells, "vtkCellArray", "lines").c_str();
+      metaJsonFile << ",\n  \"lines\": " << this->WriteArray(cells, "vtkCellArray", "lines");
     }
 
     // Strips
     polyData->GetStrips()->ExportLegacyFormat(cells);
     if (cells->GetNumberOfValues())
     {
-      metaJsonFile << ",\n  \"strips\": "
-                   << this->WriteArray(cells, "vtkCellArray", "strips").c_str();
+      metaJsonFile << ",\n  \"strips\": " << this->WriteArray(cells, "vtkCellArray", "strips");
     }
 
     // Polys
     polyData->GetPolys()->ExportLegacyFormat(cells);
     if (cells->GetNumberOfValues())
     {
-      metaJsonFile << ",\n  \"polys\": "
-                   << this->WriteArray(cells, "vtkCellArray", "polys").c_str();
+      metaJsonFile << ",\n  \"polys\": " << this->WriteArray(cells, "vtkCellArray", "polys");
     }
   }
 
@@ -260,7 +256,7 @@ void vtkJSONDataSetWriter::Write(vtkDataSet* dataset)
   if (!fieldJSON.empty())
   {
     isEmpty = false;
-    metaJsonFile << ",\n" << fieldJSON.c_str();
+    metaJsonFile << ",\n" << fieldJSON;
   }
 
   // CellData
@@ -268,7 +264,7 @@ void vtkJSONDataSetWriter::Write(vtkDataSet* dataset)
   if (!fieldJSON.empty())
   {
     isEmpty = false;
-    metaJsonFile << ",\n" << fieldJSON.c_str();
+    metaJsonFile << ",\n" << fieldJSON;
   }
 
   metaJsonFile << "}\n";
@@ -492,7 +488,7 @@ std::string vtkJSONDataSetWriter::GetUID(vtkDataArray* input, bool& needConversi
 
   std::stringstream ss;
   ss << vtkJSONDataSetWriter::GetShortType(input, needConversion) << "_"
-     << input->GetNumberOfValues() << "-" << hash.c_str();
+     << input->GetNumberOfValues() << "-" << hash;
 
   return ss.str();
 }

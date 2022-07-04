@@ -109,7 +109,7 @@ int TestPostgreSQLTableReadWrite(int argc, char* argv[])
 
   if (!db->DropDatabase(realDatabase.c_str()))
   {
-    cout << "Drop of \"" << realDatabase.c_str() << "\" failed.\n";
+    cout << "Drop of \"" << realDatabase << "\" failed.\n";
     cerr << "\"" << db->GetLastErrorText() << "\"" << endl;
   }
 

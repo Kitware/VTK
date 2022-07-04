@@ -438,7 +438,8 @@ void vtkLabelHierarchyFrustumIterator::Next()
           if (this->Level)
           {
             this->Path.resize(this->Level);
-            vtkLabelHierarchy::GetPathForNodalCoordinates(&this->Path[0], this->IjkG, this->Level);
+            vtkLabelHierarchy::GetPathForNodalCoordinates(
+              this->Path.data(), this->IjkG, this->Level);
           }
           else
           {
@@ -1639,7 +1640,7 @@ void vtkLabelHierarchy3DepthFirstIterator::Next()
         {
           this->Order.back().push_back(i);
         }
-        this->ReorderChildrenForView(&(this->Order.back()[0]));
+        this->ReorderChildrenForView(this->Order.back().data());
         this->Cursor.down(this->Order.back()[0]);
         this->Path.push_back(0);
         if (this->IsNodeInFrustum())

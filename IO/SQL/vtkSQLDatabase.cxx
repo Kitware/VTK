@@ -373,7 +373,7 @@ vtkSQLDatabase* vtkSQLDatabase::CreateFromURL(const char* URL)
   // SQLite is a bit special so lets get that out of the way :)
   if (!vtksys::SystemTools::ParseURLProtocol(urlstr, protocol, dataglom))
   {
-    vtkGenericWarningMacro("Invalid URL (no protocol found): \"" << urlstr.c_str() << "\"");
+    vtkGenericWarningMacro("Invalid URL (no protocol found): \"" << urlstr << "\"");
     dbURLCritSec.unlock();
     return nullptr;
   }
@@ -389,7 +389,7 @@ vtkSQLDatabase* vtkSQLDatabase::CreateFromURL(const char* URL)
   if (!vtksys::SystemTools::ParseURL(
         urlstr, protocol, username, unused, hostname, dataport, database))
   {
-    vtkGenericWarningMacro("Invalid URL (other components missing): \"" << urlstr.c_str() << "\"");
+    vtkGenericWarningMacro("Invalid URL (other components missing): \"" << urlstr << "\"");
     dbURLCritSec.unlock();
     return nullptr;
   }
@@ -403,7 +403,7 @@ vtkSQLDatabase* vtkSQLDatabase::CreateFromURL(const char* URL)
 
   if (!db)
   {
-    vtkGenericWarningMacro("Unsupported protocol: " << protocol.c_str());
+    vtkGenericWarningMacro("Unsupported protocol: " << protocol);
   }
   dbURLCritSec.unlock();
   return db;

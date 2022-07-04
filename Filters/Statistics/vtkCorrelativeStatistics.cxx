@@ -268,8 +268,7 @@ void vtkCorrelativeStatistics::Learn(
     vtkStdString colX = *it;
     if (!inData->GetColumnByName(colX))
     {
-      vtkWarningMacro(
-        "InData table does not have a column " << colX.c_str() << ". Ignoring this pair.");
+      vtkWarningMacro("InData table does not have a column " << colX << ". Ignoring this pair.");
       continue;
     }
 
@@ -277,8 +276,7 @@ void vtkCorrelativeStatistics::Learn(
     vtkStdString colY = *it;
     if (!inData->GetColumnByName(colY))
     {
-      vtkWarningMacro(
-        "InData table does not have a column " << colY.c_str() << ". Ignoring this pair.");
+      vtkWarningMacro("InData table does not have a column " << colY << ". Ignoring this pair.");
       continue;
     }
 
@@ -551,7 +549,7 @@ void vtkCorrelativeStatistics::Test(
     if (!inData->GetColumnByName(varNameX))
     {
       vtkWarningMacro(
-        "InData table does not have a column " << varNameX.c_str() << ". Ignoring this pair.");
+        "InData table does not have a column " << varNameX << ". Ignoring this pair.");
       continue;
     }
 
@@ -560,7 +558,7 @@ void vtkCorrelativeStatistics::Test(
     if (!inData->GetColumnByName(varNameY))
     {
       vtkWarningMacro(
-        "InData table does not have a column " << varNameY.c_str() << ". Ignoring this pair.");
+        "InData table does not have a column " << varNameY << ". Ignoring this pair.");
       continue;
     }
 
@@ -573,7 +571,7 @@ void vtkCorrelativeStatistics::Test(
     if (r >= nRowPrim)
     {
       vtkWarningMacro("Incomplete input: model does not have a row for pair"
-        << varNameX.c_str() << ", " << varNameY.c_str() << ". Cannot test.");
+        << varNameX << ", " << varNameY << ". Cannot test.");
       continue;
     }
 
@@ -582,8 +580,8 @@ void vtkCorrelativeStatistics::Test(
     {
       vtkWarningMacro("Inconsistent input: input data has "
         << nRowData << " rows but primary model has cardinality "
-        << primaryTab->GetValueByName(r, "Cardinality").ToDouble() << " for pair "
-        << varNameX.c_str() << ", " << varNameY.c_str() << ". Cannot test.");
+        << primaryTab->GetValueByName(r, "Cardinality").ToDouble() << " for pair " << varNameX
+        << ", " << varNameY << ". Cannot test.");
       continue;
     }
 

@@ -199,7 +199,7 @@ void vtkOrderStatistics::Learn(
     vtkStdString col = *it;
     if (!inData->GetColumnByName(col))
     {
-      vtkWarningMacro("InData table does not have a column " << col.c_str() << ". Ignoring it.");
+      vtkWarningMacro("InData table does not have a column " << col << ". Ignoring it.");
       continue;
     }
 
@@ -237,7 +237,7 @@ void vtkOrderStatistics::Learn(
     }
     else
     {
-      vtkWarningMacro("Unsupported data type for column " << col.c_str() << ". Ignoring it.");
+      vtkWarningMacro("Unsupported data type for column " << col << ". Ignoring it.");
 
       continue;
     }
@@ -359,7 +359,7 @@ void vtkOrderStatistics::Learn(
     } // else if ( vals->IsA("vtkVariantArray") )
     else
     {
-      vtkWarningMacro("Unsupported data type for column " << col.c_str() << ". Ignoring it.");
+      vtkWarningMacro("Unsupported data type for column " << col << ". Ignoring it.");
 
       continue;
     } // else
@@ -690,8 +690,8 @@ void vtkOrderStatistics::Derive(vtkMultiBlockDataSet* inMeta)
     } // else if ( vals->IsA("vtkVariantArray") )
     else
     {
-      vtkWarningMacro("Unsupported data type for column "
-        << varName.c_str() << ". Cannot calculate quantiles for it.");
+      vtkWarningMacro(
+        "Unsupported data type for column " << varName << ". Cannot calculate quantiles for it.");
 
       continue;
     } // else
@@ -775,8 +775,7 @@ void vtkOrderStatistics::Test(vtkTable* inData, vtkMultiBlockDataSet* inMeta, vt
     vtkStdString varName = *it;
     if (!inData->GetColumnByName(varName))
     {
-      vtkWarningMacro(
-        "InData table does not have a column " << varName.c_str() << ". Ignoring it.");
+      vtkWarningMacro("InData table does not have a column " << varName << ". Ignoring it.");
       continue;
     }
 
@@ -785,7 +784,7 @@ void vtkOrderStatistics::Test(vtkTable* inData, vtkMultiBlockDataSet* inMeta, vt
     if (!quantCol)
     {
       vtkWarningMacro(
-        "Quantile table table does not have a column " << varName.c_str() << ". Ignoring it.");
+        "Quantile table table does not have a column " << varName << ". Ignoring it.");
       continue;
     }
 
@@ -809,8 +808,7 @@ void vtkOrderStatistics::Test(vtkTable* inData, vtkMultiBlockDataSet* inMeta, vt
     // Sanity check: verify that empirical CDF = 1
     if (fabs(sum - 1.) > 1.e-6)
     {
-      vtkWarningMacro(
-        "Incorrect empirical CDF for variable:" << varName.c_str() << ". Ignoring it.");
+      vtkWarningMacro("Incorrect empirical CDF for variable:" << varName << ". Ignoring it.");
 
       continue;
     }
@@ -1033,8 +1031,7 @@ void vtkOrderStatistics::SelectAssessFunctor(
   vtkAbstractArray* quantiles = quantileTab->GetColumnByName(varName);
   if (!quantiles)
   {
-    vtkWarningMacro(
-      "Quantile table table does not have a column " << varName.c_str() << ". Ignoring it.");
+    vtkWarningMacro("Quantile table table does not have a column " << varName << ". Ignoring it.");
     return;
   }
 
@@ -1054,7 +1051,7 @@ void vtkOrderStatistics::SelectAssessFunctor(
   else
   {
     vtkWarningMacro("Unsupported (data,quantiles) type for column "
-      << varName.c_str() << ": data type is " << vals->GetClassName() << " and quantiles type is "
+      << varName << ": data type is " << vals->GetClassName() << " and quantiles type is "
       << quantiles->GetClassName() << ". Ignoring it.");
   }
 }

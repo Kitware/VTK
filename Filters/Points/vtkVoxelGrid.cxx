@@ -246,7 +246,7 @@ int vtkVoxelGrid::RequestData(vtkInformation* vtkNotUsed(request),
   switch (output->GetPoints()->GetDataType())
   {
     vtkTemplateMacro(Subsample<VTK_TT>::Execute((VTK_TT*)inPtr, inPD, outPD, this->Locator,
-      this->Kernel, numOutPts, &binMap[0], (VTK_TT*)outPtr));
+      this->Kernel, numOutPts, binMap.data(), (VTK_TT*)outPtr));
   }
 
   // Send attributes to output

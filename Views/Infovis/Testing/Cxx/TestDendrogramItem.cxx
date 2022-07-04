@@ -25,7 +25,6 @@
 #include "vtkContextInteractorStyle.h"
 #include "vtkContextScene.h"
 #include "vtkContextTransform.h"
-#include "vtkNew.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"

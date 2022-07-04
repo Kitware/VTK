@@ -1351,7 +1351,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::SetClippingPlanes(
     clippingPlanes[0] = clippingPlanes.size() > 1 ? static_cast<int>(clippingPlanes.size() - 1) : 0;
 
     prog->SetUniform1fv(
-      "in_clippingPlanes", static_cast<int>(clippingPlanes.size()), &clippingPlanes[0]);
+      "in_clippingPlanes", static_cast<int>(clippingPlanes.size()), clippingPlanes.data());
     float clippedVoxelIntensity =
       static_cast<float>(vol->GetProperty()->GetClippedVoxelIntensity());
     prog->SetUniformf("in_clippedVoxelIntensity", clippedVoxelIntensity);

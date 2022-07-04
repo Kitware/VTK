@@ -178,7 +178,7 @@ vtkExecutive** vtkInformationExecutivePortVectorKey::GetExecutives(vtkInformatio
 {
   vtkInformationExecutivePortVectorValue* v =
     static_cast<vtkInformationExecutivePortVectorValue*>(this->GetAsObjectBase(info));
-  return (v && !v->Executives.empty()) ? (&v->Executives[0]) : nullptr;
+  return (v && !v->Executives.empty()) ? v->Executives.data() : nullptr;
 }
 
 //------------------------------------------------------------------------------
@@ -186,7 +186,7 @@ int* vtkInformationExecutivePortVectorKey::GetPorts(vtkInformation* info)
 {
   vtkInformationExecutivePortVectorValue* v =
     static_cast<vtkInformationExecutivePortVectorValue*>(this->GetAsObjectBase(info));
-  return (v && !v->Ports.empty()) ? (&v->Ports[0]) : nullptr;
+  return (v && !v->Ports.empty()) ? v->Ports.data() : nullptr;
 }
 
 //------------------------------------------------------------------------------
@@ -274,7 +274,7 @@ vtkExecutive** vtkInformationExecutivePortVectorKey ::GetExecutivesWatchAddress(
 {
   vtkInformationExecutivePortVectorValue* v =
     static_cast<vtkInformationExecutivePortVectorValue*>(this->GetAsObjectBase(info));
-  return (v && !v->Executives.empty()) ? (&v->Executives[0]) : nullptr;
+  return (v && !v->Executives.empty()) ? v->Executives.data() : nullptr;
 }
 
 //------------------------------------------------------------------------------
@@ -282,5 +282,5 @@ int* vtkInformationExecutivePortVectorKey ::GetPortsWatchAddress(vtkInformation*
 {
   vtkInformationExecutivePortVectorValue* v =
     static_cast<vtkInformationExecutivePortVectorValue*>(this->GetAsObjectBase(info));
-  return (v && !v->Ports.empty()) ? (&v->Ports[0]) : nullptr;
+  return (v && !v->Ports.empty()) ? v->Ports.data() : nullptr;
 }

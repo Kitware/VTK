@@ -122,7 +122,7 @@ public:
    * Define the helper text that goes with an input.
    */
   void AddTooltipForInput(
-    vtkEventDataDevice device, vtkEventDataDeviceInput input, const std::string& text = "");
+    vtkEventDataDevice device, vtkEventDataDeviceInput input, const std::string& text = {});
 
   /**
    * Creates a new ControlsHelper suitable for use with the child class.

@@ -17,8 +17,6 @@
 
 #include "vtkOpenGLHelper.h"
 
-#include <cassert>
-
 #include "vtkFloatArray.h"
 #include "vtkImageData.h"
 #include "vtkJPEGReader.h"

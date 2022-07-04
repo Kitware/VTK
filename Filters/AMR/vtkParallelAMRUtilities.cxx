@@ -64,7 +64,7 @@ void vtkParallelAMRUtilities::DistributeProcessInformation(
   numBlocks[myRank] = myNumBlocks;
 
   // gather the active process counts
-  controller->AllGather(&myNumBlocks, &numBlocks[0], 1);
+  controller->AllGather(&myNumBlocks, numBlocks.data(), 1);
 
   // gather the blocks each process owns into one array
   std::vector<vtkIdType> offsets(numProcs, 0);
@@ -78,8 +78,8 @@ void vtkParallelAMRUtilities::DistributeProcessInformation(
        << "total # of active blocks: " << currentOffset << " out of total "
        << amrInfo->GetTotalNumberOfBlocks() << endl;
   std::vector<int> allBlocks(currentOffset, -1);
-  controller->AllGatherV(
-    &myBlocks[0], &allBlocks[0], (vtkIdType)myBlocks.size(), &numBlocks[0], &offsets[0]);
+  controller->AllGatherV(myBlocks.data(), allBlocks.data(), (vtkIdType)myBlocks.size(),
+    numBlocks.data(), offsets.data());
 
 #ifdef DEBUG
   if (myRank == 0)

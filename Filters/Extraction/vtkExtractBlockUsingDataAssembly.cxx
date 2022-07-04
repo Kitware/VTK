@@ -171,8 +171,7 @@ void vtkExtractBlockUsingDataAssembly::SetSelector(const char* selector)
   if (selector)
   {
     auto& internals = *this->Internals;
-    if (internals.Selectors.size() == 1 &&
-      strcmp(internals.Selectors.begin()->c_str(), selector) == 0)
+    if (internals.Selectors.size() == 1 && *internals.Selectors.begin() == selector)
     {
       return;
     }
@@ -367,6 +366,6 @@ void vtkExtractBlockUsingDataAssembly::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Selectors: " << endl;
   for (const auto& selector : this->Internals->Selectors)
   {
-    os << indent.GetNextIndent() << selector.c_str() << endl;
+    os << indent.GetNextIndent() << selector << endl;
   }
 }

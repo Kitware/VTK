@@ -64,7 +64,7 @@ void CreateCellData(vtkDataSet* grid, int numberOfComponents, int offset, const 
     { // +offset makes the curl/vorticity nonzero
       tupleValues[j] = point[(j + offset) % 3];
     }
-    array->SetTypedTuple(i, &tupleValues[0]);
+    array->SetTypedTuple(i, tupleValues.data());
   }
   array->SetName(arrayName);
   grid->GetCellData()->AddArray(array);
@@ -86,7 +86,7 @@ void CreatePointData(vtkDataSet* grid, int numberOfComponents, int offset, const
     { // +offset makes the curl/vorticity nonzero
       tupleValues[j] = point[(j + offset) % 3];
     }
-    array->SetTypedTuple(i, &tupleValues[0]);
+    array->SetTypedTuple(i, tupleValues.data());
   }
   array->SetName(arrayName);
   grid->GetPointData()->AddArray(array);

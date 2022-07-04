@@ -727,7 +727,7 @@ void vtkLSDynaReader::SetDatabaseDirectory(const char* f)
     }
     return;
   }
-  if (strcmp(this->P->Fam.GetDatabaseDirectory().c_str(), f) != 0)
+  if (this->P->Fam.GetDatabaseDirectory() != f)
   {
     this->P->Reset();
     this->SetInputDeck(nullptr);
@@ -2469,8 +2469,8 @@ int vtkLSDynaReader::RequestInformation(vtkInformation* vtkNotUsed(request),
 
   // Every output object has all the time steps.
   vtkInformation* outInfo = oinfo->GetInformationObject(0);
-  outInfo->Set(
-    vtkStreamingDemandDrivenPipeline::TIME_STEPS(), &p->TimeValues[0], (int)p->TimeValues.size());
+  outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), p->TimeValues.data(),
+    (int)p->TimeValues.size());
   double timeRange[2];
   timeRange[0] = p->TimeValues[0];
   timeRange[1] = p->TimeValues[p->TimeValues.size() - 1];
@@ -3383,8 +3383,7 @@ int vtkLSDynaReader::WriteInputDeckSummary(const char* fname)
 #endif // _WIN32
     {
       // OK, we have an absolute path, so it should be safe to write it out.
-      xmlSummary << "  <database path=\"" << dbDir.c_str() << "\" name=\"" << dbName.c_str()
-                 << "\"/>" << endl;
+      xmlSummary << "  <database path=\"" << dbDir << "\" name=\"" << dbName << "\"/>" << endl;
     }
   }
 
@@ -3392,7 +3391,7 @@ int vtkLSDynaReader::WriteInputDeckSummary(const char* fname)
   {
     xmlSummary << "  <part id=\"" << this->P->PartIds[p] << "\" material_id=\""
                << this->P->PartMaterials[p] << "\" status=\"" << this->P->PartStatus[p]
-               << "\"><name>" << this->P->PartNames[p].c_str() << "</name></part>" << endl;
+               << "\"><name>" << this->P->PartNames[p] << "</name></part>" << endl;
   }
 
   xmlSummary << "</lsdyna>" << endl;

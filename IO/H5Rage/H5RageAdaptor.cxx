@@ -63,14 +63,14 @@ void BroadcastString(vtkMultiProcessController* controller, std::string& str, in
     {
       std::vector<char> tmp;
       tmp.resize(len);
-      controller->Broadcast(&(tmp[0]), len, 0);
-      str = &tmp[0];
+      controller->Broadcast(tmp.data(), len, 0);
+      str = tmp.data();
     }
     else
     {
       const char* start = str.c_str();
       std::vector<char> tmp(start, start + len);
-      controller->Broadcast(&tmp[0], len, 0);
+      controller->Broadcast(tmp.data(), len, 0);
     }
   }
 }

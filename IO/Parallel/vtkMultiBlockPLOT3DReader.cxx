@@ -1735,7 +1735,7 @@ int vtkMultiBlockPLOT3DReader::ReadMesh(
       this->Internal->Dimensions.resize(numBlocks);
     }
 
-    int* rawdims = reinterpret_cast<int*>(&this->Internal->Dimensions[0]);
+    int* rawdims = reinterpret_cast<int*>(this->Internal->Dimensions.data());
     mp->Broadcast(rawdims, 3 * numBlocks, 0);
 
     mp->Broadcast(&offset, 1, 0);
@@ -2098,7 +2098,7 @@ int vtkMultiBlockPLOT3DReader::ReadArrays(
       mp->Broadcast(&error, 1, 0);
       if (error)
       {
-        vtkErrorMacro("Error reading file " << fname.c_str());
+        vtkErrorMacro("Error reading file " << fname);
         this->ClearGeometryCache();
         return 0;
       }
@@ -2351,7 +2351,7 @@ int vtkMultiBlockPLOT3DReader::ReadArrays(
           throw Plot3DException();
         }
 
-        if (this->ReadFunctionHeader(fFp, &nFunctions[0]) != VTK_OK)
+        if (this->ReadFunctionHeader(fFp, nFunctions.data()) != VTK_OK)
         {
           throw Plot3DException();
         }
@@ -2370,7 +2370,7 @@ int vtkMultiBlockPLOT3DReader::ReadArrays(
       return 0;
     }
 
-    mp->Broadcast(&nFunctions[0], numBlocks, 0);
+    mp->Broadcast(nFunctions.data(), numBlocks, 0);
     mp->Broadcast(&offset, 1, 0);
 
     void* fFp2;

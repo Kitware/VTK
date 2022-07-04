@@ -234,15 +234,15 @@ void vtkDIYUtilities::AllReduce(diy::mpi::communicator& comm, vtkBoundingBox& bb
   if (comm.size() > 1)
   {
     std::vector<double> local_minpoint(3), local_maxpoint(3);
-    bbox.GetMinPoint(&local_minpoint[0]);
-    bbox.GetMaxPoint(&local_maxpoint[0]);
+    bbox.GetMinPoint(local_minpoint.data());
+    bbox.GetMaxPoint(local_maxpoint.data());
 
     std::vector<double> global_minpoint(3), global_maxpoint(3);
     diy::mpi::all_reduce(comm, local_minpoint, global_minpoint, diy::mpi::minimum<float>());
     diy::mpi::all_reduce(comm, local_maxpoint, global_maxpoint, diy::mpi::maximum<float>());
 
-    bbox.SetMinPoint(&global_minpoint[0]);
-    bbox.SetMaxPoint(&global_maxpoint[0]);
+    bbox.SetMinPoint(global_minpoint.data());
+    bbox.SetMaxPoint(global_maxpoint.data());
   }
 }
 

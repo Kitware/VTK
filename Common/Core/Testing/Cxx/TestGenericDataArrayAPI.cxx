@@ -30,7 +30,6 @@
 #include <vector>
 
 // Concrete classes for testing:
-#include "vtkAOSDataArrayTemplate.h"
 #include "vtkCharArray.h"
 #include "vtkDoubleArray.h"
 #include "vtkFloatArray.h"
@@ -253,7 +252,7 @@ int Test_void_GetTypedTuple_tupleIdx_tuple()
   std::vector<ScalarT> tuple(comps);
   for (vtkIdType tupleIdx = 0; tupleIdx < tuples; ++tupleIdx)
   {
-    source->GetTypedTuple(tupleIdx, &tuple[0]);
+    source->GetTypedTuple(tupleIdx, tuple.data());
     for (int compIdx = 0; compIdx < comps; ++compIdx)
     {
       if (tuple[compIdx] != static_cast<ScalarT>(refValue))
@@ -368,7 +367,7 @@ int Test_void_SetTypedTuple_tupleIdx_tuple()
     {
       tuple.push_back(static_cast<ScalarT>(((t * comps) + c) % 17));
     }
-    source->SetTypedTuple(t, &tuple[0]);
+    source->SetTypedTuple(t, tuple.data());
   }
 
   // Verify:
@@ -415,7 +414,7 @@ int Test_void_SetTypedComponent_tupleIdx_comp_value()
   std::vector<ScalarT> tuple(comps);
   for (vtkIdType i = 0; i < tuples; ++i)
   {
-    source->GetTypedTuple(i, &tuple[0]);
+    source->GetTypedTuple(i, tuple.data());
     for (int j = 0; j < comps; ++j)
     {
       ScalarT test = tuple[j];
@@ -631,7 +630,7 @@ int Test_void_InsertTypedTuple_idx_t()
     {
       tuple.push_back(static_cast<ScalarT>(((t * comps) + c) % 17));
     }
-    source->InsertTypedTuple(t, &tuple[0]);
+    source->InsertTypedTuple(t, tuple.data());
     if (source->GetSize() < ((t + 1) * comps))
     {
       DataArrayAPIError("Size should be at least " << ((t + 1) * comps) << " values, but is only "
@@ -682,7 +681,7 @@ int Test_vtkIdType_InsertNextTypedTuple_t()
     {
       tuple.push_back(static_cast<ScalarT>(((t * comps) + c) % 17));
     }
-    vtkIdType insertLoc = source->InsertNextTypedTuple(&tuple[0]);
+    vtkIdType insertLoc = source->InsertNextTypedTuple(tuple.data());
     if (insertLoc != t)
     {
       DataArrayAPIError(

@@ -111,9 +111,9 @@ static void StringBufferToStringVector(
 {
   strings.clear();
 
-  const char* const bufferEnd = &buffer[0] + buffer.size();
+  const char* const bufferEnd = buffer.data() + buffer.size();
 
-  for (const char* start = &buffer[0]; start != bufferEnd; ++start)
+  for (const char* start = buffer.data(); start != bufferEnd; ++start)
   {
     for (const char* finish = start; finish != bufferEnd; ++finish)
     {

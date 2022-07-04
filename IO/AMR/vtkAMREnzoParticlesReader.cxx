@@ -107,7 +107,7 @@ static void GetDoubleArrayByName(const hid_t rootIdx, const char* name, std::vec
   int numbPnts = dimValus[0];
 
   array.resize(numbPnts);
-  H5Dread(arrayIdx, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, &array[0]);
+  H5Dread(arrayIdx, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, array.data());
 
   //  H5Dclose( spaceIdx );
   //  H5Dclose( arrayIdx );

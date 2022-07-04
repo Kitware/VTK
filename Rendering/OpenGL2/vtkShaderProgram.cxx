@@ -405,7 +405,7 @@ bool vtkShaderProgram::Bind()
       else
       {
         vtksys::ofstream ofp(fname.c_str());
-        ofp << shaders[cc]->GetSource().c_str();
+        ofp << shaders[cc]->GetSource();
       }
     }
     this->CompileShader();

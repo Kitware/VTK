@@ -92,11 +92,8 @@ int vtkPWindBladeReader::RequestData(
     std::ostringstream fileName;
     vtkStructuredGrid* field = this->GetFieldOutput();
     this->InitFieldData(outVector, fileName, field);
-    char* cchar = new char[strlen(fileName.str().c_str()) + 1];
-    strcpy(cchar, fileName.str().c_str());
-    MPICall(MPI_File_open(
-      MPI_COMM_WORLD, cchar, MPI_MODE_RDONLY, MPI_INFO_NULL, &this->PInternal->FilePtr));
-    delete[] cchar;
+    MPICall(MPI_File_open(MPI_COMM_WORLD, fileName.str().c_str(), MPI_MODE_RDONLY, MPI_INFO_NULL,
+      &this->PInternal->FilePtr));
     if (this->PInternal->FilePtr == nullptr)
     {
       vtkWarningMacro(<< "Could not open file " << fileName.str());
@@ -265,10 +262,8 @@ bool vtkPWindBladeReader::ReadGlobalData()
   std::vector<char> inBuf(vtkWindBladeReader::LINE_SIZE);
   MPI_File tempFile;
   char native[7] = "native";
-  char* cchar = new char[strlen(fileName.c_str()) + 1];
-  strcpy(cchar, fileName.c_str());
-  MPICall(MPI_File_open(MPI_COMM_WORLD, cchar, MPI_MODE_RDONLY, MPI_INFO_NULL, &tempFile));
-  delete[] cchar;
+  MPICall(
+    MPI_File_open(MPI_COMM_WORLD, fileName.c_str(), MPI_MODE_RDONLY, MPI_INFO_NULL, &tempFile));
 
   std::stringstream inStr;
   MPI_Offset i, tempSize;
@@ -281,14 +276,14 @@ bool vtkPWindBladeReader::ReadGlobalData()
   {
     if (i + vtkWindBladeReader::LINE_SIZE > tempSize)
     {
-      MPICall(MPI_File_read_all(tempFile, &(inBuf[0]), tempSize - i, MPI_BYTE, &status));
-      inStr.write(&(inBuf[0]), tempSize - i);
+      MPICall(MPI_File_read_all(tempFile, inBuf.data(), tempSize - i, MPI_BYTE, &status));
+      inStr.write(inBuf.data(), tempSize - i);
     }
     else
     {
-      MPICall(
-        MPI_File_read_all(tempFile, &(inBuf[0]), vtkWindBladeReader::LINE_SIZE, MPI_BYTE, &status));
-      inStr.write(&(inBuf[0]), vtkWindBladeReader::LINE_SIZE);
+      MPICall(MPI_File_read_all(
+        tempFile, inBuf.data(), vtkWindBladeReader::LINE_SIZE, MPI_BYTE, &status));
+      inStr.write(inBuf.data(), vtkWindBladeReader::LINE_SIZE);
     }
   }
 
@@ -313,11 +308,8 @@ bool vtkPWindBladeReader::FindVariableOffsets()
   fileName << this->RootDirectory << "/" << this->DataDirectory << "/" << this->DataBaseName
            << this->TimeStepFirst;
 
-  char* cchar = new char[strlen(fileName.str().c_str()) + 1];
-  strcpy(cchar, fileName.str().c_str());
-  MPICall(MPI_File_open(
-    MPI_COMM_WORLD, cchar, MPI_MODE_RDONLY, MPI_INFO_NULL, &this->PInternal->FilePtr));
-  delete[] cchar;
+  MPICall(MPI_File_open(MPI_COMM_WORLD, fileName.str().c_str(), MPI_MODE_RDONLY, MPI_INFO_NULL,
+    &this->PInternal->FilePtr));
 
   if (this->PInternal->FilePtr == nullptr)
   {
@@ -371,12 +363,9 @@ void vtkPWindBladeReader::CreateZTopography(float* zValues)
 
   int blockSize = this->Dimension[0] * this->Dimension[1];
   float* topoData = new float[blockSize];
-  char* cchar = new char[strlen(fileName.str().c_str()) + 1];
 
-  strcpy(cchar, fileName.str().c_str());
-  MPICall(MPI_File_open(
-    MPI_COMM_WORLD, cchar, MPI_MODE_RDONLY, MPI_INFO_NULL, &this->PInternal->FilePtr));
-  delete[] cchar;
+  MPICall(MPI_File_open(MPI_COMM_WORLD, fileName.str().c_str(), MPI_MODE_RDONLY, MPI_INFO_NULL,
+    &this->PInternal->FilePtr));
 
   MPI_Status status;
   char native[7] = "native";
@@ -406,10 +395,8 @@ void vtkPWindBladeReader::SetupBladeData()
 
   MPI_File tempFile;
   char native[7] = "native";
-  char* cchar = new char[strlen(fileName.str().c_str()) + 1];
-  strcpy(cchar, fileName.str().c_str());
-  MPICall(MPI_File_open(MPI_COMM_WORLD, cchar, MPI_MODE_RDONLY, MPI_INFO_NULL, &tempFile));
-  delete[] cchar;
+  MPICall(MPI_File_open(
+    MPI_COMM_WORLD, fileName.str().c_str(), MPI_MODE_RDONLY, MPI_INFO_NULL, &tempFile));
 
   std::stringstream inStr;
   MPI_Offset i, tempSize;
@@ -422,14 +409,14 @@ void vtkPWindBladeReader::SetupBladeData()
   {
     if (i + vtkWindBladeReader::LINE_SIZE > tempSize)
     {
-      MPICall(MPI_File_read_all(tempFile, &(inBuf[0]), tempSize - i, MPI_BYTE, &status));
-      inStr.write(&(inBuf[0]), tempSize - i);
+      MPICall(MPI_File_read_all(tempFile, inBuf.data(), tempSize - i, MPI_BYTE, &status));
+      inStr.write(inBuf.data(), tempSize - i);
     }
     else
     {
-      MPICall(
-        MPI_File_read_all(tempFile, &(inBuf[0]), vtkWindBladeReader::LINE_SIZE, MPI_BYTE, &status));
-      inStr.write(&(inBuf[0]), vtkWindBladeReader::LINE_SIZE);
+      MPICall(MPI_File_read_all(
+        tempFile, inBuf.data(), vtkWindBladeReader::LINE_SIZE, MPI_BYTE, &status));
+      inStr.write(inBuf.data(), vtkWindBladeReader::LINE_SIZE);
     }
   }
 
@@ -448,10 +435,8 @@ void vtkPWindBladeReader::SetupBladeData()
   fileName2 << this->RootDirectory << "/" << this->TurbineDirectory << "/" << this->TurbineBladeName
             << this->TimeStepFirst;
 
-  cchar = new char[strlen(fileName2.str().c_str()) + 1];
-  strcpy(cchar, fileName2.str().c_str());
-  MPICall(MPI_File_open(MPI_COMM_WORLD, cchar, MPI_MODE_RDONLY, MPI_INFO_NULL, &tempFile));
-  delete[] cchar;
+  MPICall(MPI_File_open(
+    MPI_COMM_WORLD, fileName2.str().c_str(), MPI_MODE_RDONLY, MPI_INFO_NULL, &tempFile));
 
   std::stringstream inStr2;
 
@@ -462,14 +447,14 @@ void vtkPWindBladeReader::SetupBladeData()
   {
     if (i + vtkWindBladeReader::LINE_SIZE > tempSize)
     {
-      MPICall(MPI_File_read_all(tempFile, &(inBuf[0]), tempSize - i, MPI_BYTE, &status));
-      inStr2.write(&(inBuf[0]), tempSize - i);
+      MPICall(MPI_File_read_all(tempFile, inBuf.data(), tempSize - i, MPI_BYTE, &status));
+      inStr2.write(inBuf.data(), tempSize - i);
     }
     else
     {
-      MPICall(
-        MPI_File_read_all(tempFile, &(inBuf[0]), vtkWindBladeReader::LINE_SIZE, MPI_BYTE, &status));
-      inStr2.write(&(inBuf[0]), vtkWindBladeReader::LINE_SIZE);
+      MPICall(MPI_File_read_all(
+        tempFile, inBuf.data(), vtkWindBladeReader::LINE_SIZE, MPI_BYTE, &status));
+      inStr2.write(inBuf.data(), vtkWindBladeReader::LINE_SIZE);
     }
   }
 
@@ -478,19 +463,17 @@ void vtkPWindBladeReader::SetupBladeData()
   if (!inStr2)
   {
     vtkWarningMacro(
-      "Could not open blade file: " << fileName2.str().c_str() << " to calculate blade cells.");
+      "Could not open blade file: " << fileName2.str() << " to calculate blade cells.");
     for (int j = this->TimeStepFirst + this->TimeStepDelta; j <= this->TimeStepLast;
          j += this->TimeStepDelta)
     {
       std::ostringstream fileName3;
       fileName3 << this->RootDirectory << "/" << this->TurbineDirectory << "/"
                 << this->TurbineBladeName << j;
-      // std::cout << "Trying " << fileName3.str().c_str() << "...";
+      // std::cout << "Trying " << fileName3.str() << "...";
 
-      cchar = new char[strlen(fileName3.str().c_str()) + 1];
-      strcpy(cchar, fileName3.str().c_str());
-      MPICall(MPI_File_open(MPI_COMM_WORLD, cchar, MPI_MODE_RDONLY, MPI_INFO_NULL, &tempFile));
-      delete[] cchar;
+      MPICall(MPI_File_open(
+        MPI_COMM_WORLD, fileName3.str().c_str(), MPI_MODE_RDONLY, MPI_INFO_NULL, &tempFile));
 
       inStr2.clear();
       inStr2.str("");
@@ -502,14 +485,14 @@ void vtkPWindBladeReader::SetupBladeData()
       {
         if (i + vtkWindBladeReader::LINE_SIZE > tempSize)
         {
-          MPICall(MPI_File_read_all(tempFile, &(inBuf[0]), tempSize - i, MPI_BYTE, &status));
-          inStr2.write(&(inBuf[0]), tempSize - i);
+          MPICall(MPI_File_read_all(tempFile, inBuf.data(), tempSize - i, MPI_BYTE, &status));
+          inStr2.write(inBuf.data(), tempSize - i);
         }
         else
         {
           MPICall(MPI_File_read_all(
-            tempFile, &(inBuf[0]), vtkWindBladeReader::LINE_SIZE, MPI_BYTE, &status));
-          inStr2.write(&(inBuf[0]), vtkWindBladeReader::LINE_SIZE);
+            tempFile, inBuf.data(), vtkWindBladeReader::LINE_SIZE, MPI_BYTE, &status));
+          inStr2.write(inBuf.data(), vtkWindBladeReader::LINE_SIZE);
         }
       }
       MPICall(MPI_File_close(&tempFile));
@@ -536,13 +519,13 @@ void vtkPWindBladeReader::SetupBladeData()
     // five items per line in header, so skip those lines
     this->NumberOfLinesToSkip = this->NumberOfBladeTowers * (int)ceil(numColumns / 5.0);
     // now skip the first few lines based on header, if that applies
-    while (inStr2.getline(&(inBuf[0]), vtkWindBladeReader::LINE_SIZE) &&
+    while (inStr2.getline(inBuf.data(), vtkWindBladeReader::LINE_SIZE) &&
       linesSkipped < this->NumberOfLinesToSkip - 1)
     {
       linesSkipped++;
     }
   }
-  while (inStr2.getline(&(inBuf[0]), vtkWindBladeReader::LINE_SIZE))
+  while (inStr2.getline(inBuf.data(), vtkWindBladeReader::LINE_SIZE))
   {
     this->NumberOfBladeCells++;
   }
@@ -572,11 +555,9 @@ void vtkPWindBladeReader::LoadBladeData(int timeStep)
   // only rank 0 reads this so we have to be careful
   MPI_File tempFile;
   char native[7] = "native";
-  char* cchar = new char[strlen(fileName.str().c_str()) + 1];
-  strcpy(cchar, fileName.str().c_str());
   // here only rank 0 opens it : MPI_COMM_SELF
-  MPICall(MPI_File_open(MPI_COMM_SELF, cchar, MPI_MODE_RDONLY, MPI_INFO_NULL, &tempFile));
-  delete[] cchar;
+  MPICall(MPI_File_open(
+    MPI_COMM_SELF, fileName.str().c_str(), MPI_MODE_RDONLY, MPI_INFO_NULL, &tempFile));
 
   std::stringstream inStr;
   MPI_Offset i, tempSize;
@@ -589,14 +570,14 @@ void vtkPWindBladeReader::LoadBladeData(int timeStep)
   {
     if (i + vtkWindBladeReader::LINE_SIZE > tempSize)
     {
-      MPICall(MPI_File_read(tempFile, &(inBuf[0]), tempSize - i, MPI_BYTE, &status));
-      inStr.write(&(inBuf[0]), tempSize - i);
+      MPICall(MPI_File_read(tempFile, inBuf.data(), tempSize - i, MPI_BYTE, &status));
+      inStr.write(inBuf.data(), tempSize - i);
     }
     else
     {
       MPICall(
-        MPI_File_read(tempFile, &(inBuf[0]), vtkWindBladeReader::LINE_SIZE, MPI_BYTE, &status));
-      inStr.write(&(inBuf[0]), vtkWindBladeReader::LINE_SIZE);
+        MPI_File_read(tempFile, inBuf.data(), vtkWindBladeReader::LINE_SIZE, MPI_BYTE, &status));
+      inStr.write(inBuf.data(), vtkWindBladeReader::LINE_SIZE);
     }
   }
   MPICall(MPI_File_close(&tempFile));

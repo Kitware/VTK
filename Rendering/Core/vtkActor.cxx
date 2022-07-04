@@ -395,6 +395,11 @@ double* vtkActor::GetBounds()
   // of caching. If the values returned this time are different, or
   // the modified time of this class is newer than the cached time,
   // then we need to rebuild.
+  //
+  // `clang-tidy` is wary of this mechanism, but we are also OK if different
+  // NaN representations busts the cache (NaN bounds are likely problematic
+  // elsewhere too).
+  // NOLINTNEXTLINE(bugprone-suspicious-memory-comparison)
   if ((memcmp(this->MapperBounds, bounds, 6 * sizeof(double)) != 0) ||
     (this->GetMTime() > this->BoundsMTime) || this->CoordinateSystem != vtkProp3D::WORLD)
   {

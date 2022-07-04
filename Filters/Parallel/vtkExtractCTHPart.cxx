@@ -30,7 +30,6 @@
 #include "vtkDataSetSurfaceFilter.h"
 #include "vtkDoubleArray.h"
 #include "vtkExecutive.h"
-#include "vtkExtractCTHPart.h"
 #include "vtkGarbageCollector.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
@@ -1327,7 +1326,7 @@ void vtkExtractCTHPart::PrintSelf(ostream& os, vtkIndent indent)
   for (it = this->Internals->VolumeArrayNames.begin();
        it != this->Internals->VolumeArrayNames.end(); ++it)
   {
-    os << i2 << it->c_str() << endl;
+    os << i2 << *it << endl;
   }
   os << indent << "VolumeFractionSurfaceValue: " << this->VolumeFractionSurfaceValue << endl;
   os << indent << "Capping: " << this->Capping << endl;

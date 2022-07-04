@@ -385,7 +385,7 @@ void vtkProjectSphereFilter::TransformCellInformation(
     double parametricCenter[3];
     vtkCell* cell = input->GetCell(cellId);
     cell->GetParametricCenter(parametricCenter);
-    cell->EvaluateLocation(subId, parametricCenter, coord, &weights[0]);
+    cell->EvaluateLocation(subId, parametricCenter, coord, weights.data());
     this->TransformTensors(cellId - skipCounter, coord, output->GetCellData());
   }
 }

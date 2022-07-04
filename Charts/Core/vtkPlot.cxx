@@ -501,8 +501,8 @@ void vtkPlot::SetInputData(vtkTable* table)
 void vtkPlot::SetInputData(
   vtkTable* table, const vtkStdString& xColumn, const vtkStdString& yColumn)
 {
-  vtkDebugMacro(<< "Setting input, X column = \"" << xColumn.c_str() << "\", "
-                << "Y column = \"" << yColumn.c_str() << "\"");
+  vtkDebugMacro(<< "Setting input, X column = \"" << xColumn << "\", "
+                << "Y column = \"" << yColumn << "\"");
 
   this->Data->SetInputData(table);
   this->Data->SetInputArrayToProcess(

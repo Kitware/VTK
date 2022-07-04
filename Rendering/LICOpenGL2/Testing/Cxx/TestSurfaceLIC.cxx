@@ -210,7 +210,7 @@ int TestSurfaceLIC(int argc, char* argv[])
 
   if (!dataObj) // || dataObj->GetNumberOfElements(vtkDataObject::POINT) == 0)
   {
-    cerr << "Error reading file: '" << filename.c_str() << "'" << endl;
+    cerr << "Error reading file: '" << filename << "'" << endl;
     vtkAlgorithm::SetDefaultExecutivePrototype(nullptr);
     return 1;
   }

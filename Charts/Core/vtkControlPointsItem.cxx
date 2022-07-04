@@ -1730,6 +1730,7 @@ std::string vtkControlPointsItem::GetControlPointLabel(vtkIdType pointId)
     result.resize(1024);
     double point[4];
     this->GetControlPoint(pointId, point);
+    // NOLINTNEXTLINE(readability-container-data-pointer): needs C++17
     snprintf(&result[0], 1024, this->LabelFormat, point[0], point[1], point[2], point[3]);
   }
   return result;

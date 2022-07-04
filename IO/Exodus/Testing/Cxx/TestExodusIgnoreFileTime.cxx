@@ -54,7 +54,7 @@ int TestExodusIgnoreFileTime(int argc, char* argv[])
     ? outInfo->Length(vtkStreamingDemandDrivenPipeline::TIME_STEPS())
     : 0;
   std::vector<double> times(numSteps);
-  outInfo->Get(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), &times[0]);
+  outInfo->Get(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), times.data());
   if (fabs(times[1] - 0.000100074) > 1e-6)
   {
     std::cerr << "With IgnoreFileTime off, times[1] was " << times[1]
@@ -65,7 +65,7 @@ int TestExodusIgnoreFileTime(int argc, char* argv[])
   reader->SetIgnoreFileTime(true);
   reader->UpdateInformation();
 
-  outInfo->Get(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), &times[0]);
+  outInfo->Get(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), times.data());
   if (fabs(times[1] - 1) > 1e-6)
   {
     std::cerr << "With IgnoreFileTime on, times[1] was " << times[1] << " but 1 was expected."

@@ -119,7 +119,7 @@ int TestWriteToUnicodeFile(int argc, char* argv[])
   {
     if (!reader->CanReadFile(filename.c_str()))
     {
-      cerr << "CanReadFile failed for " << filename.c_str() << "\n";
+      cerr << "CanReadFile failed for " << filename << "\n";
       return EXIT_FAILURE;
     }
 

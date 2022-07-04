@@ -186,7 +186,7 @@ int vtkEnSightGoldReader::ReadGeometryFile(
       sfilename += "/";
     }
     sfilename += fileName;
-    vtkDebugMacro("full path to geometry file: " << sfilename.c_str());
+    vtkDebugMacro("full path to geometry file: " << sfilename);
   }
   else
   {
@@ -196,7 +196,7 @@ int vtkEnSightGoldReader::ReadGeometryFile(
   this->IS = new vtksys::ifstream(sfilename.c_str(), ios::in);
   if (this->IS->fail())
   {
-    vtkErrorMacro("Unable to open file: " << sfilename.c_str());
+    vtkErrorMacro("Unable to open file: " << sfilename);
     delete this->IS;
     this->IS = nullptr;
     return 0;
@@ -385,7 +385,7 @@ int vtkEnSightGoldReader::ReadMeasuredGeometryFile(
       sfilename += "/";
     }
     sfilename += fileName;
-    vtkDebugMacro("full path to measured geometry file: " << sfilename.c_str());
+    vtkDebugMacro("full path to measured geometry file: " << sfilename);
   }
   else
   {
@@ -395,7 +395,7 @@ int vtkEnSightGoldReader::ReadMeasuredGeometryFile(
   this->IS = new vtksys::ifstream(sfilename.c_str(), ios::in);
   if (this->IS->fail())
   {
-    vtkErrorMacro("Unable to open file: " << sfilename.c_str());
+    vtkErrorMacro("Unable to open file: " << sfilename);
     delete this->IS;
     this->IS = nullptr;
     return 0;
@@ -517,7 +517,7 @@ bool vtkEnSightGoldReader::OpenVariableFile(const char* fileName, const char* va
       sfilename += "/";
     }
     sfilename += fileName;
-    vtkDebugMacro("full path to variable (" << variableType << ") file: " << sfilename.c_str());
+    vtkDebugMacro("full path to variable (" << variableType << ") file: " << sfilename);
   }
   else
   {
@@ -527,7 +527,7 @@ bool vtkEnSightGoldReader::OpenVariableFile(const char* fileName, const char* va
   this->IS = new vtksys::ifstream(sfilename.c_str(), ios::in);
   if (this->IS->fail())
   {
-    vtkErrorMacro("Unable to open file: " << sfilename.c_str());
+    vtkErrorMacro("Unable to open file: " << sfilename);
     delete this->IS;
     this->IS = nullptr;
     return false;
@@ -829,6 +829,7 @@ int vtkEnSightGoldReader::ReadAsymmetricTensorsPerNode(const char* fileName,
 
   // C++11 compatible way to get a pointer to underlying data
   // data() could be used with C++17
+  // NOLINTNEXTLINE(readability-container-data-pointer): needs C++17
   char* linePtr = &line[0];
   this->ReadNextDataLine(linePtr); // skip the description line
 
@@ -1149,6 +1150,7 @@ int vtkEnSightGoldReader::ReadAsymmetricTensorsPerElement(const char* fileName,
 
   // C++11 compatible way to get a pointer to underlying data
   // data() could be used with C++17
+  // NOLINTNEXTLINE(readability-container-data-pointer): needs C++17
   char* linePtr = &line[0];
   this->ReadNextDataLine(linePtr);                // skip the description line
   int lineRead = this->ReadNextDataLine(linePtr); // "part"

@@ -180,7 +180,7 @@ types::DataSet XMLInitDataSet(
     const bool isSpecialName = itSpecialName != specialNames.end();
     if (isSpecialName)
     {
-      const std::string specialName = *itSpecialName;
+      const std::string& specialName = *itSpecialName;
       if (specialName == "connectivity")
       {
         dataArray.IsIdType = true;

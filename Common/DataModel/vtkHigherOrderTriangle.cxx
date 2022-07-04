@@ -592,7 +592,7 @@ void vtkHigherOrderTriangle::Derivatives(
   jI[0] = j0;
   jI[1] = j1;
   jI[2] = j2;
-  this->JacobianInverse(pcoords, jI, &fDs[0]);
+  this->JacobianInverse(pcoords, jI, fDs.data());
 
   // now compute derivates of values provided
   for (k = 0; k < dim; k++) // loop over values per vertex

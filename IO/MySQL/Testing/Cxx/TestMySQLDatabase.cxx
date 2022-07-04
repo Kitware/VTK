@@ -116,7 +116,7 @@ int TestMySQLDatabase(int, char** const)
       {
         cerr << ", ";
       }
-      cerr << query->DataValue(field).ToString().c_str();
+      cerr << query->DataValue(field).ToString();
     }
     cerr << endl;
   }
@@ -145,7 +145,7 @@ int TestMySQLDatabase(int, char** const)
       {
         cerr << ", ";
       }
-      cerr << va->GetValue(field).ToString().c_str();
+      cerr << va->GetValue(field).ToString();
     }
     cerr << endl;
   }
@@ -285,7 +285,7 @@ int TestMySQLDatabase(int, char** const)
           }
           cerr << "     Column: ";
         }
-        cerr << query->DataValue(field).ToString().c_str();
+        cerr << query->DataValue(field).ToString();
       }
       cerr << endl;
     }
@@ -328,7 +328,7 @@ int TestMySQLDatabase(int, char** const)
         {
           cerr << "     Index: ";
         }
-        cerr << query->DataValue(field).ToString().c_str();
+        cerr << query->DataValue(field).ToString();
       }
       cerr << endl;
 
@@ -459,7 +459,7 @@ int TestMySQLDatabase(int, char** const)
     return 1;
   }
 
-  cerr << query->DataValue(0).ToString().c_str() << "> ";
+  cerr << query->DataValue(0).ToString() << "> ";
   cerr << " done." << endl;
 
   // 8. Drop tables

@@ -68,7 +68,7 @@ int vtkTemporalSnapToTimeStep::RequestInformation(vtkInformation* vtkNotUsed(req
   {
     int numTimes = inInfo->Length(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
     this->InputTimeValues.resize(numTimes);
-    inInfo->Get(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), &this->InputTimeValues[0]);
+    inInfo->Get(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), this->InputTimeValues.data());
     this->HasDiscrete = 1;
   }
 

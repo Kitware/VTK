@@ -840,7 +840,7 @@ void vtkAbstractArray::UpdateDiscreteValueSet(double uncertainty, double minimum
         iv = this->GetInformation()->Get(PER_COMPONENT());
       }
       iv->GetInformationObject(c)->Set(
-        DISCRETE_VALUES(), &uniques[c][0], static_cast<int>(uniques[c].size()));
+        DISCRETE_VALUES(), uniques[c].data(), static_cast<int>(uniques[c].size()));
     }
     else
     {
@@ -855,7 +855,7 @@ void vtkAbstractArray::UpdateDiscreteValueSet(double uncertainty, double minimum
   {
     ++numberOfComponentsWithProminentValues;
     this->GetInformation()->Set(
-      DISCRETE_VALUES(), &uniques[nc][0], static_cast<int>(uniques[nc].size()));
+      DISCRETE_VALUES(), uniques[nc].data(), static_cast<int>(uniques[nc].size()));
   }
   else
   { // Remove the key

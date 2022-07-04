@@ -129,7 +129,7 @@ int vtkAggregateDataSetFilter::RequestData(
 
   std::vector<vtkIdType> pointCount(subNumProcs, 0);
   vtkIdType numPoints = input->GetNumberOfPoints();
-  subController->AllGather(&numPoints, &pointCount[0], 1);
+  subController->AllGather(&numPoints, pointCount.data(), 1);
 
   // The first process in the subcontroller to have points is the one that data will
   // be aggregated to. All of the other processes send their data set to that process.

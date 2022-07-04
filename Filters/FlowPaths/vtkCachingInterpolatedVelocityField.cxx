@@ -235,7 +235,7 @@ int vtkCachingInterpolatedVelocityField::InsideTest(double* x)
     int subId;
     if (this->LastCellId != -1 &&
       this->Cache->Cell->EvaluatePosition(
-        x, nullptr, subId, this->Cache->PCoords, this->Cache->Tolerance, &this->Weights[0]) == 1)
+        x, nullptr, subId, this->Cache->PCoords, this->Cache->Tolerance, this->Weights.data()) == 1)
     {
       return 1;
     }
@@ -294,7 +294,8 @@ int vtkCachingInterpolatedVelocityField::FunctionValues(IVFDataSetInfo* data, do
       inbox = false;
     }
     if (inbox &&
-      data->Cell->EvaluatePosition(x, nullptr, subId, data->PCoords, dist2, &this->Weights[0]) == 1)
+      data->Cell->EvaluatePosition(x, nullptr, subId, data->PCoords, dist2, this->Weights.data()) ==
+        1)
     {
       this->FastCompute(data, f);
       this->CellCacheHit++;
@@ -373,8 +374,8 @@ bool vtkCachingInterpolatedVelocityField::InterpolatePoint(vtkPointData* outPD, 
   {
     return false;
   }
-  outPD->InterpolatePoint(
-    this->Cache->DataSet->GetPointData(), outIndex, this->Cache->Cell->PointIds, &this->Weights[0]);
+  outPD->InterpolatePoint(this->Cache->DataSet->GetPointData(), outIndex,
+    this->Cache->Cell->PointIds, this->Weights.data());
   return true;
 }
 //------------------------------------------------------------------------------
@@ -386,7 +387,7 @@ bool vtkCachingInterpolatedVelocityField::InterpolatePoint(
     return false;
   }
   vtkPointData* inPD = inCIVF->Cache->DataSet->GetPointData();
-  outPD->InterpolatePoint(inPD, outIndex, this->Cache->Cell->PointIds, &this->Weights[0]);
+  outPD->InterpolatePoint(inPD, outIndex, this->Cache->Cell->PointIds, this->Weights.data());
   return true;
 }
 //------------------------------------------------------------------------------
@@ -435,7 +436,7 @@ void vtkCachingInterpolatedVelocityField::PrintSelf(ostream& os, vtkIndent inden
 
   if (!Weights.empty())
   {
-    os << indent << "Weights: " << &this->Weights[0] << endl;
+    os << indent << "Weights: " << this->Weights.data() << endl;
   }
   else
   {

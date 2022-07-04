@@ -103,7 +103,7 @@ vtkInformationVector** vtkExecutiveInternals::GetInputInformation(int newNumberO
   // Return the array of information vector pointers.
   if (newNumberOfPorts > 0)
   {
-    return &this->InputInformation[0];
+    return this->InputInformation.data();
   }
   else
   {
@@ -757,7 +757,7 @@ int vtkExecutive::CheckAlgorithm(const char* method, vtkInformation* request)
                     << " invoked during another request.  "
                        "Returning failure to algorithm "
                     << this->Algorithm->GetObjectDescription() << " for the recursive request:\n"
-                    << rqmsg.str().c_str());
+                    << rqmsg.str());
     }
     else
     {

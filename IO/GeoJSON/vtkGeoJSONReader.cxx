@@ -144,7 +144,7 @@ void vtkGeoJSONReader::GeoJSONReaderInternal::ParseRoot(const Json::Value& root,
   }
 
   // Check type
-  Json::Value rootType = root["type"];
+  Json::Value const& rootType = root["type"];
   if (rootType.isNull())
   {
     vtkGenericWarningMacro(<< "ParseRoot: Missing type node");
@@ -281,7 +281,7 @@ void vtkGeoJSONReader::GeoJSONReaderInternal::ParseFeatureProperties(
     spec = *iter;
     property.Name = spec.Name;
 
-    Json::Value propertyNode = propertiesNode[spec.Name];
+    Json::Value const& propertyNode = propertiesNode[spec.Name];
     if (propertyNode.isNull())
     {
       property.Value = spec.Value;

@@ -290,8 +290,8 @@ void vtkExodusIIReaderParser::FinishedParsing()
     }
 
     std::ostringstream stream;
-    stream << "Block: " << iter->first << " (" << desc.c_str() << ") "
-           << this->BlockID_To_Part[iter->first].c_str();
+    stream << "Block: " << iter->first << " (" << desc << ") "
+           << this->BlockID_To_Part[iter->first];
     this->NamesArray->SetValue(iter->second, stream.str().c_str());
   }
 

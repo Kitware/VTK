@@ -125,7 +125,7 @@ int vtkAMRResampleFilter::RequestUpdateExtent(vtkInformation*, vtkInformationVec
     info->Set(vtkCompositeDataPipeline::LOAD_REQUESTED_BLOCKS(), 1);
 
     // Tell reader which blocks this process requires
-    info->Set(vtkCompositeDataPipeline::UPDATE_COMPOSITE_INDICES(), &this->BlocksToLoad[0],
+    info->Set(vtkCompositeDataPipeline::UPDATE_COMPOSITE_INDICES(), this->BlocksToLoad.data(),
       static_cast<int>(this->BlocksToLoad.size()));
   }
   return 1;

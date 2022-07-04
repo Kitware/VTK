@@ -428,7 +428,7 @@ void GetGhostedAMRData(vtkOverlappingAMR* amr, vtkStructuredAMRGridConnectivity*
   {
     blocksPerLevel.push_back(amr->GetNumberOfDataSets(i));
   }
-  ghostedAMR->Initialize(static_cast<int>(blocksPerLevel.size()), &blocksPerLevel[0]);
+  ghostedAMR->Initialize(static_cast<int>(blocksPerLevel.size()), blocksPerLevel.data());
 
   unsigned int levelIdx = 0;
   for (; levelIdx < amr->GetNumberOfLevels(); ++levelIdx)

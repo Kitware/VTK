@@ -325,7 +325,7 @@ void vtkAMRSliceFilter::GetAMRSliceInPlane(
     }
   }
 
-  out->Initialize(static_cast<int>(blocksPerLevel.size()), &blocksPerLevel[0]);
+  out->Initialize(static_cast<int>(blocksPerLevel.size()), blocksPerLevel.data());
   out->SetGridDescription(description);
   out->SetOrigin(p->GetOrigin());
   vtkTimerLog::MarkStartEvent("AMRSlice::GetAMRSliceInPlane");
@@ -576,7 +576,7 @@ int vtkAMRSliceFilter::RequestUpdateExtent(vtkInformation*, vtkInformationVector
   // Send upstream request for higher resolution
   if (!this->BlocksToLoad.empty())
   {
-    inInfo->Set(vtkCompositeDataPipeline::UPDATE_COMPOSITE_INDICES(), &this->BlocksToLoad[0],
+    inInfo->Set(vtkCompositeDataPipeline::UPDATE_COMPOSITE_INDICES(), this->BlocksToLoad.data(),
       static_cast<int>(this->BlocksToLoad.size()));
   }
   return 1;

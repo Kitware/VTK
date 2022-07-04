@@ -162,7 +162,7 @@ void vtkXMLPMultiBlockDataWriter::FillDataTypes(vtkCompositeDataSet* hdInput)
   if (numBlocks)
   {
     this->Controller->Gather(
-      myDataTypes, &this->XMLPMultiBlockDataWriterInternal->PieceProcessList[0], numBlocks, 0);
+      myDataTypes, this->XMLPMultiBlockDataWriterInternal->PieceProcessList.data(), numBlocks, 0);
   }
 }
 
@@ -265,7 +265,7 @@ int vtkXMLPMultiBlockDataWriter::ParallelWriteNonCompositeData(
     int numberOfProcesses = this->Controller->GetNumberOfProcesses();
     std::vector<int> pieceProcessList(numberOfProcesses);
     this->XMLPMultiBlockDataWriterInternal->GetPieceProcessList(
-      currentFileIndex, &pieceProcessList[0]);
+      currentFileIndex, pieceProcessList.data());
 
     int numPieces = 0;
     for (int procId = 0; procId < numberOfProcesses; procId++)

@@ -320,7 +320,7 @@ int vtkGenericEnSightReader::DetermineEnSightVersion(int quiet)
       sfilename += "/";
     }
     sfilename += this->CaseFileName;
-    vtkDebugMacro("full path to case file: " << sfilename.c_str());
+    vtkDebugMacro("full path to case file: " << sfilename);
   }
   else
   {
@@ -331,7 +331,7 @@ int vtkGenericEnSightReader::DetermineEnSightVersion(int quiet)
   if (this->IS->fail())
   {
     if (!quiet)
-      vtkErrorMacro("Unable to open file: " << sfilename.c_str());
+      vtkErrorMacro("Unable to open file: " << sfilename);
     delete this->IS;
     this->IS = nullptr;
     return -1;
@@ -424,7 +424,7 @@ int vtkGenericEnSightReader::DetermineEnSightVersion(int quiet)
                 sfilename += "/";
               }
               sfilename += fileName;
-              vtkDebugMacro("full path to geometry file: " << sfilename.c_str());
+              vtkDebugMacro("full path to geometry file: " << sfilename);
             }
             else
             {
@@ -438,7 +438,7 @@ int vtkGenericEnSightReader::DetermineEnSightVersion(int quiet)
             {
               if (!quiet)
               {
-                vtkErrorMacro("Unable to open file: " << sfilename.c_str());
+                vtkErrorMacro("Unable to open file: " << sfilename);
                 vtkWarningMacro("Assuming binary file.");
               }
               this->IFile = nullptr;
@@ -538,7 +538,7 @@ int vtkGenericEnSightReader::DetermineEnSightVersion(int quiet)
             sfilename += "/";
           }
           sfilename += fileName;
-          vtkDebugMacro("full path to geometry file: " << sfilename.c_str());
+          vtkDebugMacro("full path to geometry file: " << sfilename);
         }
         else
         {
@@ -552,7 +552,7 @@ int vtkGenericEnSightReader::DetermineEnSightVersion(int quiet)
         {
           if (!quiet)
           {
-            vtkErrorMacro("Unable to open file: " << sfilename.c_str());
+            vtkErrorMacro("Unable to open file: " << sfilename);
             vtkWarningMacro("Assuming binary file.");
           }
           this->IFile = nullptr;
@@ -1122,7 +1122,7 @@ int vtkGenericEnSightReader::ReplaceWildcards(char* fileName, int timeSet, int f
       sfilename += "/";
     }
     sfilename += this->CaseFileName;
-    vtkDebugMacro("full path to case file: " << sfilename.c_str());
+    vtkDebugMacro("full path to case file: " << sfilename);
   }
   else
   {

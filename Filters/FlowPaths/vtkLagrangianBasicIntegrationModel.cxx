@@ -716,7 +716,7 @@ bool vtkLagrangianBasicIntegrationModel::FindInLocators(double* x, vtkLagrangian
   cellId = data->LastCellId;
   double* lastPosition = data->LastCellPosition;
 
-  weights = &data->LastWeights[0];
+  weights = data->LastWeights.data();
 
   if (data->LastDataSetIndex != -1)
   {

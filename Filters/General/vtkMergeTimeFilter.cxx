@@ -175,7 +175,7 @@ int vtkMergeTimeFilter::RequestInformation(vtkInformation* vtkNotUsed(request),
   {
     double outRange[2] = { this->OutputTimeSteps.front(), this->OutputTimeSteps.back() };
     outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_RANGE(), outRange, 2);
-    outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), &this->OutputTimeSteps[0],
+    outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), this->OutputTimeSteps.data(),
       static_cast<int>(this->OutputTimeSteps.size()));
   }
 

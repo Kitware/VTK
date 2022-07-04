@@ -669,10 +669,10 @@ int vtkBandedPolyDataContourFilter::RequestData(vtkInformation* vtkNotUsed(reque
         if (edgeTable->IsEdge(v, vR) == -1)
         {
           numEdgePts =
-            this->ClipEdge(v, vR, newPts, inScalars, outScalars, pd, outPD, &pointIds[0]);
+            this->ClipEdge(v, vR, newPts, inScalars, outScalars, pd, outPD, pointIds.data());
           if (numEdgePts > 0)
           {
-            intList->InsertNextCell(numEdgePts, &pointIds[0]);
+            intList->InsertNextCell(numEdgePts, pointIds.data());
             edgeTable->InsertEdge(v, vR, // associate ints with edge
               intList->GetNumberOfCells() - 1);
           }
@@ -885,7 +885,7 @@ int vtkBandedPolyDataContourFilter::RequestData(vtkInformation* vtkNotUsed(reque
           std::transform(r1, r, it, copyPointIds);
           vtkDebugMacro(<< "clip_scalar=" << clip_scalar << "\n"
                         << " pointIds=" << pointIds);
-          cellId = this->InsertCell(newPolys, static_cast<int>(pointIds.size()), &pointIds[0],
+          cellId = this->InsertCell(newPolys, static_cast<int>(pointIds.size()), pointIds.data(),
             cellId, clip_scalar, newScalars);
           if (this->GenerateContourEdges && r2 != l1)
           {

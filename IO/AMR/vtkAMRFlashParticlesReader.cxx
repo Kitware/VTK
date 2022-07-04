@@ -64,37 +64,37 @@ static void GetParticleCoordinates(hid_t& dataIdx, std::vector<double>& xcoords,
     case 1:
       if (iReader->FileFormatVersion < FLASH_READER_FLASH3_FFV8)
       {
-        H5Dread(dataIdx, theTypes[0], H5S_ALL, H5S_ALL, H5P_DEFAULT, &xcoords[0]);
+        H5Dread(dataIdx, theTypes[0], H5S_ALL, H5S_ALL, H5P_DEFAULT, xcoords.data());
       }
       else
       {
-        iReader->ReadParticlesComponent(dataIdx, "Particles/posx", &xcoords[0]);
+        iReader->ReadParticlesComponent(dataIdx, "Particles/posx", xcoords.data());
       }
       break;
     case 2:
       if (iReader->FileFormatVersion < FLASH_READER_FLASH3_FFV8)
       {
-        H5Dread(dataIdx, theTypes[0], H5S_ALL, H5S_ALL, H5P_DEFAULT, &xcoords[0]);
-        H5Dread(dataIdx, theTypes[1], H5S_ALL, H5S_ALL, H5P_DEFAULT, &ycoords[0]);
+        H5Dread(dataIdx, theTypes[0], H5S_ALL, H5S_ALL, H5P_DEFAULT, xcoords.data());
+        H5Dread(dataIdx, theTypes[1], H5S_ALL, H5S_ALL, H5P_DEFAULT, ycoords.data());
       }
       else
       {
-        iReader->ReadParticlesComponent(dataIdx, "Particles/posx", &xcoords[0]);
-        iReader->ReadParticlesComponent(dataIdx, "Particles/posy", &ycoords[0]);
+        iReader->ReadParticlesComponent(dataIdx, "Particles/posx", xcoords.data());
+        iReader->ReadParticlesComponent(dataIdx, "Particles/posy", ycoords.data());
       }
       break;
     case 3:
       if (iReader->FileFormatVersion < FLASH_READER_FLASH3_FFV8)
       {
-        H5Dread(dataIdx, theTypes[0], H5S_ALL, H5S_ALL, H5P_DEFAULT, &xcoords[0]);
-        H5Dread(dataIdx, theTypes[1], H5S_ALL, H5S_ALL, H5P_DEFAULT, &ycoords[0]);
-        H5Dread(dataIdx, theTypes[2], H5S_ALL, H5S_ALL, H5P_DEFAULT, &zcoords[0]);
+        H5Dread(dataIdx, theTypes[0], H5S_ALL, H5S_ALL, H5P_DEFAULT, xcoords.data());
+        H5Dread(dataIdx, theTypes[1], H5S_ALL, H5S_ALL, H5P_DEFAULT, ycoords.data());
+        H5Dread(dataIdx, theTypes[2], H5S_ALL, H5S_ALL, H5P_DEFAULT, zcoords.data());
       }
       else
       {
-        iReader->ReadParticlesComponent(dataIdx, "Particles/posx", &xcoords[0]);
-        iReader->ReadParticlesComponent(dataIdx, "Particles/posy", &ycoords[0]);
-        iReader->ReadParticlesComponent(dataIdx, "Particles/posz", &zcoords[0]);
+        iReader->ReadParticlesComponent(dataIdx, "Particles/posx", xcoords.data());
+        iReader->ReadParticlesComponent(dataIdx, "Particles/posy", ycoords.data());
+        iReader->ReadParticlesComponent(dataIdx, "Particles/posz", zcoords.data());
       }
       break;
     default:

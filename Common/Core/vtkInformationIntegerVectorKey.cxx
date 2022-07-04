@@ -115,7 +115,7 @@ int* vtkInformationIntegerVectorKey::Get(vtkInformation* info)
 {
   vtkInformationIntegerVectorValue* v =
     static_cast<vtkInformationIntegerVectorValue*>(this->GetAsObjectBase(info));
-  return (v && !v->Value.empty()) ? (&v->Value[0]) : nullptr;
+  return (v && !v->Value.empty()) ? v->Value.data() : nullptr;
 }
 
 //------------------------------------------------------------------------------
@@ -181,5 +181,5 @@ int* vtkInformationIntegerVectorKey::GetWatchAddress(vtkInformation* info)
 {
   vtkInformationIntegerVectorValue* v =
     static_cast<vtkInformationIntegerVectorValue*>(this->GetAsObjectBase(info));
-  return (v && !v->Value.empty()) ? (&v->Value[0]) : nullptr;
+  return (v && !v->Value.empty()) ? v->Value.data() : nullptr;
 }

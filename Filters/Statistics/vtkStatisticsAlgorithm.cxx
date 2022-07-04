@@ -317,8 +317,8 @@ void vtkStatisticsAlgorithm::Assess(
       // If requested column does not exist in input, ignore request
       if (!inData->GetColumnByName(varName))
       {
-        vtkWarningMacro("InData table does not have a column "
-          << varName.c_str() << ". Ignoring request containing it.");
+        vtkWarningMacro(
+          "InData table does not have a column " << varName << ". Ignoring request containing it.");
 
         invalidRequest = true;
         break;

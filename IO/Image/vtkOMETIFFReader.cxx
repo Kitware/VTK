@@ -377,7 +377,8 @@ int vtkOMETIFFReader::RequestInformation(
       start += increment;
       return ret;
     });
-    outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), &timesteps[0], omeinternals.SizeT);
+    outInfo->Set(
+      vtkStreamingDemandDrivenPipeline::TIME_STEPS(), timesteps.data(), omeinternals.SizeT);
 
     double range[2] = { timesteps.front(), timesteps.back() };
     outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_RANGE(), range, 2);

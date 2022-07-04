@@ -101,7 +101,7 @@ public:
 
     // We have data.
     std::stringstream is;
-    is << s.c_str();
+    is << s;
     is >> val[0] >> val[1] >> val[2] >> val[3];
 
     return 1;

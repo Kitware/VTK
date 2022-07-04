@@ -193,7 +193,7 @@ void vtkMultiThreshold::Interval::PrintNode(ostream& os)
   }
   else
   {
-    os << this->Norm.Name.c_str();
+    os << this->Norm.Name;
   }
   if (this->Norm.Component < 0)
   {
@@ -566,7 +566,7 @@ int vtkMultiThreshold::RequestData(
     // For each norm of an attribute defined over the mesh:
     int normIdx = 0;
     for (aacn = this->IntervalRules.begin();
-         (unresolvedOutputs.size()) && (aacn != this->IntervalRules.end()); ++aacn, ++normIdx)
+         !unresolvedOutputs.empty() && (aacn != this->IntervalRules.end()); ++aacn, ++normIdx)
     {
       double cellNorm[2]; // min,max used if aacn is a point array. otherwise, just min is used.
       Interval* ival;
@@ -574,7 +574,7 @@ int vtkMultiThreshold::RequestData(
       aacn->first.ComputeNorm(inCell, cell, NormArrays[normIdx], cellNorm);
 
       // For each interval test associated with the current norm:
-      for (iival = 0; (unresolvedOutputs.size()) && (iival < (int)aacn->second.size()); ++iival)
+      for (iival = 0; !unresolvedOutputs.empty() && (iival < (int)aacn->second.size()); ++iival)
       {
         ival = aacn->second[iival];
         // See if the intervals overlap properly

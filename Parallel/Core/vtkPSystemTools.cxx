@@ -31,6 +31,7 @@ void vtkPSystemTools::BroadcastString(std::string& str, int proc)
   str.resize(size);
   if (size)
   {
+    // NOLINTNEXTLINE(readability-container-data-pointer): needs C++17
     controller->Broadcast(&str[0], size, proc);
   }
 }

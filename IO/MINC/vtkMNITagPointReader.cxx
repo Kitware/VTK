@@ -452,8 +452,7 @@ int vtkMNITagPointReader::ReadFile(vtkPolyData* output1, vtkPolyData* output2)
   this->SkipWhitespace(infile, linetext, pos, 1);
   int numVolumes = 1;
   std::string identifier;
-  if (!this->ParseLeftHandSide(infile, linetext, pos, identifier) ||
-    strcmp(identifier.c_str(), "Volumes") != 0 ||
+  if (!this->ParseLeftHandSide(infile, linetext, pos, identifier) || identifier != "Volumes" ||
     !this->ParseIntValues(infile, linetext, pos, &numVolumes, 1) ||
     (numVolumes != 1 && numVolumes != 2) || !this->SkipWhitespace(infile, linetext, pos, 0) ||
     *pos != ';')
@@ -470,8 +469,7 @@ int vtkMNITagPointReader::ReadFile(vtkPolyData* output1, vtkPolyData* output2)
   this->ReadLineAfterComments(infile, linetext, pos);
 
   // Rad the tag points
-  if (!this->ParseLeftHandSide(infile, linetext, pos, identifier) ||
-    strcmp(identifier.c_str(), "Points") != 0)
+  if (!this->ParseLeftHandSide(infile, linetext, pos, identifier) || identifier != "Points")
   {
     vtkErrorMacro("ReadFile: Cannot find Points in file; " << this->FileName);
     infile.close();

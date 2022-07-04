@@ -41,11 +41,11 @@ int TestMultiBlockUnstructuredGridVolumeMapper(int argc, char* argv[])
 
   // Create the reader for the data.
   // This is the data that will be volume rendered.
-  vtkLog(INFO, "Loading " << filename.c_str());
+  vtkLog(INFO, "Loading " << filename);
   vtkNew<vtkExodusIIReader> reader;
   if (!reader->CanReadFile(filename.c_str()))
   {
-    vtkLog(ERROR, "Error: cannot open file " << filename.c_str());
+    vtkLog(ERROR, "Error: cannot open file " << filename);
     return EXIT_FAILURE;
   }
   reader->SetFileName(filename.c_str());

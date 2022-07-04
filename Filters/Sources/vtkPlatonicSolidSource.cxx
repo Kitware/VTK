@@ -35,20 +35,20 @@ namespace vtkPlatonicSolidSourceDetail
 // the origin with radius 1.0.
 // The golden ration phi = (1+sqrt(5))/2=1.61803398875 enters into many
 // of these values.
-static double TetraPoints[] = {
+constexpr double TetraPoints[] = {
   1.0, 1.0, 1.0,   //
   -1.0, 1.0, -1.0, //
   1.0, -1.0, -1.0, //
   -1.0, -1.0, 1.0  //
 };
-static vtkIdType TetraVerts[] = {
+constexpr vtkIdType TetraVerts[] = {
   0, 1, 2, //
   1, 3, 2, //
   0, 2, 3, //
   0, 3, 1  //
 };
 
-static double CubePoints[] = {
+constexpr double CubePoints[] = {
   -1.0, -1.0, -1.0, //
   1.0, -1.0, -1.0,  //
   1.0, 1.0, -1.0,   //
@@ -58,7 +58,7 @@ static double CubePoints[] = {
   1.0, 1.0, 1.0,    //
   -1.0, 1.0, 1.0    //
 };
-static vtkIdType CubeVerts[] = {
+constexpr vtkIdType CubeVerts[] = {
   0, 1, 5, 4, //
   0, 4, 7, 3, //
   4, 5, 6, 7, //
@@ -67,7 +67,7 @@ static vtkIdType CubeVerts[] = {
   0, 3, 2, 1  //
 };
 
-static double OctPoints[] = {
+constexpr double OctPoints[] = {
   -1.0, -1.0, 0.0,            //
   1.0, -1.0, 0.0,             //
   1.0, 1.0, 0.0,              //
@@ -75,7 +75,7 @@ static double OctPoints[] = {
   0.0, 0.0, -1.4142135623731, //
   0.0, 0.0, 1.4142135623731   //
 };
-static vtkIdType OctVerts[] = {
+constexpr vtkIdType OctVerts[] = {
   4, 1, 0, //
   4, 2, 1, //
   4, 3, 2, //
@@ -86,9 +86,9 @@ static vtkIdType OctVerts[] = {
   3, 0, 5  //
 };
 
-static double a_0 = 0.61803398875;
-static double b = 0.381966011250;
-static double DodePoints[] = {
+constexpr double a_0 = 0.61803398875;
+constexpr double b = 0.381966011250;
+constexpr double DodePoints[] = {
   b, 0, 1,          //
   -b, 0, 1,         //
   b, 0, -1,         //
@@ -110,7 +110,7 @@ static double DodePoints[] = {
   -a_0, -a_0, a_0,  //
   a_0, -a_0, -a_0   //
 };
-static vtkIdType DodeVerts[] = {
+constexpr vtkIdType DodeVerts[] = {
   0, 16, 5, 12, 1,   //
   1, 18, 7, 13, 0,   //
   2, 19, 6, 14, 3,   //
@@ -125,9 +125,9 @@ static vtkIdType DodeVerts[] = {
   11, 18, 1, 12, 10  //
 };
 
-static double c = 0.5;
-static double d = 0.30901699;
-static double IcosaPoints[] = {
+constexpr double c = 0.5;
+constexpr double d = 0.30901699;
+constexpr double IcosaPoints[] = {
   0.0, d, -c,  //
   0.0, d, c,   //
   0.0, -d, c,  //
@@ -141,7 +141,7 @@ static double IcosaPoints[] = {
   -c, 0.0, -d, //
   c, 0.0, -d   //
 };
-static vtkIdType IcosaVerts[] = {
+constexpr vtkIdType IcosaVerts[] = {
   0, 5, 3,  //
   1, 3, 5,  //
   1, 2, 9,  //
@@ -183,8 +183,12 @@ int vtkPlatonicSolidSource::RequestData(vtkInformation* vtkNotUsed(request),
   vtkPolyData* output = vtkPolyData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   int i;
-  double *pptr, *solidPoints = nullptr, solidScale = 1.0;
-  vtkIdType *cptr, numPts = 0, numCells = 0, cellSize = 0, *solidVerts = nullptr;
+  double solidScale = 1.0;
+  const double* pptr;
+  const double* solidPoints = nullptr;
+  vtkIdType numPts = 0, numCells = 0, cellSize = 0;
+  const vtkIdType* cptr;
+  const vtkIdType* solidVerts = nullptr;
 
   vtkDebugMacro(<< "Creating Platonic solid");
 

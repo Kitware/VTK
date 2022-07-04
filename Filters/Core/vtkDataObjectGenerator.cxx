@@ -667,7 +667,7 @@ vtkDataObject* vtkDataObjectGenerator::FillOutputDataObjects(
       }
 
       double origin[3] = { 0, 0, 0 };
-      hbo->Initialize(static_cast<int>(blocksPerLevel.size()), &blocksPerLevel[0]);
+      hbo->Initialize(static_cast<int>(blocksPerLevel.size()), blocksPerLevel.data());
       hbo->SetOrigin(origin);
       hbo->SetGridDescription(VTK_XYZ_GRID);
       vtkIdType gcnt = 0;

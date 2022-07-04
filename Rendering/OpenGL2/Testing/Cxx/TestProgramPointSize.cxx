@@ -26,8 +26,6 @@
 
 #include "vtkRenderWindowInteractor.h"
 
-#include "vtkOpenGLRenderWindow.h"
-
 //------------------------------------------------------------------------------
 int TestProgramPointSize(int argc, char* argv[])
 {

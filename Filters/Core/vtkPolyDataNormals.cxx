@@ -29,8 +29,6 @@
 #include "vtkPriorityQueue.h"
 #include "vtkTriangleStrip.h"
 
-#include "vtkNew.h"
-
 vtkStandardNewMacro(vtkPolyDataNormals);
 
 // Construct with feature angle=30, splitting and consistency turned on,

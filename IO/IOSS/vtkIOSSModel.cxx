@@ -407,7 +407,7 @@ struct vtkNodeBlock : vtkGroupingEntity
 
   void AppendMD5(vtksysMD5* md5) const override
   {
-    vtksysMD5_Append(md5, reinterpret_cast<const unsigned char*>(&this->Ids[0]),
+    vtksysMD5_Append(md5, reinterpret_cast<const unsigned char*>(this->Ids.data()),
       static_cast<int>(sizeof(int32_t) * this->Ids.size()));
   }
 

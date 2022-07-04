@@ -284,7 +284,7 @@ vtkIdType vtkReflectionFilter::ReflectNon3DCell(
       newCellPts[j] += numInputPoints;
     }
   }
-  return output->InsertNextCell(cellType, numCellPts, &newCellPts[0]);
+  return output->InsertNextCell(cellType, numCellPts, newCellPts.data());
 }
 
 //------------------------------------------------------------------------------
@@ -608,7 +608,7 @@ int vtkReflectionFilter::RequestDataInternal(
               newCellPts[j] += numPts;
             }
           }
-          outputCellId = output->InsertNextCell(cellType, numCellPts, &newCellPts[0]);
+          outputCellId = output->InsertNextCell(cellType, numCellPts, newCellPts.data());
         }
         break;
       }
@@ -940,7 +940,7 @@ int vtkReflectionFilter::RequestDataInternal(
             newCellPts[j] += numPts;
           }
         }
-        outputCellId = output->InsertNextCell(cellType, numCellPts, &newCellPts[0]);
+        outputCellId = output->InsertNextCell(cellType, numCellPts, newCellPts.data());
         break;
       }
       case VTK_BEZIER_WEDGE:
@@ -994,7 +994,7 @@ int vtkReflectionFilter::RequestDataInternal(
             newCellPts[j] += numPts;
           }
         }
-        outputCellId = output->InsertNextCell(cellType, numCellPts, &newCellPts[0]);
+        outputCellId = output->InsertNextCell(cellType, numCellPts, newCellPts.data());
         break;
       }
       case VTK_BEZIER_TETRAHEDRON:
@@ -1042,7 +1042,7 @@ int vtkReflectionFilter::RequestDataInternal(
             newCellPts[j] += numPts;
           }
         }
-        outputCellId = output->InsertNextCell(cellType, numCellPts, &newCellPts[0]);
+        outputCellId = output->InsertNextCell(cellType, numCellPts, newCellPts.data());
         break;
       }
       default:

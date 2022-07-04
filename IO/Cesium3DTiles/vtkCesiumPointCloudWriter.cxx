@@ -93,7 +93,7 @@ struct SaveRgbArray
       {
         rgba[j] = static_cast<char>(array->GetTypedComponent(pointIds->GetId(i), j));
       }
-      out.write(&rgba[0], numberOfComponents);
+      out.write(rgba.data(), numberOfComponents);
     }
   }
 };
@@ -221,7 +221,7 @@ void vtkCesiumPointCloudWriter::WriteData()
     double pointd[3];
     float pointf[3];
     pointSet->GetPoints()->GetPoint(this->PointIds->GetId(i), pointd);
-    vtkMath::Subtract(pointd, &origin[0], pointd);
+    vtkMath::Subtract(pointd, origin.data(), pointd);
     for (int j = 0; j < 3; ++j)
     {
       pointf[j] = pointd[j];

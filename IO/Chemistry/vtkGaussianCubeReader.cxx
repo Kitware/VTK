@@ -27,7 +27,6 @@
 #include "vtkTransform.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnsignedIntArray.h"
-#include <vtksys/SystemTools.hxx>
 
 #include <vtksys/SystemTools.hxx>
 

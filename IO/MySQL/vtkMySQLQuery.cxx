@@ -977,7 +977,7 @@ bool vtkMySQLQuery::SetQuery(const char* newQuery)
   if (!success)
   {
     this->SetLastErrorText(errorMessage.c_str());
-    vtkErrorMacro(<< "SetQuery: Error while preparing statement: " << errorMessage.c_str());
+    vtkErrorMacro(<< "SetQuery: Error while preparing statement: " << errorMessage);
   }
   return success;
 }

@@ -324,7 +324,7 @@ unsigned int vtkXMLCompositeDataReader::CountNestedElements(
     auto child = element->GetNestedElement(cc);
     if (child && child->GetName())
     {
-      if (strcmp(child->GetName(), tagName.c_str()) == 0)
+      if (child->GetName() == tagName)
       {
         ++count;
       }

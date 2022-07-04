@@ -54,7 +54,7 @@ int CanReadFile(vtkObject* that, const std::string& fname)
   FILE* fileFD = vtksys::SystemTools::Fopen(fname, "rb");
   if (fileFD == nullptr)
   {
-    vtkErrorWithObjectMacro(that, << "Unable to open file: " << fname.c_str());
+    vtkErrorWithObjectMacro(that, << "Unable to open file: " << fname);
     return 0;
   }
   fclose(fileFD);

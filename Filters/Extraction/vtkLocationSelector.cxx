@@ -134,7 +134,7 @@ public:
       int subId;
 
       double pcoords[3];
-      auto cid = dataset->FindCell(coords, nullptr, cell, 0, 0.0, subId, pcoords, &weights[0]);
+      auto cid = dataset->FindCell(coords, nullptr, cell, 0, 0.0, subId, pcoords, weights.data());
       if (cid >= 0 && cid < numCells)
       {
         insidednessArray->SetValue(cid, 1);

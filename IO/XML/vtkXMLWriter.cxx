@@ -236,14 +236,14 @@ struct WriteBinaryDataBlockWorker
     while (this->Result && (wordsLeft >= blockWords))
     {
       // Copy data to contiguous buffer:
-      ValueType* bufferIter = reinterpret_cast<ValueType*>(&buffer[0]);
+      ValueType* bufferIter = reinterpret_cast<ValueType*>(buffer.data());
       for (size_t i = 0; i < blockWords; ++i, ++valueIdx)
       {
         *bufferIter++ = array->GetValue(valueIdx);
       }
 
       if (!vtkXMLWriterHelper::WriteBinaryDataBlock(
-            this->Writer, &buffer[0], blockWords, this->WordType))
+            this->Writer, buffer.data(), blockWords, this->WordType))
       {
         this->Result = false;
       }
@@ -255,14 +255,14 @@ struct WriteBinaryDataBlockWorker
     // Do the last partial block if any.
     if (this->Result && (wordsLeft > 0))
     {
-      ValueType* bufferIter = reinterpret_cast<ValueType*>(&buffer[0]);
+      ValueType* bufferIter = reinterpret_cast<ValueType*>(buffer.data());
       for (size_t i = 0; i < wordsLeft; ++i, ++valueIdx)
       {
         *bufferIter++ = array->GetValue(valueIdx);
       }
 
       if (!vtkXMLWriterHelper::WriteBinaryDataBlock(
-            this->Writer, &buffer[0], wordsLeft, this->WordType))
+            this->Writer, buffer.data(), wordsLeft, this->WordType))
       {
         this->Result = false;
       }
@@ -310,7 +310,7 @@ void WriteDataArrayFallback(ValueType*, vtkDataArray* array, WriteBinaryDataBloc
   while (worker.Result && (wordsLeft >= blockWords))
   {
     // Copy data to contiguous buffer:
-    ValueType* bufferIter = reinterpret_cast<ValueType*>(&buffer[0]);
+    ValueType* bufferIter = reinterpret_cast<ValueType*>(buffer.data());
     for (size_t i = 0; i < blockWords; ++i, ++valueIdx)
     {
       *bufferIter++ =
@@ -318,7 +318,7 @@ void WriteDataArrayFallback(ValueType*, vtkDataArray* array, WriteBinaryDataBloc
     }
 
     if (!vtkXMLWriterHelper::WriteBinaryDataBlock(
-          worker.Writer, &buffer[0], blockWords, worker.WordType))
+          worker.Writer, buffer.data(), blockWords, worker.WordType))
     {
       worker.Result = false;
     }
@@ -330,7 +330,7 @@ void WriteDataArrayFallback(ValueType*, vtkDataArray* array, WriteBinaryDataBloc
   // Do the last partial block if any.
   if (worker.Result && (wordsLeft > 0))
   {
-    ValueType* bufferIter = reinterpret_cast<ValueType*>(&buffer[0]);
+    ValueType* bufferIter = reinterpret_cast<ValueType*>(buffer.data());
     for (size_t i = 0; i < wordsLeft; ++i, ++valueIdx)
     {
       *bufferIter++ =
@@ -338,7 +338,7 @@ void WriteDataArrayFallback(ValueType*, vtkDataArray* array, WriteBinaryDataBloc
     }
 
     if (!vtkXMLWriterHelper::WriteBinaryDataBlock(
-          worker.Writer, &buffer[0], wordsLeft, worker.WordType))
+          worker.Writer, buffer.data(), wordsLeft, worker.WordType))
     {
       worker.Result = false;
     }
@@ -3075,7 +3075,7 @@ void vtkXMLWriter::WritePrimaryElementAttributes(ostream& os, vtkIndent indent)
     for (int i = 0; i < this->NumberOfTimeSteps; i++)
     {
       this->NumberOfTimeValues[i] = os.tellp();
-      os << blankline.c_str() << "\n";
+      os << blankline << "\n";
     }
     os << "\"";
   }

@@ -5,6 +5,7 @@ bugprone-*,\
 -bugprone-argument-comment,\
 -bugprone-branch-clone,\
 -bugprone-fold-init-type,\
+-bugprone-implicit-widening-of-multiplication-result,\
 -bugprone-incorrect-roundings,\
 -bugprone-infinite-loop,\
 -bugprone-integer-division,\

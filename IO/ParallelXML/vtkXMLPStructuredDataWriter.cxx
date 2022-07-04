@@ -60,7 +60,7 @@ void vtkXMLPStructuredDataWriter::WritePPieceAttributes(int index)
 {
   if (this->Extents.find(index) != this->Extents.end())
   {
-    this->WriteVectorAttribute("Extent", 6, &this->Extents[index][0]);
+    this->WriteVectorAttribute("Extent", 6, this->Extents[index].data());
     if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
     {
       return;
@@ -128,7 +128,7 @@ void vtkXMLPStructuredDataWriter::PrepareSummaryFile()
       for (int count = 0; iter != this->Extents.end(); ++iter, ++count)
       {
         sendBuffer[count * 7] = iter->first;
-        memcpy(&sendBuffer[count * 7 + 1], &iter->second[0], 6 * sizeof(int));
+        memcpy(&sendBuffer[count * 7 + 1], iter->second.data(), 6 * sizeof(int));
       }
     }
     int* recvBuffer = nullptr;

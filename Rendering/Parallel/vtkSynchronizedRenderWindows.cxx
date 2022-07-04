@@ -216,7 +216,7 @@ void vtkSynchronizedRenderWindows::MasterStartRender()
     stream.GetRawData(data);
 
     this->ParallelController->TriggerRMIOnAllChildren(
-      &data[0], static_cast<int>(data.size()), SYNC_RENDER_TAG);
+      data.data(), static_cast<int>(data.size()), SYNC_RENDER_TAG);
   }
 
   RenderWindowInfo windowInfo;

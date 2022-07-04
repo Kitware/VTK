@@ -114,7 +114,7 @@ int vtkAMRVelodyneReader::RequestInformation(
   info->Remove(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
   info->Remove(vtkStreamingDemandDrivenPipeline::TIME_RANGE());
   assert("pre: output information object is nullptr" && (info != nullptr));
-  info->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), &this->timeList[0],
+  info->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), this->timeList.data(),
     static_cast<int>(this->timeList.size()));
   double timeRange[2];
   timeRange[0] = this->timeList.front();

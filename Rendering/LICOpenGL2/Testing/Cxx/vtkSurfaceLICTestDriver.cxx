@@ -282,7 +282,7 @@ int vtkSurfaceLICTestDriver(int argc, char** argv, vtkDataObject* dataObj, int n
   li->SetMaskOnSurface(mask_on_surface);
   li->SetMaskThreshold(mask_threshold);
   li->SetMaskIntensity(mask_intensity);
-  li->SetMaskColor(&mask_color_rgb[0]);
+  li->SetMaskColor(mask_color_rgb.data());
 
   vtkSmartPointer<vtkActor> actor = vtkSmartPointer<vtkActor>::New();
 

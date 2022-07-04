@@ -19,7 +19,6 @@
 
 #include "vtkCutter.h"
 #include "vtkNew.h"
-#include "vtkPlane.h"
 #include "vtkTestUtilities.h"
 #include "vtkXMLPolyDataWriter.h"
 #include "vtkXMLUnstructuredGridReader.h"

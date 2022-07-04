@@ -12,8 +12,6 @@
 #include "vtkStringArray.h"
 #include "vtkTable.h"
 
-#include <QCoreApplication>
-
 using namespace std;
 
 QVTKTableModelAdapterTestClass::QVTKTableModelAdapterTestClass(QObject* parent)

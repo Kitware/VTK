@@ -721,7 +721,7 @@ int vtkMINCImageWriter::CreateMINCVariables(
     int nvars = static_cast<int>(variables.size());
     for (ivar = 0; ivar < nvars; ivar++)
     {
-      if (strcmp(variables[ivar].c_str(), varname) == 0)
+      if (variables[ivar] == varname)
       {
         break;
       }
@@ -2043,7 +2043,9 @@ int vtkMINCImageWriter::RequestInformation(vtkInformation* vtkNotUsed(request),
 
     if (memcmp(inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()), extent,
           sizeof(extent)) != 0 ||
+      // NOLINTNEXTLINE(bugprone-suspicious-memory-comparison)
       memcmp(inInfo->Get(vtkDataObject::SPACING()), spacing, sizeof(spacing)) != 0 ||
+      // NOLINTNEXTLINE(bugprone-suspicious-memory-comparison)
       memcmp(inInfo->Get(vtkDataObject::ORIGIN()), origin, sizeof(origin)) != 0 ||
       inInfo->Get(vtkDataObject::FIELD_NUMBER_OF_COMPONENTS()) != components ||
       inInfo->Get(vtkDataObject::FIELD_ARRAY_TYPE()) != dataType)

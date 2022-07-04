@@ -188,7 +188,7 @@ int TestFiberSurface(int argc, char* argv[])
       /**********************************************/
       /*********** comparing the results ************/
 
-      if (strcmp(outputString.c_str(), dataToCompare[cmpIndex].c_str()) != 0)
+      if (outputString != dataToCompare[cmpIndex])
       {
         pass = false;
         { // writing to file

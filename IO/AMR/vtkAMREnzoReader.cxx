@@ -349,7 +349,7 @@ int vtkAMREnzoReader::FillMetaData()
   std::vector<int> blocksPerLevel;
   this->ComputeStats(this->Internal, blocksPerLevel, origin);
 
-  this->Metadata->Initialize(static_cast<int>(blocksPerLevel.size()), &blocksPerLevel[0]);
+  this->Metadata->Initialize(static_cast<int>(blocksPerLevel.size()), blocksPerLevel.data());
   this->Metadata->SetGridDescription(VTK_XYZ_GRID);
   this->Metadata->SetOrigin(origin);
 

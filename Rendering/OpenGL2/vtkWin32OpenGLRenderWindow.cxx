@@ -264,7 +264,7 @@ void vtkWin32OpenGLRenderWindow::MakeCurrent()
       if (lpMsgBuf)
       {
         std::string message = vtksys::Encoding::ToNarrow((LPWSTR)&lpMsgBuf);
-        vtkErrorMacro("wglMakeCurrent failed in MakeCurrent(), error: " << message.c_str());
+        vtkErrorMacro("wglMakeCurrent failed in MakeCurrent(), error: " << message);
         ::LocalFree(lpMsgBuf);
       }
     }

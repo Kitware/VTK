@@ -31,7 +31,6 @@
 #include "vtkScalarsToColors.h"
 #include "vtkShaderProgram.h"
 #include "vtkSurfaceLICComposite.h"
-#include "vtkTextureObjectVS.h"
 
 #include "vtkOpenGLIndexBufferObject.h"
 #include "vtkOpenGLVertexArrayObject.h"

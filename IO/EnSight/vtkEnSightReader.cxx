@@ -430,7 +430,7 @@ int vtkEnSightReader::RequestInformation(vtkInformation* vtkNotUsed(request),
     {
       vtkInformation* outInfo = outputVector->GetInformationObject(0);
       outInfo->Set(
-        vtkStreamingDemandDrivenPipeline::TIME_STEPS(), &uniqueTimeValues[0], numTimeValues);
+        vtkStreamingDemandDrivenPipeline::TIME_STEPS(), uniqueTimeValues.data(), numTimeValues);
       double timeRange[2];
       timeRange[0] = uniqueTimeValues[0];
       timeRange[1] = uniqueTimeValues[numTimeValues - 1];
@@ -1291,7 +1291,7 @@ int vtkEnSightReader::ReadCaseFile()
       sfilename += "/";
     }
     sfilename += this->CaseFileName;
-    vtkDebugMacro("full path to case file: " << sfilename.c_str());
+    vtkDebugMacro("full path to case file: " << sfilename);
   }
   else
   {
@@ -1301,7 +1301,7 @@ int vtkEnSightReader::ReadCaseFile()
   this->IS = new vtksys::ifstream(sfilename.c_str(), ios::in);
   if (this->IS->fail())
   {
-    vtkErrorMacro("Unable to open file: " << sfilename.c_str());
+    vtkErrorMacro("Unable to open file: " << sfilename);
     delete this->IS;
     this->IS = nullptr;
     return 0;

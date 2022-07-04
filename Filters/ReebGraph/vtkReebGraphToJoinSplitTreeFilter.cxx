@@ -264,7 +264,7 @@ int vtkReebGraphToJoinSplitTreeFilter::RequestData(vtkInformation* vtkNotUsed(re
       // prepare the unionFind
       std::vector<int> rank(vertexList.size());
       std::vector<int> parent(vertexList.size());
-      boost::disjoint_sets<int*, int*> unionFind(&rank[0], &parent[0]);
+      boost::disjoint_sets<int*, int*> unionFind(rank.data(), parent.data());
 
       // enables a compressed usage of the UF
       std::vector<int> vertexToUFQueryMap(vertexList.size());

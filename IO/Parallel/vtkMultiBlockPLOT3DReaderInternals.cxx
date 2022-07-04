@@ -466,7 +466,8 @@ bool vtkMultiBlockPLOT3DReaderRecord::Initialize(FILE* fp, vtkTypeUInt64 offset,
     controller->Broadcast(&count, 1, 0);
     if (count > 0)
     {
-      controller->Broadcast(reinterpret_cast<vtkTypeUInt64*>(&this->SubRecords[0]), count * 2, 0);
+      controller->Broadcast(
+        reinterpret_cast<vtkTypeUInt64*>(this->SubRecords.data()), count * 2, 0);
     }
   }
   else
@@ -476,7 +477,8 @@ bool vtkMultiBlockPLOT3DReaderRecord::Initialize(FILE* fp, vtkTypeUInt64 offset,
     this->SubRecords.resize(count);
     if (count > 0)
     {
-      controller->Broadcast(reinterpret_cast<vtkTypeUInt64*>(&this->SubRecords[0]), count * 2, 0);
+      controller->Broadcast(
+        reinterpret_cast<vtkTypeUInt64*>(this->SubRecords.data()), count * 2, 0);
     }
   }
   return true;

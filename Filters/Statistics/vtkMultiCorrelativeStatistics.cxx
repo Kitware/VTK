@@ -144,7 +144,7 @@ static void vtkMultiCorrelativeInvertCholesky(std::vector<double*>& chol, std::v
 static void vtkMultiCorrelativeTransposeTriangular(std::vector<double>& a, vtkIdType m)
 {
   std::vector<double> b(a.begin(), a.end());
-  double* bp = &b[0];
+  double* bp = b.data();
   vtkIdType i, j;
   a.clear();
   double* v;
@@ -176,9 +176,9 @@ void vtkMultiCorrelativeAssessFunctor::operator()(vtkDoubleArray* result, vtkIdT
   vtkIdType m = static_cast<vtkIdType>(this->Columns.size());
   vtkIdType i, j;
   this->Tuple = this->EmptyTuple; // initialize Tuple to 0.0
-  double* x = &this->Tuple[0];
+  double* x = this->Tuple.data();
   double* y;
-  double* ci = &this->Factor[0];
+  double* ci = this->Factor.data();
   double v;
   for (i = 0; i < m; ++i)
   {
@@ -909,8 +909,7 @@ bool vtkMultiCorrelativeAssessFunctor::Initialize(
     vtkDataArray* arr = vtkArrayDownCast<vtkDataArray>(inData->GetColumnByName(colname.c_str()));
     if (!arr)
     {
-      vtkGenericWarningMacro(
-        "Multicorrelative input data needs a \"" << colname.c_str() << "\" column");
+      vtkGenericWarningMacro("Multicorrelative input data needs a \"" << colname << "\" column");
       return false;
     }
     cols.push_back(arr);
@@ -918,8 +917,7 @@ bool vtkMultiCorrelativeAssessFunctor::Initialize(
       vtkArrayDownCast<vtkDoubleArray>(reqModel->GetColumnByName(colname.c_str()));
     if (!dar)
     {
-      vtkGenericWarningMacro(
-        "Multicorrelative request needs a \"" << colname.c_str() << "\" column");
+      vtkGenericWarningMacro("Multicorrelative request needs a \"" << colname << "\" column");
       return false;
     }
     chol.push_back(dar->GetPointer(1));

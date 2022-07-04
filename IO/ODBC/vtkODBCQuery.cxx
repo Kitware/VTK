@@ -526,7 +526,7 @@ bool vtkODBCQuery::SetQuery(const char* newQuery)
   }
   else
   {
-    vtkErrorMacro(<< error.c_str());
+    vtkErrorMacro(<< error);
     this->SetLastErrorText(error.c_str());
     return false;
   }
@@ -609,7 +609,7 @@ bool vtkODBCQuery::Execute()
           errbuf << "During vtkODBCQuery::Execute while looking up column " << i << ": "
                  << GetErrorMessage(SQL_HANDLE_STMT, this->Internals->Statement);
           this->SetLastErrorText(errbuf.str().c_str());
-          vtkErrorMacro(<< errbuf.str().c_str());
+          vtkErrorMacro(<< errbuf.str());
         }
 
         status = SQLColAttribute(
@@ -621,7 +621,7 @@ bool vtkODBCQuery::Execute()
           errbuf << "vtkODBCQuery::Execute: Unable to get unsigned flag for column " << i << ": "
                  << GetErrorMessage(SQL_HANDLE_STMT, this->Internals->Statement);
           this->SetLastErrorText(errbuf.str().c_str());
-          vtkErrorMacro(<< errbuf.str().c_str());
+          vtkErrorMacro(<< errbuf.str());
         }
 
         this->Internals->ColumnNames->SetValue(i, reinterpret_cast<const char*>(name));

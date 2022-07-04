@@ -32,7 +32,6 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 #include "vtkSliderRepresentation2D.h"
-#include "vtkSmartPointer.h"
 #include "vtkSphere.h"
 #include "vtkSphereSource.h"
 #include "vtkWidgetEvent.h"

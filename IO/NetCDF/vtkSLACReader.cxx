@@ -681,7 +681,7 @@ int vtkSLACReader::RequestInformation(vtkInformation* vtkNotUsed(request),
     if (this->GetNumTuplesInVariable(meshFD, meshCoordsVarId, 3) !=
       this->GetNumTuplesInVariable(modeFD, modeCoordsVarId, 3))
     {
-      vtkWarningMacro(<< "Mode file " << this->Internal->ModeFileNames[0].c_str()
+      vtkWarningMacro(<< "Mode file " << this->Internal->ModeFileNames[0]
                       << " invalid for mesh file " << this->MeshFileName
                       << "; the number of coordinates do not match.");
     }

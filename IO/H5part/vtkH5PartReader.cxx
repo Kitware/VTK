@@ -62,15 +62,7 @@
 #include <vtksys/RegularExpression.hxx>
 #include <vtksys/SystemTools.hxx>
 //
-#include "vtkCharArray.h"
-#include "vtkDoubleArray.h"
-#include "vtkFloatArray.h"
-#include "vtkIntArray.h"
-#include "vtkLongArray.h"
-#include "vtkShortArray.h"
 #include "vtkSmartPointer.h"
-#include "vtkUnsignedCharArray.h"
-#include "vtkUnsignedShortArray.h"
 
 #include <algorithm>
 
@@ -368,7 +360,7 @@ int vtkH5PartReader::RequestInformation(vtkInformation* vtkNotUsed(request),
         this->TimeStepValues[i] = i;
       }
     }
-    outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), &this->TimeStepValues[0],
+    outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), this->TimeStepValues.data(),
       static_cast<int>(this->TimeStepValues.size()));
     double timeRange[2];
     timeRange[0] = this->TimeStepValues.front();

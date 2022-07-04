@@ -407,8 +407,8 @@ void vtkPlotBag::SetInputData(vtkTable* table)
 void vtkPlotBag::SetInputData(
   vtkTable* table, const vtkStdString& yColumn, const vtkStdString& densityColumn)
 {
-  vtkDebugMacro(<< "Setting input, Y column = \"" << yColumn.c_str() << "\", "
-                << "Density column = \"" << densityColumn.c_str() << "\"");
+  vtkDebugMacro(<< "Setting input, Y column = \"" << yColumn << "\", "
+                << "Density column = \"" << densityColumn << "\"");
 
   if (table->GetColumnByName(densityColumn.c_str())->GetNumberOfTuples() !=
     table->GetColumnByName(yColumn.c_str())->GetNumberOfTuples())
@@ -425,10 +425,10 @@ void vtkPlotBag::SetInputData(
 void vtkPlotBag::SetInputData(vtkTable* table, const vtkStdString& xColumn,
   const vtkStdString& yColumn, const vtkStdString& densityColumn)
 {
-  vtkDebugMacro(<< "Setting input, X column = \"" << xColumn.c_str() << "\", "
-                << "Y column = \"" << yColumn.c_str() << "\""
+  vtkDebugMacro(<< "Setting input, X column = \"" << xColumn << "\", "
+                << "Y column = \"" << yColumn << "\""
                 << "\", "
-                << "Density column = \"" << densityColumn.c_str() << "\"");
+                << "Density column = \"" << densityColumn << "\"");
 
   this->Data->SetInputData(table);
   this->Data->SetInputArrayToProcess(

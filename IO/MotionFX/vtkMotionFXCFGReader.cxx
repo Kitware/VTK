@@ -1429,7 +1429,7 @@ int vtkMotionFXCFGReader::RequestInformation(
     timesteps.back() = trange[1];
 
     outInfo->Set(
-      vtkStreamingDemandDrivenPipeline::TIME_STEPS(), &timesteps[0], this->TimeResolution);
+      vtkStreamingDemandDrivenPipeline::TIME_STEPS(), timesteps.data(), this->TimeResolution);
     outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_RANGE(), trange.GetData(), 2);
   }
   else

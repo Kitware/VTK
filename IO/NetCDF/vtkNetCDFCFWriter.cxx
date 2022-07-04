@@ -99,7 +99,7 @@ void SaveCoords(int ncid, int attributeType, const std::array<int, 3>& coordid,
   int status;
   for (int i = 0; i < 3; ++i)
   {
-    if ((status = nc_put_var_double(ncid, coordid[i], &coord[i][0])))
+    if ((status = nc_put_var_double(ncid, coordid[i], coord[i].data())))
     {
       std::ostringstream ostr;
       ostr << "Error nc_put_var_double " << COORD_NAME[attributeType][i] << ": "
@@ -111,7 +111,7 @@ void SaveCoords(int ncid, int attributeType, const std::array<int, 3>& coordid,
   {
     for (int i = 0; i < 3; ++i)
     {
-      if ((status = nc_put_var_double(ncid, boundsid[i], &bounds[i][0][0])))
+      if ((status = nc_put_var_double(ncid, boundsid[i], bounds[i][0].data())))
       {
         std::ostringstream ostr;
         ostr << "Error nc_put_var_double " << BOUNDS_NAME[attributeType][i] << ": "

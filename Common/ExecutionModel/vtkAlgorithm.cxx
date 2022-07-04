@@ -701,7 +701,7 @@ vtkTypeBool vtkAlgorithm::ProcessRequest(
   }
   else
   {
-    return this->ProcessRequest(request, &ivectors[0], outInfo);
+    return this->ProcessRequest(request, ivectors.data(), outInfo);
   }
 }
 

@@ -89,7 +89,7 @@ int vtkXMLPartitionedDataSetCollectionWriter::RequestData(
   if (!this->MakeDirectory(path))
   {
     this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
-    vtkErrorMacro("Failed to create directory '" << path.c_str() << "'.");
+    vtkErrorMacro("Failed to create directory '" << path << "'.");
     return 0;
   }
 
@@ -99,7 +99,7 @@ int vtkXMLPartitionedDataSetCollectionWriter::RequestData(
   if (!this->MakeDirectory(absoluteArtifactsDir))
   {
     this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
-    vtkErrorMacro("Failed to create directory '" << absoluteArtifactsDir.c_str() << "'.");
+    vtkErrorMacro("Failed to create directory '" << absoluteArtifactsDir << "'.");
     return 0;
   }
   this->AddRootArtifact(absoluteArtifactsDir, /*isDir*/ true);

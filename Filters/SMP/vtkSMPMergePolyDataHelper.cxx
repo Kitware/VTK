@@ -128,20 +128,20 @@ void MergePoints(
   }
 
   vtkParallelMergePoints mergePoints;
-  mergePoints.BucketIds = &nonEmptyBuckets[0];
+  mergePoints.BucketIds = nonEmptyBuckets.data();
   mergePoints.Merger = (*begin).Locator;
   mergePoints.OutputPointData = (*begin).Output->GetPointData();
   if (!idMaps.empty())
   {
     mergePoints.Merger->InitializeMerge();
-    mergePoints.IdMaps = &idMaps[0];
+    mergePoints.IdMaps = idMaps.data();
     // Prepare output point data
     int numArrays = mergePoints.OutputPointData->GetNumberOfArrays();
     for (int i = 0; i < numArrays; i++)
     {
       mergePoints.OutputPointData->GetArray(i)->Resize(numPts);
     }
-    mergePoints.InputPointDatas = &pds[0];
+    mergePoints.InputPointDatas = pds.data();
 
     // The first locator is what we will use to accumulate all others
     // So all iteration starts from second dataset.

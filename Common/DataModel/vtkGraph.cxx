@@ -322,7 +322,7 @@ void vtkGraph::GetOutEdges(vtkIdType v, const vtkOutEdgeType*& edges, vtkIdType&
   nedges = static_cast<vtkIdType>(this->Internals->Adjacency[index].OutEdges.size());
   if (nedges > 0)
   {
-    edges = &(this->Internals->Adjacency[index].OutEdges[0]);
+    edges = this->Internals->Adjacency[index].OutEdges.data();
   }
   else
   {
@@ -440,7 +440,7 @@ void vtkGraph::GetInEdges(vtkIdType v, const vtkInEdgeType*& edges, vtkIdType& n
   nedges = static_cast<vtkIdType>(this->Internals->Adjacency[index].InEdges.size());
   if (nedges > 0)
   {
-    edges = &(this->Internals->Adjacency[index].InEdges[0]);
+    edges = this->Internals->Adjacency[index].InEdges.data();
   }
   else
   {
@@ -936,7 +936,7 @@ void vtkGraph::GetEdgePoints(vtkIdType e, vtkIdType& npts, double*& pts)
   npts = static_cast<vtkIdType>(this->EdgePoints->Storage[e].size() / 3);
   if (npts > 0)
   {
-    pts = &this->EdgePoints->Storage[e][0];
+    pts = this->EdgePoints->Storage[e].data();
   }
   else
   {

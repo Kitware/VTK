@@ -273,7 +273,7 @@ int vtkExtractExodusGlobalTemporalVariables::RequestInformation(vtkInformation* 
   internals.InContinueExecuting = false;
   if (size > 0)
   {
-    inInfo->Get(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), &internals.TimeSteps[0]);
+    inInfo->Get(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), internals.TimeSteps.data());
   }
   vtkLogF(TRACE, "info: num-of-timesteps: %d", size);
 

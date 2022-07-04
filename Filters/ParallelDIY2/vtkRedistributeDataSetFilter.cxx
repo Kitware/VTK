@@ -157,7 +157,7 @@ std::vector<std::vector<int>> GenerateCellRegions(
           dataset->GetCell(cellId, gcell);
           double pcenter[3], center[3];
           int subId = gcell->GetParametricCenter(pcenter);
-          gcell->EvaluateLocation(subId, pcenter, center, &weights[0]);
+          gcell->EvaluateLocation(subId, pcenter, center, weights.data());
           for (int cutId = 0; cutId < static_cast<int>(cuts.size()); ++cutId)
           {
             const auto& bbox = cuts[cutId];
@@ -891,7 +891,7 @@ vtkSmartPointer<vtkPartitionedDataSet> vtkRedistributeDataSetFilter::SplitDataSe
     const auto& cell_ids = region_cell_ids[region_idx];
     if (!cell_ids.empty())
     {
-      extractor->SetCellIds(&cell_ids[0], static_cast<vtkIdType>(cell_ids.size()));
+      extractor->SetCellIds(cell_ids.data(), static_cast<vtkIdType>(cell_ids.size()));
       extractor->Update();
 
       vtkNew<vtkUnstructuredGrid> ug;

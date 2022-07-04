@@ -716,7 +716,7 @@ int vtkLabelPlacer::RequestData(vtkInformation* vtkNotUsed(request),
       if (labelType == 0)
       {
         vtkDebugMacro("Area: " << renderedLabelArea << "  /  " << allowableLabelArea << " \""
-                               << nameArr->GetValue(inIter->GetLabelId()).c_str() << "\"");
+                               << nameArr->GetValue(inIter->GetLabelId()) << "\"");
       }
       else
       {
@@ -735,7 +735,7 @@ int vtkLabelPlacer::RequestData(vtkInformation* vtkNotUsed(request),
         if (vtkLabelPlacer::Internal::DumpPlaced)
         {
           vtkDebugMacro(<< ll[0] << " -- " << ur[0] << ", " << ll[1] << " -- " << ur[1] << ": "
-                        << nameArr->GetValue(inIter->GetLabelId()).c_str());
+                        << nameArr->GetValue(inIter->GetLabelId()));
         }
         switch (coordSys)
         {

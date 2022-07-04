@@ -191,7 +191,7 @@ int vtkKMeansStatistics::InitializeDataAndClusterCenters(vtkTable* inParameters,
         }
         else if (dArr != inData->GetRowData()->GetGhostArray())
         {
-          vtkWarningMacro("Skipping requested column \"" << colItr->c_str() << "\".");
+          vtkWarningMacro("Skipping requested column \"" << *colItr << "\".");
         }
       }
       newClusterElements->DeepCopy(condensedTable);

@@ -361,7 +361,7 @@ bool vtkCompositeDataReader::ReadCompositeData(vtkOverlappingAMR* oamr)
   }
 
   // initialize the AMR.
-  oamr->Initialize(num_levels, &blocksPerLevel[0]);
+  oamr->Initialize(num_levels, blocksPerLevel.data());
   oamr->SetGridDescription(description);
   oamr->SetOrigin(origin);
   for (int cc = 0; cc < num_levels; cc++)

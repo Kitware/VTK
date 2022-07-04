@@ -76,7 +76,7 @@ int TestCGNSUnsteadyGrid(int argc, char* argv[])
   std::string grids = fname ? fname : "";
   delete[] fname;
 
-  cout << "Opening " << grids.c_str() << endl;
+  cout << "Opening " << grids << endl;
   vtkNew<vtkCGNSReader> gridsReader;
   gridsReader->SetFileName(grids.c_str());
   gridsReader->Update();

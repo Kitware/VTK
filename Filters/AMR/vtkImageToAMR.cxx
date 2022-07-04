@@ -303,7 +303,7 @@ int vtkImageToAMR::RequestData(vtkInformation* vtkNotUsed(request),
 
   unsigned int numLevels = static_cast<unsigned int>(blocksPerLevel.size());
 
-  amr->Initialize(static_cast<int>(numLevels), &blocksPerLevel[0]);
+  amr->Initialize(static_cast<int>(numLevels), blocksPerLevel.data());
   amr->SetOrigin(inputOrigin);
   amr->SetGridDescription(gridDescription);
 

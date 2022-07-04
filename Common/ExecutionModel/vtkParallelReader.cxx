@@ -124,7 +124,7 @@ int vtkParallelReader::ReadMetaData(vtkInformation* metadata)
   timeRange[0] = times[0];
   timeRange[1] = times[nTimes - 1];
 
-  metadata->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), &times[0], (int)nTimes);
+  metadata->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), times.data(), (int)nTimes);
   metadata->Set(vtkStreamingDemandDrivenPipeline::TIME_RANGE(), timeRange, 2);
 
   return 1;

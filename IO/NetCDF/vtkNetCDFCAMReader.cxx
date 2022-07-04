@@ -662,7 +662,7 @@ int vtkNetCDFCAMReader::RequestData(
     size_t start[] = { 0 };
     size_t count[] = { numFilePoints };
     if (this->Internals->nc_err(
-          nc_get_vara_double(this->Internals->nc_points, lonid, start, count, &array[0])))
+          nc_get_vara_double(this->Internals->nc_points, lonid, start, count, array.data())))
     {
       return 0;
     }
@@ -684,7 +684,7 @@ int vtkNetCDFCAMReader::RequestData(
     size_t start[] = { 0 };
     size_t count[] = { numFilePoints };
     if (this->Internals->nc_err(
-          nc_get_vara_float(this->Internals->nc_points, lonid, start, count, &array[0])))
+          nc_get_vara_float(this->Internals->nc_points, lonid, start, count, array.data())))
     {
       return 0;
     }
@@ -760,7 +760,7 @@ int vtkNetCDFCAMReader::RequestData(
   size_t start_conn[] = { 0, static_cast<size_t>(beginCell) };
   size_t count_conn[] = { 4, static_cast<size_t>(numLocalCells) };
   if (this->Internals->nc_err(nc_get_vara_int(
-        this->Internals->nc_connectivity, connid, start_conn, count_conn, &cellConnectivity[0])))
+        this->Internals->nc_connectivity, connid, start_conn, count_conn, cellConnectivity.data())))
   {
     return 0;
   }
@@ -1097,7 +1097,7 @@ int vtkNetCDFCAMReader::RequestData(
     size_t start[] = { static_cast<size_t>(beginLevel) };
     size_t count[] = { static_cast<size_t>(numLocalLevels) };
     if (this->Internals->nc_err(
-          nc_get_vara_float(this->Internals->nc_points, lonid, start, count, &levelData[0])))
+          nc_get_vara_float(this->Internals->nc_points, lonid, start, count, levelData.data())))
     {
       return 0;
     }

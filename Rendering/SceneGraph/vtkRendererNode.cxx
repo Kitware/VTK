@@ -25,7 +25,6 @@
 #include "vtkObjectFactory.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
-#include "vtkRendererNode.h"
 
 //============================================================================
 vtkStandardNewMacro(vtkRendererNode);

@@ -167,12 +167,12 @@ void vtkDICOMImageReader::ExecuteInformation()
 
       if (val == 1)
       {
-        vtkDebugMacro(<< "Adding " << fileString.c_str() << " to DICOMFileNames.");
+        vtkDebugMacro(<< "Adding " << fileString << " to DICOMFileNames.");
         this->DICOMFileNames->push_back(fileString);
       }
       else
       {
-        vtkDebugMacro(<< fileString.c_str() << " - DICOMParser CanReadFile returned : " << val);
+        vtkDebugMacro(<< fileString << " - DICOMParser CanReadFile returned : " << val);
       }
     }
     std::vector<std::string>::iterator iter;
@@ -213,9 +213,8 @@ void vtkDICOMImageReader::ExecuteInformation()
       std::vector<std::pair<float, std::string>>::iterator siter;
       for (siter = sortedFiles.begin(); siter != sortedFiles.end(); ++siter)
       {
-        vtkDebugMacro(<< "Sorted filename : " << (*siter).second.c_str());
-        vtkDebugMacro(<< "Adding file " << (*siter).second.c_str()
-                      << " at slice : " << (*siter).first);
+        vtkDebugMacro(<< "Sorted filename : " << (*siter).second);
+        vtkDebugMacro(<< "Adding file " << (*siter).second << " at slice : " << (*siter).first);
         this->DICOMFileNames->push_back((*siter).second);
       }
     }
@@ -345,11 +344,7 @@ void vtkDICOMImageReader::ExecuteDataWithInformation(vtkDataObject* output, vtkI
       buffer = ((char*)buffer) + imageDataLengthInBytes;
 
       this->UpdateProgress(float(count) / float(numFiles));
-      int len = static_cast<int>(strlen((const char*)(*fiter).c_str()));
-      char* filename = new char[len + 1];
-      strcpy(filename, (const char*)(*fiter).c_str());
-      this->SetProgressText(filename);
-      delete[] filename;
+      this->SetProgressText(fiter->c_str());
     }
   }
 }

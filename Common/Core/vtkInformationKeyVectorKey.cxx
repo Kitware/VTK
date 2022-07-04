@@ -125,7 +125,7 @@ vtkInformationKey** vtkInformationKeyVectorKey::Get(vtkInformation* info)
 {
   vtkInformationKeyVectorValue* v =
     static_cast<vtkInformationKeyVectorValue*>(this->GetAsObjectBase(info));
-  return (v && !v->Value.empty()) ? (&v->Value[0]) : nullptr;
+  return (v && !v->Value.empty()) ? v->Value.data() : nullptr;
 }
 
 //------------------------------------------------------------------------------

@@ -238,7 +238,7 @@ int vtkVASPTessellationReader::RequestInformation(
     {
       vtkInformation* outInfo = outInfos->GetInformationObject(port);
       outInfo->Set(vtkSDDP::TIME_RANGE(), timeRange, 2);
-      outInfo->Set(vtkSDDP::TIME_STEPS(), &times[0], static_cast<int>(times.size()));
+      outInfo->Set(vtkSDDP::TIME_STEPS(), times.data(), static_cast<int>(times.size()));
     }
   }
 
@@ -585,7 +585,7 @@ bool vtkVASPTessellationReader::ReadTimeStep(
                                                       "Expected a 3D coordinate.");
         return false;
       }
-      locator->InsertUniquePoint(&p[0], pointIds[i]);
+      locator->InsertUniquePoint(p.data(), pointIds[i]);
       uniquePointIds.insert(pointIds[i]);
     }
 
@@ -610,8 +610,8 @@ bool vtkVASPTessellationReader::ReadTimeStep(
 
     // Add cell to tessellation dataset:
     voronoi->InsertNextCell(VTK_POLYHEDRON, static_cast<vtkIdType>(pointIds.size()),
-      pointIds.empty() ? nullptr : &pointIds[0], static_cast<vtkIdType>(faceData.size()),
-      faceStream.empty() ? nullptr : &faceStream[0]);
+      pointIds.empty() ? nullptr : pointIds.data(), static_cast<vtkIdType>(faceData.size()),
+      faceStream.empty() ? nullptr : faceStream.data());
     tessAtomicNumbers->InsertNextValue(atom.GetAtomicNumber());
     tessAtomIds->InsertNextValue(atom.GetId());
   }

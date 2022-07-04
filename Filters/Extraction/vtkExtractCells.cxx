@@ -115,7 +115,7 @@ struct SubsetPointsWork
  *  `PointWork::GetPointId(idx)`: original pt id for extracted point at the `idx`
  */
 template <typename PointWorkT>
-static vtkSmartPointer<vtkPoints> DoExtractPoints(vtkDataSet* input, const PointWorkT& work)
+vtkSmartPointer<vtkPoints> DoExtractPoints(vtkDataSet* input, const PointWorkT& work)
 {
   vtkNew<vtkPoints> pts;
   pts->SetDataTypeToDouble();
@@ -141,7 +141,7 @@ static vtkSmartPointer<vtkPoints> DoExtractPoints(vtkDataSet* input, const Point
  * `CellWorkT::GetCellId(idx)`: original cell id for extracted cell at index `idx`.
  */
 template <typename CellWorkT>
-static void AddOriginalCellIds(vtkCellData* outCD, const CellWorkT& work)
+void AddOriginalCellIds(vtkCellData* outCD, const CellWorkT& work)
 {
   // add vtkOriginalCellIds array, if needed.
   if (outCD->GetArray("vtkOriginalCellIds") == nullptr)
@@ -165,7 +165,7 @@ static void AddOriginalCellIds(vtkCellData* outCD, const CellWorkT& work)
  * Returns ExtractedCellsT with connectivity and cell-types array set.
  */
 template <typename CellWorkT>
-static ExtractedCellsT DoExtractCells(vtkDataSet* input, const CellWorkT& work)
+ExtractedCellsT DoExtractCells(vtkDataSet* input, const CellWorkT& work)
 {
   const auto numCells = work.GetNumberOfCells();
 
@@ -195,7 +195,7 @@ static ExtractedCellsT DoExtractCells(vtkDataSet* input, const CellWorkT& work)
  * `FaceLocations` to `result`.
  */
 template <typename CellWorkT>
-static void DoExtractPolyhedralFaces(
+void DoExtractPolyhedralFaces(
   ExtractedCellsT& result, vtkUnstructuredGrid* input, const CellWorkT& work)
 {
   const auto numCells = work.GetNumberOfCells();
@@ -262,7 +262,7 @@ static void DoExtractPolyhedralFaces(
 
 //------------------------------------------------------------------------------
 template <typename IteratorType>
-static std::vector<vtkIdType> FlagChosenPoints(
+std::vector<vtkIdType> FlagChosenPoints(
   vtkDataSet* input, const IteratorType& start, const IteratorType& end)
 {
   std::vector<vtkIdType> chosen_points(input->GetNumberOfPoints(), 0);
@@ -294,7 +294,7 @@ static std::vector<vtkIdType> FlagChosenPoints(
 //------------------------------------------------------------------------------
 // Faster overload for vtkUnstructuredGrid
 template <typename IteratorType>
-static std::vector<vtkIdType> FlagChosenPoints(
+std::vector<vtkIdType> FlagChosenPoints(
   vtkUnstructuredGrid* input, const IteratorType& start, const IteratorType& end)
 {
   std::vector<vtkIdType> chosen_points(input->GetNumberOfPoints(), 0);
@@ -328,7 +328,7 @@ static std::vector<vtkIdType> FlagChosenPoints(
 
 //------------------------------------------------------------------------------
 template <typename IteratorType>
-static std::vector<vtkIdType> GeneratePointMap(
+std::vector<vtkIdType> GeneratePointMap(
   vtkDataSet* input, const IteratorType& start, const IteratorType& end, vtkIdType& outNumPoints)
 {
   auto ugInput = vtkUnstructuredGrid::SafeDownCast(input);
@@ -347,7 +347,7 @@ static std::vector<vtkIdType> GeneratePointMap(
 
 //------------------------------------------------------------------------------
 template <typename CellWorkT>
-static void CopyCellData(vtkCellData* input, vtkCellData* output, const CellWorkT& work)
+void CopyCellData(vtkCellData* input, vtkCellData* output, const CellWorkT& work)
 {
   const auto numValues = work.GetNumberOfCells();
   output->CopyAllocate(input, numValues);
