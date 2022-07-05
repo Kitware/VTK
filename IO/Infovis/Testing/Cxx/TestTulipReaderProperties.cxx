@@ -73,12 +73,12 @@ int TestTulipReaderProperties(int argc, char* argv[])
     vtkArrayDownCast<vtkStringArray>(graph->GetVertexData()->GetAbstractArray("Node Name"));
   if (nodeProperty1)
   {
-    TestValue(
-      nodeProperty1->GetValue(0), vtkStdString("Node A"), "Node 0 string property", error_count);
-    TestValue(
-      nodeProperty1->GetValue(5), vtkStdString("Node F"), "Node 5 string property", error_count);
-    TestValue(
-      nodeProperty1->GetValue(11), vtkStdString("Node L"), "Node 11 string property", error_count);
+    TestValue<vtkStdString>(
+      nodeProperty1->GetValue(0), "Node A", "Node 0 string property", error_count);
+    TestValue<vtkStdString>(
+      nodeProperty1->GetValue(5), "Node F", "Node 5 string property", error_count);
+    TestValue<vtkStdString>(
+      nodeProperty1->GetValue(11), "Node L", "Node 11 string property", error_count);
   }
   else
   {
@@ -121,12 +121,12 @@ int TestTulipReaderProperties(int argc, char* argv[])
     vtkArrayDownCast<vtkStringArray>(graph->GetEdgeData()->GetAbstractArray("Edge Name"));
   if (edgeProperty1)
   {
-    TestValue(
-      edgeProperty1->GetValue(0), vtkStdString("Edge A"), "Edge 0 string property", error_count);
-    TestValue(
-      edgeProperty1->GetValue(7), vtkStdString("Edge H"), "Edge 7 string property", error_count);
-    TestValue(
-      edgeProperty1->GetValue(16), vtkStdString("Edge Q"), "Edge 16 string property", error_count);
+    TestValue<vtkStdString>(
+      edgeProperty1->GetValue(0), "Edge A", "Edge 0 string property", error_count);
+    TestValue<vtkStdString>(
+      edgeProperty1->GetValue(7), "Edge H", "Edge 7 string property", error_count);
+    TestValue<vtkStdString>(
+      edgeProperty1->GetValue(16), "Edge Q", "Edge 16 string property", error_count);
   }
   else
   {

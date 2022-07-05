@@ -6071,7 +6071,7 @@ int vtkExodusIIReader::GetObjectIndex(int objectType, const char* objectName)
   for (int obj = 0; obj < nObj; ++obj)
   {
     const char* storedObjName = this->GetObjectName(objectType, obj);
-    if (objectRealName == vtkStdString(storedObjName))
+    if (objectRealName == storedObjName)
     {
       return obj;
     }

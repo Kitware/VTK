@@ -240,12 +240,12 @@ bool PopulateHistograms(vtkTable* input, vtkTable* output, vtkStringArray* s, in
       }
       double inc = (minmax[1] - minmax[0]) / (NumberOfBins)*1.001;
       double halfInc = inc / 2.0;
-      vtkSmartPointer<vtkFloatArray> extents = vtkArrayDownCast<vtkFloatArray>(
-        output->GetColumnByName(vtkStdString(name + "_extents").c_str()));
+      vtkSmartPointer<vtkFloatArray> extents =
+        vtkArrayDownCast<vtkFloatArray>(output->GetColumnByName((name + "_extents").c_str()));
       if (!extents)
       {
         extents = vtkSmartPointer<vtkFloatArray>::New();
-        extents->SetName(vtkStdString(name + "_extents").c_str());
+        extents->SetName((name + "_extents").c_str());
       }
       extents->SetNumberOfTuples(NumberOfBins);
       float* centers = static_cast<float*>(extents->GetVoidPointer(0));
@@ -254,12 +254,12 @@ bool PopulateHistograms(vtkTable* input, vtkTable* output, vtkStringArray* s, in
       {
         extents->SetValue(j, min + j * inc);
       }
-      vtkSmartPointer<vtkIntArray> populations = vtkArrayDownCast<vtkIntArray>(
-        output->GetColumnByName(vtkStdString(name + "_pops").c_str()));
+      vtkSmartPointer<vtkIntArray> populations =
+        vtkArrayDownCast<vtkIntArray>(output->GetColumnByName((name + "_pops").c_str()));
       if (!populations)
       {
         populations = vtkSmartPointer<vtkIntArray>::New();
-        populations->SetName(vtkStdString(name + "_pops").c_str());
+        populations->SetName((name + "_pops").c_str());
       }
       populations->SetNumberOfTuples(NumberOfBins);
       int* pops = static_cast<int*>(populations->GetVoidPointer(0));

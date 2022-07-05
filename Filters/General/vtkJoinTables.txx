@@ -85,7 +85,7 @@ void vtkJoinTables::MergeColumn(ColType* outputColumn, ColType* Column, KeyColTy
       }
       else
       {
-        auto val = vtkStdString();
+        vtkStdString val;
         outputStringColumn->InsertNextValue(val);
       }
     }

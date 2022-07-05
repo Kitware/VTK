@@ -62,7 +62,7 @@ inline vtkStdString vtkTemporalStatisticsMangleName(const char* originalName, co
 {
   if (!originalName)
     return suffix;
-  return vtkStdString(originalName) + "_" + vtkStdString(suffix);
+  return vtkStdString(originalName) + "_" + suffix;
 }
 
 //------------------------------------------------------------------------------

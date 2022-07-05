@@ -347,7 +347,7 @@ template <typename T>
 void vtkDenseArray<T>::Reconfigure(const vtkArrayExtents& extents, MemoryBlock* storage)
 {
   this->Extents = extents;
-  this->DimensionLabels.resize(extents.GetDimensions(), vtkStdString());
+  this->DimensionLabels.resize(extents.GetDimensions(), {});
 
   delete this->Storage;
   this->Storage = storage;

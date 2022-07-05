@@ -59,7 +59,7 @@ int TestFTStringToPath(int, char*[])
   vtkNew<vtkTextProperty> tprop;
 
   vtkFreeTypeTools::GetInstance()->StringToPath(
-    tprop, vtkStdString("FreeType Path"), view->GetRenderWindow()->GetDPI(), path);
+    tprop, "FreeType Path", view->GetRenderWindow()->GetDPI(), path);
 
   test->SetPath(path);
 

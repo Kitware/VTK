@@ -322,7 +322,7 @@ bool vtkODBCQueryInternals::PrepareQuery(
 
   if (status != SQL_SUCCESS && status != SQL_SUCCESS_WITH_INFO)
   {
-    error_message = vtkStdString(GetErrorMessage(SQL_HANDLE_STMT, this->Statement));
+    error_message = GetErrorMessage(SQL_HANDLE_STMT, this->Statement);
     return false;
   }
 
@@ -340,12 +340,12 @@ bool vtkODBCQueryInternals::PrepareQuery(
   }
   else
   {
-    error_message = vtkStdString();
+    error_message = {};
     SQLSMALLINT paramCount;
     status = SQLNumParams(this->Statement, &paramCount);
     if (status != SQL_SUCCESS)
     {
-      error_message = vtkStdString(GetErrorMessage(SQL_HANDLE_STMT, this->Statement));
+      error_message = GetErrorMessage(SQL_HANDLE_STMT, this->Statement);
       return false;
     }
     else
@@ -467,12 +467,12 @@ static vtkStdString GetErrorMessage(SQLSMALLINT handleType, SQLHANDLE handle, in
     }
     else if (status == SQL_ERROR || status == SQL_INVALID_HANDLE)
     {
-      return vtkStdString(messagebuf.str());
+      return messagebuf.str();
     }
     ++i;
   } while (status != SQL_NO_DATA);
 
-  return vtkStdString(messagebuf.str());
+  return messagebuf.str();
 }
 
 //------------------------------------------------------------------------------

@@ -423,7 +423,7 @@ vtkStdString vtkMySQLDatabase::GetColumnSpecification(
   else // if ( !colTypeStr.empty() )
   {
     vtkGenericWarningMacro("Unable to get column specification: unsupported data type " << colType);
-    return vtkStdString();
+    return {};
   }
 
   // Decide whether size is allowed, required, or unused
@@ -547,7 +547,7 @@ vtkStdString vtkMySQLDatabase::GetIndexSpecification(
   {
     vtkGenericWarningMacro(
       "Unable to get index specification: index has incorrect number of columns " << numCnm);
-    return vtkStdString();
+    return {};
   }
 
   bool firstCnm = true;

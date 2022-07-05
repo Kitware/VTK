@@ -446,7 +446,7 @@ static int splitString(const vtkStdString& input, std::vector<vtkStdString>& res
         {
           results.emplace_back(currentField);
         }
-        currentField = vtkStdString();
+        currentField = {};
       }
       else
       {

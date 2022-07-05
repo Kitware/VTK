@@ -75,7 +75,6 @@
 #include "vtkMultiProcessController.h"
 #include "vtkObjectFactory.h"
 #include "vtkSortDataArray.h"
-#include "vtkStdString.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStringArray.h"
 
@@ -460,7 +459,7 @@ int vtkPOpenFOAMReader::RequestInformation(
       this->Superclass::PatchDataArraySelection->RemoveAllArrays();
     }
 
-    *this->Superclass::FileNameOld = vtkStdString(this->FileName);
+    *this->Superclass::FileNameOld = this->FileName;
     this->Superclass::Readers->RemoveAllItems();
     this->Superclass::NumberOfReaders = 0;
 

@@ -84,12 +84,12 @@ static vtkStdString GetErrorMessage(SQLSMALLINT handleType, SQLHANDLE handle, in
     }
     else if (status == SQL_ERROR || status == SQL_INVALID_HANDLE)
     {
-      return vtkStdString(messagebuf.str());
+      return messagebuf.str();
     }
     ++i;
   } while (status != SQL_NO_DATA);
 
-  return vtkStdString(messagebuf.str());
+  return messagebuf.str();
 }
 
 //------------------------------------------------------------------------------
@@ -724,7 +724,7 @@ vtkStdString vtkODBCDatabase::GetColumnSpecification(
   else // if ( !colTypeStr.empty() )
   {
     vtkGenericWarningMacro("Unable to get column specification: unsupported data type " << colType);
-    return vtkStdString();
+    return {};
   }
 
   // Decide whether size is allowed, required, or unused
@@ -821,7 +821,7 @@ vtkStdString vtkODBCDatabase::GetIndexSpecification(
       queryStr += "INDEX ";
       break;
     default:
-      return vtkStdString();
+      return {};
   }
 
   // No index_name for PRIMARY KEYs
@@ -837,7 +837,7 @@ vtkStdString vtkODBCDatabase::GetIndexSpecification(
   {
     vtkGenericWarningMacro(
       "Unable to get index specification: index has incorrect number of columns " << numCnm);
-    return vtkStdString();
+    return {};
   }
 
   bool firstCnm = true;

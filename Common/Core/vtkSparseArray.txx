@@ -596,7 +596,7 @@ template <typename T>
 void vtkSparseArray<T>::InternalResize(const vtkArrayExtents& extents)
 {
   this->Extents = extents;
-  this->DimensionLabels.resize(extents.GetDimensions(), vtkStdString());
+  this->DimensionLabels.resize(extents.GetDimensions(), {});
   this->Coordinates.resize(extents.GetDimensions());
   this->Values.resize(0);
 }

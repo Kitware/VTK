@@ -64,7 +64,7 @@ struct vtkBalloon
   }
   vtkBalloon(const char* str, vtkImageData* img)
   {
-    this->Text = vtkStdString(str);
+    this->Text = str;
     this->Image = img;
     if (this->Image)
     {

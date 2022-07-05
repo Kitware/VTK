@@ -487,7 +487,7 @@ vtkStdString vtkPlot::GetLabel(vtkIdType index)
   }
   else
   {
-    return vtkStdString();
+    return {};
   }
 }
 //------------------------------------------------------------------------------

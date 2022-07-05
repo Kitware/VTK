@@ -139,7 +139,7 @@ int TestVariant(int, char*[])
         case VTK_STRING:
         {
           vtkStdString conv = v.ToString();
-          if (conv != vtkStdString(strValue))
+          if (conv != strValue)
           {
             cerr << "conversion invalid (" << vtkImageScalarTypeNameMacro(type[i]) << " " << conv
                  << " != " << vtkImageScalarTypeNameMacro(type[j]) << " " << strValue << ")"

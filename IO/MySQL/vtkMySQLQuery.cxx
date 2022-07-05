@@ -339,7 +339,7 @@ bool vtkMySQLQueryInternals::SetQuery(
   this->Statement = mysql_stmt_init(db);
   if (this->Statement == nullptr)
   {
-    error_message = vtkStdString("vtkMySQLQuery: mysql_stmt_init returned out of memory error");
+    error_message = "vtkMySQLQuery: mysql_stmt_init returned out of memory error";
     return false;
   }
 
@@ -352,7 +352,7 @@ bool vtkMySQLQueryInternals::SetQuery(
   }
   else
   {
-    error_message = vtkStdString(mysql_stmt_error(this->Statement));
+    error_message = mysql_stmt_error(this->Statement);
     return false;
   }
 }

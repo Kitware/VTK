@@ -170,7 +170,7 @@ vtkStdString vtkSQLDatabase::GetColumnSpecification(
   else // if ( colTypeStr.size() )
   {
     vtkGenericWarningMacro("Unable to get column specification: unsupported data type " << colType);
-    return vtkStdString();
+    return {};
   }
 
   // Decide whether size is allowed, required, or unused
@@ -268,7 +268,7 @@ vtkStdString vtkSQLDatabase::GetIndexSpecification(
       skipped = true;
       break;
     default:
-      return vtkStdString();
+      return {};
   }
 
   // No index_name for PRIMARY KEYs nor UNIQUEs
@@ -292,7 +292,7 @@ vtkStdString vtkSQLDatabase::GetIndexSpecification(
   {
     vtkGenericWarningMacro(
       "Unable to get index specification: index has incorrect number of columns " << numCnm);
-    return vtkStdString();
+    return {};
   }
 
   bool firstCnm = true;

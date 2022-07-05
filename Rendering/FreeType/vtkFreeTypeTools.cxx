@@ -1321,7 +1321,7 @@ const char* DEFAULT_HEIGHT_STRING = "_/7Agfy";
 //------------------------------------------------------------------------------
 bool vtkFreeTypeTools::CalculateBoundingBox(const vtkStdString& str, MetaData& metaData)
 {
-  return CalculateBoundingBox(str, metaData, vtkStdString(DEFAULT_HEIGHT_STRING));
+  return CalculateBoundingBox(str, metaData, DEFAULT_HEIGHT_STRING);
 }
 
 //------------------------------------------------------------------------------

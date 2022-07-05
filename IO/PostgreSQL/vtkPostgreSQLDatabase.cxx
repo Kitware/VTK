@@ -157,7 +157,7 @@ vtkStdString vtkPostgreSQLDatabase::GetColumnSpecification(
   else // if ( !colTypeStr.empty() )
   {
     vtkGenericWarningMacro("Unable to get column specification: unsupported data type " << colType);
-    return vtkStdString();
+    return {};
   }
 
   // Decide whether size is allowed, required, or unused

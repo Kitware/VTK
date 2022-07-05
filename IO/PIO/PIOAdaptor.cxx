@@ -718,7 +718,7 @@ void PIOAdaptor::collectMaterialVariableMetaData()
   // if a field starts with any prefix, it is a material variable
   for (int i = 0; i < numberOfFields; i++)
   {
-    vtkStdString pioFieldName = vtkStdString(pioField[i].pio_name);
+    vtkStdString pioFieldName = pioField[i].pio_name;
     for (size_t j = 0; j < prefixes.size(); j++)
     {
       std::size_t matchPrefix = pioFieldName.find(prefixes[j]);

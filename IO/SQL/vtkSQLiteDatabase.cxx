@@ -146,7 +146,7 @@ vtkStdString vtkSQLiteDatabase::GetColumnSpecification(
   else // if ( colTypeStr.size() )
   {
     vtkGenericWarningMacro("Unable to get column specification: unsupported data type " << colType);
-    return vtkStdString();
+    return {};
   }
 
   // Decide whether size is allowed, required, or unused
