@@ -681,7 +681,7 @@ int vtkSLACReader::RequestInformation(vtkInformation* vtkNotUsed(request),
   if (!this->Internal->ModeFileNames.empty())
   {
     // Check the first mode file, assume that the rest follow.
-    vtkSLACReaderAutoCloseNetCDF modeFD(this->Internal->ModeFileNames[0], NC_NOWRITE);
+    vtkSLACReaderAutoCloseNetCDF modeFD(this->Internal->ModeFileNames[0].c_str(), NC_NOWRITE);
     if (!modeFD.Valid())
       return 0;
 
@@ -764,7 +764,7 @@ int vtkSLACReader::RequestInformation(vtkInformation* vtkNotUsed(request),
     ++fileitr;
     for (; fileitr != this->Internal->ModeFileNames.end(); ++fileitr)
     {
-      vtkSLACReaderAutoCloseNetCDF modeFD(*fileitr, NC_NOWRITE);
+      vtkSLACReaderAutoCloseNetCDF modeFD(fileitr->c_str(), NC_NOWRITE);
       if (!modeFD.Valid())
         return 0;
 
@@ -804,7 +804,7 @@ int vtkSLACReader::RequestInformation(vtkInformation* vtkNotUsed(request),
     {
       assert(frequencyiter != this->Internal->Frequencies.end());
 
-      vtkSLACReaderAutoCloseNetCDF modeFD(*fileitr, NC_NOWRITE);
+      vtkSLACReaderAutoCloseNetCDF modeFD(fileitr->c_str(), NC_NOWRITE);
       if (!modeFD.Valid())
         return 0;
 
@@ -983,7 +983,7 @@ int vtkSLACReader::RequestData(vtkInformation* request,
     for (std::vector<vtkStdString>::iterator nameIter = modeFileNames.begin();
          nameIter != modeFileNames.end(); ++nameIter)
     {
-      vtkSLACReaderAutoCloseNetCDF modeFD(*nameIter, NC_NOWRITE);
+      vtkSLACReaderAutoCloseNetCDF modeFD(nameIter->c_str(), NC_NOWRITE);
       if (modeFD.Valid())
       {
         modeFDVector.push_back(modeFD);
@@ -1547,16 +1547,16 @@ int vtkSLACReader::ReadFieldData(
       }
 
       // Add the data to the point data.
-      dataArray->SetName(name);
+      dataArray->SetName(name.c_str());
       pd->AddArray(dataArray);
 
       // add complex magnitude data to the point data
       vtkStdString cplxMagName = name + "_cplx_mag";
-      cplxMagArray->SetName(cplxMagName);
+      cplxMagArray->SetName(cplxMagName.c_str());
       pd->AddArray(cplxMagArray);
 
       vtkStdString phaseName = name + "_phase";
-      phaseArray->SetName(phaseName);
+      phaseArray->SetName(phaseName.c_str());
       pd->AddArray(phaseArray);
     }
     else
@@ -1567,7 +1567,7 @@ int vtkSLACReader::ReadFieldData(
         continue;
 
       // Add the data to the point data.
-      dataArray->SetName(name);
+      dataArray->SetName(name.c_str());
       pd->AddArray(dataArray);
     }
   }

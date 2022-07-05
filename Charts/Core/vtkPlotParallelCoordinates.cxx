@@ -314,16 +314,16 @@ bool vtkPlotParallelCoordinates::UpdateCache()
     vtkAxis* axis = parent->GetAxis(i);
     col.resize(rows);
     vtkSmartPointer<vtkDataArray> data =
-      vtkArrayDownCast<vtkDataArray>(table->GetColumnByName(cols->GetValue(i)));
+      vtkArrayDownCast<vtkDataArray>(table->GetColumnByName(cols->GetValue(i).c_str()));
     if (!data)
     {
-      if (table->GetColumnByName(cols->GetValue(i))->IsA("vtkStringArray"))
+      if (table->GetColumnByName(cols->GetValue(i).c_str())->IsA("vtkStringArray"))
       {
         // We have a different kind of column - attempt to make it into an enum
         vtkStringToCategory* stoc = vtkStringToCategory::New();
         stoc->SetInputData(table);
         stoc->SetInputArrayToProcess(
-          0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_ROWS, cols->GetValue(i));
+          0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_ROWS, cols->GetValue(i).c_str());
         stoc->SetCategoryArrayName("enumPC");
         stoc->Update();
         vtkTable* table2 = vtkTable::SafeDownCast(stoc->GetOutput());
@@ -376,7 +376,8 @@ bool vtkPlotParallelCoordinates::UpdateCache()
   // Additions for color mapping
   if (this->ScalarVisibility && !this->ColorArrayName.empty())
   {
-    vtkDataArray* c = vtkArrayDownCast<vtkDataArray>(table->GetColumnByName(this->ColorArrayName));
+    vtkDataArray* c =
+      vtkArrayDownCast<vtkDataArray>(table->GetColumnByName(this->ColorArrayName.c_str()));
     // TODO: Should add support for categorical coloring & try enum lookup
     if (this->Colors)
     {

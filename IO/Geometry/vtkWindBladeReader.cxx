@@ -1263,7 +1263,7 @@ void vtkWindBladeReader::SetUpFieldVars(vtkStructuredGrid* field)
   // Some variables depend on others, so force their loading
   for (int i = 0; i < this->DivideVariables->GetNumberOfTuples(); i++)
   {
-    if (GetPointArrayStatus(this->DivideVariables->GetValue(i)))
+    if (GetPointArrayStatus(this->DivideVariables->GetValue(i).c_str()))
     {
       this->SetPointArrayStatus("Density", 1);
     }
@@ -1282,9 +1282,9 @@ void vtkWindBladeReader::SetUpFieldVars(vtkStructuredGrid* field)
   // Divide variables by Density if required
   for (int i = 0; i < this->DivideVariables->GetNumberOfTuples(); i++)
   {
-    if (GetPointArrayStatus(this->DivideVariables->GetValue(i)))
+    if (GetPointArrayStatus(this->DivideVariables->GetValue(i).c_str()))
     {
-      this->DivideByDensity(this->DivideVariables->GetValue(i));
+      this->DivideByDensity(this->DivideVariables->GetValue(i).c_str());
     }
   }
 

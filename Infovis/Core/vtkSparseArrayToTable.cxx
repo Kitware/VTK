@@ -52,7 +52,7 @@ static bool Convert(vtkArray* Array, const char* ValueColumn, vtkTable* Table)
     vtkIdType* const array_coordinates = array->GetCoordinateStorage(dimension);
 
     vtkIdTypeArray* const table_coordinates = vtkIdTypeArray::New();
-    table_coordinates->SetName(array->GetDimensionLabel(dimension));
+    table_coordinates->SetName(array->GetDimensionLabel(dimension).c_str());
     table_coordinates->SetNumberOfTuples(value_count);
     std::copy(array_coordinates, array_coordinates + value_count, table_coordinates->GetPointer(0));
     Table->AddColumn(table_coordinates);

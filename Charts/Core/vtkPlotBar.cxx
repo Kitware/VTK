@@ -831,7 +831,8 @@ bool vtkPlotBar::UpdateCache()
   // Additions for color mapping
   if (this->ScalarVisibility && !this->ColorArrayName.empty())
   {
-    vtkDataArray* c = vtkArrayDownCast<vtkDataArray>(table->GetColumnByName(this->ColorArrayName));
+    vtkDataArray* c =
+      vtkArrayDownCast<vtkDataArray>(table->GetColumnByName(this->ColorArrayName.c_str()));
     // TODO: Should add support for categorical coloring & try enum lookup
     if (c)
     {

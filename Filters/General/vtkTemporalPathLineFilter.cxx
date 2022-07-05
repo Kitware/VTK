@@ -436,8 +436,8 @@ int vtkTemporalPathLineFilter::RequestData(vtkInformation* vtkNotUsed(informatio
   for (size_t i = 0; i < this->Internals->TrailFieldNames.size(); i++)
   {
     this->Internals->InputFieldArrays[i] =
-      inPD->GetAbstractArray(this->Internals->TrailFieldNames[i]);
-    outputFieldArrays[i] = outPD->GetAbstractArray(this->Internals->TrailFieldNames[i]);
+      inPD->GetAbstractArray(this->Internals->TrailFieldNames[i].c_str());
+    outputFieldArrays[i] = outPD->GetAbstractArray(this->Internals->TrailFieldNames[i].c_str());
   }
 
   //

@@ -352,7 +352,7 @@ void vtkSPHInterpolator::Probe(vtkDataSet* input, vtkDataSet* source, vtkDataSet
   if (this->ComputeShepardSum || this->ShepardNormalization)
   {
     shepardSumArray = vtkSmartPointer<vtkFloatArray>::New();
-    shepardSumArray->SetName(this->ShepardSumArrayName);
+    shepardSumArray->SetName(this->ShepardSumArrayName.c_str());
     shepardSumArray->SetNumberOfTuples(numPts);
     shepardArray = shepardSumArray->GetPointer(0);
   }
@@ -360,9 +360,9 @@ void vtkSPHInterpolator::Probe(vtkDataSet* input, vtkDataSet* source, vtkDataSet
   // Initialize the SPH kernel
   if (this->Kernel->GetRequiresInitialization())
   {
-    this->Kernel->SetCutoffArray(inputPD->GetArray(this->CutoffArrayName));
-    this->Kernel->SetDensityArray(sourcePD->GetArray(this->DensityArrayName));
-    this->Kernel->SetMassArray(sourcePD->GetArray(this->MassArrayName));
+    this->Kernel->SetCutoffArray(inputPD->GetArray(this->CutoffArrayName.c_str()));
+    this->Kernel->SetDensityArray(sourcePD->GetArray(this->DensityArrayName.c_str()));
+    this->Kernel->SetMassArray(sourcePD->GetArray(this->MassArrayName.c_str()));
     this->Kernel->Initialize(this->Locator, source, sourcePD);
   }
 
@@ -398,7 +398,7 @@ void vtkSPHInterpolator::Probe(vtkDataSet* input, vtkDataSet* source, vtkDataSet
 
   if (mask)
   {
-    this->ValidPointsMask->SetName(this->ValidPointsMaskArrayName);
+    this->ValidPointsMask->SetName(this->ValidPointsMaskArrayName.c_str());
     outPD->AddArray(this->ValidPointsMask);
     this->ValidPointsMask->Delete();
     this->ValidPointsMask = nullptr;

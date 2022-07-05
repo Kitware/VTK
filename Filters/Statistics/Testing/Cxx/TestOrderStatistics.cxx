@@ -201,7 +201,7 @@ int TestOrderStatistics(int, char*[])
   os->AddColumn("Metric 3"); // Include invalid Metric 3
   for (int i = 0; i < nMetrics; ++i)
   { // Try to add all valid indices once more
-    os->AddColumn(columns[i]);
+    os->AddColumn(columns[i].c_str());
   }
 
   // Test Learn, Derive, and Test operations
@@ -252,7 +252,7 @@ int TestOrderStatistics(int, char*[])
 
     // Check some results of the Assess operation
     vtkStdString quantColName = "Quantile(" + colName + ")";
-    vtkAbstractArray* absQuantArr = outputData->GetColumnByName(quantColName);
+    vtkAbstractArray* absQuantArr = outputData->GetColumnByName(quantColName.c_str());
     if (!absQuantArr)
     {
       vtkGenericWarningMacro("Cannot retrieve quartile array for variable: " << colName << ".");
@@ -346,7 +346,7 @@ int TestOrderStatistics(int, char*[])
   os->ResetRequests();
   for (int i = 0; i < nMetrics; ++i)
   { // Try to add all valid indices once more
-    os->AddColumn(columns[i]);
+    os->AddColumn(columns[i].c_str());
   }
 
   // Test Learn, Derive, and Test operations with InverseCDF quantile definition

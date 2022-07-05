@@ -220,7 +220,7 @@ void vtkInteractorStyleAreaSelectHover::OnMouseMove()
       {
         str = vtkVariant(vtkArrayDownCast<vtkDataArray>(absArray)->GetTuple(id)[0]).ToString();
       }
-      this->Balloon->SetBalloonText(str);
+      this->Balloon->SetBalloonText(str.c_str());
       double z = 0.02;
       if (this->UseRectangularCoordinates)
       {

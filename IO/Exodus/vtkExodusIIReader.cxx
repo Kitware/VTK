@@ -1707,7 +1707,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead(vtkExodusIICacheKey key)
     ArrayInfoType* ainfop = &this->ArrayInfo[vtkExodusIIReader::GLOBAL][key.ArrayId];
     arr = vtkDataArray::CreateDataArray(ainfop->StorageType);
     // vtkStdString newArrayName = ainfop->Name + "OverTime";
-    arr->SetName(ainfop->Name);
+    arr->SetName(ainfop->Name.c_str());
     arr->SetNumberOfComponents(ainfop->Components);
     arr->SetNumberOfTuples(this->GetNumberOfTimeSteps());
     if (ainfop->Components != 1)

@@ -95,12 +95,12 @@ void RandomOrderStatistics(vtkMultiProcessController* controller, void* arg)
   // Prepare column of integers
   vtkIntArray* intArray = vtkIntArray::New();
   intArray->SetNumberOfComponents(1);
-  intArray->SetName(columnNames[0]);
+  intArray->SetName(columnNames[0].c_str());
 
   // Prepare column of strings
   vtkStringArray* strArray = vtkStringArray::New();
   strArray->SetNumberOfComponents(1);
-  strArray->SetName(columnNames[1]);
+  strArray->SetName(columnNames[1].c_str());
 
   // Storage for pseudo-random values and local extrema
   int* v = new int[nVariables];
@@ -232,11 +232,11 @@ void RandomOrderStatistics(vtkMultiProcessController* controller, void* arg)
   // Select columns of interest depending on command line choices
   if (!args->skipInt)
   {
-    pos->AddColumn(columnNames[0]);
+    pos->AddColumn(columnNames[0].c_str());
   }
   if (!args->skipString)
   {
-    pos->AddColumn(columnNames[1]);
+    pos->AddColumn(columnNames[1].c_str());
   }
 
   // Test (in parallel) with Learn, Derive, and Assess options turned on

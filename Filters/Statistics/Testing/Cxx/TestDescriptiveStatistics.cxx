@@ -155,7 +155,7 @@ int TestDescriptiveStatistics(int, char*[])
   // Select Columns of Interest
   for (int i = 0; i < nMetrics; ++i)
   {
-    ds1->AddColumn(columns[i]);
+    ds1->AddColumn(columns[i].c_str());
   }
 
   // Test Learn, Derive, Test, and Assess options
@@ -393,7 +393,7 @@ int TestDescriptiveStatistics(int, char*[])
   // Select Columns of Interest (all of them)
   for (int i = 0; i < nMetrics; ++i)
   {
-    ds2->AddColumn(columns[i]);
+    ds2->AddColumn(columns[i].c_str());
   }
 
   // Update with Learn option only

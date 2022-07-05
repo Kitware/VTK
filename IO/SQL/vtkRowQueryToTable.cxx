@@ -125,8 +125,8 @@ int vtkRowQueryToTable::RequestData(vtkInformation*, vtkInformationVector** vtkN
         oss << name << "_" << i;
         newName = oss.str();
         ++i;
-      } while (output->GetColumnByName(newName));
-      arr->SetName(newName);
+      } while (output->GetColumnByName(newName.c_str()));
+      arr->SetName(newName.c_str());
     }
     else
     {

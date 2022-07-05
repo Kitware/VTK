@@ -560,7 +560,7 @@ void vtkMFIXReader::MakeMesh(vtkUnstructuredGrid* output)
     for (int j = 0; j <= this->VariableNames->GetMaxId(); j++)
     {
       this->CellDataArray[j] = vtkFloatArray::New();
-      this->CellDataArray[j]->SetName(this->VariableNames->GetValue(j));
+      this->CellDataArray[j]->SetName(this->VariableNames->GetValue(j).c_str());
       this->CellDataArray[j]->SetNumberOfComponents(this->VariableComponents->GetValue(j));
     }
 
@@ -629,7 +629,7 @@ int vtkMFIXReader::RequestInformation(vtkInformation* vtkNotUsed(request),
 
     for (int j = 0; j <= this->VariableNames->GetMaxId(); j++)
     {
-      this->CellDataArraySelection->AddArray(this->VariableNames->GetValue(j));
+      this->CellDataArraySelection->AddArray(this->VariableNames->GetValue(j).c_str());
     }
 
     this->NumberOfPoints = (this->IMaximum2 + 1) * (this->JMaximum2 + 1) * (this->KMaximum2 + 1);

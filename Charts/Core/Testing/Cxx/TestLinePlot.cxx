@@ -44,11 +44,11 @@ protected:
 
     vtkNew<vtkFloatArray> x_arr;
     x_arr->SetNumberOfComponents(1);
-    x_arr->SetName(vtkTestSineTableSource::GetXName());
+    x_arr->SetName(vtkTestSineTableSource::GetXName().c_str());
 
     vtkNew<vtkFloatArray> y_arr;
     y_arr->SetNumberOfComponents(1);
-    y_arr->SetName(vtkTestSineTableSource::GetYName());
+    y_arr->SetName(vtkTestSineTableSource::GetYName().c_str());
 
     output->AddColumn(x_arr);
     output->AddColumn(y_arr);

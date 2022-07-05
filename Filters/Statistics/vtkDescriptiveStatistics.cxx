@@ -414,7 +414,7 @@ void vtkDescriptiveStatistics::Learn(
     // Each request contains only one column of interest (if there are others, they are ignored)
     std::set<vtkStdString>::const_iterator it = rit->begin();
     vtkStdString varName = *it;
-    if (!inData->GetColumnByName(varName))
+    if (!inData->GetColumnByName(varName.c_str()))
     {
       vtkWarningMacro("InData table does not have a column " << varName << ". Ignoring it.");
       continue;
@@ -454,7 +454,7 @@ void vtkDescriptiveStatistics::Learn(
         n = r + 1. - numberOfSkippedElements;
         inv_n = 1. / n;
 
-        val = inData->GetValueByName(r, varName).ToDouble();
+        val = inData->GetValueByName(r, varName.c_str()).ToDouble();
         delta = val - mean;
 
         A = delta * inv_n;
@@ -523,10 +523,10 @@ void vtkDescriptiveStatistics::Derive(vtkMultiBlockDataSet* inMeta)
   vtkDoubleArray* doubleCol;
   for (int j = 0; j < numDoubles; ++j)
   {
-    if (!derivedTab->GetColumnByName(doubleNames[j]))
+    if (!derivedTab->GetColumnByName(doubleNames[j].c_str()))
     {
       doubleCol = vtkDoubleArray::New();
-      doubleCol->SetName(doubleNames[j]);
+      doubleCol->SetName(doubleNames[j].c_str());
       doubleCol->SetNumberOfTuples(nRow);
       derivedTab->AddColumn(doubleCol);
       doubleCol->Delete();
@@ -554,7 +554,7 @@ void vtkDescriptiveStatistics::Derive(vtkMultiBlockDataSet* inMeta)
 
       for (int j = 0; j < numDoubles; ++j)
       {
-        derivedTab->SetValueByName(i, doubleNames[j], derivedVals[j]);
+        derivedTab->SetValueByName(i, doubleNames[j].c_str(), derivedVals[j]);
       }
 
       continue;
@@ -572,7 +572,7 @@ void vtkDescriptiveStatistics::Derive(vtkMultiBlockDataSet* inMeta)
 
       for (int j = 0; j < numDoubles; ++j)
       {
-        derivedTab->SetValueByName(i, doubleNames[j], derivedVals[j]);
+        derivedTab->SetValueByName(i, doubleNames[j].c_str(), derivedVals[j]);
       }
 
       continue;
@@ -641,7 +641,7 @@ void vtkDescriptiveStatistics::Derive(vtkMultiBlockDataSet* inMeta)
 
     for (int j = 0; j < numDoubles; ++j)
     {
-      derivedTab->SetValueByName(i, doubleNames[j], derivedVals[j]);
+      derivedTab->SetValueByName(i, doubleNames[j].c_str(), derivedVals[j]);
     }
   }
 
@@ -730,7 +730,7 @@ void vtkDescriptiveStatistics::Test(
     // Each request contains only one column of interest (if there are others, they are ignored)
     std::set<vtkStdString>::const_iterator it = rit->begin();
     vtkStdString varName = *it;
-    if (!inData->GetColumnByName(varName))
+    if (!inData->GetColumnByName(varName.c_str()))
     {
       vtkWarningMacro("InData table does not have a column " << varName << ". Ignoring it.");
       continue;
@@ -889,7 +889,7 @@ void vtkDescriptiveStatistics::SelectAssessFunctor(
     if (vars->GetValue(r) == varName)
     {
       // Grab the data for the requested variable
-      vtkAbstractArray* arr = outData->GetColumnByName(varName);
+      vtkAbstractArray* arr = outData->GetColumnByName(varName.c_str());
       if (!arr)
       {
         return;

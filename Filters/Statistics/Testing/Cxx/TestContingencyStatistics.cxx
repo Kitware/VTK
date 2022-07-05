@@ -260,7 +260,7 @@ int TestContingencyStatistics(int, char*[])
     testIntValue = 0;
     for (vtkIdType r = 0; r < outputData->GetNumberOfRows(); ++r)
     {
-      val = outputData->GetValueByName(r, colName).ToDouble();
+      val = outputData->GetValueByName(r, colName.c_str()).ToDouble();
       if (val >= threshold[i])
       {
         continue;
@@ -268,8 +268,9 @@ int TestContingencyStatistics(int, char*[])
 
       ++testIntValue;
 
-      cout << "   " << outlierColumn[i] << "(" << outputData->GetValueByName(r, varX).ToString()
-           << "," << outputData->GetValueByName(r, varY).ToString() << ") = " << val << "\n";
+      cout << "   " << outlierColumn[i] << "("
+           << outputData->GetValueByName(r, varX.c_str()).ToString() << ","
+           << outputData->GetValueByName(r, varY.c_str()).ToString() << ") = " << val << "\n";
     }
 
     if (testIntValue != nOutliers[i])

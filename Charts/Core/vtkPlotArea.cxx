@@ -506,7 +506,7 @@ bool vtkPlotArea::UpdateCache()
   if (!this->ValidPointMaskName.empty())
   {
     cache.ValidPointMask =
-      vtkArrayDownCast<vtkCharArray>(table->GetColumnByName(this->ValidPointMaskName));
+      vtkArrayDownCast<vtkCharArray>(table->GetColumnByName(this->ValidPointMaskName.c_str()));
   }
   else
   {

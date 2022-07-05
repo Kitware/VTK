@@ -123,7 +123,7 @@ void vtkChartBox::Update()
   for (int i = 0; i < nbCols; ++i)
   {
     double range[2];
-    if (rowData->GetRange(this->VisibleColumns->GetValue(i), range))
+    if (rowData->GetRange(this->VisibleColumns->GetValue(i).c_str(), range))
     {
       if (range[0] < grange[0])
       {

@@ -159,13 +159,13 @@ void vtkStringToNumeric::ConvertArrays(vtkFieldData* fieldData)
     vtkDoubleArray* doubleArray = vtkDoubleArray::New();
     doubleArray->SetNumberOfComponents(numComps);
     doubleArray->SetNumberOfTuples(numTuples);
-    doubleArray->SetName(arrayName);
+    doubleArray->SetName(arrayName.c_str());
 
     // Set up the output array
     vtkIntArray* intArray = vtkIntArray::New();
     intArray->SetNumberOfComponents(numComps);
     intArray->SetNumberOfTuples(numTuples);
-    intArray->SetName(arrayName);
+    intArray->SetName(arrayName.c_str());
 
     // Convert the strings to time point values
     bool allInteger = true;

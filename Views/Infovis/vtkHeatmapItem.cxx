@@ -109,7 +109,7 @@ void vtkHeatmapItem::SetTable(vtkTable* table)
 
   // get the row names for this table
   vtkStringArray* rowNames =
-    vtkArrayDownCast<vtkStringArray>(this->Table->GetColumnByName(this->NameColumn));
+    vtkArrayDownCast<vtkStringArray>(this->Table->GetColumnByName(this->NameColumn.c_str()));
   if (rowNames == nullptr)
   {
     rowNames = vtkArrayDownCast<vtkStringArray>(this->Table->GetColumn(0));

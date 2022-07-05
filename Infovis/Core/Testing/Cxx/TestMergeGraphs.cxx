@@ -37,7 +37,7 @@ void BuildTable(vtkTable* table, T values[][Cols], int rows)
   for (size_t c = 0; c < Cols; ++c)
   {
     vtkSmartPointer<vtkStringArray> arr = vtkSmartPointer<vtkStringArray>::New();
-    arr->SetName(vtkVariant(values[0][c]).ToString());
+    arr->SetName(vtkVariant(values[0][c]).ToString().c_str());
     for (int r = 0; r < rows; ++r)
     {
       arr->InsertNextValue(values[r + 1][c]);

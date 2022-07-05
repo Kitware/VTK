@@ -256,7 +256,7 @@ int vtkXGMLReader::RequestData(vtkInformation* vtkNotUsed(request),
         property_table[nr_of_properties].Data = vtkStringArray::New();
       }
       property_table[nr_of_properties].Kind = kind;
-      property_table[nr_of_properties].Data->SetName(name);
+      property_table[nr_of_properties].Data->SetName(name.c_str());
       property_table[nr_of_properties].Data->SetNumberOfTuples(
         kind == vtkXGMLProperty::NODE_PROP ? nr_of_nodes : nr_of_edges);
       nr_of_properties++;

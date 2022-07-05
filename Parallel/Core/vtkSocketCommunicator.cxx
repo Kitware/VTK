@@ -274,14 +274,14 @@ int vtkSocketCommunicator::SendVoidArray(
   // in an integer, break up the array into pieces.
   while (length >= maxSend)
   {
-    if (!this->SendTagged(byteData, typeSize, maxSend, tag, typeName))
+    if (!this->SendTagged(byteData, typeSize, maxSend, tag, typeName.c_str()))
     {
       return 0;
     }
     byteData += maxSend * typeSize;
     length -= maxSend;
   }
-  if (!this->SendTagged(byteData, typeSize, length, tag, typeName))
+  if (!this->SendTagged(byteData, typeSize, length, tag, typeName.c_str()))
   {
     return 0;
   }
@@ -346,7 +346,7 @@ int vtkSocketCommunicator::ReceiveVoidArray(
   // in an integer, break up the array into pieces.
   int ret = 0;
   while (this->ReceiveTagged(
-    byteData, typeSize, vtkSocketCommunicatorMin(maxReceive, length), tag, typeName))
+    byteData, typeSize, vtkSocketCommunicatorMin(maxReceive, length), tag, typeName.c_str()))
   {
     this->Count += this->TagMessageLength;
     byteData += this->TagMessageLength * typeSize;

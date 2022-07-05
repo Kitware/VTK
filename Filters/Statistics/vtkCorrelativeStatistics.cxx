@@ -266,7 +266,7 @@ void vtkCorrelativeStatistics::Learn(
     // ignored)
     std::set<vtkStdString>::const_iterator it = rit->begin();
     vtkStdString colX = *it;
-    if (!inData->GetColumnByName(colX))
+    if (!inData->GetColumnByName(colX.c_str()))
     {
       vtkWarningMacro("InData table does not have a column " << colX << ". Ignoring this pair.");
       continue;
@@ -274,7 +274,7 @@ void vtkCorrelativeStatistics::Learn(
 
     ++it;
     vtkStdString colY = *it;
-    if (!inData->GetColumnByName(colY))
+    if (!inData->GetColumnByName(colY.c_str()))
     {
       vtkWarningMacro("InData table does not have a column " << colY << ". Ignoring this pair.");
       continue;
@@ -291,13 +291,13 @@ void vtkCorrelativeStatistics::Learn(
     {
       inv_n = 1. / (r + 1.);
 
-      x = inData->GetValueByName(r, colX).ToDouble();
+      x = inData->GetValueByName(r, colX.c_str()).ToDouble();
       delta = x - meanX;
       meanX += delta * inv_n;
       deltaXn = x - meanX;
       mom2X += delta * deltaXn;
 
-      y = inData->GetValueByName(r, colY).ToDouble();
+      y = inData->GetValueByName(r, colY.c_str()).ToDouble();
       delta = y - meanY;
       meanY += delta * inv_n;
       mom2Y += delta * (y - meanY);
@@ -357,10 +357,10 @@ void vtkCorrelativeStatistics::Derive(vtkMultiBlockDataSet* inMeta)
   vtkDoubleArray* doubleCol;
   for (int j = 0; j < numDoubles; ++j)
   {
-    if (!derivedTab->GetColumnByName(doubleNames[j]))
+    if (!derivedTab->GetColumnByName(doubleNames[j].c_str()))
     {
       doubleCol = vtkDoubleArray::New();
-      doubleCol->SetName(doubleNames[j]);
+      doubleCol->SetName(doubleNames[j].c_str());
       doubleCol->SetNumberOfTuples(nRow);
       derivedTab->AddColumn(doubleCol);
       doubleCol->Delete();
@@ -441,7 +441,7 @@ void vtkCorrelativeStatistics::Derive(vtkMultiBlockDataSet* inMeta)
 
     for (int j = 0; j < numDoubles; ++j)
     {
-      derivedTab->SetValueByName(i, doubleNames[j], derivedVals[j]);
+      derivedTab->SetValueByName(i, doubleNames[j].c_str(), derivedVals[j]);
     }
   } // nRow
 
@@ -546,7 +546,7 @@ void vtkCorrelativeStatistics::Test(
     // ignored)
     std::set<vtkStdString>::const_iterator it = rit->begin();
     vtkStdString varNameX = *it;
-    if (!inData->GetColumnByName(varNameX))
+    if (!inData->GetColumnByName(varNameX.c_str()))
     {
       vtkWarningMacro(
         "InData table does not have a column " << varNameX << ". Ignoring this pair.");
@@ -555,7 +555,7 @@ void vtkCorrelativeStatistics::Test(
 
     ++it;
     vtkStdString varNameY = *it;
-    if (!inData->GetColumnByName(varNameY))
+    if (!inData->GetColumnByName(varNameY.c_str()))
     {
       vtkWarningMacro(
         "InData table does not have a column " << varNameY << ". Ignoring this pair.");
@@ -627,8 +627,8 @@ void vtkCorrelativeStatistics::Test(
         for (vtkIdType j = 0; j < nRowData; ++j)
         {
           // Read and center observation
-          x = inData->GetValueByName(j, varNameX).ToDouble() - mX;
-          y = inData->GetValueByName(j, varNameY).ToDouble() - mY;
+          x = inData->GetValueByName(j, varNameX.c_str()).ToDouble() - mX;
+          y = inData->GetValueByName(j, varNameY.c_str()).ToDouble() - mY;
 
           // Update third and fourth order sums for each eigencoordinate
           tmp = x * x;
@@ -673,8 +673,8 @@ void vtkCorrelativeStatistics::Test(
         for (vtkIdType j = 0; j < nRowData; ++j)
         {
           // Read and center observation
-          x = inData->GetValueByName(j, varNameX).ToDouble() - mX;
-          y = inData->GetValueByName(j, varNameY).ToDouble() - mY;
+          x = inData->GetValueByName(j, varNameX.c_str()).ToDouble() - mX;
+          y = inData->GetValueByName(j, varNameY.c_str()).ToDouble() - mY;
 
           // Transform coordinates into eigencoordinates
           t1 = hd * x + h21 * y;
@@ -857,8 +857,8 @@ void vtkCorrelativeStatistics::SelectAssessFunctor(
     if (varX->GetValue(r) == varNameX && varY->GetValue(r) == varNameY)
     {
       // Grab the data for the requested variables
-      vtkAbstractArray* arrX = outData->GetColumnByName(varNameX);
-      vtkAbstractArray* arrY = outData->GetColumnByName(varNameY);
+      vtkAbstractArray* arrX = outData->GetColumnByName(varNameX.c_str());
+      vtkAbstractArray* arrY = outData->GetColumnByName(varNameY.c_str());
       if (!arrX || !arrY)
       {
         return;

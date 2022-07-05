@@ -143,7 +143,7 @@ void vtkChartParallelCoordinates::Update()
   for (int i = 0; i < this->VisibleColumns->GetNumberOfTuples(); ++i)
   {
     double range[2];
-    rowData->GetRange(this->VisibleColumns->GetValue(i), range);
+    rowData->GetRange(this->VisibleColumns->GetValue(i).c_str(), range);
     vtkAxis* axis = this->Storage->Axes[i];
     if (axis->GetBehavior() == 0)
     {

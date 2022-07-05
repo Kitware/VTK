@@ -113,7 +113,7 @@ int vtkDIMACSGraphReader::buildGenericGraph(vtkGraph* output,
   }
   else
   {
-    ArrayVertexAttributes->SetName(defaultVertexAttrArrayName);
+    ArrayVertexAttributes->SetName(defaultVertexAttrArrayName.c_str());
   }
   ArrayVertexAttributes->SetNumberOfTuples(this->numVerts);
 
@@ -124,7 +124,7 @@ int vtkDIMACSGraphReader::buildGenericGraph(vtkGraph* output,
   }
   else
   {
-    ArrayEdgeAttributes->SetName(defaultEdgeAttrArrayName);
+    ArrayEdgeAttributes->SetName(defaultEdgeAttrArrayName.c_str());
   }
   ArrayEdgeAttributes->SetNumberOfTuples(this->numEdges);
 

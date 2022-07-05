@@ -645,10 +645,10 @@ bool vtkPlotPoints::UpdateCache()
   this->CalculateLogSeries();
 
   if (table && !this->ValidPointMaskName.empty() &&
-    table->GetColumnByName(this->ValidPointMaskName))
+    table->GetColumnByName(this->ValidPointMaskName.c_str()))
   {
     this->ValidPointMask =
-      vtkArrayDownCast<vtkCharArray>(table->GetColumnByName(this->ValidPointMaskName));
+      vtkArrayDownCast<vtkCharArray>(table->GetColumnByName(this->ValidPointMaskName.c_str()));
   }
   else
   {
@@ -663,7 +663,8 @@ bool vtkPlotPoints::UpdateCache()
   // Additions for color mapping
   if (this->ScalarVisibility && !this->ColorArrayName.empty())
   {
-    vtkDataArray* c = vtkArrayDownCast<vtkDataArray>(table->GetColumnByName(this->ColorArrayName));
+    vtkDataArray* c =
+      vtkArrayDownCast<vtkDataArray>(table->GetColumnByName(this->ColorArrayName.c_str()));
     // TODO: Should add support for categorical coloring & try enum lookup
     if (c)
     {

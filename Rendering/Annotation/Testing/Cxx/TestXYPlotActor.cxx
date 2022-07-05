@@ -128,7 +128,7 @@ int TestXYPlotActor(int argc, char* argv[])
   xyPlot->SetLegendBackgroundColor(.86, .86, .86);
   for (unsigned int i = 0; i < nPlots; ++i)
   {
-    xyPlot->GetLegendActor()->SetEntryString(i, names[i]);
+    xyPlot->GetLegendActor()->SetEntryString(i, names[i].c_str());
   }
 
   // Axes settings

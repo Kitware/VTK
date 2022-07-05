@@ -29,7 +29,7 @@ int vtkBalloonWidgetTest1(int, char*[])
   const char* cstr = "string1";
   const char* retstr = nullptr;
 
-  node1->AddBalloon(prop1, stdString, imageData);
+  node1->AddBalloon(prop1, stdString.c_str(), imageData);
   retstr = node1->GetBalloonString(prop1);
   if (!retstr)
   {

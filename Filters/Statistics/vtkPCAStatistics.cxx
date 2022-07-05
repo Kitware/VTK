@@ -850,7 +850,7 @@ void vtkPCAStatistics::Test(vtkTable* inData, vtkMultiBlockDataSet* inMeta, vtkT
       // Read and center observation
       for (int i = 0; i < p; ++i)
       {
-        x[i] = inData->GetValueByName(r, varNameX[i]).ToDouble() - mX[i];
+        x[i] = inData->GetValueByName(r, varNameX[i].c_str()).ToDouble() - mX[i];
       }
 
       // Now calculate skewness and kurtosis per component

@@ -299,7 +299,7 @@ const char* vtkSQLDatabaseSchema::GetPreambleNameFromHandle(int preHandle)
     return nullptr;
   }
 
-  return this->Internals->Preambles[preHandle].Name;
+  return this->Internals->Preambles[preHandle].Name.c_str();
 }
 
 //------------------------------------------------------------------------------
@@ -311,7 +311,7 @@ const char* vtkSQLDatabaseSchema::GetPreambleActionFromHandle(int preHandle)
     return nullptr;
   }
 
-  return this->Internals->Preambles[preHandle].Action;
+  return this->Internals->Preambles[preHandle].Action.c_str();
 }
 
 //------------------------------------------------------------------------------
@@ -323,7 +323,7 @@ const char* vtkSQLDatabaseSchema::GetPreambleBackendFromHandle(int preHandle)
     return nullptr;
   }
 
-  return this->Internals->Preambles[preHandle].Backend;
+  return this->Internals->Preambles[preHandle].Backend.c_str();
 }
 
 //------------------------------------------------------------------------------
@@ -351,7 +351,7 @@ const char* vtkSQLDatabaseSchema::GetTableNameFromHandle(int tblHandle)
     return nullptr;
   }
 
-  return this->Internals->Tables[tblHandle].Name;
+  return this->Internals->Tables[tblHandle].Name.c_str();
 }
 
 //------------------------------------------------------------------------------
@@ -393,7 +393,7 @@ const char* vtkSQLDatabaseSchema::GetIndexNameFromHandle(int tblHandle, int idxH
     return nullptr;
   }
 
-  return this->Internals->Tables[tblHandle].Indices[idxHandle].Name;
+  return this->Internals->Tables[tblHandle].Indices[idxHandle].Name.c_str();
 }
 
 //------------------------------------------------------------------------------
@@ -443,7 +443,7 @@ const char* vtkSQLDatabaseSchema::GetIndexColumnNameFromHandle(
     return nullptr;
   }
 
-  return this->Internals->Tables[tblHandle].Indices[idxHandle].ColumnNames[cnmHandle];
+  return this->Internals->Tables[tblHandle].Indices[idxHandle].ColumnNames[cnmHandle].c_str();
 }
 
 //------------------------------------------------------------------------------
@@ -485,7 +485,7 @@ const char* vtkSQLDatabaseSchema::GetColumnNameFromHandle(int tblHandle, int col
     return nullptr;
   }
 
-  return this->Internals->Tables[tblHandle].Columns[colHandle].Name;
+  return this->Internals->Tables[tblHandle].Columns[colHandle].Name.c_str();
 }
 
 //------------------------------------------------------------------------------
@@ -545,7 +545,7 @@ const char* vtkSQLDatabaseSchema::GetColumnAttributesFromHandle(int tblHandle, i
     return nullptr;
   }
 
-  return this->Internals->Tables[tblHandle].Columns[colHandle].Attributes;
+  return this->Internals->Tables[tblHandle].Columns[colHandle].Attributes.c_str();
 }
 
 //------------------------------------------------------------------------------
@@ -587,7 +587,7 @@ const char* vtkSQLDatabaseSchema::GetTriggerNameFromHandle(int tblHandle, int tr
     return nullptr;
   }
 
-  return this->Internals->Tables[tblHandle].Triggers[trgHandle].Name;
+  return this->Internals->Tables[tblHandle].Triggers[trgHandle].Name.c_str();
 }
 
 //------------------------------------------------------------------------------
@@ -627,7 +627,7 @@ const char* vtkSQLDatabaseSchema::GetTriggerActionFromHandle(int tblHandle, int 
     return nullptr;
   }
 
-  return this->Internals->Tables[tblHandle].Triggers[trgHandle].Action;
+  return this->Internals->Tables[tblHandle].Triggers[trgHandle].Action.c_str();
 }
 
 //------------------------------------------------------------------------------
@@ -647,7 +647,7 @@ const char* vtkSQLDatabaseSchema::GetTriggerBackendFromHandle(int tblHandle, int
     return nullptr;
   }
 
-  return this->Internals->Tables[tblHandle].Triggers[trgHandle].Backend;
+  return this->Internals->Tables[tblHandle].Triggers[trgHandle].Backend.c_str();
 }
 
 //------------------------------------------------------------------------------

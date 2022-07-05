@@ -148,7 +148,7 @@ int TestAutoCorrelativeStatistics(int, char*[])
   // Select columns of interest
   for (int i = 0; i < nMetrics1; ++i)
   {
-    as1->AddColumn(columns1[i]);
+    as1->AddColumn(columns1[i].c_str());
   }
 
   // Set spatial cardinality
@@ -245,7 +245,7 @@ int TestAutoCorrelativeStatistics(int, char*[])
   // Select columns of interest
   for (int i = 0; i < nMetrics1; ++i)
   {
-    as2->AddColumn(columns1[i]);
+    as2->AddColumn(columns1[i].c_str());
   }
 
   // Set spatial cardinality
@@ -440,7 +440,7 @@ int TestAutoCorrelativeStatistics(int, char*[])
   // Select Columns of Interest
   for (int i = 0; i < nMetrics2; ++i)
   {
-    as3->AddColumn(columns2[i]);
+    as3->AddColumn(columns2[i].c_str());
   }
 
   // Set spatial cardinality

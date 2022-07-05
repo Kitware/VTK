@@ -123,7 +123,7 @@ void vtkPhyloXMLTreeWriter::WriteTreeLevelElement(vtkTree* input, vtkXMLDataElem
     vtkNew<vtkXMLDataElement> element;
     element->SetName(elementName);
     vtkStdString val = array->GetVariantValue(0).ToString();
-    element->SetCharacterData(val, static_cast<int>(val.length()));
+    element->SetCharacterData(val.c_str(), static_cast<int>(val.length()));
 
     // set the attribute for this element if one was requested.
     if (strcmp(attributeName, "") != 0)
@@ -241,7 +241,7 @@ void vtkPhyloXMLTreeWriter::WriteNameElement(vtkIdType vertex, vtkXMLDataElement
   {
     vtkNew<vtkXMLDataElement> nameElement;
     nameElement->SetName("name");
-    nameElement->SetCharacterData(name, static_cast<int>(name.length()));
+    nameElement->SetCharacterData(name.c_str(), static_cast<int>(name.length()));
     element->AddNestedElement(nameElement);
   }
 
@@ -274,7 +274,7 @@ void vtkPhyloXMLTreeWriter::WriteConfidenceElement(
       confidenceElement->SetAttribute("type", type);
     }
 
-    confidenceElement->SetCharacterData(confidence, static_cast<int>(confidence.length()));
+    confidenceElement->SetCharacterData(confidence.c_str(), static_cast<int>(confidence.length()));
     element->AddNestedElement(confidenceElement);
   }
 
@@ -449,7 +449,7 @@ void vtkPhyloXMLTreeWriter::WritePropertyElement(
   {
     propertyElement->SetAttribute("unit", unit.c_str());
   }
-  propertyElement->SetCharacterData(val, static_cast<int>(val.length()));
+  propertyElement->SetCharacterData(val.c_str(), static_cast<int>(val.length()));
 
   element->AddNestedElement(propertyElement);
 }

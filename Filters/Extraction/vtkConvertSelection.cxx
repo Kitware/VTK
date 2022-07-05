@@ -112,7 +112,7 @@ const char* vtkConvertSelection::GetArrayName()
 {
   if (this->ArrayNames && this->ArrayNames->GetNumberOfValues() > 0)
   {
-    return this->ArrayNames->GetValue(0);
+    return this->ArrayNames->GetValue(0).c_str();
   }
   return nullptr;
 }
@@ -906,7 +906,7 @@ int vtkConvertSelection::Convert(vtkSelection* input, vtkDataObject* data, vtkSe
         {
           domainArrays[domain].TakeReference(
             vtkAbstractArray::CreateArray(outputDataArr->GetDataType()));
-          domainArrays[domain]->SetName(domain);
+          domainArrays[domain]->SetName(domain.c_str());
         }
         vtkAbstractArray* domainArr = domainArrays[domain];
         domainArr->InsertNextTuple(index, outputDataArr);
@@ -934,11 +934,11 @@ int vtkConvertSelection::Convert(vtkSelection* input, vtkDataObject* data, vtkSe
       vtkAbstractArray* outputDataArr = nullptr;
       if (dsa && this->OutputType == vtkSelectionNode::VALUES)
       {
-        outputDataArr = dsa->GetAbstractArray(this->ArrayNames->GetValue(ind));
+        outputDataArr = dsa->GetAbstractArray(this->ArrayNames->GetValue(ind).c_str());
       }
       else if (fd && this->OutputType == vtkSelectionNode::VALUES)
       {
-        outputDataArr = fd->GetAbstractArray(this->ArrayNames->GetValue(ind));
+        outputDataArr = fd->GetAbstractArray(this->ArrayNames->GetValue(ind).c_str());
       }
       else if (dsa && this->OutputType == vtkSelectionNode::PEDIGREEIDS)
       {

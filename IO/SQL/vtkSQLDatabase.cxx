@@ -439,7 +439,7 @@ bool vtkSQLDatabase::EffectSchema(vtkSQLDatabaseSchema* schema, bool dropIfExist
     }
 
     vtkStdString preStr = schema->GetPreambleActionFromHandle(preHandle);
-    query->SetQuery(preStr);
+    query->SetQuery(preStr.c_str());
     if (!query->Execute())
     {
       vtkGenericWarningMacro("Unable to effect the schema: unable to execute query.\nDetails: "
@@ -556,7 +556,7 @@ bool vtkSQLDatabase::EffectSchema(vtkSQLDatabaseSchema* schema, bool dropIfExist
     }
 
     // Execute the CREATE TABLE query
-    query->SetQuery(queryStr);
+    query->SetQuery(queryStr.c_str());
     if (!query->Execute())
     {
       vtkGenericWarningMacro("Unable to effect the schema: unable to execute query.\nDetails: "
@@ -570,7 +570,7 @@ bool vtkSQLDatabase::EffectSchema(vtkSQLDatabaseSchema* schema, bool dropIfExist
     for (std::vector<vtkStdString>::iterator it = idxStatements.begin(); it != idxStatements.end();
          ++it)
     {
-      query->SetQuery(*it);
+      query->SetQuery(it->c_str());
       if (!query->Execute())
       {
         vtkGenericWarningMacro("Unable to effect the schema: unable to execute query.\nDetails: "
@@ -610,7 +610,7 @@ bool vtkSQLDatabase::EffectSchema(vtkSQLDatabaseSchema* schema, bool dropIfExist
         // If not empty, execute query
         if (!trgStr.empty())
         {
-          query->SetQuery(vtkStdString(trgStr));
+          query->SetQuery(trgStr.c_str());
           if (!query->Execute())
           {
             vtkGenericWarningMacro(

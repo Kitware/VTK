@@ -347,7 +347,7 @@ void vtkPointInterpolator::Probe(vtkDataSet* input, vtkDataSet* source, vtkDataS
   // Clean up
   if (mask)
   {
-    this->ValidPointsMask->SetName(this->ValidPointsMaskArrayName);
+    this->ValidPointsMask->SetName(this->ValidPointsMaskArrayName.c_str());
     outPD->AddArray(this->ValidPointsMask);
     this->ValidPointsMask->Delete();
   }

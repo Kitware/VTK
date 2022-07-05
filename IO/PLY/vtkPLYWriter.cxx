@@ -211,7 +211,7 @@ void vtkPLYWriter::WriteData()
   // write comments and an object information field
   for (idx = 0; idx < this->HeaderComments->GetNumberOfValues(); ++idx)
   {
-    vtkPLY::ply_put_comment(ply, this->HeaderComments->GetValue(idx));
+    vtkPLY::ply_put_comment(ply, this->HeaderComments->GetValue(idx).c_str());
   }
   vtkPLY::ply_put_obj_info(ply, "vtkPolyData points and polygons: vtk4.0");
 

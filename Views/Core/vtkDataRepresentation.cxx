@@ -337,7 +337,7 @@ const char* vtkDataRepresentation::GetSelectionArrayName()
 {
   if (this->SelectionArrayNames && this->SelectionArrayNames->GetNumberOfTuples() > 0)
   {
-    return this->SelectionArrayNames->GetValue(0);
+    return this->SelectionArrayNames->GetValue(0).c_str();
   }
   return nullptr;
 }

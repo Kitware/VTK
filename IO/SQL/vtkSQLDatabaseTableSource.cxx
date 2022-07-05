@@ -179,14 +179,15 @@ int vtkSQLDatabaseTableSource::RequestData(
 
   if (!this->Implementation->Database)
   {
-    this->Implementation->Database = vtkSQLDatabase::CreateFromURL(this->Implementation->URL);
+    this->Implementation->Database =
+      vtkSQLDatabase::CreateFromURL(this->Implementation->URL.c_str());
     if (!this->Implementation->Database)
     {
       vtkErrorMacro(<< "Error creating database using URL: " << this->Implementation->URL);
       return 0;
     }
 
-    if (!this->Implementation->Database->Open(this->Implementation->Password))
+    if (!this->Implementation->Database->Open(this->Implementation->Password.c_str()))
     {
       this->Implementation->Database->Delete();
       this->Implementation->Database = nullptr;

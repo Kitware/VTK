@@ -419,7 +419,7 @@ void vtkTemporalStatistics::InitializeArray(vtkDataArray* array, vtkFieldData* o
     newArray.TakeReference(
       vtkArrayDownCast<vtkDataArray>(vtkAbstractArray::CreateArray(array->GetDataType())));
     newArray->DeepCopy(array);
-    newArray->SetName(vtkTemporalStatisticsMangleName(array->GetName(), AVERAGE_SUFFIX));
+    newArray->SetName(vtkTemporalStatisticsMangleName(array->GetName(), AVERAGE_SUFFIX).c_str());
     if (outFd->HasArray(newArray->GetName()))
     {
       vtkWarningMacro(<< "Input has two arrays named " << array->GetName()
@@ -435,7 +435,7 @@ void vtkTemporalStatistics::InitializeArray(vtkDataArray* array, vtkFieldData* o
     newArray.TakeReference(
       vtkArrayDownCast<vtkDataArray>(vtkAbstractArray::CreateArray(array->GetDataType())));
     newArray->DeepCopy(array);
-    newArray->SetName(vtkTemporalStatisticsMangleName(array->GetName(), MINIMUM_SUFFIX));
+    newArray->SetName(vtkTemporalStatisticsMangleName(array->GetName(), MINIMUM_SUFFIX).c_str());
     outFd->AddArray(newArray);
   }
 
@@ -445,7 +445,7 @@ void vtkTemporalStatistics::InitializeArray(vtkDataArray* array, vtkFieldData* o
     newArray.TakeReference(
       vtkArrayDownCast<vtkDataArray>(vtkAbstractArray::CreateArray(array->GetDataType())));
     newArray->DeepCopy(array);
-    newArray->SetName(vtkTemporalStatisticsMangleName(array->GetName(), MAXIMUM_SUFFIX));
+    newArray->SetName(vtkTemporalStatisticsMangleName(array->GetName(), MAXIMUM_SUFFIX).c_str());
     outFd->AddArray(newArray);
   }
 
@@ -454,7 +454,8 @@ void vtkTemporalStatistics::InitializeArray(vtkDataArray* array, vtkFieldData* o
     vtkSmartPointer<vtkDataArray> newArray;
     newArray.TakeReference(
       vtkArrayDownCast<vtkDataArray>(vtkAbstractArray::CreateArray(array->GetDataType())));
-    newArray->SetName(vtkTemporalStatisticsMangleName(array->GetName(), STANDARD_DEVIATION_SUFFIX));
+    newArray->SetName(
+      vtkTemporalStatisticsMangleName(array->GetName(), STANDARD_DEVIATION_SUFFIX).c_str());
 
     newArray->SetNumberOfComponents(array->GetNumberOfComponents());
     newArray->CopyComponentNames(array);

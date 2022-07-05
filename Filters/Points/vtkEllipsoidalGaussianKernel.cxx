@@ -79,7 +79,7 @@ void vtkEllipsoidalGaussianKernel::Initialize(
     this->ScalarsArray = pd->GetScalars();
     if (!this->ScalarsArray)
     {
-      this->ScalarsArray = pd->GetArray(this->ScalarsArrayName);
+      this->ScalarsArray = pd->GetArray(this->ScalarsArrayName.c_str());
     }
     if (this->ScalarsArray && this->ScalarsArray->GetNumberOfComponents() == 1)
     {
@@ -97,7 +97,7 @@ void vtkEllipsoidalGaussianKernel::Initialize(
     this->NormalsArray = pd->GetNormals();
     if (!this->NormalsArray)
     {
-      this->NormalsArray = pd->GetArray(this->NormalsArrayName);
+      this->NormalsArray = pd->GetArray(this->NormalsArrayName.c_str());
     }
     if (this->NormalsArray)
     {

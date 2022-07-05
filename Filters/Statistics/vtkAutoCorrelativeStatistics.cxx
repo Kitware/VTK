@@ -279,7 +279,7 @@ void vtkAutoCorrelativeStatistics::Learn(
     // Each request contains only one column of interest (if there are others, they are ignored)
     std::set<vtkStdString>::const_iterator it = rit->begin();
     vtkStdString varName = *it;
-    if (!inData->GetColumnByName(varName))
+    if (!inData->GetColumnByName(varName.c_str()))
     {
       vtkWarningMacro("InData table does not have a column " << varName << ". Ignoring it.");
       continue;
@@ -344,13 +344,13 @@ void vtkAutoCorrelativeStatistics::Learn(
       {
         inv_n = 1. / (r + 1.);
 
-        xs = inData->GetValueByName(r, varName).ToDouble();
+        xs = inData->GetValueByName(r, varName.c_str()).ToDouble();
         delta = xs - meanXs;
         meanXs += delta * inv_n;
         deltaXsn = xs - meanXs;
         mom2Xs += delta * deltaXsn;
 
-        xt = inData->GetValueByName(r + rowOffset, varName).ToDouble();
+        xt = inData->GetValueByName(r + rowOffset, varName.c_str()).ToDouble();
         delta = xt - meanXt;
         meanXt += delta * inv_n;
         mom2Xt += delta * (xt - meanXt);
@@ -434,10 +434,10 @@ void vtkAutoCorrelativeStatistics::Derive(vtkMultiBlockDataSet* inMeta)
     vtkDoubleArray* derivedCol;
     for (int j = 0; j < numDerived; ++j)
     {
-      if (!modelTab->GetColumnByName(derivedNames[j]))
+      if (!modelTab->GetColumnByName(derivedNames[j].c_str()))
       {
         derivedCol = vtkDoubleArray::New();
-        derivedCol->SetName(derivedNames[j]);
+        derivedCol->SetName(derivedNames[j].c_str());
         derivedCol->SetNumberOfTuples(nRow);
         modelTab->AddColumn(derivedCol);
         derivedCol->Delete();
@@ -524,7 +524,7 @@ void vtkAutoCorrelativeStatistics::Derive(vtkMultiBlockDataSet* inMeta)
 
       for (int j = 0; j < numDerived; ++j)
       {
-        modelTab->SetValueByName(i, derivedNames[j], derivedVals[j]);
+        modelTab->SetValueByName(i, derivedNames[j].c_str(), derivedVals[j]);
       }
     } // nRow
 
@@ -616,7 +616,7 @@ void vtkAutoCorrelativeStatistics::SelectAssessFunctor(
     if (vars->GetValue(r) == varName)
     {
       // Grab the data for the requested variable
-      vtkAbstractArray* arr = outData->GetColumnByName(varName);
+      vtkAbstractArray* arr = outData->GetColumnByName(varName.c_str());
       if (!arr)
       {
         return;

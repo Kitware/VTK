@@ -432,7 +432,7 @@ int vtkNIFTIImageReader::RequestInformation(vtkInformation* vtkNotUsed(request),
     int headers = 0;
     for (vtkIdType i = 0; i < n; i++)
     {
-      filename = this->FileNames->GetValue(i);
+      filename = this->FileNames->GetValue(i).c_str();
       // this checks for .hdr and .hdr.gz, case insensitive
       if (vtkNIFTIImageReader::CheckExtension(filename, ".hdr"))
       {
@@ -1059,7 +1059,7 @@ int vtkNIFTIImageReader::RequestData(vtkInformation* request,
     int headers = 0;
     for (vtkIdType i = 0; i < n; i++)
     {
-      filename = this->FileNames->GetValue(i);
+      filename = this->FileNames->GetValue(i).c_str();
       // this checks for .hdr and .hdr.gz, case insensitive
       if (vtkNIFTIImageReader::CheckExtension(filename, ".hdr"))
       {

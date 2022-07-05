@@ -740,7 +740,7 @@ void vtkKMeansStatistics::Assess(vtkTable* inData, vtkMultiBlockDataSet* inMeta,
       names[i * nv + v] =
         assessColName
           .str(); // Storing names to be able to use SetValueByName which is faster than SetValue
-      assessValues->SetName(names[i * nv + v]);
+      assessValues->SetName(names[i * nv + v].c_str());
       assessValues->SetNumberOfTuples(nRow);
       outData->AddColumn(assessValues);
       assessValues->Delete();
@@ -760,7 +760,7 @@ void vtkKMeansStatistics::Assess(vtkTable* inData, vtkMultiBlockDataSet* inMeta,
     (*dfunc)(assessResult, r);
     for (vtkIdType j = 0; j < nv * numRuns; ++j)
     {
-      outData->SetValueByName(r, names[j], assessResult->GetValue(j));
+      outData->SetValueByName(r, names[j].c_str(), assessResult->GetValue(j));
     }
   }
   assessResult->Delete();

@@ -315,7 +315,7 @@ void vtkStatisticsAlgorithm::Assess(
       vtkStdString varName = *it;
 
       // If requested column does not exist in input, ignore request
-      if (!inData->GetColumnByName(varName))
+      if (!inData->GetColumnByName(varName.c_str()))
       {
         vtkWarningMacro(
           "InData table does not have a column " << varName << ". Ignoring request containing it.");
@@ -365,7 +365,7 @@ void vtkStatisticsAlgorithm::Assess(
 
       // Create assessment columns with names <AssessmentName>(var1,...,varN)
       vtkDoubleArray* assessColumn = vtkDoubleArray::New();
-      assessColumn->SetName(names[a]);
+      assessColumn->SetName(names[a].c_str());
       assessColumn->SetNumberOfTuples(nRowData);
       outData->AddColumn(assessColumn);
       assessColumn->Delete();
@@ -386,7 +386,7 @@ void vtkStatisticsAlgorithm::Assess(
         for (vtkIdType a = 0; a < nAssessments; ++a)
         {
           // Store each assessment value in corresponding assessment column
-          outData->SetValueByName(r, names[a], assessResult->GetValue(a));
+          outData->SetValueByName(r, names[a].c_str(), assessResult->GetValue(a));
         }
       }
 

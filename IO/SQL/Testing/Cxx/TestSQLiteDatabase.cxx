@@ -356,7 +356,7 @@ int TestSQLiteDatabase(int /*argc*/, char* /*argv*/[])
 
   vtkStdString queryStr = "INSERT INTO atable (somename,somenmbr) VALUES ( " +
     query->EscapeString(vtkStdString("Str\"ang'eS\ntring"), true) + ", 2 )";
-  query->SetQuery(queryStr);
+  query->SetQuery(queryStr.c_str());
   if (!query->Execute())
   {
     cerr << "Query failed" << endl;
@@ -371,7 +371,7 @@ int TestSQLiteDatabase(int /*argc*/, char* /*argv*/[])
   cerr << "@@ Reading it back... <";
 
   queryStr = "SELECT somename FROM atable WHERE somenmbr=2";
-  query->SetQuery(queryStr);
+  query->SetQuery(queryStr.c_str());
   if (!query->Execute())
   {
     cerr << "Query failed" << endl;
@@ -398,7 +398,7 @@ int TestSQLiteDatabase(int /*argc*/, char* /*argv*/[])
   {
     queryStr = "DROP TABLE ";
     queryStr += *it;
-    query->SetQuery(queryStr);
+    query->SetQuery(queryStr.c_str());
 
     if (!query->Execute())
     {
