@@ -68,7 +68,6 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkSelection.h"
 #include "vtkSelectionNode.h"
 #include "vtkSortDataArray.h"
-#include "vtkStdString.h"
 #include "vtkStringArray.h"
 #include "vtkTable.h"
 #include "vtkTextMapper.h"
@@ -1334,7 +1333,7 @@ int vtkParallelCoordinatesRepresentation::SwapAxisPositions(int position1, int p
   this->Axes[position1] = this->Axes[position2];
   this->Axes[position2] = axtmp;
 
-  vtkStdString tmpStr = this->AxisTitles->GetValue(position1);
+  std::string tmpStr = this->AxisTitles->GetValue(position1);
   this->AxisTitles->SetValue(position1, this->AxisTitles->GetValue(position2));
   this->AxisTitles->SetValue(position2, tmpStr);
 

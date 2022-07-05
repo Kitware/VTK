@@ -844,7 +844,7 @@ int vtkXMLDataReaderReadArrayValues(vtkXMLDataElement* da, vtkXMLDataParser* xml
   int result = 1;
   vtkIdType inIndex = 0;
   vtkIdType outIndex = arrayIndex;
-  vtkStdString prev_string;
+  std::string prev_string;
   while (result && inIndex < actualNumValues)
   {
     size_t chars_read = 0;
@@ -870,7 +870,7 @@ int vtkXMLDataReaderReadArrayValues(vtkXMLDataElement* da, vtkXMLDataParser* xml
 
     while (ptr < end_ptr)
     {
-      vtkStdString temp_string = ptr; // will read in string until 0x0;
+      std::string temp_string = ptr; // will read in string until 0x0;
       ptr += temp_string.size() + 1;
       if (!prev_string.empty())
       {

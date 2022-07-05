@@ -151,8 +151,8 @@ void vtkJavaScriptDataWriter::WriteTable(vtkTable* table, ostream* stream_ptr)
     vtkIdType numCols = table->GetNumberOfColumns();
     vtkDataSetAttributes* dsa = table->GetRowData();
 
-    vtkStdString rowHeader = "[";
-    vtkStdString rowFooter = "],";
+    std::string rowHeader = "[";
+    std::string rowFooter = "],";
     if (this->IncludeFieldNames)
     {
       rowHeader = "{";

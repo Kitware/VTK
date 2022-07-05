@@ -13,7 +13,6 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
-#include "vtkStdString.h"
 #include "vtkTestUtilities.h"
 #include "vtkTesting.h"
 #include "vtkWindowToImageFilter.h"
@@ -76,7 +75,7 @@ int TestMultiBlockExodusWrite(int argc, char* argv[])
     testing->AddArgument(argv[i]);
   }
 
-  vtkStdString OutputFile;
+  std::string OutputFile;
   OutputFile = testing->GetTempDirectory();
   OutputFile += "/testExodus.exii";
 

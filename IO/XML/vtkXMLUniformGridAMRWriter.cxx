@@ -127,7 +127,7 @@ int vtkXMLUniformGridAMRWriter::WriteComposite(
         datasetXML->SetVectorAttribute("amr_box", 6, box_buffer);
       }
 
-      vtkStdString fileName = this->CreatePieceFileName(writerIdx);
+      std::string fileName = this->CreatePieceFileName(writerIdx);
       if (!fileName.empty())
       {
         // if fileName is empty, it implies that no file is written out for this

@@ -848,7 +848,7 @@ vtkSelection* vtkRenderedTreeAreaRepresentation::ConvertSelection(vtkView* view,
             }
 
             // Before adding vertex's edges, make sure its in the same domain as selected vertex
-            vtkStdString domain;
+            std::string domain;
             if (domainArr)
             {
               domain = domainArr->GetValue(id);

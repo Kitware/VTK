@@ -163,7 +163,7 @@ vtkStdString vtkDelimitedTextWriter::GetString(vtkStdString string)
 {
   if (this->UseStringDelimiter && this->StringDelimiter)
   {
-    vtkStdString temp = this->StringDelimiter;
+    std::string temp = this->StringDelimiter;
     temp += string + this->StringDelimiter;
     return temp;
   }

@@ -298,7 +298,7 @@ vtkLSDynaPart::vtkLSDynaPart()
   this->GlobalPointsUsed = nullptr;
 
   this->Type = LSDynaMetaData::NUM_CELL_TYPES;
-  this->Name = vtkStdString();
+  this->Name = std::string();
   this->UserMaterialId = -1;
   this->PartId = -1;
 

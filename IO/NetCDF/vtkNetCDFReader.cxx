@@ -638,7 +638,7 @@ int vtkNetCDFReader::UpdateMetaData()
 //------------------------------------------------------------------------------
 vtkStdString vtkNetCDFReader::DescribeDimensions(int ncFD, const int* dimIds, int numDims)
 {
-  vtkStdString description;
+  std::string description;
   for (int i = 0; i < numDims; i++)
   {
     char name[NC_MAX_NAME + 1];
@@ -658,7 +658,7 @@ int vtkNetCDFReader::ReadMetaData(int ncFD)
   // Look at all variables and record them so that the user can select which
   // ones he wants.  This oddness of adding and removing from
   // VariableArraySelection is to preserve any current settings for variables.
-  typedef std::set<vtkStdString> stringSet;
+  typedef std::set<std::string> stringSet;
   stringSet variablesToAdd;
   stringSet variablesToRemove;
 
@@ -720,7 +720,7 @@ int vtkNetCDFReader::FillVariableDimensions(int ncFD)
     CALL_NETCDF_INT(nc_inq_varid(ncFD, varName, &varId));
     CALL_NETCDF_INT(nc_inq_varndims(ncFD, varId, &numDim));
     CALL_NETCDF_INT(nc_inq_vardimid(ncFD, varId, dimIds));
-    vtkStdString dimEncoding("(");
+    std::string dimEncoding("(");
     for (int j = 0; j < numDim; j++)
     {
       if ((j == 0) && (this->IsTimeDimension(ncFD, dimIds[j])))

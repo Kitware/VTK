@@ -1015,7 +1015,7 @@ static void BroadcastIntVector(
   }
 }
 
-static void BroadcastString(vtkMultiProcessController* controller, vtkStdString& str, int rank)
+static void BroadcastString(vtkMultiProcessController* controller, std::string& str, int rank)
 {
   unsigned long len = static_cast<unsigned long>(str.size()) + 1;
   controller->Broadcast(&len, 1, 0);

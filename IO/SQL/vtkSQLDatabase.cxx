@@ -122,7 +122,7 @@ vtkStdString vtkSQLDatabase::GetColumnSpecification(
 
   // Figure out column type
   int colType = schema->GetColumnTypeFromHandle(tblHandle, colHandle);
-  vtkStdString colTypeStr;
+  std::string colTypeStr;
   switch (static_cast<vtkSQLDatabaseSchema::DatabaseColumnType>(colType))
   {
     case vtkSQLDatabaseSchema::SERIAL:
@@ -235,7 +235,7 @@ vtkStdString vtkSQLDatabase::GetColumnSpecification(
     }
   }
 
-  vtkStdString attStr = schema->GetColumnAttributesFromHandle(tblHandle, colHandle);
+  std::string attStr = schema->GetColumnAttributesFromHandle(tblHandle, colHandle);
   if (!attStr.empty())
   {
     queryStr << " " << attStr;
@@ -455,7 +455,7 @@ bool vtkSQLDatabase::EffectSchema(vtkSQLDatabaseSchema* schema, bool dropIfExist
   for (int tblHandle = 0; tblHandle < numTbl; ++tblHandle)
   {
     // Construct the CREATE TABLE query for this table
-    vtkStdString queryStr("CREATE TABLE ");
+    std::string queryStr("CREATE TABLE ");
     queryStr += this->GetTablePreamble(dropIfExists);
     queryStr += schema->GetTableNameFromHandle(tblHandle);
     queryStr += " (";
@@ -482,7 +482,7 @@ bool vtkSQLDatabase::EffectSchema(vtkSQLDatabaseSchema* schema, bool dropIfExist
       }
 
       // Get column creation syntax (backend-dependent)
-      vtkStdString colStr = this->GetColumnSpecification(schema, tblHandle, colHandle);
+      std::string colStr = this->GetColumnSpecification(schema, tblHandle, colHandle);
       if (!colStr.empty())
       {
         queryStr += colStr;
@@ -505,14 +505,14 @@ bool vtkSQLDatabase::EffectSchema(vtkSQLDatabaseSchema* schema, bool dropIfExist
     }
 
     // In case separate INDEX statements are needed (backend-specific)
-    std::vector<vtkStdString> idxStatements;
+    std::vector<std::string> idxStatements;
     bool skipped = false;
 
     // Loop over all indices of the current table
     for (int idxHandle = 0; idxHandle < numIdx; ++idxHandle)
     {
       // Get index creation syntax (backend-dependent)
-      vtkStdString idxStr = this->GetIndexSpecification(schema, tblHandle, idxHandle, skipped);
+      std::string idxStr = this->GetIndexSpecification(schema, tblHandle, idxHandle, skipped);
       if (!idxStr.empty())
       {
         if (skipped)
@@ -566,7 +566,7 @@ bool vtkSQLDatabase::EffectSchema(vtkSQLDatabaseSchema* schema, bool dropIfExist
     }
 
     // Execute separate CREATE INDEX statements if needed
-    for (std::vector<vtkStdString>::iterator it = idxStatements.begin(); it != idxStatements.end();
+    for (std::vector<std::string>::iterator it = idxStatements.begin(); it != idxStatements.end();
          ++it)
     {
       query->SetQuery(it->c_str());
@@ -604,7 +604,7 @@ bool vtkSQLDatabase::EffectSchema(vtkSQLDatabaseSchema* schema, bool dropIfExist
         }
 
         // Get trigger creation syntax (backend-dependent)
-        vtkStdString trgStr = this->GetTriggerSpecification(schema, tblHandle, trgHandle);
+        std::string trgStr = this->GetTriggerSpecification(schema, tblHandle, trgHandle);
 
         // If not empty, execute query
         if (!trgStr.empty())

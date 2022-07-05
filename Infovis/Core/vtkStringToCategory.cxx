@@ -117,7 +117,7 @@ int vtkStringToCategory::RequestData(
   fd->AddArray(catArr);
   catArr->Delete();
   vtkIdList* list = vtkIdList::New();
-  std::set<vtkStdString> s;
+  std::set<std::string> s;
   int category = 0;
   for (vtkIdType i = 0; i < numTuples * numComp; i++)
   {

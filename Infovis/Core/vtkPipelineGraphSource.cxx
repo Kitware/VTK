@@ -301,8 +301,8 @@ void vtkPipelineGraphSource::PipelineToDot(
     vtkEdgeType edge = edges->Next();
     vtkObjectBase* const source = vertex_object_array->GetVariantValue(edge.Source).ToVTKObject();
     vtkObjectBase* const target = vertex_object_array->GetVariantValue(edge.Target).ToVTKObject();
-    const vtkStdString output_port = edge_output_port_array->GetVariantValue(edge.Id).ToString();
-    const vtkStdString input_port = edge_input_port_array->GetVariantValue(edge.Id).ToString();
+    const std::string output_port = edge_output_port_array->GetVariantValue(edge.Id).ToString();
+    const std::string input_port = edge_input_port_array->GetVariantValue(edge.Id).ToString();
     vtkObjectBase* const object = edge_object_array->GetVariantValue(edge.Id).ToVTKObject();
 
     std::string color = "black";

@@ -15,7 +15,6 @@
 #include "vtkMultiProcessController.h"
 #include "vtkNew.h"
 #include "vtkPoints.h"
-#include "vtkStdString.h"
 #include "vtkStringArray.h"
 
 #include "vtkBitArray.h"
@@ -700,16 +699,15 @@ void PIOAdaptor::collectMaterialVariableMetaData()
   for (int i = 0; i < numberOfFields; i++)
   {
     // check if this field name ends in '_nummat'
-    vtkStdString pioFieldName = vtkStdString(pioField[i].pio_name);
-    vtkStdString nummatStr = vtkStdString("_nummat");
+    std::string pioFieldName = std::string(pioField[i].pio_name);
+    std::string nummatStr = std::string("_nummat");
     std::size_t matchNummat = pioFieldName.find(nummatStr);
     if (matchNummat != std::string::npos)
     {
       if (matchNummat + nummatStr.length() == pioFieldName.length())
       {
         // found a material prefix, store the prefix, including the underscore
-        vtkStdString prefix =
-          pioFieldName.substr(0, pioFieldName.length() - nummatStr.length() + 1);
+        std::string prefix = pioFieldName.substr(0, pioFieldName.length() - nummatStr.length() + 1);
         prefixes.emplace_back(prefix);
       }
     }
@@ -773,7 +771,7 @@ void PIOAdaptor::addMaterialVariable(vtkStdString& pioFieldName, std::vector<std
   for (int j = 1; j <= this->numMaterials; j++)
   {
     // the material name is <var>_<material number>_<material_name>
-    vtkStdString matName = varname + "_" + std::to_string(j) + "_" + matident[j - 1];
+    std::string matName = varname + "_" + std::to_string(j) + "_" + matident[j - 1];
     this->variableName.emplace_back(matName);
 
     PIOMaterialVariable* matvar = new PIOMaterialVariable();
@@ -972,9 +970,9 @@ void PIOAdaptor::create_geometry(vtkMultiBlockDataSet* grid)
   double currentCycle;
   double currentTime;
   double currentIndex;
-  vtkStdString eap_version;
-  vtkStdString user_name;
-  vtkStdString problem_name;
+  std::string eap_version;
+  std::string user_name;
+  std::string problem_name;
 
   if (this->Rank == 0)
   {

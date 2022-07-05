@@ -120,7 +120,7 @@ void vtkPMultiCorrelativeStatistics::GatherStatistics(
   double* M_l = new double[nM];
 
   // First, load all means and create a name-to-index lookup table
-  std::map<vtkStdString, vtkIdType> meanIndex;
+  std::map<std::string, vtkIdType> meanIndex;
   for (vtkIdType r = 1; r < nRow; ++r)
   {
     if (sparseCov->GetValueByName(r, "Column2").ToString().empty())
@@ -136,7 +136,7 @@ void vtkPMultiCorrelativeStatistics::GatherStatistics(
   std::map<vtkIdType, std::pair<vtkIdType, vtkIdType>> covToMeans;
   for (vtkIdType r = 1; r < nRow; ++r)
   {
-    vtkStdString col2 = sparseCov->GetValueByName(r, "Column2").ToString();
+    std::string col2 = sparseCov->GetValueByName(r, "Column2").ToString();
     if (!col2.empty())
     {
       covToMeans[r - 1] = std::pair<vtkIdType, vtkIdType>(

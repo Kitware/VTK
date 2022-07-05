@@ -101,7 +101,7 @@ bool vtkCategoryLegend::Paint(vtkContext2D* painter)
   // draw all of the marks & labels
   for (vtkIdType l = 0; l < this->Values->GetNumberOfTuples(); ++l)
   {
-    vtkStdString currentString = this->Values->GetValue(l).ToString();
+    std::string currentString = this->Values->GetValue(l).ToString();
     if (currentString.empty())
     {
       continue;

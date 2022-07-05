@@ -42,7 +42,6 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkMPIController.h"
 #include "vtkMath.h"
 #include "vtkMultiBlockDataSet.h"
-#include "vtkStdString.h"
 #include "vtkTable.h"
 #include "vtkTimerLog.h"
 #include "vtkVariantArray.h"
@@ -91,7 +90,7 @@ void RandomSampleStatistics(vtkMultiProcessController* controller, void* arg)
 
   vtkTable* inputData = vtkTable::New();
   vtkDoubleArray* doubleArray[4];
-  vtkStdString columnNames[] = { "Standard Uniform 0", "Standard Uniform 1", "Standard Normal 0",
+  std::string columnNames[] = { "Standard Uniform 0", "Standard Uniform 1", "Standard Normal 0",
     "Standard Normal 1" };
 
   // Standard uniform samples

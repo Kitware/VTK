@@ -26,7 +26,6 @@
 #include <vtkRenderWindowInteractor.h>
 #include <vtkRenderer.h>
 #include <vtkSphereSource.h>
-#include <vtkStdString.h>
 #include <vtkStringArray.h>
 
 int TestColorByPointDataStringArray(int argc, char* argv[])
@@ -69,15 +68,15 @@ int TestColorByPointDataStringArray(int argc, char* argv[])
   tfer->SetIndexedColor(3, 1.0, 1.0, 0.0);
   tfer->SetIndexedColor(4, 0.0, 1.0, 1.0);
 
-  vtkStdString red("red");
+  std::string red("red");
   tfer->SetAnnotation(red, red);
-  vtkStdString blue("blue");
+  std::string blue("blue");
   tfer->SetAnnotation(blue, blue);
-  vtkStdString green("green");
+  std::string green("green");
   tfer->SetAnnotation(green, green);
-  vtkStdString yellow("yellow");
+  std::string yellow("yellow");
   tfer->SetAnnotation(yellow, yellow);
-  vtkStdString cyan("cyan");
+  std::string cyan("cyan");
   tfer->SetAnnotation(cyan, cyan);
 
   vtkNew<vtkPolyDataMapper> mapper;

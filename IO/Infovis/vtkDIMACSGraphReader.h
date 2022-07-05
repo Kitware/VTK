@@ -121,7 +121,7 @@ private:
 
   int numVerts;
   int numEdges;
-  vtkStdString dimacsProblemStr;
+  std::string dimacsProblemStr;
 
   vtkDIMACSGraphReader(const vtkDIMACSGraphReader&) = delete;
   void operator=(const vtkDIMACSGraphReader&) = delete;

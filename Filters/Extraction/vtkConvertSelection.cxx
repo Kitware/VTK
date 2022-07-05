@@ -815,7 +815,7 @@ int vtkConvertSelection::Convert(vtkSelection* input, vtkDataObject* data, vtkSe
         selArr->GetName())
       {
         // Perform the lookup, keeping only those items in the correct domain.
-        vtkStdString domain = selArr->GetName();
+        std::string domain = selArr->GetName();
         vtkIdType numTuples = selArr->GetNumberOfTuples();
         vtkNew<vtkIdList> list;
         for (vtkIdType i = 0; i < numTuples; i++)
@@ -891,7 +891,7 @@ int vtkConvertSelection::Convert(vtkSelection* input, vtkDataObject* data, vtkSe
         }
       }
 
-      std::map<vtkStdString, vtkSmartPointer<vtkAbstractArray>> domainArrays;
+      std::map<std::string, vtkSmartPointer<vtkAbstractArray>> domainArrays;
       vtkIdType numTuples = outputDataArr->GetNumberOfTuples();
       vtkIdType numIndices = indices->GetNumberOfTuples();
       for (vtkIdType i = 0; i < numIndices; ++i)
@@ -901,7 +901,7 @@ int vtkConvertSelection::Convert(vtkSelection* input, vtkDataObject* data, vtkSe
         {
           continue;
         }
-        vtkStdString domain = outputDomainArr->GetValue(index);
+        std::string domain = outputDomainArr->GetValue(index);
         if (domainArrays.count(domain) == 0)
         {
           domainArrays[domain].TakeReference(

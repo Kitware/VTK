@@ -215,7 +215,7 @@ public:
    * interpolation process. Any specified arrays are simply passed through
    * to the filter output.
    */
-  void AddExcludedArray(const vtkStdString& excludedArray)
+  void AddExcludedArray(const std::string& excludedArray)
   {
     this->ExcludedArrays.push_back(excludedArray);
     this->Modified();
@@ -262,7 +262,7 @@ protected:
   vtkSmartPointer<vtkUnsignedCharArray> SmoothingMask;
   int WeightsType;
 
-  std::vector<vtkStdString> ExcludedArrays;
+  std::vector<std::string> ExcludedArrays;
 
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 

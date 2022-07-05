@@ -87,7 +87,7 @@ void vtkTable::Dump(unsigned int colWidth, int rowLimit)
     return;
   }
 
-  vtkStdString lineStr;
+  std::string lineStr;
   for (int c = 0; c < this->GetNumberOfColumns(); ++c)
   {
     lineStr += "+-";
@@ -105,7 +105,7 @@ void vtkTable::Dump(unsigned int colWidth, int rowLimit)
   {
     cout << "| ";
     const char* name = this->GetColumnName(c);
-    vtkStdString str = name ? name : "";
+    std::string str = name ? name : "";
 
     if (colWidth < str.length())
     {
@@ -130,7 +130,7 @@ void vtkTable::Dump(unsigned int colWidth, int rowLimit)
       for (int c = 0; c < this->GetNumberOfColumns(); ++c)
       {
         cout << "| ";
-        vtkStdString str = this->GetValue(r, c).ToString();
+        std::string str = this->GetValue(r, c).ToString();
 
         if (colWidth < str.length())
         {
@@ -349,7 +349,7 @@ vtkIdType vtkTable::InsertNextBlankRow(double default_num_val)
       vtkStringArray* data = vtkArrayDownCast<vtkStringArray>(arr);
       for (size_t j = 0; j < comps; j++)
       {
-        data->InsertNextValue(vtkStdString());
+        data->InsertNextValue(std::string());
       }
     }
     else if (vtkArrayDownCast<vtkVariantArray>(arr))

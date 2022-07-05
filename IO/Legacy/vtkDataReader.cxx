@@ -71,7 +71,7 @@
 // myself.
 // This function is also defined in Infovis/vtkDelimitedTextReader.cxx,
 // so it would be nice to put this in a common file.
-static int my_getline(istream& in, vtkStdString& output, char delim = '\n');
+static int my_getline(istream& in, std::string& output, char delim = '\n');
 
 vtkStandardNewMacro(vtkDataReader);
 
@@ -1840,7 +1840,7 @@ vtkAbstractArray* vtkDataReader::ReadArray(
         {
           vtkTypeUInt8 firstByte;
           vtkTypeUInt8 headerType;
-          vtkStdString::size_type stringLength;
+          std::string::size_type stringLength;
           firstByte = IS->peek();
           headerType = firstByte >> 6;
           if (headerType == 3)
@@ -1877,7 +1877,7 @@ vtkAbstractArray* vtkDataReader::ReadArray(
           }
           std::vector<char> str(stringLength);
           IS->read(str.data(), stringLength);
-          vtkStdString s(str.data(), stringLength);
+          std::string s(str.data(), stringLength);
           ((vtkStringArray*)array)->InsertNextValue(s);
         }
       }
@@ -1885,7 +1885,7 @@ vtkAbstractArray* vtkDataReader::ReadArray(
     else
     {
       // read in newline
-      vtkStdString s;
+      std::string s;
       my_getline(*(this->IS), s);
 
       for (vtkIdType i = 0; i < numTuples; i++)
@@ -1896,7 +1896,7 @@ vtkAbstractArray* vtkDataReader::ReadArray(
           int length = static_cast<int>(s.length());
           std::vector<char> decoded(length + 1);
           int decodedLength = this->DecodeString(decoded.data(), s.c_str());
-          vtkStdString decodedStr(decoded.data(), decodedLength);
+          std::string decodedStr(decoded.data(), decodedLength);
           ((vtkStringArray*)array)->InsertNextValue(decodedStr);
         }
       }
@@ -1911,11 +1911,11 @@ vtkAbstractArray* vtkDataReader::ReadArray(
       for (vtkIdType j = 0; j < numComp; j++)
       {
         int t;
-        vtkStdString str;
+        std::string str;
         *(this->IS) >> t >> str;
         std::vector<char> decoded(str.length() + 1);
         int decodedLength = this->DecodeString(decoded.data(), str.c_str());
-        vtkStdString decodedStr(decoded.data(), decodedLength);
+        std::string decodedStr(decoded.data(), decodedLength);
         vtkVariant sv(decodedStr);
         vtkVariant v;
         switch (t)
@@ -3850,9 +3850,9 @@ int vtkDataReader::DecodeString(char* resname, const char* name)
   return static_cast<int>(reslen);
 }
 
-static int my_getline(istream& in, vtkStdString& out, char delimiter)
+static int my_getline(istream& in, std::string& out, char delimiter)
 {
-  out = vtkStdString();
+  out = std::string();
   unsigned int numCharactersRead = 0;
   int nextValue = 0;
 

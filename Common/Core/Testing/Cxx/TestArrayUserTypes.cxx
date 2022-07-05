@@ -43,14 +43,14 @@ class UserType
 public:
   UserType() = default;
 
-  UserType(const vtkStdString& value)
+  UserType(const std::string& value)
     : Value(value)
   {
   }
 
   bool operator==(const UserType& other) const { return this->Value == other.Value; }
 
-  vtkStdString Value;
+  std::string Value;
 };
 
 template <>

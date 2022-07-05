@@ -191,12 +191,12 @@ void vtkOrderStatistics::Learn(
 
   // Loop over requests
   vtkIdType nRow = inData->GetNumberOfRows();
-  for (std::set<std::set<vtkStdString>>::iterator rit = this->Internals->Requests.begin();
+  for (std::set<std::set<std::string>>::iterator rit = this->Internals->Requests.begin();
        rit != this->Internals->Requests.end(); ++rit)
   {
     // Each request contains only one column of interest (if there are others, they are ignored)
-    std::set<vtkStdString>::const_iterator it = rit->begin();
-    vtkStdString col = *it;
+    std::set<std::string>::const_iterator it = rit->begin();
+    std::string col = *it;
     if (!inData->GetColumnByName(col.c_str()))
     {
       vtkWarningMacro("InData table does not have a column " << col << ". Ignoring it.");
@@ -414,7 +414,7 @@ void vtkOrderStatistics::Derive(vtkMultiBlockDataSet* inMeta)
     if (q.rem)
     {
       // General case
-      stringCol->InsertNextValue(vtkStdString(vtkVariant(i * dq).ToString() + "-quantile").c_str());
+      stringCol->InsertNextValue((vtkVariant(i * dq).ToString() + "-quantile").c_str());
     }
     else
     {
@@ -437,8 +437,7 @@ void vtkOrderStatistics::Derive(vtkMultiBlockDataSet* inMeta)
           stringCol->InsertNextValue("Maximum");
           break;
         default:
-          stringCol->InsertNextValue(
-            vtkStdString(vtkVariant(i * dq).ToString() + "-quantile").c_str());
+          stringCol->InsertNextValue((vtkVariant(i * dq).ToString() + "-quantile").c_str());
           break;
       }
     }
@@ -487,7 +486,7 @@ void vtkOrderStatistics::Derive(vtkMultiBlockDataSet* inMeta)
     cardinalityTab->InsertNextRow(row);
 
     // Find or create column of probability mass function of histogram table
-    vtkStdString probaName("P");
+    std::string probaName("P");
     vtkDoubleArray* probaCol;
     vtkAbstractArray* abstrCol = histogramTab->GetColumnByName(probaName.c_str());
     if (!abstrCol)
@@ -658,7 +657,7 @@ void vtkOrderStatistics::Derive(vtkMultiBlockDataSet* inMeta)
            qit != quantileIndices.end(); ++qit, ++k)
       {
         // Retrieve data value from rank into histogram
-        vtkStdString Qp = svals->GetValue(qit->first);
+        std::string Qp = svals->GetValue(qit->first);
 
         // Store quantile value
         quantCol->SetValue(k, Qp);
@@ -760,19 +759,19 @@ void vtkOrderStatistics::Test(vtkTable* inData, vtkMultiBlockDataSet* inMeta, vt
 
   // Prepare storage for quantiles and model CDFs
   vtkIdType nQuant = quantileTab->GetNumberOfRows();
-  std::vector<vtkStdString> quantiles(nQuant);
+  std::vector<std::string> quantiles(nQuant);
 
   // Loop over requests
   vtkIdType nRowData = inData->GetNumberOfRows();
   double inv_nq = 1. / nQuant;
   double inv_card = 1. / nRowData;
   double sqrt_card = sqrt(static_cast<double>(nRowData));
-  for (std::set<std::set<vtkStdString>>::const_iterator rit = this->Internals->Requests.begin();
+  for (std::set<std::set<std::string>>::const_iterator rit = this->Internals->Requests.begin();
        rit != this->Internals->Requests.end(); ++rit)
   {
     // Each request contains only one column of interest (if there are others, they are ignored)
-    std::set<vtkStdString>::const_iterator it = rit->begin();
-    vtkStdString varName = *it;
+    std::set<std::string>::const_iterator it = rit->begin();
+    std::string varName = *it;
     if (!inData->GetColumnByName(varName.c_str()))
     {
       vtkWarningMacro("InData table does not have a column " << varName << ". Ignoring it.");
@@ -789,7 +788,7 @@ void vtkOrderStatistics::Test(vtkTable* inData, vtkMultiBlockDataSet* inMeta, vt
     }
 
     // First iterate over all observations to calculate empirical PDF
-    typedef std::map<vtkStdString, double> CDF;
+    typedef std::map<std::string, double> CDF;
     CDF cdfEmpirical;
     for (vtkIdType j = 0; j < nRowData; ++j)
     {
@@ -821,7 +820,7 @@ void vtkOrderStatistics::Test(vtkTable* inData, vtkMultiBlockDataSet* inMeta, vt
 
       // Update empirical CDF if new value found (with unknown ECDF)
       std::pair<CDF::iterator, bool> result =
-        cdfEmpirical.insert(std::pair<vtkStdString, double>(quantiles[i], -1));
+        cdfEmpirical.insert(std::pair<std::string, double>(quantiles[i], -1));
       if (result.second)
       {
         CDF::iterator eit = result.first;
@@ -936,7 +935,7 @@ public:
   {
     result->SetNumberOfValues(1);
 
-    vtkStdString sval = this->Data->GetValue(id);
+    std::string sval = this->Data->GetValue(id);
     if (sval < this->Quantiles->GetValue(0))
     {
       // sval is smaller than lower bound
@@ -1018,7 +1017,7 @@ void vtkOrderStatistics::SelectAssessFunctor(
   }
 
   // Retrieve name of variable of the request
-  vtkStdString varName = rowNames->GetValue(0);
+  std::string varName = rowNames->GetValue(0);
 
   // Grab the data for the requested variable
   vtkAbstractArray* vals = outData->GetColumnByName(varName.c_str());

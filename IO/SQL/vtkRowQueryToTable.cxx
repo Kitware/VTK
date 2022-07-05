@@ -118,7 +118,7 @@ int vtkRowQueryToTable::RequestData(vtkInformation*, vtkInformationVector** vtkN
     {
       int i = 1;
       std::ostringstream oss;
-      vtkStdString newName;
+      std::string newName;
       do
       {
         oss.str("");

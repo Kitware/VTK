@@ -23,7 +23,6 @@
 #include "vtkPen.h"
 #include "vtkPlot.h"
 #include "vtkSmartPointer.h"
-#include "vtkStdString.h"
 #include "vtkStringArray.h"
 #include "vtkTextProperty.h"
 #include "vtkVector.h"
@@ -157,7 +156,7 @@ bool vtkChartLegend::Paint(vtkContext2D* painter)
       // base line until better support is in the text rendering code...
       // There are still several one pixel glitches, but it looks better than
       // using the default vertical alignment. FIXME!
-      vtkStdString testString = labels->GetValue(l);
+      std::string testString = labels->GetValue(l);
       testString += "T";
       painter->ComputeStringBounds(testString, stringBounds->GetData());
       painter->DrawString(

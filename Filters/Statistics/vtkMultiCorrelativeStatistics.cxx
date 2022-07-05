@@ -366,12 +366,12 @@ void vtkMultiCorrelativeStatistics::Learn(
   sparseCov->AddColumn(col3);
   col3->Delete();
 
-  std::set<std::set<vtkStdString>>::const_iterator reqIt;
-  std::set<vtkStdString>::const_iterator colIt;
-  std::set<std::pair<vtkStdString, vtkDataArray*>> allColumns;
+  std::set<std::set<std::string>>::const_iterator reqIt;
+  std::set<std::string>::const_iterator colIt;
+  std::set<std::pair<std::string, vtkDataArray*>> allColumns;
   std::map<std::pair<vtkIdType, vtkIdType>, vtkIdType> colPairs;
   std::map<std::pair<vtkIdType, vtkIdType>, vtkIdType>::iterator cpIt;
-  std::map<vtkStdString, vtkIdType> colNameToIdx;
+  std::map<std::string, vtkIdType> colNameToIdx;
   std::vector<vtkDataArray*> colPtrs;
 
   // Populate a vector with pointers to columns of interest (i.e., columns from the input dataset
@@ -386,7 +386,7 @@ void vtkMultiCorrelativeStatistics::Learn(
       vtkUnsignedCharArray* ghosts = inData->GetRowData()->GetGhostArray();
       if (arr && (!ghosts || vtkArrayDownCast<vtkUnsignedCharArray>(arr) != ghosts))
       {
-        allColumns.insert(std::pair<vtkStdString, vtkDataArray*>(*colIt, arr));
+        allColumns.insert(std::pair<std::string, vtkDataArray*>(*colIt, arr));
       }
     }
   }
@@ -394,8 +394,8 @@ void vtkMultiCorrelativeStatistics::Learn(
   // Now make a map from input column name to output column index (colNameToIdx):
   vtkIdType i = 0;
   vtkIdType m = static_cast<vtkIdType>(allColumns.size());
-  std::set<std::pair<vtkStdString, vtkDataArray*>>::const_iterator acIt;
-  vtkStdString empty;
+  std::set<std::pair<std::string, vtkDataArray*>>::const_iterator acIt;
+  std::string empty;
   col1->InsertNextValue("Cardinality");
   col2->InsertNextValue(empty);
   for (acIt = allColumns.begin(); acIt != allColumns.end(); ++acIt)
@@ -418,13 +418,13 @@ void vtkMultiCorrelativeStatistics::Learn(
     // For each column in the request:
     for (colIt = reqIt->begin(); colIt != reqIt->end(); ++colIt)
     {
-      std::map<vtkStdString, vtkIdType>::iterator idxIt = colNameToIdx.find(*colIt);
+      std::map<std::string, vtkIdType>::iterator idxIt = colNameToIdx.find(*colIt);
       // Ignore invalid column names
       if (idxIt != colNameToIdx.end())
       {
         vtkIdType colA = idxIt->second;
-        vtkStdString colAName = idxIt->first;
-        std::set<vtkStdString>::const_iterator colIt2;
+        std::string colAName = idxIt->first;
+        std::set<std::string>::const_iterator colIt2;
         for (colIt2 = colIt; colIt2 != reqIt->end(); ++colIt2)
         {
           idxIt = colNameToIdx.find(*colIt2);
@@ -618,10 +618,10 @@ void vtkMultiCorrelativeStatistics::Derive(vtkMultiBlockDataSet* outMeta)
     return;
   }
 
-  std::set<std::set<vtkStdString>>::const_iterator reqIt;
-  std::set<vtkStdString>::const_iterator colIt;
+  std::set<std::set<std::string>>::const_iterator reqIt;
+  std::set<std::string>::const_iterator colIt;
   std::map<std::pair<vtkIdType, vtkIdType>, vtkIdType> colPairs;
-  std::map<vtkStdString, vtkIdType> colNameToIdx;
+  std::map<std::string, vtkIdType> colNameToIdx;
   // Reconstruct information about the computed sums from the raw data.
   // The first entry is always the sample size
   double n = col3->GetValue(0);
@@ -665,7 +665,7 @@ void vtkMultiCorrelativeStatistics::Derive(vtkMultiBlockDataSet* outMeta)
     // For each column in the request:
     for (colIt = reqIt->begin(); colIt != reqIt->end(); ++colIt)
     {
-      std::map<vtkStdString, vtkIdType>::iterator idxIt = colNameToIdx.find(*colIt);
+      std::map<std::string, vtkIdType>::iterator idxIt = colNameToIdx.find(*colIt);
       // Ignore invalid column names
       if (idxIt != colNameToIdx.end())
       {
@@ -788,7 +788,7 @@ void vtkMultiCorrelativeStatistics::Assess(
 
     // Create the outData columns
     int nv = this->AssessNames->GetNumberOfValues();
-    std::vector<vtkStdString> names(nv);
+    std::vector<std::string> names(nv);
     for (int v = 0; v < nv; ++v)
     {
       std::ostringstream assessColName;
@@ -905,7 +905,7 @@ bool vtkMultiCorrelativeAssessFunctor::Initialize(
   vtkIdType i;
   for (i = 0; i < m; ++i)
   {
-    vtkStdString colname(name->GetValue(i));
+    std::string colname(name->GetValue(i));
     vtkDataArray* arr = vtkArrayDownCast<vtkDataArray>(inData->GetColumnByName(colname.c_str()));
     if (!arr)
     {

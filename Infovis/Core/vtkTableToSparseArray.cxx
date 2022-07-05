@@ -29,7 +29,6 @@
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
 #include "vtkSparseArray.h"
-#include "vtkStdString.h"
 #include "vtkStringArray.h"
 #include "vtkTable.h"
 
@@ -38,8 +37,8 @@
 class vtkTableToSparseArray::implementation
 {
 public:
-  std::vector<vtkStdString> Coordinates;
-  vtkStdString Values;
+  std::vector<std::string> Coordinates;
+  std::string Values;
   vtkArrayExtents OutputExtents;
   bool ExplicitOutputExtents;
 };

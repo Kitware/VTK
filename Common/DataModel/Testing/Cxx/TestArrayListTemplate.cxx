@@ -21,7 +21,6 @@
 #include "vtkLogger.h"
 #include "vtkNew.h"
 #include "vtkRTAnalyticSource.h"
-#include "vtkStdString.h"
 #include "vtkStringArray.h"
 
 int TestArrayListTemplate(int, char*[])

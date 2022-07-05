@@ -38,7 +38,6 @@
 #include "vtkMultiBlockDataSet.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
-#include "vtkStdString.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
 #include "vtkSmartPointer.h"
@@ -58,11 +57,11 @@ const char* const MINIMUM_SUFFIX = "minimum";
 const char* const MAXIMUM_SUFFIX = "maximum";
 const char* const STANDARD_DEVIATION_SUFFIX = "stddev";
 
-inline vtkStdString vtkTemporalStatisticsMangleName(const char* originalName, const char* suffix)
+inline std::string vtkTemporalStatisticsMangleName(const char* originalName, const char* suffix)
 {
   if (!originalName)
     return suffix;
-  return vtkStdString(originalName) + "_" + suffix;
+  return std::string(originalName) + "_" + suffix;
 }
 
 //------------------------------------------------------------------------------
@@ -700,7 +699,7 @@ void vtkTemporalStatistics::FinishArrays(vtkFieldData* inFd, vtkFieldData* outFd
 vtkDataArray* vtkTemporalStatistics::GetArray(
   vtkFieldData* fieldData, vtkDataArray* inArray, const char* nameSuffix)
 {
-  vtkStdString outArrayName = vtkTemporalStatisticsMangleName(inArray->GetName(), nameSuffix);
+  std::string outArrayName = vtkTemporalStatisticsMangleName(inArray->GetName(), nameSuffix);
   vtkDataArray* outArray = fieldData->GetArray(outArrayName.c_str());
   if (!outArray)
     return nullptr;

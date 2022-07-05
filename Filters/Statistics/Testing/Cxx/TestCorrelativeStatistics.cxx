@@ -124,7 +124,7 @@ int TestCorrelativeStatistics(int, char*[])
 
   // Pairs of interest
   int nMetricPairs = 2;
-  vtkStdString columnPairs[] = {
+  std::string columnPairs[] = {
     "M0", "M1", // First pair
     "M2", "M1"  // Second pair
   };

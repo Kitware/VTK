@@ -29,7 +29,6 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
-#include "vtkStdString.h"
 #include "vtkTubeFilter.h"
 #include "vtkUnstructuredGridReader.h"
 
@@ -57,7 +56,7 @@ int UnstructuredGridGradients(int argc, char* argv[])
 
   // Create the reader for the data.
   // This is the data that will be volume rendered.
-  vtkStdString filename;
+  std::string filename;
   filename = data_root;
   filename += "/Data/uGridEx.vtk";
   cout << "Loading " << filename << endl;

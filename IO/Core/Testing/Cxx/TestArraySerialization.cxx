@@ -146,7 +146,7 @@ int TestArraySerialization(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
     jw->WriteToOutputStringOn();
     jw->SetInputData(j1d);
     jw->Write();
-    vtkStdString js = jw->GetOutputString();
+    std::string js = jw->GetOutputString();
 
     vtkNew<vtkArrayReader> jr;
     jr->ReadFromInputStringOn();

@@ -39,7 +39,6 @@
 #include "vtkObjectFactory.h"
 #include "vtkPlatform.h" // for VTK_MAXPATH
 #include "vtkPointData.h"
-#include "vtkStdString.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStringArray.h"
 #include "vtkThreshold.h"
@@ -2477,7 +2476,7 @@ int vtkExodusIIWriter::WriteNodeSetInformation()
 
   for (i = 0; i < nnsets; i++)
   {
-    vtkStdString name = em->GetNodeSetNames()->GetValue(node_ids[i]);
+    std::string name = em->GetNodeSetNames()->GetValue(node_ids[i]);
     ex_put_name(this->fid, EX_NODE_SET, node_ids[i], name.c_str());
   }
 
@@ -2704,7 +2703,7 @@ int vtkExodusIIWriter::WriteSideSetInformation()
 
   for (i = 0; i < nssets; i++)
   {
-    vtkStdString name = em->GetSideSetNames()->GetValue(sids[i]);
+    std::string name = em->GetSideSetNames()->GetValue(sids[i]);
     ex_put_name(this->fid, EX_SIDE_SET, sids[i], name.c_str());
   }
 

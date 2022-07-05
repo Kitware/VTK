@@ -19,7 +19,6 @@
 #include "vtkObjectFactory.h"
 #include "vtkServerSocket.h"
 #include "vtkSocketController.h"
-#include "vtkStdString.h"
 #include "vtkTypeTraits.h"
 #include "vtksys/Encoding.hxx"
 #include "vtksys/FStream.hxx"
@@ -252,7 +251,7 @@ int vtkSocketCommunicator::SendVoidArray(
 #endif
 
   int typeSize;
-  vtkStdString typeName;
+  std::string typeName;
   switch (type)
   {
     vtkTemplateMacro(typeSize = sizeof(VTK_TT); typeName = vtkTypeTraits<VTK_TT>().SizedName());
@@ -324,7 +323,7 @@ int vtkSocketCommunicator::ReceiveVoidArray(
 #endif
 
   int typeSize;
-  vtkStdString typeName;
+  std::string typeName;
   switch (type)
   {
     vtkTemplateMacro(typeSize = sizeof(VTK_TT); typeName = vtkTypeTraits<VTK_TT>().SizedName());

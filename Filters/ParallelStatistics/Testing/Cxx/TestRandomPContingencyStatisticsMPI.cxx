@@ -34,7 +34,6 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkMPIController.h"
 #include "vtkMath.h"
 #include "vtkMultiBlockDataSet.h"
-#include "vtkStdString.h"
 #include "vtkTable.h"
 #include "vtkTimerLog.h"
 #include "vtkVariantArray.h"
@@ -72,7 +71,7 @@ void RandomContingencyStatistics(vtkMultiProcessController* controller, void* ar
   // Generate an input table that contains samples of mutually independent discrete random variables
   int nVariables = 2;
   vtkIntArray* intArray[2];
-  vtkStdString columnNames[] = { "Rounded Normal 0", "Rounded Normal 1" };
+  std::string columnNames[] = { "Rounded Normal 0", "Rounded Normal 1" };
 
   vtkTable* inputData = vtkTable::New();
   // Discrete rounded normal samples
@@ -255,7 +254,7 @@ void RandomContingencyStatistics(vtkMultiProcessController* controller, void* ar
          << "Empty contingency table column 'Key' on process " << com->GetLocalProcessId() << ".\n";
   }
 
-  vtkStdString proName = "P";
+  std::string proName = "P";
   vtkDoubleArray* prob =
     vtkArrayDownCast<vtkDoubleArray>(outputContingency->GetColumnByName(proName.c_str()));
   if (!prob)

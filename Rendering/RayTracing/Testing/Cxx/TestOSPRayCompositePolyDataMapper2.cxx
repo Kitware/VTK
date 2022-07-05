@@ -80,7 +80,7 @@ int TestOSPRayCompositePolyDataMapper2(int argc, char* argv[])
   int numLevels = sizeof(blocksPerLevel) / sizeof(blocksPerLevel[0]);
   int numLeaves = 0;
   int numNodes = 0;
-  vtkStdString blockName("Rolf");
+  std::string blockName("Rolf");
   mapper->SetInputDataObject(data);
   for (int level = 1; level < numLevels; ++level)
   {

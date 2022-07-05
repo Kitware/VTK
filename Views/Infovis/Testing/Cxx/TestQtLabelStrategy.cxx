@@ -82,7 +82,7 @@ int TestQtLabelStrategy(int argc, char* argv[])
     verts->InsertNextCell(1);
     verts->InsertCellPoint(i);
     orient->InsertNextValue((double)(rand() % 100) * 3.60);
-    vtkStdString s;
+    std::string s;
     std::stringstream out;
     out << i;
     s = out.str();

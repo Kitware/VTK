@@ -18,7 +18,6 @@
 #include "vtkGraph.h"
 #include "vtkIntArray.h"
 #include "vtkSmartPointer.h"
-#include "vtkStdString.h"
 #include "vtkStringArray.h"
 #include "vtkTestUtilities.h"
 #include "vtkTulipReader.h"
@@ -26,7 +25,7 @@
 
 template <typename value_t>
 void TestValue(const value_t& Value, const value_t& ExpectedValue,
-  const vtkStdString& ValueDescription, int& ErrorCount)
+  const std::string& ValueDescription, int& ErrorCount)
 {
   if (Value == ExpectedValue)
   {
@@ -73,11 +72,11 @@ int TestTulipReaderProperties(int argc, char* argv[])
     vtkArrayDownCast<vtkStringArray>(graph->GetVertexData()->GetAbstractArray("Node Name"));
   if (nodeProperty1)
   {
-    TestValue<vtkStdString>(
+    TestValue<std::string>(
       nodeProperty1->GetValue(0), "Node A", "Node 0 string property", error_count);
-    TestValue<vtkStdString>(
+    TestValue<std::string>(
       nodeProperty1->GetValue(5), "Node F", "Node 5 string property", error_count);
-    TestValue<vtkStdString>(
+    TestValue<std::string>(
       nodeProperty1->GetValue(11), "Node L", "Node 11 string property", error_count);
   }
   else
@@ -121,11 +120,11 @@ int TestTulipReaderProperties(int argc, char* argv[])
     vtkArrayDownCast<vtkStringArray>(graph->GetEdgeData()->GetAbstractArray("Edge Name"));
   if (edgeProperty1)
   {
-    TestValue<vtkStdString>(
+    TestValue<std::string>(
       edgeProperty1->GetValue(0), "Edge A", "Edge 0 string property", error_count);
-    TestValue<vtkStdString>(
+    TestValue<std::string>(
       edgeProperty1->GetValue(7), "Edge H", "Edge 7 string property", error_count);
-    TestValue<vtkStdString>(
+    TestValue<std::string>(
       edgeProperty1->GetValue(16), "Edge Q", "Edge 16 string property", error_count);
   }
   else

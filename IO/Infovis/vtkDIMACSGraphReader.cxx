@@ -95,7 +95,7 @@ void vtkDIMACSGraphReader::PrintSelf(ostream& os, vtkIndent indent)
 int vtkDIMACSGraphReader::buildGenericGraph(vtkGraph* output,
   vtkStdString& defaultVertexAttrArrayName, vtkStdString& defaultEdgeAttrArrayName)
 {
-  vtkStdString S;
+  std::string S;
   int iEdgeU, iEdgeV, iVertexID;
   int currentEdgeId = 0;
 
@@ -213,13 +213,13 @@ int vtkDIMACSGraphReader::buildGenericGraph(vtkGraph* output,
 //   to create an edge u->v, and cap gives the edge capacity.
 int vtkDIMACSGraphReader::buildMaxflowGraph(vtkGraph* output)
 {
-  vtkStdString S;
+  std::string S;
   int iEdgeU, iEdgeV, iVertexID;
   int currentEdgeId = 0;
   int numSrcs = 0;
   int numSinks = 0;
 
-  vtkStdString sAttribute;
+  std::string sAttribute;
   VTK_CREATE(vtkMutableDirectedGraph, builder);
 
   VTK_CREATE(vtkIntArray, vertexSourceArray);
@@ -345,7 +345,7 @@ int vtkDIMACSGraphReader::buildMaxflowGraph(vtkGraph* output)
 //         e u v
 int vtkDIMACSGraphReader::buildColoringGraph(vtkGraph* output)
 {
-  vtkStdString S;
+  std::string S;
   int iEdgeU, iEdgeV;
   int currentEdgeId = 0;
 
@@ -432,7 +432,7 @@ int vtkDIMACSGraphReader::ReadGraphMetaData()
     vtkErrorMacro("Could not open file " << this->FileName << ".");
     return (0);
   }
-  vtkStdString S;
+  std::string S;
   bool foundProblemLine = false;
   bool foundMultipleProblemLines = false;
 

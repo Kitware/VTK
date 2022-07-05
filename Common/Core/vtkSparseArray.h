@@ -232,7 +232,7 @@ private:
   /**
    * Stores a label for each array dimension
    */
-  std::vector<vtkStdString> DimensionLabels;
+  std::vector<std::string> DimensionLabels;
 
   /**
    * Stores the coordinates of each non-null element within the array,

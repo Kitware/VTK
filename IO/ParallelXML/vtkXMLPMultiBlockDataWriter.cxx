@@ -300,7 +300,7 @@ int vtkXMLPMultiBlockDataWriter::ParallelWriteNonCompositeData(
           datasetXML->Delete();
           indexCounter++;
         }
-        vtkStdString fName =
+        std::string fName =
           this->CreatePieceFileName(currentFileIndex, procId, pieceProcessList[procId]);
         datasetXML->SetAttribute("file", fName.c_str());
       }
@@ -310,7 +310,7 @@ int vtkXMLPMultiBlockDataWriter::ParallelWriteNonCompositeData(
   const int* datatypes_ptr = this->GetDataTypesPointer();
   if (dObj && datatypes_ptr[currentFileIndex] != -1)
   {
-    vtkStdString fName =
+    std::string fName =
       this->CreatePieceFileName(currentFileIndex, myProcId, datatypes_ptr[currentFileIndex]);
     return this->Superclass::WriteNonCompositeData(dObj, nullptr, currentFileIndex, fName.c_str());
   }

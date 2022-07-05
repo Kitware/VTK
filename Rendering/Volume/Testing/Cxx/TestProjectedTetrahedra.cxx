@@ -36,7 +36,6 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 #include "vtkSLCReader.h"
-#include "vtkStdString.h"
 #include "vtkStructuredPoints.h"
 #include "vtkStructuredPointsReader.h"
 #include "vtkThreshold.h"
@@ -87,7 +86,7 @@ int TestProjectedTetrahedra(int argc, char* argv[])
 
   // Create the reader for the data.
   // This is the data that will be volume rendered.
-  vtkStdString filename;
+  std::string filename;
   filename = data_root;
   filename += "/Data/ironProt.vtk";
   cout << "Loading " << filename << endl;

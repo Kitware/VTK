@@ -21,7 +21,6 @@
 
 #include "algorithm"
 #include "vtkObjectFactory.h"
-#include "vtkStdString.h"
 #include "vtkVariantArray.h"
 
 #include <cctype>
@@ -41,7 +40,7 @@ void vtkRowQuery::PrintSelf(ostream& os, vtkIndent indent)
 
 int vtkRowQuery::GetFieldIndex(const char* name)
 {
-  vtkStdString lcSearchName(name);
+  std::string lcSearchName(name);
   std::transform(
     lcSearchName.begin(), lcSearchName.end(), lcSearchName.begin(), (int (*)(int))tolower);
 
@@ -59,7 +58,7 @@ int vtkRowQuery::GetFieldIndex(const char* name)
     }
     else
     {
-      vtkStdString fieldName(this->GetFieldName(index));
+      std::string fieldName(this->GetFieldName(index));
       std::transform(fieldName.begin(), fieldName.end(), fieldName.begin(), (int (*)(int))tolower);
       if (lcSearchName == fieldName)
       {

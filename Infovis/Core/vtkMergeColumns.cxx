@@ -94,7 +94,7 @@ int vtkMergeColumns::RequestData(
       vtkStringArray* mergedStr = vtkArrayDownCast<vtkStringArray>(merged);
       for (vtkIdType i = 0; i < merged->GetNumberOfTuples(); i++)
       {
-        vtkStdString combined = col1Str->GetValue(i);
+        std::string combined = col1Str->GetValue(i);
         if (col1Str->GetValue(i).length() > 0 && col2Str->GetValue(i).length() > 0)
         {
           combined += " ";

@@ -179,8 +179,8 @@ vtkStdString vtkPlotHistogram2D::GetTooltipLabel(
 {
   // This does not call the Superclass vtkPlot::GetTooltipLabel(), since the
   // format tags internally refer to different values
-  vtkStdString tooltipLabel;
-  vtkStdString& format =
+  std::string tooltipLabel;
+  std::string& format =
     this->TooltipLabelFormat.empty() ? this->TooltipDefaultLabelFormat : this->TooltipLabelFormat;
 
   if (!this->Input)

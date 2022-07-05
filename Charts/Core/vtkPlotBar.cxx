@@ -524,7 +524,7 @@ public:
   std::vector<vtkSmartPointer<vtkPlotBarSegment>> Segments;
   vtkPlotBar* Bar;
   std::map<int, std::string> AdditionalSeries;
-  vtkStdString GroupName;
+  std::string GroupName;
 };
 
 //------------------------------------------------------------------------------
@@ -1030,8 +1030,8 @@ bool vtkPlotBar::SelectPoints(const vtkVector2f& min, const vtkVector2f& max)
 vtkStdString vtkPlotBar::GetTooltipLabel(
   const vtkVector2d& plotPos, vtkIdType seriesIndex, vtkIdType segmentIndex)
 {
-  vtkStdString baseLabel = Superclass::GetTooltipLabel(plotPos, seriesIndex, segmentIndex);
-  vtkStdString tooltipLabel;
+  std::string baseLabel = Superclass::GetTooltipLabel(plotPos, seriesIndex, segmentIndex);
+  std::string tooltipLabel;
   bool escapeNext = false;
   for (size_t i = 0; i < baseLabel.length(); ++i)
   {

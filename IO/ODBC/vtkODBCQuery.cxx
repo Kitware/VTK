@@ -46,7 +46,7 @@
 
 vtkStandardNewMacro(vtkODBCQuery);
 
-static vtkStdString GetErrorMessage(SQLSMALLINT handleType, SQLHANDLE handle, int* code = nullptr);
+static std::string GetErrorMessage(SQLSMALLINT handleType, SQLHANDLE handle, int* code = nullptr);
 
 /*
  * Bound Parameters and ODBC
@@ -139,12 +139,12 @@ public:
   void FreeStatement();
   void FreeUserParameterList();
   void ClearBoundParameters();
-  bool PrepareQuery(const char* queryString, SQLHANDLE connection, vtkStdString& error_message);
+  bool PrepareQuery(const char* queryString, SQLHANDLE connection, std::string& error_message);
   bool SetBoundParameter(int index, vtkODBCBoundParameter* param);
   bool BindParametersToStatement();
 
   SQLHANDLE Statement;
-  vtkStdString Name;
+  std::string Name;
 
   vtkVariantArray* CurrentRow;
   vtkStringArray* ColumnNames;
@@ -292,7 +292,7 @@ vtkODBCBoundParameter* vtkBuildODBCBoundParameter(
 //------------------------------------------------------------------------------
 
 bool vtkODBCQueryInternals::PrepareQuery(
-  const char* queryString, SQLHANDLE dbConnection, vtkStdString& error_message)
+  const char* queryString, SQLHANDLE dbConnection, std::string& error_message)
 {
   this->FreeStatement();
   this->FreeUserParameterList();
@@ -434,14 +434,14 @@ bool vtkODBCQueryInternals::BindParametersToStatement()
 
 //------------------------------------------------------------------------------
 
-static vtkStdString GetErrorMessage(SQLSMALLINT handleType, SQLHANDLE handle, int* code)
+static std::string GetErrorMessage(SQLSMALLINT handleType, SQLHANDLE handle, int* code)
 {
   SQLINTEGER sqlNativeCode = 0;
   SQLSMALLINT messageLength = 0;
   SQLRETURN status;
   SQLCHAR state[SQL_SQLSTATE_SIZE + 1];
   SQLCHAR description[SQL_MAX_MESSAGE_LENGTH + 1];
-  vtkStdString finalResult;
+  std::string finalResult;
   int i = 1;
 
   // There may be several error messages queued up so we need to loop
@@ -517,7 +517,7 @@ bool vtkODBCQuery::SetQuery(const char* newQuery)
     return false;
   }
 
-  vtkStdString error;
+  std::string error;
   bool prepareStatus = this->Internals->PrepareQuery(newQuery, db->Internals->Connection, error);
   if (prepareStatus)
   {
@@ -1322,7 +1322,7 @@ bool vtkODBCQuery::CacheStringColumn(int column)
   SQLRETURN status;
   SQLLEN bufferLength;
   SQLLEN indicator;
-  vtkStdString result;
+  std::string result;
   std::ostringstream outbuf;
 
   bufferLength = 65536; // this is a pretty reasonable compromise
@@ -1408,7 +1408,7 @@ bool vtkODBCQuery::CacheStringColumn(int column)
 bool vtkODBCQuery::CacheBinaryColumn(int column)
 {
   SQLRETURN status;
-  vtkStdString result;
+  std::string result;
 
   SQLSMALLINT nameLength;
   SQLSMALLINT columnType;

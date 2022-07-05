@@ -283,7 +283,7 @@ int TestSortDataArray(int, char*[])
   timer->StopTimer();
   cout << "Time to sort strings: " << timer->GetElapsedTime() << " sec" << endl;
 
-  vtkStdString s1, s2;
+  std::string s1, s2;
   for (i = 0; i < ARRAY_SIZE - 1; ++i)
   {
     // s1 = std::stoi(sarray->GetValue(i));

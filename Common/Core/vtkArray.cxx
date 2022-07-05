@@ -206,7 +206,7 @@ vtkTypeUInt64 vtkArray::GetSize()
 void vtkArray::SetName(const vtkStdString& raw_name)
 {
   // Don't allow newlines in array names ...
-  vtkStdString name(raw_name);
+  std::string name(raw_name);
   name.erase(std::remove(name.begin(), name.end(), '\r'), name.end());
   name.erase(std::remove(name.begin(), name.end(), '\n'), name.end());
 
@@ -228,7 +228,7 @@ void vtkArray::SetDimensionLabel(DimensionT i, const vtkStdString& raw_label)
   }
 
   // Don't allow newlines in dimension labels ...
-  vtkStdString label(raw_label);
+  std::string label(raw_label);
   label.erase(std::remove(label.begin(), label.end(), '\r'), label.end());
   label.erase(std::remove(label.begin(), label.end(), '\n'), label.end());
 

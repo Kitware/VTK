@@ -98,7 +98,7 @@ void BuildGraphMLGraph(vtkMutableDirectedGraph* graph, std::string file)
   graph->SetPoints(points);
   for (vtkIdType i = 0; i < tree->GetNumberOfVertices(); ++i)
   {
-    vtkStdString k = keyArr->GetValue(i);
+    std::string k = keyArr->GetValue(i);
     if (k == "x")
     {
       x = vtkVariant(contentArr->GetValue(i)).ToDouble();
@@ -109,12 +109,12 @@ void BuildGraphMLGraph(vtkMutableDirectedGraph* graph, std::string file)
       graph->AddVertex();
       points->InsertNextPoint(x, y, 0.0);
     }
-    vtkStdString s = sourceArr->GetValue(i);
+    std::string s = sourceArr->GetValue(i);
     if (!s.empty())
     {
       source = vtkVariant(s).ToInt();
     }
-    vtkStdString t = targetArr->GetValue(i);
+    std::string t = targetArr->GetValue(i);
     if (!t.empty())
     {
       target = vtkVariant(t).ToInt();

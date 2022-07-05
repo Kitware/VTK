@@ -54,9 +54,9 @@ public:
       this->Database->Delete();
   }
 
-  vtkStdString URL;
-  vtkStdString Password;
-  vtkStdString QueryString;
+  std::string URL;
+  std::string Password;
+  std::string QueryString;
 
   vtkSQLDatabase* Database;
   vtkSQLQuery* Query;

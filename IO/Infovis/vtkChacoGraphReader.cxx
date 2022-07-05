@@ -49,7 +49,6 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkSmartPointer.h"
-#include "vtkStdString.h"
 #include "vtksys/FStream.hxx"
 
 #include <fstream>
@@ -62,7 +61,7 @@
 // myself.
 // This function is also defined in Infovis/vtkDelimitedTextReader.cxx,
 // so it would be nice to put this in a common file.
-static int my_getline(std::istream& stream, vtkStdString& output, char delim = '\n');
+static int my_getline(std::istream& stream, std::string& output, char delim = '\n');
 
 vtkStandardNewMacro(vtkChacoGraphReader);
 
@@ -105,7 +104,7 @@ int vtkChacoGraphReader::RequestData(vtkInformation* vtkNotUsed(request),
   VTK_CREATE(vtkMutableUndirectedGraph, builder);
 
   // Get the header line
-  vtkStdString line;
+  std::string line;
   my_getline(fin, line);
   std::stringstream firstLine;
   firstLine << line;
@@ -201,9 +200,9 @@ int vtkChacoGraphReader::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-static int my_getline(std::istream& in, vtkStdString& out, char delimiter)
+static int my_getline(std::istream& in, std::string& out, char delimiter)
 {
-  out = vtkStdString();
+  out = std::string();
   unsigned int numCharactersRead = 0;
   int nextValue = 0;
 

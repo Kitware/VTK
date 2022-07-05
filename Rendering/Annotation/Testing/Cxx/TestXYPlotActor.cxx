@@ -28,7 +28,6 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
-#include "vtkStdString.h"
 #include "vtkTextProperty.h"
 #include "vtkXYPlotActor.h"
 
@@ -41,7 +40,7 @@ int TestXYPlotActor(int argc, char* argv[])
 
   // Create containers for data
   unsigned int nPlots = 4;
-  vtkStdString names[] = {
+  std::string names[] = {
     "sqrt(x)",
     "sqrt(x)sin(10ln(sqrt(x)))",
     "sqrt(x)cos(x/10)",

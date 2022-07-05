@@ -165,7 +165,7 @@ int vtkProteinRibbonFilter::RequestData(
 
   for (int i = 0; i < input->GetNumberOfPoints(); i++)
   {
-    vtkStdString type = atomTypes->GetValue(i);
+    std::string type = atomTypes->GetValue(i);
     unsigned short atomicNum = static_cast<unsigned short>(atomType->GetValue(i));
 
     if (ishetatm->GetValue(i) && this->DrawSmallMoleculesAsSpheres)

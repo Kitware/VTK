@@ -236,7 +236,7 @@ void vtkPhyloXMLTreeWriter::WriteNameElement(vtkIdType vertex, vtkXMLDataElement
     return;
   }
 
-  vtkStdString name = this->NodeNameArray->GetVariantValue(vertex).ToString();
+  std::string name = this->NodeNameArray->GetVariantValue(vertex).ToString();
   if (!name.empty())
   {
     vtkNew<vtkXMLDataElement> nameElement;
@@ -261,7 +261,7 @@ void vtkPhyloXMLTreeWriter::WriteConfidenceElement(
     return;
   }
 
-  vtkStdString confidence = confidenceArray->GetVariantValue(vertex).ToString();
+  std::string confidence = confidenceArray->GetVariantValue(vertex).ToString();
   if (!confidence.empty())
   {
     vtkNew<vtkXMLDataElement> confidenceElement;
@@ -437,7 +437,7 @@ void vtkPhyloXMLTreeWriter::WritePropertyElement(
   }
 
   // get the value for this property
-  vtkStdString val = array->GetVariantValue(vertex).ToString();
+  std::string val = array->GetVariantValue(vertex).ToString();
 
   // create the new property element and add it to our document.
   vtkNew<vtkXMLDataElement> propertyElement;

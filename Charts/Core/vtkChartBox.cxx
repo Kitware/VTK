@@ -685,7 +685,7 @@ void vtkChartBox::SetTooltipInfo(const vtkContextMouseEvent& mouse, const vtkVec
   }
 
   // Have the plot generate its tooltip label
-  vtkStdString tooltipLabel = plot->GetTooltipLabel(plotPos, seriesIndex, segmentIndex);
+  std::string tooltipLabel = plot->GetTooltipLabel(plotPos, seriesIndex, segmentIndex);
 
   // Set the tooltip
   this->Tooltip->SetText(tooltipLabel);
@@ -720,7 +720,7 @@ void vtkChartBox::PrintSelf(ostream& os, vtkIndent indent)
 //------------------------------------------------------------------------------
 void vtkChartBox::SwapAxes(int a1, int a2)
 {
-  vtkStdString colTmp = this->VisibleColumns->GetValue(a1);
+  std::string colTmp = this->VisibleColumns->GetValue(a1);
   this->VisibleColumns->SetValue(a1, this->VisibleColumns->GetValue(a2));
   this->VisibleColumns->SetValue(a2, colTmp);
 

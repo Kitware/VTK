@@ -126,7 +126,7 @@ vtkIdType vtkBoostPrimMinimumSpanningTree::GetVertexIndex(
   else
   {
     vtkStringArray* stringArray = vtkArrayDownCast<vtkStringArray>(abstract);
-    vtkStdString stringValue(value.ToString());
+    std::string stringValue(value.ToString());
     for (int i = 0; i < stringArray->GetNumberOfTuples(); ++i)
     {
       if (stringValue == stringArray->GetValue(i))

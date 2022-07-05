@@ -45,7 +45,7 @@ int TestPostgreSQLTableReadWrite(int argc, char* argv[])
 
   vtkPostgreSQLDatabase* db =
     vtkPostgreSQLDatabase::SafeDownCast(vtkSQLDatabase::CreateFromURL(VTK_PSQL_TEST_URL));
-  vtkStdString realDatabase = db->GetDatabaseName();
+  std::string realDatabase = db->GetDatabaseName();
   db->SetDatabaseName("template1"); // This is guaranteed to exist
   bool status = db->Open();
   if (!status)

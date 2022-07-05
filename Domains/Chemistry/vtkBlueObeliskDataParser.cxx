@@ -19,7 +19,6 @@
 #include "vtkBlueObeliskData.h"
 #include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
-#include "vtkStdString.h"
 #include "vtkStringArray.h"
 #include "vtkUnsignedShortArray.h"
 
@@ -45,11 +44,11 @@ vtkBlueObeliskDataParser::vtkBlueObeliskDataParser()
   , IsProcessingAtom(false)
   , IsProcessingValue(false)
   , CurrentValueType(None)
-  , CurrentSymbol(new vtkStdString)
-  , CurrentName(new vtkStdString)
-  , CurrentPeriodicTableBlock(new vtkStdString)
-  , CurrentElectronicConfiguration(new vtkStdString)
-  , CurrentFamily(new vtkStdString)
+  , CurrentSymbol(new std::string)
+  , CurrentName(new std::string)
+  , CurrentPeriodicTableBlock(new std::string)
+  , CurrentElectronicConfiguration(new std::string)
+  , CurrentFamily(new std::string)
 {
 }
 
@@ -441,7 +440,7 @@ void vtkBlueObeliskDataParser::ResizeArrayIfNeeded(vtkAbstractArray* arr, vtkIdT
 
 //------------------------------------------------------------------------------
 void vtkBlueObeliskDataParser::ResizeAndSetValue(
-  vtkStdString* val, vtkStringArray* arr, vtkIdType ind)
+  std::string* val, vtkStringArray* arr, vtkIdType ind)
 {
   vtkBlueObeliskDataParser::ResizeArrayIfNeeded(arr, ind);
   arr->SetValue(ind, val->c_str());
@@ -509,9 +508,9 @@ inline unsigned short vtkBlueObeliskDataParser::parseUnsignedShort(const char* d
 }
 
 //------------------------------------------------------------------------------
-inline vtkStdString* vtkBlueObeliskDataParser::ToLower(vtkStdString* str)
+inline std::string* vtkBlueObeliskDataParser::ToLower(std::string* str)
 {
-  for (vtkStdString::iterator it = str->begin(), it_end = str->end(); it != it_end; ++it)
+  for (std::string::iterator it = str->begin(), it_end = str->end(); it != it_end; ++it)
   {
     *it = static_cast<char>(tolower(*it));
   }

@@ -23,7 +23,6 @@
 #include "vtkDoubleArray.h"
 #include "vtkPointData.h"
 #include "vtkSmartPointer.h"
-#include "vtkStdString.h"
 #include "vtkStructuredGrid.h"
 #include "vtkStructuredGridReader.h"
 #include "vtkUnstructuredGrid.h"
@@ -398,7 +397,7 @@ int TestVTKMGradientAndVorticity(int argc, char* argv[])
     return EXIT_FAILURE;
   }
 
-  vtkStdString filename(std::string(data_root) + "/Data/SampleStructGrid.vtk");
+  std::string filename(std::string(data_root) + "/Data/SampleStructGrid.vtk");
   VTK_CREATE(vtkStructuredGridReader, structuredGridReader);
   structuredGridReader->SetFileName(filename.c_str());
   structuredGridReader->Update();

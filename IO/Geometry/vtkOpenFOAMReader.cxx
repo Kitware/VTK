@@ -317,7 +317,7 @@ void appendUniq(vtkStringArray* list, vtkStringArray* items)
 {
   for (int i = 0; i < items->GetNumberOfTuples(); ++i)
   {
-    vtkStdString& str = items->GetValue(i);
+    std::string& str = items->GetValue(i);
     if (list->LookupValue(str) == -1)
     {
       list->InsertNextValue(str);

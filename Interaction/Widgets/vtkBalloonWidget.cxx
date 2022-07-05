@@ -37,7 +37,7 @@ vtkStandardNewMacro(vtkBalloonWidget);
 //-- Define the PIMPLd array of vtkProp and vtkString --
 struct vtkBalloon
 {
-  vtkStdString Text;
+  std::string Text;
   vtkImageData* Image;
 
   vtkBalloon()
@@ -53,7 +53,7 @@ struct vtkBalloon
       this->Image->Register(nullptr);
     }
   }
-  vtkBalloon(vtkStdString* str, vtkImageData* img)
+  vtkBalloon(std::string* str, vtkImageData* img)
   {
     this->Text = *str;
     this->Image = img;

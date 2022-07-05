@@ -33,7 +33,6 @@
 #include "vtkMath.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkObjectFactory.h"
-#include "vtkStdString.h"
 #include "vtkStringArray.h"
 #include "vtkTable.h"
 #include "vtkUnsignedCharArray.h"
@@ -408,11 +407,11 @@ void vtkDescriptiveStatistics::Learn(
   {
     numberOfGhostlessRow = nRow;
   }
-  for (std::set<std::set<vtkStdString>>::const_iterator rit = this->Internals->Requests.begin();
+  for (std::set<std::set<std::string>>::const_iterator rit = this->Internals->Requests.begin();
        rit != this->Internals->Requests.end(); ++rit)
   {
     // Each request contains only one column of interest (if there are others, they are ignored)
-    std::set<vtkStdString>::const_iterator it = rit->begin();
+    std::set<std::string>::const_iterator it = rit->begin();
     vtkStdString varName = *it;
     if (!inData->GetColumnByName(varName.c_str()))
     {
@@ -515,7 +514,7 @@ void vtkDescriptiveStatistics::Derive(vtkMultiBlockDataSet* inMeta)
   }
 
   int numDoubles = 5;
-  vtkStdString doubleNames[] = { "Standard Deviation", "Variance", "Skewness", "Kurtosis", "Sum" };
+  std::string doubleNames[] = { "Standard Deviation", "Variance", "Skewness", "Kurtosis", "Sum" };
 
   // Create table for derived statistics
   vtkIdType nRow = primaryTab->GetNumberOfRows();
@@ -724,11 +723,11 @@ void vtkDescriptiveStatistics::Test(
   vtkStringArray* vars = vtkArrayDownCast<vtkStringArray>(primaryTab->GetColumnByName("Variable"));
 
   // Loop over requests
-  for (std::set<std::set<vtkStdString>>::const_iterator rit = this->Internals->Requests.begin();
+  for (std::set<std::set<std::string>>::const_iterator rit = this->Internals->Requests.begin();
        rit != this->Internals->Requests.end(); ++rit)
   {
     // Each request contains only one column of interest (if there are others, they are ignored)
-    std::set<vtkStdString>::const_iterator it = rit->begin();
+    std::set<std::string>::const_iterator it = rit->begin();
     vtkStdString varName = *it;
     if (!inData->GetColumnByName(varName.c_str()))
     {
@@ -874,7 +873,7 @@ void vtkDescriptiveStatistics::SelectAssessFunctor(
     return;
   }
 
-  vtkStdString varName = rowNames->GetValue(0);
+  std::string varName = rowNames->GetValue(0);
 
   // Downcast meta columns to string arrays for efficient data access
   vtkStringArray* vars = vtkArrayDownCast<vtkStringArray>(primaryTab->GetColumnByName("Variable"));

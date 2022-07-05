@@ -50,7 +50,6 @@
 #include "vtkSelection.h"
 #include "vtkSelectionNode.h"
 #include "vtkSmartPointer.h"
-#include "vtkStdString.h"
 #include "vtkStringArray.h"
 #include "vtkTable.h"
 #include "vtkTextProperty.h"
@@ -2024,7 +2023,7 @@ void vtkChartXY::SetTooltipInfo(const vtkContextMouseEvent& mouse, const vtkVect
   }
 
   // Have the plot generate its tooltip label
-  vtkStdString tooltipLabel = plot->GetTooltipLabel(plotPos, seriesIndex, segmentIndex);
+  std::string tooltipLabel = plot->GetTooltipLabel(plotPos, seriesIndex, segmentIndex);
 
   // Set the tooltip
   this->Tooltip->SetText(tooltipLabel);

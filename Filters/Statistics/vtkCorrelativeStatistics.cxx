@@ -29,7 +29,6 @@
 #include "vtkMath.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkObjectFactory.h"
-#include "vtkStdString.h"
 #include "vtkStringArray.h"
 #include "vtkTable.h"
 #include "vtkVariantArray.h"
@@ -259,12 +258,12 @@ void vtkCorrelativeStatistics::Learn(
 
   // Loop over requests
   vtkIdType nRow = inData->GetNumberOfRows();
-  for (std::set<std::set<vtkStdString>>::const_iterator rit = this->Internals->Requests.begin();
+  for (std::set<std::set<std::string>>::const_iterator rit = this->Internals->Requests.begin();
        rit != this->Internals->Requests.end(); ++rit)
   {
     // Each request contains only one pair of column of interest (if there are others, they are
     // ignored)
-    std::set<vtkStdString>::const_iterator it = rit->begin();
+    std::set<std::string>::const_iterator it = rit->begin();
     vtkStdString colX = *it;
     if (!inData->GetColumnByName(colX.c_str()))
     {
@@ -348,7 +347,7 @@ void vtkCorrelativeStatistics::Derive(vtkMultiBlockDataSet* inMeta)
   }
 
   int numDoubles = 9;
-  vtkStdString doubleNames[] = { "Variance X", "Variance Y", "Covariance", "Determinant",
+  std::string doubleNames[] = { "Variance X", "Variance Y", "Covariance", "Determinant",
     "Slope Y/X", "Intercept Y/X", "Slope X/Y", "Intercept X/Y", "Pearson r" };
 
   // Create table for derived statistics
@@ -539,13 +538,13 @@ void vtkCorrelativeStatistics::Test(
 
   // Loop over requests
   vtkIdType nRowData = inData->GetNumberOfRows();
-  for (std::set<std::set<vtkStdString>>::const_iterator rit = this->Internals->Requests.begin();
+  for (std::set<std::set<std::string>>::const_iterator rit = this->Internals->Requests.begin();
        rit != this->Internals->Requests.end(); ++rit)
   {
     // Each request contains only one pair of column of interest (if there are others, they are
     // ignored)
-    std::set<vtkStdString>::const_iterator it = rit->begin();
-    vtkStdString varNameX = *it;
+    std::set<std::string>::const_iterator it = rit->begin();
+    std::string varNameX = *it;
     if (!inData->GetColumnByName(varNameX.c_str()))
     {
       vtkWarningMacro(
@@ -554,7 +553,7 @@ void vtkCorrelativeStatistics::Test(
     }
 
     ++it;
-    vtkStdString varNameY = *it;
+    std::string varNameY = *it;
     if (!inData->GetColumnByName(varNameY.c_str()))
     {
       vtkWarningMacro(
@@ -838,8 +837,8 @@ void vtkCorrelativeStatistics::SelectAssessFunctor(
     return;
   }
 
-  vtkStdString varNameX = rowNames->GetValue(0);
-  vtkStdString varNameY = rowNames->GetValue(1);
+  std::string varNameX = rowNames->GetValue(0);
+  std::string varNameY = rowNames->GetValue(1);
 
   // Downcast meta columns to string arrays for efficient data access
   vtkStringArray* varX =

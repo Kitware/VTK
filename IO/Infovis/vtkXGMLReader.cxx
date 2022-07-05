@@ -31,7 +31,6 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkSmartPointer.h"
-#include "vtkStdString.h"
 #include "vtkStringArray.h"
 #include "vtksys/FStream.hxx"
 
@@ -42,7 +41,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <sstream>
 
 // Copied from vtkTulipReader.cxx ..
-static int my_getline(std::istream& stream, vtkStdString& output, char delim = '\n');
+static int my_getline(std::istream& stream, std::string& output, char delim = '\n');
 
 vtkStandardNewMacro(vtkXGMLReader);
 
@@ -91,7 +90,7 @@ struct vtkXGMLReaderToken
     END_OF_FILE
   };
   int Type;
-  vtkStdString StringValue;
+  std::string StringValue;
   int IntValue;
   double DoubleValue;
 };
@@ -103,7 +102,7 @@ static void vtkXGMLReaderNextToken(std::istream& in, vtkXGMLReaderToken& tok)
   {
     while (!in.eof() && ch == ';')
     {
-      vtkStdString comment;
+      std::string comment;
       my_getline(in, comment);
       ch = in.peek();
     }
@@ -177,7 +176,7 @@ int vtkXGMLReader::RequestData(vtkInformation* vtkNotUsed(request),
   vtkIdType nr_of_edges = 0; // as read from file
   int nr_of_properties = 0;
   vtkXGMLProperty property_table[MAX_NR_PROPERTIES];
-  vtkStdString name;
+  std::string name;
   int kind;
   int i;
   vtkIdType dst, id = 0, src = 0;
@@ -473,9 +472,9 @@ int vtkXGMLReader::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-static int my_getline(std::istream& in, vtkStdString& out, char delimiter)
+static int my_getline(std::istream& in, std::string& out, char delimiter)
 {
-  out = vtkStdString();
+  out = std::string();
   unsigned int numCharactersRead = 0;
   int nextValue = 0;
 

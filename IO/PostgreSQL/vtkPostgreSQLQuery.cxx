@@ -825,7 +825,7 @@ vtkVariant ConvertStringToFloat(bool isBinary, const char* rawData)
   }
   else
   {
-    vtkStdString rawString(rawData);
+    std::string rawString(rawData);
     float finalResult;
 
     // Catch NaN
@@ -923,7 +923,7 @@ vtkVariant ConvertStringToDouble(bool isBinary, const char* rawData)
   else
   {
     double finalResult;
-    vtkStdString rawString(rawData);
+    std::string rawString(rawData);
 
     // Catch NaN
     if (rawData[0] == 'N' || rawData[0] == 'n')

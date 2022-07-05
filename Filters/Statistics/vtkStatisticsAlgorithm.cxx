@@ -164,7 +164,7 @@ vtkIdType vtkStatisticsAlgorithm::GetNumberOfColumnsForRequest(vtkIdType request
 //------------------------------------------------------------------------------
 const char* vtkStatisticsAlgorithm::GetColumnForRequest(vtkIdType r, vtkIdType c)
 {
-  static vtkStdString columnName;
+  static std::string columnName;
   if (this->Internals->GetColumnForRequest(r, c, columnName))
   {
     return columnName.c_str();
@@ -298,7 +298,7 @@ void vtkStatisticsAlgorithm::Assess(
   }
 
   // Loop over requests
-  for (std::set<std::set<vtkStdString>>::const_iterator rit = this->Internals->Requests.begin();
+  for (std::set<std::set<std::string>>::const_iterator rit = this->Internals->Requests.begin();
        rit != this->Internals->Requests.end(); ++rit)
   {
     // Storage for variable names of the request (smart pointer because of several exit points)
@@ -308,11 +308,11 @@ void vtkStatisticsAlgorithm::Assess(
     // Each request must contain numVariables columns of interest (additional columns are ignored)
     bool invalidRequest = false;
     int v = 0;
-    for (std::set<vtkStdString>::const_iterator it = rit->begin();
+    for (std::set<std::string>::const_iterator it = rit->begin();
          v < numVariables && it != rit->end(); ++v, ++it)
     {
       // Try to retrieve column with corresponding name in input data
-      vtkStdString varName = *it;
+      std::string varName = *it;
 
       // If requested column does not exist in input, ignore request
       if (!inData->GetColumnByName(varName.c_str()))
@@ -343,7 +343,7 @@ void vtkStatisticsAlgorithm::Assess(
 
     // Store names to be able to use SetValueByName, and create the outData columns
     vtkIdType nAssessments = this->AssessNames->GetNumberOfValues();
-    std::vector<vtkStdString> names(nAssessments);
+    std::vector<std::string> names(nAssessments);
     vtkIdType nRowData = inData->GetNumberOfRows();
     for (vtkIdType a = 0; a < nAssessments; ++a)
     {

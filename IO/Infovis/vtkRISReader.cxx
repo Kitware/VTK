@@ -21,7 +21,6 @@
 #include "vtkRISReader.h"
 #include "vtkCommand.h"
 #include "vtkObjectFactory.h"
-#include "vtkStdString.h"
 #include "vtkStringArray.h"
 #include "vtkTable.h"
 #include "vtkVariant.h"
@@ -183,7 +182,7 @@ int vtkRISReader::RequestData(
     // Loop through every line in the file ...
     std::string tag;
     std::string tag_type;
-    vtkStdString tag_value;
+    std::string tag_value;
     bool explicit_tag;
     for(my_getline(file, line_buffer); file; my_getline(file, line_buffer))
       {
@@ -237,7 +236,7 @@ int vtkRISReader::RequestData(
         }
 
       // Set the table value ...
-      vtkStdString old_value = table->GetValue(record_count, columns[tag_type]).ToString();
+      std::string old_value = table->GetValue(record_count, columns[tag_type]).ToString();
       if(old_value.empty())
         {
         table->SetValue(record_count, columns[tag_type], tag_value);

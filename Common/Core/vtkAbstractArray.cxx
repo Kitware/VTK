@@ -67,7 +67,7 @@ vtkInformationKeyRestrictedMacro(
 
 namespace
 {
-typedef std::vector<vtkStdString*> vtkInternalComponentNameBase;
+typedef std::vector<std::string*> vtkInternalComponentNameBase;
 }
 class vtkAbstractArray::vtkInternalComponentNames : public vtkInternalComponentNameBase
 {
@@ -123,7 +123,7 @@ void vtkAbstractArray::SetComponentName(vtkIdType component, const char* name)
   if (index == this->ComponentNames->size())
   {
     // the array isn't large enough, so we will resize
-    this->ComponentNames->push_back(new vtkStdString(name));
+    this->ComponentNames->push_back(new std::string(name));
     return;
   }
   else if (index > this->ComponentNames->size())
@@ -132,10 +132,10 @@ void vtkAbstractArray::SetComponentName(vtkIdType component, const char* name)
   }
 
   // replace an existing element
-  vtkStdString* compName = this->ComponentNames->at(index);
+  std::string* compName = this->ComponentNames->at(index);
   if (!compName)
   {
-    compName = new vtkStdString(name);
+    compName = new std::string(name);
     this->ComponentNames->at(index) = compName;
   }
   else
@@ -154,7 +154,7 @@ const char* vtkAbstractArray::GetComponentName(vtkIdType component) const
     return nullptr;
   }
 
-  vtkStdString* compName = this->ComponentNames->at(index);
+  std::string* compName = this->ComponentNames->at(index);
   return (compName) ? compName->c_str() : nullptr;
 }
 

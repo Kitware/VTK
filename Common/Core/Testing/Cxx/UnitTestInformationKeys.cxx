@@ -7,7 +7,6 @@
 #include "vtkInformationVariantVectorKey.h"
 #include "vtkMath.h"
 #include "vtkNew.h"
-#include "vtkStdString.h"
 #include "vtkVariant.h"
 
 template <typename T, typename V>
@@ -73,7 +72,7 @@ int UnitTestVectorValueKey(vtkInformation* info, T* key, const V& val)
 // Note these are not specializations.
 
 int UnitTestScalarValueKey(
-  vtkInformation* info, vtkInformationStringKey* key, const vtkStdString& val)
+  vtkInformation* info, vtkInformationStringKey* key, const std::string& val)
 {
   key->Set(info, val.c_str());
   int ok_setget = (val == key->Get(info));
@@ -94,7 +93,7 @@ int UnitTestScalarValueKey(
 }
 
 int UnitTestVectorValueKey(
-  vtkInformation* info, vtkInformationStringVectorKey* key, const vtkStdString& val)
+  vtkInformation* info, vtkInformationStringVectorKey* key, const std::string& val)
 {
   key->Set(info, val.c_str(), 0);
   int ok_setgetcomp = (val == key->Get(info, 0));
@@ -132,7 +131,7 @@ int UnitTestInformationKeys(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   vtkNew<vtkInformation> info;
   vtkVariant tvval("foo");
   double tdval = vtkMath::Pi();
-  vtkStdString tsval = "bar";
+  std::string tsval = "bar";
 
   vtkInformationVariantKey* tvskey = new vtkInformationVariantKey("Test", "vtkTest");
   ok &= UnitTestScalarValueKey(info, tvskey, tvval);

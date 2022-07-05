@@ -111,7 +111,7 @@ int vtkXMLMultiBlockDataWriter::WriteComposite(
       {
         datasetXML->SetAttribute("name", name);
       }
-      vtkStdString fileName = this->CreatePieceFileName(writerIdx);
+      std::string fileName = this->CreatePieceFileName(writerIdx);
 
       this->SetProgressRange(progressRange, writerIdx, toBeWritten);
       if (this->WriteNonCompositeData(curDO, datasetXML, writerIdx, fileName.c_str()))

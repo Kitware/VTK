@@ -23,7 +23,6 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
-#include "vtkStdString.h"
 #include "vtkTextProperty.h"
 
 //------------------------------------------------------------------------------
@@ -35,8 +34,8 @@ int TestFreeTypeTextMapper(int argc, char* argv[])
     return EXIT_FAILURE;
   }
 
-  vtkStdString uncodeFontFile(argv[1]);
-  vtkStdString str = "Sample multiline\ntext rendered\nusing FreeTypeTools.";
+  std::string uncodeFontFile(argv[1]);
+  std::string str = "Sample multiline\ntext rendered\nusing FreeTypeTools.";
 
   vtkNew<vtkTextMapper> mapper1;
   vtkNew<vtkActor2D> actor1;

@@ -460,7 +460,7 @@ void vtkLabeledDataMapper::BuildLabelsInternal(vtkDataSet* input)
     }
   }
 
-  vtkStdString FormatString;
+  std::string FormatString;
   if (this->LabelFormat)
   {
     // The user has specified a format string.
@@ -562,7 +562,7 @@ void vtkLabeledDataMapper::BuildLabelsInternal(vtkDataSet* input)
     vtkArrayDownCast<vtkIntArray>(this->GetInputAbstractArrayToProcess(0, input));
   for (i = 0; i < numCurLabels; i++)
   {
-    vtkStdString ResultString;
+    std::string ResultString;
 
     if (pointIdLabels)
     {

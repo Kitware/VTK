@@ -22,7 +22,6 @@
 #include "vtkInformationVector.h"
 #include "vtkIntArray.h"
 #include "vtkSmartPointer.h"
-#include "vtkStdString.h"
 #include "vtkStringArray.h"
 #include "vtkTable.h"
 #include "vtkType.h"
@@ -130,8 +129,8 @@ int vtkJoinTables::RequestData(
   else if (auto leftKeySA = vtkStringArray::SafeDownCast(leftKeyCol))
   {
     auto rightKeySA = vtkStringArray::SafeDownCast(rightKeyCol);
-    auto maps = Maps<vtkStdString>();
-    this->JoinAlgorithm<vtkStringArray, vtkStdString>(
+    auto maps = Maps<std::string>();
+    this->JoinAlgorithm<vtkStringArray, std::string>(
       left, right, output, leftKeySA, rightKeySA, &maps);
   }
   else
