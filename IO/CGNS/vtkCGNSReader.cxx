@@ -2432,9 +2432,11 @@ int vtkCGNSReader::GetUnstructuredZone(
 
       int n_child = -1;
       cgio_number_children(this->cgioNum, elemIdList[osec], &n_child);
+      assert(n_child >= 0);
 
       int num_ret = -1;
-      char child_names[n_child * (CGIO_MAX_NAME_LENGTH + 1)];
+      char* child_names = new char[n_child * (CGIO_MAX_NAME_LENGTH + 1)];
+
       cgio_children_names(this->cgioNum, elemIdList[osec], 1, n_child, CGIO_MAX_NAME_LENGTH + 1,
         &num_ret, child_names);
 
@@ -2448,6 +2450,7 @@ int vtkCGNSReader::GetUnstructuredZone(
           break;
         }
       }
+      delete[] child_names;
       if (!hasNGonPE_loc)
       {
         hasNGonPE = false;
