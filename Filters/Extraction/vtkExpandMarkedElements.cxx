@@ -77,6 +77,7 @@ struct BlockT
 {
   vtkDataSet* Dataset = nullptr;
   vtkSmartPointer<vtkStaticPointLocator> Locator;
+  vtkNew<vtkSignedCharArray> SeedMarkedArray;
   vtkNew<vtkSignedCharArray> MarkedArray;
   vtkNew<vtkIntArray> UpdateFlags;
   std::vector<std::pair<diy::BlockID, vtkBoundingBox>> Neighbors;
@@ -84,6 +85,7 @@ struct BlockT
   void BuildLocator();
   void EnqueueAndExpand(int assoc, int round, const diy::Master::ProxyWithLink& cp);
   void DequeueAndExpand(int assoc, int round, const diy::Master::ProxyWithLink& cp);
+  void RemoveExcedentLayers(bool removeSeed, bool removeIntermediateLayers, int finalRound);
 
 private:
   void Expand(int assoc, int round, const std::set<vtkIdType>& ptids);
@@ -218,6 +220,33 @@ void BlockT::Expand(int assoc, int round, const std::set<vtkIdType>& ptids)
     }
   }
 }
+
+void BlockT::RemoveExcedentLayers(bool removeSeed, bool removeIntermediateLayers, int finalRound)
+{
+  for (vtkIdType i = 0; i < this->MarkedArray->GetNumberOfValues(); i++)
+  {
+    bool remove = false;
+    if (removeSeed)
+    {
+      if (this->SeedMarkedArray->GetTypedComponent(i, 0) != 0)
+      {
+        remove = true;
+      }
+    }
+    if (!remove && removeIntermediateLayers)
+    {
+      int updateRound = this->UpdateFlags->GetTypedComponent(i, 0);
+      if (updateRound != finalRound && updateRound != -1)
+      {
+        remove = true;
+      }
+    }
+    if (remove)
+    {
+      this->MarkedArray->SetTypedComponent(i, 0, 0);
+    }
+  }
+}
 }
 
 vtkStandardNewMacro(vtkExpandMarkedElements);
@@ -286,6 +315,7 @@ int vtkExpandMarkedElements::RequestData(
       block->MarkedArray->SetNumberOfTuples(numElems);
       block->MarkedArray->FillValue(0);
     }
+    block->SeedMarkedArray->DeepCopy(block->MarkedArray);
     assert(block->MarkedArray->GetNumberOfTuples() == numElems);
     block->UpdateFlags->SetNumberOfTuples(numElems);
     block->UpdateFlags->FillValue(-1);
@@ -343,6 +373,7 @@ int vtkExpandMarkedElements::RequestData(
   }
   vtkLogEndScope("populate block neighbours");
 
+  // Expand the selection
   for (int round = 0; round < this->NumberOfLayers; ++round)
   {
     master.foreach ([&assoc, &round](BlockT* b, const diy::Master::ProxyWithLink& cp) {
@@ -353,6 +384,12 @@ int vtkExpandMarkedElements::RequestData(
       b->DequeueAndExpand(assoc, round, cp);
     });
   }
+
+  // Remove unwanted layers
+  master.foreach ([this](BlockT* b, const diy::Master::ProxyWithLink&) {
+    b->RemoveExcedentLayers(
+      this->RemoveSeed, this->RemoveIntermediateLayers, this->NumberOfLayers - 1);
+  });
 
   if (arrayname.empty())
   {
