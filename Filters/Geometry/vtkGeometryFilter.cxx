@@ -2914,6 +2914,7 @@ int ExecuteUnstructuredGrid(vtkGeometryFilter* self, vtkDataSet* dataSetInput, v
     cellVis = cellVisArray->GetPointer(0);
   }
 
+  outPD->CopyGlobalIdsOn();
   outCD->CopyGlobalIdsOn();
 
   // Loop over the cells determining what's visible. This could be threaded
@@ -3154,6 +3155,9 @@ int ExecuteStructured(vtkGeometryFilter* self, vtkDataSet* input, vtkPolyData* o
   vtkNew<vtkCellArray> polys;
   output->SetPolys(polys);
   ThreadOutputType<TInputIdType> threads;
+
+  outPD->CopyGlobalIdsOn();
+  outCD->CopyGlobalIdsOn();
 
   ExtractCellBoundaries<TInputIdType>* extStr;
   // if extractFace are defined, it's an AMR block
