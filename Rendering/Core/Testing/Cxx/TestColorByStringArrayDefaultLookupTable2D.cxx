@@ -25,7 +25,6 @@
 #include <vtkRenderWindow.h>
 #include <vtkRenderWindowInteractor.h>
 #include <vtkRenderer.h>
-#include <vtkStdString.h>
 #include <vtkStringArray.h>
 
 int TestColorByStringArrayDefaultLookupTable2D(int argc, char* argv[])

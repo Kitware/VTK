@@ -36,7 +36,6 @@
 #ifndef vtkPostgreSQLDatabasePrivate_h
 #define vtkPostgreSQLDatabasePrivate_h
 
-#include "vtkStdString.h"
 #include "vtkTimeStamp.h"
 #include "vtkType.h"
 

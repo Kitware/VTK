@@ -17,7 +17,6 @@
 #include "vtkMathUtilities.h"
 #include "vtkNew.h"
 #include "vtkPeriodicTable.h"
-#include "vtkStdString.h"
 
 int TestPeriodicTable(int, char*[])
 {

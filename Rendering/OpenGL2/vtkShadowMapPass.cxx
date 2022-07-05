@@ -48,7 +48,6 @@
 // debugging
 #include "vtkTimerLog.h"
 
-#include "vtkStdString.h"
 #include <cassert>
 #include <sstream>
 

@@ -40,7 +40,6 @@ class vtkPythonSpecialTypeMap;
 class vtkPythonNamespaceMap;
 class vtkPythonEnumMap;
 class vtkPythonModuleList;
-class vtkStdString;
 class vtkVariant;
 
 extern "C" void vtkPythonUtilDelete();

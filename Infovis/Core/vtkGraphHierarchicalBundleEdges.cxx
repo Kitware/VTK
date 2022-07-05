@@ -31,7 +31,6 @@
 #include "vtkObjectFactory.h"
 #include "vtkPoints.h"
 #include "vtkSmartPointer.h"
-#include "vtkStdString.h"
 #include "vtkTree.h"
 #include "vtkVariantArray.h"
 

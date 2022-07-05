@@ -57,7 +57,6 @@
 
 #include "vtkFiltersPointsModule.h" // For export macro
 #include "vtkInterpolationKernel.h"
-#include "vtkStdString.h" // For vtkStdString ivars
 
 class vtkIdList;
 class vtkDoubleArray;

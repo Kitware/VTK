@@ -34,7 +34,6 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkSmartPointer.h"
-#include "vtkStdString.h"
 #include "vtkTable.h"
 #include "vtkTree.h"
 #include "vtkVariantArray.h"

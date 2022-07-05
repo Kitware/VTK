@@ -48,7 +48,6 @@
 #include "vtkPolyData.h"
 #include "vtkShortArray.h"
 #include "vtkSignedCharArray.h"
-#include "vtkStdString.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStringArray.h"
 #include "vtkType.h"

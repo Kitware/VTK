@@ -67,7 +67,6 @@ POSSIBILITY OF SUCH DAMAGES.
 
 #include "vtkIOMINCModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
-#include "vtkStdString.h" // needed for std::string
 
 class vtkPolyData;
 class vtkPoints;

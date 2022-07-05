@@ -23,7 +23,6 @@
 #include "vtkQtTableModelAdapter.h"
 #include "vtkRowQueryToTable.h"
 #include "vtkSQLQuery.h"
-#include "vtkStdString.h"
 #include "vtkTable.h"
 #include "vtkVariant.h"
 #include "vtkVariantArray.h"

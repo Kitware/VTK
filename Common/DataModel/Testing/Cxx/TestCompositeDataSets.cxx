@@ -19,7 +19,6 @@
 #include "vtkMultiBlockDataSet.h"
 #include "vtkNew.h"
 #include "vtkSmartPointer.h"
-#include "vtkStdString.h"
 #include "vtkUniformGrid.h"
 #include "vtkUniformGridAMR.h"
 

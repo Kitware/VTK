@@ -42,7 +42,6 @@ class vtkContext2D;
 class vtkTable;
 class vtkPoints2D;
 class vtkFloatArray;
-class vtkStdString;
 class vtkImageData;
 class vtkScalarsToColors;
 class vtkUnsignedCharArray;

@@ -15,7 +15,6 @@
 #include "vtkInformationStringVectorKey.h"
 
 #include "vtkInformation.h" // For vtkErrorWithObjectMacro
-#include "vtkStdString.h"
 
 #include <algorithm>
 #include <vector>

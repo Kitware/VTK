@@ -37,7 +37,6 @@
 #include "vtkShaderProgram.h"
 #include "vtkTextureObject.h"
 
-#include "vtkStdString.h"
 #include <cassert>
 #include <sstream>
 

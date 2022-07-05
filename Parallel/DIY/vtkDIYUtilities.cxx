@@ -31,7 +31,6 @@
 #include "vtkRectilinearGridToPointSet.h"
 #include "vtkSOADataArrayTemplate.h"
 #include "vtkSmartPointer.h"
-#include "vtkStdString.h"
 #include "vtkStringArray.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkXMLDataObjectWriter.h"

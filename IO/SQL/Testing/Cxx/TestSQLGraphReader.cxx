@@ -29,7 +29,6 @@
 #include "vtkSQLQuery.h"
 #include "vtkSQLiteDatabase.h"
 #include "vtkSmartPointer.h"
-#include "vtkStdString.h"
 
 #include <sstream>
 

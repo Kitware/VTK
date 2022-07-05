@@ -85,7 +85,6 @@ version available from Los Alamos National Laboratory.
 class vtkCallbackCommand;
 class vtkDataArraySelection;
 class vtkDoubleArray;
-class vtkStdString;
 class vtkStringArray;
 
 class VTKIONETCDF_EXPORT vtkMPASReader : public vtkUnstructuredGridAlgorithm

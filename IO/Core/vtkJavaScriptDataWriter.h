@@ -30,7 +30,6 @@
 #include "vtkIOCoreModule.h" // For export macro
 #include "vtkWriter.h"
 
-class vtkStdString;
 class vtkTable;
 
 class VTKIOCORE_EXPORT vtkJavaScriptDataWriter : public vtkWriter

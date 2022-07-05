@@ -32,7 +32,6 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkPExtractHistogram2D.h"
 #include "vtkPointData.h"
 #include "vtkStatisticsAlgorithmPrivate.h"
-#include "vtkStdString.h"
 #include "vtkTable.h"
 #include "vtkTimerLog.h"
 #include "vtkUnsignedIntArray.h"

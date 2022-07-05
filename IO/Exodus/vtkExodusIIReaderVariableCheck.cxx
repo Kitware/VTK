@@ -4,7 +4,6 @@
 #include "vtkIntArray.h"
 #include "vtkMath.h"
 #include "vtkPolyData.h"
-#include "vtkStdString.h"
 #include "vtkUnstructuredGrid.h"
 #include <set>
 #include <string>
