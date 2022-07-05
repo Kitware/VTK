@@ -269,7 +269,7 @@ void vtkPhyloXMLTreeWriter::WriteConfidenceElement(
 
     // set the type attribute for this element if possible.
     const char* type = this->GetArrayAttribute(confidenceArray, "type");
-    if (strcmp(type, "") != 0)
+    if (*type)
     {
       confidenceElement->SetAttribute("type", type);
     }

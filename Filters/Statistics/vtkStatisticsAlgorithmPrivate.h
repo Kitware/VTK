@@ -88,7 +88,7 @@ public:
    */
   int AddColumnToRequests(const char* col)
   {
-    if (col && strlen(col))
+    if (col && *col)
     {
       std::set<vtkStdString> tmp;
       tmp.insert(col);
