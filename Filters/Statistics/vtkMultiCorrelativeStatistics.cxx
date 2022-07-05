@@ -805,7 +805,7 @@ void vtkMultiCorrelativeStatistics::Assess(
 
       // Storing names to be able to use SetValueByName which is faster than SetValue
       vtkDoubleArray* assessValues = vtkDoubleArray::New();
-      names[v] = assessColName.str().c_str();
+      names[v] = assessColName.str();
       assessValues->SetName(names[v]);
       assessValues->SetNumberOfTuples(nRow);
       outData->AddColumn(assessValues);

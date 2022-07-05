@@ -738,8 +738,8 @@ void vtkKMeansStatistics::Assess(vtkTable* inData, vtkMultiBlockDataSet* inMeta,
         assessValues = vtkDoubleArray::New();
       }
       names[i * nv + v] =
-        assessColName.str()
-          .c_str(); // Storing names to be able to use SetValueByName which is faster than SetValue
+        assessColName
+          .str(); // Storing names to be able to use SetValueByName which is faster than SetValue
       assessValues->SetName(names[i * nv + v]);
       assessValues->SetNumberOfTuples(nRow);
       outData->AddColumn(assessValues);

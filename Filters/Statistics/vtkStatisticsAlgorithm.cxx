@@ -361,7 +361,7 @@ void vtkStatisticsAlgorithm::Assess(
       }
       assessColName << ")";
 
-      names[a] = assessColName.str().c_str();
+      names[a] = assessColName.str();
 
       // Create assessment columns with names <AssessmentName>(var1,...,varN)
       vtkDoubleArray* assessColumn = vtkDoubleArray::New();

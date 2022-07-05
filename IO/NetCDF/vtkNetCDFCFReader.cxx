@@ -106,6 +106,7 @@ static bool ReadTextAttribute(int ncFD, int varId, const char* name, vtkStdStrin
   // is technically different than its own C string.  This line corrects that
   // regardless of whether the null string was written we will get the right
   // string.
+  // NOLINTNEXTLINE(readability-redundant-string-cstr)
   result = result.c_str();
 
   return true;
