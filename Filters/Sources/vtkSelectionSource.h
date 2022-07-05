@@ -314,6 +314,33 @@ public:
 
   ///@{
   /**
+   * Set/Get the number of layers related flag to remove seed selection
+   *
+   * The default is false.
+   */
+  void SetRemoveSeed(unsigned int nodeId, bool RemoveSeed);
+  void SetRemoveSeed(bool RemoveSeed) { this->SetRemoveSeed(0, RemoveSeed); }
+  bool GetRemoveSeed(unsigned int nodeId);
+  bool GetRemoveSeed() { return this->GetRemoveSeed(0); }
+  ///@}
+
+  ///@{
+  /**
+   * Set/Get the number of layers related flag to remove intermediate layers
+   *
+   * The default is false.
+   */
+  void SetRemoveIntermediateLayers(unsigned int nodeId, bool RemoveIntermediateLayers);
+  void SetRemoveIntermediateLayers(bool RemoveIntermediateLayers)
+  {
+    this->SetRemoveIntermediateLayers(0, RemoveIntermediateLayers);
+  }
+  bool GetRemoveIntermediateLayers(unsigned int nodeId);
+  bool GetRemoveIntermediateLayers() { return this->GetRemoveIntermediateLayers(0); }
+  ///@}
+
+  ///@{
+  /**
    * Determines whether the selection describes what to include or exclude.
    *
    * The Default is 0, meaning include.

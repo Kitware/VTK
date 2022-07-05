@@ -62,6 +62,8 @@ struct vtkSelectionSource::NodeInformation
   bool ContainingCells;
   bool Inverse;
   int NumberOfLayers;
+  bool RemoveSeed;
+  bool RemoveIntermediateLayers;
 
   NodeInformation()
     : ContentType(vtkSelectionNode::INDICES)
@@ -72,6 +74,8 @@ struct vtkSelectionSource::NodeInformation
     , ContainingCells(false)
     , Inverse(false)
     , NumberOfLayers(0)
+    , RemoveSeed(false)
+    , RemoveIntermediateLayers(false)
   {
     std::fill_n(this->Frustum, 32, 0);
   }
@@ -468,6 +472,59 @@ int vtkSelectionSource::GetNumberOfLayers(unsigned int nodeId)
     return 0;
   }
   return this->NodesInfo[nodeId]->NumberOfLayers;
+}
+
+//------------------------------------------------------------------------------
+void vtkSelectionSource::SetRemoveSeed(unsigned int nodeId, bool removeSeed)
+{
+  if (nodeId >= this->NodesInfo.size())
+  {
+    vtkErrorMacro("Invalid node id: " << nodeId);
+    return;
+  }
+  if (this->NodesInfo[nodeId]->RemoveSeed != removeSeed)
+  {
+    this->NodesInfo[nodeId]->RemoveSeed = removeSeed;
+    this->Modified();
+  }
+}
+
+//------------------------------------------------------------------------------
+bool vtkSelectionSource::GetRemoveSeed(unsigned int nodeId)
+{
+  if (nodeId >= this->NodesInfo.size())
+  {
+    vtkErrorMacro("Invalid node id: " << nodeId);
+    return false;
+  }
+  return this->NodesInfo[nodeId]->RemoveSeed;
+}
+
+//------------------------------------------------------------------------------
+void vtkSelectionSource::SetRemoveIntermediateLayers(
+  unsigned int nodeId, bool removeIntermediateLayers)
+{
+  if (nodeId >= this->NodesInfo.size())
+  {
+    vtkErrorMacro("Invalid node id: " << nodeId);
+    return;
+  }
+  if (this->NodesInfo[nodeId]->RemoveIntermediateLayers != removeIntermediateLayers)
+  {
+    this->NodesInfo[nodeId]->RemoveIntermediateLayers = removeIntermediateLayers;
+    this->Modified();
+  }
+}
+
+//------------------------------------------------------------------------------
+bool vtkSelectionSource::GetRemoveIntermediateLayers(unsigned int nodeId)
+{
+  if (nodeId >= this->NodesInfo.size())
+  {
+    vtkErrorMacro("Invalid node id: " << nodeId);
+    return false;
+  }
+  return this->NodesInfo[nodeId]->RemoveIntermediateLayers;
 }
 
 //------------------------------------------------------------------------------
@@ -1048,6 +1105,10 @@ int vtkSelectionSource::RequestData(vtkInformation* vtkNotUsed(request),
       node->GetSelectionList()->SetName(nodeInfo->ArrayName.c_str());
     }
     oProperties->Set(vtkSelectionNode::CONNECTED_LAYERS(), nodeInfo->NumberOfLayers);
+    oProperties->Set(
+      vtkSelectionNode::CONNECTED_LAYERS_REMOVE_SEED(), nodeInfo->RemoveSeed ? 1 : 0);
+    oProperties->Set(vtkSelectionNode::CONNECTED_LAYERS_REMOVE_INTERMEDIATE_LAYERS(),
+      nodeInfo->RemoveIntermediateLayers ? 1 : 0);
   }
   return 1;
 }

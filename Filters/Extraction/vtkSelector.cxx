@@ -137,11 +137,22 @@ void vtkSelector::ExpandToConnectedElements(vtkDataObject* output)
     }
 
     const int layers = selectionProperties->Get(vtkSelectionNode::CONNECTED_LAYERS());
+    const bool removeSeed =
+      selectionProperties->Has(vtkSelectionNode::CONNECTED_LAYERS_REMOVE_SEED())
+      ? selectionProperties->Get(vtkSelectionNode::CONNECTED_LAYERS_REMOVE_SEED()) == 1
+      : false;
+    const bool removeIntermediateLayers =
+      selectionProperties->Has(vtkSelectionNode::CONNECTED_LAYERS_REMOVE_INTERMEDIATE_LAYERS())
+      ? selectionProperties->Get(vtkSelectionNode::CONNECTED_LAYERS_REMOVE_INTERMEDIATE_LAYERS()) ==
+        1
+      : false;
     if (layers >= 1 && (association == vtkDataObject::POINT || association == vtkDataObject::CELL))
     {
       vtkNew<vtkExpandMarkedElements> expander;
       expander->SetInputArrayToProcess(0, 0, 0, association, this->InsidednessArrayName.c_str());
       expander->SetNumberOfLayers(layers);
+      expander->SetRemoveSeed(removeSeed);
+      expander->SetRemoveIntermediateLayers(removeIntermediateLayers);
       expander->SetInputDataObject(output);
       expander->Update();
       output->ShallowCopy(expander->GetOutputDataObject(0));
