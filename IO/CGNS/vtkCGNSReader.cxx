@@ -2465,6 +2465,7 @@ int vtkCGNSReader::GetUnstructuredZone(
     vtkErrorMacro("Mixed definition of unstructured zone by elements and by faces is not valid.");
     return 1;
   }
+  bool isPoly3D = hasNFace || hasNGonPE;
 
   // Set up ugrid - we need to refer to it if we're building an NFACE_n or NGON_n grid
   // Create an unstructured grid to contain the points.
@@ -2917,8 +2918,7 @@ int vtkCGNSReader::GetUnstructuredZone(
       }
 
       // If NGon_n but no NFace_n, or if FACE_DATA is requested, load polygons
-      bool _hasNFace = hasNFace || hasNGonPE;
-      if (!_hasNFace || this->DataLocation == vtkCGNSReader::FACE_DATA)
+      if (!isPoly3D || this->DataLocation == vtkCGNSReader::FACE_DATA)
       {
         for (vtkIdType nf = 0; nf < numFaces; ++nf)
         {
@@ -3185,8 +3185,7 @@ int vtkCGNSReader::GetUnstructuredZone(
   // Iterate over bnd sections.
   vtkPrivate::AddIsPatchArray(ugrid.Get(), false);
 
-  bool _hasNFace = hasNFace || hasNGonPE;
-  if (_hasNFace && requiredPatch)
+  if (isPoly3D && requiredPatch)
   {
     //----------------------------------------------------------------------------
     // Handle boundary conditions (BC) patches for polyhedral grid
@@ -4319,7 +4318,7 @@ int vtkCGNSReader::GetUnstructuredZone(
     zoneChildren.clear();
   }
   //
-  if ((!bndSec.empty() || _hasNFace) && requiredPatch)
+  if ((!bndSec.empty() || isPoly3D) && requiredPatch)
   {
     mbase->SetBlock(zone, mzone);
   }
