@@ -41,10 +41,7 @@
 class UserType
 {
 public:
-  UserType()
-    : Value("")
-  {
-  }
+  UserType() = default;
 
   UserType(const vtkStdString& value)
     : Value(value)

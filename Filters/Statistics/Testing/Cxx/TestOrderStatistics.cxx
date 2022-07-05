@@ -446,7 +446,7 @@ int TestOrderStatistics(int, char*[])
 
   for (std::vector<int>::size_type i = 0; i < textLength; ++i)
   {
-    vtkStdString s("");
+    vtkStdString s;
     s += text.at(i);
     textArr->InsertNextValue(s);
   }

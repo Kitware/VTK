@@ -349,7 +349,7 @@ vtkIdType vtkTable::InsertNextBlankRow(double default_num_val)
       vtkStringArray* data = vtkArrayDownCast<vtkStringArray>(arr);
       for (size_t j = 0; j < comps; j++)
       {
-        data->InsertNextValue(vtkStdString(""));
+        data->InsertNextValue(vtkStdString());
       }
     }
     else if (vtkArrayDownCast<vtkVariantArray>(arr))

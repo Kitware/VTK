@@ -11148,7 +11148,7 @@ int vtkOpenFOAMReader::RequestInformation(vtkInformation* vtkNotUsed(request),
     // vtkPOpenFOAMReader
     this->NumberOfReaders = 0;
 
-    if (!this->MakeInformationVector(outputVector, vtkStdString("")) ||
+    if (!this->MakeInformationVector(outputVector, vtkStdString()) ||
       !this->MakeMetaDataAtTimeStep(true))
     {
       return 0;

@@ -1050,7 +1050,7 @@ void vtkContingencyStatistics::Learn(
   // normalization: including the cardinality to the other counts can lead to inconsistency, in
   // particular when the input meta table is calculated by something else than the learn mode (e.g.,
   // is specified by the user).
-  vtkStdString zString = vtkStdString("");
+  vtkStdString zString = vtkStdString();
   contingencyTab->InsertNextBlankRow();
   contingencyTab->SetValue(0, 0, -1);
   if (specialization == None)

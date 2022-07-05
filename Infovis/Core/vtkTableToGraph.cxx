@@ -140,7 +140,7 @@ void vtkTableToGraph::AddLinkVertex(const char* column, const char* domain, int 
     return;
   }
 
-  vtkStdString domainStr = "";
+  vtkStdString domainStr;
   if (domain)
   {
     domainStr = domain;

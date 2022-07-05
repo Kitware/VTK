@@ -30,7 +30,7 @@ PURPOSE.  See the above copyright notice for more information.
 vtkVRControlsHelper::vtkVRControlsHelper()
 {
   // The text
-  this->Text = vtkStdString("");
+  this->Text = vtkStdString();
   this->TextActor = vtkTextActor3D::New();
   this->TextActor->GetTextProperty()->SetFontSize(30);
   this->TextActor->SetInput(this->Text.c_str());
