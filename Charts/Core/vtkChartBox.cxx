@@ -183,29 +183,26 @@ bool vtkChartBox::Paint(vtkContext2D* painter)
 
   this->Storage->YAxis->Paint(painter);
 
-  if (this->Title)
-  {
-    painter->ApplyTextProp(this->TitleProperties);
-    vtkVector2f stringBounds[2];
-    painter->ComputeStringBounds(this->Title, stringBounds->GetData());
-    float height = 1.1 * stringBounds[1].GetY();
+  painter->ApplyTextProp(this->TitleProperties);
+  vtkVector2f stringBounds[2];
+  painter->ComputeStringBounds(this->Title, stringBounds->GetData());
+  float height = 1.1 * stringBounds[1].GetY();
 
-    // Shift the position of the title down if it would be outside the window
-    float shift;
-    if (this->Point2[1] + height > this->Geometry[1])
-    {
-      shift = this->Point2[1] + height - this->Geometry[1];
-    }
-    else
-    {
-      shift = 0.0f;
-    }
-    vtkPoints2D* rect = vtkPoints2D::New();
-    rect->InsertNextPoint(this->Point1[0], this->Point2[1]);
-    rect->InsertNextPoint(this->Point2[0] - this->Point1[0], height - shift);
-    painter->DrawStringRect(rect, this->Title);
-    rect->Delete();
+  // Shift the position of the title down if it would be outside the window
+  float shift;
+  if (this->Point2[1] + height > this->Geometry[1])
+  {
+    shift = this->Point2[1] + height - this->Geometry[1];
   }
+  else
+  {
+    shift = 0.0f;
+  }
+  vtkPoints2D* rect = vtkPoints2D::New();
+  rect->InsertNextPoint(this->Point1[0], this->Point2[1]);
+  rect->InsertNextPoint(this->Point2[0] - this->Point1[0], height - shift);
+  painter->DrawStringRect(rect, this->Title);
+  rect->Delete();
 
   if (this->GetShowLegend())
   {

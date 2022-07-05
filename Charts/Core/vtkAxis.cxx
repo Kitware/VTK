@@ -1019,7 +1019,7 @@ vtkRectf vtkAxis::GetBoundingRect(vtkContext2D* painter)
 
   // Then, if there is an axis label, add that in.
   vtkRectf titleBounds(0, 0, 0, 0);
-  if (this->Title && !this->Title.empty())
+  if (!this->Title.empty())
   {
     painter->ApplyTextProp(this->TitleProperties);
     painter->ComputeStringBounds(this->Title, titleBounds.GetData());
@@ -1880,11 +1880,7 @@ inline bool vtkAxis::InRange(double value)
 void vtkAxis::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  if (this->Title)
-  {
-    os << indent << "Title: \"" << *this->Title << "\""
-       << "\n";
-  }
+  os << indent << "Title: \"" << this->Title << "\"\n";
   os << indent << "Point1: " << this->Point1[0] << ", " << this->Point1[1] << "\n";
   os << indent << "Point2: " << this->Point2[0] << ", " << this->Point2[1] << "\n";
   os << indent << "Minimum: " << this->Minimum << "\n";

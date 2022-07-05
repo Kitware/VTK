@@ -503,8 +503,7 @@ void vtkPointInterpolator::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Null Points Strategy: " << this->NullPointsStrategy << endl;
   os << indent << "Null Value: " << this->NullValue << "\n";
-  os << indent << "Valid Points Mask Array Name: "
-     << (this->ValidPointsMaskArrayName ? this->ValidPointsMaskArrayName : "(none)") << "\n";
+  os << indent << "Valid Points Mask Array Name: " << this->ValidPointsMaskArrayName << "\n";
 
   os << indent << "Number of Excluded Arrays:" << this->GetNumberOfExcludedArrays() << endl;
   vtkIndent nextIndent = indent.GetNextIndent();

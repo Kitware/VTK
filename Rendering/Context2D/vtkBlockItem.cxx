@@ -98,7 +98,7 @@ bool vtkBlockItem::Paint(vtkContext2D* painter)
   const vtkVector2i tileScale = this->Scene->GetLogicalTileScale();
 
   // if requested, resize the dims to fit the label.
-  if (this->Label && this->AutoComputeDimensions)
+  if (this->AutoComputeDimensions)
   {
     float bounds[4];
     painter->ComputeStringBounds(this->Label, bounds);
@@ -130,25 +130,22 @@ bool vtkBlockItem::Paint(vtkContext2D* painter)
   painter->DrawRect(
     this->Dimensions[0], this->Dimensions[1], this->Dimensions[2], this->Dimensions[3]);
 
-  if (this->Label)
+  if (this->AutoComputeDimensions)
   {
-    if (this->AutoComputeDimensions)
-    {
-      // put the label in the box (minus the Padding).
-      float rect[4];
-      rect[0] = this->Dimensions[0] + this->Padding[0] * tileScale[0];
-      rect[1] = this->Dimensions[1] + this->Padding[1] * tileScale[1];
-      rect[2] = this->Dimensions[2] - 2 * this->Padding[0] * tileScale[0];
-      rect[3] = this->Dimensions[3] - 2 * this->Padding[1] * tileScale[1];
-      painter->DrawStringRect(rect, this->Label);
-    }
-    else
-    {
-      // anchor label at center of the box (this what was done traditionally)
-      float x = this->Dimensions[0] + 0.5 * this->Dimensions[2];
-      float y = this->Dimensions[1] + 0.5 * this->Dimensions[3];
-      painter->DrawString(x, y, this->Label);
-    }
+    // put the label in the box (minus the Padding).
+    float rect[4];
+    rect[0] = this->Dimensions[0] + this->Padding[0] * tileScale[0];
+    rect[1] = this->Dimensions[1] + this->Padding[1] * tileScale[1];
+    rect[2] = this->Dimensions[2] - 2 * this->Padding[0] * tileScale[0];
+    rect[3] = this->Dimensions[3] - 2 * this->Padding[1] * tileScale[1];
+    painter->DrawStringRect(rect, this->Label);
+  }
+  else
+  {
+    // anchor label at center of the box (this what was done traditionally)
+    float x = this->Dimensions[0] + 0.5 * this->Dimensions[2];
+    float y = this->Dimensions[1] + 0.5 * this->Dimensions[3];
+    painter->DrawString(x, y, this->Label);
   }
 
   if (this->scalarFunction)

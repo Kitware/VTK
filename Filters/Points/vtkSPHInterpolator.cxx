@@ -562,12 +562,10 @@ void vtkSPHInterpolator::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Null Points Strategy: " << this->NullPointsStrategy << endl;
   os << indent << "Null Value: " << this->NullValue << "\n";
-  os << indent << "Valid Points Mask Array Name: "
-     << (this->ValidPointsMaskArrayName ? this->ValidPointsMaskArrayName : "(none)") << "\n";
+  os << indent << "Valid Points Mask Array Name: " << this->ValidPointsMaskArrayName << "\n";
 
   os << indent << "Compute Shepard Sum: " << (this->ComputeShepardSum ? "On" : " Off") << "\n";
-  os << indent << "Shepard Sum Array Name: "
-     << (this->ShepardSumArrayName ? this->ShepardSumArrayName : "(none)") << "\n";
+  os << indent << "Shepard Sum Array Name: " << this->ShepardSumArrayName << "\n";
 
   os << indent << "Promote Output Arrays: " << (this->PromoteOutputArrays ? "On" : " Off") << "\n";
 

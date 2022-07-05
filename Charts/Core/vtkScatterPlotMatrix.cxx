@@ -402,16 +402,13 @@ bool vtkScatterPlotMatrix::Paint(vtkContext2D* painter)
   bool ret = this->Superclass::Paint(painter);
   this->ResizeBigChart();
 
-  if (this->Title)
-  {
-    // As the BigPlot can take some spaces on the top of the chart
-    // we draw the title on the bottom where there is always room for it.
-    vtkNew<vtkPoints2D> rect;
-    rect->InsertNextPoint(0, 0);
-    rect->InsertNextPoint(this->GetScene()->GetSceneWidth(), 10);
-    painter->ApplyTextProp(this->TitleProperties);
-    painter->DrawStringRect(rect, this->Title);
-  }
+  // As the BigPlot can take some spaces on the top of the chart
+  // we draw the title on the bottom where there is always room for it.
+  vtkNew<vtkPoints2D> rect;
+  rect->InsertNextPoint(0, 0);
+  rect->InsertNextPoint(this->GetScene()->GetSceneWidth(), 10);
+  painter->ApplyTextProp(this->TitleProperties);
+  painter->DrawStringRect(rect, this->Title);
 
   return ret;
 }
