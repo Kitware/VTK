@@ -270,7 +270,7 @@ bool vtkChartPie::LocatePointInPlots(const vtkContextMouseEvent& mouse)
         this->Private->Plot->GetNearestPoint(position, tolerance, &plotPos, &segmentId);
       if (labelIndex >= 0)
       {
-        const char* label = this->Private->Plot->GetLabel(labelIndex);
+        auto label = this->Private->Plot->GetLabel(labelIndex);
         std::ostringstream ostr;
         ostr << label << ": " << plotPos.GetY();
         this->Tooltip->SetText(ostr.str().c_str());

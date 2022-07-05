@@ -116,10 +116,10 @@ void vtkImageReader2::ComputeInternalFileName(int slice)
   // make sure we figure out a filename to open
   if (this->FileNames)
   {
-    const char* filename = this->FileNames->GetValue(slice);
-    size_t size = strlen(filename) + 10;
+    auto filename = this->FileNames->GetValue(slice);
+    size_t size = filename.size() + 10;
     this->InternalFileName = new char[size];
-    snprintf(this->InternalFileName, size, "%s", filename);
+    snprintf(this->InternalFileName, size, "%s", filename.c_str());
   }
   else if (this->FileName)
   {

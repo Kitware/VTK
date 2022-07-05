@@ -452,7 +452,7 @@ void vtkMINCImageAttributes::PrintFileHeader(ostream& os)
   }
   for (ivar = 0; ivar < nvar + 1; ivar++)
   {
-    const char* varname = MI_EMPTY_STRING;
+    vtkStdString varname = MI_EMPTY_STRING;
     if (ivar == nvar)
     {
       os << "\n// global attributes:\n";
@@ -500,14 +500,14 @@ void vtkMINCImageAttributes::PrintFileHeader(ostream& os)
            << "int " << varname << " ;\n";
       }
     }
-    vtkStringArray* attArray = this->AttributeNames->GetStringArray(varname);
+    vtkStringArray* attArray = this->AttributeNames->GetStringArray(varname.c_str());
     if (attArray)
     {
       vtkIdType natt = attArray->GetNumberOfValues();
       for (vtkIdType iatt = 0; iatt < natt; iatt++)
       {
-        const char* attname = attArray->GetValue(iatt);
-        vtkDataArray* array = this->GetAttributeValueAsArray(varname, attname);
+        vtkStdString attname = attArray->GetValue(iatt);
+        vtkDataArray* array = this->GetAttributeValueAsArray(varname.c_str(), attname.c_str());
         os << "\t\t" << varname << ":" << attname << " = ";
         if (array->GetDataType() == VTK_CHAR)
         {
@@ -616,7 +616,7 @@ void vtkMINCImageAttributes::PrintFileHeader(ostream& os)
   }
   for (ivar = 0; ivar < nvar; ivar++)
   {
-    const char* varname = this->VariableNames->GetValue(ivar);
+    vtkStdString varname = this->VariableNames->GetValue(ivar);
 
     if (strcmp(varname, MIimage) == 0)
     {
@@ -1452,18 +1452,18 @@ void vtkMINCImageAttributes::ShallowCopy(vtkMINCImageAttributes* source)
   for (vtkIdType ivar = 0; ivar <= nvar; ivar++)
   {
     // set varname to empty last time around to get global attributes
-    const char* varname = MI_EMPTY_STRING;
+    vtkStdString varname = MI_EMPTY_STRING;
     if (ivar < nvar)
     {
       varname = varnames->GetValue(ivar);
     }
-    vtkStringArray* attnames = source->GetAttributeNames(varname);
+    vtkStringArray* attnames = source->GetAttributeNames(varname.c_str());
     vtkIdType natt = attnames->GetNumberOfValues();
     for (vtkIdType iatt = 0; iatt < natt; iatt++)
     {
-      const char* attname = attnames->GetValue(iatt);
-      this->SetAttributeValueAsArray(
-        varname, attname, source->GetAttributeValueAsArray(varname, attname));
+      vtkStdString attname = attnames->GetValue(iatt);
+      this->SetAttributeValueAsArray(varname.c_str(), attname.c_str(),
+        source->GetAttributeValueAsArray(varname.c_str(), attname.c_str()));
     }
   }
 

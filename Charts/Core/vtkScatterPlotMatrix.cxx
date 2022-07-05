@@ -228,10 +228,10 @@ bool PopulateHistograms(vtkTable* input, vtkTable* output, vtkStringArray* s, in
   {
     double minmax[2] = { 0.0, 0.0 };
     vtkDataSetAttributes* rowData = input->GetRowData();
-    const char* nameVal = s->GetValue(i);
-    if (rowData->GetRange(nameVal, minmax))
+    vtkStdString nameVal = s->GetValue(i);
+    if (rowData->GetRange(nameVal.c_str(), minmax))
     {
-      vtkDataArray* in = rowData->GetArray(nameVal);
+      vtkDataArray* in = rowData->GetArray(nameVal.c_str());
       std::string name(nameVal);
       // The bin values are the centers, extending +/- half an inc either side
       if (minmax[0] == minmax[1])

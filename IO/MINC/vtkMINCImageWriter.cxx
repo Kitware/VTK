@@ -540,7 +540,7 @@ int vtkMINCImageWriter::CreateMINCDimensions(vtkImageData* input, int numTimeSte
   }
   for (int iuserdims = 0; iuserdims < nuserdims; iuserdims++)
   {
-    const char* dimname = dimensionNames->GetValue(iuserdims);
+    vtkStdString dimname = dimensionNames->GetValue(iuserdims);
     // Remove vector_dimension, we'll add it back if it is needed
     if (strcmp(dimname, MIvector_dimension) == 0)
     {
@@ -679,7 +679,7 @@ int vtkMINCImageWriter::CreateMINCVariables(
   int ndim = this->FileDimensionNames->GetNumberOfValues();
   for (int dimidx = 0; dimidx < ndim; dimidx++)
   {
-    const char* dimname = this->FileDimensionNames->GetValue(dimidx);
+    vtkStdString dimname = this->FileDimensionNames->GetValue(dimidx);
     // vector_dimension isn't ever included as a variable
     if (strcmp(dimname, MIvector_dimension) != 0)
     {
@@ -716,7 +716,7 @@ int vtkMINCImageWriter::CreateMINCVariables(
   }
   for (int iuservars = 0; iuservars < nuservars; iuservars++)
   {
-    const char* varname = variableNames->GetValue(iuservars);
+    vtkStdString varname = variableNames->GetValue(iuservars);
     int ivar;
     int nvars = static_cast<int>(variables.size());
     for (ivar = 0; ivar < nvars; ivar++)
@@ -750,7 +750,7 @@ int vtkMINCImageWriter::CreateMINCVariables(
   int ivar = 0;
   for (ivar = 0; ivar < nvars; ivar++)
   {
-    const char* varname = variables[ivar].c_str();
+    vtkStdString varname = variables[ivar];
     if (strcmp(varname, MIrootvariable) == 0 || strcmp(varname, MIimagemin) == 0 ||
       strcmp(varname, MIimagemax) == 0)
     {
@@ -1018,10 +1018,11 @@ int vtkMINCImageWriter::CreateMINCVariables(
       int natts = attArray->GetNumberOfValues();
       for (int iatt = 0; iatt < natts; iatt++)
       {
-        const char* attname = attArray->GetValue(iatt);
-        vtkDataArray* array = this->ImageAttributes->GetAttributeValueAsArray(varname, attname);
+        vtkStdString attname = attArray->GetValue(iatt);
+        vtkDataArray* array =
+          this->ImageAttributes->GetAttributeValueAsArray(varname, attname.c_str());
 
-        int result = this->ImageAttributes->ValidateAttribute(varname, attname, array);
+        int result = this->ImageAttributes->ValidateAttribute(varname, attname.c_str(), array);
 
         if (result == 0)
         {
@@ -1046,16 +1047,16 @@ int vtkMINCImageWriter::CreateMINCVariables(
           switch (dataType)
           {
             case VTK_CHAR:
-              status =
-                nc_put_att_text(ncid, varid, attname, size, ((vtkCharArray*)array)->GetPointer(0));
+              status = nc_put_att_text(
+                ncid, varid, attname.c_str(), size, ((vtkCharArray*)array)->GetPointer(0));
               break;
             case VTK_INT:
               status = nc_put_att_int(
-                ncid, varid, attname, NC_INT, size, ((vtkIntArray*)array)->GetPointer(0));
+                ncid, varid, attname.c_str(), NC_INT, size, ((vtkIntArray*)array)->GetPointer(0));
               break;
             case VTK_DOUBLE:
-              status = nc_put_att_double(
-                ncid, varid, attname, NC_DOUBLE, size, ((vtkDoubleArray*)array)->GetPointer(0));
+              status = nc_put_att_double(ncid, varid, attname.c_str(), NC_DOUBLE, size,
+                ((vtkDoubleArray*)array)->GetPointer(0));
               break;
             default:
             {
@@ -1620,10 +1621,10 @@ int vtkMINCImageWriter::WriteMINCData(
   {
     idim--;
 
-    const char* dimName = this->FileDimensionNames->GetValue(idim);
+    vtkStdString dimName = this->FileDimensionNames->GetValue(idim);
 
     // Find the VTK dimension index.
-    int dimIndex = this->IndexFromDimensionName(dimName);
+    int dimIndex = this->IndexFromDimensionName(dimName.c_str());
 
     if (dimIndex >= 0 && dimIndex < 3)
     {
@@ -1895,8 +1896,8 @@ void vtkMINCImageWriter::Write()
   while (idim)
   {
     idim--;
-    const char* dimName = this->FileDimensionNames->GetValue(idim);
-    dimIndex = this->IndexFromDimensionName(dimName);
+    vtkStdString dimName = this->FileDimensionNames->GetValue(idim);
+    dimIndex = this->IndexFromDimensionName(dimName.c_str());
     if (dimIndex >= 0 && dimIndex < 3)
     {
       nfound++;
