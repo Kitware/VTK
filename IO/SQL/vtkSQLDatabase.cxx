@@ -546,8 +546,7 @@ bool vtkSQLDatabase::EffectSchema(vtkSQLDatabaseSchema* schema, bool dropIfExist
     for (int optHandle = 0; optHandle < numOpt; ++optHandle)
     {
       vtkStdString optBackend = schema->GetOptionBackendFromHandle(tblHandle, optHandle);
-      if (strcmp(optBackend, VTK_SQL_ALLBACKENDS) != 0 &&
-        strcmp(optBackend, this->GetClassName()) != 0)
+      if (optBackend != VTK_SQL_ALLBACKENDS && optBackend != this->GetClassName())
       {
         continue;
       }

@@ -891,7 +891,7 @@ void vtkMINCImageReader::ExecuteInformation()
     }
 
     // Check for vector_dimension.
-    else if (strcmp(dimName, MIvector_dimension) == 0)
+    else if (dimName == MIvector_dimension)
     {
       numberOfComponents = dimLength;
     }
@@ -1207,7 +1207,7 @@ void vtkMINCImageReader::ExecuteDataWithInformation(vtkDataObject* output, vtkIn
       count[idim] = outExt[2 * dimIndex + 1] - outExt[2 * dimIndex] + 1;
       permutedInc[idim] = outInc[dimIndex];
     }
-    else if (strcmp(dimName, MIvector_dimension) == 0)
+    else if (dimName == MIvector_dimension)
     {
       // Vector dimension size is also stored in numComponents.
       start[idim] = 0;

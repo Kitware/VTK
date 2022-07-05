@@ -542,7 +542,7 @@ int vtkMINCImageWriter::CreateMINCDimensions(vtkImageData* input, int numTimeSte
   {
     vtkStdString dimname = dimensionNames->GetValue(iuserdims);
     // Remove vector_dimension, we'll add it back if it is needed
-    if (strcmp(dimname, MIvector_dimension) == 0)
+    if (dimname == MIvector_dimension)
     {
       continue;
     }
@@ -555,7 +555,7 @@ int vtkMINCImageWriter::CreateMINCDimensions(vtkImageData* input, int numTimeSte
     const char** tryname = nullptr;
     for (tryname = vtkMINCDimVarNames; *tryname != nullptr; tryname++)
     {
-      if (strcmp(dimname, *tryname) == 0)
+      if (dimname == *tryname)
       {
         break;
       }
@@ -681,7 +681,7 @@ int vtkMINCImageWriter::CreateMINCVariables(
   {
     vtkStdString dimname = this->FileDimensionNames->GetValue(dimidx);
     // vector_dimension isn't ever included as a variable
-    if (strcmp(dimname, MIvector_dimension) != 0)
+    if (dimname != MIvector_dimension)
     {
       variables.push_back(this->FileDimensionNames->GetValue(dimidx));
     }
@@ -732,7 +732,7 @@ int vtkMINCImageWriter::CreateMINCVariables(
       // of the selected dimensions for this image
       for (const char** tryname = vtkMINCDimVarNames; *tryname != nullptr; tryname++)
       {
-        if (strcmp(varname, *tryname) == 0)
+        if (varname == *tryname)
         {
           vtkErrorMacro("The variable " << varname << " is not a dimension of this image");
           return 0;
@@ -751,14 +751,13 @@ int vtkMINCImageWriter::CreateMINCVariables(
   for (ivar = 0; ivar < nvars; ivar++)
   {
     vtkStdString varname = variables[ivar];
-    if (strcmp(varname, MIrootvariable) == 0 || strcmp(varname, MIimagemin) == 0 ||
-      strcmp(varname, MIimagemax) == 0)
+    if (varname == MIrootvariable || varname == MIimagemin || varname == MIimagemax)
     {
       continue;
     }
     for (const char** tryname = stdVarNames; *tryname != nullptr; tryname++)
     {
-      if (strcmp(varname, *tryname) == 0)
+      if (varname == *tryname)
       {
         if (!rootChildren.empty())
         {
@@ -1034,7 +1033,7 @@ int vtkMINCImageWriter::CreateMINCVariables(
         {
           vtkWarningMacro("Attribute " << varname << ":" << attname << " is not recognized");
         }
-        else if (strcmp(attname, MIdirection_cosines) == 0 && this->DirectionCosines)
+        else if (attname == MIdirection_cosines && this->DirectionCosines)
         {
           // Let DirectionCosines override the attributes setting
           continue;
@@ -1647,7 +1646,7 @@ int vtkMINCImageWriter::WriteMINCData(
         permutedInc[idim] = -permutedInc[idim];
       }
     }
-    else if (strcmp(dimName, MIvector_dimension) == 0)
+    else if (dimName == MIvector_dimension)
     {
       // Vector dimension size is also stored in numComponents.
       length[idim] = numComponents;

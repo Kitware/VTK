@@ -1568,13 +1568,13 @@ void vtkContingencyStatistics::Test(
     {
       const char* name = inMeta->GetMetaData(b)->Get(vtkCompositeDataSet::NAME());
       int foundIndex = -1;
-      if (!strcmp(name, varNameX))
+      if (name == varNameX)
       {
         // Found the marginal count of X
         foundIndex = 0;
         ++foundCount;
       }
-      else if (!strcmp(name, varNameY))
+      else if (name == varNameY)
       {
         // Found the marginal count of Y
         foundIndex = 1;

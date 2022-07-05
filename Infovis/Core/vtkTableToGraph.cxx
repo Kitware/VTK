@@ -163,7 +163,7 @@ void vtkTableToGraph::AddLinkVertex(const char* column, const char* domain, int 
   vtkIdType index = -1;
   for (vtkIdType i = 0; i < this->LinkGraph->GetNumberOfVertices(); i++)
   {
-    if (!strcmp(column, columnArr->GetValue(i)))
+    if (column == columnArr->GetValue(i))
     {
       index = i;
       break;
@@ -213,11 +213,11 @@ void vtkTableToGraph::AddLinkEdge(const char* column1, const char* column2)
   vtkIdType target = -1;
   for (vtkIdType i = 0; i < this->LinkGraph->GetNumberOfVertices(); i++)
   {
-    if (!strcmp(column1, columnArr->GetValue(i)))
+    if (column1 == columnArr->GetValue(i))
     {
       source = i;
     }
-    if (!strcmp(column2, columnArr->GetValue(i)))
+    if (column2 == columnArr->GetValue(i))
     {
       target = i;
     }

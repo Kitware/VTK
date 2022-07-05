@@ -262,7 +262,7 @@ void vtkMINCImageAttributes::AddDimension(const char* dimension, vtkIdType lengt
   vtkIdType n = this->DimensionNames->GetNumberOfValues();
   for (vtkIdType i = 0; i < n; i++)
   {
-    if (strcmp(dimension, this->DimensionNames->GetValue(i)) == 0)
+    if (dimension == this->DimensionNames->GetValue(i))
     {
       vtkErrorMacro("The dimension " << dimension << " has already been created.");
       return;
@@ -370,9 +370,9 @@ const char* vtkMINCImageAttributes::ConvertDataArrayToString(vtkDataArray* array
   vtkIdType j;
   for (j = 0; j < m; j++)
   {
-    result = this->StringStore->GetValue(j);
-    if (str == result)
+    if (str == this->StringStore->GetValue(j))
     {
+      result = this->StringStore->GetValue(j).c_str();
       break;
     }
   }
@@ -460,8 +460,7 @@ void vtkMINCImageAttributes::PrintFileHeader(ostream& os)
     else
     {
       varname = this->VariableNames->GetValue(ivar);
-      if (strcmp(varname, MIimage) == 0 || strcmp(varname, MIimagemax) == 0 ||
-        strcmp(varname, MIimagemin) == 0)
+      if (varname == MIimage || varname == MIimagemax || varname == MIimagemin)
       {
         vtkIdType nvardim = this->DimensionNames->GetNumberOfValues();
         // If this is image-min or image-max, only print the
@@ -618,14 +617,14 @@ void vtkMINCImageAttributes::PrintFileHeader(ostream& os)
   {
     vtkStdString varname = this->VariableNames->GetValue(ivar);
 
-    if (strcmp(varname, MIimage) == 0)
+    if (varname == MIimage)
     {
       continue;
     }
 
     os << "\n " << varname << " = ";
 
-    if (strcmp(varname, MIimagemin) == 0)
+    if (varname == MIimagemin)
     {
       if (this->ImageMin)
       {
@@ -636,7 +635,7 @@ void vtkMINCImageAttributes::PrintFileHeader(ostream& os)
         os << "0. ;\n";
       }
     }
-    else if (strcmp(varname, MIimagemax) == 0)
+    else if (varname == MIimagemax)
     {
       if (this->ImageMax)
       {
@@ -817,7 +816,7 @@ void vtkMINCImageAttributes::SetAttributeValueAsArray(
   vtkIdType i = 0;
   for (i = 0; i < n; i++)
   {
-    if (strcmp(this->VariableNames->GetValue(i), variable) == 0)
+    if (this->VariableNames->GetValue(i) == variable)
     {
       break;
     }
@@ -841,7 +840,7 @@ void vtkMINCImageAttributes::SetAttributeValueAsArray(
   n = attribs->GetNumberOfValues();
   for (i = 0; i < n; i++)
   {
-    if (strcmp(attribs->GetValue(i), attribute) == 0)
+    if (attribs->GetValue(i) == attribute)
     {
       break;
     }
