@@ -440,8 +440,7 @@ public:
   void Execute(vtkObject* caller, unsigned long, void*) override
   {
     vtkRenderWindowInteractor* iren = static_cast<vtkRenderWindowInteractor*>(caller);
-    if (vtkStdString(iren->GetKeySym()) == "Control_L" ||
-      vtkStdString(iren->GetKeySym()) == "Control_R")
+    if (!strcmp(iren->GetKeySym(), "Control_L") || !strcmp(iren->GetKeySym(), "Control_R"))
     {
       lockMode = !lockMode;
       if (lockMode)

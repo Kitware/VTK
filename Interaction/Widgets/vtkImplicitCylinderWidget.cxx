@@ -22,7 +22,6 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
-#include "vtkStdString.h"
 #include "vtkWidgetCallbackMapper.h"
 #include "vtkWidgetEvent.h"
 #include "vtkWidgetEventTranslator.h"
@@ -291,8 +290,8 @@ void vtkImplicitCylinderWidget::MoveCylinderAction(vtkAbstractWidget* w)
 
   // Move the cylinder
   double factor = (self->Interactor->GetControlKey() ? 0.5 : 1.0);
-  if (vtkStdString(self->Interactor->GetKeySym()) == vtkStdString("Down") ||
-    vtkStdString(self->Interactor->GetKeySym()) == vtkStdString("Left"))
+  if (!strcmp(self->Interactor->GetKeySym(), "Down") ||
+    !strcmp(self->Interactor->GetKeySym(), "Left"))
   {
     self->GetCylinderRepresentation()->BumpCylinder(-1, factor);
   }

@@ -65,7 +65,6 @@
 #include "vtkSeedWidget.h"
 #include "vtkSmartPointer.h"
 #include "vtkSphereHandleRepresentation.h"
-#include "vtkStdString.h"
 #include "vtkTimerLog.h"
 #include "vtksys/FStream.hxx"
 
@@ -320,8 +319,7 @@ public:
     vtkRenderWindowInteractor* iren = static_cast<vtkRenderWindowInteractor*>(caller);
 
     // Enable/Disable the PickingManager
-    if ((vtkStdString(iren->GetKeySym()) == "Control_L" ||
-          vtkStdString(iren->GetKeySym()) == "Control_R") &&
+    if ((!strcmp(iren->GetKeySym(), "Control_L") || !strcmp(iren->GetKeySym(), "Control_R")) &&
       iren->GetPickingManager())
     {
       if (!iren->GetPickingManager()->GetEnabled())
@@ -336,7 +334,7 @@ public:
       }
     }
     // Enable/Disable the Optimization on render events.
-    else if (vtkStdString(iren->GetKeySym()) == "o" && iren->GetPickingManager())
+    else if (!strcmp(iren->GetKeySym(), "o") && iren->GetPickingManager())
     {
       if (!iren->GetPickingManager()->GetOptimizeOnInteractorEvents())
       {
@@ -366,7 +364,7 @@ public:
     vtkRenderWindowInteractor* iren = static_cast<vtkRenderWindowInteractor*>(caller);
 
     // Reorganize the cube
-    if (vtkStdString(iren->GetKeySym()) == "space")
+    if (!strcmp(iren->GetKeySym(), "space"))
     {
       const int baseCube = static_cast<int>(pow(this->Seeds.size(), 1. / 3.) / 2 + 0.5);
       std::list<vtkSmartPointer<vtkHandleWidget>>::iterator it = this->Seeds.begin();

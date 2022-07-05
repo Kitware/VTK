@@ -128,8 +128,7 @@ public:
   {
     vtkRenderWindowInteractor* iren = static_cast<vtkRenderWindowInteractor*>(caller);
 
-    if ((vtkStdString(iren->GetKeySym()) == "Control_L" ||
-          vtkStdString(iren->GetKeySym()) == "Control_R") &&
+    if ((!strcmp(iren->GetKeySym(), "Control_L") || !strcmp(iren->GetKeySym(), "Control_R")) &&
       iren->GetPickingManager())
     {
       if (!iren->GetPickingManager()->GetEnabled())
@@ -144,7 +143,7 @@ public:
       }
     }
     // Enable/Disable the Optimization on render events.
-    else if (vtkStdString(iren->GetKeySym()) == "o" && iren->GetPickingManager())
+    else if (!strcmp(iren->GetKeySym(), "o") && iren->GetPickingManager())
     {
       if (!iren->GetPickingManager()->GetOptimizeOnInteractorEvents())
       {
