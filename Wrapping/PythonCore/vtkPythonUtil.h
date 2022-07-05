@@ -188,6 +188,15 @@ public:
   static PyTypeObject* FindEnum(const char* name);
 
   /**
+   * Find the PyTypeObject for a wrapped VTK class, excluding overrides.
+   * When the extension modules for the wrappers are loading, this ensures
+   * that the extension types are properly linked to their base classes,
+   * regardless of what pure python overrides have been applied to those
+   * classes.
+   */
+  static PyTypeObject* FindBaseTypeObject(const char* name);
+
+  /**
    * Find the PyTypeObject for a wrapped VTK class.
    */
   static PyTypeObject* FindClassTypeObject(const char* name);
