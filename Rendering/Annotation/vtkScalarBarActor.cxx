@@ -1848,8 +1848,7 @@ void vtkScalarBarActor::ConfigureAnnotations()
   this->P->AnnotationAnchors.resize(numNotes);
   this->P->AnnotationColors.resize(numNotes);
   int i = 0;
-  std::map<double, vtkStdString>::iterator it;
-  for (it = this->P->Labels.begin(); it != this->P->Labels.end(); ++it, ++i)
+  for (auto it = this->P->Labels.begin(); it != this->P->Labels.end(); ++it, ++i)
   {
     this->P->AnnotationAnchors[i] = it->first;
     this->P->AnnotationColors[i] = this->P->LabelColors[it->first];

@@ -1044,8 +1044,7 @@ static void BroadcastStringVector(
   controller->Broadcast(&len, 1, 0);
   if (rank)
     svec.resize(len);
-  std::vector<vtkStdString>::iterator it;
-  for (it = svec.begin(); it != svec.end(); ++it)
+  for (auto it = svec.begin(); it != svec.end(); ++it)
   {
     BroadcastString(controller, *it, rank);
   }
