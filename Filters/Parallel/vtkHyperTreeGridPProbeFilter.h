@@ -70,7 +70,7 @@ protected:
   /**
    * Overridden here because it is important that the input be updated on all processes
    */
-  int RequestUpdateExtent(vtkInformation*, vtkInformationVector**, vtkInformationVector*);
+  int RequestUpdateExtent(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   ///@}
 
   ///@{

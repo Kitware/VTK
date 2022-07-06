@@ -37,7 +37,6 @@
 class vtkAbstractCellLocator;
 class vtkCompositeDataProbeFilter;
 class vtkDataSet;
-class vtkHyperTreeGridProbeFilter;
 
 class VTKFILTERSCORE_EXPORT vtkResampleWithDataSet : public vtkPassInputTypeAlgorithm
 {
@@ -197,17 +196,6 @@ protected:
    * Mark invalid points and cells of output DataSet as hidden
    */
   void SetBlankPointsAndCells(vtkDataSet* data);
-
-  /**
-   * Copy properties of Prober into HyperTreeGridProber if the source is a vtkHyperTreeGrid
-   */
-  void CopyProberToHyperTreeGridProber(vtkHyperTreeGridProbeFilter*) const;
-
-  /**
-   * Run the probing of a vtkHyperTreeGrid source
-   */
-  void ProbeHyperTreeGrid(
-    vtkDataSet* input, vtkHyperTreeGrid* source, vtkHyperTreeGridProbeFilter* htgProbe);
 
   vtkNew<vtkCompositeDataProbeFilter> Prober;
   bool MarkBlankPointsAndCells;

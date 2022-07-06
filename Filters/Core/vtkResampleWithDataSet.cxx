@@ -21,8 +21,6 @@
 #include "vtkCompositeDataSetRange.h"
 #include "vtkDataObject.h"
 #include "vtkDataSet.h"
-#include "vtkHyperTreeGrid.h"
-#include "vtkHyperTreeGridProbeFilter.h"
 #include "vtkIdList.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
@@ -338,8 +336,6 @@ int vtkResampleWithDataSet::RequestData(vtkInformation* vtkNotUsed(request),
 
   vtkDataObject* source = sourceInfo->Get(vtkDataObject::DATA_OBJECT());
 
-  vtkHyperTreeGrid* htgSource = vtkHyperTreeGrid::SafeDownCast(source);
-
   vtkDataObject* inDataObject = inInfo->Get(vtkDataObject::DATA_OBJECT());
   vtkDataObject* outDataObject = outInfo->Get(vtkDataObject::DATA_OBJECT());
   if (inDataObject->IsA("vtkDataSet"))
@@ -347,19 +343,10 @@ int vtkResampleWithDataSet::RequestData(vtkInformation* vtkNotUsed(request),
     vtkDataSet* input = vtkDataSet::SafeDownCast(inDataObject);
     vtkDataSet* output = vtkDataSet::SafeDownCast(outDataObject);
 
-    if (!htgSource)
-    {
-      this->Prober->SetInputData(input);
-      this->Prober->SetSourceData(source);
-      this->Prober->Update();
-      output->ShallowCopy(this->Prober->GetOutput());
-    }
-    else
-    {
-      vtkNew<vtkHyperTreeGridProbeFilter> htgProbe;
-      this->ProbeHyperTreeGrid(input, htgSource, htgProbe);
-      output->ShallowCopy(htgProbe->GetOutput());
-    }
+    this->Prober->SetInputData(input);
+    this->Prober->SetSourceData(source);
+    this->Prober->Update();
+    output->ShallowCopy(this->Prober->GetOutput());
     if (this->MarkBlankPointsAndCells)
     {
       this->SetBlankPointsAndCells(output);
@@ -371,10 +358,7 @@ int vtkResampleWithDataSet::RequestData(vtkInformation* vtkNotUsed(request),
     vtkCompositeDataSet* output = vtkCompositeDataSet::SafeDownCast(outDataObject);
     output->CopyStructure(input);
 
-    if (!htgSource)
-    {
-      this->Prober->SetSourceData(source);
-    }
+    this->Prober->SetSourceData(source);
 
     using Opts = vtk::CompositeDataSetOptions;
     for (auto node : vtk::Range(input, Opts::SkipEmptyNodes))
@@ -382,19 +366,9 @@ int vtkResampleWithDataSet::RequestData(vtkInformation* vtkNotUsed(request),
       vtkDataSet* ds = static_cast<vtkDataSet*>(node.GetDataObject());
       if (ds)
       {
-        vtkSmartPointer<vtkDataSet> result;
-        if (!htgSource)
-        {
-          this->Prober->SetInputData(ds);
-          this->Prober->Update();
-          result = this->Prober->GetOutput();
-        }
-        else
-        {
-          vtkNew<vtkHyperTreeGridProbeFilter> htgProbe;
-          this->ProbeHyperTreeGrid(ds, htgSource, htgProbe);
-          result.TakeReference(htgProbe->GetOutput());
-        }
+        this->Prober->SetInputData(ds);
+        this->Prober->Update();
+        vtkDataSet* result = this->Prober->GetOutput();
 
         vtkDataSet* block = result->NewInstance();
         block->ShallowCopy(result);
@@ -409,24 +383,4 @@ int vtkResampleWithDataSet::RequestData(vtkInformation* vtkNotUsed(request),
   }
 
   return 1;
-}
-
-//------------------------------------------------------------------------------
-void vtkResampleWithDataSet::CopyProberToHyperTreeGridProber(
-  vtkHyperTreeGridProbeFilter* htgProbe) const
-{
-  htgProbe->SetPassCellArrays(this->Prober->GetPassCellArrays());
-  htgProbe->SetPassPointArrays(this->Prober->GetPassPointArrays());
-  htgProbe->SetPassFieldArrays(this->Prober->GetPassFieldArrays());
-  htgProbe->SetValidPointMaskArrayName(this->Prober->GetValidPointMaskArrayName());
-}
-
-//------------------------------------------------------------------------------
-void vtkResampleWithDataSet::ProbeHyperTreeGrid(
-  vtkDataSet* input, vtkHyperTreeGrid* source, vtkHyperTreeGridProbeFilter* htgProbe)
-{
-  this->CopyProberToHyperTreeGridProber(htgProbe);
-  htgProbe->SetInputData(input);
-  htgProbe->SetSourceData(source);
-  htgProbe->Update();
 }

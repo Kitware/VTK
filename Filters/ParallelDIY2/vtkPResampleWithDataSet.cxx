@@ -26,7 +26,6 @@
 #include "vtkDataObject.h"
 #include "vtkDataSet.h"
 #include "vtkHyperTreeGrid.h"
-#include "vtkHyperTreeGridProbeFilter.h"
 #include "vtkIdTypeArray.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
@@ -512,6 +511,28 @@ void ForEachDataSetBlock(vtkDataObject* data, const Functor& func)
   }
 }
 
+//------------------------------------------------------------------------------
+// Iterate over each dataobject in a composite dataset and execute func
+template <typename Functor>
+void ForEachDataObjectBlock(vtkDataObject* data, const Functor& func)
+{
+  if (data->IsA("vtkDataSet") || data->IsA("vtkHyperTreeGrid"))
+  {
+    func(data);
+  }
+  else if (data->IsA("vtkCompositeDataSet"))
+  {
+    vtkCompositeDataSet* composite = static_cast<vtkCompositeDataSet*>(data);
+
+    vtkSmartPointer<vtkCompositeDataIterator> iter;
+    iter.TakeReference(composite->NewIterator());
+    for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
+    {
+      func(iter->GetCurrentDataObject());
+    }
+  }
+}
+
 // For each valid block add its bounds to boundsArray
 struct GetBlockBounds
 {
@@ -520,12 +541,20 @@ struct GetBlockBounds
   {
   }
 
-  void operator()(vtkDataSet* block) const
+  void operator()(vtkDataObject* block) const
   {
-    if (block)
+    vtkDataSet* dsBlock = vtkDataSet::SafeDownCast(block);
+    vtkHyperTreeGrid* htgBlock = vtkHyperTreeGrid::SafeDownCast(block);
+    if (dsBlock)
     {
       double bounds[6];
-      block->GetBounds(bounds);
+      dsBlock->GetBounds(bounds);
+      this->BoundsArray->insert(this->BoundsArray->end(), bounds, bounds + 6);
+    }
+    if (htgBlock)
+    {
+      double bounds[6];
+      htgBlock->GetBounds(bounds);
       this->BoundsArray->insert(this->BoundsArray->end(), bounds, bounds + 6);
     }
   }
@@ -788,8 +817,8 @@ private:
 };
 
 // Perform resampling of local and remote input points
-void PerformResampling(DiyBlock* block, const diy::Master::ProxyWithLink& cp,
-  vtkCompositeDataProbeFilter* prober, vtkHyperTreeGridProbeFilter* htgProbe = nullptr)
+void PerformResampling(
+  DiyBlock* block, const diy::Master::ProxyWithLink& cp, vtkCompositeDataProbeFilter* prober)
 {
   diy::Link* link = cp.link();
 
@@ -799,18 +828,9 @@ void PerformResampling(DiyBlock* block, const diy::Master::ProxyWithLink& cp,
     vtkDataSet* in = block->InputBlocks[i];
     if (in)
     {
-      if (!htgProbe)
-      {
-        prober->SetInputData(in);
-        prober->Update();
-        block->OutputBlocks[i]->ShallowCopy(prober->GetOutput());
-      }
-      else
-      {
-        htgProbe->SetInputData(in);
-        htgProbe->Update();
-        block->OutputBlocks[i]->ShallowCopy(htgProbe->GetOutput());
-      }
+      prober->SetInputData(in);
+      prober->Update();
+      block->OutputBlocks[i]->ShallowCopy(prober->GetOutput());
     }
   }
 
@@ -842,34 +862,16 @@ void PerformResampling(DiyBlock* block, const diy::Master::ProxyWithLink& cp,
       vtkNew<vtkUnstructuredGrid> ds;
       ds->SetPoints(pts);
 
-      if (!htgProbe)
-      {
-        prober->SetInputData(ds);
-        prober->Update();
-      }
-      else
-      {
-        htgProbe->SetInputData(ds);
-        htgProbe->Update();
-      }
+      prober->SetInputData(ds);
+      prober->Update();
       vtkIdType numberOfValidPoints = prober->GetValidPoints()->GetNumberOfTuples();
       if (numberOfValidPoints == 0)
       {
         continue;
       }
 
-      vtkDataSet* result;
-      const char* maskArrayName;
-      if (!htgProbe)
-      {
-        result = prober->GetOutput();
-        maskArrayName = prober->GetValidPointMaskArrayName();
-      }
-      else
-      {
-        result = htgProbe->GetOutput();
-        maskArrayName = htgProbe->GetValidPointMaskArrayName();
-      }
+      vtkDataSet* result = prober->GetOutput();
+      const char* maskArrayName = prober->GetValidPointMaskArrayName();
       vtkPointData* resPD = result->GetPointData();
       const char* masks = vtkCharArray::SafeDownCast(resPD->GetArray(maskArrayName))->GetPointer(0);
 
@@ -922,36 +924,16 @@ void PerformResampling(DiyBlock* block, const diy::Master::ProxyWithLink& cp,
         ds->SetOrigin(points.Origin);
         ds->SetSpacing(points.Spacing);
 
-        vtkIdType numberOfValidPoints = 0;
-        if (!htgProbe)
-        {
-          prober->SetInputData(ds);
-          prober->Update();
-          numberOfValidPoints = prober->GetValidPoints()->GetNumberOfTuples();
-        }
-        else
-        {
-          htgProbe->SetInputData(ds);
-          htgProbe->Update();
-          numberOfValidPoints = htgProbe->GetValidPoints()->GetNumberOfTuples();
-        }
+        prober->SetInputData(ds);
+        prober->Update();
+        vtkIdType numberOfValidPoints = prober->GetValidPoints()->GetNumberOfTuples();
         if (numberOfValidPoints == 0)
         {
           continue;
         }
 
-        vtkDataSet* result;
-        const char* maskArrayName;
-        if (!htgProbe)
-        {
-          result = prober->GetOutput();
-          maskArrayName = prober->GetValidPointMaskArrayName();
-        }
-        else
-        {
-          result = htgProbe->GetOutput();
-          maskArrayName = htgProbe->GetValidPointMaskArrayName();
-        }
+        vtkDataSet* result = prober->GetOutput();
+        const char* maskArrayName = prober->GetValidPointMaskArrayName();
         vtkPointData* resPD = result->GetPointData();
         const char* masks =
           vtkCharArray::SafeDownCast(resPD->GetArray(maskArrayName))->GetPointer(0);
@@ -1137,18 +1119,8 @@ int vtkPResampleWithDataSet::RequestData(
 
   // compute and communicate the bounds of all the source blocks in all the ranks
   vtkDataObject* source = sourceInfo->Get(vtkDataObject::DATA_OBJECT());
-  vtkHyperTreeGrid* htgSource = vtkHyperTreeGrid::SafeDownCast(source);
   std::vector<double> srcBounds;
-  if (!htgSource)
-  {
-    ForEachDataSetBlock(source, GetBlockBounds(srcBounds));
-  }
-  else
-  {
-    double bounds[6] = { 0.0 };
-    htgSource->GetBounds(bounds);
-    srcBounds.insert(srcBounds.end(), bounds, bounds + 6);
-  }
+  ForEachDataObjectBlock(source, GetBlockBounds(srcBounds));
   diy::mpi::all_gather(comm, srcBounds, block.SourceBlocksBounds);
 
   // copy the input structure to output
@@ -1197,17 +1169,7 @@ int vtkPResampleWithDataSet::RequestData(
   diy::Master master(comm, 1);
   master.add(mygid, &block, link);
 
-  vtkSmartPointer<vtkHyperTreeGridProbeFilter> htgProbe;
-  if (!htgSource)
-  {
-    this->Prober->SetSourceData(source);
-  }
-  else
-  {
-    htgProbe = vtk::TakeSmartPointer(vtkHyperTreeGridProbeFilter::New());
-    this->CopyProberToHyperTreeGridProber(htgProbe);
-    htgProbe->SetSourceData(htgSource);
-  }
+  this->Prober->SetSourceData(source);
   // find and send local points that overlap remote source blocks
   master.foreach (&FindPointsToSend);
   // the lookup structures are no longer required
@@ -1216,7 +1178,7 @@ int vtkPResampleWithDataSet::RequestData(
   master.exchange();
   // perform resampling on local and remote points
   master.foreach ([&](DiyBlock* block_, const diy::Master::ProxyWithLink& cp) {
-    PerformResampling(block_, cp, this->Prober.GetPointer(), htgProbe);
+    PerformResampling(block_, cp, this->Prober.GetPointer());
   });
   master.exchange();
   // receive resampled points and set the values in output
