@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    TestHyperTreeGridProbeFilter.cxx
+  Module:    TestCompositeDataProbeFilterWithHyperTreeGrid.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -16,14 +16,15 @@
 
 #include "vtkActor.h"
 #include "vtkCamera.h"
+#include "vtkCompositeDataProbeFilter.h"
 #include "vtkDataArray.h"
 #include "vtkDataSet.h"
 #include "vtkDataSetMapper.h"
 #include "vtkHyperTreeGrid.h"
 #include "vtkHyperTreeGridGeometricLocator.h"
 #include "vtkHyperTreeGridPreConfiguredSource.h"
-#include "vtkHyperTreeGridProbeFilter.h"
 #include "vtkLookupTable.h"
+#include "vtkMultiBlockDataSet.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkProcess.h"
@@ -34,24 +35,45 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 
-int TestHyperTreeGridProbeFilter(int argc, char* argv[])
+int TestCompositeDataProbeFilterWithHyperTreeGrid(int argc, char* argv[])
 {
-  vtkNew<vtkHyperTreeGridPreConfiguredSource> htgSource;
-  htgSource->SetHTGMode(vtkHyperTreeGridPreConfiguredSource::CUSTOM);
-  htgSource->SetCustomArchitecture(vtkHyperTreeGridPreConfiguredSource::UNBALANCED);
-  htgSource->SetCustomDim(3);
-  htgSource->SetCustomFactor(3);
-  htgSource->SetCustomDepth(5);
+  vtkNew<vtkMultiBlockDataSet> sourceMBDS;
+  sourceMBDS->SetNumberOfBlocks(2);
+
+  vtkNew<vtkHyperTreeGridPreConfiguredSource> htgSource0;
+  htgSource0->SetHTGMode(vtkHyperTreeGridPreConfiguredSource::CUSTOM);
+  htgSource0->SetCustomArchitecture(vtkHyperTreeGridPreConfiguredSource::UNBALANCED);
+  htgSource0->SetCustomDim(3);
+  htgSource0->SetCustomFactor(3);
+  htgSource0->SetCustomDepth(5);
   std::vector<unsigned int> subdivs = { 3, 3, 3 };
-  std::vector<double> extent = { -10, 10, -10, 10, -10, 10 };
-  htgSource->SetCustomSubdivisions(subdivs.data());
-  htgSource->SetCustomExtent(extent.data());
+  std::vector<double> extent = { -10, 0, -10, 10, -10, 10 };
+  htgSource0->SetCustomSubdivisions(subdivs.data());
+  htgSource0->SetCustomExtent(extent.data());
+
+  vtkNew<vtkHyperTreeGridPreConfiguredSource> htgSource1;
+  htgSource1->SetHTGMode(vtkHyperTreeGridPreConfiguredSource::CUSTOM);
+  htgSource1->SetCustomArchitecture(vtkHyperTreeGridPreConfiguredSource::UNBALANCED);
+  htgSource1->SetCustomDim(3);
+  htgSource1->SetCustomFactor(3);
+  htgSource1->SetCustomDepth(6);
+  subdivs[2] = 2;
+  extent[0] = 0;
+  extent[1] = 10;
+  htgSource1->SetCustomSubdivisions(subdivs.data());
+  htgSource1->SetCustomExtent(extent.data());
+
+  htgSource0->Update();
+  htgSource1->Update();
+
+  sourceMBDS->SetBlock(0, htgSource0->GetOutput());
+  sourceMBDS->SetBlock(1, htgSource1->GetOutput());
 
   vtkNew<vtkRTAnalyticSource> wavelet;
 
-  vtkNew<vtkHyperTreeGridProbeFilter> prober;
+  vtkNew<vtkCompositeDataProbeFilter> prober;
   prober->SetInputConnection(wavelet->GetOutputPort());
-  prober->SetSourceConnection(htgSource->GetOutputPort());
+  prober->SetSourceData(sourceMBDS);
   prober->SetPassPointArrays(true);
 
   prober->Update();

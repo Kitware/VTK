@@ -18,6 +18,7 @@ vtk_add_test_cxx(vtkFiltersCoreCxxTests tests
   TestCleanPolyData.cxx,NO_VALID
   TestCleanPolyData2.cxx,NO_VALID
   TestClipPolyData.cxx,NO_VALID
+  TestCompositeDataProbeFilterWithHyperTreeGrid.cxx
   TestConnectivityFilter.cxx,NO_VALID
   TestCutter.cxx,NO_VALID
   TestDataObjectToPartitionedDataSetCollection.cxx,NO_VALID

@@ -158,13 +158,13 @@ int vtkCompositeDataProbeFilter::RequestData(
         auto globPointMaskRange = vtk::DataArrayValueRange<1>(this->MaskPoints);
         auto locIt = locPointMaskRange.begin();
         auto globIt = globPointMaskRange.begin();
-        vtkIdType idx = 0;
+        vtkIdType index = 0;
         for (; (locIt != locPointMaskRange.end()) && (globIt != globPointMaskRange.end());
-             locIt++, globIt++, idx++)
+             locIt++, globIt++, index++)
         {
           if (!(*globIt) && (*locIt))
           {
-            addPoints->InsertNextId(idx);
+            addPoints->InsertNextId(index);
           }
         }
         vtkIdType nArrays = sourceHTG->GetCellData()->GetNumberOfArrays();
@@ -172,12 +172,16 @@ int vtkCompositeDataProbeFilter::RequestData(
         {
           const char* arrName = sourceHTG->GetCellData()->GetAbstractArray(iA)->GetName();
           vtkAbstractArray* locA = locOutput->GetPointData()->GetAbstractArray(arrName);
-          vtkAbstractArray* globA = output->GetPointData()->GetAbstractArray(arrName);
-          if (!(globA && locA))
+          if (!locA)
           {
-            vtkErrorMacro(
-              "Could not find array " << arrName << " in local scope or higher scope outputs.");
+            vtkErrorMacro("Could not find array " << arrName << " in local scope output.");
             return 0;
+          }
+          vtkAbstractArray* globA = output->GetPointData()->GetAbstractArray(arrName);
+          if (!globA)
+          {
+            output->GetPointData()->AddArray(locA);
+            continue;
           }
           globA->InsertTuples(addPoints, addPoints, locA);
         }
@@ -274,6 +278,11 @@ int vtkCompositeDataProbeFilter::BuildFieldList(vtkCompositeDataSet* source)
   for (iter->InitReverseTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
   {
     vtkDataSet* sourceDS = vtkDataSet::SafeDownCast(iter->GetCurrentDataObject());
+    vtkHyperTreeGrid* sourceHTG = vtkHyperTreeGrid::SafeDownCast(iter->GetCurrentDataObject());
+    if (sourceHTG)
+    {
+      continue;
+    }
     if (sourceDS->GetNumberOfPoints() == 0)
     {
       continue;

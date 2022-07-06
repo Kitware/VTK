@@ -227,21 +227,24 @@ bool vtkHyperTreeGridProbeFilter::Initialize(
 
   if (!(this->PassAttributeData(input, output)))
   {
-    vtkErrorMacro("Failed to pass attribute data from inpu to output");
+    vtkErrorMacro("Failed to pass attribute data from input to output");
     return false;
   }
 
   unsigned int numSourceCellArrays = source->GetCellData()->GetNumberOfArrays();
   for (unsigned int iA = 0; iA < numSourceCellArrays; iA++)
   {
-    vtkDataArray* da = source->GetCellData()->GetArray(iA);
+    vtkAbstractArray* da = source->GetCellData()->GetAbstractArray(iA);
+    if (!da)
+    {
+      continue;
+    }
     if (!(output->GetPointData()->HasArray(da->GetName())))
     {
       auto localInstance = vtk::TakeSmartPointer(da->NewInstance());
       localInstance->SetName(da->GetName());
       localInstance->SetNumberOfComponents(da->GetNumberOfComponents());
       output->GetPointData()->AddArray(localInstance);
-      localInstance->Initialize();
     }
   }
 
@@ -347,13 +350,14 @@ bool vtkHyperTreeGridProbeFilter::DoProbing(
   unsigned int numSourceCellArrays = source->GetCellData()->GetNumberOfArrays();
   for (unsigned int iA = 0; iA < numSourceCellArrays; iA++)
   {
-    vtkDataArray* sourceArray = source->GetCellData()->GetArray(iA);
+    vtkAbstractArray* sourceArray = source->GetCellData()->GetAbstractArray(iA);
     if (!(output->GetPointData()->HasArray(sourceArray->GetName())))
     {
       vtkErrorMacro("Array " << sourceArray->GetName() << " missing in output");
       return false;
     }
-    vtkDataArray* outputArray = output->GetPointData()->GetArray(sourceArray->GetName());
+    vtkAbstractArray* outputArray =
+      output->GetPointData()->GetAbstractArray(sourceArray->GetName());
     outputArray->InsertTuplesStartingAt(0, locCellIds, sourceArray);
   }
   return true;
@@ -396,10 +400,10 @@ void vtkHyperTreeGridProbeFilter::DealWithRemote(vtkIdList* remotePointIds,
     unsigned int numArrays = source->GetCellData()->GetNumberOfArrays();
     for (unsigned int iA = 0; iA < numArrays; iA++)
     {
-      vtkDataArray* remoteArray =
-        remoteOutput->GetPointData()->GetArray(source->GetCellData()->GetArray(iA)->GetName());
-      vtkDataArray* totArray =
-        totOutput->GetPointData()->GetArray(source->GetCellData()->GetArray(iA)->GetName());
+      vtkAbstractArray* remoteArray = remoteOutput->GetPointData()->GetAbstractArray(
+        source->GetCellData()->GetAbstractArray(iA)->GetName());
+      vtkAbstractArray* totArray = totOutput->GetPointData()->GetAbstractArray(
+        source->GetCellData()->GetAbstractArray(iA)->GetName());
       totArray->InsertTuples(remotePointIds, iotaIds, remoteArray);
     }
     vtkNew<vtkCharArray> ones;
