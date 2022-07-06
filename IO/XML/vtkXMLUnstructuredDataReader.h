@@ -132,6 +132,11 @@ protected:
   int CellsNeedToReadTimeStep(
     vtkXMLDataElement* eNested, int& cellstimestep, unsigned long& cellsoffset);
 
+  int CellArrayTimeStepRead;
+  bool CanReadCellArray;
+  const char* CellArrayCachedInputString;
+  const char* CellArrayCachedFileName;
+
 private:
   vtkXMLUnstructuredDataReader(const vtkXMLUnstructuredDataReader&) = delete;
   void operator=(const vtkXMLUnstructuredDataReader&) = delete;
