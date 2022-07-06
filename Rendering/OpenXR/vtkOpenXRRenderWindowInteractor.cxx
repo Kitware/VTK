@@ -175,6 +175,12 @@ void vtkOpenXRRenderWindowInteractor::ProcessXrEvents()
 
           XrPath interactionProfile = state.interactionProfile;
 
+          if (!interactionProfile)
+          {
+            vtkDebugMacro(<< "No interaction profile set");
+            continue;
+          }
+
           uint32_t strLength;
           char profileString[XR_MAX_PATH_LENGTH];
           if (!xrManager.XrCheckWarn(
@@ -409,11 +415,6 @@ void vtkOpenXRRenderWindowInteractor::HandleVector2fAction(
   {
     vtkDebugMacro(<< "Vector2f : " << actionData.Name << ", x = " << vec2f.currentState.x
                   << " / y = " << vec2f.currentState.y);
-
-    if (vec2f.currentState.y == 0 || vec2f.currentState.x == 0)
-    {
-      return;
-    }
 
     ed->SetTrackPadPosition(vec2f.currentState.x, vec2f.currentState.y);
 

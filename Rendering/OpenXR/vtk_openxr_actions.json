@@ -75,6 +75,10 @@
       "controller_type": "vive_controller"
     },
     {
+      "binding_url": "vtk_openxr_binding_hp_mixed_reality.json",
+      "controller_type": "mixed_reality"
+    },
+    {
       "binding_url": "vtk_openxr_binding_knuckles.json",
       "controller_type": "knuckles"
     }

@@ -27,6 +27,7 @@ set(openxr_input_files
   vtk_openxr_actions.json
   vtk_openxr_binding_htc_vive_controller.json
   vtk_openxr_binding_khr_simple_controller.json
+  vtk_openxr_binding_hp_mixed_reality.json
   vtk_openxr_binding_knuckles.json
 )
 
