@@ -46,11 +46,6 @@ inline void WriteValue(std::ostream& stream, const double& value)
     stream << value;
 }
 
-inline void WriteValue(std::ostream& stream, const vtkStdString& value)
-{
-  stream << value;
-}
-
 void WriteHeader(const vtkStdString& array_type, const vtkStdString& type_name, vtkArray* array,
   ostream& stream, bool WriteBinary)
 {
