@@ -532,6 +532,7 @@ int vtkConnectivityFilter::RequestData(vtkInformation* vtkNotUsed(request),
 #ifndef NDEBUG
   int num = this->GetNumberOfExtractedRegions();
   int count = 0;
+  (void)count; // Only used in Debug builds.
 
   for (int ii = 0; ii < num; ii++)
   {
