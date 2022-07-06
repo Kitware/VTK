@@ -134,9 +134,9 @@ public:
   /**
    * Returns the time range determined.
    */
-  const std::pair<double, double>& GetTimeRange(bool* isvalid = NULL) const
+  const std::pair<double, double>& GetTimeRange(bool* isvalid = nullptr) const
   {
-    if (isvalid != NULL)
+    if (isvalid != nullptr)
     {
       *isvalid = this->AggregatedTimeRangeValid;
     }

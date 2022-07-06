@@ -48,7 +48,7 @@
 #include <unordered_map>
 
 //=============================================================================
-#define CALL_NETCDF(call)                                                                          \
+#define CALL_NETCDF_INT(call)                                                                      \
   do                                                                                               \
   {                                                                                                \
     int errorcode = call;                                                                          \
@@ -56,6 +56,17 @@
     {                                                                                              \
       vtkErrorMacro(<< "netCDF Error: " << nc_strerror(errorcode));                                \
       return 0;                                                                                    \
+    }                                                                                              \
+  } while (false)
+
+#define CALL_NETCDF_PTR(call)                                                                      \
+  do                                                                                               \
+  {                                                                                                \
+    int errorcode = call;                                                                          \
+    if (errorcode != NC_NOERR)                                                                     \
+    {                                                                                              \
+      vtkErrorMacro(<< "netCDF Error: " << nc_strerror(errorcode));                                \
+      return nullptr;                                                                              \
     }                                                                                              \
   } while (false)
 
@@ -461,7 +472,7 @@ int vtkPSLACReader::RequestData(
 int vtkPSLACReader::ReadTetrahedronInteriorArray(int meshFD, vtkIdTypeArray* connectivity)
 {
   int tetInteriorVarId;
-  CALL_NETCDF(nc_inq_varid(meshFD, "tetrahedron_interior", &tetInteriorVarId));
+  CALL_NETCDF_INT(nc_inq_varid(meshFD, "tetrahedron_interior", &tetInteriorVarId));
   vtkIdType numTets = this->GetNumTuplesInVariable(meshFD, tetInteriorVarId, NumPerTetInt);
 
   vtkIdType numTetsPerPiece = numTets / this->NumberOfPieces + 1;
@@ -481,7 +492,7 @@ int vtkPSLACReader::ReadTetrahedronInteriorArray(int meshFD, vtkIdTypeArray* con
   connectivity->Initialize();
   connectivity->SetNumberOfComponents(static_cast<int>(count[1]));
   connectivity->SetNumberOfTuples(static_cast<vtkIdType>(count[0]));
-  CALL_NETCDF(nc_get_vars_vtkIdType(
+  CALL_NETCDF_INT(nc_get_vars_vtkIdType(
     meshFD, tetInteriorVarId, start, count, nullptr, connectivity->GetPointer(0)));
 
   return 1;
@@ -491,7 +502,7 @@ int vtkPSLACReader::ReadTetrahedronInteriorArray(int meshFD, vtkIdTypeArray* con
 int vtkPSLACReader::ReadTetrahedronExteriorArray(int meshFD, vtkIdTypeArray* connectivity)
 {
   int tetExteriorVarId;
-  CALL_NETCDF(nc_inq_varid(meshFD, "tetrahedron_exterior", &tetExteriorVarId));
+  CALL_NETCDF_INT(nc_inq_varid(meshFD, "tetrahedron_exterior", &tetExteriorVarId));
   vtkIdType numTets = this->GetNumTuplesInVariable(meshFD, tetExteriorVarId, NumPerTetExt);
 
   vtkIdType numTetsPerPiece = numTets / this->NumberOfPieces + 1;
@@ -511,7 +522,7 @@ int vtkPSLACReader::ReadTetrahedronExteriorArray(int meshFD, vtkIdTypeArray* con
   connectivity->Initialize();
   connectivity->SetNumberOfComponents(static_cast<int>(count[1]));
   connectivity->SetNumberOfTuples(static_cast<vtkIdType>(count[0]));
-  CALL_NETCDF(nc_get_vars_vtkIdType(
+  CALL_NETCDF_INT(nc_get_vars_vtkIdType(
     meshFD, tetExteriorVarId, start, count, nullptr, connectivity->GetPointer(0)));
 
   return 1;
@@ -651,7 +662,7 @@ int vtkPSLACReader::ReadConnectivity(
 
   // Record how many global points there are.
   int coordsVarId;
-  CALL_NETCDF(nc_inq_varid(meshFD, "coords", &coordsVarId));
+  CALL_NETCDF_INT(nc_inq_varid(meshFD, "coords", &coordsVarId));
   this->NumberOfGlobalPoints = this->GetNumTuplesInVariable(meshFD, coordsVarId, 3);
 
   // Iterate over our LocalToGlobalIds map and determine which process reads
@@ -805,7 +816,7 @@ vtkSmartPointer<vtkDataArray> vtkPSLACReader::ReadPointDataArray(int ncFD, int v
 {
   // Get the dimension info.  We should only need to worry about 1 or 2D arrays.
   int numDims;
-  CALL_NETCDF(nc_inq_varndims(ncFD, varId, &numDims));
+  CALL_NETCDF_PTR(nc_inq_varndims(ncFD, varId, &numDims));
   if (numDims > 2)
   {
     vtkErrorMacro(<< "Sanity check failed.  "
@@ -819,9 +830,9 @@ vtkSmartPointer<vtkDataArray> vtkPSLACReader::ReadPointDataArray(int ncFD, int v
     return nullptr;
   }
   int dimIds[2];
-  CALL_NETCDF(nc_inq_vardimid(ncFD, varId, dimIds));
+  CALL_NETCDF_PTR(nc_inq_vardimid(ncFD, varId, dimIds));
   size_t numCoords;
-  CALL_NETCDF(nc_inq_dimlen(ncFD, dimIds[0], &numCoords));
+  CALL_NETCDF_PTR(nc_inq_dimlen(ncFD, dimIds[0], &numCoords));
   if (numCoords != static_cast<size_t>(this->NumberOfGlobalPoints))
   {
     vtkErrorMacro(<< "Encountered inconsistent number of coordinates.");
@@ -830,12 +841,12 @@ vtkSmartPointer<vtkDataArray> vtkPSLACReader::ReadPointDataArray(int ncFD, int v
   size_t numComponents = 1;
   if (numDims > 1)
   {
-    CALL_NETCDF(nc_inq_dimlen(ncFD, dimIds[1], &numComponents));
+    CALL_NETCDF_PTR(nc_inq_dimlen(ncFD, dimIds[1], &numComponents));
   }
 
   // Allocate an array of the right type.
   nc_type ncType;
-  CALL_NETCDF(nc_inq_vartype(ncFD, varId, &ncType));
+  CALL_NETCDF_PTR(nc_inq_vartype(ncFD, varId, &ncType));
   int vtkType = NetCDFTypeToVTKType(ncType);
   if (vtkType < 1)
     return nullptr;
@@ -850,7 +861,7 @@ vtkSmartPointer<vtkDataArray> vtkPSLACReader::ReadPointDataArray(int ncFD, int v
   count[1] = numComponents;
   dataArray->SetNumberOfComponents(static_cast<int>(count[1]));
   dataArray->SetNumberOfTuples(static_cast<vtkIdType>(count[0]));
-  CALL_NETCDF(nc_get_vars(ncFD, varId, start, count, nullptr, dataArray->GetVoidPointer(0)));
+  CALL_NETCDF_PTR(nc_get_vars(ncFD, varId, start, count, nullptr, dataArray->GetVoidPointer(0)));
 
   // We now need to redistribute the data.  Allocate an array to store the final
   // point data and a buffer to send data to the rest of the processes.
@@ -938,7 +949,7 @@ int vtkPSLACReader::ReadMidpointCoordinates(
 {
   // Get the number of midpoints.
   int midpointsVar;
-  CALL_NETCDF(nc_inq_varid(meshFD, "surface_midpoint", &midpointsVar));
+  CALL_NETCDF_INT(nc_inq_varid(meshFD, "surface_midpoint", &midpointsVar));
   this->NumberOfGlobalMidpoints = this->GetNumTuplesInVariable(meshFD, midpointsVar, 5);
   if (this->NumberOfGlobalMidpoints < 1)
     return 0;
@@ -962,7 +973,7 @@ int vtkPSLACReader::ReadMidpointCoordinates(
   VTK_CREATE(vtkDoubleArray, midpointData);
   midpointData->SetNumberOfComponents(static_cast<int>(counts[1]));
   midpointData->SetNumberOfTuples(static_cast<vtkIdType>(counts[0]));
-  CALL_NETCDF(
+  CALL_NETCDF_INT(
     nc_get_vars_double(meshFD, midpointsVar, starts, counts, nullptr, midpointData->GetPointer(0)));
 
   // Collect the midpoints we've read on the processes that originally read the

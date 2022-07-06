@@ -375,7 +375,7 @@ static PyMethodDef PyVTKReference_Methods[] = { { "get", PyVTKReference_Get, MET
       Py_INCREF(ob);                                                                               \
       return (PyObject*)ob;                                                                        \
     }                                                                                              \
-    return 0;                                                                                      \
+    return nullptr;                                                                                \
   }
 
 #define REFOBJECT_INPLACEIFUNC(prot, op)                                                           \
@@ -435,7 +435,7 @@ static PyMethodDef PyVTKReference_Methods[] = { { "get", PyVTKReference_Get, MET
       Py_INCREF(ob);                                                                               \
       return (PyObject*)ob;                                                                        \
     }                                                                                              \
-    return 0;                                                                                      \
+    return nullptr;                                                                                \
   }
 
 //------------------------------------------------------------------------------

@@ -1071,7 +1071,7 @@
   unsigned int mA = 0, mB = 0, mC = 0, mD = 0, mE = 0, mF = 0, mG = 0, mH = 0;
 
 #define VTKKWRCHelper_InitializeCompositeOneShadeTrilin()                                          \
-  unsigned short *dirPtrABCD = 0, *dirPtrEFGH = 0;                                                 \
+  unsigned short *dirPtrABCD = nullptr, *dirPtrEFGH = nullptr;                                     \
   unsigned int normalA = 0, normalB = 0, normalC = 0, normalD = 0;                                 \
   unsigned int normalE = 0, normalF = 0, normalG = 0, normalH = 0;
 
@@ -1102,13 +1102,13 @@
   unsigned short tmp[4];
 
 #define VTKKWRCHelper_InitializeCompositeMultiGOTrilin()                                           \
-  unsigned char *magPtrABCD = 0, *magPtrEFGH = 0;                                                  \
+  unsigned char *magPtrABCD = nullptr, *magPtrEFGH = nullptr;                                      \
   unsigned short mag[4] = {};                                                                      \
   unsigned int mA[4] = {}, mB[4] = {}, mC[4] = {}, mD[4] = {}, mE[4] = {}, mF[4] = {}, mG[4] = {}, \
                mH[4] = {};
 
 #define VTKKWRCHelper_InitializeCompositeMultiShadeTrilin()                                        \
-  unsigned short *dirPtrABCD = 0, *dirPtrEFGH = 0;                                                 \
+  unsigned short *dirPtrABCD = nullptr, *dirPtrEFGH = nullptr;                                     \
   unsigned int normalA[4], normalB[4], normalC[4], normalD[4];                                     \
   unsigned int normalE[4], normalF[4], normalG[4], normalH[4];
 

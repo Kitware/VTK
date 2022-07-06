@@ -51,7 +51,7 @@
 
 #include "vtk_netcdf.h"
 
-#define CALL_NETCDF(call)                                                                          \
+#define CALL_NETCDF_INT(call)                                                                      \
   do                                                                                               \
   {                                                                                                \
     int errorcode = call;                                                                          \
@@ -59,6 +59,17 @@
     {                                                                                              \
       vtkErrorMacro(<< "netCDF Error: " << nc_strerror(errorcode));                                \
       return 0;                                                                                    \
+    }                                                                                              \
+  } while (false)
+
+#define CALL_NETCDF_PTR(call)                                                                      \
+  do                                                                                               \
+  {                                                                                                \
+    int errorcode = call;                                                                          \
+    if (errorcode != NC_NOERR)                                                                     \
+    {                                                                                              \
+      vtkErrorMacro(<< "netCDF Error: " << nc_strerror(errorcode));                                \
+      return nullptr;                                                                              \
     }                                                                                              \
   } while (false)
 
@@ -183,7 +194,7 @@ int vtkNetCDFReader::RequestInformation(vtkInformation* vtkNotUsed(request),
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
   int ncFD;
-  CALL_NETCDF(nc_open(this->FileName, NC_NOWRITE, &ncFD));
+  CALL_NETCDF_INT(nc_open(this->FileName, NC_NOWRITE, &ncFD));
 
   VTK_CREATE(vtkDoubleArray, timeValues);
   VTK_CREATE(vtkIntArray, currentDimensions);
@@ -198,15 +209,15 @@ int vtkNetCDFReader::RequestInformation(vtkInformation* vtkNotUsed(request),
 
     const char* name = this->VariableArraySelection->GetArrayName(arrayIndex);
     int varId;
-    CALL_NETCDF(nc_inq_varid(ncFD, name, &varId));
+    CALL_NETCDF_INT(nc_inq_varid(ncFD, name, &varId));
 
     int currentNumDims;
-    CALL_NETCDF(nc_inq_varndims(ncFD, varId, &currentNumDims));
+    CALL_NETCDF_INT(nc_inq_varndims(ncFD, varId, &currentNumDims));
     if (currentNumDims < 1)
       continue;
     currentDimensions->SetNumberOfComponents(1);
     currentDimensions->SetNumberOfTuples(currentNumDims);
-    CALL_NETCDF(nc_inq_vardimid(ncFD, varId, currentDimensions->GetPointer(0)));
+    CALL_NETCDF_INT(nc_inq_vardimid(ncFD, varId, currentDimensions->GetPointer(0)));
 
     // get units
     int status;
@@ -296,7 +307,7 @@ int vtkNetCDFReader::RequestInformation(vtkInformation* vtkNotUsed(request),
       size_t dimlength;
       // Remember that netCDF arrays are indexed backward from VTK images.
       int dim = this->LoadingDimensions->GetValue(numDims - i - 1);
-      CALL_NETCDF(nc_inq_dimlen(ncFD, dim, &dimlength));
+      CALL_NETCDF_INT(nc_inq_dimlen(ncFD, dim, &dimlength));
       this->WholeExtent[2 * i + 1] = static_cast<int>(dimlength - 1);
       // For cell data, add one to the extent (which is for points).
       if (!pointData)
@@ -384,7 +395,7 @@ int vtkNetCDFReader::RequestInformation(vtkInformation* vtkNotUsed(request),
     outInfo->Remove(vtkStreamingDemandDrivenPipeline::TIME_RANGE());
   }
 
-  CALL_NETCDF(nc_close(ncFD));
+  CALL_NETCDF_INT(nc_close(ncFD));
 
   return 1;
 }
@@ -433,7 +444,7 @@ int vtkNetCDFReader::RequestData(vtkInformation* vtkNotUsed(request),
   }
 
   int ncFD;
-  CALL_NETCDF(nc_open(this->FileName, NC_NOWRITE, &ncFD));
+  CALL_NETCDF_INT(nc_open(this->FileName, NC_NOWRITE, &ncFD));
 
   this->ComputeArraySelection();
   // Iterate over arrays and load selected ones.
@@ -476,7 +487,7 @@ int vtkNetCDFReader::RequestData(vtkInformation* vtkNotUsed(request),
     output->GetFieldData()->AddArray(arr);
   }
 
-  CALL_NETCDF(nc_close(ncFD));
+  CALL_NETCDF_INT(nc_close(ncFD));
 
   return 1;
 }
@@ -604,7 +615,7 @@ int vtkNetCDFReader::UpdateMetaData()
     }
 
     int ncFD;
-    CALL_NETCDF(nc_open(this->FileName, NC_NOWRITE, &ncFD));
+    CALL_NETCDF_INT(nc_open(this->FileName, NC_NOWRITE, &ncFD));
 
     int retval = this->ReadMetaData(ncFD);
 
@@ -614,7 +625,7 @@ int vtkNetCDFReader::UpdateMetaData()
     if (retval)
       this->MetaDataMTime.Modified();
 
-    CALL_NETCDF(nc_close(ncFD));
+    CALL_NETCDF_INT(nc_close(ncFD));
 
     return retval;
   }
@@ -631,7 +642,7 @@ vtkStdString vtkNetCDFReader::DescribeDimensions(int ncFD, const int* dimIds, in
   for (int i = 0; i < numDims; i++)
   {
     char name[NC_MAX_NAME + 1];
-    CALL_NETCDF(nc_inq_dimname(ncFD, dimIds[i], name));
+    CALL_NETCDF_PTR(nc_inq_dimname(ncFD, dimIds[i], name));
     if (i > 0)
       description += " ";
     description += name;
@@ -659,12 +670,12 @@ int vtkNetCDFReader::ReadMetaData(int ncFD)
   }
 
   int numVariables;
-  CALL_NETCDF(nc_inq_nvars(ncFD, &numVariables));
+  CALL_NETCDF_INT(nc_inq_nvars(ncFD, &numVariables));
 
   for (int i = 0; i < numVariables; i++)
   {
     char name[NC_MAX_NAME + 1];
-    CALL_NETCDF(nc_inq_varname(ncFD, i, name));
+    CALL_NETCDF_INT(nc_inq_varname(ncFD, i, name));
     if (variablesToRemove.find(name) == variablesToRemove.end())
     {
       // Variable not already here.  Insert it in the variables to add.
@@ -706,16 +717,16 @@ int vtkNetCDFReader::FillVariableDimensions(int ncFD)
     // Get the dimensions of this variable and encode them in a string.
     const char* varName = this->GetVariableArrayName(i);
     int varId, numDim, dimIds[NC_MAX_VAR_DIMS];
-    CALL_NETCDF(nc_inq_varid(ncFD, varName, &varId));
-    CALL_NETCDF(nc_inq_varndims(ncFD, varId, &numDim));
-    CALL_NETCDF(nc_inq_vardimid(ncFD, varId, dimIds));
+    CALL_NETCDF_INT(nc_inq_varid(ncFD, varName, &varId));
+    CALL_NETCDF_INT(nc_inq_varndims(ncFD, varId, &numDim));
+    CALL_NETCDF_INT(nc_inq_vardimid(ncFD, varId, dimIds));
     vtkStdString dimEncoding("(");
     for (int j = 0; j < numDim; j++)
     {
       if ((j == 0) && (this->IsTimeDimension(ncFD, dimIds[j])))
         continue;
       char dimName[NC_MAX_NAME + 1];
-      CALL_NETCDF(nc_inq_dimname(ncFD, dimIds[j], dimName));
+      CALL_NETCDF_INT(nc_inq_dimname(ncFD, dimIds[j], dimName));
       if (dimEncoding.size() > 1)
         dimEncoding += ", ";
       dimEncoding += dimName;
@@ -744,7 +755,7 @@ int vtkNetCDFReader::FillVariableDimensions(int ncFD)
 int vtkNetCDFReader::IsTimeDimension(int ncFD, int dimId)
 {
   char name[NC_MAX_NAME + 1];
-  CALL_NETCDF(nc_inq_dimname(ncFD, dimId, name));
+  CALL_NETCDF_INT(nc_inq_dimname(ncFD, dimId, name));
   name[4] = '\0'; // Truncate to 4 characters.
   return (vtksys::SystemTools::Strucmp(name, "time") == 0);
 }
@@ -754,7 +765,7 @@ vtkSmartPointer<vtkDoubleArray> vtkNetCDFReader::GetTimeValues(int ncFD, int dim
 {
   VTK_CREATE(vtkDoubleArray, timeValues);
   size_t dimLength;
-  CALL_NETCDF(nc_inq_dimlen(ncFD, dimId, &dimLength));
+  CALL_NETCDF_PTR(nc_inq_dimlen(ncFD, dimId, &dimLength));
   timeValues->SetNumberOfComponents(1);
   timeValues->SetNumberOfTuples(static_cast<vtkIdType>(dimLength));
   for (size_t j = 0; j < dimLength; j++)
@@ -775,18 +786,18 @@ int vtkNetCDFReader::LoadVariable(int ncFD, const char* varName, double time, vt
 {
   // Get the variable id.
   int varId;
-  CALL_NETCDF(nc_inq_varid(ncFD, varName, &varId));
+  CALL_NETCDF_INT(nc_inq_varid(ncFD, varName, &varId));
 
   // Get dimension info.
   int numDims;
-  CALL_NETCDF(nc_inq_varndims(ncFD, varId, &numDims));
+  CALL_NETCDF_INT(nc_inq_varndims(ncFD, varId, &numDims));
   if (numDims > 4)
   {
     vtkErrorMacro(<< "More than 3 dims + time not supported in variable " << varName);
     return 0;
   }
   int dimIds[4];
-  CALL_NETCDF(nc_inq_vardimid(ncFD, varId, dimIds));
+  CALL_NETCDF_INT(nc_inq_vardimid(ncFD, varId, dimIds));
 
   // Number of values to read.
   vtkIdType arraySize = 1;
@@ -859,7 +870,7 @@ int vtkNetCDFReader::LoadVariable(int ncFD, const char* varName, double time, vt
 
   // Allocate an array of the right type.
   nc_type ncType;
-  CALL_NETCDF(nc_inq_vartype(ncFD, varId, &ncType));
+  CALL_NETCDF_INT(nc_inq_vartype(ncFD, varId, &ncType));
   int vtkType = NetCDFTypeToVTKType(ncType);
   if (vtkType < 1)
     return 0;
@@ -869,7 +880,7 @@ int vtkNetCDFReader::LoadVariable(int ncFD, const char* varName, double time, vt
   dataArray->SetNumberOfTuples(arraySize);
 
   // Read the array from the file.
-  CALL_NETCDF(nc_get_vars(ncFD, varId, start, count, nullptr, dataArray->GetVoidPointer(0)));
+  CALL_NETCDF_INT(nc_get_vars(ncFD, varId, start, count, nullptr, dataArray->GetVoidPointer(0)));
 
   // Check for a fill value.
   size_t attribLength;
@@ -907,11 +918,11 @@ int vtkNetCDFReader::LoadVariable(int ncFD, const char* varName, double time, vt
   if ((nc_inq_attlen(ncFD, varId, "scale_factor", &attribLength) == NC_NOERR) &&
     (attribLength == 1))
   {
-    CALL_NETCDF(nc_get_att_double(ncFD, varId, "scale_factor", &scale));
+    CALL_NETCDF_INT(nc_get_att_double(ncFD, varId, "scale_factor", &scale));
   }
   if ((nc_inq_attlen(ncFD, varId, "add_offset", &attribLength) == NC_NOERR) && (attribLength == 1))
   {
-    CALL_NETCDF(nc_get_att_double(ncFD, varId, "add_offset", &offset));
+    CALL_NETCDF_INT(nc_get_att_double(ncFD, varId, "add_offset", &offset));
   }
 
   if ((scale != 1.0) || (offset != 0.0))
