@@ -35,7 +35,6 @@
 #include "vtkPNGWriter.h"
 #include "vtkPixelBufferObject.h"
 #include "vtkPointData.h"
-#include "vtkStdString.h"
 #include "vtkTimerLog.h"
 #include <sstream>
 
@@ -276,12 +275,8 @@ void vtkCompositeZPass::Render(const vtkRenderState* s)
     timer->StopTimer();
     ostxx << "root0_" << vtkTimerLog::GetUniversalTime() << "_.png";
 
-    vtkStdString* sssxx = new vtkStdString;
-    (*sssxx) = ostxx.str();
-
     writer = vtkPNGWriter::New();
-    writer->SetFileName(*sssxx);
-    delete sssxx;
+    writer->SetFileName(ostxx.str().c_str());
     writer->SetInputConnection(converter->GetOutputPort());
     importer->Delete();
     //    rgbaToRgb->Delete();
@@ -325,11 +320,7 @@ void vtkCompositeZPass::Render(const vtkRenderState* s)
       ost.precision(5);
       ost << "root1_proc_" << proc << "_" << vtkTimerLog::GetUniversalTime() << "_.png";
 
-      vtkStdString* sss = new vtkStdString;
-      (*sss) = ost.str();
-
-      writer->SetFileName(*sss);
-      delete sss;
+      writer->SetFileName(ost.str().c_str());
       writer->SetInputConnection(converter->GetOutputPort());
       importer->Delete();
       //    rgbaToRgb->Delete();
@@ -490,12 +481,8 @@ void vtkCompositeZPass::Render(const vtkRenderState* s)
 
     ost3 << "root2_" << vtkTimerLog::GetUniversalTime() << "_.png";
 
-    vtkStdString* sss3 = new vtkStdString;
-    (*sss3) = ost3.str();
-
     writer = vtkPNGWriter::New();
-    writer->SetFileName(*sss3);
-    delete sss3;
+    writer->SetFileName(ost3.str().c_str());
     writer->SetInputConnection(converter->GetOutputPort());
     importer->Delete();
     //    rgbaToRgb->Delete();
@@ -559,12 +546,8 @@ void vtkCompositeZPass::Render(const vtkRenderState* s)
     timer->StopTimer();
     ost << "satellite1_" << vtkTimerLog::GetUniversalTime() << "_.png";
 
-    vtkStdString* sss = new vtkStdString;
-    (*sss) = ost.str();
-
     writer = vtkPNGWriter::New();
-    writer->SetFileName(*sss);
-    delete sss;
+    writer->SetFileName(ost.str().c_str());
     writer->SetInputConnection(converter->GetOutputPort());
     importer->Delete();
     //    rgbaToRgb->Delete();
@@ -607,12 +590,8 @@ void vtkCompositeZPass::Render(const vtkRenderState* s)
 
     ost2 << "satellite2_" << vtkTimerLog::GetUniversalTime() << "_.png";
 
-    vtkStdString* sss2 = new vtkStdString;
-    (*sss2) = ost2.str();
-
     writer = vtkPNGWriter::New();
-    writer->SetFileName(*sss2);
-    delete sss2;
+    writer->SetFileName(ost2.str().c_str());
     writer->SetInputConnection(converter->GetOutputPort());
     importer->Delete();
     //    rgbaToRgb->Delete();
