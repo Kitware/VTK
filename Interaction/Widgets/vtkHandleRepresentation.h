@@ -216,7 +216,19 @@ public:
   void SetXTranslationAxisOn() { this->TranslationAxis = Axis::XAxis; }
   void SetYTranslationAxisOn() { this->TranslationAxis = Axis::YAxis; }
   void SetZTranslationAxisOn() { this->TranslationAxis = Axis::ZAxis; }
+  void SetCustomTranslationAxisOn() { this->TranslationAxis = Axis::Custom; }
   void SetTranslationAxisOff() { this->TranslationAxis = Axis::NONE; }
+  ///@}
+
+  ///@{
+  /**
+   * Get/Set the translation axis used when vtkHandleRepresentation::TranslationAxis
+   * is set to Axis::Custom.
+   *
+   * @see SetCustomTranslationAxisOn
+   */
+  vtkGetVector3Macro(CustomTranslationAxis, double);
+  vtkSetVector3Macro(CustomTranslationAxis, double);
   ///@}
 
   ///@{
@@ -250,6 +262,7 @@ protected:
 
   // Constraint axis translation
   int TranslationAxis = Axis::NONE;
+  double CustomTranslationAxis[3] = { 1.0, 0.0, 0.0 };
 
 private:
   vtkHandleRepresentation(const vtkHandleRepresentation&) = delete;
