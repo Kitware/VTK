@@ -481,7 +481,7 @@ void vtkParse_FreeFileCache(SystemInfo* info)
 }
 
 /**
- * On Win32, this interpretes fname as UTF8 and then calls wfopen().
+ * On Win32, this interprets fname as UTF8 and then calls wfopen().
  * The returned handle must be freed with fclose().
  */
 FILE* vtkParse_FileOpen(const char* fname, const char* mode)

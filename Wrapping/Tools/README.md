@@ -47,7 +47,7 @@ that header file lookups can be done inexpensively even on slow file systems.
 ### vtkParseType
 
 This is a header file that defines numerical constants that we use to identify
-C++ types, type qualifiers, and specifiers.  These contants are used in the
+C++ types, type qualifiers, and specifiers.  These constants are used in the
 vtkParseData data structures described below.
 
 ### vtkParseAttributes
@@ -60,7 +60,7 @@ constants are stored in the vtkParseData data structures.
 ### vtkParseData
 
 The data structures defined in vtkParseData.h are used for the output of the
-parser.  This header provies data structures for namespaces, classes, methods,
+parser.  This header provides data structures for namespaces, classes, methods,
 typedefs, and for other entities that can be declared in a C++ file.  The
 wrappers convert this data into wrapper code.
 

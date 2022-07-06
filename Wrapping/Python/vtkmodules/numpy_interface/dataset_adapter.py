@@ -751,8 +751,8 @@ class DataSetAttributes(VTKObjectWrapper):
 
 class CompositeDataSetAttributes():
     """This is a python friendly wrapper for vtkDataSetAttributes for composite
-    datsets. Since composite datasets themselves don't have attribute data, but
-    the attribute data is associated with the leaf nodes in the composite
+    datasets. Since composite datasets themselves don't have attribute data,
+    but the attribute data is associated with the leaf nodes in the composite
     dataset, this class simulates a DataSetAttributes interface by taking a
     union of DataSetAttributes associated with all leaf nodes."""
 
