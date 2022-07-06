@@ -209,9 +209,9 @@ bool vtkChartBox::Paint(vtkContext2D* painter)
 
   if (this->GetShowLegend())
   {
-    vtkRectf rect;
-    rect.Set(0, this->Size.GetY() + 2, 10, 20);
-    this->Storage->Plot->PaintLegend(painter, rect, 0);
+    vtkRectf rectf;
+    rectf.Set(0, this->Size.GetY() + 2, 10, 20);
+    this->Storage->Plot->PaintLegend(painter, rectf, 0);
   }
 
   if (this->Tooltip && this->Tooltip->GetVisible())
