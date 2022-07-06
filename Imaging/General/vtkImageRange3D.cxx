@@ -85,11 +85,10 @@ void vtkImageRange3D::SetKernelSize(int size0, int size1, int size2)
     this->Modified();
     this->Ellipse->SetWholeExtent(
       0, this->KernelSize[0] - 1, 0, this->KernelSize[1] - 1, 0, this->KernelSize[2] - 1);
-    this->Ellipse->SetCenter(static_cast<float>(this->KernelSize[0] - 1) * 0.5,
-      static_cast<float>(this->KernelSize[1] - 1) * 0.5,
-      static_cast<float>(this->KernelSize[2] - 1) * 0.5);
-    this->Ellipse->SetRadius(static_cast<float>(this->KernelSize[0]) * 0.5,
-      static_cast<float>(this->KernelSize[1]) * 0.5, static_cast<float>(this->KernelSize[2]) * 0.5);
+    this->Ellipse->SetCenter((this->KernelSize[0] - 1) * 0.5, (this->KernelSize[1] - 1) * 0.5,
+      (this->KernelSize[2] - 1) * 0.5);
+    this->Ellipse->SetRadius(
+      this->KernelSize[0] * 0.5, this->KernelSize[1] * 0.5, this->KernelSize[2] * 0.5);
     // make sure scalars have been allocated (needed if multithreaded is used)
     vtkInformation* ellipseOutInfo = this->Ellipse->GetExecutive()->GetOutputInformation(0);
     ellipseOutInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), 0,
