@@ -357,7 +357,7 @@ static void vtkWrapPython_GenerateObjectNew(
   }
   else
   {
-    /* use of typeid() matches vtkTypeTemplate */
+    /* use of typeid() matches vtkSetGet ClassName for templated types */
     fprintf(fp, "    typeid(%s).name(),\n", data->Name);
   }
 
@@ -394,8 +394,17 @@ static void vtkWrapPython_GenerateObjectNew(
     }
     else /* superclass is in a different module */
     {
-      fprintf(
-        fp, "  pytype->tp_base = vtkPythonUtil::FindBaseTypeObject(\"%s\");\n\n", superclassname);
+      if (strcmp(name, superclassname) == 0)
+      {
+        fprintf(
+          fp, "  pytype->tp_base = vtkPythonUtil::FindBaseTypeObject(\"%s\");\n\n", superclassname);
+      }
+      else /* this occurs if superclass is templated */
+      {
+        /* use of typeid() matches vtkSetGet ClassName for templated types */
+        fprintf(fp, "  pytype->tp_base = vtkPythonUtil::FindBaseTypeObject(typeid(%s).name());\n\n",
+          name);
+      }
     }
   }
 
