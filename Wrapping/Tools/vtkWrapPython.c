@@ -204,11 +204,11 @@ static void vtkWrapPython_GenerateSpecialHeaders(
     if (incfile)
     {
       /* make sure it hasn't been included before. */
-      size_t n;
+      size_t nHeader;
       int uniqueInclude = 1;
-      for (n = 0; n < nIncludedHeaders; ++n)
+      for (nHeader = 0; nHeader < nIncludedHeaders; ++nHeader)
       {
-        if (!strcmp(incfile, includedHeaders[n]))
+        if (!strcmp(incfile, includedHeaders[nHeader]))
         {
           uniqueInclude = 0;
         }
