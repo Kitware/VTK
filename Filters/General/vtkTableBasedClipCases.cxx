@@ -36,7 +36,7 @@
 namespace vtkTableBasedClipperTriangulationTables
 {
 
-static const int TetTriangulationTable[16][7] = {
+static const int8_t TetTriangulationTable[16][7] = {
   {-1, -1, -1, -1, -1, -1, -1},
   { 0, 3, 2, -1, -1, -1, -1},
   { 0, 1, 4, -1, -1, -1, -1},
@@ -55,7 +55,7 @@ static const int TetTriangulationTable[16][7] = {
   {-1, -1, -1, -1, -1, -1, -1}
 };
 
-static const int TetVerticesFromEdges[6][2] =
+static const int8_t TetVerticesFromEdges[6][2] =
 {
     { 0, 1 },   /* Edge 0 */
     { 1, 2 },   /* Edge 1 */
@@ -65,7 +65,7 @@ static const int TetVerticesFromEdges[6][2] =
     { 2, 3 }    /* Edge 5 */
 };
 
-static const int TetTriangleFaces[4][3] =
+static const int8_t TetTriangleFaces[4][3] =
 {
     { 0, 1, 3 },
     { 1, 2, 3 },
@@ -73,7 +73,7 @@ static const int TetTriangleFaces[4][3] =
     { 0, 2, 1 }
 };
 
-static const int PyramidTriangulationTable[32][13] = {
+static const int8_t PyramidTriangulationTable[32][13] = {
   {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1}, //0
   { 0,  4,  3, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1}, //1
   { 0,  1,  5, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1}, //2
@@ -108,7 +108,7 @@ static const int PyramidTriangulationTable[32][13] = {
   {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1}  //31
 };
 
-static const int PyramidVerticesFromEdges[8][2] =
+static const int8_t PyramidVerticesFromEdges[8][2] =
 {
     { 0, 1 },   /* Edge 0 */
     { 1, 2 },   /* Edge 1 */
@@ -120,7 +120,7 @@ static const int PyramidVerticesFromEdges[8][2] =
     { 3, 4 }    /* Edge 7 */
 };
 
-static const int PyramidTriangleFaces[4][3] =
+static const int8_t PyramidTriangleFaces[4][3] =
 {
     { 0, 1, 4 },
     { 1, 2, 4 },
@@ -128,12 +128,12 @@ static const int PyramidTriangleFaces[4][3] =
     { 3, 0, 4 }
 };
 
-static const int PyramidQuadFaces[1][4] =
+static const int8_t PyramidQuadFaces[1][4] =
 {
     { 0, 3, 2, 1 }
 };
 
-static const int WedgeTriangulationTable[64][13] = {
+static const int8_t WedgeTriangulationTable[64][13] = {
   {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1}, //0
   { 0,  6,  2, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1}, //1
   { 0,  1,  7, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1}, //2
@@ -200,7 +200,7 @@ static const int WedgeTriangulationTable[64][13] = {
   {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1}  //63
 };
 
-static const int WedgeVerticesFromEdges[9][2] =
+static const int8_t WedgeVerticesFromEdges[9][2] =
 {
     { 0, 1 },   /* Edge 0 */
     { 1, 2 },   /* Edge 1 */
@@ -213,20 +213,20 @@ static const int WedgeVerticesFromEdges[9][2] =
     { 2, 5 },   /* Edge 8 */
 };
 
-static const int WedgeTriangleFaces[2][3] =
+static const int8_t WedgeTriangleFaces[2][3] =
 {
     { 0, 1, 2 },
     { 3, 5, 4 }
 };
 
-static const int WedgeQuadFaces[3][4] =
+static const int8_t WedgeQuadFaces[3][4] =
 {
     { 0, 3, 4, 1 },
     { 1, 4, 5, 2 },
     { 2, 5, 3, 0 }
 };
 
-static const int HexTriangulationTable[256][16] = {
+static const int8_t HexTriangulationTable[256][16] = {
 {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},       /* 0 */
 { 0, 3, 8, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},         /* 1 */
 { 0, 9, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},         /* 2 */
@@ -485,7 +485,7 @@ static const int HexTriangulationTable[256][16] = {
 {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1}      /* 255 */
 };
 
-static const int HexVerticesFromEdges[12][2] =
+static const int8_t HexVerticesFromEdges[12][2] =
 {
     { 0, 1 },   /* Edge 0 */
     { 1, 2 },   /* Edge 1 */
@@ -501,7 +501,7 @@ static const int HexVerticesFromEdges[12][2] =
     { 2, 6 }    /* Edge 11 */
 };
 
-static const int HexQuadFaces[6][4] =
+static const int8_t HexQuadFaces[6][4] =
 {
     { 0, 4, 7, 3 },
     { 1, 2, 6, 5 },
@@ -511,7 +511,7 @@ static const int HexQuadFaces[6][4] =
     { 4, 5, 6, 7 }
 };
 
-static const int VoxTriangulationTable[256][16] = {
+static const int8_t VoxTriangulationTable[256][16] = {
 {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},       /* 0 */
 { 0, 3, 8, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},         /* 1 */
 { 0, 9, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},         /* 2 */
@@ -770,7 +770,7 @@ static const int VoxTriangulationTable[256][16] = {
 {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1}      /* 255 */
 };
 
-static const int VoxVerticesFromEdges[12][2] =
+static const int8_t VoxVerticesFromEdges[12][2] =
 {
     { 0, 1 },   /* Edge 0 */
     { 1, 3 },   /* Edge 1 */
@@ -786,7 +786,7 @@ static const int VoxVerticesFromEdges[12][2] =
     { 3, 7 }    /* Edge 11 */
 };
 
-static const int VoxQuadFaces[6][4] =
+static const int8_t VoxQuadFaces[6][4] =
 {
     { 2, 0, 6, 4 },
     { 1, 3, 5, 7 },
@@ -796,14 +796,14 @@ static const int VoxQuadFaces[6][4] =
     { 4, 5, 6, 7 }
 };
 
-static const int TriVerticesFromEdges[3][2] =
+static const int8_t TriVerticesFromEdges[3][2] =
 {
     {0,1},
     {1,2},
     {2,0}
 };
 
-static const int QuadVerticesFromEdges[4][2] =
+static const int8_t QuadVerticesFromEdges[4][2] =
 {
     {0,1},
     {1,2},
@@ -811,7 +811,7 @@ static const int QuadVerticesFromEdges[4][2] =
     {3,0}
 };
 
-static const int PixelVerticesFromEdges[4][2] =
+static const int8_t PixelVerticesFromEdges[4][2] =
 {
     {0,1},
     {1,3},
@@ -819,7 +819,7 @@ static const int PixelVerticesFromEdges[4][2] =
     {0,2}
 };
 
-static const int LineVerticesFromEdges[1][2] =
+static const int8_t LineVerticesFromEdges[1][2] =
 {
     {0,1}
 };
@@ -898,9 +898,9 @@ namespace vtkTableBasedClipperClipTables
 //------------------------------------------------------------------------------
 // ---- ClipCasesHex.C (begin)
 
-const int NumClipCasesHex = 256;
+const uint16_t NumClipCasesHex = 256;
 
-const int NumClipShapesHex[256] = {
+const uint8_t NumClipShapesHex[256] = {
   1,  10,  10,  3,  10,  18,  3,  15, // cases 0 - 7
   10,  3,  18,  15,  3,  15,  15,  2, // cases 8 - 15
   10,  3,  18,  15,  8,  18,  18,  17, // cases 16 - 23
@@ -935,7 +935,7 @@ const int NumClipShapesHex[256] = {
   15,  3,  7,  10,  3,  10,  10,  1  // cases 248 - 255
 };
 
-const int StartClipShapesHex[256] = {
+const uint16_t StartClipShapesHex[256] = {
   0, 10, 80, 150, 176, 246, 361, 387, // cases 0 - 7
   488, 558, 584, 699, 800, 826, 927, 1028, // cases 8 - 15
   1048, 1118, 1144, 1259, 1360, 1412, 1531, 1650, // cases 16 - 23
@@ -970,7 +970,7 @@ const int StartClipShapesHex[256] = {
   20964, 21065, 21091, 21138, 21208, 21234, 21304, 21374  // cases 248 - 255
 };
 
-static unsigned char ClipShapesHex[] = {
+static uint8_t ClipShapesHex[] = {
  // Case #0: Unique case #1
   ST_HEX, COLOR0, P0, P1, P2, P3, P4, P5, P6, P7,
  // Case #1: Unique case #2
@@ -4377,9 +4377,9 @@ static unsigned char ClipShapesHex[] = {
 
 //------------------------------------------------------------------------------
 // ---- ClipCasesVox.C (begin)
-const int NumClipCasesVox = 256;
+const uint16_t NumClipCasesVox = 256;
 
-const int NumClipShapesVox[256] = {
+const uint8_t NumClipShapesVox[256] = {
   1,  10,  10,  3,  10,  3,  18,  15, // cases 0 - 7
   10,  18,  3,  15,  3,  15,  15,  2, // cases 8 - 15
   10,  3,  18,  15,  18,  15,  11,  10, // cases 16 - 23
@@ -4414,7 +4414,7 @@ const int NumClipShapesVox[256] = {
   15,  7,  3,  10,  3,  10,  10,  1  // cases 248 - 255
 };
 
-const int StartClipShapesVox[256] = {
+const uint16_t StartClipShapesVox[256] = {
   0, 10, 80, 150, 176, 246, 272, 387, // cases 0 - 7
   488, 558, 673, 699, 800, 826, 927, 1028, // cases 8 - 15
   1048, 1118, 1144, 1259, 1360, 1475, 1576, 1652, // cases 16 - 23
@@ -4449,7 +4449,7 @@ const int StartClipShapesVox[256] = {
   20964, 21065, 21112, 21138, 21208, 21234, 21304, 21374  // cases 248 - 255
 };
 
-static unsigned char ClipShapesVox[] = {
+static uint8_t ClipShapesVox[] = {
  // Case #0: Unique case #1
   ST_HEX, COLOR0, P0, P1, P3, P2, P4, P5, P7, P6,
  // Case #1: Unique case #2
@@ -7857,9 +7857,9 @@ static unsigned char ClipShapesVox[] = {
 //------------------------------------------------------------------------------
 // ---- ClipCasesWdg.C (begin)
 
-const int NumClipCasesWdg = 64;
+const uint16_t NumClipCasesWdg = 64;
 
-const int NumClipShapesWdg[64] = {
+const uint8_t NumClipShapesWdg[64] = {
   1,  3,  3,  9,  3,  9,  9,  2, // cases 0 - 7
   3,  2,  15,  13,  15,  13,  10,  9, // cases 8 - 15
   3,  15,  2,  13,  15,  10,  13,  9, // cases 16 - 23
@@ -7870,7 +7870,7 @@ const int NumClipShapesWdg[64] = {
   2,  9,  9,  3,  9,  3,  3,  1  // cases 56 - 63
 };
 
-const int StartClipShapesWdg[64] = {
+const uint16_t StartClipShapesWdg[64] = {
   0, 8, 29, 50, 115, 136, 201, 266, // cases 0 - 7
   282, 303, 321, 421, 508, 608, 695, 768, // cases 8 - 15
   833, 854, 954, 972, 1059, 1159, 1232, 1319, // cases 16 - 23
@@ -7881,7 +7881,7 @@ const int StartClipShapesWdg[64] = {
   3192, 3208, 3273, 3338, 3359, 3424, 3445, 3466  // cases 56 - 63
 };
 
-static unsigned char ClipShapesWdg[] = {
+static uint8_t ClipShapesWdg[] = {
  // Case #0: Unique case #1
   ST_WDG, COLOR0, P0, P1, P2, P3, P4, P5,
  // Case #1: Unique case #2
@@ -8455,23 +8455,23 @@ static unsigned char ClipShapesWdg[] = {
 //------------------------------------------------------------------------------
 // ---- ClipCasesPyr.C (begin)
 
-const int NumClipCasesPyr = 32;
+const uint16_t NumClipCasesPyr = 32;
 
-const int NumClipShapesPyr[32] = {
+const uint8_t NumClipShapesPyr[32] = {
   1,  3,  3,  8,  3,  4,  8,  4, // cases 0 - 7
   3,  8,  4,  4,  8,  4,  4,  2, // cases 8 - 15
   2,  4,  4,  8,  4,  4,  8,  3, // cases 16 - 23
   4,  8,  4,  3,  8,  3,  3,  1  // cases 24 - 31
 };
 
-const int StartClipShapesPyr[32] = {
+const uint16_t StartClipShapesPyr[32] = {
   0, 7, 27, 47, 106, 126, 158, 217, // cases 0 - 7
   247, 267, 326, 358, 388, 447, 477, 507, // cases 8 - 15
   524, 541, 571, 601, 660, 690, 718, 777, // cases 16 - 23
   797, 827, 886, 914, 934, 993, 1013, 1033  // cases 24 - 31
 };
 
-static unsigned char ClipShapesPyr[] = {
+static uint8_t ClipShapesPyr[] = {
  // Case #0: Unique case #1
   ST_PYR, COLOR0, P0, P1, P2, P3, P4,
  // Case #1: Unique case #2
@@ -8657,19 +8657,19 @@ static unsigned char ClipShapesPyr[] = {
 //------------------------------------------------------------------------------
 // ---- ClipCasesTet.C (begin)
 
-const int NumClipCasesTet = 16;
+const uint16_t NumClipCasesTet = 16;
 
-const int NumClipShapesTet[16] = {
+const uint8_t NumClipShapesTet[16] = {
   1,  2,  2,  2,  2,  2,  2,  2, // cases 0 - 7
   2,  2,  2,  2,  2,  2,  2,  1  // cases 8 - 15
 };
 
-const int StartClipShapesTet[16] = {
+const uint16_t StartClipShapesTet[16] = {
   0, 6, 20, 34, 50, 64, 80, 96, // cases 0 - 7
   110, 124, 140, 156, 170, 186, 200, 214  // cases 8 - 15
 };
 
-static unsigned char ClipShapesTet[] = {
+static uint8_t ClipShapesTet[] = {
  // Case #0: Unique case #1
   ST_TET, COLOR0, P0, P1, P2, P3,
  // Case #1: Unique case #2
@@ -8727,19 +8727,19 @@ static unsigned char ClipShapesTet[] = {
 //------------------------------------------------------------------------------
 // ---- ClipCasesQua.C (begin)
 
-const int NumClipCasesQua = 16;
+const uint16_t NumClipCasesQua = 16;
 
-const int NumClipShapesQua[16] = {
+const uint8_t NumClipShapesQua[16] = {
   1,  3,  3,  2,  3,  4,  2,  3, // cases 0 - 7
   3,  2,  4,  3,  2,  3,  3,  1  // cases 8 - 15
 };
 
-const int StartClipShapesQua[16] = {
+const uint16_t StartClipShapesQua[16] = {
   0, 6, 22, 38, 50, 66, 88, 100, // cases 0 - 7
   116, 132, 144, 166, 182, 194, 210, 226  // cases 8 - 15
 };
 
-static unsigned char ClipShapesQua[] = {
+static uint8_t ClipShapesQua[] = {
  // Case #0: Unique case #1
   ST_QUA, COLOR0, P0, P1, P2, P3,
  // Case #1: Unique case #2
@@ -8809,19 +8809,19 @@ static unsigned char ClipShapesQua[] = {
 //------------------------------------------------------------------------------
 // ---- ClipCasesPix.C (begin)
 
-const int NumClipCasesPix = 16;
+const uint16_t NumClipCasesPix = 16;
 
-const int NumClipShapesPix[16] = {
+const uint8_t NumClipShapesPix[16] = {
   1,  3,  3,  2,  3,  2,  4,  3, // cases 0 - 7
   3,  4,  2,  3,  2,  3,  3,  1  // cases 8 - 15
 };
 
-const int StartClipShapesPix[16] = {
+const uint16_t StartClipShapesPix[16] = {
   0, 6, 22, 38, 50, 66, 78, 100, // cases 0 - 7
   116, 132, 154, 166, 182, 194, 210, 226  // cases 8 - 15
 };
 
-static unsigned char ClipShapesPix[] = {
+static uint8_t ClipShapesPix[] = {
  // Case #0: Unique case #1
   ST_QUA, COLOR0, P0, P1, P3, P2,
  // Case #1: Unique case #2
@@ -8891,17 +8891,17 @@ static unsigned char ClipShapesPix[] = {
 //------------------------------------------------------------------------------
 // ---- ClipCasesTri.C (begin)
 
-const int NumClipCasesTri = 8;
+const uint16_t NumClipCasesTri = 8;
 
-const int NumClipShapesTri[8] = {
+const uint8_t NumClipShapesTri[8] = {
   1,  2,  2,  2,  2,  2,  2,  1  // cases 0 - 7
 };
 
-const int StartClipShapesTri[8] = {
+const uint16_t StartClipShapesTri[8] = {
   0, 5, 16, 27, 38, 49, 60, 71  // cases 0 - 7
 };
 
-static unsigned char ClipShapesTri[] = {
+static uint8_t ClipShapesTri[] = {
  // Case #0: Unique case #1
   ST_TRI, COLOR0, P0, P1, P2,
  // Case #1: Unique case #2
@@ -8935,15 +8935,15 @@ static unsigned char ClipShapesTri[] = {
 //------------------------------------------------------------------------------
 // ---- ClipCasesLin.C (begin)
 
-const int NumClipCasesLin = 4;
+const uint16_t NumClipCasesLin = 4;
 
-const int NumClipShapesLin[4] = {
+const uint8_t NumClipShapesLin[4] = {
   1,  2,  2,  1 };
 
-const int StartClipShapesLin[4] = {
+const uint16_t StartClipShapesLin[4] = {
   0, 4, 12, 20  };
 
-static unsigned char ClipShapesLin[] = {
+static uint8_t ClipShapesLin[] = {
  // Case #0: Unique case #1
   ST_LIN, COLOR0, P0, P1,
  // Case #1: Unique case #2
@@ -8965,15 +8965,15 @@ static unsigned char ClipShapesLin[] = {
 //------------------------------------------------------------------------------
 // ---- ClipCasesVtx.C (begin)
 
-const int NumClipCasesVtx = 2;
+const uint16_t NumClipCasesVtx = 2;
 
-const int NumClipShapesVtx[2] = {
+const uint8_t NumClipShapesVtx[2] = {
   1,  1 };
 
-const int StartClipShapesVtx[2] = {
+const uint16_t StartClipShapesVtx[2] = {
   0, 3  };
 
-static unsigned char ClipShapesVtx[] = {
+static uint8_t ClipShapesVtx[] = {
  // Case #0: Unique case #1
   ST_VTX, COLOR0, P0,
  // Case #1: Unique case #2
