@@ -433,9 +433,9 @@ void MarkAdjacent(vtkPolyData* extractedEdges, unsigned char* smooth)
 void ExcludeArrays(vtkPointData* inPD, ArrayList& arrList, std::vector<vtkStdString>& exclArrays)
 {
   // Manage arrays for interpolation
-  for (auto itr : exclArrays)
+  for (auto const& itr : exclArrays)
   {
-    vtkDataArray* array = inPD->GetArray(itr);
+    vtkDataArray* array = inPD->GetArray(itr.c_str());
     if (array != nullptr)
     {
       arrList.ExcludeArray(array);
@@ -448,9 +448,9 @@ void AddExcludedArrays(
   vtkPointData* inPD, vtkPointData* outPD, std::vector<vtkStdString>& exclArrays)
 {
   // Manage arrays for interpolation
-  for (auto itr : exclArrays)
+  for (auto const& itr : exclArrays)
   {
-    vtkDataArray* array = inPD->GetArray(itr);
+    vtkDataArray* array = inPD->GetArray(itr.c_str());
     outPD->AddArray(array); // pass thru to filter output
   }
 }
