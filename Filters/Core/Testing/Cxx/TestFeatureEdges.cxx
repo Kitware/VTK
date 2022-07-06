@@ -19,9 +19,11 @@
 #include "vtkCellData.h"
 #include "vtkDoubleArray.h"
 #include "vtkFeatureEdges.h"
+#include "vtkGhostCellsGenerator.h"
 #include "vtkImageData.h"
 #include "vtkLogger.h"
 #include "vtkNew.h"
+#include "vtkPartitionedDataSet.h"
 #include "vtkPointData.h"
 #include "vtkPointDataToCellData.h"
 #include "vtkPolyData.h"
@@ -326,8 +328,53 @@ bool TestMixedTypes()
     if (error)
     {
       vtkLog(ERROR, "Error when copying cell data into output when using vtkFeatureEdge.");
-      //    return false;
+      return false;
     }
+  }
+
+  // Creating a second image next to the first image.
+  // We're going to test how the feature edge filter reacts to ghost cells.
+  vtkNew<vtkImageData> image2;
+  int extent2[6] = { -maxExtent, 0, 0, maxExtent, 0, 0 };
+  image2->SetExtent(extent2);
+  FillImage(image2);
+
+  vtkSmartPointer<vtkPolyData> imagePD = Convert2DImageToPolyData(image);
+  vtkSmartPointer<vtkPolyData> imagePD2 = Convert2DImageToPolyData(image2);
+
+  vtkNew<vtkPartitionedDataSet> pds;
+  pds->SetNumberOfPartitions(2);
+  pds->SetPartition(0, imagePD);
+  pds->SetPartition(1, imagePD2);
+
+  vtkNew<vtkGhostCellsGenerator> ghostGenerator;
+  ghostGenerator->SetInputData(pds);
+  ghostGenerator->SetNumberOfGhostLayers(1);
+  ghostGenerator->BuildIfRequiredOff();
+  ghostGenerator->Update();
+
+  vtkPolyData* pdWithGhosts = vtkPolyData::SafeDownCast(
+    vtkPartitionedDataSet::SafeDownCast(ghostGenerator->GetOutputDataObject(0))->GetPartition(0));
+
+  edges->SetInputData(pdWithGhosts);
+  edges->RemoveGhostInterfacesOn();
+  edges->Update();
+  out = vtkPolyData::SafeDownCast(edges->GetOutputDataObject(0));
+  if (out->GetNumberOfCells() != maxExtent * 3)
+  {
+    vtkLog(ERROR,
+      "Feature edges failed at generating edges with ghost cells. it generated "
+        << out->GetNumberOfCells() << " cells instead of " << (maxExtent * 3));
+  }
+
+  edges->RemoveGhostInterfacesOff();
+  edges->Update();
+  out = vtkPolyData::SafeDownCast(edges->GetOutputDataObject(0));
+  if (out->GetNumberOfCells() != maxExtent * 4)
+  {
+    vtkLog(ERROR,
+      "Feature edges failed at generating edges with ghost cells. it generated "
+        << out->GetNumberOfCells() << " cells instead of " << (maxExtent * 4));
   }
 
   return true;
