@@ -87,6 +87,21 @@ int TestCGNSReader(int argc, char* argv[])
     return EXIT_FAILURE;
   }
 
+  fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/Example_ngon_pe.cgns");
+  std::string ngonpe = fname ? fname : "";
+  delete[] fname;
+
+  cout << "Opening " << ngonpe.c_str() << endl;
+  vtkNew<vtkCGNSReader> ngonpeReader;
+  ngonpeReader->SetFileName(ngonpe.c_str());
+  ngonpeReader->Update();
+  mb = ngonpeReader->GetOutput();
+
+  if (0 != TestOutput(mb, 7, VTK_POLYHEDRON))
+  {
+    return EXIT_FAILURE;
+  }
+
   fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/test_cylinder.cgns");
   std::string bcfile = fname ? fname : "";
   delete[] fname;
