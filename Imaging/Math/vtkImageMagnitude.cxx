@@ -57,7 +57,7 @@ void vtkImageMagnitudeExecute(
 {
   vtkImageIterator<T> inIt(inData, outExt);
   vtkImageProgressIterator<T> outIt(outData, outExt, self, id);
-  float sum;
+  double sum;
 
   // find the region to loop over
   int maxC = inData->GetNumberOfScalarComponents();
@@ -75,7 +75,7 @@ void vtkImageMagnitudeExecute(
       sum = 0.0;
       for (idxC = 0; idxC < maxC; idxC++)
       {
-        sum += static_cast<float>(*inSI * *inSI);
+        sum += static_cast<double>(*inSI) * static_cast<double>(*inSI);
         ++inSI;
       }
       *outSI = static_cast<T>(sqrt(sum));
