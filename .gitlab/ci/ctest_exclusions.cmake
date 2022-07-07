@@ -23,6 +23,8 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora" OR
     "^VTK::FiltersGeneralPython-edgePoints$"
     "^VTK::FiltersGeneralPython-TestFEDiscreteClipper2D$"
     "^VTK::FiltersGeometryCxx-TestLinearToQuadraticCellsFilter$"
+    "^VTK::FiltersHyperTreeCxx-TestHyperTreeGridTernary3DDualContourMaterial$"
+    "^VTK::FiltersHyperTreeCxx-TestHyperTreeGridTernary3DGeometryLargeMaterialBits$"
     "^VTK::FiltersHyperTreeCxx-TestHyperTreeGridTernary3DPlaneCutterDual$"
     "^VTK::FiltersModelingPython-TestCookieCutter3$"
     "^VTK::FiltersModelingPython-TestImprintFilter3$"
