@@ -198,7 +198,7 @@ bool vtkOpenGLCheckErrors(const char* headerMessage = "")
 {
   const int maxNumErrors = 16;
   unsigned int errCode[maxNumErrors] = {0};
-  const char* errDesc[maxNumErrors] = {NULL};
+  const char* errDesc[maxNumErrors] = {nullptr};
   int numErrors = vtkGetOpenGLErrors(maxNumErrors, errCode, errDesc);
   if (numErrors > 0)
   {
@@ -253,7 +253,7 @@ void vtkClearOpenGLErrors(const unsigned int maxErrors = 16)
 {                                                    \
   const int maxErrors = 16;                          \
   unsigned int errCode[maxErrors] = {0};             \
-  const char *errDesc[maxErrors] = {NULL};           \
+  const char *errDesc[maxErrors] = {nullptr};        \
                                                      \
   int numErrors                                      \
     = vtkGetOpenGLErrors(                            \

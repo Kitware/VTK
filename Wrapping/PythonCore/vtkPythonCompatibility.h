@@ -48,12 +48,12 @@
 // Buffer initialization
 #define VTK_PYBUFFER_INITIALIZER                                                                   \
   {                                                                                                \
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0                                                                \
+    nullptr, nullptr, 0, 0, 0, 0, nullptr, nullptr, nullptr, nullptr, nullptr                      \
   }
 
 // PyTypeObject compatibility
 #if PY_VERSION_HEX >= 0x03090000
-#define VTK_WRAP_PYTHON_SUPPRESS_UNINITIALIZED 0, 0, 0, 0,
+#define VTK_WRAP_PYTHON_SUPPRESS_UNINITIALIZED nullptr, 0, nullptr, nullptr,
 #elif PY_VERSION_HEX >= 0x03080000
 #define VTK_WRAP_PYTHON_SUPPRESS_UNINITIALIZED 0, 0, 0, 0, 0,
 #else

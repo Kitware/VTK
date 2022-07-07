@@ -57,7 +57,7 @@
 #include <vtksys/RegularExpression.hxx>
 
 //=============================================================================
-#define CALL_NETCDF(call)                                                                          \
+#define CALL_NETCDF_INT(call)                                                                      \
   do                                                                                               \
   {                                                                                                \
     int errorcode = call;                                                                          \
@@ -65,6 +65,17 @@
     {                                                                                              \
       vtkErrorMacro(<< "netCDF Error: " << nc_strerror(errorcode));                                \
       return 0;                                                                                    \
+    }                                                                                              \
+  } while (false)
+
+#define CALL_NETCDF_PTR(call)                                                                      \
+  do                                                                                               \
+  {                                                                                                \
+    int errorcode = call;                                                                          \
+    if (errorcode != NC_NOERR)                                                                     \
+    {                                                                                              \
+      vtkErrorMacro(<< "netCDF Error: " << nc_strerror(errorcode));                                \
+      return nullptr;                                                                              \
     }                                                                                              \
   } while (false)
 
@@ -612,29 +623,29 @@ const char* vtkSLACReader::GetModeFileName(unsigned int idx)
 vtkIdType vtkSLACReader::GetNumTuplesInVariable(int ncFD, int varId, int expectedNumComponents)
 {
   int numDims;
-  CALL_NETCDF(nc_inq_varndims(ncFD, varId, &numDims));
+  CALL_NETCDF_INT(nc_inq_varndims(ncFD, varId, &numDims));
   if (numDims != 2)
   {
     char name[NC_MAX_NAME + 1];
-    CALL_NETCDF(nc_inq_varname(ncFD, varId, name));
+    CALL_NETCDF_INT(nc_inq_varname(ncFD, varId, name));
     vtkErrorMacro(<< "Wrong dimensions on " << name);
     return 0;
   }
 
   int dimIds[2];
-  CALL_NETCDF(nc_inq_vardimid(ncFD, varId, dimIds));
+  CALL_NETCDF_INT(nc_inq_vardimid(ncFD, varId, dimIds));
 
   size_t dimLength;
-  CALL_NETCDF(nc_inq_dimlen(ncFD, dimIds[1], &dimLength));
+  CALL_NETCDF_INT(nc_inq_dimlen(ncFD, dimIds[1], &dimLength));
   if (static_cast<int>(dimLength) != expectedNumComponents)
   {
     char name[NC_MAX_NAME + 1];
-    CALL_NETCDF(nc_inq_varname(ncFD, varId, name));
+    CALL_NETCDF_INT(nc_inq_varname(ncFD, varId, name));
     vtkErrorMacro(<< "Unexpected tuple size on " << name);
     return 0;
   }
 
-  CALL_NETCDF(nc_inq_dimlen(ncFD, dimIds[0], &dimLength));
+  CALL_NETCDF_INT(nc_inq_dimlen(ncFD, dimIds[0], &dimLength));
   return static_cast<vtkIdType>(dimLength);
 }
 
@@ -675,8 +686,8 @@ int vtkSLACReader::RequestInformation(vtkInformation* vtkNotUsed(request),
       return 0;
 
     int meshCoordsVarId, modeCoordsVarId;
-    CALL_NETCDF(nc_inq_varid(meshFD, "coords", &meshCoordsVarId));
-    CALL_NETCDF(nc_inq_varid(modeFD, "coords", &modeCoordsVarId));
+    CALL_NETCDF_INT(nc_inq_varid(meshFD, "coords", &meshCoordsVarId));
+    CALL_NETCDF_INT(nc_inq_varid(modeFD, "coords", &modeCoordsVarId));
 
     if (this->GetNumTuplesInVariable(meshFD, meshCoordsVarId, 3) !=
       this->GetNumTuplesInVariable(modeFD, modeCoordsVarId, 3))
@@ -716,25 +727,25 @@ int vtkSLACReader::RequestInformation(vtkInformation* vtkNotUsed(request),
       // vtksys::RegularExpression imaginaryVar("_imag$");
 
       int ncoordDim;
-      CALL_NETCDF(nc_inq_dimid(modeFD, "ncoord", &ncoordDim));
+      CALL_NETCDF_INT(nc_inq_dimid(modeFD, "ncoord", &ncoordDim));
 
       int numVariables;
-      CALL_NETCDF(nc_inq_nvars(modeFD, &numVariables));
+      CALL_NETCDF_INT(nc_inq_nvars(modeFD, &numVariables));
 
       for (int i = 0; i < numVariables; i++)
       {
         int numDims;
-        CALL_NETCDF(nc_inq_varndims(modeFD, i, &numDims));
+        CALL_NETCDF_INT(nc_inq_varndims(modeFD, i, &numDims));
         if ((numDims < 1) || (numDims > 2))
           continue;
 
         int dimIds[2];
-        CALL_NETCDF(nc_inq_vardimid(modeFD, i, dimIds));
+        CALL_NETCDF_INT(nc_inq_vardimid(modeFD, i, dimIds));
         if (dimIds[0] != ncoordDim)
           continue;
 
         char name[NC_MAX_NAME + 1];
-        CALL_NETCDF(nc_inq_varname(modeFD, i, name));
+        CALL_NETCDF_INT(nc_inq_varname(modeFD, i, name));
         if (strcmp(name, "coords") == 0)
           continue;
         // if (this->FrequencyModes && imaginaryVar.find(name)) continue;
@@ -1141,13 +1152,13 @@ vtkDoubleArray* vtkSLACReader::GetPhaseShifts()
 int vtkSLACReader::ReadTetrahedronInteriorArray(int meshFD, vtkIdTypeArray* connectivity)
 {
   int tetInteriorVarId;
-  CALL_NETCDF(nc_inq_varid(meshFD, "tetrahedron_interior", &tetInteriorVarId));
+  CALL_NETCDF_INT(nc_inq_varid(meshFD, "tetrahedron_interior", &tetInteriorVarId));
   vtkIdType numTetsInterior = this->GetNumTuplesInVariable(meshFD, tetInteriorVarId, NumPerTetInt);
 
   connectivity->Initialize();
   connectivity->SetNumberOfComponents(NumPerTetInt);
   connectivity->SetNumberOfTuples(numTetsInterior);
-  CALL_NETCDF(nc_get_var_vtkIdType(meshFD, tetInteriorVarId, connectivity->GetPointer(0)));
+  CALL_NETCDF_INT(nc_get_var_vtkIdType(meshFD, tetInteriorVarId, connectivity->GetPointer(0)));
 
   return 1;
 }
@@ -1156,13 +1167,13 @@ int vtkSLACReader::ReadTetrahedronInteriorArray(int meshFD, vtkIdTypeArray* conn
 int vtkSLACReader::ReadTetrahedronExteriorArray(int meshFD, vtkIdTypeArray* connectivity)
 {
   int tetExteriorVarId;
-  CALL_NETCDF(nc_inq_varid(meshFD, "tetrahedron_exterior", &tetExteriorVarId));
+  CALL_NETCDF_INT(nc_inq_varid(meshFD, "tetrahedron_exterior", &tetExteriorVarId));
   vtkIdType numTetsExterior = this->GetNumTuplesInVariable(meshFD, tetExteriorVarId, NumPerTetExt);
 
   connectivity->Initialize();
   connectivity->SetNumberOfComponents(NumPerTetExt);
   connectivity->SetNumberOfTuples(numTetsExterior);
-  CALL_NETCDF(nc_get_var_vtkIdType(meshFD, tetExteriorVarId, connectivity->GetPointer(0)));
+  CALL_NETCDF_INT(nc_get_var_vtkIdType(meshFD, tetExteriorVarId, connectivity->GetPointer(0)));
 
   return 1;
 }
@@ -1174,7 +1185,7 @@ int vtkSLACReader::CheckTetrahedraWinding(int meshFD)
 
   // Read in the first interior tetrahedron topology.
   int tetInteriorVarId;
-  CALL_NETCDF(nc_inq_varid(meshFD, "tetrahedron_interior", &tetInteriorVarId));
+  CALL_NETCDF_INT(nc_inq_varid(meshFD, "tetrahedron_interior", &tetInteriorVarId));
 
   size_t start[2], count[2];
   start[0] = 0;
@@ -1183,12 +1194,13 @@ int vtkSLACReader::CheckTetrahedraWinding(int meshFD)
   count[1] = NumPerTetInt;
 
   vtkIdType tetTopology[NumPerTetInt];
-  CALL_NETCDF(nc_get_vars_vtkIdType(meshFD, tetInteriorVarId, start, count, nullptr, tetTopology));
+  CALL_NETCDF_INT(
+    nc_get_vars_vtkIdType(meshFD, tetInteriorVarId, start, count, nullptr, tetTopology));
 
   // Read in the point coordinates for the tetrahedron.  The indices for the
   // points are stored in values 1-4 of tetTopology.
   int coordsVarId;
-  CALL_NETCDF(nc_inq_varid(meshFD, "coords", &coordsVarId));
+  CALL_NETCDF_INT(nc_inq_varid(meshFD, "coords", &coordsVarId));
 
   double pts[4][3];
   for (i = 0; i < 4; i++)
@@ -1197,7 +1209,7 @@ int vtkSLACReader::CheckTetrahedraWinding(int meshFD)
     count[0] = 1;
     start[1] = 0;
     count[1] = 3;
-    CALL_NETCDF(nc_get_vars_double(meshFD, coordsVarId, start, count, nullptr, pts[i]));
+    CALL_NETCDF_INT(nc_get_vars_double(meshFD, coordsVarId, start, count, nullptr, pts[i]));
   }
 
   // Given the coordinates of the tetrahedron points, determine the direction of
@@ -1310,7 +1322,7 @@ vtkSmartPointer<vtkDataArray> vtkSLACReader::ReadPointDataArray(int ncFD, int va
 {
   // Get the dimension info.  We should only need to worry about 1 or 2D arrays.
   int numDims;
-  CALL_NETCDF(nc_inq_varndims(ncFD, varId, &numDims));
+  CALL_NETCDF_PTR(nc_inq_varndims(ncFD, varId, &numDims));
   if (numDims > 2) // don't support 3d or higher arrays
   {
     vtkErrorMacro(<< "Sanity check failed.  "
@@ -1324,18 +1336,18 @@ vtkSmartPointer<vtkDataArray> vtkSLACReader::ReadPointDataArray(int ncFD, int va
     return nullptr;
   }
   int dimIds[2];
-  CALL_NETCDF(nc_inq_vardimid(ncFD, varId, dimIds));
+  CALL_NETCDF_PTR(nc_inq_vardimid(ncFD, varId, dimIds));
   size_t numCoords;
-  CALL_NETCDF(nc_inq_dimlen(ncFD, dimIds[0], &numCoords));
+  CALL_NETCDF_PTR(nc_inq_dimlen(ncFD, dimIds[0], &numCoords));
   size_t numComponents = 1;
   if (numDims > 1)
   {
-    CALL_NETCDF(nc_inq_dimlen(ncFD, dimIds[1], &numComponents));
+    CALL_NETCDF_PTR(nc_inq_dimlen(ncFD, dimIds[1], &numComponents));
   }
 
   // Allocate an array of the right type.
   nc_type ncType;
-  CALL_NETCDF(nc_inq_vartype(ncFD, varId, &ncType));
+  CALL_NETCDF_PTR(nc_inq_vartype(ncFD, varId, &ncType));
   int vtkType = NetCDFTypeToVTKType(ncType);
   if (vtkType < 1)
     return nullptr;
@@ -1349,7 +1361,7 @@ vtkSmartPointer<vtkDataArray> vtkSLACReader::ReadPointDataArray(int ncFD, int va
   start[0] = start[1] = 0;
   count[0] = numCoords;
   count[1] = numComponents;
-  CALL_NETCDF(nc_get_vars(ncFD, varId, start, count, nullptr, dataArray->GetVoidPointer(0)));
+  CALL_NETCDF_PTR(nc_get_vars(ncFD, varId, start, count, nullptr, dataArray->GetVoidPointer(0)));
 
   return dataArray;
 }
@@ -1360,7 +1372,7 @@ int vtkSLACReader::ReadCoordinates(int meshFD, vtkMultiBlockDataSet* output)
   // Read in the point coordinates.  The coordinates are 3-tuples in an array
   // named "coords".
   int coordsVarId;
-  CALL_NETCDF(nc_inq_varid(meshFD, "coords", &coordsVarId));
+  CALL_NETCDF_INT(nc_inq_varid(meshFD, "coords", &coordsVarId));
 
   vtkSmartPointer<vtkDataArray> coordData = this->ReadPointDataArray(meshFD, coordsVarId);
   if (!coordData)
@@ -1395,9 +1407,9 @@ int vtkSLACReader::ReadFieldData(
   // Get the number of coordinates (which determines how many items are read
   // per variable).
   int ncoordDim;
-  CALL_NETCDF(nc_inq_dimid(modeFDArray[0], "ncoord", &ncoordDim));
+  CALL_NETCDF_INT(nc_inq_dimid(modeFDArray[0], "ncoord", &ncoordDim));
   size_t numCoords;
-  CALL_NETCDF(nc_inq_dimlen(modeFDArray[0], ncoordDim, &numCoords));
+  CALL_NETCDF_INT(nc_inq_dimlen(modeFDArray[0], ncoordDim, &numCoords));
 
   int numArrays = this->Internal->VariableArraySelection->GetNumberOfArrays();
   for (int arrayIndex = 0; arrayIndex < numArrays; arrayIndex++)
@@ -1411,13 +1423,13 @@ int vtkSLACReader::ReadFieldData(
     // from the variable name, get the variable id
     const char* cname = this->Internal->VariableArraySelection->GetArrayName(arrayIndex);
     int varId;
-    CALL_NETCDF(nc_inq_varid(modeFDArray[0], cname, &varId));
+    CALL_NETCDF_INT(nc_inq_varid(modeFDArray[0], cname, &varId));
 
     vtkStdString name(cname);
 
     // if this variable isn't 1d or 2d array, skip it.
     int numDims;
-    CALL_NETCDF(nc_inq_varndims(modeFDArray[0], varId, &numDims));
+    CALL_NETCDF_INT(nc_inq_varndims(modeFDArray[0], varId, &numDims));
     if (numDims < 1 || numDims > 2)
     {
       vtkWarningMacro(<< "Encountered invalid variable dimensions.");
@@ -1569,7 +1581,7 @@ int vtkSLACReader::ReadMidpointCoordinates(
 {
   // Get the number of midpoints.
   int midpointsVar;
-  CALL_NETCDF(nc_inq_varid(meshFD, "surface_midpoint", &midpointsVar));
+  CALL_NETCDF_INT(nc_inq_varid(meshFD, "surface_midpoint", &midpointsVar));
   vtkIdType numMidpoints = this->GetNumTuplesInVariable(meshFD, midpointsVar, 5);
   if (numMidpoints < 1)
     return 0;
@@ -1578,7 +1590,7 @@ int vtkSLACReader::ReadMidpointCoordinates(
   VTK_CREATE(vtkDoubleArray, midpointData);
   midpointData->SetNumberOfComponents(5);
   midpointData->SetNumberOfTuples(numMidpoints);
-  CALL_NETCDF(nc_get_var_double(meshFD, midpointsVar, midpointData->GetPointer(0)));
+  CALL_NETCDF_INT(nc_get_var_double(meshFD, midpointsVar, midpointData->GetPointer(0)));
 
   vtkPoints* points =
     vtkPoints::SafeDownCast(output->GetInformation()->Get(vtkSLACReader::POINTS()));

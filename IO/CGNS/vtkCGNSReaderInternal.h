@@ -159,7 +159,7 @@ public:
       }
       cc++;
     }
-    return NULL;
+    return nullptr;
   }
 
   int GetNumberOfArrays() { return static_cast<int>(this->size()); }
@@ -411,8 +411,8 @@ int setUpRind(const int cgioNum, const double rindId, int* rind);
  * Find the first node with the given `label`. If `name` is non-NULL, then the
  * first node with given `label` that has the given `name` as well.
  */
-int getFirstNodeId(
-  const int cgioNum, const double parentId, const char* label, double* id, const char* name = NULL);
+int getFirstNodeId(const int cgioNum, const double parentId, const char* label, double* id,
+  const char* name = nullptr);
 //------------------------------------------------------------------------------
 int get_section_connectivity(const int cgioNum, const double cgioSectionId, const int dim,
   const cgsize_t* srcStart, const cgsize_t* srcEnd, const cgsize_t* srcStride,
@@ -518,12 +518,12 @@ int get_XYZ_mesh(const int cgioNum, const std::vector<double>& gridChildId,
     else
     {
       constexpr const char* dtNameY = detail::cgns_type_name<Y>();
-      Y* dataArray = 0;
+      Y* dataArray = nullptr;
       const cgsize_t memNoStride[3] = { 1, 1, 1 };
 
       // need to read into temp array to convert data
       dataArray = new Y[nPts];
-      if (dataArray == 0)
+      if (dataArray == nullptr)
       {
         std::cerr << "Error allocating buffer array\n";
         break;

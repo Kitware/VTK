@@ -45,7 +45,7 @@
 #include "vtk_netcdf.h"
 
 //=============================================================================
-#define CALL_NETCDF(call)                                                                          \
+#define CALL_NETCDF_INT(call)                                                                      \
   do                                                                                               \
   {                                                                                                \
     int errorcode = call;                                                                          \
@@ -216,29 +216,29 @@ vtkIdType vtkSLACParticleReader::GetNumTuplesInVariable(
   int ncFD, int varId, int expectedNumComponents)
 {
   int numDims;
-  CALL_NETCDF(nc_inq_varndims(ncFD, varId, &numDims));
+  CALL_NETCDF_INT(nc_inq_varndims(ncFD, varId, &numDims));
   if (numDims != 2)
   {
     char name[NC_MAX_NAME + 1];
-    CALL_NETCDF(nc_inq_varname(ncFD, varId, name));
+    CALL_NETCDF_INT(nc_inq_varname(ncFD, varId, name));
     vtkErrorMacro(<< "Wrong dimensions on " << name);
     return 0;
   }
 
   int dimIds[2];
-  CALL_NETCDF(nc_inq_vardimid(ncFD, varId, dimIds));
+  CALL_NETCDF_INT(nc_inq_vardimid(ncFD, varId, dimIds));
 
   size_t dimLength;
-  CALL_NETCDF(nc_inq_dimlen(ncFD, dimIds[1], &dimLength));
+  CALL_NETCDF_INT(nc_inq_dimlen(ncFD, dimIds[1], &dimLength));
   if (static_cast<int>(dimLength) != expectedNumComponents)
   {
     char name[NC_MAX_NAME + 1];
-    CALL_NETCDF(nc_inq_varname(ncFD, varId, name));
+    CALL_NETCDF_INT(nc_inq_varname(ncFD, varId, name));
     vtkErrorMacro(<< "Unexpected tuple size on " << name);
     return 0;
   }
 
-  CALL_NETCDF(nc_inq_dimlen(ncFD, dimIds[0], &dimLength));
+  CALL_NETCDF_INT(nc_inq_dimlen(ncFD, dimIds[0], &dimLength));
   return static_cast<vtkIdType>(dimLength);
 }
 
@@ -257,9 +257,9 @@ int vtkSLACParticleReader::RequestInformation(vtkInformation* vtkNotUsed(request
     return 0;
 
   int timeVar;
-  CALL_NETCDF(nc_inq_varid(ncFD(), "time", &timeVar));
+  CALL_NETCDF_INT(nc_inq_varid(ncFD(), "time", &timeVar));
   double timeValue;
-  CALL_NETCDF(nc_get_var_double(ncFD(), timeVar, &timeValue));
+  CALL_NETCDF_INT(nc_get_var_double(ncFD(), timeVar, &timeValue));
 
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
   outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), &timeValue, 1);
@@ -289,7 +289,7 @@ int vtkSLACParticleReader::RequestData(vtkInformation* vtkNotUsed(request),
   VTK_CREATE(vtkPoints, points);
 
   int particlePosVar;
-  CALL_NETCDF(nc_inq_varid(ncFD(), "particlePos", &particlePosVar));
+  CALL_NETCDF_INT(nc_inq_varid(ncFD(), "particlePos", &particlePosVar));
   vtkIdType numParticles = this->GetNumTuplesInVariable(ncFD(), particlePosVar, 6);
 
   size_t start[2], count[2];
@@ -301,7 +301,7 @@ int vtkSLACParticleReader::RequestData(vtkInformation* vtkNotUsed(request),
   VTK_CREATE(vtkDoubleArray, coords);
   coords->SetNumberOfComponents(3);
   coords->SetNumberOfTuples(numParticles);
-  CALL_NETCDF(
+  CALL_NETCDF_INT(
     nc_get_vars_double(ncFD(), particlePosVar, start, count, nullptr, coords->GetPointer(0)));
   points->SetData(coords);
   output->SetPoints(points);
@@ -311,12 +311,12 @@ int vtkSLACParticleReader::RequestData(vtkInformation* vtkNotUsed(request),
   momentum->SetNumberOfComponents(3);
   momentum->SetNumberOfTuples(numParticles);
   start[1] = 3;
-  CALL_NETCDF(
+  CALL_NETCDF_INT(
     nc_get_vars_double(ncFD(), particlePosVar, start, count, nullptr, momentum->GetPointer(0)));
   output->GetPointData()->AddArray(momentum);
 
   int particleInfoVar;
-  CALL_NETCDF(nc_inq_varid(ncFD(), "particleInfo", &particleInfoVar));
+  CALL_NETCDF_INT(nc_inq_varid(ncFD(), "particleInfo", &particleInfoVar));
   start[1] = 0;
   count[1] = 1;
 
@@ -324,7 +324,7 @@ int vtkSLACParticleReader::RequestData(vtkInformation* vtkNotUsed(request),
   ids->SetName("ParticleIds");
   ids->SetNumberOfComponents(1);
   ids->SetNumberOfTuples(numParticles);
-  CALL_NETCDF(
+  CALL_NETCDF_INT(
     nc_get_vars_vtkIdType(ncFD(), particleInfoVar, start, count, nullptr, ids->GetPointer(0)));
   output->GetPointData()->SetGlobalIds(ids);
 
@@ -333,7 +333,7 @@ int vtkSLACParticleReader::RequestData(vtkInformation* vtkNotUsed(request),
   emissionType->SetNumberOfComponents(1);
   emissionType->SetNumberOfTuples(numParticles);
   start[1] = 1;
-  CALL_NETCDF(
+  CALL_NETCDF_INT(
     nc_get_vars_int(ncFD(), particleInfoVar, start, count, nullptr, emissionType->GetPointer(0)));
   output->GetPointData()->AddArray(emissionType);
 
@@ -346,9 +346,9 @@ int vtkSLACParticleReader::RequestData(vtkInformation* vtkNotUsed(request),
   output->SetVerts(verts);
 
   int timeVar;
-  CALL_NETCDF(nc_inq_varid(ncFD(), "time", &timeVar));
+  CALL_NETCDF_INT(nc_inq_varid(ncFD(), "time", &timeVar));
   double timeValue;
-  CALL_NETCDF(nc_get_var_double(ncFD(), timeVar, &timeValue));
+  CALL_NETCDF_INT(nc_get_var_double(ncFD(), timeVar, &timeValue));
   output->GetInformation()->Set(vtkDataObject::DATA_TIME_STEP(), timeValue);
 
   return 1;

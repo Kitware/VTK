@@ -122,14 +122,14 @@ void UpdateRangeImpl(A& min0, A& max0, const A& value)
 
 template <class A> // Non floating point implementation not caring about NaN
 void UpdateRange(A& min0, A& max0, const A& value,
-  typename std::enable_if<!std::is_floating_point<A>::value>::type* = 0)
+  typename std::enable_if<!std::is_floating_point<A>::value>::type* = nullptr)
 {
   UpdateRangeImpl<A>(min0, max0, value);
 }
 
 template <class A> // Floating point implementation specifically considering NaN
 void UpdateRange(A& min0, A& max0, const A& value,
-  typename std::enable_if<std::is_floating_point<A>::value>::type* = 0)
+  typename std::enable_if<std::is_floating_point<A>::value>::type* = nullptr)
 {
   if (!std::isnan(value))
   {
