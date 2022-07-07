@@ -1538,6 +1538,11 @@ struct ExtractUG : public ExtractCellBoundaries<TInputIdType>
       threadedPolys.push_back(&localData.Polys);
     }
     this->FaceMap->PopulateCellArrays(threadedPolys);
+    // Deallocate threaded face memory pools since CellArrays are now populated
+    for (auto& localData : this->LocalData)
+    {
+      localData.FacePool.Destroy();
+    }
     this->ExtractCellBoundaries<TInputIdType>::Reduce();
   }
 };
