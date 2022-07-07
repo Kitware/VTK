@@ -195,14 +195,13 @@
         # Set-ExecutionPolicy -Scope CurrentUser RemoteSigned
         - . .\build\ci-venv\Scripts\Activate.ps1
         - pip install -qq -r $pwdpath\.gitlab\ci\requirements.txt
-        - Set-Item -Force -Path "env:PATH" -Value "$env:PATH;$env:SCCACHE_PATH"
+        - Invoke-Expression -Command .gitlab/ci/buildcache.ps1
+        - Set-Item -Force -Path "env:PATH" -Value "$env:PATH;$pwdpath\.gitlab\buildcache\bin"
         - Invoke-Expression -Command .gitlab/ci/vcvarsall.ps1
-        - Invoke-Expression -Command "sccache --start-server"
-        - sccache --show-stats
+        - buildcache --show-stats
         - ctest -VV -S .gitlab/ci/ctest_configure.cmake
         - ctest -VV -S .gitlab/ci/ctest_build.cmake | Out-File -FilePath compile_output.log
-        - sccache --show-stats
-        - sccache --stop-server
+        - buildcache --show-stats
         - .gitlab\ci\check_warnings.ps1 -BuildPath . # This will call exit in case of warnings
 
     interruptible: true
@@ -250,14 +249,13 @@
         - *before_script_windows
         - cmake -P .gitlab/ci/download_wheel_python.cmake
         - Set-Item -Force -Path "env:PYTHON_PREFIX" -Value "$pwdpath\.gitlab\python"
-        - Set-Item -Force -Path "env:PATH" -Value "$env:PATH;$env:SCCACHE_PATH"
+        - Invoke-Expression -Command .gitlab/ci/buildcache.ps1
+        - Set-Item -Force -Path "env:PATH" -Value "$env:PATH;$pwdpath\.gitlab\buildcache\bin"
         - Invoke-Expression -Command .gitlab/ci/vcvarsall.ps1
-        - Invoke-Expression -Command "sccache --start-server"
-        - sccache --show-stats
+        - buildcache --show-stats
         - ctest -VV -S .gitlab/ci/ctest_configure.cmake
         - ctest -VV -S .gitlab/ci/ctest_build.cmake | Out-File -FilePath compile_output.log
-        - sccache --show-stats
-        - sccache --stop-server
+        - buildcache --show-stats
         - cd build
         - Set-Item -Force -Path "env:PATH" -Value "$env:PYTHON_PREFIX;$env:PATH"
         - python -m venv venv

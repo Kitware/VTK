@@ -42,4 +42,4 @@ else ()
   set(CMAKE_BUILD_TYPE "$ENV{CMAKE_BUILD_TYPE}" CACHE STRING "")
 endif ()
 
-include("${CMAKE_CURRENT_LIST_DIR}/configure_sccache.cmake")
+include("${CMAKE_CURRENT_LIST_DIR}/configure_cache.cmake")
