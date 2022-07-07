@@ -211,9 +211,15 @@ int vtkGeometryFilter::RequestData(vtkInformation* vtkNotUsed(request),
   {
     excFaces = vtkPolyData::SafeDownCast(excInfo->Get(vtkDataObject::DATA_OBJECT()));
   }
+  int wholeExtent[6] = { 0, -1, 0, -1, 0, -1 };
+  if (input->GetExtentType() == VTK_3D_EXTENT)
+  {
+    const int* wholeExt32;
+    wholeExt32 = inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
+    std::copy(wholeExt32, wholeExt32 + 6, wholeExtent);
+  }
 
   // Prepare to delegate based on dataset type and characteristics.
-  int dataDim = 0;
   if (vtkPolyData::SafeDownCast(input))
   {
     return this->PolyDataExecute(input, output, excFaces);
@@ -222,35 +228,16 @@ int vtkGeometryFilter::RequestData(vtkInformation* vtkNotUsed(request),
   {
     return this->UnstructuredGridExecute(input, output, nullptr, excFaces);
   }
-  else if (auto imageData = vtkImageData::SafeDownCast(input))
+  else if (vtkImageData::SafeDownCast(input) || vtkRectilinearGrid::SafeDownCast(input) ||
+    vtkStructuredGrid::SafeDownCast(input))
   {
-    dataDim = imageData->GetDataDimension();
-  }
-  else if (auto rectilinearGrid = vtkRectilinearGrid::SafeDownCast(input))
-  {
-    dataDim = rectilinearGrid->GetDataDimension();
-  }
-  else if (auto structuredGrid = vtkStructuredGrid::SafeDownCast(input))
-  {
-    dataDim = structuredGrid->GetDataDimension();
+    return this->StructuredExecute(input, output, wholeExtent, excFaces);
   }
   else
   {
-    vtkErrorMacro("Data type " << input->GetClassName() << "is not supported.");
-    return 0;
+    // Use the general case
+    return this->DataSetExecute(input, output, excFaces);
   }
-
-  // Delegate to the faster structured processing if possible. It simplifies
-  // things if we only consider 3D structured datasets and no cell/point/extent cliiping.
-  // Otherwise, the general DataSetExecute will handle it just fine.
-  if (dataDim == 3 && !this->GetCellClipping() && !this->GetPointClipping() &&
-    !this->GetExtentClipping())
-  {
-    return this->StructuredExecute(input, output, inInfo, excFaces);
-  }
-
-  // Use the general case
-  return this->DataSetExecute(input, output, excFaces);
 }
 
 //------------------------------------------------------------------------------
@@ -1563,6 +1550,7 @@ struct ExtractStructured : public ExtractCellBoundaries<TInputIdType>
   bool FastMode;      // Whether to use fast mode or not
   bool* ExtractFaces; // Whether to extract faces or not
   int* Extent;        // Data extent
+  int* WholeExtent;   // Whole extent
   int Dimension;      // Dimension of the input
   int Dims[3];        // Grid dimensions
 
@@ -1575,13 +1563,14 @@ struct ExtractStructured : public ExtractCellBoundaries<TInputIdType>
 
   vtkIdType NumberOfFaces;
 
-  ExtractStructured(vtkGeometryFilter* self, TGrid* ds, bool* extractFaces, bool merging,
-    vtkExcludedFaces<TInputIdType>* exc, ThreadOutputType<TInputIdType>* t)
+  ExtractStructured(vtkGeometryFilter* self, TGrid* ds, int* wholeExtent, bool* extractFaces,
+    bool merging, vtkExcludedFaces<TInputIdType>* exc, ThreadOutputType<TInputIdType>* t)
     : ExtractCellBoundaries<TInputIdType>(self, nullptr, nullptr, nullptr, exc, t)
     , Input(ds)
     , FastMode(self->GetFastMode())
     , ExtractFaces(extractFaces)
     , Extent(ds->GetExtent())
+    , WholeExtent(wholeExtent)
     , Dimension(ds->GetDataDimension())
   {
     this->Dims[0] = this->Extent[1] - this->Extent[0] + 1;
@@ -1598,7 +1587,49 @@ struct ExtractStructured : public ExtractCellBoundaries<TInputIdType>
   // Initialize thread data
   void Initialize() override { this->ExtractCellBoundaries<TInputIdType>::Initialize(); }
 
-  std::array<TInputIdType, 4> GetFace(const int ijk[3], bool minFace)
+  /**
+   * This check is needed to understand of a side of the structure data needs to be extracted
+   * when running in distributed mode.
+   */
+  bool CheckIfFaceShouldBeProcessed()
+  {
+    auto& aAxis = this->CurrentAxis;
+    auto& bAxis = this->IAxis;
+    auto& cAxis = this->JAxis;
+
+    int aA2 = aAxis * 2;
+    int bA2 = bAxis * 2;
+    int cA2 = cAxis * 2;
+
+    // We might as well put the test for this face here.
+    if (this->Extent[bA2] == this->Extent[bA2 + 1] || this->Extent[cA2] == this->Extent[cA2 + 1])
+    {
+      return false;
+    }
+    if (!this->MinFace)
+    {
+      if (this->Extent[aA2 + 1] < this->WholeExtent[aA2 + 1])
+      {
+        return false;
+      }
+    }
+    else
+    { // min faces have a slightly different condition to avoid coincident faces.
+      if (this->Extent[aA2] == this->Extent[aA2 + 1] || this->Extent[aA2] > this->WholeExtent[aA2])
+      {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  enum FaceMode
+  {
+    WHOLE_FACE = 0,     // Used by the FaceOperator
+    SHRINKING_FACES = 1 // Used by ShrinkingFacesOperator
+  };
+
+  std::array<TInputIdType, 4> GetFace(const int ijk[3], bool minFace, FaceMode faceMode)
   {
     const int& axis = this->CurrentAxis;
     const int& iAxis = this->IAxis;
@@ -1626,12 +1657,11 @@ struct ExtractStructured : public ExtractCellBoundaries<TInputIdType>
     face[3] =
       static_cast<TInputIdType>(vtkStructuredData::ComputePointIdForExtent(this->Extent, ptIjk));
 
-    if (minFace)
+    if (minFace || faceMode == FaceMode::WHOLE_FACE)
     {
       // invert face order to get an outside pointing normal.
-      return std::array<TInputIdType, 4>({ face[0], face[3], face[2], face[1] });
+      std::swap(face[1], face[3]);
     }
-
     return face;
   }
 
@@ -1660,7 +1690,7 @@ struct ExtractStructured : public ExtractCellBoundaries<TInputIdType>
       cellId = static_cast<TInputIdType>(vtkStructuredData::ComputeCellIdForExtent(extent, ijk));
       if (!this->ForceSimpleVisibilityCheck || this->Input->IsCellVisible(cellId))
       {
-        const auto face = this->GetFace(ijk, this->MinFace);
+        const auto face = this->GetFace(ijk, this->MinFace, FaceMode::WHOLE_FACE);
         polys.template InsertNextCell<TInputIdType>(4, face.data(), cellId);
       }
     }
@@ -1717,7 +1747,7 @@ struct ExtractStructured : public ExtractCellBoundaries<TInputIdType>
         {
           // this ensures correct cell-data is picked for the face
           ijk[axis] = minFace ? k : (k - 1);
-          const auto face = this->GetFace(ijk, minFace);
+          const auto face = this->GetFace(ijk, minFace, FaceMode::SHRINKING_FACES);
           cellId =
             static_cast<TInputIdType>(vtkStructuredData::ComputeCellIdForExtent(extent, ijk));
           polys.template InsertNextCell<TInputIdType>(4, face.data(), cellId);
@@ -1735,7 +1765,7 @@ struct ExtractStructured : public ExtractCellBoundaries<TInputIdType>
                 static_cast<TInputIdType>(vtkStructuredData::ComputeCellIdForExtent(extent, ijk));
               if (this->Input->IsCellVisible(reverseCellId))
               {
-                const auto face2 = this->GetFace(ijk, /*minFace=*/false);
+                const auto face2 = this->GetFace(ijk, /*minFace=*/false, FaceMode::SHRINKING_FACES);
                 polys.template InsertNextCell<TInputIdType>(4, face2.data(), reverseCellId);
                 break;
               }
@@ -1751,7 +1781,7 @@ struct ExtractStructured : public ExtractCellBoundaries<TInputIdType>
       {
         cellId = static_cast<TInputIdType>(vtkStructuredData::ComputeCellIdForExtent(extent, ijk));
         ijk[axis] = extent[5] - 1;
-        const auto face = this->GetFace(ijk, /*minFace=*/false);
+        const auto face = this->GetFace(ijk, /*minFace=*/false, FaceMode::SHRINKING_FACES);
         polys.template InsertNextCell<TInputIdType>(4, face.data(), cellId);
       }
     }
@@ -1788,11 +1818,11 @@ struct ExtractStructured : public ExtractCellBoundaries<TInputIdType>
   void Reduce() override {}
 
   static ExtractCellBoundaries<TInputIdType>* Execute(vtkGeometryFilter* self, TGrid* ds,
-    bool* extractFaces, bool merging, vtkExcludedFaces<TInputIdType>* exc,
+    int* wholeExtent, bool* extractFaces, bool merging, vtkExcludedFaces<TInputIdType>* exc,
     ThreadOutputType<TInputIdType>* t)
   {
-    auto extract =
-      new ExtractStructured<TGrid, TInputIdType>(self, ds, extractFaces, merging, exc, t);
+    auto extract = new ExtractStructured<TGrid, TInputIdType>(
+      self, ds, wholeExtent, extractFaces, merging, exc, t);
     if (extract->AllCellsVisible || extract->ForceSimpleVisibilityCheck)
     {
       const auto& extent = extract->Extent;
@@ -1806,7 +1836,7 @@ struct ExtractStructured : public ExtractCellBoundaries<TInputIdType>
         jAxis = (axis + 2) % 3;
         extract->MinFace = true;
         bool processFace = !extract->ForceSimpleVisibilityCheck || extract->ExtractFaces[2 * axis];
-        if (processFace)
+        if (processFace && extract->CheckIfFaceShouldBeProcessed())
         {
           extract->NumberOfFaces = std::abs(extent[2 * iAxis + 1] - extent[2 * iAxis]) *
             std::abs(extent[2 * jAxis] - extent[2 * jAxis + 1]);
@@ -1816,7 +1846,7 @@ struct ExtractStructured : public ExtractCellBoundaries<TInputIdType>
         std::swap(iAxis, jAxis);
         extract->MinFace = false;
         processFace = !extract->ForceSimpleVisibilityCheck || extract->ExtractFaces[2 * axis + 1];
-        if (processFace)
+        if (processFace && extract->CheckIfFaceShouldBeProcessed())
         {
           extract->NumberOfFaces = std::abs(extent[2 * iAxis + 1] - extent[2 * iAxis]) *
             std::abs(extent[2 * jAxis] - extent[2 * jAxis + 1]);
@@ -3132,7 +3162,7 @@ namespace
 //------------------------------------------------------------------------------
 template <typename TInputIdType>
 int ExecuteStructured(vtkGeometryFilter* self, vtkDataSet* input, vtkPolyData* output,
-  vtkInformation* vtkNotUsed(inInfo), vtkExcludedFaces<TInputIdType>* exc, bool* extractFace)
+  int* wholeExtent, vtkExcludedFaces<TInputIdType>* exc, bool* extractFace)
 {
   vtkIdType numCells = input->GetNumberOfCells();
   vtkPointData* inPD = input->GetPointData();
@@ -3164,17 +3194,17 @@ int ExecuteStructured(vtkGeometryFilter* self, vtkDataSet* input, vtkPolyData* o
   if (auto image = vtkImageData::SafeDownCast(input))
   {
     extStr = ExtractStructured<vtkImageData, TInputIdType>::Execute(
-      self, image, extractFace, mergePts, exc, &threads);
+      self, image, wholeExtent, extractFace, mergePts, exc, &threads);
   }
   else if (auto sGrid = vtkStructuredGrid::SafeDownCast(input))
   {
     extStr = ExtractStructured<vtkStructuredGrid, TInputIdType>::Execute(
-      self, sGrid, extractFace, mergePts, exc, &threads);
+      self, sGrid, wholeExtent, extractFace, mergePts, exc, &threads);
   }
   else if (auto rGrid = vtkRectilinearGrid::SafeDownCast(input))
   {
     extStr = ExtractStructured<vtkRectilinearGrid, TInputIdType>::Execute(
-      self, rGrid, extractFace, mergePts, exc, &threads);
+      self, rGrid, wholeExtent, extractFace, mergePts, exc, &threads);
   }
   else
   {
@@ -3294,8 +3324,66 @@ int ExecuteStructured(vtkGeometryFilter* self, vtkDataSet* input, vtkPolyData* o
 
 //------------------------------------------------------------------------------
 int vtkGeometryFilter::StructuredExecute(vtkDataSet* input, vtkPolyData* output,
-  vtkInformation* inInfo, vtkPolyData* excludedFaces, bool* extractFace)
+  vtkInformation* inInfo, vtkPolyData* exc, bool* extractFace)
 {
+  int wholeExtent[6] = { 0, -1, 0, -1, 0, -1 };
+  if (input->GetExtentType() == VTK_3D_EXTENT)
+  {
+    const int* wholeExt32;
+    if (inInfo)
+    {
+      wholeExt32 = inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
+      std::copy(wholeExt32, wholeExt32 + 6, wholeExtent);
+    }
+  }
+  return this->StructuredExecute(input, output, wholeExtent, exc, extractFace);
+}
+
+//------------------------------------------------------------------------------
+int vtkGeometryFilter::StructuredExecute(
+  vtkDataSet* input, vtkPolyData* output, vtkInformation* inInfo, bool* extractFace)
+{
+  int wholeExtent[6] = { 0, -1, 0, -1, 0, -1 };
+  if (input->GetExtentType() == VTK_3D_EXTENT)
+  {
+    const int* wholeExt32;
+    if (inInfo)
+    {
+      wholeExt32 = inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
+      std::copy(wholeExt32, wholeExt32 + 6, wholeExtent);
+    }
+  }
+  return this->StructuredExecute(input, output, wholeExtent, extractFace);
+}
+
+//------------------------------------------------------------------------------
+int vtkGeometryFilter::StructuredExecute(vtkDataSet* input, vtkPolyData* output, int* wholeExtent,
+  vtkPolyData* excludedFaces, bool* extractFace)
+{
+  int dataDim = -1;
+  if (auto imageData = vtkImageData::SafeDownCast(input))
+  {
+    dataDim = imageData->GetDataDimension();
+  }
+  else if (auto structured = vtkStructuredGrid::SafeDownCast(input))
+  {
+    dataDim = structured->GetDataDimension();
+  }
+  else if (auto rectilinear = vtkRectilinearGrid::SafeDownCast(input))
+  {
+    dataDim = rectilinear->GetDataDimension();
+  }
+  assert(dataDim != -1);
+
+  // Delegate to the generic dataset processing if structuredGrid is not 3d or cell/point/extent
+  // clipping is requested. Otherwise. use the fast structured algorithms. This is done for
+  // simplification purposes.
+  if (dataDim != 3 || this->GetCellClipping() || this->GetPointClipping() ||
+    this->GetExtentClipping())
+  {
+    return this->DataSetExecute(input, output, excludedFaces);
+  }
+
   bool use64BitsIds =
     (input->GetNumberOfPoints() > VTK_INT_MAX || input->GetNumberOfCells() > VTK_INT_MAX);
   if (use64BitsIds)
@@ -3312,7 +3400,7 @@ int vtkGeometryFilter::StructuredExecute(vtkDataSet* input, vtkPolyData* output,
           input->GetNumberOfPoints(), excPolys->GetNumberOfCells(), excPolys);
       }
     }
-    return ExecuteStructured<TInputIdType>(this, input, output, inInfo, &exc, extractFace);
+    return ExecuteStructured<TInputIdType>(this, input, output, wholeExtent, &exc, extractFace);
   }
   else
   {
@@ -3328,16 +3416,16 @@ int vtkGeometryFilter::StructuredExecute(vtkDataSet* input, vtkPolyData* output,
           input->GetNumberOfPoints(), excPolys->GetNumberOfCells(), excPolys);
       }
     }
-    return ExecuteStructured<TInputIdType>(this, input, output, inInfo, &exc, extractFace);
+    return ExecuteStructured<TInputIdType>(this, input, output, wholeExtent, &exc, extractFace);
   }
 }
 
 //------------------------------------------------------------------------------
 // Process various types of structured datasets.
 int vtkGeometryFilter::StructuredExecute(
-  vtkDataSet* input, vtkPolyData* output, vtkInformation* inInfo, bool* extractFace)
+  vtkDataSet* input, vtkPolyData* output, int* wholeExtent, bool* extractFace)
 {
-  return this->StructuredExecute(input, output, inInfo, nullptr, extractFace);
+  return this->StructuredExecute(input, output, wholeExtent, nullptr, extractFace);
 }
 
 //------------------------------------------------------------------------------
