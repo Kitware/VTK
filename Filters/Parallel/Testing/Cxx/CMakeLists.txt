@@ -1,7 +1,7 @@
 vtk_add_test_cxx(vtkFiltersParallelCxxTests testsStd
   TestAlignImageDataSetFilter.cxx,NO_VALID
   TestAngularPeriodicFilter.cxx
-  TestPOutlineFilter.cxx, NO_VALID
+  TestPOutlineFilter.cxx,NO_VALID
   )
 vtk_test_cxx_executable(vtkFiltersParallelCxxTests testsStd)
 
@@ -24,7 +24,7 @@ if (TARGET VTK::ParallelMPI)
     ParallelResampling.cxx
     PCellDataToPointData.cxx
     UnitTestPMaskPoints.cxx
-    TestPOutlineFilter.cxx, NO_VALID
+    TestPOutlineFilter.cxx,NO_VALID
     TestHyperTreeGridGhostCellsGenerator.cxx,NO_VALID
     )
 
