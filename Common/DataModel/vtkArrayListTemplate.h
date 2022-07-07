@@ -72,6 +72,8 @@ struct BaseArrayPair
   virtual void Copy(vtkIdType inId, vtkIdType outId) = 0;
   virtual void Interpolate(
     int numWeights, const vtkIdType* ids, const double* weights, vtkIdType outId) = 0;
+  virtual void InterpolateOutput(
+    int numWeights, const vtkIdType* ids, const double* weights, vtkIdType outId) = 0;
   virtual void Average(int numPts, const vtkIdType* ids, vtkIdType outId) = 0;
   virtual void WeightedAverage(
     int numPts, const vtkIdType* ids, const double* weights, vtkIdType outId) = 0;
@@ -114,6 +116,20 @@ struct ArrayPair : public BaseArrayPair
       for (vtkIdType i = 0; i < numWeights; ++i)
       {
         v += weights[i] * static_cast<double>(this->Input[ids[i] * this->NumComp + j]);
+      }
+      this->Output[outId * this->NumComp + j] = static_cast<T>(v);
+    }
+  }
+
+  void InterpolateOutput(
+    int numWeights, const vtkIdType* ids, const double* weights, vtkIdType outId) override
+  {
+    for (int j = 0; j < this->NumComp; ++j)
+    {
+      double v = 0.0;
+      for (vtkIdType i = 0; i < numWeights; ++i)
+      {
+        v += weights[i] * static_cast<double>(this->Output[ids[i] * this->NumComp + j]);
       }
       this->Output[outId * this->NumComp + j] = static_cast<T>(v);
     }
@@ -212,6 +228,20 @@ struct RealArrayPair : public BaseArrayPair
       for (vtkIdType i = 0; i < numWeights; ++i)
       {
         v += weights[i] * static_cast<double>(this->Input[ids[i] * this->NumComp + j]);
+      }
+      this->Output[outId * this->NumComp + j] = static_cast<TOutput>(v);
+    }
+  }
+
+  void InterpolateOutput(
+    int numWeights, const vtkIdType* ids, const double* weights, vtkIdType outId) override
+  {
+    for (int j = 0; j < this->NumComp; ++j)
+    {
+      double v = 0.0;
+      for (vtkIdType i = 0; i < numWeights; ++i)
+      {
+        v += weights[i] * static_cast<double>(this->Output[ids[i] * this->NumComp + j]);
       }
       this->Output[outId * this->NumComp + j] = static_cast<TOutput>(v);
     }
@@ -323,6 +353,16 @@ struct ArrayList
     for (std::vector<BaseArrayPair*>::iterator it = Arrays.begin(); it != Arrays.end(); ++it)
     {
       (*it)->Interpolate(numWeights, ids, weights, outId);
+    }
+  }
+
+  // Loop over the arrays and have them interpolate themselves based on the output arrays
+  void InterpolateOutput(
+    int numWeights, const vtkIdType* ids, const double* weights, vtkIdType outId)
+  {
+    for (std::vector<BaseArrayPair*>::iterator it = Arrays.begin(); it != Arrays.end(); ++it)
+    {
+      (*it)->InterpolateOutput(numWeights, ids, weights, outId);
     }
   }
 

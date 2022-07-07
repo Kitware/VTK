@@ -2262,8 +2262,8 @@ struct ExtractPointsWorker
         outputPoint[0] *= weightFactor;
         outputPoint[1] *= weightFactor;
         outputPoint[2] *= weightFactor;
-        pointDataArrays.Interpolate(static_cast<int>(centroid.NumberOfPoints), centroid.PointIds,
-          weights, outputCentroidPointId);
+        pointDataArrays.InterpolateOutput(static_cast<int>(centroid.NumberOfPoints),
+          centroid.PointIds, weights, outputCentroidPointId);
       }
     };
     vtkSMPTools::For(0, numberOfCentroids, extractCentroids);
@@ -2725,29 +2725,7 @@ void vtkTableBasedClipDataSet::ClipImageData(vtkDataSet* inputGrid,
   rectGrid->SetZCoordinates(pzCoords);
   rectGrid->GetPointData()->ShallowCopy(imageData->GetPointData());
   rectGrid->GetCellData()->ShallowCopy(imageData->GetCellData());
-  vtkNew<vtkPoints> inputPoints;
-  rectGrid->GetPoints(inputPoints);
-
-  vtkSmartPointer<vtkUnstructuredGrid> clippedOutput;
-#ifdef VTK_USE_64BIT_IDS
-  const vtkIdType numberOfPoints = inputGrid->GetNumberOfPoints();
-  bool use64BitsIds = (numberOfPoints > VTK_TYPE_INT32_MAX);
-  if (use64BitsIds)
-  {
-    using TInputIdType = vtkTypeInt64;
-    clippedOutput =
-      ClipStructuredData<vtkRectilinearGrid, TInputIdType>(rectGrid, inputPoints, implicitFunction,
-        scalars, isoValue, this->InsideOut, this->OutputPointsPrecision, this->BatchSize);
-  }
-  else
-#endif
-  {
-    using TInputIdType = vtkTypeInt32;
-    clippedOutput =
-      ClipStructuredData<vtkRectilinearGrid, TInputIdType>(rectGrid, inputPoints, implicitFunction,
-        scalars, isoValue, this->InsideOut, this->OutputPointsPrecision, this->BatchSize);
-  }
-  outputUG->ShallowCopy(clippedOutput);
+  this->ClipRectilinearGrid(rectGrid, implicitFunction, scalars, isoValue, outputUG);
 }
 
 //------------------------------------------------------------------------------
