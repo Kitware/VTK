@@ -2549,11 +2549,12 @@ int ExecutePolyData(vtkGeometryFilter* self, vtkDataSet* dataSetInput, vtkPolyDa
 int vtkGeometryFilter::PolyDataExecute(
   vtkDataSet* dataSetInput, vtkPolyData* output, vtkPolyData* excludedFaces)
 {
-  bool use64BitsIds = (dataSetInput->GetNumberOfPoints() > VTK_INT_MAX ||
-    dataSetInput->GetNumberOfCells() > VTK_INT_MAX);
+#ifdef VTK_USE_64BIT_IDS
+  bool use64BitsIds = (dataSetInput->GetNumberOfPoints() > VTK_TYPE_INT32_MAX ||
+    dataSetInput->GetNumberOfCells() > VTK_TYPE_INT32_MAX);
   if (use64BitsIds)
   {
-    using TInputIdType = vtkIdType;
+    using TInputIdType = vtkTypeInt64;
     vtkExcludedFaces<TInputIdType> exc;
     if (excludedFaces)
     {
@@ -2567,9 +2568,10 @@ int vtkGeometryFilter::PolyDataExecute(
     }
     return ExecutePolyData<TInputIdType>(this, dataSetInput, output, &exc);
   }
+#endif
   else
   {
-    using TInputIdType = int;
+    using TInputIdType = vtkTypeInt32;
     vtkExcludedFaces<TInputIdType> exc;
     if (excludedFaces)
     {
@@ -3072,9 +3074,11 @@ int ExecuteUnstructuredGrid(vtkGeometryFilter* self, vtkDataSet* dataSetInput, v
   vtkIdType connectivitySize =
     extract->VertsNumPts + extract->LinesNumPts + extract->PolysNumPts + extract->StripsNumPts;
 
-  if (connectivitySize > VTK_INT_MAX)
+#ifdef VTK_USE_64BIT_IDS
+  bool use64BitsIds = connectivitySize > VTK_TYPE_INT32_MAX;
+  if (use64BitsIds)
   {
-    using TOutputIdType = vtkIdType;
+    using TOutputIdType = vtkTypeInt64;
     CompositeCells<TInputIdType, TOutputIdType> compCells(
       ptMap, &cellArrays, extract, &threads, verts, lines, polys, strips);
     vtkSMPTools::For(0, static_cast<vtkIdType>(threads.size()), compCells);
@@ -3087,8 +3091,9 @@ int ExecuteUnstructuredGrid(vtkGeometryFilter* self, vtkDataSet* dataSetInput, v
     }
   }
   else
+#endif
   {
-    using TOutputIdType = int;
+    using TOutputIdType = vtkTypeInt32;
     CompositeCells<TInputIdType, TOutputIdType> compCells(
       ptMap, &cellArrays, extract, &threads, verts, lines, polys, strips);
     vtkSMPTools::For(0, static_cast<vtkIdType>(threads.size()), compCells);
@@ -3115,11 +3120,12 @@ int ExecuteUnstructuredGrid(vtkGeometryFilter* self, vtkDataSet* dataSetInput, v
 int vtkGeometryFilter::UnstructuredGridExecute(vtkDataSet* dataSetInput, vtkPolyData* output,
   vtkGeometryFilterHelper* info, vtkPolyData* excludedFaces)
 {
-  bool use64BitsIds = (dataSetInput->GetNumberOfPoints() > VTK_INT_MAX ||
-    dataSetInput->GetNumberOfCells() > VTK_INT_MAX);
+#ifdef VTK_USE_64BIT_IDS
+  bool use64BitsIds = (dataSetInput->GetNumberOfPoints() > VTK_TYPE_INT32_MAX ||
+    dataSetInput->GetNumberOfCells() > VTK_TYPE_INT32_MAX);
   if (use64BitsIds)
   {
-    using TInputIdType = vtkIdType;
+    using TInputIdType = vtkTypeInt64;
     vtkExcludedFaces<TInputIdType> exc;
     if (excludedFaces)
     {
@@ -3134,8 +3140,9 @@ int vtkGeometryFilter::UnstructuredGridExecute(vtkDataSet* dataSetInput, vtkPoly
     return ExecuteUnstructuredGrid<TInputIdType>(this, dataSetInput, output, info, &exc);
   }
   else
+#endif
   {
-    using TInputIdType = int;
+    using TInputIdType = vtkTypeInt32;
     vtkExcludedFaces<TInputIdType> exc;
     if (excludedFaces)
     {
@@ -3281,12 +3288,14 @@ int ExecuteStructured(vtkGeometryFilter* self, vtkDataSet* input, vtkPolyData* o
   outCD->CopyAllocate(inCD, numCells);
   cellArrays.AddArrays(numCells, inCD, outCD, 0.0, false);
 
+#ifdef VTK_USE_64BIT_IDS
   vtkIdType connectivitySize =
     extStr->VertsNumPts + extStr->LinesNumPts + extStr->PolysNumPts + extStr->StripsNumPts;
 
-  if (connectivitySize > VTK_INT_MAX)
+  bool use64BitsIds = connectivitySize > VTK_TYPE_INT32_MAX;
+  if (use64BitsIds)
   {
-    using TOutputIdType = vtkIdType;
+    using TOutputIdType = vtkTypeInt64;
     CompositeCells<TInputIdType, TOutputIdType> compCells(
       ptMap, &cellArrays, extStr, &threads, nullptr, nullptr, polys, nullptr);
     vtkSMPTools::For(0, static_cast<vtkIdType>(threads.size()), compCells);
@@ -3298,9 +3307,10 @@ int ExecuteStructured(vtkGeometryFilter* self, vtkDataSet* input, vtkPolyData* o
         self->GetOriginalCellIdsName(), extStr, &compCells, &threads, outCD);
     }
   }
+#endif
   else
   {
-    using TOutputIdType = int;
+    using TOutputIdType = vtkTypeInt32;
     CompositeCells<TInputIdType, TOutputIdType> compCells(
       ptMap, &cellArrays, extStr, &threads, nullptr, nullptr, polys, nullptr);
     vtkSMPTools::For(0, static_cast<vtkIdType>(threads.size()), compCells);
@@ -3384,11 +3394,12 @@ int vtkGeometryFilter::StructuredExecute(vtkDataSet* input, vtkPolyData* output,
     return this->DataSetExecute(input, output, excludedFaces);
   }
 
-  bool use64BitsIds =
-    (input->GetNumberOfPoints() > VTK_INT_MAX || input->GetNumberOfCells() > VTK_INT_MAX);
+#ifdef VTK_USE_64BIT_IDS
+  bool use64BitsIds = (input->GetNumberOfPoints() > VTK_TYPE_INT32_MAX ||
+    input->GetNumberOfCells() > VTK_TYPE_INT32_MAX);
   if (use64BitsIds)
   {
-    using TInputIdType = vtkIdType;
+    using TInputIdType = vtkTypeInt64;
     vtkExcludedFaces<TInputIdType> exc;
     if (excludedFaces)
     {
@@ -3403,8 +3414,9 @@ int vtkGeometryFilter::StructuredExecute(vtkDataSet* input, vtkPolyData* output,
     return ExecuteStructured<TInputIdType>(this, input, output, wholeExtent, &exc, extractFace);
   }
   else
+#endif
   {
-    using TInputIdType = int;
+    using TInputIdType = vtkTypeInt32;
     vtkExcludedFaces<TInputIdType> exc;
     if (excludedFaces)
     {
@@ -3603,9 +3615,11 @@ int ExecuteDataSet(vtkGeometryFilter* self, vtkDataSet* input, vtkPolyData* outp
   vtkIdType connectivitySize =
     extract.VertsNumPts + extract.LinesNumPts + extract.PolysNumPts + extract.StripsNumPts;
 
-  if (connectivitySize > VTK_INT_MAX)
+#ifdef VTK_USE_64BIT_IDS
+  bool use64BitsIds = connectivitySize > VTK_TYPE_INT32_MAX;
+  if (use64BitsIds)
   {
-    using TOutputIdType = vtkIdType;
+    using TOutputIdType = vtkTypeInt64;
     CompositeCells<TInputIdType, TOutputIdType> compCells(
       ptMap, &cellArrays, &extract, &threads, verts, lines, polys, strips);
     vtkSMPTools::For(0, static_cast<vtkIdType>(threads.size()), compCells);
@@ -3618,8 +3632,9 @@ int ExecuteDataSet(vtkGeometryFilter* self, vtkDataSet* input, vtkPolyData* outp
     }
   }
   else
+#endif
   {
-    using TOutputIdType = int;
+    using TOutputIdType = vtkTypeInt32;
     CompositeCells<TInputIdType, TOutputIdType> compCells(
       ptMap, &cellArrays, &extract, &threads, verts, lines, polys, strips);
     vtkSMPTools::For(0, static_cast<vtkIdType>(threads.size()), compCells);
