@@ -238,7 +238,7 @@ private:
 //----------------------------------------------------------------------------
 inline int vtkTriangle::GetParametricCenter(double pcoords[3])
 {
-  pcoords[0] = pcoords[1] = 1. / 3;
+  pcoords[0] = pcoords[1] = 1.0 / 3.0;
   pcoords[2] = 0.0;
   return 0;
 }
@@ -247,15 +247,13 @@ inline int vtkTriangle::GetParametricCenter(double pcoords[3])
 inline void vtkTriangle::ComputeNormalDirection(
   const double v1[3], const double v2[3], const double v3[3], double n[3])
 {
-  double ax, ay, az, bx, by, bz;
-
   // order is important!!! maintain consistency with triangle vertex order
-  ax = v3[0] - v2[0];
-  ay = v3[1] - v2[1];
-  az = v3[2] - v2[2];
-  bx = v1[0] - v2[0];
-  by = v1[1] - v2[1];
-  bz = v1[2] - v2[2];
+  double ax = v3[0] - v2[0];
+  double ay = v3[1] - v2[1];
+  double az = v3[2] - v2[2];
+  double bx = v1[0] - v2[0];
+  double by = v1[1] - v2[1];
+  double bz = v1[2] - v2[2];
 
   n[0] = (ay * bz - az * by);
   n[1] = (az * bx - ax * bz);
@@ -266,11 +264,10 @@ inline void vtkTriangle::ComputeNormalDirection(
 inline void vtkTriangle::ComputeNormal(
   const double v1[3], const double v2[3], const double v3[3], double n[3])
 {
-  double length;
-
   vtkTriangle::ComputeNormalDirection(v1, v2, v3, n);
 
-  if ((length = sqrt((n[0] * n[0] + n[1] * n[1] + n[2] * n[2]))) != 0.0)
+  double length = sqrt(n[0] * n[0] + n[1] * n[1] + n[2] * n[2]);
+  if (length != 0.0)
   {
     n[0] /= length;
     n[1] /= length;

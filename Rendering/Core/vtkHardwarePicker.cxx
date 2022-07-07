@@ -258,8 +258,8 @@ int vtkHardwarePicker::ComputeSurfaceNormal(vtkDataSet* data, vtkCell* cell, dou
       }
       else // cell->GetCellType() == VTK_TRIANGLE_STRIP
       {
-        static int idx[2][3] = { { 0, 1, 2 }, { 1, 0, 2 } };
-        int* order = idx[this->SubId & 1];
+        constexpr int idx[2][3] = { { 0, 1, 2 }, { 1, 0, 2 } };
+        const int* order = idx[this->SubId & 1];
         vtkIdType pointIds[3];
         double points[3][3];
 

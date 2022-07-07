@@ -117,7 +117,6 @@ int vtkTriangle::EvaluatePosition(const double x[3], double closestPoint[3], int
   double pt1[3], pt2[3], pt3[3], n[3], fabsn;
   double rhs[2], c1[2], c2[2];
   double det;
-  double maxComponent;
   int idx = 0, indices[2];
   double dist2Point, dist2Line1, dist2Line2;
   double *closest, closestPoint1[3], closestPoint2[3], cp[3];
@@ -142,7 +141,8 @@ int vtkTriangle::EvaluatePosition(const double x[3], double closestPoint[3], int
   // which 2 out of 3 equations to use to develop equations. (Any 2 should
   // work since we've projected point to plane.)
   //
-  for (maxComponent = 0.0, i = 0; i < 3; i++)
+  double maxComponent = 0.0;
+  for (i = 0; i < 3; i++)
   {
     // trying to avoid an expensive call to fabs()
     if (n[i] < 0)
@@ -185,7 +185,7 @@ int vtkTriangle::EvaluatePosition(const double x[3], double closestPoint[3], int
 
   // Okay, now find closest point to element
   //
-  weights[0] = 1 - (pcoords[0] + pcoords[1]);
+  weights[0] = 1.0 - (pcoords[0] + pcoords[1]);
   weights[1] = pcoords[0];
   weights[2] = pcoords[1];
 
@@ -305,7 +305,6 @@ void vtkTriangle::EvaluateLocation(
 {
   double u3;
   double pt0[3], pt1[3], pt2[3];
-  int i;
 
   this->Points->GetPoint(0, pt0);
   this->Points->GetPoint(1, pt1);
@@ -313,7 +312,7 @@ void vtkTriangle::EvaluateLocation(
 
   u3 = 1.0 - pcoords[0] - pcoords[1];
 
-  for (i = 0; i < 3; i++)
+  for (int i = 0; i < 3; i++)
   {
     x[i] = pt0[i] * u3 + pt1[i] * pcoords[0] + pt2[i] * pcoords[1];
   }
@@ -328,7 +327,7 @@ void vtkTriangle::EvaluateLocation(
 //
 void vtkTriangle::InterpolationFunctions(const double pcoords[3], double sf[3])
 {
-  sf[0] = 1. - pcoords[0] - pcoords[1];
+  sf[0] = 1.0 - pcoords[0] - pcoords[1];
   sf[1] = pcoords[0];
   sf[2] = pcoords[1];
 }
@@ -337,14 +336,14 @@ void vtkTriangle::InterpolationFunctions(const double pcoords[3], double sf[3])
 void vtkTriangle::InterpolationDerivs(const double*, double derivs[6])
 {
   // r-derivatives
-  derivs[0] = -1;
-  derivs[1] = 1;
-  derivs[2] = 0;
+  derivs[0] = -1.0;
+  derivs[1] = 1.0;
+  derivs[2] = 0.0;
 
   // s-derivatives
-  derivs[3] = -1;
-  derivs[4] = 0;
-  derivs[5] = 1;
+  derivs[3] = -1.0;
+  derivs[4] = 0.0;
+  derivs[5] = 1.0;
 }
 
 //------------------------------------------------------------------------------
@@ -399,7 +398,7 @@ struct LINE_CASES_t
 };
 using LINE_CASES = struct LINE_CASES_t;
 
-LINE_CASES lineCases[] = {
+constexpr LINE_CASES lineCases[] = {
   { { -1, -1, -1 } },
   { { 0, 2, -1 } },
   { { 1, 0, -1 } },
@@ -425,10 +424,9 @@ void vtkTriangle::Contour(double value, vtkDataArray* cellScalars,
   vtkCellArray* vtkNotUsed(polys), vtkPointData* inPd, vtkPointData* outPd, vtkCellData* inCd,
   vtkIdType cellId, vtkCellData* outCd)
 {
-  static const int CASE_MASK[3] = { 1, 2, 4 };
-  LINE_CASES* lineCase;
-  int* edge;
-  int i, j, index;
+  constexpr int CASE_MASK[3] = { 1, 2, 4 };
+  const LINE_CASES* lineCase;
+  const int* edge;
   const vtkIdType* vert;
   vtkIdType pts[2];
   int e1, e2, newCellId;
@@ -436,7 +434,8 @@ void vtkTriangle::Contour(double value, vtkDataArray* cellScalars,
   vtkIdType offset = verts->GetNumberOfCells();
 
   // Build the case table
-  for (i = 0, index = 0; i < 3; i++)
+  int index = 0;
+  for (int i = 0; i < 3; i++)
   {
     if (cellScalars->GetComponent(i, 0) >= value)
     {
@@ -449,7 +448,7 @@ void vtkTriangle::Contour(double value, vtkDataArray* cellScalars,
 
   for (; edge[0] > -1; edge += 2)
   {
-    for (i = 0; i < 2; i++) // insert line
+    for (int i = 0; i < 2; i++) // insert line
     {
       vert = edges[edge[i]];
       // calculate a preferred interpolation direction
@@ -479,7 +478,7 @@ void vtkTriangle::Contour(double value, vtkDataArray* cellScalars,
       this->Points->GetPoint(e1, x1);
       this->Points->GetPoint(e2, x2);
 
-      for (j = 0; j < 3; j++)
+      for (int j = 0; j < 3; j++)
       {
         x[j] = x1[j] + t * (x2[j] - x1[j]);
       }
@@ -529,27 +528,28 @@ vtkCell* vtkTriangle::GetEdge(int edgeId)
 int vtkTriangle::IntersectWithLine(const double p1[3], const double p2[3], double tol, double& t,
   double x[3], double pcoords[3], int& subId)
 {
-  double pt1[3] = { 0., 0., 0. };
-  double pt2[3] = { 0., 0., 0. };
-  double pt3[3] = { 0., 0., 0. };
-  double n[3] = { 0., 0., 0. };
-  double closestPoint[3] = { 0., 0., 0. };
-  double weights[3] = { 0., 0., 0. };
-  double dist2{};
+  double closestPoint[3] = { 0.0, 0.0, 0.0 };
+  double dist2 = 0.0;
   double tol2 = tol * tol;
+  double weights[3] = { 0.0, 0.0, 0.0 };
 
   subId = 0;
   pcoords[2] = 0.0;
 
   // Get normal for triangle
   //
-  this->Points->GetPoint(1, pt1);
-  this->Points->GetPoint(2, pt2);
-  this->Points->GetPoint(0, pt3);
+  double pt1[3] = { 0.0, 0.0, 0.0 };
+  double pt2[3] = { 0.0, 0.0, 0.0 };
+  double pt3[3] = { 0.0, 0.0, 0.0 };
+  vtkPoints* points = this->Points;
+  points->GetPoint(1, pt1);
+  points->GetPoint(2, pt2);
+  points->GetPoint(0, pt3);
 
+  double n[3] = { 0.0, 0.0, 0.0 };
   vtkTriangle::ComputeNormal(pt1, pt2, pt3, n);
 
-  if (n[0] != 0 || n[1] != 0 || n[2] != 0)
+  if (n[0] != 0.0 || n[1] != 0.0 || n[2] != 0.0)
   {
     // Intersect plane of triangle with line
     //
@@ -655,9 +655,9 @@ int vtkTriangle::IntersectWithLine(const double p1[3], const double p2[3], doubl
   if (this->Line->IntersectWithLine(p1, p2, tol, t, x, pcoords, subId))
   {
     // Compute r and s manually, using dot and norm.
-    double pt3Pt1[3] = { 0., 0., 0. };
-    double pt3Pt2[3] = { 0., 0., 0. };
-    double pt3X[3] = { 0., 0., 0. };
+    double pt3Pt1[3] = { 0.0, 0.0, 0.0 };
+    double pt3Pt2[3] = { 0.0, 0.0, 0.0 };
+    double pt3X[3] = { 0.0, 0.0, 0.0 };
     for (int i = 0; i < 3; i++)
     {
       pt3Pt1[i] = pt1[i] - pt3[i];
@@ -699,7 +699,6 @@ void vtkTriangle::Derivatives(int vtkNotUsed(subId), const double vtkNotUsed(pco
   double *J[2], J0[2], J1[2];
   double *JI[2], JI0[2], JI1[2];
   double functionDerivs[6], sum[2], dBydx, dBydy;
-  int i, j;
 
   // Project points of triangle into 2D system
   this->Points->GetPoint(0, x0);
@@ -707,7 +706,7 @@ void vtkTriangle::Derivatives(int vtkNotUsed(subId), const double vtkNotUsed(pco
   this->Points->GetPoint(2, x2);
   vtkTriangle::ComputeNormal(x0, x1, x2, n);
 
-  for (i = 0; i < 3; i++)
+  for (int i = 0; i < 3; i++)
   {
     v10[i] = x1[i] - x0[i];
     v[i] = x2[i] - x0[i];
@@ -717,9 +716,9 @@ void vtkTriangle::Derivatives(int vtkNotUsed(subId), const double vtkNotUsed(pco
 
   if ((lenX = vtkMath::Normalize(v10)) <= 0.0 || vtkMath::Normalize(v20) <= 0.0) // degenerate
   {
-    for (j = 0; j < dim; j++)
+    for (int j = 0; j < dim; j++)
     {
-      for (i = 0; i < 3; i++)
+      for (int i = 0; i < 3; i++)
       {
         derivs[j * dim + i] = 0.0;
       }
@@ -753,10 +752,10 @@ void vtkTriangle::Derivatives(int vtkNotUsed(subId), const double vtkNotUsed(pco
   // Loop over "dim" derivative values. For each set of values, compute
   // derivatives in local system and then transform into modelling system.
   // First compute derivatives in local x'-y' coordinate system
-  for (j = 0; j < dim; j++)
+  for (int j = 0; j < dim; j++)
   {
     sum[0] = sum[1] = 0.0;
-    for (i = 0; i < 3; i++) // loop over interp. function derivatives
+    for (int i = 0; i < 3; i++) // loop over interp. function derivatives
     {
       sum[0] += functionDerivs[i] * values[dim * i + j];
       sum[1] += functionDerivs[3 + i] * values[dim * i + j];
@@ -795,12 +794,11 @@ double vtkTriangle::Circumcircle(
   const double x1[2], const double x2[2], const double x3[2], double center[2])
 {
   double n12[2], n13[2], x12[2], x13[2];
-  double *A[2], rhs[2], sum, diff;
-  int i;
+  double *A[2], rhs[2], diff;
 
   //  calculate normals and intersection points of bisecting planes.
   //
-  for (i = 0; i < 2; i++)
+  for (int i = 0; i < 2; i++)
   {
     n12[i] = x2[i] - x1[i];
     n13[i] = x3[i] - x1[i];
@@ -833,7 +831,8 @@ double vtkTriangle::Circumcircle(
   }
 
   // determine average value of radius squared
-  for (sum = 0, i = 0; i < 2; i++)
+  double sum = 0.0;
+  for (int i = 0; i < 2; i++)
   {
     diff = x1[i] - center[i];
     sum += diff * diff;
@@ -868,7 +867,6 @@ int vtkTriangle::BarycentricCoords(
   const double x[2], const double x1[2], const double x2[2], const double x3[2], double bcoords[3])
 {
   double *A[3], p[3], a1[3], a2[3], a3[3];
-  int i;
 
   // Homogenize the variables; load into arrays.
   //
@@ -893,7 +891,7 @@ int vtkTriangle::BarycentricCoords(
 
   if (vtkMath::SolveLinearSystem(A, p, 3))
   {
-    for (i = 0; i < 3; i++)
+    for (int i = 0; i < 3; i++)
     {
       bcoords[i] = p[i];
     }
@@ -912,7 +910,7 @@ int vtkTriangle::BarycentricCoords(
 int vtkTriangle::ProjectTo2D(const double x1[3], const double x2[3], const double x3[3],
   double v1[2], double v2[2], double v3[2])
 {
-  double n[3], v21[3], v31[3], v[3], xLen;
+  double n[3], v21[3], v31[3], v[3];
 
   // Get normal for triangle
   vtkTriangle::ComputeNormal(x1, x2, x3, n);
@@ -923,7 +921,8 @@ int vtkTriangle::ProjectTo2D(const double x1[3], const double x2[3], const doubl
     v31[i] = x3[i] - x1[i];
   }
 
-  if ((xLen = vtkMath::Normalize(v21)) <= 0.0)
+  double xLen = vtkMath::Normalize(v21);
+  if (xLen <= 0.0)
   {
     return 0;
   }
@@ -956,7 +955,7 @@ struct TRIANGLE_CASES_t
 };
 using TRIANGLE_CASES = struct TRIANGLE_CASES_t;
 
-TRIANGLE_CASES triangleCases[] = {
+constexpr TRIANGLE_CASES triangleCases[] = {
   { { -1, -1, -1, -1, -1, -1, -1 } },   // 0
   { { 0, 2, 100, -1, -1, -1, -1 } },    // 1
   { { 1, 0, 101, -1, -1, -1, -1 } },    // 2
@@ -975,10 +974,10 @@ void vtkTriangle::Clip(double value, vtkDataArray* cellScalars, vtkIncrementalPo
   vtkCellArray* tris, vtkPointData* inPd, vtkPointData* outPd, vtkCellData* inCd, vtkIdType cellId,
   vtkCellData* outCd, int insideOut)
 {
-  static const int CASE_MASK[3] = { 1, 2, 4 };
-  TRIANGLE_CASES* triangleCase;
-  TRIANGLE_EDGE_LIST* edge;
-  int i, j, index;
+  constexpr int CASE_MASK[3] = { 1, 2, 4 };
+  const TRIANGLE_CASES* triangleCase;
+  const TRIANGLE_EDGE_LIST* edge;
+  int i, index;
   const vtkIdType* vert;
   int e1, e2, newCellId;
   vtkIdType pts[3];
@@ -1059,7 +1058,7 @@ void vtkTriangle::Clip(double value, vtkDataArray* cellScalars, vtkIncrementalPo
         this->Points->GetPoint(e1, x1);
         this->Points->GetPoint(e2, x2);
 
-        for (j = 0; j < 3; j++)
+        for (int j = 0; j < 3; j++)
         {
           x[j] = x1[j] + t * (x2[j] - x1[j]);
         }
@@ -1094,7 +1093,7 @@ double Determinant(const double a[3], const double b[3], const double c[3], cons
     b[2] - d[2], c[0] - d[0], c[1] - d[1], c[2] - d[2]);
 }
 
-const double eps = 256 * std::numeric_limits<double>::epsilon();
+constexpr double eps = 256.0 * std::numeric_limits<double>::epsilon();
 
 // The orientation values are chosen so that any combination of 3 will produce
 // a unique value.
@@ -1117,7 +1116,7 @@ int Orientation(const double p1[2], const double p2[2], const double p3[2])
   {
     return Colinear;
   }
-  return (signedArea > 0. ? Counterclockwise : Clockwise);
+  return (signedArea > 0.0 ? Counterclockwise : Clockwise);
 }
 
 int CoplanarTrianglesIntersect(const double p1[2], const double q1[2], const double r1[2],
@@ -1150,10 +1149,10 @@ int CoplanarTrianglesIntersect(const double p1[2], const double q1[2], const dou
   //    then p1 lies on an edge of T2.
   int sumOfSigns = p1Orientation[0] + p1Orientation[1] + p1Orientation[2];
 
-  static const int Three_CounterClockwise = 3 * Counterclockwise;
-  static const int Two_Colinear_One_Clockwise = 2 * Colinear + Clockwise;
-  static const int Two_Colinear_One_Counterclockwise = (2 * Colinear + Counterclockwise);
-  static const int One_Colinear_Two_Counterclockwise = (Colinear + 2 * Counterclockwise);
+  constexpr int Three_CounterClockwise = 3 * Counterclockwise;
+  constexpr int Two_Colinear_One_Clockwise = 2 * Colinear + Clockwise;
+  constexpr int Two_Colinear_One_Counterclockwise = (2 * Colinear + Counterclockwise);
+  constexpr int One_Colinear_Two_Counterclockwise = (Colinear + 2 * Counterclockwise);
 
   if (sumOfSigns == Three_CounterClockwise ||          // condition 1
     sumOfSigns == Two_Colinear_One_Clockwise ||        // condition 2
@@ -1396,7 +1395,7 @@ int vtkTriangle::TrianglesIntersect(const double p1[3], const double q1[3], cons
   // Triangle T2 = (p2,q2,r2) and lies in plane Pi2
 
   // First, we determine whether T1 intersects Pi2
-  double det1[3] = { Determinant(p2, q2, r2, p1), Determinant(p2, q2, r2, q1),
+  const double det1[3] = { Determinant(p2, q2, r2, p1), Determinant(p2, q2, r2, q1),
     Determinant(p2, q2, r2, r1) };
 
   if (std::abs(det1[0]) < eps && std::abs(det1[1]) < eps && std::abs(det1[2]) < eps)
@@ -1463,7 +1462,7 @@ int vtkTriangle::TrianglesIntersect(const double p1[3], const double q1[3], cons
 
   // Do the three vertices of T1 lie in the same half-space defined by Pi2?
   {
-    int sumOfSigns = (det1[0] > 0.) + (det1[1] > 0.) + (det1[2] > 0.);
+    int sumOfSigns = (det1[0] > 0.0) + (det1[1] > 0.0) + (det1[2] > 0.0);
     if (sumOfSigns == 0 || sumOfSigns == 3)
     {
       // Yes.
@@ -1472,12 +1471,12 @@ int vtkTriangle::TrianglesIntersect(const double p1[3], const double q1[3], cons
   }
 
   // Next, we determine whether T2 intersects Pi1
-  double det2[3] = { Determinant(p1, q1, r1, p2), Determinant(p1, q1, r1, q2),
+  const double det2[3] = { Determinant(p1, q1, r1, p2), Determinant(p1, q1, r1, q2),
     Determinant(p1, q1, r1, r2) };
 
   // Do the three vertices of T2 lie in the same half-space defined by Pi1?
   {
-    int sumOfSigns = (det2[0] > 0.) + (det2[1] > 0.) + (det2[2] > 0.);
+    int sumOfSigns = (det2[0] > 0.0) + (det2[1] > 0.0) + (det2[2] > 0.0);
     if (sumOfSigns == 0 || sumOfSigns == 3)
     {
       // Yes.
@@ -1494,7 +1493,7 @@ int vtkTriangle::TrianglesIntersect(const double p1[3], const double q1[3], cons
   int index1;
   for (index1 = 0; index1 < 3; index1++)
   {
-    int sumOfSigns = (det1[(index1 + 1) % 3] > 0.) + (det1[(index1 + 2) % 3] > 0.);
+    int sumOfSigns = (det1[(index1 + 1) % 3] > 0.0) + (det1[(index1 + 2) % 3] > 0.0);
     if (sumOfSigns != 1)
     {
       break;
@@ -1539,7 +1538,7 @@ int vtkTriangle::TrianglesIntersect(const double p1[3], const double q1[3], cons
   // the intersection of T1 and Pi2 and the intersection of T2 and Pi1 overlap.
   // This is done by checking the following predicate:
   // Determinant(p1,q1,p2,q2) <= 0. ^ Determinant(p1,r1,r2,p2) <= 0.
-  if ((Determinant(p1, q1, p2, q2) <= 0.) && (Determinant(p1, r1, r2, p2) <= 0.))
+  if ((Determinant(p1, q1, p2, q2) <= 0.0) && (Determinant(p1, r1, r2, p2) <= 0.0))
   {
     return 1;
   }
@@ -1558,11 +1557,10 @@ int vtkTriangle::PointInTriangle(
 {
   double x1[3], x2[3], x3[3], v13[3], v21[3], v32[3];
   double n1[3], n2[3], n3[3];
-  int i;
 
   //  Compute appropriate vectors
   //
-  for (i = 0; i < 3; i++)
+  for (int i = 0; i < 3; i++)
   {
     x1[i] = x[i] - p1[i];
     x2[i] = x[i] - p2[i];
@@ -1605,7 +1603,6 @@ int vtkTriangle::PointInTriangle(
 //------------------------------------------------------------------------------
 double vtkTriangle::GetParametricDistance(const double pcoords[3])
 {
-  int i;
   double pDist, pDistMax = 0.0;
   double pc[3];
 
@@ -1613,7 +1610,7 @@ double vtkTriangle::GetParametricDistance(const double pcoords[3])
   pc[1] = pcoords[1];
   pc[2] = 1.0 - pcoords[0] - pcoords[1];
 
-  for (i = 0; i < 3; i++)
+  for (int i = 0; i < 3; i++)
   {
     if (pc[i] < 0.0)
     {
@@ -1644,9 +1641,8 @@ void vtkTriangle::ComputeQuadric(
   double determinantABC;
   double ABCx[3][3];
   double n[4];
-  int i, j;
 
-  for (i = 0; i < 3; i++)
+  for (int i = 0; i < 3; i++)
   {
     ABCx[0][i] = x1[i];
     ABCx[1][i] = x2[i];
@@ -1663,9 +1659,9 @@ void vtkTriangle::ComputeQuadric(
   n[2] = crossX1X2[2] + crossX2X3[2] + crossX3X1[2];
   n[3] = -determinantABC;
 
-  for (i = 0; i < 4; i++)
+  for (int i = 0; i < 4; i++)
   {
-    for (j = 0; j < 4; j++)
+    for (int j = 0; j < 4; j++)
     {
       quadric[i][j] = n[i] * n[j];
     }
@@ -1680,8 +1676,9 @@ void vtkTriangle::ComputeQuadric(
 
   ComputeQuadric(x1, x2, x3, quadricMatrix);
   quadric->SetCoefficients(quadricMatrix[0][0], quadricMatrix[1][1], quadricMatrix[2][2],
-    2 * quadricMatrix[0][1], 2 * quadricMatrix[1][2], 2 * quadricMatrix[0][2],
-    2 * quadricMatrix[0][3], 2 * quadricMatrix[1][3], 2 * quadricMatrix[2][3], quadricMatrix[3][3]);
+    2.0 * quadricMatrix[0][1], 2.0 * quadricMatrix[1][2], 2.0 * quadricMatrix[0][2],
+    2.0 * quadricMatrix[0][3], 2.0 * quadricMatrix[1][3], 2.0 * quadricMatrix[2][3],
+    quadricMatrix[3][3]);
 }
 
 //------------------------------------------------------------------------------
