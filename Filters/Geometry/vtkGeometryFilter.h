@@ -308,7 +308,7 @@ public:
 
   ///@{
   /**
-   * If PieceInvariant is true, vtkDataSetSurfaceFilter requests
+   * If PieceInvariant is true, vtkGeometryFilter requests
    * 1 ghost level from input in order to remove internal surface
    * that are between processes. False by default.
    */

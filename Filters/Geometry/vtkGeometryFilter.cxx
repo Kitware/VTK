@@ -3612,9 +3612,17 @@ int vtkGeometryFilter::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
   numPieces = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
   ghostLevels = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS());
 
-  if (numPieces > 1)
+  if (numPieces > 1 && this->PieceInvariant)
   {
-    ++ghostLevels;
+    // The special execute for structured data handle boundaries internally.
+    // PolyData does not need any ghost levels.
+    vtkDataObject* dobj = inInfo->Get(vtkDataObject::DATA_OBJECT());
+    if (dobj && !strcmp(dobj->GetClassName(), "vtkUnstructuredGrid"))
+    { // Processing does nothing for ghost levels yet so ...
+      // Be careful to set output ghost level value one less than default
+      // when they are implemented.  I had trouble with multiple executes.
+      ++ghostLevels;
+    }
   }
 
   inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(), piece);
