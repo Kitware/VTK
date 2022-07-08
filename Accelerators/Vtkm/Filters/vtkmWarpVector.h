@@ -29,6 +29,7 @@
 
 #include "vtkAcceleratorsVTKmFiltersModule.h" // required for correct export
 #include "vtkWarpVector.h"
+#include "vtkmlib/vtkmInitializer.h" // Need for initializing vtk-m
 
 class VTKACCELERATORSVTKMFILTERS_EXPORT vtkmWarpVector : public vtkWarpVector
 {
@@ -47,6 +48,7 @@ protected:
 private:
   vtkmWarpVector(const vtkmWarpVector&) = delete;
   void operator=(const vtkmWarpVector&) = delete;
+  vtkmInitializer Initializer;
 };
 
 #endif // vtkmWarpVector_h

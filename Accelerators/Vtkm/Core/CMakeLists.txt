@@ -28,7 +28,8 @@ set(private_headers
 set(nowrap_classes
   vtkmDataArray
   vtkmlib/DataArrayConverters
-  vtkmlib/Portals)
+  vtkmlib/Portals
+  vtkmlib/vtkmInitializer)
 
 set(nowrap_headers
   vtkmlib/vtkmDataArray.hxx)
@@ -68,9 +69,14 @@ vtk_module_set_property(VTK::AcceleratorsVTKmCore
   PROPERTY  JOB_POOL_COMPILE
   VALUE     vtkm_pool)
 
+if (TARGET vtkm::kokkos_hip)
+  list(TRANSFORM nowrap_classes APPEND ".cxx" OUTPUT_VARIABLE hip_impl)
+  set_source_files_properties(${hip_impl} PROPERTIES LANGUAGE HIP)
+  kokkos_compilation(SOURCE ${hip_impl})
+endif ()
+
 if (TARGET vtkm::cuda)
   list(TRANSFORM nowrap_classes APPEND ".cxx" OUTPUT_VARIABLE cuda_impl)
-  set(cuda_impl ${cuda_impl})
   set_source_files_properties(${cuda_impl} PROPERTIES
     LANGUAGE CUDA
     CUDA_SOURCE_PROPERTY_FORMAT OBJ

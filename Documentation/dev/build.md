@@ -263,6 +263,8 @@ More advanced options:
   * `VTK_USE_LARGE_DATA` (default `OFF`; requires `VTK_BUILD_TESTING`):
     Whether to enable tests which use "large" data or not (usually used to
     reduce the amount of data downloading required for the test suite).
+  * `VTK_USE_HIP` (default `OFF`; requires CMAKE >= 3.21 and NOT `VTK_USE_CUDA`)
+    Whether [HIP][hip] support will be available or not.
   * `VTK_LEGACY_REMOVE` (default `OFF`): If set, VTK will disable legacy,
     deprecated APIs.
   * `VTK_LEGACY_SILENT` (default `OFF`; requires `VTK_LEGACY_REMOVE` to be
@@ -419,6 +421,7 @@ The following targets are used to build documentation for VTK:
 [cmake-find_package-search]: https://cmake.org/cmake/help/latest/command/find_package.html#search-procedure
 [cmake-modules-find]: https://cmake.org/cmake/help/latest/manual/cmake-modules.7.html#find-modules
 [cuda]: https://developer.nvidia.com/cuda-zone
+[hip]: https://en.wikipedia.org/wiki/ROCm
 [ffmpeg]: https://ffmpeg.org
 [git]: https://git-scm.org
 [mesa]: https://www.mesa3d.org
