@@ -935,7 +935,7 @@ void vtkPolyData::BuildCells()
   if (nStrips > 0)
   {
     strips->Visit(BuildCellsImpl{}, this->Cells,
-      [](vtkIdType size) -> VTKCellType { return VTK_TRIANGLE_STRIP; });
+      [](vtkIdType vtkNotUsed(size)) -> VTKCellType { return VTK_TRIANGLE_STRIP; });
   }
 }
 //------------------------------------------------------------------------------
