@@ -47,6 +47,9 @@ int TestExpandMarkedElements(int argc, char* argv[])
   vtkNew<vtkExpandMarkedElements> filter;
   filter->SetInputDataObject(mb);
   filter->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_CELLS, "MarkedCells");
+  filter->RemoveIntermediateLayersOn();
+  filter->RemoveSeedOn();
+  filter->SetNumberOfLayers(3);
 
   vtkNew<vtkCompositePolyDataMapper2> mapper;
   mapper->SetInputConnection(filter->GetOutputPort());

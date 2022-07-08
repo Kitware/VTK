@@ -58,10 +58,32 @@ public:
   ///@{
   /**
    * Get/Set the number of layers to expand by.
+   * Default is 2.
    */
   vtkSetClampMacro(NumberOfLayers, int, 1, VTK_INT_MAX);
   vtkGetMacro(NumberOfLayers, int);
   ///@}
+
+  ///@{
+  /**
+   * Get/Set the flag to remove seed of marked elements.
+   * Default is false.
+   */
+  vtkSetMacro(RemoveSeed, bool);
+  vtkGetMacro(RemoveSeed, bool);
+  vtkBooleanMacro(RemoveSeed, bool);
+  ///@}
+
+  ///@{
+  /**
+   * Get/Set the flag to remove intermediate layers
+   * Default is false.
+   */
+  vtkSetMacro(RemoveIntermediateLayers, bool);
+  vtkGetMacro(RemoveIntermediateLayers, bool);
+  vtkBooleanMacro(RemoveIntermediateLayers, bool);
+  ///@}
+
 protected:
   vtkExpandMarkedElements();
   ~vtkExpandMarkedElements() override;
@@ -74,6 +96,8 @@ private:
 
   vtkMultiProcessController* Controller = nullptr;
   int NumberOfLayers = 2;
+  bool RemoveSeed = false;
+  bool RemoveIntermediateLayers = false;
 };
 
 #endif

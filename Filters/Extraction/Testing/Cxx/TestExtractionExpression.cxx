@@ -352,7 +352,9 @@ int TestExtractionExpression(int argc, char* argv[])
   thresholds->SetTuple2(0, 3350, 4000);
   thresholds->SetTuple2(1, 2000, 2010);
   sel5->SetSelectionList(thresholds);
-  sel5->GetProperties()->Set(vtkSelectionNode::CONNECTED_LAYERS(), 1);
+  sel5->GetProperties()->Set(vtkSelectionNode::CONNECTED_LAYERS(), 3);
+  sel5->GetProperties()->Set(vtkSelectionNode::CONNECTED_LAYERS_REMOVE_SEED(), 1);
+  sel5->GetProperties()->Set(vtkSelectionNode::CONNECTED_LAYERS_REMOVE_INTERMEDIATE_LAYERS(), 1);
 
   ext->Update();
   auto extGrid = vtkUnstructuredGrid::SafeDownCast(ext->GetOutput());
