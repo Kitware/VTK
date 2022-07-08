@@ -385,6 +385,7 @@
 
     script:
         - *before_script_linux
+        - .gitlab/ci/clang-tidy-cache.sh
         - .gitlab/ci/sccache.sh
         - sccache --start-server
         - sccache --show-stats
