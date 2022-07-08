@@ -16,13 +16,13 @@ if (ADIOS2_HAVE_MPI)
   # VTX tests
   if (vtk_io_adios2_vtx_enabled)
     vtk_add_test_cxx(vtkIOADIOS2VTXCxxTests tests TESTING_DATA NO_OUTPUT
-      UnitTestIOADIOS2VTX.cxx, NO_VALID
+      UnitTestIOADIOS2VTX.cxx,NO_VALID
       #TestIOADIOS2VTX_VTI3D.cxx,
-      TestIOADIOS2VTX_VTI3DRendering.cxx, NO_VALID
-      #TestIOADIOS2VTX_VTU3D.cxx, NO_VALID
-      TestIOADIOS2VTX_VTU3DRendering.cxx, NO_VALID
-      TestIOADIOS2VTX_VTU2DRendering.cxx, NO_VALID
-      TestIOADIOS2VTX_VTU1DRendering.cxx, NO_VALID)
+      TestIOADIOS2VTX_VTI3DRendering.cxx,NO_VALID
+      #TestIOADIOS2VTX_VTU3D.cxx,NO_VALID
+      TestIOADIOS2VTX_VTU3DRendering.cxx,NO_VALID
+      TestIOADIOS2VTX_VTU2DRendering.cxx,NO_VALID
+      TestIOADIOS2VTX_VTU1DRendering.cxx,NO_VALID)
 
     vtk_test_cxx_executable(vtkIOADIOS2VTXCxxTests tests)
     target_link_libraries(vtkIOADIOS2VTXCxxTests PUBLIC adios2::adios2)

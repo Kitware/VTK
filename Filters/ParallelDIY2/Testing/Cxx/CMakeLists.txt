@@ -2,7 +2,7 @@ if (TARGET VTK::mpi)
   set (vtkFiltersParallelDIY2CxxTests-MPI_NUMPROCS 2)
   vtk_add_test_mpi(vtkFiltersParallelDIY2CxxTests-MPI tests
     TESTING_DATA
-    TestGhostCellsGenerator.cxx, NO_VALID
+    TestGhostCellsGenerator.cxx,NO_VALID
     TestOverlappingCellsDetector.cxx,NO_VALID
     TestPResampleToImageCompositeDataSet.cxx
     TestPResampleToImage.cxx
@@ -10,7 +10,7 @@ if (TARGET VTK::mpi)
     TestPResampleWithDataSet.cxx
     TestPUniformGridGhostDataGenerator.cxx,NO_VALID
     TestPUnstructuredGridGhostCellsGenerator.cxx,NO_VALID
-    TestProbeLineFilter.cxx
+    TestProbeLineFilter.cxx,NO_VALID
     TestRedistributeDataSetFilter.cxx
     TestRedistributeDataSetFilterOnIOSS.cxx,NO_VALID
     TestStructuredGridGhostDataGenerator.cxx,NO_VALID
