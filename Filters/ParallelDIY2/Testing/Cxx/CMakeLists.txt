@@ -10,7 +10,7 @@ if (TARGET VTK::mpi)
     TestPResampleWithDataSet.cxx
     TestPUniformGridGhostDataGenerator.cxx,NO_VALID
     TestPUnstructuredGridGhostCellsGenerator.cxx,NO_VALID
-    TestProbeLineFilter.cxx
+    TestProbeLineFilter.cxx,NO_VALID
     TestRedistributeDataSetFilter.cxx
     TestRedistributeDataSetFilterOnIOSS.cxx,NO_VALID
     TestStructuredGridGhostDataGenerator.cxx,NO_VALID
