@@ -21,6 +21,7 @@
 #include "vtkCompositeDataIterator.h"
 #include "vtkCompositeDataProbeFilter.h"
 #include "vtkCompositeDataSet.h"
+#include "vtkCompositeDataSetRange.h"
 #include "vtkDIYUtilities.h"
 #include "vtkDataArrayRange.h"
 #include "vtkDataObject.h"
@@ -524,11 +525,9 @@ void ForEachDataObjectBlock(vtkDataObject* data, const Functor& func)
   {
     vtkCompositeDataSet* composite = static_cast<vtkCompositeDataSet*>(data);
 
-    vtkSmartPointer<vtkCompositeDataIterator> iter;
-    iter.TakeReference(composite->NewIterator());
-    for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
+    for (auto block : vtk::Range(composite))
     {
-      func(iter->GetCurrentDataObject());
+      func(block);
     }
   }
 }
@@ -543,15 +542,13 @@ struct GetBlockBounds
 
   void operator()(vtkDataObject* block) const
   {
-    vtkDataSet* dsBlock = vtkDataSet::SafeDownCast(block);
-    vtkHyperTreeGrid* htgBlock = vtkHyperTreeGrid::SafeDownCast(block);
-    if (dsBlock)
+    if (vtkDataSet* dsBlock = vtkDataSet::SafeDownCast(block))
     {
       double bounds[6];
       dsBlock->GetBounds(bounds);
       this->BoundsArray->insert(this->BoundsArray->end(), bounds, bounds + 6);
     }
-    if (htgBlock)
+    if (vtkHyperTreeGrid* htgBlock = vtkHyperTreeGrid::SafeDownCast(block))
     {
       double bounds[6];
       htgBlock->GetBounds(bounds);

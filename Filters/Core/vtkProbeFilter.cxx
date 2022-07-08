@@ -203,6 +203,9 @@ int vtkProbeFilter::RequestData(vtkInformation* vtkNotUsed(request),
 void vtkProbeFilter::PassAttributeData(
   vtkDataSet* input, vtkDataObject* vtkNotUsed(source), vtkDataSet* output)
 {
+  // Please see vtkHyperTreeGridProbeFilter implementation of this method for a condensed version
+  // using vtkFieldData::PassData
+
   // copy point data arrays
   if (this->PassPointArrays)
   {

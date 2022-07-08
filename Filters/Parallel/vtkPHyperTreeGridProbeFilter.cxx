@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkHyperTreeGridPProbeFilter.cxx
+  Module:    vtkPHyperTreeGridProbeFilter.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkHyperTreeGridPProbeFilter.h"
+#include "vtkPHyperTreeGridProbeFilter.h"
 
 #include "vtkAbstractArray.h"
 #include "vtkCellData.h"
@@ -37,33 +37,34 @@
 #include <vector>
 
 //------------------------------------------------------------------------------
-vtkStandardNewMacro(vtkHyperTreeGridPProbeFilter);
+vtkStandardNewMacro(vtkPHyperTreeGridProbeFilter);
 
 //------------------------------------------------------------------------------
-vtkCxxSetObjectMacro(vtkHyperTreeGridPProbeFilter, Controller, vtkMultiProcessController);
+vtkCxxSetObjectMacro(vtkPHyperTreeGridProbeFilter, Controller, vtkMultiProcessController);
 
 //------------------------------------------------------------------------------
-vtkHyperTreeGridPProbeFilter::vtkHyperTreeGridPProbeFilter()
-  : vtkHyperTreeGridProbeFilter()
-  , Controller(nullptr)
+vtkPHyperTreeGridProbeFilter::vtkPHyperTreeGridProbeFilter()
+  : Controller(nullptr)
 {
   this->SetController(vtkMultiProcessController::GetGlobalController());
 }
 
 //------------------------------------------------------------------------------
-vtkHyperTreeGridPProbeFilter::~vtkHyperTreeGridPProbeFilter()
+vtkPHyperTreeGridProbeFilter::~vtkPHyperTreeGridProbeFilter()
 {
   this->SetController(nullptr);
 }
 
 //------------------------------------------------------------------------------
-void vtkHyperTreeGridPProbeFilter::PrintSelf(ostream& os, vtkIndent indent)
+void vtkPHyperTreeGridProbeFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+
+  this->GetController()->PrintSelf(os, indent.GetNextIndent());
 }
 
 //------------------------------------------------------------------------------
-int vtkHyperTreeGridPProbeFilter::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
+int vtkPHyperTreeGridProbeFilter::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* vtkNotUsed(outputVector))
 {
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
@@ -79,7 +80,7 @@ int vtkHyperTreeGridPProbeFilter::RequestUpdateExtent(vtkInformation* vtkNotUsed
 }
 
 //------------------------------------------------------------------------------
-bool vtkHyperTreeGridPProbeFilter::Reduce(
+bool vtkPHyperTreeGridProbeFilter::Reduce(
   vtkHyperTreeGrid* source, vtkDataSet* output, vtkIdList* localPointIds)
 {
   int procId = 0;

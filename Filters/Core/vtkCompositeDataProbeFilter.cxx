@@ -162,6 +162,7 @@ int vtkCompositeDataProbeFilter::RequestData(
         for (; (locIt != locPointMaskRange.end()) && (globIt != globPointMaskRange.end());
              locIt++, globIt++, index++)
         {
+          // if the global mask does not have the point but the local one does then add the index
           if (!(*globIt) && (*locIt))
           {
             addPoints->InsertNextId(index);
@@ -174,8 +175,8 @@ int vtkCompositeDataProbeFilter::RequestData(
           vtkAbstractArray* locA = locOutput->GetPointData()->GetAbstractArray(arrName);
           if (!locA)
           {
-            vtkErrorMacro("Could not find array " << arrName << " in local scope output.");
-            return 0;
+            vtkGenericWarningMacro("Could not find array " << arrName << " in local scope output.");
+            continue;
           }
           vtkAbstractArray* globA = output->GetPointData()->GetAbstractArray(arrName);
           if (!globA)
@@ -253,8 +254,7 @@ int vtkCompositeDataProbeFilter::BuildFieldList(vtkCompositeDataSet* source)
   for (iter->InitReverseTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
   {
     vtkDataSet* sourceDS = vtkDataSet::SafeDownCast(iter->GetCurrentDataObject());
-    vtkHyperTreeGrid* sourceHTG = vtkHyperTreeGrid::SafeDownCast(iter->GetCurrentDataObject());
-    if (sourceHTG)
+    if (vtkHyperTreeGrid::SafeDownCast(iter->GetCurrentDataObject()))
     {
       continue;
     }
@@ -278,8 +278,7 @@ int vtkCompositeDataProbeFilter::BuildFieldList(vtkCompositeDataSet* source)
   for (iter->InitReverseTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
   {
     vtkDataSet* sourceDS = vtkDataSet::SafeDownCast(iter->GetCurrentDataObject());
-    vtkHyperTreeGrid* sourceHTG = vtkHyperTreeGrid::SafeDownCast(iter->GetCurrentDataObject());
-    if (sourceHTG)
+    if (vtkHyperTreeGrid::SafeDownCast(iter->GetCurrentDataObject()))
     {
       continue;
     }

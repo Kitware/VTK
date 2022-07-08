@@ -32,7 +32,6 @@
 #include "vtkHyperTreeGrid.h"
 #include "vtkHyperTreeGridGeometricLocator.h"
 #include "vtkHyperTreeGridLocator.h"
-#include "vtkHyperTreeGridPProbeFilter.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkLineSource.h"
@@ -42,6 +41,7 @@
 #include "vtkMultiProcessController.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
+#include "vtkPHyperTreeGridProbeFilter.h"
 #include "vtkPProbeFilter.h"
 #include "vtkPlane.h"
 #include "vtkPointSet.h"
@@ -588,7 +588,7 @@ int vtkProbeLineFilter::RequestData(
       }
       else
       {
-        vtkNew<vtkHyperTreeGridPProbeFilter> htgProber;
+        vtkNew<vtkPHyperTreeGridProbeFilter> htgProber;
         htgProber->SetController(this->Controller);
         htgProber->SetPassCellArrays(this->PassCellArrays);
         htgProber->SetPassPointArrays(this->PassPointArrays);

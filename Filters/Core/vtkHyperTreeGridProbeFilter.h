@@ -77,18 +77,18 @@ public:
    * Shallow copy the input cell data arrays to the output.
    * Off by default.
    */
-  vtkSetMacro(PassCellArrays, vtkTypeBool);
-  vtkBooleanMacro(PassCellArrays, vtkTypeBool);
-  vtkGetMacro(PassCellArrays, vtkTypeBool);
+  vtkSetMacro(PassCellArrays, bool);
+  vtkBooleanMacro(PassCellArrays, bool);
+  vtkGetMacro(PassCellArrays, bool);
   ///@}
   ///@{
   /**
    * Shallow copy the input point data arrays to the output
    * Off by default.
    */
-  vtkSetMacro(PassPointArrays, vtkTypeBool);
-  vtkBooleanMacro(PassPointArrays, vtkTypeBool);
-  vtkGetMacro(PassPointArrays, vtkTypeBool);
+  vtkSetMacro(PassPointArrays, bool);
+  vtkBooleanMacro(PassPointArrays, bool);
+  vtkGetMacro(PassPointArrays, bool);
   ///@}
 
   ///@{
@@ -96,9 +96,9 @@ public:
    * Set whether to pass the field-data arrays from the Input i.e. the input
    * providing the geometry to the output. On by default.
    */
-  vtkSetMacro(PassFieldArrays, vtkTypeBool);
-  vtkBooleanMacro(PassFieldArrays, vtkTypeBool);
-  vtkGetMacro(PassFieldArrays, vtkTypeBool);
+  vtkSetMacro(PassFieldArrays, bool);
+  vtkBooleanMacro(PassFieldArrays, bool);
+  vtkGetMacro(PassFieldArrays, bool);
   ///@}
 
   ///@{
@@ -107,8 +107,8 @@ public:
    * valid points and 0 for invalid points.
    * Set to "vtkValidPointMask" by default.
    */
-  vtkSetStringMacro(ValidPointMaskArrayName);
-  vtkGetStringMacro(ValidPointMaskArrayName);
+  vtkSetMacro(ValidPointMaskArrayName, std::string);
+  vtkGetMacro(ValidPointMaskArrayName, std::string);
   ///@}
 
   ///@{
@@ -180,11 +180,11 @@ protected:
 
   vtkSmartPointer<vtkHyperTreeGridLocator> Locator;
 
-  vtkTypeBool PassCellArrays = false;
-  vtkTypeBool PassPointArrays = false;
-  vtkTypeBool PassFieldArrays = true;
+  bool PassCellArrays = false;
+  bool PassPointArrays = false;
+  bool PassFieldArrays = true;
 
-  char* ValidPointMaskArrayName = nullptr;
+  std::string ValidPointMaskArrayName = "vtkValidPointMask";
   vtkNew<vtkIdTypeArray> ValidPoints;
   vtkSmartPointer<vtkCharArray> MaskPoints;
 

@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkHyperTreeGridPProbeFilter.h
+  Module:    vtkPHyperTreeGridProbeFilter.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -13,7 +13,7 @@
 
 =========================================================================*/
 /**
- * @class   vtkHyperTreeGridPProbeFilter
+ * @class   vtkPHyperTreeGridProbeFilter
  * @brief   probe a vtkHyperTreeGrid in parallel
  *
  * Heavily modeled after the vtkPProbeFilter and vtkProbeFilter, this class
@@ -27,8 +27,8 @@
  * - Enrich the parallelism logic allowing for both distributed sources and input/outputs
  */
 
-#ifndef vtkHyperTreeGridPProbeFilter_h
-#define vtkHyperTreeGridPProbeFilter_h
+#ifndef vtkPHyperTreeGridProbeFilter_h
+#define vtkPHyperTreeGridProbeFilter_h
 
 #include "vtkFiltersParallelModule.h" //For export Macro
 #include "vtkHyperTreeGridProbeFilter.h"
@@ -40,14 +40,14 @@ class vtkDataSet;
 class vtkHyperTreeGrid;
 class vtkHyperTreeGridLocator;
 
-class VTKFILTERSPARALLEL_EXPORT vtkHyperTreeGridPProbeFilter : public vtkHyperTreeGridProbeFilter
+class VTKFILTERSPARALLEL_EXPORT vtkPHyperTreeGridProbeFilter : public vtkHyperTreeGridProbeFilter
 {
 public:
-  vtkTypeMacro(vtkHyperTreeGridPProbeFilter, vtkHyperTreeGridProbeFilter);
+  vtkTypeMacro(vtkPHyperTreeGridProbeFilter, vtkHyperTreeGridProbeFilter);
 
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  static vtkHyperTreeGridPProbeFilter* New();
+  static vtkPHyperTreeGridProbeFilter* New();
 
   ///@{
   /**
@@ -62,8 +62,8 @@ protected:
   /**
    * Construction methods
    */
-  vtkHyperTreeGridPProbeFilter();
-  ~vtkHyperTreeGridPProbeFilter() override;
+  vtkPHyperTreeGridProbeFilter();
+  ~vtkPHyperTreeGridProbeFilter() override;
   ///@}
 
   ///@{
@@ -88,9 +88,9 @@ protected:
   vtkMultiProcessController* Controller = nullptr;
 
 private:
-  vtkHyperTreeGridPProbeFilter(const vtkHyperTreeGridPProbeFilter&) = delete;
-  void operator=(const vtkHyperTreeGridPProbeFilter&) = delete;
+  vtkPHyperTreeGridProbeFilter(const vtkPHyperTreeGridProbeFilter&) = delete;
+  void operator=(const vtkPHyperTreeGridProbeFilter&) = delete;
 
-}; // vtkHyperTreeGridPProbeFilter
+}; // vtkPHyperTreeGridProbeFilter
 
-#endif // vtkHyperTreeGridPProbeFilter_h
+#endif // vtkPHyperTreeGridProbeFilter_h
