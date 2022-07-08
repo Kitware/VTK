@@ -500,6 +500,12 @@ void vtkOpenVDBWriter::WriteImageData(vtkImageData* imageData)
 
   int extent[6], wholeExtent[6];
   imageData->GetExtent(extent);
+
+  for (int s = 0; s < 6; s++)
+  {
+    wholeExtent[s] = extent[s];
+  }
+
   if (this->Controller)
   {
     extent[0] = -extent[0];
