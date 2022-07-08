@@ -1358,6 +1358,7 @@ struct ExtractCellBoundaries
   {
     // Make sure cells have been built
     auto& localData = this->LocalData.Local();
+    localData.BaseThread = false;
     localData.SetPointMap(this->PointMap);
     localData.SetExcludedFaces(this->ExcFaces);
     localData.Verts.SetPointsGhost(this->PointGhost);
