@@ -225,6 +225,16 @@ vtkCocoaRenderWindow::vtkCocoaRenderWindow()
 //----------------------------------------------------------------------------
 vtkCocoaRenderWindow::~vtkCocoaRenderWindow()
 {
+  // If we created a vtkCocoaGLView, clear its reference back to us.
+  if (this->GetViewCreated())
+  {
+    NSView* glView = (NSView*)this->GetWindowId();
+    if ([glView isKindOfClass:[vtkCocoaGLView class]])
+    {
+      [(vtkCocoaGLView*)glView setVTKRenderWindow:nullptr];
+    }
+  }
+
   if (this->CursorHidden)
   {
     this->ShowCursor();
