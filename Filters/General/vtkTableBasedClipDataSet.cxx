@@ -2344,7 +2344,8 @@ vtkSmartPointer<vtkUnstructuredGrid> ClipUnstructuredData(TGrid* input, vtkPoint
   auto outputPointData = vtkSmartPointer<vtkPointData>::New();
   ArrayList pointDataArrays;
   outputPointData->InterpolateAllocate(input->GetPointData(), numberOfOutputPoints);
-  pointDataArrays.AddArrays(numberOfOutputPoints, input->GetPointData(), outputPointData);
+  pointDataArrays.AddArrays(numberOfOutputPoints, input->GetPointData(), outputPointData,
+    /*nullValue*/ 0.0, /*promote*/ false);
   // define outputCellTypes, outputCellArray
   vtkSmartPointer<vtkUnsignedCharArray> outputCellTypes;
   vtkSmartPointer<vtkCellArray> outputCellArray;
@@ -2352,7 +2353,8 @@ vtkSmartPointer<vtkUnstructuredGrid> ClipUnstructuredData(TGrid* input, vtkPoint
   auto outputCellData = vtkSmartPointer<vtkCellData>::New();
   ArrayList cellDataArrays;
   outputCellData->InterpolateAllocate(input->GetCellData(), numberOfOutputCells);
-  cellDataArrays.AddArrays(numberOfOutputCells, input->GetCellData(), outputCellData);
+  cellDataArrays.AddArrays(numberOfOutputCells, input->GetCellData(), outputCellData,
+    /*nullValue*/ 0.0, /*promote*/ false);
 
   // identify the required output id type
   std::vector<Centroid> centroids;
@@ -2482,7 +2484,8 @@ vtkSmartPointer<vtkUnstructuredGrid> ClipStructuredData(TGrid* input, vtkPoints*
   auto outputPointData = vtkSmartPointer<vtkPointData>::New();
   ArrayList pointDataArrays;
   outputPointData->InterpolateAllocate(input->GetPointData(), numberOfOutputPoints);
-  pointDataArrays.AddArrays(numberOfOutputPoints, input->GetPointData(), outputPointData);
+  pointDataArrays.AddArrays(numberOfOutputPoints, input->GetPointData(), outputPointData,
+    /*nullValue*/ 0.0, /*promote*/ false);
   // define outputCellTypes, outputCellArray
   vtkSmartPointer<vtkUnsignedCharArray> outputCellTypes;
   vtkSmartPointer<vtkCellArray> outputCellArray;
@@ -2490,7 +2493,8 @@ vtkSmartPointer<vtkUnstructuredGrid> ClipStructuredData(TGrid* input, vtkPoints*
   auto outputCellData = vtkSmartPointer<vtkCellData>::New();
   ArrayList cellDataArrays;
   outputCellData->InterpolateAllocate(input->GetCellData(), numberOfOutputCells);
-  cellDataArrays.AddArrays(numberOfOutputCells, input->GetCellData(), outputCellData);
+  cellDataArrays.AddArrays(numberOfOutputCells, input->GetCellData(), outputCellData,
+    /*nullValue*/ 0.0, /*promote*/ false);
 
   // identify the required output id type
   std::vector<Centroid> centroids;
