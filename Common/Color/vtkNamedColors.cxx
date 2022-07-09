@@ -672,12 +672,12 @@ public:
   }
 
 private:
-  //-----------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
+
   // Convert a string to lowercase.
-  vtkStdString ToLowercase(const vtkStdString& str)
+  vtkStdString ToLowercase(vtkStdString s)
   {
-    vtkStdString s;
-    std::transform(str.begin(), str.end(), std::back_inserter(s), (int (*)(int))std::tolower);
+    std::transform(s.begin(), s.end(), s.begin(), [](unsigned char c) { return std::tolower(c); });
     return s;
   }
 
@@ -707,10 +707,9 @@ private:
   void HexStringToRGBA(vtkStdString color);
 
   // Convert a string to lowercase.
-  vtkStdString ToLowercase(const vtkStdString& str)
+  vtkStdString ToLowercase(vtkStdString s)
   {
-    vtkStdString s;
-    std::transform(str.begin(), str.end(), std::back_inserter(s), (int (*)(int))std::tolower);
+    std::transform(s.begin(), s.end(), s.begin(), [](unsigned char c) { return std::tolower(c); });
     return s;
   }
 
