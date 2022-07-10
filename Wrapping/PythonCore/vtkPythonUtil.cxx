@@ -140,6 +140,14 @@ class vtkPythonClassMap : public std::map<std::string, PyVTKClass>
 {
 };
 
+// Map the Pythonic class names to the ones given by GetClassName().
+// These differ only for templated classes derived from vtkObjectBase,
+// where GetClassName() returns typeid(T).name() which in general is
+// not a valid Python name.
+class vtkPythonClassNameMap : public std::map<std::string, std::string>
+{
+};
+
 // Like the ClassMap, for types not derived from vtkObjectBase.
 class vtkPythonSpecialTypeMap : public std::map<std::string, PyVTKSpecialType>
 {
@@ -210,6 +218,7 @@ vtkPythonUtil::vtkPythonUtil()
   this->ObjectMap = new vtkPythonObjectMap;
   this->GhostMap = new vtkPythonGhostMap;
   this->ClassMap = new vtkPythonClassMap;
+  this->ClassNameMap = new vtkPythonClassNameMap;
   this->SpecialTypeMap = new vtkPythonSpecialTypeMap;
   this->NamespaceMap = new vtkPythonNamespaceMap;
   this->EnumMap = new vtkPythonEnumMap;
@@ -223,6 +232,7 @@ vtkPythonUtil::~vtkPythonUtil()
   delete this->ObjectMap;
   delete this->GhostMap;
   delete this->ClassMap;
+  delete this->ClassNameMap;
   delete this->SpecialTypeMap;
   delete this->NamespaceMap;
   delete this->EnumMap;
@@ -474,6 +484,21 @@ const char* vtkPythonUtil::PythonicClassName(const char* classname)
 }
 
 //------------------------------------------------------------------------------
+const char* vtkPythonUtil::VTKClassName(const char* pyname)
+{
+  if (vtkPythonMap && pyname != nullptr)
+  {
+    vtkPythonClassNameMap::iterator it = vtkPythonMap->ClassNameMap->find(pyname);
+    if (it != vtkPythonMap->ClassNameMap->end())
+    {
+      return it->second.c_str();
+    }
+  }
+
+  return pyname;
+}
+
+//------------------------------------------------------------------------------
 const char* vtkPythonUtil::StripModule(const char* tpname)
 {
   const char* cp = tpname;
@@ -499,6 +524,16 @@ PyTypeObject* vtkPythonUtil::AddClassToMap(
     i = vtkPythonMap->ClassMap->insert(i,
       vtkPythonClassMap::value_type(
         classname, PyVTKClass(pytype, methods, classname, constructor)));
+
+    // if Python type name differs from VTK ClassName, store in ClassNameMap
+    // (this only occurs for templated classes, due to their GetClassName()
+    // implementation in their type macro in vtkSetGet.h)
+    const char* pyname = vtkPythonUtil::StripModule(pytype->tp_name);
+    if (strcmp(pyname, classname) != 0)
+    {
+      vtkPythonMap->ClassNameMap->insert(
+        vtkPythonMap->ClassNameMap->end(), vtkPythonClassNameMap::value_type(pyname, classname));
+    }
   }
 
   return i->second.py_type;

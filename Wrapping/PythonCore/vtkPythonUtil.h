@@ -32,6 +32,7 @@
 #endif
 
 class vtkPythonClassMap;
+class vtkPythonClassNameMap;
 class vtkPythonCommand;
 class vtkPythonCommandList;
 class vtkPythonGhostMap;
@@ -64,6 +65,12 @@ public:
    * a python-printable name.
    */
   static const char* PythonicClassName(const char* classname);
+
+  /**
+   * Given the pythonic name of a class, get the vtkObjectBase ClassName.
+   * These will only differ for templated vtkObjectBase subclasses.
+   */
+  static const char* VTKClassName(const char* pyname);
 
   /**
    * Given a qualified python name "module.name", remove "module.".
@@ -264,6 +271,7 @@ private:
   vtkPythonObjectMap* ObjectMap;
   vtkPythonGhostMap* GhostMap;
   vtkPythonClassMap* ClassMap;
+  vtkPythonClassNameMap* ClassNameMap;
   vtkPythonSpecialTypeMap* SpecialTypeMap;
   vtkPythonNamespaceMap* NamespaceMap;
   vtkPythonEnumMap* EnumMap;
