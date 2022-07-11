@@ -427,6 +427,18 @@ struct ReverseCellAtIdImpl
   }
 };
 
+struct ReplaceCellPointAtIdImpl
+{
+  template <typename CellStateT>
+  void operator()(
+    CellStateT& cells, vtkIdType cellId, vtkIdType cellPointIndex, vtkIdType newPointId) const
+  {
+    using ValueType = typename CellStateT::ValueType;
+
+    cells.GetCellRange(cellId)[cellPointIndex] = static_cast<ValueType>(newPointId);
+  }
+};
+
 struct ReplaceCellAtIdImpl
 {
   template <typename CellStateT>
@@ -1145,6 +1157,13 @@ void vtkCellArray::ReplaceCellAtId(
   vtkIdType cellId, vtkIdType cellSize, const vtkIdType cellPoints[])
 {
   this->Visit(ReplaceCellAtIdImpl{}, cellId, cellSize, cellPoints);
+}
+
+//------------------------------------------------------------------------------
+void vtkCellArray::ReplaceCellPointAtId(
+  vtkIdType cellId, vtkIdType cellPointIndex, vtkIdType newPointId)
+{
+  this->Visit(ReplaceCellPointAtIdImpl{}, cellId, cellPointIndex, newPointId);
 }
 
 //------------------------------------------------------------------------------

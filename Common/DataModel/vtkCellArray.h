@@ -709,6 +709,15 @@ public:
   /**@}*/
 
   /**
+   * Replaces the pointId at cellPointIndex of a cell with newPointId.
+   *
+   * @warning This can ONLY replace the cell if the size does not change.
+   * Attempting to change cell size through this method will have undefined
+   * results.
+   */
+  void ReplaceCellPointAtId(vtkIdType cellId, vtkIdType cellPointIndex, vtkIdType newPointId);
+
+  /**
    * Overload that allows `ReplaceCellAtId(cellId, {0, 1, 2})` syntax.
    *
    * @warning This can ONLY replace the cell if the size does not change.

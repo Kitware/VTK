@@ -481,11 +481,20 @@ public:
   void ReplaceCell(vtkIdType cellId, int npts, const vtkIdType pts[]) VTK_SIZEHINT(pts, npts);
   /**@}*/
 
+  ///@{
   /**
    * Replace a point in the cell connectivity list with a different point. Use this
    * method only when the dataset is set as Editable.
+   *
+   * The version with cellPointIds avoids allocating/deallocating a vtkIdList at each call
+   * internally.
+   *
+   * THIS METHOD IS THREAD SAFE IF BuildCells() IS FIRST CALLED FROM A SINGLE THREAD.
    */
   void ReplaceCellPoint(vtkIdType cellId, vtkIdType oldPtId, vtkIdType newPtId);
+  void ReplaceCellPoint(
+    vtkIdType cellId, vtkIdType oldPtId, vtkIdType newPtId, vtkIdList* cellPointIds);
+  ///@}
 
   /**
    * Reverse the order of point ids defining the cell. Use this
@@ -917,16 +926,30 @@ inline vtkCellArray* vtkPolyData::GetCellArrayInternal(vtkPolyData::TaggedCellId
 inline void vtkPolyData::ReplaceCellPoint(vtkIdType cellId, vtkIdType oldPtId, vtkIdType newPtId)
 {
   vtkNew<vtkIdList> ids;
-  this->GetCellPoints(cellId, ids);
-  for (vtkIdType i = 0; i < ids->GetNumberOfIds(); i++)
+  this->ReplaceCellPoint(cellId, oldPtId, newPtId, ids);
+}
+
+//------------------------------------------------------------------------------
+inline void vtkPolyData::ReplaceCellPoint(
+  vtkIdType cellId, vtkIdType oldPtId, vtkIdType newPtId, vtkIdList* cellPointIds)
+{
+  if (!this->Cells)
   {
-    if (ids->GetId(i) == oldPtId)
+    this->BuildCells();
+  }
+  vtkIdType npts;
+  const vtkIdType* pts;
+  this->GetCellPoints(cellId, npts, pts, cellPointIds);
+  for (vtkIdType i = 0; i < npts; i++)
+  {
+    if (pts[i] == oldPtId)
     {
-      ids->SetId(i, newPtId);
+      const TaggedCellId tag = this->Cells->GetTag(cellId);
+      vtkCellArray* cells = this->GetCellArrayInternal(tag);
+      cells->ReplaceCellPointAtId(tag.GetCellId(), i, newPtId);
       break;
     }
   }
-  this->ReplaceCell(cellId, static_cast<int>(ids->GetNumberOfIds()), ids->GetPointer(0));
 }
 
 //------------------------------------------------------------------------------
