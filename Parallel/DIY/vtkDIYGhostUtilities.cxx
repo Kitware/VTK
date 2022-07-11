@@ -1763,6 +1763,7 @@ vtkAlgorithm* InstantiateInterfaceExtractor<vtkPolyData>(vtkPolyData* input)
   extractor->NonManifoldEdgesOff();
   extractor->PassLinesOn();
   extractor->ColoringOff();
+  extractor->RemoveGhostInterfacesOff();
   extractor->SetInputData(input);
 
   return extractor;

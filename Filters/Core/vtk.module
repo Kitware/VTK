@@ -25,6 +25,7 @@ TEST_DEPENDS
   VTK::FiltersExtraction
   VTK::FiltersGeneral
   VTK::FiltersGeometry
+  VTK::FiltersParallelDIY2
   VTK::FiltersSources
   VTK::FiltersTexture
   VTK::IOExodus
