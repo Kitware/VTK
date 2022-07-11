@@ -35,7 +35,6 @@ vtkAngleRepresentation::vtkAngleRepresentation()
   this->CenterRepresentation = nullptr;
   this->Point2Representation = nullptr;
 
-  this->Tolerance = 5;
   this->Placed = 0;
 
   this->Ray1Visibility = 1;
