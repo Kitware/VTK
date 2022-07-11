@@ -38,7 +38,6 @@
 #include "vtkPNGWriter.h"
 #include "vtkPixelBufferObject.h"
 #include "vtkPointData.h"
-#include "vtkStdString.h"
 #include "vtkTimerLog.h"
 #include <sstream>
 
@@ -280,12 +279,8 @@ void vtkCompositeRGBAPass::Render(const vtkRenderState* s)
     timer->StopTimer();
     ostxx << "root0_" << vtkTimerLog::GetUniversalTime() << "_.png";
 
-    vtkStdString* sssxx = new vtkStdString;
-    (*sssxx) = ostxx.str();
-
     writer = vtkPNGWriter::New();
-    writer->SetFileName(*sssxx);
-    delete sssxx;
+    writer->SetFileName(ostxx.str().c_str());
     writer->SetInputConnection(converter->GetOutputPort());
     converter->Delete();
     importer->Delete();
@@ -434,12 +429,8 @@ void vtkCompositeRGBAPass::Render(const vtkRenderState* s)
     timer->StopTimer();
     osty << "rootend_" << vtkTimerLog::GetUniversalTime() << "_.png";
 
-    vtkStdString* sssy = new vtkStdString;
-    (*sssy) = osty.str();
-
     writer = vtkPNGWriter::New();
-    writer->SetFileName(*sssy);
-    delete sssy;
+    writer->SetFileName(osty.str().c_str());
     writer->SetInputConnection(converter->GetOutputPort());
     converter->Delete();
     importer->Delete();
@@ -495,12 +486,8 @@ void vtkCompositeRGBAPass::Render(const vtkRenderState* s)
     timer->StopTimer();
     ostxx << "satellite_send_" << vtkTimerLog::GetUniversalTime() << "_.png";
 
-    vtkStdString* sssxx = new vtkStdString;
-    (*sssxx) = ostxx.str();
-
     writer = vtkPNGWriter::New();
-    writer->SetFileName(*sssxx);
-    delete sssxx;
+    writer->SetFileName(ostxx.str().c_str());
     writer->SetInputConnection(converter->GetOutputPort());
     converter->Delete();
     importer->Delete();

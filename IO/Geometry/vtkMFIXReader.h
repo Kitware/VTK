@@ -48,7 +48,6 @@ class vtkWedge;
 class vtkQuad;
 class vtkHexahedron;
 class vtkPoints;
-class vtkStdString;
 
 class VTKIOGEOMETRY_EXPORT vtkMFIXReader : public vtkUnstructuredGridAlgorithm
 {
@@ -268,12 +267,8 @@ private:
   void SwapDouble(double& value);
   void SwapFloat(float& value);
   void SwapInt(int& value);
-  vtkStdString ConvertIntToString(int in);
-  int ConvertCharToInt(char in);
-  int ConvertStringToInt(const vtkStdString& in);
   void GetInt(istream& in, int& val);
   void GetDouble(istream& in, double& val);
-  void GetFloat(istream& in, float& val);
   void SkipBytes(istream& in, int n);
   void RestartVersionNumber(const char* buffer);
   void GetBlockOfDoubles(istream& in, vtkDoubleArray* v, int n);

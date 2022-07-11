@@ -15,22 +15,15 @@
 
 #include "H5RageAdaptor.h"
 
-#include "vtkCellArray.h"
 #include "vtkDataArraySelection.h"
 #include "vtkDirectory.h"
 #include "vtkDoubleArray.h"
-#include "vtkErrorCode.h"
+#include "vtkFieldData.h"
 #include "vtkFloatArray.h"
-#include "vtkIdList.h"
 #include "vtkImageData.h"
-#include "vtkInformation.h"
-#include "vtkMultiPieceDataSet.h"
 #include "vtkMultiProcessController.h"
 #include "vtkNew.h"
 #include "vtkPointData.h"
-#include "vtkPoints.h"
-#include "vtkStdString.h"
-#include "vtkStringArray.h"
 #include "vtksys/FStream.hxx"
 
 #include <cctype>

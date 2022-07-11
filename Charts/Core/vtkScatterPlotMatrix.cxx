@@ -349,8 +349,7 @@ bool MoveColumn(vtkStringArray* visCols, int fromCol, int toCol)
 
   // repopulate the visCols
   vtkIdType visId = 0;
-  std::vector<vtkStdString>::iterator arrayIt;
-  for (arrayIt = newVisCols.begin(); arrayIt != newVisCols.end(); ++arrayIt)
+  for (auto arrayIt = newVisCols.begin(); arrayIt != newVisCols.end(); ++arrayIt)
   {
     visCols->SetValue(visId++, *arrayIt);
   }

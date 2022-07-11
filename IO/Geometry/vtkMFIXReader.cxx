@@ -2070,16 +2070,13 @@ void vtkMFIXReader::GetVariableAtTimestep(int vari, int tstep, vtkFloatArray* v)
   // <10 scalars and <10 ReactionRates (need to change this)
 
   char variableName[256];
-  strcpy(variableName, this->VariableNames->GetValue(vari));
+  strncpy(variableName, this->VariableNames->GetValue(vari).c_str(), sizeof(variableName));
+  variableName[sizeof(variableName) - 1] = '\0'; // guarantee a NUL terminator
   int spx = this->VariableIndexToSPX->GetValue(vari);
   char fileName[VTK_MAXPATH];
 
-  for (int k = 0; k < (int)sizeof(fileName); k++)
-  {
-    fileName[k] = 0;
-  }
-
   strncpy(fileName, this->FileName, sizeof(fileName) - 1);
+  fileName[sizeof(fileName) - 1] = '\0'; // guarantee a NUL terminator
   size_t fileNameLength = strlen(fileName);
   if (fileNameLength >= 4)
   {

@@ -862,7 +862,7 @@ void vtkColorStringParser::RGBAFuncStringToRGBA(
   this->StateGood = (pos != vtkStdString::npos && color[pos] == '(');
 
   // Check if percentage values are used.
-  bool usePercentage = (color.find_first_of("%", pos + 1) != vtkStdString::npos);
+  bool usePercentage = (color.find_first_of('%', pos + 1) != vtkStdString::npos);
 
   // Count and replace delimiters.
   unsigned int delimiterCount = 0;

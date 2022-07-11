@@ -3510,7 +3510,7 @@ const char* vtkExodusIIReaderPrivate::GetPartName(int idx)
 const char* vtkExodusIIReaderPrivate::GetPartBlockInfo(int idx)
 {
   char buffer[80];
-  vtkStdString blocks;
+  static vtkStdString blocks;
   std::vector<int> blkIndices = this->PartInfo[idx].BlockIndices;
   for (unsigned int i = 0; i < blkIndices.size(); i++)
   {
