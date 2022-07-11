@@ -138,6 +138,22 @@ public:
 
   ///@{
   /**
+   * Turn on/off creating edges at ghost interfaces. An edge is at a ghost interface
+   * if it belongs to at least one ghost cell. This is turned on by default.
+   * When turned off, only edges that solely belong to ghost cells are discarded from the output.
+   * When turned on, edges are discarded if the belong to at least one ghost cell.
+   *
+   * @note In order for the interfaces between ranks to be removed, ghost cells must be first
+   * generated.
+   * @sa vtkGhostCellsGenerator
+   */
+  vtkSetMacro(RemoveGhostInterfaces, bool);
+  vtkGetMacro(RemoveGhostInterfaces, bool);
+  vtkBooleanMacro(RemoveGhostInterfaces, bool);
+  ///@}
+
+  ///@{
+  /**
    * Set / get a spatial locator for merging points. By
    * default an instance of vtkMergePoints is used.
    */
@@ -181,6 +197,7 @@ protected:
   bool PassLines;
   bool Coloring;
   bool PassGlobalIds;
+  bool RemoveGhostInterfaces;
   int OutputPointsPrecision;
   vtkIncrementalPointLocator* Locator;
 
