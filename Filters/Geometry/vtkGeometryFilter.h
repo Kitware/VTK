@@ -308,7 +308,7 @@ public:
 
   ///@{
   /**
-   * If PieceInvariant is true, vtkDataSetSurfaceFilter requests
+   * If PieceInvariant is true, vtkGeometryFilter requests
    * 1 ghost level from input in order to remove internal surface
    * that are between processes. False by default.
    */
@@ -421,10 +421,16 @@ public:
     vtkDataSet* input, vtkPolyData* output, vtkGeometryFilterHelper* info, vtkPolyData* exc);
   virtual int UnstructuredGridExecute(vtkDataSet* input, vtkPolyData* output);
 
+  VTK_DEPRECATED_IN_9_3_0("Use the new version that has int* instead of vtkInformation*")
   int StructuredExecute(vtkDataSet* input, vtkPolyData* output, vtkInformation* inInfo,
     vtkPolyData* exc, bool* extractFace = nullptr);
+  int StructuredExecute(vtkDataSet* input, vtkPolyData* output, int* wholeExtent, vtkPolyData* exc,
+    bool* extractFace = nullptr);
+  VTK_DEPRECATED_IN_9_3_0("Use the new version that has int* instead of vtkInformation*")
   virtual int StructuredExecute(
     vtkDataSet* input, vtkPolyData* output, vtkInformation* inInfo, bool* extractFace = nullptr);
+  virtual int StructuredExecute(
+    vtkDataSet* input, vtkPolyData* output, int* wholeExt, bool* extractFace = nullptr);
 
   int DataSetExecute(vtkDataSet* input, vtkPolyData* output, vtkPolyData* exc);
   virtual int DataSetExecute(vtkDataSet* input, vtkPolyData* output);

@@ -628,7 +628,9 @@ int vtkDataSetSurfaceFilter::StructuredExecute(
       TRACE, "StructuredExecute Using GeometryFilter (fastMode=%d)", (int)this->GetFastMode());
     vtkNew<vtkGeometryFilter> geometryFilter;
     vtkGeometryFilterHelper::CopyFilterParams(this, geometryFilter);
-    return geometryFilter->StructuredExecute(input, output, nullptr, nullptr, nullptr);
+    int wholeExtent[6];
+    std::copy(wholeExt, wholeExt + 6, wholeExtent);
+    return geometryFilter->StructuredExecute(input, output, wholeExtent, nullptr, nullptr);
   }
 
   if (::StructuredExecuteWithBlanking(vtkImageData::SafeDownCast(input), output, this) ||

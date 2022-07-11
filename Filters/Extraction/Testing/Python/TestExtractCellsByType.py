@@ -160,7 +160,7 @@ if extr.GetOutput().GetNumberOfCells() != 6*res*res:
 
 # Finally triangle strips. The number of triangle strips may vary depending
 # on how threaded execution of the geometry filter works. So we just look to
-# make sure triangle strips are generated. Empirically, we know at least 100
+# make sure triangle strips are generated. Empirically, we know at least 99
 # strips will be generated.
 tris = vtk.vtkTriangleFilter()
 tris.SetInputConnection(polys.GetOutputPort())
@@ -173,7 +173,7 @@ extr.RemoveCellType(vtk.VTK_LINE)
 extr.AddCellType(vtk.VTK_TRIANGLE_STRIP)
 extr.Update()
 print("Number of triangle strips: {0}".format(extr.GetOutput().GetNumberOfCells()))
-if extr.GetOutput().GetNumberOfCells() < 100:
+if extr.GetOutput().GetNumberOfCells() < 99:
     error = 1
 
 
