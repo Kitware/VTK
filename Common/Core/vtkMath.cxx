@@ -2120,9 +2120,8 @@ bool vtkMath::ProjectVector(const double a[3], const double b[3], double project
 
   for (int i = 0; i < 3; ++i)
   {
-    projection[i] = b[i];
+    projection[i] = b[i] * scale;
   }
-  vtkMath::MultiplyScalar(projection, scale);
 
   return true;
 }

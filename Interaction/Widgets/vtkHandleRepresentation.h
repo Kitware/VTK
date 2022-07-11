@@ -216,7 +216,19 @@ public:
   void SetXTranslationAxisOn() { this->TranslationAxis = Axis::XAxis; }
   void SetYTranslationAxisOn() { this->TranslationAxis = Axis::YAxis; }
   void SetZTranslationAxisOn() { this->TranslationAxis = Axis::ZAxis; }
+  void SetCustomTranslationAxisOn() { this->TranslationAxis = Axis::Custom; }
   void SetTranslationAxisOff() { this->TranslationAxis = Axis::NONE; }
+  ///@}
+
+  ///@{
+  /**
+   * Get/Set the translation axis used when vtkHandleRepresentation::TranslationAxis
+   * is set to Axis::Custom.
+   *
+   * @see SetCustomTranslationAxisOn
+   */
+  vtkGetVector3Macro(CustomTranslationAxis, double);
+  vtkSetVector3Macro(CustomTranslationAxis, double);
   ///@}
 
   ///@{
@@ -230,16 +242,16 @@ protected:
   vtkHandleRepresentation();
   ~vtkHandleRepresentation() override;
 
-  int Tolerance;
-  vtkTypeBool ActiveRepresentation;
-  vtkTypeBool Constrained;
+  int Tolerance = 15;
+  vtkTypeBool ActiveRepresentation = false;
+  vtkTypeBool Constrained = false;
 
   // Two vtkCoordinates are available to subclasses, one in display
   // coordinates and the other in world coordinates. These facilitate
   // the conversion between these two systems. Note that the WorldPosition
   // is the ultimate maintainer of position.
-  vtkCoordinate* DisplayPosition;
-  vtkCoordinate* WorldPosition;
+  vtkNew<vtkCoordinate> DisplayPosition;
+  vtkNew<vtkCoordinate> WorldPosition;
 
   // Keep track of when coordinates were changed
   vtkTimeStamp DisplayPositionTime;
@@ -249,7 +261,8 @@ protected:
   vtkPointPlacer* PointPlacer;
 
   // Constraint axis translation
-  int TranslationAxis;
+  int TranslationAxis = Axis::NONE;
+  double CustomTranslationAxis[3] = { 1.0, 0.0, 0.0 };
 
 private:
   vtkHandleRepresentation(const vtkHandleRepresentation&) = delete;
