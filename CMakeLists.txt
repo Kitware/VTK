@@ -130,9 +130,6 @@ option(VTK_LEGACY_REMOVE "Remove all legacy code completely." OFF)
 option(VTK_LEGACY_SILENT "Silence all legacy code messages." OFF)
 mark_as_advanced(VTK_LEGACY_REMOVE VTK_LEGACY_SILENT)
 
-# Tell VTK source files they are being built inside VTK.
-add_definitions(-DVTK_IN_VTK)
-
 include(CheckTypeSize)
 
 option(VTK_USE_MPI "Support MPI" OFF)
