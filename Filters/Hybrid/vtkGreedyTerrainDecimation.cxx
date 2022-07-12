@@ -717,6 +717,7 @@ int vtkGreedyTerrainDecimation::RequestData(vtkInformation* vtkNotUsed(request),
   double error, bounds[6], center[3];
   vtkCellArray* triangles;
   this->Mesh = output;
+  this->Mesh->EditableOn();
   this->InputPD = input->GetPointData();
   this->OutputPD = this->Mesh->GetPointData();
 

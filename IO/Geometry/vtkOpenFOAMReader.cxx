@@ -8164,6 +8164,7 @@ vtkMultiBlockDataSet* vtkOpenFOAMReaderPrivate::MakeBoundaryMesh(
   if (this->Parent->GetCreateCellToPoint())
   {
     this->AllBoundaries = vtkPolyData::New();
+    this->AllBoundaries->EditableOn();
     this->AllBoundaries->AllocateEstimate(
       // ==> nBoundaryFaces
       meshFaces.GetNumberOfElements() - patches.startFace(), 1);

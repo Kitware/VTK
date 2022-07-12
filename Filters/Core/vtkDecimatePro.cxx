@@ -229,6 +229,7 @@ int vtkDecimatePro::RequestData(vtkInformation* vtkNotUsed(request),
     meshPD->DeepCopy(inPD);
     meshPD->CopyAllocate(meshPD, input->GetNumberOfPoints());
 
+    this->Mesh->EditableOn();
     this->Mesh->BuildLinks();
   }
   else
