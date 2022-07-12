@@ -12,3 +12,8 @@ PRIVATE_DEPENDS
   VTK::ParallelCore
   VTK::vtksys
   VTK::RenderingCore
+TEST_DEPENDS
+  VTK::RenderingContextOpenGL2
+  VTK::RenderingOpenGL2
+  VTK::TestingCore
+  VTK::TestingRendering
