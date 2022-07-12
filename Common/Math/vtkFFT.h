@@ -52,7 +52,7 @@ public:
   vtkTypeMacro(vtkFFT, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Compute the one-dimensional DFT for complex input.
    * If input is scalars then the imaginary part is set to 0
@@ -62,7 +62,7 @@ public:
    */
   static std::vector<ComplexNumber> Fft(const std::vector<ComplexNumber>& in);
   static std::vector<ComplexNumber> Fft(const std::vector<ScalarNumber>& in);
-  //@}
+  ///@}
 
   /**
    * Compute the one-dimensional DFT for real input
@@ -115,7 +115,7 @@ public:
    */
   static std::vector<double> RFftFreq(int windowLength, double sampleSpacing);
 
-  //@{
+  ///@{
   /**
    * Window generator functions. Implementation only needs to be valid for x E [0; size / 2]
    * because kernels are symmetric by definitions. This point is very important for some
@@ -132,7 +132,7 @@ public:
   static inline double SineGenerator(const std::size_t x, const std::size_t size);
   static inline double BlackmanGenerator(const std::size_t x, const std::size_t size);
   static inline double RectangularGenerator(const std::size_t x, const std::size_t size);
-  //@}
+  ///@}
 
   /**
    * Given a window generator function, create a symmetric 1D kernel.

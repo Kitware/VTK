@@ -53,14 +53,14 @@ public:
    */
   XrPosef* GetHandPose(const uint32_t hand);
 
-  //@{
+  ///@{
   /**
    * Assign an event or std::function to an event path.
    * Called by the interactor style for specific actions
    */
   void AddAction(const std::string& path, const vtkCommand::EventIds&);
   void AddAction(const std::string& path, const std::function<void(vtkEventData*)>&);
-  //@}
+  ///@}
   // add an event action
 
   void ConvertOpenXRPoseToWorldCoordinates(const XrPosef& xrPose,

@@ -770,7 +770,7 @@ public:
   using UnstructuredDataBlock = Block<UnstructuredDataBlockStructure, UnstructuredDataInformation>;
   using UnstructuredGridBlock = Block<UnstructuredGridBlockStructure, UnstructuredGridInformation>;
   using PolyDataBlock = Block<PolyDataBlockStructure, PolyDataInformation>;
-  //@}
+  ///@}
 
   /**
    * Main pipeline generating ghosts. It takes as parameters a list of `DataSetT` for the `inputs`

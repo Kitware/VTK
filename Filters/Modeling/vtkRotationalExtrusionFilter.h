@@ -117,13 +117,13 @@ public:
   vtkGetMacro(DeltaRadius, double);
   ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the axis around which the rotation is done.
    */
   vtkSetVector3Macro(RotationAxis, double);
   vtkGetVector3Macro(RotationAxis, double);
-  //@}
+  ///@}
 
 protected:
   vtkRotationalExtrusionFilter();

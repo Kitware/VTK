@@ -105,15 +105,15 @@ public:
   vtkGetMacro(ExcludeBoundary, bool);
   ///@}
 
-  //@{
+  ///@{
   /**
    * Specify/see whether to use boundary switch points/lines points as seeds or not
    */
   vtkSetMacro(UseBoundarySwitchPoints, bool);
   vtkGetMacro(UseBoundarySwitchPoints, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the VectorAngleThreshold to remove noisy boundary switch points/lines
    * When computing boundary switch point, if the vectors of the two points within a cell are almost
@@ -125,23 +125,23 @@ public:
    */
   vtkSetMacro(VectorAngleThreshold, double);
   vtkGetMacro(VectorAngleThreshold, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the OffsetAwayFromBoundary to shift seeds for computing separating lines/surfaces
    */
   vtkSetMacro(OffsetAwayFromBoundary, double);
   vtkGetMacro(OffsetAwayFromBoundary, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify EpsilonCriticalPoint for classifying critical points. The default is 1e-10.
    */
   vtkSetMacro(EpsilonCriticalPoint, double);
   vtkGetMacro(EpsilonCriticalPoint, double);
-  //@}
+  ///@}
 
   /**
    * Set the type of the velocity field interpolator to determine whether

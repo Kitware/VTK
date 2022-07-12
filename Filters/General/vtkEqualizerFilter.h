@@ -35,16 +35,16 @@ public:
   vtkTypeMacro(vtkEqualizerFilter, vtkTableAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set / Get the sampling frequency of the original signal in Hz
    * Default value is: 1000
    */
   vtkSetMacro(SamplingFrequency, int);
   vtkGetMacro(SamplingFrequency, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set / Get a flag to process all columns of the table.
    * If set to true, all columns of the table will be used. The "SetArray()" method will have no
@@ -53,15 +53,15 @@ public:
    */
   vtkSetMacro(AllColumns, bool);
   vtkGetMacro(AllColumns, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set / Get the name of the column from which the data array is taken
    */
   vtkSetStdStringFromCharMacro(Array);
   vtkGetCharFromStdStringMacro(Array);
-  //@}
+  ///@}
 
   /**
    * Set / Get anchor points in the following format
@@ -71,14 +71,14 @@ public:
   void SetPoints(const std::string& points);
   std::string GetPoints() const;
 
-  //@{
+  ///@{
   /**
    * Set / Get the spectrum gain in dB
    * Default value is: 0
    */
   vtkSetMacro(SpectrumGain, int);
   vtkGetMacro(SpectrumGain, int);
-  //@}
+  ///@}
 
 protected:
   vtkEqualizerFilter();

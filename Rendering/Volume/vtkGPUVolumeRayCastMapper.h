@@ -449,13 +449,13 @@ public:
 
   double* GetBoundsFromPort(const int port) VTK_SIZEHINT(6);
 
-  //@{
+  ///@{
   /**
    * Set/Get the transfer 2D Y axis array
    */
   vtkSetStringMacro(Transfer2DYAxisArray);
   vtkGetStringMacro(Transfer2DYAxisArray);
-  //@}
+  ///@}
 
 protected:
   vtkGPUVolumeRayCastMapper();

@@ -94,7 +94,7 @@ public:
    */
   bool MouseButtonReleaseEvent(const vtkContextMouseEvent& mouse) override;
 
-  //@{
+  ///@{
   /**
    * Set / Get anchor points in the following format
    * "P1x,P1y;P2x,P2y; ... PNx,PNy;"
@@ -104,7 +104,7 @@ public:
    */
   void SetPoints(const std::string& points);
   std::string GetPoints() const;
-  //@}
+  ///@}
 
 protected:
   enum MouseStates

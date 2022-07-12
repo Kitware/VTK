@@ -165,7 +165,7 @@ public:
   vtkBooleanMacro(SliceScrollOnMouseWheel, vtkTypeBool);
   ///@}
 
-  //@{
+  ///@{
   /**
    * Define a factor that will be applied in addition to the inter slice spacing when scrolling
    * image. When the view is in axis aligned ResliceMode, and the factor is not an integer,
@@ -176,7 +176,7 @@ public:
    */
   vtkSetMacro(SliceScrollFactor, double);
   vtkGetMacro(SliceScrollFactor, double);
-  //@}
+  ///@}
 
   /**
    * Increment/Decrement slice by 'inc' slices

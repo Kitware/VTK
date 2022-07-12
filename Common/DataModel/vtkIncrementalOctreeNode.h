@@ -166,7 +166,7 @@ public:
    */
   vtkTypeBool ContainsPointByData(const double pnt[3]);
 
-  //@{
+  ///@{
   /**
    * This function is called after a successful point-insertion check and
    * only applies to a leaf node. Prior to a call to this function, the
@@ -186,7 +186,7 @@ public:
    */
   int InsertPoint(vtkPoints* points, const double newPnt[3], int maxPts, vtkIdType* pntId,
     int ptMode, int& numberOfNodes);
-  //@}
+  ///@}
 
   /**
    * Given a point inside this node, get the minimum squared distance to all
@@ -224,7 +224,7 @@ public:
    * are added to vtkIdList by vtkIdList::SetId().
    */
   void ExportAllPointIdsByDirectSet(vtkIdType* pntIdx, vtkIdList* idList);
-  //@}
+
   /**
    * Computes and returns the maximum level of the tree. If a tree has
    * one node it returns 1 else it returns the maximum level of its

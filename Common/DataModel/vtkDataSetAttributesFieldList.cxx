@@ -37,7 +37,7 @@ namespace detail
  */
 struct FieldInfo
 {
-  //@{
+  ///@{
   /**
    * These attributes are used to compare two fields. If they match,
    * then the fields can be treated as similar, hence can be merged.
@@ -45,9 +45,9 @@ struct FieldInfo
   std::string Name;
   int Type;
   int NumberOfComponents;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * These store metadata that may be present on any input field.
    * These are passed to the output in `CopyAllocate`
@@ -55,7 +55,7 @@ struct FieldInfo
   vtkSmartPointer<vtkLookupTable> LUT;
   vtkSmartPointer<vtkInformation> Information;
   std::vector<std::string> ComponentNames;
-  //@}
+  ///@}
 
   /**
    * An array where `AttributeTypes[j][i]==true` if this field is marked
@@ -203,7 +203,7 @@ struct FieldInfo
     }
   }
 
-  //@{
+  ///@{
   /**
    * These methods are used by `UnionFieldList` to pad a FieldInfo instance.
    * Calling these methods clears `AttributeTypes` since it indicates that this
@@ -227,7 +227,7 @@ struct FieldInfo
     std::fill(curattrs.begin(), curattrs.end(), false);
     this->AttributeTypes.insert(this->AttributeTypes.begin(), count, curattrs);
   }
-  //@}
+  ///@}
 };
 
 std::multimap<std::string, FieldInfo> GetFields(vtkDataSetAttributes* dsa)

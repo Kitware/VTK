@@ -98,9 +98,7 @@ public:
    * application's rendering. Avoiding round trip.
    */
   void Render() override;
-  //@}
 
-  //@{
   /**
    * Initialize the rendering window.  This will setup all system-specific
    * resources.  This method and Finalize() must be symmetric and it
@@ -133,12 +131,10 @@ public:
    */
   vtkTypeBool GetEventPending() override { return 0; }
 
-  //@{
   /**
    * Set the active state (active: true / inactive: false) of the specified hand.
    */
   void SetModelActiveState(const int hand, bool state) { this->ModelsActiveState[hand] = state; }
-  //@}
 
   uint32_t GetDeviceHandleForOpenXRHandle(uint32_t index);
   vtkEventDataDevice GetDeviceForOpenXRHandle(uint32_t ohandle);

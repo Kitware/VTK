@@ -65,15 +65,15 @@ public:
   vtkBooleanMacro(OutputMultiBlock, bool);
   ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set the conduit_node. This must be the node satisfying the Conduit Mesh
    * Blueprint.
    */
   void SetNode(const conduit_node* node);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Mechanism to add global / field-data arrays.
    *
@@ -83,14 +83,14 @@ public:
    * it, but if it does, this should be changed to directly leverage that.
    */
   void SetGlobalFieldsNode(const conduit_node* node);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the node to read the assembly information from, if any.
    */
   void SetAssemblyNode(const conduit_node* node);
-  //@}
+  ///@}
 
 protected:
   vtkConduitSource();

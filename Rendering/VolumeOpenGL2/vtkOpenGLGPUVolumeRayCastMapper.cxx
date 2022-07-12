@@ -262,14 +262,14 @@ public:
   // Test if camera is inside the volume geometry
   bool IsCameraInside(vtkRenderer* ren, vtkVolume* vol, double geometry[24]);
 
-  //@{
+  ///@{
   /**
    * Update volume's proxy-geometry and draw it
    */
   bool IsGeometryUpdateRequired(vtkRenderer* ren, vtkVolume* vol, double geometry[24]);
   void RenderVolumeGeometry(
     vtkRenderer* ren, vtkShaderProgram* prog, vtkVolume* vol, double geometry[24]);
-  //@}
+  ///@}
 
   // Update cropping params to shader
   void SetCroppingRegions(vtkShaderProgram* prog, double loadedBounds[6]);
@@ -326,7 +326,7 @@ public:
 
   void RenderMultipleInputs(vtkRenderer* ren, vtkOpenGLCamera* cam, vtkShaderProgram* prog);
 
-  //@{
+  ///@{
   /**
    * Update shader parameters.
    */
@@ -358,7 +358,7 @@ public:
   void SetRenderToImageParameters(vtkShaderProgram* prog);
   void SetAdvancedShaderParameters(vtkRenderer* ren, vtkShaderProgram* prog, vtkVolume* vol,
     vtkVolumeTexture::VolumeBlock* block, int numComp);
-  //@}
+  ///@}
 
   void FinishRendering(int numComponents);
 
@@ -368,7 +368,7 @@ public:
     vtkCamera* cam, vtkVolume* vol, vtkMTimeType renderPassTime, vtkRenderer* ren);
   bool VolumePropertyChanged = true;
 
-  //@{
+  ///@{
   /**
    * Image XY-Sampling
    * Render to an internal framebuffer with lower resolution than the currently
@@ -389,9 +389,9 @@ public:
   bool InitializeImageSampleFBO(vtkRenderer* ren);
   void EndImageSample(vtkRenderer* ren);
   size_t GetNumImageSampleDrawBuffers(vtkVolume* vol);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Allocate and update input data. A list of active ports is maintained
    * by the parent class. This list is traversed to update internal structures
@@ -411,7 +411,7 @@ public:
    * names cached in vtkVolumeInputHelper instances are indexed.
    */
   void ForceTransferInit();
-  //@}
+  ///@}
 
   vtkVolume* GetActiveVolume()
   {

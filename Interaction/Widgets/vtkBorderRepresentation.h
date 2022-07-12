@@ -177,9 +177,9 @@ public:
   vtkSetMacro(EnforceNormalizedViewportBounds, vtkTypeBool);
   vtkGetMacro(EnforceNormalizedViewportBounds, vtkTypeBool);
   vtkBooleanMacro(EnforceNormalizedViewportBounds, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Indicate whether resizing operations should keep the x-y directions
    * proportional to one another. Also, if ProportionalResize is on, then
@@ -204,9 +204,9 @@ public:
    */
   vtkSetVector2Macro(MinimumNormalizedViewportSize, double);
   vtkGetVector2Macro(MinimumNormalizedViewportSize, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify a minimum and/or maximum size (in pixels) that this representation
    * can take. These methods require two values: size values in the x and y

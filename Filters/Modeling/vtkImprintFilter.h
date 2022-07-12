@@ -292,9 +292,9 @@ public:
   vtkSetMacro(TriangulateOutput, bool);
   vtkGetMacro(TriangulateOutput, bool);
   vtkBooleanMacro(TriangulateOutput, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The following methods support debugging. By default, NO_DEBUG_OUTPUT is
    * produced and the second output of this filter is empty. If TRIANGULATION_INPUT

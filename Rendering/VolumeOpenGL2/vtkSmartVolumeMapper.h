@@ -351,13 +351,13 @@ public:
   vtkGetMacro(VectorComponent, int);
   ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the transfer 2D Y axis array
    */
   vtkSetStringMacro(Transfer2DYAxisArray);
   vtkGetStringMacro(Transfer2DYAxisArray);
-  //@}
+  ///@}
 
 protected:
   vtkSmartVolumeMapper();

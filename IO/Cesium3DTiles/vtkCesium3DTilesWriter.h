@@ -60,16 +60,16 @@ public:
   vtkGetFilePathMacro(TextureBaseDirectory);
   ///@}
 
-  //@{
+  ///@{
   /**
    * Data coordinates are relative to this origin. To get the actual
    * coordinates data has to be translated with the Offset.
    */
   vtkSetVector3Macro(Offset, double);
   vtkGetVector3Macro(Offset, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Save textures as part of the 3D Tiles dataset. Default true.
    * Otherwise save only the mesh.
@@ -79,7 +79,7 @@ public:
   vtkBooleanMacro(SaveTextures, bool);
   //@
 
-  //@{
+  ///@{
   /**
    * Save the tiles (B3DMs) as part of the 3D Tiles dataset. Default true.
    * Otherwise save only the tileset (JSON) file. This is mainly used for
@@ -90,7 +90,7 @@ public:
   vtkBooleanMacro(SaveTiles, bool);
   //@
 
-  //@{
+  ///@{
   /**
    * Merge all meshes in each tile to end up with one mesh per tile.
    * Default is false which means that we expect an external program to merge
@@ -104,7 +104,7 @@ public:
   vtkBooleanMacro(MergeTilePolyData, bool);
   //@
 
-  //@{
+  ///@{
   /**
    * What is the file type used to save tiles. If ContentGLTF is false
    * (the default) we use B3DM for Buildings or Mesh and PNTS for
@@ -118,7 +118,7 @@ public:
   vtkBooleanMacro(ContentGLTF, bool);
   //@
 
-  //@{
+  ///@{
   /**
    * Input is Buildings, Points or Mesh.
    */
@@ -126,7 +126,7 @@ public:
   vtkGetMacro(InputType, int);
   //@
 
-  //@{
+  ///@{
   /**
    * Maximum number of buildings per tile in case of buildings input or
    * the number of points per tile in case of point cloud input. Default is 100.

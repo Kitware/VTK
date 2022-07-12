@@ -133,7 +133,7 @@ public:
   vtkGetMacro(FieldType, int);
   ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get which types of elements are being selected.
    * Accepted values are defined in `vtkDataObject::AttributeTypes`. Note,
@@ -144,9 +144,9 @@ public:
    */
   vtkSetClampMacro(ElementType, int, vtkDataObject::POINT, vtkDataObject::ROW);
   vtkGetMacro(ElementType, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get which process to limit the selection to. `-1` is treated as
    * all processes.
@@ -155,13 +155,13 @@ public:
    */
   vtkSetClampMacro(ProcessID, int, -1, VTK_INT_MAX);
   vtkGetMacro(ProcessID, int);
-  //@}
+  ///@}
 
   //------------------------------------------------------------------------------
   // Functions to manipulate the information of each selection node.
   //------------------------------------------------------------------------------
 
-  //@{
+  ///@{
   /**
    * Set/Get the node name.
    *
@@ -175,7 +175,7 @@ public:
   void SetNodeName(const char* name) { this->SetNodeName(0, name); }
   const char* GetNodeName(unsigned int nodeId);
   const char* GetNodeName() { return this->GetNodeName(0); }
-  //@}
+  ///@}
 
   ///@{
   /**

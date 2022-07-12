@@ -125,37 +125,37 @@ public:
   vtkMatrix4x4* GetDeviceToPhysicalMatrixForDeviceHandle(uint32_t handle);
   ///@}
 
-  //@{
+  ///@{
   /*
    * This method gets a device handle for a given device. index is used to
    * disambiguate when there are multiple device handles that map to a
    * device.
    */
   uint32_t GetDeviceHandleForDevice(vtkEventDataDevice dev, uint32_t index = 0);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /*
    * This method returns how many device handles map to a device.
    */
   uint32_t GetNumberOfDeviceHandlesForDevice(vtkEventDataDevice dev);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /*
    * This method adds a device handle if not already present. The second
    * signature also sets the device associated with the device handle.
    */
   void AddDeviceHandle(uint32_t handle);
   void AddDeviceHandle(uint32_t handle, vtkEventDataDevice device);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /*
    * This method gets a device for a given device handle.
    */
   vtkEventDataDevice GetDeviceForDeviceHandle(uint32_t handle);
-  //@}
+  ///@}
 
   /**
    * Store in \p deviceToWorldMatrix the matrix that goes from device coordinates
@@ -372,14 +372,14 @@ public:
   vtkGetMacro(TrackHMD, bool);
   ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the visibility of the base stations. Defaults to false
    */
   vtkGetMacro(BaseStationVisibility, bool);
   vtkSetMacro(BaseStationVisibility, bool);
   vtkBooleanMacro(BaseStationVisibility, bool);
-  //@}
+  ///@}
 
   /**
    * Update the HMD pose.

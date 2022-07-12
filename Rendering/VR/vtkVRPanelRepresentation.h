@@ -43,13 +43,13 @@ public:
    */
   static vtkVRPanelRepresentation* New();
 
-  //@{
+  ///@{
   /**
    * Standard methods for the class.
    */
   vtkTypeMacro(vtkVRPanelRepresentation, vtkWidgetRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   // Enums define the state of the representation relative to the mouse pointer
   // position. Used by ComputeInteractionState() to communicate with the
@@ -65,7 +65,7 @@ public:
   typedef InteractionStateType _InteractionState;
 #endif
 
-  //@{
+  ///@{
   /**
    * Methods to interface with the vtkVRPanelWidget.
    */
@@ -79,7 +79,7 @@ public:
     unsigned long event, void* calldata, int modify = 0) override;
   void EndComplexInteraction(vtkRenderWindowInteractor* iren, vtkAbstractWidget* widget,
     unsigned long event, void* calldata) override;
-  //@}
+  ///@}
 
   // Place the widget with a few more options
   // This method allows you to place the panel
@@ -106,7 +106,7 @@ public:
   void PlaceWidgetExtended(
     const double* bounds, const double* normal, const double* upvec, double scale);
 
-  //@{
+  ///@{
   /**
    * Methods supporting the rendering process.
    */
@@ -114,14 +114,14 @@ public:
   int RenderOpaqueGeometry(vtkViewport*) override;
   int RenderTranslucentPolygonalGeometry(vtkViewport*) override;
   vtkTypeBool HasTranslucentPolygonalGeometry() override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set panel text
    */
   void SetText(const char* str);
-  //@}
+  ///@}
 
   // allow access to the underlying text actor
   // so that properties can be set
@@ -133,14 +133,14 @@ public:
   void SetCoordinateSystemToLeftController();
   void SetCoordinateSystemToRightController();
 
-  //@{
+  ///@{
   /**
    * Can the panel be relocated by the user
    */
   vtkSetMacro(AllowAdjustment, bool);
   vtkGetMacro(AllowAdjustment, bool);
   vtkBooleanMacro(AllowAdjustment, bool);
-  //@}
+  ///@}
 
 protected:
   vtkVRPanelRepresentation();

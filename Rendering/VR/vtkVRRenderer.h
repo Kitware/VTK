@@ -52,13 +52,13 @@ public:
 
   using vtkRenderer::ResetCameraClippingRange;
 
-  //@{
+  ///@{
   /**
    * Reset the camera clipping range based on a bounding box.
    */
   void ResetCameraClippingRange() override;
   void ResetCameraClippingRange(const double bounds[6]) override;
-  //@}
+  ///@}
 
   /**
    * Abstract function that creates a new Camera suitable for use with this type of Renderer.
@@ -75,12 +75,13 @@ public:
    */
   void DeviceRender() override;
 
+  ///@{
   /**
    * Show the floor of the VR world
    */
   virtual void SetShowFloor(bool);
   virtual bool GetShowFloor() { return this->ShowFloor; }
-  //@}
+  ///@}
 
 protected:
   vtkVRRenderer();

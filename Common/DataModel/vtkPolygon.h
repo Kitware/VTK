@@ -235,7 +235,7 @@ public:
   vtkSetMacro(UseMVCInterpolation, bool);
   ///@}
 
-  //@{
+  ///@{
   /**
    * Specify an internal tolerance for operations requiring polygon
    * triangulation.  (For example, clipping and contouring operations proceed
@@ -246,7 +246,7 @@ public:
    */
   vtkSetClampMacro(Tolerance, double, 0.0, 1.0);
   vtkGetMacro(Tolerance, double);
-  //@}
+  ///@}
 
 protected:
   vtkPolygon();
