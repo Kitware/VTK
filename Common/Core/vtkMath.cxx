@@ -496,7 +496,6 @@ vtkTypeBool vtkMath::InvertMatrix(double** A, double** AI, int size)
   return retVal;
 }
 
-#define VTK_MAX_WARNS 3
 //------------------------------------------------------------------------------
 // Factor linear equations Ax = b using LU decomposition A = LU where L is
 // lower triangular matrix and U is upper triangular matrix. Input is
@@ -512,9 +511,6 @@ vtkTypeBool vtkMath::LUFactorLinearSystem(double** A, int* index, int size)
   int maxI = 0;
   double largest, temp1, temp2, sum;
 
-  // Manage number of output warnings
-  static int numWarns = 0;
-
   //
   // Loop over rows to get implicit scaling information
   //
@@ -528,7 +524,7 @@ vtkTypeBool vtkMath::LUFactorLinearSystem(double** A, int* index, int size)
       }
     }
 
-    if (largest == 0.0 && numWarns++ < VTK_MAX_WARNS)
+    if (largest == 0.0)
     {
       vtkGenericWarningMacro(<< "Unable to factor linear system");
       if (size > VTK_MAX_SCRATCH_ARRAY_SIZE)
@@ -589,7 +585,7 @@ vtkTypeBool vtkMath::LUFactorLinearSystem(double** A, int* index, int size)
     //
     index[j] = maxI;
 
-    if (fabs(A[j][j]) <= VTK_SMALL_NUMBER && numWarns++ < VTK_MAX_WARNS)
+    if (fabs(A[j][j]) <= VTK_SMALL_NUMBER)
     {
       vtkGenericWarningMacro(<< "Unable to factor linear system");
       if (size > VTK_MAX_SCRATCH_ARRAY_SIZE)
@@ -1303,9 +1299,6 @@ vtkTypeBool vtkMath::LUFactorLinearSystem(double** A, int* index, int size, doub
   int maxI = 0;
   double largest, temp1, temp2, sum;
 
-  // Manage number of output warnings
-  static int numWarns = 0;
-
   //
   // Loop over rows to get implicit scaling information
   //
@@ -1319,7 +1312,7 @@ vtkTypeBool vtkMath::LUFactorLinearSystem(double** A, int* index, int size, doub
       }
     }
 
-    if (largest == 0.0 && numWarns++ < VTK_MAX_WARNS)
+    if (largest == 0.0)
     {
       vtkGenericWarningMacro(<< "Unable to factor linear system");
       return 0;
@@ -1376,7 +1369,7 @@ vtkTypeBool vtkMath::LUFactorLinearSystem(double** A, int* index, int size, doub
     //
     index[j] = maxI;
 
-    if (fabs(A[j][j]) <= VTK_SMALL_NUMBER && numWarns++ < VTK_MAX_WARNS)
+    if (fabs(A[j][j]) <= VTK_SMALL_NUMBER)
     {
       vtkGenericWarningMacro(<< "Unable to factor linear system");
       return 0;
