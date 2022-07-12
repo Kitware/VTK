@@ -24,6 +24,7 @@
 #include "vtkLongArray.h"
 #include "vtkLongLongArray.h"
 #include "vtkNew.h"
+#include "vtkPolyData.h"
 #include "vtkQuad.h"
 #include "vtkSetGet.h"
 #include "vtkSmartPointer.h"
@@ -1089,6 +1090,26 @@ void TestLegacyGetSize(vtkSmartPointer<vtkCellArray> cellArray)
 
   cellArray->AllocateExact(99, 100);
   TEST_ASSERT(cellArray->GetSize() == 200);
+
+  // Test that cells can be retrieved correctly, even in special cases,
+  // such as polyline containing single point.
+
+  vtkNew<vtkPoints> points;
+  vtkIdType pointId = points->InsertNextPoint(12.3, 45.6, 78.9);
+
+  vtkNew<vtkIdList> lineIds;
+  lineIds->InsertNextId(pointId);
+  cellArray->InsertNextCell(lineIds);
+
+  vtkNew<vtkPolyData> polyData;
+  polyData->SetPoints(points);
+  polyData->SetLines(cellArray);
+
+  vtkIdType numberOfCells = polyData->GetNumberOfCells();
+  TEST_ASSERT(numberOfCells == 1);
+
+  vtkCell* cell = polyData->GetCell(0);
+  TEST_ASSERT(cell != nullptr);
 }
 
 void TestLegacyGetNumberOfConnectivityEntries(vtkSmartPointer<vtkCellArray> cellArray)
