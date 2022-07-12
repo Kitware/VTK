@@ -26,6 +26,7 @@
 #include "vtkPolygon.h"
 #include "vtkQuadric.h"
 
+#include <cassert>
 #include <limits>
 #include <utility>
 
@@ -294,6 +295,15 @@ int vtkTriangle::EvaluatePosition(const double x[3], double closestPoint[3], int
       {
         dist2 = vtkLine::DistanceToLine(x, pt1, pt3, t, closestPoint);
       }
+      else
+      {
+        // This branch seems to be dead code, but just in case, set closestPoint
+        // so that it is always set to something.
+        closestPoint[0] = 0.0;
+        closestPoint[1] = 0.0;
+        closestPoint[2] = 0.0;
+        assert(0 && "Arrived in a branch thought to be dead!");
+      }
     }
     return 0;
   }
@@ -528,25 +538,25 @@ vtkCell* vtkTriangle::GetEdge(int edgeId)
 int vtkTriangle::IntersectWithLine(const double p1[3], const double p2[3], double tol, double& t,
   double x[3], double pcoords[3], int& subId)
 {
-  double closestPoint[3] = { 0.0, 0.0, 0.0 };
+  double closestPoint[3];
   double dist2 = 0.0;
   double tol2 = tol * tol;
-  double weights[3] = { 0.0, 0.0, 0.0 };
+  double weights[3];
 
   subId = 0;
   pcoords[2] = 0.0;
 
   // Get normal for triangle
   //
-  double pt1[3] = { 0.0, 0.0, 0.0 };
-  double pt2[3] = { 0.0, 0.0, 0.0 };
-  double pt3[3] = { 0.0, 0.0, 0.0 };
+  double pt1[3];
+  double pt2[3];
+  double pt3[3];
   vtkPoints* points = this->Points;
   points->GetPoint(1, pt1);
   points->GetPoint(2, pt2);
   points->GetPoint(0, pt3);
 
-  double n[3] = { 0.0, 0.0, 0.0 };
+  double n[3];
   vtkTriangle::ComputeNormal(pt1, pt2, pt3, n);
 
   if (n[0] != 0.0 || n[1] != 0.0 || n[2] != 0.0)
@@ -655,9 +665,9 @@ int vtkTriangle::IntersectWithLine(const double p1[3], const double p2[3], doubl
   if (this->Line->IntersectWithLine(p1, p2, tol, t, x, pcoords, subId))
   {
     // Compute r and s manually, using dot and norm.
-    double pt3Pt1[3] = { 0.0, 0.0, 0.0 };
-    double pt3Pt2[3] = { 0.0, 0.0, 0.0 };
-    double pt3X[3] = { 0.0, 0.0, 0.0 };
+    double pt3Pt1[3];
+    double pt3Pt2[3];
+    double pt3X[3];
     for (int i = 0; i < 3; i++)
     {
       pt3Pt1[i] = pt1[i] - pt3[i];
