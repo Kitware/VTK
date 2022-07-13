@@ -194,7 +194,7 @@ vtkOutputWindow::vtkOutputWindow()
   this->PromptUser = false;
   this->CurrentMessageType = MESSAGE_TYPE_TEXT;
   this->DisplayMode = vtkOutputWindow::DEFAULT;
-  this->InStandardMacros = false;
+  this->InStandardMacros = 0;
 }
 
 vtkOutputWindow::~vtkOutputWindow() = default;
