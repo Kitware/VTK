@@ -127,8 +127,9 @@ public:
    * stores a RGB or RGBA attribute called COLOR_0 in the GLTF
    * file. The default is false.  Note a float component has to be
    * bewtween [0, 1] while the unsigned chars and unsigned short are
-   * OpenGL normalized integers (are used to store a float between [0,
-   * 1]).
+   * OpenGL normalized integers (are either between [0, 255] for
+   * unsigned char, they are between [0, 65536] for unsigned short - they
+   * are used to quantize a float between [0, 1]).
    */
   vtkGetMacro(SaveActivePointColor, bool);
   vtkSetMacro(SaveActivePointColor, bool);
