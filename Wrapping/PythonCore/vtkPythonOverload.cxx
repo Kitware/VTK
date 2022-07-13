@@ -532,6 +532,17 @@ int vtkPythonOverload::CheckArg(PyObject* arg, const char* format, const char* n
         else if (PyVTKObject_Check(arg))
         {
           PyTypeObject* pytype = vtkPythonUtil::FindBaseTypeObject(classname);
+          if (pytype == nullptr)
+          {
+            // This branch is taken for templated classes, since their Python
+            // class name differs from their vtkObjectBase ClassName, and the
+            // latter is what is needed for FindBaseTypeObject().
+            const char* vtkname = vtkPythonUtil::VTKClassName(classname);
+            if (vtkname != nullptr)
+            {
+              pytype = vtkPythonUtil::FindBaseTypeObject(vtkname);
+            }
+          }
           if (Py_TYPE(arg) != pytype)
           {
             // Check superclasses
