@@ -24,7 +24,9 @@
 #include "vtkLogger.h"
 #include "vtkObjectFactory.h"
 
+#include <mutex>
 #include <sstream>
+#include <thread>
 
 namespace
 {
@@ -48,6 +50,7 @@ public:
 }
 
 //------------------------------------------------------------------------------
+std::mutex InstanceLock; // XXX(c++17): use a `shared_mutex`
 vtkOutputWindow* vtkOutputWindow::Instance = nullptr;
 static unsigned int vtkOutputWindowCleanupCounter = 0;
 
@@ -324,8 +327,28 @@ void vtkOutputWindow::DisplayDebugText(const char* txt)
 // Return the single instance of the vtkOutputWindow
 vtkOutputWindow* vtkOutputWindow::GetInstance()
 {
-  if (!vtkOutputWindow::Instance)
+  // Check if we have an instance already.
   {
+    std::unique_lock<std::mutex> lock(InstanceLock);
+    // std::shared_lock lock(InstanceLock); // XXX(c++17)
+    (void)lock;
+
+    if (vtkOutputWindow::Instance)
+    {
+      return vtkOutputWindow::Instance;
+    }
+  }
+
+  {
+    std::unique_lock<std::mutex> lock(InstanceLock);
+    (void)lock;
+
+    // Another thread may have raced us here; if it already exists, use it.
+    if (vtkOutputWindow::Instance)
+    {
+      return vtkOutputWindow::Instance;
+    }
+
     // Try the factory first
     vtkOutputWindow::Instance =
       (vtkOutputWindow*)vtkObjectFactory::CreateInstance("vtkOutputWindow");
@@ -341,16 +364,21 @@ vtkOutputWindow* vtkOutputWindow::GetInstance()
 #endif
     }
   }
+
   // return the instance
   return vtkOutputWindow::Instance;
 }
 
 void vtkOutputWindow::SetInstance(vtkOutputWindow* instance)
 {
+  std::unique_lock<std::mutex> lock(InstanceLock);
+  (void)lock;
+
   if (vtkOutputWindow::Instance == instance)
   {
     return;
   }
+
   // preferably this will be nullptr
   if (vtkOutputWindow::Instance)
   {
