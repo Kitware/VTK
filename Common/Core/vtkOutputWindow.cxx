@@ -35,11 +35,11 @@ namespace
 template <class T>
 class vtkScopedSet
 {
-  T* Ptr;
+  std::atomic<T>* Ptr;
   T OldVal;
 
 public:
-  vtkScopedSet(T* ptr, const T& newval)
+  vtkScopedSet(std::atomic<T>* ptr, const T& newval)
     : Ptr(ptr)
     , OldVal(*ptr)
   {
