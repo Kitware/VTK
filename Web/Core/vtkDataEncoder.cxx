@@ -88,9 +88,18 @@ class vtkWorkQueue
       vtkWork work;
       {
         std::unique_lock<std::mutex> lock(self->QueueMutex);
-        self->QueueCondition.wait(
-          lock, [self]() { return !self->Queue.empty() || self->Terminate; });
-        if (self->Terminate)
+        bool break_loop = false;
+        do
+        {
+          self->QueueCondition.wait_for(lock, std::chrono::seconds(1),
+            [self]() { return !self->Queue.empty() || self->Terminate; });
+          if (self->Terminate)
+          {
+            break_loop = true;
+            break;
+          }
+        } while (self->Queue.empty());
+        if (break_loop)
         {
           break;
         }
