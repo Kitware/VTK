@@ -34,8 +34,10 @@ vtkCxxSetObjectMacro(vtkSelectPolyData, Loop, vtkPoints);
 // Description:
 // Instantiate object with InsideOut turned off.
 vtkSelectPolyData::vtkSelectPolyData()
+  : SelectionScalarsArrayName(nullptr)
 {
   this->GenerateSelectionScalars = 0;
+  this->SetSelectionScalarsArrayName("Selection");
   this->InsideOut = 0;
   this->EdgeSearchMode = VTK_GREEDY_EDGE_SEARCH;
   this->Loop = nullptr;
@@ -55,6 +57,7 @@ vtkSelectPolyData::vtkSelectPolyData()
 //------------------------------------------------------------------------------
 vtkSelectPolyData::~vtkSelectPolyData()
 {
+  this->SetSelectionScalarsArrayName(nullptr);
   if (this->Loop)
   {
     this->Loop->Delete();
@@ -648,6 +651,7 @@ void vtkSelectPolyData::SetSelectionScalarsToOutput(vtkPointData* originalPointD
   vtkIdType numPts = inPts->GetNumberOfPoints();
 
   vtkNew<vtkFloatArray> selectionScalars;
+  selectionScalars->SetName(this->SelectionScalarsArrayName);
   selectionScalars->SetNumberOfTuples(numPts);
 
   // "Boundary" here refers to a polyline that connects the loop point positions.
@@ -879,6 +883,11 @@ void vtkSelectPolyData::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent
      << "Generate Selection Scalars: " << (this->GenerateSelectionScalars ? "On\n" : "Off\n");
+
+  if (this->GenerateSelectionScalars)
+  {
+    os << indent << "Selection Scalars array name: " << this->SelectionScalarsArrayName << "\n";
+  }
 
   os << indent << "Inside Out: " << (this->InsideOut ? "On\n" : "Off\n");
 

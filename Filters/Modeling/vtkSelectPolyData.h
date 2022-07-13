@@ -131,6 +131,14 @@ public:
 
   ///@{
   /**
+   * Name of the Selection Scalars array. Default is "Selection".
+   */
+  vtkSetStringMacro(SelectionScalarsArrayName);
+  vtkGetStringMacro(SelectionScalarsArrayName);
+  ///@}
+
+  ///@{
+  /**
    * Set/Get the InsideOut flag. When off, the mesh within the loop is
    * extracted. When on, the mesh outside the loop is extracted.
    */
@@ -245,6 +253,7 @@ protected:
     vtkPolyData* mesh, vtkIdList* edgeIds, vtkIntArray* pointMarks, vtkPolyData* output);
 
   vtkTypeBool GenerateSelectionScalars;
+  char* SelectionScalarsArrayName;
   vtkTypeBool InsideOut;
   int EdgeSearchMode;
   vtkPoints* Loop;
