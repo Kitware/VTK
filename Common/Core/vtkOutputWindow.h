@@ -53,7 +53,7 @@ public:
 
   /**
    * Creates a new instance of vtkOutputWindow. Note this *will* create a new
-   * instance using the vtkObjectFactor. If you want to access the global
+   * instance using the vtkObjectFactory. If you want to access the global
    * instance, use `GetInstance` instead.
    */
   static vtkOutputWindow* New();
