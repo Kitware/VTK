@@ -175,8 +175,8 @@ private:
   static vtkOutputWindow* Instance;
   MessageTypes CurrentMessageType;
   int DisplayMode;
-  int InStandardMacros; // used to suppress display to output streams from standard macros when
-                        // logging is enabled.
+  std::atomic<int> InStandardMacros; // used to suppress display to output streams from standard
+                                     // macros when logging is enabled.
 
   friend class vtkOutputWindowPrivateAccessor;
 
