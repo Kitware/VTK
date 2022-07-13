@@ -314,31 +314,38 @@ void vtkOSPRayUnstructuredVolumeMapperNode::Render(bool prepass)
       tfCVals.resize(this->NumColors * 3);
       tfOVals.resize(this->NumColors);
       double range[2];
-      array->GetRange(range, comp);
-      if (mode == 0 && array->GetNumberOfComponents() > 1) // vector magnitude
+      // prefer transfer function's range
+      scalarTF->GetRange(range);
+      // but use data's range if we can and we have to
+      if (range[1] <= range[0])
       {
-        double min = 0;
-        double max = 0;
-        for (int c = 0; c < array->GetNumberOfComponents(); c++)
+        array->GetRange(range, comp);
+        if (mode == 0 && array->GetNumberOfComponents() > 1) // vector magnitude
         {
-          double lmin = 0;
-          double lmax = 0;
-          double cRange[2];
-          array->GetRange(cRange, c);
-          double ldist = cRange[0] * cRange[0];
-          double rdist = cRange[1] * cRange[1];
-          lmin = std::min(ldist, rdist);
-          if (cRange[0] < 0 && cRange[1] > 0)
+          double min = 0;
+          double max = 0;
+          for (int c = 0; c < array->GetNumberOfComponents(); c++)
           {
-            lmin = 0;
+            double lmin = 0;
+            double lmax = 0;
+            double cRange[2];
+            array->GetRange(cRange, c);
+            double ldist = cRange[0] * cRange[0];
+            double rdist = cRange[1] * cRange[1];
+            lmin = std::min(ldist, rdist);
+            if (cRange[0] < 0 && cRange[1] > 0)
+            {
+              lmin = 0;
+            }
+            lmax = std::max(ldist, rdist);
+            min += lmin;
+            max += lmax;
           }
-          lmax = std::max(ldist, rdist);
-          min += lmin;
-          max += lmax;
+          range[0] = std::sqrt(min);
+          range[1] = std::sqrt(max);
         }
-        range[0] = std::sqrt(min);
-        range[1] = std::sqrt(max);
       }
+
       scalarTF->GetTable(range[0], range[1], this->NumColors, &tfOVals[0]);
       colorTF->GetTable(range[0], range[1], this->NumColors, &tfCVals[0]);
 
