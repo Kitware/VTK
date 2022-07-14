@@ -85,13 +85,37 @@ struct SaveRgbArray
   template <typename ArrayT>
   void operator()(ArrayT* array, vtkIdList* pointIds, std::ofstream& out)
   {
+    vtkTypeUInt16Array* a = vtkTypeUInt16Array::FastDownCast(array);
+    bool unsignedCharRange = false;
     int numberOfComponents = array->GetNumberOfComponents();
+    if (a)
+    {
+      int j;
+      for (j = 0; j < numberOfComponents; ++j)
+      {
+        double r[2];
+        a->GetFiniteRange(r, j);
+        if (r[1] > 255)
+        {
+          break;
+        }
+      }
+      if (j == numberOfComponents)
+      {
+        unsignedCharRange = true;
+      }
+    }
     for (vtkIdType i = 0; i < pointIds->GetNumberOfIds(); ++i)
     {
       std::array<char, 4> rgba = { { 0, 0, 0, 0 } };
       for (int j = 0; j < numberOfComponents; ++j)
       {
-        rgba[j] = static_cast<char>(array->GetTypedComponent(pointIds->GetId(i), j));
+        char c = a
+          ? (unsignedCharRange
+                ? static_cast<char>(array->GetTypedComponent(pointIds->GetId(i), j))
+                : static_cast<char>(array->GetTypedComponent(pointIds->GetId(i), j) / 256.0))
+          : static_cast<char>(array->GetTypedComponent(pointIds->GetId(i), j));
+        rgba[j] = c;
       }
       out.write(rgba.data(), numberOfComponents);
     }
