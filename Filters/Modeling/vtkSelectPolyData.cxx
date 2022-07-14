@@ -777,10 +777,10 @@ void vtkSelectPolyData::SetSelectionScalarsToOutput(vtkPointData* originalPointD
   output->CopyStructure(mesh); // pass geometry/topology unchanged
 
   vtkPointData* outPD = output->GetPointData();
+  outPD->CopyAllOn();
+  outPD->PassData(originalPointData);
   int idx = outPD->AddArray(selectionScalars);
   outPD->SetActiveAttribute(idx, vtkDataSetAttributes::SCALARS);
-  outPD->CopyScalarsOff();
-  outPD->PassData(originalPointData);
 
   vtkCellData* outCD = output->GetCellData();
   outCD->PassData(originalCellData);
