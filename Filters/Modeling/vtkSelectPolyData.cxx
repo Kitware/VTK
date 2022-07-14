@@ -386,7 +386,7 @@ int vtkSelectPolyData::RequestData(vtkInformation* vtkNotUsed(request),
   else
   {
     // crop the input mesh to the selected region
-    this->SetClippedResultToOutput(inPD, mesh, cellMarks, output);
+    this->SetClippedResultToOutput(inPD, inCD, mesh, cellMarks, output);
   }
 
   return 1;
@@ -787,13 +787,18 @@ void vtkSelectPolyData::SetSelectionScalarsToOutput(vtkPointData* originalPointD
 }
 
 //------------------------------------------------------------------------------
-void vtkSelectPolyData::SetClippedResultToOutput(
-  vtkPointData* originalPointData, vtkPolyData* mesh, vtkIntArray* cellMarks, vtkPolyData* output)
+void vtkSelectPolyData::SetClippedResultToOutput(vtkPointData* originalPointData,
+  vtkCellData* originalCellData, vtkPolyData* mesh, vtkIntArray* cellMarks, vtkPolyData* output)
 {
+  vtkCellData* outCD = output->GetCellData();
+  outCD->CopyAllOn(vtkDataSetAttributes::COPYTUPLE);
+  outCD->CopyAllocate(originalCellData);
+
   // spit out all the negative cells
   vtkNew<vtkCellArray> newPolys;
   vtkIdType numCells = mesh->GetNumberOfCells();
   newPolys->AllocateEstimate(numCells / 2, 3);
+  vtkIdType newID = 0;
   for (vtkIdType i = 0; i < numCells; i++)
   {
     if ((cellMarks->GetValue(i) < 0) || (cellMarks->GetValue(i) > 0 && this->InsideOut))
@@ -801,7 +806,8 @@ void vtkSelectPolyData::SetClippedResultToOutput(
       const vtkIdType* pts;
       vtkIdType npts;
       mesh->GetCellPoints(i, npts, pts);
-      newPolys->InsertNextCell(npts, pts);
+      newID = newPolys->InsertNextCell(npts, pts);
+      outCD->CopyData(originalCellData, i, newID);
     }
   }
   vtkPoints* inPts = mesh->GetPoints();
@@ -812,6 +818,10 @@ void vtkSelectPolyData::SetClippedResultToOutput(
 
   if (this->GenerateUnselectedOutput)
   {
+    vtkCellData* unCD = this->GetUnselectedOutput()->GetCellData();
+    unCD->CopyAllOn(vtkDataSetAttributes::COPYTUPLE);
+    unCD->CopyAllocate(originalCellData);
+
     vtkNew<vtkCellArray> unPolys;
     unPolys->AllocateEstimate(numCells / 2, 3);
     for (vtkIdType i = 0; i < numCells; i++)
@@ -821,7 +831,8 @@ void vtkSelectPolyData::SetClippedResultToOutput(
         const vtkIdType* pts;
         vtkIdType npts;
         mesh->GetCellPoints(i, npts, pts);
-        unPolys->InsertNextCell(npts, pts);
+        newID = unPolys->InsertNextCell(npts, pts);
+        unCD->CopyData(originalCellData, i, newID);
       }
     }
     this->GetUnselectedOutput()->SetPoints(inPts);
