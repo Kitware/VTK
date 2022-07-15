@@ -418,7 +418,12 @@ vtkTypeBool vtkMath::SolveLinearSystemGEPP2x2(
   return 1;
 }
 
-#define VTK_SMALL_NUMBER 1.0e-12
+namespace
+{
+constexpr double VTK_SMALL_NUMBER = 1.0e-12;
+constexpr int VTK_MAX_SCRATCH_ARRAY_SIZE = 10;
+constexpr int VTK_MAX_ROTATIONS = 20;
+}
 
 //------------------------------------------------------------------------------
 // Solve linear equations Ax = b using Crout's method. Input is square matrix A
@@ -450,8 +455,8 @@ vtkTypeBool vtkMath::SolveLinearSystem(double** A, double* x, int size)
 
   // Check on allocation of working vectors
   //
-  int *index, scratch[10];
-  index = (size < 10 ? scratch : new int[size]);
+  int *index, scratch[VTK_MAX_SCRATCH_ARRAY_SIZE];
+  index = (size <= VTK_MAX_SCRATCH_ARRAY_SIZE ? scratch : new int[size]);
 
   //
   // Factor and solve matrix
@@ -462,7 +467,7 @@ vtkTypeBool vtkMath::SolveLinearSystem(double** A, double* x, int size)
   }
   vtkMath::LUSolveLinearSystem(A, index, x, size);
 
-  if (size >= 10)
+  if (size > VTK_MAX_SCRATCH_ARRAY_SIZE)
   {
     delete[] index;
   }
@@ -475,25 +480,14 @@ vtkTypeBool vtkMath::SolveLinearSystem(double** A, double* x, int size)
 // if inverse not computed.
 vtkTypeBool vtkMath::InvertMatrix(double** A, double** AI, int size)
 {
-  int *index, iScratch[10];
-  double *column, dScratch[10];
-
-  // Check on allocation of working vectors
-  //
-  if (size <= 10)
-  {
-    index = iScratch;
-    column = dScratch;
-  }
-  else
-  {
-    index = new int[size];
-    column = new double[size];
-  }
+  int iScratch[VTK_MAX_SCRATCH_ARRAY_SIZE];
+  int* index = (size <= VTK_MAX_SCRATCH_ARRAY_SIZE ? iScratch : new int[size]);
+  double dScratch[VTK_MAX_SCRATCH_ARRAY_SIZE];
+  double* column = (size <= VTK_MAX_SCRATCH_ARRAY_SIZE ? dScratch : new double[size]);
 
   vtkTypeBool retVal = vtkMath::InvertMatrix(A, AI, size, index, column);
 
-  if (size > 10)
+  if (size > VTK_MAX_SCRATCH_ARRAY_SIZE)
   {
     delete[] index;
     delete[] column;
@@ -502,7 +496,6 @@ vtkTypeBool vtkMath::InvertMatrix(double** A, double** AI, int size)
   return retVal;
 }
 
-#define VTK_MAX_WARNS 3
 //------------------------------------------------------------------------------
 // Factor linear equations Ax = b using LU decomposition A = LU where L is
 // lower triangular matrix and U is upper triangular matrix. Input is
@@ -511,15 +504,12 @@ vtkTypeBool vtkMath::InvertMatrix(double** A, double** AI, int size)
 // found, method returns 0.
 vtkTypeBool vtkMath::LUFactorLinearSystem(double** A, int* index, int size)
 {
-  double scratch[10];
-  double* scale = (size < 10 ? scratch : new double[size]);
+  double scratch[VTK_MAX_SCRATCH_ARRAY_SIZE];
+  double* scale = (size <= VTK_MAX_SCRATCH_ARRAY_SIZE ? scratch : new double[size]);
 
   int i, j, k;
   int maxI = 0;
   double largest, temp1, temp2, sum;
-
-  // Manage number of output warnings
-  static int numWarns = 0;
 
   //
   // Loop over rows to get implicit scaling information
@@ -534,9 +524,13 @@ vtkTypeBool vtkMath::LUFactorLinearSystem(double** A, int* index, int size)
       }
     }
 
-    if (largest == 0.0 && numWarns++ < VTK_MAX_WARNS)
+    if (largest == 0.0)
     {
       vtkGenericWarningMacro(<< "Unable to factor linear system");
+      if (size > VTK_MAX_SCRATCH_ARRAY_SIZE)
+      {
+        delete[] scale;
+      }
       return 0;
     }
     scale[i] = 1.0 / largest;
@@ -591,9 +585,13 @@ vtkTypeBool vtkMath::LUFactorLinearSystem(double** A, int* index, int size)
     //
     index[j] = maxI;
 
-    if (fabs(A[j][j]) <= VTK_SMALL_NUMBER && numWarns++ < VTK_MAX_WARNS)
+    if (fabs(A[j][j]) <= VTK_SMALL_NUMBER)
     {
       vtkGenericWarningMacro(<< "Unable to factor linear system");
+      if (size > VTK_MAX_SCRATCH_ARRAY_SIZE)
+      {
+        delete[] scale;
+      }
       return 0;
     }
 
@@ -607,7 +605,7 @@ vtkTypeBool vtkMath::LUFactorLinearSystem(double** A, int* index, int size)
     }
   }
 
-  if (size >= 10)
+  if (size > VTK_MAX_SCRATCH_ARRAY_SIZE)
   {
     delete[] scale;
   }
@@ -664,19 +662,11 @@ void vtkMath::LUSolveLinearSystem(double** A, int* index, double* x, int size)
   }
 }
 
-#undef VTK_SMALL_NUMBER
-
 #define VTK_ROTATE(a, i, j, k, l)                                                                  \
   g = a[i][j];                                                                                     \
   h = a[k][l];                                                                                     \
   a[i][j] = g - s * (h + g * tau);                                                                 \
   a[k][l] = h + s * (g - h * tau)
-
-#define VTK_MAX_ROTATIONS 20
-
-//#undef VTK_MAX_ROTATIONS
-
-//#define VTK_MAX_ROTATIONS 50
 
 // Jacobi iteration for the solution of eigenvectors/eigenvalues of a nxn
 // real symmetric matrix. Square nxn matrix a; size of matrix in n;
@@ -689,16 +679,9 @@ vtkTypeBool vtkJacobiN(T** a, int n, T* w, T** v)
 {
   int i, j, k, iq, ip, numPos;
   T tresh, theta, tau, t, sm, s, h, g, c, tmp;
-  T bspace[4], zspace[4];
-  T* b = bspace;
-  T* z = zspace;
-
-  // only allocate memory if the matrix is large
-  if (n > 4)
-  {
-    b = new T[n];
-    z = new T[n];
-  }
+  T bspace[VTK_MAX_SCRATCH_ARRAY_SIZE], zspace[VTK_MAX_SCRATCH_ARRAY_SIZE];
+  T* b = (n <= VTK_MAX_SCRATCH_ARRAY_SIZE) ? bspace : new T[n];
+  T* z = (n <= VTK_MAX_SCRATCH_ARRAY_SIZE) ? zspace : new T[n];
 
   // initialize
   for (ip = 0; ip < n; ip++)
@@ -812,6 +795,11 @@ vtkTypeBool vtkJacobiN(T** a, int n, T* w, T** v)
   if (i >= VTK_MAX_ROTATIONS)
   {
     vtkGenericWarningMacro("vtkMath::Jacobi: Error extracting eigenfunctions");
+    if (n > VTK_MAX_SCRATCH_ARRAY_SIZE)
+    {
+      delete[] b;
+      delete[] z;
+    }
     return 0;
   }
 
@@ -863,7 +851,7 @@ vtkTypeBool vtkJacobiN(T** a, int n, T* w, T** v)
     }
   }
 
-  if (n > 4)
+  if (n > VTK_MAX_SCRATCH_ARRAY_SIZE)
   {
     delete[] b;
     delete[] z;
@@ -1032,8 +1020,6 @@ vtkTypeBool vtkMath::SolveHomogeneousLeastSquares(
 
   return 1;
 }
-
-static const double VTK_SMALL_NUMBER = 1.0e-12;
 
 //------------------------------------------------------------------------------
 // Solves for the least squares best fit matrix for the equation X'M' = Y'.
@@ -1313,9 +1299,6 @@ vtkTypeBool vtkMath::LUFactorLinearSystem(double** A, int* index, int size, doub
   int maxI = 0;
   double largest, temp1, temp2, sum;
 
-  // Manage number of output warnings
-  static int numWarns = 0;
-
   //
   // Loop over rows to get implicit scaling information
   //
@@ -1329,7 +1312,7 @@ vtkTypeBool vtkMath::LUFactorLinearSystem(double** A, int* index, int size, doub
       }
     }
 
-    if (largest == 0.0 && numWarns++ < VTK_MAX_WARNS)
+    if (largest == 0.0)
     {
       vtkGenericWarningMacro(<< "Unable to factor linear system");
       return 0;
@@ -1386,7 +1369,7 @@ vtkTypeBool vtkMath::LUFactorLinearSystem(double** A, int* index, int size, doub
     //
     index[j] = maxI;
 
-    if (fabs(A[j][j]) <= VTK_SMALL_NUMBER && numWarns++ < VTK_MAX_WARNS)
+    if (fabs(A[j][j]) <= VTK_SMALL_NUMBER)
     {
       vtkGenericWarningMacro(<< "Unable to factor linear system");
       return 0;
