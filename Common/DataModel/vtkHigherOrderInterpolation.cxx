@@ -865,7 +865,6 @@ void vtkHigherOrderInterpolation::WedgeEvaluateDerivative(const int order[3], co
   }
 }
 
-#define VTK_MAX_WARNS 6
 int vtkHigherOrderInterpolation::JacobianInverse(
   vtkPoints* points, const double* derivs, double** inverse)
 {
@@ -896,15 +895,11 @@ int vtkHigherOrderInterpolation::JacobianInverse(
   // now find the inverse
   if (vtkMath::InvertMatrix(m, inverse, 3) == 0)
   {
-    static int numWarns = 0;
-    if (numWarns++ < VTK_MAX_WARNS)
-    {
-      vtkErrorMacro(<< "Jacobian inverse not found");
-      vtkErrorMacro(<< "Matrix:" << m[0][0] << " " << m[0][1] << " " << m[0][2] << " " << m[1][0]
-                    << " " << m[1][1] << " " << m[1][2] << " " << m[2][0] << " " << m[2][1] << " "
-                    << m[2][2]);
-      return 0;
-    }
+    vtkErrorMacro(<< "Jacobian inverse not found"
+                  << "Matrix:" << m[0][0] << " " << m[0][1] << " " << m[0][2] << " " << m[1][0]
+                  << " " << m[1][1] << " " << m[1][2] << " " << m[2][0] << " " << m[2][1] << " "
+                  << m[2][2]);
+    return 0;
   }
 
   return 1;
@@ -940,15 +935,11 @@ int vtkHigherOrderInterpolation::JacobianInverseWedge(
   // now find the inverse
   if (vtkMath::InvertMatrix(m, inverse, 3) == 0)
   {
-    static int numWarns = 0;
-    if (numWarns++ < VTK_MAX_WARNS)
-    {
-      vtkErrorMacro(<< "Jacobian inverse not found");
-      vtkErrorMacro(<< "Matrix:" << m[0][0] << " " << m[0][1] << " " << m[0][2] << " " << m[1][0]
-                    << " " << m[1][1] << " " << m[1][2] << " " << m[2][0] << " " << m[2][1] << " "
-                    << m[2][2]);
-      return 0;
-    }
+    vtkErrorMacro(<< "Jacobian inverse not found"
+                  << "Matrix:" << m[0][0] << " " << m[0][1] << " " << m[0][2] << " " << m[1][0]
+                  << " " << m[1][1] << " " << m[1][2] << " " << m[2][0] << " " << m[2][1] << " "
+                  << m[2][2]);
+    return 0;
   }
 
   return 1;
