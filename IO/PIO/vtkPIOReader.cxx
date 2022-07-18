@@ -378,6 +378,7 @@ const char* vtkPIOReader::GetTimeDataArray(int idx) const
   if (idx < 0 || idx > static_cast<int>(this->TimeDataStringArray->GetNumberOfValues()))
   {
     vtkErrorMacro("Invalid index for 'GetTimeDataArray': " << idx);
+    return nullptr;
   }
   return this->TimeDataStringArray->GetValue(idx);
 }
