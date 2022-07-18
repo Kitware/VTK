@@ -34,7 +34,6 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRendererCollection.h"
-#include "vtkStdString.h"
 #include "vtkStringArray.h"
 #include "vtkTreeMapLayout.h"
 #include "vtkTreeMapToPolyData.h"
@@ -249,7 +248,7 @@ void vtkInteractorStyleTreeMapHover::OnMouseMove()
       this->Layout->GetOutput()->GetVertexData()->GetAbstractArray(this->LabelField);
     if (absArray != nullptr && id > -1)
     {
-      vtkStdString str;
+      std::string str;
       if (vtkArrayDownCast<vtkStringArray>(absArray))
       {
         str = vtkArrayDownCast<vtkStringArray>(absArray)->GetValue(id);
@@ -258,7 +257,7 @@ void vtkInteractorStyleTreeMapHover::OnMouseMove()
       {
         str = vtkVariant(vtkArrayDownCast<vtkDataArray>(absArray)->GetTuple(id)[0]).ToString();
       }
-      this->Balloon->SetBalloonText(str);
+      this->Balloon->SetBalloonText(str.c_str());
       vtkTree* tree = this->Layout->GetOutput();
       double z;
       if (this->TreeMapToPolyData != nullptr)

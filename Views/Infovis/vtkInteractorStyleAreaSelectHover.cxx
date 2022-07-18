@@ -38,7 +38,6 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRendererCollection.h"
 #include "vtkSectorSource.h"
-#include "vtkStdString.h"
 #include "vtkStringArray.h"
 #include "vtkVariant.h"
 #include "vtkWorldPointPicker.h"
@@ -211,7 +210,7 @@ void vtkInteractorStyleAreaSelectHover::OnMouseMove()
     //  unless there isn't a sector or it is the root node
     if (absArray != nullptr && id > -1)
     {
-      vtkStdString str;
+      std::string str;
       if (vtkArrayDownCast<vtkStringArray>(absArray))
       {
         str = vtkArrayDownCast<vtkStringArray>(absArray)->GetValue(id);
@@ -220,7 +219,7 @@ void vtkInteractorStyleAreaSelectHover::OnMouseMove()
       {
         str = vtkVariant(vtkArrayDownCast<vtkDataArray>(absArray)->GetTuple(id)[0]).ToString();
       }
-      this->Balloon->SetBalloonText(str);
+      this->Balloon->SetBalloonText(str.c_str());
       double z = 0.02;
       if (this->UseRectangularCoordinates)
       {

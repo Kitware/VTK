@@ -15,14 +15,15 @@
 
 #include "vtkISIReader.h"
 #include "vtkSmartPointer.h"
-#include "vtkStdString.h"
 #include "vtkTable.h"
 #include "vtkTestUtilities.h"
 #include "vtkVariant.h"
 
+#include <string>
+
 template <typename value_t>
 void TestValue(const value_t& Value, const value_t& ExpectedValue,
-  const vtkStdString& ValueDescription, int& ErrorCount)
+  const std::string& ValueDescription, int& ErrorCount)
 {
   if (Value == ExpectedValue)
     return;
@@ -51,30 +52,29 @@ int TestISIReader(int argc, char* argv[])
   TestValue(table->GetNumberOfRows(), vtkIdType(501), "Row count", error_count);
 
   // Test a sampling of the table columns ...
-  TestValue(vtkStdString(table->GetColumnName(0)), vtkStdString("PT"), "Column 0", error_count);
-  TestValue(vtkStdString(table->GetColumnName(1)), vtkStdString("AU"), "Column 1", error_count);
-  TestValue(vtkStdString(table->GetColumnName(2)), vtkStdString("TI"), "Column 2", error_count);
-  TestValue(vtkStdString(table->GetColumnName(20)), vtkStdString("PD"), "Column 20", error_count);
-  TestValue(vtkStdString(table->GetColumnName(21)), vtkStdString("PY"), "Column 21", error_count);
-  TestValue(vtkStdString(table->GetColumnName(22)), vtkStdString("VL"), "Column 22", error_count);
-  TestValue(vtkStdString(table->GetColumnName(34)), vtkStdString("DE"), "Column 34", error_count);
-  TestValue(vtkStdString(table->GetColumnName(35)), vtkStdString("SI"), "Column 35", error_count);
-  TestValue(vtkStdString(table->GetColumnName(36)), vtkStdString("PN"), "Column 36", error_count);
+  TestValue<std::string>(table->GetColumnName(0), "PT", "Column 0", error_count);
+  TestValue<std::string>(table->GetColumnName(1), "AU", "Column 1", error_count);
+  TestValue<std::string>(table->GetColumnName(2), "TI", "Column 2", error_count);
+  TestValue<std::string>(table->GetColumnName(20), "PD", "Column 20", error_count);
+  TestValue<std::string>(table->GetColumnName(21), "PY", "Column 21", error_count);
+  TestValue<std::string>(table->GetColumnName(22), "VL", "Column 22", error_count);
+  TestValue<std::string>(table->GetColumnName(34), "DE", "Column 34", error_count);
+  TestValue<std::string>(table->GetColumnName(35), "SI", "Column 35", error_count);
+  TestValue<std::string>(table->GetColumnName(36), "PN", "Column 36", error_count);
 
   // Test a sampling of the table values ...
-  TestValue(table->GetValue(0, 0).ToString(), vtkStdString("J"), "Value 0, 0", error_count);
-  TestValue(table->GetValue(0, 1).ToString(), vtkStdString("Arantes, GM;Chaimovich, H"),
-    "Value 0, 1", error_count);
-  TestValue(table->GetValue(0, 2).ToString(),
-    vtkStdString("Thiolysis and alcoholysis of phosphate tri- and monoesters with alkyl;and aryl "
-                 "leaving groups. An ab initio study in the gas phase"),
+  TestValue<std::string>(table->GetValue(0, 0).ToString(), "J", "Value 0, 0", error_count);
+  TestValue<std::string>(
+    table->GetValue(0, 1).ToString(), "Arantes, GM;Chaimovich, H", "Value 0, 1", error_count);
+  TestValue<std::string>(table->GetValue(0, 2).ToString(),
+    "Thiolysis and alcoholysis of phosphate tri- and monoesters with alkyl;and aryl "
+    "leaving groups. An ab initio study in the gas phase",
     "Value 0, 2", error_count);
 
-  TestValue(
-    table->GetValue(499, 20).ToString(), vtkStdString("JAN 30"), "value 499, 20", error_count);
-  TestValue(
-    table->GetValue(499, 21).ToString(), vtkStdString("1996"), "value 499, 21", error_count);
-  TestValue(table->GetValue(499, 22).ToString(), vtkStdString("17"), "value 499, 22", error_count);
+  TestValue<std::string>(
+    table->GetValue(499, 20).ToString(), "JAN 30", "value 499, 20", error_count);
+  TestValue<std::string>(table->GetValue(499, 21).ToString(), "1996", "value 499, 21", error_count);
+  TestValue<std::string>(table->GetValue(499, 22).ToString(), "17", "value 499, 22", error_count);
 
   return error_count;
 }

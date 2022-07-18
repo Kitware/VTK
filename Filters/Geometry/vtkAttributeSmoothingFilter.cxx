@@ -430,7 +430,7 @@ void MarkAdjacent(vtkPolyData* extractedEdges, unsigned char* smooth)
 } // MarkAdjacent
 
 // Convenience method that excludes specified arrays from smoothing.
-void ExcludeArrays(vtkPointData* inPD, ArrayList& arrList, std::vector<vtkStdString>& exclArrays)
+void ExcludeArrays(vtkPointData* inPD, ArrayList& arrList, std::vector<std::string>& exclArrays)
 {
   // Manage arrays for interpolation
   for (auto const& itr : exclArrays)
@@ -445,7 +445,7 @@ void ExcludeArrays(vtkPointData* inPD, ArrayList& arrList, std::vector<vtkStdStr
 
 // Convenience method to add arrays excluded from smoothing.
 void AddExcludedArrays(
-  vtkPointData* inPD, vtkPointData* outPD, std::vector<vtkStdString>& exclArrays)
+  vtkPointData* inPD, vtkPointData* outPD, std::vector<std::string>& exclArrays)
 {
   // Manage arrays for interpolation
   for (auto const& itr : exclArrays)

@@ -228,11 +228,11 @@ bool PopulateHistograms(vtkTable* input, vtkTable* output, vtkStringArray* s, in
   {
     double minmax[2] = { 0.0, 0.0 };
     vtkDataSetAttributes* rowData = input->GetRowData();
-    const char* nameVal = s->GetValue(i);
-    if (rowData->GetRange(nameVal, minmax))
+    std::string nameVal = s->GetValue(i);
+    if (rowData->GetRange(nameVal.c_str(), minmax))
     {
-      vtkDataArray* in = rowData->GetArray(nameVal);
-      std::string name(nameVal);
+      vtkDataArray* in = rowData->GetArray(nameVal.c_str());
+      std::string const& name(nameVal);
       // The bin values are the centers, extending +/- half an inc either side
       if (minmax[0] == minmax[1])
       {
@@ -240,12 +240,12 @@ bool PopulateHistograms(vtkTable* input, vtkTable* output, vtkStringArray* s, in
       }
       double inc = (minmax[1] - minmax[0]) / (NumberOfBins)*1.001;
       double halfInc = inc / 2.0;
-      vtkSmartPointer<vtkFloatArray> extents = vtkArrayDownCast<vtkFloatArray>(
-        output->GetColumnByName(vtkStdString(name + "_extents").c_str()));
+      vtkSmartPointer<vtkFloatArray> extents =
+        vtkArrayDownCast<vtkFloatArray>(output->GetColumnByName((name + "_extents").c_str()));
       if (!extents)
       {
         extents = vtkSmartPointer<vtkFloatArray>::New();
-        extents->SetName(vtkStdString(name + "_extents").c_str());
+        extents->SetName((name + "_extents").c_str());
       }
       extents->SetNumberOfTuples(NumberOfBins);
       float* centers = static_cast<float*>(extents->GetVoidPointer(0));
@@ -254,12 +254,12 @@ bool PopulateHistograms(vtkTable* input, vtkTable* output, vtkStringArray* s, in
       {
         extents->SetValue(j, min + j * inc);
       }
-      vtkSmartPointer<vtkIntArray> populations = vtkArrayDownCast<vtkIntArray>(
-        output->GetColumnByName(vtkStdString(name + "_pops").c_str()));
+      vtkSmartPointer<vtkIntArray> populations =
+        vtkArrayDownCast<vtkIntArray>(output->GetColumnByName((name + "_pops").c_str()));
       if (!populations)
       {
         populations = vtkSmartPointer<vtkIntArray>::New();
-        populations->SetName(vtkStdString(name + "_pops").c_str());
+        populations->SetName((name + "_pops").c_str());
       }
       populations->SetNumberOfTuples(NumberOfBins);
       int* pops = static_cast<int*>(populations->GetVoidPointer(0));
@@ -300,7 +300,7 @@ bool MoveColumn(vtkStringArray* visCols, int fromCol, int toCol)
     return false;
   }
 
-  std::vector<vtkStdString> newVisCols;
+  std::vector<std::string> newVisCols;
   vtkIdType c;
   if (toCol == numCols)
   {
@@ -402,16 +402,13 @@ bool vtkScatterPlotMatrix::Paint(vtkContext2D* painter)
   bool ret = this->Superclass::Paint(painter);
   this->ResizeBigChart();
 
-  if (this->Title)
-  {
-    // As the BigPlot can take some spaces on the top of the chart
-    // we draw the title on the bottom where there is always room for it.
-    vtkNew<vtkPoints2D> rect;
-    rect->InsertNextPoint(0, 0);
-    rect->InsertNextPoint(this->GetScene()->GetSceneWidth(), 10);
-    painter->ApplyTextProp(this->TitleProperties);
-    painter->DrawStringRect(rect, this->Title);
-  }
+  // As the BigPlot can take some spaces on the top of the chart
+  // we draw the title on the bottom where there is always room for it.
+  vtkNew<vtkPoints2D> rect;
+  rect->InsertNextPoint(0, 0);
+  rect->InsertNextPoint(this->GetScene()->GetSceneWidth(), 10);
+  painter->ApplyTextProp(this->TitleProperties);
+  painter->DrawStringRect(rect, this->Title);
 
   return ret;
 }
@@ -472,8 +469,8 @@ bool vtkScatterPlotMatrix::SetActivePlot(const vtkVector2i& pos)
     if (this->Private->BigChart)
     {
       vtkPlot* plot = this->Private->BigChart->GetPlot(0);
-      vtkStdString column = this->GetColumnName(pos.GetX());
-      vtkStdString row = this->GetRowName(pos.GetY());
+      std::string column = this->GetColumnName(pos.GetX());
+      std::string row = this->GetRowName(pos.GetY());
       if (!plot)
       {
         plot = this->Private->BigChart->AddPlot(vtkChart::POINTS);
@@ -708,7 +705,7 @@ void vtkScatterPlotMatrix::AdvanceAnimation()
       chart->SetAroundX(isX);
       chart->SetGeometry(size);
 
-      vtkStdString names[3];
+      std::string names[3];
       names[0] = this->VisibleColumns->GetValue(this->ActivePlot.GetX());
       names[1] = this->VisibleColumns->GetValue(yColumn);
       names[2] = this->VisibleColumns->GetValue(zColumn);
@@ -1377,10 +1374,10 @@ void vtkScatterPlotMatrix::UpdateLayout()
   this->Private->BigChart3D->SetAnnotationLink(this->Private->Link);
   for (int i = 0; i < n; ++i)
   {
-    vtkStdString column = this->GetColumnName(i);
+    std::string column = this->GetColumnName(i);
     for (int j = 0; j < n; ++j)
     {
-      vtkStdString row = this->GetRowName(j);
+      std::string row = this->GetRowName(j);
       vtkVector2i pos(i, j);
       if (this->GetPlotType(pos) == SCATTERPLOT)
       {
@@ -1412,7 +1409,7 @@ void vtkScatterPlotMatrix::UpdateLayout()
         vtkPlot* plot = chart->AddPlot(vtkChart::BAR);
         plot->SetPen(this->Private->ChartSettings[HISTOGRAM]->PlotPen);
         plot->SetBrush(this->Private->ChartSettings[HISTOGRAM]->PlotBrush);
-        vtkStdString name(this->VisibleColumns->GetValue(i));
+        std::string name(this->VisibleColumns->GetValue(i));
         plot->SetInputData(this->Private->Histogram, name + "_extents", name + "_pops");
         vtkAxis* axis = chart->GetAxis(vtkAxis::TOP);
         axis->SetTitle(name);

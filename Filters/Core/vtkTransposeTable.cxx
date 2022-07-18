@@ -226,7 +226,7 @@ bool vtkTransposeTableInternal::TransposeTable(vtkTable* inTable, vtkTable* outT
     vtkAbstractArray* destColumn = this->OutTable->GetColumn(r);
     if (this->Parent->GetUseIdColumn())
     {
-      destColumn->SetName(firstCol->GetVariantValue(r).ToString());
+      destColumn->SetName(firstCol->GetVariantValue(r).ToString().c_str());
     }
     else
     {

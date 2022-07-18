@@ -112,7 +112,7 @@ const char* vtkConvertSelection::GetArrayName()
 {
   if (this->ArrayNames && this->ArrayNames->GetNumberOfValues() > 0)
   {
-    return this->ArrayNames->GetValue(0);
+    return this->ArrayNames->GetValue(0).c_str();
   }
   return nullptr;
 }
@@ -574,7 +574,7 @@ int vtkConvertSelection::Convert(vtkSelection* input, vtkDataObject* data, vtkSe
       vtkFieldData* selData = inputNode->GetSelectionData();
       for (int i = 0; i < selData->GetNumberOfArrays(); i++)
       {
-        if (strcmp(selData->GetAbstractArray(i)->GetName(), this->ArrayNames->GetValue(i)) != 0)
+        if (selData->GetAbstractArray(i)->GetName() != this->ArrayNames->GetValue(i))
         {
           same = false;
           break;
@@ -815,7 +815,7 @@ int vtkConvertSelection::Convert(vtkSelection* input, vtkDataObject* data, vtkSe
         selArr->GetName())
       {
         // Perform the lookup, keeping only those items in the correct domain.
-        vtkStdString domain = selArr->GetName();
+        std::string domain = selArr->GetName();
         vtkIdType numTuples = selArr->GetNumberOfTuples();
         vtkNew<vtkIdList> list;
         for (vtkIdType i = 0; i < numTuples; i++)
@@ -891,7 +891,7 @@ int vtkConvertSelection::Convert(vtkSelection* input, vtkDataObject* data, vtkSe
         }
       }
 
-      std::map<vtkStdString, vtkSmartPointer<vtkAbstractArray>> domainArrays;
+      std::map<std::string, vtkSmartPointer<vtkAbstractArray>> domainArrays;
       vtkIdType numTuples = outputDataArr->GetNumberOfTuples();
       vtkIdType numIndices = indices->GetNumberOfTuples();
       for (vtkIdType i = 0; i < numIndices; ++i)
@@ -901,12 +901,12 @@ int vtkConvertSelection::Convert(vtkSelection* input, vtkDataObject* data, vtkSe
         {
           continue;
         }
-        vtkStdString domain = outputDomainArr->GetValue(index);
+        std::string domain = outputDomainArr->GetValue(index);
         if (domainArrays.count(domain) == 0)
         {
           domainArrays[domain].TakeReference(
             vtkAbstractArray::CreateArray(outputDataArr->GetDataType()));
-          domainArrays[domain]->SetName(domain);
+          domainArrays[domain]->SetName(domain.c_str());
         }
         vtkAbstractArray* domainArr = domainArrays[domain];
         domainArr->InsertNextTuple(index, outputDataArr);
@@ -934,11 +934,11 @@ int vtkConvertSelection::Convert(vtkSelection* input, vtkDataObject* data, vtkSe
       vtkAbstractArray* outputDataArr = nullptr;
       if (dsa && this->OutputType == vtkSelectionNode::VALUES)
       {
-        outputDataArr = dsa->GetAbstractArray(this->ArrayNames->GetValue(ind));
+        outputDataArr = dsa->GetAbstractArray(this->ArrayNames->GetValue(ind).c_str());
       }
       else if (fd && this->OutputType == vtkSelectionNode::VALUES)
       {
-        outputDataArr = fd->GetAbstractArray(this->ArrayNames->GetValue(ind));
+        outputDataArr = fd->GetAbstractArray(this->ArrayNames->GetValue(ind).c_str());
       }
       else if (dsa && this->OutputType == vtkSelectionNode::PEDIGREEIDS)
       {

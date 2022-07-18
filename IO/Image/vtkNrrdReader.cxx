@@ -732,7 +732,7 @@ int vtkNrrdReaderReadDataAsciiTemplate(vtkNrrdReader* self, vtkImageData* output
   fileDataIncrements[2] = fileDataIncrements[1] * fileDataExtent[3];
 
   vtkStringArray* filenames = self->GetFileNames();
-  vtkStdString filename = self->GetFileName();
+  std::string filename = self->GetFileName();
 
   vtksys::ifstream file;
   if (self->GetFileDimensionality() == 3)
@@ -839,7 +839,7 @@ int vtkNrrdReader::vtkNrrdReaderReadDataGZipTemplate(vtkImageData* output, T* ou
   output->GetIncrements(inIncr);
 
   vtkStringArray* filenames = this->GetFileNames();
-  vtkStdString filename = this->GetFileName();
+  std::string filename = this->GetFileName();
 
   int outExtent[6];
   output->GetExtent(outExtent);

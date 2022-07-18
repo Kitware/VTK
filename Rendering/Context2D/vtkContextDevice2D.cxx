@@ -21,7 +21,6 @@
 #include "vtkPen.h"
 #include "vtkPolyData.h"
 #include "vtkRect.h"
-#include "vtkStdString.h"
 #include "vtkTextProperty.h"
 #include "vtkUnsignedCharArray.h"
 

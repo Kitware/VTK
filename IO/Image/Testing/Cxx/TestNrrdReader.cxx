@@ -27,7 +27,6 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
-#include "vtkStdString.h"
 #include "vtkTestUtilities.h"
 
 int TestNrrdReader(int argc, char* argv[])

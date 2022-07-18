@@ -32,7 +32,6 @@
 
 class vtkChartParallelCoordinates;
 class vtkScalarsToColors;
-class vtkStdString;
 class vtkTable;
 class vtkUnsignedCharArray;
 

@@ -42,7 +42,6 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkMPIController.h"
 #include "vtkMath.h"
 #include "vtkMultiBlockDataSet.h"
-#include "vtkStdString.h"
 #include "vtkTable.h"
 #include "vtkTimerLog.h"
 #include "vtkVariantArray.h"
@@ -91,7 +90,7 @@ void RandomSampleStatistics(vtkMultiProcessController* controller, void* arg)
 
   vtkTable* inputData = vtkTable::New();
   vtkDoubleArray* doubleArray[4];
-  vtkStdString columnNames[] = { "Standard Uniform 0", "Standard Uniform 1", "Standard Normal 0",
+  std::string columnNames[] = { "Standard Uniform 0", "Standard Uniform 1", "Standard Normal 0",
     "Standard Normal 1" };
 
   // Standard uniform samples
@@ -99,7 +98,7 @@ void RandomSampleStatistics(vtkMultiProcessController* controller, void* arg)
   {
     doubleArray[c] = vtkDoubleArray::New();
     doubleArray[c]->SetNumberOfComponents(1);
-    doubleArray[c]->SetName(columnNames[c]);
+    doubleArray[c]->SetName(columnNames[c].c_str());
 
     double x;
     for (int r = 0; r < args->nVals; ++r)
@@ -117,7 +116,7 @@ void RandomSampleStatistics(vtkMultiProcessController* controller, void* arg)
   {
     doubleArray[c] = vtkDoubleArray::New();
     doubleArray[c]->SetNumberOfComponents(1);
-    doubleArray[c]->SetName(columnNames[c]);
+    doubleArray[c]->SetName(columnNames[c].c_str());
 
     double x;
     for (int r = 0; r < args->nVals; ++r)
@@ -156,7 +155,7 @@ void RandomSampleStatistics(vtkMultiProcessController* controller, void* arg)
     // Select all columns
     for (int c = 0; c < nVariables; ++c)
     {
-      ds->AddColumn(columnNames[c]);
+      ds->AddColumn(columnNames[c].c_str());
     }
 
     // Test (serially) with Learn operation only (this is only to verify parallel statistics)
@@ -280,7 +279,7 @@ void RandomSampleStatistics(vtkMultiProcessController* controller, void* arg)
     // Select all columns
     for (int c = 0; c < nVariables; ++c)
     {
-      pds->AddColumn(columnNames[c]);
+      pds->AddColumn(columnNames[c].c_str());
     }
 
     // Test (in parallel) with Learn, Derive, and Assess operations turned on
@@ -499,7 +498,7 @@ void RandomSampleStatistics(vtkMultiProcessController* controller, void* arg)
     // Select all columns
     for (int c = 0; c < nVariables; ++c)
     {
-      pas->AddColumn(columnNames[c]);
+      pas->AddColumn(columnNames[c].c_str());
     }
 
     // Create input parameter table for the stationary case
@@ -590,8 +589,8 @@ void RandomSampleStatistics(vtkMultiProcessController* controller, void* arg)
     pcs->SetInputData(vtkStatisticsAlgorithm::INPUT_DATA, inputData);
 
     // Select column pairs (uniform vs. uniform, normal vs. normal)
-    pcs->AddColumnPair(columnNames[0], columnNames[1]);
-    pcs->AddColumnPair(columnNames[2], columnNames[3]);
+    pcs->AddColumnPair(columnNames[0].c_str(), columnNames[1].c_str());
+    pcs->AddColumnPair(columnNames[2].c_str(), columnNames[3].c_str());
 
     // Test (in parallel) with Learn, Derive operations turned on
     pcs->SetLearnOption(true);
@@ -664,20 +663,20 @@ void RandomSampleStatistics(vtkMultiProcessController* controller, void* arg)
     pmcs->SetInputData(0, inputData);
 
     // Select column pairs (uniform vs. uniform, normal vs. normal)
-    pmcs->SetColumnStatus(columnNames[0], true);
-    pmcs->SetColumnStatus(columnNames[1], true);
+    pmcs->SetColumnStatus(columnNames[0].c_str(), true);
+    pmcs->SetColumnStatus(columnNames[1].c_str(), true);
     pmcs->RequestSelectedColumns();
 
     pmcs->ResetAllColumnStates();
-    pmcs->SetColumnStatus(columnNames[2], true);
-    pmcs->SetColumnStatus(columnNames[3], true);
+    pmcs->SetColumnStatus(columnNames[2].c_str(), true);
+    pmcs->SetColumnStatus(columnNames[3].c_str(), true);
     pmcs->RequestSelectedColumns();
 
     pmcs->ResetAllColumnStates();
-    pmcs->SetColumnStatus(columnNames[0], true);
-    pmcs->SetColumnStatus(columnNames[1], true);
-    pmcs->SetColumnStatus(columnNames[2], true);
-    pmcs->SetColumnStatus(columnNames[3], true);
+    pmcs->SetColumnStatus(columnNames[0].c_str(), true);
+    pmcs->SetColumnStatus(columnNames[1].c_str(), true);
+    pmcs->SetColumnStatus(columnNames[2].c_str(), true);
+    pmcs->SetColumnStatus(columnNames[3].c_str(), true);
     pmcs->RequestSelectedColumns();
 
     // Test (in parallel) with Learn, Derive, and Assess operations turned on
@@ -736,20 +735,20 @@ void RandomSampleStatistics(vtkMultiProcessController* controller, void* arg)
     pcas->SetInputData(vtkStatisticsAlgorithm::INPUT_DATA, inputData);
 
     // Select column pairs (uniform vs. uniform, normal vs. normal)
-    pcas->SetColumnStatus(columnNames[0], true);
-    pcas->SetColumnStatus(columnNames[1], true);
+    pcas->SetColumnStatus(columnNames[0].c_str(), true);
+    pcas->SetColumnStatus(columnNames[1].c_str(), true);
     pcas->RequestSelectedColumns();
 
     pcas->ResetAllColumnStates();
-    pcas->SetColumnStatus(columnNames[2], true);
-    pcas->SetColumnStatus(columnNames[3], true);
+    pcas->SetColumnStatus(columnNames[2].c_str(), true);
+    pcas->SetColumnStatus(columnNames[3].c_str(), true);
     pcas->RequestSelectedColumns();
 
     pcas->ResetAllColumnStates();
-    pcas->SetColumnStatus(columnNames[0], true);
-    pcas->SetColumnStatus(columnNames[1], true);
-    pcas->SetColumnStatus(columnNames[2], true);
-    pcas->SetColumnStatus(columnNames[3], true);
+    pcas->SetColumnStatus(columnNames[0].c_str(), true);
+    pcas->SetColumnStatus(columnNames[1].c_str(), true);
+    pcas->SetColumnStatus(columnNames[2].c_str(), true);
+    pcas->SetColumnStatus(columnNames[3].c_str(), true);
     pcas->RequestSelectedColumns();
 
     // Test (in parallel) with all operations except for Test (not implemented in parallel for PCA)

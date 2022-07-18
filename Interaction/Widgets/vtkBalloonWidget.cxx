@@ -37,7 +37,7 @@ vtkStandardNewMacro(vtkBalloonWidget);
 //-- Define the PIMPLd array of vtkProp and vtkString --
 struct vtkBalloon
 {
-  vtkStdString Text;
+  std::string Text;
   vtkImageData* Image;
 
   vtkBalloon()
@@ -53,7 +53,7 @@ struct vtkBalloon
       this->Image->Register(nullptr);
     }
   }
-  vtkBalloon(vtkStdString* str, vtkImageData* img)
+  vtkBalloon(std::string* str, vtkImageData* img)
   {
     this->Text = *str;
     this->Image = img;
@@ -64,7 +64,7 @@ struct vtkBalloon
   }
   vtkBalloon(const char* str, vtkImageData* img)
   {
-    this->Text = vtkStdString(str);
+    this->Text = str;
     this->Image = img;
     if (this->Image)
     {
@@ -321,7 +321,7 @@ int vtkBalloonWidget::SubclassHoverAction()
       this->CurrentProp = (*iter).first;
       this->CurrentProp->Register(this);
       reinterpret_cast<vtkBalloonRepresentation*>(this->WidgetRep)
-        ->SetBalloonText((*iter).second.Text);
+        ->SetBalloonText((*iter).second.Text.c_str());
       reinterpret_cast<vtkBalloonRepresentation*>(this->WidgetRep)
         ->SetBalloonImage((*iter).second.Image);
       this->WidgetRep->StartWidgetInteraction(e);

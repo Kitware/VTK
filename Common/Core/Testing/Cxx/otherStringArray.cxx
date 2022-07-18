@@ -48,7 +48,7 @@ int doStringArrayTest(ostream& strm, int size)
   vtkStdString* strings = new vtkStdString[SIZE];
   for (int i = 0; i < SIZE; ++i)
   {
-    strings[i] = vtkStdString("string entry " + std::to_string(i));
+    strings[i] = "string entry " + std::to_string(i);
   }
 
   strm << "\tResize(0)...";

@@ -30,7 +30,6 @@
 #include "vtkChartsCoreModule.h" // For export macro
 #include "vtkContextItem.h"
 
-class vtkStdString;
 class vtkContext2D;
 class vtkPoints2D;
 class vtkAxis;

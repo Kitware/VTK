@@ -34,7 +34,6 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkMPIController.h"
 #include "vtkMath.h"
 #include "vtkMultiBlockDataSet.h"
-#include "vtkStdString.h"
 #include "vtkTable.h"
 #include "vtkTimerLog.h"
 #include "vtkVariantArray.h"
@@ -72,7 +71,7 @@ void RandomContingencyStatistics(vtkMultiProcessController* controller, void* ar
   // Generate an input table that contains samples of mutually independent discrete random variables
   int nVariables = 2;
   vtkIntArray* intArray[2];
-  vtkStdString columnNames[] = { "Rounded Normal 0", "Rounded Normal 1" };
+  std::string columnNames[] = { "Rounded Normal 0", "Rounded Normal 1" };
 
   vtkTable* inputData = vtkTable::New();
   // Discrete rounded normal samples
@@ -80,7 +79,7 @@ void RandomContingencyStatistics(vtkMultiProcessController* controller, void* ar
   {
     intArray[c] = vtkIntArray::New();
     intArray[c]->SetNumberOfComponents(1);
-    intArray[c]->SetName(columnNames[c]);
+    intArray[c]->SetName(columnNames[c].c_str());
 
     for (int r = 0; r < args->nVals; ++r)
     {
@@ -112,7 +111,7 @@ void RandomContingencyStatistics(vtkMultiProcessController* controller, void* ar
     pcs->GetOutputDataObject(vtkStatisticsAlgorithm::OUTPUT_MODEL));
 
   // Select column pairs (uniform vs. uniform, normal vs. normal)
-  pcs->AddColumnPair(columnNames[0], columnNames[1]);
+  pcs->AddColumnPair(columnNames[0].c_str(), columnNames[1].c_str());
 
   // Test (in parallel) with Learn, Derive, and Assess options turned on
   pcs->SetLearnOption(true);
@@ -255,9 +254,9 @@ void RandomContingencyStatistics(vtkMultiProcessController* controller, void* ar
          << "Empty contingency table column 'Key' on process " << com->GetLocalProcessId() << ".\n";
   }
 
-  vtkStdString proName = "P";
+  std::string proName = "P";
   vtkDoubleArray* prob =
-    vtkArrayDownCast<vtkDoubleArray>(outputContingency->GetColumnByName(proName));
+    vtkArrayDownCast<vtkDoubleArray>(outputContingency->GetColumnByName(proName.c_str()));
   if (!prob)
   {
     cout << "*** Error: "

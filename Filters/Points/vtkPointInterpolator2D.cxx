@@ -238,7 +238,7 @@ void vtkPointInterpolator2D::Probe(vtkDataSet* input, vtkDataSet* source, vtkDat
   if (this->InterpolateZ)
   {
     zScalars = vtkDoubleArray::New();
-    zScalars->SetName(this->GetZArrayName());
+    zScalars->SetName(this->GetZArrayName().c_str());
     zScalars->SetNumberOfTuples(numSourcePts);
     ProjectPointsWithScalars project(source, static_cast<double*>(projPoints->GetVoidPointer(0)),
       static_cast<double*>(zScalars->GetVoidPointer(0)));
@@ -286,7 +286,7 @@ void vtkPointInterpolator2D::Probe(vtkDataSet* input, vtkDataSet* source, vtkDat
   projSource->Delete();
   if (mask)
   {
-    this->ValidPointsMask->SetName(this->ValidPointsMaskArrayName);
+    this->ValidPointsMask->SetName(this->ValidPointsMaskArrayName.c_str());
     outPD->AddArray(this->ValidPointsMask);
     this->ValidPointsMask->Delete();
   }

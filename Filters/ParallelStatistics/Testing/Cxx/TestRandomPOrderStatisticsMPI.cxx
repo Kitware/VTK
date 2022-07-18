@@ -33,7 +33,6 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkMPIController.h"
 #include "vtkMath.h"
 #include "vtkMultiBlockDataSet.h"
-#include "vtkStdString.h"
 #include "vtkStringArray.h"
 #include "vtkTable.h"
 #include "vtkTimerLog.h"
@@ -76,7 +75,7 @@ void RandomOrderStatistics(vtkMultiProcessController* controller, void* arg)
   // Generate an input table that contains samples of:
   // 1. A truncated Gaussian pseudo-random variable (vtkIntArray)
   // 2. A uniform pseudo-random variable of characters (vtkStringArray)
-  vtkStdString columnNames[] = { "Rounded Normal Integer", "Uniform Character" };
+  std::string columnNames[] = { "Rounded Normal Integer", "Uniform Character" };
 
   // Infer number and type of generated variables based on command line options
   int nVariables = 0;
@@ -95,12 +94,12 @@ void RandomOrderStatistics(vtkMultiProcessController* controller, void* arg)
   // Prepare column of integers
   vtkIntArray* intArray = vtkIntArray::New();
   intArray->SetNumberOfComponents(1);
-  intArray->SetName(columnNames[0]);
+  intArray->SetName(columnNames[0].c_str());
 
   // Prepare column of strings
   vtkStringArray* strArray = vtkStringArray::New();
   strArray->SetNumberOfComponents(1);
-  strArray->SetName(columnNames[1]);
+  strArray->SetName(columnNames[1].c_str());
 
   // Storage for pseudo-random values and local extrema
   int* v = new int[nVariables];
@@ -123,7 +122,7 @@ void RandomOrderStatistics(vtkMultiProcessController* controller, void* arg)
   {
     v[idx] = 96 + vtkMath::Ceil(vtkMath::Random() * 26);
     char c = static_cast<char>(v[idx]);
-    vtkStdString s(&c, 1);
+    std::string s(&c, 1);
     strArray->InsertNextValue(s);
   }
 
@@ -153,7 +152,7 @@ void RandomOrderStatistics(vtkMultiProcessController* controller, void* arg)
     {
       v[idx] = 96 + vtkMath::Ceil(vtkMath::Random() * 26);
       char c = static_cast<char>(v[idx]);
-      vtkStdString s(&c, 1);
+      std::string s(&c, 1);
       strArray->InsertNextValue(s);
     }
 
@@ -232,11 +231,11 @@ void RandomOrderStatistics(vtkMultiProcessController* controller, void* arg)
   // Select columns of interest depending on command line choices
   if (!args->skipInt)
   {
-    pos->AddColumn(columnNames[0]);
+    pos->AddColumn(columnNames[0].c_str());
   }
   if (!args->skipString)
   {
-    pos->AddColumn(columnNames[1]);
+    pos->AddColumn(columnNames[1].c_str());
   }
 
   // Test (in parallel) with Learn, Derive, and Assess options turned on
@@ -331,10 +330,10 @@ void RandomOrderStatistics(vtkMultiProcessController* controller, void* arg)
       if (min_c.IsString())
       {
         char c = static_cast<char>(min_g[i]);
-        if (min_c.ToString() != vtkStdString(&c, 1))
+        if (min_c.ToString() != std::string(&c, 1))
         {
           vtkGenericWarningMacro("Incorrect calculated minimum for variable "
-            << columnNames[i] << ": " << min_c.ToString() << " <> " << vtkStdString(&c, 1));
+            << columnNames[i] << ": " << min_c.ToString() << " <> " << std::string(&c, 1));
           *(args->retVal) = 1;
         }
       } // if ( min_c.IsString() )
@@ -352,10 +351,10 @@ void RandomOrderStatistics(vtkMultiProcessController* controller, void* arg)
       if (max_c.IsString())
       {
         char c = static_cast<char>(max_g[i]);
-        if (max_c.ToString() != vtkStdString(&c, 1))
+        if (max_c.ToString() != std::string(&c, 1))
         {
           vtkGenericWarningMacro("Incorrect calculated maximum for variable "
-            << columnNames[i] << ": " << max_c.ToString() << " <> " << vtkStdString(&c, 1));
+            << columnNames[i] << ": " << max_c.ToString() << " <> " << std::string(&c, 1));
           *(args->retVal) = 1;
         }
       }

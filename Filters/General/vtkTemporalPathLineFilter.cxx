@@ -94,7 +94,7 @@ public:
   //
   // This specifies the order of the arrays in the trails fields.  These are
   // valid in between calls to RequestData.
-  std::vector<vtkStdString> TrailFieldNames;
+  std::vector<std::string> TrailFieldNames;
   // Input arrays corresponding to the entries in TrailFieldNames.  nullptr arrays
   // indicate missing arrays.  This field is only valid during a call to
   // RequestData.
@@ -436,8 +436,8 @@ int vtkTemporalPathLineFilter::RequestData(vtkInformation* vtkNotUsed(informatio
   for (size_t i = 0; i < this->Internals->TrailFieldNames.size(); i++)
   {
     this->Internals->InputFieldArrays[i] =
-      inPD->GetAbstractArray(this->Internals->TrailFieldNames[i]);
-    outputFieldArrays[i] = outPD->GetAbstractArray(this->Internals->TrailFieldNames[i]);
+      inPD->GetAbstractArray(this->Internals->TrailFieldNames[i].c_str());
+    outputFieldArrays[i] = outPD->GetAbstractArray(this->Internals->TrailFieldNames[i].c_str());
   }
 
   //

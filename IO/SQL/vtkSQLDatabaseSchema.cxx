@@ -21,7 +21,6 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkSQLDatabaseSchema.h"
 
 #include "vtkObjectFactory.h"
-#include "vtkStdString.h"
 
 #include <cstdarg> // va_list
 
@@ -36,43 +35,43 @@ class vtkSQLDatabaseSchemaInternals
 public: // NB: use of string instead of char* here to avoid leaks on destruction.
   struct Statement
   {
-    vtkStdString Name;
-    vtkStdString Action;  // may have backend-specific stuff
-    vtkStdString Backend; // only active for this backend, if != ""
+    std::string Name;
+    std::string Action;  // may have backend-specific stuff
+    std::string Backend; // only active for this backend, if != ""
   };
 
   struct Column
   {
     vtkSQLDatabaseSchema::DatabaseColumnType Type;
     int Size; // used when required, ignored otherwise (e.g. varchar)
-    vtkStdString Name;
-    vtkStdString Attributes; // may have backend-specific stuff
+    std::string Name;
+    std::string Attributes; // may have backend-specific stuff
   };
 
   struct Index
   {
     vtkSQLDatabaseSchema::DatabaseIndexType Type;
-    vtkStdString Name;
-    std::vector<vtkStdString> ColumnNames;
+    std::string Name;
+    std::vector<std::string> ColumnNames;
   };
 
   struct Trigger
   {
     vtkSQLDatabaseSchema::DatabaseTriggerType Type;
-    vtkStdString Name;
-    vtkStdString Action;  // may have backend-specific stuff
-    vtkStdString Backend; // only active for this backend, if != ""
+    std::string Name;
+    std::string Action;  // may have backend-specific stuff
+    std::string Backend; // only active for this backend, if != ""
   };
 
   struct Option
   {
-    vtkStdString Text;
-    vtkStdString Backend;
+    std::string Text;
+    std::string Backend;
   };
 
   struct Table
   {
-    vtkStdString Name;
+    std::string Name;
     std::vector<Column> Columns;
     std::vector<Index> Indices;
     std::vector<Trigger> Triggers;
@@ -279,7 +278,7 @@ int vtkSQLDatabaseSchema::GetPreambleHandleFromName(const char* preName)
 {
   int i;
   int ntab = static_cast<int>(this->Internals->Preambles.size());
-  vtkStdString preNameStr(preName);
+  std::string preNameStr(preName);
   for (i = 0; i < ntab; ++i)
   {
     if (this->Internals->Preambles[i].Name == preNameStr)
@@ -299,7 +298,7 @@ const char* vtkSQLDatabaseSchema::GetPreambleNameFromHandle(int preHandle)
     return nullptr;
   }
 
-  return this->Internals->Preambles[preHandle].Name;
+  return this->Internals->Preambles[preHandle].Name.c_str();
 }
 
 //------------------------------------------------------------------------------
@@ -311,7 +310,7 @@ const char* vtkSQLDatabaseSchema::GetPreambleActionFromHandle(int preHandle)
     return nullptr;
   }
 
-  return this->Internals->Preambles[preHandle].Action;
+  return this->Internals->Preambles[preHandle].Action.c_str();
 }
 
 //------------------------------------------------------------------------------
@@ -323,7 +322,7 @@ const char* vtkSQLDatabaseSchema::GetPreambleBackendFromHandle(int preHandle)
     return nullptr;
   }
 
-  return this->Internals->Preambles[preHandle].Backend;
+  return this->Internals->Preambles[preHandle].Backend.c_str();
 }
 
 //------------------------------------------------------------------------------
@@ -331,7 +330,7 @@ int vtkSQLDatabaseSchema::GetTableHandleFromName(const char* tblName)
 {
   int i;
   int ntab = static_cast<int>(this->Internals->Tables.size());
-  vtkStdString tblNameStr(tblName);
+  std::string tblNameStr(tblName);
   for (i = 0; i < ntab; ++i)
   {
     if (this->Internals->Tables[i].Name == tblNameStr)
@@ -351,7 +350,7 @@ const char* vtkSQLDatabaseSchema::GetTableNameFromHandle(int tblHandle)
     return nullptr;
   }
 
-  return this->Internals->Tables[tblHandle].Name;
+  return this->Internals->Tables[tblHandle].Name.c_str();
 }
 
 //------------------------------------------------------------------------------
@@ -365,7 +364,7 @@ int vtkSQLDatabaseSchema::GetIndexHandleFromName(const char* tblName, const char
 
   int i;
   int nidx = static_cast<int>(this->Internals->Tables[tblHandle].Indices.size());
-  vtkStdString idxNameStr(idxName);
+  std::string idxNameStr(idxName);
   for (i = 0; i < nidx; ++i)
   {
     if (this->Internals->Tables[tblHandle].Indices[i].Name == idxNameStr)
@@ -393,7 +392,7 @@ const char* vtkSQLDatabaseSchema::GetIndexNameFromHandle(int tblHandle, int idxH
     return nullptr;
   }
 
-  return this->Internals->Tables[tblHandle].Indices[idxHandle].Name;
+  return this->Internals->Tables[tblHandle].Indices[idxHandle].Name.c_str();
 }
 
 //------------------------------------------------------------------------------
@@ -443,7 +442,7 @@ const char* vtkSQLDatabaseSchema::GetIndexColumnNameFromHandle(
     return nullptr;
   }
 
-  return this->Internals->Tables[tblHandle].Indices[idxHandle].ColumnNames[cnmHandle];
+  return this->Internals->Tables[tblHandle].Indices[idxHandle].ColumnNames[cnmHandle].c_str();
 }
 
 //------------------------------------------------------------------------------
@@ -457,7 +456,7 @@ int vtkSQLDatabaseSchema::GetColumnHandleFromName(const char* tblName, const cha
 
   int i;
   int ncol = static_cast<int>(this->Internals->Tables[tblHandle].Columns.size());
-  vtkStdString colNameStr(colName);
+  std::string colNameStr(colName);
   for (i = 0; i < ncol; ++i)
   {
     if (this->Internals->Tables[tblHandle].Columns[i].Name == colNameStr)
@@ -485,7 +484,7 @@ const char* vtkSQLDatabaseSchema::GetColumnNameFromHandle(int tblHandle, int col
     return nullptr;
   }
 
-  return this->Internals->Tables[tblHandle].Columns[colHandle].Name;
+  return this->Internals->Tables[tblHandle].Columns[colHandle].Name.c_str();
 }
 
 //------------------------------------------------------------------------------
@@ -545,7 +544,7 @@ const char* vtkSQLDatabaseSchema::GetColumnAttributesFromHandle(int tblHandle, i
     return nullptr;
   }
 
-  return this->Internals->Tables[tblHandle].Columns[colHandle].Attributes;
+  return this->Internals->Tables[tblHandle].Columns[colHandle].Attributes.c_str();
 }
 
 //------------------------------------------------------------------------------
@@ -559,7 +558,7 @@ int vtkSQLDatabaseSchema::GetTriggerHandleFromName(const char* tblName, const ch
 
   int i;
   int ntrg = static_cast<int>(this->Internals->Tables[tblHandle].Triggers.size());
-  vtkStdString trgNameStr(trgName);
+  std::string trgNameStr(trgName);
   for (i = 0; i < ntrg; ++i)
   {
     if (this->Internals->Tables[tblHandle].Triggers[i].Name == trgNameStr)
@@ -587,7 +586,7 @@ const char* vtkSQLDatabaseSchema::GetTriggerNameFromHandle(int tblHandle, int tr
     return nullptr;
   }
 
-  return this->Internals->Tables[tblHandle].Triggers[trgHandle].Name;
+  return this->Internals->Tables[tblHandle].Triggers[trgHandle].Name.c_str();
 }
 
 //------------------------------------------------------------------------------
@@ -627,7 +626,7 @@ const char* vtkSQLDatabaseSchema::GetTriggerActionFromHandle(int tblHandle, int 
     return nullptr;
   }
 
-  return this->Internals->Tables[tblHandle].Triggers[trgHandle].Action;
+  return this->Internals->Tables[tblHandle].Triggers[trgHandle].Action.c_str();
 }
 
 //------------------------------------------------------------------------------
@@ -647,7 +646,7 @@ const char* vtkSQLDatabaseSchema::GetTriggerBackendFromHandle(int tblHandle, int
     return nullptr;
   }
 
-  return this->Internals->Tables[tblHandle].Triggers[trgHandle].Backend;
+  return this->Internals->Tables[tblHandle].Triggers[trgHandle].Backend.c_str();
 }
 
 //------------------------------------------------------------------------------

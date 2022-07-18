@@ -118,10 +118,10 @@ int vtkAdjacencyMatrixToEdgeTable::RequestData(
   vtkTable* const output_table = vtkTable::GetData(outputVector);
 
   vtkIdTypeArray* const source_array = vtkIdTypeArray::New();
-  source_array->SetName(input_array->GetDimensionLabel(source_dimension));
+  source_array->SetName(input_array->GetDimensionLabel(source_dimension).c_str());
 
   vtkIdTypeArray* const target_array = vtkIdTypeArray::New();
-  target_array->SetName(input_array->GetDimensionLabel(target_dimension));
+  target_array->SetName(input_array->GetDimensionLabel(target_dimension).c_str());
 
   vtkDoubleArray* const value_array = vtkDoubleArray::New();
   value_array->SetName(this->ValueArrayName);

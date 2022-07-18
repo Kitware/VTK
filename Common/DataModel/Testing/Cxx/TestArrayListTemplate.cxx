@@ -21,7 +21,6 @@
 #include "vtkLogger.h"
 #include "vtkNew.h"
 #include "vtkRTAnalyticSource.h"
-#include "vtkStdString.h"
 #include "vtkStringArray.h"
 
 int TestArrayListTemplate(int, char*[])
@@ -34,7 +33,7 @@ int TestArrayListTemplate(int, char*[])
 
   vtkNew<vtkStringArray> strings;
   strings->SetNumberOfTuples(1);
-  strings->SetValue(0, vtkStdString("foo"));
+  strings->SetValue(0, "foo");
   strings->SetName("Strings");
 
   vtkImageData* wavelet = vtkImageData::SafeDownCast(waveletSource->GetOutputDataObject(0));

@@ -25,6 +25,8 @@
 #include "vtkTable.h"
 #include "vtkTableAlgorithm.h"
 
+#include <string>
+
 static const int NPOINTS = 65;
 static const float INCX = 7.5;
 
@@ -33,8 +35,8 @@ class vtkTestSineTableSource : public vtkTableAlgorithm
 public:
   static vtkTestSineTableSource* New();
   vtkTypeMacro(vtkTestSineTableSource, vtkTableAlgorithm);
-  static vtkStdString GetXName() { return "X Axis"; }
-  static vtkStdString GetYName() { return "Sine2"; }
+  static std::string GetXName() { return "X Axis"; }
+  static std::string GetYName() { return "Sine2"; }
 
 protected:
   int RequestData(vtkInformation* vtkNotUsed(request),
@@ -44,11 +46,11 @@ protected:
 
     vtkNew<vtkFloatArray> x_arr;
     x_arr->SetNumberOfComponents(1);
-    x_arr->SetName(vtkTestSineTableSource::GetXName());
+    x_arr->SetName(vtkTestSineTableSource::GetXName().c_str());
 
     vtkNew<vtkFloatArray> y_arr;
     y_arr->SetNumberOfComponents(1);
-    y_arr->SetName(vtkTestSineTableSource::GetYName());
+    y_arr->SetName(vtkTestSineTableSource::GetYName().c_str());
 
     output->AddColumn(x_arr);
     output->AddColumn(y_arr);

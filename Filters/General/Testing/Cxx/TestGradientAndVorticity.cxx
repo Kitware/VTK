@@ -39,7 +39,6 @@
 #include "vtkPointDataToCellData.h"
 #include "vtkResampleToImage.h"
 #include "vtkSmartPointer.h"
-#include "vtkStdString.h"
 #include "vtkStructuredData.h"
 #include "vtkStructuredGrid.h"
 #include "vtkStructuredGridReader.h"
@@ -516,7 +515,7 @@ int TestGradientAndVorticity(int argc, char* argv[])
     return EXIT_FAILURE;
   }
 
-  vtkStdString filename;
+  std::string filename;
   filename = data_root;
   filename += "/Data/SampleStructGrid.vtk";
   VTK_CREATE(vtkStructuredGridReader, structuredGridReader);

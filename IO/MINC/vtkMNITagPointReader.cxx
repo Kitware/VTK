@@ -535,7 +535,7 @@ int vtkMNITagPointReader::ReadFile(vtkPolyData* output1, vtkPolyData* output2)
     this->SkipWhitespace(infile, linetext, pos, 0);
     if (pos != linetext.end() && *pos == '\"')
     {
-      vtkStdString stringval;
+      std::string stringval;
       if (!this->ParseStringValue(infile, linetext, pos, stringval))
       {
         errorOccurred = 1;

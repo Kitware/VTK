@@ -130,8 +130,8 @@ vtkIdType vtkPlot::GetNearestPoint(const vtkVector2f& vtkNotUsed(point),
 //------------------------------------------------------------------------------
 vtkStdString vtkPlot::GetTooltipLabel(const vtkVector2d& plotPos, vtkIdType seriesIndex, vtkIdType)
 {
-  vtkStdString tooltipLabel;
-  vtkStdString& format =
+  std::string tooltipLabel;
+  std::string& format =
     this->TooltipLabelFormat.empty() ? this->TooltipDefaultLabelFormat : this->TooltipLabelFormat;
   // Parse TooltipLabelFormat and build tooltipLabel
   bool escapeNext = false;
@@ -487,7 +487,7 @@ vtkStdString vtkPlot::GetLabel(vtkIdType index)
   }
   else
   {
-    return vtkStdString();
+    return {};
   }
 }
 //------------------------------------------------------------------------------

@@ -118,15 +118,15 @@ int vtkRowQueryToTable::RequestData(vtkInformation*, vtkInformationVector** vtkN
     {
       int i = 1;
       std::ostringstream oss;
-      vtkStdString newName;
+      std::string newName;
       do
       {
         oss.str("");
         oss << name << "_" << i;
         newName = oss.str();
         ++i;
-      } while (output->GetColumnByName(newName));
-      arr->SetName(newName);
+      } while (output->GetColumnByName(newName.c_str()));
+      arr->SetName(newName.c_str());
     }
     else
     {

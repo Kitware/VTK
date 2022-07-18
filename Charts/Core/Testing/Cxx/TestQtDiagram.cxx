@@ -25,7 +25,6 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
-#include "vtkStdString.h"
 #include "vtkTextProperty.h"
 
 #include <QApplication>

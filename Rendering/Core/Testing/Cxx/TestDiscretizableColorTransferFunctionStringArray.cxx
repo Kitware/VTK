@@ -14,7 +14,6 @@
 =========================================================================*/
 #include <vtkDiscretizableColorTransferFunction.h>
 #include <vtkSmartPointer.h>
-#include <vtkStdString.h>
 #include <vtkStringArray.h>
 #include <vtkUnsignedCharArray.h>
 

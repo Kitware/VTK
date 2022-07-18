@@ -73,7 +73,7 @@ inline vtkAbstractArray* ArrayList::AddArrayPair(vtkIdType numTuples, vtkAbstrac
     outArray = vtkFloatArray::New();
     outArray->SetNumberOfComponents(inArray->GetNumberOfComponents());
     outArray->SetNumberOfTuples(numTuples);
-    outArray->SetName(outArrayName);
+    outArray->SetName(outArrayName.c_str());
     void* iD = inArray->GetVoidPointer(0);
     void* oD = outArray->GetVoidPointer(0);
     switch (iType)
@@ -87,7 +87,7 @@ inline vtkAbstractArray* ArrayList::AddArrayPair(vtkIdType numTuples, vtkAbstrac
     outArray = inArray->NewInstance();
     outArray->SetNumberOfComponents(inArray->GetNumberOfComponents());
     outArray->SetNumberOfTuples(numTuples);
-    outArray->SetName(outArrayName);
+    outArray->SetName(outArrayName.c_str());
     void* iD = inArray->GetVoidPointer(0);
     void* oD = outArray->GetVoidPointer(0);
     switch (iType)

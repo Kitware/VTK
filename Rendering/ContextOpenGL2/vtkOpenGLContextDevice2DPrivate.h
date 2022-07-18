@@ -40,7 +40,6 @@
 #include "vtkColor.h"
 #include "vtkFreeTypeTools.h"
 #include "vtkGenericCell.h"
-#include "vtkStdString.h"
 #include "vtkTextProperty.h"
 #include "vtkTextRenderer.h"
 #include "vtkTexture.h"
@@ -271,7 +270,7 @@ struct TextPropertyKey
   int DPI;
 };
 
-typedef TextPropertyKey<vtkStdString> UTF8TextPropertyKey;
+typedef TextPropertyKey<std::string> UTF8TextPropertyKey;
 
 class vtkOpenGLContextDevice2D::Private
 {

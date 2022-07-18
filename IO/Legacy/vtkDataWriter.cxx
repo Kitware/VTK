@@ -1356,7 +1356,7 @@ int vtkDataWriter::WriteArray(ostream* fp, int dataType, vtkAbstractArray* data,
       *fp << str;
       if (this->FileType == VTK_ASCII)
       {
-        vtkStdString s;
+        std::string s;
         for (j = 0; j < num; j++)
         {
           for (i = 0; i < numComp; i++)
@@ -1370,7 +1370,7 @@ int vtkDataWriter::WriteArray(ostream* fp, int dataType, vtkAbstractArray* data,
       }
       else
       {
-        vtkStdString s;
+        std::string s;
         for (j = 0; j < num; j++)
         {
           for (i = 0; i < numComp; i++)

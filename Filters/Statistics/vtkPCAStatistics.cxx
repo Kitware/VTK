@@ -475,7 +475,7 @@ static void vtkPCAStatisticsNormalizeSpec(vtkVariantArray* normData, Eigen::Matr
 {
   vtkIdType i, j;
   vtkIdType m = reqModel->GetNumberOfColumns() - 2;
-  std::map<vtkStdString, vtkIdType> colNames;
+  std::map<std::string, vtkIdType> colNames;
   // Get a list of columns of interest for this request
   for (i = 0; i < m; ++i)
   {
@@ -486,7 +486,7 @@ static void vtkPCAStatisticsNormalizeSpec(vtkVariantArray* normData, Eigen::Matr
   vtkIdType n = normSpec->GetNumberOfRows();
   for (vtkIdType r = 0; r < n; ++r)
   {
-    std::map<vtkStdString, vtkIdType>::iterator it;
+    std::map<std::string, vtkIdType>::iterator it;
     if ((it = colNames.find(normSpec->GetValue(r, 0).ToString())) == colNames.end())
     {
       continue;
@@ -812,7 +812,7 @@ void vtkPCAStatistics::Test(vtkTable* inData, vtkMultiBlockDataSet* inMeta, vtkT
     }
 
     // Create and fill entries of name and mean vectors
-    std::vector<vtkStdString> varNameX(p);
+    std::vector<std::string> varNameX(p);
     std::vector<double> mX(p);
     for (int i = 0; i < p; ++i)
     {
@@ -850,7 +850,7 @@ void vtkPCAStatistics::Test(vtkTable* inData, vtkMultiBlockDataSet* inMeta, vtkT
       // Read and center observation
       for (int i = 0; i < p; ++i)
       {
-        x[i] = inData->GetValueByName(r, varNameX[i]).ToDouble() - mX[i];
+        x[i] = inData->GetValueByName(r, varNameX[i].c_str()).ToDouble() - mX[i];
       }
 
       // Now calculate skewness and kurtosis per component

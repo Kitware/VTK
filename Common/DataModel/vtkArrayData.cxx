@@ -149,7 +149,7 @@ vtkArray* vtkArrayData::GetArrayByName(const char* name)
   for (vtkIdType ctr = 0; ctr < this->GetNumberOfArrays(); ctr++)
   {
     temp = this->GetArray(ctr);
-    if (temp && !strcmp(name, temp->GetName()))
+    if (temp && name == temp->GetName())
     {
       break;
     }

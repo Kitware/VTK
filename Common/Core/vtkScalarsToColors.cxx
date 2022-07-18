@@ -1713,8 +1713,7 @@ vtkStdString vtkScalarsToColors::GetAnnotation(vtkIdType idx)
    * || idx < 0 || idx >= this->Annotations->GetNumberOfTuples())
    */
   {
-    vtkStdString empty;
-    return empty;
+    return {};
   }
   return this->Annotations->GetValue(idx);
 }

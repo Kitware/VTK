@@ -594,7 +594,7 @@ int vtkDelimitedTextReader::ReadData(vtkTable* const output_table)
         else
         {
           throw std::runtime_error(
-            "Could not find pedigree id array: " + vtkStdString(this->PedigreeIdArrayName));
+            "Could not find pedigree id array: " + std::string(this->PedigreeIdArrayName));
         }
       }
     }

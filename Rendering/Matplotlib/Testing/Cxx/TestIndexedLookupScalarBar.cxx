@@ -413,7 +413,7 @@ public:
         vtkIdType idx = this->Lookup->GetAnnotatedValueIndex(4.00);
         if (idx >= 0)
         {
-          vtkStdString prev = this->Lookup->GetAnnotation(idx);
+          std::string prev = this->Lookup->GetAnnotation(idx);
           this->Lookup->SetAnnotation(4.00, prev.empty() ? "No" : "");
         }
       }

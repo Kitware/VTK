@@ -28,7 +28,6 @@
 #include "vtkSelection.h"
 #include "vtkSelectionNode.h"
 #include "vtkSmartPointer.h"
-#include "vtkStdString.h"
 #include "vtkTable.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkVariant.h"

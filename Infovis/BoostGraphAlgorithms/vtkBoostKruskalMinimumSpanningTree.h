@@ -36,7 +36,6 @@ PURPOSE.  See the above copyright notice for more information.
 #define vtkBoostKruskalMinimumSpanningTree_h
 
 #include "vtkInfovisBoostGraphAlgorithmsModule.h" // For export macro
-#include "vtkStdString.h"                         // For string type
 #include "vtkVariant.h"                           // For variant type
 
 #include "vtkSelectionAlgorithm.h"

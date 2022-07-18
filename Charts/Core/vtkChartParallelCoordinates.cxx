@@ -143,7 +143,7 @@ void vtkChartParallelCoordinates::Update()
   for (int i = 0; i < this->VisibleColumns->GetNumberOfTuples(); ++i)
   {
     double range[2];
-    rowData->GetRange(this->VisibleColumns->GetValue(i), range);
+    rowData->GetRange(this->VisibleColumns->GetValue(i).c_str(), range);
     vtkAxis* axis = this->Storage->Axes[i];
     if (axis->GetBehavior() == 0)
     {
@@ -772,7 +772,7 @@ void vtkChartParallelCoordinates::SwapAxes(int a1, int a2)
   this->Storage->AxesSelections[a1] = this->Storage->AxesSelections[a2];
   this->Storage->AxesSelections[a2] = selTmp;
 
-  vtkStdString colTmp = this->VisibleColumns->GetValue(a1);
+  std::string colTmp = this->VisibleColumns->GetValue(a1);
   this->VisibleColumns->SetValue(a1, this->VisibleColumns->GetValue(a2));
   this->VisibleColumns->SetValue(a2, colTmp);
 

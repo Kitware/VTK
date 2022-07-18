@@ -111,7 +111,7 @@ int vtkExtractFunctionalBagPlot::RequestData(vtkInformation* /*request*/,
   for (vtkIdType i = 0; i < nbPoints; i++)
   {
     double d = density->GetValue(i);
-    vtkAbstractArray* c = inTable->GetColumnByName(varName->GetValue(i));
+    vtkAbstractArray* c = inTable->GetColumnByName(varName->GetValue(i).c_str());
     if (d < this->DensityForPUser)
     {
       outliersSeries.insert(i);

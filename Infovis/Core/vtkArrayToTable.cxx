@@ -60,7 +60,7 @@ static bool ConvertVector(vtkArray* Array, vtkTable* Output)
 
   ColumnT* const column = ColumnT::New();
   column->SetNumberOfTuples(extents.GetSize());
-  column->SetName(array->GetName());
+  column->SetName(array->GetName().c_str());
   for (vtkIdType i = extents.GetBegin(); i != extents.GetEnd(); ++i)
   {
     column->SetValue(i - extents.GetBegin(), array->GetValue(i));

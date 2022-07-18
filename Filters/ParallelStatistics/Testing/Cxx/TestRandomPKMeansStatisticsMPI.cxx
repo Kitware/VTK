@@ -33,7 +33,6 @@
 #include "vtkMPIController.h"
 #include "vtkMath.h"
 #include "vtkMultiBlockDataSet.h"
-#include "vtkStdString.h"
 #include "vtkTable.h"
 #include "vtkTimerLog.h"
 #include "vtkVariantArray.h"
@@ -76,7 +75,7 @@ void RandomSampleStatistics(vtkMultiProcessController* controller, void* arg)
 
   // Generate column names
   int nVariables = args->nVariables;
-  std::vector<vtkStdString> columnNames;
+  std::vector<std::string> columnNames;
   for (int v = 0; v < nVariables; ++v)
   {
     std::ostringstream columnName;
@@ -97,7 +96,7 @@ void RandomSampleStatistics(vtkMultiProcessController* controller, void* arg)
   {
     doubleArray = vtkDoubleArray::New();
     doubleArray->SetNumberOfComponents(1);
-    doubleArray->SetName(columnNames.at(v));
+    doubleArray->SetName(columnNames.at(v).c_str());
 
     for (int c = 0; c < nClusters; ++c)
     {
@@ -156,7 +155,7 @@ void RandomSampleStatistics(vtkMultiProcessController* controller, void* arg)
   for (int v = 0; v < nVariables; ++v)
   {
     paramArray = vtkDoubleArray::New();
-    paramArray->SetName(columnNames[v]);
+    paramArray->SetName(columnNames[v].c_str());
     paramArray->SetNumberOfTuples(nClusters);
     memcpy(
       paramArray->GetPointer(0), &(clusterCoords[v * (nClusters)]), nClusters * sizeof(double));

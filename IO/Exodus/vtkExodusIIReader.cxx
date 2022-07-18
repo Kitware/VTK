@@ -1706,8 +1706,8 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead(vtkExodusIICacheKey key)
     // read temporal nodal array
     ArrayInfoType* ainfop = &this->ArrayInfo[vtkExodusIIReader::GLOBAL][key.ArrayId];
     arr = vtkDataArray::CreateDataArray(ainfop->StorageType);
-    // vtkStdString newArrayName = ainfop->Name + "OverTime";
-    arr->SetName(ainfop->Name);
+    // std::string newArrayName = ainfop->Name + "OverTime";
+    arr->SetName(ainfop->Name.c_str());
     arr->SetNumberOfComponents(ainfop->Components);
     arr->SetNumberOfTuples(this->GetNumberOfTimeSteps());
     if (ainfop->Components != 1)
@@ -1759,7 +1759,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead(vtkExodusIICacheKey key)
     // read temporal nodal array
     ArrayInfoType* ainfop = &this->ArrayInfo[vtkExodusIIReader::NODAL][key.ArrayId];
     arr = vtkDataArray::CreateDataArray(ainfop->StorageType);
-    vtkStdString newArrayName = ainfop->Name + "OverTime";
+    std::string newArrayName = ainfop->Name + "OverTime";
     arr->SetName(newArrayName.c_str());
     arr->SetNumberOfComponents(ainfop->Components);
     arr->SetNumberOfTuples(this->GetNumberOfTimeSteps());
@@ -1812,7 +1812,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead(vtkExodusIICacheKey key)
     // read temporal element array
     ArrayInfoType* ainfop = &this->ArrayInfo[vtkExodusIIReader::ELEM_BLOCK][key.ArrayId];
     arr = vtkDataArray::CreateDataArray(ainfop->StorageType);
-    vtkStdString newArrayName = ainfop->Name + "OverTime";
+    std::string newArrayName = ainfop->Name + "OverTime";
     arr->SetName(newArrayName.c_str());
     arr->SetNumberOfComponents(ainfop->Components);
     arr->SetNumberOfTuples(this->GetNumberOfTimeSteps());
@@ -3072,7 +3072,7 @@ vtkIdType vtkExodusIIReaderPrivate::GetSqueezePointId(BlockSetInfoType* bsinfop,
 //------------------------------------------------------------------------------
 void vtkExodusIIReaderPrivate::DetermineVtkCellType(BlockInfoType& binfo)
 {
-  vtkStdString elemType(vtksys::SystemTools::UpperCase(binfo.TypeName));
+  std::string elemType(vtksys::SystemTools::UpperCase(binfo.TypeName));
 
   // Check for quadratic elements
   if ((elemType.substr(0, 3) == "TRI") && (binfo.BdsPerEntry[0] == 6))
@@ -3510,7 +3510,7 @@ const char* vtkExodusIIReaderPrivate::GetPartName(int idx)
 const char* vtkExodusIIReaderPrivate::GetPartBlockInfo(int idx)
 {
   char buffer[80];
-  static vtkStdString blocks;
+  static std::string blocks;
   std::vector<int> blkIndices = this->PartInfo[idx].BlockIndices;
   for (unsigned int i = 0; i < blkIndices.size(); i++)
   {
@@ -4286,7 +4286,7 @@ int vtkExodusIIReaderPrivate::RequestInformation()
           //
           // for (k=0;k<localAssemblyNames.size();k++)
           //  {
-          //  vtkStdString assemblyName=localAssemblyNames[k];
+          //  std::string assemblyName=localAssemblyNames[k];
           //  found=0;
           //  for (unsigned int n=0;n<this->AssemblyInfo.size();n++)
           //    {
@@ -4991,14 +4991,14 @@ void vtkExodusIIReaderPrivate::SetInitialObjectStatus(
   int objectType, const char* objName, int status)
 {
   ObjectInfoType info;
-  vtkStdString nm = objName;
+  std::string nm = objName;
   size_t idx = 0;
   int idlen = 0;
   int id = -1;
 
   // When no name is found for an object, it is given one of a certain format.
   // Parse the id out of that string and use it to identify the object later.
-  if ((idx = nm.find("ID: ")) != vtkStdString::npos)
+  if ((idx = nm.find("ID: ")) != std::string::npos)
   {
     idx += 4;
     idlen = 0;
@@ -5828,7 +5828,7 @@ int vtkExodusIIReader::GetNumberOfObjects(int objectType)
 
 int vtkExodusIIReader::GetObjectTypeFromName(const char* name)
 {
-  vtkStdString tname(name);
+  std::string tname(name);
   if (tname == "edge")
     return EDGE_BLOCK;
   else if (tname == "face")
@@ -6058,7 +6058,7 @@ int vtkExodusIIReader::GetObjectIndex(int objectType, const char* objectName)
     return -1;
   }
 
-  vtkStdString objectRealName(objectName);
+  std::string objectRealName(objectName);
 
   // handle legacy block names.
   vtksys::RegularExpression regex(
@@ -6071,7 +6071,7 @@ int vtkExodusIIReader::GetObjectIndex(int objectType, const char* objectName)
   for (int obj = 0; obj < nObj; ++obj)
   {
     const char* storedObjName = this->GetObjectName(objectType, obj);
-    if (objectRealName == vtkStdString(storedObjName))
+    if (objectRealName == storedObjName)
     {
       return obj;
     }
@@ -6445,7 +6445,7 @@ void vtkExodusIIReader::SetHierarchyArrayStatus(const char* vtkNotUsed(name), in
   // if (this->Metadata->Parser)
   //  {
   //  std::vector<int> blocksIds=this->Metadata->Parser->GetBlocksForEntry
-  //    (vtkStdString(name));
+  //    (std::string(name));
   //  for (std::vector<int>::size_type i=0;i<blocksIds.size();i++)
   //    {
   //    //cout << "turning block " << blocks[i] << " " << flag << endl;

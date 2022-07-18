@@ -25,7 +25,6 @@
 #include "vtkGraph.h"
 #include "vtkInformation.h"
 #include "vtkInformationIntegerKey.h"
-#include "vtkStdString.h"
 #include "vtkVariant.h"
 
 #include <cassert> // assert()
@@ -202,7 +201,7 @@ vtkIdType vtkDistributedGraphHelper::GetVertexOwnerByPedigreeId(const vtkVariant
 
   // Hash the variant in a very lame way.
   double numericValue;
-  vtkStdString stringValue;
+  std::string stringValue;
   const unsigned char *charsStart, *charsEnd;
   if (pedigreeId.IsNumeric())
   {

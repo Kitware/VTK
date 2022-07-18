@@ -19,7 +19,6 @@
 
 #include "vtkInformation.h"
 #include "vtkNew.h"
-#include "vtkStdString.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStringArray.h"
 #include "vtkXMLMultiBlockDataReader.h"

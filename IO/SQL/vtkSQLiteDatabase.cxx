@@ -99,7 +99,7 @@ vtkStdString vtkSQLiteDatabase::GetColumnSpecification(
 
   // Figure out column type
   int colType = schema->GetColumnTypeFromHandle(tblHandle, colHandle);
-  vtkStdString colTypeStr;
+  std::string colTypeStr;
   switch (static_cast<vtkSQLDatabaseSchema::DatabaseColumnType>(colType))
   {
     case vtkSQLDatabaseSchema::SERIAL:
@@ -146,7 +146,7 @@ vtkStdString vtkSQLiteDatabase::GetColumnSpecification(
   else // if ( colTypeStr.size() )
   {
     vtkGenericWarningMacro("Unable to get column specification: unsupported data type " << colType);
-    return vtkStdString();
+    return {};
   }
 
   // Decide whether size is allowed, required, or unused
@@ -211,7 +211,7 @@ vtkStdString vtkSQLiteDatabase::GetColumnSpecification(
     }
   }
 
-  vtkStdString attStr = schema->GetColumnAttributesFromHandle(tblHandle, colHandle);
+  std::string attStr = schema->GetColumnAttributesFromHandle(tblHandle, colHandle);
   if (!attStr.empty())
   {
     queryStr << " " << attStr;
@@ -397,7 +397,7 @@ vtkStringArray* vtkSQLiteDatabase::GetTables()
 vtkStringArray* vtkSQLiteDatabase::GetRecord(const char* table)
 {
   vtkSQLQuery* query = this->GetQueryInstance();
-  vtkStdString text("PRAGMA table_info ('");
+  std::string text("PRAGMA table_info ('");
   text += table;
   text += "')";
 

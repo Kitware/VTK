@@ -214,7 +214,7 @@ vtkVariant vtkQtSQLQuery::DataValue(vtkIdType c)
       // Carefully storing BLOBs as vtkStrings. This
       // avoids the normal termination problems with
       // zero's in the BLOBs...
-      return vtkVariant(vtkStdString(v.toByteArray().data(), v.toByteArray().length()));
+      return vtkVariant(std::string(v.toByteArray().data(), v.toByteArray().length()));
     }
     case QVariant::Invalid:
       return vtkVariant();

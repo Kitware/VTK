@@ -382,7 +382,7 @@ bool vtkGraphItem::MouseMoveEvent(const vtkContextMouseEvent& event)
       this->Tooltip->SetVisible(false);
       return true;
     }
-    vtkStdString text = this->VertexTooltip(v);
+    std::string text = this->VertexTooltip(v);
     if (text.empty())
     {
       this->Tooltip->SetVisible(false);

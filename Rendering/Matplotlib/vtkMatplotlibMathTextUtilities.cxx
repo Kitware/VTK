@@ -26,7 +26,6 @@
 #include "vtkPoints.h"
 #include "vtkPythonInterpreter.h"
 #include "vtkSmartPyObject.h"
-#include "vtkStdString.h"
 #include "vtkTextProperty.h"
 #include "vtkTransform.h"
 

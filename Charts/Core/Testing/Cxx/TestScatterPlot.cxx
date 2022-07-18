@@ -25,6 +25,8 @@
 #include "vtkStringArray.h"
 #include "vtkTable.h"
 
+#include <string>
+
 //------------------------------------------------------------------------------
 int TestScatterPlot(int, char*[])
 {

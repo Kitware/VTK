@@ -51,14 +51,14 @@
 vtkStandardNewMacro(vtkODBCDatabase);
 
 //------------------------------------------------------------------------------
-static vtkStdString GetErrorMessage(SQLSMALLINT handleType, SQLHANDLE handle, int* code = nullptr)
+static std::string GetErrorMessage(SQLSMALLINT handleType, SQLHANDLE handle, int* code = nullptr)
 {
   SQLINTEGER sqlNativeCode = 0;
   SQLSMALLINT messageLength = 0;
   SQLRETURN status;
   SQLCHAR state[SQL_SQLSTATE_SIZE + 1];
   SQLCHAR description[SQL_MAX_MESSAGE_LENGTH + 1];
-  vtkStdString finalResult;
+  std::string finalResult;
   int i = 1;
 
   // There may be several error messages queued up so we need to loop
@@ -84,12 +84,12 @@ static vtkStdString GetErrorMessage(SQLSMALLINT handleType, SQLHANDLE handle, in
     }
     else if (status == SQL_ERROR || status == SQL_INVALID_HANDLE)
     {
-      return vtkStdString(messagebuf.str());
+      return messagebuf.str();
     }
     ++i;
   } while (status != SQL_NO_DATA);
 
-  return vtkStdString(messagebuf.str());
+  return messagebuf.str();
 }
 
 //------------------------------------------------------------------------------
@@ -99,9 +99,9 @@ static vtkStdString GetErrorMessage(SQLSMALLINT handleType, SQLHANDLE handle, in
 // Also, this will need to be updated when we start handling Unicode
 // characters.
 
-static vtkStdString odbcGetString(SQLHANDLE statement, int column, int columnSize)
+static std::string odbcGetString(SQLHANDLE statement, int column, int columnSize)
 {
-  vtkStdString returnString;
+  std::string returnString;
   SQLRETURN status = SQL_ERROR;
   SQLLEN lengthIndicator;
 
@@ -285,7 +285,7 @@ bool vtkODBCDatabase::Open(const char* password)
   }
 
   // Create the connection string itself
-  vtkStdString connectionString;
+  std::string connectionString;
   if (strstr(this->DataSourceName, ".dsn") != nullptr)
   {
     // the data source is a file of some sort
@@ -336,7 +336,7 @@ bool vtkODBCDatabase::Open(const char* password)
 
 #ifdef ODBC_DRIVER_IS_IODBC
   // Set the driver name so we know who to blame
-  vtkStdString driverName("vtkODBCDatabase driver");
+  std::string driverName("vtkODBCDatabase driver");
   status = SQLSetConnectAttr(
     this->Internals->Connection, SQL_APPLICATION_NAME, driverName.c_str(), driverName.size());
   if (status != SQL_SUCCESS && status != SQL_SUCCESS_WITH_INFO)
@@ -456,7 +456,7 @@ vtkStringArray* vtkODBCDatabase::GetTables()
     status = SQLSetStmtAttr(statement, SQL_ATTR_CURSOR_TYPE,
       static_cast<SQLPOINTER>(SQL_CURSOR_FORWARD_ONLY), SQL_IS_UINTEGER);
 
-    vtkStdString tableType("TABLE,");
+    std::string tableType("TABLE,");
 
     status = SQLTables(statement, nullptr, 0, nullptr, 0, nullptr, 0,
       (SQLCHAR*)(const_cast<char*>(tableType.c_str())), static_cast<SQLSMALLINT>(tableType.size()));
@@ -470,7 +470,7 @@ vtkStringArray* vtkODBCDatabase::GetTables()
     status = SQLFetchScroll(statement, SQL_FETCH_NEXT, 0);
     while (status == SQL_SUCCESS)
     {
-      vtkStdString fieldVal = odbcGetString(statement, 2, -1);
+      std::string fieldVal = odbcGetString(statement, 2, -1);
       this->Tables->InsertNextValue(fieldVal);
       status = SQLFetchScroll(statement, SQL_FETCH_NEXT, 0);
     }
@@ -529,7 +529,7 @@ vtkStringArray* vtkODBCDatabase::GetRecord(const char* table)
 
   if (status != SQL_SUCCESS && status != 0)
   {
-    vtkStdString error = GetErrorMessage(SQL_HANDLE_STMT, statement);
+    std::string error = GetErrorMessage(SQL_HANDLE_STMT, statement);
 
     vtkErrorMacro(
       << "vtkODBCDatabase::GetRecord: Unable to retrieve column list (SQLColumns): error "
@@ -542,7 +542,7 @@ vtkStringArray* vtkODBCDatabase::GetRecord(const char* table)
   status = SQLFetchScroll(statement, SQL_FETCH_NEXT, 0);
   if (status != SQL_SUCCESS)
   {
-    vtkStdString error = GetErrorMessage(SQL_HANDLE_STMT, statement);
+    std::string error = GetErrorMessage(SQL_HANDLE_STMT, statement);
     vtkErrorMacro(
       << "vtkODBCDatabase::GetRecord: Unable to retrieve column list (SQLFetchScroll): error "
       << error);
@@ -552,7 +552,7 @@ vtkStringArray* vtkODBCDatabase::GetRecord(const char* table)
   }
   while (status == SQL_SUCCESS)
   {
-    vtkStdString fieldName = odbcGetString(statement, 3, -1);
+    std::string fieldName = odbcGetString(statement, 3, -1);
     this->Record->InsertNextValue(fieldName);
     status = SQLFetchScroll(statement, SQL_FETCH_NEXT, 0);
   }
@@ -675,7 +675,7 @@ vtkStdString vtkODBCDatabase::GetColumnSpecification(
 
   // Figure out column type
   int colType = schema->GetColumnTypeFromHandle(tblHandle, colHandle);
-  vtkStdString colTypeStr;
+  std::string colTypeStr;
 
   switch (static_cast<vtkSQLDatabaseSchema::DatabaseColumnType>(colType))
   {
@@ -724,7 +724,7 @@ vtkStdString vtkODBCDatabase::GetColumnSpecification(
   else // if ( !colTypeStr.empty() )
   {
     vtkGenericWarningMacro("Unable to get column specification: unsupported data type " << colType);
-    return vtkStdString();
+    return {};
   }
 
   // Decide whether size is allowed, required, or unused
@@ -804,7 +804,7 @@ vtkStdString vtkODBCDatabase::GetIndexSpecification(
   vtkSQLDatabaseSchema* schema, int tblHandle, int idxHandle, bool& skipped)
 {
   skipped = false;
-  vtkStdString queryStr = ", ";
+  std::string queryStr = ", ";
   bool mustUseName = true;
 
   int idxType = schema->GetIndexTypeFromHandle(tblHandle, idxHandle);
@@ -821,7 +821,7 @@ vtkStdString vtkODBCDatabase::GetIndexSpecification(
       queryStr += "INDEX ";
       break;
     default:
-      return vtkStdString();
+      return {};
   }
 
   // No index_name for PRIMARY KEYs
@@ -837,7 +837,7 @@ vtkStdString vtkODBCDatabase::GetIndexSpecification(
   {
     vtkGenericWarningMacro(
       "Unable to get index specification: index has incorrect number of columns " << numCnm);
-    return vtkStdString();
+    return {};
   }
 
   bool firstCnm = true;
@@ -865,7 +865,7 @@ bool vtkODBCDatabase::CreateDatabase(const char* dbName, bool dropExisting = fal
   {
     this->DropDatabase(dbName);
   }
-  vtkStdString queryStr;
+  std::string queryStr;
   queryStr = "CREATE DATABASE ";
   queryStr += dbName;
   vtkSQLQuery* query = this->GetQueryInstance();
@@ -881,7 +881,7 @@ bool vtkODBCDatabase::CreateDatabase(const char* dbName, bool dropExisting = fal
 //------------------------------------------------------------------------------
 bool vtkODBCDatabase::DropDatabase(const char* dbName)
 {
-  vtkStdString queryStr;
+  std::string queryStr;
   queryStr = "DROP DATABASE ";
   queryStr += dbName;
   vtkSQLQuery* query = this->GetQueryInstance();

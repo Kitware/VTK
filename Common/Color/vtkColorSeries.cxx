@@ -26,7 +26,7 @@ class vtkColorSeriesPalette
 {
 public:
   std::vector<vtkColor3ub> Colors;
-  vtkStdString Name;
+  std::string Name;
 };
 
 //------------------------------------------------------------------------------
@@ -36,7 +36,7 @@ public:
   Private();
 
   void SetScheme(int idx);
-  int SetSchemeByName(const vtkStdString& name, bool& modified);
+  int SetSchemeByName(const std::string& name, bool& modified);
 
   std::vector<vtkColorSeriesPalette> Palettes; // All palettes
   int Palette;                                 // Currently-selected entry in Palettes
@@ -340,7 +340,7 @@ void vtkColorSeries::Private::SetScheme(int idx)
 }
 
 //------------------------------------------------------------------------------
-int vtkColorSeries::Private::SetSchemeByName(const vtkStdString& name, bool& modified)
+int vtkColorSeries::Private::SetSchemeByName(const std::string& name, bool& modified)
 {
   modified = false;
   int idx = 0;

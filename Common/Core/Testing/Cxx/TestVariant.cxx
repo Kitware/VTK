@@ -61,7 +61,7 @@ int TestVariant(int, char*[])
     cerr << "v = " << v << " (" << vtkImageScalarTypeNameMacro(type[i]) << ")\n";
     for (int j = 0; j < numTypes; j++)
     {
-      vtkStdString str;
+      std::string str;
       switch (type[j])
       {
         case VTK_INT:
@@ -138,8 +138,8 @@ int TestVariant(int, char*[])
         }
         case VTK_STRING:
         {
-          vtkStdString conv = v.ToString();
-          if (conv != vtkStdString(strValue))
+          std::string conv = v.ToString();
+          if (conv != strValue)
           {
             cerr << "conversion invalid (" << vtkImageScalarTypeNameMacro(type[i]) << " " << conv
                  << " != " << vtkImageScalarTypeNameMacro(type[j]) << " " << strValue << ")"

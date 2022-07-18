@@ -94,7 +94,7 @@ bool vtkTooltipItem::Paint(vtkContext2D* painter)
   // This is where everything should be drawn, or dispatched to other methods.
   vtkDebugMacro(<< "Paint event called in vtkTooltipItem.");
 
-  if (!this->Visible || !this->Text)
+  if (!this->Visible)
   {
     return false;
   }

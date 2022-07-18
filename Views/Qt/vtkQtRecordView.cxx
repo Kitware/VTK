@@ -108,7 +108,7 @@ void vtkQtRecordView::Update()
   this->LastMTime = this->GetMTime();
   this->CurrentSelectionMTime = s->GetMTime();
 
-  vtkStdString html;
+  std::string html;
   if (!rep)
   {
     this->TextWidget->setHtml(html.c_str());

@@ -24,7 +24,6 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
-#include "vtkStdString.h"
 #include "vtkWidgetCallbackMapper.h"
 #include "vtkWidgetEvent.h"
 #include "vtkWidgetEventTranslator.h"
@@ -435,8 +434,8 @@ void vtkImplicitPlaneWidget2::MovePlaneAction(vtkAbstractWidget* w)
 
   // Move the plane
   double factor = (self->Interactor->GetControlKey() ? 0.5 : 1.0);
-  if (vtkStdString(self->Interactor->GetKeySym()) == vtkStdString("Down") ||
-    vtkStdString(self->Interactor->GetKeySym()) == vtkStdString("Left"))
+  if (!strcmp(self->Interactor->GetKeySym(), "Down") ||
+    !strcmp(self->Interactor->GetKeySym(), "Left"))
   {
     self->GetImplicitPlaneRepresentation()->BumpPlane(-1, factor);
   }

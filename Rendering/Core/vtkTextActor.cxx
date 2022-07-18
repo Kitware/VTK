@@ -333,7 +333,7 @@ void vtkTextActor::SetNonLinearFontScale(double exp, int tgt)
 //------------------------------------------------------------------------------
 bool vtkTextActor::RenderImage(vtkTextProperty* tprop, vtkViewport* vp)
 {
-  vtkStdString text;
+  std::string text;
   if (this->Input && this->Input[0])
   {
     text = this->Input;
@@ -352,7 +352,7 @@ bool vtkTextActor::RenderImage(vtkTextProperty* tprop, vtkViewport* vp)
 //------------------------------------------------------------------------------
 bool vtkTextActor::GetImageBoundingBox(vtkTextProperty* tprop, vtkViewport* vp, int bbox[4])
 {
-  vtkStdString text;
+  std::string text;
   if (this->Input && this->Input[0])
   {
     text = this->Input;

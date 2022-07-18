@@ -131,7 +131,7 @@ int TestDescriptiveStatistics(int, char*[])
 
   // Pairs of interest
   int nMetrics = 3;
-  vtkStdString columns[] = { "Metric 1", "Metric 2", "Metric 0" };
+  std::string columns[] = { "Metric 1", "Metric 2", "Metric 0" };
 
   // Reference values
   // Means for metrics 0, 1, and 2, respectively
@@ -155,7 +155,7 @@ int TestDescriptiveStatistics(int, char*[])
   // Select Columns of Interest
   for (int i = 0; i < nMetrics; ++i)
   {
-    ds1->AddColumn(columns[i]);
+    ds1->AddColumn(columns[i].c_str());
   }
 
   // Test Learn, Derive, Test, and Assess options
@@ -393,7 +393,7 @@ int TestDescriptiveStatistics(int, char*[])
   // Select Columns of Interest (all of them)
   for (int i = 0; i < nMetrics; ++i)
   {
-    ds2->AddColumn(columns[i]);
+    ds2->AddColumn(columns[i].c_str());
   }
 
   // Update with Learn option only

@@ -2663,7 +2663,7 @@ void vtkMPASReader::LoadTimeFieldData(vtkUnstructuredGrid* dataset)
         {
           // Trim off trailing whitespace:
           size_t realLength = time.find_last_not_of(' ');
-          if (realLength != vtkStdString::npos)
+          if (realLength != std::string::npos)
           {
             time.resize(realLength + 1);
           }

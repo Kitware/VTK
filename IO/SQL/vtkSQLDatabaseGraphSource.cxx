@@ -64,10 +64,10 @@ public:
       this->Database->Delete();
   }
 
-  vtkStdString URL;
-  vtkStdString Password;
-  vtkStdString EdgeQueryString;
-  vtkStdString VertexQueryString;
+  std::string URL;
+  std::string Password;
+  std::string EdgeQueryString;
+  std::string VertexQueryString;
 
   vtkSQLDatabase* Database;
   vtkSQLQuery* EdgeQuery;

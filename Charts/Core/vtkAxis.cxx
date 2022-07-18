@@ -381,8 +381,8 @@ bool vtkAxis::Paint(vtkContext2D* painter)
     vtkStdString maxString =
       this->GenerateSprintfLabel(this->UnscaledMaximum, this->RangeLabelFormat);
 
-    painter->ComputeJustifiedStringBounds(minString, minLabelBounds);
-    painter->ComputeJustifiedStringBounds(maxString, maxLabelBounds);
+    painter->ComputeJustifiedStringBounds(minString.c_str(), minLabelBounds);
+    painter->ComputeJustifiedStringBounds(maxString.c_str(), maxLabelBounds);
 
     float minLabelShift[2] = { 0, 0 };
     float maxLabelShift[2] = { 0, 0 };
@@ -458,7 +458,7 @@ bool vtkAxis::Paint(vtkContext2D* painter)
       if (this->LabelsVisible)
       {
         float bounds[4];
-        painter->ComputeJustifiedStringBounds(tickLabel[i], bounds);
+        painter->ComputeJustifiedStringBounds(tickLabel[i].c_str(), bounds);
         float pos[2] = { this->Point1[0] + labelOffset, tickPos[i] };
         bounds[0] += pos[0];
         bounds[1] += pos[1];
@@ -492,7 +492,7 @@ bool vtkAxis::Paint(vtkContext2D* painter)
       if (this->LabelsVisible)
       {
         float bounds[4];
-        painter->ComputeJustifiedStringBounds(tickLabel[i], bounds);
+        painter->ComputeJustifiedStringBounds(tickLabel[i].c_str(), bounds);
         float pos[2] = { tickPos[i], this->Point1[1] + labelOffset };
         bounds[0] += pos[0];
         bounds[1] += pos[1];
@@ -1019,7 +1019,7 @@ vtkRectf vtkAxis::GetBoundingRect(vtkContext2D* painter)
 
   // Then, if there is an axis label, add that in.
   vtkRectf titleBounds(0, 0, 0, 0);
-  if (this->Title && !this->Title.empty())
+  if (!this->Title.empty())
   {
     painter->ApplyTextProp(this->TitleProperties);
     painter->ComputeStringBounds(this->Title, titleBounds.GetData());
@@ -1880,11 +1880,7 @@ inline bool vtkAxis::InRange(double value)
 void vtkAxis::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  if (this->Title)
-  {
-    os << indent << "Title: \"" << *this->Title << "\""
-       << "\n";
-  }
+  os << indent << "Title: \"" << this->Title << "\"\n";
   os << indent << "Point1: " << this->Point1[0] << ", " << this->Point1[1] << "\n";
   os << indent << "Point2: " << this->Point2[0] << ", " << this->Point2[1] << "\n";
   os << indent << "Minimum: " << this->Minimum << "\n";

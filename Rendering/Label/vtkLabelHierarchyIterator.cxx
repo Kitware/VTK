@@ -121,7 +121,7 @@ vtkStdString vtkLabelHierarchyIterator::GetLabel()
 {
   if (!this->GetHierarchy())
   {
-    return vtkStdString();
+    return {};
   }
   vtkAbstractArray* labelArr = this->GetHierarchy()->GetLabels();
   if (!labelArr)

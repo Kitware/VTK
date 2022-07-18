@@ -184,7 +184,7 @@ static PyObject* vtkRead(PyObject* self, PyObject* args)
   vtkPythonStdStreamCaptureHelper* wrapper =
     reinterpret_cast<vtkPythonStdStreamCaptureHelper*>(self);
 
-  vtkStdString ret;
+  std::string ret;
   if (wrapper)
   {
     ret = wrapper->Read();

@@ -61,7 +61,6 @@
 #include "vtkSeedWidget.h"
 #include "vtkSmartPointer.h"
 #include "vtkSphereHandleRepresentation.h"
-#include "vtkStdString.h"
 #include "vtkTimerLog.h"
 
 // STL includes
@@ -129,7 +128,7 @@ public:
     vtkRenderWindowInteractor* iren = static_cast<vtkRenderWindowInteractor*>(caller);
 
     // Reorganize the cube
-    if (vtkStdString(iren->GetKeySym()) == "space")
+    if (!strcmp(iren->GetKeySym(), "space"))
     {
       const int baseCube = static_cast<int>(pow(this->Seeds.size(), 1. / 3.) / 2 + 0.5);
       std::list<vtkSmartPointer<vtkHandleWidget>>::iterator it = this->Seeds.begin();
@@ -153,7 +152,7 @@ public:
       }
     }
     // Disable every other seed
-    if (vtkStdString(iren->GetKeySym()) == "Alt_L" || vtkStdString(iren->GetKeySym()) == "Alt_R")
+    if (!strcmp(iren->GetKeySym(), "Alt_L") || !strcmp(iren->GetKeySym(), "Alt_R"))
     {
       const int baseCube = static_cast<int>(pow(this->Seeds.size(), 1. / 3.) / 2 + 0.5);
       int n = 0;

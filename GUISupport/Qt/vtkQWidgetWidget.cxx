@@ -30,7 +30,6 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
-//#include "vtkStdString.h"
 #include "vtkTimerLog.h"
 #include "vtkWidgetCallbackMapper.h"
 #include "vtkWidgetEvent.h"

@@ -22,7 +22,6 @@
 
 #include "vtkObject.h"
 #include "vtkPythonCommand.h"
-#include "vtkStdString.h"
 #include "vtkVariant.h"
 #include "vtkWeakPointer.h"
 #include "vtkWindows.h"
@@ -1090,7 +1089,7 @@ Py_hash_t vtkPythonUtil::VariantHash(const vtkVariant* v)
 
     default:
     {
-      vtkStdString s = v->ToString();
+      std::string s = v->ToString();
       PyObject* tmp = PyString_FromString(s.c_str());
       h = PyObject_Hash(tmp);
       Py_DECREF(tmp);

@@ -127,12 +127,12 @@ int vtkXMLUniformGridAMRWriter::WriteComposite(
         datasetXML->SetVectorAttribute("amr_box", 6, box_buffer);
       }
 
-      vtkStdString fileName = this->CreatePieceFileName(writerIdx);
+      std::string fileName = this->CreatePieceFileName(writerIdx);
       if (!fileName.empty())
       {
         // if fileName is empty, it implies that no file is written out for this
         // node, so don't add a filename attribute for it.
-        datasetXML->SetAttribute("file", fileName);
+        datasetXML->SetAttribute("file", fileName.c_str());
       }
       block->AddNestedElement(datasetXML);
 

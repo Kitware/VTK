@@ -221,7 +221,7 @@ int vtkCollectGraph::RequestData(vtkInformation* vtkNotUsed(request),
 
     // Map from global ids (owner, ownerId pairs) to wholeGraph ids.
     std::map<int, vtkIdType> globalIdMapInt;
-    std::map<vtkStdString, vtkIdType> globalIdMapStr;
+    std::map<std::string, vtkIdType> globalIdMapStr;
 
     // Map from curGraph ids to wholeGraph ids.
     std::vector<vtkIdType> localIdVec;
@@ -271,7 +271,7 @@ int vtkCollectGraph::RequestData(vtkInformation* vtkNotUsed(request),
       vtkIdType numVerts = curGraph->GetNumberOfVertices();
       for (vtkIdType v = 0; v < numVerts; v++)
       {
-        vtkStdString globalIdStr = idArrStr ? idArrStr->GetValue(v) : vtkStdString("");
+        vtkStdString globalIdStr = idArrStr ? idArrStr->GetValue(v) : vtkStdString();
         int globalIdInt = idArrInt ? idArrInt->GetValue(v) : 0;
 
         double pt[3];

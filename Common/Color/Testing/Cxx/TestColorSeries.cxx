@@ -143,8 +143,8 @@ int TestColorSeries(int argc, char* argv[])
   // Adding a color now should create a copy of the palette. Verify the name changed.
   color = vtkColor3ub(255, 255, 255);
   palettes->AddColor(color);
-  vtkStdString palName = palettes->GetColorSchemeName();
-  vtkStdString expected("Brewer Sequential Blue-Green (9) copy");
+  std::string palName = palettes->GetColorSchemeName();
+  std::string expected("Brewer Sequential Blue-Green (9) copy");
   if (palName != expected)
   {
     vtkGenericWarningMacro(<< "Failure: Palette copy-on-write: name should have been "

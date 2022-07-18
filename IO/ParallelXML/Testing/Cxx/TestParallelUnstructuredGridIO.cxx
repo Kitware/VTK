@@ -13,7 +13,6 @@
 #include <vtkNew.h>
 #include <vtkPointData.h>
 #include <vtkPoints.h>
-#include <vtkStdString.h>
 #include <vtkStringArray.h>
 #include <vtkTestUtilities.h>
 #include <vtkUnstructuredGrid.h>

@@ -374,7 +374,7 @@ vtkStdString vtkMySQLDatabase::GetColumnSpecification(
 
   // Figure out column type
   int colType = schema->GetColumnTypeFromHandle(tblHandle, colHandle);
-  vtkStdString colTypeStr;
+  std::string colTypeStr;
 
   switch (static_cast<vtkSQLDatabaseSchema::DatabaseColumnType>(colType))
   {
@@ -423,7 +423,7 @@ vtkStdString vtkMySQLDatabase::GetColumnSpecification(
   else // if ( !colTypeStr.empty() )
   {
     vtkGenericWarningMacro("Unable to get column specification: unsupported data type " << colType);
-    return vtkStdString();
+    return {};
   }
 
   // Decide whether size is allowed, required, or unused
@@ -547,7 +547,7 @@ vtkStdString vtkMySQLDatabase::GetIndexSpecification(
   {
     vtkGenericWarningMacro(
       "Unable to get index specification: index has incorrect number of columns " << numCnm);
-    return vtkStdString();
+    return {};
   }
 
   bool firstCnm = true;
@@ -577,7 +577,7 @@ bool vtkMySQLDatabase::CreateDatabase(const char* dbName, bool dropExisting = fa
   {
     this->DropDatabase(dbName);
   }
-  vtkStdString queryStr;
+  std::string queryStr;
   queryStr = "CREATE DATABASE ";
   queryStr += dbName;
   bool status = false;
@@ -607,7 +607,7 @@ bool vtkMySQLDatabase::CreateDatabase(const char* dbName, bool dropExisting = fa
 
 bool vtkMySQLDatabase::DropDatabase(const char* dbName)
 {
-  vtkStdString queryStr;
+  std::string queryStr;
   queryStr = "DROP DATABASE IF EXISTS ";
   queryStr += dbName;
   bool status = false;

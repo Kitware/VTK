@@ -42,7 +42,6 @@
 #include "vtkRenderTimerLog.h"
 #include "vtkRendererCollection.h"
 #include "vtkShaderProgram.h"
-#include "vtkStdString.h"
 #include "vtkStringOutputWindow.h"
 #include "vtkTextureObject.h"
 #include "vtkTextureUnitManager.h"

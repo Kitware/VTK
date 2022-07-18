@@ -79,8 +79,8 @@ vtkStdString vtkSQLQuery::EscapeString(vtkStdString s, bool addSurroundingQuotes
 
 char* vtkSQLQuery::EscapeString(const char* src, bool addSurroundingQuotes)
 {
-  vtkStdString sstr(src);
-  vtkStdString dstr = this->EscapeString(sstr, addSurroundingQuotes);
+  std::string sstr(src);
+  std::string dstr = this->EscapeString(sstr, addSurroundingQuotes);
   return vtksys::SystemTools::DuplicateString(dstr.c_str());
 }
 

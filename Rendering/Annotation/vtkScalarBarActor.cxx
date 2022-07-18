@@ -2089,7 +2089,7 @@ int vtkScalarBarActor::MapAnnotationLabels(
   {
     for (int i = 0; i < numNotes; ++i)
     {
-      vtkStdString label = lkup->GetAnnotation(i);
+      std::string label = lkup->GetAnnotation(i);
       lkup->GetAnnotationColor(lkup->GetAnnotatedValue(i), fltCol.GetData());
       double x;
       bool canPositionLabel = !label.empty();

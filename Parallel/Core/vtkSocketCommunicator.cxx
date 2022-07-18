@@ -19,7 +19,6 @@
 #include "vtkObjectFactory.h"
 #include "vtkServerSocket.h"
 #include "vtkSocketController.h"
-#include "vtkStdString.h"
 #include "vtkTypeTraits.h"
 #include "vtksys/Encoding.hxx"
 #include "vtksys/FStream.hxx"
@@ -252,7 +251,7 @@ int vtkSocketCommunicator::SendVoidArray(
 #endif
 
   int typeSize;
-  vtkStdString typeName;
+  std::string typeName;
   switch (type)
   {
     vtkTemplateMacro(typeSize = sizeof(VTK_TT); typeName = vtkTypeTraits<VTK_TT>().SizedName());
@@ -274,14 +273,14 @@ int vtkSocketCommunicator::SendVoidArray(
   // in an integer, break up the array into pieces.
   while (length >= maxSend)
   {
-    if (!this->SendTagged(byteData, typeSize, maxSend, tag, typeName))
+    if (!this->SendTagged(byteData, typeSize, maxSend, tag, typeName.c_str()))
     {
       return 0;
     }
     byteData += maxSend * typeSize;
     length -= maxSend;
   }
-  if (!this->SendTagged(byteData, typeSize, length, tag, typeName))
+  if (!this->SendTagged(byteData, typeSize, length, tag, typeName.c_str()))
   {
     return 0;
   }
@@ -324,7 +323,7 @@ int vtkSocketCommunicator::ReceiveVoidArray(
 #endif
 
   int typeSize;
-  vtkStdString typeName;
+  std::string typeName;
   switch (type)
   {
     vtkTemplateMacro(typeSize = sizeof(VTK_TT); typeName = vtkTypeTraits<VTK_TT>().SizedName());
@@ -346,7 +345,7 @@ int vtkSocketCommunicator::ReceiveVoidArray(
   // in an integer, break up the array into pieces.
   int ret = 0;
   while (this->ReceiveTagged(
-    byteData, typeSize, vtkSocketCommunicatorMin(maxReceive, length), tag, typeName))
+    byteData, typeSize, vtkSocketCommunicatorMin(maxReceive, length), tag, typeName.c_str()))
   {
     this->Count += this->TagMessageLength;
     byteData += this->TagMessageLength * typeSize;

@@ -19,7 +19,6 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
-#include "vtkStdString.h"
 #include "vtkTextActor.h"
 #include "vtkTextProperty.h"
 
@@ -37,7 +36,7 @@ int TestFontDPIScaling(int argc, char* argv[])
 
   std::string uncodeFontFile(argv[1]);
 
-  vtkStdString str = "Sample multiline\ntext rendered\nusing FreeTypeTools.";
+  std::string str = "Sample multiline\ntext rendered\nusing FreeTypeTools.";
 
   vtkNew<vtkTextActor> actor1;
   actor1->GetTextProperty()->SetFontSize(20);

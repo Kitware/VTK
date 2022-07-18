@@ -38,7 +38,6 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
-#include "vtkStdString.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
@@ -478,14 +477,14 @@ vtkInformationKeyMacro(vtkSLACReader, POINT_DATA, ObjectBase);
 class vtkSLACReader::vtkInternal
 {
 public:
-  std::vector<vtkStdString> ModeFileNames;
+  std::vector<std::string> ModeFileNames;
 
   vtkSmartPointer<vtkDataArraySelection> VariableArraySelection;
 
   // Description:
   // A quick lookup to find the correct mode file name given a time value.
   // Only valid when TimeStepModes is true.
-  std::map<double, vtkStdString> TimeStepToFile;
+  std::map<double, std::string> TimeStepToFile;
 
   // Description:
   // The rates at which the mode fields repeat.
@@ -681,7 +680,7 @@ int vtkSLACReader::RequestInformation(vtkInformation* vtkNotUsed(request),
   if (!this->Internal->ModeFileNames.empty())
   {
     // Check the first mode file, assume that the rest follow.
-    vtkSLACReaderAutoCloseNetCDF modeFD(this->Internal->ModeFileNames[0], NC_NOWRITE);
+    vtkSLACReaderAutoCloseNetCDF modeFD(this->Internal->ModeFileNames[0].c_str(), NC_NOWRITE);
     if (!modeFD.Valid())
       return 0;
 
@@ -760,11 +759,11 @@ int vtkSLACReader::RequestInformation(vtkInformation* vtkNotUsed(request),
     // If we are in time steps modes, we need to read in the time values from
     // all the files (and we have already read the first one).  We then report
     // the time steps we have.
-    std::vector<vtkStdString>::iterator fileitr = this->Internal->ModeFileNames.begin();
+    std::vector<std::string>::iterator fileitr = this->Internal->ModeFileNames.begin();
     ++fileitr;
     for (; fileitr != this->Internal->ModeFileNames.end(); ++fileitr)
     {
-      vtkSLACReaderAutoCloseNetCDF modeFD(*fileitr, NC_NOWRITE);
+      vtkSLACReaderAutoCloseNetCDF modeFD(fileitr->c_str(), NC_NOWRITE);
       if (!modeFD.Valid())
         return 0;
 
@@ -781,7 +780,7 @@ int vtkSLACReader::RequestInformation(vtkInformation* vtkNotUsed(request),
     double range[2];
     surfaceOutInfo->Remove(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
     volumeOutInfo->Remove(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
-    std::map<double, vtkStdString>::iterator timeitr = this->Internal->TimeStepToFile.begin();
+    std::map<double, std::string>::iterator timeitr = this->Internal->TimeStepToFile.begin();
     range[0] = timeitr->first;
     for (; timeitr != this->Internal->TimeStepToFile.end(); ++timeitr)
     {
@@ -796,7 +795,7 @@ int vtkSLACReader::RequestInformation(vtkInformation* vtkNotUsed(request),
   {
     // If we are in time steps modes, we need to read in the frequencies from
     // all the files (and we have already read the first one) and record them.
-    std::vector<vtkStdString>::iterator fileitr = this->Internal->ModeFileNames.begin();
+    std::vector<std::string>::iterator fileitr = this->Internal->ModeFileNames.begin();
     ++fileitr;
     std::vector<double>::iterator frequencyiter = this->Internal->Frequencies.begin();
     ++frequencyiter;
@@ -804,7 +803,7 @@ int vtkSLACReader::RequestInformation(vtkInformation* vtkNotUsed(request),
     {
       assert(frequencyiter != this->Internal->Frequencies.end());
 
-      vtkSLACReaderAutoCloseNetCDF modeFD(*fileitr, NC_NOWRITE);
+      vtkSLACReaderAutoCloseNetCDF modeFD(fileitr->c_str(), NC_NOWRITE);
       if (!modeFD.Valid())
         return 0;
 
@@ -960,7 +959,7 @@ int vtkSLACReader::RequestData(vtkInformation* request,
 
   if (this->ReadModeData)
   {
-    std::vector<vtkStdString> modeFileNames;
+    std::vector<std::string> modeFileNames;
     if (this->TimeStepModes)
     {
       modeFileNames.resize(1);
@@ -980,10 +979,10 @@ int vtkSLACReader::RequestData(vtkInformation* request,
 
     std::vector<vtkSLACReaderAutoCloseNetCDF> modeFDVector;
     modeFDVector.reserve(modeFileNames.size());
-    for (std::vector<vtkStdString>::iterator nameIter = modeFileNames.begin();
+    for (std::vector<std::string>::iterator nameIter = modeFileNames.begin();
          nameIter != modeFileNames.end(); ++nameIter)
     {
-      vtkSLACReaderAutoCloseNetCDF modeFD(*nameIter, NC_NOWRITE);
+      vtkSLACReaderAutoCloseNetCDF modeFD(nameIter->c_str(), NC_NOWRITE);
       if (modeFD.Valid())
       {
         modeFDVector.push_back(modeFD);
@@ -1425,7 +1424,7 @@ int vtkSLACReader::ReadFieldData(
     int varId;
     CALL_NETCDF_INT(nc_inq_varid(modeFDArray[0], cname, &varId));
 
-    vtkStdString name(cname);
+    std::string name(cname);
 
     // if this variable isn't 1d or 2d array, skip it.
     int numDims;
@@ -1547,16 +1546,16 @@ int vtkSLACReader::ReadFieldData(
       }
 
       // Add the data to the point data.
-      dataArray->SetName(name);
+      dataArray->SetName(name.c_str());
       pd->AddArray(dataArray);
 
       // add complex magnitude data to the point data
       vtkStdString cplxMagName = name + "_cplx_mag";
-      cplxMagArray->SetName(cplxMagName);
+      cplxMagArray->SetName(cplxMagName.c_str());
       pd->AddArray(cplxMagArray);
 
       vtkStdString phaseName = name + "_phase";
-      phaseArray->SetName(phaseName);
+      phaseArray->SetName(phaseName.c_str());
       pd->AddArray(phaseArray);
     }
     else
@@ -1567,7 +1566,7 @@ int vtkSLACReader::ReadFieldData(
         continue;
 
       // Add the data to the point data.
-      dataArray->SetName(name);
+      dataArray->SetName(name.c_str());
       pd->AddArray(dataArray);
     }
   }

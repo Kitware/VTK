@@ -401,7 +401,7 @@ void vtkMNITagPointWriter::WriteData(vtkPointSet* inputs[2])
 
     if (labels)
     {
-      vtkStdString l = labels->GetValue(i);
+      std::string l = labels->GetValue(i);
       outfile << " \"";
       for (std::string::iterator si = l.begin(); si != l.end(); ++si)
       {

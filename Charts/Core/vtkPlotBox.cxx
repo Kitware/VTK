@@ -105,7 +105,7 @@ bool vtkPlotBox::Paint(vtkContext2D* painter)
   int nbCols = static_cast<int>(this->Storage->size());
   for (int i = 0; i < nbCols; i++)
   {
-    vtkStdString colName = parent->GetVisibleColumns()->GetValue(i);
+    std::string colName = parent->GetVisibleColumns()->GetValue(i);
     int index = this->GetInput()->GetColumnIndex(colName.c_str());
     double rgb[4];
     this->LookupTable->GetIndexedColor(index, rgb);
@@ -197,7 +197,7 @@ bool vtkPlotBox::PaintLegend(vtkContext2D* painter, const vtkRectf& rec, int)
   int nbCols = static_cast<int>(this->Storage->size());
   for (int i = 0; i < nbCols; i++)
   {
-    vtkStdString colName = parent->GetVisibleColumns()->GetValue(i);
+    std::string colName = parent->GetVisibleColumns()->GetValue(i);
     if (this->GetLabels() && this->GetLabels()->GetNumberOfValues() > i)
     {
       colName = this->GetLabels()->GetValue(parent->GetColumnId(colName));
@@ -308,7 +308,7 @@ bool vtkPlotBox::UpdateCache()
     std::vector<double>& col = this->Storage->at(i);
     col.resize(rows);
     vtkSmartPointer<vtkDataArray> data =
-      vtkArrayDownCast<vtkDataArray>(table->GetColumnByName(cols->GetValue(i)));
+      vtkArrayDownCast<vtkDataArray>(table->GetColumnByName(cols->GetValue(i).c_str()));
     if (!data)
     {
       continue;

@@ -227,7 +227,7 @@ int vtkXMLTreeReader::RequestData(
     vtkStringArray* stringArr = vtkArrayDownCast<vtkStringArray>(data->GetAbstractArray(i));
     if (stringArr && (stringArr->GetNumberOfTuples() < builder->GetNumberOfVertices()))
     {
-      stringArr->InsertValue(builder->GetNumberOfVertices() - 1, vtkStdString(""));
+      stringArr->InsertValue(builder->GetNumberOfVertices() - 1, vtkStdString());
     }
   }
 

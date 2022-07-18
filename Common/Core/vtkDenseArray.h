@@ -201,7 +201,7 @@ private:
   /**
    * Stores labels for each array dimension
    */
-  std::vector<vtkStdString> DimensionLabels;
+  std::vector<std::string> DimensionLabels;
 
   /**
    * Manages array value memory storage.

@@ -506,7 +506,7 @@ bool vtkPlotArea::UpdateCache()
   if (!this->ValidPointMaskName.empty())
   {
     cache.ValidPointMask =
-      vtkArrayDownCast<vtkCharArray>(table->GetColumnByName(this->ValidPointMaskName));
+      vtkArrayDownCast<vtkCharArray>(table->GetColumnByName(this->ValidPointMaskName.c_str()));
   }
   else
   {
@@ -597,8 +597,8 @@ vtkIdType vtkPlotArea::GetNearestPoint(const vtkVector2f& point, const vtkVector
 vtkStdString vtkPlotArea::GetTooltipLabel(
   const vtkVector2d& plotPos, vtkIdType seriesIndex, vtkIdType segmentIndex)
 {
-  vtkStdString tooltipLabel;
-  vtkStdString format = this->Superclass::GetTooltipLabel(plotPos, seriesIndex, segmentIndex);
+  std::string tooltipLabel;
+  std::string format = this->Superclass::GetTooltipLabel(plotPos, seriesIndex, segmentIndex);
 
   vtkIdType idx = (seriesIndex / 2) * 2;
 

@@ -109,7 +109,7 @@ vtkStdString vtkPostgreSQLDatabase::GetColumnSpecification(
 
   // Figure out column type
   int colType = schema->GetColumnTypeFromHandle(tblHandle, colHandle);
-  vtkStdString colTypeStr;
+  std::string colTypeStr;
   switch (static_cast<vtkSQLDatabaseSchema::DatabaseColumnType>(colType))
   {
     case vtkSQLDatabaseSchema::SERIAL:
@@ -157,7 +157,7 @@ vtkStdString vtkPostgreSQLDatabase::GetColumnSpecification(
   else // if ( !colTypeStr.empty() )
   {
     vtkGenericWarningMacro("Unable to get column specification: unsupported data type " << colType);
-    return vtkStdString();
+    return {};
   }
 
   // Decide whether size is allowed, required, or unused
@@ -222,7 +222,7 @@ vtkStdString vtkPostgreSQLDatabase::GetColumnSpecification(
     }
   }
 
-  vtkStdString attStr = schema->GetColumnAttributesFromHandle(tblHandle, colHandle);
+  std::string attStr = schema->GetColumnAttributesFromHandle(tblHandle, colHandle);
   if (!attStr.empty())
   {
     queryStr << " " << attStr;
@@ -445,11 +445,11 @@ vtkStringArray* vtkPostgreSQLDatabase::GetRecord(const char* table)
   // currently in the query below are probably over the top. But there's
   // just so much peanut-buttery goodness in the table, I couldn't resist.
   vtkSQLQuery* query = this->GetQueryInstance();
-  vtkStdString text("SELECT "
-                    "column_name,column_default,data_type,is_nullable,character_maximum_length,"
-                    "numeric_precision,datetime_precision"
-                    "  FROM information_schema.columns"
-                    "  WHERE table_name='");
+  std::string text("SELECT "
+                   "column_name,column_default,data_type,is_nullable,character_maximum_length,"
+                   "numeric_precision,datetime_precision"
+                   "  FROM information_schema.columns"
+                   "  WHERE table_name='");
   text += table;
   text += "' ORDER BY ordinal_position";
 
@@ -712,7 +712,7 @@ void vtkPostgreSQLDatabase::UpdateDataTypeMap()
     while (typeQuery->NextRow())
     {
       Oid oid;
-      vtkStdString name;
+      std::string name;
       int len;
 
       // Caution: this assumes that the Postgres OID type is a 32-bit

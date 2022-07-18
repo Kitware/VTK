@@ -124,7 +124,7 @@ int TestCorrelativeStatistics(int, char*[])
 
   // Pairs of interest
   int nMetricPairs = 2;
-  vtkStdString columnPairs[] = {
+  std::string columnPairs[] = {
     "M0", "M1", // First pair
     "M2", "M1"  // Second pair
   };
@@ -319,9 +319,9 @@ int TestCorrelativeStatistics(int, char*[])
       {
         ++nOutliers;
 
-        cout << "     (" << outputData1->GetValueByName(r, columnPairs[0]).ToDouble() << ","
-             << outputData1->GetValueByName(r, columnPairs[1]).ToDouble() << "): " << assessed
-             << "\n";
+        cout << "     (" << outputData1->GetValueByName(r, columnPairs[0].c_str()).ToDouble() << ","
+             << outputData1->GetValueByName(r, columnPairs[1].c_str()).ToDouble()
+             << "): " << assessed << "\n";
       }
     } // r
 
@@ -372,7 +372,7 @@ int TestCorrelativeStatistics(int, char*[])
   // Select all valid column pairs as pairs of interest
   for (int i = 0; i < nMetricPairs; ++i)
   {
-    cs2->AddColumnPair(columnPairs[2 * i], columnPairs[2 * i + 1]);
+    cs2->AddColumnPair(columnPairs[2 * i].c_str(), columnPairs[2 * i + 1].c_str());
   }
 
   // Update with Learn option only

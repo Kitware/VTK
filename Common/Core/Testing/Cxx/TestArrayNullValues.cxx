@@ -75,7 +75,7 @@ int TestArrayNullValues(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
     VerifyType<vtkTypeFloat32>(0.0f, 1);
     VerifyType<vtkTypeFloat64>(0.0, 1);
     VerifyType<vtkIdType>(0, 1);
-    VerifyType<vtkStdString>(vtkStdString(""), vtkStdString("foo"));
+    VerifyType<vtkStdString>(vtkStdString(), "foo");
 
     return 0;
   }

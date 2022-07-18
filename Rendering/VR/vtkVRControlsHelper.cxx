@@ -30,7 +30,7 @@ PURPOSE.  See the above copyright notice for more information.
 vtkVRControlsHelper::vtkVRControlsHelper()
 {
   // The text
-  this->Text = vtkStdString("");
+  this->Text = {};
   this->TextActor = vtkTextActor3D::New();
   this->TextActor->GetTextProperty()->SetFontSize(30);
   this->TextActor->SetInput(this->Text.c_str());
@@ -56,7 +56,7 @@ vtkVRControlsHelper::vtkVRControlsHelper()
   this->LineActor->SetMapper(this->LineMapper);
 
   // Tooltip default option
-  this->ComponentName = vtkStdString("trigger");
+  this->ComponentName = "trigger";
   this->DrawSide = vtkVRControlsHelper::Right;
   this->ButtonSide = vtkVRControlsHelper::Back;
 

@@ -75,7 +75,7 @@ int TestCityGMLReader(int argc, char* argv[])
       {
         std::string fnamePath = vtksys::SystemTools::GetFilenamePath(std::string(fname));
 
-        const char* textureURI = textureField->GetValue(0);
+        vtkStdString textureURI = textureField->GetValue(0);
         vtkNew<vtkJPEGReader> JpegReader;
         JpegReader->SetFileName((fnamePath + "/" + textureURI).c_str());
         JpegReader->Update();

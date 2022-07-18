@@ -154,7 +154,7 @@ void vtkFreeTypeLabelRenderStrategy::RenderLabel(
     tprop = this->DefaultTextProperty;
   }
   this->Mapper->SetTextProperty(tprop);
-  this->Mapper->SetInput(label);
+  this->Mapper->SetInput(label.c_str());
   this->Actor->GetPositionCoordinate()->SetCoordinateSystemToDisplay();
   this->Actor->GetPositionCoordinate()->SetValue(x[0], x[1], 0.0);
   this->Mapper->RenderOverlay(this->Renderer, this->Actor);

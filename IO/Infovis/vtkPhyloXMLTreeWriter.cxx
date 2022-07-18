@@ -123,7 +123,7 @@ void vtkPhyloXMLTreeWriter::WriteTreeLevelElement(vtkTree* input, vtkXMLDataElem
     vtkNew<vtkXMLDataElement> element;
     element->SetName(elementName);
     vtkStdString val = array->GetVariantValue(0).ToString();
-    element->SetCharacterData(val, static_cast<int>(val.length()));
+    element->SetCharacterData(val.c_str(), static_cast<int>(val.length()));
 
     // set the attribute for this element if one was requested.
     if (strcmp(attributeName, "") != 0)
@@ -236,12 +236,12 @@ void vtkPhyloXMLTreeWriter::WriteNameElement(vtkIdType vertex, vtkXMLDataElement
     return;
   }
 
-  vtkStdString name = this->NodeNameArray->GetVariantValue(vertex).ToString();
+  std::string name = this->NodeNameArray->GetVariantValue(vertex).ToString();
   if (!name.empty())
   {
     vtkNew<vtkXMLDataElement> nameElement;
     nameElement->SetName("name");
-    nameElement->SetCharacterData(name, static_cast<int>(name.length()));
+    nameElement->SetCharacterData(name.c_str(), static_cast<int>(name.length()));
     element->AddNestedElement(nameElement);
   }
 
@@ -261,7 +261,7 @@ void vtkPhyloXMLTreeWriter::WriteConfidenceElement(
     return;
   }
 
-  vtkStdString confidence = confidenceArray->GetVariantValue(vertex).ToString();
+  std::string confidence = confidenceArray->GetVariantValue(vertex).ToString();
   if (!confidence.empty())
   {
     vtkNew<vtkXMLDataElement> confidenceElement;
@@ -269,12 +269,12 @@ void vtkPhyloXMLTreeWriter::WriteConfidenceElement(
 
     // set the type attribute for this element if possible.
     const char* type = this->GetArrayAttribute(confidenceArray, "type");
-    if (strcmp(type, "") != 0)
+    if (*type)
     {
       confidenceElement->SetAttribute("type", type);
     }
 
-    confidenceElement->SetCharacterData(confidence, static_cast<int>(confidence.length()));
+    confidenceElement->SetCharacterData(confidence.c_str(), static_cast<int>(confidence.length()));
     element->AddNestedElement(confidenceElement);
   }
 
@@ -437,7 +437,7 @@ void vtkPhyloXMLTreeWriter::WritePropertyElement(
   }
 
   // get the value for this property
-  vtkStdString val = array->GetVariantValue(vertex).ToString();
+  std::string val = array->GetVariantValue(vertex).ToString();
 
   // create the new property element and add it to our document.
   vtkNew<vtkXMLDataElement> propertyElement;
@@ -449,7 +449,7 @@ void vtkPhyloXMLTreeWriter::WritePropertyElement(
   {
     propertyElement->SetAttribute("unit", unit.c_str());
   }
-  propertyElement->SetCharacterData(val, static_cast<int>(val.length()));
+  propertyElement->SetCharacterData(val.c_str(), static_cast<int>(val.length()));
 
   element->AddNestedElement(propertyElement);
 }

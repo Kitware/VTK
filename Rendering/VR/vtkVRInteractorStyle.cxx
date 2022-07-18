@@ -948,8 +948,8 @@ void vtkVRInteractorStyle::AddTooltipForInput(
   int iInput = static_cast<int>(input);
   int iDevice = static_cast<int>(device);
 
-  vtkStdString controlName = vtkStdString();
-  vtkStdString controlText = vtkStdString();
+  std::string controlName;
+  std::string controlText;
   int drawSide = -1;
   int buttonSide = -1;
 

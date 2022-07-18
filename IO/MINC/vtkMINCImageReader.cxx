@@ -863,24 +863,24 @@ void vtkMINCImageReader::ExecuteInformation()
   unsigned int numberOfDimensions = dimensionNames->GetNumberOfValues();
   for (unsigned int i = 0; i < numberOfDimensions; i++)
   {
-    const char* dimName = dimensionNames->GetValue(i);
+    vtkStdString dimName = dimensionNames->GetValue(i);
     vtkIdType dimLength = dimensionLengths->GetValue(i);
 
     // Set the VTK dimension index.
-    int dimIndex = this->IndexFromDimensionName(dimName);
+    int dimIndex = this->IndexFromDimensionName(dimName.c_str());
 
     // Do special things with the spatial dimensions.
     if (dimIndex >= 0 && dimIndex < 3)
     {
       // Set the spacing from the 'step' attribute.
-      double step = this->ImageAttributes->GetAttributeValueAsDouble(dimName, MIstep);
+      double step = this->ImageAttributes->GetAttributeValueAsDouble(dimName.c_str(), MIstep);
       if (step)
       {
         dataSpacing[dimIndex] = step;
       }
 
       // Set the origin from the 'start' attribute.
-      double start = this->ImageAttributes->GetAttributeValueAsDouble(dimName, MIstart);
+      double start = this->ImageAttributes->GetAttributeValueAsDouble(dimName.c_str(), MIstart);
       if (start)
       {
         dataOrigin[dimIndex] = start;
@@ -891,7 +891,7 @@ void vtkMINCImageReader::ExecuteInformation()
     }
 
     // Check for vector_dimension.
-    else if (strcmp(dimName, MIvector_dimension) == 0)
+    else if (dimName == MIvector_dimension)
     {
       numberOfComponents = dimLength;
     }
@@ -1193,12 +1193,12 @@ void vtkMINCImageReader::ExecuteDataWithInformation(vtkDataObject* output, vtkIn
   {
     idim--;
 
-    const char* dimName = dimensionNames->GetValue(idim);
+    vtkStdString dimName = dimensionNames->GetValue(idim);
     vtkIdType dimLength = dimensionLengths->GetValue(idim);
     length[idim] = dimLength;
 
     // Find the VTK dimension index.
-    int dimIndex = this->IndexFromDimensionName(dimName);
+    int dimIndex = this->IndexFromDimensionName(dimName.c_str());
 
     if (dimIndex >= 0 && dimIndex < 3)
     {
@@ -1207,7 +1207,7 @@ void vtkMINCImageReader::ExecuteDataWithInformation(vtkDataObject* output, vtkIn
       count[idim] = outExt[2 * dimIndex + 1] - outExt[2 * dimIndex] + 1;
       permutedInc[idim] = outInc[dimIndex];
     }
-    else if (strcmp(dimName, MIvector_dimension) == 0)
+    else if (dimName == MIvector_dimension)
     {
       // Vector dimension size is also stored in numComponents.
       start[idim] = 0;

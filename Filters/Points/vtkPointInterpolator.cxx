@@ -347,7 +347,7 @@ void vtkPointInterpolator::Probe(vtkDataSet* input, vtkDataSet* source, vtkDataS
   // Clean up
   if (mask)
   {
-    this->ValidPointsMask->SetName(this->ValidPointsMaskArrayName);
+    this->ValidPointsMask->SetName(this->ValidPointsMaskArrayName.c_str());
     outPD->AddArray(this->ValidPointsMask);
     this->ValidPointsMask->Delete();
   }
@@ -503,8 +503,7 @@ void vtkPointInterpolator::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Null Points Strategy: " << this->NullPointsStrategy << endl;
   os << indent << "Null Value: " << this->NullValue << "\n";
-  os << indent << "Valid Points Mask Array Name: "
-     << (this->ValidPointsMaskArrayName ? this->ValidPointsMaskArrayName : "(none)") << "\n";
+  os << indent << "Valid Points Mask Array Name: " << this->ValidPointsMaskArrayName << "\n";
 
   os << indent << "Number of Excluded Arrays:" << this->GetNumberOfExcludedArrays() << endl;
   vtkIndent nextIndent = indent.GetNextIndent();

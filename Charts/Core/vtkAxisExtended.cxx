@@ -17,7 +17,6 @@
 
 #include "vtkMath.h" // for VTK_DBL_EPSILON
 #include "vtkObjectFactory.h"
-#include "vtkStdString.h"
 
 #include <algorithm>
 #include <cmath>

@@ -305,7 +305,7 @@ int vtkGroupLeafVertices::RequestData(
               vtkStringArray* data = vtkArrayDownCast<vtkStringArray>(arr2);
               for (int j = 0; j < comps; j++)
               {
-                data->InsertValue(group_vertex + j - 1, vtkStdString(""));
+                data->InsertValue(group_vertex + j - 1, vtkStdString());
               }
             }
             else if (vtkArrayDownCast<vtkVariantArray>(arr2))
@@ -446,7 +446,7 @@ static int splitString(const vtkStdString& input, std::vector<vtkStdString>& res
         {
           results.emplace_back(currentField);
         }
-        currentField = vtkStdString();
+        currentField = {};
       }
       else
       {

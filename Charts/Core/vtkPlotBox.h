@@ -27,7 +27,6 @@
 
 #include "vtkChartsCoreModule.h" // For export macro
 #include "vtkPlot.h"
-#include "vtkStdString.h" // For vtkStdString ivars
 
 class vtkBrush;
 class vtkTextProperty;

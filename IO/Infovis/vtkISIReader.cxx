@@ -21,7 +21,6 @@
 #include "vtkISIReader.h"
 #include "vtkCommand.h"
 #include "vtkObjectFactory.h"
-#include "vtkStdString.h"
 #include "vtkStringArray.h"
 #include "vtkTable.h"
 #include "vtkVariant.h"

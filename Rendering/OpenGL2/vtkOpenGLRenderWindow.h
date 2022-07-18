@@ -42,7 +42,6 @@ class vtkOpenGLShaderCache;
 class vtkOpenGLVertexBufferObjectCache;
 class vtkOpenGLVertexArrayObject;
 class vtkShaderProgram;
-class vtkStdString;
 class vtkTexture;
 class vtkTextureObject;
 class vtkTextureUnitManager;

@@ -21,7 +21,6 @@
 #include "vtkTimePointUtility.h"
 
 #include "vtkObjectFactory.h"
-#include "vtkStdString.h"
 
 #include <cctype> // for isdigit
 #include <locale> // C++ locale
@@ -193,7 +192,7 @@ vtkTypeUInt64 vtkTimePointUtility::ISO8601ToTimePoint(const char* cstr, bool* ok
   bool formatValid = true;
   vtkTypeUInt64 value = 0;
 
-  vtkStdString str(cstr);
+  std::string str(cstr);
 
   if (str.length() == 19 || str.length() == 23)
   {
@@ -202,7 +201,7 @@ vtkTypeUInt64 vtkTimePointUtility::ISO8601ToTimePoint(const char* cstr, bool* ok
     // -OR-
     // Format is [YYYY]-[MM]-[DD]T[hh]:[mm]:[ss].[SSS]
     // Index:     0123 4 56 7 89 0 12 3 45 6 78 9 012
-    for (vtkStdString::size_type c = 0; c < str.length(); c++)
+    for (std::string::size_type c = 0; c < str.length(); c++)
     {
       if (c == 4 || c == 7)
       {
@@ -262,7 +261,7 @@ vtkTypeUInt64 vtkTimePointUtility::ISO8601ToTimePoint(const char* cstr, bool* ok
   {
     // Format is [YYYY]-[MM]-[DD]
     // Index:     0123 4 56 7 89
-    for (vtkStdString::size_type c = 0; c < str.length(); c++)
+    for (std::string::size_type c = 0; c < str.length(); c++)
     {
       if (c == 4 || c == 7)
       {
@@ -293,7 +292,7 @@ vtkTypeUInt64 vtkTimePointUtility::ISO8601ToTimePoint(const char* cstr, bool* ok
     // -OR-
     // Format is [hh]:[mm]:[ss].[SSS]
     // Index:     01 2 34 5 67 8 901
-    for (vtkStdString::size_type c = 0; c < str.length(); c++)
+    for (std::string::size_type c = 0; c < str.length(); c++)
     {
       if (c == 2 || c == 5)
       {

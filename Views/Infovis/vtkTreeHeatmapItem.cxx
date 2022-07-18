@@ -250,7 +250,7 @@ void vtkTreeHeatmapItem::ReorderTable()
     }
 
     // find the row in the table that corresponds to this vertex
-    std::string vertexName = vertexNames->GetValue(vertex);
+    vtkStdString vertexName = vertexNames->GetValue(vertex);
     vtkIdType tableRow = rowNames->LookupValue(vertexName);
     if (tableRow < 0)
     {
@@ -431,7 +431,7 @@ void vtkTreeHeatmapItem::CollapseHeatmapRows()
 
   for (vtkIdType row = 0; row < this->GetTable()->GetNumberOfRows(); ++row)
   {
-    std::string name = rowNames->GetValue(row);
+    vtkStdString name = rowNames->GetValue(row);
     // if we can't find this name in the layout tree, then the corresponding
     // row in the heatmap should be marked as collapsed.
     if (vertexNames->LookupValue(name) == -1)
@@ -456,7 +456,7 @@ void vtkTreeHeatmapItem::CollapseHeatmapColumns()
 
   for (vtkIdType col = 1; col < this->GetTable()->GetNumberOfColumns(); ++col)
   {
-    std::string name = this->GetTable()->GetColumn(col)->GetName();
+    vtkStdString name = this->GetTable()->GetColumn(col)->GetName();
 
     // if we can't find this name in the layout tree, then the corresponding
     // column in the heatmap should be marked as collapsed.

@@ -34,7 +34,6 @@
 #include "vtkSelection.h"
 #include "vtkSelectionNode.h"
 #include "vtkSmartPointer.h"
-#include "vtkStdString.h"
 #include "vtkStringArray.h"
 #include "vtkVariantArray.h"
 #include "vtksys/FStream.hxx"
@@ -53,7 +52,7 @@
 // myself.
 // This function is also defined in Infovis/vtkDelimitedTextReader.cxx,
 // so it would be nice to put this in a common file.
-static int my_getline(std::istream& stream, vtkStdString& output, char delim = '\n');
+static int my_getline(std::istream& stream, std::string& output, char delim = '\n');
 
 vtkStandardNewMacro(vtkTulipReader);
 
@@ -99,7 +98,7 @@ struct vtkTulipReaderCluster
   int clusterId;
   int parentId;
   static const int NO_PARENT = -1;
-  vtkStdString name;
+  std::string name;
   vtkSmartPointer<vtkIdTypeArray> nodes;
 };
 
@@ -116,7 +115,7 @@ struct vtkTulipReaderToken
     END_OF_FILE
   };
   int Type;
-  vtkStdString StringValue;
+  std::string StringValue;
   int IntValue;
   double DoubleValue;
 };
@@ -128,7 +127,7 @@ static void vtkTulipReaderNextToken(std::istream& in, vtkTulipReaderToken& tok)
   {
     while (!in.eof() && ch == ';')
     {
-      vtkStdString comment;
+      std::string comment;
       my_getline(in, comment);
       ch = in.peek();
     }
@@ -283,7 +282,7 @@ int vtkTulipReader::RequestData(vtkInformation* vtkNotUsed(request),
       int clusterId = tok.IntValue;
       vtkTulipReaderNextToken(fin, tok);
       assert(tok.Type == vtkTulipReaderToken::TEXT);
-      vtkStdString clusterName = tok.StringValue;
+      std::string clusterName = tok.StringValue;
 
       vtkTulipReaderCluster newCluster;
       newCluster.clusterId = clusterId;
@@ -342,11 +341,11 @@ int vtkTulipReader::RequestData(vtkInformation* vtkNotUsed(request),
 
       vtkTulipReaderNextToken(fin, tok);
       assert(tok.Type == vtkTulipReaderToken::KEYWORD);
-      vtkStdString type = tok.StringValue;
+      std::string type = tok.StringValue;
 
       vtkTulipReaderNextToken(fin, tok);
       assert(tok.Type == vtkTulipReaderToken::TEXT);
-      vtkStdString name = tok.StringValue;
+      std::string name = tok.StringValue;
 
       // The existing types are the following
       // bool : This type is used to store boolean on elements.
@@ -380,13 +379,13 @@ int vtkTulipReader::RequestData(vtkInformation* vtkNotUsed(request),
           assert(tok.Type == vtkTulipReaderToken::OPEN_PAREN);
           vtkTulipReaderNextToken(fin, tok);
           assert(tok.Type == vtkTulipReaderToken::KEYWORD);
-          vtkStdString key = tok.StringValue;
+          std::string key = tok.StringValue;
           vtkTulipReaderNextToken(fin, tok);
           assert(tok.Type == vtkTulipReaderToken::TEXT || tok.Type == vtkTulipReaderToken::INT);
           int id = tok.IntValue;
           vtkTulipReaderNextToken(fin, tok);
           assert(tok.Type == vtkTulipReaderToken::TEXT);
-          vtkStdString value = tok.StringValue;
+          std::string value = tok.StringValue;
           vtkTulipReaderNextToken(fin, tok);
           assert(tok.Type == vtkTulipReaderToken::CLOSE_PAREN);
           vtkTulipReaderNextToken(fin, tok);
@@ -426,7 +425,7 @@ int vtkTulipReader::RequestData(vtkInformation* vtkNotUsed(request),
           assert(tok.Type == vtkTulipReaderToken::OPEN_PAREN);
           vtkTulipReaderNextToken(fin, tok);
           assert(tok.Type == vtkTulipReaderToken::KEYWORD);
-          vtkStdString key = tok.StringValue;
+          std::string key = tok.StringValue;
           vtkTulipReaderNextToken(fin, tok);
           assert(tok.Type == vtkTulipReaderToken::TEXT || tok.Type == vtkTulipReaderToken::INT);
           int id = tok.IntValue;
@@ -476,7 +475,7 @@ int vtkTulipReader::RequestData(vtkInformation* vtkNotUsed(request),
           assert(tok.Type == vtkTulipReaderToken::OPEN_PAREN);
           vtkTulipReaderNextToken(fin, tok);
           assert(tok.Type == vtkTulipReaderToken::KEYWORD);
-          vtkStdString key = tok.StringValue;
+          std::string key = tok.StringValue;
           vtkTulipReaderNextToken(fin, tok);
           assert(tok.Type == vtkTulipReaderToken::TEXT || tok.Type == vtkTulipReaderToken::INT);
           int id = tok.IntValue;
@@ -567,14 +566,14 @@ int vtkTulipReader::RequestData(vtkInformation* vtkNotUsed(request),
     vtkSmartPointer<vtkAnnotationLayers>::New();
 
   // Determine list of unique cluster names.
-  std::set<vtkStdString> uniqueLabels;
+  std::set<std::string> uniqueLabels;
   for (size_t i = 0; i < clusters.size(); ++i)
   {
     uniqueLabels.insert(clusters.at(i).name);
   }
 
   // Create annotations.
-  std::set<vtkStdString>::iterator labels = uniqueLabels.begin();
+  std::set<std::string>::iterator labels = uniqueLabels.begin();
   for (; labels != uniqueLabels.end(); ++labels)
   {
     vtkSmartPointer<vtkAnnotation> annotation = vtkSmartPointer<vtkAnnotation>::New();
@@ -586,7 +585,7 @@ int vtkTulipReader::RequestData(vtkInformation* vtkNotUsed(request),
     vtkSmartPointer<vtkSelection> selection = vtkSmartPointer<vtkSelection>::New();
     for (size_t i = 0; i < clusters.size(); ++i)
     {
-      if (clusters.at(i).name == labels->c_str())
+      if (clusters.at(i).name == *labels)
       {
         vtkSelectionNode* selectionNode = vtkSelectionNode::New();
         selectionNode->SetFieldType(vtkSelectionNode::VERTEX);
@@ -608,9 +607,9 @@ int vtkTulipReader::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-static int my_getline(std::istream& in, vtkStdString& out, char delimiter)
+static int my_getline(std::istream& in, std::string& out, char delimiter)
 {
-  out = vtkStdString();
+  out = std::string();
   unsigned int numCharactersRead = 0;
   int nextValue = 0;
 

@@ -650,11 +650,11 @@ vtkStdString vtkVariant::ToString(int formatting, int precision) const
 {
   if (!this->IsValid())
   {
-    return vtkStdString();
+    return {};
   }
   if (this->IsString())
   {
-    return vtkStdString(*(this->Data.String));
+    return *this->Data.String;
   }
   if (this->IsFloat())
   {
@@ -663,7 +663,7 @@ vtkStdString vtkVariant::ToString(int formatting, int precision) const
     SetFormattingOnStream(formatting, ostr);
     ostr << std::setprecision(precision);
     ostr << this->Data.Float;
-    return vtkStdString(ostr.str());
+    return ostr.str();
   }
   if (this->IsDouble())
   {
@@ -672,85 +672,85 @@ vtkStdString vtkVariant::ToString(int formatting, int precision) const
     SetFormattingOnStream(formatting, ostr);
     ostr << std::setprecision(precision);
     ostr << this->Data.Double;
-    return vtkStdString(ostr.str());
+    return ostr.str();
   }
   if (this->IsChar())
   {
     std::ostringstream ostr;
     ostr << this->Data.Char;
-    return vtkStdString(ostr.str());
+    return ostr.str();
   }
   if (this->IsUnsignedChar())
   {
     std::ostringstream ostr;
     ostr << static_cast<unsigned int>(this->Data.UnsignedChar);
-    return vtkStdString(ostr.str());
+    return ostr.str();
   }
   if (this->IsSignedChar())
   {
     std::ostringstream ostr;
     ostr << this->Data.SignedChar;
-    return vtkStdString(ostr.str());
+    return ostr.str();
   }
   if (this->IsShort())
   {
     std::ostringstream ostr;
     ostr << this->Data.Short;
-    return vtkStdString(ostr.str());
+    return ostr.str();
   }
   if (this->IsUnsignedShort())
   {
     std::ostringstream ostr;
     ostr << this->Data.UnsignedShort;
-    return vtkStdString(ostr.str());
+    return ostr.str();
   }
   if (this->IsInt())
   {
     std::ostringstream ostr;
     ostr.imbue(std::locale::classic());
     ostr << this->Data.Int;
-    return vtkStdString(ostr.str());
+    return ostr.str();
   }
   if (this->IsUnsignedInt())
   {
     std::ostringstream ostr;
     ostr.imbue(std::locale::classic());
     ostr << this->Data.UnsignedInt;
-    return vtkStdString(ostr.str());
+    return ostr.str();
   }
   if (this->IsLong())
   {
     std::ostringstream ostr;
     ostr.imbue(std::locale::classic());
     ostr << this->Data.Long;
-    return vtkStdString(ostr.str());
+    return ostr.str();
   }
   if (this->IsUnsignedLong())
   {
     std::ostringstream ostr;
     ostr.imbue(std::locale::classic());
     ostr << this->Data.UnsignedLong;
-    return vtkStdString(ostr.str());
+    return ostr.str();
   }
   if (this->IsLongLong())
   {
     std::ostringstream ostr;
     ostr.imbue(std::locale::classic());
     ostr << this->Data.LongLong;
-    return vtkStdString(ostr.str());
+    return ostr.str();
   }
   if (this->IsUnsignedLongLong())
   {
     std::ostringstream ostr;
     ostr.imbue(std::locale::classic());
     ostr << this->Data.UnsignedLongLong;
-    return vtkStdString(ostr.str());
+    return ostr.str();
   }
   if (this->IsArray())
   {
     vtkAbstractArray* arr = vtkAbstractArray::SafeDownCast(this->Data.VTKObject);
     vtkArrayIterator* iter = arr->NewIterator();
-    vtkStdString str;
+    std::string str;
     switch (arr->GetDataType())
     {
       vtkArrayIteratorTemplateMacro(
@@ -761,7 +761,7 @@ vtkStdString vtkVariant::ToString(int formatting, int precision) const
   }
   vtkGenericWarningMacro(<< "Cannot convert unknown type (" << this->GetTypeAsString()
                          << ") to a string.");
-  return vtkStdString();
+  return {};
 }
 
 vtkObjectBase* vtkVariant::ToVTKObject() const

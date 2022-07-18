@@ -24,7 +24,6 @@
 #include "vtkMultiBlockDataSet.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
-#include "vtkStdString.h"
 #include "vtkStringArray.h"
 #include "vtkTable.h"
 #include "vtkTableFFT.h"
@@ -273,13 +272,13 @@ void vtkAutoCorrelativeStatistics::Learn(
   row->SetNumberOfValues(7);
 
   // Loop over requests
-  for (std::set<std::set<vtkStdString>>::const_iterator rit = this->Internals->Requests.begin();
+  for (std::set<std::set<std::string>>::const_iterator rit = this->Internals->Requests.begin();
        rit != this->Internals->Requests.end(); ++rit)
   {
     // Each request contains only one column of interest (if there are others, they are ignored)
-    std::set<vtkStdString>::const_iterator it = rit->begin();
-    vtkStdString varName = *it;
-    if (!inData->GetColumnByName(varName))
+    std::set<std::string>::const_iterator it = rit->begin();
+    std::string varName = *it;
+    if (!inData->GetColumnByName(varName.c_str()))
     {
       vtkWarningMacro("InData table does not have a column " << varName << ". Ignoring it.");
       continue;
@@ -344,13 +343,13 @@ void vtkAutoCorrelativeStatistics::Learn(
       {
         inv_n = 1. / (r + 1.);
 
-        xs = inData->GetValueByName(r, varName).ToDouble();
+        xs = inData->GetValueByName(r, varName.c_str()).ToDouble();
         delta = xs - meanXs;
         meanXs += delta * inv_n;
         deltaXsn = xs - meanXs;
         mom2Xs += delta * deltaXsn;
 
-        xt = inData->GetValueByName(r + rowOffset, varName).ToDouble();
+        xt = inData->GetValueByName(r + rowOffset, varName.c_str()).ToDouble();
         delta = xt - meanXt;
         meanXt += delta * inv_n;
         mom2Xt += delta * (xt - meanXt);
@@ -427,17 +426,17 @@ void vtkAutoCorrelativeStatistics::Derive(vtkMultiBlockDataSet* inMeta)
     }
 
     int numDerived = 9;
-    vtkStdString derivedNames[] = { "Variance Xs", "Variance Xt", "Covariance", "Determinant",
+    std::string derivedNames[] = { "Variance Xs", "Variance Xt", "Covariance", "Determinant",
       "Slope Xt/Xs", "Intercept Xt/Xs", "Slope Xs/Xt", "Intercept Xs/Xt", "Autocorrelation" };
 
     // Find or create columns for derived statistics
     vtkDoubleArray* derivedCol;
     for (int j = 0; j < numDerived; ++j)
     {
-      if (!modelTab->GetColumnByName(derivedNames[j]))
+      if (!modelTab->GetColumnByName(derivedNames[j].c_str()))
       {
         derivedCol = vtkDoubleArray::New();
-        derivedCol->SetName(derivedNames[j]);
+        derivedCol->SetName(derivedNames[j].c_str());
         derivedCol->SetNumberOfTuples(nRow);
         modelTab->AddColumn(derivedCol);
         derivedCol->Delete();
@@ -524,7 +523,7 @@ void vtkAutoCorrelativeStatistics::Derive(vtkMultiBlockDataSet* inMeta)
 
       for (int j = 0; j < numDerived; ++j)
       {
-        modelTab->SetValueByName(i, derivedNames[j], derivedVals[j]);
+        modelTab->SetValueByName(i, derivedNames[j].c_str(), derivedVals[j]);
       }
     } // nRow
 
@@ -601,7 +600,7 @@ void vtkAutoCorrelativeStatistics::SelectAssessFunctor(
     return;
   }
 
-  vtkStdString varName = rowNames->GetValue(0);
+  std::string varName = rowNames->GetValue(0);
 
   // Downcast meta columns to string arrays for efficient data access
   vtkStringArray* vars = vtkArrayDownCast<vtkStringArray>(modelTab->GetColumnByName("Variable"));
@@ -616,7 +615,7 @@ void vtkAutoCorrelativeStatistics::SelectAssessFunctor(
     if (vars->GetValue(r) == varName)
     {
       // Grab the data for the requested variable
-      vtkAbstractArray* arr = outData->GetColumnByName(varName);
+      vtkAbstractArray* arr = outData->GetColumnByName(varName.c_str());
       if (!arr)
       {
         return;

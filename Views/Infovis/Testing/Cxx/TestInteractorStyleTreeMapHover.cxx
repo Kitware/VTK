@@ -14,7 +14,6 @@
 #include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
 #include "vtkSquarifyLayoutStrategy.h"
-#include "vtkStdString.h"
 #include "vtkTree.h"
 #include "vtkTreeFieldAggregator.h"
 #include "vtkTreeMapLayout.h"

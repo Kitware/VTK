@@ -243,7 +243,7 @@ void vtkDynamic2DLabelMapper::RenderOpaqueGeometry(vtkViewport* viewport, vtkAct
       return;
     }
 
-    vtkStdString FormatString;
+    std::string FormatString;
     if (this->LabelFormat)
     {
       // The user has specified a format string.
@@ -351,7 +351,7 @@ void vtkDynamic2DLabelMapper::RenderOpaqueGeometry(vtkViewport* viewport, vtkAct
 
     for (i = 0; i < this->NumberOfLabels; i++)
     {
-      vtkStdString ResultString;
+      std::string ResultString;
 
       if (pointIdLabels)
       {

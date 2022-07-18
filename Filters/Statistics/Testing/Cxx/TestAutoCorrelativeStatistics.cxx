@@ -124,7 +124,7 @@ int TestAutoCorrelativeStatistics(int, char*[])
 
   // Columns of interest
   int nMetrics1 = 2;
-  vtkStdString columns1[] = { "Metric 1", "Metric 0" };
+  std::string columns1[] = { "Metric 1", "Metric 0" };
 
   // Reference values
   // Means for metrics 0 and 1 respectively
@@ -148,7 +148,7 @@ int TestAutoCorrelativeStatistics(int, char*[])
   // Select columns of interest
   for (int i = 0; i < nMetrics1; ++i)
   {
-    as1->AddColumn(columns1[i]);
+    as1->AddColumn(columns1[i].c_str());
   }
 
   // Set spatial cardinality
@@ -171,7 +171,7 @@ int TestAutoCorrelativeStatistics(int, char*[])
   cout << "\n## Calculated the following statistics for first data set:\n";
   for (unsigned b = 0; b < outputModelAS1->GetNumberOfBlocks(); ++b)
   {
-    vtkStdString varName = outputModelAS1->GetMetaData(b)->Get(vtkCompositeDataSet::NAME());
+    std::string varName = outputModelAS1->GetMetaData(b)->Get(vtkCompositeDataSet::NAME());
 
     vtkTable* modelTab = vtkTable::SafeDownCast(outputModelAS1->GetBlock(b));
     if (varName == "Autocorrelation FFT")
@@ -245,7 +245,7 @@ int TestAutoCorrelativeStatistics(int, char*[])
   // Select columns of interest
   for (int i = 0; i < nMetrics1; ++i)
   {
-    as2->AddColumn(columns1[i]);
+    as2->AddColumn(columns1[i].c_str());
   }
 
   // Set spatial cardinality
@@ -268,7 +268,7 @@ int TestAutoCorrelativeStatistics(int, char*[])
   cout << "\n## Calculated the following statistics for second data set:\n";
   for (unsigned b = 0; b < outputModelAS2->GetNumberOfBlocks(); ++b)
   {
-    vtkStdString varName = outputModelAS2->GetMetaData(b)->Get(vtkCompositeDataSet::NAME());
+    std::string varName = outputModelAS2->GetMetaData(b)->Get(vtkCompositeDataSet::NAME());
 
     vtkTable* modelTab = vtkTable::SafeDownCast(outputModelAS2->GetBlock(b));
     if (varName == "Autocorrelation FFT")
@@ -322,7 +322,7 @@ int TestAutoCorrelativeStatistics(int, char*[])
   cout << "\n## Calculated the following statistics for aggregated (first + second) data set:\n";
   for (unsigned b = 0; b < outputModelAS1->GetNumberOfBlocks(); ++b)
   {
-    vtkStdString varName = outputModelAS1->GetMetaData(b)->Get(vtkCompositeDataSet::NAME());
+    std::string varName = outputModelAS1->GetMetaData(b)->Get(vtkCompositeDataSet::NAME());
 
     vtkTable* modelTab = vtkTable::SafeDownCast(outputModelAS1->GetBlock(b));
     if (varName == "Autocorrelation FFT")
@@ -420,7 +420,7 @@ int TestAutoCorrelativeStatistics(int, char*[])
 
   // Columns of interest
   int nMetrics2 = 3;
-  vtkStdString columns2[] = { "Line", "V", "Circle" };
+  std::string columns2[] = { "Line", "V", "Circle" };
 
   // Reference values
   double halfNm1 = .5 * (cardSlice - 1);
@@ -440,7 +440,7 @@ int TestAutoCorrelativeStatistics(int, char*[])
   // Select Columns of Interest
   for (int i = 0; i < nMetrics2; ++i)
   {
-    as3->AddColumn(columns2[i]);
+    as3->AddColumn(columns2[i].c_str());
   }
 
   // Set spatial cardinality
@@ -463,7 +463,7 @@ int TestAutoCorrelativeStatistics(int, char*[])
   cout << "\n## Calculated the following statistics for third data set:\n";
   for (unsigned b = 0; b < outputModelAS3->GetNumberOfBlocks(); ++b)
   {
-    vtkStdString varName = outputModelAS3->GetMetaData(b)->Get(vtkCompositeDataSet::NAME());
+    std::string varName = outputModelAS3->GetMetaData(b)->Get(vtkCompositeDataSet::NAME());
 
     vtkTable* modelTab = vtkTable::SafeDownCast(outputModelAS3->GetBlock(b));
     if (varName == "Autocorrelation FFT")

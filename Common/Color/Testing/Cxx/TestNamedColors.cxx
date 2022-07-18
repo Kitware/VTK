@@ -39,35 +39,35 @@ bool TestEmptyColorName();
 
 // A test to see if empty vectors are returned when the color name
 // does not match a known one.
-bool TestNoSuchColor(vtkStdString const& name);
+bool TestNoSuchColor(std::string const& name);
 
 // A test to see if returning an array matches the individual values.
-bool TestUnsignedChar(vtkStdString const& name);
+bool TestUnsignedChar(std::string const& name);
 
 // A test to see if returning an array matches the individual values.
-bool TestDouble(vtkStdString const& name);
+bool TestDouble(std::string const& name);
 
 // A test to see if returning an array matches the individual values.
 // Alpha is ignored.
-bool TestDoubleRGB(vtkStdString const& name);
+bool TestDoubleRGB(std::string const& name);
 
 // A test to see if the unsigned char conversion to double
 // matches the double vector.
-bool TestUCharToDouble(vtkStdString const& name);
+bool TestUCharToDouble(std::string const& name);
 
 //  A test to see if adding a color works.
 bool TestAddingAColor(
-  const vtkStdString& name, const double dcolor[4], const unsigned char ucolor[4]);
+  const std::string& name, const double dcolor[4], const unsigned char ucolor[4]);
 
 // Parse the color names returning a std::vector<std::string>
 // colorNames is a string formatted with each name separated
 // with a linefeed.
-std::vector<vtkStdString> ParseColorNames(const vtkStdString& colorNames);
+std::vector<std::string> ParseColorNames(const std::string& colorNames);
 
 // Parse the synonyms returning a std::vector<std::vector<std::string> >
 // synonyms is a string of synonyms separated by a double linefeed where
 // each synonym is two or more color names separated by a linefeed
-std::vector<std::vector<vtkStdString>> ParseSynonyms(const vtkStdString& synonyms);
+std::vector<std::vector<std::string>> ParseSynonyms(const std::string& synonyms);
 
 //  A test to see if searching for synonyms works.
 bool TestSearchForSynonyms();
@@ -85,7 +85,7 @@ bool TestRGBAToHTMLColor();
 bool TestEmptyColorName()
 {
   vtkSmartPointer<vtkNamedColors> nc = vtkSmartPointer<vtkNamedColors>::New();
-  vtkStdString name;
+  std::string name;
   // Reference color
   unsigned char rr, rg, rb;
   rr = rb = rg = 0;
@@ -154,7 +154,7 @@ bool TestEmptyColorName()
 }
 
 //------------------------------------------------------------------------------
-bool TestNoSuchColor(vtkStdString const& name)
+bool TestNoSuchColor(std::string const& name)
 {
   vtkSmartPointer<vtkNamedColors> nc = vtkSmartPointer<vtkNamedColors>::New();
   if (nc->ColorExists(name))
@@ -166,7 +166,7 @@ bool TestNoSuchColor(vtkStdString const& name)
 }
 
 //------------------------------------------------------------------------------
-bool TestUnsignedChar(vtkStdString const& name)
+bool TestUnsignedChar(std::string const& name)
 {
   vtkSmartPointer<vtkNamedColors> nc = vtkSmartPointer<vtkNamedColors>::New();
   vtkColor4ub v = nc->GetColor4ub(name);
@@ -233,7 +233,7 @@ bool TestUnsignedChar(vtkStdString const& name)
 }
 
 //------------------------------------------------------------------------------
-bool TestDouble(vtkStdString const& name)
+bool TestDouble(std::string const& name)
 {
   vtkSmartPointer<vtkNamedColors> nc = vtkSmartPointer<vtkNamedColors>::New();
   vtkColor4d v = nc->GetColor4d(name);
@@ -300,7 +300,7 @@ bool TestDouble(vtkStdString const& name)
 }
 
 //------------------------------------------------------------------------------
-bool TestDoubleRGB(vtkStdString const& name)
+bool TestDoubleRGB(std::string const& name)
 {
   vtkSmartPointer<vtkNamedColors> nc = vtkSmartPointer<vtkNamedColors>::New();
   vtkColor3d v = nc->GetColor3d(name);
@@ -334,7 +334,7 @@ bool TestDoubleRGB(vtkStdString const& name)
 }
 
 //------------------------------------------------------------------------------
-bool TestUCharToDouble(vtkStdString const& name)
+bool TestUCharToDouble(std::string const& name)
 {
   vtkSmartPointer<vtkNamedColors> nc = vtkSmartPointer<vtkNamedColors>::New();
   vtkColor4ub vu = nc->GetColor4ub(name);
@@ -363,7 +363,7 @@ bool TestUCharToDouble(vtkStdString const& name)
 
 //------------------------------------------------------------------------------
 bool TestAddingAColor(
-  const vtkStdString& name, const double dcolor[4], const unsigned char ucolor[4])
+  const std::string& name, const double dcolor[4], const unsigned char ucolor[4])
 {
   vtkSmartPointer<vtkNamedColors> nc = vtkSmartPointer<vtkNamedColors>::New();
   int sz = nc->GetNumberOfColors();
@@ -622,11 +622,11 @@ bool TestAddingAColor(
 }
 
 //------------------------------------------------------------------------------
-std::vector<vtkStdString> ParseColorNames(const vtkStdString& colorNames)
+std::vector<std::string> ParseColorNames(const std::string& colorNames)
 {
   // The delimiter for a color.
   const std::string colorDelimiter = "\n";
-  std::vector<vtkStdString> cn;
+  std::vector<std::string> cn;
   size_t start = 0;
   size_t end = colorNames.find(colorDelimiter);
   while (end != std::string::npos)
@@ -644,15 +644,15 @@ std::vector<vtkStdString> ParseColorNames(const vtkStdString& colorNames)
 }
 
 //------------------------------------------------------------------------------
-std::vector<std::vector<vtkStdString>> ParseSynonyms(const vtkStdString& synonyms)
+std::vector<std::vector<std::string>> ParseSynonyms(const std::string& synonyms)
 {
   // The delimiter for a string of synonyms.
   const std::string synonymDelimiter = "\n\n";
   size_t start = 0;
   size_t end = synonyms.find("\n\n"); // The delimiter for a string of synonyms.
-  std::vector<vtkStdString> cn;
-  std::vector<std::vector<vtkStdString>> syn;
-  vtkStdString str;
+  std::vector<std::string> cn;
+  std::vector<std::vector<std::string>> syn;
+  std::string str;
   while (end != std::string::npos)
   {
     str = synonyms.substr(start, end - start);
@@ -669,10 +669,10 @@ std::vector<std::vector<vtkStdString>> ParseSynonyms(const vtkStdString& synonym
     syn.push_back(cn);
   }
   // Sanity check!
-  // for(std::vector<std::vector<vtkStdString> >::const_iterator p =
+  // for(std::vector<std::vector<std::string> >::const_iterator p =
   //  syn.begin(); p != syn.end(); ++p)
   //  {
-  //    for(std::vector<vtkStdString>::const_iterator q =
+  //    for(std::vector<std::string>::const_iterator q =
   //      p->begin(); q != p->end(); ++q)
   //    {
   //      std::cout << *q << " ";
@@ -686,7 +686,7 @@ std::vector<std::vector<vtkStdString>> ParseSynonyms(const vtkStdString& synonym
 bool TestSearchForSynonyms()
 {
   vtkSmartPointer<vtkNamedColors> nc = vtkSmartPointer<vtkNamedColors>::New();
-  std::vector<std::vector<vtkStdString>> synonyms = ParseSynonyms(nc->GetSynonyms());
+  std::vector<std::vector<std::string>> synonyms = ParseSynonyms(nc->GetSynonyms());
   return static_cast<int>(synonyms.size()) == NUMBER_OF_SYNONYMS;
 }
 
@@ -794,7 +794,7 @@ bool TestRGBToHTMLColor()
 
   vtkSmartPointer<vtkNamedColors> color = vtkSmartPointer<vtkNamedColors>::New();
 
-  vtkStdString outputString;
+  std::string outputString;
   unsigned int i = 0;
   while (dataList[i].colorString[0] != '\n')
   {
@@ -831,7 +831,7 @@ bool TestRGBAToHTMLColor()
 
   vtkSmartPointer<vtkNamedColors> color = vtkSmartPointer<vtkNamedColors>::New();
 
-  vtkStdString outputString;
+  std::string outputString;
   unsigned int i = 0;
   while (dataList[i].colorString[0] != '\n')
   {
@@ -869,8 +869,8 @@ int TestNamedColors(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 
   int counter = -1;
   const int colorsToSkip = 20;
-  std::vector<vtkStdString> cn = ParseColorNames(nc->GetColorNames());
-  for (std::vector<vtkStdString>::const_iterator p = cn.begin(); p != cn.end(); ++p)
+  std::vector<std::string> cn = ParseColorNames(nc->GetColorNames());
+  for (std::vector<std::string>::const_iterator p = cn.begin(); p != cn.end(); ++p)
   {
     counter++;
     // Skip some colors to make testing faster.
@@ -906,7 +906,7 @@ int TestNamedColors(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 
   unsigned char ucolor[4];
   double dcolor[4];
-  vtkStdString name("Weird Color"); // Choose a name with spaces.
+  std::string name("Weird Color"); // Choose a name with spaces.
   unsigned char ur = 51;
   double r = 0.2;
   for (size_t i = 0; i < 3; ++i)

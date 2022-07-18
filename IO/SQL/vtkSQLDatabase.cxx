@@ -122,7 +122,7 @@ vtkStdString vtkSQLDatabase::GetColumnSpecification(
 
   // Figure out column type
   int colType = schema->GetColumnTypeFromHandle(tblHandle, colHandle);
-  vtkStdString colTypeStr;
+  std::string colTypeStr;
   switch (static_cast<vtkSQLDatabaseSchema::DatabaseColumnType>(colType))
   {
     case vtkSQLDatabaseSchema::SERIAL:
@@ -170,7 +170,7 @@ vtkStdString vtkSQLDatabase::GetColumnSpecification(
   else // if ( colTypeStr.size() )
   {
     vtkGenericWarningMacro("Unable to get column specification: unsupported data type " << colType);
-    return vtkStdString();
+    return {};
   }
 
   // Decide whether size is allowed, required, or unused
@@ -235,7 +235,7 @@ vtkStdString vtkSQLDatabase::GetColumnSpecification(
     }
   }
 
-  vtkStdString attStr = schema->GetColumnAttributesFromHandle(tblHandle, colHandle);
+  std::string attStr = schema->GetColumnAttributesFromHandle(tblHandle, colHandle);
   if (!attStr.empty())
   {
     queryStr << " " << attStr;
@@ -268,7 +268,7 @@ vtkStdString vtkSQLDatabase::GetIndexSpecification(
       skipped = true;
       break;
     default:
-      return vtkStdString();
+      return {};
   }
 
   // No index_name for PRIMARY KEYs nor UNIQUEs
@@ -292,7 +292,7 @@ vtkStdString vtkSQLDatabase::GetIndexSpecification(
   {
     vtkGenericWarningMacro(
       "Unable to get index specification: index has incorrect number of columns " << numCnm);
-    return vtkStdString();
+    return {};
   }
 
   bool firstCnm = true;
@@ -439,7 +439,7 @@ bool vtkSQLDatabase::EffectSchema(vtkSQLDatabaseSchema* schema, bool dropIfExist
     }
 
     vtkStdString preStr = schema->GetPreambleActionFromHandle(preHandle);
-    query->SetQuery(preStr);
+    query->SetQuery(preStr.c_str());
     if (!query->Execute())
     {
       vtkGenericWarningMacro("Unable to effect the schema: unable to execute query.\nDetails: "
@@ -455,7 +455,7 @@ bool vtkSQLDatabase::EffectSchema(vtkSQLDatabaseSchema* schema, bool dropIfExist
   for (int tblHandle = 0; tblHandle < numTbl; ++tblHandle)
   {
     // Construct the CREATE TABLE query for this table
-    vtkStdString queryStr("CREATE TABLE ");
+    std::string queryStr("CREATE TABLE ");
     queryStr += this->GetTablePreamble(dropIfExists);
     queryStr += schema->GetTableNameFromHandle(tblHandle);
     queryStr += " (";
@@ -482,7 +482,7 @@ bool vtkSQLDatabase::EffectSchema(vtkSQLDatabaseSchema* schema, bool dropIfExist
       }
 
       // Get column creation syntax (backend-dependent)
-      vtkStdString colStr = this->GetColumnSpecification(schema, tblHandle, colHandle);
+      std::string colStr = this->GetColumnSpecification(schema, tblHandle, colHandle);
       if (!colStr.empty())
       {
         queryStr += colStr;
@@ -505,14 +505,14 @@ bool vtkSQLDatabase::EffectSchema(vtkSQLDatabaseSchema* schema, bool dropIfExist
     }
 
     // In case separate INDEX statements are needed (backend-specific)
-    std::vector<vtkStdString> idxStatements;
+    std::vector<std::string> idxStatements;
     bool skipped = false;
 
     // Loop over all indices of the current table
     for (int idxHandle = 0; idxHandle < numIdx; ++idxHandle)
     {
       // Get index creation syntax (backend-dependent)
-      vtkStdString idxStr = this->GetIndexSpecification(schema, tblHandle, idxHandle, skipped);
+      std::string idxStr = this->GetIndexSpecification(schema, tblHandle, idxHandle, skipped);
       if (!idxStr.empty())
       {
         if (skipped)
@@ -546,8 +546,7 @@ bool vtkSQLDatabase::EffectSchema(vtkSQLDatabaseSchema* schema, bool dropIfExist
     for (int optHandle = 0; optHandle < numOpt; ++optHandle)
     {
       vtkStdString optBackend = schema->GetOptionBackendFromHandle(tblHandle, optHandle);
-      if (strcmp(optBackend, VTK_SQL_ALLBACKENDS) != 0 &&
-        strcmp(optBackend, this->GetClassName()) != 0)
+      if (optBackend != VTK_SQL_ALLBACKENDS && optBackend != this->GetClassName())
       {
         continue;
       }
@@ -556,7 +555,7 @@ bool vtkSQLDatabase::EffectSchema(vtkSQLDatabaseSchema* schema, bool dropIfExist
     }
 
     // Execute the CREATE TABLE query
-    query->SetQuery(queryStr);
+    query->SetQuery(queryStr.c_str());
     if (!query->Execute())
     {
       vtkGenericWarningMacro("Unable to effect the schema: unable to execute query.\nDetails: "
@@ -567,10 +566,10 @@ bool vtkSQLDatabase::EffectSchema(vtkSQLDatabaseSchema* schema, bool dropIfExist
     }
 
     // Execute separate CREATE INDEX statements if needed
-    for (std::vector<vtkStdString>::iterator it = idxStatements.begin(); it != idxStatements.end();
+    for (std::vector<std::string>::iterator it = idxStatements.begin(); it != idxStatements.end();
          ++it)
     {
-      query->SetQuery(*it);
+      query->SetQuery(it->c_str());
       if (!query->Execute())
       {
         vtkGenericWarningMacro("Unable to effect the schema: unable to execute query.\nDetails: "
@@ -605,12 +604,12 @@ bool vtkSQLDatabase::EffectSchema(vtkSQLDatabaseSchema* schema, bool dropIfExist
         }
 
         // Get trigger creation syntax (backend-dependent)
-        vtkStdString trgStr = this->GetTriggerSpecification(schema, tblHandle, trgHandle);
+        std::string trgStr = this->GetTriggerSpecification(schema, tblHandle, trgHandle);
 
         // If not empty, execute query
         if (!trgStr.empty())
         {
-          query->SetQuery(vtkStdString(trgStr));
+          query->SetQuery(trgStr.c_str());
           if (!query->Execute())
           {
             vtkGenericWarningMacro(

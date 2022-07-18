@@ -54,7 +54,7 @@ vtkConvertSelectionDomain::~vtkConvertSelectionDomain() = default;
 
 //------------------------------------------------------------------------------
 static void vtkConvertSelectionDomainFindDomains(
-  vtkDataSetAttributes* dsa, std::set<vtkStdString>& domains)
+  vtkDataSetAttributes* dsa, std::set<std::string>& domains)
 {
   if (dsa->GetAbstractArray("domain"))
   {
@@ -66,7 +66,7 @@ static void vtkConvertSelectionDomainFindDomains(
     vtkIdType numTuples = domainArr->GetNumberOfTuples();
     for (vtkIdType i = 0; i < numTuples; ++i)
     {
-      vtkStdString d = domainArr->GetValue(i);
+      std::string d = domainArr->GetValue(i);
       if (domains.count(d) == 0)
       {
         domains.insert(d);
@@ -80,7 +80,7 @@ static void vtkConvertSelectionDomainFindDomains(
 }
 
 static void vtkConvertSelectionDomainConvertAnnotationDomain(vtkAnnotation* annIn,
-  vtkAnnotation* annOut, std::set<vtkStdString>& domains1, std::set<vtkStdString>& domains2,
+  vtkAnnotation* annOut, std::set<std::string>& domains1, std::set<std::string>& domains2,
   vtkDataSetAttributes* dsa1, vtkDataSetAttributes* dsa2, int fieldType1, int fieldType2,
   vtkMultiBlockDataSet* maps)
 {
@@ -130,7 +130,7 @@ static void vtkConvertSelectionDomainConvertAnnotationDomain(vtkAnnotation* annI
       if (table)
       {
         fromArr = table->GetColumnByName(inArr->GetName());
-        std::set<vtkStdString>::iterator it, itEnd;
+        std::set<std::string>::iterator it, itEnd;
         if (dsa1)
         {
           it = domains1.begin();
@@ -274,8 +274,8 @@ int vtkConvertSelectionDomain::RequestData(vtkInformation* vtkNotUsed(request),
     fieldType1 = vtkSelectionNode::ROW;
   }
 
-  std::set<vtkStdString> domains1;
-  std::set<vtkStdString> domains2;
+  std::set<std::string> domains1;
+  std::set<std::string> domains2;
   if (dsa1)
   {
     vtkConvertSelectionDomainFindDomains(dsa1, domains1);
