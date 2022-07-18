@@ -380,7 +380,7 @@ const char* vtkPIOReader::GetTimeDataArray(int idx) const
   {
     vtkErrorMacro("Invalid index for 'GetTimeDataArray': " << idx);
   }
-  return this->TimeDataStringArray->GetValue(idx);
+  return this->TimeDataStringArray->GetValue(idx).c_str();
 }
 
 void vtkPIOReader::PrintSelf(ostream& os, vtkIndent indent)

@@ -261,7 +261,7 @@ QVariant vtkQtTreeModelAdapterArrayValue(vtkAbstractArray* arr, vtkIdType i, vtk
 
   if (vtkStringArray* const data = vtkArrayDownCast<vtkStringArray>(arr))
   {
-    return QVariant(data->GetValue(i * comps + j));
+    return QVariant(data->GetValue(i * comps + j).c_str());
   }
 
   if (vtkVariantArray* const data = vtkArrayDownCast<vtkVariantArray>(arr))
@@ -295,7 +295,7 @@ QVariant vtkQtTreeModelAdapter::data(const QModelIndex& idx, int role) const
   vtkAbstractArray* arr = this->Tree->GetVertexData()->GetAbstractArray(column);
   if (role == Qt::DisplayRole)
   {
-    return QString::fromUtf8(arr->GetVariantValue(vertex).ToString()).trimmed();
+    return QString::fromUtf8(arr->GetVariantValue(vertex).ToString().c_str()).trimmed();
   }
   else if (role == Qt::UserRole)
   {

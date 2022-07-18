@@ -2157,7 +2157,7 @@ void PIOAdaptor::add_amr_HTG_scalar(vtkMultiBlockDataSet* grid, vtkStdString var
   if (this->useFloat64)
   {
     vtkNew<vtkDoubleArray> arr;
-    arr->SetName(varName);
+    arr->SetName(varName.c_str());
     arr->SetNumberOfComponents(numberOfComponents);
     arr->SetNumberOfTuples(numberOfNodesLeaves);
     htgrid->GetCellData()->AddArray(arr);
@@ -2183,7 +2183,7 @@ void PIOAdaptor::add_amr_HTG_scalar(vtkMultiBlockDataSet* grid, vtkStdString var
   else
   {
     vtkNew<vtkFloatArray> arr;
-    arr->SetName(varName);
+    arr->SetName(varName.c_str());
     arr->SetNumberOfComponents(numberOfComponents);
     arr->SetNumberOfTuples(numberOfNodesLeaves);
     htgrid->GetCellData()->AddArray(arr);
@@ -2231,7 +2231,7 @@ void PIOAdaptor::add_amr_UG_scalar(vtkMultiBlockDataSet* grid, vtkStdString varN
   if (this->useFloat64)
   {
     vtkNew<vtkDoubleArray> arr;
-    arr->SetName(varName);
+    arr->SetName(varName.c_str());
     arr->SetNumberOfComponents(numberOfComponents);
     arr->SetNumberOfTuples(numberOfActiveCells);
     ugrid->GetCellData()->AddArray(arr);
@@ -2253,7 +2253,7 @@ void PIOAdaptor::add_amr_UG_scalar(vtkMultiBlockDataSet* grid, vtkStdString varN
   else
   {
     vtkNew<vtkFloatArray> arr;
-    arr->SetName(varName);
+    arr->SetName(varName.c_str());
     arr->SetNumberOfComponents(numberOfComponents);
     arr->SetNumberOfTuples(numberOfActiveCells);
     ugrid->GetCellData()->AddArray(arr);
