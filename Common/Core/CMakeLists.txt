@@ -320,6 +320,7 @@ set(headers
   vtkWin32Header.h
   vtkWindows.h
   vtkWrappingHints.h
+  ${vtk_smp_headers}
   "${CMAKE_CURRENT_BINARY_DIR}/vtkArrayDispatchArrayList.h"
   "${CMAKE_CURRENT_BINARY_DIR}/vtkMathConfigure.h"
   "${CMAKE_CURRENT_BINARY_DIR}/vtkTypeListMacros.h"
@@ -428,8 +429,7 @@ set(nowrap_headers
   vtkDataArrayValueRange_AOS.h
   vtkDataArrayValueRange_Generic.h
   vtkMathPrivate.hxx
-  ${vtk_smp_nowrap_headers}
-  ${vtk_smp_headers})
+  ${vtk_smp_nowrap_headers})
 set(generated_headers
   vtkBuild.h
   vtkDebug.h
