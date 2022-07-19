@@ -258,12 +258,12 @@ void vtkCorrelativeStatistics::Learn(
 
   // Loop over requests
   vtkIdType nRow = inData->GetNumberOfRows();
-  for (std::set<std::set<std::string>>::const_iterator rit = this->Internals->Requests.begin();
+  for (std::set<std::set<vtkStdString>>::const_iterator rit = this->Internals->Requests.begin();
        rit != this->Internals->Requests.end(); ++rit)
   {
     // Each request contains only one pair of column of interest (if there are others, they are
     // ignored)
-    std::set<std::string>::const_iterator it = rit->begin();
+    std::set<vtkStdString>::const_iterator it = rit->begin();
     vtkStdString colX = *it;
     if (!inData->GetColumnByName(colX.c_str()))
     {
@@ -538,12 +538,12 @@ void vtkCorrelativeStatistics::Test(
 
   // Loop over requests
   vtkIdType nRowData = inData->GetNumberOfRows();
-  for (std::set<std::set<std::string>>::const_iterator rit = this->Internals->Requests.begin();
+  for (std::set<std::set<vtkStdString>>::const_iterator rit = this->Internals->Requests.begin();
        rit != this->Internals->Requests.end(); ++rit)
   {
     // Each request contains only one pair of column of interest (if there are others, they are
     // ignored)
-    std::set<std::string>::const_iterator it = rit->begin();
+    std::set<vtkStdString>::const_iterator it = rit->begin();
     std::string varNameX = *it;
     if (!inData->GetColumnByName(varNameX.c_str()))
     {

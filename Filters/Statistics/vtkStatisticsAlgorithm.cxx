@@ -164,7 +164,7 @@ vtkIdType vtkStatisticsAlgorithm::GetNumberOfColumnsForRequest(vtkIdType request
 //------------------------------------------------------------------------------
 const char* vtkStatisticsAlgorithm::GetColumnForRequest(vtkIdType r, vtkIdType c)
 {
-  static std::string columnName;
+  static vtkStdString columnName;
   if (this->Internals->GetColumnForRequest(r, c, columnName))
   {
     return columnName.c_str();
@@ -298,7 +298,7 @@ void vtkStatisticsAlgorithm::Assess(
   }
 
   // Loop over requests
-  for (std::set<std::set<std::string>>::const_iterator rit = this->Internals->Requests.begin();
+  for (std::set<std::set<vtkStdString>>::const_iterator rit = this->Internals->Requests.begin();
        rit != this->Internals->Requests.end(); ++rit)
   {
     // Storage for variable names of the request (smart pointer because of several exit points)
@@ -308,7 +308,7 @@ void vtkStatisticsAlgorithm::Assess(
     // Each request must contain numVariables columns of interest (additional columns are ignored)
     bool invalidRequest = false;
     int v = 0;
-    for (std::set<std::string>::const_iterator it = rit->begin();
+    for (std::set<vtkStdString>::const_iterator it = rit->begin();
          v < numVariables && it != rit->end(); ++v, ++it)
     {
       // Try to retrieve column with corresponding name in input data

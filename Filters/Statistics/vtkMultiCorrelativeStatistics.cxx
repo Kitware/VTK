@@ -366,8 +366,8 @@ void vtkMultiCorrelativeStatistics::Learn(
   sparseCov->AddColumn(col3);
   col3->Delete();
 
-  std::set<std::set<std::string>>::const_iterator reqIt;
-  std::set<std::string>::const_iterator colIt;
+  std::set<std::set<vtkStdString>>::const_iterator reqIt;
+  std::set<vtkStdString>::const_iterator colIt;
   std::set<std::pair<std::string, vtkDataArray*>> allColumns;
   std::map<std::pair<vtkIdType, vtkIdType>, vtkIdType> colPairs;
   std::map<std::pair<vtkIdType, vtkIdType>, vtkIdType>::iterator cpIt;
@@ -424,7 +424,7 @@ void vtkMultiCorrelativeStatistics::Learn(
       {
         vtkIdType colA = idxIt->second;
         std::string colAName = idxIt->first;
-        std::set<std::string>::const_iterator colIt2;
+        std::set<vtkStdString>::const_iterator colIt2;
         for (colIt2 = colIt; colIt2 != reqIt->end(); ++colIt2)
         {
           idxIt = colNameToIdx.find(*colIt2);
@@ -618,8 +618,8 @@ void vtkMultiCorrelativeStatistics::Derive(vtkMultiBlockDataSet* outMeta)
     return;
   }
 
-  std::set<std::set<std::string>>::const_iterator reqIt;
-  std::set<std::string>::const_iterator colIt;
+  std::set<std::set<vtkStdString>>::const_iterator reqIt;
+  std::set<vtkStdString>::const_iterator colIt;
   std::map<std::pair<vtkIdType, vtkIdType>, vtkIdType> colPairs;
   std::map<std::string, vtkIdType> colNameToIdx;
   // Reconstruct information about the computed sums from the raw data.

@@ -249,7 +249,7 @@ int vtkExtractHistogram2D::GetInputArrays(vtkDataArray*& col1, vtkDataArray*& co
 
   if (!this->Internals->Requests.empty())
   {
-    std::string colName;
+    vtkStdString colName;
 
     this->Internals->GetColumnForRequest(0, (this->SwapColumns != 0), colName);
     col1 = vtkArrayDownCast<vtkDataArray>(inData->GetColumnByName(colName.c_str()));
