@@ -18,6 +18,7 @@ DEPENDS
   VTK::FiltersGeneral
   VTK::FiltersGeometry
   VTK::FiltersHybrid
+  VTK::FiltersHyperTree
   VTK::FiltersModeling
   VTK::FiltersSources
   VTK::FiltersTexture

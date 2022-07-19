@@ -21,10 +21,12 @@
 #include "vtkCompositeDataIterator.h"
 #include "vtkCompositeDataProbeFilter.h"
 #include "vtkCompositeDataSet.h"
+#include "vtkCompositeDataSetRange.h"
 #include "vtkDIYUtilities.h"
 #include "vtkDataArrayRange.h"
 #include "vtkDataObject.h"
 #include "vtkDataSet.h"
+#include "vtkHyperTreeGrid.h"
 #include "vtkIdTypeArray.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
@@ -510,6 +512,26 @@ void ForEachDataSetBlock(vtkDataObject* data, const Functor& func)
   }
 }
 
+//------------------------------------------------------------------------------
+// Iterate over each dataobject in a composite dataset and execute func
+template <typename Functor>
+void ForEachDataObjectBlock(vtkDataObject* data, const Functor& func)
+{
+  if (data->IsA("vtkDataSet") || data->IsA("vtkHyperTreeGrid"))
+  {
+    func(data);
+  }
+  else if (data->IsA("vtkCompositeDataSet"))
+  {
+    vtkCompositeDataSet* composite = static_cast<vtkCompositeDataSet*>(data);
+
+    for (auto block : vtk::Range(composite))
+    {
+      func(block);
+    }
+  }
+}
+
 // For each valid block add its bounds to boundsArray
 struct GetBlockBounds
 {
@@ -518,12 +540,18 @@ struct GetBlockBounds
   {
   }
 
-  void operator()(vtkDataSet* block) const
+  void operator()(vtkDataObject* block) const
   {
-    if (block)
+    if (vtkDataSet* dsBlock = vtkDataSet::SafeDownCast(block))
     {
       double bounds[6];
-      block->GetBounds(bounds);
+      dsBlock->GetBounds(bounds);
+      this->BoundsArray->insert(this->BoundsArray->end(), bounds, bounds + 6);
+    }
+    if (vtkHyperTreeGrid* htgBlock = vtkHyperTreeGrid::SafeDownCast(block))
+    {
+      double bounds[6];
+      htgBlock->GetBounds(bounds);
       this->BoundsArray->insert(this->BoundsArray->end(), bounds, bounds + 6);
     }
   }
@@ -1089,7 +1117,7 @@ int vtkPResampleWithDataSet::RequestData(
   // compute and communicate the bounds of all the source blocks in all the ranks
   vtkDataObject* source = sourceInfo->Get(vtkDataObject::DATA_OBJECT());
   std::vector<double> srcBounds;
-  ForEachDataSetBlock(source, GetBlockBounds(srcBounds));
+  ForEachDataObjectBlock(source, GetBlockBounds(srcBounds));
   diy::mpi::all_gather(comm, srcBounds, block.SourceBlocksBounds);
 
   // copy the input structure to output

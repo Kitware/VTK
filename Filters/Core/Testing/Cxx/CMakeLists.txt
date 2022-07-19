@@ -18,6 +18,7 @@ vtk_add_test_cxx(vtkFiltersCoreCxxTests tests
   TestCleanPolyData.cxx,NO_VALID
   TestCleanPolyData2.cxx,NO_VALID
   TestClipPolyData.cxx,NO_VALID
+  TestCompositeDataProbeFilterWithHyperTreeGrid.cxx
   TestConnectivityFilter.cxx,NO_VALID
   TestCutter.cxx,NO_VALID
   TestDataObjectToPartitionedDataSetCollection.cxx,NO_VALID
@@ -38,6 +39,8 @@ vtk_add_test_cxx(vtkFiltersCoreCxxTests tests
   TestGlyph3D.cxx
   TestGlyph3DFollowCamera.cxx,NO_VALID
   TestHedgeHog.cxx,NO_VALID
+  TestHyperTreeGridProbeFilter.cxx
+  TestResampleHyperTreeGridWithDataSet.cxx
   TestImageDataToExplicitStructuredGrid.cxx
   TestImplicitPolyDataDistance.cxx
   TestImplicitProjectOnPlaneDistance.cxx

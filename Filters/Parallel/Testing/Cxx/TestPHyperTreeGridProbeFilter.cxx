@@ -21,11 +21,11 @@
 #include "vtkDataSetMapper.h"
 #include "vtkHyperTreeGrid.h"
 #include "vtkHyperTreeGridGeometricLocator.h"
-#include "vtkHyperTreeGridPProbeFilter.h"
 #include "vtkHyperTreeGridPreConfiguredSource.h"
 #include "vtkLookupTable.h"
 #include "vtkMPIController.h"
 #include "vtkObjectFactory.h"
+#include "vtkPHyperTreeGridProbeFilter.h"
 #include "vtkPointData.h"
 #include "vtkProcess.h"
 #include "vtkProperty.h"
@@ -87,14 +87,13 @@ void MyProcess::Execute()
 
   vtkNew<vtkRTAnalyticSource> wavelet;
 
-  vtkNew<vtkHyperTreeGridPProbeFilter> prober;
+  vtkNew<vtkPHyperTreeGridProbeFilter> prober;
   prober->SetInputConnection(wavelet->GetOutputPort());
   prober->SetSourceConnection(htgSource->GetOutputPort());
   prober->SetPassPointArrays(true);
 
   prober->Update();
-  prober->GetOutput()->GetPointData()->SetScalars(
-    prober->GetOutput()->GetPointData()->GetArray("Depth"));
+  prober->GetOutput()->GetPointData()->SetActiveScalars("Depth");
 
   vtkNew<vtkDataSetMapper> mapper;
   mapper->SetInputConnection(prober->GetOutputPort());
@@ -143,7 +142,7 @@ void MyProcess::Execute()
   }
 }
 
-int TestHyperTreeGridPProbeFilter(int argc, char* argv[])
+int TestPHyperTreeGridProbeFilter(int argc, char* argv[])
 {
   vtkNew<vtkMPIController> controller;
   controller->Initialize(&argc, &argv, 0);
