@@ -2691,8 +2691,8 @@ void vtkTableBasedClipDataSet::ClipUnstructuredGrid(vtkDataSet* inputGrid,
       implicitFunction, scalars, isoValue, this->InsideOut, this->GenerateClipScalars,
       this->OutputPointsPrecision, this->BatchSize);
   }
-#endif
   else
+#endif
   {
     using TInputIdType = vtkTypeInt32;
     clippedOutput = ClipUnstructuredData<vtkUnstructuredGridBase, TInputIdType>(uGrid, inputPoints,
