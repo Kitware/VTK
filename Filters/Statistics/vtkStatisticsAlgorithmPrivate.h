@@ -107,7 +107,7 @@ public:
    */
   int AddColumnPairToRequests(const char* cola, const char* colb)
   {
-    if (cola && colb && strlen(cola) && strlen(colb))
+    if (cola && colb && *cola && *colb)
     {
       std::set<vtkStdString> tmp;
       tmp.insert(cola);
