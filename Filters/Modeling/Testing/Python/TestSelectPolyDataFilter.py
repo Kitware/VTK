@@ -21,6 +21,7 @@ class callback:
 
 reader = vtk.vtkXMLPolyDataReader()
 reader.SetFileName(VTK_DATA_ROOT + "/Data/cow.vtp")
+reader.Update()
 
 # Create a loop around the ear of the cow. It is a somewhat complex area
 # where the heuristic greedy edge search method fails but Dijkstra can
@@ -71,10 +72,32 @@ loopPoints = vtk.vtkPoints()
 for xyz in loopPointPositions:
     loopPoints.InsertNextPoint(xyz)
 
+# Add attribute information
+cowPolyData = vtk.vtkPolyData()
+cowPolyData.ShallowCopy(reader.GetOutput())
+
+ptScalarArray = vtk.vtkIntArray()
+ptScalarArray.SetName("ScalarArray")
+ptScalarArray.SetNumberOfComponents(1)
+ptScalarArray.SetNumberOfTuples(cowPolyData.GetNumberOfPoints())
+ptScalarArray.Fill(1)
+
+cowPolyData.GetPointData().AddArray(ptScalarArray)
+
+cellScalarArray = vtk.vtkIntArray()
+cellScalarArray.SetName("ScalarArray")
+cellScalarArray.SetNumberOfComponents(1)
+cellScalarArray.SetNumberOfTuples(cowPolyData.GetNumberOfCells())
+cellScalarArray.Fill(1)
+
+cowPolyData.GetCellData().AddArray(cellScalarArray)
+
+# Filter setup
 selectionFilter = vtk.vtkSelectPolyData()
-selectionFilter.SetInputConnection(reader.GetOutputPort())
+selectionFilter.SetInputData(cowPolyData)
 selectionFilter.SetLoop(loopPoints)
 selectionFilter.GenerateSelectionScalarsOn()
+selectionFilter.SetSelectionScalarsArrayName("SelectionArray")
 selectionFilter.SetSelectionModeToSmallestRegion()
 
 # Run selection filter using greedy method (expected to fail)
@@ -103,7 +126,19 @@ selectionFilter.Update()
 numberOfOutputPoints = selectionFilter.GetOutput().GetNumberOfPoints()
 print(f"Number of points extracted using Dijkstra edge search (0 means failure): {numberOfOutputPoints}")
 if numberOfOutputPoints == 0:
-    raise ValueError("Dijkstra edge search failed")
+    raise ValueError("Dijkstra edge search failed.")
+
+testArray = selectionFilter.GetOutput().GetPointData().GetArray("SelectionArray")
+if testArray is None:
+    raise ValueError("Selection scalar array failed to generate using Dijkstra edge search.")
+
+testPtScalarArray = selectionFilter.GetOutput().GetPointData().GetArray("ScalarArray")
+if testPtScalarArray is None:
+    raise ValueError("Point scalar array did not pass through using Dijkstra edge search.")
+
+testCellScalarArray = selectionFilter.GetOutput().GetCellData().GetArray("ScalarArray")
+if testCellScalarArray is None:
+    raise ValueError("Cell scalar array did not pass through using Dijkstra edge search.")
 
 # Display results
 
