@@ -458,7 +458,8 @@ void vtkStructuredGrid::GetCell(vtkIdType cellId, vtkGenericCell* cell)
   }
 
   // Update dimensions
-  this->GetDimensions();
+  int dim[3];
+  this->GetDimensions(dim);
 
   switch (this->DataDescription)
   {
@@ -491,9 +492,9 @@ void vtkStructuredGrid::GetCell(vtkIdType cellId, vtkGenericCell* cell)
 
     case VTK_XY_PLANE:
       cell->SetCellTypeToQuad();
-      i = cellId % (this->Dimensions[0] - 1);
-      j = cellId / (this->Dimensions[0] - 1);
-      idx = i + j * this->Dimensions[0];
+      i = cellId % (dim[0] - 1);
+      j = cellId / (dim[0] - 1);
+      idx = i + j * dim[0];
       offset1 = 1;
       offset2 = this->Dimensions[0];
 
@@ -505,9 +506,9 @@ void vtkStructuredGrid::GetCell(vtkIdType cellId, vtkGenericCell* cell)
 
     case VTK_YZ_PLANE:
       cell->SetCellTypeToQuad();
-      j = cellId % (this->Dimensions[1] - 1);
-      k = cellId / (this->Dimensions[1] - 1);
-      idx = j + k * this->Dimensions[1];
+      j = cellId % (dim[1] - 1);
+      k = cellId / (dim[1] - 1);
+      idx = j + k * dim[1];
       offset1 = 1;
       offset2 = this->Dimensions[1];
 
@@ -519,9 +520,9 @@ void vtkStructuredGrid::GetCell(vtkIdType cellId, vtkGenericCell* cell)
 
     case VTK_XZ_PLANE:
       cell->SetCellTypeToQuad();
-      i = cellId % (this->Dimensions[0] - 1);
-      k = cellId / (this->Dimensions[0] - 1);
-      idx = i + k * this->Dimensions[0];
+      i = cellId % (dim[0] - 1);
+      k = cellId / (dim[0] - 1);
+      idx = i + k * dim[0];
       offset1 = 1;
       offset2 = this->Dimensions[0];
 
@@ -533,11 +534,11 @@ void vtkStructuredGrid::GetCell(vtkIdType cellId, vtkGenericCell* cell)
 
     case VTK_XYZ_GRID:
       cell->SetCellTypeToHexahedron();
-      d01 = this->Dimensions[0] * this->Dimensions[1];
-      i = cellId % (this->Dimensions[0] - 1);
-      j = (cellId / (this->Dimensions[0] - 1)) % (this->Dimensions[1] - 1);
-      k = cellId / ((this->Dimensions[0] - 1) * (this->Dimensions[1] - 1));
-      idx = i + j * this->Dimensions[0] + k * d01;
+      d01 = dim[0] * dim[1];
+      i = cellId % (dim[0] - 1);
+      j = (cellId / (dim[0] - 1)) % (dim[1] - 1);
+      k = cellId / ((dim[0] - 1) * (dim[1] - 1));
+      idx = i + j * dim[0] + k * d01;
       offset1 = 1;
       offset2 = this->Dimensions[0];
 
@@ -586,7 +587,8 @@ void vtkStructuredGrid::GetCellBounds(vtkIdType cellId, double bounds[6])
   vtkMath::UninitializeBounds(bounds);
 
   // Update dimensions
-  this->GetDimensions();
+  int dim[3];
+  this->GetDimensions(dim);
 
   switch (this->DataDescription)
   {
@@ -616,27 +618,27 @@ void vtkStructuredGrid::GetCellBounds(vtkIdType cellId, double bounds[6])
     case VTK_XZ_PLANE:
       if (this->DataDescription == VTK_XY_PLANE)
       {
-        i = cellId % (this->Dimensions[0] - 1);
-        j = cellId / (this->Dimensions[0] - 1);
-        idx = i + j * this->Dimensions[0];
+        i = cellId % (dim[0] - 1);
+        j = cellId / (dim[0] - 1);
+        idx = i + j * dim[0];
         offset1 = 1;
-        offset2 = this->Dimensions[0];
+        offset2 = dim[0];
       }
       else if (this->DataDescription == VTK_YZ_PLANE)
       {
-        j = cellId % (this->Dimensions[1] - 1);
-        k = cellId / (this->Dimensions[1] - 1);
-        idx = j + k * this->Dimensions[1];
+        j = cellId % (dim[1] - 1);
+        k = cellId / (dim[1] - 1);
+        idx = j + k * dim[1];
         offset1 = 1;
-        offset2 = this->Dimensions[1];
+        offset2 = dim[1];
       }
       else if (this->DataDescription == VTK_XZ_PLANE)
       {
-        i = cellId % (this->Dimensions[0] - 1);
-        k = cellId / (this->Dimensions[0] - 1);
-        idx = i + k * this->Dimensions[0];
+        i = cellId % (dim[0] - 1);
+        k = cellId / (dim[0] - 1);
+        idx = i + k * dim[0];
         offset1 = 1;
-        offset2 = this->Dimensions[0];
+        offset2 = dim[0];
       }
 
       this->Points->GetPoint(idx, x);
@@ -656,13 +658,13 @@ void vtkStructuredGrid::GetCellBounds(vtkIdType cellId, double bounds[6])
       break;
 
     case VTK_XYZ_GRID:
-      d01 = this->Dimensions[0] * this->Dimensions[1];
-      i = cellId % (this->Dimensions[0] - 1);
-      j = (cellId / (this->Dimensions[0] - 1)) % (this->Dimensions[1] - 1);
-      k = cellId / ((this->Dimensions[0] - 1) * (this->Dimensions[1] - 1));
-      idx = i + j * this->Dimensions[0] + k * d01;
+      d01 = dim[0] * dim[1];
+      i = cellId % (dim[0] - 1);
+      j = (cellId / (dim[0] - 1)) % (dim[1] - 1);
+      k = cellId / ((dim[0] - 1) * (dim[1] - 1));
+      idx = i + j * dim[0] + k * d01;
       offset1 = 1;
-      offset2 = this->Dimensions[0];
+      offset2 = dim[0];
 
       this->Points->GetPoint(idx, x);
       bounds[0] = bounds[1] = x[0];
@@ -787,10 +789,11 @@ void vtkStructuredGrid::SetDimensions(const int dim[3])
 void vtkStructuredGrid::GetCellPoints(vtkIdType cellId, vtkIdList* ptIds)
 {
   // Update dimensions
-  this->GetDimensions();
+  int dim[3];
+  this->GetDimensions(dim);
 
   int iMin, iMax, jMin, jMax, kMin, kMax;
-  vtkIdType d01 = this->Dimensions[0] * this->Dimensions[1];
+  vtkIdType d01 = dim[0] * dim[1];
 
   ptIds->Reset();
   iMin = iMax = jMin = jMax = kMin = kMax = 0;
@@ -802,85 +805,85 @@ void vtkStructuredGrid::GetCellPoints(vtkIdType cellId, vtkIdList* ptIds)
 
     case VTK_SINGLE_POINT: // cellId can only be = 0
       ptIds->SetNumberOfIds(1);
-      ptIds->SetId(0, iMin + jMin * this->Dimensions[0] + kMin * d01);
+      ptIds->SetId(0, iMin + jMin * dim[0] + kMin * d01);
       break;
 
     case VTK_X_LINE:
       iMin = cellId;
       iMax = cellId + 1;
       ptIds->SetNumberOfIds(2);
-      ptIds->SetId(0, iMin + jMin * this->Dimensions[0] + kMin * d01);
-      ptIds->SetId(1, iMax + jMin * this->Dimensions[0] + kMin * d01);
+      ptIds->SetId(0, iMin + jMin * dim[0] + kMin * d01);
+      ptIds->SetId(1, iMax + jMin * dim[0] + kMin * d01);
       break;
 
     case VTK_Y_LINE:
       jMin = cellId;
       jMax = cellId + 1;
       ptIds->SetNumberOfIds(2);
-      ptIds->SetId(0, iMin + jMin * this->Dimensions[0] + kMin * d01);
-      ptIds->SetId(1, iMin + jMax * this->Dimensions[0] + kMin * d01);
+      ptIds->SetId(0, iMin + jMin * dim[0] + kMin * d01);
+      ptIds->SetId(1, iMin + jMax * dim[0] + kMin * d01);
       break;
 
     case VTK_Z_LINE:
       kMin = cellId;
       kMax = cellId + 1;
       ptIds->SetNumberOfIds(2);
-      ptIds->SetId(0, iMin + jMin * this->Dimensions[0] + kMin * d01);
-      ptIds->SetId(1, iMin + jMin * this->Dimensions[0] + kMax * d01);
+      ptIds->SetId(0, iMin + jMin * dim[0] + kMin * d01);
+      ptIds->SetId(1, iMin + jMin * dim[0] + kMax * d01);
       break;
 
     case VTK_XY_PLANE:
-      iMin = cellId % (this->Dimensions[0] - 1);
+      iMin = cellId % (dim[0] - 1);
       iMax = iMin + 1;
-      jMin = cellId / (this->Dimensions[0] - 1);
+      jMin = cellId / (dim[0] - 1);
       jMax = jMin + 1;
       ptIds->SetNumberOfIds(4);
-      ptIds->SetId(0, iMin + jMin * this->Dimensions[0] + kMin * d01);
-      ptIds->SetId(1, iMax + jMin * this->Dimensions[0] + kMin * d01);
-      ptIds->SetId(2, iMax + jMax * this->Dimensions[0] + kMin * d01);
-      ptIds->SetId(3, iMin + jMax * this->Dimensions[0] + kMin * d01);
+      ptIds->SetId(0, iMin + jMin * dim[0] + kMin * d01);
+      ptIds->SetId(1, iMax + jMin * dim[0] + kMin * d01);
+      ptIds->SetId(2, iMax + jMax * dim[0] + kMin * d01);
+      ptIds->SetId(3, iMin + jMax * dim[0] + kMin * d01);
       break;
 
     case VTK_YZ_PLANE:
-      jMin = cellId % (this->Dimensions[1] - 1);
+      jMin = cellId % (dim[1] - 1);
       jMax = jMin + 1;
-      kMin = cellId / (this->Dimensions[1] - 1);
+      kMin = cellId / (dim[1] - 1);
       kMax = kMin + 1;
       ptIds->SetNumberOfIds(4);
-      ptIds->SetId(0, iMin + jMin * this->Dimensions[0] + kMin * d01);
-      ptIds->SetId(1, iMin + jMax * this->Dimensions[0] + kMin * d01);
-      ptIds->SetId(2, iMin + jMax * this->Dimensions[0] + kMax * d01);
-      ptIds->SetId(3, iMin + jMin * this->Dimensions[0] + kMax * d01);
+      ptIds->SetId(0, iMin + jMin * dim[0] + kMin * d01);
+      ptIds->SetId(1, iMin + jMax * dim[0] + kMin * d01);
+      ptIds->SetId(2, iMin + jMax * dim[0] + kMax * d01);
+      ptIds->SetId(3, iMin + jMin * dim[0] + kMax * d01);
       break;
 
     case VTK_XZ_PLANE:
-      iMin = cellId % (this->Dimensions[0] - 1);
+      iMin = cellId % (dim[0] - 1);
       iMax = iMin + 1;
-      kMin = cellId / (this->Dimensions[0] - 1);
+      kMin = cellId / (dim[0] - 1);
       kMax = kMin + 1;
       ptIds->SetNumberOfIds(4);
-      ptIds->SetId(0, iMin + jMin * this->Dimensions[0] + kMin * d01);
-      ptIds->SetId(1, iMax + jMin * this->Dimensions[0] + kMin * d01);
-      ptIds->SetId(2, iMax + jMin * this->Dimensions[0] + kMax * d01);
-      ptIds->SetId(3, iMin + jMin * this->Dimensions[0] + kMax * d01);
+      ptIds->SetId(0, iMin + jMin * dim[0] + kMin * d01);
+      ptIds->SetId(1, iMax + jMin * dim[0] + kMin * d01);
+      ptIds->SetId(2, iMax + jMin * dim[0] + kMax * d01);
+      ptIds->SetId(3, iMin + jMin * dim[0] + kMax * d01);
       break;
 
     case VTK_XYZ_GRID:
-      iMin = cellId % (this->Dimensions[0] - 1);
+      iMin = cellId % (dim[0] - 1);
       iMax = iMin + 1;
-      jMin = (cellId / (this->Dimensions[0] - 1)) % (this->Dimensions[1] - 1);
+      jMin = (cellId / (dim[0] - 1)) % (dim[1] - 1);
       jMax = jMin + 1;
-      kMin = cellId / ((this->Dimensions[0] - 1) * (this->Dimensions[1] - 1));
+      kMin = cellId / ((dim[0] - 1) * (dim[1] - 1));
       kMax = kMin + 1;
       ptIds->SetNumberOfIds(8);
-      ptIds->SetId(0, iMin + jMin * this->Dimensions[0] + kMin * d01);
-      ptIds->SetId(1, iMax + jMin * this->Dimensions[0] + kMin * d01);
-      ptIds->SetId(2, iMax + jMax * this->Dimensions[0] + kMin * d01);
-      ptIds->SetId(3, iMin + jMax * this->Dimensions[0] + kMin * d01);
-      ptIds->SetId(4, iMin + jMin * this->Dimensions[0] + kMax * d01);
-      ptIds->SetId(5, iMax + jMin * this->Dimensions[0] + kMax * d01);
-      ptIds->SetId(6, iMax + jMax * this->Dimensions[0] + kMax * d01);
-      ptIds->SetId(7, iMin + jMax * this->Dimensions[0] + kMax * d01);
+      ptIds->SetId(0, iMin + jMin * dim[0] + kMin * d01);
+      ptIds->SetId(1, iMax + jMin * dim[0] + kMin * d01);
+      ptIds->SetId(2, iMax + jMax * dim[0] + kMin * d01);
+      ptIds->SetId(3, iMin + jMax * dim[0] + kMin * d01);
+      ptIds->SetId(4, iMin + jMin * dim[0] + kMax * d01);
+      ptIds->SetId(5, iMax + jMin * dim[0] + kMax * d01);
+      ptIds->SetId(6, iMax + jMax * dim[0] + kMax * d01);
+      ptIds->SetId(7, iMin + jMax * dim[0] + kMax * d01);
       break;
   }
 }
@@ -957,6 +960,8 @@ private:
 void vtkStructuredGrid::GetCellNeighbors(vtkIdType cellId, vtkIdList* ptIds, vtkIdList* cellIds)
 {
   int numPtIds = ptIds->GetNumberOfIds();
+  int dim[3];
+  this->GetDimensions(dim);
 
   // Use special methods for speed
   switch (numPtIds)
@@ -968,7 +973,7 @@ void vtkStructuredGrid::GetCellNeighbors(vtkIdType cellId, vtkIdList* ptIds, vtk
     case 1:
     case 2:
     case 4: // vertex, edge, face neighbors
-      vtkStructuredData::GetCellNeighbors(cellId, ptIds, cellIds, this->GetDimensions());
+      vtkStructuredData::GetCellNeighbors(cellId, ptIds, cellIds, dim);
       break;
 
     default:
@@ -990,6 +995,8 @@ void vtkStructuredGrid::GetCellNeighbors(
   vtkIdType cellId, vtkIdList* ptIds, vtkIdList* cellIds, int* seedLoc)
 {
   int numPtIds = ptIds->GetNumberOfIds();
+  int dim[3];
+  this->GetDimensions(dim);
 
   // Use special methods for speed
   switch (numPtIds)
@@ -1001,7 +1008,7 @@ void vtkStructuredGrid::GetCellNeighbors(
     case 1:
     case 2:
     case 4: // vertex, edge, face neighbors
-      vtkStructuredData::GetCellNeighbors(cellId, ptIds, cellIds, this->GetDimensions(), seedLoc);
+      vtkStructuredData::GetCellNeighbors(cellId, ptIds, cellIds, dim, seedLoc);
       break;
 
     default:
