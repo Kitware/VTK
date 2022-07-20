@@ -270,11 +270,12 @@ vtkODBCBoundParameter* vtkBuildODBCBoundParameter<const char*>(const char* data_
 {
   vtkODBCBoundParameter* param = new vtkODBCBoundParameter;
 
+  size_t len = strlen(data_value);
   param->DataTypeC = SQL_C_CHAR;
   param->DataTypeSQL = SQL_VARCHAR;
-  param->BufferSize = strlen(data_value);
-  param->DataLength = static_cast<unsigned long>(strlen(data_value));
-  param->SetData(data_value, static_cast<unsigned long>(strlen(data_value)));
+  param->BufferSize = len;
+  param->DataLength = static_cast<unsigned long>(len);
+  param->SetData(data_value, static_cast<unsigned long>(len));
 
   return param;
 }
