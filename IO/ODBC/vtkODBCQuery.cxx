@@ -248,7 +248,7 @@ VTK_ODBC_SQL_TYPENAME_MACRO(void*, SQL_VARBINARY);
 // int, long, etc).  I'll need to special-case strings and blobs.
 
 template <typename T>
-vtkODBCBoundParameter* vtkBuildODBCBoundParameter(T data_value)
+vtkODBCBoundParameter* vtkBuildODBCBoundParameter(T const& data_value)
 {
   vtkODBCBoundParameter* param = new vtkODBCBoundParameter;
 
@@ -266,7 +266,7 @@ vtkODBCBoundParameter* vtkBuildODBCBoundParameter(T data_value)
 // strings (i.e. CHAR and VARCHAR fields)
 
 template <>
-vtkODBCBoundParameter* vtkBuildODBCBoundParameter<const char*>(const char* data_value)
+vtkODBCBoundParameter* vtkBuildODBCBoundParameter<const char*>(const char* const& data_value)
 {
   vtkODBCBoundParameter* param = new vtkODBCBoundParameter;
 
