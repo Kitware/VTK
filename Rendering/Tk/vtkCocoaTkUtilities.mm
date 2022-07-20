@@ -20,7 +20,10 @@
 #import "vtkCocoaMacOSXSDKCompatibility.h" // Needed to support old SDKs
 #import <Cocoa/Cocoa.h>
 
+// The order of these two headers is important
 #import "tkMacOSXInt.h"
+#import "vtkTk.h"
+
 #import "vtkCocoaTkUtilities.h"
 #import "vtkObjectFactory.h"
 #import "vtkTcl.h"
