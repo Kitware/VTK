@@ -83,7 +83,7 @@ void vtkBoostPrimMinimumSpanningTree::SetOriginVertex(vtkIdType index)
 // know the specific index of the vertex.
 void vtkBoostPrimMinimumSpanningTree::SetOriginVertex(vtkStdString arrayName, vtkVariant value)
 {
-  this->SetArrayName(arrayName);
+  this->SetArrayName(arrayName.c_str());
   this->ArrayNameSet = true;
   this->OriginValue = value;
   this->Modified();

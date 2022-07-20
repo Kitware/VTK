@@ -147,7 +147,7 @@ int vtkBoostSplitTableField::RequestData(
       if (this->Fields->GetValue(field) == input->GetColumn(column)->GetName())
       {
         tokenizers[column] = new implementation::tokenizer_t(
-          std::string(), implementation::delimiter_t(this->Delimiters->GetValue(field)));
+          std::string(), implementation::delimiter_t(this->Delimiters->GetValue(field).c_str()));
         break;
       }
     }
