@@ -186,8 +186,15 @@ void vtkODBCQueryInternals::FreeStatement()
 
 //------------------------------------------------------------------------------
 
+template <typename T>
+SQLSMALLINT vtkODBCTypeNameC();
+
 #define VTK_ODBC_C_TYPENAME_MACRO(type, return_type)                                               \
-  SQLSMALLINT vtkODBCTypeNameC(type) { return return_type; }
+  template <>                                                                                      \
+  SQLSMALLINT vtkODBCTypeNameC<type>()                                                             \
+  {                                                                                                \
+    return return_type;                                                                            \
+  }
 
 VTK_ODBC_C_TYPENAME_MACRO(signed char, SQL_C_STINYINT);
 VTK_ODBC_C_TYPENAME_MACRO(unsigned char, SQL_C_UTINYINT);
@@ -206,8 +213,15 @@ VTK_ODBC_C_TYPENAME_MACRO(char*, SQL_C_CHAR);
 VTK_ODBC_C_TYPENAME_MACRO(unsigned char*, SQL_C_CHAR);
 VTK_ODBC_C_TYPENAME_MACRO(void*, SQL_C_BINARY);
 
+template <typename T>
+SQLSMALLINT vtkODBCTypeNameSQL();
+
 #define VTK_ODBC_SQL_TYPENAME_MACRO(type, return_type)                                             \
-  SQLSMALLINT vtkODBCTypeNameSQL(type) { return return_type; }
+  template <>                                                                                      \
+  SQLSMALLINT vtkODBCTypeNameSQL<type>()                                                           \
+  {                                                                                                \
+    return return_type;                                                                            \
+  }
 
 VTK_ODBC_SQL_TYPENAME_MACRO(signed char, SQL_TINYINT);
 VTK_ODBC_SQL_TYPENAME_MACRO(unsigned char, SQL_TINYINT);
@@ -238,8 +252,8 @@ vtkODBCBoundParameter* vtkBuildODBCBoundParameter(T data_value)
 {
   vtkODBCBoundParameter* param = new vtkODBCBoundParameter;
 
-  param->DataTypeC = vtkODBCTypeNameC(data_value);
-  param->DataTypeSQL = vtkODBCTypeNameSQL(data_value);
+  param->DataTypeC = vtkODBCTypeNameC<T>();
+  param->DataTypeSQL = vtkODBCTypeNameSQL<T>();
   param->BufferSize = sizeof(T);
   param->DataLength = sizeof(T);
   param->SetData(reinterpret_cast<const char*>(&data_value), sizeof(T));
