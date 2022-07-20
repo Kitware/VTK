@@ -2787,7 +2787,7 @@ void FillUnstructuredDataTopologyBuffer(
 
   // We're being careful to account for different storage options in cell arrays
 #ifdef VTK_USE_64BIT_IDS
-  if (!(maxPointId >> 32))
+  if (!(maxPointId >> 31) || !(blockStructure.ConnectivitySize >> 31))
   {
     cellArray->ConvertTo32BitStorage();
   }
@@ -2835,14 +2835,19 @@ void FillUnstructuredDataTopologyBuffer(
   vtkIdList* cellIdsToSend[] = { blockStructure.PolyIdsToSend, blockStructure.StripIdsToSend,
     blockStructure.LineIdsToSend };
 
+  // We're being careful to account for different storage options in cell arrays
+#ifdef VTK_USE_64BIT_IDS
+  bool convertTo32Bits = !(maxPointId >> 31) || !(connectivitySize[0] >> 31) ||
+    !(connectivitySize[1] >> 31) || !(connectivitySize[2]) >> 31;
+#endif
+
   for (int i = 0; i < 3; ++i)
   {
     vtkCellArray* cells = cellArrays[i];
     vtkCellArray* inputCells = inputCellArrays[i];
 
-    // We're being careful to account for different storage options in cell arrays
 #ifdef VTK_USE_64BIT_IDS
-    if (!(maxPointId >> 32))
+    if (convertTo32Bits)
     {
       cells->ConvertTo32BitStorage();
     }
@@ -4727,7 +4732,7 @@ void DeepCopyInputAndAllocateGhosts(::UnstructuredGridBlock* block,
 
 // We're being careful to account for different storage options in cell arrays
 #ifdef VTK_USE_64BIT_IDS
-  if (!(numberOfPoints >> 32))
+  if (!(numberOfPoints >> 31) || !(connectivitySize >> 31))
   {
     outputCellArray->ConvertTo32BitStorage();
   }
@@ -4809,7 +4814,8 @@ void DeepCopyInputAndAllocateGhosts(::PolyDataBlock* block,
 
 // We're being careful to account for different storage options in cell arrays
 #ifdef VTK_USE_64BIT_IDS
-  if (!(numberOfPoints >> 32))
+  if (!(numberOfPoints >> 31) || !(polyConnectivitySize >> 31) || !(stripConnectivitySize >> 31) ||
+    !(lineConnectivitySize >> 31))
   {
     outputPolys->ConvertTo32BitStorage();
     outputStrips->ConvertTo32BitStorage();
