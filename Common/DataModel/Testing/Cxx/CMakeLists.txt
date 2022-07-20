@@ -72,6 +72,7 @@ vtk_add_test_cxx(vtkCommonDataModelCxxTests tests
   TestTreeBFSIterator.cxx
   TestTreeDFSIterator.cxx
   TestTriangle.cxx
+  TestTetra.cxx
   TimePointLocators.cxx
   otherCellBoundaries.cxx
   otherCellPosition.cxx
