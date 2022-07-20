@@ -151,7 +151,7 @@ int vtkCompositeDataPipeline::ExecuteData(
     }
     else
     {
-      vtkErrorMacro("Can not execute simple algorithm " << this->Algorithm->GetClassName()
+      vtkErrorMacro("Can not execute simple algorithm " << this->Algorithm->GetObjectDescription()
                                                         << " without output ports");
       return 0;
     }
@@ -282,14 +282,12 @@ void vtkCompositeDataPipeline::ExecuteEach(vtkCompositeDataIterator* iter,
   vtkIdType block_index = 0;
 
   auto algo = this->GetAlgorithm();
-  int count = 0;
   for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem(), ++block_index)
   {
     if (algo->GetAbortOutput())
     {
       break;
     }
-    count++;
     vtkDataObject* dobj = iter->GetCurrentDataObject();
     if (dobj)
     {

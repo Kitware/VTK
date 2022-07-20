@@ -13,20 +13,6 @@
 
 =========================================================================*/
 
-#include "vtkCellData.h"
-#include "vtkFloatArray.h"
-#include "vtkImageAlgorithm.h"
-#include "vtkImageData.h"
-#include "vtkInformation.h"
-#include "vtkInformationVector.h"
-#include "vtkIntArray.h"
-#include "vtkObjectFactory.h"
-#include "vtkPointData.h"
-#include "vtkSmartPointer.h"
-#include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtkStringArray.h"
-#include "vtkVariant.h"
-
 #include "vtkClipDataSet.h"
 #include "vtkContourGrid.h"
 #include "vtkInformation.h"
