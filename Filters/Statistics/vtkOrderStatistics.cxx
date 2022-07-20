@@ -191,11 +191,11 @@ void vtkOrderStatistics::Learn(
 
   // Loop over requests
   vtkIdType nRow = inData->GetNumberOfRows();
-  for (std::set<std::set<std::string>>::iterator rit = this->Internals->Requests.begin();
+  for (std::set<std::set<vtkStdString>>::iterator rit = this->Internals->Requests.begin();
        rit != this->Internals->Requests.end(); ++rit)
   {
     // Each request contains only one column of interest (if there are others, they are ignored)
-    std::set<std::string>::const_iterator it = rit->begin();
+    std::set<vtkStdString>::const_iterator it = rit->begin();
     std::string col = *it;
     if (!inData->GetColumnByName(col.c_str()))
     {
@@ -766,11 +766,11 @@ void vtkOrderStatistics::Test(vtkTable* inData, vtkMultiBlockDataSet* inMeta, vt
   double inv_nq = 1. / nQuant;
   double inv_card = 1. / nRowData;
   double sqrt_card = sqrt(static_cast<double>(nRowData));
-  for (std::set<std::set<std::string>>::const_iterator rit = this->Internals->Requests.begin();
+  for (std::set<std::set<vtkStdString>>::const_iterator rit = this->Internals->Requests.begin();
        rit != this->Internals->Requests.end(); ++rit)
   {
     // Each request contains only one column of interest (if there are others, they are ignored)
-    std::set<std::string>::const_iterator it = rit->begin();
+    std::set<vtkStdString>::const_iterator it = rit->begin();
     std::string varName = *it;
     if (!inData->GetColumnByName(varName.c_str()))
     {

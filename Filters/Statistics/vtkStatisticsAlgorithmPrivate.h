@@ -34,6 +34,8 @@ PURPOSE.  See the above copyright notice for more information.
 #ifndef vtkStatisticsAlgorithmPrivate_h
 #define vtkStatisticsAlgorithmPrivate_h
 
+#include "vtkStdString.h"
+
 #include <set> // used to iterate over internal organs
 
 class vtkStatisticsAlgorithmPrivate
@@ -88,7 +90,7 @@ public:
   {
     if (col && *col)
     {
-      std::set<std::string> tmp;
+      std::set<vtkStdString> tmp;
       tmp.insert(col);
       if (this->Requests.insert(tmp).second)
       {
@@ -105,9 +107,9 @@ public:
    */
   int AddColumnPairToRequests(const char* cola, const char* colb)
   {
-    if (cola && colb && strlen(cola) && strlen(colb))
+    if (cola && colb && *cola && *colb)
     {
-      std::set<std::string> tmp;
+      std::set<vtkStdString> tmp;
       tmp.insert(cola);
       tmp.insert(colb);
       if (this->Requests.insert(tmp).second)
@@ -134,7 +136,7 @@ public:
     {
       return 0;
     }
-    std::set<std::set<std::string>>::iterator it = this->Requests.begin();
+    std::set<std::set<vtkStdString>>::iterator it = this->Requests.begin();
     for (vtkIdType i = 0; i < r; ++i)
     {
       ++it;
@@ -148,13 +150,13 @@ public:
    * Provide the name of the \a c-th column of the \a r-th request in \a columnName.
    * Returns false if the request or column does not exist and true otherwise.
    */
-  bool GetColumnForRequest(vtkIdType r, vtkIdType c, std::string& columnName)
+  bool GetColumnForRequest(vtkIdType r, vtkIdType c, vtkStdString& columnName)
   {
     if (r < 0 || r > static_cast<vtkIdType>(this->Requests.size()) || c < 0)
     {
       return false;
     }
-    std::set<std::set<std::string>>::const_iterator it = this->Requests.begin();
+    std::set<std::set<vtkStdString>>::const_iterator it = this->Requests.begin();
     for (vtkIdType i = 0; i < r; ++i)
     {
       ++it;
@@ -163,7 +165,7 @@ public:
     {
       return false;
     }
-    std::set<std::string>::const_iterator cit = it->begin();
+    std::set<vtkStdString>::const_iterator cit = it->begin();
     for (vtkIdType j = 0; j < c; ++j)
     {
       ++cit;
@@ -173,8 +175,8 @@ public:
   }
   ///@}
 
-  std::set<std::set<std::string>> Requests;
-  std::set<std::string> Buffer;
+  std::set<std::set<vtkStdString>> Requests;
+  std::set<vtkStdString> Buffer;
 };
 
 #endif // vtkStatisticsAlgorithmPrivate_h

@@ -272,11 +272,11 @@ void vtkAutoCorrelativeStatistics::Learn(
   row->SetNumberOfValues(7);
 
   // Loop over requests
-  for (std::set<std::set<std::string>>::const_iterator rit = this->Internals->Requests.begin();
+  for (std::set<std::set<vtkStdString>>::const_iterator rit = this->Internals->Requests.begin();
        rit != this->Internals->Requests.end(); ++rit)
   {
     // Each request contains only one column of interest (if there are others, they are ignored)
-    std::set<std::string>::const_iterator it = rit->begin();
+    std::set<vtkStdString>::const_iterator it = rit->begin();
     std::string varName = *it;
     if (!inData->GetColumnByName(varName.c_str()))
     {

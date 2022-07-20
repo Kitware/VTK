@@ -124,7 +124,7 @@ int vtkKMeansStatistics::InitializeDataAndClusterCenters(vtkTable* inParameters,
   vtkTable* dataElements, vtkIdTypeArray* numberOfClusters, vtkTable* curClusterElements,
   vtkTable* newClusterElements, vtkIdTypeArray* startRunID, vtkIdTypeArray* endRunID)
 {
-  std::set<std::set<std::string>>::const_iterator reqIt;
+  std::set<std::set<vtkStdString>>::const_iterator reqIt;
   if (this->Internals->Requests.size() > 1)
   {
     static int num = 0;
@@ -179,7 +179,7 @@ int vtkKMeansStatistics::InitializeDataAndClusterCenters(vtkTable* inParameters,
         endRunID->InsertNextValue(curRow);
       }
       vtkTable* condensedTable = vtkTable::New();
-      std::set<std::string>::const_iterator colItr;
+      std::set<vtkStdString>::const_iterator colItr;
       for (colItr = reqIt->begin(); colItr != reqIt->end(); ++colItr)
       {
         vtkAbstractArray* pArr = inParameters->GetColumnByName(colItr->c_str());
@@ -241,7 +241,7 @@ void vtkKMeansStatistics::CreateInitialClusterCenters(vtkIdType numToAllocate,
   vtkIdTypeArray* numberOfClusters, vtkTable* inData, vtkTable* curClusterElements,
   vtkTable* newClusterElements)
 {
-  std::set<std::set<std::string>>::const_iterator reqIt;
+  std::set<std::set<vtkStdString>>::const_iterator reqIt;
   if (this->Internals->Requests.size() > 1)
   {
     static int num = 0;

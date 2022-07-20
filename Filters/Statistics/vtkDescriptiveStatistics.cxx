@@ -33,6 +33,7 @@
 #include "vtkMath.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkObjectFactory.h"
+#include "vtkStdString.h"
 #include "vtkStringArray.h"
 #include "vtkTable.h"
 #include "vtkUnsignedCharArray.h"
@@ -407,11 +408,11 @@ void vtkDescriptiveStatistics::Learn(
   {
     numberOfGhostlessRow = nRow;
   }
-  for (std::set<std::set<std::string>>::const_iterator rit = this->Internals->Requests.begin();
+  for (std::set<std::set<vtkStdString>>::const_iterator rit = this->Internals->Requests.begin();
        rit != this->Internals->Requests.end(); ++rit)
   {
     // Each request contains only one column of interest (if there are others, they are ignored)
-    std::set<std::string>::const_iterator it = rit->begin();
+    std::set<vtkStdString>::const_iterator it = rit->begin();
     vtkStdString varName = *it;
     if (!inData->GetColumnByName(varName.c_str()))
     {
@@ -723,11 +724,11 @@ void vtkDescriptiveStatistics::Test(
   vtkStringArray* vars = vtkArrayDownCast<vtkStringArray>(primaryTab->GetColumnByName("Variable"));
 
   // Loop over requests
-  for (std::set<std::set<std::string>>::const_iterator rit = this->Internals->Requests.begin();
+  for (std::set<std::set<vtkStdString>>::const_iterator rit = this->Internals->Requests.begin();
        rit != this->Internals->Requests.end(); ++rit)
   {
     // Each request contains only one column of interest (if there are others, they are ignored)
-    std::set<std::string>::const_iterator it = rit->begin();
+    std::set<vtkStdString>::const_iterator it = rit->begin();
     vtkStdString varName = *it;
     if (!inData->GetColumnByName(varName.c_str()))
     {
