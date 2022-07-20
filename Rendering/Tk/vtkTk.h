@@ -25,5 +25,15 @@
 
 #include <tk.h>
 
+// These conflict with definitions in KWsys Status.hxx
+// Defined in X11/X.h in Tk Headers directory:
+#ifdef Success
+#undef Success
+#endif
+// Defined in X11/Xlib.h in Tk Headers directory:
+#ifdef Status
+#undef Status
+#endif
+
 #endif
 // VTK-HeaderTest-Exclude: vtkTk.h
