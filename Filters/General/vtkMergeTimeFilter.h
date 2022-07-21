@@ -44,7 +44,7 @@ public:
   vtkTypeMacro(vtkMergeTimeFilter, vtkMultiBlockDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set/Get the tolerance for comparing time step
    * values to see if they are close enough to be considered
@@ -52,9 +52,9 @@ public:
    */
   vtkSetClampMacro(Tolerance, double, 0, VTK_DOUBLE_MAX);
   vtkGetMacro(Tolerance, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get if the tolerance is relative to previous input or absolute.
    *
@@ -63,9 +63,9 @@ public:
   vtkSetMacro(UseRelativeTolerance, bool);
   vtkGetMacro(UseRelativeTolerance, bool);
   vtkBooleanMacro(UseRelativeTolerance, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get if the merge use intersection instead of union.
    * Default is false (union is used).
@@ -73,7 +73,7 @@ public:
   vtkSetMacro(UseIntersection, bool);
   vtkGetMacro(UseIntersection, bool);
   vtkBooleanMacro(UseIntersection, bool);
-  //@}
+  ///@}
 
 protected:
   vtkMergeTimeFilter() = default;

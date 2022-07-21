@@ -45,7 +45,7 @@ public:
    */
   void Execute();
 
-  //@{
+  ///@{
   /**
    * Set/Get command timeout in seconds.  A non-positive (<= 0) value will
    * disable the timeout.
@@ -54,9 +54,9 @@ public:
    */
   vtkSetMacro(Timeout, double);
   vtkGetMacro(Timeout, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get if we trim the ending whitespaces of the output.
    *
@@ -65,23 +65,23 @@ public:
   vtkSetMacro(RightTrimResult, bool);
   vtkGetMacro(RightTrimResult, bool);
   vtkBooleanMacro(RightTrimResult, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get command to execute. An empty command will do nothing.
    */
   vtkGetCharFromStdStringMacro(Command);
   vtkSetStdStringFromCharMacro(Command);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get output of the previously run command.
    */
   vtkGetCharFromStdStringMacro(StdOut);
   vtkGetCharFromStdStringMacro(StdErr);
-  //@}
+  ///@}
 
   /**
    * Get return value of last command. If no command has been

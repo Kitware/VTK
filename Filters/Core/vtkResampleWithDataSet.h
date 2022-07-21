@@ -118,9 +118,9 @@ public:
   void SetPassPartialArrays(bool arg);
   bool GetPassPartialArrays();
   vtkBooleanMacro(PassPartialArrays, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the tolerance used to compute whether a point in the
    * source is in a cell of the input.  This value is only used

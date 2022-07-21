@@ -45,7 +45,7 @@ class vtkIncrementalOctreeNode;
 class TreeInformation
 {
 public:
-  //@{
+  ///@{
   /**
    * Constructors for buildings, points and meshes.
    */
@@ -58,11 +58,11 @@ public:
   TreeInformation(vtkIncrementalOctreeNode* root, int numberOfNodes, vtkPolyData* mesh,
     const std::string& textureBaseDirectory, bool saveTextures, bool contentGLTF, const char* crs,
     const std::string& output);
-  //@}
+  ///@}
 
   void PrintNode(vtkIncrementalOctreeNode* node);
 
-  //@{
+  ///@{
   /**
    * Returns the bounds for node with index 'i'
    * The versions that returns a bool returns true if the node is not empty,
@@ -71,7 +71,7 @@ public:
   std::array<double, 6> GetNodeTightBounds(int i) { return NodeTightBounds[i]; }
   bool GetNodeTightBounds(int i, double* bounds);
   static bool GetNodeTightBounds(void* data, vtkIncrementalOctreeNode* node, double* bounds);
-  //@}
+  ///@}
 
   /**
    * Adds a node geometric error cell attribute for the bounding

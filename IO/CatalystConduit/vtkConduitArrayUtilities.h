@@ -48,14 +48,14 @@ public:
   vtkTypeMacro(vtkConduitArrayUtilities, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Returns a vtkDataArray from a conduit node in the conduit mcarray protocol.
    */
   static vtkSmartPointer<vtkDataArray> MCArrayToVTKArray(const conduit_node* mcarray);
   static vtkSmartPointer<vtkDataArray> MCArrayToVTKArray(
     const conduit_node* mcarray, const std::string& arrayname);
-  //@}
+  ///@}
 
   /**
    * Converts an mcarray to vtkCellArray.

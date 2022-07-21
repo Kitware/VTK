@@ -154,12 +154,12 @@ public:
   void SetRequestedRenderMode(int);
   ///@}
 
-  //@{
+  ///@{
   /**
    * \sa vtkSmartVolumeMapper::SetTransfer2DYAxisArray
    */
   void SetTransfer2DYAxisArray(const char* a);
-  //@}
+  ///@}
 
 protected:
   vtkMultiBlockVolumeMapper();

@@ -61,9 +61,9 @@ public:
    */
   vtkSetFilePathMacro(TextureFileName);
   vtkGetFilePathMacro(TextureFileName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set the file name of the OBJ file.
    */

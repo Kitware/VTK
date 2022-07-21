@@ -76,7 +76,7 @@ public:
    * Returns the names of arrays for 'attributeType' (point or cell).
    */
   std::vector<std::string> GetArrayNames(int attributeType);
-  //@{
+  ///@{
   /**
    * Reads and returns a new vtkDataArray. The actual type of the array
    * depends on the type of the HDF array. The array is read from the PointData
@@ -89,9 +89,9 @@ public:
     int attributeType, const char* name, const std::vector<hsize_t>& fileExtent);
   vtkDataArray* NewArray(int attributeType, const char* name, hsize_t offset, hsize_t size);
   vtkAbstractArray* NewFieldArray(const char* name);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Reads a 1D metadata array in a DataArray or a vector of vtkIdType.
    * We read either the whole array for the vector version or a slice
@@ -100,7 +100,7 @@ public:
    */
   vtkDataArray* NewMetadataArray(const char* name, hsize_t offset, hsize_t size);
   std::vector<vtkIdType> GetMetadata(const char* name, hsize_t size);
-  //@}
+  ///@}
   /**
    * Returns the dimensions of a HDF dataset.
    */
@@ -159,7 +159,7 @@ protected:
   template <typename T>
   vtkDataArray* NewVtkDataArray();
 
-  //@{
+  ///@{
   /**
    * Reads a vtkDataArray of type T from the attributeType, dataset
    * The array has type 'T' and 'numberOfComponents'. We are reading
@@ -183,7 +183,7 @@ protected:
   bool NewArray(
     hid_t dataset, const std::vector<hsize_t>& fileExtent, hsize_t numberOfComponents, T* data);
   vtkStringArray* NewStringArray(hid_t dataset, hsize_t size);
-  //@}
+  ///@}
   /**
    * Builds a map between native types and GetArray routines for that type.
    */
@@ -210,7 +210,7 @@ private:
 
   bool ReadDataSetType();
 
-  //@{
+  ///@{
   /**
    * These methods are valid only with AMR data set type.
    */
@@ -221,7 +221,7 @@ private:
     vtkOverlappingAMR* data, double origin[3]);
   bool ReadLevelData(unsigned int level, const std::string& levelGroupName, vtkOverlappingAMR* data,
     vtkDataArraySelection* dataArraySelection[3]);
-  //@}
+  ///@}
 };
 
 //------------------------------------------------------------------------------

@@ -243,7 +243,7 @@ public:
   void SetDisplacementMagnitude(double s) { this->DisplacementMagnitude = s; }
   double GetDisplacementMagnitude() { return this->DisplacementMagnitude; }
 
-  //@{
+  ///@{
   /**
    * Cache related API.
    */
@@ -263,7 +263,7 @@ public:
         break;
     }
   }
-  //@}
+  ///@}
 
   /**
    * Processes filenames to populate names for Ioss databases to read.
@@ -433,7 +433,7 @@ private:
     return this->GetRegion(handle.first, handle.second);
   }
 
-  //@{
+  ///@{
   /**
    * Reads a field with name `fieldname` from entity block or set with chosen name
    * (`blockname`) and type (`vtk_entity_type`). Field may be a result
@@ -448,7 +448,7 @@ private:
   vtkSmartPointer<vtkAbstractArray> GetField(const std::string& fieldname, Ioss::Region* region,
     Ioss::GroupingEntity* group_entity, const DatabaseHandle& handle, int timestep,
     vtkIdTypeArray* ids_to_extract = nullptr, const std::string& cache_key_suffix = std::string());
-  //@}
+  ///@}
 
   /**
    * Fill up the `grid` with connectivity information for the entity block (or

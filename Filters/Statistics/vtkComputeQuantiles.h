@@ -51,14 +51,14 @@ public:
   vtkTypeMacro(vtkComputeQuantiles, vtkTableAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set/get the number of intervals into which the data is to be divided.
    * Default is 4.
    */
   vtkGetMacro(NumberOfIntervals, int);
   vtkSetMacro(NumberOfIntervals, int);
-  //@}
+  ///@}
 
 protected:
   vtkComputeQuantiles();

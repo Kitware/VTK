@@ -158,9 +158,9 @@ public:
    */
   vtkSetClampMacro(Zoom, double, 0.1, 10.0);
   vtkGetMacro(Zoom, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Need to reimplement this->Modified() because of the
    * vtkSetVector4Macro/vtkGetVector4Macro use
@@ -168,23 +168,23 @@ public:
   void Modified() override;
   ///@}
 
-  //@{
+  ///@{
   /**
    * Ends any in progress interaction and resets border visibility
    */
   void EndInteraction() override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get whether the widget should constrain the size to be within the min and max limits.
    * Default is off (unconstrained).
    */
   void SetShouldConstrainSize(const vtkTypeBool shouldConstrainSize);
   vtkGetMacro(ShouldConstrainSize, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Sets the minimum and maximum dimension (width and height) size limits for the widget.
    * Validates the sizes are within tolerances before setting; ignoring otherwise.
@@ -192,21 +192,21 @@ public:
    * Returns whether the sizes are valid and correctly set (true), or invalid (false).
    */
   bool SetSizeConstraintDimensionSizes(const int minDimensionSize, const int maxDimensionSize);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Returns the minimum dimension (width and height) size limit in pixels for the widget.
    */
   vtkGetMacro(MinDimensionSize, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Returns the maximum dimension (width and height) size limit in pixels for the widget.
    */
   vtkGetMacro(MaxDimensionSize, int);
-  //@}
+  ///@}
 
 protected:
   vtkOrientationMarkerWidget();

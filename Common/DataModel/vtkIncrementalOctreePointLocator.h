@@ -140,7 +140,7 @@ public:
    */
   vtkIdType FindClosestInsertedPoint(const double x[3]) override;
 
-  //@{
+  ///@{
   /**
    * Create a polygonal representation of the octree 'level': for each node
    * on the specified level we generate six faces for the bounding box of the node.
@@ -156,7 +156,7 @@ public:
   void GenerateRepresentation(int level, vtkPolyData* polysData) override;
   void GenerateRepresentation(int level, vtkPolyData* polysData,
     bool (*UserGetBounds)(void* data, vtkIncrementalOctreeNode* node, double* bounds), void* data);
-  //@}
+  ///@}
 
   // -------------------------------------------------------------------------
   // ---------------------------- Point  Location ----------------------------

@@ -180,7 +180,7 @@ public:
   vtkBooleanMacro(ComputeNormals, vtkTypeBool);
   ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get flag to compute scalars. When enabled, and when the
     InterpolateAttributes option is on, vtkContour3DLinearGrid will add an
@@ -190,7 +190,7 @@ public:
   vtkSetMacro(ComputeScalars, vtkTypeBool);
   vtkGetMacro(ComputeScalars, vtkTypeBool);
   vtkBooleanMacro(ComputeScalars, vtkTypeBool);
-  //@}
+  ///@}
 
   ///@{
   /**

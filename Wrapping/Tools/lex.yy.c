@@ -4082,7 +4082,7 @@ void doxygen_cpp_comment()
 }
 
 /*
- * Called for //@{
+ * Called for ///@{
  */
 void doxygen_group_start()
 {
@@ -4091,7 +4091,7 @@ void doxygen_group_start()
 }
 
 /*
- * Called for //@}
+ * Called for ///@}
  */
 void doxygen_group_end()
 {

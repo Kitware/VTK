@@ -47,13 +47,13 @@ public:
    */
   void GetBounds(double bounds[4]) override;
 
-  //@{
+  ///@{
   /**
    * Get/Set the plot bar object to work with.
    */
   vtkSetSmartPointerMacro(PlotBar, vtkPlotBar);
   vtkGetSmartPointerMacro(PlotBar, vtkPlotBar);
-  //@}
+  ///@}
 
 protected:
   vtkPlotBarRangeHandlesItem() = default;

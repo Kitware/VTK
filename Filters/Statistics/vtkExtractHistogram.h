@@ -44,7 +44,7 @@ public:
   vtkTypeMacro(vtkExtractHistogram, vtkTableAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Controls which input data component should be binned, for input arrays
    * with more-than-one component.  Setting this to the number of components
@@ -53,18 +53,18 @@ public:
    */
   vtkSetClampMacro(Component, int, 0, VTK_INT_MAX);
   vtkGetMacro(Component, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Controls the number of bins N in the output histogram data.
    * Default is 10.
    */
   vtkSetClampMacro(BinCount, int, 1, VTK_INT_MAX);
   vtkGetMacro(BinCount, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set if first and last bins must be centered around the min and max
    * data. This is only used when UseCustomBinRanges is set to false.
@@ -73,9 +73,9 @@ public:
   vtkSetMacro(CenterBinsAroundMinAndMax, bool);
   vtkGetMacro(CenterBinsAroundMinAndMax, bool);
   vtkBooleanMacro(CenterBinsAroundMinAndMax, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set custom bin range to use. These are used only when
    * UseCustomBinRanges is set to true.
@@ -83,9 +83,9 @@ public:
    */
   vtkSetVector2Macro(CustomBinRanges, double);
   vtkGetVector2Macro(CustomBinRanges, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * When set to true, CustomBinRanges will  be used instead of using the full
    * range for the selected array.
@@ -94,9 +94,9 @@ public:
   vtkSetMacro(UseCustomBinRanges, bool);
   vtkGetMacro(UseCustomBinRanges, bool);
   vtkBooleanMacro(UseCustomBinRanges, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * This option controls whether the algorithm calculates averages
    * of variables other than the primary variable that fall into each
@@ -106,27 +106,27 @@ public:
   vtkSetMacro(CalculateAverages, bool);
   vtkGetMacro(CalculateAverages, bool);
   vtkBooleanMacro(CalculateAverages, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the name of the bin extents array.
    * Default is "bin_extents".
    */
   vtkSetStringMacro(BinExtentsArrayName);
   vtkGetStringMacro(BinExtentsArrayName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the name of the bin values array.
    * Default is "bin_values".
    */
   vtkSetStringMacro(BinValuesArrayName);
   vtkGetStringMacro(BinValuesArrayName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If this option is set then the bin values will be normalized so that the sum of the bin values
    * adds up to 1.0.
@@ -135,9 +135,9 @@ public:
   vtkSetMacro(Normalize, bool);
   vtkBooleanMacro(Normalize, bool);
   vtkGetMacro(Normalize, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If this option is set to true then the output table will contain an additional column with
    * accumulated bin values.
@@ -146,23 +146,23 @@ public:
   vtkSetMacro(Accumulation, bool);
   vtkBooleanMacro(Accumulation, bool);
   vtkGetMacro(Accumulation, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the name of the optional bin accumulation array.
    * Default is "bin_accumulation".
    */
   vtkSetStringMacro(BinAccumulationArrayName);
   vtkGetStringMacro(BinAccumulationArrayName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the bin range which was used to create the bin extents.
    */
   vtkGetVector2Macro(BinRange, double);
-  //@}
+  ///@}
 
 protected:
   vtkExtractHistogram();

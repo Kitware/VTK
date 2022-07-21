@@ -55,7 +55,7 @@ public:
   vtkTypeMacro(vtkHyperTreeGridMapper, vtkMapper);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set the connection for the given input port index.  Each input
    * port of a filter has a specific purpose.  A port may have zero or
@@ -70,9 +70,9 @@ public:
   using Superclass::SetInputConnection;
   void SetInputDataObject(int port, vtkDataObject* input) override;
   void SetInputDataObject(vtkDataObject* input) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * For this mapper, the bounds correspond to the output for the
    * internal surface filter which may be restricted to the Camera frustum
@@ -80,9 +80,9 @@ public:
    */
   double* GetBounds() override;
   void GetBounds(double bounds[6]) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * This boolean control whether or not the mapping should adapt
    * to the Camera frustum during the rendering. Setting this variable
@@ -91,7 +91,7 @@ public:
   vtkGetMacro(UseAdaptiveDecimation, bool);
   vtkSetMacro(UseAdaptiveDecimation, bool);
   vtkBooleanMacro(UseAdaptiveDecimation, bool);
-  //@}
+  ///@}
 
   /**
    * Use the internal PolyData Mapper to do the rendering
