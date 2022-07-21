@@ -280,6 +280,12 @@ vtkODBCBoundParameter* vtkBuildODBCBoundParameter<const char*>(const char* const
   return param;
 }
 
+template <>
+vtkODBCBoundParameter* vtkBuildODBCBoundParameter<vtkStdString>(vtkStdString const& data_value)
+{
+  return vtkBuildODBCBoundParameter(data_value.c_str());
+}
+
 // Description:
 // Alternate signature for vtkBuildBoundParameter to handle blobs
 
