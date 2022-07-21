@@ -389,6 +389,7 @@ set(
 	include/libxml/xpath.h
 	include/libxml/xpathInternals.h
 	include/libxml/xpointer.h
+	${CMAKE_CURRENT_BINARY_DIR}/include/libxml/xmlversion.h
 )
 
 set(
@@ -775,11 +776,9 @@ if (FALSE) # XXX(kitware): mask installation rules
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/libxml/xmlversion.h DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/libxml2/libxml COMPONENT development)
 endif ()
 
-if(MSVC)
+if(MSVC AND FALSE) # XXX(kitware): not used
 	configure_file(include/libxml/xmlwin32version.h.in libxml/xmlwin32version.h)
-	if (FALSE) # XXX(kitware): mask installation rules
 	install(FILES ${CMAKE_CURRENT_BINARY_DIR}/libxml/xmlwin32version.h DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/libxml2/libxml COMPONENT development)
-	endif ()
 endif()
 
 if(LIBXML2_WITH_PYTHON)
