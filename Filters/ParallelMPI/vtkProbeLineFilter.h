@@ -47,8 +47,8 @@
 #define vtkProbeLineFilter_h
 
 #include "vtkDataObjectAlgorithm.h"
-#include "vtkFiltersParallelDIY2Module.h" // For export macro
-#include "vtkSmartPointer.h"              // For sampling line
+#include "vtkFiltersParallelMPIModule.h" // For export macro
+#include "vtkSmartPointer.h"             // For sampling line
 
 #include <vector> // For sampling line
 
@@ -61,7 +61,7 @@ class vtkPolyData;
 class vtkVector3d;
 class vtkHyperTreeGrid;
 
-class VTKFILTERSPARALLELDIY2_EXPORT vtkProbeLineFilter : public vtkDataObjectAlgorithm
+class VTKFILTERSPARALLELMPI_EXPORT vtkProbeLineFilter : public vtkDataObjectAlgorithm
 {
 public:
   vtkTypeMacro(vtkProbeLineFilter, vtkDataObjectAlgorithm);

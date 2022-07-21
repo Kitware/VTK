@@ -14,19 +14,14 @@
 =========================================================================*/
 #include "vtkProbeLineFilter.h"
 
-#include "vtkAggregateDataSetFilter.h"
 #include "vtkAppendArcLength.h"
 #include "vtkAppendDataSets.h"
 #include "vtkCell.h"
-#include "vtkCellCenters.h"
 #include "vtkCellData.h"
 #include "vtkCellIterator.h"
 #include "vtkCellLocatorStrategy.h"
 #include "vtkCharArray.h"
 #include "vtkCompositeDataSet.h"
-#include "vtkCutter.h"
-#include "vtkDIYExplicitAssigner.h"
-#include "vtkDIYUtilities.h"
 #include "vtkDataArrayRange.h"
 #include "vtkDataObject.h"
 #include "vtkDataSet.h"
@@ -44,7 +39,6 @@
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPProbeFilter.h"
-#include "vtkPlane.h"
 #include "vtkPointData.h"
 #include "vtkPointSet.h"
 #include "vtkPoints.h"
@@ -56,7 +50,6 @@
 #include "vtkStaticCellLocator.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStringArray.h"
-#include "vtkStripper.h"
 #include "vtkVectorOperators.h"
 
 #include <algorithm>
@@ -318,7 +311,7 @@ protected:
     while (true)
     {
       double distP1 = std::numeric_limits<double>::max();
-      double distP2;
+      double distP2 = 0.0;
       short dsIndex = -1;
       for (size_t ds = 0; ds < inputs.size(); ++ds)
       {
@@ -332,7 +325,7 @@ protected:
         if (currentDistP1 < distP1)
         {
           distP2 = arclength->GetTuple1(pointIndices[ds] + 1);
-          dsIndex = ds;
+          dsIndex = static_cast<short>(ds);
           distP1 = currentDistP1;
         }
       }
@@ -703,7 +696,7 @@ protected:
         double currentDist = lengthArrays[ds]->GetTuple1(inputIdx[ds]);
         if (currentDist < minDist)
         {
-          dsIndex = ds;
+          dsIndex = static_cast<short>(ds);
           minDist = currentDist;
         }
       }
