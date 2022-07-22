@@ -2574,8 +2574,8 @@ int vtkGeometryFilter::PolyDataExecute(
     }
     return ExecutePolyData<TInputIdType>(this, dataSetInput, output, &exc);
   }
-#endif
   else
+#endif
   {
     using TInputIdType = vtkTypeInt32;
     vtkExcludedFaces<TInputIdType> exc;
@@ -3313,8 +3313,8 @@ int ExecuteStructured(vtkGeometryFilter* self, vtkDataSet* input, vtkPolyData* o
         self->GetOriginalCellIdsName(), extStr, &compCells, &threads, outCD);
     }
   }
-#endif
   else
+#endif
   {
     using TOutputIdType = vtkTypeInt32;
     CompositeCells<TInputIdType, TOutputIdType> compCells(
