@@ -107,6 +107,8 @@ vtkSmartVolumeMapper::vtkSmartVolumeMapper()
   // mode changes
   this->InitializedBlendMode = -1;
 
+  this->LowResMode = LowResModeDisabled;
+
   // Create the forwarding command
   vtkEventForwarderCommand* cb = vtkEventForwarderCommand::New();
   cb->SetTarget(this);
@@ -482,14 +484,14 @@ void vtkSmartVolumeMapper::ComputeRenderMode(vtkRenderer* ren, vtkVolume* vol)
 
       // if any of the scale factors is not 1.0, then we do need
       // to use the low res mapper for interactive rendering
-      if (scale[0] != 1.0 || scale[1] != 1.0 || scale[2] != 1.0)
+      if (LowResMode == LowResModeResample && scale[0] != 1.0 || scale[1] != 1.0 || scale[2] != 1.0)
       {
         this->LowResGPUNecessary = 1;
         this->ConnectFilterInput(this->GPUResampleFilter);
         this->GPUResampleFilter->SetInterpolationMode(this->InterpolationMode);
-        this->GPUResampleFilter->SetAxisMagnificationFactor(0, scale[0] / 2.0);
-        this->GPUResampleFilter->SetAxisMagnificationFactor(1, scale[1] / 2.0);
-        this->GPUResampleFilter->SetAxisMagnificationFactor(2, scale[2] / 2.0);
+        this->GPUResampleFilter->SetAxisMagnificationFactor(0, scale[0]);
+        this->GPUResampleFilter->SetAxisMagnificationFactor(1, scale[1]);
+        this->GPUResampleFilter->SetAxisMagnificationFactor(2, scale[2]);
 
         this->GPULowResMapper->SetMaxMemoryInBytes(this->MaxMemoryInBytes);
         this->GPULowResMapper->SetMaxMemoryFraction(this->MaxMemoryFraction);
