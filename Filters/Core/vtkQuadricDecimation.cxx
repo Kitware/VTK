@@ -320,15 +320,16 @@ int vtkQuadricDecimation::RequestData(vtkInformation* vtkNotUsed(request),
   this->NumberOfEdgeCollapses = 0;
   edgeId = this->EdgeCosts->Pop(0, cost);
 
-  int abort = 0;
-  while (
-    !abort && edgeId >= 0 && cost < VTK_DOUBLE_MAX && this->ActualReduction < this->TargetReduction)
+  while (edgeId >= 0 && cost < VTK_DOUBLE_MAX && this->ActualReduction < this->TargetReduction)
   {
     if (!(this->NumberOfEdgeCollapses % 10000))
     {
       vtkDebugMacro(<< "Collapsing edge#" << this->NumberOfEdgeCollapses);
       this->UpdateProgress(0.20 + 0.80 * this->NumberOfEdgeCollapses / numPts);
-      abort = this->GetAbortExecute();
+      if (this->GetAbortExecute())
+      {
+        break;
+      }
     }
 
     endPtIds[0] = this->EndPoint1List->GetId(edgeId);
