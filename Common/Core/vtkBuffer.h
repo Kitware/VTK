@@ -230,7 +230,7 @@ bool vtkBuffer<ScalarT>::Reallocate(vtkIdType newsize)
     {
       return false;
     }
-    std::copy(this->Pointer, this->Pointer + std::min(this->Size, newsize), newArray);
+    std::copy(this->Pointer, this->Pointer + (std::min)(this->Size, newsize), newArray);
     // now save the new array and release the old one too.
     this->SetBuffer(newArray, newsize);
     if (!this->MallocFunction || forceFreeFunction)

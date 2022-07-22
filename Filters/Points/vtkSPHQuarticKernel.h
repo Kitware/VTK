@@ -68,9 +68,9 @@ public:
    */
   double ComputeFunctionWeight(const double d) override
   {
-    double tmp1 = 2.5 - std::min(d, 2.5);
-    double tmp2 = 1.5 - std::min(d, 1.5);
-    double tmp3 = 0.5 - std::min(d, 0.5);
+    double tmp1 = 2.5 - (std::min)(d, 2.5);
+    double tmp2 = 1.5 - (std::min)(d, 1.5);
+    double tmp3 = 0.5 - (std::min)(d, 0.5);
     return (tmp1 * tmp1 * tmp1 * tmp1 - 5.0 * tmp2 * tmp2 * tmp2 * tmp2 +
       10.0 * tmp3 * tmp3 * tmp3 * tmp3);
   }
@@ -83,9 +83,9 @@ public:
    */
   double ComputeDerivWeight(const double d) override
   {
-    double tmp1 = 2.5 - std::min(d, 2.5);
-    double tmp2 = 1.5 - std::min(d, 1.5);
-    double tmp3 = 0.5 - std::min(d, 0.5);
+    double tmp1 = 2.5 - (std::min)(d, 2.5);
+    double tmp2 = 1.5 - (std::min)(d, 1.5);
+    double tmp3 = 0.5 - (std::min)(d, 0.5);
     return (-4.0 * tmp1 * tmp1 * tmp1 + 20.0 * tmp2 * tmp2 * tmp2 - 40.0 * tmp3 * tmp3 * tmp3);
   }
   ///@}
