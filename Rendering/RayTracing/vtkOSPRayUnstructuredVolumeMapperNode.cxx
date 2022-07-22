@@ -152,7 +152,9 @@ void vtkOSPRayUnstructuredVolumeMapperNode::Render(bool prepass)
         }
         verticesData = ospNewCopyData1D(vertices.data(), OSP_VEC3F, numberOfPoints);
       }
+      ospCommit(verticesData);
       ospSetObject(this->OSPRayVolume, "vertex.position", verticesData);
+      ospRelease(verticesData);
 
       // Now the connectivity
       auto cellArray = dataSet->GetCells();
@@ -163,15 +165,21 @@ void vtkOSPRayUnstructuredVolumeMapperNode::Render(bool prepass)
         auto ctypes = dataSet->GetCellTypesArray();
         OSPData cellTypeData =
           ospNewSharedData1D(ctypes->GetVoidPointer(0), OSP_UCHAR, numberOfCells);
+        ospCommit(cellTypeData);
         ospSetObject(this->OSPRayVolume, "cell.type", cellTypeData);
         auto off = cellArray->GetOffsetsArray();
         OSPData cellIndexData =
           ospNewSharedData1D(off->GetVoidPointer(0), is32bit ? OSP_UINT : OSP_ULONG, numberOfCells);
+        ospCommit(cellIndexData);
         ospSetObject(this->OSPRayVolume, "cell.index", cellIndexData);
         auto con = cellArray->GetConnectivityArray();
         OSPData indexData = ospNewSharedData1D(
           con->GetVoidPointer(0), is32bit ? OSP_UINT : OSP_ULONG, con->GetNumberOfTuples() - 1);
+        ospCommit(indexData);
         ospSetObject(this->OSPRayVolume, "index", indexData);
+        ospRelease(cellTypeData);
+        ospRelease(cellIndexData);
+        ospRelease(indexData);
       }
       else
       {
@@ -218,11 +226,17 @@ void vtkOSPRayUnstructuredVolumeMapperNode::Render(bool prepass)
           }
         }
         OSPData cellTypeData = ospNewCopyData1D(ctypes.data(), OSP_UCHAR, ctypes.size());
+        ospCommit(cellTypeData);
         ospSetObject(this->OSPRayVolume, "cell.type", cellTypeData);
         OSPData cellIndexData = ospNewCopyData1D(off.data(), OSP_UINT, off.size());
+        ospCommit(cellIndexData);
         ospSetObject(this->OSPRayVolume, "cell.index", cellIndexData);
         OSPData indexData = ospNewCopyData1D(con.data(), OSP_UINT, con.size());
+        ospCommit(indexData);
         ospSetObject(this->OSPRayVolume, "index", indexData);
+        ospRelease(cellTypeData);
+        ospRelease(cellIndexData);
+        ospRelease(indexData);
       }
     }
 
@@ -269,6 +283,7 @@ void vtkOSPRayUnstructuredVolumeMapperNode::Render(bool prepass)
         }
         fieldData = ospNewCopyData1D(field.data(), OSP_FLOAT, numberOfElements);
       }
+      ospCommit(fieldData);
       if (fieldAssociation)
       {
         ospSetObject(this->OSPRayVolume, "cell.data", fieldData);
@@ -338,10 +353,12 @@ void vtkOSPRayUnstructuredVolumeMapperNode::Render(bool prepass)
       }
 
       OSPData colorData = ospNewCopyData1D(&tfCVals[0], OSP_VEC3F, this->NumColors);
+      ospCommit(colorData);
 
       auto oTF = ospNewTransferFunction("piecewiseLinear");
       ospSetObject(oTF, "color", colorData);
       OSPData tfAlphaData = ospNewCopyData1D(&tfOVals[0], OSP_FLOAT, NumColors);
+      ospCommit(tfAlphaData);
       ospSetObject(oTF, "opacity", tfAlphaData);
       ospSetVec2f(oTF, "valueRange", range[0], range[1]);
       ospCommit(oTF);
@@ -365,6 +382,8 @@ void vtkOSPRayUnstructuredVolumeMapperNode::Render(bool prepass)
     }
 
     OSPGroup group = ospNewGroup();
+    // instance object doesn't need a matching ospRelease() here because the responsibility
+    // for its destruction gets handed off to the vtkRendererNode
     OSPInstance instance = ospNewInstance(group);
     OSPData instanceData = ospNewSharedData1D(&this->OSPRayVolumeModel, OSP_VOLUMETRIC_MODEL, 1);
     ospCommit(instanceData);
