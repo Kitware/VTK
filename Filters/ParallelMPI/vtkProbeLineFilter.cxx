@@ -321,12 +321,18 @@ protected:
         }
 
         vtkDoubleArray* arclength = lengthArrays[ds];
-        double currentDistP1 = arclength->GetTuple1(pointIndices[ds]);
-        if (currentDistP1 < distP1)
+        const double currentDistP1 = arclength->GetTuple1(pointIndices[ds]);
+        const double currentDistP2 = arclength->GetTuple1(pointIndices[ds] + 1);
+        if (vtkMathUtilities::NearlyEqual(currentDistP1, distP1, this->Tolerance) &&
+          vtkMathUtilities::NearlyEqual(currentDistP2, distP2, this->Tolerance))
         {
-          distP2 = arclength->GetTuple1(pointIndices[ds] + 1);
-          dsIndex = static_cast<short>(ds);
+          pointIndices[ds] += 2;
+        }
+        else if (currentDistP1 < distP1)
+        {
           distP1 = currentDistP1;
+          distP2 = currentDistP2;
+          dsIndex = static_cast<short>(ds);
         }
       }
 
@@ -401,6 +407,7 @@ protected:
   {
     vtkIdType startFor = 0;
     vtkIdType endFor = mergedInputIndices.size();
+    // If first point is outside then compute validpointmask and arclength
     if (mergedInputIndices[0].DsIndex < 0)
     {
       ++startFor;
@@ -414,6 +421,7 @@ protected:
       arclength->SetValue(0, 0.0);
       arclength->SetValue(1, lengthArrays[nextInfo.DsIndex]->GetValue(nextInfo.PtIndex));
     }
+    // Same for last point
     if (mergedInputIndices.back().DsIndex < 0)
     {
       --endFor;
