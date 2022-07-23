@@ -164,7 +164,7 @@ void vtkBoostBreadthFirstSearchTree::SetOriginVertex(vtkIdType index)
 // know the specific index of the vertex.
 void vtkBoostBreadthFirstSearchTree::SetOriginVertex(vtkStdString arrayName, vtkVariant value)
 {
-  this->SetArrayName(arrayName);
+  this->SetArrayName(arrayName.c_str());
   this->ArrayNameSet = true;
   this->OriginValue = value;
   this->Modified();

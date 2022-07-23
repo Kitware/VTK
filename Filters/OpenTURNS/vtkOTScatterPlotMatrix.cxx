@@ -111,8 +111,8 @@ void vtkOTScatterPlotMatrix::AddSupplementaryPlot(
     density->SetValue(0, 0.1);
     density->SetValue(1, 0.5);
     density->SetValue(2, 0.9);
-    density->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_ROWS, row);
-    density->SetInputArrayToProcess(1, 0, 0, vtkDataObject::FIELD_ASSOCIATION_ROWS, column);
+    density->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_ROWS, row.c_str());
+    density->SetInputArrayToProcess(1, 0, 0, vtkDataObject::FIELD_ASSOCIATION_ROWS, column.c_str());
     density->Update();
 
     // Iterate over multiblock output to drow the density maps

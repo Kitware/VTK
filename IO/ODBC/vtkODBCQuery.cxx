@@ -186,8 +186,15 @@ void vtkODBCQueryInternals::FreeStatement()
 
 //------------------------------------------------------------------------------
 
+template <typename T>
+SQLSMALLINT vtkODBCTypeNameC();
+
 #define VTK_ODBC_C_TYPENAME_MACRO(type, return_type)                                               \
-  SQLSMALLINT vtkODBCTypeNameC(type) { return return_type; }
+  template <>                                                                                      \
+  SQLSMALLINT vtkODBCTypeNameC<type>()                                                             \
+  {                                                                                                \
+    return return_type;                                                                            \
+  }
 
 VTK_ODBC_C_TYPENAME_MACRO(signed char, SQL_C_STINYINT);
 VTK_ODBC_C_TYPENAME_MACRO(unsigned char, SQL_C_UTINYINT);
@@ -206,8 +213,15 @@ VTK_ODBC_C_TYPENAME_MACRO(char*, SQL_C_CHAR);
 VTK_ODBC_C_TYPENAME_MACRO(unsigned char*, SQL_C_CHAR);
 VTK_ODBC_C_TYPENAME_MACRO(void*, SQL_C_BINARY);
 
+template <typename T>
+SQLSMALLINT vtkODBCTypeNameSQL();
+
 #define VTK_ODBC_SQL_TYPENAME_MACRO(type, return_type)                                             \
-  SQLSMALLINT vtkODBCTypeNameSQL(type) { return return_type; }
+  template <>                                                                                      \
+  SQLSMALLINT vtkODBCTypeNameSQL<type>()                                                           \
+  {                                                                                                \
+    return return_type;                                                                            \
+  }
 
 VTK_ODBC_SQL_TYPENAME_MACRO(signed char, SQL_TINYINT);
 VTK_ODBC_SQL_TYPENAME_MACRO(unsigned char, SQL_TINYINT);
@@ -234,12 +248,12 @@ VTK_ODBC_SQL_TYPENAME_MACRO(void*, SQL_VARBINARY);
 // int, long, etc).  I'll need to special-case strings and blobs.
 
 template <typename T>
-vtkODBCBoundParameter* vtkBuildODBCBoundParameter(T data_value)
+vtkODBCBoundParameter* vtkBuildODBCBoundParameter(T const& data_value)
 {
   vtkODBCBoundParameter* param = new vtkODBCBoundParameter;
 
-  param->DataTypeC = vtkODBCTypeNameC(data_value);
-  param->DataTypeSQL = vtkODBCTypeNameSQL(data_value);
+  param->DataTypeC = vtkODBCTypeNameC<T>();
+  param->DataTypeSQL = vtkODBCTypeNameSQL<T>();
   param->BufferSize = sizeof(T);
   param->DataLength = sizeof(T);
   param->SetData(reinterpret_cast<const char*>(&data_value), sizeof(T));
@@ -252,17 +266,24 @@ vtkODBCBoundParameter* vtkBuildODBCBoundParameter(T data_value)
 // strings (i.e. CHAR and VARCHAR fields)
 
 template <>
-vtkODBCBoundParameter* vtkBuildODBCBoundParameter<const char*>(const char* data_value)
+vtkODBCBoundParameter* vtkBuildODBCBoundParameter<const char*>(const char* const& data_value)
 {
   vtkODBCBoundParameter* param = new vtkODBCBoundParameter;
 
+  size_t len = strlen(data_value);
   param->DataTypeC = SQL_C_CHAR;
   param->DataTypeSQL = SQL_VARCHAR;
-  param->BufferSize = strlen(data_value);
-  param->DataLength = static_cast<unsigned long>(strlen(data_value));
-  param->SetData(data_value, static_cast<unsigned long>(strlen(data_value)));
+  param->BufferSize = len;
+  param->DataLength = static_cast<unsigned long>(len);
+  param->SetData(data_value, static_cast<unsigned long>(len));
 
   return param;
+}
+
+template <>
+vtkODBCBoundParameter* vtkBuildODBCBoundParameter<vtkStdString>(vtkStdString const& data_value)
+{
+  return vtkBuildODBCBoundParameter(data_value.c_str());
 }
 
 // Description:

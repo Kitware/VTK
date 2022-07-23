@@ -138,7 +138,7 @@ void vtkBoostBreadthFirstSearch::SetOriginVertex(vtkIdType index)
 // know the specific index of the vertex.
 void vtkBoostBreadthFirstSearch::SetOriginVertex(vtkStdString arrayName, vtkVariant value)
 {
-  this->SetInputArrayName(arrayName);
+  this->SetInputArrayName(arrayName.c_str());
   this->OriginValue = value;
   this->Modified();
 }
