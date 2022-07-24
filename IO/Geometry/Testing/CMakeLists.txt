@@ -72,6 +72,7 @@ vtk_module_test_data(
   Data/cellsnd.bin.inp
   Data/flow.tec
   Data/flow.tec.gz
+  Data/obj_double_sphere.obj
   Data/obj_multitexture.obj
   Data/obj_multitexture_notexture.obj
   Data/obj_singletexture.obj
