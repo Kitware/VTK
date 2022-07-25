@@ -28,6 +28,17 @@ static bool FuzzyCompare(const vtkFFT::ComplexNumber& result, const vtkFFT::Comp
   return ((vtkFFT::Abs(result) - vtkFFT::Abs(test)) < epsilon * epsilon);
 }
 
+static bool FuzzyCompare(const std::vector<double>& a, const std::vector<double>& b,
+  double epsilon = std::numeric_limits<double>::epsilon())
+{
+  bool success = true;
+  for (size_t i = 0; i < a.size(); ++i)
+  {
+    success &= vtkMathUtilities::FuzzyCompare(a[i], b[i], epsilon);
+  }
+  return success;
+}
+
 static int Test_fft_cplx();
 static int Test_fft_direct();
 static int Test_fft_inverse();
@@ -36,6 +47,7 @@ static int Test_complex_module();
 static int Test_fftfreq();
 static int Test_rfftfreq();
 static int Test_fft_direct_inverse();
+static int Test_kernel_generation();
 
 int UnitTestFFT(int, char*[])
 {
@@ -49,6 +61,7 @@ int UnitTestFFT(int, char*[])
   status += Test_fftfreq();
   status += Test_rfftfreq();
   status += Test_fft_direct_inverse();
+  status += Test_kernel_generation();
 
   if (status != 0)
   {
@@ -421,6 +434,76 @@ int Test_fft_direct_inverse()
   else
   {
     std::cout << ".PASSED" << std::endl;
+  }
+  return status;
+}
+
+// Reference values have been generated using the Scipy project
+int Test_kernel_generation()
+{
+  int status = 0;
+  std::cout << "Test_kernel_generation..";
+  constexpr double epsilon = 0.000001;
+
+  std::vector<double> result(10);
+  std::vector<double> kernel(10);
+
+  // ---
+  result = { 0., 0.22222222, 0.44444444, 0.66666667, 0.88888889, 0.88888889, 0.66666667, 0.44444444,
+    0.22222222, 0. };
+  vtkFFT::GenerateKernel1D(kernel.data(), 10, vtkFFT::BartlettGenerator);
+  if (!FuzzyCompare(kernel, result, epsilon))
+  {
+    std::cout << std::endl << " - Wrong Bartlett kernel";
+    status += 1;
+  }
+
+  // ---
+  result = { -1.38777878e-17, 5.08696327e-02, 2.58000502e-01, 6.30000000e-01, 9.51129866e-01,
+    9.51129866e-01, 6.30000000e-01, 2.58000502e-01, 5.08696327e-02, -1.38777878e-17 };
+  vtkFFT::GenerateKernel1D(kernel.data(), 10, vtkFFT::BlackmanGenerator);
+  if (!FuzzyCompare(kernel, result, epsilon))
+  {
+    std::cout << std::endl << " - Wrong Blackman kernel";
+    status += 1;
+  }
+
+  // ---
+  result = { 0., 0.11697778, 0.41317591, 0.75, 0.96984631, 0.96984631, 0.75, 0.41317591, 0.11697778,
+    0. };
+  vtkFFT::GenerateKernel1D(kernel.data(), 10, vtkFFT::HanningGenerator);
+  if (!FuzzyCompare(kernel, result, epsilon))
+  {
+    std::cout << std::endl << " - Wrong Hanning kernel";
+    status += 1;
+  }
+
+  // ---
+  result = { 0, 0.34202, 0.642788, 0.866025, 0.984808, 0.984808, 0.866025, 0.642788, 0.34202, 0 };
+  vtkFFT::GenerateKernel1D(kernel.data(), 10, vtkFFT::SineGenerator);
+  if (!FuzzyCompare(kernel, result, epsilon))
+  {
+    std::cout << std::endl << " - Wrong Sine kernel";
+    status += 1;
+  }
+
+  // ---
+  std::fill(result.begin(), result.end(), 1.0);
+  vtkFFT::GenerateKernel1D(kernel.data(), 10, vtkFFT::RectangularGenerator);
+  if (!FuzzyCompare(kernel, result, epsilon))
+  {
+    std::cout << std::endl << " - Wrong Rectangular kernel";
+    status += 1;
+  }
+
+  // ---
+  if (status)
+  {
+    std::cout << "..FAILED" << std::endl;
+  }
+  else
+  {
+    std::cout << "..PASSED" << std::endl;
   }
   return status;
 }
