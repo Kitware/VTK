@@ -1,0 +1,19 @@
+NAME
+  VTK::IOOCCT
+LIBRARY_NAME
+  vtkIOOCCT
+DESCRIPTION
+  OCCT bridge for VTK, see README for more info
+LICENSE_FILES
+  LICENSE
+DEPENDS
+  VTK::CommonExecutionModel
+PRIVATE_DEPENDS
+  VTK::CommonCore
+  VTK::CommonDataModel
+  VTK::FiltersGeneral
+TEST_DEPENDS
+  VTK::TestingCore
+  VTK::TestingRendering
+  VTK::RenderingOpenGL2
+  VTK::InteractionStyle
