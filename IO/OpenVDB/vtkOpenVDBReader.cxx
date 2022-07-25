@@ -129,9 +129,9 @@ struct vtkResDataLeafInformation
   // from what was collected
   bool ComputeDatasetInformation();
 
-  // functions to fill the different arrays by samplign the OpenVDB grids
-  void PopulatePolyData(vtkPolyData* polydata, vtkOpenVDBReader* self) const;
-  void PopulateImageData(vtkImageData* imagedata, vtkOpenVDBReader* self) const;
+  // functions to fill the different arrays by sampling the OpenVDB grids
+  void PopulatePolyData(vtkPolyData* polydata) const;
+  void PopulateImageData(vtkImageData* imagedata) const;
 };
 
 //------------------------------------------------------------------------
@@ -223,8 +223,9 @@ namespace
 template <vtkIdType NComps, typename GridType, typename ArrayType>
 struct SamplerVdbGrid
 {
-  static inline void SampleVdbGrid(openvdb::Coord ijk, typename GridType::Accessor accessor,
-    ArrayType* dataArray, vtkIdType idx){};
+  static inline void SampleVdbGrid(openvdb::Coord vtkNotUsed(ijk),
+    typename GridType::Accessor vtkNotUsed(accessor), ArrayType* vtkNotUsed(dataArray),
+    vtkIdType vtkNotUsed(idx)){};
 };
 
 //------------------------------------------------------------------------
@@ -340,8 +341,7 @@ struct PopulateImageDataArray
 };
 
 //------------------------------------------------------------------------
-vtkSmartPointer<vtkDataArray> InstanciateVtkArrayType(
-  openvdb::GridBase::Ptr grid, vtkOpenVDBReader* reader)
+vtkSmartPointer<vtkDataArray> InstanciateVtkArrayType(openvdb::GridBase::Ptr grid)
 {
   // instanciate a vtkDataArray of the correct type according to the OpenVDB grid type
   if (grid->isType<openvdb::BoolGrid>())
@@ -429,8 +429,7 @@ void processTypedGridArray(openvdb::GridBase::Ptr grid, vtkAbstractArray* dataAr
 //------------------------------------------------------------------------
 // Populates the polydata according to the grids in the vtkResDataLeafInformation
 // it essentially calls PopulatePointSet for each grid
-void vtkResDataLeafInformation::PopulatePolyData(
-  vtkPolyData* polydata, vtkOpenVDBReader* self) const
+void vtkResDataLeafInformation::PopulatePolyData(vtkPolyData* polydata) const
 {
   int pointIdx = 0;
   for (const auto& gridInfo : this->GridsInfo)
@@ -444,10 +443,9 @@ void vtkResDataLeafInformation::PopulatePolyData(
 //------------------------------------------------------------------------
 // Populates the vtkImageData for each grid in the vtkResDataLeafInformation
 // It essentially calls PopulateImageDataArray1D/3D for each grid
-void vtkResDataLeafInformation::PopulateImageData(
-  vtkImageData* imagedata, vtkOpenVDBReader* self) const
+void vtkResDataLeafInformation::PopulateImageData(vtkImageData* imagedata) const
 {
-  for (int arrayIdx = 0; arrayIdx < this->NumberGrids; arrayIdx++)
+  for (unsigned int arrayIdx = 0; arrayIdx < this->NumberGrids; arrayIdx++)
   {
     vtkAbstractArray* dataArray = imagedata->GetPointData()->GetAbstractArray(arrayIdx);
 
@@ -554,11 +552,11 @@ void vtkOpenVDBReaderInternals::ResetCurrentlyOpenedFile(const char* newFileName
 void vtkOpenVDBReaderInternals::ConstructGridsInformation()
 {
   // GridsVdbMetadata contains pointer to each metadata pointer
-  for (int gridIdx = 0; gridIdx < this->GridsVdbMetadata->size(); gridIdx++)
+  for (size_t gridIdx = 0; gridIdx < this->GridsVdbMetadata->size(); gridIdx++)
   {
     OpenVDBGridInformation gridInformation;
     openvdb::GridBase::Ptr gridBase = (*this->GridsVdbMetadata)[gridIdx];
-    gridInformation.GridIdx = gridIdx;
+    gridInformation.GridIdx = static_cast<int>(gridIdx);
     this->UpdateGridInformation(&gridInformation, gridBase);
     if (!this->ValidateGridInformation(gridInformation))
     {
@@ -598,7 +596,6 @@ void vtkOpenVDBReaderInternals::UpdateGridInformation(
   openvdb::Vec3i bBoxMin;
   openvdb::Vec3i bBoxMax;
   openvdb::Vec3d worldOrig;
-  unsigned int voxelCount;
   try
   {
     // this is a standard convention, but we're not sure it is actually set
@@ -850,10 +847,10 @@ bool vtkOpenVDBReader::LoadFile()
 }
 
 //------------------------------------------------------------------------
-bool vtkOpenVDBReader::CanReadFile(const char* FileName)
+bool vtkOpenVDBReader::CanReadFile(const char* fileName)
 {
   // try to open the file and look at the return code
-  vtkOpenVDBReaderInternals::VdbFileContext resCtx = this->Internals->OpenFile(FileName);
+  vtkOpenVDBReaderInternals::VdbFileContext resCtx = this->Internals->OpenFile(fileName);
   return resCtx.File != nullptr;
 }
 
@@ -1053,7 +1050,7 @@ int vtkOpenVDBReader::RequestData(vtkInformation* vtkNotUsed(request),
 
   // one block per vtkResDataLeafInformation
   output->SetNumberOfPartitionedDataSets(imgDatasetsInfo.size() + pointsDatasetsInfo.size());
-  for (int blockidx = 0; blockidx < output->GetNumberOfPartitionedDataSets(); blockidx++)
+  for (unsigned int blockidx = 0; blockidx < output->GetNumberOfPartitionedDataSets(); blockidx++)
   {
     output->SetNumberOfPartitions(blockidx, 1);
   }
@@ -1072,7 +1069,7 @@ int vtkOpenVDBReader::RequestData(vtkInformation* vtkNotUsed(request),
     for (const auto& gridInfo : imgDataInfo.GridsInfo)
     {
       // instanciate the correct data array type (according to the OpenVDB grid type)
-      vtkSmartPointer<vtkDataArray> dataArray = ::InstanciateVtkArrayType(gridInfo->Grid, this);
+      vtkSmartPointer<vtkDataArray> dataArray = ::InstanciateVtkArrayType(gridInfo->Grid);
       if (!dataArray)
       {
         vtkErrorMacro(<< "Couldn't instanciate vtDataArray, unknown array type");
@@ -1132,7 +1129,7 @@ int vtkOpenVDBReader::RequestData(vtkInformation* vtkNotUsed(request),
       imgdataIdx++;
       continue;
     }
-    imgDataInfo.PopulateImageData(imagedata, this);
+    imgDataInfo.PopulateImageData(imagedata);
     imgdataIdx++;
   }
 
@@ -1147,7 +1144,7 @@ int vtkOpenVDBReader::RequestData(vtkInformation* vtkNotUsed(request),
       polydataIdx++;
       continue;
     }
-    pointDataInfo.PopulatePolyData(polydata, this);
+    pointDataInfo.PopulatePolyData(polydata);
     polydataIdx++;
   }
 
@@ -1175,7 +1172,7 @@ const char* vtkOpenVDBReader::GetGridsSelectionArrayName(int index)
 //------------------------------------------------------------------------
 const char* vtkOpenVDBReader::GetGridArrayName(int index)
 {
-  if (index < 0 || index >= this->Internals->GridsInformation.size())
+  if (index < 0 || index >= static_cast<int>(this->Internals->GridsInformation.size()))
   {
     return nullptr;
   }
@@ -1185,7 +1182,7 @@ const char* vtkOpenVDBReader::GetGridArrayName(int index)
 //------------------------------------------------------------------------
 int vtkOpenVDBReader::GetGridArrayType(int index)
 {
-  if (index < 0 || index >= this->Internals->GridsInformation.size())
+  if (index < 0 || index >= static_cast<int>(this->Internals->GridsInformation.size()))
   {
     return -1;
   }
