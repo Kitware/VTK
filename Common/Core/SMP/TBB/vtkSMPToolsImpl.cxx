@@ -42,6 +42,13 @@ static std::mutex vtkSMPToolsCS;
 
 //------------------------------------------------------------------------------
 template <>
+vtkSMPToolsImpl<BackendType::TBB>::vtkSMPToolsImpl()
+  : NestedActivated(true)
+{
+}
+
+//------------------------------------------------------------------------------
+template <>
 void vtkSMPToolsImpl<BackendType::TBB>::Initialize(int numThreads)
 {
   vtkSMPToolsCS.lock();
