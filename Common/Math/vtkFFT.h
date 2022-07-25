@@ -219,14 +219,14 @@ double vtkFFT::BartlettGenerator(std::size_t x, std::size_t size)
 //------------------------------------------------------------------------------
 double vtkFFT::SineGenerator(std::size_t x, std::size_t size)
 {
-  return std::sin(vtkMath::Pi() * x / size);
+  return std::sin(vtkMath::Pi() * x / (size - 1));
 }
 
 //------------------------------------------------------------------------------
 double vtkFFT::BlackmanGenerator(std::size_t x, std::size_t size)
 {
-  return 0.42 - 0.5 * std::cos((2.0 * vtkMath::Pi() * x) / size) +
-    0.08 * std::cos((4.0 * vtkMath::Pi() * x) / size);
+  const double cosin = std::cos((2.0 * vtkMath::Pi() * x) / (size - 1));
+  return 0.42 - 0.5 * cosin + 0.08 * (2.0 * cosin * cosin - 1.0);
 }
 
 //------------------------------------------------------------------------------
