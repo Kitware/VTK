@@ -100,7 +100,7 @@ endif()
 if (NOT VTK_CAN_DO_ONSCREEN AND NOT VTK_CAN_DO_OFFSCREEN)
   message(FATAL_ERROR
     "VTK current build configuration is not satisfiable as it supports neither onscreen "
-    "nor offscreen rendering. Make sure to set to ON at least one of the following to " 
+    "nor offscreen rendering. Make sure to set to ON at least one of the following to "
     "be able to configure: `VTK_USE_X`, `VTK_USE_COCOA`, `VTK_OPENGL_HAS_OSMESA`, "
     "`VTK_OPENGL_HAS_EGL` or `VTK_USE_SDL2`.")
 endif()

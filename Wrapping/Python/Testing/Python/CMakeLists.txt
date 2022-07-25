@@ -7,7 +7,7 @@ foreach (_vtk_python_module IN LISTS vtk_python_wrapped_modules)
   list(APPEND _vtk_python_wrapped_module_names "${_vtk_python_library_name}")
 endforeach ()
 
-set(python_tests 
+set(python_tests
   TestErrorObserver.py)
 
 if (TARGET vtkpythonmodules_pyi)
@@ -21,5 +21,5 @@ vtk_add_test_python(
   NO_DATA
   NO_OUTPUT
   NO_VALID
-  ${python_tests} 
+  ${python_tests}
   )

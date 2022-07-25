@@ -41,7 +41,6 @@ namespace RTW
         {
             if (!frameBuffer)
                 return 0.0f;
-            
 
             // Camera
             if (camera)
@@ -74,8 +73,8 @@ namespace RTW
 
                 Data *lightData = world->GetObject<Data>({"light"});
 
-                if (lightData && 
-                    lightData->GetDataType() == RTW_DATA && 
+                if (lightData &&
+                    lightData->GetDataType() == RTW_DATA &&
                     lightData->GetElementDataType() == RTW_LIGHT)
                 {
                     Light** lights = reinterpret_cast<Light**>(lightData->GetData());
@@ -90,7 +89,7 @@ namespace RTW
                         }
                     }
                 }
-                
+
                 if(map_backplate)
                 {
                     removeTemp = true;

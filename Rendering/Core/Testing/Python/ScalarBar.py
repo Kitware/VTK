@@ -47,7 +47,7 @@ scalarBar.GetPositionCoordinate().SetValue(0.1,0.01)
 scalarBar.SetOrientationToHorizontal()
 scalarBar.SetWidth(0.8)
 scalarBar.SetHeight(0.17)
-# Test the Get/Set Position 
+# Test the Get/Set Position
 scalarBar.SetPosition(scalarBar.GetPosition())
 # Create graphics stuff
 # Create the RenderWindow, Renderer and both Actors

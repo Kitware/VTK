@@ -3,7 +3,7 @@ import vtk
 from vtk.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
-# This example converts data to a field and then displays it using 
+# This example converts data to a field and then displays it using
 # parallel coordinates,
 # Create a reader and write out the field
 reader = vtk.vtkUnstructuredGridReader()

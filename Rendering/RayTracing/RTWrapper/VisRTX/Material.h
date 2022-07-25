@@ -20,7 +20,6 @@ namespace RTW
 
     public:
         Material(const std::string& type) : Object(RTW_MATERIAL), type(type)
-                                            
         {
             VisRTX::Context* rtx = VisRTX_GetContext();
 

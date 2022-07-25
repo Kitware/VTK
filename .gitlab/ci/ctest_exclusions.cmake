@@ -10,7 +10,6 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "el8")
 
        # https://gitlab.kitware.com/vtk/vtk/-/issues/18603
        "^VTK::FiltersParallelDIY2Cxx-MPI-TestPResampleToImageCompositeDataSet$"
-       
        )
 endif ()
 
@@ -256,10 +255,10 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "stdthread")
     # See #18623
     "^VTK::CommonDataModelCxx-TestPolyhedronCombinatorialContouring$"
 
-    # Masking is inconsistent with STDThread 
+    # Masking is inconsistent with STDThread
     # See #18549
     "^VTK::RenderingCoreCxx-TestGlyph3DMapperMasking$"
-    
+
     # Test fails sometimes with STDThread
     # See #18555
     "^VTK::FiltersFlowPathsCxx-TestEvenlySpacedStreamlines2D$"

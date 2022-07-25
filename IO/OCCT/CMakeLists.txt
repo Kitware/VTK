@@ -1,7 +1,7 @@
-vtk_module_find_package( 
-  PRIVATE 
+vtk_module_find_package(
+  PRIVATE
   PACKAGE OpenCASCADE
-  COMPONENTS 
+  COMPONENTS
     FoundationClasses
     ModelingData
     ModelingAlgorithms

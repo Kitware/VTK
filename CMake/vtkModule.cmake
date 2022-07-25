@@ -218,7 +218,8 @@ supported:
   * `EXCLUDE_WRAP`: If present, this module should not be wrapped in any
     language.
   * `THIRD_PARTY`: If present, this module is a third party module.
-  * `LICENSE_FILES`: A list of license files to install for the module. Optional. 
+  * `LICENSE_FILES`: A list of license files to install for the module.
+    Optional.
 #]==]
 
 #[==[
