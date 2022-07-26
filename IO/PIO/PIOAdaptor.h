@@ -30,13 +30,10 @@ class PIOMaterialVariable
 {
 public:
   std::string prefix;
-  std::string var;
+  std::string var;           // actual variable
+  std::string baseVar;       // variable used to derive actual variable
   std::string material_name; // full name of the material
   uint32_t material_number;
-
-  // whether the variable should be scaled. scaled means the variable
-  // needs to be divided by volume (vcell)
-  bool scale;
 };
 
 class PIOAdaptor
@@ -81,6 +78,8 @@ protected:
   void collectVariableMetaData();
   void collectMaterialVariableMetaData();
   void addMaterialVariable(vtkStdString& pioFieldName, std::vector<std::string> matident);
+  void addMaterialVariableEntries(
+    std::string& prefix, std::string& baseVar, std::string& var, std::vector<std::string> matident);
   std::string trimString(const std::string& str);
 
   // Create the unstructured grid for tracers
