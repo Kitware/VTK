@@ -79,7 +79,7 @@ void RevolvePoints(vtkDataSet* pts, vtkPoints* newPts, AxisOfRevolution* axis, d
       pts->GetPoint(id, p2d);
       RevolvePoint(p2d, axis, i * angleInRadians, p3d);
       newPts->SetPoint(counter, p3d);
-      outPd->CopyData(pts->GetPointData(), i, counter);
+      outPd->CopyData(pts->GetPointData(), id, counter);
       counter++;
     }
   }
