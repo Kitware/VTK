@@ -35,6 +35,7 @@
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 #include "vtkProcessGroup.h"
+#include "vtkSMPTools.h"
 #include "vtkSmartPointer.h"
 #include "vtkSphereSource.h"
 #include "vtkTypeTraits.h"
@@ -1155,6 +1156,7 @@ static void Run(vtkMultiProcessController* controller, void* _args)
 
   try
   {
+    vtkSMPTools::SetBackend("SEQUENTIAL");
     ExerciseType<int, vtkIntArray>(controller);
     ExerciseType<unsigned long, vtkUnsignedLongArray>(controller);
     ExerciseType<char, vtkCharArray>(controller);
