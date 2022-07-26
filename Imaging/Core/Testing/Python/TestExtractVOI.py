@@ -54,7 +54,7 @@ renWin.AddRenderer(ren)
 
 dm = voi.GetOutput().GetDirectionMatrix()
 if dm.GetElement(0, 0) != -1 or dm.GetElement(1, 1) != -1 or dm.GetElement(2, 2) != 1:
-	print("ERROR: vtkExtractVOI not passing DirectionMatrix unchanged")
+    print("ERROR: vtkExtractVOI not passing DirectionMatrix unchanged")
 
 iren = vtk.vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)

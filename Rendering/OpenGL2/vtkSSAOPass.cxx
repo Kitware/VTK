@@ -399,7 +399,7 @@ void vtkSSAOPass::RenderCombine(vtkOpenGLRenderWindow* renWin)
     {
       ssImpl << "  ivec2 size = textureSize(texSSAO, 0);"
                 "  float ao = 0.195346 * texture(texSSAO, texCoord).r + \n"
-                "    0.077847	* texture(texSSAO, texCoord + vec2(-1, -1) / size).r +\n"
+                "    0.077847 * texture(texSSAO, texCoord + vec2(-1, -1) / size).r +\n"
                 "    0.077847 * texture(texSSAO, texCoord + vec2(-1, 1) / size).r +\n"
                 "    0.077847 * texture(texSSAO, texCoord + vec2(1, -1) / size).r +\n"
                 "    0.077847 * texture(texSSAO, texCoord + vec2(1, 1) / size).r +\n"

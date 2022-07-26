@@ -7,10 +7,9 @@ set(test_exclusions
 
 if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "el8")
   list(APPEND test_exclusions
-
-       # https://gitlab.kitware.com/vtk/vtk/-/issues/18603
-       "^VTK::FiltersParallelDIY2Cxx-MPI-TestPResampleToImageCompositeDataSet$"
-       )
+    # https://gitlab.kitware.com/vtk/vtk/-/issues/18603
+    "^VTK::FiltersParallelDIY2Cxx-MPI-TestPResampleToImageCompositeDataSet$"
+    )
 endif ()
 
 if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora" OR
