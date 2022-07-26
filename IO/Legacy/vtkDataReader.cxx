@@ -293,8 +293,11 @@ int vtkDataReader::ReadLine(char result[256])
 // Returns zero if there was an error.
 int vtkDataReader::ReadString(char result[256])
 {
+  // Force the parameter to be seen as a 256-byte array rather than a decayed
+  // pointer.
+  char(&result_ref)[256] = *reinterpret_cast<char(*)[256]>(result);
   this->IS->width(256);
-  *this->IS >> result;
+  *this->IS >> result_ref;
   if (this->IS->fail())
   {
     return 0;
