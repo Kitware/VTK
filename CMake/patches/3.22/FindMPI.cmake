@@ -1820,11 +1820,19 @@ if(MPICXX IN_LIST MPI_FIND_COMPONENTS)
   list(APPEND _MPI_REQ_VARS "MPI_MPICXX_FOUND")
 endif()
 
+set(_mpi_extra_args "")
+if (NOT CMAKE_VERSION VERSION_LESS "3.16") # XXX(cmake-3.16)
+  list(APPEND _mpi_extra_args
+    REASON_FAILURE_MESSAGE "${_MPI_FAIL_REASON}")
+endif ()
+
 find_package_handle_standard_args(MPI
     REQUIRED_VARS ${_MPI_REQ_VARS}
     VERSION_VAR ${_MPI_MIN_VERSION}
-    REASON_FAILURE_MESSAGE "${_MPI_FAIL_REASON}"
+    ${_mpi_extra_args}
     HANDLE_COMPONENTS)
+
+unset(_mpi_extra_args)
 
 #=============================================================================
 # More backward compatibility stuff
