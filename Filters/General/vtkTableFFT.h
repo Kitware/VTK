@@ -39,6 +39,9 @@
  * value.
  *
  * This filter will not apply the FFT on any arrays which names begin with 'vtk'.
+ *
+ * This filter will consider arrays with 2 components as arrays of complex numbers,
+ * the first column representing the real part and the second the imaginary part.
  */
 
 #ifndef vtkTableFFT_h
@@ -103,6 +106,8 @@ public:
   /**
    * Specify if the filter should use the optimized discrete fourier transform for
    * real values. This will cause output columns to have from n to ((n / 2) + 1) rows.
+   * If OptimizeForRealInput is On but the input contains columns with 2 components,
+   * these columns will be ignored.
    *
    * Default is false
    */
