@@ -52,6 +52,7 @@
 #include "vtkWedge.h"
 
 #include <memory>
+#include <mutex>
 
 vtkStandardNewMacro(vtkGeometryFilter);
 vtkCxxSetObjectMacro(vtkGeometryFilter, Locator, vtkIncrementalPointLocator);
