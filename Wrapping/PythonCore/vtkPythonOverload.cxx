@@ -759,7 +759,15 @@ int vtkPythonOverload::CheckArg(PyObject* arg, const char* format, const char* n
         {
           // if sequence is not empty, check the type of its contents
           PyObject* sarg = PySequence_GetItem(arg, 0);
-          penalty = vtkPythonOverload::CheckArg(sarg, classname, "");
+          if (classname[0] == '*')
+          {
+            // for vector of pointers, check vtkObjectBase class type
+            penalty = vtkPythonOverload::CheckArg(sarg, "V", classname);
+          }
+          else
+          {
+            penalty = vtkPythonOverload::CheckArg(sarg, classname, "");
+          }
           Py_DECREF(sarg);
         }
         // always consider PySequence to std::vector as a conversion
