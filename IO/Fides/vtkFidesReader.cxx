@@ -252,8 +252,17 @@ int vtkFidesReader::RequestInformation(
     }
   }
 
-  // If we're using a preset model, we'll have to do the call to ParseDataModel here
-  if (this->Impl->UsePresetModel && !this->Impl->HasParsedDataModel)
+  if (!this->Impl->UsePresetModel && !this->Impl->HasParsedDataModel)
+  {
+    this->ParseDataModel(this->FileName);
+    if (this->StreamSteps)
+    {
+      // when streaming UpdateInformation() should be called to get Fides set
+      // up, but don't read metadata yet.
+      return 1;
+    }
+  }
+  else if (this->Impl->UsePresetModel && !this->Impl->HasParsedDataModel)
   {
     vtkDebugMacro(<< "using preset model but hasn't been parsed yet");
     this->ParseDataModel();
