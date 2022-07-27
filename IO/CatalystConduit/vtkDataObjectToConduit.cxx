@@ -282,7 +282,8 @@ bool FillTopology(vtkDataSet* data_set, conduit_cpp::Node& conduit_node)
     auto topologies_node = conduit_node["topologies/mesh"];
     topologies_node["type"] = "structured";
     topologies_node["coordset"] = "coords";
-    int* dimensions = structured_grid->GetDimensions();
+    int dimensions[3];
+    structured_grid->GetDimensions(dimensions);
     topologies_node["elements/dims/i"] = dimensions[0];
     topologies_node["elements/dims/j"] = dimensions[1];
     topologies_node["elements/dims/k"] = dimensions[2];

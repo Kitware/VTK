@@ -43,6 +43,7 @@
 #define vtkStructuredGrid_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
+#include "vtkDeprecation.h"           // For VTK_DEPRECATED_IN_9_3_0
 #include "vtkPointSet.h"
 
 #include "vtkStructuredData.h" // Needed for inline methods
@@ -94,7 +95,9 @@ public:
   void GetCellPoints(vtkIdType cellId, vtkIdList* ptIds) override;
   void GetPointCells(vtkIdType ptId, vtkIdList* cellIds) override
   {
-    vtkStructuredData::GetPointCells(ptId, cellIds, this->GetDimensions());
+    int dims[3];
+    this->GetDimensions(dims);
+    vtkStructuredData::GetPointCells(ptId, cellIds, dims);
   }
   void Initialize() override;
   int GetMaxCellSize() override { return 8; } // hexahedron is the largest
@@ -104,18 +107,27 @@ public:
 
   ///@{
   /**
-   * following methods are specific to structured grid
+   * Sets the extent to be 0 to i-1, 0 to j-1, and 0 to k-1.
    */
   void SetDimensions(int i, int j, int k);
-  void SetDimensions(const int dim[3]);
+
+  /**
+   * Sets the extent to be 0 to dim[i]-1 in all 3 dimensions.
+   */
+  void SetDimensions(const int dims[3]);
   ///@}
 
   ///@{
   /**
-   * Get dimensions of this structured points dataset.
+   * Get dimensions of this structured grid.
    */
+  VTK_DEPRECATED_IN_9_3_0("Please use GetDimensions(int dims[3]) instead.")
   virtual int* GetDimensions() VTK_SIZEHINT(3);
-  virtual void GetDimensions(int dim[3]);
+
+  /**
+   * Get dimensions of this structured grid based on its extent.
+   */
+  virtual void GetDimensions(int dims[3]);
   ///@}
 
   /**
@@ -129,7 +141,7 @@ public:
    * should be set before the "Scalars" are set or allocated.
    * The Extent is stored in the order (X, Y, Z).
    */
-  void SetExtent(int extent[6]);
+  void SetExtent(VTK_FUTURE_CONST int extent[6]);
   void SetExtent(int xMin, int xMax, int yMin, int yMax, int zMin, int zMax);
   vtkGetVector6Macro(Extent, int);
   ///@}
@@ -249,7 +261,9 @@ protected:
   vtkHexahedron* Hexahedron;
   vtkEmptyCell* EmptyCell;
 
+#if !defined(VTK_LEGACY_REMOVE)
   int Dimensions[3];
+#endif
   int DataDescription;
 
   int Extent[6];

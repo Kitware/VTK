@@ -60,8 +60,8 @@ public:
    * improperly specified a -1 is returned. If the dimensions are unchanged, a
    * value of 100 is returned.
    */
-  static int SetDimensions(int inDim[3], int dim[3]);
-  static int SetExtent(int inExt[6], int ext[6]);
+  static int SetDimensions(VTK_FUTURE_CONST int inDim[3], int dim[3]);
+  static int SetExtent(VTK_FUTURE_CONST int inExt[6], int ext[6]);
   ///@}
 
   ///@{
@@ -118,8 +118,9 @@ public:
   /**
    * Return non-zero value if specified cell is visible.
    */
-  static bool IsCellVisible(vtkIdType cellId, int dimensions[3], int dataDescription,
-    vtkUnsignedCharArray* cellGhostArray, vtkUnsignedCharArray* pointGhostArray = nullptr);
+  static bool IsCellVisible(vtkIdType cellId, VTK_FUTURE_CONST int dimensions[3],
+    int dataDescription, vtkUnsignedCharArray* cellGhostArray,
+    vtkUnsignedCharArray* pointGhostArray = nullptr);
 
   /**
    * Returns the cell dimensions, i.e., the number of cells along the i,j,k
@@ -162,7 +163,7 @@ public:
   /**
    * Get the cells using a point. (See vtkDataSet for more info.)
    */
-  static void GetPointCells(vtkIdType ptId, vtkIdList* cellIds, int dim[3]);
+  static void GetPointCells(vtkIdType ptId, vtkIdList* cellIds, VTK_FUTURE_CONST int dim[3]);
 
   /**
    * Get the cells using the points ptIds, exclusive of the cell cellId.

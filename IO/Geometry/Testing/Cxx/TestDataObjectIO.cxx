@@ -66,7 +66,13 @@ void InitializeData(vtkStructuredGrid* Data)
 
 bool CompareData(vtkStructuredGrid* Output, vtkStructuredGrid* Input)
 {
-  return memcmp(Input->GetDimensions(), Output->GetDimensions(), 3 * sizeof(int)) == 0;
+  int inputDims[3];
+  Input->GetDimensions(inputDims);
+
+  int outputDims[3];
+  Output->GetDimensions(outputDims);
+
+  return memcmp(inputDims, outputDims, 3 * sizeof(int)) == 0;
 }
 
 void InitializeData(vtkTable* Data)

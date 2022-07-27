@@ -100,7 +100,7 @@ int vtkStructuredData::GetDataDescriptionFromExtent(int ext[6])
 // returns the dimension of the dataset (0-3D). If the dimensions are
 // improperly specified a -1 is returned. If the dimensions are unchanged, a
 // value of 100 is returned.
-int vtkStructuredData::SetDimensions(int inDim[3], int dim[3])
+int vtkStructuredData::SetDimensions(VTK_FUTURE_CONST int inDim[3], int dim[3])
 {
   int dataDim, i;
   int dataDescription = VTK_UNCHANGED;
@@ -170,7 +170,7 @@ int vtkStructuredData::SetDimensions(int inDim[3], int dim[3])
 // returns the dimension of the dataset (0-3D). If the extents are
 // improperly specified a -1 is returned. If the dimensions are unchanged, a
 // value of 100 is returned.
-int vtkStructuredData::SetExtent(int inExt[6], int ext[6])
+int vtkStructuredData::SetExtent(VTK_FUTURE_CONST int inExt[6], int ext[6])
 {
   int dataDim, i;
   int dataDescription;
@@ -325,7 +325,8 @@ void vtkStructuredData::GetCellPoints(
 
 //------------------------------------------------------------------------------
 // Get the cells using a point. (See vtkDataSet for more info.)
-void vtkStructuredData::GetPointCells(vtkIdType ptId, vtkIdList* cellIds, int dim[3])
+void vtkStructuredData::GetPointCells(
+  vtkIdType ptId, vtkIdList* cellIds, VTK_FUTURE_CONST int dim[3])
 {
   vtkIdType cellDim[3];
   int ptLoc[3], cellLoc[3];
@@ -379,8 +380,8 @@ bool vtkStructuredData::IsPointVisible(vtkIdType pointId, vtkUnsignedCharArray* 
 }
 
 //------------------------------------------------------------------------------
-bool vtkStructuredData::IsCellVisible(vtkIdType cellId, int dimensions[3], int dataDescription,
-  vtkUnsignedCharArray* cellGhostArray, vtkUnsignedCharArray* pointGhostArray)
+bool vtkStructuredData::IsCellVisible(vtkIdType cellId, VTK_FUTURE_CONST int dimensions[3],
+  int dataDescription, vtkUnsignedCharArray* cellGhostArray, vtkUnsignedCharArray* pointGhostArray)
 {
   if (cellGhostArray && (cellGhostArray->GetValue(cellId) & MASKED_CELL_VALUE))
   {
