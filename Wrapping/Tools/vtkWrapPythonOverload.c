@@ -55,6 +55,7 @@
     W VTK special type
     P Pointer to numeric type
     A Multi-dimensional array of numeric type
+    T std::vector
 
     | marks the end of required parameters, following parameters are optional
 
@@ -302,15 +303,29 @@ static char* vtkWrapPython_ArgCheckString(ClassInfo* data, FunctionInfo* current
       const char* tclass;
       unsigned int ttype;
       /* first, decompose template into template name + args */
-      const char* tname;                      /* will store template name, i.e. "std::vector" */
-      size_t n;                               /* will store length of the template name */
-      const char** targs;                     /* will store the template args */
+      const char* tname;                      /* for template name, "std::vector" */
+      size_t n;                               /* for length of tname string */
+      const char** targs;                     /* for template args */
       const char* defaults[2] = { NULL, "" }; /* NULL means "not optional" */
+      const size_t m = 16;                    /* length of "vtkSmartPointer<" */
       vtkParse_DecomposeTemplatedType(arg->Class, &tname, 2, &targs, defaults);
       vtkParse_BasicTypeFromString(targs[0], &ttype, &tclass, &n);
       c = 'T';
       result[endPos++] = ' ';
-      result[endPos++] = vtkWrapPython_FormatChar(ttype);
+      if (ttype == VTK_PARSE_OBJECT && strncmp(tclass, "vtkSmartPointer<", m) == 0)
+      {
+        /* The '*' indicates a pointer (in this case, a vtkSmartPointer) */
+        result[endPos++] = '*';
+        /* get the VTK object type "T" from "vtkSmartPointer<T>" */
+        vtkParse_BasicTypeFromString(&tclass[m], &ttype, &tclass, &n);
+        memcpy(&result[endPos], tclass, n);
+        endPos += n;
+      }
+      else
+      {
+        /* for vectors of anything that isn't a vtkSmartPointer */
+        result[endPos++] = vtkWrapPython_FormatChar(ttype);
+      }
     }
 
     /* add the format char to the string */
