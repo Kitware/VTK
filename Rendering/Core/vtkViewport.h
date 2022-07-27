@@ -71,7 +71,7 @@ public:
 
   /**
    * Remove a prop from the list of props. Does nothing if the prop
-   * is not already present.
+   * is not already present or if the parameter is NULL.
    */
   void RemoveViewProp(vtkProp*);
 

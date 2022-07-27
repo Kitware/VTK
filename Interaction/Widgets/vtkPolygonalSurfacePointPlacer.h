@@ -69,7 +69,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
   ///@}
 
-  // Descuription:
+  // Description:
   // Add /remove a prop, to place points on
   void AddProp(vtkProp*) override;
   void RemoveViewProp(vtkProp* prop) override;
