@@ -211,7 +211,7 @@ public:
    */
   void Initialize()
   {
-    auto& functionParser = FunctionParser.Local();
+    auto& functionParser = this->FunctionParser.Local();
     this->Tuple.Local().resize(static_cast<size_t>(this->MaxTupleSize));
     auto tuple = this->Tuple.Local().data();
     int i;
@@ -425,7 +425,14 @@ struct vtkArrayCalculatorWorker
       selectedCoordinateScalarComponents, selectedCoordinateVectorComponents, scalarArrays,
       vectorArrays, scalarArrayIndices, vectorArrayIndices, resultArray);
 
-    vtkSMPTools::For(1, numTuples, arrayCalculatorFunctor);
+    vtkIdType grain = 0;
+    if (resultArray->GetDataType() == VTK_BIT)
+    {
+      // The grain size needs to be defined to prevent false sharing
+      // when writing to a vtkBitArray.
+      grain = sizeof(vtkIdType) * 64;
+    }
+    vtkSMPTools::For(0, numTuples, grain, arrayCalculatorFunctor);
   }
 };
 
@@ -603,7 +610,7 @@ int vtkArrayCalculator::ProcessDataObject(vtkDataObject* input, vtkDataObject* o
 
   vtkSmartPointer<vtkPoints> resultPoints;
   vtkSmartPointer<vtkDataArray> resultArray;
-  if (resultType == VECTOR_RESULT && CoordinateResults != 0 &&
+  if (resultType == VECTOR_RESULT && this->CoordinateResults != 0 &&
     (psOutput || vtkGraph::SafeDownCast(output)))
   {
     resultPoints = vtkSmartPointer<vtkPoints>::New();
@@ -611,7 +618,7 @@ int vtkArrayCalculator::ProcessDataObject(vtkDataObject* input, vtkDataObject* o
     resultPoints->SetNumberOfPoints(numTuples);
     resultArray = resultPoints->GetData();
   }
-  else if (CoordinateResults != 0)
+  else if (this->CoordinateResults != 0)
   {
     if (resultType != VECTOR_RESULT)
     {
