@@ -14,14 +14,14 @@ namespace RTW
         friend class World;
 
     public:
-        GeometricModel(Geometry *_geometry) 
-            : Object(RTW_GEOMETRIC_MODEL), geometry(_geometry) 
+        GeometricModel(Geometry *_geometry)
+            : Object(RTW_GEOMETRIC_MODEL), geometry(_geometry)
         {
             if(geometry)
                 geometry->AddRef();
         }
 
-        ~GeometricModel() 
+        ~GeometricModel()
         {
             if(geometry)
                 geometry->Release();

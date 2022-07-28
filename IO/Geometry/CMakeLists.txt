@@ -28,7 +28,7 @@ set(classes
 
 set(private_classes
   vtkGLTFDocumentLoaderInternals
-  vtkGLTFWriterUtils  
+  vtkGLTFWriterUtils
   vtkGLTFUtils)
 
 vtk_module_add_module(VTK::IOGeometry

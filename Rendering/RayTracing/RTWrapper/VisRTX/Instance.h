@@ -14,15 +14,15 @@ namespace RTW
         friend class World;
 
     public:
-        Instance(Group *_group) 
-            : Object(RTW_INSTANCE), 
+        Instance(Group *_group)
+            : Object(RTW_INSTANCE),
             group(_group)
         {
             if(group)
                 group->AddRef();
         }
 
-        ~Instance() 
+        ~Instance()
         {
             if(group)
                 group->Release();

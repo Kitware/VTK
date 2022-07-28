@@ -29,76 +29,76 @@ VTK_DATA_ROOT = vtkGetDataRoot()
 
 # -Z -> -X -> -Z
 FromMinusZToMinusX = "# StreamVersion 1.1\n\
-					EnterEvent 150 150 0 0 0 c\n\
-					MouseMoveEvent 294 265 0 0 0 c\n\
-					LeftButtonPressEvent 294 265 0 0 0 c\n\
-					LeftButtonReleaseEvent 294 265 0 0 0 c\n"
+          EnterEvent 150 150 0 0 0 c\n\
+          MouseMoveEvent 294 265 0 0 0 c\n\
+          LeftButtonPressEvent 294 265 0 0 0 c\n\
+          LeftButtonReleaseEvent 294 265 0 0 0 c\n"
 FromMinusXToMinusZ = "# StreamVersion 1.1\n\
-					EnterEvent 150 150 0 0 0 c\n\
-					MouseMoveEvent 267 289 0 0 0 c\n\
-					LeftButtonPressEvent 267 289 0 0 0 c\n\
-					LeftButtonReleaseEvent 267 289 0 0 0 c\n"
+          EnterEvent 150 150 0 0 0 c\n\
+          MouseMoveEvent 267 289 0 0 0 c\n\
+          LeftButtonPressEvent 267 289 0 0 0 c\n\
+          LeftButtonReleaseEvent 267 289 0 0 0 c\n"
 ###
 # -Z -> -Y -> -Z
 FromMinusZToMinusY = "# StreamVersion 1.1\n\
-					EnterEvent 150 150 0 0 0 c\n\
-					MouseMoveEvent 268 288 0 0 0 c\n\
-					LeftButtonPressEvent 268 288 0 0 0 c\n\
-					LeftButtonReleaseEvent 268 288 0 0 0 c\n"
+          EnterEvent 150 150 0 0 0 c\n\
+          MouseMoveEvent 268 288 0 0 0 c\n\
+          LeftButtonPressEvent 268 288 0 0 0 c\n\
+          LeftButtonReleaseEvent 268 288 0 0 0 c\n"
 FromMinusYToMinusZ = "# StreamVersion 1.1\n\
-					EnterEvent 150 150 0 0 0 c\n\
-					MouseMoveEvent 267 289 0 0 0 c\n\
-					LeftButtonPressEvent 267 289 0 0 0 c\n\
-					LeftButtonReleaseEvent 267 289 0 0 0 c\n"
+          EnterEvent 150 150 0 0 0 c\n\
+          MouseMoveEvent 267 289 0 0 0 c\n\
+          LeftButtonPressEvent 267 289 0 0 0 c\n\
+          LeftButtonReleaseEvent 267 289 0 0 0 c\n"
 ###
 # -Z -> +Z -> -Z
 FromMinusZToPlusZ = "# StreamVersion 1.1\n\
-					EnterEvent 150 150 0 0 0 c\n\
-					MouseMoveEvent 267 265 0 0 0 c\n\
-					LeftButtonPressEvent 267 265 0 0 0 c\n\
-					LeftButtonReleaseEvent 267 265 0 0 0 c\n"
+          EnterEvent 150 150 0 0 0 c\n\
+          MouseMoveEvent 267 265 0 0 0 c\n\
+          LeftButtonPressEvent 267 265 0 0 0 c\n\
+          LeftButtonReleaseEvent 267 265 0 0 0 c\n"
 FromPlusZToMinusZ = "# StreamVersion 1.1\n\
-					EnterEvent 150 150 0 0 0 c\n\
-					MouseMoveEvent 267 265 0 0 0 c\n\
-					LeftButtonPressEvent 267 265 0 0 0 c\n\
-					LeftButtonReleaseEvent 267 265 0 0 0 c\n"
+          EnterEvent 150 150 0 0 0 c\n\
+          MouseMoveEvent 267 265 0 0 0 c\n\
+          LeftButtonPressEvent 267 265 0 0 0 c\n\
+          LeftButtonReleaseEvent 267 265 0 0 0 c\n"
 ###
 # +Z -> +X -> +Z
 FromPlusZToPlusX = "# StreamVersion 1.1\n\
-					EnterEvent 150 150 0 0 0 c\n\
-					MouseMoveEvent 289 265 0 0 0 c\n\
-					LeftButtonPressEvent 289 265 0 0 0 c\n\
-					LeftButtonReleaseEvent 289 265 0 0 0 c\n"
+          EnterEvent 150 150 0 0 0 c\n\
+          MouseMoveEvent 289 265 0 0 0 c\n\
+          LeftButtonPressEvent 289 265 0 0 0 c\n\
+          LeftButtonReleaseEvent 289 265 0 0 0 c\n"
 FromPlusXToPlusZ = "# StreamVersion 1.1\n\
-					EnterEvent 150 150 0 0 0 c\n\
-					MouseMoveEvent 267 245 0 0 0 c\n\
-					LeftButtonPressEvent 267 245 0 0 0 c\n\
-					LeftButtonReleaseEvent 267 245 0 0 0 c\n"
+          EnterEvent 150 150 0 0 0 c\n\
+          MouseMoveEvent 267 245 0 0 0 c\n\
+          LeftButtonPressEvent 267 245 0 0 0 c\n\
+          LeftButtonReleaseEvent 267 245 0 0 0 c\n"
 ###
 # +Z -> +Y -> +Z
 FromPlusZToPlusY = "# StreamVersion 1.1\n\
-					EnterEvent 150 150 0 0 0 c\n\
-					MouseMoveEvent 267 245 0 0 0 c\n\
-					LeftButtonPressEvent 267 245 0 0 0 c\n\
-					LeftButtonReleaseEvent 267 245 0 0 0 c\n"
+          EnterEvent 150 150 0 0 0 c\n\
+          MouseMoveEvent 267 245 0 0 0 c\n\
+          LeftButtonPressEvent 267 245 0 0 0 c\n\
+          LeftButtonReleaseEvent 267 245 0 0 0 c\n"
 FromPlusYToPlusZ = "# StreamVersion 1.1\n\
-					EnterEvent 150 150 0 0 0 c\n\
-					MouseMoveEvent 267 245 0 0 0 c\n\
-					LeftButtonPressEvent 267 245 0 0 0 c\n\
-					LeftButtonReleaseEvent 267 245 0 0 0 c\n"
+          EnterEvent 150 150 0 0 0 c\n\
+          MouseMoveEvent 267 245 0 0 0 c\n\
+          LeftButtonPressEvent 267 245 0 0 0 c\n\
+          LeftButtonReleaseEvent 267 245 0 0 0 c\n"
 
 ###
 # -Z -> arbitrary
 FromMinusZToArbitrary = "# StreamVersion 1.1\n\
-					LeaveEvent 300 150 0 0 0 c\n\
-					EnterEvent 150 150 0 0 0 c\n\
-					MouseMoveEvent 268 288 0 0 0 c\n\
-					LeftButtonPressEvent 268 288 0 0 0 c\n\
-					MouseMoveEvent 266 287 0 0 0 c\n\
-					MouseMoveEvent 260 260 0 0 0 c\n\
-					MouseMoveEvent 250 255 0 0 0 c\n\
-					MouseMoveEvent 246 250 0 0 0 c\n\
-					LeftButtonReleaseEvent 246 250 0 0 0 c\n"
+          LeaveEvent 300 150 0 0 0 c\n\
+          EnterEvent 150 150 0 0 0 c\n\
+          MouseMoveEvent 268 288 0 0 0 c\n\
+          LeftButtonPressEvent 268 288 0 0 0 c\n\
+          MouseMoveEvent 266 287 0 0 0 c\n\
+          MouseMoveEvent 260 260 0 0 0 c\n\
+          MouseMoveEvent 250 255 0 0 0 c\n\
+          MouseMoveEvent 246 250 0 0 0 c\n\
+          LeftButtonReleaseEvent 246 250 0 0 0 c\n"
 
 
 class TestCameraOrientationWidget(vtk.test.Testing.vtkTest):

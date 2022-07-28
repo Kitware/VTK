@@ -51,8 +51,8 @@ public:
   /**
    * Stored times and corresponding steps
    * <pre>
-   * 	key: physical times
-   * 	value: adios2 step
+   *   key: physical times
+   *   value: adios2 step
    * </pre>
    */
   std::map<double, size_t> Times;

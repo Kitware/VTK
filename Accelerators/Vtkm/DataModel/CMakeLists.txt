@@ -79,7 +79,7 @@ vtk_module_set_property(VTK::AcceleratorsVTKmDataModel
 if (TARGET vtkm::cuda)
   set(cuda_impl ${nowrap_classes} vtkmDataSet.cxx)
   set_source_files_properties(${cuda_impl} PROPERTIES
-    LANGUAGE CUDA 
+    LANGUAGE CUDA
     CUDA_SOURCE_PROPERTY_FORMAT OBJ
     CUDA_SEPARABLE_COMPILATION ON)
 

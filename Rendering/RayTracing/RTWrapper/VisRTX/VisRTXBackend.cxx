@@ -170,7 +170,7 @@ namespace RTW
     }
 
     void VisRTXBackend::SetObject(RTWObject object, const char *id, RTWObject other)
-    { 
+    {
         if (!object)
             return;
 
@@ -258,17 +258,17 @@ namespace RTW
     {
         return reinterpret_cast<RTWData>(new Data(source, type, numElements1, numElements2, true));
     }
-    
+
     RTWData VisRTXBackend::NewSharedData3D(const void *source, RTWDataType type, uint32_t numElements1, uint32_t numElements2, uint32_t numElements3)
     {
         return reinterpret_cast<RTWData>(new Data(source, type, numElements1, numElements2, numElements3, true));
     }
-    
+
     RTWData VisRTXBackend::NewCopyData1D(const void *source, RTWDataType type, size_t numElements)
     {
         return reinterpret_cast<RTWData>(new Data(source, type, numElements, false));
     }
-    
+
     RTWData VisRTXBackend::NewCopyData2D(const void *source, RTWDataType type, size_t numElements1, size_t numElements2)
     {
         return reinterpret_cast<RTWData>(new Data(source, type, numElements1, numElements2, false));
@@ -294,8 +294,8 @@ namespace RTW
             return 0.0f;
 
         return reinterpret_cast<Renderer*>(renderer)->RenderFrame(
-                reinterpret_cast<FrameBuffer*>(frameBuffer), 
-                reinterpret_cast<Camera*>(camera), 
+                reinterpret_cast<FrameBuffer*>(frameBuffer),
+                reinterpret_cast<Camera*>(camera),
                 reinterpret_cast<World*>(world));
     }
 

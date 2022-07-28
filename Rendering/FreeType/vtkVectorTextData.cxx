@@ -1,4 +1,4 @@
-struct VTK_VECTOR_TEXT_POINT_t 
+struct VTK_VECTOR_TEXT_POINT_t
 {
   float x;
   float y;

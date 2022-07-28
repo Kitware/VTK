@@ -75,7 +75,7 @@ namespace RTW
             {
                 vtkLogF(ERROR, "VISRTX Error: Could not get color texture.");
                 return 0;
-            }  
+            }
         }
 
         int GetDepthTextureGL()
@@ -88,7 +88,7 @@ namespace RTW
             {
                 vtkLogF(ERROR, "VISRTX Error: Could not get depth texture.");
                 return 0;
-            }             
+            }
         }
 
     private:

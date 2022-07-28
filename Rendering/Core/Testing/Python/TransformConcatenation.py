@@ -3,7 +3,7 @@ import vtk
 from vtk.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
-# This example demonstrates how to set up flexible joints using 
+# This example demonstrates how to set up flexible joints using
 # the transformation pipeline and vtkTransformPolyDataFilter.
 # create a rendering window and renderer
 ren1 = vtk.vtkRenderer()

@@ -88,7 +88,7 @@ function WebGLRenderer(rendererId, coreServiceURL) {
         vColor = aVertexColor;\
     }";
 
-	// Point Shaders
+    // Point Shaders
     this.view.shaderfsPoint = document.createElement("script");
     this.view.shaderfsPoint.id = "shader-fs-Point";
     this.view.shaderfsPoint.type = "x-shader/x-fragment";
@@ -118,7 +118,7 @@ function WebGLRenderer(rendererId, coreServiceURL) {
         gl_PointSize = uPointSize;\
     }";
 
-	//
+    //
     this.canvasName = "glcanvas" + rendererId;
     this.view.html = '<div><canvas id="' + this.canvasName + '" style="border: none; overflow: hidden;';
     if (this.forceSquareSize == true) this.view.html += ' position: absolute;';
@@ -343,10 +343,10 @@ WebGLRenderer.prototype.setServerMode = function(mode){
 }
 
 WebGLRenderer.prototype.setSize = function(width, height) {
-	width = parseFloat(width);
-	height = parseFloat(height);
-	w = width;
-	h = height;
+    width = parseFloat(width);
+    height = parseFloat(height);
+    w = width;
+    h = height;
     this.view.aspectRatio = width/height;
     if(this.forceSquareSize){
       if (width > height) height = width;
@@ -357,29 +357,29 @@ WebGLRenderer.prototype.setSize = function(width, height) {
     canvas = document.getElementById(this.canvasName);
     canvasWidget = document.getElementById(this.canvasName + "Widget");
     if (canvas){
-	    canvas.width = this.view.width;
-	    canvas.height = this.view.height;
-	    canvasWidget.width = this.view.width;
-	    canvasWidget.height = this.view.height;
-	    if (typeof(this.gl) != "undefined" && this.gl != null){
-	        if (!this.offlineMode) updateRendererSize(this.sessionId, this.viewId, width, height);
-		    this.gl.viewportWidth = this.view.width;
-		    this.gl.viewportHeight = this.view.height;
-	    }
-	    left = 0; tt = 0;
-	    if (this.forceSquareSize){
-	      left = Math.round((w-this.view.width)/2);
-	      tt = Math.round((h-this.view.height)/2);
-	    }
-	    this.view.left = left;
-	    this.view.top = top;
-	    if(this.forceSquareSize == true){
-	      canvas.setAttribute("style", "position: absolute; overflow: hidden; left: " + left + "px; top: " + tt + "px; right: 0px; z-index:0;");
-	      canvasWidget.setAttribute("style", "position: absolute; overflow: hidden; left: " + left + "px; top: " + tt + "px; right: 0px; z-index:1;");
-	    } else {
-	      canvas.setAttribute("style", "overflow: hidden; left: " + left + "px; top: " + tt + "px; right: 0px; z-index:0;");
-	      canvasWidget.setAttribute("style", "position: absolute; overflow: hidden; left: " + left + "px; top: " + tt + "px; right: 0px; z-index:1;");
-	    }
+      canvas.width = this.view.width;
+      canvas.height = this.view.height;
+      canvasWidget.width = this.view.width;
+      canvasWidget.height = this.view.height;
+      if (typeof(this.gl) != "undefined" && this.gl != null){
+        if (!this.offlineMode) updateRendererSize(this.sessionId, this.viewId, width, height);
+          this.gl.viewportWidth = this.view.width;
+          this.gl.viewportHeight = this.view.height;
+        }
+        left = 0; tt = 0;
+        if (this.forceSquareSize){
+          left = Math.round((w-this.view.width)/2);
+          tt = Math.round((h-this.view.height)/2);
+        }
+        this.view.left = left;
+        this.view.top = top;
+        if(this.forceSquareSize == true){
+          canvas.setAttribute("style", "position: absolute; overflow: hidden; left: " + left + "px; top: " + tt + "px; right: 0px; z-index:0;");
+          canvasWidget.setAttribute("style", "position: absolute; overflow: hidden; left: " + left + "px; top: " + tt + "px; right: 0px; z-index:1;");
+        } else {
+          canvas.setAttribute("style", "overflow: hidden; left: " + left + "px; top: " + tt + "px; right: 0px; z-index:0;");
+          canvasWidget.setAttribute("style", "position: absolute; overflow: hidden; left: " + left + "px; top: " + tt + "px; right: 0px; z-index:1;");
+        }
     }
 }
 
@@ -429,12 +429,12 @@ WebGLRenderer.prototype.updateScene = function(){
     this.objScale = 1.0;
     mat4.identity(this.rotMatrix);
 
-	this.up = [this.lookAt[4], this.lookAt[5], this.lookAt[6]];
-	this.z_dir = [this.lookAt[1]-this.lookAt[7],
+    this.up = [this.lookAt[4], this.lookAt[5], this.lookAt[6]];
+    this.z_dir = [this.lookAt[1]-this.lookAt[7],
                   this.lookAt[2]-this.lookAt[8],
                   this.lookAt[3]-this.lookAt[9]];
-	vec3.normalize(this.z_dir, this.z_dir);
-	vec3.cross(this.z_dir, this.up, this.right);
+    vec3.normalize(this.z_dir, this.z_dir);
+    vec3.cross(this.z_dir, this.up, this.right);
   }
   this.oldCamPos = this.lookAt;
   var aux = [];
@@ -463,12 +463,12 @@ WebGLRenderer.prototype.updateScene = function(){
       if (!foundit){
         for(k=0; k<this.sceneJSON.Objects[w].parts; k++){
           foundit = false;
-	      for(j=0; j<this.objects.length; j++){
-	        if (this.objects[j].md5==this.sceneJSON.Objects[w].md5 &&
+          for(j=0; j<this.objects.length; j++){
+            if (this.objects[j].md5==this.sceneJSON.Objects[w].md5 &&
               this.objects[j].id==this.sceneJSON.Objects[w].id && this.objects[j].part==k+1 )
-	          foundit=true;
-	      }
-          if(!foundit) this.requestObject(this.sessionId, this.sceneJSON.id, this.sceneJSON.Objects[w].md5,
+              foundit=true;
+            }
+            if(!foundit) this.requestObject(this.sessionId, this.sceneJSON.id, this.sceneJSON.Objects[w].md5,
                                       k+1, this.sceneJSON.Objects[w].id, this.sceneJSON.Objects[w].transparency, this.sceneJSON.Objects[w].layer);
           }
       }
@@ -616,18 +616,18 @@ WebGLRenderer.prototype.parseObject = function(obj){
 
     //Getting Colors
     obj.colors = [];
-	for(c=0; c<obj.numOfColors; c++){
-	  test = new Int8Array(4); for(i=0; i<4; i++) test[i] = ss[pos++];
-	  v = new Float32Array(test.buffer);
-	  xrgb = [v[0], ss[pos++], ss[pos++], ss[pos++]];
-	  obj.colors[c] = xrgb;
-	}
+    for(c=0; c<obj.numOfColors; c++){
+      test = new Int8Array(4); for(i=0; i<4; i++) test[i] = ss[pos++];
+      v = new Float32Array(test.buffer);
+      xrgb = [v[0], ss[pos++], ss[pos++], ss[pos++]];
+      obj.colors[c] = xrgb;
+    }
 
-	obj.orientation = ss[pos++];
-	obj.numOfLabels = ss[pos++];
-	tt = "";
-	for(jj=0; jj<(ss.length-pos); jj++) tt = tt + String.fromCharCode(ss[pos+jj]);
-	obj.title = tt;
+    obj.orientation = ss[pos++];
+    obj.numOfLabels = ss[pos++];
+    tt = "";
+    for(jj=0; jj<(ss.length-pos); jj++) tt = tt + String.fromCharCode(ss[pos+jj]);
+    obj.title = tt;
 
     obj.render = this.renderColorMap;
   }
@@ -980,7 +980,7 @@ WebGLRenderer.prototype.drawScene = function() {
   this.gl.viewport(0, 0, this.gl.viewportWidth, this.gl.viewportHeight);
   this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
 
-  mat4.ortho(-1.0, 1.0, -1.0, 1.0, 	1.0, 1000000.0, this.pMatrix);
+  mat4.ortho(-1.0, 1.0, -1.0, 1.0, 1.0, 1000000.0, this.pMatrix);
   mat4.identity(this.mvMatrix);
   this.gl.disable(this.gl.DEPTH_TEST);
   this.renderBackground();
@@ -1238,7 +1238,7 @@ function handleMouseMove(event, id) {
 
 function mouseServerInt(rendererId, sessionId, viewId, action, event){
     consumeEvent(event);
-	render = webglRenderers[rendererId];
+    render = webglRenderers[rendererId];
     render.interaction.lastRealEvent = event;
     var width = render.view.width;
     var height = render.view.height;

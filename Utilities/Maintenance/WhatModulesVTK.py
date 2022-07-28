@@ -18,10 +18,10 @@ Note:
 1) If include file(s) are not found when building your application.
     You may need to search the VTK source to find where the file is.
     Then look at contents of vtk.module in that folder and add the
-     module name to the find_package statement. 
+     module name to the find_package statement.
 2) If linking fails, it usually means that the needed module has not been
      built, so you may need to add it to your VTK build and rebuild VTK.
-3) More modules than strictly necessary may be included.     
+3) More modules than strictly necessary may be included.
     '''
     parser = argparse.ArgumentParser(description=description, epilog=epilogue,
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -127,7 +127,7 @@ def find_application_includes(path):
 def generate_find_package(vtk_src_dir, application_srcs):
     """
     Generate the find_package statement.
-    
+
     :param vtk_src_dir: The VTK source folder.
     :param application_srcs: A list of application folders and or files.
     :return: The find_package statement.

@@ -1382,7 +1382,7 @@ struct StructuredGridFittingWorker
           this->Grid.YOrientation = sweepDirection[yCornerId];
           this->Grid.ExtentId = extentId;
 
-          if ((this->Dimension == 3 && 
+          if ((this->Dimension == 3 &&
                 this->Grid.StartX != this->Grid.EndX && this->Grid.StartY != this->Grid.EndY) ||
               (this->Dimension == 2 && (this->Grid.StartX != this->Grid.EndX ||
                                         this->Grid.StartY != this->Grid.EndY)) ||

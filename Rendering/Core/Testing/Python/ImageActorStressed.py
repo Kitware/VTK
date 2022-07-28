@@ -47,7 +47,7 @@ iaTwo.GetMapper().SetInputConnection(ssTwo.GetOutputPort())
 iaTwo.SetScale(0.1,0.1,1.0)
 iaTwo.AddPosition(1000,1000,0)
 ren1.AddActor(iaTwo)
-# The third one will test changing input and a 
+# The third one will test changing input and a
 # power of two texture
 gsThree = vtk.vtkImageEllipsoidSource()
 gsThree.SetWholeExtent(0,511,2000,2511,0,0)

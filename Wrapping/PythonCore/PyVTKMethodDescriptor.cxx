@@ -177,7 +177,7 @@ PyTypeObject PyVTKMethodDescriptor_Type = {
   0,                                       // tp_itemsize
   PyVTKMethodDescriptor_Delete,            // tp_dealloc
 #if PY_VERSION_HEX >= 0x03080000
-  //Prior to Py3.8, this member was a function pointer, 
+  //Prior to Py3.8, this member was a function pointer,
   //but as of Py3.8 it is an integer
   //(and therefore incompatible with nullptr).
   0,                                       // tp_vectorcall_offset

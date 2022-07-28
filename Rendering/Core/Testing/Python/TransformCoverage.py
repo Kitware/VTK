@@ -78,7 +78,7 @@ tPerspective.Scale(2,2,2)
 # these should cancel
 tPerspective.AdjustViewport(-0.5,0.5,-0.5,0.5,-1,1,-1,1)
 tPerspective.AdjustViewport(-1,1,-1,1,-0.5,0.5,-0.5,0.5)
-# test shear transformation 
+# test shear transformation
 tPerspective.Shear(0.2,0.3,0.0)
 tPerspective.Update()
 # the following 6 operations cancel out
