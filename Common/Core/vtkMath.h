@@ -1582,11 +1582,11 @@ public:
     switch (mode)
     {
       case ConvolutionMode::SAME:
-        begin = static_cast<int>(std::ceil(std::min(sampleSize, kernelSize) / 2.0)) - 1;
-        end = begin + std::max(sampleSize, kernelSize);
+        begin = static_cast<int>(std::ceil((std::min)(sampleSize, kernelSize) / 2.0)) - 1;
+        end = begin + (std::max)(sampleSize, kernelSize);
         break;
       case ConvolutionMode::VALID:
-        begin = std::min(sampleSize, kernelSize) - 1;
+        begin = (std::min)(sampleSize, kernelSize) - 1;
         end = begin + std::abs(sampleSize - kernelSize) + 1;
         break;
       case ConvolutionMode::FULL:
@@ -1598,7 +1598,7 @@ public:
     {
       Iter3 out = beginOut + i - begin;
       *out = 0;
-      for (int j = std::max(i - sampleSize + 1, 0); j <= std::min(i, kernelSize - 1); j++)
+      for (int j = (std::max)(i - sampleSize + 1, 0); j <= (std::min)(i, kernelSize - 1); j++)
       {
         *out += *(beginSample + (i - j)) * *(beginKernel + j);
       }
