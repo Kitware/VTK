@@ -197,12 +197,12 @@ public:
     for (int i = 0; i < this->ScalarArrayNamesSize; i++)
     {
       this->MaxTupleSize = std::max(this->MaxTupleSize,
-        this->InFD->GetArray(this->ScalarArrayNames[i].c_str())->GetNumberOfComponents());
+        this->InFD->GetAbstractArray(this->ScalarArrayNames[i].c_str())->GetNumberOfComponents());
     }
     for (int i = 0; i < this->VectorArrayNamesSize; i++)
     {
       this->MaxTupleSize = std::max(this->MaxTupleSize,
-        this->InFD->GetArray(this->VectorArrayNames[i].c_str())->GetNumberOfComponents());
+        this->InFD->GetAbstractArray(this->VectorArrayNames[i].c_str())->GetNumberOfComponents());
     }
   }
 
