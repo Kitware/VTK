@@ -34,8 +34,10 @@ vtkCxxSetObjectMacro(vtkSelectPolyData, Loop, vtkPoints);
 // Description:
 // Instantiate object with InsideOut turned off.
 vtkSelectPolyData::vtkSelectPolyData()
+  : SelectionScalarsArrayName(nullptr)
 {
   this->GenerateSelectionScalars = 0;
+  this->SetSelectionScalarsArrayName("Selection");
   this->InsideOut = 0;
   this->EdgeSearchMode = VTK_GREEDY_EDGE_SEARCH;
   this->Loop = nullptr;
@@ -55,6 +57,7 @@ vtkSelectPolyData::vtkSelectPolyData()
 //------------------------------------------------------------------------------
 vtkSelectPolyData::~vtkSelectPolyData()
 {
+  this->SetSelectionScalarsArrayName(nullptr);
   if (this->Loop)
   {
     this->Loop->Delete();
@@ -383,7 +386,7 @@ int vtkSelectPolyData::RequestData(vtkInformation* vtkNotUsed(request),
   else
   {
     // crop the input mesh to the selected region
-    this->SetClippedResultToOutput(inPD, mesh, cellMarks, output);
+    this->SetClippedResultToOutput(inPD, inCD, mesh, cellMarks, output);
   }
 
   return 1;
@@ -648,6 +651,7 @@ void vtkSelectPolyData::SetSelectionScalarsToOutput(vtkPointData* originalPointD
   vtkIdType numPts = inPts->GetNumberOfPoints();
 
   vtkNew<vtkFloatArray> selectionScalars;
+  selectionScalars->SetName(this->SelectionScalarsArrayName);
   selectionScalars->SetNumberOfTuples(numPts);
 
   // "Boundary" here refers to a polyline that connects the loop point positions.
@@ -773,23 +777,28 @@ void vtkSelectPolyData::SetSelectionScalarsToOutput(vtkPointData* originalPointD
   output->CopyStructure(mesh); // pass geometry/topology unchanged
 
   vtkPointData* outPD = output->GetPointData();
+  outPD->CopyAllOn();
+  outPD->PassData(originalPointData);
   int idx = outPD->AddArray(selectionScalars);
   outPD->SetActiveAttribute(idx, vtkDataSetAttributes::SCALARS);
-  outPD->CopyScalarsOff();
-  outPD->PassData(originalPointData);
 
   vtkCellData* outCD = output->GetCellData();
   outCD->PassData(originalCellData);
 }
 
 //------------------------------------------------------------------------------
-void vtkSelectPolyData::SetClippedResultToOutput(
-  vtkPointData* originalPointData, vtkPolyData* mesh, vtkIntArray* cellMarks, vtkPolyData* output)
+void vtkSelectPolyData::SetClippedResultToOutput(vtkPointData* originalPointData,
+  vtkCellData* originalCellData, vtkPolyData* mesh, vtkIntArray* cellMarks, vtkPolyData* output)
 {
+  vtkCellData* outCD = output->GetCellData();
+  outCD->CopyAllOn(vtkDataSetAttributes::COPYTUPLE);
+  outCD->CopyAllocate(originalCellData);
+
   // spit out all the negative cells
   vtkNew<vtkCellArray> newPolys;
   vtkIdType numCells = mesh->GetNumberOfCells();
   newPolys->AllocateEstimate(numCells / 2, 3);
+  vtkIdType newID = 0;
   for (vtkIdType i = 0; i < numCells; i++)
   {
     if ((cellMarks->GetValue(i) < 0) || (cellMarks->GetValue(i) > 0 && this->InsideOut))
@@ -797,7 +806,8 @@ void vtkSelectPolyData::SetClippedResultToOutput(
       const vtkIdType* pts;
       vtkIdType npts;
       mesh->GetCellPoints(i, npts, pts);
-      newPolys->InsertNextCell(npts, pts);
+      newID = newPolys->InsertNextCell(npts, pts);
+      outCD->CopyData(originalCellData, i, newID);
     }
   }
   vtkPoints* inPts = mesh->GetPoints();
@@ -808,6 +818,10 @@ void vtkSelectPolyData::SetClippedResultToOutput(
 
   if (this->GenerateUnselectedOutput)
   {
+    vtkCellData* unCD = this->GetUnselectedOutput()->GetCellData();
+    unCD->CopyAllOn(vtkDataSetAttributes::COPYTUPLE);
+    unCD->CopyAllocate(originalCellData);
+
     vtkNew<vtkCellArray> unPolys;
     unPolys->AllocateEstimate(numCells / 2, 3);
     for (vtkIdType i = 0; i < numCells; i++)
@@ -817,7 +831,8 @@ void vtkSelectPolyData::SetClippedResultToOutput(
         const vtkIdType* pts;
         vtkIdType npts;
         mesh->GetCellPoints(i, npts, pts);
-        unPolys->InsertNextCell(npts, pts);
+        newID = unPolys->InsertNextCell(npts, pts);
+        unCD->CopyData(originalCellData, i, newID);
       }
     }
     this->GetUnselectedOutput()->SetPoints(inPts);
@@ -879,6 +894,11 @@ void vtkSelectPolyData::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent
      << "Generate Selection Scalars: " << (this->GenerateSelectionScalars ? "On\n" : "Off\n");
+
+  if (this->GenerateSelectionScalars)
+  {
+    os << indent << "Selection Scalars array name: " << this->SelectionScalarsArrayName << "\n";
+  }
 
   os << indent << "Inside Out: " << (this->InsideOut ? "On\n" : "Off\n");
 
