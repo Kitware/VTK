@@ -54,7 +54,7 @@ void vtkImageDotProductExecute(vtkImageDotProduct* self, vtkImageData* in1Data,
   vtkImageIterator<T> inIt1(in1Data, outExt);
   vtkImageIterator<T> inIt2(in2Data, outExt);
   vtkImageProgressIterator<T> outIt(outData, outExt, self, id);
-  float dot;
+  double dot;
 
   // find the region to loop over
   int maxC = in1Data->GetNumberOfScalarComponents();
@@ -73,7 +73,7 @@ void vtkImageDotProductExecute(vtkImageDotProduct* self, vtkImageData* in1Data,
       dot = 0.0;
       for (idxC = 0; idxC < maxC; idxC++)
       {
-        dot += static_cast<float>(*inSI1 * *inSI2);
+        dot += static_cast<double>(*inSI1) * static_cast<double>(*inSI2);
         ++inSI1;
         ++inSI2;
       }
