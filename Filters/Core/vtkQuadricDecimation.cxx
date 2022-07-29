@@ -629,7 +629,7 @@ void vtkQuadricDecimation::AddBoundaryConstraints()
   vtkIdType npts;
   const vtkIdType* pts;
   double t0[3], t1[3], t2[3];
-  double e0[3], e1[3], n[3], c, d, w;
+  double e0[3], e1[3], n[3], c, w;
   vtkIdList* cellIds = vtkIdList::New();
 
   // allocate local QEM space matrix
@@ -668,7 +668,16 @@ void vtkQuadricDecimation::AddBoundaryConstraints()
           n[j] = e1[j] - c * e0[j];
         }
         vtkMath::Normalize(n);
-        d = -vtkMath::Dot(n, t1);
+
+#if defined(_MSC_VER) && _MSC_VER >= 1929
+        // Visual Studio toolset starting at toolset 14.29.30133, when building in Release mode
+        // incorrectly optimizes away the line
+        //    QEM[9] = d * d;
+        // By making volatile, we are telling the compiler not to optimize out
+        // or reorder operations regarding this variable.
+        volatile
+#endif
+          double d = -vtkMath::Dot(n, t1);
         w = vtkMath::Norm(e0);
 
         // w *= w;
