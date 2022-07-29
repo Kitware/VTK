@@ -18,6 +18,7 @@
 #include "vtkCompositeDataPipeline.h"
 #include "vtkDataArrayCollection.h"
 #include "vtkDataArraySelection.h"
+#include "vtkDataSetTriangleFilter.h"
 #include "vtkEnSight6BinaryReader.h"
 #include "vtkEnSight6Reader.h"
 #include "vtkEnSightGoldBinaryReader.h"
@@ -278,6 +279,15 @@ int vtkGenericEnSightReader::RequestData(vtkInformation* vtkNotUsed(request),
     this->AddComplexVariableDescription(this->Reader->GetComplexDescription(i));
     this->AddComplexVariableType(this->Reader->GetComplexVariableType(i));
     this->NumberOfComplexVariables++;
+  }
+
+  // Apply a Tetrahedralize filter to prevent non manifold triangle
+  if (this->ApplyTetrahedralize)
+  {
+    vtkNew<vtkDataSetTriangleFilter> tetrahedralizeFilter;
+    tetrahedralizeFilter->SetInputData(output);
+    tetrahedralizeFilter->Update();
+    output->ShallowCopy(tetrahedralizeFilter->GetOutputDataObject(0));
   }
 
   return 1;

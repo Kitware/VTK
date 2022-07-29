@@ -9,6 +9,7 @@ GROUPS
 DEPENDS
   VTK::CommonExecutionModel
 PRIVATE_DEPENDS
+  VTK::FiltersGeneral
   VTK::CommonCore
   VTK::CommonDataModel
 TEST_DEPENDS

@@ -282,6 +282,16 @@ public:
   // THIB
   vtkGenericEnSightReader* GetReader() { return this->Reader; }
 
+  ///@{
+  /**
+   * Get/set to ApplyTetrahedralize.
+   * It's used to apply a Tetrahedralize filter to prevent potential non manifold triangles
+   * produced by the ensight solver.
+   */
+  vtkGetMacro(ApplyTetrahedralize, bool);
+  vtkSetMacro(ApplyTetrahedralize, bool);
+  ///@}
+
 protected:
   vtkGenericEnSightReader();
   ~vtkGenericEnSightReader() override;
@@ -446,6 +456,8 @@ protected:
 
   // Wrapper around an stl map
   TranslationTableType* TranslationTable;
+
+  bool ApplyTetrahedralize = false;
 
 private:
   vtkGenericEnSightReader(const vtkGenericEnSightReader&) = delete;
