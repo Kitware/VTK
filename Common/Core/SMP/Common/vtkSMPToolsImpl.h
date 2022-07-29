@@ -59,6 +59,9 @@ class VTKCOMMONCORE_EXPORT vtkSMPToolsImpl
 {
 public:
   //--------------------------------------------------------------------------------
+  vtkSMPToolsImpl() {} // no default because of TBB specialisation
+
+  //--------------------------------------------------------------------------------
   void Initialize(int numThreads = 0);
 
   //--------------------------------------------------------------------------------
@@ -99,7 +102,7 @@ public:
   void Sort(RandomAccessIterator begin, RandomAccessIterator end, Compare comp);
 
 private:
-  bool NestedActivated = true;
+  bool NestedActivated = false;
   std::atomic<bool> IsParallel{ false };
 };
 

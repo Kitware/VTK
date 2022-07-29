@@ -424,17 +424,18 @@ public:
    * /!\ This method is not thread safe.
    * If true enable nested parallelism for underlying backends.
    * When enabled the comportement is different for each backend:
-   *    - TBB support nested parallelism by default.
-   *    - For OpenMP, we set `omp_set_nested` to true so that it is supported.
-   *    - STDThread support nested parallelism by creating new threads pools.
+   *    - TBB support nested parallelism using a single thread pool
+   *    - For OpenMP, set `omp_set_nested` to the value of `isNested`.
+   *    - For STDThread nested parallelism implies creating new threads pools.
    *    - For Sequential nothing changes.
    *
-   * Default to true
+   * Default to false except for TBB.
    */
   static void SetNestedParallelism(bool isNested);
 
   /**
    * Get true if the nested parallelism is enabled.
+   * By default, nested parallelism is enabled only for TBB.
    */
   static bool GetNestedParallelism();
 
@@ -454,9 +455,9 @@ public:
   {
     int MaxNumberOfThreads = 0;
     std::string Backend = vtk::detail::smp::vtkSMPToolsAPI::GetInstance().GetBackend();
-    bool NestedParallelism = true;
+    bool NestedParallelism = false;
 
-    Config() {}
+    Config() = default;
     Config(int maxNumberOfThreads)
       : MaxNumberOfThreads(maxNumberOfThreads)
     {
