@@ -252,8 +252,17 @@ int vtkFidesReader::RequestInformation(
     }
   }
 
-  // If we're using a preset model, we'll have to do the call to ParseDataModel here
-  if (this->Impl->UsePresetModel && !this->Impl->HasParsedDataModel)
+  if (!this->Impl->UsePresetModel && !this->Impl->HasParsedDataModel)
+  {
+    this->ParseDataModel(this->FileName);
+    if (this->StreamSteps)
+    {
+      // when streaming UpdateInformation() should be called to get Fides set
+      // up, but don't read metadata yet.
+      return 1;
+    }
+  }
+  else if (this->Impl->UsePresetModel && !this->Impl->HasParsedDataModel)
   {
     vtkDebugMacro(<< "using preset model but hasn't been parsed yet");
     this->ParseDataModel();
@@ -488,6 +497,19 @@ int vtkFidesReader::RequestData(
                   "must be set before RequestData()");
     return 0;
   }
+
+  if (this->StreamSteps && this->NextStepStatus != StepStatus::OK)
+  {
+    // This doesn't usually happen, but when using Catalyst Live with
+    // Fides, sometimes there's a situation where Catalyst gets updated
+    // state from Live and it has NextStepStatus == NotReady. In that case
+    // (usually only when running with MPI), one rank will think it needs
+    // to call RequestData(), in vtkLiveInsituLink::InsituPostProcess().
+    // But PrepareNextStep() will not be called, and so ADIOS will throw
+    // an error because EndStep() was called without BeginStep().
+    return 1;
+  }
+
   vtkPartitionedDataSet* output = vtkPartitionedDataSet::GetData(outputVector);
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
   int nBlocks = outInfo->Get(NUMBER_OF_BLOCKS());
