@@ -635,6 +635,9 @@ void vtkExtractSelection::ExtractSelectedPoints(
     output->InsertNextCell(VTK_VERTEX, newCellPts);
   }
   output->SetPoints(newPts);
+
+  // Copy field data
+  output->GetFieldData()->ShallowCopy(input->GetFieldData());
 }
 
 //------------------------------------------------------------------------------
