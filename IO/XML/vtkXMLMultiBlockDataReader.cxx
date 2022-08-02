@@ -144,12 +144,11 @@ void vtkXMLMultiBlockDataReader::ReadComposite(vtkXMLDataElement* element,
     if (strcmp(tagName, "DataSet") == 0)
     {
       vtkSmartPointer<vtkDataObject> childDS;
-      const char* name = nullptr;
+      const char* name = childXML->GetAttribute("name");
       if (this->ShouldReadDataSet(dataSetIndex, index, numPieces))
       {
         // Read
         childDS.TakeReference(this->ReadDataObject(childXML, filePath));
-        name = childXML->GetAttribute("name");
       }
       // insert
       if (mblock)
