@@ -2686,10 +2686,9 @@ int vtkIOSSReader::ReadMesh(
           "Error reading entity block (or set) named '%s' from '%s'; skipping. Details: %s",
           blockname.c_str(), internals.GetRawFileName(handle).c_str(), e.what());
       }
-
-      internals.ReleaseHandles();
     }
   }
+  internals.ReleaseHandles();
 
   if (numRanks > 1)
   {
