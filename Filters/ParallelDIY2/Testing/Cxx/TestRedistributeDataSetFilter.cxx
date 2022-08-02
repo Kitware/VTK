@@ -63,6 +63,7 @@ bool TestDuplicatePoints(vtkMultiProcessController* controller)
 
   vtkNew<vtkRedistributeDataSetFilter> redistribute;
   redistribute->SetInputConnection(wavelet->GetOutputPort());
+  redistribute->SetNumberOfPartitions(4);
   redistribute->Update();
 
   vtkDataSet* waveletDS = vtkDataSet::SafeDownCast(wavelet->GetOutputDataObject(0));
