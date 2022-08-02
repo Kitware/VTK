@@ -43,8 +43,8 @@
 
 // Remove with VTK_DEPRECATED_IN_9_2_0 because it was not actually deprecated
 // in 9.1.0.
-VTK_DEPRECATED_IN_9_1_0("Use std::mutex instead")
-class VTKCOMMONCORE_EXPORT vtkCriticalSection : public vtkObject
+class VTK_DEPRECATED_IN_9_1_0("Use std::mutex instead") VTKCOMMONCORE_EXPORT vtkCriticalSection
+  : public vtkObject
 {
 public:
   static vtkCriticalSection* New();
@@ -83,3 +83,5 @@ inline void vtkCriticalSection::Unlock()
 }
 
 #endif
+
+// VTK-HeaderTest-Exclude: vtkCriticalSection.h
