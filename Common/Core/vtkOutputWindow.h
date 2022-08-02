@@ -27,13 +27,15 @@
 
 #include "vtkCommonCoreModule.h"  // For export macro
 #include "vtkDebugLeaksManager.h" // Must be included before singletons
+#include "vtkDeprecation.h"       // For `VTK_DEPRECATED_IN_9_3_0`
 #include "vtkObject.h"
 
-class VTKCOMMONCORE_EXPORT vtkOutputWindowCleanup
+class VTK_DEPRECATED_IN_9_3_0(
+  "`vtkOutputWindowCleanup` is no longer necessary") VTKCOMMONCORE_EXPORT vtkOutputWindowCleanup
 {
 public:
-  vtkOutputWindowCleanup();
-  ~vtkOutputWindowCleanup();
+  vtkOutputWindowCleanup() = default;
+  ~vtkOutputWindowCleanup() = default;
 
 private:
   vtkOutputWindowCleanup(const vtkOutputWindowCleanup& other) = delete;
@@ -172,7 +174,6 @@ protected:
   bool PromptUser;
 
 private:
-  static vtkOutputWindow* Instance;
   std::atomic<MessageTypes> CurrentMessageType;
   int DisplayMode;
   std::atomic<int> InStandardMacros; // used to suppress display to output streams from standard
@@ -184,8 +185,5 @@ private:
   vtkOutputWindow(const vtkOutputWindow&) = delete;
   void operator=(const vtkOutputWindow&) = delete;
 };
-
-// Uses schwartz counter idiom for singleton management
-static vtkOutputWindowCleanup vtkOutputWindowCleanupInstance;
 
 #endif
