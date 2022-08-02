@@ -55,6 +55,7 @@
 #include <vtkTriangle.h>
 #include <vtkUnstructuredGrid.h>
 #include <vtkVector.h>
+#include <vtkVectorFieldTopology.h>
 #include <vtkVertex.h>
 
 // Eigen3
@@ -1430,11 +1431,12 @@ int vtkVectorFieldTopology::ComputeSeparatrices(vtkPolyData* criticalPoints,
         countComplex++;
       }
 
-      if (real(eigenS.eigenvalues()[i]) < -this->EpsilonCriticalPoint)
+      // compare against epsilon for spiraling critical points only, otherwise compare to zero
+      if (real(eigenS.eigenvalues()[i]) < -this->EpsilonCriticalPoint * countComplex / 2)
       {
         countNeg++;
       }
-      else if (real(eigenS.eigenvalues()[i]) > this->EpsilonCriticalPoint)
+      else if (real(eigenS.eigenvalues()[i]) > this->EpsilonCriticalPoint * countComplex / 2)
       {
         countPos++;
       }
