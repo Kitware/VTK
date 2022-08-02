@@ -17,7 +17,6 @@
 //
 
 #include "vtkObjectFactory.h"
-#include "vtkOutputWindow.h"
 #include "vtkZLibDataCompressor.h"
 
 int TestCompressZLib(int argc, char* argv[])

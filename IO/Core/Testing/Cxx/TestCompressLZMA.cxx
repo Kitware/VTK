@@ -18,7 +18,6 @@
 
 #include "vtkLZMADataCompressor.h"
 #include "vtkObjectFactory.h"
-#include "vtkOutputWindow.h"
 
 int TestCompressLZMA(int argc, char* argv[])
 {

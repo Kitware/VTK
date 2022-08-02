@@ -19,7 +19,6 @@
 #include "vtkOpenGLError.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLState.h"
-#include "vtkOutputWindow.h"
 #include "vtkPerspectiveTransform.h"
 #include "vtkRenderer.h"
 #include "vtkTransform.h"
