@@ -49,7 +49,7 @@ int vtkStructuredGridGeometryFilter::RequestData(vtkInformation* vtkNotUsed(requ
     vtkStructuredGrid::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
   vtkPolyData* output = vtkPolyData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  int *dims, dimension, dir[3], diff[3];
+  int dimension, dir[3], diff[3];
   int i, j, k, extent[6], *inExt;
   vtkIdType ptIds[4], idx, startIdx, startCellIdx, cellId;
   vtkPoints* newPts = nullptr;
@@ -75,7 +75,8 @@ int vtkStructuredGridGeometryFilter::RequestData(vtkInformation* vtkNotUsed(requ
   outPD->CopyNormalsOff();
   cd = input->GetCellData();
   outCD = output->GetCellData();
-  dims = input->GetDimensions();
+  int dims[3];
+  input->GetDimensions(dims);
   inExt = input->GetExtent();
 
   // Based on the dimensions of the structured data, and the extent of

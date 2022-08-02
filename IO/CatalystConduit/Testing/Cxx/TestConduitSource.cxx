@@ -58,9 +58,11 @@ bool ValidateMeshTypeUniform()
     pds->GetNumberOfPartitions());
   auto img = vtkImageData::SafeDownCast(pds->GetPartition(0));
   VERIFY(img != nullptr, "missing partition 0");
-  VERIFY(vtkVector3i(img->GetDimensions()) == vtkVector3i(3, 3, 3),
-    "incorrect dimensions, expected=3x3x3, got=%dx%dx%d", img->GetDimensions()[0],
-    img->GetDimensions()[1], img->GetDimensions()[2]);
+  int dims[3];
+  img->GetDimensions(dims);
+  VERIFY(dims[0] == 3, "incorrect x dimension expected=3, got=%d", dims[0]);
+  VERIFY(dims[1] == 3, "incorrect y dimension expected=3, got=%d", dims[1]);
+  VERIFY(dims[2] == 3, "incorrect z dimension expected=3, got=%d", dims[2]);
 
   return true;
 }
@@ -77,9 +79,11 @@ bool ValidateMeshTypeRectilinear()
     pds->GetNumberOfPartitions());
   auto rg = vtkRectilinearGrid::SafeDownCast(pds->GetPartition(0));
   VERIFY(rg != nullptr, "missing partition 0");
-  VERIFY(vtkVector3i(rg->GetDimensions()) == vtkVector3i(3, 3, 3),
-    "incorrect dimensions, expected=3x3x3, got=%dx%dx%d", rg->GetDimensions()[0],
-    rg->GetDimensions()[1], rg->GetDimensions()[2]);
+  int dims[3];
+  rg->GetDimensions(dims);
+  VERIFY(dims[0] == 3, "incorrect x dimension expected=3, got=%d", dims[0]);
+  VERIFY(dims[1] == 3, "incorrect y dimension expected=3, got=%d", dims[1]);
+  VERIFY(dims[2] == 3, "incorrect z dimension expected=3, got=%d", dims[2]);
 
   return true;
 }
@@ -96,9 +100,11 @@ bool ValidateMeshTypeStructured()
     pds->GetNumberOfPartitions());
   auto sg = vtkStructuredGrid::SafeDownCast(pds->GetPartition(0));
   VERIFY(sg != nullptr, "missing partition 0");
-  VERIFY(vtkVector3i(sg->GetDimensions()) == vtkVector3i(3, 3, 3),
-    "incorrect dimensions, expected=3x3x3, got=%dx%dx%d", sg->GetDimensions()[0],
-    sg->GetDimensions()[1], sg->GetDimensions()[2]);
+  int dims[3];
+  sg->GetDimensions(dims);
+  VERIFY(dims[0] == 3, "incorrect x dimension expected=3, got=%d", dims[0]);
+  VERIFY(dims[1] == 3, "incorrect y dimension expected=3, got=%d", dims[1]);
+  VERIFY(dims[2] == 3, "incorrect z dimension expected=3, got=%d", dims[2]);
 
   return true;
 }
@@ -221,9 +227,11 @@ bool ValidateRectlinearGridWithDifferentDimensions()
     pds->GetNumberOfPartitions());
   auto rg = vtkRectilinearGrid::SafeDownCast(pds->GetPartition(0));
   VERIFY(rg != nullptr, "invalid partition at index 0");
-  VERIFY(vtkVector3i(rg->GetDimensions()) == vtkVector3i(3, 2, 1),
-    "incorrect dimensions, expected=3x2x1, got=%dx%dx%d", rg->GetDimensions()[0],
-    rg->GetDimensions()[1], rg->GetDimensions()[2]);
+  int dims[3];
+  rg->GetDimensions(dims);
+  VERIFY(dims[0] == 3, "incorrect x dimension expected=3, got=%d", dims[0]);
+  VERIFY(dims[1] == 3, "incorrect y dimension expected=3, got=%d", dims[1]);
+  VERIFY(dims[2] == 3, "incorrect z dimension expected=3, got=%d", dims[2]);
 
   return true;
 }
@@ -251,9 +259,11 @@ bool Validate1DRectilinearGrid()
     pds->GetNumberOfPartitions());
   auto rg = vtkRectilinearGrid::SafeDownCast(pds->GetPartition(0));
   VERIFY(rg != nullptr, "invalid partition at index 0");
-  VERIFY(vtkVector3i(rg->GetDimensions()) == vtkVector3i(3, 1, 1),
-    "incorrect dimensions, expected=3x1x1, got=%dx%dx%d", rg->GetDimensions()[0],
-    rg->GetDimensions()[1], rg->GetDimensions()[2]);
+  int dims[3];
+  rg->GetDimensions(dims);
+  VERIFY(dims[0] == 3, "incorrect x dimension expected=3, got=%d", dims[0]);
+  VERIFY(dims[1] == 3, "incorrect y dimension expected=3, got=%d", dims[1]);
+  VERIFY(dims[2] == 3, "incorrect z dimension expected=3, got=%d", dims[2]);
 
   return true;
 }
