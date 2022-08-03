@@ -476,6 +476,7 @@ int vtkHyperTreeGridGeometricLocator::IntersectWithLine(const double p0[3], cons
 
   // iterate over trees
   RecurseTreesFunctor thisFunctor(this, p0, p1, tol, &ts, points, cellIds);
+
   vtkSMPTools::For(0, this->HTG->GetNumberOfNonEmptyTrees(), thisFunctor);
 
   // sort based on parametric coords
