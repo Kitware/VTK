@@ -230,8 +230,8 @@ bool ValidateRectlinearGridWithDifferentDimensions()
   int dims[3];
   rg->GetDimensions(dims);
   VERIFY(dims[0] == 3, "incorrect x dimension expected=3, got=%d", dims[0]);
-  VERIFY(dims[1] == 3, "incorrect y dimension expected=3, got=%d", dims[1]);
-  VERIFY(dims[2] == 3, "incorrect z dimension expected=3, got=%d", dims[2]);
+  VERIFY(dims[1] == 3, "incorrect y dimension expected=2, got=%d", dims[1]);
+  VERIFY(dims[2] == 3, "incorrect z dimension expected=1, got=%d", dims[2]);
 
   return true;
 }
@@ -262,8 +262,8 @@ bool Validate1DRectilinearGrid()
   int dims[3];
   rg->GetDimensions(dims);
   VERIFY(dims[0] == 3, "incorrect x dimension expected=3, got=%d", dims[0]);
-  VERIFY(dims[1] == 3, "incorrect y dimension expected=3, got=%d", dims[1]);
-  VERIFY(dims[2] == 3, "incorrect z dimension expected=3, got=%d", dims[2]);
+  VERIFY(dims[1] == 3, "incorrect y dimension expected=1, got=%d", dims[1]);
+  VERIFY(dims[2] == 3, "incorrect z dimension expected=1, got=%d", dims[2]);
 
   return true;
 }
