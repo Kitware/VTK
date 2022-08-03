@@ -898,32 +898,21 @@ vtkHyperTreeGridNonOrientedGeometryCursor* vtkHyperTreeGrid::NewNonOrientedGeome
 }
 
 //------------------------------------------------------------------------------
-
-//------------------------------------------------------------------------------
-// #define TRACE
-
 unsigned int vtkHyperTreeGrid::RecurseDichotomic(
-  double value, vtkDoubleArray* coord, unsigned int ideb, unsigned int ifin) const
+  double value, vtkDoubleArray* coord, unsigned int ibegin, unsigned int iend) const
 {
-#ifdef TRACE
-  std::cerr << "RecurseDichotomic: [" << ideb << "; " << ifin << "]" << std::endl;
-#endif
-  if (ideb == ifin - 1)
+  if (ibegin == iend - 1)
   {
-    return ideb;
+    return ibegin;
   }
-  unsigned imil = ideb + (ifin - ideb) / 2;
-#ifdef TRACE
-  std::cerr << "RecurseDichotomic: [" << ideb << "; " << imil << "; " << ifin << "]" << std::endl;
-  std::cerr << "RecurseDichotomic: imil# " << imil << " : " << coord->GetValue(imil) << std::endl;
-#endif
-  if (value < coord->GetValue(imil))
+  unsigned imid = ibegin + (iend - ibegin) / 2;
+  if (value < coord->GetValue(imid))
   {
-    return this->RecurseDichotomic(value, coord, ideb, imil);
+    return this->RecurseDichotomic(value, coord, ibegin, imid);
   }
   else
   {
-    return this->RecurseDichotomic(value, coord, imil, ifin);
+    return this->RecurseDichotomic(value, coord, imid, iend);
   }
 }
 
@@ -958,40 +947,24 @@ unsigned int vtkHyperTreeGrid::FindDichotomicZ(double value) const
 vtkHyperTreeGridNonOrientedGeometryCursor* vtkHyperTreeGrid::FindNonOrientedGeometryCursor(
   double x[3])
 {
-#ifdef TRACE
-  std::cerr << "FindNonOrientedGeometryCursor: " << x[0] << "; " << x[1] << "; " << x[2]
-            << std::endl;
-#endif
   unsigned int i = this->FindDichotomicX(x[0]);
   if (i == UINT_MAX)
   {
     return nullptr;
   }
-#ifdef TRACE
-  std::cerr << "Position i# " << i << std::endl;
-#endif
   unsigned int j = this->FindDichotomicY(x[1]);
   if (j == UINT_MAX)
   {
     return nullptr;
   }
-#ifdef TRACE
-  std::cerr << "Position j# " << j << std::endl;
-#endif
   unsigned int k = this->FindDichotomicZ(x[2]);
   if (k == UINT_MAX)
   {
     return nullptr;
   }
-#ifdef TRACE
-  std::cerr << "Position k# " << k << std::endl;
-#endif
 
   vtkIdType index;
   this->GetIndexFromLevelZeroCoordinates(index, i, j, k);
-#ifdef TRACE
-  std::cerr << "Tree index# " << index << std::endl;
-#endif
 
   vtkHyperTreeGridNonOrientedGeometryCursor* cursor =
     vtkHyperTreeGridNonOrientedGeometryCursor::New();
@@ -1033,30 +1006,6 @@ vtkHyperTreeGridNonOrientedGeometryCursor* vtkHyperTreeGrid::FindNonOrientedGeom
     }
     case 3:
     {
-      /*
-           while(not cursor->IsLeaf())
-           {
-             const double* origin = cursor->GetOrigin();
-             const double* scale = cursor->GetSize();
-             double *limit = new double(this->BranchFactor);
-
-
-             unsigned int ichild = 0;
-             if (x[ 0 ] <= p[ 0 ]) {
-             } else {
-               ichild = 1;
-             }
-             if (x[ 1 ] <= p[ 1 ]) {
-             } else {
-               ichild = 3 + ichild;
-             }
-             if (x[ 2 ] <= p[ 2 ]) {
-             } else {
-               ichild = 9 + ichild;
-             }
-             cursor->ToChild(ichild);
-           }
-     */
       assert("pre: not_implemented_raf_3" && false);
       break;
     }
