@@ -101,27 +101,27 @@ vtkIdType vtkHyperTreeGridGeometricLocator::RecursiveSearch(
   {
     return cursor->GetGlobalNodeIndex();
   }
-  const unsigned int dim = this->HTG->GetDimension();
-  const unsigned int bf = this->HTG->GetBranchFactor();
+
   const double* origin = cursor->GetOrigin();
   if (origin == nullptr)
   {
     vtkErrorMacro("Cursor has no origin");
-    return false;
+    return -1;
   }
   const double* size = cursor->GetSize();
   if (size == nullptr)
   {
     vtkErrorMacro("Cursor has no size");
-    return false;
+    return -1;
   }
+  const unsigned int dim = this->HTG->GetDimension();
   double normalizedPt[3];
-  std::copy(pt, pt + 3, normalizedPt);
   for (unsigned int d = 0; d < dim; d++)
   {
-    normalizedPt[d] -= origin[d];
-    normalizedPt[d] /= size[d];
+    normalizedPt[d] = (pt[d] - origin[d]) / size[d];
   }
+
+  const unsigned int bf = this->HTG->GetBranchFactor();
   vtkIdType childIndex = this->FindChildIndex(dim, bf, normalizedPt);
   cursor->ToChild(childIndex);
   return this->RecursiveSearch(cursor, pt);
@@ -154,7 +154,7 @@ vtkIdType vtkHyperTreeGridGeometricLocator::FindCell(const double point[3],
 
 //------------------------------------------------------------------------------
 int vtkHyperTreeGridGeometricLocator::IntersectWithLine(const double p0[3], const double p1[3],
-  const double tol, double& t, double x[3], double pcoords[3], int& subId, vtkIdType& cellId,
+  double tol, double& t, double x[3], double pcoords[3], int& subId, vtkIdType& cellId,
   vtkGenericCell* cell)
 {
   // initialialize outputs
@@ -163,21 +163,20 @@ int vtkHyperTreeGridGeometricLocator::IntersectWithLine(const double p0[3], cons
   subId = 0;
   std::fill(x, x + 3, 0.0);
   std::fill(pcoords, pcoords + 3, 0.0);
+
   // setup calculation
   unsigned int dim = this->HTG->GetDimension();
   std::vector<double> sizes(dim, 0.0);
   std::vector<double> origin(dim, 0.0);
   this->GetZeroLevelOriginAndSize(origin.data(), sizes.data());
+
   // find intersection point with entire grid
-  auto checkIsInCell = [dim](const double* origin_, const double* sizes_, const double* query) {
-    bool isIn = true;
-    for (unsigned int d = 0; d < dim; d++)
-    {
-      isIn &= ((query[d] - origin_[d]) < sizes_[d]);
-    }
-    return isIn;
-  };
-  bool p0InCell = checkIsInCell(origin.data(), sizes.data(), p0);
+  bool p0InCell = true;
+  for (unsigned int d = 0; d < dim; d++)
+  {
+    p0InCell &= ((p0[d] - origin[d]) < (sizes[d] + tol));
+  }
+
   if (!p0InCell)
   {
     if (!this->ConstructCell(origin.data(), sizes.data(), cell))
@@ -207,9 +206,8 @@ int vtkHyperTreeGridGeometricLocator::IntersectWithLine(const double p0[3], cons
   {
     std::vector<double> locWeights(std::pow(2, dim), 0.0);
     std::vector<double> locPCoords(3, 0.0);
-    cellId = this->FindCell(x, tol, cell, subId, locPCoords.data(),
-      locWeights.data()); // potential speed-up here by automatically looking for the cell but also
-                          // could be loss
+    // potential speed-up here by automatically looking for the cell but also could be loss
+    cellId = this->FindCell(x, tol, cell, subId, locPCoords.data(), locWeights.data());
   }
   if (cellId >= 0)
   {
@@ -277,7 +275,7 @@ int vtkHyperTreeGridGeometricLocator::IntersectWithLine(const double p0[3], cons
 
 //------------------------------------------------------------------------------
 vtkIdType vtkHyperTreeGridGeometricLocator::RecurseSingleIntersectWithLine(const double p0[3],
-  const double p1[3], const double tol, vtkHyperTreeGridNonOrientedGeometryCursor* cursor,
+  const double p1[3], double tol, vtkHyperTreeGridNonOrientedGeometryCursor* cursor,
   vtkGenericCell* cell, double& t, int& subId, double x[3], double pcoords[3]) const
 {
   if (this->CheckLeafOrChildrenMasked(cursor))
@@ -355,14 +353,14 @@ struct vtkHyperTreeGridGeometricLocator::RecurseTreesFunctor
 
   RecurseTreesFunctor(vtkHyperTreeGridGeometricLocator* htgloc, const double* pt0,
     const double* pt1, double tol, std::vector<double>* ts, vtkPoints* pts, vtkIdList* cIds)
+    : HTGLoc(htgloc)
+    , Pt0(pt0)
+    , Pt1(pt1)
+    , Tol(tol)
+    , GlobTs(ts)
+    , GlobPts(pts)
+    , GlobCellIds(cIds)
   {
-    this->HTGLoc = htgloc;
-    this->Pt0 = pt0;
-    this->Pt1 = pt1;
-    this->Tol = tol;
-    this->GlobTs = ts;
-    this->GlobPts = pts;
-    this->GlobCellIds = cIds;
   }
 
   void Initialize()
@@ -429,7 +427,7 @@ struct vtkHyperTreeGridGeometricLocator::RecurseTreesFunctor
 
 //------------------------------------------------------------------------------
 int vtkHyperTreeGridGeometricLocator::IntersectWithLine(const double p0[3], const double p1[3],
-  const double tol, vtkPoints* points, vtkIdList* cellIds, vtkGenericCell* cell)
+  double tol, vtkPoints* points, vtkIdList* cellIds, vtkGenericCell* cell)
 {
   // do checks
   if (!points || !cellIds)
@@ -440,13 +438,14 @@ int vtkHyperTreeGridGeometricLocator::IntersectWithLine(const double p0[3], cons
   // setup computation
   unsigned int nInitialPoints = points->GetNumberOfPoints();
   std::vector<double> ts;
-  double tBuff = 0.0;
-  int subId = 0;
-  std::vector<double> pcoords(3, 0.0);
-  std::vector<double> x(3, 0.0);
+
   {
-    std::vector<double> origin(3, 0.0);
-    std::vector<double> sizes(3, 0.0);
+    double tBuff = 0.0;
+    int subId = 0;
+    std::array<double, 3> pcoords{ 0.0, 0.0, 0.0 };
+    std::array<double, 3> x{ 0.0, 0.0, 0.0 };
+    std::array<double, 3> origin{ 0.0, 0.0, 0.0 };
+    std::array<double, 3> sizes{ 0.0, 0.0, 0.0 };
     this->GetZeroLevelOriginAndSize(origin.data(), sizes.data());
     if (!(this->ConstructCell(origin.data(), sizes.data(), cell)))
     {
@@ -465,8 +464,7 @@ int vtkHyperTreeGridGeometricLocator::IntersectWithLine(const double p0[3], cons
 
   // sort based on parametric coords
   {
-    std::vector<int> map(ts.size(), 0);
-    this->GetSortingMap(ts, &map);
+    std::vector<int> map = this->GetSortingMap(ts);
     vtkNew<vtkPoints> buffPoints;
     buffPoints->SetNumberOfPoints(points->GetNumberOfPoints());
     vtkNew<vtkIdList> buffCellIds;
@@ -488,7 +486,7 @@ int vtkHyperTreeGridGeometricLocator::IntersectWithLine(const double p0[3], cons
 
 //------------------------------------------------------------------------------
 void vtkHyperTreeGridGeometricLocator::RecurseAllIntersectsWithLine(const double p0[3],
-  const double p1[3], const double tol, vtkHyperTreeGridNonOrientedGeometryCursor* cursor,
+  const double p1[3], double tol, vtkHyperTreeGridNonOrientedGeometryCursor* cursor,
   std::vector<double>* ts, vtkPoints* points, vtkIdList* cellIds, vtkGenericCell* cell) const
 {
   if (cursor->IsMasked() ||
@@ -504,8 +502,8 @@ void vtkHyperTreeGridGeometricLocator::RecurseAllIntersectsWithLine(const double
   }
   {
     double t = -1.0;
-    std::vector<double> x(3, 0.0);
-    std::vector<double> pcoords(3, 0.0);
+    std::array<double, 3> x{ 0.0, 0.0, 0.0 };
+    std::array<double, 3> pcoords{ 0.0, 0.0, 0.0 };
     int subId = 0;
     if (cell->IntersectWithLine(p0, p1, tol, t, x.data(), pcoords.data(), subId) == 0)
     {
@@ -530,7 +528,7 @@ void vtkHyperTreeGridGeometricLocator::RecurseAllIntersectsWithLine(const double
 
 //------------------------------------------------------------------------------
 vtkIdType vtkHyperTreeGridGeometricLocator::FindChildIndex(
-  const unsigned int dim, const unsigned int bf, const double normalizedPt[3]) const
+  unsigned int dim, unsigned int bf, const double normalizedPt[3]) const
 {
   std::vector<int> binPt(dim, -1);
   for (unsigned int d = 0; d < dim; d++)
@@ -661,11 +659,11 @@ void vtkHyperTreeGridGeometricLocator::GetZeroLevelOriginAndSize(
 }
 
 //------------------------------------------------------------------------------
-void vtkHyperTreeGridGeometricLocator::GetSortingMap(
-  const std::vector<double>& other, std::vector<int>* map) const
+std::vector<int> vtkHyperTreeGridGeometricLocator::GetSortingMap(
+  const std::vector<double>& other) const
 {
-  map->resize(other.size(), 0);
-  std::iota(map->begin(), map->end(), 0);
-  auto specialCompare = [&](int i0, int i1) { return (other[i0] < other[i1]); };
-  std::sort(map->begin(), map->end(), specialCompare);
+  std::vector<int> map(other.size());
+  std::iota(map.begin(), map.end(), 0);
+  std::sort(map.begin(), map.end(), [&other](int i0, int i1) { return (other[i0] < other[i1]); });
+  return map;
 }
