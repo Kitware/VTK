@@ -17,8 +17,8 @@
  * @brief   smooth mesh point attribute data using distance weighted Laplacian kernel
  *
  * vtkAttributeSmoothingFilter is a filter that smooths point attribute data
- * using a Laplacian smoothing approach. The effect is to "relax" the
- * attributes, reducing high frequency information. Note that this filter
+ * using a Laplacian smoothing approach. The effect is to "relax" or "smooth"
+ * the attributes, reducing high frequency information. Note that this filter
  * operates on all dataset types.
  *
  * A central concept of this filter is the point smoothing stencil. A
@@ -95,7 +95,8 @@
  * time consuming for large data.
  *
  * @sa
- * vtkConstrainedSmoothingFilter vtkExtractEdges vtkMarkBoundaryFilter
+ * vtkConstrainedSmoothingFilter vtkWindowedSincPolyDataFilter
+ * vtkSmoothPolyDataFilter vtkExtractEdges vtkMarkBoundaryFilter
  */
 
 #ifndef vtkAttributeSmoothingFilter_h

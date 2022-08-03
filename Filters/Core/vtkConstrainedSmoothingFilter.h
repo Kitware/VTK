@@ -18,11 +18,11 @@
  *
  * vtkConstrainedSmoothingFilter is a filter that adjusts point coordinates
  * using a modified Laplacian smoothing approach. The effect is to "relax"
- * the mesh, making the cells better shaped and the points more evenly
- * distributed. Note that this filter operates on any vtkPointSet and derived
- * classes. Cell topology is never modified; note however if the constraints
- * are too lax, cells may self-intersect or otherwise be deformed in
- * unfavorable ways.
+ * or "smooth" the mesh, making the cells better shaped and the points more
+ * evenly distributed. Note that this filter operates on any vtkPointSet and
+ * derived classes. Cell topology is never modified; note however if the
+ * constraints are too lax, cells may self-intersect or otherwise be deformed
+ * in unfavorable ways.
  *
  * A central concept of this filter is the point smoothing stencil. A
  * smoothing stencil for a point pi is the list of points pj which connect to
@@ -49,7 +49,7 @@
  * movement help significantly in preventing shrinkage from happening.
  *
  * @sa
- * vtkWindowedSincPolyDataFilter vtkSmoothPolyDataFilter
+ * vtkWindowedSincPolyDataFilter vtkSmoothPolyDataFilter vtkAttributeSmoothingFilter
  * vtkExtractEdges
  */
 
