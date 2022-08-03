@@ -225,6 +225,7 @@ public:
   ///@{
   /**
    * Set whether the reader should treat numeric suffixes for a vector field as vector components.
+   * By default, this property is off.
    * Example: DENSITY_1, DENSITY_2, DENSITY_3, DENSITY_4
    * If the property is true, those fields will be parsed as a 4-component vtkDataArray
    * named DESNITY.
