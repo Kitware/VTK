@@ -13,6 +13,7 @@
 
 =========================================================================*/
 
+#include <array>
 #include <cmath>
 #include <limits>
 #include <numeric>
@@ -411,6 +412,87 @@ bool RunTests(vtkHyperTreeGridGeometricLocator* htgLoc, TestResults* thisResult)
   return success;
 }
 
+bool TestLocatorTolerance()
+{
+  vtkNew<vtkHyperTreeGridPreConfiguredSource> htgSource;
+  htgSource->SetHTGMode(vtkHyperTreeGridPreConfiguredSource::CUSTOM);
+  htgSource->SetCustomArchitecture(vtkHyperTreeGridPreConfiguredSource::UNBALANCED);
+  htgSource->SetCustomDim(2);
+  htgSource->SetCustomFactor(2);
+  htgSource->SetCustomDepth(3);
+  htgSource->SetCustomExtent(0.0, 1.0, 0.0, 1.0, 1.0, 1.0);
+  htgSource->SetCustomSubdivisions(3, 3, 0);
+  htgSource->Update();
+  vtkHyperTreeGrid* htg = htgSource->GetHyperTreeGridOutput();
+
+  vtkNew<vtkHyperTreeGridGeometricLocator> locator;
+  locator->SetHTG(htg);
+
+  bool success = true;
+
+  // Testing vtkHyperTreeGridGeometricLocator::Search
+  auto TestSearchPoint = [&locator](std::array<double, 3> point, vtkIdType expected) {
+    bool pointSuccess = true;
+    vtkIdType cellId = locator->Search(point.data());
+    if (cellId != expected)
+    {
+      std::cerr << "ERROR: point {" << point[0] << "," << point[1] << "," << point[2]
+                << "} gave the wrong cell, expected " << expected << " but got " << cellId
+                << std::endl;
+      pointSuccess = false;
+    }
+    return pointSuccess;
+  };
+  constexpr double tol = 0.001;
+  locator->SetTolerance(tol);
+  success = TestSearchPoint({ 0.5, 0.5, 0.0 }, 15) && success;
+  success = TestSearchPoint({ 0.0, 0.0, 0.0 }, 9) && success;
+  success = TestSearchPoint({ 1.0, 0.0, 0.0 }, 13) && success;
+  success = TestSearchPoint({ 0.0, 1.0, 0.0 }, 14) && success;
+  success = TestSearchPoint({ 1.0, 1.0, 0.0 }, 15) && success;
+  success = TestSearchPoint({ 1.0 + 0.5 * tol, 1.0, 0.0 }, 15) && success;
+  success = TestSearchPoint({ 1.0 + 2.0 * tol, 1.0, 0.0 }, -1) && success;
+  locator->SetTolerance(0.0);
+  success = TestSearchPoint({ 0.0, 0.0, 0.0 }, 9) && success;
+  success = TestSearchPoint({ 1.0, 1.0, 0.0 }, -1) && success;
+  success = TestSearchPoint({ 1.0 + 0.5 * tol, 1.0, 0.0 }, -1) && success;
+
+  // Testing vtkHyperTreeGridGeometricLocator::FindCell
+  std::array<double, 3> point = { 1.0 + 0.5 * tol, 1.0, 0.0 };
+  vtkNew<vtkGenericCell> cell;
+  int subId;
+  std::array<double, 3> pcoords;
+  std::array<double, 4> weights;
+  vtkIdType cellId =
+    locator->FindCell(point.data(), tol, cell, subId, pcoords.data(), weights.data());
+  if (cellId != 15)
+  {
+    std::cerr << "ERROR: vtkHyperTreeGridGeometricLocator::FindCell gave the wrong cell, expected "
+                 "15 but got "
+              << cellId << std::endl;
+    success = false;
+  }
+  std::array<double, 6> bounds;
+  cell->GetBounds(bounds.data());
+  if (bounds != std::array<double, 6>{ 0.5, 1.0, 0.5, 1.0, 0.0, 0.0 })
+  {
+    std::cerr << "ERROR: vtkHyperTreeGridGeometricLocator::FindCell gave wrong cell, bounds are "
+                 "not coherent"
+              << std::endl;
+    success = false;
+  }
+
+  if (locator->FindCell(point.data(), 0.0, cell, subId, pcoords.data(), weights.data()) >= 0)
+  {
+    std::cerr
+      << "ERROR: vtkHyperTreeGridGeometricLocator::FindCell found a cell when it shouldn't have."
+      << std::endl;
+    success = false;
+  }
+
+  return success;
+}
+
 };
 
 int TestHyperTreeGridGeometricLocator(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
@@ -474,6 +556,8 @@ int TestHyperTreeGridGeometricLocator(int vtkNotUsed(argc), char* vtkNotUsed(arg
     success = RunTests(myLocator, &(myTestResults[iHTG])) && success;
     std::cout << "\n" << std::endl;
   }
+
+  success = success && TestLocatorTolerance();
 
   if (!success)
   {

@@ -899,49 +899,51 @@ vtkHyperTreeGridNonOrientedGeometryCursor* vtkHyperTreeGrid::NewNonOrientedGeome
 
 //------------------------------------------------------------------------------
 unsigned int vtkHyperTreeGrid::RecurseDichotomic(
-  double value, vtkDoubleArray* coord, unsigned int ibegin, unsigned int iend) const
+  double value, vtkDoubleArray* coord, double tol, unsigned int iBegin, unsigned int iEnd) const
 {
-  if (ibegin == iend - 1)
+  if (iBegin == iEnd - 1)
   {
-    return ibegin;
+    return iBegin;
   }
-  unsigned imid = ibegin + (iend - ibegin) / 2;
-  if (value < coord->GetValue(imid))
+  unsigned int iMid = iBegin + (iEnd - iBegin) / 2;
+  double currentTol = (iMid == coord->GetNumberOfTuples() - 1) ? tol : 0.0;
+  if (value < (coord->GetValue(iMid) + currentTol))
   {
-    return this->RecurseDichotomic(value, coord, ibegin, imid);
+    return this->RecurseDichotomic(value, coord, tol, iBegin, iMid);
   }
   else
   {
-    return this->RecurseDichotomic(value, coord, imid, iend);
+    return this->RecurseDichotomic(value, coord, tol, iMid, iEnd);
   }
 }
 
-unsigned int vtkHyperTreeGrid::FindDichotomic(double value, vtkDataArray* tmp) const
+unsigned int vtkHyperTreeGrid::FindDichotomic(double value, vtkDataArray* tmp, double tol) const
 {
   vtkDoubleArray* coord = vtkDoubleArray::SafeDownCast(tmp);
-  if (value < coord->GetValue(0) || value > coord->GetValue(coord->GetNumberOfTuples() - 1))
+  if (value < (coord->GetValue(0) - tol) ||
+    value > (coord->GetValue(coord->GetNumberOfTuples() - 1) + tol))
   {
     return UINT_MAX;
   }
-  return RecurseDichotomic(value, coord, 0, coord->GetNumberOfTuples());
+  return RecurseDichotomic(value, coord, tol, 0, coord->GetNumberOfTuples());
 }
 
-unsigned int vtkHyperTreeGrid::FindDichotomicX(double value) const
+unsigned int vtkHyperTreeGrid::FindDichotomicX(double value, double tol) const
 {
   assert("pre: exist_coordinates_explict" && this->WithCoordinates);
-  return this->FindDichotomic(value, this->XCoordinates);
+  return this->FindDichotomic(value, this->XCoordinates, tol);
 }
 
-unsigned int vtkHyperTreeGrid::FindDichotomicY(double value) const
+unsigned int vtkHyperTreeGrid::FindDichotomicY(double value, double tol) const
 {
   assert("pre: exist_coordinates_explict" && this->WithCoordinates);
-  return this->FindDichotomic(value, this->YCoordinates);
+  return this->FindDichotomic(value, this->YCoordinates, tol);
 }
 
-unsigned int vtkHyperTreeGrid::FindDichotomicZ(double value) const
+unsigned int vtkHyperTreeGrid::FindDichotomicZ(double value, double tol) const
 {
   assert("pre: exist_coordinates_explict" && this->WithCoordinates);
-  return this->FindDichotomic(value, this->ZCoordinates);
+  return this->FindDichotomic(value, this->ZCoordinates, tol);
 }
 
 vtkHyperTreeGridNonOrientedGeometryCursor* vtkHyperTreeGrid::FindNonOrientedGeometryCursor(

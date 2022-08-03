@@ -38,6 +38,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStringArray.h"
 
+#include <cmath>
 #include <numeric>
 #include <vector>
 
@@ -184,6 +185,19 @@ int vtkHyperTreeGridProbeFilter::RequestData(vtkInformation* vtkNotUsed(request)
     vtkErrorMacro("Could not get either the input, source or output");
     return 0;
   }
+
+  // setup tolerance
+  double tolerance = this->Tolerance;
+  if (this->ComputeTolerance)
+  {
+    double bounds[6];
+    source->GetBounds(bounds);
+    const double diag = std::sqrt((bounds[1] - bounds[0]) * (bounds[1] - bounds[0]) +
+      (bounds[3] - bounds[2]) * (bounds[3] - bounds[2]) +
+      (bounds[5] - bounds[4]) * (bounds[5] - bounds[4]));
+    tolerance = (diag * 1e-6) / std::pow(source->GetBranchFactor(), source->GetNumberOfLevels());
+  }
+  this->Locator->SetTolerance(tolerance);
 
   // setup output
   if (!(this->Initialize(input, source, output)))
@@ -347,18 +361,21 @@ bool vtkHyperTreeGridProbeFilter::DoProbing(
   vtkSMPTools::For(0, nPoints, worker);
 
   // copy values from source
-  unsigned int numSourceCellArrays = source->GetCellData()->GetNumberOfArrays();
-  for (unsigned int iA = 0; iA < numSourceCellArrays; iA++)
+  if (locCellIds->GetNumberOfIds() > 0)
   {
-    vtkAbstractArray* sourceArray = source->GetCellData()->GetAbstractArray(iA);
-    if (!(output->GetPointData()->HasArray(sourceArray->GetName())))
+    unsigned int numSourceCellArrays = source->GetCellData()->GetNumberOfArrays();
+    for (unsigned int iA = 0; iA < numSourceCellArrays; iA++)
     {
-      vtkErrorMacro("Array " << sourceArray->GetName() << " missing in output");
-      return false;
+      vtkAbstractArray* sourceArray = source->GetCellData()->GetAbstractArray(iA);
+      if (!(output->GetPointData()->HasArray(sourceArray->GetName())))
+      {
+        vtkErrorMacro("Array " << sourceArray->GetName() << " missing in output");
+        return false;
+      }
+      vtkAbstractArray* outputArray =
+        output->GetPointData()->GetAbstractArray(sourceArray->GetName());
+      outputArray->InsertTuplesStartingAt(0, locCellIds, sourceArray);
     }
-    vtkAbstractArray* outputArray =
-      output->GetPointData()->GetAbstractArray(sourceArray->GetName());
-    outputArray->InsertTuplesStartingAt(0, locCellIds, sourceArray);
   }
   return true;
 }

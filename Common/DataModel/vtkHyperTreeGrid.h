@@ -427,14 +427,14 @@ public:
 
 private:
   unsigned int RecurseDichotomic(
-    double value, vtkDoubleArray* coord, unsigned int ideb, unsigned int ifin) const;
+    double value, vtkDoubleArray* coord, double tol, unsigned int ideb, unsigned int ifin) const;
 
-  unsigned int FindDichotomic(double value, vtkDataArray* coord) const;
+  unsigned int FindDichotomic(double value, vtkDataArray* coord, double tol) const;
 
 public:
-  virtual unsigned int FindDichotomicX(double value) const;
-  virtual unsigned int FindDichotomicY(double value) const;
-  virtual unsigned int FindDichotomicZ(double value) const;
+  virtual unsigned int FindDichotomicX(double value, double tol = 0.0) const;
+  virtual unsigned int FindDichotomicY(double value, double tol = 0.0) const;
+  virtual unsigned int FindDichotomicZ(double value, double tol = 0.0) const;
 
   /**
    * JB

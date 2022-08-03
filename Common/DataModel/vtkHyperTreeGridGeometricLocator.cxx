@@ -60,15 +60,15 @@ vtkIdType vtkHyperTreeGridGeometricLocator::Search(
   // Check bounds
   std::array<unsigned int, 3> bin{};
   const int dim = this->HTG->GetDimension();
-  bin[0] =
-    this->HTG->FindDichotomicX(point[0]); // This and subsequent calls expected to be thread safe
+  bin[0] = this->HTG->FindDichotomicX(
+    point[0], this->Tolerance); // This and subsequent calls expected to be thread safe
   if (dim > 1)
   {
-    bin[1] = this->HTG->FindDichotomicY(point[1]);
+    bin[1] = this->HTG->FindDichotomicY(point[1], this->Tolerance);
   }
   if (dim > 2)
   {
-    bin[2] = this->HTG->FindDichotomicZ(point[2]);
+    bin[2] = this->HTG->FindDichotomicZ(point[2], this->Tolerance);
   }
   const unsigned int* cellDims = this->HTG->GetCellDims();
   for (int i = 0; i < dim; i++)
@@ -128,27 +128,42 @@ vtkIdType vtkHyperTreeGridGeometricLocator::RecursiveSearch(
 }
 
 //------------------------------------------------------------------------------
-vtkIdType vtkHyperTreeGridGeometricLocator::FindCell(const double point[3],
-  const double vtkNotUsed(tol), vtkGenericCell* cell, int& subId, double pcoords[3],
-  double* weights)
+vtkIdType vtkHyperTreeGridGeometricLocator::FindCell(const double point[3], double tol,
+  vtkGenericCell* cell, int& subId, double pcoords[3], double* weights)
 {
+  // because vtkHyperTreeGridGeometricLocator::Search use internal tolerance we
+  // store the current one and will restore it after we're done
+  double previousTol = this->Tolerance;
+  this->Tolerance = tol;
   vtkNew<vtkHyperTreeGridNonOrientedGeometryCursor> cursor;
   vtkIdType globId = this->Search(point, cursor);
+  this->Tolerance = previousTol;
+
   if (globId < 0)
   {
-    return globId;
+    return -1;
   }
   if (!this->ConstructCell(cursor, cell))
   {
     vtkErrorMacro("Failed to construct cell");
     return -1;
   }
+
   double dist2 = 0.0;
-  if (cell->EvaluatePosition(point, nullptr, subId, pcoords, dist2, weights) != 1)
+  double closestPoint[3];
+  int result = cell->EvaluatePosition(point, closestPoint, subId, pcoords, dist2, weights);
+  if (result < 0)
   {
-    vtkErrorMacro("Unable to evaluate position in cell");
-    return -1;
+    globId = -1;
   }
+  else if (result == 0)
+  {
+    if (dist2 > tol * tol)
+    {
+      globId = -1;
+    }
+  }
+
   return globId;
 }
 
@@ -196,6 +211,7 @@ int vtkHyperTreeGridGeometricLocator::IntersectWithLine(const double p0[3], cons
     double epsilon = 0.01 *
       (vtkMath::Norm(sizes.data()) /
         std::pow(this->HTG->GetBranchFactor(), this->HTG->GetNumberOfLevels()));
+    epsilon = std::max(epsilon, tol * 2.0);
     vtkMath::MultiplyScalar(tangent.data(), epsilon);
     vtkMath::Add(x, tangent.data(), x);
   }
