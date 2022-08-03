@@ -359,16 +359,14 @@ void vtkProbeFilter::DoProbing(
     return;
   }
 
-  if (vtkImageData::SafeDownCast(source))
+  if (auto sourceImage = vtkImageData::SafeDownCast(source))
   {
-    vtkImageData* sourceImage = vtkImageData::SafeDownCast(source);
     this->ProbeImageDataPoints(input, srcIdx, sourceImage, output);
   }
-  else if (vtkImageData::SafeDownCast(input))
+  else if (auto inputImage = vtkImageData::SafeDownCast(input))
   {
-    vtkImageData* inImage = vtkImageData::SafeDownCast(input);
-    vtkImageData* outImage = vtkImageData::SafeDownCast(output);
-    this->ProbePointsImageData(inImage, srcIdx, source, outImage);
+    vtkImageData* outputImage = vtkImageData::SafeDownCast(output);
+    this->ProbePointsImageData(inputImage, srcIdx, source, outputImage);
   }
   else
   {
@@ -632,8 +630,7 @@ public:
           this->SourceIdx, pointId, currentCell->PointIds, weights);
         for (auto& cellArray : this->ProbeFilter->CellArrays)
         {
-          vtkDataArray* inArray = this->SourceCD->GetArray(cellArray->GetName());
-          if (inArray)
+          if (auto inArray = this->SourceCD->GetArray(cellArray->GetName()))
           {
             this->OutputPD->CopyTuple(inArray, cellArray, lastCellId, pointId);
           }
