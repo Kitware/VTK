@@ -2386,8 +2386,8 @@ vtkIOSSReader::vtkIOSSReader()
   , Internals(new vtkIOSSReader::vtkInternals(this))
 {
   this->SetController(vtkMultiProcessController::GetGlobalController());
-  // default - treat numeric suffixes as components of a vector. respect ioss library default.
-  this->AddProperty("IGNORE_REALN_FIELDS", "off");
+  // default - treat numeric suffixes as separate vtk data arrays.
+  this->AddProperty("IGNORE_REALN_FIELDS", "on");
   // default - empty field suffix separators, fieldX, fieldY, fieldZ are recognized
   this->AddProperty("FIELD_SUFFIX_SEPARATOR", "");
 }
@@ -2424,16 +2424,17 @@ double vtkIOSSReader::GetDisplacementMagnitude()
 }
 
 //----------------------------------------------------------------------------
-void vtkIOSSReader::SetIgnoreRealNFields(bool value)
+void vtkIOSSReader::SetGroupNumericVectorFieldComponents(bool value)
 {
-  vtkDebugMacro("Setting IGNORE_REALN_FIELDS " << (value ? "on" : "off"));
-  this->AddProperty("IGNORE_REALN_FIELDS", value ? "on" : "off");
+  // invert the property - group implies considering realN fields.
+  // not grouping implies ignoring realN fields.
+  this->AddProperty("IGNORE_REALN_FIELDS", value ? "off" : "on");
 }
 
 //----------------------------------------------------------------------------
-bool vtkIOSSReader::GetIgnoreRealNFields()
+bool vtkIOSSReader::GetGroupNumericVectorFieldComponents()
 {
-  return this->Internals->DatabaseProperties.get("IGNORE_REALN_FIELDS").get_string() == "on";
+  return this->Internals->DatabaseProperties.get("IGNORE_REALN_FIELDS").get_string() == "off";
 }
 
 //----------------------------------------------------------------------------
