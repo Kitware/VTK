@@ -284,11 +284,11 @@ public:
   ProbingWorklet(vtkSmartPointer<vtkDataSet> probe,
     vtkSmartPointer<vtkHyperTreeGridLocator> locator, vtkSmartPointer<vtkIdList> pointIds,
     vtkSmartPointer<vtkIdList> cellIds)
+    : Locator(locator)
+    , Probe(probe)
+    , ThreadGlobPointIds(pointIds)
+    , ThreadGlobCellIds(cellIds)
   {
-    this->Probe = probe;
-    this->Locator = locator;
-    this->ThreadGlobPointIds = pointIds;
-    this->ThreadGlobCellIds = cellIds;
   }
 
   void Initialize()
@@ -299,9 +299,9 @@ public:
 
   void operator()(vtkIdType begin, vtkIdType end)
   {
-    std::vector<double> pt(3, 0.0);
     for (vtkIdType iP = begin; iP < end; iP++)
     {
+      std::array<double, 3> pt{ 0.0, 0.0, 0.0 };
       this->Probe->GetPoint(iP, pt.data());
       vtkIdType id = this->Locator->Search(pt.data());
       if (!(id < 0))
@@ -321,7 +321,7 @@ public:
     this->ThreadGlobCellIds->SetNumberOfIds(nPointsFound);
     nPointsFound = 0;
 
-    auto mergeThreadResults = [&](LocalData& loc) {
+    auto mergeThreadResults = [this, &nPointsFound](LocalData& loc) {
       std::copy(
         loc.pointIds.begin(), loc.pointIds.end(), this->ThreadGlobPointIds->begin() + nPointsFound);
       std::copy(
