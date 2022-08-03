@@ -68,6 +68,7 @@ int TestIOSSExodusWriterCrinkleClip(int argc, char* argv[])
   vtkNew<vtkIOSSReader> reader0;
   auto fname = GetFileName(argc, argv, std::string("Data/Exodus/can.e.4/can.e.4.0"));
   reader0->SetFileName(fname.c_str());
+  reader0->SetGroupNumericVectorFieldComponents(true);
   reader0->UpdateInformation();
   reader0->GetElementBlockSelection()->EnableAllArrays();
   reader0->GetNodeSetSelection()->EnableAllArrays();
@@ -88,6 +89,7 @@ int TestIOSSExodusWriterCrinkleClip(int argc, char* argv[])
   // Open the saved file and render it.
   vtkNew<vtkIOSSReader> reader;
   reader->SetFileName(ofname.c_str());
+  reader->SetGroupNumericVectorFieldComponents(true);
   reader->GetElementBlockSelection()->EnableAllArrays();
   reader->GetNodeSetSelection()->EnableAllArrays();
   reader->GetSideSetSelection()->EnableAllArrays();
