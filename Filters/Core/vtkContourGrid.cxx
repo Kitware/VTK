@@ -114,7 +114,7 @@ void vtkContourGridExecute(vtkContourGrid* self, vtkDataSet* input, vtkPolyData*
   int useScalarTree, vtkScalarTree* scalarTree, bool generateTriangles)
 {
   vtkIdType i;
-  int abortExecute = 0;
+  bool abortExecute = 0;
   vtkIncrementalPointLocator* locator = self->GetLocator();
   vtkNew<vtkGenericCell> cell;
   vtkCellArray *newVerts, *newLines, *newPolys;

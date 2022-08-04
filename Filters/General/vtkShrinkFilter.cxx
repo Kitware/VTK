@@ -92,7 +92,7 @@ int vtkShrinkFilter::RequestData(
   // Support progress and abort.
   vtkIdType tenth = (numCells >= 10 ? numCells / 10 : 1);
   double numCellsInv = 1.0 / numCells;
-  int abort = 0;
+  bool abort = 0;
 
   // Point Id map.
   vtkIdType* pointMap = new vtkIdType[input->GetNumberOfPoints()];

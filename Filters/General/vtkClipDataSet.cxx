@@ -360,7 +360,7 @@ int vtkClipDataSet::RequestData(vtkInformation* vtkNotUsed(request),
 
   // Process all cells and clip each in turn
   //
-  int abort = 0;
+  bool abort = 0;
   vtkIdType updateTime = numCells / 20 + 1; // update roughly every 5%
   vtkGenericCell* cell = vtkGenericCell::New();
   int num[2];
