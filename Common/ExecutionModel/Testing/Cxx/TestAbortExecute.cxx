@@ -16,13 +16,11 @@
 #include "vtkClipDataSet.h"
 #include "vtkContourGrid.h"
 #include "vtkInformation.h"
+#include "vtkLogger.h"
 #include "vtkPlane.h"
 #include "vtkRTAnalyticSource.h"
 #include "vtkShrinkFilter.h"
 #include "vtkUnstructuredGrid.h"
-
-#include <cmath>
-#include <cstring>
 
 int TestAbortExecute(int, char*[])
 {
@@ -50,13 +48,13 @@ int TestAbortExecute(int, char*[])
 
   if (!wavelet->GetAbortExecute())
   {
-    std::cerr << "Wavelet AbortExecute flag is not set." << std::endl;
+    vtkLog(ERROR, "Wavelet AbortExecute flag is not set.");
     return 1;
   }
 
   if (shrink->GetAbortExecute() || contour->GetAbortExecute() || clip->GetAbortExecute())
   {
-    std::cerr << "Shrink, Contour, or Clip AbortExecute flag is set." << std::endl;
+    vtkLog(ERROR, "Shrink, Contour, or Clip AbortExecute flag is set.");
     return 1;
   }
 
@@ -65,13 +63,13 @@ int TestAbortExecute(int, char*[])
     !contour->GetOutputInformation(0)->Get(vtkAlgorithm::ABORTED()) ||
     !clip->GetOutputInformation(0)->Get(vtkAlgorithm::ABORTED()))
   {
-    std::cerr << "Wavelet, Shrink, Contour, or Clip ABORTED flag is not set." << std::endl;
+    vtkLog(ERROR, "Wavelet, Shrink, Contour, or Clip ABORTED flag is not set.");
     return 1;
   }
 
   if (clip->GetOutput()->GetNumberOfPoints())
   {
-    std::cerr << "Found output data." << std::endl;
+    vtkLog(ERROR, "Found output data.");
     return 1;
   }
 
@@ -81,19 +79,19 @@ int TestAbortExecute(int, char*[])
 
   if (!shrink->GetAbortExecute())
   {
-    std::cerr << "Shrink AbortExecute flag is not set." << std::endl;
+    vtkLog(ERROR, "Shrink AbortExecute flag is not set.");
     return 1;
   }
 
   if (wavelet->GetAbortExecute() || contour->GetAbortExecute() || clip->GetAbortExecute())
   {
-    std::cerr << "Wavelet, Contour, or Clip AbortExecute flag is set." << std::endl;
+    vtkLog(ERROR, "Wavelet, Contour, or Clip AbortExecute flag is set.");
     return 1;
   }
 
   if (wavelet->GetOutputInformation(0)->Get(vtkAlgorithm::ABORTED()))
   {
-    std::cerr << "Wavelet ABORTED flag is set." << std::endl;
+    vtkLog(ERROR, "Wavelet ABORTED flag is set.");
     return 1;
   }
 
@@ -101,13 +99,13 @@ int TestAbortExecute(int, char*[])
     !contour->GetOutputInformation(0)->Get(vtkAlgorithm::ABORTED()) ||
     !clip->GetOutputInformation(0)->Get(vtkAlgorithm::ABORTED()))
   {
-    std::cerr << "Wavelet, Shrink, Contour, or Clip ABORTED flag is not set." << std::endl;
+    vtkLog(ERROR, "Wavelet, Shrink, Contour, or Clip ABORTED flag is not set.");
     return 1;
   }
 
   if (clip->GetOutput()->GetNumberOfPoints())
   {
-    std::cerr << "Found output data." << std::endl;
+    vtkLog(ERROR, "Found output data.");
     return 1;
   }
 
@@ -117,7 +115,7 @@ int TestAbortExecute(int, char*[])
   if (wavelet->GetAbortExecute() || shrink->GetAbortExecute() || contour->GetAbortExecute() ||
     clip->GetAbortExecute())
   {
-    std::cerr << "Wavelet, Shrink, Contour, or Clip AbortExecute flag is set." << std::endl;
+    vtkLog(ERROR, "Wavelet, Shrink, Contour, or Clip AbortExecute flag is set.");
     return 1;
   }
 
@@ -126,13 +124,13 @@ int TestAbortExecute(int, char*[])
     contour->GetOutputInformation(0)->Get(vtkAlgorithm::ABORTED()) ||
     clip->GetOutputInformation(0)->Get(vtkAlgorithm::ABORTED()))
   {
-    std::cerr << "Wavelet, Shrink, Contour, or Clip ABORTED flag is set." << std::endl;
+    vtkLog(ERROR, "Wavelet, Shrink, Contour, or Clip ABORTED flag is set.");
     return 1;
   }
 
   if (!clip->GetOutput()->GetNumberOfPoints())
   {
-    std::cerr << "No output data." << std::endl;
+    vtkLog(ERROR, "No output data.");
     return 1;
   }
 
