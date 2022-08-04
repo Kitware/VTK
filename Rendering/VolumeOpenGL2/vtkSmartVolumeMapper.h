@@ -556,7 +556,7 @@ public:
    */
   char* Transfer2DYAxisArray;
 
-  int LowResMode;
+  int LowResMode = LowResModeDisabled;
 
 private:
   ///@{

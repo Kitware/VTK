@@ -107,8 +107,6 @@ vtkSmartVolumeMapper::vtkSmartVolumeMapper()
   // mode changes
   this->InitializedBlendMode = -1;
 
-  this->LowResMode = LowResModeDisabled;
-
   // Create the forwarding command
   vtkEventForwarderCommand* cb = vtkEventForwarderCommand::New();
   cb->SetTarget(this);
@@ -484,7 +482,8 @@ void vtkSmartVolumeMapper::ComputeRenderMode(vtkRenderer* ren, vtkVolume* vol)
 
       // if any of the scale factors is not 1.0, then we do need
       // to use the low res mapper for interactive rendering
-      if (LowResMode == LowResModeResample && scale[0] != 1.0 || scale[1] != 1.0 || scale[2] != 1.0)
+      if (LowResMode == LowResModeResample &&
+        (scale[0] != 1.0 || scale[1] != 1.0 || scale[2] != 1.0))
       {
         this->LowResGPUNecessary = 1;
         this->ConnectFilterInput(this->GPUResampleFilter);

@@ -3968,12 +3968,12 @@ void vtkOpenGLGPUVolumeRayCastMapper::GetReductionRatio(double* ratio)
 
     if (dims[1] != 1)
     {
-      ratio[1] = 1.0 - ((1.0 - totalRatio) / dimCount);
+      ratio[1] = ratio[0];
     }
 
     if (dims[2] != 1)
     {
-      ratio[2] = 1.0 - ((1.0 - totalRatio) / dimCount);
+      ratio[2] = ratio[0];
     }
   }
 }
