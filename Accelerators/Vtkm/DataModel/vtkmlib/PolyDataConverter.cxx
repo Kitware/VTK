@@ -36,6 +36,7 @@
 
 #include <vtkm/cont/ArrayHandle.h>
 #include <vtkm/cont/DataSetBuilderUniform.h>
+#include <vtkm/cont/ErrorBadType.h>
 #include <vtkm/cont/Field.h>
 
 namespace
@@ -138,9 +139,7 @@ vtkm::cont::DataSet Convert(vtkPolyData* input, FieldsFlag fields)
     }
     else
     {
-      vtkErrorWithObjectMacro(input,
-        "VTK-m does not currently support "
-        "PolyLine cells.");
+      throw vtkm::cont::ErrorBadType("VTK-m does not currently support PolyLine cells.");
     }
   }
   else if (onlyVerts)
@@ -156,17 +155,13 @@ vtkm::cont::DataSet Convert(vtkPolyData* input, FieldsFlag fields)
     }
     else
     {
-      vtkErrorWithObjectMacro(input,
-        "VTK-m does not currently support "
-        "PolyVertex cells.");
+      throw vtkm::cont::ErrorBadType("VTK-m does not currently support PolyVertex cells.");
     }
   }
   else
   {
-    vtkErrorWithObjectMacro(input,
-      "VTK-m does not currently support mixed "
-      "cell types or triangle strips in "
-      "vtkPolyData.");
+    throw vtkm::cont::ErrorBadType(
+      "VTK-m does not currently support mixed cell types or triangle strips in vtkPolyData.");
   }
 
   if (!filled)
