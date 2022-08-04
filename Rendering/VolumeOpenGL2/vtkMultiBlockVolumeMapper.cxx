@@ -338,13 +338,13 @@ vtkSmartVolumeMapper* vtkMultiBlockVolumeMapper::CreateMapper()
   mapper->SetGlobalIlluminationReach(this->GlobalIlluminationReach);
   mapper->SetVolumetricScatteringBlending(this->VolumetricScatteringBlending);
   mapper->SetComputeNormalFromOpacity(this->ComputeNormalFromOpacity);
+  mapper->UseJitteringOn();
 
   vtkOpenGLGPUVolumeRayCastMapper* glMapper =
     vtkOpenGLGPUVolumeRayCastMapper::SafeDownCast(mapper->GetGPUMapper());
 
   if (glMapper != nullptr)
   {
-    glMapper->UseJitteringOn();
     glMapper->SetComputeNormalFromOpacity(this->ComputeNormalFromOpacity);
     glMapper->SetGlobalIlluminationReach(this->GlobalIlluminationReach);
     glMapper->SetVolumetricScatteringBlending(this->VolumetricScatteringBlending);
