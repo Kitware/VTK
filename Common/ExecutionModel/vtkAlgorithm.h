@@ -253,11 +253,6 @@ public:
   vtkGetMacro(AbortOutput, bool);
   ///@}
 
-  /**
-   * Check to see if any inputs have ABORTED flag set.
-   */
-  int CheckAbortedInput();
-
   ///@{
   /**
    * Specify the shift and scale values to use to apply to the progress amount
