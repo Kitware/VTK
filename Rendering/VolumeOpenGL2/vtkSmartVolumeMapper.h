@@ -359,8 +359,25 @@ public:
   vtkGetStringMacro(Transfer2DYAxisArray);
   ///@}
 
-protected:
-  vtkSmartVolumeMapper();
+  ///@{
+  /**
+   * LowResDisable disables low res mode (default)
+   * LowResResample enable low res mode by automatically resampling the volume,
+   * this enable large volume to be displayed at higher frame rate at the cost of
+   * rendering quality
+   * Actual resample factor will be determined using MaxMemoryInBytes and MaxMemoryFraction
+   */
+  enum LowResModeType
+  {
+    LowResModeDisabled = 0,
+    LowResModeResample = 1,
+  };
+
+  vtkSetMacro(LowResMode, int);
+  vtkGetMacro(LowResMode, int)
+    ///@}
+
+    protected : vtkSmartVolumeMapper();
   ~vtkSmartVolumeMapper() override;
 
   /**
@@ -538,6 +555,8 @@ protected:
    * default is to use the gradient of the scalar.
    */
   char* Transfer2DYAxisArray;
+
+  int LowResMode = LowResModeDisabled;
 
 private:
   ///@{

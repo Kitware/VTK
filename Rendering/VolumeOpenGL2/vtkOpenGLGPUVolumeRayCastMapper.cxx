@@ -3943,6 +3943,42 @@ void vtkOpenGLGPUVolumeRayCastMapper::SetPartitions(
 }
 
 //------------------------------------------------------------------------------
+void vtkOpenGLGPUVolumeRayCastMapper::GetReductionRatio(double* ratio)
+{
+  ratio[0] = ratio[1] = ratio[2] = 1.0; // default
+
+  vtkImageData* input = vtkImageData::SafeDownCast(this->GetInput());
+  if (!input)
+  {
+    return;
+  }
+
+  const int* dims = input->GetDimensions();
+  const int dimCount = input->GetDataDimension();
+  const size_t scalarSize = static_cast<size_t>(input->GetScalarSize());
+  const size_t currentSize = static_cast<size_t>(dims[0]) * dims[1] * dims[2] * scalarSize;
+  const size_t maxSize = static_cast<size_t>(
+    this->GetMaxMemoryInBytes() * static_cast<double>(this->GetMaxMemoryFraction()));
+
+  if (currentSize > maxSize)
+  {
+    const double totalRatio = static_cast<double>(maxSize) / currentSize;
+
+    ratio[0] = 1.0 - ((1.0 - totalRatio) / dimCount);
+
+    if (dims[1] != 1)
+    {
+      ratio[1] = ratio[0];
+    }
+
+    if (dims[2] != 1)
+    {
+      ratio[2] = ratio[0];
+    }
+  }
+}
+
+//------------------------------------------------------------------------------
 vtkMTimeType vtkOpenGLGPUVolumeRayCastMapper::GetRenderPassStageMTime(vtkVolume* vol)
 {
   vtkInformation* info = vol->GetPropertyKeys();
