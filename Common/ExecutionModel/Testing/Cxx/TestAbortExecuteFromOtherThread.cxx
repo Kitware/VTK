@@ -27,6 +27,7 @@
 
 vtkNew<vtkContourGrid> contour;
 bool returnFailure = 0;
+std::atomic<bool> runUpdate{ 0 };
 
 void runPipeline()
 {
@@ -48,6 +49,9 @@ void runPipeline()
 
   clip->SetInputConnection(contour->GetOutputPort());
   clip->SetClipFunction(clipPlane);
+
+  while (!runUpdate)
+    ;
 
   clip->Update();
 
@@ -73,6 +77,7 @@ void toggleAbort()
 {
   std::this_thread::sleep_for(std::chrono::milliseconds(1));
   contour->SetAbortExecuteAndUpdateTime();
+  runUpdate = 1;
 }
 
 int TestAbortExecuteFromOtherThread(int, char*[])
