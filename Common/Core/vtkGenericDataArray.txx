@@ -708,7 +708,10 @@ void vtkGenericDataArray<DerivedT, ValueTypeT>::InsertComponent(
   }
   this->EnsureAccessToTuple(tupleIdx);
   assert("Sufficient space allocated." && this->MaxId >= newMaxId);
-  this->MaxId = newMaxId;
+  if (this->MaxId != newMaxId)
+  {
+    this->MaxId = newMaxId;
+  }
   this->SetComponent(tupleIdx, compIdx, value);
 }
 
@@ -904,7 +907,10 @@ void vtkGenericDataArray<DerivedT, ValueTypeT>::InsertTypedComponent(
   }
   this->EnsureAccessToTuple(tupleIdx);
   assert("Sufficient space allocated." && this->MaxId >= newMaxId);
-  this->MaxId = newMaxId;
+  if (this->MaxId != newMaxId)
+  {
+    this->MaxId = newMaxId;
+  }
   this->SetTypedComponent(tupleIdx, compIdx, val);
 }
 
