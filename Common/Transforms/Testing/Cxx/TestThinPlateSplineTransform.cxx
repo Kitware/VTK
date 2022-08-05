@@ -16,7 +16,6 @@
 #include "vtkMath.h"
 #include "vtkMatrix4x4.h"
 #include "vtkNew.h"
-#include "vtkOutputWindow.h"
 #include "vtkPoints.h"
 #include "vtkThinPlateSplineTransform.h"
 #include "vtkTransform.h"

@@ -23,8 +23,11 @@
 #include "vtkCommand.h"
 #include "vtkLogger.h"
 #include "vtkObjectFactory.h"
+#include "vtkSmartPointer.h"
 
+#include <mutex>
 #include <sstream>
+#include <thread>
 
 namespace
 {
@@ -33,11 +36,11 @@ namespace
 template <class T>
 class vtkScopedSet
 {
-  T* Ptr;
+  std::atomic<T>* Ptr;
   T OldVal;
 
 public:
-  vtkScopedSet(T* ptr, const T& newval)
+  vtkScopedSet(std::atomic<T>* ptr, const T& newval)
     : Ptr(ptr)
     , OldVal(*ptr)
   {
@@ -48,8 +51,8 @@ public:
 }
 
 //------------------------------------------------------------------------------
-vtkOutputWindow* vtkOutputWindow::Instance = nullptr;
-static unsigned int vtkOutputWindowCleanupCounter = 0;
+std::mutex InstanceLock; // XXX(c++17): use a `shared_mutex`
+vtkSmartPointer<vtkOutputWindow> vtkOutputWindowGlobalInstance;
 
 // helps accessing private members in vtkOutputWindow.
 class vtkOutputWindowPrivateAccessor
@@ -171,27 +174,13 @@ void vtkOutputWindowDisplayDebugText(
   }
 }
 
-vtkOutputWindowCleanup::vtkOutputWindowCleanup()
-{
-  ++vtkOutputWindowCleanupCounter;
-}
-
-vtkOutputWindowCleanup::~vtkOutputWindowCleanup()
-{
-  if (--vtkOutputWindowCleanupCounter == 0)
-  {
-    // Destroy any remaining output window.
-    vtkOutputWindow::SetInstance(nullptr);
-  }
-}
-
 vtkObjectFactoryNewMacro(vtkOutputWindow);
 vtkOutputWindow::vtkOutputWindow()
 {
   this->PromptUser = false;
   this->CurrentMessageType = MESSAGE_TYPE_TEXT;
   this->DisplayMode = vtkOutputWindow::DEFAULT;
-  this->InStandardMacros = false;
+  this->InStandardMacros = 0;
 }
 
 vtkOutputWindow::~vtkOutputWindow() = default;
@@ -200,7 +189,8 @@ void vtkOutputWindow::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 
-  os << indent << "vtkOutputWindow Single instance = " << (void*)vtkOutputWindow::Instance << endl;
+  os << indent << "vtkOutputWindow Single instance = " << (void*)vtkOutputWindowGlobalInstance
+     << endl;
   os << indent << "Prompt User: " << (this->PromptUser ? "On\n" : "Off\n");
   os << indent << "DisplayMode: ";
   switch (this->DisplayMode)
@@ -324,43 +314,57 @@ void vtkOutputWindow::DisplayDebugText(const char* txt)
 // Return the single instance of the vtkOutputWindow
 vtkOutputWindow* vtkOutputWindow::GetInstance()
 {
-  if (!vtkOutputWindow::Instance)
+  // Check if we have an instance already.
   {
+    std::unique_lock<std::mutex> lock(InstanceLock);
+    // std::shared_lock lock(InstanceLock); // XXX(c++17)
+    (void)lock;
+
+    if (vtkOutputWindowGlobalInstance)
+    {
+      return vtkOutputWindowGlobalInstance;
+    }
+  }
+
+  {
+    std::unique_lock<std::mutex> lock(InstanceLock);
+    (void)lock;
+
+    // Another thread may have raced us here; if it already exists, use it.
+    if (vtkOutputWindowGlobalInstance)
+    {
+      return vtkOutputWindowGlobalInstance;
+    }
+
     // Try the factory first
-    vtkOutputWindow::Instance =
-      (vtkOutputWindow*)vtkObjectFactory::CreateInstance("vtkOutputWindow");
+    vtkOutputWindowGlobalInstance.TakeReference(
+      (vtkOutputWindow*)vtkObjectFactory::CreateInstance("vtkOutputWindow"));
     // if the factory did not provide one, then create it here
-    if (!vtkOutputWindow::Instance)
+    if (!vtkOutputWindowGlobalInstance)
     {
 #if defined(_WIN32) && !defined(VTK_USE_X)
-      vtkOutputWindow::Instance = vtkWin32OutputWindow::New();
+      vtkOutputWindowGlobalInstance.TakeReference(vtkWin32OutputWindow::New());
 #elif defined(ANDROID)
-      vtkOutputWindow::Instance = vtkAndroidOutputWindow::New();
+      vtkOutputWindowGlobalInstance.TakeReference(vtkAndroidOutputWindow::New());
 #else
-      vtkOutputWindow::Instance = vtkOutputWindow::New();
+      vtkOutputWindowGlobalInstance.TakeReference(vtkOutputWindow::New());
 #endif
     }
   }
+
   // return the instance
-  return vtkOutputWindow::Instance;
+  return vtkOutputWindowGlobalInstance;
 }
 
 void vtkOutputWindow::SetInstance(vtkOutputWindow* instance)
 {
-  if (vtkOutputWindow::Instance == instance)
+  std::unique_lock<std::mutex> lock(InstanceLock);
+  (void)lock;
+
+  if (vtkOutputWindowGlobalInstance == instance)
   {
     return;
   }
-  // preferably this will be nullptr
-  if (vtkOutputWindow::Instance)
-  {
-    vtkOutputWindow::Instance->Delete();
-  }
-  vtkOutputWindow::Instance = instance;
-  if (!instance)
-  {
-    return;
-  }
-  // user will call ->Delete() after setting instance
-  instance->Register(nullptr);
+
+  vtkOutputWindowGlobalInstance = vtk::MakeSmartPointer(instance);
 }

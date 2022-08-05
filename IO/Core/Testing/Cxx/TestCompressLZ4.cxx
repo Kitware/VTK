@@ -18,7 +18,6 @@
 
 #include "vtkLZ4DataCompressor.h"
 #include "vtkObjectFactory.h"
-#include "vtkOutputWindow.h"
 
 int TestCompressLZ4(int argc, char* argv[])
 {
