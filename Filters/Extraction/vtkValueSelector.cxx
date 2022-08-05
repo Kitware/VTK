@@ -179,49 +179,51 @@ struct ArrayValueRangeFunctor
 
     if (comp >= 0)
     {
-      vtkSMPTools::For(0, fArray->GetNumberOfTuples(), [=](vtkIdType begin, vtkIdType end) {
-        const auto fRange = vtk::DataArrayTupleRange(fArray, begin, end);
-        const auto selRange = vtk::DataArrayTupleRange<2>(selList);
-        auto insideRange = vtk::DataArrayValueRange<1>(this->InsidednessArray, begin, end);
+      vtkSMPTools::For(0, fArray->GetNumberOfTuples(),
+        [this, comp, fArray, selList](vtkIdType begin, vtkIdType end) {
+          const auto fRange = vtk::DataArrayTupleRange(fArray, begin, end);
+          const auto selRange = vtk::DataArrayTupleRange<2>(selList);
+          auto insideRange = vtk::DataArrayValueRange<1>(this->InsidednessArray, begin, end);
 
-        using FTupleCRefType = typename decltype(fRange)::ConstTupleReferenceType;
-        using STupleCRefType = typename decltype(selRange)::ConstTupleReferenceType;
+          using FTupleCRefType = typename decltype(fRange)::ConstTupleReferenceType;
+          using STupleCRefType = typename decltype(selRange)::ConstTupleReferenceType;
 
-        auto insideIter = insideRange.begin();
-        for (FTupleCRefType fTuple : fRange)
-        {
-          const ValueType val = fTuple[comp];
-          auto matchIter = std::find_if(selRange.cbegin(), selRange.cend(),
-            [&](STupleCRefType range) -> bool { return val >= range[0] && val <= range[1]; });
-          *insideIter++ = matchIter != selRange.cend() ? 1 : 0;
-        }
-      });
+          auto insideIter = insideRange.begin();
+          for (FTupleCRefType fTuple : fRange)
+          {
+            const ValueType val = fTuple[comp];
+            auto matchIter = std::find_if(selRange.cbegin(), selRange.cend(),
+              [&](STupleCRefType range) -> bool { return val >= range[0] && val <= range[1]; });
+            *insideIter++ = matchIter != selRange.cend() ? 1 : 0;
+          }
+        });
     }
     else
     {
       // compare vector magnitude.
-      vtkSMPTools::For(0, fArray->GetNumberOfTuples(), [=](vtkIdType begin, vtkIdType end) {
-        const auto fRange = vtk::DataArrayTupleRange(fArray, begin, end);
-        const auto selRange = vtk::DataArrayTupleRange<2>(selList);
-        auto insideRange = vtk::DataArrayValueRange<1>(this->InsidednessArray, begin, end);
+      vtkSMPTools::For(
+        0, fArray->GetNumberOfTuples(), [this, fArray, selList](vtkIdType begin, vtkIdType end) {
+          const auto fRange = vtk::DataArrayTupleRange(fArray, begin, end);
+          const auto selRange = vtk::DataArrayTupleRange<2>(selList);
+          auto insideRange = vtk::DataArrayValueRange<1>(this->InsidednessArray, begin, end);
 
-        using FTupleCRefType = typename decltype(fRange)::ConstTupleReferenceType;
-        using STupleCRefType = typename decltype(selRange)::ConstTupleReferenceType;
+          using FTupleCRefType = typename decltype(fRange)::ConstTupleReferenceType;
+          using STupleCRefType = typename decltype(selRange)::ConstTupleReferenceType;
 
-        auto insideIter = insideRange.begin();
-        for (FTupleCRefType fTuple : fRange)
-        {
-          ValueType val{ 0 };
-          for (const ValueType fComp : fTuple)
+          auto insideIter = insideRange.begin();
+          for (FTupleCRefType fTuple : fRange)
           {
-            val += fComp * fComp;
+            ValueType val{ 0 };
+            for (const ValueType fComp : fTuple)
+            {
+              val += fComp * fComp;
+            }
+            const auto mag = static_cast<ValueType>(std::sqrt(val));
+            auto matchIter = std::find_if(selRange.cbegin(), selRange.cend(),
+              [&](STupleCRefType range) -> bool { return mag >= range[0] && mag <= range[1]; });
+            *insideIter++ = matchIter != selRange.cend() ? 1 : 0;
           }
-          const auto mag = static_cast<ValueType>(std::sqrt(val));
-          auto matchIter = std::find_if(selRange.cbegin(), selRange.cend(),
-            [&](STupleCRefType range) -> bool { return mag >= range[0] && mag <= range[1]; });
-          *insideIter++ = matchIter != selRange.cend() ? 1 : 0;
-        }
-      });
+        });
     }
   }
 

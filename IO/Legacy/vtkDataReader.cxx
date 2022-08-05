@@ -291,7 +291,7 @@ int vtkDataReader::ReadLine(char result[256])
 //------------------------------------------------------------------------------
 // Internal function to read in a string up to 256 characters.
 // Returns zero if there was an error.
-int vtkDataReader::ReadString(char result[256])
+int vtkDataReader::ReadString(char (&result)[256])
 {
   // Force the parameter to be seen as a 256-byte array rather than a decayed
   // pointer.

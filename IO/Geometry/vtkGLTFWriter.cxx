@@ -805,8 +805,15 @@ void vtkGLTFWriter::WriteToStreamMultiBlock(ostream& output, vtkMultiBlockDataSe
       }
       else
       {
-        vtkLog(
-          WARNING, "Expecting vtkPolyData but got: " << it->GetCurrentDataObject()->GetClassName());
+        if (it->GetCurrentDataObject())
+        {
+          vtkLog(
+            WARNING, "Expecting vtkPolyData, got: " << it->GetCurrentDataObject()->GetClassName());
+        }
+        else
+        {
+          vtkLog(WARNING, "Expecting vtkPolyData, got: NULL");
+        }
       }
     }
   }

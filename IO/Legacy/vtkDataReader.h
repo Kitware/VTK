@@ -468,7 +468,7 @@ public:
    * Internal function to read in a string up to 256 characters.
    * Returns zero if there was an error.
    */
-  int ReadString(char result[256]);
+  int ReadString(char (&result)[256]);
 
   /**
    * Helper method for reading in data.

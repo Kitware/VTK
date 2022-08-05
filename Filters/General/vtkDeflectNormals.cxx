@@ -70,29 +70,31 @@ struct vtkDeflectNormalsWorker
   void operator()(VectorArrayT* vectors)
   {
     const double* normal = this->Self->GetUserNormal();
-    vtkSMPTools::For(0, vectors->GetNumberOfTuples(), [=](vtkIdType begin, vtkIdType end) {
-      for (vtkIdType t = begin; t < end; ++t)
-      {
-        typename VectorArrayT::ValueType vec[3];
-        vectors->GetTypedTuple(t, vec);
-        this->ComputeTuple(t, vec, normal);
-      }
-    });
+    vtkSMPTools::For(
+      0, vectors->GetNumberOfTuples(), [this, vectors, normal](vtkIdType begin, vtkIdType end) {
+        for (vtkIdType t = begin; t < end; ++t)
+        {
+          typename VectorArrayT::ValueType vec[3];
+          vectors->GetTypedTuple(t, vec);
+          this->ComputeTuple(t, vec, normal);
+        }
+      });
   }
 
   template <typename VectorArrayT, typename NormalArrayT>
   void operator()(VectorArrayT* vectors, NormalArrayT* normals)
   {
-    vtkSMPTools::For(0, vectors->GetNumberOfTuples(), [=](vtkIdType begin, vtkIdType end) {
-      for (vtkIdType t = begin; t < end; ++t)
-      {
-        typename VectorArrayT::ValueType vec[3];
-        typename NormalArrayT::ValueType normal[3];
-        vectors->GetTypedTuple(t, vec);
-        normals->GetTypedTuple(t, normal);
-        this->ComputeTuple(t, vec, normal);
-      }
-    });
+    vtkSMPTools::For(
+      0, vectors->GetNumberOfTuples(), [this, vectors, normals](vtkIdType begin, vtkIdType end) {
+        for (vtkIdType t = begin; t < end; ++t)
+        {
+          typename VectorArrayT::ValueType vec[3];
+          typename NormalArrayT::ValueType normal[3];
+          vectors->GetTypedTuple(t, vec);
+          normals->GetTypedTuple(t, normal);
+          this->ComputeTuple(t, vec, normal);
+        }
+      });
   }
 };
 } // end anon namespace

@@ -538,14 +538,14 @@ void vtkUnstructuredGridPartialPreIntegration::BuildPsiTable()
 
   for (int gammafi = 0; gammafi < PSI_TABLE_SIZE; gammafi++)
   {
-    float gammaf = ((float)gammafi + 0.0f) / PSI_TABLE_SIZE;
+    float gammaf = ((float)gammafi + 0.0f) / static_cast<int>(PSI_TABLE_SIZE);
     float taufD = gammaf / (1 - gammaf);
     for (int gammabi = 0; gammabi < PSI_TABLE_SIZE; gammabi++)
     {
-      float gammab = ((float)gammabi + 0.0f) / PSI_TABLE_SIZE;
+      float gammab = ((float)gammabi + 0.0f) / static_cast<int>(PSI_TABLE_SIZE);
       float taubD = gammab / (1 - gammab);
 
-      PsiTable[gammafi * PSI_TABLE_SIZE + gammabi] =
+      PsiTable[gammafi * static_cast<int>(PSI_TABLE_SIZE) + gammabi] =
         vtkUnstructuredGridLinearRayIntegrator::Psi(1, taufD, taubD);
     }
   }
