@@ -941,7 +941,7 @@ void vtkQuadraticHexahedron::InterpolationDerivs(const double pcoords[3], double
   derivs[58] = -0.5 * t * rp * sp;
   derivs[59] = -0.5 * t * rm * sp;
 
-  // we compute derivatives in in [-1; 1] but we need them in [ 0; 1]
+  // we compute derivatives in [-1; 1] but we need them in [ 0; 1]
   for (int i = 0; i < 60; i++)
     derivs[i] *= 2;
 }

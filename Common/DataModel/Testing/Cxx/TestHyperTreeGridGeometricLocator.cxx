@@ -141,7 +141,7 @@ bool runAllMaskedPointSearch(
   if (!success)
   {
     std::cout << "All masked point search failed, parent of first found was " << globIdFirst
-              << " while the result ofthe second search was " << globIdSecond << std::endl;
+              << " while the result of the second search was " << globIdSecond << std::endl;
   }
   return success;
 }

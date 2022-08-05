@@ -157,7 +157,7 @@ int vtkHyperTreeGridGeometricLocator::IntersectWithLine(const double p0[3], cons
   const double tol, double& t, double x[3], double pcoords[3], int& subId, vtkIdType& cellId,
   vtkGenericCell* cell)
 {
-  // initialialize outputs
+  // initialize outputs
   cellId = -1;
   t = -1.0;
   subId = 0;

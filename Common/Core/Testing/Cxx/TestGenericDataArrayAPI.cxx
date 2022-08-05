@@ -58,7 +58,7 @@
 // This test has three main components:
 // - Entry point: TestGenericDataArrayAPI(). Add new array classes here.
 // - Unit test caller: ExerciseGenericDataArray(). Templated on value and array
-//   types. Calls individual unit test functions to excercise the array methods.
+//   types. Calls individual unit test functions to exercise the array methods.
 //   Add new unit test calls here.
 // - Unit test functions: Test_[methodSignature](). Templated on value type,
 //   array type, and possibly other parameters to simplify implementations.

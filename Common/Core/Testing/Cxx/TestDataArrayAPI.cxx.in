@@ -58,7 +58,7 @@
 // This test has three main components:
 // - Entry point: TestDataArrayAPI_[ARRAYNAME]()
 // - Unit test caller: ExerciseDataArray(). Templated on value and array types.
-//   Calls individual unit test functions to excercise the array methods.
+//   Calls individual unit test functions to exercise the array methods.
 //   Add new unit test calls here. Note that the ExerciseGetRange runner has
 //   been split out to fix compilation on less robust compilers that struggle
 //   with the heavy templating (known issue on llvm-gcc 4.2.1).
