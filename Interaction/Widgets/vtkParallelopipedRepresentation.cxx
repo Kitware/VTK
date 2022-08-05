@@ -543,7 +543,7 @@ void vtkParallelopipedRepresentation::RemoveExistingChairs()
 
 //------------------------------------------------------------------------------
 // Node can be an integer within [0,7]. This will create a chair one one of
-// the handle corners. The '0 < scale < 1' value dicates the starting
+// the handle corners. The '0 < scale < 1' value dictates the starting
 // depth of the cavity.
 void vtkParallelopipedRepresentation::UpdateChairAtNode(int node)
 {

@@ -743,7 +743,7 @@ int vtkContourRepresentation::FindClosestPointOnContour(
         {
           // Shouldn't be able to get here (only if we don't have
           // a closed loop but we do have intermediate points after
-          // the last node - contradictary conditions)
+          // the last node - contradictory conditions)
           continue;
         }
       }

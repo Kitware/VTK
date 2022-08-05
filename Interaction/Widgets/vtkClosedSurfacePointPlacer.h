@@ -107,12 +107,12 @@ public:
    */
   int ValidateWorldPosition(double worldPos[3]) override;
 
-  // Descrption:
+  // Description:
   // Orientationation is ignored, and the above method
   // is called instead.
   int ValidateWorldPosition(double worldPos[3], double worldOrient[9]) override;
 
-  // Descrption:
+  // Description:
   // The minimum distance the object should be from the faces of the object.
   // Must be greater than 0. Default is 0.
   vtkSetClampMacro(MinimumDistance, double, 0.0, VTK_DOUBLE_MAX);

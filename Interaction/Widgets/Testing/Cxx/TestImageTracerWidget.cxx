@@ -474,7 +474,7 @@ int TestImageTracerWidget(int argc, char* argv[])
   vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
   vtkSmartPointer<vtkPolyData> splinePoly = vtkSmartPointer<vtkPolyData>::New();
 
-  // Set up a pipleline to demonstrate extraction of a 2D
+  // Set up a pipeline to demonstrate extraction of a 2D
   // region of interest.
   //
   vtkSmartPointer<vtkLinearExtrusionFilter> extrude =

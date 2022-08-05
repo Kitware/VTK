@@ -399,7 +399,7 @@ void vtkCurveRepresentation::Translate(double* p1, double* p2)
   {
     // this->TranslationAxis in [0,2]
     assert(this->TranslationAxis > -1 && this->TranslationAxis < 3 &&
-      "this->TranslationAxis shoud be in [0,2]");
+      "this->TranslationAxis should be in [0,2]");
     v[this->TranslationAxis] = p2[this->TranslationAxis] - p1[this->TranslationAxis];
   }
 

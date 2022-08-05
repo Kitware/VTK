@@ -284,7 +284,7 @@ protected:
 
   ///@{
   /**
-   * Create New Reslice plane. Allows subclasses to override and crate
+   * Create New Reslice plane. Allows subclasses to override and create
    * their own reslice filters to respond to the widget.
    */
   virtual void CreateDefaultResliceAlgorithm();

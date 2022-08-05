@@ -180,7 +180,7 @@ public:
    * thousands of points. (See vtkHardwareSelector and vtkPointPicker for
    * further information.) The choice of picker also has implications on the
    * type of tolerancing used (as described in the following documentation).
-   * (Note also that the pickers may return slighty different results, this
+   * (Note also that the pickers may return slightly different results, this
    * is expected due to the different way tolerancing works.)
    */
   enum PickingModeType

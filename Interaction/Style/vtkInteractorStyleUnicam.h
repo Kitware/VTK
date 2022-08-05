@@ -155,7 +155,7 @@ protected:
   void DollyXY(int X, int Y);  // method for dollying
   void PanXY(int X, int Y);    // method for panning
 
-  // conveinence methods for translating & rotating the camera
+  // convenience methods for translating & rotating the camera
   void MyTranslateCamera(double v[3]);
   void MyRotateCamera(
     double cx, double cy, double cz, double ax, double ay, double az, double angle);

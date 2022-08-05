@@ -192,7 +192,7 @@ public:
 
   ///@{
   /**
-   * Returns true if ContrainedAxis
+   * Returns true if ConstrainedAxis
    **/
   bool IsTranslationConstrained() { return this->TranslationAxis != Axis::NONE; }
   ///@}
