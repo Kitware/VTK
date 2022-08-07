@@ -532,10 +532,27 @@ int vtkFidesReader::RequestData(
 
   if (!this->StreamSteps && outInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP()))
   {
-    int step = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP());
+    auto step = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP());
+    int index = -1;
+    if (outInfo->Has(vtkStreamingDemandDrivenPipeline::TIME_STEPS()))
+    {
+      auto nSteps = outInfo->Length(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
+      std::vector<double> allSteps(nSteps);
+      outInfo->Get(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), allSteps.data());
+      auto it = std::find(allSteps.begin(), allSteps.end(), step);
+      if (it != allSteps.end())
+      {
+        index = it - allSteps.begin();
+      }
+    }
+    if (index == -1)
+    {
+      vtkErrorMacro(<< "Couldn't find index of time value " << step);
+      index = static_cast<int>(step);
+    }
     vtkDebugMacro(<< "RequestData() Not streaming and we have update time step request for step "
                   << step);
-    fides::metadata::Index idx(step);
+    fides::metadata::Index idx(index);
     selections.Set(fides::keys::STEP_SELECTION(), idx);
   }
 
