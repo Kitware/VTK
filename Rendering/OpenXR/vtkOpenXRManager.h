@@ -102,12 +102,12 @@ public:
   std::tuple<uint32_t, uint32_t> GetRecommendedImageRectSize();
   ///@}
 
-  //@{
+  ///@{
   /**
    * Return the recommended swapchain sample count.
    */
   uint32_t GetRecommendedSampleCount();
-  //@}
+  ///@}
 
   /**
    * Return the number of OpenXR views (typically one per physical display / eye)
@@ -365,17 +365,17 @@ public:
   vtkGetMacro(Remoting, bool);
   void SetRemoting(bool remoting);
   vtkBooleanMacro(Remoting, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the address to connect to when using remoting.
    */
   void SetRemotingIPAddress(const std::string& ip);
   vtkGetMacro(RemotingIPAddress, std::string);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the rendering backend strategy.
    */
@@ -417,9 +417,9 @@ protected:
    * and choose environment blend modes.
    */
   bool CreateSystemProperties();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Create the session and pass the GraphicsBinding to the next pointer
    * of the XrSessionCreateInfo

@@ -41,14 +41,14 @@ public:
    */
   void Initialize() override;
 
-  //@{
+  ///@{
   /**
    * Overriden to draw to the shared D3D texture
    */
   void StereoUpdate() override;
   void StereoMidpoint() override;
   void StereoRenderComplete() override;
-  //@}
+  ///@}
 
 protected:
   vtkOpenXRRemotingRenderWindow();

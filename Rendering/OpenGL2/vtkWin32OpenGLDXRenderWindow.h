@@ -42,66 +42,66 @@ public:
    */
   void Initialize() override;
 
-  //@{
+  ///@{
   /**
    * Lock/Unlock the shared texture.
    * The texture must be locked before rendering into it.
    */
   void Lock();
   void Unlock();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Register/Unregister the OpenGL texture designated by \p textureHandle with
    * this render window internal D3D shared texture.
    */
   void RegisterSharedTexture(unsigned int textureHandle);
   void UnregisterSharedTexture();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Overriden to resize the internal D3D shared texture
    */
   void SetSize(int width, int height) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Overriden to update the internal D3D shared texture
    */
   void SetMultiSamples(int samples) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Blits the internal D3D shared texture into \p texture.
    */
   void BlitToTexture(ID3D11Texture2D* texture);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Returns the D3D device associated to this render window
    */
   vtkGetMacro(Device, Microsoft::WRL::ComPtr<ID3D11Device>);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Returns the D3D texture shared with this render window
    */
   vtkGetMacro(D3DSharedTexture, Microsoft::WRL::ComPtr<ID3D11Texture2D>);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the DGXI adapter to be used for initialization.
    * If left unspecified, the first available adapter is used.
    */
   void SetAdapterId(LUID uid) { this->AdapterId = uid; }
-  //@}
+  ///@}
 
 protected:
   vtkWin32OpenGLDXRenderWindow() = default;
