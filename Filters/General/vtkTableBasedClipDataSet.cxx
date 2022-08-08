@@ -2635,37 +2635,131 @@ bool vtkTableBasedClipDataSet::CanFullyProcessUnstructuredData(vtkDataSet* input
 }
 
 //------------------------------------------------------------------------------
+namespace
+{
+struct BuildCellTypesImpl
+{
+  // Given a polyData cell array and a size to type functor, it creates the cell types
+  template <typename CellStateT, typename SizeToTypeFunctor>
+  void operator()(CellStateT& state, vtkUnsignedCharArray* cellTypes, SizeToTypeFunctor&& typer)
+  {
+    const vtkIdType numCells = state.GetNumberOfCells();
+    if (numCells == 0)
+    {
+      return;
+    }
+
+    vtkSMPTools::For(0, numCells, [&](vtkIdType begin, vtkIdType end) {
+      auto types = cellTypes->GetPointer(0);
+      for (vtkIdType cellId = begin; cellId < end; ++cellId)
+      {
+        types[cellId] = static_cast<unsigned char>(typer(state.GetCellSize(cellId)));
+      }
+    });
+  }
+};
+} // end anonymous namespace
+
+//------------------------------------------------------------------------------
 void vtkTableBasedClipDataSet::ClipPolyData(vtkDataSet* inputGrid,
   vtkImplicitFunction* implicitFunction, vtkDoubleArray* scalars, double isoValue,
   vtkUnstructuredGrid* outputUG)
 {
-  if (!this->CanFullyProcessUnstructuredData(inputGrid))
-  {
-    this->ClipDataSet(inputGrid, outputUG);
-    return;
-  }
+  // check if it's easily convertible to vtkUnstructuredGrid
   auto polyData = vtkPolyData::SafeDownCast(inputGrid);
-  vtkPoints* inputPoints = polyData->GetPoints();
-  vtkSmartPointer<vtkUnstructuredGrid> clippedOutput;
-#ifdef VTK_USE_64BIT_IDS
-  const vtkIdType numberOfPoints = inputPoints->GetNumberOfPoints();
-  bool use64BitsIds = (numberOfPoints > VTK_TYPE_INT32_MAX);
-  if (use64BitsIds)
+  bool hasOnlyVerts = polyData->GetVerts()->GetNumberOfCells() != 0 &&
+    polyData->GetLines()->GetNumberOfCells() == 0 &&
+    polyData->GetPolys()->GetNumberOfCells() == 0 && polyData->GetStrips()->GetNumberOfCells() == 0;
+  bool hasOnlyLines = polyData->GetVerts()->GetNumberOfCells() == 0 &&
+    polyData->GetLines()->GetNumberOfCells() != 0 &&
+    polyData->GetPolys()->GetNumberOfCells() == 0 && polyData->GetStrips()->GetNumberOfCells() == 0;
+  bool hasOnlyPolys = polyData->GetVerts()->GetNumberOfCells() == 0 &&
+    polyData->GetLines()->GetNumberOfCells() == 0 &&
+    polyData->GetPolys()->GetNumberOfCells() != 0 && polyData->GetStrips()->GetNumberOfCells() == 0;
+  bool hasOnlyStrips = polyData->GetVerts()->GetNumberOfCells() == 0 &&
+    polyData->GetLines()->GetNumberOfCells() == 0 &&
+    polyData->GetPolys()->GetNumberOfCells() == 0 && polyData->GetStrips()->GetNumberOfCells() != 0;
+  bool easilyConvertibleToUGrid = hasOnlyVerts || hasOnlyLines || hasOnlyPolys || hasOnlyStrips;
+  if (easilyConvertibleToUGrid)
   {
-    using TInputIdType = vtkTypeInt64;
-    clippedOutput = ClipUnstructuredData<vtkPolyData, TInputIdType>(polyData, inputPoints,
-      implicitFunction, scalars, isoValue, this->InsideOut, this->GenerateClipScalars,
-      this->OutputPointsPrecision, this->BatchSize);
+    // convert to vtkUnstructuredGrid
+    //
+    // It's beneficial to convert a polydata to unstructured grid for clipping because the
+    // GetCellType and GetCellPoints are the most expensive functions used (excluding point/cell
+    // data related functions). The vtkPolyData ones are more expensive than the vtkUnstructuredGrid
+    // ones because they perform a bit operation to get the cell type and then based on that, get
+    // the correct cell array and extract the cell points. This overhead turns out to increase the
+    // execution time by 10%-20%.
+    vtkNew<vtkUnstructuredGrid> uGrid;
+    vtkNew<vtkUnsignedCharArray> cellTypes;
+    cellTypes->SetNumberOfValues(inputGrid->GetNumberOfCells());
+    uGrid->SetPoints(polyData->GetPoints());
+    uGrid->GetPointData()->ShallowCopy(polyData->GetPointData());
+    if (hasOnlyVerts)
+    {
+      polyData->GetVerts()->Visit(BuildCellTypesImpl{}, cellTypes,
+        [](vtkIdType size) -> VTKCellType { return size == 1 ? VTK_VERTEX : VTK_POLY_VERTEX; });
+      uGrid->SetCells(cellTypes, polyData->GetVerts(), nullptr, nullptr);
+    }
+    else if (hasOnlyLines)
+    {
+      polyData->GetLines()->Visit(BuildCellTypesImpl{}, cellTypes,
+        [](vtkIdType size) -> VTKCellType { return size == 2 ? VTK_LINE : VTK_POLY_LINE; });
+      uGrid->SetCells(cellTypes, polyData->GetLines(), nullptr, nullptr);
+    }
+    else if (hasOnlyPolys)
+    {
+      polyData->GetPolys()->Visit(
+        BuildCellTypesImpl{}, cellTypes, [](vtkIdType size) -> VTKCellType {
+          switch (size)
+          {
+            case 3:
+              return VTK_TRIANGLE;
+            case 4:
+              return VTK_QUAD;
+            default:
+              return VTK_POLYGON;
+          }
+        });
+      uGrid->SetCells(cellTypes, polyData->GetPolys(), nullptr, nullptr);
+    }
+    else // hasOnlyStrips
+    {
+      polyData->GetStrips()->Visit(BuildCellTypesImpl{}, cellTypes,
+        [](vtkIdType vtkNotUsed(size)) -> VTKCellType { return VTK_TRIANGLE_STRIP; });
+    }
+    uGrid->GetCellData()->ShallowCopy(polyData->GetCellData());
+    this->ClipUnstructuredGrid(uGrid, implicitFunction, scalars, isoValue, outputUG);
   }
   else
-#endif
   {
-    using TInputIdType = vtkTypeInt32;
-    clippedOutput = ClipUnstructuredData<vtkPolyData, TInputIdType>(polyData, inputPoints,
-      implicitFunction, scalars, isoValue, this->InsideOut, this->GenerateClipScalars,
-      this->OutputPointsPrecision, this->BatchSize);
+    if (!this->CanFullyProcessUnstructuredData(inputGrid))
+    {
+      this->ClipDataSet(inputGrid, outputUG);
+      return;
+    }
+    vtkPoints* inputPoints = polyData->GetPoints();
+    vtkSmartPointer<vtkUnstructuredGrid> clippedOutput;
+#ifdef VTK_USE_64BIT_IDS
+    const vtkIdType numberOfPoints = inputPoints->GetNumberOfPoints();
+    bool use64BitsIds = (numberOfPoints > VTK_TYPE_INT32_MAX);
+    if (use64BitsIds)
+    {
+      using TInputIdType = vtkTypeInt64;
+      clippedOutput = ClipUnstructuredData<vtkPolyData, TInputIdType>(polyData, inputPoints,
+        implicitFunction, scalars, isoValue, this->InsideOut, this->GenerateClipScalars,
+        this->OutputPointsPrecision, this->BatchSize);
+    }
+    else
+#endif
+    {
+      using TInputIdType = vtkTypeInt32;
+      clippedOutput = ClipUnstructuredData<vtkPolyData, TInputIdType>(polyData, inputPoints,
+        implicitFunction, scalars, isoValue, this->InsideOut, this->GenerateClipScalars,
+        this->OutputPointsPrecision, this->BatchSize);
+    }
+    outputUG->ShallowCopy(clippedOutput);
   }
-  outputUG->ShallowCopy(clippedOutput);
 }
 
 //------------------------------------------------------------------------------
