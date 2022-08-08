@@ -362,7 +362,7 @@ public:
   /**
    * Get/set whether OpenXR remoting is used.
    */
-  vtkGetMacro(Remoting, bool);
+  bool GetRemoting() { return this->Remoting; }
   void SetRemoting(bool remoting);
   vtkBooleanMacro(Remoting, bool);
   ///@}
@@ -372,7 +372,7 @@ public:
    * Specify the address to connect to when using remoting.
    */
   void SetRemotingIPAddress(const std::string& ip);
-  vtkGetMacro(RemotingIPAddress, std::string);
+  std::string GetRemotingIPAddress() { return this->RemotingIPAddress; }
   ///@}
 
   ///@{
@@ -380,7 +380,7 @@ public:
    * Set/Get the rendering backend strategy.
    */
   void SetGraphicsStrategy(vtkOpenXRManagerGraphics* strategy);
-  vtkGetObjectMacro(GraphicsStrategy, vtkOpenXRManagerGraphics);
+  vtkOpenXRManagerGraphics* GetGraphicsStrategy() { return this->GraphicsStrategy; };
   ///@}
 
 protected:
