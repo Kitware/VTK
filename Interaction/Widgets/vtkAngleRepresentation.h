@@ -115,6 +115,15 @@ public:
 
   ///@{
   /**
+   * Set the scale factor from degrees. The label will be defined in terms of the scaled space. For
+   * example, to use radians in the label set the scale factor to pi/180.
+   */
+  vtkSetMacro(Scale, double);
+  vtkGetMacro(Scale, double);
+  ///@}
+
+  ///@{
+  /**
    * Special methods for turning off the rays and arc that define the cone
    * and arc of the angle.
    */
@@ -160,7 +169,7 @@ protected:
   vtkHandleRepresentation* Point2Representation;
 
   // Selection tolerance for the handles
-  int Tolerance;
+  int Tolerance = 5;
 
   // Visibility of the various pieces of the representation
   vtkTypeBool Ray1Visibility;
@@ -169,6 +178,10 @@ protected:
 
   // Format for the label
   char* LabelFormat;
+
+  // Scale to change from degrees to the desired unit system (radians, fractions of pi) for
+  // displaying the angle
+  double Scale = 1.0;
 
 private:
   vtkAngleRepresentation(const vtkAngleRepresentation&) = delete;
