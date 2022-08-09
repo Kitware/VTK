@@ -1,0 +1,6 @@
+NAME
+  VTK::RenderingOpenXRRemoting
+LIBRARY_NAME
+  vtkRenderingOpenXRRemoting
+DEPENDS
+  VTK::RenderingOpenXR

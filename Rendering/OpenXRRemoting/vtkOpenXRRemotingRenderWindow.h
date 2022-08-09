@@ -23,9 +23,9 @@
 #define vtkOpenXRRemotingRenderWindow_h
 
 #include "vtkOpenXRRenderWindow.h"
-#include "vtkRenderingOpenXRModule.h" // For export macro
+#include "vtkRenderingOpenXRRemotingModule.h" // For export macro
 
-class VTKRENDERINGOPENXR_EXPORT vtkOpenXRRemotingRenderWindow : public vtkOpenXRRenderWindow
+class VTKRENDERINGOPENXRREMOTING_EXPORT vtkOpenXRRemotingRenderWindow : public vtkOpenXRRenderWindow
 {
 public:
   static vtkOpenXRRemotingRenderWindow* New();

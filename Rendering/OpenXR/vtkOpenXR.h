@@ -30,7 +30,7 @@
 // Needed for XR_KHR_OPENGL_ENABLE_EXTENSION_NAME
 #define XR_USE_GRAPHICS_API_OPENGL
 
-#ifdef OpenXR_USE_REMOTING
+#if VTK_OPENXR_USE_REMOTING
 // Needed for XR_KHR_D3D11_ENABLE_EXTENSION_NAME
 #define XR_USE_GRAPHICS_API_D3D11
 // Required headers for the XrGraphicsRequirementsD3D11KHR struct
@@ -40,7 +40,7 @@
 #include <openxr.h>
 #include <openxr_platform.h>
 #include <openxr_reflection.h>
-#ifdef OpenXR_USE_REMOTING
+#if VTK_OPENXR_USE_REMOTING
 #include <openxr_msft_holographic_remoting.h>
 #endif
 

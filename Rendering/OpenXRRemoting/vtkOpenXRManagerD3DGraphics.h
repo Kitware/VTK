@@ -24,11 +24,14 @@
 #define vtkOpenXRManagerD3DGraphics_h
 
 #include "vtkOpenXRManagerGraphics.h"
-#include "vtkRenderingOpenXRModule.h" // For export macro
+#include "vtkRenderingOpenXRRemotingModule.h" // For export macro
+
+#include "vtkOpenXR.h" // For extension name
 
 #include <vector>
 
-class VTKRENDERINGOPENXR_EXPORT vtkOpenXRManagerD3DGraphics : public vtkOpenXRManagerGraphics
+class VTKRENDERINGOPENXRREMOTING_EXPORT vtkOpenXRManagerD3DGraphics
+  : public vtkOpenXRManagerGraphics
 {
 public:
   static vtkOpenXRManagerD3DGraphics* New();

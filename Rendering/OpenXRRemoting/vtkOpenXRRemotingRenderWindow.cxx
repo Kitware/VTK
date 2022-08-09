@@ -18,6 +18,7 @@
 #include "vtkOpenGLFramebufferObject.h"
 #include "vtkOpenXRManager.h"
 #include "vtkOpenXRManagerD3DGraphics.h"
+#include "vtkOpenXRManagerRemoteConnection.h"
 #include "vtkTextureObject.h"
 #include "vtkWin32OpenGLDXRenderWindow.h"
 
@@ -37,13 +38,15 @@ vtkOpenXRRemotingRenderWindow::vtkOpenXRRemotingRenderWindow()
   vtkNew<vtkOpenXRManagerD3DGraphics> D3Dgraphics;
   vtkOpenXRManager::GetInstance().SetGraphicsStrategy(D3Dgraphics);
 
-  vtkOpenXRManager::GetInstance().RemotingOn();
+  // Use the OpenXR remoting connection strategy
+  vtkNew<vtkOpenXRManagerRemoteConnection> remoteConnection;
+  vtkOpenXRManager::GetInstance().SetConnectionStrategy(remoteConnection);
 }
 
 //------------------------------------------------------------------------------
 void vtkOpenXRRemotingRenderWindow::SetRemotingIPAddress(const char* host)
 {
-  vtkOpenXRManager::GetInstance().SetRemotingIPAddress(host);
+  vtkOpenXRManager::GetInstance().GetConnectionStrategy()->SetIPAddress(host);
 }
 
 //------------------------------------------------------------------------------

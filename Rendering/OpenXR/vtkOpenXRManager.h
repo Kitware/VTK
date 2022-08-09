@@ -29,6 +29,7 @@
 
 #include "vtkNew.h"
 #include "vtkOpenXR.h"
+#include "vtkOpenXRManagerConnection.h"
 #include "vtkOpenXRManagerGraphics.h"
 #include "vtkSmartPointer.h"
 
@@ -360,27 +361,18 @@ public:
 
   ///@{
   /**
-   * Get/set whether OpenXR remoting is used.
-   */
-  bool GetRemoting() { return this->Remoting; }
-  void SetRemoting(bool remoting);
-  vtkBooleanMacro(Remoting, bool);
-  ///@}
-
-  ///@{
-  /**
-   * Specify the address to connect to when using remoting.
-   */
-  void SetRemotingIPAddress(const std::string& ip);
-  std::string GetRemotingIPAddress() { return this->RemotingIPAddress; }
-  ///@}
-
-  ///@{
-  /**
    * Set/Get the rendering backend strategy.
    */
   void SetGraphicsStrategy(vtkOpenXRManagerGraphics* strategy);
   vtkOpenXRManagerGraphics* GetGraphicsStrategy() { return this->GraphicsStrategy; };
+  ///@}
+
+  ///@{
+  /**
+   * Set/Get the connection strategy.
+   */
+  void SetConnectionStrategy(vtkOpenXRManagerConnection* strategy);
+  vtkOpenXRManagerConnection* GetConnectionStrategy() { return this->ConnectionStrategy; };
   ///@}
 
 protected:
@@ -609,22 +601,7 @@ protected:
 
   vtkSmartPointer<vtkOpenXRManagerGraphics> GraphicsStrategy;
 
-  /**
-   * Look for the runtime RemotingXR.json file and set the
-   * corresponding XR_RUNTIME_JSON environment variable to enable remoting.
-   */
-  bool InitializeRemoting();
-
-  /**
-   * Initialize holographic remoting connection
-   */
-  bool ConnectToRemote();
-
-  // Enable OpenXR remoting
-  bool Remoting = false;
-
-  // IP Address to connect to when using remoting
-  std::string RemotingIPAddress;
+  vtkSmartPointer<vtkOpenXRManagerConnection> ConnectionStrategy;
 
 private:
   vtkOpenXRManager(const vtkOpenXRManager&) = delete;
