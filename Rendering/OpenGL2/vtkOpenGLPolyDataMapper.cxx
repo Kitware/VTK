@@ -844,7 +844,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderLight(
           albedo = true;
           toString << "vec4 albedoSample = texture(albedoTex, tcoordVCVSOutput);\n"
                       "  vec3 albedo = albedoSample.rgb * diffuseColor;\n"
-                      "  opacity = albedoSample.a;\n";
+                      "  opacity = opacityUniform * albedoSample.a;\n";
         }
         else if (t.second == "materialTex")
         {
