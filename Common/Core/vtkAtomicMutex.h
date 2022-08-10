@@ -20,7 +20,7 @@
  * through different threads using atomic operations. An atomic mutex
  * might be preferable over std::mutex, because it is faster when you want to spin lock and the
  * probability of acquiring the lock is high. The benefit of vtkAtomicMutex over
- * std::atomic<bool> is that is is copy constructible, and that is has predefined optimized
+ * std::atomic<bool> is that it is copy constructible, and that is has predefined optimized
  * lock/unlock functions that can be used as a drop in replacement instead of std::mutex.
  */
 

@@ -155,7 +155,7 @@ bool vtkBilinearQuadIntersection::RayIntersection(
   double t2, u;           // the t values of the two roots
 
   //~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  // Variables for substitition
+  // Variables for substitution
   // a = this->Point11.- this->Point10.- this->Point01.+ this->Point00
   // b = this->Point10.- this->Point00
   // c = this->Point01.- this->Point00

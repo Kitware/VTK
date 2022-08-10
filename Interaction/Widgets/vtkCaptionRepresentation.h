@@ -80,7 +80,7 @@ public:
 
   ///@{
   /**
-   * Set and get the instances of vtkPointHandleRepresention3D used to implement this
+   * Set and get the instances of vtkPointHandleRepresentation3D used to implement this
    * representation. Normally default representations are created, but you can
    * specify the ones you want to use.
    */

@@ -59,7 +59,7 @@ public:
   ///@}
 
   // Description:
-  // Add an actor (that represents a terrain in a rendererd scene) to the
+  // Add an actor (that represents a terrain in a rendered scene) to the
   // list. Only props in this list are considered by the PointPlacer
   virtual void AddProp(vtkProp*);
   virtual void RemoveViewProp(vtkProp* prop);

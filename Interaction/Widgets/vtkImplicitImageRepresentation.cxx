@@ -312,7 +312,7 @@ void vtkImplicitImageRepresentation::UpdatePlane()
   this->TextureMapToPlane->SetPoint1(this->PlaneSource->GetPoint1());
   this->TextureMapToPlane->SetPoint2(this->PlaneSource->GetPoint2());
 
-  // Get the plane axes and related informaion
+  // Get the plane axes and related information
   double planeAxis1[3], planeAxis2[3];
   this->PlaneSource->GetAxis1(planeAxis1);
   this->PlaneSource->GetAxis2(planeAxis2);

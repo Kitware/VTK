@@ -219,7 +219,7 @@ private:
 };
 
 //=============================================================================
-// This class returns zero. Is is used for rectangular diagonal matrices, when
+// This class returns zero. It is used for rectangular diagonal matrices, when
 // lines / rows are filled with zeros.
 template <class ScalarT>
 class NullContractRowWithCol

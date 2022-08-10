@@ -485,7 +485,7 @@ void vtkCameraOrientationRepresentation::Rotate(double newEventPos[2])
 
   const int* size = this->Renderer->GetSize();
 
-  // permit 90 degree roatation across renderer w, h
+  // permit 90 degree rotation across renderer w, h
   double delta_azimuth = -90.0 / size[0];
   double delta_elevation = -90.0 / size[1];
 

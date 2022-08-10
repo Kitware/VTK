@@ -248,7 +248,7 @@ protected:
   ///@}
 
   // Node can be a value within [0,7]. This will create a chair one one of
-  // the handle corners. '0 < InitialChairDepth < 1' value dicates the starting
+  // the handle corners. '0 < InitialChairDepth < 1' value dictates the starting
   // depth of the cavity.
   void UpdateChairAtNode(int node);
 

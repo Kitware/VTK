@@ -57,7 +57,7 @@ and calls to overloaded methods.
 
 This one is not actually a class, it is a helper function that adds utility
 methods and types like the previously-mentioned *reference* type to the
-vtkCommonCore module.  Evertything in this file becomes part of vtkCommonCore.
+vtkCommonCore module.  Everything in this file becomes part of vtkCommonCore.
 
 
 ## The C++ Classes

@@ -63,7 +63,7 @@ public:
   static vtkDataObject* NewDataObject(int typeId);
 
   /*
-   * Returns true if the `typeId` is same or or a subclass of
+   * Returns true if the `typeId` is same or a subclass of
    * `targetTypeId`.
    */
   static bool TypeIdIsA(int typeId, int targetTypeId);

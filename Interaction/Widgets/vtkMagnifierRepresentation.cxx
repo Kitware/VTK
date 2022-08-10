@@ -143,7 +143,7 @@ void vtkMagnifierRepresentation::WidgetInteraction(double eventPos[2])
   this->MagnificationRenderer->GetActiveCamera()->SetFocalPoint(focal);
 
   // Setup the border if requested. We offset the border slightly to
-  // accomodate the width of the line.
+  // accommodate the width of the line.
   if (this->Border)
   {
     this->BorderPoints->SetPoint(0, 1, 1, 0.0);
@@ -212,7 +212,7 @@ vtkMTimeType vtkMagnifierRepresentation::GetMTime()
 //------------------------------------------------------------------------------
 // Optionally, use different view props than that used by the associated
 // renderer. This enables special effects etc during magnification (or the
-// ability to remove props from the scence like widgets etc).
+// ability to remove props from the scene like widgets etc).
 void vtkMagnifierRepresentation::AddViewProp(vtkProp* prop)
 {
   this->Props->AddItem(prop);

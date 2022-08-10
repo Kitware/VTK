@@ -302,7 +302,7 @@ int TestPolygonalSurfaceConstrainedDistanceWidget(int argc, char* argv[])
   pointPlacer->AddProp(demActor);
   pointPlacer->GetPolys()->AddItem(pd);
 
-  // We can optionally constain the handles to a certain height (measured as
+  // We can optionally constrain the handles to a certain height (measured as
   // the offset along the surface normal) from the surface.
 
   if (distanceOffsetSpecified)

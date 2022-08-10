@@ -356,7 +356,7 @@ void vtkInteractorStyleUnicam::ChooseXY(int X, int Y)
   }
 }
 
-// define some utilty functions
+// define some utility functions
 template <class Type>
 inline Type clamp(const Type a, const Type b, const Type c)
 {

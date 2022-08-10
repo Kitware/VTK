@@ -36,7 +36,7 @@
  *   LeftButtonReleaseEvent - release the handle widget associated with the point
  *   MouseMoveEvent - move the point
  * If the line is selected:
- *   LeftButtonPressEvent - activate a handle widget accociated with the line
+ *   LeftButtonPressEvent - activate a handle widget associated with the line
  *   LeftButtonReleaseEvent - release the handle widget associated with the line
  *   MouseMoveEvent - translate the line
  * In all the cases, independent of what is picked, the widget responds to the

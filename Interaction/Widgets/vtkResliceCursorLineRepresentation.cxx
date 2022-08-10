@@ -327,7 +327,7 @@ double vtkResliceCursorLineRepresentation ::RotateAxis(double e[2], int axis)
   vtkMath::Normalize(lastVector);
   vtkMath::Normalize(currVector);
 
-  // compute the angle betweem both vectors. This is the amount to
+  // compute the angle between both vectors. This is the amount to
   // rotate by.
   double angle = acos(vtkMath::Dot(lastVector, currVector));
   double crossVector[3];

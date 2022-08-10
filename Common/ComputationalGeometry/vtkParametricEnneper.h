@@ -17,7 +17,7 @@
  * @brief   Generate Enneper's surface.
  *
  * vtkParametricEnneper generates Enneper's surface.
- * Enneper's surface is a a self-intersecting minimal surface
+ * Enneper's surface is a self-intersecting minimal surface
  * possessing constant negative Gaussian curvature
  *
  * For further information about this surface, please consult the

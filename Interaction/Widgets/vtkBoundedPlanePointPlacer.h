@@ -156,7 +156,7 @@ public:
    */
   int ValidateWorldPosition(double worldPos[3]) override;
 
-  // Descrption:
+  // Description:
   // Orientationation is ignored, and the above method
   // is called instead.
   int ValidateWorldPosition(double worldPos[3], double worldOrient[9]) override;

@@ -17,7 +17,7 @@
  * @brief   manipulate objects in the scene independent of each other
  *
  * vtkInteractorStyleTrackballActor allows the user to interact with (rotate,
- * pan, etc.) objects in the scene indendent of each other.  In trackball
+ * pan, etc.) objects in the scene independent of each other.  In trackball
  * interaction, the magnitude of the mouse motion is proportional to the
  * actor motion associated with a particular mouse binding. For example,
  * small left-button motions cause small changes in the rotation of the
