@@ -418,7 +418,6 @@ int vtkPointDataToCellData::RequestData(
   // Pass the cell data first. The fields and attributes
   // which also exist in the point data of the input will
   // be over-written during CopyAllocate
-  output->GetCellData()->CopyGlobalIdsOff();
   output->GetCellData()->PassData(input->GetCellData());
   output->GetCellData()->CopyFieldOff(vtkDataSetAttributes::GhostArrayName());
 
