@@ -103,6 +103,13 @@ vtk_add_test_cxx(vtkRenderingOpenGL2CxxTests tests
   UnitTestOpenGLUniforms.cxx,NO_DATA,NO_VALID,NO_OUTPUT
   )
 
+# Allow local customization of timeout for this test.
+if(NOT VTK_TEST_TIMEOUT_TestFramebufferHDR)
+  set(VTK_TEST_TIMEOUT_TestFramebufferHDR 300)
+endif()
+set_tests_properties(VTK::RenderingOpenGL2Cxx-TestFramebufferHDR
+  PROPERTIES TIMEOUT ${VTK_TEST_TIMEOUT_TestFramebufferHDR})
+
 if (VTK_USE_SDL2)
   vtk_add_test_cxx(vtkRenderingOpenGL2CxxTests tests TestSDL2.cxx)
 endif ()
