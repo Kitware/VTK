@@ -257,6 +257,8 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "stdthread")
     "^VTK::FiltersModelingPython-TestCookieCutter4$"
     # See #18623
     "^VTK::CommonDataModelCxx-TestPolyhedronCombinatorialContouring$"
+    # See #18641
+    "^VTK::InteractionWidgetsCxx-TestPickingManagerSeedWidget$"
 
     # Test fails sometimes with STDThread
     # See #18555
