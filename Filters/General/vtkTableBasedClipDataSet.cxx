@@ -1368,6 +1368,7 @@ struct Centroid
   vtkIdType PointIds[MAX_CELL_SIZE];
   uint8_t NumberOfPoints;
 
+  Centroid() = default;
   Centroid(const vtkIdType* pointIds, uint8_t numberOfPoints)
     : NumberOfPoints(numberOfPoints)
   {
@@ -1436,7 +1437,7 @@ struct ExtractCellsUnstructured
     this->OutputCellTypes = vtkSmartPointer<vtkUnsignedCharArray>::New();
     this->OutputCellTypes->SetNumberOfValues(this->NumberOfOutputCells);
     // initialize centroids
-    this->Centroids.reserve(this->NumberOfCentroids);
+    this->Centroids.resize(this->NumberOfCentroids);
     // set NumberOfKeptPointsAndEdges
     this->NumberOfKeptPointsAndEdges = this->NumberOfKeptPoints + this->NumberOfEdges;
   }
@@ -1846,7 +1847,7 @@ struct ExtractCellsStructured
     this->OutputCellTypes = vtkSmartPointer<vtkUnsignedCharArray>::New();
     this->OutputCellTypes->SetNumberOfValues(this->NumberOfOutputCells);
     // initialize centroids
-    this->Centroids.reserve(this->NumberOfCentroids);
+    this->Centroids.resize(this->NumberOfCentroids);
     // set NumberOfKeptPointsAndEdges
     this->NumberOfKeptPointsAndEdges = this->NumberOfKeptPoints + this->NumberOfEdges;
 
