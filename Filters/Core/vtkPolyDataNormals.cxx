@@ -31,6 +31,8 @@
 #include "vtkSMPTools.h"
 #include "vtkTriangleStrip.h"
 
+#include <mutex>
+
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkPolyDataNormals);
 
