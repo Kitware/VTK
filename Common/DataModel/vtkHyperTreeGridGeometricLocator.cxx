@@ -58,26 +58,21 @@ vtkIdType vtkHyperTreeGridGeometricLocator::Search(
   const double point[3], vtkHyperTreeGridNonOrientedGeometryCursor* cursor)
 {
   // Check bounds
-  std::array<unsigned int, 3> bin{};
-  const int dim = this->HTG->GetDimension();
-  bin[0] = this->HTG->FindDichotomicX(
-    point[0], this->Tolerance); // This and subsequent calls expected to be thread safe
-  if (dim > 1)
-  {
-    bin[1] = this->HTG->FindDichotomicY(point[1], this->Tolerance);
-  }
-  if (dim > 2)
-  {
-    bin[2] = this->HTG->FindDichotomicZ(point[2], this->Tolerance);
-  }
-  const unsigned int* cellDims = this->HTG->GetCellDims();
-  for (int i = 0; i < dim; i++)
+  // Subsequent calls of FindDichotomic are expected to be thread safe
+  std::array<unsigned int, 3> bin = { this->HTG->FindDichotomicX(point[0], this->Tolerance),
+    this->HTG->FindDichotomicY(point[1], this->Tolerance),
+    this->HTG->FindDichotomicZ(point[2], this->Tolerance) };
+
+  unsigned int cellDims[3];
+  this->HTG->GetCellDims(cellDims);
+  for (int i = 0; i < 3; ++i)
   {
     if (bin[i] >= cellDims[i])
     {
       return -1;
     }
   }
+
   // Get the index of the tree it's in
   vtkIdType treeId;
   this->HTG->GetIndexFromLevelZeroCoordinates(treeId, bin[0], bin[1], bin[2]);
@@ -114,14 +109,29 @@ vtkIdType vtkHyperTreeGridGeometricLocator::RecursiveSearch(
     vtkErrorMacro("Cursor has no size");
     return -1;
   }
-  const unsigned int dim = this->HTG->GetDimension();
+
   double normalizedPt[3];
-  for (unsigned int d = 0; d < dim; d++)
+  for (unsigned int d = 0; d < 3; d++)
   {
-    normalizedPt[d] = (pt[d] - origin[d]) / size[d];
+    normalizedPt[d] = (size[d] == 0.0) ? 0.0 : (pt[d] - origin[d]) / size[d];
   }
 
   const unsigned int bf = this->HTG->GetBranchFactor();
+  const unsigned int dim = this->HTG->GetDimension();
+  // Reorder the point according to the actual orientation of the HTG.
+  // This is because this->FindChildIndex only process the first dimension
+  // as this make the algorithm easier.
+  if (dim == 1)
+  {
+    std::swap(normalizedPt[0], normalizedPt[this->HTG->GetOrientation()]);
+  }
+  else if (dim == 2)
+  {
+    unsigned int axisx, axisy;
+    this->HTG->Get2DAxes(axisx, axisy);
+    std::swap(normalizedPt[0], normalizedPt[axisx]);
+    std::swap(normalizedPt[1], normalizedPt[axisy]);
+  }
   vtkIdType childIndex = this->FindChildIndex(dim, bf, normalizedPt);
   cursor->ToChild(childIndex);
   return this->RecursiveSearch(cursor, pt);
@@ -550,9 +560,10 @@ vtkIdType vtkHyperTreeGridGeometricLocator::FindChildIndex(
   std::vector<int> binPt(dim, -1);
   for (unsigned int d = 0; d < dim; d++)
   {
-    binPt[d] = std::distance(
-      Bins1D.begin(), std::upper_bound(Bins1D.begin(), Bins1D.end(), normalizedPt[d]));
+    binPt[d] = std::distance(this->Bins1D.begin(),
+      std::upper_bound(this->Bins1D.begin(), this->Bins1D.end(), normalizedPt[d]));
   }
+
   // convert tuple index to single index
   vtkIdType childIndex = 0;
   for (unsigned int d = 0; d < dim; d++)
