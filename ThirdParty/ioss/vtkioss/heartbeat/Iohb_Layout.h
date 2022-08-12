@@ -19,7 +19,7 @@ namespace Iohb {
   {
   public:
     Layout(bool show_labels, int precision, std::string separator, int field_width);
-    Layout(const Layout &) = delete;
+    Layout(const Layout &)            = delete;
     Layout &operator=(const Layout &) = delete;
 
     ~Layout();

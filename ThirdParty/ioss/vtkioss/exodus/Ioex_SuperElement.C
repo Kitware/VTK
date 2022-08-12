@@ -242,7 +242,7 @@ int64_t Ioex::SuperElement::internal_get_field_data(const Ioss::Field &field, vo
     }
   }
   else {
-    fmt::print(Ioss::WARNING(), "{} '{}'. Unknown input field '{}'", type(), name(),
+    fmt::print(Ioss::WarnOut(), "{} '{}'. Unknown input field '{}'", type(), name(),
                field.get_name());
     return -4;
   }

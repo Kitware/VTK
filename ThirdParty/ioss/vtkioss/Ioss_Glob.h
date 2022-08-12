@@ -1445,7 +1445,7 @@ namespace Ioss {
         ast_consumer.GenAutomata(ast_ptr.get(), automata_);
       }
 
-      ExtendedGlob(const ExtendedGlob &) = delete;
+      ExtendedGlob(const ExtendedGlob &)      = delete;
       ExtendedGlob &operator=(ExtendedGlob &) = delete;
 
       ExtendedGlob(ExtendedGlob &&glob) : automata_{std::move(glob.automata_)} {}
@@ -1474,7 +1474,7 @@ namespace Ioss {
     public:
       SimpleGlob(const String<charT> &pattern) { Parser(pattern); }
 
-      SimpleGlob(const SimpleGlob &) = delete;
+      SimpleGlob(const SimpleGlob &)      = delete;
       SimpleGlob &operator=(SimpleGlob &) = delete;
 
       SimpleGlob(SimpleGlob &&glob) : automata_{std::move(glob.automata_)} {}
@@ -1552,7 +1552,7 @@ namespace Ioss {
     public:
       BasicGlob(const String<charT> &pattern) : glob_{pattern} {}
 
-      BasicGlob(const BasicGlob &) = delete;
+      BasicGlob(const BasicGlob &)      = delete;
       BasicGlob &operator=(BasicGlob &) = delete;
 
       BasicGlob(BasicGlob &&glob) : glob_{std::move(glob.glob_)} {}

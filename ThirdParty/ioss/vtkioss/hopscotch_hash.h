@@ -523,10 +523,10 @@ namespace tsl {
         {
         }
 
-        hopscotch_iterator(const hopscotch_iterator &other) = default;
-        hopscotch_iterator(hopscotch_iterator &&other)      = default;
+        hopscotch_iterator(const hopscotch_iterator &other)            = default;
+        hopscotch_iterator(hopscotch_iterator &&other)                 = default;
         hopscotch_iterator &operator=(const hopscotch_iterator &other) = default;
-        hopscotch_iterator &operator=(hopscotch_iterator &&other) = default;
+        hopscotch_iterator &operator=(hopscotch_iterator &&other)      = default;
 
         const typename hopscotch_hash::key_type &key() const
         {

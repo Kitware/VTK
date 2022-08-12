@@ -120,7 +120,7 @@ namespace {
 #endif
 
 namespace Ioss {
-  template <typename INT> void qsort(std::vector<INT> &v)
+  template <typename INT> void sort(std::vector<INT> &v)
   {
     if (v.size() <= 1) {
       return;

@@ -583,8 +583,8 @@ void Ioss::ParallelUtils::progress(const std::string &output) const
 
   if (parallel_rank() == 0) {
     double diff = Utils::timer() - begin;
-    fmt::print(Ioss::DEBUG(), "  [{:.3f}] ({}MiB  {}MiB  {}MiB)\t{}\n", diff, min / MiB, max / MiB,
-               avg / MiB, output);
+    fmt::print(Ioss::DebugOut(), "  [{:.3f}] ({}MiB  {}MiB  {}MiB)\t{}\n", diff, min / MiB,
+               max / MiB, avg / MiB, output);
   }
 }
 

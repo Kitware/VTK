@@ -8,6 +8,7 @@
 
 #include <Ioss_CodeTypes.h>
 #include <assert.h>
+#include <limits>
 #include <map>    // for map, map<>::value_compare
 #include <string> // for string, operator<
 #include <vector> // for vector
@@ -20,10 +21,10 @@ namespace Ioss {
 namespace Ioss {
 
   using Ordinal     = uint16_t;
-  using Permutation = uint8_t;
+  using Permutation = uint32_t;
 
-  static constexpr Ordinal     InvalidOrdinal     = 65535;
-  static constexpr Permutation InvalidPermutation = 128;
+  static constexpr Ordinal     InvalidOrdinal     = std::numeric_limits<Ordinal>::max();
+  static constexpr Permutation InvalidPermutation = std::numeric_limits<Permutation>::max();
 
   using ElementPermutationMap = std::map<std::string, ElementPermutation *, std::less<std::string>>;
   using EPM_VP                = ElementPermutationMap::value_type;
@@ -52,7 +53,7 @@ namespace Ioss {
   class ElementPermutation
   {
   public:
-    ElementPermutation(const ElementPermutation &) = delete;
+    ElementPermutation(const ElementPermutation &)            = delete;
     ElementPermutation &operator=(const ElementPermutation &) = delete;
 
     virtual ~ElementPermutation();
@@ -75,7 +76,7 @@ namespace Ioss {
     // For a given permutation, return the node ordinals
     std::vector<Ordinal> permutation_indices(Permutation permutation) const;
 
-    uint8_t num_permutation_nodes() const;
+    Permutation num_permutation_nodes() const;
 
     const std::string &type() const;
 
@@ -113,20 +114,20 @@ namespace Ioss {
     //         {2, 1, 0,  4, 3, 5},                {2, 1, 0},
     //         {1, 0, 2,  3, 5, 4}}                {1, 0, 2}}
 
-    void set_permutation(uint8_t numPermutationNodes_, uint8_t numPermutations_,
-                         uint8_t                                  numPositivePermutations_,
-                         const std::vector<std::vector<uint8_t>> &permutationNodeOrdinals_);
+    void set_permutation(Permutation numPermutationNodes_, Permutation numPermutations_,
+                         Permutation                                  numPositivePermutations_,
+                         const std::vector<std::vector<Permutation>> &permutationNodeOrdinals_);
 
     static EPRegistry &registry();
 
   private:
     bool equal_(const Ioss::ElementPermutation &rhs, bool quiet) const;
 
-    std::string                       m_type{};
-    uint8_t                           m_numPermutations{0};
-    uint8_t                           m_numPositivePermutations{0};
-    uint8_t                           m_numPermutationNodes{0};
-    std::vector<std::vector<uint8_t>> m_permutationNodeOrdinals{};
+    std::string                           m_type{};
+    Permutation                           m_numPermutations{0};
+    Permutation                           m_numPositivePermutations{0};
+    Permutation                           m_numPermutationNodes{0};
+    std::vector<std::vector<Permutation>> m_permutationNodeOrdinals{};
   };
 
   class NullPermutation : public ElementPermutation
@@ -276,6 +277,6 @@ namespace Ioss {
     SuperPermutation();
     explicit SuperPermutation(unsigned n);
 
-    static std::vector<std::vector<uint8_t>> get_super_permutations(unsigned n);
+    static std::vector<std::vector<Permutation>> get_super_permutations(unsigned n);
   };
 } // namespace Ioss

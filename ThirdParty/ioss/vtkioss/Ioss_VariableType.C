@@ -187,8 +187,7 @@ namespace Ioss {
     bool match = false;
     for (const auto &vtype : registry()) {
       auto *tst_ivt = vtype.second;
-      if (ignore_realn_fields && Ioss::Utils::substr_equal("Real", tst_ivt->name()))
-      {
+      if (ignore_realn_fields && Ioss::Utils::substr_equal("Real", tst_ivt->name())) {
         continue;
       }
       if (tst_ivt->suffix_count() == static_cast<int>(size)) {

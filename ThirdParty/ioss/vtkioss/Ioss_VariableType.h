@@ -64,7 +64,7 @@ namespace Ioss {
     static bool     get_field_type_mapping(const std::string &field, std::string *type);
     static bool add_field_type_mapping(const std::string &raw_field, const std::string &raw_type);
 
-    VariableType(const VariableType &) = delete;
+    VariableType(const VariableType &)            = delete;
     VariableType &operator=(const VariableType &) = delete;
     virtual ~VariableType();
 
