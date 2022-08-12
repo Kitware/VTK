@@ -8,6 +8,7 @@ DEPENDS
   VTK::AcceleratorsVTKmCore
   VTK::AcceleratorsVTKmDataModel
   VTK::CommonExecutionModel
+  VTK::FiltersCore
   VTK::FiltersGeneral
   VTK::FiltersGeometry
   VTK::ImagingCore

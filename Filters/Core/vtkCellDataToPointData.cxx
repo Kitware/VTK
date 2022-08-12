@@ -42,7 +42,7 @@
 
 #define VTK_MAX_CELLS_PER_POINT 4096
 
-vtkStandardNewMacro(vtkCellDataToPointData);
+vtkObjectFactoryNewMacro(vtkCellDataToPointData);
 
 namespace
 {
@@ -356,6 +356,22 @@ void vtkCellDataToPointData::ClearCellDataArrays()
     this->Modified();
   }
   this->Implementation->CellDataArrays.clear();
+}
+
+//------------------------------------------------------------------------------
+vtkIdType vtkCellDataToPointData::GetNumberOfCellArraysToProcess()
+{
+  return static_cast<vtkIdType>(this->Implementation->CellDataArrays.size());
+}
+
+//------------------------------------------------------------------------------
+void vtkCellDataToPointData::GetCellArraysToProcess(const char* names[])
+{
+  for (const auto& n : this->Implementation->CellDataArrays)
+  {
+    *names = n.c_str();
+    ++names;
+  }
 }
 
 //------------------------------------------------------------------------------

@@ -143,6 +143,9 @@ protected:
   vtkCellDataToPointData();
   ~vtkCellDataToPointData() override;
 
+  virtual vtkIdType GetNumberOfCellArraysToProcess();
+  virtual void GetCellArraysToProcess(const char* names[]);
+
   int RequestData(vtkInformation* request, vtkInformationVector** inputVector,
     vtkInformationVector* outputVector) override;
   int RequestUpdateExtent(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;

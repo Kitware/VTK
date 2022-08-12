@@ -293,7 +293,7 @@ public:
 };
 
 //------------------------------------------------------------------------------
-vtkStandardNewMacro(vtkPointDataToCellData);
+vtkObjectFactoryNewMacro(vtkPointDataToCellData);
 
 //------------------------------------------------------------------------------
 // Instantiate object so that point data is not passed to output.
@@ -345,6 +345,22 @@ void vtkPointDataToCellData::ClearPointDataArrays()
     this->Modified();
   }
   this->Implementation->PointDataArrays.clear();
+}
+
+//------------------------------------------------------------------------------
+vtkIdType vtkPointDataToCellData::GetNumberOfPointArraysToProcess()
+{
+  return static_cast<vtkIdType>(this->Implementation->PointDataArrays.size());
+}
+
+//------------------------------------------------------------------------------
+void vtkPointDataToCellData::GetPointArraysToProcess(const char* names[])
+{
+  for (const auto& n : this->Implementation->PointDataArrays)
+  {
+    *names = n.c_str();
+    ++names;
+  }
 }
 
 //------------------------------------------------------------------------------
