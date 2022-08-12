@@ -146,9 +146,9 @@ namespace Ioex {
     generate_adjacency_list(filePtr, m_decomposition);
 
 #if IOSS_DEBUG_OUTPUT
-    fmt::print(Ioss::DEBUG(), "Processor {} has {} elements; offset = {}\n", m_processor,
+    fmt::print(Ioss::DebugOut(), "Processor {} has {} elements; offset = {}\n", m_processor,
                fmt::group_digits(decomp_elem_count()), fmt::group_digits(decomp_elem_offset()));
-    fmt::print(Ioss::DEBUG(), "Processor {} has {} nodes; offset = {}\n", m_processor,
+    fmt::print(Ioss::DebugOut(), "Processor {} has {} nodes; offset = {}\n", m_processor,
                fmt::group_digits(decomp_node_count()), fmt::group_digits(decomp_node_offset()));
 #endif
 
@@ -294,8 +294,9 @@ namespace Ioex {
       m_decomposition.m_pu.hwm_memory_stats(min, max, avg);
       int64_t MiB = 1024 * 1024;
       if (m_processor == 0) {
-        fmt::print(Ioss::DEBUG(), "\n\tHigh Water Memory at end of Decomposition: {}M  {}M  {}M\n",
-                   min / MiB, max / MiB, avg / MiB);
+        fmt::print(Ioss::DebugOut(),
+                   "\n\tHigh Water Memory at end of Decomposition: {}M  {}M  {}M\n", min / MiB,
+                   max / MiB, avg / MiB);
       }
     }
   }
@@ -403,8 +404,8 @@ namespace Ioex {
         std::vector<INT> connectivity(overlap * element_nodes);
         size_t           blk_start = std::max(b_start, p_start) - b_start + 1;
 #if IOSS_DEBUG_OUTPUT
-        fmt::print(Ioss::DEBUG(), "Processor {} has {} elements on element block {}\n", m_processor,
-                   fmt::group_digits(overlap), id);
+        fmt::print(Ioss::DebugOut(), "Processor {} has {} elements on element block {}\n",
+                   m_processor, fmt::group_digits(overlap), id);
 #endif
         ex_get_partial_conn(filePtr, EX_ELEM_BLOCK, id, blk_start, overlap, connectivity.data(),
                             nullptr, nullptr);
@@ -417,6 +418,10 @@ namespace Ioex {
           }
         }
         sum += overlap * element_nodes;
+      }
+      else {
+        int64_t id            = block.id;
+        ex_get_partial_conn(filePtr, EX_ELEM_BLOCK, id, 0, 0, nullptr, nullptr, nullptr);
       }
     }
     decomposition.m_pointer.push_back(decomposition.m_adjacency.size());
@@ -497,7 +502,7 @@ namespace Ioex {
         int64_t to_read = std::min(remain, entitys_to_read);
         if (m_processor == root) {
 #if IOSS_DEBUG_OUTPUT
-          fmt::print(Ioss::DEBUG(), "{} {} reading {} entities from offset {}\n", set_type_name,
+          fmt::print(Ioss::DebugOut(), "{} {} reading {} entities from offset {}\n", set_type_name,
                      sets[i].id, fmt::group_digits(to_read),
                      fmt::group_digits(set_entities_read[i] + 1));
 #endif
@@ -1183,6 +1188,9 @@ namespace Ioex {
       file_data.resize(set.file_count());
       m_decomposition.show_progress("\tex_get_var (set)");
       ierr = ex_get_var(filePtr, step, type, var_index, id, set.file_count(), file_data.data());
+    }
+    else {
+      ierr = ex_get_partial_var(filePtr, step, type, var_index, id, 0, 0, nullptr);
     }
 
     if (ierr >= 0) {

@@ -284,7 +284,7 @@ namespace Iogs {
         show_parameters();
       }
       else {
-        fmt::print(Ioss::WARNING(), "Unrecognized option '{}'.  It will be ignored.\n", option[0]);
+        fmt::print(Ioss::WarnOut(), "Unrecognized option '{}'.  It will be ignored.\n", option[0]);
       }
     }
   }
@@ -840,7 +840,7 @@ namespace Iogs {
       variableCount[Ioss::SIDEBLOCK] = count;
     }
     else {
-      fmt::print(Ioss::WARNING(),
+      fmt::print(Ioss::WarnOut(),
                  "(Iogs::GeneratedMesh::set_variable_count)\n"
                  "       Unrecognized variable type '{}'. Valid types are:\n"
                  "       global, element, node, nodal, surface, sideset.\n",

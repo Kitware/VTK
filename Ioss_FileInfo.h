@@ -68,6 +68,7 @@ namespace Ioss {
     bool is_file() const;    //!< Is a plain file
     bool is_dir() const;     //!< Is a directory
     bool is_symlink() const; //!< Is a symbolic link to a file or directory
+    bool is_nfs() const;     //!< Is on an NFS filesystem
 
     time_t modified() const; //!< Time of last data modification. See 'man stat(2)'
     time_t accessed() const; //!< Time of last access

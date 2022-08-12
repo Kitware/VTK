@@ -144,6 +144,8 @@ namespace Ioex {
     case Ioss::NODEBLOCK: return EX_NODAL;
     case Ioss::NODESET: return EX_NODE_SET;
     case Ioss::SIDESET: return EX_SIDE_SET;
+    case Ioss::SIDEBLOCK: return EX_SIDE_SET;
+    case Ioss::COMMSET: return static_cast<ex_entity_type>(0);
     default: return EX_INVALID;
     }
   }
@@ -179,7 +181,7 @@ namespace Ioex {
     return found;
   }
 
-  bool check_processor_info(int exodusFilePtr, int processor_count, int processor_id)
+  bool check_processor_info(const std::string &filename, int exodusFilePtr, int processor_count, int processor_id)
   {
     // A restart file may contain an attribute which contains
     // information about the processor count and current processor id
@@ -202,28 +204,27 @@ namespace Ioex {
       status = nc_get_att_int(exodusFilePtr, NC_GLOBAL, "processor_info", proc_info);
       if (status == NC_NOERR) {
         if (proc_info[0] != processor_count && proc_info[0] > 1) {
-          fmt::print(Ioss::WARNING(),
+          fmt::print(Ioss::WarnOut(),
                      "Processor decomposition count in file ({}) does not match current "
-                     "processor "
-                     "count ({}).\n",
-                     proc_info[0], processor_count);
+                     "processor count ({}) in file named '{}'.\n",
+                     proc_info[0], processor_count, filename);
           matches = false;
         }
         if (proc_info[1] != processor_id) {
           fmt::print(
-              Ioss::WARNING(),
-              "This file was originally written on processor {}, but is now being read on "
+              Ioss::WarnOut(),
+              "The file '{}' was originally written on processor {}, but is now being read on "
               "processor {}.\n"
               "This may cause problems if there is any processor-dependent data on the file.\n",
-              proc_info[1], processor_id);
+              filename, proc_info[1], processor_id);
           matches = false;
         }
       }
       else {
         char errmsg[MAX_ERR_LENGTH];
         ex_opts(EX_VERBOSE);
-        fmt::print(errmsg, "Error: failed to read processor info attribute from file id {}",
-                   exodusFilePtr);
+        fmt::print(errmsg, "Error: failed to read processor info attribute from file {}",
+                   filename);
         ex_err_fn(exodusFilePtr, __func__, errmsg, status);
         return (EX_FATAL) != 0;
       }
@@ -286,7 +287,7 @@ namespace Ioex {
     }
   }
 
-  bool set_id(const Ioss::GroupingEntity *entity, ex_entity_type type, Ioex::EntityIdSet *idset)
+  bool set_id(const Ioss::GroupingEntity *entity, Ioex::EntityIdSet *idset)
   {
     // See description of 'get_id' function.  This function just primes
     // the idset with existing ids so that when we start generating ids,
@@ -300,7 +301,8 @@ namespace Ioex {
       int64_t id = entity->get_property(id_prop).get_int();
 
       // See whether it already exists...
-      succeed = idset->insert(std::make_pair(static_cast<int>(type), id)).second;
+      auto type = map_exodus_type(entity->type());
+      succeed   = idset->insert(std::make_pair(static_cast<int>(type), id)).second;
       if (!succeed) {
         // Need to remove the property so it doesn't cause problems
         // later...
@@ -333,7 +335,7 @@ namespace Ioex {
     return 0;
   }
 
-  int64_t get_id(const Ioss::GroupingEntity *entity, ex_entity_type type, Ioex::EntityIdSet *idset)
+  int64_t get_id(const Ioss::GroupingEntity *entity, Ioex::EntityIdSet *idset)
   {
     // Sierra uses names to refer to grouping entities; however,
     // exodusII requires integer ids.  When reading an exodusII file,
@@ -384,6 +386,7 @@ namespace Ioex {
     // At this point, we either have an id equal to '1' or we have an id
     // extracted from the entities name. Increment it until it is
     // unique...
+    ex_entity_type type = map_exodus_type(entity->type());
     while (idset->find(std::make_pair(int(type), id)) != idset->end()) {
       ++id;
     }
@@ -469,7 +472,7 @@ namespace Ioex {
             db_has_name = false;
             if (name_id != id) {
               std::string new_name = Ioss::Utils::encode_entity_name(basename, id);
-              fmt::print(Ioss::WARNING(),
+              fmt::print(Ioss::WarnOut(),
                          "The entity named '{}' has the id {} which does not match the "
                          "embedded id {}.\n"
                          "         This can cause issues later; the entity will be renamed to '{}' "

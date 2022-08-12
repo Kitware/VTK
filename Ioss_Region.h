@@ -130,6 +130,10 @@ namespace Ioss {
      */
     bool transient_defined() const { return transientDefined; }
 
+    /** \brief Remove all fields of the specified `role` from all entities in the region
+     */
+    void erase_fields(Field::RoleType role);
+
     // Return a pair consisting of the step (1-based) corresponding to
     // the maximum time on the database and the corresponding maximum
     // time value. Note that this may not necessarily be the last step

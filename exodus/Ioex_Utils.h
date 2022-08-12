@@ -72,7 +72,7 @@ namespace Ioex {
 #endif
 
   const char *Version();
-  bool        check_processor_info(int exodusFilePtr, int processor_count, int processor_id);
+  bool        check_processor_info(const std::string &filename, int exodusFilePtr, int processor_count, int processor_id);
 
   Ioss::EntityType map_exodus_type(ex_entity_type type);
   ex_entity_type   map_exodus_type(Ioss::EntityType type);
@@ -82,8 +82,8 @@ namespace Ioex {
 
   bool    type_match(const std::string &type, const char *substring);
   int64_t extract_id(const std::string &name_id);
-  bool    set_id(const Ioss::GroupingEntity *entity, ex_entity_type type, Ioex::EntityIdSet *idset);
-  int64_t get_id(const Ioss::GroupingEntity *entity, ex_entity_type type, Ioex::EntityIdSet *idset);
+  bool    set_id(const Ioss::GroupingEntity *entity, Ioex::EntityIdSet *idset);
+  int64_t get_id(const Ioss::GroupingEntity *entity, Ioex::EntityIdSet *idset);
   void    decode_surface_name(Ioex::SideSetMap &fs_map, Ioex::SideSetSet &fs_set,
                               const std::string &name);
   void    fix_bad_name(char *name);
