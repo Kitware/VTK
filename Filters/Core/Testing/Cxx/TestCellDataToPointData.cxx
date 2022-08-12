@@ -17,6 +17,7 @@
 #include <vtkCellDataToPointData.h>
 #include <vtkDataArray.h>
 #include <vtkDataSet.h>
+#include <vtkDataSetSurfaceFilter.h>
 #include <vtkDataSetTriangleFilter.h>
 #include <vtkDoubleArray.h>
 #include <vtkImageData.h>
@@ -24,12 +25,51 @@
 #include <vtkPointDataToCellData.h>
 #include <vtkPoints.h>
 #include <vtkPolyData.h>
+#include <vtkPolyDataMapper.h>
 #include <vtkRTAnalyticSource.h>
 #include <vtkSmartPointer.h>
 #include <vtkStringArray.h>
 #include <vtkTestUtilities.h>
 #include <vtkThreshold.h>
 #include <vtkUnstructuredGrid.h>
+
+// Replaces the old `PCellDataToPointData` test
+int TestCellDataToPointDataPieceInvariant()
+{
+  int numberOfPieces = 2;
+
+  vtkNew<vtkRTAnalyticSource> wavelet;
+  vtkNew<vtkPointDataToCellData> pd2cd;
+  vtkNew<vtkCellDataToPointData> cd2pd;
+  vtkNew<vtkDataSetSurfaceFilter> toPolyData;
+  vtkNew<vtkPolyDataMapper> mapper;
+
+  pd2cd->SetInputConnection(wavelet->GetOutputPort());
+  cd2pd->SetInputConnection(pd2cd->GetOutputPort());
+  cd2pd->SetPieceInvariant(true);
+  toPolyData->SetInputConnection(cd2pd->GetOutputPort());
+
+  mapper->SetInputConnection(toPolyData->GetOutputPort());
+  mapper->SetNumberOfPieces(numberOfPieces);
+
+  int retVal = EXIT_SUCCESS;
+  for (int i = 0; i < numberOfPieces; ++i)
+  {
+    mapper->SetPiece(i);
+    mapper->Update();
+
+    vtkIdType correct = 5292;
+    if (vtkDataSet::SafeDownCast(cd2pd->GetOutput())->GetNumberOfPoints() != correct)
+    {
+      std::cerr << "Wrong number of grid points on piece " << i << ". Should be " << correct
+                << " but is " << vtkDataSet::SafeDownCast(cd2pd->GetOutput())->GetNumberOfPoints()
+                << std::endl;
+      retVal = EXIT_FAILURE;
+    }
+  }
+
+  return retVal;
+}
 
 int TestCellDataToPointData(int, char*[])
 {
@@ -171,6 +211,13 @@ int TestCellDataToPointData(int, char*[])
   {
     std::cerr << "vtkCellDataToPointData has removed string array from its input dataset."
               << std::endl;
+    return EXIT_FAILURE;
+  }
+
+  // Test PieceInvariant setting
+  if (TestCellDataToPointDataPieceInvariant() != EXIT_SUCCESS)
+  {
+    std::cerr << "Piece invariant test failed." << std::endl;
     return EXIT_FAILURE;
   }
 

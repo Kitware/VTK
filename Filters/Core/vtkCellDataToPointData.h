@@ -109,6 +109,16 @@ public:
   vtkBooleanMacro(ProcessAllArrays, bool);
   ///@}
 
+  ///@{
+  /**
+   * To get piece invariance, this filter has to request an
+   * extra ghost level.  By default piece invariance is on.
+   */
+  vtkSetMacro(PieceInvariant, bool);
+  vtkGetMacro(PieceInvariant, bool);
+  vtkBooleanMacro(PieceInvariant, bool);
+  ///@}
+
   /**
    * Adds an array to be processed. This only has an effect if the
    * ProcessAllArrays option is turned off. If a name is already present,
@@ -135,6 +145,7 @@ protected:
 
   int RequestData(vtkInformation* request, vtkInformationVector** inputVector,
     vtkInformationVector* outputVector) override;
+  int RequestUpdateExtent(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   ///@{
   /**
@@ -166,6 +177,8 @@ protected:
    * Option to activate selective processing of arrays.
    */
   bool ProcessAllArrays;
+
+  bool PieceInvariant;
 
   class Internals;
   Internals* Implementation;

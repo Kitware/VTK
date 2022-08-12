@@ -30,6 +30,7 @@
 #include "vtkSMPTools.h"
 #include "vtkSmartPointer.h"
 #include "vtkStaticCellLinks.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStructuredGrid.h"
 #include "vtkUniformGrid.h"
 #include "vtkUnsignedIntArray.h"
@@ -311,6 +312,7 @@ vtkCellDataToPointData::vtkCellDataToPointData()
   this->PassCellData = false;
   this->ContributingCellOption = vtkCellDataToPointData::All;
   this->ProcessAllArrays = true;
+  this->PieceInvariant = true;
   this->Implementation = new Internals();
 }
 
@@ -426,12 +428,49 @@ int vtkCellDataToPointData::RequestData(
 }
 
 //------------------------------------------------------------------------------
+int vtkCellDataToPointData::RequestUpdateExtent(
+  vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
+{
+  if (!this->PieceInvariant)
+  {
+    // I believe the default input update extent
+    // is set to the input update extent.
+    return 1;
+  }
+
+  // Technically, this code is only correct for pieces extent types.  However,
+  // since this class is pretty inefficient for data types that use 3D extents,
+  // we'll punt on the ghost levels for them, too.
+
+  // get the info objects
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
+
+  int piece = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
+  int numPieces = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
+  int ghostLevels = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS());
+
+  if (numPieces > 1)
+  {
+    ++ghostLevels;
+  }
+
+  inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(), piece);
+  inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(), numPieces);
+  inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(), ghostLevels);
+  inInfo->Set(vtkStreamingDemandDrivenPipeline::EXACT_EXTENT(), 1);
+
+  return 1;
+}
+
+//------------------------------------------------------------------------------
 void vtkCellDataToPointData::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 
   os << indent << "PassCellData: " << (this->PassCellData ? "On\n" : "Off\n");
   os << indent << "ContributingCellOption: " << this->ContributingCellOption << endl;
+  os << indent << "PieceInvariant: " << (this->PieceInvariant ? "On\n" : "Off\n");
 }
 
 //----------------------------------------------------------------------------
