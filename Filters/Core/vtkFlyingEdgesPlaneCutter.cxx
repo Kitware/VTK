@@ -1098,11 +1098,14 @@ void vtkFlyingEdgesPlaneCutterAlgorithm<T>::GenerateOutput(
     }
 
     // advance along voxel row
-    ePtr[0]++;
-    ePtr[1]++;
-    ePtr[2]++;
-    ePtr[3]++;
-    eCase = this->GetEdgeCase(ePtr);
+    if (i != xR - 1)
+    {
+      ePtr[0]++;
+      ePtr[1]++;
+      ePtr[2]++;
+      ePtr[3]++;
+      eCase = this->GetEdgeCase(ePtr);
+    }
 
     ++ijk[0];
     sPtr += incs[0];
