@@ -74,7 +74,7 @@ typedef struct tagFlashReaderSimulationParameters
   double RedShift;
 } FlashReaderSimulationParameters;
 
-typedef struct tagBlock
+typedef struct tagFlashReaderBlock
 {
   int Index;                   // Id of the block
   int Level;                   // LOD level
@@ -88,7 +88,7 @@ typedef struct tagBlock
   double Center[3];            // center of the block
   double MinBounds[3];         // lower left  of the bounding box
   double MaxBounds[3];         // upper right of the bounding box
-} Block;
+} FlashReaderBlock;
 
 typedef struct tagFlashReaderSimulationInformation
 {
@@ -152,7 +152,7 @@ public:
   FlashReaderSimulationInformation SimulationInformation; // CFD simulation
 
   // blocks
-  std::vector<Block> Blocks;
+  std::vector<FlashReaderBlock> Blocks;
   std::vector<int> LeafBlocks;
   std::vector<std::string> AttributeNames;
 
