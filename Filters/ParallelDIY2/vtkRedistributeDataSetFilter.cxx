@@ -524,9 +524,27 @@ int vtkRedistributeDataSetFilter::RequestData(
   else
   {
     assert(vtkUnstructuredGrid::SafeDownCast(outputDO) != nullptr);
-    // When the output is unstructured grid, the input is as well,
-    // and we necessarily have the data set below.
-    outputDO->ShallowCopy(result->GetPartitionedDataSet(0)->GetPartition(0));
+
+    vtkNew<vtkAppendFilter> appender;
+    appender->MergePointsOn();
+
+    using Opts = vtk::DataObjectTreeOptions;
+    for (vtkDataObject* part : vtk::Range(result.GetPointer(),
+           Opts::SkipEmptyNodes | Opts::VisitOnlyLeaves | Opts::TraverseSubTree))
+    {
+      assert(part != nullptr);
+      appender->AddInputDataObject(part);
+    }
+    if (appender->GetNumberOfInputConnections(0) > 1)
+    {
+      appender->Update();
+      outputDO->ShallowCopy(appender->GetOutputDataObject(0));
+    }
+    else if (appender->GetNumberOfInputConnections(0) == 1)
+    {
+      outputDO->ShallowCopy(appender->GetInputDataObject(0, 0));
+    }
+    outputDO->GetFieldData()->PassData(inputDO->GetFieldData());
   }
 
   this->SetProgressShiftScale(0.0, 1.0);
