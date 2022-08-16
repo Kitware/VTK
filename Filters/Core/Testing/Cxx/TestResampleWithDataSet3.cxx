@@ -31,6 +31,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 #include "vtkSphere.h"
+#include "vtkStaticCellLocator.h"
 #include "vtkTableBasedClipDataSet.h"
 #include "vtkThreshold.h"
 #include "vtkTransform.h"
@@ -144,9 +145,11 @@ int TestResampleWithDataSet3(int argc, char* argv[])
   vtkNew<vtkMultiBlockDataSet> source;
   CreateSourceDataSet(source, 4);
 
+  vtkNew<vtkStaticCellLocator> locator;
   vtkNew<vtkResampleWithDataSet> resample;
   resample->SetInputData(input);
   resample->SetSourceData(source);
+  resample->SetCellLocatorPrototype(locator);
 
   vtkMultiBlockDataSet* result;
   vtkDataSet* block0;

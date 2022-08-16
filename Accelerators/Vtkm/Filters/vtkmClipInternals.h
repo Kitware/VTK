@@ -16,23 +16,19 @@
 #ifndef vtkmClipInternals_h
 #define vtkmClipInternals_h
 
-#include "vtkDataArray.h"
-#include "vtkmClip.h"
-#include "vtkmlib/ImplicitFunctionConverter.h"
-
 #include <vtkm/cont/DataSet.h>
 
 VTK_ABI_NAMESPACE_BEGIN
+
+class vtkDataArray;
+class vtkImplicitFunction;
+
 struct vtkmClip::internals
 {
-  double ClipValue = .0;
-  bool ComputeScalars = true;
-
-  vtkImplicitFunction* ClipFunction = nullptr;
-  std::unique_ptr<tovtkm::ImplicitFunctionConverter> ClipFunctionConverter;
-
-  vtkm::cont::DataSet ExecuteClipWithImplicitFunction(vtkm::cont::DataSet&);
-  vtkm::cont::DataSet ExecuteClipWithField(vtkm::cont::DataSet&, vtkDataArray*, int);
+  static vtkm::cont::DataSet ExecuteClipWithImplicitFunction(
+    vtkm::cont::DataSet& in, vtkImplicitFunction* clipFunction, bool insideOut);
+  static vtkm::cont::DataSet ExecuteClipWithField(vtkm::cont::DataSet& in, vtkDataArray* scalars,
+    int assoc, double value, bool insideOut, bool computeScalars);
 };
 
 VTK_ABI_NAMESPACE_END

@@ -83,6 +83,7 @@ if (VTK_ENABLE_VTKM_OVERRIDES)
   _vtkm_add_override("vtkGradientFilter" "vtkmGradient")
   _vtkm_add_override("vtkCellDataToPointData" "vtkmAverageToPoints")
   _vtkm_add_override("vtkPointDataToCellData" "vtkmAverageToCells")
+  _vtkm_add_override("vtkTableBasedClipDataSet" "vtkmClip")
 
   list (JOIN VTKM_OVERRIDES_INITIALIZER_LIST ",\n  " VTKM_OVERRIDES_INITIALIZER_LIST_STRING)
 

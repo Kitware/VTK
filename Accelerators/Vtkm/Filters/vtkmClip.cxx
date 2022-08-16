@@ -35,7 +35,11 @@
 #include "vtkmlib/PolyDataConverter.h"
 #include "vtkmlib/UnstructuredGridConverter.h"
 
+#include <vtkm/cont/Algorithm.h>
 #include <vtkm/cont/DataSet.h>
+#include <vtkm/cont/ErrorFilterExecution.h>
+#include <vtkm/cont/Invoker.h>
+#include <vtkm/worklet/WorkletMapTopology.h>
 
 #include <algorithm>
 
@@ -43,84 +47,48 @@ VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkmClip);
 
 //------------------------------------------------------------------------------
-void vtkmClip::PrintSelf(std::ostream& os, vtkIndent indent)
-{
-  this->Superclass::PrintSelf(os, indent);
-
-  os << indent << "ClipValue: " << this->GetClipValue() << "\n";
-  os << indent << "ClipFunction: \n";
-  this->GetClipFunction()->PrintSelf(os, indent.GetNextIndent());
-  os << indent << "ComputeScalars: " << this->GetComputeScalars() << "\n";
-}
-
-//------------------------------------------------------------------------------
-vtkmClip::vtkmClip()
-  : Internals(new vtkmClip::internals)
-{
-  this->Internals->ClipFunctionConverter.reset(new tovtkm::ImplicitFunctionConverter());
-  // Clip active point scalars by default
-  this->SetInputArrayToProcess(
-    0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, vtkDataSetAttributes::SCALARS);
-}
+vtkmClip::vtkmClip() = default;
 
 //------------------------------------------------------------------------------
 vtkmClip::~vtkmClip() = default;
 
 //------------------------------------------------------------------------------
-vtkMTimeType vtkmClip::GetMTime()
+void vtkmClip::PrintSelf(std::ostream& os, vtkIndent indent)
 {
-  vtkMTimeType mTime = this->Superclass::GetMTime();
-  if (this->GetClipFunction())
+  this->Superclass::PrintSelf(os, indent);
+  os << indent << "ComputeScalars: " << (this->GetComputeScalars() ? "On" : "Off") << "\n";
+}
+
+//------------------------------------------------------------------------------
+namespace
+{
+
+struct IsCellSupported : public vtkm::worklet::WorkletVisitCellsWithPoints
+{
+  using ControlSignature = void(CellSetIn, FieldOutCell);
+  using ExecutionSignature = _2(CellShape);
+
+  template <typename CellShapeTag>
+  VTKM_EXEC bool operator()(CellShapeTag shape) const
   {
-    mTime = std::max(mTime, this->GetClipFunction()->GetMTime());
+    return (shape.Id != vtkm::CELL_SHAPE_POLY_LINE) && (shape.Id != vtkm::CELL_SHAPE_POLYGON);
   }
-  return mTime;
+};
+
+// Checks if there are cells that are supported by vtkm in general but unsupported
+// by clip
+bool CellSetHasUnsupportedCells(const vtkm::cont::UnknownCellSet& cellset)
+{
+  vtkm::cont::ArrayHandle<bool> supported;
+  vtkm::cont::Invoker{}(IsCellSupported{}, cellset, supported);
+  return !vtkm::cont::Algorithm::Reduce(supported, true, vtkm::LogicalAnd());
 }
 
-//------------------------------------------------------------------------------
-double vtkmClip::GetClipValue()
-{
-  return this->Internals->ClipValue;
-}
-
-//------------------------------------------------------------------------------
-void vtkmClip::SetClipValue(double val)
-{
-  this->Internals->ClipValue = val;
-}
-
-//------------------------------------------------------------------------------
-bool vtkmClip::GetComputeScalars()
-{
-  return this->Internals->ComputeScalars;
-}
-
-//------------------------------------------------------------------------------
-void vtkmClip::SetComputeScalars(bool val)
-{
-  this->Internals->ComputeScalars = val;
-}
-
-//------------------------------------------------------------------------------
-void vtkmClip::SetClipFunction(vtkImplicitFunction* clipFunction)
-{
-  if (this->GetClipFunction() != clipFunction)
-  {
-    this->Internals->ClipFunction = clipFunction;
-    this->Internals->ClipFunctionConverter->Set(clipFunction);
-    this->Modified();
-  }
-}
-
-//------------------------------------------------------------------------------
-vtkImplicitFunction* vtkmClip::GetClipFunction()
-{
-  return this->Internals->ClipFunction;
-}
+} // anonymous namespace
 
 //------------------------------------------------------------------------------
 int vtkmClip::RequestData(
-  vtkInformation*, vtkInformationVector** inInfoVec, vtkInformationVector* outInfoVec)
+  vtkInformation* request, vtkInformationVector** inInfoVec, vtkInformationVector* outInfoVec)
 {
   vtkInformation* inInfo = inInfoVec[0]->GetInformationObject(0);
   vtkInformation* outInfo = outInfoVec->GetInformationObject(0);
@@ -129,52 +97,98 @@ int vtkmClip::RequestData(
   vtkDataSet* input = vtkDataSet::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
   vtkUnstructuredGrid* output =
     vtkUnstructuredGrid::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkUnstructuredGrid* clippedOutput = this->GetClippedOutput();
 
-  // Find the scalar array:
-  int assoc = this->GetInputArrayAssociation(0, inInfoVec);
-  vtkDataArray* scalars = this->GetInputArrayToProcess(0, inInfoVec);
-  if (!this->GetClipFunction() &&
-    (assoc != vtkDataObject::FIELD_ASSOCIATION_POINTS || scalars == nullptr ||
-      scalars->GetName() == nullptr || scalars->GetName()[0] == '\0'))
-  {
-    vtkErrorMacro("Invalid scalar array; array missing or not a point array.");
-    return 0;
-  }
-
-  // Validate input objects:
   if (input->GetNumberOfPoints() == 0 || input->GetNumberOfCells() == 0)
   {
     return 1; // nothing to do
   }
 
+  // Find the scalar array:
+  int assoc = this->GetInputArrayAssociation(0, inInfoVec);
+  vtkDataArray* scalars = this->GetInputArrayToProcess(0, inInfoVec);
+  if (!this->GetClipFunction() &&
+    (assoc != vtkDataObject::FIELD_ASSOCIATION_POINTS || scalars == nullptr))
+  {
+    vtkErrorMacro("Invalid scalar array; array missing or not a point array.");
+    return 0;
+  }
+
   try
   {
+    // Due to our use of `CleanGrid`, our output will always have single precision points
+    auto pointSet = vtkPointSet::SafeDownCast(input);
+    if ((this->GetOutputPointsPrecision() == vtkAlgorithm::DOUBLE_PRECISION) ||
+      (this->GetOutputPointsPrecision() == vtkAlgorithm::DEFAULT_PRECISION && pointSet &&
+        pointSet->GetPoints()->GetDataType() != VTK_FLOAT))
+    {
+      throw vtkm::cont::ErrorFilterExecution(
+        "vtkmClip only supports generating single precision output points.");
+    }
+
+    if (this->GetClipFunction())
+    {
+      // `UseValueAsOffset` is on by default, so check `Value` also to determine support.
+      if (this->UseValueAsOffset && this->Value != 0.0)
+      {
+        throw vtkm::cont::ErrorFilterExecution("`UseValueAsOffset` is not supported");
+      }
+      if (this->GenerateClipScalars)
+      {
+        throw vtkm::cont::ErrorFilterExecution("`GenerateClipScalars` is not supported");
+      }
+    }
+
     // Convert inputs to vtkm objects:
     auto fieldsFlag =
       this->GetComputeScalars() ? tovtkm::FieldsFlag::PointsAndCells : tovtkm::FieldsFlag::None;
     auto in = tovtkm::Convert(input, fieldsFlag);
 
+    if (CellSetHasUnsupportedCells(in.GetCellSet()))
+    {
+      throw vtkm::cont::ErrorFilterExecution("Unsupported cell in input");
+    }
+
     // Run filter:
-    vtkm::cont::DataSet result;
+    vtkm::cont::DataSet result, result1;
     if (this->GetClipFunction())
     {
-      result = this->Internals->ExecuteClipWithImplicitFunction(in);
+      result = internals::ExecuteClipWithImplicitFunction(in, this->ClipFunction, this->InsideOut);
+      if (clippedOutput)
+      {
+        this->InsideOut = !this->InsideOut;
+        result1 =
+          internals::ExecuteClipWithImplicitFunction(in, this->ClipFunction, this->InsideOut);
+        this->InsideOut = !this->InsideOut;
+      }
     }
     else
     {
-      result = this->Internals->ExecuteClipWithField(in, scalars, assoc);
+      result = internals::ExecuteClipWithField(
+        in, scalars, assoc, this->Value, this->InsideOut, this->ComputeScalars);
+      if (clippedOutput)
+      {
+        this->InsideOut = !this->InsideOut;
+        result1 = internals::ExecuteClipWithField(
+          in, scalars, assoc, this->Value, this->InsideOut, this->ComputeScalars);
+        this->InsideOut = !this->InsideOut;
+      }
     }
 
     // Convert result to output:
-    if (!fromvtkm::Convert(result, output, input))
+    if (!fromvtkm::Convert(result, output, input) ||
+      (clippedOutput && !fromvtkm::Convert(result1, clippedOutput, input)))
     {
-      vtkErrorMacro("Error generating vtkUnstructuredGrid from vtkm's result.");
-      return 0;
+      throw vtkm::cont::ErrorFilterExecution("Unable to convert VTKm result dataSet back to VTK.");
     }
 
     if (!this->GetClipFunction() && this->GetComputeScalars())
     {
       output->GetPointData()->SetActiveScalars(scalars->GetName());
+      if (clippedOutput)
+      {
+        clippedOutput->GetPointData()->SetActiveScalars(scalars->GetName());
+      }
     }
 
     return 1;
@@ -188,29 +202,10 @@ int vtkmClip::RequestData(
     }
     else
     {
-      vtkWarningMacro(<< "VTK-m error: " << e.GetMessage()
-                      << "Falling back to serial implementation.");
-
-      vtkNew<vtkTableBasedClipDataSet> filter;
-      filter->SetClipFunction(this->GetClipFunction());
-      filter->SetValue(this->GetClipValue());
-      filter->SetInputData(input);
-      filter->Update();
-      output->ShallowCopy(filter->GetOutput());
-      return 1;
+      vtkWarningMacro(<< "VTK-m failed with message: " << e.GetMessage() << "\n"
+                      << "Falling back to the default VTK implementation.");
+      return this->Superclass::RequestData(request, inInfoVec, outInfoVec);
     }
   }
-}
-
-//------------------------------------------------------------------------------
-int vtkmClip::FillInputPortInformation(int, vtkInformation* info)
-{
-  // These are the types supported by tovtkm::Convert:
-  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPolyData");
-  info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkUnstructuredGrid");
-  info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkStructuredGrid");
-  info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkUniformGrid");
-  info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkImageData");
-  return 1;
 }
 VTK_ABI_NAMESPACE_END
