@@ -48,24 +48,20 @@
 //================================================================================
 //                          INTERNAL VELODYNE READER
 //================================================================================
-typedef struct tagVelodyneSimParameters
-{
-  double Time;
-  int CycleTime;
-} VelodneSimParameters;
 
-typedef struct tagBlock
-{
-  int Index;
-  int dSetLoc;
-  int Level;
-  double Origin[3];
-  bool isFull;
-  bool isLeaf;
-} Block;
 class vtkAMRVelodyneReaderInternal
 {
 public:
+  typedef struct tagVelodyneBlock
+  {
+    int Index;
+    int dSetLoc;
+    int Level;
+    double Origin[3];
+    bool isFull;
+    bool isLeaf;
+  } Block;
+
   vtkAMRVelodyneReaderInternal();
   ~vtkAMRVelodyneReaderInternal();
   void SetFileName(VTK_FILEPATH VTK_FUTURE_CONST char* fileName);
