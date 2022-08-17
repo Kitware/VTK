@@ -66,7 +66,7 @@ namespace Iogn {
   public:
     DatabaseIO(Ioss::Region *region, const std::string &filename, Ioss::DatabaseUsage db_usage,
                Ioss_MPI_Comm communicator, const Ioss::PropertyManager &props);
-    DatabaseIO(const DatabaseIO &from) = delete;
+    DatabaseIO(const DatabaseIO &from)            = delete;
     DatabaseIO &operator=(const DatabaseIO &from) = delete;
 
     ~DatabaseIO() override;

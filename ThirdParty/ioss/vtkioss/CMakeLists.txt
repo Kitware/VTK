@@ -197,7 +197,6 @@ list(APPEND sources
   transform/Iotr_Factory.C)
 
 list(APPEND headers
-  catch.hpp
   bhopscotch_map.h
   bhopscotch_set.h
   hopscotch_growth_policy.h

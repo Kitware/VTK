@@ -170,6 +170,28 @@ Ioss::Property Ioss::GroupingEntity::get_implicit_property(const std::string &my
   IOSS_ERROR(errmsg);
 }
 
+bool Ioss::GroupingEntity::check_for_duplicate(const Ioss::Field &new_field) const
+{
+  // See if a field with the same name exists...
+  if (field_exists(new_field.get_name())) {
+    // Get the existing field so we can compare with `new_field`
+    const Ioss::Field &field = fields.getref(new_field.get_name());
+    if (field != new_field) {
+      std::ostringstream errmsg;
+      fmt::print(errmsg, "ERROR: Duplicate incompatible fields named '{}' on {} {}:\n"
+		 "\tExisting  field: {} {} of size {} bytes with role '{}' and storage '{}',\n"
+		 "\tDuplicate field: {} {} of size {} bytes with role '{}' and storage '{}'.",
+		 new_field.get_name(), type_string(), name(),
+		 field.raw_count(), field.type_string(), field.get_size(), field.role_string(), 
+		 field.raw_storage()->name(),
+		 new_field.raw_count(), new_field.type_string(), new_field.get_size(), 
+		 new_field.role_string(), new_field.raw_storage()->name());
+      IOSS_ERROR(errmsg);
+    }
+  }
+  return false;
+}
+
 /** \brief Add a field to the entity's field manager.
  *
  *  Assumes that a field with the same name does not already exist.
@@ -185,7 +207,9 @@ void Ioss::GroupingEntity::field_add(Ioss::Field new_field)
     if (field_size == 0) {
       new_field.reset_count(1);
     }
-    fields.add(new_field);
+    if (!check_for_duplicate(new_field)) {
+      fields.add(new_field);
+    }
     return;
   }
 
@@ -204,7 +228,9 @@ void Ioss::GroupingEntity::field_add(Ioss::Field new_field)
                type_string(), name(), entity_size, new_field.get_name(), field_size, filename);
     IOSS_ERROR(errmsg);
   }
-  fields.add(new_field);
+  if (!check_for_duplicate(new_field)) {
+    fields.add(new_field);
+  }
 }
 
 /** \brief Read field data from the database file into memory using a pointer.

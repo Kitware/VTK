@@ -152,35 +152,17 @@ void Ioss::Utils::set_all_streams(std::ostream &out_stream)
   m_warningStream = &out_stream;
 }
 
-void Ioss::Utils::set_output_stream(std::ostream &out_stream)
-{
-  m_outputStream  = &out_stream;
-}
+void Ioss::Utils::set_output_stream(std::ostream &out_stream) { m_outputStream = &out_stream; }
 
-void Ioss::Utils::set_debug_stream(std::ostream &out_stream)
-{
-  m_debugStream   = &out_stream;
-}
+void Ioss::Utils::set_debug_stream(std::ostream &out_stream) { m_debugStream = &out_stream; }
 
-void Ioss::Utils::set_warning_stream(std::ostream &out_stream)
-{
-  m_warningStream = &out_stream;
-}
+void Ioss::Utils::set_warning_stream(std::ostream &out_stream) { m_warningStream = &out_stream; }
 
-std::ostream& Ioss::Utils::get_output_stream()
-{
-  return *m_outputStream;
-}
+std::ostream &Ioss::Utils::get_output_stream() { return *m_outputStream; }
 
-std::ostream& Ioss::Utils::get_warning_stream()
-{
-  return *m_warningStream;
-}
+std::ostream &Ioss::Utils::get_warning_stream() { return *m_warningStream; }
 
-std::ostream& Ioss::Utils::get_debug_stream()
-{
-  return *m_debugStream;
-}
+std::ostream &Ioss::Utils::get_debug_stream() { return *m_debugStream; }
 
 void Ioss::Utils::time_and_date(char *time_string, char *date_string, size_t length)
 {
@@ -227,6 +209,15 @@ std::string Ioss::Utils::decode_filename(const std::string &filename, int proces
     return decoded_filename;
   }
   return filename;
+}
+
+std::string Ioss::Utils::get_trailing_digits(const std::string &name)
+{
+  size_t digits = name.find_last_not_of("0123456789");
+  if (digits != std::string::npos) {
+    return name.substr(digits + 1);
+  }
+  return std::string{};
 }
 
 int Ioss::Utils::get_number(const std::string &suffix)
@@ -403,7 +394,7 @@ int Ioss::Utils::field_warning(const Ioss::GroupingEntity *ge, const Ioss::Field
                                const std::string &inout)
 {
   if (field.get_name() != "ids") {
-    fmt::print(Ioss::WARNING(), "{} '{}'. Unknown {} field '{}'\n", ge->type_string(), ge->name(),
+    fmt::print(Ioss::WarnOut(), "{} '{}'. Unknown {} field '{}'\n", ge->type_string(), ge->name(),
                inout, field.get_name());
   }
   return -4;
@@ -576,9 +567,9 @@ namespace {
         Ioss::IntVector which_names; // Contains index of names that potentially match as components
                                      // of a higher-order type.
         std::string base_name = tokens[0];
-        for (size_t i = 1; i < num_tokens - suffix_size; i++) {
+        for (size_t it = 1; it < num_tokens - suffix_size; it++) {
           base_name += suffix_separator;
-          base_name += tokens[i];
+          base_name += tokens[it];
         }
         base_name += suffix_separator;
         size_t bn_len = base_name.length(); // Length of basename portion only
@@ -730,6 +721,7 @@ void Ioss::Utils::get_fields(int64_t entity_count, // The number of objects in t
     for (int i = 0; i < num_names; i++) {
       if (local_truth == nullptr || local_truth[i] == 1) {
         Ioss::Field field(names[i], Ioss::Field::REAL, IOSS_SCALAR(), fld_role, entity_count);
+        field.set_index(i);
         fields.push_back(field);
         names[i][0] = '\0';
       }
@@ -836,6 +828,31 @@ void Ioss::Utils::get_fields(int64_t entity_count, // The number of objects in t
       }
     }
   }
+}
+
+bool Ioss::Utils::check_int_to_real_overflow(const Ioss::Field &field, int64_t *data,
+                                             size_t num_entity)
+{
+  // Check all values in `data` to make sure that if they are converted to a double and
+  // back again, there will be no data loss.  This requires that the value be less than 2^53.
+  static int64_t max_double = 2LL << 53;
+  assert(int64_t(double(max_double)) == max_double);
+  assert(int64_t(double(max_double + 1)) != max_double + 1);
+
+  size_t comp_count = field.get_component_count(Ioss::Field::InOut::OUTPUT);
+  for (size_t i = 0; i < num_entity * comp_count; i++) {
+    if (data[i] > max_double) {
+      fmt::print(
+          Ioss::WarnOut(),
+          "Field '{}' contains 64-bit integer data that is not representable as a double value.\n"
+          "\tThis value can not currently be stored in the exodus database without data loss.\n"
+          "\tThe first such value is at location {}, component {} (1-based) with value {}.\n",
+          field.get_name(), fmt::group_digits(i / comp_count + 1), i % comp_count + 1,
+          fmt::group_digits(data[i]));
+      return true;
+    }
+  }
+  return false;
 }
 
 std::string Ioss::Utils::platform_information()
@@ -1087,6 +1104,30 @@ std::string Ioss::Utils::shape_to_string(const Ioss::ElementShape &shape)
   case Ioss::ElementShape::SUPER: return std::string("Super");
   }
   return std::string("Invalid shape [") + std::to_string(unsigned(shape)) + std::string("]");
+}
+
+std::string Ioss::Utils::entity_type_to_string(const Ioss::EntityType &type)
+{
+  switch (type) {
+  case Ioss::EntityType::NODEBLOCK: return std::string("NODEBLOCK");
+  case Ioss::EntityType::EDGEBLOCK: return std::string("EDGEBLOCK");
+  case Ioss::EntityType::FACEBLOCK: return std::string("FACEBLOCK");
+  case Ioss::EntityType::ELEMENTBLOCK: return std::string("ELEMENTBLOCK");
+  case Ioss::EntityType::NODESET: return std::string("NODESET");
+  case Ioss::EntityType::EDGESET: return std::string("EDGESET");
+  case Ioss::EntityType::FACESET: return std::string("FACESET");
+  case Ioss::EntityType::ELEMENTSET: return std::string("ELEMENTSET");
+  case Ioss::EntityType::SIDESET: return std::string("SIDESET");
+  case Ioss::EntityType::COMMSET: return std::string("COMMSET");
+  case Ioss::EntityType::SIDEBLOCK: return std::string("SIDEBLOCK");
+  case Ioss::EntityType::REGION: return std::string("REGION");
+  case Ioss::EntityType::SUPERELEMENT: return std::string("SUPERELEMENT");
+  case Ioss::EntityType::STRUCTUREDBLOCK: return std::string("STRUCTUREDBLOCK");
+  case Ioss::EntityType::ASSEMBLY: return std::string("ASSEMBLY");
+  case Ioss::EntityType::BLOB: return std::string("BLOB");
+  case Ioss::EntityType::INVALID_TYPE: return std::string("INVALID_TYPE");
+  }
+  return std::string("Invalid entity type [") + std::to_string(unsigned(type)) + std::string("]");
 }
 
 unsigned int Ioss::Utils::hash(const std::string &name)

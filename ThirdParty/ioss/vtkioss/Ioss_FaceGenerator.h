@@ -45,6 +45,11 @@ namespace Ioss {
       }
     }
 
+    void add_element(size_t element_id, size_t face_ordinal) const
+    {
+      add_element(element_id * 10 + face_ordinal);
+    }
+
     void face_element_error(size_t element_id) const;
 
     size_t hashId_{0};

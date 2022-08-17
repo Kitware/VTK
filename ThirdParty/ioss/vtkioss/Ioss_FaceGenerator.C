@@ -61,7 +61,7 @@ namespace {
     Ioss::Face face(id, conn);
     auto       face_iter = faces.insert(face);
 
-    (*(face_iter.first)).add_element(element * 10 + local_face);
+    (*(face_iter.first)).add_element(element, local_face);
   }
 
   template <typename INT>
@@ -529,11 +529,10 @@ namespace {
     k *= m;
 
     h ^= k;
-
     h *= m;
+
     h ^= h >> r;
     h *= m;
-
     h ^= h >> r;
 
     return h;

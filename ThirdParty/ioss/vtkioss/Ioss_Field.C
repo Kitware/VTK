@@ -32,6 +32,7 @@ namespace {
                Ioss::Field::type_string(field.get_type()));
     IOSS_ERROR(errmsg);
   }
+
 } // namespace
 
 /** \brief Create an empty field.
@@ -249,14 +250,14 @@ bool Ioss::Field::equal_(const Ioss::Field &rhs, bool quiet) const
 
   if (this->type_ != rhs.type_) {
     if (!quiet) {
-      fmt::print(Ioss::OUTPUT(), "\n\tFIELD type mismatch ({} v. {})", this->type_, rhs.type_);
+      fmt::print(Ioss::OUTPUT(), "\n\tFIELD type mismatch ({} v. {})", this->type_string(), rhs.type_string());
     }
     return false;
   }
 
   if (this->role_ != rhs.role_) {
     if (!quiet) {
-      fmt::print(Ioss::OUTPUT(), "\n\tFIELD role mismatch ({} v. {})", this->role_, rhs.role_);
+      fmt::print(Ioss::OUTPUT(), "\n\tFIELD role mismatch ({} v. {})", this->role_string(), rhs.role_string());
     }
     return false;
   }
@@ -308,6 +309,25 @@ std::string Ioss::Field::type_string(Ioss::Field::BasicType type)
   case Ioss::Field::INVALID: return std::string("invalid");
   default: return std::string("internal error");
   }
+}
+
+std::string Ioss::Field::role_string() const
+{
+  return role_string(get_role());
+}
+
+std::string Ioss::Field::role_string(Ioss::Field::RoleType role)
+{
+    switch (role) {
+    case Ioss::Field::INTERNAL: return std::string("Internal");
+    case Ioss::Field::MESH: return std::string("Mesh");
+    case Ioss::Field::ATTRIBUTE: return std::string("Attribute");
+    case Ioss::Field::COMMUNICATION: return std::string("Communication");
+    case Ioss::Field::MESH_REDUCTION: return std::string("Mesh Reduction");
+    case Ioss::Field::REDUCTION: return std::string("Reduction");
+    case Ioss::Field::TRANSIENT: return std::string("Transient");
+    default: return std::string("internal error");
+    }
 }
 
 namespace {

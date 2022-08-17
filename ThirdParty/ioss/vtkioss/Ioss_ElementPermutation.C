@@ -1,4 +1,4 @@
-// Copyright(C) 1999-2021 National Technology & Engineering Solutions
+// Copyright(C) 1999-2022 National Technology & Engineering Solutions
 // of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 // NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -138,11 +138,12 @@ namespace Ioss {
     return nodeOrdinalVector;
   }
 
-  uint8_t ElementPermutation::num_permutation_nodes() const { return m_numPermutationNodes; }
+  Permutation ElementPermutation::num_permutation_nodes() const { return m_numPermutationNodes; }
 
   void ElementPermutation::set_permutation(
-      uint8_t numPermutationNodes_, uint8_t numPermutations_, uint8_t numPositivePermutations_,
-      const std::vector<std::vector<uint8_t>> &permutationNodeOrdinals_)
+      Permutation numPermutationNodes_, Permutation numPermutations_,
+      Permutation                                  numPositivePermutations_,
+      const std::vector<std::vector<Permutation>> &permutationNodeOrdinals_)
   {
     assert(permutationNodeOrdinals_.size() == numPermutations_);
     assert(numPositivePermutations_ <= numPermutations_);
@@ -380,11 +381,9 @@ namespace Ioss {
   {
     // Decode name to determine number of nodes...
     // Assume that digits at end specify number of nodes.
-    size_t digits = type.find_last_not_of("0123456789");
-    if (digits != std::string::npos) {
-      std::string node_count_str = type.substr(digits + 1);
-      int         node_count     = std::stoi(node_count_str);
-
+    std::string node_count_str = Ioss::Utils::get_trailing_digits(type);
+    if (!node_count_str.empty()) {
+      int node_count = std::stoi(node_count_str);
       SuperPermutation::factory(node_count);
     }
   }
@@ -411,13 +410,13 @@ namespace Ioss {
     set_permutation(n, 2 * n, n, get_super_permutations(n));
   }
 
-  std::vector<std::vector<uint8_t>> SuperPermutation::get_super_permutations(unsigned n)
+  std::vector<std::vector<Permutation>> SuperPermutation::get_super_permutations(unsigned n)
   {
-    std::vector<std::vector<uint8_t>> superPerms;
+    std::vector<std::vector<Permutation>> superPerms;
 
     // Positive permutations
     for (unsigned i = 0; i < n; i++) {
-      std::vector<uint8_t> perm;
+      std::vector<Permutation> perm;
 
       for (unsigned j = 0; j < n; j++) {
         perm.push_back((i + j) % n);
@@ -428,7 +427,7 @@ namespace Ioss {
 
     // Negative permutations
     for (unsigned i = 0; i < n; i++) {
-      std::vector<uint8_t> perm;
+      std::vector<Permutation> perm;
 
       for (unsigned j = 0; j < n; j++) {
         perm.push_back(((i + n) - j) % n);

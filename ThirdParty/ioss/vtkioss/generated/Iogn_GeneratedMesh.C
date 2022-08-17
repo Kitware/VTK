@@ -1299,7 +1299,7 @@ namespace Iogn {
       }
       else if (createPyramids) {
         INT     pyr_vert[][5] = {{0, 1, 5, 4}, {1, 2, 6, 5}, {2, 3, 7, 6},
-                             {0, 4, 7, 3}, {0, 3, 2, 1}, {4, 5, 6, 7}};
+                                 {0, 4, 7, 3}, {0, 3, 2, 1}, {4, 5, 6, 7}};
         INT     hex_vert[8];
         int64_t cnt    = 0;
         INT     offset = (numX + 1) * (numY + 1) * (myNumZ + 1);
@@ -1724,7 +1724,7 @@ namespace Iogn {
       n3 = 2;
     }
     else {
-      fmt::print(Ioss::WARNING(),
+      fmt::print(Ioss::WarnOut(),
                  "\nInvalid axis specification '{}'. Valid options are 'x', 'y', or 'z'\n", axis);
       return;
     }
