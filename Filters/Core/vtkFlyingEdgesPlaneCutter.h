@@ -33,6 +33,10 @@
  * A High-Performance Scalable Isocontouring Algorithm" by Schroeder,
  * Maynard, Geveci. Proc. of LDAV 2015. Chicago, IL.
  *
+ * The filter interpolates the input scalar field across the vtkPlane provided.
+ * If additional point and cell attribute data is to be interpolated, enable
+ * InterpolateAttributes.
+ *
  * @warning
  * This filter is specialized to 3D volumes. This implementation can produce
  * degenerate triangles (i.e., zero-area triangles).
@@ -94,9 +98,9 @@ public:
 
   ///@{
   /**
-   * Indicate whether to interpolate other attribute data besides the input
-   * scalars (which are required). That is, as the isosurface is generated,
-   * interpolate all other point attribute data across intersected edges.
+   * Indicate whether to interpolate additional point data (beyond the point
+   * scalars which are always interpolated) and cell attribute data. By
+   * default this is disabled (for reasons of performance).
    */
   vtkSetMacro(InterpolateAttributes, vtkTypeBool);
   vtkGetMacro(InterpolateAttributes, vtkTypeBool);
@@ -105,7 +109,7 @@ public:
 
   ///@{
   /**
-   * Set/get which component of the scalar array to contour on; defaults to 0.
+   * Set/get which component of the point data scalar array to contour on; defaults to 0.
    */
   vtkSetMacro(ArrayComponent, int);
   vtkGetMacro(ArrayComponent, int);
