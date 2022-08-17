@@ -777,3 +777,21 @@ int vtkExecutive::CheckAlgorithm(const char* method, vtkInformation* request)
   }
   return 1;
 }
+
+//------------------------------------------------------------------------------
+// Look at all inputs and check ABORTED flag. If it is set, return true.
+// Otherwise return false.
+bool vtkExecutive::CheckAbortedInput(vtkInformationVector** inInfoVec)
+{
+  for (int i = 0; i < this->GetNumberOfInputPorts(); i++)
+  {
+    for (int j = 0; j < inInfoVec[i]->GetNumberOfInformationObjects(); j++)
+    {
+      if (inInfoVec[i]->GetInformationObject(j)->Get(vtkAlgorithm::ABORTED()))
+      {
+        return true;
+      }
+    }
+  }
+  return false;
+}

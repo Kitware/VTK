@@ -114,7 +114,7 @@ void vtkContourGridExecute(vtkContourGrid* self, vtkDataSet* input, vtkPolyData*
   int useScalarTree, vtkScalarTree* scalarTree, bool generateTriangles)
 {
   vtkIdType i;
-  int abortExecute = 0;
+  bool abortExecute = false;
   vtkIncrementalPointLocator* locator = self->GetLocator();
   vtkNew<vtkGenericCell> cell;
   vtkCellArray *newVerts, *newLines, *newPolys;
@@ -279,9 +279,9 @@ void vtkContourGridExecute(vtkContourGrid* self, vtkDataSet* input, vtkPolyData*
         if (dimensionality == 3 && !(cellIter->GetCellId() % 5000))
         {
           self->UpdateProgress(static_cast<double>(cellIter->GetCellId()) / numCells);
-          if (self->GetAbortExecute())
+          if (self->CheckAbort())
           {
-            abortExecute = 1;
+            abortExecute = true;
             break;
           }
         }
@@ -326,11 +326,16 @@ void vtkContourGridExecute(vtkContourGrid* self, vtkDataSet* input, vtkPolyData*
     vtkCell* tmpCell;
     vtkIdList* dummyIdList = nullptr;
     vtkIdType cellId = cellIter->GetCellId();
-    for (i = 0; i < numContours; i++)
+    for (i = 0; i < numContours && !abortExecute; i++)
     {
       for (scalarTree->InitTraversal(values[i]);
            (tmpCell = scalarTree->GetNextCell(cellId, dummyIdList, cellScalars));)
       {
+        if (self->CheckAbort())
+        {
+          abortExecute = true;
+          break;
+        }
         helper.Contour(tmpCell, values[i], cellScalars, cellId);
         numCellsContoured++;
 

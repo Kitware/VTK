@@ -92,7 +92,7 @@ int vtkShrinkFilter::RequestData(
   // Support progress and abort.
   vtkIdType tenth = (numCells >= 10 ? numCells / 10 : 1);
   double numCellsInv = 1.0 / numCells;
-  int abort = 0;
+  bool abort = false;
 
   // Point Id map.
   vtkIdType* pointMap = new vtkIdType[input->GetNumberOfPoints()];
@@ -109,7 +109,7 @@ int vtkShrinkFilter::RequestData(
     if (cellId % tenth == 0)
     {
       this->UpdateProgress((cellId + 1) * numCellsInv);
-      abort = this->GetAbortExecute();
+      abort = this->CheckAbort();
     }
 
     // Compute the center of mass of the cell points.

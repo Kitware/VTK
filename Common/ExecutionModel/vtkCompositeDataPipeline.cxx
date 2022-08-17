@@ -284,6 +284,10 @@ void vtkCompositeDataPipeline::ExecuteEach(vtkCompositeDataIterator* iter,
   auto algo = this->GetAlgorithm();
   for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem(), ++block_index)
   {
+    if (algo->GetAbortOutput())
+    {
+      break;
+    }
     vtkDataObject* dobj = iter->GetCurrentDataObject();
     if (dobj)
     {
