@@ -46,10 +46,48 @@ vtkSmartPointer<vtkDataObject> Convert(const conduit_cpp::Node& node)
   return source->GetOutputDataObject(0);
 }
 
+void CreateUniformMesh(
+  unsigned int nptsX, unsigned int nptsY, unsigned int nptsZ, conduit_cpp::Node& res)
+{
+  // Create the structure
+  conduit_cpp::Node coords = res["coordsets/coords"];
+  coords["type"] = "uniform";
+  conduit_cpp::Node dims = coords["dims"];
+  dims["i"] = nptsX;
+  dims["j"] = nptsY;
+
+  if (nptsZ > 1)
+  {
+    dims["k"] = nptsZ;
+  }
+
+  // -10 to 10 in each dim
+  conduit_cpp::Node origin = coords["origin"];
+  origin["x"] = -10.0;
+  origin["y"] = -10.0;
+
+  if (nptsZ > 1)
+  {
+    origin["z"] = -10.0;
+  }
+
+  conduit_cpp::Node spacing = coords["spacing"];
+  spacing["dx"] = 20.0 / (double)(nptsX - 1);
+  spacing["dy"] = 20.0 / (double)(nptsY - 1);
+
+  if (nptsZ > 1)
+  {
+    spacing["dz"] = 20.0 / (double)(nptsZ - 1);
+  }
+
+  res["topologies/mesh/type"] = "uniform";
+  res["topologies/mesh/coordset"] = "coords";
+}
+
 bool ValidateMeshTypeUniform()
 {
   conduit_cpp::Node mesh;
-  conduit_cpp::BlueprintMesh::Example::basic("uniform", 3, 3, 3, mesh);
+  CreateUniformMesh(3, 3, 3, mesh);
   auto data = Convert(mesh);
   VERIFY(vtkPartitionedDataSet::SafeDownCast(data) != nullptr,
     "incorrect data type, expected vtkPartitionedDataSet, got %s", vtkLogIdentifier(data));
@@ -67,10 +105,67 @@ bool ValidateMeshTypeUniform()
   return true;
 }
 
+void CreateRectilinearMesh(
+  unsigned int nptsX, unsigned int nptsY, unsigned int nptsZ, conduit_cpp::Node& res)
+{
+  conduit_cpp::Node coords = res["coordsets/coords"];
+  coords["type"] = "rectilinear";
+
+  std::vector<double> x;
+  x.resize(nptsX);
+  std::vector<double> y;
+  y.resize(nptsY);
+  std::vector<double> z;
+
+  if (nptsZ > 1)
+  {
+    z.resize(nptsZ);
+  }
+
+  double dx = 20.0 / (double)(nptsX - 1);
+  double dy = 20.0 / (double)(nptsY - 1);
+  double dz = 0.0;
+
+  if (nptsZ > 1)
+  {
+    dz = 20.0 / (double)(nptsZ - 1);
+  }
+
+  for (unsigned int i = 0; i < nptsX; i++)
+  {
+    x[i] = -10.0 + i * dx;
+  }
+
+  for (unsigned int j = 0; j < nptsY; j++)
+  {
+    y[j] = -10.0 + j * dy;
+  }
+
+  if (nptsZ > 1)
+  {
+    for (unsigned int k = 0; k < nptsZ; k++)
+    {
+      z[k] = -10.0 + k * dz;
+    }
+  }
+
+  conduit_cpp::Node coordVals = coords["values"];
+  coordVals["x"].set(x);
+  coordVals["y"].set(y);
+
+  if (nptsZ > 1)
+  {
+    coordVals["z"].set(z);
+  }
+
+  res["topologies/mesh/type"] = "rectilinear";
+  res["topologies/mesh/coordset"] = "coords";
+}
+
 bool ValidateMeshTypeRectilinear()
 {
   conduit_cpp::Node mesh;
-  conduit_cpp::BlueprintMesh::Example::basic("rectilinear", 3, 3, 3, mesh);
+  CreateRectilinearMesh(3, 3, 3, mesh);
   auto data = Convert(mesh);
   VERIFY(vtkPartitionedDataSet::SafeDownCast(data) != nullptr,
     "incorrect data type, expected vtkPartitionedDataSet, got %s", vtkLogIdentifier(data));
@@ -88,10 +183,92 @@ bool ValidateMeshTypeRectilinear()
   return true;
 }
 
+void CreateStructuredMesh(
+  unsigned int nptsX, unsigned int nptsY, unsigned int nptsZ, conduit_cpp::Node& res)
+{
+  conduit_cpp::Node coords = res["coordsets/coords"];
+  conduit_cpp::Node coordVals = coords["values"];
+  coords["type"] = "explicit";
+
+  unsigned int npts = nptsX * nptsY;
+
+  if (nptsZ > 1)
+  {
+    npts *= nptsZ;
+  }
+
+  std::vector<double> x;
+  x.resize(npts);
+  std::vector<double> y;
+  y.resize(npts);
+  std::vector<double> z;
+
+  if (nptsZ > 1)
+  {
+    z.resize(npts);
+  }
+
+  double dx = 20.0 / double(nptsX - 1);
+  double dy = 20.0 / double(nptsY - 1);
+
+  double dz = 0.0;
+
+  if (nptsZ > 1)
+  {
+    dz = 20.0 / double(nptsZ - 1);
+  }
+
+  unsigned int idx = 0;
+  unsigned int outer = 1;
+  if (nptsZ > 1)
+  {
+    outer = nptsZ;
+  }
+
+  for (unsigned int k = 0; k < outer; k++)
+  {
+    double cz = -10.0 + k * dz;
+
+    for (unsigned int j = 0; j < nptsY; j++)
+    {
+      double cy = -10.0 + j * dy;
+
+      for (unsigned int i = 0; i < nptsX; i++)
+      {
+        x[idx] = -10.0 + i * dx;
+        y[idx] = cy;
+
+        if (nptsZ > 1)
+        {
+          z[idx] = cz;
+        }
+
+        idx++;
+      }
+    }
+  }
+
+  coordVals["x"].set(x);
+  coordVals["y"].set(y);
+  if (nptsZ > 1)
+  {
+    coordVals["z"].set(z);
+  }
+
+  res["topologies/mesh/type"] = "structured";
+  res["topologies/mesh/coordset"] = "coords";
+  res["topologies/mesh/elements/dims/i"] = nptsX - 1;
+  res["topologies/mesh/elements/dims/j"] = nptsY - 1;
+  if (nptsZ > 0)
+  {
+    res["topologies/mesh/elements/dims/k"] = nptsZ - 1;
+  }
+}
+
 bool ValidateMeshTypeStructured()
 {
   conduit_cpp::Node mesh;
-  conduit_cpp::BlueprintMesh::Example::basic("structured", 3, 3, 3, mesh);
+  CreateStructuredMesh(3, 3, 3, mesh);
   auto data = Convert(mesh);
   VERIFY(vtkPartitionedDataSet::SafeDownCast(data) != nullptr,
     "incorrect data type, expected vtkPartitionedDataSet, got %s", vtkLogIdentifier(data));
@@ -109,11 +286,64 @@ bool ValidateMeshTypeStructured()
   return true;
 }
 
+void CreateTrisMesh(unsigned int nptsX, unsigned int nptsY, conduit_cpp::Node& res)
+{
+  CreateStructuredMesh(nptsX, nptsY, 1, res);
+
+  unsigned int nElementX = nptsX - 1;
+  unsigned int nElementY = nptsY - 1;
+  unsigned int nElements = nElementX * nElementY;
+
+  res["topologies/mesh/type"] = "unstructured";
+  res["topologies/mesh/coordset"] = "coords";
+  res["topologies/mesh/elements/shape"] = "tri";
+
+  std::vector<unsigned int> connectivity;
+  connectivity.resize(nElements * 6);
+
+  unsigned int idx = 0;
+  for (unsigned int j = 0; j < nElementY; j++)
+  {
+    unsigned int yoff = j * (nElementX + 1);
+
+    for (unsigned int i = 0; i < nElementX; i++)
+    {
+      // two tris per quad.
+      connectivity[idx + 0] = yoff + i;
+      connectivity[idx + 1] = yoff + i + (nElementX + 1);
+      connectivity[idx + 2] = yoff + i + 1 + (nElementX + 1);
+
+      connectivity[idx + 3] = yoff + i;
+      connectivity[idx + 4] = yoff + i + 1;
+      connectivity[idx + 5] = yoff + i + 1 + (nElementX + 1);
+
+      idx += 6;
+    }
+  }
+
+  res["topologies/mesh/elements/connectivity"].set(connectivity);
+
+  // Need also to define 'fields' for cell array
+  conduit_cpp::Node resFields = res["fields/field"];
+  resFields["association"] = "element";
+  resFields["topology"] = "mesh";
+  resFields["volume_dependent"] = "false";
+
+  unsigned int numberofValues = nElements * 2;
+  std::vector<double> values;
+  values.resize(numberofValues);
+  for (unsigned int i = 0; i < numberofValues; i++)
+  {
+    values[i] = i + 0.0;
+  }
+  resFields["values"].set(values);
+}
+
 bool ValidateMeshTypeUnstructured()
 {
   conduit_cpp::Node mesh;
   // generate simple explicit tri-based 2d 'basic' mesh
-  conduit_cpp::BlueprintMesh::Example::basic("tris", 3, 3, 0, mesh);
+  CreateTrisMesh(3, 3, mesh);
 
   auto data = Convert(mesh);
   VERIFY(vtkPartitionedDataSet::SafeDownCast(data) != nullptr,
@@ -164,7 +394,7 @@ bool CheckFieldDataMeshConversion(conduit_cpp::Node& mesh_node, int expected_num
 bool ValidateFieldData()
 {
   conduit_cpp::Node mesh;
-  conduit_cpp::BlueprintMesh::Example::basic("uniform", 3, 3, 3, mesh);
+  CreateUniformMesh(3, 3, 3, mesh);
 
   auto field_data_node = mesh["state/fields"];
 
@@ -218,7 +448,7 @@ bool ValidateFieldData()
 bool ValidateRectlinearGridWithDifferentDimensions()
 {
   conduit_cpp::Node mesh;
-  conduit_cpp::BlueprintMesh::Example::basic("rectilinear", 3, 2, 1, mesh);
+  CreateRectilinearMesh(3, 2, 1, mesh);
   auto data = Convert(mesh);
   VERIFY(vtkPartitionedDataSet::SafeDownCast(data) != nullptr,
     "incorrect data type, expected vtkPartitionedDataSet, got %s", vtkLogIdentifier(data));

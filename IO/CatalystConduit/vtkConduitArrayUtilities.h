@@ -31,15 +31,13 @@
 #include "vtkIOCatalystConduitModule.h" // for exports
 #include "vtkObject.h"
 #include "vtkSmartPointer.h" // for vtkSmartPointer
-#include <string>            // for std::string
+
+#include "conduit.h" // for conduit_node
+
+#include <string> // for std::string
 
 class vtkCellArray;
 class vtkDataArray;
-
-extern "C"
-{
-  typedef void conduit_node;
-}
 
 class VTKIOCATALYSTCONDUIT_EXPORT vtkConduitArrayUtilities : public vtkObject
 {

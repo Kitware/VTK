@@ -33,11 +33,11 @@
 
 #include "vtkDataObjectAlgorithm.h"
 #include "vtkIOCatalystConduitModule.h" // for exports
-#include <memory>                       // for std::unique_ptr
-extern "C"
-{
-  typedef void conduit_node;
-}
+
+#include "conduit.h" // for conduit_node
+
+#include <memory> // for std::unique_ptr
+
 class VTKIOCATALYSTCONDUIT_EXPORT vtkConduitSource : public vtkDataObjectAlgorithm
 {
 public:
