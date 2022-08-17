@@ -219,7 +219,7 @@ int vtkAMRVelodyneReader::FillMetaData()
   double spacing[3];
   for (int i = 0; i < this->Internal->nBlocks; i++)
   {
-    Block& theBlock = this->Internal->Blocks[i];
+    vtkAMRVelodyneReaderInternal::Block& theBlock = this->Internal->Blocks[i];
     int level = theBlock.Level;
     int id = theBlock.Index;
     CalculateBlockDims(this->Internal->blockDims.data(), theBlock.isFull, dims);
@@ -243,7 +243,7 @@ vtkUniformGrid* vtkAMRVelodyneReader::GetAMRGrid(const int blockIdx)
   {
     return nullptr;
   }
-  Block& theBlock = this->Internal->Blocks[blockIdx];
+  vtkAMRVelodyneReaderInternal::Block& theBlock = this->Internal->Blocks[blockIdx];
   int dims[3];
   CalculateBlockDims(this->Internal->blockDims.data(), theBlock.isFull, dims);
   vtkUniformGrid* ug = vtkUniformGrid::New();
