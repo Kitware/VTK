@@ -522,7 +522,6 @@ void vtkDemandDrivenPipeline::ExecuteDataStart(
   this->Algorithm->SetAbortOutput(this->CheckAbortedInput(inInfo));
 
   // Clear ABORTED from outputs.
-  vtkDataObject* data = vtkDataObject::GetData(outputs);
   for (i = 0; i < outputs->GetNumberOfInformationObjects(); ++i)
   {
     vtkInformation* outInfo = outputs->GetInformationObject(i);

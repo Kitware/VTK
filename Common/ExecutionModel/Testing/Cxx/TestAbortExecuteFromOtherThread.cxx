@@ -26,8 +26,8 @@
 #include <thread>
 
 vtkNew<vtkContourGrid> contour;
-bool returnFailure = 0;
-std::atomic<bool> runUpdate{ 0 };
+bool returnFailure = false;
+std::atomic<bool> runUpdate{ false };
 
 void runPipeline()
 {
@@ -58,7 +58,7 @@ void runPipeline()
   if (!clip->GetOutputInformation(0)->Get(vtkAlgorithm::ABORTED()))
   {
     vtkLog(ERROR, "Clip ABORTED flag is not set.");
-    returnFailure = 1;
+    returnFailure = true;
     return;
   }
 
@@ -68,7 +68,7 @@ void runPipeline()
   if (clip->GetOutputInformation(0)->Get(vtkAlgorithm::ABORTED()))
   {
     vtkLog(ERROR, "Clip ABORTED flag is set.");
-    returnFailure = 1;
+    returnFailure = true;
     return;
   }
 }
@@ -77,7 +77,7 @@ void toggleAbort()
 {
   std::this_thread::sleep_for(std::chrono::milliseconds(1));
   contour->SetAbortExecuteAndUpdateTime();
-  runUpdate = 1;
+  runUpdate = true;
 }
 
 int TestAbortExecuteFromOtherThread(int, char*[])
