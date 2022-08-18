@@ -2,6 +2,7 @@ vtk_add_test_cxx(vtkCommonExecutionModelCxxTests tests
   NO_DATA NO_VALID
   TestAbortExecute.cxx
   TestAbortExecuteFromOtherThread.cxx
+  TestAbortSMPFilter.cxx
   TestCopyAttributeData.cxx
   TestImageDataToStructuredGrid.cxx
   TestMetaData.cxx

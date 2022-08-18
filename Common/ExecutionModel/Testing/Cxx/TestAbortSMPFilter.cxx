@@ -69,26 +69,26 @@ int TestAbortSMPFilter(int, char*[])
     return 1;
   }
 
-  // cg->SetAbortExecute(0);
-  // cg->Update();
+  cg->SetAbortExecute(0);
+  cg->Update();
 
-  // if (cg->GetAbortExecute())
-  // {
-  //   vtkLog(ERROR, "vtkSMPContourGrid AbortExecute flag is set.");
-  //   return 1;
-  // }
+  if (cg->GetAbortExecute())
+  {
+    vtkLog(ERROR, "vtkSMPContourGrid AbortExecute flag is set.");
+    return 1;
+  }
 
-  // if (cg->GetOutputInformation(0)->Get(vtkAlgorithm::ABORTED()))
-  // {
-  //   vtkLog(ERROR, "vtkSMPContourGrid ABORTED flag is set.");
-  //   return 1;
-  // }
+  if (cg->GetOutputInformation(0)->Get(vtkAlgorithm::ABORTED()))
+  {
+    vtkLog(ERROR, "vtkSMPContourGrid ABORTED flag is set.");
+    return 1;
+  }
 
-  // if (!cg->GetOutput()->GetNumberOfPoints())
-  // {
-  //   vtkLog(ERROR, "No output data.");
-  //   return 1;
-  // }
+  if (!cg->GetOutput()->GetNumberOfPoints())
+  {
+    vtkLog(ERROR, "No output data.");
+    return 1;
+  }
 
   return 0;
 }
