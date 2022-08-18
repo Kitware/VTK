@@ -118,6 +118,15 @@ public:
   virtual int IntersectWithLine(const double p0[3], const double p1[3], const double tol,
     vtkPoints* points, vtkIdList* cellIds, vtkGenericCell* cell) = 0;
 
+  ///@{
+  /**
+   * Get/Set tolerance used when searching for cells in the HTG.
+   * Default is 0.0
+   */
+  vtkSetMacro(Tolerance, double);
+  vtkGetMacro(Tolerance, double);
+  ///@}
+
 protected:
   // Constructor/Destructor defaults
   vtkHyperTreeGridLocator() = default;
@@ -127,6 +136,8 @@ protected:
    * Internal reference to the HyperTreeGrid one wants to search over
    */
   vtkWeakPointer<vtkHyperTreeGrid> HTG;
+
+  double Tolerance = 0.0;
 
 private:
   /**

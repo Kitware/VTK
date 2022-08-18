@@ -38,6 +38,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStringArray.h"
 
+#include <cmath>
 #include <numeric>
 #include <vector>
 
@@ -185,6 +186,19 @@ int vtkHyperTreeGridProbeFilter::RequestData(vtkInformation* vtkNotUsed(request)
     return 0;
   }
 
+  // setup tolerance
+  double tolerance = this->Tolerance;
+  if (this->ComputeTolerance)
+  {
+    double bounds[6];
+    source->GetBounds(bounds);
+    const double diag = std::sqrt((bounds[1] - bounds[0]) * (bounds[1] - bounds[0]) +
+      (bounds[3] - bounds[2]) * (bounds[3] - bounds[2]) +
+      (bounds[5] - bounds[4]) * (bounds[5] - bounds[4]));
+    tolerance = (diag * 1e-6) / std::pow(source->GetBranchFactor(), source->GetNumberOfLevels());
+  }
+  this->Locator->SetTolerance(tolerance);
+
   // setup output
   if (!(this->Initialize(input, source, output)))
   {
@@ -284,11 +298,11 @@ public:
   ProbingWorklet(vtkSmartPointer<vtkDataSet> probe,
     vtkSmartPointer<vtkHyperTreeGridLocator> locator, vtkSmartPointer<vtkIdList> pointIds,
     vtkSmartPointer<vtkIdList> cellIds)
+    : Locator(locator)
+    , Probe(probe)
+    , ThreadGlobPointIds(pointIds)
+    , ThreadGlobCellIds(cellIds)
   {
-    this->Probe = probe;
-    this->Locator = locator;
-    this->ThreadGlobPointIds = pointIds;
-    this->ThreadGlobCellIds = cellIds;
   }
 
   void Initialize()
@@ -299,9 +313,9 @@ public:
 
   void operator()(vtkIdType begin, vtkIdType end)
   {
-    std::vector<double> pt(3, 0.0);
     for (vtkIdType iP = begin; iP < end; iP++)
     {
+      std::array<double, 3> pt{ 0.0, 0.0, 0.0 };
       this->Probe->GetPoint(iP, pt.data());
       vtkIdType id = this->Locator->Search(pt.data());
       if (!(id < 0))
@@ -321,7 +335,7 @@ public:
     this->ThreadGlobCellIds->SetNumberOfIds(nPointsFound);
     nPointsFound = 0;
 
-    auto mergeThreadResults = [&](LocalData& loc) {
+    auto mergeThreadResults = [this, &nPointsFound](LocalData& loc) {
       std::copy(
         loc.pointIds.begin(), loc.pointIds.end(), this->ThreadGlobPointIds->begin() + nPointsFound);
       std::copy(
@@ -344,21 +358,27 @@ bool vtkHyperTreeGridProbeFilter::DoProbing(
   vtkNew<vtkIdList> locCellIds;
   locCellIds->Initialize();
   ::ProbingWorklet worker(probe, this->Locator, localPointIds, locCellIds);
-  vtkSMPTools::For(0, nPoints, worker);
+
+  // XXX: force sequential for now because of https://gitlab.kitware.com/vtk/vtk/-/issues/18629
+  vtkSMPTools::LocalScope(
+    vtkSMPTools::Config{ 1, "Sequential", false }, [&]() { vtkSMPTools::For(0, nPoints, worker); });
 
   // copy values from source
-  unsigned int numSourceCellArrays = source->GetCellData()->GetNumberOfArrays();
-  for (unsigned int iA = 0; iA < numSourceCellArrays; iA++)
+  if (locCellIds->GetNumberOfIds() > 0)
   {
-    vtkAbstractArray* sourceArray = source->GetCellData()->GetAbstractArray(iA);
-    if (!(output->GetPointData()->HasArray(sourceArray->GetName())))
+    unsigned int numSourceCellArrays = source->GetCellData()->GetNumberOfArrays();
+    for (unsigned int iA = 0; iA < numSourceCellArrays; iA++)
     {
-      vtkErrorMacro("Array " << sourceArray->GetName() << " missing in output");
-      return false;
+      vtkAbstractArray* sourceArray = source->GetCellData()->GetAbstractArray(iA);
+      if (!(output->GetPointData()->HasArray(sourceArray->GetName())))
+      {
+        vtkErrorMacro("Array " << sourceArray->GetName() << " missing in output");
+        return false;
+      }
+      vtkAbstractArray* outputArray =
+        output->GetPointData()->GetAbstractArray(sourceArray->GetName());
+      outputArray->InsertTuplesStartingAt(0, locCellIds, sourceArray);
     }
-    vtkAbstractArray* outputArray =
-      output->GetPointData()->GetAbstractArray(sourceArray->GetName());
-    outputArray->InsertTuplesStartingAt(0, locCellIds, sourceArray);
   }
   return true;
 }

@@ -286,8 +286,7 @@ int Test2DProbing(vtkMultiProcessController* controller)
     ProbingAtSegmentCenters_2D.data(), ProbingAtSegmentCenters_2D.size(), "arc_length",
     "SAMPLE_LINE_AT_CELL_BOUNDARIES", myrank);
 
-  // return retVal;
-  return EXIT_SUCCESS;
+  return retVal;
 }
 
 // ----------------------------------------------------------------------------
@@ -431,8 +430,8 @@ int Test2DProbingHTG(vtkMultiProcessController* contr)
 
   vtkNew<vtkLineSource> line;
   line->SetResolution(1);
-  line->SetPoint1(0.01, 0.01, 0.01);
-  line->SetPoint2(0.99, 0.99, 0.99);
+  line->SetPoint1(0.01, 0.01, 0.00);
+  line->SetPoint2(0.99, 0.99, 0.00);
   line->Update();
 
   vtkNew<vtkProbeLineFilter> probeLine;

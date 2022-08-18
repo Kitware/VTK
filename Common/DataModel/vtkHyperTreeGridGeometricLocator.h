@@ -82,7 +82,7 @@ public:
    * @param[out] weights interpolation weights of the sought point in the cell
    * @return the global index of the cell holding the point (-1 if no cell is found or is masked)
    */
-  vtkIdType FindCell(const double point[3], const double tol, vtkGenericCell* cell, int& subId,
+  vtkIdType FindCell(const double point[3], double tol, vtkGenericCell* cell, int& subId,
     double pcoords[3], double* weights) override;
 
   /**
@@ -98,8 +98,8 @@ public:
    * @param[out] cell pointer to a vtkCell object corresponding to cellId
    * @return an integer with 0 if no intersection could be found
    */
-  int IntersectWithLine(const double p0[3], const double p1[2], const double tol, double& t,
-    double x[3], double pcoords[3], int& subId, vtkIdType& cellId, vtkGenericCell* cell) override;
+  int IntersectWithLine(const double p0[3], const double p1[2], double tol, double& t, double x[3],
+    double pcoords[3], int& subId, vtkIdType& cellId, vtkGenericCell* cell) override;
 
   /**
    * Find all intersections of the line defined by (p0, p1) with the HTG
@@ -111,7 +111,7 @@ public:
    * @param[out] cell pointer to a vtkCell object corresponding to the last cellId found
    * @return an integer with 0 if no intersection could be found
    */
-  int IntersectWithLine(const double p0[3], const double p1[3], const double tol, vtkPoints* points,
+  int IntersectWithLine(const double p0[3], const double p1[3], double tol, vtkPoints* points,
     vtkIdList* cellIds, vtkGenericCell* cell) override;
 
 protected:
@@ -126,14 +126,14 @@ protected:
   /**
    * Recursive part of single line intersection search
    */
-  vtkIdType RecurseSingleIntersectWithLine(const double p0[3], const double p1[3], const double tol,
+  vtkIdType RecurseSingleIntersectWithLine(const double p0[3], const double p1[3], double tol,
     vtkHyperTreeGridNonOrientedGeometryCursor* cursor, vtkGenericCell* cell, double& t, int& subId,
     double x[3], double pcoords[3]) const;
 
   /**
    * Recursive part of all line intersections search
    */
-  void RecurseAllIntersectsWithLine(const double p0[3], const double p1[3], const double tol,
+  void RecurseAllIntersectsWithLine(const double p0[3], const double p1[3], double tol,
     vtkHyperTreeGridNonOrientedGeometryCursor* cursor, std::vector<double>* ts, vtkPoints* points,
     vtkIdList* cellIds, vtkGenericCell* cell) const;
 
@@ -153,8 +153,7 @@ private:
   /**
    * Helper method for determining the index of a child where the point is held
    */
-  vtkIdType FindChildIndex(
-    const unsigned int dim, const unsigned int bf, const double normalizedPt[3]) const;
+  vtkIdType FindChildIndex(unsigned int dim, unsigned int bf, const double normalizedPt[3]) const;
 
   /**
    * Helper method for constructing a cell from a cursor
@@ -183,7 +182,7 @@ private:
   /**
    * Helper method for sorting indexes based on the other vector
    */
-  void GetSortingMap(const std::vector<double>& other, std::vector<int>* map) const;
+  std::vector<int> GetSortingMap(const std::vector<double>& other) const;
 
   /**
    * An array holding the 1D bin divisions given the branching factor

@@ -110,6 +110,8 @@ int vtkCompositeDataProbeFilter::RequestData(
     htgProbe->SetValidPointMaskArrayName(this->GetValidPointMaskArrayName());
     htgProbe->SetInputData(input);
     htgProbe->SetSourceData(sourceHTG);
+    htgProbe->SetTolerance(this->Tolerance);
+    htgProbe->SetComputeTolerance(this->ComputeTolerance);
     htgProbe->Update();
     output->ShallowCopy(htgProbe->GetOutput());
     return 1;
@@ -146,6 +148,8 @@ int vtkCompositeDataProbeFilter::RequestData(
         htgProbe->SetPassFieldArrays(this->GetPassFieldArrays());
         htgProbe->SetValidPointMaskArrayName(this->GetValidPointMaskArrayName());
         htgProbe->SetInputData(input);
+        htgProbe->SetTolerance(this->Tolerance);
+        htgProbe->SetComputeTolerance(this->ComputeTolerance);
         htgProbe->SetSourceData(sourceHTG);
         htgProbe->Update();
         // merge the output for this block with the total output

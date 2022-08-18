@@ -118,6 +118,30 @@ public:
    */
   vtkIdTypeArray* GetValidPoints();
   ///@}
+
+  ///@{
+  /**
+   * Get/Set tolerance used when finding points in the HTG source.
+   * Overriden when ComputeTolerance == true.
+   *
+   * Default is 0.0
+   */
+  vtkSetMacro(Tolerance, double);
+  vtkGetMacro(Tolerance, double);
+  ///@}
+
+  ///@{
+  /**
+   * Get/Set wether or not to compute the tolerance automatically for
+   * when finding points in the HTG source. If false use the tolerance
+   * from SetTolerance .
+   *
+   * Default is true
+   */
+  vtkSetMacro(ComputeTolerance, bool);
+  vtkGetMacro(ComputeTolerance, bool);
+  ///@}
+
 protected:
   ///@{
   /**
@@ -183,6 +207,8 @@ protected:
   bool PassCellArrays = false;
   bool PassPointArrays = false;
   bool PassFieldArrays = true;
+  double Tolerance = 0.0;
+  bool ComputeTolerance = true;
 
   std::string ValidPointMaskArrayName = "vtkValidPointMask";
   vtkNew<vtkIdTypeArray> ValidPoints;

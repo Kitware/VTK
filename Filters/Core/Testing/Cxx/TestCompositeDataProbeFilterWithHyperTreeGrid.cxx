@@ -75,7 +75,8 @@ int TestCompositeDataProbeFilterWithHyperTreeGrid(int argc, char* argv[])
   prober->SetInputConnection(wavelet->GetOutputPort());
   prober->SetSourceData(sourceMBDS);
   prober->SetPassPointArrays(true);
-
+  prober->SetComputeTolerance(false);
+  prober->SetTolerance(0.0);
   prober->Update();
   prober->GetOutput()->GetPointData()->SetActiveScalars("Depth");
 
