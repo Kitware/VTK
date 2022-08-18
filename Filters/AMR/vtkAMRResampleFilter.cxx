@@ -830,6 +830,10 @@ void vtkAMRResampleFilter::ExtractRegion(
   mbds->SetNumberOfBlocks(this->ROI->GetNumberOfBlocks());
   for (unsigned int block = 0; block < this->ROI->GetNumberOfBlocks(); ++block)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     if (this->IsRegionMine(block))
     {
       vtkUniformGrid* grid = vtkUniformGrid::New();
