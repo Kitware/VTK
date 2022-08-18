@@ -580,8 +580,8 @@ vtkSmartPointer<vtkImageData> TreeInformation::ComputeTileMeshTexture(
     for (int j = 0; j < 3; ++j)
     {
       vtkIdType pointId = cell->GetPointId(j);
-      int x = std::round(tcoordsDataset->GetComponent(pointId, 0) * datasetDims[0]);
-      int y = std::round(tcoordsDataset->GetComponent(pointId, 1) * datasetDims[1]);
+      int x = tcoordsDataset->GetComponent(pointId, 0) * (datasetDims[0] - 1);
+      int y = tcoordsDataset->GetComponent(pointId, 1) * (datasetDims[1] - 1);
       datasetCoordinates[i][j] = { { x, y } };
       bb[0] = std::min(bb[0], x);
       bb[1] = std::max(bb[1], x);
