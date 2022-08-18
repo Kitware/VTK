@@ -280,6 +280,7 @@ public:
     vtkNew<vtkIdList> pids;
     T range[2];
     vtkIdType cellid;
+    bool isFirst = vtkSMPTools::GetSingleThread();
 
     // If UseScalarTree is enabled at this point, we assume that a scalar
     // tree has been computed and thus the way cells are traversed changes.

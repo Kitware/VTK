@@ -65,3 +65,10 @@ bool vtkSMPTools::IsParallelScope()
   auto& SMPToolsAPI = vtk::detail::smp::vtkSMPToolsAPI::GetInstance();
   return SMPToolsAPI.IsParallelScope();
 }
+
+//------------------------------------------------------------------------------
+bool vtkSMPTools::GetSingleThread()
+{
+  auto& SMPToolsAPI = vtk::detail::smp::vtkSMPToolsAPI::GetInstance();
+  return SMPToolsAPI.GetSingleThread();
+}
