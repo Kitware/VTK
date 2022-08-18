@@ -62,6 +62,7 @@ vtk_add_test_cxx(vtkCommonDataModelCxxTests tests
   TestPolyhedronConvexityMultipleCells.cxx
   TestQuadraticPolygon.cxx
   TestRect.cxx
+  TestSMPFeatures.cxx
   TestSelectionExpression.cxx
   TestSelectionSubtract.cxx
   TestSimpleIncrementalOctreePointLocator.cxx
