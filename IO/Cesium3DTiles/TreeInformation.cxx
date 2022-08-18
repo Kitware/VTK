@@ -613,7 +613,7 @@ vtkSmartPointer<vtkImageData> TreeInformation::ComputeTileMeshTexture(
   for (size_t i = 0; i < scatteredRegions.size(); ++i)
   {
     size_t currentRow = groupedRegions.size() - 1;
-    if (currentWidth + (scatteredRegions[i].Region[1] - scatteredRegions[i].Region[0] + 1) < width)
+    if (currentWidth + (scatteredRegions[i].Region[1] - scatteredRegions[i].Region[0] + 1) <= width)
     {
       // add cell to current row
       groupedRegions[currentRow].emplace_back(i);
