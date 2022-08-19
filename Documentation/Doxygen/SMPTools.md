@@ -272,7 +272,7 @@ vtkNew<vtkMultiThreader> mt;
 mt->SetSingleMethod(MyFunction, NULL);
 mt->SetNumberOfThreads(NumThreads);
 mt->SingleMethodExecute();
-cout << Total << " " << TotalAtomic.load() << endl;
+std::cout << Total << " " << TotalAtomic.load() << endl;
 ```
 
 When this program is executed, most of the time `Total` will be different (smaller) than `Target` whereas `TotalAtomic` will be exactly the same as `Target`. For example, a test run on a Mac prints: `999982 1000000`. This is because when the integer is not atomic, both threads can read the same value of `Total`, increment and write out the same value, which leads to losing one increment operation. Whereas, when ++ happens atomically, it is guaranteed that it will read, increment and write out `Total` all in one uninterruptable operation. When atomic operations are supported at hardware level, they are very fast.
