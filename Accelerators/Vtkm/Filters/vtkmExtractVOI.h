@@ -37,6 +37,7 @@
 
 #include "vtkAcceleratorsVTKmFiltersModule.h" // for export macro
 #include "vtkExtractVOI.h"
+#include "vtkmlib/vtkmInitializer.h" // Need for initializing vtk-m
 
 class VTKACCELERATORSVTKMFILTERS_EXPORT vtkmExtractVOI : public vtkExtractVOI
 {
@@ -68,6 +69,7 @@ protected:
 private:
   vtkmExtractVOI(const vtkmExtractVOI&) = delete;
   void operator=(const vtkmExtractVOI&) = delete;
+  vtkmInitializer Initializer;
 };
 
 #endif // vtkmExtractVOI_h

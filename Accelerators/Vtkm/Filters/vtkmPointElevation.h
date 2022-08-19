@@ -30,6 +30,7 @@
 
 #include "vtkAcceleratorsVTKmFiltersModule.h" // required for correct export
 #include "vtkElevationFilter.h"
+#include "vtkmlib/vtkmInitializer.h" // Need for initializing vtk-m
 
 class VTKACCELERATORSVTKMFILTERS_EXPORT vtkmPointElevation : public vtkElevationFilter
 {
@@ -62,6 +63,7 @@ protected:
 private:
   vtkmPointElevation(const vtkmPointElevation&) = delete;
   void operator=(const vtkmPointElevation&) = delete;
+  vtkmInitializer Initializer;
 };
 
 #endif // vtkmPointElevation_h

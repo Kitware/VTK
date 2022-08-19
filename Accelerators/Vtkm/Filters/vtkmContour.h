@@ -35,6 +35,7 @@
 
 #include "vtkAcceleratorsVTKmFiltersModule.h" //required for correct implementation
 #include "vtkContourFilter.h"
+#include "vtkmlib/vtkmInitializer.h" // Need for initializing vtk-m
 
 class VTKACCELERATORSVTKMFILTERS_EXPORT vtkmContour : public vtkContourFilter
 {
@@ -59,6 +60,7 @@ protected:
 private:
   vtkmContour(const vtkmContour&) = delete;
   void operator=(const vtkmContour&) = delete;
+  vtkmInitializer Initializer;
 };
 
 #endif // vtkmContour_h

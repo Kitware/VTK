@@ -48,6 +48,7 @@
 
 #include "vtkAcceleratorsVTKmFiltersModule.h" //required for export
 #include "vtkDataSetAlgorithm.h"
+#include "vtkmlib/vtkmInitializer.h" // Need for initializing vtk-m
 
 class VTKACCELERATORSVTKMFILTERS_EXPORT vtkmProbe : public vtkDataSetAlgorithm
 {
@@ -151,6 +152,7 @@ protected:
 private:
   vtkmProbe(const vtkmProbe&) = delete;
   void operator=(const vtkmProbe&) = delete;
+  vtkmInitializer Initializer;
 };
 
 #endif // vtkmProbe_h

@@ -30,6 +30,7 @@
 
 #include "vtkAcceleratorsVTKmFiltersModule.h" //required for correct implementation
 #include "vtkAlgorithm.h"
+#include "vtkmlib/vtkmInitializer.h" // Need for initializing vtk-m
 
 class vtkUnstructuredGrid;
 
@@ -77,6 +78,7 @@ protected:
 private:
   vtkmExternalFaces(const vtkmExternalFaces&) = delete;
   void operator=(const vtkmExternalFaces&) = delete;
+  vtkmInitializer Initializer;
 };
 
 #endif // vtkmExternalFaces_h

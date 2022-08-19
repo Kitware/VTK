@@ -16,6 +16,7 @@ if ("TBB" IN_LIST vtk_smp_backends)
 endif ()
 
 set(VTKm_ENABLE_CUDA "${VTK_USE_CUDA}")
+set(VTKm_ENABLE_KOKKOS "${VTK_USE_HIP}")
 
 set(VTKm_INSTALL_LIB_DIR "${_vtk_build_LIBRARY_DESTINATION}")
 set(VTKm_INSTALL_INCLUDE_DIR "${_vtk_build_HEADERS_DESTINATION}/vtkvtkm/vtk-m")
@@ -68,3 +69,7 @@ vtkm_setup_job_pool()
 vtk_module_add_module(VTK::vtkm
   HEADER_ONLY)
 vtk_module_link(VTK::vtkm INTERFACE vtkm_cont vtkm_filter)
+
+if (VTK_USE_HIP AND NOT TARGET vtkm::kokkos_hip)
+  message(FATAL_ERROR "VTK_USE_HIP=ON but Kokkos HIP backend not found, exiting.")
+endif()

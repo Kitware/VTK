@@ -28,6 +28,7 @@
 
 #include "vtkAcceleratorsVTKmFiltersModule.h" //required for correct implementation
 #include "vtkUnstructuredGridAlgorithm.h"
+#include "vtkmlib/vtkmInitializer.h" // Need for initializing vtk-m
 
 class vtkDataSet;
 class vtkUnstructuredGrid;
@@ -63,6 +64,7 @@ protected:
 private:
   vtkmCleanGrid(const vtkmCleanGrid&) = delete;
   void operator=(const vtkmCleanGrid&) = delete;
+  vtkmInitializer Initializer;
 };
 
 #endif // vtkmCleanGrid_h

@@ -49,6 +49,7 @@
 
 #include "vtkAcceleratorsVTKmFiltersModule.h" //required for correct implementation
 #include "vtkPolyDataAlgorithm.h"
+#include "vtkmlib/vtkmInitializer.h" // Need for initializing vtk-m
 
 class VTKACCELERATORSVTKMFILTERS_EXPORT vtkmLevelOfDetail : public vtkPolyDataAlgorithm
 {
@@ -90,6 +91,7 @@ private:
 
   vtkmLevelOfDetail(const vtkmLevelOfDetail&) = delete;
   void operator=(const vtkmLevelOfDetail&) = delete;
+  vtkmInitializer Initializer;
 };
 
 #endif // vtkmLevelOfDetail_h

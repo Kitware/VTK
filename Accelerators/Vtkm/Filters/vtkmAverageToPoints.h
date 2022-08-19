@@ -29,6 +29,7 @@
 
 #include "vtkAcceleratorsVTKmFiltersModule.h" //required for correct implementation
 #include "vtkDataSetAlgorithm.h"
+#include "vtkmlib/vtkmInitializer.h" // Need for initializing vtk-m
 
 class VTKACCELERATORSVTKMFILTERS_EXPORT vtkmAverageToPoints : public vtkDataSetAlgorithm
 {
@@ -46,6 +47,7 @@ protected:
 private:
   vtkmAverageToPoints(const vtkmAverageToPoints&) = delete;
   void operator=(const vtkmAverageToPoints&) = delete;
+  vtkmInitializer Initializer;
 };
 
 #endif // vtkmAverageToPoints_h
