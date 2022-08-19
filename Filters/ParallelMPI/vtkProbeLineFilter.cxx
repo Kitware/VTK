@@ -56,6 +56,7 @@
 #include <cmath>
 #include <limits>
 #include <map>
+#include <memory>
 #include <utility>
 #include <vector>
 
@@ -68,6 +69,8 @@ namespace
  * are the parametric distances on the ray for the first (and second for 3D cells)
  * intersection between the ray and the cell. CellId is the id of the intersected cell.
  * A value of -1 means that the intersection is happening outside the cell.
+ * In/Out Pos are the world coordinates of the in/out points of the intersection.
+ * In/Out PCoords are the parametric coordinates of the in/out points in the cell.
  */
 struct HitCellInfo
 {
@@ -82,6 +85,12 @@ struct HitCellInfo
   operator bool() const noexcept { return this->InT >= 0.0 && this->OutT >= 0.0; }
 
   bool operator<(const HitCellInfo& r) const noexcept { return this->InT < r.InT; }
+
+  bool operator!=(const HitCellInfo& r) const noexcept
+  {
+    return !vtkMathUtilities::NearlyEqual(this->InT, r.InT) ||
+      !vtkMathUtilities::NearlyEqual(this->OutT, r.OutT);
+  }
 };
 
 //------------------------------------------------------------------------------
@@ -187,7 +196,7 @@ HitCellInfo GetInOutCell(const vtkVector3d& p1, const vtkVector3d& p2, vtkIdType
     res.OutT = 1.0 - t;
   }
 
-  if (cell->GetCellDimension() == 3 && vtkMathUtilities::NearlyEqual(res.InT, res.OutT, tolerance))
+  if (vtkMathUtilities::FuzzyCompare(res.InT, res.OutT, tolerance))
   {
     res.InT = res.OutT = -1.0;
   }
@@ -197,6 +206,19 @@ HitCellInfo GetInOutCell(const vtkVector3d& p1, const vtkVector3d& p2, vtkIdType
 }
 
 //------------------------------------------------------------------------------
+// Allows to merge remote polylines from all processes into a single one.
+// Handle various things such as merging points, creating segment centers when
+// necessary, dealing with first / last point, dealing with holes in the
+// intersection list, etc.
+//
+// Requirements :
+// - input is a point cloud without cells (if there are any they will be ignored)
+// - number of point is a multiple of 2
+// - input point data should have an array "arc_length"
+// - points are stored in from smaller to larger "arc_length" values
+// This filter will merge all data attributes, filling them with default values
+// if they are not merged by all inputs. It will then create the good line cells
+// according to the SegmentCenters boolean.
 class vtkRemoteProbeLineMerger : public vtkPolyDataAlgorithm
 {
 public:
@@ -225,14 +247,6 @@ protected:
     return 0;
   }
 
-  // Requirements :
-  // - input is a point cloud without cells (if there are any they will be ignored)
-  // - number of point is a multiple of 2
-  // - input point data should have an array "arc_length"
-  // - points are stored in from smaller to larger "arc_length" values
-  // This filter will merge all data attributes, filling them with default values
-  // if they are not merged by all inputs. It will then create the good line cells
-  // according to the SegmentCenters boolean.
   int RequestData(vtkInformation* vtkNotUsed(request), vtkInformationVector** inputVector,
     vtkInformationVector* outputVector) override
   {
@@ -332,8 +346,8 @@ protected:
         vtkDoubleArray* arclength = lengthArrays[ds];
         const double currentDistP1 = arclength->GetTuple1(pointIndices[ds]);
         const double currentDistP2 = arclength->GetTuple1(pointIndices[ds] + 1);
-        if (vtkMathUtilities::NearlyEqual(currentDistP1, distP1, this->Tolerance) &&
-          vtkMathUtilities::NearlyEqual(currentDistP2, distP2, this->Tolerance))
+        if (vtkMathUtilities::FuzzyCompare(currentDistP1, distP1, this->Tolerance) &&
+          vtkMathUtilities::FuzzyCompare(currentDistP2, distP2, this->Tolerance))
         {
           pointIndices[ds] += 2;
         }
@@ -348,7 +362,7 @@ protected:
       // If dsIndex is negative then it means we have processed all points and we can exit
       if (dsIndex < 0)
       {
-        if (!vtkMathUtilities::NearlyEqual(previousDistP2, lineDistance, this->Tolerance))
+        if (!vtkMathUtilities::FuzzyCompare(previousDistP2, lineDistance, this->Tolerance))
         {
           mergedInputIndices.emplace_back(MergeIndex{ -1, -1 });
         }
@@ -357,7 +371,7 @@ protected:
 
       // If current dist is not the same as previous distance then that means there is an
       // empty space between these 2 intersections.
-      if (!vtkMathUtilities::NearlyEqual(distP1, previousDistP2, this->Tolerance))
+      if (!vtkMathUtilities::FuzzyCompare(distP1, previousDistP2, this->Tolerance))
       {
         mergedInputIndices.emplace_back(MergeIndex{ -1, -1 });
       }
@@ -600,6 +614,18 @@ protected:
 vtkStandardNewMacro(vtkRemoteProbeLineMerger);
 
 //------------------------------------------------------------------------------
+// Allows to merge multiple set of intersections on a single node. The algorithm
+// looks like vtkRemoteProbeLineMerger but is actually simpler and optimized for
+// the specific use case of merging intersections sets.
+//
+// Requirements :
+// - input is a point cloud without cells (if there are any they will be ignored)
+// - number of point is a multiple of 2
+// - string attributes should have a single component
+// - input point data should have an array "arc_length"
+// This filter will merge all data attributes, filling them with default values
+// if they are not merged by all inputs. It will not create any cells but only sort
+// points in the good order, so it smaller to transfer over MPI processes later on.
 class vtkLocalProbeLineMerger : public vtkPolyDataAlgorithm
 {
 public:
@@ -623,14 +649,6 @@ protected:
     return 0;
   }
 
-  // Requirements :
-  // - input is a point cloud without cells (if there are any they will be ignored)
-  // - number of point is a multiple of 2
-  // - string attributes should have a single component
-  // - input point data should have an array "arc_length"
-  // This filter will merge all data attributes, filling them with default values
-  // if they are not merged by all inputs. It will not create any cells but only sort
-  // points in the good order, so it smaller to transfer over MPI processes later on.
   int RequestData(vtkInformation* vtkNotUsed(request), vtkInformationVector** inputVector,
     vtkInformationVector* outputVector) override
   {
@@ -778,42 +796,43 @@ struct vtkProbeLineFilter::vtkInternals
   void UpdateLocators(vtkDataObject* input, const double tolerance)
   {
     vtkMTimeType inputTime = input->GetMTime();
-    if (inputTime != this->PreviousInputTime)
+    if (inputTime == this->PreviousInputTime)
     {
-      this->PreviousInputTime = inputTime;
+      return;
+    }
+    this->PreviousInputTime = inputTime;
 
-      const auto& inputs = vtkCompositeDataSet::GetDataSets<vtkDataObject>(input);
-      for (vtkDataObject* dobject : inputs)
+    const auto& inputs = vtkCompositeDataSet::GetDataSets<vtkDataObject>(input);
+    for (vtkDataObject* dobject : inputs)
+    {
+      if (auto* ds = vtkDataSet::SafeDownCast(dobject))
       {
-        if (auto* ds = vtkDataSet::SafeDownCast(dobject))
+        if (ds->GetNumberOfCells() == 0)
         {
-          if (ds->GetNumberOfCells() == 0)
-          {
-            continue;
-          }
-
-          vtkNew<vtkStaticCellLocator> locator;
-          locator->SetDataSet(ds);
-          locator->SetTolerance(tolerance);
-          locator->BuildLocator();
-          vtkCellLocatorStrategy* strategy = vtkCellLocatorStrategy::New();
-          strategy->SetCellLocator(locator);
-
-          this->Strategies[ds] =
-            vtkSmartPointer<vtkFindCellStrategy>::Take(static_cast<vtkFindCellStrategy*>(strategy));
+          continue;
         }
-        else if (auto* htg = vtkHyperTreeGrid::SafeDownCast(dobject))
+
+        vtkNew<vtkStaticCellLocator> locator;
+        locator->SetDataSet(ds);
+        locator->SetTolerance(tolerance);
+        locator->BuildLocator();
+        vtkCellLocatorStrategy* strategy = vtkCellLocatorStrategy::New();
+        strategy->SetCellLocator(locator);
+
+        this->Strategies[ds] =
+          vtkSmartPointer<vtkFindCellStrategy>::Take(static_cast<vtkFindCellStrategy*>(strategy));
+      }
+      else if (auto* htg = vtkHyperTreeGrid::SafeDownCast(dobject))
+      {
+        if (htg->GetNumberOfCells() == 0)
         {
-          if (htg->GetNumberOfCells() == 0)
-          {
-            continue;
-          }
-
-          vtkNew<vtkHyperTreeGridGeometricLocator> htgLocator;
-          htgLocator->SetHTG(htg);
-          htgLocator->SetTolerance(tolerance);
-          this->HTGLocators[htg] = htgLocator;
+          continue;
         }
+
+        vtkNew<vtkHyperTreeGridGeometricLocator> htgLocator;
+        htgLocator->SetHTG(htg);
+        htgLocator->SetTolerance(tolerance);
+        this->HTGLocators[htg] = htgLocator;
       }
     }
   }
@@ -831,7 +850,6 @@ vtkProbeLineFilter::vtkProbeLineFilter()
 vtkProbeLineFilter::~vtkProbeLineFilter()
 {
   this->SetController(nullptr);
-  delete this->Internal;
 }
 
 //------------------------------------------------------------------------------
@@ -1027,9 +1045,9 @@ vtkSmartPointer<vtkPolyData> vtkProbeLineFilter::SampleLineAtEachCell(
   const vtkVector3d& p1, const vtkVector3d& p2, vtkDataObject* input, const double tolerance) const
 {
   std::vector<vtkDataObject*> inputs = vtkCompositeDataSet::GetDataSets<vtkDataObject>(input);
-  if (vtkMathUtilities::NearlyEqual(p1[0], p2[0], tolerance) &&
-    vtkMathUtilities::NearlyEqual(p1[1], p2[1], tolerance) &&
-    vtkMathUtilities::NearlyEqual(p1[2], p2[2], tolerance))
+  if (vtkMathUtilities::FuzzyCompare(p1[0], p2[0], tolerance) &&
+    vtkMathUtilities::FuzzyCompare(p1[1], p2[1], tolerance) &&
+    vtkMathUtilities::FuzzyCompare(p1[2], p2[2], tolerance))
   {
     vtkNew<vtkLineSource> line;
     line->SetPoint1(p1.GetData());
@@ -1127,7 +1145,8 @@ vtkSmartPointer<vtkPolyData> vtkProbeLineFilter::IntersectCells(
       }
 
       auto inOut = ::GetInOutCell(p1, p2, cellId, dataset, tolerance);
-      if (inOut)
+      const bool isNotDuplicate = intersections.empty() || intersections.back() != inOut;
+      if (inOut && isNotDuplicate)
       {
         intersections.emplace_back(inOut);
       }
@@ -1158,12 +1177,12 @@ vtkSmartPointer<vtkPolyData> vtkProbeLineFilter::IntersectCells(
         const auto& inter = intersections[j];
         vtkCell* cell = dataset->GetCell(inter.CellId);
 
-        double weights[cell->GetNumberOfPoints()];
-        cell->InterpolateFunctions(inter.InPCoords.data(), weights);
-        targetArray->InterpolateTuple(j * 2, cell->GetPointIds(), sourceArray, weights);
+        std::vector<double> weights(cell->GetNumberOfPoints());
+        cell->InterpolateFunctions(inter.InPCoords.data(), weights.data());
+        targetArray->InterpolateTuple(j * 2, cell->GetPointIds(), sourceArray, weights.data());
 
-        cell->InterpolateFunctions(inter.OutPCoords.data(), weights);
-        targetArray->InterpolateTuple(j * 2 + 1, cell->GetPointIds(), sourceArray, weights);
+        cell->InterpolateFunctions(inter.OutPCoords.data(), weights.data());
+        targetArray->InterpolateTuple(j * 2 + 1, cell->GetPointIds(), sourceArray, weights.data());
       }
     }
   }
@@ -1182,7 +1201,7 @@ vtkSmartPointer<vtkPolyData> vtkProbeLineFilter::IntersectCells(
   auto result = vtkSmartPointer<vtkPolyData>::New();
 
   // Get all cell intersections for the current dataset. There is some cases where there
-  // is no strategy associated to a dataset, usually because the dataset has 0 cells.
+  // is no locator associated to a htg, usually because the htg has 0 cells or is invalid.
   // In this case `intersections` will stay empty.
   vtkHyperTreeGridLocator* locator = this->Internal->HTGLocators[htg];
   std::vector<HitCellInfo> intersections;
