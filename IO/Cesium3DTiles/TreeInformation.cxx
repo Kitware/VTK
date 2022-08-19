@@ -656,19 +656,28 @@ vtkSmartPointer<vtkImageData> TreeInformation::ComputeTileMeshTexture(
   int tileX = 0, tileY = 0;
   vtkIdType sortedIndex = 0;
   auto tcoordsTile = vtk::TakeSmartPointer<vtkDataArray>(tcoordsDataset->NewInstance());
-  tcoordsTile->DeepCopy(tcoordsDataset);
+  tcoordsTile->SetNumberOfComponents(2);
+  tcoordsTile->SetNumberOfTuples(tileMesh->GetNumberOfPoints());
+  tcoordsTile->Fill(-1);
 
+  vtkCellArray* cellArray = tileMesh->GetPolys();
   // for all rows
   for (size_t i = 0; i < groupedRegions.size(); ++i)
   { // for all cells in a row
     for (size_t j = 0; j < groupedRegions[i].size(); ++j, ++sortedIndex)
     {
-      vtkIdType cellIndex = scatteredRegions[sortedIndex].CellId;
+      vtkIdType cellId = scatteredRegions[sortedIndex].CellId;
       auto datasetRegion = scatteredRegions[groupedRegions[i][j]].Region;
       RegionType tileRegion{ { tileX, datasetRegion[1] - datasetRegion[0] + tileX, tileY,
         datasetRegion[3] - datasetRegion[2] + tileY, datasetRegion[4], datasetRegion[5] } };
       // recompute texture coordinates to refer to tile image instead of dataset image
-      vtkCell* cell = tileMesh->GetCell(cellIndex);
+      vtkCell* cell = tileMesh->GetCell(cellId);
+      if (cell->GetCellType() != VTK_TRIANGLE)
+      {
+        vtkLog(
+          ERROR, "We only know to process triangles but we got cell type: " << cell->GetCellType());
+        return tileImage;
+      }
       // std::cout << "Cell " << cellIndex << ": " << std::endl;
       // std::cout << "tileX: " << tileX << " tileY: " << tileY << std::endl;
       // std::cout << "dataset region: ";
@@ -683,15 +692,33 @@ vtkSmartPointer<vtkImageData> TreeInformation::ComputeTileMeshTexture(
       for (int k = 0; k < 3; ++k)
       {
         vtkIdType pointId = cell->GetPointId(k);
-        std::array<int, 2> datasetPoint = datasetCoordinates[cellIndex][k];
+        std::array<int, 2> datasetPoint = datasetCoordinates[cellId][k];
         std::array<int, 2> tilePoint = { { datasetPoint[0] - datasetRegion[0] + tileX,
           datasetPoint[1] - datasetRegion[2] + tileY } };
+        double tcoords[2] = { static_cast<double>(tilePoint[0]) / tileDims[0],
+          static_cast<double>(tilePoint[1]) / tileDims[1] };
         // std::cout << "d: " << datasetPoint[0] << ", " << datasetPoint[1]
         //           << " t: " << tilePoint[0] << ", " << tilePoint[1] << std::endl;
-        tcoordsTile->SetComponent(pointId, 0, static_cast<double>(tilePoint[0]) / tileDims[0]);
-        tcoordsTile->SetComponent(pointId, 1, static_cast<double>(tilePoint[1]) / tileDims[1]);
+        double tcoord0;
+        tcoord0 = tcoordsTile->GetComponent(pointId, 0);
+        if (tcoord0 != -1)
+        {
+          // need to duplicate pointId as it has different texture coordinates in
+          // different cells.
+          vtkPoints* points = tileMesh->GetPoints();
+          points->InsertNextPoint(points->GetPoint(pointId));
+          vtkPointData* pointData = tileMesh->GetPointData();
+          pointData->CopyAllocate(pointData, points->GetNumberOfPoints());
+          pointData->CopyData(pointData, pointId, points->GetNumberOfPoints() - 1);
+          cellArray->ReplaceCellPointAtId(cellId, k, points->GetNumberOfPoints() - 1);
+          pointId = points->GetNumberOfPoints() - 1;
+          tcoordsTile->InsertNextTuple(tcoords);
+        }
+        else
+        {
+          tcoordsTile->SetTuple(pointId, tcoords);
+        }
       }
-
       // copy a region from the dataset to the tile image
       CopyScalarsWorker copyWorker;
       if (!Dispatcher::Execute(
