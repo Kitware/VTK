@@ -15,6 +15,7 @@
 #include "vtkImprintFilter.h"
 
 #include "vtkArrayDispatch.h"
+#include "vtkAtomicMutex.h"
 #include "vtkBoundingBox.h"
 #include "vtkCellArray.h"
 #include "vtkCellArrayIterator.h"
@@ -39,6 +40,7 @@
 
 #include <map>
 #include <memory>
+#include <mutex>
 #include <vector>
 
 vtkStandardNewMacro(vtkImprintFilter);
@@ -993,7 +995,11 @@ struct vtkTargetPointClassifier
   double ProjTol;
   double MergeTol;
 
+  // Keep track of the classification of points. Because of potential simultaneous
+  // accesses to point classifications, need to mutex.
+  std::vector<vtkAtomicMutex> PtLocks;
   std::vector<char> PtClassification;
+
   // Scratch object for classifying points in parallel
   vtkSMPThreadLocal<vtkSmartPointer<vtkGenericCell>> Cell;
   vtkSMPThreadLocal<vtkSmartPointer<vtkCellArrayIterator>> CellIterator;
@@ -1008,8 +1014,8 @@ struct vtkTargetPointClassifier
     this->CandidatePoints = target->GetPoints();
     this->CandidateCells = target->GetPolys();
     vtkIdType numPts = target->GetNumberOfPoints();
-    this->PtClassification.insert(
-      this->PtClassification.begin(), numPts, PointClassification::Unknown);
+    this->PtLocks.resize(numPts);
+    this->PtClassification.resize(numPts, PointClassification::Unknown);
   }
 
   // Set the classification of a target point. It retains the most specialized
@@ -1047,14 +1053,17 @@ struct vtkTargetPointClassifier
     double x[3], closest[3], dist2;
     int subId, inside;
 
-    // Loop over cells, and just classify points with an expensive geometric
-    // query if necessary.
+    // Loop over cells, and classify the cell's points with an expensive
+    // geometric query only if necessary. Note that this is why
+    // PtLocks<vtkAtomicMutex> is used since a point may occasionally be
+    // simultaneously accessed.
     for (; cellId < endCellId; cellId++)
     {
       targetIter->GetCellAtId(cellId, npts, pts);
       for (auto i = 0; i < npts; ++i)
       {
         vtkIdType pId = pts[i];
+        std::lock_guard<vtkAtomicMutex> pointLockGuard(this->PtLocks[pId]);
         if (this->PtClassification[pId] == PointClassification::Unknown)
         {
           this->CandidatePoints->GetPoint(pId, x);
@@ -1649,8 +1658,8 @@ struct ProduceIntersectionPoints
     // the intersection point. This is because the imprint end point may
     // have already been added during point projection, and the intersection
     // point (within tolerance) is the same as the end point.
-    if (vtkMath::Distance2BetweenPoints(xInt, x0) <= this->ProjTol2 ||
-      vtkMath::Distance2BetweenPoints(xInt, x1) <= this->ProjTol2)
+    if (vtkMath::Distance2BetweenPoints(xInt, x0) <= this->MergeTol2 ||
+      vtkMath::Distance2BetweenPoints(xInt, x1) <= this->MergeTol2)
     {
       // Evaluate whether this intersection point should actually be
       // added.
