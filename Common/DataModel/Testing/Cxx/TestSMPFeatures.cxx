@@ -183,8 +183,8 @@ int TestSMPFeatures(int, char*[])
   // // Use a functor to compute the planes
   HullFunctor hull(pts, planes);
   vtkSMPTools::For(0, numPts, hull);
-  cout << "Planes (functor): " << planes[3] << ", " << planes[7] << ", " << planes[11] << ", "
-       << planes[15] << ", " << planes[19] << ", " << planes[23] << "\n";
+  std::cout << "Planes (functor): " << planes[3] << ", " << planes[7] << ", " << planes[11] << ", "
+            << planes[15] << ", " << planes[19] << ", " << planes[23] << "\n";
 
   // Use a lambda to compute the planes
   planes[3] = 0; // reset v
@@ -211,23 +211,23 @@ int TestSMPFeatures(int, char*[])
     }
   }); // end lambda
 
-  cout << "Planes (lambda): " << planes[3] << ", " << planes[7] << ", " << planes[11] << ", "
-       << planes[15] << ", " << planes[19] << ", " << planes[23] << "\n";
+  std::cout << "Planes (lambda): " << planes[3] << ", " << planes[7] << ", " << planes[11] << ", "
+            << planes[15] << ", " << planes[19] << ", " << planes[23] << "\n";
 
   // Compute bounds using Initialize() and Reduce().
   vtkFloatArray* ptsArray = vtkFloatArray::SafeDownCast(pts->GetData());
   BoundsFunctor calcBounds(ptsArray);
   vtkSMPTools::For(0, numPts, calcBounds);
   std::array<double, 6>& bds = calcBounds.Bounds;
-  cout << "Bounds (: " << bds[0] << "," << bds[1] << ", " << bds[2] << "," << bds[3] << ", "
-       << bds[4] << "," << bds[5] << ")\n";
+  std::cout << "Bounds (: " << bds[0] << "," << bds[1] << ", " << bds[2] << "," << bds[3] << ", "
+            << bds[4] << "," << bds[5] << ")\n";
 
   // Now exercise atomics
   vtkNew<vtkMultiThreader> mt;
   mt->SetSingleMethod(MyFunction, nullptr);
   mt->SetNumberOfThreads(NumThreads);
   mt->SingleMethodExecute();
-  cout << Total << " " << TotalAtomic.load() << endl;
+  std::cout << Total << " " << TotalAtomic.load() << endl;
 
   return EXIT_SUCCESS;
 }
