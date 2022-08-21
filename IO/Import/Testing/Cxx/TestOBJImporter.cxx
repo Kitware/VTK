@@ -43,21 +43,21 @@ int TestOBJImporter(int argc, char* argv[])
 
   std::string filenameMTL, texfile1;
 
-  if (argc >= 3)
+  if (argc >= 3 && strcmp(argv[2], "-D") != 0)
   {
     filenameMTL = argv[2];
-  }
 
-  if (argc >= 4)
-  {
-    texfile1 = argv[3];
+    if (argc >= 4 && strcmp(argv[3], "-D") != 0)
+    {
+      texfile1 = argv[3];
+      texfile1 = vtksys::SystemTools::GetFilenamePath(texfile1);
+    }
   }
-  std::string texture_path1 = vtksys::SystemTools::GetFilenamePath(texfile1);
 
   vtkNew<vtkOBJImporter> importer;
   importer->SetFileName(filenameOBJ.data());
   importer->SetFileNameMTL(filenameMTL.data());
-  importer->SetTexturePath(texture_path1.data());
+  importer->SetTexturePath(texfile1.data());
 
   vtkNew<vtkRenderer> ren;
   vtkNew<vtkRenderWindow> renWin;
