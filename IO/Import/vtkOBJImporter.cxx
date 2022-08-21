@@ -932,12 +932,6 @@ int vtkOBJPolyDataProcessor::RequestData(vtkInformation* vtkNotUsed(request),
         << "tcoords same as verts!? " << tcoords_same_as_verts << " ... hasTCoords?" << hasTCoords
         << " ... numPolysWithTCoords = " << numPolysWithTCoords);
 
-      // assign the points color as point data
-      if (hasColors)
-      {
-        output->GetPointData()->SetScalars(colors);
-      }
-
       // if there are no tcoords or normals or they match exactly
       // then we can just copy the data into the output (easy!)
       if ((!hasTCoords || tcoords_same_as_verts) && (!hasNormals || normals_same_as_verts))
@@ -963,6 +957,12 @@ int vtkOBJPolyDataProcessor::RequestData(vtkInformation* vtkNotUsed(request),
         if (hasTCoords && tcoords_same_as_verts && hasPolysWithTextureIndices)
           output->GetPointData()->SetTCoords(tcoords);
 
+        // assign the points color as point data
+        if (hasColors)
+        {
+          output->GetPointData()->SetScalars(colors);
+        }
+
         // if there is an exact correspondence between normals and vertices then can simply
         // assign the normals as point data
         if (hasNormals && normals_same_as_verts)
@@ -975,12 +975,14 @@ int vtkOBJPolyDataProcessor::RequestData(vtkInformation* vtkNotUsed(request),
       else
       {
         vtkDebugMacro(<< "Duplicating vertices so that tcoords and normals are correct");
-        vtkPoints* new_points = vtkPoints::New();
-        vtkFloatArray* new_tcoords = vtkFloatArray::New();
+        vtkNew<vtkPoints> new_points;
+        vtkNew<vtkFloatArray> new_tcoords;
         new_tcoords->SetNumberOfComponents(2);
-        vtkFloatArray* new_normals = vtkFloatArray::New();
+        vtkNew<vtkFloatArray> new_normals;
         new_normals->SetNumberOfComponents(3);
-        vtkCellArray* new_polys = vtkCellArray::New();
+        vtkNew<vtkFloatArray> new_colors;
+        new_colors->SetNumberOfComponents(3);
+        vtkNew<vtkCellArray> new_polys;
 
         // for each poly, copy its vertices into new_points (and point at them)
         // also copy its tcoords into new_tcoords
@@ -1000,6 +1002,7 @@ int vtkOBJPolyDataProcessor::RequestData(vtkInformation* vtkNotUsed(request),
 
         vtkIdType n_tcoords_tuples = tcoords->GetNumberOfTuples();
         vtkIdType n_normals_tuples = normals->GetNumberOfTuples();
+        vtkIdType n_colors_tuples = colors->GetNumberOfTuples();
 
         for (int i = 0; i < polys->GetNumberOfCells(); ++i)
         {
@@ -1044,6 +1047,15 @@ int vtkOBJPolyDataProcessor::RequestData(vtkInformation* vtkNotUsed(request),
                 }
                 new_normals->InsertNextTuple(n);
               }
+              if (hasColors)
+              {
+                float c[3] = { 0.f, 0.f, 0.f };
+                if (pts[j] < n_colors_tuples)
+                {
+                  colors->GetTypedTuple(pts[j], c);
+                }
+                new_colors->InsertNextTuple(c);
+              }
               // copy the vertex into the new structure and update
               // the vertex index in the polys structure (pts is a pointer into it)
               tmpCell->SetId(j, new_points->InsertNextPoint(points->GetPoint(pts[j])));
@@ -1065,19 +1077,21 @@ int vtkOBJPolyDataProcessor::RequestData(vtkInformation* vtkNotUsed(request),
           output->GetPointData()->SetTCoords(new_tcoords);
           vtkDebugMacro(" set new tcoords");
         }
+
         if (hasNormals)
         {
           output->GetPointData()->SetNormals(new_normals);
           vtkDebugMacro(" set new normals");
         }
 
+        if (hasColors)
+        {
+          output->GetPointData()->SetScalars(new_colors);
+          vtkDebugMacro(" set new colors");
+        }
+
         // TODO: fixup for pointElems and lineElems too
         output->Squeeze();
-
-        new_points->Delete();
-        new_polys->Delete();
-        new_tcoords->Delete();
-        new_normals->Delete();
       }
     }
   }

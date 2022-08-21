@@ -58,6 +58,10 @@ vtk_add_test_cxx(vtkIOImportCxxTests tests
     DATA{../Data/Input/TestOBJImporter-VtNoIndices.png}
 )
 
+vtk_add_test_cxx(vtkIOImportCxxTests tests
+  TestOBJImporter-ScalarsDuplication,TestOBJImporter.cxx
+    DATA{../Data/Input/TestOBJImporter-ScalarsDuplication.obj}
+)
 
 vtk_add_test_cxx(vtkIOImportCxxTests tests
   TestVRMLImporter.cxx,NO_VALID

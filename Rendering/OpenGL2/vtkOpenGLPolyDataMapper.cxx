@@ -1103,7 +1103,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderLight(
       }
       else
       {
-        toString << "  float df = max(0.0,normalVCVSOutput.z);\n"
+        toString << "  float df = max(0.000001, normalVCVSOutput.z);\n"
                     "  float sf = pow(df, specularPower);\n"
                     "  vec3 diffuse = df * diffuseColor * lightColor0;\n"
                     "  vec3 specular = sf * specularColor * lightColor0;\n"
