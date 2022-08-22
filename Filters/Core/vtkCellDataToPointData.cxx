@@ -112,7 +112,7 @@ void FastUnstructuredData(
 }
 
 //------------------------------------------------------------------------------
-// Helper template function that implement the major part of the algorithm
+// Helper template function that implements the major part of the algorithm
 // which will be expanded by the vtkTemplateMacro. The template function is
 // provided so that coverage test can cover this function. This approach is
 // slow: it's non-threaded; uses a slower vtkDataSet API; and most
@@ -257,7 +257,7 @@ public:
 
     double weights[8];
 
-    int abort = 0;
+    vtkTypeBool abort = 0;
     vtkIdType progressInterval = numPts / 20 + 1;
     for (vtkIdType ptId = 0; ptId < numPts && !abort; ptId++)
     {
@@ -654,7 +654,7 @@ int vtkCellDataToPointData::InterpolatePointData(vtkDataSet* input, vtkDataSet* 
 
   double weights[VTK_MAX_CELLS_PER_POINT];
 
-  int abort = 0;
+  vtkTypeBool abort = 0;
   vtkIdType progressInterval = numPts / 20 + 1;
   for (vtkIdType ptId = 0; ptId < numPts && !abort; ptId++)
   {
