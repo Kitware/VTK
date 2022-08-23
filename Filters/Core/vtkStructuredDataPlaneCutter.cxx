@@ -921,7 +921,8 @@ vtkSmartPointer<vtkPolyData> SliceStructuredData(TGrid* inputGrid, vtkDataArray*
   if (interpolate)
   {
     outputPointData->InterpolateAllocate(inputGrid->GetPointData(), numberOfOutputPoints);
-    pointDataArrays.AddArrays(numberOfOutputPoints, inputGrid->GetPointData(), outputPointData);
+    pointDataArrays.AddArrays(numberOfOutputPoints, inputGrid->GetPointData(), outputPointData,
+      /*nullValue*/ 0.0, /*promote*/ false);
   }
   // define outputCellArray
   vtkSmartPointer<vtkCellArray> outputCellArray;
@@ -931,7 +932,8 @@ vtkSmartPointer<vtkPolyData> SliceStructuredData(TGrid* inputGrid, vtkDataArray*
   if (interpolate)
   {
     outputCellData->InterpolateAllocate(inputGrid->GetCellData(), numberOfOutputCells);
-    cellDataArrays.AddArrays(numberOfOutputCells, inputGrid->GetCellData(), outputCellData);
+    cellDataArrays.AddArrays(numberOfOutputCells, inputGrid->GetCellData(), outputCellData,
+      /*nullValue*/ 0.0, /*promote*/ false);
   }
 
 #ifdef VTK_USE_64BIT_IDS

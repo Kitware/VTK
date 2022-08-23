@@ -575,7 +575,8 @@ int vtkPolyDataPlaneCutter::RequestData(vtkInformation* vtkNotUsed(request),
   if (this->InterpolateAttributes)
   {
     output->GetCellData()->InterpolateAllocate(input->GetCellData(), numLines);
-    cellArrays.AddArrays(numLines, input->GetCellData(), output->GetCellData());
+    cellArrays.AddArrays(
+      numLines, input->GetCellData(), output->GetCellData(), /*nullValue*/ 0.0, /*promote*/ false);
   }
 
   // Extract the line segments.
@@ -625,7 +626,8 @@ int vtkPolyDataPlaneCutter::RequestData(vtkInformation* vtkNotUsed(request),
   if (this->InterpolateAttributes)
   {
     output->GetPointData()->InterpolateAllocate(input->GetPointData(), numOutPts);
-    ptArrays.AddArrays(numOutPts, input->GetPointData(), output->GetPointData());
+    ptArrays.AddArrays(numOutPts, input->GetPointData(), output->GetPointData(), /*nullValue*/ 0.0,
+      /*promote*/ false);
   }
 
   // Generate the new points coordinates, and interpolate point data.
