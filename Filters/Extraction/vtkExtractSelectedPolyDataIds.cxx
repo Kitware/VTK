@@ -112,6 +112,10 @@ int vtkExtractSelectedPolyDataIds::RequestData(vtkInformation* vtkNotUsed(reques
   vtkIdType numInputCells = input->GetNumberOfCells();
   for (vtkIdType i = 0; i < numCells; i++)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     vtkIdType cellId = idArray->GetValue(i);
     if (cellId >= numInputCells)
     {

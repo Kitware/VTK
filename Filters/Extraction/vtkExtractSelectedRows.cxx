@@ -188,6 +188,10 @@ int vtkExtractSelectedRows::RequestData(vtkInformation* vtkNotUsed(request),
 
   for (unsigned int i = 0; i < converted->GetNumberOfNodes(); ++i)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     vtkSelectionNode* node = converted->GetNode(i);
     if (node->GetFieldType() == vtkSelectionNode::ROW)
     {

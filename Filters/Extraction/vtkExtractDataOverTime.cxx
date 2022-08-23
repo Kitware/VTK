@@ -139,7 +139,7 @@ vtkTypeBool vtkExtractDataOverTime::ProcessRequest(
 
     // increment the time index
     this->CurrentTimeIndex++;
-    if (this->CurrentTimeIndex == this->NumberOfTimeSteps)
+    if (this->CheckAbort() || this->CurrentTimeIndex == this->NumberOfTimeSteps)
     {
       // Tell the pipeline to stop looping.
       request->Remove(vtkStreamingDemandDrivenPipeline::CONTINUE_EXECUTING());

@@ -214,6 +214,8 @@ bool vtkExtractGrid::RequestDataImpl(
 
   this->Internal->CopyCellData(inExt, outExt, cd, outCD);
 
+  this->CheckAbort();
+
   return true;
 }
 

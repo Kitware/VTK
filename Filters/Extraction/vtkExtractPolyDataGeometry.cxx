@@ -178,10 +178,14 @@ int vtkExtractPolyDataGeometry::RequestData(vtkInformation* vtkNotUsed(request),
   }
 
   // verts
-  if (newVerts && !this->GetAbortExecute())
+  if (newVerts && !this->CheckAbort())
   {
     for (inVerts->InitTraversal(); inVerts->GetNextCell(npts, pts);)
     {
+      if (this->CheckAbort())
+      {
+        break;
+      }
       for (numIn = 0, i = 0; i < npts; i++)
       {
         if (newScalars->GetValue(pts[i]) <= 0.0)
@@ -220,10 +224,14 @@ int vtkExtractPolyDataGeometry::RequestData(vtkInformation* vtkNotUsed(request),
   this->UpdateProgress(0.6);
 
   // lines
-  if (newLines && !this->GetAbortExecute())
+  if (newLines && !this->CheckAbort())
   {
     for (inLines->InitTraversal(); inLines->GetNextCell(npts, pts);)
     {
+      if (this->CheckAbort())
+      {
+        break;
+      }
       for (numIn = 0, i = 0; i < npts; i++)
       {
         if (newScalars->GetValue(pts[i]) <= 0.0)
@@ -262,10 +270,14 @@ int vtkExtractPolyDataGeometry::RequestData(vtkInformation* vtkNotUsed(request),
   this->UpdateProgress(0.75);
 
   // polys
-  if (newPolys && !this->GetAbortExecute())
+  if (newPolys && !this->CheckAbort())
   {
     for (inPolys->InitTraversal(); inPolys->GetNextCell(npts, pts);)
     {
+      if (this->CheckAbort())
+      {
+        break;
+      }
       for (numIn = 0, i = 0; i < npts; i++)
       {
         if (newScalars->GetValue(pts[i]) <= 0.0)
@@ -304,10 +316,14 @@ int vtkExtractPolyDataGeometry::RequestData(vtkInformation* vtkNotUsed(request),
   this->UpdateProgress(0.90);
 
   // strips
-  if (newStrips && !this->GetAbortExecute())
+  if (newStrips && !this->CheckAbort())
   {
     for (inStrips->InitTraversal(); inStrips->GetNextCell(npts, pts);)
     {
+      if (this->CheckAbort())
+      {
+        break;
+      }
       for (numIn = 0, i = 0; i < npts; i++)
       {
         if (newScalars->GetValue(pts[i]) <= 0.0)
@@ -383,6 +399,8 @@ int vtkExtractPolyDataGeometry::RequestData(vtkInformation* vtkNotUsed(request),
     output->SetStrips(newStrips);
     newStrips->Delete();
   }
+
+  this->CheckAbort();
 
   return 1;
 }

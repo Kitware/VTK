@@ -228,6 +228,7 @@ bool vtkExtractRectilinearGrid::RequestDataImpl(
   out_coords[1]->Delete();
   out_coords[2]->Delete();
 
+  this->CheckAbort();
   return true;
 }
 

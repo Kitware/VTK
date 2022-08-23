@@ -517,6 +517,10 @@ int vtkConvertSelection::Convert(vtkSelection* input, vtkDataObject* data, vtkSe
 {
   for (unsigned int n = 0; n < input->GetNumberOfNodes(); ++n)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     vtkSelectionNode* inputNode = input->GetNode(n);
     vtkNew<vtkSelectionNode> outputNode;
 

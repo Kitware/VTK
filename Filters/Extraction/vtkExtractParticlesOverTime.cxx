@@ -74,7 +74,8 @@ class vtkExtractParticlesOverTimeInternals
 public:
   double GetProgress() const;
   bool ShouldRestart(vtkMTimeType modifiedTime) const;
-  bool GenerateOutput(vtkDataSet* inputDataSet, const std::string& IdChannelArray);
+  bool GenerateOutput(vtkDataSet* inputDataSet, const std::string& IdChannelArray,
+    vtkExtractParticlesOverTime* filter);
 
   int NumberOfTimeSteps = 0;
   vtkMTimeType LastModificationTime = 0;
@@ -118,7 +119,7 @@ bool vtkExtractParticlesOverTimeInternals::ShouldRestart(vtkMTimeType modifiedTi
 
 //------------------------------------------------------------------------------
 bool vtkExtractParticlesOverTimeInternals::GenerateOutput(
-  vtkDataSet* inputDataSet, const std::string& IdChannelArray)
+  vtkDataSet* inputDataSet, const std::string& IdChannelArray, vtkExtractParticlesOverTime* filter)
 {
   vtkNew<vtkSelectionNode> particleSelectionNode;
   vtkSmartPointer<vtkDataArray> array;
@@ -157,6 +158,7 @@ bool vtkExtractParticlesOverTimeInternals::GenerateOutput(
 
   this->SelectionExtractor->SetInputDataObject(0, inputDataSet);
   this->SelectionExtractor->SetInputDataObject(1, particleSelection);
+  this->SelectionExtractor->SetContainerAlgorithm(filter);
   this->SelectionExtractor->Update();
 
   return true;
@@ -331,7 +333,8 @@ int vtkExtractParticlesOverTime::RequestData(
 
     this->Internals->CurrentTimeIndex++;
 
-    if (this->Internals->CurrentTimeIndex == this->Internals->NumberOfTimeSteps)
+    if (this->CheckAbort() ||
+      this->Internals->CurrentTimeIndex == this->Internals->NumberOfTimeSteps)
     {
       this->Internals->CurrentTimeIndex = 0;
       this->Internals->CurrentState = State::EXTRACTION_ENDED;
@@ -340,7 +343,7 @@ int vtkExtractParticlesOverTime::RequestData(
 
   if (this->Internals->CurrentState == State::EXTRACTED)
   {
-    if (!this->Internals->GenerateOutput(particleDataSet, IdChannelArray))
+    if (!this->Internals->GenerateOutput(particleDataSet, IdChannelArray, this))
     {
       this->Internals->CurrentState = State::NOT_EXTRACTED;
       return 0;

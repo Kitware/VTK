@@ -365,7 +365,7 @@ int vtkExtractExodusGlobalTemporalVariables::RequestData(
   }
 
   internals.Accumulate(arrays);
-  if (internals.ContinueExecuting())
+  if (!this->CheckAbort() && internals.ContinueExecuting())
   {
     // if this is the first time we're executing and we didn't get all timesteps
     // for the global variable, we must discard current values and start from

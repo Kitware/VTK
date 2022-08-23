@@ -213,6 +213,10 @@ int vtkExtractSelectedBlock::RequestData(vtkInformation* vtkNotUsed(request),
 
   for (citer->InitTraversal(); !citer->IsDoneWithTraversal(); citer->GoToNextItem())
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     auto fiter = blocks.find(citer->GetCurrentFlatIndex());
     if ((inverse && fiter == blocks.end()) || (!inverse && fiter != blocks.end()))
     {
