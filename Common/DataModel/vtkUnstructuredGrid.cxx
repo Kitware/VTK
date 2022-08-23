@@ -94,6 +94,9 @@ vtkStandardExtendedNewMacro(vtkUnstructuredGrid);
 
 namespace
 {
+constexpr unsigned char MASKED_CELL_VALUE = vtkDataSetAttributes::HIDDENCELL |
+  vtkDataSetAttributes::DUPLICATECELL | vtkDataSetAttributes::REFINEDCELL;
+
 //==============================================================================
 struct RemoveGhostCellsWorker
 {
@@ -141,8 +144,7 @@ struct RemoveGhostCellsWorker
 
     for (vtkIdType cellId = 0; cellId < inputOffsets->GetNumberOfValues() - 1; ++cellId)
     {
-      if (ghostCellsRange[cellId] &
-        (vtkDataSetAttributes::HIDDENCELL | vtkDataSetAttributes::DUPLICATECELL))
+      if (ghostCellsRange[cellId] & MASKED_CELL_VALUE)
       {
         startId = inputOffsetsRange[cellId + 1];
         continue;
