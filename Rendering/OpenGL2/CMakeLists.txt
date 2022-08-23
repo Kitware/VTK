@@ -373,11 +373,8 @@ elseif (VTK_USE_COCOA)
   vtk_module_link(VTK::RenderingOpenGL2 PUBLIC "-framework Cocoa")
 elseif (WIN32)
   # vtkWin32OpenGLDXRenderWindow requires D3D.
-  add_library(d3d11 INTERFACE IMPORTED)
-  set_target_properties(d3d11 PROPERTIES IMPORTED_LIBNAME "d3d11.lib")
-  add_library(dxgi INTERFACE IMPORTED)
-  set_target_properties(dxgi PROPERTIES IMPORTED_LIBNAME "dxgi.lib")
-  vtk_module_link(VTK::RenderingOpenGL2 PUBLIC d3d11 dxgi)
+  find_package(DirectX REQUIRED)
+  vtk_module_link(VTK::RenderingOpenGL2 PUBLIC DirectX::d3d11 DirectX::dxgi)
 endif ()
 
 if (ANDROID)
