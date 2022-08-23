@@ -49,7 +49,7 @@ bool vtkOpenXRManagerD3DGraphics::CreateGraphicsBinding(vtkOpenGLRenderWindow* h
       });
     this->GraphicsBinding = graphicsBindingDXWin32;
 
-    graphicsBindingDXWin32->device = d3dWindow->GetDevice().Get();
+    graphicsBindingDXWin32->device = d3dWindow->GetDevice();
   }
 
   return true;

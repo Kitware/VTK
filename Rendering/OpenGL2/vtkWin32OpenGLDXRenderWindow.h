@@ -27,8 +27,7 @@
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkWin32OpenGLRenderWindow.h"
 
-#include <d3d11.h>      // For D3D11 interface
-#include <wrl/client.h> // For Microsoft::WRL::ComPtr
+#include <d3d11.h> // For D3D11 interface
 
 class VTKRENDERINGOPENGL2_EXPORT vtkWin32OpenGLDXRenderWindow : public vtkWin32OpenGLRenderWindow
 {
@@ -85,14 +84,14 @@ public:
   /**
    * Returns the D3D device associated to this render window
    */
-  vtkGetMacro(Device, Microsoft::WRL::ComPtr<ID3D11Device>);
+  ID3D11Device* GetDevice();
   ///@}
 
   ///@{
   /**
    * Returns the D3D texture shared with this render window
    */
-  vtkGetMacro(D3DSharedTexture, Microsoft::WRL::ComPtr<ID3D11Texture2D>);
+  ID3D11Texture2D* GetD3DSharedTexture();
   ///@}
 
   ///@{
@@ -105,7 +104,7 @@ public:
 
 protected:
   vtkWin32OpenGLDXRenderWindow() = default;
-  ~vtkWin32OpenGLDXRenderWindow() = default;
+  ~vtkWin32OpenGLDXRenderWindow() override;
 
 private:
   vtkWin32OpenGLDXRenderWindow(const vtkWin32OpenGLDXRenderWindow&) = delete;
@@ -114,10 +113,10 @@ private:
   // Specify the required D3D version
   D3D_FEATURE_LEVEL MinFeatureLevel = D3D_FEATURE_LEVEL_11_1;
 
-  // D3D resources
-  Microsoft::WRL::ComPtr<ID3D11Device> Device = nullptr;
-  Microsoft::WRL::ComPtr<ID3D11DeviceContext> D3DDeviceContext = nullptr;
-  Microsoft::WRL::ComPtr<ID3D11Texture2D> D3DSharedTexture = nullptr;
+  // Hide D3D resources managed by Microsoft::WRL::ComPtr
+  class PIMPL;
+  PIMPL* Private;
+
   HANDLE DeviceHandle = 0;
 
   unsigned int TextureId = 0; // OpenGL texture id to be shared with the D3D texture

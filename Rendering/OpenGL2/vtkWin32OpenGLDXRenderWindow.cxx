@@ -20,8 +20,23 @@
 #include "vtk_glew.h"
 
 #include <dxgi.h>
+#include <wrl/client.h> // For Microsoft::WRL::ComPtr
+
+class vtkWin32OpenGLDXRenderWindow::PIMPL
+{
+public:
+  Microsoft::WRL::ComPtr<ID3D11Device> Device = nullptr;
+  Microsoft::WRL::ComPtr<ID3D11DeviceContext> D3DDeviceContext = nullptr;
+  Microsoft::WRL::ComPtr<ID3D11Texture2D> D3DSharedTexture = nullptr;
+};
 
 vtkStandardNewMacro(vtkWin32OpenGLDXRenderWindow);
+
+//------------------------------------------------------------------------------
+vtkWin32OpenGLDXRenderWindow::~vtkWin32OpenGLDXRenderWindow()
+{
+  delete this->Private;
+}
 
 //------------------------------------------------------------------------------
 void vtkWin32OpenGLDXRenderWindow::Initialize()
@@ -66,17 +81,17 @@ void vtkWin32OpenGLDXRenderWindow::Initialize()
 
   // Create the D3D API device object and a corresponding context.
   D3D11CreateDevice(DXGIAdapter.Get(), driverType, 0, D3D11_CREATE_DEVICE_BGRA_SUPPORT,
-    &this->MinFeatureLevel, 1, D3D11_SDK_VERSION, this->Device.GetAddressOf(), nullptr,
-    this->D3DDeviceContext.GetAddressOf());
+    &this->MinFeatureLevel, 1, D3D11_SDK_VERSION, this->Private->Device.GetAddressOf(), nullptr,
+    this->Private->D3DDeviceContext.GetAddressOf());
 
-  if (!this->Device)
+  if (!this->Private->Device)
   {
     vtkErrorMacro("D3D11CreateDevice failed in Initialize().");
     return;
   }
 
   // Acquire a handle to the D3D device for use in OpenGL
-  this->DeviceHandle = wglDXOpenDeviceNV(this->Device.Get());
+  this->DeviceHandle = wglDXOpenDeviceNV(this->Private->Device.Get());
 
   // Create D3D Texture2D
   D3D11_TEXTURE2D_DESC textureDesc;
@@ -91,9 +106,9 @@ void vtkWin32OpenGLDXRenderWindow::Initialize()
   textureDesc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
   textureDesc.CPUAccessFlags = 0;
   textureDesc.MiscFlags = 0;
-  this->Device->CreateTexture2D(&textureDesc, nullptr, &this->D3DSharedTexture);
+  this->Private->Device->CreateTexture2D(&textureDesc, nullptr, &this->Private->D3DSharedTexture);
 
-  if (!this->D3DSharedTexture)
+  if (!this->Private->D3DSharedTexture)
   {
     vtkErrorMacro("Failed to create D3D shared texture.");
   }
@@ -131,7 +146,7 @@ void vtkWin32OpenGLDXRenderWindow::RegisterSharedTexture(unsigned int textureHan
     return;
   }
 
-  if (!this->DeviceHandle || !this->D3DSharedTexture)
+  if (!this->DeviceHandle || !this->Private->D3DSharedTexture)
   {
     vtkWarningMacro("Failed to register shared texture. Initializing window.");
     this->Initialize();
@@ -140,7 +155,7 @@ void vtkWin32OpenGLDXRenderWindow::RegisterSharedTexture(unsigned int textureHan
   this->TextureId = textureHandle;
 
   this->GLSharedTextureHandle = wglDXRegisterObjectNV(this->DeviceHandle, // D3D device handle
-    this->D3DSharedTexture.Get(),                                         // D3D texture
+    this->Private->D3DSharedTexture.Get(),                                // D3D texture
     this->TextureId,                                                      // OpenGL texture id
     this->MultiSamples > 1 ? GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D, WGL_ACCESS_READ_WRITE_NV);
 
@@ -170,21 +185,21 @@ void vtkWin32OpenGLDXRenderWindow::SetSize(int width, int height)
   {
     this->Superclass::SetSize(width, height);
 
-    if (!this->DeviceHandle || !this->D3DSharedTexture)
+    if (!this->DeviceHandle || !this->Private->D3DSharedTexture)
     {
       return;
     }
 
     D3D11_TEXTURE2D_DESC textureDesc;
-    this->D3DSharedTexture->GetDesc(&textureDesc);
+    this->Private->D3DSharedTexture->GetDesc(&textureDesc);
 
     unsigned int tId = this->TextureId;
     this->UnregisterSharedTexture();
 
     textureDesc.Width = this->Size[0];
     textureDesc.Height = this->Size[1];
-    this->Device->CreateTexture2D(
-      &textureDesc, nullptr, this->D3DSharedTexture.ReleaseAndGetAddressOf());
+    this->Private->Device->CreateTexture2D(
+      &textureDesc, nullptr, this->Private->D3DSharedTexture.ReleaseAndGetAddressOf());
 
     this->RegisterSharedTexture(tId);
   }
@@ -197,20 +212,20 @@ void vtkWin32OpenGLDXRenderWindow::SetMultiSamples(int samples)
   {
     this->Superclass::SetMultiSamples(samples);
 
-    if (!this->DeviceHandle || !this->D3DSharedTexture)
+    if (!this->DeviceHandle || !this->Private->D3DSharedTexture)
     {
       return;
     }
 
     D3D11_TEXTURE2D_DESC textureDesc;
-    this->D3DSharedTexture->GetDesc(&textureDesc);
+    this->Private->D3DSharedTexture->GetDesc(&textureDesc);
 
     unsigned int tId = this->TextureId;
     this->UnregisterSharedTexture();
 
     textureDesc.SampleDesc.Count = this->MultiSamples > 1 ? this->MultiSamples : 1;
-    this->Device->CreateTexture2D(
-      &textureDesc, nullptr, this->D3DSharedTexture.ReleaseAndGetAddressOf());
+    this->Private->Device->CreateTexture2D(
+      &textureDesc, nullptr, this->Private->D3DSharedTexture.ReleaseAndGetAddressOf());
 
     this->RegisterSharedTexture(tId);
   }
@@ -219,17 +234,29 @@ void vtkWin32OpenGLDXRenderWindow::SetMultiSamples(int samples)
 //------------------------------------------------------------------------------
 void vtkWin32OpenGLDXRenderWindow::BlitToTexture(ID3D11Texture2D* target)
 {
-  if (!this->D3DDeviceContext || !target || !D3DSharedTexture)
+  if (!this->Private->D3DDeviceContext || !target || !this->Private->D3DSharedTexture)
   {
     return;
   }
 
-  this->D3DDeviceContext->CopySubresourceRegion(target, // destination
-    0,                                                  // destination subresource id
-    0, 0, 0,                                            // destination origin x,y,z
-    this->D3DSharedTexture.Get(),                       // source
-    0,                                                  // source subresource id
-    nullptr);                                           // source clip box (nullptr == full extent)
+  this->Private->D3DDeviceContext->CopySubresourceRegion(target, // destination
+    0,                                                           // destination subresource id
+    0, 0, 0,                                                     // destination origin x,y,z
+    this->Private->D3DSharedTexture.Get(),                       // source
+    0,                                                           // source subresource id
+    nullptr); // source clip box (nullptr == full extent)
+}
+
+//------------------------------------------------------------------------------
+ID3D11Device* vtkWin32OpenGLDXRenderWindow::GetDevice()
+{
+  return this->Private->Device.Get();
+}
+
+//------------------------------------------------------------------------------
+ID3D11Texture2D* vtkWin32OpenGLDXRenderWindow::GetD3DSharedTexture()
+{
+  return this->Private->D3DSharedTexture.Get();
 }
 
 //------------------------------------------------------------------------------
