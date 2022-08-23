@@ -88,7 +88,7 @@ bool vtkOpenXRManagerOpenGLGraphics::CreateGraphicsBinding(vtkOpenGLRenderWindow
   graphicsBindingGLX->visualid = v->visualid;
   graphicsBindingGLX->glxFBConfig = *fbConfig;
 
-#elif _WIN32
+#elif defined(_WIN32)
   auto graphicsBindingGLWin32 =
     std::shared_ptr<XrGraphicsBindingOpenGLWin32KHR>(new XrGraphicsBindingOpenGLWin32KHR{
       XR_TYPE_GRAPHICS_BINDING_OPENGL_WIN32_KHR, // .type
