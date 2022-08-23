@@ -293,7 +293,7 @@ public:
 };
 
 //------------------------------------------------------------------------------
-vtkStandardNewMacro(vtkPointDataToCellData);
+vtkObjectFactoryNewMacro(vtkPointDataToCellData);
 
 //------------------------------------------------------------------------------
 // Instantiate object so that point data is not passed to output.
@@ -345,6 +345,22 @@ void vtkPointDataToCellData::ClearPointDataArrays()
     this->Modified();
   }
   this->Implementation->PointDataArrays.clear();
+}
+
+//------------------------------------------------------------------------------
+vtkIdType vtkPointDataToCellData::GetNumberOfPointArraysToProcess()
+{
+  return static_cast<vtkIdType>(this->Implementation->PointDataArrays.size());
+}
+
+//------------------------------------------------------------------------------
+void vtkPointDataToCellData::GetPointArraysToProcess(const char* names[])
+{
+  for (const auto& n : this->Implementation->PointDataArrays)
+  {
+    *names = n.c_str();
+    ++names;
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -418,7 +434,6 @@ int vtkPointDataToCellData::RequestData(
   // Pass the cell data first. The fields and attributes
   // which also exist in the point data of the input will
   // be over-written during CopyAllocate
-  output->GetCellData()->CopyGlobalIdsOff();
   output->GetCellData()->PassData(input->GetCellData());
   output->GetCellData()->CopyFieldOff(vtkDataSetAttributes::GhostArrayName());
 

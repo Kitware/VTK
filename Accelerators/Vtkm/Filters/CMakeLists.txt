@@ -81,6 +81,8 @@ endmacro()
 if (VTK_ENABLE_VTKM_OVERRIDES)
   _vtkm_add_override("vtkContourFilter" "vtkmContour")
   _vtkm_add_override("vtkGradientFilter" "vtkmGradient")
+  _vtkm_add_override("vtkCellDataToPointData" "vtkmAverageToPoints")
+  _vtkm_add_override("vtkPointDataToCellData" "vtkmAverageToCells")
 
   list (JOIN VTKM_OVERRIDES_INITIALIZER_LIST ",\n  " VTKM_OVERRIDES_INITIALIZER_LIST_STRING)
 

@@ -15,6 +15,7 @@
 
 #define _USE_MATH_DEFINES
 
+#include "vtkAppendPolyData.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkDoubleArray.h"
@@ -28,6 +29,8 @@
 #include "vtkPointDataToCellData.h"
 #include "vtkPolyData.h"
 #include "vtkSmartPointer.h"
+
+#include "vtkmFilterOverrides.h"
 
 #include <algorithm>
 #include <cmath>
@@ -68,7 +71,6 @@ vtkSmartPointer<vtkPolyData> Convert1DImageToPolyData(vtkImageData* input)
 {
   vtkSmartPointer<vtkPolyData> output = vtkSmartPointer<vtkPolyData>::New();
 
-  output->ShallowCopy(input);
   vtkNew<vtkPoints> points;
   output->SetPoints(points);
   points->SetNumberOfPoints(input->GetNumberOfPoints());
@@ -100,6 +102,7 @@ vtkSmartPointer<vtkPolyData> Convert1DImageToPolyData(vtkImageData* input)
   }
 
   output->SetLines(lines);
+  output->GetPointData()->ShallowCopy(input->GetPointData());
 
   return output;
 }
@@ -109,7 +112,6 @@ vtkSmartPointer<vtkPolyData> Convert2DImageToPolyData(vtkImageData* input)
 {
   vtkSmartPointer<vtkPolyData> output = vtkSmartPointer<vtkPolyData>::New();
 
-  output->ShallowCopy(input);
   vtkNew<vtkPoints> points;
   output->SetPoints(points);
   points->SetNumberOfPoints(input->GetNumberOfPoints());
@@ -189,6 +191,8 @@ vtkSmartPointer<vtkPolyData> Convert2DImageToPolyData(vtkImageData* input)
   output->SetStrips(strips);
   output->SetPolys(polys);
 
+  output->GetPointData()->ShallowCopy(input->GetPointData());
+
   return output;
 }
 
@@ -209,30 +213,12 @@ bool TestMixedTypes()
   FillImage(lineImage);
 
   vtkSmartPointer<vtkPolyData> pdLines = Convert1DImageToPolyData(lineImage);
-  for (vtkIdType pointId = 0; pointId < pdLines->GetNumberOfPoints(); ++pointId)
-  {
-    pd->GetPoints()->InsertNextPoint(pdLines->GetPoint(pointId));
-  }
 
-  vtkIdType pointOffset = image->GetNumberOfPoints();
-  vtkCellArray* lines = pdLines->GetLines();
-  vtkDataArray* connectivity = lines->GetConnectivityArray();
-  for (vtkIdType id = 0; id < connectivity->GetNumberOfTuples(); ++id)
-  {
-    connectivity->SetTuple1(id, connectivity->GetTuple1(id) + pointOffset);
-  }
-
-  vtkDoubleArray* pdArray =
-    vtkArrayDownCast<vtkDoubleArray>(pd->GetPointData()->GetAbstractArray(0));
-  vtkDoubleArray* pdLinesArray =
-    vtkArrayDownCast<vtkDoubleArray>(pdLines->GetPointData()->GetAbstractArray(0));
-  for (vtkIdType linePointId = 0; linePointId < pdLines->GetNumberOfPoints(); ++linePointId)
-  {
-    pdArray->InsertNextValue(pdLinesArray->GetValue(linePointId));
-  }
-
-  pd->SetLines(lines);
-  pd->DeleteCells();
+  vtkNew<vtkAppendPolyData> appendPD;
+  appendPD->AddInputData(pd);
+  appendPD->AddInputData(pdLines);
+  appendPD->Update();
+  pd = appendPD->GetOutput();
 
   vtkNew<vtkPointDataToCellData> imagePointToCell;
   imagePointToCell->SetInputData(image);
