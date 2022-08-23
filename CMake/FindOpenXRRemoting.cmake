@@ -6,11 +6,6 @@ find_path(OpenXRRemoting_INCLUDE_DIR
   DOC "OpenXR Remoting include directory")
 mark_as_advanced(OpenXRRemoting_INCLUDE_DIR)
 
-# OpenXR remoting headers
-add_library(OpenXR::Remoting INTERFACE IMPORTED)
-set_target_properties(OpenXR::Remoting PROPERTIES
-  INTERFACE_INCLUDE_DIRECTORIES "${OpenXRRemoting_INCLUDE_DIR}")
-
 find_path(OpenXRRemoting_BIN_DIR
   NAMES
     Microsoft.Holographic.AppRemoting.OpenXr.dll
@@ -18,19 +13,34 @@ find_path(OpenXRRemoting_BIN_DIR
   DOC "OpenXR Remoting bin directory")
 mark_as_advanced(OpenXRRemoting_BIN_DIR)
 
-# OpenXR remoting runtime library
-add_library(OpenXR::RemotingRuntime MODULE IMPORTED)
-set_target_properties(OpenXR::RemotingRuntime PROPERTIES
-  IMPORTED_LOCATION "${OpenXRRemoting_BIN_DIR}/Microsoft.Holographic.AppRemoting.OpenXr.dll")
-
-# OpenXR remoting PerceptionDevice library
-add_library(OpenXR::PerceptionDevice MODULE IMPORTED)
-set_target_properties(OpenXR::PerceptionDevice PROPERTIES
-  IMPORTED_LOCATION "${OpenXRRemoting_BIN_DIR}/PerceptionDevice.dll")
-
-# RemotingXR.json
-set(RemotingXR_JSON ${OpenXRRemoting_BIN_DIR}/RemotingXR.json)
-
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(OpenXRRemoting
-  REQUIRED_VARS OpenXRRemoting_BIN_DIR OpenXRRemoting_INCLUDE_DIR)
+  REQUIRED_VARS OpenXRRemoting_INCLUDE_DIR OpenXRRemoting_BIN_DIR)
+
+if (OpenXRRemoting_FOUND)
+
+  # OpenXR remoting headers
+  if (NOT TARGET OpenXR::Remoting)
+    add_library(OpenXR::Remoting INTERFACE IMPORTED)
+    set_target_properties(OpenXR::Remoting PROPERTIES
+      INTERFACE_INCLUDE_DIRECTORIES "${OpenXRRemoting_INCLUDE_DIR}")
+  endif()
+
+  # OpenXR remoting runtime library
+  if (NOT TARGET OpenXR::RemotingRuntime)
+    add_library(OpenXR::RemotingRuntime MODULE IMPORTED)
+    set_target_properties(OpenXR::RemotingRuntime PROPERTIES
+      IMPORTED_LOCATION "${OpenXRRemoting_BIN_DIR}/Microsoft.Holographic.AppRemoting.OpenXr.dll")
+  endif()
+
+  # OpenXR remoting PerceptionDevice library
+  if (NOT TARGET OpenXR::PerceptionDevice)
+    add_library(OpenXR::PerceptionDevice MODULE IMPORTED)
+    set_target_properties(OpenXR::PerceptionDevice PROPERTIES
+      IMPORTED_LOCATION "${OpenXRRemoting_BIN_DIR}/PerceptionDevice.dll")
+  endif()
+
+  # RemotingXR.json
+  set(RemotingXR_JSON ${OpenXRRemoting_BIN_DIR}/RemotingXR.json)
+
+endif()
