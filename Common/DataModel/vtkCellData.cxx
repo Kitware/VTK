@@ -23,7 +23,7 @@ vtkStandardExtendedNewMacro(vtkCellData);
 //------------------------------------------------------------------------------
 vtkCellData::vtkCellData()
 {
-  this->GhostsToSkip = vtkDataSetAttributes::HIDDENCELL;
+  this->GhostsToSkip = vtkDataSetAttributes::HIDDENCELL | vtkDataSetAttributes::REFINEDCELL;
 }
 
 //------------------------------------------------------------------------------
