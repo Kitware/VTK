@@ -311,6 +311,9 @@ int vtkDataSetToDataObjectFilter::RequestData(
 
   output->SetFieldData(fd);
   fd->Delete();
+
+  this->CheckAbort();
+
   return 1;
 }
 

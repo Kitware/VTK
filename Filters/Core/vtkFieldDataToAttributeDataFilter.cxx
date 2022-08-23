@@ -171,15 +171,36 @@ int vtkFieldDataToAttributeDataFilter::RequestData(vtkInformation* vtkNotUsed(re
 
   this->ConstructScalars(num, fd, attr, this->ScalarComponentRange, this->ScalarArrays,
     this->ScalarArrayComponents, this->ScalarNormalize, this->NumberOfScalarComponents);
-  this->ConstructVectors(num, fd, attr, this->VectorComponentRange, this->VectorArrays,
-    this->VectorArrayComponents, this->VectorNormalize);
-  this->ConstructTensors(num, fd, attr, this->TensorComponentRange, this->TensorArrays,
-    this->TensorArrayComponents, this->TensorNormalize);
-  this->ConstructTCoords(num, fd, attr, this->TCoordComponentRange, this->TCoordArrays,
-    this->TCoordArrayComponents, this->TCoordNormalize, this->NumberOfTCoordComponents);
-  this->ConstructNormals(num, fd, attr, this->NormalComponentRange, this->NormalArrays,
-    this->NormalArrayComponents, this->NormalNormalize);
-  this->ConstructFieldData(num, attr);
+
+  // Skip step if CheckAbort returns true
+  if (!this->CheckAbort())
+  {
+    this->ConstructVectors(num, fd, attr, this->VectorComponentRange, this->VectorArrays,
+      this->VectorArrayComponents, this->VectorNormalize);
+  }
+
+  if (!this->CheckAbort())
+  {
+    this->ConstructTensors(num, fd, attr, this->TensorComponentRange, this->TensorArrays,
+      this->TensorArrayComponents, this->TensorNormalize);
+  }
+
+  if (!this->CheckAbort())
+  {
+    this->ConstructTCoords(num, fd, attr, this->TCoordComponentRange, this->TCoordArrays,
+      this->TCoordArrayComponents, this->TCoordNormalize, this->NumberOfTCoordComponents);
+  }
+
+  if (!this->CheckAbort())
+  {
+    this->ConstructNormals(num, fd, attr, this->NormalComponentRange, this->NormalArrays,
+      this->NormalArrayComponents, this->NormalNormalize);
+  }
+
+  if (!this->CheckAbort())
+  {
+    this->ConstructFieldData(num, attr);
+  }
 
   return 1;
 }

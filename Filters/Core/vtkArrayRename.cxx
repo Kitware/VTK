@@ -157,6 +157,11 @@ int vtkArrayRename::RequestData(vtkInformation* vtkNotUsed(request),
 
   for (int type = vtkDataObject::POINT; type < vtkDataObject::NUMBER_OF_ATTRIBUTE_TYPES; type++)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
+
     if (type == vtkDataObject::POINT_THEN_CELL)
     {
       continue;

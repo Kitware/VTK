@@ -125,8 +125,9 @@ struct ContourImageWorker
     static const int CASE_MASK[4] = { 1, 2, 8, 4 };
     vtkMarchingSquaresLineCases *lineCase, *lineCases;
     static int edges[4][2] = { { 0, 1 }, { 1, 3 }, { 2, 3 }, { 0, 2 } };
-    int* edge;
+    EDGE_LIST* edge;
     double value, s[4];
+    bool abortExecute = false;
 
     lineCases = vtkMarchingSquaresLineCases::GetCases();
     //
@@ -152,14 +153,14 @@ struct ContourImageWorker
     x[dir[2]] = roi[dir[2] * 2];
 
     // Traverse all pixel cells, generating line segments using marching squares.
-    for (j = roi[start[1]]; j < roi[end[1]]; j++)
+    for (j = roi[start[1]]; j < roi[end[1]] && !abortExecute; j++)
     {
 
       jOffset = j * offset[1];
       pts[0][dir[1]] = j;
       yp = j + 1;
 
-      for (i = roi[start[0]]; i < roi[end[0]]; i++)
+      for (i = roi[start[0]]; i < roi[end[0]] && !abortExecute; i++)
       {
         // get scalar values
         idx = i * offset[0] + jOffset + offset[2];
@@ -190,6 +191,11 @@ struct ContourImageWorker
         // Loop over contours in this pixel
         for (contNum = 0; contNum < numValues; contNum++)
         {
+          if (self->CheckAbort())
+          {
+            abortExecute = true;
+            break;
+          }
           value = values[contNum];
 
           // Build the case table

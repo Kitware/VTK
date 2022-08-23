@@ -92,6 +92,10 @@ int vtkRemoveDuplicatePolys::RequestData(vtkInformation* vtkNotUsed(request),
     if (id % progressStep == 0)
     {
       this->UpdateProgress(0.8 + 0.2 * (static_cast<float>(id) / numberOfPolys));
+      if (this->CheckAbort())
+      {
+        break;
+      }
     }
 
     // duplicate points do not make poly vertices or triangles

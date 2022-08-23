@@ -58,6 +58,10 @@ bool vtkConvertToMultiBlockDataSet::Execute(vtkDataObject* input, vtkMultiBlockD
     auto iter = vtk::TakeSmartPointer(inputCD->NewIterator());
     for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
     {
+      if (this->CheckAbort())
+      {
+        break;
+      }
       output->SetDataSet(iter, iter->GetCurrentDataObject());
       if (iter->HasCurrentMetaData())
       {
@@ -67,6 +71,7 @@ bool vtkConvertToMultiBlockDataSet::Execute(vtkDataObject* input, vtkMultiBlockD
   }
   else
   {
+    this->CheckAbort();
     output->SetNumberOfBlocks(1);
     output->SetBlock(0, input);
   }

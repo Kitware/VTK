@@ -414,7 +414,7 @@ bool vtkGlyph3D::Execute(vtkDataSet* input, vtkInformationVector* sourceVector, 
     if (!(inPtId % 10000))
     {
       this->UpdateProgress(static_cast<double>(inPtId) / numPts);
-      if (this->GetAbortExecute())
+      if (this->CheckAbort())
       {
         break;
       }

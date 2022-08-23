@@ -501,7 +501,7 @@ int vtkDelaunay3D::RequestData(vtkInformation* vtkNotUsed(request),
     {
       vtkDebugMacro(<< "point #" << ptId);
       this->UpdateProgress(static_cast<double>(ptId) / numPoints);
-      if (this->GetAbortExecute())
+      if (this->CheckAbort())
       {
         break;
       }

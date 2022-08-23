@@ -84,6 +84,10 @@ int vtkRearrangeFields::RequestData(vtkInformation* vtkNotUsed(request),
     Operation* before;
     do
     {
+      if (this->CheckAbort())
+      {
+        break;
+      }
       before = cur;
       cur = cur->Next;
       this->ApplyOperation(before, input, output);

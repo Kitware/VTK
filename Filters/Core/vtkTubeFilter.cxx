@@ -119,7 +119,7 @@ int vtkTubeFilter::RequestData(vtkInformation* vtkNotUsed(request),
   const vtkIdType* ptsOrig = nullptr;
   vtkIdType offset = 0;
   vtkFloatArray* newTCoords = nullptr;
-  int abort = 0;
+  bool abort = false;
   vtkIdType inCellId;
   double oldRadius = 1.0;
 
@@ -242,7 +242,7 @@ int vtkTubeFilter::RequestData(vtkInformation* vtkNotUsed(request),
   for (inLines->InitTraversal(); inLines->GetNextCell(npts, ptsOrig) && !abort; inCellId++)
   {
     this->UpdateProgress((double)inCellId / numLines);
-    abort = this->GetAbortExecute();
+    abort = this->CheckAbort();
 
     // Make a copy of point indices to avoid modifying input polydata cells
     // while removing degenerate lines.

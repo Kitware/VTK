@@ -105,6 +105,10 @@ int vtkMergeDataObjectFilter::RequestData(vtkInformation* vtkNotUsed(request),
     }
     for (int i = 0; i < fd->GetNumberOfArrays(); i++)
     {
+      if (this->CheckAbort())
+      {
+        break;
+      }
       output->GetCellData()->AddArray(fd->GetArray(i));
     }
   }
@@ -118,6 +122,10 @@ int vtkMergeDataObjectFilter::RequestData(vtkInformation* vtkNotUsed(request),
     }
     for (int i = 0; i < fd->GetNumberOfArrays(); i++)
     {
+      if (this->CheckAbort())
+      {
+        break;
+      }
       output->GetPointData()->AddArray(fd->GetArray(i));
     }
   }

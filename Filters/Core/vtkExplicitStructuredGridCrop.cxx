@@ -167,6 +167,7 @@ int vtkExplicitStructuredGridCrop::RequestData(vtkInformation* vtkNotUsed(reques
 
   output->Crop(input, this->OutputWholeExtent, true);
 
+  this->CheckAbort();
   this->UpdateProgress(1.);
   return 1;
 }

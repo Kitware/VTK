@@ -240,7 +240,7 @@ int vtkStripper::RequestData(vtkInformation* vtkNotUsed(request),
   numLines = 0;
 
   int cellType;
-  int abort = 0;
+  bool abort = false;
   vtkIdType progressInterval = numCells / 20 + 1;
   for (cellId = 0; cellId < numCells && !abort; cellId++)
   {
@@ -251,7 +251,7 @@ int vtkStripper::RequestData(vtkInformation* vtkNotUsed(request),
     if (!(cellId % progressInterval))
     {
       this->UpdateProgress((float)cellId / numCells);
-      abort = this->GetAbortExecute();
+      abort = this->CheckAbort();
     }
     if (!visited[cellId])
     {

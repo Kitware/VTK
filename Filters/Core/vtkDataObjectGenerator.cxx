@@ -672,7 +672,8 @@ vtkDataObject* vtkDataObjectGenerator::FillOutputDataObjects(
       hbo->SetOrigin(origin);
       hbo->SetGridDescription(VTK_XYZ_GRID);
       vtkIdType gcnt = 0;
-      for (git = structure->children.begin(); git != structure->children.end(); ++git)
+      bool abort = false;
+      for (git = structure->children.begin(); git != structure->children.end() && !abort; ++git)
       {
         // cerr << "LVL=" << gcnt  << endl;
 
@@ -699,6 +700,11 @@ vtkDataObject* vtkDataObjectGenerator::FillOutputDataObjects(
              ;
              ++dit)
         {
+          if (this->CheckAbort())
+          {
+            abort = true;
+            break;
+          }
           // cerr << "DS=" << dcnt  << endl;
           vtkInternalStructureCache* dptr = *dit;
           // dptr->type should be UF1
@@ -779,6 +785,10 @@ vtkDataObject* vtkDataObjectGenerator::FillOutputDataObjects(
 
       for (git = structure->children.begin(); git != structure->children.end(); ++git)
       {
+        if (this->CheckAbort())
+        {
+          break;
+        }
         this->ZOffset += 1.0;
         vtkInternalStructureCache* gptr = *git;
         if (gptr->type == GS)
@@ -841,6 +851,10 @@ void vtkDataObjectGenerator::MakeValues(vtkDataSet* ds)
 
   for (vtkIdType i = 0; i < num; i++)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     ids->SetValue(i, this->CellIdCounter++);
     const double* bds = ds->GetCell(i)->GetBounds();
     xcoords->SetValue(i, (bds[0] + bds[1]) * 0.5);
@@ -878,6 +892,10 @@ void vtkDataObjectGenerator::MakeValues(vtkDataSet* ds)
 
   for (vtkIdType i = 0; i < num; i++)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     ids->SetValue(i, this->PointIdCounter++);
     double* coords = ds->GetPoint(i);
     xcoords->SetValue(i, coords[0]);

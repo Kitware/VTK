@@ -188,6 +188,10 @@ int vtkMergeFields::RequestData(vtkInformation* vtkNotUsed(request),
   int sameNumTuples = 1;
   do
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     before = cur;
     cur = cur->Next;
     inputArray = fd->GetArray(before->FieldName);
@@ -257,6 +261,10 @@ int vtkMergeFields::RequestData(vtkInformation* vtkNotUsed(request),
   cur = this->GetFirst();
   do
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     before = cur;
     cur = cur->Next;
     inputArray = fd->GetArray(before->FieldName);

@@ -200,7 +200,7 @@ void vtkSPDF_MovePoints(vtkSPDF_InternalParams<T>& params)
     if (iterationNumber && !(iterationNumber % 5))
     {
       params.spdf->UpdateProgress(0.5 + 0.5 * iterationNumber / params.numberOfIterations);
-      if (params.spdf->GetAbortExecute())
+      if (params.spdf->CheckAbort())
       {
         break;
       }
@@ -379,6 +379,10 @@ int vtkSmoothPolyDataFilter::RequestData(vtkInformation* vtkNotUsed(request),
   // now check lines. Only manifold lines can be smoothed------------
   for (inLines = input->GetLines(), inLines->InitTraversal(); inLines->GetNextCell(npts, pts);)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     for (j = 0; j < npts; j++)
     {
       if (Verts[pts[j]].type == VTK_SIMPLE_VERTEX)
@@ -453,6 +457,10 @@ int vtkSmoothPolyDataFilter::RequestData(vtkInformation* vtkNotUsed(request),
 
     for (cellId = 0, polys->InitTraversal(); polys->GetNextCell(npts, pts); cellId++)
     {
+      if (this->CheckAbort())
+      {
+        break;
+      }
       for (i = 0; i < npts; i++)
       {
         p1 = pts[i];
@@ -555,6 +563,10 @@ int vtkSmoothPolyDataFilter::RequestData(vtkInformation* vtkNotUsed(request),
   // post-process edge vertices to make sure we can smooth them
   for (i = 0; i < numPts; i++)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     if (Verts[i].type == VTK_SIMPLE_VERTEX)
     {
       numSimple++;

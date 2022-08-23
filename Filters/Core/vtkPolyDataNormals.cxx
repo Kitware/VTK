@@ -142,6 +142,10 @@ int vtkPolyDataNormals::RequestData(vtkInformation* vtkNotUsed(request),
     for (vtkIdType stripId = 0, inCellIdx = numPolys, outCellIdx = numPolys; stripId < numStrips;
          ++stripId, ++inCellIdx)
     {
+      if (this->CheckAbort())
+      {
+        break;
+      }
       inStrips->GetCellAtId(stripId, npts, pts, tempCellPointIds);
       vtkTriangleStrip::DecomposeStrip(npts, pts, polys);
       // Copy the cell data for the strip to each triangle.
@@ -228,6 +232,10 @@ int vtkPolyDataNormals::RequestData(vtkInformation* vtkNotUsed(request),
       double n[3];
       while (leftmostPoints->GetNumberOfItems())
       {
+        if (this->CheckAbort())
+        {
+          break;
+        }
         foundLeftmostCell = 0;
         // Keep iterating through leftmost points and cells located at
         // those points until I've got a leftmost point with
@@ -286,6 +294,10 @@ int vtkPolyDataNormals::RequestData(vtkInformation* vtkNotUsed(request),
     {
       for (vtkIdType cellId = 0; cellId < numPolys; cellId++)
       {
+        if (this->CheckAbort())
+        {
+          break;
+        }
         if (visited[cellId] == VTK_CELL_NOT_VISITED)
         {
           if (this->FlipNormals)

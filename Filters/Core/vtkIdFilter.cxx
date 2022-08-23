@@ -133,6 +133,8 @@ int vtkIdFilter::RequestData(vtkInformation* vtkNotUsed(request),
   outPD->PassData(inPD);
   outCD->PassData(inCD);
 
+  this->CheckAbort();
+
   return 1;
 }
 

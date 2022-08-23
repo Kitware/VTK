@@ -316,6 +316,8 @@ int vtkDataObjectToDataSetFilter::RequestData(vtkInformation* vtkNotUsed(request
   outFD->CopyAllOn();
   outFD->PassData(inFD);
 
+  this->CheckAbort();
+
   return 1;
 }
 

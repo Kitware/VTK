@@ -116,6 +116,8 @@ int vtkCenterOfMass::RequestData(vtkInformation* vtkNotUsed(request),
 
   this->ComputeCenterOfMass(points, scalars, this->Center);
 
+  this->CheckAbort();
+
   return 1;
 }
 

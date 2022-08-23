@@ -237,6 +237,10 @@ int vtkStructuredGridAppend::RequestData(
 
   for (int idx1 = 0; idx1 < this->GetNumberOfInputConnections(0); ++idx1)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     vtkStructuredGrid* input = vtkStructuredGrid::GetData(inputVector[0], idx1);
     if (input != nullptr)
     {

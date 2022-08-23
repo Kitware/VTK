@@ -69,9 +69,13 @@ vtkCutter::vtkCutter(vtkImplicitFunction* cf)
   this->OutputPointsPrecision = DEFAULT_PRECISION;
 
   this->SynchronizedTemplates3D = vtkSynchronizedTemplates3D::New();
+  this->SynchronizedTemplates3D->SetContainerAlgorithm(this);
   this->SynchronizedTemplatesCutter3D = vtkSynchronizedTemplatesCutter3D::New();
+  this->SynchronizedTemplatesCutter3D->SetContainerAlgorithm(this);
   this->GridSynchronizedTemplates = vtkGridSynchronizedTemplates3D::New();
+  this->GridSynchronizedTemplates->SetContainerAlgorithm(this);
   this->RectilinearSynchronizedTemplates = vtkRectilinearSynchronizedTemplates::New();
+  this->RectilinearSynchronizedTemplates->SetContainerAlgorithm(this);
 }
 
 //------------------------------------------------------------------------------

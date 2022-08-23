@@ -246,6 +246,10 @@ int vtkConnectivityFilter::RequestData(vtkInformation* vtkNotUsed(request),
     {
       if (cellId && !(cellId % 5000))
       {
+        if (this->CheckAbort())
+        {
+          break;
+        }
         this->UpdateProgress(0.1 + 0.8 * cellId / numCells);
       }
 
@@ -275,6 +279,10 @@ int vtkConnectivityFilter::RequestData(vtkInformation* vtkNotUsed(request),
     {
       for (i = 0; i < this->Seeds->GetNumberOfIds(); i++)
       {
+        if (this->CheckAbort())
+        {
+          break;
+        }
         pt = this->Seeds->GetId(i);
         if (pt >= 0)
         {
@@ -290,6 +298,10 @@ int vtkConnectivityFilter::RequestData(vtkInformation* vtkNotUsed(request),
     {
       for (i = 0; i < this->Seeds->GetNumberOfIds(); i++)
       {
+        if (this->CheckAbort())
+        {
+          break;
+        }
         cellId = this->Seeds->GetId(i);
         if (cellId >= 0)
         {
@@ -303,6 +315,10 @@ int vtkConnectivityFilter::RequestData(vtkInformation* vtkNotUsed(request),
       vtkIdType minId = 0;
       for (minDist2 = VTK_DOUBLE_MAX, i = 0; i < numPts; i++)
       {
+        if (this->CheckAbort())
+        {
+          break;
+        }
         input->GetPoint(i, x);
         dist2 = vtkMath::Distance2BetweenPoints(x, this->ClosestPoint);
         if (dist2 < minDist2)
@@ -314,6 +330,10 @@ int vtkConnectivityFilter::RequestData(vtkInformation* vtkNotUsed(request),
       input->GetPointCells(minId, this->CellIds);
       for (j = 0; j < this->CellIds->GetNumberOfIds(); j++)
       {
+        if (this->CheckAbort())
+        {
+          break;
+        }
         this->Wave->InsertNextId(this->CellIds->GetId(j));
       }
     }
@@ -527,6 +547,10 @@ void vtkConnectivityFilter::TraverseAndMark(vtkDataSet* input)
 
   while ((numIds = this->Wave->GetNumberOfIds()) > 0)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     for (i = 0; i < numIds; i++)
     {
       cellId = this->Wave->GetId(i);

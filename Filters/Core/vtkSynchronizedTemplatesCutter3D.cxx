@@ -160,6 +160,7 @@ void ContourImage(vtkSynchronizedTemplatesCutter3D* self, int* exExt, vtkImageDa
   ptr += self->GetArrayComponent();
   vtkPolygonBuilder polyBuilder;
   vtkSmartPointer<vtkIdListCollection> polys = vtkSmartPointer<vtkIdListCollection>::New();
+  bool abort = false;
 
   vtkSynchronizedTemplatesCutter3DInitializeOutput(
     exExt, self->GetOutputPointsPrecision(), data, output);
@@ -227,7 +228,7 @@ void ContourImage(vtkSynchronizedTemplatesCutter3D* self, int* exExt, vtkImageDa
   T* scalars2 = scalars + xdim * ydim;
 
   // for each contour
-  for (vidx = 0; vidx < numContours; vidx++)
+  for (vidx = 0; vidx < numContours && !abort; vidx++)
   {
     value = values[vidx];
     inPtrZ = ptr;
@@ -255,6 +256,11 @@ void ContourImage(vtkSynchronizedTemplatesCutter3D* self, int* exExt, vtkImageDa
     {
       self->UpdateProgress(
         (double)vidx / numContours + (k - zMin) / ((zMax - zMin + 1.0) * numContours));
+      if (self->CheckAbort())
+      {
+        abort = true;
+        break;
+      }
       inPtrY = inPtrZ;
 
       // for each slice compute the scalars

@@ -259,6 +259,10 @@ int vtkTensorGlyph::RequestData(vtkInformation* vtkNotUsed(request),
 
   for (inPtId = 0; inPtId < numPts; inPtId++)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     ptIncr = numDirs * inPtId * numSourcePts;
 
     // Translation is postponed

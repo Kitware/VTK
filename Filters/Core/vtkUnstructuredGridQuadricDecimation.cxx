@@ -1077,6 +1077,7 @@ public:
   float doublingRatio;
   bool noDoubling;
   float boundaryWeight;
+  vtkUnstructuredGridQuadricDecimation* filter;
   void BuildFullMesh();
   int Simplify(int n, int desiredTets);
 
@@ -1172,6 +1173,10 @@ void vtkUnstructuredGridQuadricDecimationTetMesh::BuildFullMesh()
   vtkUnstructuredGridQuadricDecimationFaceHashMap::iterator fi = faces.begin();
   while (fi != faces.end())
   {
+    if (this->filter->CheckAbort())
+    {
+      break;
+    }
     vtkUnstructuredGridQuadricDecimationFace* f = (*fi).second;
     f->UpdateQuadric(boundaryWeight);
     ++fi;
@@ -1253,6 +1258,10 @@ int vtkUnstructuredGridQuadricDecimationTetMesh::Simplify(int n, int desiredTets
   int run = 0;
   while ((count < n || desiredTets < (tCount - unusedTets)) && (run < 1000))
   {
+    if (this->filter->CheckAbort())
+    {
+      break;
+    }
     // as long as we want to collapse
     vtkUnstructuredGridQuadricDecimationQEF Q;
     vtkUnstructuredGridQuadricDecimationEdge e;
@@ -1577,6 +1586,7 @@ int vtkUnstructuredGridQuadricDecimation::RequestData(vtkInformation* vtkNotUsed
   myMesh.doublingRatio = this->AutoAddCandidatesThreshold;
   myMesh.noDoubling = !this->AutoAddCandidates;
   myMesh.boundaryWeight = this->BoundaryWeight;
+  myMesh.filter = this;
   int err = myMesh.LoadUnstructuredGrid((vtkUnstructuredGrid*)(input), this->ScalarsName);
   if (err != vtkUnstructuredGridQuadricDecimation::NON_ERROR)
   {

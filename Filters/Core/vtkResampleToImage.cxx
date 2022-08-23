@@ -217,6 +217,7 @@ void vtkResampleToImage::PerformResampling(vtkDataObject* input, const double sa
   structure->SetExtent(probingExtent);
 
   vtkNew<vtkCompositeDataProbeFilter> prober;
+  prober->SetContainerAlgorithm(this);
   prober->SetInputData(structure);
   prober->SetSourceData(input);
   prober->Update();

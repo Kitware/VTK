@@ -390,6 +390,10 @@ void vtkQuadricClustering::AddPolygons(
     ++this->InCellCount;
     if (curr > cstep)
     {
+      if (this->CheckAbort())
+      {
+        break;
+      }
       this->UpdateProgress(.6 + .2 * curr / total);
       cstep += step;
     }
@@ -409,6 +413,10 @@ void vtkQuadricClustering::AddStrips(vtkCellArray* strips, vtkPoints* points, in
 
   for (strips->InitTraversal(); strips->GetNextCell(numPts, ptIds);)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     points->GetPoint(ptIds[0], pts[0]);
     binIds[0] = this->HashPoint(pts[0]);
     points->GetPoint(ptIds[1], pts[1]);
@@ -597,6 +605,10 @@ void vtkQuadricClustering::AddEdges(
   edges->InitTraversal();
   for (vtkIdType i = 0; i < numCells; ++i)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     edges->GetNextCell(numPts, ptIds);
     if (numPts != 0)
     {
@@ -745,6 +757,10 @@ void vtkQuadricClustering::AddVertices(
   verts->InitTraversal();
   for (vtkIdType i = 0; i < numCells; ++i)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     verts->GetNextCell(numPts, ptIds);
     // Can there be poly vertices?
     for (vtkIdType j = 0; j < numPts; ++j)
@@ -892,7 +908,7 @@ void vtkQuadricClustering::EndAppend()
   vtkPolyData* output = vtkPolyData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   vtkIdType numBuckets;
-  int abortExecute = 0;
+  bool abortExecute = false;
   vtkPoints* outputPoints;
   double newPt[3];
   numBuckets = this->NumberOfDivisions[0] * this->NumberOfDivisions[1] * this->NumberOfDivisions[2];
@@ -926,7 +942,7 @@ void vtkQuadricClustering::EndAppend()
       cstep = 0;
       vtkDebugMacro(<< "Finding point in bin #" << i);
       this->UpdateProgress(0.8 + 0.2 * i / numBuckets);
-      abortExecute = this->GetAbortExecute();
+      abortExecute = this->CheckAbort();
     }
     ++cstep;
 

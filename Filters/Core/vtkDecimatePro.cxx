@@ -150,7 +150,7 @@ int vtkDecimatePro::RequestData(vtkInformation* vtkNotUsed(request),
   vtkPointData* meshPD = nullptr;
   vtkIdType *map, numNewPts, totalPts;
   vtkIdType newCellPts[3];
-  int abortExecute = 0;
+  bool abortExecute = false;
 
   vtkDebugMacro(<< "Executing progressive decimation...");
 
@@ -287,7 +287,7 @@ int vtkDecimatePro::RequestData(vtkInformation* vtkNotUsed(request),
     {
       vtkDebugMacro(<< "Inserting vertex #" << ptId);
       this->UpdateProgress(0.25 * ptId / npts); // 25% spent inserting
-      abortExecute = this->GetAbortExecute();
+      abortExecute = this->CheckAbort();
     }
     this->Insert(ptId);
   }
@@ -310,7 +310,7 @@ int vtkDecimatePro::RequestData(vtkInformation* vtkNotUsed(request),
     {
       vtkDebugMacro(<< "Deleting vertex #" << numPops);
       this->UpdateProgress(0.25 + 0.75 * (reduction / this->TargetReduction));
-      abortExecute = this->GetAbortExecute();
+      abortExecute = this->CheckAbort();
     }
 
     this->Mesh->GetPoint(ptId, this->X);

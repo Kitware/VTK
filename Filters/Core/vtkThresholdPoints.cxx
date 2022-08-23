@@ -187,7 +187,7 @@ int vtkThresholdPoints::RequestData(vtkInformation* vtkNotUsed(request),
   verts->AllocateEstimate(numPts, 1);
 
   // Check that the scalars of each point satisfy the threshold criterion
-  int abort = 0;
+  bool abort = false;
   vtkIdType progressInterval = numPts / 20 + 1;
 
   for (ptId = 0; ptId < numPts && !abort; ptId++)
@@ -195,7 +195,7 @@ int vtkThresholdPoints::RequestData(vtkInformation* vtkNotUsed(request),
     if (!(ptId % progressInterval))
     {
       this->UpdateProgress((double)ptId / numPts);
-      abort = this->GetAbortExecute();
+      abort = this->CheckAbort();
     }
 
     double value = 0.0;

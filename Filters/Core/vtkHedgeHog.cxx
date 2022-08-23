@@ -115,7 +115,7 @@ int vtkHedgeHog::RequestData(vtkInformation* vtkNotUsed(request),
     if (!(ptId % 10000)) // abort/progress
     {
       this->UpdateProgress(static_cast<double>(ptId) / numPts);
-      if (this->GetAbortExecute())
+      if (this->CheckAbort())
       {
         break;
       }

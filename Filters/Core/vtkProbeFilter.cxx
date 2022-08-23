@@ -1067,13 +1067,17 @@ void vtkProbeFilter::ProbeImageDataPointsSMP(vtkDataSet* input, vtkImageData* so
 
   // Loop over all input points, interpolating source data
   vtkIdType progressInterval = endId / 20 + 1;
-  for (vtkIdType ptId = startId; ptId < endId && !GetAbortExecute(); ptId++)
+  for (vtkIdType ptId = startId; ptId < endId; ptId++)
   {
     if (baseThread && !(ptId % progressInterval))
     {
       // This is not ideal, because if the base thread executes more than one piece,
       // then the progress will repeat its 0.0 to 1.0 progression for each piece.
       this->UpdateProgress(static_cast<double>(ptId) / endId);
+      if (this->CheckAbort())
+      {
+        break;
+      }
     }
 
     if (maskArray[ptId] == static_cast<char>(1))

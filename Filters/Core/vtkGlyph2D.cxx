@@ -260,7 +260,7 @@ int vtkGlyph2D::RequestData(vtkInformation* vtkNotUsed(request), vtkInformationV
     if (!(inPtId % 10000))
     {
       this->UpdateProgress(static_cast<double>(inPtId) / numPts);
-      if (this->GetAbortExecute())
+      if (this->CheckAbort())
       {
         break;
       }

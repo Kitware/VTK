@@ -132,7 +132,7 @@ int vtkUnstructuredGridToExplicitStructuredGrid::RequestData(
   }
 
   int progressCount = 0;
-  int abort = 0;
+  bool abort = false;
   vtkIdType progressInterval = nbCells / 20 + 1;
 
   // Copy unstructured cells
@@ -143,7 +143,7 @@ int vtkUnstructuredGridToExplicitStructuredGrid::RequestData(
     {
       vtkDebugMacro("Process cell #" << i);
       this->UpdateProgress(static_cast<double>(i) / nbCells);
-      abort = this->GetAbortExecute();
+      abort = this->CheckAbort();
       progressCount = 0;
     }
     progressCount++;

@@ -89,6 +89,10 @@ int vtkStructuredGridOutlineFilter::RequestData(vtkInformation* vtkNotUsed(reque
 
   for (i = 0; i < 12; i++)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     // Find the start of this edge, the length of this edge, and increment.
     xInc = 1;
     yInc = ext[1] - ext[0] + 1;

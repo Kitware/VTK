@@ -75,9 +75,13 @@ vtkContourFilter::vtkContourFilter()
   this->GenerateTriangles = 1;
 
   this->SynchronizedTemplates2D = vtkSynchronizedTemplates2D::New();
+  this->SynchronizedTemplates2D->SetContainerAlgorithm(this);
   this->SynchronizedTemplates3D = vtkSynchronizedTemplates3D::New();
+  this->SynchronizedTemplates3D->SetContainerAlgorithm(this);
   this->GridSynchronizedTemplates = vtkGridSynchronizedTemplates3D::New();
+  this->GridSynchronizedTemplates->SetContainerAlgorithm(this);
   this->RectilinearSynchronizedTemplates = vtkRectilinearSynchronizedTemplates::New();
+  this->RectilinearSynchronizedTemplates->SetContainerAlgorithm(this);
 
   this->InternalProgressCallbackCommand = vtkCallbackCommand::New();
   this->InternalProgressCallbackCommand->SetCallback(
@@ -368,7 +372,7 @@ int vtkContourFilter::RequestData(
   } // if 3D SGrid
 
   vtkIdType cellId;
-  int abortExecute = 0;
+  bool abortExecute = false;
   vtkIdList* cellPts;
   vtkCellArray *newVerts, *newLines, *newPolys;
   vtkPoints* newPts;
@@ -413,6 +417,7 @@ int vtkContourFilter::RequestData(
     vtkContourGrid* cgrid;
 
     cgrid = vtkContourGrid::New();
+    cgrid->SetContainerAlgorithm(this);
     cgrid->SetInputData(input);
     // currently vtkContourGrid has a ComputeGradients option
     // but this doesn't do anything and will soon be deprecated.
@@ -573,7 +578,7 @@ int vtkContourFilter::RequestData(
           {
             vtkDebugMacro(<< "Contouring #" << cellId);
             this->UpdateProgress(static_cast<double>(cellId) / numCells);
-            abortExecute = this->GetAbortExecute();
+            abortExecute = this->CheckAbort();
           }
 
           for (i = 0; i < numContours; i++)
@@ -601,11 +606,16 @@ int vtkContourFilter::RequestData(
       // Loop over all contour values.  Then for each contour value,
       // loop over all cells.
       //
-      for (i = 0; i < numContours; i++)
+      for (i = 0; i < numContours && !abortExecute; i++)
       {
         for (this->ScalarTree->InitTraversal(values[i]);
              (cell = this->ScalarTree->GetNextCell(cellId, cellPts, cellScalars)) != nullptr;)
         {
+          if (this->CheckAbort())
+          {
+            abortExecute = true;
+            break;
+          }
           helper.Contour(cell, values[i], cellScalars, cellId);
         } // for all cells
       }   // for all contour values
@@ -646,6 +656,7 @@ int vtkContourFilter::RequestData(
     if (this->ComputeNormals != 0 && this->ComputeNormals != -1)
     {
       vtkNew<vtkPolyDataNormals> normalsFilter;
+      normalsFilter->SetContainerAlgorithm(this);
       normalsFilter->SetOutputPointsPrecision(this->OutputPointsPrecision);
       vtkNew<vtkPolyData> tempInput;
       tempInput->ShallowCopy(output);

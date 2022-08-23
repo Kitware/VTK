@@ -88,6 +88,8 @@ int vtkStreamerBase::RequestData(
     this->CurrentIndex = 0;
   }
 
+  this->CheckAbort();
+
   return 1;
 }
 VTK_ABI_NAMESPACE_END
