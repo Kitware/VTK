@@ -19,7 +19,7 @@ The overarching objective of vtkSMPTools, the SMP (symmetric multiprocessing) fr
 
 • Parallel building blocks / functions
 • Thread local storage
-• Atomic integers and associated operations. (Note, since C++11 this has been superseded by `std::atomic<>`.)
+• Atomic integers and associated operations. (Note, since C++11 this has been superseded by `std::atomic<>`. Also, `std::mutex` and `vtkAtomicMutex` are options.)
 
 vtkSMPTools is extremely easy to use, ensuring that the major challenge of creating parallel algorithms is not one of implementation, but rather the design of good, threaded algorithms.  In the next sections we describe the basic concepts used in vtkSMPTools, and then demonstrate these concepts through example code. Of course, there are hundreds of vtkSMPTools implementations found in VTK which provide an excellent source of more complex examples. In the final section of this document we provide tips on how to design and implement  vtkSMPTools-based algorithms.
 
@@ -79,7 +79,7 @@ One important performance trick with thread local storage, is that temporary var
 ## Atomics
 Another very useful tool when developing shared memory parallel algorithms is atomic integers. Atomic integers provide the ability to manipulate integer values in a way that can’t be interrupted by other threads. A very common use case for atomic integers is implementing global counters. For example, in VTK, the modified time (MTime) global counter and vtkObject’s reference count are implemented as atomic integers.
 
-Prior to C++11, vtkSMPTools had an internal implementation for atomic integers. However, this implementation is now obsolete in favor of `std::atomic<>`.
+Prior to C++11, vtkSMPTools had an internal implementation for atomic integers. However, this implementation is now obsolete in favor of `std::atomic<>`. C++ also provides `std::mutex' and 'std::lock_guard<>`; and VTK provides a lightweight spinlock `vtkAtomicMutex` which may be faster than using mutexes.
 
 # Implementation Examples
 In the subsections below, we describe the SMP framework in more detail and provide examples of how it can be used.
