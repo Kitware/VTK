@@ -250,7 +250,7 @@ void vtkOpenXRRenderWindow::StereoRenderComplete()
 }
 
 //------------------------------------------------------------------------------
-void vtkOpenXRRenderWindow::RenderOneEye(const uint32_t eye)
+void vtkOpenXRRenderWindow::RenderOneEye(uint32_t eye)
 {
   vtkOpenXRManager& xrManager = vtkOpenXRManager::GetInstance();
 

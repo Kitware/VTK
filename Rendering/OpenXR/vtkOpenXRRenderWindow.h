@@ -156,7 +156,7 @@ protected:
   bool BindTextureToFramebuffer(FramebufferDesc& framebufferDesc);
   void RenderFramebuffer(FramebufferDesc& framebufferDesc);
 
-  virtual void RenderOneEye(const uint32_t eye);
+  virtual void RenderOneEye(uint32_t eye);
 
   void RenderModels();
 

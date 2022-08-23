@@ -34,28 +34,28 @@ public:
   static vtkOpenXRManagerOpenGLGraphics* New();
   vtkTypeMacro(vtkOpenXRManagerOpenGLGraphics, vtkOpenXRManagerGraphics);
 
-  virtual void SetNumberOfSwapchains(const uint32_t viewCount)
+  virtual void SetNumberOfSwapchains(uint32_t viewCount)
   {
     this->ColorSwapchains.resize(viewCount);
     this->DepthSwapchains.resize(viewCount);
   };
 
-  void GetColorSwapchainImage(const uint32_t scIndex, const uint32_t imgIndex, void* texture)
+  void GetColorSwapchainImage(uint32_t scIndex, uint32_t imgIndex, void* texture)
   {
     *(GLuint*)texture = this->ColorSwapchains[scIndex].Images[imgIndex].image;
   };
 
-  void GetDepthSwapchainImage(const uint32_t scIndex, const uint32_t imgIndex, void* texture)
+  void GetDepthSwapchainImage(uint32_t scIndex, uint32_t imgIndex, void* texture)
   {
     *(GLuint*)texture = this->DepthSwapchains[scIndex].Images[imgIndex].image;
   };
 
-  void EnumerateColorSwapchainImages(XrSwapchain swapchain, const uint32_t scIndex)
+  void EnumerateColorSwapchainImages(XrSwapchain swapchain, uint32_t scIndex)
   {
     this->EnumerateSwapchainImages(swapchain, this->ColorSwapchains[scIndex]);
   };
 
-  void EnumerateDepthSwapchainImages(XrSwapchain swapchain, const uint32_t scIndex)
+  void EnumerateDepthSwapchainImages(XrSwapchain swapchain, uint32_t scIndex)
   {
     this->EnumerateSwapchainImages(swapchain, this->DepthSwapchains[scIndex]);
   };

@@ -51,7 +51,7 @@ public:
    * and the hand \p hand or return nullptr if "handpose"
    * does not exist in the map.
    */
-  XrPosef* GetHandPose(const uint32_t hand);
+  XrPosef* GetHandPose(uint32_t hand);
 
   ///@{
   /**

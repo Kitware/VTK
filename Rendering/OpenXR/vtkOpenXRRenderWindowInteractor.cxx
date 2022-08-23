@@ -292,7 +292,7 @@ void vtkOpenXRRenderWindowInteractor::PollXrActions()
 }
 
 //------------------------------------------------------------------------------
-XrPosef* vtkOpenXRRenderWindowInteractor::GetHandPose(const uint32_t hand)
+XrPosef* vtkOpenXRRenderWindowInteractor::GetHandPose(uint32_t hand)
 {
   if (this->MapActionStruct_Name.count("handpose") == 0)
   {

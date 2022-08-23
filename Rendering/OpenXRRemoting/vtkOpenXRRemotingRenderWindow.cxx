@@ -113,7 +113,7 @@ void vtkOpenXRRemotingRenderWindow::StereoRenderComplete()
 }
 
 //------------------------------------------------------------------------------
-void vtkOpenXRRemotingRenderWindow::RenderOneEye(const uint32_t eye)
+void vtkOpenXRRemotingRenderWindow::RenderOneEye(uint32_t eye)
 {
   ID3D11Texture2D* colorTexture = nullptr;
   ID3D11Texture2D* depthTexture = nullptr;

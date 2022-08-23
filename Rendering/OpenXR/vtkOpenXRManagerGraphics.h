@@ -46,7 +46,7 @@ public:
   /**
    * Resize the internal vectors storing the color and depth swapchains.
    */
-  virtual void SetNumberOfSwapchains(const uint32_t viewCount) = 0;
+  virtual void SetNumberOfSwapchains(uint32_t viewCount) = 0;
   ///@}
 
   ///@{
@@ -54,10 +54,8 @@ public:
    * Fill \p texture with the swapchain image for the specified eye. The image index should be
    * obtained beforehand using xrAcquireSwapchainImage.
    */
-  virtual void GetColorSwapchainImage(
-    const uint32_t eyeIndex, const uint32_t imgIndex, void* texture) = 0;
-  virtual void GetDepthSwapchainImage(
-    const uint32_t eyeIndex, const uint32_t imgIndex, void* texture) = 0;
+  virtual void GetColorSwapchainImage(uint32_t eyeIndex, uint32_t imgIndex, void* texture) = 0;
+  virtual void GetDepthSwapchainImage(uint32_t eyeIndex, uint32_t imgIndex, void* texture) = 0;
   ///@}
 
   ///@{
@@ -65,8 +63,8 @@ public:
    * Acquire swapchain images using xrEnumerateSwapchainImages and store them at the specified eye
    * index.
    */
-  virtual void EnumerateColorSwapchainImages(XrSwapchain swapchain, const uint32_t eyeIndex) = 0;
-  virtual void EnumerateDepthSwapchainImages(XrSwapchain swapchain, const uint32_t eyeIndex) = 0;
+  virtual void EnumerateColorSwapchainImages(XrSwapchain swapchain, uint32_t eyeIndex) = 0;
+  virtual void EnumerateDepthSwapchainImages(XrSwapchain swapchain, uint32_t eyeIndex) = 0;
   ///@}
 
   ///@{

@@ -54,7 +54,7 @@ protected:
   vtkOpenXRRemotingRenderWindow();
   ~vtkOpenXRRemotingRenderWindow() = default;
 
-  void RenderOneEye(const uint32_t eye) override;
+  void RenderOneEye(uint32_t eye) override;
 
 private:
   vtkOpenXRRemotingRenderWindow(const vtkOpenXRRemotingRenderWindow&) = delete;

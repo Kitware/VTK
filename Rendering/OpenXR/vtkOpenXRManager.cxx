@@ -327,8 +327,7 @@ bool vtkOpenXRManager::LoadControllerModels()
 }
 
 //------------------------------------------------------------------------------
-bool vtkOpenXRManager::PrepareRendering(
-  const uint32_t eye, void* colorTextureId, void* depthTextureId)
+bool vtkOpenXRManager::PrepareRendering(uint32_t eye, void* colorTextureId, void* depthTextureId)
 {
   const vtkOpenXRManager::Swapchain_t& colorSwapchain = this->RenderResources->ColorSwapchains[eye];
   const vtkOpenXRManager::Swapchain_t& depthSwapchain = this->RenderResources->DepthSwapchains[eye];
@@ -394,7 +393,7 @@ bool vtkOpenXRManager::PrepareRendering(
 }
 
 //------------------------------------------------------------------------------
-void vtkOpenXRManager::ReleaseSwapchainImage(const uint32_t eye)
+void vtkOpenXRManager::ReleaseSwapchainImage(uint32_t eye)
 {
   XrSwapchainImageReleaseInfo releaseInfo{ XR_TYPE_SWAPCHAIN_IMAGE_RELEASE_INFO };
 
