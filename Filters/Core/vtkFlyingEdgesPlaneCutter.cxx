@@ -387,7 +387,7 @@ struct vtkFlyingEdgesPlaneCutterAlgorithm
     {
       this->Algo = algo;
       outCD->CopyAllocate(inCD, numCells);
-      this->CellArrays.AddArrays(numCells, inCD, outCD);
+      this->CellArrays.AddArrays(numCells, inCD, outCD, /*nullValue*/ 0.0, /*promote*/ false);
     }
     vtkFlyingEdgesPlaneCutterAlgorithm<TT>* Algo;
     void operator()(vtkIdType slice, vtkIdType end)
@@ -1355,7 +1355,8 @@ void vtkFlyingEdgesPlaneCutterAlgorithm<T>::Contour(vtkFlyingEdgesPlaneCutter* s
       // Make sure we don't interpolate the input scalars twice
       output->GetPointData()->InterpolateAllocate(input->GetPointData(), totalPts);
       algo.Arrays.ExcludeArray(inScalars);
-      algo.Arrays.AddArrays(totalPts, input->GetPointData(), output->GetPointData());
+      algo.Arrays.AddArrays(totalPts, input->GetPointData(), output->GetPointData(),
+        /*nullValue*/ 0.0, /*promote*/ false);
     }
 
     // PASS 4: Fourth and final pass: Process voxel rows and generate output.

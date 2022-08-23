@@ -96,13 +96,11 @@ void vtkStructuredGrid::CopyStructure(vtkDataSet* ds)
   {
     // there is blanking
     this->GetPointData()->AddArray(ds->GetPointGhostArray());
-    this->PointGhostArray = nullptr;
   }
   if (ds->HasAnyBlankCells())
   {
     // there is blanking
     this->GetCellData()->AddArray(ds->GetCellGhostArray());
-    this->CellGhostArray = nullptr;
   }
 }
 
@@ -1332,12 +1330,12 @@ void vtkStructuredGrid::GetPoint(int i, int j, int k, double p[3], bool adjustFo
 //------------------------------------------------------------------------------
 bool vtkStructuredGrid::HasAnyBlankPoints()
 {
-  return this->IsAnyBitSet(this->GetPointGhostArray(), vtkDataSetAttributes::HIDDENPOINT);
+  return this->PointData->HasAnyGhostBitSet(vtkDataSetAttributes::HIDDENPOINT);
 }
 
 //------------------------------------------------------------------------------
 bool vtkStructuredGrid::HasAnyBlankCells()
 {
-  int cellBlanking = this->IsAnyBitSet(this->GetCellGhostArray(), vtkDataSetAttributes::HIDDENCELL);
+  int cellBlanking = this->CellData->HasAnyGhostBitSet(vtkDataSetAttributes::HIDDENCELL);
   return cellBlanking || this->HasAnyBlankPoints();
 }

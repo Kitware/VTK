@@ -16,11 +16,13 @@
 
 #include "vtkArrayDispatch.h"
 #include "vtkCellArray.h"
+#include "vtkCellData.h"
 #include "vtkDataArrayRange.h"
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 #include "vtkPointSet.h"
 #include "vtkPoints.h"
 #include "vtkSmartPointer.h"
@@ -285,6 +287,23 @@ void vtkXMLUnstructuredDataReader::ReadXMLData()
       this->DataError = 1;
     }
     this->SetupNextPiece();
+  }
+  // Prior to major version 2, The vtkGhostType array was named vtkGhostLevels. Since the array has
+  // been already added, we need to re-add it to the output, so that the ghost array for point/cell
+  // data is correctly cached.
+  if (this->GetFileMajorVersion() < 2)
+  {
+    vtkDataSet* output = vtkDataSet::SafeDownCast(this->GetCurrentOutput());
+    vtkPointData* pointData = output->GetPointData();
+    vtkCellData* cellData = output->GetCellData();
+    if (pointData->HasArray("vtkGhostType"))
+    {
+      pointData->AddArray(pointData->GetArray("vtkGhostType"));
+    }
+    if (cellData->HasArray("vtkGhostType"))
+    {
+      cellData->AddArray(cellData->GetArray("vtkGhostType"));
+    }
   }
 
   delete[] fractions;

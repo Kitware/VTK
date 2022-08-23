@@ -45,7 +45,8 @@ bool TestGhostAwareRange()
   }
 
   vtkNew<vtkCellData> cd;
-  if (cd->GetGhostsToSkip() != vtkDataSetAttributes::HIDDENCELL)
+  if (cd->GetGhostsToSkip() !=
+    (vtkDataSetAttributes::HIDDENCELL | vtkDataSetAttributes::REFINEDCELL))
   {
     vtkLog(ERROR, "GhostsToSkip has wrong default value in vtkCellData.");
     retVal = false;

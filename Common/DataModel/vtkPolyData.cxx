@@ -1560,6 +1560,9 @@ void vtkPolyData::DeepCopy(vtkDataObject* dataObject)
   }
 }
 
+static constexpr unsigned char MASKED_CELL_VALUE = vtkDataSetAttributes::HIDDENCELL |
+  vtkDataSetAttributes::DUPLICATECELL | vtkDataSetAttributes::REFINEDCELL;
+
 //------------------------------------------------------------------------------
 void vtkPolyData::RemoveGhostCells()
 {
@@ -1657,8 +1660,7 @@ void vtkPolyData::RemoveGhostCells()
     {
       this->Verts->GetNextCell(n, pts);
 
-      if (!(cellGhosts[i] &
-            (vtkDataSetAttributes::DUPLICATECELL | vtkDataSetAttributes::HIDDENCELL)))
+      if (!(cellGhosts[i] & MASKED_CELL_VALUE))
       {
         for (vtkIdType id = 0; id < n; ++id)
         {
@@ -1683,8 +1685,7 @@ void vtkPolyData::RemoveGhostCells()
     {
       this->Lines->GetNextCell(n, pts);
 
-      if (!(cellGhosts[i] &
-            (vtkDataSetAttributes::DUPLICATECELL | vtkDataSetAttributes::HIDDENCELL)))
+      if (!(cellGhosts[i] & MASKED_CELL_VALUE))
       {
         for (vtkIdType id = 0; id < n; ++id)
         {
@@ -1709,8 +1710,7 @@ void vtkPolyData::RemoveGhostCells()
     {
       this->Polys->GetNextCell(n, pts);
 
-      if (!(cellGhosts[i] &
-            (vtkDataSetAttributes::DUPLICATECELL | vtkDataSetAttributes::HIDDENCELL)))
+      if (!(cellGhosts[i] & MASKED_CELL_VALUE))
       {
         for (vtkIdType id = 0; id < n; ++id)
         {
@@ -1735,8 +1735,7 @@ void vtkPolyData::RemoveGhostCells()
     {
       this->Strips->GetNextCell(n, pts);
 
-      if (!(cellGhosts[i] &
-            (vtkDataSetAttributes::DUPLICATECELL | vtkDataSetAttributes::HIDDENCELL)))
+      if (!(cellGhosts[i] & MASKED_CELL_VALUE))
       {
         for (vtkIdType id = 0; id < n; ++id)
         {

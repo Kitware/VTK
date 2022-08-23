@@ -57,8 +57,8 @@
 vtkStandardNewMacro(vtkGeometryFilter);
 vtkCxxSetObjectMacro(vtkGeometryFilter, Locator, vtkIncrementalPointLocator);
 
-static constexpr unsigned char MASKED_CELL_VALUE =
-  vtkDataSetAttributes::HIDDENCELL | vtkDataSetAttributes::DUPLICATECELL;
+static constexpr unsigned char MASKED_CELL_VALUE = vtkDataSetAttributes::HIDDENCELL |
+  vtkDataSetAttributes::DUPLICATECELL | vtkDataSetAttributes::REFINEDCELL;
 
 static constexpr unsigned char MASKED_POINT_VALUE = vtkDataSetAttributes::HIDDENPOINT;
 
@@ -2401,18 +2401,12 @@ int ExecutePolyData(vtkGeometryFilter* self, vtkDataSet* dataSetInput, vtkPolyDa
 
   vtkDebugWithObjectMacro(self, << "Executing geometry filter for poly data input");
 
-  vtkUnsignedCharArray* temp = nullptr;
   if (cd)
   {
-    temp = cd->GetGhostArray();
-  }
-  if (!temp)
-  {
-    vtkDebugWithObjectMacro(self, "No appropriate ghost levels field available.");
-  }
-  else
-  {
-    cellGhosts = temp->GetPointer(0);
+    if (auto ghosts = cd->GetGhostArray())
+    {
+      cellGhosts = ghosts->GetPointer(0);
+    }
   }
 
   auto cellClipping = self->GetCellClipping();
@@ -2908,30 +2902,19 @@ int ExecuteUnstructuredGrid(vtkGeometryFilter* self, vtkDataSet* dataSetInput, v
 
   vtkDebugWithObjectMacro(self, << "Executing geometry filter for unstructured grid input");
 
-  vtkDataArray* temp = nullptr;
   if (inCD)
   {
-    temp = inCD->GetArray(vtkDataSetAttributes::GhostArrayName());
-  }
-  if ((!temp) || (temp->GetDataType() != VTK_UNSIGNED_CHAR) || (temp->GetNumberOfComponents() != 1))
-  {
-    vtkDebugWithObjectMacro(self, "No appropriate ghost levels field available.");
-  }
-  else
-  {
-    cellGhosts = static_cast<vtkUnsignedCharArray*>(temp)->GetPointer(0);
+    if (auto ghosts = inCD->GetGhostArray())
+    {
+      cellGhosts = ghosts->GetPointer(0);
+    }
   }
   if (inPD)
   {
-    temp = inPD->GetArray(vtkDataSetAttributes::GhostArrayName());
-  }
-  if ((!temp) || (temp->GetDataType() != VTK_UNSIGNED_CHAR) || (temp->GetNumberOfComponents() != 1))
-  {
-    vtkDebugWithObjectMacro(self, "No appropriate ghost levels field available.");
-  }
-  else
-  {
-    pointGhosts = static_cast<vtkUnsignedCharArray*>(temp)->GetPointer(0);
+    if (auto ghosts = inPD->GetGhostArray())
+    {
+      pointGhosts = ghosts->GetPointer(0);
+    }
   }
 
   auto cellClipping = self->GetCellClipping();
@@ -3470,30 +3453,19 @@ int ExecuteDataSet(vtkGeometryFilter* self, vtkDataSet* input, vtkPolyData* outp
 
   vtkDebugWithObjectMacro(self, << "Executing geometry filter");
 
-  vtkDataArray* temp = nullptr;
   if (inCD)
   {
-    temp = inCD->GetArray(vtkDataSetAttributes::GhostArrayName());
-  }
-  if ((!temp) || (temp->GetDataType() != VTK_UNSIGNED_CHAR) || (temp->GetNumberOfComponents() != 1))
-  {
-    vtkDebugWithObjectMacro(self, "No appropriate ghost levels field available.");
-  }
-  else
-  {
-    cellGhosts = static_cast<vtkUnsignedCharArray*>(temp)->GetPointer(0);
+    if (auto ghosts = inCD->GetGhostArray())
+    {
+      cellGhosts = ghosts->GetPointer(0);
+    }
   }
   if (inPD)
   {
-    temp = inPD->GetArray(vtkDataSetAttributes::GhostArrayName());
-  }
-  if ((!temp) || (temp->GetDataType() != VTK_UNSIGNED_CHAR) || (temp->GetNumberOfComponents() != 1))
-  {
-    vtkDebugWithObjectMacro(self, "No appropriate ghost levels field available.");
-  }
-  else
-  {
-    pointGhosts = static_cast<vtkUnsignedCharArray*>(temp)->GetPointer(0);
+    if (auto ghosts = inPD->GetGhostArray())
+    {
+      pointGhosts = ghosts->GetPointer(0);
+    }
   }
 
   auto cellClipping = self->GetCellClipping();

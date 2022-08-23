@@ -406,6 +406,12 @@ public:
   ///@}
 
   /**
+   * Helper function that tests if any of the values in ghost array has been set.
+   * The test performed is (value & bitFlag).
+   */
+  bool HasAnyGhostBitSet(int bitFlag);
+
+  /**
    * Get the ghost array, if present in this field data. If no ghost array is set,
    * returns `nullptr`. A ghost array is a `vtkUnsignedCharArray` called `vtkGhostType`.
    * See `vtkDataSetAttributes` for more context on ghost types.
