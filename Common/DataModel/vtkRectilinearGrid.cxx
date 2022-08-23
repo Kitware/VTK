@@ -1565,12 +1565,12 @@ int vtkRectilinearGrid::GetNumberOfScalarComponents()
 //------------------------------------------------------------------------------
 bool vtkRectilinearGrid::HasAnyBlankPoints()
 {
-  return this->IsAnyBitSet(this->GetPointGhostArray(), vtkDataSetAttributes::HIDDENPOINT);
+  return this->PointData->HasAnyGhostBitSet(vtkDataSetAttributes::HIDDENPOINT);
 }
 
 //------------------------------------------------------------------------------
 bool vtkRectilinearGrid::HasAnyBlankCells()
 {
-  int cellBlanking = this->IsAnyBitSet(this->GetCellGhostArray(), vtkDataSetAttributes::HIDDENCELL);
+  int cellBlanking = this->CellData->HasAnyGhostBitSet(vtkDataSetAttributes::HIDDENCELL);
   return cellBlanking || this->HasAnyBlankPoints();
 }

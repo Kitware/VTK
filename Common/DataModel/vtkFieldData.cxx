@@ -20,6 +20,7 @@
 #include "vtkIdList.h"
 #include "vtkInformation.h"
 #include "vtkObjectFactory.h"
+#include "vtkSMPTools.h"
 #include "vtkUnsignedCharArray.h"
 
 #include <array>
@@ -749,6 +750,67 @@ void vtkFieldData::RemoveArray(int index)
   this->FiniteRanges[this->NumberOfActiveArrays] = std::array<CachedGhostRangeType, 2>();
   this->Data[this->NumberOfActiveArrays] = nullptr;
   this->Modified();
+}
+
+namespace
+{
+//------------------------------------------------------------------------------
+struct IsAnyBitSetFunctor
+{
+  unsigned char* BitSet;
+  int BitFlag;
+  int IsAnyBit;
+  vtkSMPThreadLocal<unsigned char> TLIsAnyBit;
+
+  IsAnyBitSetFunctor(vtkUnsignedCharArray* bitSet, int bitFlag)
+    : BitSet(bitSet->GetPointer(0))
+    , BitFlag(bitFlag)
+  {
+  }
+
+  void Initialize() { this->TLIsAnyBit.Local() = 0; }
+
+  void operator()(vtkIdType begin, vtkIdType end)
+  {
+    if (this->TLIsAnyBit.Local())
+    {
+      return;
+    }
+    for (vtkIdType i = begin; i < end; ++i)
+    {
+      if (this->BitSet[i] & this->BitFlag)
+      {
+        this->TLIsAnyBit.Local() = 1;
+        return;
+      }
+    }
+  }
+
+  void Reduce()
+  {
+    this->IsAnyBit = 0;
+    for (auto& isAnyBit : this->TLIsAnyBit)
+    {
+      if (isAnyBit)
+      {
+        this->IsAnyBit = 1;
+        break;
+      }
+    }
+  }
+};
+} // anonymous namespace
+
+//------------------------------------------------------------------------------
+bool vtkFieldData::HasAnyGhostBitSet(int bitFlag)
+{
+  if (this->GhostArray)
+  {
+    IsAnyBitSetFunctor isAnyBitSetFunctor(this->GhostArray, bitFlag);
+    vtkSMPTools::For(0, this->GhostArray->GetNumberOfValues(), isAnyBitSetFunctor);
+    return isAnyBitSetFunctor.IsAnyBit;
+  }
+  return false;
 }
 
 //------------------------------------------------------------------------------

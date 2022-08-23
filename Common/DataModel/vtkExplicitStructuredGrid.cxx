@@ -701,7 +701,7 @@ void vtkExplicitStructuredGrid::ComputeFacesConnectivityFlagsArray()
 //------------------------------------------------------------------------------
 bool vtkExplicitStructuredGrid::HasAnyBlankCells()
 {
-  return this->IsAnyBitSet(this->GetCellGhostArray(), vtkDataSetAttributes::HIDDENCELL);
+  return this->CellData->HasAnyGhostBitSet(vtkDataSetAttributes::HIDDENCELL);
 }
 
 //------------------------------------------------------------------------------
@@ -747,7 +747,7 @@ unsigned char vtkExplicitStructuredGrid::IsCellGhost(vtkIdType cellId)
 //------------------------------------------------------------------------------
 bool vtkExplicitStructuredGrid::HasAnyGhostCells()
 {
-  return this->IsAnyBitSet(this->GetCellGhostArray(), vtkDataSetAttributes::DUPLICATECELL);
+  return this->CellData->HasAnyGhostBitSet(vtkDataSetAttributes::DUPLICATECELL);
 }
 
 //------------------------------------------------------------------------------
