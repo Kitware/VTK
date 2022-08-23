@@ -100,7 +100,7 @@ public:
    * Return pointer to the backend-specific XrGraphicsBindingXXX structure
    * that is required to create the OpenXR session.
    */
-  const void* GetGraphicsBinding() { return this->GraphicsBinding.get(); };
+  virtual const void* GetGraphicsBinding() = 0;
   ///@}
 
   ///@{
@@ -123,8 +123,6 @@ public:
 protected:
   vtkOpenXRManagerGraphics() = default;
   ~vtkOpenXRManagerGraphics() = default;
-
-  std::shared_ptr<void> GraphicsBinding;
 
 private:
   vtkOpenXRManagerGraphics(const vtkOpenXRManagerGraphics&) = delete;

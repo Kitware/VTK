@@ -76,6 +76,8 @@ public:
 
   bool CreateGraphicsBinding(vtkOpenGLRenderWindow* helperWindow);
 
+  const void* GetGraphicsBinding() { return this->GraphicsBinding.get(); };
+
   bool CheckGraphicsRequirements(
     XrInstance instance, XrSystemId id, xr::ExtensionDispatchTable extensions);
 
@@ -101,6 +103,8 @@ protected:
   // OpenGL swapchains
   std::vector<SwapchainImagesOpenGL> ColorSwapchains;
   std::vector<SwapchainImagesOpenGL> DepthSwapchains;
+
+  std::shared_ptr<XrGraphicsBindingOpenGLWin32KHR> GraphicsBinding;
 
 private:
   vtkOpenXRManagerOpenGLGraphics(const vtkOpenXRManagerOpenGLGraphics&) = delete;

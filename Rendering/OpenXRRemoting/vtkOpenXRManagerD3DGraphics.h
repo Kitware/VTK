@@ -78,6 +78,8 @@ public:
 
   bool CreateGraphicsBinding(vtkOpenGLRenderWindow* helperWindow);
 
+  const void* GetGraphicsBinding() { return this->GraphicsBinding.get(); };
+
   bool CheckGraphicsRequirements(
     XrInstance instance, XrSystemId id, xr::ExtensionDispatchTable extensions);
 
@@ -88,7 +90,7 @@ protected:
   ~vtkOpenXRManagerD3DGraphics() = default;
 
   /**
-   * OpenGL structure to store swapchain images.
+   * D3D structure to store swapchain images.
    */
   struct SwapchainImagesD3D
   {
@@ -96,13 +98,15 @@ protected:
   };
 
   /**
-   * Acquire OpenGL swapchain images an store them in \p swapchainImages.
+   * Acquire D3D swapchain images an store them in \p swapchainImages.
    */
   void EnumerateSwapchainImages(XrSwapchain swapchain, SwapchainImagesD3D& swapchainImages);
 
-  // OpenGL swapchains
+  // D3D swapchains
   std::vector<SwapchainImagesD3D> ColorSwapchains;
   std::vector<SwapchainImagesD3D> DepthSwapchains;
+
+  std::shared_ptr<XrGraphicsBindingD3D11KHR> GraphicsBinding;
 
 private:
   vtkOpenXRManagerD3DGraphics(const vtkOpenXRManagerD3DGraphics&) = delete;
