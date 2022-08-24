@@ -36,6 +36,8 @@ vtkPolyDataStreamer::vtkPolyDataStreamer()
   this->ColorByPiece = 0;
 
   this->Append = vtkAppendPolyData::New();
+
+  this->Append->SetContainerAlgorithm(this);
 }
 
 //------------------------------------------------------------------------------
@@ -99,6 +101,10 @@ int vtkPolyDataStreamer::ExecutePass(
     pieceColors->SetNumberOfTuples(numCells);
     for (vtkIdType j = 0; j < numCells; ++j)
     {
+      if (this->CheckAbort())
+      {
+        break;
+      }
       pieceColors->SetValue(j, inPiece);
     }
     int idx = copy->GetCellData()->AddArray(pieceColors);

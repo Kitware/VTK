@@ -187,7 +187,7 @@ int vtkImageMarchingCubes::RequestData(vtkInformation* vtkNotUsed(request),
   // Loop through the chunks running marching cubes on each one
   int zMin = extent[4];
   int zMax = extent[5];
-  for (int chunkMin = zMin, chunkMax; chunkMin < zMax; chunkMin = chunkMax)
+  for (int chunkMin = zMin, chunkMax; chunkMin < zMax && !this->CheckAbort(); chunkMin = chunkMax)
   {
     // Get the chunk from the input
     chunkMax = chunkMin + this->NumberOfSlicesPerChunk;
@@ -220,6 +220,7 @@ int vtkImageMarchingCubes::RequestData(vtkInformation* vtkNotUsed(request),
     if (!this->AbortExecute)
     {
       this->UpdateProgress(static_cast<double>(chunkMax - zMin) / (zMax - zMin));
+      this->CheckAbort();
     }
 
     if (vtkDataObject::GetGlobalReleaseDataFlag() ||
@@ -604,7 +605,7 @@ void vtkImageMarchingCubesMarch(vtkImageMarchingCubes* self, vtkImageData* inDat
     {
       if (!(count % target))
       {
-        if (self->GetAbortExecute())
+        if (self->CheckAbort())
         {
           return;
         }

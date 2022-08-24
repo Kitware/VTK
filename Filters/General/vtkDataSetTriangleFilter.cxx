@@ -130,11 +130,11 @@ void vtkDataSetTriangleFilter::StructuredExecute(vtkDataSet* input, vtkUnstructu
   dimensions[2] = dimensions[2] - 1;
 
   vtkIdType numSlices = (dimensions[2] > 0 ? dimensions[2] : 1);
-  int abort = 0;
+  bool abort = false;
   for (k = 0; k < numSlices && !abort; k++)
   {
     this->UpdateProgress(static_cast<double>(k) / numSlices);
-    abort = this->GetAbortExecute();
+    abort = this->CheckAbort();
 
     for (j = 0; j < dimensions[1]; j++)
     {
@@ -285,7 +285,7 @@ void vtkDataSetTriangleFilter::UnstructuredExecute(
     if (!(cellId % updateTime))
     {
       this->UpdateProgress(static_cast<double>(cellId) / numCells);
-      abort = this->GetAbortExecute();
+      abort = this->CheckAbort();
     }
 
     input->GetCell(cellId, cell);

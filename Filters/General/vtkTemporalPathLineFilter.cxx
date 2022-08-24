@@ -570,6 +570,10 @@ int vtkTemporalPathLineFilter::RequestData(vtkInformation* vtkNotUsed(informatio
   for (vtkTemporalPathLineFilterInternals::TrailIterator t = this->Internals->Trails.begin();
        t != this->Internals->Trails.end(); ++t)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     TrailPointer tp = t->second;
     if (tp->length > 0)
     {

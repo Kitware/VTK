@@ -79,6 +79,10 @@ int vtkMultiBlockDataGroupFilter::RequestData(vtkInformation* vtkNotUsed(request
   output->SetNumberOfBlocks(numInputs);
   for (int idx = 0; idx < numInputs; ++idx)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     /*
     // This can be a vtkMultiPieceDataSet if we ever support it.
     vtkMultiBlockDataSet* block = vtkMultiBlockDataSet::New();

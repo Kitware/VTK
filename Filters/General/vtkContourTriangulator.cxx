@@ -92,6 +92,8 @@ int vtkContourTriangulator::RequestData(vtkInformation* vtkNotUsed(request),
     vtkErrorMacro("Triangulation failed, output might have holes.");
   }
 
+  this->CheckAbort();
+
   return 1;
 }
 

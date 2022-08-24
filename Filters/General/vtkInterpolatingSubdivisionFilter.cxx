@@ -61,6 +61,10 @@ int vtkInterpolatingSubdivisionFilter::RequestData(
 
   for (level = 0; level < this->NumberOfSubdivisions; level++)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     // Generate topology for the input dataset
     inputDS->BuildLinks();
     numCells = inputDS->GetNumberOfCells();

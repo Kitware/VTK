@@ -126,6 +126,8 @@ int vtkRectilinearGridToPointSet::RequestData(vtkInformation* vtkNotUsed(request
   outData->GetPointData()->PassData(inData->GetPointData());
   outData->GetCellData()->PassData(inData->GetCellData());
 
+  this->CheckAbort();
+
   return 1;
 }
 VTK_ABI_NAMESPACE_END

@@ -160,6 +160,10 @@ int vtkTableToPolyData::RequestData(vtkInformation* vtkNotUsed(request),
   // Add all other columns as point data.
   for (int cc = 0; cc < input->GetNumberOfColumns(); cc++)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     vtkAbstractArray* arr = input->GetColumn(cc);
     if (this->PreserveCoordinateColumnsAsDataArrays)
     {

@@ -71,7 +71,7 @@ int vtkApproximatingSubdivisionFilter::RequestData(
   for (level = 0; level < this->NumberOfSubdivisions && !abort; level++)
   {
     this->UpdateProgress(static_cast<double>(level + 1) / this->NumberOfSubdivisions);
-    abort = this->GetAbortExecute();
+    abort = this->CheckAbort();
 
     // Generate topology for the input dataset
     inputDS->BuildLinks();

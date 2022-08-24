@@ -117,7 +117,7 @@ int vtkEdgePoints::RequestData(vtkInformation* vtkNotUsed(request),
   // neighbors. If cell id < all edge neighbors ids, then this edge has not
   // yet been visited and is processed.
   //
-  int abort = 0;
+  bool abort = false;
   vtkIdType progressInterval = numCells / 20 + 1;
   vtkGenericCell* cell = vtkGenericCell::New();
   for (cellId = 0; cellId < numCells && !abort; cellId++)
@@ -126,7 +126,7 @@ int vtkEdgePoints::RequestData(vtkInformation* vtkNotUsed(request),
     {
       vtkDebugMacro(<< "Processing #" << cellId);
       this->UpdateProgress(static_cast<double>(cellId) / numCells);
-      abort = this->GetAbortExecute();
+      abort = this->CheckAbort();
     }
 
     input->GetCell(cellId, cell);

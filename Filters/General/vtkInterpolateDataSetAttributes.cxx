@@ -192,7 +192,7 @@ int vtkInterpolateDataSetAttributes::RequestData(vtkInformation* vtkNotUsed(requ
     if (!(i % 10000))
     {
       this->UpdateProgress(static_cast<double>(i) / numPts * 0.50);
-      if (this->GetAbortExecute())
+      if (this->CheckAbort())
       {
         break;
       }
@@ -207,7 +207,7 @@ int vtkInterpolateDataSetAttributes::RequestData(vtkInformation* vtkNotUsed(requ
     if (!(i % 10000))
     {
       this->UpdateProgress(0.5 + static_cast<double>(i) / numCells * 0.50);
-      if (this->GetAbortExecute())
+      if (this->CheckAbort())
       {
         break;
       }

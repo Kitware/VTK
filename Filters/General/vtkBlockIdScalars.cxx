@@ -62,6 +62,10 @@ int vtkBlockIdScalars::RequestData(vtkInformation* vtkNotUsed(request),
   int blockIdx = 0;
   for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem(), blockIdx++)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     vtkDataObject* dObj = iter->GetCurrentDataObject();
     if (dObj)
     {

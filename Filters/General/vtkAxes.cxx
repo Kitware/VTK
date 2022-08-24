@@ -159,6 +159,8 @@ int vtkAxes::RequestData(vtkInformation* vtkNotUsed(request),
   output->SetLines(newLines);
   newLines->Delete();
 
+  this->CheckAbort();
+
   return 1;
 }
 

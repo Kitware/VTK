@@ -538,6 +538,10 @@ int vtkVoxelContoursToSurfaceFilter::RequestData(vtkInformation* vtkNotUsed(requ
 
   while (currentSlice <= lastSlice)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     // Make sure the origin of the volume is in the right
     // place so that the appended polydata all matches up
     // nicely.

@@ -118,7 +118,7 @@ void vtkDiscreteMarchingCubesComputeGradient(vtkDiscreteMarchingCubes* self, T* 
   for (k = 0; k < (dims[2] - 1); k++)
   {
     self->UpdateProgress(static_cast<double>(k) / (dims[2] - 1));
-    if (self->GetAbortExecute())
+    if (self->CheckAbort())
     {
       break;
     }

@@ -101,6 +101,10 @@ int vtkVertexGlyphFilter::RequestData(vtkInformation* vtkNotUsed(request),
 
   for (vtkIdType i = 0; i < numPoints; i++)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     cells->InsertNextCell(1, &i);
   }
   output->SetVerts(cells);

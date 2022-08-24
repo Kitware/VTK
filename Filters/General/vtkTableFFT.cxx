@@ -166,6 +166,10 @@ int vtkTableFFT::RequestData(vtkInformation* vtkNotUsed(request),
   vtkIdType numColumns = input->GetNumberOfColumns();
   for (vtkIdType col = 0; col < numColumns; col++)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     vtkAbstractArray* array = input->GetColumn(col);
     const char* arrayName = array->GetName();
     vtkDataArray* dataArray = vtkDataArray::SafeDownCast(array);

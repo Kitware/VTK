@@ -199,6 +199,8 @@ int vtkTransformPolyDataFilter::RequestData(vtkInformation* vtkNotUsed(request),
   outPD->PassData(pd);
   outCD->PassData(cd);
 
+  this->CheckAbort();
+
   return 1;
 }
 

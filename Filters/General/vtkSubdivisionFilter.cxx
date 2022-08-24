@@ -69,6 +69,10 @@ int vtkSubdivisionFilter::RequestData(vtkInformation* vtkNotUsed(request),
     vtkCellIterator* it = input->NewCellIterator();
     for (it->InitTraversal(); !it->IsDoneWithTraversal(); it->GoToNextCell())
     {
+      if (this->CheckAbort())
+      {
+        break;
+      }
       if (it->GetCellType() != VTK_TRIANGLE)
       {
         hasOnlyTris = false;

@@ -108,7 +108,8 @@ static inline void LINE_CQS_VECTOR(double v0[3], double p[3], double cqs[3])
   vtkMath::Normalize(cqs);
 }
 
-int vtkDataSetGradientPrecompute::GradientPrecompute(vtkDataSet* ds)
+int vtkDataSetGradientPrecompute::GradientPrecompute(
+  vtkDataSet* ds, vtkDataSetGradientPrecompute* self)
 {
   vtkIdType nCells = ds->GetNumberOfCells();
   vtkIdType nCellNodes = 0;
@@ -136,6 +137,10 @@ int vtkDataSetGradientPrecompute::GradientPrecompute(vtkDataSet* ds)
   vtkIdType curPoint = 0;
   for (vtkIdType c = 0; c < nCells; c++)
   {
+    if (self && self->CheckAbort())
+    {
+      break;
+    }
     vtkCell* cell = ds->GetCell(c);
     int np = cell->GetNumberOfPoints();
 
@@ -362,6 +367,6 @@ int vtkDataSetGradientPrecompute::RequestData(vtkInformation* vtkNotUsed(request
   }
 
   _output->ShallowCopy(_input);
-  return vtkDataSetGradientPrecompute::GradientPrecompute(_output);
+  return vtkDataSetGradientPrecompute::GradientPrecompute(_output, this);
 }
 VTK_ABI_NAMESPACE_END

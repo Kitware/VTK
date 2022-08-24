@@ -159,7 +159,7 @@ int vtkQuadraturePointInterpolator::InterpolateFields(vtkUnstructuredGrid* usgOu
   key->GetRange(info, dict.data(), 0, 0, dictSize);
 
   // interpolate the arrays
-  for (int arrayId = 0; arrayId < nArrays; ++arrayId)
+  for (int arrayId = 0; arrayId < nArrays && !this->CheckAbort(); ++arrayId)
   {
     // Grab the next array
     vtkDataArray* V = usgOut->GetPointData()->GetArray(arrayId);
@@ -188,9 +188,9 @@ int vtkQuadraturePointInterpolator::InterpolateFields(vtkUnstructuredGrid* usgOu
     using Dispatcher = vtkArrayDispatch::Dispatch2ByValueType<AllTypes, Integrals>;
 
     vtkQuadraturePointsUtilities::InterpolateWorker worker;
-    if (!Dispatcher::Execute(V, offsets, worker, usgOut, nCells, dict, interpolated))
+    if (!Dispatcher::Execute(V, offsets, worker, usgOut, nCells, dict, interpolated, this))
     { // fall back to slow path:
-      worker(V, offsets, usgOut, nCells, dict, interpolated);
+      worker(V, offsets, usgOut, nCells, dict, interpolated, this);
     }
   }
 

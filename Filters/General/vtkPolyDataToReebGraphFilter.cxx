@@ -82,11 +82,12 @@ int vtkPolyDataToReebGraphFilter::RequestData(
   {
     vtkElevationFilter* eFilter = vtkElevationFilter::New();
     eFilter->SetInputData(input);
+    eFilter->SetContainerAlgorithm(this);
     eFilter->Update();
     output->Build(vtkPolyData::SafeDownCast(eFilter->GetOutput()), "Elevation");
     eFilter->Delete();
   }
-  else
+  else if (!this->CheckAbort())
   {
     output->Build(input, FieldId);
   }

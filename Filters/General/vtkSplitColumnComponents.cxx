@@ -68,6 +68,10 @@ int vtkSplitColumnComponents::RequestData(
   // Add columns from table, split multiple component columns as necessary
   for (int i = 0; i < table->GetNumberOfColumns(); ++i)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     vtkAbstractArray* col = table->GetColumn(i);
     if (col->GetName() == nullptr)
     {

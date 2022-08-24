@@ -253,6 +253,10 @@ int vtkTimeSourceExample::RequestData(vtkInformation* vtkNotUsed(reqInfo),
   {
     for (int j = 0; j < numCells + 1; j++)
     {
+      if (this->CheckAbort())
+      {
+        break;
+      }
       for (int k = 0; k < 2; k++)
       {
         pd->InsertNextValue(value);
@@ -302,6 +306,10 @@ int vtkTimeSourceExample::RequestData(vtkInformation* vtkNotUsed(reqInfo),
   {
     for (int j = 0; j < numCells; j++)
     {
+      if (this->CheckAbort())
+      {
+        break;
+      }
       for (int k = 0; k < 1; k++)
       {
         cd->InsertNextValue(value);

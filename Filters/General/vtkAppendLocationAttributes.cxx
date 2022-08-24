@@ -91,6 +91,7 @@ int vtkAppendLocationAttributes::RequestData(vtkInformation* vtkNotUsed(request)
   }
 
   this->UpdateProgress(1.0);
+  this->CheckAbort();
   return 1;
 }
 

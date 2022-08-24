@@ -574,6 +574,8 @@ int vtkRectilinearGridToTetrahedra::RequestData(vtkInformation* vtkNotUsed(reque
   // Clean Up
   VoxelSubdivisionType->Delete();
 
+  this->CheckAbort();
+
   return 1;
 }
 

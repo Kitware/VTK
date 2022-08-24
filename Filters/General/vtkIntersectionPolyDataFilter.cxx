@@ -2390,6 +2390,7 @@ int vtkIntersectionPolyDataFilter::RequestData(vtkInformation* vtkNotUsed(reques
   lineCleaner->SetInputData(outputIntersection);
   lineCleaner->ToleranceIsAbsoluteOn();
   lineCleaner->SetAbsoluteTolerance(this->Tolerance);
+  lineCleaner->SetContainerAlgorithm(this);
   lineCleaner->Update();
   outputIntersection->DeepCopy(lineCleaner->GetOutput());
   vtkSmartPointer<vtkPointLocator> linePtMapper = vtkSmartPointer<vtkPointLocator>::New();

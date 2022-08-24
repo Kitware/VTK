@@ -165,6 +165,11 @@ int vtkDataSetGradient::RequestData(vtkInformation* vtkNotUsed(request),
     vtkIdType cellPoint = 0;
     for (vtkIdType i = 0; i < nCells; i++)
     {
+      if (this->CheckAbort())
+      {
+        break;
+      }
+
       vtkCell* cell = _input->GetCell(i);
       int np = cell->GetNumberOfPoints();
       double gradient[3] = { 0, 0, 0 };
@@ -198,6 +203,11 @@ int vtkDataSetGradient::RequestData(vtkInformation* vtkNotUsed(request),
     vtkIdType cellPoint = 0;
     for (vtkIdType i = 0; i < nCells; i++)
     {
+      if (this->CheckAbort())
+      {
+        break;
+      }
+
       vtkCell* cell = _input->GetCell(i);
       int np = cell->GetNumberOfPoints();
       double scalar = inArray->GetTuple1(i);

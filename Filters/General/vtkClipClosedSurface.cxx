@@ -529,7 +529,7 @@ int vtkClipClosedSurface::RequestData(vtkInformation* vtkNotUsed(request),
   for (int planeId = 0; planes && (plane = planes->GetNextPlane(iter)); planeId++)
   {
     this->UpdateProgress((planeId + 1.0) / (numPlanes + 1.0));
-    if (this->GetAbortExecute())
+    if (this->CheckAbort())
     {
       break;
     }

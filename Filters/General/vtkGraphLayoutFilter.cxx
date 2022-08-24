@@ -163,6 +163,10 @@ int vtkGraphLayoutFilter::RequestData(vtkInformation* vtkNotUsed(request),
   double norm;
   for (i = 0; i < this->MaxNumberOfIterations; i++)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     // Calculate the repulsive forces.
     for (j = 0; j < numPts; j++)
     {

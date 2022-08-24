@@ -194,6 +194,10 @@ int vtkOBBDicer::RequestData(
 
 void vtkOBBDicer::MarkPoints(vtkOBBNode* OBBptr, vtkShortArray* groupIds)
 {
+  if (this->CheckAbort())
+  {
+    return;
+  }
   if (OBBptr->Kids == nullptr) // leaf OBB
   {
     vtkIdList* ptIds;

@@ -594,6 +594,10 @@ int vtkYoungsMaterialInterface::RequestData(vtkInformation* vtkNotUsed(request),
 
   while (!inputIterator->IsDoneWithTraversal())
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     vtkDataSet* input = vtkDataSet::SafeDownCast(inputIterator->GetCurrentDataObject());
     // Composite indices begin at 1 (0 is the root)
     int composite_index = inputIterator->GetCurrentFlatIndex();
@@ -619,7 +623,10 @@ int vtkYoungsMaterialInterface::RequestData(vtkInformation* vtkNotUsed(request),
   }
 
   // Perform parallel aggregation when needed (nothing in serial)
-  this->Aggregate(nmat, inputsPerMaterial);
+  if (!this->CheckAbort())
+  {
+    this->Aggregate(nmat, inputsPerMaterial);
+  }
 
   // map containing output blocks
   std::map<int, vtkSmartPointer<vtkUnstructuredGrid>> outputBlocks;
@@ -629,6 +636,10 @@ int vtkYoungsMaterialInterface::RequestData(vtkInformation* vtkNotUsed(request),
   inputIterator->GoToFirstItem();
   while (inputIterator->IsDoneWithTraversal() == 0)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     vtkDataSet* input = vtkDataSet::SafeDownCast(inputIterator->GetCurrentDataObject());
 
     // Composite indices begin at 1 (0 is the root)
@@ -1542,14 +1553,13 @@ int vtkYoungsMaterialInterface::RequestData(vtkInformation* vtkNotUsed(request),
   {
     vtkDebugMacro(<< "NoInterfaceFound " << debugStats_NoInterfaceFound << "\n");
   }
-
   // Build final composite output. also tagging blocks with their associated Id
   vtkDebugMacro(<< this->NumberOfDomains << " Domains, " << nmat << " Materials\n");
 
   output->SetNumberOfBlocks(0);
   output->SetNumberOfBlocks(nmat);
 
-  for (int m = 0; m < nmat; ++m)
+  for (int m = 0; m < nmat && !this->CheckAbort(); ++m)
   {
     vtkMultiBlockDataSet* matBlock = vtkMultiBlockDataSet::New();
     matBlock->SetNumberOfBlocks(this->NumberOfDomains);
@@ -1559,7 +1569,7 @@ int vtkYoungsMaterialInterface::RequestData(vtkInformation* vtkNotUsed(request),
 
   int blockIndex = 0;
   for (std::map<int, vtkSmartPointer<vtkUnstructuredGrid>>::iterator it = outputBlocks.begin();
-       it != outputBlocks.end(); ++it, ++blockIndex)
+       it != outputBlocks.end() && !this->CheckAbort(); ++it, ++blockIndex)
   {
     if (it->second->GetNumberOfCells() > 0)
     {

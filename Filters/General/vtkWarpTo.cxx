@@ -85,6 +85,7 @@ int vtkWarpTo::RequestData(vtkInformation* vtkNotUsed(request), vtkInformationVe
     {
       vtkNew<vtkImageDataToPointSet> image2points;
       image2points->SetInputData(inImage);
+      image2points->SetContainerAlgorithm(this);
       image2points->Update();
       input = image2points->GetOutput();
     }
@@ -98,6 +99,7 @@ int vtkWarpTo::RequestData(vtkInformation* vtkNotUsed(request), vtkInformationVe
     {
       vtkNew<vtkRectilinearGridToPointSet> rect2points;
       rect2points->SetInputData(inRect);
+      rect2points->SetContainerAlgorithm(this);
       rect2points->Update();
       input = rect2points->GetOutput();
     }
@@ -153,6 +155,10 @@ int vtkWarpTo::RequestData(vtkInformation* vtkNotUsed(request), vtkInformationVe
   //
   for (ptId = 0; ptId < numPts; ptId++)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     inPts->GetPoint(ptId, x);
     if (this->Absolute)
     {

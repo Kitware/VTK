@@ -292,6 +292,10 @@ int vtkEqualizerFilter::RequestData(
     for (vtkIdType col = 0; col < numColumns; col++)
     {
       this->UpdateProgress(static_cast<double>(col) / numColumns);
+      if (this->CheckAbort())
+      {
+        break;
+      }
 
       vtkDataArray* array = vtkArrayDownCast<vtkDataArray>(input->GetColumn(col));
       if (!array)
@@ -424,6 +428,10 @@ void vtkEqualizerFilter::ProcessColumn(
   double modifier = pow(10, 0.05 * this->SpectrumGain);
   for (vtkIdType spectrumId = 0; spectrumId < this->Internal->GetHalfSpectrumSize(); ++spectrumId)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     auto value = spectrum[spectrumId];
     // we are only interested in amplitude spectrum, so we use complex_module
     // divide by the number of elements so that the amplitudes are in millivolts, not Fourier sums.

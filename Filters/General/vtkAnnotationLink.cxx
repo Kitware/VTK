@@ -238,6 +238,8 @@ int vtkAnnotationLink::RequestData(vtkInformation* vtkNotUsed(info),
     }
   }
 
+  this->CheckAbort();
+
   return 1;
 }
 

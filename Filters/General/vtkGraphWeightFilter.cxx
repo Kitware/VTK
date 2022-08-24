@@ -70,6 +70,10 @@ int vtkGraphWeightFilter::RequestData(vtkInformation* vtkNotUsed(request),
 
   while (edgeListIterator->HasNext())
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     vtkEdgeType edge = edgeListIterator->Next();
 
     float w = this->ComputeWeight(input, edge);

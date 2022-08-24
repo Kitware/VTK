@@ -119,6 +119,7 @@ int vtkWarpLens::RequestData(vtkInformation* vtkNotUsed(request),
     {
       vtkNew<vtkImageDataToPointSet> image2points;
       image2points->SetInputData(inImage);
+      image2points->SetContainerAlgorithm(this);
       image2points->Update();
       input = image2points->GetOutput();
     }
@@ -132,6 +133,7 @@ int vtkWarpLens::RequestData(vtkInformation* vtkNotUsed(request),
     {
       vtkNew<vtkRectilinearGridToPointSet> rect2points;
       rect2points->SetInputData(inRect);
+      rect2points->SetContainerAlgorithm(this);
       rect2points->Update();
       input = rect2points->GetOutput();
     }
@@ -174,6 +176,10 @@ int vtkWarpLens::RequestData(vtkInformation* vtkNotUsed(request),
   //
   for (ptId = 0; ptId < numPts; ptId++)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     inPts->GetPoint(ptId, pixel);
 
     //

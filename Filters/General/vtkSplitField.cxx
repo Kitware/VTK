@@ -255,6 +255,10 @@ int vtkSplitField::RequestData(vtkInformation* vtkNotUsed(request),
   // generate them
   do
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     before = cur;
     cur = cur->Next;
     if (before->FieldName)

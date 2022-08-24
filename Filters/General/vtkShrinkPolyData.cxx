@@ -46,7 +46,7 @@ struct ShrinkWorker
 
     int j, k;
     T center[3];
-    int abortExecute = 0;
+    bool abortExecute = false;
     vtkCellArray *newVerts, *newLines, *newPolys;
     vtkPointData* pd;
     vtkCellArray *inVerts, *inLines, *inPolys, *inStrips;
@@ -128,7 +128,7 @@ struct ShrinkWorker
         pointData->CopyData(pd, pts[j], outCount);
         outCount++;
       }
-      abortExecute = self->GetAbortExecute();
+      abortExecute = self->CheckAbort();
     }
     self->UpdateProgress(0.10);
 
@@ -162,7 +162,7 @@ struct ShrinkWorker
         newLines->InsertNextCell(2, newIds);
         outCount++;
       }
-      abortExecute = self->GetAbortExecute();
+      abortExecute = self->CheckAbort();
     }
     self->UpdateProgress(0.25);
 
@@ -196,7 +196,7 @@ struct ShrinkWorker
         pointData->CopyData(pd, pts[j], outCount);
         outCount++;
       }
-      abortExecute = self->GetAbortExecute();
+      abortExecute = self->CheckAbort();
     }
     self->UpdateProgress(0.75);
 
@@ -249,10 +249,10 @@ struct ShrinkWorker
         }
         newPolys->InsertNextCell(3, newIds);
       }
-      abortExecute = self->GetAbortExecute();
+      abortExecute = self->CheckAbort();
     }
 
-    assert(outCount == numNewPts);
+    assert(abortExecute || outCount == numNewPts);
 
     // Update self and release memory
     //

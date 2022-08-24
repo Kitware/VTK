@@ -83,6 +83,10 @@ int vtkImageDataToPointSet::RequestData(vtkInformation* vtkNotUsed(request),
   points->SetNumberOfPoints(nbPoints);
   for (vtkIdType i = 0; i < nbPoints; i++)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     double p[3];
     inData->GetPoint(i, p);
     points->SetPoint(i, p);

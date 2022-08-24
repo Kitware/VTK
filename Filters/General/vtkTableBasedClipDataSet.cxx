@@ -119,7 +119,7 @@ void vtkTableBasedClipDataSet::InternalProgressCallback(vtkAlgorithm* algorithm)
 {
   double progress = algorithm->GetProgress();
   this->UpdateProgress(progress);
-
+  this->CheckAbort();
   if (this->AbortExecute)
   {
     algorithm->SetAbortExecute(1);

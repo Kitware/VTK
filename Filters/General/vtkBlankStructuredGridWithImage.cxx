@@ -104,6 +104,10 @@ int vtkBlankStructuredGridWithImage::RequestData(vtkInformation* vtkNotUsed(requ
   ghosts->SetName(vtkDataSetAttributes::GhostArrayName());
   for (vtkIdType ptId = 0; ptId < numberOfValues; ++ptId)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     unsigned char value = 0;
     if (visibility->GetValue(ptId) == 0)
     {

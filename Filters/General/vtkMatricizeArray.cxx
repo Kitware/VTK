@@ -113,6 +113,10 @@ int vtkMatricizeArray::RequestData(
   const vtkIdType element_count = input_array->GetNonNullSize();
   for (vtkIdType n = 0; n != element_count; ++n)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     input_array->GetCoordinatesN(n, coordinates);
 
     new_coordinates[0] = coordinates[this->SliceDimension];
