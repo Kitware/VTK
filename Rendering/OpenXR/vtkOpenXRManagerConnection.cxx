@@ -17,12 +17,3 @@
 #include "vtkObjectFactory.h"
 
 vtkStandardNewMacro(vtkOpenXRManagerConnection);
-
-//------------------------------------------------------------------------------
-void vtkOpenXRManagerConnection::SetIPAddress(const std::string& ip)
-{
-  if (this->IPAddress != ip)
-  {
-    this->IPAddress = ip;
-  }
-}

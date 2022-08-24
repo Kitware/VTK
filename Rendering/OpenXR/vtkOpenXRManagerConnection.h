@@ -60,8 +60,8 @@ public:
   /**
    * Specify the address to connect to.
    */
-  void SetIPAddress(const std::string& ip);
-  std::string GetIPAddress() { return this->IPAddress; }
+  void SetIPAddress(std::string ip) { this->IPAddress = std::move(ip); }
+  std::string const& GetIPAddress() const { return this->IPAddress; }
   ///@}
 
 protected:

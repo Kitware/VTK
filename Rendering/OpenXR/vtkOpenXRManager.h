@@ -363,16 +363,16 @@ public:
   /**
    * Set/Get the rendering backend strategy.
    */
-  void SetGraphicsStrategy(vtkOpenXRManagerGraphics* strategy);
-  vtkOpenXRManagerGraphics* GetGraphicsStrategy() { return this->GraphicsStrategy; };
+  void SetGraphicsStrategy(vtkOpenXRManagerGraphics* gs) { this->GraphicsStrategy = gs; }
+  vtkOpenXRManagerGraphics* GetGraphicsStrategy() { return this->GraphicsStrategy; }
   ///@}
 
   ///@{
   /**
    * Set/Get the connection strategy.
    */
-  void SetConnectionStrategy(vtkOpenXRManagerConnection* strategy);
-  vtkOpenXRManagerConnection* GetConnectionStrategy() { return this->ConnectionStrategy; };
+  void SetConnectionStrategy(vtkOpenXRManagerConnection* cs) { this->ConnectionStrategy = cs; }
+  vtkOpenXRManagerConnection* GetConnectionStrategy() { return this->ConnectionStrategy; }
   ///@}
 
 protected:

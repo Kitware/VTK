@@ -52,24 +52,6 @@ vtkOpenXRManager::vtkOpenXRManager()
 }
 
 //------------------------------------------------------------------------------
-void vtkOpenXRManager::SetGraphicsStrategy(vtkOpenXRManagerGraphics* strategy)
-{
-  if (this->GraphicsStrategy != strategy)
-  {
-    this->GraphicsStrategy = strategy;
-  }
-}
-
-//------------------------------------------------------------------------------
-void vtkOpenXRManager::SetConnectionStrategy(vtkOpenXRManagerConnection* strategy)
-{
-  if (this->ConnectionStrategy != strategy)
-  {
-    this->ConnectionStrategy = strategy;
-  }
-}
-
-//------------------------------------------------------------------------------
 bool vtkOpenXRManager::Initialize(vtkOpenGLRenderWindow* helperWindow)
 {
   if (!this->ConnectionStrategy->Initialize())
