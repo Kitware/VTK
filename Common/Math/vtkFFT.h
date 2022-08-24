@@ -137,23 +137,23 @@ public:
   /**
    * Return the absolute value (also known as norm, modulus, or magnitude) of complex number
    */
-  static inline double Abs(const ComplexNumber& in);
+  static inline ScalarNumber Abs(const ComplexNumber& in);
 
   /**
    * Return the squared absolute value of the complex number
    */
-  static inline double SquaredAbs(const ComplexNumber& in);
+  static inline ScalarNumber SquaredAbs(const ComplexNumber& in);
 
   /**
    * Return the DFT sample frequencies. Output has @c windowLength size.
    */
-  static std::vector<double> FftFreq(int windowLength, double sampleSpacing);
+  static std::vector<ScalarNumber> FftFreq(int windowLength, double sampleSpacing);
 
   /**
    * Return the DFT sample frequencies for the real version of the dft (see @c Rfft).
    * Output has @c (windowLength / 2) + 1 size.
    */
-  static std::vector<double> RFftFreq(int windowLength, double sampleSpacing);
+  static std::vector<ScalarNumber> RFftFreq(int windowLength, double sampleSpacing);
 
   ///@{
   /**
@@ -161,17 +161,17 @@ public:
    * because kernels are symmetric by definitions. This point is very important for some
    * kernels like Bartlett for example.
    *
-   * @warning Hanning and Bartlett generators needs a size > 1 !
+   * @warning Most generators need size > 1 !
    *
    * Can be used with @c GenerateKernel1D and @c GenerateKernel2D for generating full kernels.
    */
-  using WindowGenerator = double (*)(std::size_t, std::size_t);
+  using WindowGenerator = ScalarNumber (*)(std::size_t, std::size_t);
 
-  static inline double HanningGenerator(std::size_t x, std::size_t size);
-  static inline double BartlettGenerator(std::size_t x, std::size_t size);
-  static inline double SineGenerator(std::size_t x, std::size_t size);
-  static inline double BlackmanGenerator(std::size_t x, std::size_t size);
-  static inline double RectangularGenerator(std::size_t x, std::size_t size);
+  static inline ScalarNumber HanningGenerator(std::size_t x, std::size_t size);
+  static inline ScalarNumber BartlettGenerator(std::size_t x, std::size_t size);
+  static inline ScalarNumber SineGenerator(std::size_t x, std::size_t size);
+  static inline ScalarNumber BlackmanGenerator(std::size_t x, std::size_t size);
+  static inline ScalarNumber RectangularGenerator(std::size_t x, std::size_t size);
   ///@}
 
   /**
@@ -247,13 +247,13 @@ inline vtkFFT::ComplexNumber operator/(
 }
 
 //------------------------------------------------------------------------------
-double vtkFFT::Abs(const ComplexNumber& in)
+vtkFFT::ScalarNumber vtkFFT::Abs(const ComplexNumber& in)
 {
   return std::sqrt(in.r * in.r + in.i * in.i);
 }
 
 //------------------------------------------------------------------------------
-double vtkFFT::SquaredAbs(const ComplexNumber& in)
+vtkFFT::ScalarNumber vtkFFT::SquaredAbs(const ComplexNumber& in)
 {
   return in.r * in.r + in.i * in.i;
 }

@@ -256,7 +256,7 @@ std::vector<vtkFFT::ScalarNumber> vtkFFT::IRFft(const std::vector<vtkFFT::Comple
 }
 
 //------------------------------------------------------------------------------
-std::vector<double> vtkFFT::FftFreq(int windowLength, double sampleSpacing)
+std::vector<vtkFFT::ScalarNumber> vtkFFT::FftFreq(int windowLength, double sampleSpacing)
 {
   if (windowLength < 1)
   {
@@ -265,13 +265,12 @@ std::vector<double> vtkFFT::FftFreq(int windowLength, double sampleSpacing)
 
   double freq = 1.0 / (windowLength * sampleSpacing);
   int nshan = (windowLength / 2) + 1;
-  double val;
-  std::vector<double> res(windowLength);
+  std::vector<vtkFFT::ScalarNumber> res(windowLength);
 
   res[0] = 0.0;
   for (int i = 1; i < nshan; i++)
   {
-    val = i * freq;
+    const vtkFFT::ScalarNumber val = i * freq;
     res[i] = val;
     res[windowLength - i] = -val;
   }
@@ -280,17 +279,18 @@ std::vector<double> vtkFFT::FftFreq(int windowLength, double sampleSpacing)
 }
 
 //------------------------------------------------------------------------------
-std::vector<double> vtkFFT::RFftFreq(int windowLength, double sampleSpacing)
+std::vector<vtkFFT::ScalarNumber> vtkFFT::RFftFreq(int windowLength, double sampleSpacing)
 {
   if (windowLength < 1)
   {
     return {};
   }
 
-  double val = 1.0 / (windowLength * sampleSpacing);
-  int N = (windowLength / 2) + 1;
-  std::vector<double> res(N);
-  for (auto i = 0; i < N; i++)
+  const vtkFFT::ScalarNumber val = 1.0 / (windowLength * sampleSpacing);
+  const int size = (windowLength / 2) + 1;
+
+  std::vector<double> res(size);
+  for (int i = 0; i < size; i++)
   {
     res[i] = i * val;
   }
