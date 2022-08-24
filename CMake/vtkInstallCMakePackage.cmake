@@ -80,6 +80,7 @@ configure_file(
 
 set(vtk_cmake_module_files
   Finddouble-conversion.cmake
+  FindDirectX.cmake
   FindEigen3.cmake
   FindEXPAT.cmake
   FindExprTk.cmake
