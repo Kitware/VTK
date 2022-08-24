@@ -32,8 +32,9 @@
 
 #include "limits.h" // UINT_MAX
 
-#include <cmath>  // std::round
-#include <memory> // std::shared_ptr
+#include <algorithm> // std::min/std::max
+#include <cmath>     // std::round
+#include <memory>    // std::shared_ptr
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkHyperTreeGrid.h"
