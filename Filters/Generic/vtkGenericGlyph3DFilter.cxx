@@ -414,7 +414,7 @@ int vtkGenericGlyph3DFilter::RequestData(vtkInformation* vtkNotUsed(request),
     if (!(inPtId % 10000))
     {
       this->UpdateProgress(static_cast<double>(inPtId) / numPts);
-      if (this->GetAbortExecute())
+      if (this->CheckAbort())
       {
         break;
       }

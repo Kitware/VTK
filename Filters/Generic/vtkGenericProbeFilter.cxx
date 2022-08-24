@@ -167,7 +167,7 @@ int vtkGenericProbeFilter::RequestData(vtkInformation* vtkNotUsed(request),
   cout << "tol2=" << tol2 << endl;
   // Loop over all input points, interpolating source data
   //
-  int abort = 0;
+  bool abort = false;
 
   // Need to use source to create a cellIt since this class is virtual
   vtkGenericCellIterator* cellIt = source->NewCellIterator();
@@ -178,7 +178,7 @@ int vtkGenericProbeFilter::RequestData(vtkInformation* vtkNotUsed(request),
     if (!(ptId % progressInterval))
     {
       this->UpdateProgress(static_cast<double>(ptId) / numPts);
-      abort = GetAbortExecute();
+      abort = CheckAbort();
     }
 
     // Get the xyz coordinate of the point in the input dataset

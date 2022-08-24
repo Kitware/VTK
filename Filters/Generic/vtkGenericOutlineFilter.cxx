@@ -35,6 +35,7 @@ void vtkGenericOutlineFilter::PrintSelf(ostream& os, vtkIndent indent)
 vtkGenericOutlineFilter::vtkGenericOutlineFilter()
 {
   this->OutlineSource = vtkOutlineSource::New();
+  this->OutlineSource->SetContainerAlgorithm(this);
 }
 
 //------------------------------------------------------------------------------
@@ -68,6 +69,7 @@ int vtkGenericOutlineFilter::RequestData(vtkInformation* vtkNotUsed(request),
   this->OutlineSource->Update();
 
   output->CopyStructure(this->OutlineSource->GetOutput());
+  this->CheckAbort();
   return 1;
 }
 

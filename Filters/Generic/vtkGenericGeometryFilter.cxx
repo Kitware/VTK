@@ -297,7 +297,7 @@ int vtkGenericGeometryFilter::RequestData(vtkInformation* vtkNotUsed(request),
 
   // Traverse cells to extract geometry
   //
-  int abort = 0;
+  bool abort = false;
   vtkIdType progressInterval = numCells / 20 + 1;
 
   vtkIdList* faceList = vtkIdList::New();
@@ -321,7 +321,7 @@ int vtkGenericGeometryFilter::RequestData(vtkInformation* vtkNotUsed(request),
     {
       vtkDebugMacro(<< "Process cell #" << cellId);
       this->UpdateProgress(static_cast<double>(cellId) / numCells);
-      abort = this->GetAbortExecute();
+      abort = this->CheckAbort();
     }
 
     vtkIdType BeginTopOutCId = outputCD->GetNumberOfTuples();
