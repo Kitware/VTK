@@ -95,6 +95,10 @@ void vtkAMRGaussianPulseSource::GeneratePulseField(vtkUniformGrid* grid)
   vtkIdType cellIdx = 0;
   for (; cellIdx < grid->GetNumberOfCells(); ++cellIdx)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     this->ComputeCellCenter(grid, cellIdx, centroid);
     centroidArray->SetComponent(cellIdx, 0, centroid[0]);
     centroidArray->SetComponent(cellIdx, 1, centroid[1]);
@@ -344,6 +348,10 @@ int vtkAMRGaussianPulseSource::RequestData(vtkInformation* vtkNotUsed(request),
       vtkErrorMacro("Dimensions must be either 2 or 3!");
   }
 
-  vtkAMRUtilities::BlankCells(output);
+  // Skipping BlankCells incase output is empty
+  if (!this->CheckAbort())
+  {
+    vtkAMRUtilities::BlankCells(output);
+  }
   return 1;
 }

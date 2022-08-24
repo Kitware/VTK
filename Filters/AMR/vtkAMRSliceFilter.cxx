@@ -333,6 +333,10 @@ void vtkAMRSliceFilter::GetAMRSliceInPlane(
   std::vector<int> dataIndices(out->GetNumberOfLevels(), 0);
   for (unsigned int i = 0; i < this->BlocksToLoad.size(); i++)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     int flatIndex = this->BlocksToLoad[i];
     unsigned int level;
     unsigned int dataIdx;
@@ -377,7 +381,12 @@ void vtkAMRSliceFilter::GetAMRSliceInPlane(
   vtkTimerLog::MarkEndEvent("AMRSlice::GetAMRSliceInPlane");
 
   vtkTimerLog::MarkStartEvent("AMRSlice::Generate Blanking");
-  vtkParallelAMRUtilities::BlankCells(out, this->Controller);
+
+  // Skipping BlankCells incase out is empty
+  if (!this->CheckAbort())
+  {
+    vtkParallelAMRUtilities::BlankCells(out, this->Controller);
+  }
   vtkTimerLog::MarkEndEvent("AMRSlice::Generate Blanking");
 }
 

@@ -302,14 +302,16 @@ int vtkImageToAMR::RequestData(vtkInformation* vtkNotUsed(request),
   }
 
   unsigned int numLevels = static_cast<unsigned int>(blocksPerLevel.size());
+  bool abort = false;
 
   amr->Initialize(static_cast<int>(numLevels), blocksPerLevel.data());
   amr->SetOrigin(inputOrigin);
   amr->SetGridDescription(gridDescription);
 
   double spacingi[3] = { spacing0[0], spacing0[1], spacing0[2] };
-  for (unsigned int i = 0; i < numLevels; i++)
+  for (unsigned int i = 0; i < numLevels && !abort; i++)
   {
+    abort = this->CheckAbort();
     amr->SetSpacing(i, spacingi);
     for (int d = 0; d < 3; d++)
     {
@@ -317,8 +319,9 @@ int vtkImageToAMR::RequestData(vtkInformation* vtkNotUsed(request),
     }
   }
 
-  for (unsigned int level = 0; level < numLevels; level++)
+  for (unsigned int level = 0; level < numLevels && !abort; level++)
   {
+    abort = this->CheckAbort();
     const std::vector<vtkAMRBox>& boxes = amrBoxes[level];
     for (size_t i = 0; i < boxes.size(); i++)
     {
@@ -326,13 +329,14 @@ int vtkImageToAMR::RequestData(vtkInformation* vtkNotUsed(request),
     }
   }
 
-  for (unsigned int level = 0; level < numLevels; level++)
+  for (unsigned int level = 0; level < numLevels && !abort; level++)
   {
+    abort = this->CheckAbort();
     double spacing[3];
     amr->GetSpacing(level, spacing);
     int coarsenRatio = (int)pow(static_cast<double>(this->RefinementRatio),
       static_cast<int>(numLevels - 1 - level)); // against the finest level
-    for (size_t i = 0; i < amr->GetNumberOfDataSets(level); i++)
+    for (size_t i = 0; i < amr->GetNumberOfDataSets(level) && !abort; i++)
     {
       const vtkAMRBox& box = amr->GetAMRBox(level, static_cast<unsigned int>(i));
       double origin[3];
@@ -343,7 +347,11 @@ int vtkImageToAMR::RequestData(vtkInformation* vtkNotUsed(request),
     }
   }
 
-  vtkAMRUtilities::BlankCells(amr);
+  // Skipping BlankCells incase amr is empty
+  if (!this->CheckAbort())
+  {
+    vtkAMRUtilities::BlankCells(amr);
+  }
   return 1;
 }
 
