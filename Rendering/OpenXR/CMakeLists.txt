@@ -16,18 +16,36 @@ set(nowrap_classes
   vtkOpenXRManagerConnection
   )
 
+# When OpenXR Remoting is enabled, vtkOpenXR.h must define additional types for
+# its graphics API and extension set.
+if (VTK_MODULE_ENABLE_VTK_RenderingOpenXRRemoting STREQUAL "WANT" OR
+  VTK_MODULE_ENABLE_VTK_RenderingOpenXRRemoting STREQUAL "YES" OR
+  (VTK_MODULE_ENABLE_VTK_RenderingOpenXRRemoting STREQUAL "DEFAULT" AND VTK_BUILD_ALL_MODULES))
+  set(VTK_OPENXR_USE_REMOTING TRUE)
+else()
+  set(VTK_OPENXR_USE_REMOTING FALSE)
+endif()
+configure_file(
+  "${CMAKE_CURRENT_SOURCE_DIR}/vtkOpenXRConfigure.h.in"
+  "${CMAKE_CURRENT_BINARY_DIR}/vtkOpenXRConfigure.h"
+  @ONLY)
+
+set(nowrap_headers
+  vtkOpenXR.h
+  vtkOpenXRConfigure.h
+  vtkOpenXRUtilities.h
+  XrExtensions.h
+  )
+
 vtk_module_add_module(VTK::RenderingOpenXR
   CLASSES ${classes}
   NOWRAP_CLASSES ${nowrap_classes}
-  NOWRAP_HEADERS "vtkOpenXR.h" "XrExtensions.h" "vtkOpenXRUtilities.h"
+  NOWRAP_HEADERS ${nowrap_headers}
   )
 
 vtk_module_link(VTK::RenderingOpenXR
   PUBLIC
     OpenXR::OpenXR)
-
-# OpenXR Remoting is disabled by default
-target_compile_definitions(RenderingOpenXR PUBLIC VTK_OPENXR_USE_REMOTING=0)
 
 set(openxr_input_files
   vtk_openxr_actions.json

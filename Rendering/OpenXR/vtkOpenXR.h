@@ -5,6 +5,9 @@
 #include "vtkRenderingOpenGLConfigure.h"
 #include "vtk_glew.h"
 
+// Needed for VTK_OPENXR_USE_REMOTING
+#include "vtkOpenXRConfigure.h"
+
 #if defined(VTK_USE_X)
 // X11 defines globally some names that conflict with things in these classes
 //     X11/Xutil.h contains "#define AllValues 0x000F"
