@@ -4,3 +4,5 @@ LIBRARY_NAME
   vtkRenderingOpenXRRemoting
 DEPENDS
   VTK::RenderingOpenXR
+CONDITION
+  WIN32
