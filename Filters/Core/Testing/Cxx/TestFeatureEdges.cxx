@@ -30,8 +30,6 @@
 #include "vtkPolyData.h"
 #include "vtkSmartPointer.h"
 
-#include "vtkmFilterOverrides.h"
-
 #include <algorithm>
 #include <cmath>
 
