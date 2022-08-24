@@ -48,7 +48,8 @@ set(classes
   vtkTransmitRectilinearGridPiece
   vtkTransmitStructuredDataPiece
   vtkTransmitStructuredGridPiece
-  vtkTransmitUnstructuredGridPiece)
+  vtkTransmitUnstructuredGridPiece
+  vtkUnstructuredGridGhostCellsGenerator)
 
 set(headers
   vtkBlockDistribution.h)
