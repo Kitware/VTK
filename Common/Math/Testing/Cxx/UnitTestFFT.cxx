@@ -15,6 +15,7 @@
 
 #include <vtkFFT.h>
 
+#include <vtkDataArrayRange.h>
 #include <vtkMathUtilities.h>
 
 #include <algorithm>
@@ -76,7 +77,7 @@ int Test_fft_cplx()
   std::cout << "Test_fft_cplx..";
 
   static constexpr auto countIn = 16;
-  static constexpr auto countOut = 16;
+  static constexpr auto countOut = countIn;
   auto comparator = [](vtkFFT::ComplexNumber l, vtkFFT::ComplexNumber r) {
     return FuzzyCompare(l, r, std::numeric_limits<vtkFFT::ScalarNumber>::epsilon());
   };
@@ -118,6 +119,70 @@ int Test_fft_cplx()
     }
   }
 
+  // Test with C API
+  {
+    std::vector<vtkFFT::ComplexNumber> f1(countIn);
+    for (std::size_t i = 0; i < countIn; ++i)
+    {
+      f1[i] = vtkFFT::ComplexNumber{ static_cast<vtkFFT::ScalarNumber>(i % 2), 0.0 };
+    }
+
+    std::vector<vtkFFT::ComplexNumber> res(countIn);
+    vtkFFT::Fft(f1.data(), f1.size(), res.data());
+
+    std::vector<vtkFFT::ComplexNumber> expected(countOut);
+    std::fill(expected.begin(), expected.end(), vtkFFT::ComplexNumber{ 0.0, 0.0 });
+    expected[0] = vtkFFT::ComplexNumber{ 8.0, 0.0 };
+    expected[8] = vtkFFT::ComplexNumber{ -8.0, 0.0 };
+    auto is_equal = std::equal(expected.begin(), expected.end(), res.begin(), comparator);
+    if (!is_equal)
+    {
+      std::cout << "..Error when doing FFT with 1 freq with C API..";
+      status++;
+    }
+  }
+
+  // Test vtkDataArrays API
+  {
+    vtkNew<vtkFFT::vtkScalarNumberArray> array;
+    array->SetNumberOfComponents(2);
+    array->SetNumberOfTuples(countIn);
+    for (std::size_t i = 0; i < countIn; ++i)
+    {
+      array->SetTuple2(i, static_cast<vtkFFT::ScalarNumber>(i % 2), 0.0);
+    }
+    std::vector<vtkFFT::ComplexNumber> expected(countOut);
+    std::fill(expected.begin(), expected.end(), vtkFFT::ComplexNumber{ 0.0, 0.0 });
+    expected[0] = vtkFFT::ComplexNumber{ 8.0, 0.0 };
+    expected[8] = vtkFFT::ComplexNumber{ -8.0, 0.0 };
+
+    auto res = vtkFFT::Fft(array);
+
+    if (res->GetNumberOfComponents() != 2)
+    {
+      std::cout << ".vtkFFT::Fft(vtkScalarNumberArray*) wrong number of components.";
+      status++;
+    }
+    else if (res->GetNumberOfTuples() != countOut)
+    {
+      std::cout << ".vtkFFT::Fft(vtkScalarNumberArray*) wrong number of tuples.";
+      status++;
+    }
+    else
+    {
+      bool is_equal = std::equal(expected.begin(), expected.end(),
+        vtk::DataArrayTupleRange(res).begin(),
+        [](vtkFFT::ComplexNumber x, decltype(vtk::DataArrayTupleRange(res).begin())::value_type y) {
+          return (x.r == y[0]) && (x.i == y[1]);
+        });
+      if (!is_equal)
+      {
+        std::cout << "..Error when using vtkDataArrays API..";
+        status++;
+      }
+    }
+  }
+
   if (status)
   {
     std::cout << "..FAILED" << std::endl;
@@ -133,22 +198,16 @@ int Test_fft_direct()
 {
   std::cout << "Test_fft_direct..";
 
-  static constexpr auto countIn = 16;
-  static constexpr auto countOut = (countIn / 2) + 1;
+  static constexpr std::size_t countIn = 16;
+  static constexpr std::size_t countOut = (countIn / 2) + 1;
   auto comparator = [](vtkFFT::ComplexNumber l, vtkFFT::ComplexNumber r) {
     return FuzzyCompare(l, r, std::numeric_limits<vtkFFT::ScalarNumber>::epsilon());
   };
   auto status = 0;
   // zeroes
-  std::vector<vtkFFT::ScalarNumber> zeroes(countIn);
-  std::generate(zeroes.begin(), zeroes.end(), []() { return 0; });
-
+  std::vector<vtkFFT::ScalarNumber> zeroes(countIn, 0.0);
   auto resultZeroes = vtkFFT::RFft(zeroes);
-
-  std::vector<vtkFFT::ComplexNumber> expectedZeroes(countOut);
-  std::generate(expectedZeroes.begin(), expectedZeroes.end(), []() {
-    return vtkFFT::ComplexNumber{ 0.0, 0.0 };
-  });
+  std::vector<vtkFFT::ComplexNumber> expectedZeroes(countOut, vtkFFT::ComplexNumber{ 0.0, 0.0 });
   auto is_equal =
     std::equal(expectedZeroes.begin(), expectedZeroes.end(), resultZeroes.begin(), comparator);
   if (!is_equal)
@@ -157,20 +216,51 @@ int Test_fft_direct()
   }
 
   // ones
-  std::vector<vtkFFT::ScalarNumber> ones(countIn);
-  std::generate(ones.begin(), ones.end(), []() { return 1.0; });
-
+  std::vector<vtkFFT::ScalarNumber> ones(countIn, 1.0);
   auto resultOnes = vtkFFT::RFft(ones);
-
-  std::vector<vtkFFT::ComplexNumber> expectedOnes(countOut);
-  std::generate(expectedOnes.begin(), expectedOnes.end(), []() {
-    return vtkFFT::ComplexNumber{ 0.0, 0.0 };
-  });
-  expectedOnes[0] = { 16.0, 0.0 };
+  std::vector<vtkFFT::ComplexNumber> expectedOnes(countOut, vtkFFT::ComplexNumber{ 0.0, 0.0 });
+  expectedOnes[0] = { static_cast<vtkFFT::ScalarNumber>(countIn), 0.0 };
   is_equal = std::equal(expectedOnes.begin(), expectedOnes.end(), resultOnes.begin(), comparator);
   if (!is_equal)
   {
     status++;
+  }
+
+  // ones with vtk arrays
+  vtkNew<vtkFFT::vtkScalarNumberArray> vtkOnes;
+  vtkOnes->SetNumberOfComponents(1);
+  vtkOnes->SetNumberOfTuples(countIn);
+  vtkOnes->Fill(1.0);
+  auto resultVtkOnes = vtkFFT::RFft(vtkOnes);
+  if (resultVtkOnes->GetNumberOfComponents() != 2)
+  {
+    std::cout << ".vtkFFT::RFft(vtkOnes) wrong number of components." << std::endl;
+    status++;
+  }
+  else if (resultVtkOnes->GetNumberOfTuples() != countOut)
+  {
+    std::cout << ".vtkFFT::RFft(vtkOnes) wrong number of tuples." << std::endl;
+    status++;
+  }
+  else
+  {
+    auto resRange = vtk::DataArrayTupleRange(resultVtkOnes);
+    auto iter = resRange.cbegin();
+    if (!vtkMathUtilities::FuzzyCompare((*iter)[0], 16.0) ||
+      !vtkMathUtilities::FuzzyCompare((*iter)[1], 0.0))
+    {
+      std::cout << ".vtkFFT::RFft(vtkOnes) wrong first value." << std::endl;
+      status++;
+    }
+    for (iter++; iter != resRange.cend(); ++iter)
+    {
+      if (!vtkMathUtilities::FuzzyCompare((*iter)[0], 0.0) ||
+        !vtkMathUtilities::FuzzyCompare((*iter)[1], 0.0))
+      {
+        std::cout << ".vtkFFT::RFft(vtkOnes) wrong values." << std::endl;
+        status++;
+      }
+    }
   }
 
   if (status)

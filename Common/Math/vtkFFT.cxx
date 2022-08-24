@@ -14,7 +14,9 @@
 =========================================================================*/
 #include "vtkFFT.h"
 
+#include "vtkDataArrayRange.h"
 #include "vtkObjectFactory.h"
+#include "vtkSMPTools.h"
 
 //------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkFFT);
@@ -52,6 +54,74 @@ std::vector<vtkFFT::ComplexNumber> vtkFFT::Fft(const std::vector<ScalarNumber>& 
 }
 
 //------------------------------------------------------------------------------
+void vtkFFT::Fft(ScalarNumber* input, std::size_t size, ComplexNumber* result)
+{
+  std::vector<ComplexNumber> cplx(size);
+  std::transform(input, input + size, cplx.begin(), [](ScalarNumber x) {
+    return ComplexNumber{ x, 0 };
+  });
+  vtkFFT::Fft(cplx.data(), cplx.size(), result);
+}
+
+//------------------------------------------------------------------------------
+void vtkFFT::Fft(ComplexNumber* input, std::size_t size, ComplexNumber* result)
+{
+  if (size <= 1)
+  {
+    return;
+  }
+
+  kiss_fft_cfg cfg = kiss_fft_alloc(static_cast<int>(size), 0 /*is_inverse_fft*/, nullptr, nullptr);
+  if (cfg != nullptr)
+  {
+    kiss_fft(cfg, input, result);
+    kiss_fft_free(cfg);
+  }
+}
+
+//------------------------------------------------------------------------------
+vtkSmartPointer<vtkFFT::vtkScalarNumberArray> vtkFFT::Fft(vtkScalarNumberArray* input)
+{
+  // This function may look a bit unsafe but here's the reasoning : ComplexNumber
+  // should be a simple a struct containing only 2 ScalarNumber. Since vtkScalarNumberArray
+  // is defined as a Array of Structure of ScalarNumber, the memory layout should be the
+  // exact same even though the underlying class is not. So setting the array and
+  // getting the void pointer should be safe on most architecture.
+
+  if (input->GetNumberOfComponents() > 2)
+  {
+    return vtkSmartPointer<vtkScalarNumberArray>::New();
+  }
+
+  ComplexNumber* rawInput = static_cast<ComplexNumber*>(input->GetVoidPointer(0));
+  const std::size_t size = static_cast<std::size_t>(input->GetNumberOfTuples());
+  if (input->GetNumberOfComponents() == 1)
+  {
+    rawInput = new ComplexNumber[size];
+    auto inputRange = vtk::DataArrayValueRange<1>(input);
+    using ValueT = decltype(inputRange)::ConstReferenceType;
+    vtkSMPTools::Transform(inputRange.begin(), inputRange.end(), rawInput, [](ValueT val) {
+      return vtkFFT::ComplexNumber{ val, 0.0 };
+    });
+  }
+
+  auto result = vtkSmartPointer<vtkScalarNumberArray>::New();
+
+  ComplexNumber* rawResult = new ComplexNumber[size];
+  vtkFFT::Fft(rawInput, size, rawResult);
+
+  result->SetNumberOfComponents(2);
+  result->SetArray(&rawResult[0].r, size * 2, 0, vtkScalarNumberArray::VTK_DATA_ARRAY_DELETE);
+
+  if (input->GetNumberOfComponents() == 1)
+  {
+    delete[] rawInput;
+  }
+
+  return result;
+}
+
+//------------------------------------------------------------------------------
 std::vector<vtkFFT::ComplexNumber> vtkFFT::RFft(const std::vector<ScalarNumber>& in)
 {
   if (in.size() <= 1)
@@ -59,7 +129,7 @@ std::vector<vtkFFT::ComplexNumber> vtkFFT::RFft(const std::vector<ScalarNumber>&
     return {};
   }
 
-  std::size_t outSize = (in.size() / 2) + 1;
+  const std::size_t outSize = (in.size() / 2) + 1;
 
   // Real fft optimization needs an input with even size. Falling back to vtkFFT::Fft() if odd sized
   // input
@@ -81,6 +151,57 @@ std::vector<vtkFFT::ComplexNumber> vtkFFT::RFft(const std::vector<ScalarNumber>&
     return result;
   }
   return {};
+}
+
+//------------------------------------------------------------------------------
+void vtkFFT::RFft(ScalarNumber* input, std::size_t size, ComplexNumber* result)
+{
+  if (size <= 1)
+  {
+    return;
+  }
+
+  // Real fft optimization needs an input with even size.
+  // Falling back to vtkFFT::Fft() if input size is odd.
+  if (size % 2)
+  {
+    std::vector<ComplexNumber> twoSided(size);
+    vtkFFT::Fft(input, size, twoSided.data());
+    std::copy(twoSided.data(), twoSided.data() + 1 + size / 2, result);
+  }
+  else
+  {
+    kiss_fftr_cfg cfg =
+      kiss_fftr_alloc(static_cast<int>(size), 0 /*is_inverse_fft*/, nullptr, nullptr);
+    if (cfg != nullptr)
+    {
+      kiss_fftr(cfg, input, result);
+      kiss_fft_free(cfg);
+    }
+  }
+}
+
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+vtkSmartPointer<vtkFFT::vtkScalarNumberArray> vtkFFT::RFft(vtkScalarNumberArray* input)
+{
+  if (input->GetNumberOfComponents() != 1)
+  {
+    return nullptr;
+  }
+
+  // See vtkFFT::FFT(vtkScalarNumberArray*) for reasoning behind why this is safe
+  // to do like so
+  const std::size_t size = static_cast<std::size_t>(input->GetNumberOfTuples());
+  const std::size_t outSize = size / 2 + 1;
+  ScalarNumber* rawInput = static_cast<ScalarNumber*>(input->GetVoidPointer(0));
+  ComplexNumber* rawResult = new ComplexNumber[outSize];
+  vtkFFT::RFft(rawInput, size, rawResult);
+
+  auto result = vtkSmartPointer<vtkScalarNumberArray>::New();
+  result->SetNumberOfComponents(2);
+  result->SetArray(&rawResult[0].r, outSize * 2, 0, vtkScalarNumberArray::VTK_DATA_ARRAY_DELETE);
+  return result;
 }
 
 //------------------------------------------------------------------------------

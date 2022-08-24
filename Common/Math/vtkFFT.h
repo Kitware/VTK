@@ -24,13 +24,17 @@
  *  - Fft means the Fast Fourier Transform algorithm
  *  - Prefix `R` stands for Real (meaning optimized function for real inputs)
  *  - Prefix `I` stands for Inverse
+ *
+ * Some functions provides pointer-based version of themself in order to
+ * prevent copying memory when possible.
  */
 
 #ifndef vtkFFT_h
 #define vtkFFT_h
 
-#include "vtkCommonMathModule.h" // For export macro
-#include "vtkMath.h"             // For vtkMath::Pi
+#include "vtkAOSDataArrayTemplate.h" // For vtkAOSDataArrayTemplate
+#include "vtkCommonMathModule.h"     // For export macro
+#include "vtkMath.h"                 // For vtkMath::Pi
 #include "vtkObject.h"
 
 #include "vtk_kissfft.h" // For kiss_fft_scalar, kiss_fft_cpx
@@ -45,12 +49,37 @@
 class VTKCOMMONMATH_EXPORT vtkFFT : public vtkObject
 {
 public:
+  ///@{
+  /**
+   * Usefull type definitions and utilities.
+   *
+   * ScalarNumber is defined as a floating point number.
+   *
+   * ComplexNumber is defined as a struct that contains two ScalarNumber.
+   * These 2 numbers should be contiguous in memory.
+   * First one should be named r and represent the real part,
+   * while second one should be named i and represent the imaginary part.
+   * This specification is important for the implementation of functions
+   * accepting and returning values from vtkDataArrays as it allows to do
+   * some zero-copy operations.
+   *
+   * A vtkScalarNumberArray is a data array with a layout memory compatible
+   * with the underlying library for zero copy operations.
+   *
+   * isFftType is a trait to tell templates if Type is either ScalarNumber
+   * or ComplexNumber.
+   *
+   * Common operators such as +,-,*,/ between ScalarNumber and
+   * ComplexNumber are included in this header.
+   */
   using ScalarNumber = kiss_fft_scalar;
   using ComplexNumber = kiss_fft_cpx;
-
-  static vtkFFT* New();
-  vtkTypeMacro(vtkFFT, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) override;
+  using vtkScalarNumberArray = vtkAOSDataArrayTemplate<vtkFFT::ScalarNumber>;
+  template <typename T>
+  struct isFftType : public std::false_type
+  {
+  };
+  ///@}
 
   ///@{
   /**
@@ -60,10 +89,16 @@ public:
    * input has n complex points
    * output has n complex points in case of success and empty in case of failure
    */
-  static std::vector<ComplexNumber> Fft(const std::vector<ComplexNumber>& in);
   static std::vector<ComplexNumber> Fft(const std::vector<ScalarNumber>& in);
+  static void Fft(ScalarNumber* input, std::size_t size, ComplexNumber* result);
+  static std::vector<ComplexNumber> Fft(const std::vector<ComplexNumber>& in);
+  static void Fft(ComplexNumber* input, std::size_t size, ComplexNumber* result);
+#ifndef __VTK_WRAP__
+  static vtkSmartPointer<vtkScalarNumberArray> Fft(vtkScalarNumberArray* input);
+#endif
   ///@}
 
+  ///@{
   /**
    * Compute the one-dimensional DFT for real input
    *
@@ -71,6 +106,11 @@ public:
    *  output has (n/2) + 1 complex points in case of success and empty in case of failure
    */
   static std::vector<ComplexNumber> RFft(const std::vector<ScalarNumber>& in);
+  static void RFft(ScalarNumber* input, std::size_t size, ComplexNumber* result);
+#ifndef __VTK_WRAP__
+  static vtkSmartPointer<vtkScalarNumberArray> RFft(vtkScalarNumberArray* input);
+#endif
+  ///@}
 
   /**
    * Compute the inverse of @c Fft. The input should be ordered in the same way as is returned by @c
@@ -148,6 +188,10 @@ public:
   template <typename T>
   static void GenerateKernel2D(T* kernel, std::size_t n, std::size_t m, WindowGenerator generator);
 
+  static vtkFFT* New();
+  vtkTypeMacro(vtkFFT, vtkObject);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
+
 protected:
   vtkFFT() = default;
   ~vtkFFT() override = default;
@@ -155,6 +199,16 @@ protected:
 private:
   vtkFFT(const vtkFFT&) = delete;
   void operator=(const vtkFFT&) = delete;
+};
+
+//------------------------------------------------------------------------------
+template <>
+struct vtkFFT::isFftType<vtkFFT::ScalarNumber> : public std::true_type
+{
+};
+template <>
+struct vtkFFT::isFftType<vtkFFT::ComplexNumber> : public std::true_type
+{
 };
 
 //------------------------------------------------------------------------------
