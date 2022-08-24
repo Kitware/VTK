@@ -154,6 +154,9 @@ int vtkStructuredGridGeometryFilter::RequestData(vtkInformation* vtkNotUsed(requ
     startCellIdx += (extent[4] < dims[2] - 1) ? extent[4] * (dims[0] - 1) * (dims[1] - 1)
                                               : (extent[4] - 1) * (dims[0] - 1) * (dims[1] - 1);
   }
+
+  bool abort = false;
+
   switch (dimension)
   {
     default:
@@ -176,6 +179,7 @@ int vtkStructuredGridGeometryFilter::RequestData(vtkInformation* vtkNotUsed(requ
         cellId = newVerts->InsertNextCell(1, ptIds);
         outCD->CopyData(cd, startIdx, cellId);
       }
+      this->CheckAbort();
       break;
 
     case 1: // --------------------- build line -----------------------
@@ -216,14 +220,22 @@ int vtkStructuredGridGeometryFilter::RequestData(vtkInformation* vtkNotUsed(requ
 
       for (i = 0; i < totPoints; i++)
       {
+        if (this->CheckAbort())
+        {
+          break;
+        }
         idx = startIdx + i * offset[0];
         input->GetPoint(idx, x);
         ptIds[0] = newPts->InsertNextPoint(x);
         outPD->CopyData(pd, idx, ptIds[0]);
       }
 
-      for (i = 0; i < (totPoints - 1); i++)
+      for (i = 0; i < (totPoints - 1) && !abort; i++)
       {
+        if (this->CheckAbort())
+        {
+          break;
+        }
         if (input->IsPointVisible(startIdx + i * offset[0]) &&
           input->IsPointVisible(startIdx + (i + 1) * offset[0]))
         {
@@ -285,10 +297,15 @@ int vtkStructuredGridGeometryFilter::RequestData(vtkInformation* vtkNotUsed(requ
 
       // Create points whether visible or not.  Makes coding easier
       // but generates extra data.
-      for (pos = startIdx, j = 0; j < (diff[dir[1]] + 1); j++)
+      for (pos = startIdx, j = 0; j < (diff[dir[1]] + 1) && !abort; j++)
       {
         for (i = 0; i < (diff[dir[0]] + 1); i++)
         {
+          if (this->CheckAbort())
+          {
+            abort = true;
+            break;
+          }
           idx = pos + i * offset[0];
           input->GetPoint(idx, x);
           ptIds[0] = newPts->InsertNextPoint(x);
@@ -297,10 +314,15 @@ int vtkStructuredGridGeometryFilter::RequestData(vtkInformation* vtkNotUsed(requ
         pos += offset[1];
       }
 
-      for (pos = startIdx, cellPos = startCellIdx, j = 0; j < diff[dir[1]]; j++)
+      for (pos = startIdx, cellPos = startCellIdx, j = 0; j < diff[dir[1]] && !abort; j++)
       {
         for (i = 0; i < diff[dir[0]]; i++)
         {
+          if (this->CheckAbort())
+          {
+            abort = true;
+            break;
+          }
           if (input->IsPointVisible(pos + i * offset[0]) &&
             input->IsPointVisible(pos + (i + 1) * offset[0]) &&
             input->IsPointVisible(pos + i * offset[0] + offset[1]) &&
@@ -343,10 +365,15 @@ int vtkStructuredGridGeometryFilter::RequestData(vtkInformation* vtkNotUsed(requ
       offset[0] = dims[0];
       offset[1] = dims[0] * dims[1];
 
-      for (k = 0; k < (diff[2] + 1); k++)
+      for (k = 0; k < (diff[2] + 1) && !abort; k++)
       {
         for (j = 0; j < (diff[1] + 1); j++)
         {
+          if (this->CheckAbort())
+          {
+            abort = true;
+            break;
+          }
           pos = startIdx + j * offset[0] + k * offset[1];
 
           // avoid accessing cells past the end of the grid

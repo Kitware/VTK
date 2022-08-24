@@ -2481,13 +2481,15 @@ int ExecutePolyData(vtkGeometryFilter* self, vtkDataSet* dataSetInput, vtkPolyDa
   const unsigned char MASKED_CELL =
     self->GetRemoveGhostInterfaces() ? MASKED_CELL_VALUE : MASKED_CELL_VALUE_NOT_VISIBLE;
   vtkIdType progressInterval = numCells / 20 + 1;
-  for (cellId = 0; cellId < numCells; cellId++)
+  bool abort = false;
+  for (cellId = 0; cellId < numCells && !abort; cellId++)
   {
     // Progress and abort method support
     if (!(cellId % progressInterval))
     {
       vtkDebugWithObjectMacro(self, << "Process cell #" << cellId);
       self->UpdateProgress(static_cast<double>(cellId) / numCells);
+      abort = self->CheckAbort()
     }
 
     // Handle ghost cells here.  Another option was used cellVis array.

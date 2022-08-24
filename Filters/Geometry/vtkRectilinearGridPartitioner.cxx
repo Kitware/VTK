@@ -156,6 +156,10 @@ int vtkRectilinearGridPartitioner::RequestData(vtkInformation* vtkNotUsed(reques
   unsigned int blockIdx = 0;
   for (; blockIdx < multiblock->GetNumberOfBlocks(); ++blockIdx)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     extentPartitioner->GetPartitionExtent(blockIdx, subext);
     vtkRectilinearGrid* subgrid = vtkRectilinearGrid::New();
     subgrid->SetExtent(subext);
