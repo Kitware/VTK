@@ -33,6 +33,12 @@ public:
 vtkStandardNewMacro(vtkWin32OpenGLDXRenderWindow);
 
 //------------------------------------------------------------------------------
+vtkWin32OpenGLDXRenderWindow::vtkWin32OpenGLDXRenderWindow()
+{
+  this->Private = new PIMPL;
+}
+
+//------------------------------------------------------------------------------
 vtkWin32OpenGLDXRenderWindow::~vtkWin32OpenGLDXRenderWindow()
 {
   delete this->Private;

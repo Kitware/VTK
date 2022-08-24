@@ -103,7 +103,7 @@ public:
   ///@}
 
 protected:
-  vtkWin32OpenGLDXRenderWindow() = default;
+  vtkWin32OpenGLDXRenderWindow();
   ~vtkWin32OpenGLDXRenderWindow() override;
 
 private:
