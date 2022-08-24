@@ -22,7 +22,7 @@ vtkStandardNewMacro(vtkFFT);
 //------------------------------------------------------------------------------
 std::vector<vtkFFT::ComplexNumber> vtkFFT::Fft(const std::vector<ComplexNumber>& in)
 {
-  if (in.empty())
+  if (in.size() <= 1)
   {
     return {};
   }
@@ -45,7 +45,7 @@ std::vector<vtkFFT::ComplexNumber> vtkFFT::Fft(const std::vector<ComplexNumber>&
 std::vector<vtkFFT::ComplexNumber> vtkFFT::Fft(const std::vector<ScalarNumber>& in)
 {
   std::vector<ComplexNumber> cplx(in.size());
-  std::transform(in.begin(), in.end(), cplx.begin(), [](const ScalarNumber& x) {
+  std::transform(in.begin(), in.end(), cplx.begin(), [](ScalarNumber x) {
     return ComplexNumber{ x, 0 };
   });
   return vtkFFT::Fft(cplx);
@@ -54,7 +54,7 @@ std::vector<vtkFFT::ComplexNumber> vtkFFT::Fft(const std::vector<ScalarNumber>& 
 //------------------------------------------------------------------------------
 std::vector<vtkFFT::ComplexNumber> vtkFFT::RFft(const std::vector<ScalarNumber>& in)
 {
-  if (in.empty())
+  if (in.size() <= 1)
   {
     return {};
   }
