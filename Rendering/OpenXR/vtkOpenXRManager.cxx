@@ -49,6 +49,9 @@ vtkOpenXRManager::vtkOpenXRManager()
 {
   // Use OpenGL as default backend
   this->GraphicsStrategy = vtkSmartPointer<vtkOpenXRManagerOpenGLGraphics>::New();
+
+  // Use no-op connection strategy as default
+  this->ConnectionStrategy = vtkSmartPointer<vtkOpenXRManagerConnection>::New();
 }
 
 //------------------------------------------------------------------------------
