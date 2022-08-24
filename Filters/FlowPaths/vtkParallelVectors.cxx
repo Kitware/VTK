@@ -770,6 +770,10 @@ int vtkParallelVectors::RequestData(
 
   for (auto& points : cellSurfaceTrianglePoints)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     vtkIdType pIndex[2] = { -1, -1 };
     int counter = 0;
     // For each surface triangle point comprising the cell's surface...
@@ -830,6 +834,10 @@ int vtkParallelVectors::RequestData(
   // For each contiguous chain, construct a polyline.
   for (auto& chain : polyLineBuilder.Chains)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     vtkNew<vtkPolyLine> polyLine;
     polyLine->GetPointIds()->SetNumberOfIds(static_cast<vtkIdType>(chain.size() + 1));
     vtkIdType counter = 0;
