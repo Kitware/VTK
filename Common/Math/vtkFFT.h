@@ -32,19 +32,24 @@
 #ifndef vtkFFT_h
 #define vtkFFT_h
 
-#include "vtkAOSDataArrayTemplate.h" // For vtkAOSDataArrayTemplate
-#include "vtkCommonMathModule.h"     // For export macro
-#include "vtkMath.h"                 // For vtkMath::Pi
+#include "vtkAOSDataArrayTemplate.h" // vtkAOSDataArrayTemplate
+#include "vtkCommonMathModule.h"     // export macro
+#include "vtkDataArray.h"            // vtkDataArray
+#include "vtkDataArrayRange.h"       // vtkDataArrayRange
+#include "vtkMath.h"                 // vtkMath::Pi
 #include "vtkObject.h"
+#include "vtkSMPTools.h" // vtkSMPTools::Transform, vtkSMPTools::For
 
-#include "vtk_kissfft.h" // For kiss_fft_scalar, kiss_fft_cpx
+#include "vtk_kissfft.h" // kiss_fft_scalar, kiss_fft_cpx
 // clang-format off
 #include VTK_KISSFFT_HEADER(kiss_fft.h)
 #include VTK_KISSFFT_HEADER(tools/kiss_fftr.h)
 // clang-format on
 
-#include <vector> // For std::vector
-#include <cmath>  // for std::sin, std::cos, std::sqrt
+#include <cmath>       // std::sin, std::cos, std::sqrt
+#include <numeric>     // std::accumulate, std::inner_product
+#include <type_traits> // std::enable_if, std::iterator_traits
+#include <vector>      // std::vector
 
 class VTKCOMMONMATH_EXPORT vtkFFT : public vtkObject
 {
@@ -74,6 +79,9 @@ public:
    */
   using ScalarNumber = kiss_fft_scalar;
   using ComplexNumber = kiss_fft_cpx;
+  static_assert(sizeof(ComplexNumber) == 2 * sizeof(ScalarNumber),
+    "vtkFFT::ComplexNumber definition is not valid");
+
   using vtkScalarNumberArray = vtkAOSDataArrayTemplate<vtkFFT::ScalarNumber>;
   template <typename T>
   struct isFftType : public std::false_type
@@ -145,6 +153,11 @@ public:
   static inline ScalarNumber SquaredAbs(const ComplexNumber& in);
 
   /**
+   * Return the conjugate of the given complex number
+   */
+  static inline ComplexNumber Conjugate(const ComplexNumber& in);
+
+  /**
    * Return the DFT sample frequencies. Output has @c windowLength size.
    */
   static std::vector<ScalarNumber> FftFreq(int windowLength, double sampleSpacing);
@@ -154,6 +167,130 @@ public:
    * Output has @c (windowLength / 2) + 1 size.
    */
   static std::vector<ScalarNumber> RFftFreq(int windowLength, double sampleSpacing);
+
+  ///@{
+  /**
+   * Compute consecutive Fourier transforms Welch method without averaging nor
+   * scaling the result.
+   *
+   * @param[in] signal the input signal
+   * @param[in] window the window to use per segment. Its size defines the size of FFT and thus the
+   * size of the output.
+   * @param[in] noverlap number of samples that will overlap between two segment
+   * @param[in] detrend if true then each segment will be detrend using the mean value of the
+   * segment before applying the FFT.
+   * @param[in] onesided if true return a one-sided spectrum for real data. If input is copmlex then
+   * this option will be ignored.
+   * @param[out] shape if not @c nullptr, return the shape (n,m) of the result. `n` is the number of
+   * segment and `m` the number of samples per segment.
+   *
+   * @return a 1D array that stores all resulting segment. For a shape (N,M), layout is
+   * (segment0_sample0, segment0_sample1, ..., segment0_sampleM, segment1_sample0, ...
+   * segmentN_sampleM)
+   */
+#ifndef __VTK_WRAP__
+  template <typename T, typename TW, typename std::enable_if<isFftType<T>::value>::type* = nullptr>
+  static std::vector<ComplexNumber> OverlappingFft(const std::vector<T>& signal,
+    const std::vector<TW>& window, std::size_t noverlap, bool detrend, bool onesided,
+    unsigned int* shape = nullptr);
+
+  template <typename TW>
+  static vtkFFT::ComplexNumber* OverlappingFft(vtkFFT::vtkScalarNumberArray* signal,
+    const std::vector<TW>& window, std::size_t noverlap, bool detrend, bool onesided,
+    unsigned int* shape = nullptr);
+#endif
+  ///@}
+
+  /**
+   * Scaling modes for Spectrogram and Csd functions.
+   */
+  enum Scaling : int
+  {
+    Density = 0, ///< Cross Spectral \b Density scaling (<b>V^2/Hz</b>)
+    Spectrum     ///< Cross \b Spectrum scaling (<b>V^2</b>)
+  };
+
+  /**
+   * Spectral modes for Spectrogram and Csd functions.
+   */
+  enum SpectralMode : int
+  {
+    STFT = 0, ///< Short-Time Fourier Transform, for local sections
+    PSD       ///< Power Spectral Density
+  };
+
+  ///@{
+  /**
+   * Compute a spectrogram with consecutive Fourier transforms using Welch method.
+   *
+   * @param[in] signal the input signal
+   * @param[in] window the window to use per segment. Its size defines the size of FFT and thus the
+   * size of the output.
+   * @param[in] sampleRate sample rate of the input signal
+   * @param[in] noverlap number of samples that will overlap between two segment
+   * @param[in] detrend if true then each segment will be detrend using the mean value of the
+   * segment before applying the FFT.
+   * @param[in] onesided if true return a one-sided spectrum for real data. If input is copmlex then
+   * this option will be ignored.
+   * @param[in] scaling can be either Cross Spectral \b Density (<b>V^2/Hz</b>) or Cross \b Spectrum
+   * (<b>V^2</b>)
+   * @param[in] mode determine which type of value ares returned. It is very dependent to how you
+   * want to use the result afterwards.
+   * @param[out] shape if not @c nullptr, return the shape (n,m) of the result. `n` is the number of
+   * segment and `m` the number of samples per segment.
+   *
+   * @return a 1D array that stores all resulting segment. For a shape (N,M), layout is
+   * (segment0_sample0, segment0_sample1, ..., segment0_sampleM, segment1_sample0, ...
+   * segmentN_sampleM)
+   */
+#ifndef __VTK_WRAP__
+  template <typename T, typename TW, typename std::enable_if<isFftType<T>::value>::type* = nullptr>
+  static std::vector<ComplexNumber> Spectrogram(const std::vector<T>& signal,
+    const std::vector<TW>& window, double sampleRate, int noverlap, bool detrend, bool onesided,
+    vtkFFT::Scaling scaling, vtkFFT::SpectralMode mode, unsigned int* shape = nullptr);
+
+  template <typename TW>
+  static vtkSmartPointer<vtkFFT::vtkScalarNumberArray> Spectrogram(
+    vtkFFT::vtkScalarNumberArray* signal, const std::vector<TW>& window, double sampleRate,
+    int noverlap, bool detrend, bool onesided, vtkFFT::Scaling scaling, vtkFFT::SpectralMode mode,
+    unsigned int* shape = nullptr);
+#endif
+  ///@}
+
+  ///@{
+  /**
+   * Compute the Cross Spectral Density of a given signal. This is the optimized version for
+   * computing the csd of a single signal with itself. It uses Spectrogram behind the hood, and then
+   * average all resulting segments of the spectrogram.
+   *
+   * @param[in] signal the input signal
+   * @param[in] window the window to use per segment. Its size defines the size of FFT and thus the
+   * size of the output.
+   * @param[in] sampleRate sample rate of the input signal
+   * @param[in] noverlap number of samples that will overlap between two segment
+   * @param[in] detrend if true then each segment will be detrend using the mean value of the
+   * segment before applying the FFT.
+   * @param[in] onesided if true return a one-sided spectrum for real data. If input is copmlex then
+   * this option will be ignored.
+   * @param[in] scaling can be either Cross Spectral \b Density (<b>V^2/Hz</b>) or Cross \b Spectrum
+   * (<b>V^2</b>)
+   *
+   * @return a 1D array containing the resulting cross spectral density or spectrum.
+   *
+   * See vtkFFT::Spectrogram
+   */
+#ifndef __VTK_WRAP__
+  template <typename T, typename TW, typename std::enable_if<isFftType<T>::value>::type* = nullptr>
+  static std::vector<vtkFFT::ScalarNumber> Csd(const std::vector<T>& signal,
+    const std::vector<TW>& window, double sampleRate, int noverlap, bool detrend, bool onesided,
+    vtkFFT::Scaling scaling);
+
+  template <typename TW>
+  static vtkSmartPointer<vtkFFT::vtkScalarNumberArray> Csd(vtkScalarNumberArray* signal,
+    const std::vector<TW>& window, double sampleRate, int noverlap, bool detrend, bool onesided,
+    vtkFFT::Scaling scaling);
+#endif
+  ///@}
 
   ///@{
   /**
@@ -196,6 +333,47 @@ protected:
   vtkFFT() = default;
   ~vtkFFT() override = default;
 
+  /**
+   * Templated zero value, specialized for vtkFFT::ComplexNumber
+   */
+  template <typename T>
+  constexpr static T Zero();
+
+#ifndef __VTK_WRAP__
+  /**
+   * For a given window defined by @c begin and @c end, compute the scaling needed to apply
+   * to the resulting FFT. Used in the `Spectrogram` function.
+   */
+  template <typename InputIt>
+  static typename std::iterator_traits<InputIt>::value_type ComputeScaling(
+    InputIt begin, InputIt end, Scaling scaling, double fs);
+
+  /**
+   * Dispatch the signal to the right FFT fucntion according to the given parameters.
+   * Also detrend the signal and multiply it by the window. Used in the `OverlappingFft` function.
+   */
+  template <typename T, typename TW>
+  static void PreprocessAndDispatchFft(const T* segment, const std::vector<TW>& window,
+    bool detrend, bool onesided, vtkFFT::ComplexNumber* result);
+
+  /**
+   * XXX(c++17): This function should NOT exist and is here just for the sake template unfolding
+   * purposes. As long we don't have `constexrp if` this is the easier way to deal with it.
+   *
+   * @warning this function will always throw an error
+   *
+   * @see PreprocessAndDispatchFft
+   */
+  static void RFft(ComplexNumber* input, std::size_t size, ComplexNumber* result);
+
+  /**
+   * Scale a fft according to its window and some mode. Used in the `Spectrogram` function.
+   */
+  template <typename TW>
+  static void ScaleFft(ComplexNumber* fft, unsigned int shape[2], const std::vector<TW>& window,
+    double sampleRate, bool onesided, vtkFFT::Scaling scaling, vtkFFT::SpectralMode mode);
+#endif
+
 private:
   vtkFFT(const vtkFFT&) = delete;
   void operator=(const vtkFFT&) = delete;
@@ -210,6 +388,18 @@ template <>
 struct vtkFFT::isFftType<vtkFFT::ComplexNumber> : public std::true_type
 {
 };
+
+//------------------------------------------------------------------------------
+template <typename T>
+constexpr T vtkFFT::Zero()
+{
+  return static_cast<T>(0);
+}
+template <>
+constexpr vtkFFT::ComplexNumber vtkFFT::Zero()
+{
+  return vtkFFT::ComplexNumber{ 0.0, 0.0 };
+}
 
 //------------------------------------------------------------------------------
 inline vtkFFT::ComplexNumber operator+(
@@ -256,6 +446,12 @@ vtkFFT::ScalarNumber vtkFFT::Abs(const ComplexNumber& in)
 vtkFFT::ScalarNumber vtkFFT::SquaredAbs(const ComplexNumber& in)
 {
   return in.r * in.r + in.i * in.i;
+}
+
+//------------------------------------------------------------------------------
+vtkFFT::ComplexNumber vtkFFT::Conjugate(const ComplexNumber& in)
+{
+  return ComplexNumber{ in.r, -in.i };
 }
 
 //------------------------------------------------------------------------------
@@ -321,4 +517,6 @@ void vtkFFT::GenerateKernel2D(T* kernel, std::size_t n, std::size_t m, WindowGen
   }
 }
 
-#endif
+#include "vtkFFT.txx" // complex templated functions not wrapped by python
+
+#endif // vtkFFT_h
