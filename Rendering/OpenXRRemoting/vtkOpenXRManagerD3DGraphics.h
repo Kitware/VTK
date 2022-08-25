@@ -28,7 +28,8 @@
 
 #include "vtkOpenXR.h" // For extension name
 
-#include <vector>
+#include <memory> // For shared_ptr
+#include <vector> // For std::vector
 
 class VTKRENDERINGOPENXRREMOTING_EXPORT vtkOpenXRManagerD3DGraphics
   : public vtkOpenXRManagerGraphics

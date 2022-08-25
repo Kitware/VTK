@@ -31,9 +31,8 @@
 #include "vtkObject.h"
 #include "vtkRenderingOpenXRModule.h" // For export macro
 
-#include "vtkOpenXR.h"
-#include <memory>
-#include <vector>
+#include "vtkOpenXR.h" // For OpenXR types
+#include <vector>      // For std::vector
 
 class vtkOpenGLRenderWindow;
 
