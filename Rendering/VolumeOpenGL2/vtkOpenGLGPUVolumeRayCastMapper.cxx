@@ -3157,6 +3157,14 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren, vtkVolume* vol
 {
   vtkOpenGLClearErrorMacro();
 
+  const bool isInteractive = vol->GetAllocatedRenderTime() < 1.0;
+  const auto previousVolumetricScatteringBlending = this->VolumetricScatteringBlending;
+  if (isInteractive)
+  {
+    // Turn off volumetric multi-scattering for interactive renders
+    this->VolumetricScatteringBlending = 0;
+  }
+
   vtkOpenGLCamera* cam = vtkOpenGLCamera::SafeDownCast(ren->GetActiveCamera());
 
   if (this->GetBlendMode() == vtkVolumeMapper::ISOSURFACE_BLEND &&
@@ -3271,6 +3279,9 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren, vtkVolume* vol
   }
 
   glFinish();
+
+  // Restore the previous scattering blending settings
+  this->VolumetricScatteringBlending = previousVolumetricScatteringBlending;
 }
 
 //------------------------------------------------------------------------------
