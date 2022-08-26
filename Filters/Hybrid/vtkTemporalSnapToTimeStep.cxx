@@ -109,6 +109,8 @@ int vtkTemporalSnapToTimeStep::RequestData(vtkInformation* vtkNotUsed(request),
     }
   }
 
+  this->CheckAbort();
+
   return 1;
 }
 

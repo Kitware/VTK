@@ -198,6 +198,8 @@ int vtkTemporalArrayOperatorFilter::Execute(vtkInformation*,
   vtkDataObject* outData = vtkDataObject::GetData(outInfo);
   outData->ShallowCopy(newOutData);
 
+  this->CheckAbort();
+
   return newOutData != nullptr ? 1 : 0;
 }
 
@@ -226,6 +228,10 @@ vtkDataObject* vtkTemporalArrayOperatorFilter::Process(
     iter.TakeReference(compositeDataSet0->NewIterator());
     for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
     {
+      if (this->CheckAbort())
+      {
+        break;
+      }
       vtkDataObject* dataObj0 = iter->GetCurrentDataObject();
       vtkDataObject* dataObj1 = compositeDataSet1->GetDataSet(iter);
       if (!dataObj0 || !dataObj1)
@@ -344,6 +350,8 @@ vtkDataObject* vtkTemporalArrayOperatorFilter::ProcessDataObject(
       outputDataSet->GetPointData()->AddArray(outputArray);
       break;
   }
+
+  this->CheckAbort();
 
   return outputDataObject;
 }

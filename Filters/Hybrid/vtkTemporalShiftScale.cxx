@@ -304,6 +304,8 @@ int vtkTemporalShiftScale::RequestData(vtkInformation* vtkNotUsed(request),
   }
   outData->GetInformation()->Set(vtkDataObject::DATA_TIME_STEP(), outTime);
 
+  this->CheckAbort();
+
   return 1;
 }
 

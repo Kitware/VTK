@@ -277,6 +277,10 @@ int vtkPolyDataSilhouette::RequestData(vtkInformation* vtkNotUsed(request),
     for (std::map<vtkOrderedEdge, vtkTwoNormals>::iterator it = this->PreComp->edges.begin();
          it != this->PreComp->edges.end(); ++it)
     {
+      if (this->CheckAbort())
+      {
+        break;
+      }
       double d1, d2;
 
       // does this edge have two co-faces ?

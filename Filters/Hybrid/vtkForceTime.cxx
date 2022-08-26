@@ -140,6 +140,7 @@ int vtkForceTime::RequestData(
     this->PipelineTimeFlag = false;
   }
   outData->ShallowCopy(this->Cache);
+  this->CheckAbort();
   return 1;
 }
 

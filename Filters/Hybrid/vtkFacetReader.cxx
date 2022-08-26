@@ -180,16 +180,23 @@ int vtkFacetReader::RequestData(vtkInformation* vtkNotUsed(request),
   // We will need append individual parts together. Once multiblock is
   // supported, this should go out.
   vtkSmartPointer<vtkAppendPolyData> appendPtr = vtkSmartPointer<vtkAppendPolyData>::New();
+  appendPtr->SetContainerAlgorithm(this);
 
   // Block garbage collection so that appends will not take too long.
   vtkGarbageCollector::DeferredCollectionPush();
 
   int part;
   int error = 0;
+  bool abort = false;
 
   // Loop thrugh individual parts
   for (part = 0; part < num_parts || error; part++)
   {
+    if (this->CheckAbort())
+    {
+      abort = true;
+      break;
+    }
     std::string partName;
     vtkDebugMacro("Reading part: " << part);
 
@@ -222,6 +229,11 @@ int vtkFacetReader::RequestData(vtkInformation* vtkNotUsed(request),
     // Read individual points
     for (point = 0; point < num_points; point++)
     {
+      if (this->CheckAbort())
+      {
+        abort = true;
+        break;
+      }
       // Read point
       double x = 0, y = 0, z = 0;
       if (!GetLineFromStream(ifs, line) || sscanf(line.c_str(), "%lf %lf %lf", &x, &y, &z) != 3)
@@ -291,6 +303,11 @@ int vtkFacetReader::RequestData(vtkInformation* vtkNotUsed(request),
     vtkIdType cell;
     for (cell = 0; cell < num_cells; cell++)
     {
+      if (this->CheckAbort())
+      {
+        abort = true;
+        break;
+      }
       // Read cell
       if (!GetLineFromStream(ifs, line))
       {
@@ -381,7 +398,7 @@ int vtkFacetReader::RequestData(vtkInformation* vtkNotUsed(request),
     partGrid->Delete();
   }
 
-  if (!error)
+  if (!abort && !error)
   {
     // If everything ok, use append.
     appendPtr->Update();
