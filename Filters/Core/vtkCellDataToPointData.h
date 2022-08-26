@@ -83,7 +83,7 @@ public:
   /**
    * Control whether the input cell data is to be passed to the output. If
    * on, then the input cell data is passed through to the output; otherwise,
-   * only generated point data is placed into the output.
+   * only generated point data is placed into the output. The default is false.
    */
   vtkSetMacro(PassCellData, bool);
   vtkGetMacro(PassCellData, bool);
@@ -163,7 +163,7 @@ protected:
 
   ///@{
   /**
-   * Option to pass cell data arrays through to the output. Default is 0/off.
+   * Option to pass cell data arrays through to the output. Default is false/off.
    */
   bool PassCellData;
   ///@}
@@ -177,7 +177,7 @@ protected:
   ///@}
 
   /**
-   * Option to activate selective processing of arrays.
+   * Option to activate selective processing of arrays. The default is true.
    */
   bool ProcessAllArrays;
 

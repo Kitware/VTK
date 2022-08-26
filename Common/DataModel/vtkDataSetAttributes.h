@@ -243,9 +243,10 @@ public:
 
   ///@{
   /**
-   * This will first look for an array with the correct name.
-   * If one exists, it is returned. Otherwise, the name argument
-   * is ignored, and the active attribute is returned.
+   * If the string is nullptr or empty, calls the alternate method
+   * of the same name (that takes no parameters).
+   * Otherwise, it will look for an array with the correct name.
+   * If one exists, it is returned. Otherwise, nullptr is returned.
    */
   vtkDataArray* GetScalars(const char* name);
   vtkDataArray* GetVectors(const char* name);
@@ -278,12 +279,15 @@ public:
 
   /**
    * Make the array with the given index the active attribute.
+   * Returns the index of the array if successful, -1 if the array
+   * is not in the list of arrays.
    */
   int SetActiveAttribute(int index, int attributeType);
 
   /**
    * Get the field data array indices corresponding to scalars,
-   * vectors, tensors, etc.
+   * vectors, tensors, etc.  The given buffer must be at least
+   * NUM_ATTRIBUTES elements big.
    */
   void GetAttributeIndices(int* indexArray);
 
@@ -338,7 +342,8 @@ public:
 
   ///@{
   /**
-   * Remove an array (with the given name) from the list of arrays.
+   * Remove an array (with the given index) from the list of arrays.
+   * Does nothing if the index is out of range.
    */
   using vtkFieldData::RemoveArray;
   void RemoveArray(int index) override;
@@ -452,7 +457,7 @@ public:
 
   /**
    * Pass entire arrays of input data through to output. Obey the "copy"
-   * flags. When passing a field,  the following copying rules are
+   * flags. When passing a field, the following copying rules are
    * followed: 1) Check if a field is an attribute, if yes and if there
    * is a PASSDATA copy flag for that attribute (on or off), obey the flag
    * for that attribute, ignore (2) and (3), 2) if there is a copy field for

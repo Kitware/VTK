@@ -35,7 +35,7 @@ vtkStandardNewMacro(vtkDataSetAttributes);
 vtkStandardExtendedNewMacro(vtkDataSetAttributes);
 
 //------------------------------------------------------------------------------
-const char vtkDataSetAttributes::AttributeNames[vtkDataSetAttributes::NUM_ATTRIBUTES][19] = {
+constexpr char vtkDataSetAttributes::AttributeNames[vtkDataSetAttributes::NUM_ATTRIBUTES][19] = {
   "Scalars",
   "Vectors",
   "Normals",
@@ -49,26 +49,27 @@ const char vtkDataSetAttributes::AttributeNames[vtkDataSetAttributes::NUM_ATTRIB
   "HigherOrderDegrees",
 };
 
-const char vtkDataSetAttributes::LongAttributeNames[vtkDataSetAttributes::NUM_ATTRIBUTES][42] = {
-  "vtkDataSetAttributes::SCALARS",
-  "vtkDataSetAttributes::VECTORS",
-  "vtkDataSetAttributes::NORMALS",
-  "vtkDataSetAttributes::TCOORDS",
-  "vtkDataSetAttributes::TENSORS",
-  "vtkDataSetAttributes::GLOBALIDS",
-  "vtkDataSetAttributes::PEDIGREEIDS",
-  "vtkDataSetAttributes::EDGEFLAG",
-  "vtkDataSetAttributes::TANGENTS",
-  "vtkDataSetAttributes::RATIONALWEIGHTS",
-  "vtkDataSetAttributes::HIGHERORDERDEGREES",
-};
+//------------------------------------------------------------------------------
+constexpr char vtkDataSetAttributes::LongAttributeNames[vtkDataSetAttributes::NUM_ATTRIBUTES]
+                                                       [42] = {
+                                                         "vtkDataSetAttributes::SCALARS",
+                                                         "vtkDataSetAttributes::VECTORS",
+                                                         "vtkDataSetAttributes::NORMALS",
+                                                         "vtkDataSetAttributes::TCOORDS",
+                                                         "vtkDataSetAttributes::TENSORS",
+                                                         "vtkDataSetAttributes::GLOBALIDS",
+                                                         "vtkDataSetAttributes::PEDIGREEIDS",
+                                                         "vtkDataSetAttributes::EDGEFLAG",
+                                                         "vtkDataSetAttributes::TANGENTS",
+                                                         "vtkDataSetAttributes::RATIONALWEIGHTS",
+                                                         "vtkDataSetAttributes::HIGHERORDERDEGREES",
+                                                       };
 
 //------------------------------------------------------------------------------
 // Construct object with copying turned on for all data.
 vtkDataSetAttributes::vtkDataSetAttributes()
 {
-  int attributeType;
-  for (attributeType = 0; attributeType < NUM_ATTRIBUTES; attributeType++)
+  for (int attributeType = 0; attributeType < NUM_ATTRIBUTES; ++attributeType)
   {
     this->AttributeIndices[attributeType] = -1;
     this->CopyAttributeFlags[COPYTUPLE][attributeType] = 1;
@@ -145,22 +146,20 @@ void vtkDataSetAttributes::DeepCopy(vtkFieldData* fd)
   if (dsa)
   {
     int numArrays = fd->GetNumberOfArrays();
-    int attributeType, i;
-    vtkAbstractArray *data, *newData;
 
     // Allocate space for numArrays
     this->AllocateArrays(numArrays);
-    for (i = 0; i < numArrays; i++)
+    for (int i = 0; i < numArrays; ++i)
     {
-      data = fd->GetAbstractArray(i);
-      newData = data->NewInstance(); // instantiate same type of object
+      vtkAbstractArray* data = fd->GetAbstractArray(i);
+      vtkAbstractArray* newData = data->NewInstance(); // instantiate same type of object
       newData->DeepCopy(data);
       newData->SetName(data->GetName());
       this->AddArray(newData);
       newData->Delete();
     }
     // Copy the copy flags
-    for (attributeType = 0; attributeType < NUM_ATTRIBUTES; attributeType++)
+    for (int attributeType = 0; attributeType < NUM_ATTRIBUTES; ++attributeType)
     {
       // If an array is an attribute in the source, then mark it as a attribute
       // in the clone as well.
@@ -193,19 +192,18 @@ void vtkDataSetAttributes::ShallowCopy(vtkFieldData* fd)
   if (dsa)
   {
     int numArrays = fd->GetNumberOfArrays();
-    int attributeType, i;
 
     // Allocate space for numArrays
     this->AllocateArrays(numArrays);
     this->NumberOfActiveArrays = 0;
-    for (i = 0; i < numArrays; i++)
+    for (int i = 0; i < numArrays; ++i)
     {
       this->NumberOfActiveArrays++;
       this->SetArray(i, fd->GetAbstractArray(i));
     }
 
     // Copy the copy flags
-    for (attributeType = 0; attributeType < NUM_ATTRIBUTES; attributeType++)
+    for (int attributeType = 0; attributeType < NUM_ATTRIBUTES; ++attributeType)
     {
       // If an array is an attribute in the source, then mark it as a attribute
       // in the clone as well.
@@ -233,8 +231,7 @@ void vtkDataSetAttributes::InitializeFields()
 {
   this->vtkFieldData::InitializeFields();
 
-  int attributeType;
-  for (attributeType = 0; attributeType < NUM_ATTRIBUTES; attributeType++)
+  for (int attributeType = 0; attributeType < NUM_ATTRIBUTES; ++attributeType)
   {
     this->AttributeIndices[attributeType] = -1;
     this->CopyAttributeFlags[COPYTUPLE][attributeType] = 1;
@@ -258,11 +255,9 @@ void vtkDataSetAttributes::Initialize()
 
   // Call superclass' Initialize()
   this->vtkFieldData::Initialize();
-  //
-  // Free up any memory
-  // And don't forget to reset the attribute copy flags.
-  int attributeType;
-  for (attributeType = 0; attributeType < NUM_ATTRIBUTES; attributeType++)
+
+  // Reset the attribute copy flags.
+  for (int attributeType = 0; attributeType < NUM_ATTRIBUTES; ++attributeType)
   {
     this->AttributeIndices[attributeType] = -1;
     this->CopyAttributeFlags[COPYTUPLE][attributeType] = 1;
@@ -295,7 +290,7 @@ vtkFieldData::BasicIterator vtkDataSetAttributes::ComputeRequiredArrays(
   // pointer is non-nullptr). Also, we keep those indices in a list.
   int* copyFlags = new int[pd->GetNumberOfArrays()];
   int index, i, numArrays = 0;
-  for (i = 0; i < pd->GetNumberOfArrays(); i++)
+  for (i = 0; i < pd->GetNumberOfArrays(); ++i)
   {
     const char* arrayName = pd->GetArrayName(i);
     // If there is no blocker for the given array
@@ -315,9 +310,9 @@ vtkFieldData::BasicIterator vtkDataSetAttributes::ComputeRequiredArrays(
   // Next, we check the arrays to be copied because they are one of
   // the _attributes_ to be copied (and the data array in non-nullptr).
   // We make sure that we don't count anything twice.
-  int alreadyCopied;
-  int attributeType, j;
-  for (attributeType = 0; attributeType < NUM_ATTRIBUTES; attributeType++)
+  bool alreadyCopied;
+  int attributeType;
+  for (attributeType = 0; attributeType < NUM_ATTRIBUTES; ++attributeType)
   {
     index = pd->AttributeIndices[attributeType];
     int flag = this->GetFlag(pd->GetArrayName(index));
@@ -328,12 +323,12 @@ vtkFieldData::BasicIterator vtkDataSetAttributes::ComputeRequiredArrays(
       // Since attributes can only be vtkDataArray, we use GetArray() call.
       if (pd->GetArray(index))
       {
-        alreadyCopied = 0;
-        for (i = 0; i < numArrays; i++)
+        alreadyCopied = false;
+        for (i = 0; i < numArrays; ++i)
         {
           if (index == copyFlags[i])
           {
-            alreadyCopied = 1;
+            alreadyCopied = true;
           }
         }
         // If not, increment the number of arrays to be copied.
@@ -352,11 +347,11 @@ vtkFieldData::BasicIterator vtkDataSetAttributes::ComputeRequiredArrays(
     // previous pass), remove it
     else
     {
-      for (i = 0; i < numArrays; i++)
+      for (i = 0; i < numArrays; ++i)
       {
         if (index == copyFlags[i])
         {
-          for (j = i; j < numArrays - 1; j++)
+          for (int j = i; j < numArrays - 1; ++j)
           {
             copyFlags[j] = copyFlags[j + 1];
           }
@@ -373,8 +368,7 @@ vtkFieldData::BasicIterator vtkDataSetAttributes::ComputeRequiredArrays(
 }
 
 //------------------------------------------------------------------------------
-// Pass entire arrays of input data through to output. Obey the "copy"
-// flags.
+// Pass entire arrays of input data through to output. Obey the "copy" flags.
 void vtkDataSetAttributes::PassData(vtkFieldData* fd)
 {
   if (!fd)
@@ -404,8 +398,7 @@ void vtkDataSetAttributes::PassData(vtkFieldData* fd)
     }
 
     // Since we are replacing, remove old attributes
-    int attributeType; // will change//
-    for (attributeType = 0; attributeType < NUM_ATTRIBUTES; attributeType++)
+    for (int attributeType = 0; attributeType < NUM_ATTRIBUTES; ++attributeType)
     {
       if (this->CopyAttributeFlags[PASSDATA][attributeType])
       {
@@ -414,13 +407,12 @@ void vtkDataSetAttributes::PassData(vtkFieldData* fd)
       }
     }
 
-    int arrayIndex;
     for (const auto& i : it)
     {
-      arrayIndex = this->AddArray(dsa->GetAbstractArray(i));
+      int arrayIndex = this->AddArray(dsa->GetAbstractArray(i));
       // If necessary, make the array an attribute
-      if (((attributeType = dsa->IsArrayAnAttribute(i)) != -1) &&
-        this->CopyAttributeFlags[PASSDATA][attributeType])
+      int attributeType = dsa->IsArrayAnAttribute(i);
+      if ((attributeType != -1) && this->CopyAttributeFlags[PASSDATA][attributeType])
       {
         this->SetActiveAttribute(arrayIndex, attributeType);
       }
@@ -494,7 +486,7 @@ struct CopyStructuredDataWorker
     else
     {
       int writeExt[6];
-      memcpy(writeExt, this->OutExt, 6 * sizeof(int));
+      memcpy(writeExt, this->OutExt, sizeof(writeExt));
       vtkStructuredExtent::Clamp(writeExt, this->InExt);
 
       const vtkIdType inDims[3] = { this->InExt[1] - this->InExt[0] + 1,
@@ -607,20 +599,20 @@ void vtkDataSetAttributes::CopyStructuredData(
   {
     vtkAbstractArray* inArray = fromPd->Data[i];
     vtkAbstractArray* outArray = this->Data[this->TargetIndices[i]];
-    vtkIdType inIncs[3];
-    vtkIdType outIncs[3];
-    vtkIdType zIdx;
 
     // Compute increments
+    vtkIdType inIncs[3];
     inIncs[0] = inArray->GetNumberOfComponents();
     inIncs[1] = inIncs[0] * (inExt[1] - inExt[0] + 1);
     inIncs[2] = inIncs[1] * (inExt[3] - inExt[2] + 1);
+
+    vtkIdType outIncs[3];
     outIncs[0] = inIncs[0];
     outIncs[1] = outIncs[0] * (outExt[1] - outExt[0] + 1);
     outIncs[2] = outIncs[1] * (outExt[3] - outExt[2] + 1);
 
     // Make sure the input extents match the actual array lengths.
-    zIdx = inIncs[2] / inIncs[0] * (inExt[5] - inExt[4] + 1);
+    vtkIdType zIdx = inIncs[2] / inIncs[0] * (inExt[5] - inExt[4] + 1);
     if (inArray->GetNumberOfTuples() != zIdx)
     {
       vtkErrorMacro("Input extent (" << inExt[0] << ", " << inExt[1] << ", " << inExt[2] << ", "
@@ -678,8 +670,6 @@ void vtkDataSetAttributes::SetupForCopy(vtkDataSetAttributes* pd)
 void vtkDataSetAttributes::InternalCopyAllocate(vtkDataSetAttributes* pd, int ctype, vtkIdType sze,
   vtkIdType ext, int shallowCopyArrays, bool createNewArrays)
 {
-  vtkAbstractArray* newAA;
-
   // Create various point data depending upon input
   //
   if (!pd)
@@ -699,7 +689,7 @@ void vtkDataSetAttributes::InternalCopyAllocate(vtkDataSetAttributes* pd, int ct
   }
   delete[] this->TargetIndices;
   this->TargetIndices = new int[pd->GetNumberOfArrays()];
-  for (int i = 0; i < pd->GetNumberOfArrays(); i++)
+  for (int i = 0; i < pd->GetNumberOfArrays(); ++i)
   {
     this->TargetIndices[i] = -1;
   }
@@ -714,6 +704,7 @@ void vtkDataSetAttributes::InternalCopyAllocate(vtkDataSetAttributes* pd, int ct
     {
       // Create all required arrays
       aa = pd->GetAbstractArray(i);
+      vtkAbstractArray* newAA;
       if (shallowCopyArrays)
       {
         newAA = aa;
@@ -791,8 +782,7 @@ void vtkDataSetAttributes::RemoveArray(int index)
   this->Superclass::RemoveArray(index);
 
   // Adjust attribute types
-  int attributeType;
-  for (attributeType = 0; attributeType < NUM_ATTRIBUTES; attributeType++)
+  for (int attributeType = 0; attributeType < NUM_ATTRIBUTES; ++attributeType)
   {
     if (this->AttributeIndices[attributeType] == index)
     {
@@ -1057,6 +1047,7 @@ void vtkDataSetAttributes::CopyAllocate(
   this->InternalCopyAllocate(pd, COPYTUPLE, sze, ext, shallowCopyArrays);
 }
 
+//------------------------------------------------------------------------------
 // Initialize point interpolation method.
 void vtkDataSetAttributes::InterpolateAllocate(
   vtkDataSetAttributes* pd, vtkIdType sze, vtkIdType ext, int shallowCopyArrays)
@@ -1081,8 +1072,8 @@ void vtkDataSetAttributes::InterpolatePoint(
     {
       vtkIdType numIds = ptIds->GetNumberOfIds();
       vtkIdType maxId = ptIds->GetId(0);
-      vtkIdType maxWeight = 0.;
-      for (int j = 0; j < numIds; j++)
+      vtkIdType maxWeight = 0;
+      for (int j = 0; j < numIds; ++j)
       {
         if (weights[j] > maxWeight)
         {
@@ -1116,7 +1107,7 @@ void vtkDataSetAttributes::InterpolateEdge(
     int attributeIndex = this->IsArrayAnAttribute(this->TargetIndices[i]);
     if (attributeIndex != -1 && this->CopyAttributeFlags[INTERPOLATE][attributeIndex] == 2)
     {
-      if (t < .5)
+      if (t < 0.5)
       {
         toArray->InsertTuple(toId, p1, fromArray);
       }
@@ -1140,7 +1131,7 @@ void vtkDataSetAttributes::InterpolateEdge(
 void vtkDataSetAttributes::InterpolateTime(
   vtkDataSetAttributes* from1, vtkDataSetAttributes* from2, vtkIdType id, double t)
 {
-  for (int attributeType = 0; attributeType < NUM_ATTRIBUTES; attributeType++)
+  for (int attributeType = 0; attributeType < NUM_ATTRIBUTES; ++attributeType)
   {
     // If this attribute is to be copied
     if (this->CopyAttributeFlags[INTERPOLATE][attributeType])
@@ -1151,7 +1142,7 @@ void vtkDataSetAttributes::InterpolateTime(
         // check if the destination array needs nearest neighbor interpolation
         if (this->CopyAttributeFlags[INTERPOLATE][attributeType] == 2)
         {
-          if (t < .5)
+          if (t < 0.5)
           {
             toArray->InsertTuple(id, id, from1->GetAttribute(attributeType));
           }
@@ -1286,6 +1277,7 @@ int vtkDataSetAttributes::SetActiveTCoords(const char* name)
 {
   return this->SetActiveAttribute(name, TCOORDS);
 }
+
 //------------------------------------------------------------------------------
 vtkDataArray* vtkDataSetAttributes::GetTCoords()
 {
@@ -1520,14 +1512,15 @@ int vtkDataSetAttributes::SetActiveAttribute(int index, int attributeType)
 }
 
 //------------------------------------------------------------------------------
-const int
+constexpr int
   vtkDataSetAttributes ::NumberOfAttributeComponents[vtkDataSetAttributes::NUM_ATTRIBUTES] = { 0, 3,
     3, 3, 9, 1, 1, 1, 3, 1, 3 };
 
 //------------------------------------------------------------------------------
 // Scalars set to NOLIMIT
-const int vtkDataSetAttributes ::AttributeLimits[vtkDataSetAttributes::NUM_ATTRIBUTES] = { NOLIMIT,
-  EXACT, EXACT, MAX, EXACT, EXACT, EXACT, EXACT, EXACT, EXACT, EXACT };
+constexpr int vtkDataSetAttributes ::AttributeLimits[vtkDataSetAttributes::NUM_ATTRIBUTES] = {
+  NOLIMIT, EXACT, EXACT, MAX, EXACT, EXACT, EXACT, EXACT, EXACT, EXACT, EXACT
+};
 
 //------------------------------------------------------------------------------
 int vtkDataSetAttributes::CheckNumberOfComponents(vtkAbstractArray* aa, int attributeType)
@@ -1647,33 +1640,31 @@ void vtkDataSetAttributes::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
 
   // Print the copy flags
-  int i;
   os << indent << "Copy Tuple Flags: ( ";
-  for (i = 0; i < NUM_ATTRIBUTES; i++)
+  for (int i = 0; i < NUM_ATTRIBUTES; ++i)
   {
     os << this->CopyAttributeFlags[COPYTUPLE][i] << " ";
   }
   os << ")" << endl;
   os << indent << "Interpolate Flags: ( ";
-  for (i = 0; i < NUM_ATTRIBUTES; i++)
+  for (int i = 0; i < NUM_ATTRIBUTES; ++i)
   {
     os << this->CopyAttributeFlags[INTERPOLATE][i] << " ";
   }
   os << ")" << endl;
   os << indent << "Pass Through Flags: ( ";
-  for (i = 0; i < NUM_ATTRIBUTES; i++)
+  for (int i = 0; i < NUM_ATTRIBUTES; ++i)
   {
     os << this->CopyAttributeFlags[PASSDATA][i] << " ";
   }
   os << ")" << endl;
 
   // Now print the various attributes
-  vtkAbstractArray* aa;
-  int attributeType;
-  for (attributeType = 0; attributeType < NUM_ATTRIBUTES; attributeType++)
+  for (int attributeType = 0; attributeType < NUM_ATTRIBUTES; ++attributeType)
   {
     os << indent << vtkDataSetAttributes::AttributeNames[attributeType] << ": ";
-    if ((aa = this->GetAbstractAttribute(attributeType)))
+    vtkAbstractArray* aa = this->GetAbstractAttribute(attributeType);
+    if (aa)
     {
       os << endl;
       aa->PrintSelf(os, indent.GetNextIndent());
@@ -1688,8 +1679,7 @@ void vtkDataSetAttributes::PrintSelf(ostream& os, vtkIndent indent)
 //------------------------------------------------------------------------------
 void vtkDataSetAttributes::GetAttributeIndices(int* indexArray)
 {
-  int i;
-  for (i = 0; i < NUM_ATTRIBUTES; i++)
+  for (int i = 0; i < NUM_ATTRIBUTES; ++i)
   {
     indexArray[i] = this->AttributeIndices[i];
   }
@@ -1698,8 +1688,7 @@ void vtkDataSetAttributes::GetAttributeIndices(int* indexArray)
 //------------------------------------------------------------------------------
 int vtkDataSetAttributes::IsArrayAnAttribute(int idx)
 {
-  int i;
-  for (i = 0; i < NUM_ATTRIBUTES; i++)
+  for (int i = 0; i < NUM_ATTRIBUTES; ++i)
   {
     if (idx == this->AttributeIndices[i])
     {
@@ -1722,8 +1711,7 @@ void vtkDataSetAttributes::SetCopyAttribute(int index, int value, int ctype)
 
   if (ctype == vtkDataSetAttributes::ALLCOPY)
   {
-    int t;
-    for (t = COPYTUPLE; t < vtkDataSetAttributes::ALLCOPY; t++)
+    for (int t = COPYTUPLE; t < vtkDataSetAttributes::ALLCOPY; ++t)
     {
       if (this->CopyAttributeFlags[t][index] != value)
       {
@@ -1828,6 +1816,7 @@ void vtkDataSetAttributes::SetCopyTensors(vtkTypeBool i, int ctype)
 {
   this->SetCopyAttribute(TENSORS, i, ctype);
 }
+
 //------------------------------------------------------------------------------
 vtkTypeBool vtkDataSetAttributes::GetCopyTensors(int ctype)
 {
