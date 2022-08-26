@@ -144,6 +144,10 @@ int vtkImageDataToHyperTreeGrid::RequestData(vtkInformation* vtkNotUsed(request)
   vtkNew<vtkHyperTreeGridNonOrientedCursor> cursor;
   for (vtkIdType itree = 0; itree < nbTrees; ++itree)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     vtkIdType index = itree;
 
     unsigned int i, j, k;

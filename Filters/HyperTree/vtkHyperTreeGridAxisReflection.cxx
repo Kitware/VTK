@@ -274,6 +274,10 @@ int vtkHyperTreeGridAxisReflection::ProcessTrees(vtkHyperTreeGrid* input, vtkDat
   vtkIdType index;
   while ((tree = it.GetNextTree(index)))
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     assert(tree->GetTreeIndex() == index);
     double origin[3];
     double scale[3];

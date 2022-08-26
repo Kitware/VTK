@@ -350,6 +350,10 @@ int vtkHyperTreeGridGeometry::ProcessTrees(vtkHyperTreeGrid* input, vtkDataObjec
     vtkNew<vtkHyperTreeGridNonOrientedVonNeumannSuperCursor> cursor;
     while (it.GetNextTree(index))
     {
+      if (this->CheckAbort())
+      {
+        break;
+      }
       // Initialize new cursor at root of current tree
       // In 3 dimensions, von Neumann neighborhood information is needed
       input->InitializeNonOrientedVonNeumannSuperCursor(cursor, index);
@@ -362,6 +366,10 @@ int vtkHyperTreeGridGeometry::ProcessTrees(vtkHyperTreeGrid* input, vtkDataObjec
     vtkNew<vtkHyperTreeGridNonOrientedGeometryCursor> cursor;
     while (it.GetNextTree(index))
     {
+      if (this->CheckAbort())
+      {
+        break;
+      }
       // Initialize new cursor at root of current tree
       // Otherwise, geometric properties of the cells suffice
       input->InitializeNonOrientedGeometryCursor(cursor, index);
@@ -437,6 +445,10 @@ void vtkHyperTreeGridGeometry::RecursivelyProcessTreeNot3D(
   unsigned int numChildren = cursor->GetNumberOfChildren();
   for (unsigned int ichild = 0; ichild < numChildren; ++ichild)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     cursor->ToChild(ichild);
     // Recurse
     this->RecursivelyProcessTreeNot3D(cursor);
@@ -583,6 +595,10 @@ void vtkHyperTreeGridGeometry::RecursivelyProcessTree3D(
     }   // f
     for (std::set<int>::iterator it = childList.begin(); it != childList.end(); ++it)
     {
+      if (this->CheckAbort())
+      {
+        break;
+      }
       cursor->ToChild(*it);
       this->RecursivelyProcessTree3D(cursor, workFaces[*it]);
       cursor->ToParent();
@@ -593,6 +609,10 @@ void vtkHyperTreeGridGeometry::RecursivelyProcessTree3D(
   unsigned int numChildren = cursor->GetNumberOfChildren();
   for (unsigned int ichild = 0; ichild < numChildren; ++ichild)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     cursor->ToChild(ichild);
     this->RecursivelyProcessTree3D(cursor, FULL_WORK_FACES);
     cursor->ToParent();

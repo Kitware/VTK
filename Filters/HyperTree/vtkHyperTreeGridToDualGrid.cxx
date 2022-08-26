@@ -165,6 +165,10 @@ int vtkHyperTreeGridToDualGrid::ProcessTrees(vtkHyperTreeGrid* input, vtkDataObj
   vtkNew<vtkHyperTreeGridNonOrientedMooreSuperCursor> cursor;
   while (it.GetNextTree(index))
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     // Initialize new Moore cursor at root of current tree
     input->InitializeNonOrientedMooreSuperCursor(cursor, index);
     // Convert hyper tree into unstructured mesh recursively
@@ -252,6 +256,10 @@ void vtkHyperTreeGridToDualGrid::TraverseDualRecursively(
     int numChildren = input->GetNumberOfChildren();
     for (int child = 0; child < numChildren; ++child)
     {
+      if (this->CheckAbort())
+      {
+        break;
+      }
       cursor->ToChild(child);
       // Recurse
       this->TraverseDualRecursively(cursor, input);
@@ -587,6 +595,10 @@ void vtkHyperTreeGridToDualGrid::TraverseDualRecursively(
     int numChildren = input->GetNumberOfChildren();
     for (int child = 0; child < numChildren; ++child)
     {
+      if (this->CheckAbort())
+      {
+        break;
+      }
       cursor->ToChild(child);
       // Recurse
       this->TraverseDualRecursively(cursor, mask, input);

@@ -172,6 +172,10 @@ int vtkHyperTreeGridAxisCut::ProcessTrees(vtkHyperTreeGrid* input, vtkDataObject
   vtkNew<vtkHyperTreeGridNonOrientedCursor> outCursor;
   while (it.GetNextTree(inIndex))
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     // Initialize new geometric cursor at root of current input tree
     input->InitializeNonOrientedGeometryCursor(inCursor, inIndex);
 
@@ -258,6 +262,10 @@ void vtkHyperTreeGridAxisCut::RecursivelyProcessTree(
     int numChildren = inCursor->GetNumberOfChildren();
     for (int inChild = 0; inChild < numChildren; ++inChild)
     {
+      if (this->CheckAbort())
+      {
+        break;
+      }
       inCursor->ToChild(inChild);
 
       // Retrieve normal axis and intercept of plane

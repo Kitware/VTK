@@ -320,6 +320,10 @@ int vtkHyperTreeGridAxisClip::ProcessTrees(vtkHyperTreeGrid* input, vtkDataObjec
   vtkNew<vtkHyperTreeGridNonOrientedGeometryCursor> inCursor;
   while (it.GetNextTree(inIndex))
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     // Initialize new geometric cursor at root of current input tree
     input->InitializeNonOrientedGeometryCursor(inCursor, inIndex);
 
@@ -409,6 +413,10 @@ int vtkHyperTreeGridAxisClip::ProcessTrees(vtkHyperTreeGrid* input, vtkDataObjec
   vtkNew<vtkHyperTreeGridNonOrientedCursor> outCursor;
   while (it.GetNextTree(inIndex))
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     // Initialize new geometric cursor at root of current input tree
     input->InitializeNonOrientedGeometryCursor(inCursor, inIndex);
 
@@ -473,6 +481,10 @@ void vtkHyperTreeGridAxisClip::RecursivelyProcessTree(
     int numChildren = inCursor->GetNumberOfChildren();
     for (int inChild = 0; inChild < numChildren; ++inChild, ++outChild)
     {
+      if (this->CheckAbort())
+      {
+        break;
+      }
       inCursor->ToChild(inChild);
       // Child is not clipped out, descend into current child
       outCursor->ToChild(outChild);
