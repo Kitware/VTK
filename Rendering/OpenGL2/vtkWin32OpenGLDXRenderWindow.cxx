@@ -19,15 +19,20 @@
 #include "vtkTextureObject.h"
 #include "vtk_glew.h"
 
+#include <d3d11.h> // For D3D11 interface
 #include <dxgi.h>
 #include <wrl/client.h> // For Microsoft::WRL::ComPtr
 
 class vtkWin32OpenGLDXRenderWindow::PIMPL
 {
 public:
+  // D3D resources
   Microsoft::WRL::ComPtr<ID3D11Device> Device = nullptr;
   Microsoft::WRL::ComPtr<ID3D11DeviceContext> D3DDeviceContext = nullptr;
   Microsoft::WRL::ComPtr<ID3D11Texture2D> D3DSharedTexture = nullptr;
+
+  // Specify the required D3D version
+  D3D_FEATURE_LEVEL MinFeatureLevel = D3D_FEATURE_LEVEL_11_1;
 };
 
 vtkStandardNewMacro(vtkWin32OpenGLDXRenderWindow);
@@ -87,8 +92,8 @@ void vtkWin32OpenGLDXRenderWindow::Initialize()
 
   // Create the D3D API device object and a corresponding context.
   D3D11CreateDevice(DXGIAdapter.Get(), driverType, 0, D3D11_CREATE_DEVICE_BGRA_SUPPORT,
-    &this->MinFeatureLevel, 1, D3D11_SDK_VERSION, this->Private->Device.GetAddressOf(), nullptr,
-    this->Private->D3DDeviceContext.GetAddressOf());
+    &this->Private->MinFeatureLevel, 1, D3D11_SDK_VERSION, this->Private->Device.GetAddressOf(),
+    nullptr, this->Private->D3DDeviceContext.GetAddressOf());
 
   if (!this->Private->Device)
   {

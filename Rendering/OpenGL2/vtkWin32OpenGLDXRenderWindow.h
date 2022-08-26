@@ -27,7 +27,8 @@
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkWin32OpenGLRenderWindow.h"
 
-#include <d3d11.h> // For D3D11 interface
+struct ID3D11Device;
+struct ID3D11Texture2D;
 
 class VTKRENDERINGOPENGL2_EXPORT vtkWin32OpenGLDXRenderWindow : public vtkWin32OpenGLRenderWindow
 {
@@ -109,9 +110,6 @@ protected:
 private:
   vtkWin32OpenGLDXRenderWindow(const vtkWin32OpenGLDXRenderWindow&) = delete;
   void operator=(const vtkWin32OpenGLDXRenderWindow&) = delete;
-
-  // Specify the required D3D version
-  D3D_FEATURE_LEVEL MinFeatureLevel = D3D_FEATURE_LEVEL_11_1;
 
   // Hide D3D resources managed by Microsoft::WRL::ComPtr
   class PIMPL;

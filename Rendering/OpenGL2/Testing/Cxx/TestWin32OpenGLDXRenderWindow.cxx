@@ -25,6 +25,7 @@
 #include "vtkTextureObject.h"
 #include "vtkWin32OpenGLDXRenderWindow.h"
 
+#include <d3d11.h>
 #include <system_error>
 #include <wrl/client.h> // For Microsoft::WRL::ComPtr
 
