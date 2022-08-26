@@ -234,12 +234,17 @@ int vtkAdaptiveSubdivisionFilter::RequestData(vtkInformation* vtkNotUsed(request
   bool changesMade;
 
   for (passNum = 0, changesMade = true; passNum < this->MaximumNumberOfPasses &&
-       totalTriangles < this->MaximumNumberOfTriangles && changesMade;
+       totalTriangles < this->MaximumNumberOfTriangles && changesMade && !abort;
        ++passNum)
   {
     changesMade = false;
     for (cellIter->GoToFirstCell(); !cellIter->IsDoneWithTraversal(); cellIter->GoToNextCell())
     {
+      if (this->CheckAbort())
+      {
+        abort = true;
+        break;
+      }
       triId = cellIter->GetCurrentCellId();
       {
         vtkIdType unused;

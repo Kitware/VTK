@@ -342,7 +342,7 @@ int vtkBandedPolyDataContourFilter::RequestData(vtkInformation* vtkNotUsed(reque
   vtkCellData* outCD = output->GetCellData();
   vtkPoints* inPts = input->GetPoints();
   vtkDataArray* inScalars = pd->GetScalars();
-  int abort = 0;
+  bool abort = false;
   vtkPoints* newPts;
   vtkIdType npts = 0;
   vtkIdType cellId = 0;
@@ -485,7 +485,7 @@ int vtkBandedPolyDataContourFilter::RequestData(vtkInformation* vtkNotUsed(reque
     vtkCellArray* newVerts = vtkCellArray::New();
     newVerts->AllocateCopy(verts);
     for (verts->InitTraversal(); verts->GetNextCell(npts, pts) && !abort;
-         abort = this->GetAbortExecute())
+         abort = this->CheckAbort())
     {
       for (int i = 0; i < npts; i++)
       {
@@ -514,7 +514,7 @@ int vtkBandedPolyDataContourFilter::RequestData(vtkInformation* vtkNotUsed(reque
 
     // start by generating intersection points
     for (lines->InitTraversal(); lines->GetNextCell(npts, pts) && !abort;
-         abort = this->GetAbortExecute())
+         abort = this->CheckAbort())
     {
       for (int i = 0; i < (npts - 1); i++)
       {
@@ -535,7 +535,7 @@ int vtkBandedPolyDataContourFilter::RequestData(vtkInformation* vtkNotUsed(reque
 
     // now create line segments
     for (lines->InitTraversal(); lines->GetNextCell(npts, pts) && !abort;
-         abort = this->GetAbortExecute())
+         abort = this->CheckAbort())
     {
       for (int i = 0; i < (npts - 1); i++)
       {
@@ -656,7 +656,7 @@ int vtkBandedPolyDataContourFilter::RequestData(vtkInformation* vtkNotUsed(reque
     vtkIdType count = 0;
     pointIds.resize(this->Internal->ClipValues.size(), -1);
     for (polys->InitTraversal(); polys->GetNextCell(npts, pts) && !abort;
-         abort = this->GetAbortExecute())
+         abort = this->CheckAbort())
     {
       if (!(++count % updateCount))
       {
@@ -700,7 +700,7 @@ int vtkBandedPolyDataContourFilter::RequestData(vtkInformation* vtkNotUsed(reque
     index.reserve(maxCellSize + 1);
 
     for (polys->InitTraversal(); polys->GetNextCell(npts, pts) && !abort;
-         abort = this->GetAbortExecute())
+         abort = this->CheckAbort())
     {
       if (!(++count % updateCount))
       {

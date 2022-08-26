@@ -1532,6 +1532,10 @@ int vtkCookieCutter::RequestData(vtkInformation* vtkNotUsed(request),
   const vtkIdType* pts;
   for (loopPolys->InitTraversal(); loopPolys->GetNextCell(npts, pts);)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     vtkIdType cellId = 0;
     vtkIdType numLoopPts = npts;
     loop->Initialize(npts, pts, loopPts);

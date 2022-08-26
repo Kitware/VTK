@@ -201,6 +201,8 @@ int vtkImageDataOutlineFilter::RequestData(vtkInformation* vtkNotUsed(request),
     output->SetPolys(faces);
   }
 
+  this->CheckAbort();
+
   return 1;
 }
 

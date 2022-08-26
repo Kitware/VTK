@@ -72,7 +72,7 @@ int vtkRotationalExtrusionFilter::RequestData(vtkInformation* vtkNotUsed(request
   vtkIdType p1, p2;
   vtkPointData* outPD = output->GetPointData();
   vtkCellData* outCD = output->GetCellData();
-  int abort = 0;
+  bool abort = false;
 
   // Initialize / check input
   //
@@ -205,7 +205,7 @@ int vtkRotationalExtrusionFilter::RequestData(vtkInformation* vtkNotUsed(request
     }   // for all cells
   }     // if there are verts generating lines
   this->UpdateProgress(0.25);
-  abort = this->GetAbortExecute();
+  abort = this->CheckAbort();
 
   // If capping is on, copy 2D cells to output (plus create cap). Notice
   // that polygons are done first, then strips.
@@ -254,7 +254,7 @@ int vtkRotationalExtrusionFilter::RequestData(vtkInformation* vtkNotUsed(request
     }
   } // if capping
   this->UpdateProgress(0.5);
-  abort = this->GetAbortExecute();
+  abort = this->CheckAbort();
 
   // Now process lines, polys and/or strips to produce strips
   //

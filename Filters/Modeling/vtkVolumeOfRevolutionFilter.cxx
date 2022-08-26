@@ -474,6 +474,10 @@ int vtkVolumeOfRevolutionFilter::RequestData(vtkInformation* vtkNotUsed(request)
   it = input->NewCellIterator();
   for (it->InitTraversal(); !it->IsDoneWithTraversal(); it->GoToNextCell())
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     if (RevolveCell(it->GetCellType(), it->GetPointIds(), input->GetNumberOfPoints(),
           this->Resolution, outCells, outTypes, inCd, it->GetCellId(), outCd, partialSweep) == 1)
     {

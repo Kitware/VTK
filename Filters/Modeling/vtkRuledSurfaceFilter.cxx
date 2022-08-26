@@ -126,7 +126,7 @@ int vtkRuledSurfaceFilter::RequestData(vtkInformation* vtkNotUsed(request),
   {
     // abort/progress methods
     this->UpdateProgress((double)i / numLines);
-    if (this->GetAbortExecute())
+    if (this->CheckAbort())
     {
       break; // out of line loop
     }

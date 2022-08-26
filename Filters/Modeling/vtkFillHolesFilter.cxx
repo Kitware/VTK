@@ -106,7 +106,7 @@ int vtkFillHolesFilter::RequestData(vtkInformation* vtkNotUsed(request),
   Lines->SetPoints(inPts);
 
   // grab all free edges and place them into a temporary polydata
-  int abort = 0;
+  bool abort = false;
   vtkIdType cellId, p1, p2, numNei, i, numCells = newPolys->GetNumberOfCells();
   vtkIdType progressInterval = numCells / 20 + 1;
   vtkIdList* neighbors = vtkIdList::New();
@@ -116,7 +116,7 @@ int vtkFillHolesFilter::RequestData(vtkInformation* vtkNotUsed(request),
     if (!(cellId % progressInterval)) // manage progress / early abort
     {
       this->UpdateProgress(static_cast<double>(cellId) / numCells);
-      abort = this->GetAbortExecute();
+      abort = this->CheckAbort();
     }
 
     for (i = 0; i < npts; i++)
@@ -160,6 +160,7 @@ int vtkFillHolesFilter::RequestData(vtkInformation* vtkNotUsed(request),
 
     for (cellId = 0; cellId < numCells && !abort; cellId++)
     {
+      abort = this->CheckAbort();
       if (!visited[cellId])
       {
         visited[cellId] = 1;

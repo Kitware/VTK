@@ -77,6 +77,10 @@ int vtkLinearCellExtrusionFilter::RequestData(vtkInformation* vtkNotUsed(request
   auto iter = vtk::TakeSmartPointer(polys->NewIterator());
   for (iter->GoToFirstCell(); !iter->IsDoneWithTraversal(); iter->GoToNextCell(), cellId++)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     vtkIdType cellSize;
     const vtkIdType* cellPoints;
     iter->GetCurrentCell(cellSize, cellPoints);
