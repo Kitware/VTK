@@ -41,6 +41,6 @@ if (OpenXRRemoting_FOUND)
   endif()
 
   # RemotingXR.json
-  set(RemotingXR_JSON ${OpenXRRemoting_BIN_DIR}/RemotingXR.json)
+  set(RemotingXR_JSON "${OpenXRRemoting_BIN_DIR}/RemotingXR.json")
 
 endif()
