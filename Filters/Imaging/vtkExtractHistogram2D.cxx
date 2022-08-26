@@ -175,6 +175,10 @@ void vtkExtractHistogram2D::Learn(
   this->MaximumBinCount = 0;
   for (int i = 0; i < numValues; i++)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     v1 = col1->GetComponent(i, this->ComponentsToProcess[0]);
     v2 = col2->GetComponent(i, this->ComponentsToProcess[1]);
 
