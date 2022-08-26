@@ -21,6 +21,21 @@
 vtkStandardNewMacro(vtkOpenXRManagerD3DGraphics);
 
 //------------------------------------------------------------------------------
+const std::vector<int64_t>& vtkOpenXRManagerD3DGraphics::GetSupportedColorFormats()
+{
+  const static std::vector<int64_t> supportedColorFormats = { DXGI_FORMAT_R8G8B8A8_UNORM };
+  return supportedColorFormats;
+}
+
+//------------------------------------------------------------------------------
+const std::vector<int64_t>& vtkOpenXRManagerD3DGraphics::GetSupportedDepthFormats()
+{
+  const static std::vector<int64_t> supportedDepthFormats = { DXGI_FORMAT_D16_UNORM,
+    DXGI_FORMAT_D24_UNORM_S8_UINT, DXGI_FORMAT_D32_FLOAT, DXGI_FORMAT_D32_FLOAT_S8X24_UINT };
+  return supportedDepthFormats;
+}
+
+//------------------------------------------------------------------------------
 void vtkOpenXRManagerD3DGraphics::EnumerateSwapchainImages(
   XrSwapchain swapchain, SwapchainImagesD3D& swapchainImages)
 {
@@ -69,14 +84,13 @@ bool vtkOpenXRManagerD3DGraphics::CheckGraphicsRequirements(
 
   // Create a list of feature levels which are both supported by the OpenXR runtime and this
   // application. vtkWin32OpenGLDXRenderWindow only supports D3D11 for now.
-  std::vector<D3D_FEATURE_LEVEL> featureLevels = { D3D_FEATURE_LEVEL_11_1 };
-  featureLevels.erase(
-    std::remove_if(featureLevels.begin(), featureLevels.end(),
-      [&](D3D_FEATURE_LEVEL fl) { return fl < graphicsRequirements.minFeatureLevel; }),
-    featureLevels.end());
-  if (featureLevels.empty())
+  constexpr D3D_FEATURE_LEVEL levels[] = { D3D_FEATURE_LEVEL_11_1 };
+  auto supportedLevel =
+    std::lower_bound(std::begin(levels), std::end(levels), graphicsRequirements.minFeatureLevel);
+  if (supportedLevel == std::end(levels))
   {
     vtkErrorMacro("Unsupported minimum feature level!");
+    return false;
   };
 
   return true;

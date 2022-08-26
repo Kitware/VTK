@@ -64,18 +64,9 @@ public:
     this->EnumerateSwapchainImages(swapchain, this->DepthSwapchains[scIndex]);
   };
 
-  const std::vector<int64_t>& GetSupportedColorFormats()
-  {
-    const static std::vector<int64_t> supportedColorFormats = { DXGI_FORMAT_R8G8B8A8_UNORM };
-    return supportedColorFormats;
-  }
+  const std::vector<int64_t>& GetSupportedColorFormats();
 
-  const std::vector<int64_t>& GetSupportedDepthFormats()
-  {
-    const static std::vector<int64_t> supportedDepthFormats = { DXGI_FORMAT_D16_UNORM,
-      DXGI_FORMAT_D24_UNORM_S8_UINT, DXGI_FORMAT_D32_FLOAT, DXGI_FORMAT_D32_FLOAT_S8X24_UINT };
-    return supportedDepthFormats;
-  }
+  const std::vector<int64_t>& GetSupportedDepthFormats();
 
   bool CreateGraphicsBinding(vtkOpenGLRenderWindow* helperWindow);
 
