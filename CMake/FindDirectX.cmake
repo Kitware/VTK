@@ -12,4 +12,7 @@ if (WIN32)
   endif()
 
   set(DirectX_FOUND TRUE)
+else()
+  set(DirectX_FOUND FALSE)
+  set(DirectX_NOT_FOUND_MESSAGE "Unsupported platform")
 endif()
