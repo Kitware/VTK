@@ -43,6 +43,7 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtkWedge.h"
 
+#include <array>
 #include <cstddef>
 #include <numeric>
 #include <set>
@@ -345,8 +346,8 @@ std::vector<int> GetIOSSTransformation(const VTKCellType& cellType, const int& n
  * [intrepid2](https://github.com/trilinos/Trilinos/tree/master/packages/intrepid2/src/Discretization/Basis)
  *
  */
-using VblpMatrixType = std::vector<std::vector<std::vector<double>>>;
-using VbfuncType = std::function<std::vector<double>(const double[3])>[3];
+using VblpMatrixType = std::vector<std::vector<std::array<double, 3>>>;
+using VbfuncType = std::function<std::vector<std::array<double, 3>>(const double[3])>;
 
 class vtkVectorBasisLagrangeProducts
 {
@@ -359,100 +360,41 @@ public:
       {
         case VTK_HEXAHEDRON:
         {
-          auto& hCurlPhi0 = this->HexVbf[0][0];
-          auto& hCurlPhi1 = this->HexVbf[0][1];
-          auto& hCurlPhi2 = this->HexVbf[0][2];
+          auto& hCurlPhi = this->HexVbf[0];
           // clang-format off
-          hCurlPhi0 = [](const double p[3]) -> std::vector<double> {
-            const double& y = p[1];
-            const double& z = p[2];
-            return std::vector<double>({
-              (1.0 - y)*(1.0 - z)/4.0,
-              0.0,
-              -(1.0 + y)*(1.0 - z)/4.0,
-              0.0,
-              (1.0 - y)*(1.0 + z)/4.0,
-              0.0,
-              -(1.0 + y)*(1.0 + z)/4.0,
-              0.0,
-              0.0,
-              0.0,
-              0.0,
-              0.0
-            });
-          };
-          hCurlPhi1 = [](const double p[3]) -> std::vector<double> {
-            const double& x = p[0];
-            const double& z = p[2];
-            return std::vector<double>({
-              0.0,
-              (1.0 + x)*(1.0 - z)/4.0,
-              0.0,
-              -(1.0 - x)*(1.0 - z)/4.0,
-              0.0,
-              (1.0 + x)*(1.0 + z)/4.0,
-              0.0,
-              -(1.0 - x)*(1.0 + z)/4.0,
-              0.0,
-              0.0,
-              0.0,
-              0.0
-            });
-          };
-          hCurlPhi2 = [](const double p[3]) -> std::vector<double> {
+          hCurlPhi = [](const double p[3]) -> std::vector<std::array<double, 3>> {
             const double& x = p[0];
             const double& y = p[1];
-            return std::vector<double>({
-              0.0,
-              0.0,
-              0.0,
-              0.0,
-              0.0,
-              0.0,
-              0.0,
-              0.0,
-              (1.0 - x)*(1.0 - y)/4.0,
-              (1.0 + x)*(1.0 - y)/4.0,
-              (1.0 + x)*(1.0 + y)/4.0,
-              (1.0 - x)*(1.0 + y)/4.0
+            const double& z = p[2];
+            return std::vector<std::array<double, 3>>({
+              { (1.0 - y)*(1.0 - z)/4.0,   0.0,                      0.0                    },
+              { 0.0,                       (1.0 + x)*(1.0 - z)/4.0,  0.0                    },
+              { -(1.0 + y)*(1.0 - z)/4.0,  0.0,                      0.0                    },
+              { 0.0,                       -(1.0 - x)*(1.0 - z)/4.0, 0.0                    },
+              { (1.0 - y)*(1.0 + z)/4.0,   0.0,                      0.0                    },
+              { 0.0,                       (1.0 + x)*(1.0 + z)/4.0,  0.0                    },
+              { -(1.0 + y)*(1.0 + z)/4.0,  0.0,                      0.0                    },
+              { 0.0,                       -(1.0 - x)*(1.0 + z)/4.0, 0.0                    },
+              { 0.0,                       0.0,                      (1.0 - x)*(1.0 - y)/4.0 },
+              { 0.0,                       0.0,                      (1.0 + x)*(1.0 - y)/4.0 },
+              { 0.0,                       0.0,                      (1.0 + x)*(1.0 + y)/4.0 },
+              { 0.0,                       0.0,                      (1.0 - x)*(1.0 + y)/4.0 }
             });
           };
           // clang-format on
-          auto& hDivPhi0 = this->HexVbf[1][0];
-          auto& hDivPhi1 = this->HexVbf[1][1];
-          auto& hDivPhi2 = this->HexVbf[1][2];
+          auto& hDivPhi = this->HexVbf[1];
           // clang-format off
-          hDivPhi0 = [](const double p[3]) -> std::vector<double> {
+          hDivPhi = [](const double p[3]) -> std::vector<std::array<double, 3>> {
             const double& x = p[0];
-            return std::vector<double>({
-              0.0,
-              (1.0 + x)/2.0,
-              0.0,
-              (x - 1.0)/2.0,
-              0.0,
-              0.0
-            });
-          };
-          hDivPhi1 = [](const double p[3]) -> std::vector<double> {
             const double& y = p[1];
-            return std::vector<double>({
-              (y - 1.0)/2.0,
-              0.0,
-              (1.0 + y)/2.0,
-              0.0,
-              0.0,
-              0.0
-            });
-          };
-          hDivPhi2 = [](const double p[3]) -> std::vector<double> {
             const double& z = p[2];
-            return std::vector<double>({
-              0.0,
-              0.0,
-              0.0,
-              0.0,
-              (z - 1.0)/2.0,
-              (1.0 + z)/2.0
+            return std::vector<std::array<double, 3>>({
+              { 0.0,           (y - 1.0)/2.0, 0.0           },
+              { (1.0 + x)/2.0, 0.0,           0.0           },
+              { 0.0,           (1.0 + y)/2.0, 0.0           },
+              { (x - 1.0)/2.0, 0.0,           0.0           },
+              { 0.0,           0.0,           (z - 1.0)/2.0 },
+              { 0.0,           0.0,           (1.0 + z)/2.0 }
             });
           };
           // clang-format on
@@ -460,67 +402,29 @@ public:
         }
         case VTK_QUAD:
         {
-          auto& hCurlPhi0 = this->QuadVbf[0][0];
-          auto& hCurlPhi1 = this->QuadVbf[0][1];
-          auto& hCurlPhi2 = this->QuadVbf[0][2];
+          auto& hCurlPhi = this->QuadVbf[0];
           // clang-format off
-          hCurlPhi0 = [](const double p[3]) -> std::vector<double> {
-            const double& y = p[1];
-            return std::vector<double>({
-              0.5 * (1. - y),
-              0.,
-              -0.5 * (1. + y),
-              0.
-            });
-          };
-          hCurlPhi1 = [](const double p[3]) -> std::vector<double> {
+          hCurlPhi = [](const double p[3]) -> std::vector<std::array<double, 3>> {
             const double& x = p[0];
-            return std::vector<double>({
-              0,
-              0.5 * (1. + x),
-              0,
-              -0.5 * (1. - x)
-            });
-          };
-          hCurlPhi2 = [](const double p[3]) -> std::vector<double> {
-            (void)p;
-            return std::vector<double>({
-              0.0,
-              0.0,
-              0.0,
-              0.0
+            const double& y = p[1];
+            return std::vector<std::array<double, 3>>({
+              { 0.5 * (1. - y),  0.0,             0.0 },
+              { 0.0,             0.5 * (1. + x),  0.0 },
+              { -0.5 * (1. + y), 0.0,             0.0 },
+              { 0.0,             -0.5 * (1. - x), 0.0 }
             });
           };
           // clang-format on
-          auto& hDivPhi0 = this->QuadVbf[1][0];
-          auto& hDivPhi1 = this->QuadVbf[1][1];
-          auto& hDivPhi2 = this->QuadVbf[1][2];
+          auto& hDivPhi = this->QuadVbf[1];
           // clang-format off
-          hDivPhi0 = [](const double p[3]) -> std::vector<double> {
+          hDivPhi = [](const double p[3]) -> std::vector<std::array<double, 3>> {
             const double& x = p[0];
-            return std::vector<double>({
-              0.0,
-              0.5*(1.0 + x),
-              0.0,
-              0.5*(x - 1.0)
-            });
-          };
-          hDivPhi1 = [](const double p[3]) -> std::vector<double> {
             const double& y = p[1];
-            return std::vector<double>({
-              0.5*(y - 1.0),
-              0.0,
-              0.5*(1.0 + y),
-              0.0
-            });
-          };
-          hDivPhi2 = [](const double p[3]) -> std::vector<double> {
-            (void)p;
-            return std::vector<double>({
-              0.0,
-              0.0,
-              0.0,
-              0.0
+            return std::vector<std::array<double, 3>>({
+              { 0.0,           0.5*(y - 1.0), 0.0 },
+              { 0.5*(1.0 + x), 0.0,           0.0 },
+              { 0.0,           0.5*(1.0 + y), 0.0 },
+              { 0.5*(x - 1.0), 0.0,           0.0 }
             });
           };
           // clang-format on
@@ -528,138 +432,55 @@ public:
         }
         case VTK_TETRA:
         {
-          auto& hCurlPhi0 = this->TetVbf[0][0];
-          auto& hCurlPhi1 = this->TetVbf[0][1];
-          auto& hCurlPhi2 = this->TetVbf[0][2];
+          auto& hCurlPhi = this->TetVbf[0];
           // clang-format off
-          hCurlPhi0 = [](const double p[3]) -> std::vector<double> {
-            const double& y = p[1];
-            const double& z = p[2];
-            return std::vector<double>({
-              2.0 * (1.0 - y - z),
-              -2.0 * y,
-              -2.0 * y,
-              2.0 * z,
-              -2.0 * z,
-              0.0
-            });
-          };
-          hCurlPhi1 = [](const double p[3]) -> std::vector<double> {
-            const double& x = p[0];
-            const double& z = p[2];
-            return std::vector<double>({
-              2.0 * x,
-              2.0 * x,
-              2.0 * (-1.0 + x + z),
-              2.0 * z,
-              0.0,
-              -2.0 * z
-            });
-          };
-          hCurlPhi2 = [](const double p[3]) -> std::vector<double> {
+          hCurlPhi = [](const double p[3]) -> std::vector<std::array<double, 3>> {
             const double& x = p[0];
             const double& y = p[1];
-            return std::vector<double>({
-              2.0 * x,
-              0.0,
-              -2.0 * y,
-              2.0 * (1.0 - x - y),
-              2.0 * x,
-              2.0 * y
+            const double& z = p[2];
+            return std::vector<std::array<double, 3>>({
+              { 2.0 * (1.0 - y - z), 2.0 * x,              2.0 * x             },
+              { -2.0 * y,            2.0 * x,              0.0                 },
+              { -2.0 * y,            2.0 * (-1.0 + x + z), -2.0 * y            },
+              { 2.0 * z,             2.0 * z,              2.0 * (1.0 - x - y) },
+              { -2.0 * z,            0.0,                  2.0 * x             },
+              { 0.0,                -2.0 * z,              2.0 * y             }
             });
           };
           // clang-format on
-          auto& hDivPhi0 = this->TetVbf[1][0];
-          auto& hDivPhi1 = this->TetVbf[1][1];
-          auto& hDivPhi2 = this->TetVbf[1][2];
-          // clang-format off
-          hDivPhi0 = [](const double p[3]) -> std::vector<double> {
+          auto& hDivPhi = this->TetVbf[1];
+          hDivPhi = [](const double p[3]) -> std::vector<std::array<double, 3>> {
             const double& x = p[0];
-            return std::vector<double>({
-              x,
-              x,
-              x - 1.0,
-              x
-            });
-          };
-          hDivPhi1 = [](const double p[3]) -> std::vector<double> {
             const double& y = p[1];
-            return std::vector<double>({
-              y - 1.0,
-              y,
-              y,
-              y
-            });
-          };
-          hDivPhi2 = [](const double p[3]) -> std::vector<double> {
             const double& z = p[2];
-            return std::vector<double>({
-              z,
-              z,
-              z,
-              z - 1.0
-            });
+            return std::vector<std::array<double, 3>>(
+              { { x, y - 1.0, z }, { x, y, z }, { x - 1.0, y, z }, { x, y, z - 1.0 } });
           };
-          // clang-format on
           break;
         }
         case VTK_TRIANGLE:
         {
-          auto& hCurlPhi0 = this->TriVbf[0][0];
-          auto& hCurlPhi1 = this->TriVbf[0][1];
-          auto& hCurlPhi2 = this->TriVbf[0][2];
+          auto& hCurlPhi = this->TriVbf[0];
           // clang-format off
-          hCurlPhi0 = [](const double p[3]) -> std::vector<double> {
-            const double& y = p[1];
-            return std::vector<double>({
-              2.0 * (1. - y),
-              -2.0 * y,
-              -2.0 * y
-            });
-          };
-          hCurlPhi1 = [](const double p[3]) -> std::vector<double> {
+          hCurlPhi = [](const double p[3]) -> std::vector<std::array<double, 3>> {
             const double& x = p[0];
-            return std::vector<double>({
-              2.0 * x,
-              2.0 * x,
-              2.0 * (-1. + x)
-            });
-          };
-          hCurlPhi2 = [](const double p[3]) -> std::vector<double> {
-            (void)p;
-            return std::vector<double>({
-              0.0,
-              0.0,
-              0.0
+            const double& y = p[1];
+            return std::vector<std::array<double, 3>>({
+              { 2.0 * (1. - y), 2.0 * x,        0.0 },
+              { -2.0 * y,       2.0 * x,        0.0 },
+              { -2.0 * y,       2.0 * (-1. + x),0.0 }
             });
           };
           // clang-format on
-          auto& hDivPhi0 = this->TriVbf[1][0];
-          auto& hDivPhi1 = this->TriVbf[1][1];
-          auto& hDivPhi2 = this->TriVbf[1][2];
+          auto& hDivPhi = this->TriVbf[1];
           // clang-format off
-          hDivPhi0 = [](const double p[3]) -> std::vector<double> {
+          hDivPhi = [](const double p[3]) -> std::vector<std::array<double, 3>> {
             const double& x = p[0];
-            return std::vector<double>({
-              2.0 * x,
-              2.0 * x,
-              2.0 * (x - 1.0)
-            });
-          };
-          hDivPhi1 = [](const double p[3]) -> std::vector<double> {
             const double& y = p[1];
-            return std::vector<double>({
-              2.0 * (y - 1.0),
-              2.0 * y,
-              2.0 * y
-            });
-          };
-          hDivPhi2 = [](const double p[3]) -> std::vector<double> {
-            (void)p;
-            return std::vector<double>({
-              0.0,
-              0.0,
-              0.0
+            return std::vector<std::array<double, 3>>({
+              { 2.0 * x,         2.0 * (y - 1.0), 0.0 },
+              { 2.0 * x,         2.0 * y,         0.0 },
+              { 2.0 * (x - 1.0), 2.0 * y,         0.0 }
             });
           };
           // clang-format on
@@ -667,88 +488,37 @@ public:
         }
         case VTK_WEDGE:
         {
-          auto& hCurlPhi0 = this->WedgeVbf[0][0];
-          auto& hCurlPhi1 = this->WedgeVbf[0][1];
-          auto& hCurlPhi2 = this->WedgeVbf[0][2];
+          auto& hCurlPhi = this->WedgeVbf[0];
           // clang-format off
-            hCurlPhi0 = [](const double p[3]) -> std::vector<double> {
-              const double& y = p[1];
-              const double& z = p[2];
-              return std::vector<double>({
-                (1.0 - z)*(1.0 - y),
-                y*(z - 1.0),
-                y*(z - 1.0),
-                (1.0 - y)*(1.0 + z),
-                -y*(1.0 + z),
-                -y*(1.0 + z),
-                0.0,
-                0.0,
-                0.0
-              });
-            };
-            hCurlPhi1 = [](const double p[3]) -> std::vector<double> {
-              const double& x = p[0];
-              const double& z = p[2];
-              return std::vector<double>({
-                x*(1.0 - z),
-                x*(1.0 - z),
-                (1.0 - x)*(z - 1.0),
-                x*(1.0 + z),
-                x*(1.0 + z),
-                (x - 1.0)*(1.0 + z),
-                0.0,
-                0.0,
-                0.0
-              });
-            };
-            hCurlPhi2 = [](const double p[3]) -> std::vector<double> {
+            hCurlPhi = [](const double p[3]) -> std::vector<std::array<double, 3>> {
               const double& x = p[0];
               const double& y = p[1];
-              return std::vector<double>({
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                (1.0 - x - y),
-                x,
-                y
+              const double& z = p[2];
+              return std::vector<std::array<double, 3>>({
+                { (1.0 - z)*(1.0 - y), x*(1.0 - z),         0.0           },
+                { y*(z - 1.0),         x*(1.0 - z),         0.0           },
+                { y*(z - 1.0),         (1.0 - x)*(z - 1.0), 0.0           },
+                { (1.0 - y)*(1.0 + z), x*(1.0 + z),         0.0           },
+                { -y*(1.0 + z),        x*(1.0 + z),         0.0           },
+                { -y*(1.0 + z),        (x - 1.0)*(1.0 + z), 0.0           },
+                { 0.0,                 0.0,                 (1.0 - x - y) },
+                { 0.0,                 0.0,                  x            },
+                { 0.0,                 0.0,                  y            }
               });
             };
           // clang-format on
-          auto& hDivPhi0 = this->WedgeVbf[1][0];
-          auto& hDivPhi1 = this->WedgeVbf[1][1];
-          auto& hDivPhi2 = this->WedgeVbf[1][2];
+          auto& hDivPhi = this->WedgeVbf[1];
           // clang-format off
-          hDivPhi0 = [](const double p[3]) -> std::vector<double> {
+          hDivPhi = [](const double p[3]) -> std::vector<std::array<double, 3>> {
             const double& x = p[0];
-            return std::vector<double>({
-              2.0 * x,
-              2.0 * x,
-              2.0 * (x - 1.0),
-              0.0,
-              0.0
-            });
-          };
-          hDivPhi1 = [](const double p[3]) -> std::vector<double> {
             const double& y = p[1];
-            return std::vector<double>({
-              2.0 * (y - 1.0),
-              2.0 * y,
-              2.0 * y,
-              0.0,
-              0.0
-            });
-          };
-          hDivPhi2 = [](const double p[3]) -> std::vector<double> {
             const double& z = p[2];
-            return std::vector<double>({
-              0.0,
-              0.0,
-              0.0,
-              (z - 1.0) / 2.0,
-              (1.0 + z) / 2.0
+            return std::vector<std::array<double, 3>>({
+              { 2.0 * x,         2.0 * (y - 1.0), 0.0             },
+              { 2.0 * x,         2.0 * y,         0.0             },
+              { 2.0 * (x - 1.0), 2.0 * y,         0.0             },
+              { 0.0,             0.0,             (z - 1.0) / 2.0 },
+              { 0.0,             0.0,             (1.0 + z) / 2.0 }
             });
           };
           // clang-format on
@@ -784,22 +554,15 @@ public:
 
     hCurlMats->clear();
     hDivMats->clear();
-    hCurlMats->resize(3);
-    hDivMats->resize(3);
 
-    for (int k = 0; k < 3; ++k)
+    auto& hCurlVbFunc = (*hCurlVbfs);
+    auto& hDivVbfunc = (*hDivVbfs);
+    ptrdiff_t ofst;
+    for (size_t i = 0, ofst = 0; i < npts; ++i, ++ofst)
     {
-      auto& hCurlMatrix = (*hCurlMats)[k];
-      auto& hDivMatrix = (*hDivMats)[k];
-      auto& hCurlVbFunc = (*hCurlVbfs)[k];
-      auto& hDivVbfunc = (*hDivVbfs)[k];
-      for (size_t j = 0; j < npts; ++j)
-      {
-        ptrdiff_t ofst = static_cast<ptrdiff_t>(j) * 3;
-        double coord[3] = { coords[ofst], coords[++ofst], coords[++ofst] };
-        hCurlMatrix.emplace_back(hCurlVbFunc(coord));
-        hDivMatrix.emplace_back(hDivVbfunc(coord));
-      }
+      double coord[3] = { coords[ofst], coords[++ofst], coords[++ofst] };
+      hCurlMats->emplace_back(hCurlVbFunc(coord));
+      hDivMats->emplace_back(hDivVbfunc(coord));
     }
   }
 
@@ -813,20 +576,7 @@ public:
       return false;
     }
 
-    if (hCurlMats->size() == 3 && hDivMats->size() == 3)
-    {
-      bool reqInit = false;
-      for (std::size_t i = 0; i < 3; ++i)
-      {
-        reqInit |= (*hCurlMats)[i].size() != static_cast<size_t>(npts);
-        reqInit |= (*hDivMats)[i].size() != static_cast<size_t>(npts);
-      }
-      return reqInit;
-    }
-    else
-    {
-      return true;
-    }
+    return hCurlMats->size() != npts || hDivMats->size() != npts;
   }
 
   void Clear(const VTKCellType& cellType)
@@ -897,32 +647,32 @@ private:
 
 using SpaceType = vtkVectorBasisLagrangeProducts::SpaceType;
 
-void InterpolateToNodes(const ::VblpMatrixType& vblpmat, const std::vector<double>& coeffs,
+void InterpolateToNodes(const ::VblpMatrixType& vblpmats, const std::vector<double>& coeffs,
   const vtkIdType& npts, const vtkIdType* pts, vtkDataArray* result)
 {
   const std::size_t& nDofs = coeffs.size();
-  assert(vblpmat.size() == 3);
-  assert(static_cast<int>(vblpmat[0].size()) == npts);
-  assert(static_cast<int>(vblpmat[1].size()) == npts);
-  assert(static_cast<int>(vblpmat[2].size()) == npts);
+  assert(vblpmats.size() == static_cast<std::size_t>(npts));
 
-  for (vtkIdType j = 0; j < npts; ++j)
+  for (vtkIdType i = 0; i < npts; ++i)
   {
-    const vtkIdType& ptId = pts[j];
+    const vtkIdType& ptId = pts[i];
     double value[3] = { 0, 0, 0 };
+    const auto& vblpmat = vblpmats[i];
 
-    // interpolate field from edge -> nodal dof
-    for (std::size_t k = 0; k < vblpmat.size(); ++k)
+    // interpolate field from edge/face -> nodal dof
+    assert(vblpmat.size() == nDofs);
+    for (std::size_t j = 0; j < nDofs; ++j)
     {
-      assert(vblpmat[k][j].size() == nDofs);
-      for (std::size_t i = 0; i < nDofs; ++i)
+      const auto& dofBf = vblpmat[j];
+      assert(vblpmat[j].size() == 3); // 3 components
+      for (std::size_t k = 0; k < 3; ++k)
       {
-        value[k] += vblpmat[k][j][i] * coeffs[i];
-      } // for i'th edge.
-    }   // for every component of vector basis function.
+        value[k] += dofBf[k] * coeffs[j];
+      } // for k'th component of vector basis function.
+    }   // for j'th edge/face
     // save new values.
     result->InsertTuple(ptId, value);
-  }
+  } // for i'th point.
 }
 
 } // end anonymous namespace
