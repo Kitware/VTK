@@ -18,7 +18,66 @@
 #include "vtkOpenXRManager.h"
 #include "vtkWin32OpenGLDXRenderWindow.h"
 
+#define XR_USE_GRAPHICS_API_D3D11
+#include "d3d11.h" // Required headers for the XrGraphicsRequirementsD3D11KHR struct
+#include <vtkOpenXRPlatform.h>
+
+class vtkOpenXRManagerD3DGraphics::PIMPL
+{
+public:
+  // D3D swapchains
+  std::vector<SwapchainImagesD3D> ColorSwapchains;
+  std::vector<SwapchainImagesD3D> DepthSwapchains;
+};
+
 vtkStandardNewMacro(vtkOpenXRManagerD3DGraphics);
+
+//------------------------------------------------------------------------------
+vtkOpenXRManagerD3DGraphics::vtkOpenXRManagerD3DGraphics()
+{
+  this->Private = new PIMPL;
+}
+
+//------------------------------------------------------------------------------
+vtkOpenXRManagerD3DGraphics::~vtkOpenXRManagerD3DGraphics()
+{
+  delete this->Private;
+}
+
+//------------------------------------------------------------------------------
+void vtkOpenXRManagerD3DGraphics::SetNumberOfSwapchains(uint32_t viewCount)
+{
+  this->Private->ColorSwapchains.resize(viewCount);
+  this->Private->DepthSwapchains.resize(viewCount);
+}
+
+//------------------------------------------------------------------------------
+void vtkOpenXRManagerD3DGraphics::GetColorSwapchainImage(
+  uint32_t scIndex, uint32_t imgIndex, void* texture)
+{
+  *(ID3D11Texture2D**)texture = this->Private->ColorSwapchains[scIndex].Images[imgIndex].texture;
+}
+
+//------------------------------------------------------------------------------
+void vtkOpenXRManagerD3DGraphics::GetDepthSwapchainImage(
+  uint32_t scIndex, uint32_t imgIndex, void* texture)
+{
+  *(ID3D11Texture2D**)texture = this->Private->DepthSwapchains[scIndex].Images[imgIndex].texture;
+}
+
+//------------------------------------------------------------------------------
+void vtkOpenXRManagerD3DGraphics::EnumerateColorSwapchainImages(
+  XrSwapchain swapchain, uint32_t scIndex)
+{
+  this->EnumerateSwapchainImages(swapchain, this->Private->ColorSwapchains[scIndex]);
+}
+
+//------------------------------------------------------------------------------
+void vtkOpenXRManagerD3DGraphics::EnumerateDepthSwapchainImages(
+  XrSwapchain swapchain, uint32_t scIndex)
+{
+  this->EnumerateSwapchainImages(swapchain, this->Private->DepthSwapchains[scIndex]);
+}
 
 //------------------------------------------------------------------------------
 const std::vector<int64_t>& vtkOpenXRManagerD3DGraphics::GetSupportedColorFormats()
@@ -71,10 +130,13 @@ bool vtkOpenXRManagerD3DGraphics::CreateGraphicsBinding(vtkOpenGLRenderWindow* h
 }
 
 //------------------------------------------------------------------------------
-bool vtkOpenXRManagerD3DGraphics::CheckGraphicsRequirements(
-  XrInstance instance, XrSystemId id, xr::ExtensionDispatchTable extensions)
+bool vtkOpenXRManagerD3DGraphics::CheckGraphicsRequirements(XrInstance instance, XrSystemId id)
 {
   XrGraphicsRequirementsD3D11KHR graphicsRequirements{ XR_TYPE_GRAPHICS_REQUIREMENTS_D3D11_KHR };
+
+  xr::GraphicsExtensionDispatchTable extensions;
+  extensions.PopulateDispatchTable(instance);
+
   if (!vtkOpenXRManager::GetInstance().XrCheckError(
         extensions.xrGetD3D11GraphicsRequirementsKHR(instance, id, &graphicsRequirements),
         "Failed to get DirectX graphics requirements!"))
@@ -94,4 +156,10 @@ bool vtkOpenXRManagerD3DGraphics::CheckGraphicsRequirements(
   };
 
   return true;
+}
+
+//------------------------------------------------------------------------------
+const char* vtkOpenXRManagerD3DGraphics::GetBackendExtensionName()
+{
+  return XR_KHR_D3D11_ENABLE_EXTENSION_NAME;
 }

@@ -7,24 +7,6 @@
 
 #pragma once
 
-#ifdef XR_USE_PLATFORM_WIN32
-#define FOR_EACH_WIN32_EXTENSION_FUNCTION(_) _(xrConvertWin32PerformanceCounterToTimeKHR)
-#else
-#define FOR_EACH_WIN32_EXTENSION_FUNCTION(_)
-#endif
-
-#ifdef XR_USE_GRAPHICS_API_D3D11
-#define FOR_EACH_D3D11_EXTENSION_FUNCTION(_) _(xrGetD3D11GraphicsRequirementsKHR)
-#else
-#define FOR_EACH_D3D11_EXTENSION_FUNCTION(_)
-#endif
-
-#ifdef XR_USE_GRAPHICS_API_OPENGL
-#define FOR_EACH_OPENGL_EXTENSION_FUNCTION(_) _(xrGetOpenGLGraphicsRequirementsKHR)
-#else
-#define FOR_EACH_OPENGL_EXTENSION_FUNCTION(_)
-#endif
-
 #if XR_KHR_visibility_mask
 #define FOR_EACH_VISIBILITY_MASK_FUNCTION(_) _(xrGetVisibilityMaskKHR)
 #else
@@ -105,28 +87,7 @@
 #define FOR_EACH_SCENE_UNDERSTANDING_SERIALIZATION_FUNCTION(_)
 #endif
 
-#if XR_MSFT_holographic_remoting
-#define FOR_EACH_HAR_EXPERIMENTAL_EXTENSION_FUNCTION(_)                                            \
-  _(xrRemotingSetContextPropertiesMSFT)                                                            \
-  _(xrRemotingConnectMSFT)                                                                         \
-  _(xrRemotingListenMSFT)                                                                          \
-  _(xrRemotingDisconnectMSFT)                                                                      \
-  _(xrRemotingGetConnectionStateMSFT)                                                              \
-  _(xrRemotingSetSecureConnectionClientCallbacksMSFT)                                              \
-  _(xrRemotingSetSecureConnectionServerCallbacksMSFT)                                              \
-  _(xrCreateRemotingDataChannelMSFT)                                                               \
-  _(xrDestroyRemotingDataChannelMSFT)                                                              \
-  _(xrGetRemotingDataChannelStateMSFT)                                                             \
-  _(xrSendRemotingDataMSFT)                                                                        \
-  _(xrRetrieveRemotingDataMSFT)
-#else
-#define FOR_EACH_HAR_EXPERIMENTAL_EXTENSION_FUNCTION(_)
-#endif
-
 #define FOR_EACH_EXTENSION_FUNCTION(_)                                                             \
-  FOR_EACH_WIN32_EXTENSION_FUNCTION(_)                                                             \
-  FOR_EACH_OPENGL_EXTENSION_FUNCTION(_)                                                            \
-  FOR_EACH_D3D11_EXTENSION_FUNCTION(_)                                                             \
   FOR_EACH_VISIBILITY_MASK_FUNCTION(_)                                                             \
   FOR_EACH_HAND_TRACKING_FUNCTION(_)                                                               \
   FOR_EACH_HAND_TRACKING_MESH_FUNCTION(_)                                                          \
@@ -135,8 +96,7 @@
   FOR_EACH_CONTROLLER_MODEL_EXTENSION_FUNCTION(_)                                                  \
   FOR_EACH_PERCEPTION_ANCHOR_INTEROP_FUNCTION(_)                                                   \
   FOR_EACH_SCENE_UNDERSTANDING_FUNCTION(_)                                                         \
-  FOR_EACH_SCENE_UNDERSTANDING_SERIALIZATION_FUNCTION(_)                                           \
-  FOR_EACH_HAR_EXPERIMENTAL_EXTENSION_FUNCTION(_)
+  FOR_EACH_SCENE_UNDERSTANDING_SERIALIZATION_FUNCTION(_)
 
 #define GET_INSTANCE_PROC_ADDRESS(name)                                                            \
   (void)xrGetInstanceProcAddr(                                                                     \

@@ -18,6 +18,9 @@
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenXRManager.h"
 
+#define XR_USE_GRAPHICS_API_OPENGL
+#include <vtkOpenXRPlatform.h>
+
 // include what we need for the helper window
 #ifdef VTK_USE_X
 // We need to cast to a XOpenGLRenderWindow for vtkXVisualInfo->visualid
@@ -34,7 +37,62 @@ struct vtkXVisualInfo : public XVisualInfo
 };
 #endif // VTK_USE_X
 
+class vtkOpenXRManagerOpenGLGraphics::PIMPL
+{
+public:
+  // OpenGL swapchains
+  std::vector<SwapchainImagesOpenGL> ColorSwapchains;
+  std::vector<SwapchainImagesOpenGL> DepthSwapchains;
+};
+
 vtkStandardNewMacro(vtkOpenXRManagerOpenGLGraphics);
+
+//------------------------------------------------------------------------------
+vtkOpenXRManagerOpenGLGraphics::vtkOpenXRManagerOpenGLGraphics()
+{
+  this->Private = new PIMPL;
+}
+
+//------------------------------------------------------------------------------
+vtkOpenXRManagerOpenGLGraphics::~vtkOpenXRManagerOpenGLGraphics()
+{
+  delete this->Private;
+}
+
+//------------------------------------------------------------------------------
+void vtkOpenXRManagerOpenGLGraphics::SetNumberOfSwapchains(uint32_t viewCount)
+{
+  this->Private->ColorSwapchains.resize(viewCount);
+  this->Private->DepthSwapchains.resize(viewCount);
+};
+
+//------------------------------------------------------------------------------
+void vtkOpenXRManagerOpenGLGraphics::GetColorSwapchainImage(
+  uint32_t scIndex, uint32_t imgIndex, void* texture)
+{
+  *(GLuint*)texture = this->Private->ColorSwapchains[scIndex].Images[imgIndex].image;
+}
+
+//------------------------------------------------------------------------------
+void vtkOpenXRManagerOpenGLGraphics::GetDepthSwapchainImage(
+  uint32_t scIndex, uint32_t imgIndex, void* texture)
+{
+  *(GLuint*)texture = this->Private->DepthSwapchains[scIndex].Images[imgIndex].image;
+}
+
+//------------------------------------------------------------------------------
+void vtkOpenXRManagerOpenGLGraphics::EnumerateColorSwapchainImages(
+  XrSwapchain swapchain, uint32_t scIndex)
+{
+  this->EnumerateSwapchainImages(swapchain, this->Private->ColorSwapchains[scIndex]);
+}
+
+//------------------------------------------------------------------------------
+void vtkOpenXRManagerOpenGLGraphics::EnumerateDepthSwapchainImages(
+  XrSwapchain swapchain, uint32_t scIndex)
+{
+  this->EnumerateSwapchainImages(swapchain, this->Private->DepthSwapchains[scIndex]);
+}
 
 //------------------------------------------------------------------------------
 const std::vector<int64_t>& vtkOpenXRManagerOpenGLGraphics::GetSupportedColorFormats()
@@ -126,8 +184,7 @@ bool vtkOpenXRManagerOpenGLGraphics::CreateGraphicsBinding(vtkOpenGLRenderWindow
 }
 
 //------------------------------------------------------------------------------
-bool vtkOpenXRManagerOpenGLGraphics::CheckGraphicsRequirements(
-  XrInstance instance, XrSystemId id, xr::ExtensionDispatchTable extensions)
+bool vtkOpenXRManagerOpenGLGraphics::CheckGraphicsRequirements(XrInstance instance, XrSystemId id)
 {
   XrGraphicsRequirementsOpenGLKHR openGLReqs = {
     XR_TYPE_GRAPHICS_REQUIREMENTS_OPENGL_KHR, // .type
@@ -136,7 +193,9 @@ bool vtkOpenXRManagerOpenGLGraphics::CheckGraphicsRequirements(
     0                                         // .maxApiVersionSupported
   };
 
-  // this function pointer was loaded with xrGetInstanceProcAddr (see XrExtensions.h)
+  xr::GraphicsExtensionDispatchTable extensions;
+  extensions.PopulateDispatchTable(instance);
+
   if (!vtkOpenXRManager::GetInstance().XrCheckError(
         extensions.xrGetOpenGLGraphicsRequirementsKHR(instance, id, &openGLReqs),
         "Failed to get OpenGL graphics requirements!"))
@@ -145,4 +204,10 @@ bool vtkOpenXRManagerOpenGLGraphics::CheckGraphicsRequirements(
   }
 
   return true;
+}
+
+//------------------------------------------------------------------------------
+const char* vtkOpenXRManagerOpenGLGraphics::GetBackendExtensionName()
+{
+  return XR_KHR_OPENGL_ENABLE_EXTENSION_NAME;
 }

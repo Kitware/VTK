@@ -53,7 +53,6 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkVRRenderWindow.h"
 
 #include "vtkEventData.h" // for method sig
-#include "vtkOpenXR.h"
 
 #include <array> // array
 

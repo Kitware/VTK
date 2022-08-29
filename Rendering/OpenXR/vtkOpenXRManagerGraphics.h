@@ -106,8 +106,7 @@ public:
    * This uses a function pointer loaded with the selected graphics API extension.
    * /pre The XR instance and system id must be initialized
    */
-  virtual bool CheckGraphicsRequirements(
-    XrInstance instance, XrSystemId id, xr::ExtensionDispatchTable extensions) = 0;
+  virtual bool CheckGraphicsRequirements(XrInstance instance, XrSystemId id) = 0;
   ///@}
 
   ///@{

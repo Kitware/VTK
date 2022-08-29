@@ -20,6 +20,7 @@ https://github.com/ValveSoftware/openvr/blob/master/LICENSE
 
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLState.h"
+#include "vtkOpenXR.h"
 #include "vtkOpenXRManager.h"
 #include "vtkOpenXRModel.h"
 #include "vtkOpenXRRenderWindowInteractor.h"

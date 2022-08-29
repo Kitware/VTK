@@ -520,9 +520,6 @@ protected:
   // choose XR_ENVIRONMENT_BLEND_MODE_ADDITIVE or XR_ENVIRONMENT_BLEND_MODE_ALPHA_BLEND
   XrEnvironmentBlendMode EnvironmentBlendMode;
 
-  // See vtkXrExtensions.h
-  xr::ExtensionDispatchTable Extensions;
-
   // Non optional extension
   bool RenderingBackendExtensionSupported = false;
 

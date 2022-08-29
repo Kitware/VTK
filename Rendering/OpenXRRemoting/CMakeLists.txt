@@ -7,9 +7,12 @@ set(nowrap_classes
   vtkOpenXRManagerRemoteConnection
   )
 
+set(nowrap_headers XrConnectionExtensions.h)
+
 vtk_module_add_module(VTK::RenderingOpenXRRemoting
   CLASSES ${classes}
   NOWRAP_CLASSES ${nowrap_classes}
+  NOWRAP_HEADERS ${nowrap_headers}
   )
 
 vtk_module_link(VTK::RenderingOpenXR PUBLIC OpenXR::Remoting)

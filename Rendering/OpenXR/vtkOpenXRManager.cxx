@@ -21,22 +21,6 @@
 #include "vtkOpenXRUtilities.h"
 #include "vtkWindows.h" // Does nothing if we are not on windows
 
-// include what we need for the helper window
-#ifdef VTK_USE_X
-// We need to cast to a XOpenGLRenderWindow for vtkXVisualInfo->visualid
-#include "vtkXOpenGLRenderWindow.h"
-
-// From vtkXOpenGLRenderWindow.cxx :
-// Work-around to get forward declarations of C typedef of anonymous
-// structs working. We do not want to include XUtil.h in the header as
-// it populates the global namespace.
-#include "GL/glx.h"
-#include <X11/Xutil.h>
-struct vtkXVisualInfo : public XVisualInfo
-{
-};
-#endif // VTK_USE_X
-
 #define VTK_CHECK_NULL_XRHANDLE(handle, msg)                                                       \
   if (handle == XR_NULL_HANDLE)                                                                    \
   {                                                                                                \
@@ -82,8 +66,7 @@ bool vtkOpenXRManager::Initialize(vtkOpenGLRenderWindow* helperWindow)
     return false;
   }
 
-  if (!this->GraphicsStrategy->CheckGraphicsRequirements(
-        this->Instance, this->SystemId, this->Extensions))
+  if (!this->GraphicsStrategy->CheckGraphicsRequirements(this->Instance, this->SystemId))
   {
     vtkWarningWithObjectMacro(nullptr, "Initialize failed in CheckGraphicsRequirements");
     return false;
@@ -96,7 +79,7 @@ bool vtkOpenXRManager::Initialize(vtkOpenGLRenderWindow* helperWindow)
   }
 
   // When using remoting, the connection must be established before creating the session
-  if (!this->ConnectionStrategy->ConnectToRemote(this->Instance, this->SystemId, this->Extensions))
+  if (!this->ConnectionStrategy->ConnectToRemote(this->Instance, this->SystemId))
   {
     vtkWarningWithObjectMacro(nullptr, "Failed to connect.");
     return false;
@@ -289,14 +272,18 @@ bool vtkOpenXRManager::LoadControllerModels()
 
   auto lPath = this->GetXrPath("/user/hand/left");
 
+  xr::ExtensionDispatchTable extensions;
+  // Define the pointer function of enabled extensions (see XrExtensions.h)
+  extensions.PopulateDispatchTable(this->Instance);
+
   XrControllerModelKeyStateMSFT controllerModelKeyState;
   this->XrCheckError(
-    this->Extensions.xrGetControllerModelKeyMSFT(this->Session, lPath, &controllerModelKeyState),
+    extensions.xrGetControllerModelKeyMSFT(this->Session, lPath, &controllerModelKeyState),
     "Failed to get controller model key!");
 
   // get the size
   uint32_t bufferCountOutput = 0;
-  this->XrCheckError(this->Extensions.xrLoadControllerModelMSFT(this->Session,
+  this->XrCheckError(extensions.xrLoadControllerModelMSFT(this->Session,
                        controllerModelKeyState.modelKey, 0, &bufferCountOutput, nullptr),
     "Failed to get controller model size!");
 
@@ -304,7 +291,7 @@ bool vtkOpenXRManager::LoadControllerModels()
   uint32_t bufferCapacityInput = bufferCountOutput;
   uint8_t* buffer = new uint8_t[bufferCountOutput];
   this->XrCheckError(
-    this->Extensions.xrLoadControllerModelMSFT(this->Session, controllerModelKeyState.modelKey,
+    extensions.xrLoadControllerModelMSFT(this->Session, controllerModelKeyState.modelKey,
       bufferCapacityInput, &bufferCountOutput, buffer),
     "Failed to get controller model!");
 
@@ -741,9 +728,6 @@ bool vtkOpenXRManager::CreateInstance()
   {
     return false;
   }
-
-  // This will define the pointer function of enabled extensions (see XrExtensions.h)
-  this->Extensions.PopulateDispatchTable(this->Instance);
 
   this->PrintInstanceProperties();
 

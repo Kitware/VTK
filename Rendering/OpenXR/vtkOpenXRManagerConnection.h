@@ -40,8 +40,7 @@ public:
   vtkTypeMacro(vtkOpenXRManagerConnection, vtkObject);
 
   virtual bool Initialize() { return true; }
-  virtual bool ConnectToRemote(XrInstance vtkNotUsed(instance), XrSystemId vtkNotUsed(id),
-    xr::ExtensionDispatchTable vtkNotUsed(extensions))
+  virtual bool ConnectToRemote(XrInstance vtkNotUsed(instance), XrSystemId vtkNotUsed(id))
   {
     return true;
   }

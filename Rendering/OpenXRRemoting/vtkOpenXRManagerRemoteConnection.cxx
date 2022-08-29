@@ -16,8 +16,11 @@
 
 #include "vtkObjectFactory.h"
 #include "vtkOpenXRManager.h"
+#include "vtkWindows.h" // For Win32 API used in Initialize
 
-#include "vtkOpenXR.h" // For extension name
+#include <openxr_msft_holographic_remoting.h> // Defines XR_MSFT_holographic_remoting
+
+#include "XrConnectionExtensions.h" // Provides holographic remoting extensions
 
 #include <thread> // used to sleep after connection
 
@@ -36,6 +39,8 @@ bool vtkOpenXRManagerRemoteConnection::Initialize()
 
   if (GetFileAttributesW(filename.data()) != INVALID_FILE_ATTRIBUTES)
   {
+    // This environment variable is used by the OpenXR loader to not use the system default OpenXR
+    // runtime but instead redirect to the Holographic Remoting OpenXR runtime
     SetEnvironmentVariableW(L"XR_RUNTIME_JSON", filename.data());
     return true;
   }
@@ -44,8 +49,7 @@ bool vtkOpenXRManagerRemoteConnection::Initialize()
 }
 
 //------------------------------------------------------------------------------
-bool vtkOpenXRManagerRemoteConnection::ConnectToRemote(
-  XrInstance instance, XrSystemId id, xr::ExtensionDispatchTable extensions)
+bool vtkOpenXRManagerRemoteConnection::ConnectToRemote(XrInstance instance, XrSystemId id)
 {
   if (this->IPAddress.empty())
   {
@@ -54,6 +58,8 @@ bool vtkOpenXRManagerRemoteConnection::ConnectToRemote(
   }
 
   XrRemotingConnectionStateMSFT connectionState;
+  xr::ConnectionExtensionDispatchTable extensions;
+  extensions.PopulateDispatchTable(instance);
   extensions.xrRemotingGetConnectionStateMSFT(instance, id, &connectionState, nullptr);
   if (connectionState != XR_REMOTING_CONNECTION_STATE_DISCONNECTED_MSFT)
   {
@@ -92,6 +98,12 @@ bool vtkOpenXRManagerRemoteConnection::ConnectToRemote(
   std::this_thread::sleep_for(2500ms);
 
   return true;
+}
+
+//------------------------------------------------------------------------------
+const char* vtkOpenXRManagerRemoteConnection::GetExtensionName()
+{
+  return XR_MSFT_HOLOGRAPHIC_REMOTING_EXTENSION_NAME;
 }
 
 //------------------------------------------------------------------------------

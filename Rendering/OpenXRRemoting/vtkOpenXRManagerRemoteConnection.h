@@ -27,7 +27,7 @@
 #include "vtkOpenXRManagerConnection.h"
 #include "vtkRenderingOpenXRRemotingModule.h" // For export macro
 
-#include "vtkOpenXR.h" // For extension name
+#include "vtkOpenXR.h" // For XrInstance/XrSystemId
 
 class VTKRENDERINGOPENXRREMOTING_EXPORT vtkOpenXRManagerRemoteConnection
   : public vtkOpenXRManagerConnection
@@ -37,13 +37,12 @@ public:
   vtkTypeMacro(vtkOpenXRManagerRemoteConnection, vtkOpenXRManagerConnection);
 
   bool Initialize() override;
-  bool ConnectToRemote(
-    XrInstance instance, XrSystemId id, xr::ExtensionDispatchTable extensions) override;
+  bool ConnectToRemote(XrInstance instance, XrSystemId id) override;
 
   /**
    * Enable the OpenXR Remoting extension if supported.
    */
-  const char* GetExtensionName() override { return XR_MSFT_HOLOGRAPHIC_REMOTING_EXTENSION_NAME; }
+  const char* GetExtensionName() override;
 
   /**
    * Handle connection/deconnection events

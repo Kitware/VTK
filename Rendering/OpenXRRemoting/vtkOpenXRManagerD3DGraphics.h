@@ -31,6 +31,9 @@
 #include <memory> // For shared_ptr
 #include <vector> // For std::vector
 
+struct XrGraphicsBindingD3D11KHR;
+struct XrSwapchainImageD3D11KHR;
+
 class VTKRENDERINGOPENXRREMOTING_EXPORT vtkOpenXRManagerD3DGraphics
   : public vtkOpenXRManagerGraphics
 {
@@ -38,48 +41,31 @@ public:
   static vtkOpenXRManagerD3DGraphics* New();
   vtkTypeMacro(vtkOpenXRManagerD3DGraphics, vtkOpenXRManagerGraphics);
 
-  virtual void SetNumberOfSwapchains(uint32_t viewCount)
-  {
-    this->ColorSwapchains.resize(viewCount);
-    this->DepthSwapchains.resize(viewCount);
-  };
+  void SetNumberOfSwapchains(uint32_t viewCount) override;
 
-  void GetColorSwapchainImage(uint32_t scIndex, uint32_t imgIndex, void* texture)
-  {
-    *(ID3D11Texture2D**)texture = this->ColorSwapchains[scIndex].Images[imgIndex].texture;
-  };
+  void GetColorSwapchainImage(uint32_t scIndex, uint32_t imgIndex, void* texture) override;
 
-  void GetDepthSwapchainImage(uint32_t scIndex, uint32_t imgIndex, void* texture)
-  {
-    *(ID3D11Texture2D**)texture = this->DepthSwapchains[scIndex].Images[imgIndex].texture;
-  };
+  void GetDepthSwapchainImage(uint32_t scIndex, uint32_t imgIndex, void* texture) override;
 
-  void EnumerateColorSwapchainImages(XrSwapchain swapchain, uint32_t scIndex)
-  {
-    this->EnumerateSwapchainImages(swapchain, this->ColorSwapchains[scIndex]);
-  };
+  void EnumerateColorSwapchainImages(XrSwapchain swapchain, uint32_t scIndex) override;
 
-  void EnumerateDepthSwapchainImages(XrSwapchain swapchain, uint32_t scIndex)
-  {
-    this->EnumerateSwapchainImages(swapchain, this->DepthSwapchains[scIndex]);
-  };
+  void EnumerateDepthSwapchainImages(XrSwapchain swapchain, uint32_t scIndex) override;
 
-  const std::vector<int64_t>& GetSupportedColorFormats();
+  const std::vector<int64_t>& GetSupportedColorFormats() override;
 
-  const std::vector<int64_t>& GetSupportedDepthFormats();
+  const std::vector<int64_t>& GetSupportedDepthFormats() override;
 
-  bool CreateGraphicsBinding(vtkOpenGLRenderWindow* helperWindow);
+  bool CreateGraphicsBinding(vtkOpenGLRenderWindow* helperWindow) override;
 
-  const void* GetGraphicsBinding() { return this->GraphicsBinding.get(); };
+  const void* GetGraphicsBinding() override { return this->GraphicsBinding.get(); };
 
-  bool CheckGraphicsRequirements(
-    XrInstance instance, XrSystemId id, xr::ExtensionDispatchTable extensions);
+  bool CheckGraphicsRequirements(XrInstance instance, XrSystemId id) override;
 
-  const char* GetBackendExtensionName() { return XR_KHR_D3D11_ENABLE_EXTENSION_NAME; };
+  const char* GetBackendExtensionName() override;
 
 protected:
-  vtkOpenXRManagerD3DGraphics() = default;
-  ~vtkOpenXRManagerD3DGraphics() = default;
+  vtkOpenXRManagerD3DGraphics();
+  ~vtkOpenXRManagerD3DGraphics() override;
 
   /**
    * D3D structure to store swapchain images.
@@ -94,15 +80,14 @@ protected:
    */
   void EnumerateSwapchainImages(XrSwapchain swapchain, SwapchainImagesD3D& swapchainImages);
 
-  // D3D swapchains
-  std::vector<SwapchainImagesD3D> ColorSwapchains;
-  std::vector<SwapchainImagesD3D> DepthSwapchains;
-
   std::shared_ptr<XrGraphicsBindingD3D11KHR> GraphicsBinding;
 
 private:
   vtkOpenXRManagerD3DGraphics(const vtkOpenXRManagerD3DGraphics&) = delete;
   void operator=(const vtkOpenXRManagerD3DGraphics&) = delete;
+
+  class PIMPL;
+  PIMPL* Private;
 };
 
 #endif
