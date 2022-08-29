@@ -778,6 +778,7 @@ public:
 
     if (hCurlMats == nullptr || hDivMats == nullptr || hCurlVbfs == nullptr || hDivVbfs == nullptr)
     {
+      vtkLog(ERROR, "Unsupported request for cellType: " << cellType);
       return;
     }
 
@@ -808,6 +809,7 @@ public:
     auto hDivMats = this->GetVblp(SpaceType::HDiv, cellType);
     if (hCurlMats == nullptr || hDivMats == nullptr)
     {
+      vtkLog(ERROR, "Unsupported request for cellType: " << cellType);
       return false;
     }
 
@@ -833,6 +835,7 @@ public:
     auto hDivMats = this->GetVblp(SpaceType::HDiv, cellType);
     if (hCurlMats == nullptr || hDivMats == nullptr)
     {
+      vtkLog(ERROR, "Unsupported request for cellType: " << cellType);
       return;
     }
     hCurlMats->clear();
