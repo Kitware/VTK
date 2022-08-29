@@ -142,8 +142,8 @@ public:
   /**
    * Methods supporting the rendering process.
    */
-  void GetActors(vtkPropCollection*) override;
-  void ReleaseGraphicsResources(vtkWindow*) override;
+  void GetActors(vtkPropCollection* propCollections) override;
+  void ReleaseGraphicsResources(vtkWindow* window) override;
   int RenderOverlay(vtkViewport*) override;
   int RenderOpaqueGeometry(vtkViewport*) override;
   ///@}

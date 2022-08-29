@@ -123,8 +123,6 @@ vtkCenteredSliderRepresentation::vtkCenteredSliderRepresentation()
   this->LabelActor->SetInput("");
   this->LabelActor->GetPositionCoordinate()->SetCoordinateSystemToViewport();
 
-  this->Value = 0;
-  this->PickedT = 0.5;
   this->HighlightState = 0;
 }
 
@@ -283,38 +281,41 @@ void vtkCenteredSliderRepresentation::StartWidgetInteraction(double eventPos[2])
 }
 
 //------------------------------------------------------------------------------
-int vtkCenteredSliderRepresentation::ComputeInteractionState(int x, int y, int /*modify*/)
+int vtkCenteredSliderRepresentation::ComputeInteractionState(int x, int y, int vtkNotUsed(modify))
 {
   // where is the pick
-  int* p1 = this->Point1Coordinate->GetComputedViewportValue(this->Renderer);
-  int* p2 = this->Point2Coordinate->GetComputedViewportValue(this->Renderer);
+  int* point1 = this->Point1Coordinate->GetComputedViewportValue(this->Renderer);
+  int* point2 = this->Point2Coordinate->GetComputedViewportValue(this->Renderer);
 
   // convert the eventPos into parametric coordinates
-  double pcoord[2];
-  if (!(p2[0] - p1[0]) || !(p2[1] - p1[1]))
+  double pCoord[2];
+  if (!(point2[0] - point1[0]) || !(point2[1] - point1[1]))
   {
     this->InteractionState = vtkSliderRepresentation::Outside;
     return this->InteractionState;
   }
 
-  pcoord[0] = (static_cast<double>(x) - p1[0]) / (p2[0] - p1[0]);
-  pcoord[1] = (static_cast<double>(y) - p1[1]) / (p2[1] - p1[1]);
+  pCoord[0] = (static_cast<double>(x) - point1[0]) / (point2[0] - point1[0]);
+  pCoord[1] = (static_cast<double>(y) - point1[1]) / (point2[1] - point1[1]);
 
-  if (pcoord[0] < 0 || pcoord[0] > 1.0)
+  if (pCoord[0] < 0 || pCoord[0] > 1.0)
   {
     this->InteractionState = vtkSliderRepresentation::Outside;
     return this->InteractionState;
   }
+
+  // calculate the parametric coordinate on the arc
+  double tCoord = (pCoord[1] - this->ArcStart) / (this->ArcEnd - this->ArcStart);
 
   // if it is on the slider...
-  if (fabs(pcoord[1] - (1.0 - 0.5 * this->TubeSize)) < 0.1)
+  if (fabs(this->CurrentT - tCoord) < 0.05)
   {
     this->InteractionState = vtkSliderRepresentation::Slider;
     return this->InteractionState;
   }
 
   // if on the tube
-  if (pcoord[1] >= this->ArcStart && pcoord[1] <= this->ArcEnd)
+  if (pCoord[1] >= this->ArcStart && pCoord[1] <= this->ArcEnd)
   {
     this->InteractionState = vtkSliderRepresentation::Tube;
     this->ComputePickPosition(x, y);
@@ -322,14 +323,14 @@ int vtkCenteredSliderRepresentation::ComputeInteractionState(int x, int y, int /
   }
 
   // on the bottom aka left cap
-  if (pcoord[1] >= 1.0 - this->TubeSize && pcoord[1] <= 1.0 - this->TubeSize + this->ArcStart)
+  if (pCoord[1] >= 1.0 - this->TubeSize && pCoord[1] <= 1.0 - this->TubeSize + this->ArcStart)
   {
     this->InteractionState = vtkSliderRepresentation::LeftCap;
     return this->InteractionState;
   }
 
   // on the top aka right cap
-  if (pcoord[1] >= this->ArcEnd && pcoord[1] <= 1.0)
+  if (pCoord[1] >= this->ArcEnd && pCoord[1] <= 1.0)
   {
     this->InteractionState = vtkSliderRepresentation::RightCap;
     return this->InteractionState;
@@ -342,8 +343,9 @@ int vtkCenteredSliderRepresentation::ComputeInteractionState(int x, int y, int /
 //------------------------------------------------------------------------------
 void vtkCenteredSliderRepresentation::WidgetInteraction(double eventPos[2])
 {
-  double t = this->ComputePickPosition(eventPos[0], eventPos[1]);
-  this->SetValue(this->MinimumValue + t * (this->MaximumValue - this->MinimumValue));
+  this->SetValue(this->MinimumValue +
+    this->ComputePickPosition(eventPos[0], eventPos[1]) *
+      (this->MaximumValue - this->MinimumValue));
   this->BuildRepresentation();
 }
 
@@ -354,21 +356,21 @@ vtkCoordinate* vtkCenteredSliderRepresentation::GetPoint2Coordinate()
 }
 
 //------------------------------------------------------------------------------
-void vtkCenteredSliderRepresentation::PlaceWidget(double* vtkNotUsed(bds[6]))
+void vtkCenteredSliderRepresentation::PlaceWidget(double* vtkNotUsed(bounds[6]))
 {
   // Position the handles at the end of the lines
   this->BuildRepresentation();
 }
 
 //------------------------------------------------------------------------------
-double vtkCenteredSliderRepresentation ::ComputePickPosition(double /* x */, double y)
+double vtkCenteredSliderRepresentation ::ComputePickPosition(double vtkNotUsed(x), double y)
 {
   // where is the pick
-  int* p1 = this->Point1Coordinate->GetComputedViewportValue(this->Renderer);
-  int* p2 = this->Point2Coordinate->GetComputedViewportValue(this->Renderer);
+  int* point1 = this->Point1Coordinate->GetComputedViewportValue(this->Renderer);
+  int* point2 = this->Point2Coordinate->GetComputedViewportValue(this->Renderer);
 
   // convert the eventPos into parametric coordinates
-  this->PickedT = (y - p1[1]) / (p2[1] - p1[1]);
+  this->PickedT = (y - point1[1]) / (point2[1] - point1[1]);
   this->PickedT = (this->PickedT - this->ArcStart) / (this->ArcEnd - this->ArcStart);
 
   this->PickedT = (this->PickedT < 0 ? 0.0 : (this->PickedT > 1.0 ? 1.0 : this->PickedT));
@@ -393,6 +395,11 @@ void vtkCenteredSliderRepresentation::Highlight(int highlight)
 //------------------------------------------------------------------------------
 void vtkCenteredSliderRepresentation::BuildRepresentation()
 {
+  if (!this->Renderer || !this->Visibility)
+  {
+    return;
+  }
+
   if (this->GetMTime() <= this->BuildTime &&
     (!this->Renderer || !this->Renderer->GetVTKWindow() ||
       this->Renderer->GetVTKWindow()->GetMTime() <= this->BuildTime))
@@ -411,43 +418,43 @@ void vtkCenteredSliderRepresentation::BuildRepresentation()
   this->XForm->Identity();
 
   // scale and position and rotate the polydata
-  int* p1 = this->Point1Coordinate->GetComputedViewportValue(this->Renderer);
-  int* p2 = this->Point2Coordinate->GetComputedViewportValue(this->Renderer);
+  int* point1 = this->Point1Coordinate->GetComputedViewportValue(this->Renderer);
+  int* point2 = this->Point2Coordinate->GetComputedViewportValue(this->Renderer);
 
-  double xsize = p2[0] - p1[0];
-  double ysize = p2[1] - p1[1];
+  double xsize = point2[0] - point1[0];
+  double ysize = point2[1] - point1[1];
 
-  this->XForm->Translate(p1[0], p1[1], 0.0);
+  this->XForm->Translate(point1[0], point1[1], 0.0);
   this->XForm->Scale(xsize, ysize, 1.0);
 
   // adjust the slider position
-  double t = (this->Value - this->MinimumValue) / (this->MaximumValue - this->MinimumValue);
-  double pos = this->ArcStart + t * (this->ArcEnd - this->ArcStart);
+  double tCoord = (this->Value - this->MinimumValue) / (this->MaximumValue - this->MinimumValue);
+  double pos = this->ArcStart + tCoord * (this->ArcEnd - this->ArcStart);
   this->Points->SetPoint(this->ArcCount * 2 + 8, 0.0, pos - 0.025, 0.0);
   this->Points->SetPoint(this->ArcCount * 2 + 9, 0.0, pos + 0.025, 0.0);
   this->Points->SetPoint(this->ArcCount * 2 + 10, 1.0, pos + 0.025, 0.0);
   this->Points->SetPoint(this->ArcCount * 2 + 11, 1.0, pos - 0.025, 0.0);
 
-  this->LabelActor->SetPosition(p1[0] + xsize * 0.5, p1[1]);
+  this->LabelActor->SetPosition(point1[0] + xsize * 0.5, point1[1]);
   this->LabelProperty->SetFontSize(static_cast<int>(xsize * 0.8));
 
   this->BuildTime.Modified();
 }
 
 //------------------------------------------------------------------------------
-void vtkCenteredSliderRepresentation::GetActors(vtkPropCollection* pc)
+void vtkCenteredSliderRepresentation::GetActors(vtkPropCollection* propCollections)
 {
-  pc->AddItem(this->TubeActor);
-  pc->AddItem(this->SliderActor);
-  pc->AddItem(this->LabelActor);
+  propCollections->AddItem(this->TubeActor);
+  propCollections->AddItem(this->SliderActor);
+  propCollections->AddItem(this->LabelActor);
 }
 
 //------------------------------------------------------------------------------
-void vtkCenteredSliderRepresentation::ReleaseGraphicsResources(vtkWindow* w)
+void vtkCenteredSliderRepresentation::ReleaseGraphicsResources(vtkWindow* window)
 {
-  this->TubeActor->ReleaseGraphicsResources(w);
-  this->LabelActor->ReleaseGraphicsResources(w);
-  this->SliderActor->ReleaseGraphicsResources(w);
+  this->TubeActor->ReleaseGraphicsResources(window);
+  this->LabelActor->ReleaseGraphicsResources(window);
+  this->SliderActor->ReleaseGraphicsResources(window);
 }
 
 //------------------------------------------------------------------------------

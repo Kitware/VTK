@@ -299,7 +299,7 @@ vtkCoordinate* vtkSliderRepresentation2D::GetPoint2Coordinate()
 }
 
 //------------------------------------------------------------------------------
-void vtkSliderRepresentation2D::PlaceWidget(double* vtkNotUsed(bds[6]))
+void vtkSliderRepresentation2D::PlaceWidget(double* vtkNotUsed(bounds[6]))
 {
   // Position the handles at the end of the lines
   this->BuildRepresentation();
@@ -358,6 +358,11 @@ void vtkSliderRepresentation2D::Highlight(int highlight)
 //------------------------------------------------------------------------------
 void vtkSliderRepresentation2D::BuildRepresentation()
 {
+  if (!this->Renderer || !this->Visibility)
+  {
+    return;
+  }
+
   if (this->GetMTime() > this->BuildTime ||
     (this->Renderer && this->Renderer->GetVTKWindow() &&
       this->Renderer->GetVTKWindow()->GetMTime() > this->BuildTime))
@@ -477,23 +482,23 @@ void vtkSliderRepresentation2D::BuildRepresentation()
 }
 
 //------------------------------------------------------------------------------
-void vtkSliderRepresentation2D::GetActors2D(vtkPropCollection* pc)
+void vtkSliderRepresentation2D::GetActors2D(vtkPropCollection* propCollection)
 {
-  pc->AddItem(this->SliderActor);
-  pc->AddItem(this->TubeActor);
-  pc->AddItem(this->CapActor);
-  pc->AddItem(this->LabelActor);
-  pc->AddItem(this->TitleActor);
+  propCollection->AddItem(this->SliderActor);
+  propCollection->AddItem(this->TubeActor);
+  propCollection->AddItem(this->CapActor);
+  propCollection->AddItem(this->LabelActor);
+  propCollection->AddItem(this->TitleActor);
 }
 
 //------------------------------------------------------------------------------
-void vtkSliderRepresentation2D::ReleaseGraphicsResources(vtkWindow* w)
+void vtkSliderRepresentation2D::ReleaseGraphicsResources(vtkWindow* window)
 {
-  this->SliderActor->ReleaseGraphicsResources(w);
-  this->TubeActor->ReleaseGraphicsResources(w);
-  this->CapActor->ReleaseGraphicsResources(w);
-  this->LabelActor->ReleaseGraphicsResources(w);
-  this->TitleActor->ReleaseGraphicsResources(w);
+  this->SliderActor->ReleaseGraphicsResources(window);
+  this->TubeActor->ReleaseGraphicsResources(window);
+  this->CapActor->ReleaseGraphicsResources(window);
+  this->LabelActor->ReleaseGraphicsResources(window);
+  this->TitleActor->ReleaseGraphicsResources(window);
 }
 
 //------------------------------------------------------------------------------
