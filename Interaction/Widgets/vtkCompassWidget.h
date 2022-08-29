@@ -20,15 +20,14 @@
 
 /**
  * @class   vtkCompassWidget
- * @brief   set a value by manipulating something
+ * @brief   widget to set distance, tilt and heading
  *
- * The vtkCompassWidget is used to adjust a scalar value in an
- * application. Note that the actual appearance of the widget depends on
- * the specific representation for the widget.
+ * The vtkCompassWidget is used to adjust distance, tilt and heading parameters in an
+ * application. It uses vtkCompassRepresentation as its representation.
  *
- * To use this widget, set the widget representation. (the details may
- * vary depending on the particulars of the representation).
- *
+ * To customize the widget override the CreateDefaultRepresentation method and set the
+ * representation to your own subclass of vtkCompassRepresentation. Ranges for distance and tilt can
+ * be set in vtkCompassRepresentation.
  *
  * @par Event Bindings:
  * By default, the widget responds to the following VTK events (i.e., it
@@ -57,6 +56,7 @@
  *   vtkCommand::StartInteractionEvent (on vtkWidgetEvent::Select)
  *   vtkCommand::EndInteractionEvent (on vtkWidgetEvent::EndSelect)
  *   vtkCommand::InteractionEvent (on vtkWidgetEvent::Move)
+ *   vtkCommand::WidgetValueChangedEvent (when widget values have changed)
  * </pre>
  *
  */
@@ -65,12 +65,12 @@
 #define vtkCompassWidget_h
 
 #include "vtkAbstractWidget.h"
-#include "vtkDeprecation.h"      // For VTK_DEPRECATED_IN_9_2_0
-#include "vtkGeovisCoreModule.h" // For export macro
+#include "vtkDeprecation.h"              // For VTK_DEPRECATED_IN_9_2_0
+#include "vtkInteractionWidgetsModule.h" // For export macro
 
 class vtkCompassRepresentation;
 
-class VTKGEOVISCORE_EXPORT vtkCompassWidget : public vtkAbstractWidget
+class VTKINTERACTIONWIDGETS_EXPORT vtkCompassWidget : public vtkAbstractWidget
 {
 public:
   /**
@@ -103,14 +103,41 @@ public:
 
   ///@{
   /**
-   * Get the value for this widget.
+   * Get/set the value for this widget.
    */
   double GetHeading();
   void SetHeading(double v);
   double GetTilt();
-  void SetTilt(double value);
+  void SetTilt(double tilt);
   double GetDistance();
-  void SetDistance(double value);
+  void SetDistance(double distance);
+  ///@}
+
+  ///@{
+  /**
+   * Get/set the timer interval in milliseconds. The timer interval determines the update frequency
+   * for slider mouse interactions. Default is 50 ms.
+   */
+  vtkGetMacro(TimerDuration, int);
+  vtkSetMacro(TimerDuration, int);
+  ///@}
+
+  ///@{
+  /**
+   * Get/set the tilt speed in degrees per second. This is the speed with which the tilt
+   * changes when the top/bottom tilt slider button is clicked. Default is 30.0 degrees/s.
+   */
+  vtkGetMacro(TiltSpeed, double);
+  vtkSetMacro(TiltSpeed, double);
+  ///@}
+
+  ///@{
+  /**
+   * Get/set the distance speed in distance per second. This is the speed with which the distance
+   * changes when the top/bottom distance slider button is clicked. Default is 1.0/s.
+   */
+  vtkGetMacro(DistanceSpeed, double);
+  vtkSetMacro(DistanceSpeed, double);
   ///@}
 
 protected:
@@ -118,10 +145,10 @@ protected:
   ~vtkCompassWidget() override = default;
 
   // These are the events that are handled
-  static void SelectAction(vtkAbstractWidget*);
-  static void EndSelectAction(vtkAbstractWidget*);
-  static void MoveAction(vtkAbstractWidget*);
-  static void TimerAction(vtkAbstractWidget*);
+  static void SelectAction(vtkAbstractWidget* widget);
+  static void EndSelectAction(vtkAbstractWidget* widget);
+  static void MoveAction(vtkAbstractWidget* widget);
+  static void TimerAction(vtkAbstractWidget* widget);
 
   int WidgetState;
   enum WidgetStateType
@@ -130,16 +157,23 @@ protected:
     Highlighting,
     Adjusting,
     TiltAdjusting,
-    DistanceAdjusting
+    DistanceAdjusting,
+    TiltTimerAdjustingDown,
+    TiltTimerAdjustingUp,
+    DistanceTimerAdjustingIn,
+    DistanceTimerAdjustingOut
   };
 #if !defined(VTK_LEGACY_REMOVE)
   VTK_DEPRECATED_IN_9_2_0("because leading underscore is reserved")
   typedef WidgetStateType _WidgetState;
 #endif
 
-  int TimerId;
-  int TimerDuration;
+  int TimerId = -1;
+  int TimerDuration = 50;
   double StartTime;
+
+  double TiltSpeed = 30.0;
+  double DistanceSpeed = 1.0;
 
 private:
   vtkCompassWidget(const vtkCompassWidget&) = delete;

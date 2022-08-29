@@ -43,6 +43,7 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkWindow.h"
 
+#include <algorithm>
 #include <sstream>
 
 vtkStandardNewMacro(vtkCompassRepresentation);
@@ -66,16 +67,16 @@ vtkCompassRepresentation::vtkCompassRepresentation()
   this->TiltRepresentation = vtkSmartPointer<vtkCenteredSliderRepresentation>::New();
   this->TiltRepresentation->GetPoint1Coordinate()->SetCoordinateSystemToViewport();
   this->TiltRepresentation->GetPoint2Coordinate()->SetCoordinateSystemToViewport();
-  this->TiltRepresentation->SetMinimumValue(-15);
-  this->TiltRepresentation->SetMaximumValue(15);
+  this->TiltRepresentation->SetMinimumValue(-90);
+  this->TiltRepresentation->SetMaximumValue(90);
   this->TiltRepresentation->SetValue(0);
   this->TiltRepresentation->SetTitleText("tilt");
 
   this->DistanceRepresentation = vtkSmartPointer<vtkCenteredSliderRepresentation>::New();
   this->DistanceRepresentation->GetPoint1Coordinate()->SetCoordinateSystemToViewport();
   this->DistanceRepresentation->GetPoint2Coordinate()->SetCoordinateSystemToViewport();
-  this->DistanceRepresentation->SetMinimumValue(0.8);
-  this->DistanceRepresentation->SetMaximumValue(1.2);
+  this->DistanceRepresentation->SetMinimumValue(0);
+  this->DistanceRepresentation->SetMaximumValue(2.0);
   this->DistanceRepresentation->SetValue(1.0);
   this->DistanceRepresentation->SetTitleText("dist");
 
@@ -108,7 +109,6 @@ vtkCompassRepresentation::vtkCompassRepresentation()
   this->LabelProperty = vtkTextProperty::New();
   this->LabelProperty->SetFontFamilyToTimes();
   this->LabelProperty->SetJustificationToCentered();
-  // this->LabelProperty->ShadowOn();
   this->LabelActor = vtkTextActor::New();
   this->LabelActor->SetTextProperty(this->LabelProperty);
   this->LabelActor->SetInput("N");
@@ -116,7 +116,6 @@ vtkCompassRepresentation::vtkCompassRepresentation()
 
   this->StatusProperty = vtkTextProperty::New();
   this->StatusProperty->SetFontFamilyToArial();
-  // this->StatusProperty->ShadowOn();
   this->StatusProperty->SetJustificationToCentered();
   this->StatusProperty->SetJustificationToRight();
   this->StatusProperty->SetVerticalJustificationToTop();
@@ -128,12 +127,18 @@ vtkCompassRepresentation::vtkCompassRepresentation()
   this->BuildBackdrop();
 
   this->Heading = 0;
-  this->Tilt = 0;
-  this->Distance = 100000;
+
+  this->Tilt = 0.5 *
+    (this->TiltRepresentation->GetMaximumValue() + this->TiltRepresentation->GetMinimumValue());
+
+  this->Distance = 0.5 *
+    (this->DistanceRepresentation->GetMaximumValue() +
+      this->DistanceRepresentation->GetMinimumValue());
 
   this->HighlightState = 0;
 }
 
+//------------------------------------------------------------------------------
 void vtkCompassRepresentation::BuildBackdrop()
 {
   vtkPolyData* backdropPolyData = vtkPolyData::New();
@@ -178,9 +183,9 @@ void vtkCompassRepresentation::BuildBackdrop()
   this->Backdrop = vtkActor2D::New();
   this->Backdrop->SetMapper(this->BackdropMapper);
   this->Backdrop->GetProperty()->SetColor(0, 0, 0);
-  // this->Backdrop->GetProperty()->SetOpacity(0.2);
 }
 
+//------------------------------------------------------------------------------
 void vtkCompassRepresentation::BuildRing()
 {
   // crate the polydata
@@ -298,16 +303,14 @@ void vtkCompassRepresentation::WidgetInteraction(double eventPos[2])
   mousePt[0] = rwi->GetLastEventPosition()[0] - center[0];
   mousePt[1] = rwi->GetLastEventPosition()[1] - center[1];
   vtkMath::Normalize(mousePt);
-  double angle1 = atan2(mousePt[1], mousePt[0]);
+  double angleRad1 = atan2(mousePt[1], mousePt[0]);
   mousePt[0] = eventPos[0] - center[0];
   mousePt[1] = eventPos[1] - center[1];
   vtkMath::Normalize(mousePt);
-  double angle2 = atan2(mousePt[1], mousePt[0]);
-  angle2 = angle2 - angle1;
+  double angleRad2 = atan2(mousePt[1], mousePt[0]);
+  angleRad2 = angleRad2 - angleRad1;
 
-  this->Heading = this->Heading + angle2 * 0.5 / vtkMath::Pi();
-
-  this->BuildRepresentation();
+  this->SetHeading(this->Heading + angleRad2 * 180.0 / vtkMath::Pi());
 }
 
 //------------------------------------------------------------------------------
@@ -317,7 +320,7 @@ vtkCoordinate* vtkCompassRepresentation::GetPoint2Coordinate()
 }
 
 //------------------------------------------------------------------------------
-void vtkCompassRepresentation::PlaceWidget(double* vtkNotUsed(bds[6]))
+void vtkCompassRepresentation::PlaceWidget(double* vtkNotUsed(bounds[6]))
 {
   // Position the handles at the end of the lines
   this->BuildRepresentation();
@@ -346,6 +349,11 @@ void vtkCompassRepresentation::Highlight(int highlight)
 //------------------------------------------------------------------------------
 void vtkCompassRepresentation::BuildRepresentation()
 {
+  if (!this->Renderer || !this->Visibility)
+  {
+    return;
+  }
+
   if (this->GetMTime() <= this->BuildTime &&
     (!this->Renderer || !this->Renderer->GetVTKWindow() ||
       this->Renderer->GetVTKWindow()->GetMTime() <= this->BuildTime))
@@ -367,53 +375,26 @@ void vtkCompassRepresentation::BuildRepresentation()
   double rsize;
   this->GetCenterAndUnitRadius(center, rsize);
 
-  while (this->Heading < 0)
-  {
-    this->Heading += 1;
-  }
-  while (this->Heading > 1)
-  {
-    this->Heading -= 1;
-  }
-
-  double angle = this->Heading * 2.0 * vtkMath::Pi();
+  double angleRad = this->Heading * vtkMath::Pi() / 180.0;
 
   this->XForm->Translate(center[0], center[1], 0.0);
   this->XForm->Scale(rsize, rsize, 1.0);
-  this->XForm->RotateZ(vtkMath::DegreesFromRadians(angle));
+  this->XForm->RotateZ(this->Heading);
 
   this->LabelActor->SetPosition(
-    center[0] + rsize * cos(angle + vtkMath::Pi() / 2.0) * this->InnerRadius,
-    center[1] + rsize * sin(angle + vtkMath::Pi() / 2.0) * this->InnerRadius);
+    center[0] + rsize * cos(angleRad + vtkMath::Pi() / 2.0) * this->InnerRadius,
+    center[1] + rsize * sin(angleRad + vtkMath::Pi() / 2.0) * this->InnerRadius);
 
   double fsize = 1.4 * rsize * this->InnerRadius * sin(vtkMath::RadiansFromDegrees(18.));
 
-  this->LabelActor->SetOrientation(vtkMath::DegreesFromRadians(angle));
+  this->LabelActor->SetOrientation(this->Heading);
   this->LabelProperty->SetFontSize(static_cast<int>(fsize));
 
   if (rsize > 40)
   {
-    std::ostringstream out;
-    out.setf(ios::fixed);
-    out.precision(0);
-
-    out << "Distance: ";
-    if (this->Distance > 10000)
-    {
-      out << this->Distance / 1000 << "km";
-    }
-    else
-    {
-      out << this->Distance << "m";
-    }
-
-    out << "\nTilt: " << this->Tilt;
-
-    out << "\nHeading: " << vtkMath::DegreesFromRadians(angle);
-
     this->LabelProperty->SetFontSize(static_cast<int>(fsize * 0.8));
     this->StatusProperty->SetFontSize(static_cast<int>(fsize * 0.9));
-    this->StatusActor->SetInput(out.str().c_str());
+    this->StatusActor->SetInput(this->GetStatusText().c_str());
 
     this->StatusActor->SetPosition(center[0] - rsize * 2.0, center[1] + rsize);
   }
@@ -472,25 +453,25 @@ void vtkCompassRepresentation::BuildRepresentation()
 }
 
 //------------------------------------------------------------------------------
-void vtkCompassRepresentation::GetActors(vtkPropCollection* pc)
+void vtkCompassRepresentation::GetActors(vtkPropCollection* propCollection)
 {
-  pc->AddItem(this->Backdrop);
-  pc->AddItem(this->RingActor);
-  pc->AddItem(this->LabelActor);
-  pc->AddItem(this->StatusActor);
-  this->TiltRepresentation->GetActors(pc);
-  this->DistanceRepresentation->GetActors(pc);
+  propCollection->AddItem(this->Backdrop);
+  propCollection->AddItem(this->RingActor);
+  propCollection->AddItem(this->LabelActor);
+  propCollection->AddItem(this->StatusActor);
+  this->TiltRepresentation->GetActors(propCollection);
+  this->DistanceRepresentation->GetActors(propCollection);
 }
 
 //------------------------------------------------------------------------------
-void vtkCompassRepresentation::ReleaseGraphicsResources(vtkWindow* w)
+void vtkCompassRepresentation::ReleaseGraphicsResources(vtkWindow* window)
 {
-  this->Backdrop->ReleaseGraphicsResources(w);
-  this->RingActor->ReleaseGraphicsResources(w);
-  this->LabelActor->ReleaseGraphicsResources(w);
-  this->StatusActor->ReleaseGraphicsResources(w);
-  this->TiltRepresentation->ReleaseGraphicsResources(w);
-  this->DistanceRepresentation->ReleaseGraphicsResources(w);
+  this->Backdrop->ReleaseGraphicsResources(window);
+  this->RingActor->ReleaseGraphicsResources(window);
+  this->LabelActor->ReleaseGraphicsResources(window);
+  this->StatusActor->ReleaseGraphicsResources(window);
+  this->TiltRepresentation->ReleaseGraphicsResources(window);
+  this->DistanceRepresentation->ReleaseGraphicsResources(window);
 }
 
 //------------------------------------------------------------------------------
@@ -514,93 +495,167 @@ int vtkCompassRepresentation ::RenderOpaqueGeometry(vtkViewport* viewport)
 }
 
 //------------------------------------------------------------------------------
-int vtkCompassRepresentation::RenderOverlay(vtkViewport* viewport)
+int vtkCompassRepresentation::RenderOverlay(vtkViewport* viewPort)
 {
   this->BuildRepresentation();
   int count = 0;
-  count += this->Backdrop->RenderOverlay(viewport);
+  count += this->Backdrop->RenderOverlay(viewPort);
   if (this->HighlightState)
   {
     if (strlen(this->StatusActor->GetInput()))
     {
-      count += this->StatusActor->RenderOverlay(viewport);
+      count += this->StatusActor->RenderOverlay(viewPort);
     }
   }
-  count += this->RingActor->RenderOverlay(viewport);
-  count += this->LabelActor->RenderOverlay(viewport);
-  count += this->TiltRepresentation->RenderOverlay(viewport);
-  count += this->DistanceRepresentation->RenderOverlay(viewport);
+  count += this->RingActor->RenderOverlay(viewPort);
+  count += this->LabelActor->RenderOverlay(viewPort);
+  count += this->TiltRepresentation->RenderOverlay(viewPort);
+  count += this->DistanceRepresentation->RenderOverlay(viewPort);
   return count;
 }
 
+//------------------------------------------------------------------------------
 double vtkCompassRepresentation::GetHeading()
 {
   return this->Heading;
 }
 
-void vtkCompassRepresentation::SetHeading(double v)
+//------------------------------------------------------------------------------
+void vtkCompassRepresentation::SetHeading(double heading)
 {
-  this->Heading = v;
-  if (this->Renderer)
+  // ensure heading is in range [0, 360)
+  if ((heading < 0) || (heading >= 360))
   {
+    heading = heading - floor(heading / 360) * 360;
+  }
+
+  if (this->Heading != heading)
+  {
+    this->Heading = heading;
+    this->Modified();
     this->BuildRepresentation();
   }
 }
 
+//------------------------------------------------------------------------------
 double vtkCompassRepresentation::GetTilt()
 {
   return this->Tilt;
 }
 
-void vtkCompassRepresentation::SetTilt(double v)
+//------------------------------------------------------------------------------
+void vtkCompassRepresentation::SetTilt(double tilt)
 {
-  this->Tilt = v;
-  if (this->Tilt > 90)
+  tilt = std::max<double>(this->TiltRepresentation->GetMinimumValue(),
+    std::min<double>(tilt, this->TiltRepresentation->GetMaximumValue()));
+  if (this->Tilt != tilt)
   {
-    this->Tilt = 90;
-  }
-  if (this->Tilt < 0)
-  {
-    this->Tilt = 0;
+    this->Tilt = tilt;
+    this->Modified();
+    this->TiltRepresentation->SetValue(this->Tilt);
   }
 }
 
+//------------------------------------------------------------------------------
+void vtkCompassRepresentation::SetMaximumTiltAngle(double angle)
+{
+  this->TiltRepresentation->SetMaximumValue(angle);
+  // to ensure tilt is within correct new range
+  this->SetTilt(this->Tilt);
+}
+
+//------------------------------------------------------------------------------
+double vtkCompassRepresentation::GetMaximumTiltAngle()
+{
+  return this->TiltRepresentation->GetMaximumValue();
+}
+
+//------------------------------------------------------------------------------
+void vtkCompassRepresentation::SetMinimumTiltAngle(double angle)
+{
+  this->TiltRepresentation->SetMinimumValue(angle);
+  // to ensure tilt is within correct new range
+  this->SetTilt(this->Tilt);
+}
+
+//------------------------------------------------------------------------------
+double vtkCompassRepresentation::GetMinimumTiltAngle()
+{
+  return this->TiltRepresentation->GetMinimumValue();
+}
+
+//------------------------------------------------------------------------------
+void vtkCompassRepresentation::UpdateTilt(double deltaTilt)
+{
+  this->SetTilt(this->TiltRepresentation->GetValue() + deltaTilt);
+}
+
+//------------------------------------------------------------------------------
 void vtkCompassRepresentation::EndTilt()
 {
-  this->TiltRepresentation->SetValue(0);
+  this->SetTilt(this->TiltRepresentation->GetValue());
 }
 
-void vtkCompassRepresentation::UpdateTilt(double time)
-{
-  double val = this->TiltRepresentation->GetValue();
-  this->SetTilt(this->Tilt + val * time);
-}
-
+//------------------------------------------------------------------------------
 double vtkCompassRepresentation::GetDistance()
 {
   return this->Distance;
 }
 
-void vtkCompassRepresentation::SetDistance(double v)
+//------------------------------------------------------------------------------
+void vtkCompassRepresentation::SetDistance(double distance)
 {
-  this->Distance = v;
-  if (this->Distance < 5)
+  distance = std::max<double>(this->DistanceRepresentation->GetMinimumValue(),
+    std::min<double>(distance, this->DistanceRepresentation->GetMaximumValue()));
+  if (this->Distance != distance)
   {
-    this->Distance = 5;
+    this->Distance = distance;
+    this->Modified();
+    this->DistanceRepresentation->SetValue(this->Distance);
   }
 }
 
+//------------------------------------------------------------------------------
+void vtkCompassRepresentation::SetMaximumDistance(double distance)
+{
+  this->DistanceRepresentation->SetMaximumValue(distance);
+  // to ensure distance is within correct new range
+  this->SetDistance(this->Distance);
+}
+
+//------------------------------------------------------------------------------
+double vtkCompassRepresentation::GetMaximumDistance()
+{
+  return this->DistanceRepresentation->GetMaximumValue();
+}
+
+//------------------------------------------------------------------------------
+void vtkCompassRepresentation::SetMinimumDistance(double distance)
+{
+  this->DistanceRepresentation->SetMinimumValue(distance);
+  // to ensure distance is within correct new range
+  this->SetDistance(this->Distance);
+}
+
+//------------------------------------------------------------------------------
+double vtkCompassRepresentation::GetMinimumDistance()
+{
+  return this->DistanceRepresentation->GetMinimumValue();
+}
+
+//------------------------------------------------------------------------------
+void vtkCompassRepresentation::UpdateDistance(double deltaDistance)
+{
+  this->SetDistance(this->DistanceRepresentation->GetValue() + deltaDistance);
+}
+
+//------------------------------------------------------------------------------
 void vtkCompassRepresentation::EndDistance()
 {
-  this->DistanceRepresentation->SetValue(1.0);
+  this->SetDistance(this->DistanceRepresentation->GetValue());
 }
 
-void vtkCompassRepresentation::UpdateDistance(double time)
-{
-  double val = this->DistanceRepresentation->GetValue();
-  this->SetDistance(this->Distance * (1 + (1.0 / val - 1) * time));
-}
-
+//------------------------------------------------------------------------------
 void vtkCompassRepresentation::GetCenterAndUnitRadius(int center[2], double& radius)
 {
   // we always fit in the bounding box, but we try to be smart :)
@@ -637,6 +692,20 @@ void vtkCompassRepresentation::GetCenterAndUnitRadius(int center[2], double& rad
       radius = radius * scale * scale;
     }
   }
+}
+
+//------------------------------------------------------------------------------
+std::string vtkCompassRepresentation::GetStatusText()
+{
+  std::ostringstream out;
+  out.setf(ios::fixed);
+  out.precision(0);
+
+  out << "Distance: " << this->Distance;
+  out << std::endl << "Tilt: " << this->Tilt;
+  out << std::endl << "Heading: " << this->Heading;
+
+  return out.str();
 }
 
 //------------------------------------------------------------------------------
@@ -733,6 +802,7 @@ int vtkCompassRepresentation::ComputeInteractionState(int x, int y, int modify)
         this->InteractionState = vtkCompassRepresentation::TiltUp;
         break;
       case vtkSliderRepresentation::Slider:
+      case vtkSliderRepresentation::Tube:
         this->InteractionState = vtkCompassRepresentation::TiltAdjusting;
         break;
     }
@@ -746,12 +816,13 @@ int vtkCompassRepresentation::ComputeInteractionState(int x, int y, int modify)
     switch (distanceState)
     {
       case vtkSliderRepresentation::LeftCap:
-        this->InteractionState = vtkCompassRepresentation::DistanceOut;
-        break;
-      case vtkSliderRepresentation::RightCap:
         this->InteractionState = vtkCompassRepresentation::DistanceIn;
         break;
+      case vtkSliderRepresentation::RightCap:
+        this->InteractionState = vtkCompassRepresentation::DistanceOut;
+        break;
       case vtkSliderRepresentation::Slider:
+      case vtkSliderRepresentation::Tube:
         this->InteractionState = vtkCompassRepresentation::DistanceAdjusting;
         break;
     }
@@ -769,9 +840,9 @@ int vtkCompassRepresentation::ComputeInteractionState(int x, int y, int modify)
 }
 
 //------------------------------------------------------------------------------
-void vtkCompassRepresentation::SetRenderer(vtkRenderer* ren)
+void vtkCompassRepresentation::SetRenderer(vtkRenderer* renderer)
 {
-  this->Superclass::SetRenderer(ren);
-  this->TiltRepresentation->SetRenderer(ren);
-  this->DistanceRepresentation->SetRenderer(ren);
+  this->Superclass::SetRenderer(renderer);
+  this->TiltRepresentation->SetRenderer(renderer);
+  this->DistanceRepresentation->SetRenderer(renderer);
 }
