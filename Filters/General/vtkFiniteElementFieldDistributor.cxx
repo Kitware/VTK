@@ -31,6 +31,7 @@
 #include "vtkLagrangeWedge.h"
 #include "vtkLine.h"
 #include "vtkLogger.h"
+#include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPartitionedDataSet.h"
 #include "vtkPartitionedDataSetCollection.h"
@@ -348,6 +349,10 @@ std::vector<int> GetIOSSTransformation(const VTKCellType& cellType, const int& n
  */
 using VblpMatrixType = std::vector<std::vector<std::array<double, 3>>>;
 using VbfuncType = std::function<std::vector<std::array<double, 3>>(const double[3])>;
+// the jacobian matrix is evaluated at each lagrange point. for n pts => n jacobians.
+using JacobianMatricesType = std::vector<std::vector<std::vector<double>>>;
+using JacobianFunctionsType = std::function<std::vector<std::vector<double>>(
+  const double[3], const std::vector<double>& physCoords, const std::size_t& stride)>;
 
 class vtkVectorBasisLagrangeProducts
 {
@@ -398,6 +403,104 @@ public:
             });
           };
           // clang-format on
+          auto& jacFunc = this->HexJacF;
+          // clang-format off
+          jacFunc = [](const double refCoord[3], const std::vector<double>& physCoords, const std::size_t& stride) -> std::vector<std::vector<double>> {
+            const double r = refCoord[0]; //NOLINT(readability-identifier-length)
+            const double s = refCoord[1]; //NOLINT(readability-identifier-length)
+            const double t = refCoord[2]; //NOLINT(readability-identifier-length)
+            const std::size_t& npts = physCoords.size() / stride;
+            assert(npts >= 8); // atleast 8 nodes in a hex. quadratic hex can have more, but we don't use them.
+            int xOfst = 0, yOfst = 1, zOfst = 2;
+            // derivatives from https://github.com/trilinos/Trilinos/blob/master/packages/intrepid2/src/Discretization/Basis/Intrepid2_HGRAD_HEX_C1_FEMDef.hpp#L83
+            return std::vector<std::vector<double>>({
+              { // dx/dr
+                (-(1.0 - s)*(1.0 - t)/8.0) * physCoords[xOfst]
+              + (( 1.0 - s)*(1.0 - t)/8.0) * physCoords[xOfst + stride]
+              + (( 1.0 + s)*(1.0 - t)/8.0) * physCoords[xOfst + 2 * stride]
+              + (-(1.0 + s)*(1.0 - t)/8.0) * physCoords[xOfst + 3 * stride]
+              + (-(1.0 - s)*(1.0 + t)/8.0) * physCoords[xOfst + 4 * stride]
+              + ( (1.0 - s)*(1.0 + t)/8.0) * physCoords[xOfst + 5 * stride]
+              + ( (1.0 + s)*(1.0 + t)/8.0) * physCoords[xOfst + 6 * stride]
+              + (-(1.0 + s)*(1.0 + t)/8.0) * physCoords[xOfst + 7 * stride]
+              , // dx/ds
+                (-(1.0 - r)*(1.0 - t)/8.0) * physCoords[xOfst]
+              + (-(1.0 + r)*(1.0 - t)/8.0) * physCoords[xOfst + stride]
+              + ( (1.0 + r)*(1.0 - t)/8.0) * physCoords[xOfst + 2 * stride]
+              + ( (1.0 - r)*(1.0 - t)/8.0) * physCoords[xOfst + 3 * stride]
+              + (-(1.0 - r)*(1.0 + t)/8.0) * physCoords[xOfst + 4 * stride]
+              + (-(1.0 + r)*(1.0 + t)/8.0) * physCoords[xOfst + 5 * stride]
+              + ( (1.0 + r)*(1.0 + t)/8.0) * physCoords[xOfst + 6 * stride]
+              + ( (1.0 - r)*(1.0 + t)/8.0) * physCoords[xOfst + 7 * stride]
+              , // dx/dt
+                (-(1.0 - r)*(1.0 - s)/8.0) * physCoords[xOfst]
+              + (-(1.0 + r)*(1.0 - s)/8.0) * physCoords[xOfst + stride]
+              + (-(1.0 + r)*(1.0 + s)/8.0) * physCoords[xOfst + 2 * stride]
+              + (-(1.0 - r)*(1.0 + s)/8.0) * physCoords[xOfst + 3 * stride]
+              + ( (1.0 - r)*(1.0 - s)/8.0) * physCoords[xOfst + 4 * stride]
+              + ( (1.0 + r)*(1.0 - s)/8.0) * physCoords[xOfst + 5 * stride]
+              + ( (1.0 + r)*(1.0 + s)/8.0) * physCoords[xOfst + 6 * stride]
+              + ( (1.0 - r)*(1.0 + s)/8.0) * physCoords[xOfst + 7 * stride]
+              },
+              { // dy/dr
+                (-(1.0 - s)*(1.0 - t)/8.0) * physCoords[yOfst]
+              + (( 1.0 - s)*(1.0 - t)/8.0) * physCoords[yOfst + stride]
+              + (( 1.0 + s)*(1.0 - t)/8.0) * physCoords[yOfst + 2 * stride]
+              + (-(1.0 + s)*(1.0 - t)/8.0) * physCoords[yOfst + 3 * stride]
+              + (-(1.0 - s)*(1.0 + t)/8.0) * physCoords[yOfst + 4 * stride]
+              + ( (1.0 - s)*(1.0 + t)/8.0) * physCoords[yOfst + 5 * stride]
+              + ( (1.0 + s)*(1.0 + t)/8.0) * physCoords[yOfst + 6 * stride]
+              + (-(1.0 + s)*(1.0 + t)/8.0) * physCoords[yOfst + 7 * stride]
+              , // dy/ds
+                (-(1.0 - r)*(1.0 - t)/8.0) * physCoords[yOfst]
+              + (-(1.0 + r)*(1.0 - t)/8.0) * physCoords[yOfst + stride]
+              + ( (1.0 + r)*(1.0 - t)/8.0) * physCoords[yOfst + 2 * stride]
+              + ( (1.0 - r)*(1.0 - t)/8.0) * physCoords[yOfst + 3 * stride]
+              + (-(1.0 - r)*(1.0 + t)/8.0) * physCoords[yOfst + 4 * stride]
+              + (-(1.0 + r)*(1.0 + t)/8.0) * physCoords[yOfst + 5 * stride]
+              + ( (1.0 + r)*(1.0 + t)/8.0) * physCoords[yOfst + 6 * stride]
+              + ( (1.0 - r)*(1.0 + t)/8.0) * physCoords[yOfst + 7 * stride]
+              , // dy/dt
+                (-(1.0 - r)*(1.0 - s)/8.0) * physCoords[yOfst]
+              + (-(1.0 + r)*(1.0 - s)/8.0) * physCoords[yOfst + stride]
+              + (-(1.0 + r)*(1.0 + s)/8.0) * physCoords[yOfst + 2 * stride]
+              + (-(1.0 - r)*(1.0 + s)/8.0) * physCoords[yOfst + 3 * stride]
+              + ( (1.0 - r)*(1.0 - s)/8.0) * physCoords[yOfst + 4 * stride]
+              + ( (1.0 + r)*(1.0 - s)/8.0) * physCoords[yOfst + 5 * stride]
+              + ( (1.0 + r)*(1.0 + s)/8.0) * physCoords[yOfst + 6 * stride]
+              + ( (1.0 - r)*(1.0 + s)/8.0) * physCoords[yOfst + 7 * stride]
+              },
+              { // dz/dr
+                (-(1.0 - s)*(1.0 - t)/8.0) * physCoords[zOfst]
+              + (( 1.0 - s)*(1.0 - t)/8.0) * physCoords[zOfst + stride]
+              + (( 1.0 + s)*(1.0 - t)/8.0) * physCoords[zOfst + 2 * stride]
+              + (-(1.0 + s)*(1.0 - t)/8.0) * physCoords[zOfst + 3 * stride]
+              + (-(1.0 - s)*(1.0 + t)/8.0) * physCoords[zOfst + 4 * stride]
+              + ( (1.0 - s)*(1.0 + t)/8.0) * physCoords[zOfst + 5 * stride]
+              + ( (1.0 + s)*(1.0 + t)/8.0) * physCoords[zOfst + 6 * stride]
+              + (-(1.0 + s)*(1.0 + t)/8.0) * physCoords[zOfst + 7 * stride]
+              , // dz/ds
+                (-(1.0 - r)*(1.0 - t)/8.0) * physCoords[zOfst]
+              + (-(1.0 + r)*(1.0 - t)/8.0) * physCoords[zOfst + stride]
+              + ( (1.0 + r)*(1.0 - t)/8.0) * physCoords[zOfst + 2 * stride]
+              + ( (1.0 - r)*(1.0 - t)/8.0) * physCoords[zOfst + 3 * stride]
+              + (-(1.0 - r)*(1.0 + t)/8.0) * physCoords[zOfst + 4 * stride]
+              + (-(1.0 + r)*(1.0 + t)/8.0) * physCoords[zOfst + 5 * stride]
+              + ( (1.0 + r)*(1.0 + t)/8.0) * physCoords[zOfst + 6 * stride]
+              + ( (1.0 - r)*(1.0 + t)/8.0) * physCoords[zOfst + 7 * stride]
+              , // dz/dt
+                (-(1.0 - r)*(1.0 - s)/8.0) * physCoords[zOfst]
+              + (-(1.0 + r)*(1.0 - s)/8.0) * physCoords[zOfst + stride]
+              + (-(1.0 + r)*(1.0 + s)/8.0) * physCoords[zOfst + 2 * stride]
+              + (-(1.0 - r)*(1.0 + s)/8.0) * physCoords[zOfst + 3 * stride]
+              + ( (1.0 - r)*(1.0 - s)/8.0) * physCoords[zOfst + 4 * stride]
+              + ( (1.0 + r)*(1.0 - s)/8.0) * physCoords[zOfst + 5 * stride]
+              + ( (1.0 + r)*(1.0 + s)/8.0) * physCoords[zOfst + 6 * stride]
+              + ( (1.0 - r)*(1.0 + s)/8.0) * physCoords[zOfst + 7 * stride]
+              }
+            });
+          };
+          // clang-format on
           break;
         }
         case VTK_QUAD:
@@ -428,6 +531,54 @@ public:
             });
           };
           // clang-format on
+          auto& jacFunc = this->QuadJacF;
+          // clang-format on;
+          // clang-format off
+          jacFunc = [](const double refCoord[3], const std::vector<double>& physCoords, const std::size_t& stride) -> std::vector<std::vector<double>> {
+            const double r = refCoord[0]; //NOLINT(readability-identifier-length)
+            const double s = refCoord[1]; //NOLINT(readability-identifier-length)
+            const double t = refCoord[2]; //NOLINT(readability-identifier-length)
+            const std::size_t& npts = physCoords.size() / stride;
+            assert(npts >= 3); // atleast 3 nodes in a triangle. quadratic triangle can have more, but we don't use them.
+            int xOfst = 0, yOfst = 1, zOfst = 2;
+            // derivatives from https://github.com/trilinos/Trilinos/blob/master/packages/intrepid2/src/Discretization/Basis/Intrepid2_HGRAD_QUAD_C1_FEMDef.hpp#L78
+            return std::vector<std::vector<double>>({
+              { // dx/dr
+                (-(1.0 - s) / 4.0) * physCoords[xOfst]
+              + ( (1.0 - s) / 4.0) * physCoords[xOfst + stride]
+              + ( (1.0 + s) / 4.0) * physCoords[xOfst + 2 * stride]
+              + (-(1.0 + s) / 4.0) * physCoords[xOfst + 3 * stride]
+              , // dx/ds
+                (-(1.0 - r) / 4.0) * physCoords[xOfst]
+              + (-(1.0 + r) / 4.0) * physCoords[xOfst + stride]
+              + ( (1.0 + r) / 4.0) * physCoords[xOfst + 2 * stride]
+              + ( (1.0 - r) / 4.0) * physCoords[xOfst + 3 * stride]
+              , // dx/dt
+                0
+              },
+              { // dy/dr
+                (-(1.0 - s) / 4.0) * physCoords[yOfst]
+              + ( (1.0 - s) / 4.0) * physCoords[yOfst + stride]
+              + ( (1.0 + s) / 4.0) * physCoords[yOfst + 2 * stride]
+              + (-(1.0 + s) / 4.0) * physCoords[yOfst + 3 * stride]
+              , // dy/ds
+                (-(1.0 - r) / 4.0) * physCoords[yOfst]
+              + (-(1.0 + r) / 4.0) * physCoords[yOfst + stride]
+              + ( (1.0 + r) / 4.0) * physCoords[yOfst + 2 * stride]
+              + ( (1.0 - r) / 4.0) * physCoords[yOfst + 3 * stride]
+              , // dy/dt
+                0
+              },
+              { // dz/dr
+                0
+              , // dz/ds
+                0
+              , // dz/dt
+                0
+              },
+            });
+          };
+          // clang-format on
           break;
         }
         case VTK_TETRA:
@@ -449,13 +600,82 @@ public:
           };
           // clang-format on
           auto& hDivPhi = this->TetVbf[1];
-          hDivPhi = [](const double p[3]) -> std::vector<std::array<double, 3>> {
+          // clang-format off
+          hDivPhi = [](const double p[3]) -> std::vector<std::array<double, 3>>
+          {
             const double& x = p[0];
             const double& y = p[1];
             const double& z = p[2];
-            return std::vector<std::array<double, 3>>(
-              { { x, y - 1.0, z }, { x, y, z }, { x - 1.0, y, z }, { x, y, z - 1.0 } });
+            return std::vector<std::array<double, 3>>({
+              { x,       y - 1.0, z }, 
+              { x,       y,       z }, 
+              { x - 1.0, y, z       }, 
+              { x,       y, z - 1.0 }
+           });
           };
+          // clang-format on
+          auto& jacFunc = this->TetJacF;
+          // clang-format off
+          jacFunc = [](const double refCoord[3], const std::vector<double>& physCoords, const std::size_t& stride) -> std::vector<std::vector<double>> {
+            const double r = refCoord[0]; //NOLINT(readability-identifier-length)
+            const double s = refCoord[1]; //NOLINT(readability-identifier-length)
+            const double t = refCoord[2]; //NOLINT(readability-identifier-length)
+            const std::size_t& npts = physCoords.size() / stride;
+            assert(npts >= 4); // atleast 4 nodes in a tet. quad tet can have more, but we don't use them.
+            int xOfst = 0, yOfst = 1, zOfst = 2;
+            // derivatives from https://github.com/trilinos/Trilinos/blob/master/packages/intrepid2/src/Discretization/Basis/Intrepid2_HGRAD_TET_C1_FEMDef.hpp#L79
+            return std::vector<std::vector<double>>({
+              { // dx/dr
+                -1 * physCoords[xOfst]
+              +  1 * physCoords[xOfst + stride]
+              +  0
+              +  0
+              , // dx/ds
+                -1 * physCoords[xOfst]
+              +  0
+              +  1 * physCoords[xOfst + 2 * stride]
+              +  0
+              , // dx/dt
+                -1 * physCoords[xOfst]
+              +  0
+              +  0
+              +  1 * physCoords[xOfst + 3 * stride]
+              },
+              { // dy/dr
+                -1 * physCoords[yOfst]
+              +  1 * physCoords[yOfst + stride]
+              +  0
+              +  0
+              , // dy/ds
+                -1 * physCoords[yOfst]
+              +  0
+              +  1 * physCoords[yOfst + 2 * stride]
+              +  0
+              , // dy/dt
+                -1 * physCoords[yOfst]
+              +  0
+              +  0
+              +  1 * physCoords[yOfst + 3 * stride]
+              },
+              { // dz/dr
+                -1 * physCoords[zOfst]
+              +  1 * physCoords[zOfst + stride]
+              +  0
+              +  0
+              , // dz/ds
+                -1 * physCoords[zOfst]
+              +  0
+              +  1 * physCoords[zOfst + 2 * stride]
+              +  0
+              , // dz/dt
+                -1 * physCoords[zOfst]
+              +  0
+              +  0
+              +  1 * physCoords[zOfst + 3 * stride]
+              },
+            });
+          };
+          // clang-format on
           break;
         }
         case VTK_TRIANGLE:
@@ -481,6 +701,49 @@ public:
               { 2.0 * x,         2.0 * (y - 1.0), 0.0 },
               { 2.0 * x,         2.0 * y,         0.0 },
               { 2.0 * (x - 1.0), 2.0 * y,         0.0 }
+            });
+          };
+          // clang-format on
+          auto& jacFunc = this->TriJacF;
+          // clang-format off
+          jacFunc = [](const double refCoord[3], const std::vector<double>& physCoords, const std::size_t& stride) -> std::vector<std::vector<double>> {
+            const double r = refCoord[0]; //NOLINT(readability-identifier-length)
+            const double s = refCoord[1]; //NOLINT(readability-identifier-length)
+            const double t = refCoord[2]; //NOLINT(readability-identifier-length)
+            const std::size_t& npts = physCoords.size() / stride;
+            assert(npts >= 3); // atleast 3 nodes in a triangle. quadratic triangle can have more, but we don't use them.
+            int xOfst = 0, yOfst = 1, zOfst = 2;
+            // derivatives from https://github.com/trilinos/Trilinos/blob/master/packages/intrepid2/src/Discretization/Basis/Intrepid2_HGRAD_TRI_C1_FEMDef.hpp#L78
+            return std::vector<std::vector<double>>({
+              { // dx/dr
+                -1 * physCoords[xOfst]
+              +  1 * physCoords[xOfst + stride]
+              +  0
+              , // dx/ds
+                -1 * physCoords[xOfst]
+              +  0
+              +  1 * physCoords[xOfst + 2 * stride]
+              , // dx/dt
+                0
+              },
+              { // dy/dr
+                -1 * physCoords[yOfst]
+              +  1 * physCoords[yOfst + stride]
+              +  0
+              , // dy/ds
+                -1 * physCoords[yOfst]
+              +  0
+              +  1 * physCoords[yOfst + 2 * stride]
+              , // dy/dt
+                0
+              },
+              { // dz/dr
+                0
+              , // dz/ds
+                0
+              , // dz/dt
+                0
+              },
             });
           };
           // clang-format on
@@ -522,6 +785,74 @@ public:
             });
           };
           // clang-format on
+          auto& jacFunc = this->WedgeJacF;
+          // clang-format off
+          jacFunc = [](const double refCoord[3], const std::vector<double>& physCoords, const std::size_t& stride) -> std::vector<std::vector<double>> {
+            const double r = refCoord[0]; //NOLINT(readability-identifier-length)
+            const double s = refCoord[1]; //NOLINT(readability-identifier-length)
+            const double t = refCoord[2]; //NOLINT(readability-identifier-length)
+            const std::size_t& npts = physCoords.size() / stride;
+            assert(npts >= 6); // atleast 6 nodes in a wedge. quadratic wedge can have more, but we don't use them.
+            int xOfst = 0, yOfst = 1, zOfst = 2;
+            // derivatives from https://github.com/trilinos/Trilinos/blob/master/packages/intrepid2/src/Discretization/Basis/Intrepid2_HGRAD_WEDGE_C1_FEMDef.hpp#L81
+            return std::vector<std::vector<double>>({
+              { // dx/dr
+                (-(1.0 - t)/2.0) * physCoords[xOfst]
+              + ( (1.0 - t)/2.0) * physCoords[xOfst + stride]
+              + (-(1.0 + t)/2.0) * physCoords[xOfst + 3 * stride]
+              + ( (1.0 + t)/2.0) * physCoords[xOfst + 4 * stride]
+              , // dx/ds
+                (-(1.0 - t)/2.0) * physCoords[xOfst]
+              + ( (1.0 - t)/2.0) * physCoords[xOfst + 2 * stride]
+              + (-(1.0 + t)/2.0) * physCoords[xOfst + 3 * stride]
+              + ( (1.0 + t)/2.0) * physCoords[xOfst + 5 * stride]
+              , // dx/dt
+                (-(1.0 - r - s)/2.0) * physCoords[xOfst]
+              + (-r/2.0) * physCoords[xOfst + stride]
+              + (-s/2.0) * physCoords[xOfst + 2 * stride]
+              + ( (1.0 - r - s)/2.0) * physCoords[xOfst + 3 * stride]
+              + ( r/2.0) * physCoords[xOfst + 4 * stride]
+              + ( s/2.0) * physCoords[xOfst + 5 * stride]
+              },
+              { // dy/dr
+                (-(1.0 - t)/2.0) * physCoords[yOfst]
+              + ( (1.0 - t)/2.0) * physCoords[yOfst + stride]
+              + (-(1.0 + t)/2.0) * physCoords[yOfst + 3 * stride]
+              + ( (1.0 + t)/2.0) * physCoords[yOfst + 4 * stride]
+              , // dy/ds
+                (-(1.0 - t)/2.0) * physCoords[yOfst]
+              + ( (1.0 - t)/2.0) * physCoords[yOfst + 2 * stride]
+              + (-(1.0 + t)/2.0) * physCoords[yOfst + 3 * stride]
+              + ( (1.0 + t)/2.0) * physCoords[yOfst + 5 * stride]
+              , // dy/dt
+                (-(1.0 - r - s)/2.0) * physCoords[yOfst]
+              + (-r/2.0) * physCoords[yOfst + stride]
+              + (-s/2.0) * physCoords[yOfst + 2 * stride]
+              + ( (1.0 - r - s)/2.0) * physCoords[yOfst + 3 * stride]
+              + ( r/2.0) * physCoords[yOfst + 4 * stride]
+              + ( s/2.0) * physCoords[yOfst + 5 * stride]
+              },
+              { // dz/dr
+                (-(1.0 - t)/2.0) * physCoords[zOfst]
+              + ( (1.0 - t)/2.0) * physCoords[zOfst + stride]
+              + (-(1.0 + t)/2.0) * physCoords[zOfst + 3 * stride]
+              + ( (1.0 + t)/2.0) * physCoords[zOfst + 4 * stride]
+              , // dz/ds
+                (-(1.0 - t)/2.0) * physCoords[zOfst]
+              + ( (1.0 - t)/2.0) * physCoords[zOfst + 2 * stride]
+              + (-(1.0 + t)/2.0) * physCoords[zOfst + 3 * stride]
+              + ( (1.0 + t)/2.0) * physCoords[zOfst + 5 * stride]
+              , // dz/dt
+                (-(1.0 - r - s)/2.0) * physCoords[zOfst]
+              + (-r/2.0) * physCoords[zOfst + stride]
+              + (-s/2.0) * physCoords[zOfst + 2 * stride]
+              + ( (1.0 - r - s)/2.0) * physCoords[zOfst + 3 * stride]
+              + ( r/2.0) * physCoords[zOfst + 4 * stride]
+              + ( s/2.0) * physCoords[zOfst + 5 * stride]
+              }
+            });
+          };
+          // clang-format on
           break;
         }
         default:
@@ -545,6 +876,7 @@ public:
 
     const auto hCurlVbfs = this->GetVbFunctions(SpaceType::HCurl, cellType);
     const auto hDivVbfs = this->GetVbFunctions(SpaceType::HDiv, cellType);
+    auto jacMats = this->GetJacobianMatrices(cellType);
 
     if (hCurlMats == nullptr || hDivMats == nullptr || hCurlVbfs == nullptr || hDivVbfs == nullptr)
     {
@@ -564,32 +896,73 @@ public:
       hCurlMats->emplace_back(hCurlVbFunc(coord));
       hDivMats->emplace_back(hDivVbfunc(coord));
     }
+    jacMats->resize(npts);
+    // jacobian will always be 3 irrespective of cell dimensionality.
+    // for 2d cells, keep an extra row and colum with 0. inefficeint, but makes code readable.
+    for (int ptId = 0; ptId < npts; ++ptId)
+    {
+      auto& jac = (*jacMats)[ptId];
+      jac.resize(3, std::vector<double>(3, 0));
+    }
+  }
+
+  void ComputeJacobian(const VTKCellType& cellType, const double* refCoords, size_t npts,
+    const vtkIdType* ptIds, vtkPoints* physPoints)
+  {
+    auto jacMats = this->GetJacobianMatrices(cellType);
+    auto jacFuncs = this->GetJacobianFunctions(cellType);
+    if (jacMats == nullptr || jacFuncs == nullptr)
+    {
+      vtkLog(ERROR, "Unsupported request for cellType: " << cellType);
+      return;
+    }
+    assert(jacMats->size() == npts);
+
+    std::vector<double> physCoords(npts * 3);
+    for (int ptId = 0; ptId < npts; ++ptId)
+    {
+      physPoints->GetPoint(ptIds[ptId], &physCoords[ptId * 3]);
+    }
+
+    ptrdiff_t ofst;
+    for (int ptId = 0, ofst = 0; ptId < npts; ++ptId, ++ofst)
+    {
+      double refCoord[3] = { refCoords[ofst], refCoords[++ofst], refCoords[++ofst] };
+
+      auto& jacFunction = (*jacFuncs);
+      auto& jacMatrix = (*jacMats)[ptId];
+
+      jacMatrix = jacFunction(refCoord, physCoords, 3);
+    }
   }
 
   bool RequiresInitialization(const VTKCellType& cellType, size_t npts)
   {
     auto hCurlMats = this->GetVblp(SpaceType::HCurl, cellType);
     auto hDivMats = this->GetVblp(SpaceType::HDiv, cellType);
-    if (hCurlMats == nullptr || hDivMats == nullptr)
+    auto jacMats = this->GetJacobianMatrices(cellType);
+    if (hCurlMats == nullptr || hDivMats == nullptr || jacMats == nullptr)
     {
       vtkLog(ERROR, "Unsupported request for cellType: " << cellType);
       return false;
     }
 
-    return hCurlMats->size() != npts || hDivMats->size() != npts;
+    return hCurlMats->size() != npts || hDivMats->size() != npts || jacMats->empty();
   }
 
   void Clear(const VTKCellType& cellType)
   {
     auto hCurlMats = this->GetVblp(SpaceType::HCurl, cellType);
     auto hDivMats = this->GetVblp(SpaceType::HDiv, cellType);
-    if (hCurlMats == nullptr || hDivMats == nullptr)
+    auto jacMats = this->GetJacobianMatrices(cellType);
+    if (hCurlMats == nullptr || hDivMats == nullptr || jacMats == nullptr)
     {
       vtkLog(ERROR, "Unsupported request for cellType: " << cellType);
       return;
     }
     hCurlMats->clear();
     hDivMats->clear();
+    jacMats->clear();
   }
 
   ::VblpMatrixType* GetVblp(const SpaceType& space, const VTKCellType& cellType)
@@ -639,10 +1012,147 @@ public:
     return nullptr;
   }
 
+  ::JacobianMatricesType* GetJacobianMatrices(const VTKCellType& cellType)
+  {
+    ::JacobianMatricesType* mats = nullptr;
+    switch (cellType)
+    {
+      case VTK_HEXAHEDRON:
+        mats = &(this->HexJacMats);
+        break;
+      case VTK_QUAD:
+        mats = &(this->QuadJacMats);
+        break;
+      case VTK_TETRA:
+        mats = &(this->TetJacMats);
+        break;
+      case VTK_TRIANGLE:
+        mats = &(this->TriJacMats);
+        break;
+      case VTK_WEDGE:
+        mats = &(this->WedgeJacMats);
+        break;
+      default:
+        break;
+    }
+    return mats;
+  }
+
+  ::JacobianFunctionsType* GetJacobianFunctions(const VTKCellType& cellType)
+  {
+    switch (cellType)
+    {
+      case VTK_HEXAHEDRON:
+        return &this->HexJacF;
+      case VTK_QUAD:
+        return &this->QuadJacF;
+      case VTK_TETRA:
+        return &this->TetJacF;
+      case VTK_TRIANGLE:
+        return &this->TriJacF;
+      case VTK_WEDGE:
+        return &this->WedgeJacF;
+      default:
+        break;
+    }
+    return nullptr;
+  }
+
+  ::VblpMatrixType ReferenceToPhysical(const ::VblpMatrixType& vblpIn,
+    const ::JacobianMatricesType& jacobianMats,
+    const vtkVectorBasisLagrangeProducts::SpaceType spaceType)
+  {
+    auto result = vblpIn;
+    const auto numPoints = jacobianMats.size();
+    assert(numPoints <= vblpIn.size());
+    switch (spaceType)
+    {
+      case SpaceType::HCurl:
+        for (std::size_t ptId = 0; ptId < numPoints; ++ptId)
+        {
+          const auto& jac = jacobianMats[ptId];
+          const auto& vblp = vblpIn[ptId];
+          const auto& numVectors = vblpIn[ptId].size();
+          const double jacT[3][3] = {
+            { jac[0][0], jac[1][0], jac[2][0] },
+            { jac[0][1], jac[1][1], jac[2][1] },
+            { jac[0][2], jac[1][2], jac[2][2] },
+          };
+          double piola[3][3] = {};
+          if (jac[2][0] == 0.0 && jac[2][1] == 0.0 && jac[2][2] == 0.0)
+          {
+            vtkMath::InvertMatrix<2>(jacT, piola);
+          }
+          else
+          {
+            vtkMath::Invert3x3(jacT, piola);
+          }
+          for (std::size_t vectId = 0; vectId < numVectors; ++vectId)
+          {
+            const double& v_r = vblp[vectId][0];
+            const double& v_s = vblp[vectId][1];
+            const double& v_t = vblp[vectId][2];
+
+            double xyz[3];
+            xyz[0] = piola[0][0] * v_r + piola[0][1] * v_s + piola[0][2] * v_t;
+            xyz[1] = piola[1][0] * v_r + piola[1][1] * v_s + piola[1][2] * v_t;
+            xyz[2] = piola[2][0] * v_r + piola[2][1] * v_s + piola[2][2] * v_t;
+
+            result[ptId][vectId][0] = xyz[0];
+            result[ptId][vectId][1] = xyz[1];
+            result[ptId][vectId][2] = xyz[2];
+          }
+        }
+        break;
+      case SpaceType::HDiv:
+        for (std::size_t ptId = 0; ptId < numPoints; ++ptId)
+        {
+          const auto& jac = jacobianMats[ptId];
+          const auto& vblp = vblpIn[ptId];
+          const auto& numVectors = vblpIn[ptId].size();
+          double det = 0.0;
+          if (jac[2][0] == 0.0 && jac[2][1] == 0.0 && jac[2][2] == 0.0)
+          {
+            det = vtkMath::Determinant2x2(jac[0][0], jac[0][1], jac[1][0], jac[1][1]);
+          }
+          else
+          {
+            det = vtkMath::Determinant3x3(jac[0][0], jac[1][0], jac[2][0], jac[0][1], jac[1][1],
+              jac[2][1], jac[0][2], jac[1][2], jac[2][2]);
+          }
+          for (std::size_t vectId = 0; vectId < numVectors; ++vectId)
+          {
+            const double& v_r = vblp[vectId][0];
+            const double& v_s = vblp[vectId][1];
+            const double& v_t = vblp[vectId][2];
+
+            double xyz[3];
+            xyz[0] = jac[0][0] * v_r + jac[0][1] * v_s + jac[0][2] * v_t;
+            xyz[1] = jac[1][0] * v_r + jac[1][1] * v_s + jac[1][2] * v_t;
+            xyz[2] = jac[2][0] * v_r + jac[2][1] * v_s + jac[2][2] * v_t;
+
+            result[ptId][vectId][0] = xyz[0] / det;
+            result[ptId][vectId][1] = xyz[1] / det;
+            result[ptId][vectId][2] = xyz[2] / det;
+          }
+        }
+        break;
+      default:
+        break;
+    }
+    return result;
+  }
+
 private:
   ::VblpMatrixType HexVblpMats[2], QuadVblpMats[2], TetVblpMats[2], TriVblpMats[2],
     WedgeVblpMats[2];
   ::VbfuncType HexVbf[2], QuadVbf[2], TetVbf[2], TriVbf[2], WedgeVbf[2];
+  // jacobians are hCurl/hDiv agnostic. there's only one set of matrices per celltype these
+  // are computed with lagrange basis functions.
+  // Ex: the jacobian for hex at node 0 -> HexJacMats[0] = 3x3 matrix and so on for other nodes
+  // 1,...7
+  ::JacobianMatricesType HexJacMats, QuadJacMats, TetJacMats, TriJacMats, WedgeJacMats;
+  ::JacobianFunctionsType HexJacF, QuadJacF, TetJacF, TriJacF, WedgeJacF;
 }; // end vtkVectorBasisLagrangeProducts
 
 using SpaceType = vtkVectorBasisLagrangeProducts::SpaceType;
@@ -702,8 +1212,8 @@ public:
 
   // Interpolates edge -> nodal dofs.
   // Interpolates face -> nodal dofs.
-  void InterpolateCellToNodes(const vtkIdType& cellId, vtkCellArray* newCells, vtkCellData* oldCd,
-    vtkPointData* hCurlFields, vtkPointData* hDivFields);
+  void InterpolateCellToNodes(const vtkIdType& cellId, vtkCellArray* newCells, vtkPoints* newPoints,
+    vtkCellData* oldCd, vtkPointData* hCurlFields, vtkPointData* hDivFields);
 
   // clear the three slots of femSpecs.
   void ResetFemSpecs();
@@ -736,6 +1246,7 @@ private:
 
   vtkVectorBasisLagrangeProducts Vblps;
   VTKCellType RefElement = VTK_EMPTY_CELL;
+  std::vector<double> CachedParametricCoordinates;
   int Order = 0;
   vtkNew<vtkDoubleArray> weights; // resized to maxCellSize in AllocateGeometry. Use it as you wish.
   // typed vtkCell instances allows easy access to parametric coordinates, edges, faces, ...
@@ -1225,7 +1736,8 @@ void vtkFiniteElementFieldDistributor::vtkInternals::ExplodeDGHGradCellCenteredF
 
 //----------------------------------------------------------------------------
 void vtkFiniteElementFieldDistributor::vtkInternals::InterpolateCellToNodes(const vtkIdType& cellId,
-  vtkCellArray* newCells, vtkCellData* oldCd, vtkPointData* hCurlFields, vtkPointData* hDivFields)
+  vtkCellArray* newCells, vtkPoints* newPoints, vtkCellData* oldCd, vtkPointData* hCurlFields,
+  vtkPointData* hDivFields)
 {
   // we will interpolate onto the points found at new point ids. (from cell explosion)
   const vtkIdType* newPts = nullptr;
@@ -1241,7 +1753,10 @@ void vtkFiniteElementFieldDistributor::vtkInternals::InterpolateCellToNodes(cons
         [](const double& val) -> double { return 2 * (val - 0.5); });
     }
     this->Vblps.Initialize(this->RefElement, pCoords.data(), newNpts);
+    this->CachedParametricCoordinates = pCoords;
   }
+  this->Vblps.ComputeJacobian(
+    this->RefElement, this->CachedParametricCoordinates.data(), newNpts, newPts, newPoints);
 
   for (const auto& fieldName : this->hCurlSpec().Fields)
   {
@@ -1251,10 +1766,13 @@ void vtkFiniteElementFieldDistributor::vtkInternals::InterpolateCellToNodes(cons
       continue;
     }
     vtkDataArray* outArr = hCurlFields->GetArray(fieldName.c_str());
-    const auto vblpmat = this->Vblps.GetVblp(::SpaceType::HCurl, this->RefElement);
-    if (vblpmat != nullptr)
+    const auto refVblpMat = this->Vblps.GetVblp(::SpaceType::HCurl, this->RefElement);
+    const auto jacMat = this->Vblps.GetJacobianMatrices(this->RefElement);
+    if (refVblpMat != nullptr && jacMat != nullptr)
     {
-      ::InterpolateToNodes(*vblpmat, coeffs, newNpts, newPts, outArr);
+      const auto physVblpMat =
+        this->Vblps.ReferenceToPhysical(*refVblpMat, *jacMat, SpaceType::HCurl);
+      ::InterpolateToNodes(physVblpMat, coeffs, newNpts, newPts, outArr);
     }
   }
 
@@ -1274,10 +1792,13 @@ void vtkFiniteElementFieldDistributor::vtkInternals::InterpolateCellToNodes(cons
       continue;
     }
     vtkDataArray* outArr = hDivFields->GetArray(fieldName.c_str());
-    const auto vblpmat = this->Vblps.GetVblp(::SpaceType::HDiv, this->RefElement);
-    if (vblpmat != nullptr)
+    const auto refVblpMat = this->Vblps.GetVblp(::SpaceType::HDiv, this->RefElement);
+    const auto jacMat = this->Vblps.GetJacobianMatrices(this->RefElement);
+    if (refVblpMat != nullptr && jacMat != nullptr)
     {
-      ::InterpolateToNodes(*vblpmat, coeffs, newNpts, newPts, outArr);
+      const auto physVblpMat =
+        this->Vblps.ReferenceToPhysical(*refVblpMat, *jacMat, SpaceType::HDiv);
+      ::InterpolateToNodes(physVblpMat, coeffs, newNpts, newPts, outArr);
     }
   }
 }
@@ -1486,7 +2007,8 @@ int vtkFiniteElementFieldDistributor::RequestData(vtkInformation* vtkNotUsed(req
       {
         this->Internals->ExplodeCell(c, oldPoints, newPoints, oldCells, newCells, newCellTypes,
           oldPd, newPd, oldCd, hGradFields);
-        this->Internals->InterpolateCellToNodes(c, newCells, oldCd, hCurlFields, hDivFields);
+        this->Internals->InterpolateCellToNodes(
+          c, newCells, newPoints, oldCd, hCurlFields, hDivFields);
 
         newCd->CopyData(oldCd, c, c);
 
