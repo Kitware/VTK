@@ -40,9 +40,9 @@ static constexpr std::array<double, 40> ProbingAtCellBoundaries = { 10.3309, 10.
   150.466, 150.466, 101.16, 101.16, 36.8801, 36.8801, 3.09331, 3.09331, 10.6523, 10.6523, 18.0772,
   18.0772, -3.63279, -3.63279, -15.5258, -15.5258 };
 
-static constexpr std::array<double, 20> ProbingAtSegmentCenters = { 10.3309, 1.68499, -8.10485,
-  3.09254, 26.3884, 49.8718, 77.2904, 136.737, 211.899, 255.795, 236.429, 192.787, 150.466, 101.16,
-  36.8801, 3.09331, 10.6523, 18.0772, -3.63279, -15.5258 };
+static constexpr std::array<double, 22> ProbingAtSegmentCenters = { 10.3309, 10.3309, 1.68499,
+  -8.10485, 3.09254, 26.3884, 49.8718, 77.2904, 136.737, 211.899, 255.795, 236.429, 192.787,
+  150.466, 101.16, 36.8801, 3.09331, 10.6523, 18.0772, -3.63279, -15.5258, -15.5258 };
 
 static constexpr std::array<double, 11> ProbingUniformly = { 10.3309, -8.10485, 26.3884, 77.2904,
   211.899, 236.429, 150.466, 36.8801, 10.6523, -3.63279, -15.5258 };
@@ -51,8 +51,8 @@ static constexpr std::array<double, 40> ProbingAtCellBoundaries_2D = { 0, 0.9999
   3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10, 10, 11, 11, 12, 12, 13, 13, 14, 14, 15, 15, 16, 16, 17,
   17, 18, 18, 19.0001, 19.0001, 19.1 };
 
-static const std::array<double, 20> ProbingAtSegmentCenters_2D = { 0, 1.5, 2.5, 3.5, 4.5, 5.5, 6.5,
-  7.5, 8.5, 9.5, 10.5, 11.5, 12.5, 13.5, 14.5, 15.5, 16.5, 17.5, 18.5, 19.1 };
+static const std::array<double, 22> ProbingAtSegmentCenters_2D = { 0, 0.5, 1.5, 2.5, 3.5, 4.5, 5.5,
+  6.5, 7.5, 8.5, 9.5, 10.5, 11.5, 12.5, 13.5, 14.5, 15.5, 16.5, 17.5, 18.5, 19.05, 19.1 };
 
 static constexpr double eps = 1e-6;
 
@@ -80,23 +80,37 @@ int CheckForErrors(vtkPolyData* pd, const double* expected, vtkIdType size, cons
   }
 
   vtkIdType minsize = std::min(size, result->GetNumberOfTuples());
+  int code = EXIT_SUCCESS;
   if (result->GetNumberOfValues() != size)
   {
     vtkLog(ERROR, << samplingName
                   << ": result and expected result does not have the same size (resp. "
-                  << result->GetNumberOfValues() << " vs " << size
-                  << " values). Still checking the " << minsize << " first elements ...");
+                  << result->GetNumberOfValues() << " vs " << size << " values).");
+    code = EXIT_FAILURE;
   }
 
-  int code = EXIT_SUCCESS;
   for (vtkIdType pointId = 0; pointId < minsize; ++pointId)
   {
     if (std::fabs(result->GetTuple1(pointId) - expected[pointId]) > 0.001)
     {
-      vtkLog(ERROR, << samplingName << " failed at " << pointId);
+      vtkLog(ERROR, << samplingName << "'s wrong starting: " << pointId);
       code = EXIT_FAILURE;
+      break;
     }
   }
+
+  if (code == EXIT_FAILURE)
+  {
+    std::cerr << "Expected: [ ";
+    for (vtkIdType i = 0; i < size; ++i)
+      std::cerr << expected[i] << " ";
+    std::cerr << "]" << std::endl;
+    std::cerr << "But got : [ ";
+    for (vtkIdType i = 0; i < result->GetNumberOfValues(); ++i)
+      std::cerr << result->GetTuple1(i) << " ";
+    std::cerr << "]" << std::endl;
+  }
+
   return code;
 }
 
@@ -105,14 +119,14 @@ int Check2DHTG(vtkMultiProcessController* contr, vtkDataSet* outDataSet)
 {
   int numPoints = outDataSet->GetNumberOfPoints();
   vtkDataArray* da = outDataSet->GetPointData()->GetArray("Depth");
-  std::vector<double> pt(3, 0.0);
   int retVal = EXIT_SUCCESS;
   if (contr->GetLocalProcessId() == 0)
   {
     for (int i = 0; i < numPoints; i++)
     {
+      std::array<double, 3> pt{ 0.0, 0.0, 0.0 };
       outDataSet->GetPoint(i, pt.data());
-      int foundDepth = vtkMath::Nan();
+      int foundDepth = -1;
       bool isDemarcation = false;
       if (std::abs(pt[0]) < 1.0 && std::abs(pt[1]) < 1.0)
       {
@@ -167,14 +181,14 @@ int Check3DHTG(vtkMultiProcessController* contr, vtkDataSet* outDataSet)
 {
   int numPoints = outDataSet->GetNumberOfPoints();
   vtkDataArray* da = outDataSet->GetPointData()->GetArray("Depth");
-  std::vector<double> pt(3, 0.0);
   int retVal = EXIT_SUCCESS;
   if (contr->GetLocalProcessId() == 0)
   {
     for (int i = 0; i < numPoints; i++)
     {
+      std::array<double, 3> pt{ 0.0, 0.0, 0.0 };
       outDataSet->GetPoint(i, pt.data());
-      int foundDepth = vtkMath::Nan();
+      int foundDepth = -1;
       bool isDemarcation = false;
       if (std::abs(pt[0]) < 1.0 && std::abs(pt[1]) < 1.0 && std::abs(pt[2]))
       {
@@ -222,7 +236,6 @@ int Check3DHTG(vtkMultiProcessController* contr, vtkDataSet* outDataSet)
                       << pt[1] << ", " << pt[2] << " with depth " << da->GetComponent(i, 0)
                       << " when it should be " << foundDepth);
         retVal = EXIT_FAILURE;
-        // break;
       }
     }
   }
@@ -284,7 +297,7 @@ int Test2DProbing(vtkMultiProcessController* controller)
   probeLine->Update();
   retVal |= CheckForErrors(vtkPolyData::SafeDownCast(probeLine->GetOutputDataObject(0)),
     ProbingAtSegmentCenters_2D.data(), ProbingAtSegmentCenters_2D.size(), "arc_length",
-    "SAMPLE_LINE_AT_CELL_BOUNDARIES", myrank);
+    "SAMPLE_LINE_AT_SEGMENT_CENTERS", myrank);
 
   return retVal;
 }
@@ -440,20 +453,19 @@ int Test2DProbingHTG(vtkMultiProcessController* contr)
   probeLine->SetController(contr);
   probeLine->SetLineResolution(10);
   probeLine->SetTolerance(eps);
-  probeLine->Update();
 
-  vtkDataSet* outDataSet = vtkDataSet::SafeDownCast(probeLine->GetOutput());
-  int retVal = Check2DHTG(contr, outDataSet);
+  int retVal = EXIT_SUCCESS;
 
-  probeLine->SetSamplingPattern(vtkProbeLineFilter::SAMPLE_LINE_AT_SEGMENT_CENTERS);
-  probeLine->Update();
-  outDataSet = vtkDataSet::SafeDownCast(probeLine->GetOutput());
-  retVal &= Check2DHTG(contr, outDataSet);
+  auto Check = [&probeLine, &contr, &retVal](int pattern) {
+    probeLine->SetSamplingPattern(pattern);
+    probeLine->Update();
+    vtkDataSet* outDataSet = vtkDataSet::SafeDownCast(probeLine->GetOutput());
+    retVal |= Check2DHTG(contr, outDataSet);
+  };
+  Check(vtkProbeLineFilter::SAMPLE_LINE_AT_CELL_BOUNDARIES);
+  Check(vtkProbeLineFilter::SAMPLE_LINE_AT_SEGMENT_CENTERS);
+  Check(vtkProbeLineFilter::SAMPLE_LINE_UNIFORMLY);
 
-  probeLine->SetSamplingPattern(vtkProbeLineFilter::SAMPLE_LINE_UNIFORMLY);
-  probeLine->Update();
-  outDataSet = vtkDataSet::SafeDownCast(probeLine->GetOutput());
-  retVal &= Check2DHTG(contr, outDataSet);
   return retVal;
 }
 
@@ -483,32 +495,26 @@ int Test3DProbingHTG(vtkMultiProcessController* contr)
   probeLine->SetController(contr);
   probeLine->SetLineResolution(10);
   probeLine->SetTolerance(eps);
-  probeLine->Update();
 
-  vtkDataSet* outDataSet = vtkDataSet::SafeDownCast(probeLine->GetOutput());
-  int retVal = Check3DHTG(contr, outDataSet);
+  int retVal = EXIT_SUCCESS;
 
-  probeLine->SetSamplingPattern(vtkProbeLineFilter::SAMPLE_LINE_AT_SEGMENT_CENTERS);
-  probeLine->Update();
-  outDataSet = vtkDataSet::SafeDownCast(probeLine->GetOutput());
-  retVal &= Check3DHTG(contr, outDataSet);
+  auto Check = [&probeLine, &contr, &retVal](int pattern) {
+    probeLine->SetSamplingPattern(pattern);
+    probeLine->Update();
+    vtkDataSet* outDataSet = vtkDataSet::SafeDownCast(probeLine->GetOutput());
+    retVal |= Check3DHTG(contr, outDataSet);
+  };
+  Check(vtkProbeLineFilter::SAMPLE_LINE_AT_CELL_BOUNDARIES);
+  Check(vtkProbeLineFilter::SAMPLE_LINE_AT_SEGMENT_CENTERS);
+  Check(vtkProbeLineFilter::SAMPLE_LINE_UNIFORMLY);
 
-  probeLine->SetSamplingPattern(vtkProbeLineFilter::SAMPLE_LINE_UNIFORMLY);
-  probeLine->Update();
-  outDataSet = vtkDataSet::SafeDownCast(probeLine->GetOutput());
-  retVal &= Check3DHTG(contr, outDataSet);
   return retVal;
 }
 
 // ----------------------------------------------------------------------------
 int TestProbeLineFilter(int argc, char* argv[])
 {
-#if VTK_MODULE_ENABLE_VTK_ParallelMPI
   vtkNew<vtkMPIController> contr;
-#else
-  vtkNew<vtkDummyController> contr;
-#endif
-
   contr->Initialize(&argc, &argv);
   vtkMultiProcessController::SetGlobalController(contr);
 

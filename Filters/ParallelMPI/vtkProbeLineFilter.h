@@ -47,10 +47,10 @@
 #define vtkProbeLineFilter_h
 
 #include "vtkDataObjectAlgorithm.h"
-#include "vtkFiltersParallelDIY2Module.h" // For export macro
-#include "vtkSmartPointer.h"              // For sampling line
+#include "vtkFiltersParallelMPIModule.h" // For export macro
+#include "vtkSmartPointer.h"             // For sampling line
 
-#include <vector> // For sampling line
+#include <memory> // for unique_ptr
 
 class vtkDataSet;
 class vtkHyperTreeGrid;
@@ -60,7 +60,7 @@ class vtkPoints;
 class vtkPolyData;
 class vtkVector3d;
 
-class VTKFILTERSPARALLELDIY2_EXPORT vtkProbeLineFilter : public vtkDataObjectAlgorithm
+class VTKFILTERSPARALLELMPI_EXPORT vtkProbeLineFilter : public vtkDataObjectAlgorithm
 {
 public:
   vtkTypeMacro(vtkProbeLineFilter, vtkDataObjectAlgorithm);
@@ -201,25 +201,39 @@ protected:
   int FillInputPortInformation(int port, vtkInformation* info) override;
 
   /**
-   * Generate sampling point for a given cell. Supports line and polyline cells.
-   * This functions is expected to return a polydata with a single polyline in it.
+   * Given a line / polyline cell defined by @c points and @c pointIds, return the probing
+   * of the @c input dataset against this cell. More precisely, it returns a polydata with
+   * a single polyline in it. Probing is done with tolerance @c tol.
    */
   vtkSmartPointer<vtkPolyData> CreateSamplingPolyLine(
     vtkPoints* points, vtkIdList* pointIds, vtkDataObject* input, double tol) const;
 
   ///@{
   /**
-   * Generate sampling point between p1 and p2 according to @c SamplingPattern.
+   * Generate sampling points and their probed data between p1 and p2 according
+   * to @c SamplingPattern.
    * This functions is expected to return a polydata with a single polyline in it.
    */
-  vtkSmartPointer<vtkPolyData> SampleLineAtEachCell(const vtkVector3d& p1, const vtkVector3d& p2,
-    vtkDataObject* input, const double tolerance) const;
-  vtkSmartPointer<vtkPolyData> SampleLineAtEachCell(const vtkVector3d& p1, const vtkVector3d& p2,
-    const std::vector<vtkDataSet*>& input, const double tolerance) const;
-  vtkSmartPointer<vtkPolyData> SampleLineAtEachCell(const vtkVector3d& p1, const vtkVector3d& p2,
-    vtkHyperTreeGrid* input, const double tolerance) const;
+  vtkSmartPointer<vtkPolyData> SampleLineAtEachCell(
+    const vtkVector3d& p1, const vtkVector3d& p2, vtkDataObject* input, double tolerance) const;
   vtkSmartPointer<vtkPolyData> SampleLineUniformly(
-    const vtkVector3d& p1, const vtkVector3d& p2) const;
+    const vtkVector3d& p1, const vtkVector3d& p2, vtkDataObject* input, double tolerance) const;
+  ///@}
+
+  ///@{
+  /**
+   * Compute all intersections between a segment and a given dataset / htg.
+   * @param p1 starting point of the segment
+   * @param p2 ending point of the segment
+   * @param dataset the dataset to intersect cells against
+   * @param tolerance tolerance of the intersections
+   * @return return a point cloud without cells, that is only points and point attributes. Points
+   * are sorted in order of intersection.
+   */
+  vtkSmartPointer<vtkPolyData> IntersectCells(
+    const vtkVector3d& p1, const vtkVector3d& p2, vtkDataSet* dataset, double tolerance) const;
+  vtkSmartPointer<vtkPolyData> IntersectCells(const vtkVector3d& p1, const vtkVector3d& p2,
+    vtkHyperTreeGrid* dataset, double tolerance) const;
   ///@}
 
   vtkMultiProcessController* Controller = nullptr;
@@ -240,7 +254,7 @@ private:
   void operator=(const vtkProbeLineFilter&) = delete;
 
   struct vtkInternals;
-  vtkInternals* Internal;
+  std::unique_ptr<vtkInternals> Internal;
 };
 
 #endif
