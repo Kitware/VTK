@@ -60,6 +60,9 @@ vtkCxxSetObjectMacro(vtkGeometryFilter, Locator, vtkIncrementalPointLocator);
 static constexpr unsigned char MASKED_CELL_VALUE = vtkDataSetAttributes::HIDDENCELL |
   vtkDataSetAttributes::DUPLICATECELL | vtkDataSetAttributes::REFINEDCELL;
 
+static constexpr unsigned char MASKED_CELL_VALUE_NOT_VISIBLE =
+  vtkDataSetAttributes::HIDDENCELL | vtkDataSetAttributes::REFINEDCELL;
+
 static constexpr unsigned char MASKED_POINT_VALUE = vtkDataSetAttributes::HIDDENPOINT;
 
 //------------------------------------------------------------------------------
@@ -1435,29 +1438,29 @@ template <typename TInputIdType>
 struct ExtractUG : public ExtractCellBoundaries<TInputIdType>
 {
   // The unstructured grid to process
-  vtkUnstructuredGridBase* GridBase;
-  vtkUnstructuredGrid* Grid;
+  vtkUnstructuredGridBase* Grid;
   using TFaceHashMap = FaceHashMap<TInputIdType>;
   std::shared_ptr<TFaceHashMap> FaceMap;
   bool RemoveGhostInterfaces;
 
   vtkIdType NumberOfCells;
+  const unsigned char MASKED_CELL;
 
-  ExtractUG(vtkGeometryFilter* self, vtkUnstructuredGridBase* gridBase, const char* cellVis,
+  ExtractUG(vtkGeometryFilter* self, vtkUnstructuredGridBase* grid, const char* cellVis,
     const unsigned char* cellGhost, const unsigned char* pointGhost,
     vtkExcludedFaces<TInputIdType>* exc, ThreadOutputType<TInputIdType>* t)
     : ExtractCellBoundaries<TInputIdType>(self, cellVis, cellGhost, pointGhost, exc, t)
-    , GridBase(gridBase)
+    , Grid(grid)
     , RemoveGhostInterfaces(self->GetRemoveGhostInterfaces())
-    , NumberOfCells(gridBase->GetNumberOfCells())
+    , NumberOfCells(grid->GetNumberOfCells())
+    , MASKED_CELL(
+        self->GetRemoveGhostInterfaces() ? MASKED_CELL_VALUE : MASKED_CELL_VALUE_NOT_VISIBLE)
   {
     if (self->GetMerging())
     {
-      this->CreatePointMap(gridBase->GetNumberOfPoints());
+      this->CreatePointMap(grid->GetNumberOfPoints());
     }
-    this->FaceMap =
-      std::make_shared<TFaceHashMap>(static_cast<size_t>(gridBase->GetNumberOfPoints()));
-    this->Grid = vtkUnstructuredGrid::SafeDownCast(this->GridBase);
+    this->FaceMap = std::make_shared<TFaceHashMap>(static_cast<size_t>(grid->GetNumberOfPoints()));
   }
 
   // Initialize thread data
@@ -1481,50 +1484,39 @@ struct ExtractUG : public ExtractCellBoundaries<TInputIdType>
     const vtkIdType* pts;
     unsigned char type;
     bool isGhost;
-    if (this->Grid)
+    for (vtkIdType cellId = beginCellId; cellId < endCellId && !this->Self->GetAbortExecute();
+         ++cellId)
     {
-      const auto& cellTypes =
-        vtk::DataArrayValueRange<1>(this->Grid->GetCellTypesArray(), beginCellId, endCellId);
-      auto cellTypesItr = cellTypes.begin();
-      for (vtkIdType cellId = beginCellId; cellId < endCellId && !this->Self->GetAbortExecute();
-           ++cellId, ++cellTypesItr)
+      // -------------------------------------Ghost explanation-------------------------------------
+      // Note for both cell dimension cases: MASKED_CELL is computed based on RemoveGhostInterfaces.
+      //
+      // For 0d-1d-2d cells, we have 2 cases:
+      // 1) When RemoveGhostInterfaces is on, we want to remove all types of ghosts.
+      // Since isGhost is always true for every type of ghost, and dim < 3, they will be skipped.
+      // 2) When RemoveGhostInterfaces is off, we want to keep only the duplicate ghosts.
+      // Since isGhost will be false for duplicates, the duplicates cells will be kept
+      // the rest will be skipped.
+      //
+      // For 3d cells, we have 2 cases:
+      // 1) When RemoveGhostInterfaces is on, we want to remove all types of ghosts.
+      // Since isGhost is always true for every type of ghost, these cells will be processed
+      // and their faces will be removed in the PopulateCellArrays step of the FaceHashMap.
+      // 2) When RemoveGhostInterfaces is off, we want to keep only the duplicate ghosts.
+      // Since isGhost is always false for duplicates, the duplicate cells will be kept and the
+      // the rest will be skipped.
+      type = static_cast<unsigned char>(this->Grid->GetCellType(cellId));
+      isGhost = this->CellGhosts && this->CellGhosts[cellId] & this->MASKED_CELL;
+      if (isGhost && (vtkCellTypes::GetDimension(type) < 3 || !this->RemoveGhostInterfaces))
       {
-        isGhost = this->CellGhosts && this->CellGhosts[cellId] & MASKED_CELL_VALUE;
-        type = *cellTypesItr;
-        if (isGhost && (vtkCellTypes::GetDimension(type) < 3 || !this->RemoveGhostInterfaces))
-        {
-          continue;
-        }
-        // If the cell is visible process it
-        if (!this->CellVis || this->CellVis[cellId])
-        {
-          this->Grid->GetCellPoints(cellId, npts, pts, cellPointIds);
-          ExtractCellGeometry(this->Grid, cellId, type, npts, pts, &localData, faceMap, isGhost);
-        } // if cell visible
-      }   // for all cells in this batch
-    }
-    else
-    {
-      for (vtkIdType cellId = beginCellId; cellId < endCellId && !this->Self->GetAbortExecute();
-           ++cellId)
+        continue;
+      }
+      // If the cell is visible process it
+      if (!this->CellVis || this->CellVis[cellId])
       {
-        isGhost = this->CellGhosts && this->CellGhosts[cellId] & MASKED_CELL_VALUE;
-        type = static_cast<unsigned char>(this->GridBase->GetCellType(cellId));
-        if (isGhost && (vtkCellTypes::GetDimension(type) < 3 || !this->RemoveGhostInterfaces))
-        {
-          continue;
-        }
-        // If the cell is visible process it
-        if (!this->CellVis || this->CellVis[cellId])
-        {
-          this->GridBase->GetCellPoints(cellId, cellPointIds);
-          npts = cellPointIds->GetNumberOfIds();
-          pts = cellPointIds->GetPointer(0);
-          ExtractCellGeometry(
-            this->GridBase, cellId, type, npts, pts, &localData, faceMap, isGhost);
-        } // if cell visible
-      }   // for all cells in this batch
-    }
+        this->Grid->GetCellPoints(cellId, npts, pts, cellPointIds);
+        ExtractCellGeometry(this->Grid, cellId, type, npts, pts, &localData, faceMap, isGhost);
+      } // if cell visible
+    }   // for all cells in this batch
     if (localData.BaseThread)
     {
       this->Self->UpdateProgress(static_cast<double>(0.8 * endCellId / this->NumberOfCells));
@@ -1588,7 +1580,8 @@ struct ExtractStructured : public ExtractCellBoundaries<TInputIdType>
       this->CreatePointMap(this->Dims[0] * this->Dims[1] * this->Dims[2]);
     }
     this->ForceSimpleVisibilityCheck = extractFaces != nullptr;
-    this->AllCellsVisible = !((this->Input->HasAnyGhostCells() || this->Input->HasAnyBlankCells()));
+    this->AllCellsVisible = !this->Input->GetCellData()->HasAnyGhostBitSet(
+      self->GetRemoveGhostInterfaces() ? MASKED_CELL_VALUE : MASKED_CELL_VALUE_NOT_VISIBLE);
   }
 
   // Initialize thread data
@@ -1890,6 +1883,7 @@ struct ExtractDS : public ExtractCellBoundaries<TInputIdType>
   // The unstructured grid to process
   vtkDataSet* DataSet;
   vtkIdType NumberOfCells;
+  const unsigned char MASKED_CELL;
 
   ExtractDS(vtkGeometryFilter* self, vtkDataSet* ds, const char* cellVis,
     const unsigned char* cellGhost, const unsigned char* pointGhost,
@@ -1897,6 +1891,8 @@ struct ExtractDS : public ExtractCellBoundaries<TInputIdType>
     : ExtractCellBoundaries<TInputIdType>(self, cellVis, cellGhost, pointGhost, exc, t)
     , DataSet(ds)
     , NumberOfCells(ds->GetNumberOfCells())
+    , MASKED_CELL(
+        self->GetRemoveGhostInterfaces() ? MASKED_CELL_VALUE : MASKED_CELL_VALUE_NOT_VISIBLE)
   {
     // Point merging is always required since points are not explicitly
     // represented and cannot be passed through to the output.
@@ -1921,7 +1917,7 @@ struct ExtractDS : public ExtractCellBoundaries<TInputIdType>
          ++cellId)
     {
       // Handle ghost cells here.  Another option was used cellVis array.
-      if (this->CellGhosts && this->CellGhosts[cellId] & MASKED_CELL_VALUE)
+      if (this->CellGhosts && this->CellGhosts[cellId] & this->MASKED_CELL)
       { // Do not create surfaces in outer ghost cells.
         continue;
       }
@@ -2481,6 +2477,8 @@ int ExecutePolyData(vtkGeometryFilter* self, vtkDataSet* dataSetInput, vtkPolyDa
   outputCD->CopyAllocate(cd, numCells, numCells / 2);
   input->BuildCells(); // needed for GetCellPoints()
 
+  const unsigned char MASKED_CELL =
+    self->GetRemoveGhostInterfaces() ? MASKED_CELL_VALUE : MASKED_CELL_VALUE_NOT_VISIBLE;
   vtkIdType progressInterval = numCells / 20 + 1;
   for (cellId = 0; cellId < numCells; cellId++)
   {
@@ -2492,7 +2490,7 @@ int ExecutePolyData(vtkGeometryFilter* self, vtkDataSet* dataSetInput, vtkPolyDa
     }
 
     // Handle ghost cells here.  Another option was used cellVis array.
-    if (cellGhosts && cellGhosts[cellId] & MASKED_CELL_VALUE)
+    if (cellGhosts && cellGhosts[cellId] & MASKED_CELL)
     { // Do not create surfaces in outer ghost cells.
       continue;
     }
@@ -2599,9 +2597,7 @@ namespace
 //------------------------------------------------------------------------------
 struct CharacterizeGrid
 {
-  vtkUnstructuredGridBase* GridBase;
-  vtkUnstructuredGrid* Grid;
-  unsigned char* Types;
+  vtkUnstructuredGridBase* Grid;
 
   using CellTypesInformation = vtkGeometryFilterHelper::CellTypesInformation;
   using CellType = vtkGeometryFilterHelper::CellType;
@@ -2610,14 +2606,9 @@ struct CharacterizeGrid
   CellTypesInformation CellTypesInfo;
   unsigned char IsLinear;
 
-  CharacterizeGrid(vtkUnstructuredGridBase* gridBase)
-    : GridBase(gridBase)
+  CharacterizeGrid(vtkUnstructuredGridBase* grid)
+    : Grid(grid)
   {
-    this->Grid = vtkUnstructuredGrid::SafeDownCast(this->GridBase);
-    if (this->Grid)
-    {
-      this->Types = this->Grid->GetCellTypesArray()->GetPointer(0);
-    }
   }
 
   void Initialize()
@@ -2682,23 +2673,13 @@ struct CharacterizeGrid
     }
   }
 
-  void operator()(vtkIdType cellId, vtkIdType endCellId)
+  void operator()(vtkIdType beginCellId, vtkIdType endCellId)
   {
     CellTypesInformation& cellTypesInfo = this->TLCellTypesInfo.Local();
-    if (this->Grid)
+    for (vtkIdType cellId = beginCellId; cellId < endCellId; ++cellId)
     {
-      for (; cellId < endCellId; ++cellId)
-      {
-        CharacterizeGrid::AssignCellTypeInfo(this->Types[cellId], cellTypesInfo);
-      }
-    }
-    else
-    {
-      for (; cellId < endCellId; ++cellId)
-      {
-        CharacterizeGrid::AssignCellTypeInfo(
-          static_cast<unsigned char>(this->GridBase->GetCellType(cellId)), cellTypesInfo);
-      }
+      CharacterizeGrid::AssignCellTypeInfo(
+        static_cast<unsigned char>(this->Grid->GetCellType(cellId)), cellTypesInfo);
     }
   }
 
@@ -2826,7 +2807,6 @@ int ExecuteUnstructuredGrid(vtkGeometryFilter* self, vtkDataSet* dataSetInput, v
     return 0;
   }
   vtkUnstructuredGrid* uGrid = vtkUnstructuredGrid::SafeDownCast(uGridBase);
-  bool isUnstructuredGrid = (uGrid != nullptr);
 
   // If no info, then compute information about the unstructured grid.
   // Depending on the outcome, we may process the data ourselves, or send over
@@ -2946,16 +2926,7 @@ int ExecuteUnstructuredGrid(vtkGeometryFilter* self, vtkDataSet* dataSetInput, v
     double x[3];
     for (cellId = 0; cellId < numCells; ++cellId)
     {
-      if (isUnstructuredGrid)
-      {
-        uGrid->GetCellPoints(cellId, npts, pts, pointIdList);
-      }
-      else
-      {
-        uGridBase->GetCellPoints(cellId, pointIdList);
-        npts = pointIdList->GetNumberOfIds();
-        pts = pointIdList->GetPointer(0);
-      }
+      uGridBase->GetCellPoints(cellId, npts, pts, pointIdList);
       cellVis[cellId] = 1;
       if (cellClipping && (cellId < cellMinimum || cellId > cellMaximum))
       {

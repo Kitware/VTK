@@ -1586,6 +1586,12 @@ void vtkPolyData::RemoveGhostCells()
     return;
   }
 
+  // check if there are any cells to delete
+  if (!this->CellData->HasAnyGhostBitSet(MASKED_CELL_VALUE))
+  {
+    return;
+  }
+
   unsigned char* cellGhosts = temp->GetPointer(0);
 
   vtkNew<vtkPolyData> newPD;
