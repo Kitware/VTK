@@ -1,6 +1,6 @@
 vtk_module_third_party(
   INTERNAL
-    LICENSE_FILES "vtklibharu/LICENCE"
+    LICENSE_FILES "vtklibharu/LICENSE"
     VERSION       "2.4.0"
     STANDARD_INCLUDE_DIRS
   EXTERNAL
