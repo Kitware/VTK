@@ -16,7 +16,8 @@
 
 #include "vtkObjectFactory.h"
 #include "vtkOpenXRManager.h"
-#include "vtkWindows.h" // For Win32 API used in Initialize
+#include "vtkResourceFileLocator.h"
+#include "vtksys/SystemTools.hxx"
 
 #include <openxr_msft_holographic_remoting.h> // Defines XR_MSFT_holographic_remoting
 
@@ -29,19 +30,18 @@ vtkStandardNewMacro(vtkOpenXRManagerRemoteConnection);
 //------------------------------------------------------------------------------
 bool vtkOpenXRManagerRemoteConnection::Initialize()
 {
-  std::wstring filename;
-  filename.resize(MAX_PATH);
-  if (!SearchPathW(nullptr, L"RemotingXR", L".json", MAX_PATH, &filename[0], nullptr))
-  {
-    vtkErrorMacro("Could not find RemotingXR.json.");
-    return false;
-  }
+  // Get the path for the current executable
+  std::string exePath = vtkResourceFileLocator::GetLibraryPathForSymbolWin32(nullptr);
+  std::string exeDir = vtksys::SystemTools::GetFilenamePath(exePath);
 
-  if (GetFileAttributesW(filename.data()) != INVALID_FILE_ATTRIBUTES)
+  // Look for the RemotingXR.json file provided by the microsoft.holographic.remoting.openxr
+  // package, in the system PATH and next to the executable.
+  // If found, set the XR_RUNTIME_JSON environment variable. It will be used by the OpenXR loader
+  // to not use the system default OpenXR runtime but instead redirect to the Holographic Remoting
+  // OpenXR runtime.
+  std::string remotingXRPath = vtksys::SystemTools::FindFile("RemotingXR.json", { exeDir });
+  if (!remotingXRPath.empty() && vtksys::SystemTools::PutEnv("XR_RUNTIME_JSON=" + remotingXRPath))
   {
-    // This environment variable is used by the OpenXR loader to not use the system default OpenXR
-    // runtime but instead redirect to the Holographic Remoting OpenXR runtime
-    SetEnvironmentVariableW(L"XR_RUNTIME_JSON", filename.data());
     return true;
   }
 
