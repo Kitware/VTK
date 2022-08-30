@@ -395,13 +395,14 @@ public:
   ///@{
   /**
    * Set/Get if Ghost interfaces will be removed.
-   * When you are rendering you want to remove ghost interfaces.
-   * There are certain algorithms though that need the ghost interfaces.
+   * When you are rendering you want to remove ghost interfaces that originate from duplicate cells.
+   *
+   * There are certain algorithms though that need the ghost interfaces, such as GhostCellGenerator
+   * and FeatureEdges.
    *
    * Since Rendering is the most common case, the Default is on.
    *
-   * Note: This flag is meaningful only for vtkUnstructuredGrid/vtkUnstructuredGridBase.
-   * DON'T change it if there are no ghost cells.
+   * Note: DON'T change it if there are no ghost cells.
    */
   vtkSetMacro(RemoveGhostInterfaces, bool);
   vtkBooleanMacro(RemoveGhostInterfaces, bool);
