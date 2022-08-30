@@ -5,9 +5,6 @@ vtk_module_third_party(
     STANDARD_INCLUDE_DIRS
   EXTERNAL
     PACKAGE LibHaru
-    # Unreleased. Requires these PRs:
-    # https://github.com/libharu/libharu/pull/157
-    # https://github.com/libharu/libharu/pull/187
     VERSION 2.4.0
     TARGETS LibHaru::LibHaru
     STANDARD_INCLUDE_DIRS)
