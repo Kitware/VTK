@@ -41,12 +41,10 @@ class VTKRENDERINGOPENXR_EXPORT vtkOpenXRManagerGraphics : public vtkObject
 public:
   vtkTypeMacro(vtkOpenXRManagerGraphics, vtkObject);
 
-  ///@{
   /**
    * Resize the internal vectors storing the color and depth swapchains.
    */
   virtual void SetNumberOfSwapchains(uint32_t viewCount) = 0;
-  ///@}
 
   ///@{
   /**
@@ -66,12 +64,10 @@ public:
   virtual void EnumerateDepthSwapchainImages(XrSwapchain swapchain, uint32_t eyeIndex) = 0;
   ///@}
 
-  ///@{
   /**
    * Acquire the number of images in the specified swapchain.
    */
   uint32_t GetChainLength(XrSwapchain swapchain);
-  ///@}
 
   ///@{
   /**
@@ -82,7 +78,6 @@ public:
   virtual const std::vector<int64_t>& GetSupportedDepthFormats() = 0;
   ///@}
 
-  ///@{
   /**
    * Create the graphics binding and store it in GraphicsBindings ptr.
    * It points to a XrGraphicsBindingXXX structure, depending on the
@@ -90,31 +85,24 @@ public:
    * \pre \p helperWindow must be initialized
    */
   virtual bool CreateGraphicsBinding(vtkOpenGLRenderWindow* helperWindow) = 0;
-  ///@}
 
-  ///@{
   /**
    * Return pointer to the backend-specific XrGraphicsBindingXXX structure
    * that is required to create the OpenXR session.
    */
   virtual const void* GetGraphicsBinding() = 0;
-  ///@}
 
-  ///@{
   /**
    * OpenXR requires checking graphics requirements before creating a session.
    * This uses a function pointer loaded with the selected graphics API extension.
    * /pre The XR instance and system id must be initialized
    */
   virtual bool CheckGraphicsRequirements(XrInstance instance, XrSystemId id) = 0;
-  ///@}
 
-  ///@{
   /**
    * Return the extension name to enable a specific rendering backend
    */
   virtual const char* GetBackendExtensionName() = 0;
-  ///@}
 
 protected:
   vtkOpenXRManagerGraphics() = default;
