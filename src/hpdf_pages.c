@@ -110,7 +110,7 @@ HPDF_Pages_New  (HPDF_MMgr   mmgr,
     if (HPDF_Xref_Add (xref, pages) != HPDF_OK)
         return NULL;
 
-    /* add requiered elements */
+    /* add required elements */
     ret += HPDF_Dict_AddName (pages, "Type", "Pages");
     ret += HPDF_Dict_Add (pages, "Kids", HPDF_Array_New (pages->mmgr));
     ret += HPDF_Dict_Add (pages, "Count", HPDF_Number_New (pages->mmgr, 0));
@@ -343,7 +343,7 @@ HPDF_Page_New  (HPDF_MMgr   mmgr,
     attr->stream = attr->contents->stream;
     attr->xref = xref;
 
-    /* add requiered elements */
+    /* add required elements */
     ret += HPDF_Dict_AddName (page, "Type", "Page");
     ret += HPDF_Dict_Add (page, "MediaBox", HPDF_Box_Array_New (page->mmgr,
                 HPDF_ToBox (0, 0, (HPDF_INT16)(HPDF_DEF_PAGE_WIDTH), (HPDF_INT16)(HPDF_DEF_PAGE_HEIGHT))));
@@ -428,7 +428,7 @@ HPDF_Page_GetInheritableItem  (HPDF_Page          page,
     obj = HPDF_Dict_GetItem (page, key, obj_class);
 
     /* if resources of the object is NULL, search resources of parent
-     * pages recursivly
+     * pages recursively
      */
     if (!obj) {
         HPDF_Pages pages = HPDF_Dict_GetItem (page, "Parent", HPDF_OCLASS_DICT);
@@ -459,7 +459,7 @@ AddResource  (HPDF_Page  page)
     if (!resource)
         return HPDF_Error_GetCode (page->error);
 
-    /* althoth ProcSet-entry is obsolete, add it to resouce for
+    /* althoth ProcSet-entry is obsolete, add it to resource for
      * compatibility
      */
 
@@ -582,7 +582,7 @@ HPDF_Page_CreateXObjectFromImage(HPDF_Doc       pdf,
                                  HPDF_Page      page,
                                  HPDF_Rect      rect,
                                  HPDF_Image     image,
-                                 HPDF_Boolean   zoom)
+                                 HPDF_BOOL      zoom)
 {
     HPDF_Dict resource;
     HPDF_Dict fromxobject;
@@ -601,14 +601,14 @@ HPDF_Page_CreateXObjectFromImage(HPDF_Doc       pdf,
 
    fromxobject->header.obj_class |= HPDF_OSUBCLASS_XOBJECT;
 
-   /* add requiered elements */
+   /* add required elements */
    fromxobject->filter = HPDF_STREAM_FILTER_FLATE_DECODE;
 
    resource = HPDF_Dict_New (page->mmgr);
    if (!resource)
       return NULL;
 
-   /* althoth ProcSet-entry is obsolete, add it to resouce for
+   /* althoth ProcSet-entry is obsolete, add it to resource for
     * compatibility*/
 
    ret += HPDF_Dict_Add (fromxobject, "Resources", resource);
@@ -730,14 +730,14 @@ HPDF_Page_CreateXObjectAsWhiteRect  (HPDF_Doc   pdf,
 
    fromxobject->header.obj_class |= HPDF_OSUBCLASS_XOBJECT;
 
-   /* add requiered elements */
+   /* add required elements */
    fromxobject->filter = HPDF_STREAM_FILTER_FLATE_DECODE;
 
    resource = HPDF_Dict_New (page->mmgr);
    if (!resource)
       return NULL;
 
-   /* althoth ProcSet-entry is obsolete, add it to resouce for
+   /* althoth ProcSet-entry is obsolete, add it to resource for
     * compatibility*/
 
    ret += HPDF_Dict_Add (fromxobject, "Resources", resource);
@@ -1189,7 +1189,7 @@ HPDF_Page_GetMiterLimit  (HPDF_Page   page)
 HPDF_EXPORT(HPDF_DashMode)
 HPDF_Page_GetDash  (HPDF_Page   page)
 {
-    HPDF_DashMode mode = {{0, 0, 0, 0, 0, 0, 0, 0}, 0, 0};
+    HPDF_DashMode mode = {{0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f}, 0.0f, 0.0f};
 
     HPDF_PTRACE((" HPDF_Page_GetDash\n"));
 
@@ -1310,8 +1310,6 @@ HPDF_Page_GetTextRise  (HPDF_Page   page)
 HPDF_EXPORT(HPDF_RGBColor)
 HPDF_Page_GetRGBFill  (HPDF_Page   page)
 {
-    HPDF_RGBColor DEF_RGB_COLOR = {0, 0, 0};
-
     HPDF_PTRACE((" HPDF_Page_GetRGBFill\n"));
 
     if (HPDF_Page_Validate (page)) {
@@ -1328,8 +1326,6 @@ HPDF_Page_GetRGBFill  (HPDF_Page   page)
 HPDF_EXPORT(HPDF_RGBColor)
 HPDF_Page_GetRGBStroke  (HPDF_Page   page)
 {
-    HPDF_RGBColor DEF_RGB_COLOR = {0, 0, 0};
-
     HPDF_PTRACE((" HPDF_Page_GetRGBStroke\n"));
 
     if (HPDF_Page_Validate (page)) {
@@ -1345,8 +1341,6 @@ HPDF_Page_GetRGBStroke  (HPDF_Page   page)
 HPDF_EXPORT(HPDF_CMYKColor)
 HPDF_Page_GetCMYKFill  (HPDF_Page   page)
 {
-    HPDF_CMYKColor DEF_CMYK_COLOR = {0, 0, 0, 0};
-
     HPDF_PTRACE((" HPDF_Page_GetCMYKFill\n"));
 
     if (HPDF_Page_Validate (page)) {
@@ -1363,8 +1357,6 @@ HPDF_Page_GetCMYKFill  (HPDF_Page   page)
 HPDF_EXPORT(HPDF_CMYKColor)
 HPDF_Page_GetCMYKStroke  (HPDF_Page   page)
 {
-    HPDF_CMYKColor DEF_CMYK_COLOR = {0, 0, 0, 0};
-
     HPDF_PTRACE((" HPDF_Page_GetCMYKStroke\n"));
 
     if (HPDF_Page_Validate (page)) {
@@ -2370,4 +2362,3 @@ HPDF_Page_SetFilter  (HPDF_Page    page,
     attr = (HPDF_PageAttr)page->attr;
     attr->contents->filter = filter;
 }
-
