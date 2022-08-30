@@ -29,7 +29,14 @@
 #include <memory> // For shared_ptr
 #include <vector> // For std::vector
 
+// Forward declare the graphics binding struct depending on the platform being used
+#ifdef VTK_USE_X
+struct XrGraphicsBindingOpenGLXlibKHR;
+typedef XrGraphicsBindingOpenGLXlibKHR XrGraphicsBindingOpenGL;
+#elif defined(_WIN32)
 struct XrGraphicsBindingOpenGLWin32KHR;
+typedef XrGraphicsBindingOpenGLWin32KHR XrGraphicsBindingOpenGL;
+#endif
 struct XrSwapchainImageOpenGLKHR;
 
 class VTKRENDERINGOPENXR_EXPORT vtkOpenXRManagerOpenGLGraphics : public vtkOpenXRManagerGraphics
@@ -106,7 +113,7 @@ protected:
    */
   void EnumerateSwapchainImages(XrSwapchain swapchain, SwapchainImagesOpenGL& swapchainImages);
 
-  std::shared_ptr<XrGraphicsBindingOpenGLWin32KHR> GraphicsBinding;
+  std::shared_ptr<XrGraphicsBindingOpenGL> GraphicsBinding;
 
 private:
   vtkOpenXRManagerOpenGLGraphics(const vtkOpenXRManagerOpenGLGraphics&) = delete;
