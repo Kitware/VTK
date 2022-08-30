@@ -16,24 +16,24 @@
  * @class   vtkWindowedSincPolyDataFilter
  * @brief   adjust point positions using a windowed sinc function interpolation kernel
  *
- * vtkWindowedSincPolyDataFiler adjust point coordinate using a windowed
- * sinc function interpolation kernel. The effect is to "relax" the mesh,
- * making the cells better shaped and the vertices more evenly distributed.
- * Note that this filter operates the lines, polygons, and triangle strips
- * composing an instance of vtkPolyData. Vertex or poly-vertex cells are
- * never modified.
+ * vtkWindowedSincPolyDataFiler adjusts point coordinates using a windowed
+ * sinc function interpolation kernel. The effect is to "relax" or "smooth"
+ * the mesh, making the cells better shaped and the vertices more evenly
+ * distributed.  Note that this filter operates the lines, polygons, and
+ * triangle strips composing an instance of vtkPolyData. Vertex or
+ * poly-vertex cells are never modified.
  *
  * The algorithm proceeds as follows. For each vertex v, a topological and
  * geometric analysis is performed to determine which vertices are connected
  * to v, and which cells are connected to v. Then, a connectivity array is
  * constructed for each vertex. (The connectivity array is a list of lists
- * of vertices that directly attach to each vertex.) Next, an iteration
- * phase begins over all vertices. For each vertex v, the coordinates of v
- * are modified using a windowed sinc function interpolation kernel.
- * Taubin describes this methodology is the IBM tech report RC-20404
- * (#90237, dated 3/12/96) "Optimal Surface Smoothing as Filter Design"
- * G. Taubin, T. Zhang and G. Golub. (Zhang and Golub are at Stanford
- * University.)
+ * of vertices that directly attach to each vertex, the so-called smoothing
+ * stencil.) Next, an iteration phase begins over all vertices. For each
+ * vertex v, the coordinates of v are modified using a windowed sinc function
+ * interpolation kernel.  Taubin describes this methodology is the IBM tech
+ * report RC-20404 (#90237, dated 3/12/96) "Optimal Surface Smoothing as
+ * Filter Design" G. Taubin, T. Zhang and G. Golub. (Zhang and Golub are at
+ * Stanford University.)
  *
  * This report discusses using standard signal processing low-pass filters
  * (in particular windowed sinc functions) to smooth polyhedra. The
@@ -50,7 +50,7 @@
  * previously calculated coefficients for the low order terms.
  *
  * Note: Care must be taken to avoid smoothing with too few iterations.
- * A Chebyshev approximation with too few terms is an poor approximation.
+ * A Chebyshev approximation with too few terms is a poor approximation.
  * The first few smoothing iterations represent a severe scaling and
  * translation of the data.  Subsequent iterations cause the smoothed
  * polyhedron to converge to the true location and scale of the object.
@@ -62,7 +62,7 @@
  * such that the actual pass band is k_pb + sigma and such that the
  * filter transfer function evaluates to unity at k_pb, i.e. f(k_pb) = 1
  *
- * To improve the numerical stability of the solution and minimize the
+ * To improve the numerical stability of the solution, and minimize the
  * scaling the translation effects, the algorithm can translate and
  * scale the position coordinates to within the unit cube [-1, 1],
  * perform the smoothing, and translate and scale the position
@@ -97,7 +97,7 @@
  *
  * Once the classification is known, the vertices are smoothed
  * differently. Corner (i.e., fixed) vertices are not smoothed at all.
- * Simple vertices are smoothed as before . Interior edge vertices are
+ * Simple vertices are smoothed as before. Interior edge vertices are
  * smoothed only along their two connected edges, and only if the angle
  * between the edges is less than the EdgeAngle ivar.
  *
@@ -149,8 +149,8 @@
  * Gabriel Taubin. "A Signal Processing Approach To Fair Surface Design".
  *
  * @sa
- * vtkSmoothPolyDataFilter vtkPointSmoothingFilter vtkDecimate vtkDecimatePro
- * vtkQuadricDecimation
+ * vtkSmoothPolyDataFilter vtkConstrainedSmoothingFilter vtkPointSmoothingFilter
+ * vtkAttributeSmoothingFilter vtkDecimate vtkDecimatePro vtkQuadricDecimation
  */
 
 #ifndef vtkWindowedSincPolyDataFilter_h
@@ -162,9 +162,6 @@
 class VTKFILTERSCORE_EXPORT vtkWindowedSincPolyDataFilter : public vtkPolyDataAlgorithm
 {
 public:
-  vtkTypeMacro(vtkWindowedSincPolyDataFilter, vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) override;
-
   /**
    * Construct object with number of iterations 20; passband .1; feature edge
    * smoothing turned off; feature angle 45 degrees; edge angle 15 degrees;
@@ -172,6 +169,15 @@ public:
    * generated (by default).
    */
   static vtkWindowedSincPolyDataFilter* New();
+
+  ///@{
+  /**
+   * Standard methods to obtain information, and print information about the
+   * the object.
+   */
+  vtkTypeMacro(vtkWindowedSincPolyDataFilter, vtkPolyDataAlgorithm);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
+  ///@}
 
   ///@{
   /**
@@ -256,6 +262,18 @@ public:
 
   ///@{
   /**
+   * When non-manifold smoothing is enabled, better smoothing performance may
+   * be possible by providing extra weighting to non-manifold edges. By default,
+   * WeightNonManifoldEdges is enabled (this is to preserve consistent behavior
+   * with previous versions of this filter).
+   */
+  vtkSetMacro(WeightNonManifoldEdges, vtkTypeBool);
+  vtkGetMacro(WeightNonManifoldEdges, vtkTypeBool);
+  vtkBooleanMacro(WeightNonManifoldEdges, vtkTypeBool);
+  ///@}
+
+  ///@{
+  /**
    * Turn on/off the generation of scalar distance values.
    */
   vtkSetMacro(GenerateErrorScalars, vtkTypeBool);
@@ -288,6 +306,8 @@ protected:
   double EdgeAngle;
   vtkTypeBool BoundarySmoothing;
   vtkTypeBool NonManifoldSmoothing;
+
+  vtkTypeBool WeightNonManifoldEdges;
 
   vtkTypeBool GenerateErrorScalars;
   vtkTypeBool GenerateErrorVectors;
