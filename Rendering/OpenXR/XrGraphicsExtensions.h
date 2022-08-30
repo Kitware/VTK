@@ -1,4 +1,51 @@
-#pragma once
+/*=========================================================================
+
+  Program:   Visualization Toolkit
+  Module:    XrGraphicsExtension.h
+
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the above copyright notice for more information.
+
+=========================================================================*/
+//*********************************************************
+//    Copyright (c) Microsoft. All rights reserved.
+//
+//    Apache 2.0 License
+//
+//    You may obtain a copy of the License at
+//    http://www.apache.org/licenses/LICENSE-2.0
+//
+//    Unless required by applicable law or agreed to in writing, software
+//    distributed under the License is distributed on an "AS IS" BASIS,
+//    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+//    implied. See the License for the specific language governing
+//    permissions and limitations under the License.
+//
+//*********************************************************
+/**
+ * @file   XrGraphicsExtension.h
+ *
+ * @brief  Load OpenXR extensions for the defined graphics backend.
+ *
+ * Provides the GraphicsExtensionDispatchTable struct to load platform-specific
+ * extensions at runtime for the current XrInstance.
+ * XR_USE_GRAPHICS_API_D3D11 and/or XR_USE_GRAPHICS_API_OPENGL must be defined
+ * prior to including this header to enable the expected graphics backend.
+ *
+ * File adapted from:
+ * https://github.com/microsoft/MixedReality-HolographicRemoting-Samples/blob/f6b55479646bda3bffea58bb3e9c9d9c5e0ab177/remote_openxr/desktop/XrUtility/XrExtensions.h
+ *
+ * @sa
+ * vtkOpenXrPlatform.h XrExtensions.h XrConnectionExtensions.h
+ */
+
+#ifndef XrGraphicsExtension_h
+#define XrGraphicsExtension_h
 
 #ifdef XR_USE_PLATFORM_WIN32
 #define FOR_EACH_WIN32_EXTENSION_FUNCTION(_) _(xrConvertWin32PerformanceCounterToTimeKHR)
@@ -45,3 +92,5 @@ struct GraphicsExtensionDispatchTable
 #undef DEFINE_PROC_MEMBER
 #undef GET_INSTANCE_PROC_ADDRESS
 #undef FOR_EACH_EXTENSION_FUNCTION
+
+#endif

@@ -1,11 +1,49 @@
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License.
+/*=========================================================================
 
-// File took from :
-// https://github.com/microsoft/OpenXR-MixedReality/blob/main/shared/XrUtility/XrExtensions.h
-// This file is useful to load OpenXR extension function pointers
+  Program:   Visualization Toolkit
+  Module:    XrRextensions.h
 
-#pragma once
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the above copyright notice for more information.
+
+=========================================================================*/
+//*********************************************************
+//    Copyright (c) Microsoft. All rights reserved.
+//
+//    Apache 2.0 License
+//
+//    You may obtain a copy of the License at
+//    http://www.apache.org/licenses/LICENSE-2.0
+//
+//    Unless required by applicable law or agreed to in writing, software
+//    distributed under the License is distributed on an "AS IS" BASIS,
+//    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+//    implied. See the License for the specific language governing
+//    permissions and limitations under the License.
+//
+//*********************************************************
+/**
+ * @file   XrRextensions.h
+ *
+ * @brief  Load OpenXR extensions common to all platforms and graphics backend.
+ *
+ * Provides the ExtensionDispatchTable struct to load extension function
+ * pointers at runtime for the current XrInstance.
+ *
+ * File adapted from:
+ * https://github.com/microsoft/MixedReality-HolographicRemoting-Samples/blob/f6b55479646bda3bffea58bb3e9c9d9c5e0ab177/remote_openxr/desktop/XrUtility/XrExtensions.h
+ *
+ * @sa
+ * vtkOpenXr.h XrGraphicsExtensions.h XrConnectionExtensions.h
+ */
+
+#ifndef XrRextensions_h
+#define XrRextensions_h
 
 #if XR_KHR_visibility_mask
 #define FOR_EACH_VISIBILITY_MASK_FUNCTION(_) _(xrGetVisibilityMaskKHR)
@@ -120,3 +158,5 @@ struct ExtensionDispatchTable
 #undef DEFINE_PROC_MEMBER
 #undef GET_INSTANCE_PROC_ADDRESS
 #undef FOR_EACH_EXTENSION_FUNCTION
+
+#endif
