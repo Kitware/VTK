@@ -225,6 +225,27 @@ bool vtkSMPToolsAPI::IsParallelScope()
   return false;
 }
 
+//------------------------------------------------------------------------------
+bool vtkSMPToolsAPI::GetSingleThread()
+{
+  // Currently, this will work as expected for one parallel area and or nested
+  // parallel areas. If there are two or more parallel areas that are not nested,
+  // this function will not work properly.
+  switch (this->ActivatedBackend)
+  {
+    case BackendType::Sequential:
+      return this->SequentialBackend->GetSingleThread();
+    case BackendType::STDThread:
+      return this->STDThreadBackend->GetSingleThread();
+    case BackendType::TBB:
+      return this->TBBBackend->GetSingleThread();
+    case BackendType::OpenMP:
+      return this->OpenMPBackend->GetSingleThread();
+    default:
+      return false;
+  }
+}
+
 } // namespace smp
 } // namespace detail
 } // namespace vtk

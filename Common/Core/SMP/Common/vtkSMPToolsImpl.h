@@ -77,6 +77,9 @@ public:
   bool IsParallelScope() { return this->IsParallel; }
 
   //--------------------------------------------------------------------------------
+  bool GetSingleThread();
+
+  //--------------------------------------------------------------------------------
   template <typename FunctorInternal>
   void For(vtkIdType first, vtkIdType last, vtkIdType grain, FunctorInternal& fi);
 

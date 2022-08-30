@@ -17,7 +17,7 @@ PRIVATE_DEPENDS
 TEST_DEPENDS
   VTK::FiltersCore
   VTK::FiltersGeneral
-  VTK::FiltersCore
+  VTK::FiltersSMP
   VTK::ImagingCore
   VTK::FiltersSources
   VTK::IOCore

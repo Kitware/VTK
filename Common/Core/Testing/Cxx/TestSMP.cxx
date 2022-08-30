@@ -100,6 +100,46 @@ public:
   }
 };
 
+class NestedSingleFunctor
+{
+public:
+  vtkSMPThreadLocal<int> Counter;
+
+  NestedSingleFunctor()
+    : Counter(0)
+  {
+  }
+
+  void operator()(vtkIdType begin, vtkIdType end)
+  {
+    bool isSingleOuter = vtkSMPTools::GetSingleThread();
+    if (!isSingleOuter)
+    {
+      return;
+    }
+    for (int i = begin; i < end; i++)
+    {
+      vtkSMPThreadLocal<int> nestedCounter(0);
+      vtkSMPTools::For(0, 100, [&](vtkIdType start, vtkIdType stop) {
+        bool isSingleInner = vtkSMPTools::GetSingleThread();
+        if (!isSingleInner)
+        {
+          return;
+        }
+        for (vtkIdType j = start; j < stop; ++j)
+        {
+          nestedCounter.Local()++;
+        }
+      });
+
+      for (const auto& el : nestedCounter)
+      {
+        this->Counter.Local() += el;
+      }
+    }
+  }
+};
+
 class MyVTKClass : public vtkObject
 {
   int Value;
@@ -254,6 +294,31 @@ int doTestSMP()
     if (sumTarget != total)
     {
       cerr << "Error: on nested parallelism got " << total << " instead of " << sumTarget << endl;
+      return EXIT_FAILURE;
+    }
+  }
+
+  // Test GetSingleThread
+  if (std::string(vtkSMPTools::GetBackend()) != "Sequential")
+  {
+    NestedSingleFunctor functor5;
+    vtkSMPTools::LocalScope(
+      vtkSMPTools::Config{ true }, [&]() { vtkSMPTools::For(0, 100, functor5); });
+
+    vtkSMPThreadLocal<int>::iterator itr5 = functor5.Counter.begin();
+    vtkSMPThreadLocal<int>::iterator end5 = functor5.Counter.end();
+
+    total = 0;
+    while (itr5 != end5)
+    {
+      total += *itr5;
+      ++itr5;
+    }
+
+    if (total >= Target)
+    {
+      cerr << "Error: on GetSingleThread. " << total << " is greater than or equal to " << Target
+           << endl;
       return EXIT_FAILURE;
     }
   }

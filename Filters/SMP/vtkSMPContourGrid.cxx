@@ -280,6 +280,7 @@ public:
     vtkNew<vtkIdList> pids;
     T range[2];
     vtkIdType cellid;
+    bool isFirst = vtkSMPTools::GetSingleThread();
 
     // If UseScalarTree is enabled at this point, we assume that a scalar
     // tree has been computed and thus the way cells are traversed changes.
@@ -289,6 +290,14 @@ public:
       // to invoking contour.
       for (cellid = begin; cellid < end; cellid++)
       {
+        if (isFirst)
+        {
+          this->Filter->CheckAbort();
+        }
+        if (this->Filter->GetAbortOutput())
+        {
+          break;
+        }
         this->Input->GetCellPoints(cellid, pids);
         cs->SetNumberOfTuples(pids->GetNumberOfIds());
         this->InScalars->GetTuples(pids, cs);
@@ -381,6 +390,14 @@ public:
       vtkIdType numCells;
       for (vtkIdType batchNum = begin; batchNum < end; ++batchNum)
       {
+        if (isFirst)
+        {
+          this->Filter->CheckAbort();
+        }
+        if (this->Filter->GetAbortOutput())
+        {
+          break;
+        }
         cellIds = scalarTree->GetCellBatch(batchNum, numCells);
         for (vtkIdType idx = 0; idx < numCells; ++idx)
         {

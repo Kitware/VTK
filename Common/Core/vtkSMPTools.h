@@ -444,6 +444,12 @@ public:
   static bool IsParallelScope();
 
   /**
+   * Returns true if the given thread is specified thread
+   * for single scope. Returns false otherwise.
+   */
+  static bool GetSingleThread();
+
+  /**
    * Structure used to specify configuration for LocalScope() method.
    * Several parameters can be configured:
    *    - MaxNumberOfThreads set the maximum number of threads.

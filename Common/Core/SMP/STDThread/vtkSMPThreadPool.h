@@ -47,6 +47,7 @@ public:
 
   void Join();
   void DoJob(std::function<void(void)> job);
+  std::vector<std::thread>* GetThreads();
 
 private:
   void ThreadJob();

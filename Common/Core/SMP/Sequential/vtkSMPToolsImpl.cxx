@@ -36,6 +36,13 @@ int vtkSMPToolsImpl<BackendType::Sequential>::GetEstimatedNumberOfThreads()
   return 1;
 }
 
+//------------------------------------------------------------------------------
+template <>
+bool vtkSMPToolsImpl<BackendType::Sequential>::GetSingleThread()
+{
+  return true;
+}
+
 } // namespace smp
 } // namespace detail
 } // namespace vtk

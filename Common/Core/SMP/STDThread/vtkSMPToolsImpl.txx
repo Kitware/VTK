@@ -32,6 +32,9 @@ namespace smp
 {
 
 int VTKCOMMONCORE_EXPORT GetNumberOfThreadsSTDThread();
+bool VTKCOMMONCORE_EXPORT GetSingleThreadSTDThread();
+void VTKCOMMONCORE_EXPORT PushThreadId(std::thread::id id);
+void VTKCOMMONCORE_EXPORT PopThreadId();
 
 //--------------------------------------------------------------------------------
 template <typename FunctorInternal>
@@ -74,6 +77,8 @@ void vtkSMPToolsImpl<BackendType::STDThread>::For(
     bool fromParallelCode = this->IsParallel.exchange(true);
 
     vtkSMPThreadPool pool(threadNumber);
+    PushThreadId((pool.GetThreads())->at(0).get_id());
+
     for (vtkIdType from = first; from < last; from += grain)
     {
       auto job = std::bind(ExecuteFunctorSTDThread<FunctorInternal>, &fi, from, grain, last);
@@ -81,6 +86,7 @@ void vtkSMPToolsImpl<BackendType::STDThread>::For(
     }
     pool.Join();
 
+    PopThreadId();
     // Atomic contortion to achieve this->IsParallel &= fromParallelCode.
     // This compare&exchange basically boils down to:
     // if (IsParallel == trueFlag)
@@ -157,6 +163,10 @@ void vtkSMPToolsImpl<BackendType::STDThread>::Initialize(int);
 //--------------------------------------------------------------------------------
 template <>
 int vtkSMPToolsImpl<BackendType::STDThread>::GetEstimatedNumberOfThreads();
+
+//--------------------------------------------------------------------------------
+template <>
+bool vtkSMPToolsImpl<BackendType::STDThread>::GetSingleThread();
 
 } // namespace smp
 } // namespace detail

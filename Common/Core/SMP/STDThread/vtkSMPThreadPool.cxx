@@ -72,3 +72,8 @@ void vtk::detail::smp::vtkSMPThreadPool::ThreadJob()
     job();
   }
 }
+
+std::vector<std::thread>* vtk::detail::smp::vtkSMPThreadPool::GetThreads()
+{
+  return &(this->Threads);
+}

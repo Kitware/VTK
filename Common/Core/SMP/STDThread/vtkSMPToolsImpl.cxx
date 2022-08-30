@@ -17,6 +17,7 @@
 #include "SMP/STDThread/vtkSMPToolsImpl.txx"
 
 #include <cstdlib> // For std::getenv()
+#include <stack>   // For std::stack
 #include <thread>  // For std::thread::hardware_concurrency()
 
 namespace vtk
@@ -26,6 +27,8 @@ namespace detail
 namespace smp
 {
 static int specifiedNumThreads = 0;
+static std::stack<std::thread::id> threadIdStack;
+static std::mutex threadIdStackLock;
 
 //------------------------------------------------------------------------------
 template <>
@@ -58,10 +61,39 @@ int GetNumberOfThreadsSTDThread()
 }
 
 //------------------------------------------------------------------------------
+void PushThreadId(std::thread::id id)
+{
+  threadIdStackLock.lock();
+  threadIdStack.emplace(id);
+  threadIdStackLock.unlock();
+}
+
+//------------------------------------------------------------------------------
+void PopThreadId()
+{
+  threadIdStackLock.lock();
+  threadIdStack.pop();
+  threadIdStackLock.unlock();
+}
+
+//------------------------------------------------------------------------------
+bool GetSingleThreadSTDThread()
+{
+  return threadIdStack.top() == std::this_thread::get_id();
+}
+
+//------------------------------------------------------------------------------
 template <>
 int vtkSMPToolsImpl<BackendType::STDThread>::GetEstimatedNumberOfThreads()
 {
   return GetNumberOfThreadsSTDThread();
+}
+
+//------------------------------------------------------------------------------
+template <>
+bool vtkSMPToolsImpl<BackendType::STDThread>::GetSingleThread()
+{
+  return GetSingleThreadSTDThread();
 }
 
 } // namespace smp
