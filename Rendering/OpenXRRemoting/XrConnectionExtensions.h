@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    XrConnectionExtension.h
+  Module:    XrConnectionExtensions.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -28,7 +28,7 @@
 //
 //*********************************************************
 /**
- * @file   XrConnectionExtension.h
+ * @file   XrConnectionExtensions.h
  *
  * @brief  Load OpenXR extensions required for remote connection.
  *
@@ -47,8 +47,8 @@
  * vtkOpenXRManagerRemoteConnection XrExtensions.h XrGraphicsExtensions.h
  */
 
-#ifndef XrConnectionExtension_h
-#define XrConnectionExtension_h
+#ifndef XrConnectionExtensions_h
+#define XrConnectionExtensions_h
 
 #if XR_MSFT_holographic_remoting
 #define FOR_EACH_HAR_EXPERIMENTAL_EXTENSION_FUNCTION(_)                                            \

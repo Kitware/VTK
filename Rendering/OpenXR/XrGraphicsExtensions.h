@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    XrGraphicsExtension.h
+  Module:    XrGraphicsExtensions.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -28,7 +28,7 @@
 //
 //*********************************************************
 /**
- * @file   XrGraphicsExtension.h
+ * @file   XrGraphicsExtensions.h
  *
  * @brief  Load OpenXR extensions for the defined graphics backend.
  *
@@ -44,8 +44,8 @@
  * vtkOpenXrPlatform.h XrExtensions.h XrConnectionExtensions.h
  */
 
-#ifndef XrGraphicsExtension_h
-#define XrGraphicsExtension_h
+#ifndef XrGraphicsExtensions_h
+#define XrGraphicsExtensions_h
 
 #ifdef XR_USE_PLATFORM_WIN32
 #define FOR_EACH_WIN32_EXTENSION_FUNCTION(_) _(xrConvertWin32PerformanceCounterToTimeKHR)

@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    XrRextensions.h
+  Module:    XrExtensions.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -28,7 +28,7 @@
 //
 //*********************************************************
 /**
- * @file   XrRextensions.h
+ * @file   XrExtensions.h
  *
  * @brief  Load OpenXR extensions common to all platforms and graphics backend.
  *
@@ -42,8 +42,8 @@
  * vtkOpenXr.h XrGraphicsExtensions.h XrConnectionExtensions.h
  */
 
-#ifndef XrRextensions_h
-#define XrRextensions_h
+#ifndef XrExtensions_h
+#define XrExtensions_h
 
 #if XR_KHR_visibility_mask
 #define FOR_EACH_VISIBILITY_MASK_FUNCTION(_) _(xrGetVisibilityMaskKHR)
