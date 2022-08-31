@@ -9,8 +9,7 @@ vtk_add_test_mpi(vtkFiltersParallelMPICxxTests-MPI test_1_procs
 
 set(vtkFiltersParallelMPICxxTests-MPI_NUMPROCS 2)
 vtk_add_test_mpi(vtkFiltersParallelMPICxxTests-MPI test_2_procs
-  TestDistributedPointCloudFilter2,TestDistributedPointCloudFilter.cxx,
-  TestProbeLineFilter.cxx,NO_VALID
+  TestDistributedPointCloudFilter2,TestDistributedPointCloudFilter.cxx
   )
 
 set(vtkFiltersParallelMPICxxTests-MPI_NUMPROCS 5)
