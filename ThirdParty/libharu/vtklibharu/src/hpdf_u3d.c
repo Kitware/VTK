@@ -30,11 +30,11 @@ HPDF_U3D_LoadU3D  (HPDF_MMgr        mmgr,
 				   HPDF_Stream      u3d_data,
 				   HPDF_Xref        xref);
 
-static const char u3d[] = "U3D";
-static const char prc[] = "PRC";
-
 static HPDF_STATUS Get3DStreamType (HPDF_Stream  stream, const char **type)
 {
+	static const char sign_u3d[] = "U3D";
+	static const char sign_prc[] = "PRC";
+
 	HPDF_BYTE tag[4];
 	HPDF_UINT len;
 
@@ -49,13 +49,13 @@ static HPDF_STATUS Get3DStreamType (HPDF_Stream  stream, const char **type)
 		return HPDF_Error_GetCode (stream->error);
 	}
 
-	if (HPDF_MemCmp(tag, (HPDF_BYTE *)u3d, 4/* yes, \0 is required */) == 0) {
-		*type = u3d;
+	if (HPDF_MemCmp(tag, (HPDF_BYTE *)sign_u3d, 4/* yes, \0 is required */) == 0) {
+		*type = sign_u3d;
 		return HPDF_OK;
 	}
 
-	if (HPDF_MemCmp(tag, (HPDF_BYTE *)prc, 3) == 0) {
-		*type = prc;
+	if (HPDF_MemCmp(tag, (HPDF_BYTE *)sign_prc, 3) == 0) {
+		*type = sign_prc;
 		return HPDF_OK;
 	}
 
@@ -1157,4 +1157,3 @@ HPDF_EXPORT(HPDF_JavaScript) HPDF_LoadJSFromFile  (HPDF_Doc pdf, const char *fil
 }
 
 #undef normalize
-

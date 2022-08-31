@@ -37,9 +37,9 @@ static const char * const HPDF_ANNOT_TYPE_NAMES[] = {
                                         "Popup",
                                         "3D",
                                         "Squiggly",
-										"Line",
-										"Projection"
-										"Widget"
+					"Line",
+					"Projection",
+					"Widget"
                                         };
 
 static const char * const HPDF_ANNOT_ICON_NAMES_NAMES[] = {
