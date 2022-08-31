@@ -15,6 +15,7 @@ set(
   	hpdf_catalog.c
   	hpdf_destination.c
   	hpdf_dict.c
+  	hpdf_direct.c
   	hpdf_doc_png.c
   	hpdf_doc.c
   	hpdf_encoder_cns.c
@@ -69,37 +70,30 @@ set(
 )
 
 # =======================================================================
-# create static and shared haru library
+# create haru library
 # =======================================================================
 if (FALSE) # XXX(kitware): Use VTK's module system
-if(LIBHPDF_STATIC)
-  add_library(${LIBHPDF_NAME_STATIC} STATIC ${LIBHPDF_SRCS})
-  target_link_libraries(${LIBHPDF_NAME_STATIC} ${ADDITIONAL_LIBRARIES})
-  install(
-    TARGETS ${LIBHPDF_NAME_STATIC}
-    ARCHIVE DESTINATION lib
-    LIBRARY DESTINATION lib
-    RUNTIME DESTINATION bin
-  )
-  if(WIN32 AND NOT CYGWIN)
-		foreach(addlib ${ADDITIONAL_LIBRARIES})
-			install(FILES ${addlib} DESTINATION lib)
-		endforeach(addlib)
-  endif(WIN32 AND NOT CYGWIN)
-endif(LIBHPDF_STATIC)
-if(LIBHPDF_SHARED)
-  add_library(${LIBHPDF_NAME} SHARED ${LIBHPDF_SRCS})
-  target_link_libraries(${LIBHPDF_NAME} ${ADDITIONAL_LIBRARIES})
-  if(WIN32 AND NOT CYGWIN)
-  	set_target_properties(${LIBHPDF_NAME} PROPERTIES DEFINE_SYMBOL HPDF_DLL_MAKE)
-  endif(WIN32 AND NOT CYGWIN)
-  install(
-    TARGETS ${LIBHPDF_NAME}
-    ARCHIVE DESTINATION lib
-    LIBRARY DESTINATION lib
-    RUNTIME DESTINATION bin
-  )
-endif(LIBHPDF_SHARED)
+add_library(haru ${LIBHPDF_SRCS})
+if (PNG_FOUND)
+    include_directories (${PNG_INCLUDE_DIRS})
+    target_link_libraries (haru ${PNG_LIBRARIES})
+endif()
+if (ZLIB_FOUND)
+    include_directories (${ZLIB_INCLUDE_DIRS})
+    target_link_libraries (haru ${ZLIB_LIBRARIES})
+endif()
+
+# Math library
+if(UNIX AND NOT APPLE)
+    target_link_libraries (haru ${M_LIB})
+endif()
+
+install(
+   TARGETS
+   ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+)
 else ()
   vtk_module_add_module(VTK::libharu
     SOURCES ${LIBHPDF_SRCS})

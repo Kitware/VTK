@@ -1,7 +1,6 @@
 /* include/hpdf_config.h.in.  Generated from configure.in by autoheader.  */
 
-/* KITWARE_LIBHARU_CHANGE Include the symbol name mangler: */
-#include "vtk_haru_mangle.h"
+#include "vtk_haru_mangle.h" // XXX(kitware): mangle symbols
 
 /* Define to 1 if you have the <dlfcn.h> header file. */
 #cmakedefine LIBHPDF_HAVE_DLFCN_H
@@ -44,13 +43,6 @@
 
 /* debug trace enabled */
 #cmakedefine LIBHPDF_DEBUG_TRACE
-
-/* libpng is not available */
-#cmakedefine LIBHPDF_HAVE_NOPNGLIB
-#cmakedefine HPDF_NOPNGLIB
-
-/* zlib is not available */
-#cmakedefine LIBHPDF_HAVE_NOZLIB
 
 /* Define to the address where bug reports for this package should be sent. */
 #cmakedefine LIBHPDF_PACKAGE_BUGREPORT "@LIBHPDF_PACKAGE_BUGREPORT@"
