@@ -20,11 +20,11 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkHyperTreeGrid.h"
 
 #include <cassert>
+#include <limits>
 
 //------------------------------------------------------------------------------
 vtkHyperTreeGridGeometryUnlimitedEntry::vtkHyperTreeGridGeometryUnlimitedEntry()
 {
-  this->Index = 0;
   for (unsigned int d = 0; d < 3; ++d)
   {
     this->Origin[d] = 0.;
@@ -32,10 +32,32 @@ vtkHyperTreeGridGeometryUnlimitedEntry::vtkHyperTreeGridGeometryUnlimitedEntry()
 }
 
 //------------------------------------------------------------------------------
+vtkHyperTreeGridGeometryUnlimitedEntry::vtkHyperTreeGridGeometryUnlimitedEntry(
+  vtkIdType index, const double* origin)
+{
+  this->Index = index;
+  if (index != std::numeric_limits<unsigned int>::max())
+  {
+    this->LastRealIndex = index;
+  }
+  else
+  {
+    vtkWarningWithObjectMacro(
+      nullptr, "Attemp to construct a geometry entry from an invalid index.");
+    this->LastRealIndex = vtkHyperTreeGrid::InvalidIndex;
+  }
+
+  for (unsigned int d = 0; d < 3; ++d)
+  {
+    this->Origin[d] = origin[d];
+  }
+}
+//------------------------------------------------------------------------------
 void vtkHyperTreeGridGeometryUnlimitedEntry::PrintSelf(ostream& os, vtkIndent indent)
 {
   os << indent << "--vtkHyperTreeGridGeometryLevelEntry--" << endl;
   os << indent << "Index:" << this->Index << endl;
+  os << indent << "LastRealIndex:" << this->LastRealIndex << endl;
   os << indent << "Origin:" << this->Origin[0] << ", " << this->Origin[1] << ", " << this->Origin[2]
      << endl;
 }
@@ -44,6 +66,7 @@ void vtkHyperTreeGridGeometryUnlimitedEntry::PrintSelf(ostream& os, vtkIndent in
 void vtkHyperTreeGridGeometryUnlimitedEntry::Dump(ostream& os)
 {
   os << "Index:" << this->Index << endl;
+  os << "LastRealIndex:" << this->LastRealIndex << endl;
   os << "Origin:" << this->Origin[0] << ", " << this->Origin[1] << ", " << this->Origin[2] << endl;
 }
 
@@ -103,55 +126,70 @@ bool vtkHyperTreeGridGeometryUnlimitedEntry::IsMasked(
 
 //------------------------------------------------------------------------------
 bool vtkHyperTreeGridGeometryUnlimitedEntry::IsLeaf(
-  const vtkHyperTreeGrid* grid, const vtkHyperTree* tree, unsigned int level) const
+  const vtkHyperTreeGrid* grid, const vtkHyperTree* vtkNotUsed(tree), unsigned int level) const
 {
-  assert("pre: not_tree" && tree);
-  if (level == const_cast<vtkHyperTreeGrid*>(grid)->GetDepthLimiter())
+  if (level >= const_cast<vtkHyperTreeGrid*>(grid)->GetDepthLimiter())
   {
     return true;
   }
+  return false;
+}
+
+//------------------------------------------------------------------------------
+bool vtkHyperTreeGridGeometryUnlimitedEntry::IsRealLeaf(const vtkHyperTree* tree) const
+{
+  assert("pre: not_tree" && tree);
+  assert("pre: not_virtual" && !this->IsVirtualLeaf(tree));
   return tree->IsLeaf(this->Index);
 }
 
 //------------------------------------------------------------------------------
-void vtkHyperTreeGridGeometryUnlimitedEntry::SubdivideLeaf(
-  const vtkHyperTreeGrid* grid, vtkHyperTree* tree, unsigned int level)
+bool vtkHyperTreeGridGeometryUnlimitedEntry::IsVirtualLeaf(
+  const vtkHyperTree* vtkNotUsed(tree)) const
 {
-  assert("pre: not_tree" && tree);
-  assert("pre: depth_limiter" && level <= const_cast<vtkHyperTreeGrid*>(grid)->GetDepthLimiter());
-  assert("pre: is_masked" && !this->IsMasked(grid, tree));
-  if (this->IsLeaf(grid, tree, level))
-  {
-    tree->SubdivideLeaf(this->Index, level);
-  }
+  return this->LastRealIndex != this->Index;
 }
 
 //------------------------------------------------------------------------------
 bool vtkHyperTreeGridGeometryUnlimitedEntry::IsTerminalNode(
-  const vtkHyperTreeGrid* grid, const vtkHyperTree* tree, unsigned int level) const
+  const vtkHyperTreeGrid* grid, const vtkHyperTree* vtkNotUsed(tree), unsigned int level) const
 {
-  assert("pre: not_tree" && tree);
-  bool result = !this->IsLeaf(grid, tree, level);
-  if (result)
+  if (level + 1 == const_cast<vtkHyperTreeGrid*>(grid)->GetDepthLimiter())
   {
-    result = tree->IsTerminalNode(this->Index);
+    return true;
   }
-  assert("post: compatible" && (!result || !this->IsLeaf(grid, tree, level)));
-  return result;
+  return false;
 }
 
 //------------------------------------------------------------------------------
 void vtkHyperTreeGridGeometryUnlimitedEntry::ToChild(const vtkHyperTreeGrid* grid,
-  const vtkHyperTree* tree, unsigned int level, const double* sizeChild, unsigned char ichild)
+  const vtkHyperTree* tree, unsigned int vtkNotUsed(level), const double* sizeChild,
+  unsigned char ichild)
 {
-  (void)level;
   assert("pre: not_tree" && tree);
-  assert("pre: not_leaf" && !this->IsLeaf(grid, tree, level));
-  assert("pre: not_valid_child" && ichild < tree->GetNumberOfChildren());
-  assert("pre: depth_limiter" && level <= const_cast<vtkHyperTreeGrid*>(grid)->GetDepthLimiter());
   assert("pre: is_masked" && !IsMasked(grid, tree));
 
-  this->Index = tree->GetElderChildIndex(this->Index) + ichild;
+  size_t indexMax = 0;
+  tree->GetElderChildIndexArray(indexMax);
+  if (this->Index >= 0 && this->Index < static_cast<vtkIdType>(indexMax))
+  {
+    vtkIdType elder = tree->GetElderChildIndex(this->Index);
+    if (elder != std::numeric_limits<unsigned int>::max())
+    {
+      this->Index = elder + ichild;
+      this->LastRealIndex = this->Index;
+    }
+    else
+    {
+      // first virtual cell
+      this->Index = vtkHyperTreeGrid::InvalidIndex;
+    }
+  }
+  else
+  {
+    // cell is already virtual
+    this->Index = vtkHyperTreeGrid::InvalidIndex;
+  }
 
   // Divide cell size and translate origin per template parameter
   switch (tree->GetNumberOfChildren())

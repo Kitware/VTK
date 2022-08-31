@@ -1,0 +1,320 @@
+/*=========================================================================
+
+  Program:   Visualization Toolkit
+  Module:    TestHyperTreeGridCursor.cxx
+
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the above copyright notice for more information.
+
+=========================================================================*/
+#include "vtkBitArray.h"
+#include "vtkHyperTree.h"
+#include "vtkHyperTreeGridNonOrientedCursor.h"
+#include "vtkHyperTreeGridNonOrientedMooreSuperCursor.h"
+#include "vtkHyperTreeGridNonOrientedUnlimitedGeometryCursor.h"
+#include "vtkHyperTreeGridNonOrientedUnlimitedMooreSuperCursor.h"
+#include "vtkHyperTreeGridNonOrientedVonNeumannSuperCursor.h"
+#include "vtkHyperTreeGridOrientedCursor.h"
+#include "vtkUniformHyperTreeGrid.h"
+
+#include <iostream>
+#include <string>
+
+namespace
+{
+
+template <typename CursorType>
+struct is_unlimited : public std::false_type
+{
+};
+
+// register here unlimited cursor types
+template <>
+struct is_unlimited<vtkHyperTreeGridNonOrientedUnlimitedGeometryCursor> : public std::true_type
+{
+};
+template <>
+struct is_unlimited<vtkHyperTreeGridNonOrientedUnlimitedMooreSuperCursor> : public std::true_type
+{
+};
+
+//------------------------------------------------------------------------------
+class TestCursor
+{
+
+public:
+  template <typename t, typename std::enable_if<!is_unlimited<t>::value>::type* = nullptr>
+  int doTest(t* mcur)
+  {
+    if (mcur->IsLeaf())
+    {
+      return 1;
+    }
+    int res = 1;
+    const auto nbChilds = mcur->GetNumberOfChildren();
+    for (int i = 0; i < nbChilds; i++)
+    {
+      mcur->ToChild(i);
+      res += this->doTest(mcur);
+      mcur->ToParent();
+    }
+    return res;
+  }
+
+  template <typename t, typename std::enable_if<is_unlimited<t>::value>::type* = nullptr>
+  int doTest(t* mcur)
+  {
+    // For unlimited type, we descend 10 times independantly of the tree shape
+    // this goes deeper than the lowest child anyway
+    for (int i = 0; i < 10; i++)
+    {
+      mcur->ToChild(0);
+      double b[6];
+      mcur->GetBounds(b);
+      std::cout << "bounds:" << b[0] << " " << b[1] << " " << b[2] << " " << b[3] << " " << b[4]
+                << " " << b[5] << std::endl;
+      double* orig = mcur->GetOrigin();
+      std::cout << "orig: " << orig[0] << " " << orig[1] << " " << orig[2] << " " << std::endl;
+
+      auto vertex_id = mcur->GetVertexId();
+      std::cout << "vertex id: " << vertex_id << std::endl;
+      if (vertex_id == std::numeric_limits<unsigned int>::max())
+      {
+        // value used in elder child for invalid childs
+        std::cerr << "Error: invalid vertex_id encountered while going down in doTest" << std::endl;
+      }
+    }
+    for (int i = 0; i < 10; i++)
+    {
+      auto vertex_id = mcur->GetVertexId();
+      std::cout << "vertex id: " << vertex_id << std::endl;
+      if (vertex_id == std::numeric_limits<unsigned int>::max())
+      {
+        std::cerr << "Error: invalid vertex_id encountered while going up in doTest" << std::endl;
+      }
+      mcur->ToParent();
+    }
+
+    std::cout << "second descent" << std::endl;
+
+    // second descent
+    for (int i = 0; i < 10; i++)
+    {
+      mcur->ToChild(1);
+      double b[6];
+      mcur->GetBounds(b);
+      std::cout << "bounds:" << b[0] << " " << b[1] << " " << b[2] << " " << b[3] << " " << b[4]
+                << " " << b[5] << std::endl;
+      double* orig = mcur->GetOrigin();
+      std::cout << "orig: " << orig[0] << " " << orig[1] << " " << orig[2] << " " << std::endl;
+
+      auto vertex_id = mcur->GetVertexId();
+      std::cout << "vertex id: " << vertex_id << std::endl;
+      if (vertex_id == std::numeric_limits<unsigned int>::max())
+      {
+        std::cerr << "Error: invalid vertex_id encountered while going down in doTest" << std::endl;
+      }
+    }
+    for (int i = 0; i < 10; i++)
+    {
+      auto vertex_id = mcur->GetVertexId();
+      std::cout << "vertex id: " << vertex_id << std::endl;
+      if (vertex_id == std::numeric_limits<unsigned int>::max())
+      {
+        std::cerr << "Error: invalid vertex_id encountered while going up in doTest" << std::endl;
+      }
+      mcur->ToParent();
+    }
+
+    return 0;
+  }
+
+  ~TestCursor() = default;
+};
+
+//------------------------------------------------------------------------------
+void generateQuadTreeHTG(vtkUniformHyperTreeGrid* uhtg, unsigned int treeId)
+{
+  std::cout << "Initializing quadtree " << treeId << "\n";
+  std::cout.flush();
+  vtkNew<vtkHyperTreeGridNonOrientedCursor> cursor;
+  uhtg->InitializeNonOrientedCursor(cursor, treeId, true);
+  cursor->SetGlobalIndexStart(uhtg->GetNumberOfCells());
+  // level 0
+  cursor->SubdivideLeaf();
+  cursor->ToChild(0);
+  // level 1.0
+  cursor->SubdivideLeaf();
+  cursor->ToParent();
+  // level 0
+  cursor->ToChild(1);
+  // level 1.1
+  cursor->SubdivideLeaf();
+  cursor->ToParent();
+  // level 0
+  cursor->ToChild(0);
+  // level 1.0
+  cursor->ToChild(0);
+  // level 2.0
+  cursor->SubdivideLeaf();
+  cursor->ToChild(2);
+  // level 3.2
+  cursor->SubdivideLeaf();
+  cursor->ToChild(0);
+  // level 4.0
+  cursor->SubdivideLeaf();
+}
+
+//------------------------------------------------------------------------------
+void generateOctreeHTG(vtkUniformHyperTreeGrid* uhtg, unsigned int treeId)
+{
+  std::cout << "Initializing octree " << treeId << "\n";
+  std::cout.flush();
+
+  vtkNew<vtkHyperTreeGridNonOrientedCursor> cursor;
+  uhtg->InitializeNonOrientedCursor(cursor, treeId, true);
+  cursor->SetGlobalIndexStart(uhtg->GetNumberOfCells());
+
+  // level 0
+  // CursorIndex: 0
+  // level 0, 0
+  cursor->SubdivideLeaf();
+  // CursorIndex: 1
+  cursor->ToChild(3);
+  // level 1, 0.3
+  cursor->SubdivideLeaf();
+  // CursorIndex: 1
+  cursor->ToChild(1);
+  // level 2, 0.3.1
+  cursor->ToParent();
+  // level 1, 0.3
+  cursor->ToParent();
+  // level 0, 0
+  cursor->ToChild(0);
+  // level 1, 0.0
+  cursor->SubdivideLeaf();
+  // CursorIndex: 1 17
+  cursor->ToChild(7);
+}
+
+//------------------------------------------------------------------------------
+void initQuadTreeHTG(vtkUniformHyperTreeGrid* uhtg)
+{
+  std::cout << "Initializing Uniform Grid\n";
+  std::cout.flush();
+  uhtg->SetBranchFactor(2);
+  uhtg->SetGridScale(1.1);
+  uhtg->SetOrigin(0., 0., 0.);
+  uhtg->SetDimensions(5, 2, 1);
+
+  generateQuadTreeHTG(uhtg, 1);
+  generateQuadTreeHTG(uhtg, 3);
+}
+//------------------------------------------------------------------------------
+void initOctreeHTG(vtkUniformHyperTreeGrid* uhtg)
+{
+  std::cout << "Initializing Uniform Grid\n";
+  std::cout.flush();
+  uhtg->SetBranchFactor(2);
+  uhtg->SetGridScale(1.1);
+  uhtg->SetOrigin(0., 0., 0.);
+  uhtg->SetDimensions(3, 3, 2);
+  generateOctreeHTG(uhtg, 0);
+  generateOctreeHTG(uhtg, 1);
+}
+
+} // anonymous namespace
+
+//------------------------------------------------------------------------------
+int TestHyperTreeGridCursors(int, char*[])
+{
+  std::cout << "Starting test 1\n";
+  std::cout.flush();
+
+  // Quad tree
+  {
+    vtkNew<vtkUniformHyperTreeGrid> uhtg1;
+    initQuadTreeHTG(uhtg1);
+
+    const int expectedResult = 25;
+
+    vtkNew<vtkHyperTreeGridNonOrientedMooreSuperCursor> mooreSC;
+    uhtg1->InitializeNonOrientedMooreSuperCursor(mooreSC, 1);
+    TestCursor test1;
+    auto res1 = test1.doTest(mooreSC.Get());
+    if (res1 != expectedResult)
+    {
+      std::cerr << "ERROR non oriented moore supercursor visited " << res1 << " leaves instead of "
+                << expectedResult << std::endl;
+    }
+
+    vtkNew<vtkHyperTreeGridNonOrientedVonNeumannSuperCursor> vonNeumannSC;
+    uhtg1->InitializeNonOrientedVonNeumannSuperCursor(vonNeumannSC, 1);
+    TestCursor test2;
+    auto res2 = test2.doTest(vonNeumannSC.Get());
+    if (res2 != expectedResult)
+    {
+      std::cerr << "ERROR non oriented von neumann supercursor visited " << res2
+                << " leaves instead of " << expectedResult << std::endl;
+    }
+
+    vtkNew<vtkHyperTreeGridNonOrientedUnlimitedGeometryCursor> unlimitedGeo;
+    uhtg1->InitializeNonOrientedUnlimitedGeometryCursor(unlimitedGeo, 1);
+    TestCursor test3;
+    test3.doTest(unlimitedGeo.Get());
+    // no result for unlimited
+
+    vtkNew<vtkHyperTreeGridNonOrientedUnlimitedMooreSuperCursor> unlimtedMooreSC;
+    uhtg1->InitializeNonOrientedUnlimitedMooreSuperCursor(unlimtedMooreSC, 1);
+    TestCursor test4;
+    test4.doTest(unlimtedMooreSC.Get());
+    // no result for unlimited
+  }
+
+  // Octree
+  {
+    vtkNew<vtkUniformHyperTreeGrid> uhtg2;
+    initOctreeHTG(uhtg2);
+
+    const int expectedResult = 25;
+
+    vtkNew<vtkHyperTreeGridNonOrientedMooreSuperCursor> mooreSC;
+    uhtg2->InitializeNonOrientedMooreSuperCursor(mooreSC, 0);
+    TestCursor test1;
+    auto res1 = test1.doTest(mooreSC.Get());
+    if (res1 != expectedResult)
+    {
+      std::cerr << "ERROR non oriented moore supercursor visited " << res1 << " leaves instead of "
+                << expectedResult << std::endl;
+    }
+
+    vtkNew<vtkHyperTreeGridNonOrientedVonNeumannSuperCursor> vonNeumannSC;
+    uhtg2->InitializeNonOrientedVonNeumannSuperCursor(vonNeumannSC, 0);
+    TestCursor test2;
+    auto res2 = test2.doTest(vonNeumannSC.Get());
+    if (res2 != expectedResult)
+    {
+      std::cerr << "ERROR non oriented von neumann supercursor visited " << res2
+                << " leaves instead of " << expectedResult << std::endl;
+    }
+
+    vtkNew<vtkHyperTreeGridNonOrientedUnlimitedGeometryCursor> unlimitedGeo;
+    uhtg2->InitializeNonOrientedUnlimitedGeometryCursor(unlimitedGeo, 1);
+    TestCursor test3;
+    test3.doTest(unlimitedGeo.Get());
+    // no result for unlimited
+
+    vtkNew<vtkHyperTreeGridNonOrientedUnlimitedMooreSuperCursor> unlimtedMooreSC;
+    uhtg2->InitializeNonOrientedUnlimitedMooreSuperCursor(unlimtedMooreSC, 1);
+    TestCursor test4;
+    test4.doTest(unlimtedMooreSC.Get());
+    // no result for unlimited
+  }
+
+  return 0;
+}

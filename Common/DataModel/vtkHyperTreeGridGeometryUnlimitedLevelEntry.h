@@ -22,6 +22,7 @@
  * vtkHyperTreeGridEntry
  * vtkHyperTreeGridLevelEntry
  * vtkHyperTreeGridGeometryEntry
+ * vtkHyperTreeGridGeometryLevelEntry
  * vtkHyperTreeGridGeometryUnlimitedLevelEntry
  * vtkHyperTreeGridNonOrientedSuperCursor
  * vtkHyperTreeGridNonOrientedSuperCursorLight
@@ -82,16 +83,7 @@ public:
   /**
    * Initialize cache entry from explicit required data
    */
-  void Initialize(vtkHyperTree* tree, unsigned int level, vtkIdType index, const double* origin)
-  {
-    this->Tree = tree;
-    this->Level = level;
-    this->Index = index;
-    for (unsigned int d = 0; d < 3; ++d)
-    {
-      this->Origin[d] = origin[d];
-    }
-  }
+  void Initialize(vtkHyperTree* tree, unsigned int level, vtkIdType index, const double* origin);
 
   /**
    * Initialize cache entry at root of given tree index in grid.
@@ -113,6 +105,7 @@ public:
   void Copy(const vtkHyperTreeGridGeometryUnlimitedLevelEntry* entry)
   {
     this->Initialize(entry->Tree, entry->Level, entry->Index, entry->Origin);
+    this->LastRealIndex = entry->LastRealIndex;
   }
 
   /**
@@ -146,7 +139,7 @@ public:
    * Return the index of the current vertex in the tree.
    * \pre not_tree: tree
    */
-  vtkIdType GetVertexId() const { return this->Index; }
+  vtkIdType GetVertexId() const { return this->LastRealIndex; }
 
   /**
    * Return the global index (relative to the grid) of the
@@ -185,15 +178,6 @@ public:
    * Return true if level == grid->GetDepthLimiter()
    */
   bool IsLeaf(const vtkHyperTreeGrid* grid) const;
-
-  /**
-   * Change the current cell's status: if leaf then becomes coarse and
-   * all its children are created, cf. HyperTree.
-   * \pre not_tree: tree
-   * \pre depth_limiter: level == grid->GetDepthLimiter()
-   * \pre is_masked: IsMasked
-   */
-  void SubdivideLeaf(const vtkHyperTreeGrid* grid);
 
   /**
    * Is the cursor pointing to a coarse with all childrens being leaves ?
@@ -251,12 +235,17 @@ private:
   /**
    * level of the current cell in the HyperTree.
    */
-  unsigned int Level;
+  unsigned int Level = 0;
 
   /**
    * index of the current cell in the HyperTree.
    */
-  vtkIdType Index;
+  vtkIdType Index = 0;
+
+  /**
+   * index of the last real cell visited in the HyperTree
+   */
+  vtkIdType LastRealIndex = 0;
 
   /**
    * origin coiordinates of the current cell

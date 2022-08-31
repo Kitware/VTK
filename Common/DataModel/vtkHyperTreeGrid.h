@@ -80,10 +80,12 @@ class vtkHyperTreeGridOrientedCursor;
 class vtkHyperTreeGridOrientedGeometryCursor;
 class vtkHyperTreeGridNonOrientedCursor;
 class vtkHyperTreeGridNonOrientedGeometryCursor;
+class vtkHyperTreeGridNonOrientedUnlimitedGeometryCursor;
 class vtkHyperTreeGridNonOrientedVonNeumannSuperCursor;
 class vtkHyperTreeGridNonOrientedVonNeumannSuperCursorLight;
 class vtkHyperTreeGridNonOrientedMooreSuperCursor;
 class vtkHyperTreeGridNonOrientedMooreSuperCursorLight;
+class vtkHyperTreeGridNonOrientedUnlimitedMooreSuperCursor;
 class vtkDoubleArray;
 class vtkDataSetAttributes;
 class vtkIdTypeArray;
@@ -390,35 +392,40 @@ public:
   vtkGetMacro(DepthLimiter, unsigned int);
   ///@}
 
+  ///@{
   /**
-   * JB
+   * Used to initialize a cursor of the given type.
+   *
+   * cursor: the cursor to initalize
+   *
+   * index: the index of the tree to use in the HTG
+   *
+   * create: allow to construct the hyper tree if the slot is empty
    */
   void InitializeOrientedCursor(
     vtkHyperTreeGridOrientedCursor* cursor, vtkIdType index, bool create = false);
   vtkHyperTreeGridOrientedCursor* NewOrientedCursor(vtkIdType index, bool create = false);
 
-  /**
-   * JB
-   */
   void InitializeOrientedGeometryCursor(
     vtkHyperTreeGridOrientedGeometryCursor* cursor, vtkIdType index, bool create = false);
   vtkHyperTreeGridOrientedGeometryCursor* NewOrientedGeometryCursor(
     vtkIdType index, bool create = false);
 
-  /**
-   * JB
-   */
   void InitializeNonOrientedCursor(
     vtkHyperTreeGridNonOrientedCursor* cursor, vtkIdType index, bool create = false);
   vtkHyperTreeGridNonOrientedCursor* NewNonOrientedCursor(vtkIdType index, bool create = false);
 
-  /**
-   * JB
-   */
   void InitializeNonOrientedGeometryCursor(
     vtkHyperTreeGridNonOrientedGeometryCursor* cursor, vtkIdType index, bool create = false);
   vtkHyperTreeGridNonOrientedGeometryCursor* NewNonOrientedGeometryCursor(
     vtkIdType index, bool create = false);
+
+  void InitializeNonOrientedUnlimitedGeometryCursor(
+    vtkHyperTreeGridNonOrientedUnlimitedGeometryCursor* cursor, vtkIdType index,
+    bool create = false);
+  vtkHyperTreeGridNonOrientedUnlimitedGeometryCursor* NewNonOrientedUnlimitedGeometryCursor(
+    vtkIdType index, bool create = false);
+  ///@}
 
   /**
    * JB Retourne un curseur geometrique pointant une des mailles comportant la position spatiale x
@@ -436,38 +443,43 @@ public:
   virtual unsigned int FindDichotomicY(double value, double tol = 0.0) const;
   virtual unsigned int FindDichotomicZ(double value, double tol = 0.0) const;
 
+  ///@{
   /**
-   * JB
+   * Used to initialize a cursor of the given type.
+   *
+   * cursor: the cursor to initalize
+   *
+   * index: the index of the tree to use in the HTG
+   *
+   * create: allow to construct the hyper tree if the slot is empty
    */
   void InitializeNonOrientedVonNeumannSuperCursor(
     vtkHyperTreeGridNonOrientedVonNeumannSuperCursor* cursor, vtkIdType index, bool create = false);
   vtkHyperTreeGridNonOrientedVonNeumannSuperCursor* NewNonOrientedVonNeumannSuperCursor(
     vtkIdType index, bool create = false);
 
-  /**
-   * JB
-   */
   void InitializeNonOrientedVonNeumannSuperCursorLight(
     vtkHyperTreeGridNonOrientedVonNeumannSuperCursorLight* cursor, vtkIdType index,
     bool create = false);
   vtkHyperTreeGridNonOrientedVonNeumannSuperCursorLight* NewNonOrientedVonNeumannSuperCursorLight(
     vtkIdType index, bool create = false);
 
-  /**
-   * JB
-   */
   void InitializeNonOrientedMooreSuperCursor(
     vtkHyperTreeGridNonOrientedMooreSuperCursor* cursor, vtkIdType index, bool create = false);
   vtkHyperTreeGridNonOrientedMooreSuperCursor* NewNonOrientedMooreSuperCursor(
     vtkIdType index, bool create = false);
 
-  /**
-   * JB
-   */
   void InitializeNonOrientedMooreSuperCursorLight(
     vtkHyperTreeGridNonOrientedMooreSuperCursorLight* cursor, vtkIdType index, bool create = false);
   vtkHyperTreeGridNonOrientedMooreSuperCursorLight* NewNonOrientedMooreSuperCursorLight(
     vtkIdType index, bool create = false);
+
+  void InitializeNonOrientedUnlimitedMooreSuperCursor(
+    vtkHyperTreeGridNonOrientedUnlimitedMooreSuperCursor* cursor, vtkIdType index,
+    bool create = false);
+  vtkHyperTreeGridNonOrientedUnlimitedMooreSuperCursor* NewNonOrientedUnlimitedMooreSuperCursor(
+    vtkIdType index, bool create = false);
+  ///@}
 
   /**
    * Restore data object to initial state.

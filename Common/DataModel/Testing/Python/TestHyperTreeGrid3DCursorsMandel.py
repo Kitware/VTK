@@ -89,8 +89,6 @@ def handleNode(cursor, sideArray, levelArray):
 # Create Simple HTG
 # -----------------------------------------------------------------------------
 
-geoCursor = vtk.vtkHyperTreeGridNonOrientedGeometryCursor()
-
 htg = vtk.vtkHyperTreeGrid()
 htg.Initialize()
 htg.SetDimensions(
@@ -128,6 +126,8 @@ zValues.SetValue(0, 0)
 zValues.SetValue(1, 0.25)
 htg.SetZCoordinates(zValues)
 
+geoCursor = vtk.vtkHyperTreeGridNonOrientedGeometryCursor()
+
 offsetIndex = 0
 for treeId in range(htg.GetMaxNumberOfTrees()):
     htg.InitializeNonOrientedGeometryCursor(geoCursor, treeId, True)
@@ -140,23 +140,24 @@ print("offsetIndex: ", offsetIndex)
 # Squeeze
 htg.Squeeze()
 
-# Activation d'une scalaire
+# Select an active scalar field
 htg.GetCellData().SetActiveScalars("sideArray")
 
 # DataRange sideArray on PointData HTG
 dataRange = htg.GetCellData().GetArray("sideArray").GetRange()
 print("sideArray on PointData HTG:", dataRange)
-print("HTG:", htg.GetNumberOfVertices())
+print("HTG:", htg.GetNumberOfCells())
 
 
 # Tests cursors... in Python
-def recursive(cursor):
-    if cursor.IsLeaf():
+# maxDepth allows for testing even unlimited cursors
+def recursive(cursor, maxDepth=-1):
+    if cursor.IsLeaf() or maxDepth == 0:
         return 1
     nb = 0
     for ichild in range(cursor.GetNumberOfChildren()):
         cursor.ToChild(ichild)
-        nb += recursive(cursor)
+        nb += recursive(cursor, maxDepth - 1)
         cursor.ToParent()
     return nb
 
@@ -223,6 +224,21 @@ def nonOrientedMooreSuperCursor(htg, expected):
 
 
 nonOrientedMooreSuperCursor(htg, expected)
+
+
+def nonOrientedUnlimitedMooreSuperCursor(htg):
+    nb = 0
+    cursor = vtk.vtkHyperTreeGridNonOrientedUnlimitedMooreSuperCursor()
+    for treeId in range(3):
+        htg.InitializeNonOrientedUnlimitedMooreSuperCursor(cursor, treeId)
+        nb += recursive(cursor, 3)
+    if nb != 3*512:
+        print("ERROR Unexcpected value for unlimited cursor")
+    return nb
+
+
+nonOrientedUnlimitedMooreSuperCursor(htg)
+
 
 # Test Find
 findx = [

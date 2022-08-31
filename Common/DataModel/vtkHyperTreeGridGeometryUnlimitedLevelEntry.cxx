@@ -22,6 +22,29 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkHyperTreeGridScales.h"
 
 #include <cassert>
+#include <limits>
+
+//------------------------------------------------------------------------------
+void vtkHyperTreeGridGeometryUnlimitedLevelEntry::Initialize(
+  vtkHyperTree* tree, unsigned int level, vtkIdType index, const double* origin)
+{
+  this->Tree = tree;
+  this->Level = level;
+  this->Index = index;
+  for (unsigned int d = 0; d < 3; ++d)
+  {
+    this->Origin[d] = origin[d];
+  }
+}
+
+//------------------------------------------------------------------------------
+vtkHyperTree* vtkHyperTreeGridGeometryUnlimitedLevelEntry::Initialize(
+  vtkHyperTreeGrid* grid, vtkIdType treeIndex, bool create)
+{
+  this->Tree = grid->GetTree(treeIndex, create);
+  grid->GetLevelZeroOriginFromIndex(treeIndex, this->Origin);
+  return this->Tree;
+}
 
 //------------------------------------------------------------------------------
 void vtkHyperTreeGridGeometryUnlimitedLevelEntry::PrintSelf(ostream& os, vtkIndent indent)
@@ -30,6 +53,7 @@ void vtkHyperTreeGridGeometryUnlimitedLevelEntry::PrintSelf(ostream& os, vtkInde
   this->Tree->PrintSelf(os, indent);
   os << indent << "Level:" << this->Level << endl;
   os << indent << "Index:" << this->Index << endl;
+  os << indent << "LastRealIndex:" << this->LastRealIndex << endl;
   os << indent << "Origin:" << this->Origin[0] << ", " << this->Origin[1] << ", " << this->Origin[2]
      << endl;
 }
@@ -39,18 +63,8 @@ void vtkHyperTreeGridGeometryUnlimitedLevelEntry::Dump(ostream& os)
 {
   os << "Level:" << this->Level << endl;
   os << "Index:" << this->Index << endl;
+  os << "LastRealIndex:" << this->LastRealIndex << endl;
   os << "Origin:" << this->Origin[0] << ", " << this->Origin[1] << ", " << this->Origin[2] << endl;
-}
-
-//------------------------------------------------------------------------------
-vtkHyperTree* vtkHyperTreeGridGeometryUnlimitedLevelEntry::Initialize(
-  vtkHyperTreeGrid* grid, vtkIdType treeIndex, bool create)
-{
-  this->Tree = grid->GetTree(treeIndex, create);
-  this->Level = 0;
-  this->Index = 0;
-  grid->GetLevelZeroOriginFromIndex(treeIndex, this->Origin);
-  return this->Tree;
 }
 
 //------------------------------------------------------------------------------
@@ -98,39 +112,22 @@ bool vtkHyperTreeGridGeometryUnlimitedLevelEntry::IsMasked(const vtkHyperTreeGri
 bool vtkHyperTreeGridGeometryUnlimitedLevelEntry::IsLeaf(const vtkHyperTreeGrid* grid) const
 {
   assert("pre: not_tree" && this->Tree);
-  // How to set an accessor to DepthLimiter which is const?
-  if (this->Level == const_cast<vtkHyperTreeGrid*>(grid)->GetDepthLimiter())
+  if (this->Level >= const_cast<vtkHyperTreeGrid*>(grid)->GetDepthLimiter())
   {
     return true;
   }
-  return this->Tree->IsLeaf(this->Index);
-}
-
-//------------------------------------------------------------------------------
-void vtkHyperTreeGridGeometryUnlimitedLevelEntry::SubdivideLeaf(const vtkHyperTreeGrid* grid)
-{
-  assert("pre: not_tree" && this->Tree);
-  // JB Comment faire pour definir un accesseur a DepthLimiter qui est const
-  assert(
-    "pre: depth_limiter" && this->Level <= const_cast<vtkHyperTreeGrid*>(grid)->GetDepthLimiter());
-  assert("pre: is_masked" && !this->IsMasked(grid));
-  if (this->IsLeaf(grid))
-  {
-    this->Tree->SubdivideLeaf(this->Index, this->Level);
-  }
+  return false;
 }
 
 //------------------------------------------------------------------------------
 bool vtkHyperTreeGridGeometryUnlimitedLevelEntry::IsTerminalNode(const vtkHyperTreeGrid* grid) const
 {
   assert("pre: not_tree" && this->Tree);
-  bool result = !this->IsLeaf(grid);
-  if (result)
+  if (this->Level + 1 == const_cast<vtkHyperTreeGrid*>(grid)->GetDepthLimiter())
   {
-    result = this->Tree->IsTerminalNode(this->Index);
+    return true;
   }
-  assert("post: compatible" && (!result || !this->IsLeaf(grid)));
-  return result;
+  return false;
 }
 
 //------------------------------------------------------------------------------
@@ -138,16 +135,33 @@ void vtkHyperTreeGridGeometryUnlimitedLevelEntry::ToChild(
   const vtkHyperTreeGrid* grid, unsigned char ichild)
 {
   assert("pre: not_tree" && this->Tree);
-  assert("pre: not_leaf" && !this->IsLeaf(grid));
-  assert("pre: not_valid_child" && ichild < this->Tree->GetNumberOfChildren());
-  // JB Comment faire pour definir un accesseur a DepthLimiter qui est const
   assert(
     "pre: depth_limiter" && this->Level <= const_cast<vtkHyperTreeGrid*>(grid)->GetDepthLimiter());
   assert("pre: is_masked" && !this->IsMasked(grid));
 
   const double* sizeChild = this->Tree->GetScales()->GetScale(this->Level + 1);
 
-  this->Index = this->Tree->GetElderChildIndex(this->Index) + ichild;
+  size_t indexMax = 0;
+  this->Tree->GetElderChildIndexArray(indexMax);
+  if (this->Index >= 0 && this->Index < static_cast<vtkIdType>(indexMax))
+  {
+    const vtkIdType elder = this->Tree->GetElderChildIndex(this->Index);
+    if (elder != std::numeric_limits<unsigned int>::max())
+    {
+      this->Index = elder + ichild;
+      this->LastRealIndex = this->Index;
+    }
+    else
+    {
+      // first virtual cell
+      this->Index = vtkHyperTreeGrid::InvalidIndex;
+    }
+  }
+  else
+  {
+    // cell already virtual
+    this->Index = vtkHyperTreeGrid::InvalidIndex;
+  }
 
   // Divide cell size and translate origin per template parameter
   switch (this->Tree->GetNumberOfChildren())

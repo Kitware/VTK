@@ -16,13 +16,14 @@ PURPOSE.  See the above copyright Nonice for more information.
 
 #include "vtkHyperTree.h"
 #include "vtkHyperTreeGrid.h"
-#include "vtkHyperTreeGridGeometryEntry.h"
+#include "vtkHyperTreeGridGeometryUnlimitedLevelEntry.h"
 #include "vtkHyperTreeGridScales.h"
 
 #include "vtkObjectFactory.h"
 
 #include <cassert>
 
+#include "vtkHyperTreeGridNonOrientedGeometryCursor.h"
 #include "vtkHyperTreeGridOrientedGeometryCursor.h"
 
 vtkStandardNewMacro(vtkHyperTreeGridNonOrientedUnlimitedGeometryCursor);
@@ -40,8 +41,8 @@ vtkHyperTreeGridNonOrientedUnlimitedGeometryCursor::Clone()
   clone->Level = this->Level;
   clone->LastValidEntry = this->LastValidEntry;
   clone->Entries.resize(this->Entries.size());
-  std::vector<vtkHyperTreeGridGeometryEntry>::iterator in = this->Entries.begin();
-  std::vector<vtkHyperTreeGridGeometryEntry>::iterator out = clone->Entries.begin();
+  auto in = this->Entries.begin();
+  auto out = clone->Entries.begin();
   for (; in != this->Entries.end(); ++in, ++out)
   {
     (*out).Copy(&(*in));
@@ -75,7 +76,7 @@ void vtkHyperTreeGridNonOrientedUnlimitedGeometryCursor::Initialize(
 
 //------------------------------------------------------------------------------
 void vtkHyperTreeGridNonOrientedUnlimitedGeometryCursor::Initialize(vtkHyperTreeGrid* grid,
-  vtkHyperTree* tree, unsigned int level, vtkHyperTreeGridGeometryEntry& entry)
+  vtkHyperTree* tree, unsigned int level, vtkHyperTreeGridGeometryUnlimitedEntry& entry)
 {
   this->Grid = grid;
   this->Tree = tree;
@@ -112,7 +113,8 @@ void vtkHyperTreeGridNonOrientedUnlimitedGeometryCursor::Initialize(
   this->Level = level;
   this->LastValidEntry = 0;
   this->Entries.resize(1);
-  this->Entries[0].Initialize(index, origin);
+  // Initially, the index is valid
+  this->Entries[0].Initialize(index, index, origin);
 }
 
 //------------------------------------------------------------------------------
@@ -125,8 +127,8 @@ void vtkHyperTreeGridNonOrientedUnlimitedGeometryCursor::Initialize(
   this->Level = cursor->Level;
   this->LastValidEntry = cursor->LastValidEntry;
   this->Entries.resize(cursor->Entries.size());
-  std::vector<vtkHyperTreeGridGeometryEntry>::iterator in = this->Entries.begin();
-  std::vector<vtkHyperTreeGridGeometryEntry>::iterator out = cursor->Entries.begin();
+  auto in = this->Entries.begin();
+  auto out = cursor->Entries.begin();
   for (; in != this->Entries.end(); ++in, ++out)
   {
     (*out).Copy(&(*in));
@@ -212,9 +214,9 @@ bool vtkHyperTreeGridNonOrientedUnlimitedGeometryCursor::IsLeaf()
 }
 
 //------------------------------------------------------------------------------
-void vtkHyperTreeGridNonOrientedUnlimitedGeometryCursor::SubdivideLeaf()
+bool vtkHyperTreeGridNonOrientedUnlimitedGeometryCursor::IsRealLeaf()
 {
-  this->Entries[this->LastValidEntry].SubdivideLeaf(this->Grid, this->Tree, Level);
+  return this->Entries[this->LastValidEntry].IsRealLeaf(this->Tree);
 }
 
 //------------------------------------------------------------------------------
@@ -240,7 +242,7 @@ void vtkHyperTreeGridNonOrientedUnlimitedGeometryCursor::ToChild(unsigned char i
     this->Entries.resize(this->LastValidEntry + 1);
   }
   //
-  vtkHyperTreeGridGeometryEntry& entry = this->Entries[this->LastValidEntry];
+  auto& entry = this->Entries[this->LastValidEntry];
   entry.Copy(&this->Entries[oldLastValidEntry]);
   entry.ToChild(
     this->Grid, this->Tree, this->Level, this->Scales->GetScale(this->Level + 1), ichild);
@@ -258,7 +260,8 @@ void vtkHyperTreeGridNonOrientedUnlimitedGeometryCursor::ToRoot()
 //------------------------------------------------------------------------------
 void vtkHyperTreeGridNonOrientedUnlimitedGeometryCursor::ToParent()
 {
-  assert("pre: Non_root" && !this->IsRoot());
+  assert("has: valide entry" && this->LastValidEntry > 0);
+  assert("has: level" && this->Level > 0);
   this->LastValidEntry--;
   this->Level--;
 }
@@ -317,6 +320,17 @@ vtkHyperTreeGridNonOrientedUnlimitedGeometryCursor::GetHyperTreeGridOrientedGeom
 {
   vtkSmartPointer<vtkHyperTreeGridOrientedGeometryCursor> cursor =
     vtkSmartPointer<vtkHyperTreeGridOrientedGeometryCursor>::New();
+  cursor->Initialize(grid, this->Tree, this->GetLevel(), this->GetVertexId(), this->GetOrigin());
+  return cursor;
+}
+
+//------------------------------------------------------------------------------
+vtkSmartPointer<vtkHyperTreeGridNonOrientedGeometryCursor>
+vtkHyperTreeGridNonOrientedUnlimitedGeometryCursor::GetHyperTreeGridNonOrientedGeometryCursor(
+  vtkHyperTreeGrid* grid)
+{
+  vtkSmartPointer<vtkHyperTreeGridNonOrientedGeometryCursor> cursor =
+    vtkSmartPointer<vtkHyperTreeGridNonOrientedGeometryCursor>::New();
   cursor->Initialize(grid, this->Tree, this->GetLevel(), this->GetVertexId(), this->GetOrigin());
   return cursor;
 }

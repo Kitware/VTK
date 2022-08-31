@@ -16,27 +16,8 @@
  * @class   vtkHyperTreeGridNonOrientedUnlimitedSuperCursor
  * @brief   Objects for traversal a HyperTreeGrid.
  *
- * JB A REVOIR
- * Objects that can perform depth traversal of a hyper tree grid,
- * take into account more parameters (related to the grid structure) than
- * the compact hyper tree cursor implemented in vtkHyperTree can.
- * This is an abstract class.
- * Cursors are created by the HyperTreeGrid implementation.
- *
- * Supercursor allows to retrieve various kind of cursor for any childs.
- * This class is also a building block for Moore and VonNeumann SuperCursor,
- * which have neighboorhood traversal abilities.
- *
  * @sa
- * vtkHyperTreeCursor vtkHyperTree vtkHyperTreeGrid
- *
- * @par Thanks:
- * This class was written by Guenole Harel and Jacques-Bernard Lekien, 2014.
- * This class was re-written by Philippe Pebay, 2016.
- * This class was re-written and optimized by Jacques-Bernard Lekien,
- * Guenole Harel and Jerome Dubois, 2018.
- * This work was supported by Commissariat a l'Energie Atomique
- * CEA, DAM, DIF, F-91297 Arpajon, France.
+ * vtkHyperTreeGridNonOrientedSuperCursor vtkHyperTreeCursor vtkHyperTree vtkHyperTreeGrid
  */
 
 #ifndef vtkHyperTreeGridNonOrientedUnlimitedSuperCursor_h
@@ -46,7 +27,7 @@
 #include "vtkObject.h"
 #include "vtkSmartPointer.h" // Used internally
 
-#include "vtkHyperTreeGridGeometryLevelEntry.h" // Used Internally
+#include "vtkHyperTreeGridGeometryUnlimitedLevelEntry.h" // Used Internally
 
 #include <vector> // For std::vector
 
@@ -54,6 +35,7 @@ class vtkHyperTree;
 class vtkHyperTreeGrid;
 class vtkHyperTreeGridNonOrientedGeometryCursor;
 class vtkHyperTreeGridOrientedGeometryCursor;
+class vtkHyperTreeGridNonOrientedUnlimitedGeometryCursor;
 
 class VTKCOMMONDATAMODEL_EXPORT vtkHyperTreeGridNonOrientedUnlimitedSuperCursor : public vtkObject
 {
@@ -182,11 +164,7 @@ public:
    */
   bool IsLeaf();
   bool IsLeaf(unsigned int icursor);
-
-  /**
-   * JB Fait chier normalement on devrait passer par GetEntry
-   */
-  void SubdivideLeaf();
+  bool IsRealLeaf();
 
   /**
    * Is the cursor at tree root?
@@ -257,26 +235,25 @@ protected:
   /**
    * JB Reference sur l'hyper tree grid parcouru actuellement.
    */
-  vtkHyperTreeGrid* Grid;
+  vtkHyperTreeGrid* Grid = nullptr;
 
   /**
    * JB
    */
-  // JB  vtkNew< vtkHyperTreeGridNonOrientedGeometryCursor > CentralCursor;
-  vtkSmartPointer<vtkHyperTreeGridNonOrientedGeometryCursor> CentralCursor;
+  vtkSmartPointer<vtkHyperTreeGridNonOrientedUnlimitedGeometryCursor> CentralCursor;
 
   /**
    * JB Hyper tree grid to which the cursor is attached
    */
-  unsigned int CurrentFirstNonValidEntryByLevel;
+  unsigned int CurrentFirstNonValidEntryByLevel = 0;
   std::vector<unsigned int> FirstNonValidEntryByLevel;
-  std::vector<vtkHyperTreeGridGeometryLevelEntry> Entries;
+  std::vector<vtkHyperTreeGridGeometryUnlimitedLevelEntry> Entries;
 
   /**
    * JB La derniere reference valide pour decrire tous les voisins.
    * C'est donc aussi l'offset du premier voisin du dernier niveau.
    */
-  unsigned int FirstCurrentNeighboorReferenceEntry;
+  unsigned int FirstCurrentNeighboorReferenceEntry = 0;
   std::vector<unsigned int> ReferenceEntries;
 
   /**
@@ -292,18 +269,18 @@ protected:
   /**
    * JB
    */
-  unsigned int IndiceCentralCursor;
+  unsigned int IndiceCentralCursor = 0;
 
   // Number of cursors in supercursor
-  unsigned int NumberOfCursors;
+  unsigned int NumberOfCursors = 0;
 
   // Super cursor traversal table to go retrieve the parent index for each cursor
   // of the child node. There are f^d * NumberOfCursors entries in the table.
-  const unsigned int* ChildCursorToParentCursorTable;
+  const unsigned int* ChildCursorToParentCursorTable = nullptr;
 
   // Super cursor traversal table to go retrieve the child index for each cursor
   // of the child node. There are f^d * NumberOfCursors entries in the table.
-  const unsigned int* ChildCursorToChildTable;
+  const unsigned int* ChildCursorToChildTable = nullptr;
 
 private:
   vtkHyperTreeGridNonOrientedUnlimitedSuperCursor(

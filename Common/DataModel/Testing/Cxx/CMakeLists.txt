@@ -37,6 +37,7 @@ vtk_add_test_cxx(vtkCommonDataModelCxxTests tests
   TestGraphAttributes.cxx
   TestHigherOrderCell.cxx
   TestHyperTreeGridBitmask.cxx
+  TestHyperTreeGridCursors.cxx
   TestHyperTreeGridElderChildIndex.cxx
   TestImageDataFindCell.cxx
   TestImageDataInterpolation.cxx

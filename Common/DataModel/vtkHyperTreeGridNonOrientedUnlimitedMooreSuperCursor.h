@@ -14,45 +14,33 @@
 =========================================================================*/
 /**
  * @class   vtkHyperTreeGridNonOrientedUnlimitedMooreSuperCursor
- * @brief   Objects for traversal a HyperTreeGrid.
+ * @brief   Specific Moore super cursor that can subdivied neighboorhood
  *
- * JB A REVOIR
- * Objects that can perform depth traversal of a hyper tree grid,
- * take into account more parameters (related to the grid structure) than
- * the compact hyper tree cursor implemented in vtkHyperTree can.
- * This is an abstract class.
- * Cursors are created by the HyperTreeGrid implementation.
+ * This supercursor behave like the Moore supercursor but relies on the
+ * vtkHyperTreeGridNonOrientedUnlimitedSuperCursor so the neighboorhood
+ * can be refined to reach the level of the current cell in any case.
  *
  * @sa
- * vtkHyperTreeCursor vtkHyperTree vtkHyperTreeGrid
- *
- * This supercursor allows to visit all neighbors including diagonal ones.
- *
- * @par Thanks:
- * This class was written by Guenole Harel and Jacques-Bernard Lekien, 2014.
- * This class was re-written by Philippe Pebay, 2016.
- * This class was re-written and optimized by Jacques-Bernard Lekien,
- * Guenole Harel and Jerome Dubois, 2018.
- * This work was supported by Commissariat a l'Energie Atomique
- * CEA, DAM, DIF, F-91297 Arpajon, France.
+ * vtkHyperTreeCursor vtkHyperTree vtkHyperTreeGrid vtkHyperTreeGridNonOrientedMooreSuperCursor
  */
 
 #ifndef vtkHyperTreeGridNonOrientedUnlimitedMooreSuperCursor_h
 #define vtkHyperTreeGridNonOrientedUnlimitedMooreSuperCursor_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
-#include "vtkHyperTreeGridNonOrientedSuperCursor.h"
+
+#include "vtkHyperTreeGridNonOrientedUnlimitedSuperCursor.h"
 
 class vtkIdList;
 class vtkHyperTree;
 class vtkHyperTreeGrid;
 
 class VTKCOMMONDATAMODEL_EXPORT vtkHyperTreeGridNonOrientedUnlimitedMooreSuperCursor
-  : public vtkHyperTreeGridNonOrientedSuperCursor
+  : public vtkHyperTreeGridNonOrientedUnlimitedSuperCursor
 {
 public:
-  vtkTypeMacro(
-    vtkHyperTreeGridNonOrientedUnlimitedMooreSuperCursor, vtkHyperTreeGridNonOrientedSuperCursor);
+  vtkTypeMacro(vtkHyperTreeGridNonOrientedUnlimitedMooreSuperCursor,
+    vtkHyperTreeGridNonOrientedUnlimitedSuperCursor);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkHyperTreeGridNonOrientedUnlimitedMooreSuperCursor* New();
 

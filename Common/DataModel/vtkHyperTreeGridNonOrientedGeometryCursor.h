@@ -24,6 +24,9 @@
  * This is an abstract class.
  * Cursors are created by the HyperTreeGrid implementation.
  *
+ * Geometry cursors allow to retrieve origin, size, bounds
+ * and central points
+ *
  * @sa
  * vtkHyperTreeCursor vtkHyperTree vtkHyperTreeGrid
  *

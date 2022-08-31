@@ -220,7 +220,7 @@ private:
   vtkIdType Index;
 
   /**
-   * origin coiordinates of the current cell
+   * origin coordinates of the current cell
    */
   double Origin[3];
 };

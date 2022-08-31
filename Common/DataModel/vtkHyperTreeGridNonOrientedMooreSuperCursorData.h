@@ -1,3 +1,8 @@
+// VTK-HeaderTest-Exclude: vtkHyperTreeGridNonOrientedMooreSuperCursorData.h
+// clang-format off
+
+#ifndef vtkHyperTreeGridNonOrientedMooreSuperCursorData_h
+
 //------------------------------------------------------------------------------
 // Super cursor traversal table to retrieve the child index for each cursor
 // of the parent node. There are (3*f)^d entries in the table.
@@ -220,3 +225,6 @@ static const unsigned int* CornerNeighborCursorsTable3D[8] = {
   CornerNeighborCursorsTable3D7,
 };
 //------------------------------------------------------------------------------
+
+// clang-format on
+#endif /* end of include guard: vtkHyperTreeGridNonOrientedMooreSuperCursorData_h */

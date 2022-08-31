@@ -24,7 +24,7 @@ PURPOSE.  See the above copyright Nonice for more information.
 #include "vtkHyperTreeGridTools.h"
 
 #include <cassert>
-#include <climits>
+#include <limits>
 
 //------------------------------------------------------------------------------
 vtkHyperTreeGridNonOrientedSuperCursorLight* vtkHyperTreeGridNonOrientedSuperCursorLight::Clone()
@@ -326,7 +326,7 @@ void vtkHyperTreeGridNonOrientedSuperCursorLight::ToChild(unsigned char ichild)
       unsigned int j = pTab[i];
 
       // If neighnoring cell is further subdivided, then descend into it
-      unsigned int reference = UINT_MAX;
+      unsigned int reference = std::numeric_limits<unsigned int>::max();
       if (j == this->IndiceCentralCursor)
       {
         reference = this->FirstNonValidEntryByLevel[this->CurrentFirstNonValidEntryByLevel];

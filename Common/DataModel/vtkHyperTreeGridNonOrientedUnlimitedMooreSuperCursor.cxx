@@ -17,17 +17,17 @@ PURPOSE.  See the above copyright Nonice for more information.
 #include "vtkBitArray.h"
 #include "vtkHyperTree.h"
 #include "vtkHyperTreeGrid.h"
-#include "vtkHyperTreeGridGeometryLevelEntry.h"
+#include "vtkHyperTreeGridGeometryUnlimitedLevelEntry.h"
 #include "vtkHyperTreeGridNonOrientedGeometryCursor.h"
+#include "vtkHyperTreeGridNonOrientedUnlimitedGeometryCursor.h"
 #include "vtkIdList.h"
-
 #include "vtkObjectFactory.h"
+
+#include "vtkHyperTreeGridNonOrientedMooreSuperCursorData.h"
 
 #include <cassert>
 
 vtkStandardNewMacro(vtkHyperTreeGridNonOrientedUnlimitedMooreSuperCursor);
-
-#include "vtkHyperTreeGridNonOrientedUnlimitedMooreSuperCursorData.h"
 
 //------------------------------------------------------------------------------
 void vtkHyperTreeGridNonOrientedUnlimitedMooreSuperCursor::Initialize(
@@ -337,15 +337,14 @@ bool vtkHyperTreeGridNonOrientedUnlimitedMooreSuperCursor::GetCornerCursors(
   bool owner = true;
   if (cursorIdx != this->IndiceCentralCursor)
   {
-    vtkHyperTreeGridGeometryLevelEntry& cursor = this->Entries[this->GetIndiceEntry(cursorIdx)];
+    auto& cursor = this->Entries[this->GetIndiceEntry(cursorIdx)];
     if (!cursor.GetTree() || !cursor.IsLeaf(this->Grid))
     {
       // If neighbor cell is out of bounds or has Non been
       // refined to a leaf, that leaf does Non own the corner
       owner = false;
     }
-    else if (this->GetGrid()->HasMask() &&
-      this->GetGrid()->GetMask()->GetTuple1(cursor.GetGlobalNodeIndex()))
+    else if (cursor.IsMasked(this->Grid))
     {
       // If neighbor cell is masked, that leaf does Non own the corner
       owner = false;
@@ -365,7 +364,7 @@ bool vtkHyperTreeGridNonOrientedUnlimitedMooreSuperCursor::GetCornerCursors(
 void vtkHyperTreeGridNonOrientedUnlimitedMooreSuperCursor::PrintSelf(ostream& os, vtkIndent indent)
 {
   os << indent << "--vtkHyperTreeGridNonOrientedUnlimitedMooreSuperCursor--" << endl;
-  vtkHyperTreeGridNonOrientedSuperCursor::PrintSelf(os, indent);
+  this->Superclass::PrintSelf(os, indent);
 }
 
 //------------------------------------------------------------------------------

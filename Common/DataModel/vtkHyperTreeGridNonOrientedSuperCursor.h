@@ -23,6 +23,10 @@
  * This is an abstract class.
  * Cursors are created by the HyperTreeGrid implementation.
  *
+ * Supercursor allows to retrieve various kind of cursor for any childs.
+ * This class is also a building block for Moore and VonNeumann SuperCursor,
+ * which have neighboorhood traversal abilities.
+ *
  * @sa
  * vtkHyperTreeCursor vtkHyperTree vtkHyperTreeGrid
  *

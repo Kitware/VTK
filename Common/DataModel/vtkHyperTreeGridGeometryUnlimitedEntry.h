@@ -58,15 +58,9 @@ public:
 
   /**
    * Constructor
+   * assume construction from a real level
    */
-  vtkHyperTreeGridGeometryUnlimitedEntry(vtkIdType index, const double* origin)
-  {
-    this->Index = index;
-    for (unsigned int d = 0; d < 3; ++d)
-    {
-      this->Origin[d] = origin[d];
-    }
-  }
+  vtkHyperTreeGridGeometryUnlimitedEntry(vtkIdType index, const double* origin);
 
   /**
    * Destructor
@@ -86,9 +80,10 @@ public:
   /**
    * Initialize cursor from explicit required data
    */
-  void Initialize(vtkIdType index, const double* origin)
+  void Initialize(vtkIdType index, vtkIdType lastIndex, const double* origin)
   {
     this->Index = index;
+    this->LastRealIndex = lastIndex;
     for (unsigned int d = 0; d < 3; ++d)
     {
       this->Origin[d] = origin[d];
@@ -100,17 +95,13 @@ public:
    */
   void Copy(const vtkHyperTreeGridGeometryUnlimitedEntry* entry)
   {
-    this->Index = entry->Index;
-    for (unsigned int d = 0; d < 3; ++d)
-    {
-      this->Origin[d] = entry->Origin[d];
-    }
+    this->Initialize(entry->Index, entry->LastRealIndex, entry->Origin);
   }
 
   /**
    * Return the index of the current vertex in the tree.
    */
-  vtkIdType GetVertexId() const { return this->Index; }
+  vtkIdType GetVertexId() const { return this->LastRealIndex; }
 
   /**
    * Return the global index (relative to the grid) of the
@@ -145,19 +136,26 @@ public:
 
   /**
    * Is the cursor pointing to a leaf?
+   * Unlimited cursors allow to go deeper than a real leaf.
    * \pre not_tree: tree
    * Return true if level == grid->GetDepthLimiter()
    */
   bool IsLeaf(const vtkHyperTreeGrid* grid, const vtkHyperTree* tree, unsigned int level) const;
 
   /**
-   * Change the current cell's status: if leaf then becomes coarse and
-   * all its children are created, cf. HyperTree.
+   * Is the cursor pointing to a real leaf of the underlying tree ?
    * \pre not_tree: tree
-   * \pre depth_limiter: level == grid->GetDepthLimiter()
-   * \pre is_masked: IsMasked
+   * \pre not_virtual
+   * Return true if the cursor is exactly on a leaf (not above nor below)
    */
-  void SubdivideLeaf(const vtkHyperTreeGrid* grid, vtkHyperTree* tree, unsigned int level);
+  bool IsRealLeaf(const vtkHyperTree* tree) const;
+
+  /**
+   * Is the cursor pointing below a real leaf of the underlying tree ?
+   * \pre not_tree: tree
+   * Return true if the cursor is pointing on a virtual cell, below a real leaf
+   */
+  bool IsVirtualLeaf(const vtkHyperTree* tree) const;
 
   /**
    * Is the cursor pointing to a coarse with all childrens leaves ?
@@ -217,7 +215,12 @@ private:
   /**
    * index of the current cell in the HyperTree.
    */
-  vtkIdType Index;
+  vtkIdType Index = 0;
+
+  /**
+   * index of the last valid cell in the HyperTree.
+   */
+  vtkIdType LastRealIndex = 0;
 
   /**
    * origin coordinates of the current cell
