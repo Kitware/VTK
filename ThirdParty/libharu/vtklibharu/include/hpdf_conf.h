@@ -18,8 +18,7 @@
 #ifndef _HPDF_CONF_H
 #define _HPDF_CONF_H
 
-/* KITWARE_LIBHARU_CHANGE Include the symbol name mangler: */
-#include "vtk_haru_mangle.h"
+#include "vtk_haru_mangle.h" // XXX(kitware): mangle symbols
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -81,7 +80,7 @@
 
 /* alignment size of memory-pool-object
  */
-#define HPDF_ALIGN_SIZ              sizeof int;
+#define HPDF_ALINMENT_SIZ              sizeof(int)
 
 #define G3CODES
 

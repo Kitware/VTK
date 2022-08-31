@@ -123,6 +123,8 @@ HPDF_SetErrorHandler  (HPDF_Doc            pdf,
 HPDF_EXPORT(void)
 HPDF_Free  (HPDF_Doc  pdf);
 
+HPDF_EXPORT(HPDF_MMgr)
+HPDF_GetDocMMgr  (HPDF_Doc doc);
 
 HPDF_EXPORT(HPDF_STATUS)
 HPDF_NewDoc  (HPDF_Doc  pdf);
@@ -465,7 +467,7 @@ HPDF_Page_CreateXObjectFromImage    (HPDF_Doc       pdf,
                                      HPDF_Page      page,
                                      HPDF_Rect      rect,
                                      HPDF_Image     image,
-                                     HPDF_Boolean   zoom);
+                                     HPDF_BOOL      zoom);
 
 HPDF_EXPORT(HPDF_XObject)
 HPDF_Page_CreateXObjectAsWhiteRect  (HPDF_Doc   pdf,
@@ -979,7 +981,7 @@ HPDF_Font_MeasureText (HPDF_Font          font,
 
 
 /*--------------------------------------------------------------------------*/
-/*----- attachements -------------------------------------------------------*/
+/*----- attachments -------------------------------------------------------*/
 
 HPDF_EXPORT(HPDF_EmbeddedFile)
 HPDF_AttachFile  (HPDF_Doc    pdf,
@@ -1189,9 +1191,9 @@ HPDF_Page_SetMiterLimit  (HPDF_Page  page,
 /* d */
 HPDF_EXPORT(HPDF_STATUS)
 HPDF_Page_SetDash  (HPDF_Page           page,
-                    const HPDF_UINT16  *dash_ptn,
+                    const HPDF_REAL  *dash_ptn,
                     HPDF_UINT           num_param,
-                    HPDF_UINT           phase);
+                    HPDF_REAL           phase);
 
 
 
