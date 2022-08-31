@@ -158,10 +158,10 @@ public:
    * Methods supporting the rendering process.
    */
   double* GetBounds() VTK_SIZEHINT(6) override;
-  void GetActors(vtkPropCollection*) override;
-  void ReleaseGraphicsResources(vtkWindow*) override;
-  int RenderOpaqueGeometry(vtkViewport*) override;
-  int RenderTranslucentPolygonalGeometry(vtkViewport*) override;
+  void GetActors(vtkPropCollection* propCollection) override;
+  void ReleaseGraphicsResources(vtkWindow* window) override;
+  int RenderOpaqueGeometry(vtkViewport* viewport) override;
+  int RenderTranslucentPolygonalGeometry(vtkViewport* viewport) override;
   vtkTypeBool HasTranslucentPolygonalGeometry() override;
   ///@}
 

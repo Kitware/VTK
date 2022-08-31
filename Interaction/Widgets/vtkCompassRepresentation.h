@@ -21,9 +21,15 @@
 
 /**
  * @class   vtkCompassRepresentation
- * @brief   provide a compass
+ * @brief   provide a compass and distance, tilt sliders
  *
- * This class is used to represent and render a compass.
+ * This class is used to represent and render a compass to represent a heading, and two vertical
+ * sliders to manipulate distance and tilt.
+ *
+ * If distance or tilt sliders are not required then their Visibility can be set to off when
+ * subclassing it.
+ *
+ * Override the GetStatusText() method if you require a customized status text.
  */
 
 #ifndef vtkCompassRepresentation_h
@@ -31,10 +37,10 @@
 
 #include "vtkCenteredSliderRepresentation.h" // to use in a SP
 #include "vtkContinuousValueWidgetRepresentation.h"
-#include "vtkCoordinate.h"       // For vtkViewportCoordinateMacro
-#include "vtkDeprecation.h"      // For VTK_DEPRECATED_IN_9_2_0
-#include "vtkGeovisCoreModule.h" // For export macro
-#include "vtkSmartPointer.h"     // used for SmartPointers
+#include "vtkCoordinate.h"               // For vtkViewportCoordinateMacro
+#include "vtkDeprecation.h"              // For VTK_DEPRECATED_IN_9_2_0
+#include "vtkInteractionWidgetsModule.h" // For export macro
+#include "vtkSmartPointer.h"             // used for SmartPointers
 
 class vtkActor2D;
 class vtkPoints;
@@ -51,7 +57,8 @@ class vtkTransformPolyDataFilter;
 class vtkTextProperty;
 class vtkTextActor;
 
-class VTKGEOVISCORE_EXPORT vtkCompassRepresentation : public vtkContinuousValueWidgetRepresentation
+class VTKINTERACTIONWIDGETS_EXPORT vtkCompassRepresentation
+  : public vtkContinuousValueWidgetRepresentation
 {
 public:
   /**
@@ -130,23 +137,78 @@ public:
   /**
    * Methods supporting the rendering process.
    */
-  void GetActors(vtkPropCollection*) override;
-  void ReleaseGraphicsResources(vtkWindow*) override;
-  int RenderOverlay(vtkViewport*) override;
+  void GetActors(vtkPropCollection* propCollection) override;
+  void ReleaseGraphicsResources(vtkWindow* window) override;
+  int RenderOverlay(vtkViewport* viewPort) override;
   int RenderOpaqueGeometry(vtkViewport*) override;
   ///@}
 
-  virtual void SetHeading(double value);
+  ///@{
+  /**
+   * Get/Set the heading in degrees. The methods ensure that the heading is in the range [0, 360)
+   * degrees.
+   */
+  virtual void SetHeading(double heading);
   virtual double GetHeading();
-  virtual void SetTilt(double value);
+  ///@}
+
+  ///@{
+  /**
+   * Get/Set the tilt in degrees. The methods ensure that the tilt is in the range set by
+   * SetMaximumTiltAngle() and SetMinimumTiltAngle().
+   */
+  virtual void SetTilt(double tilt);
   virtual double GetTilt();
-  virtual void UpdateTilt(double time);
+  ///@}
+
+  ///@{
+  /**
+   * Get/Set the tilt range. These default range is [-90, 90] degrees.
+   */
+  void SetMaximumTiltAngle(double angle);
+  double GetMaximumTiltAngle();
+  void SetMinimumTiltAngle(double angle);
+  double GetMinimumTiltAngle();
+  ///@}
+
+  ///@{
+  /**
+   * Update the tilt by the given delta in degrees.
+   */
+  virtual void UpdateTilt(double deltaTilt = 0);
+  ///@}
+
   virtual void EndTilt();
-  virtual void SetDistance(double value);
+
+  ///@{
+  /**
+   * Get/Set the distance. These methods ensure that the distance is in the range set by
+   * SetMaximumDistance() and SetMinimumDistance().
+   */
+  virtual void SetDistance(double distance);
   virtual double GetDistance();
-  virtual void UpdateDistance(double time);
+  ///@}
+
+  ///@{
+  /**
+   * Get/Set the distance range. The default is [0.0, 2.0].
+   */
+  void SetMaximumDistance(double distance);
+  double GetMaximumDistance();
+  void SetMinimumDistance(double distance);
+  double GetMinimumDistance();
+  ///@}
+
+  ///@{
+  /**
+   * Update the distance by the given delta.
+   */
+  virtual void UpdateDistance(double deltaDistance = 0);
+  ///@}
+
   virtual void EndDistance();
-  void SetRenderer(vtkRenderer* ren) override;
+
+  void SetRenderer(vtkRenderer* renderer) override;
 
   // Enums are used to describe what is selected
   enum InteractionStateType
@@ -210,6 +272,14 @@ protected:
 
   // used for positioning etc
   void GetCenterAndUnitRadius(int center[2], double& radius);
+
+  ///@{
+  /**
+   * Return the text used for the status label. Subclasses can override this method to customize the
+   * status text, for example when using unit conversions.
+   */
+  virtual std::string GetStatusText();
+  ///@}
 
   int HighlightState;
 

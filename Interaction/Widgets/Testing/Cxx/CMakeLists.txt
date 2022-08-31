@@ -18,6 +18,7 @@ vtk_add_test_cxx(vtkInteractionWidgetsCxxTests tests
   TestCenteredSliderWidget2D.cxx
   TestCheckerboardWidget.cxx
   TestCoincidentHandleWidgets.cxx
+  TestCompassWidget.cxx
   TestConstrainedHandleWidget.cxx
   TestContourWidget2.cxx
   TestCoordinateFrameWidget.cxx

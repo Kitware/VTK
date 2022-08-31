@@ -42,6 +42,8 @@ set(classes
   vtkCheckerboardRepresentation
   vtkCheckerboardWidget
   vtkClosedSurfacePointPlacer
+  vtkCompassRepresentation
+  vtkCompassWidget
   vtkConstrainedPointHandleRepresentation
   vtkContinuousValueWidget
   vtkContinuousValueWidgetRepresentation

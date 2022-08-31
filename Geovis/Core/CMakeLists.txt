@@ -1,6 +1,4 @@
 set(classes
-  vtkCompassRepresentation
-  vtkCompassWidget
   vtkGeoProjection
   vtkGeoTransform)
 
