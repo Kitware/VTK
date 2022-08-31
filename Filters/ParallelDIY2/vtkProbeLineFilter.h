@@ -47,8 +47,8 @@
 #define vtkProbeLineFilter_h
 
 #include "vtkDataObjectAlgorithm.h"
-#include "vtkFiltersParallelMPIModule.h" // For export macro
-#include "vtkSmartPointer.h"             // For sampling line
+#include "vtkFiltersParallelDIY2Module.h" // For export macro
+#include "vtkSmartPointer.h"              // For sampling line
 
 #include <memory> // for unique_ptr
 
@@ -60,7 +60,7 @@ class vtkPoints;
 class vtkPolyData;
 class vtkVector3d;
 
-class VTKFILTERSPARALLELMPI_EXPORT vtkProbeLineFilter : public vtkDataObjectAlgorithm
+class VTKFILTERSPARALLELDIY2_EXPORT vtkProbeLineFilter : public vtkDataObjectAlgorithm
 {
 public:
   vtkTypeMacro(vtkProbeLineFilter, vtkDataObjectAlgorithm);

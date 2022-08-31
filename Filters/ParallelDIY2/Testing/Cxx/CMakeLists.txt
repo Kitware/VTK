@@ -9,6 +9,7 @@ if (TARGET VTK::mpi)
     TestPResampleToImage.cxx
     TestPResampleWithDataSet2.cxx
     TestPResampleWithDataSet.cxx
+    TestProbeLineFilter.cxx,NO_VALID
     TestPUniformGridGhostDataGenerator.cxx,NO_VALID
     TestPUnstructuredGridGhostCellsGenerator.cxx,NO_VALID
     TestRedistributeDataSetFilter.cxx
