@@ -196,6 +196,9 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "windows")
     # Flaky on windows for some reasons: 
     # https://gitlab.kitware.com/vtk/vtk/-/issues/18640 
     "^VTK::FiltersStatisticsCxx-TestMultiCorrelativeStatistics$"
+
+    # Fail to present D3D resources (see #18657)
+    "^VTK::RenderingOpenGL2Cxx-TestWin32OpenGLDXRenderWindow$"
   )
 endif ()
 
