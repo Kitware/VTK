@@ -596,6 +596,11 @@ void vtkOpenGLImageMapper::RenderData(vtkViewport* viewport, vtkImageData* data,
     return;
   }
 
+  if (!data->GetPointData()->GetScalars())
+  {
+    return;
+  }
+
   this->Actor->SetProperty(actor->GetProperty());
 
   // Make this window current. May have become not current due to
