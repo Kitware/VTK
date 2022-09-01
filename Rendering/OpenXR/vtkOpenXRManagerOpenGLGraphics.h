@@ -26,6 +26,8 @@
 #include "vtkOpenXRManagerGraphics.h"
 #include "vtkRenderingOpenXRModule.h" // For export macro
 
+#include "vtkRenderingOpenGLConfigure.h" // For VTK_USE_X / WIN32
+
 #include <memory> // For shared_ptr
 #include <vector> // For std::vector
 

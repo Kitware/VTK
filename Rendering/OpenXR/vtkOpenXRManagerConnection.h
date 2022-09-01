@@ -31,7 +31,7 @@
 #include "vtkObject.h"
 #include "vtkRenderingOpenXRModule.h" // For export macro
 
-#include "vtkOpenXr.h" // For XrEventDataBuffer
+#include "vtkOpenXR.h" // For XrEventDataBuffer
 
 class VTKRENDERINGOPENXR_EXPORT vtkOpenXRManagerConnection : public vtkObject
 {
