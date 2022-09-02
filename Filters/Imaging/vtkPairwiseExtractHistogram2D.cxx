@@ -140,6 +140,7 @@ void vtkPairwiseExtractHistogram2D::Learn(
       f.TakeReference(this->NewHistogramFilter());
       f->SetInputData(inDataCopy);
       f->SetNumberOfBins(this->NumberOfBins);
+      f->SetContainerAlgorithm(this);
       std::pair<std::string, std::string> colpair(
         inData->GetColumn(i)->GetName(), inData->GetColumn(i + 1)->GetName());
       f->AddColumnPair(colpair.first.c_str(), colpair.second.c_str());
@@ -172,6 +173,11 @@ void vtkPairwiseExtractHistogram2D::Learn(
   {
     for (int i = 0; i < numHistograms; i++)
     {
+
+      if (this->CheckAbort())
+      {
+        break;
+      }
 
       vtkExtractHistogram2D* f = this->GetHistogramFilter(i);
 
@@ -228,6 +234,10 @@ void vtkPairwiseExtractHistogram2D::Learn(
   // update the filters as necessary
   for (int i = 0; i < numHistograms; i++)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     vtkExtractHistogram2D* f = this->GetHistogramFilter(i);
     if (f &&
       (f->GetMTime() > this->BuildTime || inData->GetColumn(i)->GetMTime() > this->BuildTime ||

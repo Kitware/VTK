@@ -128,7 +128,7 @@ int vtkComputeHistogram2DOutliers::RequestData(vtkInformation* vtkNotUsed(reques
 
   // compute the thresholds that contain outliers
   vtkSmartPointer<vtkCollection> outlierThresholds = vtkSmartPointer<vtkCollection>::New();
-  if (!this->ComputeOutlierThresholds(histograms, outlierThresholds))
+  if (!this->CheckAbort() && !this->ComputeOutlierThresholds(histograms, outlierThresholds))
   {
     vtkErrorMacro("Error during outlier bin computation.");
     return 0;
@@ -136,8 +136,9 @@ int vtkComputeHistogram2DOutliers::RequestData(vtkInformation* vtkNotUsed(reques
 
   // take the computed outlier thresholds and extract the input table rows that match
   vtkSmartPointer<vtkIdTypeArray> outlierRowIds = vtkSmartPointer<vtkIdTypeArray>::New();
-  if (outlierThresholds->GetNumberOfItems() >= 0 &&
-    !this->FillOutlierIds(inData, outlierThresholds, outlierRowIds, outputTable))
+  if (!this->CheckAbort() &&
+    (outlierThresholds->GetNumberOfItems() >= 0 &&
+      !this->FillOutlierIds(inData, outlierThresholds, outlierRowIds, outputTable)))
   {
     vtkErrorMacro("Error during outlier row retrieval.");
     return 0;
@@ -251,6 +252,10 @@ int vtkComputeHistogram2DOutliers::ComputeOutlierThresholds(
   int numOutliers = 0;
   while (pctThreshold < 1.0)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     int tmpNumOutliers = 0;
     vtkSmartPointer<vtkCollection> tmpThresholdCollection = vtkSmartPointer<vtkCollection>::New();
     // compute outlier ids in all of the histograms
@@ -364,6 +369,10 @@ int vtkComputeHistogram2DOutliers::FillOutlierIds(
   vtkSmartPointer<vtkIdList> uniqueRowIds = vtkSmartPointer<vtkIdList>::New();
   for (int i = 0; i < numColumns - 1; i++)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     vtkDataArray* col1 = vtkArrayDownCast<vtkDataArray>(data->GetColumn(i));
     vtkDataArray* col2 = vtkArrayDownCast<vtkDataArray>(data->GetColumn(i + 1));
 
