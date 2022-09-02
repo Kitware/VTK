@@ -292,16 +292,9 @@ void vtkParallelVectorsForVortexCore::Prefilter(
 bool vtkParallelVectorsForVortexCore::AcceptSurfaceTriangle(
   const vtkIdType surfaceSimplexIndices[3])
 {
-  char accepted[3];
-  for (int i = 0; i < 3; i++)
-  {
-    this->AcceptedPoints->GetTypedTuple(surfaceSimplexIndices[i], &accepted[i]);
-    if (!accepted[i])
-    {
-      return false;
-    }
-  }
-  return true;
+  auto acceptedPoints = this->AcceptedPoints->GetPointer(0);
+  return acceptedPoints[surfaceSimplexIndices[0]] && acceptedPoints[surfaceSimplexIndices[1]] &&
+    acceptedPoints[surfaceSimplexIndices[2]];
 }
 
 //------------------------------------------------------------------------------
