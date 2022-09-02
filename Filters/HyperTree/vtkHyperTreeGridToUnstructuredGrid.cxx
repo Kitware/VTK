@@ -96,6 +96,10 @@ int vtkHyperTreeGridToUnstructuredGrid::ProcessTrees(
   vtkNew<vtkHyperTreeGridNonOrientedGeometryCursor> cursor;
   while (it.GetNextTree(index))
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     // Initialize new geometric cursor at root of current tree
     input->InitializeNonOrientedGeometryCursor(cursor, index);
 
@@ -163,6 +167,10 @@ void vtkHyperTreeGridToUnstructuredGrid::RecursivelyProcessTree(
     int numChildren = cursor->GetNumberOfChildren();
     for (int ichild = 0; ichild < numChildren; ++ichild)
     {
+      if (this->CheckAbort())
+      {
+        break;
+      }
       cursor->ToChild(ichild);
       // Recurse
       this->RecursivelyProcessTree(cursor);

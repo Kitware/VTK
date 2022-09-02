@@ -149,6 +149,10 @@ int vtkHyperTreeGridThreshold::ProcessTrees(vtkHyperTreeGrid* input, vtkDataObje
     vtkNew<vtkHyperTreeGridNonOrientedCursor> outCursor;
     while (it.GetNextTree(outIndex))
     {
+      if (this->CheckAbort())
+      {
+        break;
+      }
       // Initialize new grid cursor at root of current input tree
       output->InitializeNonOrientedCursor(outCursor, outIndex);
       // Limit depth recursively
@@ -182,6 +186,10 @@ int vtkHyperTreeGridThreshold::ProcessTrees(vtkHyperTreeGrid* input, vtkDataObje
     vtkNew<vtkHyperTreeGridNonOrientedCursor> outCursor;
     while (it.GetNextTree(inIndex))
     {
+      if (this->CheckAbort())
+      {
+        break;
+      }
       // Initialize new cursor at root of current input tree
       input->InitializeNonOrientedCursor(inCursor, inIndex);
       // Initialize new cursor at root of current output tree
@@ -238,7 +246,11 @@ bool vtkHyperTreeGridThreshold::RecursivelyProcessTree(
     int numChildren = inCursor->GetNumberOfChildren();
     for (int ichild = 0; ichild < numChildren; ++ichild)
     {
-      // Descend into child in input grid as well
+      if (this->CheckAbort())
+      {
+        break;
+      }
+      // Descend into child in intput grid as well
       inCursor->ToChild(ichild);
       // Descend into child in output grid as well
       outCursor->ToChild(ichild);
@@ -295,6 +307,10 @@ bool vtkHyperTreeGridThreshold::RecursivelyProcessTreeWithCreateNewMask(
     int numChildren = outCursor->GetNumberOfChildren();
     for (int ichild = 0; ichild < numChildren; ++ichild)
     {
+      if (this->CheckAbort())
+      {
+        break;
+      }
       // Descend into child in output grid as well
       outCursor->ToChild(ichild);
       // Recurse and keep track of whether some children are kept

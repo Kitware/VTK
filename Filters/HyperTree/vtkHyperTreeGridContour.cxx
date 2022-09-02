@@ -356,6 +356,10 @@ int vtkHyperTreeGridContour::ProcessTrees(vtkHyperTreeGrid* input, vtkDataObject
   vtkNew<vtkHyperTreeGridNonOrientedCursor> cursor;
   while (it.GetNextTree(index))
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     // Initialize new grid cursor at root of current input tree
     input->InitializeNonOrientedCursor(cursor, index);
     // Pre-process tree recursively
@@ -367,6 +371,10 @@ int vtkHyperTreeGridContour::ProcessTrees(vtkHyperTreeGrid* input, vtkDataObject
   vtkNew<vtkHyperTreeGridNonOrientedMooreSuperCursor> supercursor;
   while (it.GetNextTree(index))
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     // Initialize new Moore cursor at root of current tree
     input->InitializeNonOrientedMooreSuperCursor(supercursor, index);
     // Compute contours recursively
@@ -434,6 +442,10 @@ bool vtkHyperTreeGridContour::RecursivelyPreProcessTree(vtkHyperTreeGridNonOrien
     int numChildren = cursor->GetNumberOfChildren();
     for (int child = 0; child < numChildren; ++child)
     {
+      if (this->CheckAbort())
+      {
+        break;
+      }
       // Create storage for signs relative to contour values
       std::vector<bool> signs(numContours);
 

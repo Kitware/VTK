@@ -128,6 +128,10 @@ int vtkHyperTreeGridDepthLimiter::ProcessTrees(vtkHyperTreeGrid* input, vtkDataO
   vtkNew<vtkHyperTreeGridNonOrientedCursor> outCursor;
   while (it.GetNextTree(inIndex))
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     // Initialize new grid cursor at root of current input tree
     input->InitializeNonOrientedCursor(inCursor, inIndex);
 
@@ -181,6 +185,10 @@ void vtkHyperTreeGridDepthLimiter::RecursivelyProcessTree(
     int numChildren = inCursor->GetNumberOfChildren();
     for (int child = 0; child < numChildren; ++child)
     {
+      if (this->CheckAbort())
+      {
+        break;
+      }
       inCursor->ToChild(child);
       // Descend into child in output grid as well
       outCursor->ToChild(child);
