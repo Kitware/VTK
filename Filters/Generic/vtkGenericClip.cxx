@@ -281,7 +281,7 @@ int vtkGenericClip::RequestData(vtkInformation* vtkNotUsed(request),
 
   // Process all cells and clip each in turn
   //
-  int abort = 0;
+  bool abort = false;
   vtkIdType updateTime = numCells / 20 + 1; // update roughly every 5%
 
   int num[2];
@@ -298,7 +298,7 @@ int vtkGenericClip::RequestData(vtkInformation* vtkNotUsed(request),
     if (!(cellId % updateTime))
     {
       this->UpdateProgress(static_cast<double>(cellId) / numCells);
-      abort = this->GetAbortExecute();
+      abort = this->CheckAbort();
     }
 
     // perform the clipping

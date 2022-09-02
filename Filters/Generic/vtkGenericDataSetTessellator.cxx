@@ -85,7 +85,7 @@ int vtkGenericDataSetTessellator::RequestData(vtkInformation* vtkNotUsed(request
   vtkCellData* outputCD = output->GetCellData();
   vtkGenericAdaptorCell* cell;
   vtkIdType numInserted = 0, numNew, i;
-  int abortExecute = 0;
+  bool abortExecute = false;
 
   // Copy original points and point data
   vtkPoints* newPts = vtkPoints::New();
@@ -174,7 +174,7 @@ int vtkGenericDataSetTessellator::RequestData(vtkInformation* vtkNotUsed(request
     if (!(count % updateCount))
     {
       this->UpdateProgress(static_cast<double>(count) / numCells);
-      abortExecute = this->GetAbortExecute();
+      abortExecute = this->CheckAbort();
     }
 
     cell = cellIt->GetCell();
