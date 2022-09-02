@@ -332,21 +332,19 @@ struct PolyLineBuilder
 bool surfaceTessellationForCell(vtkCell3D* cell, std::vector<std::array<vtkIdType, 3>>& triangles,
   vtkSmartPointer<vtkPolygon>& polygon, vtkSmartPointer<vtkIdList>& outTris)
 {
-  const vtkIdType* localPointIds;
-
+  const int numberOfFaces = cell->GetNumberOfFaces();
   // compute the number of triangles in the surface tessellation
+  std::size_t nTriangles = 0;
+  const vtkIdType* localPointIds;
+  for (int face = 0; face < numberOfFaces; ++face)
   {
-    std::size_t nTriangles = 0;
-    for (int face = 0; face < cell->GetNumberOfFaces(); ++face)
-    {
-      nTriangles += cell->GetFacePoints(face, localPointIds) - 2;
-    }
-    triangles.resize(nTriangles);
+    nTriangles += cell->GetFacePoints(face, localPointIds) - 2;
   }
+  triangles.resize(nTriangles);
 
-  std::size_t t = 0;
-
-  for (int face = 0; face < cell->GetNumberOfFaces(); ++face)
+  size_t triId = 0;
+  vtkIdType* pointIds = cell->GetPointIds()->GetPointer(0);
+  for (int face = 0; face < numberOfFaces; ++face)
   {
     int nPoints = cell->GetFacePoints(face, localPointIds);
 
@@ -358,25 +356,22 @@ bool surfaceTessellationForCell(vtkCell3D* cell, std::vector<std::array<vtkIdTyp
         return false;
       case 3:
       {
-        triangles[t++] = { { cell->GetPointIds()->GetId(localPointIds[0]),
-          cell->GetPointIds()->GetId(localPointIds[1]),
-          cell->GetPointIds()->GetId(localPointIds[2]) } };
+        triangles[triId++] = { { pointIds[localPointIds[0]], pointIds[localPointIds[1]],
+          pointIds[localPointIds[2]] } };
         break;
       }
       case 4:
       {
-        std::array<vtkIdType, 4> perimeter = { { cell->GetPointIds()->GetId(localPointIds[0]),
-          cell->GetPointIds()->GetId(localPointIds[1]),
-          cell->GetPointIds()->GetId(localPointIds[2]),
-          cell->GetPointIds()->GetId(localPointIds[3]) } };
+        std::array<vtkIdType, 4> perimeter = { { pointIds[localPointIds[0]],
+          pointIds[localPointIds[1]], pointIds[localPointIds[2]], pointIds[localPointIds[3]] } };
 
         std::rotate(
           perimeter.begin(), std::min_element(perimeter.begin(), perimeter.end()), perimeter.end());
 
         // This ordering ensures that the same two triangles are recovered if
         // the order of the perimeter points are reversed.
-        triangles[t++] = { { perimeter[0], perimeter[1], perimeter[2] } };
-        triangles[t++] = { { perimeter[0], perimeter[3], perimeter[2] } };
+        triangles[triId++] = { { perimeter[0], perimeter[1], perimeter[2] } };
+        triangles[triId++] = { { perimeter[0], perimeter[3], perimeter[2] } };
         break;
       }
       default:
@@ -384,7 +379,7 @@ bool surfaceTessellationForCell(vtkCell3D* cell, std::vector<std::array<vtkIdTyp
         polygon->GetPoints()->SetNumberOfPoints(nPoints);
         polygon->GetPointIds()->SetNumberOfIds(nPoints);
 
-        for (vtkIdType i = 0; i < nPoints; ++i)
+        for (int i = 0; i < nPoints; ++i)
         {
           polygon->GetPoints()->SetPoint(i, cell->GetPoints()->GetPoint(localPointIds[i]));
           polygon->GetPointIds()->SetId(i, i);
@@ -394,9 +389,9 @@ bool surfaceTessellationForCell(vtkCell3D* cell, std::vector<std::array<vtkIdTyp
 
         for (vtkIdType i = 0; i < nPoints - 2; ++i)
         {
-          triangles[t++] = { { cell->GetPointIds()->GetId(localPointIds[outTris->GetId(3 * i)]),
-            cell->GetPointIds()->GetId(localPointIds[outTris->GetId(3 * i + 1)]),
-            cell->GetPointIds()->GetId(localPointIds[outTris->GetId(3 * i + 2)]) } };
+          triangles[triId++] = { { pointIds[localPointIds[outTris->GetId(3 * i)]],
+            pointIds[localPointIds[outTris->GetId(3 * i + 1)]],
+            pointIds[localPointIds[outTris->GetId(3 * i + 2)]] } };
         }
       }
     }
@@ -535,11 +530,11 @@ public:
     {
       // We only parse 3D linear cells
       this->Input->GetCell(cellId, cell);
-      vtkCell3D* cell3D = vtkCell3D::SafeDownCast(cell->GetRepresentativeCell());
-      if (cell3D == nullptr)
+      if (cell->GetCellDimension() != 3 || cell->IsLinear() != 1)
       {
         continue;
       }
+      vtkCell3D* cell3D = static_cast<vtkCell3D*>(cell->GetRepresentativeCell());
 
       // Compute the surface tessellation for the cell
       if (!surfaceTessellationForCell(cell3D, surfaceTriangles, polygon, outTris))
