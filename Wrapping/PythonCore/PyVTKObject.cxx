@@ -564,7 +564,7 @@ PyBufferProcs PyVTKObject_AsBuffer = {
 };
 
 //------------------------------------------------------------------------------
-PyObject* PyVTKObject_FromPointer(PyTypeObject* pytype, PyObject* pydict, vtkObjectBase* ptr)
+PyObject* PyVTKObject_FromPointer(PyTypeObject* pytype, PyObject* ghostdict, vtkObjectBase* ptr)
 {
   // This will be set if we create a new C++ object
   bool created = false;
@@ -667,7 +667,8 @@ PyObject* PyVTKObject_FromPointer(PyTypeObject* pytype, PyObject* pydict, vtkObj
     pytype = cls->py_type;
   }
 
-  // Create a new dict unless one was provided
+  // Create a new dict unless object is being resurrected from a ghost
+  PyObject* pydict = ghostdict;
   if (pydict)
   {
     Py_INCREF(pydict);
@@ -697,6 +698,18 @@ PyObject* PyVTKObject_FromPointer(PyTypeObject* pytype, PyObject* pydict, vtkObj
   if (created)
   {
     ptr->Delete();
+  }
+  else if (ghostdict == nullptr && pytype->tp_init != nullptr)
+  {
+    // Call __init__(self)
+    PyObject* arglist = Py_BuildValue("()");
+    int res = pytype->tp_init((PyObject*)self, arglist, nullptr);
+    Py_DECREF(arglist);
+    if (res < 0)
+    {
+      Py_DECREF(self);
+      self = nullptr;
+    }
   }
 
   return (PyObject*)self;

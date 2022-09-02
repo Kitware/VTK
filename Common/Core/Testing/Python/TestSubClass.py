@@ -49,7 +49,8 @@ class vtkCustomObject(vtk.vtkObject):
         return t
 
 class vtkPointsCustom(vtk.vtkPoints):
-    pass
+    def __init__(self):
+        self.some_attribute = "custom"
 
 class TestSubclass(Testing.vtkTest):
     def testSubclassInstantiate(self):
@@ -107,8 +108,17 @@ class TestSubclass(Testing.vtkTest):
     def testOverride(self):
         """Make sure that overwriting with a subclass works"""
         self.assertFalse(isinstance(vtk.vtkPoints(), vtkPointsCustom))
+        # check that object has the correct class
         vtk.vtkPoints.override(vtkPointsCustom)
         self.assertTrue(isinstance(vtk.vtkPoints(), vtkPointsCustom))
+        # check object created deep in c++
+        source = vtk.vtkSphereSource()
+        source.Update()
+        points = source.GetOutput().GetPoints()
+        self.assertTrue(isinstance(points, vtkPointsCustom))
+        # check that __init__ is called
+        self.assertEqual(points.some_attribute, "custom")
+        # check that overrides can be removed
         vtk.vtkPoints.override(None)
         self.assertTrue(vtk.vtkPoints().__class__ == vtk.vtkPoints)
 
