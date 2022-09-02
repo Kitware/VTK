@@ -192,6 +192,10 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "windows")
 
     # Timeout; needs investigated
     "^VTK::FiltersPointsPython-TestPointSmoothingFilter$"
+
+    # Flaky on windows for some reasons: 
+    # https://gitlab.kitware.com/vtk/vtk/-/issues/18640 
+    "^VTK::FiltersStatisticsCxx-TestMultiCorrelativeStatistics$"
   )
 endif ()
 
@@ -253,6 +257,8 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "stdthread")
     "^VTK::FiltersModelingPython-TestCookieCutter4$"
     # See #18623
     "^VTK::CommonDataModelCxx-TestPolyhedronCombinatorialContouring$"
+    # See #18641
+    "^VTK::InteractionWidgetsCxx-TestPickingManagerSeedWidget$"
 
     # Test fails sometimes with STDThread
     # See #18555
