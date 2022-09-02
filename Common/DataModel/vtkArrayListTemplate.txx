@@ -116,10 +116,8 @@ inline void ArrayList::AddArrays(vtkIdType numOutPts, vtkDataSetAttributes* inPD
   int iType, oType;
   void *iD, *oD;
   int iNumComp, oNumComp;
-  int i;
 
-  for (i = outPD->RequiredArrays.BeginIndex(); !outPD->RequiredArrays.End();
-       i = outPD->RequiredArrays.NextIndex())
+  for (auto& i : outPD->RequiredArrays)
   {
     iArray = inPD->Data[i];
     oArray = outPD->Data[outPD->TargetIndices[i]];
