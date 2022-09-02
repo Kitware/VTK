@@ -478,24 +478,28 @@ struct SurfaceTrianglePoint
 template <typename VArrayType, typename WArrayType>
 class CollectValidCellSurfacePointsFunctor
 {
-  const vtk::detail::TupleRange<VArrayType, 3> VRange;
-  const vtk::detail::TupleRange<WArrayType, 3> WRange;
+  VArrayType* VField;
+  WArrayType* WField;
   vtkDataSet* Input;
-
   vtkParallelVectors* ParallelVectors;
+
   std::vector<std::vector<SurfaceTrianglePoint>>& CellSurfaceTrianglePoints;
-  vtkSMPThreadLocal<vtkSmartPointer<vtkGenericCell>> Cell;
-  vtkSMPThreadLocal<vtkSmartPointer<vtkPolygon>> Polygon;
-  vtkSMPThreadLocal<vtkSmartPointer<vtkIdList>> OutTris;
-  vtkSMPThreadLocal<std::vector<double>> CriterionArrayValues;
-  vtkSMPThreadLocal<std::array<double, 3>> Weights;
+  struct LocalData
+  {
+    vtkSmartPointer<vtkGenericCell> Cell;
+    vtkSmartPointer<vtkPolygon> Polygon;
+    vtkSmartPointer<vtkIdList> OutTris;
+    std::vector<double> CriterionArrayValues;
+    std::array<double, 3> Weights;
+  };
+  vtkSMPThreadLocal<LocalData> TLData;
 
 public:
   CollectValidCellSurfacePointsFunctor(VArrayType* vField, WArrayType* wField, vtkDataSet* input,
     vtkParallelVectors* parallelVectors,
     std::vector<std::vector<SurfaceTrianglePoint>>& cellSurfaceTrianglePoints)
-    : VRange(vtk::DataArrayTupleRange<3>(vField))
-    , WRange(vtk::DataArrayTupleRange<3>(wField))
+    : VField(vField)
+    , WField(wField)
     , Input(input)
     , ParallelVectors(parallelVectors)
     , CellSurfaceTrianglePoints(cellSurfaceTrianglePoints)
@@ -508,40 +512,39 @@ public:
 
   void Initialize()
   {
-    auto& tlCell = this->Cell.Local();
-    tlCell = vtkSmartPointer<vtkGenericCell>::New();
-    auto& tlPolygon = this->Polygon.Local();
-    tlPolygon = vtkSmartPointer<vtkPolygon>::New();
-    auto& tlOutTris = this->OutTris.Local();
-    tlOutTris = vtkSmartPointer<vtkIdList>::New();
-    auto& tlCriterionArrayValues = this->CriterionArrayValues.Local();
-    tlCriterionArrayValues.resize(this->ParallelVectors->CriteriaArrays.size());
-    this->Weights.Local();
+    auto& tlData = this->TLData.Local();
+    tlData.Cell = vtkSmartPointer<vtkGenericCell>::New();
+    tlData.Polygon = vtkSmartPointer<vtkPolygon>::New();
+    tlData.OutTris = vtkSmartPointer<vtkIdList>::New();
+    tlData.CriterionArrayValues.resize(this->ParallelVectors->CriteriaArrays.size());
   }
 
   void operator()(vtkIdType begin, vtkIdType end)
   {
-    auto& tlCell = this->Cell.Local();
-    auto& tlPolygon = this->Polygon.Local();
-    auto& tlOutTris = this->OutTris.Local();
-    auto& tlCriterionArrayValues = this->CriterionArrayValues.Local();
-    auto& tlWeights = this->Weights.Local();
-    std::vector<std::array<vtkIdType, 3>> surfaceTriangles;
+    auto& tlData = this->TLData.Local();
+    auto& cell = tlData.Cell;
+    auto& polygon = tlData.Polygon;
+    auto& outTris = tlData.OutTris;
+    auto& criterionArrayValues = tlData.CriterionArrayValues;
+    auto& weights = tlData.Weights;
+    auto vField = vtk::DataArrayTupleRange<3>(this->VField);
+    auto wField = vtk::DataArrayTupleRange<3>(this->WField);
 
+    std::vector<std::array<vtkIdType, 3>> surfaceTriangles;
     for (vtkIdType cellId = begin; cellId < end; ++cellId)
     {
-      // We only parse 3D cells
-      this->Input->GetCell(cellId, tlCell);
-      vtkCell3D* cell = vtkCell3D::SafeDownCast(tlCell->GetRepresentativeCell());
-      if (cell == nullptr)
+      // We only parse 3D linear cells
+      this->Input->GetCell(cellId, cell);
+      vtkCell3D* cell3D = vtkCell3D::SafeDownCast(cell->GetRepresentativeCell());
+      if (cell3D == nullptr)
       {
         continue;
       }
 
       // Compute the surface tessellation for the cell
-      if (!surfaceTessellationForCell(cell, surfaceTriangles, tlPolygon, tlOutTris))
+      if (!surfaceTessellationForCell(cell3D, surfaceTriangles, polygon, outTris))
       {
-        vtkLogF(ERROR, "3D cell surface cannot be acquired");
+        vtkErrorWithObjectMacro(this->ParallelVectors, << "3D cell surface cannot be acquired");
         continue;
       }
 
@@ -564,8 +567,8 @@ public:
           trianglePointId = trianglePointIds[i];
           for (int j = 0; j < 3; ++j)
           {
-            v[i][j] = static_cast<double>(this->VRange[trianglePointId][j]);
-            w[i][j] = static_cast<double>(this->WRange[trianglePointId][j]);
+            v[i][j] = static_cast<double>(vField[trianglePointId][j]);
+            w[i][j] = static_cast<double>(wField[trianglePointId][j]);
           }
         }
 
@@ -581,13 +584,13 @@ public:
         const double& t = st[1];
 
         if (!this->ParallelVectors->ComputeAdditionalCriteria(
-              trianglePointIds.data(), s, t, tlCriterionArrayValues))
+              trianglePointIds.data(), s, t, criterionArrayValues))
         {
           continue;
         }
 
         double pCoords[3] = { s, t, 0.0 };
-        vtkTriangle::InterpolationFunctions(pCoords, tlWeights.data());
+        vtkTriangle::InterpolationFunctions(pCoords, weights.data());
 
         // Convert the parametric location to an absolute location
         double p[3][3];
@@ -603,7 +606,7 @@ public:
         }
 
         this->CellSurfaceTrianglePoints[cellId].push_back(
-          SurfaceTrianglePoint(trianglePointIds, pOut, tlWeights, tlCriterionArrayValues));
+          SurfaceTrianglePoint(trianglePointIds, pOut, weights, criterionArrayValues));
 
         if (counter == 2)
         {
