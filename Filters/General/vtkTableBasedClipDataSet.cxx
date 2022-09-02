@@ -207,6 +207,8 @@ int vtkTableBasedClipDataSet::RequestData(vtkInformation* vtkNotUsed(request),
   if (!this->ClipFunction)
   {
     auto inputArray = this->GetInputArrayToProcess(0, inputVector);
+    // This is needed by vtkClipDataSet in case we fall back to it.
+    inputCopy->GetPointData()->SetScalars(inputArray);
     if (!inputArray)
     {
       vtkErrorMacro(<< "no input scalars." << endl);
@@ -324,22 +326,6 @@ void vtkTableBasedClipDataSet::ClipDataSet(vtkDataSet* pDataSet, vtkUnstructured
   clipData->SetClipFunction(this->ClipFunction);
   clipData->SetUseValueAsOffset(this->UseValueAsOffset);
   clipData->SetGenerateClipScalars(this->GenerateClipScalars);
-
-  if (!this->ClipFunction)
-  {
-    vtkNew<vtkDoubleArray> clipArray;
-    clipArray->SetName("ClipDataSetScalars");
-    clipArray->SetNumberOfValues(pDataSet->GetNumberOfPoints());
-    vtkSMPTools::For(0, pDataSet->GetNumberOfPoints(), [&](vtkIdType begin, vtkIdType end) {
-      double point[3];
-      for (vtkIdType i = begin; i < end; i++)
-      {
-        pDataSet->GetPoint(i, point);
-        clipArray->SetValue(i, this->ClipFunction->FunctionValue(point));
-      }
-    });
-    pDataSet->GetPointData()->SetScalars(clipArray);
-  }
   clipData->Update();
   outputUG->ShallowCopy(clipData->GetOutput());
 }
