@@ -223,7 +223,7 @@ public:
     unsigned int temp[2];
     return this->GetPixelInformation(display_position, maxDist, temp);
   }
-  PixelInformation GetPixelInformation(
+  virtual PixelInformation GetPixelInformation(
     const unsigned int display_position[2], int maxDist, unsigned int selected_position[2]);
   void ClearBuffers() { this->ReleasePixBuffers(); }
   // raw is before processing
