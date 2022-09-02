@@ -3,7 +3,7 @@ NAME
 LIBRARY_NAME
   vtkRenderingOpenXR
 LICENSE_FILES
-  Copyright.txt
+  LICENSE
 DEPENDS
   VTK::CommonCore
   VTK::CommonMath
