@@ -18,7 +18,7 @@
  *
  * This class renders a QWidget as a simple vtkPlaneSource with a vtkTexture
  * that contains a vtkQWidgetTexture which imports the OpenGL texture handle
- * from Qt into the vtk scene. Qt and VTK may need to be useing the same
+ * from Qt into the vtk scene. Qt and VTK may need to be using the same
  * graphics context.
  */
 

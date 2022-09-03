@@ -152,7 +152,7 @@ int TestPDBBallAndStickShadowsDOFSSAA(int argc, char* argv[])
 
   vtkOpenGLRenderer* glrenderer = vtkOpenGLRenderer::SafeDownCast(ren);
 
-  // finally add the DOF passs
+  // finally add the DOF pass
   vtkNew<vtkDepthOfFieldPass> dofp;
   // dofp->AutomaticFocalDistanceOff();
   dofp->SetDelegatePass(cameraP);

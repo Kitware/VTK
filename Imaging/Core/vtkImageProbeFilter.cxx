@@ -321,7 +321,7 @@ void vtkImageProbeFilter::ProbePoints(vtkDataSet* input, vtkImageData* source, v
       interpolator->InterpolateIJK(ijk, value);
       for (int c = 0; c < numToClamp; c++)
       {
-        // Clamping is needed to avoid overlow when output is integer
+        // Clamping is needed to avoid overflow when output is integer
         value[c] = vtkMath::ClampValue(value[c], minVal, maxVal);
       }
       for (int c = 0; c < numToRound; c++)

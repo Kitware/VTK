@@ -209,7 +209,7 @@ protected:
 private:
   /**
    * Search and fill in target all zero input degree vertices where the output degree is more than
-   * zero. The finded vertices hierarchical layer ID will be zero.
+   * zero. The found vertices hierarchical layer ID will be zero.
    */
   virtual int UniversalStartPoints(vtkDirectedGraph* input,
     vtkSimple3DCirclesStrategyInternal* target, vtkSimple3DCirclesStrategyInternal* StandAlones,

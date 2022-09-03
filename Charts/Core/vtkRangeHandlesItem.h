@@ -104,7 +104,7 @@ protected:
   ~vtkRangeHandlesItem() override;
 
   /**
-   * Overridden to clamp the handle position in the color tranfer function
+   * Overridden to clamp the handle position in the color transfer function
    * range.
    */
   void SetActiveHandlePosition(double position) override;

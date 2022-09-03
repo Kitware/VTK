@@ -73,7 +73,7 @@ Q_SIGNALS:
 
 protected:
   /**
-   * The default method for retrieving data for a tabel entry from the item model.
+   * The default method for retrieving data for a table entry from the item model.
    */
   virtual QVariant modelData(int row, int col);
 

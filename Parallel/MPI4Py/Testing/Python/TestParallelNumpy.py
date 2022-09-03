@@ -84,7 +84,7 @@ for i in range(3):
 if ext != list(org_ext):
     w.GetOutput().Crop(ext)
 
-# Croppped arrays
+# Cropped arrays
 rtData = ds.PointData['RTData']
 grad = ds.PointData['gradient']
 

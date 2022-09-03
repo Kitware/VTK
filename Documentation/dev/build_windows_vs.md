@@ -39,7 +39,7 @@ CMake is a tool that makes cross-platform building simple. On several systems it
 There are several precompiled binaries available at the [CMake download page](https://cmake.org/download/). Download version 3.10 or later.
 Add CMake to your PATH environment variable if you downloaded an archive and not an installer.
 
-This guide was tested using cmake 3.13.4 64bit installed by dowloading the .msi installer. [cmake-3.13.4-win64-x64.msi]
+This guide was tested using cmake 3.13.4 64bit installed by downloading the .msi installer. [cmake-3.13.4-win64-x64.msi]
 
 ### Get Visual Studio
 
@@ -86,7 +86,7 @@ Use CMake to generate a visual studio solution.
 3. Click [Configure]
 4. You will now get a selection screen in which you can specify your "generator". Select the one you need. This guide was tested with Visual Studio 15 2017 Win64 in combination with the default options.
 
-   This will take some time. You may want to spend this time usefull by reading [cmake overview](https://cmake.org/overview/) and [cmake example](https://cmake.org/examples) and even the [cmake tutorial](https://cmake.org/cmake-tutorial/).
+   This will take some time. You may want to spend this time useful by reading [cmake overview](https://cmake.org/overview/) and [cmake example](https://cmake.org/examples) and even the [cmake tutorial](https://cmake.org/cmake-tutorial/).
 
 5. We are now presented with a few options that can be turned on or off as desired. For this guide the only change made is to
    - Check the box after CMAKE_CXX_MP_FLAG. This enables building using multi-core.

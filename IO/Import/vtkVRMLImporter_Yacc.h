@@ -1377,7 +1377,7 @@ int vtkVRMLYaccData::yyparse(vtkVRMLImporter* self)
   { //free(yyvsp[0].string); ;
   break;}
   }
-  /* the action file gets copied in in place of this dollarsign */
+  /* the action file gets copied in place of this dollarsign */
 
 
   yyvsp -= yylen;

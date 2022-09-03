@@ -106,7 +106,7 @@ constexpr unsigned char GHOST_CELL_TO_PEEL_IN_UNSTRUCTURED_DATA =
 
 //============================================================================
 /**
- * Ajacency bits used for grids.
+ * Adjacency bits used for grids.
  * For instance, `Adjacency::Something` means that the neighboring block it refers to is on the
  * `Something` of current block
  * Naming is self-explanatory.
@@ -361,7 +361,7 @@ template <class GridDataSetT>
   {
     // Strategy:
     // We create a cursor `ijk` that is at the bottom left front corner of the grid.
-    // From there, we iterate each cursor dimension until the targetted brick is not a duplicate ghost.
+    // From there, we iterate each cursor dimension until the targeted brick is not a duplicate ghost.
     // When this happens, we stop the loop, and look in each non degenerate dimension
     // if consecutive shift backs land on a ghost or not. If it lands on a ghost, then the
     // corresponding dimension needs to be peeled up to the current position of the cursor.
@@ -626,7 +626,7 @@ void LinkGrid(::BlockMapType<typename BlockT::BlockStructureType>& blockStructur
 
     AddGhostLayerToGrid<BlockT>(idx, outputGhostLevels, blockStructure, blockInformation);
   }
-  // Here we look at ajacency where edges overlaps but no face overlap occurs
+  // Here we look at adjacency where edges overlaps but no face overlap occurs
   //   ___
   //  /__/|
   // |  | |__
@@ -710,7 +710,7 @@ void LinkGrid(::BlockMapType<typename BlockT::BlockStructureType>& blockStructur
     AddGhostLayerToGrid<BlockT>(idx1, outputGhostLevels, blockStructure, blockInformation);
     AddGhostLayerToGrid<BlockT>(idx2, outputGhostLevels, blockStructure, blockInformation);
   }
-  // Here we look at ajacency where corners touch but no edges / faces overlap
+  // Here we look at adjacency where corners touch but no edges / faces overlap
   //   ___
   //  /__/|
   // |  | |
@@ -3361,7 +3361,7 @@ vtkSmartPointer<vtkIdList> ComputeInterfacePointIdsForStructuredData(unsigned ch
 
 //----------------------------------------------------------------------------
 /**
- * This function returns the ids in input `grid` of the pointss such that `grid`'s extent overlaps
+ * This function returns the ids in input `grid` of the points such that `grid`'s extent overlaps
  * the block of global id gid's extent when ghosts are added.
  */
 template <class GridDataSetT>
@@ -3397,7 +3397,7 @@ vtkSmartPointer<vtkIdList> ComputeOutputInterfacePointIdsForStructuredData(
   ::ExtentType localExtent
     { gridExtent[0], gridExtent[1], gridExtent[2], gridExtent[3], gridExtent[4], gridExtent[5] };
 
-  // We apply a bitwise NOT opeartion on adjacencyMask to have the same adjacency mask as
+  // We apply a bitwise NOT operation on adjacencyMask to have the same adjacency mask as
   // in the Input version of this function. It produces an axial symmetry on each dimension
   // having an adjacency.
   return ::ComputeInterfacePointIdsForStructuredData(~adjacencyMask, localExtent, extent, grid,
@@ -3651,7 +3651,7 @@ void CloneCellData(vtkPointSet* ps, vtkPointSet* clone, ::UnstructuredDataInform
           cloneCellData->GetAbstractArray(arrayId));
     }
   }
-  // We need to intialize newly allocated ghosts to zero
+  // We need to initialize newly allocated ghosts to zero
   if (vtkUnsignedCharArray* ghostCells = cloneCellData->GetGhostArray())
   {
     auto ghostRange = vtk::DataArrayValueRange<1>(ghostCells);
@@ -3685,7 +3685,7 @@ void ClonePointData(vtkPointSet* ps, vtkPointSet* clone, ::UnstructuredDataInfor
           clonePointData->GetAbstractArray(arrayId));
     }
   }
-  // We need to intialize newly allocated ghosts to zero
+  // We need to initialize newly allocated ghosts to zero
   if (vtkUnsignedCharArray* ghostPoints = clonePointData->GetGhostArray())
   {
     auto ghostRange = vtk::DataArrayValueRange<1>(ghostPoints);
@@ -4408,7 +4408,7 @@ void DeepCopyInputAndAllocateGhostsForStructuredData(
  * - CellIdOffset: This is the number of cells already present in our output cells before adding the
  *   ghosts from this neighboring block.
  * - ConnectivityOffset: This is the current size of the connectivity array, before adding ghosts
- *   from thie neighboring block.
+ *   from their neighboring block.
  */
 template<class ArrayT>
 struct CellArrayInserter
@@ -5041,7 +5041,7 @@ void FillHiddenGhostsForStructuredData(const diy::Master& master, std::vector<Gr
     int isDimensionDegenerate[3] = { localExtent[0] == localExtent[1],
       localExtent[2] == localExtent[3], localExtent[4] == localExtent[5] };
 
-    // We are carefull and take into account when dimensions are degenerate:
+    // We are careful and take into account when dimensions are degenerate:
     // we do not want to fill a degenerate dimension with ghosts.
     //
     // On each dimension, we have to fill each end of each segment on points and cells.

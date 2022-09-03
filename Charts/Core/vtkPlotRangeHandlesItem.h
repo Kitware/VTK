@@ -25,7 +25,7 @@
  * an InteractionEvent when interacting with a handle and an EndInteractionEvent
  * when releasing a handle.
  * It emits a LeftMouseButtonDoubleClickEvent when double clicked.
- * Options can be used to change the appearence or behavior of handles:
+ * Options can be used to change the appearance or behavior of handles:
  * - SynchronizeHandlesRange: When enabled, moving the minimum handle triggers
  * the modification of the whole range, resulting in the maximum handle being
  * moved too. Disabled by default.

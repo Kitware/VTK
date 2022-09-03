@@ -183,7 +183,7 @@ if (NOT cdash_show_third_party_warnings)
     # vtkm uses deprecated TBB headers
     "TBB Warning: tbb/task.h is deprecated"
 
-    # vtkm related warnings, someone working on vtkm shoudl fix these and once fixed
+    # vtkm related warnings, someone working on vtkm should fix these and once fixed
     # remove these suppressions
     "struct VTKM_DEPRECATED"
     "vtkm::filter"

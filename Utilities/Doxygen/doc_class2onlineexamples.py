@@ -181,7 +181,7 @@ def main(indir, tmpdir, label, max_num):
     The main function of the script.
 
     This method downloads the selectExamples script, finds and parses headers in the doxygen source,
-    and adds the necessary documenation blocks to the headers.
+    and adds the necessary documentation blocks to the headers.
     """
 
     intermediate_time = time.time()

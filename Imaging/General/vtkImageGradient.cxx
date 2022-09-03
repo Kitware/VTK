@@ -123,7 +123,7 @@ int vtkImageGradient::RequestUpdateExtent(
     }
   }
 
-  // Store the update extent needed from the intput.
+  // Store the update extent needed from the input.
   inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), inUExt, 6);
 
   return 1;

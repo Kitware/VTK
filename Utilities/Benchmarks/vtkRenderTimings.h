@@ -151,7 +151,7 @@ public:
   int GetSequenceStart() { return this->SequenceStart; }
   int GetSequenceEnd() { return this->SequenceEnd; }
 
-  // get the maxmimum time allowed per step
+  // get the maximum time allowed per step
   double GetSequenceStepTimeLimit() { return this->SequenceStepTimeLimit; }
 
   // get the render size

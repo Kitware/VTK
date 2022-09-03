@@ -46,7 +46,7 @@ public:
 
   ///@{
   /**
-   * Get/Set the threshold value. Algorithm terminats when the maximum edge
+   * Get/Set the threshold value. Algorithm terminates when the maximum edge
    * centrality is below this threshold.
    */
   vtkSetMacro(Threshold, double);

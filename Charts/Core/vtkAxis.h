@@ -497,7 +497,7 @@ public:
   ///@{
   /**
    * Get/set the tick label algorithm that is used to calculate the min, max
-   * and tick spacing. There are currently two algoriths, vtkAxis::TICK_SIMPLE
+   * and tick spacing. There are currently two algorithms, vtkAxis::TICK_SIMPLE
    * is the default and uses a simple algorithm. The second option is
    * vtkAxis::TICK_WILKINSON which uses an extended Wilkinson algorithm to find
    * the optimal range, spacing and font parameters.

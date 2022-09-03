@@ -17,7 +17,7 @@
  * @brief   Shifts constant frequency to center for
  * display.
  *
- * Is used for dispaying images in frequency space.  FFT converts spatial
+ * Is used for displaying images in frequency space.  FFT converts spatial
  * images into frequency space, but puts the zero frequency at the origin.
  * This filter shifts the zero frequency to the center of the image.
  * Input and output are assumed to be doubles.

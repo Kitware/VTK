@@ -17,7 +17,7 @@
  *
  * This 3D widget handles events between VTK and Qt for a QWidget placed
  * in a scene. It currently takes 6dof events as from VR controllers and
- * if they intersect the widghet it converts them to Qt events and fires
+ * if they intersect the widget it converts them to Qt events and fires
  * them off.
  */
 
