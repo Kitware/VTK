@@ -74,6 +74,7 @@ void vtkAreaPicker::Initialize()
   this->vtkAbstractPropPicker::Initialize();
   this->Prop3Ds->RemoveAllItems();
   this->Mapper = nullptr;
+  this->DataSet = nullptr;
 }
 
 //------------------------------------------------------------------------------
