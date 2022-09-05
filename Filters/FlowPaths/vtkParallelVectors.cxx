@@ -548,8 +548,15 @@ public:
       int counter = 0;
 
       // For each triangle comprising the cell's surface...
-      for (const std::array<vtkIdType, 3>& trianglePointIds : surfaceTriangles)
+      for (size_t triId = 0, totalTris = surfaceTriangles.size(); triId < totalTris; ++triId)
       {
+        // If we are about to check the last triangle, but we have not inserted any other triangle,
+        // we skip this check, because we need at least two inserted triangles to create a link.
+        if (counter == 0 && triId == totalTris - 1)
+        {
+          break;
+        }
+        auto& trianglePointIds = surfaceTriangles[triId];
         if (!this->ParallelVectors->AcceptSurfaceTriangle(trianglePointIds.data()))
         {
           continue;
@@ -785,7 +792,7 @@ int vtkParallelVectors::RequestData(
       // Add criteria values to their arrays
       for (size_t i = 0; i < this->CriteriaArrays.size(); ++i)
       {
-        this->CriteriaArrays[i]->InsertTypedTuple(pIdx, (&(point.Criteria[i])));
+        this->CriteriaArrays[i]->InsertValue(pIdx, point.Criteria[i]);
       }
 
       // We have identified either our first or second point. Record it
