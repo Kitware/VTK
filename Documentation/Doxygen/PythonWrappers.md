@@ -99,7 +99,7 @@ contain implementations for them.  Also, it can be difficult to even know
 what classes you are using, since many VTK classes make use of other VTK
 classes.  An example of this is `vtkDataSetMapper`, which internally uses
 `vtkPolyDataMapper` to do the rendering.  So even though `vtkDataSetMapper` is
-not a factory class, it needs an OpenGL implmentation for `vtkPolyDataMapper`.
+not a factory class, it needs an OpenGL implementation for `vtkPolyDataMapper`.
 
 The simplest approach is to import all the important implementation modules
 into your program, even if you are not certain that you need them.
@@ -181,7 +181,7 @@ most important of these is `vtkVariant`, which can hold any type of object:
 The wrapping of these classes is fully automatic, but is done in a slightly
 different manner than `vtkObjectBase`-derived classes.  First, these classes
 have no `New()` method, and instead the public C++ constructors are wrapped
-to create an equivalent Python contructor.  Second, the Python object
+to create an equivalent Python constructor.  Second, the Python object
 contains its own copy of the C++ object, rather than containing just a
 pointer to the C++ object.  The vast majority of these classes are lightweight
 containers and numerical types.  For example, `vtkQuaterniond`, `vtkRectf`,
@@ -370,7 +370,7 @@ conversion constructors that are defined for wrapped objects.
 
 Some overloads will be unavailable (not wrapped) either because they are
 unwrappable as per the criteria described above, or because they are shadowed
-by another overload that is always perferable.  A simple example of this is
+by another overload that is always preferable.  A simple example of this is
 any methods that is overloaded on C++ `float` and `double`.  The Python
 `float` type is a perfect match C++ `double`, therefore the `float` overload
 is not wrapped.
@@ -828,7 +828,7 @@ pointer to the C++ object as a mangled string:
 
 The string provides the hexadecimal address of '`this`', followed by '`p`'
 (shorthand for *pointer*), and the type of the pointer.  You can also
-contruct a Python object directly from the C++ address, if the address is
+construct a Python object directly from the C++ address, if the address is
 formatted as described above:
 
     >>> a = vtkFloatArray('_00005653a6a6f700_p_vtkFloatArray')

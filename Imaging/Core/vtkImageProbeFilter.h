@@ -23,7 +23,7 @@
  *
  * This filter can be used to resample an image onto a set of arbitrarily
  * placed sample points.  For example, if you have a surface data set
- * (i.e. a vtkPolyData that has been tesselated so that its points are
+ * (i.e. a vtkPolyData that has been tessellated so that its points are
  * very closely spaced), you can color the polydata from the image points.
  *
  * In general, this filter is similar to vtkProbeFilter except that the

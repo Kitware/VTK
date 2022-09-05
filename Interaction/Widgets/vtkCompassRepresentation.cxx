@@ -188,7 +188,7 @@ void vtkCompassRepresentation::BuildBackdrop()
 //------------------------------------------------------------------------------
 void vtkCompassRepresentation::BuildRing()
 {
-  // crate the polydata
+  // create the polydata
   this->Ring = vtkPolyData::New();
   this->Ring->SetPoints(this->Points);
 

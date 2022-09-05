@@ -54,7 +54,7 @@ public:
 
 protected:
   /**
-   * Register objects that override vtk objects whem they are run as tests.
+   * Register objects that override vtk objects when they are run as tests.
    */
   vtkTestingObjectFactory();
 

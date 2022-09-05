@@ -52,7 +52,7 @@ public:
    * Converts a (longitude, latitude, altitude) triple to
    * world coordinates where the center of the earth is at the origin.
    * Units are in meters.
-   * Note that having altitude realtive to sea level causes issues.
+   * Note that having altitude relative to sea level causes issues.
    */
   static void LongLatAltToRect(double longLatAlt[3], double rect[3]);
 

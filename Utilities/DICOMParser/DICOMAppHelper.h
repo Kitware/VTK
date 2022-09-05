@@ -95,7 +95,7 @@ class DICOMAppHelperImplementation;
  * DICOMAppHelper for the resolution, pixel size, and pixel data.
  *
  * If a DICOMParser scans more than one file, the DICOMAppHelper will
- * group filesnames by SeriesUID.  This allows an application to pass
+ * group filenames by SeriesUID.  This allows an application to pass
  * a series of DICOM files to the DICOMParser (which via the callback
  * mechanism allows the DICOMAppHelper to cache information) and then
  * query the DICOMAppHelper for the files that are from the same

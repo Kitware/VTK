@@ -9,7 +9,7 @@ else ()
       set(use_legacy OFF)
     endif ()
   else ()
-    # Without the policy, only legacy is availale.
+    # Without the policy, only legacy is available.
     set(use_legacy ON)
   endif ()
 endif ()

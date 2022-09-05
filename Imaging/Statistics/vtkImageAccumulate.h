@@ -68,7 +68,7 @@ public:
    * Set/Get - The component origin is the location of bin (0, 0, 0).
    * Note that if the Component extent does not include the value (0,0,0),
    * then this origin bin will not actually be in the output.
-   * The origin of the output ends up being the same as the componenet origin.
+   * The origin of the output ends up being the same as the component origin.
    * For a 1D histogram with 10 bins spanning the values 1000 to 2000,
    * this origin should be set to 1000, 0, 0.
    * Initial value is (0.0,0.0,0.0).

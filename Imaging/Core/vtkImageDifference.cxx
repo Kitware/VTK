@@ -210,7 +210,7 @@ void vtkImageDifference::ThreadedRequestData(vtkInformation* vtkNotUsed(request)
   // results in max_ncomps_array_t.
   // nComp is not taken into account with std::copy and std::accumulate
   // as it is simplifying the code and because non-considered-component
-  // treshold value is always zero.
+  // threshold value is always zero.
   int nComp = inData[0][0]->GetNumberOfScalarComponents();
   int input1NComp = inData[1][0]->GetNumberOfScalarComponents();
   int outputNComp = outData[0]->GetNumberOfScalarComponents();

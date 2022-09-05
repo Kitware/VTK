@@ -316,10 +316,10 @@ account or discuss your choices with the reviewers until an agreement
 is reached. At this point, please `resolve` the discussion by clicking
 on the dedicated button.
 
-When all discussion have been adressed, the reviewers will either do
+When all discussion have been addressed, the reviewers will either do
 another pass of comment or acknowledge their approval in some form.
 
-Please be swift to adress or discuss comments, it will increase
+Please be swift to address or discuss comments, it will increase
 the speed at which your changes will be merged.
 
 ### Comments Formatting ###

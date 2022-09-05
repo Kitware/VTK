@@ -218,7 +218,7 @@ void vtkImageCanvasSource2D::DrawImage(
   {
     z = int(double(z) * this->Ratio[2]);
   }
-  // Clip the data to keep in in bounds
+  // Clip the data to keep in bounds
   extent = this->ImageData->GetExtent();
   min0 = (min0 < extent[0]) ? extent[0] : min0;
   max0 = (max0 < extent[0]) ? extent[0] : max0;
@@ -307,7 +307,7 @@ void vtkImageCanvasSource2D::FillBox(int min0, int max0, int min1, int max1)
     z = int(double(z) * this->Ratio[2]);
   }
 
-  // Clip the data to keep in in bounds
+  // Clip the data to keep in bounds
   extent = this->ImageData->GetExtent();
   min0 = (min0 < extent[0]) ? extent[0] : min0;
   max0 = (max0 < extent[0]) ? extent[0] : max0;
@@ -364,7 +364,7 @@ void vtkImageCanvasSource2DFillTube(
 
   image->GetExtent(min0, max0, min1, max1, min2, max2);
   maxV = image->GetNumberOfScalarComponents() - 1;
-  // Loop trough whole extent.
+  // Loop through whole extent.
   image->GetIncrements(inc0, inc1, inc2);
   ptr1 = ptr;
   for (idx1 = min1; idx1 <= max1; ++idx1)

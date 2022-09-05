@@ -11,7 +11,7 @@
 
 int TestSampleFunction(int, char*[])
 {
-  // First test for errors and warniongs
+  // First test for errors and warnings
   vtkSmartPointer<vtkTest::ErrorObserver> errorObserver =
     vtkSmartPointer<vtkTest::ErrorObserver>::New();
 

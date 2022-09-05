@@ -16,7 +16,7 @@
  * @class QQuickVTKRenderItem
  * @brief [QQuickItem] subclass to render a VTK scene in a QtQuick/QML application.
  *
- * QQuickVTKRenderItem extends [QQuickItem] so that a VTK visualization pipeline can be rendererd
+ * QQuickVTKRenderItem extends [QQuickItem] so that a VTK visualization pipeline can be rendered
  * within the rect of the item.
  *
  * This item is exported to the QML layer via the QQmlVTKPlugin under the module VTK. It is

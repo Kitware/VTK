@@ -474,7 +474,7 @@ public:
    * Gathers vtkMultiProcessStream (\c sendBuffer) from all ranks to the \c
    * destProcessId.
    * @param[in]  sendBuffer - vtkMultiProcessStream to send from local process.
-   * @param[out] recvBuffer - vector of vtkMultiProcessStream instances recevied
+   * @param[out] recvBuffer - vector of vtkMultiProcessStream instances received
    *             on the receiving rank (identified by \c destProcessId).
    * @param[in]  destProcessId - process id to gather on.
    * @return     1 on success, 0 on failure.

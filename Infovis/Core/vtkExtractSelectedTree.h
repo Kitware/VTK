@@ -21,7 +21,7 @@
  * input 1 --- a vtkSelection, containing selected vertices. It may have
  * FILED_type set to POINTS ( a vertex selection) or CELLS (an edge selection).
  * A vertex selection preserves the edges that connect selected vertices.
- * An edge selection perserves the vertices that are adjacent to at least one
+ * An edge selection preserves the vertices that are adjacent to at least one
  * selected edges.
  */
 

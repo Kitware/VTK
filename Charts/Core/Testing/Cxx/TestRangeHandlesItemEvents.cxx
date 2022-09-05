@@ -68,7 +68,7 @@ int TestRangeHandlesItemEvents(int, char*[])
   rangeHandles->GetHandlesRange(range);
   if (range[0] != 50 || range[1] != 200)
   {
-    std::cerr << "Unexepected range in range handle : [" << range[0] << ", " << range[1]
+    std::cerr << "Unexpected range in range handle : [" << range[0] << ", " << range[1]
               << "]. Expecting : [50, 200]." << std::endl;
     return EXIT_FAILURE;
   }
@@ -115,7 +115,7 @@ int TestRangeHandlesItemEvents(int, char*[])
 
   if (cbk->Range[0] != 69.25 || cbk->Range[1] != 200)
   {
-    std::cerr << "Unexepected range in range handle : [" << cbk->Range[0] << ", " << cbk->Range[1]
+    std::cerr << "Unexpected range in range handle : [" << cbk->Range[0] << ", " << cbk->Range[1]
               << "]. Expecting : [69.25, 200]." << std::endl;
     return EXIT_FAILURE;
   }
@@ -143,7 +143,7 @@ int TestRangeHandlesItemEvents(int, char*[])
 
   if (cbk->Range[0] != 50 || cbk->Range[1] != 120.75)
   {
-    std::cerr << "Unexepected range in range handle : [" << cbk->Range[0] << ", " << cbk->Range[1]
+    std::cerr << "Unexpected range in range handle : [" << cbk->Range[0] << ", " << cbk->Range[1]
               << "]. Expecting : [50, 120.75]." << std::endl;
     return EXIT_FAILURE;
   }

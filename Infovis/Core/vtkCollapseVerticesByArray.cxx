@@ -387,7 +387,7 @@ vtkGraph* vtkCollapseVerticesByArray::Create(vtkGraph* inGraph)
   }
 
   // Now itereate over all the edges in the graph.
-  // Result vary dependeing on whether the input graph is
+  // Result vary depending on whether the input graph is
   // directed or not.
   vtkEdgeListIteratorRefPtr elItr(vtkEdgeListIteratorRefPtr::New());
   inGraph->GetEdges(elItr);
