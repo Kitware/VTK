@@ -780,19 +780,21 @@ int vtkParallelVectors::RequestData(
       }
 
       vtkIdType pIdx;
-      locator->InsertUniquePoint(point.Coordinates.data(), pIdx);
-
-      // interpolate output points based on input points
-      for (int i = 0; i < 3; ++i)
+      // if point is not already in the output, add it
+      if (locator->InsertUniquePoint(point.Coordinates.data(), pIdx))
       {
-        trianglePointIds->SetId(i, point.TrianglePointIds[i]);
-      }
-      outDA->InterpolatePoint(inDA, pIdx, trianglePointIds, point.InterpolationWeights.data());
+        // interpolate output points based on input points
+        for (int i = 0; i < 3; ++i)
+        {
+          trianglePointIds->SetId(i, point.TrianglePointIds[i]);
+        }
+        outDA->InterpolatePoint(inDA, pIdx, trianglePointIds, point.InterpolationWeights.data());
 
-      // Add criteria values to their arrays
-      for (size_t i = 0; i < this->CriteriaArrays.size(); ++i)
-      {
-        this->CriteriaArrays[i]->InsertValue(pIdx, point.Criteria[i]);
+        // Add criteria values to their arrays
+        for (size_t i = 0; i < this->CriteriaArrays.size(); ++i)
+        {
+          this->CriteriaArrays[i]->InsertValue(pIdx, point.Criteria[i]);
+        }
       }
 
       // We have identified either our first or second point. Record it
