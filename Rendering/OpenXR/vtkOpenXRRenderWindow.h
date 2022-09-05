@@ -53,7 +53,6 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkVRRenderWindow.h"
 
 #include "vtkEventData.h" // for method sig
-#include "vtkOpenXR.h"
 
 #include <array> // array
 
@@ -156,7 +155,7 @@ protected:
   bool BindTextureToFramebuffer(FramebufferDesc& framebufferDesc);
   void RenderFramebuffer(FramebufferDesc& framebufferDesc);
 
-  void RenderOneEye(const uint32_t eye);
+  virtual void RenderOneEye(uint32_t eye);
 
   void RenderModels();
 

@@ -114,7 +114,18 @@ if (VTK_USE_SDL2)
   vtk_add_test_cxx(vtkRenderingOpenGL2CxxTests tests TestSDL2.cxx)
 endif ()
 
+if (WIN32)
+  vtk_add_test_cxx(vtkRenderingOpenGL2CxxTests tests
+    TestWin32OpenGLDXRenderWindow.cxx)
+endif ()
+
 vtk_test_cxx_executable(vtkRenderingOpenGL2CxxTests tests
   DISABLE_FLOATING_POINT_EXCEPTIONS
   RENDERING_FACTORY
   )
+
+if (WIN32)
+  # TestWin32OpenGLDXRenderWindow requires DirectX
+  find_package(DirectX REQUIRED)
+  target_link_libraries(vtkRenderingOpenGL2CxxTests PRIVATE DirectX::d3d11 DirectX::dxgi)
+endif ()

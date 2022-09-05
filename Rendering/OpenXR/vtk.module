@@ -2,6 +2,8 @@ NAME
   VTK::RenderingOpenXR
 LIBRARY_NAME
   vtkRenderingOpenXR
+LICENSE_FILES
+  LICENSE
 DEPENDS
   VTK::CommonCore
   VTK::CommonMath

@@ -20,6 +20,7 @@ https://github.com/ValveSoftware/openvr/blob/master/LICENSE
 
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLState.h"
+#include "vtkOpenXR.h"
 #include "vtkOpenXRManager.h"
 #include "vtkOpenXRModel.h"
 #include "vtkOpenXRRenderWindowInteractor.h"
@@ -250,13 +251,14 @@ void vtkOpenXRRenderWindow::StereoRenderComplete()
 }
 
 //------------------------------------------------------------------------------
-void vtkOpenXRRenderWindow::RenderOneEye(const uint32_t eye)
+void vtkOpenXRRenderWindow::RenderOneEye(uint32_t eye)
 {
   vtkOpenXRManager& xrManager = vtkOpenXRManager::GetInstance();
 
   FramebufferDesc& eyeFramebufferDesc = this->FramebufferDescs[eye];
+
   if (!xrManager.PrepareRendering(
-        eye, eyeFramebufferDesc.ResolveColorTextureId, eyeFramebufferDesc.ResolveDepthTextureId))
+        eye, &eyeFramebufferDesc.ResolveColorTextureId, &eyeFramebufferDesc.ResolveDepthTextureId))
   {
     return;
   }

@@ -80,6 +80,7 @@ configure_file(
 
 set(vtk_cmake_module_files
   Finddouble-conversion.cmake
+  FindDirectX.cmake
   FindEigen3.cmake
   FindEXPAT.cmake
   FindExprTk.cmake
@@ -104,6 +105,7 @@ set(vtk_cmake_module_files
   FindOpenSlide.cmake
   FindOpenVR.cmake
   FindOpenXR.cmake
+  FindOpenXRRemoting.cmake
   FindOSMesa.cmake
   FindPEGTL.cmake
   FindSDL2.cmake

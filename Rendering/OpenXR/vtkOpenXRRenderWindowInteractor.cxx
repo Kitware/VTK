@@ -197,8 +197,12 @@ void vtkOpenXRRenderWindowInteractor::ProcessXrEvents()
       }
       default:
       {
-        vtkWarningMacro(<< "Unhandled event type "
-                        << vtkOpenXRUtilities::GetStructureTypeAsString(eventData.type));
+        // Give a chance to the manager to handle connection events
+        if (!xrManager.GetConnectionStrategy()->HandleXrEvent(eventData))
+        {
+          vtkWarningMacro(<< "Unhandled event type "
+                          << vtkOpenXRUtilities::GetStructureTypeAsString(eventData.type));
+        }
         break;
       }
     }
@@ -288,7 +292,7 @@ void vtkOpenXRRenderWindowInteractor::PollXrActions()
 }
 
 //------------------------------------------------------------------------------
-XrPosef* vtkOpenXRRenderWindowInteractor::GetHandPose(const uint32_t hand)
+XrPosef* vtkOpenXRRenderWindowInteractor::GetHandPose(uint32_t hand)
 {
   if (this->MapActionStruct_Name.count("handpose") == 0)
   {

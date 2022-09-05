@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkOpenXR.h
+  Module:    vtkOpenXRManagerGraphics.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,22 +12,17 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-/**
- * @file    vtkOpenXR.h
- * @brief   Defines the OpenXR types and extensions common to all platforms.
- */
+#include "vtkOpenXRManagerGraphics.h"
 
-#ifndef vtkOpenXR_h
-#define vtkOpenXR_h
+#include "vtkOpenXRManager.h"
 
-#include <openxr.h>
+//------------------------------------------------------------------------------
+uint32_t vtkOpenXRManagerGraphics::GetChainLength(XrSwapchain swapchain)
+{
+  uint32_t chainLength;
+  vtkOpenXRManager::GetInstance().XrCheckError(
+    xrEnumerateSwapchainImages(swapchain, 0, &chainLength, nullptr),
+    "Failed to get swapchain images count");
 
-#include "XrExtensions.h"
-
-#define HAND_COUNT 2
-
-#define LEFT_EYE 0
-#define RIGHT_EYE 1
-
-#endif
-// VTK-HeaderTest-Exclude: vtkOpenXR.h
+  return chainLength;
+}
