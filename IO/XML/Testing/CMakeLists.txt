@@ -15,7 +15,8 @@ vtk_module_test_data(
   Data/mixed-mb.vtm
   Data/mb-of-mps/,REGEX:.*
   Data/xml-without-idtype-tag.vtu
-  Data/multicomb_0.vts)
+  Data/multicomb_0.vts
+  Data/time_series.vtu)
 
 add_subdirectory(Cxx)
 
