@@ -1359,9 +1359,7 @@ vtkTypeBool vtkMath::LUFactorLinearSystem(double** A, int* index, int size, doub
     {
       for (k = 0; k < size; ++k)
       {
-        temp1 = A[maxI][k];
-        A[maxI][k] = A[j][k];
-        A[j][k] = temp1;
+        std::swap(A[maxI][k], A[j][k]);
       }
       tmpSize[maxI] = tmpSize[j];
     }
@@ -1402,9 +1400,7 @@ inline void vtkSwapVectors3(T v1[3], T v2[3])
 {
   for (int i = 0; i < 3; ++i)
   {
-    T tmp = v1[i];
-    v1[i] = v2[i];
-    v2[i] = tmp;
+    std::swap(v1[i], v2[i]);
   }
 }
 
