@@ -14,20 +14,12 @@
 =========================================================================*/
 #include "vtkPoints.h"
 
-#include "vtkBitArray.h"
-#include "vtkCharArray.h"
-#include "vtkDoubleArray.h"
+#include "vtkArrayDispatch.h"
+#include "vtkDataArray.h"
+#include "vtkDataArrayRange.h"
 #include "vtkFloatArray.h"
 #include "vtkIdList.h"
-#include "vtkIdTypeArray.h"
-#include "vtkIntArray.h"
-#include "vtkLongArray.h"
 #include "vtkObjectFactory.h"
-#include "vtkShortArray.h"
-#include "vtkUnsignedCharArray.h"
-#include "vtkUnsignedIntArray.h"
-#include "vtkUnsignedLongArray.h"
-#include "vtkUnsignedShortArray.h"
 
 //------------------------------------------------------------------------------
 vtkPoints* vtkPoints::New(int dataType)
@@ -48,11 +40,13 @@ vtkPoints* vtkPoints::New(int dataType)
   return result;
 }
 
+//------------------------------------------------------------------------------
 vtkPoints* vtkPoints::New()
 {
   return vtkPoints::New(VTK_FLOAT);
 }
 
+//------------------------------------------------------------------------------
 // Construct object with an initial data array of type float.
 vtkPoints::vtkPoints(int dataType)
 {
@@ -68,18 +62,64 @@ vtkPoints::vtkPoints(int dataType)
   this->Bounds[1] = this->Bounds[3] = this->Bounds[5] = -VTK_DOUBLE_MAX;
 }
 
+//------------------------------------------------------------------------------
 vtkPoints::~vtkPoints()
 {
   this->Data->UnRegister(this);
 }
 
+//-----------------GetTuples (id list)------------------------------------------
+// Copy from vtkDataArray with the only difference that we know the tuple size
+struct GetTuplesFromListWorker
+{
+  vtkIdList* Ids;
+
+  GetTuplesFromListWorker(vtkIdList* ids)
+    : Ids(ids)
+  {
+  }
+
+  template <typename Array1T, typename Array2T>
+  void operator()(Array1T* src, Array2T* dst) const
+  {
+    const auto srcTuples = vtk::DataArrayTupleRange<3>(src);
+    auto dstTuples = vtk::DataArrayTupleRange<3>(dst);
+
+    vtkIdType* srcTupleId = this->Ids->GetPointer(0);
+    vtkIdType* srcTupleIdEnd = this->Ids->GetPointer(this->Ids->GetNumberOfIds());
+
+    auto dstTupleIter = dstTuples.begin();
+    while (srcTupleId != srcTupleIdEnd)
+    {
+      *dstTupleIter++ = srcTuples[*srcTupleId++];
+    }
+  }
+};
+
+//------------------------------------------------------------------------------
 // Given a list of pt ids, return an array of points.
 void vtkPoints::GetPoints(vtkIdList* ptIds, vtkPoints* outPoints)
 {
   outPoints->Data->SetNumberOfTuples(ptIds->GetNumberOfIds());
-  this->Data->GetTuples(ptIds, outPoints->Data);
+
+  // We will NOT use this->Data->GetTuples() for 4 reasons:
+  // 1) It does a check if the outPoints->Data array is a vtkDataArray, which we now it is.
+  // 2) It does a check if the number of components is the same, which we know it's 3 for both.
+  // 3) It has a really expensive Dispatch2::Execute, and every time it tries many array types.
+  //    Points are 99% of the times floats or doubles, so we can avoid A LOT of failed FastDownCast
+  //    operations, by utilizing this knowledge.
+  // 4) The Worker isn't aware of the number of components of the tuple which slows down the access.
+  using Dispatcher =
+    vtkArrayDispatch::Dispatch2ByValueType<vtkArrayDispatch::Reals, vtkArrayDispatch::Reals>;
+  GetTuplesFromListWorker worker(ptIds);
+  if (!Dispatcher::Execute(this->Data, outPoints->Data, worker))
+  {
+    // Use fallback if dispatch fails.
+    worker(this->Data, outPoints->Data);
+  }
 }
 
+//------------------------------------------------------------------------------
 // Determine (xmin,xmax, ymin,ymax, zmin,zmax) bounds of points.
 void vtkPoints::ComputeBounds()
 {
@@ -90,6 +130,7 @@ void vtkPoints::ComputeBounds()
   }
 }
 
+//------------------------------------------------------------------------------
 // Return the bounds of the points.
 double* vtkPoints::GetBounds()
 {
@@ -97,6 +138,7 @@ double* vtkPoints::GetBounds()
   return this->Bounds;
 }
 
+//------------------------------------------------------------------------------
 // Return the bounds of the points.
 void vtkPoints::GetBounds(double bounds[6])
 {
@@ -104,6 +146,7 @@ void vtkPoints::GetBounds(double bounds[6])
   memcpy(bounds, this->Bounds, 6 * sizeof(double));
 }
 
+//------------------------------------------------------------------------------
 vtkMTimeType vtkPoints::GetMTime()
 {
   vtkMTimeType doTime = this->Superclass::GetMTime();
@@ -114,18 +157,21 @@ vtkMTimeType vtkPoints::GetMTime()
   return doTime;
 }
 
+//------------------------------------------------------------------------------
 vtkTypeBool vtkPoints::Allocate(vtkIdType sz, vtkIdType ext)
 {
   int numComp = this->Data->GetNumberOfComponents();
   return this->Data->Allocate(sz * numComp, ext * numComp);
 }
 
+//------------------------------------------------------------------------------
 void vtkPoints::Initialize()
 {
   this->Data->Initialize();
   this->Modified();
 }
 
+//------------------------------------------------------------------------------
 void vtkPoints::Modified()
 {
   this->Superclass::Modified();
@@ -135,11 +181,13 @@ void vtkPoints::Modified()
   }
 }
 
+//------------------------------------------------------------------------------
 int vtkPoints::GetDataType() const
 {
   return this->Data->GetDataType();
 }
 
+//------------------------------------------------------------------------------
 // Specify the underlying data type of the object.
 void vtkPoints::SetDataType(int dataType)
 {
@@ -155,6 +203,7 @@ void vtkPoints::SetDataType(int dataType)
   this->Modified();
 }
 
+//------------------------------------------------------------------------------
 // Set the data for this object. The tuple dimension must be consistent with
 // the object.
 void vtkPoints::SetData(vtkDataArray* data)
@@ -177,6 +226,7 @@ void vtkPoints::SetData(vtkDataArray* data)
   }
 }
 
+//------------------------------------------------------------------------------
 // Deep copy of data. Checks consistency to make sure this operation
 // makes sense.
 void vtkPoints::DeepCopy(vtkPoints* da)
@@ -197,6 +247,7 @@ void vtkPoints::DeepCopy(vtkPoints* da)
   }
 }
 
+//------------------------------------------------------------------------------
 // Shallow copy of data (i.e. via reference counting). Checks
 // consistency to make sure this operation makes sense.
 void vtkPoints::ShallowCopy(vtkPoints* da)
@@ -204,11 +255,13 @@ void vtkPoints::ShallowCopy(vtkPoints* da)
   this->SetData(da->GetData());
 }
 
+//------------------------------------------------------------------------------
 unsigned long vtkPoints::GetActualMemorySize()
 {
   return this->Data->GetActualMemorySize();
 }
 
+//------------------------------------------------------------------------------
 void vtkPoints::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

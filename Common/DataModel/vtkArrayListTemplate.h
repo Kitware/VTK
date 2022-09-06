@@ -113,7 +113,7 @@ struct ArrayPair : public BaseArrayPair
     for (int j = 0; j < this->NumComp; ++j)
     {
       double v = 0.0;
-      for (vtkIdType i = 0; i < numWeights; ++i)
+      for (int i = 0; i < numWeights; ++i)
       {
         v += weights[i] * static_cast<double>(this->Input[ids[i] * this->NumComp + j]);
       }
@@ -127,7 +127,7 @@ struct ArrayPair : public BaseArrayPair
     for (int j = 0; j < this->NumComp; ++j)
     {
       double v = 0.0;
-      for (vtkIdType i = 0; i < numWeights; ++i)
+      for (int i = 0; i < numWeights; ++i)
       {
         v += weights[i] * static_cast<double>(this->Output[ids[i] * this->NumComp + j]);
       }
@@ -140,7 +140,7 @@ struct ArrayPair : public BaseArrayPair
     for (int j = 0; j < this->NumComp; ++j)
     {
       double v = 0.0;
-      for (vtkIdType i = 0; i < numPts; ++i)
+      for (int i = 0; i < numPts; ++i)
       {
         v += static_cast<double>(this->Input[ids[i] * this->NumComp + j]);
       }
@@ -155,7 +155,7 @@ struct ArrayPair : public BaseArrayPair
     for (int j = 0; j < this->NumComp; ++j)
     {
       double v = 0.0;
-      for (vtkIdType i = 0; i < numPts; ++i)
+      for (int i = 0; i < numPts; ++i)
       {
         v += (weights[i] * static_cast<double>(this->Input[ids[i] * this->NumComp + j]));
       }
@@ -225,7 +225,7 @@ struct RealArrayPair : public BaseArrayPair
     for (int j = 0; j < this->NumComp; ++j)
     {
       double v = 0.0;
-      for (vtkIdType i = 0; i < numWeights; ++i)
+      for (int i = 0; i < numWeights; ++i)
       {
         v += weights[i] * static_cast<double>(this->Input[ids[i] * this->NumComp + j]);
       }
@@ -239,7 +239,7 @@ struct RealArrayPair : public BaseArrayPair
     for (int j = 0; j < this->NumComp; ++j)
     {
       double v = 0.0;
-      for (vtkIdType i = 0; i < numWeights; ++i)
+      for (int i = 0; i < numWeights; ++i)
       {
         v += weights[i] * static_cast<double>(this->Output[ids[i] * this->NumComp + j]);
       }
@@ -252,7 +252,7 @@ struct RealArrayPair : public BaseArrayPair
     for (int j = 0; j < this->NumComp; ++j)
     {
       double v = 0.0;
-      for (vtkIdType i = 0; i < numPts; ++i)
+      for (int i = 0; i < numPts; ++i)
       {
         v += static_cast<double>(this->Input[ids[i] * this->NumComp + j]);
       }
@@ -267,7 +267,7 @@ struct RealArrayPair : public BaseArrayPair
     for (int j = 0; j < this->NumComp; ++j)
     {
       double v = 0.0;
-      for (vtkIdType i = 0; i < numPts; ++i)
+      for (int i = 0; i < numPts; ++i)
       {
         v += (weights[i] * static_cast<double>(this->Input[ids[i] * this->NumComp + j]));
       }
@@ -341,18 +341,18 @@ struct ArrayList
   // can be used within threads.
   void Copy(vtkIdType inId, vtkIdType outId)
   {
-    for (std::vector<BaseArrayPair*>::iterator it = Arrays.begin(); it != Arrays.end(); ++it)
+    for (auto& array : this->Arrays)
     {
-      (*it)->Copy(inId, outId);
+      array->Copy(inId, outId);
     }
   }
 
   // Loop over the arrays and have them interpolate themselves
   void Interpolate(int numWeights, const vtkIdType* ids, const double* weights, vtkIdType outId)
   {
-    for (std::vector<BaseArrayPair*>::iterator it = Arrays.begin(); it != Arrays.end(); ++it)
+    for (auto& array : this->Arrays)
     {
-      (*it)->Interpolate(numWeights, ids, weights, outId);
+      array->Interpolate(numWeights, ids, weights, outId);
     }
   }
 
@@ -360,63 +360,63 @@ struct ArrayList
   void InterpolateOutput(
     int numWeights, const vtkIdType* ids, const double* weights, vtkIdType outId)
   {
-    for (std::vector<BaseArrayPair*>::iterator it = Arrays.begin(); it != Arrays.end(); ++it)
+    for (auto& array : this->Arrays)
     {
-      (*it)->InterpolateOutput(numWeights, ids, weights, outId);
+      array->InterpolateOutput(numWeights, ids, weights, outId);
     }
   }
 
   // Loop over the arrays and have them averaged
   void Average(int numPts, const vtkIdType* ids, vtkIdType outId)
   {
-    for (std::vector<BaseArrayPair*>::iterator it = Arrays.begin(); it != Arrays.end(); ++it)
+    for (auto& array : this->Arrays)
     {
-      (*it)->Average(numPts, ids, outId);
+      array->Average(numPts, ids, outId);
     }
   }
 
   // Loop over the arrays and weighted average the attributes. The weights should sum to 1.0.
   void WeightedAverage(int numPts, const vtkIdType* ids, const double* weights, vtkIdType outId)
   {
-    for (std::vector<BaseArrayPair*>::iterator it = Arrays.begin(); it != Arrays.end(); ++it)
+    for (auto& array : this->Arrays)
     {
-      (*it)->WeightedAverage(numPts, ids, weights, outId);
+      array->WeightedAverage(numPts, ids, weights, outId);
     }
   }
 
   // Loop over the arrays perform edge interpolation
   void InterpolateEdge(vtkIdType v0, vtkIdType v1, double t, vtkIdType outId)
   {
-    for (std::vector<BaseArrayPair*>::iterator it = Arrays.begin(); it != Arrays.end(); ++it)
+    for (auto& array : this->Arrays)
     {
-      (*it)->InterpolateEdge(v0, v1, t, outId);
+      array->InterpolateEdge(v0, v1, t, outId);
     }
   }
 
   // Loop over the arrays and assign the null value
   void AssignNullValue(vtkIdType outId)
   {
-    for (std::vector<BaseArrayPair*>::iterator it = Arrays.begin(); it != Arrays.end(); ++it)
+    for (auto& array : this->Arrays)
     {
-      (*it)->AssignNullValue(outId);
+      array->AssignNullValue(outId);
     }
   }
 
   // Extend (realloc) the arrays
   void Realloc(vtkIdType sze)
   {
-    for (std::vector<BaseArrayPair*>::iterator it = Arrays.begin(); it != Arrays.end(); ++it)
+    for (auto& array : this->Arrays)
     {
-      (*it)->Realloc(sze);
+      array->Realloc(sze);
     }
   }
 
   // Only you can prevent memory leaks!
   ~ArrayList()
   {
-    for (std::vector<BaseArrayPair*>::iterator it = Arrays.begin(); it != Arrays.end(); ++it)
+    for (auto& array : this->Arrays)
     {
-      delete (*it);
+      delete array;
     }
   }
 

@@ -471,8 +471,9 @@ struct PointGradients : public GradientsBase<TData>
         this->HighestDim = 0;
         for (vtkIdType neighbor = 0; neighbor < numCellNeighbors; neighbor++)
         {
-          input->GetCell(cellsOnPoint[neighbor], cell);
-          int cellDimension = cell->GetCellDimension();
+          const auto cellType =
+            static_cast<unsigned char>(input->GetCellType(cellsOnPoint[neighbor]));
+          int cellDimension = vtkCellTypes::GetDimension(cellType);
           if (cellDimension > this->HighestDim)
           {
             this->HighestDim = cellDimension;
@@ -805,7 +806,8 @@ int vtkGradientFilter::ComputeUnstructuredGridGradient(vtkDataArray* array, int 
     int maxDimension = input->IsA("vtkPolyData") == 1 ? 2 : 3;
     for (vtkIdType i = 0; i < input->GetNumberOfCells(); i++)
     {
-      int dim = input->GetCell(i)->GetCellDimension();
+      const auto cellType = static_cast<unsigned char>(input->GetCellType(i));
+      int dim = vtkCellTypes::GetDimension(cellType);
       if (dim > highestCellDimension)
       {
         highestCellDimension = dim;

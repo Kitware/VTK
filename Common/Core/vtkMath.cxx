@@ -367,7 +367,7 @@ vtkTypeBool vtkMath::SolveLinearSystemGEPP2x2(
     // None of the matrix coefficients are exactly zero.
     // Use GEPP to form upper triangular matrix, i.e. so that a10 == 0.
     // Select pivot by looking at largest absolute value in a00, a10
-    if (fabs(a00) < fabs(a10))
+    if (std::abs(a00) < std::abs(a10))
     {
       // swap rows so largest coefficient in first column is in the first row
       std::swap(a00, a10);
@@ -383,7 +383,7 @@ vtkTypeBool vtkMath::SolveLinearSystemGEPP2x2(
   // Need to check for singularity by looking at a11.
   // Note the choice of eps is reasonable but somewhat arbitrary.
   static const double eps = 256 * std::numeric_limits<double>::epsilon();
-  if (fabs(a11) < eps)
+  if (std::abs(a11) < eps)
   {
     // matrix is singular within small numerical tolerance
     return 0;
@@ -518,7 +518,7 @@ vtkTypeBool vtkMath::LUFactorLinearSystem(double** A, int* index, int size)
   {
     for (largest = 0.0, j = 0; j < size; ++j)
     {
-      if ((temp2 = fabs(A[i][j])) > largest)
+      if ((temp2 = std::abs(A[i][j])) > largest)
       {
         largest = temp2;
       }
@@ -561,7 +561,7 @@ vtkTypeBool vtkMath::LUFactorLinearSystem(double** A, int* index, int size)
       }
       A[i][j] = sum;
 
-      if ((temp1 = scale[i] * fabs(sum)) >= largest)
+      if ((temp1 = scale[i] * std::abs(sum)) >= largest)
       {
         largest = temp1;
         maxI = i;
@@ -585,7 +585,7 @@ vtkTypeBool vtkMath::LUFactorLinearSystem(double** A, int* index, int size)
     //
     index[j] = maxI;
 
-    if (fabs(A[j][j]) <= VTK_SMALL_NUMBER)
+    if (std::abs(A[j][j]) <= VTK_SMALL_NUMBER)
     {
       vtkGenericWarningMacro(<< "Unable to factor linear system");
       if (size > VTK_MAX_SCRATCH_ARRAY_SIZE)
@@ -706,7 +706,7 @@ vtkTypeBool vtkJacobiN(T** a, int n, T* w, T** v)
     {
       for (iq = ip + 1; iq < n; iq++)
       {
-        sm += fabs(a[ip][iq]);
+        sm += std::abs(a[ip][iq]);
       }
     }
     if (sm == 0.0)
@@ -727,24 +727,25 @@ vtkTypeBool vtkJacobiN(T** a, int n, T* w, T** v)
     {
       for (iq = ip + 1; iq < n; iq++)
       {
-        g = 100.0 * fabs(a[ip][iq]);
+        g = 100.0 * std::abs(a[ip][iq]);
 
         // after 4 sweeps
-        if (i > 3 && (fabs(w[ip]) + g) == fabs(w[ip]) && (fabs(w[iq]) + g) == fabs(w[iq]))
+        if (i > 3 && (std::abs(w[ip]) + g) == std::abs(w[ip]) &&
+          (std::abs(w[iq]) + g) == std::abs(w[iq]))
         {
           a[ip][iq] = 0.0;
         }
-        else if (fabs(a[ip][iq]) > tresh)
+        else if (std::abs(a[ip][iq]) > tresh)
         {
           h = w[iq] - w[ip];
-          if ((fabs(h) + g) == fabs(h))
+          if ((std::abs(h) + g) == std::abs(h))
           {
             t = (a[ip][iq]) / h;
           }
           else
           {
             theta = 0.5 * h / (a[ip][iq]);
-            t = 1.0 / (fabs(theta) + std::sqrt(1.0 + theta * theta));
+            t = 1.0 / (std::abs(theta) + std::sqrt(1.0 + theta * theta));
             if (theta < 0.0)
             {
               t = -t;
@@ -908,9 +909,9 @@ double vtkMath::EstimateMatrixCondition(const double* const* A, int size)
   {
     for (j = i; j < size; ++j)
     {
-      if (fabs(A[i][j]) > max)
+      if (std::abs(A[i][j]) > max)
       {
-        max = fabs(A[i][j]);
+        max = std::abs(A[i][j]);
       }
     }
   }
@@ -918,9 +919,9 @@ double vtkMath::EstimateMatrixCondition(const double* const* A, int size)
   // find the minimum diagonal value
   for (i = 0; i < size; ++i)
   {
-    if (fabs(A[i][i]) < min)
+    if (std::abs(A[i][i]) < min)
     {
-      min = fabs(A[i][i]);
+      min = std::abs(A[i][i]);
     }
   }
 
@@ -1073,7 +1074,7 @@ vtkTypeBool vtkMath::SolveLeastSquares(int numberOfSamples, double** xt, int xOr
     {
       for (j = 0; j < yOrder; ++j)
       {
-        if (fabs(yt[i][j]) > VTK_SMALL_NUMBER)
+        if (std::abs(yt[i][j]) > VTK_SMALL_NUMBER)
         {
           allHomogeneous = false;
           homogenFlags[j] = 0;
@@ -1306,7 +1307,7 @@ vtkTypeBool vtkMath::LUFactorLinearSystem(double** A, int* index, int size, doub
   {
     for (largest = 0.0, j = 0; j < size; ++j)
     {
-      if ((temp2 = fabs(A[i][j])) > largest)
+      if ((temp2 = std::abs(A[i][j])) > largest)
       {
         largest = temp2;
       }
@@ -1345,7 +1346,7 @@ vtkTypeBool vtkMath::LUFactorLinearSystem(double** A, int* index, int size, doub
       }
       A[i][j] = sum;
 
-      if ((temp1 = tmpSize[i] * fabs(sum)) >= largest)
+      if ((temp1 = tmpSize[i] * std::abs(sum)) >= largest)
       {
         largest = temp1;
         maxI = i;
@@ -1358,9 +1359,7 @@ vtkTypeBool vtkMath::LUFactorLinearSystem(double** A, int* index, int size, doub
     {
       for (k = 0; k < size; ++k)
       {
-        temp1 = A[maxI][k];
-        A[maxI][k] = A[j][k];
-        A[j][k] = temp1;
+        std::swap(A[maxI][k], A[j][k]);
       }
       tmpSize[maxI] = tmpSize[j];
     }
@@ -1369,7 +1368,7 @@ vtkTypeBool vtkMath::LUFactorLinearSystem(double** A, int* index, int size, doub
     //
     index[j] = maxI;
 
-    if (fabs(A[j][j]) <= VTK_SMALL_NUMBER)
+    if (std::abs(A[j][j]) <= VTK_SMALL_NUMBER)
     {
       vtkGenericWarningMacro(<< "Unable to factor linear system");
       return 0;
@@ -1401,9 +1400,7 @@ inline void vtkSwapVectors3(T v1[3], T v2[3])
 {
   for (int i = 0; i < 3; ++i)
   {
-    T tmp = v1[i];
-    v1[i] = v2[i];
-    v2[i] = tmp;
+    std::swap(v1[i], v2[i]);
   }
 }
 
@@ -1420,12 +1417,12 @@ inline void vtkLUFactor3x3(T A[3][3], int index[3])
 
   for (i = 0; i < 3; ++i)
   {
-    largest = fabs(A[i][0]);
-    if ((tmp = fabs(A[i][1])) > largest)
+    largest = std::abs(A[i][0]);
+    if ((tmp = std::abs(A[i][1])) > largest)
     {
       largest = tmp;
     }
-    if ((tmp = fabs(A[i][2])) > largest)
+    if ((tmp = std::abs(A[i][2])) > largest)
     {
       largest = tmp;
     }
@@ -1435,14 +1432,14 @@ inline void vtkLUFactor3x3(T A[3][3], int index[3])
   // Loop over all columns using Crout's method
 
   // first column
-  largest = scale[0] * fabs(A[0][0]);
+  largest = scale[0] * std::abs(A[0][0]);
   maxI = 0;
-  if ((tmp = scale[1] * fabs(A[1][0])) >= largest)
+  if ((tmp = scale[1] * std::abs(A[1][0])) >= largest)
   {
     largest = tmp;
     maxI = 1;
   }
-  if ((tmp = scale[2] * fabs(A[2][0])) >= largest)
+  if ((tmp = scale[2] * std::abs(A[2][0])) >= largest)
   {
     maxI = 2;
   }
@@ -1459,9 +1456,9 @@ inline void vtkLUFactor3x3(T A[3][3], int index[3])
   // second column
   A[1][1] -= A[1][0] * A[0][1];
   A[2][1] -= A[2][0] * A[0][1];
-  largest = scale[1] * fabs(A[1][1]);
+  largest = scale[1] * std::abs(A[1][1]);
   maxI = 1;
-  if ((tmp = scale[2] * fabs(A[2][1])) >= largest)
+  if ((tmp = scale[2] * std::abs(A[2][1])) >= largest)
   {
     maxI = 2;
     vtkSwapVectors3(A[2], A[1]);
@@ -1934,9 +1931,9 @@ inline void vtkOrthogonalize3x3(const T1 A[3][3], T2 B[3][3])
   // Loop over rows to get implicit scaling information
   for (i = 0; i < 3; ++i)
   {
-    T2 x1 = fabs(B[i][0]);
-    T2 x2 = fabs(B[i][1]);
-    T2 x3 = fabs(B[i][2]);
+    T2 x1 = std::abs(B[i][0]);
+    T2 x2 = std::abs(B[i][1]);
+    T2 x3 = std::abs(B[i][2]);
     largest = (x2 > x1 ? x2 : x1);
     largest = (x3 > largest ? x3 : largest);
     scale[i] = 1;
@@ -1947,9 +1944,9 @@ inline void vtkOrthogonalize3x3(const T1 A[3][3], T2 B[3][3])
   }
 
   // first column
-  T2 x1 = fabs(B[0][0]) * scale[0];
-  T2 x2 = fabs(B[1][0]) * scale[1];
-  T2 x3 = fabs(B[2][0]) * scale[2];
+  T2 x1 = std::abs(B[0][0]) * scale[0];
+  T2 x2 = std::abs(B[1][0]) * scale[1];
+  T2 x3 = std::abs(B[2][0]) * scale[2];
   index[0] = 0;
   largest = x1;
   if (x2 >= largest)
@@ -1968,8 +1965,8 @@ inline void vtkOrthogonalize3x3(const T1 A[3][3], T2 B[3][3])
   }
 
   // second column
-  T2 y2 = fabs(B[1][1]) * scale[1];
-  T2 y3 = fabs(B[2][1]) * scale[2];
+  T2 y2 = std::abs(B[1][1]) * scale[1];
+  T2 y3 = std::abs(B[2][1]) * scale[2];
   index[1] = 1;
   largest = y2;
   if (y3 >= largest)
@@ -2198,11 +2195,11 @@ inline void vtkDiagonalize3x3(const T1 A[3][3], T2 w[3], T2 V[3][3])
     if (w[(i + 1) % 3] == w[(i + 2) % 3]) // two eigenvalues are the same
     {
       // find maximum element of the independent eigenvector
-      maxVal = fabs(V[i][0]);
+      maxVal = std::abs(V[i][0]);
       maxI = 0;
       for (j = 1; j < 3; ++j)
       {
-        if (maxVal < (tmp = fabs(V[i][j])))
+        if (maxVal < (tmp = std::abs(V[i][j])))
         {
           maxVal = tmp;
           maxI = j;
@@ -2247,11 +2244,11 @@ inline void vtkDiagonalize3x3(const T1 A[3][3], T2 w[3], T2 V[3][3])
 
   // find the vector with the largest x element, make that vector
   // the first vector
-  maxVal = fabs(V[0][0]);
+  maxVal = std::abs(V[0][0]);
   maxI = 0;
   for (i = 1; i < 3; ++i)
   {
-    if (maxVal < (tmp = fabs(V[i][0])))
+    if (maxVal < (tmp = std::abs(V[i][0])))
     {
       maxVal = tmp;
       maxI = i;
@@ -2266,7 +2263,7 @@ inline void vtkDiagonalize3x3(const T1 A[3][3], T2 w[3], T2 V[3][3])
     vtkSwapVectors3(V[maxI], V[0]);
   }
   // do the same for the y element
-  if (fabs(V[1][1]) < fabs(V[2][1]))
+  if (std::abs(V[1][1]) < std::abs(V[2][1]))
   {
     tmp = w[2];
     w[2] = w[1];
@@ -2395,7 +2392,7 @@ inline void vtkSingularValueDecomposition3x3(const T1 A[3][3], T2 U[3][3], T2 w[
   {
     for (j = 0; j < 3; ++j)
     {
-      if ((tmp = fabs(B[i][j] - M[i][j])) > maxerr)
+      if ((tmp = std::abs(B[i][j] - M[i][j])) > maxerr)
       {
         maxerr = tmp;
       }
