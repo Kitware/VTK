@@ -123,8 +123,10 @@ bool computeVortexCriteria(const double s[9], const double omega[9], double vort
 
   // The delta-criterion is defined as
   // \Delta = \left( \frac{Q}{3} \right)^3 + \left( \frac{\det J}{2} \right)^2 > 0
+  const double Q_3 = Q / 3.;
+  const double jDet_2 = J.determinant() / 2.;
   double& delta = vortexCriteria[1];
-  delta = std::pow(Q / 3., 3) + std::pow(J.determinant() / 2., 2);
+  delta = Q_3 * Q_3 * Q_3 + jDet_2 * jDet_2;
   if (delta <= 0.)
   {
     return false;
@@ -202,7 +204,7 @@ public:
   void operator()(vtkIdType begin, vtkIdType end)
   {
     const auto jacobianRange = vtk::DataArrayTupleRange<9>(this->JacobianArray, begin, end);
-    auto acceptedPointsRange = vtk::DataArrayTupleRange<1>(this->AcceptedPointsArray, begin, end);
+    auto acceptedPointsRange = vtk::DataArrayValueRange<1>(this->AcceptedPointsArray, begin, end);
 
     auto j = jacobianRange.cbegin();
     auto a = acceptedPointsRange.begin();
@@ -224,7 +226,7 @@ public:
         Omega[i] = (j_i - jt_i) / 2.;
       }
       // Only use the first two criteria to discriminate points
-      (*a)[0] = computeVortexCriteria(S, Omega, vortexCriteria.data(), false);
+      *a = computeVortexCriteria(S, Omega, vortexCriteria.data(), false);
     }
   }
 };
