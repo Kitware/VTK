@@ -248,6 +248,10 @@ int vtkTemporalInterpolator::Execute(vtkInformation*,
   originalTimes->SetNumberOfTuples(numTimeSteps);
   for (int i = 0; i < numTimeSteps; i++)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     originalTimes->SetValue(i, inputs[i]->GetInformation()->Get(vtkDataObject::DATA_TIME_STEP()));
   }
   outData->GetFieldData()->AddArray(originalTimes);

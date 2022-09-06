@@ -139,7 +139,7 @@ int vtkImageToPolyDataFilter::RequestData(vtkInformation* vtkNotUsed(request),
 
       vtkDebugMacro(<< "Processing #" << pieceNum);
       this->UpdateProgress((double)pieceNum / totalPieces);
-      if (this->GetAbortExecute())
+      if (this->CheckAbort())
       {
         abortExecute = 1;
         break;

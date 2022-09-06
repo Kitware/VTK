@@ -407,6 +407,10 @@ int vtkDepthSortPolyData::RequestData(vtkInformation* vtkNotUsed(request),
 
   for (vtkIdType i = 0; i < nCells; ++i)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     // get the cell points using the fast api
     vtkIdType cid = order[i];
     vtkIdType nids;

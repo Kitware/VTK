@@ -1101,6 +1101,10 @@ void vtkTemporalFractal::AddFractalArray(vtkCompositeDataSet* output)
 
   for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     if (!this->GenerateRectilinearGrids)
     {
       vtkUniformGrid* grid = vtkUniformGrid::SafeDownCast(iter->GetCurrentDataObject());

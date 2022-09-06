@@ -485,6 +485,8 @@ int vtkTemporalDataSetCache::RequestData(vtkInformation* vtkNotUsed(request),
       }
     }
   }
+
+  this->CheckAbort();
   return 1;
 }
 

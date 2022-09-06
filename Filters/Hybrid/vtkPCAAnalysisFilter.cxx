@@ -297,6 +297,10 @@ int vtkPCAAnalysisFilter::RequestData(vtkInformation* vtkNotUsed(request),
   {
     for (int j = 0; j < s; j++)
     {
+      if (this->CheckAbort())
+      {
+        break;
+      }
       tmpInput = vtkPointSet::SafeDownCast(mbInput->GetBlock(j));
       if (!tmpInput)
       {

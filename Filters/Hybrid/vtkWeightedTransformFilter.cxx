@@ -471,6 +471,10 @@ int vtkWeightedTransformFilter::RequestData(vtkInformation* vtkNotUsed(request),
     // do points
     for (p = 0; p < numPts; p++)
     {
+      if (this->CheckAbort())
+      {
+        break;
+      }
       // -------- points init ---------------
       inPts->GetPoint(p, inPt);
       if (this->AddInputValues)
@@ -643,6 +647,10 @@ int vtkWeightedTransformFilter::RequestData(vtkInformation* vtkNotUsed(request),
     transformIndices = nullptr;
     for (p = 0; p < numCells; p++)
     {
+      if (this->CheckAbort())
+      {
+        break;
+      }
       // -------- normals init ---------------
       if (inCellNormals)
       {

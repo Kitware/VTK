@@ -367,6 +367,10 @@ void vtkAdaptiveDataSetSurfaceFilter::ProcessTrees(vtkHyperTreeGrid* input, vtkP
     vtkNew<vtkHyperTreeGridNonOrientedVonNeumannSuperCursorLight> cursor;
     while (it.GetNextTree(index))
     {
+      if (this->CheckAbort())
+      {
+        break;
+      }
       // In 3 dimensions, von Neumann neighborhood information is needed
       input->InitializeNonOrientedVonNeumannSuperCursorLight(cursor, index);
       // If this is not a ghost tree
@@ -385,6 +389,10 @@ void vtkAdaptiveDataSetSurfaceFilter::ProcessTrees(vtkHyperTreeGrid* input, vtkP
     vtkNew<vtkHyperTreeGridNonOrientedGeometryCursor> cursor;
     while (it.GetNextTree(index))
     {
+      if (this->CheckAbort())
+      {
+        break;
+      }
       // Otherwise, geometric properties of the cells suffice
       input->InitializeNonOrientedGeometryCursor(cursor, index);
       // If this is not a ghost tree
@@ -486,6 +494,10 @@ void vtkAdaptiveDataSetSurfaceFilter::RecursivelyProcessTreeNot3D(
       int numChildren = cursor->GetNumberOfChildren();
       for (int ichild = 0; ichild < numChildren; ++ichild)
       {
+        if (this->CheckAbort())
+        {
+          break;
+        }
         cursor->ToChild(ichild);
         // Recurse
         this->RecursivelyProcessTreeNot3D(cursor, level + 1);
@@ -562,6 +574,10 @@ void vtkAdaptiveDataSetSurfaceFilter::RecursivelyProcessTree3D(
     int numChildren = cursor->GetNumberOfChildren();
     for (int ichild = 0; ichild < numChildren; ++ichild)
     {
+      if (this->CheckAbort())
+      {
+        break;
+      }
       cursor->ToChild(ichild);
       // Recurse
       this->RecursivelyProcessTree3D(cursor, level + 1);
@@ -583,6 +599,10 @@ void vtkAdaptiveDataSetSurfaceFilter::ProcessLeaf3D(
   unsigned int nc = superCursor->GetNumberOfCursors() - 1;
   for (unsigned int c = 0; c < nc; ++c)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     // Retrieve cursor to neighbor across face
     // Retrieve tree, leaf flag, and mask of neighbor cursor
     unsigned int levelN;

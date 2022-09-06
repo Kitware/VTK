@@ -95,6 +95,10 @@ int vtkEarthSource::RequestData(vtkInformation* vtkNotUsed(request),
   offset = 0;
   while (true)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     // read a polygon
     npts = vtkEarthData[offset++];
     if ((npts == 0) || (actualpolys > maxPolys))
