@@ -201,16 +201,19 @@ struct BuildLinks
 
     const vtkIdType numCells = state.GetNumberOfCells();
 
+    const auto cellConnectivity = vtk::DataArrayValueRange<1>(state.GetConnectivity());
+    const auto cellOffsets = vtk::DataArrayValueRange<1>(state.GetOffsets());
     // Now build the links. The summation from the prefix sum indicates where
     // the cells are to be inserted. Each time a cell is inserted, the offset
     // is decremented. In the end, the offset array is also constructed as it
     // points to the beginning of each cell run.
+    ValueType ptIdOffset;
+    size_t ptId;
     for (vtkIdType cellId = 0; cellId < numCells; ++cellId)
     {
-      const auto cell = state.GetCellRange(cellId);
-      for (const ValueType cellPtId : cell)
+      for (ptIdOffset = cellOffsets[cellId]; ptIdOffset < cellOffsets[cellId + 1]; ++ptIdOffset)
       {
-        const size_t ptId = static_cast<size_t>(cellPtId);
+        ptId = static_cast<size_t>(cellConnectivity[ptIdOffset]);
         --linkOffsets[ptId];
         links[linkOffsets[ptId]] = static_cast<TIds>(idOffset + cellId);
       }
@@ -227,20 +230,22 @@ struct BuildLinksThreaded
   {
     using ValueType = typename CellStateT::ValueType;
 
+    const auto cellConnectivity = vtk::DataArrayValueRange<1>(state.GetConnectivity());
+    const auto cellOffsets = vtk::DataArrayValueRange<1>(state.GetOffsets());
     // Now build the links. The summation from the prefix sum indicates where
     // the cells are to be inserted. Each time a cell is inserted, the offset
     // is decremented. In the end, the offset array is also constructed as it
     // points to the beginning of each cell run.
+    ValueType ptIdOffset;
+    size_t ptId;
+    TIds offset;
     for (vtkIdType cellId = beginCellId; cellId < endCellId; ++cellId)
     {
-      const auto cell = state.GetCellRange(cellId);
-      for (const ValueType cellPtId : cell)
+      for (ptIdOffset = cellOffsets[cellId]; ptIdOffset < cellOffsets[cellId + 1]; ++ptIdOffset)
       {
-        const size_t ptId = static_cast<size_t>(cellPtId);
-        // memory_order_relaxed is safe here, since we're not using the atomics
-        // for synchroniziation.
-        const TIds offset =
-          offsets[ptId] + counts[ptId].fetch_sub(1, std::memory_order_relaxed) - 1;
+        ptId = static_cast<size_t>(cellConnectivity[ptIdOffset]);
+        // memory_order_relaxed is safe here, since we're not using the atomics for synchronization.
+        offset = offsets[ptId] + counts[ptId].fetch_sub(1, std::memory_order_relaxed) - 1;
         links[offset] = idOffset + cellId;
       }
     }
