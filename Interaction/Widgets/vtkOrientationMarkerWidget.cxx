@@ -547,7 +547,7 @@ void vtkOrientationMarkerWidget::SetInteractive(vtkTypeBool interact)
       this->Interactor->RemoveObserver(this->EventCallbackCommand);
     }
     this->Interactive = interact;
-    this->Interactor->Render();
+    this->Modified();
   }
   else
   {
@@ -976,10 +976,7 @@ void vtkOrientationMarkerWidget::ResizeBottomLeft(int X, int Y)
 void vtkOrientationMarkerWidget::SetOutlineColor(double r, double g, double b)
 {
   this->OutlineActor->GetProperty()->SetColor(r, g, b);
-  if (this->Interactor)
-  {
-    this->Interactor->Render();
-  }
+  this->Modified();
 }
 
 //------------------------------------------------------------------------------
