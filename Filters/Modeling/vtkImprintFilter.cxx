@@ -1840,6 +1840,16 @@ struct ProduceIntersectionPoints
         {
           outputCellId = pStart.Cells[1];
         }
+        // But if a common cell is found, make sure that the points are not
+        // on the *same* edge.  This can happen to due to point merging,
+        // e.g., projected point is "moved" to a common edge. If on the same
+        // edge, then the fragment can't be considered an interior edge
+        // fragment.
+        if (outputCellId >= 0 && (pStart.TargetEdge.V0 == pEnd.TargetEdge.V0) &&
+          (pStart.TargetEdge.V1 == pEnd.TargetEdge.V1))
+        {
+          outputCellId = (-1);
+        }
       }
 
       // The harder cases: the end points of the edge fragment are both on
@@ -1892,8 +1902,8 @@ struct ProduceIntersectionPoints
       {
         newEdges.emplace_back(vtkEdgeFragment(edgeIntList[i], edgeIntList[i + 1], outputCellId));
       }
-    }
-  } // ProduceInteriorEdgeFragments
+    } // for all edge fragments
+  }   // ProduceInteriorEdgeFragments
 
   // The following methods support SMPTools integration.
   void Initialize() {}
@@ -2500,7 +2510,7 @@ struct Triangulate
   void Initialize()
   {
     this->Polygon.Local().TakeReference(vtkPolygon::New());
-    this->Polygon.Local()->SetTolerance(0.001);
+    this->Polygon.Local()->SetTolerance(0.0001);
     this->OutTris.Local().TakeReference(vtkIdList::New());
   }
 
