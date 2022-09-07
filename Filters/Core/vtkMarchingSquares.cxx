@@ -113,7 +113,7 @@ struct ContourImageWorker
   template <typename ScalarArrayT>
   void operator()(ScalarArrayT* inScalars, vtkDataArray* newScalars, int roi[6], int dir[3],
     int start[2], int end[2], int offset[3], double* values, vtkIdType numValues,
-    vtkIncrementalPointLocator* p, vtkCellArray* lines)
+    vtkIncrementalPointLocator* p, vtkCellArray* lines, vtkMarchingSquares* self)
   {
     const auto scalars = vtk::DataArrayValueRange<1>(inScalars);
 
@@ -125,7 +125,7 @@ struct ContourImageWorker
     static const int CASE_MASK[4] = { 1, 2, 8, 4 };
     vtkMarchingSquaresLineCases *lineCase, *lineCases;
     static int edges[4][2] = { { 0, 1 }, { 1, 3 }, { 2, 3 }, { 0, 2 } };
-    EDGE_LIST* edge;
+    int* edge;
     double value, s[4];
     bool abortExecute = false;
 
@@ -426,10 +426,10 @@ int vtkMarchingSquares::RequestData(vtkInformation* vtkNotUsed(request),
   ContourImageWorker worker;
   using Dispatcher = vtkArrayDispatch::Dispatch;
   if (!Dispatcher::Execute(inScalars, worker, newScalars, roi, dir, start, end, offset, values,
-        numContours, this->Locator, newLines))
+        numContours, this->Locator, newLines, this))
   { // Fallback to slow path for unknown arrays:
     worker(inScalars, newScalars, roi, dir, start, end, offset, values, numContours, this->Locator,
-      newLines);
+      newLines, this);
   }
 
   vtkDebugMacro(<< "Created: " << newPts->GetNumberOfPoints() << " points, "

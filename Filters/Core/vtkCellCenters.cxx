@@ -228,7 +228,7 @@ int vtkCellCenters::RequestData(vtkInformation* vtkNotUsed(request),
     {
       vtkDebugMacro(<< "Processing #" << cellId);
       this->UpdateProgress((0.5 * cellId / numCells) + 0.5);
-      abort = this->GetAbortExecute();
+      abort = this->CheckAbort();
     }
 
     if (input->GetCellType(cellId) != VTK_EMPTY_CELL)
@@ -246,7 +246,7 @@ int vtkCellCenters::RequestData(vtkInformation* vtkNotUsed(request),
 
   if (abort)
   {
-    return 0;
+    return 1;
   }
 
   newPts->Resize(numPoints);

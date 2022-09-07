@@ -310,7 +310,12 @@ struct vtkFlyingEdgesPlaneCutterAlgorithm
   struct Pass1
   {
     vtkFlyingEdgesPlaneCutterAlgorithm<TT>* Algo;
-    Pass1(vtkFlyingEdgesPlaneCutterAlgorithm<TT>* algo) { this->Algo = algo; }
+    vtkFlyingEdgesPlaneCutter* Filter;
+    Pass1(vtkFlyingEdgesPlaneCutterAlgorithm<TT>* algo, vtkFlyingEdgesPlaneCutter* filter)
+      : Filter(filter)
+    {
+      this->Algo = algo;
+    }
     void operator()(vtkIdType slice, vtkIdType end)
     {
       vtkIdType row;
@@ -318,8 +323,17 @@ struct vtkFlyingEdgesPlaneCutterAlgorithm
       double xL[3], xR[3];
       xL[0] = this->Algo->XL;
       xR[0] = this->Algo->XR;
+      bool isFirst = vtkSMPTools::GetSingleThread();
       for (; slice < end; ++slice)
       {
+        if (isFirst)
+        {
+          this->Filter->CheckAbort();
+        }
+        if (this->Filter->GetAbortOutput())
+        {
+          break;
+        }
         xL[2] = slice;
         xR[2] = xL[2];
         for (row = 0, rowPtr = slicePtr; row < this->Algo->Dims[1]; ++row)
@@ -336,12 +350,26 @@ struct vtkFlyingEdgesPlaneCutterAlgorithm
   template <class TT>
   struct Pass2
   {
-    Pass2(vtkFlyingEdgesPlaneCutterAlgorithm<TT>* algo) { this->Algo = algo; }
+    Pass2(vtkFlyingEdgesPlaneCutterAlgorithm<TT>* algo, vtkFlyingEdgesPlaneCutter* filter)
+      : Filter(filter)
+    {
+      this->Algo = algo;
+    }
     vtkFlyingEdgesPlaneCutterAlgorithm<TT>* Algo;
+    vtkFlyingEdgesPlaneCutter* Filter;
     void operator()(vtkIdType slice, vtkIdType end)
     {
+      bool isFirst = vtkSMPTools::GetSingleThread();
       for (; slice < end; ++slice)
       {
+        if (isFirst)
+        {
+          this->Filter->CheckAbort();
+        }
+        if (this->Filter->GetAbortOutput())
+        {
+          break;
+        }
         for (vtkIdType row = 0; row < (this->Algo->Dims[1] - 1); ++row)
         {
           this->Algo->ProcessYZEdges(row, slice);
@@ -352,16 +380,30 @@ struct vtkFlyingEdgesPlaneCutterAlgorithm
   template <class TT>
   struct Pass4
   {
-    Pass4(vtkFlyingEdgesPlaneCutterAlgorithm<TT>* algo) { this->Algo = algo; }
+    Pass4(vtkFlyingEdgesPlaneCutterAlgorithm<TT>* algo, vtkFlyingEdgesPlaneCutter* filter)
+      : Filter(filter)
+    {
+      this->Algo = algo;
+    }
     vtkFlyingEdgesPlaneCutterAlgorithm<TT>* Algo;
+    vtkFlyingEdgesPlaneCutter* Filter;
     void operator()(vtkIdType slice, vtkIdType end)
     {
       vtkIdType row;
       vtkIdType* eMD0 = this->Algo->EdgeMetaData + slice * 6 * this->Algo->Dims[1];
       vtkIdType* eMD1 = eMD0 + 6 * this->Algo->Dims[1];
       TT *rowPtr, *slicePtr = this->Algo->Scalars + slice * this->Algo->Inc2;
+      bool isFirst = vtkSMPTools::GetSingleThread();
       for (; slice < end; ++slice)
       {
+        if (isFirst)
+        {
+          this->Filter->CheckAbort();
+        }
+        if (this->Filter->GetAbortOutput())
+        {
+          break;
+        }
         // It's possible to skip entire slices if there is nothing to generate
         if (eMD1[3] > eMD0[3]) // there are triangle primitives!
         {
@@ -384,22 +426,33 @@ struct vtkFlyingEdgesPlaneCutterAlgorithm
   {
     ArrayList CellArrays;
     ProcessCD(vtkFlyingEdgesPlaneCutterAlgorithm<TT>* algo, vtkIdType numCells, vtkCellData* inCD,
-      vtkCellData* outCD)
+      vtkCellData* outCD, vtkFlyingEdgesPlaneCutter* filter)
+      : Filter(filter)
     {
       this->Algo = algo;
       outCD->CopyAllocate(inCD, numCells);
       this->CellArrays.AddArrays(numCells, inCD, outCD, /*nullValue*/ 0.0, /*promote*/ false);
     }
     vtkFlyingEdgesPlaneCutterAlgorithm<TT>* Algo;
+    vtkFlyingEdgesPlaneCutter* Filter;
     void operator()(vtkIdType slice, vtkIdType end)
     {
       vtkIdType row;
       vtkIdType* eMD0 = this->Algo->EdgeMetaData + slice * 6 * this->Algo->Dims[1];
       vtkIdType* eMD1 = eMD0 + 6 * this->Algo->Dims[1];
       TT *rowPtr, *slicePtr = this->Algo->Scalars + slice * this->Algo->Inc2;
+      bool isFirst = vtkSMPTools::GetSingleThread();
       for (; slice < end; ++slice)
       {
         // It's possible to skip entire slices if there is no data to copy
+        if (isFirst)
+        {
+          this->Filter->CheckAbort();
+        }
+        if (this->Filter->GetAbortOutput())
+        {
+          break;
+        }
         if (eMD1[3] > eMD0[3]) // there are triangle primitives!
         {
           for (row = 0, rowPtr = slicePtr; row < this->Algo->Dims[1] - 1; ++row)
@@ -1284,13 +1337,13 @@ void vtkFlyingEdgesPlaneCutterAlgorithm<T>::Contour(vtkFlyingEdgesPlaneCutter* s
   // intersections (i.e., accumulate information necessary for later output
   // memory allocation, e.g., the number of output points along the x-rows
   // are counted).
-  Pass1<T> pass1(&algo);
+  Pass1<T> pass1(&algo, self);
   vtkSMPTools::For(0, algo.Dims[2], pass1);
 
   // PASS 2: Traverse all voxel x-rows and process voxel y&z edges.  The
   // result is a count of the number of y- and z-intersections, as well as
   // the number of triangles generated along these voxel rows.
-  Pass2<T> pass2(&algo);
+  Pass2<T> pass2(&algo, self);
   vtkSMPTools::For(0, algo.Dims[2] - 1, pass2);
 
   // PASS 3: Now allocate and generate output. First we have to update the
@@ -1364,7 +1417,7 @@ void vtkFlyingEdgesPlaneCutterAlgorithm<T>::Contour(vtkFlyingEdgesPlaneCutter* s
     // Note that we are simultaneously generating triangles and interpolating
     // points. These could be split into separate, parallel operations for
     // maximum performance.
-    Pass4<T> pass4(&algo);
+    Pass4<T> pass4(&algo, self);
     vtkSMPTools::For(0, algo.Dims[2] - 1, pass4);
 
     // Process Cell Data: Some applications require the production of cell
@@ -1372,7 +1425,7 @@ void vtkFlyingEdgesPlaneCutterAlgorithm<T>::Contour(vtkFlyingEdgesPlaneCutter* s
     // cell data is present, and attribute interpolation is enabled.
     if (self->GetInterpolateAttributes() && input->GetCellData()->GetNumberOfArrays() > 0)
     {
-      ProcessCD<T> processCD(&algo, numOutTris, input->GetCellData(), output->GetCellData());
+      ProcessCD<T> processCD(&algo, numOutTris, input->GetCellData(), output->GetCellData(), self);
       vtkSMPTools::For(0, algo.Dims[2] - 1, processCD);
     }
   }

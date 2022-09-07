@@ -328,8 +328,17 @@ int vtkPolyDataNormals::RequestData(vtkInformation* vtkNotUsed(request),
   vtkIdType offsetCells = numVerts + numLines;
   vtkSMPTools::For(0, offsetCells, [&](vtkIdType begin, vtkIdType end) {
     static const double n[3] = { 1.0, 0.0, 0.0 };
+    bool isFirst = vtkSMPTools::GetSingleThread();
     for (vtkIdType cellId = begin; cellId < end; cellId++)
     {
+      if (isFirst)
+      {
+        this->CheckAbort();
+      }
+      if (this->GetAbortOutput())
+      {
+        break;
+      }
       // add a default value for vertices and lines
       // normals do not have meaningful values, we set them to X
       cellNormals->SetTuple(cellId, n);
@@ -342,8 +351,17 @@ int vtkPolyDataNormals::RequestData(vtkInformation* vtkNotUsed(request),
     vtkIdType npts = 0;
     const vtkIdType* pts = nullptr;
     double n[3];
+    bool isFirst = vtkSMPTools::GetSingleThread();
     for (vtkIdType polyId = begin; polyId < end; polyId++)
     {
+      if (isFirst)
+      {
+        this->CheckAbort();
+      }
+      if (this->GetAbortOutput())
+      {
+        break;
+      }
       newPolys->GetCellAtId(polyId, npts, pts, tempCellPointIds);
       vtkPolygon::ComputeNormal(inPoints, npts, pts, n);
       cellNormals->SetTuple(offsetCells + polyId, n);
@@ -364,8 +382,17 @@ int vtkPolyDataNormals::RequestData(vtkInformation* vtkNotUsed(request),
     vtkNew<vtkIdList> newToOldPointsMap;
     newToOldPointsMap->SetNumberOfIds(numPts);
     vtkSMPTools::For(0, numPts, [&](vtkIdType begin, vtkIdType end) {
+      bool isFirst = vtkSMPTools::GetSingleThread();
       for (vtkIdType i = begin; i < end; i++)
       {
+        if (isFirst)
+        {
+          this->CheckAbort();
+        }
+        if (this->GetAbortOutput())
+        {
+          break;
+        }
         newToOldPointsMap->SetId(i, i);
       }
     });
@@ -406,8 +433,17 @@ int vtkPolyDataNormals::RequestData(vtkInformation* vtkNotUsed(request),
     vtkIdType* mapPtr = newToOldPointsMap->GetPointer(0);
     vtkSMPTools::For(0, numNewPts, [&](vtkIdType begin, vtkIdType end) {
       double p[3];
+      bool isFirst = vtkSMPTools::GetSingleThread();
       for (vtkIdType newPointId = begin; newPointId < end; newPointId++)
       {
+        if (isFirst)
+        {
+          this->CheckAbort();
+        }
+        if (this->GetAbortOutput())
+        {
+          break;
+        }
         vtkIdType& oldPointId = mapPtr[newPointId];
         inPoints->GetPoint(oldPointId, p);
         newPoints->SetPoint(newPointId, p);
@@ -449,8 +485,17 @@ int vtkPolyDataNormals::RequestData(vtkInformation* vtkNotUsed(request),
       vtkNew<vtkIdList> tempCellPointIds;
       vtkIdType npts = 0;
       const vtkIdType* pts = nullptr;
+      bool isFirst = vtkSMPTools::GetSingleThread();
       for (vtkIdType polyId = begin; polyId < end; ++polyId)
       {
+        if (isFirst)
+        {
+          this->CheckAbort();
+        }
+        if (this->GetAbortOutput())
+        {
+          break;
+        }
         newPolys->GetCellAtId(polyId, npts, pts, tempCellPointIds);
         for (vtkIdType i = 0; i < npts; ++i)
         {
@@ -465,8 +510,17 @@ int vtkPolyDataNormals::RequestData(vtkInformation* vtkNotUsed(request),
     // Normalize normals
     vtkSMPTools::For(0, numNewPts, [&](vtkIdType begin, vtkIdType end) {
       double length;
+      bool isFirst = vtkSMPTools::GetSingleThread();
       for (vtkIdType pointId = begin; pointId < end; ++pointId)
       {
+        if (isFirst)
+        {
+          this->CheckAbort();
+        }
+        if (this->GetAbortOutput())
+        {
+          break;
+        }
         length = vtkMath::Norm(&pointNormalsPtr[3 * pointId]) * flipDirection;
         if (length != 0.0)
         {
@@ -580,6 +634,7 @@ struct vtkPolyDataNormals::MarkAndSplitFunctor
   vtkIdType NumPoints;
   vtkIdType NumPolys;
   double CosAngle;
+  vtkPolyDataNormals* Filter;
 
   struct CellPointReplacementInformation
   {
@@ -607,7 +662,8 @@ struct vtkPolyDataNormals::MarkAndSplitFunctor
   vtkSMPThreadLocal<LocalData> TLData;
 
   MarkAndSplitFunctor(vtkPolyData* oldMesh, vtkPolyData* newMesh, vtkFloatArray* cellNormals,
-    vtkIdList* map, vtkIdType numPoints, vtkIdType numPolys, double cosAngle)
+    vtkIdList* map, vtkIdType numPoints, vtkIdType numPolys, double cosAngle,
+    vtkPolyDataNormals* filter)
     : OldMesh(oldMesh)
     , NewMesh(newMesh)
     , CellNormals(cellNormals)
@@ -615,6 +671,7 @@ struct vtkPolyDataNormals::MarkAndSplitFunctor
     , NumPoints(numPoints)
     , NumPolys(numPolys)
     , CosAngle(cosAngle)
+    , Filter(filter)
   {
     this->CellPointsReplacementInfo.resize(numPoints);
   }
@@ -637,8 +694,17 @@ struct vtkPolyDataNormals::MarkAndSplitFunctor
 
     vtkIdType ncells, *cells, i, j, numPts;
     const vtkIdType* pts;
+    bool isFirst = vtkSMPTools::GetSingleThread();
     for (vtkIdType pointId = begin; pointId < end; ++pointId)
     {
+      if (isFirst)
+      {
+        this->Filter->CheckAbort();
+      }
+      if (this->Filter->GetAbortOutput())
+      {
+        break;
+      }
       // Get the cells using this point and make sure that we have to do something
       this->OldMesh->GetPointCells(pointId, ncells, cells);
       if (ncells <= 1)
@@ -798,7 +864,8 @@ void vtkPolyDataNormals::ExecuteMarkAndSplit(vtkPolyData* oldMesh, vtkPolyData* 
   vtkFloatArray* cellNormals, vtkIdList* map, vtkIdType numPoints, vtkIdType numPolys,
   double cosAngle)
 {
-  MarkAndSplitFunctor functor(oldMesh, newMesh, cellNormals, map, numPoints, numPolys, cosAngle);
+  MarkAndSplitFunctor functor(
+    oldMesh, newMesh, cellNormals, map, numPoints, numPolys, cosAngle, this);
   vtkSMPTools::For(0, numPoints, functor);
 }
 

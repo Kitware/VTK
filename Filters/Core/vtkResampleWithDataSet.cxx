@@ -231,16 +231,27 @@ namespace
 class MarkHiddenPoints
 {
 public:
-  MarkHiddenPoints(char* maskArray, vtkUnsignedCharArray* pointGhostArray)
+  MarkHiddenPoints(
+    char* maskArray, vtkUnsignedCharArray* pointGhostArray, vtkResampleWithDataSet* filter)
     : MaskArray(maskArray)
     , PointGhostArray(pointGhostArray)
+    , Filter(filter)
   {
   }
 
   void operator()(vtkIdType begin, vtkIdType end)
   {
+    bool isFirst = vtkSMPTools::GetSingleThread();
     for (vtkIdType i = begin; i < end; ++i)
     {
+      if (isFirst)
+      {
+        this->Filter->CheckAbort();
+      }
+      if (this->Filter->GetAbortOutput())
+      {
+        break;
+      }
       if (!this->MaskArray[i])
       {
         this->PointGhostArray->SetValue(
@@ -252,24 +263,36 @@ public:
 private:
   char* MaskArray;
   vtkUnsignedCharArray* PointGhostArray;
+  vtkResampleWithDataSet* Filter;
 };
 
 class MarkHiddenCells
 {
 public:
-  MarkHiddenCells(vtkDataSet* data, char* maskArray, vtkUnsignedCharArray* cellGhostArray)
+  MarkHiddenCells(vtkDataSet* data, char* maskArray, vtkUnsignedCharArray* cellGhostArray,
+    vtkResampleWithDataSet* filter)
     : Data(data)
     , MaskArray(maskArray)
     , CellGhostArray(cellGhostArray)
+    , Filter(filter)
   {
   }
 
   void operator()(vtkIdType begin, vtkIdType end)
   {
     vtkIdList* cellPoints = this->PointIds.Local();
+    bool isFirst = vtkSMPTools::GetSingleThread();
 
     for (vtkIdType i = begin; i < end; ++i)
     {
+      if (isFirst)
+      {
+        this->Filter->CheckAbort();
+      }
+      if (this->Filter->GetAbortOutput())
+      {
+        break;
+      }
       this->Data->GetCellPoints(i, cellPoints);
       vtkIdType npts = cellPoints->GetNumberOfIds();
       for (vtkIdType j = 0; j < npts; ++j)
@@ -289,6 +312,7 @@ private:
   vtkDataSet* Data;
   char* MaskArray;
   vtkUnsignedCharArray* CellGhostArray;
+  vtkResampleWithDataSet* Filter;
 
   vtkSMPThreadLocalObject<vtkIdList> PointIds;
 };
@@ -310,7 +334,7 @@ void vtkResampleWithDataSet::SetBlankPointsAndCells(vtkDataSet* dataset)
   vtkUnsignedCharArray* pointGhostArray = dataset->GetPointGhostArray();
 
   vtkIdType numPoints = dataset->GetNumberOfPoints();
-  MarkHiddenPoints pointWorklet(mask, pointGhostArray);
+  MarkHiddenPoints pointWorklet(mask, pointGhostArray, this);
   vtkSMPTools::For(0, numPoints, pointWorklet);
 
   dataset->AllocateCellGhostArray();
@@ -322,7 +346,7 @@ void vtkResampleWithDataSet::SetBlankPointsAndCells(vtkDataSet* dataset)
   vtkNew<vtkIdList> cpts;
   dataset->GetCellPoints(0, cpts);
 
-  MarkHiddenCells cellWorklet(dataset, mask, cellGhostArray);
+  MarkHiddenCells cellWorklet(dataset, mask, cellGhostArray, this);
   vtkSMPTools::For(0, numCells, cellWorklet);
 }
 
@@ -339,6 +363,7 @@ int vtkResampleWithDataSet::RequestData(vtkInformation* vtkNotUsed(request),
 
   vtkDataObject* inDataObject = inInfo->Get(vtkDataObject::DATA_OBJECT());
   vtkDataObject* outDataObject = outInfo->Get(vtkDataObject::DATA_OBJECT());
+  this->Prober->SetContainerAlgorithm(this);
   if (inDataObject->IsA("vtkDataSet"))
   {
     vtkDataSet* input = vtkDataSet::SafeDownCast(inDataObject);
@@ -364,6 +389,10 @@ int vtkResampleWithDataSet::RequestData(vtkInformation* vtkNotUsed(request),
     using Opts = vtk::CompositeDataSetOptions;
     for (auto node : vtk::Range(input, Opts::SkipEmptyNodes))
     {
+      if (this->CheckAbort())
+      {
+        break;
+      }
       vtkDataSet* ds = static_cast<vtkDataSet*>(node.GetDataObject());
       if (ds)
       {

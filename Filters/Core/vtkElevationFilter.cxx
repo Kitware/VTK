@@ -46,6 +46,7 @@ struct vtkElevationAlgorithm
   float* Scalars;
   const double* V;
   double L2;
+  vtkElevationFilter* Filter;
 
   vtkElevationAlgorithm(
     PointArrayT* pointArray, vtkElevationFilter* filter, float* scalars, const double* v, double l2)
@@ -54,6 +55,7 @@ struct vtkElevationAlgorithm
     , Scalars{ scalars }
     , V{ v }
     , L2{ l2 }
+    , Filter(filter)
   {
     filter->GetLowPoint(this->LowPoint);
     filter->GetHighPoint(this->HighPoint);
@@ -75,8 +77,18 @@ struct vtkElevationAlgorithm
     // input points:
     const auto pointRange = vtk::DataArrayTupleRange<3>(this->PointArray, begin, end);
 
+    bool isFirst = vtkSMPTools::GetSingleThread();
+
     for (const auto point : pointRange)
     {
+      if (isFirst)
+      {
+        this->Filter->CheckAbort();
+      }
+      if (this->Filter->GetAbortOutput())
+      {
+        break;
+      }
       double vec[3];
       vec[0] = point[0] - lp[0];
       vec[1] = point[1] - lp[1];
@@ -209,7 +221,7 @@ int vtkElevationFilter::RequestData(
       if (i % tenth == 0)
       {
         this->UpdateProgress((i + 1) * numPtsInv);
-        abort = this->GetAbortExecute();
+        abort = this->CheckAbort();
       }
 
       // Project this input point into the 1D system.

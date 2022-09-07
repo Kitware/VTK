@@ -497,9 +497,18 @@ public:
     vtkIdType closestPointFound;
     int inside;
     bool foundInCache, insideCellBounds;
+    bool isFirst = vtkSMPTools::GetSingleThread();
 
     for (vtkIdType pointId = beginPointId; pointId < endPointId; ++pointId)
     {
+      if (isFirst)
+      {
+        this->ProbeFilter->CheckAbort();
+      }
+      if (this->ProbeFilter->GetAbortOutput())
+      {
+        break;
+      }
       if (maskArray[pointId] == static_cast<char>(1))
       {
         // skip points which have already been probed with success.
@@ -890,8 +899,17 @@ public:
       this->Source->GetCellData()->GetArray(vtkDataSetAttributes::GhostArrayName()));
 
     auto& cell = this->GenericCell.Local();
+    bool isFirst = vtkSMPTools::GetSingleThread();
     for (vtkIdType cellId = cellBegin; cellId < cellEnd; ++cellId)
     {
+      if (isFirst)
+      {
+        this->ProbeFilter->CheckAbort();
+      }
+      if (this->ProbeFilter->GetAbortOutput())
+      {
+        break;
+      }
       if (IsBlankedCell(sourceGhostFlags, cellId))
       {
         continue;

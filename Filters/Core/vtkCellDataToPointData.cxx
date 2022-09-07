@@ -259,14 +259,14 @@ public:
 
     double weights[8];
 
-    vtkTypeBool abort = 0;
+    bool abort = false;
     vtkIdType progressInterval = numPts / 20 + 1;
     for (vtkIdType ptId = 0; ptId < numPts && !abort; ptId++)
     {
       if (!(ptId % progressInterval))
       {
         filter->UpdateProgress(static_cast<double>(ptId) / numPts);
-        abort = filter->GetAbortExecute();
+        abort = filter->CheckAbort();
       }
       input->GetPointCells(ptId, allCellIds);
       cellIds->Reset();
@@ -642,7 +642,7 @@ int vtkCellDataToPointData::RequestDataForUnstructuredData(
     this->UpdateProgress((fid + 1.0) / nfields);
     ++fid;
 
-    if (this->GetAbortExecute())
+    if (this->CheckAbort())
     {
       return;
     }
@@ -709,14 +709,14 @@ int vtkCellDataToPointData::InterpolatePointData(vtkDataSet* input, vtkDataSet* 
 
   double weights[VTK_MAX_CELLS_PER_POINT];
 
-  vtkTypeBool abort = 0;
+  bool abort = false;
   vtkIdType progressInterval = numPts / 20 + 1;
   for (vtkIdType ptId = 0; ptId < numPts && !abort; ptId++)
   {
     if (!(ptId % progressInterval))
     {
       this->UpdateProgress(static_cast<double>(ptId) / numPts);
-      abort = GetAbortExecute();
+      abort = this->CheckAbort();
     }
 
     input->GetPointCells(ptId, cellIds);

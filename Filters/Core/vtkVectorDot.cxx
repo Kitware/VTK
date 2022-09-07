@@ -115,6 +115,7 @@ struct MapWorker
   float InRange;
   float OutMin;
   float OutRange;
+  vtkVectorDot* Filter;
 
   void operator()(vtkIdType begin, vtkIdType end)
   {
@@ -122,9 +123,18 @@ struct MapWorker
     auto scalars = vtk::DataArrayValueRange<1>(this->Scalars, begin, end);
 
     using ScalarRef = typename decltype(scalars)::ReferenceType;
+    bool isFirst = vtkSMPTools::GetSingleThread();
 
     for (ScalarRef s : scalars)
     {
+      if (isFirst)
+      {
+        this->Filter->CheckAbort();
+      }
+      if (this->Filter->GetAbortOutput())
+      {
+        break;
+      }
       // Map from inRange to outRange:
       s = this->OutMin + ((s - this->InMin) / this->InRange) * this->OutRange;
     }
@@ -211,6 +221,8 @@ int vtkVectorDot::RequestData(vtkInformation* vtkNotUsed(request),
     dotWorker(inNormals, inVectors, newScalars, aRange);
   }
 
+  this->CheckAbort();
+
   // Update ivars:
   this->ActualRange[0] = static_cast<double>(aRange[0]);
   this->ActualRange[1] = static_cast<double>(aRange[1]);
@@ -220,7 +232,7 @@ int vtkVectorDot::RequestData(vtkInformation* vtkNotUsed(request),
   {
     MapWorker mapWorker{ newScalars, aRange[1] - aRange[0], aRange[0],
       static_cast<float>(this->ScalarRange[1] - this->ScalarRange[0]),
-      static_cast<float>(this->ScalarRange[0]) };
+      static_cast<float>(this->ScalarRange[0]), this };
 
     vtkSMPTools::For(0, newScalars->GetNumberOfValues(), mapWorker);
   }

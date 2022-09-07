@@ -36,7 +36,8 @@ namespace
 struct ComputeNormalsDirection
 {
   template <typename ArrayT>
-  void operator()(ArrayT* pointArray, vtkPolyData* mesh, vtkFloatArray* normalsArray)
+  void operator()(ArrayT* pointArray, vtkPolyData* mesh, vtkFloatArray* normalsArray,
+    vtkTriangleMeshPointNormals* self)
   {
     const auto points = vtk::DataArrayTupleRange<3>(pointArray);
     auto normals = vtk::DataArrayTupleRange<3>(normalsArray);
@@ -46,6 +47,10 @@ struct ComputeNormalsDirection
     auto cellIter = vtk::TakeSmartPointer(mesh->GetPolys()->NewIterator());
     for (cellIter->GoToFirstCell(); !cellIter->IsDoneWithTraversal(); cellIter->GoToNextCell())
     {
+      if (self->CheckAbort())
+      {
+        break;
+      }
       vtkIdType cellSize;
       const vtkIdType* cell;
       cellIter->GetCurrentCell(cellSize, cell);
@@ -168,9 +173,9 @@ int vtkTriangleMeshPointNormals::RequestData(vtkInformation* vtkNotUsed(request)
   ComputeNormalsDirection worker;
 
   vtkDataArray* points = output->GetPoints()->GetData();
-  if (!Dispatcher::Execute(points, worker, output, normals))
+  if (!Dispatcher::Execute(points, worker, output, normals, this))
   { // fallback for integral point arrays
-    worker(points, output, normals);
+    worker(points, output, normals, this);
   }
 
   this->UpdateProgress(0.5);
@@ -181,6 +186,10 @@ int vtkTriangleMeshPointNormals::RequestData(vtkInformation* vtkNotUsed(request)
   float* n = normals->GetPointer(0);
   for (vtkIdType i = 0; i < numPts; ++i)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     i3 = i * 3;
     if ((l = sqrt(n[i3] * n[i3] + n[i3 + 1] * n[i3 + 1] + n[i3 + 2] * n[i3 + 2])) != 0.0)
     {

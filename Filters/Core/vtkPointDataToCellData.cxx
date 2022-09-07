@@ -47,10 +47,13 @@ private:
   vtkDataSet* Input;
   ArrayList Arrays;
   vtkSMPThreadLocalObject<vtkIdList> TLCellPts; // scratch array
+  vtkPointDataToCellData* Filter;
 
 public:
-  PointDataToCellDataFunctor(vtkDataSet* input, vtkPointData* inPD, vtkCellData* outCD)
+  PointDataToCellDataFunctor(
+    vtkDataSet* input, vtkPointData* inPD, vtkCellData* outCD, vtkPointDataToCellData* filter)
     : Input(input)
+    , Filter(filter)
   {
     vtkIdType numCells = input->GetNumberOfCells();
     this->Arrays.AddArrays(numCells, inPD, outCD);
@@ -66,9 +69,18 @@ public:
   void operator()(vtkIdType beginCellId, vtkIdType endCellId)
   {
     auto& cellPts = this->TLCellPts.Local();
+    bool isFirst = vtkSMPTools::GetSingleThread();
 
     for (vtkIdType cellId = beginCellId; cellId < endCellId; ++cellId)
     {
+      if (isFirst)
+      {
+        this->Filter->CheckAbort();
+      }
+      if (this->Filter->GetAbortOutput())
+      {
+        break;
+      }
       this->Input->GetCellPoints(cellId, cellPts);
       vtkIdType numPts = cellPts->GetNumberOfIds();
 
@@ -220,12 +232,14 @@ private:
   int MaxCellSize;
   vtkSMPThreadLocal<Histogram> TLHistogram;
   vtkSMPThreadLocalObject<vtkIdList> TLCellPts;
+  vtkPointDataToCellData* Filter;
 
 public:
-  PointDataToCellDataCategoricalFunctor(
-    vtkDataSet* input, vtkPointData* inPD, vtkCellData* outCD, ArrayType* scalars)
+  PointDataToCellDataCategoricalFunctor(vtkDataSet* input, vtkPointData* inPD, vtkCellData* outCD,
+    ArrayType* scalars, vtkPointDataToCellData* filter)
     : Input(input)
     , Scalars(scalars)
+    , Filter(filter)
   {
     vtkIdType numCells = input->GetNumberOfCells();
     this->Arrays.AddArrays(numCells, inPD, outCD);
@@ -248,9 +262,18 @@ public:
     auto& cellPts = this->TLCellPts.Local();
     auto& histogram = this->TLHistogram.Local();
     const auto scalars = vtk::DataArrayValueRange<1>(this->Scalars);
+    bool isFirst = vtkSMPTools::GetSingleThread();
 
     for (vtkIdType cellId = beginCellId; cellId < endCellId; cellId++)
     {
+      if (isFirst)
+      {
+        this->Filter->CheckAbort();
+      }
+      if (this->Filter->GetAbortOutput())
+      {
+        break;
+      }
       this->Input->GetCellPoints(cellId, cellPts);
       vtkIdType numPts = cellPts->GetNumberOfIds();
 
@@ -278,9 +301,10 @@ public:
 struct PointDataToCellDataCategoricalWorker
 {
   template <typename ArrayType>
-  void operator()(ArrayType* scalars, vtkDataSet* input, vtkPointData* inPD, vtkCellData* outCD)
+  void operator()(ArrayType* scalars, vtkDataSet* input, vtkPointData* inPD, vtkCellData* outCD,
+    vtkPointDataToCellData* filter)
   {
-    PointDataToCellDataCategoricalFunctor<ArrayType> pd2cd(input, inPD, outCD, scalars);
+    PointDataToCellDataCategoricalFunctor<ArrayType> pd2cd(input, inPD, outCD, scalars, filter);
     vtkSMPTools::For(0, input->GetNumberOfCells(), pd2cd);
   }
 };
@@ -446,16 +470,16 @@ int vtkPointDataToCellData::RequestData(
   if (!this->CategoricalData)
   {
     // Thread the process
-    PointDataToCellDataFunctor pd2cd(input, inPD, outCD);
+    PointDataToCellDataFunctor pd2cd(input, inPD, outCD, this);
     vtkSMPTools::For(0, numCells, pd2cd);
   }
   // Create a threaded fast path for categorical data.
   else
   {
     PointDataToCellDataCategoricalWorker worker;
-    if (!vtkArrayDispatch::Dispatch::Execute(inPD->GetScalars(), worker, input, inPD, outCD))
+    if (!vtkArrayDispatch::Dispatch::Execute(inPD->GetScalars(), worker, input, inPD, outCD, this))
     {
-      worker(inPD->GetScalars(), input, inPD, outCD);
+      worker(inPD->GetScalars(), input, inPD, outCD, this);
     }
   } // categorical data
 

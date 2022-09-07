@@ -617,6 +617,7 @@ struct VoronoiTiles
   vtkIdTypeArray* Scalars;
   vtkIdType MaxClips;
   int NumThreadsUsed;
+  vtkVoronoi2D* Filter;
 
   // Storage local to each thread. We don't want to allocate working arrays
   // on every thread invocation. Thread local storage saves lots of
@@ -625,7 +626,7 @@ struct VoronoiTiles
   vtkSMPThreadLocal<LocalDataType> LocalData;
 
   VoronoiTiles(vtkIdType npts, double* points, vtkStaticPointLocator2D* loc, double padding,
-    double tol, vtkPolyData* output, int scalarMode, vtkIdType maxClips)
+    double tol, vtkPolyData* output, int scalarMode, vtkIdType maxClips, vtkVoronoi2D* filter)
     : Points(points)
     , NPts(npts)
     , Locator(loc)
@@ -633,6 +634,7 @@ struct VoronoiTiles
     , ScalarMode(scalarMode)
     , MaxClips(maxClips)
     , NumThreadsUsed(0)
+    , Filter(filter)
   {
     // Tiles and associated points are filled in later in Reduce()
     this->NewPoints = output->GetPoints();
@@ -693,9 +695,18 @@ struct VoronoiTiles
     std::vector<vtkIdType>& lScalars = localData.LocalScalars;
     VTile& tile = localData.Tile;
     const double* x = this->Points + 3 * ptId;
+    bool isFirst = vtkSMPTools::GetSingleThread();
 
     for (; ptId < endPtId; ++ptId, x += 3)
     {
+      if (isFirst)
+      {
+        this->Filter->CheckAbort();
+      }
+      if (this->Filter->GetAbortOutput())
+      {
+        break;
+      }
       // Initialize the Voronoi tile
       tile.Initialize(ptId, x);
 
@@ -806,9 +817,10 @@ struct VoronoiTiles
 
   // A little factory method to conveniently instantiate the tiles etc.
   static int Execute(vtkStaticPointLocator2D* loc, vtkIdType numPts, double* points, double padding,
-    double tol, vtkPolyData* output, int sMode, vtkIdType pointOfInterest, vtkIdType maxClips)
+    double tol, vtkPolyData* output, int sMode, vtkIdType pointOfInterest, vtkIdType maxClips,
+    vtkVoronoi2D* filter)
   {
-    VoronoiTiles vt(numPts, points, loc, padding, tol, output, sMode, maxClips);
+    VoronoiTiles vt(numPts, points, loc, padding, tol, output, sMode, maxClips, filter);
     if (pointOfInterest < 0 || pointOfInterest >= numPts)
     {
       vtkSMPTools::For(0, numPts, vt);
@@ -952,7 +964,7 @@ int vtkVoronoi2D::RequestData(vtkInformation* vtkNotUsed(request),
   // Process the points to generate Voronoi tiles
   double* inPtr = static_cast<double*>(tPoints->GetVoidPointer(0));
   this->NumberOfThreadsUsed = VoronoiTiles::Execute(this->Locator, numPts, inPtr, padding, tol,
-    output, this->GenerateScalars, this->PointOfInterest, this->MaximumNumberOfTileClips);
+    output, this->GenerateScalars, this->PointOfInterest, this->MaximumNumberOfTileClips, this);
 
   vtkDebugMacro(<< "Produced " << output->GetNumberOfCells() << " tiles and "
                 << output->GetNumberOfPoints() << " points");

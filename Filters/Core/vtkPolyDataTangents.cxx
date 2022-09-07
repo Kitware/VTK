@@ -34,19 +34,29 @@ VTK_ABI_NAMESPACE_BEGIN
 struct TangentComputation
 {
   TangentComputation(vtkIdType offset, vtkPoints* points, vtkCellArray* triangles,
-    vtkDataArray* tcoords, vtkDataArray* tangents)
+    vtkDataArray* tcoords, vtkDataArray* tangents, vtkPolyDataTangents* filter)
   {
     this->Points = points;
     this->Triangles = triangles;
     this->TCoords = tcoords;
     this->Tangents = tangents;
     this->Offset = offset;
+    this->Filter = filter;
   }
 
   void operator()(vtkIdType beginId, vtkIdType endId)
   {
+    bool isFirst = vtkSMPTools::GetSingleThread();
     for (vtkIdType cellId = beginId; cellId < endId; cellId++)
     {
+      if (isFirst)
+      {
+        this->Filter->CheckAbort();
+      }
+      if (this->Filter->GetAbortOutput())
+      {
+        break;
+      }
       double tangent[3];
 
       if (cellId >= this->Offset)
@@ -105,6 +115,7 @@ private:
   vtkDataArray* TCoords;
   vtkDataArray* Tangents;
   vtkIdType Offset;
+  vtkPolyDataTangents* Filter;
 };
 
 vtkStandardNewMacro(vtkPolyDataTangents);
@@ -146,7 +157,7 @@ int vtkPolyDataTangents::RequestData(vtkInformation* vtkNotUsed(request),
   cellTangents->SetName("Tangents");
   cellTangents->SetNumberOfTuples(numVerts + numLines + numPolys);
 
-  TangentComputation functor(numVerts + numLines, inPts, inPolys, tcoords, cellTangents);
+  TangentComputation functor(numVerts + numLines, inPts, inPolys, tcoords, cellTangents, this);
 
   vtkSMPTools::For(0, numVerts + numLines + numPolys, functor);
 
