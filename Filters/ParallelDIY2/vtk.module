@@ -24,6 +24,7 @@ PRIVATE_DEPENDS
 TEST_DEPENDS
   VTK::diy2
   VTK::FiltersGeometry
+  VTK::FiltersParallelMPI
   VTK::ImagingCore
   VTK::InteractionStyle
   VTK::IOXML
