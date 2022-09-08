@@ -879,6 +879,7 @@ windows-vs2019-kits-mpi-python-qt:build:
         - .windows_builder_tags
         - .cmake_build_artifacts
         - .run_manually
+    timeout: 90 minutes
 
 windows-vs2019-kits-mpi-python-qt:test:
     extends:
@@ -934,6 +935,7 @@ windows-vs2019-mpi-python-qt:build:
         - .windows_builder_tags
         - .cmake_build_artifacts
         - .run_manually
+    timeout: 90 minutes
 
 windows-vs2019-mpi-python-qt:test:
     extends:
@@ -954,6 +956,7 @@ windows-vs2019-mpi-python-qt-static:build:
         - .windows_builder_tags
         - .cmake_build_artifacts
         - .run_manually
+    timeout: 90 minutes
 
 windows-vs2019-mpi-python-qt-static:test:
     extends:
