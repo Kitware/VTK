@@ -2714,6 +2714,7 @@ void vtkTableBasedClipDataSet::ClipPolyData(vtkDataSet* inputGrid,
     {
       polyData->GetStrips()->Visit(BuildCellTypesImpl{}, cellTypes,
         [](vtkIdType vtkNotUsed(size)) -> VTKCellType { return VTK_TRIANGLE_STRIP; });
+      uGrid->SetCells(cellTypes, polyData->GetStrips(), nullptr, nullptr);
     }
     uGrid->GetCellData()->ShallowCopy(polyData->GetCellData());
     this->ClipUnstructuredGrid(uGrid, implicitFunction, scalars, isoValue, outputUG);
