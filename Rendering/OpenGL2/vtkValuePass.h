@@ -107,7 +107,7 @@ protected:
   vtkValuePass();
   ~vtkValuePass() override;
 
-  ////@{
+  ///@{
   /**
    * \brief vtkOpenGLRenderPass API.
    */
@@ -133,7 +133,7 @@ protected:
    * is single-stage.
    */
   vtkMTimeType GetShaderStageMTime() override;
-  ////@}
+  ///@}
 
   /**
    * Manages graphics resources depending on the rendering mode.  Binds internal

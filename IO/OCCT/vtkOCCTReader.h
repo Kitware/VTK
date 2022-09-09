@@ -61,16 +61,16 @@ public:
     IGES
   };
 
-  //@{
+  ///@{
   /**
    * Set the file format to read.
    * It can be either STEP or IGES.
    * Default is FILE_FORMAT::STEP
    */
   vtkSetEnumMacro(FileFormat, Format);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the linear deflection.
    * This value limits the distance between a curve and the resulting tesselation.
@@ -78,9 +78,9 @@ public:
    */
   vtkGetMacro(LinearDeflection, double);
   vtkSetMacro(LinearDeflection, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the angular deflection.
    * This value limits the angle between two subsequent segments.
@@ -88,9 +88,9 @@ public:
    */
   vtkGetMacro(AngularDeflection, double);
   vtkSetMacro(AngularDeflection, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get relative deflection.
    * Determine if the deflection values are relative to object size.
@@ -99,9 +99,9 @@ public:
   vtkGetMacro(RelativeDeflection, bool);
   vtkSetMacro(RelativeDeflection, bool);
   vtkBooleanMacro(RelativeDeflection, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Enable/Disable 1D cells read. If enabled, surface boundaries are read.
    * Default is false
@@ -109,15 +109,15 @@ public:
   vtkGetMacro(ReadWire, bool);
   vtkSetMacro(ReadWire, bool);
   vtkBooleanMacro(ReadWire, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set the file name.
    */
   vtkSetFilePathMacro(FileName);
   vtkGetFilePathMacro(FileName);
-  //@}
+  ///@}
 
 protected:
   vtkOCCTReader();
