@@ -2425,7 +2425,7 @@ int vtkCGNSReader::GetUnstructuredZone(
       hasElemDefinition = true;
     }
   }
-  if (hasNGon && !hasNFace)
+  if (cellDim == 3 && hasNGon && !hasNFace)
   {
     // Search if a ParentElements node exists, since we can rebuild NFace using it
     hasNGonPE = true;
