@@ -2544,6 +2544,7 @@ int vtkCGNSReader::GetUnstructuredZone(
 
       std::vector<vtkIdType> faceElementsIdx;
       std::vector<vtkIdType> faceElementsArr;
+      bool old_polygonal_layout = false;
 
       faceElementsArr.resize(faceElementsSize);
       faceElementsIdx.resize(numFaces + 1);
@@ -2579,9 +2580,13 @@ int vtkCGNSReader::GetUnstructuredZone(
           CGNSRead::get_section_start_offset(this->cgioNum, elemIdList[osec], 1, srcStart, srcEnd,
             srcStride, memStart, memEnd, memStride, memDim, localFaceElementsIdx))
         {
-          // NOTE: strict CGNS version 4.0 is enforced
-          vtkErrorMacro("FAILED to read StartOffset\n");
           // NOTE: support for the old NFACE_n/NGON_n array layout is now deprecated.
+          // NOTE: the old polygonal layout was replaced in CGNS version 4.0
+          vtkWarningMacro("FAILED to read StartOffset\n The file should be upgraded to 4.0 CGNS "
+                          "standard with the official cgnsupdate tool\n"
+                          "Usage of NFACE_n/NGON_n layout older than 3.4 CGNS standard is "
+                          "deprecated.");
+          old_polygonal_layout = true;
         }
 
         if (startArraySec[sec] != 0)
@@ -2616,6 +2621,30 @@ int vtkCGNSReader::GetUnstructuredZone(
       }
       // Loading Done
       //
+      if (old_polygonal_layout)
+      {
+        // Regenerate a faceElementIdx lookupTable
+        vtkIdType curFace = 0;
+        vtkIdType curNodeInFace = 0;
+
+        faceElementsIdx[0] = 0;
+
+        for (vtkIdType idxFace = 0; idxFace < static_cast<vtkIdType>(faceElementsIdx.size() - 1);
+             ++idxFace)
+        {
+          vtkIdType nVertexOnCurFace = faceElementsArr[curFace];
+
+          faceElementsIdx[idxFace + 1] = faceElementsIdx[idxFace] + nVertexOnCurFace;
+
+          for (vtkIdType idxVertex = 0; idxVertex < nVertexOnCurFace; idxVertex++)
+          {
+            faceElementsArr[curNodeInFace] = faceElementsArr[curFace + idxVertex + 1];
+            curNodeInFace++;
+          }
+          curFace += nVertexOnCurFace + 1;
+        }
+      }
+
       // Build cells rather than faces
       if (this->DataLocation == vtkCGNSReader::CELL_DATA)
       {
@@ -2691,7 +2720,10 @@ int vtkCGNSReader::GetUnstructuredZone(
           if (CGNSRead::get_section_start_offset(this->cgioNum, cgioSectionId, 1, srcStart, srcEnd,
                 srcStride, memStart, memEnd, memStride, memDim, localCellElementsIdx) != 0)
           {
-            vtkErrorMacro("FAILED to read StartOffset\n");
+            // The old polygonal layout was replaced in CGNS version 4.0.
+            // Support for the old NFACE_n/NGON_n array layout may be deprecated in
+            // a future version of VTK.
+            old_polygonal_layout = true;
           }
 
           if (startNFaceArraySec[sec] != 0)
@@ -2724,7 +2756,27 @@ int vtkCGNSReader::GetUnstructuredZone(
           }
           cgio_release_id(this->cgioNum, cgioSectionId);
         }
+        if (old_polygonal_layout)
+        {
+          // Regenerate cellElementIdx lookup table
+          vtkIdType curCell = 0;
+          vtkIdType curFaceInCell = 0;
+          cellElementsIdx[0] = 0;
 
+          for (vtkIdType idxCell = 0; idxCell < static_cast<vtkIdType>(cellElementsIdx.size() - 1);
+               ++idxCell)
+          {
+            vtkIdType nFaceInCell = cellElementsArr[curCell];
+            cellElementsIdx[idxCell + 1] = cellElementsIdx[idxCell] + nFaceInCell;
+
+            for (vtkIdType idxFace = 0; idxFace < nFaceInCell; idxFace++)
+            {
+              cellElementsArr[curFaceInCell] = cellElementsArr[curCell + idxFace + 1];
+              curFaceInCell++;
+            }
+            curCell += nFaceInCell + 1;
+          }
+        }
         // If we have no NFace but NGon/ParentElements is present, we rebuild NFace connectivity
         if (!hasNFace && hasNGonPE)
         {
