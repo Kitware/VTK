@@ -2324,7 +2324,7 @@ void vtkUnstructuredGrid::GetIdsOfCellsOfType(int type, vtkIdTypeArray* array)
 //------------------------------------------------------------------------------
 void vtkUnstructuredGrid::RemoveGhostCells()
 {
-  if (!this->CellData->GetGhostArray())
+  if (!this->GetNumberOfCells() || !this->CellData->GetGhostArray())
   {
     return;
   }
