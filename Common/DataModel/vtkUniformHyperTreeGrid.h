@@ -30,10 +30,9 @@
 #ifndef vtkUniformHyperTreeGrid_h
 #define vtkUniformHyperTreeGrid_h
 
-#include "limits.h" // UINT_MAX
-
 #include <algorithm> // std::min/std::max
 #include <cmath>     // std::round
+#include <limits>    // std::numeric_limits
 #include <memory>    // std::shared_ptr
 
 #include "vtkCommonDataModelModule.h" // For export macro
@@ -212,7 +211,7 @@ protected:
     if (value < (this->Origin[dim] - tol) ||
       value > (this->Origin[dim] + tol + this->GridScale[dim] * maxIdx))
     {
-      return UINT_MAX;
+      return std::numeric_limits<unsigned int>::max();
     }
 
     long idx = std::round((value - this->Origin[dim]) / this->GridScale[dim]);

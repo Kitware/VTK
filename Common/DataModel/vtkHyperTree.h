@@ -177,7 +177,6 @@ class VTKCOMMONDATAMODEL_EXPORT vtkHyperTree : public vtkObject
 {
 public:
   vtkTypeMacro(vtkHyperTree, vtkObject);
-
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**

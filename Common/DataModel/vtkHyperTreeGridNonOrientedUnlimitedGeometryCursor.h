@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkHyperTreeGridNonOrientedGeometryCursor.h
+  Module:    vtkHyperTreeGridNonOrientedUnlimitedGeometryCursor.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -13,7 +13,7 @@
 
 =========================================================================*/
 /**
- * @class   vtkHyperTreeGridNonOrientedGeometryCursor
+ * @class   vtkHyperTreeGridNonOrientedUnlimitedGeometryCursor
  * @brief   Objects for traversal a HyperTreeGrid.
  *
  * JB A REVOIR
@@ -39,29 +39,31 @@
  * CEA, DAM, DIF, F-91297 Arpajon, France.
  */
 
-#ifndef vtkHyperTreeGridNonOrientedGeometryCursor_h
-#define vtkHyperTreeGridNonOrientedGeometryCursor_h
+#ifndef vtkHyperTreeGridNonOrientedUnlimitedGeometryCursor_h
+#define vtkHyperTreeGridNonOrientedUnlimitedGeometryCursor_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h"
 
-#include "vtkHyperTreeGridGeometryEntry.h" // Used internally
-#include "vtkHyperTreeGridTools.h"         // for HasTree
-#include "vtkSmartPointer.h"               // Used internally
-#include <memory>                          // std::shared_ptr
-#include <vector>                          // std::vector
+#include "vtkHyperTreeGridGeometryUnlimitedEntry.h" // cache for historic
+#include "vtkHyperTreeGridTools.h"                  // for HasTree
+#include "vtkSmartPointer.h"                        // Used internally
+#include <memory>                                   // std::shared_ptr
+#include <vector>                                   // std::vector
 
 class vtkHyperTree;
 class vtkHyperTreeGrid;
 class vtkHyperTreeGridScales;
 class vtkHyperTreeGridOrientedGeometryCursor;
+class vtkHyperTreeGridNonOrientedGeometryCursor;
 
-class VTKCOMMONDATAMODEL_EXPORT vtkHyperTreeGridNonOrientedGeometryCursor : public vtkObject
+class VTKCOMMONDATAMODEL_EXPORT vtkHyperTreeGridNonOrientedUnlimitedGeometryCursor
+  : public vtkObject
 {
 public:
-  vtkTypeMacro(vtkHyperTreeGridNonOrientedGeometryCursor, vtkObject);
+  vtkTypeMacro(vtkHyperTreeGridNonOrientedUnlimitedGeometryCursor, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  static vtkHyperTreeGridNonOrientedGeometryCursor* New();
+  static vtkHyperTreeGridNonOrientedUnlimitedGeometryCursor* New();
 
   void Dump(ostream& os);
 
@@ -72,7 +74,7 @@ public:
    * Create a copy of `this'.
    * \post results_exists:result!=0
    */
-  virtual vtkHyperTreeGridNonOrientedGeometryCursor* Clone();
+  virtual vtkHyperTreeGridNonOrientedUnlimitedGeometryCursor* Clone();
 
   /**
    * Initialize cursor at root of given tree index in grid.
@@ -83,7 +85,7 @@ public:
    * Initialize cursor at root of given tree index in grid.
    */
   void Initialize(vtkHyperTreeGrid* grid, vtkHyperTree* tree, unsigned int level,
-    vtkHyperTreeGridGeometryEntry& entry);
+    vtkHyperTreeGridGeometryUnlimitedEntry& entry);
 
   /**
    * JB
@@ -94,7 +96,7 @@ public:
   /**
    * JB
    */
-  void Initialize(vtkHyperTreeGridNonOrientedGeometryCursor* cursor);
+  void Initialize(vtkHyperTreeGridNonOrientedUnlimitedGeometryCursor* cursor);
 
   ///@{
   /**
@@ -168,13 +170,15 @@ public:
 
   /**
    * Is the cursor pointing to a leaf?
+   * only respect depth limited, otherwise return false
    */
   bool IsLeaf();
 
   /**
-   * JB Fait chier normalement on devrait passer par GetEntry
+   * Is the cursor pointing to a leaf?
+   * this one does not subdivide virtually
    */
-  void SubdivideLeaf();
+  bool IsRealLeaf();
 
   /**
    * Is the cursor at tree root?
@@ -210,27 +214,34 @@ public:
   void ToParent();
 
   /**
-   * JB Create a vtkHyperTreeGridOrientedGeometryCursor from input grid and
+   * Create a vtkHyperTreeGridOrientedGeometryCursor from input grid and
    * current entry data
    */
   vtkSmartPointer<vtkHyperTreeGridOrientedGeometryCursor> GetHyperTreeGridOrientedGeometryCursor(
     vtkHyperTreeGrid* grid);
 
+  /**
+   * Create a vtkHyperTreeGridNonOrientedGeometryCursor from input grid and
+   * current entry data
+   */
+  vtkSmartPointer<vtkHyperTreeGridNonOrientedGeometryCursor>
+  GetHyperTreeGridNonOrientedGeometryCursor(vtkHyperTreeGrid* grid);
+
 protected:
   /**
    * Constructor
-   * JB Just pour vtkHyperTreeGridNonOrientedVonNeumannSuperCursor et Moore
+   * Only for vtkHyperTreeGridNonOrientedVonNeumannSuperCursor & Moore
    */
-  vtkHyperTreeGridNonOrientedGeometryCursor();
+  vtkHyperTreeGridNonOrientedUnlimitedGeometryCursor();
 
   /**
    * Destructor
-   * JB Just pour vtkHyperTreeGridNonOrientedVonNeumannSuperCursor et Moore
+   * Only for vtkHyperTreeGridNonOrientedVonNeumannSuperCursor & Moore
    */
-  ~vtkHyperTreeGridNonOrientedGeometryCursor() override;
+  ~vtkHyperTreeGridNonOrientedUnlimitedGeometryCursor() override;
 
   /**
-   * JB Reference sur l'hyper tree grid parcouru actuellement.
+   * Reference sur l'hyper tree grid parcouru actuellement.
    */
   vtkHyperTreeGrid* Grid;
 
@@ -240,7 +251,7 @@ protected:
   vtkHyperTree* Tree;
 
   /**
-   * JB Storage of pre-computed per-level cell scales
+   * Storage of pre-computed per-level cell scales
    */
   std::shared_ptr<vtkHyperTreeGridScales> Scales;
 
@@ -250,16 +261,16 @@ protected:
   unsigned int Level;
 
   /**
-   * JB La derniere entree valide.
+   * Id of the last non-virtual entry
    */
   int LastValidEntry;
 
   // Hyper tree grid to which the cursor is attached
-  std::vector<vtkHyperTreeGridGeometryEntry> Entries;
+  std::vector<vtkHyperTreeGridGeometryUnlimitedEntry> Entries;
 
 private:
-  vtkHyperTreeGridNonOrientedGeometryCursor(
-    const vtkHyperTreeGridNonOrientedGeometryCursor&) = delete;
-  void operator=(const vtkHyperTreeGridNonOrientedGeometryCursor&) = delete;
+  vtkHyperTreeGridNonOrientedUnlimitedGeometryCursor(
+    const vtkHyperTreeGridNonOrientedUnlimitedGeometryCursor&) = delete;
+  void operator=(const vtkHyperTreeGridNonOrientedUnlimitedGeometryCursor&) = delete;
 };
 #endif

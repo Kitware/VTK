@@ -1,7 +1,7 @@
 /*=========================================================================
 
 Program:   Visualization Toolkit
-Module:    vtkHyperTreeGridNonOrientedMooreSuperCursorLight.cxx
+Module:    vtkHyperTreeGridNonOrientedUnlimitedMooreSuperCursor.cxx
 
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 All rights reserved.
@@ -12,26 +12,25 @@ the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
 PURPOSE.  See the above copyright Nonice for more information.
 
 =========================================================================*/
-#include "vtkHyperTreeGridNonOrientedMooreSuperCursorLight.h"
+#include "vtkHyperTreeGridNonOrientedUnlimitedMooreSuperCursor.h"
 
 #include "vtkBitArray.h"
 #include "vtkHyperTree.h"
 #include "vtkHyperTreeGrid.h"
-#include "vtkHyperTreeGridLevelEntry.h"
+#include "vtkHyperTreeGridGeometryUnlimitedLevelEntry.h"
 #include "vtkHyperTreeGridNonOrientedGeometryCursor.h"
-
+#include "vtkHyperTreeGridNonOrientedUnlimitedGeometryCursor.h"
 #include "vtkIdList.h"
-
 #include "vtkObjectFactory.h"
-
-#include <cassert>
-
-vtkStandardNewMacro(vtkHyperTreeGridNonOrientedMooreSuperCursorLight);
 
 #include "vtkHyperTreeGridNonOrientedMooreSuperCursorData.h"
 
+#include <cassert>
+
+vtkStandardNewMacro(vtkHyperTreeGridNonOrientedUnlimitedMooreSuperCursor);
+
 //------------------------------------------------------------------------------
-void vtkHyperTreeGridNonOrientedMooreSuperCursorLight::Initialize(
+void vtkHyperTreeGridNonOrientedUnlimitedMooreSuperCursor::Initialize(
   vtkHyperTreeGrid* grid, vtkIdType treeIndex, bool create)
 {
   assert("pre: Non_valid_dimension" && grid->GetDimension() >= 1 && grid->GetDimension() <= 3);
@@ -188,7 +187,7 @@ void vtkHyperTreeGridNonOrientedMooreSuperCursorLight::Initialize(
           this->Entries[0].Initialize(grid, r);
         }
         else
-        { // if ( toW )
+        { // if (toW)
           this->Entries[0].Reset();
         }
         if (toE)
@@ -198,12 +197,12 @@ void vtkHyperTreeGridNonOrientedMooreSuperCursorLight::Initialize(
           this->Entries[2].Initialize(grid, r);
         }
         else
-        { // if ( toE )
+        { // if (toE)
           this->Entries[2].Reset();
         }
       }
       else
-      { // if ( toS )
+      { // if (toS)
         this->Entries[0].Reset();
         this->Entries[1].Reset();
         this->Entries[2].Reset();
@@ -216,7 +215,7 @@ void vtkHyperTreeGridNonOrientedMooreSuperCursorLight::Initialize(
         this->Entries[3].Initialize(grid, r);
       }
       else
-      { // if ( toW )
+      { // if (toW)
         this->Entries[3].Reset();
       }
       if (toE)
@@ -226,7 +225,7 @@ void vtkHyperTreeGridNonOrientedMooreSuperCursorLight::Initialize(
         this->Entries[4].Initialize(grid, r); // au lieu de 5
       }
       else
-      { // if ( toE )
+      { // if (toE)
         this->Entries[4].Reset();
       }
       if (toN)
@@ -241,7 +240,7 @@ void vtkHyperTreeGridNonOrientedMooreSuperCursorLight::Initialize(
           this->Entries[5].Initialize(grid, r); // au lieu de 6
         }
         else
-        { // if ( toW )
+        { // if (toW)
           this->Entries[5].Reset();
         }
         if (toE)
@@ -251,12 +250,12 @@ void vtkHyperTreeGridNonOrientedMooreSuperCursorLight::Initialize(
           this->Entries[7].Initialize(grid, r); // au lieu de 8
         }
         else
-        { // if ( toW )
+        { // if (toW)
           this->Entries[7].Reset();
         }
       }
       else
-      { // if ( toN )
+      { // if (toN)
         this->Entries[5].Reset();
         this->Entries[6].Reset();
         this->Entries[7].Reset();
@@ -308,7 +307,7 @@ void vtkHyperTreeGridNonOrientedMooreSuperCursorLight::Initialize(
 }
 
 //------------------------------------------------------------------------------
-bool vtkHyperTreeGridNonOrientedMooreSuperCursorLight::GetCornerCursors(
+bool vtkHyperTreeGridNonOrientedUnlimitedMooreSuperCursor::GetCornerCursors(
   unsigned int c, unsigned int l, vtkIdList* leaves)
 {
   unsigned int cursorIdx = 0;
@@ -329,7 +328,7 @@ bool vtkHyperTreeGridNonOrientedMooreSuperCursorLight::GetCornerCursors(
     default:
       vtkErrorMacro("unexpected neighborhood");
       return false;
-  } // switch ( N )
+  } // switch (N)
 
   // Collect the cursor index for this leaf
   leaves->SetId(l, cursorIdx);
@@ -338,7 +337,7 @@ bool vtkHyperTreeGridNonOrientedMooreSuperCursorLight::GetCornerCursors(
   bool owner = true;
   if (cursorIdx != this->IndiceCentralCursor)
   {
-    vtkHyperTreeGridLevelEntry& cursor = this->Entries[this->GetIndiceEntry(cursorIdx)];
+    auto& cursor = this->Entries[this->GetIndiceEntry(cursorIdx)];
     if (!cursor.GetTree() || !cursor.IsLeaf(this->Grid))
     {
       // If neighbor cell is out of bounds or has Non been
@@ -355,21 +354,21 @@ bool vtkHyperTreeGridNonOrientedMooreSuperCursorLight::GetCornerCursors(
       // A level tie is broken in favor of the largest index
       owner = false;
     }
-  } // if( cursorIdx! = this->IndiceCentralCursor )
+  } // if(cursorIdx! = this->IndiceCentralCursor)
 
   // Return ownership of corner by this node
   return owner;
 }
 
 //------------------------------------------------------------------------------
-void vtkHyperTreeGridNonOrientedMooreSuperCursorLight::PrintSelf(ostream& os, vtkIndent indent)
+void vtkHyperTreeGridNonOrientedUnlimitedMooreSuperCursor::PrintSelf(ostream& os, vtkIndent indent)
 {
-  os << indent << "--vtkHyperTreeGridNonOrientedMooreSuperCursorLight--" << endl;
-  vtkHyperTreeGridNonOrientedSuperCursorLight::PrintSelf(os, indent);
+  os << indent << "--vtkHyperTreeGridNonOrientedUnlimitedMooreSuperCursor--" << endl;
+  this->Superclass::PrintSelf(os, indent);
 }
 
 //------------------------------------------------------------------------------
-vtkHyperTreeGridNonOrientedMooreSuperCursorLight::
-  ~vtkHyperTreeGridNonOrientedMooreSuperCursorLight() = default;
+vtkHyperTreeGridNonOrientedUnlimitedMooreSuperCursor::
+  ~vtkHyperTreeGridNonOrientedUnlimitedMooreSuperCursor() = default;
 
 //------------------------------------------------------------------------------

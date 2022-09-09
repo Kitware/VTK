@@ -26,6 +26,9 @@
  * @sa
  * vtkHyperTreeCursor vtkHyperTree vtkHyperTreeGrid
  *
+ * This supercursor allows to traverse neighboors attached to coface of
+ * the current position.
+ *
  * @par Thanks:
  * This class was written by Guenole Harel and Jacques-Bernard Lekien, 2014.
  * This class was re-written by Philippe Pebay, 2016.

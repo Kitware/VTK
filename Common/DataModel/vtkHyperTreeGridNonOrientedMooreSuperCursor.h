@@ -26,6 +26,8 @@
  * @sa
  * vtkHyperTreeCursor vtkHyperTree vtkHyperTreeGrid
  *
+ * This supercursor allows to visit all neighbors including diagonal ones.
+ *
  * @par Thanks:
  * This class was written by Guenole Harel and Jacques-Bernard Lekien, 2014.
  * This class was re-written by Philippe Pebay, 2016.

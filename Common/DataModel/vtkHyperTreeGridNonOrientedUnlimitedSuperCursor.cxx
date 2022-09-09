@@ -1,7 +1,7 @@
 /*=========================================================================
 
 Program:   Visualization Toolkit
-Module:    vtkHyperTreeGridNonOrientedSuperCursorLight.cxx
+Module:    vtkHyperTreeGridNonOrientedUnlimitedSuperCursor.cxx
 
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 All rights reserved.
@@ -12,12 +12,15 @@ the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
 PURPOSE.  See the above copyright Nonice for more information.
 
 =========================================================================*/
-#include "vtkHyperTreeGridNonOrientedSuperCursorLight.h"
+#include "vtkHyperTreeGridNonOrientedUnlimitedSuperCursor.h"
+
+#include "vtkBitArray.h"
+
 #include "vtkHyperTree.h"
 #include "vtkHyperTreeGrid.h"
 #include "vtkHyperTreeGridNonOrientedGeometryCursor.h"
+#include "vtkHyperTreeGridNonOrientedUnlimitedGeometryCursor.h"
 
-#include "vtkBitArray.h"
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
 
@@ -25,11 +28,14 @@ PURPOSE.  See the above copyright Nonice for more information.
 
 #include <cassert>
 #include <limits>
+#include <ostream>
+#include <vector>
 
 //------------------------------------------------------------------------------
-vtkHyperTreeGridNonOrientedSuperCursorLight* vtkHyperTreeGridNonOrientedSuperCursorLight::Clone()
+vtkHyperTreeGridNonOrientedUnlimitedSuperCursor*
+vtkHyperTreeGridNonOrientedUnlimitedSuperCursor::Clone()
 {
-  vtkHyperTreeGridNonOrientedSuperCursorLight* clone = this->NewInstance();
+  vtkHyperTreeGridNonOrientedUnlimitedSuperCursor* clone = this->NewInstance();
   assert("post: clone_exists" && clone != nullptr);
   // Copy
   clone->Grid = this->Grid;
@@ -46,8 +52,8 @@ vtkHyperTreeGridNonOrientedSuperCursorLight* vtkHyperTreeGridNonOrientedSuperCur
   }
   {
     clone->Entries.resize(this->Entries.size());
-    std::vector<vtkHyperTreeGridLevelEntry>::iterator in = this->Entries.begin();
-    std::vector<vtkHyperTreeGridLevelEntry>::iterator out = clone->Entries.begin();
+    auto in = this->Entries.begin();
+    auto out = clone->Entries.begin();
     for (; in != this->Entries.end(); ++in, ++out)
     {
       (*out).Copy(&(*in));
@@ -71,19 +77,19 @@ vtkHyperTreeGridNonOrientedSuperCursorLight* vtkHyperTreeGridNonOrientedSuperCur
 }
 
 //------------------------------------------------------------------------------
-vtkHyperTreeGrid* vtkHyperTreeGridNonOrientedSuperCursorLight::GetGrid()
+vtkHyperTreeGrid* vtkHyperTreeGridNonOrientedUnlimitedSuperCursor::GetGrid()
 {
   return this->Grid;
 }
 
 //------------------------------------------------------------------------------
-bool vtkHyperTreeGridNonOrientedSuperCursorLight::HasTree()
+bool vtkHyperTreeGridNonOrientedUnlimitedSuperCursor::HasTree()
 {
   return this->CentralCursor->HasTree();
 }
 
 //------------------------------------------------------------------------------
-bool vtkHyperTreeGridNonOrientedSuperCursorLight::HasTree(unsigned int icursor)
+bool vtkHyperTreeGridNonOrientedUnlimitedSuperCursor::HasTree(unsigned int icursor)
 {
   if (icursor == this->IndiceCentralCursor)
   {
@@ -93,13 +99,13 @@ bool vtkHyperTreeGridNonOrientedSuperCursorLight::HasTree(unsigned int icursor)
 }
 
 //------------------------------------------------------------------------------
-vtkHyperTree* vtkHyperTreeGridNonOrientedSuperCursorLight::GetTree()
+vtkHyperTree* vtkHyperTreeGridNonOrientedUnlimitedSuperCursor::GetTree()
 {
   return this->CentralCursor->GetTree();
 }
 
 //------------------------------------------------------------------------------
-vtkHyperTree* vtkHyperTreeGridNonOrientedSuperCursorLight::GetTree(unsigned int icursor)
+vtkHyperTree* vtkHyperTreeGridNonOrientedUnlimitedSuperCursor::GetTree(unsigned int icursor)
 {
   if (icursor == this->IndiceCentralCursor)
   {
@@ -109,13 +115,13 @@ vtkHyperTree* vtkHyperTreeGridNonOrientedSuperCursorLight::GetTree(unsigned int 
 }
 
 //------------------------------------------------------------------------------
-vtkIdType vtkHyperTreeGridNonOrientedSuperCursorLight::GetVertexId()
+vtkIdType vtkHyperTreeGridNonOrientedUnlimitedSuperCursor::GetVertexId()
 {
   return this->CentralCursor->GetVertexId();
 }
 
 //------------------------------------------------------------------------------
-vtkIdType vtkHyperTreeGridNonOrientedSuperCursorLight::GetVertexId(unsigned int icursor)
+vtkIdType vtkHyperTreeGridNonOrientedUnlimitedSuperCursor::GetVertexId(unsigned int icursor)
 {
   if (icursor == this->IndiceCentralCursor)
   {
@@ -125,13 +131,13 @@ vtkIdType vtkHyperTreeGridNonOrientedSuperCursorLight::GetVertexId(unsigned int 
 }
 
 //------------------------------------------------------------------------------
-vtkIdType vtkHyperTreeGridNonOrientedSuperCursorLight::GetGlobalNodeIndex()
+vtkIdType vtkHyperTreeGridNonOrientedUnlimitedSuperCursor::GetGlobalNodeIndex()
 {
   return this->CentralCursor->GetGlobalNodeIndex();
 }
 
 //------------------------------------------------------------------------------
-vtkIdType vtkHyperTreeGridNonOrientedSuperCursorLight::GetGlobalNodeIndex(unsigned int icursor)
+vtkIdType vtkHyperTreeGridNonOrientedUnlimitedSuperCursor::GetGlobalNodeIndex(unsigned int icursor)
 {
   if (icursor == this->IndiceCentralCursor)
   {
@@ -141,7 +147,7 @@ vtkIdType vtkHyperTreeGridNonOrientedSuperCursorLight::GetGlobalNodeIndex(unsign
 }
 
 //------------------------------------------------------------------------------
-vtkHyperTree* vtkHyperTreeGridNonOrientedSuperCursorLight::GetInformation(
+vtkHyperTree* vtkHyperTreeGridNonOrientedUnlimitedSuperCursor::GetInformation(
   unsigned int icursor, unsigned int& level, bool& leaf, vtkIdType& id)
 {
   if (icursor == this->IndiceCentralCursor)
@@ -151,7 +157,7 @@ vtkHyperTree* vtkHyperTreeGridNonOrientedSuperCursorLight::GetInformation(
     id = this->CentralCursor->GetGlobalNodeIndex();
     return this->CentralCursor->GetTree();
   }
-  vtkHyperTreeGridLevelEntry& entry = this->Entries[this->GetIndiceEntry(icursor)];
+  auto& entry = this->Entries[this->GetIndiceEntry(icursor)];
   vtkHyperTree* tree = entry.GetTree();
   if (tree)
   {
@@ -159,60 +165,92 @@ vtkHyperTree* vtkHyperTreeGridNonOrientedSuperCursorLight::GetInformation(
     leaf = entry.IsLeaf(this->Grid);
     id = entry.GetGlobalNodeIndex();
   }
+  else
+  {
+    level = std::numeric_limits<unsigned int>::max();
+  }
   return tree;
 }
 
 //------------------------------------------------------------------------------
-unsigned char vtkHyperTreeGridNonOrientedSuperCursorLight::GetDimension()
+unsigned char vtkHyperTreeGridNonOrientedUnlimitedSuperCursor::GetDimension()
 {
   return this->Grid->GetDimension();
 }
 
 //------------------------------------------------------------------------------
-unsigned char vtkHyperTreeGridNonOrientedSuperCursorLight::GetNumberOfChildren()
+unsigned char vtkHyperTreeGridNonOrientedUnlimitedSuperCursor::GetNumberOfChildren()
 {
   return this->CentralCursor->GetTree()->GetNumberOfChildren();
 }
 
 //------------------------------------------------------------------------------
-void vtkHyperTreeGridNonOrientedSuperCursorLight::SetGlobalIndexStart(vtkIdType index)
+void vtkHyperTreeGridNonOrientedUnlimitedSuperCursor::SetGlobalIndexStart(vtkIdType index)
 {
   this->CentralCursor->SetGlobalIndexStart(index);
 }
 
 //------------------------------------------------------------------------------
-void vtkHyperTreeGridNonOrientedSuperCursorLight::SetGlobalIndexFromLocal(vtkIdType index)
+void vtkHyperTreeGridNonOrientedUnlimitedSuperCursor::SetGlobalIndexFromLocal(vtkIdType index)
 {
   this->CentralCursor->SetGlobalIndexFromLocal(index);
 }
 
 //------------------------------------------------------------------------------
-double* vtkHyperTreeGridNonOrientedSuperCursorLight::GetOrigin()
+double* vtkHyperTreeGridNonOrientedUnlimitedSuperCursor::GetOrigin()
 {
   return this->CentralCursor->GetOrigin();
 }
 
 //------------------------------------------------------------------------------
-double* vtkHyperTreeGridNonOrientedSuperCursorLight::GetSize()
+double* vtkHyperTreeGridNonOrientedUnlimitedSuperCursor::GetSize()
 {
   return this->CentralCursor->GetSize();
 }
 
 //------------------------------------------------------------------------------
-void vtkHyperTreeGridNonOrientedSuperCursorLight::GetBounds(double bounds[6])
+void vtkHyperTreeGridNonOrientedUnlimitedSuperCursor::GetBounds(double bounds[6])
 {
   this->CentralCursor->GetBounds(bounds);
 }
 
 //------------------------------------------------------------------------------
-void vtkHyperTreeGridNonOrientedSuperCursorLight::SetMask(bool state)
+void vtkHyperTreeGridNonOrientedUnlimitedSuperCursor::GetBounds(
+  unsigned int icursor, double bounds[6])
+{
+  if (icursor == this->IndiceCentralCursor)
+  {
+    return this->CentralCursor->GetBounds(bounds);
+  }
+  return this->Entries[this->GetIndiceEntry(icursor)].GetBounds(bounds);
+}
+
+//------------------------------------------------------------------------------
+void vtkHyperTreeGridNonOrientedUnlimitedSuperCursor::GetPoint(double point[3])
+{
+  this->CentralCursor->GetPoint(point);
+}
+
+//------------------------------------------------------------------------------
+void vtkHyperTreeGridNonOrientedUnlimitedSuperCursor::GetPoint(
+  unsigned int icursor, double point[3])
+{
+  if (icursor == this->IndiceCentralCursor)
+  {
+    return this->CentralCursor->GetPoint(point);
+  }
+  return this->Entries[this->GetIndiceEntry(icursor)].GetPoint(point);
+}
+
+//------------------------------------------------------------------------------
+void vtkHyperTreeGridNonOrientedUnlimitedSuperCursor::SetMask(bool state)
 {
   assert("pre: not_tree" && this->CentralCursor->GetTree());
   this->CentralCursor->SetMask(state);
 }
 
 //------------------------------------------------------------------------------
-void vtkHyperTreeGridNonOrientedSuperCursorLight::SetMask(unsigned int icursor, bool state)
+void vtkHyperTreeGridNonOrientedUnlimitedSuperCursor::SetMask(unsigned int icursor, bool state)
 {
   if (icursor == this->IndiceCentralCursor)
   {
@@ -220,71 +258,61 @@ void vtkHyperTreeGridNonOrientedSuperCursorLight::SetMask(unsigned int icursor, 
   }
   else
   {
-    vtkHyperTreeGridLevelEntry& entry = this->Entries[this->GetIndiceEntry(icursor)];
+    auto& entry = this->Entries[this->GetIndiceEntry(icursor)];
     assert("pre: not_tree" && entry.GetTree());
     entry.SetMask(this->Grid, state);
   }
 }
 
 //------------------------------------------------------------------------------
-bool vtkHyperTreeGridNonOrientedSuperCursorLight::IsMasked()
+bool vtkHyperTreeGridNonOrientedUnlimitedSuperCursor::IsMasked()
 {
   return this->CentralCursor->IsMasked();
 }
 
 //------------------------------------------------------------------------------
-bool vtkHyperTreeGridNonOrientedSuperCursorLight::IsMasked(unsigned int icursor)
+bool vtkHyperTreeGridNonOrientedUnlimitedSuperCursor::IsMasked(unsigned int icursor)
 {
   if (icursor == this->IndiceCentralCursor)
   {
     return this->IsMasked();
   }
-  vtkHyperTreeGridLevelEntry& entry = this->Entries[this->GetIndiceEntry(icursor)];
+  auto& entry = this->Entries[this->GetIndiceEntry(icursor)];
   return entry.IsMasked(this->Grid);
 }
 
 //------------------------------------------------------------------------------
-void vtkHyperTreeGridNonOrientedSuperCursorLight::GetPoint(double point[3])
-{
-  this->CentralCursor->GetPoint(point);
-}
-
-//------------------------------------------------------------------------------
-bool vtkHyperTreeGridNonOrientedSuperCursorLight::IsLeaf()
+bool vtkHyperTreeGridNonOrientedUnlimitedSuperCursor::IsLeaf()
 {
   return this->CentralCursor->IsLeaf();
 }
 
 //------------------------------------------------------------------------------
-bool vtkHyperTreeGridNonOrientedSuperCursorLight::IsLeaf(unsigned int icursor)
+bool vtkHyperTreeGridNonOrientedUnlimitedSuperCursor::IsLeaf(unsigned int vtkNotUsed(icursor))
 {
-  if (icursor == this->IndiceCentralCursor)
-  {
-    return this->CentralCursor->IsLeaf();
-  }
-  return this->Entries[this->GetIndiceEntry(icursor)].IsLeaf(this->Grid);
+  return this->CentralCursor->IsLeaf();
 }
 
 //------------------------------------------------------------------------------
-void vtkHyperTreeGridNonOrientedSuperCursorLight::SubdivideLeaf()
+bool vtkHyperTreeGridNonOrientedUnlimitedSuperCursor::IsRealLeaf()
 {
-  this->CentralCursor->SubdivideLeaf();
+  return this->CentralCursor->IsRealLeaf();
 }
 
 //------------------------------------------------------------------------------
-bool vtkHyperTreeGridNonOrientedSuperCursorLight::IsRoot()
+bool vtkHyperTreeGridNonOrientedUnlimitedSuperCursor::IsRoot()
 {
   return this->CentralCursor->IsRoot();
 }
 
 //------------------------------------------------------------------------------
-unsigned int vtkHyperTreeGridNonOrientedSuperCursorLight::GetLevel()
+unsigned int vtkHyperTreeGridNonOrientedUnlimitedSuperCursor::GetLevel()
 {
   return this->CentralCursor->GetLevel();
 }
 
 //------------------------------------------------------------------------------
-unsigned int vtkHyperTreeGridNonOrientedSuperCursorLight::GetLevel(unsigned int icursor)
+unsigned int vtkHyperTreeGridNonOrientedUnlimitedSuperCursor::GetLevel(unsigned int icursor)
 {
   if (icursor == this->IndiceCentralCursor)
   {
@@ -294,24 +322,23 @@ unsigned int vtkHyperTreeGridNonOrientedSuperCursorLight::GetLevel(unsigned int 
 }
 
 //------------------------------------------------------------------------------
-void vtkHyperTreeGridNonOrientedSuperCursorLight::ToChild(unsigned char ichild)
+void vtkHyperTreeGridNonOrientedUnlimitedSuperCursor::ToChild(unsigned char ichild)
 {
-  assert("pre: Non_leaf" && !this->IsLeaf());
-  //
   ++this->CurrentFirstNonValidEntryByLevel;
   if (this->FirstNonValidEntryByLevel.size() == this->CurrentFirstNonValidEntryByLevel)
   {
-    this->FirstNonValidEntryByLevel.resize(this->CurrentFirstNonValidEntryByLevel + 1);
+    this->FirstNonValidEntryByLevel.emplace_back();
   }
   this->FirstNonValidEntryByLevel[this->CurrentFirstNonValidEntryByLevel] =
     this->FirstNonValidEntryByLevel[this->CurrentFirstNonValidEntryByLevel - 1];
-  //
+
   this->FirstCurrentNeighboorReferenceEntry += (this->NumberOfCursors - 1);
   if (this->ReferenceEntries.size() == this->FirstCurrentNeighboorReferenceEntry)
   {
     this->ReferenceEntries.resize(
       this->FirstCurrentNeighboorReferenceEntry + (this->NumberOfCursors - 1));
   }
+
   // Point into traversal tables at child location
   int offset = ichild * this->NumberOfCursors;
   const unsigned int* pTab = this->ChildCursorToParentCursorTable + offset;
@@ -325,7 +352,7 @@ void vtkHyperTreeGridNonOrientedSuperCursorLight::ToChild(unsigned char ichild)
       // Make relevant cursor in parent cell point towards current child cursor
       unsigned int j = pTab[i];
 
-      // If neighnoring cell is further subdivided, then descend into it
+      // If neighboring cell is further subdivided, then descend into it
       unsigned int reference = std::numeric_limits<unsigned int>::max();
       if (j == this->IndiceCentralCursor)
       {
@@ -345,9 +372,9 @@ void vtkHyperTreeGridNonOrientedSuperCursorLight::ToChild(unsigned char ichild)
           this->ReferenceEntries[this->FirstCurrentNeighboorReferenceEntry + i] = reference;
         }
         //
-        vtkHyperTreeGridLevelEntry& current = this->Entries[reference];
+        auto& current = this->Entries[reference];
         current.Initialize(this->CentralCursor->GetTree(), this->CentralCursor->GetLevel(),
-          this->CentralCursor->GetVertexId());
+          this->CentralCursor->GetVertexId(), this->CentralCursor->GetOrigin());
         //
         // JB1901 ne pas descendre si masque
         if (!this->IsMasked()) // JB1901 new code
@@ -385,7 +412,7 @@ void vtkHyperTreeGridNonOrientedSuperCursorLight::ToChild(unsigned char ichild)
             this->ReferenceEntries[this->FirstCurrentNeighboorReferenceEntry + i] = reference;
           }
           //
-          vtkHyperTreeGridLevelEntry& current = this->Entries[reference];
+          auto& current = this->Entries[reference];
           current.Copy(&(this->Entries[previous]));
           current.ToChild(this->Grid, cTab[i]);
         }
@@ -417,48 +444,106 @@ void vtkHyperTreeGridNonOrientedSuperCursorLight::ToChild(unsigned char ichild)
 }
 
 //------------------------------------------------------------------------------
-void vtkHyperTreeGridNonOrientedSuperCursorLight::ToRoot()
+void vtkHyperTreeGridNonOrientedUnlimitedSuperCursor::ToRoot()
 {
-  assert("pre: hypertree_exist" && this->Entries.size() > 0);
+  assert("pre: hypertree_exist" && !this->Entries.empty());
   this->CentralCursor->ToRoot();
   this->CurrentFirstNonValidEntryByLevel = 0;
   this->FirstCurrentNeighboorReferenceEntry = 0;
 }
 
 //------------------------------------------------------------------------------
-void vtkHyperTreeGridNonOrientedSuperCursorLight::ToParent()
+void vtkHyperTreeGridNonOrientedUnlimitedSuperCursor::ToParent()
 {
   assert("pre: Non_root" && !this->IsRoot());
+  assert("has: Valid entry" && this->CurrentFirstNonValidEntryByLevel > 0);
   this->CentralCursor->ToParent();
   this->CurrentFirstNonValidEntryByLevel--;
   this->FirstCurrentNeighboorReferenceEntry -= (this->NumberOfCursors - 1);
 }
 
 //------------------------------------------------------------------------------
-void vtkHyperTreeGridNonOrientedSuperCursorLight::PrintSelf(ostream& os, vtkIndent indent)
+void vtkHyperTreeGridNonOrientedUnlimitedSuperCursor::PrintSelf(ostream& os, vtkIndent indent)
 {
-  os << indent << "--vtkHyperTreeGridNonOrientedSuperCursorLight--" << endl;
+  os << indent << "--vtkHyperTreeGridNonOrientedUnlimitedSuperCursor--" << endl;
   this->CentralCursor->PrintSelf(os, indent);
   os << indent << "IndiceCentralCursor: " << this->IndiceCentralCursor << endl;
   os << indent << "NumberOfCursors: " << this->NumberOfCursors << endl;
 }
 
 //------------------------------------------------------------------------------
-vtkHyperTreeGridNonOrientedSuperCursorLight::vtkHyperTreeGridNonOrientedSuperCursorLight()
+vtkHyperTreeGridNonOrientedUnlimitedSuperCursor::vtkHyperTreeGridNonOrientedUnlimitedSuperCursor()
 {
-  this->Grid = nullptr;
-  this->IndiceCentralCursor = 0;
-  this->NumberOfCursors = 0;
-  this->ChildCursorToParentCursorTable = nullptr;
-  this->ChildCursorToChildTable = nullptr;
-  this->CurrentFirstNonValidEntryByLevel = 0;
-  this->FirstCurrentNeighboorReferenceEntry = 0;
-
-  this->CentralCursor = vtkSmartPointer<vtkHyperTreeGridNonOrientedGeometryCursor>::New();
+  this->CentralCursor = vtkSmartPointer<vtkHyperTreeGridNonOrientedUnlimitedGeometryCursor>::New();
 }
 
 //------------------------------------------------------------------------------
-vtkHyperTreeGridNonOrientedSuperCursorLight::~vtkHyperTreeGridNonOrientedSuperCursorLight() =
-  default;
+
+vtkHyperTreeGridNonOrientedUnlimitedSuperCursor::
+  ~vtkHyperTreeGridNonOrientedUnlimitedSuperCursor() = default;
 
 //------------------------------------------------------------------------------
+vtkSmartPointer<vtkHyperTreeGridOrientedGeometryCursor>
+vtkHyperTreeGridNonOrientedUnlimitedSuperCursor::GetOrientedGeometryCursor(unsigned int icursor)
+{
+  if (icursor == this->IndiceCentralCursor)
+  {
+    return this->CentralCursor->GetHyperTreeGridOrientedGeometryCursor(this->Grid);
+  }
+  return this->Entries[this->GetIndiceEntry(icursor)].GetHyperTreeGridOrientedGeometryCursor(
+    this->Grid);
+}
+
+//------------------------------------------------------------------------------
+
+vtkSmartPointer<vtkHyperTreeGridNonOrientedGeometryCursor>
+vtkHyperTreeGridNonOrientedUnlimitedSuperCursor::GetNonOrientedGeometryCursor(unsigned int icursor)
+{
+  if (icursor == this->IndiceCentralCursor)
+  {
+    return this->CentralCursor->GetHyperTreeGridNonOrientedGeometryCursor(this->Grid);
+  }
+  assert(false);
+  // JB ou faire le boulot pour le construire
+  // JB On ne peut pas construire ce cursor car this->Level n'est pas forcement 0
+  // JB oeut etre le fournir telle quelle ? Tant que l'on ne remonte pas au dessus du niveau
+  // d'origine de creation du cursor ? ou alors creer le cursor avec son heritage.. cout plus eleve
+  // ?!?
+  return this->Entries[this->GetIndiceEntry(icursor)].GetHyperTreeGridNonOrientedGeometryCursor(
+    this->Grid);
+}
+
+//------------------------------------------------------------------------------
+
+unsigned int vtkHyperTreeGridNonOrientedUnlimitedSuperCursor::GetIndiceEntry(unsigned int icursor)
+{
+  assert("pre: icursor != IndiceCentralCursor" && icursor != this->IndiceCentralCursor);
+  assert("pre: valid_icursor" && icursor < this->NumberOfCursors);
+
+  const long refId = icursor > this->IndiceCentralCursor
+    ? this->FirstCurrentNeighboorReferenceEntry + icursor - 1
+    : this->FirstCurrentNeighboorReferenceEntry + icursor;
+
+  assert("pre: valid_icursor" && 0 <= refId && refId < long(this->ReferenceEntries.size()));
+  assert("pre: valid_icursor" && this->ReferenceEntries[refId] < this->Entries.size());
+
+  return this->ReferenceEntries[refId];
+}
+
+//------------------------------------------------------------------------------
+
+unsigned int vtkHyperTreeGridNonOrientedUnlimitedSuperCursor::GetIndicePreviousEntry(
+  unsigned int icursor)
+{
+  assert("pre: icursor != IndiceCentralCursor" && icursor != this->IndiceCentralCursor);
+  assert("pre: valid_icursor" && icursor < this->NumberOfCursors);
+
+  const long refId = icursor > this->IndiceCentralCursor
+    ? this->FirstCurrentNeighboorReferenceEntry - (this->NumberOfCursors - 1) + icursor - 1
+    : this->FirstCurrentNeighboorReferenceEntry - (this->NumberOfCursors - 1) + icursor;
+
+  assert("pre: valid_icursor" && 0 <= refId && refId < long(this->ReferenceEntries.size()));
+  assert("pre: valid_icursor" && this->ReferenceEntries[refId] < this->Entries.size());
+
+  return this->ReferenceEntries[refId];
+}

@@ -1,3 +1,8 @@
+// VTK-HeaderTest-Exclude: vtkHyperTreeGridNonOrientedVonNeumannSuperCursorData.h
+// clang-format off
+
+#ifndef vtkHyperTreeGridNonOrientedVonNeumannSuperCursorData_h
+
 //------------------------------------------------------------------------------
 // Super cursor traversal table to retrieve the child index for each cursor
 // of the parent node. There are (2*d+1)*f^d entries in the table.
@@ -163,3 +168,6 @@ static const unsigned int* VonNeumannChildCursorToChildTable[3][2] = {
    VonNeumannChildCursorToChildTable33}
 };
 //------------------------------------------------------------------------------
+
+// clang-format off
+#endif /* end of include guard: vtkHyperTreeGridNonOrientedVonNeumannSuperCursorData_h */

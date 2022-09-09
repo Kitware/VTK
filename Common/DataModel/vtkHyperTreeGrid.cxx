@@ -26,6 +26,8 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkHyperTreeGridNonOrientedGeometryCursor.h"
 #include "vtkHyperTreeGridNonOrientedMooreSuperCursor.h"
 #include "vtkHyperTreeGridNonOrientedMooreSuperCursorLight.h"
+#include "vtkHyperTreeGridNonOrientedUnlimitedGeometryCursor.h"
+#include "vtkHyperTreeGridNonOrientedUnlimitedMooreSuperCursor.h"
 #include "vtkHyperTreeGridNonOrientedVonNeumannSuperCursor.h"
 #include "vtkHyperTreeGridNonOrientedVonNeumannSuperCursorLight.h"
 #include "vtkHyperTreeGridOrientedCursor.h"
@@ -125,12 +127,12 @@ vtkHyperTreeGrid::vtkHyperTreeGrid()
   this->TransposedRootIndexing = false;
 
   // Invalid default grid parameters to force actual initialization
-  this->Orientation = UINT_MAX;
+  this->Orientation = std::numeric_limits<unsigned int>::max();
   this->BranchFactor = 0;
   this->NumberOfChildren = 0;
 
   // Depth limiter
-  this->DepthLimiter = UINT_MAX;
+  this->DepthLimiter = std::numeric_limits<unsigned int>::max();
 
   // Masked primal leaves
   this->Mask = nullptr;
@@ -173,8 +175,8 @@ vtkHyperTreeGrid::vtkHyperTreeGrid()
   this->CellDims[1] = 0;
   this->CellDims[2] = 0;
 
-  this->Axis[0] = UINT_MAX;
-  this->Axis[1] = UINT_MAX;
+  this->Axis[0] = std::numeric_limits<unsigned int>::max();
+  this->Axis[1] = std::numeric_limits<unsigned int>::max();
 
   int extent[6] = { 0, -1, 0, -1, 0, -1 };
   memcpy(this->Extent, extent, 6 * sizeof(int));
@@ -214,12 +216,12 @@ void vtkHyperTreeGrid::Initialize()
   this->TransposedRootIndexing = false;
 
   // Invalid default grid parameters to force actual initialization
-  this->Orientation = UINT_MAX;
+  this->Orientation = std::numeric_limits<unsigned int>::max();
   this->BranchFactor = 0;
   this->NumberOfChildren = 0;
 
   // Depth limiter
-  this->DepthLimiter = UINT_MAX;
+  this->DepthLimiter = std::numeric_limits<unsigned int>::max();
 
   // Masked primal leaves
   this->SetMask(nullptr);
@@ -275,8 +277,8 @@ void vtkHyperTreeGrid::Initialize()
   this->CellDims[1] = 0;
   this->CellDims[2] = 0;
 
-  this->Axis[0] = UINT_MAX;
-  this->Axis[1] = UINT_MAX;
+  this->Axis[0] = std::numeric_limits<unsigned int>::max();
+  this->Axis[1] = std::numeric_limits<unsigned int>::max();
 
   int extent[6] = { 0, -1, 0, -1, 0, -1 };
   memcpy(this->Extent, extent, 6 * sizeof(int));
@@ -627,8 +629,8 @@ void vtkHyperTreeGrid::SetExtent(const int extent[6])
   }
 
   this->Dimension = 0;
-  this->Axis[0] = UINT_MAX;
-  this->Axis[1] = UINT_MAX;
+  this->Axis[0] = std::numeric_limits<unsigned int>::max();
+  this->Axis[1] = std::numeric_limits<unsigned int>::max();
   for (unsigned int i = 0; i < 3; ++i)
   {
     this->Dimensions[i] = static_cast<unsigned int>(extent[2 * i + 1] - extent[2 * i] + 1);
@@ -641,8 +643,8 @@ void vtkHyperTreeGrid::SetExtent(const int extent[6])
       this->CellDims[i] = this->Dimensions[i] - 1;
       if (this->Dimension == 2)
       {
-        this->Axis[0] = UINT_MAX;
-        this->Axis[1] = UINT_MAX;
+        this->Axis[0] = std::numeric_limits<unsigned int>::max();
+        this->Axis[1] = std::numeric_limits<unsigned int>::max();
       }
       else
       {
@@ -653,11 +655,17 @@ void vtkHyperTreeGrid::SetExtent(const int extent[6])
   }
 
   assert("post: valid_axis" &&
-    (this->Dimension != 3 || (this->Axis[0] == UINT_MAX && this->Axis[1] == UINT_MAX)));
+    (this->Dimension != 3 ||
+      (this->Axis[0] == std::numeric_limits<unsigned int>::max() &&
+        this->Axis[1] == std::numeric_limits<unsigned int>::max())));
   assert("post: valid_axis" &&
-    (this->Dimension != 2 || (this->Axis[0] != UINT_MAX && this->Axis[1] != UINT_MAX)));
+    (this->Dimension != 2 ||
+      (this->Axis[0] != std::numeric_limits<unsigned int>::max() &&
+        this->Axis[1] != std::numeric_limits<unsigned int>::max())));
   assert("post: valid_axis" &&
-    (this->Dimension != 1 || (this->Axis[0] != UINT_MAX && this->Axis[1] == UINT_MAX)));
+    (this->Dimension != 1 ||
+      (this->Axis[0] != std::numeric_limits<unsigned int>::max() &&
+        this->Axis[1] == std::numeric_limits<unsigned int>::max())));
 
   switch (this->Dimension)
   {
@@ -898,6 +906,23 @@ vtkHyperTreeGridNonOrientedGeometryCursor* vtkHyperTreeGrid::NewNonOrientedGeome
 }
 
 //------------------------------------------------------------------------------
+void vtkHyperTreeGrid::InitializeNonOrientedUnlimitedGeometryCursor(
+  vtkHyperTreeGridNonOrientedUnlimitedGeometryCursor* cursor, vtkIdType index, bool create)
+{
+  cursor->Initialize(this, index, create);
+}
+
+//------------------------------------------------------------------------------
+vtkHyperTreeGridNonOrientedUnlimitedGeometryCursor*
+vtkHyperTreeGrid::NewNonOrientedUnlimitedGeometryCursor(vtkIdType index, bool create)
+{
+  vtkHyperTreeGridNonOrientedUnlimitedGeometryCursor* cursor =
+    vtkHyperTreeGridNonOrientedUnlimitedGeometryCursor::New();
+  cursor->Initialize(this, index, create);
+  return cursor;
+}
+
+//------------------------------------------------------------------------------
 unsigned int vtkHyperTreeGrid::RecurseDichotomic(
   double value, vtkDoubleArray* coord, double tol, unsigned int iBegin, unsigned int iEnd) const
 {
@@ -923,7 +948,7 @@ unsigned int vtkHyperTreeGrid::FindDichotomic(double value, vtkDataArray* tmp, d
   if (value < (coord->GetValue(0) - tol) ||
     value > (coord->GetValue(coord->GetNumberOfTuples() - 1) + tol))
   {
-    return UINT_MAX;
+    return std::numeric_limits<unsigned int>::max();
   }
   return RecurseDichotomic(value, coord, tol, 0, coord->GetNumberOfTuples());
 }
@@ -950,17 +975,17 @@ vtkHyperTreeGridNonOrientedGeometryCursor* vtkHyperTreeGrid::FindNonOrientedGeom
   double x[3])
 {
   unsigned int i = this->FindDichotomicX(x[0]);
-  if (i == UINT_MAX)
+  if (i == std::numeric_limits<unsigned int>::max())
   {
     return nullptr;
   }
   unsigned int j = this->FindDichotomicY(x[1]);
-  if (j == UINT_MAX)
+  if (j == std::numeric_limits<unsigned int>::max())
   {
     return nullptr;
   }
   unsigned int k = this->FindDichotomicZ(x[2]);
-  if (k == UINT_MAX)
+  if (k == std::numeric_limits<unsigned int>::max())
   {
     return nullptr;
   }
@@ -1080,6 +1105,23 @@ vtkHyperTreeGrid::NewNonOrientedMooreSuperCursorLight(vtkIdType index, bool crea
 {
   vtkHyperTreeGridNonOrientedMooreSuperCursorLight* cursor =
     vtkHyperTreeGridNonOrientedMooreSuperCursorLight::New();
+  cursor->Initialize(this, index, create);
+  return cursor;
+}
+
+//------------------------------------------------------------------------------
+void vtkHyperTreeGrid::InitializeNonOrientedUnlimitedMooreSuperCursor(
+  vtkHyperTreeGridNonOrientedUnlimitedMooreSuperCursor* cursor, vtkIdType index, bool create)
+{
+  cursor->Initialize(this, index, create);
+}
+
+//------------------------------------------------------------------------------
+vtkHyperTreeGridNonOrientedUnlimitedMooreSuperCursor*
+vtkHyperTreeGrid::NewNonOrientedUnlimitedMooreSuperCursor(vtkIdType index, bool create)
+{
+  vtkHyperTreeGridNonOrientedUnlimitedMooreSuperCursor* cursor =
+    vtkHyperTreeGridNonOrientedUnlimitedMooreSuperCursor::New();
   cursor->Initialize(this, index, create);
   return cursor;
 }

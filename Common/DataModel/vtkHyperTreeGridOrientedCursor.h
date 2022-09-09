@@ -23,6 +23,9 @@
  * This is an abstract class.
  * Cursors are created by the HyperTreeGrid implementation.
  *
+ * oriented cursors are used for simple recursive DFS. A cursor has no
+ * knowledge of its parent, only its children.
+ *
  * @sa
  * vtkHyperTreeCursor vtkHyperTree vtkHyperTreeGrid
  *

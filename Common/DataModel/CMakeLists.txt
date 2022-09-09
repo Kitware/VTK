@@ -103,10 +103,13 @@ set(classes
   vtkHyperTreeGridGeometricLocator
   vtkHyperTreeGridNonOrientedCursor
   vtkHyperTreeGridNonOrientedGeometryCursor
+  vtkHyperTreeGridNonOrientedUnlimitedGeometryCursor
   vtkHyperTreeGridNonOrientedMooreSuperCursor
   vtkHyperTreeGridNonOrientedMooreSuperCursorLight
+  vtkHyperTreeGridNonOrientedUnlimitedMooreSuperCursor
   vtkHyperTreeGridNonOrientedSuperCursor
   vtkHyperTreeGridNonOrientedSuperCursorLight
+  vtkHyperTreeGridNonOrientedUnlimitedSuperCursor
   vtkHyperTreeGridNonOrientedVonNeumannSuperCursor
   vtkHyperTreeGridNonOrientedVonNeumannSuperCursorLight
   vtkHyperTreeGridOrientedCursor
@@ -260,7 +263,9 @@ set(template_classes
 set(nowrap_classes
   vtkHyperTreeGridEntry
   vtkHyperTreeGridGeometryEntry
+  vtkHyperTreeGridGeometryUnlimitedEntry
   vtkHyperTreeGridGeometryLevelEntry
+  vtkHyperTreeGridGeometryUnlimitedLevelEntry
   vtkHyperTreeGridLevelEntry)
 
 set(headers

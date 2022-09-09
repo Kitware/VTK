@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkHyperTreeGridGeometryEntry.h
+  Module:    vtkHyperTreeGridGeometryUnlimitedEntry.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -13,16 +13,16 @@
 
 =========================================================================*/
 /**
- * @class   vtkHyperTreeGridGeometryEntry
+ * @class   vtkHyperTreeGridGeometryUnlimitedEntry
 JB
- * @brief   GeometryEntry is a cache data for cursors requiring coordinates
+ * @brief   GeometryUnlimitedEntry is a cache data for cursors requiring coordinates
  *
  * cf. vtkHyperTreeGridEntry
  *
  * @sa
  * vtkHyperTreeGridEntry
  * vtkHyperTreeGridLevelEntry
- * vtkHyperTreeGridGeometryEntry
+ * vtkHyperTreeGridGeometryUnlimitedEntry
  * vtkHyperTreeGridGeometryLevelEntry
  * vtkHyperTreeGridNonOrientedGeometryCursor
  * vtkHyperTreeGridNonOrientedSuperCursor
@@ -35,15 +35,15 @@ JB
  * CEA, DAM, DIF, F-91297 Arpajon, France.
  */
 
-#ifndef vtkHyperTreeGridGeometryEntry_h
-#define vtkHyperTreeGridGeometryEntry_h
+#ifndef vtkHyperTreeGridGeometryUnlimitedEntry_h
+#define vtkHyperTreeGridGeometryUnlimitedEntry_h
 
 #include "vtkObject.h"
 
 class vtkHyperTree;
 class vtkHyperTreeGrid;
 
-class vtkHyperTreeGridGeometryEntry
+class vtkHyperTreeGridGeometryUnlimitedEntry
 {
 public:
   /**
@@ -54,24 +54,18 @@ public:
   /**
    * Constructor
    */
-  vtkHyperTreeGridGeometryEntry();
+  vtkHyperTreeGridGeometryUnlimitedEntry();
 
   /**
    * Constructor
+   * assume construction from a real level
    */
-  vtkHyperTreeGridGeometryEntry(vtkIdType index, const double* origin)
-  {
-    this->Index = index;
-    for (unsigned int d = 0; d < 3; ++d)
-    {
-      this->Origin[d] = origin[d];
-    }
-  }
+  vtkHyperTreeGridGeometryUnlimitedEntry(vtkIdType index, const double* origin);
 
   /**
    * Destructor
    */
-  ~vtkHyperTreeGridGeometryEntry() = default;
+  ~vtkHyperTreeGridGeometryUnlimitedEntry() = default;
 
   /**
    * Dump information
@@ -86,9 +80,10 @@ public:
   /**
    * Initialize cursor from explicit required data
    */
-  void Initialize(vtkIdType index, const double* origin)
+  void Initialize(vtkIdType index, vtkIdType lastIndex, const double* origin)
   {
     this->Index = index;
+    this->LastRealIndex = lastIndex;
     for (unsigned int d = 0; d < 3; ++d)
     {
       this->Origin[d] = origin[d];
@@ -98,19 +93,15 @@ public:
   /**
    * Copy function
    */
-  void Copy(const vtkHyperTreeGridGeometryEntry* entry)
+  void Copy(const vtkHyperTreeGridGeometryUnlimitedEntry* entry)
   {
-    this->Index = entry->Index;
-    for (unsigned int d = 0; d < 3; ++d)
-    {
-      this->Origin[d] = entry->Origin[d];
-    }
+    this->Initialize(entry->Index, entry->LastRealIndex, entry->Origin);
   }
 
   /**
    * Return the index of the current vertex in the tree.
    */
-  vtkIdType GetVertexId() const { return this->Index; }
+  vtkIdType GetVertexId() const { return this->LastRealIndex; }
 
   /**
    * Return the global index (relative to the grid) of the
@@ -145,19 +136,26 @@ public:
 
   /**
    * Is the cursor pointing to a leaf?
+   * Unlimited cursors allow to go deeper than a real leaf.
    * \pre not_tree: tree
    * Return true if level == grid->GetDepthLimiter()
    */
   bool IsLeaf(const vtkHyperTreeGrid* grid, const vtkHyperTree* tree, unsigned int level) const;
 
   /**
-   * Change the current cell's status: if leaf then becomes coarse and
-   * all its children are created, cf. HyperTree.
+   * Is the cursor pointing to a real leaf of the underlying tree ?
    * \pre not_tree: tree
-   * \pre depth_limiter: level == grid->GetDepthLimiter()
-   * \pre is_masked: IsMasked
+   * \pre not_virtual
+   * Return true if the cursor is exactly on a leaf (not above nor below)
    */
-  void SubdivideLeaf(const vtkHyperTreeGrid* grid, vtkHyperTree* tree, unsigned int level);
+  bool IsRealLeaf(const vtkHyperTree* tree) const;
+
+  /**
+   * Is the cursor pointing below a real leaf of the underlying tree ?
+   * \pre not_tree: tree
+   * Return true if the cursor is pointing on a virtual cell, below a real leaf
+   */
+  bool IsVirtualLeaf(const vtkHyperTree* tree) const;
 
   /**
    * Is the cursor pointing to a coarse with all childrens leaves ?
@@ -217,7 +215,12 @@ private:
   /**
    * index of the current cell in the HyperTree.
    */
-  vtkIdType Index;
+  vtkIdType Index = 0;
+
+  /**
+   * index of the last valid cell in the HyperTree.
+   */
+  vtkIdType LastRealIndex = 0;
 
   /**
    * origin coordinates of the current cell
@@ -225,5 +228,5 @@ private:
   double Origin[3];
 };
 
-#endif // vtkHyperTreeGridGeometryEntry_h
-// VTK-HeaderTest-Exclude: vtkHyperTreeGridGeometryEntry.h
+#endif // vtkHyperTreeGridGeometryUnlimitedEntry_h
+// VTK-HeaderTest-Exclude: vtkHyperTreeGridGeometryUnlimitedEntry.h

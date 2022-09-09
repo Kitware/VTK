@@ -26,9 +26,10 @@ PURPOSE.  See the above copyright Nonice for more information.
 #include "vtkHyperTreeGridTools.h"
 
 #include <cassert>
-#include <climits>
+#include <limits>
 #include <ostream>
 #include <vector>
+
 //------------------------------------------------------------------------------
 vtkHyperTreeGridNonOrientedSuperCursor* vtkHyperTreeGridNonOrientedSuperCursor::Clone()
 {
@@ -164,7 +165,7 @@ vtkHyperTree* vtkHyperTreeGridNonOrientedSuperCursor::GetInformation(
   }
   else
   {
-    level = UINT_MAX;
+    level = std::numeric_limits<unsigned int>::max();
   }
   return tree;
 }
@@ -353,7 +354,7 @@ void vtkHyperTreeGridNonOrientedSuperCursor::ToChild(unsigned char ichild)
       unsigned int j = pTab[i];
 
       // If neighnoring cell is further subdivided, then descend into it
-      unsigned int reference = UINT_MAX;
+      unsigned int reference = std::numeric_limits<unsigned int>::max();
       if (j == this->IndiceCentralCursor)
       {
         reference = this->FirstNonValidEntryByLevel[this->CurrentFirstNonValidEntryByLevel];
@@ -446,7 +447,7 @@ void vtkHyperTreeGridNonOrientedSuperCursor::ToChild(unsigned char ichild)
 //------------------------------------------------------------------------------
 void vtkHyperTreeGridNonOrientedSuperCursor::ToRoot()
 {
-  assert("pre: hypertree_exist" && this->Entries.size() > 0);
+  assert("pre: hypertree_exist" && !this->Entries.empty());
   this->CentralCursor->ToRoot();
   this->CurrentFirstNonValidEntryByLevel = 0;
   this->FirstCurrentNeighboorReferenceEntry = 0;
@@ -525,26 +526,15 @@ unsigned int vtkHyperTreeGridNonOrientedSuperCursor::GetIndiceEntry(unsigned int
 {
   assert("pre: icursor != IndiceCentralCursor" && icursor != this->IndiceCentralCursor);
   assert("pre: valid_icursor" && icursor < this->NumberOfCursors);
-  if (icursor > this->IndiceCentralCursor)
-  {
-    assert("pre: valid_icursor" &&
-      0 <= long(this->FirstCurrentNeighboorReferenceEntry + icursor) - 1 &&
-      long(this->FirstCurrentNeighboorReferenceEntry + icursor) - 1 <
-        long(this->ReferenceEntries.size()));
-    assert("pre: valid_icursor" &&
-      this->ReferenceEntries[this->FirstCurrentNeighboorReferenceEntry + icursor - 1] <
-        this->Entries.size());
-    return this->ReferenceEntries[this->FirstCurrentNeighboorReferenceEntry + icursor - 1];
-  }
-  else
-  {
-    assert("pre: valid_icursor" &&
-      this->FirstCurrentNeighboorReferenceEntry + icursor < this->ReferenceEntries.size());
-    assert("pre: valid_icursor" &&
-      this->ReferenceEntries[this->FirstCurrentNeighboorReferenceEntry + icursor] <
-        this->Entries.size());
-    return this->ReferenceEntries[this->FirstCurrentNeighboorReferenceEntry + icursor];
-  }
+
+  const long refId = icursor > this->IndiceCentralCursor
+    ? this->FirstCurrentNeighboorReferenceEntry + icursor - 1
+    : this->FirstCurrentNeighboorReferenceEntry + icursor;
+
+  assert("pre: valid_icursor" && 0 <= refId && refId < long(this->ReferenceEntries.size()));
+  assert("pre: valid_icursor" && this->ReferenceEntries[refId] < this->Entries.size());
+
+  return this->ReferenceEntries[refId];
 }
 
 //------------------------------------------------------------------------------
@@ -553,28 +543,13 @@ unsigned int vtkHyperTreeGridNonOrientedSuperCursor::GetIndicePreviousEntry(unsi
 {
   assert("pre: icursor != IndiceCentralCursor" && icursor != IndiceCentralCursor);
   assert("pre: valid_icursor" && icursor < this->NumberOfCursors);
-  if (icursor > this->IndiceCentralCursor)
-  {
-    assert("pre: valid_icursor" &&
-      0 <= long(this->FirstCurrentNeighboorReferenceEntry - (this->NumberOfCursors - 1) + icursor) -
-          1 &&
-      long(this->FirstCurrentNeighboorReferenceEntry - (this->NumberOfCursors - 1) + icursor) - 1 <
-        long(this->ReferenceEntries.size()));
-    assert("pre: valid_icursor" &&
-      this->ReferenceEntries[this->FirstCurrentNeighboorReferenceEntry -
-        (this->NumberOfCursors - 1) + icursor - 1] < this->Entries.size());
-    return this->ReferenceEntries[this->FirstCurrentNeighboorReferenceEntry -
-      (this->NumberOfCursors - 1) + icursor - 1];
-  }
-  else
-  {
-    assert("pre: valid_icursor" &&
-      this->FirstCurrentNeighboorReferenceEntry - (this->NumberOfCursors - 1) + icursor <
-        this->ReferenceEntries.size());
-    assert("pre: valid_icursor" &&
-      this->ReferenceEntries[this->FirstCurrentNeighboorReferenceEntry -
-        (this->NumberOfCursors - 1) + icursor] < this->Entries.size());
-    return this->ReferenceEntries[this->FirstCurrentNeighboorReferenceEntry -
-      (this->NumberOfCursors - 1) + icursor];
-  }
+
+  const long refId = icursor > this->IndiceCentralCursor
+    ? this->FirstCurrentNeighboorReferenceEntry - (this->NumberOfCursors - 1) + icursor - 1
+    : this->FirstCurrentNeighboorReferenceEntry - (this->NumberOfCursors - 1) + icursor;
+
+  assert("pre: valid_icursor" && 0 <= refId && refId < long(this->ReferenceEntries.size()));
+  assert("pre: valid_icursor" && this->ReferenceEntries[refId] < this->Entries.size());
+
+  return this->ReferenceEntries[refId];
 }

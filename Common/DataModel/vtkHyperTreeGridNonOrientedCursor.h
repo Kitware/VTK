@@ -23,6 +23,9 @@
  * This is an abstract class.
  * Cursors are created by the HyperTreeGrid implementation.
  *
+ * Non-oriented cursors have the ability to come back to their parents
+ * and to go to the root.
+ *
  * @sa
  * vtkHyperTreeCursor vtkHyperTree vtkHyperTreeGrid
  *
