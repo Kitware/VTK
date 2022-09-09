@@ -971,7 +971,8 @@ int vtkVoronoi2D::RequestData(vtkInformation* vtkNotUsed(request),
 
   // If requested, generate in the second output a representation of the
   // Voronoi flower error metric for the PointOfInterest.
-  if (this->GenerateVoronoiFlower && this->PointOfInterest >= 0 && this->PointOfInterest < numPts)
+  if (!this->CheckAbort() && this->GenerateVoronoiFlower && this->PointOfInterest >= 0 &&
+    this->PointOfInterest < numPts)
   {
     // Get the second and third outputs
     vtkInformation* outInfo2 = outputVector->GetInformationObject(1);

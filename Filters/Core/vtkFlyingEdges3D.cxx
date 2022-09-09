@@ -343,7 +343,7 @@ public:
         {
           this->Filter->CheckAbort();
         }
-        if (this->Filter->GetAbortOutput)
+        if (this->Filter->GetAbortOutput())
         {
           break;
         }
@@ -376,7 +376,7 @@ public:
         {
           this->Filter->CheckAbort();
         }
-        if (this->Filter->GetAbortOutput)
+        if (this->Filter->GetAbortOutput())
         {
           break;
         }
@@ -413,7 +413,7 @@ public:
         {
           this->Filter->CheckAbort();
         }
-        if (this->Filter->GetAbortOutput)
+        if (this->Filter->GetAbortOutput())
         {
           break;
         }

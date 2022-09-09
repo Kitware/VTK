@@ -242,7 +242,7 @@ int vtkClipPolyData::RequestData(vtkInformation* vtkNotUsed(request),
   cellScalars->Allocate(VTK_CELL_SIZE);
 
   // perform clipping on cells
-  int abort = 0;
+  bool abort = false;
   updateTime = numCells / 20 + 1; // update roughly every 5%
   cell = vtkGenericCell::New();
   for (cellId = 0; cellId < numCells && !abort; cellId++)

@@ -49,7 +49,7 @@ int vtkMaskPolyData::RequestData(vtkInformation* vtkNotUsed(request),
   vtkIdType numCells;
   const vtkIdType* pts = nullptr;
   vtkIdType npts = 0;
-  bool abortExecute = 0;
+  bool abortExecute = false;
 
   // Check input / pass data through
   //

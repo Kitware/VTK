@@ -89,6 +89,7 @@ vtkQuadricClustering::vtkQuadricClustering()
   this->FeatureEdges = vtkFeatureEdges::New();
   this->FeatureEdges->FeatureEdgesOff();
   this->FeatureEdges->BoundaryEdgesOn();
+  this->FeatureEdges->SetContainerAlgorithm(this);
   this->FeaturePoints = vtkPoints::New();
 
   this->InCellCount = this->OutCellCount = 0;

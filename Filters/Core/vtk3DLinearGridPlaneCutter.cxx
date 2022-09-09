@@ -602,7 +602,7 @@ struct ProduceMergedTriangles
 
   void Initialize()
   {
-    ; // without this method Reduce() is not called
+    // without this method Reduce() is not called
   }
 
   struct Impl
