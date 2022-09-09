@@ -20,12 +20,15 @@
 #include "vtkActor.h"
 #include "vtkCamera.h"
 #include "vtkDataSetSurfaceFilter.h"
+#include "vtkLogger.h"
 #include "vtkNew.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkRegressionTestImage.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
+#include "vtkTestUtilities.h"
+#include "vtkUnstructuredGrid.h"
 #include "vtkXMLUnstructuredGridReader.h"
 
 #include <string>
@@ -70,8 +73,32 @@ static const char* testXML2 = R"==(<?xml version="1.0"?>
 </VTKFile>
 )==";
 
+namespace
+{
+bool TestTimeSeries(int argc, char* argv[])
+{
+  const char* name = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/time_series.vtu");
+  vtkNew<vtkXMLUnstructuredGridReader> reader;
+  reader->SetFileName(name);
+  reader->SetTimeStep(0);
+  reader->Update();
+  vtkIdType numberOfCells = reader->GetOutput(0)->GetNumberOfCells();
+  reader->SetTimeStep(1);
+  reader->Update();
+
+  // There should be the same geometry between the 2 time steps
+  return numberOfCells == reader->GetOutput(0)->GetNumberOfCells();
+}
+}
+
 int TestXMLUnstructuredGridReader(int argc, char* argv[])
 {
+  if (!TestTimeSeries(argc, argv))
+  {
+    vtkLog(ERROR, "Failed to read a time series embedded inside a `.vtu`");
+    return EXIT_FAILURE;
+  }
+
   int i;
   // Need to get the data root.
   const char* data_root = nullptr;

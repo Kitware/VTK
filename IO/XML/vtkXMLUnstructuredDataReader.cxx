@@ -75,6 +75,10 @@ vtkXMLUnstructuredDataReader::vtkXMLUnstructuredDataReader()
   this->TotalNumberOfCells = 0;
 
   this->PointsTimeStep = -1; // invalid state
+  this->CellArrayTimeStepRead = -1;
+  this->CanReadCellArray = true;
+  this->CellArrayCachedFileName = nullptr;
+  this->CellArrayCachedInputString = nullptr;
   this->PointsOffset = static_cast<unsigned long>(-1);
 }
 
@@ -616,7 +620,42 @@ struct ConstructCellArray
 int vtkXMLUnstructuredDataReader::ReadCellArray(vtkIdType numberOfCells,
   vtkIdType vtkNotUsed(totalNumberOfCells), vtkXMLDataElement* eCells, vtkCellArray* outCells)
 {
-  if (numberOfCells <= 0)
+  // This part is here to determine if we need to read the cell array.
+  // If the cell array was already generated in a previous time step, there's no need recreating it.
+  // However, withing a same time step, multiple pieces can be present. We need to read them all.
+  // The logic works as follows:
+  // * If there's no output geometry yet, it means we need to create it. We save the current time
+  //   step to know in which time step the cell array is being read.
+  // * If there's already geometry, we either are in a new time step and nothing needs to be done,
+  //   or we're still in the time step used to create the geometry in a new piece and we need to
+  //   read it.
+  // We quit the "create geometry mode" if the cell array time step becomes different than the
+  // current time step.
+  if ((this->ReadFromInputString &&
+        this->CellArrayCachedInputString != this->InputString.c_str()) ||
+    (!this->ReadFromInputString && this->CellArrayCachedFileName != this->FileName))
+  {
+    // We wipe the geometry if a new file or new input string is to be read.
+    outCells->Initialize();
+    if (this->ReadFromInputString)
+    {
+      this->CellArrayCachedInputString = this->InputString.c_str();
+    }
+    else
+    {
+      this->CellArrayCachedFileName = this->FileName;
+    }
+  }
+  if (outCells->GetNumberOfCells() == 0)
+  {
+    this->CellArrayTimeStepRead = this->CurrentTimeStep;
+    this->CanReadCellArray = true;
+  }
+  if (this->CellArrayTimeStepRead != this->CurrentTimeStep)
+  {
+    this->CanReadCellArray = false;
+  }
+  if (!this->CanReadCellArray || numberOfCells <= 0)
   {
     return 1;
   }
