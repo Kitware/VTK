@@ -4420,8 +4420,16 @@ static void handle_attribute(const char* att, int pack)
         }
         if (i == currentFunction->NumberOfParameters)
         {
-          print_parser_error("unrecognized parameter name", args, l);
-          exit(1);
+          /* underscore by itself signifies the return value */
+          if (l == 1 && args[0] == '_')
+          {
+            arg = currentFunction->ReturnValue;
+          }
+          else
+          {
+            print_parser_error("unrecognized parameter name", args, l);
+            exit(1);
+          }
         }
         /* advance args to second attribute arg */
         args += n;

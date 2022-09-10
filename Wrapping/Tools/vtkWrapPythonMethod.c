@@ -111,7 +111,8 @@ void vtkWrapPython_DeclareVariables(FILE* fp, ClassInfo* data, FunctionInfo* the
           fprintf(fp, "  char *save%d = temp%d + size%d + 1;\n", i, i, i);
         }
       }
-      else if (arg->CountHint || vtkWrap_IsPODPointer(arg))
+      else if (arg->CountHint || vtkWrap_IsPODPointer(arg) ||
+        (vtkWrap_IsRef(arg) && !vtkWrap_IsArrayRef(arg)))
       {
         /* prepare for "T *" arg, where T is a plain type */
         fprintf(fp,
@@ -163,6 +164,10 @@ void vtkWrapPython_DeclareVariables(FILE* fp, ClassInfo* data, FunctionInfo* the
         {
           /* for saving a copy of the array */
           vtkWrap_DeclareVariable(fp, data, arg, "save", i, VTK_WRAP_ARG);
+        }
+        else if (vtkWrap_IsConst(arg) && vtkWrap_IsRef(arg))
+        {
+          fprintf(fp, "  const %s *temp%dc = temp%d;\n", vtkWrap_GetTypeName(arg), i, i);
         }
       }
     }
@@ -468,6 +473,15 @@ static void vtkWrapPython_SubstituteCode(
           {
             fprintf(fp, "temp%d", j);
           }
+        }
+      }
+
+      if (!matched) /* check for "_", which signifies the return value */
+      {
+        if (t.len == 1 && t.text[0] == '_')
+        {
+          fprintf(fp, "tempr");
+          matched = 1;
         }
       }
 
@@ -914,7 +928,8 @@ static void vtkWrapPython_GenerateMethodCall(
         fprintf(fp, "*temp%i", i);
       }
       else if (vtkWrap_IsConst(arg) && vtkWrap_IsRef(arg) &&
-        (arg->CountHint || vtkWrap_IsPODPointer(arg)))
+        (arg->CountHint || vtkWrap_IsPODPointer(arg) ||
+          (vtkWrap_IsArray(arg) && !vtkWrap_IsArrayRef(arg))))
       {
         fprintf(fp, "temp%ic", i);
       }
@@ -1000,8 +1015,9 @@ static void vtkWrapPython_WriteBackToArgs(FILE* fp, ClassInfo* data, FunctionInf
       n = 1;
     }
 
-    if (vtkWrap_IsNonConstRef(arg) && !vtkWrap_IsStdVector(arg) && !vtkWrap_IsObject(arg) &&
-      !vtkWrap_IsArrayRef(arg))
+    if (!vtkWrap_IsStdVector(arg) && !vtkWrap_IsObject(arg) && !vtkWrap_IsArrayRef(arg) &&
+      (vtkWrap_IsNonConstRef(arg) ||
+        (vtkWrap_IsRef(arg) && (vtkWrap_IsArray(arg) || vtkWrap_IsPODPointer(arg)))))
     {
       fprintf(fp,
         "    if (!ap.ErrorOccurred())\n"
@@ -1013,6 +1029,10 @@ static void vtkWrapPython_WriteBackToArgs(FILE* fp, ClassInfo* data, FunctionInf
         if (arg->CountHint)
         {
           vtkWrapPython_SubstituteCode(fp, data, currentFunction, arg->CountHint);
+        }
+        else if (arg->Count > 0)
+        {
+          fprintf(fp, "%d", arg->Count);
         }
         else
         {
