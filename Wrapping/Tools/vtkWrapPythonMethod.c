@@ -1000,9 +1000,8 @@ static void vtkWrapPython_WriteBackToArgs(FILE* fp, ClassInfo* data, FunctionInf
       n = 1;
     }
 
-    /* the "arg->Count == 0" keeps this "if" from capturing "T (&a)[N]" */
     if (vtkWrap_IsNonConstRef(arg) && !vtkWrap_IsStdVector(arg) && !vtkWrap_IsObject(arg) &&
-      arg->Count == 0)
+      !vtkWrap_IsArrayRef(arg))
     {
       fprintf(fp,
         "    if (!ap.ErrorOccurred())\n"

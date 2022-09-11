@@ -81,6 +81,11 @@ int vtkWrap_IsZeroCopyPointer(ValueInfo* val)
   return (vtkWrap_IsPointer(val) && (val->Attributes & VTK_PARSE_ZEROCOPY) != 0);
 }
 
+int vtkWrap_IsArrayRef(ValueInfo* val)
+{
+  return (vtkWrap_IsRef(val) && val->NumberOfDimensions > 0);
+}
+
 int vtkWrap_IsStdVector(ValueInfo* val)
 {
   return ((val->Type & VTK_PARSE_BASE_TYPE) == VTK_PARSE_UNKNOWN && val->Class &&
