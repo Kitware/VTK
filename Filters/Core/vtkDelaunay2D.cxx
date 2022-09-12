@@ -33,8 +33,8 @@
 #include <vector>
 
 vtkStandardNewMacro(vtkDelaunay2D);
-vtkCxxSetObjectMacro(vtkDelaunay2D, Transform, vtkAbstractTransform);
 
+//------------------------------------------------------------------------------
 // Construct object with Alpha = 0.0; Tolerance = 0.00001; Offset = 1.25;
 // BoundingTriangulation turned off.
 vtkDelaunay2D::vtkDelaunay2D()
@@ -43,19 +43,12 @@ vtkDelaunay2D::vtkDelaunay2D()
   this->Tolerance = 0.00001;
   this->BoundingTriangulation = 0;
   this->Offset = 1.0;
+  this->RandomPointInsertion = 0;
   this->Transform = nullptr;
   this->ProjectionPlaneMode = VTK_DELAUNAY_XY_PLANE;
 
   // optional 2nd input
   this->SetNumberOfInputPorts(2);
-}
-
-vtkDelaunay2D::~vtkDelaunay2D()
-{
-  if (this->Transform)
-  {
-    this->Transform->UnRegister(this);
-  }
 }
 
 //------------------------------------------------------------------------------
@@ -71,6 +64,7 @@ void vtkDelaunay2D::SetSourceConnection(vtkAlgorithmOutput* algOutput)
   this->Superclass::SetInputConnection(1, algOutput);
 }
 
+//------------------------------------------------------------------------------
 vtkPolyData* vtkDelaunay2D::GetSource()
 {
   if (this->GetNumberOfInputConnections(1) < 1)
@@ -80,6 +74,7 @@ vtkPolyData* vtkDelaunay2D::GetSource()
   return vtkPolyData::SafeDownCast(this->GetExecutive()->GetInputData(1, 0));
 }
 
+//------------------------------------------------------------------------------
 // Determine whether point x is inside of circumcircle of triangle
 // defined by points (x1, x2, x3). Returns non-zero if inside circle.
 // (Note that z-component is ignored.)
@@ -88,6 +83,13 @@ int vtkDelaunay2D::InCircle(double x[3], double x1[3], double x2[3], double x3[3
   double radius2, center[2], dist2;
 
   radius2 = vtkTriangle::Circumcircle(x1, x2, x3, center);
+
+  // Use sanity check to determine in/out. This is needed in situations where
+  // the circumcircle becomes very large due to near-degenerate cases.
+  if (radius2 > this->BoundingRadius2)
+  {
+    return 1;
+  }
 
   // check if inside/outside circumcircle
   dist2 = (x[0] - center[0]) * (x[0] - center[0]) + (x[1] - center[1]) * (x[1] - center[1]);
@@ -104,6 +106,7 @@ int vtkDelaunay2D::InCircle(double x[3], double x1[3], double x2[3], double x3[3
 
 #define VTK_DEL2D_TOLERANCE 1.0e-014
 
+//------------------------------------------------------------------------------
 // Recursive method to locate triangle containing point. Starts with arbitrary
 // triangle (tri) and "walks" towards it. Influenced by some of Guibas and
 // Stolfi's work. Returns id of enclosing triangle, or -1 if no triangle
@@ -127,8 +130,8 @@ vtkIdType vtkDelaunay2D::FindTriangle(double x[3], vtkIdType ptIds[3], vtkIdType
     this->GetPoint(ptIds[i], p[i]);
   }
 
-  // Randomization (of find edge neighbora) avoids walking in
-  // circles in certain weird cases
+  // Randomization (of find edge neighbors) helps avoid walking in
+  // circles in certain weird cases.
   srand(tri);
   ir = rand() % 3;
   // evaluate in/out of each edge
@@ -186,7 +189,7 @@ vtkIdType vtkDelaunay2D::FindTriangle(double x[3], vtkIdType ptIds[3], vtkIdType
     return tri;
   }
 
-  else // walk towards point
+  else // walk towards the point
   {
     this->Mesh->GetCellEdgeNeighbors(tri, nei[1], nei[2], neighbors);
     if ((neighbors->GetNumberOfIds() == 0) || ((newNei = neighbors->GetId(0)) == nei[0]))
@@ -204,26 +207,37 @@ vtkIdType vtkDelaunay2D::FindTriangle(double x[3], vtkIdType ptIds[3], vtkIdType
 
 #undef VTK_DEL2D_TOLERANCE
 
+// This constant is used to limit recursion so as to avoid segfaults.
+// Recursion occurs because this algorithm suffers numerical issues in
+// certain (mostly degenerate) cases.
+#define MAX_RECURSION_DEPTH 2500
+//------------------------------------------------------------------------------
 // Recursive method checks whether edge is Delaunay, and if not, swaps edge.
 // Continues until all edges are Delaunay. Points p1 and p2 form the edge in
 // question; x is the coordinates of the inserted point; tri is the current
-// triangle id.
-bool vtkDelaunay2D::CheckEdge(
-  vtkIdType ptId, double x[3], vtkIdType p1, vtkIdType p2, vtkIdType tri, bool recursive)
+// triangle id. Note that the instance variable "RecursionDepth" is used to avoid
+// segfaults by excessive recursion.
+bool vtkDelaunay2D::CheckEdge(vtkIdType ptId, double x[3], vtkIdType p1, vtkIdType p2,
+  vtkIdType tri, bool recursive, unsigned int depth)
 {
+  bool flipped = false;
+  if (depth >= MAX_RECURSION_DEPTH)
+  {
+    vtkWarningMacro(<< "Exceeded recursion depth");
+    return flipped;
+  }
+
   int i;
   const vtkIdType* pts;
   vtkIdType npts;
   vtkIdType numNei, nei, p3;
   double x1[3], x2[3], x3[3];
-  vtkIdList* neighbors;
   vtkIdType swapTri[3];
-  bool flipped = false;
 
   this->GetPoint(p1, x1);
   this->GetPoint(p2, x2);
 
-  neighbors = vtkIdList::New();
+  vtkNew<vtkIdList> neighbors;
   neighbors->Allocate(2);
 
   this->Mesh->GetCellEdgeNeighbors(tri, p1, p2, neighbors);
@@ -270,16 +284,52 @@ bool vtkDelaunay2D::CheckEdge(
       if (recursive)
       {
         // two new edges become suspect
-        this->CheckEdge(ptId, x, p3, p2, tri, true);
-        this->CheckEdge(ptId, x, p1, p3, nei, true);
+        this->CheckEdge(ptId, x, p3, p2, tri, true, ++depth);
+        this->CheckEdge(ptId, x, p1, p3, nei, true, ++depth);
       }
     } // in circle
   }   // interior edge
 
-  neighbors->Delete();
   return flipped;
 }
+#undef MAX_RECURSION_DEPTH
 
+namespace // anonymous
+{
+// To provide a low-cost, simple, pseudo-random traversal of points, we use
+// a GCD (greatest common divisor) traversal with ptId = a*idx + b, where
+// idx is the index into the points list; a is a coprime factor of npts;
+// and b is an initial offset. For further explanation see:
+// https://lemire.me/blog/2017/09/18/visiting-all-values-in-an-array-exactly-once-in-random-order.
+struct GCDTraversal
+{
+  vtkIdType NPts;
+  vtkIdType Prime;
+  vtkIdType Offset;
+
+  // Simple recursive evaluation returns GCD of two positive integers.
+  vtkIdType GCD(vtkIdType m, vtkIdType n) { return (n ? GCD(n, m % n) : m); }
+  // Given the number of points to iterate over, determine one coprime factor
+  // a and the offset b. Note that a coprime is guaranteed between [n/2,n) which
+  // means the while loop will terminate.
+  GCDTraversal(vtkIdType npts)
+    : NPts(npts)
+  {
+    this->Offset = npts / 2; // over the halfway mark, arbitrary
+    this->Prime = this->Offset + 1;
+    while (GCD(this->Prime, this->NPts) != 1)
+    {
+      this->Prime++;
+    }
+  }
+  // Can be optimized to avoid the modulo %, but coded for simplicity
+  // since the cost of this operation is miniscule compared to everything
+  // else that is going on.
+  vtkIdType GetPointId(vtkIdType idx) { return ((this->Prime * idx + this->Offset) % this->NPts); }
+};
+} // anonymous namespace
+
+//------------------------------------------------------------------------------
 // 2D Delaunay triangulation. Steps are as follows:
 //   1. For each point
 //   2. Find triangle point is in
@@ -311,9 +361,7 @@ int vtkDelaunay2D::RequestData(vtkInformation* vtkNotUsed(request),
   vtkIdType p2 = 0;
   vtkIdType p3 = 0;
   vtkPoints* inPoints;
-  vtkPoints* points;
-  vtkPoints* tPoints = nullptr;
-  vtkCellArray* triangles;
+  vtkSmartPointer<vtkPoints> tPoints;
   int ncells;
   vtkIdType nodes[4][3];
   const vtkIdType* neiPts;
@@ -321,7 +369,6 @@ int vtkDelaunay2D::RequestData(vtkInformation* vtkNotUsed(request),
   vtkIdType numNeiPts;
   vtkIdType npts = 0;
   vtkIdType pts[3], swapPts[3];
-  vtkIdList *neighbors, *cells;
   vtkIdType tri1, tri2;
   double center[3], radius, tol, x[3];
   double n1[3], n2[3];
@@ -355,15 +402,15 @@ int vtkDelaunay2D::RequestData(vtkInformation* vtkNotUsed(request),
     return 1;
   }
 
-  neighbors = vtkIdList::New();
+  vtkNew<vtkIdList> neighbors;
   neighbors->Allocate(2);
-  cells = vtkIdList::New();
+  vtkNew<vtkIdList> cells;
   cells->Allocate(64);
 
   this->NumberOfDuplicatePoints = 0;
   this->NumberOfDegeneracies = 0;
 
-  this->Mesh = vtkPolyData::New();
+  this->Mesh = vtkSmartPointer<vtkPolyData>::New();
 
   // If the user specified a transform, apply it to the input data.
   //
@@ -377,7 +424,7 @@ int vtkDelaunay2D::RequestData(vtkInformation* vtkNotUsed(request),
   // referenced.
   if (this->Transform)
   {
-    tPoints = vtkPoints::New();
+    tPoints = vtkSmartPointer<vtkPoints>::New();
     this->Transform->TransformPoints(inPoints, tPoints);
   }
   else
@@ -388,7 +435,7 @@ int vtkDelaunay2D::RequestData(vtkInformation* vtkNotUsed(request),
     if (this->ProjectionPlaneMode == VTK_BEST_FITTING_PLANE)
     {
       this->SetTransform(vtkDelaunay2D::ComputeBestFittingPlane(input));
-      tPoints = vtkPoints::New();
+      tPoints = vtkSmartPointer<vtkPoints>::New();
       this->Transform->TransformPoints(inPoints, tPoints);
     }
   }
@@ -396,7 +443,7 @@ int vtkDelaunay2D::RequestData(vtkInformation* vtkNotUsed(request),
   // Create initial bounding triangulation. Have to create bounding points.
   // Initialize mesh structure.
   //
-  points = vtkPoints::New();
+  vtkNew<vtkPoints> points;
   // This will copy doubles to doubles if the input is double.
   points->SetDataTypeToDouble();
   points->SetNumberOfPoints(numPoints);
@@ -407,8 +454,6 @@ int vtkDelaunay2D::RequestData(vtkInformation* vtkNotUsed(request),
   else
   {
     points->DeepCopy(tPoints);
-    tPoints->Delete();
-    tPoints = nullptr;
   }
 
   const double* bounds = points->GetBounds();
@@ -417,8 +462,10 @@ int vtkDelaunay2D::RequestData(vtkInformation* vtkNotUsed(request),
   center[2] = (bounds[4] + bounds[5]) / 2.0;
   tol = input->GetLength();
   radius = this->Offset * tol;
+  this->BoundingRadius2 = radius * radius;
   tol *= this->Tolerance;
 
+  // Add the eight bounding points to the end of the points list.
   for (ptId = 0; ptId < 8; ptId++)
   {
     x[0] = center[0] + radius * cos(ptId * vtkMath::RadiansFromDegrees(45.0));
@@ -429,10 +476,10 @@ int vtkDelaunay2D::RequestData(vtkInformation* vtkNotUsed(request),
   // We do this for speed accessing points
   this->Points = static_cast<vtkDoubleArray*>(points->GetData())->GetPointer(0);
 
-  triangles = vtkCellArray::New();
+  // Now add six bounding triangles to initialize Delaunay insertion.
+  vtkNew<vtkCellArray> triangles;
   triangles->AllocateEstimate(2 * numPoints, 3);
 
-  // create bounding triangles (there are six)
   pts[0] = numPoints;
   pts[1] = numPoints + 1;
   pts[2] = numPoints + 2;
@@ -466,10 +513,13 @@ int vtkDelaunay2D::RequestData(vtkInformation* vtkNotUsed(request),
   // For each point; find triangle containing point. Then evaluate three
   // neighboring triangles for Delaunay criterion. Triangles that do not
   // satisfy criterion have their edges swapped. This continues recursively
-  // until all triangles have been shown to be Delaunay.
+  // until all triangles have been shown to be Delaunay. The points may be
+  // traversed in given order, or pseudo-random order.
   //
-  for (ptId = 0; ptId < numPoints; ptId++)
+  GCDTraversal gcdIter(numPoints);
+  for (auto idx = 0; idx < numPoints; idx++)
   {
+    ptId = (this->RandomPointInsertion ? gcdIter.GetPointId(idx) : idx);
     this->GetPoint(ptId, x);
     nei[0] = (-1); // where we are coming from...nowhere initially
 
@@ -500,9 +550,9 @@ int vtkDelaunay2D::RequestData(vtkInformation* vtkNotUsed(request),
 
         // Check edge neighbors for Delaunay criterion. If not satisfied, flip
         // edge diagonal. (This is done recursively.)
-        this->CheckEdge(ptId, x, pts[0], pts[1], tri[0], true);
-        this->CheckEdge(ptId, x, pts[1], pts[2], tri[1], true);
-        this->CheckEdge(ptId, x, pts[2], pts[0], tri[2], true);
+        this->CheckEdge(ptId, x, pts[0], pts[1], tri[0], true, 1);
+        this->CheckEdge(ptId, x, pts[1], pts[2], tri[1], true, 1);
+        this->CheckEdge(ptId, x, pts[2], pts[0], tri[2], true, 1);
       }
 
       else // on triangle edge
@@ -554,7 +604,7 @@ int vtkDelaunay2D::RequestData(vtkInformation* vtkNotUsed(request),
         // Check edge neighbors for Delaunay criterion.
         for (i = 0; i < 4; i++)
         {
-          this->CheckEdge(ptId, x, nodes[i][1], nodes[i][2], tri[i], true);
+          this->CheckEdge(ptId, x, nodes[i][1], nodes[i][2], tri[i], true, 1);
         }
       }
     } // if triangle found
@@ -597,14 +647,11 @@ int vtkDelaunay2D::RequestData(vtkInformation* vtkNotUsed(request),
     else
     {
       triUse = new int[numTriangles];
-      for (i = 0; i < numTriangles; i++)
-      {
-        triUse[i] = 1;
-      }
+      std::fill_n(triUse, numTriangles, 1);
     }
   }
 
-  // Delete triangles connected to boundary points (if not desired)
+  // Delete triangles connected to the eight boundary points (if not desired)
   if (!this->BoundingTriangulation)
   {
     for (ptId = numPoints; ptId < (numPoints + 8); ptId++)
@@ -628,16 +675,12 @@ int vtkDelaunay2D::RequestData(vtkInformation* vtkNotUsed(request),
     double xx1[3], xx2[3], xx3[3];
     vtkIdType cellId, numNei, ap1, ap2, neighbor;
 
-    vtkCellArray* alphaVerts = vtkCellArray::New();
+    vtkNew<vtkCellArray> alphaVerts;
     alphaVerts->AllocateEstimate(numPoints, 1);
-    vtkCellArray* alphaLines = vtkCellArray::New();
+    vtkNew<vtkCellArray> alphaLines;
     alphaLines->AllocateEstimate(numPoints, 2);
 
-    char* pointUse = new char[numPoints + 8];
-    for (ptId = 0; ptId < (numPoints + 8); ptId++)
-    {
-      pointUse[ptId] = 0;
-    }
+    std::vector<char> pointUse(numPoints + 8, 0);
 
     // traverse all triangles; evaluating Delaunay criterion
     for (i = 0; i < numTriangles; i++)
@@ -740,11 +783,8 @@ int vtkDelaunay2D::RequestData(vtkInformation* vtkNotUsed(request),
     }
 
     // update output
-    delete[] pointUse;
     output->SetVerts(alphaVerts);
-    alphaVerts->Delete();
     output->SetLines(alphaLines);
-    alphaLines->Delete();
   }
 
   // The code below fixes a bug reported by Gilles Rougeron.
@@ -949,7 +989,7 @@ int vtkDelaunay2D::RequestData(vtkInformation* vtkNotUsed(request),
   }
   else
   {
-    vtkCellArray* alphaTriangles = vtkCellArray::New();
+    vtkNew<vtkCellArray> alphaTriangles;
     alphaTriangles->AllocateEstimate(numTriangles, 3);
     const vtkIdType* alphaTriPts;
 
@@ -962,33 +1002,22 @@ int vtkDelaunay2D::RequestData(vtkInformation* vtkNotUsed(request),
       }
     }
     output->SetPolys(alphaTriangles);
-    alphaTriangles->Delete();
     delete[] triUse;
   }
 
-  points->Delete();
-  triangles->Delete();
-  this->Mesh->Delete();
-  neighbors->Delete();
-  cells->Delete();
+  // Clear out the mesh
+  this->Mesh = nullptr;
 
   // If the best fitting option was ON, then the current transform
   // is the one that was computed internally. We must now destroy it.
-  if (this->ProjectionPlaneMode == VTK_BEST_FITTING_PLANE)
-  {
-    if (this->Transform)
-    {
-      this->Transform->UnRegister(this);
-      this->Transform->Delete();
-      this->Transform = nullptr;
-    }
-  }
+  this->Transform = nullptr;
 
   output->Squeeze();
 
   return 1;
 }
 
+//------------------------------------------------------------------------------
 // Methods used to recover edges. Uses lines and polygons to determine boundary
 // and inside/outside.
 //
@@ -1039,10 +1068,7 @@ int* vtkDelaunay2D::RecoverBoundary(vtkPolyData* source)
   // Generate inside/outside marks on mesh
   int numTriangles = this->Mesh->GetNumberOfCells();
   triUse = new int[numTriangles];
-  for (i = 0; i < numTriangles; i++)
-  {
-    triUse[i] = 1;
-  }
+  std::fill_n(triUse, numTriangles, 1);
 
   // Use any polygons to mark inside and outside. (Note that if an edge was not
   // recovered, we're going to have a problem.) The first polygon is assumed to
@@ -1053,6 +1079,7 @@ int* vtkDelaunay2D::RecoverBoundary(vtkPolyData* source)
   return triUse;
 }
 
+//------------------------------------------------------------------------------
 // Method attempts to recover an edge by retriangulating mesh around the edge.
 // What we do is identify a "submesh" of triangles that includes the edge to recover.
 // Then we split the submesh in two with the recovered edge, and triangulate each of
@@ -1068,25 +1095,25 @@ int vtkDelaunay2D::RecoverEdge(vtkPolyData* source, vtkIdType p1, vtkIdType p2)
   vtkIdType *leftTris, *rightTris, npts, numRightTris, numLeftTris;
   int success = 0, nbPts;
 
-  vtkIdList* cells = vtkIdList::New();
+  vtkNew<vtkIdList> cells;
   cells->Allocate(64);
-  vtkIdList* tris = vtkIdList::New();
+  vtkNew<vtkIdList> tris;
   tris->Allocate(64);
-  vtkPolygon* rightPoly = vtkPolygon::New();
-  vtkPolygon* leftPoly = vtkPolygon::New();
+  vtkNew<vtkPolygon> rightPoly;
+  vtkNew<vtkPolygon> leftPoly;
   vtkIdList* leftChain = leftPoly->GetPointIds();
   vtkIdList* rightChain = rightPoly->GetPointIds();
   vtkPoints* leftChainX = leftPoly->GetPoints();
   vtkPoints* rightChainX = rightPoly->GetPoints();
-  vtkIdList* neis = vtkIdList::New();
+  vtkNew<vtkIdList> neis;
   neis->Allocate(4);
-  vtkIdList* rightPtIds = vtkIdList::New();
+  vtkSmartPointer<vtkIdList> rightPtIds = vtkSmartPointer<vtkIdList>::New();
   rightPtIds->Allocate(64);
-  vtkIdList* leftPtIds = vtkIdList::New();
+  vtkSmartPointer<vtkIdList> leftPtIds = vtkSmartPointer<vtkIdList>::New();
   leftPtIds->Allocate(64);
-  vtkPoints* rightTriPts = vtkPoints::New();
+  vtkNew<vtkPoints> rightTriPts;
   rightTriPts->Allocate(64);
-  vtkPoints* leftTriPts = vtkPoints::New();
+  vtkNew<vtkPoints> leftTriPts;
   leftTriPts->Allocate(64);
 
   // Container for the edges (2 ids in a set, the order does not matter) we won't check
@@ -1259,26 +1286,24 @@ int vtkDelaunay2D::RecoverEdge(vtkPolyData* source, vtkIdType p1, vtkIdType p2)
   success = 1;
   success &= (rightPoly->BoundedTriangulate(rightPtIds, this->Tolerance));
   {
-    vtkIdList* ids = vtkIdList::New();
+    vtkNew<vtkIdList> ids;
     ids->Allocate(64);
     for (i = 0; i < rightPtIds->GetNumberOfIds(); i++)
     {
       ids->InsertId(i, rightPoly->PointIds->GetId(rightPtIds->GetId(i)));
     }
-    rightPtIds->Delete();
     rightPtIds = ids;
   }
   numRightTris = rightPtIds->GetNumberOfIds() / 3;
 
   success &= (leftPoly->BoundedTriangulate(leftPtIds, this->Tolerance));
   {
-    vtkIdList* ids = vtkIdList::New();
+    vtkNew<vtkIdList> ids;
     ids->Allocate(64);
     for (i = 0; i < leftPtIds->GetNumberOfIds(); i++)
     {
       ids->InsertId(i, leftPoly->PointIds->GetId(leftPtIds->GetId(i)));
     }
-    leftPtIds->Delete();
     leftPtIds = ids;
   }
   numLeftTris = leftPtIds->GetNumberOfIds() / 3;
@@ -1368,7 +1393,7 @@ int vtkDelaunay2D::RecoverEdge(vtkPolyData* source, vtkIdType p1, vtkIdType p2)
     vtkIdType* v = &newEdges[4 * i];
     double x[3];
     this->GetPoint(v[3], x);
-    if (this->CheckEdge(v[3], x, v[1], v[2], v[0], false))
+    if (this->CheckEdge(v[3], x, v[1], v[2], v[0], false, 1))
     {
       // Flipping an edge renders triangle and edge IDs in newEdges invalid
       break;
@@ -1376,18 +1401,10 @@ int vtkDelaunay2D::RecoverEdge(vtkPolyData* source, vtkIdType p1, vtkIdType p2)
   }
 
 FAILURE:
-  tris->Delete();
-  cells->Delete();
-  leftPoly->Delete();
-  rightPoly->Delete();
-  neis->Delete();
-  rightPtIds->Delete();
-  leftPtIds->Delete();
-  rightTriPts->Delete();
-  leftTriPts->Delete();
   return success;
 }
 
+//------------------------------------------------------------------------------
 void vtkDelaunay2D::FillPolygons(vtkCellArray* polys, int* triUse)
 {
   vtkIdType p1, p2, j, kk;
@@ -1398,12 +1415,29 @@ void vtkDelaunay2D::FillPolygons(vtkCellArray* polys, int* triUse)
   vtkIdType numPts;
   static double xyNormal[3] = { 0.0, 0.0, 1.0 };
   double negDir[3], x21[3], x1[3], x2[3], x[3];
-  vtkIdList* neis = vtkIdList::New();
+  vtkNew<vtkIdList> neis;
   vtkIdType cellId, numNeis;
-  vtkIdList *currentFront = vtkIdList::New(), *tmpFront;
-  vtkIdList* nextFront = vtkIdList::New();
+  vtkSmartPointer<vtkIdList> tmpFront;
+  vtkSmartPointer<vtkIdList> currentFront = vtkSmartPointer<vtkIdList>::New();
+  vtkSmartPointer<vtkIdList> nextFront = vtkSmartPointer<vtkIdList>::New();
   vtkIdType numCellsInFront, neiId;
   vtkIdType numTriangles = this->Mesh->GetNumberOfCells();
+
+  // Check to make sure all boundary edges were recovered. If not,
+  // abandon the fill operation.
+  for (polys->InitTraversal(); polys->GetNextCell(npts, pts);)
+  {
+    for (i = 0; i < npts; i++)
+    {
+      p1 = pts[i];
+      p2 = pts[(i + 1) % npts];
+      if (!this->Mesh->IsEdge(p1, p2))
+      {
+        vtkWarningMacro(<< "Edge not recovered, polygon fill not possible");
+        return;
+      }
+    }
+  }
 
   // Loop over edges of polygon, marking triangles on "outside" of polygon as outside.
   // Then perform a fill.
@@ -1414,47 +1448,40 @@ void vtkDelaunay2D::FillPolygons(vtkCellArray* polys, int* triUse)
     {
       p1 = pts[i];
       p2 = pts[(i + 1) % npts];
-      if (!this->Mesh->IsEdge(p1, p2))
+      neis->Reset();
+      this->GetPoint(p1, x1);
+      this->GetPoint(p2, x2);
+      for (j = 0; j < 3; j++)
       {
-        vtkWarningMacro(<< "Edge not recovered, polygon fill suspect");
+        x21[j] = x2[j] - x1[j];
       }
-      else // Mark the "outside" triangles
-      {
-        neis->Reset();
-        this->GetPoint(p1, x1);
-        this->GetPoint(p2, x2);
-        for (j = 0; j < 3; j++)
+      vtkMath::Cross(x21, xyNormal, negDir);
+      this->Mesh->GetCellEdgeNeighbors(-1, p1, p2, neis); // get both triangles
+      numNeis = neis->GetNumberOfIds();
+      for (j = 0; j < numNeis; j++)
+      { // find the vertex not on the edge; evaluate it (and the cell) in/out
+        cellId = neis->GetId(j);
+        this->Mesh->GetCellPoints(cellId, numPts, triPts);
+        for (k = 0; k < 3; k++)
         {
-          x21[j] = x2[j] - x1[j];
-        }
-        vtkMath::Cross(x21, xyNormal, negDir);
-        this->Mesh->GetCellEdgeNeighbors(-1, p1, p2, neis); // get both triangles
-        numNeis = neis->GetNumberOfIds();
-        for (j = 0; j < numNeis; j++)
-        { // find the vertex not on the edge; evaluate it (and the cell) in/out
-          cellId = neis->GetId(j);
-          this->Mesh->GetCellPoints(cellId, numPts, triPts);
-          for (k = 0; k < 3; k++)
+          if (triPts[k] != p1 && triPts[k] != p2)
           {
-            if (triPts[k] != p1 && triPts[k] != p2)
-            {
-              break;
-            }
-          }
-          this->GetPoint(triPts[k], x);
-          x[2] = 0.0;
-          if (vtkPlane::Evaluate(negDir, x1, x) > 0.0)
-          {
-            triUse[cellId] = 0;
-            currentFront->InsertNextId(cellId);
-          }
-          else
-          {
-            triUse[cellId] = -1;
+            break;
           }
         }
-      } // edge was recovered
-    }   // for all edges in polygon
+        this->GetPoint(triPts[k], x);
+        x[2] = 0.0;
+        if (vtkPlane::Evaluate(negDir, x1, x) > 0.0)
+        {
+          triUse[cellId] = 0;
+          currentFront->InsertNextId(cellId);
+        }
+        else
+        {
+          triUse[cellId] = -1;
+        }
+      }
+    } // for all edges in polygon
 
     // Okay, now perform a fill operation (filling "outside" values).
     //
@@ -1500,10 +1527,6 @@ void vtkDelaunay2D::FillPolygons(vtkCellArray* polys, int* triUse)
       triUse[i] = 1;
     }
   }
-
-  currentFront->Delete();
-  nextFront->Delete();
-  neis->Delete();
 }
 
 //------------------------------------------------------------------------------
@@ -1617,5 +1640,6 @@ void vtkDelaunay2D::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Transform: " << (this->Transform ? "specified" : "none") << "\n";
   os << indent << "Tolerance: " << this->Tolerance << "\n";
   os << indent << "Offset: " << this->Offset << "\n";
+  os << indent << "Random Point Insertion: " << (this->RandomPointInsertion ? "On" : "Off") << "\n";
   os << indent << "Bounding Triangulation: " << (this->BoundingTriangulation ? "On\n" : "Off\n");
 }

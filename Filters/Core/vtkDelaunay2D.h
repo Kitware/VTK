@@ -66,7 +66,9 @@
  * transition of triangle sizes throughout the mesh. (You may even want to
  * add extra points to create a better point distribution.) If numerical
  * problems are present, you will see a warning message to this effect at
- * the end of the triangulation process.
+ * the end of the triangulation process. Note also that the
+ * RandomPointInsertion mode can be set which will insert the points in
+ * pseudo-random order.
  *
  * To create constrained meshes, you must define an additional
  * input. This input is an instance of vtkPolyData which contains
@@ -125,10 +127,10 @@
 #ifndef vtkDelaunay2D_h
 #define vtkDelaunay2D_h
 
+#include "vtkAbstractTransform.h" // For point transformation
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
-class vtkAbstractTransform;
 class vtkCellArray;
 class vtkIdList;
 class vtkPointSet;
@@ -228,8 +230,8 @@ public:
    * subclass of vtkAbstractTransform (thus it does not need to be a
    * linear or invertible transform).
    */
-  virtual void SetTransform(vtkAbstractTransform*);
-  vtkGetObjectMacro(Transform, vtkAbstractTransform);
+  vtkSetSmartPointerMacro(Transform, vtkAbstractTransform);
+  vtkGetSmartPointerMacro(Transform, vtkAbstractTransform);
   ///@}
 
   ///@{
@@ -253,9 +255,19 @@ public:
    */
   static vtkAbstractTransform* ComputeBestFittingPlane(vtkPointSet* input);
 
+  ///@{
+  /**
+   * Indicate whether to insert the points in given order, or pseudo-random
+   * order. Inserting in random order can improve performance and numerics
+   * in many circumstances.
+   */
+  vtkSetMacro(RandomPointInsertion, vtkTypeBool);
+  vtkGetMacro(RandomPointInsertion, vtkTypeBool);
+  vtkBooleanMacro(RandomPointInsertion, vtkTypeBool);
+  ///@}
+
 protected:
   vtkDelaunay2D();
-  ~vtkDelaunay2D() override;
 
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
@@ -263,15 +275,19 @@ protected:
   double Tolerance;
   vtkTypeBool BoundingTriangulation;
   double Offset;
+  vtkTypeBool RandomPointInsertion;
 
-  vtkAbstractTransform* Transform;
+  // Transform input points (if necessary)
+  vtkSmartPointer<vtkAbstractTransform> Transform;
 
   int ProjectionPlaneMode; // selects the plane in 3D where the Delaunay triangulation will be
                            // computed.
 
 private:
-  vtkPolyData* Mesh; // the created mesh
-  double* Points;    // the raw points in double precision
+  vtkSmartPointer<vtkPolyData> Mesh; // the created mesh
+
+  // the raw points in double precision, and methods to access them
+  double* Points;
   void SetPoint(vtkIdType id, double* x)
   {
     vtkIdType idx = 3 * id;
@@ -279,7 +295,6 @@ private:
     this->Points[idx + 1] = x[1];
     this->Points[idx + 2] = x[2];
   }
-
   void GetPoint(vtkIdType id, double x[3])
   {
     double* ptr = this->Points + 3 * id;
@@ -288,9 +303,14 @@ private:
     x[2] = *ptr;
   }
 
+  // Keep track of the bounding radius of all points (including the eight bounding points).
+  // This is used occasionally for numerical sanity checks.
+  double BoundingRadius2;
+
   int NumberOfDuplicatePoints;
   int NumberOfDegeneracies;
 
+  // Various methods to support the Delaunay algorithm
   int* RecoverBoundary(vtkPolyData* source);
   int RecoverEdge(vtkPolyData* source, vtkIdType p1, vtkIdType p2);
   void FillPolygons(vtkCellArray* polys, int* triUse);
@@ -298,8 +318,11 @@ private:
   int InCircle(double x[3], double x1[3], double x2[3], double x3[3]);
   vtkIdType FindTriangle(double x[3], vtkIdType ptIds[3], vtkIdType tri, double tol,
     vtkIdType nei[3], vtkIdList* neighbors);
-  bool CheckEdge(
-    vtkIdType ptId, double x[3], vtkIdType p1, vtkIdType p2, vtkIdType tri, bool recursive);
+
+  // CheckEdge() is a recursive function to determine if triangles satisfy the Delaunay
+  // criterion. To prevent segfaults due to excessive recursion, recursion depth is limited.
+  bool CheckEdge(vtkIdType ptId, double x[3], vtkIdType p1, vtkIdType p2, vtkIdType tri,
+    bool recursive, unsigned int depth);
 
   int FillInputPortInformation(int, vtkInformation*) override;
 
