@@ -2580,12 +2580,12 @@ int vtkCGNSReader::GetUnstructuredZone(
           CGNSRead::get_section_start_offset(this->cgioNum, elemIdList[osec], 1, srcStart, srcEnd,
             srcStride, memStart, memEnd, memStride, memDim, localFaceElementsIdx))
         {
+          // NOTE: support for the old NFACE_n/NGON_n array layout is now deprecated.
           // NOTE: the old polygonal layout was replaced in CGNS version 4.0
-          // NOTE: support for the old NFACE_n/NGON_n array layout may be deprecated in
-          // NOTE: a future version of ParaView.
-          vtkWarningMacro(
-            "Usage of NFACE_n/NGON_n layout older than 3.4 CGNS standard is "
-            "deprecated. Files should be upgraded with the official cgnsupdate tool.");
+          vtkWarningMacro("FAILED to read StartOffset\n The file should be upgraded to 4.0 CGNS "
+                          "standard with the official cgnsupdate tool\n"
+                          "Usage of NFACE_n/NGON_n layout older than 3.4 CGNS standard is "
+                          "deprecated.");
           old_polygonal_layout = true;
         }
 
