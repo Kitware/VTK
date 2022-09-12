@@ -77,7 +77,7 @@ public:
   vtkSetMacro(SaveTextures, bool);
   vtkGetMacro(SaveTextures, bool);
   vtkBooleanMacro(SaveTextures, bool);
-  //@
+  ///@}
 
   ///@{
   /**
@@ -88,7 +88,7 @@ public:
   vtkSetMacro(SaveTiles, bool);
   vtkGetMacro(SaveTiles, bool);
   vtkBooleanMacro(SaveTiles, bool);
-  //@
+  ///@}
 
   ///@{
   /**
@@ -102,7 +102,7 @@ public:
   vtkSetMacro(MergeTilePolyData, bool);
   vtkGetMacro(MergeTilePolyData, bool);
   vtkBooleanMacro(MergeTilePolyData, bool);
-  //@
+  ///@}
 
   ///@{
   /**
@@ -116,7 +116,7 @@ public:
   vtkSetMacro(ContentGLTF, bool);
   vtkGetMacro(ContentGLTF, bool);
   vtkBooleanMacro(ContentGLTF, bool);
-  //@
+  ///@}
 
   ///@{
   /**
@@ -124,7 +124,7 @@ public:
    */
   vtkSetMacro(InputType, int);
   vtkGetMacro(InputType, int);
-  //@
+  ///@}
 
   ///@{
   /**
@@ -133,7 +133,7 @@ public:
    */
   vtkSetMacro(NumberOfFeaturesPerTile, int);
   vtkGetMacro(NumberOfFeaturesPerTile, int);
-  //@
+  ///@}
 
   ///@{
   /**
