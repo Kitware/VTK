@@ -70,7 +70,7 @@ public:
   const std::vector<long>& formatarray() const&;
   const int* order() const&;
   const std::vector<int>& orderarray() const&;
-  int numBytes() const;
+  long numBytes() const;
   bool operator==(const RealDescriptor& rd) const;
 
 private:
@@ -253,10 +253,10 @@ public:
   void ReadFormat(std::istream& is, std::vector<long>& ar);
   void PrintFormat(std::vector<long>& ar);
   RealDescriptor* ReadRealDescriptor(std::istream& is);
-  int ReadBoxArray(std::istream& is, int* boxArray, int* boxArrayDim);
+  long ReadBoxArray(std::istream& is, int* boxArray, int* boxArrayDim);
   void PrintBoxArray(int* boxArray);
   int ReadNumberOfAttributes(std::istream& is);
-  void ReadBlockAttribute(std::istream& is, int numberOfPoints, int size, char* buffer);
+  void ReadBlockAttribute(std::istream& is, long numberOfPoints, long size, char* buffer);
   void Convert(
     void* out, const void* in, long nitems, const RealDescriptor& ord, const RealDescriptor& ird);
   void PermuteOrder(
