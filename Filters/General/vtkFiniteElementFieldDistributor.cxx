@@ -411,6 +411,7 @@ public:
             const double t = refCoord[2]; //NOLINT(readability-identifier-length)
             const std::size_t& npts = physCoords.size() / stride;
             assert(npts >= 8); // atleast 8 nodes in a hex. quadratic hex can have more, but we don't use them.
+            (void) npts;
             int xOfst = 0, yOfst = 1, zOfst = 2;
             // derivatives from https://github.com/trilinos/Trilinos/blob/master/packages/intrepid2/src/Discretization/Basis/Intrepid2_HGRAD_HEX_C1_FEMDef.hpp#L83
             return std::vector<std::vector<double>>({
@@ -537,10 +538,10 @@ public:
           jacFunc = [](const double refCoord[3], const std::vector<double>& physCoords, const std::size_t& stride) -> std::vector<std::vector<double>> {
             const double r = refCoord[0]; //NOLINT(readability-identifier-length)
             const double s = refCoord[1]; //NOLINT(readability-identifier-length)
-            const double t = refCoord[2]; //NOLINT(readability-identifier-length)
             const std::size_t& npts = physCoords.size() / stride;
             assert(npts >= 3); // atleast 3 nodes in a triangle. quadratic triangle can have more, but we don't use them.
-            int xOfst = 0, yOfst = 1, zOfst = 2;
+            (void) npts;
+            int xOfst = 0, yOfst = 1;
             // derivatives from https://github.com/trilinos/Trilinos/blob/master/packages/intrepid2/src/Discretization/Basis/Intrepid2_HGRAD_QUAD_C1_FEMDef.hpp#L78
             return std::vector<std::vector<double>>({
               { // dx/dr
@@ -616,12 +617,10 @@ public:
           // clang-format on
           auto& jacFunc = this->TetJacF;
           // clang-format off
-          jacFunc = [](const double refCoord[3], const std::vector<double>& physCoords, const std::size_t& stride) -> std::vector<std::vector<double>> {
-            const double r = refCoord[0]; //NOLINT(readability-identifier-length)
-            const double s = refCoord[1]; //NOLINT(readability-identifier-length)
-            const double t = refCoord[2]; //NOLINT(readability-identifier-length)
+          jacFunc = [](const double vtkNotUsed(refCoord)[3], const std::vector<double>& physCoords, const std::size_t& stride) -> std::vector<std::vector<double>> {
             const std::size_t& npts = physCoords.size() / stride;
             assert(npts >= 4); // atleast 4 nodes in a tet. quad tet can have more, but we don't use them.
+            (void) npts;
             int xOfst = 0, yOfst = 1, zOfst = 2;
             // derivatives from https://github.com/trilinos/Trilinos/blob/master/packages/intrepid2/src/Discretization/Basis/Intrepid2_HGRAD_TET_C1_FEMDef.hpp#L79
             return std::vector<std::vector<double>>({
@@ -706,13 +705,11 @@ public:
           // clang-format on
           auto& jacFunc = this->TriJacF;
           // clang-format off
-          jacFunc = [](const double refCoord[3], const std::vector<double>& physCoords, const std::size_t& stride) -> std::vector<std::vector<double>> {
-            const double r = refCoord[0]; //NOLINT(readability-identifier-length)
-            const double s = refCoord[1]; //NOLINT(readability-identifier-length)
-            const double t = refCoord[2]; //NOLINT(readability-identifier-length)
+          jacFunc = [](const double vtkNotUsed(refCoord)[3], const std::vector<double>& physCoords, const std::size_t& stride) -> std::vector<std::vector<double>> {
             const std::size_t& npts = physCoords.size() / stride;
             assert(npts >= 3); // atleast 3 nodes in a triangle. quadratic triangle can have more, but we don't use them.
-            int xOfst = 0, yOfst = 1, zOfst = 2;
+            (void) npts;
+            int xOfst = 0, yOfst = 1;
             // derivatives from https://github.com/trilinos/Trilinos/blob/master/packages/intrepid2/src/Discretization/Basis/Intrepid2_HGRAD_TRI_C1_FEMDef.hpp#L78
             return std::vector<std::vector<double>>({
               { // dx/dr
@@ -793,6 +790,7 @@ public:
             const double t = refCoord[2]; //NOLINT(readability-identifier-length)
             const std::size_t& npts = physCoords.size() / stride;
             assert(npts >= 6); // atleast 6 nodes in a wedge. quadratic wedge can have more, but we don't use them.
+            (void) npts;
             int xOfst = 0, yOfst = 1, zOfst = 2;
             // derivatives from https://github.com/trilinos/Trilinos/blob/master/packages/intrepid2/src/Discretization/Basis/Intrepid2_HGRAD_WEDGE_C1_FEMDef.hpp#L81
             return std::vector<std::vector<double>>({
@@ -889,8 +887,8 @@ public:
 
     auto& hCurlVbFunc = (*hCurlVbfs);
     auto& hDivVbfunc = (*hDivVbfs);
-    ptrdiff_t ofst;
-    for (size_t i = 0, ofst = 0; i < npts; ++i, ++ofst)
+    ptrdiff_t ofst = 0;
+    for (size_t i = 0; i < npts; ++i, ++ofst)
     {
       double coord[3] = { coords[ofst], coords[++ofst], coords[++ofst] };
       hCurlMats->emplace_back(hCurlVbFunc(coord));
@@ -899,7 +897,7 @@ public:
     jacMats->resize(npts);
     // jacobian will always be 3 irrespective of cell dimensionality.
     // for 2d cells, keep an extra row and colum with 0. inefficeint, but makes code readable.
-    for (int ptId = 0; ptId < npts; ++ptId)
+    for (size_t ptId = 0; ptId < npts; ++ptId)
     {
       auto& jac = (*jacMats)[ptId];
       jac.resize(3, std::vector<double>(3, 0));
@@ -919,13 +917,13 @@ public:
     assert(jacMats->size() == npts);
 
     std::vector<double> physCoords(npts * 3);
-    for (int ptId = 0; ptId < npts; ++ptId)
+    for (size_t ptId = 0; ptId < npts; ++ptId)
     {
       physPoints->GetPoint(ptIds[ptId], &physCoords[ptId * 3]);
     }
 
-    ptrdiff_t ofst;
-    for (int ptId = 0, ofst = 0; ptId < npts; ++ptId, ++ofst)
+    ptrdiff_t ofst = 0;
+    for (size_t ptId = 0; ptId < npts; ++ptId, ++ofst)
     {
       double refCoord[3] = { refCoords[ofst], refCoords[++ofst], refCoords[++ofst] };
 
