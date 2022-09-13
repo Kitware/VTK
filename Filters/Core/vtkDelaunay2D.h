@@ -304,7 +304,8 @@ private:
   }
 
   // Keep track of the bounding radius of all points (including the eight bounding points).
-  // This is used occasionally for numerical sanity checks.
+  // This is used occasionally for numerical sanity checks to determine whether a point is
+  // within a circumcircle.
   double BoundingRadius2;
 
   int NumberOfDuplicatePoints;

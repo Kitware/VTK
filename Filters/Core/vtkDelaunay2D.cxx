@@ -77,23 +77,32 @@ vtkPolyData* vtkDelaunay2D::GetSource()
 //------------------------------------------------------------------------------
 // Determine whether point x is inside of circumcircle of triangle
 // defined by points (x1, x2, x3). Returns non-zero if inside circle.
-// (Note that z-component is ignored.)
+// (Note that the z-component of the points is ignored.)
 int vtkDelaunay2D::InCircle(double x[3], double x1[3], double x2[3], double x3[3])
 {
   double radius2, center[2], dist2;
 
   radius2 = vtkTriangle::Circumcircle(x1, x2, x3, center);
 
-  // Use sanity check to determine in/out. This is needed in situations where
-  // the circumcircle becomes very large due to near-degenerate cases.
+  // Use a sanity check to determine in/out. This is needed in situations
+  // where the circumcircle becomes very large due to near-degenerate
+  // cases. (Near degenerate cases can emerge when an inserted point is
+  // nearly on the edge of triangle.) Note that because of the way a
+  // candidate point is identified (via FindTriangle()/CheckEdge()) we don't
+  // need to worry about which "side" the center of the circumcircle is on as
+  // compared to the test point x (they will both be on the same side).
   if (radius2 > this->BoundingRadius2)
   {
     return 1;
   }
 
-  // check if inside/outside circumcircle
+  // Check if the point is strictly inside/outside the circumcircle. Using the less than
+  // operator enables ordering (and control of diagonals related to) degenerate points.
   dist2 = (x[0] - center[0]) * (x[0] - center[0]) + (x[1] - center[1]) * (x[1] - center[1]);
 
+  // Note: at one time we experimented with std::nextafter() but it seems that it is
+  // not always implemented correctly / consistently across platforms, which wreaks
+  // havoc during testing (in near-degenerate situations).
   if (dist2 < (0.999999999999 * radius2))
   {
     return 1;
@@ -104,6 +113,8 @@ int vtkDelaunay2D::InCircle(double x[3], double x1[3], double x2[3], double x3[3
   }
 }
 
+// This is used to determine proximity to triangle edges. TODO: this needs to
+// be normalized based on domain size.
 #define VTK_DEL2D_TOLERANCE 1.0e-014
 
 //------------------------------------------------------------------------------
@@ -307,8 +318,6 @@ struct GCDTraversal
   vtkIdType Prime;
   vtkIdType Offset;
 
-  // Simple recursive evaluation returns GCD of two positive integers.
-  vtkIdType GCD(vtkIdType m, vtkIdType n) { return (n ? GCD(n, m % n) : m); }
   // Given the number of points to iterate over, determine one coprime factor
   // a and the offset b. Note that a coprime is guaranteed between [n/2,n) which
   // means the while loop will terminate.
@@ -317,7 +326,7 @@ struct GCDTraversal
   {
     this->Offset = npts / 2; // over the halfway mark, arbitrary
     this->Prime = this->Offset + 1;
-    while (GCD(this->Prime, this->NPts) != 1)
+    while (vtkMath::ComputeGCD(this->Prime, this->NPts) != 1)
     {
       this->Prime++;
     }
@@ -434,7 +443,7 @@ int vtkDelaunay2D::RequestData(vtkInformation* vtkNotUsed(request),
     // map the input points into that plane.
     if (this->ProjectionPlaneMode == VTK_BEST_FITTING_PLANE)
     {
-      this->SetTransform(vtkDelaunay2D::ComputeBestFittingPlane(input));
+      this->Transform.TakeReference(vtkDelaunay2D::ComputeBestFittingPlane(input));
       tPoints = vtkSmartPointer<vtkPoints>::New();
       this->Transform->TransformPoints(inPoints, tPoints);
     }
@@ -462,7 +471,7 @@ int vtkDelaunay2D::RequestData(vtkInformation* vtkNotUsed(request),
   center[2] = (bounds[4] + bounds[5]) / 2.0;
   tol = input->GetLength();
   radius = this->Offset * tol;
-  this->BoundingRadius2 = radius * radius;
+  this->BoundingRadius2 = 4 * radius * radius; // use (2*r)**2
   tol *= this->Tolerance;
 
   // Add the eight bounding points to the end of the points list.
