@@ -186,6 +186,7 @@ struct can_map_trait<T, void_t<typename has_map_trait<T>::rtype>>
  * \struct can_close_trait
  * \brief An intermediate trait for exposing a unified trait interface
  */
+
 template <typename T, typename = void>
 struct can_close_trait
 {
