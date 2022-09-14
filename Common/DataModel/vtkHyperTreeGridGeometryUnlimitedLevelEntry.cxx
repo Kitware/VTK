@@ -71,7 +71,7 @@ void vtkHyperTreeGridGeometryUnlimitedLevelEntry::Dump(ostream& os)
 //------------------------------------------------------------------------------
 vtkIdType vtkHyperTreeGridGeometryUnlimitedLevelEntry::GetGlobalNodeIndex() const
 {
-  return this->Tree ? this->Tree->GetGlobalIndexFromLocal(this->Index)
+  return this->Tree ? this->Tree->GetGlobalIndexFromLocal(this->LastRealIndex)
                     : vtkHyperTreeGrid::InvalidIndex;
 }
 

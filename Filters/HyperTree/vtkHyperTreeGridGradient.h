@@ -44,6 +44,7 @@ VTK_ABI_NAMESPACE_BEGIN
 
 class vtkHyperTreeGridNonOrientedGeometryCursor;
 class vtkHyperTreeGridNonOrientedMooreSuperCursor;
+class vtkHyperTreeGridNonOrientedUnlimitedMooreSuperCursor;
 class vtkBitArray;
 class vtkDoubleArray;
 class vtkUnsignedCharArray;
@@ -75,8 +76,8 @@ protected:
   /**
    * Recursively descend into tree down to leaves
    */
-  template <class Worker>
-  void RecursivelyProcessTree(vtkHyperTreeGridNonOrientedMooreSuperCursor*, Worker&);
+  template <class Cursor, class Worker>
+  void RecursivelyProcessTree(Cursor*, Worker&);
 
   // Fields
 

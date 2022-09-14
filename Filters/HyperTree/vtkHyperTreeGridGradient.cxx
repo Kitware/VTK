@@ -22,6 +22,7 @@
 #include "vtkHyperTree.h"
 #include "vtkHyperTreeGrid.h"
 #include "vtkHyperTreeGridNonOrientedMooreSuperCursor.h"
+#include "vtkHyperTreeGridNonOrientedUnlimitedMooreSuperCursor.h"
 #include "vtkIdList.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
@@ -74,6 +75,89 @@ struct GradientWorker
   {
     auto outRange = vtk::DataArrayValueRange<3>(out);
     vtkSMPTools::Fill(outRange.begin(), outRange.end(), 0);
+  }
+
+  //----------------------------------------------------------------------------
+  void AccumulateGradienAt(vtkHyperTreeGridNonOrientedUnlimitedMooreSuperCursor* supercursor)
+  {
+    // Method used to keep the same strcture
+    this->ComputeGradientUnlimited(supercursor);
+  }
+
+  //----------------------------------------------------------------------------
+  void ComputeGradientUnlimited(vtkHyperTreeGridNonOrientedUnlimitedMooreSuperCursor* supercursor)
+  {
+    // Retrieve cursor info
+    vtkIdType id = supercursor->GetGlobalNodeIndex();
+    vtkIdType dim = supercursor->GetDimension();
+    vtkIdType lvl = supercursor->GetLevel();
+
+    assert(supercursor->IsRealLeaf()); // cannot compute gradient on coarse
+
+    std::cout << "visiting : " << id << std::endl;
+
+    auto nbc = supercursor->GetNumberOfCursors();
+
+    auto t = supercursor->GetTree();
+    std::cout << "for tree: " << t << std::endl;
+
+    for (unsigned i = 0; i < nbc; i++)
+    {
+      auto nid = supercursor->GetGlobalNodeIndex(i);
+      std::cout << "nid: " << nid << std::endl;
+      if (nid >= 0)
+      {
+        double b[6];
+        // FIX THIS TOO
+        supercursor->GetBounds(i, b);
+        std::cout << "     :: " << b[0] << " " << b[1] << " " << b[2] << " " << b[3] << std::endl;
+      }
+    }
+
+    for (unsigned i = 0; i < nbc; i++)
+    {
+      // FIX THIS
+      auto nid = supercursor->GetGlobalNodeIndex(i);
+      if (nid >= 0)
+      {
+        // TODO fixme
+        // auto geomC = supercursor->GetNonOrientedGeometryCursor(i);
+        // std::cout << geomC->GetVertexId() << std::endl;
+      }
+    }
+
+    // Cell is not masked, iterate over its corners
+    vtkIdType numLeavesCorners = 1ULL << dim;
+    for (vtkIdType cornerIdx = 0; cornerIdx < numLeavesCorners; ++cornerIdx)
+    {
+      this->Leaves->SetNumberOfIds(numLeavesCorners);
+
+      // Iterate over every leaf touching the corner and check ownership
+      for (vtkIdType leafIdx = 0; leafIdx < numLeavesCorners; ++leafIdx)
+      {
+        supercursor->GetCornerCursors(cornerIdx, leafIdx, this->Leaves);
+      }
+
+      // If cell owns dual cell, compute contours thereof
+      // Iterate over cell corners
+      double x[3];
+      supercursor->GetPoint(x);
+      for (vtkIdType _cornerIdx = 0; _cornerIdx < numLeavesCorners; ++_cornerIdx)
+      {
+        // Get cursor corresponding to this corner
+        vtkIdType cursorId = this->Leaves->GetId(_cornerIdx);
+
+        // Retrieve neighbor index and add to list of cell vertices
+        vtkIdType idN = supercursor->GetGlobalNodeIndex(cursorId);
+        vtkIdType lvlN = supercursor->GetLevel(cursorId);
+
+        if (lvl > lvlN || idN > id)
+        {
+          // process edges if neigh is higher in the tree of if current cell has lowest ID
+          // std::cout << " process : " << id << " to " << idN << std::endl;
+        }
+      }
+    }
   }
 
   //----------------------------------------------------------------------------
@@ -262,13 +346,13 @@ int vtkHyperTreeGridGradient::ProcessTrees(vtkHyperTreeGrid* input, vtkDataObjec
   vtkIdType index;
   vtkHyperTreeGrid::vtkHyperTreeGridIterator it;
   input->InitializeTreeIterator(it);
-  vtkNew<vtkHyperTreeGridNonOrientedMooreSuperCursor> supercursor;
+  vtkNew<vtkHyperTreeGridNonOrientedUnlimitedMooreSuperCursor> supercursor;
   while (it.GetNextTree(index))
   {
     // Initialize new cursor at root of current tree
-    input->InitializeNonOrientedMooreSuperCursor(supercursor, index);
+    input->InitializeNonOrientedUnlimitedMooreSuperCursor(supercursor, index);
     // Compute contours recursively
-    this->RecursivelyProcessTree(supercursor, worker);
+    this->RecursivelyProcessTree(supercursor.Get(), worker);
   } // it
 
   output->ShallowCopy(input);
@@ -279,9 +363,8 @@ int vtkHyperTreeGridGradient::ProcessTrees(vtkHyperTreeGrid* input, vtkDataObjec
 }
 
 //------------------------------------------------------------------------------
-template <class Worker>
-void vtkHyperTreeGridGradient::RecursivelyProcessTree(
-  vtkHyperTreeGridNonOrientedMooreSuperCursor* supercursor, Worker& worker)
+template <class Cursor, class Worker>
+void vtkHyperTreeGridGradient::RecursivelyProcessTree(Cursor* supercursor, Worker& worker)
 {
   // Retrieve global index of input cursor
   vtkIdType id = supercursor->GetGlobalNodeIndex();
@@ -292,13 +375,15 @@ void vtkHyperTreeGridGradient::RecursivelyProcessTree(
   }
 
   // Descend further into input trees only if cursor is not a leaf
-  if (!supercursor->IsLeaf())
+  // TODO specialize depending on the cursor type here
+  if (!supercursor->IsRealLeaf())
   {
     unsigned int numChildren = supercursor->GetNumberOfChildren();
     for (unsigned int child = 0; child < numChildren; ++child)
     {
       // Create child cursor from parent in input grid
       supercursor->ToChild(child);
+      std::cout << "to child" << std::endl;
       // Recurse
       this->RecursivelyProcessTree(supercursor, worker);
       supercursor->ToParent();
@@ -306,6 +391,7 @@ void vtkHyperTreeGridGradient::RecursivelyProcessTree(
   }
   else if (!this->InMask || !this->InMask->GetTuple1(id))
   {
+    std::cout << "acc" << std::endl;
     worker.AccumulateGradienAt(supercursor);
   }
 }

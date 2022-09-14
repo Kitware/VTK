@@ -60,9 +60,9 @@ public:
   /**
    * Constructor
    */
-  vtkHyperTreeGridGeometryUnlimitedLevelEntry()
+  vtkHyperTreeGridGeometryUnlimitedLevelEntry(vtkHyperTree* tree = nullptr)
   {
-    this->Tree = nullptr;
+    this->Tree = tree;
     this->Level = 0;
     this->Index = 0;
     for (unsigned int d = 0; d < 3; ++d)
