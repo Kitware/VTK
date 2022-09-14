@@ -841,8 +841,10 @@ int vtkCGNSReader::vtkPrivate::getGridAndSolutionNames(int base, std::string& gr
     }
     else if (!baseInfo.times.empty())
     {
-      // we don't have FlowSolutionPointers in the dataset
-      stepNumbers.insert(self->ActualTimeStep + 1);
+      // No FlowSolutionPointers in the dataset
+      int offset =
+        self->UnsteadySolutionStartTimestep < 0 ? 0 : self->UnsteadySolutionStartTimestep;
+      stepNumbers.insert(self->ActualTimeStep + offset);
     }
 
     //  For that, we first collect a list of names for all FlowSolution_t nodes in
