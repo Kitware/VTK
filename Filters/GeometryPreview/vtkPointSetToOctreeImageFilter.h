@@ -14,7 +14,7 @@
 =========================================================================*/
 /**
  * @class   vtkPointSetToOctreeImageFilter
- * @brief   convert a point set to an image
+ * @brief   convert a point set to an octree image
  *
  * vtkPointSetToOctreeImageFilter is a filter that converts a vtkPointSet to an
  * a vtkPartitionedDataset with one vtkImageData with a number of points per cell target.
@@ -32,6 +32,8 @@
  * This class has been threaded with vtkSMPTools. Using TBB or other
  * non-sequential type (set in the CMake variable
  * VTK_SMP_IMPLEMENTATION_TYPE) may improve performance significantly.
+ *
+ * @sa vtkOctreeImageToPointSetFilter
  */
 #ifndef vtkPointSetToOctreeImageFilter_h
 #define vtkPointSetToOctreeImageFilter_h
