@@ -1,11 +1,19 @@
+# note: the CGNS version is determined by contracting the minor and bugfix version
+#       into a single version; 4.2.0 becomes 4.20. See src/cgnslib.h CGNS_DOTVERS constant.
+# Furthermore, 4.1.x versions have been released with version 4.10, even when x > 0.
+#
+# For more information see:
+# https://gitlab.kitware.com/vtk/vtk/-/issues/18654
+# https://github.com/CGNS/CGNS/discussions/357
+
 vtk_module_third_party(
   INTERNAL
     LICENSE_FILES "vtkcgns/license.txt"
-    VERSION       "4.1.2"
+    VERSION       "4.20"
     STANDARD_INCLUDE_DIRS
   EXTERNAL
     PACKAGE CGNS
-    VERSION       "4.1.1"
+    VERSION       "4.10"
     TARGETS CGNS::CGNS
     STANDARD_INCLUDE_DIRS)
 
