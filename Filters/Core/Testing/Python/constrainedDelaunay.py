@@ -154,4 +154,4 @@ renWin.SetSize(450, 300)
 ren1.GetActiveCamera().Zoom(2)
 
 iren.Initialize()
-#iren.Start()
+iren.Start()

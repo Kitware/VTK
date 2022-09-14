@@ -1534,6 +1534,16 @@ public:
    */
   static int QuadraticRoot(double a, double b, double c, double min, double max, double* u);
 
+  /**
+   * Compute the greatest common divisor (GCD) of two positive integers m and n. If the
+   * computed GCD==1, then the two integers are coprime to one another. This is a simple,
+   * recursive implementation.
+   */
+  static vtkIdType ComputeGCD(vtkIdType m, vtkIdType n) { return (n ? ComputeGCD(n, m % n) : m); }
+
+  /**
+   * Support the convolution operations.
+   */
   enum class ConvolutionMode
   {
     FULL,
