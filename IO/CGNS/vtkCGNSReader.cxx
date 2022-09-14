@@ -2582,7 +2582,7 @@ int vtkCGNSReader::GetUnstructuredZone(
         {
           // NOTE: support for the old NFACE_n/NGON_n array layout is now deprecated.
           // NOTE: the old polygonal layout was replaced in CGNS version 4.0
-          vtkWarningMacro("FAILED to read StartOffset\n The file should be upgraded to 4.0 CGNS "
+          vtkWarningMacro("Could not read StartOffset\n The file should be upgraded to 4.0 CGNS "
                           "standard with the official cgnsupdate tool\n"
                           "Usage of NFACE_n/NGON_n layout older than 3.4 CGNS standard is "
                           "deprecated.");
