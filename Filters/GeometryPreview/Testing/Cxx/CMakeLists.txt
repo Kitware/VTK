@@ -1,4 +1,5 @@
 vtk_add_test_cxx(vtkFiltersGeometryPreviewCxxTests tests
+  TestOctreeImageToPointSetFilter.cxx
   TestPointSetToOctreeImageFilter.cxx
   )
 
