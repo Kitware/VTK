@@ -117,6 +117,14 @@ mark_as_advanced(
 
 option(VTK_BUILD_SCALED_SOA_ARRAYS "Include struct-of-arrays with scaled vtkDataArray implementation." OFF)
 
+option(VTK_BUILD_IMPLICIT_ARRAYS "Include implicit vtkDataArray implementation" OFF)
+option(VTK_INSTANTIATE_IMPLICIT_ARRAYS "Instantiate a commonly used list of implicit arrays" OFF)
+option(VTK_DISPATCH_IMPLICIT_ARRAYS "Include implicit vtkDataArray subclasses in dispatcher" OFF)
+mark_as_advanced(
+  VTK_INSTANTIATE_IMPLICIT_ARRAYS
+  VTK_DISPATCH_IMPLICIT_ARRAYS
+)
+
 include("${CMAKE_CURRENT_SOURCE_DIR}/vtkCreateArrayDispatchArrayList.cmake")
 vtkArrayDispatch_default_array_setup()
 vtkArrayDispatch_generate_array_header(VTK_ARRAYDISPATCH_ARRAY_LIST)
@@ -307,6 +315,14 @@ configure_file(
   "${CMAKE_CURRENT_SOURCE_DIR}/vtkVTK_USE_SCALED_SOA_ARRAYS.h.in"
   "${CMAKE_CURRENT_BINARY_DIR}/vtkVTK_USE_SCALED_SOA_ARRAYS.h")
 
+if (VTK_BUILD_IMPLICIT_ARRAYS)
+  #list (APPEND template_classes vtkImplicitArray)
+  set(VTK_USE_IMPLICIT_ARRAYS 1)
+endif ()
+configure_file(
+  "${CMAKE_CURRENT_SOURCE_DIR}/vtkVTK_USE_IMPLICIT_ARRAYS.h.in"
+  "${CMAKE_CURRENT_BINARY_DIR}/vtkVTK_USE_IMPLICIT_ARRAYS.h")
+
 set(headers
   vtkABI.h
   vtkArrayIteratorIncludes.h
@@ -350,7 +366,14 @@ set(headers
   "${CMAKE_CURRENT_BINARY_DIR}/vtkArrayDispatchArrayList.h"
   "${CMAKE_CURRENT_BINARY_DIR}/vtkMathConfigure.h"
   "${CMAKE_CURRENT_BINARY_DIR}/vtkTypeListMacros.h"
-  "${CMAKE_CURRENT_BINARY_DIR}/vtkVTK_USE_SCALED_SOA_ARRAYS.h")
+  "${CMAKE_CURRENT_BINARY_DIR}/vtkVTK_USE_SCALED_SOA_ARRAYS.h"
+  "${CMAKE_CURRENT_BINARY_DIR}/vtkVTK_USE_IMPLICIT_ARRAYS.h")
+
+if (VTK_BUILD_IMPLICIT_ARRAYS)
+  list(APPEND headers 
+    vtkImplicitArrayTraits.h
+  )
+endif ()
 
 set(private_headers
   "${CMAKE_CURRENT_BINARY_DIR}/vtkFloatingPointExceptionsConfigure.h")
