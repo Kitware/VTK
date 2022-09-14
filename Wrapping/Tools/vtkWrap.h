@@ -42,6 +42,7 @@ extern "C"
    * Check for common types.
    * IsPODPointer is for unsized arrays of POD types.
    * IsZeroCopyPointer is for buffers that shouldn't be copied.
+   * IsArrayRef is for references to arrays.
    */
   /*@{*/
   VTKWRAPPINGTOOLS_EXPORT int vtkWrap_IsVoid(ValueInfo* val);
@@ -50,6 +51,7 @@ extern "C"
   VTKWRAPPINGTOOLS_EXPORT int vtkWrap_IsCharPointer(ValueInfo* val);
   VTKWRAPPINGTOOLS_EXPORT int vtkWrap_IsPODPointer(ValueInfo* val);
   VTKWRAPPINGTOOLS_EXPORT int vtkWrap_IsZeroCopyPointer(ValueInfo* val);
+  VTKWRAPPINGTOOLS_EXPORT int vtkWrap_IsArrayRef(ValueInfo* val);
   VTKWRAPPINGTOOLS_EXPORT int vtkWrap_IsStdVector(ValueInfo* val);
   VTKWRAPPINGTOOLS_EXPORT int vtkWrap_IsVTKObject(ValueInfo* val);
   VTKWRAPPINGTOOLS_EXPORT int vtkWrap_IsVTKSmartPointer(ValueInfo* val);

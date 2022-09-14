@@ -869,14 +869,23 @@ use any of the parameter names or `this`.  Even without `this`, any public
 names in the class namespace (including method names) will be resolved.
 See the [Preconditions](#preconditions) section for additional information.
 
-For sized array parameters, such as `func(int x[10])`, the wrappers will
-automatically check the size of the Python sequence that is passed to the
-method.  For bare `T*` pointers (with `T` as a basic integer or float type),
-The wrappers will only check the size if a `VTK_SIZEHINT` is present.
-Also, return values of type `T*` will not return a tuple unless there is
-a size hint for the return value.  They will, instead, return a string
-that provides a mangled pointer of the form '`_hhhhhhhhhhhh_p_void`'
-where '`hhhhhhhhhhhh`' is the hexadecimal address.
+`VTK_SIZEHINT(expr)` is used for methods that return an array as type `T*`,
+where `T` is a numeric data type.  The hint allows the wrappers to convert the
+array to a tuple of the correct size.  Without the size hint, the wrappers
+will return the pointer as a string that provides a mangled memory address
+of the form '`_hhhhhhhhhhhh_p_void`' where '`hhhhhhhhhhhh`' is address
+expressed in hexadecimal.
+
+`VTK_SIZEHINT(parameter_name, expr)` is used to hint parameters of type
+`T*` or `T&*` (with `T` as a numeric data type) so that the wrappers know
+the size of the array that the pointer is pointing to.  The `expr` can be
+any expression that evaluates to an integer, and it can include parameter
+names, public class members and method calls, or the special name `_`
+(underscore) which indicates the method's return value.  In the absence
+of a size hint, the wrappers cannot check that the length of the sequence
+passed from Python matches the size of the array required by the method.
+If the method requires a larger array than it receives, a buffer overrun
+will occur.
 
 The following hints can appear before a parameter declaration:
 * `VTK_FILEPATH` marks a parameter that accepts a pathlib.Path object
