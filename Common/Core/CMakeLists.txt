@@ -118,10 +118,8 @@ mark_as_advanced(
 option(VTK_BUILD_SCALED_SOA_ARRAYS "Include struct-of-arrays with scaled vtkDataArray implementation." OFF)
 
 option(VTK_BUILD_IMPLICIT_ARRAYS "Include implicit vtkDataArray implementation" OFF)
-option(VTK_INSTANTIATE_IMPLICIT_ARRAYS "Instantiate a commonly used list of implicit arrays" OFF)
 option(VTK_DISPATCH_IMPLICIT_ARRAYS "Include implicit vtkDataArray subclasses in dispatcher" OFF)
 mark_as_advanced(
-  VTK_INSTANTIATE_IMPLICIT_ARRAYS
   VTK_DISPATCH_IMPLICIT_ARRAYS
 )
 
@@ -316,7 +314,7 @@ configure_file(
   "${CMAKE_CURRENT_BINARY_DIR}/vtkVTK_USE_SCALED_SOA_ARRAYS.h")
 
 if (VTK_BUILD_IMPLICIT_ARRAYS)
-  #list (APPEND template_classes vtkImplicitArray)
+  list (APPEND template_classes vtkImplicitArray)
   set(VTK_USE_IMPLICIT_ARRAYS 1)
 endif ()
 configure_file(

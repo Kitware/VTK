@@ -79,7 +79,7 @@ struct has_map_trait<const T> : public has_map_trait<T>
 };
 
 template <typename R, typename T, typename Arg>
-struct has_map_trait<R (T::*)(Arg)> : public has_map_trait<R(Arg)>
+struct has_map_trait<R (T::*)(Arg) const> : public has_map_trait<R(Arg)>
 {
 };
 
@@ -113,17 +113,12 @@ struct is_closure_trait<Closure*> : public is_closure_trait<Closure>
 };
 
 template <typename Closure>
-struct is_closure_trait<Closure const> : public is_closure_trait<Closure>
+struct is_closure_trait<const Closure> : public is_closure_trait<Closure>
 {
 };
 
 template <typename Closure>
 struct is_closure_trait<Closure&> : public is_closure_trait<Closure>
-{
-};
-
-template <typename Closure, typename R, typename Arg>
-struct is_closure_trait<R (Closure::*)(Arg)> : public is_closure_trait<R(Arg)>
 {
 };
 

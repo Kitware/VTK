@@ -94,7 +94,10 @@ if (VTK_BUILD_SCALED_SOA_ARRAYS)
 endif ()
 
 if(VTK_BUILD_IMPLICIT_ARRAYS)
-  set(implicit_array_tests TestImplicitArrayTraits.cxx)
+  set(implicit_array_tests 
+    TestImplicitArrayTraits.cxx
+    TestImplicitArraysBase.cxx
+  )
 endif ()
 
 

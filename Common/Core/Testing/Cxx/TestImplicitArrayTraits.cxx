@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    TestAbstractArraySize.cxx
+  Module:    TestImplicitArrayTraits.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -29,12 +29,12 @@ struct HasNothing
 
 struct HasMap
 {
-  float map(int) { return 0.0; }
+  float map(int) const { return 0.0; }
 };
 
 struct IsClosure
 {
-  float operator()(int) { return 0.0; }
+  float operator()(int) const { return 0.0; }
 };
 
 }
