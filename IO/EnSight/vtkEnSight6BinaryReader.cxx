@@ -231,6 +231,11 @@ int vtkEnSight6BinaryReader::ReadGeometryFile(
     return 0;
   }
 
+  if (this->UnstructuredPoints)
+  {
+    this->UnstructuredPoints->Delete();
+  }
+  this->UnstructuredPoints = vtkPoints::New();
   this->UnstructuredPoints->SetNumberOfPoints(this->NumberOfUnstructuredPoints);
 
   if (pointIdsListed)

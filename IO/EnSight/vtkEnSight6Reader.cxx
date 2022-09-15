@@ -266,6 +266,11 @@ int vtkEnSight6Reader::ReadGeometryFile(
   this->ReadNextDataLine(line); // "coordinates"
   this->ReadNextDataLine(line);
   this->NumberOfUnstructuredPoints = atoi(line);
+  if (this->UnstructuredPoints)
+  {
+    this->UnstructuredPoints->Delete();
+  }
+  this->UnstructuredPoints = vtkPoints::New();
   this->UnstructuredPoints->Allocate(this->NumberOfUnstructuredPoints);
   int* tmpIds = new int[this->NumberOfUnstructuredPoints];
 
