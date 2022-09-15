@@ -497,15 +497,16 @@ void vtkTemporalDataSetCache::ReplaceCacheItem(
 {
   vtkTDSCMemkindRAII(this);
   vtkDataObject* cachedData = input->NewInstance();
-  if (vtkDataObject::GetUsingMemkind() && !this->IsASource)
+  vtkCompositeDataSet* compositeCache = vtkCompositeDataSet::SafeDownCast(cachedData);
+  if (!(vtkDataObject::GetUsingMemkind() && !this->IsASource) && this->GetCacheInMemkind())
   {
-    cachedData->ShallowCopy(input);
+    cachedData->DeepCopy(input);
   }
   else
   {
-    if (this->GetCacheInMemkind())
+    if (compositeCache)
     {
-      cachedData->DeepCopy(input);
+      compositeCache->RecursiveShallowCopy(input);
     }
     else
     {
