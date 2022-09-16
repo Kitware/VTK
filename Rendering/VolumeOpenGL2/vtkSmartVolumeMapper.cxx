@@ -60,6 +60,8 @@ vtkSmartVolumeMapper::vtkSmartVolumeMapper()
   this->LowResGPUNecessary = 0;
   this->InterpolationMode = VTK_RESLICE_CUBIC;
 
+  this->UseJittering = 0;
+
   // If the render window has a desired update greater than or equal to the
   // interactive update rate, we apply certain optimizations to ensure that the
   // rendering is interactive.
@@ -466,6 +468,7 @@ void vtkSmartVolumeMapper::ComputeRenderMode(vtkRenderer* ren, vtkVolume* vol)
       this->GPUMapper->SetBlendMode(this->GetBlendMode());
       this->GPUMapper->SetFinalColorWindow(this->FinalColorWindow);
       this->GPUMapper->SetFinalColorLevel(this->FinalColorLevel);
+      this->GPUMapper->SetUseJittering(this->UseJittering);
       this->GPUMapper->SetSampleDistance(this->SampleDistance);
       this->GPUMapper->SetTransfer2DYAxisArray(this->Transfer2DYAxisArray);
       this->GPUMapper->SetComputeNormalFromOpacity(this->ComputeNormalFromOpacity);
@@ -503,6 +506,7 @@ void vtkSmartVolumeMapper::ComputeRenderMode(vtkRenderer* ren, vtkVolume* vol)
         this->GPULowResMapper->SetBlendMode(this->GetBlendMode());
         this->GPULowResMapper->SetFinalColorWindow(this->FinalColorWindow);
         this->GPULowResMapper->SetFinalColorLevel(this->FinalColorLevel);
+        this->GPULowResMapper->SetUseJittering(this->UseJittering);
         this->GPULowResMapper->SetSampleDistance(this->SampleDistance);
       }
       else

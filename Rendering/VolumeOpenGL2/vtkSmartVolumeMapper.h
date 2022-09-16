@@ -235,6 +235,17 @@ public:
 
   ///@{
   /**
+   * If UseJittering is on, each ray traversal direction will be
+   * perturbed slightly using a noise-texture to get rid of wood-grain
+   * effect. This is only used by the GPU mapper.
+   */
+  vtkSetClampMacro(UseJittering, vtkTypeBool, 0, 1);
+  vtkGetMacro(UseJittering, vtkTypeBool);
+  vtkBooleanMacro(UseJittering, vtkTypeBool);
+  ///@}
+
+  ///@{
+  /**
    * If the DesiredUpdateRate of the vtkRenderWindow that caused the Render
    * falls at or above this rate, the render is considered interactive and
    * the mapper may be adjusted (depending on the render mode).
@@ -489,6 +500,11 @@ public:
    * it changes
    */
   int InitializedBlendMode;
+
+  /**
+   * Enable / disable stochastic jittering
+   */
+  vtkTypeBool UseJittering;
 
   /**
    * The distance between sample points along the ray
