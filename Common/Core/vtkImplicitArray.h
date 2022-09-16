@@ -16,8 +16,7 @@
 #ifndef vtkImplicitArray_h
 #define vtkImplicitArray_h
 
-#include "vtkAOSDataArrayTemplate.h" // for copies
-#include "vtkCommonCoreModule.h"     // for export macro
+#include "vtkCommonCoreModule.h" // for export macro
 #include "vtkGenericDataArray.h"
 #include "vtkImplicitArrayTraits.h" // for traits
 
@@ -74,6 +73,19 @@ public:
    * Will fail for these read only arrays!
    */
   void SetTypedTuple(vtkIdType tupleIdx, const ValueType* tuple);
+
+  /**
+   * Get component @a comp of the tuple at @a tupleIdx.
+   */
+  inline ValueType GetTypedComponent(vtkIdType idx, int comp) const
+  {
+    return this->GetValue(idx * this->GetNumberOfTuples() + comp);
+  }
+
+  /**
+   * Will fail for these read only arrays!
+   */
+  void SetTypedComponent(vtkIdType tupleIdx, int comp, ValueType value);
   ///@}
 
   ///@{
@@ -85,7 +97,7 @@ public:
     this->Backend = newBackend;
     this->Modified();
   };
-  vtkGetMacro(Backend, std::shared_ptr<BackendT>);
+  std::shared_ptr<BackendT> GetBackend() { return this->Backend; };
   ///@}
 
   /**
@@ -99,12 +111,31 @@ public:
    */
   void Squeeze() override;
 
+  int GetArrayType() const override { return vtkAbstractArray::ImplicitArray; }
+
+#ifndef __VTK_WRAP__
+  ///@{
+  /**
+   * Perform a fast, safe cast from a vtkAbstractArray to a vtkDataArray.
+   * This method checks if source->GetArrayType() returns DataArray
+   * or a more derived type, and performs a static_cast to return
+   * source as a vtkDataArray pointer. Otherwise, nullptr is returned.
+   */
+  static vtkImplicitArray<BackendT>* FastDownCast(vtkAbstractArray* source);
+  ///@}
+#endif
+
 protected:
   vtkImplicitArray();
   ~vtkImplicitArray() override;
 
+  ///@{
+  /**
+   * No allocation necessary
+   */
   bool AllocateTuples(vtkIdType numTuples) { return true; };
   bool ReallocateTuples(vtkIdType numTuples) { return true; };
+  ///@}
 
   struct vtkInternals;
   std::unique_ptr<vtkInternals> Internals;
@@ -141,6 +172,9 @@ private:
 
   friend class vtkGenericDataArray<vtkImplicitArray<BackendT>, ValueTypeT>;
 };
+
+// Declare vtkArrayDownCast implementations for implicit containers:
+vtkArrayDownCast_TemplateFastCastMacro(vtkImplicitArray);
 
 #include "vtkImplicitArray.txx"
 

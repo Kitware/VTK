@@ -18,6 +18,8 @@
 
 #include "vtkImplicitArray.h"
 
+#include "vtkAOSDataArrayTemplate.h"
+#include "vtkDataArrayPrivate.txx"
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
 
@@ -61,10 +63,20 @@ void vtkImplicitArray<BackendT>::SetTypedTuple(vtkIdType idx, const ValueType* t
 
 //-----------------------------------------------------------------------------
 template <class BackendT>
+void vtkImplicitArray<BackendT>::SetTypedComponent(vtkIdType idx, int comp, ValueType value)
+{
+  vtkWarningMacro("Can not set tuple component in read only vtkImplicitArray!");
+}
+
+//-----------------------------------------------------------------------------
+template <class BackendT>
 void* vtkImplicitArray<BackendT>::GetVoidPointer(vtkIdType idx)
 {
-  this->Internals->Cache = vtk::TakeSmartPointer(vtkAOSDataArrayTemplate<ValueType>::New());
-  this->Internals->Cache->DeepCopy(this);
+  if (!this->Internals->Cache)
+  {
+    this->Internals->Cache = vtk::TakeSmartPointer(vtkAOSDataArrayTemplate<ValueType>::New());
+    this->Internals->Cache->DeepCopy(this);
+  }
   return this->Internals->Cache->GetVoidPointer(idx);
 }
 
@@ -74,5 +86,26 @@ void vtkImplicitArray<BackendT>::Squeeze()
 {
   this->Internals->Cache = nullptr;
 }
+
+//-----------------------------------------------------------------------------
+#ifndef __VTK_WRAP__
+template <class BackendT>
+vtkImplicitArray<BackendT>* vtkImplicitArray<BackendT>::FastDownCast(vtkAbstractArray* source)
+{
+  if (source)
+  {
+    switch (source->GetArrayType())
+    {
+      case vtkAbstractArray::ImplicitArray:
+        if (vtkDataTypesCompare(source->GetDataType(), vtkTypeTraits<ValueType>::VTK_TYPE_ID))
+        {
+          return static_cast<vtkImplicitArray<BackendT>*>(source);
+        }
+        break;
+    }
+  }
+  return nullptr;
+}
+#endif
 
 #endif // vtkImplicitArray_txx

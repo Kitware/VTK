@@ -15,6 +15,7 @@
 #include "vtkImplicitArray.h"
 
 #include "vtkDataArrayRange.h"
+#include "vtkIntArray.h"
 
 #include <cstdlib>
 
@@ -56,21 +57,64 @@ int TestImplicitArraysBase(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
     }
   }
 
-  //{
-  // auto range = vtk::DataArrayValueRange<1>(arr42);
-  // int iArr = 0;
-  // for(auto val : range)
-  //{
-  // std::cout << iArr << std::endl;
-  // std::cout << val <<  std::endl;
-  // if(val != 42)
-  //{
-  // res = EXIT_FAILURE;
-  // std::cout << iArr << "iterator entry is not equal to constant 42!" << std::endl;
-  //}
-  // iArr++;
-  //}
-  //}
+  {
+    auto range = vtk::DataArrayValueRange<1>(arr42);
+    int iArr = 0;
+    for (auto val : range)
+    {
+      if (val != 42)
+      {
+        res = EXIT_FAILURE;
+        std::cout << iArr << " iterator entry is not equal to constant 42!" << std::endl;
+      }
+      iArr++;
+    }
+  }
+
+  {
+    vtkNew<vtkIntArray> copied;
+    copied->DeepCopy(arr42);
+    auto range = vtk::DataArrayValueRange<1>(copied);
+    int iArr = 0;
+    for (auto val : range)
+    {
+      if (val != 42)
+      {
+        res = EXIT_FAILURE;
+        std::cout << iArr << " deep copied entry is not equal to constant 42!" << std::endl;
+      }
+      iArr++;
+    }
+  }
+
+  {
+    vtkNew<vtkIntArray> copied;
+    copied->ShallowCopy(arr42);
+    auto range = vtk::DataArrayValueRange<1>(copied);
+    int iArr = 0;
+    for (auto val : range)
+    {
+      if (val != 42)
+      {
+        res = EXIT_FAILURE;
+        std::cout << iArr << " shallow copied entry is not equal to constant 42!" << std::endl;
+      }
+      iArr++;
+    }
+  }
+
+  {
+    int* vPtr = static_cast<int*>(arr42->GetVoidPointer(0));
+    for (int iArr = 0; iArr < 100; iArr++)
+    {
+      if (vPtr[iArr] != 42)
+      {
+        res = EXIT_FAILURE;
+        std::cout << iArr << " void pointer entry is not equal to constant 42!" << std::endl;
+      }
+    }
+    arr42->Squeeze();
+  }
 
   return res;
 }

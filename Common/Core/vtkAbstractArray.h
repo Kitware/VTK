@@ -660,6 +660,7 @@ public:
     TypedDataArray,
     MappedDataArray,
     ScaleSoADataArrayTemplate,
+    ImplicitArray,
 
     DataArrayTemplate = AoSDataArrayTemplate //! Legacy
   };
