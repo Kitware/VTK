@@ -296,15 +296,14 @@ to be merged in a reasonable timeframe.
  * @demarle: Ray tracing.
  * @will.schroeder: algorithms, computational geometry, filters, SPH, SMP, widgets,  point cloud, spatial locators.
  * @sujin.philip: VTK-m Accelerators, SMP, DIY.
- * @robertmaynard: build-system, VTK-m accelerators, filters, data model, IO.
  * @yohann.bearzi: filters, data model, HTG, computational geometry, algorithms.
- * @ken-martin: OpenGL, polygonal and volume rendering, OpenVR, Vulkan, native windows, WebAssembly.
  * @sebastien.jourdain: web, WebAssembly, Python, Java
  * @allisonvacanti: VTK-m, vtkDataArray, vtkArrayDispatch, vtk::Range, data model, text rendering.
  * @sankhesh: volume rendering, Qt, OpenGL, widgets, vtkImageData, DICOM, VR.
  * @ben.boeckel: CMake, module system, third-parties.
  * @cory.quammen: readers, filters, data modeling, general usage, documentation.
  * @seanm: macOS, Cocoa, cppcheck, clang
+ * @spiros.tsalikis: filters, SMP, computational geometry
 
 If you would like to be included in this list, juste create a merge request.
 
