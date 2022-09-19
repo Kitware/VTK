@@ -52,6 +52,12 @@ class vtkUnsignedCharArray;
 class VTKFILTERSHYPERTREE_EXPORT vtkHyperTreeGridGradient : public vtkHyperTreeGridAlgorithm
 {
 public:
+  enum ComputeMode
+  {
+    UNLIMITED,
+    UNSTRUCTURED
+  };
+
   static vtkHyperTreeGridGradient* New();
   vtkTypeMacro(vtkHyperTreeGridGradient, vtkHyperTreeGridAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
@@ -62,6 +68,16 @@ public:
    */
   vtkSetMacro(ResultArrayName, std::string);
   vtkGetMacro(ResultArrayName, std::string);
+  ///@}
+
+  ///@{
+  /**
+   * Set/Get the computation method to use:
+   * * Unlimited: virtually reffine neighbors
+   * * Unstructured: compute gradient like in UG
+   */
+  vtkSetMacro(Mode, ComputeMode);
+  vtkGetMacro(Mode, ComputeMode);
   ///@}
 
 protected:
@@ -82,6 +98,8 @@ protected:
   // Fields
 
   std::string ResultArrayName = "Gradient";
+
+  ComputeMode Mode = ComputeMode::UNLIMITED;
 
   /**
    * Keep track of selected input scalars

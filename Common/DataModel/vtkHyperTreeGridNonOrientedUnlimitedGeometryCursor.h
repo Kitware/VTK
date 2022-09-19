@@ -176,10 +176,16 @@ public:
   bool IsLeaf();
 
   /**
-   * Is the cursor pointing to a leaf?
-   * this one does not subdivide virtually
+   * Is the cursor pointing to a leaf in the original tree ?
+   * Return false if the leaf is virtual.
    */
   bool IsRealLeaf();
+
+  /**
+   * Is the cursor pointing to a subdivided leaf ?
+   * Return false if the leaf is a real one.
+   */
+  bool IsVirtualLeaf();
 
   /**
    * Is the cursor at tree root?

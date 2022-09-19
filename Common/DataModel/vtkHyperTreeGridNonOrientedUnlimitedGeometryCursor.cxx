@@ -221,6 +221,12 @@ bool vtkHyperTreeGridNonOrientedUnlimitedGeometryCursor::IsRealLeaf()
 }
 
 //------------------------------------------------------------------------------
+bool vtkHyperTreeGridNonOrientedUnlimitedGeometryCursor::IsVirtualLeaf()
+{
+  return this->Entries[this->LastValidEntry].IsVirtualLeaf(this->Tree);
+}
+
+//------------------------------------------------------------------------------
 bool vtkHyperTreeGridNonOrientedUnlimitedGeometryCursor::IsRoot()
 {
   return this->Entries[this->LastValidEntry].IsRoot();

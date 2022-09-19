@@ -301,6 +301,12 @@ bool vtkHyperTreeGridNonOrientedUnlimitedSuperCursor::IsRealLeaf()
 }
 
 //------------------------------------------------------------------------------
+bool vtkHyperTreeGridNonOrientedUnlimitedSuperCursor::IsVirtualLeaf()
+{
+  return this->CentralCursor->IsVirtualLeaf();
+}
+
+//------------------------------------------------------------------------------
 bool vtkHyperTreeGridNonOrientedUnlimitedSuperCursor::IsRoot()
 {
   return this->CentralCursor->IsRoot();

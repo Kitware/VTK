@@ -168,6 +168,11 @@ public:
   bool IsRealLeaf();
 
   /**
+   * Is thecursor pointing to a real node in the tree
+   */
+  bool IsVirtualLeaf();
+
+  /**
    * Is the cursor at tree root?
    */
   bool IsRoot();
