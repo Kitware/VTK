@@ -37,6 +37,11 @@ struct IsClosure
   float operator()(int) const { return 0.0; }
 };
 
+struct IsNotDefaultConstructible
+{
+  IsNotDefaultConstructible(int& i) { i++; };
+};
+
 }
 
 int TestImplicitArrayTraits(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
@@ -163,6 +168,19 @@ int TestImplicitArrayTraits(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   if (vtk::detail::implicit_array_traits<::IsClosure>::code != vtk::detail::iarrays::CLOSURE)
   {
     std::cout << "Failed code check on IsClosure" << std::endl;
+    result = EXIT_FAILURE;
+  }
+
+  //--------------------------------------------------------------------------------
+  if (vtk::detail::implicit_array_traits<::IsNotDefaultConstructible>::default_constructible)
+  {
+    std::cout << "Failed default constructible check on IsNotDefaultConstructible" << std::endl;
+    result = EXIT_FAILURE;
+  }
+
+  if (!vtk::detail::implicit_array_traits<::HasNothing>::default_constructible)
+  {
+    std::cout << "Failed default constructible check on HasNothing" << std::endl;
     result = EXIT_FAILURE;
   }
 

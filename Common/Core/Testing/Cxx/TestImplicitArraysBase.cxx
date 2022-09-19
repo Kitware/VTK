@@ -27,6 +27,15 @@ struct Const42
   int operator()(int idx) const { return 42; };
 };
 
+struct ConstStruct
+{
+  int value = 0.0;
+
+  ConstStruct(int val) { this->value = val; }
+
+  int operator()(int idx) const { return this->value; };
+};
+
 };
 
 int TestImplicitArraysBase(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
@@ -114,6 +123,25 @@ int TestImplicitArraysBase(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
       }
     }
     arr42->Squeeze();
+  }
+
+  {
+    vtkNew<vtkImplicitArray<::ConstStruct>> genericConstArr;
+    genericConstArr->SetBackend(std::make_shared<::ConstStruct>(42));
+    genericConstArr->SetNumberOfComponents(2);
+    genericConstArr->SetNumberOfTuples(50);
+    for (int iArr = 0; iArr < 50; iArr++)
+    {
+      for (int iComp = 0; iComp < 2; iComp++)
+      {
+        if (genericConstArr->GetComponent(iArr, iComp) != 42)
+        {
+          res = EXIT_FAILURE;
+          std::cout << iArr << " generic ConstStruct component entry is not equal to constant 42!"
+                    << std::endl;
+        }
+      }
+    }
   }
 
   return res;

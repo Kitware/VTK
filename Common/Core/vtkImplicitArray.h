@@ -40,6 +40,7 @@ public:
   using SelfType = vtkImplicitArray<BackendT>;
   vtkTemplateTypeMacro(SelfType, GenericDataArrayType);
   using ValueType = typename GenericDataArrayType::ValueType;
+  using BackendType = BackendT;
 
   static vtkImplicitArray* New();
 
@@ -111,7 +112,19 @@ public:
    */
   void Squeeze() override;
 
+  /**
+   * Get the type of array this is when down casting
+   */
   int GetArrayType() const override { return vtkAbstractArray::ImplicitArray; }
+
+  /**
+   * Reset the array to default construction
+   */
+  void Initialize() override
+  {
+    this->Initialize<BackendT>();
+    this->Squeeze();
+  };
 
 #ifndef __VTK_WRAP__
   ///@{
@@ -167,6 +180,30 @@ private:
     vtkIdType idx) const
   {
     return (*this->Backend)(idx);
+  }
+  ///@}
+
+  ///@{
+  /**
+   * Static dispatch Initialize for default constructible things
+   */
+  template <typename U>
+  typename std::enable_if<vtk::detail::implicit_array_traits<U>::default_constructible, void>::type
+  Initialize()
+  {
+    this->Backend = std::make_shared<BackendT>();
+  }
+  ///@}
+
+  ///@{
+  /**
+   * Static dispatch Initialize for non-default constuctible things
+   */
+  template <typename U>
+  typename std::enable_if<!vtk::detail::implicit_array_traits<U>::default_constructible, void>::type
+  Initialize()
+  {
+    this->Backend = nullptr;
   }
   ///@}
 

@@ -214,6 +214,7 @@ struct implicit_array_traits
   static constexpr bool can_read = trait::value;
   using rtype = typename trait::rtype;
   static constexpr iarrays::ReadOperatorCodes code = trait::code;
+  static constexpr bool default_constructible = std::is_default_constructible<T>::value;
 };
 
 }

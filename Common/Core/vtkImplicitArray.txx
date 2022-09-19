@@ -41,7 +41,9 @@ vtkImplicitArray<BackendT>* vtkImplicitArray<BackendT>::New()
 template <class BackendT>
 vtkImplicitArray<BackendT>::vtkImplicitArray()
   : Internals(new vtkInternals())
-  , Backend(std::make_shared<BackendT>()){};
+{
+  this->Initialize();
+}
 
 //-----------------------------------------------------------------------------
 template <class BackendT>
