@@ -2,6 +2,7 @@ vtk_add_test_python(
   EnSight6Elements.py
   EnSight6ElementsBin.py
   EnSight6OfficeBin.py
+  EnSight6TemporalGeometryChange.py,NO_VALID
   EnSightBlow1ASCII.py
   EnSightBlow1Bin.py
   EnSightBlow2ASCII.py

@@ -4,6 +4,7 @@ if (VTK_WRAP_PYTHON)
     Data/EnSight/UndefAndPartial/,REGEX:.*
     Data/EnSight/UndefAndPartialAscii/,REGEX:.*
     Data/EnSight/particles/,REGEX:.*
+    Data/EnSight/.EnsightData_temporalCache/,REGEX:.*
     )
 
   add_subdirectory(Python)
