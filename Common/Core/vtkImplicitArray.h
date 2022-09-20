@@ -80,7 +80,7 @@ public:
    */
   inline ValueType GetTypedComponent(vtkIdType idx, int comp) const
   {
-    return this->GetValue(idx * this->GetNumberOfTuples() + comp);
+    return this->GetValue(idx * this->NumberOfComponents + comp);
   }
 
   /**

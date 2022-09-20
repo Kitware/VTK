@@ -123,6 +123,21 @@ mark_as_advanced(
   VTK_DISPATCH_IMPLICIT_ARRAYS
 )
 
+if (VTK_DISPATCH_IMPLICIT_ARRAYS)
+  add_definitions(-DDISPATCH_IMPLICIT_ARRAYS)
+endif ()
+
+set(implicit_backend_classes)
+set(implicit_backend_template_classes)
+set(implicit_backend_sources)
+set(implicit_backend_headers)
+set(implicit_backend_dispatch_list)
+if (VTK_BUILD_IMPLICIT_ARRAYS)
+  list(APPEND implicit_backend_headers
+    vtkStdFunctionArray.h
+  )
+endif ()
+
 include("${CMAKE_CURRENT_SOURCE_DIR}/vtkCreateArrayDispatchArrayList.cmake")
 vtkArrayDispatch_default_array_setup()
 vtkArrayDispatch_generate_array_header(VTK_ARRAYDISPATCH_ARRAY_LIST)
@@ -146,6 +161,9 @@ foreach (INSTANTIATION_VALUE_TYPE IN LISTS vtkArrayDispatch_all_types)
   set(_list "vtkSOADataArrayTemplateInstantiate")
   if (VTK_BUILD_SCALED_SOA_ARRAYS)
     list(APPEND _list "vtkScaledSOADataArrayTemplateInstantiate")
+  endif ()
+  if (VTK_BUILD_IMPLICIT_ARRAYS)
+    list(APPEND _list "vtkStdFunctionArrayInstantiate")
   endif ()
   # see comments in vtkGenericDataArray.h for explanation
   if (INSTANTIATION_VALUE_TYPE MATCHES "(^| )long( |$)")
@@ -277,7 +295,7 @@ set(classes
   vtkWeakPointerBase
   vtkWeakReference
   vtkWindow
-  vtkXMLFileOutputWindow
+  vtkXMLFileOutputWindow 
 
   # These classes are deprecated.
   vtkCriticalSection)
@@ -302,6 +320,7 @@ set(nowrap_template_classes
 set(sources
   vtkArrayIteratorTemplateInstantiate.cxx
   vtkGenericDataArray.cxx
+  ${implicit_backend_sources}
   ${instantiation_sources}
   ${vtk_smp_sources})
 
@@ -314,7 +333,11 @@ configure_file(
   "${CMAKE_CURRENT_BINARY_DIR}/vtkVTK_USE_SCALED_SOA_ARRAYS.h")
 
 if (VTK_BUILD_IMPLICIT_ARRAYS)
-  list (APPEND template_classes vtkImplicitArray)
+  list (APPEND template_classes 
+    vtkImplicitArray
+    ${implicit_backend_template_classes})
+  list (APPEND sources
+    ${implicit_backend_sources})
   set(VTK_USE_IMPLICIT_ARRAYS 1)
 endif ()
 configure_file(
@@ -370,6 +393,7 @@ set(headers
 if (VTK_BUILD_IMPLICIT_ARRAYS)
   list(APPEND headers 
     vtkImplicitArrayTraits.h
+    ${implicit_backend_headers}
   )
 endif ()
 

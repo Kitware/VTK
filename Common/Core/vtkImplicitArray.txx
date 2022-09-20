@@ -19,7 +19,6 @@
 #include "vtkImplicitArray.h"
 
 #include "vtkAOSDataArrayTemplate.h"
-#include "vtkDataArrayPrivate.txx"
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
 
@@ -91,6 +90,7 @@ void vtkImplicitArray<BackendT>::Squeeze()
 
 //-----------------------------------------------------------------------------
 #ifndef __VTK_WRAP__
+
 template <class BackendT>
 vtkImplicitArray<BackendT>* vtkImplicitArray<BackendT>::FastDownCast(vtkAbstractArray* source)
 {
@@ -101,7 +101,15 @@ vtkImplicitArray<BackendT>* vtkImplicitArray<BackendT>::FastDownCast(vtkAbstract
       case vtkAbstractArray::ImplicitArray:
         if (vtkDataTypesCompare(source->GetDataType(), vtkTypeTraits<ValueType>::VTK_TYPE_ID))
         {
-          return static_cast<vtkImplicitArray<BackendT>*>(source);
+          // In a perfect world, this part should do something like
+          //
+          // return static_cast<vtkImplicitArray<BackendT>*>(source);
+          //
+          // The problem here is that we do not know what type of backend to use and any pointer to
+          // an implicit array will down cast to any other pointer to an implicit array. Barring
+          // something better to do here, we use the SafeDownCast mechanism to ensure safety at the
+          // cost of performance.
+          return vtkImplicitArray<BackendT>::SafeDownCast(source);
         }
         break;
     }

@@ -97,6 +97,7 @@ if(VTK_BUILD_IMPLICIT_ARRAYS)
   set(implicit_array_tests 
     TestImplicitArrayTraits.cxx
     TestImplicitArraysBase.cxx
+    TestStdFunctionArray.cxx
   )
 endif ()
 

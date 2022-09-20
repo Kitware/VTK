@@ -14,8 +14,11 @@
 =========================================================================*/
 #include "vtkImplicitArray.h"
 
+#include "vtkArrayDispatch.h"
 #include "vtkDataArrayRange.h"
 #include "vtkIntArray.h"
+
+#include "vtkStdFunctionArray.h"
 
 #include <cstdlib>
 

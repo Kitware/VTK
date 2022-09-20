@@ -146,6 +146,14 @@ if (VTK_DISPATCH_TYPED_ARRAYS)
   )
 endif()
 
+if(VTK_DISPATCH_IMPLICIT_ARRAYS)
+  list(APPEND vtkArrayDispatch_containers vtkStdFunctionArray)
+  set(vtkArrayDispatch_vtkStdFunctionArray_header vtkStdFunctionArray.h)
+  set(vtkArrayDispatch_vtkStdFunctionArray_types
+    ${vtkArrayDispatch_all_types}
+  )
+endif()
+
 endmacro()
 
 # Concatenates a list of strings into a single string, since string(CONCAT ...)
