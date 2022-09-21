@@ -2,6 +2,9 @@ set(test_exclusions
   # Flaky; timesout sometimes on macOS and Linux
   "^VTK::RenderingVolumeOpenGL2Cxx-TestGPURayCastDepthPeelingBoxWidget$"
 
+  # Random Memory Leak #18599
+  "^VTK::FiltersCorePython-probe$"
+
   # This test just seems to be incorrect.
   "^VTK::FiltersSelectionCxx-TestLinearSelector3D$")
 
@@ -223,20 +226,14 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "macos_arm64")
     "^VTK::FiltersGeneralPython-TestCellDerivs$"
     "^VTK::FiltersHyperTreeCxx-TestHyperTreeGridBinaryClipPlanes$"
     "^VTK::RenderingAnnotationCxx-TestCubeAxes3$"
-    "^VTK::RenderingAnnotationCxx-TestCubeAxesWithYLines$"
-
-    # Random Memory Leak #18599
-    "^VTK::FiltersCorePython-probe$")
+    "^VTK::RenderingAnnotationCxx-TestCubeAxesWithYLines$")
 endif ()
 
 if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "macos_x86_64")
   # Screenshot issue for test comparison with background buffer (intermittent)
   list(APPEND test_exclusions
     "^VTK::GUISupportQtQuickCxx-TestQQuickVTKRenderItemWidget$"
-    "^VTK::GUISupportQtQuickCxx-TestQQuickVTKRenderWindow$"
-
-    # Random Memory Leak #18599
-    "^VTK::FiltersCorePython-probe$")
+    "^VTK::GUISupportQtQuickCxx-TestQQuickVTKRenderWindow$")
 endif ()
 
 if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "offscreen")
