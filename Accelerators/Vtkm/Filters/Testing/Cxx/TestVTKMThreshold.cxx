@@ -66,7 +66,7 @@ int RunVTKPipeline(vtkImageData* grid, int argc, char* argv[])
   vtkNew<vtkmThreshold> threshold;
   threshold->ForceVTKmOn();
   threshold->SetInputConnection(producer->GetOutputPort());
-  threshold->SetPointsDataTypeToFloat();
+  threshold->SetOutputPointsPrecision(vtkAlgorithm::SINGLE_PRECISION);
   threshold->AllScalarsOn();
   threshold->SetThresholdFunction(vtkThreshold::THRESHOLD_BETWEEN);
   threshold->SetLowerThreshold(0.0);

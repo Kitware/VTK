@@ -12,6 +12,8 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+// Hide VTK_DEPRECATED_IN_9_3_0() warnings.
+#define VTK_DEPRECATION_LEVEL 0
 
 #include "vtkThreshold.h"
 
@@ -125,13 +127,6 @@ int vtkThreshold::RequestData(vtkInformation* vtkNotUsed(request),
   vtkCellData *cd = input->GetCellData(), *outCD = output->GetCellData();
 
   vtkDebugMacro(<< "Executing threshold filter");
-
-  if (this->AttributeMode != -1)
-  {
-    vtkErrorMacro(<< "You have set the attribute mode on vtkThreshold. This method is deprecated, "
-                     "please use SetInputArrayToProcess instead.");
-    return 1;
-  }
 
   vtkDataArray* inScalars = this->GetInputArrayToProcess(0, inputVector);
 
@@ -374,6 +369,21 @@ int vtkThreshold::EvaluateComponents(vtkDataArray* scalars, vtkIdType id)
   return keepCell;
 }
 
+void vtkThreshold::SetAttributeModeToDefault()
+{
+  this->SetAttributeMode(VTK_ATTRIBUTE_MODE_DEFAULT);
+}
+
+void vtkThreshold::SetAttributeModeToUsePointData()
+{
+  this->SetAttributeMode(VTK_ATTRIBUTE_MODE_USE_POINT_DATA);
+}
+
+void vtkThreshold::SetAttributeModeToUseCellData()
+{
+  this->SetAttributeMode(VTK_ATTRIBUTE_MODE_USE_CELL_DATA);
+}
+
 // Return the method for manipulating scalar data as a string.
 const char* vtkThreshold::GetAttributeModeAsString()
 {
@@ -406,6 +416,16 @@ const char* vtkThreshold::GetComponentModeAsString()
   {
     return "UseAll";
   }
+}
+
+void vtkThreshold::SetPointsDataTypeToDouble()
+{
+  this->SetPointsDataType(VTK_DOUBLE);
+}
+
+void vtkThreshold::SetPointsDataTypeToFloat()
+{
+  this->SetPointsDataType(VTK_FLOAT);
 }
 
 void vtkThreshold::SetPointsDataType(int type)
@@ -458,7 +478,6 @@ void vtkThreshold::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 
-  os << indent << "Attribute Mode: " << this->GetAttributeModeAsString() << endl;
   os << indent << "Component Mode: " << this->GetComponentModeAsString() << endl;
   os << indent << "Selected Component: " << this->SelectedComponent << endl;
 
