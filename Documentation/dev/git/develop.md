@@ -291,19 +291,22 @@ expertise. A merge request without a developer tagged has very low chance
 to be merged in a reasonable timeframe.
 
  * @mwestphal: Qt, filters, data Model, widgets, parallel, anything else.
- * @charles.gueunet: filters, data model, SMP, events, pipeline.
+ * @charles.gueunet: filters, data model, SMP, events, pipeline, computational geometry, distributed algorithms.
  * @kmorel: General VTK Expertise, VTK-m accelerators.
  * @demarle: Ray tracing.
  * @will.schroeder: algorithms, computational geometry, filters, SPH, SMP, widgets,  point cloud, spatial locators.
  * @sujin.philip: VTK-m Accelerators, SMP, DIY.
  * @yohann.bearzi: filters, data model, HTG, computational geometry, algorithms.
- * @sebastien.jourdain: web, WebAssembly, Python, Java
+ * @sebastien.jourdain: web, WebAssembly, Python, Java.
  * @allisonvacanti: VTK-m, vtkDataArray, vtkArrayDispatch, vtk::Range, data model, text rendering.
  * @sankhesh: volume rendering, Qt, OpenGL, widgets, vtkImageData, DICOM, VR.
  * @ben.boeckel: CMake, module system, third-parties.
  * @cory.quammen: readers, filters, data modeling, general usage, documentation.
- * @seanm: macOS, Cocoa, cppcheck, clang
- * @spiros.tsalikis: filters, SMP, computational geometry
+ * @seanm: macOS, Cocoa, cppcheck, clang.
+ * @spiros.tsalikis: filters, SMP, computational geometry.
+ * @tiffany.chhim: filters, algorithms, VR.
+ * @thomas.galland: readers, filters, selection, VR.
+ * @julien.fausty: computational geometry, high-order, simulation methods.
 
 If you would like to be included in this list, juste create a merge request.
 
