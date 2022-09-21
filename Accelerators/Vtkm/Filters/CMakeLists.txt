@@ -37,6 +37,7 @@ set(classes
   vtkmPointTransform
   vtkmPolyDataNormals
   vtkmProbe
+  vtkmSlice
   vtkmThreshold
   vtkmTriangleMeshPointNormals
   vtkmWarpScalar
@@ -84,6 +85,7 @@ if (VTK_ENABLE_VTKM_OVERRIDES)
   _vtkm_add_override("vtkCellDataToPointData" "vtkmAverageToPoints")
   _vtkm_add_override("vtkPointDataToCellData" "vtkmAverageToCells")
   _vtkm_add_override("vtkTableBasedClipDataSet" "vtkmClip")
+  _vtkm_add_override("vtkCutter" "vtkmSlice")
 
   list (JOIN VTKM_OVERRIDES_INITIALIZER_LIST ",\n  " VTKM_OVERRIDES_INITIALIZER_LIST_STRING)
 
