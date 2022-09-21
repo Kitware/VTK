@@ -1,7 +1,15 @@
-// VTK-HeaderTest-Exclude: vtkHyperTreeGridNonOrientedMooreSuperCursorData.h
+// VTK-HeaderTest-Exclude: vtkHyperTreeGridNonOrientedMooreSuperCursorData.inl
 // clang-format off
 
-#ifndef vtkHyperTreeGridNonOrientedMooreSuperCursorData_h
+/*
+ * This file is meant to be included in cxx file.
+ * It is in a separate .inl to:
+ * *  avoid copy-paste.
+ * *  improve readability
+ * clang-format is disabled because of:
+ * * bad restul
+ * * poor performances
+ */
 
 //------------------------------------------------------------------------------
 // Super cursor traversal table to retrieve the child index for each cursor
@@ -230,4 +238,3 @@ static const unsigned int* CornerNeighborCursorsTable3D[8] = {
 VTK_ABI_NAMESPACE_END
 
 // clang-format on
-#endif /* end of include guard: vtkHyperTreeGridNonOrientedMooreSuperCursorData_h */

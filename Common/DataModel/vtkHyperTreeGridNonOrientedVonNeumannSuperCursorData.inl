@@ -1,7 +1,15 @@
 // VTK-HeaderTest-Exclude: vtkHyperTreeGridNonOrientedVonNeumannSuperCursorData.h
 // clang-format off
 
-#ifndef vtkHyperTreeGridNonOrientedVonNeumannSuperCursorData_h
+/*
+ * This file is meant to be included in cxx file.
+ * It is in a separate .inl to:
+ * *  avoid copy-paste.
+ * *  improve readability
+ * clang-format is disabled because of:
+ * * bad restul
+ * * poor performances
+ */
 
 //------------------------------------------------------------------------------
 // Super cursor traversal table to retrieve the child index for each cursor
@@ -172,4 +180,3 @@ static const unsigned int* VonNeumannChildCursorToChildTable[3][2] = {
 VTK_ABI_NAMESPACE_END
 
 // clang-format off
-#endif /* end of include guard: vtkHyperTreeGridNonOrientedVonNeumannSuperCursorData_h */

@@ -23,14 +23,12 @@ PURPOSE.  See the above copyright Nonice for more information.
 
 #include <cassert>
 
+#include "vtkHyperTreeGridNonOrientedVonNeumannSuperCursorData.inl"
+
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkHyperTreeGridNonOrientedVonNeumannSuperCursor);
 
-VTK_ABI_NAMESPACE_END
-#include "vtkHyperTreeGridNonOrientedVonNeumannSuperCursorData.h"
-
 //------------------------------------------------------------------------------
-VTK_ABI_NAMESPACE_BEGIN
 void vtkHyperTreeGridNonOrientedVonNeumannSuperCursor::Initialize(
   vtkHyperTreeGrid* grid, vtkIdType treeIndex, bool create)
 {
