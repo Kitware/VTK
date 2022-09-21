@@ -258,8 +258,8 @@ typedef std::unordered_map<vtkSLACReader::EdgeEndpoints, midpointPointersType, E
 
 //------------------------------------------------------------------------------
 // Convenience function for gathering midpoint information to a process.
-static void GatherMidpoints(vtkMultiProcessController* controller,
-  const midpointListsType& sendMidpoints, midpointListsType& recvMidpoints, int process)
+void GatherMidpoints(vtkMultiProcessController* controller, const midpointListsType& sendMidpoints,
+  midpointListsType& recvMidpoints, int process)
 {
   vtkIdType sendLength = static_cast<vtkIdType>(sendMidpoints.position.size());
   if (sendLength != static_cast<vtkIdType>(sendMidpoints.topology.size()))
