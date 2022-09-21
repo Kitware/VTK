@@ -750,7 +750,7 @@ function (vtk_add_test_mangling module)
     return ()
   endif ()
 
-  cmake_parse_arguments("vtk_mangling_test" "" "" "EXEMPTIONS" ${ARGN})
+  cmake_parse_arguments(_vtk_mangling_test "" "" "EXEMPTIONS" ${ARGN})
 
   get_property(vtk_abi_namespace_name GLOBAL PROPERTY _vtk_abi_namespace_name)
   if (vtk_abi_namespace_name STREQUAL "")
@@ -771,7 +771,7 @@ function (vtk_add_test_mangling module)
                 # TODO: This is not included in vtk-config.
                 "${vtk_abi_namespace_name}"
                 "--exemptions"
-                "${vtk_mangling_test_EXEMPTIONS}")
+                "${_vtk_mangling_test_EXEMPTIONS}")
     endif ()
   endif ()
 endfunction ()
