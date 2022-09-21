@@ -218,6 +218,10 @@ Less common, but variables which may be of interest to some:
 
 More advanced options:
 
+  * `VTK_ABI_NAMESPACE_NAME` (default `<DEFAULT>` aka `""`): If set, VTK will
+     wrap all VTK public symbols in an
+     `inline namespace <VTK_ABI_NAMESPACE_NAME>` to allow runtime co-habitation
+     with different VTK versions.
   * `VTK_BUILD_DOCUMENTATION` (default `OFF`): If set, VTK will build its API
     documentation using Doxygen.
   * `VTK_BUILD_ALL_MODULES` (default `OFF`): If set, VTK will enable all

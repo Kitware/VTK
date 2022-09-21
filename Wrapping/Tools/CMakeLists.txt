@@ -40,11 +40,12 @@ set_property(SOURCE vtkParseMain.c
   PROPERTY
     COMPILE_DEFINITIONS "VTK_PARSE_VERSION=\"${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION}\"")
 
-add_definitions(-DVTK_NO_ABI_NAMESPACE)
-
 vtk_module_add_module("${ns}::WrappingTools"
   SOURCES ${sources}
   HEADERS ${headers})
+
+vtk_module_definitions("${ns}::WrappingTools"
+  PUBLIC VTK_NO_ABI_NAMESPACE)
 
 if (NOT TARGET "${ns}::WrapHierarchy")
   vtk_module_add_executable(WrapHierarchy
