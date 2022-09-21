@@ -400,6 +400,7 @@ if(MSVC AND NOT EXPAT_SHARED_LIBS)
     endif()
 endif()
 
+if (FALSE) # XXX(kitware): Settings handled by VTK.
 foreach(postfix_var
         CMAKE_${_EXPAT_BUILD_TYPE_UPPER}_POSTFIX
         CMAKE_DEBUG_POSTFIX
@@ -415,6 +416,7 @@ foreach(postfix_var
 
     set(${postfix_var} "${_POSTFIX_WIDE}${_POSTFIX_DEBUG}${_POSTFIX_CRT}" CACHE STRING "Library filename postfix, e.g. libexpat<postfix=[w][d][MD|MT]>.lib")
 endforeach()
+endif ()
 
 #
 # C library
