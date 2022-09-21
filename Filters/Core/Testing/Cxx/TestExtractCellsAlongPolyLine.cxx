@@ -43,7 +43,6 @@ constexpr vtkIdType NUMBER_OF_OUTPUT_POINTS = 8 * DIM;
 bool TestOutput(vtkImageData* image, vtkUnstructuredGrid* output)
 {
   bool retVal = true;
-  double p[3];
 
   vtkIdType numberOfOutputPoints = output->GetNumberOfPoints();
   vtkIdType numberOfOutputCells = output->GetNumberOfCells();
@@ -86,9 +85,6 @@ bool TestOutput(vtkImageData* image, vtkUnstructuredGrid* output)
   locator->SetDataSet(centersPS);
   locator->BuildLocator();
 
-  vtkNew<vtkIdList> results, outputPointIds, imagePointIds;
-  double imagePoint[3], outputPoint[3];
-
   auto cellIds =
     vtkArrayDownCast<vtkIdTypeArray>(image->GetCellData()->GetAbstractArray("CellIds"));
   auto RTData = vtkArrayDownCast<vtkFloatArray>(image->GetPointData()->GetAbstractArray("RTData"));
@@ -100,6 +96,7 @@ bool TestOutput(vtkImageData* image, vtkUnstructuredGrid* output)
 
   for (vtkIdType cellId = 0; cellId < NUMBER_OF_OUTPUT_CELLS; ++cellId)
   {
+    double p[3];
     if (cellId < DIM)
     {
       p[0] = 0.5;
@@ -113,6 +110,7 @@ bool TestOutput(vtkImageData* image, vtkUnstructuredGrid* output)
       p[2] = static_cast<double>(DIM) - 0.5;
     }
 
+    vtkNew<vtkIdList> results;
     locator->FindPointsWithinRadius(1e-6, p, results);
 
     if (results->GetNumberOfIds() != 1)
@@ -134,8 +132,21 @@ bool TestOutput(vtkImageData* image, vtkUnstructuredGrid* output)
       break;
     }
 
+    vtkNew<vtkIdList> outputPointIds, imagePointIds;
     output->GetCellPoints(centerCellId, outputPointIds);
     image->GetCellPoints(imageCellId, imagePointIds);
+
+    if (output->GetCellType(centerCellId) == VTK_HEXAHEDRON)
+    {
+      // Change point order: voxels and hexahedron don't have same connectivity.
+      // swap 2nd and 3rd, 6th and 7th ids
+      vtkIdType tmp = outputPointIds->GetId(2);
+      outputPointIds->SetId(2, outputPointIds->GetId(3));
+      outputPointIds->SetId(3, tmp);
+      tmp = outputPointIds->GetId(6);
+      outputPointIds->SetId(6, outputPointIds->GetId(7));
+      outputPointIds->SetId(7, tmp);
+    }
 
     for (vtkIdType id = 0; id < imagePointIds->GetNumberOfIds(); ++id)
     {
@@ -149,6 +160,7 @@ bool TestOutput(vtkImageData* image, vtkUnstructuredGrid* output)
         break;
       }
 
+      double imagePoint[3], outputPoint[3];
       output->GetPoint(outputPointId, outputPoint);
       image->GetPoint(imagePointId, imagePoint);
 

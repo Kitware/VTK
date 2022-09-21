@@ -125,7 +125,7 @@ class TestPolyDataFiltersLosingPrecision(unittest.TestCase, FiltersLosingPrecisi
         self.cell.InsertNextCell(vtk_const.VTK_QUAD, ids)
         scalar = vtkDoubleArray()
         scalar.SetName('scalar')
-        scalar.SetNumberOfTuples(8)
+        scalar.SetNumberOfTuples(4)
         scalar.SetValue(0, 0.0)
         scalar.SetValue(1, 0.0)
         scalar.SetValue(2, 1.0)

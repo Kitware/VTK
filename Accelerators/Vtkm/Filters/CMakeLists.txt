@@ -86,6 +86,7 @@ if (VTK_ENABLE_VTKM_OVERRIDES)
   _vtkm_add_override("vtkPointDataToCellData" "vtkmAverageToCells")
   _vtkm_add_override("vtkTableBasedClipDataSet" "vtkmClip")
   _vtkm_add_override("vtkCutter" "vtkmSlice")
+  _vtkm_add_override("vtkThreshold" "vtkmThreshold")
 
   list (JOIN VTKM_OVERRIDES_INITIALIZER_LIST ",\n  " VTKM_OVERRIDES_INITIALIZER_LIST_STRING)
 

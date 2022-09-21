@@ -35,7 +35,7 @@
 #include <limits>
 
 VTK_ABI_NAMESPACE_BEGIN
-vtkStandardNewMacro(vtkThreshold);
+vtkObjectFactoryNewMacro(vtkThreshold);
 
 // Construct with lower threshold=0, upper threshold=1, and threshold
 // function=upper AllScalars=1.

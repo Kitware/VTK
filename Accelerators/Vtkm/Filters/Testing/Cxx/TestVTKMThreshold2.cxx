@@ -59,10 +59,6 @@ int TestVTKMThreshold2(int argc, char* argv[])
   threshold->SetLowerThreshold(L);
   threshold->SetUpperThreshold(U);
   threshold->SetAllScalars(0);
-  threshold->Update();
-
-  threshold->UseContinuousCellRangeOn();
-  threshold->Update();
 
   vtkNew<vtkDataSetSurfaceFilter> surface;
   surface->SetInputConnection(threshold->GetOutputPort());
