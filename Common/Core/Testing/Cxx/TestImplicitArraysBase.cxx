@@ -18,8 +18,6 @@
 #include "vtkDataArrayRange.h"
 #include "vtkIntArray.h"
 
-#include "vtkStdFunctionArray.h"
-
 #include <cstdlib>
 
 namespace
@@ -114,6 +112,31 @@ int TestImplicitArraysBase(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
       iArr++;
     }
   }
+
+  {
+    vtkNew<vtkImplicitArray<::Const42>> copied;
+    copied->DeepCopy(arr42.Get());
+    auto range = vtk::DataArrayValueRange<1>(copied);
+    int iArr = 0;
+    for (auto val : range)
+    {
+      if (val != 42)
+      {
+        res = EXIT_FAILURE;
+        std::cout << iArr << " deep copied implicit array entry is not equal to constant 42!"
+                  << std::endl;
+      }
+      iArr++;
+    }
+  }
+
+  /*
+   * Fails to compile, as it should, since the backend types are not the same
+   */
+  //{
+  // vtkNew<vtkStdFunctionArray<int>> copied;
+  // copied->DeepCopy(arr42.Get());
+  //}
 
   {
     int* vPtr = static_cast<int*>(arr42->GetVoidPointer(0));

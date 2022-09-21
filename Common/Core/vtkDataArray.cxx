@@ -38,6 +38,9 @@
 #ifdef VTK_USE_SCALED_SOA_ARRAYS
 #include "vtkScaledSOADataArrayTemplate.h" // For fast paths
 #endif
+#ifdef VTK_USE_IMPLICIT_ARRAYS
+#include "vtkImplicitArray.h"
+#endif
 #include "vtkSMPTools.h"
 #include "vtkShortArray.h"
 #include "vtkSignedCharArray.h"
@@ -123,6 +126,20 @@ struct DeepCopyWorker
     dst->SetScale(src->GetScale());
   }
 #endif
+
+#ifdef VTK_USE_IMPLICIT_ARRAYS
+  template <typename BackendTSrc, typename BackendTDst>
+  void operator()(vtkImplicitArray<BackendTSrc>* src, vtkImplicitArray<BackendTDst>* dst)
+  {
+    static_assert(std::is_same<BackendTSrc, BackendTDst>::value,
+      "Cannot copy implicit array with one type of backend to an implicit array with a different "
+      "type of backend");
+    dst->SetNumberOfComponents(src->GetNumberOfComponents());
+    dst->SetNumberOfTuples(src->GetNumberOfTuples());
+    dst->SetBackend(src->GetBackend());
+  }
+#endif // VTK_USE_IMPLICIT_ARRAYS
+
 // Undo warning suppression.
 #if defined(__clang__) && defined(__has_warning)
 #if __has_warning("-Wunused-template")

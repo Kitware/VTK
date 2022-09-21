@@ -22,6 +22,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 //-----------------------------------------------------------------------------
 template <class BackendT>
 struct vtkImplicitArray<BackendT>::vtkInternals
@@ -117,5 +118,7 @@ vtkImplicitArray<BackendT>* vtkImplicitArray<BackendT>::FastDownCast(vtkAbstract
   return nullptr;
 }
 #endif
+
+VTK_ABI_NAMESPACE_END
 
 #endif // vtkImplicitArray_txx

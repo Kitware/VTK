@@ -28,6 +28,22 @@
 
 #include <functional>
 
+/**
+ * \var vtkStdFunctionArray
+ * \brief A utility alias for wrapping std::function in implicit arrays
+ *
+ * The main goal behind this alias is to be able to offer some semi-flexible instantiations of
+ * implicit arrays that can work with the vtkArrayDispatch mechanisms.
+ *
+ * In order to be usefully included in the dispatchers, these arrays need to be instantiated at the
+ * vtk library compile time. As such, they need to be compilable without knowing the exact
+ * function/mapping to include in the backend. This is why std::function is used as the backend
+ * here.
+ *
+ * @sa
+ * vtkImplicitArray
+ */
+
 template <typename T>
 using vtkStdFunctionArray = vtkImplicitArray<std::function<T(int)>>;
 
@@ -38,7 +54,9 @@ using vtkStdFunctionArray = vtkImplicitArray<std::function<T(int)>>;
 #define VTK_INSTANTIATE_STD_FUNCTION_ARRAY(ValueType)                                              \
   namespace vtkDataArrayPrivate                                                                    \
   {                                                                                                \
+  VTK_ABI_NAMESPACE_BEGIN                                                                          \
   VTK_INSTANTIATE_VALUERANGE_ARRAYTYPE(vtkStdFunctionArray<ValueType>, double)                     \
+  VTK_ABI_NAMESPACE_END                                                                            \
   }
 
 #endif // VTK_STD_FUNCTION_ARRAY_INSTANTIATING

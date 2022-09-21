@@ -23,6 +23,57 @@
 #include <memory>
 #include <type_traits>
 
+/**
+ * \class vtkImplicitArray
+ * \brief A read only array class that wraps an implicit function from integers to any value type
+ * supported by VTK
+ *
+ * This templated array class allows one to mimic the vtkDataArray interface using an implicit map
+ * behind the scenes. The `BackendT` type can be a class or a struct that implements a const map
+ * method that takes integers to any VTK value type. It can also be any type of Closure/Functor that
+ * implements a const operator() method from integers to the value type of the array.
+ *
+ * The ordering of the array for tuples and components is implicitly AOS.
+ *
+ * The backend type can be trivially constructible, in which case the array gets initialized with a
+ * default constructed instance of the BackendT, or not default constructible, in which case the
+ * backend is initially a nullptr and must be set using the `SetBackend` method.
+ *
+ * Being a "read_only" array, any attempt to set a value in the array will result in a warning
+ * message with no change to the backend itself. This may evolve in future versions of the class as
+ * the needs of users become clearer.
+ *
+ * The `GetVoidPointer` method will create an internal vtkAOSDataArrayTemplate and populate it with
+ * the values from the implicit array and can thus be very memory intensive. The `Squeeze` method
+ * will destroy this internal memory array. Both deep and shallow copies to other types of arrays
+ * will populate the other array with the implicit values contained in the implicit one. Deep and
+ * shallow copies from other array into this one do not make sense and will result in undefined
+ * behavior. Deep and shallow copies from implicit arrays of the same type will act the same way and
+ * will transfer a shared backend object pointer. Deep and shallow copies from one type of implicit
+ * array to a different type should result in a compile time error.
+ *
+ * Constraints on the backend type are enforced through `implicit_array_traits` found in the
+ * vtkImplicitArrayTraits header file. These traits use metaprogramming to check the proposed
+ * backend type at compile time. The decision to use this type of structure was taken for the
+ * following reasons:
+ * - static dispatch of the calls to the backend (when combined with the CRTP strcture of
+ * vtkGenericDataArray)
+ * - flexibility regarding the complexity/simplicity/nature/type... of the backend one would like to
+ * use
+ *
+ * Example for array that always returns 42:
+ * @code
+ * struct Const42
+ * {
+ *   int operator()(int idx) const { return 42; };
+ * };
+ * vtkNew<vtkImplicitArray<Const42>> arr42;
+ * @endcode
+ *
+ * @sa
+ * vtkGenericDataArray vtkImplicitArrayTraits vtkDataArray
+ */
+VTK_ABI_NAMESPACE_BEGIN
 template <class BackendT>
 class VTKCOMMONCORE_EXPORT vtkImplicitArray
   : public vtkGenericDataArray<vtkImplicitArray<BackendT>,
@@ -126,6 +177,20 @@ public:
     this->Squeeze();
   };
 
+  /**
+   * Specific DeepCopy for implicit arrays
+   */
+  template <typename OtherBackend>
+  void DeepCopy(vtkImplicitArray<OtherBackend>* other)
+  {
+    static_assert(std::is_same<BackendT, OtherBackend>::value,
+      "Cannot copy implicit array with one type of backend to an implicit array with a different "
+      "type of backend");
+    this->SetNumberOfComponents(other->GetNumberOfComponents());
+    this->SetNumberOfTuples(other->GetNumberOfTuples());
+    this->SetBackend(other->GetBackend());
+  };
+
 #ifndef __VTK_WRAP__
   ///@{
   /**
@@ -153,6 +218,9 @@ protected:
   struct vtkInternals;
   std::unique_ptr<vtkInternals> Internals;
 
+  /**
+   * The backend object actually mapping the indexes
+   */
   std::shared_ptr<BackendT> Backend;
 
 private:
@@ -212,6 +280,7 @@ private:
 
 // Declare vtkArrayDownCast implementations for implicit containers:
 vtkArrayDownCast_TemplateFastCastMacro(vtkImplicitArray);
+VTK_ABI_NAMESPACE_END
 
 #include "vtkImplicitArray.txx"
 

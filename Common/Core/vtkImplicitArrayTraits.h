@@ -49,6 +49,8 @@ namespace vtk
 namespace detail
 {
 
+VTK_ABI_NAMESPACE_BEGIN
+
 template <typename... T>
 using void_t = void;
 
@@ -217,7 +219,9 @@ struct implicit_array_traits
   static constexpr bool default_constructible = std::is_default_constructible<T>::value;
 };
 
-}
-}
+VTK_ABI_NAMESPACE_END
+
+} // detail
+} // vtk
 
 #endif // vtkImplicitArrayTraits_h
