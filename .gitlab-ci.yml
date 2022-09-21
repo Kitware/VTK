@@ -879,7 +879,7 @@ windows-vs2019-kits-mpi-python-qt:build:
         - .windows_builder_tags
         - .cmake_build_artifacts
         - .run_manually
-    timeout: 90 minutes
+    timeout: 180 minutes
 
 windows-vs2019-kits-mpi-python-qt:test:
     extends:
@@ -935,7 +935,7 @@ windows-vs2019-mpi-python-qt:build:
         - .windows_builder_tags
         - .cmake_build_artifacts
         - .run_manually
-    timeout: 90 minutes
+    timeout: 180 minutes
 
 windows-vs2019-mpi-python-qt:test:
     extends:
@@ -956,7 +956,7 @@ windows-vs2019-mpi-python-qt-static:build:
         - .windows_builder_tags
         - .cmake_build_artifacts
         - .run_manually
-    timeout: 90 minutes
+    timeout: 180 minutes
 
 windows-vs2019-mpi-python-qt-static:test:
     extends:
@@ -979,6 +979,7 @@ wheel-windows-python36-x86_64:build:
         - .windows_wheel_builder_tags
         - .cmake_wheel_artifacts
         - .merged_only
+    timeout: 180 minutes
 
 # XXX(rust): This build ends up needing a Rust compiler to compile the
 # `cryptography` package.
