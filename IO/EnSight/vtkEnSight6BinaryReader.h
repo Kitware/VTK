@@ -177,6 +177,11 @@ protected:
   int SkipUnstructuredGrid(char line[256]);
   ///@}
 
+  /**
+   * Clean up the internal cached data
+   */
+  virtual void CleanUpCache();
+
   // global list of points for the unstructured parts of the model
   int NumberOfUnstructuredPoints;
   vtkPoints* UnstructuredPoints;

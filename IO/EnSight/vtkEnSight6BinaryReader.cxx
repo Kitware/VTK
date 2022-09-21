@@ -57,7 +57,7 @@ vtkStandardNewMacro(vtkEnSight6BinaryReader);
 vtkEnSight6BinaryReader::vtkEnSight6BinaryReader()
 {
   this->NumberOfUnstructuredPoints = 0;
-  this->UnstructuredPoints = vtkPoints::New();
+  this->UnstructuredPoints = nullptr;
   this->UnstructuredNodeIds = nullptr;
 
   this->BinaryIFile = nullptr;
@@ -70,13 +70,7 @@ vtkEnSight6BinaryReader::vtkEnSight6BinaryReader()
 //------------------------------------------------------------------------------
 vtkEnSight6BinaryReader::~vtkEnSight6BinaryReader()
 {
-  if (this->UnstructuredNodeIds)
-  {
-    this->UnstructuredNodeIds->Delete();
-    this->UnstructuredNodeIds = nullptr;
-  }
-  this->UnstructuredPoints->Delete();
-  this->UnstructuredPoints = nullptr;
+  this->CleanUpCache();
 
   if (this->BinaryIFile)
   {
@@ -194,6 +188,8 @@ int vtkEnSight6BinaryReader::ReadGeometryFile(
   this->ReadLine(line);
   this->ReadLine(line);
 
+  this->CleanUpCache();
+
   // Read the node id and element id lines.
   this->ReadLine(line); // node id *
   sscanf(line, " %*s %*s %s", subLine);
@@ -231,10 +227,6 @@ int vtkEnSight6BinaryReader::ReadGeometryFile(
     return 0;
   }
 
-  if (this->UnstructuredPoints)
-  {
-    this->UnstructuredPoints->Delete();
-  }
   this->UnstructuredPoints = vtkPoints::New();
   this->UnstructuredPoints->SetNumberOfPoints(this->NumberOfUnstructuredPoints);
 
@@ -2856,4 +2848,21 @@ void vtkEnSight6BinaryReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+
+//------------------------------------------------------------------------------
+void vtkEnSight6BinaryReader::CleanUpCache()
+{
+  if (this->UnstructuredPoints)
+  {
+    this->NumberOfUnstructuredPoints = 0;
+    this->UnstructuredPoints->Delete();
+    this->UnstructuredPoints = nullptr;
+  }
+  if (this->UnstructuredNodeIds)
+  {
+    this->UnstructuredNodeIds->Delete();
+    this->UnstructuredNodeIds = nullptr;
+  }
+}
+
 VTK_ABI_NAMESPACE_END

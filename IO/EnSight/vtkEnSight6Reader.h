@@ -140,6 +140,11 @@ protected:
   int CreateStructuredGridOutput(
     int partId, char line[256], const char* name, vtkMultiBlockDataSet* output) override;
 
+  /**
+   * Clean up the internal cached data
+   */
+  virtual void CleanUpCache();
+
   // global list of points for the unstructured parts of the model
   int NumberOfUnstructuredPoints;
   vtkPoints* UnstructuredPoints;
