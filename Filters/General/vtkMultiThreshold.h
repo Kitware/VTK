@@ -112,6 +112,7 @@
 #include <string> // for holding array names in NormKey
 #include <vector> // for lists of threshold rules
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCell;
 class vtkCellData;
 class vtkDataArray;
@@ -527,4 +528,5 @@ inline vtkMultiThreshold::BooleanSet* vtkMultiThreshold::BooleanSet::GetBooleanS
   return this;
 }
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkMultiThreshold_h

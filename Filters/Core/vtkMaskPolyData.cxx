@@ -21,6 +21,7 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkMaskPolyData);
 
 vtkMaskPolyData::vtkMaskPolyData()
@@ -95,3 +96,4 @@ void vtkMaskPolyData::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "On Ratio: " << this->OnRatio << "\n";
   os << indent << "Offset: " << this->Offset << "\n";
 }
+VTK_ABI_NAMESPACE_END

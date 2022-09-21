@@ -18,6 +18,7 @@
 #include "vtkMultiProcessController.h"
 #include "vtkObjectFactory.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPCellSizeFilter);
 
 //------------------------------------------------------------------------------
@@ -46,3 +47,4 @@ void vtkPCellSizeFilter::ComputeGlobalSum(double sum[4])
     }
   }
 }
+VTK_ABI_NAMESPACE_END

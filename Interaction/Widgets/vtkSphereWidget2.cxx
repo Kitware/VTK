@@ -25,6 +25,7 @@
 #include "vtkWidgetEvent.h"
 #include "vtkWidgetEventTranslator.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkSphereWidget2);
 
 //------------------------------------------------------------------------------
@@ -368,3 +369,4 @@ void vtkSphereWidget2::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Translation Enabled: " << (this->TranslationEnabled ? "On\n" : "Off\n");
   os << indent << "Scaling Enabled: " << (this->ScalingEnabled ? "On\n" : "Off\n");
 }
+VTK_ABI_NAMESPACE_END

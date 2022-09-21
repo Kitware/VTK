@@ -32,6 +32,7 @@
 
 #define MAX_LIGHTS 8
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkExternalOpenGLRenderer);
 
 //------------------------------------------------------------------------------
@@ -390,3 +391,4 @@ void vtkExternalOpenGLRenderer::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "External Lights:\n";
   this->ExternalLights->PrintSelf(os, indent.GetNextIndent());
 }
+VTK_ABI_NAMESPACE_END

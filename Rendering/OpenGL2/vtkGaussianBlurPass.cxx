@@ -43,6 +43,7 @@
 #include "vtkGaussianBlurPassFS.h"
 #include "vtkGaussianBlurPassVS.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkGaussianBlurPass);
 
 //------------------------------------------------------------------------------
@@ -388,3 +389,4 @@ void vtkGaussianBlurPass::ReleaseGraphicsResources(vtkWindow* w)
     this->Pass2 = nullptr;
   }
 }
+VTK_ABI_NAMESPACE_END

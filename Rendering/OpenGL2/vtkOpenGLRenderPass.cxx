@@ -23,6 +23,7 @@
 
 #include <cassert>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkInformationKeyMacro(vtkOpenGLRenderPass, RenderPasses, ObjectBaseVector);
 
 //------------------------------------------------------------------------------
@@ -100,3 +101,4 @@ void vtkOpenGLRenderPass::PostRender(const vtkRenderState* s)
     }
   }
 }
+VTK_ABI_NAMESPACE_END

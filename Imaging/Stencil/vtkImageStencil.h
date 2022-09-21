@@ -26,6 +26,7 @@
 #include "vtkImagingStencilModule.h" // For export macro
 #include "vtkThreadedImageAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkImageStencilData;
 
 class VTKIMAGINGSTENCIL_EXPORT vtkImageStencil : public vtkThreadedImageAlgorithm
@@ -107,4 +108,5 @@ private:
   void operator=(const vtkImageStencil&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

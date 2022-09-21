@@ -37,6 +37,7 @@
 #include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkRectilinearGrid.h"            // makes things a bit easier
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataSet;
 class vtkRectilinearGrid;
 
@@ -123,4 +124,5 @@ private:
   void operator=(const vtkRectilinearGridAlgorithm&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

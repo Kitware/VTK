@@ -18,6 +18,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkTesting.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkTestingInteractor);
 
 int vtkTestingInteractor::TestReturnStatus = -1;
@@ -62,3 +63,4 @@ void vtkTestingInteractor::PrintSelf(ostream& os, vtkIndent indent)
   // Superclass typedef defined in vtkTypeMacro() found in vtkSetGet.h
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

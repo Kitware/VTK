@@ -23,6 +23,7 @@
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkUnstructuredGridAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSCORE_EXPORT vtkExplicitStructuredGridToUnstructuredGrid
   : public vtkUnstructuredGridAlgorithm
 {
@@ -44,4 +45,5 @@ private:
   void operator=(const vtkExplicitStructuredGridToUnstructuredGrid&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

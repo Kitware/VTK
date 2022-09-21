@@ -25,6 +25,7 @@
 #include "vtkIOChemistryModule.h" // For export macro
 #include "vtkMoleculeAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkMolecule;
 
 class VTKIOCHEMISTRY_EXPORT vtkCMLMoleculeReader : public vtkMoleculeAlgorithm
@@ -64,4 +65,5 @@ private:
   void operator=(const vtkCMLMoleculeReader&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

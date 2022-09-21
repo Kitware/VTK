@@ -17,6 +17,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkCxxSetObjectMacro(vtkExporter, RenderWindow, vtkRenderWindow);
 vtkCxxSetObjectMacro(vtkExporter, ActiveRenderer, vtkRenderer);
 
@@ -188,3 +189,4 @@ vtkMTimeType vtkExporter::GetMTime()
   }
   return mTime;
 }
+VTK_ABI_NAMESPACE_END

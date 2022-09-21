@@ -37,6 +37,7 @@
 #include "vtkIOInfovisModule.h" // For export macro
 #include "vtkUndirectedGraphAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKIOINFOVIS_EXPORT vtkXGMLReader : public vtkUndirectedGraphAlgorithm
 {
 public:
@@ -65,4 +66,5 @@ private:
   void operator=(const vtkXGMLReader&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkXGMLReader_h

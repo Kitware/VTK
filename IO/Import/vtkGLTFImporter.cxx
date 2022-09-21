@@ -45,6 +45,7 @@
 #include <array>
 #include <stack>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkGLTFImporter);
 
 namespace
@@ -852,3 +853,4 @@ vtkSmartPointer<vtkCamera> vtkGLTFImporter::GetCamera(unsigned int id)
   }
   return it->second;
 }
+VTK_ABI_NAMESPACE_END

@@ -127,6 +127,7 @@
 #include "vtkIOParallelLSDynaModule.h" // For export macro
 #include "vtkLSDynaReader.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkMultiProcessController;
 class VTKIOPARALLELLSDYNA_EXPORT vtkPLSDynaReader : public vtkLSDynaReader
 {
@@ -169,4 +170,5 @@ private:
   vtkPLSDynaReaderInternal* Internal;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkPLSDynaReader_h

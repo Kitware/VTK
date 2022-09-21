@@ -17,6 +17,7 @@
 #include "vtkObject.h"
 #include "vtkRenderingCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkRenderWidget;
 class vtkAbstractRenderDevice;
 
@@ -67,4 +68,5 @@ private:
   void operator=(const vtkAbstractInteractionDevice&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

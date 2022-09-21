@@ -43,6 +43,7 @@
 // Define to perform/dump benchmarking info:
 //#define FXAA_BENCHMARK
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOpenGLFXAAFilter);
 
 //------------------------------------------------------------------------------
@@ -449,3 +450,4 @@ void vtkOpenGLFXAAFilter::PrintBenchmark()
     this->FXAATimer->Reset();
   }
 }
+VTK_ABI_NAMESPACE_END

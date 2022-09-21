@@ -28,6 +28,7 @@
 #include <algorithm>
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPlotHistogram2D);
 
 //------------------------------------------------------------------------------
@@ -284,3 +285,4 @@ void vtkPlotHistogram2D::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

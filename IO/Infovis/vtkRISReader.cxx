@@ -29,6 +29,7 @@
 #include <map>
 #include <string>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkRISReader);
 
 // Not all platforms support std::getline(istream&, std::string) so
@@ -288,3 +289,4 @@ static istream& my_getline(istream& input, std::string& output, char delimiter)
 
   return input;
 }
+VTK_ABI_NAMESPACE_END

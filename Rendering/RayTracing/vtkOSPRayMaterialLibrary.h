@@ -34,6 +34,7 @@
 #include <string>           //for string!
 #include <vector>           //for vector!
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkOSPRayMaterialLibraryInternals;
 class vtkTexture;
 struct TextureInfo;
@@ -234,4 +235,5 @@ private:
   vtkOSPRayMaterialLibraryInternals* Internal;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

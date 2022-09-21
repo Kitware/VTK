@@ -29,6 +29,7 @@
 #include "vtkRenderedRepresentation.h"
 #include "vtkViewsInfovisModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkActor;
 class vtkActor2D;
 class vtkAreaLayout;
@@ -366,4 +367,5 @@ private:
   Internals* Implementation;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

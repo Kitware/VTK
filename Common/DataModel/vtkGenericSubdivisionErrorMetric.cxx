@@ -23,6 +23,7 @@
 #include <cassert>
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkGenericSubdivisionErrorMetric::vtkGenericSubdivisionErrorMetric()
 {
   this->GenericCell = nullptr;
@@ -56,3 +57,4 @@ void vtkGenericSubdivisionErrorMetric::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "GenericCell: " << this->GenericCell << endl;
   os << indent << "DataSet: " << this->DataSet << endl;
 }
+VTK_ABI_NAMESPACE_END

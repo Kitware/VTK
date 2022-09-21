@@ -49,6 +49,7 @@
 
 #include "vtkPolyDataAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPriorityQueue;
 
 class VTKFILTERSCORE_EXPORT vtkDecimatePolylineFilter : public vtkPolyDataAlgorithm
@@ -117,4 +118,5 @@ private:
   void operator=(const vtkDecimatePolylineFilter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

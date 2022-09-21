@@ -45,6 +45,7 @@
 #include "vtkSobelGradientMagnitudePass2FS.h"
 #include "vtkTextureObjectVS.h" // a pass through shader
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkSobelGradientMagnitudePass);
 
 //------------------------------------------------------------------------------
@@ -508,3 +509,4 @@ void vtkSobelGradientMagnitudePass::ReleaseGraphicsResources(vtkWindow* w)
     this->Gy1 = nullptr;
   }
 }
+VTK_ABI_NAMESPACE_END

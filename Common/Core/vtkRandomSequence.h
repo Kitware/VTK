@@ -34,6 +34,7 @@
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkObject.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONCORE_EXPORT vtkRandomSequence : public vtkObject
 {
 public:
@@ -74,4 +75,5 @@ private:
   void operator=(const vtkRandomSequence&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // #ifndef vtkRandomSequence_h

@@ -39,6 +39,7 @@
 #include "vtkFiltersGenericModule.h" // For export macro
 #include "vtkUnstructuredGridAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPointData;
 class vtkIncrementalPointLocator;
 
@@ -118,4 +119,5 @@ private:
   void operator=(const vtkGenericDataSetTessellator&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

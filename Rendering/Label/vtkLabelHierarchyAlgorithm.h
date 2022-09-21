@@ -37,6 +37,7 @@
 #include "vtkAlgorithm.h"
 #include "vtkRenderingLabelModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataSet;
 class vtkLabelHierarchy;
 
@@ -124,4 +125,5 @@ private:
   void operator=(const vtkLabelHierarchyAlgorithm&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

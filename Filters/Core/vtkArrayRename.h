@@ -36,6 +36,7 @@
 #include <map>    // for std::map
 #include <string> // for std::string
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSCORE_EXPORT vtkArrayRename : public vtkPassInputTypeAlgorithm
 {
 public:
@@ -246,4 +247,5 @@ private:
   std::map<int, std::map<std::string, std::string>> ArrayMapping;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkArrayRename_h

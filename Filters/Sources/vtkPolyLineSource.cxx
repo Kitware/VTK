@@ -22,6 +22,7 @@
 #include "vtkSmartPointer.h"
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPolyLineSource);
 
 //------------------------------------------------------------------------------
@@ -71,3 +72,4 @@ void vtkPolyLineSource::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Closed: " << this->Closed << "\n";
 }
+VTK_ABI_NAMESPACE_END

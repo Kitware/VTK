@@ -20,6 +20,7 @@
 #include "vtkRenderer.h"
 
 //============================================================================
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOSPRayVolumeMapper);
 
 //------------------------------------------------------------------------------
@@ -94,3 +95,4 @@ void vtkOSPRayVolumeMapper::Render(vtkRenderer* ren, vtkVolume* vol)
 // The parameter window could be used to determine which graphic
 // resources to release.
 void vtkOSPRayVolumeMapper::ReleaseGraphicsResources(vtkWindow*) {}
+VTK_ABI_NAMESPACE_END

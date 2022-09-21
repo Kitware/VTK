@@ -4,6 +4,7 @@
 #include "Types.h"
 #include <set>
 
+VTK_ABI_NAMESPACE_BEGIN
 void rtwInit();
 RTW::Backend *rtwSwitch(const char *name);
 void rtwShutdown();
@@ -185,3 +186,4 @@ std::set<RTWBackendType> rtwGetAvailableBackends();
 
 #define ospcommon rtw
 #define osp rtw
+VTK_ABI_NAMESPACE_END

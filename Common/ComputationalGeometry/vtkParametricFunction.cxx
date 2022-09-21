@@ -15,6 +15,7 @@
 #include "vtkParametricFunction.h"
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkParametricFunction::vtkParametricFunction()
   : MinimumU(0.0)
   , MaximumU(1.0)
@@ -61,3 +62,4 @@ void vtkParametricFunction::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "ClockwiseOrdering: " << this->ClockwiseOrdering << "\n";
   os << indent << "Derivatives Available: " << this->DerivativesAvailable << "\n";
 }
+VTK_ABI_NAMESPACE_END

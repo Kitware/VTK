@@ -21,6 +21,7 @@
 -----------------------------------------------------------------------*/
 
 #include "PyVTKReference.h"
+#include "vtkABINamespace.h"
 #include "vtkPythonUtil.h"
 
 // Silence warning like

@@ -30,6 +30,7 @@
 #include <map>    // For STL map
 #include <vector> // For STL vector
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkMultiBlockDataSet;
 class vtkOverlappingAMR;
 class vtkMultiProcessController;
@@ -196,4 +197,5 @@ private:
   void operator=(const vtkAMRCutPlane&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif /* vtkAMRCutPlane_h */

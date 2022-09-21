@@ -28,6 +28,7 @@
 
 #include <set>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkBSPIntersections);
 
 #define REGIONCHECK(err)                                                                           \
@@ -499,3 +500,4 @@ void vtkBSPIntersections::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "CellBoundsCache " << d[0] << " " << d[1] << " " << d[2] << " " << d[3] << " "
      << d[4] << " " << d[5] << " " << endl;
 }
+VTK_ABI_NAMESPACE_END

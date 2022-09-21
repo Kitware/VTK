@@ -28,6 +28,7 @@
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkSystemIncludes.h"
+VTK_ABI_NAMESPACE_BEGIN
 class vtkImageData;
 
 template <class DType>
@@ -94,5 +95,6 @@ vtkExternTemplateMacro(extern template class VTKCOMMONDATAMODEL_EXPORT vtkImageI
 #endif
 #endif
 
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkImageIterator.h

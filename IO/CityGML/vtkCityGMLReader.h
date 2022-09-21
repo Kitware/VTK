@@ -51,6 +51,7 @@
  * brid:Bridge, run:Tunel, tran:Railway, tran:Road, bldg:Building,
  * gen:GenericCityObject, luse:LandUse. These nodes also have a gml_id field array.
 */
+VTK_ABI_NAMESPACE_BEGIN
 class VTKIOCITYGML_EXPORT vtkCityGMLReader : public vtkMultiBlockDataSetAlgorithm
 {
 public:
@@ -131,4 +132,5 @@ private:
   Implementation* Impl;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

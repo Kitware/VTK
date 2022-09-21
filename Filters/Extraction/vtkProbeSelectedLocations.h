@@ -31,6 +31,7 @@
 #include "vtkExtractSelectionBase.h"
 #include "vtkFiltersExtractionModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSEXTRACTION_EXPORT vtkProbeSelectedLocations : public vtkExtractSelectionBase
 {
 public:
@@ -55,4 +56,5 @@ private:
   void operator=(const vtkProbeSelectedLocations&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

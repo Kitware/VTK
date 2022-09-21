@@ -25,6 +25,7 @@
 
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImageToImageStencil);
 
 //------------------------------------------------------------------------------
@@ -240,3 +241,4 @@ int vtkImageToImageStencil::RequestUpdateExtent(
   inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), extent, 6);
   return 1;
 }
+VTK_ABI_NAMESPACE_END

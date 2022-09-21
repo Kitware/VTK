@@ -32,6 +32,7 @@
 #include "vtkMath.h"
 #include "vtkPixelBufferObject.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkCxxSetObjectMacro(vtkImageProcessingPass, DelegatePass, vtkRenderPass);
 
 //------------------------------------------------------------------------------
@@ -234,3 +235,4 @@ void vtkImageProcessingPass::ReleaseGraphicsResources(vtkWindow* w)
     this->DelegatePass->ReleaseGraphicsResources(w);
   }
 }
+VTK_ABI_NAMESPACE_END

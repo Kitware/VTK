@@ -29,6 +29,7 @@
 #include "vtkDataSetAlgorithm.h"
 #include "vtkFiltersParallelModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkMultiProcessController;
 
 class VTKFILTERSPARALLEL_EXPORT vtkTransmitStructuredDataPiece : public vtkDataSetAlgorithm
@@ -75,4 +76,5 @@ private:
   void operator=(const vtkTransmitStructuredDataPiece&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

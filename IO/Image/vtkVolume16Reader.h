@@ -51,6 +51,7 @@
 #include "vtkIOImageModule.h" // For export macro
 #include "vtkVolumeReader.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkTransform;
 class vtkUnsignedCharArray;
 class vtkUnsignedShortArray;
@@ -170,4 +171,5 @@ private:
   void operator=(const vtkVolume16Reader&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

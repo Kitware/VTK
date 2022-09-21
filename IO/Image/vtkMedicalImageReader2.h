@@ -29,6 +29,7 @@
 #include "vtkIOImageModule.h" // For export macro
 #include "vtkImageReader2.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkMedicalImageProperties;
 
 class VTKIOIMAGE_EXPORT vtkMedicalImageReader2 : public vtkImageReader2
@@ -80,4 +81,5 @@ private:
   void operator=(const vtkMedicalImageReader2&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

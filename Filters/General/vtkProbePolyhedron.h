@@ -56,6 +56,7 @@
 #include "vtkDataSetAttributes.h"    // needed for vtkDataSetAttributes::FieldList
 #include "vtkFiltersGeneralModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkIdTypeArray;
 class vtkCharArray;
 class vtkMaskPoints;
@@ -127,4 +128,5 @@ private:
   void operator=(const vtkProbePolyhedron&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

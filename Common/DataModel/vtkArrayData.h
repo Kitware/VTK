@@ -43,6 +43,7 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkDataObject.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkArray;
 
 class VTKCOMMONDATAMODEL_EXPORT vtkArrayData : public vtkDataObject
@@ -100,4 +101,5 @@ private:
   implementation* const Implementation;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

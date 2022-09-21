@@ -35,6 +35,7 @@
 
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkFlyingEdgesPlaneCutter);
 vtkCxxSetObjectMacro(vtkFlyingEdgesPlaneCutter, Plane, vtkPlane);
 
@@ -1551,3 +1552,4 @@ void vtkFlyingEdgesPlaneCutter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Compute Normals: " << (this->ComputeNormals ? "On\n" : "Off\n");
   os << indent << "Interpolate Attributes: " << (this->InterpolateAttributes ? "On\n" : "Off\n");
 }
+VTK_ABI_NAMESPACE_END

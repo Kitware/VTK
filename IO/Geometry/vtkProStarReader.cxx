@@ -35,6 +35,7 @@
 #include <utility>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkProStarReader);
 
 // Internal Classes/Structures
@@ -446,3 +447,4 @@ bool vtkProStarReader::ReadCelFile(vtkUnstructuredGrid* output, const idMapping&
   fclose(in);
   return errorCount == 0;
 }
+VTK_ABI_NAMESPACE_END

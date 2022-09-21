@@ -23,6 +23,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTable.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkTableToStructuredGrid);
 //------------------------------------------------------------------------------
 vtkTableToStructuredGrid::vtkTableToStructuredGrid()
@@ -154,3 +155,4 @@ void vtkTableToStructuredGrid::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "ZColumn: " << (this->ZColumn ? this->ZColumn : "(none)") << endl;
   os << indent << "ZComponent: " << this->ZComponent << endl;
 }
+VTK_ABI_NAMESPACE_END

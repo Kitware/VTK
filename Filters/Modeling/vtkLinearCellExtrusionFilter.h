@@ -38,6 +38,7 @@
 #include "vtkPolyDataAlgorithm.h"
 #include "vtkSmartPointer.h" // For smart pointer
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSMODELING_EXPORT vtkLinearCellExtrusionFilter : public vtkPolyDataAlgorithm
 {
 public:
@@ -116,4 +117,5 @@ private:
   void operator=(const vtkLinearCellExtrusionFilter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

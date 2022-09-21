@@ -25,6 +25,7 @@
 #include "vtkPolyData.h"
 #include "vtkTransformPolyDataFilter.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkProcrustesAlignmentFilter);
 
 //------------------------------------------------------------------------------
@@ -476,3 +477,4 @@ void vtkProcrustesAlignmentFilter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Start From Centroid: " << (this->StartFromCentroid ? "On\n" : "Off\n");
   os << indent << "Output Points Precision: " << this->OutputPointsPrecision << "\n";
 }
+VTK_ABI_NAMESPACE_END

@@ -23,6 +23,7 @@
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkGeoMath);
 
 //------------------------------------------------------------------------------
@@ -65,3 +66,4 @@ void vtkGeoMath::LongLatAltToRect(double longLatAlt[3], double rect[3])
   rect[1] = cos(theta) * cosPhi * radius;
   rect[0] = -sin(theta) * cosPhi * radius;
 }
+VTK_ABI_NAMESPACE_END

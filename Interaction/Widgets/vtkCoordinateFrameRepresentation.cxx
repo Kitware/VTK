@@ -43,6 +43,7 @@
 #include "vtkTransform.h"
 #include "vtkWindow.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkCoordinateFrameRepresentation);
 
 static constexpr double DefaultPickTol = 0.001;
@@ -1633,3 +1634,4 @@ void vtkCoordinateFrameRepresentation::ComputeAdaptivePickerTolerance()
   double tolerance = pickerCylinderRadius < DefaultPickTol ? pickerCylinderRadius : DefaultPickTol;
   this->CellPicker->SetTolerance(tolerance);
 }
+VTK_ABI_NAMESPACE_END

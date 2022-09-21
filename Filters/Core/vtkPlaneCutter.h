@@ -76,6 +76,7 @@
 #include "vtkSmartPointer.h"      // For SmartPointer
 #include <map>                    // For std::map
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataObjectTree;
 class vtkPlane;
 class vtkPolyData;
@@ -243,4 +244,5 @@ private:
   void operator=(const vtkPlaneCutter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -25,6 +25,7 @@
 #include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImageBlend);
 
 //------------------------------------------------------------------------------
@@ -1116,3 +1117,4 @@ int vtkImageBlend::FillInputPortInformation(int port, vtkInformation* info)
   }
   return 1;
 }
+VTK_ABI_NAMESPACE_END

@@ -16,3 +16,4 @@ endif ()
 
 vtk_module_add_module(VTK::CommonMisc
   CLASSES ${classes})
+vtk_add_test_mangling(VTK::CommonMisc)

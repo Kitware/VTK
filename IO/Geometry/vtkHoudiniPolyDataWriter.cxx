@@ -42,6 +42,7 @@
 #include "vtkUnsignedShortArray.h"
 #include "vtksys/FStream.hxx"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkHoudiniPolyDataWriter);
 
 namespace
@@ -580,3 +581,4 @@ void vtkHoudiniPolyDataWriter::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
   os << indent << "FileName: " << (this->FileName ? this->FileName : "(none)") << "\n";
 }
+VTK_ABI_NAMESPACE_END

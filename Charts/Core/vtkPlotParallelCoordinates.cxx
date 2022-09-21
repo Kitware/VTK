@@ -43,6 +43,7 @@
 #include <algorithm>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPlotParallelCoordinates::Private : public std::vector<std::vector<float>>
 {
 public:
@@ -510,3 +511,4 @@ void vtkPlotParallelCoordinates::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

@@ -31,6 +31,7 @@ PURPOSE.  See the above copyright Nonice for more information.
 #include <vector>
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkHyperTreeGridNonOrientedSuperCursor* vtkHyperTreeGridNonOrientedSuperCursor::Clone()
 {
   vtkHyperTreeGridNonOrientedSuperCursor* clone = this->NewInstance();
@@ -553,3 +554,4 @@ unsigned int vtkHyperTreeGridNonOrientedSuperCursor::GetIndicePreviousEntry(unsi
 
   return this->ReferenceEntries[refId];
 }
+VTK_ABI_NAMESPACE_END

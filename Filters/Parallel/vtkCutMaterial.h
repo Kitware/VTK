@@ -28,6 +28,7 @@
 #include "vtkFiltersParallelModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPlane;
 
 class VTKFILTERSPARALLEL_EXPORT vtkCutMaterial : public vtkPolyDataAlgorithm
@@ -105,4 +106,5 @@ private:
   void operator=(const vtkCutMaterial&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

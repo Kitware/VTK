@@ -47,6 +47,7 @@
 #include <string>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkExtractHistogramInternal
 {
 public:
@@ -854,3 +855,4 @@ int vtkExtractHistogram::RequestData(vtkInformation* /*request*/,
 
   return 1;
 }
+VTK_ABI_NAMESPACE_END

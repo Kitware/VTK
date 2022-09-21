@@ -23,6 +23,7 @@
 #include "vtkPoints.h"
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkAbstractTransform::vtkAbstractTransform()
 {
   this->MyInverse = nullptr;
@@ -1052,3 +1053,4 @@ void vtkTransformConcatenationStack::DeepCopy(vtkTransformConcatenationStack* st
     this->StackBottom[k]->DeepCopy(stack->StackBottom[k]);
   }
 }
+VTK_ABI_NAMESPACE_END

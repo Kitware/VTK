@@ -40,6 +40,7 @@
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkVoxel;
 
 class VTKFILTERSGENERAL_EXPORT vtkRecursiveDividingCubes : public vtkPolyDataAlgorithm
@@ -98,4 +99,5 @@ private:
   void operator=(const vtkRecursiveDividingCubes&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

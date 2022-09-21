@@ -35,6 +35,7 @@
 #include "vtkInfovisLayoutModule.h" // For export macro
 #include "vtkSmartPointer.h"        // for ivars
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCoincidentPoints;
 class vtkDataSet;
 
@@ -70,4 +71,5 @@ private:
   void operator=(const vtkPerturbCoincidentVertices&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

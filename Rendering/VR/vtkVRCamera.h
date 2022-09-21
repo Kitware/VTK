@@ -27,6 +27,7 @@
 #include "vtkOpenGLCamera.h"
 #include "vtkRenderingVRModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkMatrix4x4;
 class vtkVRRenderWindow;
 
@@ -98,4 +99,6 @@ private:
   void operator=(const vtkVRCamera&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
+/* VTK-HeaderTest-Exclude: vtkVRCamera.h */

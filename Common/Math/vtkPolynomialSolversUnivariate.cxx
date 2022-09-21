@@ -31,6 +31,7 @@
 
 #define VTK_SIGN(x) (((x) < 0) ? (-1) : (1))
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPolynomialSolversUnivariate);
 
 static const double sqrt3 = sqrt(static_cast<double>(3.));
@@ -2226,3 +2227,4 @@ double vtkPolynomialSolversUnivariate::GetDivisionTolerance()
 {
   return vtkPolynomialSolversUnivariate::DivisionTolerance;
 }
+VTK_ABI_NAMESPACE_END

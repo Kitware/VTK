@@ -45,6 +45,7 @@ PURPOSE.  See the above copyright notice for more information.
 #define WM_MOUSEWHEEL 0x020A
 #endif // WM_MOUSEWHEEL
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkWin32OpenGLRenderWindow);
 
 const std::string vtkWin32OpenGLRenderWindow::DEFAULT_BASE_WINDOW_NAME =
@@ -1512,3 +1513,4 @@ bool vtkWin32OpenGLRenderWindow::DetectDPI()
   this->SetDPI(GetDeviceCaps(this->DeviceContext, LOGPIXELSY));
   return true;
 }
+VTK_ABI_NAMESPACE_END

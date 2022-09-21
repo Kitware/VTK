@@ -52,6 +52,7 @@
 
 #include <cctype> // for isspace(), isalnum()
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkTecplotReader);
 
 // ============================================================================
@@ -2193,3 +2194,4 @@ void vtkTecplotReader::ReadFile(vtkMultiBlockDataSet* multZone)
 
   this->Internal->Completed = 1;
 }
+VTK_ABI_NAMESPACE_END

@@ -41,6 +41,7 @@
 #include "vtkFiltersGeometryPreviewModule.h" // For export macro
 #include "vtkPartitionedDataSetAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSGEOMETRYPREVIEW_EXPORT vtkPointSetToOctreeImageFilter
   : public vtkPartitionedDataSetAlgorithm
 {
@@ -178,4 +179,5 @@ private:
   struct PointSetToImageWorker;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkPointSetToOctreeImageFilter_h

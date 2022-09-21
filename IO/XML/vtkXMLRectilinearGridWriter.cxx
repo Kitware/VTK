@@ -25,6 +25,7 @@
 #include "vtkXMLOffsetsManager.h"
 #undef vtkXMLOffsetsManager_DoNotInclude
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkXMLRectilinearGridWriter);
 
 //------------------------------------------------------------------------------
@@ -190,3 +191,4 @@ int vtkXMLRectilinearGridWriter::FillInputPortInformation(int, vtkInformation* i
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkRectilinearGrid");
   return 1;
 }
+VTK_ABI_NAMESPACE_END

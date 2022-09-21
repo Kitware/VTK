@@ -21,6 +21,7 @@
 #include "vtkPointSet.h"
 #include "vtkViewport.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkTransformCoordinateSystems);
 
 //------------------------------------------------------------------------------
@@ -202,3 +203,4 @@ void vtkTransformCoordinateSystems::PrintSelf(ostream& os, vtkIndent indent)
     os << "(none)\n";
   }
 }
+VTK_ABI_NAMESPACE_END

@@ -24,6 +24,7 @@
 #include "vtkVectorOperators.h"
 #include "vtkVolumeProperty.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkMultiVolume::vtkMultiVolume()
   : TexToBBox(vtkSmartPointer<vtkMatrix4x4>::New())
 {
@@ -342,3 +343,4 @@ vtkVolumeProperty* vtkMultiVolume::GetProperty()
 
   return nullptr;
 }
+VTK_ABI_NAMESPACE_END

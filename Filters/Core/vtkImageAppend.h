@@ -32,6 +32,7 @@
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkThreadedImageAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSCORE_EXPORT vtkImageAppend : public vtkThreadedImageAlgorithm
 {
 public:
@@ -136,4 +137,5 @@ private:
   void operator=(const vtkImageAppend&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

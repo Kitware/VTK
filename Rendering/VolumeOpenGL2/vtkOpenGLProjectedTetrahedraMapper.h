@@ -41,6 +41,7 @@
 #include "vtkProjectedTetrahedraMapper.h"
 #include "vtkRenderingVolumeOpenGL2Module.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkFloatArray;
 class vtkMatrix4x4;
 class vtkOpenGLFramebufferObject;
@@ -139,4 +140,5 @@ private:
   vtkInternals* Internals;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

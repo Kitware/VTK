@@ -19,6 +19,7 @@
 
 #include <numeric>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkConvertToPointCloud);
 
 //------------------------------------------------------------------------------
@@ -101,3 +102,4 @@ void vtkConvertToPointCloud::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
   os << indent << "Cell Generation Mode: " << this->CellGenerationMode << endl;
 }
+VTK_ABI_NAMESPACE_END

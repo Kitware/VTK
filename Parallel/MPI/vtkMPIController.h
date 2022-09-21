@@ -50,6 +50,7 @@
 // reference.
 #include "vtkMPICommunicator.h" // Needed for direct access to communicator
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkIntArray;
 
 class VTKPARALLELMPI_EXPORT vtkMPIController : public vtkMultiProcessController
@@ -384,4 +385,5 @@ private:
   void operator=(const vtkMPIController&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

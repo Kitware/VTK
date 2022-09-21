@@ -30,6 +30,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 // vtkExtractArray
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkExtractArray);
 
 vtkExtractArray::vtkExtractArray()
@@ -77,3 +78,4 @@ int vtkExtractArray::RequestData(
 
   return 1;
 }
+VTK_ABI_NAMESPACE_END

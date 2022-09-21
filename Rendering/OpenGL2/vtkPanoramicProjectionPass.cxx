@@ -37,6 +37,7 @@
 
 #include <sstream>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPanoramicProjectionPass);
 
 //------------------------------------------------------------------------------
@@ -377,3 +378,4 @@ void vtkPanoramicProjectionPass::ReleaseGraphicsResources(vtkWindow* w)
     this->CubeMapTexture = nullptr;
   }
 }
+VTK_ABI_NAMESPACE_END

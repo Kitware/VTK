@@ -55,6 +55,7 @@
 #include "vtkStdString.h"    // For string API
 #include "vtkWriter.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkArrayData;
 
 class VTKIOCORE_EXPORT vtkArrayDataWriter : public vtkWriter
@@ -147,4 +148,5 @@ private:
   void operator=(const vtkArrayDataWriter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

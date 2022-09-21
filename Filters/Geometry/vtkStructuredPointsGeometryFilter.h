@@ -26,6 +26,7 @@
 #include "vtkFiltersGeometryModule.h" // For export macro
 #include "vtkImageDataGeometryFilter.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSGEOMETRY_EXPORT vtkStructuredPointsGeometryFilter
   : public vtkImageDataGeometryFilter
 {
@@ -47,4 +48,5 @@ private:
   void operator=(const vtkStructuredPointsGeometryFilter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

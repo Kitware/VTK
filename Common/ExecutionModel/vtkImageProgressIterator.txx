@@ -19,6 +19,7 @@
 #include "vtkImageData.h"
 #include "vtkImageProgressIterator.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 template <class DType>
 vtkImageProgressIterator<DType>::vtkImageProgressIterator(
   vtkImageData* imgd, int* ext, vtkAlgorithm* po, int id)
@@ -68,4 +69,5 @@ vtkTypeBool vtkImageProgressIterator<DType>::IsAtEnd()
   }
 }
 
+VTK_ABI_NAMESPACE_END
 #endif

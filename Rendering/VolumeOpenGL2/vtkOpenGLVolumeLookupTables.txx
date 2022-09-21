@@ -21,6 +21,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkWindow.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 template <class T>
 vtkStandardNewMacro(vtkOpenGLVolumeLookupTables<T>);
 
@@ -87,4 +88,5 @@ void vtkOpenGLVolumeLookupTables<T>::ReleaseGraphicsResources(vtkWindow* win)
   }
 }
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkOpenGLVolumeLookupTables_txx

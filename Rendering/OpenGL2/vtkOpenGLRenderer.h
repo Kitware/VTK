@@ -29,6 +29,7 @@
 #include <string>                      // Ivars
 #include <vector>                      // STL Header
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkFloatArray;
 class vtkOpenGLFXAAFilter;
 class vtkRenderPass;
@@ -248,4 +249,5 @@ private:
   void operator=(const vtkOpenGLRenderer&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

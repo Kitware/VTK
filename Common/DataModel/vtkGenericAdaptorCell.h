@@ -62,6 +62,7 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkLine;
 class vtkTetra;
 class vtkPoints;
@@ -622,4 +623,5 @@ private:
   void operator=(const vtkGenericAdaptorCell&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

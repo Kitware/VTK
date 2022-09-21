@@ -24,6 +24,7 @@
 #include "vtkPointData.h"
 #include "vtkSmartPointer.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkMatrixMathFilter);
 
 vtkMatrixMathFilter::~vtkMatrixMathFilter() = default;
@@ -250,3 +251,4 @@ int vtkMatrixMathFilter::RequestData(vtkInformation* vtkNotUsed(request),
 
   return 1;
 }
+VTK_ABI_NAMESPACE_END

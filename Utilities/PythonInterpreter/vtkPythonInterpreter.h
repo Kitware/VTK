@@ -65,6 +65,7 @@
 #include <vector> // for vtkWideArgsConverter
 #endif
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKPYTHONINTERPRETER_EXPORT vtkPythonInterpreter : public vtkObject
 {
 public:
@@ -273,4 +274,5 @@ private:
 };
 #endif
 
+VTK_ABI_NAMESPACE_END
 #endif

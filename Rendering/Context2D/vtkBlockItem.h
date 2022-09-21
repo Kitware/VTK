@@ -34,6 +34,7 @@
 #include "vtkRenderingContext2DModule.h" // For export macro
 #include "vtkStdString.h"                // For vtkStdString ivars
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkContext2D;
 class vtkTextProperty;
 class vtkBrush;
@@ -241,4 +242,5 @@ private:
   int Margins[2];
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkBlockItem_h

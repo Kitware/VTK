@@ -35,6 +35,7 @@
 #define VTK_SL_BLK 4
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkVolumeRayCastSpaceLeapingImageFilter);
 vtkCxxSetObjectMacro(vtkVolumeRayCastSpaceLeapingImageFilter, CurrentScalars, vtkDataArray);
 
@@ -1165,3 +1166,4 @@ void vtkVolumeRayCastSpaceLeapingImageFilter ::WriteMinMaxVolume(
 }
 
 #endif
+VTK_ABI_NAMESPACE_END

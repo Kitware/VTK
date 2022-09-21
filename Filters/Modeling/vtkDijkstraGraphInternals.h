@@ -29,6 +29,7 @@
 #include <vector>
 
 //-----------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDijkstraGraphInternals
 {
 public:
@@ -180,5 +181,6 @@ private:
   std::vector<int> HeapIndices;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkDijkstraGraphInternals.h

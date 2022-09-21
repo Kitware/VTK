@@ -24,6 +24,7 @@
 
 #include "vtkPythonOverload.h"
 #include "PyVTKReference.h"
+#include "vtkABINamespace.h"
 #include "vtkPythonUtil.h"
 
 #include "vtkObject.h"
@@ -37,6 +38,7 @@
 // are reserved for checking how many generations a vtkObject arg is from
 // the requested arg type.
 
+VTK_ABI_NAMESPACE_BEGIN
 enum vtkPythonArgPenalties
 {
   VTK_PYTHON_EXACT_MATCH = 0,
@@ -996,3 +998,4 @@ PyMethodDef* vtkPythonOverload::FindConversionMethod(PyMethodDef* methods, PyObj
 
   return method;
 }
+VTK_ABI_NAMESPACE_END

@@ -20,6 +20,7 @@
 #include <vector>
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkInformationIntegerPointerKey ::vtkInformationIntegerPointerKey(
   const char* name, const char* location, int length)
   : vtkInformationKey(name, location)
@@ -136,3 +137,4 @@ int* vtkInformationIntegerPointerKey::GetWatchAddress(vtkInformation* info)
   }
   return nullptr;
 }
+VTK_ABI_NAMESPACE_END

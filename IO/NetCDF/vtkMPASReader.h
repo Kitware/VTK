@@ -82,6 +82,7 @@ version available from Los Alamos National Laboratory.
 
 #include <string> // for std::string
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCallbackCommand;
 class vtkDataArraySelection;
 class vtkDoubleArray;
@@ -351,4 +352,5 @@ private:
   Internal* Internals;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

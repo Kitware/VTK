@@ -32,6 +32,7 @@
 #include "vtkHandleSource.h"
 #include "vtkInteractionWidgetsModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkArrowSource;
 class vtkActor;
 class vtkAppendPolyData;
@@ -98,4 +99,5 @@ private:
   vtkNew<vtkSphereSource> PositionSphere;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -28,6 +28,7 @@
 #include "vtkOSPRayVolumeMapperNode.h"
 #include "vtkRenderingRayTracingModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKRENDERINGRAYTRACING_EXPORT vtkOSPRayAMRVolumeMapperNode : public vtkOSPRayVolumeMapperNode
 {
 public:
@@ -50,4 +51,5 @@ private:
 
   float OldSamplingRate;
 };
+VTK_ABI_NAMESPACE_END
 #endif

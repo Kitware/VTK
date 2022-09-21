@@ -27,6 +27,7 @@
 #include <string.h>
 #include <string>
 
+VTK_ABI_NAMESPACE_BEGIN
 DICOMFile::DICOMFile()
 {
   /* Are we little or big endian?  From Harbison&Steele.  */
@@ -273,3 +274,4 @@ char* DICOMFile::ReadAsciiCharArray(int len)
 #ifdef _MSC_VER
 #pragma warning(pop)
 #endif
+VTK_ABI_NAMESPACE_END

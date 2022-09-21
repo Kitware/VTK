@@ -59,6 +59,7 @@
 #define VTK_FILE_BYTE_ORDER_BIG_ENDIAN 0
 #define VTK_FILE_BYTE_ORDER_LITTLE_ENDIAN 1
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkIncrementalPointLocator;
 
 class VTKIOGEOMETRY_EXPORT vtkMCubesReader : public vtkPolyDataAlgorithm
@@ -185,4 +186,5 @@ private:
   void operator=(const vtkMCubesReader&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

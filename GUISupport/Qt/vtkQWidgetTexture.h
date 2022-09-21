@@ -23,6 +23,8 @@
 class QGraphicsScene;
 class QWidget;
 
+VTK_ABI_NAMESPACE_BEGIN
+
 /**
  * @class vtkQWidgetTexture
  * @brief Allows a QWidget to be used as a texture in VTK with OpenGL
@@ -83,4 +85,5 @@ private:
   void operator=(const vtkQWidgetTexture&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

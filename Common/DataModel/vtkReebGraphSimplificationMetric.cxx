@@ -18,6 +18,7 @@
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkReebGraphSimplificationMetric);
 
 //------------------------------------------------------------------------------
@@ -46,3 +47,4 @@ double vtkReebGraphSimplificationMetric::ComputeMetric(vtkDataSet* vtkNotUsed(me
   printf("too bad, wrong code\n");
   return 0;
 }
+VTK_ABI_NAMESPACE_END

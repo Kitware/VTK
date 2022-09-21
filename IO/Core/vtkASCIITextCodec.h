@@ -40,6 +40,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkIOCoreModule.h" // For export macro
 #include "vtkTextCodec.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKIOCORE_EXPORT vtkASCIITextCodec : public vtkTextCodec
 {
 public:
@@ -70,4 +71,5 @@ private:
   void operator=(const vtkASCIITextCodec&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -32,6 +32,7 @@
 #include "vtkImageStencilSource.h"
 #include "vtkImagingStencilModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPoints;
 class vtkSpline;
 class vtkLSSPointMap;
@@ -118,4 +119,5 @@ private:
   void operator=(const vtkLassoStencilSource&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

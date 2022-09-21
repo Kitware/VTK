@@ -26,6 +26,7 @@
 #include "vtkFiltersParallelModule.h" // For export macro
 #include "vtkTemporalInterpolator.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataSet;
 class vtkPointSet;
 
@@ -74,4 +75,5 @@ private:
   ResamplingHelperImpl* ResampleImpl;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

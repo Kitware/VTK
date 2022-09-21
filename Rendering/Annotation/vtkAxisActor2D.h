@@ -61,6 +61,7 @@
 #include "vtkActor2D.h"
 #include "vtkRenderingAnnotationModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPolyDataMapper2D;
 class vtkPolyData;
 class vtkTextMapper;
@@ -445,4 +446,5 @@ private:
   void operator=(const vtkAxisActor2D&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

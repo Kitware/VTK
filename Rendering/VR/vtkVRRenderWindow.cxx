@@ -38,6 +38,7 @@ PURPOSE.  See the above copyright notice for more information.
 #endif
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkVRRenderWindow::vtkVRRenderWindow()
 {
   this->StereoCapableWindow = 1;
@@ -619,3 +620,4 @@ void vtkVRRenderWindow::SetSize(int width, int height)
     }
   }
 }
+VTK_ABI_NAMESPACE_END

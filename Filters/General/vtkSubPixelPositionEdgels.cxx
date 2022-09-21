@@ -25,6 +25,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStructuredPoints.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkSubPixelPositionEdgels);
 
 vtkSubPixelPositionEdgels::vtkSubPixelPositionEdgels()
@@ -710,3 +711,4 @@ void vtkSubPixelPositionEdgels::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "TargetFlag: " << this->TargetFlag << endl;
   os << indent << "TargetValue: " << this->TargetValue << endl;
 }
+VTK_ABI_NAMESPACE_END

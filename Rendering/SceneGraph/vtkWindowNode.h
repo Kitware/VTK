@@ -25,6 +25,7 @@
 #include "vtkRenderingSceneGraphModule.h" // For export macro
 #include "vtkViewNode.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkUnsignedCharArray;
 class vtkFloatArray;
 
@@ -77,4 +78,5 @@ private:
   void operator=(const vtkWindowNode&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

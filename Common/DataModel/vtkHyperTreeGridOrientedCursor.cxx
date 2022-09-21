@@ -22,6 +22,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include <cassert>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkHyperTreeGridOrientedCursor);
 
 //------------------------------------------------------------------------------
@@ -185,3 +186,4 @@ vtkHyperTreeGridOrientedCursor::vtkHyperTreeGridOrientedCursor()
 vtkHyperTreeGridOrientedCursor::~vtkHyperTreeGridOrientedCursor() = default;
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_END

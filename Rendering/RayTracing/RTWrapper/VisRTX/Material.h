@@ -14,6 +14,7 @@
 
 namespace RTW
 {
+VTK_ABI_NAMESPACE_BEGIN
     class Material : public Object
     {
         friend class Geometry;
@@ -425,4 +426,5 @@ namespace RTW
         std::string type;
         VisRTX::Material* material = nullptr;
         };
-    }
+VTK_ABI_NAMESPACE_END
+}

@@ -45,6 +45,7 @@
 #include "vtkSelectionNode.h"
 #include "vtkWindow.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPointCloudRepresentation);
 
 //------------------------------------------------------------------------------
@@ -516,3 +517,4 @@ void vtkPointCloudRepresentation::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Selection Property: (none)\n";
   }
 }
+VTK_ABI_NAMESPACE_END

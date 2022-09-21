@@ -22,6 +22,7 @@
 #include "vtkPoints.h"
 #include "vtkTriangle.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkTriangleStrip);
 
 //------------------------------------------------------------------------------
@@ -344,3 +345,4 @@ void vtkTriangleStrip::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Triangle:\n";
   this->Triangle->PrintSelf(os, indent.GetNextIndent());
 }
+VTK_ABI_NAMESPACE_END

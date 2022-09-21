@@ -7,6 +7,7 @@
 #include "vtkOpenGLState.h"
 #include "vtkRenderState.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOpenGLFXAAPass);
 vtkCxxSetObjectMacro(vtkOpenGLFXAAPass, FXAAOptions, vtkFXAAOptions);
 
@@ -52,3 +53,4 @@ void vtkOpenGLFXAAPass::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

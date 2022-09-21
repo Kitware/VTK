@@ -72,6 +72,7 @@ POSSIBILITY OF SUCH DAMAGES.
 #include <vtksys/SystemTools.hxx>
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkMNITransformReader);
 
 //------------------------------------------------------------------------------
@@ -996,3 +997,4 @@ const char* vtkMNITransformReader::GetComments()
 
   return this->Comments;
 }
+VTK_ABI_NAMESPACE_END

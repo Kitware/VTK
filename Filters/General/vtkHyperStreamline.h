@@ -59,6 +59,7 @@
 #define VTK_INTEGRATE_MEDIUM_EIGENVECTOR 1
 #define VTK_INTEGRATE_MINOR_EIGENVECTOR 2
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkHyperArray;
 
 class VTKFILTERSGENERAL_EXPORT vtkHyperStreamline : public vtkPolyDataAlgorithm
@@ -303,4 +304,5 @@ private:
   void operator=(const vtkHyperStreamline&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

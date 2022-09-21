@@ -40,11 +40,16 @@
     H = E->CallIntMethod(C, mid);                                                                  \
   }
 #include "vtkWindows.h"
+VTK_ABI_NAMESPACE_BEGIN
 int WJLH_init_check = 0;
+VTK_ABI_NAMESPACE_END
 #include <map> // STL Header
+VTK_ABI_NAMESPACE_BEGIN
 std::map<int, int> WJLH_lock_map;
+VTK_ABI_NAMESPACE_END
 #endif
 
+VTK_ABI_NAMESPACE_BEGIN
 extern "C" JNIEXPORT jint JNICALL Java_vtk_vtkPanel_RenderCreate(
   JNIEnv* env, jobject canvas, jobject id0)
 {
@@ -363,5 +368,6 @@ extern "C" JNIEXPORT jint JNICALL Java_vtk_vtkPanel_UnLock(JNIEnv* env, jobject 
 #pragma GCC diagnostic pop
 #endif
 
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkJavaAwt.h

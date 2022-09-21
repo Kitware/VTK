@@ -35,6 +35,7 @@
 #include <queue>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkStaticCellLocator);
 
 //------------------------------------------------------------------------------
@@ -1822,3 +1823,4 @@ void vtkStaticCellLocator::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Large IDs: " << this->LargeIds << "\n";
 }
+VTK_ABI_NAMESPACE_END

@@ -16,6 +16,7 @@
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkParametricRoman);
 
 //------------------------------------------------------------------------------
@@ -85,3 +86,4 @@ void vtkParametricRoman::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Radius: " << this->Radius << "\n";
 }
+VTK_ABI_NAMESPACE_END

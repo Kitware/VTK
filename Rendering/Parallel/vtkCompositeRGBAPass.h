@@ -34,6 +34,7 @@
 #include "vtkRenderPass.h"
 #include "vtkRenderingParallelModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkMultiProcessController;
 
 class vtkPixelBufferObject;
@@ -109,4 +110,5 @@ private:
   void operator=(const vtkCompositeRGBAPass&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

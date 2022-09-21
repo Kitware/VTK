@@ -82,6 +82,7 @@
 #include "vtkStdString.h"           // For vtkStdString ivars
 #include <vector>                   //For STL vector
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkAbstractPointLocator;
 class vtkIdList;
 class vtkDoubleArray;
@@ -438,4 +439,5 @@ private:
   void operator=(const vtkSPHInterpolator&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

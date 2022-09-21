@@ -58,6 +58,7 @@
 #define VTK_MIN_SUPERQUADRIC_THICKNESS 1e-4
 #define VTK_MIN_SUPERQUADRIC_ROUNDNESS 1e-24
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSSOURCES_EXPORT vtkSuperquadricSource : public vtkPolyDataAlgorithm
 {
 public:
@@ -196,4 +197,5 @@ private:
   void operator=(const vtkSuperquadricSource&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

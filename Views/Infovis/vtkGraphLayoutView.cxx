@@ -35,6 +35,7 @@
 #include "vtkSimple2DLayoutStrategy.h"
 #include "vtkTextProperty.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkGraphLayoutView);
 //------------------------------------------------------------------------------
 vtkGraphLayoutView::vtkGraphLayoutView()
@@ -519,3 +520,4 @@ void vtkGraphLayoutView::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

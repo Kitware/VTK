@@ -18,6 +18,7 @@
 #include <string>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkRTXMLPolyDataReader);
 
 class vtkRTXMLPolyDataReaderInternals
@@ -210,3 +211,4 @@ void vtkRTXMLPolyDataReader::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
   os << indent << "DataLocation: " << (this->DataLocation ? this->DataLocation : "(none)") << "\n";
 }
+VTK_ABI_NAMESPACE_END

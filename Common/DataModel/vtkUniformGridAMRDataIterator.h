@@ -26,6 +26,7 @@
 #include "vtkCompositeDataIterator.h"
 #include "vtkSmartPointer.h" //for member variable Information
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkInformation;
 class vtkAMRInformation;
 class vtkAMRDataInternals;
@@ -107,4 +108,5 @@ private:
   void GetCurrentIndexPair(unsigned int& level, unsigned int& id);
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

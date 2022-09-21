@@ -34,6 +34,7 @@
 #include "vtkFiltersModelingModule.h" // For export macro
 #include "vtkHyperTreeGridAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkOutlineSource;
 
 class VTKFILTERSMODELING_EXPORT vtkHyperTreeGridOutlineFilter : public vtkHyperTreeGridAlgorithm
@@ -70,4 +71,5 @@ private:
   void operator=(const vtkHyperTreeGridOutlineFilter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

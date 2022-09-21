@@ -30,6 +30,7 @@
 
 // .NAME vtkColor3 - templated base type for storage of 3 component colors.
 //
+VTK_ABI_NAMESPACE_BEGIN
 template <typename T>
 class vtkColor3 : public vtkTuple<T, 3>
 {
@@ -338,5 +339,6 @@ public:
   }
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkColor_h
 // VTK-HeaderTest-Exclude: vtkColor.h

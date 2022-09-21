@@ -24,6 +24,7 @@
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkCountFaces);
 
 //------------------------------------------------------------------------------
@@ -93,3 +94,4 @@ int vtkCountFaces::FillInputPortInformation(int, vtkInformation* info)
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
   return 1;
 }
+VTK_ABI_NAMESPACE_END

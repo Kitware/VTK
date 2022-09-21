@@ -42,6 +42,7 @@
 #include "vtkSmartPointer.h"          // For vtkSmartPointer
 #include "vtkVolume.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkAbstractVolumeMapper;
 class vtkBoundingBox;
 class vtkMatrix4x4;
@@ -178,4 +179,5 @@ private:
   vtkMultiVolume(const vtkMultiVolume&) = delete;
   void operator=(const vtkMultiVolume&) = delete;
 };
+VTK_ABI_NAMESPACE_END
 #endif

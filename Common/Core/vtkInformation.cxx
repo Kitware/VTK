@@ -45,6 +45,7 @@
 
 #include "vtkInformationInternals.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkInformation);
 
 //------------------------------------------------------------------------------
@@ -955,3 +956,4 @@ vtkInformationRequestKey* vtkInformation::GetRequest()
 {
   return this->Request;
 }
+VTK_ABI_NAMESPACE_END

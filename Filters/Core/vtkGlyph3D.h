@@ -101,6 +101,7 @@
 #define VTK_INDEXING_BY_SCALAR 1
 #define VTK_INDEXING_BY_VECTOR 2
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkTransform;
 
 class VTKFILTERSCORE_EXPORT vtkGlyph3D : public vtkPolyDataAlgorithm
@@ -457,4 +458,5 @@ inline const char* vtkGlyph3D::GetIndexModeAsString()
   }
 }
 
+VTK_ABI_NAMESPACE_END
 #endif

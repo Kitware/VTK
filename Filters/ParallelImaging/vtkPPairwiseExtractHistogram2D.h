@@ -47,6 +47,7 @@
 #include "vtkFiltersParallelImagingModule.h" // For export macro
 #include "vtkPairwiseExtractHistogram2D.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkExtractHistogram2D;
 class vtkMultiProcessController;
 
@@ -77,4 +78,5 @@ private:
   void operator=(const vtkPPairwiseExtractHistogram2D&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

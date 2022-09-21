@@ -45,6 +45,7 @@
 #include "vtkImageMapToColors.h"
 #include "vtkImagingColorModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKIMAGINGCOLOR_EXPORT vtkImageMapToWindowLevelColors : public vtkImageMapToColors
 {
 public:
@@ -91,4 +92,5 @@ private:
   void operator=(const vtkImageMapToWindowLevelColors&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

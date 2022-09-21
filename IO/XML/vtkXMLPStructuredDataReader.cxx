@@ -26,6 +26,7 @@
 #include <sstream>
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkXMLPStructuredDataReader::vtkXMLPStructuredDataReader()
 {
   this->ExtentSplitter = vtkExtentSplitter::New();
@@ -432,3 +433,4 @@ int vtkXMLPStructuredDataReader::ComputePieceSubExtents()
 
   return 1;
 }
+VTK_ABI_NAMESPACE_END

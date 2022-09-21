@@ -32,6 +32,7 @@
 #include <string>                          // for ivars
 #include <vector>                          // for ivars
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCallbackCommand;
 class vtkOpenGLAvatar;
 class vtkOpenGLRenderer;
@@ -189,4 +190,5 @@ protected:
   vtkVRCollaborationClientInternal* Internal;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

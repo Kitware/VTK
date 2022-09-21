@@ -47,6 +47,7 @@
 #include "vtkImageAlgorithm.h"
 #include "vtkImagingHybridModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKIMAGINGHYBRID_EXPORT vtkBooleanTexture : public vtkImageAlgorithm
 {
 public:
@@ -177,4 +178,5 @@ private:
   void operator=(const vtkBooleanTexture&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

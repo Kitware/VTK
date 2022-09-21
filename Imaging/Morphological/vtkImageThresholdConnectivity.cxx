@@ -29,6 +29,7 @@
 
 #include <stack>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImageThresholdConnectivity);
 vtkCxxSetObjectMacro(vtkImageThresholdConnectivity, SeedPoints, vtkPoints);
 
@@ -789,3 +790,4 @@ void vtkImageThresholdConnectivity::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Stencil: " << this->GetStencil() << "\n";
   os << indent << "ActiveComponent: " << this->ActiveComponent << "\n";
 }
+VTK_ABI_NAMESPACE_END

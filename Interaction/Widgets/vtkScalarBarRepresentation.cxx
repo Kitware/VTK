@@ -34,6 +34,7 @@
 #include <cmath>
 
 //=============================================================================
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkScalarBarRepresentation);
 //------------------------------------------------------------------------------
 vtkScalarBarRepresentation::vtkScalarBarRepresentation()
@@ -272,3 +273,4 @@ vtkTypeBool vtkScalarBarRepresentation::HasTranslucentPolygonalGeometry()
   }
   return result;
 }
+VTK_ABI_NAMESPACE_END

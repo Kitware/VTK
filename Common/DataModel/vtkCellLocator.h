@@ -50,6 +50,7 @@
 #include "vtkDeprecation.h"           // For VTK_DEPRECATED_IN_9_2_0
 #include "vtkNew.h"                   // For vtkNew
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkIntArray;
 
 class VTKCOMMONDATAMODEL_EXPORT vtkCellLocator : public vtkAbstractCellLocator
@@ -241,4 +242,5 @@ private:
   void operator=(const vtkCellLocator&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

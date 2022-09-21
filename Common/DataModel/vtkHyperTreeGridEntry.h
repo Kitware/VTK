@@ -66,6 +66,7 @@
 
 #include "vtkObject.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkHyperTree;
 class vtkHyperTreeGrid;
 
@@ -193,5 +194,6 @@ protected:
   vtkIdType Index;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkHyperTreeGridEntry_h
 // VTK-HeaderTest-Exclude: vtkHyperTreeGridEntry.h

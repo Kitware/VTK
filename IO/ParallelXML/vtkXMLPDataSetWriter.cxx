@@ -29,6 +29,7 @@
 #include "vtkXMLPStructuredGridWriter.h"
 #include "vtkXMLPUnstructuredGridWriter.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkXMLPDataSetWriter);
 
 //------------------------------------------------------------------------------
@@ -153,3 +154,4 @@ int vtkXMLPDataSetWriter::FillInputPortInformation(int vtkNotUsed(port), vtkInfo
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
   return 1;
 }
+VTK_ABI_NAMESPACE_END

@@ -24,6 +24,7 @@
 
 #include <cassert>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkCxxSetObjectMacro(vtkAMRBaseParticlesReader, Controller, vtkMultiProcessController);
 
 vtkAMRBaseParticlesReader::vtkAMRBaseParticlesReader()
@@ -257,3 +258,4 @@ int vtkAMRBaseParticlesReader::RequestData(vtkInformation* vtkNotUsed(request),
 
   return 1;
 }
+VTK_ABI_NAMESPACE_END

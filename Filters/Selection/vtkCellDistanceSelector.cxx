@@ -36,6 +36,7 @@
 #include <map>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkCellDistanceSelector);
 
 //------------------------------------------------------------------------------
@@ -371,3 +372,4 @@ int vtkCellDistanceSelector::RequestData(vtkInformation* vtkNotUsed(request),
 
   return 1;
 }
+VTK_ABI_NAMESPACE_END

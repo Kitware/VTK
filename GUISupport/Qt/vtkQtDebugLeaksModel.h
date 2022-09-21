@@ -28,6 +28,7 @@
 #include "vtkGUISupportQtModule.h" // For export macro
 #include <QStandardItemModel>
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkObjectBase;
 
 class VTKGUISUPPORTQT_EXPORT vtkQtDebugLeaksModel : public QStandardItemModel
@@ -91,5 +92,6 @@ protected Q_SLOTS:
   void updateReferenceCounts();
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkQtDebugLeaksModel.h

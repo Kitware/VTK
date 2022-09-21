@@ -30,6 +30,7 @@
 #include "vtkAbstractMapper3D.h"
 #include "vtkRenderingCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkRenderer;
 class vtkVolume;
 class vtkWindow;
@@ -151,4 +152,5 @@ private:
   void operator=(const vtkAbstractVolumeMapper&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

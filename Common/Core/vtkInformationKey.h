@@ -33,6 +33,7 @@
 #include "vtkObject.h"           // Need vtkTypeMacro
 #include "vtkObjectBase.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkInformation;
 
 class VTKCOMMONCORE_EXPORT vtkInformationKey : public vtkObjectBase
@@ -228,4 +229,5 @@ private:
     new vtkInformation##type##Key(#NAME, #CLASS, required);                                        \
   vtkInformation##type##Key* CLASS::NAME() { return CLASS##_##NAME; }
 
+VTK_ABI_NAMESPACE_END
 #endif

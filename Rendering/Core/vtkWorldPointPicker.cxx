@@ -19,6 +19,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkRenderer.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkWorldPointPicker);
 
 vtkWorldPointPicker::vtkWorldPointPicker() = default;
@@ -95,3 +96,4 @@ void vtkWorldPointPicker::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

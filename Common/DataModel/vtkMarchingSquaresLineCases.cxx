@@ -17,6 +17,7 @@
 
 // Note: the following code is placed here to deal with cross-library
 // symbol export and import on Microsoft compilers.
+VTK_ABI_NAMESPACE_BEGIN
 static vtkMarchingSquaresLineCases VTK_MARCHING_SQUARES_LINECASES[] = {
   { { -1, -1, -1, -1, -1 } },
   { { 0, 3, -1, -1, -1 } },
@@ -40,3 +41,4 @@ vtkMarchingSquaresLineCases* vtkMarchingSquaresLineCases::GetCases()
 {
   return VTK_MARCHING_SQUARES_LINECASES;
 }
+VTK_ABI_NAMESPACE_END

@@ -23,6 +23,7 @@
 
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkXYPlotWidget);
 vtkCxxSetObjectMacro(vtkXYPlotWidget, XYPlotActor, vtkXYPlotActor);
 
@@ -442,3 +443,4 @@ void vtkXYPlotWidget::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "XYPlotActor: " << this->XYPlotActor << "\n";
 }
+VTK_ABI_NAMESPACE_END

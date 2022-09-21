@@ -21,6 +21,7 @@
 #include "vtkPoints.h"
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkSMPMergePoints);
 
 //------------------------------------------------------------------------------
@@ -165,3 +166,4 @@ void vtkSMPMergePoints::FixSizeOfPointArray()
 {
   this->Points->SetNumberOfPoints(this->AtomicInsertionId);
 }
+VTK_ABI_NAMESPACE_END

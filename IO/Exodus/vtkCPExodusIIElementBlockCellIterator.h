@@ -26,6 +26,7 @@
 
 #include "vtkSmartPointer.h" // For smart pointer
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCPExodusIIElementBlock;
 class vtkCPExodusIIElementBlockPrivate;
 
@@ -63,4 +64,5 @@ private:
   vtkIdType CellId;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkCPExodusIIElementBlockCellIterator_h

@@ -19,6 +19,7 @@
 
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImageHistogramStatistics);
 
 //------------------------------------------------------------------------------
@@ -161,3 +162,4 @@ int vtkImageHistogramStatistics::RequestData(
 
   return 1;
 }
+VTK_ABI_NAMESPACE_END

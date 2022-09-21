@@ -213,6 +213,16 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkDataObject.h"
 
+// Forward declare some boost stuff even if boost wrappers
+// are turned off.
+namespace boost
+{
+class vtk_edge_iterator;
+class vtk_out_edge_pointer_iterator;
+class vtk_in_edge_pointer_iterator;
+}
+
+VTK_ABI_NAMESPACE_BEGIN
 class vtkAdjacentVertexIterator;
 class vtkCellArray;
 class vtkEdgeListIterator;
@@ -230,15 +240,6 @@ class vtkUndirectedGraph;
 class vtkVertexListIterator;
 class vtkVariant;
 class vtkVariantArray;
-
-// Forward declare some boost stuff even if boost wrappers
-// are turned off.
-namespace boost
-{
-class vtk_edge_iterator;
-class vtk_out_edge_pointer_iterator;
-class vtk_in_edge_pointer_iterator;
-}
 
 // Edge structures.
 struct vtkEdgeBase
@@ -837,4 +838,5 @@ bool VTKCOMMONDATAMODEL_EXPORT operator==(vtkEdgeBase e1, vtkEdgeBase e2);
 bool VTKCOMMONDATAMODEL_EXPORT operator!=(vtkEdgeBase e1, vtkEdgeBase e2);
 VTKCOMMONDATAMODEL_EXPORT ostream& operator<<(ostream& out, vtkEdgeBase e);
 
+VTK_ABI_NAMESPACE_END
 #endif

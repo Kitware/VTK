@@ -30,6 +30,7 @@
 #include <iterator>
 #include <list>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkSeedWidget);
 
 // The vtkSeedList is a PIMPLed list<T>.
@@ -391,3 +392,4 @@ void vtkSeedWidget::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "WidgetState: " << this->WidgetState << endl;
 }
+VTK_ABI_NAMESPACE_END

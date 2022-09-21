@@ -33,6 +33,7 @@
 #include "vtkPoints.h"
 #include "vtkTree.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkAssignCoordinatesLayoutStrategy);
 
 vtkAssignCoordinatesLayoutStrategy::vtkAssignCoordinatesLayoutStrategy()
@@ -83,3 +84,4 @@ void vtkAssignCoordinatesLayoutStrategy::PrintSelf(ostream& os, vtkIndent indent
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

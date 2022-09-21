@@ -51,6 +51,7 @@ namespace smp
 {
 namespace STDThread
 {
+VTK_ABI_NAMESPACE_BEGIN
 
 typedef size_t ThreadIdType;
 typedef uint_fast32_t HashType;
@@ -178,9 +179,11 @@ private:
   size_t CurrentSlot;
 };
 
+VTK_ABI_NAMESPACE_END
 } // STDThread;
 } // namespace smp
 } // namespace detail
 } // namespace vtk
 
 #endif
+/* VTK-HeaderTest-Exclude: INCLUDES:CLASSES */

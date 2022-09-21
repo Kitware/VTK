@@ -32,6 +32,7 @@
 #include "vtkScatterPlotMatrix.h"
 #include "vtkSmartPointer.h" // For SmartPointer
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkOTDensityMap;
 class vtkScalarsToColors;
 
@@ -95,4 +96,5 @@ private:
   vtkSmartPointer<vtkScalarsToColors> TransferFunction;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkOTScatterPlotMatrix_h

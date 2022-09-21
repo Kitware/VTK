@@ -39,6 +39,7 @@
 #include "vtkExtractSelectionBase.h"
 #include "vtkFiltersGeneralModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPlanes;
 class vtkInformation;
 class vtkInformationVector;
@@ -167,4 +168,5 @@ private:
   void operator=(const vtkExtractSelectedFrustum&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

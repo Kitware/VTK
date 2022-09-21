@@ -34,6 +34,7 @@
 #include "vtkInteractionWidgetsModule.h" // needed for export macro
 #include "vtkWidgetRepresentation.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkActor;
 class vtkDiskSource;
 class vtkDoubleArray;
@@ -353,4 +354,5 @@ private:
   void operator=(const vtkCameraOrientationRepresentation&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

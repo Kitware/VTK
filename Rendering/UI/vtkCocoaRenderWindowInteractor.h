@@ -37,9 +37,12 @@
 #include "vtkRenderingUIModule.h" // For export macro
 #include "vtkTDxConfigure.h"      // defines VTK_USE_TDX
 #ifdef VTK_USE_TDX
+VTK_ABI_NAMESPACE_BEGIN
 class vtkTDxMacDevice;
+VTK_ABI_NAMESPACE_END
 #endif
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKRENDERINGUI_EXPORT vtkCocoaRenderWindowInteractor : public vtkRenderWindowInteractor
 {
 public:
@@ -168,4 +171,5 @@ private:
   void* CocoaManager; // Really an NSMutableDictionary*
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

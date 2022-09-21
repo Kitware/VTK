@@ -23,6 +23,7 @@
 
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkCellLinks);
 
 //------------------------------------------------------------------------------
@@ -304,3 +305,4 @@ void vtkCellLinks::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "MaxId: " << this->MaxId << "\n";
   os << indent << "Extend: " << this->Extend << "\n";
 }
+VTK_ABI_NAMESPACE_END

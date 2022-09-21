@@ -23,6 +23,7 @@
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkOverlappingAMRLevelIdScalars.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSGENERAL_EXPORT vtkLevelIdScalars : public vtkOverlappingAMRLevelIdScalars
 {
 public:
@@ -39,4 +40,5 @@ private:
   void operator=(const vtkLevelIdScalars&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif /* VTKLEVELIDSCALARS_H_ */

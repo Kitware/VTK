@@ -48,6 +48,7 @@
 #include "vtkPolyDataAlgorithm.h"
 #include "vtkRenderingCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkRenderer;
 class vtkMatrix4x4;
 
@@ -171,4 +172,5 @@ private:
   void operator=(const vtkSelectVisiblePoints&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

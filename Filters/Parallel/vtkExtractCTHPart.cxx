@@ -55,6 +55,7 @@
 #include <string>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkExtractCTHPart);
 vtkCxxSetObjectMacro(vtkExtractCTHPart, ClipPlane, vtkPlane);
 vtkCxxSetObjectMacro(vtkExtractCTHPart, Controller, vtkMultiProcessController);
@@ -1353,3 +1354,4 @@ void vtkExtractCTHPart::PrintSelf(ostream& os, vtkIndent indent)
     os << "No Controller." << endl;
   }
 }
+VTK_ABI_NAMESPACE_END

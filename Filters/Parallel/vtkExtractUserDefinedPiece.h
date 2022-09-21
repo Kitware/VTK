@@ -39,6 +39,7 @@
 #include "vtkExtractUnstructuredGridPiece.h"
 #include "vtkFiltersParallelModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSPARALLEL_EXPORT vtkExtractUserDefinedPiece : public vtkExtractUnstructuredGridPiece
 {
 public:
@@ -84,4 +85,5 @@ private:
 
   UserDefFunc InPiece;
 };
+VTK_ABI_NAMESPACE_END
 #endif

@@ -58,6 +58,7 @@
 // VTK_RGB and VTK_RGBA are defined in system includes
 #define VTK_ZBUFFER 5
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkWindow;
 
 class vtkWTI2DHelperClass;
@@ -177,4 +178,5 @@ private:
   void operator=(const vtkResizingWindowToImageFilter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

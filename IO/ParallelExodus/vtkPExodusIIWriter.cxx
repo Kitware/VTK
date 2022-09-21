@@ -45,6 +45,7 @@
 #include <cctype>
 #include <ctime>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPExodusIIWriter);
 
 //------------------------------------------------------------------------------
@@ -163,3 +164,4 @@ unsigned int vtkPExodusIIWriter::GetMaxNameLength()
   c->AllReduce(&maxName, &globalMaxName, 1, vtkCommunicator::MAX_OP);
   return maxName;
 }
+VTK_ABI_NAMESPACE_END

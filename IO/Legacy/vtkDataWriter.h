@@ -34,6 +34,7 @@
 
 #include <locale> // For locale settings
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCellArray;
 class vtkDataArray;
 class vtkDataSet;
@@ -382,4 +383,5 @@ private:
   void operator=(const vtkDataWriter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

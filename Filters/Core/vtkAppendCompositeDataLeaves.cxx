@@ -36,6 +36,7 @@
 #include "vtkTable.h"
 #include "vtkUnstructuredGrid.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkAppendCompositeDataLeaves);
 
 //------------------------------------------------------------------------------
@@ -274,3 +275,4 @@ void vtkAppendCompositeDataLeaves::AppendFieldDataArrays(vtkInformationVector* i
     }
   }
 }
+VTK_ABI_NAMESPACE_END

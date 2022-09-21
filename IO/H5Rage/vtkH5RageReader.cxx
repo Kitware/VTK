@@ -31,6 +31,7 @@
 
 #include "H5RageAdaptor.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkH5RageReader);
 vtkCxxSetObjectMacro(vtkH5RageReader, Controller, vtkMultiProcessController);
 
@@ -340,3 +341,4 @@ void vtkH5RageReader::PrintSelf(ostream& os, vtkIndent indent)
 
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

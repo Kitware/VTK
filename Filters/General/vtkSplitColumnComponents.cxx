@@ -32,6 +32,7 @@
 #include <cmath>
 #include <sstream>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkSplitColumnComponents);
 vtkInformationKeyMacro(vtkSplitColumnComponents, ORIGINAL_ARRAY_NAME, String);
 vtkInformationKeyMacro(vtkSplitColumnComponents, ORIGINAL_COMPONENT_NUMBER, Integer);
@@ -290,3 +291,4 @@ void vtkSplitColumnComponents::PrintSelf(ostream& os, vtkIndent indent)
       os << "INVALID" << endl;
   }
 }
+VTK_ABI_NAMESPACE_END

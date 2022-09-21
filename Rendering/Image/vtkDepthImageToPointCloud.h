@@ -71,6 +71,7 @@
 #include "vtkPolyDataAlgorithm.h"
 #include "vtkRenderingImageModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCamera;
 
 class VTKRENDERINGIMAGE_EXPORT vtkDepthImageToPointCloud : public vtkPolyDataAlgorithm
@@ -187,4 +188,5 @@ private:
   void operator=(const vtkDepthImageToPointCloud&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

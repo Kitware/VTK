@@ -27,6 +27,7 @@
 #include "vtkIOParallelXMLModule.h" // For export macro
 #include "vtkXMLPUniformGridAMRWriter.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKIOPARALLELXML_EXPORT vtkXMLPHierarchicalBoxDataWriter : public vtkXMLPUniformGridAMRWriter
 {
 public:
@@ -43,4 +44,5 @@ private:
   void operator=(const vtkXMLPHierarchicalBoxDataWriter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

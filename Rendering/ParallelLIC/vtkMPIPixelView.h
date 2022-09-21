@@ -26,6 +26,7 @@
 #include <iostream>         // for cerr
 
 //-----------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 template <typename T>
 int vtkMPIPixelViewNew(
   const vtkPixelExtent& domain, const vtkPixelExtent& decomp, int nComps, MPI_Datatype& view)
@@ -94,5 +95,6 @@ int vtkMPIPixelViewNew(
   return 0;
 }
 
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkMPIPixelView.h

@@ -52,6 +52,7 @@
 #include <unordered_map>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCityGMLReader::Implementation
 {
 public:
@@ -1138,3 +1139,4 @@ void vtkCityGMLReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

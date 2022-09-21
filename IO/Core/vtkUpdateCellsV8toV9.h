@@ -30,6 +30,7 @@
 #include "vtkNew.h"
 #include "vtkUnstructuredGrid.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 inline void vtkUpdateCellsV8toV9(vtkUnstructuredGrid* output)
 {
   vtkNew<vtkIdList> oldpts, newpts;
@@ -87,5 +88,6 @@ inline bool vtkNeedsNewFileVersionV8toV9(vtkUnsignedCharArray* distinctCellTypes
   return false;
 }
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkUpdateCellsV8toV9_h
 // VTK-HeaderTest-Exclude: vtkUpdateCellsV8toV9.h

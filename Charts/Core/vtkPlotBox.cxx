@@ -42,6 +42,7 @@
 #include <algorithm>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPlotBox::Private : public std::vector<std::vector<double>>
 {
 public:
@@ -401,3 +402,4 @@ void vtkPlotBox::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

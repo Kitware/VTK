@@ -34,6 +34,7 @@
 
 #include "vtkFiltersSourcesModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPlanes;
 
 class VTKFILTERSSOURCES_EXPORT vtkFrustumSource : public vtkPolyDataAlgorithm
@@ -118,4 +119,5 @@ private:
   void operator=(const vtkFrustumSource&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

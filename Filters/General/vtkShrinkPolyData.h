@@ -42,6 +42,7 @@
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSGENERAL_EXPORT vtkShrinkPolyData : public vtkPolyDataAlgorithm
 {
 public:
@@ -75,4 +76,5 @@ private:
   void operator=(const vtkShrinkPolyData&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

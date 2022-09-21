@@ -20,6 +20,7 @@
 // Only these states can be queries via glIsEnabled:
 // http://www.khronos.org/opengles/sdk/docs/man/
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkVolumeStateRAII
 {
 public:
@@ -104,5 +105,6 @@ private:
   vtkOpenGLState* State;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkVolumeStateRAII_h
 // VTK-HeaderTest-Exclude: vtkVolumeStateRAII.h

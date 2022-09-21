@@ -100,3 +100,4 @@ if (VTK_ENABLE_VISRTX)
     PRIVATE
       VTK_ENABLE_VISRTX)
 endif ()
+vtk_add_test_mangling(VTK::RenderingRayTracing)

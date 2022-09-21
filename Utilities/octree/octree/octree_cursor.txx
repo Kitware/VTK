@@ -58,6 +58,7 @@
 
 /**\brief Default constructor. Not very useful since there's no way to indicate the octree.
  */
+VTK_ABI_NAMESPACE_BEGIN
 template <typename T_, typename R_, typename P_, typename O_, typename OP_, int d_>
 octree_cursor<T_, R_, P_, O_, OP_, d_>::octree_cursor()
 {
@@ -280,3 +281,4 @@ octree_path<T_, R_, P_, O_, OP_, d_>& octree_cursor<T_, R_, P_, O_, OP_, d_>::op
 {
   return this->octree_path<T_, R_, P_, O_, OP_, d_>::operator=(it);
 }
+VTK_ABI_NAMESPACE_END

@@ -44,6 +44,7 @@
 #include <cassert>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
 int getNumberOfChildren(vtkDataObjectTree* tree)
@@ -813,3 +814,4 @@ vtkIdType vtkGlyph3DMapper::GetMaxNumberOfLOD()
 {
   return 0;
 }
+VTK_ABI_NAMESPACE_END

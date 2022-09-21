@@ -27,6 +27,7 @@
 #include "vtkPostgreSQLToTableReader.h"
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPostgreSQLToTableReader);
 
 //------------------------------------------------------------------------------
@@ -158,3 +159,4 @@ void vtkPostgreSQLToTableReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

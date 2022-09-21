@@ -16,6 +16,7 @@
 #include <cassert>
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkRandomSequence::vtkRandomSequence() = default;
 
 //------------------------------------------------------------------------------
@@ -33,3 +34,4 @@ double vtkRandomSequence::GetNextValue()
   this->Next();
   return this->GetValue();
 }
+VTK_ABI_NAMESPACE_END

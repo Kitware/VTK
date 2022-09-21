@@ -43,6 +43,7 @@
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkWidgetRepresentation.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkImageRectilinearWipe;
 class vtkImageActor;
 class vtkPoints;
@@ -184,4 +185,5 @@ private:
   void operator=(const vtkRectilinearWipeRepresentation&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -28,6 +28,7 @@
 #include "vtkCompositePolyDataMapper.h"
 #include "vtkRenderingCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKRENDERINGCORE_EXPORT vtkHierarchicalPolyDataMapper : public vtkCompositePolyDataMapper
 {
 
@@ -45,4 +46,5 @@ private:
   void operator=(const vtkHierarchicalPolyDataMapper&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

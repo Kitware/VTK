@@ -37,6 +37,7 @@
 /* Define a static-storage default-zero-initialized table to store
    writer objects for the fortran program.  */
 #define VTK_XMLWRITERF_MAX 256
+VTK_ABI_NAMESPACE_BEGIN
 static vtkXMLWriterC* vtkXMLWriterF_Table[VTK_XMLWRITERF_MAX + 1];
 
 /* Fortran compilers expect certain symbol names for their calls to C
@@ -447,5 +448,6 @@ void VTK_FORTRAN_NAME(vtkxmlwriterf_stop, VTKXMLWRITERF_STOP)(const int* self)
     fprintf(stderr, "vtkXMLWriterF_Stop called with invalid id %d.\n", *self);
   }
 }
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkXMLWriterF.h

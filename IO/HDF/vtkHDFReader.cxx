@@ -46,6 +46,7 @@
 #include <sstream>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkHDFReader);
 
 namespace
@@ -589,3 +590,4 @@ int vtkHDFReader::RequestData(vtkInformation* vtkNotUsed(request),
   }
   return ok && this->AddFieldArrays(output);
 }
+VTK_ABI_NAMESPACE_END

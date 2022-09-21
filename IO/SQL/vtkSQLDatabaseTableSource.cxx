@@ -32,6 +32,7 @@
 #include "vtkTable.h"
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 class vtkSQLDatabaseTableSource::implementation
 {
 public:
@@ -276,3 +277,4 @@ int vtkSQLDatabaseTableSource::RequestData(
 
   return 1;
 }
+VTK_ABI_NAMESPACE_END

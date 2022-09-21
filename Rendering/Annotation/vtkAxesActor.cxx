@@ -34,6 +34,7 @@
 #include <algorithm>
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkAxesActor);
 
 vtkCxxSetObjectMacro(vtkAxesActor, UserDefinedTip, vtkPolyData);
@@ -804,3 +805,4 @@ void vtkAxesActor::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "NormalizedLabelPosition: " << this->NormalizedLabelPosition[0] << ","
      << this->NormalizedLabelPosition[1] << "," << this->NormalizedLabelPosition[2] << endl;
 }
+VTK_ABI_NAMESPACE_END

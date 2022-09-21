@@ -24,6 +24,7 @@
 
 #include <algorithm>
 
+VTK_ABI_NAMESPACE_BEGIN
 inline void StdStringToUpper(std::string& s)
 {
   std::transform(s.begin(), s.end(), s.begin(), ::toupper);
@@ -198,3 +199,4 @@ void vtkPDBReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

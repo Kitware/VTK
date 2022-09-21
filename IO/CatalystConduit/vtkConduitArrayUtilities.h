@@ -36,6 +36,7 @@
 
 #include <string> // for std::string
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCellArray;
 class vtkDataArray;
 
@@ -92,5 +93,6 @@ private:
   vtkConduitArrayUtilities(const vtkConduitArrayUtilities&) = delete;
   void operator=(const vtkConduitArrayUtilities&) = delete;
 };
+VTK_ABI_NAMESPACE_END
 
 #endif

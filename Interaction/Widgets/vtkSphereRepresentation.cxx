@@ -42,6 +42,7 @@
 
 #include <cassert>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkSphereRepresentation);
 
 //------------------------------------------------------------------------------
@@ -932,3 +933,4 @@ void vtkSphereRepresentation::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Radial Line Property: (none)\n";
   }
 }
+VTK_ABI_NAMESPACE_END

@@ -19,6 +19,7 @@
 //------------------------------------------------------------------------------
 // Construct a spline with the following defaults:
 // ClampValueOff
+VTK_ABI_NAMESPACE_BEGIN
 vtkSpline::vtkSpline()
 {
   this->ComputeTime = 0;
@@ -227,3 +228,4 @@ void vtkSpline::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Closed: " << (this->Closed ? "On\n" : "Off\n");
 }
+VTK_ABI_NAMESPACE_END

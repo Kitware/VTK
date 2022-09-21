@@ -37,6 +37,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkTable.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkQtRecordView);
 
 //------------------------------------------------------------------------------
@@ -162,3 +163,4 @@ void vtkQtRecordView::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

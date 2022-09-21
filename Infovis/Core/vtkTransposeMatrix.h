@@ -33,6 +33,7 @@
 #include "vtkArrayDataAlgorithm.h"
 #include "vtkInfovisCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKINFOVISCORE_EXPORT vtkTransposeMatrix : public vtkArrayDataAlgorithm
 {
 public:
@@ -51,4 +52,5 @@ private:
   void operator=(const vtkTransposeMatrix&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

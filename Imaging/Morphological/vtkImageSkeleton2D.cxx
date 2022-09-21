@@ -22,6 +22,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImageSkeleton2D);
 
 //------------------------------------------------------------------------------
@@ -387,3 +388,4 @@ void vtkImageSkeleton2D::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Prune: " << (this->Prune ? "On\n" : "Off\n");
 }
+VTK_ABI_NAMESPACE_END

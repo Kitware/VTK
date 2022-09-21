@@ -58,6 +58,7 @@
 #include "vtkFiltersPointsModule.h" // For export macro
 #include "vtkInterpolationKernel.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkIdList;
 class vtkDoubleArray;
 class vtkDataArray;
@@ -207,4 +208,5 @@ private:
   void operator=(const vtkSPHKernel&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

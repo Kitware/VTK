@@ -48,6 +48,7 @@
 #include "vtkImageAlgorithm.h"
 #include "vtkImagingHybridModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKIMAGINGHYBRID_EXPORT vtkFastSplatter : public vtkImageAlgorithm
 {
 public:
@@ -273,4 +274,5 @@ void vtkFastSplatterFrozenScale(
   }
 }
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkFastSplatter_h

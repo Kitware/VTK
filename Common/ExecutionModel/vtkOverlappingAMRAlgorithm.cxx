@@ -18,6 +18,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkOverlappingAMR.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOverlappingAMRAlgorithm);
 
 //------------------------------------------------------------------------------
@@ -64,3 +65,4 @@ int vtkOverlappingAMRAlgorithm::FillInputPortInformation(int vtkNotUsed(port), v
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkOverlappingAMR");
   return 1;
 }
+VTK_ABI_NAMESPACE_END

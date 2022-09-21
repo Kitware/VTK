@@ -37,6 +37,7 @@
 
 namespace CGNSRead
 {
+VTK_ABI_NAMESPACE_BEGIN
 
 //------------------------------------------------------------------------------
 template <typename T>
@@ -171,5 +172,6 @@ int readZoneInfo(int cgioNum, double zoneId, CGNSRead::ZoneInformation& zoneInfo
  * release all ids in the vector.
  */
 void releaseIds(int cgioNum, const std::vector<double>& ids);
+VTK_ABI_NAMESPACE_END
 }
 #endif // cgio_helpers_h

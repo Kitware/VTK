@@ -44,6 +44,7 @@
 #include <cstring>
 #include <string>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkNIFTIImageReader);
 
 //------------------------------------------------------------------------------
@@ -1344,3 +1345,4 @@ int vtkNIFTIImageReader::RequestData(vtkInformation* request,
 
   return 1;
 }
+VTK_ABI_NAMESPACE_END

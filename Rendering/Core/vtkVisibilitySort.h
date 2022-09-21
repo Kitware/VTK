@@ -49,6 +49,7 @@
 #include "vtkObject.h"
 #include "vtkRenderingCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkIdTypeArray;
 class vtkDataSet;
 class vtkMatrix4x4;
@@ -159,4 +160,5 @@ private:
   void operator=(const vtkVisibilitySort&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkVisibilitySort_h

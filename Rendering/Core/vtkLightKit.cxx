@@ -19,6 +19,7 @@
 #include "vtkPiecewiseFunction.h"
 #include "vtkRenderer.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkLightKit);
 
 static const char* vtkLightKitTypeStrings[] = { "KeyLight", "FillLight", "BackLight", "HeadLight",
@@ -462,3 +463,4 @@ vtkLightKit::LightKitSubType vtkLightKit::GetSubType(vtkLightKit::LightKitType t
 
   return subtype;
 }
+VTK_ABI_NAMESPACE_END

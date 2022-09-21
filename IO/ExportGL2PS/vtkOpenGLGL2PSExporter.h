@@ -27,6 +27,7 @@
 #include "vtkGL2PSExporter.h"
 #include "vtkIOExportGL2PSModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkImageData;
 
 class VTKIOEXPORTGL2PS_EXPORT vtkOpenGLGL2PSExporter : public vtkGL2PSExporter
@@ -50,4 +51,5 @@ private:
   void operator=(const vtkOpenGLGL2PSExporter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkOpenGLGL2PSExporter_h

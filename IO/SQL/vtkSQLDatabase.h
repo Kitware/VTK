@@ -58,6 +58,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include "vtkStdString.h" // Because at least one method returns a vtkStdString
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkInformationObjectBaseKey;
 class vtkSQLDatabaseSchema;
 class vtkSQLQuery;
@@ -265,4 +266,5 @@ private:
   ///@}
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkSQLDatabase_h

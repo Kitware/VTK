@@ -23,6 +23,7 @@
 // vtkCommonExecutionModel
 #include "vtkRectilinearGridAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataArraySelection;
 
 class VTKIOVERAOUT_EXPORT vtkVeraOutReader : public vtkRectilinearGridAlgorithm
@@ -71,4 +72,5 @@ private:
   Internals* Internal;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

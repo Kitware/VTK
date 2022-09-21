@@ -27,6 +27,7 @@
 #include "vtkRenderer.h"
 #include "vtkSphereSource.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkInteractorStyleTerrain);
 
 //------------------------------------------------------------------------------
@@ -417,3 +418,4 @@ void vtkInteractorStyleTerrain::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Latitude/Longitude Lines: " << (this->LatLongLines ? "On\n" : "Off\n");
 }
+VTK_ABI_NAMESPACE_END

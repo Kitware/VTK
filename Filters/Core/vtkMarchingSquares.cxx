@@ -40,6 +40,7 @@
 
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkMarchingSquares);
 
 // Description:
@@ -507,3 +508,4 @@ void vtkMarchingSquares::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Locator: (none)\n";
   }
 }
+VTK_ABI_NAMESPACE_END

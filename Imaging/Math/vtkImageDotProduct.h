@@ -26,6 +26,7 @@
 #include "vtkImagingMathModule.h" // For export macro
 #include "vtkThreadedImageAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKIMAGINGMATH_EXPORT vtkImageDotProduct : public vtkThreadedImageAlgorithm
 {
 public:
@@ -54,4 +55,5 @@ private:
   void operator=(const vtkImageDotProduct&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

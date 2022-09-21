@@ -15,6 +15,7 @@
 #include "vtkProperty2D.h"
 #include "vtkObjectFactory.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkProperty2D);
 
 // Creates a vtkProperty2D with the following default values:
@@ -73,3 +74,4 @@ void vtkProperty2D::PrintSelf(ostream& os, vtkIndent indent)
       break;
   }
 }
+VTK_ABI_NAMESPACE_END

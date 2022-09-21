@@ -40,6 +40,7 @@
 #include "vtkNew.h"          // For member variable.
 #include "vtkSmartPointer.h" // For member variable.
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCellData;
 class vtkDoubleArray;
 class vtkWedge;
@@ -86,4 +87,5 @@ private:
   void operator=(const vtkLagrangeWedge&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkLagrangeWedge_h

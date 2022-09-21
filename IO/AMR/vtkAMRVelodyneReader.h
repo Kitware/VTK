@@ -28,6 +28,7 @@
 #include <unordered_map>    // for std::unordered_map
 #include <vector>           // for std::vector
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkInformation;
 class vtkInformationVector;
 class vtkOverlappingAMR;
@@ -110,4 +111,5 @@ private:
   std::unordered_map<std::string, bool> LoadedHash;
   unsigned int currentIndex;
 };
+VTK_ABI_NAMESPACE_END
 #endif

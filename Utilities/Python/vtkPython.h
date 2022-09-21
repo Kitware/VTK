@@ -115,6 +115,7 @@ they are system headers.  Do NOT add any #undef lines here.  */
 // RAII class to manage Python threading using GIL (Global Interpreter Lock).
 // GIL is locked at object creation and unlocked at destruction.
 // Note: behaviour of this class depends on VTK_PYTHON_FULL_THREADSAFE.
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPythonScopeGilEnsurer
 {
 public:
@@ -157,6 +158,7 @@ private:
   void operator=(const vtkPythonScopeGilEnsurer&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // __cplusplus
 
 #endif

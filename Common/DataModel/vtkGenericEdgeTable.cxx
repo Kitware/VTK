@@ -19,6 +19,7 @@
 #include <cmath>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkGenericEdgeTable);
 
 static int PRIME_NUMBERS[] = { 1, 3, 7, 13, 31, 61, 127, 251, 509, 1021, 2039, 4093 };
@@ -742,3 +743,4 @@ void vtkGenericEdgeTable::LoadFactor()
   this->EdgeTable->LoadFactor();
   this->HashPoints->LoadFactor();
 }
+VTK_ABI_NAMESPACE_END

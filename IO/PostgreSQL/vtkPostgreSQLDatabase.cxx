@@ -37,6 +37,7 @@
 
 #include <cassert>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPostgreSQLDatabase);
 
 //------------------------------------------------------------------------------
@@ -761,3 +762,4 @@ void vtkPostgreSQLDatabase::UpdateDataTypeMap()
   }   // done with "query is successful"
   typeQuery->Delete();
 }
+VTK_ABI_NAMESPACE_END

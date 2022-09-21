@@ -22,6 +22,7 @@
 
 #include "vtkObjectFactory.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 void vtkQtTimePointUtility::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -58,3 +59,4 @@ vtkTypeUInt64 vtkQtTimePointUtility::QTimeToTimePoint(QTime time)
     +time.hour() * 3600000 + time.minute() * 60000 + time.second() * 1000 + time.msec();
   return timePoint;
 }
+VTK_ABI_NAMESPACE_END

@@ -51,6 +51,7 @@
 /// fields, inserting them into a vtkTable. Based on the iterator from
 /// vtkIOInfoVis::DelimitedTextReader but tailored to Tecplot table files
 
+VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
 
@@ -483,3 +484,4 @@ int vtkTecplotTableReader::RequestData(
 
   return 1;
 }
+VTK_ABI_NAMESPACE_END

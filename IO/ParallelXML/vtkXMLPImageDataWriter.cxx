@@ -20,6 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkXMLImageDataWriter.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkXMLPImageDataWriter);
 
 //------------------------------------------------------------------------------
@@ -86,3 +87,4 @@ int vtkXMLPImageDataWriter::FillInputPortInformation(int vtkNotUsed(port), vtkIn
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkImageData");
   return 1;
 }
+VTK_ABI_NAMESPACE_END

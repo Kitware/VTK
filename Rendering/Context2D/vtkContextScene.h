@@ -31,6 +31,7 @@
 #include "vtkVector.h"                   // For vtkVector return type.
 #include "vtkWeakPointer.h"              // Needed for weak pointer to the window.
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkContext2D;
 class vtkAbstractContextItem;
 class vtkTransform2D;
@@ -367,4 +368,5 @@ private:
   void EventCopy(const vtkContextMouseEvent& event);
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkContextScene_h

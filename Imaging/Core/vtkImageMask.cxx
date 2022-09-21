@@ -20,6 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImageMask);
 
 //------------------------------------------------------------------------------
@@ -311,3 +312,4 @@ void vtkImageMask::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "NotMask: " << (this->NotMask ? "On\n" : "Off\n");
   os << indent << "MaskAlpha: " << this->MaskAlpha << "\n";
 }
+VTK_ABI_NAMESPACE_END

@@ -46,6 +46,7 @@
 
 #include <memory> // For std::unique_ptr
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkSelection;
 
 class VTKFILTERSCORE_EXPORT vtkAppendSelection : public vtkSelectionAlgorithm
@@ -191,4 +192,5 @@ private:
   void operator=(const vtkAppendSelection&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

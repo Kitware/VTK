@@ -24,6 +24,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkUnsignedCharArray.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkCellTypes);
 
 namespace
@@ -308,3 +309,4 @@ void vtkCellTypes::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "MaxId: " << this->MaxId << "\n";
 }
+VTK_ABI_NAMESPACE_END

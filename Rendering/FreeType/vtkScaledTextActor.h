@@ -29,6 +29,7 @@
 #include "vtkRenderingFreeTypeModule.h" // For export macro
 #include "vtkTextActor.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKRENDERINGFREETYPE_EXPORT vtkScaledTextActor : public vtkTextActor
 {
 public:
@@ -49,4 +50,5 @@ private:
   void operator=(const vtkScaledTextActor&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -30,6 +30,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkRenderingVRModule.h" // For export macro
 #include "vtkSmartPointer.h"      // for ivar
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkSelection;
 
 class VTKRENDERINGVR_EXPORT vtkVRHardwarePicker : public vtkPropPicker
@@ -62,4 +63,5 @@ private:
   void operator=(const vtkVRHardwarePicker&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

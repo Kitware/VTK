@@ -31,6 +31,7 @@
 #include "vtkAlgorithm.h"
 #include "vtkCommonExecutionModelModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataSet;
 class vtkImageData;
 
@@ -172,4 +173,5 @@ private:
   void operator=(const vtkImageAlgorithm&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

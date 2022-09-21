@@ -29,6 +29,7 @@
 #include "vtkDirectionEncoder.h"
 #include "vtkRenderingVolumeModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKRENDERINGVOLUME_EXPORT vtkSphericalDirectionEncoder : public vtkDirectionEncoder
 {
 public:
@@ -84,4 +85,5 @@ private:
   void operator=(const vtkSphericalDirectionEncoder&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

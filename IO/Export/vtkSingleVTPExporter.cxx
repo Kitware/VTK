@@ -42,6 +42,7 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkXMLPolyDataWriter.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkSingleVTPExporter);
 
 vtkSingleVTPExporter::vtkSingleVTPExporter()
@@ -895,3 +896,4 @@ void vtkSingleVTPExporter::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "FilePrefix: (null)\n";
   }
 }
+VTK_ABI_NAMESPACE_END

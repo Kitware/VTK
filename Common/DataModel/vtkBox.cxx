@@ -23,6 +23,7 @@
 #include <limits> // for IntersectWithInfiniteLine
 #include <vector> // for IntersectWithPlane
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkBox);
 
 // Construct the box centered at the origin and each side length 1.0.
@@ -901,3 +902,4 @@ vtkTypeBool vtkBox::IsBoxInFrustum(double planes[24], double bounds[6])
   // not sure so return true
   return true;
 }
+VTK_ABI_NAMESPACE_END

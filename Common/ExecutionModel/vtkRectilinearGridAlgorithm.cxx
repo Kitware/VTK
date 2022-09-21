@@ -21,6 +21,7 @@
 #include "vtkRectilinearGrid.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkRectilinearGridAlgorithm);
 
 //------------------------------------------------------------------------------
@@ -158,3 +159,4 @@ void vtkRectilinearGridAlgorithm::AddInputData(int index, vtkDataObject* input)
 {
   this->AddInputDataInternal(index, input);
 }
+VTK_ABI_NAMESPACE_END

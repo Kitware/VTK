@@ -50,6 +50,7 @@
 
 namespace detail
 {
+VTK_ABI_NAMESPACE_BEGIN
 
 //----------------------------------------------------------------------------
 int GetAssociation(const std::string& assoc)
@@ -555,7 +556,10 @@ bool AddFieldData(vtkDataObject* output, const conduit_cpp::Node& stateFields)
   return true;
 }
 
+VTK_ABI_NAMESPACE_END
 } // namespace detail
+
+VTK_ABI_NAMESPACE_BEGIN
 
 class vtkConduitSource::vtkInternals
 {
@@ -797,3 +801,4 @@ void vtkConduitSource::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

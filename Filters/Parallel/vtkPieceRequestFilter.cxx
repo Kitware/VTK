@@ -20,6 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPieceRequestFilter);
 
 //------------------------------------------------------------------------------
@@ -152,3 +153,4 @@ void vtkPieceRequestFilter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "NumberOfPieces: " << this->NumberOfPieces << endl;
   os << indent << "Piece: " << this->Piece << endl;
 }
+VTK_ABI_NAMESPACE_END

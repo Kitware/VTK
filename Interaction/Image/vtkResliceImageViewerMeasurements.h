@@ -29,6 +29,7 @@
 #include "vtkInteractionImageModule.h" // For export macro
 #include "vtkObject.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkResliceImageViewer;
 class vtkAbstractWidget;
 class vtkCallbackCommand;
@@ -145,4 +146,5 @@ private:
   void operator=(const vtkResliceImageViewerMeasurements&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

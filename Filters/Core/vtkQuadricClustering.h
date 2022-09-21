@@ -93,6 +93,7 @@
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCellArray;
 class vtkFeatureEdges;
 class vtkPoints;
@@ -423,4 +424,5 @@ private:
   void operator=(const vtkQuadricClustering&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

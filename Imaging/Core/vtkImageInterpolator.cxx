@@ -28,6 +28,7 @@
 #undef VTK_USE_UINT64
 #define VTK_USE_UINT64 0
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImageInterpolator);
 
 //------------------------------------------------------------------------------
@@ -1063,3 +1064,4 @@ void vtkImageInterpolator::FreePrecomputedWeights(vtkInterpolationWeights*& weig
 {
   this->Superclass::FreePrecomputedWeights(weights);
 }
+VTK_ABI_NAMESPACE_END

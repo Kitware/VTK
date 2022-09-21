@@ -27,6 +27,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUnsignedCharArray.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPointOccupancyFilter);
 
 //------------------------------------------------------------------------------
@@ -342,3 +343,4 @@ void vtkPointOccupancyFilter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Empty Value: " << this->EmptyValue << "\n";
   os << indent << "Occupied Value: " << this->OccupiedValue << "\n";
 }
+VTK_ABI_NAMESPACE_END

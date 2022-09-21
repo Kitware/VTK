@@ -27,6 +27,7 @@
 #include <array>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkLagrangeInterpolation);
 
 vtkLagrangeInterpolation::vtkLagrangeInterpolation() = default;
@@ -185,3 +186,4 @@ void vtkLagrangeInterpolation::WedgeEvaluateDerivative(const int order[3], const
   this->vtkHigherOrderInterpolation::WedgeEvaluateDerivative(order, pcoords, points, fieldVals,
     fieldDim, fieldDerivs, *tri, vtkLagrangeInterpolation::EvaluateShapeAndGradient);
 }
+VTK_ABI_NAMESPACE_END

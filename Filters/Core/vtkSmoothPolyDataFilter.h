@@ -99,6 +99,7 @@
 #include "vtkPolyDataAlgorithm.h"
 #include <memory> // For std::unique_ptr<>
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkSmoothPoints;
 
 class VTKFILTERSCORE_EXPORT vtkSmoothPolyDataFilter : public vtkPolyDataAlgorithm
@@ -249,4 +250,5 @@ private:
   void operator=(const vtkSmoothPolyDataFilter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

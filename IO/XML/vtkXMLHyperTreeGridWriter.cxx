@@ -36,6 +36,7 @@
 
 #include <cassert>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkXMLHyperTreeGridWriter);
 
 //------------------------------------------------------------------------------
@@ -1005,3 +1006,4 @@ void vtkXMLHyperTreeGridWriter::HyperTreeGridMetaDataForVersion2::Initialize()
   this->DepthPerTree = nullptr;
   this->BreadthFirstIdMap = nullptr;
 }
+VTK_ABI_NAMESPACE_END

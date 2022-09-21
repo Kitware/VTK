@@ -21,6 +21,7 @@
 
 #include "vtkmDataArray.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 template class VTKACCELERATORSVTKMCORE_EXPORT vtkmDataArray<char>;
 template class VTKACCELERATORSVTKMCORE_EXPORT vtkmDataArray<double>;
 template class VTKACCELERATORSVTKMCORE_EXPORT vtkmDataArray<float>;
@@ -34,3 +35,4 @@ template class VTKACCELERATORSVTKMCORE_EXPORT vtkmDataArray<unsigned int>;
 template class VTKACCELERATORSVTKMCORE_EXPORT vtkmDataArray<unsigned long>;
 template class VTKACCELERATORSVTKMCORE_EXPORT vtkmDataArray<unsigned long long>;
 template class VTKACCELERATORSVTKMCORE_EXPORT vtkmDataArray<unsigned short>;
+VTK_ABI_NAMESPACE_END

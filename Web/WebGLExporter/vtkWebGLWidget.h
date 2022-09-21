@@ -25,6 +25,7 @@
 
 #include <vector> // Needed to store colors
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkActor2D;
 
 class VTKWEBGLEXPORTER_EXPORT vtkWebGLWidget : public vtkWebGLObject
@@ -61,4 +62,5 @@ private:
   void operator=(const vtkWebGLWidget&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

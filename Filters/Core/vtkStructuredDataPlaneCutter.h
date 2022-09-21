@@ -51,6 +51,7 @@
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkSphereTree;
 class vtkPlane;
 
@@ -217,4 +218,5 @@ private:
   void operator=(const vtkStructuredDataPlaneCutter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -45,6 +45,7 @@
 #include "vtkDirectedGraphAlgorithm.h"
 #include "vtkInfovisBoostGraphAlgorithmsModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKINFOVISBOOSTGRAPHALGORITHMS_EXPORT vtkBoostDividedEdgeBundling
   : public vtkDirectedGraphAlgorithm
 {
@@ -65,4 +66,5 @@ private:
   void operator=(const vtkBoostDividedEdgeBundling&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

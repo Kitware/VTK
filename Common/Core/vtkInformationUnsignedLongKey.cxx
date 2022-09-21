@@ -17,6 +17,7 @@
 #include "vtkInformation.h"
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkInformationUnsignedLongKey::vtkInformationUnsignedLongKey(const char* name, const char* location)
   : vtkInformationKey(name, location)
 {
@@ -108,3 +109,4 @@ unsigned long* vtkInformationUnsignedLongKey::GetWatchAddress(vtkInformation* in
   }
   return nullptr;
 }
+VTK_ABI_NAMESPACE_END

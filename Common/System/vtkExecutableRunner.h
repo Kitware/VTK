@@ -29,6 +29,7 @@
  * Launch a process on the current machine and get its standard output and
  * standard error output.
  */
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONSYSTEM_EXPORT vtkExecutableRunner : public vtkObject
 {
 public:
@@ -109,4 +110,5 @@ private:
   std::string StdErr;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkExecutableRunner_h

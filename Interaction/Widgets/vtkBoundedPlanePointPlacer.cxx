@@ -26,6 +26,7 @@
 #include <algorithm>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkBoundedPlanePointPlacer);
 
 vtkCxxSetObjectMacro(vtkBoundedPlanePointPlacer, ObliquePlane, vtkPlane);
@@ -414,3 +415,4 @@ void vtkBoundedPlanePointPlacer::PrintSelf(ostream& os, vtkIndent indent)
     os << " (none)\n";
   }
 }
+VTK_ABI_NAMESPACE_END

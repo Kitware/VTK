@@ -33,6 +33,7 @@
 #include VTK_IOSS(Ioss_Region.h)
 // clang-format on
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkIOSSWriter;
 class vtkPartitionedDataSetCollection;
 
@@ -62,6 +63,7 @@ private:
   class vtkInternals;
   std::unique_ptr<vtkInternals> Internals;
 };
+VTK_ABI_NAMESPACE_END
 
 #endif
 // VTK-HeaderTest-Exclude: vtkIOSSModel.h

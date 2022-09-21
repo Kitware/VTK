@@ -31,6 +31,7 @@
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkSphereSource.h"             // Needed for delegation to sphere
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkSphereSource;
 class vtkProperty;
 class vtkActor;
@@ -195,4 +196,5 @@ private:
   void operator=(const vtkSphereHandleRepresentation&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

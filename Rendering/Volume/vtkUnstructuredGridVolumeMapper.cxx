@@ -21,6 +21,7 @@
 
 // Construct a vtkUnstructuredGridVolumeMapper with empty scalar input and
 // clipping off.
+VTK_ABI_NAMESPACE_BEGIN
 vtkUnstructuredGridVolumeMapper::vtkUnstructuredGridVolumeMapper()
 {
   this->BlendMode = vtkUnstructuredGridVolumeMapper::COMPOSITE_BLEND;
@@ -72,3 +73,4 @@ int vtkUnstructuredGridVolumeMapper::FillInputPortInformation(
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkUnstructuredGridBase");
   return 1;
 }
+VTK_ABI_NAMESPACE_END

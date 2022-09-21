@@ -51,6 +51,7 @@
 #define VTK_CQS_EPSILON 1e-12
 
 // standard constructors and factory
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkDataSetGradient);
 
 /*!
@@ -226,3 +227,4 @@ int vtkDataSetGradient::RequestData(vtkInformation* vtkNotUsed(request),
 
   return 1;
 }
+VTK_ABI_NAMESPACE_END

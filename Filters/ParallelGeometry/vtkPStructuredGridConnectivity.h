@@ -40,6 +40,7 @@
 #include <vector> // For STL vector
 
 // Forward declarations
+VTK_ABI_NAMESPACE_BEGIN
 class vtkMultiProcessController;
 class vtkMPIController;
 class vtkMultiProcessStream;
@@ -541,4 +542,5 @@ inline int vtkPStructuredGridConnectivity::GetGridRank(const int gridID)
     (gridID >= 0 && gridID < static_cast<int>(this->NumberOfGrids)));
   return (this->GridRanks[gridID]);
 }
+VTK_ABI_NAMESPACE_END
 #endif /* vtkPStructuredGridConnectivity_h */

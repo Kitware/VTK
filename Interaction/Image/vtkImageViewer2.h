@@ -61,6 +61,7 @@
 #include "vtkInteractionImageModule.h" // For export macro
 #include "vtkObject.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkAlgorithm;
 class vtkAlgorithmOutput;
 class vtkImageActor;
@@ -279,4 +280,5 @@ private:
   void operator=(const vtkImageViewer2&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

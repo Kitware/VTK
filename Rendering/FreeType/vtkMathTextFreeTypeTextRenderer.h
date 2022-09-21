@@ -34,6 +34,7 @@
 #include "vtkRenderingFreeTypeModule.h" // For export macro
 #include "vtkTextRenderer.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkFreeTypeTools;
 class vtkMathTextUtilities;
 
@@ -82,4 +83,5 @@ private:
   vtkMathTextUtilities* MathTextUtilities;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkMathTextFreeTypeTextRenderer_h

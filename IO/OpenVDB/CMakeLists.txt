@@ -17,3 +17,4 @@ vtk_module_add_module(VTK::IOOpenVDB
 vtk_module_link(VTK::IOOpenVDB
   PRIVATE
     OpenVDB::openvdb)
+vtk_add_test_mangling(VTK::IOOpenVDB)

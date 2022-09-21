@@ -22,6 +22,7 @@ namespace detail
 {
 namespace smp
 {
+VTK_ABI_NAMESPACE_BEGIN
 
 //------------------------------------------------------------------------------
 template <>
@@ -43,6 +44,7 @@ bool vtkSMPToolsImpl<BackendType::Sequential>::GetSingleThread()
   return true;
 }
 
+VTK_ABI_NAMESPACE_END
 } // namespace smp
 } // namespace detail
 } // namespace vtk

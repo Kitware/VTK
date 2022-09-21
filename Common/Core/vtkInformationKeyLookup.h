@@ -29,6 +29,7 @@
 #include <string>  // For std::string
 #include <utility> // For std::pair
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkInformationKey;
 
 class VTKCOMMONCORE_EXPORT vtkInformationKeyLookup : public vtkObject
@@ -75,4 +76,5 @@ private:
   static KeyMap& Keys();
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkInformationKeyLookup_h

@@ -39,6 +39,7 @@
 #include "vtkIOMySQLModule.h" // For export macro
 #include "vtkSQLQuery.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkMySQLDatabase;
 class vtkVariant;
 class vtkVariantArray;
@@ -180,4 +181,5 @@ private:
   char* LastErrorText;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkMySQLQuery_h

@@ -31,6 +31,7 @@
 #include "vtkRenderer.h"
 #include "vtkWindow.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPointHandleRepresentation2D);
 
 vtkCxxSetObjectMacro(vtkPointHandleRepresentation2D, Property, vtkProperty2D);
@@ -403,3 +404,4 @@ void vtkPointHandleRepresentation2D::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Cursor Shape: (none)\n";
   }
 }
+VTK_ABI_NAMESPACE_END

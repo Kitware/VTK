@@ -51,6 +51,7 @@
 #include <type_traits> // std::enable_if, std::iterator_traits
 #include <vector>      // std::vector
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONMATH_EXPORT vtkFFT : public vtkObject
 {
 public:
@@ -516,6 +517,8 @@ void vtkFFT::GenerateKernel2D(T* kernel, std::size_t n, std::size_t m, WindowGen
     }
   }
 }
+
+VTK_ABI_NAMESPACE_END
 
 #include "vtkFFT.txx" // complex templated functions not wrapped by python
 

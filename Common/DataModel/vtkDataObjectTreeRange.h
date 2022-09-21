@@ -27,6 +27,7 @@
 
 namespace vtk
 {
+VTK_ABI_NAMESPACE_BEGIN
 
 // Pass these to vtk::Range(cds, options):
 enum class DataObjectTreeOptions : unsigned int
@@ -37,15 +38,18 @@ enum class DataObjectTreeOptions : unsigned int
   TraverseSubTree = 1 << 3, // Descend into child composite datasets.
 };
 
+VTK_ABI_NAMESPACE_END
 } // end namespace vtk (for bitflag op definition)
 
+VTK_ABI_NAMESPACE_BEGIN
 VTK_GENERATE_BITFLAG_OPS(vtk::DataObjectTreeOptions)
+VTK_ABI_NAMESPACE_END
 
 namespace vtk
 {
-
 namespace detail
 {
+VTK_ABI_NAMESPACE_BEGIN
 
 struct DataObjectTreeRange;
 struct DataObjectTreeIterator;
@@ -261,6 +265,7 @@ private:
   DataObjectTreeOptions Options;
 };
 
+VTK_ABI_NAMESPACE_END
 }
 } // end namespace vtk::detail
 

@@ -33,6 +33,7 @@
 #include <map>    // for std::map
 #include <string> // for std::string
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkXMLWriterBase;
 class vtkDataObject;
 
@@ -86,4 +87,5 @@ private:
   vtkXMLWriterBase* Writer;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

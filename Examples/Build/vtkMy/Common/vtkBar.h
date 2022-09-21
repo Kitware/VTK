@@ -25,6 +25,7 @@
 #include "vtkObject.h"
 #include "vtkmyCommonModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKMYCOMMON_EXPORT vtkBar : public vtkObject
 {
 public:
@@ -41,4 +42,5 @@ private:
   void operator=(const vtkBar&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

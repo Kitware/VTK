@@ -27,6 +27,7 @@
 #include "vtkChart.h"
 #include "vtkChartsCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkChartLegend;
 class vtkTooltipItem;
 class vtkChartPiePrivate;
@@ -166,4 +167,5 @@ private:
   vtkChartPiePrivate* Private;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkChartPie_h

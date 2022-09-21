@@ -31,6 +31,7 @@
 
 #include "vtkHyperTreeGridNonOrientedUnlimitedSuperCursor.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkIdList;
 class vtkHyperTree;
 class vtkHyperTreeGrid;
@@ -75,4 +76,5 @@ private:
   void operator=(const vtkHyperTreeGridNonOrientedUnlimitedMooreSuperCursor&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

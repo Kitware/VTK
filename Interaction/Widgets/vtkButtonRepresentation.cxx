@@ -17,6 +17,7 @@
 #include "vtkObjectFactory.h"
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkButtonRepresentation::vtkButtonRepresentation()
 {
   this->NumberOfStates = 0;
@@ -113,3 +114,4 @@ void vtkButtonRepresentation::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "State: " << this->State << "\n";
   os << indent << "Highlight State: " << this->HighlightState << "\n";
 }
+VTK_ABI_NAMESPACE_END

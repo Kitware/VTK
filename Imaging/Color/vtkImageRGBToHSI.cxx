@@ -21,6 +21,7 @@
 
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImageRGBToHSI);
 
 //------------------------------------------------------------------------------
@@ -161,3 +162,4 @@ void vtkImageRGBToHSI::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Maximum: " << this->Maximum << "\n";
 }
+VTK_ABI_NAMESPACE_END

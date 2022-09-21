@@ -33,6 +33,7 @@
 #include "vtkSmartPointer.h" // For member variable.
 #include <functional>        //For std::function
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCellData;
 class vtkDoubleArray;
 class vtkHexahedron;
@@ -142,4 +143,5 @@ inline int vtkHigherOrderHexahedron::GetParametricCenter(double center[3])
   return 0;
 }
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkHigherOrderHexahedron_h

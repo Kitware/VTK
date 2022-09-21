@@ -32,6 +32,7 @@
 #include <algorithm>
 #include <limits>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkThreshold);
 
 // Construct with lower threshold=0, upper threshold=1, and threshold
@@ -480,3 +481,4 @@ void vtkThreshold::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Precision of the output points: " << this->OutputPointsPrecision << "\n";
   os << indent << "Use Continuous Cell Range: " << this->UseContinuousCellRange << endl;
 }
+VTK_ABI_NAMESPACE_END

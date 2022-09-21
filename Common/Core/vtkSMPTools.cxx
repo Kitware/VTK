@@ -18,6 +18,7 @@
 #include "vtkSMP.h"
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 const char* vtkSMPTools::GetBackend()
 {
   auto& SMPToolsAPI = vtk::detail::smp::vtkSMPToolsAPI::GetInstance();
@@ -72,3 +73,4 @@ bool vtkSMPTools::GetSingleThread()
   auto& SMPToolsAPI = vtk::detail::smp::vtkSMPToolsAPI::GetInstance();
   return SMPToolsAPI.GetSingleThread();
 }
+VTK_ABI_NAMESPACE_END

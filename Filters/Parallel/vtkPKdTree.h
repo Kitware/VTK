@@ -48,6 +48,7 @@
 #include <string> // Instead of using char*
 #include <vector> // For automatic array memory management
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkMultiProcessController;
 class vtkCommunicator;
 class vtkSubGroup;
@@ -477,4 +478,5 @@ private:
   void operator=(const vtkPKdTree&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

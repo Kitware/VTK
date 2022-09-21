@@ -46,6 +46,7 @@
 
 namespace impl
 {
+VTK_ABI_NAMESPACE_BEGIN
 vtkUnsignedCharArray* get_mask_array(vtkDataSetAttributes* dsa)
 {
   return vtkUnsignedCharArray::SafeDownCast(dsa->GetArray(vtkDataSetAttributes::GhostArrayName()));
@@ -161,8 +162,10 @@ bool merge(vtkImageData* target, std::vector<vtkSmartPointer<vtkImageData>>& sou
   }
   return true;
 }
+VTK_ABI_NAMESPACE_END
 }
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkAdaptiveResampleToImage);
 vtkCxxSetObjectMacro(vtkAdaptiveResampleToImage, Controller, vtkMultiProcessController);
 //------------------------------------------------------------------------------
@@ -315,3 +318,4 @@ void vtkAdaptiveResampleToImage::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "SamplingDimensions: " << this->SamplingDimensions[0] << ", "
      << this->SamplingDimensions[1] << ", " << this->SamplingDimensions[2] << endl;
 }
+VTK_ABI_NAMESPACE_END

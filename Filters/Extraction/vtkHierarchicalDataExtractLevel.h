@@ -25,6 +25,7 @@
 #include "vtkExtractLevel.h"
 #include "vtkFiltersExtractionModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSEXTRACTION_EXPORT vtkHierarchicalDataExtractLevel : public vtkExtractLevel
 {
 public:
@@ -42,4 +43,5 @@ private:
   void operator=(const vtkHierarchicalDataExtractLevel&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

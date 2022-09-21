@@ -33,6 +33,7 @@
 #include "vtkCompositer.h"
 #include "vtkRenderingParallelModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkTimerLog;
 class vtkDataArray;
 class vtkFloatArray;
@@ -74,4 +75,5 @@ private:
   void operator=(const vtkCompressCompositer&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

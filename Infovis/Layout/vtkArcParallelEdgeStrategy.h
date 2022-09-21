@@ -31,6 +31,7 @@
 #include "vtkEdgeLayoutStrategy.h"
 #include "vtkInfovisLayoutModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkGraph;
 
 class VTKINFOVISLAYOUT_EXPORT vtkArcParallelEdgeStrategy : public vtkEdgeLayoutStrategy
@@ -65,4 +66,5 @@ private:
   void operator=(const vtkArcParallelEdgeStrategy&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

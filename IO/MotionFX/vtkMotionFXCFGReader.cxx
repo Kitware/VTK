@@ -50,6 +50,7 @@
 //=============================================================================
 namespace impl
 {
+VTK_ABI_NAMESPACE_BEGIN
 struct Motion;
 
 using MapOfVectorOfMotions =
@@ -935,6 +936,7 @@ std::shared_ptr<const Motion> CreateMotion(const MapType& params)
 
   return nullptr;
 }
+VTK_ABI_NAMESPACE_END
 }
 
 //=============================================================================
@@ -947,6 +949,7 @@ using namespace tao::pegtl;
 // OrientationsPositionFile::Grammar
 namespace PositionFile
 {
+VTK_ABI_NAMESPACE_BEGIN
 template <typename Rule>
 struct action : nothing<Rule>
 {
@@ -1001,12 +1004,14 @@ struct action<MotionFX::OrientationsPositionFile::Row>
     active_numbers.clear();
   }
 };
+VTK_ABI_NAMESPACE_END
 } // namespace PositionFile
 
 //-----------------------------------------------------------------------------
 // actions when parsing UniversalTransformRow::Grammar
 namespace UniversalTransformFile
 {
+VTK_ABI_NAMESPACE_BEGIN
 template <typename Rule>
 struct action : nothing<Rule>
 {
@@ -1041,12 +1046,14 @@ struct action<MotionFX::UniversalTransformRow::Row>
     active_numbers.clear();
   }
 };
+VTK_ABI_NAMESPACE_END
 } // namespace UniversalTransformSpace
 
 //-----------------------------------------------------------------------------
 // actions when parsing CFG::Grammar
 namespace CFG
 {
+VTK_ABI_NAMESPACE_BEGIN
 //------------------------------------------------------------------------------
 // When parsing CFG, we need to accumulate values and keep track of them.
 // Value and ActiveState help us do that.
@@ -1187,12 +1194,14 @@ struct action<MotionFX::CFG::Grammar>
   }
 };
 
+VTK_ABI_NAMESPACE_END
 } // namespace CFG
 
 } // namespace Actions
 
 namespace impl
 {
+VTK_ABI_NAMESPACE_BEGIN
 bool PositionFileMotion::read_position_file(const std::string& rootDir) const
 {
   // read positionFile.
@@ -1239,8 +1248,10 @@ bool UniversalTransformMotion::read_universaltransform_file(const std::string& r
   }
   return false;
 }
+VTK_ABI_NAMESPACE_END
 } // impl
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkMotionFXCFGReader::vtkInternals
 {
 public:
@@ -1511,3 +1522,4 @@ void vtkMotionFXCFGReader::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "FileName: " << this->FileName << endl;
   os << indent << "TimeResolution: " << this->TimeResolution << endl;
 }
+VTK_ABI_NAMESPACE_END

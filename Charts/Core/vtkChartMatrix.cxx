@@ -29,6 +29,7 @@
 #include <vector>
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 class vtkChartMatrix::PIMPL
 {
 public:
@@ -852,3 +853,4 @@ void vtkChartMatrix::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

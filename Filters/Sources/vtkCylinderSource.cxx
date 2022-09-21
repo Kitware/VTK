@@ -27,6 +27,7 @@
 
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkCylinderSource);
 
 //------------------------------------------------------------------------------
@@ -224,3 +225,4 @@ void vtkCylinderSource::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Capping: " << (this->Capping ? "On\n" : "Off\n");
   os << indent << "Output Points Precision: " << this->OutputPointsPrecision << "\n";
 }
+VTK_ABI_NAMESPACE_END

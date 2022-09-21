@@ -37,6 +37,7 @@
 #include "vtkGradientFilter.h"
 #include "vtkmlib/vtkmInitializer.h" // Need for initializing vtk-m
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKACCELERATORSVTKMFILTERS_EXPORT vtkmGradient : public vtkGradientFilter
 {
 public:
@@ -77,4 +78,5 @@ private:
   vtkmInitializer Initializer;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkmGradient_h

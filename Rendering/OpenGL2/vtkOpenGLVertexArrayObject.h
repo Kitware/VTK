@@ -18,6 +18,7 @@
 #include "vtkRenderingOpenGL2Module.h" // for export macro
 #include <string>                      // For API.
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkShaderProgram;
 class vtkOpenGLBufferObject;
 class vtkOpenGLVertexBufferObject;
@@ -85,4 +86,5 @@ private:
   Private* Internal;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkOpenGLVertexArrayObject_h

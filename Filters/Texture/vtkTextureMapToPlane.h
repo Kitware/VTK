@@ -43,6 +43,7 @@
 #include "vtkDataSetAlgorithm.h"
 #include "vtkFiltersTextureModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSTEXTURE_EXPORT vtkTextureMapToPlane : public vtkDataSetAlgorithm
 {
 public:
@@ -134,4 +135,5 @@ private:
   void operator=(const vtkTextureMapToPlane&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

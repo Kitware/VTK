@@ -23,6 +23,7 @@
 #include <cassert>
 #include <sstream>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkExodusIIReaderParser);
 //------------------------------------------------------------------------------
 vtkExodusIIReaderParser::vtkExodusIIReaderParser()
@@ -430,3 +431,4 @@ void vtkExodusIIReaderParser::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
   os << indent << "SIL: " << this->SIL << endl;
 }
+VTK_ABI_NAMESPACE_END

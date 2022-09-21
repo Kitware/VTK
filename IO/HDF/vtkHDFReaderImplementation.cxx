@@ -48,6 +48,7 @@
 #include <array>
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
 herr_t AddName(hid_t group, const char* name, const H5L_info_t*, void* op_data)
@@ -1331,3 +1332,4 @@ template bool vtkHDFReader::Implementation::GetAttribute<int>(
   const char* attributeName, size_t dim, int* value);
 template bool vtkHDFReader::Implementation::GetAttribute<double>(
   const char* attributeName, size_t dim, double* value);
+VTK_ABI_NAMESPACE_END

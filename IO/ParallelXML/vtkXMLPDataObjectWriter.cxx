@@ -25,6 +25,7 @@
 
 #include <cassert>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkCxxSetObjectMacro(vtkXMLPDataObjectWriter, Controller, vtkMultiProcessController);
 //------------------------------------------------------------------------------
 vtkXMLPDataObjectWriter::vtkXMLPDataObjectWriter()
@@ -380,3 +381,4 @@ void vtkXMLPDataObjectWriter::SetupPieceFileNameExtension()
 {
   delete[] this->PieceFileNameExtension;
 }
+VTK_ABI_NAMESPACE_END

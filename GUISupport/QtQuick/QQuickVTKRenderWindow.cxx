@@ -32,6 +32,7 @@
 #include <QSurfaceFormat>
 
 //-------------------------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 QQuickVTKRenderWindow::QQuickVTKRenderWindow(QQuickItem* parent)
   : Superclass(parent)
 {
@@ -403,3 +404,4 @@ Use QQuickVTKRenderWindow::setupGraphicsBackend() to set the right backend.)***"
   }
   return true;
 }
+VTK_ABI_NAMESPACE_END

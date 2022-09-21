@@ -20,6 +20,7 @@
 #include "vtkPolyData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPLinearExtrusionFilter);
 
 //------------------------------------------------------------------------------
@@ -76,3 +77,4 @@ void vtkPLinearExtrusionFilter::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "PieceInvariant: " << this->PieceInvariant << "\n";
 }
+VTK_ABI_NAMESPACE_END

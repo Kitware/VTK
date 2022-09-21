@@ -67,6 +67,7 @@
 #include <string>                      // STL Header used for argv
 #include <vector>                      // STL Header used for argv
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkAlgorithm;
 class vtkRenderWindow;
 class vtkImageData;
@@ -341,4 +342,5 @@ private:
   void operator=(const vtkTesting&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

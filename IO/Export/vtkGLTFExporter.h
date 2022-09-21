@@ -40,6 +40,7 @@
 
 #include <string> // for std::string
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKIOEXPORT_EXPORT vtkGLTFExporter : public vtkExporter
 {
 public:
@@ -120,4 +121,5 @@ private:
   void operator=(const vtkGLTFExporter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

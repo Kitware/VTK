@@ -33,6 +33,7 @@
 #include "vtkSimpleMotionBlurPassFS.h"
 #include "vtkTextureObjectVS.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkSimpleMotionBlurPass);
 
 //------------------------------------------------------------------------------
@@ -321,3 +322,4 @@ void vtkSimpleMotionBlurPass::ReleaseGraphicsResources(vtkWindow* w)
     this->BlendProgram = nullptr;
   }
 }
+VTK_ABI_NAMESPACE_END

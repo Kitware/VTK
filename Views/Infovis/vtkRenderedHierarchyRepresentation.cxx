@@ -43,6 +43,7 @@
 
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkRenderedHierarchyRepresentation::Internals
 {
 public:
@@ -313,3 +314,4 @@ void vtkRenderedHierarchyRepresentation::PrintSelf(ostream& os, vtkIndent indent
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

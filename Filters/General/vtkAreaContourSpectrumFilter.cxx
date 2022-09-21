@@ -27,6 +27,7 @@
 #include "vtkTriangle.h"
 #include "vtkVariantArray.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkAreaContourSpectrumFilter);
 
 //------------------------------------------------------------------------------
@@ -294,3 +295,4 @@ int vtkAreaContourSpectrumFilter::RequestData(vtkInformation* vtkNotUsed(request
   }
   return 0;
 }
+VTK_ABI_NAMESPACE_END

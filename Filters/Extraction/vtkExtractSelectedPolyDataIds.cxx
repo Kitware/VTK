@@ -29,6 +29,7 @@
 #include "vtkSelection.h"
 #include "vtkSelectionNode.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkExtractSelectedPolyDataIds);
 
 //------------------------------------------------------------------------------
@@ -145,3 +146,4 @@ int vtkExtractSelectedPolyDataIds::FillInputPortInformation(int port, vtkInforma
   }
   return 1;
 }
+VTK_ABI_NAMESPACE_END

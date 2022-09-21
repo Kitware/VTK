@@ -26,6 +26,7 @@
 #define VTK_USE_SINGLE_REF 1
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkInformationExecutivePortVectorKey::vtkInformationExecutivePortVectorKey(
   const char* name, const char* location)
   : vtkInformationKey(name, location)
@@ -284,3 +285,4 @@ int* vtkInformationExecutivePortVectorKey ::GetPortsWatchAddress(vtkInformation*
     static_cast<vtkInformationExecutivePortVectorValue*>(this->GetAsObjectBase(info));
   return (v && !v->Ports.empty()) ? v->Ports.data() : nullptr;
 }
+VTK_ABI_NAMESPACE_END

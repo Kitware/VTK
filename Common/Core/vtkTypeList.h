@@ -50,10 +50,12 @@
 #ifndef vtkTypeList_h
 #define vtkTypeList_h
 
+#include "vtkABINamespace.h"
 #include "vtkTypeListMacros.h"
 
 namespace vtkTypeList
 {
+VTK_ABI_NAMESPACE_BEGIN
 
 //------------------------------------------------------------------------------
 /**
@@ -163,16 +165,19 @@ struct DerivedToFront;
 template <typename TList, typename T>
 struct Append;
 
+VTK_ABI_NAMESPACE_END
 } // end namespace vtkTypeList
 
 #include "vtkTypeList.txx"
 
 namespace vtkTypeList
 {
+VTK_ABI_NAMESPACE_BEGIN
 
 template <typename... Ts>
 using Create = typename vtkTypeList::detail::CreateImpl<Ts...>::type;
 
+VTK_ABI_NAMESPACE_END
 } // end namespace vtkTypeList
 
 #endif // vtkTypeList_h

@@ -65,6 +65,7 @@
 #define VTK_MATERIALMODE_DIFFUSE 2
 #define VTK_MATERIALMODE_AMBIENT_AND_DIFFUSE 3
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkActor;
 class vtkDataSet;
 class vtkDataObject;
@@ -564,4 +565,5 @@ private:
   void operator=(const vtkMapper&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

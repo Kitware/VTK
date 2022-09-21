@@ -26,6 +26,7 @@
 #include "vtkSmartPointer.h"            // For SP ivars
 #include "vtkStringToImage.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKRENDERINGFREETYPE_EXPORT vtkFreeTypeStringToImage : public vtkStringToImage
 {
 public:
@@ -86,4 +87,5 @@ private:
   void operator=(const vtkFreeTypeStringToImage&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkFreeTypeStringToImage_h

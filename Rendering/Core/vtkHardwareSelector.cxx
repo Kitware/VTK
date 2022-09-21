@@ -34,6 +34,7 @@
 #define ID_OFFSET 1
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
 class PixelInformationComparator
@@ -882,3 +883,4 @@ void vtkHardwareSelector::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "UseProcessIdFromData: " << this->UseProcessIdFromData << endl;
   os << indent << "ActorPassOnly: " << this->ActorPassOnly << endl;
 }
+VTK_ABI_NAMESPACE_END

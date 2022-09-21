@@ -43,6 +43,7 @@
 #include <utility>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkClipClosedSurface);
 
 vtkCxxSetObjectMacro(vtkClipClosedSurface, ClippingPlanes, vtkPlaneCollection);
@@ -1310,3 +1311,4 @@ int vtkClipClosedSurface::TriangulatePolygon(
 {
   return vtkContourTriangulator::TriangulatePolygon(polygon, points, triangles);
 }
+VTK_ABI_NAMESPACE_END

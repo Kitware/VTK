@@ -67,6 +67,7 @@
 #include "vtkVoxel.h"
 #include "vtkWedge.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkGenericCell);
 
 //------------------------------------------------------------------------------
@@ -497,3 +498,4 @@ void vtkGenericCell::SetPointIds(vtkIdList* pointIds)
     this->Cell->PointIds->Register(this);
   }
 }
+VTK_ABI_NAMESPACE_END

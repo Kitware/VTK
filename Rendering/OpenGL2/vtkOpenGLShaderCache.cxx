@@ -27,6 +27,7 @@
 
 #include "vtksys/MD5.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkOpenGLShaderCache::Private
 {
 public:
@@ -393,3 +394,4 @@ void vtkOpenGLShaderCache::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

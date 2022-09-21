@@ -53,6 +53,7 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataArray;
 
 class vtkAbstractTransform;
@@ -147,4 +148,5 @@ private:
   void operator=(const vtkImplicitFunction&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -33,6 +33,7 @@
 
 #include <string> // for std::string
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataCompressor;
 
 class VTKIOXML_EXPORT vtkXMLWriterBase : public vtkAlgorithm
@@ -275,4 +276,5 @@ private:
   void operator=(const vtkXMLWriterBase&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

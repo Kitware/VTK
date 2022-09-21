@@ -35,6 +35,7 @@
 #include "vtkImageMapper.h"  // For all the inline methods
 #include "vtkRenderWindow.h" // For all the inline methods
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkInteractorStyleImage;
 
 class VTKINTERACTIONIMAGE_EXPORT vtkImageViewer : public vtkObject
@@ -185,4 +186,5 @@ private:
   void operator=(const vtkImageViewer&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

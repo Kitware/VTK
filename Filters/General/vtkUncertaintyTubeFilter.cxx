@@ -27,6 +27,7 @@
 #include "vtkPolyData.h"
 #include "vtkPolyLine.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkUncertaintyTubeFilter);
 
 //
@@ -425,3 +426,4 @@ void vtkUncertaintyTubeFilter::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Number Of Sides: " << this->NumberOfSides << "\n";
 }
+VTK_ABI_NAMESPACE_END

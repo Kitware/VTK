@@ -34,6 +34,7 @@
 #include "vtkDataReader.h"
 #include "vtkIOLegacyModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkGraph;
 
 class VTKIOLEGACY_EXPORT vtkGraphReader : public vtkDataReader
@@ -80,4 +81,5 @@ private:
   void operator=(const vtkGraphReader&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

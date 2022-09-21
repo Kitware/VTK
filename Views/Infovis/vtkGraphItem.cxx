@@ -33,6 +33,7 @@
 
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkGraphItem);
 vtkCxxSetObjectMacro(vtkGraphItem, Graph, vtkGraph);
 
@@ -497,3 +498,4 @@ void vtkGraphItem::PrintSelf(ostream& os, vtkIndent indent)
   }
   os << "GraphBuildTime: " << this->GraphBuildTime << std::endl;
 }
+VTK_ABI_NAMESPACE_END

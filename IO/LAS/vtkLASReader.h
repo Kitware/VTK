@@ -41,6 +41,8 @@ class Header;
 class Reader;
 };
 
+VTK_ABI_NAMESPACE_BEGIN
+
 class VTKIOLAS_EXPORT vtkLASReader : public vtkPolyDataAlgorithm
 {
 public:
@@ -74,4 +76,5 @@ protected:
   char* FileName;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkLASReader_h

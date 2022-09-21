@@ -27,6 +27,7 @@
 #include "vtkDeprecation.h"           // For `VTK_DEPRECATED_IN_9_3_0`
 #include "vtkFiltersParallelModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTK_DEPRECATED_IN_9_3_0(
   "Please use vtkCellDataToPointData instead") VTKFILTERSPARALLEL_EXPORT vtkPCellDataToPointData
   : public vtkCellDataToPointData
@@ -45,5 +46,6 @@ private:
   void operator=(const vtkPCellDataToPointData&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkPCellDataToPointData.h

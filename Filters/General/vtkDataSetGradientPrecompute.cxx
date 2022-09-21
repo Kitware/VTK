@@ -36,6 +36,7 @@
 #define VTK_DATASET_GRADIENT_TRIANGLE_OPTIMIZATION
 //#define DEBUG
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkDataSetGradientPrecompute);
 
 vtkDataSetGradientPrecompute::vtkDataSetGradientPrecompute() = default;
@@ -363,3 +364,4 @@ int vtkDataSetGradientPrecompute::RequestData(vtkInformation* vtkNotUsed(request
   _output->ShallowCopy(_input);
   return vtkDataSetGradientPrecompute::GradientPrecompute(_output);
 }
+VTK_ABI_NAMESPACE_END

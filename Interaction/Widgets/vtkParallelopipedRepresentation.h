@@ -35,6 +35,7 @@
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkWidgetRepresentation.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkActor;
 class vtkPlane;
 class vtkPoints;
@@ -310,4 +311,5 @@ private:
   void operator=(const vtkParallelopipedRepresentation&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

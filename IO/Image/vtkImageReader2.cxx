@@ -30,6 +30,7 @@
 #include "vtksys/FStream.hxx"
 #include "vtksys/SystemTools.hxx"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImageReader2);
 
 //------------------------------------------------------------------------------
@@ -817,3 +818,4 @@ void vtkImageReader2::SetDataScalarType(int type)
   // Set the default output scalar type
   vtkImageData::SetScalarType(this->DataScalarType, this->GetOutputInformation(0));
 }
+VTK_ABI_NAMESPACE_END

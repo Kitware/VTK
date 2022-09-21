@@ -22,6 +22,7 @@
 
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImageFourierCenter);
 
 //------------------------------------------------------------------------------
@@ -163,3 +164,4 @@ void vtkImageFourierCenter::ThreadedRequestData(vtkInformation* vtkNotUsed(reque
     outPtr0 += outInc0;
   }
 }
+VTK_ABI_NAMESPACE_END

@@ -48,6 +48,7 @@
 #include "vtkSystemIncludes.h"
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONCORE_EXPORT vtkArrayCoordinates
 {
 public:
@@ -124,6 +125,7 @@ private:
   std::vector<CoordinateT> Storage;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
 
 // VTK-HeaderTest-Exclude: vtkArrayCoordinates.h

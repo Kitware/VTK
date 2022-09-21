@@ -34,6 +34,7 @@
 #include "vtkFiltersModelingModule.h" // For export macro
 #include "vtkInterpolatingSubdivisionFilter.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkIntArray;
 class vtkPointData;
 class vtkPoints;
@@ -64,4 +65,5 @@ private:
   void operator=(const vtkLinearSubdivisionFilter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

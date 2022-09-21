@@ -39,6 +39,7 @@
 #include "vtkVariant.h"
 #include <typeinfo> // for warnings
 
+VTK_ABI_NAMESPACE_BEGIN
 template <typename T>
 T vtkVariantCast(const vtkVariant& value, bool* valid = nullptr)
 {
@@ -150,6 +151,7 @@ inline vtkVariant vtkVariantCast<vtkVariant>(const vtkVariant& value, bool* vali
   return value;
 }
 
+VTK_ABI_NAMESPACE_END
 #endif
 
 // VTK-HeaderTest-Exclude: vtkVariantCast.h

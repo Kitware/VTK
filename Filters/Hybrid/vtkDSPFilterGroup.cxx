@@ -35,6 +35,7 @@
 #include <string>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkDSPFilterGroup);
 
 class vtkDSPFilterGroupVectorIntSTLCloak
@@ -544,3 +545,4 @@ vtkFloatArray* vtkDSPFilterGroup::GetOutput(
 
   return (l_output);
 }
+VTK_ABI_NAMESPACE_END

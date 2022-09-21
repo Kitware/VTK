@@ -37,6 +37,7 @@
 #include "vtkFiltersExtractionModule.h" // For export macro
 #include "vtkPassInputTypeAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkMultiProcessController;
 
 class VTKFILTERSEXTRACTION_EXPORT vtkExpandMarkedElements : public vtkPassInputTypeAlgorithm
@@ -100,4 +101,5 @@ private:
   bool RemoveIntermediateLayers = false;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

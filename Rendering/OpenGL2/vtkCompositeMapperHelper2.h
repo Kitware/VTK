@@ -18,6 +18,7 @@
 #include "vtkOpenGLPolyDataMapper.h"
 #include "vtkRenderingOpenGL2Module.h" // for export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPolyData;
 class vtkCompositePolyDataMapper2;
 
@@ -172,4 +173,5 @@ private:
   void operator=(const vtkCompositeMapperHelper2&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

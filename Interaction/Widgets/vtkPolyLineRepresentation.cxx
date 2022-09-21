@@ -24,6 +24,7 @@
 #include "vtkVectorOperators.h"
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPolyLineRepresentation);
 
 //------------------------------------------------------------------------------
@@ -399,3 +400,4 @@ void vtkPolyLineRepresentation::PrintSelf(ostream& os, vtkIndent indent)
     os << "(none)\n";
   }
 }
+VTK_ABI_NAMESPACE_END

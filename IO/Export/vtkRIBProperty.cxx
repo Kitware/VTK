@@ -15,6 +15,7 @@
 #include "vtkRIBProperty.h"
 #include "vtkObjectFactory.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkRIBProperty);
 
 vtkRIBProperty::vtkRIBProperty()
@@ -249,3 +250,4 @@ void vtkRIBProperty::PrintSelf(ostream& os, vtkIndent indent)
      << "SurfaceShaderUsesDefaultParameters: " << this->GetSurfaceShaderUsesDefaultParameters()
      << std::endl;
 }
+VTK_ABI_NAMESPACE_END

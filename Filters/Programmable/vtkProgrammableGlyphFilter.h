@@ -67,6 +67,7 @@
 #include "vtkFiltersProgrammableModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPointData;
 
 class VTKFILTERSPROGRAMMABLE_EXPORT vtkProgrammableGlyphFilter : public vtkPolyDataAlgorithm
@@ -176,4 +177,5 @@ private:
   void operator=(const vtkProgrammableGlyphFilter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

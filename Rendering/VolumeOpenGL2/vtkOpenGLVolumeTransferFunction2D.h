@@ -23,6 +23,7 @@
 #include "vtkNew.h" // for vtkNew
 
 // Forward declarations
+VTK_ABI_NAMESPACE_BEGIN
 class vtkOpenGLRenderWindow;
 
 /**
@@ -73,4 +74,5 @@ private:
   void operator=(const vtkOpenGLVolumeTransferFunction2D&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkOpenGLTransferFunction2D_h

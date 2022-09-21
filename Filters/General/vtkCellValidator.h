@@ -74,6 +74,7 @@
 #include "vtkDataSetAlgorithm.h"
 #include "vtkFiltersGeneralModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCell;
 class vtkGenericCell;
 class vtkEmptyCell;
@@ -241,4 +242,5 @@ private:
   void operator=(const vtkCellValidator&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

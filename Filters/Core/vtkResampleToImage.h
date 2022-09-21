@@ -29,6 +29,7 @@
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkNew.h"               // For vtkCompositeDataProbeFilter member variable
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataObject;
 class vtkImageData;
 
@@ -117,4 +118,5 @@ private:
   void operator=(const vtkResampleToImage&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -27,6 +27,7 @@
 #include "vtkChart.h"
 #include "vtkChartsCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkIdTypeArray;
 class vtkPlotBox;
 class vtkStdString;
@@ -256,4 +257,5 @@ struct vtkChartBoxData
 };
 ///@}
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkChartBox_h

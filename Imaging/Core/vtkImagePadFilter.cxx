@@ -21,6 +21,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImagePadFilter);
 
 //------------------------------------------------------------------------------
@@ -175,3 +176,4 @@ void vtkImagePadFilter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "OutputNumberOfScalarComponents: " << this->OutputNumberOfScalarComponents
      << "\n";
 }
+VTK_ABI_NAMESPACE_END

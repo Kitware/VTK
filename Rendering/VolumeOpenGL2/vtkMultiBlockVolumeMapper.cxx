@@ -39,13 +39,16 @@
 
 namespace vtkBlockSortHelper
 {
+VTK_ABI_NAMESPACE_BEGIN
 template <>
 inline void GetBounds(vtkSmartVolumeMapper* first, double bds[6])
 {
   first->GetInput()->GetBounds(bds);
 }
+VTK_ABI_NAMESPACE_END
 }
 
+VTK_ABI_NAMESPACE_BEGIN
 //------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkMultiBlockVolumeMapper);
 
@@ -626,3 +629,4 @@ void vtkMultiBlockVolumeMapper::SetTransfer2DYAxisArray(const char* a)
   }
   this->Modified();
 }
+VTK_ABI_NAMESPACE_END

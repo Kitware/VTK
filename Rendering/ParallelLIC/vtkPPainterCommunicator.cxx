@@ -24,6 +24,7 @@
 using std::vector;
 
 // use PImpl to avoid MPI types in public API.
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPPainterCommunicatorInternals
 {
 public:
@@ -314,3 +315,4 @@ void vtkPPainterCommunicator::SubsetCommunicator(vtkMPICommunicatorOpaqueComm* c
     }
   }
 }
+VTK_ABI_NAMESPACE_END

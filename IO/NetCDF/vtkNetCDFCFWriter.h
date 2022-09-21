@@ -19,6 +19,7 @@
 #include "vtkIONetCDFModule.h" // For export macro
 #include "vtkWriter.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkIdList;
 class vtkDataSet;
 class vtkImageData;
@@ -129,4 +130,5 @@ private:
   void operator=(const vtkNetCDFCFWriter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

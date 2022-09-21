@@ -30,6 +30,7 @@
 #include "vtkIOCoreModule.h" // For export macro
 #include "vtkObject.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKIOCORE_EXPORT vtkInputStream : public vtkObject
 {
 public:
@@ -88,4 +89,5 @@ private:
   void operator=(const vtkInputStream&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

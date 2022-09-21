@@ -27,6 +27,7 @@
 
 #include "vtkDijkstraGraphInternals.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkDijkstraImageGeodesicPath);
 
 //------------------------------------------------------------------------------
@@ -297,3 +298,4 @@ void vtkDijkstraImageGeodesicPath::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "EdgeLengthWeight: " << this->EdgeLengthWeight << endl;
   os << indent << "CurvatureWeight: " << this->CurvatureWeight << endl;
 }
+VTK_ABI_NAMESPACE_END

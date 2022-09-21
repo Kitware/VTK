@@ -25,6 +25,7 @@
 #include "vtkRenderingFreeTypeModule.h" // For export macro
 #include "vtkStringToImage.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKRENDERINGFREETYPE_EXPORT vtkTextRendererStringToImage : public vtkStringToImage
 {
 public:
@@ -85,4 +86,5 @@ private:
   void operator=(const vtkTextRendererStringToImage&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkTextRendererStringToImage_h

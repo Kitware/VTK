@@ -71,6 +71,7 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkNonLinearCell.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkQuadraticEdge;
 class vtkQuadraticQuad;
 class vtkBiQuadraticQuad;
@@ -181,4 +182,5 @@ private:
   void operator=(const vtkBiQuadraticQuadraticHexahedron&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

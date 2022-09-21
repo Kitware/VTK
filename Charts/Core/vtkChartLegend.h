@@ -31,6 +31,7 @@
 #include "vtkNew.h"  // For vtkNew
 #include "vtkRect.h" // For vtkRectf return value
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkChart;
 class vtkPen;
 class vtkBrush;
@@ -316,4 +317,5 @@ private:
   void operator=(const vtkChartLegend&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkChartLegend_h

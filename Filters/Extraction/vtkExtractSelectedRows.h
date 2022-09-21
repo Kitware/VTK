@@ -35,6 +35,7 @@
 #include "vtkFiltersExtractionModule.h" // For export macro
 #include "vtkTableAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSEXTRACTION_EXPORT vtkExtractSelectedRows : public vtkTableAlgorithm
 {
 public:
@@ -80,4 +81,5 @@ private:
   void operator=(const vtkExtractSelectedRows&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

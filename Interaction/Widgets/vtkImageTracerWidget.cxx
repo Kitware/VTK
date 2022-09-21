@@ -38,6 +38,7 @@
 #include "vtkTransform.h"
 #include "vtkTransformPolyDataFilter.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImageTracerWidget);
 
 vtkCxxSetObjectMacro(vtkImageTracerWidget, HandleProperty, vtkProperty);
@@ -1563,3 +1564,4 @@ void vtkImageTracerWidget::SizeHandles()
 {
   // TODO...
 }
+VTK_ABI_NAMESPACE_END

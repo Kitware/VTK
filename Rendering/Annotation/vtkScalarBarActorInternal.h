@@ -9,6 +9,7 @@
 #include <map>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkActor2D;
 class vtkCellArray;
 class vtkTextActor;
@@ -188,5 +189,6 @@ public:
   ///@}
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkScalarBarActorInternal_h
 // VTK-HeaderTest-Exclude: vtkScalarBarActorInternal.h

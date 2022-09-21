@@ -22,6 +22,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImageStencilSource);
 vtkCxxSetObjectMacro(vtkImageStencilSource, InformationInput, vtkImageData);
 
@@ -111,3 +112,4 @@ int vtkImageStencilSource::RequestInformation(
 
   return 1;
 }
+VTK_ABI_NAMESPACE_END

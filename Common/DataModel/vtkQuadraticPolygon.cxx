@@ -23,6 +23,7 @@
 #include "vtkPolygon.h"
 #include "vtkQuadraticEdge.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkQuadraticPolygon);
 
 //------------------------------------------------------------------------------
@@ -443,3 +444,4 @@ void vtkQuadraticPolygon::Derivatives(int vtkNotUsed(subId), const double vtkNot
   const double* vtkNotUsed(values), int vtkNotUsed(dim), double* vtkNotUsed(derivs))
 {
 }
+VTK_ABI_NAMESPACE_END

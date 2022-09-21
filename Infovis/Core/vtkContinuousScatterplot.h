@@ -172,6 +172,7 @@
 #include "vtkImageAlgorithm.h"
 #include "vtkInfovisCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKINFOVISCORE_EXPORT vtkContinuousScatterplot : public vtkImageAlgorithm
 {
 public:
@@ -224,4 +225,5 @@ private:
   vtkContinuousScatterplot(const vtkContinuousScatterplot&) = delete;
   void operator=(const vtkContinuousScatterplot&) = delete;
 };
+VTK_ABI_NAMESPACE_END
 #endif

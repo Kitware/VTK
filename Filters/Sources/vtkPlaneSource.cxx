@@ -25,6 +25,7 @@
 #include "vtkPolyData.h"
 #include "vtkTransform.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPlaneSource);
 
 constexpr double EPSILON = 1.0E-6;
@@ -471,3 +472,4 @@ void vtkPlaneSource::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Output Points Precision: " << this->OutputPointsPrecision << "\n";
 }
+VTK_ABI_NAMESPACE_END

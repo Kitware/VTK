@@ -33,6 +33,7 @@
 
 //------------------------------------------------------------------------------
 // Helper classes to support efficient computing, and threaded execution.
+VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
 
@@ -310,3 +311,4 @@ void vtkPointCloudFilter::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Generate Vertices: " << (this->GenerateVertices ? "On\n" : "Off\n");
 }
+VTK_ABI_NAMESPACE_END

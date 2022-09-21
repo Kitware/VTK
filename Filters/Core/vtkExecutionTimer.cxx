@@ -21,6 +21,7 @@
 #include "vtkTimerLog.h"
 #include <iostream>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkExecutionTimer);
 
 //------------------------------------------------------------------------------
@@ -147,3 +148,4 @@ void vtkExecutionTimer::TimerFinished()
 {
   // Nothing to do here
 }
+VTK_ABI_NAMESPACE_END

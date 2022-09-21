@@ -32,6 +32,7 @@
 #include "vtkNew.h"          // For member variable.
 #include "vtkSmartPointer.h" // For member variable.
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCellData;
 class vtkDoubleArray;
 class vtkHexahedron;
@@ -81,4 +82,5 @@ private:
   void operator=(const vtkBezierHexahedron&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkBezierHexahedron_h

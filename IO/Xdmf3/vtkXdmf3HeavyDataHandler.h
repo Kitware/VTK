@@ -50,6 +50,7 @@
 #include VTKXDMF3_HEADER(XdmfUnstructuredGrid.hpp)
 #include VTKXDMF3_HEADER(XdmfDomain.hpp)
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataObject;
 class vtkDataSet;
 class vtkImageData;
@@ -123,5 +124,6 @@ protected:
   bool AsTime;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkXdmf3HeavyDataHandler_h
 // VTK-HeaderTest-Exclude: vtkXdmf3HeavyDataHandler.h

@@ -57,6 +57,7 @@
 #include <sstream>
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOpenGLFluidMapper);
 
 //------------------------------------------------------------------------------
@@ -982,3 +983,4 @@ void vtkOpenGLFluidMapper::ReleaseGraphicsResources(vtkWindow* w)
 
   this->Modified();
 }
+VTK_ABI_NAMESPACE_END

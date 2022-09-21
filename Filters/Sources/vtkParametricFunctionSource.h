@@ -50,6 +50,7 @@
 #include "vtkFiltersSourcesModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCellArray;
 class vtkParametricFunction;
 
@@ -251,4 +252,5 @@ private:
   void operator=(const vtkParametricFunctionSource&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

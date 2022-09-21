@@ -29,6 +29,7 @@
 #include <algorithm>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkViewUpdater);
 
 class vtkViewUpdater::vtkViewUpdaterInternals : public vtkCommand
@@ -86,3 +87,4 @@ void vtkViewUpdater::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

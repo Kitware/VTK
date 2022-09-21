@@ -58,6 +58,7 @@
 
 namespace impl
 {
+VTK_ABI_NAMESPACE_BEGIN
 
 static vtkBoundingBox AllReduceBounds(
   diy::mpi::communicator& comm, std::vector<vtkSmartPointer<vtkPoints>> points)
@@ -231,6 +232,7 @@ static bool GenerateIds(vtkDataObject* dobj, vtkGenerateGlobalIds* self, bool ce
   self->UpdateProgress(1.0);
   return true;
 }
+VTK_ABI_NAMESPACE_END
 }
 
 namespace
@@ -702,6 +704,8 @@ struct Serialization<::CellTT>
 };
 }
 
+VTK_ABI_NAMESPACE_BEGIN
+
 vtkStandardNewMacro(vtkGenerateGlobalIds);
 vtkCxxSetObjectMacro(vtkGenerateGlobalIds, Controller, vtkMultiProcessController);
 //------------------------------------------------------------------------------
@@ -761,3 +765,4 @@ void vtkGenerateGlobalIds::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Controller: " << this->Controller << endl;
   os << indent << "Tolerance: " << this->Tolerance << endl;
 }
+VTK_ABI_NAMESPACE_END

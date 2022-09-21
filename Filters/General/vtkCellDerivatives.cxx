@@ -30,6 +30,7 @@
 
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkCellDerivatives);
 
 //----------------------------------------------------------------------------
@@ -391,3 +392,4 @@ void vtkCellDerivatives::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Tensor Mode: " << this->GetTensorModeAsString() << endl;
 }
+VTK_ABI_NAMESPACE_END

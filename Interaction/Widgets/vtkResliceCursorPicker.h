@@ -33,6 +33,7 @@
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkPicker.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPolyData;
 class vtkGenericCell;
 class vtkResliceCursorPolyDataAlgorithm;
@@ -105,4 +106,5 @@ private:
   void operator=(const vtkResliceCursorPicker&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

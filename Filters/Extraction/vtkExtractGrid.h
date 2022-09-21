@@ -44,6 +44,7 @@
 #include "vtkStructuredGridAlgorithm.h"
 
 // Forward Declarations
+VTK_ABI_NAMESPACE_BEGIN
 class vtkExtractStructuredGridHelper;
 
 class VTKFILTERSEXTRACTION_EXPORT vtkExtractGrid : public vtkStructuredGridAlgorithm
@@ -116,4 +117,5 @@ private:
   void operator=(const vtkExtractGrid&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

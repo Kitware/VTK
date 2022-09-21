@@ -36,6 +36,7 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkNonLinearCell.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkQuadraticEdge;
 class vtkPolygon;
 class vtkIdTypeArray;
@@ -150,4 +151,5 @@ private:
   void operator=(const vtkQuadraticPolygon&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -39,6 +39,7 @@
 #include "vtkObject.h"
 #include "vtkSmartPointer.h" // Used internally
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkHyperTree;
 class vtkHyperTreeGrid;
 class vtkHyperTreeGridNonOrientedCursor;
@@ -237,5 +238,6 @@ protected:
   vtkIdType Index;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkHyperTreeGridLevelEntry_h
 // VTK-HeaderTest-Exclude: vtkHyperTreeGridLevelEntry.h

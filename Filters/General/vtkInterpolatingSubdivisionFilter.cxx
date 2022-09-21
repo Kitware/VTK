@@ -23,6 +23,7 @@
 #include "vtkPolyData.h"
 
 // Construct object with number of subdivisions set to 1.
+VTK_ABI_NAMESPACE_BEGIN
 vtkInterpolatingSubdivisionFilter::vtkInterpolatingSubdivisionFilter() = default;
 
 int vtkInterpolatingSubdivisionFilter::RequestData(
@@ -239,3 +240,4 @@ void vtkInterpolatingSubdivisionFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

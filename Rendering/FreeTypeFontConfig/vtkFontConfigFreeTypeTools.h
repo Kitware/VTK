@@ -37,6 +37,7 @@
 #include "vtkFreeTypeTools.h"
 #include "vtkRenderingFreeTypeFontConfigModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKRENDERINGFREETYPEFONTCONFIG_EXPORT vtkFontConfigFreeTypeTools : public vtkFreeTypeTools
 {
 public:
@@ -72,4 +73,5 @@ private:
   void operator=(const vtkFontConfigFreeTypeTools&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkFontConfigFreeTypeTools_h

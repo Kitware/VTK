@@ -36,9 +36,12 @@
 
 #include "vtkTDxConfigure.h" // defines VTK_USE_TDX
 #ifdef VTK_USE_TDX
+VTK_ABI_NAMESPACE_BEGIN
 class vtkTDxWinDevice;
+VTK_ABI_NAMESPACE_END
 #endif
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKRENDERINGUI_EXPORT vtkWin32RenderWindowInteractor : public vtkRenderWindowInteractor
 {
 public:
@@ -189,4 +192,5 @@ private:
   void operator=(const vtkWin32RenderWindowInteractor&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

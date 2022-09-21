@@ -19,6 +19,7 @@
 #include <cfloat>
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkParametricKuen);
 //----------------------------------------------------------------------------//
 vtkParametricKuen::vtkParametricKuen()
@@ -122,3 +123,4 @@ void vtkParametricKuen::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "DeltaV0: " << this->DeltaV0 << "\n";
 }
+VTK_ABI_NAMESPACE_END

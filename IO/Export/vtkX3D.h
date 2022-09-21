@@ -15,11 +15,17 @@
 #ifndef vtkX3D_h
 #define vtkX3D_h
 
+#include "vtkABINamespace.h"
+
+VTK_ABI_NAMESPACE_BEGIN
 extern const char* x3dElementString[];
 extern const char* x3dAttributeString[];
+VTK_ABI_NAMESPACE_END
 
 namespace vtkX3D
 {
+VTK_ABI_NAMESPACE_BEGIN
+
 enum X3DTypes
 {
   SFVEC3F,
@@ -544,7 +550,9 @@ enum X3DAttribute
   zDimension = 326,
   zSpacing = 327
 };
-};
+
+VTK_ABI_NAMESPACE_END
+} // namespace vtkX3D
 
 #endif
 

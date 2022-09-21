@@ -18,6 +18,7 @@
 #include "vtkPointData.h"
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkInterpolationKernel::vtkInterpolationKernel()
 {
   this->RequiresInitialization = true;
@@ -118,3 +119,4 @@ void vtkInterpolationKernel::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "PointData: (None)\n";
   }
 }
+VTK_ABI_NAMESPACE_END

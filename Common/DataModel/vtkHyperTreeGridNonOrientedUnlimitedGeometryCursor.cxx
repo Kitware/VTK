@@ -26,6 +26,7 @@ PURPOSE.  See the above copyright Nonice for more information.
 #include "vtkHyperTreeGridNonOrientedGeometryCursor.h"
 #include "vtkHyperTreeGridOrientedGeometryCursor.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkHyperTreeGridNonOrientedUnlimitedGeometryCursor);
 
 //------------------------------------------------------------------------------
@@ -334,3 +335,4 @@ vtkHyperTreeGridNonOrientedUnlimitedGeometryCursor::GetHyperTreeGridNonOrientedG
   cursor->Initialize(grid, this->Tree, this->GetLevel(), this->GetVertexId(), this->GetOrigin());
   return cursor;
 }
+VTK_ABI_NAMESPACE_END

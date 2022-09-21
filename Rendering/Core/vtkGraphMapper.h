@@ -35,6 +35,7 @@
 
 #include "vtkSmartPointer.h" // Required for smart pointer internal ivars.
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkActor2D;
 class vtkMapArrayValues;
 class vtkCamera;
@@ -328,4 +329,5 @@ private:
   char* ScalingArrayName;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

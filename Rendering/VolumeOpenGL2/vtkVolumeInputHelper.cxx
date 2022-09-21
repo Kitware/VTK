@@ -18,6 +18,7 @@
 #include "vtkVolumeProperty.h"
 #include "vtkVolumeTexture.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkVolumeInputHelper::vtkVolumeInputHelper(vtkSmartPointer<vtkVolumeTexture> tex, vtkVolume* vol)
   : Texture(tex)
   , Volume(vol)
@@ -446,3 +447,4 @@ void vtkVolumeInputHelper::ForceTransferInit()
 {
   this->InitializeTransfer = true;
 }
+VTK_ABI_NAMESPACE_END

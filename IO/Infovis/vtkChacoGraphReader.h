@@ -51,6 +51,7 @@
 #include "vtkIOInfovisModule.h" // For export macro
 #include "vtkUndirectedGraphAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKIOINFOVIS_EXPORT vtkChacoGraphReader : public vtkUndirectedGraphAlgorithm
 {
 public:
@@ -79,4 +80,5 @@ private:
   void operator=(const vtkChacoGraphReader&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkChacoGraphReader_h

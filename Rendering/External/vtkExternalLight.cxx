@@ -18,6 +18,7 @@
 #include "vtk_glew.h"
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkExternalLight);
 
 //------------------------------------------------------------------------------
@@ -134,3 +135,4 @@ void vtkExternalLight::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "ExponentSet: " << this->ExponentSet << "\n";
   os << indent << "PositionalSet: " << this->PositionalSet << "\n";
 }
+VTK_ABI_NAMESPACE_END

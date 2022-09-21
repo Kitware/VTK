@@ -37,6 +37,7 @@
 
 #include <vector> // used because I am a bad boy. So there.
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSHYBRID_EXPORT vtkTemporalSnapToTimeStep : public vtkPassInputTypeAlgorithm
 {
 public:
@@ -85,4 +86,5 @@ private:
   void operator=(const vtkTemporalSnapToTimeStep&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

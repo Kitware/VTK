@@ -31,6 +31,7 @@
 #include "vtkDataReader.h"
 #include "vtkIOInfovisModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkMultiPieceDataSet;
 class vtkNewickTreeReader;
 class VTKIOINFOVIS_EXPORT vtkMultiNewickTreeReader : public vtkDataReader
@@ -65,4 +66,5 @@ private:
   void operator=(const vtkMultiNewickTreeReader&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

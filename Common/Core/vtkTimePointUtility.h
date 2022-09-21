@@ -31,6 +31,7 @@
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkObject.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONCORE_EXPORT vtkTimePointUtility : public vtkObject
 {
 public:
@@ -167,4 +168,5 @@ private:
   void operator=(const vtkTimePointUtility&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -23,12 +23,15 @@
 #include <vtkType.h>
 #include <vtkm/cont/UnknownCellSet.h>
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCellArray;
 class vtkUnsignedCharArray;
 class vtkIdTypeArray;
+VTK_ABI_NAMESPACE_END
 
 namespace tovtkm
 {
+VTK_ABI_NAMESPACE_BEGIN
 VTKACCELERATORSVTKMDATAMODEL_EXPORT
 vtkm::cont::UnknownCellSet ConvertSingleType(
   vtkCellArray* cells, int cellType, vtkIdType numberOfPoints);
@@ -36,14 +39,17 @@ vtkm::cont::UnknownCellSet ConvertSingleType(
 VTKACCELERATORSVTKMDATAMODEL_EXPORT
 vtkm::cont::UnknownCellSet Convert(
   vtkUnsignedCharArray* types, vtkCellArray* cells, vtkIdType numberOfPoints);
+VTK_ABI_NAMESPACE_END
 }
 
 namespace fromvtkm
 {
+VTK_ABI_NAMESPACE_BEGIN
 
 VTKACCELERATORSVTKMDATAMODEL_EXPORT
 bool Convert(const vtkm::cont::UnknownCellSet& toConvert, vtkCellArray* cells,
   vtkUnsignedCharArray* types = nullptr);
+VTK_ABI_NAMESPACE_END
 }
 
 #endif // vtkmlib_CellSetConverters_h

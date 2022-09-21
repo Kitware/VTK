@@ -33,6 +33,7 @@
 #include <string> // For string
 #include <vector> // For vector
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkShaderProgram;
 class vtkWindow;
 class vtkOpenGLBufferObject;
@@ -232,4 +233,5 @@ inline size_t vtkTransformFeedback::GetBytesPerVertex(vtkTransformFeedback::Vary
   return 0;
 }
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkTransformFeedback_h

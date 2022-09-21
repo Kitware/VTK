@@ -67,6 +67,7 @@
 #include "vtkFiltersModelingModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkAbstractCellLocator;
 
 class VTKFILTERSMODELING_EXPORT vtkTrimmedExtrusionFilter : public vtkPolyDataAlgorithm
@@ -214,4 +215,5 @@ private:
   void operator=(const vtkTrimmedExtrusionFilter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

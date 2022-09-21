@@ -37,6 +37,7 @@
 // A tolerance to compensate for roundoff errors
 #define VTK_RESLICE_MAPPER_VOXEL_TOL 7.62939453125e-06
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImageResliceMapper);
 
 //------------------------------------------------------------------------------
@@ -1623,3 +1624,4 @@ void vtkImageResliceMapper::ReportReferences(vtkGarbageCollector* collector)
   vtkGarbageCollectorReport(collector, this->ImageReslice, "ImageReslice");
   vtkGarbageCollectorReport(collector, this->SliceMapper, "SliceMapper");
 }
+VTK_ABI_NAMESPACE_END

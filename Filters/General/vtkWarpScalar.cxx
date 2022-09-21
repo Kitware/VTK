@@ -34,6 +34,7 @@
 #include "vtkSMPTools.h"
 #include "vtkSmartPointer.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkWarpScalar);
 
 //------------------------------------------------------------------------------
@@ -312,3 +313,4 @@ void vtkWarpScalar::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "XY Plane: " << (this->XYPlane ? "On\n" : "Off\n");
   os << indent << "Output Points Precision: " << this->OutputPointsPrecision << "\n";
 }
+VTK_ABI_NAMESPACE_END

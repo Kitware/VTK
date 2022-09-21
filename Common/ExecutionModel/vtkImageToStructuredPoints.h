@@ -30,6 +30,7 @@
 #include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkImageAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkImageData;
 class vtkStructuredPoints;
 
@@ -72,4 +73,5 @@ private:
   void operator=(const vtkImageToStructuredPoints&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -29,6 +29,7 @@
 #include "vtkGenericMovieWriter.h"
 #include "vtkIOMovieModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkAVIWriterInternal;
 
 class VTKIOMOVIE_EXPORT vtkAVIWriter : public vtkGenericMovieWriter
@@ -117,4 +118,5 @@ private:
   void operator=(const vtkAVIWriter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

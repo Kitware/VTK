@@ -76,6 +76,7 @@
 #define VTK_CURVATURE_MAXIMUM 2
 #define VTK_CURVATURE_MINIMUM 3
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSGENERAL_EXPORT vtkCurvatures : public vtkPolyDataAlgorithm
 {
 public:
@@ -150,4 +151,5 @@ private:
   void operator=(const vtkCurvatures&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

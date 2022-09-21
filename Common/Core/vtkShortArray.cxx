@@ -22,6 +22,7 @@ VTK_AOS_DATA_ARRAY_TEMPLATE_INSTANTIATE(short);
 #include "vtkObjectFactory.h"
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkShortArray);
 vtkStandardExtendedNewMacro(vtkShortArray);
 
@@ -36,3 +37,4 @@ void vtkShortArray::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->RealSuperclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

@@ -20,6 +20,7 @@
 #include "vtkType.h"   // For vtkIdType
 #include "vtkVector.h" // For vtkVector2f
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkTransform2D;
 class vtkContextPolygonPrivate;
 
@@ -74,5 +75,6 @@ private:
   vtkContextPolygonPrivate* const d;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkContextPolygon_h
 // VTK-HeaderTest-Exclude: vtkContextPolygon.h

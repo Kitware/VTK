@@ -27,6 +27,7 @@
 #include "vtkPlot.h"
 #include "vtkSmartPointer.h" // To hold ColorSeries etc.
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkContext2D;
 class vtkColorSeries;
 class vtkPoints2D;
@@ -124,4 +125,5 @@ private:
   vtkPlotPiePrivate* Private;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkPlotPie_h

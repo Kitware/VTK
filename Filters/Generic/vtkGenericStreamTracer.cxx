@@ -36,6 +36,7 @@
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkGenericStreamTracer);
 vtkCxxSetObjectMacro(vtkGenericStreamTracer, Integrator, vtkInitialValueProblemSolver);
 vtkCxxSetObjectMacro(
@@ -1351,3 +1352,4 @@ void vtkGenericStreamTracer::SetSourceConnection(vtkAlgorithmOutput* algOutput)
 {
   this->SetInputConnection(1, algOutput);
 }
+VTK_ABI_NAMESPACE_END

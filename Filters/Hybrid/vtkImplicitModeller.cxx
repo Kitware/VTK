@@ -38,6 +38,7 @@
 
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImplicitModeller);
 
 struct vtkImplicitModellerAppendInfo
@@ -1156,3 +1157,4 @@ void vtkImplicitModeller::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Process Mode: " << this->GetProcessModeAsString() << endl;
   os << indent << "Number Of Threads (for PerVoxel mode): " << this->NumberOfThreads << endl;
 }
+VTK_ABI_NAMESPACE_END

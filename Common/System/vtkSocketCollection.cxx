@@ -18,6 +18,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkSocket.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkSocketCollection);
 //------------------------------------------------------------------------------
 vtkSocketCollection::vtkSocketCollection()
@@ -137,3 +138,4 @@ void vtkSocketCollection::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

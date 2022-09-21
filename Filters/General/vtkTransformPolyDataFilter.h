@@ -40,6 +40,7 @@
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkAbstractTransform;
 
 class VTKFILTERSGENERAL_EXPORT vtkTransformPolyDataFilter : public vtkPolyDataAlgorithm
@@ -92,4 +93,5 @@ private:
   void operator=(const vtkTransformPolyDataFilter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -22,6 +22,7 @@ https://github.com/ValveSoftware/openvr/blob/master/LICENSE
 #include "vtkObjectFactory.h"
 #include "vtkOpenVRCamera.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOpenVRRenderer);
 
 //------------------------------------------------------------------------------
@@ -31,3 +32,4 @@ vtkCamera* vtkOpenVRRenderer::MakeCamera()
   this->InvokeEvent(vtkCommand::CreateCameraEvent, cam);
   return cam;
 }
+VTK_ABI_NAMESPACE_END

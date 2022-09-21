@@ -59,6 +59,7 @@
 #include "vtkPointSet.h"
 #include "vtkStructuredData.h" // For static method usage
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCellArray;
 class vtkAbstractCellLinks;
 class vtkEmptyCell;
@@ -435,4 +436,5 @@ inline vtkIdType vtkExplicitStructuredGrid::ComputeCellId(int i, int j, int k, b
     return vtkStructuredData::ComputeCellId(dims, ijk);
   }
 }
+VTK_ABI_NAMESPACE_END
 #endif

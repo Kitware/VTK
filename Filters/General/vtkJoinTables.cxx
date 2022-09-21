@@ -33,6 +33,7 @@
 #include <string>
 #include <utility>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkJoinTables);
 
 //------------------------------------------------------------------------------
@@ -176,3 +177,4 @@ void vtkJoinTables::PrintSelf(ostream& os, vtkIndent indent)
   }
   os << endl;
 }
+VTK_ABI_NAMESPACE_END

@@ -23,6 +23,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUnsignedCharArray.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkTriangularTexture);
 
 // Instantiate object with XSize and YSize = 64; the texture pattern =1
@@ -192,3 +193,4 @@ void vtkTriangularTexture::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Scale Factor:" << this->ScaleFactor << "\n";
 }
+VTK_ABI_NAMESPACE_END

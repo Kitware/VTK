@@ -32,6 +32,7 @@
 #include "vtkVectorOperators.h"
 #include "vtkWedge.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkBezierWedge);
 
 vtkBezierWedge::vtkBezierWedge() = default;
@@ -216,3 +217,4 @@ vtkHigherOrderInterpolation* vtkBezierWedge::GetInterpolation()
 {
   return Interp;
 };
+VTK_ABI_NAMESPACE_END

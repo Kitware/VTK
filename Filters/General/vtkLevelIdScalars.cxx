@@ -15,6 +15,7 @@
 #include "vtkLevelIdScalars.h"
 #include "vtkObjectFactory.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkLevelIdScalars);
 
 //------------------------------------------------------------------------------
@@ -28,3 +29,4 @@ void vtkLevelIdScalars::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

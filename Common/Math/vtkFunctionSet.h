@@ -32,6 +32,7 @@
 #include "vtkCommonMathModule.h" // For export macro
 #include "vtkObject.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONMATH_EXPORT vtkFunctionSet : public vtkObject
 {
 public:
@@ -78,4 +79,5 @@ private:
   void operator=(const vtkFunctionSet&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

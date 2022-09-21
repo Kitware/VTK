@@ -27,6 +27,7 @@
 #include <vector>
 #include <vtksys/FStream.hxx>
 
+VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
 std::string ReadFile(const std::string& filename)
@@ -1488,3 +1489,4 @@ void vtkAMReXGridReaderInternal::PermuteOrder(
       pout[outord[i]] = pin[inord[i]];
   }
 }
+VTK_ABI_NAMESPACE_END

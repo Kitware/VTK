@@ -25,6 +25,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkMultiProcessController.h"
 #include "vtkObjectFactory.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPYoungsMaterialInterface);
 vtkCxxSetObjectMacro(vtkPYoungsMaterialInterface, Controller, vtkMultiProcessController);
 //------------------------------------------------------------------------------
@@ -96,3 +97,4 @@ void vtkPYoungsMaterialInterface::Aggregate(int nmat, int* inputsPerMaterial)
   }
   delete[] tmp;
 }
+VTK_ABI_NAMESPACE_END

@@ -60,6 +60,7 @@
 // NOLINTNEXTLINE(bugprone-suspicious-include)
 #include "vtkTableBasedClipCases.cxx"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkTableBasedClipDataSet);
 vtkCxxSetObjectMacro(vtkTableBasedClipDataSet, ClipFunction, vtkImplicitFunction);
 
@@ -2906,3 +2907,4 @@ void vtkTableBasedClipDataSet::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Precision of the output points: " << this->OutputPointsPrecision << "\n";
   os << indent << "Batch size: " << this->BatchSize << "\n";
 }
+VTK_ABI_NAMESPACE_END

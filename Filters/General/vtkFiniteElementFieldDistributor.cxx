@@ -1185,6 +1185,8 @@ void InterpolateToNodes(const ::VblpMatrixType& vblpmats, const std::vector<doub
 
 } // end anonymous namespace
 
+VTK_ABI_NAMESPACE_BEGIN
+
 class vtkFiniteElementFieldDistributor::vtkInternals
 {
 public:
@@ -2070,3 +2072,4 @@ int vtkFiniteElementFieldDistributor::RequestData(vtkInformation* vtkNotUsed(req
   } // for each element block
   return 1;
 }
+VTK_ABI_NAMESPACE_END

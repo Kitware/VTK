@@ -32,6 +32,7 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkImplicitFunction.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPolyLine;
 class vtkDoubleArray;
 
@@ -90,4 +91,5 @@ private:
   void operator=(const vtkPolyPlane&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

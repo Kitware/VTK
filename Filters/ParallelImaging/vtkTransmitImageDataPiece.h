@@ -32,6 +32,7 @@
 #include "vtkFiltersParallelImagingModule.h" // For export macro
 #include "vtkTransmitStructuredDataPiece.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkMultiProcessController;
 
 class VTKFILTERSPARALLELIMAGING_EXPORT vtkTransmitImageDataPiece
@@ -51,4 +52,5 @@ private:
   void operator=(const vtkTransmitImageDataPiece&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

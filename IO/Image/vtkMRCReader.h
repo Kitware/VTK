@@ -27,6 +27,7 @@
 #include "vtkIOImageModule.h" // For export macro
 #include "vtkImageAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkInformation;
 class vtkInformationVector;
 
@@ -60,4 +61,5 @@ private:
   vtkInternal* Internals;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

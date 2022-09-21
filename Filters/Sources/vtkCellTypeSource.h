@@ -32,6 +32,7 @@
 #include "vtkFiltersSourcesModule.h" // For export macro
 #include "vtkUnstructuredGridAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkMergePoints;
 
 class VTKFILTERSSOURCES_EXPORT vtkCellTypeSource : public vtkUnstructuredGridAlgorithm
@@ -184,4 +185,5 @@ private:
   void operator=(const vtkCellTypeSource&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

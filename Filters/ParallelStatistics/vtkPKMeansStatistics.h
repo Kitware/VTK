@@ -36,6 +36,7 @@
 #include "vtkFiltersParallelStatisticsModule.h" // For export macro
 #include "vtkKMeansStatistics.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkMultiProcessController;
 class vtkCommunicator;
 
@@ -85,4 +86,5 @@ private:
   void operator=(const vtkPKMeansStatistics&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

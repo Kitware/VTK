@@ -32,6 +32,7 @@
 #include "vtkIOParallelXMLModule.h" // For export macro
 #include "vtkXMLPStructuredDataWriter.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkImageData;
 
 class VTKIOPARALLELXML_EXPORT vtkXMLPImageDataWriter : public vtkXMLPStructuredDataWriter
@@ -67,4 +68,5 @@ private:
   void operator=(const vtkXMLPImageDataWriter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -20,6 +20,7 @@
 #include "vtkStructuredGrid.h"
 #include "vtkXMLStructuredGridWriter.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkXMLPStructuredGridWriter);
 
 //------------------------------------------------------------------------------
@@ -79,3 +80,4 @@ int vtkXMLPStructuredGridWriter::FillInputPortInformation(int, vtkInformation* i
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkStructuredGrid");
   return 1;
 }
+VTK_ABI_NAMESPACE_END

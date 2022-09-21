@@ -31,6 +31,7 @@
 
 #include <algorithm>
 
+VTK_ABI_NAMESPACE_BEGIN
 enum enumPointHandleType
 {
   enSharpNess = 0,
@@ -427,3 +428,4 @@ void vtkPiecewisePointHandleItem::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "MouseOverHandleIndex: " << this->MouseOverHandleIndex << endl;
   os << indent << "CurrentPointIndex: " << this->CurrentPointIndex << endl;
 }
+VTK_ABI_NAMESPACE_END

@@ -23,6 +23,7 @@
 
 #include <sstream>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkCxxSetObjectMacro(vtkImporter, RenderWindow, vtkRenderWindow);
 
 vtkImporter::vtkImporter()
@@ -223,3 +224,4 @@ void vtkImporter::UpdateTimeStep(double vtkNotUsed(timeStep))
 {
   this->Update();
 }
+VTK_ABI_NAMESPACE_END

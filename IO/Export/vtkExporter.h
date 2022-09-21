@@ -41,6 +41,7 @@
 
 #include "vtkIOExportModule.h" // For export macro
 #include "vtkObject.h"
+VTK_ABI_NAMESPACE_BEGIN
 class vtkRenderWindow;
 class vtkRenderer;
 
@@ -140,4 +141,5 @@ private:
   void operator=(const vtkExporter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

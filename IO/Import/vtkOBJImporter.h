@@ -28,6 +28,7 @@
 #include "vtkSmartPointer.h" // for ivars
 #include <string>            // for string
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkRenderWindow;
 class vtkRenderer;
 class vtkPolydata;
@@ -101,4 +102,5 @@ private:
   void operator=(const vtkOBJImporter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

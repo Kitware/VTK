@@ -47,6 +47,7 @@
 #include "vtkCellType.h"    // Needed to define cell types
 #include "vtkIdList.h"      // Needed for inline methods
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCellArray;
 class vtkCellData;
 class vtkDataArray;
@@ -405,4 +406,5 @@ private:
   void operator=(const vtkCell&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

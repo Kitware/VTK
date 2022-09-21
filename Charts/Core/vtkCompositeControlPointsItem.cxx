@@ -34,6 +34,7 @@
 #include <limits>
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkCompositeControlPointsItem);
 
 //------------------------------------------------------------------------------
@@ -420,3 +421,4 @@ void vtkCompositeControlPointsItem::EditPointCurve(vtkIdType index)
     }
   }
 }
+VTK_ABI_NAMESPACE_END

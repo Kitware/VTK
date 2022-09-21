@@ -36,6 +36,7 @@
 #include <cassert>
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkCxxSetObjectMacro(vtkScalarsToColorsItem, HistogramTable, vtkTable);
 
 //------------------------------------------------------------------------------
@@ -273,3 +274,4 @@ vtkStdString vtkScalarsToColorsItem::GetTooltipLabel(
   }
   return "";
 }
+VTK_ABI_NAMESPACE_END

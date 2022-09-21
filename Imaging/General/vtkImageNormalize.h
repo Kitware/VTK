@@ -27,6 +27,7 @@
 #include "vtkImagingGeneralModule.h" // For export macro
 #include "vtkThreadedImageAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKIMAGINGGENERAL_EXPORT vtkImageNormalize : public vtkThreadedImageAlgorithm
 {
 public:
@@ -47,4 +48,5 @@ private:
   void operator=(const vtkImageNormalize&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

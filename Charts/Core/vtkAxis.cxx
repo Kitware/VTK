@@ -41,6 +41,7 @@
 #include <limits>
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkAxis);
 
 //------------------------------------------------------------------------------
@@ -1952,3 +1953,4 @@ void vtkAxis::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "ScalingFactor: " << this->ScalingFactor << "\n";
   os << indent << "Shift: " << this->Shift << "\n";
 }
+VTK_ABI_NAMESPACE_END

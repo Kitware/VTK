@@ -46,6 +46,7 @@
 #include "vtkBorderRepresentation.h"
 #include "vtkInteractionWidgetsModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkScalarBarActor;
 
 class VTKINTERACTIONWIDGETS_EXPORT vtkScalarBarRepresentation : public vtkBorderRepresentation
@@ -126,4 +127,5 @@ private:
   void operator=(const vtkScalarBarRepresentation&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkScalarBarRepresentation_h

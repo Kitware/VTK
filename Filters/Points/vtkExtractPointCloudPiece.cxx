@@ -24,6 +24,7 @@
 #include "vtkDoubleArray.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkExtractPointCloudPiece);
 
 //------------------------------------------------------------------------------
@@ -130,3 +131,4 @@ void vtkExtractPointCloudPiece::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
   os << indent << "ModuloOrdering: " << this->ModuloOrdering << "\n";
 }
+VTK_ABI_NAMESPACE_END

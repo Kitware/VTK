@@ -48,6 +48,7 @@
 #include "vtkInfovisLayoutModule.h" // For export macro
 #include "vtkTreeAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCirclePackLayoutStrategy;
 class vtkDoubleArray;
 class vtkDataArray;
@@ -123,4 +124,5 @@ private:
   void prepareSizeArray(vtkDoubleArray* mySizeArray, vtkTree* tree);
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

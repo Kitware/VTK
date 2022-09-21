@@ -30,6 +30,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <vector>
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkHyperTree::vtkHyperTree()
 {
   this->InitializeBase(2, 3, 8);
@@ -611,3 +612,4 @@ vtkHyperTree* vtkHyperTree::CreateInstance(unsigned char factor, unsigned char d
   ht->Initialize(factor, dimension, pow(factor, dimension));
   return ht;
 }
+VTK_ABI_NAMESPACE_END

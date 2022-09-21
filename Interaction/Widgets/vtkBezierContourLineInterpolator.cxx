@@ -20,6 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkRenderer.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkBezierContourLineInterpolator);
 
 //------------------------------------------------------------------------------
@@ -222,3 +223,4 @@ void vtkBezierContourLineInterpolator::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Maximum Curve Error: " << this->MaximumCurveError << "\n";
   os << indent << "Maximum Curve Line Segments: " << this->MaximumCurveLineSegments << "\n";
 }
+VTK_ABI_NAMESPACE_END

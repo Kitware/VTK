@@ -33,6 +33,7 @@
 #include <algorithm>
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkResliceCursorPolyDataAlgorithm);
 vtkCxxSetObjectMacro(vtkResliceCursorPolyDataAlgorithm, ResliceCursor, vtkResliceCursor);
 
@@ -345,3 +346,4 @@ void vtkResliceCursorPolyDataAlgorithm::PrintSelf(ostream& os, vtkIndent indent)
   // this->ClipWithBox;
   // this->SlicePlane;
 }
+VTK_ABI_NAMESPACE_END

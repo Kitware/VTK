@@ -30,6 +30,7 @@
 #include "vtkAutoCorrelativeStatistics.h"
 #include "vtkFiltersParallelStatisticsModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkMultiBlockDataSet;
 class vtkMultiProcessController;
 
@@ -72,4 +73,5 @@ private:
   void operator=(const vtkPAutoCorrelativeStatistics&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

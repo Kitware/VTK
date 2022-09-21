@@ -35,6 +35,7 @@
 #include "vtkAbstractPolygonalHandleRepresentation3D.h"
 #include "vtkInteractionWidgetsModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKINTERACTIONWIDGETS_EXPORT vtkOrientedPolygonalHandleRepresentation3D
   : public vtkAbstractPolygonalHandleRepresentation3D
 {
@@ -68,4 +69,5 @@ private:
   void operator=(const vtkOrientedPolygonalHandleRepresentation3D&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

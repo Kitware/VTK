@@ -26,13 +26,14 @@
 // hence only the top-level grids are made accessible.
 #define MAX_COLLECTABLE_NUMBER_OF_GRIDS 1000
 
+using namespace xdmf2;
+
+VTK_ABI_NAMESPACE_BEGIN
 template <class T>
 T vtkMAX(T a, T b)
 {
   return (a > b ? a : b);
 }
-
-using namespace xdmf2;
 
 //------------------------------------------------------------------------------
 vtkXdmfDocument::vtkXdmfDocument()
@@ -816,3 +817,4 @@ bool vtkXdmfDomain::UpdateGridAttributeInSIL(XdmfAttribute* xmfAttribute, vtkIdT
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_END

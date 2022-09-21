@@ -43,14 +43,17 @@
 // vtkPolyDataInternals.h methods:
 namespace vtkPolyData_detail
 {
+VTK_ABI_NAMESPACE_BEGIN
 
 vtkStandardNewMacro(CellMap);
 
 CellMap::CellMap() = default;
 CellMap::~CellMap() = default;
 
+VTK_ABI_NAMESPACE_END
 } // end namespace vtkPolyData_detail
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPolyData);
 vtkStandardExtendedNewMacro(vtkPolyData);
 
@@ -853,6 +856,8 @@ void vtkPolyData::DeleteCells()
   this->Cells = nullptr;
 }
 
+VTK_ABI_NAMESPACE_END
+
 namespace
 {
 
@@ -888,6 +893,7 @@ struct BuildCellsImpl
 
 } // end anon namespace
 
+VTK_ABI_NAMESPACE_BEGIN
 //------------------------------------------------------------------------------
 // Create data structure that allows random access of cells.
 void vtkPolyData::BuildCells()
@@ -2173,3 +2179,4 @@ vtkMTimeType vtkPolyData::GetMTime()
   }
   return time;
 }
+VTK_ABI_NAMESPACE_END

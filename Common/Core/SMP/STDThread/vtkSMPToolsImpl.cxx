@@ -26,6 +26,7 @@ namespace detail
 {
 namespace smp
 {
+VTK_ABI_NAMESPACE_BEGIN
 static int specifiedNumThreads = 0;
 static std::stack<std::thread::id> threadIdStack;
 static std::mutex threadIdStackLock;
@@ -96,6 +97,7 @@ bool vtkSMPToolsImpl<BackendType::STDThread>::GetSingleThread()
   return GetSingleThreadSTDThread();
 }
 
+VTK_ABI_NAMESPACE_END
 } // namespace smp
 } // namespace detail
 } // namespace vtk

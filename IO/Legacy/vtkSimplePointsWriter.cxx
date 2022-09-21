@@ -27,6 +27,7 @@
 
 #include <iomanip>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkSimplePointsWriter);
 
 vtkSimplePointsWriter::vtkSimplePointsWriter()
@@ -79,3 +80,4 @@ void vtkSimplePointsWriter::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "DecimalPrecision: " << this->DecimalPrecision << "\n";
 }
+VTK_ABI_NAMESPACE_END

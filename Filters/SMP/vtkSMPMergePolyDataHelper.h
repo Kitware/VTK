@@ -28,6 +28,7 @@
 
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPolyData;
 class vtkSMPMergePoints;
 class vtkIdList;
@@ -90,5 +91,6 @@ private:
   void operator=(const vtkSMPMergePolyDataHelper&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkSMPMergePolyDataHelper.h

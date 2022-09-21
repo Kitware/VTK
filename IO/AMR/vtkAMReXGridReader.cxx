@@ -41,6 +41,7 @@
 #include <iomanip>
 #include <sstream>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkAMReXGridReader);
 //------------------------------------------------------------------------------
 vtkAMReXGridReader::vtkAMReXGridReader()
@@ -373,3 +374,4 @@ void vtkAMReXGridReader::SetUpDataArraySelections()
     }
   }
 }
+VTK_ABI_NAMESPACE_END

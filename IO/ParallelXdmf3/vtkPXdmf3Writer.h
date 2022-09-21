@@ -43,6 +43,7 @@
 #include "vtkIOParallelXdmf3Module.h" // For export macro
 #include "vtkXdmf3Writer.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKIOPARALLELXDMF3_EXPORT vtkPXdmf3Writer : public vtkXdmf3Writer
 {
 public:
@@ -64,4 +65,5 @@ private:
   void operator=(const vtkPXdmf3Writer&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif /* vtkPXdmf3Writer_h */

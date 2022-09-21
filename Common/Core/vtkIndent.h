@@ -27,6 +27,7 @@
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkSystemIncludes.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkIndent;
 VTKCOMMONCORE_EXPORT ostream& operator<<(ostream& os, const vtkIndent& o);
 
@@ -52,5 +53,6 @@ protected:
   int Indent;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkIndent.h

@@ -36,6 +36,7 @@
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkGlyph3D.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSCORE_EXPORT vtkGlyph2D : public vtkGlyph3D
 {
 public:
@@ -66,4 +67,5 @@ private:
   void operator=(const vtkGlyph2D&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

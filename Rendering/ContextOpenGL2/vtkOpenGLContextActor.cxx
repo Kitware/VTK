@@ -22,6 +22,7 @@
 #include "vtkOpenGLContextDevice3D.h"
 #include "vtkRenderer.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOpenGLContextActor);
 
 //------------------------------------------------------------------------------
@@ -111,3 +112,4 @@ void vtkOpenGLContextActor::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

@@ -35,6 +35,7 @@
 #include "vtkGenericMovieWriter.h"
 #include "vtkIOFFMPEGModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkFFMPEGWriterInternal;
 
 class VTKIOFFMPEG_EXPORT vtkFFMPEGWriter : public vtkGenericMovieWriter
@@ -116,4 +117,5 @@ private:
   void operator=(const vtkFFMPEGWriter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

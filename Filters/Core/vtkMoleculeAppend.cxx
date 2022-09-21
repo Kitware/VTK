@@ -30,6 +30,7 @@
 #include <set>
 #include <utility>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkMoleculeAppend);
 
 //------------------------------------------------------------------------------
@@ -282,3 +283,4 @@ bool vtkMoleculeAppend::CheckArrays(vtkAbstractArray* array1, vtkAbstractArray* 
 
   return true;
 }
+VTK_ABI_NAMESPACE_END

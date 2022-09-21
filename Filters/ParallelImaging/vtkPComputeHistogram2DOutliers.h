@@ -46,6 +46,7 @@
 #include "vtkComputeHistogram2DOutliers.h"
 #include "vtkFiltersParallelImagingModule.h" // For export macro
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 class vtkMultiProcessController;
 //------------------------------------------------------------------------------
 class VTKFILTERSPARALLELIMAGING_EXPORT vtkPComputeHistogram2DOutliers
@@ -72,4 +73,5 @@ private:
   void operator=(const vtkPComputeHistogram2DOutliers&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

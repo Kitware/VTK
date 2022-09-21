@@ -28,6 +28,7 @@
 #include <set>
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkExtractParticlesOverTime);
 
 namespace
@@ -367,3 +368,4 @@ void vtkExtractParticlesOverTime::PrintSelf(ostream& os, vtkIndent indent)
      << "IdChannelArray: " << (this->IdChannelArray.empty() ? "None" : this->IdChannelArray)
      << std::endl;
 }
+VTK_ABI_NAMESPACE_END

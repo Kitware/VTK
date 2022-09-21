@@ -34,6 +34,7 @@
 #include "vtkArrayDataAlgorithm.h"
 #include "vtkFiltersSourcesModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkArray;
 
 class VTKFILTERSSOURCES_EXPORT vtkDiagonalMatrixSource : public vtkArrayDataAlgorithm
@@ -125,4 +126,5 @@ private:
   char* ColumnLabel;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

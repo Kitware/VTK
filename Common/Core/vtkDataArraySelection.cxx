@@ -20,6 +20,7 @@
 #include <string>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkDataArraySelection);
 
 class vtkDataArraySelection::vtkInternals
@@ -402,3 +403,4 @@ void vtkDataArraySelection::Union(vtkDataArraySelection* other, bool skipModifie
     this->Modified();
   }
 }
+VTK_ABI_NAMESPACE_END

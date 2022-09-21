@@ -29,6 +29,7 @@
 #define ENABLE_CACHING
 #define FIFTEEN_POINT_TETRA
 
+VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
 // The linearized tetra is comprised of four linearized faces. Each face is
@@ -1080,3 +1081,4 @@ void vtkHigherOrderTetra::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

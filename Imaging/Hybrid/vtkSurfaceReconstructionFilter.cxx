@@ -26,6 +26,7 @@
 #include "vtkPoints.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkSurfaceReconstructionFilter);
 
 vtkSurfaceReconstructionFilter::vtkSurfaceReconstructionFilter()
@@ -586,3 +587,4 @@ static void vtkSRFreeMatrix(
 }
 
 #undef VTK_NR_END
+VTK_ABI_NAMESPACE_END

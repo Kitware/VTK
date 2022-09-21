@@ -54,6 +54,7 @@
 // .SECTION Description
 // Creating and initializing a texture can be time consuming,
 // vtkTextureImageCache offers the ability to reuse them as much as possible.
+VTK_ABI_NAMESPACE_BEGIN
 template <class Key>
 class vtkTextureImageCache
 {
@@ -892,5 +893,6 @@ private:
 
   PolyDataCache* cache;
 };
+VTK_ABI_NAMESPACE_END
 #endif // VTKOPENGLCONTEXTDEVICE2DPRIVATE_H
 // VTK-HeaderTest-Exclude: vtkOpenGLContextDevice2DPrivate.h

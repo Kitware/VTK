@@ -42,6 +42,7 @@
 // applied when converting between formats.
 #define INVERT_ROWS 0
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkGDALRasterConverter);
 
 //------------------------------------------------------------------------------
@@ -636,3 +637,4 @@ bool vtkGDALRasterConverter::FindDataRange(
 
   return true;
 }
+VTK_ABI_NAMESPACE_END

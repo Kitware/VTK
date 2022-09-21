@@ -26,6 +26,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTree.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkTreeAlgorithm);
 
 //------------------------------------------------------------------------------
@@ -130,3 +131,4 @@ int vtkTreeAlgorithm::RequestData(vtkInformation* vtkNotUsed(request),
 {
   return 0;
 }
+VTK_ABI_NAMESPACE_END

@@ -15,6 +15,7 @@
 #include "vtkVoidArray.h"
 #include "vtkObjectFactory.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkVoidArray);
 vtkStandardExtendedNewMacro(vtkVoidArray);
 
@@ -176,3 +177,4 @@ void vtkVoidArray::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Array: (null)\n";
   }
 }
+VTK_ABI_NAMESPACE_END

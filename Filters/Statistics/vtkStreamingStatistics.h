@@ -37,6 +37,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkFiltersStatisticsModule.h" // For export macro
 #include "vtkTableAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataObjectCollection;
 class vtkMultiBlockDataSet;
 class vtkStatisticsAlgorithm;
@@ -91,4 +92,5 @@ private:
   vtkMultiBlockDataSet* InternalModel;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

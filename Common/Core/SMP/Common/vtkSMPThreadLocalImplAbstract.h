@@ -26,6 +26,7 @@ namespace detail
 {
 namespace smp
 {
+VTK_ABI_NAMESPACE_BEGIN
 
 template <typename T>
 class vtkSMPThreadLocalImplAbstract
@@ -71,8 +72,10 @@ class vtkSMPThreadLocalImpl : public vtkSMPThreadLocalImplAbstract<T>
 {
 };
 
+VTK_ABI_NAMESPACE_END
 } // namespace smp
 } // namespace detail
 } // namespace vtk
 
 #endif
+/* VTK-HeaderTest-Exclude: vtkSMPThreadLocalImplAbstract.h */

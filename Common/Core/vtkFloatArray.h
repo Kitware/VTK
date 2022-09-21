@@ -32,6 +32,7 @@
 #ifndef __VTK_WRAP__
 #define vtkDataArray vtkAOSDataArrayTemplate<float>
 #endif
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONCORE_EXPORT vtkFloatArray : public vtkDataArray
 {
 public:
@@ -83,4 +84,5 @@ private:
 // Define vtkArrayDownCast implementation:
 vtkArrayDownCast_FastCastMacro(vtkFloatArray);
 
+VTK_ABI_NAMESPACE_END
 #endif

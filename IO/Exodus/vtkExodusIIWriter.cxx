@@ -50,6 +50,7 @@
 #include <map>
 #include <sstream>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkObjectFactoryNewMacro(vtkExodusIIWriter);
 vtkCxxSetObjectMacro(vtkExodusIIWriter, ModelMetadata, vtkModelMetadata);
 
@@ -3293,3 +3294,4 @@ vtkIntArray* vtkExodusIIWriter::GetBlockIdArray(const char* name, vtkUnstructure
   }
   return nullptr;
 }
+VTK_ABI_NAMESPACE_END

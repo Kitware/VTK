@@ -23,6 +23,7 @@
 #include "vtkGenericEnSightReader.h"
 #include "vtkIOEnSightModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCollection;
 
 class VTKIOENSIGHT_EXPORT vtkEnSightMasterServerReader : public vtkGenericEnSightReader
@@ -72,4 +73,5 @@ private:
   void operator=(const vtkEnSightMasterServerReader&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

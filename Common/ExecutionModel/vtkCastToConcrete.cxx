@@ -23,6 +23,7 @@
 #include "vtkStructuredPoints.h"
 #include "vtkUnstructuredGrid.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkCastToConcrete);
 
 int vtkCastToConcrete::RequestData(vtkInformation* vtkNotUsed(request),
@@ -61,3 +62,4 @@ void vtkCastToConcrete::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

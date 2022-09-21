@@ -29,6 +29,7 @@
 #include "vtkIOImageModule.h" // For export macro
 #include "vtkImageWriter.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkUnsignedCharArray;
 
 class VTKIOIMAGE_EXPORT vtkBMPWriter : public vtkImageWriter
@@ -71,4 +72,5 @@ private:
   vtkUnsignedCharArray* Result;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

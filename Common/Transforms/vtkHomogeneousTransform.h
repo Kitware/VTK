@@ -29,6 +29,7 @@
 #include "vtkAbstractTransform.h"
 #include "vtkCommonTransformsModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkMatrix4x4;
 
 class VTKCOMMONTRANSFORMS_EXPORT vtkHomogeneousTransform : public vtkAbstractTransform
@@ -113,4 +114,5 @@ private:
   void operator=(const vtkHomogeneousTransform&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

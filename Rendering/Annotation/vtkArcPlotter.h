@@ -51,6 +51,7 @@
 #define VTK_PLOT_TENSORS 5
 #define VTK_PLOT_FIELD_DATA 6
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCamera;
 class vtkDataArray;
 class vtkPointData;
@@ -196,4 +197,5 @@ private:
   void operator=(const vtkArcPlotter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

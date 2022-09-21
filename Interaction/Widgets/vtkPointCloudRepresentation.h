@@ -31,6 +31,7 @@
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkWidgetRepresentation.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkActor;
 class vtkPolyDataMapper;
 class vtkOutlineFilter;
@@ -271,4 +272,5 @@ private:
   void operator=(const vtkPointCloudRepresentation&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

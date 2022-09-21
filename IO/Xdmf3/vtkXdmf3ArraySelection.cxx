@@ -17,6 +17,7 @@
 #include "vtkXdmf3ArraySelection.h"
 
 //==============================================================================
+VTK_ABI_NAMESPACE_BEGIN
 void vtkXdmf3ArraySelection::Merge(const vtkXdmf3ArraySelection& other)
 {
   vtkXdmf3ArraySelection::const_iterator iter = other.begin();
@@ -84,3 +85,4 @@ int vtkXdmf3ArraySelection::GetNumberOfArrays()
 {
   return static_cast<int>(this->size());
 }
+VTK_ABI_NAMESPACE_END

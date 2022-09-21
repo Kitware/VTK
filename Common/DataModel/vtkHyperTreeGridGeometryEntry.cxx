@@ -22,6 +22,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <cassert>
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkHyperTreeGridGeometryEntry::vtkHyperTreeGridGeometryEntry()
 {
   this->Index = 0;
@@ -214,3 +215,4 @@ void vtkHyperTreeGridGeometryEntry::ToChild(const vtkHyperTreeGrid* grid, const 
     }
   }
 }
+VTK_ABI_NAMESPACE_END

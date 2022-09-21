@@ -52,6 +52,7 @@
 
 #include <memory> // for unique_ptr
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataSet;
 class vtkHyperTreeGrid;
 class vtkIdList;
@@ -257,4 +258,5 @@ private:
   std::unique_ptr<vtkInternals> Internal;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

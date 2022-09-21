@@ -36,6 +36,7 @@
 #include "vtkAlgorithm.h"
 #include "vtkCommonExecutionModelModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataSet;
 class vtkMolecule;
 
@@ -122,4 +123,5 @@ private:
   void operator=(const vtkMoleculeAlgorithm&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

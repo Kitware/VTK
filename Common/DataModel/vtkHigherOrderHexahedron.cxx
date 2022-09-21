@@ -31,6 +31,7 @@
 #include "vtkVector.h"
 #include "vtkVectorOperators.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkHigherOrderHexahedron::vtkHigherOrderHexahedron()
 {
   this->Approx = nullptr;
@@ -783,3 +784,4 @@ const int* vtkHigherOrderHexahedron::GetOrder()
   }
   return this->Order;
 }
+VTK_ABI_NAMESPACE_END

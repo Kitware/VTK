@@ -24,6 +24,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <cassert>
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 void vtkHyperTreeGridGeometryLevelEntry::PrintSelf(ostream& os, vtkIndent indent)
 {
   os << indent << "--vtkHyperTreeGridGeometryLevelEntry--" << endl;
@@ -238,3 +239,4 @@ void vtkHyperTreeGridGeometryLevelEntry::GetPoint(double point[3]) const
   point[1] = this->Origin[1] + sizeChild[1] / 2.;
   point[2] = this->Origin[2] + sizeChild[2] / 2.;
 }
+VTK_ABI_NAMESPACE_END

@@ -28,6 +28,7 @@
 #include "vtkRenderer.h"
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkTensorProbeRepresentation::vtkTensorProbeRepresentation()
 {
   this->Trajectory = nullptr;
@@ -231,3 +232,4 @@ void vtkTensorProbeRepresentation::PrintSelf(ostream& os, vtkIndent indent)
      << "," << this->ProbePosition[2] << ")" << endl;
   os << indent << "ProbeCellId: " << this->ProbeCellId << endl;
 }
+VTK_ABI_NAMESPACE_END

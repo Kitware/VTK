@@ -32,12 +32,17 @@
 // If SMP backend is Sequential then fall back to vtkMultiThreader,
 // else enable the newer vtkSMPTools code path by default.
 #ifdef VTK_SMP_Sequential
+VTK_ABI_NAMESPACE_BEGIN
 bool vtkThreadedImageAlgorithm::GlobalDefaultEnableSMP = false;
+VTK_ABI_NAMESPACE_END
 #else
+VTK_ABI_NAMESPACE_BEGIN
 bool vtkThreadedImageAlgorithm::GlobalDefaultEnableSMP = true;
+VTK_ABI_NAMESPACE_END
 #endif
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkThreadedImageAlgorithm::vtkThreadedImageAlgorithm()
 {
   this->Threader = vtkMultiThreader::New();
@@ -669,3 +674,4 @@ void vtkThreadedImageAlgorithm::ThreadedExecute(
   (void)threadId;
   vtkErrorMacro("Subclass should override this method!!!");
 }
+VTK_ABI_NAMESPACE_END

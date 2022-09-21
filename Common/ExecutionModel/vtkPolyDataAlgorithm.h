@@ -35,6 +35,7 @@
 #include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkPolyData.h"                   // makes things a bit easier
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataSet;
 class vtkPolyData;
 
@@ -116,4 +117,5 @@ private:
   void operator=(const vtkPolyDataAlgorithm&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

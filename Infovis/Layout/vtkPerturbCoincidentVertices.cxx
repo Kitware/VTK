@@ -37,6 +37,7 @@
 
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPerturbCoincidentVertices);
 //------------------------------------------------------------------------------
 vtkPerturbCoincidentVertices::vtkPerturbCoincidentVertices()
@@ -313,3 +314,4 @@ void vtkPerturbCoincidentVertices::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
   os << indent << "PerturbFactor: " << this->PerturbFactor << "\n";
 }
+VTK_ABI_NAMESPACE_END

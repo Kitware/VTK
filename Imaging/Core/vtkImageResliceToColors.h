@@ -34,6 +34,7 @@
 #include "vtkImageReslice.h"
 #include "vtkImagingCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkScalarsToColors;
 
 class VTKIMAGINGCORE_EXPORT vtkImageResliceToColors : public vtkImageReslice
@@ -103,4 +104,5 @@ private:
   void operator=(const vtkImageResliceToColors&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

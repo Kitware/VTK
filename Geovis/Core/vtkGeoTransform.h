@@ -31,6 +31,7 @@
 #include "vtkAbstractTransform.h"
 #include "vtkGeovisCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkGeoProjection;
 
 class VTKGEOVISCORE_EXPORT vtkGeoTransform : public vtkAbstractTransform
@@ -119,4 +120,5 @@ private:
   void operator=(const vtkGeoTransform&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkGeoTransform_h

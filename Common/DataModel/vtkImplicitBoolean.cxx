@@ -19,6 +19,7 @@
 
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImplicitBoolean);
 
 // Construct with union operation.
@@ -258,3 +259,4 @@ void vtkImplicitBoolean::PrintSelf(ostream& os, vtkIndent indent)
     os << "VTK_DIFFERENCE\n";
   }
 }
+VTK_ABI_NAMESPACE_END

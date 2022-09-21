@@ -66,6 +66,7 @@
 
 //------------------------------------------------------------------------------
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkMySQLBoundParameter
 {
 public:
@@ -1117,3 +1118,4 @@ bool vtkMySQLQuery::ClearParameterBindings()
   this->Internals->FreeBoundParameters();
   return true;
 }
+VTK_ABI_NAMESPACE_END

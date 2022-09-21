@@ -35,6 +35,7 @@
 #include "vtkTable.h"
 #include "vtkUnsignedCharArray.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkApplyColors);
 vtkCxxSetObjectMacro(vtkApplyColors, PointLookupTable, vtkScalarsToColors);
 vtkCxxSetObjectMacro(vtkApplyColors, CellLookupTable, vtkScalarsToColors);
@@ -487,3 +488,4 @@ void vtkApplyColors::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "UseCurrentAnnotationColor: " << (this->UseCurrentAnnotationColor ? "on" : "off")
      << endl;
 }
+VTK_ABI_NAMESPACE_END

@@ -31,6 +31,7 @@
 #include "vtkImageAlgorithm.h"
 #include "vtkImagingStencilModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKIMAGINGSTENCIL_EXPORT vtkImageStencilToImage : public vtkImageAlgorithm
 {
 public:
@@ -91,4 +92,5 @@ private:
   void operator=(const vtkImageStencilToImage&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -29,6 +29,7 @@
 #include "vtkSphereSource.h"
 #include "vtkWindow.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkLightRepresentation);
 
 //------------------------------------------------------------------------------
@@ -433,3 +434,4 @@ void vtkLightRepresentation::ScaleConeAngle(double* pickPoint, double* lastPickP
   // Store the last scaling squared distance
   this->LastScalingDistance2 = distance2;
 }
+VTK_ABI_NAMESPACE_END

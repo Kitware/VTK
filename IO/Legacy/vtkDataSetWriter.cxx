@@ -30,6 +30,7 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtkUnstructuredGridWriter.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkDataSetWriter);
 
 void vtkDataSetWriter::WriteData()
@@ -128,3 +129,4 @@ void vtkDataSetWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

@@ -24,6 +24,7 @@
 
 #include <vtksys/SystemTools.hxx>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOpenVRRenderWindowInteractor);
 
 //------------------------------------------------------------------------------
@@ -397,3 +398,4 @@ bool GetDigitalActionState(
   }
   return actionData.bActive && actionData.bState;
 }
+VTK_ABI_NAMESPACE_END

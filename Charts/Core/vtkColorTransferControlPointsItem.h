@@ -31,6 +31,7 @@
 #include "vtkChartsCoreModule.h" // For export macro
 #include "vtkControlPointsItem.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkColorTransferFunction;
 
 class VTKCHARTSCORE_EXPORT vtkColorTransferControlPointsItem : public vtkControlPointsItem
@@ -126,4 +127,5 @@ private:
   void operator=(const vtkColorTransferControlPointsItem&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

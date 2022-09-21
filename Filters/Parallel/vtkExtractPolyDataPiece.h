@@ -24,6 +24,7 @@
 #include "vtkFiltersParallelModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkIdList;
 class vtkIntArray;
 
@@ -64,4 +65,5 @@ private:
   void operator=(const vtkExtractPolyDataPiece&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

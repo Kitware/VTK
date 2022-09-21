@@ -39,6 +39,7 @@
 #include "vtkIOODBCModule.h" // For export macro
 #include "vtkSQLQuery.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkODBCDatabase;
 class vtkVariant;
 class vtkVariantArray;
@@ -197,4 +198,5 @@ private:
   char* LastErrorText;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkODBCQuery_h

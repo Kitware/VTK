@@ -53,11 +53,11 @@
 #include <vtksys/FStream.hxx>
 
 using namespace nlohmann;
-
 using RegionType = std::array<int, 6>;
 
 namespace
 {
+VTK_ABI_NAMESPACE_BEGIN
 constexpr double MIN_ERROR = 20;
 
 //------------------------------------------------------------------------------
@@ -293,7 +293,10 @@ struct InitializeWorker
 std::array<std::string, 3> BuildingsContentTypeExtension = { ".b3dm", ".glb" };
 std::array<std::string, 3> PointsContentTypeExtension = { ".pnts", ".glb" };
 
+VTK_ABI_NAMESPACE_END
 }
+
+VTK_ABI_NAMESPACE_BEGIN
 
 //------------------------------------------------------------------------------
 TreeInformation::TreeInformation(vtkIncrementalOctreeNode* root, int numberOfNodes,
@@ -1323,3 +1326,4 @@ std::array<double, 6> TreeInformation::ExpandBounds(double* first, double* secon
     std::min(first[2], second[2]), std::max(first[3], second[3]), std::min(first[4], second[4]),
     std::max(first[5], second[5]) };
 }
+VTK_ABI_NAMESPACE_END

@@ -44,6 +44,7 @@
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkObject.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkRenderer;
 
 class VTKINTERACTIONWIDGETS_EXPORT vtkPointPlacer : public vtkObject
@@ -158,4 +159,5 @@ private:
   void operator=(const vtkPointPlacer&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

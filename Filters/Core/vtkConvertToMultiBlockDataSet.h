@@ -32,6 +32,7 @@
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkMultiBlockDataSetAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSCORE_EXPORT vtkConvertToMultiBlockDataSet : public vtkMultiBlockDataSetAlgorithm
 {
 public:
@@ -52,4 +53,5 @@ private:
   void operator=(const vtkConvertToMultiBlockDataSet&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

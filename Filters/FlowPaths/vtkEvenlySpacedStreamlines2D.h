@@ -95,6 +95,7 @@
 #include <array>  // for std::array
 #include <vector> // for std::vector
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkAbstractInterpolatedVelocityField;
 class vtkCompositeDataSet;
 class vtkDataArray;
@@ -383,4 +384,5 @@ private:
   void operator=(const vtkEvenlySpacedStreamlines2D&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

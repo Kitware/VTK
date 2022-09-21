@@ -40,6 +40,7 @@
 
 #include <cassert>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkSPHInterpolator);
 vtkCxxSetObjectMacro(vtkSPHInterpolator, Locator, vtkAbstractPointLocator);
 vtkCxxSetObjectMacro(vtkSPHInterpolator, Kernel, vtkSPHKernel);
@@ -575,3 +576,4 @@ void vtkSPHInterpolator::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Shepard Normalization: " << (this->ShepardNormalization ? "On" : " Off") << "\n";
 }
+VTK_ABI_NAMESPACE_END

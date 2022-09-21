@@ -28,6 +28,7 @@
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkPassInputTypeAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSGENERAL_EXPORT vtkCountFaces : public vtkPassInputTypeAlgorithm
 {
 public:
@@ -60,4 +61,5 @@ private:
   void operator=(const vtkCountFaces&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkCountFaces_h

@@ -23,6 +23,7 @@
 #include "vtkUnstructuredGrid.h"
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkExtractSelectionBase::vtkExtractSelectionBase()
 {
   this->PreserveTopology = 0;
@@ -122,3 +123,4 @@ void vtkExtractSelectionBase::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
   os << indent << "PreserveTopology: " << this->PreserveTopology << endl;
 }
+VTK_ABI_NAMESPACE_END

@@ -25,6 +25,7 @@
 
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOpenVRCamera);
 
 vtkOpenVRCamera::vtkOpenVRCamera() = default;
@@ -194,3 +195,4 @@ void vtkOpenVRCamera::Render(vtkRenderer* ren)
 
   vtkOpenGLCheckErrorMacro("failed after Render");
 }
+VTK_ABI_NAMESPACE_END

@@ -30,6 +30,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <cmath>
 #include <sstream>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkSDL2OpenGLRenderWindow);
 
 const std::string vtkSDL2OpenGLRenderWindow::DEFAULT_BASE_WINDOW_NAME =
@@ -382,3 +383,4 @@ void vtkSDL2OpenGLRenderWindow::ShowCursor()
 {
   SDL_ShowCursor(SDL_ENABLE);
 }
+VTK_ABI_NAMESPACE_END

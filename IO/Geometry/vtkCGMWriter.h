@@ -41,6 +41,7 @@
 #include "vtkIOGeometryModule.h" // For export macro
 #include "vtkPolyDataWriter.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkViewport;
 
 #define VTK_COLOR_MODE_DEFAULT 0
@@ -136,4 +137,5 @@ private:
   void operator=(const vtkCGMWriter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

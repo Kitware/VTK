@@ -32,6 +32,7 @@
 #include <sstream>
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPlotRangeHandlesItem);
 
 //------------------------------------------------------------------------------
@@ -634,3 +635,4 @@ void vtkPlotRangeHandlesItem::SetCursor(int cursor)
     }
   }
 }
+VTK_ABI_NAMESPACE_END

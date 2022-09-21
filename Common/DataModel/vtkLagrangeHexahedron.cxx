@@ -31,6 +31,7 @@
 #include "vtkVector.h"
 #include "vtkVectorOperators.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkLagrangeHexahedron);
 
 vtkLagrangeHexahedron::vtkLagrangeHexahedron() = default;
@@ -136,3 +137,4 @@ vtkHigherOrderInterpolation* vtkLagrangeHexahedron::GetInterpolation()
 {
   return Interp;
 };
+VTK_ABI_NAMESPACE_END

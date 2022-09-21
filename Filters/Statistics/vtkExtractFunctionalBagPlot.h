@@ -33,6 +33,7 @@
 #include "vtkFiltersStatisticsModule.h" // For export macro
 #include "vtkTableAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSSTATISTICS_EXPORT vtkExtractFunctionalBagPlot : public vtkTableAlgorithm
 {
 public:
@@ -68,4 +69,5 @@ private:
   void operator=(const vtkExtractFunctionalBagPlot&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkExtractFunctionalBagPlot_h

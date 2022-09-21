@@ -26,6 +26,7 @@
 #include "vtkFiltersSourcesModule.h" // For export macro
 #include "vtkOutlineSource.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSSOURCES_EXPORT vtkOutlineCornerSource : public vtkOutlineSource
 {
 public:
@@ -59,4 +60,5 @@ private:
   void operator=(const vtkOutlineCornerSource&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

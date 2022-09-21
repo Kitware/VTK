@@ -28,6 +28,7 @@
 #include <cassert>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 static inline void vtkMPICommunicatorDebugBarrier(MPI_Comm* handle)
 {
   // If NDEBUG is defined, do nothing.
@@ -56,7 +57,7 @@ MPI_Comm* vtkMPICommunicatorOpaqueComm::GetHandle()
 // This MPI error handler basically does the same thing as the default error
 // handler, but also provides a convenient place to attach a debugger
 // breakpoint.
-extern "C" void vtkMPICommunicatorMPIErrorHandler(MPI_Comm* comm, int* errorcode, ...)
+static void vtkMPICommunicatorMPIErrorHandler(MPI_Comm* comm, int* errorcode, ...)
 {
   char ErrorMessage[MPI_MAX_ERROR_STRING];
   int len;
@@ -349,10 +350,10 @@ int vtkMPICommunicatorIprobe(int source, int tag, int* flag, int* actualSource,
 // with the __stdcall decoration.
 static vtkCommunicator::Operation* CurrentOperation;
 #ifdef MPIAPI
-extern "C" void MPIAPI vtkMPICommunicatorUserFunction(
+static void MPIAPI vtkMPICommunicatorUserFunction(
   void* invec, void* inoutvec, int* len, MPI_Datatype* datatype)
 #else
-extern "C" void vtkMPICommunicatorUserFunction(
+static void vtkMPICommunicatorUserFunction(
   void* invec, void* inoutvec, int* len, MPI_Datatype* datatype)
 #endif
 {
@@ -1579,3 +1580,4 @@ int vtkMPICommunicator::Iprobe(
   return CheckForMPIError(vtkMPICommunicatorIprobe(
     source, tag, flag, actualSource, MPI_DOUBLE, size, this->MPIComm->Handle));
 }
+VTK_ABI_NAMESPACE_END

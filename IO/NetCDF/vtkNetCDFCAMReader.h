@@ -31,6 +31,7 @@
 #include "vtkIONetCDFModule.h" // For export macro
 #include "vtkUnstructuredGridAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCallbackCommand;
 class vtkDataArraySelection;
 
@@ -178,4 +179,5 @@ private:
   Internal* Internals;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

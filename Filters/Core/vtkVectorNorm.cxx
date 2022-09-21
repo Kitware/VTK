@@ -27,6 +27,7 @@
 
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkVectorNorm);
 
 namespace
@@ -237,3 +238,4 @@ void vtkVectorNorm::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Normalize: " << (this->Normalize ? "On\n" : "Off\n");
   os << indent << "Attribute Mode: " << this->GetAttributeModeAsString() << endl;
 }
+VTK_ABI_NAMESPACE_END

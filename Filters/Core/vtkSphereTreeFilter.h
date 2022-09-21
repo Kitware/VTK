@@ -49,6 +49,7 @@
 #define VTK_SPHERE_TREE_LINE 2
 #define VTK_SPHERE_TREE_PLANE 3
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkSphereTree;
 
 class VTKFILTERSCORE_EXPORT vtkSphereTreeFilter : public vtkPolyDataAlgorithm
@@ -169,4 +170,5 @@ private:
   void operator=(const vtkSphereTreeFilter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -29,6 +29,7 @@
 
 #include "vtkHyperTreeGridNonOrientedGeometryCursor.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkHyperTreeGridCellCenters);
 
 //------------------------------------------------------------------------------
@@ -241,3 +242,4 @@ void vtkHyperTreeGridCellCenters::RecursivelyProcessTree(
     } // child
   }   // else
 }
+VTK_ABI_NAMESPACE_END

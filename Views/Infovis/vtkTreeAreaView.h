@@ -43,6 +43,7 @@
 #include "vtkRenderView.h"
 #include "vtkViewsInfovisModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkAreaLayoutStrategy;
 class vtkGraph;
 class vtkLabeledDataMapper;
@@ -261,4 +262,5 @@ private:
   void operator=(const vtkTreeAreaView&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

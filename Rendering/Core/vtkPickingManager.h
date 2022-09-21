@@ -73,6 +73,7 @@
 #include "vtkObject.h"
 #include "vtkRenderingCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkAbstractPicker;
 class vtkAbstractPropPicker;
 class vtkAssemblyPath;
@@ -203,4 +204,5 @@ private:
   vtkInternal* Internal;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

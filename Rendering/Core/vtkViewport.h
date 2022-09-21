@@ -40,6 +40,7 @@
 
 #include <array> // To store matrices
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkActor2DCollection;
 class vtkAssemblyPath;
 class vtkProp;
@@ -470,4 +471,5 @@ private:
   void operator=(const vtkViewport&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

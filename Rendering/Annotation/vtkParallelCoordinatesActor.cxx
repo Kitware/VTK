@@ -27,6 +27,7 @@
 #include "vtkViewport.h"
 #include "vtkWindow.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkParallelCoordinatesActor);
 
 vtkCxxSetObjectMacro(vtkParallelCoordinatesActor, LabelTextProperty, vtkTextProperty);
@@ -629,3 +630,4 @@ void vtkParallelCoordinatesActor::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Label Format: " << this->LabelFormat << "\n";
 }
+VTK_ABI_NAMESPACE_END

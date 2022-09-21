@@ -28,6 +28,7 @@
 
 namespace fromvtkm
 {
+VTK_ABI_NAMESPACE_BEGIN
 
 namespace
 {
@@ -212,4 +213,5 @@ vtkPoints* Convert(const vtkm::cont::CoordinateSystem& input)
   return points;
 }
 
+VTK_ABI_NAMESPACE_END
 }

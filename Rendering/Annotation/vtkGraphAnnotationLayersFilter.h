@@ -53,6 +53,7 @@
 #include "vtkRenderingAnnotationModule.h" // For export macro
 #include "vtkSmartPointer.h"              // needed for ivars
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkAppendPolyData;
 class vtkConvexHull2D;
 class vtkRenderer;
@@ -133,4 +134,5 @@ private:
   vtkSmartPointer<vtkConvexHull2D> ConvexHullFilter;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkGraphAnnotationLayersFilter_h

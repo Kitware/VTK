@@ -42,6 +42,7 @@
 //============================================================================
 namespace parser
 {
+VTK_ABI_NAMESPACE_BEGIN
 class Node
 {
 public:
@@ -168,8 +169,10 @@ public:
     os << ")";
   }
 };
+VTK_ABI_NAMESPACE_END
 } // namespace parser
 
+VTK_ABI_NAMESPACE_BEGIN
 //============================================================================
 class vtkSelection::vtkInternals
 {
@@ -793,3 +796,4 @@ void vtkSelection::Dump(ostream& os)
     }
   }
 }
+VTK_ABI_NAMESPACE_END

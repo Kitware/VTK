@@ -26,6 +26,7 @@
 #include <utility>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkLabelHierarchyCompositeIterator);
 
 class vtkLabelHierarchyCompositeIterator::Internal
@@ -168,3 +169,4 @@ void vtkLabelHierarchyCompositeIterator::PrintSelf(ostream& os, vtkIndent indent
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

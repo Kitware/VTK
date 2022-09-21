@@ -22,6 +22,7 @@
 
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImageEuclideanDistance);
 
 //------------------------------------------------------------------------------
@@ -736,3 +737,4 @@ void vtkImageEuclideanDistance::PrintSelf(ostream& os, vtkIndent indent)
     os << "Saito Cached\n";
   }
 }
+VTK_ABI_NAMESPACE_END

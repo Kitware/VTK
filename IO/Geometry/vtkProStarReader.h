@@ -30,6 +30,7 @@
 #include "vtkIOGeometryModule.h" // For export macro
 #include "vtkUnstructuredGridAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKIOGEOMETRY_EXPORT vtkProStarReader : public vtkUnstructuredGridAlgorithm
 {
 public:
@@ -118,4 +119,5 @@ private:
   vtkProStarReader(const vtkProStarReader&) = delete;
   void operator=(const vtkProStarReader&) = delete;
 };
+VTK_ABI_NAMESPACE_END
 #endif

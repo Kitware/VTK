@@ -15,6 +15,7 @@
 #include "vtkStructuredPointsGeometryFilter.h"
 #include "vtkObjectFactory.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkStructuredPointsGeometryFilter);
 
 void vtkStructuredPointsGeometryFilter::PrintSelf(ostream& os, vtkIndent indent)
@@ -29,3 +30,4 @@ vtkStructuredPointsGeometryFilter::vtkStructuredPointsGeometryFilter()
     << "the next release after VTK 4.0. Please use" << endl
     << "vtkImageDataGeometryFilter instead");
 }
+VTK_ABI_NAMESPACE_END

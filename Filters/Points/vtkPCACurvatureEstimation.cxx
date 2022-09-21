@@ -27,6 +27,7 @@
 #include "vtkSMPTools.h"
 #include "vtkStaticPointLocator.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPCACurvatureEstimation);
 vtkCxxSetObjectMacro(vtkPCACurvatureEstimation, Locator, vtkAbstractPointLocator);
 
@@ -239,3 +240,4 @@ void vtkPCACurvatureEstimation::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Sample Size: " << this->SampleSize << "\n";
   os << indent << "Locator: " << this->Locator << "\n";
 }
+VTK_ABI_NAMESPACE_END

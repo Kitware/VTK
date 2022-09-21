@@ -34,6 +34,7 @@
 #include "vtkTessellatorFilter.h"
 #include "vtkUnstructuredGrid.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkTessellatorFilter);
 
 namespace
@@ -1694,3 +1695,4 @@ int vtkTessellatorFilter::FillInputPortInformation(int vtkNotUsed(port), vtkInfo
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
   return 1;
 }
+VTK_ABI_NAMESPACE_END

@@ -26,6 +26,7 @@
 #include "vtkContourGrid.h"
 #include "vtkFiltersSMPModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSSMP_EXPORT vtkSMPContourGrid : public vtkContourGrid
 {
 public:
@@ -74,4 +75,5 @@ private:
   void operator=(const vtkSMPContourGrid&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

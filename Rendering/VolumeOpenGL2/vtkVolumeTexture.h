@@ -75,6 +75,7 @@
 #include "vtkTimeStamp.h"                    // For UploadTime
 #include "vtkTuple.h"                        // For Size6 and Size3
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataArray;
 class vtkDataSet;
 class vtkImageData;
@@ -304,4 +305,5 @@ private:
   vtkDataArray* Scalars;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkVolumeTexture_h

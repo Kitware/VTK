@@ -29,6 +29,7 @@
 #include "vtkIOImageModule.h" // For export macro
 #include "vtkImageReader2.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKIOIMAGE_EXPORT vtkPNGReader : public vtkImageReader2
 {
 public:
@@ -104,4 +105,5 @@ private:
   vtkInternals* Internals;
   bool ReadSpacingFromFile;
 };
+VTK_ABI_NAMESPACE_END
 #endif

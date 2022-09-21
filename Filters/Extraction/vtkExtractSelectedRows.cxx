@@ -50,6 +50,7 @@
 #include <map>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkExtractSelectedRows);
 //------------------------------------------------------------------------------
 vtkExtractSelectedRows::vtkExtractSelectedRows()
@@ -241,3 +242,4 @@ void vtkExtractSelectedRows::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
   os << indent << "AddOriginalRowIdsArray: " << this->AddOriginalRowIdsArray << endl;
 }
+VTK_ABI_NAMESPACE_END

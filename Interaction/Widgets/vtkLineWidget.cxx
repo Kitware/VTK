@@ -36,6 +36,7 @@
 #include "vtkRenderer.h"
 #include "vtkSphereSource.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkLineWidget);
 
 //------------------------------------------------------------------------------
@@ -1095,3 +1096,4 @@ void vtkLineWidget::GetPolyData(vtkPolyData* pd)
 {
   pd->ShallowCopy(this->LineSource->GetOutput());
 }
+VTK_ABI_NAMESPACE_END

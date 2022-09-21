@@ -68,6 +68,7 @@ POSSIBILITY OF SUCH DAMAGES.
 #include "vtkIOMINCModule.h" // For export macro
 #include "vtkWriter.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkMapper;
 class vtkProperty;
 class vtkLookupTable;
@@ -189,4 +190,5 @@ private:
   void operator=(const vtkMNIObjectWriter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

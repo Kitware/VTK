@@ -17,6 +17,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkProgressBarRepresentation.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkProgressBarWidget);
 
 //------------------------------------------------------------------------------
@@ -42,3 +43,4 @@ void vtkProgressBarWidget::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

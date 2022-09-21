@@ -33,6 +33,7 @@
 #include "vtkImageViewer2.h"
 #include "vtkInteractionImageModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkResliceCursorWidget;
 class vtkResliceCursor;
 class vtkScalarsToColors;
@@ -220,4 +221,5 @@ private:
   void operator=(const vtkResliceImageViewer&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

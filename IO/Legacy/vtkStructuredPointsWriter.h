@@ -28,6 +28,7 @@
 #include "vtkDataWriter.h"
 #include "vtkIOLegacyModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkImageData;
 
 class VTKIOLEGACY_EXPORT vtkStructuredPointsWriter : public vtkDataWriter
@@ -76,4 +77,5 @@ private:
   void operator=(const vtkStructuredPointsWriter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

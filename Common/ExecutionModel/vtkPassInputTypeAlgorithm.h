@@ -37,6 +37,7 @@
 #include "vtkAlgorithm.h"
 #include "vtkCommonExecutionModelModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataObject;
 class vtkGraph;
 class vtkHyperTreeGrid;
@@ -197,4 +198,5 @@ private:
   void operator=(const vtkPassInputTypeAlgorithm&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -29,6 +29,7 @@
 #include <openvr.h>   // for ivar
 #include <string>     // for ivar
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKRENDERINGOPENVR_EXPORT vtkOpenVRRenderWindowInteractor : public vtkVRRenderWindowInteractor
 {
 public:
@@ -91,4 +92,5 @@ private:
   void operator=(const vtkOpenVRRenderWindowInteractor&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

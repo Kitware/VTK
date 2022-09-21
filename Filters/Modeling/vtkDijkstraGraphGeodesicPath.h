@@ -42,6 +42,7 @@
 #include "vtkFiltersModelingModule.h" // For export macro
 #include "vtkGraphGeodesicPath.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDijkstraGraphInternals;
 class vtkIdList;
 
@@ -161,4 +162,5 @@ private:
   void operator=(const vtkDijkstraGraphGeodesicPath&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

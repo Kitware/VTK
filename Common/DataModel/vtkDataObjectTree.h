@@ -36,6 +36,7 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkCompositeDataSet.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCompositeDataIterator;
 class vtkDataObjectTreeIterator;
 class vtkDataObjectTreeInternals;
@@ -224,4 +225,5 @@ private:
   void operator=(const vtkDataObjectTree&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

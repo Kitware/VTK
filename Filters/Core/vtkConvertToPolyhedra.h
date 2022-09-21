@@ -42,6 +42,7 @@
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkUnstructuredGridAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSCORE_EXPORT vtkConvertToPolyhedra : public vtkUnstructuredGridAlgorithm
 {
 public:
@@ -84,4 +85,5 @@ private:
   void operator=(const vtkConvertToPolyhedra&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

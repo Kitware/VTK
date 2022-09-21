@@ -33,6 +33,7 @@
 #include <cmath>     // for std::abs() with float overloads
 #include <cstdlib>   // for std::abs() with int overloads
 
+VTK_ABI_NAMESPACE_BEGIN
 template <typename T, int Size>
 class vtkTuple
 {
@@ -229,5 +230,6 @@ bool operator!=(const vtkTuple<A, Size>& t1, const vtkTuple<A, Size>& t2)
   return !(t1 == t2);
 }
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkTuple_h
 // VTK-HeaderTest-Exclude: vtkTuple.h

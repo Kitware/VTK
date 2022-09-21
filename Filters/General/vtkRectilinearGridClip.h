@@ -34,6 +34,7 @@
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkRectilinearGridAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSGENERAL_EXPORT vtkRectilinearGridClip : public vtkRectilinearGridAlgorithm
 {
 public:
@@ -86,4 +87,5 @@ private:
   void operator=(const vtkRectilinearGridClip&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -33,6 +33,7 @@
 #include "vtkVolumeReader.h"
 #include <vtksys/SystemTools.hxx>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkSliceCubes);
 
 vtkCxxSetObjectMacro(vtkSliceCubes, Reader, vtkVolumeReader);
@@ -621,3 +622,4 @@ void vtkSliceCubes::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Limits File Name: " << (this->LimitsFileName ? this->LimitsFileName : "(none)")
      << "\n";
 }
+VTK_ABI_NAMESPACE_END

@@ -23,6 +23,7 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkReverseSense);
 
 // Construct object so that behavior is to reverse cell ordering and
@@ -164,3 +165,4 @@ void vtkReverseSense::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Reverse Cells: " << (this->ReverseCells ? "On\n" : "Off\n");
   os << indent << "Reverse Normals: " << (this->ReverseNormals ? "On\n" : "Off\n");
 }
+VTK_ABI_NAMESPACE_END

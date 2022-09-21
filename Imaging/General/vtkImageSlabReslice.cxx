@@ -20,6 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImageSlabReslice);
 
 //------------------------------------------------------------------------------
@@ -73,3 +74,4 @@ void vtkImageSlabReslice::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "SlabThickness (world units): " << this->SlabThickness << endl;
   os << indent << "Max Number of slices blended: " << this->NumBlendSamplePoints << endl;
 }
+VTK_ABI_NAMESPACE_END

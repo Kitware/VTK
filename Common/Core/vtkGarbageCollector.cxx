@@ -36,6 +36,7 @@
 
 #include <cassert>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkGarbageCollector);
 
 #if VTK_GARBAGE_COLLECTOR_HASH
@@ -1065,3 +1066,4 @@ void vtkGarbageCollectorReport(
 {
   ptr.Report(collector, desc);
 }
+VTK_ABI_NAMESPACE_END

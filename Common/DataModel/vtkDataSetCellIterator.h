@@ -25,6 +25,7 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkSmartPointer.h"          // For vtkSmartPointer
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataSet;
 
 class VTKCOMMONDATAMODEL_EXPORT vtkDataSetCellIterator : public vtkCellIterator
@@ -58,4 +59,5 @@ private:
   void operator=(const vtkDataSetCellIterator&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkDataSetCellIterator_h

@@ -27,6 +27,7 @@
 #include "RTWrapper/RTWrapper.h"
 
 //============================================================================
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOSPRayCameraNode);
 
 //------------------------------------------------------------------------------
@@ -153,3 +154,4 @@ void vtkOSPRayCameraNode::Render(bool prepass)
     this->oCamera = ospCamera;
   }
 }
+VTK_ABI_NAMESPACE_END

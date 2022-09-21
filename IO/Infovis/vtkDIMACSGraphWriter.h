@@ -50,6 +50,7 @@
 #include "vtkDataWriter.h"
 #include "vtkIOInfovisModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkGraph;
 
 class VTKIOINFOVIS_EXPORT vtkDIMACSGraphWriter : public vtkDataWriter
@@ -80,4 +81,5 @@ private:
   void operator=(const vtkDIMACSGraphWriter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

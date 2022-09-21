@@ -40,6 +40,7 @@
 #include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkTree.h"                       // makes things a bit easier
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataSet;
 
 class VTKCOMMONEXECUTIONMODEL_EXPORT vtkTreeAlgorithm : public vtkAlgorithm
@@ -99,4 +100,5 @@ private:
   void operator=(const vtkTreeAlgorithm&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

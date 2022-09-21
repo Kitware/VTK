@@ -23,6 +23,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include <vtksys/SystemTools.hxx>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkDEMReader);
 
 #define VTK_SW 0
@@ -637,3 +638,4 @@ void vtkDEMReader::PrintSelf(ostream& os, vtkIndent indent)
        << this->ProfileDimension[1] << "\n";
   }
 }
+VTK_ABI_NAMESPACE_END

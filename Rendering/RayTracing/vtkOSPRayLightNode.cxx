@@ -29,6 +29,7 @@
 
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkInformationKeyMacro(vtkOSPRayLightNode, IS_AMBIENT, Integer);
 vtkInformationKeyMacro(vtkOSPRayLightNode, RADIUS, Double);
 
@@ -279,3 +280,4 @@ void vtkOSPRayLightNode::Render(bool prepass)
     this->OLight = ospLight;
   }
 }
+VTK_ABI_NAMESPACE_END

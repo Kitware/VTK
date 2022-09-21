@@ -18,6 +18,7 @@
 #include "vtkRenderingOpenGL2Module.h" // for export macro
 #include "vtkWeakPointer.h"            // For vtkWeakPointer
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkOpenGLVertexBufferObjectCache;
 
 /**
@@ -208,4 +209,5 @@ private:
   static vtkTypeBool GlobalCoordShiftAndScaleEnabled;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

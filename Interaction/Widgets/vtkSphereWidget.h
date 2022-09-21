@@ -57,6 +57,7 @@
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkSphereSource.h"             // Needed for faster access to the sphere source
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkActor;
 class vtkPolyDataMapper;
 class vtkPoints;
@@ -298,4 +299,5 @@ private:
   void operator=(const vtkSphereWidget&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

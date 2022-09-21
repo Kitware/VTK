@@ -25,6 +25,7 @@
 #include <numeric>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkSphericalPointIterator);
 
 //=============================================================================
@@ -616,3 +617,4 @@ void vtkSphericalPointIterator::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Axes: " << this->Axes << "\n";
   os << indent << "Sorting: " << this->Sorting << "\n";
 }
+VTK_ABI_NAMESPACE_END

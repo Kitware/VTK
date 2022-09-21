@@ -34,6 +34,7 @@
 #include "vtkIOExportModule.h" // For export macro
 #include <vector>              // for method args
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkActor;
 class vtkPolyData;
 class vtkTexture;
@@ -93,4 +94,5 @@ private:
   void operator=(const vtkSingleVTPExporter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

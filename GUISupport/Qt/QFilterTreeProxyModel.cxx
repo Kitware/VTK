@@ -20,6 +20,7 @@
 
 #include "QFilterTreeProxyModel.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 QFilterTreeProxyModel::QFilterTreeProxyModel(QObject* p)
   : QSortFilterProxyModel(p)
 {
@@ -72,3 +73,4 @@ bool QFilterTreeProxyModel::lessThan(const QModelIndex& left, const QModelIndex&
 
   return QString::localeAwareCompare(leftString, rightString) < 0;
 }
+VTK_ABI_NAMESPACE_END

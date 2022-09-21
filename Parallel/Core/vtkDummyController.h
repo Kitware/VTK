@@ -29,6 +29,7 @@
 #include "vtkMultiProcessController.h"
 #include "vtkParallelCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKPARALLELCORE_EXPORT vtkDummyController : public vtkMultiProcessController
 {
 public:
@@ -83,4 +84,5 @@ private:
   void operator=(const vtkDummyController&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

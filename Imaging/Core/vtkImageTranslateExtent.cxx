@@ -21,6 +21,7 @@
 #include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImageTranslateExtent);
 
 //------------------------------------------------------------------------------
@@ -122,3 +123,4 @@ int vtkImageTranslateExtent::RequestUpdateExtent(vtkInformation* vtkNotUsed(requ
 
   return 1;
 }
+VTK_ABI_NAMESPACE_END

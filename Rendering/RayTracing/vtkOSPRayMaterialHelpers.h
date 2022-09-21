@@ -36,11 +36,14 @@
 
 #include "RTWrapper/RTWrapper.h" // for handle types
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkImageData;
 class vtkOSPRayRendererNode;
+VTK_ABI_NAMESPACE_END
 
 namespace vtkOSPRayMaterialHelpers
 {
+VTK_ABI_NAMESPACE_BEGIN
 
 /**
  * Helper function to make a 2d OSPRay Texture.
@@ -74,6 +77,7 @@ OSPMaterial MakeMaterial(vtkOSPRayRendererNode* orn, OSPRenderer oRenderer, std:
  */
 OSPMaterial NewMaterial(vtkOSPRayRendererNode* orn, OSPRenderer oRenderer, std::string ospMatName);
 
+VTK_ABI_NAMESPACE_END
 }
 #endif
 // VTK-HeaderTest-Exclude: vtkOSPRayMaterialHelpers.h

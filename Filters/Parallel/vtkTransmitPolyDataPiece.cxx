@@ -24,6 +24,7 @@
 #include "vtkPolyData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkTransmitPolyDataPiece);
 
 vtkCxxSetObjectMacro(vtkTransmitPolyDataPiece, Controller, vtkMultiProcessController);
@@ -147,3 +148,4 @@ void vtkTransmitPolyDataPiece::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Controller: (" << this->Controller << ")\n";
 }
+VTK_ABI_NAMESPACE_END

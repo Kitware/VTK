@@ -52,6 +52,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include "vtkTreeAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKINFOVISBOOSTGRAPHALGORITHMS_EXPORT vtkBoostPrimMinimumSpanningTree
   : public vtkTreeAlgorithm
 {
@@ -144,4 +145,5 @@ private:
   void operator=(const vtkBoostPrimMinimumSpanningTree&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

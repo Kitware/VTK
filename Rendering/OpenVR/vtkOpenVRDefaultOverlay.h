@@ -24,6 +24,7 @@
 #include "vtkOpenVROverlay.h"
 #include "vtkRenderingOpenVRModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKRENDERINGOPENVR_EXPORT vtkOpenVRDefaultOverlay : public vtkOpenVROverlay
 {
 public:
@@ -46,4 +47,5 @@ private:
   void operator=(const vtkOpenVRDefaultOverlay&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

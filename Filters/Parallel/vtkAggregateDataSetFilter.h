@@ -27,6 +27,7 @@
 #include "vtkFiltersParallelModule.h" // For export macro
 #include "vtkPassInputTypeAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataSet;
 class vtkMultiProcessController;
 
@@ -81,4 +82,5 @@ private:
   void operator=(const vtkAggregateDataSetFilter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

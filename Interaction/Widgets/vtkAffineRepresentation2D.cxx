@@ -34,6 +34,7 @@
 #include "vtkTransform.h"
 #include "vtkWindow.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkAffineRepresentation2D);
 
 vtkCxxSetObjectMacro(vtkAffineRepresentation2D, Property, vtkProperty2D);
@@ -1115,3 +1116,4 @@ void vtkAffineRepresentation2D::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Text Property: (none)\n";
   }
 }
+VTK_ABI_NAMESPACE_END

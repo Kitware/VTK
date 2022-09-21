@@ -31,6 +31,7 @@
 
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkAdaptiveTemporalInterpolator);
 
 //------------------------------------------------------------------------------
@@ -397,3 +398,4 @@ vtkPointSet* vtkAdaptiveTemporalInterpolator::ResampleDataObject(
 
   return resampled;
 }
+VTK_ABI_NAMESPACE_END

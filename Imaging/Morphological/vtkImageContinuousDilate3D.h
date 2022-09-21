@@ -27,6 +27,7 @@
 #include "vtkImageSpatialAlgorithm.h"
 #include "vtkImagingMorphologicalModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkImageEllipsoidSource;
 
 class VTKIMAGINGMORPHOLOGICAL_EXPORT vtkImageContinuousDilate3D : public vtkImageSpatialAlgorithm
@@ -65,4 +66,5 @@ private:
   void operator=(const vtkImageContinuousDilate3D&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

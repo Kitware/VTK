@@ -20,6 +20,7 @@
 #include <cassert>
 #include <deque>
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkMultiProcessStream::vtkInternals
 {
 public:
@@ -816,3 +817,4 @@ void vtkMultiProcessStream::SetRawData(const unsigned char* data, unsigned int s
     }
   }
 }
+VTK_ABI_NAMESPACE_END

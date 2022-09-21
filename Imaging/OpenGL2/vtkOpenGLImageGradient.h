@@ -23,6 +23,7 @@
 #include "vtkImageGradient.h"
 #include "vtkImagingOpenGL2Module.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkOpenGLImageAlgorithmHelper;
 class vtkRenderWindow;
 
@@ -53,4 +54,5 @@ private:
   void operator=(const vtkOpenGLImageGradient&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

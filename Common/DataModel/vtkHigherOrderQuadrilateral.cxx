@@ -29,6 +29,7 @@
 #include "vtkVector.h"
 #include "vtkVectorOperators.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkHigherOrderQuadrilateral::vtkHigherOrderQuadrilateral()
 {
   this->Approx = nullptr;
@@ -614,3 +615,4 @@ const int* vtkHigherOrderQuadrilateral::GetOrder()
   }
   return this->Order;
 }
+VTK_ABI_NAMESPACE_END

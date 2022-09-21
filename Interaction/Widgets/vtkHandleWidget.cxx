@@ -26,6 +26,7 @@
 #include "vtkWidgetEvent.h"
 #include "vtkWidgetEventTranslator.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkHandleWidget);
 
 //------------------------------------------------------------------------------
@@ -515,3 +516,4 @@ void vtkHandleWidget::ProcessKeyEvents(vtkObject*, unsigned long event, void* cl
       break;
   }
 }
+VTK_ABI_NAMESPACE_END

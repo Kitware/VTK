@@ -27,6 +27,7 @@
 #include "vtkWidgetCallbackMapper.h"
 #include "vtkWidgetEvent.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkCoordinateFrameWidget);
 
 // The coordinate frame widget observes its representation. The representation
@@ -443,3 +444,4 @@ void vtkCoordinateFrameWidget::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

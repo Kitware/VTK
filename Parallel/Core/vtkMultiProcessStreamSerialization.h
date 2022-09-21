@@ -48,6 +48,7 @@
 #include <utility>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 template <typename T>
 struct Serialization
 {
@@ -180,5 +181,6 @@ inline vtkMultiProcessStream& operator>>(vtkMultiProcessStream& stream, T& value
   return stream;
 }
 
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkMultiProcessStreamSerialization.h

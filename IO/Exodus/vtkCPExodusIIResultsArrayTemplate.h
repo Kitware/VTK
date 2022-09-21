@@ -31,6 +31,7 @@
 
 #include "vtkObjectFactory.h" // for vtkStandardNewMacro
 
+VTK_ABI_NAMESPACE_BEGIN
 template <class Scalar>
 class vtkCPExodusIIResultsArrayTemplate : public vtkMappedDataArray<Scalar>
 {
@@ -133,6 +134,7 @@ private:
   ///@}
 };
 
+VTK_ABI_NAMESPACE_END
 #include "vtkCPExodusIIResultsArrayTemplate.txx"
 
 #endif // vtkCPExodusIIResultsArrayTemplate_h

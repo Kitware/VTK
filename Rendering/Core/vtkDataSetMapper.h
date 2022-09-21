@@ -30,6 +30,7 @@
 #include "vtkMapper.h"
 #include "vtkRenderingCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPolyDataMapper;
 class vtkDataSetSurfaceFilter;
 
@@ -85,4 +86,5 @@ private:
   void operator=(const vtkDataSetMapper&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

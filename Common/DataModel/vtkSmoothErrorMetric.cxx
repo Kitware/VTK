@@ -22,6 +22,7 @@
 #include "vtkObjectFactory.h"
 #include <cassert>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkSmoothErrorMetric);
 
 //------------------------------------------------------------------------------
@@ -175,3 +176,4 @@ void vtkSmoothErrorMetric::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "AngleTolerance: " << this->AngleTolerance << endl;
   os << indent << "CosTolerance: " << this->CosTolerance << endl;
 }
+VTK_ABI_NAMESPACE_END

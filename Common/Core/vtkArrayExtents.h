@@ -65,6 +65,7 @@
 #include "vtkSystemIncludes.h"
 #include <vector> // STL Header
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONCORE_EXPORT vtkArrayExtents
 {
 public:
@@ -231,5 +232,6 @@ private:
   std::vector<vtkArrayRange> Storage;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkArrayExtents.h

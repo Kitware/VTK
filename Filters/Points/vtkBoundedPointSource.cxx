@@ -24,6 +24,7 @@
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkBoundedPointSource);
 
 //------------------------------------------------------------------------------
@@ -143,3 +144,4 @@ void vtkBoundedPointSource::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Produce Random Scalars: " << (this->ProduceRandomScalars ? "On\n" : "Off\n");
   os << indent << "Scalar Range (" << this->ScalarRange[0] << "," << this->ScalarRange[1] << ")\n";
 }
+VTK_ABI_NAMESPACE_END

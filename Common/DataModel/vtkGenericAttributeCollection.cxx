@@ -21,6 +21,7 @@
 #include <cassert>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkGenericAttributeCollection);
 
 class vtkGenericAttributeInternalVector
@@ -518,3 +519,4 @@ void vtkGenericAttributeCollection::SetAttributesToInterpolateToAll()
 // *** ALL THE PREVIOUS METHODS SHOULD BE REMOVED WHEN vtkInformation
 // will be ready.
 // *** END
+VTK_ABI_NAMESPACE_END

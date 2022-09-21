@@ -39,6 +39,7 @@
 #include <cassert>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPentagonalPrism);
 
 static const double VTK_DIVERGED = 1.e6;
@@ -1154,3 +1155,4 @@ void vtkPentagonalPrism::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Polygon:\n";
   this->Polygon->PrintSelf(os, indent.GetNextIndent());
 }
+VTK_ABI_NAMESPACE_END

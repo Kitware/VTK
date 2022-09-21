@@ -33,6 +33,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkComputeQuartiles.h"
 #include "vtkFiltersParallelStatisticsModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkOrderStatistics;
 class vtkMultiProcessController;
 
@@ -63,5 +64,6 @@ private:
   vtkPComputeQuartiles(const vtkPComputeQuartiles&) = delete;
   void operator=(const vtkPComputeQuartiles&) = delete;
 };
+VTK_ABI_NAMESPACE_END
 
 #endif

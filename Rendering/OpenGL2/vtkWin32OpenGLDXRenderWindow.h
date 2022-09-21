@@ -26,6 +26,7 @@
 
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkWin32OpenGLRenderWindow.h"
+VTK_ABI_NAMESPACE_BEGIN
 
 struct ID3D11Device;
 struct ID3D11Texture2D;
@@ -123,4 +124,5 @@ private:
 
   LUID AdapterId = { 0, 0 }; // DGXI adapter id
 };
+VTK_ABI_NAMESPACE_END
 #endif

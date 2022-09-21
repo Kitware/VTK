@@ -36,6 +36,7 @@
 #define KMAX(ext) ext[5]
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 void vtkAMRUtilities::PrintSelf(std::ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -464,3 +465,4 @@ void vtkAMRUtilities::MergeGhostArrays(vtkDataArray* existingArray, vtkUnsignedC
     }
   }
 }
+VTK_ABI_NAMESPACE_END

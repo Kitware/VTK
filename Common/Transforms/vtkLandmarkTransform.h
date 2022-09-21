@@ -39,6 +39,7 @@
 #define VTK_LANDMARK_SIMILARITY 7
 #define VTK_LANDMARK_AFFINE 12
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONTRANSFORMS_EXPORT vtkLandmarkTransform : public vtkLinearTransform
 {
 public:
@@ -136,4 +137,5 @@ inline const char* vtkLandmarkTransform::GetModeAsString()
   }
 }
 
+VTK_ABI_NAMESPACE_END
 #endif

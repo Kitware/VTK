@@ -45,6 +45,7 @@
 #include "vtkInteractorObserver.h"
 #include "vtkRenderingCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkStringArray;
 
 // The superclass that all commands should be subclasses of
@@ -186,4 +187,5 @@ private:
   void operator=(const vtkInteractorEventRecorder&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif /* vtkInteractorEventRecorder_h */

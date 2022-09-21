@@ -21,6 +21,7 @@
 #include "vtkQtAbstractModelAdapter.h"
 #include "vtkObject.h" // For vtkGenericWarningMacro
 
+VTK_ABI_NAMESPACE_BEGIN
 int vtkQtAbstractModelAdapter::ModelColumnToFieldDataColumn(int col) const
 {
   int result = -1;
@@ -38,3 +39,4 @@ int vtkQtAbstractModelAdapter::ModelColumnToFieldDataColumn(int col) const
   };
   return result;
 }
+VTK_ABI_NAMESPACE_END

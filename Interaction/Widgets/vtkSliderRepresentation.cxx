@@ -19,6 +19,7 @@
 #include "vtkRenderer.h"
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkSliderRepresentation::vtkSliderRepresentation()
 {
   this->MinimumValue = 0.0;
@@ -157,3 +158,4 @@ void vtkSliderRepresentation::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Label Height: " << this->LabelHeight << "\n";
   os << indent << "Title Height: " << this->TitleHeight << "\n";
 }
+VTK_ABI_NAMESPACE_END

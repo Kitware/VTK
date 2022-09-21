@@ -34,6 +34,7 @@
 #include "vtkNew.h"               // For vtkCompositeDataProbeFilter member variable
 #include "vtkPassInputTypeAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkAbstractCellLocator;
 class vtkCompositeDataProbeFilter;
 class vtkDataSet;
@@ -205,4 +206,5 @@ private:
   void operator=(const vtkResampleWithDataSet&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkResampleWithDataSet_h

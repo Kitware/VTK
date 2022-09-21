@@ -34,6 +34,7 @@
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSGENERAL_EXPORT vtkCursor2D : public vtkPolyDataAlgorithm
 {
 public:
@@ -163,4 +164,5 @@ private:
   void operator=(const vtkCursor2D&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

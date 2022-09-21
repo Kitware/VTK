@@ -48,6 +48,7 @@
 #include <algorithm>
 #include <set>
 
+VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
 void ShallowCopy(vtkDataObject* input, vtkDataObject* output)
@@ -409,3 +410,4 @@ void vtkExpandMarkedElements::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Controller: " << this->Controller << endl;
   os << indent << "NumberOfLayers: " << this->NumberOfLayers << endl;
 }
+VTK_ABI_NAMESPACE_END

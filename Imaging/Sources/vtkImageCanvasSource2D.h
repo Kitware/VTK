@@ -27,6 +27,7 @@
 #include "vtkImageAlgorithm.h"
 #include "vtkImagingSourcesModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKIMAGINGSOURCES_EXPORT vtkImageCanvasSource2D : public vtkImageAlgorithm
 {
 public:
@@ -189,4 +190,5 @@ private:
   void operator=(const vtkImageCanvasSource2D&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -15,6 +15,7 @@
 #include "vtkQuadric.h"
 #include "vtkObjectFactory.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkQuadric);
 
 // Construct quadric with all coefficients = 1.
@@ -97,3 +98,4 @@ void vtkQuadric::PrintSelf(ostream& os, vtkIndent indent)
      << "\n\ta6: " << this->Coefficients[6] << "\n\ta7: " << this->Coefficients[7]
      << "\n\ta8: " << this->Coefficients[8] << "\n\ta9: " << this->Coefficients[9] << "\n";
 }
+VTK_ABI_NAMESPACE_END

@@ -31,6 +31,7 @@
 #include "vtkInteractorStyle.h"
 #include "vtkRenderingCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKRENDERINGCORE_EXPORT vtkInteractorStyleSwitchBase : public vtkInteractorStyle
 {
 public:
@@ -49,4 +50,5 @@ private:
   void operator=(const vtkInteractorStyleSwitchBase&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

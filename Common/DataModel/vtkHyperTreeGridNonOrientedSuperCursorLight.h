@@ -47,6 +47,7 @@
 #include <cassert> // Used internally
 #include <vector>  // std::vector
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkHyperTree;
 class vtkHyperTreeGrid;
 class vtkHyperTreeGridNonOrientedGeometryCursor;
@@ -347,4 +348,5 @@ private:
   void operator=(const vtkHyperTreeGridNonOrientedSuperCursorLight&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

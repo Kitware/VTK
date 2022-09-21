@@ -38,6 +38,7 @@
 #define VTKIS_CAMERA 0
 #define VTKIS_ACTOR 1
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkInteractorStyleJoystickActor;
 class vtkInteractorStyleJoystickCamera;
 class vtkInteractorStyleTrackballActor;
@@ -111,4 +112,5 @@ private:
   void operator=(const vtkInteractorStyleSwitch&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

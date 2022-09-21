@@ -28,6 +28,7 @@
 #include "vtkMatrix4x4.h"
 #include "vtkObjectFactory.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkRenderWindowInteractor3D);
 
 //------------------------------------------------------------------------------
@@ -440,3 +441,4 @@ void vtkRenderWindowInteractor3D::GetStartingPhysicalEventPose(
   }
   poseMatrix->DeepCopy(StartingPhysicalEventPoses[pointerIndex]);
 }
+VTK_ABI_NAMESPACE_END

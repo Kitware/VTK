@@ -48,6 +48,7 @@
 #include "vtkExporter.h"
 #include "vtkIOExportModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkContextActor;
 class vtkRenderer;
 class vtkSVGContextDevice2D;
@@ -154,4 +155,5 @@ private:
   void operator=(const vtkSVGExporter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkSVGExporter_h

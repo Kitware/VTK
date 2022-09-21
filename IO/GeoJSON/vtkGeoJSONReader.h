@@ -27,6 +27,7 @@
 #include "vtkIOGeoJSONModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPolyData;
 
 class VTKIOGEOJSON_EXPORT vtkGeoJSONReader : public vtkPolyDataAlgorithm
@@ -126,4 +127,5 @@ private:
   void operator=(const vtkGeoJSONReader&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkGeoJSONReader_h

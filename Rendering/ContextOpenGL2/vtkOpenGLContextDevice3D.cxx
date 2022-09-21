@@ -33,6 +33,7 @@
 #include "vtkShaderProgram.h"
 #include "vtkTransform.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkOpenGLContextDevice3D::Private
 {
 public:
@@ -642,3 +643,4 @@ void vtkOpenGLContextDevice3D::PrintSelf(ostream& os, vtkIndent indent)
 {
   Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

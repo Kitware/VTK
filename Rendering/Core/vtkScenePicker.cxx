@@ -23,6 +23,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkScenePickerSelectionRenderCommand : public vtkCommand
 {
 public:
@@ -266,3 +267,4 @@ void vtkScenePicker::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Renderer: " << this->Renderer << endl;
   os << indent << "EnableVertexPicking: " << this->EnableVertexPicking << endl;
 }
+VTK_ABI_NAMESPACE_END

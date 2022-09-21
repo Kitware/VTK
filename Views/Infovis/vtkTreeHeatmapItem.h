@@ -44,6 +44,7 @@
 #include <map>               // For string lookup tables
 #include <vector>            // For lookup tables
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDendrogramItem;
 class vtkHeatmapItem;
 class vtkTable;
@@ -229,4 +230,5 @@ private:
   vtkMTimeType TreeHeatmapBuildTime;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -24,6 +24,7 @@
 #include "vtkRenderState.h"
 #include <cassert>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkCameraPass);
 vtkCxxSetObjectMacro(vtkCameraPass, DelegatePass, vtkRenderPass);
 
@@ -165,3 +166,4 @@ void vtkCameraPass::ReleaseGraphicsResources(vtkWindow* w)
     this->DelegatePass->ReleaseGraphicsResources(w);
   }
 }
+VTK_ABI_NAMESPACE_END

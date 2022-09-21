@@ -304,6 +304,8 @@ vtkStandardNewMacro(MappedGrid);
 
 } // end anonymous namespace
 
+VTK_ABI_NAMESPACE_BEGIN
+
 void vtkMappedUnstructuredGridGenerator::GenerateUnstructuredGrid(vtkUnstructuredGrid** grid)
 {
   vtkNew<vtkPoints> points;
@@ -454,3 +456,4 @@ void vtkMappedUnstructuredGridGenerator::PrintSelf(ostream& os, vtkIndent indent
   this->Superclass::PrintSelf(os, indent);
   os << indent << "vtkMappedUnstructuredGridGenerator object";
 }
+VTK_ABI_NAMESPACE_END

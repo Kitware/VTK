@@ -31,6 +31,7 @@
 #include "vtkGUISupportQtSQLModule.h" // For export macro
 #include "vtkSQLQuery.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkVariant;
 class vtkQtSQLQueryInternals;
 
@@ -100,4 +101,5 @@ private:
   void operator=(const vtkQtSQLQuery&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkQtSQLQuery_h

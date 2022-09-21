@@ -38,6 +38,7 @@
 
 using namespace boost;
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkBoostBiconnectedComponents);
 
 vtkBoostBiconnectedComponents::vtkBoostBiconnectedComponents()
@@ -164,3 +165,4 @@ void vtkBoostBiconnectedComponents::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "OutputArrayName: " << (this->OutputArrayName ? this->OutputArrayName : "(none)")
      << endl;
 }
+VTK_ABI_NAMESPACE_END

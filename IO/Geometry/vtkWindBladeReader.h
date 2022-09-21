@@ -33,6 +33,7 @@
 #include "vtkIOGeometryModule.h" // For export macro
 #include "vtkStructuredGridAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataArraySelection;
 class vtkCallbackCommand;
 class vtkStringArray;
@@ -255,4 +256,5 @@ private:
   vtkWindBladeReader(const vtkWindBladeReader&) = delete;
   void operator=(const vtkWindBladeReader&) = delete;
 };
+VTK_ABI_NAMESPACE_END
 #endif

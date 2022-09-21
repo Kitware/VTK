@@ -33,6 +33,7 @@
 #include "vtkGraphAlgorithm.h"
 #include "vtkInfovisCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCollapseVerticesByArrayInternal;
 
 class VTKINFOVISCORE_EXPORT vtkCollapseVerticesByArray : public vtkGraphAlgorithm
@@ -151,4 +152,5 @@ protected:
   vtkCollapseVerticesByArrayInternal* Internal;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkCollapseVerticesByArray_h__

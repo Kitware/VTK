@@ -28,6 +28,7 @@
 #include "vtkDataObjectAlgorithm.h"
 #include "vtkFiltersGeneralModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkUnstructuredGrid;
 class vtkDataSet;
 
@@ -143,4 +144,5 @@ private:
   void operator=(const vtkReflectionFilter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

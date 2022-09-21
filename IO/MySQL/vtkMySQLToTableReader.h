@@ -26,6 +26,7 @@
 #include "vtkDatabaseToTableReader.h"
 #include "vtkIOMySQLModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkMySQLDatabase;
 
 class VTKIOMYSQL_EXPORT vtkMySQLToTableReader : public vtkDatabaseToTableReader
@@ -45,4 +46,5 @@ private:
   void operator=(const vtkMySQLToTableReader&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

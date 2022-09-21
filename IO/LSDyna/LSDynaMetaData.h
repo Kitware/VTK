@@ -34,6 +34,7 @@
 #include <string>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 class LSDynaMetaData
 {
 public:
@@ -129,4 +130,5 @@ public:
   vtkIdType SPHStateOffset;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // __LSDynaMetaData_h

@@ -25,6 +25,7 @@
 #include "vtkTransform.h"
 #include "vtkUnstructuredGrid.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkRotationFilter);
 
 //------------------------------------------------------------------------------
@@ -224,3 +225,4 @@ int vtkRotationFilter::FillInputPortInformation(int, vtkInformation* info)
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
   return 1;
 }
+VTK_ABI_NAMESPACE_END

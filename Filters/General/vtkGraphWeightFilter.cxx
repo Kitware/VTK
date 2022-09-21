@@ -29,6 +29,7 @@
 #include "vtkPolyData.h"
 #include "vtkSmartPointer.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 bool vtkGraphWeightFilter::CheckRequirements(vtkGraph* const vtkNotUsed(graph)) const
 {
   return true;
@@ -87,3 +88,4 @@ void vtkGraphWeightFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkGraphAlgorithm::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

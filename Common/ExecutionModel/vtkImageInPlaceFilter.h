@@ -28,6 +28,7 @@
 #include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkImageAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONEXECUTIONMODEL_EXPORT vtkImageInPlaceFilter : public vtkImageAlgorithm
 {
 public:
@@ -48,4 +49,5 @@ private:
   void operator=(const vtkImageInPlaceFilter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

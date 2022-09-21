@@ -21,6 +21,7 @@
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOutlineCornerSource);
 
 //------------------------------------------------------------------------------
@@ -131,3 +132,4 @@ void vtkOutlineCornerSource::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "CornerFactor: " << this->CornerFactor << "\n";
   os << indent << "Output Points Precision: " << this->OutputPointsPrecision << "\n";
 }
+VTK_ABI_NAMESPACE_END

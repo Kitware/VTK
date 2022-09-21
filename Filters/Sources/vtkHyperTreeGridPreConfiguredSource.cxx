@@ -30,6 +30,7 @@
 #include <array>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkHyperTreeGridPreConfiguredSource);
 
 vtkHyperTreeGridPreConfiguredSource::vtkHyperTreeGridPreConfiguredSource()
@@ -392,3 +393,4 @@ int vtkHyperTreeGridPreConfiguredSource::GenerateCustom(vtkHyperTreeGrid* htg)
   }
   return 1;
 }
+VTK_ABI_NAMESPACE_END

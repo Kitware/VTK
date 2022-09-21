@@ -108,6 +108,7 @@
 #include "vtkUnsignedCharArray.h"     // For point smoothing mask
 #include <vector>                     //For std::vector<> - ExcludedArrays
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSGEOMETRY_EXPORT vtkAttributeSmoothingFilter : public vtkDataSetAlgorithm
 {
 public:
@@ -271,5 +272,6 @@ private:
   vtkAttributeSmoothingFilter(const vtkAttributeSmoothingFilter&) = delete;
   void operator=(const vtkAttributeSmoothingFilter&) = delete;
 };
+VTK_ABI_NAMESPACE_END
 
 #endif

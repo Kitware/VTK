@@ -28,6 +28,7 @@
 #include <tuple>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkFieldData);
 vtkStandardExtendedNewMacro(vtkFieldData);
 
@@ -1085,3 +1086,4 @@ vtkIdType vtkFieldData::InsertNextTuple(const vtkIdType j, vtkFieldData* source)
   this->InsertTuple(id, j, source);
   return id;
 }
+VTK_ABI_NAMESPACE_END

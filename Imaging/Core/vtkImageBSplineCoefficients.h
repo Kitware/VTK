@@ -49,6 +49,7 @@
 #include "vtkImagingCoreModule.h"        // For export macro
 #include "vtkThreadedImageAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKIMAGINGCORE_EXPORT vtkImageBSplineCoefficients : public vtkThreadedImageAlgorithm
 {
 public:
@@ -156,4 +157,5 @@ private:
   void operator=(const vtkImageBSplineCoefficients&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

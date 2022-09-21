@@ -39,6 +39,7 @@
 #include "vtkFiltersVerdictModule.h" // For export macro
 #include "vtkMeshQuality.h"          // For QualityMeasureType
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCell;
 class vtkCellQualityFunctor;
 class vtkDataArray;
@@ -337,4 +338,5 @@ private:
   void operator=(const vtkCellQuality&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkCellQuality_h

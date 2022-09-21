@@ -19,6 +19,7 @@
 #include "vtkPiecewiseFunction.h"
 #include "vtkSpline.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkTupleInterpolator);
 
 //------------------------------------------------------------------------------
@@ -305,3 +306,4 @@ void vtkTupleInterpolator::PrintSelf(ostream& os, vtkIndent indent)
     os << "(null)\n";
   }
 }
+VTK_ABI_NAMESPACE_END

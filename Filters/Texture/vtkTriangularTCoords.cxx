@@ -24,6 +24,7 @@
 
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkTriangularTCoords);
 
 int vtkTriangularTCoords::RequestData(vtkInformation* vtkNotUsed(request),
@@ -197,3 +198,4 @@ void vtkTriangularTCoords::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

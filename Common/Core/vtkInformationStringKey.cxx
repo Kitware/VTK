@@ -19,6 +19,7 @@
 #include <string>
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkInformationStringKey::vtkInformationStringKey(const char* name, const char* location)
   : vtkInformationKey(name, location)
 {
@@ -105,3 +106,4 @@ void vtkInformationStringKey::Print(ostream& os, vtkInformation* info)
     os << this->Get(info);
   }
 }
+VTK_ABI_NAMESPACE_END

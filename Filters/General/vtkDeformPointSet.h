@@ -67,6 +67,7 @@
 
 #include "vtkSmartPointer.h" // For protected ivars
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDoubleArray;
 class vtkPolyData;
 
@@ -131,4 +132,5 @@ private:
   void operator=(const vtkDeformPointSet&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

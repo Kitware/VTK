@@ -26,6 +26,7 @@
 
 //------------------------------------------------------------------------------
 // The singleton, and the singleton cleanup
+VTK_ABI_NAMESPACE_BEGIN
 vtkTextRenderer* vtkTextRenderer::Instance = nullptr;
 vtkTextRendererCleanup vtkTextRenderer::Cleanup;
 
@@ -144,3 +145,4 @@ void vtkTextRenderer::CleanUpFreeTypeEscapes(vtkStdString& str)
     ind = str.find("\\$", ind + 1);
   }
 }
+VTK_ABI_NAMESPACE_END

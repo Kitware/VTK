@@ -33,6 +33,7 @@
 #include "vtkImageAlgorithm.h"
 #include "vtkImagingHybridModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkImplicitFunction;
 class vtkDataArray;
 
@@ -181,4 +182,5 @@ private:
   void operator=(const vtkSampleFunction&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

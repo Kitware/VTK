@@ -42,6 +42,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkTree.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkCommunity2DLayoutStrategy);
 
 // Cool-down function.
@@ -606,3 +607,4 @@ void vtkCommunity2DLayoutStrategy::PrintSelf(ostream& os, vtkIndent indent)
      << endl;
   os << indent << "CommunityStrength: " << this->CommunityStrength << endl;
 }
+VTK_ABI_NAMESPACE_END

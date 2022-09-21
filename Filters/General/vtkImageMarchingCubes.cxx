@@ -29,6 +29,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImageMarchingCubes);
 
 //------------------------------------------------------------------------------
@@ -806,3 +807,4 @@ void vtkImageMarchingCubes::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "InputMemoryLimit: " << this->InputMemoryLimit << "K bytes\n";
 }
+VTK_ABI_NAMESPACE_END

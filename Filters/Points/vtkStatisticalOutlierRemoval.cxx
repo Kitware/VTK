@@ -24,6 +24,7 @@
 #include "vtkSMPTools.h"
 #include "vtkStaticPointLocator.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkStatisticalOutlierRemoval);
 vtkCxxSetObjectMacro(vtkStatisticalOutlierRemoval, Locator, vtkAbstractPointLocator);
 
@@ -349,3 +350,4 @@ void vtkStatisticalOutlierRemoval::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Computed Mean: " << this->ComputedMean << "\n";
   os << indent << "Computed Standard Deviation: " << this->ComputedStandardDeviation << "\n";
 }
+VTK_ABI_NAMESPACE_END

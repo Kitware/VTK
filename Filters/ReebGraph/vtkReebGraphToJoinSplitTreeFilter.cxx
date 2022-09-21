@@ -28,6 +28,7 @@
 #include <algorithm>
 #include <boost/pending/disjoint_sets.hpp>
 
+VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
 //------------------------------------------------------------------------------
@@ -430,3 +431,4 @@ int vtkReebGraphToJoinSplitTreeFilter::RequestData(vtkInformation* vtkNotUsed(re
   }
   return 0;
 }
+VTK_ABI_NAMESPACE_END

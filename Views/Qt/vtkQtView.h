@@ -28,6 +28,7 @@
 
 #include <QObject> // Needed to hook into Qt
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKVIEWSQT_EXPORT vtkQtView
   : public QObject
   , public vtkView
@@ -74,5 +75,6 @@ private:
   void operator=(const vtkQtView&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkQtView.h

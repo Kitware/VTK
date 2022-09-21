@@ -21,6 +21,7 @@
 
 #include "vtkTesting.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkRegressionTester : public vtkTesting
 {
 protected:
@@ -39,5 +40,6 @@ private:
 
 #define vtkRegressionTestImageThreshold(rw, t) vtkTesting::Test(argc, argv, rw, t)
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkRegressionTestImage_h
 // VTK-HeaderTest-Exclude: vtkRegressionTestImage.h

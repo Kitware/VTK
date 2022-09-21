@@ -54,6 +54,7 @@
 
 #include <vector> // For internal structures
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkAbstractCellLinks;
 class vtkCompositeDataSet;
 class vtkCompositeInterpolatedVelocityField;
@@ -278,4 +279,5 @@ private:
   void operator=(const vtkTemporalInterpolatedVelocityField&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

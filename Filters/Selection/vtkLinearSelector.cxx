@@ -19,6 +19,7 @@
 
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkLinearSelector);
 vtkCxxSetObjectMacro(vtkLinearSelector, Points, vtkPoints);
 
@@ -234,3 +235,4 @@ void vtkLinearSelector::SeekIntersectingCells(vtkDataSet* input, vtkIdTypeArray*
   delete[] startPoints;
   delete[] endPoints;
 }
+VTK_ABI_NAMESPACE_END

@@ -16,6 +16,7 @@
 #include "vtkObjectFactory.h"
 #include "vtk_lz4.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkLZ4DataCompressor);
 
 //------------------------------------------------------------------------------
@@ -106,3 +107,4 @@ size_t vtkLZ4DataCompressor::GetMaximumCompressionSpace(size_t size)
 {
   return LZ4_COMPRESSBOUND(size);
 }
+VTK_ABI_NAMESPACE_END

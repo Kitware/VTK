@@ -43,6 +43,7 @@
 #include "vtkTransformFilter.h"
 #include "vtkViewTheme.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkRenderedSurfaceRepresentation);
 //------------------------------------------------------------------------------
 vtkRenderedSurfaceRepresentation::vtkRenderedSurfaceRepresentation()
@@ -225,3 +226,4 @@ void vtkRenderedSurfaceRepresentation::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Mapper:" << endl;
   this->Mapper->PrintSelf(os, indent.GetNextIndent());
 }
+VTK_ABI_NAMESPACE_END

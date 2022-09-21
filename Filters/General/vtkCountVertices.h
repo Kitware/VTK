@@ -29,6 +29,7 @@
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkPassInputTypeAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSGENERAL_EXPORT vtkCountVertices : public vtkPassInputTypeAlgorithm
 {
 public:
@@ -61,4 +62,5 @@ private:
   void operator=(const vtkCountVertices&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkCountVertices_h

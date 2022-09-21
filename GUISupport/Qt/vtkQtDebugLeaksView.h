@@ -30,6 +30,8 @@
 #include <QWidget>
 
 class QModelIndex;
+
+VTK_ABI_NAMESPACE_BEGIN
 class vtkObjectBase;
 class vtkQtDebugLeaksModel;
 
@@ -82,5 +84,6 @@ private:
   Q_DISABLE_COPY(vtkQtDebugLeaksView);
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkQtDebugLeaksView.h

@@ -33,6 +33,7 @@
 
 namespace vtkDataArrayPrivate
 {
+VTK_ABI_NAMESPACE_BEGIN
 #if (defined(_MSC_VER) && (_MSC_VER < 2000)) ||                                                    \
   (defined(__INTEL_COMPILER) && (__INTEL_COMPILER < 1700))
 namespace msvc
@@ -634,6 +635,7 @@ bool DoComputeVectorRange(ArrayT* array, RangeValueType range[2], FiniteValues,
   return true;
 }
 
+VTK_ABI_NAMESPACE_END
 } // end namespace vtkDataArrayPrivate
 #endif // VTK_GDA_TEMPLATE_EXTERN
 #endif

@@ -25,6 +25,7 @@
 #include "vtkObject.h"
 #include "vtkmyUnsortedModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKMYUNSORTED_EXPORT vtkBar2 : public vtkObject
 {
 public:
@@ -40,5 +41,6 @@ private:
   vtkBar2(const vtkBar2&) = delete;
   void operator=(const vtkBar2&) = delete;
 };
+VTK_ABI_NAMESPACE_END
 
 #endif

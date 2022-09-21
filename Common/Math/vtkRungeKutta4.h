@@ -32,6 +32,7 @@
 #include "vtkCommonMathModule.h" // For export macro
 #include "vtkInitialValueProblemSolver.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONMATH_EXPORT vtkRungeKutta4 : public vtkInitialValueProblemSolver
 {
 public:
@@ -100,4 +101,5 @@ private:
   void operator=(const vtkRungeKutta4&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

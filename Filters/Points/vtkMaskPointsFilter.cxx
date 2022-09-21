@@ -25,6 +25,7 @@
 #include "vtkSMPTools.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkMaskPointsFilter);
 
 //------------------------------------------------------------------------------
@@ -261,3 +262,4 @@ void vtkMaskPointsFilter::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Empty Value: " << this->EmptyValue << "\n";
 }
+VTK_ABI_NAMESPACE_END

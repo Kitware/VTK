@@ -31,6 +31,7 @@
 #include "vtkSmartPointer.h" // This is a leaf node. No need to use PIMPL to avoid compile time penalty.
 #include "vtkStreamTracer.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkAbstractInterpolatedVelocityField;
 class vtkMultiProcessController;
 
@@ -38,8 +39,10 @@ class PStreamTracerPoint;
 class vtkOverlappingAMR;
 class AbstractPStreamTracerUtils;
 
+VTK_ABI_NAMESPACE_END
 #include "vtkFiltersParallelFlowPathsModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSPARALLELFLOWPATHS_EXPORT vtkPStreamTracer : public vtkStreamTracer
 {
 public:
@@ -95,4 +98,5 @@ private:
   friend class AbstractPStreamTracerUtils;
   vtkSmartPointer<AbstractPStreamTracerUtils> Utils;
 };
+VTK_ABI_NAMESPACE_END
 #endif

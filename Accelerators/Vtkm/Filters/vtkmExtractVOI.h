@@ -39,6 +39,7 @@
 #include "vtkExtractVOI.h"
 #include "vtkmlib/vtkmInitializer.h" // Need for initializing vtk-m
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKACCELERATORSVTKMFILTERS_EXPORT vtkmExtractVOI : public vtkExtractVOI
 {
 public:
@@ -72,4 +73,5 @@ private:
   vtkmInitializer Initializer;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkmExtractVOI_h

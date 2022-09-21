@@ -39,6 +39,7 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkImplicitFunction.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPlane;
 class vtkDataArray;
 
@@ -104,4 +105,5 @@ private:
   void operator=(const vtkCoordinateFrame&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

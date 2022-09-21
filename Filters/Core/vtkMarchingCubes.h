@@ -52,6 +52,7 @@
 
 #include "vtkContourValues.h" // Needed for direct access to ContourValues
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkIncrementalPointLocator;
 
 class VTKFILTERSCORE_EXPORT vtkMarchingCubes : public vtkPolyDataAlgorithm
@@ -214,4 +215,5 @@ inline void vtkMarchingCubes::GenerateValues(int numContours, double rangeStart,
   this->ContourValues->GenerateValues(numContours, rangeStart, rangeEnd);
 }
 
+VTK_ABI_NAMESPACE_END
 #endif

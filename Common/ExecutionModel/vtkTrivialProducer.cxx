@@ -22,6 +22,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkTrivialProducer);
 
 // This compile-time switch determines whether the update extent is
@@ -262,3 +263,4 @@ void vtkTrivialProducer::ReportReferences(vtkGarbageCollector* collector)
   this->Superclass::ReportReferences(collector);
   vtkGarbageCollectorReport(collector, this->Output, "Output");
 }
+VTK_ABI_NAMESPACE_END

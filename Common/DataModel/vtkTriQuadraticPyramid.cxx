@@ -29,6 +29,7 @@
 
 #include <cstddef>
 
+VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
 // defined constants used in interpolation functions and their partial derivatives
@@ -1078,3 +1079,4 @@ void vtkTriQuadraticPyramid::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Scalars:\n";
   this->Scalars->PrintSelf(os, indent.GetNextIndent());
 }
+VTK_ABI_NAMESPACE_END

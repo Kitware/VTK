@@ -34,6 +34,7 @@
 
 // PIMPL'd class to keep track of timers. It maps the ids returned by CreateTimer()
 // to the platform-specific representation for timer ids.
+VTK_ABI_NAMESPACE_BEGIN
 struct vtkTimerStruct
 {
   int Id;
@@ -1420,3 +1421,4 @@ void vtkRenderWindowInteractor::SwipeEvent()
   }
   this->InvokeEvent(vtkCommand::SwipeEvent, nullptr);
 }
+VTK_ABI_NAMESPACE_END

@@ -28,6 +28,7 @@
 #include "vtkSMPTools.h"
 #include "vtkStaticPointLocator.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPCANormalEstimation);
 vtkCxxSetObjectMacro(vtkPCANormalEstimation, Locator, vtkAbstractPointLocator);
 
@@ -355,3 +356,4 @@ void vtkPCANormalEstimation::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Flip Normals: " << (this->FlipNormals ? "On\n" : "Off\n");
   os << indent << "Locator: " << this->Locator << "\n";
 }
+VTK_ABI_NAMESPACE_END

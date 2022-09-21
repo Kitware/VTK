@@ -33,6 +33,7 @@
 #include "vtkTableToGraph.h"
 #include "vtkUndirectedGraph.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkSQLGraphReader);
 
 vtkSQLGraphReader::vtkSQLGraphReader()
@@ -224,3 +225,4 @@ int vtkSQLGraphReader::RequestDataObject(
 
   return 1;
 }
+VTK_ABI_NAMESPACE_END

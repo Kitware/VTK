@@ -52,6 +52,7 @@
 #include "vtkTimeStamp.h"
 #include <memory> // for std::unique_ptr
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkOpenGLRenderWindow;
 class vtkOpenGLVertexArrayObject;
 class vtkShaderProgram;
@@ -95,6 +96,7 @@ private:
   std::unique_ptr<vtkGenericOpenGLResourceFreeCallback> ResourceCallback;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkOpenGLQuadHelper_h
 
 // VTK-HeaderTest-Exclude: vtkOpenGLQuadHelper.h

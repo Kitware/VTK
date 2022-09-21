@@ -41,6 +41,7 @@
 
 #include <algorithm>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkExtractEnclosedPoints);
 
 //------------------------------------------------------------------------------
@@ -277,3 +278,4 @@ void vtkExtractEnclosedPoints::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Tolerance: " << this->Tolerance << "\n";
 }
+VTK_ABI_NAMESPACE_END

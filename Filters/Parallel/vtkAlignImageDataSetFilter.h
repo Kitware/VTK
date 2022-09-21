@@ -33,6 +33,7 @@
 #include "vtkFiltersParallelModule.h" // for export macros
 #include "vtkPassInputTypeAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkMultiProcessController;
 
 class VTKFILTERSPARALLEL_EXPORT vtkAlignImageDataSetFilter : public vtkPassInputTypeAlgorithm
@@ -71,5 +72,6 @@ private:
   vtkMultiProcessController* Controller;
   int MinimumExtent[3];
 };
+VTK_ABI_NAMESPACE_END
 
 #endif

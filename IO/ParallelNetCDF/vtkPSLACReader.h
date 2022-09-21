@@ -38,6 +38,7 @@
 #include "vtkIOParallelNetCDFModule.h" // For export macro
 #include "vtkSLACReader.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkMultiProcessController;
 
 class VTKIOPARALLELNETCDF_EXPORT vtkPSLACReader : public vtkSLACReader
@@ -143,4 +144,5 @@ private:
   void operator=(const vtkPSLACReader&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkPSLACReader_h

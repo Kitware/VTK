@@ -53,6 +53,7 @@
 #include "vtkFiltersModelingModule.h" // For export macro
 #include "vtkIntersectionCounter.h"   // to count intersections along ray
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkUnsignedCharArray;
 class vtkAbstractCellLocator;
 class vtkStaticCellLocator;
@@ -191,4 +192,5 @@ private:
   void operator=(const vtkSelectEnclosedPoints&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

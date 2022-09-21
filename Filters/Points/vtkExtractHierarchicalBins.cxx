@@ -21,6 +21,7 @@
 #include "vtkPointSet.h"
 #include "vtkPoints.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkExtractHierarchicalBins);
 vtkCxxSetObjectMacro(vtkExtractHierarchicalBins, BinningFilter, vtkHierarchicalBinningFilter);
 
@@ -112,3 +113,4 @@ void vtkExtractHierarchicalBins::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Bin: " << this->Bin << "\n";
   os << indent << "Binning Filter: " << static_cast<void*>(this->BinningFilter) << "\n";
 }
+VTK_ABI_NAMESPACE_END

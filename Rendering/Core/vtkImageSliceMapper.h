@@ -33,6 +33,7 @@
 #include "vtkImageMapper3D.h"
 #include "vtkRenderingCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCamera;
 class vtkPoints;
 
@@ -213,4 +214,5 @@ private:
   friend class vtkImageResliceMapper;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

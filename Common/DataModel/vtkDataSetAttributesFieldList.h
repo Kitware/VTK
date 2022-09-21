@@ -62,6 +62,7 @@
 #include <functional> // for std::function
 #include <memory>     // for unique_ptr
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkAbstractArray;
 class vtkDataSetAttributes;
 class vtkIdList;
@@ -161,5 +162,6 @@ private:
   void operator=(vtkDataSetAttributesFieldList&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkDataSetAttributesFieldList.h

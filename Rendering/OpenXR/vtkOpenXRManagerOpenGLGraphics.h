@@ -41,6 +41,7 @@ typedef XrGraphicsBindingOpenGLWin32KHR XrGraphicsBindingOpenGL;
 #endif
 struct XrSwapchainImageOpenGLKHR;
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKRENDERINGOPENXR_EXPORT vtkOpenXRManagerOpenGLGraphics : public vtkOpenXRManagerGraphics
 {
 public:
@@ -125,4 +126,5 @@ private:
   PIMPL* Private;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

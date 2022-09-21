@@ -28,6 +28,7 @@
 
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkLODProp3D);
 
 #define VTK_INDEX_NOT_IN_USE (-1)
@@ -1266,3 +1267,4 @@ void vtkLODProp3D::ShallowCopy(vtkProp* prop)
   // Now do superclass
   this->vtkProp3D::ShallowCopy(prop);
 }
+VTK_ABI_NAMESPACE_END

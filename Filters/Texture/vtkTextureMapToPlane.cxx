@@ -23,6 +23,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkTextureMapToPlane);
 
 // Construct with s,t range=(0,1) and automatic plane generation turned on.
@@ -324,3 +325,4 @@ void vtkTextureMapToPlane::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Normal: (" << this->Normal[0] << ", " << this->Normal[1] << ", "
      << this->Normal[2] << ")\n";
 }
+VTK_ABI_NAMESPACE_END

@@ -19,6 +19,7 @@
 
 #include <string>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkLSDynaSummaryParser);
 
 namespace
@@ -222,3 +223,4 @@ void vtkLSDynaSummaryParser::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "InDyna: " << this->InDyna << endl;
   os << indent << "InName: " << this->InName << endl;
 }
+VTK_ABI_NAMESPACE_END

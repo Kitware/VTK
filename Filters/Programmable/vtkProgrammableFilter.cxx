@@ -29,10 +29,13 @@
 #include "vtkTable.h"
 #include "vtkUnstructuredGrid.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkProgrammableFilter);
+VTK_ABI_NAMESPACE_END
 
 namespace details
 {
+VTK_ABI_NAMESPACE_BEGIN
 // CopyStructure is not defined at vtkDataObject level.
 // Use template to downcast and forward call.
 template <class DataType>
@@ -73,7 +76,10 @@ void initializeOutput(vtkDataObject* objInput, vtkDataObject* objOutput, bool co
     }
   }
 }
-};
+VTK_ABI_NAMESPACE_END
+}
+
+VTK_ABI_NAMESPACE_BEGIN
 
 // Construct programmable filter with empty execute method.
 vtkProgrammableFilter::vtkProgrammableFilter()
@@ -251,3 +257,4 @@ void vtkProgrammableFilter::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "CopyArrays: " << this->CopyArrays << endl;
 }
+VTK_ABI_NAMESPACE_END

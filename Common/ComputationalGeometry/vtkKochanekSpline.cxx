@@ -19,6 +19,7 @@
 
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkKochanekSpline);
 
 //------------------------------------------------------------------------------
@@ -366,3 +367,4 @@ void vtkKochanekSpline::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "DefaultTension: " << this->DefaultTension << "\n";
   os << indent << "DefaultContinuity: " << this->DefaultContinuity << "\n";
 }
+VTK_ABI_NAMESPACE_END

@@ -19,6 +19,7 @@
 #include "vtkVariant.h"
 #include <cassert>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkLookupTableWithEnabling);
 
 vtkCxxSetObjectMacro(vtkLookupTableWithEnabling, EnabledArray, vtkDataArray);
@@ -583,3 +584,4 @@ void vtkLookupTableWithEnabling::PrintSelf(ostream& os, vtkIndent indent)
     os << "(none)\n";
   }
 }
+VTK_ABI_NAMESPACE_END

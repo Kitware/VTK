@@ -35,6 +35,7 @@
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkObject.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkAlgorithm;
 class vtkCallbackCommand;
 
@@ -129,4 +130,5 @@ private:
   void operator=(const vtkExecutionTimer&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

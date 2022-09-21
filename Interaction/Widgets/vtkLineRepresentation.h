@@ -41,6 +41,7 @@
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkWidgetRepresentation.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkActor;
 class vtkConeSource;
 class vtkPolyDataMapper;
@@ -394,4 +395,5 @@ private:
   void operator=(const vtkLineRepresentation&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

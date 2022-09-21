@@ -68,6 +68,7 @@
 
 namespace vtkPolyData_detail
 {
+VTK_ABI_NAMESPACE_BEGIN
 
 static constexpr vtkTypeUInt64 CELLID_MASK = 0x0fffffffffffffffull;
 static constexpr vtkTypeUInt64 SHIFTED_TYPE_INDEX_MASK = 0xf000000000000000ull;
@@ -302,6 +303,7 @@ private:
   CellMap& operator=(const CellMap&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 } // end namespace vtkPolyData_detail
 
 #endif // vtkPolyDataInternals.h

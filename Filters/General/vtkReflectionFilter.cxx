@@ -34,6 +34,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkUnstructuredGrid.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
 /**
@@ -1143,3 +1144,4 @@ void vtkReflectionFilter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Center: " << this->Center << endl;
   os << indent << "CopyInput: " << this->CopyInput << endl;
 }
+VTK_ABI_NAMESPACE_END

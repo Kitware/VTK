@@ -38,6 +38,7 @@
 #include "vtkVectorText.h"
 #include "vtkWindow.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkDistanceRepresentation3D);
 
 //------------------------------------------------------------------------------
@@ -478,3 +479,4 @@ void vtkDistanceRepresentation3D::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "LabelActor: " << this->LabelActor << endl;
   os << indent << "GlyphActor: " << this->GlyphActor << endl;
 }
+VTK_ABI_NAMESPACE_END

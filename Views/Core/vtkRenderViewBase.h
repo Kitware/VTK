@@ -33,6 +33,7 @@
 #include "vtkView.h"
 #include "vtkViewsCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkInteractorObserver;
 class vtkRenderer;
 class vtkRenderWindow;
@@ -110,4 +111,5 @@ private:
   void operator=(const vtkRenderViewBase&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

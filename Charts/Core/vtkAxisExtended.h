@@ -33,6 +33,7 @@
 #include "vtkObject.h"
 #include "vtkVector.h" // Needed for vtkVector
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCHARTSCORE_EXPORT vtkAxisExtended : public vtkObject
 {
 public:
@@ -136,3 +137,4 @@ private:
   vtkAxisExtended(const vtkAxisExtended&) = delete;
   void operator=(const vtkAxisExtended&) = delete;
 };
+VTK_ABI_NAMESPACE_END

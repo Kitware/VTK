@@ -41,6 +41,7 @@
 #include "vtkBorderWidget.h"
 #include "vtkInteractionWidgetsModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCaptionRepresentation;
 class vtkCaptionActor2D;
 class vtkHandleWidget;
@@ -116,4 +117,5 @@ private:
   void operator=(const vtkCaptionWidget&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

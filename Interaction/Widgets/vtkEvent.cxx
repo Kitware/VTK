@@ -17,6 +17,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkRenderWindowInteractor.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkEvent);
 
 vtkEvent::vtkEvent()
@@ -131,3 +132,4 @@ void vtkEvent::PrintSelf(ostream& os, vtkIndent indent)
     os << this->KeySym << "\n";
   }
 }
+VTK_ABI_NAMESPACE_END

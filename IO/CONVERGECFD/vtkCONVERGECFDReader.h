@@ -53,6 +53,7 @@
 #include <string> // for std::string
 #include <vector> // for std::vector
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataArraySelection;
 
 class VTKIOCONVERGECFD_EXPORT vtkCONVERGECFDReader : public vtkPartitionedDataSetCollectionAlgorithm
@@ -123,4 +124,5 @@ private:
   void operator=(const vtkCONVERGECFDReader&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkCONVERGECFDReader_h

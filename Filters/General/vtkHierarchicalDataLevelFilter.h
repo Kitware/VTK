@@ -28,6 +28,7 @@
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkLevelIdScalars.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSGENERAL_EXPORT vtkHierarchicalDataLevelFilter : public vtkLevelIdScalars
 {
 public:
@@ -49,4 +50,5 @@ private:
   void operator=(const vtkHierarchicalDataLevelFilter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

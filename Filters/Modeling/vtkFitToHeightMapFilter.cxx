@@ -28,6 +28,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTriangle.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkFitToHeightMapFilter);
 
 // These are created to support a (float,double) fast path. They work in
@@ -649,3 +650,4 @@ void vtkFitToHeightMapFilter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Fitting Strategy: " << this->FittingStrategy << "\n";
   os << indent << "Use Height Map Offset: " << (this->UseHeightMapOffset ? "On\n" : "Off\n");
 }
+VTK_ABI_NAMESPACE_END

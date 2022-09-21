@@ -80,6 +80,7 @@
 #include "vtkPassInputTypeAlgorithm.h"
 #include "vtkViewsInfovisModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkScalarsToColors;
 class vtkUnsignedCharArray;
 
@@ -294,4 +295,5 @@ private:
   void operator=(const vtkApplyColors&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

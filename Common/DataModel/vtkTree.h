@@ -49,6 +49,7 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkDirectedAcyclicGraph.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkIdTypeArray;
 
 class VTKCOMMONDATAMODEL_EXPORT vtkTree : public vtkDirectedAcyclicGraph
@@ -145,4 +146,5 @@ private:
   void operator=(const vtkTree&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

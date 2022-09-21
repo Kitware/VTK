@@ -40,6 +40,7 @@
 #include <cstddef>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPLYReader);
 
 namespace
@@ -652,3 +653,4 @@ void vtkPLYReader::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << this->Comments->GetValue(i) << "\n";
   }
 }
+VTK_ABI_NAMESPACE_END

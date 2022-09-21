@@ -32,6 +32,7 @@
 
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkFiniteDifferenceGradientEstimator);
 
 // This is the templated function that actually computes the EncodedNormal
@@ -363,3 +364,4 @@ void vtkFiniteDifferenceGradientEstimator::PrintSelf(ostream& os, vtkIndent inde
 
   os << indent << "Sample spacing in voxels: " << this->SampleSpacingInVoxels << endl;
 }
+VTK_ABI_NAMESPACE_END

@@ -29,6 +29,7 @@
 #include "vtkIOParallelXMLModule.h" // For export macro
 #include "vtkXMLMultiBlockDataWriter.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCompositeDataSet;
 class vtkMultiProcessController;
 
@@ -149,4 +150,5 @@ private:
   vtkInternal* XMLPMultiBlockDataWriterInternal;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

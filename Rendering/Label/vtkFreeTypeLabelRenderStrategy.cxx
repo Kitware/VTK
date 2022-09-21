@@ -25,6 +25,7 @@
 #include "vtkTimerLog.h"
 #include "vtkWindow.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkFreeTypeLabelRenderStrategy);
 
 //------------------------------------------------------------------------------
@@ -172,3 +173,4 @@ void vtkFreeTypeLabelRenderStrategy::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

@@ -20,6 +20,7 @@
 #include "vtkVolume.h"
 #include "vtkVolumeMapper.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkVolumePicker);
 
 //------------------------------------------------------------------------------
@@ -413,3 +414,4 @@ int vtkVolumePicker::ClipLineWithCroppingRegion(const double bounds[6], const in
 
   return numSegments;
 }
+VTK_ABI_NAMESPACE_END

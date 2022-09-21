@@ -33,6 +33,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <sstream>
 #include <vtksys/SystemTools.hxx>
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkSQLDatabase::vtkCallbackVector : public std::vector<vtkSQLDatabase::CreateFunction>
 {
 public:
@@ -648,3 +649,4 @@ bool vtkSQLDatabase::EffectSchema(vtkSQLDatabaseSchema* schema, bool dropIfExist
   query->Delete();
   return true;
 }
+VTK_ABI_NAMESPACE_END

@@ -17,6 +17,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkRendererCollection.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(ExternalVTKWidget);
 
 //------------------------------------------------------------------------------
@@ -110,3 +111,4 @@ void ExternalVTKWidget::SetRenderWindow(vtkExternalOpenGLRenderWindow* w)
     renderers->UnRegister(this);
   }
 }
+VTK_ABI_NAMESPACE_END

@@ -36,6 +36,7 @@
 #include "vtkCommonTransformsModule.h" // For export macro
 #include "vtkHomogeneousTransform.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONTRANSFORMS_EXPORT vtkLinearTransform : public vtkHomogeneousTransform
 {
 public:
@@ -267,4 +268,5 @@ private:
   void operator=(const vtkLinearTransform&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

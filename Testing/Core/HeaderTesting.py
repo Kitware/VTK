@@ -32,6 +32,7 @@ import sys
 import re
 import os
 import stat
+import argparse as cli
 
 # Get the path to the directory containing this script.
 if __name__ == '__main__':
@@ -113,6 +114,13 @@ class TestVTKFiles:
         self.FileLines = []
         self.ClassName = ""
         self.ParentName = ""
+        self.HasIncludes = False
+        self.HasTypedef = False
+        self.HasClass = False
+        self.HasFunction = False
+
+        classre = "^class(\s+VTK_DEPRECATED)?(\s+[^\s]*_EXPORT)?\s+(vtkm?[A-Z0-9_][^ :\n]*)\s*:\s*public\s+(vtk[^ \n\{]*)"
+        regx = re.compile(classre)
         try:
             if sys.hexversion >= 0x03000000:
                 file = open(filename, encoding='ascii', errors='ignore')
@@ -120,6 +128,19 @@ class TestVTKFiles:
                 file = open(filename)
             self.FileLines = file.readlines()
             file.close()
+            funcre = "[a-zA-Z0-9_]*\s+[a-zA-Z0-9_]*\s*\([^\n\{]*\);"
+            funcregex = re.compile(funcre)
+
+            for l in self.FileLines:
+                line = l.strip()
+                if "#include" == line[:8]:
+                    self.HasIncludes = True
+                if regx.match(line):
+                    self.HasClass = True
+                if "typedef" == line[:7] or "using" == line[:5]:
+                    self.HasTypedef = True
+                if funcregex.match(line):
+                    self.HasFunction = True
         except:
             self.Print("Problem reading file %s:\n%s" %
                        (filename, str(sys.exc_info()[1])))
@@ -127,28 +148,74 @@ class TestVTKFiles:
         return not self.CheckExclude()
 
     def CheckExclude(self):
+        self.ExcludeNamespaceCheck = False
         prefix = '// VTK-HeaderTest-Exclude:'
         prefix_c = '/* VTK-HeaderTest-Exclude:'
         suffix_c = ' */'
         exclude = 0
         for l in self.FileLines:
+            e = None
             if l.startswith(prefix):
                 e = l[len(prefix):].strip()
-                if e == os.path.basename(self.FileName):
-                    exclude += 1
-                else:
-                    self.Error("Wrong exclusion: "+l.rstrip())
             elif l.startswith(prefix_c) and l.rstrip().endswith(suffix_c):
                 e = l[len(prefix_c):-len(suffix_c)].strip()
+
+            if not e == None:
                 if e == os.path.basename(self.FileName):
                     exclude += 1
                 else:
-                    self.Error("Wrong exclusion: "+l.rstrip())
+                    hasExclusions = False
+                    if "INCLUDES" in e:
+                        hasExclusions = True
+                        self.HasIncludes = False
+                    if "ABINAMESPACE" in e:
+                        hasExclusions = True
+                        self.ExcludeNamespaceCheck = True
+                    if "CLASSES" in e:
+                        hasExclusions = True
+                        self.HasClass = False
+                    if not hasExclusions:
+                        self.Error("Wrong exclusion: "+l.rstrip())
         if exclude > 1:
             self.Error("Multiple VTK-HeaderTest-Exclude lines")
         return exclude > 0
 
+    def CheckABINamespace(self):
+        if self.ExcludeNamespaceCheck:
+            return
+
+        if not self.HasClass and not self.HasFunction:
+            return
+
+        # Note: This check does not ensure the ABI namespace is not nested
+        #       in/around anonymous namespaces or that it is inside of named
+        #       namespaces. These checks may be good to add later.
+        open_namespace = 'VTK_ABI_NAMESPACE_BEGIN'
+        close_namespace = 'VTK_ABI_NAMESPACE_END'
+        is_open = False
+        has_abi_namespace = False
+        for l in self.FileLines:
+            if l.startswith(open_namespace):
+                if is_open:
+                    self.Error('Nested ABI namespace is not allowed.')
+                is_open = True
+                has_abi_namespace = True
+            if l.startswith(close_namespace):
+                if not is_open:
+                    self.Error('Mismatched ABI namespace macros.')
+                is_open = False
+        if not has_abi_namespace:
+            self.Print( "File: %s has no ABI namespace: " % self.FileName )
+            self.Error('Missing VTK ABI namespace macros')
+        if is_open:
+            self.Print( "File: %s does not close an ABI namespace: " % self.FileName )
+            self.Error('Missing VTK_ABI_NAMESPACE_END.')
+        pass
+
     def CheckIncludes(self):
+        if not self.HasIncludes or not self.HasClass:
+            return
+
         count = 0
         lines = []
         nplines = []
@@ -159,12 +226,26 @@ class TestVTKFiles:
         regx1 = re.compile(ignincludere)
         cc = 0
         includeparent = 0
+        stdIncludes = {'any', 'bitset', 'chrono', 'csetjmp', 'csignal',
+         'cstddef', 'ctime', 'functional', 'initializer_list',
+         'tuple', 'type_traits', 'typeindex', 'typeinfo', 'utility', 'memory',
+         'new', 'scoped_allocator', 'cfloat', 'cinttypes', 'climits', 'limits',
+         'cstdint', 'cassert', 'cerrno', 'exception', 'stdexcept',
+         'system_error', 'cctype', 'cuchar', 'cwchar', 'cwctyp',
+         'string', 'array', 'deque', 'forward_list', 'list', 'map', 'queue',
+         'set', 'stack', 'unordered_map', 'unordered_set', 'vector',
+         'iterator', 'algorithm', 'cfenv', 'cmath', 'complex', 'numeric',
+         'random', 'ratio', 'valarray', 'clocale', 'codecvt', 'locale',
+         'ostream', 'istream', 'thread', 'mutex', 'future',
+         'condition_variable'}
         for a in self.FileLines:
             line = a.strip()
             rm = regx.match(line)
             if rm and not regx1.match(line):
-                lines.append(" %4d: %s" % (cc, line))
                 file = rm.group(1)
+                if file in stdIncludes:
+                    continue
+                lines.append(" %4d: %s" % (cc, line))
                 if file == (self.ParentName + ".h"):
                     includeparent = 1
                 if not StringEndsWith(file, ".h"):
@@ -225,12 +306,15 @@ class TestVTKFiles:
         elif not guard == guard_set:
             self.Print("File: %s is not guarded properly." % self.FileName)
             self.Error("Guard does is not set properly")
-        elif not ('%s.h' % guard) == os.path.basename(self.FileName):
+        elif not os.path.basename(self.FileName) in ('%s.h' % guard):
             self.Print("File: %s has a guard (%s) which does not match its filename." % (self.FileName, guard))
             self.Error("Guard does not match the filename")
 
     def CheckParent(self):
-        classre = "^class(\s+VTK_DEPRECATED)?(\s+[^\s]*_EXPORT)?\s+(vtkm?[A-Z0-9_][^ :\n]*)\s*:\s*public\s+(vtk[^ \n\{]*)"
+        if not self.HasClass:
+            return
+
+        classre = "^class(\s+VTK_DEPRECATED)?(\s+[^\s]*_EXPORT)?\s+(vtkm?[A-Z0-9_][^ :\n]*)\s*<?[^\n\{]*>?\s*:\s*public\s+(vtk[^ \n\{<>]*)<?[^\n\{]*>?"
         cname = ""
         pname = ""
         classlines = []
@@ -276,7 +360,11 @@ class TestVTKFiles:
         self.ClassName = cname
         self.ParentName = pname
         pass
+
     def CheckTypeMacro(self):
+        if not self.HasClass:
+            return
+
         count = 0
         lines = []
         oldlines = []
@@ -334,6 +422,7 @@ class TestVTKFiles:
                             (self.ClassName, self.ParentName))
             self.Error("No type macro")
         pass
+
     def CheckForCopyAndAssignment(self):
         if not self.ClassName:
             return
@@ -389,7 +478,11 @@ class TestVTKFiles:
                         self.FileName )
             self.Error("Multiple assignment operators")
         pass
+
     def CheckWeirdConstructors(self):
+        if not self.HasClass:
+            return
+
         count = 0
         lines = []
         oldlines = []
@@ -462,42 +555,105 @@ class TestVTKFiles:
         pass
 
 ##
-test = TestVTKFiles()
+parser = cli.ArgumentParser()
+parser.add_argument(
+    "root",
+    metavar="<root>",
+    help="Root directory to glob headers from.")
+parser.add_argument(
+    "--headers",
+    metavar="<header>.h",
+    nargs='*',
+    help="List of headers to test. Relative from \
+         <root> if not absolute paths.")
+parser.add_argument(
+    "--extra-headers",
+    metavar="<header>.h",
+    nargs='*',
+    help="List of headers to test. Relative from "
+         "--root or PWD if not absolute paths.")
+parser.add_argument(
+    "--exceptions",
+    nargs='*',
+    metavar="<header>.h",
+    help="List of headers not to check "
+         "(used when --headers is not specified).")
+parser.add_argument(
+    "--export-macro",
+    metavar="VTK_<ModuleName>_EXPORT",
+    help="Export macro.")
 
-## Check command line arguments
-if len(sys.argv) < 2:
+args = parser.parse_args()
+
+# Check command line arguments
+if not args.root:
     print("Testing directory not specified...")
-    print("Usage: %s <directory> [ exception(s) ]" % sys.argv[0])
+    parser.print_usage()
     sys.exit(1)
 
-dirname = sys.argv[1]
-exceptions = sys.argv[2:]
-if len(sys.argv) > 2:
-  export = sys.argv[2]
-  if export[:3] == "VTK" and export[len(export)-len("EXPORT"):] == "EXPORT":
+# Make sure the root exsits
+if not os.path.exists(args.root):
+    print("Root path does not exists: %s" % (args.root))
+    sys.exit(1)
+
+test = TestVTKFiles()
+
+print(args)
+
+dirname = os.path.abspath(args.root)
+exceptions = []
+if args.exceptions:
+    exceptions.extend(args.exceptions)
+export = args.export_macro
+
+# Extract the headers to check
+headers = []
+if args.headers:
+    for header in args.headers:
+        headers.extend(header.split(';'))
+if args.extra_headers:
+    for header in args.extra_headers:
+        headers.extend(header.split(';'))
+
+if export and export[:3] == "VTK" and export[len(export)-len("EXPORT"):] == "EXPORT":
     print("Use export macro: %s" % export)
-    exceptions = sys.argv[3:]
     test.SetExport(export)
 
-## Traverse through the list of files
-for a in os.listdir(dirname):
-    ## Skip non-header files
-    if not StringEndsWith(a, ".h"):
+if args.headers is None:
+    ## Traverse through the list of files
+    for a in os.listdir(dirname):
+        ## Skip non-header files
+        if not StringEndsWith(a, ".h"):
+            continue
+        ## Skip non-vtk files
+        if not a.startswith('vtk'):
+            continue
+        ## Skip exceptions
+        if a in exceptions:
+            continue
+        pathname = '%s/%s' % (dirname, a)
+        if pathname in exceptions:
+            continue
+        mode = os.stat(pathname)[stat.ST_MODE]
+        ## Skip directories
+        if stat.S_ISDIR(mode):
+            continue
+        headers.append(pathname)
+
+for header in headers:
+    pathname = header
+    # If the path is not absolute, it is relative to the test directory
+    if not os.path.isabs(pathname):
+        pathname = '%s/%s' % (dirname, header)
+
+    ## Skip non-existing
+    if not os.path.exists(pathname):
+        test.Warning("Header not found: %s" % (pathname))
         continue
-    ## Skip non-vtk files
-    if not a.startswith('vtk'):
+    ## Skip .txx/.hxx/.cxx/etc. files that may be listed.
+    elif not StringEndsWith(pathname, ".h"):
         continue
-    ## Skip exceptions
-    if a in exceptions:
-        continue
-    pathname = '%s/%s' % (dirname, a)
-    if pathname in exceptions:
-        continue
-    mode = os.stat(pathname)[stat.ST_MODE]
-    ## Skip directories
-    if stat.S_ISDIR(mode):
-        continue
-    elif stat.S_ISREG(mode) and test.TestFile(pathname):
+    elif test.TestFile(pathname):
         ## Do all the tests
         test.CheckGuard()
         test.CheckParent()
@@ -507,6 +663,7 @@ for a in os.listdir(dirname):
         test.CheckWeirdConstructors()
         test.CheckPrintSelf()
         test.CheckWindowsMangling()
+        test.CheckABINamespace()
 
 ## Summarize errors
 test.PrintWarnings()

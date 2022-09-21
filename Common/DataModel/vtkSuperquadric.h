@@ -47,6 +47,7 @@
 
 #define VTK_MIN_SUPERQUADRIC_THICKNESS 1e-4
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONDATAMODEL_EXPORT vtkSuperquadric : public vtkImplicitFunction
 {
 public:
@@ -141,4 +142,5 @@ private:
   void operator=(const vtkSuperquadric&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

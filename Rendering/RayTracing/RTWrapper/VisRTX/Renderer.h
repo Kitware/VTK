@@ -16,6 +16,7 @@
 
 namespace RTW
 {
+VTK_ABI_NAMESPACE_BEGIN
     class Renderer : public Object
     {
     public:
@@ -143,4 +144,5 @@ namespace RTW
 
         std::vector<VisRTX::Light*> lastLights;
     };
+VTK_ABI_NAMESPACE_END
 }

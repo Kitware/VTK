@@ -38,6 +38,7 @@
 #include "vtkCommonDataModelModule.h" //For export macro
 #include "vtkHyperTreeGridLocator.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkGenericCell;
 class vtkPoints;
 class vtkIdList;
@@ -190,5 +191,7 @@ private:
   std::vector<double> Bins1D;
 
 }; // vtkHyperTreeGridGeometricLocator
+
+VTK_ABI_NAMESPACE_END
 
 #endif // vtkHyperTreeGridGeometricLocator_h

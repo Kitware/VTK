@@ -53,6 +53,7 @@
 #include "vtkObject.h"
 #include "vtkStdString.h" // Needed for arguments
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkLookupTable;
 
 class VTKCOMMONCOLOR_EXPORT vtkColorSeries : public vtkObject
@@ -351,4 +352,5 @@ private:
   void operator=(const vtkColorSeries&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkColorSeries_h

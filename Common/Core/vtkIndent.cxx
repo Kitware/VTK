@@ -16,6 +16,7 @@
 #include "vtkObjectFactory.h"
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkIndent* vtkIndent::New()
 {
   return new vtkIndent; // not a VTK object, don't use object factory macros
@@ -44,3 +45,4 @@ ostream& operator<<(ostream& os, const vtkIndent& ind)
   os << blanks + (VTK_NUMBER_OF_BLANKS - ind.Indent);
   return os;
 }
+VTK_ABI_NAMESPACE_END

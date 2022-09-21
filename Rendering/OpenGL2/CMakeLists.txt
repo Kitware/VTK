@@ -110,7 +110,7 @@ if (WIN32 AND (NOT CMAKE_CROSSCOMPILING OR DEFINED CMAKE_CROSSCOMPILING_EMULATOR
   set_target_properties(vtkTestOpenGLVersion
     PROPERTIES
       WIN32_EXECUTABLE TRUE)
-  target_link_libraries(vtkTestOpenGLVersion PRIVATE opengl32)
+  target_link_libraries(vtkTestOpenGLVersion PRIVATE opengl32 VTK::CommonCore)
   list(APPEND headers vtkTestOpenGLVersion.h)
 endif ()
 
@@ -406,3 +406,4 @@ if (NOT ANDROID AND
     TARGETS vtkProbeOpenGLVersion
     MODULES VTK::RenderingOpenGL2)
 endif ()
+vtk_add_test_mangling(VTK::RenderingOpenGL2)

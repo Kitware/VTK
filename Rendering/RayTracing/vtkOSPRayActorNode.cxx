@@ -33,6 +33,7 @@
 
 #include "RTWrapper/RTWrapper.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkInformationKeyMacro(vtkOSPRayActorNode, LUMINOSITY, Double);
 vtkInformationKeyMacro(vtkOSPRayActorNode, ENABLE_SCALING, Integer);
 vtkInformationKeyMacro(vtkOSPRayActorNode, SCALE_ARRAY_NAME, String);
@@ -252,3 +253,4 @@ vtkMTimeType vtkOSPRayActorNode::GetMTime()
   }
   return mtime;
 }
+VTK_ABI_NAMESPACE_END

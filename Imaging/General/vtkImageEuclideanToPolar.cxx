@@ -21,6 +21,7 @@
 
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImageEuclideanToPolar);
 
 //------------------------------------------------------------------------------
@@ -119,3 +120,4 @@ void vtkImageEuclideanToPolar::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Maximum Angle: " << this->ThetaMaximum << "\n";
 }
+VTK_ABI_NAMESPACE_END

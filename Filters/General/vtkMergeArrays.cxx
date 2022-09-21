@@ -26,6 +26,7 @@
 #include "vtkPointData.h"
 #include "vtkSmartPointer.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkMergeArrays);
 
 //------------------------------------------------------------------------------
@@ -194,3 +195,4 @@ void vtkMergeArrays::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

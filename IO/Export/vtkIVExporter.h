@@ -29,6 +29,7 @@
 #include "vtkExporter.h"
 #include "vtkIOExportModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkLight;
 class vtkActor;
 class vtkPoints;
@@ -66,4 +67,5 @@ private:
   void operator=(const vtkIVExporter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

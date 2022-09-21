@@ -26,6 +26,7 @@
 #include "vtkTranslucentPass.h"
 #include "vtkVolumetricPass.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkRenderStepsPass);
 
 vtkCxxSetObjectMacro(vtkRenderStepsPass, CameraPass, vtkCameraPass);
@@ -251,3 +252,4 @@ void vtkRenderStepsPass::ReleaseGraphicsResources(vtkWindow* w)
     this->PostProcessPass->ReleaseGraphicsResources(w);
   }
 }
+VTK_ABI_NAMESPACE_END

@@ -33,6 +33,7 @@
 #include "vtkBorderWidget.h"
 #include "vtkInteractionWidgetsModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkProgressBarRepresentation;
 
 class VTKINTERACTIONWIDGETS_EXPORT vtkProgressBarWidget : public vtkBorderWidget
@@ -75,4 +76,5 @@ private:
   void operator=(const vtkProgressBarWidget&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

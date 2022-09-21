@@ -64,6 +64,7 @@
 #include "vtkPointInterpolator.h"
 #include "vtkStdString.h" // For vtkStdString ivars
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSPOINTS_EXPORT vtkPointInterpolator2D : public vtkPointInterpolator
 {
 public:
@@ -116,4 +117,5 @@ private:
   void operator=(const vtkPointInterpolator2D&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

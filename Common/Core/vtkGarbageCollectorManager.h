@@ -31,6 +31,7 @@
 #include "vtkDebugLeaksManager.h" // DebugLeaks is around longer than
                                   // the garbage collector.
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONCORE_EXPORT vtkGarbageCollectorManager
 {
 public:
@@ -48,5 +49,6 @@ private:
 // it is done being used.
 static vtkGarbageCollectorManager vtkGarbageCollectorManagerInstance;
 
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkGarbageCollectorManager.h

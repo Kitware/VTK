@@ -47,6 +47,7 @@
 #include <memory> // for unique_ptr.
 #include <string> // for string.
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkSelectionNode;
 class vtkSignedCharArray;
 
@@ -236,4 +237,5 @@ inline vtkSmartPointer<vtkSignedCharArray> vtkSelection::Evaluate(const MapType&
   return this->Evaluate(&values[0], num_nodes);
 }
 
+VTK_ABI_NAMESPACE_END
 #endif

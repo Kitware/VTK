@@ -35,3 +35,4 @@ vtk_module_definitions(VTK::GUISupportQtQuick PRIVATE QT_NO_KEYWORDS)
 vtk_module_link(VTK::GUISupportQtQuick PUBLIC ${qt_modules})
 
 add_subdirectory(qml)
+vtk_add_test_mangling(VTK::GUISupportQtQuick)

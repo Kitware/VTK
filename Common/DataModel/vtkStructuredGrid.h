@@ -48,6 +48,7 @@
 
 #include "vtkStructuredData.h" // Needed for inline methods
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkEmptyCell;
 class vtkHexahedron;
 class vtkLine;
@@ -310,4 +311,5 @@ inline int vtkStructuredGrid::GetDataDimension()
   return vtkStructuredData::GetDataDimension(this->DataDescription);
 }
 
+VTK_ABI_NAMESPACE_END
 #endif

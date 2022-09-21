@@ -66,6 +66,7 @@ using RenderEvent = vtkRenderTimerLog::ScopedEventLogger;
 
 #define TIME_FUNCTION(functionName) VTK_SCOPED_RENDER_EVENT(#functionName, this->Timer)
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkDualDepthPeelingPass);
 vtkCxxSetObjectMacro(vtkDualDepthPeelingPass, VolumetricPass, vtkRenderPass);
 
@@ -1778,3 +1779,4 @@ void vtkDualDepthPeelingPass::DeleteOcclusionQueryIds()
   glDeleteQueries(1, &this->TranslucentOcclusionQueryId);
   glDeleteQueries(1, &this->VolumetricOcclusionQueryId);
 }
+VTK_ABI_NAMESPACE_END

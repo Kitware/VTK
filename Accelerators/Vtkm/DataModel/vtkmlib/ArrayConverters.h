@@ -30,10 +30,6 @@
 
 #include <type_traits> // for std::underlying_type
 
-class vtkDataArray;
-class vtkDataSet;
-class vtkPoints;
-
 namespace vtkm
 {
 namespace cont
@@ -43,8 +39,15 @@ class CoordinateSystem;
 }
 }
 
+VTK_ABI_NAMESPACE_BEGIN
+class vtkDataArray;
+class vtkDataSet;
+class vtkPoints;
+VTK_ABI_NAMESPACE_END
+
 namespace tovtkm
 {
+VTK_ABI_NAMESPACE_BEGIN
 
 VTKACCELERATORSVTKMDATAMODEL_EXPORT
 void ProcessFields(vtkDataSet* input, vtkm::cont::DataSet& dataset, tovtkm::FieldsFlag fields);
@@ -52,13 +55,16 @@ void ProcessFields(vtkDataSet* input, vtkm::cont::DataSet& dataset, tovtkm::Fiel
 // determine the type and call the proper Convert routine
 VTKACCELERATORSVTKMDATAMODEL_EXPORT
 vtkm::cont::Field Convert(vtkDataArray* input, int association);
+VTK_ABI_NAMESPACE_END
 }
 
 namespace fromvtkm
 {
+VTK_ABI_NAMESPACE_BEGIN
 
 VTKACCELERATORSVTKMDATAMODEL_EXPORT
 bool ConvertArrays(const vtkm::cont::DataSet& input, vtkDataSet* output);
+VTK_ABI_NAMESPACE_END
 }
 
 #endif // vtkmlib_ArrayConverters_h

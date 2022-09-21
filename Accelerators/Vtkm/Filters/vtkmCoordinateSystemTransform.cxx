@@ -36,6 +36,7 @@
 #include <vtkm/filter/field_transform/CylindricalCoordinateTransform.h>
 #include <vtkm/filter/field_transform/SphericalCoordinateTransform.h>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkmCoordinateSystemTransform);
 
 //------------------------------------------------------------------------------
@@ -204,3 +205,4 @@ void vtkmCoordinateSystemTransform::PrintSelf(std::ostream& os, vtkIndent indent
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

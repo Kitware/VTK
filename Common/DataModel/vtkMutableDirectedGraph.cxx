@@ -28,6 +28,7 @@
 //------------------------------------------------------------------------------
 // class vtkMutableDirectedGraph
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkMutableDirectedGraph);
 //------------------------------------------------------------------------------
 vtkMutableDirectedGraph::vtkMutableDirectedGraph()
@@ -248,3 +249,4 @@ void vtkMutableDirectedGraph::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

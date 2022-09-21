@@ -33,6 +33,7 @@
 #include "vtkImageAlgorithm.h"
 #include "vtkImagingHybridModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKIMAGINGHYBRID_EXPORT vtkPointLoad : public vtkImageAlgorithm
 {
 public:
@@ -113,4 +114,5 @@ private:
   void operator=(const vtkPointLoad&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

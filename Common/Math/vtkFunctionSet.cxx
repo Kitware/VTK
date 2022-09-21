@@ -14,6 +14,7 @@
 =========================================================================*/
 #include "vtkFunctionSet.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkFunctionSet::vtkFunctionSet()
 {
   this->NumFuncs = 0;
@@ -26,3 +27,4 @@ void vtkFunctionSet::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Number of functions: " << this->NumFuncs << "\n";
   os << indent << "Number of independent variables: " << this->NumIndepVars << "\n";
 }
+VTK_ABI_NAMESPACE_END

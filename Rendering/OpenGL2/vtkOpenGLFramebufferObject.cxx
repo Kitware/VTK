@@ -30,6 +30,7 @@
 #include <cassert>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkFOInfo
 {
 public:
@@ -1616,3 +1617,4 @@ int vtkOpenGLFramebufferObject::GetNumberOfColorAttachments()
 {
   return static_cast<int>(this->ColorBuffers.size());
 }
+VTK_ABI_NAMESPACE_END

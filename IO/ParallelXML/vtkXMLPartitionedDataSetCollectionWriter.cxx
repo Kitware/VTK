@@ -36,6 +36,7 @@
 #include <memory>
 #include <numeric>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkXMLPartitionedDataSetCollectionWriter);
 //------------------------------------------------------------------------------
 vtkXMLPartitionedDataSetCollectionWriter::vtkXMLPartitionedDataSetCollectionWriter() = default;
@@ -254,3 +255,4 @@ void vtkXMLPartitionedDataSetCollectionWriter::PrintSelf(ostream& os, vtkIndent 
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

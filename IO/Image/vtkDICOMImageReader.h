@@ -40,6 +40,7 @@
 #include "vtkIOImageModule.h" // For export macro
 #include "vtkImageReader2.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDICOMImageReaderVector;
 class DICOMParser;
 class DICOMAppHelper;
@@ -242,4 +243,5 @@ private:
   void operator=(const vtkDICOMImageReader&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -22,6 +22,7 @@ https://github.com/ValveSoftware/openvr/blob/master/LICENSE
 #include "vtkObjectFactory.h"
 #include "vtkOpenXRCamera.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOpenXRRenderer);
 
 //------------------------------------------------------------------------------
@@ -44,3 +45,4 @@ void vtkOpenXRRenderer::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

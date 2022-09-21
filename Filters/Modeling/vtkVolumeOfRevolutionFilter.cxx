@@ -32,6 +32,7 @@
 
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkVolumeOfRevolutionFilter);
 
 namespace
@@ -508,3 +509,4 @@ void vtkVolumeOfRevolutionFilter::PrintSelf(ostream& os, vtkIndent indent)
      << "," << this->AxisDirection[2] << ")\n";
   os << indent << "Output Points Precision: " << this->OutputPointsPrecision << "\n";
 }
+VTK_ABI_NAMESPACE_END

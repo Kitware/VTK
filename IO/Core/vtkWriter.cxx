@@ -24,6 +24,7 @@
 #include <sstream>
 
 // Construct with no start and end write methods or arguments.
+VTK_ABI_NAMESPACE_BEGIN
 vtkWriter::vtkWriter()
 {
   this->SetNumberOfInputPorts(1);
@@ -184,3 +185,4 @@ void vtkWriter::EncodeWriteString(ostream* out, const char* name, bool doublePer
     cc++;
   }
 }
+VTK_ABI_NAMESPACE_END

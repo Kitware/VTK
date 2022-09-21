@@ -26,6 +26,7 @@
 #include "vtkX3DExporterWriter.h"
 #include <string> // for std::string
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkX3DExporterXMLNodeInfoStack;
 
 class VTKIOEXPORT_EXPORT vtkX3DExporterXMLWriter : public vtkX3DExporterWriter
@@ -86,4 +87,5 @@ private:
   void operator=(const vtkX3DExporterXMLWriter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

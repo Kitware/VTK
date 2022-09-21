@@ -27,6 +27,7 @@
 #include "vtkTimeStamp.h"                 //for mapper changed time
 #include "vtkWeakPointer.h"               //also for mapper changed time
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkActor;
 class vtkCompositeDataDisplayAttributes;
 class vtkDataArray;
@@ -132,4 +133,5 @@ private:
   vtkWeakPointer<vtkMapper> LastMapper;
   vtkTimeStamp MapperChangedTime;
 };
+VTK_ABI_NAMESPACE_END
 #endif

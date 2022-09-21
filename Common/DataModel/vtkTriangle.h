@@ -28,6 +28,7 @@
 
 #include "vtkMath.h" // Needed for inline methods
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkLine;
 class vtkQuadric;
 class vtkIncrementalPointLocator;
@@ -293,4 +294,5 @@ inline double vtkTriangle::TriangleArea(const double p1[3], const double p2[3], 
   return 0.5 * vtkMath::Norm(n);
 }
 
+VTK_ABI_NAMESPACE_END
 #endif

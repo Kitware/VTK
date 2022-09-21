@@ -23,6 +23,7 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkVectorOperators.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkInteractorStyleRubberBandZoom);
 
 vtkInteractorStyleRubberBandZoom::vtkInteractorStyleRubberBandZoom()
@@ -335,3 +336,4 @@ void vtkInteractorStyleRubberBandZoom::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "UseDollyForPerspectiveProjection: " << this->UseDollyForPerspectiveProjection
      << endl;
 }
+VTK_ABI_NAMESPACE_END

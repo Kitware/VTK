@@ -39,6 +39,7 @@
 // class vtkVertexAdjacencyList
 //----------------------------------------------------------------------------
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkVertexAdjacencyList
 {
 public:
@@ -101,4 +102,5 @@ private:
   void operator=(const vtkGraphInternals&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkGraphInternals_h

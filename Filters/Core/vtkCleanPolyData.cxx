@@ -29,6 +29,7 @@
 
 #include <unordered_map>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkCleanPolyData);
 
 namespace
@@ -735,3 +736,4 @@ vtkMTimeType vtkCleanPolyData::GetMTime()
   }
   return mTime;
 }
+VTK_ABI_NAMESPACE_END

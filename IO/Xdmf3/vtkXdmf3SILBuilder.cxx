@@ -27,6 +27,7 @@
 #define MAX_COLLECTABLE_NUMBER_OF_GRIDS 1000
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkXdmf3SILBuilder::vtkXdmf3SILBuilder()
 {
   this->SIL = nullptr;
@@ -139,3 +140,4 @@ bool vtkXdmf3SILBuilder::IsMaxedOut()
 {
   return (this->VertexCount >= MAX_COLLECTABLE_NUMBER_OF_GRIDS);
 }
+VTK_ABI_NAMESPACE_END

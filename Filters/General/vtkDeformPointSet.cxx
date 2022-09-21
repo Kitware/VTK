@@ -26,6 +26,7 @@
 #include "vtkPolyData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkDeformPointSet);
 
 //------------------------------------------------------------------------------
@@ -203,3 +204,4 @@ void vtkDeformPointSet::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Initialize Weights: " << (this->InitializeWeights ? "true" : "false") << "\n";
 }
+VTK_ABI_NAMESPACE_END

@@ -39,6 +39,7 @@
 // Define to print debugging info:
 //#define DEBUG_BTA3D
 
+VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
 
@@ -666,3 +667,4 @@ void vtkBillboardTextActor3D::PreRender()
   // etc to work.
   this->QuadActor->SetPropertyKeys(this->GetPropertyKeys());
 }
+VTK_ABI_NAMESPACE_END

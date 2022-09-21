@@ -18,6 +18,7 @@
 #include "vtkRenderer.h"
 #include "vtkTextProperty.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkCxxSetObjectMacro(vtkLabelRenderStrategy, Renderer, vtkRenderer);
 vtkCxxSetObjectMacro(vtkLabelRenderStrategy, DefaultTextProperty, vtkTextProperty);
 
@@ -42,3 +43,4 @@ void vtkLabelRenderStrategy::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Renderer: " << this->Renderer << endl;
   os << indent << "DefaultTextProperty: " << this->DefaultTextProperty << endl;
 }
+VTK_ABI_NAMESPACE_END

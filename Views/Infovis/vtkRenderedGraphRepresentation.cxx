@@ -84,6 +84,7 @@
 #include <algorithm>
 #include <cctype>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkRenderedGraphRepresentation);
 
 vtkRenderedGraphRepresentation::vtkRenderedGraphRepresentation()
@@ -1445,3 +1446,4 @@ void vtkRenderedGraphRepresentation::PrintSelf(ostream& os, vtkIndent indent)
      << "HideEdgeLabelsOnInteraction: " << (this->HideEdgeLabelsOnInteraction ? "On" : "Off")
      << endl;
 }
+VTK_ABI_NAMESPACE_END

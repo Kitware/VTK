@@ -21,6 +21,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImageShiftScale);
 
 //------------------------------------------------------------------------------
@@ -158,3 +159,4 @@ void vtkImageShiftScale::ThreadedRequestData(vtkInformation*, vtkInformationVect
       return;
   }
 }
+VTK_ABI_NAMESPACE_END

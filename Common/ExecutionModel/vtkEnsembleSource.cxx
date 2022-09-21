@@ -27,6 +27,7 @@
 
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkEnsembleSource);
 vtkCxxSetObjectMacro(vtkEnsembleSource, MetaData, vtkTable);
 
@@ -176,3 +177,4 @@ void vtkEnsembleSource::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "(nullptr)" << endl;
   }
 }
+VTK_ABI_NAMESPACE_END

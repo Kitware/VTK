@@ -34,6 +34,7 @@ Ph.D. thesis of Christian BOUCHENY.
 #include "vtkPixelBufferObject.h"
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkDepthImageProcessingPass::vtkDepthImageProcessingPass()
 {
   this->Origin[0] = 0;
@@ -162,3 +163,4 @@ void vtkDepthImageProcessingPass::ReadWindowSize(const vtkRenderState* s)
     this->Height = size[1];
   }
 }
+VTK_ABI_NAMESPACE_END

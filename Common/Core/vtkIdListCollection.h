@@ -28,6 +28,7 @@
 
 #include "vtkIdList.h" // Needed for inline methods
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONCORE_EXPORT vtkIdListCollection : public vtkCollection
 {
 public:
@@ -72,4 +73,5 @@ private:
   void operator=(const vtkIdListCollection&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

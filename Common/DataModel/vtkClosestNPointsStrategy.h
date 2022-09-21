@@ -32,6 +32,7 @@
 #include "vtkClosestPointStrategy.h"
 #include "vtkCommonDataModelModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONDATAMODEL_EXPORT vtkClosestNPointsStrategy : public vtkClosestPointStrategy
 {
 public:
@@ -84,4 +85,5 @@ private:
   void operator=(const vtkClosestNPointsStrategy&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

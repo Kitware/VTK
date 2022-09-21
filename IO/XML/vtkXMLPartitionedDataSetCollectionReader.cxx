@@ -29,6 +29,7 @@
 
 #include <cctype> // for std::isspace
 
+VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
 vtkSmartPointer<vtkDataAssembly> ReadDataAssembly(
@@ -168,3 +169,4 @@ void vtkXMLPartitionedDataSetCollectionReader::ReadComposite(vtkXMLDataElement* 
     }
   }
 }
+VTK_ABI_NAMESPACE_END

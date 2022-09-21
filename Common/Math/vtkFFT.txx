@@ -20,6 +20,7 @@
 
 #ifndef __VTK_WRAP__
 
+VTK_ABI_NAMESPACE_BEGIN
 //------------------------------------------------------------------------------
 template <typename InputIt>
 typename std::iterator_traits<InputIt>::value_type vtkFFT::ComputeScaling(
@@ -312,5 +313,6 @@ vtkSmartPointer<vtkFFT::vtkScalarNumberArray> vtkFFT::Csd(vtkScalarNumberArray* 
   return average;
 }
 
+VTK_ABI_NAMESPACE_END
 #endif // __VTK_WRAP__
 #endif // vtkFFT_txx

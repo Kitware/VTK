@@ -35,6 +35,7 @@
 #include <sstream>
 #include <tuple>
 
+VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
 
@@ -832,3 +833,4 @@ std::vector<std::string> vtkDataAssemblyUtilities::GetSelectorsForCompositeIds(
   // use-case.
   return {};
 }
+VTK_ABI_NAMESPACE_END

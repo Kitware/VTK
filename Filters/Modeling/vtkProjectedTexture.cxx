@@ -22,6 +22,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkProjectedTexture);
 
 // Description:
@@ -270,3 +271,4 @@ void vtkProjectedTexture::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "MirrorSeparation: " << this->MirrorSeparation << "\n";
 }
+VTK_ABI_NAMESPACE_END

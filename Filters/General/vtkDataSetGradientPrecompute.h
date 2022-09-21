@@ -32,6 +32,7 @@
 #include "vtkDataSetAlgorithm.h"
 #include "vtkFiltersGeneralModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSGENERAL_EXPORT vtkDataSetGradientPrecompute : public vtkDataSetAlgorithm
 {
 public:
@@ -52,4 +53,5 @@ private:
   void operator=(const vtkDataSetGradientPrecompute&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif /* VTK_DATA_SET_GRADIENT_PRECOMPUTE_H */

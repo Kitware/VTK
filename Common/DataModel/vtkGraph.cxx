@@ -49,6 +49,7 @@
 #include <set>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 double vtkGraph::DefaultPoint[3] = { 0, 0, 0 };
 
 //------------------------------------------------------------------------------
@@ -2005,3 +2006,4 @@ ostream& operator<<(ostream& out, vtkEdgeBase e)
 {
   return out << e.Id;
 }
+VTK_ABI_NAMESPACE_END

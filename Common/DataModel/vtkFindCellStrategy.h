@@ -51,6 +51,7 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCell;
 class vtkGenericCell;
 class vtkPointSet;
@@ -142,4 +143,5 @@ private:
   void operator=(const vtkFindCellStrategy&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

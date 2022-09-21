@@ -33,6 +33,7 @@
 #include <string>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkEqualizerFilter::vtkInternal
 {
 public:
@@ -451,3 +452,4 @@ void vtkEqualizerFilter::ProcessColumn(
   resultTable->AddColumn(rfftArray);
   // end fill result table
 }
+VTK_ABI_NAMESPACE_END

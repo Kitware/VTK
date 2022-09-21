@@ -37,6 +37,7 @@
 
 #include "vtkTypedDataArray.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 template <class Scalar>
 class vtkMappedDataArray : public vtkTypedDataArray<Scalar>
 {
@@ -143,6 +144,7 @@ private:
 // Declare vtkArrayDownCast implementations for mapped containers:
 vtkArrayDownCast_TemplateFastCastMacro(vtkMappedDataArray);
 
+VTK_ABI_NAMESPACE_END
 #include "vtkMappedDataArray.txx"
 
 // Adds an implementation of NewInstanceInternal() that returns an AoS

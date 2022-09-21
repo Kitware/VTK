@@ -17,6 +17,7 @@
 #include "vtkFunctionSet.h"
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkInitialValueProblemSolver::vtkInitialValueProblemSolver()
 {
   this->FunctionSet = nullptr;
@@ -86,3 +87,4 @@ void vtkInitialValueProblemSolver::Initialize()
   this->Derivs = new double[this->FunctionSet->GetNumberOfFunctions()];
   this->Initialized = 1;
 }
+VTK_ABI_NAMESPACE_END

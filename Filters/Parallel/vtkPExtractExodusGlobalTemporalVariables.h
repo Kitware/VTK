@@ -32,6 +32,7 @@
 #include "vtkExtractExodusGlobalTemporalVariables.h"
 #include "vtkFiltersParallelModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkMultiProcessController;
 
 class VTKFILTERSPARALLEL_EXPORT vtkPExtractExodusGlobalTemporalVariables
@@ -65,4 +66,5 @@ private:
   vtkMultiProcessController* Controller;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

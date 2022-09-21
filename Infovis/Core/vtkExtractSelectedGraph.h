@@ -40,6 +40,7 @@
 #include "vtkGraphAlgorithm.h"
 #include "vtkInfovisCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkSelection;
 class vtkDataSet;
 
@@ -91,4 +92,5 @@ private:
   void operator=(const vtkExtractSelectedGraph&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

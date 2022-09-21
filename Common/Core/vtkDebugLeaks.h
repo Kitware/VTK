@@ -57,6 +57,7 @@
 
 #include <mutex> // for std::mutex
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDebugLeaksHashTable;
 class vtkDebugLeaksTraceManager;
 class vtkDebugLeaksObserver;
@@ -143,4 +144,5 @@ public:
   virtual void DestructingObject(vtkObjectBase*) = 0;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkDebugLeaks_h

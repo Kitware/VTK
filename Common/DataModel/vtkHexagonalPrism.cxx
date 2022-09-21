@@ -32,6 +32,7 @@
 #include <cassert>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkHexagonalPrism);
 
 static const double VTK_DIVERGED = 1.e6;
@@ -1117,3 +1118,4 @@ void vtkHexagonalPrism::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Polygon:\n";
   this->Polygon->PrintSelf(os, indent.GetNextIndent());
 }
+VTK_ABI_NAMESPACE_END

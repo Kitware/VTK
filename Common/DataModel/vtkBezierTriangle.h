@@ -34,6 +34,7 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkHigherOrderTriangle.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDoubleArray;
 class vtkBezierCurve;
 class vtkTriangle;
@@ -68,4 +69,5 @@ private:
   void operator=(const vtkBezierTriangle&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

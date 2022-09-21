@@ -53,6 +53,7 @@
 using namespace vtkX3D;
 
 // forward declarations
+VTK_ABI_NAMESPACE_BEGIN
 static bool vtkX3DExporterWriterUsingCellColors(vtkMapper* mapper);
 static bool vtkX3DExporterWriterRenderFaceSet(int cellType, int representation, vtkPoints* points,
   vtkIdType cellOffset, vtkCellArray* cells, vtkUnsignedCharArray* colors, bool cell_colors,
@@ -1220,3 +1221,4 @@ char* vtkX3DExporter::RegisterAndGetOutputString()
 
   return tmp;
 }
+VTK_ABI_NAMESPACE_END

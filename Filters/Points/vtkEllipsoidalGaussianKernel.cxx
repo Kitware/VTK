@@ -22,6 +22,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkEllipsoidalGaussianKernel);
 
 //------------------------------------------------------------------------------
@@ -212,3 +213,4 @@ void vtkEllipsoidalGaussianKernel::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Sharpness: " << this->GetSharpness() << endl;
   os << indent << "Eccentricity: " << this->GetEccentricity() << endl;
 }
+VTK_ABI_NAMESPACE_END

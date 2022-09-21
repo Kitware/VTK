@@ -34,6 +34,7 @@
 
 #include <algorithm>
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkTableToSparseArray::implementation
 {
 public:
@@ -215,3 +216,4 @@ int vtkTableToSparseArray::RequestData(
 
   return 1;
 }
+VTK_ABI_NAMESPACE_END

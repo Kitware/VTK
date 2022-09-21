@@ -27,6 +27,7 @@
 #include <vector>
 
 // Hidden STL reference: std::vector<vtkAbstractArray*>
+VTK_ABI_NAMESPACE_BEGIN
 class MyStdVectorOfVtkAbstractArrays : public std::vector<vtkAbstractArray*>
 {
 };
@@ -154,6 +155,7 @@ void vtkBlueObeliskData::PrintSelfIfExists(
     os << indent << name << " is null.\n";
   }
 }
+VTK_ABI_NAMESPACE_END
 
 // Helpers for reading raw data from the private header into a VTK array.
 namespace
@@ -185,6 +187,7 @@ void LoadDataArray(
 
 } // End anon namespace
 
+VTK_ABI_NAMESPACE_BEGIN
 //------------------------------------------------------------------------------
 void vtkBlueObeliskData::LockWriteMutex()
 {
@@ -241,6 +244,7 @@ void vtkBlueObeliskData::Initialize()
   this->Initialized = true;
 }
 
+VTK_ABI_NAMESPACE_END
 // Helpers for GenerateHeaderFromXML:
 namespace
 {
@@ -315,6 +319,7 @@ void WriteDataArray(const std::string& name, ArrayT* data, std::ostream& out)
 
 } // end anon namespace
 
+VTK_ABI_NAMESPACE_BEGIN
 //------------------------------------------------------------------------------
 bool vtkBlueObeliskData::GenerateHeaderFromXML(std::istream& xml, std::ostream& out)
 {
@@ -401,3 +406,4 @@ void vtkBlueObeliskData::Reset()
     (*it)->Reset();
   }
 }
+VTK_ABI_NAMESPACE_END

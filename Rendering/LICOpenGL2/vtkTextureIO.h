@@ -29,6 +29,7 @@
 #include <deque>   // for deque
 #include <string>  // for string
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkTextureObject;
 
 class VTKRENDERINGLICOPENGL2_EXPORT vtkTextureIO
@@ -76,5 +77,6 @@ public:
   ///@}
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkTextureIO.h

@@ -31,6 +31,7 @@ namespace vtx
 {
 namespace schema
 {
+VTK_ABI_NAMESPACE_BEGIN
 
 template <class T>
 void VTXvtkVTI::SetDimensionsCommon(
@@ -49,6 +50,7 @@ void VTXvtkVTI::SetDimensionsCommon(
   }
 }
 
+VTK_ABI_NAMESPACE_END
 } // end namespace schema
 } // end namespace vtx
 

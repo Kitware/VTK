@@ -71,6 +71,7 @@
 #include "vtkFiltersHybridModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPriorityQueue;
 class vtkImageData;
 class vtkEdgeList;
@@ -205,4 +206,5 @@ private:
   void operator=(const vtkProjectedTerrainPath&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

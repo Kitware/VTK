@@ -27,6 +27,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkVRModel.h"
 #include <openvr.h> // for ivars
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKRENDERINGOPENVR_EXPORT vtkOpenVRModel : public vtkVRModel
 {
 public:
@@ -50,4 +51,5 @@ private:
   void operator=(const vtkOpenVRModel&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -25,6 +25,7 @@
 
 #include <string> // needed for ID and md5 storing
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkMatrix4x4;
 class vtkUnsignedCharArray;
 
@@ -99,4 +100,5 @@ private:
   void operator=(const vtkWebGLObject&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

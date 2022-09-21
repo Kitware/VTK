@@ -50,6 +50,7 @@
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkMultiBlockDataSetAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkLocator;
 class vtkDataSet;
 class vtkSpatialRepresentationFilterInternal;
@@ -117,4 +118,5 @@ private:
   vtkSpatialRepresentationFilterInternal* Internal;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

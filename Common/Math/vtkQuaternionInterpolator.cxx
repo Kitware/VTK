@@ -20,6 +20,7 @@
 #include <algorithm>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkQuaternionInterpolator);
 
 //------------------------------------------------------------------------------
@@ -367,3 +368,4 @@ void vtkQuaternionInterpolator::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "InterpolationType: "
      << (this->InterpolationType == INTERPOLATION_TYPE_LINEAR ? "Linear\n" : "Spline\n");
 }
+VTK_ABI_NAMESPACE_END

@@ -38,6 +38,7 @@
 #include "vtkVolume.h"
 #include "vtkVolumeProperty.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkSmartVolumeMapper);
 
 //------------------------------------------------------------------------------
@@ -935,3 +936,4 @@ void vtkSmartVolumeMapper::SetVectorMode(int mode)
     this->Modified();
   }
 }
+VTK_ABI_NAMESPACE_END

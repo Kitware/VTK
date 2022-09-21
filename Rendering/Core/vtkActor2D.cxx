@@ -21,6 +21,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkActor2D);
 
 vtkCxxSetObjectMacro(vtkActor2D, Property, vtkProperty2D);
@@ -314,3 +315,4 @@ void vtkActor2D::PrintSelf(ostream& os, vtkIndent indent)
     this->Mapper->PrintSelf(os, indent.GetNextIndent());
   }
 }
+VTK_ABI_NAMESPACE_END

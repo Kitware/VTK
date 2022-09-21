@@ -50,6 +50,7 @@
 #include <map>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkScatterPlotMatrix::PIMPL
 {
 public:
@@ -1991,3 +1992,4 @@ void vtkScatterPlotMatrix::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Title: " << this->Title << endl;
   os << indent << "SelectionMode: " << this->SelectionMode << endl;
 }
+VTK_ABI_NAMESPACE_END

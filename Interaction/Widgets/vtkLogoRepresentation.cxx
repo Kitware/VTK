@@ -29,6 +29,7 @@
 #include "vtkTexturedActor2D.h"
 #include "vtkWindow.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkLogoRepresentation);
 
 vtkCxxSetObjectMacro(vtkLogoRepresentation, Image, vtkImageData);
@@ -235,3 +236,4 @@ void vtkLogoRepresentation::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Image Property: (none)\n";
   }
 }
+VTK_ABI_NAMESPACE_END

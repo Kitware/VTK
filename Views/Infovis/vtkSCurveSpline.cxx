@@ -24,6 +24,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <algorithm> // for std::min()/std::max()
 #include <cassert>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkSCurveSpline);
 
 //------------------------------------------------------------------------------
@@ -246,3 +247,4 @@ void vtkSCurveSpline::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
   os << "NodeWeight: " << this->NodeWeight << endl;
 }
+VTK_ABI_NAMESPACE_END

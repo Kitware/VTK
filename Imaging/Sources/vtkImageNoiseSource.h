@@ -30,6 +30,7 @@
 #include "vtkImageAlgorithm.h"
 #include "vtkImagingSourcesModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKIMAGINGSOURCES_EXPORT vtkImageNoiseSource : public vtkImageAlgorithm
 {
 public:
@@ -74,4 +75,5 @@ private:
   void operator=(const vtkImageNoiseSource&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

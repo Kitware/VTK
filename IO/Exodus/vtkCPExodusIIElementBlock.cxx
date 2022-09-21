@@ -25,6 +25,7 @@
 #include <algorithm>
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkCPExodusIIElementBlock);
 vtkStandardNewMacro(vtkCPExodusIIElementBlockImpl);
 
@@ -218,3 +219,4 @@ vtkCPExodusIIElementBlockImpl::~vtkCPExodusIIElementBlockImpl()
 {
   delete[] this->Elements;
 }
+VTK_ABI_NAMESPACE_END

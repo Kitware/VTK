@@ -27,6 +27,7 @@
 #include "vtkDataSet.h"
 #include "vtkObjectFactory.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkBridgePointIteratorOne);
 
 //------------------------------------------------------------------------------
@@ -130,3 +131,4 @@ void vtkBridgePointIteratorOne::InitWithOnePoint(vtkBridgeDataSet* ds, vtkIdType
   vtkSetObjectBodyMacro(DataSet, vtkBridgeDataSet, ds);
   this->Id = id;
 }
+VTK_ABI_NAMESPACE_END

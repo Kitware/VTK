@@ -33,6 +33,7 @@
 #include "vtkSMPTools.h"
 #include "vtkStaticEdgeLocatorTemplate.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkExtractEdges);
 
 //------------------------------------------------------------------------------
@@ -41,6 +42,7 @@ vtkExtractEdges::vtkExtractEdges()
 {
   this->UseAllPoints = false;
 }
+VTK_ABI_NAMESPACE_END
 
 // The following namespace supports a threaded algorithm for extracting edges
 // while retaining the initial point ids. Using this threading approach, each
@@ -401,6 +403,7 @@ int NonLocatorExtraction(
 
 } // anonymous namespace
 
+VTK_ABI_NAMESPACE_BEGIN
 //------------------------------------------------------------------------------
 // Generate feature edges for mesh. If UseAllPoints is disabled, then a locator
 // is employed which is slower and inherently serial. (This could be sped up
@@ -604,3 +607,4 @@ void vtkExtractEdges::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Locator: (none) UseAllPoints:" << this->UseAllPoints << "\n";
   }
 }
+VTK_ABI_NAMESPACE_END

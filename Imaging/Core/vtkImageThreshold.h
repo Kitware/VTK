@@ -27,6 +27,7 @@
 #include "vtkImagingCoreModule.h" // For export macro
 #include "vtkThreadedImageAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKIMAGINGCORE_EXPORT vtkImageThreshold : public vtkThreadedImageAlgorithm
 {
 public:
@@ -134,4 +135,5 @@ private:
   void operator=(const vtkImageThreshold&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -26,6 +26,7 @@
 #include "vtkMoleculeMapper.h"
 #include "vtkNew.h" // For vtkNew
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkOpenGLSphereMapper;
 class vtkOpenGLStickMapper;
 
@@ -81,4 +82,5 @@ private:
   void operator=(const vtkOpenGLMoleculeMapper&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

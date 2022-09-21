@@ -45,6 +45,7 @@
 #include "vtkRenderingVolumeModule.h" // For export macro
 #include "vtkUnstructuredGridVolumeMapper.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkFloatArray;
 class vtkPoints;
 class vtkUnsignedCharArray;
@@ -91,4 +92,5 @@ private:
   void operator=(const vtkProjectedTetrahedraMapper&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

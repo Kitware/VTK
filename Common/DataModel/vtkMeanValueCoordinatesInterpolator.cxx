@@ -29,6 +29,7 @@
 #include <numeric>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkMeanValueCoordinatesInterpolator);
 
 // Special class that can iterate over different type of triangle representations
@@ -638,3 +639,4 @@ void vtkMeanValueCoordinatesInterpolator::PrintSelf(ostream& os, vtkIndent inden
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

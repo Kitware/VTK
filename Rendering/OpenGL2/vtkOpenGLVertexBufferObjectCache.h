@@ -31,6 +31,7 @@
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include <map>                         // for methods
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkOpenGLVertexBufferObject;
 class vtkDataArray;
 class vtkTimeStamp;
@@ -70,4 +71,5 @@ private:
   void operator=(const vtkOpenGLVertexBufferObjectCache&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -25,6 +25,7 @@
 
 #include <cassert>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkCxxSetObjectMacro(vtkGenericDataSet, Tessellator, vtkGenericCellTessellator);
 
 //------------------------------------------------------------------------------
@@ -233,3 +234,4 @@ vtkGenericDataSet* vtkGenericDataSet::GetData(vtkInformationVector* v, int i)
 {
   return vtkGenericDataSet::GetData(v->GetInformationObject(i));
 }
+VTK_ABI_NAMESPACE_END

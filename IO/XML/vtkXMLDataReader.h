@@ -32,6 +32,7 @@
 
 #include <memory> // for std::unique_ptr
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKIOXML_EXPORT vtkXMLDataReader : public vtkXMLReader
 {
 public:
@@ -128,4 +129,5 @@ private:
     FieldType type, vtkAbstractArray* data, vtkIdType startIndex, vtkIdType numValues) override;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

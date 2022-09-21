@@ -40,6 +40,7 @@
 
 #include "vtkGraphAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkSelection;
 
 class VTKINFOVISBOOSTGRAPHALGORITHMS_EXPORT vtkBoostBreadthFirstSearch : public vtkGraphAlgorithm
@@ -160,4 +161,5 @@ private:
   void operator=(const vtkBoostBreadthFirstSearch&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

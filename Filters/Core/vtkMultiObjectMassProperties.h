@@ -94,6 +94,7 @@
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDoubleArray;
 class vtkUnsignedCharArray;
 class vtkIdTypeArray;
@@ -194,4 +195,5 @@ private:
   void operator=(const vtkMultiObjectMassProperties&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

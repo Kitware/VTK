@@ -36,6 +36,7 @@
 #include "vtkSmartPointer.h"           // needed for vtkSmartPointer.
 #include "vtkWeakPointer.h"            // needed for vtkWeakPointer.
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataArray;
 class vtkPixelBufferObject;
 class vtkTextureObject;
@@ -254,4 +255,5 @@ private:
   void operator=(const vtkDataTransferHelper&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

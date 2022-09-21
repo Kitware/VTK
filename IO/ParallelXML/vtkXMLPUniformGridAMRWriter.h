@@ -32,6 +32,7 @@
 #include "vtkIOParallelXMLModule.h" // For export macro
 #include "vtkXMLUniformGridAMRWriter.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkMultiProcessController;
 
 class VTKIOPARALLELXML_EXPORT vtkXMLPUniformGridAMRWriter : public vtkXMLUniformGridAMRWriter
@@ -76,4 +77,5 @@ private:
   void operator=(const vtkXMLPUniformGridAMRWriter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

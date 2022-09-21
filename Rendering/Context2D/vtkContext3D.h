@@ -32,6 +32,7 @@
 #include "vtkSmartPointer.h"             // For SP ivars.
 #include "vtkVector.h"                   // For the vector coordinates.
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkContextDevice3D;
 class vtkPen;
 class vtkBrush;
@@ -166,4 +167,5 @@ private:
   void operator=(const vtkContext3D&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // VTKCONTEXT3D_H

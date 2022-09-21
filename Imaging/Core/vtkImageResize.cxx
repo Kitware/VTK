@@ -34,6 +34,7 @@
 
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImageResize);
 vtkCxxSetObjectMacro(vtkImageResize, Interpolator, vtkAbstractImageInterpolator);
 
@@ -964,3 +965,4 @@ vtkMTimeType vtkImageResize::GetMTime()
 
   return mTime;
 }
+VTK_ABI_NAMESPACE_END

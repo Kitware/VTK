@@ -31,6 +31,7 @@
 #include "vtkGraphAlgorithm.h"
 #include "vtkInfovisCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataSet;
 
 class VTKINFOVISCORE_EXPORT vtkRemoveIsolatedVertices : public vtkGraphAlgorithm
@@ -51,4 +52,5 @@ private:
   void operator=(const vtkRemoveIsolatedVertices&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

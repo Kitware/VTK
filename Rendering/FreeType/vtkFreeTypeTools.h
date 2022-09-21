@@ -33,17 +33,20 @@
 
 #include <array> // for std::array
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkImageData;
 class vtkPath;
 class vtkTextProperty;
 class vtkStdString;
 
 // FreeType
+VTK_ABI_NAMESPACE_END
 #include "vtk_freetype.h" //since ft2build.h could be in the path
 #include FT_FREETYPE_H
 #include FT_GLYPH_H
 #include FT_CACHE_H
 
+VTK_ABI_NAMESPACE_BEGIN
 class FTFont;
 
 // PIMPL class for FTC_FaceID->vtkTextProperty lookup
@@ -499,4 +502,5 @@ private:
 // This is here to implement the Schwarz counter idiom.
 static vtkFreeTypeToolsCleanup vtkFreeTypeToolsCleanupInstance;
 
+VTK_ABI_NAMESPACE_END
 #endif

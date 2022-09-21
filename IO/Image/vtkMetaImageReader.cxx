@@ -40,6 +40,7 @@
 #include <sys/stat.h>
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkMetaImageReader);
 
 //------------------------------------------------------------------------------
@@ -380,3 +381,4 @@ void vtkMetaImageReader::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "DistanceUnits: " << this->DistanceUnits << endl;
   os << indent << "AnatomicalOrientation: " << this->AnatomicalOrientation << endl;
 }
+VTK_ABI_NAMESPACE_END

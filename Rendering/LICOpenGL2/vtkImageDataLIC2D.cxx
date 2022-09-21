@@ -57,6 +57,7 @@ using std::deque;
   ext[0] << ", " << ext[1] << ", " << ext[2] << ", " << ext[3] << ", " << ext[4] << ", " << ext[5]
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImageDataLIC2D);
 
 //------------------------------------------------------------------------------
@@ -619,3 +620,4 @@ void vtkImageDataLIC2D::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Magnification: " << this->Magnification << "\n";
   os << indent << "OpenGLExtensionsSupported: " << this->OpenGLExtensionsSupported << "\n";
 }
+VTK_ABI_NAMESPACE_END

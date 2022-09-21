@@ -27,6 +27,7 @@
 #include "vtkTable.h"
 #include "vtkVariant.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkCollectTable);
 
 vtkCxxSetObjectMacro(vtkCollectTable, Controller, vtkMultiProcessController);
@@ -164,3 +165,4 @@ void vtkCollectTable::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Controller: (" << this->Controller << ")\n";
   os << indent << "SocketController: (" << this->SocketController << ")\n";
 }
+VTK_ABI_NAMESPACE_END

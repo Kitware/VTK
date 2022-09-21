@@ -34,6 +34,7 @@
 #include "vtkCommonTransformsModule.h" // For export macro
 #include "vtkWarpTransform.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONTRANSFORMS_EXPORT vtkCylindricalTransform : public vtkWarpTransform
 {
 public:
@@ -79,4 +80,5 @@ private:
   void operator=(const vtkCylindricalTransform&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

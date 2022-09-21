@@ -92,6 +92,7 @@
 
 #include <array> // For std::array
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkIncrementalPointLocator;
 class vtkStructuredGrid;
 class vtkUnstructuredGridBase;
@@ -480,4 +481,5 @@ private:
   void operator=(const vtkGeometryFilter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

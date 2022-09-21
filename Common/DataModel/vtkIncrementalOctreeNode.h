@@ -62,6 +62,7 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPoints;
 class vtkIdList;
 
@@ -469,4 +470,5 @@ inline int vtkIncrementalOctreeNode::UpdateCounterAndDataBoundsRecursively(
       ? updated
       : this->Parent->UpdateCounterAndDataBoundsRecursively(point, nHits, updated, endNode));
 }
+VTK_ABI_NAMESPACE_END
 #endif

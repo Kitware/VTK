@@ -30,6 +30,7 @@
 
 //------------------------------------------------------------------------------
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImageOrthoPlanes);
 
 //------------------------------------------------------------------------------
@@ -787,3 +788,4 @@ void vtkImageOrthoPlanes::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Transform: " << this->Transform << "\n";
   this->Transform->PrintSelf(os, indent.GetNextIndent());
 }
+VTK_ABI_NAMESPACE_END

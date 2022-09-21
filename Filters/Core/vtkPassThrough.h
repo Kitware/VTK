@@ -29,6 +29,7 @@
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkPassInputTypeAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSCORE_EXPORT vtkPassThrough : public vtkPassInputTypeAlgorithm
 {
 public:
@@ -80,4 +81,5 @@ private:
   void operator=(const vtkPassThrough&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

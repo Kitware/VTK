@@ -36,6 +36,7 @@
 
 #include "vtkContourValues.h" // Needed for inline methods
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkAbstractCellLocator;
 
 class VTKFILTERSCORE_EXPORT vtkBinCellDataFilter : public vtkDataSetAlgorithm
@@ -280,4 +281,5 @@ inline void vtkBinCellDataFilter::GenerateValues(int numBins, double rangeStart,
   this->BinValues->GenerateValues(numBins, rangeStart, rangeEnd);
 }
 
+VTK_ABI_NAMESPACE_END
 #endif

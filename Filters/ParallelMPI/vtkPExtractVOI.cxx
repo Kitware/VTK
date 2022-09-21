@@ -65,6 +65,7 @@
 #define DEBUG_OUT(out)
 #endif // DEBUG
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPExtractVOI);
 vtkCxxSetObjectMacro(vtkPExtractVOI, Controller, vtkMPIController);
 
@@ -257,3 +258,4 @@ int vtkPExtractVOI::RequestUpdateExtent(
   DEBUG_OUT("########### RequestUpdateExtent\n");
   return this->Superclass::RequestUpdateExtent(request, inputVector, outputVector);
 }
+VTK_ABI_NAMESPACE_END

@@ -126,3 +126,4 @@ set(headers
 
 vtk_module_add_module(VTK::FiltersCore
   CLASSES ${classes})
+vtk_add_test_mangling(VTK::FiltersCore)

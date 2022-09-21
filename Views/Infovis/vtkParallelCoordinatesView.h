@@ -45,6 +45,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkRenderView.h"
 #include "vtkViewsInfovisModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkActor2D;
 class vtkOutlineSource;
 class vtkParallelCoordinatesRepresentation;
@@ -180,4 +181,5 @@ private:
   void operator=(const vtkParallelCoordinatesView&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

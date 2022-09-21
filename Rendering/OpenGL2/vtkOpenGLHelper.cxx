@@ -18,6 +18,7 @@
 #include "vtkOpenGLVertexArrayObject.h"
 #include "vtkShaderProgram.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkOpenGLHelper::vtkOpenGLHelper()
 {
   this->Program = nullptr;
@@ -51,3 +52,4 @@ void vtkOpenGLHelper::ReleaseGraphicsResources(vtkWindow* win)
   this->IBO->ReleaseGraphicsResources();
   this->VAO->ReleaseGraphicsResources();
 }
+VTK_ABI_NAMESPACE_END

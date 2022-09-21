@@ -76,6 +76,8 @@ All rights reserved.
 #include <unordered_map>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
+
 class vtkOCCTReader::vtkInternals
 {
 public:
@@ -524,3 +526,4 @@ void vtkOCCTReader::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "ReadWire: " << (this->ReadWire ? "true" : "false") << "\n";
   os << indent << "FileFormat: " << (this->FileFormat == Format::STEP ? "STEP" : "IGES") << "\n";
 }
+VTK_ABI_NAMESPACE_END

@@ -42,6 +42,7 @@
 
 #include <sstream>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkAxisActor);
 vtkCxxSetObjectMacro(vtkAxisActor, Camera, vtkCamera);
 vtkCxxSetObjectMacro(vtkAxisActor, LabelTextProperty, vtkTextProperty);
@@ -3385,3 +3386,4 @@ void vtkAxisActor::RotateActor2DFromAxisProjection(vtkTextActor* pActor2D)
 
   pActor2D->SetOrientation(orient);
 }
+VTK_ABI_NAMESPACE_END

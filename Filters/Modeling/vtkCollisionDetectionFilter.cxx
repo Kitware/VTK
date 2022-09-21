@@ -71,6 +71,7 @@
 #include "vtkTrivialProducer.h"
 #include "vtkUnsignedCharArray.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkCollisionDetectionFilter);
 
 // Constructs with initial 0 values.
@@ -803,3 +804,4 @@ void vtkCollisionDetectionFilter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Matrix 0: " << this->GetMatrix(0) << "\n";
   os << indent << "Matrix 1: " << this->GetMatrix(1) << "\n";
 }
+VTK_ABI_NAMESPACE_END

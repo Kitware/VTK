@@ -32,6 +32,7 @@
 #include "vtkAMRInformation.h"
 #include <algorithm>
 #include <vector>
+VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
 // Split one box to eight
@@ -362,3 +363,4 @@ void vtkImageToAMR::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "NumberOfLevels: " << this->NumberOfLevels << endl;
   os << indent << "RefinementRatio: " << this->RefinementRatio << endl;
 }
+VTK_ABI_NAMESPACE_END

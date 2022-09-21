@@ -47,6 +47,7 @@
 #define VTK_POINT_UNIFORM 1
 #define VTK_POINT_EXPONENTIAL 2
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkRandomSequence;
 
 class VTKFILTERSSOURCES_EXPORT vtkPointSource : public vtkPolyDataAlgorithm
@@ -155,4 +156,5 @@ private:
   void operator=(const vtkPointSource&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

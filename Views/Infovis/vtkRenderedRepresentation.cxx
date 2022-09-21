@@ -32,6 +32,7 @@
 
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkRenderedRepresentation);
 
 class vtkRenderedRepresentation::Internals
@@ -106,3 +107,4 @@ void vtkRenderedRepresentation::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
   os << indent << "LabelRenderMode: " << this->LabelRenderMode << endl;
 }
+VTK_ABI_NAMESPACE_END

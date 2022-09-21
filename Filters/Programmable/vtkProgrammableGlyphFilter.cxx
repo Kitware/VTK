@@ -28,6 +28,7 @@
 #include "vtkPolyData.h"
 #include "vtkTransform.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkProgrammableGlyphFilter);
 
 // Construct object with scaling on, scaling mode is by scalar value,
@@ -357,3 +358,4 @@ void vtkProgrammableGlyphFilter::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "No Glyph Method\n";
   }
 }
+VTK_ABI_NAMESPACE_END

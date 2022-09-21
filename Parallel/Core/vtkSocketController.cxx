@@ -24,6 +24,7 @@
 #define WSA_VERSION MAKEWORD(1, 1)
 #endif
 
+VTK_ABI_NAMESPACE_BEGIN
 int vtkSocketController::Initialized = 0;
 
 vtkStandardNewMacro(vtkSocketController);
@@ -136,3 +137,4 @@ vtkMultiProcessController* vtkSocketController::CreateCompliantController()
 
   return compliantController;
 }
+VTK_ABI_NAMESPACE_END

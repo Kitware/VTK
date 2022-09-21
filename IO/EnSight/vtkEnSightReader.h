@@ -23,6 +23,7 @@
 #include "vtkGenericEnSightReader.h"
 #include "vtkIOEnSightModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataSet;
 class vtkDataSetCollection;
 class vtkEnSightReaderCellIdsType;
@@ -349,4 +350,5 @@ private:
   void operator=(const vtkEnSightReader&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

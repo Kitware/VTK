@@ -27,6 +27,7 @@
 #include "vtkStatisticsAlgorithm.h"
 #include "vtkTable.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkStreamingStatistics);
 
 vtkCxxSetObjectMacro(vtkStreamingStatistics, StatisticsAlgorithm, vtkStatisticsAlgorithm);
@@ -165,3 +166,4 @@ void vtkStreamingStatistics::PrintSelf(ostream& os, vtkIndent indent)
   }
   os << indent << "InternalModel: " << this->InternalModel << "\n";
 }
+VTK_ABI_NAMESPACE_END

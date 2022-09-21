@@ -23,6 +23,7 @@
 #include "vtkTable.h"
 #include "vtkXMLDataElement.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkXMLTableReader);
 
 //------------------------------------------------------------------------------
@@ -598,3 +599,4 @@ int vtkXMLTableReader::FillOutputPortInformation(int, vtkInformation* info)
   info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkTable");
   return 1;
 }
+VTK_ABI_NAMESPACE_END

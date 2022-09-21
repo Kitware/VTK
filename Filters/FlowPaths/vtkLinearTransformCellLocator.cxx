@@ -36,6 +36,7 @@
 
 static constexpr vtkIdType VTK_MAX_SAMPLE_POINTS = 100;
 
+VTK_ABI_NAMESPACE_BEGIN
 //------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkLinearTransformCellLocator);
 
@@ -536,3 +537,4 @@ bool vtkLinearTransformCellLocator::InsideCellBounds(double x[3], vtkIdType cell
   this->InverseTransform->InternalTransformPoint(x, xTransform);
   return this->CellLocator->InsideCellBounds(xTransform, cellId);
 }
+VTK_ABI_NAMESPACE_END

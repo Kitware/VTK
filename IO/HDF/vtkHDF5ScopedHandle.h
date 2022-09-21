@@ -3,6 +3,7 @@
 
 namespace vtkHDF
 {
+VTK_ABI_NAMESPACE_BEGIN
 
 /**
  * RAII class for automatically closing H5 handles.
@@ -48,6 +49,7 @@ DefineScopedHandle(S);
 // Defines ScopedH5THandle closed with H5Tclose
 DefineScopedHandle(T);
 
+VTK_ABI_NAMESPACE_END
 }
 
 #endif

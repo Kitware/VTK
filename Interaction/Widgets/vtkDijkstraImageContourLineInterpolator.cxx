@@ -26,6 +26,7 @@
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkDijkstraImageContourLineInterpolator);
 
 //------------------------------------------------------------------------------
@@ -145,3 +146,4 @@ void vtkDijkstraImageContourLineInterpolator::PrintSelf(ostream& os, vtkIndent i
   os << indent << "DijkstraImageGeodesicPath: " << this->DijkstraImageGeodesicPath << endl;
   os << indent << "CostImage: " << this->GetCostImage() << endl;
 }
+VTK_ABI_NAMESPACE_END

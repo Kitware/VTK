@@ -20,6 +20,7 @@
 #include <atomic>
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkTimeStamp* vtkTimeStamp::New()
 {
   // If the factory was unable to create the object, then create it here.
@@ -55,3 +56,4 @@ void vtkTimeStamp::Modified()
 #endif
   this->ModifiedTime = (vtkMTimeType)++GlobalTimeStamp;
 }
+VTK_ABI_NAMESPACE_END

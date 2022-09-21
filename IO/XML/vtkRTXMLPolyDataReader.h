@@ -26,6 +26,7 @@
 #include "vtkIOXMLModule.h" // For export macro
 #include "vtkXMLPolyDataReader.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkRTXMLPolyDataReaderInternals;
 
 class VTKIOXML_EXPORT vtkRTXMLPolyDataReader : public vtkXMLPolyDataReader
@@ -97,4 +98,5 @@ private:
   void operator=(const vtkRTXMLPolyDataReader&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

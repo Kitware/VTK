@@ -26,6 +26,7 @@
 #include "vtkSystemIncludes.h"
 
 // Forward-declare template.  There is no primary template.
+VTK_ABI_NAMESPACE_BEGIN
 template <class T>
 struct vtkTypeTraits;
 
@@ -153,5 +154,6 @@ VTK_TYPE_TRAITS(unsigned long long, UNSIGNED_LONG_LONG, 0, UInt64, unsigned long
 
 #undef VTK_TYPE_TRAITS
 
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkTypeTraits.h

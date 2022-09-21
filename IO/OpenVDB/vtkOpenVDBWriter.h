@@ -25,6 +25,7 @@
 #include "vtkSmartPointer.h"    // For protected ivars
 #include "vtkWriter.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataSetAttributes;
 class vtkImageData;
 class vtkMultiProcessController;
@@ -148,4 +149,5 @@ private:
   friend class vtkOpenVDBWriterInternals;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

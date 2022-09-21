@@ -27,6 +27,7 @@
 #include "vtkTextProperty.h"
 #include "vtkWindow.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkDistanceRepresentation2D);
 
 //------------------------------------------------------------------------------
@@ -238,3 +239,4 @@ void vtkDistanceRepresentation2D::PrintSelf(ostream& os, vtkIndent indent)
   // Superclass typedef defined in vtkTypeMacro() found in vtkSetGet.h
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

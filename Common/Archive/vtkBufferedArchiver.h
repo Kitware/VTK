@@ -30,6 +30,7 @@
 
 #include "vtkArchiver.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONARCHIVE_EXPORT vtkBufferedArchiver : public vtkArchiver
 {
 public:
@@ -107,4 +108,5 @@ private:
   void operator=(const vtkBufferedArchiver&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -7,6 +7,7 @@
 #include "vtkTable.h"
 #include "vtkVariantArray.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkKMeansDistanceFunctor);
 
 //------------------------------------------------------------------------------
@@ -198,3 +199,4 @@ int vtkKMeansDistanceFunctor::GetDataType()
 {
   return VTK_DOUBLE;
 }
+VTK_ABI_NAMESPACE_END

@@ -34,6 +34,7 @@
 
 #include <cassert>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOSPRayAMRVolumeMapperNode);
 
 //------------------------------------------------------------------------------
@@ -255,3 +256,4 @@ void vtkOSPRayAMRVolumeMapperNode::Render(bool prepass)
     this->OSPRayInstance = instance;
   } // prepass
 }
+VTK_ABI_NAMESPACE_END

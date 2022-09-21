@@ -15,6 +15,7 @@
 #include "vtkUnstructuredGridVolumeRayIntegrator.h"
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkUnstructuredGridVolumeRayIntegrator::vtkUnstructuredGridVolumeRayIntegrator() = default;
 
 vtkUnstructuredGridVolumeRayIntegrator::~vtkUnstructuredGridVolumeRayIntegrator() = default;
@@ -23,3 +24,4 @@ void vtkUnstructuredGridVolumeRayIntegrator::PrintSelf(ostream& os, vtkIndent in
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

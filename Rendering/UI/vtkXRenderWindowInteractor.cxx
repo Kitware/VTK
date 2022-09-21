@@ -43,6 +43,7 @@
 #include <set>
 #include <sstream>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkXRenderWindowInteractor);
 
 template <int EventType>
@@ -972,3 +973,4 @@ void vtkXRenderWindowInteractor::GetMousePosition(int* x, int* y)
 // {
 //   vtkXRenderWindowInteractorCallback(w, client_data, event, ctd);
 // }
+VTK_ABI_NAMESPACE_END

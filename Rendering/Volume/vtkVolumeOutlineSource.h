@@ -33,6 +33,7 @@
 #include "vtkPolyDataAlgorithm.h"
 #include "vtkRenderingVolumeModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkVolumeMapper;
 
 class VTKRENDERINGVOLUME_EXPORT vtkVolumeOutlineSource : public vtkPolyDataAlgorithm
@@ -160,4 +161,5 @@ private:
   void operator=(const vtkVolumeOutlineSource&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

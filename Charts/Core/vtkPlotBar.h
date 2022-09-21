@@ -29,6 +29,7 @@
 #include "vtkPlot.h"
 #include "vtkSmartPointer.h" // Needed to hold ColorSeries
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkContext2D;
 class vtkTable;
 class vtkPoints2D;
@@ -323,4 +324,5 @@ private:
   vtkPlotBarPrivate* Private;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkPlotBar_h

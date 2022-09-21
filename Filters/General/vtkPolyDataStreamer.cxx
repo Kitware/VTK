@@ -23,6 +23,7 @@
 #include "vtkPolyData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPolyDataStreamer);
 
 //------------------------------------------------------------------------------
@@ -149,3 +150,4 @@ int vtkPolyDataStreamer::FillInputPortInformation(int vtkNotUsed(port), vtkInfor
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPolyData");
   return 1;
 }
+VTK_ABI_NAMESPACE_END

@@ -27,6 +27,7 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkTriangleMeshPointNormals);
 
 namespace
@@ -200,3 +201,4 @@ void vtkTriangleMeshPointNormals::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

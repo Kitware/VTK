@@ -29,6 +29,7 @@
 
 #include <vector> //for results
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkActor;
 class vtkVolumeMapper;
 class vtkPolyData;
@@ -49,4 +50,5 @@ private:
   void operator=(const vtkVolumeMapperNode&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -34,6 +34,7 @@
 #include "vtk_libproj.h"
 #include "vtk_netcdf.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
 std::array<std::string, 3> COORD_NAME = { { "x", "y", "z" } };
@@ -770,3 +771,4 @@ void vtkNetCDFCFWriter::AddGridMappingAttribute(const char* name, double value)
   }
   this->Impl->DoubleAttributes[name] = value;
 }
+VTK_ABI_NAMESPACE_END

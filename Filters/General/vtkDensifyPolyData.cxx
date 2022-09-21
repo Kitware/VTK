@@ -28,6 +28,7 @@
 #include <vector>
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDensifyPolyDataInternals
 {
 public:
@@ -535,3 +536,4 @@ void vtkDensifyPolyData::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Number of Subdivisions: " << this->NumberOfSubdivisions << endl;
 }
+VTK_ABI_NAMESPACE_END

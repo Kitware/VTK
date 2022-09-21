@@ -45,6 +45,7 @@
 #include "vtkExporter.h"
 #include "vtkIOExportModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkActor;
 class vtkCamera;
 class vtkLight;
@@ -180,4 +181,5 @@ private:
   void operator=(const vtkRIBExporter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

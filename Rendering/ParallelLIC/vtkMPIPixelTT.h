@@ -21,6 +21,7 @@
 // Description:
 // Traits class for converting from vtk data type enum
 // to the appropriate C or MPI datatype.
+VTK_ABI_NAMESPACE_BEGIN
 template <typename T>
 class vtkMPIPixelTT;
 
@@ -49,5 +50,6 @@ vtkMPIPixelTTMacro1(double);
 vtkMPIPixelTTMacro1(long long);
 vtkMPIPixelTTMacro1(unsigned long long);
 
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkMPIPixelTT.h

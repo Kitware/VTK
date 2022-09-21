@@ -31,6 +31,7 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkXMLDataParser;
 
 class VTKCOMMONDATAMODEL_EXPORT vtkXMLDataElement : public vtkObject
@@ -374,4 +375,5 @@ inline void vtkXMLDataElement::AddCharacterData(const char* data, size_t length)
   return;
 }
 
+VTK_ABI_NAMESPACE_END
 #endif

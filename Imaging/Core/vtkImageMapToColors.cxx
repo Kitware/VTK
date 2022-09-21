@@ -24,6 +24,7 @@
 #include "vtkScalarsToColors.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImageMapToColors);
 vtkCxxSetObjectMacro(vtkImageMapToColors, LookupTable, vtkScalarsToColors);
 
@@ -328,3 +329,4 @@ void vtkImageMapToColors::PrintSelf(ostream& os, vtkIndent indent)
     os << "(none)\n";
   }
 }
+VTK_ABI_NAMESPACE_END

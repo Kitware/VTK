@@ -31,6 +31,7 @@
 
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkVolume);
 
 // Creates a Volume with the following defaults: origin(0,0,0)
@@ -789,3 +790,4 @@ void vtkVolume::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Bounds: (not defined)\n";
   }
 }
+VTK_ABI_NAMESPACE_END

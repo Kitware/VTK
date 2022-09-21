@@ -27,6 +27,7 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkPointSet.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkIntArray;
 
 class VTKCOMMONDATAMODEL_EXPORT vtkPath : public vtkPointSet
@@ -134,4 +135,5 @@ private:
   void operator=(const vtkPath&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

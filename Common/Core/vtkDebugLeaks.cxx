@@ -30,6 +30,7 @@
 #include <unordered_map>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 static const char* vtkDebugLeaksIgnoreClasses[] = { nullptr };
 
 //------------------------------------------------------------------------------
@@ -456,3 +457,4 @@ int vtkDebugLeaks::ExitError;
 
 // Purposely not initialized.  ClassInitialize will handle it.
 vtkDebugLeaksObserver* vtkDebugLeaks::Observer;
+VTK_ABI_NAMESPACE_END

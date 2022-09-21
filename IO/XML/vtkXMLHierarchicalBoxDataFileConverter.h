@@ -28,6 +28,7 @@
 #include "vtkIOXMLModule.h" // needed for export macro.
 #include "vtkObject.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkXMLDataElement;
 
 class VTKIOXML_EXPORT vtkXMLHierarchicalBoxDataFileConverter : public vtkObject
@@ -77,4 +78,5 @@ private:
   void operator=(const vtkXMLHierarchicalBoxDataFileConverter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -29,6 +29,7 @@
 #include <sstream>
 #include <vtksys/SystemTools.hxx>
 
+VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
 
@@ -977,3 +978,4 @@ void vtkShaderProgram::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "FileNamePrefixForDebugging: "
      << (this->FileNamePrefixForDebugging ? this->FileNamePrefixForDebugging : "(null)") << endl;
 }
+VTK_ABI_NAMESPACE_END

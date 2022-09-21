@@ -34,6 +34,7 @@
 #include "vtkAlgorithm.h"
 #include "vtkIOCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataObject;
 
 #define VTK_ASCII 1
@@ -97,4 +98,5 @@ private:
   void operator=(const vtkWriter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

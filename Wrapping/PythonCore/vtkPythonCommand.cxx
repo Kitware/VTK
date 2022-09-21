@@ -14,9 +14,11 @@
 =========================================================================*/
 
 #include "vtkPythonCommand.h"
+#include "vtkABINamespace.h"
 #include "vtkObject.h"
 #include "vtkPythonUtil.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkPythonCommand::vtkPythonCommand()
 {
   this->obj = nullptr;
@@ -259,3 +261,4 @@ void vtkPythonCommand::Execute(vtkObject* ptr, unsigned long eventtype, void* ca
   }
 #endif
 }
+VTK_ABI_NAMESPACE_END

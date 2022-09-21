@@ -16,10 +16,13 @@
 #ifndef vtkHyperTreeGridTools_h
 #define vtkHyperTreeGridTools_h
 
+#include "vtkABINamespace.h"
+
 namespace vtk
 {
 namespace hypertreegrid
 {
+VTK_ABI_NAMESPACE_BEGIN
 
 template <class T>
 bool HasTree(const T& e)
@@ -27,6 +30,7 @@ bool HasTree(const T& e)
   return e.GetTree() != nullptr;
 }
 
+VTK_ABI_NAMESPACE_END
 } // namespace hypertreegrid
 } // namespace vtk
 

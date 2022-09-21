@@ -20,6 +20,7 @@
 #include "vtkShaderProgram.h"
 #include "vtk_glew.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkOpenGLQuadHelper::vtkOpenGLQuadHelper(
   vtkOpenGLRenderWindow* renWin, const char* vs, const char* fs, const char* gs, bool flipY)
   : Program(nullptr)
@@ -118,3 +119,4 @@ void vtkOpenGLQuadHelper::Render()
     this->VAO->Release();
   }
 }
+VTK_ABI_NAMESPACE_END

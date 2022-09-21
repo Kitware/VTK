@@ -21,6 +21,7 @@
 
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkSpheres);
 vtkCxxSetObjectMacro(vtkSpheres, Centers, vtkPoints);
 
@@ -215,3 +216,4 @@ void vtkSpheres::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Radii: (none)\n";
   }
 }
+VTK_ABI_NAMESPACE_END

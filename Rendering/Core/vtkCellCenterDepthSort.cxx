@@ -41,6 +41,7 @@
 
 typedef std::pair<vtkIdType, vtkIdType> vtkIdPair;
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCellCenterDepthSortStack
 {
 public:
@@ -256,3 +257,4 @@ vtkIdTypeArray* vtkCellCenterDepthSort::GetNextCells()
   vtkSortDataArray::Sort(this->CellPartitionDepths, this->SortedCellPartition);
   return this->SortedCellPartition;
 }
+VTK_ABI_NAMESPACE_END

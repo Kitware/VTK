@@ -27,6 +27,7 @@
 
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPDataSetWriter);
 
 vtkCxxSetObjectMacro(vtkPDataSetWriter, Controller, vtkMultiProcessController);
@@ -575,3 +576,4 @@ void vtkPDataSetWriter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "FilePattern: " << this->FilePattern << endl;
   os << indent << "UseRelativeFileNames: " << this->UseRelativeFileNames << endl;
 }
+VTK_ABI_NAMESPACE_END

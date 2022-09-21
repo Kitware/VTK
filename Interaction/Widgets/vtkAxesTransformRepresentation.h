@@ -32,6 +32,7 @@
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkWidgetRepresentation.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkHandleRepresentation;
 class vtkPoints;
 class vtkPolyData;
@@ -225,4 +226,5 @@ private:
   void operator=(const vtkAxesTransformRepresentation&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

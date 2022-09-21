@@ -34,6 +34,7 @@
 #include <string>
 #include <vector>
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkTemporalPathLineFilter);
 //------------------------------------------------------------------------------
 //
@@ -640,3 +641,4 @@ void vtkTemporalPathLineFilter::PrintSelf(ostream& os, vtkIndent indent)
      << this->MaxStepDistance[1] << "," << this->MaxStepDistance[2] << "}\n";
   os << indent << "KeepDeadTrails: " << this->KeepDeadTrails << "\n";
 }
+VTK_ABI_NAMESPACE_END

@@ -49,6 +49,7 @@
 
 //------------------------------------------------------------------------------
 typedef std::vector<vtkSmartPointer<vtkAbstractCellLocator>> LocatorsTypeBase;
+VTK_ABI_NAMESPACE_BEGIN
 class vtkLocatorsType : public LocatorsTypeBase
 {
 };
@@ -1353,3 +1354,4 @@ void vtkLagrangianBasicIntegrationModel::InsertParticleData(
       break;
   }
 }
+VTK_ABI_NAMESPACE_END

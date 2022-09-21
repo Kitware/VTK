@@ -28,6 +28,7 @@
 #include <vtksys/FStream.hxx>
 #include <vtksys/SystemTools.hxx>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImageWriter);
 
 //------------------------------------------------------------------------------
@@ -512,3 +513,4 @@ void vtkImageWriter::DeleteFiles()
   }
   this->FilesDeleted = 1;
 }
+VTK_ABI_NAMESPACE_END

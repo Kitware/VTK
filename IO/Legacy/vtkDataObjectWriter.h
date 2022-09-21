@@ -35,6 +35,7 @@
 #include "vtkStdString.h"      // For string used in api
 #include "vtkWriter.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKIOLEGACY_EXPORT vtkDataObjectWriter : public vtkWriter
 {
 public:
@@ -83,4 +84,5 @@ private:
   void operator=(const vtkDataObjectWriter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

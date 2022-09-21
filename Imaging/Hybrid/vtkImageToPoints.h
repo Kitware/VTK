@@ -31,6 +31,7 @@
 #include "vtkImagingHybridModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkImageStencilData;
 
 class VTKIMAGINGHYBRID_EXPORT vtkImageToPoints : public vtkPolyDataAlgorithm
@@ -82,4 +83,5 @@ private:
   void operator=(const vtkImageToPoints&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

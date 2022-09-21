@@ -44,6 +44,7 @@ using std::string;
 // Here are some default shape functions weights which
 // we will use to create dictionaries in a gvien data set.
 // Unused weights are commented out to avoid compiler warnings.
+VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
 // double W_T_11_A[]={
@@ -282,3 +283,4 @@ void vtkQuadratureSchemeDictionaryGenerator::PrintSelf(ostream& os, vtkIndent in
 
   os << indent << "No state." << endl;
 }
+VTK_ABI_NAMESPACE_END

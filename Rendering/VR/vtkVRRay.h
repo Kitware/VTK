@@ -27,6 +27,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkOpenGLHelper.h"      // ivar
 #include "vtkRenderingVRModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkOpenGLRenderWindow;
 class vtkRenderWindow;
 class vtkOpenGLVertexBufferObject;
@@ -71,4 +72,5 @@ private:
   void operator=(const vtkVRRay&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -27,6 +27,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTable.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkTableAlgorithm);
 
 //------------------------------------------------------------------------------
@@ -131,3 +132,4 @@ int vtkTableAlgorithm::RequestData(vtkInformation* vtkNotUsed(request),
 {
   return 0;
 }
+VTK_ABI_NAMESPACE_END

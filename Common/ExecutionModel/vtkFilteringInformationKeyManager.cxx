@@ -20,6 +20,7 @@
 
 // Subclass vector so we can directly call constructor.  This works
 // around problems on Borland C++.
+VTK_ABI_NAMESPACE_BEGIN
 struct vtkFilteringInformationKeyManagerKeysType : public std::vector<vtkInformationKey*>
 {
   typedef std::vector<vtkInformationKey*> Superclass;
@@ -92,3 +93,4 @@ void vtkFilteringInformationKeyManager::ClassFinalize()
     vtkFilteringInformationKeyManagerKeys = nullptr;
   }
 }
+VTK_ABI_NAMESPACE_END

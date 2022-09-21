@@ -38,6 +38,7 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkHyperTreeGrid.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDoubleArray;
 class vtkHyperTreeGridScales;
 
@@ -241,4 +242,5 @@ private:
   void operator=(const vtkUniformHyperTreeGrid&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

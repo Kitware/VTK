@@ -34,6 +34,7 @@
 #include <vtkRenderWindowInteractor.h>
 
 #include "vtkTDxConfigure.h" // defines VTK_USE_TDX
+VTK_ABI_NAMESPACE_BEGIN
 #if defined(VTK_USE_TDX) && defined(Q_OS_WIN)
 class vtkTDxWinDevice;
 #endif
@@ -134,4 +135,6 @@ private:
   void operator=(const QVTKInteractor&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
+// VTK-HeaderTest-Exclude: QVTKInteractor.h

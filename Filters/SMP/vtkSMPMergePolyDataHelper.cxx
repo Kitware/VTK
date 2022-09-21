@@ -27,6 +27,7 @@
 
 #include <algorithm>
 
+VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
 
@@ -509,3 +510,4 @@ vtkPolyData* vtkSMPMergePolyDataHelper::MergePolyData(std::vector<InputData>& in
 
   return outPolyData;
 }
+VTK_ABI_NAMESPACE_END

@@ -39,6 +39,8 @@
 #include "vtkObject.h"
 #include "vtkWeakPointer.h" //For HTG member
 
+VTK_ABI_NAMESPACE_BEGIN
+
 class vtkHyperTreeGrid;
 class vtkPoints;
 class vtkIdList;
@@ -148,4 +150,5 @@ private:
 
 }; // vtkHyperTreeGridLocator
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkHyperTreeGridLocator_h

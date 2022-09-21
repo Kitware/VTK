@@ -25,6 +25,7 @@
 #include "vtkUnsignedCharArray.h"
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPlotSurface);
 
 //------------------------------------------------------------------------------
@@ -286,3 +287,4 @@ float vtkPlotSurface::RowToY(int rowIndex)
   float newRange = this->YMaximum - this->YMinimum;
   return static_cast<float>(rowIndex) * (newRange / this->NumberOfRows) + this->YMinimum;
 }
+VTK_ABI_NAMESPACE_END

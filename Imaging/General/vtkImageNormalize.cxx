@@ -23,6 +23,7 @@
 
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImageNormalize);
 
 //------------------------------------------------------------------------------
@@ -127,3 +128,4 @@ void vtkImageNormalize::ThreadedExecute(
       return;
   }
 }
+VTK_ABI_NAMESPACE_END

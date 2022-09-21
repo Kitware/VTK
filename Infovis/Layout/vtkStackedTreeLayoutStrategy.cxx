@@ -39,6 +39,7 @@
 #include "vtkSmartPointer.h"
 #define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkStackedTreeLayoutStrategy);
 
 vtkStackedTreeLayoutStrategy::vtkStackedTreeLayoutStrategy()
@@ -591,3 +592,4 @@ vtkIdType vtkStackedTreeLayoutStrategy::FindVertex(
   }
   return -1;
 }
+VTK_ABI_NAMESPACE_END

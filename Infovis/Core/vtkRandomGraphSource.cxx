@@ -35,6 +35,7 @@
 #include <algorithm>
 #include <set>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkRandomGraphSource);
 
 //------------------------------------------------------------------------------
@@ -319,3 +320,4 @@ int vtkRandomGraphSource::RequestDataObject(
 
   return 1;
 }
+VTK_ABI_NAMESPACE_END

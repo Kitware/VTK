@@ -32,6 +32,7 @@
 #include <list>                           // for ivar
 #include <map>                            // for ivar
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCollection;
 class vtkViewNodeFactory;
 
@@ -188,4 +189,5 @@ private:
   void operator=(const vtkViewNode&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

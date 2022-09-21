@@ -31,6 +31,7 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkDataSetAttributes.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONDATAMODEL_EXPORT vtkPointData : public vtkDataSetAttributes
 {
 public:
@@ -49,4 +50,5 @@ private:
   void operator=(const vtkPointData&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

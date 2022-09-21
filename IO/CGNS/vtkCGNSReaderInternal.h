@@ -47,9 +47,9 @@
 
 namespace CGNSRead
 {
-
 namespace detail
 {
+VTK_ABI_NAMESPACE_BEGIN
 template <typename T>
 struct is_double
 {
@@ -73,10 +73,12 @@ struct is_float<float>
 {
   static const bool value = true;
 };
+VTK_ABI_NAMESPACE_END
 }
 
 namespace detail
 {
+VTK_ABI_NAMESPACE_BEGIN
 template <typename T>
 constexpr const char* cgns_type_name() noexcept
 {
@@ -106,8 +108,10 @@ constexpr const char* cgns_type_name<vtkTypeInt64>() noexcept
 {
   return "I8";
 }
+VTK_ABI_NAMESPACE_END
 }
 
+VTK_ABI_NAMESPACE_BEGIN
 typedef char char_33[33];
 
 //------------------------------------------------------------------------------
@@ -546,6 +550,7 @@ int get_XYZ_mesh(const int cgioNum, const std::vector<double>& gridChildId,
   }
   return 0;
 }
+VTK_ABI_NAMESPACE_END
 }
 
 #endif // vtkCGNSReaderInternal_h

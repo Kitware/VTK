@@ -33,6 +33,7 @@
 
 #include <vector> // for std::vector
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataSet;
 class vtkMultiProcessController;
 
@@ -96,4 +97,5 @@ private:
   vtkMultiProcessController* Controller;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

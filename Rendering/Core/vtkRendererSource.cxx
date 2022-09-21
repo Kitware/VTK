@@ -27,6 +27,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUnsignedCharArray.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkRendererSource);
 
 vtkCxxSetObjectMacro(vtkRendererSource, Input, vtkRenderer);
@@ -377,3 +378,4 @@ int vtkRendererSource::FillOutputPortInformation(int vtkNotUsed(port), vtkInform
   info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkImageData");
   return 1;
 }
+VTK_ABI_NAMESPACE_END

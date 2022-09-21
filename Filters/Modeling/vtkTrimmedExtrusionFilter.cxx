@@ -33,6 +33,7 @@
 
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkTrimmedExtrusionFilter);
 vtkCxxSetObjectMacro(vtkTrimmedExtrusionFilter, Locator, vtkAbstractCellLocator);
 
@@ -681,3 +682,4 @@ void vtkTrimmedExtrusionFilter::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Locator: " << this->Locator << "\n";
 }
+VTK_ABI_NAMESPACE_END

@@ -91,6 +91,7 @@
 
 #include "vtk_jsoncpp_fwd.h" // For forward declarations
 
+VTK_ABI_NAMESPACE_BEGIN
 struct vtkPlot3DMetaReaderInternals;
 
 class vtkMultiBlockPLOT3DReader;
@@ -143,4 +144,5 @@ private:
   vtkPlot3DMetaReaderInternals* Internal;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

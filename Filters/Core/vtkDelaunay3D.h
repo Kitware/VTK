@@ -97,6 +97,7 @@
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkUnstructuredGridAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkIdList;
 class vtkPointLocator;
 class vtkPointSet;
@@ -307,4 +308,5 @@ private:
   void operator=(const vtkDelaunay3D&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

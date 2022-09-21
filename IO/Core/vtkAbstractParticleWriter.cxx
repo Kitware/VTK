@@ -16,6 +16,7 @@
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 // Construct with no start and end write methods or arguments.
+VTK_ABI_NAMESPACE_BEGIN
 vtkAbstractParticleWriter::vtkAbstractParticleWriter()
 {
   this->TimeStep = 0;
@@ -48,3 +49,4 @@ void vtkAbstractParticleWriter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "CollectiveIO: " << this->CollectiveIO << endl;
   os << indent << "FileName: " << (this->FileName ? this->FileName : "NONE") << endl;
 }
+VTK_ABI_NAMESPACE_END

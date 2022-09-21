@@ -32,6 +32,7 @@
 #include "vtkCurveRepresentation.h"
 #include "vtkInteractionWidgetsModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPolyLineSource;
 class vtkPointHandleSource;
 
@@ -131,4 +132,5 @@ private:
   std::vector<vtkSmartPointer<vtkActor>> HandleActors;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

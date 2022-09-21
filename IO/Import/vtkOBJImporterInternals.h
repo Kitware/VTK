@@ -19,6 +19,7 @@
 #include <string> // for std::string
 #include <vector> // for std::vector
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkActor;
 
 struct VTKIOIMPORT_EXPORT vtkOBJImportedMaterial
@@ -155,4 +156,5 @@ VTKIOIMPORT_EXPORT
 void bindTexturedPolydataToRenderWindow(
   vtkRenderWindow* renderWindow, vtkRenderer* renderer, vtkOBJPolyDataProcessor* reader);
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -50,6 +50,7 @@
 #include "vtkDataObjectAlgorithm.h"
 #include "vtkFiltersParallelDIY2Module.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkMultiProcessController;
 
 class VTKFILTERSPARALLELDIY2_EXPORT vtkAdaptiveResampleToImage : public vtkDataObjectAlgorithm
@@ -104,4 +105,5 @@ private:
   int SamplingDimensions[3];
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -34,6 +34,7 @@
 #include <utility>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPruneTreeFilter);
 
 vtkPruneTreeFilter::vtkPruneTreeFilter()
@@ -134,3 +135,4 @@ int vtkPruneTreeFilter::RequestData(
 
   return 1;
 }
+VTK_ABI_NAMESPACE_END

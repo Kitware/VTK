@@ -30,6 +30,7 @@
 
 #include <algorithm> // for std::min and std::copy
 
+VTK_ABI_NAMESPACE_BEGIN
 template <class ScalarTypeT>
 class vtkBuffer : public vtkObject
 {
@@ -262,5 +263,6 @@ bool vtkBuffer<ScalarT>::Reallocate(vtkIdType newsize)
   return true;
 }
 
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkBuffer.h

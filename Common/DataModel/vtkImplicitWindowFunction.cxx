@@ -17,6 +17,7 @@
 #include "vtkGarbageCollector.h"
 #include "vtkObjectFactory.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImplicitWindowFunction);
 vtkCxxSetObjectMacro(vtkImplicitWindowFunction, ImplicitFunction, vtkImplicitFunction);
 
@@ -139,3 +140,4 @@ void vtkImplicitWindowFunction ::ReportReferences(vtkGarbageCollector* collector
   // reference loop.
   vtkGarbageCollectorReport(collector, this->ImplicitFunction, "ImplicitFunction");
 }
+VTK_ABI_NAMESPACE_END

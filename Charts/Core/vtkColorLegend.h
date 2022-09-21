@@ -29,6 +29,7 @@
 #include "vtkSmartPointer.h"     // For SP ivars
 #include "vtkVector.h"           // For vtkRectf
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkAxis;
 class vtkContextMouseEvent;
 class vtkImageData;
@@ -184,4 +185,5 @@ private:
   void operator=(const vtkColorLegend&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

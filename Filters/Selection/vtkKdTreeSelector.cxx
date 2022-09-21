@@ -31,6 +31,7 @@
 #include "vtkSelectionNode.h"
 #include "vtkSmartPointer.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkKdTreeSelector);
 
 vtkKdTreeSelector::vtkKdTreeSelector()
@@ -292,3 +293,4 @@ int vtkKdTreeSelector::FillInputPortInformation(int vtkNotUsed(port), vtkInforma
   info->Set(vtkAlgorithm::INPUT_IS_OPTIONAL(), 1);
   return 1;
 }
+VTK_ABI_NAMESPACE_END

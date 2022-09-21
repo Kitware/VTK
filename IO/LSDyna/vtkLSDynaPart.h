@@ -20,6 +20,7 @@
 #include "vtkObject.h"
 #include "vtkStdString.h" //needed for string
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkUnstructuredGrid;
 class vtkPoints;
 
@@ -183,4 +184,5 @@ private:
   void operator=(const vtkLSDynaPart&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkLSDynaPart_h

@@ -38,6 +38,7 @@
 
 #include "vtkInteractionStyleModule.h" // For export macro
 #include "vtkInteractorStyle.h"
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCamera;
 class vtkPerspectiveTransform;
 
@@ -190,4 +191,5 @@ private:
   void operator=(const vtkInteractorStyleFlight&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

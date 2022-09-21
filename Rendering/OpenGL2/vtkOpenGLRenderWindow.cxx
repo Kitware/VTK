@@ -59,13 +59,18 @@ using std::ostringstream;
 // Initialize static member that controls global maximum number of multisamples
 // (off by default on Apple because it causes problems on some Mac models).
 #if defined(__APPLE__)
+VTK_ABI_NAMESPACE_BEGIN
 static int vtkOpenGLRenderWindowGlobalMaximumNumberOfMultiSamples = 0;
+VTK_ABI_NAMESPACE_END
 #else
+VTK_ABI_NAMESPACE_BEGIN
 static int vtkOpenGLRenderWindowGlobalMaximumNumberOfMultiSamples = 8;
+VTK_ABI_NAMESPACE_END
 #endif
 
 // Some linux drivers have issues reading a multisampled texture,
 // so we check the driver's "Renderer" against this list of strings.
+VTK_ABI_NAMESPACE_BEGIN
 struct vtkOpenGLRenderWindowDriverInfo
 {
   const char* Vendor;
@@ -2319,3 +2324,4 @@ void vtkOpenGLRenderWindow::Render()
     vtkOpenGLRenderUtilities::MarkDebugEvent("Completed vtkOpenGLRenderWIndow::Render");
   }
 }
+VTK_ABI_NAMESPACE_END

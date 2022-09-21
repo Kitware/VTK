@@ -50,6 +50,7 @@
 #include "vtkTable.h"
 #include "vtkViewTheme.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkQtTableView);
 
 //------------------------------------------------------------------------------
@@ -618,3 +619,4 @@ void vtkQtTableView::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "SortSelectionToTop: " << (this->SortSelectionToTop ? "true" : "false") << endl;
   os << indent << "ColumnName: " << (this->ColumnName ? this->ColumnName : "(none)") << endl;
 }
+VTK_ABI_NAMESPACE_END

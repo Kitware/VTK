@@ -54,6 +54,7 @@
 
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkObjectFactoryNewMacro(vtkPlaneCutter);
 vtkCxxSetObjectMacro(vtkPlaneCutter, Plane, vtkPlane);
 
@@ -875,3 +876,4 @@ void vtkPlaneCutter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Merge Points: " << (this->MergePoints ? "On\n" : "Off\n");
   os << indent << "Output Points Precision: " << this->OutputPointsPrecision << "\n";
 }
+VTK_ABI_NAMESPACE_END

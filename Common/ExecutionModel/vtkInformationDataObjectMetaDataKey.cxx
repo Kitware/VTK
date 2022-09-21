@@ -18,6 +18,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkInformationDataObjectMetaDataKey::vtkInformationDataObjectMetaDataKey(
   const char* name, const char* location)
   : vtkInformationDataObjectKey(name, location)
@@ -42,3 +43,4 @@ void vtkInformationDataObjectMetaDataKey::PrintSelf(ostream& os, vtkIndent inden
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

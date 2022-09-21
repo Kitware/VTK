@@ -131,6 +131,7 @@ bool setFieldDataArray(vtkAbstractArray* array, vtkPartitionedDataSet* output,
 }
 
 } // end anon namespace
+VTK_ABI_NAMESPACE_BEGIN
 
 //------------------------------------------------------------------------------
 ProjectElement::ProjectElement(const std::string& uid, double globalOrigin[3])
@@ -616,4 +617,5 @@ void VolumeElement::ProcessGeometry(
   output->SetPartition(0, sgrid);
 }
 
+VTK_ABI_NAMESPACE_END
 } // end namespace omf

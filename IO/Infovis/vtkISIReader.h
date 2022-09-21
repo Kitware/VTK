@@ -39,6 +39,7 @@
 #include "vtkIOInfovisModule.h" // For export macro
 #include "vtkTableAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkTable;
 
 class VTKIOINFOVIS_EXPORT vtkISIReader : public vtkTableAlgorithm
@@ -87,4 +88,5 @@ private:
   void operator=(const vtkISIReader&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

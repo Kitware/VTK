@@ -22,6 +22,7 @@
 #include "vtkPropPicker.h"
 #include "vtkRenderer.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkTerrainDataPointPlacer);
 
 //------------------------------------------------------------------------------
@@ -152,3 +153,4 @@ void vtkTerrainDataPointPlacer::PrintSelf(ostream& os, vtkIndent indent)
   }
   os << indent << "HeightOffset: " << this->HeightOffset << endl;
 }
+VTK_ABI_NAMESPACE_END

@@ -30,6 +30,7 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkPointLocator.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONDATAMODEL_EXPORT vtkMergePoints : public vtkPointLocator
 {
 public:
@@ -69,4 +70,5 @@ private:
   void operator=(const vtkMergePoints&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

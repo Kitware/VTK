@@ -27,6 +27,7 @@
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkObject.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONCORE_EXPORT vtkByteSwap : public vtkObject
 {
 public:
@@ -142,4 +143,5 @@ private:
   void operator=(const vtkByteSwap&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

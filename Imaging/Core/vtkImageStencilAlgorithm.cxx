@@ -20,6 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImageStencilAlgorithm);
 
 //------------------------------------------------------------------------------
@@ -137,3 +138,4 @@ vtkTypeBool vtkImageStencilAlgorithm::ProcessRequest(
 
   return this->Superclass::ProcessRequest(request, inputVector, outputVector);
 }
+VTK_ABI_NAMESPACE_END

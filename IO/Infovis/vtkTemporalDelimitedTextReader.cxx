@@ -26,6 +26,7 @@
 #include <string>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkTemporalDelimitedTextReader);
 
 //------------------------------------------------------------------------------
@@ -285,3 +286,4 @@ void vtkTemporalDelimitedTextReader::PrintSelf(ostream& os, vtkIndent indent)
   os << "TimeColumnId: " << this->TimeColumnId << endl;
   os << "RemoveTimeStepColumn: " << this->RemoveTimeStepColumn << endl;
 }
+VTK_ABI_NAMESPACE_END

@@ -26,6 +26,7 @@
 #include <vtksys/SystemTools.hxx>
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkXMLPDataWriter::vtkXMLPDataWriter() = default;
 
 //------------------------------------------------------------------------------
@@ -156,3 +157,4 @@ void vtkXMLPDataWriter::SetupPieceFileNameExtension()
   strcpy(this->PieceFileNameExtension + 1, ext);
   writer->Delete();
 }
+VTK_ABI_NAMESPACE_END

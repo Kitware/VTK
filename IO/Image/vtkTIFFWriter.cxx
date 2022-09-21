@@ -26,6 +26,7 @@
 #include <sstream>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkTIFFWriter);
 
 //------------------------------------------------------------------------------
@@ -466,3 +467,4 @@ void vtkTIFFWriter::PrintSelf(ostream& os, vtkIndent indent)
     os << "No Compression\n";
   }
 }
+VTK_ABI_NAMESPACE_END

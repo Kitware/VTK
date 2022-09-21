@@ -30,6 +30,7 @@
 #include "vtkImageSpatialAlgorithm.h"
 #include "vtkImagingGeneralModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKIMAGINGGENERAL_EXPORT vtkImageHybridMedian2D : public vtkImageSpatialAlgorithm
 {
 public:
@@ -50,4 +51,5 @@ private:
   void operator=(const vtkImageHybridMedian2D&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

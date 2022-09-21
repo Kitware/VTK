@@ -28,6 +28,7 @@
 #include <mferror.h>
 #include <mfreadwrite.h>
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkMP4Writer::vtkMP4WriterInternals
 {
 public:
@@ -398,3 +399,4 @@ void vtkMP4Writer::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Rate: " << this->Rate << endl;
   os << indent << "BitRate: " << this->BitRate << endl;
 }
+VTK_ABI_NAMESPACE_END

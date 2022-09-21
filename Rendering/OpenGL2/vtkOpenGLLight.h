@@ -25,6 +25,7 @@
 #include "vtkLight.h"
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkOpenGLRenderer;
 
 class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLLight : public vtkLight
@@ -48,4 +49,5 @@ private:
   void operator=(const vtkOpenGLLight&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

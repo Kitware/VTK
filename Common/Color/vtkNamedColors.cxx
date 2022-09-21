@@ -26,6 +26,7 @@
 #include <sstream>  // STL Header for parsing character arrays
 #include <vector>   // STL Header for returning/storing color values
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkNamedColorsDataStore
 {
 public:
@@ -1301,3 +1302,4 @@ vtkStdString vtkNamedColors::RGBAToHTMLColor(const vtkColor4ub& rgba)
      << (int)(rgba.GetBlue()) << "," << (rgba.GetAlpha() / 255.0) << ")";
   return ss.str();
 }
+VTK_ABI_NAMESPACE_END

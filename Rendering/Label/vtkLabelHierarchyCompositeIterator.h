@@ -40,6 +40,7 @@
 #include "vtkLabelHierarchyIterator.h"
 #include "vtkRenderingLabelModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkIdTypeArray;
 class vtkLabelHierarchy;
 class vtkPolyData;
@@ -122,4 +123,5 @@ private:
   void operator=(const vtkLabelHierarchyCompositeIterator&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkLabelHierarchyCompositeIterator_h

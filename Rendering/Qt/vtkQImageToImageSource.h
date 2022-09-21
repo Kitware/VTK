@@ -27,6 +27,8 @@ PURPOSE.  See the above copyright notice for more information.
 
 class QImage;
 
+VTK_ABI_NAMESPACE_BEGIN
+
 class VTKRENDERINGQT_EXPORT vtkQImageToImageSource : public vtkImageAlgorithm
 {
 public:
@@ -60,4 +62,5 @@ private:
   void operator=(const vtkQImageToImageSource&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

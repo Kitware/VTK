@@ -25,6 +25,7 @@
 #include "vtkOpenGLPolyDataMapper.h"
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLSphereMapper : public vtkOpenGLPolyDataMapper
 {
 public:
@@ -106,4 +107,5 @@ private:
   void operator=(const vtkOpenGLSphereMapper&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

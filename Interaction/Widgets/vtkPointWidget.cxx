@@ -29,6 +29,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPointWidget);
 
 vtkPointWidget::vtkPointWidget()
@@ -658,3 +659,4 @@ void vtkPointWidget::GetPolyData(vtkPolyData* pd)
   this->Cursor3D->Update();
   pd->DeepCopy(this->Cursor3D->GetFocus());
 }
+VTK_ABI_NAMESPACE_END

@@ -30,6 +30,7 @@
 #include "vtkUnsignedShortArray.h"
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkPoints2D* vtkPoints2D::New(int dataType)
 {
   // First try to create the object from the vtkObjectFactory
@@ -232,3 +233,4 @@ void vtkPoints2D::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "  Xmin,Xmax: (" << bounds[0] << ", " << bounds[1] << ")\n";
   os << indent << "  Ymin,Ymax: (" << bounds[2] << ", " << bounds[3] << ")\n";
 }
+VTK_ABI_NAMESPACE_END

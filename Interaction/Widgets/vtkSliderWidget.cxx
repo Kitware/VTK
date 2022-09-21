@@ -24,6 +24,7 @@
 #include "vtkWidgetEvent.h"
 #include "vtkWidgetEventTranslator.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkSliderWidget);
 
 //------------------------------------------------------------------------------
@@ -250,3 +251,4 @@ void vtkSliderWidget::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Number of Animation Steps: " << this->NumberOfAnimationSteps << "\n";
 }
+VTK_ABI_NAMESPACE_END

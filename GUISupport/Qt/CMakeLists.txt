@@ -60,3 +60,4 @@ endforeach()
 
 vtk_module_definitions(VTK::GUISupportQt PRIVATE QT_NO_KEYWORDS)
 vtk_module_link(VTK::GUISupportQt PUBLIC ${qt_modules})
+vtk_add_test_mangling(VTK::GUISupportQt)

@@ -27,6 +27,7 @@
 #include "vtkFiltersPointsModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkIdList;
 class vtkIntArray;
 
@@ -67,4 +68,5 @@ private:
   void operator=(const vtkExtractPointCloudPiece&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -92,6 +92,7 @@
 #include "vtkDistributedDataFilter.h"
 #include "vtkFiltersParallelGeometryModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkBSPCuts;
 class vtkDataArray;
 class vtkFloatArray;
@@ -388,4 +389,5 @@ private:
   vtkPDistributedDataFilter(const vtkPDistributedDataFilter&) = delete;
   void operator=(const vtkPDistributedDataFilter&) = delete;
 };
+VTK_ABI_NAMESPACE_END
 #endif

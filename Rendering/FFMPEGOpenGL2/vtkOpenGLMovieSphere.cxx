@@ -35,6 +35,7 @@
 
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOpenGLMovieSphere);
 
 vtkOpenGLMovieSphere::vtkOpenGLMovieSphere()
@@ -304,3 +305,4 @@ void vtkOpenGLMovieSphere::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

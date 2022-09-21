@@ -26,6 +26,7 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkImageData.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkEmptyCell;
 class vtkStructuredVisibilityConstraint;
 class vtkUnsignedCharArray;
@@ -208,4 +209,5 @@ private:
   static unsigned char MASKED_CELL_VALUE;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

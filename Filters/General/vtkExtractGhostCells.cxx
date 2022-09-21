@@ -26,6 +26,7 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkExtractGhostCells);
 
 //------------------------------------------------------------------------------
@@ -101,3 +102,4 @@ void vtkExtractGhostCells::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "OutputGhostArrayName: "
      << (this->OutputGhostArrayName ? this->OutputGhostArrayName : "(nullptr)") << std::endl;
 }
+VTK_ABI_NAMESPACE_END

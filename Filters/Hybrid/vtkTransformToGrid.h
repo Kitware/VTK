@@ -31,6 +31,7 @@
 #include "vtkFiltersHybridModule.h" // For export macro
 #include "vtkImageData.h"           // makes things a bit easier
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkAbstractTransform;
 
 class VTKFILTERSHYBRID_EXPORT vtkTransformToGrid : public vtkAlgorithm
@@ -150,4 +151,5 @@ private:
   void operator=(const vtkTransformToGrid&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

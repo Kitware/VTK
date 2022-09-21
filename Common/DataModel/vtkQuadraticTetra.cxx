@@ -23,6 +23,7 @@
 #include "vtkQuadraticTriangle.h"
 #include "vtkTetra.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkQuadraticTetra);
 
 //------------------------------------------------------------------------------
@@ -651,3 +652,4 @@ void vtkQuadraticTetra::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Scalars:\n";
   this->Scalars->PrintSelf(os, indent.GetNextIndent());
 }
+VTK_ABI_NAMESPACE_END

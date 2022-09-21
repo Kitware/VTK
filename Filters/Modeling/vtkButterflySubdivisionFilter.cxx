@@ -23,6 +23,7 @@
 #include "vtkPolyData.h"
 #include "vtkSmartPointer.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkButterflySubdivisionFilter);
 
 void vtkButterflySubdivisionFilter::PrintSelf(ostream& os, vtkIndent indent)
@@ -477,3 +478,4 @@ void vtkButterflySubdivisionFilter::GenerateButterflyStencil(
     weights[i] = butterflyWeights[i];
   }
 }
+VTK_ABI_NAMESPACE_END

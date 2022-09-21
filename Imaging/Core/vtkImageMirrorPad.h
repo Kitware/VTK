@@ -26,6 +26,7 @@
 #include "vtkImagePadFilter.h"
 #include "vtkImagingCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKIMAGINGCORE_EXPORT vtkImageMirrorPad : public vtkImagePadFilter
 {
 public:
@@ -47,4 +48,5 @@ private:
   void operator=(const vtkImageMirrorPad&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -1,6 +1,8 @@
 #ifndef vtkVariantInlineOperators_h
 #define vtkVariantInlineOperators_h
 
+#include "vtkABINamespace.h"
+
 #include <climits>
 
 // ----------------------------------------------------------------------
@@ -9,6 +11,7 @@
 // type we're actually dealing with.  With any luck the compiler will
 // inline these so they have very little overhead.
 
+VTK_ABI_NAMESPACE_BEGIN
 inline bool IsSigned64Bit(int VariantType)
 {
   return ((VariantType == VTK_LONG_LONG) || (VariantType == VTK_TYPE_INT64));
@@ -245,5 +248,6 @@ inline bool vtkVariant::operator>=(const vtkVariant& other) const
   return (!this->operator<(other));
 }
 
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkVariantInlineOperators.h

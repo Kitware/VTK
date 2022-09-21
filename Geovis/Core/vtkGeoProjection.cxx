@@ -29,6 +29,7 @@
 
 #include "vtk_libproj.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkGeoProjection);
 
 static int vtkGeoProjectionNumProj = -1;
@@ -305,3 +306,4 @@ void vtkGeoProjection::ClearOptionalParameters()
   this->Internals->OptionalParameters.clear();
   this->Modified();
 }
+VTK_ABI_NAMESPACE_END

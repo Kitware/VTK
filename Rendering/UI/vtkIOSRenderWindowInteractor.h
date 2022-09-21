@@ -32,6 +32,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderingUIModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKRENDERINGUI_EXPORT vtkIOSRenderWindowInteractor : public vtkRenderWindowInteractor
 {
 public:
@@ -149,4 +150,5 @@ private:
   void* IOSManager; // Really an NSMutableDictionary*
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

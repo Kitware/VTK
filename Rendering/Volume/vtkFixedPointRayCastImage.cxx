@@ -15,6 +15,7 @@
 #include "vtkFixedPointRayCastImage.h"
 #include "vtkObjectFactory.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkFixedPointRayCastImage);
 
 // Construct a new vtkFixedPointRayCastImage with default values
@@ -151,3 +152,4 @@ void vtkFixedPointRayCastImage::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "ZBuffer Size: " << this->ZBufferSize[0] << " " << this->ZBufferSize[1] << endl;
 }
+VTK_ABI_NAMESPACE_END

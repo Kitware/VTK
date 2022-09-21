@@ -27,6 +27,7 @@
 
 #include <cassert>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkGroupTimeStepsFilter);
 //----------------------------------------------------------------------------
 vtkGroupTimeStepsFilter::vtkGroupTimeStepsFilter()
@@ -278,3 +279,4 @@ void vtkGroupTimeStepsFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

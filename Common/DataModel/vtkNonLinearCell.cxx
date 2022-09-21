@@ -16,6 +16,7 @@
 #include "vtkObjectFactory.h"
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkNonLinearCell::vtkNonLinearCell() = default;
 
 //------------------------------------------------------------------------------
@@ -23,3 +24,4 @@ void vtkNonLinearCell::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

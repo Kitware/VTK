@@ -32,6 +32,7 @@
 #include "vtkSphere.h"
 #include "vtkSphereSource.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkSphereWidget);
 
 //------------------------------------------------------------------------------
@@ -752,3 +753,4 @@ void vtkSphereWidget::GetPolyData(vtkPolyData* pd)
 {
   pd->ShallowCopy(this->SphereSource->GetOutput());
 }
+VTK_ABI_NAMESPACE_END

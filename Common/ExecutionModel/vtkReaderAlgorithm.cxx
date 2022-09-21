@@ -21,6 +21,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkReaderAlgorithm::vtkReaderAlgorithm()
 {
   // by default assume filters have one input and one output
@@ -140,3 +141,4 @@ void vtkReaderAlgorithm::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

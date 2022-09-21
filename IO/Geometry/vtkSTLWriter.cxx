@@ -34,6 +34,7 @@
 #include <io.h> /* unlink */
 #endif
 
+VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
 // For C format strings
@@ -509,3 +510,4 @@ int vtkSTLWriter::FillInputPortInformation(int, vtkInformation* info)
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPolyData");
   return 1;
 }
+VTK_ABI_NAMESPACE_END

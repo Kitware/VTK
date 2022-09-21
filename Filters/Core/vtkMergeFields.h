@@ -40,6 +40,7 @@
 #include "vtkDataSetAlgorithm.h"
 #include "vtkFiltersCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataArray;
 class vtkFieldData;
 
@@ -153,4 +154,5 @@ private:
   void operator=(const vtkMergeFields&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

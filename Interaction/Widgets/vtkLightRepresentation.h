@@ -32,6 +32,7 @@
 #include "vtkNew.h"                      // Needed for vtkNew
 #include "vtkWidgetRepresentation.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkActor;
 class vtkBox;
 class vtkCellPicker;
@@ -185,4 +186,5 @@ private:
   void operator=(const vtkLightRepresentation&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

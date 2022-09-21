@@ -27,6 +27,7 @@
 
 namespace vtx
 {
+VTK_ABI_NAMESPACE_BEGIN
 // PUBLIC
 VTXSchema::VTXSchema(
   const std::string& type, const std::string& schema, adios2::IO& io, adios2::Engine& engine)
@@ -107,4 +108,5 @@ void VTXSchema::GetDataArray(
 VTK_IO_ADIOS2_VTX_ARRAY_TYPE(declare_type)
 #undef declare_type
 
+VTK_ABI_NAMESPACE_END
 } // end namespace vtx

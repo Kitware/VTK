@@ -23,6 +23,7 @@
 #include "vtkRectilinearGrid.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkRectilinearGridReader);
 
 vtkRectilinearGridReader::vtkRectilinearGridReader() = default;
@@ -384,3 +385,4 @@ void vtkRectilinearGridReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

@@ -20,9 +20,9 @@
 
 namespace vtkTypeList
 {
-
 namespace detail
 {
+VTK_ABI_NAMESPACE_BEGIN
 
 template <typename... Ts>
 struct CreateImpl;
@@ -64,7 +64,10 @@ struct CreateImpl<T1, T2, T3, T4, Tail...>
         vtkTypeList::TypeList<T4, typename vtkTypeList::detail::CreateImpl<Tail...>::type>>>>;
 };
 
+VTK_ABI_NAMESPACE_END
 }
+
+VTK_ABI_NAMESPACE_BEGIN
 
 //------------------------------------------------------------------------------
 // Description:
@@ -377,6 +380,7 @@ struct Append<vtkTypeList::TypeList<Head, Tail>, T>
   typedef vtkTypeList::TypeList<Head, typename Append<Tail, T>::Result> Result;
 };
 
+VTK_ABI_NAMESPACE_END
 }
 
 #endif // vtkTypeList_txx

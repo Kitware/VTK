@@ -28,6 +28,7 @@
 #include "vtkPoints.h"
 #include "vtkVertex.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkBridgeCellIteratorOnCellList);
 
 //------------------------------------------------------------------------------
@@ -137,3 +138,4 @@ void vtkBridgeCellIteratorOnCellList::InitWithCells(vtkIdList* cells, vtkBridgeD
   vtkSetObjectBodyMacro(DataSet, vtkBridgeDataSet, ds);
   vtkSetObjectBodyMacro(Cells, vtkIdList, cells);
 }
+VTK_ABI_NAMESPACE_END

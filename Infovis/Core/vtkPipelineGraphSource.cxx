@@ -37,6 +37,7 @@
 
 #define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPipelineGraphSource);
 
 //------------------------------------------------------------------------------
@@ -349,3 +350,4 @@ void vtkPipelineGraphSource::PipelineToDot(
 
   output << "}\n";
 }
+VTK_ABI_NAMESPACE_END

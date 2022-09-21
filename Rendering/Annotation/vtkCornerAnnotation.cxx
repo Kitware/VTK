@@ -29,6 +29,7 @@
 #include <cmath>
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkCornerAnnotation);
 
 vtkCxxSetObjectMacro(vtkCornerAnnotation, ImageActor, vtkImageActor);
@@ -736,3 +737,4 @@ void vtkCornerAnnotation::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "TextProperty: " << this->TextProperty << endl;
   os << indent << "ShowSliceAndImage: " << this->ShowSliceAndImage << endl;
 }
+VTK_ABI_NAMESPACE_END

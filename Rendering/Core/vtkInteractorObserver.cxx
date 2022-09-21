@@ -23,6 +23,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkCxxSetObjectMacro(vtkInteractorObserver, DefaultRenderer, vtkRenderer);
 
 //------------------------------------------------------------------------------
@@ -381,3 +382,4 @@ void vtkInteractorObserver::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Key Press Activation: " << (this->KeyPressActivation ? "On" : "Off") << "\n";
   os << indent << "Key Press Activation Value: " << this->KeyPressActivationValue << "\n";
 }
+VTK_ABI_NAMESPACE_END

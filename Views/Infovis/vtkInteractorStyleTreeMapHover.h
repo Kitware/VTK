@@ -37,6 +37,7 @@
 #include "vtkInteractorStyleImage.h"
 #include "vtkViewsInfovisModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkBalloonRepresentation;
 class vtkPoints;
 class vtkRenderer;
@@ -147,4 +148,5 @@ private:
   vtkIdType CurrentSelectedId;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

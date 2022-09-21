@@ -32,6 +32,7 @@
 #include "vtkImageAlgorithm.h"
 #include "vtkThreads.h" // for VTK_MAX_THREADS
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkImageData;
 class vtkMultiThreader;
 
@@ -177,4 +178,5 @@ private:
   friend class vtkThreadedImageAlgorithmFunctor;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

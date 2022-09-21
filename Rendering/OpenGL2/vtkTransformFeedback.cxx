@@ -22,6 +22,7 @@
 
 #include "vtk_glew.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkTransformFeedback);
 
 //------------------------------------------------------------------------------
@@ -258,3 +259,4 @@ vtkTransformFeedback::~vtkTransformFeedback()
   this->ReleaseGraphicsResources();
   this->ReleaseBufferData();
 }
+VTK_ABI_NAMESPACE_END

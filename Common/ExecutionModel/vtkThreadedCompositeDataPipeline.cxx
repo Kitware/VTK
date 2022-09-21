@@ -44,6 +44,7 @@
 #include <vector>
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkThreadedCompositeDataPipeline);
 
 //------------------------------------------------------------------------------
@@ -287,3 +288,4 @@ int vtkThreadedCompositeDataPipeline::CallAlgorithm(vtkInformation* request, int
 
   return result;
 }
+VTK_ABI_NAMESPACE_END

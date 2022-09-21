@@ -47,6 +47,7 @@
 #include "vtkAlgorithm.h"
 #include "vtkCommonExecutionModelModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkArrayData;
 class vtkDataSet;
 
@@ -107,4 +108,5 @@ private:
   void operator=(const vtkArrayDataAlgorithm&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

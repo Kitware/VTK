@@ -33,6 +33,7 @@
 
 #include <sql.h>
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkODBCInternals
 {
   friend class vtkODBCDatabase;
@@ -50,5 +51,6 @@ private:
   SQLHANDLE Connection;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkODBCInternals.h

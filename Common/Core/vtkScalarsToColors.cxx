@@ -31,6 +31,7 @@
 // Note you cannot use a map or sort etc as the
 // comparison operator for vtkVarient is not suitable
 // for strict sorting.
+VTK_ABI_NAMESPACE_BEGIN
 class vtkScalarsToColors::vtkInternalAnnotatedValueList : public std::list<vtkVariant>
 {
 };
@@ -457,6 +458,7 @@ void vtkScalarsToColors::MapScalarsThroughTable(
   this->MapScalarsThroughTable(scalars->GetVoidPointer(0), output, scalars->GetDataType(),
     scalars->GetNumberOfTuples(), scalars->GetNumberOfComponents(), outputFormat);
 }
+VTK_ABI_NAMESPACE_END
 
 //------------------------------------------------------------------------------
 // Color type converters in anonymous namespace
@@ -1072,6 +1074,7 @@ unsigned char* vtkScalarsToColorsUnpackBits(void* inPtr, vtkIdType numValues)
 // end anonymous namespace
 }
 
+VTK_ABI_NAMESPACE_BEGIN
 //------------------------------------------------------------------------------
 void vtkScalarsToColors::MapColorsToColors(void* inPtr, unsigned char* outPtr, int inputDataType,
   int numberOfTuples, int numberOfComponents, int inputFormat, int outputFormat)
@@ -1838,3 +1841,4 @@ void vtkScalarsToColors::UpdateAnnotatedValueMap()
     this->AnnotatedValueList->push_back(this->AnnotatedValues->GetVariantValue(i));
   }
 }
+VTK_ABI_NAMESPACE_END

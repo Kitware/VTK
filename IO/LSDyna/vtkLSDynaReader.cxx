@@ -73,6 +73,7 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtkVectorOperators.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkLSDynaReader);
 
 // Names of vtkDataArrays provided with grid:
@@ -3773,3 +3774,4 @@ int vtkLSDynaReader::ComputeDeflectionAndUpdateGeometry(vtkUnstructuredGrid* ug)
   }
   return EXIT_SUCCESS;
 }
+VTK_ABI_NAMESPACE_END

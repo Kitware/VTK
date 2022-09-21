@@ -29,6 +29,7 @@
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkPointPlacer.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPlane;
 class vtkPlaneCollection;
 class vtkPlanes;
@@ -214,4 +215,5 @@ private:
   void operator=(const vtkBoundedPlanePointPlacer&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -47,6 +47,7 @@
 #include "vtkFiltersExtractionModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkSelection;
 
 class VTK_DEPRECATED_IN_9_2_0("Use vtkExtractSelection instead of vtkExtractSelectedPolyDataIds.")
@@ -71,6 +72,7 @@ private:
   void operator=(const vtkExtractSelectedPolyDataIds&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
 
 // VTK-HeaderTest-Exclude: vtkExtractSelectedPolyDataIds.h

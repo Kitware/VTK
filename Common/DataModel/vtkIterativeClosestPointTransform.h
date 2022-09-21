@@ -45,6 +45,7 @@
 #define VTK_ICP_MODE_RMS 0
 #define VTK_ICP_MODE_AV 1
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCellLocator;
 class vtkLandmarkTransform;
 class vtkDataSet;
@@ -224,4 +225,5 @@ private:
   void operator=(const vtkIterativeClosestPointTransform&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

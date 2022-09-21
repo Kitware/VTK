@@ -30,6 +30,7 @@
 #include "vtkCommonComputationalGeometryModule.h" // For export macro
 #include "vtkParametricFunction.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONCOMPUTATIONALGEOMETRY_EXPORT vtkParametricCatalanMinimal
   : public vtkParametricFunction
 {
@@ -78,4 +79,5 @@ private:
   void operator=(const vtkParametricCatalanMinimal&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

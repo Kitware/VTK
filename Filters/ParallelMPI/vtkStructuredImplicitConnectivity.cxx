@@ -56,6 +56,7 @@ namespace vtk
 {
 namespace detail
 {
+VTK_ABI_NAMESPACE_BEGIN
 
 // Given two intervals A=[a1,a2] and B[b1,b2] the IntervalsConnect struct
 // enumerates the cases where interval A connects to Interval B.
@@ -829,12 +830,14 @@ void CommunicationManager::Exchange(vtkMPIController* comm)
   this->Requests.clear();
 }
 
+VTK_ABI_NAMESPACE_END
 } // END namespace detail
 } // END namespace vtk
 //==============================================================================
 // END INTERNAL DATASTRUCTURE DEFINITIONS
 //==============================================================================
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkStructuredImplicitConnectivity);
 vtkCxxSetObjectMacro(vtkStructuredImplicitConnectivity, Controller, vtkMPIController);
 
@@ -1521,3 +1524,4 @@ void vtkStructuredImplicitConnectivity::ExchangeData()
   // Barrier synchronization
   this->Controller->Barrier();
 }
+VTK_ABI_NAMESPACE_END

@@ -10,6 +10,7 @@
 #include <vtkUnsignedLongLongArray.h>
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 QVTKTableModelAdapter::QVTKTableModelAdapter(QObject* parent)
   : QObject(parent)
 {
@@ -419,3 +420,4 @@ vtkTable* QVTKTableModelAdapter::GetTable() const
 {
   return this->Table;
 }
+VTK_ABI_NAMESPACE_END

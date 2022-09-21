@@ -22,6 +22,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImplicitDataSet);
 vtkCxxSetObjectMacro(vtkImplicitDataSet, DataSet, vtkDataSet);
 
@@ -185,3 +186,4 @@ void vtkImplicitDataSet::ReportReferences(vtkGarbageCollector* collector)
   // reference loop.
   vtkGarbageCollectorReport(collector, this->DataSet, "DataSet");
 }
+VTK_ABI_NAMESPACE_END

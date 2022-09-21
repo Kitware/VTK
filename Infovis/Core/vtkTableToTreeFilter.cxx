@@ -35,6 +35,7 @@
 #include <string>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkTableToTreeFilter);
 
 vtkTableToTreeFilter::vtkTableToTreeFilter() = default;
@@ -122,3 +123,4 @@ int vtkTableToTreeFilter::RequestData(
 
   return 1;
 }
+VTK_ABI_NAMESPACE_END

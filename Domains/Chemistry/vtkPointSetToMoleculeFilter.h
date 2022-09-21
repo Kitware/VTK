@@ -29,6 +29,7 @@
 #include "vtkDomainsChemistryModule.h" // For export macro
 #include "vtkMoleculeAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKDOMAINSCHEMISTRY_EXPORT vtkPointSetToMoleculeFilter : public vtkMoleculeAlgorithm
 {
 public:
@@ -62,4 +63,5 @@ private:
   void operator=(const vtkPointSetToMoleculeFilter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

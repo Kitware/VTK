@@ -1,6 +1,8 @@
 #if !defined(_PIODATA_H)
 #define _PIODATA_H
 
+#include "vtkABINamespace.h"
+
 #include <fstream>
 #include <iostream>
 #include <list>
@@ -11,6 +13,7 @@
 #include <string>
 #include <valarray>
 
+VTK_ABI_NAMESPACE_BEGIN
 struct Cstring_less
 {
   bool operator()(const char* p, const char* q) const { return strcmp(p, q) < 0; };
@@ -242,4 +245,5 @@ enum
 // Prototypes
 bool GetPIOfileTime(const char*, double&);
 bool IsPIOfile(const char*);
+VTK_ABI_NAMESPACE_END
 #endif //! defined(_PIODATA_H)

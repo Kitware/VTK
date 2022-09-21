@@ -20,6 +20,7 @@
 #include "vtkSmartPointer.h"
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkUnstructuredGridBase::vtkUnstructuredGridBase() = default;
 
 //------------------------------------------------------------------------------
@@ -79,3 +80,4 @@ void vtkUnstructuredGridBase::ReplaceCell(vtkIdType cellId, int npts, const vtkI
 {
   this->InternalReplaceCell(cellId, npts, pts);
 }
+VTK_ABI_NAMESPACE_END

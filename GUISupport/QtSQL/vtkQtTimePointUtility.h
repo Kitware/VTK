@@ -32,6 +32,7 @@
 #include "vtkObject.h"
 #include <QDateTime> // Needed for method return types
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKGUISUPPORTQTSQL_EXPORT vtkQtTimePointUtility : public vtkObject
 {
 public:
@@ -52,4 +53,5 @@ private:
   void operator=(const vtkQtTimePointUtility&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

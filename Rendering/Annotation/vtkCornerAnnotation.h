@@ -39,6 +39,7 @@
 #include "vtkActor2D.h"
 #include "vtkRenderingAnnotationModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkTextMapper;
 class vtkImageMapToWindowLevelColors;
 class vtkImageActor;
@@ -242,4 +243,5 @@ private:
   void operator=(const vtkCornerAnnotation&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

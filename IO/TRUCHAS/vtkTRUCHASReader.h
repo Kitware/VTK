@@ -26,6 +26,7 @@
 #include "vtkIOTRUCHASModule.h" // For export macro
 #include "vtkMultiBlockDataSetAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataArraySelection;
 
 class VTKIOTRUCHAS_EXPORT vtkTRUCHASReader : public vtkMultiBlockDataSetAlgorithm
@@ -130,4 +131,5 @@ private:
   void operator=(const vtkTRUCHASReader&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

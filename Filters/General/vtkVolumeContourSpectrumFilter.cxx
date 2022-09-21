@@ -29,6 +29,7 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtkVariantArray.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkVolumeContourSpectrumFilter);
 
 //------------------------------------------------------------------------------
@@ -304,3 +305,4 @@ int vtkVolumeContourSpectrumFilter::RequestData(vtkInformation* vtkNotUsed(reque
   }
   return 0;
 }
+VTK_ABI_NAMESPACE_END

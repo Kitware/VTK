@@ -19,6 +19,7 @@
 #include "vtkMatrix4x4.h"
 #include "vtkObjectFactory.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkCxxSetObjectMacro(vtkLight, Information, vtkInformation);
 vtkCxxSetObjectMacro(vtkLight, TransformMatrix, vtkMatrix4x4);
 
@@ -378,3 +379,4 @@ void vtkLight::PrintSelf(ostream& os, vtkIndent indent)
   }
   os << indent << "ShadowAttenuation: " << this->ShadowAttenuation << "\n";
 }
+VTK_ABI_NAMESPACE_END

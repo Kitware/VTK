@@ -31,6 +31,7 @@
 #include "vtkWindow.h"
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkContinuousValueWidgetRepresentation::vtkContinuousValueWidgetRepresentation()
 {
   this->Value = 0;
@@ -56,3 +57,4 @@ void vtkContinuousValueWidgetRepresentation::PrintSelf(ostream& os, vtkIndent in
 
   os << indent << "Value: " << this->GetValue() << "\n";
 }
+VTK_ABI_NAMESPACE_END

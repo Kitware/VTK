@@ -50,6 +50,7 @@
 
 namespace vtkosp
 {
+VTK_ABI_NAMESPACE_BEGIN
 //----------------------------------------------------------------------------
 double GetComponent(double* tuple, int nComp, int c)
 {
@@ -306,7 +307,10 @@ OSPVolumetricModel RenderAsParticles(osp::vec3f* vertices, std::vector<unsigned 
 
   return ospVolModel;
 }
+VTK_ABI_NAMESPACE_END
 }
+
+VTK_ABI_NAMESPACE_BEGIN
 
 //============================================================================
 vtkStandardNewMacro(vtkOSPRayPointGaussianMapperNode);
@@ -600,3 +604,4 @@ bool vtkOSPRayPointGaussianMapperNode::GetNeedToRebuild(vtkOSPRayActorNode* aNod
   }
   return false;
 }
+VTK_ABI_NAMESPACE_END

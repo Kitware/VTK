@@ -26,6 +26,7 @@
 
 #include <string> // needed for std::string in the interface
 
+VTK_ABI_NAMESPACE_BEGIN
 struct vtkSimpleReaderInternal;
 
 class VTKCOMMONEXECUTIONMODEL_EXPORT vtkSimpleReader : public vtkReaderAlgorithm
@@ -135,4 +136,5 @@ private:
   vtkSimpleReaderInternal* Internal;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

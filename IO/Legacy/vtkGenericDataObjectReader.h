@@ -38,6 +38,7 @@
 #include "vtkDataReader.h"
 #include "vtkIOLegacyModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataObject;
 class vtkGraph;
 class vtkMolecule;
@@ -117,4 +118,5 @@ private:
   vtkSetStringMacro(Header);
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

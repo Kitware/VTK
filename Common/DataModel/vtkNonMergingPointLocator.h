@@ -37,6 +37,7 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkPointLocator.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPoints;
 
 class VTKCOMMONDATAMODEL_EXPORT vtkNonMergingPointLocator : public vtkPointLocator
@@ -72,4 +73,5 @@ private:
   void operator=(const vtkNonMergingPointLocator&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

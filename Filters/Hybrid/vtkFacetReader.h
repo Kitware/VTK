@@ -42,6 +42,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkFiltersHybridModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSHYBRID_EXPORT vtkFacetReader : public vtkPolyDataAlgorithm
 {
 public:
@@ -72,4 +73,5 @@ private:
   void operator=(const vtkFacetReader&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

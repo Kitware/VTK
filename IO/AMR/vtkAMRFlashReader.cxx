@@ -41,6 +41,7 @@
 
 #include "vtkAMRFlashReaderInternal.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkAMRFlashReader);
 
 //------------------------------------------------------------------------------
@@ -269,3 +270,4 @@ void vtkAMRFlashReader::SetUpDataArraySelections()
     this->CellDataArraySelection->AddArray(this->Internal->AttributeNames[i].c_str());
   }
 }
+VTK_ABI_NAMESPACE_END

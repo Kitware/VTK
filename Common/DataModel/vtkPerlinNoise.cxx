@@ -17,6 +17,7 @@
 #include <cassert>
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPerlinNoise);
 
 // These functions are from Greg Ward's recursive implementation in
@@ -137,3 +138,4 @@ void vtkPerlinNoise::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Phase: (" << this->Phase[0] << ", " << this->Phase[1] << ", " << this->Phase[2]
      << ")\n";
 }
+VTK_ABI_NAMESPACE_END

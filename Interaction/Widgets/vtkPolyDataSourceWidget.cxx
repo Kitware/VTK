@@ -20,6 +20,7 @@
 
 // child classes should call this constructor so that the vtk3DWidget()
 // constructor can set up some pertinent variables (e.g. Input and Prop3D)
+VTK_ABI_NAMESPACE_BEGIN
 vtkPolyDataSourceWidget::vtkPolyDataSourceWidget() = default;
 
 void vtkPolyDataSourceWidget::PlaceWidget()
@@ -56,3 +57,4 @@ void vtkPolyDataSourceWidget::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

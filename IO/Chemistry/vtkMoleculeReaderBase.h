@@ -30,6 +30,7 @@
 #include "vtkIOChemistryModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCellArray;
 class vtkFloatArray;
 class vtkDataArray;
@@ -142,4 +143,5 @@ private:
   void operator=(const vtkMoleculeReaderBase&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -43,6 +43,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 using namespace boost;
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkBoostPrimMinimumSpanningTree);
 
 // Constructor/Destructor
@@ -296,3 +297,4 @@ void vtkBoostPrimMinimumSpanningTree::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "EdgeWeightArrayName: "
      << (this->EdgeWeightArrayName ? this->EdgeWeightArrayName : "(none)") << endl;
 }
+VTK_ABI_NAMESPACE_END

@@ -33,6 +33,7 @@
 
 #define VTK_MYSQL_DEFAULT_PORT 3306
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkMySQLDatabase);
 
 //------------------------------------------------------------------------------
@@ -633,3 +634,4 @@ bool vtkMySQLDatabase::DropDatabase(const char* dbName)
   }
   return status;
 }
+VTK_ABI_NAMESPACE_END

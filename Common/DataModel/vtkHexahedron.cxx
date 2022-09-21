@@ -30,6 +30,7 @@
 #include <cassert>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkHexahedron);
 
 namespace
@@ -499,8 +500,10 @@ bool vtkHexahedron::ComputeCentroid(
 
 // Marching cubes case table
 //
+VTK_ABI_NAMESPACE_END
 #include "vtkMarchingCubesTriangleCases.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 void vtkHexahedron::Contour(double value, vtkDataArray* cellScalars,
   vtkIncrementalPointLocator* locator, vtkCellArray* verts, vtkCellArray* lines,
   vtkCellArray* polys, vtkPointData* inPd, vtkPointData* outPd, vtkCellData* inCd, vtkIdType cellId,
@@ -1027,3 +1030,4 @@ void vtkHexahedron::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Quad:\n";
   this->Quad->PrintSelf(os, indent.GetNextIndent());
 }
+VTK_ABI_NAMESPACE_END

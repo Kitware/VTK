@@ -23,6 +23,7 @@
 #include "vtkXMLDataElement.h"
 #include "vtkXMLWriter2.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkXMLDataWriterHelper);
 vtkCxxSetObjectMacro(vtkXMLDataWriterHelper, Writer, vtkXMLWriter2);
 //----------------------------------------------------------------------------
@@ -117,3 +118,4 @@ void vtkXMLDataWriterHelper::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

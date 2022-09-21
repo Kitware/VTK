@@ -27,6 +27,7 @@
 #include "vtkWidgetEventTranslator.h"
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkCameraPathWidget);
 
 //------------------------------------------------------------------------------
@@ -328,3 +329,4 @@ void vtkCameraPathWidget::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
   os << indent << "WidgetState: " << this->WidgetState << "\n";
 }
+VTK_ABI_NAMESPACE_END

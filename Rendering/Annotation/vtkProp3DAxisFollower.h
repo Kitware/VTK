@@ -33,6 +33,7 @@
 #include "vtkRenderingAnnotationModule.h" // For export macro
 #include "vtkWeakPointer.h"               // For vtkWeakPointer
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkAxisActor;
 class vtkViewport;
 
@@ -199,4 +200,5 @@ private:
   int VisibleAtCurrentViewAngle;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

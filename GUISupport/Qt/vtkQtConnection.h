@@ -33,6 +33,7 @@
 #include "vtkCommand.h" // for event defines
 #include <QObject>
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkObject;
 class vtkCallbackCommand;
 class vtkEventQtSlotConnect;
@@ -91,5 +92,6 @@ private:
   void operator=(const vtkQtConnection&);
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkQtConnection.h

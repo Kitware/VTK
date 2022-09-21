@@ -28,6 +28,7 @@
 
 #include "RTWrapper/RTWrapper.h" // for handle types
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataArray;
 class vtkDataSet;
 class vtkVolume;
@@ -86,4 +87,5 @@ private:
   vtkOSPRayVolumeMapperNode(const vtkOSPRayVolumeMapperNode&) = delete;
   void operator=(const vtkOSPRayVolumeMapperNode&) = delete;
 };
+VTK_ABI_NAMESPACE_END
 #endif

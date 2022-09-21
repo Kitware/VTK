@@ -34,6 +34,7 @@
 #include "vtkAngleRepresentation.h"
 #include "vtkInteractionWidgetsModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkActor;
 class vtkProperty;
 class vtkPolyDataMapper;
@@ -147,4 +148,5 @@ private:
   void operator=(const vtkAngleRepresentation3D&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

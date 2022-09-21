@@ -32,6 +32,7 @@
 #include "vtkRenderingCoreEnums.h"       // For marker enum
 #include "vtkVector.h"                   // For vtkVector2i ivar
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkWindow;
 class vtkViewport;
 class vtkStdString;
@@ -418,4 +419,5 @@ private:
   void operator=(const vtkContextDevice2D&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkContextDevice2D_h

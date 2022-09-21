@@ -36,6 +36,7 @@
 #include "vtkTable.h"
 #include "vtkUndirectedGraph.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkGraphToGlyphs);
 
 vtkGraphToGlyphs::vtkGraphToGlyphs()
@@ -162,3 +163,4 @@ void vtkGraphToGlyphs::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "ScreenSize: " << this->ScreenSize << endl;
   os << indent << "GlyphType: " << this->GlyphType << endl;
 }
+VTK_ABI_NAMESPACE_END

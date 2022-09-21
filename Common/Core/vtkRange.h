@@ -25,6 +25,7 @@
 
 namespace vtk
 {
+VTK_ABI_NAMESPACE_BEGIN
 
 /**
  * Generate an iterable STL proxy object for a VTK container.
@@ -90,6 +91,7 @@ auto Range(IterablePtr iterable, Options&&... opts) ->
   return RangeType{ iterable, std::forward<Options>(opts)... };
 }
 
+VTK_ABI_NAMESPACE_END
 } // end namespace vtk
 
 #endif // vtkRange_h

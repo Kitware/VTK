@@ -27,6 +27,7 @@
 #include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkExecutive.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkAbstractArray;
 class vtkDataArray;
 class vtkDataSetAttributes;
@@ -233,4 +234,5 @@ private:
   void operator=(const vtkDemandDrivenPipeline&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

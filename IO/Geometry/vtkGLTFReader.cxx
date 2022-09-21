@@ -37,6 +37,7 @@
 #include <array>
 #include <sstream>
 
+VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
 //------------------------------------------------------------------------------
@@ -1092,3 +1093,4 @@ void vtkGLTFReader::SetApplyDeformationsToGeometry(bool flag)
   }
   this->ApplyDeformationsToGeometry = flag;
 }
+VTK_ABI_NAMESPACE_END

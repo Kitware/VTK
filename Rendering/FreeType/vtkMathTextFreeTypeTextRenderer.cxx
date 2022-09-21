@@ -22,6 +22,7 @@
 #include "vtkTextProperty.h"
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkObjectFactoryNewMacro(vtkMathTextFreeTypeTextRenderer);
 
 //------------------------------------------------------------------------------
@@ -351,3 +352,4 @@ vtkMathTextFreeTypeTextRenderer::vtkMathTextFreeTypeTextRenderer()
 
 //------------------------------------------------------------------------------
 vtkMathTextFreeTypeTextRenderer::~vtkMathTextFreeTypeTextRenderer() = default;
+VTK_ABI_NAMESPACE_END

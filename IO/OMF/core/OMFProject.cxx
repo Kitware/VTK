@@ -62,6 +62,7 @@ ElementTypes getElementTypeFromSubtype(const Json::Value& json)
 }
 
 } // end anon namespace
+VTK_ABI_NAMESPACE_BEGIN
 
 struct OMFProject::ProjectImpl
 {
@@ -283,4 +284,5 @@ bool OMFProject::ProcessJSON(vtkPartitionedDataSetCollection* output,
   return true;
 }
 
+VTK_ABI_NAMESPACE_END
 } // end namespace omf

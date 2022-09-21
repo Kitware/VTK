@@ -24,6 +24,7 @@
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkTexturedSphereSource);
 
 // Construct sphere with radius=0.5 and default resolution 8 in both Phi
@@ -169,3 +170,4 @@ void vtkTexturedSphereSource::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Radius: " << this->Radius << "\n";
   os << indent << "Output Points Precision: " << this->OutputPointsPrecision << "\n";
 }
+VTK_ABI_NAMESPACE_END

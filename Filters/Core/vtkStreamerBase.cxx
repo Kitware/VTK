@@ -20,6 +20,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 
 //=============================================================================
+VTK_ABI_NAMESPACE_BEGIN
 vtkStreamerBase::vtkStreamerBase()
 {
   this->NumberOfPasses = 1;
@@ -89,3 +90,4 @@ int vtkStreamerBase::RequestData(
 
   return 1;
 }
+VTK_ABI_NAMESPACE_END

@@ -22,6 +22,7 @@
 #include "vtkPlanes.h"
 #include <cassert>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkFrustumSource);
 vtkCxxSetObjectMacro(vtkFrustumSource, Planes, vtkPlanes);
 
@@ -427,3 +428,4 @@ void vtkFrustumSource::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "LinesLength:" << this->LinesLength << endl;
   os << indent << "Output Points Precision: " << this->OutputPointsPrecision << endl;
 }
+VTK_ABI_NAMESPACE_END

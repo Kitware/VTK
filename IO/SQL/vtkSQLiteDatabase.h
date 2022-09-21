@@ -49,6 +49,7 @@
 #include "vtkIOSQLModule.h" // For export macro
 #include "vtkSQLDatabase.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkSQLQuery;
 class vtkSQLiteQuery;
 class vtkStringArray;
@@ -186,4 +187,5 @@ private:
   void operator=(const vtkSQLiteDatabase&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkSQLiteDatabase_h

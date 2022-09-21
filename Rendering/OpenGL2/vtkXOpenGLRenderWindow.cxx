@@ -76,6 +76,7 @@ typedef ptrdiff_t GLsizeiptr;
  * structs working. We do not want to include XUtil.h in the header as
  * it populates the global namespace.
  */
+VTK_ABI_NAMESPACE_BEGIN
 struct vtkXVisualInfo : public XVisualInfo
 {
 };
@@ -1758,3 +1759,4 @@ void vtkXOpenGLRenderWindow::SetCurrentCursor(int shape)
       break;
   }
 }
+VTK_ABI_NAMESPACE_END

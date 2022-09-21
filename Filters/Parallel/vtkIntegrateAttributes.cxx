@@ -35,6 +35,7 @@
 
 #include <cassert>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkIntegrateAttributes);
 
 vtkCxxSetObjectMacro(vtkIntegrateAttributes, Controller, vtkMultiProcessController);
@@ -1156,3 +1157,4 @@ void vtkIntegrateAttributes::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "IntegrationDimension: " << this->IntegrationDimension << endl;
 }
+VTK_ABI_NAMESPACE_END

@@ -26,6 +26,7 @@
 #include "vtkImagingCoreModule.h" // For export macro
 #include "vtkThreadedImageAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKIMAGINGCORE_EXPORT vtkImageShrink3D : public vtkThreadedImageAlgorithm
 {
 public:
@@ -103,4 +104,5 @@ private:
   void operator=(const vtkImageShrink3D&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

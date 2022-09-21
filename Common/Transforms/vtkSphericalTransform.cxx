@@ -18,6 +18,7 @@
 #include <cmath>
 #include <cstdlib>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkSphericalTransform);
 
 //------------------------------------------------------------------------------
@@ -157,3 +158,4 @@ void vtkSphericalTransform::InverseTransformDerivative(
   vtkRectangularToSpherical(inPoint, outPoint);
   vtkSphericalToRectangular(outPoint, tmp, derivative);
 }
+VTK_ABI_NAMESPACE_END

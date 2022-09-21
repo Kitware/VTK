@@ -19,6 +19,7 @@
 #include <cassert>
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkGenericAttribute::vtkGenericAttribute() = default;
 
 //------------------------------------------------------------------------------
@@ -50,3 +51,4 @@ void vtkGenericAttribute::PrintSelf(ostream& os, vtkIndent indent)
   }
   os << endl;
 }
+VTK_ABI_NAMESPACE_END

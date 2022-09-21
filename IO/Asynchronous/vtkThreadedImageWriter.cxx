@@ -122,6 +122,7 @@ void EncodeAndWrite(const vtkSmartPointer<vtkImageData>& image, const std::strin
 }
 }
 
+VTK_ABI_NAMESPACE_BEGIN
 //****************************************************************************
 class vtkThreadedImageWriter::vtkInternals
 {
@@ -226,3 +227,4 @@ void vtkThreadedImageWriter::Finalize()
 {
   this->Internals->TerminateAllWorkers();
 }
+VTK_ABI_NAMESPACE_END

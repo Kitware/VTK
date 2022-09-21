@@ -43,6 +43,7 @@
 
 namespace details
 {
+VTK_ABI_NAMESPACE_BEGIN
 // Easy access to the right windowing function using vtkTableFFT enumeration.
 // clang-format off
 constexpr static std::array<vtkFFT::WindowGenerator, vtkTableFFT::MAX_WINDOWING_FUNCTION> WindowingFunctionsList =
@@ -54,8 +55,10 @@ constexpr static std::array<vtkFFT::WindowGenerator, vtkTableFFT::MAX_WINDOWING_
   vtkFFT::RectangularGenerator
 };
 // clang-format on
+VTK_ABI_NAMESPACE_END
 }
 
+VTK_ABI_NAMESPACE_BEGIN
 //------------------------------------------------------------------------------
 struct vtkTableFFT::vtkInternal
 {
@@ -344,3 +347,4 @@ void vtkTableFFT::PrintSelf(std::ostream& os, vtkIndent indent)
   os << indent << "BlockSize: " << this->BlockSize << std::endl;
   os << indent << "WindowingFunction: " << this->WindowingFunction << std::endl;
 }
+VTK_ABI_NAMESPACE_END

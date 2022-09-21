@@ -36,6 +36,7 @@
 #include <list>   // for std::list
 #include <vector> // STL Header
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkMatrix4x4;
 class vtkOpenGLExtensionManager;
 class vtkOpenGLHelper;
@@ -493,4 +494,5 @@ private:
   vtkImageData* GenerateMarker(int shape, int size, bool highlight);
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkOpenGLContextDevice2D_h

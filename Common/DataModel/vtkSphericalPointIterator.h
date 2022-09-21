@@ -82,6 +82,7 @@
 
 #include <memory> // for std::unique_ptr
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDoubleArray;
 class vtkPolyData;
 struct SpiralPointIterator;
@@ -282,4 +283,5 @@ private:
   void operator=(const vtkSphericalPointIterator&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkSphericalPointIterator_h

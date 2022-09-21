@@ -45,6 +45,7 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtkWedge.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkLinearToQuadraticCellsFilter);
 
 namespace
@@ -266,3 +267,4 @@ void vtkLinearToQuadraticCellsFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

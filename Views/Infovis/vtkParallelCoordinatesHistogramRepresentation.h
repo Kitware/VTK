@@ -58,6 +58,7 @@
 #include "vtkParallelCoordinatesRepresentation.h"
 #include "vtkViewsInfovisModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkComputeHistogram2DOutliers;
 class vtkPairwiseExtractHistogram2D;
 class vtkExtractHistogram2D;
@@ -230,4 +231,5 @@ private:
   void operator=(const vtkParallelCoordinatesHistogramRepresentation&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

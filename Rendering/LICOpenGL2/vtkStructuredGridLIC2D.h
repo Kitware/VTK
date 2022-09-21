@@ -46,6 +46,7 @@
 #include "vtkStructuredGridAlgorithm.h"
 #include "vtkWeakPointer.h" // needed for vtkWeakPointer.
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkImageNoiseSource;
 class vtkOpenGLHelper;
 class vtkRenderWindow;
@@ -173,4 +174,5 @@ private:
   void operator=(const vtkStructuredGridLIC2D&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

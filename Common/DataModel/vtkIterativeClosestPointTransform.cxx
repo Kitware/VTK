@@ -22,6 +22,7 @@
 #include "vtkPoints.h"
 #include "vtkTransform.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkIterativeClosestPointTransform);
 
 //------------------------------------------------------------------------------
@@ -512,3 +513,4 @@ void vtkIterativeClosestPointTransform::PrintSelf(ostream& os, vtkIndent indent)
     this->LandmarkTransform->PrintSelf(os, indent.GetNextIndent());
   }
 }
+VTK_ABI_NAMESPACE_END

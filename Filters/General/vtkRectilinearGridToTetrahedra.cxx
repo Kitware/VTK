@@ -29,6 +29,7 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtkVoxel.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkRectilinearGridToTetrahedra);
 
 // ways to convert to a voxel to tetrahedra.
@@ -596,3 +597,4 @@ void vtkRectilinearGridToTetrahedra::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Mesh Type: " << this->TetraPerCell << "\n";
   os << indent << "RememberVoxel Id: " << this->RememberVoxelId << "\n";
 }
+VTK_ABI_NAMESPACE_END

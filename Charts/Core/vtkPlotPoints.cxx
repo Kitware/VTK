@@ -38,6 +38,7 @@
 #include <vector>
 
 // PIMPL for STL vector...
+VTK_ABI_NAMESPACE_BEGIN
 struct vtkIndexedVector2f
 {
   size_t index;
@@ -966,3 +967,4 @@ void vtkPlotPoints::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

@@ -35,6 +35,7 @@
 #include <sstream>
 #include <string>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkCubeAxesActor);
 vtkCxxSetObjectMacro(vtkCubeAxesActor, Camera, vtkCamera);
 // *************************************************************************
@@ -2995,3 +2996,4 @@ double* vtkCubeAxesActor::GetRenderedBounds()
   // Return our data holder
   return this->RenderedBounds;
 }
+VTK_ABI_NAMESPACE_END

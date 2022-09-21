@@ -59,6 +59,7 @@
 
 #include "vtkContourValues.h" // Needed for inline methods
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkIncrementalPointLocator;
 class vtkScalarTree;
 class vtkSynchronizedTemplates2D;
@@ -309,4 +310,5 @@ inline void vtkContourFilter::GenerateValues(int numContours, double rangeStart,
   this->ContourValues->GenerateValues(numContours, rangeStart, rangeEnd);
 }
 
+VTK_ABI_NAMESPACE_END
 #endif

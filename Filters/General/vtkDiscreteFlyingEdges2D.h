@@ -48,6 +48,7 @@
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkImageData;
 
 class VTKFILTERSGENERAL_EXPORT vtkDiscreteFlyingEdges2D : public vtkPolyDataAlgorithm
@@ -150,4 +151,5 @@ private:
   void operator=(const vtkDiscreteFlyingEdges2D&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

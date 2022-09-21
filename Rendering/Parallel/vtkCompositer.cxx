@@ -20,6 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkUnsignedCharArray.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkCompositer);
 
 //------------------------------------------------------------------------------
@@ -131,3 +132,4 @@ void vtkCompositer::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Controller: (" << this->Controller << ")\n";
   os << indent << "NumberOfProcesses: " << this->NumberOfProcesses << endl;
 }
+VTK_ABI_NAMESPACE_END

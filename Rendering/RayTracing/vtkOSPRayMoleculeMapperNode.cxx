@@ -36,6 +36,7 @@
 #include <vector>
 
 //============================================================================
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOSPRayMoleculeMapperNode);
 
 //------------------------------------------------------------------------------
@@ -437,3 +438,4 @@ void vtkOSPRayMoleculeMapperNode::Render(bool prepass)
     orn->Instances.emplace_back(instance);
   }
 }
+VTK_ABI_NAMESPACE_END

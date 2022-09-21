@@ -20,6 +20,7 @@
 #include <string>
 
 // Registration of ODBC dynamically with the vtkSQLDatabase factory method.
+VTK_ABI_NAMESPACE_BEGIN
 vtkSQLDatabase* ODBCCreateFunction(const char* URL)
 {
   std::string urlstr(URL ? URL : "");
@@ -44,3 +45,4 @@ VTKIOODBC_EXPORT void vtkIOODBC_AutoInit_Construct()
     vtkSQLDatabase::RegisterCreateFromURLCallback(ODBCCreateFunction);
   }
 }
+VTK_ABI_NAMESPACE_END

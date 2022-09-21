@@ -36,6 +36,7 @@
 using namespace vtkParticleTracerBaseNamespace;
 using IDStates = vtkTemporalInterpolatedVelocityField::IDStates;
 
+VTK_ABI_NAMESPACE_BEGIN
 //------------------------------------------------------------------------------
 vtkPParticleTracerBase::vtkPParticleTracerBase()
 {
@@ -536,3 +537,4 @@ bool vtkPParticleTracerBase::IsPointDataValid(vtkDataObject* input)
 //------------------------------------------------------------------------------
 vtkCxxSetObjectMacro(vtkPParticleTracerBase, Controller, vtkMultiProcessController);
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_END

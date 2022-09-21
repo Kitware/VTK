@@ -22,6 +22,7 @@
 #include "vtkRenderer.h"
 #include "vtkRendererCollection.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkExternalOpenGLRenderWindow);
 
 //------------------------------------------------------------------------------
@@ -97,3 +98,4 @@ void vtkExternalOpenGLRenderWindow::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "UseExternalContent: " << this->UseExternalContent << endl;
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

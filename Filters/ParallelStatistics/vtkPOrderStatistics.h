@@ -45,6 +45,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include <map> // STL Header
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkIdTypeArray;
 class vtkMultiBlockDataSet;
 class vtkMultiProcessController;
@@ -96,4 +97,5 @@ private:
   void operator=(const vtkPOrderStatistics&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

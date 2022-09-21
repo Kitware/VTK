@@ -35,6 +35,7 @@
 #include "vtkImageHistogram.h"
 #include "vtkImagingStatisticsModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkImageStencilData;
 class vtkIdTypeArray;
 
@@ -134,4 +135,5 @@ private:
   void operator=(const vtkImageHistogramStatistics&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

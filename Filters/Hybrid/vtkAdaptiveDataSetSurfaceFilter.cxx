@@ -32,6 +32,7 @@
 #include "vtkHyperTreeGridNonOrientedGeometryCursor.h"
 #include "vtkHyperTreeGridNonOrientedVonNeumannSuperCursorLight.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 static const unsigned int VonNeumannCursors3D[] = { 0, 1, 2, 4, 5, 6 };
 static const unsigned int VonNeumannOrientations3D[] = { 2, 1, 0, 0, 1, 2 };
 static const unsigned int VonNeumannOffsets3D[] = { 0, 0, 0, 1, 1, 1 };
@@ -749,3 +750,4 @@ vtkMTimeType vtkAdaptiveDataSetSurfaceFilter::GetMTime()
   }   // if ( this->Renderer )
   return this->Superclass::GetMTime();
 }
+VTK_ABI_NAMESPACE_END

@@ -36,6 +36,7 @@
 
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPolygon);
 
 #define VTK_POLYGON_TOL 1.e-08 // Absolute tolerance for testing near polygon boundary
@@ -2267,3 +2268,4 @@ int vtkPolygon::IntersectConvex2DCells(
     return 0;
   }
 }
+VTK_ABI_NAMESPACE_END

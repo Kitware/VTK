@@ -19,6 +19,7 @@
 
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkLightCollection);
 
 // Add a light to the bottom of the list.
@@ -44,3 +45,4 @@ void vtkLightCollection::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

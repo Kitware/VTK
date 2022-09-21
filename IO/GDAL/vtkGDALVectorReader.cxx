@@ -35,6 +35,7 @@
 // C++ includes
 #include <vector> // Requires STL vector
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkGDALVectorReader);
 
 int vtkGDALVectorReader::OGRRegistered = 0;
@@ -685,3 +686,4 @@ int vtkGDALVectorReader::InitializeInternal()
 
   return VTK_OK;
 }
+VTK_ABI_NAMESPACE_END

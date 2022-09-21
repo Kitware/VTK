@@ -25,6 +25,7 @@
 #include "vtkStringArray.h"
 #include "vtkTree.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkTreeDifferenceFilter);
 
 //------------------------------------------------------------------------------
@@ -313,3 +314,4 @@ void vtkTreeDifferenceFilter::PrintSelf(ostream& os, vtkIndent indent)
   }
   os << indent << "ComparisonArrayIsVertexData: " << this->ComparisonArrayIsVertexData << std::endl;
 }
+VTK_ABI_NAMESPACE_END

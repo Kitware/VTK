@@ -35,6 +35,7 @@
 #include "vtkAbstractMapper.h"
 #include "vtkRenderingCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkWindow;
 class vtkDataSet;
 class vtkMatrix4x4;
@@ -106,4 +107,5 @@ private:
   void operator=(const vtkAbstractMapper3D&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

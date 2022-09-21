@@ -49,6 +49,7 @@
 #include "vtkFiltersGenericModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkContourValues;
 
 class vtkImplicitFunction;
@@ -183,4 +184,5 @@ private:
   void operator=(const vtkGenericCutter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

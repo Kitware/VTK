@@ -29,6 +29,7 @@
 #include "vtk_libproj.h"
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkGeoTransform);
 vtkCxxSetObjectMacro(vtkGeoTransform, SourceProjection, vtkGeoProjection);
 vtkCxxSetObjectMacro(vtkGeoTransform, DestinationProjection, vtkGeoProjection);
@@ -288,3 +289,4 @@ int vtkGeoTransform::ComputeUTMZone(double lon, double lat)
   }
   return result;
 }
+VTK_ABI_NAMESPACE_END

@@ -31,6 +31,7 @@
 #include "vtkHandleRepresentation.h"
 #include "vtkInteractionWidgetsModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCursor3D;
 class vtkProperty;
 class vtkActor;
@@ -285,4 +286,5 @@ private:
   void operator=(const vtkPointHandleRepresentation3D&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

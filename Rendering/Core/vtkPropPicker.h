@@ -33,6 +33,7 @@
 #include "vtkAbstractPropPicker.h"
 #include "vtkRenderingCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkProp;
 class vtkWorldPointPicker;
 
@@ -118,4 +119,5 @@ private:
   void operator=(const vtkPropPicker&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -26,6 +26,7 @@
 #include <cmath>
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkResliceCursor);
 vtkCxxSetObjectMacro(vtkResliceCursor, Image, vtkImageData);
 
@@ -632,3 +633,4 @@ void vtkResliceCursor::PrintSelf(ostream& os, vtkIndent indent)
   // this->PolyDataBuildTime;
   // this->CenterlineAxis[3];
 }
+VTK_ABI_NAMESPACE_END

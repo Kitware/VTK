@@ -22,6 +22,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkMultiBlockMergeFilter);
 //------------------------------------------------------------------------------
 vtkMultiBlockMergeFilter::vtkMultiBlockMergeFilter() = default;
@@ -203,3 +204,4 @@ void vtkMultiBlockMergeFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

@@ -38,6 +38,7 @@
 #include "vtkAbstractPolyDataReader.h"
 #include "vtkIOGeometryModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCellArray;
 class vtkFloatArray;
 class vtkIncrementalPointLocator;
@@ -137,4 +138,5 @@ private:
   void operator=(const vtkSTLReader&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

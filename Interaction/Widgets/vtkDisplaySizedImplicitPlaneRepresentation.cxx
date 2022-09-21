@@ -50,6 +50,7 @@
 
 #include <cfloat> //for FLT_EPSILON
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkDisplaySizedImplicitPlaneRepresentation);
 
 static constexpr double DefaultPickTol = 0.001;
@@ -1967,3 +1968,4 @@ void vtkDisplaySizedImplicitPlaneRepresentation::ComputeAdaptivePickerTolerance(
   double tolerance = pickerCylinderRadius < DefaultPickTol ? pickerCylinderRadius : DefaultPickTol;
   this->CellPicker->SetTolerance(tolerance);
 }
+VTK_ABI_NAMESPACE_END

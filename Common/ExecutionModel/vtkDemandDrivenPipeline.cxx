@@ -37,6 +37,7 @@
 
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkDemandDrivenPipeline);
 
 vtkInformationKeyMacro(vtkDemandDrivenPipeline, DATA_NOT_GENERATED, Integer);
@@ -1076,3 +1077,4 @@ int vtkDemandDrivenPipeline::GetReleaseDataFlag(int port)
   }
   return info->Get(RELEASE_DATA());
 }
+VTK_ABI_NAMESPACE_END

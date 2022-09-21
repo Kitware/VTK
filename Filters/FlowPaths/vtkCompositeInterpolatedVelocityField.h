@@ -41,6 +41,7 @@
 #include <array>  // For array
 #include <vector> // For vector
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataSet;
 
 class VTKFILTERSFLOWPATHS_EXPORT vtkCompositeInterpolatedVelocityField
@@ -154,4 +155,5 @@ private:
   void operator=(const vtkCompositeInterpolatedVelocityField&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

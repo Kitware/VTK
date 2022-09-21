@@ -21,6 +21,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkSliderRepresentation3D.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkCheckerboardRepresentation);
 
 vtkCxxSetObjectMacro(vtkCheckerboardRepresentation, Checkerboard, vtkImageCheckerboard);
@@ -424,3 +425,4 @@ void vtkCheckerboardRepresentation::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Left Representation\n";
   this->LeftRepresentation->PrintSelf(os, indent.GetNextIndent());
 }
+VTK_ABI_NAMESPACE_END

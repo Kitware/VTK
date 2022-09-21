@@ -99,6 +99,7 @@
 #define VTK_GREEDY_EDGE_SEARCH 0
 #define VTK_DIJKSTRA_EDGE_SEARCH 1
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCharArray;
 class vtkPoints;
 class vtkIdList;
@@ -312,4 +313,5 @@ inline const char* vtkSelectPolyData::GetEdgeSearchModeAsString()
   }
 }
 
+VTK_ABI_NAMESPACE_END
 #endif

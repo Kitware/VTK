@@ -67,6 +67,7 @@
 #define VTK_EXTRACT_ALL_REGIONS 5
 #define VTK_EXTRACT_CLOSEST_POINT_REGION 6
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataArray;
 class vtkDataSet;
 class vtkFloatArray;
@@ -300,4 +301,5 @@ inline const char* vtkConnectivityFilter::GetExtractionModeAsString()
   }
 }
 
+VTK_ABI_NAMESPACE_END
 #endif

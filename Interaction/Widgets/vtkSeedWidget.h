@@ -73,6 +73,7 @@
 #include "vtkAbstractWidget.h"
 #include "vtkInteractionWidgetsModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkHandleRepresentation;
 class vtkHandleWidget;
 class vtkSeedList;
@@ -220,4 +221,5 @@ private:
   void operator=(const vtkSeedWidget&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

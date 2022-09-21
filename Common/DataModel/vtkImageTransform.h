@@ -46,6 +46,7 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataArray;
 class vtkImageData;
 class vtkMatrix3x3;
@@ -116,4 +117,5 @@ private:
   void operator=(const vtkImageTransform&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

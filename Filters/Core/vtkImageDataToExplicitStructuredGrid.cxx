@@ -26,6 +26,7 @@
 #include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImageDataToExplicitStructuredGrid);
 
 //------------------------------------------------------------------------------
@@ -121,3 +122,4 @@ int vtkImageDataToExplicitStructuredGrid::FillInputPortInformation(
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkImageData");
   return 1;
 }
+VTK_ABI_NAMESPACE_END

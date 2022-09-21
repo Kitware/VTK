@@ -36,6 +36,7 @@
 
 #include "vtkCell.h" // Needed for VTK_CELL_SIZE
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSSOURCES_EXPORT vtkCylinderSource : public vtkPolyDataAlgorithm
 {
 public:
@@ -111,4 +112,5 @@ private:
   void operator=(const vtkCylinderSource&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

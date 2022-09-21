@@ -25,6 +25,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStructuredData.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkExtractRectilinearGrid);
 
 // Construct object to extract all of the input data.
@@ -245,3 +246,4 @@ void vtkExtractRectilinearGrid::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Include Boundary: " << (this->IncludeBoundary ? "On\n" : "Off\n");
 }
+VTK_ABI_NAMESPACE_END

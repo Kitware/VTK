@@ -30,6 +30,7 @@
 #include "vtkResliceCursorPolyDataAlgorithm.h"
 #include "vtkSmartPointer.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkResliceCursorPicker);
 vtkCxxSetObjectMacro(
   vtkResliceCursorPicker, ResliceCursorAlgorithm, vtkResliceCursorPolyDataAlgorithm);
@@ -539,3 +540,4 @@ void vtkResliceCursorPicker::PrintSelf(ostream& os, vtkIndent indent)
   // this->Plane;
   // this->Cell;
 }
+VTK_ABI_NAMESPACE_END

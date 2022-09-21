@@ -78,6 +78,7 @@
 #include <sstream>
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOpenGLPolyDataMapper);
 
 //------------------------------------------------------------------------------
@@ -4644,3 +4645,4 @@ void vtkOpenGLPolyDataMapper::ProcessSelectorPixelBuffers(
     }
   }
 }
+VTK_ABI_NAMESPACE_END

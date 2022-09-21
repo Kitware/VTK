@@ -27,6 +27,7 @@
 
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkRemoveGhosts);
 
 //------------------------------------------------------------------------------
@@ -106,3 +107,4 @@ int vtkRemoveGhosts::FillInputPortInformation(int vtkNotUsed(port), vtkInformati
   info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkUnstructuredGrid");
   return 1;
 }
+VTK_ABI_NAMESPACE_END

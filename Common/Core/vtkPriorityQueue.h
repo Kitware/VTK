@@ -43,6 +43,7 @@
 
 #include "vtkIdTypeArray.h" // Needed for inline methods
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONCORE_EXPORT vtkPriorityQueue : public vtkObject
 {
 public:
@@ -186,4 +187,5 @@ inline vtkIdType vtkPriorityQueue::Peek(vtkIdType location)
   }
 }
 
+VTK_ABI_NAMESPACE_END
 #endif

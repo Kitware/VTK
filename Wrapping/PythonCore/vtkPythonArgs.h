@@ -31,6 +31,7 @@ resulting in wrapper code that is faster and more compact.
 #include "PyVTKEnum.h"
 #include "PyVTKObject.h"
 #include "PyVTKTemplate.h"
+#include "vtkABINamespace.h"
 #include "vtkPythonUtil.h"
 #include "vtkWrappingPythonCoreModule.h" // For export macro
 
@@ -40,6 +41,7 @@ resulting in wrapper code that is faster and more compact.
 #include <cstring>
 #include <string>
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkObjectBase;
 class vtkSmartPointerBase;
 
@@ -992,6 +994,8 @@ inline PyObject* vtkPythonArgs::BuildBytes(const char* a, size_t n)
 #if defined(VTK_USE_EXTERN_TEMPLATE) && !defined(vtkPythonArgs_cxx)
 vtkPythonArgsTemplateMacro(extern template class VTKWRAPPINGPYTHONCORE_EXPORT vtkPythonArgs::Array);
 #endif
+
+VTK_ABI_NAMESPACE_END
 
 #endif
 // VTK-HeaderTest-Exclude: vtkPythonArgs.h

@@ -34,6 +34,7 @@
 
 #include <unordered_map>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkKCoreDecomposition);
 
 namespace
@@ -462,3 +463,4 @@ void vtkKCoreDecomposition::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "UseOutDegreeNeighbors: " << (this->UseOutDegreeNeighbors ? "on" : "off") << endl;
   os << indent << "CheckInputGraph: " << (this->CheckInputGraph ? "on" : "off") << endl;
 }
+VTK_ABI_NAMESPACE_END

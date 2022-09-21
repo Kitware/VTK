@@ -38,6 +38,7 @@
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkRandomSequence.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONCORE_EXPORT vtkMinimalStandardRandomSequence : public vtkRandomSequence
 {
 public:
@@ -134,4 +135,5 @@ private:
   void operator=(const vtkMinimalStandardRandomSequence&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // #ifndef vtkMinimalStandardRandomSequence_h

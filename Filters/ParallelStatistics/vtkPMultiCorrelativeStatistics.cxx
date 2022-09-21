@@ -34,6 +34,7 @@
 
 #include <map>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPMultiCorrelativeStatistics);
 vtkCxxSetObjectMacro(vtkPMultiCorrelativeStatistics, Controller, vtkMultiProcessController);
 //------------------------------------------------------------------------------
@@ -221,3 +222,4 @@ vtkOrderStatistics* vtkPMultiCorrelativeStatistics::CreateOrderStatisticsInstanc
 {
   return vtkPOrderStatistics::New();
 }
+VTK_ABI_NAMESPACE_END

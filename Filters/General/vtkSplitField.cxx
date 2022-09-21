@@ -26,6 +26,7 @@
 #include "vtkPointData.h"
 #include <cctype>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkSplitField);
 
 char vtkSplitField::FieldLocationNames[3][12] = { "DATA_OBJECT", "POINT_DATA", "CELL_DATA" };
@@ -418,3 +419,4 @@ void vtkSplitField::PrintAllComponents(ostream& os, vtkIndent indent)
     this->PrintComponent(before, os, indent);
   } while (cur);
 }
+VTK_ABI_NAMESPACE_END

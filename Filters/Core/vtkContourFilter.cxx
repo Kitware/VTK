@@ -47,6 +47,7 @@
 
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkObjectFactoryNewMacro(vtkContourFilter);
 vtkCxxSetObjectMacro(vtkContourFilter, ScalarTree, vtkScalarTree);
 
@@ -779,3 +780,4 @@ void vtkContourFilter::InternalProgressCallbackFunction(
   double progress = *static_cast<double*>(callData);
   contourFilter->UpdateProgress(progress);
 }
+VTK_ABI_NAMESPACE_END

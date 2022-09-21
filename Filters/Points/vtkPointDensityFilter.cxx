@@ -32,6 +32,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUnsignedCharArray.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPointDensityFilter);
 vtkCxxSetObjectMacro(vtkPointDensityFilter, Locator, vtkAbstractPointLocator);
 
@@ -681,3 +682,4 @@ void vtkPointDensityFilter::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Locator: " << this->Locator << "\n";
 }
+VTK_ABI_NAMESPACE_END

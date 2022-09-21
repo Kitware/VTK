@@ -27,6 +27,7 @@
 #include <iterator>
 #include <list>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkSeedRepresentation);
 
 vtkCxxSetObjectMacro(vtkSeedRepresentation, HandleRepresentation, vtkHandleRepresentation);
@@ -301,3 +302,4 @@ void vtkSeedRepresentation::GetActors(vtkPropCollection* pc)
   }
   this->Superclass::GetActors(pc);
 }
+VTK_ABI_NAMESPACE_END

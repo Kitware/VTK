@@ -40,6 +40,7 @@
 
 #include "vtkMatrix3x3.h" // Needed for inline methods
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPoints2D;
 
 class VTKCOMMONTRANSFORMS_EXPORT vtkTransform2D : public vtkObject
@@ -212,4 +213,5 @@ private:
   void operator=(const vtkTransform2D&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

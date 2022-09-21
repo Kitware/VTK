@@ -35,6 +35,7 @@
 #include "vtkFiltersSourcesModule.h" // For export macro
 #include "vtkHyperTreeGridSource.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSSOURCES_EXPORT vtkUniformHyperTreeGridSource : public vtkHyperTreeGridSource
 {
 public:
@@ -56,4 +57,5 @@ private:
   void operator=(const vtkUniformHyperTreeGridSource&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

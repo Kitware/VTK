@@ -32,6 +32,7 @@
 #include "vtkBorderRepresentation.h"
 #include "vtkInteractionWidgetsModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkImageData;
 class vtkImageProperty;
 class vtkTexture;
@@ -111,4 +112,5 @@ private:
   void operator=(const vtkLogoRepresentation&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

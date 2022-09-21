@@ -31,6 +31,7 @@
 #include <vector>
 
 // Subclass of vtkXMLParser -- definitions at end of file
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCMLParser : public vtkXMLParser
 {
 public:
@@ -329,3 +330,4 @@ void vtkCMLParser::NewBond(const char** attr)
 
   this->Target->AppendBond(atomId1, atomId2, order);
 }
+VTK_ABI_NAMESPACE_END

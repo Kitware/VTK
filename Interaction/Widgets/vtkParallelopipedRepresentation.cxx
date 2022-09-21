@@ -43,6 +43,7 @@
 // README : Uncomment the line that reads "PrintTopology(cout) to
 //          understand what the class does. The goal of the class is succintly
 //          described in that one line.
+VTK_ABI_NAMESPACE_BEGIN
 class vtkParallelopipedTopology
 {
 public:
@@ -1621,3 +1622,4 @@ void vtkParallelopipedRepresentation::PrintSelf(ostream& os, vtkIndent indent)
   // this->InteractionState is printed in superclass
   // this is commented to avoid PrintSelf errors
 }
+VTK_ABI_NAMESPACE_END

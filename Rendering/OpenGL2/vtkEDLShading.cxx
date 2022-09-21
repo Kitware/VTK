@@ -47,6 +47,7 @@ Ph.D. thesis of Christian BOUCHENY.
 
 //#define VTK_EDL_SHADING_DEBUG
 
+VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
 void annotate(const std::string& str)
@@ -786,3 +787,4 @@ void vtkEDLShading::ReleaseGraphicsResources(vtkWindow* w)
 
   this->Superclass::ReleaseGraphicsResources(w);
 }
+VTK_ABI_NAMESPACE_END

@@ -100,6 +100,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkFiltersStatisticsModule.h" // For export macro
 #include "vtkStatisticsAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkIdTypeArray;
 class vtkIntArray;
 class vtkDoubleArray;
@@ -286,4 +287,5 @@ private:
   void operator=(const vtkKMeansStatistics&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

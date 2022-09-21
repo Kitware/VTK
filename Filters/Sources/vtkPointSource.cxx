@@ -26,6 +26,7 @@
 #include <cfloat>
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPointSource);
 
 //------------------------------------------------------------------------------
@@ -190,3 +191,4 @@ void vtkPointSource::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Lambda: " << this->Lambda << "\n";
   os << indent << "Output Points Precision: " << this->OutputPointsPrecision << "\n";
 }
+VTK_ABI_NAMESPACE_END

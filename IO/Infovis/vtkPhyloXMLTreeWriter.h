@@ -28,6 +28,7 @@
 #include "vtkStdString.h"       // For get/set ivars
 #include "vtkXMLWriter.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkStringArray;
 class vtkTree;
 class vtkXMLDataElement;
@@ -160,4 +161,5 @@ private:
   void operator=(const vtkPhyloXMLTreeWriter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

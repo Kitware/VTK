@@ -29,6 +29,7 @@
 
 #include <cassert>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkRectilinearGridPartitioner);
 
 //------------------------------------------------------------------------------
@@ -183,3 +184,4 @@ int vtkRectilinearGridPartitioner::RequestData(vtkInformation* vtkNotUsed(reques
   extentPartitioner->Delete();
   return 1;
 }
+VTK_ABI_NAMESPACE_END

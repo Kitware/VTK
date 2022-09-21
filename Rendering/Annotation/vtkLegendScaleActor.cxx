@@ -31,6 +31,7 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkWindow.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkLegendScaleActor);
 
 //------------------------------------------------------------------------------
@@ -578,3 +579,4 @@ void vtkLegendScaleActor::PrintSelf(ostream& os, vtkIndent indent)
     os << "(none)\n";
   }
 }
+VTK_ABI_NAMESPACE_END

@@ -5668,6 +5668,8 @@ struct ReinitializeBitsWorker
 };
 } // anonymous namespace
 
+VTK_ABI_NAMESPACE_BEGIN
+
 //----------------------------------------------------------------------------
 void vtkDIYGhostUtilities::ReinitializeSelectedBits(vtkUnsignedCharArray* ghosts,
   unsigned char bits)
@@ -6353,3 +6355,4 @@ int vtkDIYGhostUtilities::GenerateGhostCellsUnstructuredGrid(
 {
   return vtkDIYGhostUtilities::GenerateGhostCells(inputs, outputs, outputGhostLevels, controller);
 }
+VTK_ABI_NAMESPACE_END

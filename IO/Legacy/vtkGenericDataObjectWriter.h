@@ -26,6 +26,7 @@
 #include "vtkDataWriter.h"
 #include "vtkIOLegacyModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKIOLEGACY_EXPORT vtkGenericDataObjectWriter : public vtkDataWriter
 {
 public:
@@ -45,4 +46,5 @@ private:
   void operator=(const vtkGenericDataObjectWriter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

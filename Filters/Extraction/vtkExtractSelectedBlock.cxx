@@ -29,6 +29,7 @@
 #include "vtkUnsignedIntArray.h"
 
 #include <unordered_set>
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkExtractSelectedBlock);
 //------------------------------------------------------------------------------
 vtkExtractSelectedBlock::vtkExtractSelectedBlock() = default;
@@ -227,3 +228,4 @@ void vtkExtractSelectedBlock::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

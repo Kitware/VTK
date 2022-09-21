@@ -16,6 +16,7 @@
 #include "vtkVoronoiKernel.h"
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkVoronoiKernel::vtkVoronoiKernel() {}
 
 //------------------------------------------------------------------------------
@@ -32,3 +33,4 @@ void vtkVoronoiKernel::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

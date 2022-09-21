@@ -36,6 +36,7 @@
 #include <limits>
 #include <numeric>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkXMLHyperTreeGridReader);
 
 //------------------------------------------------------------------------------
@@ -1052,3 +1053,4 @@ void vtkXMLHyperTreeGridReader::ReadTrees_2(vtkXMLDataElement* element)
     inputOffset += treeSize;
   }
 }
+VTK_ABI_NAMESPACE_END

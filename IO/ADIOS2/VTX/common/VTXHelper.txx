@@ -38,6 +38,7 @@ namespace vtx
 {
 namespace helper
 {
+VTK_ABI_NAMESPACE_BEGIN
 
 // TODO: extend other types
 template <>
@@ -88,6 +89,7 @@ vtkSmartPointer<vtkDataArray> NewDataArray<double>()
   return vtkSmartPointer<vtkDoubleArray>::New();
 }
 
+VTK_ABI_NAMESPACE_END
 } // end namespace helper
 } // end namespace vtx
 

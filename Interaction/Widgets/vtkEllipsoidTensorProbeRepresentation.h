@@ -32,6 +32,7 @@
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkTensorProbeRepresentation.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCellPicker;
 class vtkTensorGlyph;
 class vtkPolyDataNormals;
@@ -90,4 +91,5 @@ private:
   void operator=(const vtkEllipsoidTensorProbeRepresentation&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

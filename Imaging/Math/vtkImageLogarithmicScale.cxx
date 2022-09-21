@@ -20,6 +20,7 @@
 
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImageLogarithmicScale);
 
 //------------------------------------------------------------------------------
@@ -101,3 +102,4 @@ void vtkImageLogarithmicScale::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Constant: " << this->Constant << "\n";
 }
+VTK_ABI_NAMESPACE_END

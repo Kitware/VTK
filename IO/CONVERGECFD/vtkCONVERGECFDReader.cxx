@@ -45,6 +45,7 @@
 
 #include "vtkHDF5ScopedHandle.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkCONVERGECFDReader);
 
 namespace
@@ -1401,3 +1402,4 @@ int vtkCONVERGECFDReader::CanReadFile(const char* fname)
   // Everything succeeded
   return 1;
 }
+VTK_ABI_NAMESPACE_END

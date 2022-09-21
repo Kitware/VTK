@@ -42,6 +42,7 @@
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkObject.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkRandomSequence;
 class vtkDataArray;
 
@@ -163,4 +164,5 @@ private:
   void operator=(const vtkRandomPool&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

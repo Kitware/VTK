@@ -26,6 +26,7 @@
 #include "vtkRenderPass.h"
 #include "vtkRenderingParallelModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkMultiProcessController;
 
 class VTKRENDERINGPARALLEL_EXPORT vtkClientServerCompositePass : public vtkRenderPass
@@ -121,4 +122,5 @@ private:
   void operator=(const vtkClientServerCompositePass&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

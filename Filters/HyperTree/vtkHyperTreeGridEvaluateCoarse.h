@@ -79,6 +79,7 @@
 
 #include <vector> // For scratch storage.
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkBitArray;
 
 class vtkHyperTreeGrid;
@@ -174,4 +175,5 @@ private:
   vtkBitArray* Mask;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkHyperTreeGridEvaluateCoarse_h

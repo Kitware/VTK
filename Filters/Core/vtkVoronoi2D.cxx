@@ -36,6 +36,7 @@
 
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkVoronoi2D);
 vtkCxxSetObjectMacro(vtkVoronoi2D, Transform, vtkAbstractTransform);
 
@@ -1074,3 +1075,4 @@ void vtkVoronoi2D::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Maximum Number Of Tile Clips: " << this->MaximumNumberOfTileClips << "\n";
   os << indent << "Generate Voronoi Flower: " << (this->GenerateVoronoiFlower ? "On\n" : "Off\n");
 }
+VTK_ABI_NAMESPACE_END

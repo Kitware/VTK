@@ -30,6 +30,7 @@
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkImageAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSGENERAL_EXPORT vtkSphericalHarmonics : public vtkImageAlgorithm
 {
 public:
@@ -50,4 +51,5 @@ private:
   void operator=(const vtkSphericalHarmonics&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

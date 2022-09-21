@@ -32,6 +32,7 @@
 #include "vtkIOXMLModule.h" // For export macro
 #include "vtkXMLMultiGroupDataReader.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkHierarchicalDataSet;
 
 class VTKIOXML_EXPORT vtkXMLHierarchicalDataReader : public vtkXMLMultiGroupDataReader
@@ -53,4 +54,5 @@ private:
   void operator=(const vtkXMLHierarchicalDataReader&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -47,6 +47,7 @@
 #include "vtkIOSQLModule.h" // For export macro
 #include "vtkSQLQuery.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkSQLiteDatabase;
 class vtkVariant;
 class vtkVariantArray;
@@ -194,4 +195,5 @@ private:
   ///@}
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkSQLiteQuery_h

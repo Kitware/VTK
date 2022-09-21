@@ -24,6 +24,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStructuredGrid.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkStructuredGridGeometryFilter);
 
 // Construct with initial extent of all the data
@@ -490,3 +491,4 @@ void vtkStructuredGridGeometryFilter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "  Jmin,Jmax: (" << this->Extent[2] << ", " << this->Extent[3] << ")\n";
   os << indent << "  Kmin,Kmax: (" << this->Extent[4] << ", " << this->Extent[5] << ")\n";
 }
+VTK_ABI_NAMESPACE_END

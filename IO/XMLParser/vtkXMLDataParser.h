@@ -33,6 +33,7 @@
 #include "vtkXMLDataElement.h"    //For inline definition.
 #include "vtkXMLParser.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkInputStream;
 class vtkDataCompressor;
 
@@ -266,4 +267,5 @@ inline void vtkXMLDataParser::CharacterDataHandler(const char* data, int length)
   this->OpenElements[eid]->AddCharacterData(data, length);
 }
 
+VTK_ABI_NAMESPACE_END
 #endif

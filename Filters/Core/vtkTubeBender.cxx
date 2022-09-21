@@ -20,6 +20,7 @@
 
 //----------------------------------------------------------------------------
 
+VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
 void initRotateAboutLineWXYZQuaternion(
@@ -235,3 +236,4 @@ void vtkTubeBender::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Radius: " << this->Radius << "\n";
 }
+VTK_ABI_NAMESPACE_END

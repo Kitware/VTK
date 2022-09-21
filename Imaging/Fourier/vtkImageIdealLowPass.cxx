@@ -21,6 +21,7 @@
 
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImageIdealLowPass);
 
 //------------------------------------------------------------------------------
@@ -215,3 +216,4 @@ void vtkImageIdealLowPass::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "CutOff: ( " << this->CutOff[0] << ", " << this->CutOff[1] << ", "
      << this->CutOff[2] << " )\n";
 }
+VTK_ABI_NAMESPACE_END

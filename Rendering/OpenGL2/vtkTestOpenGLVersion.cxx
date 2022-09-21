@@ -19,6 +19,8 @@ with additional system information.
 
 =========================================================================*/
 
+#include "vtkABINamespace.h"
+
 #include <iostream>
 #include <sstream>
 #include <string>
@@ -28,6 +30,7 @@ with additional system information.
 
 #include <GL/gl.h>
 
+VTK_ABI_NAMESPACE_BEGIN
 class CheckOpenGLVersion
 {
 public:
@@ -152,6 +155,7 @@ bool CheckOpenGLVersion::hasVersion_3_2()
 
   return false;
 }
+VTK_ABI_NAMESPACE_END
 
 int CALLBACK WinMain(_In_ HINSTANCE hInstance, _In_ HINSTANCE /*hPrevInstance*/,
   _In_ LPSTR lpCmdLine, _In_ int /*nCmdShow*/)

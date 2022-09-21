@@ -19,6 +19,7 @@
 #include <cassert>
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkXMLPUniformGridAMRWriter);
 
 vtkCxxSetObjectMacro(vtkXMLPUniformGridAMRWriter, Controller, vtkMultiProcessController);
@@ -120,3 +121,4 @@ void vtkXMLPUniformGridAMRWriter::FillDataTypes(vtkCompositeDataSet* cdInput)
     this->Controller->Gather(myDataTypes, nullptr, numLeafNodes, 0);
   }
 }
+VTK_ABI_NAMESPACE_END

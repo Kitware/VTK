@@ -130,6 +130,7 @@
 // the value that is returned as a result if there is an error
 #define VTK_PARSER_ERROR_RESULT VTK_FLOAT_MAX
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONMISC_EXPORT vtkFunctionParser : public vtkObject
 {
 public:
@@ -457,4 +458,5 @@ private:
   void operator=(const vtkFunctionParser&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

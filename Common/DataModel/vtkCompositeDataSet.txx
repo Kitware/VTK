@@ -23,6 +23,7 @@
 #define vtkCompositeDataSet_txx
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 template <class DataSetT>
 std::vector<DataSetT*> vtkCompositeDataSet::GetDataSets(vtkDataObject* dobj, bool preserveNull)
 {
@@ -56,4 +57,5 @@ std::vector<DataSetT*> vtkCompositeDataSet::GetDataSets(vtkDataObject* dobj, boo
   return datasets;
 }
 
+VTK_ABI_NAMESPACE_END
 #endif

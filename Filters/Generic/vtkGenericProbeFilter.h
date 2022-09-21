@@ -45,6 +45,7 @@
 #include "vtkDataSetAlgorithm.h"
 #include "vtkFiltersGenericModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkIdTypeArray;
 class vtkGenericDataSet;
 
@@ -88,4 +89,5 @@ private:
   void operator=(const vtkGenericProbeFilter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

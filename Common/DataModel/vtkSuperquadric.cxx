@@ -24,6 +24,7 @@
 
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkSuperquadric);
 
 // Construct with superquadric radius of 0.5, toroidal off, center at 0.0,
@@ -149,3 +150,4 @@ void vtkSuperquadric::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Scale: (" << this->Scale[0] << ", " << this->Scale[1] << ", " << this->Scale[2]
      << ")\n";
 }
+VTK_ABI_NAMESPACE_END

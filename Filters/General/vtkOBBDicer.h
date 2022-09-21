@@ -34,6 +34,7 @@
 #include "vtkDicer.h"
 #include "vtkFiltersGeneralModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkOBBNode;
 class vtkShortArray;
 class vtkIdList;
@@ -68,4 +69,5 @@ private:
   void operator=(const vtkOBBDicer&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

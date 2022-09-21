@@ -17,6 +17,7 @@
 #include "vtkFunctionSet.h"
 #include "vtkObjectFactory.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkRungeKutta2);
 
 vtkRungeKutta2::vtkRungeKutta2() = default;
@@ -96,3 +97,4 @@ int vtkRungeKutta2::ComputeNextStep(double* xprev, double* dxprev, double* xnext
 
   return 0;
 }
+VTK_ABI_NAMESPACE_END

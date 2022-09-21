@@ -24,6 +24,7 @@
 #include "vtkTextProperty.h"
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkChart::MouseActions::MouseActions()
 {
   this->Pan() = vtkContextMouseEvent::LEFT_BUTTON;
@@ -484,3 +485,4 @@ void vtkChart::AxisRangeForwarderCallback(vtkObject*, unsigned long, void*)
   }
   this->InvokeEvent(vtkChart::UpdateRange, fullAxisRange);
 }
+VTK_ABI_NAMESPACE_END

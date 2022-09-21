@@ -40,6 +40,7 @@
 
 #include <atomic> // for std::atomic
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPointData;
 
 class VTKFILTERSSMP_EXPORT vtkSMPMergePoints : public vtkMergePoints
@@ -112,4 +113,5 @@ private:
   void operator=(const vtkSMPMergePoints&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkSMPMergePoints_h

@@ -37,6 +37,7 @@
 //
 
 // used to hold the VRML DEF names and assoc vtkObjects
+VTK_ABI_NAMESPACE_BEGIN
 class vtkVRMLUseStruct {
 public:
   vtkVRMLUseStruct( char *n, vtkObject *o) { defName = n; defObject = o; }
@@ -604,6 +605,7 @@ const VrmlNodeType* vtkVRMLYaccData::find(const char *_name)
 
 #define YYDEBUG 1
 
+VTK_ABI_NAMESPACE_END
 #include <stdlib.h>
 
 
@@ -887,6 +889,7 @@ static const short yycheck[] = {    66,
 // file was imported; in the real world, I think alloca was very
 // rarely called here.
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkVRMLYaccData::FakeAlloca
 {
 public:
@@ -1693,6 +1696,8 @@ void vtkVRMLYaccData::expect(int type)
 {
   expectToken = type;
 }
+
+VTK_ABI_NAMESPACE_END
 
 // End of Auto-generated Parser Code
 // Begin of Auto-generated Lexer Code
@@ -4083,7 +4088,9 @@ static const short int yy_rule_linenum[49] =
 #ifdef __cplusplus
 //extern "C"
 #endif
+VTK_ABI_NAMESPACE_BEGIN
 int vtkVRMLYaccData::yywrap() { BEGIN INITIAL; return 1; }
+VTK_ABI_NAMESPACE_END
 
 /* Normal state:  parsing nodes.  The initial start state is used */
 /* only to recognize the VRML header. */
@@ -4187,6 +4194,7 @@ YY_MALLOC_DECL
 #endif
 
 
+VTK_ABI_NAMESPACE_BEGIN
 int vtkVRMLYaccData::yylex ( vtkVRMLImporter* self )
 {
   yy_state_type yy_current_state;
@@ -5187,5 +5195,6 @@ void vtkVRMLYaccData::defyyInput(char *buf, int &result, int max_size,
 }
 
 
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkVRMLImporter_Yacc.h

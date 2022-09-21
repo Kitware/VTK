@@ -40,6 +40,7 @@
 #include <sys/stat.h>
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkMetaImageWriter);
 
 //------------------------------------------------------------------------------
@@ -200,3 +201,4 @@ void vtkMetaImageWriter::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
   os << indent << "MHDFileName: " << (this->MHDFileName ? this->MHDFileName : "(none)") << endl;
 }
+VTK_ABI_NAMESPACE_END

@@ -23,6 +23,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImageAppendComponents);
 
 //------------------------------------------------------------------------------
@@ -175,3 +176,4 @@ void vtkImageAppendComponents::ThreadedRequestData(vtkInformation* vtkNotUsed(re
     }
   }
 }
+VTK_ABI_NAMESPACE_END

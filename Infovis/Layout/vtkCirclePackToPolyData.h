@@ -34,6 +34,7 @@
 #include "vtkInfovisLayoutModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKINFOVISLAYOUT_EXPORT vtkCirclePackToPolyData : public vtkPolyDataAlgorithm
 {
 public:
@@ -79,4 +80,5 @@ private:
     const int& resolution, vtkPolyData* polyData);
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

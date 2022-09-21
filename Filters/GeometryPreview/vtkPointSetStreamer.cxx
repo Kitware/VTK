@@ -22,6 +22,7 @@
 
 #include <numeric>
 
+VTK_ABI_NAMESPACE_BEGIN
 //------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkPointSetStreamer);
 
@@ -131,3 +132,4 @@ int vtkPointSetStreamer::RequestData(
   }
   return 1;
 }
+VTK_ABI_NAMESPACE_END

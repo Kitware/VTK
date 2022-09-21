@@ -29,6 +29,7 @@
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkPointPlacer.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkBoundedPlanePointPlacer;
 class vtkImageActor;
 class vtkRenderer;
@@ -151,4 +152,5 @@ private:
   void operator=(const vtkImageActorPointPlacer&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -26,6 +26,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUnstructuredGrid.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkUnstructuredGridToExplicitStructuredGrid);
 
 //------------------------------------------------------------------------------
@@ -213,3 +214,4 @@ int vtkUnstructuredGridToExplicitStructuredGrid::FillInputPortInformation(
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkUnstructuredGrid");
   return 1;
 }
+VTK_ABI_NAMESPACE_END

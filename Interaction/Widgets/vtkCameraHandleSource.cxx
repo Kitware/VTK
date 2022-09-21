@@ -23,6 +23,7 @@
 #include "vtkTransformFilter.h"
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkCameraHandleSource);
 
 //------------------------------------------------------------------------------
@@ -231,3 +232,4 @@ void vtkCameraHandleSource::PrintSelf(ostream& os, vtkIndent indent)
     }
   }
 }
+VTK_ABI_NAMESPACE_END

@@ -31,6 +31,7 @@
 #include "vtkObject.h"
 #include "vtkVersionMacros.h" // For version macros
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONCORE_EXPORT vtkVersion : public vtkObject
 {
 public:
@@ -64,4 +65,5 @@ extern "C"
   VTKCOMMONCORE_EXPORT const char* GetVTKVersion();
 }
 
+VTK_ABI_NAMESPACE_END
 #endif

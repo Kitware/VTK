@@ -39,6 +39,7 @@
 #include "vtkFiltersFlowPathsModule.h" // For export macro
 #include "vtkLagrangianBasicIntegrationModel.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSFLOWPATHS_EXPORT vtkLagrangianMatidaIntegrationModel
   : public vtkLagrangianBasicIntegrationModel
 {
@@ -71,4 +72,5 @@ private:
   void operator=(const vtkLagrangianMatidaIntegrationModel&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

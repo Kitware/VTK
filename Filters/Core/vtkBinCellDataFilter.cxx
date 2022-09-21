@@ -33,6 +33,7 @@
 #include <map>
 #include <sstream>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkBinCellDataFilter);
 
 //------------------------------------------------------------------------------
@@ -427,3 +428,4 @@ void vtkBinCellDataFilter::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Cell Locator: " << this->CellLocator << "\n";
 }
+VTK_ABI_NAMESPACE_END

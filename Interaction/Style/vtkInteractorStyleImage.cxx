@@ -29,6 +29,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkInteractorStyleImage);
 
 //------------------------------------------------------------------------------
@@ -730,3 +731,4 @@ void vtkInteractorStyleImage::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Z View Up Vector: (" << this->ZViewUpVector[0] << ", " << this->ZViewUpVector[1]
      << ", " << this->ZViewUpVector[2] << ")\n";
 }
+VTK_ABI_NAMESPACE_END

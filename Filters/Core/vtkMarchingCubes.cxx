@@ -40,6 +40,7 @@
 #include "vtkUnsignedLongArray.h"
 #include "vtkUnsignedShortArray.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkMarchingCubes);
 
 // Description:
@@ -606,3 +607,4 @@ void vtkMarchingCubes::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Locator: (none)\n";
   }
 }
+VTK_ABI_NAMESPACE_END

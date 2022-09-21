@@ -32,6 +32,7 @@
 #include "vtkFiltersParallelModule.h" // For export macro
 #include "vtkTransmitStructuredDataPiece.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkMultiProcessController;
 
 class VTKFILTERSPARALLEL_EXPORT vtkTransmitRectilinearGridPiece
@@ -51,4 +52,5 @@ private:
   void operator=(const vtkTransmitRectilinearGridPiece&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -31,6 +31,7 @@
 #include "vtkEdgeLayoutStrategy.h"
 #include "vtkInfovisLayoutModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKINFOVISLAYOUT_EXPORT vtkPassThroughEdgeStrategy : public vtkEdgeLayoutStrategy
 {
 public:
@@ -53,4 +54,5 @@ private:
   void operator=(const vtkPassThroughEdgeStrategy&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -26,6 +26,7 @@
 #include <set>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkExtractLevel::vtkSet : public std::set<unsigned int>
 {
 };
@@ -190,3 +191,4 @@ void vtkExtractLevel::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

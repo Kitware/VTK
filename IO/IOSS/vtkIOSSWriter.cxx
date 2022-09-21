@@ -56,6 +56,7 @@
 #include VTK_FMT(fmt/core.h)
 // clang-format on
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkIOSSWriter::vtkInternals
 {
   Ioss::Init::Initializer io;
@@ -280,3 +281,4 @@ void vtkIOSSWriter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "DisplacementMagnitude: " << this->DisplacementMagnitude << endl;
   os << indent << "MaximumTimeStepsPerFile: " << this->MaximumTimeStepsPerFile << endl;
 }
+VTK_ABI_NAMESPACE_END

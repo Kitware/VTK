@@ -18,6 +18,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPExtractDataArraysOverTime.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPExtractSelectedArraysOverTime);
 //------------------------------------------------------------------------------
 vtkPExtractSelectedArraysOverTime::vtkPExtractSelectedArraysOverTime()
@@ -56,3 +57,4 @@ void vtkPExtractSelectedArraysOverTime::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
   os << indent << "Controller: " << this->GetController() << endl;
 }
+VTK_ABI_NAMESPACE_END

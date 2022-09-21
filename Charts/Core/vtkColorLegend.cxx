@@ -29,6 +29,7 @@
 #include "vtkTransform2D.h"
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkColorLegend);
 
 //------------------------------------------------------------------------------
@@ -367,3 +368,4 @@ bool vtkColorLegend::MouseMoveEvent(const vtkContextMouseEvent& mouse)
   this->UpdateAxisPosition();
   return retval;
 }
+VTK_ABI_NAMESPACE_END

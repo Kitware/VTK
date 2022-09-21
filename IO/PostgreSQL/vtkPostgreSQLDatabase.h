@@ -49,6 +49,7 @@
 #include "vtkIOPostgreSQLModule.h" // For export macro
 #include "vtkSQLDatabase.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPostgreSQLQuery;
 class vtkStringArray;
 class vtkPostgreSQLDatabasePrivate;
@@ -307,4 +308,5 @@ inline void vtkPostgreSQLDatabase::SetServerPort(int _arg)
   }
 }
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkPostgreSQLDatabase_h

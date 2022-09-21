@@ -51,6 +51,7 @@
 #include "vtkGeneralizedKernel.h"
 #include "vtkStdString.h" // For vtkStdString ivars
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkIdList;
 class vtkDataArray;
 class vtkDoubleArray;
@@ -192,4 +193,5 @@ private:
   void operator=(const vtkEllipsoidalGaussianKernel&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -44,6 +44,7 @@
 #include "vtkWarpScalar.h"
 #include "vtkmlib/vtkmInitializer.h" // Need for initializing vtk-m
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKACCELERATORSVTKMFILTERS_EXPORT vtkmWarpScalar : public vtkWarpScalar
 {
 public:
@@ -64,4 +65,5 @@ private:
   vtkmInitializer Initializer;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkmWarpScalar_h

@@ -22,6 +22,7 @@
 #include <set>
 #include <string>
 
+VTK_ABI_NAMESPACE_BEGIN
 struct vtkObjectIdMap::vtkInternals
 {
   std::map<vtkTypeUInt32, vtkSmartPointer<vtkObject>> Object;
@@ -131,3 +132,4 @@ bool vtkObjectIdMap::FreeObjectById(vtkTypeUInt32 id)
   }
   return found;
 }
+VTK_ABI_NAMESPACE_END

@@ -32,6 +32,7 @@
 
 #include <algorithm>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkBoostExtractLargestComponent);
 
 vtkBoostExtractLargestComponent::vtkBoostExtractLargestComponent()
@@ -155,3 +156,4 @@ void vtkBoostExtractLargestComponent::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "InvertSelection: " << this->InvertSelection << "\n";
 }
+VTK_ABI_NAMESPACE_END

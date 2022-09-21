@@ -24,6 +24,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkBrownianPoints);
 
 vtkBrownianPoints::vtkBrownianPoints()
@@ -128,3 +129,4 @@ void vtkBrownianPoints::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Minimum Speed: " << this->MinimumSpeed << "\n";
   os << indent << "Maximum Speed: " << this->MaximumSpeed << "\n";
 }
+VTK_ABI_NAMESPACE_END

@@ -21,6 +21,7 @@
 
 #include <cassert>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkContext3D);
 
 void vtkContext3D::PrintSelf(ostream& os, vtkIndent indent)
@@ -162,3 +163,4 @@ void vtkContext3D::DisableClippingPlane(int i)
 vtkContext3D::vtkContext3D() = default;
 
 vtkContext3D::~vtkContext3D() = default;
+VTK_ABI_NAMESPACE_END

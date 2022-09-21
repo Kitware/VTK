@@ -33,6 +33,7 @@
 #include <fstream>
 #include <iostream>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkNewickTreeReader);
 
 #ifdef read
@@ -510,3 +511,4 @@ void vtkNewickTreeReader::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "InputString: " << (this->InputString ? this->InputString : "(none)") << endl;
   os << indent << "ReadFromInputString: " << (this->ReadFromInputString ? "on" : "off") << endl;
 }
+VTK_ABI_NAMESPACE_END

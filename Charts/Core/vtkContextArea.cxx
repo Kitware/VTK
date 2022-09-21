@@ -26,6 +26,7 @@
 #include <cstdlib>
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkContextArea);
 
 //------------------------------------------------------------------------------
@@ -405,3 +406,4 @@ bool vtkContextArea::GetShowGrid()
 {
   return this->Grid->GetVisible();
 }
+VTK_ABI_NAMESPACE_END

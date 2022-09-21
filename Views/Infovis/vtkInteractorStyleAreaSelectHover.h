@@ -37,6 +37,7 @@
 #include "vtkInteractorStyleRubberBand2D.h"
 #include "vtkViewsInfovisModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkAreaLayout;
 class vtkBalloonRepresentation;
 class vtkPoints;
@@ -129,4 +130,5 @@ private:
   bool UseRectangularCoordinates;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

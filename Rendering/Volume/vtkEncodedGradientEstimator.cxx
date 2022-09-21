@@ -22,6 +22,7 @@
 
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkCxxSetObjectMacro(vtkEncodedGradientEstimator, InputData, vtkImageData);
 
 // Construct a vtkEncodedGradientEstimator with initial values of nullptr for
@@ -333,3 +334,4 @@ void vtkEncodedGradientEstimator::ReportReferences(vtkGarbageCollector* collecto
   this->Superclass::ReportReferences(collector);
   vtkGarbageCollectorReport(collector, this->InputData, "Input");
 }
+VTK_ABI_NAMESPACE_END

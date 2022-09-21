@@ -20,6 +20,7 @@
 #include "vtkVolumeTexture.h"
 #include "vtk_glew.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkVolumeTexture::vtkVolumeTexture()
   : HandleLargeDataTypes(false)
   , InterpolationType(vtkTextureObject::Linear)
@@ -1230,3 +1231,4 @@ vtkDataArray* vtkVolumeTexture::GetLoadedScalars()
 {
   return this->Scalars;
 }
+VTK_ABI_NAMESPACE_END

@@ -28,6 +28,7 @@
 #include <sstream>
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkXYZMolReader2);
 
 //------------------------------------------------------------------------------
@@ -218,3 +219,4 @@ void vtkXYZMolReader2::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
   os << indent << "FileName: " << this->FileName << endl;
 }
+VTK_ABI_NAMESPACE_END

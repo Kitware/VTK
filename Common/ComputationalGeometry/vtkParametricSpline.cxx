@@ -18,6 +18,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPoints.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkParametricSpline);
 
 //------------------------------------------------------------------------------
@@ -405,3 +406,4 @@ void vtkParametricSpline::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Right Value: " << this->RightValue << "\n";
   os << indent << "Parameterize by length: " << (this->ParameterizeByLength ? "On\n" : "Off\n");
 }
+VTK_ABI_NAMESPACE_END

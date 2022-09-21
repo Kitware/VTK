@@ -49,6 +49,7 @@
 #include <vector>
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 struct LabelMetric
 {
   bool Valid;
@@ -1544,3 +1545,4 @@ bool vtkLabeledContourMapper::Private::TestOverlap(const LabelInfo& a, const Lab
     testAxis(a, b.TRd, b.TLd) || testAxis(b, a.TLd, a.BLd) || testAxis(b, a.BLd, a.BRd) ||
     testAxis(b, a.BRd, a.TRd) || testAxis(b, a.TRd, a.TLd));
 }
+VTK_ABI_NAMESPACE_END

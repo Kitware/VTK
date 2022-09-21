@@ -27,6 +27,7 @@
 
 #include "vtkXMLUniformGridAMRWriter.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKIOXML_EXPORT vtkXMLHierarchicalBoxDataWriter : public vtkXMLUniformGridAMRWriter
 {
 public:
@@ -48,4 +49,5 @@ private:
   void operator=(const vtkXMLHierarchicalBoxDataWriter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

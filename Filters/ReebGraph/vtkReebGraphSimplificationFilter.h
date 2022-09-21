@@ -26,6 +26,7 @@
 #include "vtkDirectedGraphAlgorithm.h"
 #include "vtkFiltersReebGraphModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkReebGraph;
 class vtkReebGraphSimplificationMetric;
 
@@ -72,4 +73,5 @@ private:
   void operator=(const vtkReebGraphSimplificationFilter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

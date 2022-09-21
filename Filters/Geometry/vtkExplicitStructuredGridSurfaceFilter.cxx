@@ -19,6 +19,7 @@
 
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkExplicitStructuredGridSurfaceFilter);
 
 //------------------------------------------------------------------------------
@@ -266,3 +267,4 @@ void vtkExplicitStructuredGridSurfaceFilter::PrintSelf(ostream& os, vtkIndent in
   os << indent << "OriginalCellIdsName: " << this->GetOriginalCellIdsName() << endl;
   os << indent << "OriginalPointIdsName: " << this->GetOriginalPointIdsName() << endl;
 }
+VTK_ABI_NAMESPACE_END

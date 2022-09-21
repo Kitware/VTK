@@ -54,6 +54,7 @@ bool parse(const std::string& str, T& result)
 
 } // end anon namespace
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkVASPAnimationReader);
 
 //------------------------------------------------------------------------------
@@ -366,3 +367,4 @@ bool vtkVASPAnimationReader::ReadMolecule(std::istream& in, vtkMolecule* molecul
 
   return true;
 }
+VTK_ABI_NAMESPACE_END

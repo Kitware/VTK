@@ -29,6 +29,7 @@
 #include "vtkImageSliceMapper.h"
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkRenderWindow;
 class vtkOpenGLRenderWindow;
 class vtkActor;
@@ -116,4 +117,5 @@ private:
   void operator=(const vtkOpenGLImageSliceMapper&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

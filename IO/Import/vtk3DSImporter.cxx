@@ -30,7 +30,9 @@
 
 #include <sstream>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtk3DSImporter);
+VTK_ABI_NAMESPACE_END
 
 // Silence warning like
 // "dereferencing type-punned pointer will break strict-aliasing rules"
@@ -110,6 +112,8 @@ static dword peek_dword(vtk3DSImporter* importer);
 static float read_float(vtk3DSImporter* importer);
 static void read_point(vtk3DSImporter* importer, vtk3DSVector v);
 static char* read_string(vtk3DSImporter* importer);
+
+VTK_ABI_NAMESPACE_BEGIN
 
 vtk3DSImporter::vtk3DSImporter()
 {
@@ -366,6 +370,110 @@ void vtk3DSImporter::ImportProperties(vtkRenderer* vtkNotUsed(renderer))
     m->aProperty = property;
   }
 }
+
+vtk3DSImporter::~vtk3DSImporter()
+{
+  vtk3DSOmniLight* omniLight;
+  vtk3DSSpotLight* spotLight;
+
+  // walk the light list and delete vtk objects
+  for (omniLight = this->OmniList; omniLight != (vtk3DSOmniLight*)nullptr;
+       omniLight = (vtk3DSOmniLight*)omniLight->next)
+  {
+    omniLight->aLight->Delete();
+  }
+  VTK_LIST_KILL(this->OmniList);
+
+  // walk the spot light list and delete vtk objects
+  for (spotLight = this->SpotLightList; spotLight != (vtk3DSSpotLight*)nullptr;
+       spotLight = (vtk3DSSpotLight*)spotLight->next)
+  {
+    spotLight->aLight->Delete();
+  }
+  VTK_LIST_KILL(this->SpotLightList);
+
+  vtk3DSCamera* camera;
+  // walk the camera list and delete vtk objects
+  for (camera = this->CameraList; camera != (vtk3DSCamera*)nullptr;
+       camera = (vtk3DSCamera*)camera->next)
+  {
+    camera->aCamera->Delete();
+  }
+  VTK_LIST_KILL(this->CameraList);
+
+  // walk the mesh list and delete malloced datra and vtk objects
+  vtk3DSMesh* mesh;
+  for (mesh = this->MeshList; mesh != (vtk3DSMesh*)nullptr; mesh = (vtk3DSMesh*)mesh->next)
+  {
+    if (mesh->anActor != nullptr)
+    {
+      mesh->anActor->Delete();
+    }
+    if (mesh->aMapper != nullptr)
+    {
+      mesh->aMapper->Delete();
+    }
+    if (mesh->aNormals != nullptr)
+    {
+      mesh->aNormals->Delete();
+    }
+    if (mesh->aStripper != nullptr)
+    {
+      mesh->aStripper->Delete();
+    }
+    if (mesh->aPoints != nullptr)
+    {
+      mesh->aPoints->Delete();
+    }
+    if (mesh->aCellArray != nullptr)
+    {
+      mesh->aCellArray->Delete();
+    }
+    if (mesh->aPolyData != nullptr)
+    {
+      mesh->aPolyData->Delete();
+    }
+    if (mesh->vertex)
+    {
+      free(mesh->vertex);
+    }
+    if (mesh->face)
+    {
+      free(mesh->face);
+    }
+    if (mesh->mtl)
+    {
+      free(mesh->mtl);
+    }
+  }
+
+  // then delete the list structure
+
+  VTK_LIST_KILL(this->MeshList);
+  VTK_LIST_KILL(this->MaterialList);
+
+  // objects allocated in Material Property List
+  vtk3DSMatProp* m;
+  // just walk the list of material properties, deleting vtk properties
+  for (m = this->MatPropList; m != (vtk3DSMatProp*)nullptr; m = (vtk3DSMatProp*)m->next)
+  {
+    m->aProperty->Delete();
+  }
+
+  // then delete the list structure
+  VTK_LIST_KILL(this->MatPropList);
+
+  delete[] this->FileName;
+}
+
+void vtk3DSImporter::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os, indent);
+  os << indent << "File Name: " << (this->FileName ? this->FileName : "(none)") << "\n";
+
+  os << indent << "Compute Normals: " << (this->ComputeNormals ? "On\n" : "Off\n");
+}
+VTK_ABI_NAMESPACE_END
 
 /* Insert a new node into the list */
 static void list_insert(vtk3DSList** root, vtk3DSList* new_node)
@@ -1223,107 +1331,4 @@ static void cleanup_name(char* name)
   strcpy(name, tmp);
 
   free(tmp);
-}
-
-vtk3DSImporter::~vtk3DSImporter()
-{
-  vtk3DSOmniLight* omniLight;
-  vtk3DSSpotLight* spotLight;
-
-  // walk the light list and delete vtk objects
-  for (omniLight = this->OmniList; omniLight != (vtk3DSOmniLight*)nullptr;
-       omniLight = (vtk3DSOmniLight*)omniLight->next)
-  {
-    omniLight->aLight->Delete();
-  }
-  VTK_LIST_KILL(this->OmniList);
-
-  // walk the spot light list and delete vtk objects
-  for (spotLight = this->SpotLightList; spotLight != (vtk3DSSpotLight*)nullptr;
-       spotLight = (vtk3DSSpotLight*)spotLight->next)
-  {
-    spotLight->aLight->Delete();
-  }
-  VTK_LIST_KILL(this->SpotLightList);
-
-  vtk3DSCamera* camera;
-  // walk the camera list and delete vtk objects
-  for (camera = this->CameraList; camera != (vtk3DSCamera*)nullptr;
-       camera = (vtk3DSCamera*)camera->next)
-  {
-    camera->aCamera->Delete();
-  }
-  VTK_LIST_KILL(this->CameraList);
-
-  // walk the mesh list and delete malloced datra and vtk objects
-  vtk3DSMesh* mesh;
-  for (mesh = this->MeshList; mesh != (vtk3DSMesh*)nullptr; mesh = (vtk3DSMesh*)mesh->next)
-  {
-    if (mesh->anActor != nullptr)
-    {
-      mesh->anActor->Delete();
-    }
-    if (mesh->aMapper != nullptr)
-    {
-      mesh->aMapper->Delete();
-    }
-    if (mesh->aNormals != nullptr)
-    {
-      mesh->aNormals->Delete();
-    }
-    if (mesh->aStripper != nullptr)
-    {
-      mesh->aStripper->Delete();
-    }
-    if (mesh->aPoints != nullptr)
-    {
-      mesh->aPoints->Delete();
-    }
-    if (mesh->aCellArray != nullptr)
-    {
-      mesh->aCellArray->Delete();
-    }
-    if (mesh->aPolyData != nullptr)
-    {
-      mesh->aPolyData->Delete();
-    }
-    if (mesh->vertex)
-    {
-      free(mesh->vertex);
-    }
-    if (mesh->face)
-    {
-      free(mesh->face);
-    }
-    if (mesh->mtl)
-    {
-      free(mesh->mtl);
-    }
-  }
-
-  // then delete the list structure
-
-  VTK_LIST_KILL(this->MeshList);
-  VTK_LIST_KILL(this->MaterialList);
-
-  // objects allocated in Material Property List
-  vtk3DSMatProp* m;
-  // just walk the list of material properties, deleting vtk properties
-  for (m = this->MatPropList; m != (vtk3DSMatProp*)nullptr; m = (vtk3DSMatProp*)m->next)
-  {
-    m->aProperty->Delete();
-  }
-
-  // then delete the list structure
-  VTK_LIST_KILL(this->MatPropList);
-
-  delete[] this->FileName;
-}
-
-void vtk3DSImporter::PrintSelf(ostream& os, vtkIndent indent)
-{
-  this->Superclass::PrintSelf(os, indent);
-  os << indent << "File Name: " << (this->FileName ? this->FileName : "(none)") << "\n";
-
-  os << indent << "Compute Normals: " << (this->ComputeNormals ? "On\n" : "Off\n");
 }

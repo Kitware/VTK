@@ -21,6 +21,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkThresholdTextureCoords);
 
 // Construct with lower threshold=0, upper threshold=1, threshold
@@ -161,3 +162,4 @@ void vtkThresholdTextureCoords::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "In Texture Coordinate: (" << this->InTextureCoord[0] << ", "
      << this->InTextureCoord[1] << ", " << this->InTextureCoord[2] << ")\n";
 }
+VTK_ABI_NAMESPACE_END

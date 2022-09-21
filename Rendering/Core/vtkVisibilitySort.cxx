@@ -31,6 +31,7 @@
 
 //------------------------------------------------------------------------------
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkCxxSetObjectMacro(vtkVisibilitySort, Camera, vtkCamera);
 vtkCxxSetObjectMacro(vtkVisibilitySort, Input, vtkDataSet);
 
@@ -121,3 +122,4 @@ void vtkVisibilitySort::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Camera: (" << this->Camera << ")" << endl;
 }
+VTK_ABI_NAMESPACE_END

@@ -29,6 +29,7 @@
 #include "vtkIOGeometryModule.h" // For export macro
 #include "vtkWriter.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPolyData;
 
 class VTKIOGEOMETRY_EXPORT vtkIVWriter : public vtkWriter
@@ -71,4 +72,5 @@ private:
   void operator=(const vtkIVWriter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

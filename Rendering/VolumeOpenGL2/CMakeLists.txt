@@ -63,3 +63,4 @@ vtk_module_add_module(VTK::RenderingVolumeOpenGL2
   NOWRAP_TEMPLATE_CLASSES  ${nowrap_template_classes}
   SOURCES ${sources} ${vtk_object_factory_source}
   PRIVATE_HEADERS ${private_headers} ${vtk_object_factory_header})
+vtk_add_test_mangling(VTK::RenderingVolumeOpenGL2)

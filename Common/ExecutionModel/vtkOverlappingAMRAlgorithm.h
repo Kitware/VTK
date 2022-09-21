@@ -24,6 +24,7 @@
 #include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkUniformGridAMRAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkOverlappingAMR;
 class vtkInformation;
 
@@ -59,4 +60,5 @@ private:
   void operator=(const vtkOverlappingAMRAlgorithm&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif /* VTKOVERLAPPINGAMRALGORITHM_H_ */

@@ -52,6 +52,8 @@
 #define VERA_MAX_DIMENSION 6
 #define DATASET_NAME_MAX_SIZE 1024
 
+VTK_ABI_NAMESPACE_BEGIN
+
 //*****************************************************************************
 class vtkVeraOutReader::Internals
 {
@@ -966,3 +968,4 @@ vtkMTimeType vtkVeraOutReader::GetMTime()
 
   return mTime;
 }
+VTK_ABI_NAMESPACE_END

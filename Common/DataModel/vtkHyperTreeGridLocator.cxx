@@ -17,6 +17,7 @@
 #include "vtkHyperTreeGrid.h"
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 void vtkHyperTreeGridLocator::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -57,3 +58,4 @@ void vtkHyperTreeGridLocator::Update()
     return;
   }
 }
+VTK_ABI_NAMESPACE_END

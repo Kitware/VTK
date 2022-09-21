@@ -40,6 +40,7 @@
 
 #include <vector> // for std::vector
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSGENERAL_EXPORT vtkAnimateModes : public vtkPassInputTypeAlgorithm
 {
 public:
@@ -126,4 +127,5 @@ private:
   double TimeRange[2];
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

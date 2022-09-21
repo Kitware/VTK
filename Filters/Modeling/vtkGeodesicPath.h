@@ -26,6 +26,7 @@
 #include "vtkFiltersModelingModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPolyData;
 
 class VTKFILTERSMODELING_EXPORT vtkGeodesicPath : public vtkPolyDataAlgorithm
@@ -50,4 +51,5 @@ private:
   void operator=(const vtkGeodesicPath&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

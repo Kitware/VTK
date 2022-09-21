@@ -42,6 +42,7 @@
 struct nifti_1_header;
 struct nifti_2_header;
 
+VTK_ABI_NAMESPACE_BEGIN
 //----------------------------------------------------------------------------
 class VTKIOIMAGE_EXPORT vtkNIFTIImageHeader : public vtkObject
 {
@@ -446,4 +447,5 @@ private:
   void operator=(const vtkNIFTIImageHeader&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkNIFTIImageHeader_h

@@ -32,6 +32,7 @@
 #include "vtkRenderingOpenXRModule.h" // For export macro
 
 #include "vtkOpenXR.h" // For XrEventDataBuffer
+VTK_ABI_NAMESPACE_BEGIN
 
 class VTKRENDERINGOPENXR_EXPORT vtkOpenXRManagerConnection : public vtkObject
 {
@@ -75,4 +76,5 @@ private:
   void operator=(const vtkOpenXRManagerConnection&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

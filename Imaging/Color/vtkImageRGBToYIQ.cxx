@@ -19,6 +19,7 @@
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImageRGBToYIQ);
 
 //------------------------------------------------------------------------------
@@ -150,3 +151,4 @@ void vtkImageRGBToYIQ::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Maximum: " << this->Maximum << "\n";
 }
+VTK_ABI_NAMESPACE_END

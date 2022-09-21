@@ -80,6 +80,7 @@
 
 #undef PARAVIEW_DEBUG_TESSELLATOR
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkEdgeSubdivisionCriterion;
 
 class VTKFILTERSCORE_EXPORT vtkStreamingTessellator : public vtkObject
@@ -392,4 +393,5 @@ inline int vtkStreamingTessellator::GetMaximumNumberOfSubdivisions()
   return this->MaximumNumberOfSubdivisions;
 }
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkStreamingTessellator_h

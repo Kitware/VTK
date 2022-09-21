@@ -29,6 +29,7 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtkUnstructuredGridReader.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkDataSetReader);
 
 vtkDataSetReader::vtkDataSetReader() = default;
@@ -419,3 +420,4 @@ int vtkDataSetReader::FillOutputPortInformation(int, vtkInformation* info)
   info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkDataSet");
   return 1;
 }
+VTK_ABI_NAMESPACE_END

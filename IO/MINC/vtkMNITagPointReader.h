@@ -68,6 +68,7 @@ POSSIBILITY OF SUCH DAMAGES.
 #include "vtkIOMINCModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPolyData;
 class vtkPoints;
 class vtkStringArray;
@@ -186,4 +187,5 @@ private:
   void operator=(const vtkMNITagPointReader&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

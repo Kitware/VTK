@@ -16,14 +16,19 @@
 #ifndef vtkRangeIterableTraits_h
 #define vtkRangeIterableTraits_h
 
+#include "vtkABINamespace.h"
+
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCollection;
 class vtkCompositeDataSet;
 class vtkDataObjectTree;
+VTK_ABI_NAMESPACE_END
 
 namespace vtk
 {
 namespace detail
 {
+VTK_ABI_NAMESPACE_BEGIN
 
 template <typename CollectionType>
 struct CollectionRange;
@@ -63,6 +68,7 @@ public:
   using RangeType = typename std::decay<RangeTypeInternal>::type;
 };
 
+VTK_ABI_NAMESPACE_END
 }
 }
 

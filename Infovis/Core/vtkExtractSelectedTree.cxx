@@ -32,6 +32,7 @@
 
 #include <map>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkExtractSelectedTree);
 
 vtkExtractSelectedTree::vtkExtractSelectedTree()
@@ -230,3 +231,4 @@ int vtkExtractSelectedTree::RequestData(vtkInformation* vtkNotUsed(request),
 
   return 1;
 }
+VTK_ABI_NAMESPACE_END

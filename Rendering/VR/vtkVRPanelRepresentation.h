@@ -33,6 +33,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include <string> // for ivar
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkTextActor3D;
 
 class VTKRENDERINGVR_EXPORT vtkVRPanelRepresentation : public vtkWidgetRepresentation
@@ -178,4 +179,5 @@ private:
   void operator=(const vtkVRPanelRepresentation&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

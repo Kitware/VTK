@@ -37,6 +37,7 @@
 
 //------------------------------------------------------------------------------
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkSortDataArray);
 
 //------------------------------------------------------------------------------
@@ -98,6 +99,7 @@ void vtkSortDataArray::Sort(vtkAbstractArray* keys, int dir)
     }
   }
 }
+VTK_ABI_NAMESPACE_END
 
 //------------------------------------------------------------------------------
 // Hide some stuff; mostly things plugged into templated functions
@@ -210,6 +212,7 @@ void ShuffleTuples(
 
 } // anonymous namespace
 
+VTK_ABI_NAMESPACE_BEGIN
 //------------------------------------------------------------------------------
 // Allocate and initialize sort indices
 vtkIdType* vtkSortDataArray::InitializeSortIndices(vtkIdType num)
@@ -463,3 +466,4 @@ void vtkSortDataArray::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 // vtkSortDataArray methods -------------------------------------------------------
+VTK_ABI_NAMESPACE_END

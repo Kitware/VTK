@@ -37,6 +37,7 @@
 #include "vtkGraphAlgorithm.h"
 #include "vtkInfovisLayoutModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkAbstractTransform;
 class vtkEventForwarderCommand;
 class vtkGraphLayoutStrategy;
@@ -121,4 +122,5 @@ private:
   void operator=(const vtkGraphLayout&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

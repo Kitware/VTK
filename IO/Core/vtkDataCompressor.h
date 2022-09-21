@@ -40,6 +40,7 @@
 #include "vtkIOCoreModule.h" // For export macro
 #include "vtkObject.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkUnsignedCharArray;
 
 class VTKIOCORE_EXPORT vtkDataCompressor : public vtkObject
@@ -117,4 +118,5 @@ private:
   void operator=(const vtkDataCompressor&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

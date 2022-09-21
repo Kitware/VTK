@@ -31,6 +31,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkUnstructuredGrid.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkExtractGeometry);
 vtkCxxSetObjectMacro(vtkExtractGeometry, ImplicitFunction, vtkImplicitFunction);
 
@@ -326,3 +327,4 @@ void vtkExtractGeometry::PrintSelf(ostream& os, vtkIndent indent)
   os << indent
      << "Extract Only Boundary Cells: " << (this->ExtractOnlyBoundaryCells ? "On\n" : "Off\n");
 }
+VTK_ABI_NAMESPACE_END

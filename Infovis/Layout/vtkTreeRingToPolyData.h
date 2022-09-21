@@ -35,6 +35,7 @@
 #include "vtkInfovisLayoutModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKINFOVISLAYOUT_EXPORT vtkTreeRingToPolyData : public vtkPolyDataAlgorithm
 {
 public:
@@ -78,4 +79,5 @@ private:
   void operator=(const vtkTreeRingToPolyData&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

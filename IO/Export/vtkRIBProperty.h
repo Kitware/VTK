@@ -31,6 +31,7 @@
 #include "vtkIOExportModule.h" // For export macro
 #include "vtkProperty.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkRIBRenderer;
 
 class VTKIOEXPORT_EXPORT vtkRIBProperty : public vtkProperty
@@ -138,4 +139,5 @@ private:
   void operator=(const vtkRIBProperty&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

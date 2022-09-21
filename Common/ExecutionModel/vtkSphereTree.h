@@ -53,6 +53,7 @@
 #include "vtkObject.h"
 #include "vtkPlane.h" // to specify the cutting plane
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDoubleArray;
 class vtkDataArray;
 class vtkIdList;
@@ -226,4 +227,5 @@ private:
   void operator=(const vtkSphereTree&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

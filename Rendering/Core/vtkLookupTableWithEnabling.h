@@ -36,6 +36,7 @@
 #include "vtkLookupTable.h"
 #include "vtkRenderingCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataArray;
 
 class VTKRENDERINGCORE_EXPORT vtkLookupTableWithEnabling : public vtkLookupTable
@@ -80,4 +81,5 @@ private:
   void operator=(const vtkLookupTableWithEnabling&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

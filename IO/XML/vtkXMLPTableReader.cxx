@@ -30,6 +30,7 @@
 #include <cassert>
 #include <sstream>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkXMLPTableReader);
 
 //------------------------------------------------------------------------------
@@ -600,3 +601,4 @@ void vtkXMLPTableReader::SetColumnArrayStatus(const char* name, int status)
     this->ColumnSelection->DisableArray(name);
   }
 }
+VTK_ABI_NAMESPACE_END

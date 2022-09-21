@@ -31,6 +31,7 @@
 #include "vtkUnstructuredGrid.h"
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkTimeSourceExample);
 
 //------------------------------------------------------------------------------
@@ -340,3 +341,4 @@ void vtkTimeSourceExample::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "YAmplitude: " << this->YAmplitude << endl;
   os << indent << "Growing: " << this->Growing << endl;
 }
+VTK_ABI_NAMESPACE_END

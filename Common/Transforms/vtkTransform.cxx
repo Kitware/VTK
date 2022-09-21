@@ -18,6 +18,7 @@
 
 #include <cstdlib>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkTransform);
 
 //------------------------------------------------------------------------------
@@ -547,3 +548,4 @@ void vtkTransform::GetTranspose(vtkMatrix4x4* transpose)
 {
   vtkMatrix4x4::Transpose(this->GetMatrix(), transpose);
 }
+VTK_ABI_NAMESPACE_END

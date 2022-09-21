@@ -89,6 +89,7 @@ bool ComputeGlobalOrigin(vtkVector3d& origin, const std::vector<vtkImageData*>& 
 
 }
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkAlignImageDataSetFilter);
 vtkCxxSetObjectMacro(vtkAlignImageDataSetFilter, Controller, vtkMultiProcessController);
 //-----------------------------------------------------------------------------
@@ -205,3 +206,4 @@ void vtkAlignImageDataSetFilter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "MinimumExtent: " << this->MinimumExtent[0] << ", " << this->MinimumExtent[1]
      << ", " << this->MinimumExtent[2] << endl;
 }
+VTK_ABI_NAMESPACE_END

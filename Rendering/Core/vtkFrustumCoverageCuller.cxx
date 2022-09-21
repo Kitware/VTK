@@ -20,6 +20,7 @@
 #include "vtkProp.h"
 #include "vtkRenderer.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkFrustumCoverageCuller);
 
 // Create a frustum coverage culler with default values
@@ -346,3 +347,4 @@ void vtkFrustumCoverageCuller::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Sorting Style: " << this->GetSortingStyleAsString() << endl;
 }
+VTK_ABI_NAMESPACE_END

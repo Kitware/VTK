@@ -42,6 +42,7 @@
 #include "vtkDataSetAlgorithm.h"
 #include "vtkFiltersCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSCORE_EXPORT vtkVectorNorm : public vtkDataSetAlgorithm
 {
 public:
@@ -94,4 +95,5 @@ private:
   void operator=(const vtkVectorNorm&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

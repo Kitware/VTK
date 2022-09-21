@@ -36,6 +36,7 @@
 #include "vtkAlgorithm.h"
 #include "vtkFiltersCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSCORE_EXPORT vtkStreamerBase : public vtkAlgorithm
 {
 public:
@@ -84,4 +85,5 @@ private:
   void operator=(const vtkStreamerBase&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif //_vtkStreamerBase_h

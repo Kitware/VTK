@@ -28,6 +28,7 @@
 #include "vtkIOGeometryModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKIOGEOMETRY_EXPORT vtkPTSReader : public vtkPolyDataAlgorithm
 {
 public:
@@ -134,4 +135,5 @@ private:
   void operator=(const vtkPTSReader&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

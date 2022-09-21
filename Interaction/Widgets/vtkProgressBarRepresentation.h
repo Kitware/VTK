@@ -28,6 +28,7 @@
 #include "vtkBorderRepresentation.h"
 #include "vtkInteractionWidgetsModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkActor2D;
 class vtkPoints;
 class vtkPolyData;
@@ -158,4 +159,5 @@ private:
   void operator=(const vtkProgressBarRepresentation&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

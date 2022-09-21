@@ -31,6 +31,7 @@
 #include "vtkRenderer.h"            // Needed for static cast
 #include "vtkRenderingCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKRENDERINGCORE_EXPORT vtkRendererCollection : public vtkCollection
 {
 public:
@@ -81,4 +82,5 @@ private:
   void operator=(const vtkRendererCollection&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

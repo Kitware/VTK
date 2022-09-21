@@ -28,6 +28,7 @@
 #include "vtkDataSetAlgorithm.h"
 #include "vtkFiltersGeneralModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSGENERAL_EXPORT vtkDeflectNormals : public vtkDataSetAlgorithm
 {
 public:
@@ -78,4 +79,5 @@ private:
   void operator=(const vtkDeflectNormals&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

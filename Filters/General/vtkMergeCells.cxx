@@ -40,6 +40,7 @@
 #include <cstdlib>
 #include <map>
 
+VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
 
@@ -781,3 +782,4 @@ void vtkMergeCells::PrintSelf(ostream& os, vtkIndent indent)
     os << "(None)" << endl;
   }
 }
+VTK_ABI_NAMESPACE_END

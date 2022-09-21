@@ -38,6 +38,7 @@
 #include <cmath>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkBoxClipDataSet);
 vtkCxxSetObjectMacro(vtkBoxClipDataSet, Locator, vtkIncrementalPointLocator);
 //------------------------------------------------------------------------------
@@ -6657,3 +6658,4 @@ void vtkBoxClipDataSet::ClipHexahedronInOut0D(vtkGenericCell* cell,
   }
   arrayvert->Delete();
 }
+VTK_ABI_NAMESPACE_END

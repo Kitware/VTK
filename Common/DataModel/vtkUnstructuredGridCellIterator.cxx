@@ -26,6 +26,7 @@
 
 #include <cassert>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkUnstructuredGridCellIterator);
 
 //------------------------------------------------------------------------------
@@ -196,3 +197,4 @@ void vtkUnstructuredGridCellIterator::FetchFaces()
     this->Faces->SetNumberOfIds(0);
   }
 }
+VTK_ABI_NAMESPACE_END

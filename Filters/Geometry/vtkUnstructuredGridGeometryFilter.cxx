@@ -63,6 +63,7 @@
 #include <cassert>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkUnstructuredGridGeometryFilter);
 
 #if 0
@@ -1432,3 +1433,4 @@ int vtkUnstructuredGridGeometryFilter::RequestUpdateExtent(vtkInformation* vtkNo
 
   return 1;
 }
+VTK_ABI_NAMESPACE_END

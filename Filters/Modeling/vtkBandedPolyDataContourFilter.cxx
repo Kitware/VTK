@@ -34,6 +34,7 @@
 
 #include <cfloat>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkBandedPolyDataContourFilter);
 
 namespace
@@ -977,3 +978,4 @@ void vtkBandedPolyDataContourFilter::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Clip Tolerance: " << this->ClipTolerance << "\n";
 }
+VTK_ABI_NAMESPACE_END

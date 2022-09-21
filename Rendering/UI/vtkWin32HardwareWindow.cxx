@@ -19,6 +19,7 @@
 #include "vtkObjectFactory.h"
 
 //============================================================================
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkWin32HardwareWindow);
 
 //------------------------------------------------------------------------------
@@ -244,3 +245,4 @@ void vtkWin32HardwareWindow::SetPosition(int x, int y)
     }
   }
 }
+VTK_ABI_NAMESPACE_END

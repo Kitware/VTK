@@ -43,6 +43,7 @@
 // in order to provide sufficient precision for 16-bit images
 #define VTK_SINC_KERNEL_TABLE_DIVISIONS 256
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImageSincInterpolator);
 
 //------------------------------------------------------------------------------
@@ -1418,3 +1419,4 @@ void vtkImageSincInterpolator::FreeKernelLookupTable()
     }
   }
 }
+VTK_ABI_NAMESPACE_END

@@ -16,6 +16,7 @@
 
 #include "vtkObjectFactory.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkHierarchicalDataSetGeometryFilter);
 //------------------------------------------------------------------------------
 vtkHierarchicalDataSetGeometryFilter::vtkHierarchicalDataSetGeometryFilter() = default;
@@ -28,3 +29,4 @@ void vtkHierarchicalDataSetGeometryFilter::PrintSelf(ostream& os, vtkIndent inde
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

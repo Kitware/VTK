@@ -97,6 +97,7 @@
 #include "vtkDeprecation.h"              // For VTK_DEPRECATED_IN_9_2_0
 #include "vtkInteractionWidgetsModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkBoxRepresentation;
 class vtkHandleWidget;
 
@@ -202,4 +203,5 @@ private:
   void operator=(const vtkBoxWidget2&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

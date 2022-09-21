@@ -29,6 +29,7 @@
 #include "vtkTable.h"
 #include "vtkVariant.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPCorrelativeStatistics);
 vtkCxxSetObjectMacro(vtkPCorrelativeStatistics, Controller, vtkMultiProcessController);
 //------------------------------------------------------------------------------
@@ -179,3 +180,4 @@ void vtkPCorrelativeStatistics::Test(
 
   this->Superclass::Test(inData, inMeta, outMeta);
 }
+VTK_ABI_NAMESPACE_END

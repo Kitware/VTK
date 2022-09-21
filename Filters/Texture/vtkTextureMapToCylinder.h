@@ -49,6 +49,7 @@
 #include "vtkDataSetAlgorithm.h"
 #include "vtkFiltersTextureModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSTEXTURE_EXPORT vtkTextureMapToCylinder : public vtkDataSetAlgorithm
 {
 public:
@@ -116,4 +117,5 @@ private:
   void operator=(const vtkTextureMapToCylinder&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

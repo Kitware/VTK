@@ -29,6 +29,7 @@
 
 #include <cassert>
 #include <type_traits>
+VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
 
@@ -610,3 +611,4 @@ void vtkValueSelector::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

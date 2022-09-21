@@ -25,6 +25,7 @@
 
 #include <thread> // used to sleep after connection
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOpenXRManagerRemoteConnection);
 
 //------------------------------------------------------------------------------
@@ -129,3 +130,4 @@ bool vtkOpenXRManagerRemoteConnection::HandleXrEvent(const XrEventDataBuffer& ev
 
   return false;
 }
+VTK_ABI_NAMESPACE_END

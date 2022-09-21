@@ -27,6 +27,7 @@
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkObject.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkObjectFactory;
 
 class VTKCOMMONCORE_EXPORT vtkOverrideInformation : public vtkObject
@@ -102,4 +103,5 @@ private:
   void operator=(const vtkOverrideInformation&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

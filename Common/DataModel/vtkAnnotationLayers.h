@@ -36,6 +36,7 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkDataObject.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkAnnotation;
 class vtkSelection;
 
@@ -131,4 +132,5 @@ private:
   void operator=(const vtkAnnotationLayers&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

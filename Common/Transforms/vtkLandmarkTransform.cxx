@@ -19,6 +19,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPoints.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkLandmarkTransform);
 
 //------------------------------------------------------------------------------
@@ -473,3 +474,4 @@ void vtkLandmarkTransform::InternalDeepCopy(vtkAbstractTransform* transform)
 
   this->Modified();
 }
+VTK_ABI_NAMESPACE_END

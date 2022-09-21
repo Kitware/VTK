@@ -29,6 +29,7 @@
 #include "vtkRenderer.h"
 #include "vtkSphereSource.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkSphereHandleRepresentation);
 vtkCxxSetObjectMacro(vtkSphereHandleRepresentation, SelectedProperty, vtkProperty);
 
@@ -556,3 +557,4 @@ void vtkSphereHandleRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 
   this->Sphere->PrintSelf(os, indent.GetNextIndent());
 }
+VTK_ABI_NAMESPACE_END

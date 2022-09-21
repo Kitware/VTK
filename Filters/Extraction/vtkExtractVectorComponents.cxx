@@ -27,6 +27,7 @@
 #include "vtkPointData.h"
 #include "vtkSMPTools.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkExtractVectorComponents);
 
 //------------------------------------------------------------------------------
@@ -346,3 +347,4 @@ void vtkExtractVectorComponents::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "ExtractToFieldData: " << this->ExtractToFieldData << endl;
 }
+VTK_ABI_NAMESPACE_END

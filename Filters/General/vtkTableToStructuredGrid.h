@@ -29,6 +29,7 @@
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkStructuredGridAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkTable;
 
 class VTKFILTERSGENERAL_EXPORT vtkTableToStructuredGrid : public vtkStructuredGridAlgorithm
@@ -137,4 +138,5 @@ private:
   void operator=(const vtkTableToStructuredGrid&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -31,6 +31,7 @@
 #include <algorithm>
 #include <cassert>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkBorderRepresentation);
 
 //------------------------------------------------------------------------------
@@ -1067,3 +1068,4 @@ void vtkBorderRepresentation::PrintSelf(ostream& os, vtkIndent indent)
       break;
   }
 }
+VTK_ABI_NAMESPACE_END

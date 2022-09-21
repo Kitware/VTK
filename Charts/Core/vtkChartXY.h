@@ -35,6 +35,7 @@
 
 #include <vector> // for std::vector
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkAxis;
 class vtkChartLegend;
 class vtkIdTypeArray;
@@ -45,8 +46,10 @@ class vtkTooltipItem;
 
 class vtkChartXYPrivate; // Private class to keep my STL vector in...
 
+VTK_ABI_NAMESPACE_END
 #include <map> // for std::map
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCHARTSCORE_EXPORT vtkChartXY : public vtkChart
 {
 public:
@@ -638,4 +641,5 @@ struct vtkChartPlotData
 };
 ///@}
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkChartXY_h

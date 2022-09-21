@@ -26,6 +26,7 @@
 #include "vtkFiltersHybridModule.h" // For export macro
 #include "vtkImageData.h"           // makes things a bit easier
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkRenderer;
 class vtkActor2DCollection;
 class vtkCollection;
@@ -96,4 +97,5 @@ private:
   void operator=(const vtkRenderLargeImage&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

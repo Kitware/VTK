@@ -43,6 +43,7 @@
 #include "vtkFiltersProgrammableModule.h" // For export macro
 #include "vtkPassInputTypeAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSPROGRAMMABLE_EXPORT vtkProgrammableFilter : public vtkPassInputTypeAlgorithm
 {
 public:
@@ -118,4 +119,5 @@ private:
   void operator=(const vtkProgrammableFilter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

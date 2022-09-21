@@ -35,6 +35,7 @@
 
 #include "vtkTuple.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 template <typename T>
 class vtkQuaternion : public vtkTuple<T, 4>
 {
@@ -442,6 +443,7 @@ public:
   vtkQuaternionOperatorMacro(vtkQuaterniond, double);
 };
 
+VTK_ABI_NAMESPACE_END
 #include "vtkQuaternion.txx"
 
 #endif // vtkQuaternion_h

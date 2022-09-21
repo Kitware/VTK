@@ -27,6 +27,7 @@
 
 #include "vtkFiltersParallelModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
+VTK_ABI_NAMESPACE_BEGIN
 class vtkOutlineCornerSource;
 class vtkMultiProcessController;
 class vtkAppendPolyData;
@@ -82,4 +83,5 @@ private:
   vtkPOutlineFilterInternals* Internals;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

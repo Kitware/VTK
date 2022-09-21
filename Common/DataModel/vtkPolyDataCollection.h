@@ -31,6 +31,7 @@
 
 #include "vtkPolyData.h" // Needed for static cast
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONDATAMODEL_EXPORT vtkPolyDataCollection : public vtkCollection
 {
 public:
@@ -70,4 +71,5 @@ private:
   void operator=(const vtkPolyDataCollection&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

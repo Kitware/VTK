@@ -26,6 +26,7 @@
 #include "vtkDataSet.h"
 #include "vtkObjectFactory.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkBridgeCellIteratorOnDataSet);
 
 //------------------------------------------------------------------------------
@@ -151,3 +152,4 @@ void vtkBridgeCellIteratorOnDataSet::InitWithDataSet(vtkBridgeDataSet* ds, int d
   this->Size = ds->GetNumberOfCells();
   this->Id = this->Size; // at end
 }
+VTK_ABI_NAMESPACE_END

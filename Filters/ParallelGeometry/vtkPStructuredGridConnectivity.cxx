@@ -23,6 +23,7 @@
 #include <fstream>
 #include <sstream>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPStructuredGridConnectivity);
 vtkCxxSetObjectMacro(vtkPStructuredGridConnectivity, Controller, vtkMultiProcessController);
 
@@ -1394,3 +1395,4 @@ void vtkPStructuredGridConnectivity::DeserializeGridExtentForProcess(
     this->RegisterRemoteGrid(gridID, ext, processId);
   }
 }
+VTK_ABI_NAMESPACE_END

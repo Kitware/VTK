@@ -42,6 +42,7 @@
 #include "vtkIOPostgreSQLModule.h" // For export macro
 #include "vtkSQLQuery.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPostgreSQLDatabase;
 class vtkVariant;
 class vtkVariantArray;
@@ -140,4 +141,5 @@ private:
   void operator=(const vtkPostgreSQLQuery&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkPostgreSQLQuery_h

@@ -40,6 +40,7 @@
 
 #include "vtkSmartPointer.h" // For internal method.
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataArraySelection;
 class vtkDoubleArray;
 class vtkIdTypeArray;
@@ -444,4 +445,5 @@ private:
   void operator=(const vtkSLACReader&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkSLACReader_h

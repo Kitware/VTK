@@ -31,6 +31,7 @@
 #include <string>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKIOIOSS_EXPORT vtkIOSSFilesScanner : public vtkObject
 {
 public:
@@ -74,5 +75,6 @@ private:
   void operator=(const vtkIOSSFilesScanner&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkIOSSFilesScanner.h

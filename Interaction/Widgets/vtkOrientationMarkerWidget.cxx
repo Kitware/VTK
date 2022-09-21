@@ -28,6 +28,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOrientationMarkerWidget);
 
 vtkCxxSetObjectMacro(vtkOrientationMarkerWidget, OrientationMarker, vtkProp);
@@ -1153,3 +1154,4 @@ void vtkOrientationMarkerWidget::ResizeToFitSizeConstraints()
     this->UpdateOutline();
   }
 }
+VTK_ABI_NAMESPACE_END

@@ -29,6 +29,7 @@
 #include "vtkCommonInformationKeyManager.h" // Manage instances of this type.
 #include "vtkInformationKey.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkInformationObjectBaseVectorValue;
 
 class VTKCOMMONCORE_EXPORT vtkInformationObjectBaseVectorKey : public vtkInformationKey
@@ -165,4 +166,5 @@ private:
   void operator=(const vtkInformationObjectBaseVectorKey&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

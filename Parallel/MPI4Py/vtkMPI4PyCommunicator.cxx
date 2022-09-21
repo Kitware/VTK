@@ -21,6 +21,7 @@
 
 #include <mpi4py/mpi4py.h>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkMPI4PyCommunicator);
 
 //------------------------------------------------------------------------------
@@ -80,3 +81,4 @@ void vtkMPI4PyCommunicator::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

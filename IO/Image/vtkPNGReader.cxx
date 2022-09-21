@@ -25,6 +25,7 @@
 #include <algorithm>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPNGReader);
 
 #ifdef _MSC_VER
@@ -625,3 +626,4 @@ size_t vtkPNGReader::GetNumberOfTextChunks()
 {
   return this->Internals->TextKeyValue.size();
 }
+VTK_ABI_NAMESPACE_END

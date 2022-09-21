@@ -62,6 +62,7 @@ typedef long fd_mask;
 #endif
 #endif
 
+VTK_ABI_NAMESPACE_BEGIN
 struct vtkTimerLogEntry
 {
   enum LogEntryType
@@ -301,4 +302,5 @@ private:
 };
 static vtkTimerLogCleanup vtkTimerLogCleanupInstance;
 
+VTK_ABI_NAMESPACE_END
 #endif

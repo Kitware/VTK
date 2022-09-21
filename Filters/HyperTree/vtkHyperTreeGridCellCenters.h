@@ -47,6 +47,7 @@
 #include "vtkCellCenters.h"
 #include "vtkFiltersHyperTreeModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkBitArray;
 class vtkDataSetAttributes;
 class vtkHyperTreeGrid;
@@ -97,4 +98,5 @@ private:
   void operator=(const vtkHyperTreeGridCellCenters&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkHyperTreeGridCellCenters_h

@@ -22,6 +22,7 @@
 #include "vtkTrivialProducer.h"
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkImageIterateFilter::vtkImageIterateFilter()
 {
   // for filters that execute multiple times
@@ -254,3 +255,4 @@ void vtkImageIterateFilter::SetNumberOfIterations(int num)
   this->NumberOfIterations = num;
   this->Modified();
 }
+VTK_ABI_NAMESPACE_END

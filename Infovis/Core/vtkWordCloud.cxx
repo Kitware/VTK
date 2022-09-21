@@ -63,6 +63,7 @@
 #include <string>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkWordCloud);
 
 namespace
@@ -868,3 +869,4 @@ void CreateBuiltInStopList(vtkWordCloud::StopWordsContainer& stopList)
 }
 
 //  LocalWords:  FontFileName
+VTK_ABI_NAMESPACE_END

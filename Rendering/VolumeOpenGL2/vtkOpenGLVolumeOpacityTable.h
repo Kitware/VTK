@@ -22,6 +22,7 @@
 #include "vtkVolumeMapper.h" // for vtkVolumeMapper
 
 // Forward declarations
+VTK_ABI_NAMESPACE_BEGIN
 class vtkOpenGLRenderWindow;
 
 //----------------------------------------------------------------------------
@@ -57,4 +58,5 @@ private:
   void operator=(const vtkOpenGLVolumeOpacityTable&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkOpenGLVolumeOpacityTable_h

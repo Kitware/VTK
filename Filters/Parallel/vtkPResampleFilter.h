@@ -24,6 +24,7 @@
 #include "vtkFiltersParallelModule.h" // For export macro
 #include "vtkImageAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkMultiProcessController;
 
 class VTKFILTERSPARALLEL_EXPORT vtkPResampleFilter : public vtkImageAlgorithm
@@ -92,4 +93,5 @@ private:
   void operator=(const vtkPResampleFilter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

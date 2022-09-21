@@ -31,6 +31,7 @@ the U.S. Government retains certain rights in this software.
 
 //------------------------------------------------------------------------------
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkStrahlerMetric);
 
 vtkStrahlerMetric::vtkStrahlerMetric()
@@ -142,3 +143,4 @@ void vtkStrahlerMetric::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "MetricArrayName: " << (this->MetricArrayName ? this->MetricArrayName : "(none)")
      << endl;
 }
+VTK_ABI_NAMESPACE_END

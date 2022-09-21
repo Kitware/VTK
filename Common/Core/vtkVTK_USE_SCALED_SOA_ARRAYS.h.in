@@ -13,5 +13,10 @@
 
 =========================================================================*/
 
+#ifndef vtkVTK_USE_SCALED_SOA_ARRAYS_h
+#define vtkVTK_USE_SCALED_SOA_ARRAYS_h
+
 // defined if VTK provides the vtkScaledSOADataArray classes
 #cmakedefine VTK_USE_SCALED_SOA_ARRAYS
+
+#endif // vtkVTK_USE_SCALED_SOA_ARRAYS_h

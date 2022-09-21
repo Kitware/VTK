@@ -26,6 +26,8 @@
 #ifndef vtkGLTFUtils_h
 #define vtkGLTFUtils_h
 
+#include "vtkABINamespace.h"
+
 #include <vtk_nlohmannjson.h>
 #include VTK_NLOHMANN_JSON(json.hpp)
 
@@ -34,6 +36,7 @@
 
 namespace vtkGLTFUtils
 {
+VTK_ABI_NAMESPACE_BEGIN
 using ChunkInfoType = std::pair<std::string, uint32_t>;
 // Binary glTF constants
 const uint32_t GLBWordSize = 4;
@@ -122,6 +125,7 @@ bool GetBinaryBufferFromUri(const std::string& uri, const std::string& glTFFileN
  * Extract MIME-Type from data-uri
  */
 std::string GetDataUriMimeType(const std::string& uri);
+VTK_ABI_NAMESPACE_END
 }
 
 #endif

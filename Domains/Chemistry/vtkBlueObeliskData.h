@@ -42,6 +42,7 @@
 
 #include <mutex> // for std::mutex
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkAbstractArray;
 class vtkFloatArray;
 class vtkStringArray;
@@ -192,4 +193,5 @@ private:
   std::mutex NewWriteMutex;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

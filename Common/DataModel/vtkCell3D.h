@@ -30,6 +30,7 @@
 #include "vtkCell.h"
 #include "vtkCommonDataModelModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkOrderedTriangulator;
 class vtkTetra;
 class vtkCellArray;
@@ -218,4 +219,5 @@ private:
   void operator=(const vtkCell3D&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

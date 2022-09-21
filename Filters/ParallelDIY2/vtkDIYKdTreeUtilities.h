@@ -33,6 +33,7 @@
 #include <memory> // for std::shared_ptr
 #include <vector> // for std::vector
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataObject;
 class vtkDataSet;
 class vtkIntArray;
@@ -158,4 +159,5 @@ private:
   void operator=(const vtkDIYKdTreeUtilities&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

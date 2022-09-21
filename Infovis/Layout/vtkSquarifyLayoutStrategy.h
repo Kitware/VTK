@@ -40,6 +40,7 @@
 #include "vtkInfovisLayoutModule.h" // For export macro
 #include "vtkTreeMapLayoutStrategy.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkIdList;
 
 class VTKINFOVISLAYOUT_EXPORT vtkSquarifyLayoutStrategy : public vtkTreeMapLayoutStrategy
@@ -68,4 +69,5 @@ private:
   void operator=(const vtkSquarifyLayoutStrategy&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

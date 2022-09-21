@@ -34,6 +34,7 @@ using namespace tao::pegtl;
 // lets define some common rules here.
 namespace Common
 {
+VTK_ABI_NAMESPACE_BEGIN
 struct Sign : sor<one<'+'>, one<'-'>>
 {
 };
@@ -52,6 +53,7 @@ struct Number
 struct Delimiter : sor<seq<star<space>, one<','>, star<space>>, plus<space>>
 {
 };
+VTK_ABI_NAMESPACE_END
 } // namespace Common
 
 //-----------------------------------------------------------------------------
@@ -59,6 +61,7 @@ struct Delimiter : sor<seq<star<space>, one<','>, star<space>>, plus<space>>
 // format.
 namespace LegacyPositionFile
 {
+VTK_ABI_NAMESPACE_BEGIN
 using namespace Common;
 
 // format: time CoMx CoMy CoMz Fx Fy Fz
@@ -71,12 +74,14 @@ struct Row
 struct Grammar : star<Row>
 {
 };
+VTK_ABI_NAMESPACE_END
 } // namespace LegacyPositionFile
 
 //-----------------------------------------------------------------------------
 // rules for parsing a position file in orientations formation.
 namespace OrientationsPositionFile
 {
+VTK_ABI_NAMESPACE_BEGIN
 using namespace Common;
 
 // format: time CoMx CoMy CoMz cosX cosY cosZ Orientation (radians)
@@ -89,12 +94,14 @@ struct Row
 struct Grammar : star<Row>
 {
 };
+VTK_ABI_NAMESPACE_END
 } // namespace OrientationsPositionFile
 
 //-----------------------------------------------------------------------------
 // rules for parsing a universal transform file
 namespace UniversalTransformRow
 {
+VTK_ABI_NAMESPACE_BEGIN
 using namespace Common;
 
 // format: time
@@ -113,12 +120,14 @@ struct Row
 struct Grammar : star<Row>
 {
 };
+VTK_ABI_NAMESPACE_END
 } // namespace UniversalTransformRow
 
 //-----------------------------------------------------------------------------
 // rules to parse CFG file.
 namespace CFG
 {
+VTK_ABI_NAMESPACE_BEGIN
 using namespace Common;
 
 // Rule that matches a Comment. Consume everything on the line following a ';'
@@ -171,8 +180,8 @@ struct Grammar : star<Lines>
 {
 };
 
+VTK_ABI_NAMESPACE_END
 } // namespace CFG
-
 } // namespace MotionFX
 
 #endif

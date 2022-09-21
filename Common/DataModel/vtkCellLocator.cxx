@@ -27,6 +27,7 @@
 #include <array>
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 //------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkCellLocator);
 
@@ -1465,3 +1466,4 @@ void vtkCellLocator::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "H: " << this->H[0] << " " << this->H[1] << " " << this->H[2] << "\n";
   os << indent << "NumberOfDivisions: " << this->NumberOfDivisions << "\n";
 }
+VTK_ABI_NAMESPACE_END

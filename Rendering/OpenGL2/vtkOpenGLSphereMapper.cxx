@@ -39,6 +39,7 @@
 #include "vtk_glew.h"
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOpenGLSphereMapper);
 
 //------------------------------------------------------------------------------
@@ -334,3 +335,4 @@ void vtkOpenGLSphereMapper::RenderPieceDraw(vtkRenderer* ren, vtkActor* actor)
     glDrawArrays(GL_POINTS, 0, static_cast<GLuint>(numVerts));
   }
 }
+VTK_ABI_NAMESPACE_END

@@ -25,6 +25,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkRenderingOpenVRModule.h" // For export macro
 #include "vtkVRRenderer.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKRENDERINGOPENVR_EXPORT vtkOpenVRRenderer : public vtkVRRenderer
 {
 public:
@@ -45,4 +46,5 @@ private:
   void operator=(const vtkOpenVRRenderer&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

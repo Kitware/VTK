@@ -18,6 +18,7 @@
 #include "vtkRenderingCoreModule.h" // For export macro
 #include <string>                   // For std::string
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkRecti;
 
 class VTKRENDERINGCORE_EXPORT vtkAbstractRenderDevice : public vtkObject
@@ -68,4 +69,5 @@ private:
   void operator=(const vtkAbstractRenderDevice&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

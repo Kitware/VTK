@@ -21,6 +21,7 @@
 
 #include <sstream>
 
+VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
 template <typename TagT>
@@ -48,3 +49,4 @@ ostream& operator<<(ostream& stream, const vtkNumberToString::TagFloat& tag)
 {
   return ToString(stream, tag);
 }
+VTK_ABI_NAMESPACE_END

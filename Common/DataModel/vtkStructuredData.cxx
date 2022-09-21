@@ -23,6 +23,7 @@
 #include <algorithm>
 #include <cassert>
 
+VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
 // FIXME
@@ -769,3 +770,4 @@ void vtkStructuredData::GetCellNeighbors(
     }
   }
 }
+VTK_ABI_NAMESPACE_END

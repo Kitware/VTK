@@ -21,6 +21,7 @@
 
 #include "vtkGraph.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 void vtkGraphLayoutStrategy::SetGraph(vtkGraph* graph)
 {
   // This method is a cut and paste of vtkCxxSetObjectMacro
@@ -120,3 +121,4 @@ void vtkGraphLayoutStrategy::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "EdgeWeightField: " << (this->EdgeWeightField ? this->EdgeWeightField : "(none)")
      << endl;
 }
+VTK_ABI_NAMESPACE_END

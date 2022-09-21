@@ -27,6 +27,7 @@
 #include "vtkContextItem.h"
 #include "vtkRenderingContext2DModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPolyData;
 class vtkUnsignedCharArray;
 
@@ -89,4 +90,5 @@ private:
   void operator=(const vtkPolyDataItem&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

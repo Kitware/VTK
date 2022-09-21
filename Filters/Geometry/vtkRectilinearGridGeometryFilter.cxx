@@ -24,6 +24,7 @@
 #include "vtkPolyData.h"
 #include "vtkRectilinearGrid.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkRectilinearGridGeometryFilter);
 
 // Construct with initial extent (0,100, 0,100, 0,0) (i.e., a k-plane).
@@ -435,3 +436,4 @@ void vtkRectilinearGridGeometryFilter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "  Jmin,Jmax: (" << this->Extent[2] << ", " << this->Extent[3] << ")\n";
   os << indent << "  Kmin,Kmax: (" << this->Extent[4] << ", " << this->Extent[5] << ")\n";
 }
+VTK_ABI_NAMESPACE_END

@@ -31,6 +31,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkTable.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 void vtkRTTestSequence::GetSequenceNumbers(int& xdim)
 {
   static int linearSequence[] = { 1, 2, 3, 5 };
@@ -397,3 +398,4 @@ int vtkRenderTimings::ParseCommandLineArguments(int argc, char* argv[])
 
   return 0;
 }
+VTK_ABI_NAMESPACE_END

@@ -31,6 +31,7 @@
 #include "vtkAbstractVolumeMapper.h"
 #include "vtkRenderingVolumeModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkRenderer;
 class vtkVolume;
 class vtkUnstructuredGridBase;
@@ -96,4 +97,5 @@ private:
   void operator=(const vtkUnstructuredGridVolumeMapper&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

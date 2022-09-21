@@ -18,6 +18,7 @@
 #include "vtkDataObjectTreeInternals.h"
 #include "vtkObjectFactory.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataObjectTreeIterator::vtkInternals
 {
 public:
@@ -412,3 +413,4 @@ void vtkDataObjectTreeIterator::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "SkipEmptyNodes: " << (this->SkipEmptyNodes ? "On" : "Off") << endl;
   os << indent << "CurrentFlatIndex: " << this->CurrentFlatIndex << endl;
 }
+VTK_ABI_NAMESPACE_END

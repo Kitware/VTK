@@ -23,6 +23,7 @@
 #include <vector>
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkGPUInfoList* vtkGPUInfoList::New()
 {
   vtkObject* ret = vtkGraphicsFactory::CreateInstance("vtkGPUInfoList");
@@ -112,3 +113,4 @@ void vtkGPUInfoList::PrintSelf(ostream& os, vtkIndent indent)
     }
   }
 }
+VTK_ABI_NAMESPACE_END

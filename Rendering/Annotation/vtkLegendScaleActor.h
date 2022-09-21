@@ -41,6 +41,7 @@
 #include "vtkProp.h"
 #include "vtkRenderingAnnotationModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkAxisActor2D;
 class vtkTextProperty;
 class vtkPolyData;
@@ -252,4 +253,5 @@ private:
   void operator=(const vtkLegendScaleActor&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

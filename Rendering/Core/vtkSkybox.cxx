@@ -18,6 +18,7 @@
 #include "vtkObjectFactory.h"
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkObjectFactoryNewMacro(vtkSkybox);
 
 //------------------------------------------------------------------------------
@@ -48,3 +49,4 @@ vtkSkybox::vtkSkybox()
 
 //------------------------------------------------------------------------------
 vtkSkybox::~vtkSkybox() = default;
+VTK_ABI_NAMESPACE_END

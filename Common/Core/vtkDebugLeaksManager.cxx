@@ -24,6 +24,7 @@
 
 // Must NOT be initialized.  Default initialization to zero is
 // necessary.
+VTK_ABI_NAMESPACE_BEGIN
 static unsigned int vtkDebugLeaksManagerCount;
 
 vtkDebugLeaksManager::vtkDebugLeaksManager()
@@ -45,3 +46,4 @@ vtkDebugLeaksManager::~vtkDebugLeaksManager()
 #if defined(_MSC_VER)
 #pragma optimize("g", on)
 #endif
+VTK_ABI_NAMESPACE_END

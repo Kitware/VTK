@@ -56,6 +56,7 @@
 #include "vtkLabeledDataMapper.h"
 #include "vtkRenderingLabelModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKRENDERINGLABEL_EXPORT vtkDynamic2DLabelMapper : public vtkLabeledDataMapper
 {
 public:
@@ -136,4 +137,5 @@ private:
   void operator=(const vtkDynamic2DLabelMapper&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

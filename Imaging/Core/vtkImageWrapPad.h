@@ -28,6 +28,7 @@
 #include "vtkImagePadFilter.h"
 #include "vtkImagingCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkInformation;
 class vtkInformationVector;
 
@@ -52,4 +53,5 @@ private:
   void operator=(const vtkImageWrapPad&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

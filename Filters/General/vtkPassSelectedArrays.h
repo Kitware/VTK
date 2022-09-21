@@ -37,6 +37,7 @@
 #include "vtkPassInputTypeAlgorithm.h"
 #include "vtkSmartPointer.h" // for ivar
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataArraySelection;
 
 class VTKFILTERSGENERAL_EXPORT vtkPassSelectedArrays : public vtkPassInputTypeAlgorithm
@@ -110,4 +111,5 @@ private:
   vtkSmartPointer<vtkDataArraySelection> ArraySelections[vtkDataObject::NUMBER_OF_ASSOCIATIONS];
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

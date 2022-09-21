@@ -39,6 +39,7 @@
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkObject.h"           // to get VTKCOMMONCORE_EXPORT
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONCORE_EXPORT vtkBreakPoint
 {
 public:
@@ -51,5 +52,6 @@ public:
   ///@}
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // #ifndef vtkBreakPoint_h
 // VTK-HeaderTest-Exclude: vtkBreakPoint.h

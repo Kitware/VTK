@@ -37,6 +37,7 @@
 #include "vtkAnnotationLayers.h"           // makes things a bit easier
 #include "vtkCommonExecutionModelModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataSet;
 
 class VTKCOMMONEXECUTIONMODEL_EXPORT vtkAnnotationLayersAlgorithm : public vtkAlgorithm
@@ -96,4 +97,5 @@ private:
   void operator=(const vtkAnnotationLayersAlgorithm&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

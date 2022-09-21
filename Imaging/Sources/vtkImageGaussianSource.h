@@ -26,6 +26,7 @@
 #include "vtkImageAlgorithm.h"
 #include "vtkImagingSourcesModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKIMAGINGSOURCES_EXPORT vtkImageGaussianSource : public vtkImageAlgorithm
 {
 public:
@@ -79,4 +80,5 @@ private:
   void operator=(const vtkImageGaussianSource&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

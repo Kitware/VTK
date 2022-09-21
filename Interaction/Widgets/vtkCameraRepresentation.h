@@ -33,6 +33,7 @@
 #include "vtkBorderRepresentation.h"
 #include "vtkInteractionWidgetsModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkRenderer;
 class vtkRenderWindowInteractor;
 class vtkCamera;
@@ -156,4 +157,5 @@ private:
   void operator=(const vtkCameraRepresentation&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

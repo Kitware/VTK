@@ -24,6 +24,7 @@
 
 #include <set>
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkSpatialRepresentationFilterInternal
 {
 public:
@@ -137,3 +138,4 @@ int vtkSpatialRepresentationFilter::FillInputPortInformation(int port, vtkInform
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
   return 1;
 }
+VTK_ABI_NAMESPACE_END

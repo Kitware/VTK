@@ -45,6 +45,7 @@
 #include "vtkSmartPointer.h"      // Needed for internals
 #include "vtkUnsignedCharArray.h" // Needed for inline methods
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkIntArray;
 
 class VTKCOMMONDATAMODEL_EXPORT vtkCellTypes : public vtkObject
@@ -218,4 +219,5 @@ inline int vtkCellTypes::IsLinear(unsigned char type)
   return ((type <= 20) || (type == VTK_CONVEX_POINT_SET) || (type == VTK_POLYHEDRON));
 }
 
+VTK_ABI_NAMESPACE_END
 #endif

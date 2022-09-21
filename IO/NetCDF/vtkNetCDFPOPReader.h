@@ -34,6 +34,7 @@
 #include "vtkIONetCDFModule.h" // For export macro
 #include "vtkRectilinearGridAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataArraySelection;
 class vtkCallbackCommand;
 class vtkNetCDFPOPReaderInternal;
@@ -108,4 +109,5 @@ private:
 
   vtkNetCDFPOPReaderInternal* Internals;
 };
+VTK_ABI_NAMESPACE_END
 #endif

@@ -39,6 +39,7 @@
 
 //------------------------------------------------------------------------------
 // Minimal storage class for STL containers etc.
+VTK_ABI_NAMESPACE_BEGIN
 class vtkContextScene::Private
 {
 public:
@@ -677,3 +678,4 @@ void vtkContextScene::PrintSelf(ostream& os, vtkIndent indent)
   // Print out the chart's geometry if it has been set
   os << indent << "Widthxheight: " << this->Geometry[0] << "\t" << this->Geometry[1] << endl;
 }
+VTK_ABI_NAMESPACE_END

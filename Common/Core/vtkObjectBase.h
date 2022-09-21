@@ -57,6 +57,7 @@
 #include <atomic> // For std::atomic
 #include <string>
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkGarbageCollector;
 class vtkGarbageCollectorToObjectBaseFriendship;
 class vtkWeakPointerBase;
@@ -330,6 +331,7 @@ protected:
   vtkObjectBase(const vtkObjectBase&) {}
   void operator=(const vtkObjectBase&) {}
 };
+VTK_ABI_NAMESPACE_END
 #endif
 
 // VTK-HeaderTest-Exclude: vtkObjectBase.h

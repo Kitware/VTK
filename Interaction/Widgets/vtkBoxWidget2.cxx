@@ -26,6 +26,7 @@
 #include "vtkWidgetEvent.h"
 #include "vtkWidgetEventTranslator.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkBoxWidget2);
 
 //------------------------------------------------------------------------------
@@ -567,3 +568,4 @@ void vtkBoxWidget2::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Rotation Enabled: " << (this->RotationEnabled ? "On\n" : "Off\n");
   os << indent << "Move Faces Enabled: " << (this->MoveFacesEnabled ? "On\n" : "Off\n");
 }
+VTK_ABI_NAMESPACE_END

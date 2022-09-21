@@ -33,6 +33,7 @@
 
 #include "vtkHyperTreeGridNonOrientedCursor.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImageDataToHyperTreeGrid);
 
 //------------------------------------------------------------------------------
@@ -271,3 +272,4 @@ int vtkImageDataToHyperTreeGrid::FillInputPortInformation(
   info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkImageData");
   return 1;
 }
+VTK_ABI_NAMESPACE_END

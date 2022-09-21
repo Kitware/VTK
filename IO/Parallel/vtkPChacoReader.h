@@ -33,6 +33,7 @@
 #include "vtkChacoReader.h"
 #include "vtkIOParallelModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkTimerLog;
 class vtkMultiProcessController;
 
@@ -76,4 +77,5 @@ private:
   vtkMultiProcessController* Controller;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

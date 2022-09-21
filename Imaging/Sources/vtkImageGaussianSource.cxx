@@ -22,6 +22,7 @@
 
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImageGaussianSource);
 
 //------------------------------------------------------------------------------
@@ -180,3 +181,4 @@ void vtkImageGaussianSource::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Center: ( " << this->Center[0] << ", " << this->Center[1] << ", "
      << this->Center[2] << " )\n";
 }
+VTK_ABI_NAMESPACE_END

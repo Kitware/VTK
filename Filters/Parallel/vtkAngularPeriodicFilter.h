@@ -41,6 +41,7 @@
 #include "vtkFiltersParallelModule.h" // For export macro
 #include "vtkPeriodicFilter.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataSetAttributes;
 class vtkMultiPieceDataSet;
 class vtkPointSet;
@@ -180,4 +181,5 @@ private:
   double Center[3]; // Center of rotation
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

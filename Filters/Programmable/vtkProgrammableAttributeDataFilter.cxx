@@ -22,6 +22,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkProgrammableAttributeDataFilter);
 
 vtkProgrammableAttributeDataFilter::vtkProgrammableAttributeDataFilter()
@@ -145,3 +146,4 @@ void vtkProgrammableAttributeDataFilter ::ReportReferences(vtkGarbageCollector* 
   this->Superclass::ReportReferences(collector);
   vtkGarbageCollectorReport(collector, this->InputList, "InputList");
 }
+VTK_ABI_NAMESPACE_END

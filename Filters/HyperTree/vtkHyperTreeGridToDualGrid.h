@@ -28,6 +28,7 @@
 
 #include <map> // std::map
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkHyperTreeGrid;
 class vtkHyperTreeGridNonOrientedMooreSuperCursor;
 class vtkIdTypeArray;
@@ -86,4 +87,5 @@ private:
   std::map<vtkIdType, double> ReductionFactors;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif /* vtkHyperTreeGridToDualGrid_h */

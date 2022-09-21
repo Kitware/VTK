@@ -71,6 +71,7 @@
 //    Remove arrays from a block that are not valid for all its points.
 //------------------------------------------------------------------------------
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPResampleWithDataSet);
 
 vtkCxxSetObjectMacro(vtkPResampleWithDataSet, Controller, vtkMultiProcessController);
@@ -121,6 +122,7 @@ int vtkPResampleWithDataSet::RequestUpdateExtent(
 
   return 1;
 }
+VTK_ABI_NAMESPACE_END
 
 namespace
 {
@@ -1096,6 +1098,7 @@ void ReceiveResampledPoints(
 
 } // anonymous namespace
 
+VTK_ABI_NAMESPACE_BEGIN
 //------------------------------------------------------------------------------
 int vtkPResampleWithDataSet::RequestData(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
@@ -1198,6 +1201,8 @@ int vtkPResampleWithDataSet::RequestData(
 
   return 1;
 }
+
+VTK_ABI_NAMESPACE_END
 
 //------------------------------------------------------------------------------
 namespace diy

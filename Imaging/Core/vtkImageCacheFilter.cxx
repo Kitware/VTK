@@ -19,6 +19,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImageCacheFilter);
 
 //------------------------------------------------------------------------------
@@ -77,3 +78,4 @@ void vtkImageCacheFilter::ExecuteData(vtkDataObject*)
 {
   // do nothing just override superclass to prevent warning
 }
+VTK_ABI_NAMESPACE_END

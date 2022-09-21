@@ -34,6 +34,7 @@
 #include <stack>      // used for ivars
 #include <vector>     // used for ivars
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCompositeDataDisplayAttributes;
 class vtkCompositeMapperHelper2;
 class vtkCompositeMapperHelperData;
@@ -254,4 +255,5 @@ private:
   void operator=(const vtkCompositePolyDataMapper2&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

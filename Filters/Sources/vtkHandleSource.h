@@ -30,6 +30,7 @@
 #include "vtkFiltersSourcesModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSSOURCES_EXPORT vtkHandleSource : public vtkPolyDataAlgorithm
 {
 public:
@@ -105,4 +106,5 @@ protected:
   double Size = 0.5;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

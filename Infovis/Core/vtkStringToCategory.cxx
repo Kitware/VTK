@@ -37,6 +37,7 @@
 
 #include <set>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkStringToCategory);
 
 vtkStringToCategory::vtkStringToCategory()
@@ -203,3 +204,4 @@ void vtkStringToCategory::PrintSelf(ostream& os, vtkIndent indent)
      << "CategoryArrayName: " << (this->CategoryArrayName ? this->CategoryArrayName : "(null)")
      << endl;
 }
+VTK_ABI_NAMESPACE_END

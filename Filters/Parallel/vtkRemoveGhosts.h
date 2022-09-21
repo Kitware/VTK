@@ -28,6 +28,7 @@
 #include "vtkFiltersParallelModule.h" // For export macro
 #include "vtkPassInputTypeAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPolyData;
 class vtkUnsignedCharArray;
 
@@ -54,4 +55,5 @@ private:
   void operator=(const vtkRemoveGhosts&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif //_vtkRemoveGhosts_h

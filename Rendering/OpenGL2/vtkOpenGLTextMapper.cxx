@@ -23,6 +23,7 @@
 #include "vtkRenderer.h"
 #include "vtkViewport.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOpenGLTextMapper);
 
 //------------------------------------------------------------------------------
@@ -85,3 +86,4 @@ void vtkOpenGLTextMapper::RenderGL2PS(vtkViewport* vp, vtkActor2D* act, vtkOpenG
 
   gl2ps->DrawString(input, this->TextProperty, pos, pos[2] + 1e-6, ren);
 }
+VTK_ABI_NAMESPACE_END

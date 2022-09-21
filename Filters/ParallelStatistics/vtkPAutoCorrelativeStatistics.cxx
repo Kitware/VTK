@@ -23,6 +23,7 @@
 #include "vtkTable.h"
 #include "vtkVariant.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPAutoCorrelativeStatistics);
 vtkCxxSetObjectMacro(vtkPAutoCorrelativeStatistics, Controller, vtkMultiProcessController);
 //------------------------------------------------------------------------------
@@ -173,3 +174,4 @@ void vtkPAutoCorrelativeStatistics::Test(
 
   this->Superclass::Test(inData, inMeta, outMeta);
 }
+VTK_ABI_NAMESPACE_END

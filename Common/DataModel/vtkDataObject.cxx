@@ -30,6 +30,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkObjectFactory.h"
 #include "vtkUnsignedCharArray.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkDataObject);
 
 vtkCxxSetObjectMacro(vtkDataObject, Information, vtkInformation);
@@ -696,3 +697,4 @@ vtkIdType vtkDataObject::GetNumberOfElements(int type)
   }
   return 0;
 }
+VTK_ABI_NAMESPACE_END

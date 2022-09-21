@@ -39,6 +39,7 @@
 
 namespace AMRCommon
 {
+VTK_ABI_NAMESPACE_BEGIN
 
 //------------------------------------------------------------------------------
 // Description:
@@ -155,6 +156,7 @@ void ComputeCellCenter(vtkUniformGrid* grid, const int cellIdx, double c[3])
   delete[] weights;
 }
 
+VTK_ABI_NAMESPACE_END
 } // END namespace
 
 #endif /* AMRCOMMON_H_ */

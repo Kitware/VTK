@@ -34,6 +34,7 @@
 #include "vtkIOMPIParallelModule.h" // For export macro
 #include "vtkWindBladeReader.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class PWindBladeReaderInternal;
 
 class VTKIOMPIPARALLEL_EXPORT vtkPWindBladeReader : public vtkWindBladeReader
@@ -66,4 +67,5 @@ private:
   void operator=(const vtkPWindBladeReader&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

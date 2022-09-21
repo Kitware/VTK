@@ -125,6 +125,7 @@
 #define VTKIS_ANIM_OFF 0
 #define VTKIS_ANIM_ON 1
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkActor2D;
 class vtkActor;
 class vtkCallbackCommand;
@@ -471,4 +472,5 @@ private:
   void operator=(const vtkInteractorStyle&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

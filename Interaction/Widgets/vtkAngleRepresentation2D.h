@@ -34,6 +34,7 @@
 #include "vtkAngleRepresentation.h"
 #include "vtkInteractionWidgetsModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkLeaderActor2D;
 class vtkProperty2D;
 
@@ -114,4 +115,5 @@ private:
   void operator=(const vtkAngleRepresentation2D&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

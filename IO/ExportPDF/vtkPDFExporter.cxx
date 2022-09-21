@@ -33,6 +33,7 @@
 #include <sstream>
 #include <stdexcept>
 
+VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
 
@@ -187,3 +188,4 @@ void vtkPDFExporter::RenderContextActor(vtkContextActor* actor, vtkRenderer* ren
 
   actor->SetForceDevice(oldForceDevice);
 }
+VTK_ABI_NAMESPACE_END

@@ -27,6 +27,7 @@
 #include "vtkImageAlgorithm.h"
 #include "vtkImagingCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkImageData;
 
 class VTKIMAGINGCORE_EXPORT vtkImageChangeInformation : public vtkImageAlgorithm
@@ -151,4 +152,5 @@ private:
   void operator=(const vtkImageChangeInformation&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

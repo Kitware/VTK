@@ -89,6 +89,8 @@ typedef vtkTypeUInt8 uint8_t;
 
 //  dc.h
 
+VTK_ABI_NAMESPACE_BEGIN
+
 typedef struct mt_struct_ {
     uint32_t aaa;
     int mm,nn,rr,ww;
@@ -1764,6 +1766,8 @@ int CheckPeriod_dc_(check32_t *ck, org_state_ *st,
     free(x); free(init);
     return REDU;
 }
+
+VTK_ABI_NAMESPACE_END
 
 #undef N
 #undef NOT_REJECTED

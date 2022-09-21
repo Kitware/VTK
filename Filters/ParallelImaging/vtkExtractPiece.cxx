@@ -32,6 +32,7 @@
 #include "vtkStructuredGrid.h"
 #include "vtkUnstructuredGrid.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkExtractPiece);
 
 //=============================================================================
@@ -261,3 +262,4 @@ void vtkExtractPiece::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

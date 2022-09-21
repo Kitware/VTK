@@ -22,6 +22,7 @@
 #include "vtkXMLDataElement.h"
 #include "vtkXMLStructuredGridReader.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkXMLPStructuredGridReader);
 
 //------------------------------------------------------------------------------
@@ -175,3 +176,4 @@ int vtkXMLPStructuredGridReader::FillOutputPortInformation(int, vtkInformation* 
   info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkStructuredGrid");
   return 1;
 }
+VTK_ABI_NAMESPACE_END

@@ -52,6 +52,7 @@
 #include "vtkImagingHybridModule.h" // For export macro
 #include "vtkObject.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkVolumeReader;
 
 class VTKIMAGINGHYBRID_EXPORT vtkSliceCubes : public vtkObject
@@ -114,4 +115,5 @@ private:
   void operator=(const vtkSliceCubes&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

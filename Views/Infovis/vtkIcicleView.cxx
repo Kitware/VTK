@@ -25,6 +25,7 @@
 #include "vtkStackedTreeLayoutStrategy.h"
 #include "vtkTreeMapToPolyData.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkIcicleView);
 //------------------------------------------------------------------------------
 vtkIcicleView::vtkIcicleView()
@@ -142,3 +143,4 @@ void vtkIcicleView::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

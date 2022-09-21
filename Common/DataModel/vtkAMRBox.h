@@ -30,6 +30,7 @@
 #include "vtkObject.h"
 #include "vtkStructuredData.h" // For VTK_XYZ_GRID definition
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONDATAMODEL_EXPORT vtkAMRBox
 {
 public:
@@ -388,5 +389,6 @@ void FillRegion(T* pArray, const vtkAMRBox& arrayRegion, const vtkAMRBox& destRe
   ///@}
 }
 
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkAMRBox.h

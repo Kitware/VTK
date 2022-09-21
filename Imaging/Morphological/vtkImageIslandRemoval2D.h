@@ -28,6 +28,7 @@
 #include "vtkImageAlgorithm.h"
 #include "vtkImagingMorphologicalModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 struct vtkImage2DIslandPixel_t
 {
   void* inPtr;
@@ -98,4 +99,5 @@ private:
   void operator=(const vtkImageIslandRemoval2D&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

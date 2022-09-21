@@ -30,6 +30,7 @@
 #include <cassert> // assert()
 #include <climits> // CHAR_BIT
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkInformationKeyMacro(vtkDistributedGraphHelper, DISTRIBUTEDVERTEXIDS, Integer);
 vtkInformationKeyMacro(vtkDistributedGraphHelper, DISTRIBUTEDEDGEIDS, Integer);
 
@@ -232,3 +233,4 @@ vtkIdType vtkDistributedGraphHelper::GetVertexOwnerByPedigreeId(const vtkVariant
 
   return hash % numProcs;
 }
+VTK_ABI_NAMESPACE_END

@@ -447,6 +447,8 @@ int Vtktkimageviewerwidget_Init(Tcl_Interp* interp)
 // The Xwindows version follows after this
 #ifdef _WIN32
 
+namespace
+{
 LRESULT APIENTRY vtkTkImageViewerWidgetProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
   LRESULT rval;
@@ -540,6 +542,7 @@ LRESULT APIENTRY vtkTkImageViewerWidgetProc(HWND hWnd, UINT message, WPARAM wPar
   vtkSetWindowLong(hWnd, vtkGWL_USERDATA, (vtkLONG)self);
   vtkSetWindowLong(hWnd, vtkGWL_WNDPROC, (vtkLONG)vtkTkImageViewerWidgetProc);
   return rval;
+}
 }
 
 //------------------------------------------------------------------------------

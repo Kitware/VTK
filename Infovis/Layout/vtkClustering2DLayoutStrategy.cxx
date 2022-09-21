@@ -42,6 +42,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkTree.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkClustering2DLayoutStrategy);
 
 // Cool-down function.
@@ -614,3 +615,4 @@ void vtkClustering2DLayoutStrategy::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "EdgeWeightField: " << (this->EdgeWeightField ? this->EdgeWeightField : "(none)")
      << endl;
 }
+VTK_ABI_NAMESPACE_END

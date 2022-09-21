@@ -22,6 +22,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImageStencilToImage);
 
 //------------------------------------------------------------------------------
@@ -166,3 +167,4 @@ void vtkImageStencilToImage::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "OutsideValue: " << this->OutsideValue << "\n";
   os << indent << "OutputScalarType: " << this->OutputScalarType << "\n";
 }
+VTK_ABI_NAMESPACE_END

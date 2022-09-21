@@ -41,6 +41,7 @@
 #define VTK_GET_ARRAY_BY_ID 0
 #define VTK_GET_ARRAY_BY_NAME 1
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkAbstractArray;
 class vtkDataSet;
 class vtkPlane;
@@ -162,4 +163,5 @@ private:
   void operator=(const vtkAbstractMapper&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -19,6 +19,7 @@
 #include "vtkProp.h"
 #include "vtkTransform.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkAssemblyPath);
 
 vtkAssemblyPath::vtkAssemblyPath()
@@ -114,3 +115,4 @@ void vtkAssemblyPath::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

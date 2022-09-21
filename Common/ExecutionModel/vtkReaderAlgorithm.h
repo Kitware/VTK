@@ -34,6 +34,7 @@
 #include "vtkAlgorithm.h"
 #include "vtkCommonExecutionModelModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONEXECUTIONMODEL_EXPORT vtkReaderAlgorithm : public vtkAlgorithm
 {
 public:
@@ -111,4 +112,5 @@ private:
   void operator=(const vtkReaderAlgorithm&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

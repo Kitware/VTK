@@ -96,6 +96,7 @@
 #include "vtkFiltersModelingModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkStaticCellLocator;
 
 class VTKFILTERSMODELING_EXPORT vtkImprintFilter : public vtkPolyDataAlgorithm
@@ -348,4 +349,5 @@ private:
   void operator=(const vtkImprintFilter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

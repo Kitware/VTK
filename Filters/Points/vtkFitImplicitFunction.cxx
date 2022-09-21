@@ -20,6 +20,7 @@
 #include "vtkPoints.h"
 #include "vtkSMPTools.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkFitImplicitFunction);
 vtkCxxSetObjectMacro(vtkFitImplicitFunction, ImplicitFunction, vtkImplicitFunction);
 
@@ -139,3 +140,4 @@ void vtkFitImplicitFunction::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Implicit Function: " << static_cast<void*>(this->ImplicitFunction) << "\n";
   os << indent << "Threshold: " << this->Threshold << "\n";
 }
+VTK_ABI_NAMESPACE_END

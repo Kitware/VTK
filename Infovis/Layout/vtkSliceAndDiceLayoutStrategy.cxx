@@ -35,6 +35,7 @@
 #include "vtkTree.h"
 #include "vtkTreeDFSIterator.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkSliceAndDiceLayoutStrategy);
 
 vtkSliceAndDiceLayoutStrategy::vtkSliceAndDiceLayoutStrategy() = default;
@@ -147,3 +148,4 @@ void vtkSliceAndDiceLayoutStrategy::Layout(
     }
   }
 }
+VTK_ABI_NAMESPACE_END

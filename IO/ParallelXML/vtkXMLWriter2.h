@@ -43,6 +43,7 @@
 #include <utility> // for std::pair
 #include <vector>  // for std::vector
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkMultiProcessController;
 
 class VTKIOPARALLELXML_EXPORT vtkXMLWriter2 : public vtkXMLWriterBase
@@ -161,4 +162,5 @@ private:
   std::vector<std::pair<std::string, bool>> Artifacts;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

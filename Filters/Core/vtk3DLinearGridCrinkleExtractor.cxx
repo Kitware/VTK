@@ -40,6 +40,7 @@
 #include <atomic>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtk3DLinearGridCrinkleExtractor);
 vtkCxxSetObjectMacro(vtk3DLinearGridCrinkleExtractor, ImplicitFunction, vtkImplicitFunction);
 
@@ -1018,3 +1019,4 @@ void vtk3DLinearGridCrinkleExtractor::PrintSelf(ostream& os, vtkIndent indent)
 #undef EXECUTE_SMPFOR
 #undef EXECUTE_REDUCED_SMPFOR
 #undef MAX_CELL_VERTS
+VTK_ABI_NAMESPACE_END

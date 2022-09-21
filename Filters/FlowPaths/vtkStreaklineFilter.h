@@ -30,6 +30,7 @@
 #include "vtkParticleTracerBase.h"
 #include "vtkSmartPointer.h" // For protected ivars.
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSFLOWPATHS_EXPORT StreaklineFilterInternal
 {
 public:
@@ -66,4 +67,5 @@ protected:
   StreaklineFilterInternal It;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

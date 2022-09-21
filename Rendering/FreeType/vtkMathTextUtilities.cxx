@@ -27,6 +27,7 @@
 
 //------------------------------------------------------------------------------
 // The singleton, and the singleton cleanup
+VTK_ABI_NAMESPACE_BEGIN
 vtkMathTextUtilities* vtkMathTextUtilities::Instance = nullptr;
 vtkMathTextUtilitiesCleanup vtkMathTextUtilities::Cleanup;
 
@@ -163,3 +164,4 @@ void vtkMathTextUtilities::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Instance: " << vtkMathTextUtilities::Instance << endl;
 }
+VTK_ABI_NAMESPACE_END

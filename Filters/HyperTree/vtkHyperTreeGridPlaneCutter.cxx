@@ -36,6 +36,7 @@
 #include <cassert>
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
 vtkIdType First8Integers[] = { 0, 1, 2, 3, 4, 5, 6, 7 };
@@ -891,3 +892,4 @@ void vtkHyperTreeGridPlaneCutter::ReorderCutPoints(int n, double points[][3])
     }
   }
 }
+VTK_ABI_NAMESPACE_END

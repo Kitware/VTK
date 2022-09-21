@@ -44,6 +44,7 @@
 
 // #define vtkPPixelTransferDEBUG
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKRENDERINGPARALLELLIC_EXPORT vtkPPixelTransfer : public vtkPixelTransfer
 {
 public:
@@ -398,5 +399,6 @@ int vtkPPixelTransfer::Execute(MPI_Comm comm, int rank, int nComps, SOURCE_TYPE*
 VTKRENDERINGPARALLELLIC_EXPORT
 ostream& operator<<(std::ostream& os, const vtkPPixelTransfer& gt);
 
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkPPixelTransfer.h

@@ -31,6 +31,7 @@
 
 namespace internal
 {
+VTK_ABI_NAMESPACE_BEGIN
 //=============================================================================
 template <typename T>
 class ArrayHandleWrapperBase
@@ -408,8 +409,10 @@ ArrayHandleWrapperBase<T>* MakeArrayHandleWrapper(vtkIdType numberOfTuples, int 
   }
 }
 
+VTK_ABI_NAMESPACE_END
 } // internal
 
+VTK_ABI_NAMESPACE_BEGIN
 //=============================================================================
 template <typename T>
 vtkmDataArray<T>::vtkmDataArray() = default;
@@ -504,4 +507,5 @@ bool vtkmDataArray<T>::ReallocateTuples(vtkIdType numTuples)
   return true;
 }
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkmDataArray_hxx

@@ -24,6 +24,7 @@
 
 namespace CGNSRead
 {
+VTK_ABI_NAMESPACE_BEGIN
 //------------------------------------------------------------------------------
 int setUpRind(const int cgioNum, const double rindId, int* rind)
 {
@@ -1373,4 +1374,5 @@ bool ReadPatch(vtkCGNSReader* reader, const BaseInformation&, const ZoneInformat
   return true;
 }
 
+VTK_ABI_NAMESPACE_END
 } // end of namespace

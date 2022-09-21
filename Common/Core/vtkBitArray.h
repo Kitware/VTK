@@ -28,6 +28,7 @@
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkDataArray.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkBitArrayLookup;
 
 class VTKCOMMONCORE_EXPORT vtkBitArray : public vtkDataArray
@@ -392,4 +393,5 @@ inline void vtkBitArray::Squeeze()
 {
   this->ResizeAndExtend(this->MaxId + 1);
 }
+VTK_ABI_NAMESPACE_END
 #endif

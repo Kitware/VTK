@@ -27,6 +27,7 @@
 #include "vtkImagingGeneralModule.h" // For export macro
 #include "vtkThreadedImageAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKIMAGINGGENERAL_EXPORT vtkImageConvolve : public vtkThreadedImageAlgorithm
 {
 public:
@@ -110,4 +111,5 @@ private:
   void operator=(const vtkImageConvolve&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

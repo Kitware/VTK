@@ -29,6 +29,7 @@
 #include <cassert> // For assert()
 #include <cstring> // For memcpy
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkFieldDataSerializer);
 
 //------------------------------------------------------------------------------
@@ -467,3 +468,4 @@ void vtkFieldDataSerializer::DeserializeDataArray(
       cerr << "Cannot serialize data of type=" << dataArray->GetDataType() << endl;
   }
 }
+VTK_ABI_NAMESPACE_END

@@ -17,6 +17,7 @@
 #include "vtkCommand.h"
 #include "vtkObjectFactory.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkAnimationCue);
 
 //------------------------------------------------------------------------------
@@ -167,3 +168,4 @@ void vtkAnimationCue::PrintSelf(ostream& os, vtkIndent indent)
      << "Direction: " << (this->Direction == PlayDirection::BACKWARD ? "Backward" : "Forward")
      << endl;
 }
+VTK_ABI_NAMESPACE_END

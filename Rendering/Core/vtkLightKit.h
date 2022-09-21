@@ -95,6 +95,7 @@
 #include "vtkObject.h"
 #include "vtkRenderingCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkLight;
 class vtkPiecewiseFunction;
 class vtkRenderer;
@@ -387,4 +388,5 @@ private:
   void operator=(const vtkLightKit&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

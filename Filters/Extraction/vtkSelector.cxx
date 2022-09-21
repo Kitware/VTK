@@ -35,6 +35,7 @@
 #include "vtkUniformGridAMRDataIterator.h"
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkSelector::vtkSelector() = default;
 
 //------------------------------------------------------------------------------
@@ -391,3 +392,4 @@ void vtkSelector::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
   os << indent << "InsidednessArrayName: " << this->InsidednessArrayName << endl;
 }
+VTK_ABI_NAMESPACE_END

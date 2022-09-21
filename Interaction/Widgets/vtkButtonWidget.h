@@ -59,6 +59,7 @@
 #include "vtkDeprecation.h"              // For VTK_DEPRECATED_IN_9_2_0
 #include "vtkInteractionWidgetsModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkButtonRepresentation;
 
 class VTKINTERACTIONWIDGETS_EXPORT vtkButtonWidget : public vtkAbstractWidget
@@ -136,4 +137,5 @@ private:
   void operator=(const vtkButtonWidget&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

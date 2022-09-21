@@ -76,6 +76,7 @@
 
 #include "vtkSMPThreadLocal.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 template <typename T>
 class vtkSMPThreadLocalObject
 {
@@ -202,5 +203,6 @@ private:
   T* Exemplar;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkSMPThreadLocalObject.h

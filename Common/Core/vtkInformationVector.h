@@ -29,6 +29,7 @@
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkObject.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkInformation;
 class vtkInformationVectorInternals;
 
@@ -103,4 +104,5 @@ private:
   void operator=(const vtkInformationVector&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

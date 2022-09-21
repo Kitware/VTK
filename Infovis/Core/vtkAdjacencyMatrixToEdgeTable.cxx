@@ -37,6 +37,7 @@
 
 //------------------------------------------------------------------------------
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkAdjacencyMatrixToEdgeTable);
 
 //------------------------------------------------------------------------------
@@ -179,3 +180,4 @@ int vtkAdjacencyMatrixToEdgeTable::RequestData(
 
   return 1;
 }
+VTK_ABI_NAMESPACE_END

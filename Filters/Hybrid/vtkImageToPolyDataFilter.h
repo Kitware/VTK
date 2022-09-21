@@ -74,6 +74,7 @@
 #define VTK_COLOR_MODE_LUT 0
 #define VTK_COLOR_MODE_LINEAR_256 1
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataArray;
 class vtkEdgeTable;
 class vtkIdTypeArray;
@@ -250,4 +251,5 @@ private:
   void operator=(const vtkImageToPolyDataFilter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -19,6 +19,7 @@
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImageCursor3D);
 
 //------------------------------------------------------------------------------
@@ -126,3 +127,4 @@ int vtkImageCursor3D::RequestData(
 
   return 1;
 }
+VTK_ABI_NAMESPACE_END

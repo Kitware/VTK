@@ -114,6 +114,7 @@
 
 #include <string> // for std::string
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkRenderer;
 class vtkRenderWindow;
 class vtkSelection;
@@ -527,4 +528,5 @@ private:
   vtkInternals* Internals;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

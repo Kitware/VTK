@@ -17,6 +17,7 @@
 #include "vtkMultiProcessController.h"
 #include "vtkObjectFactory.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPMergeArrays);
 
 //------------------------------------------------------------------------------
@@ -63,3 +64,4 @@ int vtkPMergeArrays::MergeDataObjectFields(vtkDataObject* input, int idx, vtkDat
 
   return 1;
 }
+VTK_ABI_NAMESPACE_END

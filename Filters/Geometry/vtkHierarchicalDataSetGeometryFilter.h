@@ -28,6 +28,7 @@
 #include "vtkCompositeDataGeometryFilter.h"
 #include "vtkFiltersGeometryModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPolyData;
 
 class VTKFILTERSGEOMETRY_EXPORT vtkHierarchicalDataSetGeometryFilter
@@ -47,4 +48,5 @@ private:
   void operator=(const vtkHierarchicalDataSetGeometryFilter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

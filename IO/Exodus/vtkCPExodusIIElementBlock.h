@@ -34,6 +34,7 @@
 
 #include <string> // For std::string
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkGenericCell;
 
 class VTKIOEXODUS_EXPORT vtkCPExodusIIElementBlockImpl : public vtkObject
@@ -106,4 +107,5 @@ private:
 vtkMakeExportedMappedUnstructuredGrid(
   vtkCPExodusIIElementBlock, vtkCPExodusIIElementBlockImpl, VTKIOEXODUS_EXPORT);
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkCPExodusIIElementBlock_h

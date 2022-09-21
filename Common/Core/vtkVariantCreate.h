@@ -35,6 +35,7 @@
 #include "vtkVariant.h"
 #include <typeinfo> // for warnings
 
+VTK_ABI_NAMESPACE_BEGIN
 template <typename T>
 vtkVariant vtkVariantCreate(const T&)
 {
@@ -129,6 +130,7 @@ inline vtkVariant vtkVariantCreate<vtkVariant>(const vtkVariant& value)
   return value;
 }
 
+VTK_ABI_NAMESPACE_END
 #endif
 
 // VTK-HeaderTest-Exclude: vtkVariantCreate.h

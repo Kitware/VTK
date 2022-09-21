@@ -38,6 +38,7 @@
 #include "vtkRenderingVolumeModule.h" // For export macro
 #include "vtkUnstructuredGridVolumeMapper.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkRenderer;
 class vtkVolume;
 class vtkRayCastImageDisplayHelper;
@@ -51,10 +52,12 @@ class vtkVolumeProperty;
 class vtkDoubleArray;
 class vtkUnstructuredGridVolumeRayIntegrator;
 class vtkRenderWindow;
+VTK_ABI_NAMESPACE_END
 
 // Internal classes
 namespace vtkUnstructuredGridVolumeZSweepMapperNamespace
 {
+VTK_ABI_NAMESPACE_BEGIN
 class vtkScreenEdge;
 class vtkSpan;
 class vtkPixelListFrame;
@@ -64,8 +67,10 @@ class vtkSimpleScreenEdge;
 class vtkDoubleScreenEdge;
 class vtkVertexEntry;
 class vtkPixelListEntryMemory;
+VTK_ABI_NAMESPACE_END
 };
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKRENDERINGVOLUME_EXPORT vtkUnstructuredGridVolumeZSweepMapper
   : public vtkUnstructuredGridVolumeMapper
 {
@@ -365,4 +370,5 @@ private:
   void operator=(const vtkUnstructuredGridVolumeZSweepMapper&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

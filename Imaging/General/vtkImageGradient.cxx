@@ -25,6 +25,7 @@
 #include <cmath>
 #include <sstream>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImageGradient);
 
 //------------------------------------------------------------------------------
@@ -334,3 +335,4 @@ void vtkImageGradient::ThreadedRequestData(vtkInformation*, vtkInformationVector
       return;
   }
 }
+VTK_ABI_NAMESPACE_END

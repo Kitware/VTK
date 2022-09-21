@@ -31,6 +31,7 @@
 #include "vtkSmartPointer.h" // For SP ivars
 #include "vtkStdString.h"    // For vtkStdString ivars
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkTransform2D;
 class vtkContextScene;
 class vtkPlot;
@@ -495,4 +496,5 @@ private:
   void operator=(const vtkChart&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkChart_h

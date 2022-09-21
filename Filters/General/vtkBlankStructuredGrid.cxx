@@ -22,6 +22,7 @@
 #include "vtkStructuredGrid.h"
 #include "vtkUnsignedCharArray.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkBlankStructuredGrid);
 
 // Construct object to extract all of the input data.
@@ -143,3 +144,4 @@ void vtkBlankStructuredGrid::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Array ID: " << this->ArrayId << "\n";
   os << indent << "Component: " << this->Component << "\n";
 }
+VTK_ABI_NAMESPACE_END

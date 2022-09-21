@@ -33,6 +33,7 @@
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkMergePoints;
 
 class VTKFILTERSGENERAL_EXPORT vtkEdgePoints : public vtkPolyDataAlgorithm
@@ -69,4 +70,5 @@ private:
   void operator=(const vtkEdgePoints&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

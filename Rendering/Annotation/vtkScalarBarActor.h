@@ -60,6 +60,7 @@
 #include "vtkDoubleArray.h"               // for ivars
 #include "vtkRenderingAnnotationModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkColor3ub;
 class vtkPolyData;
 class vtkPolyDataMapper2D;
@@ -813,4 +814,5 @@ private:
   void operator=(const vtkScalarBarActor&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

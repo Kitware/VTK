@@ -28,6 +28,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkVertexDegree);
 
 vtkVertexDegree::vtkVertexDegree()
@@ -92,3 +93,4 @@ void vtkVertexDegree::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "OutputArrayName: " << (this->OutputArrayName ? this->OutputArrayName : "(none)")
      << endl;
 }
+VTK_ABI_NAMESPACE_END

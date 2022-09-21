@@ -84,6 +84,7 @@
 
 #include <vector> // for weights
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCellLocatorStrategy;
 class vtkClosestPointStrategy;
 class vtkClosestNPointsStrategy;
@@ -388,4 +389,5 @@ private:
   void operator=(const vtkAbstractInterpolatedVelocityField&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

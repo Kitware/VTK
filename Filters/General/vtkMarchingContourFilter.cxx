@@ -34,6 +34,7 @@
 
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkMarchingContourFilter);
 
 // Construct object with initial range (0,1) and single contour value
@@ -341,3 +342,4 @@ void vtkMarchingContourFilter::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Locator: (none)\n";
   }
 }
+VTK_ABI_NAMESPACE_END

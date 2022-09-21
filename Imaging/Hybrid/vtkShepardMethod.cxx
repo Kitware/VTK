@@ -24,6 +24,7 @@
 #include "vtkSMPTools.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkShepardMethod);
 
 //------------------------------------------------------------------------------
@@ -541,3 +542,4 @@ void vtkShepardMethod::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Power Parameter: " << this->PowerParameter << "\n";
 }
+VTK_ABI_NAMESPACE_END

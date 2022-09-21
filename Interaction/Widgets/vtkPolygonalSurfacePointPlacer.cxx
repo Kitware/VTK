@@ -32,6 +32,7 @@
 
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPolygonalSurfacePointPlacerInternals
 {
 
@@ -383,3 +384,4 @@ void vtkPolygonalSurfacePointPlacer::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Distance Offset: " << this->DistanceOffset << "\n";
   os << indent << "SnapToClosestPoint: " << this->SnapToClosestPoint << endl;
 }
+VTK_ABI_NAMESPACE_END

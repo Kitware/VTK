@@ -27,6 +27,7 @@
 #include "vtkIOParallelXMLModule.h" // For export macro
 #include "vtkXMLPDataWriter.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPointSet;
 class vtkXMLUnstructuredDataWriter;
 
@@ -50,4 +51,5 @@ private:
   void operator=(const vtkXMLPUnstructuredDataWriter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -27,6 +27,7 @@
 // Define this to include support for a "complete" (21- vs 18-point) wedge.
 #define VTK_21_POINT_WEDGE true
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPoints;
 class vtkVector2i;
 class vtkVector3d;
@@ -144,4 +145,5 @@ int vtkHigherOrderInterpolation::NumberOfIntervals(const int order[N])
   return ni;
 }
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkHigherOrderInterpolation_h

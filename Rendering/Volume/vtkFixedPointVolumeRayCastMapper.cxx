@@ -48,6 +48,7 @@
 #include <cmath>
 #include <exception>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkFixedPointVolumeRayCastMapper);
 vtkCxxSetObjectMacro(vtkFixedPointVolumeRayCastMapper, RayCastImage, vtkFixedPointRayCastImage);
 
@@ -3235,3 +3236,4 @@ void vtkFixedPointVolumeRayCastMapper::ReleaseGraphicsResources(vtkWindow* win)
     this->ImageDisplayHelper->ReleaseGraphicsResources(win);
   }
 }
+VTK_ABI_NAMESPACE_END

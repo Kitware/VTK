@@ -28,6 +28,7 @@
 #include "vtkStructuredPoints.h"
 #include "vtkUnstructuredGrid.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkInterpolateDataSetAttributes);
 
 // Create object with no input or output.
@@ -241,3 +242,4 @@ void vtkInterpolateDataSetAttributes ::ReportReferences(vtkGarbageCollector* col
   this->Superclass::ReportReferences(collector);
   vtkGarbageCollectorReport(collector, this->InputList, "InputList");
 }
+VTK_ABI_NAMESPACE_END

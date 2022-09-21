@@ -53,6 +53,7 @@
 #include "vtkObject.h"
 #include "vtkRenderingCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkTransform;
 class vtkMatrix4x4;
 class vtkProp3D;
@@ -209,4 +210,5 @@ private:
   void operator=(const vtkTransformInterpolator&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

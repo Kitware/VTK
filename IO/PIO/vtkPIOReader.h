@@ -30,6 +30,7 @@
 #include "vtkMultiBlockDataSetAlgorithm.h"
 #include "vtkStdString.h" // for vtkStdString
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCallbackCommand;
 class vtkDataArraySelection;
 class vtkFloatArray;
@@ -180,4 +181,5 @@ private:
   void operator=(const vtkPIOReader&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

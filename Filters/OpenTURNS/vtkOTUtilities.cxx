@@ -23,6 +23,7 @@
 using namespace OT;
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 Sample* vtkOTUtilities::SingleDimArraysToSample(vtkDataArrayCollection* arrays)
 {
   if (arrays == nullptr)
@@ -108,3 +109,4 @@ vtkDataArray* vtkOTUtilities::SampleToArray(Sample* ns)
   }
   return arr;
 }
+VTK_ABI_NAMESPACE_END

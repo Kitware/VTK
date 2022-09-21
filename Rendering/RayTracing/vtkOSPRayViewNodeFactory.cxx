@@ -28,6 +28,7 @@
 #include "vtkOSPRayVolumeMapperNode.h"
 #include "vtkOSPRayVolumeNode.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkViewNode* ren_maker()
 {
   vtkOSPRayRendererNode* vn = vtkOSPRayRendererNode::New();
@@ -138,3 +139,4 @@ void vtkOSPRayViewNodeFactory::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

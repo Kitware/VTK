@@ -41,6 +41,7 @@
 
 #include <sstream>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOBJExporter);
 
 vtkOBJExporter::vtkOBJExporter()
@@ -466,3 +467,4 @@ void vtkOBJExporter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "MTLFileComment: " << (this->MTLFileComment ? this->MTLFileComment : "(null)")
      << "\n";
 }
+VTK_ABI_NAMESPACE_END

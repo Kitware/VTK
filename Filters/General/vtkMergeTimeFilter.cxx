@@ -27,6 +27,7 @@
 
 #include <algorithm>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkMergeTimeFilter);
 
 //------------------------------------------------------------------------------
@@ -253,3 +254,4 @@ int vtkMergeTimeFilter::RequestData(vtkInformation* vtkNotUsed(request),
 
   return 1;
 }
+VTK_ABI_NAMESPACE_END

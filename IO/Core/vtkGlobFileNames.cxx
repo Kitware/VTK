@@ -25,6 +25,7 @@
 #include <vtksys/SystemTools.hxx>
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkGlobFileNames* vtkGlobFileNames::New()
 {
   VTK_STANDARD_NEW_BODY(vtkGlobFileNames);
@@ -145,3 +146,4 @@ int vtkGlobFileNames::GetNumberOfFileNames()
 {
   return this->FileNames->GetNumberOfValues();
 }
+VTK_ABI_NAMESPACE_END

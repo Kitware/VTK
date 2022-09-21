@@ -57,6 +57,7 @@
 #include <set>
 #include <utility> //make_pair
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkContour3DLinearGrid);
 vtkCxxSetObjectMacro(vtkContour3DLinearGrid, ScalarTree, vtkScalarTree);
 
@@ -1722,3 +1723,4 @@ void vtkContour3DLinearGrid::PrintSelf(ostream& os, vtkIndent indent)
 #undef MAX_CELL_VERTS
 #undef EXTRACT_MERGED
 #undef EXTRACT_FAST_PATH
+VTK_ABI_NAMESPACE_END

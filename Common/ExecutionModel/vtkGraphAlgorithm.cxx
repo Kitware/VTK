@@ -26,6 +26,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkGraphAlgorithm);
 
 //------------------------------------------------------------------------------
@@ -167,3 +168,4 @@ int vtkGraphAlgorithm::RequestDataObject(
   }
   return 0;
 }
+VTK_ABI_NAMESPACE_END

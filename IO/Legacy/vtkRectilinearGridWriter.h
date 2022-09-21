@@ -29,6 +29,7 @@
 #include "vtkDataWriter.h"
 #include "vtkIOLegacyModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkRectilinearGrid;
 
 class VTKIOLEGACY_EXPORT vtkRectilinearGridWriter : public vtkDataWriter
@@ -77,4 +78,5 @@ private:
   void operator=(const vtkRectilinearGridWriter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

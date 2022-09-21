@@ -18,6 +18,7 @@
 #include "vtkVRRenderWindowInteractor.h"
 #include "vtkVectorOperators.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkVRCamera::vtkVRCamera() = default;
 vtkVRCamera::~vtkVRCamera() = default;
 
@@ -174,3 +175,4 @@ void vtkVRCamera::SetCameraFromDeviceToWorldMatrix(vtkMatrix4x4* mat, double dis
   this->SetFocalPoint(
     ele[3] - distance * ele[2], ele[7] - distance * ele[6], ele[11] - distance * ele[10]);
 }
+VTK_ABI_NAMESPACE_END

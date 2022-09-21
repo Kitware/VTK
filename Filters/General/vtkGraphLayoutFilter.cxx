@@ -23,6 +23,7 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkGraphLayoutFilter);
 
 vtkGraphLayoutFilter::vtkGraphLayoutFilter()
@@ -282,3 +283,4 @@ void vtkGraphLayoutFilter::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Three Dimensional Layout: " << (this->ThreeDimensionalLayout ? "On\n" : "Off\n");
 }
+VTK_ABI_NAMESPACE_END

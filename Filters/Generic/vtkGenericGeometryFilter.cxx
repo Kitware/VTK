@@ -43,6 +43,7 @@
 #include "vtkVoxel.h"
 #include "vtkWedge.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkGenericGeometryFilter);
 
 vtkCxxSetObjectMacro(vtkGenericGeometryFilter, Locator, vtkIncrementalPointLocator);
@@ -495,3 +496,4 @@ int vtkGenericGeometryFilter::RequestUpdateExtent(vtkInformation* vtkNotUsed(req
 
   return 1;
 }
+VTK_ABI_NAMESPACE_END

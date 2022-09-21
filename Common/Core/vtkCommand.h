@@ -391,6 +391,7 @@
   }
 
 // The superclass that all commands should be subclasses of
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONCORE_EXPORT vtkCommand : public vtkObjectBase
 {
 public:
@@ -481,6 +482,7 @@ private:
   const char* GetDebugClassName() const final;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif /* vtkCommand_h */
 
 // VTK-HeaderTest-Exclude: vtkCommand.h

@@ -101,6 +101,7 @@
 #define vtkDataArrayAccessor_h
 
 // Generic form for all (non-bit) vtkDataArray subclasses.
+VTK_ABI_NAMESPACE_BEGIN
 template <typename ArrayT>
 struct vtkDataArrayAccessor
 {
@@ -199,5 +200,6 @@ struct vtkDataArrayAccessor<vtkDataArray>
   }
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkDataArrayAccessor_h
 // VTK-HeaderTest-Exclude: vtkDataArrayAccessor.h

@@ -39,6 +39,7 @@
 #include "vtkTransform.h"
 #include "vtkTransformPolyDataFilter.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOrientedGlyphFocalPlaneContourRepresentation);
 
 //------------------------------------------------------------------------------
@@ -929,3 +930,4 @@ void vtkOrientedGlyphFocalPlaneContourRepresentation::PrintSelf(ostream& os, vtk
     os << indent << "Lines Property: (none)\n";
   }
 }
+VTK_ABI_NAMESPACE_END

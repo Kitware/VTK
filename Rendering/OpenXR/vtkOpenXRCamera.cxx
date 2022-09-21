@@ -35,6 +35,7 @@
 
 #include "vtkOpenXRUtilities.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOpenXRCamera);
 
 vtkOpenXRCamera::vtkOpenXRCamera() = default;
@@ -148,3 +149,4 @@ void vtkOpenXRCamera::Render(vtkRenderer* ren)
 
   vtkOpenGLCheckErrorMacro("failed after Render");
 }
+VTK_ABI_NAMESPACE_END

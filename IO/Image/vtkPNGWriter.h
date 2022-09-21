@@ -29,6 +29,7 @@
 #include "vtkIOImageModule.h" // For export macro
 #include "vtkImageWriter.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkImageData;
 class vtkUnsignedCharArray;
 
@@ -120,4 +121,5 @@ private:
   void operator=(const vtkPNGWriter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

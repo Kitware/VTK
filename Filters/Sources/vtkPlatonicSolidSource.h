@@ -35,6 +35,7 @@
 #define VTK_SOLID_ICOSAHEDRON 3
 #define VTK_SOLID_DODECAHEDRON 4
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSSOURCES_EXPORT vtkPlatonicSolidSource : public vtkPolyDataAlgorithm
 {
 public:
@@ -78,4 +79,5 @@ private:
   void operator=(const vtkPlatonicSolidSource&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

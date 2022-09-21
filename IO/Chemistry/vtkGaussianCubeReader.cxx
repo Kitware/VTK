@@ -34,6 +34,7 @@
 #include <string>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkGaussianCubeReader);
 
 //------------------------------------------------------------------------------
@@ -392,3 +393,4 @@ int vtkGaussianCubeReader::FillOutputPortInformation(int port, vtkInformation* i
   info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkImageData");
   return 1;
 }
+VTK_ABI_NAMESPACE_END

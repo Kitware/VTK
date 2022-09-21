@@ -28,6 +28,7 @@
 #include "vtkDataReader.h"
 #include "vtkIOLegacyModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCompositeDataSet;
 class vtkHierarchicalBoxDataSet;
 class vtkMultiBlockDataSet;
@@ -85,4 +86,5 @@ private:
   void operator=(const vtkCompositeDataReader&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

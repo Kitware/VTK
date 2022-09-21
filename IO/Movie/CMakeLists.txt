@@ -68,3 +68,4 @@ endif()
 
 vtk_module_link(VTK::IOMovie
   PRIVATE ${libs})
+vtk_add_test_mangling(VTK::IOMovie)

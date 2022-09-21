@@ -41,6 +41,7 @@
 #include "vtkNew.h"   // For vtkNew
 #include "vtkTable.h" // For vtkTable
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKGUISUPPORTQT_EXPORT QVTKTableModelAdapter : public QObject
 {
   Q_OBJECT
@@ -121,4 +122,5 @@ protected Q_SLOTS:
     const QModelIndex& parent, int start, int end, const QModelIndex& destination, int column);
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

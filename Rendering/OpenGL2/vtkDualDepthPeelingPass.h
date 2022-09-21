@@ -56,6 +56,7 @@
 
 #include <array> // For std::array!
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkOpenGLFramebufferObject;
 class vtkOpenGLQuadHelper;
 class vtkOpenGLVertexArrayObject;
@@ -279,4 +280,5 @@ private:
   void operator=(const vtkDualDepthPeelingPass&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkDualDepthPeelingPass_h

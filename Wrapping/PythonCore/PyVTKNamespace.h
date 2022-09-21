@@ -21,6 +21,7 @@
 #ifndef PyVTKNamespace_h
 #define PyVTKNamespace_h
 
+#include "vtkABINamespace.h"
 #include "vtkPython.h"
 #include "vtkSystemIncludes.h"
 #include "vtkWrappingPythonCoreModule.h" // For export macro

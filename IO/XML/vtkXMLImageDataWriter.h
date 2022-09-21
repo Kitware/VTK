@@ -32,6 +32,7 @@
 #include "vtkIOXMLModule.h" // For export macro
 #include "vtkXMLStructuredDataWriter.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkImageData;
 
 class VTKIOXML_EXPORT vtkXMLImageDataWriter : public vtkXMLStructuredDataWriter
@@ -67,4 +68,5 @@ private:
   void operator=(const vtkXMLImageDataWriter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

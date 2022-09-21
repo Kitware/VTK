@@ -25,6 +25,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkMergeFields);
 
 char vtkMergeFields::FieldLocationNames[3][12] = { "DATA_OBJECT", "POINT_DATA", "CELL_DATA" };
@@ -422,3 +423,4 @@ void vtkMergeFields::PrintAllComponents(ostream& os, vtkIndent indent)
     this->PrintComponent(before, os, indent);
   } while (cur);
 }
+VTK_ABI_NAMESPACE_END

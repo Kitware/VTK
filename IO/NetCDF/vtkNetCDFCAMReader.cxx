@@ -37,6 +37,7 @@
 #include <vector>
 #include <vtk_netcdf.h>
 
+VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
 // determine if this is a cell that wraps from 360 to 0 (i.e. if it's
@@ -1277,3 +1278,4 @@ void vtkNetCDFCAMReader::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "PointsFile: " << this->Internals->nc_points << endl;
   os << indent << "ConnectivityFile: " << this->Internals->nc_connectivity << endl;
 }
+VTK_ABI_NAMESPACE_END

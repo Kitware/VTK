@@ -40,6 +40,7 @@
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkSliderRepresentation.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPoints;
 class vtkCellArray;
 class vtkPolyData;
@@ -199,4 +200,5 @@ private:
   void operator=(const vtkCenteredSliderRepresentation&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

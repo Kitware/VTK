@@ -16,6 +16,7 @@
 #include "vtkMath.h"
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 void vtkWarpTransform::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -252,3 +253,4 @@ void vtkWarpTransform::Inverse()
   this->InverseFlag = !this->InverseFlag;
   this->Modified();
 }
+VTK_ABI_NAMESPACE_END

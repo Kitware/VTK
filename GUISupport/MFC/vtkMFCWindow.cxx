@@ -39,9 +39,12 @@
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #undef THIS_FILE
+VTK_ABI_NAMESPACE_BEGIN
 static char THIS_FILE[] = __FILE__;
+VTK_ABI_NAMESPACE_END
 #endif
 
+VTK_ABI_NAMESPACE_BEGIN
 BEGIN_MESSAGE_MAP(vtkMFCWindow, CWnd)
 ON_WM_SIZE()
 ON_WM_PAINT()
@@ -330,3 +333,4 @@ void vtkMFCWindow::OnTimer(UINT_PTR nIDEvent)
   static_cast<vtkWin32RenderWindowInteractor*>(this->GetInteractor())
     ->OnTimer(this->GetSafeHwnd(), (UINT)nIDEvent);
 }
+VTK_ABI_NAMESPACE_END

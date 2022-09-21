@@ -24,6 +24,7 @@
 #include <algorithm>
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkSynchronizeTimeFilter);
 
 //------------------------------------------------------------------------------
@@ -198,3 +199,4 @@ int vtkSynchronizeTimeFilter::RequestData(vtkInformation* vtkNotUsed(request),
   }
   return 1;
 }
+VTK_ABI_NAMESPACE_END

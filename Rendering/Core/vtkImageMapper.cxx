@@ -26,6 +26,7 @@
 
 //------------------------------------------------------------------------------
 // Return nullptr if no override is supplied.
+VTK_ABI_NAMESPACE_BEGIN
 vtkObjectFactoryNewMacro(vtkImageMapper);
 
 //------------------------------------------------------------------------------
@@ -249,3 +250,4 @@ int vtkImageMapper::FillInputPortInformation(int vtkNotUsed(port), vtkInformatio
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkImageData");
   return 1;
 }
+VTK_ABI_NAMESPACE_END

@@ -74,6 +74,7 @@
 #include "vtkStdString.h"   // Needed for arguments
 #include "vtkStringArray.h" // For returning color names
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkNamedColorsDataStore;
 class vtkColorStringParser;
 
@@ -400,4 +401,5 @@ private:
   void operator=(const vtkNamedColors&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif /* vtkNamedColors_h */

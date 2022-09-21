@@ -24,6 +24,7 @@
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkTextMapper.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkOpenGLGL2PSHelper;
 
 class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLTextMapper : public vtkTextMapper
@@ -46,4 +47,5 @@ private:
   void operator=(const vtkOpenGLTextMapper&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkOpenGLTextMapper_h

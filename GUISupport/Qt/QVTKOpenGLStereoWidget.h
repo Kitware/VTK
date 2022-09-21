@@ -25,6 +25,7 @@
 class QSurfaceFormat;
 class QOpenGLContext;
 
+VTK_ABI_NAMESPACE_BEGIN
 // class QVTKInteractor;
 class QVTKInteractorAdapter;
 class QVTKOpenGLWindow;
@@ -194,4 +195,5 @@ private:
   QPointer<QVTKOpenGLWindow> VTKOpenGLWindow;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

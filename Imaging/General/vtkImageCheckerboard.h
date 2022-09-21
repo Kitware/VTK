@@ -29,6 +29,7 @@
 #include "vtkImagingGeneralModule.h" // For export macro
 #include "vtkThreadedImageAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKIMAGINGGENERAL_EXPORT vtkImageCheckerboard : public vtkThreadedImageAlgorithm
 {
 public:
@@ -64,4 +65,5 @@ private:
   void operator=(const vtkImageCheckerboard&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

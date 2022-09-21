@@ -33,6 +33,7 @@
 #include "vtkSphereSource.h"
 #include "vtkTensorGlyph.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkEllipsoidTensorProbeRepresentation);
 
 //------------------------------------------------------------------------------
@@ -216,3 +217,4 @@ void vtkEllipsoidTensorProbeRepresentation ::PrintSelf(ostream& os, vtkIndent in
   os << indent << "CellPicker: " << this->CellPicker << endl;
   os << indent << "PolyDataNormals: " << this->PolyDataNormals << endl;
 }
+VTK_ABI_NAMESPACE_END

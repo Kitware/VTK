@@ -30,6 +30,7 @@
 #include "vtkSmartPointer.h"       // for SP ivars
 #include "vtkViewsInfovisModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkActor;
 class vtkApplyColors;
 class vtkApplyIcons;
@@ -467,4 +468,5 @@ private:
   void operator=(const vtkRenderedGraphRepresentation&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

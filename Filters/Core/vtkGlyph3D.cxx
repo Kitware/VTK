@@ -33,6 +33,7 @@
 #include "vtkUniformGrid.h"
 #include "vtkUnsignedCharArray.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkGlyph3D);
 vtkCxxSetObjectMacro(vtkGlyph3D, SourceTransform, vtkTransform);
 
@@ -970,3 +971,4 @@ int vtkGlyph3D::FillInputPortInformation(int port, vtkInformation* info)
   }
   return 0;
 }
+VTK_ABI_NAMESPACE_END

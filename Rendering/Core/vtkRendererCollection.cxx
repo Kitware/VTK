@@ -18,6 +18,7 @@
 
 #include <cstdlib>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkRendererCollection);
 
 // Forward the Render() method to each renderer in the list.
@@ -80,3 +81,4 @@ void vtkRendererCollection::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

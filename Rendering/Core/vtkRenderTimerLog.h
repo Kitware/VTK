@@ -77,6 +77,7 @@
     (void)identifier; /* Prevent set-but-not-used var warnings */                                  \
   } while (false)     /* Do-while loop prevents duplicate semicolon warnings */
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKRENDERINGCORE_EXPORT vtkRenderTimerLog : public vtkObject
 {
 public:
@@ -229,4 +230,5 @@ private:
   void operator=(const vtkRenderTimerLog&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkRenderTimerLog_h

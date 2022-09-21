@@ -32,6 +32,7 @@
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkIdList;
 class vtkOSOpenGLRenderWindowInternal;
 
@@ -236,4 +237,5 @@ private:
   void operator=(const vtkOSOpenGLRenderWindow&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

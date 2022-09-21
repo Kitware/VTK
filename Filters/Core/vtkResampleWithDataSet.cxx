@@ -33,6 +33,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUnsignedCharArray.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkObjectFactoryNewMacro(vtkResampleWithDataSet);
 
 //------------------------------------------------------------------------------
@@ -384,3 +385,4 @@ int vtkResampleWithDataSet::RequestData(vtkInformation* vtkNotUsed(request),
 
   return 1;
 }
+VTK_ABI_NAMESPACE_END

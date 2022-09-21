@@ -28,6 +28,7 @@
 
 #include "vtkDataSet.h" // Needed for inline methods.
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONDATAMODEL_EXPORT vtkDataSetCollection : public vtkCollection
 {
 public:
@@ -78,4 +79,5 @@ private:
   void operator=(const vtkDataSetCollection&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -34,6 +34,7 @@
 #include "vtkImageAlgorithm.h"
 #include "vtkImagingHybridModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKIMAGINGHYBRID_EXPORT vtkVoxelModeller : public vtkImageAlgorithm
 {
 public:
@@ -144,4 +145,5 @@ private:
   void operator=(const vtkVoxelModeller&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

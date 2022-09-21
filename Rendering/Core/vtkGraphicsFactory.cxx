@@ -20,6 +20,7 @@
 #include <cstdlib>
 #include <mutex>
 
+VTK_ABI_NAMESPACE_BEGIN
 static std::mutex vtkUseMesaClassesCriticalSection;
 static std::mutex vtkOffScreenOnlyModeCriticalSection;
 int vtkGraphicsFactory::UseMesaClasses = 0;
@@ -118,3 +119,4 @@ void vtkGraphicsFactory::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

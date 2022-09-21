@@ -22,6 +22,7 @@
 
 #include "vtkFiltersParallelModule.h" // For export macro
 #include "vtkObject.h"
+VTK_ABI_NAMESPACE_BEGIN
 class vtkAlgorithm;
 
 class VTKFILTERSPARALLEL_EXPORT vtkPipelineSize : public vtkObject
@@ -62,4 +63,5 @@ private:
   void operator=(const vtkPipelineSize&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -32,6 +32,7 @@
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkMultiObjectMassProperties);
 
 //------------------------------------------------------------------------------
@@ -590,3 +591,4 @@ void vtkMultiObjectMassProperties::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Total Volume: " << this->TotalVolume << "\n";
   os << indent << "Total Area: " << this->TotalArea << "\n";
 }
+VTK_ABI_NAMESPACE_END

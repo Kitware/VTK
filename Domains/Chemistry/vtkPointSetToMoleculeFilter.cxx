@@ -23,6 +23,7 @@
 #include "vtkPointData.h"
 #include "vtkPointSet.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPointSetToMoleculeFilter);
 
 //------------------------------------------------------------------------------
@@ -102,3 +103,4 @@ int vtkPointSetToMoleculeFilter::RequestData(
 
   return res;
 }
+VTK_ABI_NAMESPACE_END

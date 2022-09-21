@@ -33,6 +33,7 @@
 #include "vtkVertex.h"
 #include "vtkVoxel.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkRectilinearGrid);
 vtkStandardExtendedNewMacro(vtkRectilinearGrid);
 
@@ -1574,3 +1575,4 @@ bool vtkRectilinearGrid::HasAnyBlankCells()
   int cellBlanking = this->CellData->HasAnyGhostBitSet(vtkDataSetAttributes::HIDDENCELL);
   return cellBlanking || this->HasAnyBlankPoints();
 }
+VTK_ABI_NAMESPACE_END

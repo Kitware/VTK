@@ -25,6 +25,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkInformationKeyMacro(vtkCompositeDataSet, NAME, String);
 vtkInformationKeyMacro(vtkCompositeDataSet, CURRENT_PROCESS_CAN_LOAD_BLOCK, Integer);
 
@@ -170,3 +171,4 @@ void vtkCompositeDataSet::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

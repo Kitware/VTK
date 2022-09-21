@@ -29,6 +29,7 @@
 #include "vtkIOCesium3DTilesModule.h" // For export macro
 #include "vtkWriter.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKIOCESIUM3DTILES_EXPORT vtkCesium3DTilesWriter : public vtkWriter
 {
 public:
@@ -171,4 +172,5 @@ private:
   void operator=(const vtkCesium3DTilesWriter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkCesium3DTilesWriter_h

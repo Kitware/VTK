@@ -42,6 +42,7 @@
 
 #include <string> // for std::strin
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkInformationIntegerKey;
 class vtkInformationStringKey;
 
@@ -119,4 +120,5 @@ private:
   int NamingMode;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -25,3 +25,4 @@ set(classes
 
 vtk_module_add_module(VTK::RenderingContext2D
   CLASSES ${classes})
+vtk_add_test_mangling(VTK::RenderingContext2D)

@@ -26,6 +26,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
+VTK_ABI_NAMESPACE_BEGIN
 int vtkMPIController::Initialized = 0;
 char vtkMPIController::ProcessorName[MPI_MAX_PROCESSOR_NAME] = "";
 int vtkMPIController::UseSsendForRMI = 0;
@@ -413,3 +414,4 @@ bool vtkMPIController::TestSome(
     return false;
   }
 }
+VTK_ABI_NAMESPACE_END

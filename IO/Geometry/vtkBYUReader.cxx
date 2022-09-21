@@ -26,6 +26,7 @@
 #include "vtkPolyData.h"
 #include <vtksys/SystemTools.hxx>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkBYUReader);
 
 vtkBYUReader::vtkBYUReader()
@@ -431,3 +432,4 @@ void vtkBYUReader::PrintSelf(ostream& os, vtkIndent indent)
   os << indent
      << "Texture File Name: " << (this->TextureFileName ? this->TextureFileName : "(none)") << "\n";
 }
+VTK_ABI_NAMESPACE_END

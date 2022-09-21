@@ -35,6 +35,7 @@
 #include "vtkTree.h"
 #include "vtkTreeDFSIterator.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkCirclePackLayout);
 
 vtkCirclePackLayout::vtkCirclePackLayout()
@@ -272,3 +273,4 @@ vtkMTimeType vtkCirclePackLayout::GetMTime()
   }
   return mTime;
 }
+VTK_ABI_NAMESPACE_END

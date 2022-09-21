@@ -33,6 +33,7 @@
 #include "vtkObject.h"
 #include "vtkRenderingCoreModule.h" // for export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkBoundingBox;
 class vtkDataObject;
 
@@ -247,4 +248,5 @@ private:
   BoolMap BlockPickabilities;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkCompositeDataDisplayAttributes_h

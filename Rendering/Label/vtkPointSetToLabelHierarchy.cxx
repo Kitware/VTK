@@ -38,6 +38,7 @@
 
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPointSetToLabelHierarchy);
 vtkCxxSetObjectMacro(vtkPointSetToLabelHierarchy, TextProperty, vtkTextProperty);
 
@@ -281,3 +282,4 @@ void vtkPointSetToLabelHierarchy::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "TextProperty: " << this->TextProperty << "\n";
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

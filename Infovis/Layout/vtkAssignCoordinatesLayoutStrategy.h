@@ -32,6 +32,7 @@
 #include "vtkInfovisLayoutModule.h" // For export macro
 #include "vtkSmartPointer.h"        // For SP ivars
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkAssignCoordinates;
 
 class VTKINFOVISLAYOUT_EXPORT vtkAssignCoordinatesLayoutStrategy : public vtkGraphLayoutStrategy
@@ -81,4 +82,5 @@ private:
   void operator=(const vtkAssignCoordinatesLayoutStrategy&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

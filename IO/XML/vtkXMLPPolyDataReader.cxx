@@ -24,6 +24,7 @@
 #include "vtkXMLDataElement.h"
 #include "vtkXMLPolyDataReader.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkXMLPPolyDataReader);
 
 //------------------------------------------------------------------------------
@@ -263,3 +264,4 @@ int vtkXMLPPolyDataReader::FillOutputPortInformation(int, vtkInformation* info)
   info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkPolyData");
   return 1;
 }
+VTK_ABI_NAMESPACE_END

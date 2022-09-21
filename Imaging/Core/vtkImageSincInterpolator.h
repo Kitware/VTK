@@ -47,6 +47,7 @@
 #define VTK_BLACKMAN_NUTTALL4 10
 #define VTK_SINC_KERNEL_SIZE_MAX 32
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkImageData;
 struct vtkInterpolationInfo;
 
@@ -255,4 +256,5 @@ private:
   void operator=(const vtkImageSincInterpolator&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

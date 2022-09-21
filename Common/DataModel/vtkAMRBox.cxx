@@ -28,6 +28,7 @@
 #include <sstream>
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkAMRBox::vtkAMRBox()
 {
   this->Initialize();
@@ -742,3 +743,4 @@ void vtkAMRBox::Shrink(int byN)
   }
   assert("post: Grown AMR Box instance is invalid" && !this->IsInvalid());
 }
+VTK_ABI_NAMESPACE_END

@@ -27,6 +27,7 @@
 #include "vtkContextArea.h"
 #include "vtkNew.h" // For vtkNew
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkContextTransform;
 class vtkRectd;
 
@@ -80,4 +81,5 @@ private:
   void operator=(const vtkInteractiveArea&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkInteractiveArea_h

@@ -22,6 +22,7 @@
 =========================================================================*/
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 void vtkImageFourierFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -242,3 +243,4 @@ int vtkImageFourierFilter::RequestData(
 
   return this->Superclass::RequestData(request, inputVector, outputVector);
 }
+VTK_ABI_NAMESPACE_END

@@ -29,6 +29,7 @@
 #include "vtkCommonTransformsModule.h" // For export macro
 #include "vtkLinearTransform.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONTRANSFORMS_EXPORT vtkIdentityTransform : public vtkLinearTransform
 {
 public:
@@ -123,4 +124,5 @@ private:
   void operator=(const vtkIdentityTransform&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

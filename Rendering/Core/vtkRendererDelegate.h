@@ -32,6 +32,7 @@
 #include "vtkObject.h"
 #include "vtkRenderingCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkRenderer;
 
 class VTKRENDERINGCORE_EXPORT vtkRendererDelegate : public vtkObject
@@ -66,4 +67,5 @@ private:
   void operator=(const vtkRendererDelegate&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

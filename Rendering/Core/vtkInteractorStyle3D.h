@@ -55,6 +55,7 @@
 #include "vtkNew.h"                 // ivars
 #include "vtkRenderingCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkAbstractPropPicker;
 class vtkCamera;
 class vtkProp3D;
@@ -132,4 +133,5 @@ private:
   void operator=(const vtkInteractorStyle3D&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

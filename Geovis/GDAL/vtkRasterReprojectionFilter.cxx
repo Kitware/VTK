@@ -37,6 +37,7 @@
 // STL includes
 #include <algorithm>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkRasterReprojectionFilter);
 
 //------------------------------------------------------------------------------
@@ -367,3 +368,4 @@ int vtkRasterReprojectionFilter::FillOutputPortInformation(int port, vtkInformat
     return VTK_ERROR;
   }
 }
+VTK_ABI_NAMESPACE_END

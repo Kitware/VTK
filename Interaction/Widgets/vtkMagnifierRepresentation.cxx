@@ -25,6 +25,7 @@
 #include "vtkRenderer.h"
 #include "vtkWindow.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkMagnifierRepresentation);
 
 //------------------------------------------------------------------------------
@@ -315,3 +316,4 @@ void vtkMagnifierRepresentation::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Border Property: (none)\n";
   }
 }
+VTK_ABI_NAMESPACE_END

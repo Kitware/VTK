@@ -33,6 +33,7 @@
 #include <cstdlib>
 #include <random>
 
+VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
 
@@ -831,3 +832,4 @@ void vtkMaskPoints::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Output Points Precision: " << this->GetOutputPointsPrecision() << "\n";
 }
+VTK_ABI_NAMESPACE_END

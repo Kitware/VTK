@@ -34,6 +34,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLState.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 QVTKOpenGLWindow::QVTKOpenGLWindow(QOpenGLWindow::UpdateBehavior ub, QWindow* p)
   : QVTKOpenGLWindow(vtkSmartPointer<vtkGenericOpenGLRenderWindow>::New(), nullptr, ub, p)
 {
@@ -308,3 +309,4 @@ bool QVTKOpenGLWindow::event(QEvent* evt)
 
   return this->Superclass::event(evt);
 }
+VTK_ABI_NAMESPACE_END

@@ -37,6 +37,7 @@
 
 //------------------------------------------------------------------------------
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkUnstructuredGridHomogeneousRayIntegrator);
 
 //------------------------------------------------------------------------------
@@ -290,3 +291,4 @@ void vtkUnstructuredGridHomogeneousRayIntegrator::Integrate(vtkDoubleArray* inte
     }
   }
 }
+VTK_ABI_NAMESPACE_END

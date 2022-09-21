@@ -34,6 +34,7 @@
 
 namespace
 {
+VTK_ABI_NAMESPACE_BEGIN
 
 // inherit from tuple to give automatic comparison operator
 struct Neigh : public std::tuple<vtkIdType, vtkIdType>
@@ -184,8 +185,10 @@ struct GradientWorker
   }
 };
 
+VTK_ABI_NAMESPACE_END
 } // end of anonymous namespace
 
+VTK_ABI_NAMESPACE_BEGIN
 // ---- vtkHyperTreeGridGradient ---
 
 vtkStandardNewMacro(vtkHyperTreeGridGradient);
@@ -306,3 +309,4 @@ void vtkHyperTreeGridGradient::RecursivelyProcessTree(
     worker.AccumulateGradienAt(supercursor);
   }
 }
+VTK_ABI_NAMESPACE_END

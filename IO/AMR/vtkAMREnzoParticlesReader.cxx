@@ -39,6 +39,7 @@
 // Description:
 // Finds the block index (blockIndx) within the HDF5 file associated with
 // the given file index.
+VTK_ABI_NAMESPACE_BEGIN
 static bool FindBlockIndex(hid_t fileIndx, const int blockIdx, hid_t& rootIndx)
 {
   // retrieve the contents of the root directory to look for a group
@@ -399,3 +400,4 @@ vtkPolyData* vtkAMREnzoParticlesReader::ReadParticles(const int blkidx)
   vtkPolyData* particles = this->GetParticles(pfile.c_str(), blkidx);
   return (particles);
 }
+VTK_ABI_NAMESPACE_END

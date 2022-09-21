@@ -29,6 +29,7 @@
 
 #include <vtksys/SystemTools.hxx>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkCxxSetObjectMacro(vtkProperty, Information, vtkInformation);
 
 //------------------------------------------------------------------------------
@@ -501,3 +502,4 @@ void vtkProperty::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Metallic: " << this->Metallic << endl;
   os << indent << "Roughness: " << this->Roughness << endl;
 }
+VTK_ABI_NAMESPACE_END

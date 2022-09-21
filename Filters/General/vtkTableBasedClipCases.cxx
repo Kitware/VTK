@@ -35,6 +35,7 @@
 
 namespace vtkTableBasedClipperTriangulationTables
 {
+VTK_ABI_NAMESPACE_BEGIN
 
 static const int8_t TetTriangulationTable[16][7] = {
   {-1, -1, -1, -1, -1, -1, -1},
@@ -824,7 +825,8 @@ static const int8_t LineVerticesFromEdges[1][2] =
     {0,1}
 };
 
-};
+VTK_ABI_NAMESPACE_END
+}
 
 // ============================================================================
 // ====================== vtkTriangulationTables ( end ) ======================
@@ -837,6 +839,7 @@ static const int8_t LineVerticesFromEdges[1][2] =
 
 namespace vtkTableBasedClipperClipTables
 {
+VTK_ABI_NAMESPACE_BEGIN
 
 //------------------------------------------------------------------------------
 // ---- ClipCases.h (begin)
@@ -8985,7 +8988,8 @@ static uint8_t ClipShapesVtx[] = {
 // ---- ClipCasesVtx.C ( end )
 //------------------------------------------------------------------------------
 
-};
+VTK_ABI_NAMESPACE_END
+}
 
 // ============================================================================
 // ============================= ClipCases ( end ) ============================

@@ -29,6 +29,7 @@
 #include "vtkFiltersParallelModule.h" // For export macro
 #include "vtkUnstructuredGridAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkMultiProcessController;
 
 class VTKFILTERSPARALLEL_EXPORT vtkTransmitUnstructuredGridPiece
@@ -75,4 +76,5 @@ private:
   void operator=(const vtkTransmitUnstructuredGridPiece&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

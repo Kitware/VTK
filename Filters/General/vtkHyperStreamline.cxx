@@ -24,6 +24,7 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkHyperStreamline);
 
 //
@@ -901,3 +902,4 @@ void vtkHyperStreamline::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Integrate Along Minor Eigenvector\n";
   }
 }
+VTK_ABI_NAMESPACE_END

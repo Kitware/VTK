@@ -38,6 +38,7 @@
 #include <sstream>
 #include <string>
 
+VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
 
@@ -343,3 +344,4 @@ void vtkSVGExporter::RenderContextActor(vtkContextActor* actor, vtkRenderer* ren
   actor->RenderOverlay(ren);
   actor->SetForceDevice(oldForceDevice);
 }
+VTK_ABI_NAMESPACE_END

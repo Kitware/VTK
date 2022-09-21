@@ -22,6 +22,7 @@
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkHedgeHog);
 
 vtkHedgeHog::vtkHedgeHog()
@@ -172,3 +173,4 @@ void vtkHedgeHog::PrintSelf(ostream& os, vtkIndent indent)
      << (this->VectorMode == VTK_USE_VECTOR ? "Orient by vector\n" : "Orient by normal\n");
   os << indent << "Output Points Precision: " << this->OutputPointsPrecision << "\n";
 }
+VTK_ABI_NAMESPACE_END

@@ -36,6 +36,7 @@
 /// Serializes the contents of an array to a stream as a series of
 /// coordinates.  For 2D arrays of double values, the output is compatible
 /// with the MatrixMarket "Coordinate Text File" format.
+VTK_ABI_NAMESPACE_BEGIN
 template <typename T>
 void vtkPrintCoordinateFormat(ostream& stream, vtkTypedArray<T>* array);
 
@@ -49,6 +50,7 @@ void vtkPrintMatrixFormat(ostream& stream, vtkTypedArray<T>* matrix);
 template <typename T>
 void vtkPrintVectorFormat(ostream& stream, vtkTypedArray<T>* vector);
 
+VTK_ABI_NAMESPACE_END
 #include "vtkArrayPrint.txx"
 
 #endif

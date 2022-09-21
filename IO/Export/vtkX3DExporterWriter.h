@@ -28,6 +28,7 @@
 #include "vtkObject.h"
 
 // Forward declarations
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataArray;
 class vtkUnsignedCharArray;
 class vtkCellArray;
@@ -199,4 +200,5 @@ private:
   vtkX3DExporterWriter(const vtkX3DExporterWriter&) = delete;
   void operator=(const vtkX3DExporterWriter&) = delete;
 };
+VTK_ABI_NAMESPACE_END
 #endif

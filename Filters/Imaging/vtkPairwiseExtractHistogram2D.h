@@ -48,6 +48,7 @@
 #include "vtkFiltersImagingModule.h" // For export macro
 #include "vtkSmartPointer.h"         //needed for smart pointer ivars
 #include "vtkStatisticsAlgorithm.h"
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCollection;
 class vtkExtractHistogram2D;
 class vtkImageData;
@@ -211,4 +212,5 @@ private:
   void operator=(const vtkPairwiseExtractHistogram2D&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

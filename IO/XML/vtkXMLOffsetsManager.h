@@ -51,6 +51,7 @@
 #include <vector>
 
 //----------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 class OffsetsManager
 {
 public:
@@ -185,5 +186,6 @@ private:
   std::vector<OffsetsManagerGroup> Internals;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkXMLOffsetsManager.h

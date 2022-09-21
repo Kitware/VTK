@@ -24,6 +24,7 @@
 #include "vtkAbstractElectronicData.h"
 #include "vtkDomainsChemistryModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkImageData;
 
 class StdVectorOfImageDataPointers;
@@ -104,4 +105,5 @@ private:
   void operator=(const vtkProgrammableElectronicData&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

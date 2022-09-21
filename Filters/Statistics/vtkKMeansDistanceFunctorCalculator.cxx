@@ -10,6 +10,7 @@
 
 #include <sstream>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkKMeansDistanceFunctorCalculator);
 vtkCxxSetObjectMacro(vtkKMeansDistanceFunctorCalculator, FunctionParser, vtkFunctionParser);
 
@@ -94,3 +95,4 @@ void vtkKMeansDistanceFunctorCalculator::operator()(
   cout << " ]) = " << distance << "\n";
   */
 }
+VTK_ABI_NAMESPACE_END

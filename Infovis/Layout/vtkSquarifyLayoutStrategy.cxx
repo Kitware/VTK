@@ -26,6 +26,7 @@
 #include "vtkPoints.h"
 #include "vtkTree.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkSquarifyLayoutStrategy);
 
 vtkSquarifyLayoutStrategy::vtkSquarifyLayoutStrategy() = default;
@@ -239,3 +240,4 @@ void vtkSquarifyLayoutStrategy::LayoutChildren(vtkTree* tree, vtkDataArray* coor
       tree, coordsArray, sizeArray, nchildren, parent, cur, restMinX, restMaxX, restMinY, restMaxY);
   }
 }
+VTK_ABI_NAMESPACE_END

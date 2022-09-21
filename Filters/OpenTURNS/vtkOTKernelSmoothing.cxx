@@ -19,9 +19,10 @@
 #include "vtkOTIncludes.h"
 #include "vtkOTUtilities.h"
 
-vtkStandardNewMacro(vtkOTKernelSmoothing);
-
 using namespace OT;
+
+VTK_ABI_NAMESPACE_BEGIN
+vtkStandardNewMacro(vtkOTKernelSmoothing);
 
 //------------------------------------------------------------------------------
 vtkOTKernelSmoothing::vtkOTKernelSmoothing()
@@ -89,3 +90,4 @@ void vtkOTKernelSmoothing::ComputePDF(
   Sample gridY = dist.getImplementation()->computePDF(range[0], range[1], this->PointNumber, gridX);
   this->AddToOutput(&gridY, pdfName);
 }
+VTK_ABI_NAMESPACE_END

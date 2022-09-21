@@ -20,6 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImageCheckerboard);
 
 //------------------------------------------------------------------------------
@@ -214,3 +215,4 @@ void vtkImageCheckerboard::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "NumberOfDivisions: (" << this->NumberOfDivisions[0] << ", "
      << this->NumberOfDivisions[1] << ", " << this->NumberOfDivisions[2] << ")\n";
 }
+VTK_ABI_NAMESPACE_END

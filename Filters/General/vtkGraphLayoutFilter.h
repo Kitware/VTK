@@ -37,6 +37,7 @@
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSGENERAL_EXPORT vtkGraphLayoutFilter : public vtkPolyDataAlgorithm
 {
 public:
@@ -109,4 +110,5 @@ private:
   void operator=(const vtkGraphLayoutFilter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

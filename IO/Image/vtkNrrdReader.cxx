@@ -56,6 +56,7 @@
 #define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
 //=============================================================================
+VTK_ABI_NAMESPACE_BEGIN
 static std::string trim(std::string s)
 {
   size_t start = 0;
@@ -934,3 +935,4 @@ int vtkNrrdReader::ReadDataGZip(vtkImageData* output)
 
   return 1;
 }
+VTK_ABI_NAMESPACE_END

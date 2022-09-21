@@ -28,6 +28,9 @@
 #ifndef vtkBlockDistribution_h
 #define vtkBlockDistribution_h
 
+#include "vtkABINamespace.h"
+
+VTK_ABI_NAMESPACE_BEGIN
 class vtkBlockDistribution
 {
 public:
@@ -148,5 +151,6 @@ inline vtkIdType vtkBlockDistribution::GetGlobalIndex(vtkIdType localIndex, vtkI
   return this->GetFirstGlobalIndexOnProcessor(rank) + localIndex;
 }
 
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkBlockDistribution.h

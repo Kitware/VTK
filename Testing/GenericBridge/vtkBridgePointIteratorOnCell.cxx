@@ -30,6 +30,7 @@
 #include "vtkIdList.h"
 #include "vtkObjectFactory.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkBridgePointIteratorOnCell);
 
 //------------------------------------------------------------------------------
@@ -134,3 +135,4 @@ void vtkBridgePointIteratorOnCell::InitWithCell(vtkBridgeCell* cell)
   vtkSetObjectBodyMacro(DataSet, vtkBridgeDataSet, cell->DataSet);
   this->PtIds = cell->Cell->GetPointIds();
 }
+VTK_ABI_NAMESPACE_END

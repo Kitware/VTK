@@ -34,6 +34,7 @@
 #include "vtkObject.h"
 #include "vtkRenderingCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkRenderWindowInteractor;
 class vtkInteractorObserver;
 class vtkObserverMap;
@@ -96,4 +97,5 @@ private:
   void operator=(const vtkObserverMediator&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -79,6 +79,7 @@ struct GhostsCounter
 };
 } // anonymous namespace
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOrderStatistics);
 
 //------------------------------------------------------------------------------
@@ -1054,3 +1055,4 @@ void vtkOrderStatistics::SelectAssessFunctor(
       << quantiles->GetClassName() << ". Ignoring it.");
   }
 }
+VTK_ABI_NAMESPACE_END

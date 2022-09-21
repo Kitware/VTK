@@ -18,6 +18,7 @@ using std::deque;
 using std::ostream;
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkPixelExtent vtkPixelExtent::Grow(
   const vtkPixelExtent& inputExt, const vtkPixelExtent& problemDomain, int n)
 {
@@ -315,3 +316,4 @@ ostream& operator<<(ostream& os, const vtkPixelExtent& ext)
   }
   return os;
 }
+VTK_ABI_NAMESPACE_END

@@ -39,11 +39,13 @@
 #include <QImage>            // Needed for the icon methods
 #include <QPointer>          // Needed for the internal list view
 
-class vtkApplyColors;
-class vtkDataObjectToTable;
 class QItemSelection;
 class QSortFilterProxyModel;
 class QListView;
+
+VTK_ABI_NAMESPACE_BEGIN
+class vtkApplyColors;
+class vtkDataObjectToTable;
 class vtkQtTableModelAdapter;
 
 class VTKVIEWSQT_EXPORT vtkQtListView : public vtkQtView
@@ -188,4 +190,5 @@ private:
   void operator=(const vtkQtListView&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

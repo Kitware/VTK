@@ -61,6 +61,7 @@
 #include "vtkStdString.h" // for vtkStdString
 #include "vtkVariant.h"   // for vtkVariant
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONCORE_EXPORT vtkArray : public vtkObject
 {
 public:
@@ -303,4 +304,5 @@ void vtkArray::SetVariantValue(CoordinateT i, CoordinateT j, CoordinateT k, cons
   this->SetVariantValue(vtkArrayCoordinates(i, j, k), value);
 }
 
+VTK_ABI_NAMESPACE_END
 #endif

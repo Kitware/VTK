@@ -24,6 +24,7 @@
 #include <cmath>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkGenerateTimeSteps);
 
 //------------------------------------------------------------------------------
@@ -127,3 +128,4 @@ int vtkGenerateTimeSteps::RequestData(vtkInformation* vtkNotUsed(request),
   }
   return 1;
 }
+VTK_ABI_NAMESPACE_END

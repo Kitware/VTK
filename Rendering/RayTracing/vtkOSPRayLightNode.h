@@ -29,6 +29,7 @@
 
 #include <string> // for std::string
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkInformationDoubleKey;
 class vtkInformationIntegerKey;
 class vtkLight;
@@ -98,4 +99,5 @@ private:
   void* OLight;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

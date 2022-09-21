@@ -43,6 +43,7 @@
 
 namespace vtkIOSSUtilities
 {
+VTK_ABI_NAMESPACE_BEGIN
 
 //----------------------------------------------------------------------------
 class Cache::CacheInternals
@@ -1043,4 +1044,5 @@ void GetEntityAndFieldNames<Ioss::SideSet>(const Ioss::Region* region,
   }
 }
 
+VTK_ABI_NAMESPACE_END
 } // end of namespace.

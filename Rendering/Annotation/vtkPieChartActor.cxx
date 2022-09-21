@@ -35,6 +35,7 @@
 #include <string>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPieChartActor);
 
 vtkCxxSetObjectMacro(vtkPieChartActor, LabelTextProperty, vtkTextProperty);
@@ -727,3 +728,4 @@ void vtkPieChartActor::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Legend Actor: " << this->LegendActor << "\n";
   this->LegendActor->PrintSelf(os, indent.GetNextIndent());
 }
+VTK_ABI_NAMESPACE_END

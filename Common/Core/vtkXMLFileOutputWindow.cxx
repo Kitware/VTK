@@ -17,6 +17,7 @@
 #include "vtksys/Encoding.hxx"
 #include "vtksys/FStream.hxx"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkXMLFileOutputWindow);
 
 void vtkXMLFileOutputWindow::PrintSelf(ostream& os, vtkIndent indent)
@@ -150,3 +151,4 @@ void vtkXMLFileOutputWindow::DisplayDebugText(const char* text)
 {
   this->DisplayXML("Debug", text);
 }
+VTK_ABI_NAMESPACE_END

@@ -77,6 +77,7 @@
 #include "vtkPolyDataAlgorithm.h"
 #include "vtkStaticPointLocator.h" // For enums
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSCORE_EXPORT vtkStaticCleanPolyData : public vtkPolyDataAlgorithm
 {
 public:
@@ -260,4 +261,5 @@ private:
   void operator=(const vtkStaticCleanPolyData&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

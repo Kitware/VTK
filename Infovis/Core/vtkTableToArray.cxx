@@ -32,6 +32,7 @@
 
 #include <algorithm>
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkTableToArray::implementation
 {
 public:
@@ -176,3 +177,4 @@ int vtkTableToArray::RequestData(
 
   return 1;
 }
+VTK_ABI_NAMESPACE_END

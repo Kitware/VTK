@@ -42,6 +42,7 @@
 
 #include "vtkTIFFReader.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKIOIMAGE_EXPORT vtkOMETIFFReader : public vtkTIFFReader
 {
 public:
@@ -72,4 +73,5 @@ private:
   vtkOMEInternals* OMEInternals;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

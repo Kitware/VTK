@@ -33,6 +33,7 @@
 #include <string> // For string parameter
 #include <vector> // For member variables
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkActor;
 class vtkColorTransferFunction;
 class vtkDataObject;
@@ -198,4 +199,5 @@ private:
   void operator=(const vtkJSONSceneExporter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

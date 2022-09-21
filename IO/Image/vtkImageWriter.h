@@ -29,6 +29,7 @@
 #include "vtkIOImageModule.h" // For export macro
 #include "vtkImageAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKIOIMAGE_EXPORT vtkImageWriter : public vtkImageAlgorithm
 {
 public:
@@ -129,4 +130,5 @@ private:
   void operator=(const vtkImageWriter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

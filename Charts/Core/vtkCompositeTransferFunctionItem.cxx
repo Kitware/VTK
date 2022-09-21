@@ -31,6 +31,7 @@
 #include <vector>
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkCompositeTransferFunctionItem);
 
 //------------------------------------------------------------------------------
@@ -163,3 +164,4 @@ void vtkCompositeTransferFunctionItem::ComputeTexture()
     }
   }
 }
+VTK_ABI_NAMESPACE_END

@@ -16,6 +16,7 @@
 #include "vtkCollection.h"
 #include "vtkObjectFactory.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkCollectionIterator);
 
 //------------------------------------------------------------------------------
@@ -89,3 +90,4 @@ vtkObject* vtkCollectionIterator::GetCurrentObject()
   }
   return nullptr;
 }
+VTK_ABI_NAMESPACE_END

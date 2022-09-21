@@ -56,6 +56,7 @@
 #include <unordered_map> // For DetectOverlappingCells
 #include <vector>        // For DetectOverlappingCells
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataSet;
 class vtkMultiProcessController;
 class vtkPointSet;
@@ -161,4 +162,5 @@ private:
   void operator=(const vtkOverlappingCellsDetector&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -29,6 +29,7 @@
 #include "vtkIOChemistryModule.h" // For export macro
 #include "vtkMoleculeReaderBase.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKIOCHEMISTRY_EXPORT vtkXYZMolReader : public vtkMoleculeReaderBase
 {
 public:
@@ -87,4 +88,5 @@ private:
   void operator=(const vtkXYZMolReader&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -34,6 +34,7 @@
 #include <string>                  // needed for string.
 #include <vector>                  // needed for vector.
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKPARALLELCORE_EXPORT vtkMultiProcessStream
 {
 public:
@@ -155,6 +156,7 @@ private:
   };
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
 
 // VTK-HeaderTest-Exclude: vtkMultiProcessStream.h

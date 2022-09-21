@@ -38,6 +38,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkSelectionAlgorithm.h"
 #include "vtkSmartPointer.h" // For smart pointers
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataSet;
 class vtkSelection;
 class vtkAlgorithmOutput;
@@ -148,4 +149,5 @@ private:
   void operator=(const vtkCellDistanceSelector&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif /* vtkCellDistanceSelector_h */

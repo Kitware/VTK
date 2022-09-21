@@ -50,6 +50,7 @@
 #define FLASH_READER_FLASH3_FFV8 8
 #define FLASH_READER_FLASH3_FFV9 9
 
+VTK_ABI_NAMESPACE_BEGIN
 typedef struct tagFlashReaderIntegerScalar
 {
   char Name[20]; // name  of the integer scalar
@@ -198,5 +199,6 @@ public:
 // ----------------------------------------------------------------------------
 //                     Class  vtkFlashReaderInternal ( end )
 // ----------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_END
 #endif /* vtkAMRFlashReaderInternal_h */
 // VTK-HeaderTest-Exclude: vtkAMRFlashReaderInternal.h

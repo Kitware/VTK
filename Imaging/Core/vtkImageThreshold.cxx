@@ -22,6 +22,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImageThreshold);
 
 //------------------------------------------------------------------------------
@@ -292,3 +293,4 @@ void vtkImageThreshold::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "ReplaceIn: " << this->ReplaceIn << "\n";
   os << indent << "ReplaceOut: " << this->ReplaceOut << "\n";
 }
+VTK_ABI_NAMESPACE_END

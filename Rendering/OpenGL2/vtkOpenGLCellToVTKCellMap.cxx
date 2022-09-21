@@ -19,6 +19,7 @@
 #include "vtkProperty.h"
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOpenGLCellToVTKCellMap);
 
 //------------------------------------------------------------------------------
@@ -361,3 +362,4 @@ vtkIdType vtkOpenGLCellToVTKCellMap::ConvertOpenGLCellIdToVTKCellId(
   // error
   return 0;
 }
+VTK_ABI_NAMESPACE_END

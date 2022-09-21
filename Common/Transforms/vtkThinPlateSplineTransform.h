@@ -47,6 +47,7 @@
 #define VTK_RBF_R 1
 #define VTK_RBF_R2LOGR 2
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONTRANSFORMS_EXPORT vtkThinPlateSplineTransform : public vtkWarpTransform
 {
 public:
@@ -192,4 +193,5 @@ private:
   void operator=(const vtkThinPlateSplineTransform&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

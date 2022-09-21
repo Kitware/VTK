@@ -66,6 +66,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkMultiBlockDataSetAlgorithm.h"
 #include <map> // STL vector need for per block angles
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPoints;
 class vtkPointData;
 
@@ -173,4 +174,5 @@ private:
   void operator=(const vtkQuadRotationalExtrusionFilter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

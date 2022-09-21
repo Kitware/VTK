@@ -31,6 +31,7 @@
 //------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkTooltipItem);
 
 //------------------------------------------------------------------------------
@@ -155,3 +156,4 @@ void vtkTooltipItem::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

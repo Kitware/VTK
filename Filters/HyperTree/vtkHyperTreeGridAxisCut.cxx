@@ -30,6 +30,7 @@
 #include "vtkHyperTreeGridNonOrientedCursor.h"
 #include "vtkHyperTreeGridNonOrientedGeometryCursor.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkHyperTreeGridAxisCut);
 
 //------------------------------------------------------------------------------
@@ -296,3 +297,4 @@ void vtkHyperTreeGridAxisCut::RecursivelyProcessTree(
     } // inChild
   }   // if ( ! cursor->IsLeaf() )
 }
+VTK_ABI_NAMESPACE_END

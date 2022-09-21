@@ -18,6 +18,7 @@
 
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkParametricDini);
 
 //------------------------------------------------------------------------------
@@ -102,3 +103,4 @@ void vtkParametricDini::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "A: " << this->A << "\n";
   os << indent << "B: " << this->B << "\n";
 }
+VTK_ABI_NAMESPACE_END

@@ -38,6 +38,7 @@
 #include VTK_DIY2(diy/types.hpp)
 // clang-format on
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataArray;
 class vtkBoundingBox;
 class vtkDataObject;
@@ -165,6 +166,7 @@ private:
   vtkDIYUtilities(const vtkDIYUtilities&) = delete;
   void operator=(const vtkDIYUtilities&) = delete;
 };
+VTK_ABI_NAMESPACE_END
 
 namespace diy
 {
@@ -190,6 +192,7 @@ struct Serialization<vtkFieldData*>
 };
 }
 
+VTK_ABI_NAMESPACE_BEGIN
 // Implementation detail for Schwarz counter idiom.
 class VTKPARALLELDIY_EXPORT vtkDIYUtilitiesCleanup
 {
@@ -203,6 +206,7 @@ private:
 };
 static vtkDIYUtilitiesCleanup vtkDIYUtilitiesCleanupInstance;
 
+VTK_ABI_NAMESPACE_END
 #include "vtkDIYUtilities.txx" // for template implementations
 
 #endif

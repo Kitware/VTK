@@ -57,6 +57,7 @@
 #include "vtkIOImportModule.h" // For export macro
 #include "vtkImporter.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkActor;
 class vtkAlgorithm;
 class vtkProperty;
@@ -173,4 +174,5 @@ private:
   void operator=(const vtkVRMLImporter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

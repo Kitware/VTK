@@ -38,6 +38,7 @@
 #include "vtkTimerLog.h"
 #include "vtkUnsignedCharArray.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 static void AbortRenderCheck(
   vtkObject* caller, unsigned long vtkNotUsed(event), void* clientData, void*);
 
@@ -2015,3 +2016,4 @@ void vtkParallelRenderManager::LightInfo::Save(vtkMultiProcessStream& stream)
          << this->Position[2] << this->FocalPoint[0] << this->FocalPoint[1] << this->FocalPoint[2]
          << this->Type;
 }
+VTK_ABI_NAMESPACE_END

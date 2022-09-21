@@ -27,6 +27,7 @@
 #include <vector>  // STL vector header
 
 // Forward Declarations
+VTK_ABI_NAMESPACE_BEGIN
 class vtkOverlappingAMR;
 class vtkMultiProcessController;
 class vtkDataArraySelection;
@@ -298,4 +299,5 @@ private:
   void operator=(const vtkAMRBaseReader&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif /* vtkAMRBaseReader_h */

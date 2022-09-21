@@ -31,6 +31,7 @@
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkTDxInteractorStyle.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkTransform;
 
 class VTKRENDERINGCORE_EXPORT vtkTDxInteractorStyleCamera : public vtkTDxInteractorStyle
@@ -56,4 +57,5 @@ private:
   vtkTDxInteractorStyleCamera(const vtkTDxInteractorStyleCamera&) = delete;
   void operator=(const vtkTDxInteractorStyleCamera&) = delete;
 };
+VTK_ABI_NAMESPACE_END
 #endif

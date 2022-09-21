@@ -143,7 +143,10 @@ if (_vtk_encode_string_run AND CMAKE_SCRIPT_MODE_FILE)
     "#ifndef ${output_name}_h\n#define ${output_name}_h\n\n")
   if (export_symbol)
     file(APPEND "${output_header}"
-      "#include \"${export_header}\"\n\n${export_symbol} ")
+      "#include \"${export_header}\"\n\nVTK_ABI_NAMESPACE_BEGIN\n${export_symbol} ")
+  else ()
+    file(APPEND "${output_header}"
+      "#include \"vtkABINamespace.h\"\n\nVTK_ABI_NAMESPACE_BEGIN\n")
   endif ()
 
   if (IS_ABSOLUTE "${source_file}")
@@ -164,10 +167,10 @@ if (_vtk_encode_string_run AND CMAKE_SCRIPT_MODE_FILE)
     string(LENGTH "${original_content}" output_size)
     math(EXPR output_size "${output_size} / 2")
     file(APPEND "${output_header}"
-      "extern const unsigned char ${output_name}[${output_size}];\n\n#endif\n")
+      "extern const unsigned char ${output_name}[${output_size}];\n\nVTK_ABI_NAMESPACE_END\n#endif\n")
 
     file(APPEND "${output_source}"
-      "#include \"${output_name}.h\"\n\nconst unsigned char ${output_name}[${output_size}] = {\n")
+      "#include \"${output_name}.h\"\n\nVTK_ABI_NAMESPACE_BEGIN\n\nconst unsigned char ${output_name}[${output_size}] = {\n")
     string(REGEX REPLACE "\([0-9a-f][0-9a-f]\)" ",0x\\1" escaped_content "${original_content}")
     # Hard line wrap the file.
     string(REGEX REPLACE "\(..........................................................................,\)" "\\1\n" escaped_content "${escaped_content}")
@@ -176,10 +179,10 @@ if (_vtk_encode_string_run AND CMAKE_SCRIPT_MODE_FILE)
     file(APPEND "${output_source}"
       "${escaped_content}\n")
     file(APPEND "${output_source}"
-      "};\n")
+      "};\nVTK_ABI_NAMESPACE_END\n")
   else ()
     file(APPEND "${output_header}"
-      "extern const char *${output_name};\n\n#endif\n")
+      "extern const char *${output_name};\n\nVTK_ABI_NAMESPACE_END\n#endif\n")
 
     # Escape literal backslashes.
     string(REPLACE "\\" "\\\\" escaped_content "${original_content}")
@@ -189,8 +192,8 @@ if (_vtk_encode_string_run AND CMAKE_SCRIPT_MODE_FILE)
     string(REPLACE "\n" "\\n\"\n\"" escaped_content "${escaped_content}")
 
     file(APPEND "${output_source}"
-      "#include \"${output_name}.h\"\n\nconst char *${output_name} =\n")
+      "#include \"${output_name}.h\"\n\nVTK_ABI_NAMESPACE_BEGIN\n\nconst char *${output_name} =\n")
     file(APPEND "${output_source}"
-      "\"${escaped_content}\";\n")
+      "\"${escaped_content}\";\nVTK_ABI_NAMESPACE_END\n")
   endif ()
 endif ()

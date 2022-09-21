@@ -67,6 +67,7 @@ typedef FILE* vtkLSDynaFile_t;
 #include <errno.h>
 #endif
 
+VTK_ABI_NAMESPACE_BEGIN
 class LSDynaFamily
 {
 public:
@@ -325,4 +326,5 @@ inline T* LSDynaFamily::GetBufferAs()
   return reinterpret_cast<T*>(this->Chunk);
 }
 
+VTK_ABI_NAMESPACE_END
 #endif // __LSDynaFamily_h

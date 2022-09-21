@@ -30,6 +30,7 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkDataSetTriangleFilter);
 
 vtkDataSetTriangleFilter::vtkDataSetTriangleFilter()
@@ -411,3 +412,4 @@ void vtkDataSetTriangleFilter::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
   os << indent << "TetrahedraOnly: " << (this->TetrahedraOnly ? "On" : "Off") << "\n";
 }
+VTK_ABI_NAMESPACE_END

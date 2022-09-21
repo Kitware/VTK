@@ -30,6 +30,7 @@
 #include "vtkCellIterator.h"
 #include "vtkSmartPointer.h" // For vtkSmartPointer
 
+VTK_ABI_NAMESPACE_BEGIN
 template <class Implementation, class CellIterator>
 class vtkMappedUnstructuredGrid;
 
@@ -68,6 +69,7 @@ private:
   vtkIdType NumberOfCells;
 };
 
+VTK_ABI_NAMESPACE_END
 #include "vtkMappedUnstructuredGridCellIterator.txx" // template implementations
 
 #endif // vtkMappedUnstructuredGridCellIterator_h

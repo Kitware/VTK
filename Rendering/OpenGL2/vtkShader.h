@@ -34,6 +34,7 @@
  * attached to a ShaderProgram in order to render geometry etc.
  */
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKRENDERINGOPENGL2_EXPORT vtkShader : public vtkObject
 {
 public:
@@ -133,4 +134,5 @@ private:
   void operator=(const vtkShader&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

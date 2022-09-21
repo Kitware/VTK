@@ -32,6 +32,7 @@
 #include "vtkIOParallelXMLModule.h" // For export macro
 #include "vtkXMLPUnstructuredDataWriter.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPolyData;
 
 class VTKIOPARALLELXML_EXPORT vtkXMLPPolyDataWriter : public vtkXMLPUnstructuredDataWriter
@@ -66,4 +67,5 @@ private:
   void operator=(const vtkXMLPPolyDataWriter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

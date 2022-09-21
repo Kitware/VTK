@@ -27,6 +27,7 @@
 
 #define VTK_MAX_SPHERE_RESOLUTION 1024
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkTransform;
 
 class VTKFILTERSMODELING_EXPORT vtkSpherePuzzle : public vtkPolyDataAlgorithm
@@ -102,4 +103,5 @@ private:
   void operator=(const vtkSpherePuzzle&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

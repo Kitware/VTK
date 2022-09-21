@@ -36,6 +36,7 @@
 #include <sstream>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkCxxSetObjectMacro(vtkStatisticsAlgorithm, AssessNames, vtkStringArray);
 
 //------------------------------------------------------------------------------
@@ -396,3 +397,4 @@ void vtkStatisticsAlgorithm::Assess(
     delete dfunc;
   }
 }
+VTK_ABI_NAMESPACE_END

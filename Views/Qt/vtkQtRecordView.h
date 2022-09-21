@@ -40,6 +40,8 @@
 #include <QPointer>           // Needed for the text widget member
 
 class QTextEdit;
+
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataObjectToTable;
 
 class VTKVIEWSQT_EXPORT vtkQtRecordView : public vtkQtView
@@ -110,4 +112,5 @@ private:
   vtkMTimeType LastMTime;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

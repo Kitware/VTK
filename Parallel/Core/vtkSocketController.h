@@ -44,6 +44,7 @@
 #include "vtkMultiProcessController.h"
 #include "vtkParallelCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkSocketCommunicator;
 
 class VTKPARALLELCORE_EXPORT vtkSocketController : public vtkMultiProcessController
@@ -138,4 +139,5 @@ private:
   void operator=(const vtkSocketController&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkSocketController_h

@@ -28,6 +28,7 @@
 #include <algorithm>
 #include <limits>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkVectorDot);
 
 namespace
@@ -248,3 +249,4 @@ void vtkVectorDot::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Actual Range: (" << this->ActualRange[0] << ", " << this->ActualRange[1]
      << ")\n";
 }
+VTK_ABI_NAMESPACE_END

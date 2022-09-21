@@ -47,6 +47,7 @@
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkSystemIncludes.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkArrayWeightsStorage; // pimpl
 
 class VTKCOMMONCORE_EXPORT vtkArrayWeights
@@ -118,6 +119,7 @@ protected:
   vtkArrayWeightsStorage* Storage;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
 
 // VTK-HeaderTest-Exclude: vtkArrayWeights.h

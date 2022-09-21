@@ -13,3 +13,4 @@ vtk_module_find_package(PRIVATE
 vtk_module_link(VTK::FiltersReebGraph
   PRIVATE
     "$<BUILD_INTERFACE:Boost::boost>")
+vtk_add_test_mangling(VTK::FiltersReebGraph)

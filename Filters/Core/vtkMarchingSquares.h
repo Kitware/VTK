@@ -44,6 +44,7 @@
 
 #include "vtkContourValues.h" // Passes calls to vtkContourValues
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkImageData;
 class vtkIncrementalPointLocator;
 
@@ -182,4 +183,5 @@ inline void vtkMarchingSquares::GenerateValues(int numContours, double rangeStar
   this->ContourValues->GenerateValues(numContours, rangeStart, rangeEnd);
 }
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -22,6 +22,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUniformGridAMR.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkUniformGridAMRAlgorithm);
 
 //------------------------------------------------------------------------------
@@ -128,3 +129,4 @@ vtkDataObject* vtkUniformGridAMRAlgorithm::GetInput(int port)
   }
   return this->GetExecutive()->GetInputData(port, 0);
 }
+VTK_ABI_NAMESPACE_END

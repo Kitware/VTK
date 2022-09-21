@@ -33,6 +33,7 @@
 #include "vtkImageProcessingPass.h"
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkOpenGLFramebufferObject;
 class vtkOpenGLQuadHelper;
 class vtkTextureObject;
@@ -136,4 +137,5 @@ private:
   void operator=(const vtkPanoramicProjectionPass&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

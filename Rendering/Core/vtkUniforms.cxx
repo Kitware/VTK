@@ -3,6 +3,7 @@
 
 //------------------------------------------------------------------------------
 // Return nullptr if no override is supplied.
+VTK_ABI_NAMESPACE_BEGIN
 vtkAbstractObjectFactoryNewMacro(vtkUniforms);
 
 //------------------------------------------------------------------------------
@@ -78,3 +79,4 @@ int vtkUniforms::StringToScalarType(const std::string& s)
     return VTK_VOID;
   }
 }
+VTK_ABI_NAMESPACE_END

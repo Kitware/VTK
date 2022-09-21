@@ -35,6 +35,7 @@
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkRectilinearGrid;
 class vtkDataArray;
 
@@ -194,4 +195,5 @@ private:
 extern int VTK_RECTILINEAR_SYNCHONIZED_TEMPLATES_TABLE_1[];
 extern int VTK_RECTILINEAR_SYNCHONIZED_TEMPLATES_TABLE_2[];
 
+VTK_ABI_NAMESPACE_END
 #endif

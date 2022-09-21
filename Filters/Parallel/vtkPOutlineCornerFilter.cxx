@@ -39,6 +39,7 @@
 #include "vtkUniformGrid.h"
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPOutlineCornerFilter);
 vtkCxxSetObjectMacro(vtkPOutlineCornerFilter, Controller, vtkMultiProcessController);
 
@@ -96,3 +97,4 @@ void vtkPOutlineCornerFilter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "CornerFactor: " << this->CornerFactor << "\n";
   os << indent << "Controller: " << this->Controller << endl;
 }
+VTK_ABI_NAMESPACE_END

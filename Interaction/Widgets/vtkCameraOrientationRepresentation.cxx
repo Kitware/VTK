@@ -58,6 +58,7 @@
   }
 
 //-----------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkCameraOrientationRepresentation);
 
 //-----------------------------------------------------------------------------
@@ -890,3 +891,4 @@ void vtkCameraOrientationRepresentation::PrintSelf(ostream& os, vtkIndent indent
   this->Transform->PrintSelf(os, indent);
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

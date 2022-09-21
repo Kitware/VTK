@@ -30,6 +30,7 @@
 
 #include "vtkSmartPointer.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPointSet);
 vtkStandardExtendedNewMacro(vtkPointSet);
 
@@ -356,3 +357,4 @@ void vtkPointSet::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "PointLocator: " << this->PointLocator << "\n";
   os << indent << "CellLocator: " << this->CellLocator << "\n";
 }
+VTK_ABI_NAMESPACE_END

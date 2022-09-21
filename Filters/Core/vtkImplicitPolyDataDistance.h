@@ -43,6 +43,7 @@
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkImplicitFunction.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCellLocator;
 class vtkPolyData;
 
@@ -142,4 +143,5 @@ private:
   void operator=(const vtkImplicitPolyDataDistance&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -27,6 +27,7 @@
 #include "vtkQuadraticTriangle.h"
 #include "vtkTetra.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkQuadraticPyramid);
 
 //------------------------------------------------------------------------------
@@ -896,3 +897,4 @@ void vtkQuadraticPyramid::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Scalars:\n";
   this->Scalars->PrintSelf(os, indent.GetNextIndent());
 }
+VTK_ABI_NAMESPACE_END

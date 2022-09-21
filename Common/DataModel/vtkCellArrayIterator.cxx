@@ -16,6 +16,7 @@
 #include "vtkCellArrayIterator.h"
 #include "vtkObjectFactory.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkCellArrayIterator);
 
 void vtkCellArrayIterator::PrintSelf(std::ostream& os, vtkIndent indent)
@@ -25,3 +26,4 @@ void vtkCellArrayIterator::PrintSelf(std::ostream& os, vtkIndent indent)
   os << indent << "CurrentCellId: " << this->CurrentCellId << "\n";
   os << indent << "CellArray: " << this->CellArray.Get() << "\n";
 }
+VTK_ABI_NAMESPACE_END

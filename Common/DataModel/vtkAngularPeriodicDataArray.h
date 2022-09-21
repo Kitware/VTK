@@ -35,6 +35,7 @@
 #define VTK_PERIODIC_ARRAY_AXIS_Y 1
 #define VTK_PERIODIC_ARRAY_AXIS_Z 2
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkMatrix3x3;
 
 template <class Scalar>
@@ -104,6 +105,7 @@ private:
   vtkMatrix3x3* RotationMatrix;
 };
 
+VTK_ABI_NAMESPACE_END
 #include "vtkAngularPeriodicDataArray.txx"
 
 #endif // vtkAngularPeriodicDataArray_h

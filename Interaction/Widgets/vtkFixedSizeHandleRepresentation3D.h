@@ -39,6 +39,7 @@
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkPolygonalHandleRepresentation3D.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkSphereSource;
 
 class VTKINTERACTIONWIDGETS_EXPORT vtkFixedSizeHandleRepresentation3D
@@ -114,4 +115,5 @@ private:
   void operator=(const vtkFixedSizeHandleRepresentation3D&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

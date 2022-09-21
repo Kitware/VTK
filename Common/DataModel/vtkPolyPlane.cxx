@@ -22,6 +22,7 @@
 #include "vtkPolyLine.h"
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPolyPlane);
 vtkCxxSetObjectMacro(vtkPolyPlane, PolyLine, vtkPolyLine);
 
@@ -311,3 +312,4 @@ void vtkPolyPlane::PrintSelf(ostream& os, vtkIndent indent)
     this->Normals->PrintSelf(os, indent.GetNextIndent());
   }
 }
+VTK_ABI_NAMESPACE_END

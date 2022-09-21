@@ -25,6 +25,7 @@
 
 #include <vtkNew.h> // For vtkNew
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDoubleArray;
 class vtkExtentTranslator;
 class vtkHyperTreeGridNonOrientedCursor;
@@ -115,4 +116,5 @@ private:
   vtkDoubleArray* Levels;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkRandomHyperTreeGridSource_h

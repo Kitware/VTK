@@ -30,6 +30,7 @@
 #include "vtkScalarsToColors.h" // For VTK_COLOR_MODE_DEFAULT and _MAP_SCALARS
 #include "vtkStdString.h"       // For vtkStdString ivars
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkChartParallelCoordinates;
 class vtkScalarsToColors;
 class vtkTable;
@@ -165,4 +166,5 @@ private:
   void operator=(const vtkPlotParallelCoordinates&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkPlotParallelCoordinates_h

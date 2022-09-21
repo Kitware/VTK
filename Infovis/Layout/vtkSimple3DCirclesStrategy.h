@@ -46,6 +46,7 @@
 #include "vtkInfovisLayoutModule.h" // For export macro
 #include "vtkVariant.h"             // For variant API
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkAbstractArray;
 class vtkDirectedGraph;
 class vtkIdTypeArray;
@@ -232,4 +233,5 @@ private:
   void operator=(const vtkSimple3DCirclesStrategy&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

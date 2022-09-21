@@ -34,6 +34,7 @@
 #include "vtkImagingCoreModule.h" // For export macro
 #include "vtkThreadedImageAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkAbstractImageInterpolator;
 
 class VTKIMAGINGCORE_EXPORT vtkImageResize : public vtkThreadedImageAlgorithm
@@ -185,4 +186,5 @@ private:
   void operator=(const vtkImageResize&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

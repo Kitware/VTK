@@ -69,6 +69,7 @@
 #include <stack>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImageConnectivityFilter);
 
 //------------------------------------------------------------------------------
@@ -1532,3 +1533,4 @@ void vtkImageConnectivityFilter::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "StencilConnection: " << this->GetStencilConnection() << "\n";
 }
+VTK_ABI_NAMESPACE_END

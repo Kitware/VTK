@@ -43,6 +43,7 @@
 #include "vtkInteractionStyleModule.h" // For export macro
 #include "vtkInteractorStyle.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkUnsignedCharArray;
 
 class VTKINTERACTIONSTYLE_EXPORT vtkInteractorStyleRubberBand2D : public vtkInteractorStyle
@@ -132,4 +133,5 @@ private:
   void operator=(const vtkInteractorStyleRubberBand2D&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

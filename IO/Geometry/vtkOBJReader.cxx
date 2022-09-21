@@ -29,6 +29,7 @@
 #include "vtkCellData.h"
 #include "vtkStringArray.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOBJReader);
 
 //------------------------------------------------------------------------------
@@ -1070,3 +1071,4 @@ void vtkOBJReader::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Comment: " << (this->Comment ? this->Comment : "(none)") << "\n";
 }
+VTK_ABI_NAMESPACE_END

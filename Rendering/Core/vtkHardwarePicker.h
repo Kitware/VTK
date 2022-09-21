@@ -38,6 +38,7 @@
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkSmartPointer.h"        // For vtkSmartPointer
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkAbstractMapper3D;
 class vtkCell;
 class vtkCompositeDataSet;
@@ -259,4 +260,5 @@ private:
   void operator=(const vtkHardwarePicker&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

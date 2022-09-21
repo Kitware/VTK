@@ -82,6 +82,7 @@
 #include "vtkInteractionStyleModule.h" // For export macro
 #include "vtkInteractorStyle.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCamera;
 class vtkWorldPointPicker;
 
@@ -178,4 +179,5 @@ private:
   void operator=(const vtkInteractorStyleUnicam&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkInteractorStyleUnicam_h

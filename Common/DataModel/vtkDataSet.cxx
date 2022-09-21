@@ -44,6 +44,7 @@
 
 //------------------------------------------------------------------------------
 // Constructor with default bounds (0,1, 0,1, 0,1).
+VTK_ABI_NAMESPACE_BEGIN
 vtkDataSet::vtkDataSet()
 {
   vtkMath::UninitializeBounds(this->Bounds);
@@ -1041,3 +1042,4 @@ void vtkDataSet::OnDataModified(vtkObject* source, unsigned long, void* clientda
     This->UpdateCellGhostArrayCache();
   }
 }
+VTK_ABI_NAMESPACE_END

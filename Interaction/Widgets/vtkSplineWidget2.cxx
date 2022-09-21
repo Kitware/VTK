@@ -26,6 +26,7 @@
 #include "vtkWidgetEvent.h"
 #include "vtkWidgetEventTranslator.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkSplineWidget2);
 //------------------------------------------------------------------------------
 vtkSplineWidget2::vtkSplineWidget2()
@@ -327,3 +328,4 @@ void vtkSplineWidget2::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

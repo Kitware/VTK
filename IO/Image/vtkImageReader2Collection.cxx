@@ -17,6 +17,7 @@
 #include "vtkImageReader2.h"
 #include "vtkObjectFactory.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImageReader2Collection);
 
 void vtkImageReader2Collection::AddItem(vtkImageReader2* f)
@@ -39,3 +40,4 @@ void vtkImageReader2Collection::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

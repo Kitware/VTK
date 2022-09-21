@@ -40,6 +40,7 @@
 
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 VTK_THREAD_RETURN_TYPE UnstructuredGridVolumeRayCastMapper_CastRays(void* arg);
 
 vtkStandardNewMacro(vtkUnstructuredGridVolumeRayCastMapper);
@@ -722,3 +723,4 @@ void vtkUnstructuredGridVolumeRayCastMapper::PrintSelf(ostream& os, vtkIndent in
   // methods for access from the ray cast function (not part of the public
   // API)
 }
+VTK_ABI_NAMESPACE_END

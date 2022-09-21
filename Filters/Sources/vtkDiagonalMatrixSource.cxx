@@ -30,6 +30,7 @@
 
 //------------------------------------------------------------------------------
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkDiagonalMatrixSource);
 
 //------------------------------------------------------------------------------
@@ -163,3 +164,4 @@ vtkArray* vtkDiagonalMatrixSource::GenerateSparseArray()
 
   return array;
 }
+VTK_ABI_NAMESPACE_END

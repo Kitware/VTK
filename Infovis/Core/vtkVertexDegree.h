@@ -33,6 +33,7 @@
 #include "vtkGraphAlgorithm.h"
 #include "vtkInfovisCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKINFOVISCORE_EXPORT vtkVertexDegree : public vtkGraphAlgorithm
 {
 public:
@@ -62,4 +63,5 @@ private:
   void operator=(const vtkVertexDegree&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

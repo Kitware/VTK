@@ -65,6 +65,7 @@
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkFloatArray;
 class vtkIdList;
 class vtkPolyData;
@@ -218,4 +219,5 @@ private:
   void operator=(const vtkPolyDataNormals&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

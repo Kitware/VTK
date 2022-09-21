@@ -27,6 +27,7 @@
 #include "vtkAlgorithm.h"
 #include "vtkCommonExecutionModelModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkUniformGridAMR;
 class vtkInformation;
 class vtkInformationVector;
@@ -121,4 +122,5 @@ private:
   void operator=(const vtkUniformGridAMRAlgorithm&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif /* VTKUNIFORMGRIDAMRALGORITHM_H_ */

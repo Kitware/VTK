@@ -37,6 +37,7 @@
 #include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkPiecewiseFunction.h"          // makes things a bit easier
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataSet;
 class vtkDataObject;
 
@@ -107,4 +108,5 @@ private:
   void operator=(const vtkPiecewiseFunctionAlgorithm&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

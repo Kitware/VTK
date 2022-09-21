@@ -26,6 +26,7 @@
 #include "vtkDataSetAlgorithm.h"
 #include "vtkIOParallelModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataSet;
 
 class VTKIOPARALLEL_EXPORT vtkPDataSetReader : public vtkDataSetAlgorithm
@@ -96,4 +97,5 @@ private:
   void operator=(const vtkPDataSetReader&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

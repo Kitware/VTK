@@ -12,8 +12,8 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#ifndef vtkConfigCore_h
-#define vtkConfigCore_h
+#ifndef vtkmConfigCore_h
+#define vtkmConfigCore_h
 
 /*--------------------------------------------------------------------------*/
 /* Other Configuration Options                                              */
@@ -52,4 +52,4 @@
 #endif
 
 
-#endif // vtkConfigCore_h
+#endif // vtkmConfigCore_h

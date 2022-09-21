@@ -29,6 +29,7 @@
 #include "vtkRenderer.h"
 #include "vtkUnsignedCharArray.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkInteractorStyleRubberBand2D);
 
 //------------------------------------------------------------------------------
@@ -364,3 +365,4 @@ void vtkInteractorStyleRubberBand2D::PrintSelf(ostream& os, vtkIndent indent)
      << endl;
   os << indent << "EndPosition: " << this->EndPosition[0] << "," << this->EndPosition[1] << endl;
 }
+VTK_ABI_NAMESPACE_END

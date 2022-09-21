@@ -35,6 +35,7 @@
 #include "vtkUniforms.h"
 #include <string> // For member functions
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkUniformInternals;
 class vtkShaderProgram;
 
@@ -183,4 +184,5 @@ private:
   vtkUniformInternals* Internals;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

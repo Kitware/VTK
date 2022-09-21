@@ -31,6 +31,7 @@
 #include "vtkTextActor3D.h"
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOpenGLLabeledContourMapper);
 
 //------------------------------------------------------------------------------
@@ -173,3 +174,4 @@ bool vtkOpenGLLabeledContourMapper::RemoveStencil(vtkRenderer* ren)
   vtkOpenGLCheckErrorMacro("failed after RemoveStencil()");
   return this->Superclass::RemoveStencil(ren);
 }
+VTK_ABI_NAMESPACE_END

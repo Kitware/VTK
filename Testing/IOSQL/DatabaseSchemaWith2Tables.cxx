@@ -26,6 +26,7 @@
 
 #include "vtkSQLDatabaseSchema.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 DatabaseSchemaWith2Tables::DatabaseSchemaWith2Tables()
 {
   this->Create();
@@ -94,3 +95,4 @@ void DatabaseSchemaWith2Tables::Create()
   }
   cerr << " done." << endl;
 }
+VTK_ABI_NAMESPACE_END

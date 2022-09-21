@@ -32,6 +32,7 @@
 #include "vtkPointSetAlgorithm.h"
 #include "vtkRenderingCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKRENDERINGCORE_EXPORT vtkTransformCoordinateSystems : public vtkPointSetAlgorithm
 {
 public:
@@ -109,4 +110,5 @@ private:
   void operator=(const vtkTransformCoordinateSystems&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

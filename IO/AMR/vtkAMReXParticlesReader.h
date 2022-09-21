@@ -42,6 +42,7 @@
 
 #include <string> // for std::string.
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataArraySelection;
 class vtkMultiPieceDataSet;
 class vtkMultiProcessController;
@@ -129,4 +130,5 @@ private:
   friend class AMReXParticleHeader;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

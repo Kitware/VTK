@@ -22,6 +22,7 @@
 #include <vector>
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 class vtkColorSeriesPalette
 {
 public:
@@ -602,3 +603,4 @@ void vtkColorSeries::CopyOnWrite()
     this->Modified();
   }
 }
+VTK_ABI_NAMESPACE_END

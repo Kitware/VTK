@@ -29,6 +29,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <SDL2/SDL.h>                  // for ivars
 #include <stack>                       // for ivar
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKRENDERINGOPENGL2_EXPORT vtkSDL2OpenGLRenderWindow : public vtkOpenGLRenderWindow
 {
 public:
@@ -186,4 +187,5 @@ private:
   void operator=(const vtkSDL2OpenGLRenderWindow&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

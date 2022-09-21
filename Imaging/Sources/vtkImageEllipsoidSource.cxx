@@ -20,6 +20,7 @@
 
 #include "vtkImageData.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImageEllipsoidSource);
 
 //------------------------------------------------------------------------------
@@ -249,3 +250,4 @@ int vtkImageEllipsoidSource::RequestData(vtkInformation* vtkNotUsed(request),
 
   return 1;
 }
+VTK_ABI_NAMESPACE_END

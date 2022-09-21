@@ -22,6 +22,7 @@
 #include "vtkRenderer.h"
 #include "vtkViewport.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOpenGLTextActor);
 
 //------------------------------------------------------------------------------
@@ -86,3 +87,4 @@ int vtkOpenGLTextActor::RenderGL2PS(vtkViewport* viewport, vtkOpenGLGL2PSHelper*
 
   return 1;
 }
+VTK_ABI_NAMESPACE_END

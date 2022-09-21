@@ -26,6 +26,7 @@
 #include "vtkXMLDataElement.h"
 #include "vtkXMLUnstructuredGridReader.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkXMLPUnstructuredGridReader);
 
 //------------------------------------------------------------------------------
@@ -231,3 +232,4 @@ void vtkXMLPUnstructuredGridReader::SqueezeOutputArrays(vtkDataObject* output)
     outputFaceLocations->Squeeze();
   }
 }
+VTK_ABI_NAMESPACE_END

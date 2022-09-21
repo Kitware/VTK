@@ -35,6 +35,7 @@
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkImageData;
 
 class VTKFILTERSCORE_EXPORT vtkSynchronizedTemplates3D : public vtkPolyDataAlgorithm
@@ -197,4 +198,5 @@ private:
 extern int VTKFILTERSCORE_EXPORT VTK_SYNCHRONIZED_TEMPLATES_3D_TABLE_1[];
 extern int VTKFILTERSCORE_EXPORT VTK_SYNCHRONIZED_TEMPLATES_3D_TABLE_2[];
 
+VTK_ABI_NAMESPACE_END
 #endif

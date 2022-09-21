@@ -19,6 +19,7 @@
 #include "vtkTransform.h"
 #include "vtkVRRenderWindow.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkVRFollower);
 
 //------------------------------------------------------------------------------
@@ -139,3 +140,4 @@ void vtkVRFollower::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "LastViewUp: " << this->LastViewUp << "\n";
 }
+VTK_ABI_NAMESPACE_END

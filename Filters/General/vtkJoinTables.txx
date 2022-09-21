@@ -14,6 +14,7 @@
 =========================================================================*/
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 template <typename KeyColType, typename KeyValues>
 KeyValues GetCell(KeyColType*, int);
 
@@ -274,3 +275,4 @@ void vtkJoinTables::JoinAlgorithm(vtkTable* left, vtkTable* right, vtkTable* out
   }
   outputKeyCol->Delete();
 }
+VTK_ABI_NAMESPACE_END

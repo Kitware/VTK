@@ -30,6 +30,7 @@
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkSubdivisionFilter.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCellArray;
 class vtkCellData;
 class vtkIdList;
@@ -62,4 +63,5 @@ private:
   void operator=(const vtkApproximatingSubdivisionFilter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -30,12 +30,15 @@
 #include <stack>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 //------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkCellTreeLocator);
+VTK_ABI_NAMESPACE_END
 
 //------------------------------------------------------------------------------
 namespace detail
 {
+VTK_ABI_NAMESPACE_BEGIN
 enum
 {
   POS_X,
@@ -1284,8 +1287,10 @@ void CellTree<T>::FindCellsWithinBounds(double* bbox, vtkIdList* cells)
     }
   }
 }
+VTK_ABI_NAMESPACE_END
 } // namespace
 
+VTK_ABI_NAMESPACE_BEGIN
 //------------------------------------------------------------------------------
 vtkCellTreeLocator::vtkCellTreeLocator()
 {
@@ -1488,3 +1493,4 @@ void vtkCellTreeLocator::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "NumberOfBuckets: " << this->NumberOfBuckets << "\n";
   os << indent << "LargeIds: " << this->LargeIds << "\n";
 }
+VTK_ABI_NAMESPACE_END

@@ -60,6 +60,7 @@
 #include <vector>
 #include <vtksys/SystemTools.hxx>
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkXdmfDomain;
 class VTKIOXDMF2_EXPORT vtkXdmfDocument
 {
@@ -341,5 +342,6 @@ private:
   ///@}
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkXdmfReaderInternal.h

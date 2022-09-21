@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <sys/types.h>
 
+VTK_ABI_NAMESPACE_BEGIN
 typedef enum : uint32_t
 {
     RTW_NO_ERROR = 0,
@@ -202,9 +203,11 @@ typedef enum : uint32_t
     RTW_BACKEND_OSPRAY = 1,
     RTW_BACKEND_VISRTX = 2
 } RTWBackendType;
+VTK_ABI_NAMESPACE_END
 
 namespace rtw
 {
+VTK_ABI_NAMESPACE_BEGIN
     struct vec2f { float x, y; };
     struct vec2i { int x, y; };
     struct vec3i { int x, y, z; };
@@ -215,7 +218,10 @@ namespace rtw
     struct box3f { vec3f lower, upper; };
     struct linear3f { vec3f vx, vy, vz; };
     struct affine3f { linear3f l; vec3f p; };
+VTK_ABI_NAMESPACE_END
 }
+
+VTK_ABI_NAMESPACE_BEGIN
 
 typedef struct RTWHandle
 *RTWFrameBuffer,
@@ -246,3 +252,4 @@ typedef enum : uint32_t
     RTW_DENOISER = 4,
     RTW_DEPTH_COMPOSITING = 5,
 } RTWFeature;
+VTK_ABI_NAMESPACE_END

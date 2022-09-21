@@ -33,6 +33,7 @@
 #include "vtkAnimationCue.h"
 #include "vtkCommonDataModelModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkAnimationCue;
 class vtkCollection;
 class vtkCollectionIterator;
@@ -153,4 +154,5 @@ private:
   void operator=(const vtkAnimationScene&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

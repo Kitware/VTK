@@ -99,6 +99,8 @@ void betweenness_centrality_clustering(MutableGraph& g, Done done,
 }
 }
 
+VTK_ABI_NAMESPACE_BEGIN
+
 vtkStandardNewMacro(vtkBoostBetweennessClustering);
 
 //------------------------------------------------------------------------------
@@ -377,3 +379,4 @@ int vtkBoostBetweennessClustering::FillOutputPortInformation(int port, vtkInform
   }
   return 1;
 }
+VTK_ABI_NAMESPACE_END

@@ -33,6 +33,7 @@
 
 typedef vtkOpenXRManager::Action_t Action_t;
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKRENDERINGOPENXR_EXPORT vtkOpenXRRenderWindowInteractor : public vtkVRRenderWindowInteractor
 {
 public:
@@ -131,5 +132,6 @@ private:
   void operator=(const vtkOpenXRRenderWindowInteractor&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkOpenXRRenderWindowInteractor.h

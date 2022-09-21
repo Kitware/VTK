@@ -40,6 +40,7 @@
 
 #include <map> // For std::map
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkParametricFunction;
 class vtkPartitionedDataSet;
 
@@ -107,4 +108,5 @@ private:
   vtkParametricFunction* ParametricFunction = nullptr;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

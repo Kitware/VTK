@@ -22,6 +22,7 @@
 
 //------------------------------------------------------------------------------
 // Can't use vtkStandardNewMacro on a templated class.
+VTK_ABI_NAMESPACE_BEGIN
 template <class Scalar>
 vtkCPExodusIIResultsArrayTemplate<Scalar>* vtkCPExodusIIResultsArrayTemplate<Scalar>::New()
 {
@@ -550,3 +551,4 @@ vtkIdType vtkCPExodusIIResultsArrayTemplate<Scalar>::Lookup(const Scalar& val, v
   }
   return -1;
 }
+VTK_ABI_NAMESPACE_END

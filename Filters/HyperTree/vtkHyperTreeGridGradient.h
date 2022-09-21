@@ -40,6 +40,8 @@
 
 #include <string> // for internal fields
 
+VTK_ABI_NAMESPACE_BEGIN
+
 class vtkHyperTreeGridNonOrientedGeometryCursor;
 class vtkHyperTreeGridNonOrientedMooreSuperCursor;
 class vtkBitArray;
@@ -99,4 +101,5 @@ private:
   void operator=(const vtkHyperTreeGridGradient&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkHyperTreeGridGradient_h

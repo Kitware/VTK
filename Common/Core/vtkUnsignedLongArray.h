@@ -38,6 +38,7 @@
 #ifndef __VTK_WRAP__
 #define vtkDataArray vtkAOSDataArrayTemplate<unsigned long>
 #endif
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONCORE_EXPORT vtkUnsignedLongArray : public vtkDataArray
 {
 public:
@@ -88,4 +89,5 @@ private:
 // Define vtkArrayDownCast implementation:
 vtkArrayDownCast_FastCastMacro(vtkUnsignedLongArray);
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -22,6 +22,7 @@
 #include <numeric>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 struct vtkParallelReaderInternal
 {
   using FileNamesType = std::vector<std::string>;
@@ -185,3 +186,4 @@ double vtkParallelReader::GetTimeValue(const std::string&)
 {
   return vtkMath::Nan();
 }
+VTK_ABI_NAMESPACE_END

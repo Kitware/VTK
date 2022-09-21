@@ -31,6 +31,7 @@
 #include "vtkCellDataToPointData.h"
 #include "vtkmlib/vtkmInitializer.h" // Need for initializing vtk-m
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKACCELERATORSVTKMFILTERS_EXPORT vtkmAverageToPoints : public vtkCellDataToPointData
 {
 public:
@@ -50,4 +51,5 @@ private:
   vtkmInitializer Initializer;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkmAverageToPoints_h

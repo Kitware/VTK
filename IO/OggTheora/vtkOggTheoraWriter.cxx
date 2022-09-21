@@ -25,6 +25,7 @@
 #include <ctime>
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 class vtkOggTheoraWriterInternal
 {
 public:
@@ -589,3 +590,4 @@ void vtkOggTheoraWriter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Rate: " << this->Rate << endl;
   os << indent << "Subsampling: " << this->Subsampling << endl;
 }
+VTK_ABI_NAMESPACE_END

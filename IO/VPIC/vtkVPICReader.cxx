@@ -33,6 +33,7 @@
 #include "vtkvpic/VPICDataSet.h"
 #include "vtkvpic/VPICView.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkVPICReader);
 vtkCxxSetObjectMacro(vtkVPICReader, MPIController, vtkMultiProcessController);
 
@@ -648,3 +649,4 @@ void vtkVPICReader::PrintSelf(ostream& os, vtkIndent indent)
 
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

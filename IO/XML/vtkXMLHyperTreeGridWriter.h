@@ -69,6 +69,7 @@
 
 #include <vector> // std::vector
 
+VTK_ABI_NAMESPACE_BEGIN
 class OffsetsManagerGroup;
 class OffsetsManagerArray;
 class vtkBitArray;
@@ -193,4 +194,5 @@ private:
   void operator=(const vtkXMLHyperTreeGridWriter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

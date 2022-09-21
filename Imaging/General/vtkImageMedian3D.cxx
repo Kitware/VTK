@@ -25,6 +25,7 @@
 
 #include <algorithm> // for std::nth_element
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImageMedian3D);
 
 //------------------------------------------------------------------------------
@@ -305,3 +306,4 @@ void vtkImageMedian3D::ThreadedRequestData(vtkInformation* vtkNotUsed(request),
       return;
   }
 }
+VTK_ABI_NAMESPACE_END

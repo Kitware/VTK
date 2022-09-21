@@ -37,6 +37,7 @@
 #include "vtkFiltersHyperTreeModule.h" // For export macro
 #include "vtkHyperTreeGridAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkBitArray;
 class vtkHyperTreeGrid;
 class vtkQuadric;
@@ -214,4 +215,5 @@ private:
   void operator=(const vtkHyperTreeGridAxisClip&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkHyperTreeGridAxisClip_h

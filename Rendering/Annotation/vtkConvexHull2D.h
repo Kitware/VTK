@@ -52,6 +52,7 @@
 #include "vtkRenderingAnnotationModule.h" // For export macro
 #include "vtkSmartPointer.h"              // needed for ivars
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCoordinate;
 class vtkPoints;
 class vtkPolygon;
@@ -169,4 +170,5 @@ private:
   vtkSmartPointer<vtkPolygon> HullSource;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkConvexHull2D_h

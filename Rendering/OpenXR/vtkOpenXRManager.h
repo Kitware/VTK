@@ -37,6 +37,7 @@
 #include <string>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkOpenGLRenderWindow;
 
 class VTKRENDERINGOPENXR_EXPORT vtkOpenXRManager
@@ -605,5 +606,6 @@ private:
   void operator=(const vtkOpenXRManager&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkOpenXRManager.h

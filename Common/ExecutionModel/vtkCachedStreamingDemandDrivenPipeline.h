@@ -24,6 +24,7 @@
 #include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkStreamingDemandDrivenPipeline.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkInformationIntegerKey;
 class vtkInformationIntegerVectorKey;
 
@@ -63,4 +64,5 @@ private:
   void operator=(const vtkCachedStreamingDemandDrivenPipeline&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

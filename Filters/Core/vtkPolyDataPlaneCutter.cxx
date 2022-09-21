@@ -38,7 +38,9 @@
 #include "vtkStaticEdgeLocatorTemplate.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkObjectFactoryNewMacro(vtkPolyDataPlaneCutter);
+VTK_ABI_NAMESPACE_END
 
 //------------------------------------------------------------------------------
 // A high level overview of the algorithms is as follows. All steps are
@@ -468,6 +470,7 @@ struct OutputPointsWorker
 
 } // anonymous namespace
 
+VTK_ABI_NAMESPACE_BEGIN
 //==============================================================================
 //------------------------------------------------------------------------------
 // Here is the VTK class proper.
@@ -662,6 +665,7 @@ int vtkPolyDataPlaneCutter::RequestData(vtkInformation* vtkNotUsed(request),
 
   return 1;
 }
+VTK_ABI_NAMESPACE_END
 
 // Support convexity check on input
 namespace // begin anonymous namespace
@@ -726,6 +730,7 @@ struct CheckConvex
 
 } // anonymous namespace
 
+VTK_ABI_NAMESPACE_BEGIN
 //------------------------------------------------------------------------------
 // Assess whether the specified data object can be processed by this filter. The
 // input data must be of type vtkPolyData, and contain only convex polygons.
@@ -774,3 +779,4 @@ void vtkPolyDataPlaneCutter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Output Points Precision: " << this->OutputPointsPrecision << "\n";
   os << indent << "Batch Size: " << this->BatchSize << "\n";
 }
+VTK_ABI_NAMESPACE_END

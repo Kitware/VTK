@@ -25,6 +25,7 @@
 #include <list>
 #include <map>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkWidgetEventTranslator);
 
 // This is what is place in the list
@@ -430,3 +431,4 @@ void vtkWidgetEventTranslator::PrintSelf(ostream& os, vtkIndent indent)
     }
   }
 }
+VTK_ABI_NAMESPACE_END

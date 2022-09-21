@@ -21,6 +21,7 @@
 // Special thanks to Tom Johnson at Johnson Scientific International who
 // developed and contributed this class based on the data of John B. Allison.
 
+VTK_ABI_NAMESPACE_BEGIN
 static const short vtkEarthData[] = {
 /* 0 */
 3903, 1, 13663, 15523, 21733,
@@ -6762,3 +6763,4 @@ static const short vtkEarthData[] = {
  22, 64, 44, 0, 1, -17,
 0,
 };
+VTK_ABI_NAMESPACE_END

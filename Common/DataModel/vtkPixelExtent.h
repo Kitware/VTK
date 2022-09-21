@@ -35,6 +35,7 @@
 #include <deque>     // for inline impl
 #include <iostream>  // for inline impl
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONDATAMODEL_EXPORT vtkPixelExtent
 {
 public:
@@ -632,5 +633,6 @@ inline bool operator<(const vtkPixelExtent& l, const vtkPixelExtent& r)
   return l.Size() < r.Size();
 }
 
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkPixelExtent.h

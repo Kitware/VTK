@@ -36,6 +36,7 @@
 
 #define MAXPLANE 6
 
+VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
 //------------------------------------------------------------------------------
@@ -773,3 +774,4 @@ int vtkFrustumSelector::OverallBoundsTest(double bounds[6])
   rc = functor.ABoxFrustumIsect(bounds, vox);
   return (rc > 0);
 }
+VTK_ABI_NAMESPACE_END

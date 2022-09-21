@@ -30,6 +30,7 @@
 #include "vtkExporter.h"
 #include "vtkIOExportModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkActor;
 class vtkActor2D;
 class vtkDataArray;
@@ -150,4 +151,5 @@ private:
   void operator=(const vtkX3DExporter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -24,6 +24,7 @@
 #include "vtkPolygonBuilder.h"
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkContourHelper::vtkContourHelper(vtkIncrementalPointLocator* locator, vtkCellArray* verts,
   vtkCellArray* lines, vtkCellArray* polys, vtkPointData* inPd, vtkCellData* inCd,
   vtkPointData* outPd, vtkCellData* outCd, int estimatedSize, bool outputTriangles)
@@ -110,3 +111,4 @@ void vtkContourHelper::Contour(
     this->PolyCollection->RemoveAllItems();
   }
 }
+VTK_ABI_NAMESPACE_END

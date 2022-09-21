@@ -36,6 +36,7 @@
 
 #include <vector> // For caching
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkTetra;
 class vtkLagrangeCurve;
 class vtkLagrangeTriangle;
@@ -68,4 +69,5 @@ private:
   void operator=(const vtkLagrangeTetra&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

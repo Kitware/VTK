@@ -32,6 +32,7 @@
 
 #include "vtkTransform.h" // Needed for inline methods
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONTRANSFORMS_EXPORT vtkTransformCollection : public vtkCollection
 {
 public:
@@ -84,4 +85,5 @@ inline vtkTransform* vtkTransformCollection::GetNextItem()
   return static_cast<vtkTransform*>(this->GetNextItemAsObject());
 }
 
+VTK_ABI_NAMESPACE_END
 #endif

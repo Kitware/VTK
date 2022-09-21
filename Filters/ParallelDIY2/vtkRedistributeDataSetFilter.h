@@ -82,6 +82,7 @@
 #include VTK_DIY2(diy/assigner.hpp)
 // clang-format on
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkMultiProcessController;
 class vtkBoundingBox;
 class vtkPartitionedDataSet;
@@ -348,4 +349,5 @@ private:
   bool LoadBalanceAcrossAllBlocks;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

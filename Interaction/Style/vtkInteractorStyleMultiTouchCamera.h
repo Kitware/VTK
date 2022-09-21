@@ -32,6 +32,7 @@
 #include "vtkInteractorStyleTrackballCamera.h"
 #include "vtkRenderWindowInteractor.h" // for max pointers
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKINTERACTIONSTYLE_EXPORT vtkInteractorStyleMultiTouchCamera
   : public vtkInteractorStyleTrackballCamera
 {
@@ -65,4 +66,5 @@ private:
   void operator=(const vtkInteractorStyleMultiTouchCamera&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

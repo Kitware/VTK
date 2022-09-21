@@ -27,6 +27,7 @@
 #include <QWidget>
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkQWidgetTexture);
 
 //------------------------------------------------------------------------------
@@ -182,3 +183,4 @@ void vtkQWidgetTexture::Activate()
   // do normal activate
   this->Superclass::Activate();
 }
+VTK_ABI_NAMESPACE_END

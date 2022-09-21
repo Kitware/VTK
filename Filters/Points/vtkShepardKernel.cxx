@@ -22,6 +22,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkShepardKernel);
 
 //------------------------------------------------------------------------------
@@ -90,3 +91,4 @@ void vtkShepardKernel::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Power Parameter: " << this->GetPowerParameter() << "\n";
 }
+VTK_ABI_NAMESPACE_END

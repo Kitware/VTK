@@ -71,6 +71,7 @@
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkRandomSequence.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkMersenneTwisterInternals;
 
 class VTKCOMMONCORE_EXPORT vtkMersenneTwister : public vtkRandomSequence
@@ -147,4 +148,5 @@ private:
   void operator=(const vtkMersenneTwister&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // #ifndef vtkMersenneTwister_h

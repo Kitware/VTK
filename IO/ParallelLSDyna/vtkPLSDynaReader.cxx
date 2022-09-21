@@ -37,6 +37,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUnstructuredGrid.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPLSDynaReader);
 
 struct vtkPLSDynaReader::vtkPLSDynaReaderInternal
@@ -227,3 +228,4 @@ void vtkPLSDynaReader::GetPartRanges(vtkIdType* mins, vtkIdType* maxs)
     }
   }
 }
+VTK_ABI_NAMESPACE_END

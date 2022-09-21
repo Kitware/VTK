@@ -34,6 +34,7 @@
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkWidgetRepresentation.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKINTERACTIONWIDGETS_EXPORT vtkContinuousValueWidgetRepresentation
   : public vtkWidgetRepresentation
 {
@@ -86,4 +87,5 @@ private:
   void operator=(const vtkContinuousValueWidgetRepresentation&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -28,6 +28,7 @@
 #include "vtkIOGeoJSONModule.h" // For export macro
 #include "vtk_jsoncpp.h"        // For json parser
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPolyData;
 
 // Currently implemented geoJSON compatible Geometries
@@ -137,4 +138,5 @@ private:
   void operator=(const vtkGeoJSONFeature&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkGeoJSONFeature_h

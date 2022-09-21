@@ -31,6 +31,7 @@
 #include <algorithm>
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkGaussianSplatter);
 
 //------------------------------------------------------------------------------
@@ -753,3 +754,4 @@ int vtkGaussianSplatter::FillInputPortInformation(int vtkNotUsed(port), vtkInfor
   info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkCompositeDataSet");
   return 1;
 }
+VTK_ABI_NAMESPACE_END

@@ -26,6 +26,7 @@
 #include "vtkXMLUnstructuredDataReader.h"
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkXMLPUnstructuredDataReader::vtkXMLPUnstructuredDataReader()
 {
   this->TotalNumberOfPoints = 0;
@@ -392,3 +393,4 @@ int vtkXMLPUnstructuredDataReader::RequestInformation(
   outInfo->Set(CAN_HANDLE_PIECE_REQUEST(), 1);
   return this->Superclass::RequestInformation(request, inputVector, outputVector);
 }
+VTK_ABI_NAMESPACE_END

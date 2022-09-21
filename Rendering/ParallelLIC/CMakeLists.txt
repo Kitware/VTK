@@ -62,3 +62,4 @@ if (VTK_RENDERINGPARALLELLIC_LINEINTEGRALCONVOLUTION2D_TIMER)
     PRIVATE
       vtkLineIntegralConvolution2DTIME)
 endif()
+vtk_add_test_mangling(VTK::RenderingParallelLIC)

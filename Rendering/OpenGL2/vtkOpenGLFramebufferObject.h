@@ -167,6 +167,7 @@
 #include <map>                         // for the maps
 #include <vector>                      // for the lists of logical buffers.
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkFOInfo;
 class vtkGenericOpenGLResourceFreeCallback;
 class vtkOpenGLRenderWindow;
@@ -517,4 +518,5 @@ private:
   void operator=(const vtkOpenGLFramebufferObject&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

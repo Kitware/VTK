@@ -28,6 +28,7 @@
 #include "vtkLabelRenderStrategy.h"
 #include "vtkRenderingQtModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkLabelSizeCalculator;
 class vtkLabeledDataMapper;
 class vtkPlaneSource;
@@ -95,4 +96,5 @@ private:
   void operator=(const vtkQtLabelRenderStrategy&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

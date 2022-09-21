@@ -37,6 +37,7 @@
 
 #include <map>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkApplyIcons);
 
 class vtkApplyIcons::Internals
@@ -294,3 +295,4 @@ void vtkApplyIcons::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "SelectionMode: " << this->SelectionMode << endl;
   os << indent << "AttributeType: " << this->AttributeType << endl;
 }
+VTK_ABI_NAMESPACE_END

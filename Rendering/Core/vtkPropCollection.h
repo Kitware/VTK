@@ -32,6 +32,7 @@
 
 #include "vtkProp.h" // Needed for inline methods
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKRENDERINGCORE_EXPORT vtkPropCollection : public vtkCollection
 {
 public:
@@ -106,4 +107,5 @@ inline vtkProp* vtkPropCollection::GetLastProp()
   }
 }
 
+VTK_ABI_NAMESPACE_END
 #endif

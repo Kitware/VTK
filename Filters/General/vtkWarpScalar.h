@@ -41,6 +41,7 @@
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkPointSetAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataArray;
 
 class VTKFILTERSGENERAL_EXPORT vtkWarpScalar : public vtkPointSetAlgorithm
@@ -125,4 +126,5 @@ private:
   void operator=(const vtkWarpScalar&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

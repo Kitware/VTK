@@ -23,6 +23,7 @@
 #include "vtkPointData.h"
 #include <cctype>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkMaskFields);
 
 char vtkMaskFields::FieldLocationNames[3][12] = { "OBJECT_DATA", "POINT_DATA", "CELL_DATA" };
@@ -491,3 +492,4 @@ void vtkMaskFields::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "CopyAttributes: " << this->CopyAttributes << endl;
 }
+VTK_ABI_NAMESPACE_END

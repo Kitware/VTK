@@ -27,6 +27,7 @@
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPlaneCollection;
 class vtkPlane;
 class vtkClipConvexPolyDataInternals;
@@ -95,4 +96,5 @@ private:
   void operator=(const vtkClipConvexPolyData&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

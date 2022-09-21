@@ -50,6 +50,7 @@
 #include <queue>
 #include <set>
 
+VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
 class TimeLog // Similar to vtkTimerLogScope, but can be disabled at runtime.
@@ -4820,3 +4821,4 @@ void vtkKdTree::PrintSelf(ostream& os, vtkIndent indent)
   }
   os << indent << "Progress: " << this->Progress << endl;
 }
+VTK_ABI_NAMESPACE_END

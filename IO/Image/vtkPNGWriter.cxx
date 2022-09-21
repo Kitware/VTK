@@ -26,6 +26,7 @@
 
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPNGWriter::vtkInternals
 {
 public:
@@ -398,3 +399,4 @@ void vtkPNGWriter::ClearText()
     this->Modified();
   }
 }
+VTK_ABI_NAMESPACE_END

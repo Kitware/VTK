@@ -24,6 +24,7 @@
 
 #include "vtkBridgeCellIteratorStrategy.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkBridgeCell;
 class vtkBridgeDataSet;
 class vtkBridgeCell;
@@ -93,4 +94,5 @@ private:
   void operator=(const vtkBridgeCellIteratorOnDataSet&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

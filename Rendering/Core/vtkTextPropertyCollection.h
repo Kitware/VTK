@@ -30,6 +30,7 @@
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkTextProperty.h"        // for inline functions
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKRENDERINGCORE_EXPORT vtkTextPropertyCollection : public vtkCollection
 {
 public:
@@ -114,4 +115,5 @@ inline void vtkTextPropertyCollection::AddItem(vtkObject* o)
   this->vtkCollection::AddItem(o);
 }
 
+VTK_ABI_NAMESPACE_END
 #endif

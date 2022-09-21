@@ -30,6 +30,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkMCubesReader);
 
 // Construct object with FlipNormals turned off and Normals set to true.
@@ -442,3 +443,4 @@ vtkMTimeType vtkMCubesReader::GetMTime()
   }
   return mTime;
 }
+VTK_ABI_NAMESPACE_END

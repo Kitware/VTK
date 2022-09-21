@@ -23,6 +23,7 @@
 #include "vtkPropCollection.h"
 #include "vtkViewport.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPropAssembly);
 
 // Construct object with no children.
@@ -447,3 +448,4 @@ void vtkPropAssembly::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "There are: " << this->Parts->GetNumberOfItems() << " parts in this assembly\n";
 }
+VTK_ABI_NAMESPACE_END

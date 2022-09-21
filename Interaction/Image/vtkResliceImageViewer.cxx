@@ -38,6 +38,7 @@
 #include "vtkScalarsToColors.h"
 #include "vtkSmartPointer.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkResliceImageViewer);
 
 //------------------------------------------------------------------------------
@@ -600,3 +601,4 @@ void vtkResliceImageViewer::PrintSelf(ostream& os, vtkIndent indent)
     this->Interactor->PrintSelf(os, indent.GetNextIndent());
   }
 }
+VTK_ABI_NAMESPACE_END

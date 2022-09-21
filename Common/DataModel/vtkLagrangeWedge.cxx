@@ -32,6 +32,7 @@
 #include "vtkVectorOperators.h"
 #include "vtkWedge.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkLagrangeWedge);
 
 vtkLagrangeWedge::vtkLagrangeWedge() = default;
@@ -119,3 +120,4 @@ vtkHigherOrderInterpolation* vtkLagrangeWedge::GetInterpolation()
 {
   return Interp;
 };
+VTK_ABI_NAMESPACE_END

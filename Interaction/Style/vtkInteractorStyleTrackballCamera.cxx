@@ -23,6 +23,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkInteractorStyleTrackballCamera);
 
 //------------------------------------------------------------------------------
@@ -468,3 +469,4 @@ void vtkInteractorStyleTrackballCamera::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
   os << indent << "MotionFactor: " << this->MotionFactor << "\n";
 }
+VTK_ABI_NAMESPACE_END

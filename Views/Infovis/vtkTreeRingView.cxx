@@ -26,6 +26,7 @@
 #include "vtkStackedTreeLayoutStrategy.h"
 #include "vtkTreeRingToPolyData.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkTreeRingView);
 //------------------------------------------------------------------------------
 vtkTreeRingView::vtkTreeRingView() = default;
@@ -142,3 +143,4 @@ void vtkTreeRingView::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

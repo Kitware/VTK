@@ -24,6 +24,7 @@
 #include "vtkPolyData.h"
 #include "vtkViewport.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkCGMWriter);
 
 vtkCxxSetObjectMacro(vtkCGMWriter, Viewport, vtkViewport);
@@ -4571,3 +4572,4 @@ static int cgmImageEndCgm(cgmImagePtr im)
 
   return 1;
 }
+VTK_ABI_NAMESPACE_END

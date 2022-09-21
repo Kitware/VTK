@@ -17,6 +17,7 @@
 #include "vtkObjectFactory.h"
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkParametricEllipsoid);
 
 //------------------------------------------------------------------------------
@@ -89,3 +90,4 @@ void vtkParametricEllipsoid::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Y scale factor: " << this->YRadius << "\n";
   os << indent << "Z scale factor: " << this->ZRadius << "\n";
 }
+VTK_ABI_NAMESPACE_END

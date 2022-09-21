@@ -16,6 +16,7 @@
 #include "vtkObjectFactory.h"
 #include "vtksys/FStream.hxx"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkXMLFileReadTester);
 
 //------------------------------------------------------------------------------
@@ -87,3 +88,4 @@ int vtkXMLFileReadTester::ParsingComplete()
 {
   return this->Done ? 1 : 0;
 }
+VTK_ABI_NAMESPACE_END

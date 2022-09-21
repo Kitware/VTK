@@ -25,6 +25,7 @@
 
 #include "vtksys/SystemTools.hxx"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkSQLQuery::vtkSQLQuery()
 {
   this->Query = nullptr;
@@ -270,3 +271,4 @@ const char* vtkSQLQuery::GetQuery()
                 << (this->Query ? this->Query : "(null)"));
   return this->Query;
 }
+VTK_ABI_NAMESPACE_END

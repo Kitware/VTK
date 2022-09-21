@@ -50,6 +50,7 @@
 #include <algorithm>
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkCutter);
 vtkCxxSetObjectMacro(vtkCutter, CutFunction, vtkImplicitFunction);
 vtkCxxSetObjectMacro(vtkCutter, Locator, vtkIncrementalPointLocator);
@@ -1084,3 +1085,4 @@ void vtkCutter::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Precision of the output points: " << this->OutputPointsPrecision << "\n";
 }
+VTK_ABI_NAMESPACE_END

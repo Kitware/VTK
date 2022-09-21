@@ -37,6 +37,7 @@
 #pragma warning(push)           // save
 #pragma warning(disable : 4251) // needs to have dll-interface to be used by clients of class
 #endif
+VTK_ABI_NAMESPACE_BEGIN
 class VTKIOXDMF3_EXPORT vtkXdmf3ArraySelection : public std::map<std::string, bool>
 {
 public:
@@ -82,5 +83,6 @@ public:
 #pragma warning(pop) // restore
 #endif
 
+VTK_ABI_NAMESPACE_END
 #endif //# vtkXdmf3ArraySelection_h
 // VTK-HeaderTest-Exclude: vtkXdmf3ArraySelection.h

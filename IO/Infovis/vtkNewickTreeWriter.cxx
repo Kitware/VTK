@@ -19,6 +19,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkTree.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkNewickTreeWriter);
 
 //------------------------------------------------------------------------------
@@ -127,3 +128,4 @@ void vtkNewickTreeWriter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "EdgeWeightArrayName: " << this->EdgeWeightArrayName << endl;
   os << indent << "NodeNameArrayName: " << this->NodeNameArrayName << endl;
 }
+VTK_ABI_NAMESPACE_END

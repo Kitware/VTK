@@ -29,6 +29,7 @@
 #include <algorithm>
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOpenGLVertexBufferObjectGroup);
 
 typedef std::map<std::string, vtkOpenGLVertexBufferObject*>::iterator vboIter;
@@ -403,3 +404,4 @@ void vtkOpenGLVertexBufferObjectGroup::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

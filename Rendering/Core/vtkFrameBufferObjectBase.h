@@ -25,6 +25,7 @@
 #include "vtkObject.h"
 #include "vtkRenderingCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkRenderer;
 class vtkProp;
 class vtkInformation;
@@ -53,4 +54,5 @@ private:
   void operator=(const vtkFrameBufferObjectBase&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -41,6 +41,7 @@
 #include "vtkFiltersVerdictModule.h" // For export macro
 #include "vtkPassInputTypeAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataSet;
 class vtkDoubleArray;
 class vtkIdList;
@@ -179,4 +180,5 @@ private:
   char* VolumeArrayName;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

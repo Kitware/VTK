@@ -25,6 +25,7 @@
 
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImageAccumulate);
 
 //------------------------------------------------------------------------------
@@ -393,3 +394,4 @@ void vtkImageAccumulate::PrintSelf(ostream& os, vtkIndent indent)
      << this->ComponentExtent[3] << " " << this->ComponentExtent[4] << ","
      << this->ComponentExtent[5] << " }\n";
 }
+VTK_ABI_NAMESPACE_END

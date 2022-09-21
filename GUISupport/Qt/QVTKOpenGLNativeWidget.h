@@ -111,6 +111,7 @@
 #include "vtkNew.h"                // needed for vtkNew
 #include "vtkSmartPointer.h"       // needed for vtkSmartPointer
 
+VTK_ABI_NAMESPACE_BEGIN
 class QVTKInteractor;
 class QVTKInteractorAdapter;
 class QVTKRenderWindowAdapter;
@@ -228,4 +229,5 @@ private:
   QCursor DefaultCursor;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

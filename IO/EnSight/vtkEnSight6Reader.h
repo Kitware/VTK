@@ -41,6 +41,7 @@
 #include "vtkEnSightReader.h"
 #include "vtkIOEnSightModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkMultiBlockDataSet;
 class vtkIdTypeArray;
 class vtkPoints;
@@ -148,4 +149,5 @@ private:
   void operator=(const vtkEnSight6Reader&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

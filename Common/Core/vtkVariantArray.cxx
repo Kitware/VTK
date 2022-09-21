@@ -47,6 +47,7 @@ namespace
 {
 auto DefaultDeleteFunction = [](void* ptr) { delete[] reinterpret_cast<vtkVariant*>(ptr); };
 }
+VTK_ABI_NAMESPACE_BEGIN
 
 //------------------------------------------------------------------------------
 class vtkVariantArrayLookup
@@ -1040,3 +1041,4 @@ void vtkVariantArray::ClearLookup()
   delete this->Lookup;
   this->Lookup = nullptr;
 }
+VTK_ABI_NAMESPACE_END

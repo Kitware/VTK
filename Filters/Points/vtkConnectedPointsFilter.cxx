@@ -27,6 +27,7 @@
 #include "vtkPolyData.h"
 #include "vtkStaticPointLocator.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkConnectedPointsFilter);
 vtkCxxSetObjectMacro(vtkConnectedPointsFilter, Locator, vtkAbstractPointLocator);
 
@@ -504,3 +505,4 @@ void vtkConnectedPointsFilter::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Locator: " << this->Locator << "\n";
 }
+VTK_ABI_NAMESPACE_END

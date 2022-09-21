@@ -16,6 +16,7 @@
 #include "vtkObjectFactory.h"
 #include "vtksys/FStream.hxx"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkFileOutputWindow);
 
 vtkFileOutputWindow::vtkFileOutputWindow()
@@ -73,3 +74,4 @@ void vtkFileOutputWindow::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Append: " << (this->Append ? "On" : "Off") << endl;
   os << indent << "Flush: " << (this->Flush ? "On" : "Off") << endl;
 }
+VTK_ABI_NAMESPACE_END

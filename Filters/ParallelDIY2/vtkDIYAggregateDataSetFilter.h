@@ -29,6 +29,7 @@
 #include <string> // For passing computed data between methods
 #include <vector> // For passing computed data between methods
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataObject;
 class vtkIdList;
 
@@ -114,4 +115,5 @@ private:
   bool OutputInitialized;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

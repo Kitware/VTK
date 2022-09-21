@@ -36,9 +36,9 @@ VTK_ITER_OPTIMIZE_START
 
 namespace vtk
 {
-
 namespace detail
 {
+VTK_ABI_NAMESPACE_BEGIN
 
 // Forward decs for friends/args
 template <typename ArrayType, ComponentIdType>
@@ -988,6 +988,7 @@ template <typename ArrayType, ComponentIdType TupleSize,
   typename = typename std::enable_if<IsAOSDataArray<ArrayType>::value>::type>
 TupleRange<AOSArrayType, TupleSize> DeclareTupleRangeSpecialization(ArrayType*);
 
+VTK_ABI_NAMESPACE_END
 } // end namespace detail
 } // end namespace vtk
 

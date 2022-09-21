@@ -28,6 +28,7 @@
 
 #include "vtkObjectFactory.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkContextView);
 
 vtkCxxSetObjectMacro(vtkContextView, Context, vtkContext2D);
@@ -82,3 +83,4 @@ void vtkContextView::PrintSelf(ostream& os, vtkIndent indent)
     this->Context->PrintSelf(os, indent.GetNextIndent());
   }
 }
+VTK_ABI_NAMESPACE_END

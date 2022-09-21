@@ -73,6 +73,7 @@
 #include "vtkDataObjectAlgorithm.h"
 #include "vtkFiltersCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkUnstructuredGrid;
 class vtkImplicitFunction;
 
@@ -202,4 +203,5 @@ private:
   void operator=(const vtk3DLinearGridCrinkleExtractor&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

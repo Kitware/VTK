@@ -30,6 +30,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkOpenGLHelper.h"      // ivar
 #include "vtkRenderingVRModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkMatrix4x4;
 class vtkOpenGLRenderWindow;
 class vtkOpenGLVertexBufferObject;
@@ -89,4 +90,5 @@ private:
   void operator=(const vtkVRModel&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -36,6 +36,7 @@
 #include "vtkTimerLog.h"
 #include "vtkUnstructuredGrid.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkGenericContourFilter);
 
 vtkCxxSetObjectMacro(vtkGenericContourFilter, Locator, vtkIncrementalPointLocator);
@@ -401,3 +402,4 @@ int vtkGenericContourFilter::FillInputPortInformation(int port, vtkInformation* 
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkGenericDataSet");
   return 1;
 }
+VTK_ABI_NAMESPACE_END

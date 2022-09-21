@@ -31,6 +31,7 @@
 #include "vtkInfovisCoreModule.h" // For export macro
 #include "vtkTreeAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkTree;
 class vtkIdTypeArray;
 class vtkMutableDirectedGraph;
@@ -62,4 +63,5 @@ private:
   void operator=(const vtkExtractSelectedTree&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

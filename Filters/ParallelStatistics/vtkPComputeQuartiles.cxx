@@ -25,6 +25,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkPOrderStatistics.h"
 #include "vtkSmartPointer.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPComputeQuartiles);
 vtkCxxSetObjectMacro(vtkPComputeQuartiles, Controller, vtkMultiProcessController);
 
@@ -48,3 +49,4 @@ vtkOrderStatistics* vtkPComputeQuartiles::CreateOrderStatisticsFilter()
   filter->SetController(this->Controller);
   return filter;
 }
+VTK_ABI_NAMESPACE_END

@@ -19,6 +19,7 @@
 
 #include <cstdlib>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkTransform2D);
 
 //------------------------------------------------------------------------------
@@ -279,3 +280,4 @@ void vtkTransform2D::InverseTransformPoints(vtkPoints2D* inPts, vtkPoints2D* out
     outPts->SetPoint(i, point);
   }
 }
+VTK_ABI_NAMESPACE_END

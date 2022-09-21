@@ -26,6 +26,7 @@
 #include <algorithm>
 #include <iterator>
 
+VTK_ABI_NAMESPACE_BEGIN
 template <typename T>
 void vtkPrintCoordinateFormat(ostream& stream, vtkTypedArray<T>* array)
 {
@@ -104,4 +105,5 @@ void vtkPrintVectorFormat(ostream& stream, vtkTypedArray<T>* vector)
   }
 }
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -28,6 +28,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkLoopSubdivisionFilter);
 
 void vtkLoopSubdivisionFilter::PrintSelf(ostream& os, vtkIndent indent)
@@ -327,3 +328,4 @@ int vtkLoopSubdivisionFilter::RequestUpdateExtent(
 
   return 1;
 }
+VTK_ABI_NAMESPACE_END

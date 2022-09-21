@@ -31,6 +31,7 @@
 #include "vtkCommand.h"
 #include "vtkCommonCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONCORE_EXPORT vtkEventForwarderCommand : public vtkCommand
 {
 public:
@@ -60,6 +61,7 @@ protected:
   ~vtkEventForwarderCommand() override = default;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif /* vtkEventForwarderCommand_h */
 
 // VTK-HeaderTest-Exclude: vtkEventForwarderCommand.h

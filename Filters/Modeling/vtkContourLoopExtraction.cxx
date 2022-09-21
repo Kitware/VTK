@@ -32,6 +32,7 @@
 #include <cfloat>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkContourLoopExtraction);
 
 //------------------------------------------------------------------------------
@@ -526,3 +527,4 @@ void vtkContourLoopExtraction::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Clean Points: " << (this->CleanPoints ? "On\n" : "Off\n");
 }
+VTK_ABI_NAMESPACE_END

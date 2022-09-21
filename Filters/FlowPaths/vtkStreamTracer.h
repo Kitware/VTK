@@ -97,6 +97,7 @@
 #include "vtkDataSetAttributesFieldList.h" // Needed to identify common data arrays
 #include "vtkInitialValueProblemSolver.h"  // Needed for constants
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkAbstractInterpolatedVelocityField;
 class vtkCompositeDataSet;
 class vtkDataArray;
@@ -108,9 +109,11 @@ class vtkIdList;
 class vtkIntArray;
 class vtkPoints;
 
+VTK_ABI_NAMESPACE_END
 #include <vector> // for std::vector
 
 // Helper struct to convert between different length scales.
+VTK_ABI_NAMESPACE_BEGIN
 struct VTKFILTERSFLOWPATHS_EXPORT vtkIntervalInformation
 {
   double Interval;
@@ -565,4 +568,5 @@ private:
   void operator=(const vtkStreamTracer&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -29,6 +29,7 @@
 #include <vector>
 
 // A helper class to to turn on memkind, if enabled, while ensuring it always is restored
+VTK_ABI_NAMESPACE_BEGIN
 class vtkTDSCMemkindRAII
 {
 #ifdef VTK_USE_MEMKIND
@@ -532,3 +533,4 @@ void vtkTemporalDataSetCache::SetEjected(vtkDataObject* victim)
     // this->Modified(); //this is only thing we are changing from the macro
   }
 }
+VTK_ABI_NAMESPACE_END

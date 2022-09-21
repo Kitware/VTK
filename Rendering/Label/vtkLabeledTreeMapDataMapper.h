@@ -47,6 +47,7 @@
 #include "vtkLabeledDataMapper.h"
 #include "vtkRenderingLabelModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkTree;
 class vtkPoints;
 class vtkCoordinate;
@@ -172,4 +173,5 @@ private:
   void operator=(const vtkLabeledTreeMapDataMapper&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

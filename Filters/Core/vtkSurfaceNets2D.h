@@ -125,6 +125,8 @@
 #include "vtkPolyData.h"                   // To support data caching
 #include "vtkPolyDataAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
+
 class vtkImageData;
 
 class VTKFILTERSCORE_EXPORT vtkSurfaceNets2D : public vtkPolyDataAlgorithm
@@ -336,4 +338,5 @@ private:
   void operator=(const vtkSurfaceNets2D&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

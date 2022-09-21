@@ -35,6 +35,7 @@
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkWidgetRepresentation.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkImageCheckerboard;
 class vtkImageActor;
 class vtkSliderRepresentation3D;
@@ -149,4 +150,5 @@ private:
   void operator=(const vtkCheckerboardRepresentation&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

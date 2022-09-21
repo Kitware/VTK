@@ -66,6 +66,7 @@
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPolyData;
 
 class VTKFILTERSCORE_EXPORT vtkTriangleMeshPointNormals : public vtkPolyDataAlgorithm
@@ -88,4 +89,5 @@ private:
   void operator=(const vtkTriangleMeshPointNormals&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

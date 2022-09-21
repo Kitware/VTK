@@ -25,6 +25,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkImageAlgorithm::vtkImageAlgorithm()
 {
   this->SetNumberOfInputPorts(1);
@@ -413,3 +414,4 @@ void vtkImageAlgorithm::AddInputData(int index, vtkDataObject* input)
 {
   this->AddInputDataInternal(index, input);
 }
+VTK_ABI_NAMESPACE_END

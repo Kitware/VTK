@@ -16,6 +16,7 @@
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkParametricTorus);
 
 //------------------------------------------------------------------------------
@@ -84,3 +85,4 @@ void vtkParametricTorus::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Ring Radius: " << this->RingRadius << "\n";
   os << indent << "Cross-Sectional Radius: " << this->CrossSectionRadius << "\n";
 }
+VTK_ABI_NAMESPACE_END

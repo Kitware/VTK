@@ -126,6 +126,7 @@
 #include "vtkAbstractWidget.h"
 #include "vtkInteractionWidgetsModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkContourRepresentation;
 class vtkPolyData;
 class vtkIdList;
@@ -285,4 +286,5 @@ private:
   void operator=(const vtkContourWidget&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

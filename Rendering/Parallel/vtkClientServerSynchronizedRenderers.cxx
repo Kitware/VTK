@@ -19,6 +19,7 @@
 
 #include <cassert>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkClientServerSynchronizedRenderers);
 //------------------------------------------------------------------------------
 vtkClientServerSynchronizedRenderers::vtkClientServerSynchronizedRenderers() = default;
@@ -70,3 +71,4 @@ void vtkClientServerSynchronizedRenderers::PrintSelf(ostream& os, vtkIndent inde
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

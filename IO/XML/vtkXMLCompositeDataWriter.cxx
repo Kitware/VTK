@@ -47,6 +47,7 @@
 
 //------------------------------------------------------------------------------
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkXMLCompositeDataWriterInternals
 {
   // These are used to by GetDefaultFileExtension(). This helps us avoid
@@ -613,3 +614,4 @@ void vtkXMLCompositeDataWriter::RemoveWrittenFiles(const char* SubDirectory)
   this->DeleteAFile();
   this->InputInformation = nullptr;
 }
+VTK_ABI_NAMESPACE_END

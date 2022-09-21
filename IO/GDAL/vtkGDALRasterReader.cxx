@@ -51,6 +51,7 @@
 #include <sstream>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkGDALRasterReader);
 
 //------------------------------------------------------------------------------
@@ -1140,3 +1141,4 @@ void vtkGDALRasterReader::EnableAllCellArrays()
 {
   this->Impl->CellArraySelection->EnableAllArrays();
 }
+VTK_ABI_NAMESPACE_END

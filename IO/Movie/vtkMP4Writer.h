@@ -31,6 +31,7 @@
 #include "vtkGenericMovieWriter.h"
 #include "vtkIOMovieModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKIOMOVIE_EXPORT vtkMP4Writer : public vtkGenericMovieWriter
 {
 public:
@@ -81,4 +82,5 @@ private:
   void operator=(const vtkMP4Writer&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

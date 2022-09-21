@@ -24,6 +24,7 @@
 #include <openvdb/openvdb.h>
 #include <openvdb/points/PointCount.h>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOpenVDBReader);
 
 //------------------------------------------------------------------------
@@ -1246,3 +1247,4 @@ void vtkOpenVDBReader::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "MergePointSets: " << this->MergePointSets << endl;
   this->GridSelection->PrintSelf(os, indent.GetNextIndent());
 }
+VTK_ABI_NAMESPACE_END

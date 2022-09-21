@@ -15,6 +15,7 @@
 #include "LSDynaMetaData.h"
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 LSDynaMetaData::LSDynaMetaData()
 {
   this->FileIsValid = 0;
@@ -127,3 +128,4 @@ void LSDynaMetaData::Reset()
   this->RigidSurfaceSegmentSizes.clear();
   this->TimeValues.clear();
 }
+VTK_ABI_NAMESPACE_END

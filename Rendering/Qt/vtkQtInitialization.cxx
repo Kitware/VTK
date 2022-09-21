@@ -23,6 +23,7 @@
 
 #include <QApplication>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkQtInitialization);
 
 vtkQtInitialization::vtkQtInitialization()
@@ -45,3 +46,4 @@ void vtkQtInitialization::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
   os << indent << "QApplication: " << QApplication::instance() << endl;
 }
+VTK_ABI_NAMESPACE_END

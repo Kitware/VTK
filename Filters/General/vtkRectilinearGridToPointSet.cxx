@@ -28,6 +28,7 @@
 
 #include "vtkNew.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkRectilinearGridToPointSet);
 
 //------------------------------------------------------------------------------
@@ -127,3 +128,4 @@ int vtkRectilinearGridToPointSet::RequestData(vtkInformation* vtkNotUsed(request
 
   return 1;
 }
+VTK_ABI_NAMESPACE_END

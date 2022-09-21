@@ -21,6 +21,7 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkLinearSubdivisionFilter);
 
 void vtkLinearSubdivisionFilter::PrintSelf(ostream& os, vtkIndent indent)
@@ -96,3 +97,4 @@ int vtkLinearSubdivisionFilter::GenerateSubdivisionPoints(
 
   return 1;
 }
+VTK_ABI_NAMESPACE_END

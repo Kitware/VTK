@@ -16,8 +16,11 @@
 #ifndef vtkSegYIOUtils_h
 #define vtkSegYIOUtils_h
 
+#include "vtkABINamespace.h"
+
 #include <fstream>
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkSegYIOUtils
 {
 public:
@@ -46,5 +49,6 @@ private:
   }
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkSegYIOUtils_h
 // VTK-HeaderTest-Exclude: vtkSegYIOUtils.h

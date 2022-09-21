@@ -42,6 +42,7 @@
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkVisibilitySort.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkFloatArray;
 
 class vtkCellCenterDepthSortStack;
@@ -78,4 +79,5 @@ private:
   void operator=(const vtkCellCenterDepthSort&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

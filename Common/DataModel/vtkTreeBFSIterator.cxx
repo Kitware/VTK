@@ -22,6 +22,7 @@
 #include <queue>
 using std::queue;
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkTreeBFSIteratorInternals
 {
 public:
@@ -114,3 +115,4 @@ vtkIdType vtkTreeBFSIterator::NextInternal()
   }
   return -1;
 }
+VTK_ABI_NAMESPACE_END

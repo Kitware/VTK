@@ -17,6 +17,8 @@ using std::deque;
 using std::ostream;
 using std::vector;
 
+VTK_ABI_NAMESPACE_BEGIN
+
 //*****************************************************************************
 ostream& operator<<(ostream& os, const vtkPPixelTransfer& pt)
 {
@@ -46,3 +48,4 @@ int vtkPPixelTransfer::Blit(int nComps, int srcType, void* srcData, int destType
   return vtkPixelTransfer::Blit(this->SrcWholeExt, this->SrcExt, this->DestWholeExt, this->DestExt,
     nComps, srcType, srcData, nComps, destType, destData);
 }
+VTK_ABI_NAMESPACE_END

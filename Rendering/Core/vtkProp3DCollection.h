@@ -31,6 +31,7 @@
 #include "vtkPropCollection.h"
 #include "vtkRenderingCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKRENDERINGCORE_EXPORT vtkProp3DCollection : public vtkPropCollection
 {
 public:
@@ -98,4 +99,5 @@ inline vtkProp3D* vtkProp3DCollection::GetLastProp3D()
   }
 }
 
+VTK_ABI_NAMESPACE_END
 #endif

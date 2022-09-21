@@ -21,6 +21,7 @@
 
 #include <cctype>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkXMLParser);
 
 //------------------------------------------------------------------------------
@@ -425,3 +426,4 @@ void vtkXMLParserEndElement(void* parser, const char* name)
   // just casts the user data to a vtkXMLParser and calls EndElement.
   static_cast<vtkXMLParser*>(parser)->EndElement(name);
 }
+VTK_ABI_NAMESPACE_END

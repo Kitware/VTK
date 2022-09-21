@@ -49,6 +49,7 @@
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSCORE_EXPORT vtkTubeBender : public vtkPolyDataAlgorithm
 {
 public:
@@ -80,4 +81,5 @@ protected:
     vtkInformationVector* outputVector) override;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkTubeBender_h

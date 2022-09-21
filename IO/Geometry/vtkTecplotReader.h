@@ -82,6 +82,7 @@
 #include <string> // STL Header; Required for string
 #include <vector> // STL Header; Required for vector
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPoints;
 class vtkCellData;
 class vtkPointData;
@@ -319,4 +320,5 @@ private:
   void operator=(const vtkTecplotReader&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

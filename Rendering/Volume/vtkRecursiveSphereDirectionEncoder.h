@@ -32,6 +32,7 @@
 #include "vtkDirectionEncoder.h"
 #include "vtkRenderingVolumeModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKRENDERINGVOLUME_EXPORT vtkRecursiveSphereDirectionEncoder : public vtkDirectionEncoder
 {
 public:
@@ -121,4 +122,5 @@ private:
   void operator=(const vtkRecursiveSphereDirectionEncoder&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

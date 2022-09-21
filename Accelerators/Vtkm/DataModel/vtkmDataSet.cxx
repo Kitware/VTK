@@ -40,6 +40,7 @@
 
 #include <mutex>
 
+VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
 
@@ -437,3 +438,4 @@ void vtkmDataSet::DeepCopy(vtkDataObject* src)
     }
   }
 }
+VTK_ABI_NAMESPACE_END

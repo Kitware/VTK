@@ -38,6 +38,7 @@
 
 #include "vtkSmartPointer.h" // Required for smart pointer internal ivars.
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkFastSplatter;
 class vtkImageData;
 class vtkIntArray;
@@ -186,4 +187,5 @@ private:
   void operator=(const vtkAttributeClustering2DLayoutStrategy&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

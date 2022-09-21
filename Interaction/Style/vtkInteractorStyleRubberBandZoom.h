@@ -29,6 +29,7 @@
 #include "vtkInteractorStyle.h"
 #include "vtkRect.h" // for vtkRecti
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkUnsignedCharArray;
 
 class VTKINTERACTIONSTYLE_EXPORT vtkInteractorStyleRubberBandZoom : public vtkInteractorStyle
@@ -122,4 +123,5 @@ private:
   void AdjustBox(int startPosition[2], int endPosition[2]) const;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -9,6 +9,7 @@
 
 namespace RTW
 {
+VTK_ABI_NAMESPACE_BEGIN
     class Instance : public Object
     {
         friend class World;
@@ -33,4 +34,5 @@ namespace RTW
     private:
         Group *group;
     };
+VTK_ABI_NAMESPACE_END
 }

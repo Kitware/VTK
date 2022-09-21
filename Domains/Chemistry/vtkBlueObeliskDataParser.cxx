@@ -36,6 +36,7 @@
 #endif
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkBlueObeliskDataParser);
 
 //------------------------------------------------------------------------------
@@ -516,3 +517,4 @@ inline std::string* vtkBlueObeliskDataParser::ToLower(std::string* str)
   }
   return str;
 }
+VTK_ABI_NAMESPACE_END

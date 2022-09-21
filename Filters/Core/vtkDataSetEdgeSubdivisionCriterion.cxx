@@ -20,6 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkDataSetEdgeSubdivisionCriterion);
 
 vtkDataSetEdgeSubdivisionCriterion::vtkDataSetEdgeSubdivisionCriterion()
@@ -241,3 +242,4 @@ void vtkDataSetEdgeSubdivisionCriterion::ResetFieldError2()
   this->FieldError2Length = 0;
   this->ActiveFieldCriteria = 0;
 }
+VTK_ABI_NAMESPACE_END

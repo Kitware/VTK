@@ -29,6 +29,7 @@
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkGaussianRandomSequence.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONCORE_EXPORT vtkBoxMuellerRandomSequence : public vtkGaussianRandomSequence
 {
 public:
@@ -80,4 +81,5 @@ private:
   void operator=(const vtkBoxMuellerRandomSequence&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // #ifndef vtkBoxMuellerRandomSequence_h

@@ -36,6 +36,7 @@
 #include "vtkTriangle.h"
 #include "vtkUnsignedCharArray.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkCellSizeFilter);
 
 //------------------------------------------------------------------------------
@@ -799,3 +800,4 @@ void vtkCellSizeFilter::PrintSelf(ostream& os, vtkIndent indent)
   }
   os << indent << "ComputeSum: " << this->ComputeSum << endl;
 }
+VTK_ABI_NAMESPACE_END

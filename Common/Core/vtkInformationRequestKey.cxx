@@ -17,6 +17,7 @@
 #include "vtkInformation.h"
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkInformationRequestKey::vtkInformationRequestKey(const char* name, const char* location)
   : vtkInformationKey(name, location)
 {
@@ -74,3 +75,4 @@ void vtkInformationRequestKey::Print(ostream& os, vtkInformation* info)
     os << "1\n";
   }
 }
+VTK_ABI_NAMESPACE_END

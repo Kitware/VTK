@@ -43,6 +43,7 @@
 // vtkDataRepresentation::Internals
 //------------------------------------------------------------------------------
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataRepresentation::Internals
 {
 public:
@@ -359,3 +360,4 @@ void vtkDataRepresentation::PrintSelf(ostream& os, vtkIndent indent)
     this->SelectionArrayNames->PrintSelf(os, indent.GetNextIndent());
   }
 }
+VTK_ABI_NAMESPACE_END

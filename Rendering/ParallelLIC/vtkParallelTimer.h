@@ -50,6 +50,7 @@
 #include <iostream> // for cerr
 #endif
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkParallelTimerBuffer;
 
 class VTKRENDERINGPARALLELLIC_EXPORT vtkParallelTimer : public vtkObject
@@ -287,4 +288,5 @@ vtkParallelTimer::LogBodyType& vtkParallelTimer::LogBodyType::operator<<(const T
   return *this;
 }
 
+VTK_ABI_NAMESPACE_END
 #endif

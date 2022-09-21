@@ -21,6 +21,7 @@
 #include "vtkObjectFactory.h"
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkSortFieldData);
 
 //------------------------------------------------------------------------------
@@ -105,3 +106,4 @@ void vtkSortFieldData::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 // vtkSortFieldData methods -------------------------------------------------------
+VTK_ABI_NAMESPACE_END

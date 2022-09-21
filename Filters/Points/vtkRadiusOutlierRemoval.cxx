@@ -23,6 +23,7 @@
 #include "vtkSMPTools.h"
 #include "vtkStaticPointLocator.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkRadiusOutlierRemoval);
 vtkCxxSetObjectMacro(vtkRadiusOutlierRemoval, Locator, vtkAbstractPointLocator);
 
@@ -149,3 +150,4 @@ void vtkRadiusOutlierRemoval::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Number of Neighbors: " << this->NumberOfNeighbors << "\n";
   os << indent << "Locator: " << this->Locator << "\n";
 }
+VTK_ABI_NAMESPACE_END

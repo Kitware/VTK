@@ -20,6 +20,7 @@
 
 #include <sstream>
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkGenericVertexAttributeMapping::vtkInternal
 {
 public:
@@ -187,3 +188,4 @@ void vtkGenericVertexAttributeMapping::PrintSelf(ostream& os, vtkIndent indent)
        << iter->FieldAssociation << ", " << iter->Component << endl;
   }
 }
+VTK_ABI_NAMESPACE_END

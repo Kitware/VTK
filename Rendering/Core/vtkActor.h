@@ -35,6 +35,7 @@
 #include "vtkProp3D.h"
 #include "vtkRenderingCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkRenderer;
 class vtkPropCollection;
 class vtkActorCollection;
@@ -241,4 +242,5 @@ private:
   void operator=(const vtkActor&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

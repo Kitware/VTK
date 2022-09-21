@@ -29,6 +29,7 @@
 
 #include <sstream>
 #include <zmq.h>
+VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
 const double RAY_LENGTH = 200.0;    // in meters
@@ -1180,3 +1181,4 @@ void vtkVRCollaborationClient::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

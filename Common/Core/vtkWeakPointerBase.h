@@ -28,6 +28,7 @@
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkObjectBase.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkObjectBaseToWeakPointerBaseFriendship;
 
 class VTKCOMMONCORE_EXPORT vtkWeakPointerBase
@@ -126,5 +127,6 @@ VTK_WEAK_POINTER_BASE_DEFINE_OPERATOR(>=)
  */
 VTKCOMMONCORE_EXPORT ostream& operator<<(ostream& os, const vtkWeakPointerBase& p);
 
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkWeakPointerBase.h

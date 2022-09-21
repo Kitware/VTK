@@ -46,6 +46,7 @@
 #include <set>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkExtractSelection);
 //------------------------------------------------------------------------------
 vtkExtractSelection::vtkExtractSelection()
@@ -670,3 +671,4 @@ void vtkExtractSelection::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
   os << indent << "PreserveTopology: " << this->PreserveTopology << endl;
 }
+VTK_ABI_NAMESPACE_END

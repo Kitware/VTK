@@ -73,6 +73,7 @@ typedef int vtkThreadProcessIDType;
 typedef int vtkMultiThreaderIDType;
 #endif
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONCORE_EXPORT vtkMultiThreader : public vtkObject
 {
 public:
@@ -233,4 +234,5 @@ private:
 
 using ThreadInfoStruct = vtkMultiThreader::ThreadInfo;
 
+VTK_ABI_NAMESPACE_END
 #endif

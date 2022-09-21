@@ -37,6 +37,7 @@
 #include "vtkArrayDataAlgorithm.h"
 #include "vtkInfovisBoostGraphAlgorithmsModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKINFOVISBOOSTGRAPHALGORITHMS_EXPORT vtkBoostLogWeighting : public vtkArrayDataAlgorithm
 {
 public:
@@ -81,4 +82,5 @@ private:
   bool EmitProgress;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

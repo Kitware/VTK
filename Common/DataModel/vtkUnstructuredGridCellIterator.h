@@ -26,6 +26,7 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkSmartPointer.h"          // For vtkSmartPointer
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCellArray;
 class vtkIdTypeArray;
 class vtkUnsignedCharArray;
@@ -85,4 +86,5 @@ private:
   void operator=(const vtkUnstructuredGridCellIterator&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkUnstructuredGridCellIterator_h

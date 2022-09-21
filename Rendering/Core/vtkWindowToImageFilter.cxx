@@ -33,6 +33,7 @@
 
 #define BORDER_PIXELS 2
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkWindowToImageFilter);
 
 class vtkWTI2DHelperClass
@@ -722,3 +723,4 @@ void vtkWindowToImageFilter::Render()
     }
   }
 }
+VTK_ABI_NAMESPACE_END

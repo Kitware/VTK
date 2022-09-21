@@ -27,6 +27,7 @@
 #include "vtkDataSet.h"
 #include "vtkObjectFactory.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkBridgePointIteratorOnDataSet);
 
 //------------------------------------------------------------------------------
@@ -128,3 +129,4 @@ void vtkBridgePointIteratorOnDataSet::InitWithDataSet(vtkBridgeDataSet* ds)
   vtkSetObjectBodyMacro(DataSet, vtkBridgeDataSet, ds);
   this->Size = ds->GetNumberOfPoints();
 }
+VTK_ABI_NAMESPACE_END

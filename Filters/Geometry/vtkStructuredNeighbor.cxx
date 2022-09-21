@@ -15,6 +15,7 @@
 #include "vtkStructuredNeighbor.h"
 #include "vtkStructuredExtent.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStructuredNeighbor::vtkStructuredNeighbor()
 {
   this->NeighborID = 0;
@@ -96,3 +97,4 @@ void vtkStructuredNeighbor::ComputeSendAndReceiveExtent(int gridRealExtent[6],
   vtkStructuredExtent::Clamp(this->RcvExtent, WholeExtent);
   vtkStructuredExtent::Clamp(this->SendExtent, WholeExtent);
 }
+VTK_ABI_NAMESPACE_END

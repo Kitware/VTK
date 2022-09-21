@@ -35,6 +35,7 @@
 #include "vtkUnsignedCharArray.h"
 #include <vtksys/SystemTools.hxx>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOOGLExporter);
 
 vtkOOGLExporter::vtkOOGLExporter()
@@ -595,3 +596,4 @@ void vtkOOGLExporter::PrintSelf(ostream& os, vtkIndent ind)
     os << ind << "FileName: (null)\n";
   }
 }
+VTK_ABI_NAMESPACE_END

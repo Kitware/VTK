@@ -30,3 +30,4 @@ set(classes
 
 vtk_module_add_module(VTK::ViewsInfovis
   CLASSES ${classes})
+vtk_add_test_mangling(VTK::ViewsInfovis)

@@ -29,6 +29,7 @@
 #include "vtkParallelCoreModule.h" // For export macro
 #include <string>                  // for string functions in Directory
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkStringArray;
 
 class VTKPARALLELCORE_EXPORT vtkPDirectory : public vtkObject
@@ -121,4 +122,5 @@ private:
   void operator=(const vtkPDirectory&) = delete;
 }; // End Class: vtkPDirectory
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -38,6 +38,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include <set> // used to iterate over internal organs
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkStatisticsAlgorithmPrivate
 {
 public:
@@ -179,6 +180,7 @@ public:
   std::set<vtkStdString> Buffer;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkStatisticsAlgorithmPrivate_h
 
 // VTK-HeaderTest-Exclude: vtkStatisticsAlgorithmPrivate.h

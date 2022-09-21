@@ -37,6 +37,7 @@ namespace detail
 {
 namespace smp
 {
+VTK_ABI_NAMESPACE_BEGIN
 
 static tbb::task_arena taskArena;
 static std::mutex vtkSMPToolsCS;
@@ -114,6 +115,7 @@ void vtkSMPToolsImplForTBB(vtkIdType first, vtkIdType last, vtkIdType grain,
   threadIdStackLock.unlock();
 }
 
+VTK_ABI_NAMESPACE_END
 } // namespace smp
 } // namespace detail
 } // namespace vtk

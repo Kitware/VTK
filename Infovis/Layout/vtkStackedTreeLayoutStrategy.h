@@ -40,6 +40,7 @@
 #include "vtkAreaLayoutStrategy.h"
 #include "vtkInfovisLayoutModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkTree;
 class vtkDataArray;
 
@@ -161,4 +162,5 @@ private:
   void operator=(const vtkStackedTreeLayoutStrategy&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

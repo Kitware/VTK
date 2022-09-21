@@ -32,6 +32,7 @@
 
 #include <vtkm/filter/entity_extraction/Threshold.h>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkmThreshold);
 
 //------------------------------------------------------------------------------
@@ -100,3 +101,4 @@ void vtkmThreshold::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

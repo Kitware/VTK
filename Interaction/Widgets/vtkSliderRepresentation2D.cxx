@@ -33,6 +33,7 @@
 #include "vtkTransformPolyDataFilter.h"
 #include "vtkWindow.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkSliderRepresentation2D);
 
 //------------------------------------------------------------------------------
@@ -614,3 +615,4 @@ void vtkSliderRepresentation2D::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "TitleProperty: (none)\n";
   }
 }
+VTK_ABI_NAMESPACE_END

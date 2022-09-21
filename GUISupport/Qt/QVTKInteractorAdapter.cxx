@@ -44,6 +44,7 @@
 #include "vtkCommand.h"
 
 // function to get VTK keysyms from ascii characters
+VTK_ABI_NAMESPACE_BEGIN
 static const char* ascii_to_key_sym(int);
 // function to get VTK keysyms from Qt keys
 static const char* qt_key_to_key_sym(Qt::Key, Qt::KeyboardModifiers modifiers);
@@ -753,3 +754,4 @@ const char* qt_key_to_key_sym(Qt::Key i, Qt::KeyboardModifiers modifiers)
   }
   return ret;
 }
+VTK_ABI_NAMESPACE_END

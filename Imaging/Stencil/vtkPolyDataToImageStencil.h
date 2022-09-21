@@ -65,6 +65,7 @@ POSSIBILITY OF SUCH DAMAGES.
 #include "vtkImageStencilSource.h"
 #include "vtkImagingStencilModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkMergePoints;
 class vtkDataSet;
 class vtkPolyData;
@@ -120,4 +121,5 @@ private:
   void operator=(const vtkPolyDataToImageStencil&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

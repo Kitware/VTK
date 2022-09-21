@@ -35,6 +35,7 @@
 #include <sys/stat.h>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkFacetWriter);
 
 //------------------------------------------------------------------------------
@@ -314,3 +315,4 @@ void vtkFacetWriter::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "File Name: " << (this->FileName ? this->FileName : "(none)") << "\n";
 }
+VTK_ABI_NAMESPACE_END

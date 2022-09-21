@@ -37,6 +37,7 @@
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkUnstructuredGridAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkOrderedTriangulator;
 
 class VTKFILTERSGENERAL_EXPORT vtkDataSetTriangleFilter : public vtkUnstructuredGridAlgorithm
@@ -79,4 +80,5 @@ private:
   void operator=(const vtkDataSetTriangleFilter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

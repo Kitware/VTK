@@ -24,6 +24,7 @@
 #include "vtkGraphEdge.h"
 #include "vtkObjectFactory.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkCxxSetObjectMacro(vtkOutEdgeIterator, Graph, vtkGraph);
 vtkStandardNewMacro(vtkOutEdgeIterator);
 //------------------------------------------------------------------------------
@@ -84,3 +85,4 @@ void vtkOutEdgeIterator::PrintSelf(ostream& os, vtkIndent indent)
   }
   os << indent << "Vertex: " << this->Vertex << endl;
 }
+VTK_ABI_NAMESPACE_END

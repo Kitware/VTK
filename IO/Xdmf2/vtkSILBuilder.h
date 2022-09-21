@@ -30,6 +30,7 @@
 #include "vtkIOXdmf2Module.h" // For export macro
 #include "vtkObject.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkUnsignedCharArray;
 class vtkStringArray;
 class vtkMutableDirectedGraph;
@@ -85,4 +86,5 @@ private:
   void operator=(const vtkSILBuilder&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

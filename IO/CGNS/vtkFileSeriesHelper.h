@@ -35,6 +35,7 @@
 #include <utility>                 // for std::pair
 #include <vector>                  // for std::vector
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkAlgorithm;
 class vtkMultiProcessController;
 class vtkInformation;
@@ -213,4 +214,5 @@ private:
   vtkTimeStamp UpdateInformationTime;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

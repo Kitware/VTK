@@ -30,6 +30,7 @@
 #include "vtkIOImageModule.h" // For export macro
 #include "vtkImageWriter.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKIOIMAGE_EXPORT vtkTIFFWriter : public vtkImageWriter
 {
 public:
@@ -89,4 +90,5 @@ private:
   void WriteVolume(T* buffer);
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

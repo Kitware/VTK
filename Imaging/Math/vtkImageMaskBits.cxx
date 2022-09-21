@@ -20,6 +20,7 @@
 
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImageMaskBits);
 
 vtkImageMaskBits::vtkImageMaskBits()
@@ -176,3 +177,4 @@ void vtkImageMaskBits::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Masks: (" << this->Masks[0] << ", " << this->Masks[1] << ", " << this->Masks[2]
      << ", " << this->Masks[3] << ")" << endl;
 }
+VTK_ABI_NAMESPACE_END

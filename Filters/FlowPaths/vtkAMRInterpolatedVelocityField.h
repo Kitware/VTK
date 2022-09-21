@@ -28,6 +28,7 @@
 
 #include "vtkAbstractInterpolatedVelocityField.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkOverlappingAMR;
 
 class VTKFILTERSFLOWPATHS_EXPORT vtkAMRInterpolatedVelocityField
@@ -119,4 +120,5 @@ private:
   void operator=(const vtkAMRInterpolatedVelocityField&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

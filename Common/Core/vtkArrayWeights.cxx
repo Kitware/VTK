@@ -22,6 +22,7 @@
 #include "vtkArrayWeights.h"
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkArrayWeightsStorage
 {
 public:
@@ -109,3 +110,4 @@ vtkArrayWeights& vtkArrayWeights::operator=(const vtkArrayWeights& other)
   *this->Storage = *other.Storage;
   return *this;
 }
+VTK_ABI_NAMESPACE_END

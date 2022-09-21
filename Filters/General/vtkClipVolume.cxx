@@ -36,6 +36,7 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtkVoxel.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkClipVolume);
 vtkCxxSetObjectMacro(vtkClipVolume, ClipFunction, vtkImplicitFunction);
 
@@ -693,3 +694,4 @@ void vtkClipVolume::ReportReferences(vtkGarbageCollector* collector)
   // reference loop.
   vtkGarbageCollectorReport(collector, this->ClipFunction, "ClipFunction");
 }
+VTK_ABI_NAMESPACE_END

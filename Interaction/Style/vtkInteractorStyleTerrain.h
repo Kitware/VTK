@@ -52,6 +52,7 @@
 #include "vtkInteractionStyleModule.h" // For export macro
 #include "vtkInteractorStyle.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPolyDataMapper;
 class vtkSphereSource;
 class vtkExtractEdges;
@@ -123,4 +124,5 @@ private:
   void operator=(const vtkInteractorStyleTerrain&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

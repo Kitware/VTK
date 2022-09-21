@@ -30,6 +30,7 @@ namespace vtx
 {
 namespace types
 {
+VTK_ABI_NAMESPACE_BEGIN
 
 bool DataArray::IsScalar() const noexcept
 {
@@ -111,5 +112,6 @@ void DataArray::ConvertTo3DVTK(const std::vector<double>& fillValues)
   }
 }
 
+VTK_ABI_NAMESPACE_END
 } // end namespace types
 } // end namespace vtx

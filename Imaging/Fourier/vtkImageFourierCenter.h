@@ -29,6 +29,7 @@
 #include "vtkImageDecomposeFilter.h"
 #include "vtkImagingFourierModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKIMAGINGFOURIER_EXPORT vtkImageFourierCenter : public vtkImageDecomposeFilter
 {
 public:
@@ -51,4 +52,5 @@ private:
   void operator=(const vtkImageFourierCenter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

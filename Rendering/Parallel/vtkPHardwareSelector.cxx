@@ -19,6 +19,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPHardwareSelector::vtkObserver : public vtkCommand
 {
 public:
@@ -114,3 +115,4 @@ void vtkPHardwareSelector::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
   os << indent << "ProcessIsRoot: " << this->ProcessIsRoot << endl;
 }
+VTK_ABI_NAMESPACE_END

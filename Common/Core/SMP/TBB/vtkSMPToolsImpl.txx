@@ -39,6 +39,7 @@ namespace detail
 {
 namespace smp
 {
+VTK_ABI_NAMESPACE_BEGIN
 
 void VTKCOMMONCORE_EXPORT vtkSMPToolsImplForTBB(vtkIdType first, vtkIdType last, vtkIdType grain,
   ExecuteFunctorPtrType functorExecuter, void* functor);
@@ -201,6 +202,7 @@ int vtkSMPToolsImpl<BackendType::TBB>::GetEstimatedNumberOfThreads();
 template <>
 bool vtkSMPToolsImpl<BackendType::TBB>::GetSingleThread();
 
+VTK_ABI_NAMESPACE_END
 } // namespace smp
 } // namespace detail
 } // namespace vtk

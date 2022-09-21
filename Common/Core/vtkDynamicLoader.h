@@ -32,6 +32,7 @@
 typedef vtksys::DynamicLoader::LibraryHandle vtkLibHandle;
 typedef vtksys::DynamicLoader::SymbolPointer vtkSymbolPointer;
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONCORE_EXPORT vtkDynamicLoader : public vtkObject
 {
 public:
@@ -82,4 +83,5 @@ private:
   void operator=(const vtkDynamicLoader&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -42,6 +42,7 @@
 
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkSynchronizedTemplatesCutter3D);
 vtkCxxSetObjectMacro(vtkSynchronizedTemplatesCutter3D, CutFunction, vtkImplicitFunction);
 
@@ -584,3 +585,4 @@ void vtkSynchronizedTemplatesCutter3D::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Cut Function: " << this->CutFunction << "\n";
   os << indent << "Precision of the output points: " << this->OutputPointsPrecision << "\n";
 }
+VTK_ABI_NAMESPACE_END

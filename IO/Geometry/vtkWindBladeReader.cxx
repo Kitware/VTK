@@ -45,6 +45,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <string>
 
 // vtkStandardNewMacro(vtkWindBladeReader);
+VTK_ABI_NAMESPACE_BEGIN
 vtkObjectFactoryNewMacro(vtkWindBladeReader);
 
 float vtkWindBladeReader::DRY_AIR_CONSTANT = 287.04;
@@ -2109,3 +2110,4 @@ int vtkWindBladeReader::FillOutputPortInformation(int port, vtkInformation* info
   }
   return 1;
 }
+VTK_ABI_NAMESPACE_END

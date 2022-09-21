@@ -23,6 +23,7 @@
 #include <cassert>
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkExtentRCBPartitioner);
 
 //------------------------------------------------------------------------------
@@ -422,3 +423,4 @@ void vtkExtentRCBPartitioner::PrintExtent(const std::string& name, int ext[6])
   cout << "]\n";
   cout.flush();
 }
+VTK_ABI_NAMESPACE_END

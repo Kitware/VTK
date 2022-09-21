@@ -35,6 +35,7 @@ namespace vtx
 {
 namespace types
 {
+VTK_ABI_NAMESPACE_BEGIN
 
 class DataArray
 {
@@ -88,6 +89,7 @@ public:
   void ConvertTo3DVTK(const std::vector<double>& fillValues = std::vector<double>());
 };
 
+VTK_ABI_NAMESPACE_END
 } // end namespace types
 } // end namespace vtx
 

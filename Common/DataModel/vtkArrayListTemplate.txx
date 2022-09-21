@@ -22,6 +22,7 @@
 
 //----------------------------------------------------------------------------
 // Sort of a little object factory (in conjunction w/ vtkTemplateMacro())
+VTK_ABI_NAMESPACE_BEGIN
 template <typename T>
 void CreateArrayPair(ArrayList* list, T* inData, T* outData, vtkIdType numTuples, int numComp,
   vtkAbstractArray* outArray, T nullValue)
@@ -197,4 +198,5 @@ inline void ArrayList::AddSelfInterpolatingArrays(
   }     // for each candidate array
 }
 
+VTK_ABI_NAMESPACE_END
 #endif

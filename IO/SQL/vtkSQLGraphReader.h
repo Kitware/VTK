@@ -59,6 +59,7 @@
 #include "vtkGraphAlgorithm.h"
 #include "vtkIOSQLModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkSQLQuery;
 
 class VTKIOSQL_EXPORT vtkSQLGraphReader : public vtkGraphAlgorithm
@@ -178,4 +179,5 @@ private:
   void operator=(const vtkSQLGraphReader&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

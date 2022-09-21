@@ -41,6 +41,7 @@
 // An internal class that is used as an item
 // to be placed below all other items
 // in order to hit when trying to add a point
+VTK_ABI_NAMESPACE_BEGIN
 class vtkControlPointsAddPointItem : public vtkPlot
 {
 public:
@@ -1753,3 +1754,4 @@ vtkVector2f vtkControlPointsItem::GetSelectionCenterOfMass() const
 {
   return this->GetCenterOfMass(this->Selection);
 }
+VTK_ABI_NAMESPACE_END

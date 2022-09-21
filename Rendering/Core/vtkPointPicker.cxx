@@ -30,6 +30,7 @@
 #include "vtkSMPThreadLocal.h"
 #include "vtkSMPTools.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPointPicker);
 
 //------------------------------------------------------------------------------
@@ -455,3 +456,4 @@ void vtkPointPicker::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Point Id: " << this->PointId << "\n";
 }
+VTK_ABI_NAMESPACE_END

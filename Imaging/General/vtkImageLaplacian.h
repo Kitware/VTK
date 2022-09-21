@@ -30,6 +30,7 @@
 #include "vtkImagingGeneralModule.h" // For export macro
 #include "vtkThreadedImageAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKIMAGINGGENERAL_EXPORT vtkImageLaplacian : public vtkThreadedImageAlgorithm
 {
 public:
@@ -61,4 +62,5 @@ private:
   void operator=(const vtkImageLaplacian&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

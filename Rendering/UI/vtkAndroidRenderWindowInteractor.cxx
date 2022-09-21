@@ -31,6 +31,7 @@
 #define LOGI(...) ((void)__android_log_print(ANDROID_LOG_INFO, "VTK", __VA_ARGS__))
 #define LOGW(...) ((void)__android_log_print(ANDROID_LOG_WARN, "VTK", __VA_ARGS__))
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkAndroidRenderWindowInteractor);
 
 void (*vtkAndroidRenderWindowInteractor::ClassExitMethod)(void*) = (void (*)(void*)) nullptr;
@@ -684,3 +685,4 @@ void vtkAndroidRenderWindowInteractor::ExitCallback()
 
   this->TerminateApp();
 }
+VTK_ABI_NAMESPACE_END

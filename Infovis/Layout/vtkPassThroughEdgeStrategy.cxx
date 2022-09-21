@@ -31,6 +31,7 @@
 #include <utility>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPassThroughEdgeStrategy);
 
 vtkPassThroughEdgeStrategy::vtkPassThroughEdgeStrategy() = default;
@@ -43,3 +44,4 @@ void vtkPassThroughEdgeStrategy::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

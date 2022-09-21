@@ -26,6 +26,7 @@
 
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImageToStructuredPoints);
 
 //------------------------------------------------------------------------------
@@ -345,3 +346,4 @@ int vtkImageToStructuredPoints::FillInputPortInformation(int port, vtkInformatio
   }
   return 1;
 }
+VTK_ABI_NAMESPACE_END

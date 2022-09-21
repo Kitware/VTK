@@ -54,6 +54,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkSmartPointer.h"
 #define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkQtTreeRingLabelMapper);
 
 vtkCxxSetObjectMacro(vtkQtTreeRingLabelMapper, LabelTextProperty, vtkTextProperty);
@@ -665,3 +666,4 @@ vtkMTimeType vtkQtTreeRingLabelMapper::GetMTime()
   }
   return filterMTime;
 }
+VTK_ABI_NAMESPACE_END

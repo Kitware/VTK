@@ -58,6 +58,7 @@
 #include "vtkCommonMathModule.h" // For export macro
 #include "vtkObject.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkQuaterniond;
 class vtkQuaternionList;
 
@@ -179,4 +180,5 @@ private:
   void operator=(const vtkQuaternionInterpolator&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

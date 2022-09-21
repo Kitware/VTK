@@ -31,6 +31,7 @@
 #include "vtkMath.h"                              // for vtkMath::Pi()
 #include "vtkParametricFunction.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONCOMPUTATIONALGEOMETRY_EXPORT vtkParametricKuen : public vtkParametricFunction
 {
 public:
@@ -92,4 +93,5 @@ private:
   double DeltaV0;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

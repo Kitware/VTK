@@ -54,6 +54,7 @@
 #include <memory> // for std::unique_ptr
 #include <vector> // for std::vector
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataAssembly;
 
 class VTKCOMMONDATAMODEL_EXPORT vtkDataAssemblyVisitor : public vtkObject
@@ -121,4 +122,5 @@ private:
   friend class vtkDataAssembly;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -25,6 +25,7 @@
 
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkVoxelModeller);
 
 // Construct an instance of vtkVoxelModeller with its sample dimensions
@@ -341,3 +342,4 @@ void vtkVoxelModeller::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "ForegroundValue: " << this->ForegroundValue << endl;
   os << indent << "BackgroundValue: " << this->BackgroundValue << endl;
 }
+VTK_ABI_NAMESPACE_END

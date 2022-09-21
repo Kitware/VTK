@@ -22,6 +22,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStructuredGrid.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkStructuredGridOutlineFilter);
 
 //------------------------------------------------------------------------------
@@ -258,3 +259,4 @@ int vtkStructuredGridOutlineFilter::FillInputPortInformation(int, vtkInformation
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkStructuredGrid");
   return 1;
 }
+VTK_ABI_NAMESPACE_END

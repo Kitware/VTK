@@ -27,6 +27,7 @@
 // Create a vtkViewport with a black background, a white ambient light,
 // two-sided lighting turned on, a viewport of (0,0,1,1), and backface culling
 // turned off.
+VTK_ABI_NAMESPACE_BEGIN
 vtkViewport::vtkViewport()
 {
   this->VTKWindow = nullptr;
@@ -817,3 +818,4 @@ void vtkViewport::GetTiledSizeAndOrigin(int* usize, int* vsize, int* lowerLeftU,
     *vsize = 0;
   }
 }
+VTK_ABI_NAMESPACE_END

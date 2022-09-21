@@ -29,6 +29,7 @@
 #include "vtkPolyDataMapper.h"
 #include "vtkRenderingCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPiecewiseFunction;
 
 class VTKRENDERINGCORE_EXPORT vtkPointGaussianMapper : public vtkPolyDataMapper
@@ -195,4 +196,5 @@ private:
   void operator=(const vtkPointGaussianMapper&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

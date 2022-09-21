@@ -48,6 +48,7 @@
 #include <cassert>
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 shared_ptr<vtkXdmf3HeavyDataHandler> vtkXdmf3HeavyDataHandler::New(vtkXdmf3ArraySelection* fs,
   vtkXdmf3ArraySelection* cs, vtkXdmf3ArraySelection* ps, vtkXdmf3ArraySelection* gc,
   vtkXdmf3ArraySelection* sc, unsigned int processor, unsigned int nprocessors, bool dt, double t,
@@ -554,3 +555,4 @@ vtkDataObject* vtkXdmf3HeavyDataHandler::ExtractSet(unsigned int setnum, shared_
   }
   return nullptr;
 }
+VTK_ABI_NAMESPACE_END

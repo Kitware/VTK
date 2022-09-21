@@ -26,6 +26,7 @@
 #include "vtkUnsignedShortArray.h"
 #include <vtksys/SystemTools.hxx>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkVolume16Reader);
 
 vtkCxxSetObjectMacro(vtkVolume16Reader, Transform, vtkTransform);
@@ -627,3 +628,4 @@ void vtkVolume16Reader::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Transform: (None)\n";
   }
 }
+VTK_ABI_NAMESPACE_END

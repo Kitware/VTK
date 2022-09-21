@@ -36,6 +36,7 @@
 #include <sstream>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkJavaScriptDataWriter);
 //------------------------------------------------------------------------------
 vtkJavaScriptDataWriter::vtkJavaScriptDataWriter()
@@ -211,3 +212,4 @@ void vtkJavaScriptDataWriter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "FileName: " << (this->FileName ? this->FileName : "none") << endl;
   os << indent << "IncludeFieldNames: " << (this->IncludeFieldNames ? "true" : "false") << endl;
 }
+VTK_ABI_NAMESPACE_END

@@ -28,6 +28,7 @@
 
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImageSlice);
 
 //------------------------------------------------------------------------------
@@ -509,3 +510,4 @@ void vtkImageSlice::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "ForceTranslucent: " << (this->ForceTranslucent ? "On\n" : "Off\n");
 }
+VTK_ABI_NAMESPACE_END

@@ -36,6 +36,7 @@
 #include <string>
 #include <vtksys/SystemTools.hxx>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkSTLReader);
 
 #define VTK_ASCII 0
@@ -706,3 +707,4 @@ void vtkSTLReader::PrintSelf(ostream& os, vtkIndent indent)
     os << "(none)\n";
   }
 }
+VTK_ABI_NAMESPACE_END

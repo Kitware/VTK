@@ -33,6 +33,7 @@
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkWeakPointer.h"         // needed for vtkWeakPointer.
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCompositeDataDisplayAttributes;
 class vtkDataObjectTree;
 
@@ -503,4 +504,5 @@ private:
   bool GetBoundsInternal(vtkDataSet* ds, double ds_bounds[6]);
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -22,6 +22,7 @@
 #include "vtkMatrix4x4.h"
 #include "vtkObjectFactory.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImageStack);
 
 //------------------------------------------------------------------------------
@@ -609,3 +610,4 @@ void vtkImageStack::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "ActiveLayer: " << this->ActiveLayer << "\n";
   os << indent << "ActiveImage: " << this->GetActiveImage() << "\n";
 }
+VTK_ABI_NAMESPACE_END

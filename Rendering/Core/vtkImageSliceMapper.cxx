@@ -29,6 +29,7 @@
 #include "vtkRenderer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkCxxSetObjectMacro(vtkImageSliceMapper, Points, vtkPoints);
 
 //------------------------------------------------------------------------------
@@ -511,3 +512,4 @@ void vtkImageSliceMapper::GetDimensionIndices(int orientation, int& xdim, int& y
     }
   }
 }
+VTK_ABI_NAMESPACE_END

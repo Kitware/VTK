@@ -23,6 +23,7 @@
 #include "vtkIOExportModule.h" // For export macro
 #include "vtkX3DExporterWriter.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkX3DExporterFIByteWriter;
 class vtkX3DExporterFINodeInfoStack;
 class vtkZLibDataCompressor;
@@ -102,4 +103,5 @@ private:
   void operator=(const vtkX3DExporterFIWriter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

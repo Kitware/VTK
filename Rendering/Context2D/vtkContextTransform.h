@@ -31,6 +31,7 @@
 #include "vtkSmartPointer.h"             // Needed for SP ivars.
 #include "vtkVector.h"                   // Needed for ivars.
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkTransform2D;
 
 class VTKRENDERINGCONTEXT2D_EXPORT vtkContextTransform : public vtkAbstractContextItem
@@ -228,4 +229,5 @@ private:
   void operator=(const vtkContextTransform&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkContextTransform_h

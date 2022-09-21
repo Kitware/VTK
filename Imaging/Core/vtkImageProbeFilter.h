@@ -39,6 +39,7 @@
 #include "vtkDataSetAlgorithm.h"
 #include "vtkImagingCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkAbstractImageInterpolator;
 class vtkUnsignedCharArray;
 class vtkImageData;
@@ -123,4 +124,5 @@ private:
     vtkIdType endId, ProbePointsThreadLocal* threadLocal);
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -46,6 +46,7 @@
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkWidgetRepresentation.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkHandleRepresentation;
 
 class VTKINTERACTIONWIDGETS_EXPORT vtkBiDimensionalRepresentation : public vtkWidgetRepresentation
@@ -263,4 +264,5 @@ private:
   void operator=(const vtkBiDimensionalRepresentation&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

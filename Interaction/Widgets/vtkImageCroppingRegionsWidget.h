@@ -33,6 +33,7 @@
 #include "vtk3DWidget.h"
 #include "vtkInteractionWidgetsModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkActor2D;
 class vtkImageData;
 class vtkLineSource;
@@ -248,4 +249,5 @@ private:
   void operator=(const vtkImageCroppingRegionsWidget&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

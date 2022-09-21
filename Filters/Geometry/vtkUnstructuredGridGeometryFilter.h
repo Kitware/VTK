@@ -44,6 +44,7 @@
 #include "vtkFiltersGeometryModule.h" // For export macro
 #include "vtkUnstructuredGridBaseAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkIncrementalPointLocator;
 class vtkHashTableOfSurfels; // internal class
 
@@ -237,4 +238,5 @@ private:
   void operator=(const vtkUnstructuredGridGeometryFilter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

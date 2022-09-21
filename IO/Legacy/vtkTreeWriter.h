@@ -28,6 +28,7 @@
 #include "vtkDataWriter.h"
 #include "vtkIOLegacyModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkTree;
 
 class VTKIOLEGACY_EXPORT vtkTreeWriter : public vtkDataWriter
@@ -60,4 +61,5 @@ private:
   void WriteEdges(ostream& Stream, vtkTree* Tree);
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

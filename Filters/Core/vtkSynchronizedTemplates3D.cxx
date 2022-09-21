@@ -41,6 +41,7 @@
 
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkSynchronizedTemplates3D);
 
 //------------------------------------------------------------------------------
@@ -1852,3 +1853,4 @@ int VTK_SYNCHRONIZED_TEMPLATES_3D_TABLE_2[] = {
   3, 2, 1, 4, 2, 3, -1, 0, 3, 4, -1, 0,      //
   2, 1, -1                                   //
 };
+VTK_ABI_NAMESPACE_END

@@ -32,6 +32,7 @@
 #include <set>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkDelaunay2D);
 
 //------------------------------------------------------------------------------
@@ -1652,3 +1653,4 @@ void vtkDelaunay2D::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Random Point Insertion: " << (this->RandomPointInsertion ? "On" : "Off") << "\n";
   os << indent << "Bounding Triangulation: " << (this->BoundingTriangulation ? "On\n" : "Off\n");
 }
+VTK_ABI_NAMESPACE_END

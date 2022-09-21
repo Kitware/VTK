@@ -55,6 +55,7 @@
 
 // Create a generic class supporting virtual dispatch to type-specific
 // subclasses.
+VTK_ABI_NAMESPACE_BEGIN
 struct BaseArrayPair
 {
   vtkIdType Num;
@@ -424,6 +425,7 @@ struct ArrayList
   vtkIdType GetNumberOfArrays() { return static_cast<vtkIdType>(Arrays.size()); }
 };
 
+VTK_ABI_NAMESPACE_END
 #include "vtkArrayListTemplate.txx"
 
 #endif

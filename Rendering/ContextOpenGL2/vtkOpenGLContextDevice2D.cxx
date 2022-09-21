@@ -64,6 +64,7 @@
 
 #define BUFFER_OFFSET(i) (reinterpret_cast<char*>(i))
 
+VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
 void copyColors(std::vector<unsigned char>& newColors, unsigned char* colors, int nc)
@@ -2898,3 +2899,4 @@ void vtkOpenGLContextDevice2D::TransformSize(float& dx, float& dy) const
   dx /= modelview[0];
   dy /= modelview[5];
 }
+VTK_ABI_NAMESPACE_END

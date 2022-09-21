@@ -119,6 +119,7 @@
  * returns false. E.g. the third iteration will be named
  * "ByteOrder.BigEndian-CompressorType.LZ4".
  */
+VTK_ABI_NAMESPACE_BEGIN
 template <typename ObjType>
 class vtkPermuteOptions
 {
@@ -309,5 +310,6 @@ public:
   }
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkPermuteOptions.h

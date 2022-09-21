@@ -58,6 +58,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <cassert>
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkYoungsMaterialInterfaceCellCut
 {
 public:
@@ -1574,6 +1575,7 @@ int vtkYoungsMaterialInterface::RequestData(vtkInformation* vtkNotUsed(request),
 
 #undef GET_POINT_DATA
 
+VTK_ABI_NAMESPACE_END
 /* ------------------------------------------------------------------------------------------
    --- Low level computations including interface placement and intersection line/polygon ---
    ------------------------------------------------------------------------------------------ */
@@ -1582,6 +1584,7 @@ int vtkYoungsMaterialInterface::RequestData(vtkInformation* vtkNotUsed(request),
 // and a set of simplices
 namespace vtkYoungsMaterialInterfaceCellCutInternals
 {
+VTK_ABI_NAMESPACE_BEGIN
 #define REAL_PRECISION 64 // use double precision
 #define REAL_COORD REAL3
 
@@ -1716,6 +1719,7 @@ namespace vtkYoungsMaterialInterfaceCellCutInternals
  */
 
 // define base vector types and operators or use those provided by CUDA
+
 #ifndef __CUDACC__
 struct float2
 {
@@ -3075,9 +3079,10 @@ struct CWVertex
   int eid[2];
   inline bool operator<(const CWVertex& v) const { return angle < v.angle; }
 };
-
+VTK_ABI_NAMESPACE_END
 } /* namespace vtkYoungsMaterialInterfaceCellCutInternals */
 
+VTK_ABI_NAMESPACE_BEGIN
 // ------------------------------------
 //         ####     ####
 //             #    #   #
@@ -3450,3 +3455,4 @@ double vtkYoungsMaterialInterfaceCellCut::findTriangleSetCuttingPlane(const doub
 
   return -d;
 }
+VTK_ABI_NAMESPACE_END

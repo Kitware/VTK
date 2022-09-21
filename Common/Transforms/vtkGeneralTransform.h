@@ -34,6 +34,7 @@
 
 #include "vtkMatrix4x4.h" // Needed for inline methods
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONTRANSFORMS_EXPORT vtkGeneralTransform : public vtkAbstractTransform
 {
 public:
@@ -319,4 +320,5 @@ private:
   void operator=(const vtkGeneralTransform&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

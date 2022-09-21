@@ -21,13 +21,18 @@
 #include <sstream>
 
 #ifdef VTK_ENABLE_VISRTX
+VTK_ABI_NAMESPACE_BEGIN
 RTW::VisRTXBackend* rtwVisRTXBackend = nullptr;
+VTK_ABI_NAMESPACE_END
 #endif
 
 #ifdef VTK_ENABLE_OSPRAY
+VTK_ABI_NAMESPACE_BEGIN
 RTW::OSPRayBackend* rtwOSPRayBackend = nullptr;
+VTK_ABI_NAMESPACE_END
 #endif
 
+VTK_ABI_NAMESPACE_BEGIN
 void rtwInit()
 {
 #ifdef VTK_ENABLE_VISRTX
@@ -136,3 +141,4 @@ std::set<RTWBackendType> rtwGetAvailableBackends()
 #endif
     return result;
 }
+VTK_ABI_NAMESPACE_END

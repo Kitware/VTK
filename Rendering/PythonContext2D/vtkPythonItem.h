@@ -33,6 +33,7 @@
 #include "vtkContextItem.h"
 #include "vtkPythonContext2DModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkSmartPyObject;
 
 class VTKPYTHONCONTEXT2D_EXPORT vtkPythonItem : public vtkContextItem
@@ -66,5 +67,6 @@ private:
   PyObject* Object;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // #ifndef vtkPythonItem_h
 #endif

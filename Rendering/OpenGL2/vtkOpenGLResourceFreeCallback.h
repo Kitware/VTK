@@ -19,6 +19,7 @@
 // Provide a mechanism for making sure graphics resources are
 // freed properly.
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkOpenGLRenderWindow;
 class vtkWindow;
 
@@ -95,5 +96,6 @@ protected:
   void (T::*Method)(vtkWindow*);
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkOpenGLResourceFreeCallback.h

@@ -37,6 +37,7 @@
 #include <unordered_map>
 #include <unordered_set>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkExtractCellsAlongPolyLine);
 
 namespace
@@ -846,3 +847,4 @@ void vtkExtractCellsAlongPolyLine::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

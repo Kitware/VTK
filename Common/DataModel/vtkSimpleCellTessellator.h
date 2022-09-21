@@ -48,6 +48,7 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkGenericCellTessellator.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkTriangleTile;
 class vtkTetraTile;
 class vtkCellArray;
@@ -403,4 +404,5 @@ private:
   friend class vtkTriangleTile;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

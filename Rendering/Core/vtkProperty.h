@@ -47,6 +47,7 @@
 #define VTK_WIREFRAME 1
 #define VTK_SURFACE 2
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkActor;
 class vtkInformation;
 class vtkRenderer;
@@ -854,4 +855,5 @@ inline const char* vtkProperty::GetRepresentationAsString()
   }
 }
 
+VTK_ABI_NAMESPACE_END
 #endif

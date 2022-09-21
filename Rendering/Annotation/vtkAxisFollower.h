@@ -35,6 +35,7 @@
 #include "vtkWeakPointer.h" // For vtkWeakPointer
 
 // Forward declarations.
+VTK_ABI_NAMESPACE_BEGIN
 class vtkAxisActor;
 class vtkRenderer;
 
@@ -200,4 +201,5 @@ private:
   void Render(vtkRenderer*, vtkMapper*) override {}
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkAxisFollower_h

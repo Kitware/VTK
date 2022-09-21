@@ -32,6 +32,7 @@
 #include "vtkStdString.h"                // For vtkStdString ivars
 #include "vtkVector.h"                   // Needed for vtkVector2f
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPen;
 class vtkBrush;
 class vtkTextProperty;
@@ -119,4 +120,5 @@ private:
   void operator=(const vtkTooltipItem&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkTooltipItem_h

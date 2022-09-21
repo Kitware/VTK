@@ -35,7 +35,9 @@
 
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkAttributeSmoothingFilter);
+VTK_ABI_NAMESPACE_END
 
 // The following code defines core methods for the
 // vtkAttributeSmoothingFilter class.
@@ -457,6 +459,7 @@ void AddExcludedArrays(
 
 } // anonymous namespace
 
+VTK_ABI_NAMESPACE_BEGIN
 //=================Begin VTK class proper=======================================
 //------------------------------------------------------------------------------
 vtkAttributeSmoothingFilter::vtkAttributeSmoothingFilter()
@@ -629,3 +632,4 @@ void vtkAttributeSmoothingFilter::PrintSelf(ostream& os, vtkIndent indent)
     os << nextIndent << "Excluded Array: " << this->ExcludedArrays[i] << endl;
   }
 }
+VTK_ABI_NAMESPACE_END

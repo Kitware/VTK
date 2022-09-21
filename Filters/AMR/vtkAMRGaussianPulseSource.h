@@ -32,6 +32,7 @@
 
 #include <cmath> // For std::exp
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkOverlappingAMR;
 class vtkUniformGrid;
 class vtkInformation;
@@ -215,4 +216,5 @@ private:
   void operator=(const vtkAMRGaussianPulseSource&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif /* vtkAMRGaussianPulseSource_h */

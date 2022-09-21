@@ -32,6 +32,7 @@
 
 #include <map> //for methods
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkMatrix3x3;
 class vtkMatrix4x4;
 class vtkOpenGLFramebufferObject;
@@ -395,4 +396,5 @@ private:
   void operator=(const vtkOpenGLFluidMapper&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

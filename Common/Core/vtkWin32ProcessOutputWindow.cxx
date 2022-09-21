@@ -34,6 +34,7 @@
 #endif
 #endif
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkWin32ProcessOutputWindow);
 
 extern "C" int vtkEncodedArrayWin32OutputWindowProcessWrite(const char* fname);
@@ -174,3 +175,4 @@ void vtkWin32ProcessOutputWindow::Write(const char* data, size_t length)
     }
   }
 }
+VTK_ABI_NAMESPACE_END

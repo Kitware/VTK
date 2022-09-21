@@ -9,6 +9,7 @@
 #include "vtkSelectionNode.h"
 #include "vtkSmartPointer.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkThresholdGraph);
 
 //------------------------------------------------------------------------------
@@ -159,3 +160,4 @@ int vtkThresholdGraph::RequestData(vtkInformation* vtkNotUsed(request),
 
   return 1;
 }
+VTK_ABI_NAMESPACE_END

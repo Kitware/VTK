@@ -50,6 +50,7 @@
 #include "vtkDataSetAlgorithm.h"
 #include "vtkFiltersExtractionModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 struct vtkCellTypeSet;
 class vtkIdTypeArray;
 
@@ -98,4 +99,5 @@ private:
   vtkCellTypeSet* CellTypes;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -30,6 +30,7 @@
 #include "vtkOpenGLRenderPass.h"
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkOpenGLRenderWindow;
 class vtkDepthPeelingPassLayerList; // Pimpl
 class vtkOpenGLFramebufferObject;
@@ -89,4 +90,5 @@ private:
   void operator=(const vtkImageProcessingPass&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

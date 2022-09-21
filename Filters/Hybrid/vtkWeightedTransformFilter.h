@@ -74,6 +74,7 @@
 #include "vtkFiltersHybridModule.h" // For export macro
 #include "vtkPointSetAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkAbstractTransform;
 
 class VTKFILTERSHYBRID_EXPORT vtkWeightedTransformFilter : public vtkPointSetAlgorithm
@@ -198,4 +199,5 @@ private:
   void operator=(const vtkWeightedTransformFilter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

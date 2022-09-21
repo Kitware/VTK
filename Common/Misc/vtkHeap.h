@@ -48,6 +48,7 @@
 #include "vtkCommonMiscModule.h" // For export macro
 #include "vtkObject.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkHeapBlock; // forward declaration
 
 class VTKCOMMONMISC_EXPORT vtkHeap : public vtkObject
@@ -118,4 +119,5 @@ private:
   void operator=(const vtkHeap&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

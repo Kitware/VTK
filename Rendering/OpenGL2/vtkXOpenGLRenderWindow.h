@@ -30,6 +30,7 @@
 #include <X11/Xlib.h>                  // Needed for X types used in the public interface
 #include <stack>                       // for ivar
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkIdList;
 class vtkXOpenGLRenderWindowInternal;
 struct vtkXVisualInfo;
@@ -373,4 +374,5 @@ private:
   void operator=(const vtkXOpenGLRenderWindow&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

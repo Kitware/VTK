@@ -30,6 +30,7 @@
 #include <string>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
 // Decide which of 3 stat varieties to use: stat, stat64, __stat64
@@ -799,3 +800,4 @@ void LSDynaFamily::OpenFileHandles()
     this->FileHandlesClosed = false;
   }
 }
+VTK_ABI_NAMESPACE_END

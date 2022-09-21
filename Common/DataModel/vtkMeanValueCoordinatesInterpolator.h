@@ -45,6 +45,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPoints;
 class vtkIdList;
 class vtkCellArray;
@@ -107,4 +108,5 @@ private:
   void operator=(const vtkMeanValueCoordinatesInterpolator&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

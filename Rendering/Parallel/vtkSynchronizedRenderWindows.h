@@ -27,6 +27,7 @@
 #include "vtkObject.h"
 #include "vtkRenderingParallelModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkRenderWindow;
 class vtkMultiProcessController;
 class vtkCommand;
@@ -157,4 +158,5 @@ private:
   friend class vtkObserver;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -33,6 +33,7 @@
 #include <algorithm>
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkObjectFactoryNewMacro(vtkTextMapper);
 //------------------------------------------------------------------------------
 vtkCxxSetObjectMacro(vtkTextMapper, TextProperty, vtkTextProperty);
@@ -522,3 +523,4 @@ void vtkTextMapper::UpdateImage(int dpi)
     }
   }
 }
+VTK_ABI_NAMESPACE_END

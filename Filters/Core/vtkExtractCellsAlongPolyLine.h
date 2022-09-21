@@ -34,6 +34,7 @@
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkUnstructuredGridAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSCORE_EXPORT vtkExtractCellsAlongPolyLine : public vtkUnstructuredGridAlgorithm
 {
 public:
@@ -74,4 +75,5 @@ private:
   void operator=(const vtkExtractCellsAlongPolyLine&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

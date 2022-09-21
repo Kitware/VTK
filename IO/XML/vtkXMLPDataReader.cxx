@@ -30,6 +30,7 @@
 #include <sstream>
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkXMLPDataReader::vtkXMLPDataReader()
 {
   this->GhostLevel = 0;
@@ -423,3 +424,4 @@ void vtkXMLPDataReader::PieceProgressCallback()
     this->PieceReaders[this->Piece]->SetAbortExecute(1);
   }
 }
+VTK_ABI_NAMESPACE_END

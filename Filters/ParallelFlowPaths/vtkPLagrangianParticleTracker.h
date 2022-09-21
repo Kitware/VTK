@@ -43,6 +43,7 @@
 
 #include <map> // for std::map
 
+VTK_ABI_NAMESPACE_BEGIN
 class ParticleFeedManager;
 class ParticleIdManager;
 class ParticleStreamManager;
@@ -137,4 +138,5 @@ private:
   vtkPLagrangianParticleTracker(const vtkPLagrangianParticleTracker&) = delete;
   void operator=(const vtkPLagrangianParticleTracker&) = delete;
 };
+VTK_ABI_NAMESPACE_END
 #endif

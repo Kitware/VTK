@@ -38,6 +38,7 @@
 #define VTK_PROJECTED_TEXTURE_USE_PINHOLE 0
 #define VTK_PROJECTED_TEXTURE_USE_TWO_MIRRORS 1
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSMODELING_EXPORT vtkProjectedTexture : public vtkDataSetAlgorithm
 {
 public:
@@ -151,4 +152,5 @@ private:
   void operator=(const vtkProjectedTexture&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -30,6 +30,7 @@
 #include "vtkNew.h"                    // Needed for the static data member
 #include "vtkObject.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkBlueObeliskData;
 class vtkColor3f;
 class vtkLookupTable;
@@ -121,4 +122,5 @@ private:
   void operator=(const vtkPeriodicTable&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

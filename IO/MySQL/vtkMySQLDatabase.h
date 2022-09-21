@@ -39,6 +39,7 @@
 #include "vtkIOMySQLModule.h" // For export macro
 #include "vtkSQLDatabase.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkSQLQuery;
 class vtkMySQLQuery;
 class vtkStringArray;
@@ -243,4 +244,5 @@ private:
   void operator=(const vtkMySQLDatabase&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkMySQLDatabase_h

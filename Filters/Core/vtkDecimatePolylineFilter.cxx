@@ -28,6 +28,7 @@
 
 #include <map>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkDecimatePolylineFilter);
 
 //------------------------------------------------------------------------------
@@ -292,3 +293,4 @@ void vtkDecimatePolylineFilter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Maximum Error: " << this->MaximumError << "\n";
   os << indent << "Output Points Precision: " << this->OutputPointsPrecision << "\n";
 }
+VTK_ABI_NAMESPACE_END

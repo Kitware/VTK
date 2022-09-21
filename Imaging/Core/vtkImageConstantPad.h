@@ -30,6 +30,7 @@
 #include "vtkImagePadFilter.h"
 #include "vtkImagingCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKIMAGINGCORE_EXPORT vtkImageConstantPad : public vtkImagePadFilter
 {
 public:
@@ -61,4 +62,5 @@ private:
   void operator=(const vtkImageConstantPad&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

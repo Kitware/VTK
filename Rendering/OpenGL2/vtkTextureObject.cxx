@@ -51,6 +51,7 @@
 
 // Mapping from DepthTextureCompareFunction values to OpenGL values.
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 static GLint OpenGLDepthTextureCompareFunction[8] = { GL_LEQUAL, GL_GEQUAL, GL_LESS, GL_GREATER,
   GL_EQUAL, GL_NOTEQUAL, GL_ALWAYS, GL_NEVER };
 
@@ -2124,3 +2125,4 @@ void vtkTextureObject::PrintSelf(ostream& os, vtkIndent indent)
      << DepthTextureCompareFunctionAsString[this->DepthTextureCompareFunction] << endl;
   os << indent << "GenerateMipmap: " << this->GenerateMipmap << endl;
 }
+VTK_ABI_NAMESPACE_END

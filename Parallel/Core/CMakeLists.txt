@@ -29,3 +29,4 @@ vtk_module_add_module(VTK::ParallelCore
   NOWRAP_HEADERS    vtkMultiProcessStreamSerialization.h
   TEMPLATE_CLASSES  ${template_classes}
   PRIVATE_HEADERS   ${hash_header})
+vtk_add_test_mangling(VTK::ParallelCore)

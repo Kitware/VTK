@@ -51,6 +51,7 @@
 
 #include <vector> // we need them
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataSet;
 class vtkDataArray;
 class vtkPointData;
@@ -217,6 +218,7 @@ public:
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
+VTK_ABI_NAMESPACE_END
 #endif
 
 // VTK-HeaderTest-Exclude: vtkCachingInterpolatedVelocityField.h

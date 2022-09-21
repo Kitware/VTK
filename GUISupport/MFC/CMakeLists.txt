@@ -47,6 +47,7 @@ set(headers
 vtk_module_add_module(VTK::GUISupportMFC
   CLASSES ${classes}
   HEADERS ${headers})
+vtk_add_test_mangling(VTK::GUISupportMFC)
 
 if (vtk_mfc_static)
   vtk_module_link(VTK::GUISupportMFC

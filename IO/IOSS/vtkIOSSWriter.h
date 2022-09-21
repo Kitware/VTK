@@ -30,6 +30,7 @@
 
 #include <memory> // for std::unique_ptr
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkMultiProcessController;
 
 class VTKIOIOSS_EXPORT vtkIOSSWriter : public vtkDataObjectAlgorithm
@@ -141,5 +142,6 @@ private:
   double DisplacementMagnitude;
   int MaximumTimeStepsPerFile;
 };
+VTK_ABI_NAMESPACE_END
 
 #endif

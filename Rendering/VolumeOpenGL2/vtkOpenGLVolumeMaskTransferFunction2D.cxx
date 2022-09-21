@@ -24,6 +24,7 @@
 
 #include <algorithm>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOpenGLVolumeMaskTransferFunction2D);
 
 //------------------------------------------------------------------------------
@@ -125,3 +126,4 @@ void vtkOpenGLVolumeMaskTransferFunction2D::PrintSelf(ostream& os, vtkIndent ind
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

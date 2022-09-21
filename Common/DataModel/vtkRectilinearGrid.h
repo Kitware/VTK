@@ -41,6 +41,7 @@
 #include "vtkDataSet.h"
 #include "vtkStructuredData.h" // For inline methods
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkVertex;
 class vtkLine;
 class vtkPixel;
@@ -365,4 +366,5 @@ inline vtkIdType vtkRectilinearGrid::ComputeCellId(int ijk[3])
   return vtkStructuredData::ComputeCellId(this->Dimensions, ijk);
 }
 
+VTK_ABI_NAMESPACE_END
 #endif

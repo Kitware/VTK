@@ -39,6 +39,7 @@
 #include "vtkCommonCoreModule.h"          // For export macro
 #include "vtkVTK_USE_SCALED_SOA_ARRAYS.h" // For #define of VTK_USE_SCALED_SOA_ARRAYS
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDoubleArray;
 class vtkIdList;
 class vtkInformationStringKey;
@@ -708,17 +709,20 @@ inline vtkDataArray* vtkDataArray::FastDownCast(vtkAbstractArray* source)
 }
 
 vtkArrayDownCast_FastCastMacro(vtkDataArray);
+VTK_ABI_NAMESPACE_END
 
 // These are used by vtkDataArrayPrivate.txx, but need to be available to
 // vtkGenericDataArray.h as well.
 namespace vtkDataArrayPrivate
 {
+VTK_ABI_NAMESPACE_BEGIN
 struct AllValues
 {
 };
 struct FiniteValues
 {
 };
+VTK_ABI_NAMESPACE_END
 }
 
 #endif

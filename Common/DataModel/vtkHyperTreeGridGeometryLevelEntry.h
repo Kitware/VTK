@@ -44,6 +44,7 @@
 #include "vtkHyperTreeGridNonOrientedGeometryCursor.h"
 #include "vtkHyperTreeGridOrientedGeometryCursor.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkHyperTree;
 class vtkHyperTreeGrid;
 
@@ -264,5 +265,6 @@ private:
   double Origin[3];
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkHyperTreeGridGeometryLevelEntry
 // VTK-HeaderTest-Exclude: vtkHyperTreeGridGeometryLevelEntry.h

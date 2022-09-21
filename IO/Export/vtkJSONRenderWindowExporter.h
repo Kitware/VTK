@@ -39,6 +39,7 @@
 #include "vtkNew.h"             // For vtkNew
 #include "vtkViewNodeFactory.h" // For vtkViewNodeFactory
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkArchiver;
 class vtkVtkJSSceneGraphSerializer;
 class vtkVtkJSViewNodeFactory;
@@ -96,4 +97,5 @@ private:
   bool CompactOutput;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

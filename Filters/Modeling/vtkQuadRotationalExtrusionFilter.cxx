@@ -28,6 +28,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkQuadRotationalExtrusionFilter);
 
 //------------------------------------------------------------------------------
@@ -531,3 +532,4 @@ void vtkQuadRotationalExtrusionFilter::PrintSelf(ostream& os, vtkIndent indent)
     os << indent.GetNextIndent() << "Block #" << it->first << " -> " << it->second << "\n";
   }
 }
+VTK_ABI_NAMESPACE_END

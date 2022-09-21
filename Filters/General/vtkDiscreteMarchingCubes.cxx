@@ -39,6 +39,7 @@
 #include "vtkUnsignedLongArray.h"
 #include "vtkUnsignedShortArray.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkDiscreteMarchingCubes);
 
 void vtkDiscreteMarchingCubes::PrintSelf(ostream& os, vtkIndent indent)
@@ -418,3 +419,4 @@ int vtkDiscreteMarchingCubes::RequestData(vtkInformation* vtkNotUsed(request),
 
   return 1;
 }
+VTK_ABI_NAMESPACE_END

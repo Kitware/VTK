@@ -28,6 +28,7 @@
 
 //-----------------------------------------------------------------------------
 // Item in the VectorOfDataObjects.
+VTK_ABI_NAMESPACE_BEGIN
 struct vtkDataObjectTreeItem
 {
   vtkSmartPointer<vtkDataObject> DataObject;
@@ -57,6 +58,7 @@ class vtkDataObjectTreeIndex : public std::vector<unsigned int>
   int IsValid() { return !this->empty(); }
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
 
 // VTK-HeaderTest-Exclude: vtkDataObjectTreeInternals.h

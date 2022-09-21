@@ -40,6 +40,7 @@
 #include "vtkSmartPointer.h" // For ivars
 #include <string>            //For std::string
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataArraySelection;
 class vtkDataSet;
 class vtkDoubleArray;
@@ -266,4 +267,5 @@ private:
   vtkNetCDFReaderPrivate* Private;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkNetCDFReader_h

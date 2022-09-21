@@ -25,6 +25,7 @@
 #include <cassert>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkGESignaReader);
 
 int vtkGESignaReader::CanReadFile(const char* fname)
@@ -737,3 +738,4 @@ void vtkGESignaReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

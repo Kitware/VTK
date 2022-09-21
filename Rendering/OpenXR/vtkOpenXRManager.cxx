@@ -28,6 +28,7 @@
     return false;                                                                                  \
   }
 
+VTK_ABI_NAMESPACE_BEGIN
 //------------------------------------------------------------------------------
 vtkOpenXRManager::vtkOpenXRManager()
 {
@@ -1387,3 +1388,4 @@ bool vtkOpenXRManager::ApplyVibration(const Action_t& actionT, const int hand,
   }
   return true;
 }
+VTK_ABI_NAMESPACE_END

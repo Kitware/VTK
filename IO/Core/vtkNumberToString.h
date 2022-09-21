@@ -38,6 +38,7 @@
 #include <ostream>
 #include <string>
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKIOCORE_EXPORT vtkNumberToString
 {
 public:
@@ -71,5 +72,6 @@ public:
 VTKIOCORE_EXPORT ostream& operator<<(ostream& stream, const vtkNumberToString::TagDouble& tag);
 VTKIOCORE_EXPORT ostream& operator<<(ostream& stream, const vtkNumberToString::TagFloat& tag);
 
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkNumberToString.h

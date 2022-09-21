@@ -28,6 +28,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUnstructuredGrid.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkConvertToPolyhedra);
 
 //------------------------------------------------------------------------------
@@ -125,3 +126,4 @@ void vtkConvertToPolyhedra::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Output All Cells: " << (this->OutputAllCells ? "true\n" : "false\n");
 }
+VTK_ABI_NAMESPACE_END

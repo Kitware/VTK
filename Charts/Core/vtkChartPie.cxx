@@ -30,6 +30,7 @@
 
 #include <sstream>
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkChartPiePrivate
 {
 public:
@@ -292,3 +293,4 @@ void vtkChartPie::PrintSelf(ostream& os, vtkIndent indent)
     this->Private->Plot->PrintSelf(os, indent.GetNextIndent());
   }
 }
+VTK_ABI_NAMESPACE_END

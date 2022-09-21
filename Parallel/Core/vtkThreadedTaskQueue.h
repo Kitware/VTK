@@ -63,12 +63,16 @@
 #if !defined(__WRAP__)
 namespace vtkThreadedTaskQueueInternals
 {
+VTK_ABI_NAMESPACE_BEGIN
 template <typename R>
 class TaskQueue;
 
 template <typename R>
 class ResultQueue;
-};
+VTK_ABI_NAMESPACE_END
+}
+
+VTK_ABI_NAMESPACE_BEGIN
 
 template <typename R, typename... Args>
 class vtkThreadedTaskQueue
@@ -159,6 +163,7 @@ private:
   std::unique_ptr<std::thread[]> Threads;
 };
 
+VTK_ABI_NAMESPACE_END
 #include "vtkThreadedTaskQueue.txx"
 
 #endif // !defined(__WRAP__)

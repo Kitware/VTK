@@ -17,6 +17,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkProp.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkAssemblyNode);
 
 //------------------------------------------------------------------------------
@@ -105,3 +106,4 @@ void vtkAssemblyNode::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Matrix: (none)\n";
   }
 }
+VTK_ABI_NAMESPACE_END

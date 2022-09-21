@@ -15,6 +15,7 @@
 #include "vtkOutputStream.h"
 #include "vtkObjectFactory.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOutputStream);
 
 //------------------------------------------------------------------------------
@@ -64,3 +65,4 @@ int vtkOutputStream::WriteStream(const char* data, size_t length)
 {
   return (this->Stream->write(data, length) ? 1 : 0);
 }
+VTK_ABI_NAMESPACE_END

@@ -44,6 +44,7 @@
 #include "vtkAffineRepresentation.h"
 #include "vtkInteractionWidgetsModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkProperty2D;
 class vtkActor2D;
 class vtkPolyDataMapper2D;
@@ -249,4 +250,5 @@ private:
   void operator=(const vtkAffineRepresentation2D&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

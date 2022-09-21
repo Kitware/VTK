@@ -27,6 +27,7 @@
 
 #include "vtkRenderingLICOpenGL2Module.h" // for export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKRENDERINGLICOPENGL2_EXPORT vtkPainterCommunicator
 {
 public:
@@ -77,5 +78,6 @@ public:
   virtual bool GetMPIFinalized() { return true; }
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkPainterCommunicator.h

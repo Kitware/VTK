@@ -31,6 +31,7 @@
 #include "vtkInfovisLayoutModule.h" // For export macro
 #include "vtkObject.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKINFOVISLAYOUT_EXPORT vtkGeoMath : public vtkObject
 {
 public:
@@ -65,4 +66,5 @@ private:
   void operator=(const vtkGeoMath&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

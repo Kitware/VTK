@@ -17,6 +17,7 @@
 
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkLogLookupTable);
 
 // Construct with (minimum,maximum) range 1 to 10 (based on
@@ -34,3 +35,4 @@ void vtkLogLookupTable::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

@@ -31,6 +31,7 @@
 
 #include <string>
 
+VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
 void annotate(const std::string& str)
@@ -161,3 +162,4 @@ int vtkHiddenLineRemovalPass::RenderProps(std::vector<vtkProp*>& props, vtkViewp
   }
   return propsRendered;
 }
+VTK_ABI_NAMESPACE_END

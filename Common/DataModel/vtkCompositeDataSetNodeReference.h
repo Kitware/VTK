@@ -25,9 +25,9 @@
 
 namespace vtk
 {
-
 namespace detail
 {
+VTK_ABI_NAMESPACE_BEGIN
 
 //------------------------------------------------------------------------------
 // MTimeWatcher:
@@ -85,7 +85,10 @@ template <class ObjectType>
 using DebugWeakPointer = ObjectType*;
 #endif
 
+VTK_ABI_NAMESPACE_END
 } // end namespace detail
+
+VTK_ABI_NAMESPACE_BEGIN
 
 /**
  * A reference proxy into a vtkCompositeDataSet, obtained by dereferencing an
@@ -265,6 +268,7 @@ public:
   }
 };
 
+VTK_ABI_NAMESPACE_END
 } // end namespace vtk
 
 #endif // vtkCompositeDataSetNodeReference_h

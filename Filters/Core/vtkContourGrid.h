@@ -58,6 +58,7 @@
 
 #include "vtkContourValues.h" // Needed for inline methods
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkEdgeTable;
 class vtkScalarTree;
 class vtkIncrementalPointLocator;
@@ -267,4 +268,5 @@ inline void vtkContourGrid::GenerateValues(int numContours, double rangeStart, d
   this->ContourValues->GenerateValues(numContours, rangeStart, rangeEnd);
 }
 
+VTK_ABI_NAMESPACE_END
 #endif

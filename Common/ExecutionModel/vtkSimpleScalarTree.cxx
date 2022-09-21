@@ -21,6 +21,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkScalarNode
 {
 };
@@ -459,3 +460,4 @@ void vtkSimpleScalarTree::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Max Level: " << this->GetMaxLevel() << "\n";
   os << indent << "Branching Factor: " << this->GetBranchingFactor() << "\n";
 }
+VTK_ABI_NAMESPACE_END

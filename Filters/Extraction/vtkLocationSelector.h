@@ -27,6 +27,7 @@
 
 #include <memory> // unique_ptr
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSEXTRACTION_EXPORT vtkLocationSelector : public vtkSelector
 {
 public:
@@ -53,4 +54,5 @@ private:
   std::unique_ptr<vtkInternals> Internals;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

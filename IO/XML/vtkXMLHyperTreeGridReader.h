@@ -47,6 +47,7 @@
 #include <limits.h> // Use internal
 #include <map>      // Use internal
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkBitArray;
 class vtkHyperTree;
 class vtkHyperTreeGrid;
@@ -219,4 +220,5 @@ private:
   void operator=(const vtkXMLHyperTreeGridReader&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

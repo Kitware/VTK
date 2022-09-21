@@ -53,6 +53,7 @@
 #include <algorithm>
 #include <cfloat> //for FLT_EPSILON
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImplicitCylinderRepresentation);
 
 //------------------------------------------------------------------------------
@@ -1546,3 +1547,4 @@ void vtkImplicitCylinderRepresentation::RegisterPickers()
   }
   pm->AddPicker(this->Picker, this);
 }
+VTK_ABI_NAMESPACE_END

@@ -27,6 +27,7 @@
 #include "vtkSmartPointer.h"
 #include <map>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkTexturedButtonRepresentation2D);
 
 vtkCxxSetObjectMacro(vtkTexturedButtonRepresentation2D, Property, vtkProperty2D);
@@ -375,3 +376,4 @@ void vtkTexturedButtonRepresentation2D::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Selecting Property: (none)\n";
   }
 }
+VTK_ABI_NAMESPACE_END

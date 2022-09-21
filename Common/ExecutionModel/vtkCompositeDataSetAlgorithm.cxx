@@ -23,6 +23,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkCompositeDataSetAlgorithm);
 
 //------------------------------------------------------------------------------
@@ -129,3 +130,4 @@ void vtkCompositeDataSetAlgorithm::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

@@ -27,6 +27,7 @@
 #include "vtkFiltersGeometryModule.h" // For export macro
 #include "vtkStructuredNeighbor.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSGEOMETRY_EXPORT vtkStructuredAMRNeighbor : public vtkStructuredNeighbor
 {
 public:
@@ -106,5 +107,6 @@ public:
   ///@}
 };
 
+VTK_ABI_NAMESPACE_END
 #endif /* vtkStructuredAMRNeighbor_h */
 // VTK-HeaderTest-Exclude: vtkStructuredAMRNeighbor.h

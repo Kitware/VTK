@@ -56,6 +56,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include <map>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkDataObjectTypes);
 
 // This list should contain the data object class names in
@@ -423,3 +424,4 @@ int vtkDataObjectTypes::GetCommonBaseTypeId(int typeA, int typeB)
   }
   return baseType;
 }
+VTK_ABI_NAMESPACE_END

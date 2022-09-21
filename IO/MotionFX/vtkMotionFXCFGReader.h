@@ -36,6 +36,7 @@
  * The reader uses PEGTL (https://github.com/taocpp/PEGTL)
  * to define and parse the grammar for the CFG file.
  */
+VTK_ABI_NAMESPACE_BEGIN
 class VTKIOMOTIONFX_EXPORT vtkMotionFXCFGReader : public vtkMultiBlockDataSetAlgorithm
 {
 public:
@@ -87,4 +88,5 @@ private:
   vtkInternals* Internals;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

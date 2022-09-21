@@ -44,6 +44,7 @@
 #include "vtkCompositeDataSetAlgorithm.h"
 #include "vtkFiltersExtractionModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataAssembly;
 class vtkPartitionedDataSetCollection;
 
@@ -137,4 +138,5 @@ private:
   char* AssemblyName;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

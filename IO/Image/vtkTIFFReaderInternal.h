@@ -25,6 +25,7 @@ extern "C"
 {
 #include "vtk_tiff.h"
 }
+VTK_ABI_NAMESPACE_BEGIN
 
 class vtkTIFFReader::vtkTIFFReaderInternal
 {
@@ -67,5 +68,6 @@ private:
   void operator=(const vtkTIFFReaderInternal&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkTIFFReaderInternal.h

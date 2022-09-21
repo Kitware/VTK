@@ -35,6 +35,7 @@
 #include <list>             // for list
 #include <vector>           // for vector
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkFloatArray;
 class vtkRenderWindow;
 class vtkTextureObject;
@@ -191,4 +192,5 @@ private:
 VTKRENDERINGPARALLELLIC_EXPORT
 ostream& operator<<(ostream& os, vtkPSurfaceLICComposite& ss);
 
+VTK_ABI_NAMESPACE_END
 #endif

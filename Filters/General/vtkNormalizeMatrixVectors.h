@@ -35,6 +35,7 @@
 #include "vtkArrayDataAlgorithm.h"
 #include "vtkFiltersGeneralModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSGENERAL_EXPORT vtkNormalizeMatrixVectors : public vtkArrayDataAlgorithm
 {
 public:
@@ -72,4 +73,5 @@ private:
   void operator=(const vtkNormalizeMatrixVectors&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

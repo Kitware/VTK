@@ -42,6 +42,7 @@
 #include <vector>
 
 // Minimal storage class for STL containers etc.
+VTK_ABI_NAMESPACE_BEGIN
 struct vtkChartParallelCoordinates::Private final
 {
   Private() { this->Plot = vtkSmartPointer<vtkPlotParallelCoordinates>::New(); }
@@ -916,3 +917,4 @@ void vtkChartParallelCoordinates::UpdateCurrentAxisSelection(int axisId)
   // To support multiple selection, we need to recalculate all the selection
   this->ResetSelection();
 }
+VTK_ABI_NAMESPACE_END

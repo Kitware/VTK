@@ -26,6 +26,7 @@
 
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkMoleculeToAtomBallFilter);
 
 //------------------------------------------------------------------------------
@@ -182,3 +183,4 @@ void vtkMoleculeToAtomBallFilter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Resolution: " << Resolution << "\n";
   os << indent << "RadiusScale: " << RadiusScale << "\n";
 }
+VTK_ABI_NAMESPACE_END

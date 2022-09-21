@@ -23,7 +23,9 @@
 #include "vtkNew.h"
 #include "vtkObject.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPoints2D;
+VTK_ABI_NAMESPACE_END
 
 class vtkTestNewVar : public vtkObject
 {

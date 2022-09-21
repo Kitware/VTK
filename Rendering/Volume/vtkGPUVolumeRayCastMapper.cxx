@@ -39,6 +39,7 @@
 #include <vtkVolumeProperty.h>
 
 // Return nullptr if no override is supplied.
+VTK_ABI_NAMESPACE_BEGIN
 vtkAbstractObjectFactoryNewMacro(vtkGPUVolumeRayCastMapper);
 vtkCxxSetObjectMacro(vtkGPUVolumeRayCastMapper, MaskInput, vtkImageData);
 
@@ -859,3 +860,4 @@ int vtkGPUVolumeRayCastMapper::GetInputCount()
 {
   return static_cast<int>(this->Ports.size());
 }
+VTK_ABI_NAMESPACE_END

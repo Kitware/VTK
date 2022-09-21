@@ -41,6 +41,7 @@
 
 #include "vtkIOADIOS2Module.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCellArray;
 class vtkDataArray;
 class vtkDataObject;
@@ -271,4 +272,5 @@ private:
   vtkADIOS2CoreImageReader(const vtkADIOS2CoreImageReader&) = delete;
   void operator=(const vtkADIOS2CoreImageReader&) = delete;
 };
+VTK_ABI_NAMESPACE_END
 #endif

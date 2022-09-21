@@ -34,6 +34,7 @@ namespace OT
 class Sample;
 }
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSOPENTURNS_EXPORT vtkOTFilter : public vtkTableAlgorithm
 {
 public:
@@ -69,4 +70,5 @@ private:
   vtkOTFilter(const vtkOTFilter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

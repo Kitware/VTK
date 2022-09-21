@@ -41,6 +41,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <unordered_set>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPolyhedron);
 
 // Special typedef
@@ -2493,3 +2494,4 @@ void vtkPolyhedron::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Faces:\n";
   this->GlobalFaces->PrintSelf(os, indent.GetNextIndent());
 }
+VTK_ABI_NAMESPACE_END

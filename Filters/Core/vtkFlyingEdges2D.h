@@ -67,6 +67,7 @@
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkImageData;
 
 class VTKFILTERSCORE_EXPORT vtkFlyingEdges2D : public vtkPolyDataAlgorithm
@@ -169,4 +170,5 @@ private:
   void operator=(const vtkFlyingEdges2D&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

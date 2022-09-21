@@ -88,6 +88,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkObjectFactory.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPOVExporter);
 
 // Can't use printf("%d", a_vtkIdType) because vtkIdType is not always int.
@@ -650,3 +651,4 @@ void vtkPOVExporter::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "FileName: (null)\n";
   }
 }
+VTK_ABI_NAMESPACE_END

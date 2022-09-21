@@ -28,6 +28,7 @@
 #include "vtkOpenGLCamera.h"
 #include "vtkRenderingExternalModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKRENDERINGEXTERNAL_EXPORT vtkExternalOpenGLCamera : public vtkOpenGLCamera
 {
 public:
@@ -62,4 +63,5 @@ private:
   void operator=(const vtkExternalOpenGLCamera&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

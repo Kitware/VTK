@@ -29,6 +29,7 @@
 #include "vtkDataObjectAlgorithm.h"
 #include "vtkFiltersGeometryModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataArray;
 class vtkFieldData;
 class vtkImageData;
@@ -75,4 +76,5 @@ private:
   vtkTypeBool Reverse;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

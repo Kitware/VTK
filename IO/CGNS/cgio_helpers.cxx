@@ -18,6 +18,7 @@
 
 namespace CGNSRead
 {
+VTK_ABI_NAMESPACE_BEGIN
 //----------------------------------------------------------------------------
 int readNodeStringData(int cgioNum, double nodeId, std::string& data)
 {
@@ -791,4 +792,5 @@ void releaseIds(int cgioNum, const std::vector<double>& ids)
     cgio_release_id(cgioNum, *iter);
   }
 }
+VTK_ABI_NAMESPACE_END
 }

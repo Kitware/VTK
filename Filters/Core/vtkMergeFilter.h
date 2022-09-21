@@ -28,6 +28,7 @@
 #include "vtkDataSetAlgorithm.h"
 #include "vtkFiltersCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkFieldList;
 
 class VTKFILTERSCORE_EXPORT vtkMergeFilter : public vtkDataSetAlgorithm
@@ -179,4 +180,5 @@ private:
   void operator=(const vtkMergeFilter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

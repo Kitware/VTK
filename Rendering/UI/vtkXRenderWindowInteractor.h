@@ -36,6 +36,7 @@
 #include "vtkRenderingUIModule.h" // For export macro
 #include <X11/Xlib.h>             // Needed for X types in the public interface
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCallbackCommand;
 class vtkXRenderWindowInteractorInternals;
 
@@ -154,4 +155,5 @@ private:
   void operator=(const vtkXRenderWindowInteractor&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

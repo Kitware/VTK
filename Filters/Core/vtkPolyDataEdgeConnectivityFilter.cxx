@@ -36,6 +36,7 @@
 #include <algorithm> // for fill_n
 #include <numeric>   //for iota
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPolyDataEdgeConnectivityFilter);
 
 namespace
@@ -1097,3 +1098,4 @@ void vtkPolyDataEdgeConnectivityFilter::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Output Points Precision: " << this->OutputPointsPrecision << "\n";
 }
+VTK_ABI_NAMESPACE_END

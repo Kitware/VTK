@@ -34,6 +34,7 @@
 #include "vtkObject.h"
 #include "vtkViewsInfovisModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkAnnotationLink;
 class vtkView;
 
@@ -61,4 +62,5 @@ private:
   vtkViewUpdaterInternals* Internals;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

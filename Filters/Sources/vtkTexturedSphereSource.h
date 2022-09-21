@@ -29,6 +29,7 @@
 #include "vtkFiltersSourcesModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSSOURCES_EXPORT vtkTexturedSphereSource : public vtkPolyDataAlgorithm
 {
 public:
@@ -108,4 +109,5 @@ private:
   void operator=(const vtkTexturedSphereSource&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -26,6 +26,7 @@
 #include <vtksys/FStream.hxx>
 #include <vtksys/SystemTools.hxx>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkInteractorEventRecorder);
 
 float vtkInteractorEventRecorder::StreamVersion = 1.2f;
@@ -522,3 +523,4 @@ void vtkInteractorEventRecorder::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Input String: (None)\n";
   }
 }
+VTK_ABI_NAMESPACE_END

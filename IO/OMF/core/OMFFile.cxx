@@ -32,9 +32,9 @@
 
 namespace omf
 {
-
 namespace detail
 {
+VTK_ABI_NAMESPACE_BEGIN
 
 // OMF doesn't appear to store any information about size of decompressed data
 // so the approach here is to decompress into the correct vtk array type and
@@ -118,8 +118,10 @@ std::string convertToUIDString(const char* buffer)
   return vtksys::SystemTools::LowerCase(uid);
 }
 
+VTK_ABI_NAMESPACE_END
 } // end namespace detail
 
+VTK_ABI_NAMESPACE_BEGIN
 struct OMFFile::FileImpl
 {
   std::string FileName;
@@ -390,4 +392,5 @@ std::vector<std::string> OMFFile::ReadStringArrayFromStream(const std::string& u
   return retVal;
 }
 
+VTK_ABI_NAMESPACE_END
 } // end namespace omf

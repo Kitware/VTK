@@ -28,6 +28,7 @@
 #include <string>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkAbstractArray;
 class vtkDataArray;
 class vtkStringArray;
@@ -231,5 +232,6 @@ extern template bool vtkHDFReader::Implementation::GetAttribute<int>(
 extern template bool vtkHDFReader::Implementation::GetAttribute<double>(
   const char* attributeName, size_t dim, double* value);
 
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkHDFReaderImplementation.h

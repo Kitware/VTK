@@ -34,6 +34,7 @@
 #include <sstream>
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 class vtkTRUCHASReader::Internal
 {
 public:
@@ -1360,3 +1361,4 @@ const char* vtkTRUCHASReader::GetCellArrayName(int index)
 {
   return this->CellArrayChoices->GetArrayName(index);
 }
+VTK_ABI_NAMESPACE_END

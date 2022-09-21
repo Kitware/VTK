@@ -32,6 +32,7 @@
 #include "vtkAlgorithm.h"
 #include "vtkmlib/vtkmInitializer.h" // Need for initializing vtk-m
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkUnstructuredGrid;
 
 class VTKACCELERATORSVTKMFILTERS_EXPORT vtkmExternalFaces : public vtkAlgorithm
@@ -81,4 +82,5 @@ private:
   vtkmInitializer Initializer;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkmExternalFaces_h

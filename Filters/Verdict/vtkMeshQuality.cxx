@@ -47,6 +47,7 @@
 #include <limits>
 
 //----------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkMeshQuality);
 
 //----------------------------------------------------------------------------
@@ -2678,3 +2679,4 @@ double vtkMeshQuality::HexNodalJacobianRatio(vtkCell* cell)
 
   return verdict::hex_nodal_jacobian_ratio(8, pc);
 }
+VTK_ABI_NAMESPACE_END

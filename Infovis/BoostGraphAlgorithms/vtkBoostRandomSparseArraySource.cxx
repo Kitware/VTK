@@ -31,6 +31,7 @@
 
 //------------------------------------------------------------------------------
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkBoostRandomSparseArraySource);
 
 //------------------------------------------------------------------------------
@@ -117,3 +118,4 @@ int vtkBoostRandomSparseArraySource::RequestData(
 
   return 1;
 }
+VTK_ABI_NAMESPACE_END

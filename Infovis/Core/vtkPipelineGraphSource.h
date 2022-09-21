@@ -26,6 +26,7 @@
 #include "vtkInfovisCoreModule.h" // For export macro
 #include "vtkStdString.h"         // for vtkStdString
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCollection;
 
 class VTKINFOVISCORE_EXPORT vtkPipelineGraphSource : public vtkDirectedGraphAlgorithm
@@ -64,4 +65,5 @@ private:
   void operator=(const vtkPipelineGraphSource&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

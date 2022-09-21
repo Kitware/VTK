@@ -21,6 +21,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkObjectFactory.h"
 #include "vtkUniformHyperTreeGrid.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkUniformHyperTreeGridSource);
 
 //------------------------------------------------------------------------------
@@ -197,3 +198,4 @@ int vtkUniformHyperTreeGridSource::RequestData(
 
   return 1;
 }
+VTK_ABI_NAMESPACE_END

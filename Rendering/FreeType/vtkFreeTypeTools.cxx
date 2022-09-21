@@ -55,6 +55,8 @@ void rotateVector2i(vtkVector2i& vec, float sinTheta, float cosTheta)
 
 } // end anon namespace
 
+VTK_ABI_NAMESPACE_BEGIN
+
 class vtkTextPropertyLookup : public std::map<size_t, vtkSmartPointer<vtkTextProperty>>
 {
 public:
@@ -1313,10 +1315,14 @@ bool vtkFreeTypeTools::StringToPathInternal(
   return true;
 }
 
+VTK_ABI_NAMESPACE_END
+
 namespace
 {
 const char* DEFAULT_HEIGHT_STRING = "_/7Agfy";
 }
+
+VTK_ABI_NAMESPACE_BEGIN
 
 //------------------------------------------------------------------------------
 bool vtkFreeTypeTools::CalculateBoundingBox(const vtkStdString& str, MetaData& metaData)
@@ -1618,9 +1624,11 @@ void vtkFreeTypeTools::PrepareImageData(vtkImageData* data, int textBbox[4])
     (data->GetNumberOfPoints() * data->GetNumberOfScalarComponents()));
 }
 
+VTK_ABI_NAMESPACE_END
 // Helper functions for rasterizing the background/frame quad:
 namespace RasterScanQuad
 {
+VTK_ABI_NAMESPACE_BEGIN
 
 // Return true and set t1 (if 0 <= t1 <= 1) for the intersection of lines:
 //
@@ -1729,8 +1737,10 @@ inline void clampToExtent(int extent[6], int dim, int& value)
   value = std::min(extent[2 * dim + 1], std::max(extent[2 * dim], value));
 }
 
+VTK_ABI_NAMESPACE_END
 } // end namespace RasterScanQuad
 
+VTK_ABI_NAMESPACE_BEGIN
 //------------------------------------------------------------------------------
 void vtkFreeTypeTools::RenderBackground(
   vtkTextProperty* tprop, vtkImageData* image, ImageMetaData& metaData)
@@ -2429,3 +2439,4 @@ void vtkFreeTypeTools::GetLineMetrics(std::string::const_iterator begin,
     width += (delta.x + 0x8000) >> 16;
   }
 }
+VTK_ABI_NAMESPACE_END

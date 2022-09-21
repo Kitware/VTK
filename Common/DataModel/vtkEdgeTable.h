@@ -33,6 +33,7 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkIdList;
 class vtkPoints;
 class vtkVoidArray;
@@ -186,4 +187,5 @@ private:
   void operator=(const vtkEdgeTable&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

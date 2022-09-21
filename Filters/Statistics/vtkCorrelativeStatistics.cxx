@@ -37,6 +37,7 @@
 #include <sstream>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkObjectFactoryNewMacro(vtkCorrelativeStatistics);
 
 //------------------------------------------------------------------------------
@@ -910,3 +911,4 @@ void vtkCorrelativeStatistics::SelectAssessFunctor(
   // If arrived here, it means that the pair of variables of interest was not found in the parameter
   // table
 }
+VTK_ABI_NAMESPACE_END

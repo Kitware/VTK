@@ -40,6 +40,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkDataObjectGenerator);
 
 //============================================================================
@@ -1200,3 +1201,4 @@ void vtkDataObjectGenerator::MakeUnstructuredGrid4(vtkDataSet* ids)
 
   this->MakeValues(ds);
 }
+VTK_ABI_NAMESPACE_END

@@ -59,6 +59,7 @@
 #include "vtkInteractionWidgetsModule.h" // needed for export macro
 #include "vtkWeakPointer.h"              // for weak pointer ivar
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCameraInterpolator;
 class vtkCameraOrientationRepresentation;
 class vtkRenderer;
@@ -149,4 +150,5 @@ private:
   void operator=(const vtkCameraOrientationWidget&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

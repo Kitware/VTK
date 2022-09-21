@@ -31,6 +31,7 @@
 #include "vtkDataSetAlgorithm.h"
 #include "vtkFiltersVerdictModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCell;
 class vtkDataArray;
 
@@ -81,4 +82,5 @@ private:
   void operator=(const vtkMatrixMathFilter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkMatrixMathFilter_h

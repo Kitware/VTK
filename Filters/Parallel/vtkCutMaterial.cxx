@@ -27,6 +27,7 @@
 #include "vtkThreshold.h"
 #include "vtkUnstructuredGrid.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkCutMaterial);
 
 // Instantiate object with no input and no defined output.
@@ -235,3 +236,4 @@ void vtkCutMaterial::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Normal: " << this->Normal[0] << ", " << this->Normal[1] << ", "
      << this->Normal[2] << endl;
 }
+VTK_ABI_NAMESPACE_END

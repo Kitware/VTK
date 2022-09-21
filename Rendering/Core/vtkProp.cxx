@@ -24,6 +24,7 @@
 #include "vtkShaderProperty.h"
 #include <cassert>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkCxxSetObjectMacro(vtkProp, PropertyKeys, vtkInformation);
 
 vtkInformationKeyMacro(vtkProp, GeneralTextureUnit, Integer);
@@ -382,3 +383,4 @@ vtkShaderProperty* vtkProp::GetShaderProperty()
   }
   return this->ShaderProperty;
 }
+VTK_ABI_NAMESPACE_END

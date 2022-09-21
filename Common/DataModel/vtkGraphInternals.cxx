@@ -21,6 +21,7 @@
 #include "vtkDistributedGraphHelper.h"
 #include "vtkObjectFactory.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkGraphInternals);
 
 //------------------------------------------------------------------------------
@@ -114,3 +115,4 @@ void vtkGraphInternals::ReplaceEdgeFromInList(
     }
   }
 }
+VTK_ABI_NAMESPACE_END

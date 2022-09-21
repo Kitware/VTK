@@ -42,6 +42,7 @@
 #include "vtkFiltersModelingModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkAbstractTransform;
 
 class VTKFILTERSMODELING_EXPORT vtkFillHolesFilter : public vtkPolyDataAlgorithm
@@ -80,4 +81,5 @@ private:
   void operator=(const vtkFillHolesFilter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

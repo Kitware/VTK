@@ -31,6 +31,7 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkPointSet.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONDATAMODEL_EXPORT vtkUnstructuredGridBase : public vtkPointSet
 {
 public:
@@ -129,4 +130,5 @@ private:
   void operator=(const vtkUnstructuredGridBase&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

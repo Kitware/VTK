@@ -29,6 +29,7 @@
 #include <sstream>
 #include <stdexcept>
 
+VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
 
@@ -400,3 +401,4 @@ vtkStdString vtkArrayWriter::Write(vtkArray* array, bool WriteBinary)
   vtkArrayWriter::Write(array, oss, WriteBinary);
   return oss.str();
 }
+VTK_ABI_NAMESPACE_END

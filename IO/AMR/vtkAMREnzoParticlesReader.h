@@ -29,6 +29,7 @@
 #include "vtkAMRBaseParticlesReader.h"
 #include "vtkIOAMRModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPolyData;
 class vtkDataArray;
 class vtkIntArray;
@@ -99,4 +100,5 @@ private:
   void operator=(const vtkAMREnzoParticlesReader&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif /* vtkAMREnzoParticlesReader_h */

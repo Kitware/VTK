@@ -75,6 +75,7 @@
 
 #include <cctype>
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkNetCDFReaderPrivate
 {
 public:
@@ -956,3 +957,4 @@ std::string vtkNetCDFReader::QueryArrayUnits(const char* name)
 {
   return this->Private->ArrayUnits[name];
 }
+VTK_ABI_NAMESPACE_END

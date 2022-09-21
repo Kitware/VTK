@@ -21,6 +21,7 @@
 
 #include <map>
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkLabelSizeCalculator::Internals
 {
 public:
@@ -243,3 +244,4 @@ vtkIntArray* vtkLabelSizeCalculator::LabelSizesForArray(
 
   return lsz;
 }
+VTK_ABI_NAMESPACE_END

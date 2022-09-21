@@ -27,6 +27,7 @@
 
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkFollower);
 
 vtkCxxSetObjectMacro(vtkFollower, Camera, vtkCamera);
@@ -276,3 +277,4 @@ void vtkFollower::ShallowCopy(vtkProp* prop)
   // Now do superclass
   this->vtkActor::ShallowCopy(prop);
 }
+VTK_ABI_NAMESPACE_END

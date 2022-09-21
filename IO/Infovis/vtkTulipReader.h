@@ -68,6 +68,7 @@
 #include "vtkIOInfovisModule.h" // For export macro
 #include "vtkUndirectedGraphAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKIOINFOVIS_EXPORT vtkTulipReader : public vtkUndirectedGraphAlgorithm
 {
 public:
@@ -101,4 +102,5 @@ private:
   void operator=(const vtkTulipReader&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkTulipReader_h

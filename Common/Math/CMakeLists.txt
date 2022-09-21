@@ -40,3 +40,4 @@ vtk_module_add_module(VTK::CommonMath
   HEADERS           ${headers}
   NOWRAP_CLASSES    ${nowrap_classes}
 )
+vtk_add_test_mangling(VTK::CommonMath)

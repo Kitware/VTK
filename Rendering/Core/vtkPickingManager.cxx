@@ -56,6 +56,7 @@
 #include <vector>
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPickingManager);
 
 //------------------------------------------------------------------------------
@@ -519,3 +520,4 @@ void vtkPickingManager::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << indent << "NumberOfObjectsLinked: " << it->second.size() << "\n";
   }
 }
+VTK_ABI_NAMESPACE_END

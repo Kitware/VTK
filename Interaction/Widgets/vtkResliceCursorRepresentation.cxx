@@ -51,6 +51,7 @@
 
 #include <sstream>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkCxxSetObjectMacro(vtkResliceCursorRepresentation, ColorMap, vtkImageMapToColors);
 
 //------------------------------------------------------------------------------
@@ -1007,3 +1008,4 @@ void vtkResliceCursorRepresentation::PrintSelf(ostream& os, vtkIndent indent)
   // this->Texture;
   // this->TextActor;
 }
+VTK_ABI_NAMESPACE_END

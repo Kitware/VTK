@@ -23,6 +23,7 @@
 
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkMultiProcessController;
 
 // class to hold information about chunk/material variables
@@ -173,4 +174,5 @@ protected:
   AdaptorImpl* Impl;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

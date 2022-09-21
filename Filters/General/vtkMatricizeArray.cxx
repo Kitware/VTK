@@ -33,6 +33,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 // vtkMatricizeArray
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkMatricizeArray);
 
 vtkMatricizeArray::vtkMatricizeArray()
@@ -130,3 +131,4 @@ int vtkMatricizeArray::RequestData(
 
   return 1;
 }
+VTK_ABI_NAMESPACE_END

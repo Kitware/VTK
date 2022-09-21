@@ -45,6 +45,7 @@ using std::endl;
 
 ///////////////////////////////////////////////////////////////////////////////////
 // vtkKCoreLayout
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkKCoreLayout);
 
 // Default Constructor
@@ -356,3 +357,4 @@ int vtkKCoreLayout::RequestData(vtkInformation* vtkNotUsed(request),
   }
   return 1;
 }
+VTK_ABI_NAMESPACE_END

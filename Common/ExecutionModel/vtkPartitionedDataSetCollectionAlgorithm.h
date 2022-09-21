@@ -26,6 +26,7 @@
 #include "vtkAlgorithm.h"
 #include "vtkCommonExecutionModelModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPartitionedDataSetCollection;
 
 class VTKCOMMONEXECUTIONMODEL_EXPORT vtkPartitionedDataSetCollectionAlgorithm : public vtkAlgorithm
@@ -80,4 +81,5 @@ private:
   void operator=(const vtkPartitionedDataSetCollectionAlgorithm&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

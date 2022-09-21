@@ -44,6 +44,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkSmartPointer.h"            //Required for smart pointer internal ivars
 #include "vtkTableAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataArrayCollection;
 class vtkDoubleArray;
 class vtkIdTypeArray;
@@ -248,4 +249,5 @@ private:
   void operator=(const vtkBivariateLinearTableThreshold&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

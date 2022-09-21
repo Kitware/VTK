@@ -29,6 +29,7 @@
 #include "vtkDirectedGraphAlgorithm.h"
 #include "vtkFiltersGeneralModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkReebGraph;
 
 class VTKFILTERSGENERAL_EXPORT vtkPolyDataToReebGraphFilter : public vtkDirectedGraphAlgorithm
@@ -64,4 +65,5 @@ private:
   void operator=(const vtkPolyDataToReebGraphFilter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

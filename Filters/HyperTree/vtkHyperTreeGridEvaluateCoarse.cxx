@@ -27,6 +27,7 @@
 
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkHyperTreeGridEvaluateCoarse);
 
 //------------------------------------------------------------------------------
@@ -324,3 +325,4 @@ double vtkHyperTreeGridEvaluateCoarse::SplattingAverage(const std::vector<double
   }
   return sum / this->SplattingFactor;
 }
+VTK_ABI_NAMESPACE_END

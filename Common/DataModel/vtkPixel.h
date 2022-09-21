@@ -28,6 +28,7 @@
 #include "vtkCell.h"
 #include "vtkCommonDataModelModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkLine;
 class vtkIncrementalPointLocator;
 
@@ -134,4 +135,5 @@ inline int vtkPixel::GetParametricCenter(double pcoords[3])
   return 0;
 }
 
+VTK_ABI_NAMESPACE_END
 #endif

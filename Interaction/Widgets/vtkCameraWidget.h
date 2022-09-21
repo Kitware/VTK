@@ -35,6 +35,7 @@
 #include "vtkBorderWidget.h"
 #include "vtkInteractionWidgetsModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCameraRepresentation;
 
 class VTKINTERACTIONWIDGETS_EXPORT vtkCameraWidget : public vtkBorderWidget
@@ -84,4 +85,5 @@ private:
   void operator=(const vtkCameraWidget&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

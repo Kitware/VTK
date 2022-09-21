@@ -22,6 +22,7 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkAxes);
 
 //------------------------------------------------------------------------------
@@ -187,3 +188,4 @@ void vtkAxes::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Symmetric: " << this->Symmetric << "\n";
   os << indent << "ComputeNormals: " << this->ComputeNormals << "\n";
 }
+VTK_ABI_NAMESPACE_END

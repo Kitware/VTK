@@ -28,6 +28,7 @@
 #include "vtkSMPTools.h"
 #include "vtkStaticPointLocator.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkDensifyPointCloudFilter);
 
 //------------------------------------------------------------------------------
@@ -378,3 +379,4 @@ void vtkDensifyPointCloudFilter::PrintSelf(ostream& os, vtkIndent indent)
      << "Interpolate Attribute Data: " << (this->InterpolateAttributeData ? "On\n" : "Off\n");
   os << indent << "Maximum Number Of Points: " << this->MaximumNumberOfPoints << "\n";
 }
+VTK_ABI_NAMESPACE_END

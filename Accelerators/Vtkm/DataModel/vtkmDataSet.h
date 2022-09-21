@@ -36,6 +36,8 @@ class DataSet;
 }
 } // vtkm::cont
 
+VTK_ABI_NAMESPACE_BEGIN
+
 class vtkPoints;
 class vtkCell;
 class vtkGenericCell;
@@ -195,4 +197,5 @@ private:
   vtkmInitializer Initializer;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkmDataSet_h

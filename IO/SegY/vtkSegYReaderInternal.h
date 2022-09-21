@@ -16,12 +16,15 @@
 #ifndef vtkSegYReaderInternal_h
 #define vtkSegYReaderInternal_h
 
+#include "vtkABINamespace.h"
+
 #include <fstream>
 #include <string>
 #include <vector>
 #include <vtksys/FStream.hxx>
 
 // Forward declarations
+VTK_ABI_NAMESPACE_BEGIN
 class vtkStructuredGrid;
 class vtkImageData;
 class vtkSegYTraceReader;
@@ -64,5 +67,6 @@ private:
   int SampleCountPerTrace;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkSegYReaderInternal_h
 // VTK-HeaderTest-Exclude: vtkSegYReaderInternal.h

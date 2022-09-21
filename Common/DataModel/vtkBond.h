@@ -25,6 +25,7 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h"                // For macros, etc
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkMolecule;
 
 class VTKCOMMONDATAMODEL_EXPORT vtkBond
@@ -95,5 +96,6 @@ inline vtkMolecule* vtkBond::GetMolecule()
   return this->Molecule;
 }
 
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkBond.h

@@ -29,6 +29,7 @@
 /**
  * Hold mouse action key-mappings and other action related resources.
  */
+VTK_ABI_NAMESPACE_BEGIN
 class vtkInteractiveArea::MouseActions
 {
 public:
@@ -266,3 +267,4 @@ void vtkInteractiveArea::ComputeZoom(
     }
   }
 }
+VTK_ABI_NAMESPACE_END

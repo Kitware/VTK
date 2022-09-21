@@ -14,6 +14,7 @@
 =========================================================================*/
 
 #include "PyVTKMethodDescriptor.h"
+#include "vtkABINamespace.h"
 #include "vtkPythonUtil.h"
 
 #include <structmember.h> // a python header

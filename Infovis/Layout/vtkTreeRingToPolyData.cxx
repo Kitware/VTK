@@ -38,6 +38,7 @@
 #include "vtkSmartPointer.h"
 #define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkTreeRingToPolyData);
 
 vtkTreeRingToPolyData::vtkTreeRingToPolyData()
@@ -200,3 +201,4 @@ void vtkTreeRingToPolyData::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
   os << indent << "ShrinkPercentage: " << this->ShrinkPercentage << endl;
 }
+VTK_ABI_NAMESPACE_END

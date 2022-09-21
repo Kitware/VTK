@@ -22,6 +22,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTrivialProducer.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkMoleculeAlgorithm);
 
 //------------------------------------------------------------------------------
@@ -175,3 +176,4 @@ void vtkMoleculeAlgorithm::AddInputData(int index, vtkDataObject* input)
 
   this->AddInputDataInternal(index, input);
 }
+VTK_ABI_NAMESPACE_END

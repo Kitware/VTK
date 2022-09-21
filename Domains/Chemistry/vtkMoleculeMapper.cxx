@@ -48,6 +48,7 @@
 // Note this class may have an accelerated subclass ala
 // vtkOpenGLMoleculeMapper. If you change this class please
 // also check that class for impacts.
+VTK_ABI_NAMESPACE_BEGIN
 vtkObjectFactoryNewMacro(vtkMoleculeMapper);
 
 //------------------------------------------------------------------------------
@@ -959,3 +960,4 @@ void vtkMoleculeMapper::SetMapScalars(bool map)
   this->BondGlyphMapper->SetColorMode(
     map ? VTK_COLOR_MODE_MAP_SCALARS : VTK_COLOR_MODE_DIRECT_SCALARS);
 }
+VTK_ABI_NAMESPACE_END

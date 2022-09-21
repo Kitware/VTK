@@ -72,6 +72,7 @@
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkInteractorObserver.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkActor2D;
 class vtkPolyData;
 class vtkProp;
@@ -300,4 +301,5 @@ private:
   void TearDownWindowInteraction();
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

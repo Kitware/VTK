@@ -71,6 +71,7 @@ POSSIBILITY OF SUCH DAMAGES.
 #include "vtkIOMINCModule.h" // For export macro
 #include "vtkImageWriter.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkStringArray;
 class vtkIdTypeArray;
 class vtkDoubleArray;
@@ -227,4 +228,5 @@ private:
   void operator=(const vtkMINCImageWriter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

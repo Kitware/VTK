@@ -28,6 +28,7 @@
 
 #include "vtkImageReader2.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKIOIMAGE_EXPORT vtkTIFFReader : public vtkImageReader2
 {
 public:
@@ -196,4 +197,5 @@ private:
   bool IgnoreColorMap;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

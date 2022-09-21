@@ -78,6 +78,7 @@ POSSIBILITY OF SUCH DAMAGES.
 #endif
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkMNIObjectReader);
 
 #define VTK_MNIOBJ_LINE_LENGTH 256
@@ -851,3 +852,4 @@ int vtkMNIObjectReader::RequestData(vtkInformation* vtkNotUsed(request),
   // read the file
   return this->ReadFile(output);
 }
+VTK_ABI_NAMESPACE_END

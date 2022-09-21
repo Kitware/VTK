@@ -48,6 +48,7 @@
 #include "vtkFiltersModelingModule.h" // For export macro
 #include "vtkInterpolatingSubdivisionFilter.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCellArray;
 class vtkIdList;
 class vtkIntArray;
@@ -84,4 +85,5 @@ private:
   void operator=(const vtkButterflySubdivisionFilter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

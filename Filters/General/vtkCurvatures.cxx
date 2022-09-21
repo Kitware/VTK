@@ -34,6 +34,7 @@
 
 #include <memory> // For unique_ptr
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkCurvatures);
 
 //-------------------------------------------------------//
@@ -480,3 +481,4 @@ void vtkCurvatures::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "CurvatureType: " << this->CurvatureType << "\n";
   os << indent << "InvertMeanCurvature: " << this->InvertMeanCurvature << "\n";
 }
+VTK_ABI_NAMESPACE_END

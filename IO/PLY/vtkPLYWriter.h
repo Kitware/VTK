@@ -44,6 +44,7 @@
 
 #include <string> // For string parameter
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataSetAttributes;
 class vtkPolyData;
 class vtkScalarsToColors;
@@ -267,4 +268,5 @@ private:
   void operator=(const vtkPLYWriter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

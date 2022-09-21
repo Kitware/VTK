@@ -39,6 +39,7 @@
 
 #include "vtkSmartPointer.h" // For SP ivars
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkIntArray;
 class vtkInformation;
 class vtkInformationVector;
@@ -239,4 +240,5 @@ private:
   void operator=(const vtkYoungsMaterialInterface&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif /* VTK_YOUNGS_MATERIAL_INTERFACE_H */

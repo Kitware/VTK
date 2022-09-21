@@ -25,6 +25,7 @@
 #include "vtkPolyData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkRegularPolygonSource);
 
 vtkRegularPolygonSource::vtkRegularPolygonSource()
@@ -185,3 +186,4 @@ void vtkRegularPolygonSource::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Output Points Precision: " << this->OutputPointsPrecision << "\n";
 }
+VTK_ABI_NAMESPACE_END

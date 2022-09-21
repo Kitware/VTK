@@ -28,6 +28,7 @@
 #include "vtkDataWriter.h"
 #include "vtkIOLegacyModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkGraph;
 class vtkMolecule;
 
@@ -61,4 +62,5 @@ private:
   void operator=(const vtkGraphWriter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

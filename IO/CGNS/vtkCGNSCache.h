@@ -35,6 +35,7 @@
 
 namespace CGNSRead
 {
+VTK_ABI_NAMESPACE_BEGIN
 // No priority and no size limit right now
 
 template <typename CacheDataType>
@@ -115,6 +116,7 @@ void vtkCGNSCache<CacheDataType>::ClearCache()
 {
   this->CacheData.clear();
 }
+VTK_ABI_NAMESPACE_END
 }
 #endif // vtkCGNSCache_h
 // VTK-HeaderTest-Exclude: vtkCGNSCache.h

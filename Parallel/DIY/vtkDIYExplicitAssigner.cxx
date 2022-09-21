@@ -23,6 +23,7 @@
 #include <numeric>
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkDIYExplicitAssigner::vtkDIYExplicitAssigner(
   diy::mpi::communicator comm, int local_blocks, bool force_power_of_two /*=false*/)
   : diy::StaticAssigner(comm.size(), local_blocks)
@@ -90,3 +91,4 @@ void vtkDIYExplicitAssigner::local_gids(int rank, std::vector<int>& gids) const
   gids.resize(max - min);
   std::iota(gids.begin(), gids.end(), min);
 }
+VTK_ABI_NAMESPACE_END

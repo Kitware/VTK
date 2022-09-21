@@ -32,11 +32,14 @@
 // it populates the global namespace.
 #include "GL/glx.h"
 #include <X11/Xutil.h>
+VTK_ABI_NAMESPACE_BEGIN
 struct vtkXVisualInfo : public XVisualInfo
 {
 };
+VTK_ABI_NAMESPACE_END
 #endif // VTK_USE_X
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkOpenXRManagerOpenGLGraphics::PIMPL
 {
 public:
@@ -211,3 +214,4 @@ const char* vtkOpenXRManagerOpenGLGraphics::GetBackendExtensionName()
 {
   return XR_KHR_OPENGL_ENABLE_EXTENSION_NAME;
 }
+VTK_ABI_NAMESPACE_END

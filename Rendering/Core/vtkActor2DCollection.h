@@ -33,6 +33,7 @@
 
 #include "vtkActor2D.h" // Needed for inline methods
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkViewport;
 
 class VTKRENDERINGCORE_EXPORT vtkActor2DCollection : public vtkPropCollection
@@ -141,4 +142,5 @@ inline vtkActor2D* vtkActor2DCollection::GetLastItem()
   return this->GetLastActor2D();
 }
 
+VTK_ABI_NAMESPACE_END
 #endif

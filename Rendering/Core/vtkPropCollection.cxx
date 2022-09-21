@@ -15,6 +15,7 @@
 #include "vtkPropCollection.h"
 #include "vtkObjectFactory.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPropCollection);
 
 void vtkPropCollection::PrintSelf(ostream& os, vtkIndent indent)
@@ -34,3 +35,4 @@ int vtkPropCollection::GetNumberOfPaths()
   }
   return numPaths;
 }
+VTK_ABI_NAMESPACE_END

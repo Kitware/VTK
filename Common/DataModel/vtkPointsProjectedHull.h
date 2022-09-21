@@ -35,6 +35,7 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkPoints.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONDATAMODEL_EXPORT vtkPointsProjectedHull : public vtkPoints
 {
   vtkTypeMacro(vtkPointsProjectedHull, vtkPoints);
@@ -184,4 +185,5 @@ private:
   vtkPointsProjectedHull(const vtkPointsProjectedHull&) = delete;
   void operator=(const vtkPointsProjectedHull&) = delete;
 };
+VTK_ABI_NAMESPACE_END
 #endif

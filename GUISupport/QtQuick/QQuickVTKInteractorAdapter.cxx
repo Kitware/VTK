@@ -23,6 +23,7 @@
 #include "vtkRenderWindowInteractor.h"
 
 //-------------------------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 QQuickVTKInteractorAdapter::QQuickVTKInteractorAdapter(QObject* parent)
   : Superclass(parent)
 {
@@ -134,3 +135,4 @@ void QQuickVTKInteractorAdapter::ProcessEvents(vtkRenderWindowInteractor* intera
     m_queuedEvents.clear();
   }
 }
+VTK_ABI_NAMESPACE_END

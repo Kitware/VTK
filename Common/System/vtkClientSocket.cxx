@@ -16,6 +16,7 @@
 
 #include "vtkObjectFactory.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkClientSocket);
 //------------------------------------------------------------------------------
 vtkClientSocket::vtkClientSocket()
@@ -62,3 +63,4 @@ void vtkClientSocket::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
   os << indent << "ConnectingSide: " << this->ConnectingSide << endl;
 }
+VTK_ABI_NAMESPACE_END

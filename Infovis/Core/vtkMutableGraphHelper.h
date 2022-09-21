@@ -38,6 +38,7 @@
 #include "vtkInfovisCoreModule.h" // For export macro
 #include "vtkObject.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataSetAttributes;
 class vtkGraph;
 class vtkGraphEdge;
@@ -111,4 +112,5 @@ private:
   void operator=(const vtkMutableGraphHelper&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

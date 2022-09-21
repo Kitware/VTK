@@ -84,6 +84,7 @@
 #include "vtk3DWidget.h"
 #include "vtkInteractionWidgetsModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkActor;
 class vtkCellPicker;
 class vtkParametricSpline;
@@ -380,4 +381,5 @@ private:
   void operator=(const vtkSplineWidget&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

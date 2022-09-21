@@ -31,6 +31,7 @@
 #include "vtkPolyData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkSuperquadricSource);
 
 static void evalSuperquadric(double theta, double phi, double dtheta, double dphi, double rtheta,
@@ -508,3 +509,4 @@ static void evalSuperquadric(double theta, double phi, // parametric coords
   nrm[1] = 1.0 / dims[1] * cf2 * cf(theta + dtheta, 2.0 - rtheta);
   nrm[2] = 1.0 / dims[2] * sf(phi + dphi, 2.0 - rphi);
 }
+VTK_ABI_NAMESPACE_END

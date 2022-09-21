@@ -40,6 +40,7 @@
 #include <queue>
 #include <sstream>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkDendrogramItem);
 
 //------------------------------------------------------------------------------
@@ -1484,3 +1485,4 @@ void vtkDendrogramItem::PrintSelf(ostream& os, vtkIndent indent)
     this->Tree->PrintSelf(os, indent.GetNextIndent());
   }
 }
+VTK_ABI_NAMESPACE_END

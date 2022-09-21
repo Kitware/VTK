@@ -42,6 +42,7 @@
 #include <string>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
 struct ClearInvalidElementsWorker
@@ -815,3 +816,4 @@ vtkSmartPointer<vtkOrderStatistics> vtkExtractDataArraysOverTime::NewOrderStatis
 {
   return vtkSmartPointer<vtkOrderStatistics>::New();
 }
+VTK_ABI_NAMESPACE_END

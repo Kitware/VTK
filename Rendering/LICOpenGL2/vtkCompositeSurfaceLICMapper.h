@@ -30,6 +30,7 @@
 #include "vtkNew.h"                       // for ivars
 #include "vtkRenderingLICOpenGL2Module.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkSurfaceLICInterface;
 
 class VTKRENDERINGLICOPENGL2_EXPORT vtkCompositeSurfaceLICMapper
@@ -68,4 +69,5 @@ private:
   void operator=(const vtkCompositeSurfaceLICMapper&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

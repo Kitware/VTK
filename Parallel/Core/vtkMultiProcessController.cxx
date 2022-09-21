@@ -39,6 +39,7 @@
 //------------------------------------------------------------------------------
 // Stores internal members that cannot or should not be exposed in the header
 // file (for example, because they use templated types).
+VTK_ABI_NAMESPACE_BEGIN
 class vtkMultiProcessController::vtkInternal
 {
 public:
@@ -931,3 +932,4 @@ void vtkMultiProcessController::SetGlobalController(vtkMultiProcessController* c
 {
   VTK_GLOBAL_MULTI_PROCESS_CONTROLLER = controller;
 }
+VTK_ABI_NAMESPACE_END

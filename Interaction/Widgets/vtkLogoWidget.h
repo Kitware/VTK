@@ -32,6 +32,7 @@
 #include "vtkBorderWidget.h"
 #include "vtkInteractionWidgetsModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkLogoRepresentation;
 
 class VTKINTERACTIONWIDGETS_EXPORT vtkLogoWidget : public vtkBorderWidget
@@ -74,4 +75,5 @@ private:
   void operator=(const vtkLogoWidget&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

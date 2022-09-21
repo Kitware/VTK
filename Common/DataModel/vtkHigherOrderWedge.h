@@ -42,6 +42,7 @@
 #include "vtkNonLinearCell.h"
 #include "vtkSmartPointer.h" // For member variable.
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCellData;
 class vtkDoubleArray;
 class vtkWedge;
@@ -161,4 +162,5 @@ inline int vtkHigherOrderWedge::GetParametricCenter(double center[3])
   return 0;
 }
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkHigherOrderWedge_h

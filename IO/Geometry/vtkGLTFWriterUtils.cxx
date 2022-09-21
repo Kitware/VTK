@@ -26,6 +26,7 @@
 #include <sstream>
 #include <string>
 
+VTK_ABI_NAMESPACE_BEGIN
 void vtkGLTFWriterUtils::WriteValues(vtkDataArray* ca, ostream& myFile)
 {
   myFile.write(reinterpret_cast<char*>(ca->GetVoidPointer(0)),
@@ -124,3 +125,4 @@ void vtkGLTFWriterUtils::WriteCellBufferAndView(vtkCellArray* ca, const char* fi
   WriteBufferAndView(ia, fileName, inlineData, buffers, bufferViews);
   ia->Delete();
 }
+VTK_ABI_NAMESPACE_END

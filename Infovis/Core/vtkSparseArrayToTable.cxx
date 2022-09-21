@@ -34,6 +34,7 @@
 #include <sstream>
 #include <stdexcept>
 
+VTK_ABI_NAMESPACE_BEGIN
 template <typename ValueT, typename ValueColumnT>
 static bool Convert(vtkArray* Array, const char* ValueColumn, vtkTable* Table)
 {
@@ -141,3 +142,4 @@ int vtkSparseArrayToTable::RequestData(
 
   return 0;
 }
+VTK_ABI_NAMESPACE_END

@@ -30,6 +30,7 @@
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkMultiBlockDataSetAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSGENERAL_EXPORT vtkMultiBlockMergeFilter : public vtkMultiBlockDataSetAlgorithm
 {
 public:
@@ -70,4 +71,5 @@ private:
   void operator=(const vtkMultiBlockMergeFilter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

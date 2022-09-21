@@ -30,6 +30,7 @@
 #include "vtkTable.h"
 #include "vtkVariantArray.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPKMeansStatistics);
 vtkCxxSetObjectMacro(vtkPKMeansStatistics, Controller, vtkMultiProcessController);
 //------------------------------------------------------------------------------
@@ -244,3 +245,4 @@ void vtkPKMeansStatistics::CreateInitialClusterCenters(vtkIdType numToAllocate,
 
   this->DistanceFunctor->DeallocateElementArray(localElements);
 }
+VTK_ABI_NAMESPACE_END

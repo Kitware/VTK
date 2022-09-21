@@ -31,6 +31,7 @@
 #include "vtkIOParallelXMLModule.h" // For export macro
 #include "vtkXMLWriter.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCallbackCommand;
 class vtkMultiProcessController;
 
@@ -231,4 +232,5 @@ private:
   bool ContinuingExecution;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

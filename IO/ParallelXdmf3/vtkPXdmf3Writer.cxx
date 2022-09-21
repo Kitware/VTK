@@ -22,6 +22,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPXdmf3Writer);
 
 //------------------------------------------------------------------------------
@@ -75,3 +76,4 @@ int vtkPXdmf3Writer::GlobalContinueExecuting(int localContinue)
   }
   return globalContinue;
 }
+VTK_ABI_NAMESPACE_END

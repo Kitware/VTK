@@ -346,6 +346,7 @@ protected:
 
 } // end namespace {}
 
+VTK_ABI_NAMESPACE_BEGIN
 /**
  * Builds an Ioss::NodeBlock. Since an exodus file has a single common node
  * block, we need to build one based on all points from all blocks.
@@ -970,3 +971,4 @@ std::string vtkIOSSModel::MD5() const
   md5Hash[32] = '\0';
   return std::string(md5Hash);
 }
+VTK_ABI_NAMESPACE_END

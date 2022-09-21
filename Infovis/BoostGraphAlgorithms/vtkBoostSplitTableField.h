@@ -57,6 +57,7 @@
 #include "vtkInfovisBoostGraphAlgorithmsModule.h" // For export macro
 #include "vtkTableAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkStringArray;
 
 class VTKINFOVISBOOSTGRAPHALGORITHMS_EXPORT vtkBoostSplitTableField : public vtkTableAlgorithm
@@ -85,4 +86,5 @@ private:
   void operator=(const vtkBoostSplitTableField&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

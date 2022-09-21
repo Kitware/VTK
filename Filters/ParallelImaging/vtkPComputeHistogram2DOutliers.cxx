@@ -38,6 +38,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkSmartPointer.h"
 #include "vtkTable.h"
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPComputeHistogram2DOutliers);
 vtkCxxSetObjectMacro(vtkPComputeHistogram2DOutliers, Controller, vtkMultiProcessController);
 //------------------------------------------------------------------------------
@@ -130,3 +131,4 @@ int vtkPComputeHistogram2DOutliers::RequestData(
 
   return 1;
 }
+VTK_ABI_NAMESPACE_END

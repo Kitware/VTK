@@ -42,6 +42,8 @@
 #include "vtkFiltersFlowPathsModule.h" // For export macro
 #include "vtkSmartPointer.h"           // For vtkSmartPointer
 
+VTK_ABI_NAMESPACE_BEGIN
+
 class vtkTransform;
 
 class VTKFILTERSFLOWPATHS_EXPORT vtkLinearTransformCellLocator : public vtkAbstractCellLocator
@@ -218,4 +220,5 @@ private:
   void operator=(const vtkLinearTransformCellLocator&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

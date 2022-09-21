@@ -19,6 +19,7 @@
 #include "vtkGarbageCollector.h"
 #include "vtkObjectFactory.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkCxxSetObjectMacro(vtkScalarTree, DataSet, vtkDataSet);
 vtkCxxSetObjectMacro(vtkScalarTree, Scalars, vtkDataArray);
 
@@ -72,3 +73,4 @@ void vtkScalarTree::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Build Time: " << this->BuildTime.GetMTime() << "\n";
 }
+VTK_ABI_NAMESPACE_END

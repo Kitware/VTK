@@ -32,6 +32,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 // vtkTransposeMatrix
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkTransposeMatrix);
 
 vtkTransposeMatrix::vtkTransposeMatrix() = default;
@@ -127,3 +128,4 @@ int vtkTransposeMatrix::RequestData(
 
   return 1;
 }
+VTK_ABI_NAMESPACE_END

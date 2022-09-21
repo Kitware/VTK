@@ -31,6 +31,7 @@
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkUnstructuredGridAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSGENERAL_EXPORT vtkTimeSourceExample : public vtkUnstructuredGridAlgorithm
 {
 public:
@@ -99,4 +100,5 @@ private:
   void operator=(const vtkTimeSourceExample&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

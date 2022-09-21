@@ -43,6 +43,7 @@
 
 #include "vtkIOImageModule.h" // For export macro
 #include "vtkImageReader.h"
+VTK_ABI_NAMESPACE_BEGIN
 class vtkLookupTable;
 
 class VTKIOIMAGE_EXPORT vtkBMPReader : public vtkImageReader
@@ -114,4 +115,5 @@ private:
   vtkBMPReader(const vtkBMPReader&) = delete;
   void operator=(const vtkBMPReader&) = delete;
 };
+VTK_ABI_NAMESPACE_END
 #endif

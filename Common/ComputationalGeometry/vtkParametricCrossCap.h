@@ -36,6 +36,7 @@
 #include "vtkCommonComputationalGeometryModule.h" // For export macro
 #include "vtkParametricFunction.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONCOMPUTATIONALGEOMETRY_EXPORT vtkParametricCrossCap : public vtkParametricFunction
 {
 public:
@@ -92,4 +93,5 @@ private:
   void operator=(const vtkParametricCrossCap&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

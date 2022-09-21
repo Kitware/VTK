@@ -24,6 +24,7 @@
 
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImageMapToWindowLevelColors);
 
 // Constructor sets default values
@@ -417,3 +418,4 @@ void vtkImageMapToWindowLevelColors::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Window: " << this->Window << endl;
   os << indent << "Level: " << this->Level << endl;
 }
+VTK_ABI_NAMESPACE_END

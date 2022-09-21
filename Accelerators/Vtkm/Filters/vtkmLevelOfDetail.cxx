@@ -34,6 +34,7 @@
 // To handle computing custom coordinate sets bounds we need to include
 // the following
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkmLevelOfDetail);
 
 //------------------------------------------------------------------------------
@@ -165,3 +166,4 @@ void vtkmLevelOfDetail::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Number of Y Divisions: " << this->NumberOfDivisions[1] << "\n";
   os << indent << "Number of Z Divisions: " << this->NumberOfDivisions[2] << "\n";
 }
+VTK_ABI_NAMESPACE_END

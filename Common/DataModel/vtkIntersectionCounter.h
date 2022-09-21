@@ -26,6 +26,7 @@
 
 // class VTKCOMMONDATAMODEL_EXPORT vtkIntersectionCounter
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkIntersectionCounter
 {
 public:
@@ -104,5 +105,6 @@ protected:
 
 }; // vtkIntersectionCounter
 
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkIntersectionCounter.h

@@ -30,6 +30,7 @@
 #include "vtkFiltersGeometryModule.h" // For export macro
 #include "vtkUnstructuredGridAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkIncrementalPointLocator;
 
 class VTKFILTERSGEOMETRY_EXPORT vtkLinearToQuadraticCellsFilter
@@ -85,4 +86,5 @@ private:
   void operator=(const vtkLinearToQuadraticCellsFilter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

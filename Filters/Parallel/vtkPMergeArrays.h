@@ -29,6 +29,7 @@
 #include "vtkFiltersParallelModule.h" // For export macro
 #include "vtkMergeArrays.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSPARALLEL_EXPORT vtkPMergeArrays : public vtkMergeArrays
 {
 public:
@@ -48,4 +49,5 @@ private:
   void operator=(const vtkPMergeArrays&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

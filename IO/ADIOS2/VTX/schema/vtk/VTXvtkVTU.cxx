@@ -40,6 +40,7 @@ namespace vtx
 {
 namespace schema
 {
+VTK_ABI_NAMESPACE_BEGIN
 
 VTXvtkVTU::VTXvtkVTU(const std::string& schema, adios2::IO& io, adios2::Engine& engine)
   : VTXvtkBase("vtu", schema, io, engine)
@@ -261,5 +262,6 @@ void VTXvtkVTU::Init()
 VTK_IO_ADIOS2_VTX_ARRAY_TYPE(declare_type)
 #undef declare_type
 
+VTK_ABI_NAMESPACE_END
 } // end namespace schema
 } // end namespace vtx

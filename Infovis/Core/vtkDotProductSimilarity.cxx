@@ -45,6 +45,7 @@
 // The key threshold can be overridden by specifying a lower-limit on the
 // number of values stored in the container.
 
+VTK_ABI_NAMESPACE_BEGIN
 template <typename KeyT, typename ValueT>
 class threshold_multimap : public std::multimap<KeyT, ValueT, std::less<KeyT>>
 {
@@ -344,3 +345,4 @@ int vtkDotProductSimilarity::RequestData(
     return 0;
   }
 }
+VTK_ABI_NAMESPACE_END

@@ -18,6 +18,7 @@
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkGraphWeightEuclideanDistanceFilter);
 
 float vtkGraphWeightEuclideanDistanceFilter::ComputeWeight(
@@ -49,3 +50,4 @@ void vtkGraphWeightEuclideanDistanceFilter::PrintSelf(ostream& os, vtkIndent ind
 {
   vtkGraphWeightFilter::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

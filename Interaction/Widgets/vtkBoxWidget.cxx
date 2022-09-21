@@ -35,6 +35,7 @@
 #include "vtkSphereSource.h"
 #include "vtkTransform.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkBoxWidget);
 
 vtkBoxWidget::vtkBoxWidget()
@@ -1472,3 +1473,4 @@ void vtkBoxWidget::RegisterPickers()
   pm->AddPicker(this->HandlePicker, this);
   pm->AddPicker(this->HexPicker, this);
 }
+VTK_ABI_NAMESPACE_END

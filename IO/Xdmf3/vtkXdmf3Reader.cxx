@@ -58,6 +58,7 @@
 // TODO: make domains entirely optional and selectable
 
 //=============================================================================
+VTK_ABI_NAMESPACE_BEGIN
 class vtkXdmf3Reader::Internals
 {
   // Private implementation details for vtkXdmf3Reader
@@ -958,3 +959,4 @@ int vtkXdmf3Reader::GetSILUpdateStamp()
 {
   return this->Internal->GetSIL()->GetMTime();
 }
+VTK_ABI_NAMESPACE_END

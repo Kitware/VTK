@@ -35,6 +35,7 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkImplicitFunction.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONDATAMODEL_EXPORT vtkPerlinNoise : public vtkImplicitFunction
 {
 public:
@@ -105,4 +106,5 @@ private:
   void operator=(const vtkPerlinNoise&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

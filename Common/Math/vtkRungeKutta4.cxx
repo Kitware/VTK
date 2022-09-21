@@ -17,6 +17,7 @@
 #include "vtkFunctionSet.h"
 #include "vtkObjectFactory.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkRungeKutta4);
 
 vtkRungeKutta4::vtkRungeKutta4()
@@ -159,3 +160,4 @@ void vtkRungeKutta4::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Runge-Kutta 4 function derivatives: " << this->NextDerivs[0] << " "
      << this->NextDerivs[1] << " " << this->NextDerivs[2] << endl;
 }
+VTK_ABI_NAMESPACE_END

@@ -31,6 +31,7 @@
 #include <vector>                // For C++ vector
 
 // Forward declarations
+VTK_ABI_NAMESPACE_BEGIN
 class vtkMultiProcessController;
 class vtkOverlappingAMR;
 
@@ -69,4 +70,5 @@ private:
   void operator=(const vtkParallelAMRUtilities&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif /* vtkParallelAMRUtilities_h */

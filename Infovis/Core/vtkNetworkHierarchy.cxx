@@ -40,6 +40,7 @@
 #include <utility>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkNetworkHierarchy);
 
 // This is just a macro wrapping for smart pointers
@@ -305,3 +306,4 @@ int vtkNetworkHierarchy::RequestData(
 
   return 1;
 }
+VTK_ABI_NAMESPACE_END

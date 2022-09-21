@@ -51,6 +51,7 @@
 #include <memory>                                   // std::shared_ptr
 #include <vector>                                   // std::vector
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkHyperTree;
 class vtkHyperTreeGrid;
 class vtkHyperTreeGridScales;
@@ -273,4 +274,5 @@ private:
     const vtkHyperTreeGridNonOrientedUnlimitedGeometryCursor&) = delete;
   void operator=(const vtkHyperTreeGridNonOrientedUnlimitedGeometryCursor&) = delete;
 };
+VTK_ABI_NAMESPACE_END
 #endif

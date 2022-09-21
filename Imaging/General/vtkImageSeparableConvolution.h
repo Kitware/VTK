@@ -32,6 +32,7 @@
 #include "vtkImageDecomposeFilter.h"
 #include "vtkImagingGeneralModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkFloatArray;
 
 class VTKIMAGINGGENERAL_EXPORT vtkImageSeparableConvolution : public vtkImageDecomposeFilter
@@ -81,4 +82,5 @@ private:
   void operator=(const vtkImageSeparableConvolution&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

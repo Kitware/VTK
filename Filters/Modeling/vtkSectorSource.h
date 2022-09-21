@@ -30,6 +30,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkFiltersModelingModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSMODELING_EXPORT vtkSectorSource : public vtkPolyDataAlgorithm
 {
 public:
@@ -111,4 +112,5 @@ private:
   void operator=(const vtkSectorSource&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -18,6 +18,7 @@
 
 //------------------------------------------------------------------------------
 // Construct an instance of vtkImageDecomposeFilter filter.
+VTK_ABI_NAMESPACE_BEGIN
 vtkImageDecomposeFilter::vtkImageDecomposeFilter()
 {
   this->Dimensionality = 3;
@@ -107,3 +108,4 @@ void vtkImageDecomposeFilter::PermuteExtent(
       break;
   }
 }
+VTK_ABI_NAMESPACE_END

@@ -25,6 +25,7 @@
 #include "vtkPolyData.h"
 #include "vtkStructuredPoints.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkVoxelContoursToSurfaceFilter);
 
 vtkVoxelContoursToSurfaceFilter::vtkVoxelContoursToSurfaceFilter()
@@ -648,3 +649,4 @@ void vtkVoxelContoursToSurfaceFilter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Spacing: " << this->Spacing[0] << " " << this->Spacing[1] << " "
      << this->Spacing[2] << endl;
 }
+VTK_ABI_NAMESPACE_END

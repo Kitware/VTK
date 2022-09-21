@@ -27,6 +27,7 @@
 
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 //------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkOBBTree);
 
@@ -1946,3 +1947,4 @@ void vtkOBBTree::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "OBBCount " << this->OBBCount << "\n";
 }
+VTK_ABI_NAMESPACE_END

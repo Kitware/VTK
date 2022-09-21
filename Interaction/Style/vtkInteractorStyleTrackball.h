@@ -31,6 +31,7 @@
 #include "vtkInteractionStyleModule.h" // For export macro
 #include "vtkInteractorStyleSwitch.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKINTERACTIONSTYLE_EXPORT vtkInteractorStyleTrackball : public vtkInteractorStyleSwitch
 {
 public:
@@ -47,4 +48,5 @@ private:
   void operator=(const vtkInteractorStyleTrackball&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -43,3 +43,4 @@ vtk_module_link(VTK::IOFFMPEG
     FFMPEG::avutil
     FFMPEG::swscale
     ${ffmpeg_libraries})
+vtk_add_test_mangling(VTK::IOFFMPEG)

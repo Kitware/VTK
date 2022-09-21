@@ -37,6 +37,7 @@
 
 #include "vtkTextureObjectVS.h" // a pass through shader
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOpenGLRayCastImageDisplayHelper);
 
 //------------------------------------------------------------------------------
@@ -244,3 +245,4 @@ void vtkOpenGLRayCastImageDisplayHelper::ReleaseGraphicsResources(vtkWindow* win
     this->ShaderProgram = nullptr;
   }
 }
+VTK_ABI_NAMESPACE_END

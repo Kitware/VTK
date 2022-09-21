@@ -23,6 +23,7 @@
 #include "vtkPolyData.h"
 #include "vtkUnsignedCharArray.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkTextSource);
 
 #define vtkfont_width 9
@@ -458,3 +459,4 @@ void vtkTextSource::PrintSelf(ostream& os, vtkIndent indent)
      << this->BackgroundColor[1] << ", " << this->BackgroundColor[2] << ")\n";
   os << indent << "Output Points Precision: " << this->OutputPointsPrecision << "\n";
 }
+VTK_ABI_NAMESPACE_END

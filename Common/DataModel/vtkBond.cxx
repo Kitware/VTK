@@ -22,6 +22,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <cassert>
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkBond::vtkBond(vtkMolecule* parent, vtkIdType id, vtkIdType beginAtomId, vtkIdType endAtomId)
   : Molecule(parent)
   , Id(id)
@@ -94,3 +95,4 @@ unsigned short vtkBond::GetOrder()
 {
   return this->Molecule->GetBondOrder(this->Id);
 }
+VTK_ABI_NAMESPACE_END

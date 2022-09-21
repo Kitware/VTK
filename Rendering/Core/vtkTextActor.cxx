@@ -36,6 +36,7 @@
 
 #include <algorithm>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkObjectFactoryNewMacro(vtkTextActor);
 
 //------------------------------------------------------------------------------
@@ -1010,3 +1011,4 @@ void vtkTextActor::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "FontScaleExponent: " << this->FontScaleExponent << endl;
   os << indent << "UseBorderAlign: " << this->UseBorderAlign << "\n";
 }
+VTK_ABI_NAMESPACE_END

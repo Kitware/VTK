@@ -27,6 +27,7 @@
 #include "vtkNew.h"               // for ivars
 #include "vtkRenderingVRModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkOpenGLActor;
 class vtkOpenGLPolyDataMapper;
 class vtkOpenGLRenderer;
@@ -87,4 +88,5 @@ private:
   void operator=(const vtkOpenGLAvatar&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -23,6 +23,7 @@
 
 #include <cctype>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkSLCReader);
 
 // Constructor for a vtkSLCReader.
@@ -464,3 +465,4 @@ void vtkSLCReader::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Error: " << this->Error << "\n";
   os << indent << "File Name: " << (this->FileName ? this->FileName : "(none)") << "\n";
 }
+VTK_ABI_NAMESPACE_END

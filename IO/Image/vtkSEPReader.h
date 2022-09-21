@@ -30,6 +30,7 @@
 
 namespace details
 {
+VTK_ABI_NAMESPACE_BEGIN
 enum class EndiannessType : std::uint8_t
 {
   SEP_LITTLE_ENDIAN = 0,
@@ -37,8 +38,10 @@ enum class EndiannessType : std::uint8_t
 };
 
 static constexpr int SEP_READER_MAX_DIMENSION = 32u;
+VTK_ABI_NAMESPACE_END
 }
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkStringArray;
 
 class VTKIOIMAGE_EXPORT vtkSEPReader : public vtkImageAlgorithm
@@ -163,4 +166,5 @@ private:
   void operator=(const vtkSEPReader&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkSEPReader_h

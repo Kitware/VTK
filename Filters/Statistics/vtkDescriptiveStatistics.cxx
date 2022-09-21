@@ -44,6 +44,7 @@
 #include <sstream>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkObjectFactoryNewMacro(vtkDescriptiveStatistics);
 
 //------------------------------------------------------------------------------
@@ -933,3 +934,4 @@ void vtkDescriptiveStatistics::SelectAssessFunctor(
 
   // If arrived here it means that the variable of interest was not found in the parameter table
 }
+VTK_ABI_NAMESPACE_END

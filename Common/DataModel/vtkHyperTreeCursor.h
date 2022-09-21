@@ -38,6 +38,7 @@
 #include "vtkDeprecation.h"           // For VTK_DEPRECATED_IN_9_2_0
 #include "vtkObject.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkHyperTree;
 
 class VTK_DEPRECATED_IN_9_2_0(
@@ -155,5 +156,6 @@ private:
   vtkHyperTreeCursor(const vtkHyperTreeCursor&) = delete;
   void operator=(const vtkHyperTreeCursor&) = delete;
 };
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkHyperTreeCursor.h

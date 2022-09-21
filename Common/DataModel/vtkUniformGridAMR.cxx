@@ -24,6 +24,7 @@
 #include "vtkUniformGrid.h"
 #include "vtkUniformGridAMRDataIterator.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkUniformGridAMR);
 
 //------------------------------------------------------------------------------
@@ -367,3 +368,4 @@ void vtkUniformGridAMR::GetMax(double max[3])
   max[1] = bb[3];
   max[2] = bb[5];
 }
+VTK_ABI_NAMESPACE_END

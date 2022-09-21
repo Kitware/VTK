@@ -71,6 +71,7 @@
 
 #include "vtkInitialValueProblemSolver.h" // Needed for constants
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataArray;
 class vtkGenericAdaptorCell;
 class vtkIdList;
@@ -448,4 +449,5 @@ private:
   void operator=(const vtkGenericStreamTracer&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

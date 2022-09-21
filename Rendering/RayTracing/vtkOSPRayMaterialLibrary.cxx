@@ -38,6 +38,7 @@
 
 #include <sys/types.h>
 
+VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
 const std::map<std::string, std::map<std::string, std::string>> Aliases = {
@@ -1234,3 +1235,4 @@ vtkOSPRayMaterialLibrary::GetParametersDictionary()
   };
   return dic;
 }
+VTK_ABI_NAMESPACE_END

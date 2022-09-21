@@ -52,6 +52,7 @@
 #include <unordered_map>
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
 const std::array<char, 13> arrayTypes = {
@@ -1206,3 +1207,4 @@ void vtkVtkJSSceneGraphSerializer::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

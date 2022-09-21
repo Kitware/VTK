@@ -26,6 +26,7 @@
 #include "vtkIOGeoJSONModule.h" // For export macro
 #include "vtkWriter.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkLookupTable;
 
 class VTKIOGEOJSON_EXPORT vtkGeoJSONWriter : public vtkWriter
@@ -131,4 +132,5 @@ private:
   void operator=(const vtkGeoJSONWriter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkGeoJSONWriter_h

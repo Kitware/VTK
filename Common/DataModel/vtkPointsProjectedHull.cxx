@@ -20,6 +20,7 @@
 #include "vtkPointsProjectedHull.h"
 #include "vtkObjectFactory.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPointsProjectedHull);
 
 static const int xdim = 0, ydim = 1, zdim = 2;
@@ -187,6 +188,7 @@ int vtkPointsProjectedHull::RectangleIntersection(
 
   return 1;
 }
+VTK_ABI_NAMESPACE_END
 //
 // Suppose the points are projected orthogonally in the dir
 // of the positive x, y or z axis.  Compute the points (2 components)
@@ -203,12 +205,13 @@ int vtkPointsProjectedHull::RectangleIntersection(
 //
 // Algorithm comes from Graphics Gems IV
 //
-extern "C"
+namespace
 {
-  int vtkPointsProjectedHullIncrVertAxis(const void* p1, const void* p2);
-  int vtkPointsProjectedHullCCW(const void* p1, const void* p2);
+int vtkPointsProjectedHullIncrVertAxis(const void* p1, const void* p2);
+int vtkPointsProjectedHullCCW(const void* p1, const void* p2);
 }
 
+VTK_ABI_NAMESPACE_BEGIN
 int vtkPointsProjectedHull::GrahamScanAlgorithm(int dir)
 {
   int horizAxis = 0, vertAxis = 0;
@@ -724,54 +727,56 @@ int vtkPointsProjectedHull::RectangleOutside1DPolygon(
 
   return 1;
 }
+VTK_ABI_NAMESPACE_END
 
 // The sort functions
 
-extern "C"
+namespace
 {
-  int vtkPointsProjectedHullIncrVertAxis(const void* p1, const void* p2)
-  {
-    const double* a = static_cast<const double*>(p1);
-    const double* b = static_cast<const double*>(p2);
+int vtkPointsProjectedHullIncrVertAxis(const void* p1, const void* p2)
+{
+  const double* a = static_cast<const double*>(p1);
+  const double* b = static_cast<const double*>(p2);
 
-    if (a[1] < b[1])
-    {
-      return -1;
-    }
-    else if (a[1] == b[1])
-    {
-      return 0;
-    }
-    else
-    {
-      return 1;
-    }
+  if (a[1] < b[1])
+  {
+    return -1;
   }
-
-  int vtkPointsProjectedHullCCW(const void* p1, const void* p2)
+  else if (a[1] == b[1])
   {
-    const double* a = static_cast<const double*>(p1);
-    const double* b = static_cast<const double*>(p2);
-
-    // sort in counter clockwise order from first point
-
-    double val = VTK_ISLEFT(firstPt, a, b);
-
-    if (val < 0)
-    {
-      return 1; // b is right of line firstPt->a
-    }
-    else if (val == 0)
-    {
-      return 0; // b is on line firstPt->a
-    }
-    else
-    {
-      return -1; // b is left of line firstPt->a
-    }
+    return 0;
+  }
+  else
+  {
+    return 1;
   }
 }
 
+int vtkPointsProjectedHullCCW(const void* p1, const void* p2)
+{
+  const double* a = static_cast<const double*>(p1);
+  const double* b = static_cast<const double*>(p2);
+
+  // sort in counter clockwise order from first point
+
+  double val = VTK_ISLEFT(firstPt, a, b);
+
+  if (val < 0)
+  {
+    return 1; // b is right of line firstPt->a
+  }
+  else if (val == 0)
+  {
+    return 0; // b is on line firstPt->a
+  }
+  else
+  {
+    return -1; // b is left of line firstPt->a
+  }
+}
+}
+
+VTK_ABI_NAMESPACE_BEGIN
 void vtkPointsProjectedHull::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -801,3 +806,4 @@ void vtkPointsProjectedHull::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "HullSize Z: " << this->HullSize[2] << endl;
   os << indent << "HullTime Z: " << this->HullTime[2] << endl;
 }
+VTK_ABI_NAMESPACE_END

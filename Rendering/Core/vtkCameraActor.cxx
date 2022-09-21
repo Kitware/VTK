@@ -24,6 +24,7 @@
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkCameraActor);
 vtkCxxSetObjectMacro(vtkCameraActor, Camera, vtkCamera);
 
@@ -215,3 +216,4 @@ void vtkCameraActor::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "WidthByHeightRatio: " << this->WidthByHeightRatio << endl;
 }
+VTK_ABI_NAMESPACE_END

@@ -28,6 +28,7 @@
 #include <set>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkClipConvexPolyData);
 
 vtkCxxSetObjectMacro(vtkClipConvexPolyData, Planes, vtkPlaneCollection);
@@ -616,3 +617,4 @@ void vtkClipConvexPolyData::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Planes: " << this->Planes << endl;
 }
+VTK_ABI_NAMESPACE_END

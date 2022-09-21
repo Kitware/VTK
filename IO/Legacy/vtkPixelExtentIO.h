@@ -27,6 +27,7 @@
 #include "vtkPixelExtent.h"    // for pixel extent
 #include <deque>               // for std::deque
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkUnstructuredGrid;
 
 class VTKIOLEGACY_EXPORT vtkPixelExtentIO
@@ -69,5 +70,6 @@ public:
 VTKIOLEGACY_EXPORT
 vtkUnstructuredGrid& operator<<(vtkUnstructuredGrid& data, const vtkPixelExtent& ext);
 
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkPixelExtentIO.h

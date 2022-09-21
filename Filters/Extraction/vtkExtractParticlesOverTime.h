@@ -33,6 +33,7 @@
 #include <memory>                       // For smart pointers
 #include <string>                       // For channel array name
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkExtractParticlesOverTimeInternals;
 
 class VTKFILTERSEXTRACTION_EXPORT vtkExtractParticlesOverTime : public vtkDataSetAlgorithm
@@ -84,4 +85,5 @@ private:
   std::shared_ptr<vtkExtractParticlesOverTimeInternals> Internals;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

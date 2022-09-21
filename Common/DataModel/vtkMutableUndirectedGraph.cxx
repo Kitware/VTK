@@ -29,6 +29,7 @@
 //------------------------------------------------------------------------------
 // class vtkMutableUndirectedGraph
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkMutableUndirectedGraph);
 //------------------------------------------------------------------------------
 vtkMutableUndirectedGraph::vtkMutableUndirectedGraph()
@@ -249,3 +250,4 @@ void vtkMutableUndirectedGraph::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

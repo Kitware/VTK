@@ -27,6 +27,7 @@
 #include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkStructuredGridAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkStructuredGrid;
 class vtkImageData;
 class vtkInformation;
@@ -62,4 +63,5 @@ private:
   void operator=(const vtkImageToStructuredGrid&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif /* VTKIMAGEDATATOSTRUCTUREDGRIDFILTER_H_ */

@@ -34,6 +34,7 @@
 #include "vtkFiltersSelectionModule.h" // For export macro
 #include "vtkSelectionAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkKdTree;
 
 class VTKFILTERSSELECTION_EXPORT vtkKdTreeSelector : public vtkSelectionAlgorithm
@@ -133,4 +134,5 @@ private:
   void operator=(const vtkKdTreeSelector&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

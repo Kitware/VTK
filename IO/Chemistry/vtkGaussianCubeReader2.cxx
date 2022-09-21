@@ -36,6 +36,7 @@
 #include <string>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkGaussianCubeReader2);
 
 //------------------------------------------------------------------------------
@@ -322,3 +323,4 @@ void vtkGaussianCubeReader2::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

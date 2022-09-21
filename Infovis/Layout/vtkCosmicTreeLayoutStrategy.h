@@ -33,6 +33,7 @@
 #include "vtkGraphLayoutStrategy.h"
 #include "vtkInfovisLayoutModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDoubleArray;
 class vtkDataArray;
 class vtkPoints;
@@ -160,4 +161,5 @@ private:
   void operator=(const vtkCosmicTreeLayoutStrategy&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkCosmicTreeLayoutStrategy_h

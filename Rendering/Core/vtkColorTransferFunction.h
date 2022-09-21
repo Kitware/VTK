@@ -39,6 +39,7 @@
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkScalarsToColors.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkColorTransferFunctionInternals;
 class vtkDoubleArray;
 
@@ -475,4 +476,5 @@ private:
   void operator=(const vtkColorTransferFunction&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

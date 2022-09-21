@@ -32,6 +32,7 @@
 #include <map>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
 
@@ -973,3 +974,4 @@ void vtkLSDynaPart::BuildUniquePoints()
     this->GlobalPointsUsed = new vtkLSDynaPart::SparsePointsUsed(&pointUsage, min, max);
   }
 }
+VTK_ABI_NAMESPACE_END

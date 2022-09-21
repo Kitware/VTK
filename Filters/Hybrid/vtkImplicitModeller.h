@@ -94,6 +94,7 @@
 #define VTK_VOXEL_MODE 0
 #define VTK_CELL_MODE 1
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataArray;
 class vtkExtractGeometry;
 class vtkMultiThreader;
@@ -320,4 +321,5 @@ private:
   void operator=(const vtkImplicitModeller&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -23,6 +23,7 @@
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkPointPlacer.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkRenderer;
 
 class VTKINTERACTIONWIDGETS_EXPORT vtkFocalPlanePointPlacer : public vtkPointPlacer
@@ -107,4 +108,5 @@ private:
   void operator=(const vtkFocalPlanePointPlacer&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -23,6 +23,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkRenderingOpenVRModule.h" // For export macro
 #include "vtkVRInteractorStyle.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkRenderWindowInteractor;
 class vtkVRControlsHelper;
 
@@ -56,4 +57,5 @@ private:
   void operator=(const vtkOpenVRInteractorStyle&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

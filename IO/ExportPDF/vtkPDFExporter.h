@@ -28,6 +28,7 @@
 #include "vtkExporter.h"
 #include "vtkIOExportPDFModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkContextActor;
 class vtkRenderer;
 
@@ -70,4 +71,5 @@ private:
   Details* Impl;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkPDFExporter_h

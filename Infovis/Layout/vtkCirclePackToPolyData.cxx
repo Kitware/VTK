@@ -37,6 +37,7 @@
 
 #define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkCirclePackToPolyData);
 
 vtkCirclePackToPolyData::vtkCirclePackToPolyData()
@@ -136,3 +137,4 @@ void vtkCirclePackToPolyData::CreateCircle(const double& x, const double& y, con
   polyData->SetPolys(cells);
   polyData->SetPoints(points);
 }
+VTK_ABI_NAMESPACE_END

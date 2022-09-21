@@ -59,6 +59,7 @@
 
 #include "vtkDataSetAttributes.h" // Needed for NUM_ATTRIBUTES
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkFieldData;
 
 class VTKFILTERSCORE_EXPORT vtkRearrangeFields : public vtkDataSetAlgorithm
@@ -205,4 +206,5 @@ private:
   void operator=(const vtkRearrangeFields&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -31,6 +31,7 @@
 #include "vtkImagingMathModule.h" // For export macro
 #include "vtkThreadedImageAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDoubleArray;
 class VTKIMAGINGMATH_EXPORT vtkImageWeightedSum : public vtkThreadedImageAlgorithm
 {
@@ -93,4 +94,5 @@ private:
   void operator=(const vtkImageWeightedSum&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

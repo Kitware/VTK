@@ -55,6 +55,7 @@
 #include "vtkFiltersModelingModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataArray;
 
 #define VTK_VECTOR_EXTRUSION 1
@@ -140,4 +141,5 @@ private:
   void operator=(const vtkLinearExtrusionFilter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

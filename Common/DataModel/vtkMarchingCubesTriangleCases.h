@@ -20,11 +20,13 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkSystemIncludes.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 struct VTKCOMMONDATAMODEL_EXPORT vtkMarchingCubesTriangleCases
 {
   int edges[16];
   static vtkMarchingCubesTriangleCases* GetCases();
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkMarchingCubesTriangleCases.h

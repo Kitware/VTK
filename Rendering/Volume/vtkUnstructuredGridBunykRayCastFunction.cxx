@@ -41,6 +41,7 @@
 #include <cassert>
 #include <cstdlib>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkUnstructuredGridBunykRayCastFunction);
 
 #define VTK_BUNYKRCF_NUMLISTS 100000
@@ -1191,3 +1192,4 @@ void vtkUnstructuredGridBunykRayCastFunction::PrintSelf(ostream& os, vtkIndent i
   // this->ScalarOpacityUnitDistance , or this->ImageOrigin - these are
   // internal ivar and not part of the public API for this class
 }
+VTK_ABI_NAMESPACE_END

@@ -45,6 +45,7 @@
 #include "vtkPointSetAlgorithm.h"
 #include <vector> //for storing planes
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCellArray;
 class vtkPlanes;
 class vtkPoints;
@@ -198,4 +199,5 @@ private:
   void operator=(const vtkHull&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

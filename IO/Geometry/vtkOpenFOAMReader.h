@@ -50,6 +50,7 @@
 #include "vtkIOGeometryModule.h" // For export macro
 #include "vtkMultiBlockDataSetAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCollection;
 class vtkCharArray;
 class vtkDataArraySelection;
@@ -462,4 +463,5 @@ private:
   void PrintTimes(std::ostream& os, vtkIndent indent = vtkIndent(), bool full = false) const;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

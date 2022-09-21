@@ -28,6 +28,7 @@
 #include <sstream>
 #include <string>
 
+VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
 vtkSmartPointer<vtkTable> vtkMergeTable(vtkTable* dest, vtkTable* src)
@@ -214,3 +215,4 @@ void vtkPExtractDataArraysOverTime::ReorganizeData(vtkMultiBlockDataSet* dataset
     dataset->ShallowCopy(mb);
   } // end rank 0
 }
+VTK_ABI_NAMESPACE_END

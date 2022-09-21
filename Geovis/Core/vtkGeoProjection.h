@@ -36,6 +36,8 @@ struct PJconsts;
 typedef struct PJconsts PJ;
 typedef PJ* projPJ;
 
+VTK_ABI_NAMESPACE_BEGIN
+
 class VTKGEOVISCORE_EXPORT vtkGeoProjection : public vtkObject
 {
 public:
@@ -173,4 +175,5 @@ private:
   vtkInternals* Internals;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkGeoProjection_h

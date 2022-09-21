@@ -31,3 +31,5 @@ vtk_module_add_module(VTK::RenderingContextOpenGL2
   CLASSES ${classes}
   SOURCES ${vtk_object_factory_source}
   PRIVATE_HEADERS ${private_headers} ${vtk_object_factory_header})
+
+vtk_add_test_mangling(VTK::RenderingContextOpenGL2)

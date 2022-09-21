@@ -33,6 +33,7 @@
 #include <utility>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPassArrays);
 
 namespace
@@ -357,3 +358,4 @@ void vtkPassArrays::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "RemoveArrays: " << (this->RemoveArrays ? "on" : "off") << endl;
   os << indent << "UseFieldTypes: " << (this->UseFieldTypes ? "on" : "off") << endl;
 }
+VTK_ABI_NAMESPACE_END

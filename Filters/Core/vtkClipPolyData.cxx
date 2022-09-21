@@ -32,6 +32,7 @@
 
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkClipPolyData);
 vtkCxxSetObjectMacro(vtkClipPolyData, ClipFunction, vtkImplicitFunction);
 
@@ -432,3 +433,4 @@ void vtkClipPolyData::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Output Points Precision: " << this->OutputPointsPrecision << "\n";
 }
+VTK_ABI_NAMESPACE_END

@@ -23,6 +23,7 @@
 // allow it to be defined before its use with most compilers, but after its
 // use for (at least) Visual Studio 6.
 
+VTK_ABI_NAMESPACE_BEGIN
 template <typename T>
 T vtkVariant::ToNumeric(bool* valid, T* vtkNotUsed(ignored)) const
 {
@@ -117,3 +118,4 @@ T vtkVariant::ToNumeric(bool* valid, T* vtkNotUsed(ignored)) const
   }
   return static_cast<T>(0);
 }
+VTK_ABI_NAMESPACE_END

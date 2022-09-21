@@ -28,6 +28,7 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkStructuredPoints.h"      // Needed for static cast
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONDATAMODEL_EXPORT vtkStructuredPointsCollection : public vtkCollection
 {
 public:
@@ -71,4 +72,5 @@ private:
   void operator=(const vtkStructuredPointsCollection&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

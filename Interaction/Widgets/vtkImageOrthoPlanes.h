@@ -31,6 +31,7 @@
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkObject.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkImagePlaneWidget;
 class vtkTransform;
 class vtkMatrix4x4;
@@ -102,4 +103,5 @@ private:
   void operator=(const vtkImageOrthoPlanes&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

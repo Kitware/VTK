@@ -27,6 +27,7 @@
 #include "vtkPoints.h"
 #include "vtkSMPTools.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkHierarchicalBinningFilter);
 
 namespace
@@ -898,3 +899,4 @@ void vtkHierarchicalBinningFilter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Divisions: (" << this->Divisions[0] << "," << this->Divisions[1] << ","
      << this->Divisions[2] << ")\n";
 }
+VTK_ABI_NAMESPACE_END

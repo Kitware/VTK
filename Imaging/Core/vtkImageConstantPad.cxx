@@ -20,6 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImageConstantPad);
 
 //------------------------------------------------------------------------------
@@ -175,3 +176,4 @@ void vtkImageConstantPad::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Constant: " << this->Constant << "\n";
 }
+VTK_ABI_NAMESPACE_END

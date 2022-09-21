@@ -45,6 +45,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKRENDERINGOPENGL2_EXPORT vtkIOSRenderWindow : public vtkOpenGLRenderWindow
 {
 public:
@@ -371,4 +372,5 @@ private:
   vtkTypeBool ForceMakeCurrent;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

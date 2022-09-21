@@ -29,6 +29,7 @@
 
 #include "vtkNew.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImageDataToPointSet);
 
 //------------------------------------------------------------------------------
@@ -95,3 +96,4 @@ int vtkImageDataToPointSet::RequestData(vtkInformation* vtkNotUsed(request),
 
   return 1;
 }
+VTK_ABI_NAMESPACE_END

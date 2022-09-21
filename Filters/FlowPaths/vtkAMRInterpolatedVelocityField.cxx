@@ -23,6 +23,7 @@
 #include "vtkUniformGrid.h"
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
 bool Inside(double q[3], double gbounds[6])
@@ -225,3 +226,4 @@ void vtkAMRInterpolatedVelocityField::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

@@ -14,6 +14,7 @@
 =========================================================================*/
 
 #include "PyVTKEnum.h"
+#include "vtkABINamespace.h"
 #include "vtkPythonUtil.h"
 
 #include <cstddef>

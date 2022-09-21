@@ -28,6 +28,7 @@
 // We support up to 6th order hexahedra.
 #define VTK_MAXIMUM_NUMBER_OF_POINTS 216
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkDistancePolyDataFilter);
 
 //------------------------------------------------------------------------------
@@ -165,3 +166,4 @@ void vtkDistancePolyDataFilter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "ComputeSecondDistance: " << this->ComputeSecondDistance << "\n";
   os << indent << "ComputeCellCenterDistance: " << this->ComputeCellCenterDistance << "\n";
 }
+VTK_ABI_NAMESPACE_END

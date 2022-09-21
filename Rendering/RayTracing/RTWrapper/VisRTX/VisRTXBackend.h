@@ -7,6 +7,7 @@
 
 namespace RTW
 {
+VTK_ABI_NAMESPACE_BEGIN
     /*
      * Translates OSPRay-ish wrapper API calls to VisRTX
      */
@@ -96,4 +97,5 @@ namespace RTW
         }
 
     };
+VTK_ABI_NAMESPACE_END
 }

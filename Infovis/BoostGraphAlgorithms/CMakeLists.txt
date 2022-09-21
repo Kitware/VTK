@@ -27,3 +27,4 @@ vtk_module_find_package(
 vtk_module_link(VTK::InfovisBoostGraphAlgorithms
   PUBLIC
     Boost::boost)
+vtk_add_test_mangling(VTK::InfovisBoostGraphAlgorithms)

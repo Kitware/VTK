@@ -20,6 +20,7 @@
 
 #include <ctime>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkParametricRandomHills);
 
 //------------------------------------------------------------------------------
@@ -271,3 +272,4 @@ void vtkParametricRandomHills::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Random number generator seed: " << this->RandomSeed << "\n";
   os << indent << "Allow random generation: " << this->AllowRandomGeneration << "\n";
 }
+VTK_ABI_NAMESPACE_END

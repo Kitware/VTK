@@ -34,6 +34,7 @@
 #include "vtkImagingCoreModule.h" // for export macro
 #include "vtkSystemIncludes.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataArray;
 class vtkImageData;
 class vtkImageStencilData;
@@ -174,5 +175,6 @@ protected:
   int ThreadId;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkImagePointDataIterator.h

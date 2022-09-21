@@ -30,6 +30,7 @@
 #include "vtkObject.h"
 #include "vtkRenderingCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKRENDERINGCORE_EXPORT vtkTextProperty : public vtkObject
 {
 public:
@@ -433,4 +434,5 @@ inline const char* vtkTextProperty::GetVerticalJustificationAsString(void)
   return "Unknown";
 }
 
+VTK_ABI_NAMESPACE_END
 #endif

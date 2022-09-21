@@ -58,6 +58,7 @@
 #include "vtkCompositeDataSetAlgorithm.h"
 #include "vtkFiltersCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCompositeDataIterator;
 class vtkDataSet;
 
@@ -128,4 +129,5 @@ private:
   void operator=(const vtkAppendCompositeDataLeaves&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkAppendCompositeDataLeaves_h

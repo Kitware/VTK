@@ -39,6 +39,7 @@
 #include <cassert>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPointInterpolator);
 vtkCxxSetObjectMacro(vtkPointInterpolator, Locator, vtkAbstractPointLocator);
 vtkCxxSetObjectMacro(vtkPointInterpolator, Kernel, vtkInterpolationKernel);
@@ -518,3 +519,4 @@ void vtkPointInterpolator::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Pass Cell Arrays: " << (this->PassCellArrays ? "On" : " Off") << "\n";
   os << indent << "Pass Field Arrays: " << (this->PassFieldArrays ? "On" : " Off") << "\n";
 }
+VTK_ABI_NAMESPACE_END

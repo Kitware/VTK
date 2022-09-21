@@ -23,6 +23,7 @@
 #include "vtkPolyDataMapper.h"
 #include "vtkVectorOperators.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 constexpr double MINIMAL_SIZE_OFFSET = 0.001;
 
 //------------------------------------------------------------------------------
@@ -515,3 +516,4 @@ void vtkCameraPathRepresentation::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << ")\n";
   }
 }
+VTK_ABI_NAMESPACE_END

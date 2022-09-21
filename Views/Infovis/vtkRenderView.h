@@ -38,6 +38,7 @@
 #include "vtkSmartPointer.h"       // For SP ivars
 #include "vtkViewsInfovisModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkAbstractTransform;
 class vtkActor2D;
 class vtkAlgorithmOutput;
@@ -304,4 +305,5 @@ private:
   void operator=(const vtkRenderView&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

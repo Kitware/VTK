@@ -27,6 +27,7 @@
 #include "vtkImageAlgorithm.h"
 #include "vtkImagingSourcesModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKIMAGINGSOURCES_EXPORT vtkImageEllipsoidSource : public vtkImageAlgorithm
 {
 public:
@@ -114,4 +115,5 @@ private:
   void operator=(const vtkImageEllipsoidSource&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

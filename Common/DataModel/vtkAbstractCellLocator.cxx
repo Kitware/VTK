@@ -29,6 +29,7 @@
 #include "vtkUnstructuredGrid.h"
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkAbstractCellLocator::vtkAbstractCellLocator()
 {
   this->CacheCellBounds = 1;
@@ -305,3 +306,4 @@ void vtkAbstractCellLocator::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Retain Cell Lists: " << (this->RetainCellLists ? "On\n" : "Off\n");
   os << indent << "Number of Cells Per Bucket: " << this->NumberOfCellsPerNode << "\n";
 }
+VTK_ABI_NAMESPACE_END

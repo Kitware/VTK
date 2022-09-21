@@ -37,6 +37,7 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkUndirectedGraph.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkEdgeListIterator;
 class vtkGraphEdge;
 
@@ -328,4 +329,5 @@ private:
   void operator=(const vtkMutableUndirectedGraph&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

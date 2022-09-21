@@ -41,6 +41,7 @@
 #include <utility>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkCollectGraph);
 
 vtkCxxSetObjectMacro(vtkCollectGraph, Controller, vtkMultiProcessController);
@@ -388,3 +389,4 @@ void vtkCollectGraph::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "SocketController: (" << this->SocketController << ")\n";
   os << indent << "OutputType: " << this->OutputType << endl;
 }
+VTK_ABI_NAMESPACE_END

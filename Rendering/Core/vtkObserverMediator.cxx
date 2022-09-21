@@ -20,6 +20,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include <map>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkObserverMediator);
 
 // PIMPL the map representing the observer (key) to cursor request
@@ -167,3 +168,4 @@ void vtkObserverMediator::PrintSelf(ostream& os, vtkIndent indent)
     os << "(None)\n";
   }
 }
+VTK_ABI_NAMESPACE_END

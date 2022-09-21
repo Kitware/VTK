@@ -16,6 +16,7 @@
 #include "vtkCallbackCommand.h"
 
 //----------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkCallbackCommand::vtkCallbackCommand()
 {
   this->ClientData = nullptr;
@@ -45,3 +46,4 @@ void vtkCallbackCommand::Execute(vtkObject* caller, unsigned long event, void* c
     }
   }
 }
+VTK_ABI_NAMESPACE_END

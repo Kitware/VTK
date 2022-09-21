@@ -38,6 +38,7 @@ PURPOSE.  See the above copyright notice for more information.
 #error MPI_Comm is #define'd somewhere!  That's BAD!  (Try checking netcdf.h.)
 #endif
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPNetCDFPOPReader);
 
 //============================================================================
@@ -746,3 +747,4 @@ void vtkPNetCDFPOPReader::SetController(vtkMPIController* controller)
     this->SetReaderRanks(nullptr);
   }
 }
+VTK_ABI_NAMESPACE_END

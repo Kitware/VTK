@@ -27,6 +27,7 @@
 #include "vtkDeprecation.h"           // For VTK_DEPRECATED_IN_9_2_0
 #include "vtkUniformGridAMRDataIterator.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTK_DEPRECATED_IN_9_2_0(
   "Use vtkUniformGridAMRDataIterator instead of vtkHierarchicalBoxDataIterator")
   VTKCOMMONDATAMODEL_EXPORT vtkHierarchicalBoxDataIterator : public vtkUniformGridAMRDataIterator
@@ -45,6 +46,7 @@ private:
   void operator=(const vtkHierarchicalBoxDataIterator&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
 
 // VTK-HeaderTest-Exclude: vtkHierarchicalBoxDataIterator.h

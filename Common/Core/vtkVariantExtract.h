@@ -38,6 +38,7 @@
 #include "vtkVariant.h"
 #include <typeinfo> // for typeid
 
+VTK_ABI_NAMESPACE_BEGIN
 template <typename T>
 T vtkVariantExtract(const vtkVariant& value, bool& valid)
 {
@@ -151,6 +152,7 @@ inline vtkVariant vtkVariantExtract<vtkVariant>(const vtkVariant& value, bool& v
   return value;
 }
 
+VTK_ABI_NAMESPACE_END
 #endif
 
 // VTK-HeaderTest-Exclude: vtkVariantExtract.h

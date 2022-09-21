@@ -35,6 +35,7 @@
 
 #include <cassert>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkCxxSetObjectMacro(vtkAMRBaseReader, Controller, vtkMultiProcessController);
 
 vtkAMRBaseReader::vtkAMRBaseReader()
@@ -635,3 +636,4 @@ int vtkAMRBaseReader::RequestData(vtkInformation* vtkNotUsed(request),
 
   return 1;
 }
+VTK_ABI_NAMESPACE_END

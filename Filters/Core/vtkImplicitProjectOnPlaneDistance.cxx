@@ -25,6 +25,7 @@
 #include "vtkStaticCellLocator.h"
 #include "vtkTriangle.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImplicitProjectOnPlaneDistance);
 
 //------------------------------------------------------------------------------
@@ -189,3 +190,4 @@ void vtkImplicitProjectOnPlaneDistance::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "ProjectionPlane : (none)\n";
   }
 }
+VTK_ABI_NAMESPACE_END

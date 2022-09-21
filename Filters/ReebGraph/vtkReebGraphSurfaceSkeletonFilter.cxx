@@ -28,6 +28,7 @@
 #include "vtkTriangle.h"
 #include "vtkVariantArray.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkReebGraphSurfaceSkeletonFilter);
 
 //------------------------------------------------------------------------------
@@ -368,3 +369,4 @@ int vtkReebGraphSurfaceSkeletonFilter::RequestData(vtkInformation* vtkNotUsed(re
   }
   return 0;
 }
+VTK_ABI_NAMESPACE_END

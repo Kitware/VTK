@@ -34,6 +34,7 @@
 #include <qobject.h>
 
 // hold all the connections
+VTK_ABI_NAMESPACE_BEGIN
 class vtkQtConnections : public std::vector<vtkQtConnection*>
 {
 };
@@ -147,3 +148,4 @@ int vtkEventQtSlotConnect::GetNumberOfConnections() const
 {
   return static_cast<int>(this->Connections->size());
 }
+VTK_ABI_NAMESPACE_END

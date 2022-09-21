@@ -32,6 +32,7 @@
 #include <stack>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkIncrementalOctreePointLocator);
 
 //------------------------------------------------------------------------------
@@ -1332,3 +1333,4 @@ int vtkIncrementalOctreePointLocator::GetNumberOfLevels()
 {
   return this->Level = this->OctreeRootNode->GetNumberOfLevels();
 }
+VTK_ABI_NAMESPACE_END

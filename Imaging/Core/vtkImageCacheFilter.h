@@ -29,6 +29,7 @@
 #include "vtkImageAlgorithm.h"
 #include "vtkImagingCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkExecutive;
 
 class VTKIMAGINGCORE_EXPORT vtkImageCacheFilter : public vtkImageAlgorithm
@@ -60,4 +61,5 @@ private:
   void operator=(const vtkImageCacheFilter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -22,6 +22,7 @@
 #include "vtkPolyData.h"
 #include "vtkReebGraph.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPolyDataToReebGraphFilter);
 
 //------------------------------------------------------------------------------
@@ -98,3 +99,4 @@ int vtkPolyDataToReebGraphFilter::RequestData(
 
   return 1;
 }
+VTK_ABI_NAMESPACE_END

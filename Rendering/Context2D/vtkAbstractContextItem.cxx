@@ -22,6 +22,7 @@
 #include <algorithm>
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkAbstractContextItem::vtkAbstractContextItem()
 {
   this->Scene = nullptr;
@@ -319,3 +320,4 @@ void vtkAbstractContextItem::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

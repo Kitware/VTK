@@ -43,6 +43,7 @@
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkPolyDataContourLineInterpolator.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDijkstraGraphGeodesicPath;
 class vtkIdList;
 
@@ -116,4 +117,5 @@ private:
   vtkDijkstraGraphGeodesicPath* DijkstraGraphGeodesicPath;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

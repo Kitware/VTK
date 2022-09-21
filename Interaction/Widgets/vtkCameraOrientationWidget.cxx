@@ -30,6 +30,7 @@
 #include "vtkWidgetEvent.h"
 
 //----------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkCameraOrientationWidget);
 
 //----------------------------------------------------------------------------
@@ -493,3 +494,4 @@ void vtkCameraOrientationWidget::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Animate: " << (this->Animate ? "True" : "False");
   os << indent << "AnimatorTotalFrames: " << this->AnimatorTotalFrames;
 }
+VTK_ABI_NAMESPACE_END

@@ -31,6 +31,7 @@
 #include "vtkInfovisLayoutModule.h" // For export macro
 #include "vtkObject.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkGraph;
 
 class VTKINFOVISLAYOUT_EXPORT vtkEdgeLayoutStrategy : public vtkObject
@@ -77,4 +78,5 @@ private:
   void operator=(const vtkEdgeLayoutStrategy&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

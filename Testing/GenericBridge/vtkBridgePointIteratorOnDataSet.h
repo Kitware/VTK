@@ -28,6 +28,7 @@
 #include "vtkBridgeExport.h" //for module export macro
 #include "vtkGenericPointIterator.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkBridgeDataSet;
 
 class VTKTESTINGGENERICBRIDGE_EXPORT vtkBridgePointIteratorOnDataSet
@@ -101,4 +102,5 @@ private:
   void operator=(const vtkBridgePointIteratorOnDataSet&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

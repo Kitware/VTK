@@ -21,6 +21,7 @@
 
 #include <set>
 
+VTK_ABI_NAMESPACE_BEGIN
 struct vtkBufferedArchiver::Internal
 {
   struct archive* Archive;
@@ -133,3 +134,4 @@ void vtkBufferedArchiver::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

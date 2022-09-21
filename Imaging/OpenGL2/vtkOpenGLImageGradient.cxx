@@ -28,6 +28,7 @@
 
 #include <algorithm> // for std::nth_element
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOpenGLImageGradient);
 
 //------------------------------------------------------------------------------
@@ -173,3 +174,4 @@ void vtkOpenGLImageGradient::ThreadedRequestData(vtkInformation* vtkNotUsed(requ
 
     "");
 }
+VTK_ABI_NAMESPACE_END

@@ -31,6 +31,7 @@
 #include "vtkSelection.h"
 #include "vtkSmartPointer.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkAnnotation);
 
 vtkCxxSetObjectMacro(vtkAnnotation, Selection, vtkSelection);
@@ -186,3 +187,4 @@ vtkAnnotation* vtkAnnotation::GetData(vtkInformationVector* v, int i)
 {
   return vtkAnnotation::GetData(v->GetInformationObject(i));
 }
+VTK_ABI_NAMESPACE_END

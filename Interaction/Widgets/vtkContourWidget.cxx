@@ -27,6 +27,7 @@
 #include "vtkWidgetCallbackMapper.h"
 #include "vtkWidgetEvent.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkContourWidget);
 
 //------------------------------------------------------------------------------
@@ -658,3 +659,4 @@ void vtkContourWidget::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "FollowCursor: " << (this->FollowCursor ? "On" : "Off") << endl;
   os << indent << "ContinuousDraw: " << (this->ContinuousDraw ? "On" : "Off") << endl;
 }
+VTK_ABI_NAMESPACE_END

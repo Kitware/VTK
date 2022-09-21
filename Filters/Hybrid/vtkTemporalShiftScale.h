@@ -36,6 +36,7 @@
 #include "vtkAlgorithm.h"
 #include "vtkFiltersHybridModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSHYBRID_EXPORT vtkTemporalShiftScale : public vtkAlgorithm
 {
 public:
@@ -155,4 +156,5 @@ private:
   void operator=(const vtkTemporalShiftScale&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -25,6 +25,7 @@
 #include "vtkWidgetEvent.h"
 #include "vtkWidgetEventTranslator.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkBorderWidget);
 
 //------------------------------------------------------------------------------
@@ -346,3 +347,4 @@ void vtkBorderWidget::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Selectable: " << (this->Selectable ? "On\n" : "Off\n");
   os << indent << "Resizable: " << (this->Resizable ? "On\n" : "Off\n");
 }
+VTK_ABI_NAMESPACE_END

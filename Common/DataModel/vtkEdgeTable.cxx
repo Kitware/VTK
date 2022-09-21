@@ -18,6 +18,7 @@
 #include "vtkPoints.h"
 #include "vtkVoidArray.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkEdgeTable);
 
 //------------------------------------------------------------------------------
@@ -596,3 +597,4 @@ void vtkEdgeTable::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "NumberOfEdges: " << this->GetNumberOfEdges() << "\n";
 }
+VTK_ABI_NAMESPACE_END

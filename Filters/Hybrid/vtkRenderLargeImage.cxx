@@ -30,6 +30,7 @@
 
 #include <vector>
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkRenderLargeImage);
 
 vtkCxxSetObjectMacro(vtkRenderLargeImage, Input, vtkRenderer);
@@ -470,3 +471,4 @@ void vtkRenderLargeImage::Restore2DActors()
   this->StoredData->StoredActors->RemoveAllItems();
 }
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_END

@@ -34,6 +34,7 @@
 #include "vtkProp3D.h"
 #include "vtkRenderingCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkRenderer;
 class vtkPropCollection;
 class vtkVolumeCollection;
@@ -259,4 +260,5 @@ private:
   void operator=(const vtkVolume&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

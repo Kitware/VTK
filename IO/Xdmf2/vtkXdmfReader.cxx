@@ -29,6 +29,7 @@
 #include "vtkXMLParser.h"
 #include "vtksys/FStream.hxx"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkCxxSetObjectMacro(vtkXdmfReader, InputArray, vtkCharArray);
 
 //============================================================================
@@ -736,3 +737,4 @@ vtkXdmfReader::XdmfReaderCachedData& vtkXdmfReader::GetDataSetCache()
 {
   return this->DataSetCache;
 }
+VTK_ABI_NAMESPACE_END

@@ -22,6 +22,7 @@
 #include "vtkPointData.h"
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkGeneralizedKernel::vtkGeneralizedKernel()
 {
   this->KernelFootprint = vtkGeneralizedKernel::RADIUS;
@@ -58,3 +59,4 @@ void vtkGeneralizedKernel::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Number of Points: " << this->GetNumberOfPoints() << "\n";
   os << indent << "Normalize Weights: " << (this->GetNormalizeWeights() ? "On\n" : "Off\n");
 }
+VTK_ABI_NAMESPACE_END

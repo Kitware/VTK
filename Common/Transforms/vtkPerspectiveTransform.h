@@ -50,6 +50,7 @@
 
 #include "vtkMatrix4x4.h" // Needed for inline methods
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONTRANSFORMS_EXPORT vtkPerspectiveTransform : public vtkHomogeneousTransform
 {
 public:
@@ -411,4 +412,5 @@ private:
   void operator=(const vtkPerspectiveTransform&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

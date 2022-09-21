@@ -31,6 +31,7 @@
 #include "vtkObject.h"
 #include "vtkRenderingCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkProp;
 class vtkRenderer;
 
@@ -54,4 +55,5 @@ private:
   void operator=(const vtkCuller&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

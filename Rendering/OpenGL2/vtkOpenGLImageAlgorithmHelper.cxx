@@ -28,6 +28,7 @@
 #include "vtkTextureObject.h"
 #include "vtk_glew.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOpenGLImageAlgorithmHelper);
 
 //------------------------------------------------------------------------------
@@ -204,3 +205,4 @@ void vtkOpenGLImageAlgorithmHelper::PrintSelf(ostream& os, vtkIndent indent)
     os << "(none)" << endl;
   }
 }
+VTK_ABI_NAMESPACE_END

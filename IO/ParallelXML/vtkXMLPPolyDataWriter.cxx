@@ -19,6 +19,7 @@
 #include "vtkPolyData.h"
 #include "vtkXMLPolyDataWriter.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkXMLPPolyDataWriter);
 
 //------------------------------------------------------------------------------
@@ -66,3 +67,4 @@ int vtkXMLPPolyDataWriter::FillInputPortInformation(int, vtkInformation* info)
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPolyData");
   return 1;
 }
+VTK_ABI_NAMESPACE_END

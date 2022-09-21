@@ -26,6 +26,7 @@
 #include <set>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPiecewiseFunction);
 
 // The Node structure
@@ -1010,3 +1011,4 @@ void vtkPiecewiseFunction::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "AllowDuplicateScalars: " << this->AllowDuplicateScalars << endl;
   os << indent << "UseLogScale: " << this->UseLogScale << endl;
 }
+VTK_ABI_NAMESPACE_END

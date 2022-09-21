@@ -69,6 +69,7 @@
 #define VTK_TCOORDS_FROM_LENGTH 2
 #define VTK_TCOORDS_FROM_SCALARS 3
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCellArray;
 class vtkCellData;
 class vtkDataArray;
@@ -271,4 +272,5 @@ private:
   void operator=(const vtkTubeFilter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

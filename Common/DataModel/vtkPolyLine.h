@@ -26,6 +26,7 @@
 #include "vtkCell.h"
 #include "vtkCommonDataModelModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPoints;
 class vtkCellArray;
 class vtkLine;
@@ -101,4 +102,5 @@ private:
   void operator=(const vtkPolyLine&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

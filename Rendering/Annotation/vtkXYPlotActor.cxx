@@ -42,6 +42,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #define VTK_MAX_PLOTS 50
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkXYPlotActor);
 
 vtkCxxSetObjectMacro(vtkXYPlotActor, TitleTextProperty, vtkTextProperty);
@@ -3152,3 +3153,4 @@ void vtkXYPlotActor::SetAxisLabelVerticalJustification(int x)
   this->GetAxisLabelTextProperty()->SetVerticalJustification(x);
   this->Modified();
 }
+VTK_ABI_NAMESPACE_END

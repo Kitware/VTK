@@ -33,6 +33,7 @@
 #include "vtkIOCoreModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKIOCORE_EXPORT vtkAbstractPolyDataReader : public vtkPolyDataAlgorithm
 {
 public:
@@ -58,4 +59,5 @@ private:
   void operator=(const vtkAbstractPolyDataReader&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

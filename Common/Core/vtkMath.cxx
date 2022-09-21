@@ -36,6 +36,7 @@
 #include <limits>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkMath);
 
 class vtkMathInternal : public vtkObjectBase
@@ -3219,3 +3220,4 @@ int vtkMath::QuadraticRoot(double a, double b, double c, double min, double max,
   }
   return 0;
 }
+VTK_ABI_NAMESPACE_END

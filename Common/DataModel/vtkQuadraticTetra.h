@@ -40,6 +40,7 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkNonLinearCell.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkQuadraticEdge;
 class vtkQuadraticTriangle;
 class vtkTetra;
@@ -152,4 +153,5 @@ private:
   void operator=(const vtkQuadraticTetra&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

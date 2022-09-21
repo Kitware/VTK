@@ -28,6 +28,7 @@
 #include "vtkFiltersGeneralModule.h" // for export macros
 #include "vtkUnstructuredGridAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSGENERAL_EXPORT vtkExtractGhostCells : public vtkUnstructuredGridAlgorithm
 {
 public:
@@ -58,4 +59,5 @@ private:
   void operator=(const vtkExtractGhostCells&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

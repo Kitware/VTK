@@ -21,6 +21,7 @@
 
 //----------------------------------------------------------------------------
 // Gather coincident edges into contiguous runs. Use this for merging edges.
+VTK_ABI_NAMESPACE_BEGIN
 template <typename IDType, typename EdgeData>
 const IDType* vtkStaticEdgeLocatorTemplate<IDType, EdgeData>::MergeEdges(
   vtkIdType numEdges, EdgeTupleType* mergeArray, vtkIdType& numUniqueEdges)
@@ -110,4 +111,5 @@ vtkIdType vtkStaticEdgeLocatorTemplate<IDType, EdgeData>::BuildLocator(
   return this->NumEdges;
 }
 
+VTK_ABI_NAMESPACE_END
 #endif

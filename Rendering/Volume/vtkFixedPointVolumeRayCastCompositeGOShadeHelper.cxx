@@ -28,6 +28,7 @@
 
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkFixedPointVolumeRayCastCompositeGOShadeHelper);
 
 // Construct a new vtkFixedPointVolumeRayCastCompositeGOShadeHelper with default values
@@ -935,3 +936,4 @@ void vtkFixedPointVolumeRayCastCompositeGOShadeHelper::PrintSelf(ostream& os, vt
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

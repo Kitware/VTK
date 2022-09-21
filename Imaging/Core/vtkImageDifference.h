@@ -33,6 +33,7 @@
 #include "vtkSmartPointer.h"      // For smart pointer
 #include "vtkThreadedImageAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkImageDifferenceThreadData;
 class vtkImageDifferenceSMPThreadLocal;
 
@@ -149,4 +150,5 @@ private:
   friend class vtkImageDifferenceSMPFunctor;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

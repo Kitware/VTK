@@ -44,6 +44,7 @@
 #include "vtkPassInputTypeAlgorithm.h"
 #include "vtkViewsCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkAnnotation;
 
 class VTKVIEWSCORE_EXPORT vtkConvertSelectionDomain : public vtkPassInputTypeAlgorithm
@@ -68,4 +69,5 @@ private:
   void operator=(const vtkConvertSelectionDomain&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

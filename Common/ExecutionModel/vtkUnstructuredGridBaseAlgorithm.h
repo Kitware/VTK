@@ -33,6 +33,7 @@
 #include "vtkAlgorithm.h"
 #include "vtkCommonExecutionModelModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataSet;
 class vtkUnstructuredGridBase;
 
@@ -115,4 +116,5 @@ private:
   void operator=(const vtkUnstructuredGridBaseAlgorithm&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

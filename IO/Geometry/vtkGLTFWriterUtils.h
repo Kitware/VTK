@@ -33,6 +33,7 @@
 #include VTK_NLOHMANN_JSON(json.hpp)
 #include <ostream>
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkBase64OutputStream;
 class vtkCellArray;
 class vtkDataArray;
@@ -70,6 +71,7 @@ public:
 #define ARRAY_BUFFER 34962
 #define ELEMENT_ARRAY_BUFFER 34963
 
+VTK_ABI_NAMESPACE_END
 #endif
 
 // VTK-HeaderTest-Exclude: vtkGLTFWriterUtils.h

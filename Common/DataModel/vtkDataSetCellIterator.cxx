@@ -21,6 +21,7 @@
 #include "vtkPoints.h"
 #include "vtkRectilinearGrid.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkDataSetCellIterator);
 
 namespace
@@ -207,3 +208,4 @@ void vtkDataSetCellIterator::FetchPoints()
     this->Points->SetPoint(i, point);
   }
 }
+VTK_ABI_NAMESPACE_END

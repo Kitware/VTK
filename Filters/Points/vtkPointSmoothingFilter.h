@@ -98,6 +98,7 @@
 #include "vtkFiltersPointsModule.h" // For export macro
 #include "vtkPointSetAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkAbstractPointLocator;
 class vtkDataArray;
 class vtkPlane;
@@ -383,4 +384,5 @@ private:
   void operator=(const vtkPointSmoothingFilter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

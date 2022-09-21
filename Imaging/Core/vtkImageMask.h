@@ -33,6 +33,7 @@
 #include "vtkImagingCoreModule.h" // For export macro
 #include "vtkThreadedImageAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKIMAGINGCORE_EXPORT vtkImageMask : public vtkThreadedImageAlgorithm
 {
 public:
@@ -122,4 +123,5 @@ private:
   void operator=(const vtkImageMask&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

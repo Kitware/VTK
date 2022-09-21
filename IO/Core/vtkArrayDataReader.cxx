@@ -30,6 +30,7 @@
 #include <sstream>
 #include <stdexcept>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkArrayDataReader);
 
 vtkArrayDataReader::vtkArrayDataReader()
@@ -142,3 +143,4 @@ vtkArrayData* vtkArrayDataReader::Read(istream& stream)
 
   return nullptr;
 }
+VTK_ABI_NAMESPACE_END

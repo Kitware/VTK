@@ -33,6 +33,7 @@
 #include "vtkImageMapper.h"
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkActor2D;
 class vtkTexturedActor2D;
 
@@ -80,4 +81,5 @@ private:
   void operator=(const vtkOpenGLImageMapper&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

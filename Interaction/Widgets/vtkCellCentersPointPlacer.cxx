@@ -26,6 +26,7 @@
 #include "vtkPropCollection.h"
 #include "vtkRenderer.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkCellCentersPointPlacer);
 
 //------------------------------------------------------------------------------
@@ -206,3 +207,4 @@ void vtkCellCentersPointPlacer::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Mode: " << this->Mode << endl;
 }
+VTK_ABI_NAMESPACE_END

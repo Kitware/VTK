@@ -28,6 +28,7 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkOverlappingAMR.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkInformation;
 class vtkInformationVector;
 
@@ -65,4 +66,5 @@ private:
   void operator=(const vtkHierarchicalBoxDataSet&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

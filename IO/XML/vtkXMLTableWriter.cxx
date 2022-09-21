@@ -27,6 +27,7 @@
 #undef vtkXMLOffsetsManager_DoNotInclude
 #include "vtkXMLTableWriter.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkXMLTableWriter);
 
 //------------------------------------------------------------------------------
@@ -655,3 +656,4 @@ void vtkXMLTableWriter::SetInputUpdateExtent(int piece, int numPieces)
   inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(), numPieces);
   inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(), piece);
 }
+VTK_ABI_NAMESPACE_END

@@ -17,6 +17,7 @@
 
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkFixedPointVolumeRayCastHelper);
 
 vtkFixedPointVolumeRayCastHelper::vtkFixedPointVolumeRayCastHelper() = default;
@@ -27,3 +28,4 @@ void vtkFixedPointVolumeRayCastHelper::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

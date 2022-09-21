@@ -39,6 +39,7 @@
 
 #include <cassert>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOSPRayUnstructuredVolumeMapperNode);
 
 //------------------------------------------------------------------------------
@@ -405,3 +406,4 @@ void vtkOSPRayUnstructuredVolumeMapperNode::Render(bool prepass)
     this->BuildTime.Modified();
   }
 }
+VTK_ABI_NAMESPACE_END

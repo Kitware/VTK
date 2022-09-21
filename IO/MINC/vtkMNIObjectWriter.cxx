@@ -77,6 +77,7 @@ POSSIBILITY OF SUCH DAMAGES.
 #endif
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkMNIObjectWriter);
 
 vtkCxxSetObjectMacro(vtkMNIObjectWriter, Property, vtkProperty);
@@ -1053,3 +1054,4 @@ void vtkMNIObjectWriter::CloseFile(ostream* fp)
 
   delete fp;
 }
+VTK_ABI_NAMESPACE_END

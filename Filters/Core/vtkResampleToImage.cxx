@@ -32,6 +32,7 @@
 
 #include <algorithm>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkObjectFactoryNewMacro(vtkResampleToImage);
 
 //------------------------------------------------------------------------------
@@ -413,3 +414,4 @@ void vtkResampleToImage::ComputeDataBounds(vtkDataObject* data, double bounds[6]
     }
   }
 }
+VTK_ABI_NAMESPACE_END

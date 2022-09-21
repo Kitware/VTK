@@ -31,6 +31,7 @@
 #include "vtkTDxUnixDevice.h"      // required for vtkTDxUnixDeviceXEvent
 #include <QObject>
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkTDxQtUnixDevicesPrivate;
 
 class VTKGUISUPPORTQT_EXPORT vtkTDxQtUnixDevices : public QObject
@@ -63,5 +64,6 @@ private:
   void operator=(const vtkTDxQtUnixDevices&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkTDxQtUnixDevices.h

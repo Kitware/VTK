@@ -29,6 +29,7 @@
 
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkCompositePolyDataMapper);
 
 class vtkCompositePolyDataMapperInternals
@@ -353,3 +354,4 @@ bool vtkCompositePolyDataMapper::HasTranslucentPolygonalGeometry()
   }
   return hasTrans;
 }
+VTK_ABI_NAMESPACE_END

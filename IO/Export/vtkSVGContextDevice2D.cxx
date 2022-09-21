@@ -54,6 +54,7 @@
 #include <sstream>
 #include <utility>
 
+VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
 
@@ -2699,3 +2700,4 @@ vtkImageData* vtkSVGContextDevice2D::PreparePointSprite(vtkImageData* in)
 
   return in;
 }
+VTK_ABI_NAMESPACE_END

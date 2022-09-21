@@ -36,6 +36,7 @@
 
 using namespace boost;
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkBoostConnectedComponents);
 
 vtkBoostConnectedComponents::vtkBoostConnectedComponents() = default;
@@ -87,3 +88,4 @@ void vtkBoostConnectedComponents::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

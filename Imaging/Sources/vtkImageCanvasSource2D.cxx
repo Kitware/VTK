@@ -30,6 +30,7 @@
 // Special classes for manipulating data
 //
 // For the fill functionality (use connector ??)
+VTK_ABI_NAMESPACE_BEGIN
 class vtkImageCanvasSource2DPixel
 { //;prevent man page generation
 public:
@@ -1539,3 +1540,4 @@ void vtkImageCanvasSource2D::InitializeCanvasVolume(vtkImageData* volume)
 
   this->Modified();
 }
+VTK_ABI_NAMESPACE_END

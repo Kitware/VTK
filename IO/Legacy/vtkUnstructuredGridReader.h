@@ -34,6 +34,7 @@
 #include "vtkDataReader.h"
 #include "vtkIOLegacyModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkUnstructuredGrid;
 
 class VTKIOLEGACY_EXPORT vtkUnstructuredGridReader : public vtkDataReader
@@ -68,4 +69,5 @@ private:
   void operator=(const vtkUnstructuredGridReader&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

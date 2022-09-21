@@ -33,6 +33,7 @@
 #include "vtkImageIterateFilter.h"
 #include "vtkImagingMorphologicalModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKIMAGINGMORPHOLOGICAL_EXPORT vtkImageSkeleton2D : public vtkImageIterateFilter
 {
 public:
@@ -70,4 +71,5 @@ private:
   void operator=(const vtkImageSkeleton2D&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -38,6 +38,7 @@
 #include "vtkCommonComputationalGeometryModule.h" // For export macro
 #include "vtkParametricFunction.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDoubleArray;
 class vtkMinimalStandardRandomSequence;
 
@@ -260,4 +261,5 @@ private:
   ///@}
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

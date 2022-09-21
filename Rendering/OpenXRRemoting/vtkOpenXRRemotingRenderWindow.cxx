@@ -22,6 +22,7 @@
 #include "vtkTextureObject.h"
 #include "vtkWin32OpenGLDXRenderWindow.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOpenXRRemotingRenderWindow);
 
 //------------------------------------------------------------------------------
@@ -132,3 +133,4 @@ void vtkOpenXRRemotingRenderWindow::RenderOneEye(uint32_t eye)
   // Release this swapchain image
   vtkOpenXRManager::GetInstance().ReleaseSwapchainImage(eye);
 }
+VTK_ABI_NAMESPACE_END

@@ -37,6 +37,7 @@
 #include "vtkSmartPointer.h"       // needed for vtkSmartPointer.
 #include <vector>                  // needed for std::vector
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkBoundingBox;
 class vtkCharArray;
 class vtkDataArray;
@@ -1342,4 +1343,5 @@ private:
   void operator=(const vtkCommunicator&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkCommunicator_h

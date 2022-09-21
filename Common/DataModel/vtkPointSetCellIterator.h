@@ -25,6 +25,7 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkSmartPointer.h"          // For vtkSmartPointer
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPoints;
 class vtkPointSet;
 
@@ -60,4 +61,5 @@ private:
   void operator=(const vtkPointSetCellIterator&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkPointSetCellIterator_h

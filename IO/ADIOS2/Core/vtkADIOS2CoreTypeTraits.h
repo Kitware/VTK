@@ -23,6 +23,7 @@
 
 #include "vtkIOADIOS2Module.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 template <typename T>
 struct NativeToVTKType
 {
@@ -95,5 +96,6 @@ struct NativeToVTKType<uint64_t>
   static constexpr int VTKType = VTK_TYPE_UINT64;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkADIOS2CoreTypeTraits.h

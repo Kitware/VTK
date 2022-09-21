@@ -32,6 +32,7 @@
 #include <sstream>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
 //------------------------------------------------------------------------------
@@ -412,3 +413,4 @@ void vtkAppendSelection::PrintSelf(ostream& os, vtkIndent indent)
     os << "InputName " << i << ": " << this->Internals->Names[i] << endl;
   }
 }
+VTK_ABI_NAMESPACE_END

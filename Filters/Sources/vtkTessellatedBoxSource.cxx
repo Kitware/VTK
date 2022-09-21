@@ -21,6 +21,7 @@
 
 #include <cassert>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkTessellatedBoxSource);
 
 //------------------------------------------------------------------------------
@@ -674,3 +675,4 @@ void vtkTessellatedBoxSource::PrintSelf(ostream& os, vtkIndent indent)
   os << endl;
   os << indent << "Output Points Precision: " << this->OutputPointsPrecision << endl;
 }
+VTK_ABI_NAMESPACE_END

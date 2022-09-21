@@ -24,6 +24,7 @@
 #include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImageAppend);
 
 //------------------------------------------------------------------------------
@@ -660,3 +661,4 @@ void vtkImageAppend::CopyAttributeData(vtkImageData* vtkNotUsed(input),
   // Do not simply shallow copy forward the data as other imaging filters do.
   // We have to append instead.
 }
+VTK_ABI_NAMESPACE_END

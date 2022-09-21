@@ -21,6 +21,7 @@
 #include "vtkSMPTools.h"
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 void vtkLinearTransform::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -413,3 +414,4 @@ void vtkLinearTransform::TransformVectors(vtkDataArray* inVrs, vtkDataArray* out
     }
   }
 }
+VTK_ABI_NAMESPACE_END

@@ -29,6 +29,7 @@
 #include "vtkCommonInformationKeyManager.h" // Manage instances of this type.
 #include "vtkInformationKey.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkInformationQuadratureSchemeDefinitionVectorValue;
 class vtkXMLDataElement;
 class vtkQuadratureSchemeDefinition;
@@ -151,4 +152,5 @@ private:
   void operator=(const vtkInformationQuadratureSchemeDefinitionVectorKey&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

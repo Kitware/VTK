@@ -35,6 +35,7 @@
 #include <sstream>
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkBiDimensionalRepresentation::vtkBiDimensionalRepresentation()
 {
   // By default, use one of these handles
@@ -345,3 +346,4 @@ void vtkBiDimensionalRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Show Label Above Widget: " << (this->ShowLabelAboveWidget ? "On\n" : "Off\n");
 }
+VTK_ABI_NAMESPACE_END

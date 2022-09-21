@@ -60,6 +60,7 @@
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkPointSetAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSCORE_EXPORT vtkConstrainedSmoothingFilter : public vtkPointSetAlgorithm
 {
 public:
@@ -208,5 +209,6 @@ private:
   vtkConstrainedSmoothingFilter(const vtkConstrainedSmoothingFilter&) = delete;
   void operator=(const vtkConstrainedSmoothingFilter&) = delete;
 };
+VTK_ABI_NAMESPACE_END
 
 #endif

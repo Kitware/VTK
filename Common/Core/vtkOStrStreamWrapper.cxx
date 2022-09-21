@@ -22,6 +22,7 @@
 using std::ostringstream;
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkOStrStreamWrapper::vtkOStrStreamWrapper()
   : vtkOStreamWrapper(*(new ostringstream))
 {
@@ -69,3 +70,4 @@ void vtkOStrStreamWrapper::freeze(int f)
 {
   this->Frozen = f;
 }
+VTK_ABI_NAMESPACE_END

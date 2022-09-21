@@ -28,6 +28,7 @@
 #include <algorithm>
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkProcessGroup);
 
 //------------------------------------------------------------------------------
@@ -174,3 +175,4 @@ void vtkProcessGroup::Copy(vtkProcessGroup* group)
     this->ProcessIds[i] = group->ProcessIds[i];
   }
 }
+VTK_ABI_NAMESPACE_END

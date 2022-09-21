@@ -15,6 +15,7 @@
 #include "vtkHandleSource.h"
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkHandleSource::vtkHandleSource()
 {
   this->SetNumberOfInputPorts(0);
@@ -59,3 +60,4 @@ void vtkHandleSource::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Size: " << this->GetSize() << "\n";
 }
+VTK_ABI_NAMESPACE_END

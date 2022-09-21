@@ -27,6 +27,7 @@
 #include "vtkContextActor.h"
 #include "vtkRenderingContextOpenGL2Module.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKRENDERINGCONTEXTOPENGL2_EXPORT vtkOpenGLContextActor : public vtkContextActor
 {
 public:
@@ -61,4 +62,5 @@ private:
   void operator=(const vtkOpenGLContextActor&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

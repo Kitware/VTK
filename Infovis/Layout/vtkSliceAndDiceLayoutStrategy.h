@@ -37,6 +37,7 @@
 #include "vtkInfovisLayoutModule.h" // For export macro
 #include "vtkTreeMapLayoutStrategy.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKINFOVISLAYOUT_EXPORT vtkSliceAndDiceLayoutStrategy : public vtkTreeMapLayoutStrategy
 {
 public:
@@ -60,4 +61,5 @@ private:
   void operator=(const vtkSliceAndDiceLayoutStrategy&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

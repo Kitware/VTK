@@ -28,6 +28,7 @@
 #include "vtkAbstractContextItem.h"
 #include "vtkRenderingContext2DModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkContextTransform;
 
 class VTKRENDERINGCONTEXT2D_EXPORT vtkContextItem : public vtkAbstractContextItem
@@ -68,4 +69,5 @@ private:
   void operator=(const vtkContextItem&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkContextItem_h

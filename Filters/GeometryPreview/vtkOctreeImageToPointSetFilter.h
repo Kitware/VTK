@@ -36,6 +36,7 @@
 #include "vtkFiltersGeometryPreviewModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSGEOMETRYPREVIEW_EXPORT vtkOctreeImageToPointSetFilter : public vtkPolyDataAlgorithm
 {
 public:
@@ -92,4 +93,5 @@ private:
   int CellArrayComponent = 0;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkOctreeImageToPointSetFilter_h

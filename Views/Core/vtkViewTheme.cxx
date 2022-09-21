@@ -24,6 +24,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkTextProperty.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkViewTheme);
 vtkCxxSetObjectMacro(vtkViewTheme, PointLookupTable, vtkScalarsToColors);
 vtkCxxSetObjectMacro(vtkViewTheme, CellLookupTable, vtkScalarsToColors);
@@ -678,3 +679,4 @@ void vtkViewTheme::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "ScalePointLookupTable: " << this->ScalePointLookupTable << endl;
   os << indent << "ScaleCellLookupTable: " << this->ScaleCellLookupTable << endl;
 }
+VTK_ABI_NAMESPACE_END

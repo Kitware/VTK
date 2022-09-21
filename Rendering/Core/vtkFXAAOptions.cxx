@@ -17,6 +17,7 @@
 
 #include "vtkObjectFactory.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkFXAAOptions);
 
 //------------------------------------------------------------------------------
@@ -76,3 +77,4 @@ vtkFXAAOptions::vtkFXAAOptions()
 
 //------------------------------------------------------------------------------
 vtkFXAAOptions::~vtkFXAAOptions() = default;
+VTK_ABI_NAMESPACE_END

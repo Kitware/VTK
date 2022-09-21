@@ -22,6 +22,7 @@
 
 //------------------------------------------------------------------------------
 // Can't use vtkStandardNewMacro with a template.
+VTK_ABI_NAMESPACE_BEGIN
 template <class Scalar>
 vtkCPExodusIINodalCoordinatesTemplate<Scalar>* vtkCPExodusIINodalCoordinatesTemplate<Scalar>::New()
 {
@@ -543,3 +544,4 @@ vtkIdType vtkCPExodusIINodalCoordinatesTemplate<Scalar>::Lookup(const Scalar& va
   }
   return -1;
 }
+VTK_ABI_NAMESPACE_END

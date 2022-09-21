@@ -41,6 +41,7 @@
 #include "vtkSPHKernel.h"
 #include <algorithm> // For std::min()
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkIdList;
 class vtkDoubleArray;
 
@@ -96,4 +97,5 @@ private:
   void operator=(const vtkSPHCubicKernel&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

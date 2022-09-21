@@ -37,6 +37,7 @@
 
 #include "vtkSmartPointer.h" // for smart pointer
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCellArray;
 class vtkAbstractCellLinks;
 class vtkBezierCurve;
@@ -657,4 +658,5 @@ private:
   void Cleanup();
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

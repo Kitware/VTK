@@ -25,6 +25,7 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkLinearExtrusionFilter);
 
 //------------------------------------------------------------------------------
@@ -404,3 +405,4 @@ void vtkLinearExtrusionFilter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Capping: " << (this->Capping ? "On\n" : "Off\n");
   os << indent << "Scale Factor: " << this->ScaleFactor << "\n";
 }
+VTK_ABI_NAMESPACE_END

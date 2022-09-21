@@ -24,6 +24,7 @@
 
 #include <sstream>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkWebGLWidget);
 
 vtkWebGLWidget::vtkWebGLWidget()
@@ -165,3 +166,4 @@ void vtkWebGLWidget::GetDataFromColorMap(vtkActor2D* actor)
   this->size[0] = siz[0];
   this->size[1] = siz[1]; // Widget Size
 }
+VTK_ABI_NAMESPACE_END

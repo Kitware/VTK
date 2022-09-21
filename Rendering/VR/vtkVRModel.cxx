@@ -30,6 +30,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtk_glew.h"
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkVRModel::vtkVRModel()
 {
   this->Loaded = false;
@@ -178,3 +179,4 @@ void vtkVRModel::SetRayColor(double r, double g, double b)
   float color[] = { static_cast<float>(r), static_cast<float>(g), static_cast<float>(b) };
   this->Ray->SetColor(color);
 }
+VTK_ABI_NAMESPACE_END

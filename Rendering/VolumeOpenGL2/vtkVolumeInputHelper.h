@@ -36,6 +36,7 @@
 #include "vtkSmartPointer.h"                 // For SmartPointer
 #include "vtkTimeStamp.h"                    // For TimeStamp
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkOpenGLVolumeGradientOpacityTable;
 class vtkOpenGLVolumeOpacityTable;
 class vtkOpenGLVolumeRGBTable;
@@ -131,5 +132,6 @@ protected:
   bool InitializeTransfer = true;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkVolumeInputHelper_h
 // VTK-HeaderTest-Exclude: vtkVolumeInputHelper.h

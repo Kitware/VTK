@@ -39,6 +39,7 @@
 #include "vtkSmartPointer.h"    // For SP ivar
 #include "vtkXMLReader.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkBitArray;
 class vtkMutableDirectedGraph;
 class vtkTree;
@@ -166,4 +167,5 @@ private:
   void operator=(const vtkPhyloXMLTreeReader&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

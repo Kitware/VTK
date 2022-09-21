@@ -25,6 +25,7 @@
 #include "vtkRenderingRayTracingModule.h" // For export macro
 #include "vtkWindowNode.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKRENDERINGRAYTRACING_EXPORT vtkOSPRayWindowNode : public vtkWindowNode
 {
 public:
@@ -46,4 +47,5 @@ private:
   void operator=(const vtkOSPRayWindowNode&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

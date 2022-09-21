@@ -50,6 +50,7 @@
 
 #include <string> // for std::string
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkAbstractArray;
 class vtkDataSet;
 class vtkDoubleArray;
@@ -175,4 +176,5 @@ private:
   void operator=(const vtkImporter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

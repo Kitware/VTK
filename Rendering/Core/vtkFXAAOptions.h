@@ -27,6 +27,7 @@
 #include "vtkObject.h"
 #include "vtkRenderingCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKRENDERINGCORE_EXPORT vtkFXAAOptions : public vtkObject
 {
 public:
@@ -194,4 +195,5 @@ private:
   void operator=(const vtkFXAAOptions&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkFXAAOptions_h

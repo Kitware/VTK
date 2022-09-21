@@ -53,6 +53,7 @@
 // Put the internal classes in a namespace to avoid potential naming conflicts.
 namespace vtkUnstructuredGridVolumeZSweepMapperNamespace
 {
+VTK_ABI_NAMESPACE_BEGIN
 
 enum
 {
@@ -2283,10 +2284,12 @@ public:
   }
 };
 
+VTK_ABI_NAMESPACE_END
 };
 
 using namespace vtkUnstructuredGridVolumeZSweepMapperNamespace;
 
+VTK_ABI_NAMESPACE_BEGIN
 //------------------------------------------------------------------------------
 // Implementation of the public class.
 
@@ -4328,3 +4331,4 @@ double vtkUnstructuredGridVolumeZSweepMapper::GetMinimumBoundsDepth(
 
   return minZ;
 }
+VTK_ABI_NAMESPACE_END

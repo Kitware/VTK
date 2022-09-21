@@ -39,6 +39,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkStreamingDemandDrivenPipeline);
 
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, CONTINUE_EXECUTING, Integer);
@@ -1516,3 +1517,4 @@ int vtkStreamingDemandDrivenPipeline::GetRequestExactExtent(int port)
   }
   return info->Get(EXACT_EXTENT());
 }
+VTK_ABI_NAMESPACE_END

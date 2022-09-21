@@ -442,6 +442,8 @@ bool hasValidKey(InfoType info, KeyType key, ComponentKeyType ckey, double range
 
 } // end anon namespace
 
+VTK_ABI_NAMESPACE_BEGIN
+
 vtkInformationKeyRestrictedMacro(vtkDataArray, COMPONENT_RANGE, DoubleVector, 2);
 vtkInformationKeyRestrictedMacro(vtkDataArray, L2_NORM_RANGE, DoubleVector, 2);
 vtkInformationKeyRestrictedMacro(vtkDataArray, L2_NORM_FINITE_RANGE, DoubleVector, 2);
@@ -1488,6 +1490,7 @@ void vtkDataArray::Fill(double value)
     this->FillComponent(i, value);
   }
 }
+VTK_ABI_NAMESPACE_END
 
 namespace
 {
@@ -1520,6 +1523,7 @@ struct CopyComponentWorker
 };
 }
 
+VTK_ABI_NAMESPACE_BEGIN
 //------------------------------------------------------------------------------
 void vtkDataArray::CopyComponent(int dstComponent, vtkDataArray* src, int srcComponent)
 {
@@ -1760,6 +1764,7 @@ void vtkDataArray::Modified()
   }
   this->Superclass::Modified();
 }
+VTK_ABI_NAMESPACE_END
 
 namespace
 {
@@ -1864,6 +1869,7 @@ struct FiniteVectorRangeDispatchWrapper
 
 } // end anon namespace
 
+VTK_ABI_NAMESPACE_BEGIN
 //------------------------------------------------------------------------------
 bool vtkDataArray::ComputeScalarRange(double* ranges)
 {
@@ -2078,3 +2084,4 @@ void vtkDataArray::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "LookupTable: (none)\n";
   }
 }
+VTK_ABI_NAMESPACE_END

@@ -19,6 +19,7 @@
 #include "vtkTupleInterpolator.h"
 #include <list>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkCameraInterpolator);
 
 // PIMPL STL encapsulation for list of cameras. This just keeps track of all
@@ -561,3 +562,4 @@ void vtkCameraInterpolator::PrintSelf(ostream& os, vtkIndent indent)
     os << "(null)\n";
   }
 }
+VTK_ABI_NAMESPACE_END

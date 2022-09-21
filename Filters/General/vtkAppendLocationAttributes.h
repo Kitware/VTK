@@ -35,6 +35,7 @@
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkPassInputTypeAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSGENERAL_EXPORT vtkAppendLocationAttributes : public vtkPassInputTypeAlgorithm
 {
 public:
@@ -79,4 +80,5 @@ private:
   void operator=(const vtkAppendLocationAttributes&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -23,6 +23,7 @@
 #include "vtkPolyData.h"
 #include "vtkSMPTools.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkHull);
 
 //------------------------------------------------------------------------------
@@ -788,3 +789,4 @@ void vtkHull::PrintSelf(ostream& os, vtkIndent indent)
        << " " << this->Planes[i * 4 + 2] << " " << this->Planes[i * 4 + 3] << endl;
   }
 }
+VTK_ABI_NAMESPACE_END

@@ -43,6 +43,7 @@
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkWidgetRepresentation.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkActor;
 class vtkPolyDataMapper;
 class vtkCellPicker;
@@ -535,4 +536,5 @@ private:
   void operator=(const vtkImplicitCylinderRepresentation&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

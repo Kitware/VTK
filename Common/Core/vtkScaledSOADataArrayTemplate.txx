@@ -30,6 +30,7 @@
 #include <cassert>
 
 //-----------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 template <class ValueType>
 vtkScaledSOADataArrayTemplate<ValueType>* vtkScaledSOADataArrayTemplate<ValueType>::New()
 {
@@ -371,4 +372,5 @@ void vtkScaledSOADataArrayTemplate<ValueType>::ExportToVoidPointer(void* voidPtr
   }
 }
 
+VTK_ABI_NAMESPACE_END
 #endif

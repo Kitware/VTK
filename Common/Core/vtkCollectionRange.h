@@ -27,6 +27,7 @@ namespace vtk
 {
 namespace detail
 {
+VTK_ABI_NAMESPACE_BEGIN
 
 template <typename CollectionType>
 struct CollectionRange;
@@ -227,6 +228,7 @@ private:
   vtkSmartPointer<CollectionType> Collection;
 };
 
+VTK_ABI_NAMESPACE_END
 }
 } // end namespace vtk::detail
 

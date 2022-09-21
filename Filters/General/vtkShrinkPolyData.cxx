@@ -24,6 +24,7 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkShrinkPolyData);
 
 vtkShrinkPolyData::vtkShrinkPolyData(double sf)
@@ -309,3 +310,4 @@ void vtkShrinkPolyData::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
   os << indent << "Shrink Factor: " << this->ShrinkFactor << "\n";
 }
+VTK_ABI_NAMESPACE_END

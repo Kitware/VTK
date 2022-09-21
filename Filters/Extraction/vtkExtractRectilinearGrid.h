@@ -33,6 +33,7 @@
 #include "vtkRectilinearGridAlgorithm.h"
 
 // Forward Declarations
+VTK_ABI_NAMESPACE_BEGIN
 class vtkExtractStructuredGridHelper;
 
 class VTKFILTERSEXTRACTION_EXPORT vtkExtractRectilinearGrid : public vtkRectilinearGridAlgorithm
@@ -105,4 +106,5 @@ private:
   void operator=(const vtkExtractRectilinearGrid&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

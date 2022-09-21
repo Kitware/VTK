@@ -32,6 +32,7 @@
 #include "vtkIOXMLModule.h" // For export macro
 #include "vtkXMLStructuredDataWriter.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkStructuredGrid;
 
 class VTKIOXML_EXPORT vtkXMLStructuredGridWriter : public vtkXMLStructuredDataWriter
@@ -77,4 +78,5 @@ private:
   void operator=(const vtkXMLStructuredGridWriter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

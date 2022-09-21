@@ -50,6 +50,7 @@
 
 #undef VTK_DBG_LAYOUT
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkScalarBarActor);
 
 vtkCxxSetObjectMacro(vtkScalarBarActor, LookupTable, vtkScalarsToColors);
@@ -2622,3 +2623,4 @@ int vtkScalarBarActor::PlaceAnnotationsHorizontally(
   llcolors->Delete();
   return numNotes;
 }
+VTK_ABI_NAMESPACE_END

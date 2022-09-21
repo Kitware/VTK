@@ -36,6 +36,7 @@
 #include "vtkObject.h"
 #include "vtkParallelMPIModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKPARALLELMPI_EXPORT vtkMPIEventLog : public vtkObject
 {
 public:
@@ -94,4 +95,5 @@ private:
   void operator=(const vtkMPIEventLog&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

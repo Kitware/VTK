@@ -25,6 +25,7 @@
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkSmartPointer.h"        // For.... vtkSmartPointer!
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkActor;
 class vtkImageData;
 class vtkPolyData;
@@ -174,4 +175,5 @@ private:
   void operator=(const vtkBillboardTextActor3D&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkBillboardTextActor3D_h

@@ -38,6 +38,7 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtkUnstructuredGridWriter.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkGenericDataObjectWriter);
 
 template <typename WriterT>
@@ -177,3 +178,4 @@ void vtkGenericDataObjectWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

@@ -32,6 +32,7 @@
 
 #include <vtkm/filter/density_estimate/NDHistogram.h>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkmNDHistogram);
 
 //------------------------------------------------------------------------------
@@ -199,3 +200,4 @@ int vtkmNDHistogram::RequestData(vtkInformation* vtkNotUsed(request),
   }
   return 1;
 }
+VTK_ABI_NAMESPACE_END

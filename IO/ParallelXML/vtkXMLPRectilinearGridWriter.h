@@ -33,6 +33,7 @@
 #include "vtkIOParallelXMLModule.h" // For export macro
 #include "vtkXMLPStructuredDataWriter.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkRectilinearGrid;
 
 class VTKIOPARALLELXML_EXPORT vtkXMLPRectilinearGridWriter : public vtkXMLPStructuredDataWriter
@@ -68,4 +69,5 @@ private:
   void operator=(const vtkXMLPRectilinearGridWriter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

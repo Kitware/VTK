@@ -34,6 +34,7 @@
 #include "vtkPointFillPassFS.h"
 #include "vtkTextureObjectVS.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPointFillPass);
 
 //------------------------------------------------------------------------------
@@ -209,3 +210,4 @@ void vtkPointFillPass::ReleaseGraphicsResources(vtkWindow* w)
     this->Pass1Depth = nullptr;
   }
 }
+VTK_ABI_NAMESPACE_END

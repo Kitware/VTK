@@ -71,6 +71,7 @@
 
 #include <vector> // For std::vector
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkAbstractCellLocator;
 class vtkCell;
 class vtkCharArray;
@@ -329,4 +330,5 @@ private:
   std::vector<vtkDataArray*> CellArrays;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

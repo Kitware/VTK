@@ -58,6 +58,7 @@
 #include "vtkFiltersHybridModule.h" // For export macro
 #include "vtkMultiTimeStepAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataSet;
 class VTKFILTERSHYBRID_EXPORT vtkTemporalInterpolator : public vtkMultiTimeStepAlgorithm
 {
@@ -165,4 +166,5 @@ private:
   void operator=(const vtkTemporalInterpolator&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

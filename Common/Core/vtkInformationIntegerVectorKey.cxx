@@ -20,6 +20,7 @@
 #include <vector>
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkInformationIntegerVectorKey ::vtkInformationIntegerVectorKey(
   const char* name, const char* location, int length)
   : vtkInformationKey(name, location)
@@ -183,3 +184,4 @@ int* vtkInformationIntegerVectorKey::GetWatchAddress(vtkInformation* info)
     static_cast<vtkInformationIntegerVectorValue*>(this->GetAsObjectBase(info));
   return (v && !v->Value.empty()) ? v->Value.data() : nullptr;
 }
+VTK_ABI_NAMESPACE_END

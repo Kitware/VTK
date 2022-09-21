@@ -79,6 +79,7 @@
 #include "vtkFiltersParallelDIY2Module.h" // for export macros
 #include "vtkPassInputTypeAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkMultiProcessController;
 
 class VTKFILTERSPARALLELDIY2_EXPORT vtkGhostCellsGenerator : public vtkPassInputTypeAlgorithm
@@ -150,4 +151,5 @@ private:
   void operator=(const vtkGhostCellsGenerator&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

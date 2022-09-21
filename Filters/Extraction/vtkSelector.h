@@ -29,6 +29,7 @@
 
 #include <set> // for std::set
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCompositeDataSet;
 class vtkDataObject;
 class vtkSelectionNode;
@@ -171,4 +172,5 @@ private:
   std::set<unsigned int> SubsetCompositeIds;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

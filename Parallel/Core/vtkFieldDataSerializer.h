@@ -32,6 +32,7 @@
 #include "vtkParallelCoreModule.h" // For export macro
 
 // Forward declarations
+VTK_ABI_NAMESPACE_BEGIN
 class vtkIdList;
 class vtkFieldData;
 class vtkDataArray;
@@ -132,4 +133,5 @@ private:
   void operator=(const vtkFieldDataSerializer&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif /* vtkFieldDataSerializer_h */

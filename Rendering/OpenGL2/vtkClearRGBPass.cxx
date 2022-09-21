@@ -20,6 +20,7 @@
 #include "vtkRenderState.h"
 #include "vtk_glew.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkClearRGBPass);
 
 //------------------------------------------------------------------------------
@@ -53,3 +54,4 @@ void vtkClearRGBPass::Render(const vtkRenderState* s)
     static_cast<GLclampf>(0.0));
   ostate->vtkglClear(GL_COLOR_BUFFER_BIT);
 }
+VTK_ABI_NAMESPACE_END

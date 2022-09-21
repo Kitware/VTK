@@ -34,6 +34,7 @@
 #include "vtkRenderedRepresentation.h"
 #include "vtkViewsInfovisModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkActor;
 class vtkAlgorithmOutput;
 class vtkApplyColors;
@@ -118,4 +119,5 @@ private:
   void operator=(const vtkRenderedSurfaceRepresentation&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -22,6 +22,7 @@
 -----------------------------------------------------------------------*/
 
 #include "PyVTKTemplate.h"
+#include "vtkABINamespace.h"
 #include "vtkPythonUtil.h"
 
 #include <string>

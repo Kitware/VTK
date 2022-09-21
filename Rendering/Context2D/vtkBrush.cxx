@@ -21,6 +21,7 @@
 //------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkBrush);
 
 //------------------------------------------------------------------------------
@@ -173,3 +174,4 @@ void vtkBrush::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Texture: " << reinterpret_cast<void*>(this->Texture) << endl;
   os << indent << "Texture Properties: " << this->TextureProperties << endl;
 }
+VTK_ABI_NAMESPACE_END

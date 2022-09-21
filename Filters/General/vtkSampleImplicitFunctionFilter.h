@@ -38,6 +38,7 @@
 #include "vtkDataSetAlgorithm.h"
 #include "vtkFiltersGeneralModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkImplicitFunction;
 class vtkDataArray;
 
@@ -112,4 +113,5 @@ private:
   void operator=(const vtkSampleImplicitFunctionFilter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

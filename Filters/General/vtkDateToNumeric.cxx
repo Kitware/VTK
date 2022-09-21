@@ -35,6 +35,7 @@
 #include "time.h"
 #endif
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkDateToNumeric);
 //------------------------------------------------------------------------------
 vtkDateToNumeric::vtkDateToNumeric()
@@ -180,3 +181,4 @@ void vtkDateToNumeric::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
   os << indent << "DateFormat: " << (this->DateFormat ? this->DateFormat : "(none)");
 }
+VTK_ABI_NAMESPACE_END

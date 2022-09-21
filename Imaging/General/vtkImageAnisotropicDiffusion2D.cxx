@@ -22,6 +22,7 @@
 
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImageAnisotropicDiffusion2D);
 
 //------------------------------------------------------------------------------
@@ -374,3 +375,4 @@ void vtkImageAnisotropicDiffusion2D::Iterate(
     }
   }
 }
+VTK_ABI_NAMESPACE_END

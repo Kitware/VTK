@@ -61,6 +61,7 @@
 #include "vtkRowQuery.h"
 #include "vtkStdString.h" // for EscapeString()
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkSQLDatabase;
 class vtkVariant;
 class vtkVariantArray;
@@ -225,4 +226,5 @@ private:
   void operator=(const vtkSQLQuery&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkSQLQuery_h

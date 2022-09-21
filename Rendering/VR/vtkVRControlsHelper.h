@@ -31,6 +31,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkWeakPointer.h"       // needed for vtkWeakPointer iVar.
 #include <string>                 // for std::string
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkActor;
 class vtkCallbackCommand;
 class vtkLineSource;
@@ -159,4 +160,5 @@ private:
   void operator=(const vtkVRControlsHelper&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

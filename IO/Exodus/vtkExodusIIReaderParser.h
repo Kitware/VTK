@@ -32,6 +32,7 @@
 #include <string> // for std::string
 #include <vector> // for std::vector
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkMutableDirectedGraph;
 class vtkStringArray;
 class vtkUnsignedCharArray;
@@ -172,4 +173,5 @@ private:
   void operator=(const vtkExodusIIReaderParser&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

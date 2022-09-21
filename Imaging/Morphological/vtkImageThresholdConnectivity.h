@@ -36,6 +36,7 @@
 #include "vtkImageAlgorithm.h"
 #include "vtkImagingMorphologicalModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPoints;
 class vtkImageData;
 class vtkImageStencilData;
@@ -214,4 +215,5 @@ private:
   void operator=(const vtkImageThresholdConnectivity&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

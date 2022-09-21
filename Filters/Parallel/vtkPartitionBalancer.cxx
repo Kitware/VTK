@@ -30,6 +30,7 @@
 #include <numeric>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPartitionBalancer);
 vtkCxxSetObjectMacro(vtkPartitionBalancer, Controller, vtkMultiProcessController);
 
@@ -138,3 +139,4 @@ void vtkPartitionBalancer::PrintSelf(ostream& os, vtkIndent indent)
       break;
   }
 }
+VTK_ABI_NAMESPACE_END

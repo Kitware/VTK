@@ -47,11 +47,14 @@
 
 #include "vtkAMREnzoReaderInternal.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkAMREnzoReader);
 
+VTK_ABI_NAMESPACE_END
 #include "vtkAMRInformation.h"
 #include <limits>
 
+VTK_ABI_NAMESPACE_BEGIN
 void vtkAMREnzoReader::ComputeStats(
   vtkEnzoReaderInternal* internal, std::vector<int>& numBlocks, double min[3])
 {
@@ -458,3 +461,4 @@ void vtkAMREnzoReader::SetUpDataArraySelections()
     this->CellDataArraySelection->AddArray(this->Internal->BlockAttributeNames[i].c_str());
   } // END for all attributes
 }
+VTK_ABI_NAMESPACE_END

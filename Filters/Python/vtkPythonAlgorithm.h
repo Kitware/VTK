@@ -47,6 +47,7 @@
 #include "vtkAlgorithm.h"
 #include "vtkFiltersPythonModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkSmartPyObject;
 
 class VTKFILTERSPYTHON_EXPORT vtkPythonAlgorithm : public vtkAlgorithm
@@ -95,5 +96,6 @@ private:
   PyObject* Object;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
 #endif

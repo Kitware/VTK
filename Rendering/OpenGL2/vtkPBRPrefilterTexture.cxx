@@ -27,6 +27,7 @@
 
 #include <sstream>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPBRPrefilterTexture);
 
 vtkCxxSetObjectMacro(vtkPBRPrefilterTexture, InputTexture, vtkOpenGLTexture);
@@ -338,3 +339,4 @@ void vtkPBRPrefilterTexture::Load(vtkRenderer* ren)
 
   this->TextureObject->Activate();
 }
+VTK_ABI_NAMESPACE_END

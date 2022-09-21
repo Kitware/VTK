@@ -27,6 +27,7 @@
 #include "RTWrapper/RTWrapper.h"
 
 //============================================================================
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOSPRayWindowNode);
 
 //------------------------------------------------------------------------------
@@ -95,3 +96,4 @@ void vtkOSPRayWindowNode::Render(bool prepass)
     }
   }
 }
+VTK_ABI_NAMESPACE_END

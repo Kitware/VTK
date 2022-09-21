@@ -42,6 +42,7 @@
 #include "vtkInfovisCoreModule.h" // For export macro
 #include "vtkTableAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKINFOVISCORE_EXPORT vtkMergeTables : public vtkTableAlgorithm
 {
 public:
@@ -106,4 +107,5 @@ private:
   void operator=(const vtkMergeTables&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

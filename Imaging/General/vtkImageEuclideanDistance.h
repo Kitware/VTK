@@ -51,6 +51,7 @@
 #define VTK_EDT_SAITO_CACHED 0
 #define VTK_EDT_SAITO 1
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKIMAGINGGENERAL_EXPORT vtkImageEuclideanDistance : public vtkImageDecomposeFilter
 {
 public:
@@ -124,4 +125,5 @@ private:
   void operator=(const vtkImageEuclideanDistance&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

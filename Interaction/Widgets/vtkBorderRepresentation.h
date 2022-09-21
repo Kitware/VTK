@@ -46,6 +46,7 @@
 
 #include "vtkNew.h" // for ivars
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPoints;
 class vtkPolyData;
 class vtkTransform;
@@ -502,4 +503,5 @@ private:
   void operator=(const vtkBorderRepresentation&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

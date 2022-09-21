@@ -27,6 +27,7 @@
 #include "vtkImagingColorModule.h" // For export macro
 #include "vtkThreadedImageAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKIMAGINGCOLOR_EXPORT vtkImageRGBToHSI : public vtkThreadedImageAlgorithm
 {
 public:
@@ -57,4 +58,5 @@ private:
   void operator=(const vtkImageRGBToHSI&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

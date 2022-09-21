@@ -73,6 +73,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <CoreFoundation/CoreFoundation.h>
 #endif
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOpenGLRenderer);
 
 vtkOpenGLRenderer::vtkOpenGLRenderer()
@@ -1165,3 +1166,4 @@ vtkPBRPrefilterTexture* vtkOpenGLRenderer::GetEnvMapPrefiltered()
   }
   return this->EnvMapPrefiltered;
 }
+VTK_ABI_NAMESPACE_END

@@ -29,6 +29,7 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkImplicitFunction.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDoubleArray;
 class vtkImplicitFunctionCollection;
 
@@ -110,4 +111,5 @@ private:
   void operator=(const vtkImplicitSum&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

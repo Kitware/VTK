@@ -67,6 +67,7 @@
 #include "vtkStdString.h"       // Needed for vtkStdString
 #include "vtkTableAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKIOINFOVIS_EXPORT vtkDelimitedTextReader : public vtkTableAlgorithm
 {
 public:
@@ -364,4 +365,5 @@ private:
   void operator=(const vtkDelimitedTextReader&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

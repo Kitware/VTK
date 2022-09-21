@@ -24,11 +24,14 @@
 
 #ifdef VTK_USE_MEMKIND
 #include <memkind.h>
+VTK_ABI_NAMESPACE_BEGIN
 struct memkind* MemkindHandle = nullptr;
+VTK_ABI_NAMESPACE_END
 #endif
 
 #define vtkBaseDebugMacro(x)
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkObjectBaseToGarbageCollectorFriendship
 {
 public:
@@ -365,6 +368,7 @@ void vtkObjectBase::ReportReferences(vtkGarbageCollector*)
 {
   // vtkObjectBase has no references to report.
 }
+VTK_ABI_NAMESPACE_END
 
 namespace
 {
@@ -378,6 +382,7 @@ VTK_THREAD_LOCAL vtkFreeingFunction CurrentFreeFunction = free;
 VTK_THREAD_LOCAL vtkFreeingFunction AlternateFreeFunction = vtkCustomFree;
 }
 
+VTK_ABI_NAMESPACE_BEGIN
 //------------------------------------------------------------------------------
 void vtkObjectBase::SetMemkindDirectory(const char* directoryname)
 {
@@ -522,3 +527,4 @@ void vtkObjectBase::vtkMemkindRAII::Restore()
   vtkObjectBase::SetUsingMemkind(this->OriginalValue);
 #endif
 }
+VTK_ABI_NAMESPACE_END

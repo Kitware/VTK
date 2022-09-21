@@ -36,6 +36,7 @@
 #include "vtkBorderRepresentation.h"
 #include "vtkInteractionWidgetsModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkXYPlotActor;
 
 class VTKINTERACTIONWIDGETS_EXPORT vtkXYPlotRepresentation : public vtkBorderRepresentation
@@ -184,4 +185,5 @@ private:
   void operator=(const vtkXYPlotRepresentation&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkXYPlotRepresentation_h

@@ -31,6 +31,7 @@
 
 #include "vtkArchiver.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONARCHIVE_EXPORT vtkPartitionedArchiver : public vtkArchiver
 {
 public:
@@ -114,4 +115,5 @@ private:
   void operator=(const vtkPartitionedArchiver&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

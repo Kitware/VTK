@@ -18,6 +18,7 @@
 #include "vtkSmartPyObject.h"
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPythonArchiver);
 
 //------------------------------------------------------------------------------
@@ -232,3 +233,4 @@ void vtkPythonArchiver::PrintSelf(ostream& os, vtkIndent indent)
     os << std::endl;
   }
 }
+VTK_ABI_NAMESPACE_END

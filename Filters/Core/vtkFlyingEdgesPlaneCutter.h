@@ -56,6 +56,7 @@
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkImageData;
 class vtkPlane;
 
@@ -133,4 +134,5 @@ private:
   void operator=(const vtkFlyingEdgesPlaneCutter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

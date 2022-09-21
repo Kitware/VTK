@@ -27,6 +27,7 @@
 #include "vtkTableAlgorithm.h"
 #include <string> // STL Header
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkSQLDatabase;
 class vtkStringArray;
 
@@ -67,4 +68,5 @@ private:
   void operator=(const vtkDatabaseToTableReader&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

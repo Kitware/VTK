@@ -31,6 +31,7 @@
 #include "vtkIOXMLModule.h" // For export macro
 #include "vtkXMLPDataObjectReader.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkHyperTreeCursor;
 class vtkHyperTreeGrid;
 class vtkHyperTreeGridNonOrientedCursor;
@@ -188,4 +189,5 @@ private:
   void operator=(const vtkXMLPHyperTreeGridReader&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

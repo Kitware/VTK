@@ -32,6 +32,7 @@
 #include "vtkGenericMovieWriter.h"
 #include "vtkIOOggTheoraModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkOggTheoraWriterInternal;
 
 class VTKIOOGGTHEORA_EXPORT vtkOggTheoraWriter : public vtkGenericMovieWriter
@@ -94,4 +95,5 @@ private:
   void operator=(const vtkOggTheoraWriter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

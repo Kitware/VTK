@@ -205,6 +205,7 @@ HitCellInfo GetInOutCell(const vtkVector3d& p1, const vtkVector3d& p2, vtkIdType
 }
 }
 
+VTK_ABI_NAMESPACE_BEGIN
 //------------------------------------------------------------------------------
 // Allows to merge remote polylines from all processes into a single one.
 // Handle various things such as merging points, creating segment centers when
@@ -1370,3 +1371,4 @@ void vtkProbeLineFilter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "ComputeTolerance: " << this->ComputeTolerance << endl;
   os << indent << "Tolerance: " << this->Tolerance << endl;
 }
+VTK_ABI_NAMESPACE_END

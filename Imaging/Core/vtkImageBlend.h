@@ -79,6 +79,7 @@
 #include "vtkImagingCoreModule.h" // For export macro
 #include "vtkThreadedImageAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkImageStencilData;
 
 #define VTK_IMAGE_BLEND_MODE_NORMAL 0
@@ -227,4 +228,5 @@ inline const char* vtkImageBlend::GetBlendModeAsString()
   }
 }
 
+VTK_ABI_NAMESPACE_END
 #endif

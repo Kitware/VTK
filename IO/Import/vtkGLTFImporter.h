@@ -65,6 +65,7 @@
 #include <map>    // For map
 #include <vector> // For vector
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkActor;
 class vtkCamera;
 class vtkGLTFDocumentLoader;
@@ -172,4 +173,5 @@ private:
   void operator=(const vtkGLTFImporter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

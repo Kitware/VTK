@@ -25,6 +25,7 @@
 
 #include <cassert>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkContextInteractorStyle);
 
 //------------------------------------------------------------------------------
@@ -492,3 +493,4 @@ inline void vtkContextInteractorStyle::ConstructMouseEvent(vtkContextMouseEvent&
     vtkVector2f(this->Interactor->GetEventPosition()[0], this->Interactor->GetEventPosition()[1]));
   event.SetButton(button);
 }
+VTK_ABI_NAMESPACE_END

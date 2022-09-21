@@ -44,6 +44,7 @@
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCellArray;
 class vtkDataArray;
 class vtkPoints;
@@ -133,4 +134,5 @@ private:
   void operator=(const vtkRemovePolyData&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

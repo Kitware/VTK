@@ -26,6 +26,7 @@
 #include <map> // STL required
 
 //----------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 class vtkVolumeMask
 {
 public:
@@ -322,5 +323,6 @@ private:
   vtkMapMaskTextureId& operator=(const vtkMapMaskTextureId& other) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkVolumeMask_h
 // VTK-HeaderTest-Exclude: vtkVolumeMask.h

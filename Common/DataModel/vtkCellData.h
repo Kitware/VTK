@@ -32,6 +32,7 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkDataSetAttributes.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONDATAMODEL_EXPORT vtkCellData : public vtkDataSetAttributes
 {
 public:
@@ -50,4 +51,5 @@ private:
   void operator=(const vtkCellData&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

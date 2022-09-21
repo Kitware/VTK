@@ -30,6 +30,7 @@
 #include "vtkNew.h"
 #include "vtkSmartPointer.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkWarpTo);
 
 vtkWarpTo::vtkWarpTo()
@@ -194,3 +195,4 @@ void vtkWarpTo::PrintSelf(ostream& os, vtkIndent indent)
      << this->Position[2] << ")\n";
   os << indent << "Scale Factor: " << this->ScaleFactor << "\n";
 }
+VTK_ABI_NAMESPACE_END

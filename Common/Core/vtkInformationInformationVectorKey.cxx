@@ -18,6 +18,7 @@
 #include "vtkInformationVector.h"
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkInformationInformationVectorKey::vtkInformationInformationVectorKey(
   const char* name, const char* location)
   : vtkInformationKey(name, location)
@@ -77,3 +78,4 @@ void vtkInformationInformationVectorKey::Report(
 {
   this->ReportAsObjectBase(info, collector);
 }
+VTK_ABI_NAMESPACE_END

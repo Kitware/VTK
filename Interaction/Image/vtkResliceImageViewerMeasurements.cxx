@@ -47,6 +47,7 @@
 #include "vtkSeedWidget.h"
 #include "vtkSmartPointer.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkResliceImageViewerMeasurements);
 
 //------------------------------------------------------------------------------
@@ -347,3 +348,4 @@ void vtkResliceImageViewerMeasurements::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Tolerance: " << this->Tolerance << endl;
 }
+VTK_ABI_NAMESPACE_END

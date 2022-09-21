@@ -72,6 +72,7 @@
 #include "vtkFiltersModelingModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkIncrementalPointLocator;
 
 class VTKFILTERSMODELING_EXPORT vtkAdaptiveSubdivisionFilter : public vtkPolyDataAlgorithm
@@ -179,4 +180,5 @@ private:
   void operator=(const vtkAdaptiveSubdivisionFilter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

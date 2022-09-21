@@ -35,6 +35,7 @@
 #include "vtkNew.h"          // For vtkNew
 #include "vtkSmartPointer.h" // For vtkSmartPointer
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDoubleArray;
 class vtkTextActor3D;
 class vtkTextProperty;
@@ -191,4 +192,5 @@ private:
   Private* Internal;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

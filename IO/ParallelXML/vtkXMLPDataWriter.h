@@ -28,6 +28,7 @@
 #include "vtkIOParallelXMLModule.h" // For export macro
 #include "vtkXMLPDataObjectWriter.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCallbackCommand;
 class vtkMultiProcessController;
 
@@ -61,4 +62,5 @@ private:
   void SetupPieceFileNameExtension() override;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

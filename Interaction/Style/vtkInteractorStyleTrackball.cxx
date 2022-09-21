@@ -19,6 +19,7 @@
 #include "vtkPropPicker.h"
 #include "vtkRenderWindowInteractor.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkInteractorStyleTrackball);
 
 //------------------------------------------------------------------------------
@@ -38,3 +39,4 @@ void vtkInteractorStyleTrackball::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

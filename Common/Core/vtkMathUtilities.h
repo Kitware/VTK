@@ -27,6 +27,8 @@
 #ifndef vtkMathUtilities_h
 #define vtkMathUtilities_h
 
+#include "vtkABINamespace.h"
+
 #include <cmath>
 #include <limits>
 #include <tuple>
@@ -34,6 +36,7 @@
 
 namespace vtkMathUtilities
 {
+VTK_ABI_NAMESPACE_BEGIN
 
 /**
  * Perform a fuzzy compare of floats/doubles, specify the allowed tolerance
@@ -137,6 +140,7 @@ void UpdateRange(A& min0, A& max0, const A& value,
   }
 }
 
+VTK_ABI_NAMESPACE_END
 } // End vtkMathUtilities namespace.
 
 #endif // vtkMathUtilities_h

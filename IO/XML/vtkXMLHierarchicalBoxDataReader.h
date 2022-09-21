@@ -32,6 +32,7 @@
 
 #include "vtkXMLUniformGridAMRReader.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKIOXML_EXPORT vtkXMLHierarchicalBoxDataReader : public vtkXMLUniformGridAMRReader
 {
 public:
@@ -48,4 +49,5 @@ private:
   void operator=(const vtkXMLHierarchicalBoxDataReader&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

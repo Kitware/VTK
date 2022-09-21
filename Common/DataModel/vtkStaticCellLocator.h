@@ -54,6 +54,7 @@
 #include "vtkDeprecation.h"           // For VTK_DEPRECATED_IN_9_2_0
 
 // Forward declarations for PIMPL
+VTK_ABI_NAMESPACE_BEGIN
 struct vtkCellBinner;
 struct vtkCellProcessor;
 
@@ -287,4 +288,5 @@ private:
   void operator=(const vtkStaticCellLocator&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -25,6 +25,7 @@
 #include "vtkRenderingParallelModule.h" // For export macro
 #include "vtkSynchronizedRenderers.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKRENDERINGPARALLEL_EXPORT vtkClientServerSynchronizedRenderers
   : public vtkSynchronizedRenderers
 {
@@ -45,4 +46,5 @@ private:
   void operator=(const vtkClientServerSynchronizedRenderers&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

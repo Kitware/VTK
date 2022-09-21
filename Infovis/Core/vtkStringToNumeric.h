@@ -32,6 +32,7 @@
 #include "vtkDataObjectAlgorithm.h"
 #include "vtkInfovisCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKINFOVISCORE_EXPORT vtkStringToNumeric : public vtkDataObjectAlgorithm
 {
 public:
@@ -180,4 +181,5 @@ private:
   void operator=(const vtkStringToNumeric&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

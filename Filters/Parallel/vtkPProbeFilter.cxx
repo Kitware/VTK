@@ -26,6 +26,7 @@
 #include "vtkPolyData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPProbeFilter);
 
 vtkCxxSetObjectMacro(vtkPProbeFilter, Controller, vtkMultiProcessController);
@@ -133,8 +134,10 @@ int vtkPProbeFilter::RequestData(
   return 1;
 }
 
+VTK_ABI_NAMESPACE_END
 #include "vtkInformationIntegerVectorKey.h"
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 int vtkPProbeFilter::RequestUpdateExtent(
   vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -186,3 +189,4 @@ void vtkPProbeFilter::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
   os << indent << "Controller " << this->Controller << endl;
 }
+VTK_ABI_NAMESPACE_END

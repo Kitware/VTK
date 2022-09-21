@@ -29,6 +29,7 @@
 #include "vtkDatabaseToTableReader.h"
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkDatabaseToTableReader::vtkDatabaseToTableReader()
 {
   this->Database = nullptr;
@@ -101,3 +102,4 @@ void vtkDatabaseToTableReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

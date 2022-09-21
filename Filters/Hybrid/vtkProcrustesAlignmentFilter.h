@@ -55,6 +55,7 @@
 #include "vtkFiltersHybridModule.h" // For export macro
 #include "vtkMultiBlockDataSetAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkLandmarkTransform;
 class vtkPointSet;
 class vtkPoints;
@@ -137,4 +138,5 @@ private:
   void operator=(const vtkProcrustesAlignmentFilter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

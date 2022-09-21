@@ -34,6 +34,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <cassert>
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkMolecule);
 
 //------------------------------------------------------------------------------
@@ -828,3 +829,4 @@ unsigned long vtkMolecule::GetActualMemorySize()
   }
   return size;
 }
+VTK_ABI_NAMESPACE_END

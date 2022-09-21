@@ -53,6 +53,7 @@
 // could be used to quickly locate the index number in the marching tetrahedron case
 // table. This array can also be used in the clipping case look-up table
 // clipTriangleVertices.
+VTK_ABI_NAMESPACE_BEGIN
 static const char ternaryShift[4] = { 1, 3, 9, 27 };
 
 //------------------------------------------------------------------------------
@@ -1072,3 +1073,4 @@ int vtkFiberSurface::RequestData(vtkInformation* vtkNotUsed(request),
   output->SetPolys(newPolys);
   return 1;
 }
+VTK_ABI_NAMESPACE_END

@@ -25,6 +25,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStructuredGrid.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkExtractGrid);
 
 // Construct object to extract all of the input data.
@@ -230,3 +231,4 @@ void vtkExtractGrid::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Include Boundary: " << (this->IncludeBoundary ? "On\n" : "Off\n");
 }
+VTK_ABI_NAMESPACE_END

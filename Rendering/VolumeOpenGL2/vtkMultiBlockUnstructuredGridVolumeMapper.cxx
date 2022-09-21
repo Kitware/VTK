@@ -35,13 +35,16 @@
 
 namespace vtkBlockSortHelper
 {
+VTK_ABI_NAMESPACE_BEGIN
 template <>
 inline void GetBounds(vtkProjectedTetrahedraMapper* first, double bds[6])
 {
   first->GetInput()->GetBounds(bds);
 }
+VTK_ABI_NAMESPACE_END
 }
 
+VTK_ABI_NAMESPACE_BEGIN
 //------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkMultiBlockUnstructuredGridVolumeMapper);
 
@@ -345,3 +348,4 @@ void vtkMultiBlockUnstructuredGridVolumeMapper::SetBlendMode(int mode)
   }
   this->Superclass::SetBlendMode(mode);
 }
+VTK_ABI_NAMESPACE_END

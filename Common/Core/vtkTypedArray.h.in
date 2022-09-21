@@ -29,6 +29,9 @@
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkType.h" // For native type selections.
 @VTK_TYPE_NATIVE@
+
+VTK_ABI_NAMESPACE_BEGIN
+
 class VTKCOMMONCORE_EXPORT vtkType@VTK_TYPE_NAME@Array : public vtkTypeArrayBase
 {
 public:
@@ -55,6 +58,9 @@ private:
 // Define vtkArrayDownCast implementation:
 vtkArrayDownCast_FastCastMacro(vtkType@VTK_TYPE_NAME@Array);
 
+VTK_ABI_NAMESPACE_END
+
 #undef vtkTypeArrayBase
 
 #endif
+/* VTK-HeaderTest-Exclude: INCLUDES */

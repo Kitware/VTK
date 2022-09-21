@@ -319,6 +319,7 @@
 #include "vtkFiltersTopologyModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSTOPOLOGY_EXPORT vtkFiberSurface : public vtkPolyDataAlgorithm
 {
 public:
@@ -397,4 +398,5 @@ private:
   vtkFiberSurface(const vtkFiberSurface&) = delete;
   void operator=(const vtkFiberSurface&) = delete;
 };
+VTK_ABI_NAMESPACE_END
 #endif

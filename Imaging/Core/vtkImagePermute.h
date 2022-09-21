@@ -29,6 +29,7 @@
 #include "vtkImageReslice.h"
 #include "vtkImagingCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKIMAGINGCORE_EXPORT vtkImagePermute : public vtkImageReslice
 {
 public:
@@ -57,4 +58,5 @@ private:
   void operator=(const vtkImagePermute&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

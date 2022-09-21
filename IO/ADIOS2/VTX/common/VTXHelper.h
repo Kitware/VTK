@@ -45,6 +45,7 @@ namespace vtx
 {
 namespace helper
 {
+VTK_ABI_NAMESPACE_BEGIN
 
 /** Get current MPI global communicator from VTK */
 MPI_Comm MPIGetComm();
@@ -218,6 +219,7 @@ std::string GetEngineType(const std::string& fileName) noexcept;
  */
 bool EndsWith(const std::string& input, const std::string& ends) noexcept;
 
+VTK_ABI_NAMESPACE_END
 } // end namespace helper
 } // end namespace vtx
 

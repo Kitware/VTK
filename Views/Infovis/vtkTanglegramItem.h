@@ -35,6 +35,7 @@
 #include "vtkSmartPointer.h" // For SmartPointer ivars
 #include "vtkTable.h"        // For get/set
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDendrogramItem;
 class vtkLookupTable;
 class vtkStringArray;
@@ -229,4 +230,5 @@ private:
   void operator=(const vtkTanglegramItem&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -33,6 +33,7 @@
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkThreads.h"             // for VTK_MAX_THREADS
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkRenderer;
 class vtkProp3D;
 class vtkPoints;
@@ -272,4 +273,5 @@ private:
   friend class vtkImageToImageMapper3DFriendship;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

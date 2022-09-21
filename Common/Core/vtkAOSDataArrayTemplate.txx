@@ -26,6 +26,7 @@
 #include "vtkArrayIteratorTemplate.h"
 
 //-----------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 template <class ValueTypeT>
 vtkAOSDataArrayTemplate<ValueTypeT>* vtkAOSDataArrayTemplate<ValueTypeT>::New()
 {
@@ -469,4 +470,5 @@ bool vtkAOSDataArrayTemplate<ValueTypeT>::ReallocateTuples(vtkIdType numTuples)
   return false;
 }
 
+VTK_ABI_NAMESPACE_END
 #endif // header guard

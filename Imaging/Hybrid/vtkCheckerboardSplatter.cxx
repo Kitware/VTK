@@ -31,6 +31,7 @@
 #include <algorithm>
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkCheckerboardSplatter);
 
 //------------------------------------------------------------------------------
@@ -875,3 +876,4 @@ void vtkCheckerboardSplatter::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Parallel Splat Crossover: " << this->ParallelSplatCrossover << "\n";
 }
+VTK_ABI_NAMESPACE_END

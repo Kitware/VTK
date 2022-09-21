@@ -32,6 +32,7 @@
 #include "vtkDataCompressor.h"
 #include "vtkIOCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKIOCORE_EXPORT vtkLZMADataCompressor : public vtkDataCompressor
 {
 public:
@@ -74,4 +75,5 @@ private:
   void operator=(const vtkLZMADataCompressor&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

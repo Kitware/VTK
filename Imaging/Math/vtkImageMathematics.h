@@ -51,6 +51,7 @@
 #include "vtkImagingMathModule.h" // For export macro
 #include "vtkThreadedImageAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKIMAGINGMATH_EXPORT vtkImageMathematics : public vtkThreadedImageAlgorithm
 {
 public:
@@ -276,4 +277,5 @@ private:
   void operator=(const vtkImageMathematics&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

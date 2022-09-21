@@ -48,6 +48,7 @@
 #include "vtkInfovisBoostGraphAlgorithmsModule.h" // For export macro
 #include "vtkUndirectedGraphAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKINFOVISBOOSTGRAPHALGORITHMS_EXPORT vtkBoostBiconnectedComponents
   : public vtkUndirectedGraphAlgorithm
 {
@@ -77,4 +78,5 @@ private:
   void operator=(const vtkBoostBiconnectedComponents&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -30,6 +30,7 @@
 #include "vtkFiltersSourcesModule.h" // For export macro
 #include "vtkPartitionedDataSetCollectionAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSSOURCES_EXPORT vtkPartitionedDataSetCollectionSource
   : public vtkPartitionedDataSetCollectionAlgorithm
 {
@@ -61,4 +62,5 @@ private:
   int NumberOfShapes;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

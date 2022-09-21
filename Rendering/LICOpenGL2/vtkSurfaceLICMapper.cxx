@@ -38,6 +38,7 @@
 #define vtkSurfaceLICMapperDEBUG 0
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkObjectFactoryNewMacro(vtkSurfaceLICMapper);
 
 //------------------------------------------------------------------------------
@@ -251,3 +252,4 @@ void vtkSurfaceLICMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

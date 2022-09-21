@@ -58,6 +58,7 @@
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkWidgetRepresentation.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkTextMapper;
 class vtkTextActor;
 class vtkTextProperty;
@@ -272,4 +273,5 @@ private:
   void operator=(const vtkBalloonRepresentation&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

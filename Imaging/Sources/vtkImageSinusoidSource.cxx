@@ -23,6 +23,7 @@
 
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImageSinusoidSource);
 
 //------------------------------------------------------------------------------
@@ -209,3 +210,4 @@ void vtkImageSinusoidSource::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Direction: ( " << this->Direction[0] << ", " << this->Direction[1] << ", "
      << this->Direction[2] << " )\n";
 }
+VTK_ABI_NAMESPACE_END

@@ -16,6 +16,7 @@
 #include "vtkObjectFactory.h"
 #include "vtk_lzma.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkLZMADataCompressor);
 
 //------------------------------------------------------------------------------
@@ -149,3 +150,4 @@ size_t vtkLZMADataCompressor::GetMaximumCompressionSpace(size_t size)
 {
   return static_cast<size_t>(size + (size >> 2) + 128);
 }
+VTK_ABI_NAMESPACE_END

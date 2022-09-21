@@ -27,6 +27,7 @@
 #include "vtkCommonComputationalGeometryModule.h" // For export macro
 #include "vtkVector.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONCOMPUTATIONALGEOMETRY_EXPORT vtkBilinearQuadIntersection
 {
 public:
@@ -62,5 +63,6 @@ private:
   vtkVector3d Point11;
   int AxesSwapping = 0;
 };
+VTK_ABI_NAMESPACE_END
 #endif // vtkBilinearQuadIntersection_h
 // VTK-HeaderTest-Exclude: vtkBilinearQuadIntersection.h

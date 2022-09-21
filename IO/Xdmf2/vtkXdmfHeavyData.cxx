@@ -61,6 +61,7 @@ typedef XdmfInt32 vtkXdmfIdType;
 
 using namespace xdmf2;
 
+VTK_ABI_NAMESPACE_BEGIN
 static void vtkScaleExtents(int in_exts[6], int out_exts[6], int stride[3])
 {
   out_exts[0] = in_exts[0] / stride[0];
@@ -1736,3 +1737,4 @@ vtkDataSet* vtkXdmfHeavyData::ExtractEdges(XdmfSet* xmfSet, vtkDataSet* dataSet)
 
   return output;
 }
+VTK_ABI_NAMESPACE_END

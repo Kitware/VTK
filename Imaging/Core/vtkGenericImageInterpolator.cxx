@@ -30,6 +30,7 @@
 #undef VTK_USE_UINT64
 #define VTK_USE_UINT64 0
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkGenericImageInterpolator);
 
 //------------------------------------------------------------------------------
@@ -978,3 +979,4 @@ void vtkGenericImageInterpolator::Update()
   this->GetRowInterpolationFunc(&this->RowInterpolationFuncDouble);
   this->GetRowInterpolationFunc(&this->RowInterpolationFuncFloat);
 }
+VTK_ABI_NAMESPACE_END

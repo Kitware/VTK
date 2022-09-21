@@ -17,6 +17,7 @@
 #include <cassert>
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkBase64Utilities);
 
 //------------------------------------------------------------------------------
@@ -243,3 +244,4 @@ size_t vtkBase64Utilities::DecodeSafely(
 
   return outIdx;
 }
+VTK_ABI_NAMESPACE_END

@@ -57,6 +57,7 @@
 #include "vtk3DWidget.h"
 #include "vtkInteractionWidgetsModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkAbstractPropPicker;
 class vtkActor;
 class vtkCellArray;
@@ -387,4 +388,5 @@ private:
   void operator=(const vtkImageTracerWidget&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

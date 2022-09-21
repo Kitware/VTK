@@ -33,6 +33,7 @@
 #include "vtkTreeAreaView.h"
 #include "vtkViewsInfovisModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkBoxLayoutStrategy;
 class vtkSliceAndDiceLayoutStrategy;
 class vtkSquarifyLayoutStrategy;
@@ -76,4 +77,5 @@ private:
   void operator=(const vtkTreeMapView&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

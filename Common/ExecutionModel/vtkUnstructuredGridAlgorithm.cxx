@@ -20,6 +20,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUnstructuredGrid.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkUnstructuredGridAlgorithm);
 
 //------------------------------------------------------------------------------
@@ -168,3 +169,4 @@ void vtkUnstructuredGridAlgorithm::AddInputData(int index, vtkDataObject* input)
 {
   this->AddInputDataInternal(index, input);
 }
+VTK_ABI_NAMESPACE_END

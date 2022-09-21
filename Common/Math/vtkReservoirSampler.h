@@ -39,6 +39,8 @@
 #include <random>
 #include <stdexcept>
 
+VTK_ABI_NAMESPACE_BEGIN
+
 class VTKCOMMONMATH_EXPORT vtkReservoirSamplerBase
 {
 protected:
@@ -146,5 +148,6 @@ protected:
   }
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkReservoirSampler_h
 // VTK-HeaderTest-Exclude: vtkReservoirSampler.h

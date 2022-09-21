@@ -63,6 +63,7 @@
 #include "vtkImageProcessingPass.h"
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDepthPeelingPassLayerList; // Pimpl
 class vtkOpenGLFramebufferObject;
 class vtkOpenGLHelper;
@@ -117,4 +118,5 @@ private:
   void operator=(const vtkSobelGradientMagnitudePass&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

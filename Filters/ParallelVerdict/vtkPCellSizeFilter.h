@@ -41,6 +41,7 @@
 #include "vtkCellSizeFilter.h"
 #include "vtkFiltersParallelVerdictModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSPARALLELVERDICT_EXPORT vtkPCellSizeFilter : public vtkCellSizeFilter
 {
 public:
@@ -64,4 +65,5 @@ private:
   void operator=(const vtkPCellSizeFilter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

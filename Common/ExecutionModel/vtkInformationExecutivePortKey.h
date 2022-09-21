@@ -29,6 +29,7 @@
 
 #include "vtkFilteringInformationKeyManager.h" // Manage instances of this type.
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkExecutive;
 
 class VTKCOMMONEXECUTIONMODEL_EXPORT vtkInformationExecutivePortKey : public vtkInformationKey
@@ -84,4 +85,5 @@ private:
   void operator=(const vtkInformationExecutivePortKey&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

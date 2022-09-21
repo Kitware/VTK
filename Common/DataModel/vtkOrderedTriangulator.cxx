@@ -34,6 +34,7 @@
 #include <stack>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOrderedTriangulator);
 
 #ifdef _WIN32_WCE
@@ -49,12 +50,14 @@ inline void __cdecl operator delete(void*, void*)
 }
 #endif
 #else
+VTK_ABI_NAMESPACE_END
 #include <new>
 #endif
 
 // Classes are used to represent points, faces, and tetras-------------------
 // This data structure consists of points and tetras, with the face used
 // temporarily as a place holder during triangulation.
+VTK_ABI_NAMESPACE_BEGIN
 struct OTPoint;
 struct OTFace;
 struct OTTetra;
@@ -1669,3 +1672,4 @@ void vtkOrderedTriangulator::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "UseTemplates: " << (this->UseTemplates ? "On\n" : "Off\n");
   os << indent << "NumberOfPoints: " << this->NumberOfPoints << endl;
 }
+VTK_ABI_NAMESPACE_END

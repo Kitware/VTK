@@ -18,6 +18,7 @@
 #include "vtkIdList.h"
 #include "vtkObjectFactory.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
 constexpr unsigned char InitializationMaskForUnusedBitsOfLastByte[8] = { 0x80, 0xc0, 0xe0, 0xf0,
@@ -836,3 +837,4 @@ void vtkBitArray::ClearLookup()
   delete this->Lookup;
   this->Lookup = nullptr;
 }
+VTK_ABI_NAMESPACE_END

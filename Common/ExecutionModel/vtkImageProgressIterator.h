@@ -28,6 +28,7 @@
 
 #include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkImageIterator.h"
+VTK_ABI_NAMESPACE_BEGIN
 class vtkAlgorithm;
 
 template <class DType>
@@ -68,5 +69,6 @@ vtkExternTemplateMacro(
   extern template class VTKCOMMONEXECUTIONMODEL_EXPORT vtkImageProgressIterator);
 #endif
 
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkImageProgressIterator.h

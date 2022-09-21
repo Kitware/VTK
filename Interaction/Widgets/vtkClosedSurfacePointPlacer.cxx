@@ -26,6 +26,7 @@
 #include <algorithm>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkClosedSurfacePointPlacer);
 vtkCxxSetObjectMacro(vtkClosedSurfacePointPlacer, BoundingPlanes, vtkPlaneCollection);
 
@@ -358,3 +359,4 @@ void vtkClosedSurfacePointPlacer::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Minimum Distance: " << this->MinimumDistance << "\n";
 }
+VTK_ABI_NAMESPACE_END

@@ -69,6 +69,7 @@
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkObject.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkIdList;
 class vtkAbstractArray;
 
@@ -198,4 +199,5 @@ private:
   void operator=(const vtkSortDataArray&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkSortDataArray_h

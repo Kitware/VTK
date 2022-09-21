@@ -35,6 +35,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkTree.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkForceDirectedLayoutStrategy);
 
 vtkForceDirectedLayoutStrategy::vtkForceDirectedLayoutStrategy()
@@ -333,3 +334,4 @@ void vtkForceDirectedLayoutStrategy::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "RandomInitialPoints: " << (this->RandomInitialPoints ? "On\n" : "Off\n");
   os << indent << "Three Dimensional Layout: " << (this->ThreeDimensionalLayout ? "On\n" : "Off\n");
 }
+VTK_ABI_NAMESPACE_END

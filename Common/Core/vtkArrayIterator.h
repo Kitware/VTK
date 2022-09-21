@@ -45,6 +45,7 @@
 
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkObject.h"
+VTK_ABI_NAMESPACE_BEGIN
 class vtkAbstractArray;
 class VTKCOMMONCORE_EXPORT vtkArrayIterator : public vtkObject
 {
@@ -76,4 +77,5 @@ private:
   void operator=(const vtkArrayIterator&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -33,6 +33,7 @@
 #include "vtkCell.h"
 #include "vtkCommonDataModelModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONDATAMODEL_EXPORT vtkGenericCell : public vtkCell
 {
 public:
@@ -185,4 +186,5 @@ private:
   void operator=(const vtkGenericCell&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

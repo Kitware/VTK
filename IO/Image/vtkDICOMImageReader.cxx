@@ -30,6 +30,7 @@
 #include "DICOMAppHelper.h"
 #include "DICOMParser.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkDICOMImageReader);
 
 class vtkDICOMImageReaderVector : public std::vector<std::string>
@@ -574,3 +575,4 @@ const char* vtkDICOMImageReader::GetDICOMFileName(int index)
   }
   return nullptr;
 }
+VTK_ABI_NAMESPACE_END

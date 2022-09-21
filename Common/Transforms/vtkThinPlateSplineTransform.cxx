@@ -18,6 +18,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPoints.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkThinPlateSplineTransform);
 
 //------------------------------------------------------------------------------
@@ -805,3 +806,4 @@ const char* vtkThinPlateSplineTransform::GetBasisAsString()
   }
   return "Unknown";
 }
+VTK_ABI_NAMESPACE_END

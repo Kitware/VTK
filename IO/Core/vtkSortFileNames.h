@@ -34,6 +34,7 @@
 #include "vtkIOCoreModule.h" // For export macro
 #include "vtkObject.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkStringArray;
 
 // this is a helper class defined in the .cxx file
@@ -165,4 +166,5 @@ private:
   void operator=(const vtkSortFileNames&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

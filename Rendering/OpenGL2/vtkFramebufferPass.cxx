@@ -32,6 +32,7 @@
 
 #include "vtkOpenGLHelper.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkFramebufferPass);
 
 //------------------------------------------------------------------------------
@@ -188,3 +189,4 @@ void vtkFramebufferPass::ReleaseGraphicsResources(vtkWindow* w)
     this->DepthTexture->ReleaseGraphicsResources(w);
   }
 }
+VTK_ABI_NAMESPACE_END

@@ -43,6 +43,7 @@
 #include "vtkVoxel.h"
 #include "vtkWedge.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkMarkBoundaryFilter);
 
 //------------------------------------------------------------------------------
@@ -1038,3 +1039,4 @@ int vtkMarkBoundaryFilter::RequestData(vtkInformation* vtkNotUsed(request),
   // Use the general case for 1D/2D images, or for other dataset types
   return DataSetExecute(input, cellGhosts, bPtsPtr, bCellsPtr, bFacesPtr);
 }
+VTK_ABI_NAMESPACE_END

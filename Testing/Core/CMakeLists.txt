@@ -35,3 +35,4 @@ foreach (module IN LISTS built_modules)
   file(APPEND "${system_info_file}"
     "${module_text}\n")
 endforeach ()
+vtk_add_test_mangling(VTK::TestingCore)

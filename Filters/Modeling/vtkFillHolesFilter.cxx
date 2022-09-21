@@ -27,6 +27,7 @@
 #include "vtkSphere.h"
 #include "vtkTriangleStrip.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkFillHolesFilter);
 
 //------------------------------------------------------------------------------
@@ -262,3 +263,4 @@ void vtkFillHolesFilter::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Hole Size: " << this->HoleSize << "\n";
 }
+VTK_ABI_NAMESPACE_END

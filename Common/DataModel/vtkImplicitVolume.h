@@ -43,6 +43,7 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkImplicitFunction.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkIdList;
 class vtkImageData;
 
@@ -118,4 +119,5 @@ private:
   void operator=(const vtkImplicitVolume&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -45,6 +45,7 @@
 
 #include <map> // For std::map
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCompositeDataSet;
 class vtkDataSet;
 class vtkFindCellStrategy;
@@ -123,4 +124,5 @@ private:
   std::map<vtkDataSet*, vtkSmartPointer<vtkFindCellStrategy>> StrategyMap;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

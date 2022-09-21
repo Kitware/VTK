@@ -30,6 +30,7 @@
 #include "vtkRenderingContextOpenGL2Module.h" // For export macro
 #include <vector>                             // STL Header
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkBrush;
 class vtkOpenGLContextDevice2D;
 class vtkOpenGLHelper;
@@ -203,4 +204,5 @@ private:
   vtkNew<vtkPen> Pen;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

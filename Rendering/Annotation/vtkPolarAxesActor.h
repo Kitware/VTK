@@ -45,6 +45,7 @@ All rights reserve
 #include <list>                           // To process exponent list as reference
 #include <string>                         // used for ivar
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCamera;
 class vtkPolyData;
 class vtkPolyDataMapper;
@@ -1165,4 +1166,5 @@ private:
   void operator=(const vtkPolarAxesActor&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

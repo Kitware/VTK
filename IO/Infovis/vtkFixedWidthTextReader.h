@@ -47,6 +47,7 @@
 #include "vtkIOInfovisModule.h" // For export macro
 #include "vtkTableAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCommand;
 class vtkTable;
 
@@ -115,4 +116,5 @@ private:
   vtkCommand* TableErrorObserver;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

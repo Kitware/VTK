@@ -19,6 +19,7 @@
 #include "vtkTDxInteractorStyleSettings.h"
 #include "vtkTDxMotionEventInfo.h" // Borland needs it.
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkCxxSetObjectMacro(vtkTDxInteractorStyle, Settings, vtkTDxInteractorStyleSettings);
 
 //------------------------------------------------------------------------------
@@ -100,3 +101,4 @@ void vtkTDxInteractorStyle::PrintSelf(ostream& os, vtkIndent indent)
     this->Settings->PrintSelf(os, indent.GetNextIndent());
   }
 }
+VTK_ABI_NAMESPACE_END

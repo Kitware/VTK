@@ -27,6 +27,7 @@
 
 #include <sstream>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPBRIrradianceTexture);
 
 vtkCxxSetObjectMacro(vtkPBRIrradianceTexture, InputTexture, vtkOpenGLTexture);
@@ -249,3 +250,4 @@ void vtkPBRIrradianceTexture::Load(vtkRenderer* ren)
 
   this->TextureObject->Activate();
 }
+VTK_ABI_NAMESPACE_END

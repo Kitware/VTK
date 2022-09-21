@@ -29,6 +29,7 @@
 #include "vtkFiltersSourcesModule.h" // For export macro
 #include "vtkHandleSource.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkConeSource;
 class vtkSphereSource;
 
@@ -81,4 +82,5 @@ protected:
   vtkNew<vtkConeSource> PositionCone;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

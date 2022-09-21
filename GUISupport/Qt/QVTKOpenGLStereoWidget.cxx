@@ -28,6 +28,7 @@
 #include <QtDebug>
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 QVTKOpenGLStereoWidget::QVTKOpenGLStereoWidget(QWidget* parent, Qt::WindowFlags f)
   : QVTKOpenGLStereoWidget(vtkSmartPointer<vtkGenericOpenGLRenderWindow>::New(), nullptr, parent, f)
 {
@@ -115,3 +116,4 @@ void QVTKOpenGLStereoWidget::paintEvent(QPaintEvent* evt)
   // internal widget overcomes that issue.
   this->VTKOpenGLWindow->update();
 }
+VTK_ABI_NAMESPACE_END

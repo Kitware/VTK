@@ -33,6 +33,7 @@
 #include "vtkEdgeLayoutStrategy.h"
 #include "vtkInfovisLayoutModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKINFOVISLAYOUT_EXPORT vtkGeoEdgeStrategy : public vtkEdgeLayoutStrategy
 {
 public:
@@ -89,4 +90,5 @@ private:
   void operator=(const vtkGeoEdgeStrategy&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

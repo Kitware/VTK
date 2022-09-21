@@ -28,10 +28,13 @@ namespace conduit_cpp
 class Node;
 }
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataObject;
+VTK_ABI_NAMESPACE_END
 
 namespace vtkDataObjectToConduit
 {
+VTK_ABI_NAMESPACE_BEGIN
 /**
  * Fill the given conduit node with the data from the data object.
  * The final structure is a valid blueprint mesh.
@@ -40,7 +43,8 @@ namespace vtkDataObjectToConduit
  */
 VTKIOCATALYSTCONDUIT_EXPORT bool FillConduitNode(
   vtkDataObject* data_object, conduit_cpp::Node& conduit_node);
-};
+VTK_ABI_NAMESPACE_END
+}
 
 #endif
 // VTK-HeaderTest-Exclude: vtkDataObjectToConduit.h

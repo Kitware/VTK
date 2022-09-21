@@ -45,6 +45,7 @@
 #include "vtkFiltersPointsModule.h" // For export macro
 #include "vtkImageAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSPOINTS_EXPORT vtkPointOccupancyFilter : public vtkImageAlgorithm
 {
 public:
@@ -112,4 +113,5 @@ private:
   void operator=(const vtkPointOccupancyFilter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

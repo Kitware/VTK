@@ -47,6 +47,7 @@
 #include "vtkNew.h"              // For vtkNew
 #include "vtkRect.h"             // For vtkRect/vtkVector/vtkTuple
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkContextClip;
 class vtkContextTransform;
 class vtkPlotGrid;
@@ -299,4 +300,5 @@ private:
   void operator=(const vtkContextArea&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkContextArea_h

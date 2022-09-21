@@ -36,6 +36,7 @@
 #include "vtkMapper2D.h"
 #include "vtkRenderingCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCoordinate;
 class vtkPolyData;
 class vtkScalarsToColors;
@@ -244,4 +245,5 @@ private:
   void operator=(const vtkPolyDataMapper2D&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

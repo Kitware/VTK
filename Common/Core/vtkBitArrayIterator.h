@@ -25,6 +25,7 @@
 #include "vtkArrayIterator.h"
 #include "vtkCommonCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkBitArray;
 class VTKCOMMONCORE_EXPORT vtkBitArrayIterator : public vtkArrayIterator
 {
@@ -107,4 +108,5 @@ private:
   void operator=(const vtkBitArrayIterator&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -34,12 +34,15 @@
 
 namespace internal
 {
+VTK_ABI_NAMESPACE_BEGIN
 
 template <typename T>
 class ArrayHandleWrapperBase;
 
+VTK_ABI_NAMESPACE_END
 } // internal
 
+VTK_ABI_NAMESPACE_BEGIN
 template <typename T>
 class vtkmDataArray : public vtkGenericDataArray<vtkmDataArray<T>, T>
 {
@@ -116,6 +119,7 @@ extern template class VTKACCELERATORSVTKMCORE_TEMPLATE_EXPORT vtkmDataArray<unsi
 extern template class VTKACCELERATORSVTKMCORE_TEMPLATE_EXPORT vtkmDataArray<unsigned short>;
 #endif // vtkmDataArray_cxx
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkmDataArray_h
 
 #include "vtkmlib/vtkmDataArray.hxx"

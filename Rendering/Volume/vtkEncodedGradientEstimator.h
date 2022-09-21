@@ -38,6 +38,7 @@
 #include "vtkRenderingVolumeModule.h" // For export macro
 #include "vtkThreads.h"               // for VTK_MAX_THREADS
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkImageData;
 class vtkDirectionEncoder;
 class vtkMultiThreader;
@@ -254,4 +255,5 @@ private:
   void operator=(const vtkEncodedGradientEstimator&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -36,6 +36,7 @@
 #include <stack>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOctreePointLocator);
 
 // helper class for ordering the points in
@@ -1300,3 +1301,4 @@ void vtkOctreePointLocator::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "MaxWidth: " << this->MaxWidth << endl;
   os << indent << "CreateCubicOctants: " << this->CreateCubicOctants << endl;
 }
+VTK_ABI_NAMESPACE_END

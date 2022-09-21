@@ -29,6 +29,7 @@
 #include <cmath>
 #include <map>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkLassoStencilSource);
 vtkCxxSetObjectMacro(vtkLassoStencilSource, Points, vtkPoints);
 
@@ -566,3 +567,4 @@ int vtkLassoStencilSource::RequestData(
 
   return result;
 }
+VTK_ABI_NAMESPACE_END

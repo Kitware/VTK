@@ -32,6 +32,7 @@
 #include <cfloat>
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkExtractSurface);
 
 //------------------------------------------------------------------------------
@@ -1424,3 +1425,4 @@ void vtkExtractSurface::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Compute Normals: " << (this->ComputeNormals ? "On\n" : "Off\n");
   os << indent << "Compute Gradients: " << (this->ComputeGradients ? "On\n" : "Off\n");
 }
+VTK_ABI_NAMESPACE_END

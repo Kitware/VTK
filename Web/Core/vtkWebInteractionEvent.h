@@ -24,6 +24,7 @@
 #include "vtkObject.h"
 #include "vtkWebCoreModule.h" // needed for exports
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKWEBCORE_EXPORT vtkWebInteractionEvent : public vtkObject
 {
 public:
@@ -103,4 +104,5 @@ private:
   void operator=(const vtkWebInteractionEvent&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

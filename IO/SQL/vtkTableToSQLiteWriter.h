@@ -26,6 +26,7 @@
 #include "vtkIOSQLModule.h" // For export macro
 #include "vtkTableToDatabaseWriter.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkSQLiteDatabase;
 
 class VTKIOSQL_EXPORT vtkTableToSQLiteWriter : public vtkTableToDatabaseWriter
@@ -55,4 +56,5 @@ private:
   void operator=(const vtkTableToSQLiteWriter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

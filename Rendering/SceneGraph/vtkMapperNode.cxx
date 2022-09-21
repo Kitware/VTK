@@ -30,6 +30,7 @@
 #include "vtkProperty.h"
 
 //============================================================================
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkMapperNode);
 
 //------------------------------------------------------------------------------
@@ -134,3 +135,4 @@ vtkAbstractArray* vtkMapperNode::GetArrayToProcess(vtkDataSet* input, int& cellF
 
   return nullptr;
 }
+VTK_ABI_NAMESPACE_END

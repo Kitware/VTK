@@ -21,6 +21,7 @@
 #include "vtkStringArray.h"
 #include "vtkUnsignedCharArray.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkSILBuilder);
 vtkCxxSetObjectMacro(vtkSILBuilder, SIL, vtkMutableDirectedGraph);
 //------------------------------------------------------------------------------
@@ -83,3 +84,4 @@ void vtkSILBuilder::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

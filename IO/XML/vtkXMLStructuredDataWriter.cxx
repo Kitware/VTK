@@ -32,6 +32,7 @@
 #undef vtkXMLOffsetsManager_DoNotInclude
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkXMLStructuredDataWriter::vtkXMLStructuredDataWriter()
 {
   this->WritePiece = -1;
@@ -632,3 +633,4 @@ void vtkXMLStructuredDataWriter::CalculatePieceFractions(float* fractions)
     fractions[i + 1] = fractions[i + 1] / fractions[this->NumberOfPieces];
   }
 }
+VTK_ABI_NAMESPACE_END

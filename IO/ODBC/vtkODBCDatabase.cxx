@@ -48,6 +48,7 @@
 #include <sqlext.h>
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkODBCDatabase);
 
 //------------------------------------------------------------------------------
@@ -890,3 +891,4 @@ bool vtkODBCDatabase::DropDatabase(const char* dbName)
   query->Delete();
   return status;
 }
+VTK_ABI_NAMESPACE_END

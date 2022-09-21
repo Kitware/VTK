@@ -37,6 +37,7 @@ using std::vector;
 #include <Winsock2.h>
 #include <ctime>
 #include <process.h>
+VTK_ABI_NAMESPACE_BEGIN
 static int gettimeofday(struct timeval* tv, void*)
 {
   FILETIME ft;
@@ -56,6 +57,7 @@ static int gettimeofday(struct timeval* tv, void*)
 
   return 0;
 }
+VTK_ABI_NAMESPACE_END
 #endif
 
 using std::ios_base;
@@ -63,6 +65,7 @@ using std::ios_base;
 /*
 For singleton pattern
 **/
+VTK_ABI_NAMESPACE_BEGIN
 vtkParallelTimer* vtkParallelTimer::GlobalInstance = nullptr;
 vtkParallelTimer::vtkParallelTimerDestructor vtkParallelTimer::GlobalInstanceDestructor;
 
@@ -648,3 +651,4 @@ void vtkParallelTimer::PrintSelf(ostream& os, vtkIndent)
   *this->Log >> oss;
   os << oss.str();
 }
+VTK_ABI_NAMESPACE_END

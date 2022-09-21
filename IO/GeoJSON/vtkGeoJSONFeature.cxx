@@ -34,6 +34,7 @@
 #include <sstream>
 #include <string>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkGeoJSONFeature);
 
 namespace
@@ -625,3 +626,4 @@ void vtkGeoJSONFeature::PrintSelf(ostream& os, vtkIndent indent)
 
   writer->write(this->featureRoot, &os);
 }
+VTK_ABI_NAMESPACE_END

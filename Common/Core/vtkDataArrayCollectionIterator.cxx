@@ -17,6 +17,7 @@
 #include "vtkDataArrayCollection.h"
 #include "vtkObjectFactory.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkDataArrayCollectionIterator);
 
 //------------------------------------------------------------------------------
@@ -59,3 +60,4 @@ vtkDataArray* vtkDataArrayCollectionIterator::GetDataArray()
 {
   return static_cast<vtkDataArray*>(this->GetCurrentObject());
 }
+VTK_ABI_NAMESPACE_END

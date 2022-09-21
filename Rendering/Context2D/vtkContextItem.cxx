@@ -16,6 +16,7 @@
 #include "vtkContextItem.h"
 #include "vtkContextTransform.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkCxxSetObjectMacro(vtkContextItem, Transform, vtkContextTransform);
 
 //------------------------------------------------------------------------------
@@ -30,3 +31,4 @@ void vtkContextItem::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
   os << indent << "Opacity: " << this->Opacity << endl;
 }
+VTK_ABI_NAMESPACE_END
