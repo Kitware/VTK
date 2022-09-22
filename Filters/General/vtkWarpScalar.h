@@ -43,6 +43,7 @@
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkDataArray;
+class vtkDataSet;
 
 class VTKFILTERSGENERAL_EXPORT vtkWarpScalar : public vtkPointSetAlgorithm
 {
@@ -105,6 +106,17 @@ public:
   vtkGetMacro(OutputPointsPrecision, int);
   ///@}
 
+  ///@{
+  /**
+   * Set/Get for a property flag that makes the filter include the input data set in the output and
+   * connects the output surface to the input surface through "side walls" effectively making a
+   * single grid
+   */
+  vtkGetMacro(SideWallsActive, bool);
+  vtkSetMacro(SideWallsActive, bool);
+  vtkBooleanMacro(SideWallsActive, bool);
+  ///@}
+
   int FillInputPortInformation(int port, vtkInformation* info) override;
 
 protected:
@@ -115,11 +127,17 @@ protected:
     vtkInformationVector* outputVector) override;
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
+  /**
+   * Check the topological dimension of the data set (only used when SideWallsActive)
+   */
+  unsigned int GetInputDimension(vtkDataSet* input);
+
   double ScaleFactor;
   vtkTypeBool UseNormal;
   double Normal[3];
   vtkTypeBool XYPlane;
   int OutputPointsPrecision;
+  bool SideWallsActive = false;
 
 private:
   vtkWarpScalar(const vtkWarpScalar&) = delete;

@@ -52,6 +52,7 @@ vtk_add_test_cxx(vtkFiltersGeneralCxxTests tests
   TestTransformFilter.cxx,NO_VALID
   TestTransformPolyDataFilter.cxx,NO_VALID
   TestUncertaintyTubeFilter.cxx
+  TestWarpScalarSideWalls.cxx
   UnitTestMultiThreshold.cxx,NO_VALID
   expCos.cxx
   )
