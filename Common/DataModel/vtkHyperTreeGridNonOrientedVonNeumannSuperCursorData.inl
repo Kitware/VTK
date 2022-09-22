@@ -1,4 +1,3 @@
-// VTK-HeaderTest-Exclude: vtkHyperTreeGridNonOrientedVonNeumannSuperCursorData.h
 // clang-format off
 
 /*
@@ -7,7 +6,7 @@
  * *  avoid copy-paste.
  * *  improve readability
  * clang-format is disabled because of:
- * * bad restul
+ * * bad restults
  * * poor performances
  */
 
