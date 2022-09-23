@@ -1179,7 +1179,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderLight(
                       // if you change the next line also change vtkShadowMapPass
                       "  diffuse += (df * lightColor"
                    << i << ");\n"
-                   << "  sf = sign(df)*pow(max(0.0, dot( reflect(lightDirectionVC" << i
+                   << "  sf = sign(df)*pow(max(1e-5, dot( reflect(lightDirectionVC" << i
                    << ", normalVCVSOutput), normalize(-vertexVC.xyz))), specularPower);\n"
                       // if you change the next line also change vtkShadowMapPass
                       "  specular += (sf * lightColor"
@@ -1343,7 +1343,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderLight(
                "    diffuse += (df * lightColor"
             << i
             << ");\n"
-               "    sf = sign(df)*attenuation*pow( max(0.0, dot( reflect(vertLightDirectionVC, "
+               "    sf = sign(df)*attenuation*pow( max(1e-5, dot( reflect(vertLightDirectionVC, "
                "normalVCVSOutput), normalize(-vertexVC.xyz))), specularPower);\n"
                // if you change the next line also change vtkShadowMapPass
                "      specular += (sf * lightColor"
