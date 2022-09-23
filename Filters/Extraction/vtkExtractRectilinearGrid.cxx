@@ -207,7 +207,9 @@ bool vtkExtractRectilinearGrid::RequestDataImpl(
 
   vtkDataArray* out_coords[3];
 
-  for (int dim = 0; dim < 3; ++dim)
+  bool abort = false;
+
+  for (int dim = 0; dim < 3 && !abort; ++dim)
   {
     // Allocate coordinates array for this dimension
     out_coords[dim] = vtkDataArray::CreateDataArray(in_coords[dim]->GetDataType());
@@ -215,6 +217,11 @@ bool vtkExtractRectilinearGrid::RequestDataImpl(
 
     for (int oExtVal = outExt[2 * dim]; oExtVal <= outExt[2 * dim + 1]; ++oExtVal)
     {
+      if (this->CheckAbort())
+      {
+        abort = true;
+        break;
+      }
       int outExtIdx = oExtVal - outExt[2 * dim];
       int inExtIdx = this->Internal->GetMappedIndex(dim, outExtIdx);
       out_coords[dim]->SetTuple(outExtIdx, inExtIdx, in_coords[dim]);

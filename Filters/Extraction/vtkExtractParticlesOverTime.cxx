@@ -313,6 +313,10 @@ int vtkExtractParticlesOverTime::RequestData(
 
     for (vtkIdType index = 0; index < numberOfPoints; ++index)
     {
+      if (this->CheckAbort())
+      {
+        break;
+      }
       vtkIdType pointId = index;
       if (ids)
       {

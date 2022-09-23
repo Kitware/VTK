@@ -342,7 +342,7 @@ int vtkExtractSelectedLocations::ExtractCells(
 
   idList->Delete();
 
-  if (!passThrough)
+  if (!this->CheckAbort() && !passThrough)
   {
     vtkIdType* pointMap = new vtkIdType[numPts]; // maps old point ids into new
     vtkExtractSelectedLocationsCopyPoints(input, output, pointInArray->GetPointer(0), pointMap);
@@ -526,7 +526,7 @@ int vtkExtractSelectedLocations::ExtractPoints(
     locator->Delete();
   }
 
-  if (!passThrough)
+  if (!this->CheckAbort() && !passThrough)
   {
     vtkIdType* pointMap = new vtkIdType[numPts]; // maps old point ids into new
     vtkExtractSelectedLocationsCopyPoints(input, output, pointInArray->GetPointer(0), pointMap);

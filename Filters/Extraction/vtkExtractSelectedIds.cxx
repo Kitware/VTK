@@ -752,7 +752,7 @@ int vtkExtractSelectedIds::ExtractCells(
   idxArray->Delete();
   labelArray->Delete();
 
-  if (!passThrough)
+  if (!this->CheckAbort() && !passThrough)
   {
     vtkIdType* pointMap = new vtkIdType[numPts]; // maps old point ids into new
     vtkExtractSelectedIdsCopyPoints(input, output, pointInArray->GetPointer(0), pointMap);
