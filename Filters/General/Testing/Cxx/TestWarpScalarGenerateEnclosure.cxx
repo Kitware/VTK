@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    TestWarpScalarSideWalls.cxx
+  Module:    TestWarpScalarGenerateEnclosure.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -17,6 +17,7 @@
 #include "vtkDataSet.h"
 #include "vtkExplicitStructuredGrid.h"
 #include "vtkFloatArray.h"
+#include "vtkLookupTable.h"
 #include "vtkMath.h"
 #include "vtkPlaneSource.h"
 #include "vtkPointData.h"
@@ -61,7 +62,7 @@ void AddScalarAttributeToOutput(vtkAlgorithm* algo)
 }
 }
 
-int TestWarpScalarSideWalls(int argc, char* argv[])
+int TestWarpScalarGenerateEnclosure(int argc, char* argv[])
 {
   //----------------------------------------------------------------------
   // PolyData
@@ -71,7 +72,7 @@ int TestWarpScalarSideWalls(int argc, char* argv[])
   ::AddScalarAttributeToOutput(planeSrc);
   vtkNew<vtkWarpScalar> warper;
   warper->SetInputConnection(planeSrc->GetOutputPort());
-  warper->SideWallsActiveOn();
+  warper->GenerateEnclosureOn();
   warper->SetScaleFactor(0.5);
   warper->Update();
   vtkPolyData* output = vtkPolyData::SafeDownCast(warper->GetOutputDataObject(0));
@@ -80,9 +81,14 @@ int TestWarpScalarSideWalls(int argc, char* argv[])
     std::cout << "Did not output a poly data for plane transformation" << std::endl;
     return EXIT_FAILURE;
   }
+  vtkNew<vtkLookupTable> surfaceLUT;
+  surfaceLUT->SetRange(output->GetPointData()->GetScalars()->GetRange());
+  surfaceLUT->Build();
   vtkNew<vtkPolyDataMapper> mapper;
   mapper->SetInputConnection(warper->GetOutputPort());
-  mapper->ScalarVisibilityOff();
+  mapper->ScalarVisibilityOn();
+  mapper->SetScalarRange(output->GetPointData()->GetScalars()->GetRange());
+  mapper->SetLookupTable(surfaceLUT);
   vtkNew<vtkActor> actor;
   actor->SetMapper(mapper);
   actor->GetProperty()->SetOpacity(1.0);
@@ -96,5 +102,7 @@ int TestWarpScalarSideWalls(int argc, char* argv[])
   camera->SetPosition(9, 9, 9);
   renderer->ResetCamera();
 
-  return !vtkRegressionTester::Test(argc, argv, renWin, 10);
+  return (vtkRegressionTester::Test(argc, argv, renWin, 10) == vtkRegressionTester::PASSED)
+    ? EXIT_SUCCESS
+    : EXIT_FAILURE;
 }

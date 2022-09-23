@@ -40,6 +40,7 @@
 #include "vtkSMPTools.h"
 #include "vtkSmartPointer.h"
 
+#include <algorithm>
 #include <bitset>
 #include <numeric>
 
@@ -82,7 +83,7 @@ int vtkWarpScalar::RequestDataObject(
   vtkImageData* inImage = vtkImageData::GetData(inputVector[0]);
   vtkRectilinearGrid* inRect = vtkRectilinearGrid::GetData(inputVector[0]);
 
-  if (SideWallsActive)
+  if (this->GenerateEnclosure)
   {
     vtkStructuredGrid* inStruct = vtkStructuredGrid::GetData(inputVector[0]);
     if (inImage || inRect || inStruct)
@@ -251,13 +252,13 @@ int vtkWarpScalar::RequestData(vtkInformation* vtkNotUsed(request),
   vtkSmartPointer<vtkUnsignedCharArray> boundaryPoints;
   vtkSmartPointer<vtkUnsignedCharArray> boundaryCells;
   vtkSmartPointer<vtkIdTypeArray> boundaryFaceIndexes;
-  if (SideWallsActive)
+  if (this->GenerateEnclosure)
   {
     unsigned int dim = this->GetInputDimension(input);
     if (dim > 2)
     {
       vtkWarningMacro(
-        "Cannot use SideWalls option with data set with more than 2 spatial dimensions");
+        "Cannot use GenerateEnclosure option with data set with more than 2 spatial dimensions");
     }
     else
     {
@@ -275,12 +276,11 @@ int vtkWarpScalar::RequestData(vtkInformation* vtkNotUsed(request),
       if (!boundaryPoints || !boundaryCells || !boundaryFaceIndexes)
       {
         vtkErrorMacro("Could not extract boundary arrays");
+        return 0;
       }
       auto range = vtk::DataArrayValueRange<1>(boundaryCells);
-      inputHasBoundary =
-        (std::distance(range.begin(), std::find_if(range.begin(), range.end(), [](unsigned char b) {
-          return b != 0;
-        })) != range.size());
+      inputHasBoundary = (std::find_if(range.begin(), range.end(),
+                            [](unsigned char b) { return b != 0; }) != range.end());
     }
   }
 
@@ -359,10 +359,8 @@ int vtkWarpScalar::RequestData(vtkInformation* vtkNotUsed(request),
   output->GetCellData()->CopyNormalsOff(); // distorted geometry
   output->GetCellData()->PassData(input->GetCellData());
 
-  if (SideWallsActive && inputHasBoundary)
+  if (this->GenerateEnclosure && inputHasBoundary)
   {
-    output->GetPoints()->InsertPoints(
-      output->GetNumberOfPoints(), input->GetNumberOfPoints(), 0, input->GetPoints());
     vtkPolyData* polyOutput = vtkPolyData::SafeDownCast(output);
     vtkUnstructuredGrid* ugOutput = vtkUnstructuredGrid::SafeDownCast(output);
     if (!polyOutput && !ugOutput)
@@ -371,15 +369,10 @@ int vtkWarpScalar::RequestData(vtkInformation* vtkNotUsed(request),
                     "vtkPolyData or vtkUnstructuredGrid");
       return 0;
     }
-    vtkWeakPointer<vtkCellArray> topology;
-    if (polyOutput)
-    {
-      topology = polyOutput->GetPolys();
-    }
-    if (ugOutput)
-    {
-      topology = ugOutput->GetCells();
-    }
+    output->GetPoints()->InsertPoints(
+      output->GetNumberOfPoints(), input->GetNumberOfPoints(), 0, input->GetPoints());
+    vtkWeakPointer<vtkCellArray> topology =
+      polyOutput ? polyOutput->GetPolys() : ugOutput->GetCells();
     // append the topology to itself with an offset reconstructing the original data set
     if (!topology)
     {
@@ -390,38 +383,11 @@ int vtkWarpScalar::RequestData(vtkInformation* vtkNotUsed(request),
       vtkNew<vtkCellArray> topCopy;
       topCopy->DeepCopy(topology);
       topology->Append(topCopy, input->GetNumberOfPoints());
+      this->AppendArrays(output->GetPointData());
+      this->AppendArrays(output->GetCellData());
     }
-    vtkNew<vtkIdList> newCell;
-    newCell->SetNumberOfIds(4);
-    vtkIdType iCell = 0;
-    auto bFlagRange = vtk::DataArrayValueRange<1>(boundaryCells);
-    auto bFaceRange = vtk::DataArrayValueRange<1>(boundaryFaceIndexes);
-    auto faceIter = bFaceRange.begin();
-    for (auto val : bFlagRange)
-    {
-      if (val)
-      {
-        std::bitset<64> faceMask = *faceIter;
-        vtkCell* bCell = output->GetCell(iCell);
-        int nEdges = (bCell->GetNumberOfEdges() < 64) ? bCell->GetNumberOfEdges() : 64;
-        for (int iEdge = 0; iEdge < nEdges; iEdge++)
-        {
-          if (faceMask[iEdge])
-          {
-            vtkCell* bEdge = bCell->GetEdge(iEdge);
-            vtkIdList* pts = bEdge->GetPointIds();
-            for (int iP = 0; iP < 2; iP++)
-            {
-              newCell->SetId(iP, pts->GetId(iP));
-              newCell->SetId(iP + 2, pts->GetId(1 - iP) + input->GetNumberOfPoints());
-            }
-            topology->InsertNextCell(newCell);
-          }
-        }
-      }
-      iCell++;
-      faceIter++;
-    }
+    this->BuildSideWalls(
+      output, topology, input->GetNumberOfPoints(), boundaryCells, boundaryFaceIndexes);
   }
   return 1;
 }
@@ -439,6 +405,7 @@ void vtkWarpScalar::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Output Points Precision: " << this->OutputPointsPrecision << "\n";
 }
 
+//------------------------------------------------------------------------------
 namespace
 {
 struct DimensionWorklet
@@ -484,6 +451,61 @@ unsigned int vtkWarpScalar::GetInputDimension(vtkDataSet* input)
   ::DimensionWorklet worker(input);
   vtkSMPTools::For(0, input->GetNumberOfCells(), worker);
   return static_cast<unsigned int>(worker.maxDim);
+}
+
+//------------------------------------------------------------------------------
+void vtkWarpScalar::BuildSideWalls(vtkPointSet* output, vtkCellArray* topology, int nInputPoints,
+  vtkUnsignedCharArray* boundaryCells, vtkIdTypeArray* boundaryFaceIndexes)
+{
+  vtkNew<vtkIdList> newCell;
+  newCell->SetNumberOfIds(4);
+  vtkIdType iCell = 0;
+  auto bFlagRange = vtk::DataArrayValueRange<1>(boundaryCells);
+  auto bFaceRange = vtk::DataArrayValueRange<1>(boundaryFaceIndexes);
+  auto faceIter = bFaceRange.begin();
+  for (auto val : bFlagRange)
+  {
+    if (val)
+    {
+      constexpr std::size_t nBitsvtkIdType = sizeof(vtkIdType) * CHAR_BIT;
+      std::bitset<nBitsvtkIdType> faceMask = *faceIter;
+      vtkCell* bCell = output->GetCell(iCell);
+      int nEdges = std::max(bCell->GetNumberOfEdges(), static_cast<int>(nBitsvtkIdType));
+      for (int iEdge = 0; iEdge < nEdges; iEdge++)
+      {
+        if (faceMask[iEdge])
+        {
+          vtkCell* bEdge = bCell->GetEdge(iEdge);
+          vtkIdList* pts = bEdge->GetPointIds();
+          for (int iP = 0; iP < 2; iP++)
+          {
+            newCell->SetId(iP, pts->GetId(iP));
+            newCell->SetId(iP + 2, pts->GetId(1 - iP) + nInputPoints);
+          }
+          topology->InsertNextCell(newCell);
+          for (int iArr = 0; iArr < output->GetCellData()->GetNumberOfArrays(); iArr++)
+          {
+            vtkAbstractArray* aa = output->GetCellData()->GetAbstractArray(iArr);
+            aa->InsertNextTuple(iCell, aa);
+          }
+        }
+      }
+    }
+    iCell++;
+    faceIter++;
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkWarpScalar::AppendArrays(vtkDataSetAttributes* setData)
+{
+  for (int iArr = 0; iArr < setData->GetNumberOfArrays(); iArr++)
+  {
+    vtkAbstractArray* aa = setData->GetArray(iArr);
+    vtkSmartPointer<vtkAbstractArray> newAa = vtk::TakeSmartPointer(aa->NewInstance());
+    newAa->DeepCopy(aa);
+    aa->InsertTuples(aa->GetNumberOfTuples(), newAa->GetNumberOfTuples(), 0, newAa);
+  }
 }
 
 VTK_ABI_NAMESPACE_END
