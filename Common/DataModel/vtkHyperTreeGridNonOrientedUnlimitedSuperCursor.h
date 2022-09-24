@@ -166,11 +166,13 @@ public:
   bool IsLeaf();
   bool IsLeaf(unsigned int icursor);
   bool IsRealLeaf();
+  bool IsRealLeaf(unsigned int icursor);
 
   /**
    * Is thecursor pointing to a real node in the tree
    */
   bool IsVirtualLeaf();
+  bool IsVirtualLeaf(unsigned int icursor);
 
   /**
    * Is the cursor at tree root?

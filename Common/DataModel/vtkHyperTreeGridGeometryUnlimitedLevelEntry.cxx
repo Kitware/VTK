@@ -112,7 +112,6 @@ bool vtkHyperTreeGridGeometryUnlimitedLevelEntry::IsMasked(const vtkHyperTreeGri
 //------------------------------------------------------------------------------
 bool vtkHyperTreeGridGeometryUnlimitedLevelEntry::IsLeaf(const vtkHyperTreeGrid* grid) const
 {
-  assert("pre: not_tree" && this->Tree);
   if (this->Level >= const_cast<vtkHyperTreeGrid*>(grid)->GetDepthLimiter())
   {
     return true;
@@ -121,9 +120,28 @@ bool vtkHyperTreeGridGeometryUnlimitedLevelEntry::IsLeaf(const vtkHyperTreeGrid*
 }
 
 //------------------------------------------------------------------------------
+bool vtkHyperTreeGridGeometryUnlimitedLevelEntry::IsRealLeaf(const vtkHyperTreeGrid* grid) const
+{
+  if (this->Level >= const_cast<vtkHyperTreeGrid*>(grid)->GetDepthLimiter())
+  {
+    return true;
+  }
+  return this->Index == this->LastRealIndex && this->Tree->IsLeaf(this->Index);
+}
+
+//------------------------------------------------------------------------------
+bool vtkHyperTreeGridGeometryUnlimitedLevelEntry::IsVirtualLeaf(const vtkHyperTreeGrid* grid) const
+{
+  if (this->Level >= const_cast<vtkHyperTreeGrid*>(grid)->GetDepthLimiter())
+  {
+    return true;
+  }
+  return this->LastRealIndex != this->Index;
+}
+
+//------------------------------------------------------------------------------
 bool vtkHyperTreeGridGeometryUnlimitedLevelEntry::IsTerminalNode(const vtkHyperTreeGrid* grid) const
 {
-  assert("pre: not_tree" && this->Tree);
   if (this->Level + 1 == const_cast<vtkHyperTreeGrid*>(grid)->GetDepthLimiter())
   {
     return true;

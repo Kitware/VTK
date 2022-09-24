@@ -289,9 +289,14 @@ bool vtkHyperTreeGridNonOrientedUnlimitedSuperCursor::IsLeaf()
 }
 
 //------------------------------------------------------------------------------
-bool vtkHyperTreeGridNonOrientedUnlimitedSuperCursor::IsLeaf(unsigned int vtkNotUsed(icursor))
+bool vtkHyperTreeGridNonOrientedUnlimitedSuperCursor::IsLeaf(unsigned int icursor)
 {
-  return this->CentralCursor->IsLeaf();
+  if (icursor == this->IndiceCentralCursor)
+  {
+    return this->IsLeaf();
+  }
+  auto& entry = this->Entries[this->GetIndiceEntry(icursor)];
+  return entry.IsLeaf(this->Grid);
 }
 
 //------------------------------------------------------------------------------
@@ -301,9 +306,31 @@ bool vtkHyperTreeGridNonOrientedUnlimitedSuperCursor::IsRealLeaf()
 }
 
 //------------------------------------------------------------------------------
+bool vtkHyperTreeGridNonOrientedUnlimitedSuperCursor::IsRealLeaf(unsigned int icursor)
+{
+  if (icursor == this->IndiceCentralCursor)
+  {
+    return this->IsRealLeaf();
+  }
+  auto& entry = this->Entries[this->GetIndiceEntry(icursor)];
+  return entry.IsRealLeaf(this->Grid);
+}
+
+//------------------------------------------------------------------------------
 bool vtkHyperTreeGridNonOrientedUnlimitedSuperCursor::IsVirtualLeaf()
 {
   return this->CentralCursor->IsVirtualLeaf();
+}
+
+//------------------------------------------------------------------------------
+bool vtkHyperTreeGridNonOrientedUnlimitedSuperCursor::IsVirtualLeaf(unsigned int icursor)
+{
+  if (icursor == this->IndiceCentralCursor)
+  {
+    return this->IsVirtualLeaf();
+  }
+  auto& entry = this->Entries[this->GetIndiceEntry(icursor)];
+  return entry.IsVirtualLeaf(this->Grid);
 }
 
 //------------------------------------------------------------------------------

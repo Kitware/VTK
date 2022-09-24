@@ -37,18 +37,39 @@ namespace
 {
 VTK_ABI_NAMESPACE_BEGIN
 
+//------------------------------------------------------------------------------
 // Utility
+template <class Cursor>
+bool IsLeaf(Cursor* cursor, vtkIdType sid = vtkHyperTreeGrid::InvalidIndex)
+{
+  if (sid == vtkHyperTreeGrid::InvalidIndex)
+    return cursor->IsLeaf();
+  return cursor->IsLeaf(sid);
+}
+bool IsLeaf(vtkHyperTreeGridNonOrientedUnlimitedMooreSuperCursor* cursor,
+  vtkIdType sid = vtkHyperTreeGrid::InvalidIndex)
+{
+  if (sid == vtkHyperTreeGrid::InvalidIndex)
+    return cursor->IsRealLeaf();
+  return cursor->IsRealLeaf(sid);
+}
 
 template <class Cursor>
-bool IsLeaf(Cursor* cursor)
+bool IsCoarse(Cursor* cursor, vtkIdType sid = vtkHyperTreeGrid::InvalidIndex)
 {
-  return cursor->IsLeaf();
+  if (sid == vtkHyperTreeGrid::InvalidIndex)
+    return !cursor->IsLeaf();
+  return !cursor->IsLeaf(sid);
 }
-bool IsLeaf(vtkHyperTreeGridNonOrientedUnlimitedMooreSuperCursor* cursor)
+bool IsCoarse(vtkHyperTreeGridNonOrientedUnlimitedMooreSuperCursor* cursor,
+  vtkIdType sid = vtkHyperTreeGrid::InvalidIndex)
 {
-  return cursor->IsRealLeaf();
+  if (sid == vtkHyperTreeGrid::InvalidIndex)
+    return !cursor->IsRealLeaf() && !cursor->IsVirtualLeaf();
+  return !cursor->IsRealLeaf(sid) && !cursor->IsVirtualLeaf(sid);
 }
 
+//------------------------------------------------------------------------------
 // inherit from tuple to give automatic comparison operator
 struct Neigh : public std::tuple<vtkIdType, vtkIdType>
 {
@@ -56,7 +77,6 @@ struct Neigh : public std::tuple<vtkIdType, vtkIdType>
   vtkIdType& target;
   vtkIdType nId; // ignored in the comparison
 
-  //----------------------------------------------------------------------------
   Neigh(vtkIdType s, vtkIdType t, vtkIdType n)
     : source(std::get<0>(*this))
     , target(std::get<1>(*this))
@@ -67,7 +87,7 @@ struct Neigh : public std::tuple<vtkIdType, vtkIdType>
   }
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // main computation
 struct GradientWorker
 {
@@ -99,11 +119,27 @@ struct GradientWorker
 
   //----------------------------------------------------------------------------
   template <class Cursor>
-  void ComputeGradientAt(Cursor* supercursor, vtkIdType cursorId)
+  void ComputeGradientAt(Cursor* supercursor, vtkIdType subCursorId)
   {
     vtkIdType id = supercursor->GetGlobalNodeIndex();
-    vtkIdType idN = supercursor->GetGlobalNodeIndex(cursorId);
+    vtkIdType idN = supercursor->GetGlobalNodeIndex(subCursorId);
 
+    if (idN < 0 || idN == vtkHyperTreeGrid::InvalidIndex)
+    {
+      std::cout << "Invalid: " << id << " || " << idN << std::endl;
+      // invalid neigh, no computation
+      return;
+    }
+
+    if (id == idN || IsCoarse(supercursor, subCursorId))
+    {
+      std::cout << "Avoid: " << id << " || " << idN << " lvl " << supercursor->GetLevel(subCursorId)
+                << std::endl;
+      // opposite cell has nothing to bring here
+      return;
+    }
+
+    vtkIdType vid = supercursor->GetVertexId(subCursorId); // TODO use for scalars ?
     const double scal = this->InArray->GetTuple1(id);
     const double nScal = this->InArray->GetTuple1(idN);
     const double scalDiff = scal - nScal;
@@ -111,7 +147,12 @@ struct GradientWorker
     double center[3];
     supercursor->GetPoint(center);
     double centerN[3];
-    supercursor->GetPoint(cursorId, centerN);
+    supercursor->GetPoint(subCursorId, centerN);
+
+    std::cout << "Gradient: " << id << " || " << idN << std::endl;
+    std::cout << "   " << center[0] << " " << center[1] << " " << center[2] << " " << std::endl;
+    std::cout << "   " << centerN[0] << " " << centerN[1] << " " << centerN[2] << " " << std::endl;
+    std::cout << "_____" << std::endl;
 
     // differential computation
     double grad[3] = { scalDiff, scalDiff, scalDiff };
@@ -144,30 +185,12 @@ struct GradientWorker
   void ComputeGradientUnlimited(vtkHyperTreeGridNonOrientedUnlimitedMooreSuperCursor* supercursor)
   {
     // Retrieve cursor info
-    vtkIdType id = supercursor->GetGlobalNodeIndex();
-    vtkIdType dim = supercursor->GetDimension();
-    vtkIdType lvl = supercursor->GetLevel();
-
     assert(supercursor->IsRealLeaf()); // cannot compute gradient on coarse
 
-    std::cout << "visiting : " << id << std::endl;
-
     auto nbc = supercursor->GetNumberOfCursors();
-
-    auto t = supercursor->GetTree();
-    std::cout << "for tree: " << t << std::endl;
-
     for (unsigned i = 0; i < nbc; i++)
     {
-      auto nid = supercursor->GetGlobalNodeIndex(i);
-      std::cout << "nid: " << nid << std::endl;
-      if (nid >= 0)
-      {
-        double b[6];
-        supercursor->GetBounds(i, b);
-        std::cout << "     :: " << b[0] << " " << b[1] << " " << b[2] << " " << b[3] << std::endl;
-        ComputeGradientAt(supercursor, i);
-      }
+      ComputeGradientAt(supercursor, i);
     }
   }
 
@@ -205,8 +228,6 @@ struct GradientWorker
 
       // If cell owns dual cell, compute contours thereof
       // Iterate over cell corners
-      double x[3];
-      supercursor->GetPoint(x);
       for (vtkIdType _cornerIdx = 0; _cornerIdx < numLeavesCorners; ++_cornerIdx)
       {
         // Get cursor corresponding to this corner
@@ -237,10 +258,6 @@ struct GradientWorker
     vtkHyperTreeGridNonOrientedMooreSuperCursor* supercursor, const NeighList& neighEdges)
   {
     vtkIdType id = supercursor->GetGlobalNodeIndex();
-    double center[3];
-    supercursor->GetPoint(center);
-    const double scal = this->InArray->GetTuple1(id);
-
     for (const auto& e : neighEdges)
     {
       assert(e.source == id);
@@ -351,6 +368,9 @@ int vtkHyperTreeGridGradient::ProcessTrees(vtkHyperTreeGrid* input, vtkDataObjec
       this->RecursivelyProcessTree(supercursor.Get(), worker);
     } // it
   }
+
+  std::cout << "Computation done ----------------------- " << std::endl;
+
   output->ShallowCopy(input);
   output->GetCellData()->AddArray(this->OutGradient);
   output->GetCellData()->SetActiveVectors(this->ResultArrayName.c_str());
@@ -379,7 +399,6 @@ void vtkHyperTreeGridGradient::RecursivelyProcessTree(Cursor* supercursor, Worke
     {
       // Create child cursor from parent in input grid
       supercursor->ToChild(child);
-      std::cout << "to child" << std::endl;
       // Recurse
       this->RecursivelyProcessTree(supercursor, worker);
       supercursor->ToParent();
@@ -387,7 +406,6 @@ void vtkHyperTreeGridGradient::RecursivelyProcessTree(Cursor* supercursor, Worke
   }
   else if (!this->InMask || !this->InMask->GetTuple1(id))
   {
-    std::cout << "acc" << std::endl;
     worker.AccumulateGradienAt(supercursor);
   }
 }

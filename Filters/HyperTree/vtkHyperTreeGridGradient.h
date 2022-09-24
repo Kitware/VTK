@@ -54,7 +54,7 @@ class VTKFILTERSHYPERTREE_EXPORT vtkHyperTreeGridGradient : public vtkHyperTreeG
 public:
   enum ComputeMode
   {
-    UNLIMITED,
+    UNLIMITED = 0,
     UNSTRUCTURED
   };
 
@@ -76,8 +76,8 @@ public:
    * * Unlimited: virtually reffine neighbors
    * * Unstructured: compute gradient like in UG
    */
-  vtkSetMacro(Mode, ComputeMode);
-  vtkGetMacro(Mode, ComputeMode);
+  vtkSetClampMacro(Mode, int, UNLIMITED, UNSTRUCTURED);
+  vtkGetMacro(Mode, int);
   ///@}
 
 protected:
@@ -99,7 +99,7 @@ protected:
 
   std::string ResultArrayName = "Gradient";
 
-  ComputeMode Mode = ComputeMode::UNLIMITED;
+  int Mode = ComputeMode::UNLIMITED;
 
   /**
    * Keep track of selected input scalars
