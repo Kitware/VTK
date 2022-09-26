@@ -14,6 +14,7 @@
 =========================================================================*/
 #include "vtkVortexCore.h"
 
+#include "vtkArrayCalculator.h"
 #include "vtkArrayDispatch.h"
 #include "vtkCharArray.h"
 #include "vtkDataSet.h"
@@ -368,6 +369,8 @@ int vtkVortexCore::RequestData(
     gradient->SetInputData(input);
     gradient->SetFasterApproximation(this->FasterApproximation);
     gradient->SetResultArrayName("jacobian");
+    gradient->ComputeVorticityOn();
+    gradient->SetVorticityArrayName("vorticity");
     gradient->SetInputArrayToProcess(
       0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, velocity->GetName());
     gradient->Update();
@@ -465,6 +468,7 @@ int vtkVortexCore::RequestData(
       worker(jacobian.Get(), acceptedPoints.Get());
     }
   }
+  auto vorticityArray = dataset->GetPointData()->GetArray("vorticity");
 
   // Compute polylines that correspond to locations where two vector point
   // fields are parallel.
@@ -474,12 +478,19 @@ int vtkVortexCore::RequestData(
   parallelVectorsForVortexCore->SetJacobianDataArray(jacobian);
   parallelVectorsForVortexCore->SetFirstVectorFieldName(vField->GetName());
   parallelVectorsForVortexCore->SetSecondVectorFieldName(wField->GetName());
-  parallelVectorsForVortexCore->Update();
 
-  vtkPolyData* parallelVectorsOutput =
-    vtkPolyData::SafeDownCast(parallelVectorsForVortexCore->GetOutput());
-
-  output->ShallowCopy(parallelVectorsOutput);
+  // compute the magnitude of the vorticity array
+  vtkNew<vtkArrayCalculator> calculator;
+  calculator->SetInputConnection(parallelVectorsForVortexCore->GetOutputPort());
+  if (vorticityArray)
+  {
+    calculator->SetResultArrayType(vorticityArray->GetDataType());
+  }
+  calculator->AddVectorArrayName("vorticity");
+  calculator->SetResultArrayName("vorticity_magnitude");
+  calculator->SetFunction("mag(vorticity)");
+  calculator->Update();
+  output->ShallowCopy(calculator->GetOutput());
 
   return 1;
 }
