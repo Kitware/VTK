@@ -95,10 +95,17 @@ endif ()
 
 if(VTK_BUILD_IMPLICIT_ARRAYS)
   set(implicit_array_tests 
+    TestConstantArray.cxx
     TestImplicitArrayTraits.cxx
     TestImplicitArraysBase.cxx
     TestStdFunctionArray.cxx
   )
+  if (VTK_DISPATCH_STD_FUNCTION_ARRAYS)
+    add_definitions(-DDISPATCH_STD_FUNCTION_ARRAYS)
+  endif ()
+  if (VTK_DISPATCH_CONSTANT_ARRAYS)
+    add_definitions(-DDISPATCH_CONSTANT_ARRAYS)
+  endif ()
 endif ()
 
 

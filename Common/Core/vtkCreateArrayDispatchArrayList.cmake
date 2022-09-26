@@ -146,10 +146,18 @@ if (VTK_DISPATCH_TYPED_ARRAYS)
   )
 endif()
 
-if(VTK_DISPATCH_IMPLICIT_ARRAYS)
+if(VTK_DISPATCH_STD_FUNCTION_ARRAYS)
   list(APPEND vtkArrayDispatch_containers vtkStdFunctionArray)
   set(vtkArrayDispatch_vtkStdFunctionArray_header vtkStdFunctionArray.h)
   set(vtkArrayDispatch_vtkStdFunctionArray_types
+    ${vtkArrayDispatch_all_types}
+  )
+endif()
+
+if(VTK_DISPATCH_CONSTANT_ARRAYS)
+  list(APPEND vtkArrayDispatch_containers vtkConstantArray)
+  set(vtkArrayDispatch_vtkConstantArray_header vtkConstantArray.h)
+  set(vtkArrayDispatch_vtkConstantArray_types
     ${vtkArrayDispatch_all_types}
   )
 endif()

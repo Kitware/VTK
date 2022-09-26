@@ -118,22 +118,22 @@ mark_as_advanced(
 option(VTK_BUILD_SCALED_SOA_ARRAYS "Include struct-of-arrays with scaled vtkDataArray implementation." OFF)
 
 option(VTK_BUILD_IMPLICIT_ARRAYS "Include implicit vtkDataArray implementation" OFF)
-option(VTK_DISPATCH_IMPLICIT_ARRAYS "Include implicit vtkDataArray subclasses in dispatcher" OFF)
+option(VTK_DISPATCH_STD_FUNCTION_ARRAYS "Include implicit vtkDataArray subclasses based on std::function in dispatcher" OFF)
+option(VTK_DISPATCH_CONSTANT_ARRAYS "Include implicit vtkDataArray subclasses based on a constant backend in dispatcher" OFF)
 mark_as_advanced(
-  VTK_DISPATCH_IMPLICIT_ARRAYS
+  VTK_DISPATCH_STD_FUNCTION_ARRAYS
+  VTK_DISPATCH_CONSTANT_ARRAYS
 )
 
-if (VTK_DISPATCH_IMPLICIT_ARRAYS)
-  add_definitions(-DDISPATCH_IMPLICIT_ARRAYS)
-endif ()
-
-set(implicit_backend_classes)
-set(implicit_backend_template_classes)
-set(implicit_backend_sources)
-set(implicit_backend_headers)
-set(implicit_backend_dispatch_list)
+set(implicit_array_classes)
+set(implicit_array_template_classes)
+set(implicit_array_sources)
+set(implicit_array_headers)
+set(implicit_array_dispatch_list)
 if (VTK_BUILD_IMPLICIT_ARRAYS)
-  list(APPEND implicit_backend_headers
+  list(APPEND implicit_array_headers
+    ImplicitBackends/vtkConstantImplicitBackend.h
+    vtkConstantArray.h
     vtkStdFunctionArray.h
   )
 endif ()
@@ -164,6 +164,7 @@ foreach (INSTANTIATION_VALUE_TYPE IN LISTS vtkArrayDispatch_all_types)
   endif ()
   if (VTK_BUILD_IMPLICIT_ARRAYS)
     list(APPEND _list "vtkStdFunctionArrayInstantiate")
+    list(APPEND _list "vtkConstantArrayInstantiate")
   endif ()
   # see comments in vtkGenericDataArray.h for explanation
   if (INSTANTIATION_VALUE_TYPE MATCHES "(^| )long( |$)")
@@ -320,7 +321,7 @@ set(nowrap_template_classes
 set(sources
   vtkArrayIteratorTemplateInstantiate.cxx
   vtkGenericDataArray.cxx
-  ${implicit_backend_sources}
+  ${implicit_array_sources}
   ${instantiation_sources}
   ${vtk_smp_sources})
 
@@ -335,9 +336,9 @@ configure_file(
 if (VTK_BUILD_IMPLICIT_ARRAYS)
   list (APPEND template_classes 
     vtkImplicitArray
-    ${implicit_backend_template_classes})
-  list (APPEND sources
-    ${implicit_backend_sources})
+    ${implicit_array_template_classes})
+  list (APPEND classes 
+    ${implicit_array_classes})
   set(VTK_USE_IMPLICIT_ARRAYS 1)
 endif ()
 configure_file(
@@ -393,7 +394,7 @@ set(headers
 if (VTK_BUILD_IMPLICIT_ARRAYS)
   list(APPEND headers 
     vtkImplicitArrayTraits.h
-    ${implicit_backend_headers}
+    ${implicit_array_headers}
   )
 endif ()
 
@@ -610,6 +611,13 @@ if (vtk_include_dirs)
   vtk_module_include(VTK::CommonCore
     PRIVATE
       ${vtk_include_dirs})
+endif ()
+if (VTK_BUILD_IMPLICIT_ARRAYS)
+  target_include_directories(CommonCore
+    PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/ImplicitBackends>
+    $<INSTALL_INTERFACE:ImplicitBackends>
+  )
 endif ()
 
 vtk_module_link(VTK::CommonCore
