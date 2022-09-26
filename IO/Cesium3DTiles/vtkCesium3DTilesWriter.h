@@ -109,7 +109,11 @@ public:
 
   ///@{
   /**
-   * Merge all meshes in each tile to end up with one mesh per tile.
+   * Merge all meshes in each tile so we end up with one mesh per tile.
+   * If polydata has textures we merged textures as well such that
+   * the width of the resulting texture is less then MergedTextureWidth (this is
+   * measured in number of input textures). If MergedTextureWidth is not specified
+   * it is computed as sqrt of the number of input textures.
    * Default is false which means that we expect an external program to merge
    * the meshes in each tile to improve performance (such as meshoptimizer).
    * otherwise we merge the polydata in VTK.
@@ -119,6 +123,8 @@ public:
   vtkSetMacro(MergeTilePolyData, bool);
   vtkGetMacro(MergeTilePolyData, bool);
   vtkBooleanMacro(MergeTilePolyData, bool);
+  vtkSetMacro(MergedTextureWidth, int);
+  vtkGetMacro(MergedTextureWidth, int);
   ///@}
 
   ///@{
@@ -137,7 +143,7 @@ public:
   vtkSetMacro(ContentGLTFSaveGLB, bool);
   vtkGetMacro(ContentGLTFSaveGLB, bool);
   vtkBooleanMacro(ContentGLTFSaveGLB, bool);
-  ///@
+  ///@}
 
   ///@{
   /**
@@ -186,6 +192,7 @@ protected:
   bool ContentGLTFSaveGLB;
   bool SaveTiles;
   bool MergeTilePolyData;
+  int MergedTextureWidth;
   int NumberOfFeaturesPerTile;
   char* CRS;
 

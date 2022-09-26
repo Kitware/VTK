@@ -345,7 +345,7 @@ void TranslateTCoords(std::vector<vtkSmartPointer<vtkImageData>> tileTextures,
 
 vtkSmartPointer<vtkImageData> MergeTextures(std::vector<vtkSmartPointer<vtkImageData>> tileTextures,
   std::vector<size_t> textureId, // sorted decreasing by height
-  size_t texturesPerSide, std::vector<std::array<size_t, 2>>& textureOrigin)
+  size_t mergedTextureWidth, std::vector<std::array<size_t, 2>>& textureOrigin)
 {
   vtkNew<vtkImageAppend> append;
   append->PreserveExtentsOn();
@@ -375,7 +375,7 @@ vtkSmartPointer<vtkImageData> MergeTextures(std::vector<vtkSmartPointer<vtkImage
       currentHeight = dims[1];
       prevRow = row;
     }
-    if (column < texturesPerSide - 1)
+    if (column < mergedTextureWidth - 1)
     {
       ++column;
       currentOrigin[0] += dims[0];
@@ -392,6 +392,12 @@ vtkSmartPointer<vtkImageData> MergeTextures(std::vector<vtkSmartPointer<vtkImage
   vtkImageData* tileImage = vtkImageData::SafeDownCast(append->GetOutputDataObject(0));
   return tileImage;
 }
+
+struct MergePolyDataInfo
+{
+  bool MergePolyData;
+  int MergedTextureWidth;
+};
 
 }
 
@@ -526,15 +532,18 @@ void TreeInformation::Compute()
 }
 
 //------------------------------------------------------------------------------
-void TreeInformation::SaveTilesBuildings(bool mergeTilePolyData)
+void TreeInformation::SaveTilesBuildings(bool mergeTilePolyData, int mergedTextureWidth)
 {
-  this->PostOrderTraversal(&TreeInformation::SaveTileBuildings, this->Root, &mergeTilePolyData);
+  MergePolyDataInfo info{ mergeTilePolyData, mergedTextureWidth };
+  this->PostOrderTraversal(&TreeInformation::SaveTileBuildings, this->Root, &info);
 }
 
 void TreeInformation::WriteTileTexture(
   vtkIncrementalOctreeNode* node, const std::string& fileName, vtkImageData* tileImage)
 {
-  std::string filePath = this->OutputDir + "/" + std::to_string(node->GetID()) + "/" + fileName;
+  std::string dirPath = this->OutputDir + "/" + std::to_string(node->GetID());
+  vtkDirectory::MakeDirectory(dirPath.c_str());
+  std::string filePath = dirPath + "/" + fileName;
   vtkNew<vtkPNGWriter> writer;
   writer->SetFileName(filePath.c_str());
   writer->SetInputDataObject(tileImage);
@@ -618,7 +627,7 @@ bool TreeInformation::ForEachBuilding(
 //------------------------------------------------------------------------------
 void TreeInformation::SaveTileBuildings(vtkIncrementalOctreeNode* node, void* aux)
 {
-  bool mergeTilePolyData = *static_cast<bool*>(aux);
+  MergePolyDataInfo info = *static_cast<MergePolyDataInfo*>(aux);
   if (node->IsLeaf() && !this->EmptyNode[node->GetID()])
   {
     std::ostringstream ostr;
@@ -626,7 +635,7 @@ void TreeInformation::SaveTileBuildings(vtkIncrementalOctreeNode* node, void* au
     // ostr << "Rendering buildings for node " << node->GetID() << ": ";
     vtkNew<vtkMultiBlockDataSet> tile;
     std::string textureBaseDirectory;
-    if (mergeTilePolyData)
+    if (info.MergePolyData)
     {
       // each polydata has a vector of textures (for instance 7).
       // we merge textures for all polydata for index 0, 1, ..., 6. We get 7 merged
@@ -672,7 +681,11 @@ void TreeInformation::SaveTileBuildings(vtkIncrementalOctreeNode* node, void* au
         };
       this->ForEachBuilding(node, accumulateNamesAndTCoords);
       // how many polydata textures along one side of the merged texture
-      size_t texturesPerSide = std::ceil(std::sqrt(tileTextureFileNames[0].size()));
+      size_t mergedTextureWidth = std::ceil(std::sqrt(tileTextureFileNames.size()));
+      if (info.MergedTextureWidth < mergedTextureWidth)
+      {
+        mergedTextureWidth = info.MergedTextureWidth;
+      }
       // merge textures and change the tcoords arrays
       // all textures use the same tcoords array
       // if there is only one texture, there is nothing to merge.
@@ -699,7 +712,7 @@ void TreeInformation::SaveTileBuildings(vtkIncrementalOctreeNode* node, void* au
           std::string mergedFileName = GetMergedTextureFileName(firstTextureFileName, i);
           int tileDims[3];
           vtkSmartPointer<vtkImageData> tileImage =
-            MergeTextures(tileTextures, textureIds, texturesPerSide, textureOrigin);
+            MergeTextures(tileTextures, textureIds, mergedTextureWidth, textureOrigin);
           tileImage->GetDimensions(tileDims);
           mergedFileNames[i] = mergedFileName;
           this->WriteTileTexture(node, mergedFileName, tileImage);

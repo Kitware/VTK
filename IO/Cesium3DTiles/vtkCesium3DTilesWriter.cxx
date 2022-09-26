@@ -195,6 +195,7 @@ vtkCesium3DTilesWriter::vtkCesium3DTilesWriter()
   this->SaveTextures = true;
   this->SaveTiles = true;
   this->MergeTilePolyData = false;
+  this->MergedTextureWidth = std::numeric_limits<int>::max();
   this->InputType = Buildings;
   this->ContentGLTF = false;
   this->ContentGLTFSaveGLB = true;
@@ -283,7 +284,7 @@ void vtkCesium3DTilesWriter::WriteData()
       treeInformation.SaveTileset(std::string(this->DirectoryName) + "/tileset.json");
       if (this->SaveTiles)
       {
-        treeInformation.SaveTilesBuildings(this->MergeTilePolyData);
+        treeInformation.SaveTilesBuildings(this->MergeTilePolyData, this->MergedTextureWidth);
       }
       vtkLog(INFO, "Deleting objects ...");
       break;
