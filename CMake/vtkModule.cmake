@@ -3956,12 +3956,15 @@ function (vtk_module_add_module name)
         "INTERFACE_vtk_module_implementable" 1)
   endif ()
 
-  # Include the ABI Namespace macros header
-  string(APPEND _vtk_add_module_module_content
+  # TODO: Make this a proper argument to be parsed.
+  if (NOT _vtk_module_no_namespace_abi_mangling)
+    # Include the ABI Namespace macros header
+    string(APPEND _vtk_add_module_module_content
       "
 /* Include ABI Namespace */
 #include \"vtkABINamespace.h\"
 ")
+  endif ()
 
   if (_vtk_add_module_implementable OR _vtk_add_module_implements)
     set_property(TARGET "${_vtk_add_module_real_target}"
