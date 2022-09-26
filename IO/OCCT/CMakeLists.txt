@@ -16,3 +16,5 @@ vtk_module_add_module(VTK::IOOCCT
 )
 
 vtk_module_link(VTK::IOOCCT PRIVATE TKXDESTEP TKXDEIGES)
+
+vtk_add_test_mangling(VTK::IOOCCT)

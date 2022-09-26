@@ -16,3 +16,5 @@ vtk_module_add_module(VTK::RenderingOpenXRRemoting
   )
 
 vtk_module_link(VTK::RenderingOpenXR PUBLIC OpenXR::Remoting)
+
+vtk_add_test_mangling(VTK::RenderingOpenXRRemoting)

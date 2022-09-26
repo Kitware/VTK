@@ -3,26 +3,28 @@ cmake_dependent_option(VTK_USE_64BIT_TIMESTAMPS "Build VTK with 64 bit timestamp
   "NOT CMAKE_SIZEOF_VOID_P GREATER 4" ON)
 mark_as_advanced(VTK_USE_64BIT_TIMESTAMPS)
 
-# Mangle VTK symbols
+# Option to mangle VTK symbols
 set(VTK_ABI_NAMESPACE_NAME
   "<DEFAULT>"
   CACHE STRING "Inline namespace name for mangling VTK symbols.")
+mark_as_advanced(VTK_ABI_NAMESPACE_NAME)
+
 if (VTK_ABI_NAMESPACE_NAME STREQUAL "<DEFAULT>")
   # The default is to not have an ABI namespace.
   # This is consistent with the existing practice.
   set(VTK_ABI_NAMESPACE_NAME "")
 endif ()
-mark_as_advanced(VTK_ABI_NAMESPACE_NAME)
-if (VTK_ABI_NAMESPACE_NAME)
+set_property(GLOBAL PROPERTY _vtk_abi_namespace_name "${VTK_ABI_NAMESPACE_NAME}")
+if (VTK_ABI_NAMESPACE_NAME STREQUAL "")
+  set(VTK_ABI_NAMESPACE_BEGIN "")
+  set(VTK_ABI_NAMESPACE_END "")
+else ()
   message(STATUS "VTK ABI namespace: ${VTK_ABI_NAMESPACE_NAME}")
   set(VTK_ABI_NAMESPACE_BEGIN "inline namespace ${VTK_ABI_NAMESPACE_NAME} {")
   set(VTK_ABI_NAMESPACE_END "}")
-else ()
-  set(VTK_ABI_NAMESPACE_BEGIN "")
-  set(VTK_ABI_NAMESPACE_END "")
 endif ()
 configure_file(
-  "${vtk_cmake_dir}/vtkABINamespace.h.in"
+  "${CMAKE_CURRENT_SOURCE_DIR}/vtkABINamespace.h.in"
   "${CMAKE_CURRENT_BINARY_DIR}/vtkABINamespace.h"
   @ONLY)
 

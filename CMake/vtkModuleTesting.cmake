@@ -750,9 +750,10 @@ function (vtk_add_test_mangling module)
     return ()
   endif ()
 
-  cmake_parse_arguments("vtk_mangling_test" "" "" "EXEMPTIONS" ${ARGN})
+  cmake_parse_arguments(_vtk_mangling_test "" "" "EXEMPTIONS" ${ARGN})
 
-  if (VTK_ABI_NAMESPACE_NAME)
+  get_property(vtk_abi_namespace_name GLOBAL PROPERTY _vtk_abi_namespace_name)
+  if (vtk_abi_namespace_name STREQUAL "")
     _vtk_module_real_target(_vtk_test_target "${module}")
     get_property(has_sources TARGET ${_vtk_test_target} PROPERTY SOURCES)
     get_property(has_test GLOBAL PROPERTY "${module}_HAS_MANGLING_TEST" SET)
@@ -767,9 +768,10 @@ function (vtk_add_test_mangling module)
                 "--files"
                 "$<TARGET_OBJECTS:${_vtk_test_target}>"
                 "--prefix"
-                "${VTK_ABI_NAMESPACE_NAME}"
+                # TODO: This is not included in vtk-config.
+                "${vtk_abi_namespace_name}"
                 "--exemptions"
-                "${vtk_mangling_test_EXEMPTIONS}")
+                "${_vtk_mangling_test_EXEMPTIONS}")
     endif ()
   endif ()
 endfunction ()
