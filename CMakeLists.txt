@@ -492,6 +492,9 @@ if (VTK_WRAP_PYTHON)
   cmake_dependent_option(VTK_WINDOWS_PYTHON_DEBUGGABLE "Append `_d` to Python module names" OFF
     "WIN32;VTK_WRAP_PYTHON" OFF)
   mark_as_advanced(VTK_WINDOWS_PYTHON_DEBUGGABLE)
+  cmake_dependent_option(VTK_WINDOWS_PYTHON_DEBUGGABLE_REPLACE_SUFFIX "Replace any other debug suffix for Python module names" OFF
+    "VTK_WINDOWS_PYTHON_DEBUGGABLE" OFF)
+  mark_as_advanced(VTK_WINDOWS_PYTHON_DEBUGGABLE_REPLACE_SUFFIX)
   cmake_dependent_option(VTK_BUILD_PYI_FILES "Build `.pyi` files for VTK's Python modules" OFF
     "VTK_WRAP_PYTHON" OFF)
   mark_as_advanced(VTK_BUILD_PYI_FILES)
@@ -514,6 +517,7 @@ if (VTK_WRAP_PYTHON)
     BUILD_PYI_FILES     "${VTK_BUILD_PYI_FILES}"
     SOABI               "${vtk_soabi}"
     USE_DEBUG_SUFFIX    "${VTK_WINDOWS_PYTHON_DEBUGGABLE}"
+    REPLACE_DEBUG_SUFFIX "${VTK_WINDOWS_PYTHON_DEBUGGABLE_REPLACE_SUFFIX}"
     UTILITY_TARGET      "VTK::vtkbuild"
     WRAPPED_MODULES vtk_python_wrapped_modules
     TARGET_SPECIFIC_COMPONENTS "${VTK_TARGET_SPECIFIC_COMPONENTS}"
