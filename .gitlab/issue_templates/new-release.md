@@ -95,7 +95,7 @@ git commit -m 'Update version number to @VERSION@@RC@' CMake/vtkVersion.cmake
         [discourse.vtk.org](https://discourse.vtk.org/).
 
 /cc @ben.boeckel
-/cc @ken-martin
-/cc @utkarsh.ayachit
+/cc @berkgeveci
+/cc @vbolea
 /milestone %"@VERSION@@RC@"
 /label ~"priority:required"
