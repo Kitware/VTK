@@ -1,5 +1,6 @@
 #pragma once
 
+#include "vtkRenderingRayTracingModule.h"
 #include <stdint.h>
 #include <sys/types.h>
 
