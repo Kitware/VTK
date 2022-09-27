@@ -371,7 +371,7 @@ int vtkMaskPoints::RequestData(vtkInformation* vtkNotUsed(request),
   vtkPointData* outputPD = output->GetPointData();
   vtkIdType numPts = input->GetNumberOfPoints();
 
-  int abort = 0;
+  bool abort = false;
 
   // figure out how many sample points per process
   vtkIdType localMaxPts;
@@ -463,7 +463,7 @@ int vtkMaskPoints::RequestData(vtkInformation* vtkNotUsed(request),
           if (!(id % progressInterval)) // abort/progress
           {
             this->UpdateProgress(0.5 * id / numPts);
-            abort = this->GetAbortExecute();
+            abort = this->CheckAbort();
           }
         }
         break;
@@ -482,10 +482,14 @@ int vtkMaskPoints::RequestData(vtkInformation* vtkNotUsed(request),
         {
           double q2 = (q1 - 1.0) / (size - 1.0);
           double q3 = log(q2);
-          vtkIdType s;
+          vtkIdType s = 0;
 
           while (true)
           {
+            if (this->CheckAbort())
+            {
+              break;
+            }
             while (true)
             {
               s = (vtkIdType)(vprime / q3);
@@ -606,6 +610,7 @@ int vtkMaskPoints::RequestData(vtkInformation* vtkNotUsed(request),
         tempData->Delete();
         dataCopy->Delete();
         pointCopy->Delete();
+        this->CheckAbort();
         break;
       }
       case UNIFORM_SPATIAL_BOUNDS:
@@ -637,6 +642,10 @@ int vtkMaskPoints::RequestData(vtkInformation* vtkNotUsed(request),
 
         for (vtkIdType i = 0; i < numAddedPts; i++)
         {
+          if (this->CheckAbort())
+          {
+            break;
+          }
           randomGenerator->Next();
           double randX = randomGenerator->GetRangeValue(bounds[0], bounds[1]);
           randomGenerator->Next();
@@ -668,6 +677,10 @@ int vtkMaskPoints::RequestData(vtkInformation* vtkNotUsed(request),
         double localArea = 0.0;
         for (vtkIdType cellId = 0; cellId < nbCells; ++cellId)
         {
+          if (this->CheckAbort())
+          {
+            break;
+          }
           vtkCell* currentCell = input->GetCell(cellId);
           if (currentCell->GetCellDimension() != dim)
           {
@@ -715,6 +728,10 @@ int vtkMaskPoints::RequestData(vtkInformation* vtkNotUsed(request),
           std::uniform_real_distribution<> dis(0.0, localArea);
           for (vtkIdType ptId = 0; ptId < numAddedPts; ptId++)
           {
+            if (this->CheckAbort())
+            {
+              break;
+            }
             // The sampling vector being sorted, just find the index of the sampled cell
             double sample = dis(gen);
             auto it = std::upper_bound(cellContribs.cbegin(), cellContribs.cend(), sample);
@@ -758,7 +775,7 @@ int vtkMaskPoints::RequestData(vtkInformation* vtkNotUsed(request),
       if (!(id % progressInterval)) // abort/progress
       {
         this->UpdateProgress(0.5 * id / numPts);
-        abort = this->GetAbortExecute();
+        abort = this->CheckAbort();
       }
     }
   }
@@ -781,7 +798,7 @@ int vtkMaskPoints::RequestData(vtkInformation* vtkNotUsed(request),
       if (!(ptId % progressInterval)) // abort/progress
       {
         this->UpdateProgress(0.5 + 0.5 * ptId / (id + 1));
-        abort = this->GetAbortExecute();
+        abort = this->CheckAbort();
       }
       if (this->SingleVertexPerCell)
       {

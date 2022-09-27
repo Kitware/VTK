@@ -86,6 +86,8 @@ int vtkPassThrough::RequestData(vtkInformation* vtkNotUsed(request),
     output->ShallowCopy(input);
   }
 
+  this->CheckAbort();
+
   return 1;
 }
 

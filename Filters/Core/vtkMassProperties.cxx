@@ -128,6 +128,10 @@ int vtkMassProperties::RequestData(vtkInformation* vtkNotUsed(request),
 
   for (cellId = 0; cellId < numCells; cellId++)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     if (input->GetCellType(cellId) != VTK_TRIANGLE)
     {
       vtkWarningMacro(<< "Input data type must be VTK_TRIANGLE not " << input->GetCellType(cellId));

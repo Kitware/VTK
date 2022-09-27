@@ -131,9 +131,11 @@ struct EvaluatePoints
   double Normal[3];
   vtkIdType* PtMap;
   vtkIdType NumberOfKeptPoints;
+  vtkPolyDataPlaneClipper* Filter;
 
-  EvaluatePoints(TP* pts, vtkPlane* plane)
+  EvaluatePoints(TP* pts, vtkPlane* plane, vtkPolyDataPlaneClipper* filter)
     : Points(pts)
+    , Filter(filter)
   {
     plane->GetOrigin(Origin);
     plane->GetNormal(Normal);
@@ -149,9 +151,18 @@ struct EvaluatePoints
     const auto pts = vtk::DataArrayTupleRange<3>(this->Points);
     double p[3], *n = this->Normal, *o = this->Origin;
     vtkIdType* map = this->PtMap + ptId;
+    bool isFirst = vtkSMPTools::GetSingleThread();
 
     for (; ptId < endPtId; ++ptId)
     {
+      if (isFirst)
+      {
+        this->Filter->CheckAbort();
+      }
+      if (this->Filter->GetAbortOutput())
+      {
+        break;
+      }
       auto pt = pts[ptId];
       p[0] = pt[0];
       p[1] = pt[1];
@@ -184,8 +195,11 @@ struct EvaluatePointsWorker
 {
   vtkIdType* KeptPtMap;
   vtkIdType NumberOfKeptPoints;
-  EvaluatePointsWorker()
+  vtkPolyDataPlaneClipper* Filter;
+
+  EvaluatePointsWorker(vtkPolyDataPlaneClipper* filter)
     : KeptPtMap(nullptr)
+    , Filter(filter)
   {
   }
   ~EvaluatePointsWorker() { delete[] this->KeptPtMap; }
@@ -195,7 +209,7 @@ struct EvaluatePointsWorker
   {
     vtkIdType numPts = pts->GetNumberOfTuples();
 
-    EvaluatePoints<DataT> ep(pts, plane);
+    EvaluatePoints<DataT> ep(pts, plane, Filter);
     vtkSMPTools::For(0, numPts, ep);
     this->KeptPtMap = ep.PtMap;
     this->NumberOfKeptPoints = ep.NumberOfKeptPoints;
@@ -280,10 +294,13 @@ struct EvaluateCells
   vtkIdType NumberOfKeptCells;
   vtkIdType NumberOfClippedCells;
   vtkIdType CellsConnSize;
+  vtkPolyDataPlaneClipper* Filter;
 
-  EvaluateCells(vtkIdType* ptMap, vtkCellArray* cells, int batchSize)
+  EvaluateCells(
+    vtkIdType* ptMap, vtkCellArray* cells, int batchSize, vtkPolyDataPlaneClipper* filter)
     : PtMap(ptMap)
     , Cells(cells)
+    , Filter(filter)
   {
     this->NumCells = this->Cells->GetNumberOfCells();
     this->BatchInfo.BatchSize = batchSize;
@@ -300,9 +317,14 @@ struct EvaluateCells
     vtkIdType npts;
     const vtkIdType* cell;
     vtkCellArrayIterator* cellIter = this->CellIterator.Local();
+    bool isFirst = vtkSMPTools::GetSingleThread();
 
     for (; batchId < endBatchId; ++batchId)
     {
+      if (this->Filter->GetAbortOutput())
+      {
+        break;
+      }
       Batch* batch = this->BatchInfo.Batches + batchId;
       vtkIdType cellId = batchId * this->BatchInfo.BatchSize;
       vtkIdType endCellId =
@@ -313,6 +335,14 @@ struct EvaluateCells
 
       for (; cellId < endCellId; ++cellId)
       {
+        if (isFirst)
+        {
+          this->Filter->CheckAbort();
+        }
+        if (this->Filter->GetAbortOutput())
+        {
+          break;
+        }
         cellIter->GetCellAtId(cellId, npts, cell);
         numKeptPts = CellCases::ComputeCase(npts, cell, this->PtMap);
         if (numKeptPts == 0) // Cell discarded
@@ -401,16 +431,19 @@ struct ExtractCells
   EdgeTupleType* Edges;
   ArrayList* Arrays;
   vtkSMPThreadLocal<vtkSmartPointer<vtkCellArrayIterator>> CellIterator;
+  vtkPolyDataPlaneClipper* Filter;
 
   ExtractCells(const vtkBatchInfo& binfo, const vtkIdType* ptMap, vtkCellArray* cells,
     vtkIdType* cellMap, vtkIdTypeArray* cellConn, vtkIdTypeArray* cellOffsets,
-    vtkIdTypeArray* lineConn, vtkIdTypeArray* lineOffsets, EdgeTupleType* e, ArrayList* arrays)
+    vtkIdTypeArray* lineConn, vtkIdTypeArray* lineOffsets, EdgeTupleType* e, ArrayList* arrays,
+    vtkPolyDataPlaneClipper* filter)
     : BatchInfo(binfo)
     , PtMap(ptMap)
     , Cells(cells)
     , CellMap(cellMap)
     , Edges(e)
     , Arrays(arrays)
+    , Filter(filter)
   {
     this->NumCells = this->Cells->GetNumberOfCells();
     this->CellConn = cellConn->GetPointer(0);
@@ -427,9 +460,14 @@ struct ExtractCells
     const vtkIdType* cell;
     vtkCellArrayIterator* cellIter = this->CellIterator.Local();
     const vtkIdType* ptMap = this->PtMap;
+    bool isFirst = vtkSMPTools::GetSingleThread();
 
     for (; batchNum < endBatchNum; ++batchNum)
     {
+      if (this->Filter->GetAbortOutput())
+      {
+        break;
+      }
       Batch* batch = this->BatchInfo.Batches + batchNum;
       vtkIdType cellId = batchNum * this->BatchInfo.BatchSize;
       vtkIdType endCellId =
@@ -448,6 +486,14 @@ struct ExtractCells
 
       for (; cellId < endCellId; ++cellId, ++cellMap)
       {
+        if (isFirst)
+        {
+          this->Filter->CheckAbort();
+        }
+        if (this->Filter->GetAbortOutput())
+        {
+          break;
+        }
         if (*cellMap != 0) // if the cell is clipped or kept
         {
           cellIter->GetCellAtId(cellId, npts, cell);
@@ -513,19 +559,28 @@ struct OutputPointsWorker
   template <typename InPtsT, typename OutPtsT>
   void operator()(InPtsT* inPts, OutPtsT* outPts, vtkIdType* ptMap, vtkIdType numNewPts,
     const EdgeTupleType* mergeEdges, const vtkIdType* mergeOffsets, vtkPlane* plane,
-    ArrayList* arrays)
+    ArrayList* arrays, vtkPolyDataPlaneClipper* filter)
   {
     vtkIdType numInPts = inPts->GetNumberOfTuples();
     vtkIdType numOutPts = outPts->GetNumberOfTuples();
 
     // Copy kept points to output.
     vtkSMPTools::For(
-      0, numInPts, [&, inPts, outPts, ptMap, arrays](vtkIdType ptId, vtkIdType endPtId) {
+      0, numInPts, [&, inPts, outPts, ptMap, arrays, filter](vtkIdType ptId, vtkIdType endPtId) {
         const auto in = vtk::DataArrayTupleRange<3>(inPts);
         auto out = vtk::DataArrayTupleRange<3>(outPts);
+        bool isFirst = vtkSMPTools::GetSingleThread();
 
         for (; ptId < endPtId; ++ptId)
         {
+          if (isFirst)
+          {
+            filter->CheckAbort();
+          }
+          if (filter->GetAbortOutput())
+          {
+            break;
+          }
           if (ptMap[ptId] >= 0)
           {
             auto xin = in[ptId];
@@ -547,14 +602,23 @@ struct OutputPointsWorker
     vtkMath::Normalize(normal);
     vtkIdType numKeptPts = numOutPts - numNewPts;
     vtkSMPTools::For(0, numNewPts,
-      [&, numKeptPts, outPts, mergeEdges, mergeOffsets, arrays](
+      [&, numKeptPts, outPts, mergeEdges, mergeOffsets, arrays, filter](
         vtkIdType newPtId, vtkIdType endNewPtId) {
         const auto in = vtk::DataArrayTupleRange<3>(inPts);
         auto out = vtk::DataArrayTupleRange<3>(outPts);
         double x0[3], x1[3];
+        bool isFirst = vtkSMPTools::GetSingleThread();
 
         for (; newPtId < endNewPtId; ++newPtId)
         {
+          if (isFirst)
+          {
+            filter->CheckAbort();
+          }
+          if (filter->GetAbortOutput())
+          {
+            break;
+          }
           const EdgeTupleType* edge = mergeEdges + mergeOffsets[newPtId];
           const auto x0T = in[edge->V0];
           x0[0] = x0T[0];
@@ -587,15 +651,18 @@ struct OutputCells
   const vtkIdType* MergeOffsets;
   vtkIdType* OutCellsConn;
   vtkIdType* OutLinesConn;
+  vtkPolyDataPlaneClipper* Filter;
 
   OutputCells(vtkIdType numKeptPts, vtkIdType numNewPts, const EdgeTupleType* mergeEdges,
-    const vtkIdType* mergeOffsets, vtkIdTypeArray* outCells, vtkIdTypeArray* outLines)
+    const vtkIdType* mergeOffsets, vtkIdTypeArray* outCells, vtkIdTypeArray* outLines,
+    vtkPolyDataPlaneClipper* filter)
     : NumKeptPts(numKeptPts)
     , NumNewPts(numNewPts)
     , MergeEdges(mergeEdges)
     , MergeOffsets(mergeOffsets)
     , OutCellsConn(outCells->GetPointer(0))
     , OutLinesConn(outLines->GetPointer(0))
+    , Filter(filter)
   {
   }
 
@@ -607,14 +674,24 @@ struct OutputCells
     const vtkIdType* offsets = this->MergeOffsets;
     vtkIdType* cellsConn = this->OutCellsConn;
     vtkIdType* linesConn = this->OutLinesConn;
+    vtkPolyDataPlaneClipper* filter = this->Filter;
 
     vtkSMPTools::For(0, numNewPts,
-      [&, numKeptPts, edges, offsets, cellsConn, linesConn](
+      [&, numKeptPts, edges, offsets, cellsConn, linesConn, filter](
         vtkIdType newPtId, vtkIdType endNewPtId) {
         const EdgeTupleType* edge;
+        bool isFirst = vtkSMPTools::GetSingleThread();
 
         for (; newPtId < endNewPtId; ++newPtId)
         {
+          if (isFirst)
+          {
+            filter->CheckAbort();
+          }
+          if (filter->GetAbortOutput())
+          {
+            break;
+          }
           vtkIdType numEdges = offsets[newPtId + 1] - offsets[newPtId];
           vtkIdType updatedId = newPtId + numKeptPts;
           for (auto i = 0; i < numEdges; ++i)
@@ -788,7 +865,7 @@ int vtkPolyDataPlaneClipper::RequestData(vtkInformation* vtkNotUsed(request),
   // Evaluate the plane equation across all points.
   vtkPoints* inPts = input->GetPoints();
   using EvaluatePointsDispatch = vtkArrayDispatch::DispatchByValueType<vtkArrayDispatch::Reals>;
-  EvaluatePointsWorker epWorker;
+  EvaluatePointsWorker epWorker(this);
   if (!EvaluatePointsDispatch::Execute(inPts->GetData(), epWorker, this->Plane))
   {
     epWorker(inPts->GetData(), this->Plane);
@@ -814,7 +891,7 @@ int vtkPolyDataPlaneClipper::RequestData(vtkInformation* vtkNotUsed(request),
   // storage and to facilitate threading, keep track of information regarding
   // the size of the output. This requires multiple passes to first determine
   // what's output, and then to actually create the output.
-  EvaluateCells ec(epWorker.KeptPtMap, cells, this->BatchSize);
+  EvaluateCells ec(epWorker.KeptPtMap, cells, this->BatchSize, this);
   ec.Execute();
   vtkBatchInfo& batchInfo = ec.BatchInfo;
   vtkIdType numOutCells = ec.NumberOfKeptCells + ec.NumberOfClippedCells;
@@ -839,7 +916,7 @@ int vtkPolyDataPlaneClipper::RequestData(vtkInformation* vtkNotUsed(request),
   cellArrays.AddArrays(numOutCells, input->GetCellData(), output->GetCellData());
 
   ExtractCells ext(batchInfo, ec.PtMap, cells, ec.CellMap, cellConn, cellOffsets, lineConn,
-    lineOffsets, mergeEdges, &cellArrays);
+    lineOffsets, mergeEdges, &cellArrays, this);
   ext.Execute();
   cellOffsets->SetComponent(numOutCells, 0, ec.CellsConnSize);
   lineOffsets->SetComponent(ec.NumberOfClippedCells, 0, 2 * numEdges);
@@ -854,7 +931,7 @@ int vtkPolyDataPlaneClipper::RequestData(vtkInformation* vtkNotUsed(request),
   // update the cell and line connectivity arrays to their new point ids.
   vtkNew<vtkCellArray> outCells;
   vtkNew<vtkCellArray> outLines;
-  OutputCells oc(numKeptPts, numNewPts, mergeEdges, mergeOffsets, cellConn, lineConn);
+  OutputCells oc(numKeptPts, numNewPts, mergeEdges, mergeOffsets, cellConn, lineConn, this);
   oc.Execute();
   outCells->SetData(cellOffsets, cellConn);
   outLines->SetData(lineOffsets, lineConn);
@@ -892,10 +969,10 @@ int vtkPolyDataPlaneClipper::RequestData(vtkInformation* vtkNotUsed(request),
     vtkArrayDispatch::Dispatch2ByValueType<vtkArrayDispatch::Reals, vtkArrayDispatch::Reals>;
   OutputPointsWorker opWorker;
   if (!OutputPointsDispatch::Execute(inPts->GetData(), outPts->GetData(), opWorker,
-        epWorker.KeptPtMap, numNewPts, mergeEdges, mergeOffsets, this->Plane, &ptArrays))
+        epWorker.KeptPtMap, numNewPts, mergeEdges, mergeOffsets, this->Plane, &ptArrays, this))
   {
     opWorker(inPts->GetData(), outPts->GetData(), epWorker.KeptPtMap, numNewPts, mergeEdges,
-      mergeOffsets, this->Plane, &ptArrays);
+      mergeOffsets, this->Plane, &ptArrays, this);
   }
   delete[] mergeEdges;
 

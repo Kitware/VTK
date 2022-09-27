@@ -90,6 +90,10 @@ int vtkExplicitStructuredGridToUnstructuredGrid::RequestData(
   int i, j, k;
   for (vtkIdType cellId = 0; cellId < nbCells; cellId++)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     if (input->IsCellVisible(cellId))
     {
       vtkNew<vtkIdList> ptIds;

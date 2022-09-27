@@ -197,11 +197,13 @@ int vtkThreshold::RequestData(vtkInformation* vtkNotUsed(request),
   vtkIdType numberOfCells = input->GetNumberOfCells();
   vtkIdType index = 0;
   const vtkIdType tenth = numberOfCells / 10 + 1;
-  for (it->InitTraversal(); !it->IsDoneWithTraversal(); it->GoToNextCell())
+  bool abort = false;
+  for (it->InitTraversal(); !it->IsDoneWithTraversal() && !abort; it->GoToNextCell())
   {
     if (index % tenth == 0)
     {
       this->UpdateProgress(index * 1.0 / numberOfCells);
+      abort = this->CheckAbort();
     }
     if (ghosts && ghosts->GetValue(index++) & vtkDataSetAttributes::HIDDENCELL)
     {

@@ -184,6 +184,10 @@ int vtkDecimatePolylineFilter::RequestData(vtkInformation* vtkNotUsed(request),
   for (lineIter->GoToFirstCell(); !lineIter->IsDoneWithTraversal();
        lineIter->GoToNextCell(), firstVertexIndex += polylineSize)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     lineIter->GetCurrentCell(polylineSize, polyLineVerts);
 
     // construct a polyline as a doubly linked list

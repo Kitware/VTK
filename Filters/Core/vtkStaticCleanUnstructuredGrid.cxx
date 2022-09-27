@@ -546,6 +546,8 @@ int vtkStaticCleanUnstructuredGrid::RequestData(vtkInformation* vtkNotUsed(reque
   // Free unneeded memory
   this->Locator->Initialize();
 
+  this->CheckAbort();
+
   return 1;
 }
 

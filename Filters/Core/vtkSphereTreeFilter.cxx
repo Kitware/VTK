@@ -216,6 +216,8 @@ int vtkSphereTreeFilter::RequestData(vtkInformation* vtkNotUsed(request),
     levels->Delete();
   }
 
+  this->CheckAbort();
+
   return 1;
 }
 

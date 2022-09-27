@@ -86,6 +86,10 @@ int vtkMoleculeAppend::RequestData(
   // Process each input
   for (int idx = 0; idx < this->GetNumberOfInputConnections(0); ++idx)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     vtkMolecule* input = vtkMolecule::GetData(inputVector[0], idx);
 
     // --------------------

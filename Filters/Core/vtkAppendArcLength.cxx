@@ -67,6 +67,10 @@ int vtkAppendArcLength::RequestData(
   lines->InitTraversal();
   while (lines->GetNextCell(numCellPoints, cellPoints))
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     if (numCellPoints == 0)
     {
       continue;

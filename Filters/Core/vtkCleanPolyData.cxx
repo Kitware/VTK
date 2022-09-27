@@ -250,7 +250,7 @@ int vtkCleanPolyData::RequestData(vtkInformation* vtkNotUsed(request),
   //
   // Vertices are renumbered and we remove duplicates
   inCellID = 0;
-  if (!this->GetAbortExecute() && inVerts->GetNumberOfCells() > 0)
+  if (!this->CheckAbort() && inVerts->GetNumberOfCells() > 0)
   {
     newVerts = vtkCellArray::New();
     newVerts->AllocateEstimate(inVerts->GetNumberOfCells(), 1);
@@ -258,6 +258,10 @@ int vtkCleanPolyData::RequestData(vtkInformation* vtkNotUsed(request),
     vtkDebugMacro(<< "Starting Verts " << inCellID);
     for (inVerts->InitTraversal(); inVerts->GetNextCell(npts, pts); inCellID++)
     {
+      if (this->CheckAbort())
+      {
+        break;
+      }
       for (numNewPts = 0, i = 0; i < npts; ++i)
       {
         inPts->GetPoint(pts[i], x);
@@ -296,7 +300,7 @@ int vtkCleanPolyData::RequestData(vtkInformation* vtkNotUsed(request),
   this->UpdateProgress(0.25);
 
   // lines reduced to one point are eliminated or made into verts
-  if (!this->GetAbortExecute() && inLines->GetNumberOfCells() > 0)
+  if (!this->CheckAbort() && inLines->GetNumberOfCells() > 0)
   {
     newLines = vtkCellArray::New();
     newLines->AllocateEstimate(inLines->GetNumberOfCells(), 2);
@@ -307,6 +311,10 @@ int vtkCleanPolyData::RequestData(vtkInformation* vtkNotUsed(request),
     vtkDebugMacro(<< "Starting Lines " << inCellID);
     for (inLines->InitTraversal(); inLines->GetNextCell(npts, pts); inCellID++)
     {
+      if (this->CheckAbort())
+      {
+        break;
+      }
       for (numNewPts = 0, i = 0; i < npts; i++)
       {
         inPts->GetPoint(pts[i], x);
@@ -369,7 +377,7 @@ int vtkCleanPolyData::RequestData(vtkInformation* vtkNotUsed(request),
 
   // polygons reduced to two points or less are either eliminated
   // or converted to lines or points if enabled
-  if (!this->GetAbortExecute() && inPolys->GetNumberOfCells() > 0)
+  if (!this->CheckAbort() && inPolys->GetNumberOfCells() > 0)
   {
     newPolys = vtkCellArray::New();
     newPolys->AllocateExact(inPolys->GetNumberOfCells(), inPolys->GetNumberOfConnectivityIds());
@@ -380,6 +388,10 @@ int vtkCleanPolyData::RequestData(vtkInformation* vtkNotUsed(request),
     vtkDebugMacro(<< "Starting Polys " << inCellID);
     for (inPolys->InitTraversal(); inPolys->GetNextCell(npts, pts); inCellID++)
     {
+      if (this->CheckAbort())
+      {
+        break;
+      }
       for (numNewPts = 0, i = 0; i < npts; i++)
       {
         inPts->GetPoint(pts[i], x);
@@ -464,7 +476,7 @@ int vtkCleanPolyData::RequestData(vtkInformation* vtkNotUsed(request),
   this->UpdateProgress(0.75);
 
   // triangle strips can reduced to polys/lines/points etc
-  if (!this->GetAbortExecute() && inStrips->GetNumberOfCells() > 0)
+  if (!this->CheckAbort() && inStrips->GetNumberOfCells() > 0)
   {
     newStrips = vtkCellArray::New();
     newStrips->AllocateExact(inStrips->GetNumberOfCells(), inStrips->GetNumberOfConnectivityIds());
@@ -474,6 +486,10 @@ int vtkCleanPolyData::RequestData(vtkInformation* vtkNotUsed(request),
 
     for (inStrips->InitTraversal(); inStrips->GetNextCell(npts, pts); inCellID++)
     {
+      if (this->CheckAbort())
+      {
+        break;
+      }
       for (numNewPts = 0, i = 0; i < npts; i++)
       {
         inPts->GetPoint(pts[i], x);

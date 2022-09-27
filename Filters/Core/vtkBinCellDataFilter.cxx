@@ -203,6 +203,10 @@ int vtkBinCellDataFilter::RequestData(vtkInformation* vtkNotUsed(request),
   // iterate over each cell in the source mesh
   for (srcIt->InitTraversal(); !srcIt->IsDoneWithTraversal(); srcIt->GoToNextCell())
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     if (this->CellOverlapMethod == vtkBinCellDataFilter::CELL_CENTROID)
     {
       // identify the centroid of the source cell

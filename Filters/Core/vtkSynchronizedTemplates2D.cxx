@@ -197,6 +197,10 @@ void vtkContourImage(vtkSynchronizedTemplates2D* self, T* scalars, vtkPoints* ne
   // for each contour
   for (vidx = 0; vidx < numContours; vidx++)
   {
+    if (self->CheckAbort())
+    {
+      break;
+    }
     rowPtr = scalars;
 
     lineCases[13] = dim0 * 2;

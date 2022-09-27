@@ -45,6 +45,8 @@ int vtkAttributeDataToFieldDataFilter::RequestData(vtkInformation* vtkNotUsed(re
   output->GetPointData()->PassData(input->GetPointData());
   output->GetCellData()->PassData(input->GetCellData());
 
+  this->CheckAbort();
+
   return 1;
 }
 

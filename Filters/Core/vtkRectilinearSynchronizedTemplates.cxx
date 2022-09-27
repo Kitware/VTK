@@ -303,6 +303,7 @@ void ContourRectilinearGrid(vtkRectilinearSynchronizedTemplates* self, int* exEx
   double spacing[6];
   vtkPolygonBuilder polyBuilder;
   vtkSmartPointer<vtkIdListCollection> polys = vtkSmartPointer<vtkIdListCollection>::New();
+  bool abort = false;
 
   if (ComputeScalars)
   {
@@ -368,7 +369,7 @@ void ContourRectilinearGrid(vtkRectilinearSynchronizedTemplates* self, int* exEx
   }
 
   // for each contour
-  for (vidx = 0; vidx < numContours; vidx++)
+  for (vidx = 0; vidx < numContours && !abort; vidx++)
   {
     value = values[vidx];
     inPtrZ = ptr;
@@ -379,6 +380,11 @@ void ContourRectilinearGrid(vtkRectilinearSynchronizedTemplates* self, int* exEx
     {
       self->UpdateProgress(
         (double)vidx / numContours + (k - zMin) / ((zMax - zMin + 1.0) * numContours));
+      if (self->CheckAbort())
+      {
+        abort = true;
+        break;
+      }
 
       z = zCoords->GetComponent(k - inExt[4], 0);
       x[2] = z;

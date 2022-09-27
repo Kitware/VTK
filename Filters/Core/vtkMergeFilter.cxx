@@ -481,6 +481,10 @@ int vtkMergeFilter::RequestData(vtkInformation* vtkNotUsed(request),
   vtkIdType num;
   for (it.Begin(); !it.End(); it.Next())
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     pd = it.Get()->Ptr->GetPointData();
     cd = it.Get()->Ptr->GetCellData();
     name = it.Get()->GetName();

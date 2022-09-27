@@ -325,7 +325,9 @@ public:
   public:
     vtkFlyingEdges3DAlgorithm<TT>* Algo;
     double Value;
-    Pass1(vtkFlyingEdges3DAlgorithm<TT>* algo, double value)
+    vtkFlyingEdges3D* Filter;
+    Pass1(vtkFlyingEdges3DAlgorithm<TT>* algo, double value, vtkFlyingEdges3D* filter)
+      : Filter(filter)
     {
       this->Algo = algo;
       this->Value = value;
@@ -334,8 +336,17 @@ public:
     {
       vtkIdType row;
       TT *rowPtr, *slicePtr = this->Algo->Scalars + slice * this->Algo->Inc2;
+      bool isFirst = vtkSMPTools::GetSingleThread();
       for (; slice < end; ++slice)
       {
+        if (isFirst)
+        {
+          this->Filter->CheckAbort();
+        }
+        if (this->Filter->GetAbortOutput())
+        {
+          break;
+        }
         for (row = 0, rowPtr = slicePtr; row < this->Algo->Dims[1]; ++row)
         {
           this->Algo->ProcessXEdge(this->Value, rowPtr, row, slice);
@@ -349,12 +360,26 @@ public:
   class Pass2
   {
   public:
-    Pass2(vtkFlyingEdges3DAlgorithm<TT>* algo) { this->Algo = algo; }
+    Pass2(vtkFlyingEdges3DAlgorithm<TT>* algo, vtkFlyingEdges3D* filter)
+      : Filter(filter)
+    {
+      this->Algo = algo;
+    }
     vtkFlyingEdges3DAlgorithm<TT>* Algo;
+    vtkFlyingEdges3D* Filter;
     void operator()(vtkIdType slice, vtkIdType end)
     {
+      bool isFirst = vtkSMPTools::GetSingleThread();
       for (; slice < end; ++slice)
       {
+        if (isFirst)
+        {
+          this->Filter->CheckAbort();
+        }
+        if (this->Filter->GetAbortOutput())
+        {
+          break;
+        }
         for (vtkIdType row = 0; row < (this->Algo->Dims[1] - 1); ++row)
         {
           this->Algo->ProcessYZEdges(row, slice);
@@ -366,12 +391,14 @@ public:
   class Pass4
   {
   public:
-    Pass4(vtkFlyingEdges3DAlgorithm<TT>* algo, double value)
+    Pass4(vtkFlyingEdges3DAlgorithm<TT>* algo, double value, vtkFlyingEdges3D* filter)
+      : Filter(filter)
     {
       this->Algo = algo;
       this->Value = value;
     }
     vtkFlyingEdges3DAlgorithm<TT>* Algo;
+    vtkFlyingEdges3D* Filter;
     double Value;
     void operator()(vtkIdType slice, vtkIdType end)
     {
@@ -379,8 +406,17 @@ public:
       vtkIdType* eMD0 = this->Algo->EdgeMetaData + slice * 6 * this->Algo->Dims[1];
       vtkIdType* eMD1 = eMD0 + 6 * this->Algo->Dims[1];
       TT *rowPtr, *slicePtr = this->Algo->Scalars + slice * this->Algo->Inc2;
+      bool isFirst = vtkSMPTools::GetSingleThread();
       for (; slice < end; ++slice)
       {
+        if (isFirst)
+        {
+          this->Filter->CheckAbort();
+        }
+        if (this->Filter->GetAbortOutput())
+        {
+          break;
+        }
         // It's possible to skip entire slices if there is nothing to generate
         if (eMD1[3] > eMD0[3]) // there are triangle primitives!
         {
@@ -1252,19 +1288,23 @@ void vtkFlyingEdges3DAlgorithm<T>::Contour(vtkFlyingEdges3D* self, vtkImageData*
   // Loop across each contour value. This encompasses all three passes.
   for (vidx = 0; vidx < numContours; vidx++)
   {
+    if (self->CheckAbort())
+    {
+      break;
+    }
     value = values[vidx];
 
     // PASS 1: Traverse all x-rows building edge cases and counting number of
     // intersections (i.e., accumulate information necessary for later output
     // memory allocation, e.g., the number of output points along the x-rows
     // are counted).
-    Pass1<T> pass1(&algo, value);
+    Pass1<T> pass1(&algo, value, self);
     vtkSMPTools::For(0, algo.Dims[2], pass1);
 
     // PASS 2: Traverse all voxel x-rows and process voxel y&z edges.  The
     // result is a count of the number of y- and z-intersections, as well as
     // the number of triangles generated along these voxel rows.
-    Pass2<T> pass2(&algo);
+    Pass2<T> pass2(&algo, self);
     vtkSMPTools::For(0, algo.Dims[2] - 1, pass2);
 
     // PASS 3: Now allocate and generate output. First we have to update the
@@ -1352,7 +1392,7 @@ void vtkFlyingEdges3DAlgorithm<T>::Contour(vtkFlyingEdges3D* self, vtkImageData*
       // Note that we are simultaneously generating triangles and interpolating
       // points. These could be split into separate, parallel operations for
       // maximum performance.
-      Pass4<T> pass4(&algo, value);
+      Pass4<T> pass4(&algo, value, self);
       vtkSMPTools::For(0, algo.Dims[2] - 1, pass4);
     } // if anything generated
 

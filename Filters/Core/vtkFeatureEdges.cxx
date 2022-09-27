@@ -284,7 +284,7 @@ int vtkFeatureEdges::RequestData(vtkInformation* vtkNotUsed(request),
   neighbors = vtkIdList::New();
   neighbors->Allocate(VTK_CELL_SIZE);
 
-  int abort = 0;
+  bool abort = false;
   vtkIdType progressInterval = newPolys->GetNumberOfCells() / 20 + 1;
 
   numBEdges = numNonManifoldEdges = numFedges = numManifoldEdges = 0;
@@ -340,7 +340,7 @@ int vtkFeatureEdges::RequestData(vtkInformation* vtkNotUsed(request),
     if (!(newCellId % progressInterval)) // manage progress / early abort
     {
       this->UpdateProgress(static_cast<double>(newCellId) / numCells);
-      abort = this->GetAbortExecute();
+      abort = this->CheckAbort();
     }
 
     if (numPolys == numCells) // Input only has Polys

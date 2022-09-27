@@ -194,6 +194,10 @@ int vtkPolyDataConnectivityFilter::RequestData(vtkInformation* vtkNotUsed(reques
       if (cellId && !(cellId % 5000))
       {
         this->UpdateProgress(0.1 + 0.8 * cellId / numCells);
+        if (this->CheckAbort())
+        {
+          break;
+        }
       }
 
       if (this->Visited[cellId] < 0)
@@ -222,6 +226,10 @@ int vtkPolyDataConnectivityFilter::RequestData(vtkInformation* vtkNotUsed(reques
     {
       for (i = 0; i < this->Seeds->GetNumberOfIds(); i++)
       {
+        if (this->CheckAbort())
+        {
+          break;
+        }
         pt = this->Seeds->GetId(i);
         if (pt >= 0)
         {
@@ -237,6 +245,10 @@ int vtkPolyDataConnectivityFilter::RequestData(vtkInformation* vtkNotUsed(reques
     {
       for (i = 0; i < this->Seeds->GetNumberOfIds(); i++)
       {
+        if (this->CheckAbort())
+        {
+          break;
+        }
         cellId = this->Seeds->GetId(i);
         if (cellId >= 0)
         {
@@ -250,6 +262,10 @@ int vtkPolyDataConnectivityFilter::RequestData(vtkInformation* vtkNotUsed(reques
       int minId = 0;
       for (minDist2 = VTK_DOUBLE_MAX, i = 0; i < numPts; i++)
       {
+        if (this->CheckAbort())
+        {
+          break;
+        }
         inPts->GetPoint(i, x);
         dist2 = vtkMath::Distance2BetweenPoints(x, this->ClosestPoint);
         if (dist2 < minDist2)
@@ -283,6 +299,10 @@ int vtkPolyDataConnectivityFilter::RequestData(vtkInformation* vtkNotUsed(reques
 
   for (i = 0; i < numPts; i++)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     if (this->PointMap[i] > -1)
     {
       newPts->InsertPoint(this->PointMap[i], inPts->GetPoint(i));
@@ -337,7 +357,7 @@ int vtkPolyDataConnectivityFilter::RequestData(vtkInformation* vtkNotUsed(reques
     this->ExtractionMode == VTK_EXTRACT_CLOSEST_POINT_REGION ||
     this->ExtractionMode == VTK_EXTRACT_ALL_REGIONS)
   { // extract any cell that's been visited
-    for (cellId = 0; cellId < numCells; cellId++)
+    for (cellId = 0; cellId < numCells && !this->CheckAbort(); cellId++)
     {
       if (this->Visited[cellId] >= 0)
       {
@@ -397,7 +417,7 @@ int vtkPolyDataConnectivityFilter::RequestData(vtkInformation* vtkNotUsed(reques
   }
   else // extract largest region
   {
-    for (cellId = 0; cellId < numCells; cellId++)
+    for (cellId = 0; cellId < numCells && !this->CheckAbort(); cellId++)
     {
       if (this->Visited[cellId] == largestRegionId)
       {

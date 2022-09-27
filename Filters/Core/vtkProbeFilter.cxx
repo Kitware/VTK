@@ -497,9 +497,18 @@ public:
     vtkIdType closestPointFound;
     int inside;
     bool foundInCache, insideCellBounds;
+    bool isFirst = vtkSMPTools::GetSingleThread();
 
     for (vtkIdType pointId = beginPointId; pointId < endPointId; ++pointId)
     {
+      if (isFirst)
+      {
+        this->ProbeFilter->CheckAbort();
+      }
+      if (this->ProbeFilter->GetAbortOutput())
+      {
+        break;
+      }
       if (maskArray[pointId] == static_cast<char>(1))
       {
         // skip points which have already been probed with success.
@@ -890,8 +899,17 @@ public:
       this->Source->GetCellData()->GetArray(vtkDataSetAttributes::GhostArrayName()));
 
     auto& cell = this->GenericCell.Local();
+    bool isFirst = vtkSMPTools::GetSingleThread();
     for (vtkIdType cellId = cellBegin; cellId < cellEnd; ++cellId)
     {
+      if (isFirst)
+      {
+        this->ProbeFilter->CheckAbort();
+      }
+      if (this->ProbeFilter->GetAbortOutput())
+      {
+        break;
+      }
       if (IsBlankedCell(sourceGhostFlags, cellId))
       {
         continue;
@@ -1067,13 +1085,17 @@ void vtkProbeFilter::ProbeImageDataPointsSMP(vtkDataSet* input, vtkImageData* so
 
   // Loop over all input points, interpolating source data
   vtkIdType progressInterval = endId / 20 + 1;
-  for (vtkIdType ptId = startId; ptId < endId && !GetAbortExecute(); ptId++)
+  for (vtkIdType ptId = startId; ptId < endId; ptId++)
   {
     if (baseThread && !(ptId % progressInterval))
     {
       // This is not ideal, because if the base thread executes more than one piece,
       // then the progress will repeat its 0.0 to 1.0 progression for each piece.
       this->UpdateProgress(static_cast<double>(ptId) / endId);
+      if (this->CheckAbort())
+      {
+        break;
+      }
     }
 
     if (maskArray[ptId] == static_cast<char>(1))

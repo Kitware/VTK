@@ -72,11 +72,13 @@ struct BinPoints
   double hX, hY, hZ;
   double fX, fY, fZ, bX, bY, bZ;
   vtkIdType xD, yD, zD, xyD;
+  vtkBinnedDecimation* Filter;
 
-  BinPoints(
-    PointsT* pts, TIds* binIds, const int* dims, const double* bounds, const double* spacing)
+  BinPoints(PointsT* pts, TIds* binIds, const int* dims, const double* bounds,
+    const double* spacing, vtkBinnedDecimation* filter)
     : Points(pts)
     , BinIds(binIds)
+    , Filter(filter)
   {
     for (auto i = 0; i < 3; ++i)
     {
@@ -130,8 +132,18 @@ struct BinPoints
     const auto points = vtk::DataArrayTupleRange<3>(this->Points, ptId, endPtId);
     double x[3];
     TIds* bins = this->BinIds + ptId;
+    bool isFirst = vtkSMPTools::GetSingleThread();
+
     for (const auto tuple : points)
     {
+      if (isFirst)
+      {
+        this->Filter->CheckAbort();
+      }
+      if (this->Filter->GetAbortOutput())
+      {
+        break;
+      }
       x[0] = static_cast<double>(tuple[0]);
       x[1] = static_cast<double>(tuple[1]);
       x[2] = static_cast<double>(tuple[2]);
@@ -153,9 +165,10 @@ struct GenerateTriangles
   vtkIdType* OutTris;
   vtkIdType* OutTriOffsets;
   ArrayList* Arrays;
+  vtkBinnedDecimation* Filter;
 
   GenerateTriangles(TIds* bins, TPtMap* ptMap, vtkCellArray* tris, TIds* triMap, vtkIdType* outTris,
-    vtkIdType* outTriOffsets, ArrayList* arrays)
+    vtkIdType* outTriOffsets, ArrayList* arrays, vtkBinnedDecimation* filter)
     : BinIds(bins)
     , PointMap(ptMap)
     , Tris(tris)
@@ -163,6 +176,7 @@ struct GenerateTriangles
     , OutTris(outTris)
     , OutTriOffsets(outTriOffsets)
     , Arrays(arrays)
+    , Filter(filter)
   {
   }
 
@@ -178,9 +192,18 @@ struct GenerateTriangles
     const TIds* triMap = this->TriMap;
     vtkIdType *outTris = this->OutTris, *outTri;
     vtkIdType *outTriOffsets = this->OutTriOffsets, *outOffsets;
+    bool isFirst = vtkSMPTools::GetSingleThread();
 
     for (; triId < endTriId; ++triId)
     {
+      if (isFirst)
+      {
+        this->Filter->CheckAbort();
+      }
+      if (this->Filter->GetAbortOutput())
+      {
+        break;
+      }
       if ((triMap[triId + 1] - triMap[triId]) > 0) // spit out triangle
       {
         cellIter->GetCellAtId(triId, npts, tri);
@@ -213,12 +236,15 @@ struct SelectOutput
   vtkCellArray* Tris;
   TIds* TriMap;
   vtkSMPThreadLocal<vtkSmartPointer<vtkCellArrayIterator>> CellIterator;
+  vtkBinnedDecimation* Filter;
 
-  SelectOutput(TIds* bins, unsigned char* ptUses, vtkCellArray* tris, TIds* triMap)
+  SelectOutput(TIds* bins, unsigned char* ptUses, vtkCellArray* tris, TIds* triMap,
+    vtkBinnedDecimation* filter)
     : BinIds(bins)
     , PointUses(ptUses)
     , Tris(tris)
     , TriMap(triMap)
+    , Filter(filter)
   {
   }
 
@@ -231,9 +257,18 @@ struct SelectOutput
     vtkCellArrayIterator* cellIter = this->CellIterator.Local();
     TIds* triMap = this->TriMap + triId;
     unsigned char* ptUses = this->PointUses;
+    bool isFirst = vtkSMPTools::GetSingleThread();
 
     for (; triId < endTriId; ++triId, ++triMap)
     {
+      if (isFirst)
+      {
+        this->Filter->CheckAbort();
+      }
+      if (this->Filter->GetAbortOutput())
+      {
+        break;
+      }
       cellIter->GetCellAtId(triId, npts, tri);
       // All three points have to be in different bins
       if (this->BinIds[tri[0]] != this->BinIds[tri[1]] &&
@@ -263,11 +298,13 @@ struct InitializePointMap
   const TIds* BinIds;
   const unsigned char* PointUses;
   TIds* PointMap;
+  vtkBinnedDecimation* Filter;
 
-  InitializePointMap(TIds* binIds, unsigned char* ptUses, TIds* ptMap)
+  InitializePointMap(TIds* binIds, unsigned char* ptUses, TIds* ptMap, vtkBinnedDecimation* filter)
     : BinIds(binIds)
     , PointUses(ptUses)
     , PointMap(ptMap)
+    , Filter(filter)
   {
   }
 
@@ -276,9 +313,18 @@ struct InitializePointMap
     const TIds* binIds = this->BinIds;
     const unsigned char* ptUses = this->PointUses + ptId;
     TIds* ptMap = this->PointMap;
+    bool isFirst = vtkSMPTools::GetSingleThread();
 
     for (; ptId < endPtId; ++ptId)
     {
+      if (isFirst)
+      {
+        this->Filter->CheckAbort();
+      }
+      if (this->Filter->GetAbortOutput())
+      {
+        break;
+      }
       if (*ptUses++ > 0)
       {
         ptMap[binIds[ptId]] = (-1); // mark unvisited
@@ -292,7 +338,7 @@ struct InitializePointMap
 template <typename PointsT, typename TIds>
 void ReuseDecimate(vtkIdType numPts, PointsT* pts, vtkIdType numTris, vtkCellArray* tris,
   vtkCellData* inCD, vtkCellData* outCD, vtkIdType numBins, const int* dims, const double* bounds,
-  const double* spacing, vtkPolyData* output)
+  const double* spacing, vtkPolyData* output, vtkBinnedDecimation* filter)
 {
   // Setup execution. Several arrays are used to transform the data.
   // The bin id of each point
@@ -307,15 +353,15 @@ void ReuseDecimate(vtkIdType numPts, PointsT* pts, vtkIdType numTris, vtkCellArr
   TIds* triMap = new TIds[numTris + 1];
 
   // Bin points to generate a bin index for each point
-  BinPoints<PointsT, TIds> binPoints(pts, binIds, dims, bounds, spacing);
+  BinPoints<PointsT, TIds> binPoints(pts, binIds, dims, bounds, spacing, filter);
   vtkSMPTools::For(0, numPts, binPoints);
 
   // Select which triangles and points are sent to the output.
-  SelectOutput<TIds> selectOutput(binIds, ptUses, tris, triMap);
+  SelectOutput<TIds> selectOutput(binIds, ptUses, tris, triMap, filter);
   vtkSMPTools::For(0, numTris, selectOutput);
 
   // Initialize the point map, only the bins that contain something
-  InitializePointMap<TIds> initPtMap(binIds, ptUses, ptMap);
+  InitializePointMap<TIds> initPtMap(binIds, ptUses, ptMap, filter);
   vtkSMPTools::For(0, numPts, initPtMap);
 
   // Prefix sums to roll up the points and cells, and setup offsets for
@@ -358,8 +404,8 @@ void ReuseDecimate(vtkIdType numPts, PointsT* pts, vtkIdType numTris, vtkCellArr
   }
 
   // Produce output triangles.
-  GenerateTriangles<TIds, TIds> genTris(
-    binIds, ptMap, tris, triMap, outTris, outTriOffsets, (outCD != nullptr ? (&arrays) : nullptr));
+  GenerateTriangles<TIds, TIds> genTris(binIds, ptMap, tris, triMap, outTris, outTriOffsets,
+    (outCD != nullptr ? (&arrays) : nullptr), filter);
   vtkSMPTools::For(0, numTris, genTris);
   outTrisArray->SetData(outOffsets, outConn);
 
@@ -376,7 +422,8 @@ struct PointReuseWorker
 {
   template <typename DataT>
   void operator()(DataT* pts, bool largeIds, vtkCellArray* tris, vtkCellData* inCD,
-    vtkCellData* outCD, int* divs, double bounds[6], double spacing[3], vtkPolyData* output)
+    vtkCellData* outCD, int* divs, double bounds[6], double spacing[3], vtkPolyData* output,
+    vtkBinnedDecimation* filter)
   {
     vtkIdType numPts = pts->GetNumberOfTuples();
     vtkIdType numTris = tris->GetNumberOfCells();
@@ -386,12 +433,12 @@ struct PointReuseWorker
     if (!largeIds)
     {
       ReuseDecimate<DataT, int>(
-        numPts, pts, numTris, tris, inCD, outCD, numBins, divs, bounds, spacing, output);
+        numPts, pts, numTris, tris, inCD, outCD, numBins, divs, bounds, spacing, output, filter);
     }
     else
     {
       ReuseDecimate<DataT, vtkIdType>(
-        numPts, pts, numTris, tris, inCD, outCD, numBins, divs, bounds, spacing, output);
+        numPts, pts, numTris, tris, inCD, outCD, numBins, divs, bounds, spacing, output, filter);
     }
   }
 };
@@ -410,12 +457,15 @@ struct MapOutput
   vtkCellArray* Tris;
   TIds* TriMap;
   vtkSMPThreadLocal<vtkSmartPointer<vtkCellArrayIterator>> CellIterator;
+  vtkBinnedDecimation* Filter;
 
-  MapOutput(TIds* bins, std::atomic<TIds>* ptMap, vtkCellArray* tris, TIds* triMap)
+  MapOutput(TIds* bins, std::atomic<TIds>* ptMap, vtkCellArray* tris, TIds* triMap,
+    vtkBinnedDecimation* filter)
     : BinIds(bins)
     , PointMap(ptMap)
     , Tris(tris)
     , TriMap(triMap)
+    , Filter(filter)
   {
   }
 
@@ -448,9 +498,18 @@ struct MapOutput
     TIds* triMap = this->TriMap + triId;
     std::atomic<TIds>* ptMap = this->PointMap;
     TIds binIds[3];
+    bool isFirst = vtkSMPTools::GetSingleThread();
 
     for (; triId < endTriId; ++triId, ++triMap)
     {
+      if (isFirst)
+      {
+        this->Filter->CheckAbort();
+      }
+      if (this->Filter->GetAbortOutput())
+      {
+        break;
+      }
       cellIter->GetCellAtId(triId, npts, tri);
       binIds[0] = this->BinIds[tri[0]];
       binIds[1] = this->BinIds[tri[1]];
@@ -484,11 +543,14 @@ struct CountPoints
   const int* Dims;
   std::atomic<TIds>* PointMap;
   int* SliceOffsets;
+  vtkBinnedDecimation* Filter;
 
-  CountPoints(const int* dims, std::atomic<TIds>* ptMap, int* sliceOffsets)
+  CountPoints(
+    const int* dims, std::atomic<TIds>* ptMap, int* sliceOffsets, vtkBinnedDecimation* filter)
     : Dims(dims)
     , PointMap(ptMap)
     , SliceOffsets(sliceOffsets)
+    , Filter(filter)
   {
   }
 
@@ -497,9 +559,18 @@ struct CountPoints
   void operator()(vtkIdType slice, vtkIdType endSlice)
   {
     int binOffset = slice * this->Dims[0] * this->Dims[1];
+    bool isFirst = vtkSMPTools::GetSingleThread();
 
     for (; slice < endSlice; ++slice)
     {
+      if (isFirst)
+      {
+        this->Filter->CheckAbort();
+      }
+      if (this->Filter->GetAbortOutput())
+      {
+        break;
+      }
       vtkIdType numSlicePts = 0;
       for (auto j = 0; j < this->Dims[1]; ++j)
       {
@@ -544,9 +615,11 @@ struct GenerateBinPoints
   PointsT* InPoints;
   ArrayList* Arrays;
   float* OutPoints;
+  vtkBinnedDecimation* Filter;
 
   GenerateBinPoints(int genMode, const double* bounds, const double* spacing, const int* dims,
-    int* sliceOffsets, std::atomic<TIds>* ptMap, PointsT* inPts, ArrayList* arrays, float* outPts)
+    int* sliceOffsets, std::atomic<TIds>* ptMap, PointsT* inPts, ArrayList* arrays, float* outPts,
+    vtkBinnedDecimation* filter)
     : PointGenerationMode(genMode)
     , Bounds(bounds)
     , Spacing(spacing)
@@ -556,6 +629,7 @@ struct GenerateBinPoints
     , InPoints(inPts)
     , Arrays(arrays)
     , OutPoints(outPts)
+    , Filter(filter)
   {
   }
 
@@ -567,9 +641,18 @@ struct GenerateBinPoints
     float* xOut;
     double xIn[3];
     const auto pts = vtk::DataArrayTupleRange<3>(this->InPoints);
+    bool isFirst = vtkSMPTools::GetSingleThread();
 
     for (; slice < endSlice; ++slice)
     {
+      if (isFirst)
+      {
+        this->Filter->CheckAbort();
+      }
+      if (this->Filter->GetAbortOutput())
+      {
+        break;
+      }
       for (auto j = 0; j < this->Dims[1]; ++j)
       {
         for (auto i = 0; i < this->Dims[0]; ++i)
@@ -617,14 +700,14 @@ template <typename PointsT, typename TIds>
 void BinPointsDecimate(int genMode, vtkIdType numPts, PointsT* pts, vtkPointData* inPD,
   vtkPointData* outPD, vtkIdType numTris, vtkCellArray* tris, vtkCellData* inCD, vtkCellData* outCD,
   vtkIdType numBins, const int* dims, const double* bounds, const double* spacing,
-  vtkPolyData* output)
+  vtkPolyData* output, vtkBinnedDecimation* filter)
 {
   // Setup execution. Several arrays are used to transform the data.
   // The bin id of each point.
   TIds* binIds = new TIds[numPts];
 
   // Now bin points to generate a bin index for each point.
-  BinPoints<PointsT, TIds> binPoints(pts, binIds, dims, bounds, spacing);
+  BinPoints<PointsT, TIds> binPoints(pts, binIds, dims, bounds, spacing, filter);
   vtkSMPTools::For(0, numPts, binPoints);
 
   // The ptMap is the output point id assigned to each bin (if the bin
@@ -640,13 +723,13 @@ void BinPointsDecimate(int genMode, vtkIdType numPts, PointsT* pts, vtkPointData
 
   // Begin to construct mappings of input points and cells, to output points
   // and cells.
-  MapOutput<TIds> mapOutput(binIds, ptMap, tris, triMap);
+  MapOutput<TIds> mapOutput(binIds, ptMap, tris, triMap, filter);
   vtkSMPTools::For(0, numTris, mapOutput);
 
   // Now generate the new points. First generate new point ids, and then
   // produce the actual points.
   int* sliceOffsets = new int[dims[2] + 1];
-  CountPoints<TIds> countPts(dims, ptMap, sliceOffsets);
+  CountPoints<TIds> countPts(dims, ptMap, sliceOffsets, filter);
   vtkSMPTools::For(0, dims[2], countPts);
   int numNewPts = sliceOffsets[dims[2]];
 
@@ -662,7 +745,7 @@ void BinPointsDecimate(int genMode, vtkIdType numPts, PointsT* pts, vtkPointData
 
   GenerateBinPoints<PointsT, TIds> genPts(genMode, bounds, spacing, dims, sliceOffsets, ptMap, pts,
     (outPD != nullptr ? (&ptArrays) : nullptr),
-    vtkFloatArray::FastDownCast(newPts->GetData())->GetPointer(0));
+    vtkFloatArray::FastDownCast(newPts->GetData())->GetPointer(0), filter);
   vtkSMPTools::For(0, dims[2], genPts);
   output->SetPoints(newPts);
 
@@ -692,8 +775,8 @@ void BinPointsDecimate(int genMode, vtkIdType numPts, PointsT* pts, vtkPointData
     arrays.AddArrays(numOutTris, inCD, outCD);
   }
 
-  GenerateTriangles<TIds, std::atomic<TIds>> genTris(
-    binIds, ptMap, tris, triMap, outTris, outTriOffsets, (outCD != nullptr ? (&arrays) : nullptr));
+  GenerateTriangles<TIds, std::atomic<TIds>> genTris(binIds, ptMap, tris, triMap, outTris,
+    outTriOffsets, (outCD != nullptr ? (&arrays) : nullptr), filter);
   vtkSMPTools::For(0, numTris, genTris);
   outTrisArray->SetData(outOffsets, outConn);
 
@@ -713,7 +796,7 @@ struct BinPointsWorker
   template <typename DataT>
   void operator()(DataT* pts, vtkPointData* inPD, vtkPointData* outPD, bool largeIds, int genMode,
     vtkCellArray* tris, vtkCellData* inCD, vtkCellData* outCD, int* divs, double bounds[6],
-    double spacing[3], vtkPolyData* output)
+    double spacing[3], vtkPolyData* output, vtkBinnedDecimation* filter)
   {
     vtkIdType numPts = pts->GetNumberOfTuples();
     vtkIdType numTris = tris->GetNumberOfCells();
@@ -722,12 +805,12 @@ struct BinPointsWorker
     if (!largeIds)
     {
       BinPointsDecimate<DataT, int>(genMode, numPts, pts, inPD, outPD, numTris, tris, inCD, outCD,
-        numBins, divs, bounds, spacing, output);
+        numBins, divs, bounds, spacing, output, filter);
     }
     else
     {
       BinPointsDecimate<DataT, vtkIdType>(genMode, numPts, pts, inPD, outPD, numTris, tris, inCD,
-        outCD, numBins, divs, bounds, spacing, output);
+        outCD, numBins, divs, bounds, spacing, output, filter);
     }
   }
 };
@@ -757,8 +840,8 @@ struct BinPointTuples : public BinPoints<PointsT, TIds>
   BinTuple<TIds>* BinTuples;
 
   BinPointTuples(PointsT* pts, BinTuple<TIds>* binTuples, const int* dims, const double* bounds,
-    const double* spacing)
-    : BinPoints<PointsT, TIds>(pts, nullptr, dims, bounds, spacing)
+    const double* spacing, vtkBinnedDecimation* filter)
+    : BinPoints<PointsT, TIds>(pts, nullptr, dims, bounds, spacing, filter)
     , BinTuples(binTuples)
   {
   }
@@ -768,8 +851,17 @@ struct BinPointTuples : public BinPoints<PointsT, TIds>
     const auto points = vtk::DataArrayTupleRange<3>(this->Points, ptId, endPtId);
     double x[3];
     BinTuple<TIds>* bins = this->BinTuples + ptId;
+    bool isFirst = vtkSMPTools::GetSingleThread();
     for (const auto tuple : points)
     {
+      if (isFirst)
+      {
+        this->Filter->CheckAbort();
+      }
+      if (this->Filter->GetAbortOutput())
+      {
+        break;
+      }
       (*bins).PtId = ptId++;
       x[0] = static_cast<double>(tuple[0]);
       x[1] = static_cast<double>(tuple[1]);
@@ -787,11 +879,13 @@ struct MarkBinnedTris
   vtkCellArray* Tris;
   TIds* TriMap;
   vtkSMPThreadLocal<vtkSmartPointer<vtkCellArrayIterator>> CellIterator;
+  vtkBinnedDecimation* Filter;
 
-  MarkBinnedTris(BinTuple<TIds>* bt, vtkCellArray* tris, TIds* triMap)
+  MarkBinnedTris(BinTuple<TIds>* bt, vtkCellArray* tris, TIds* triMap, vtkBinnedDecimation* filter)
     : BinTuples(bt)
     , Tris(tris)
     , TriMap(triMap)
+    , Filter(filter)
   {
   }
 
@@ -804,9 +898,18 @@ struct MarkBinnedTris
     vtkCellArrayIterator* cellIter = this->CellIterator.Local();
     TIds* triMap = this->TriMap + triId;
     TIds binIds[3];
+    bool isFirst = vtkSMPTools::GetSingleThread();
 
     for (; triId < endTriId; ++triId, ++triMap)
     {
+      if (isFirst)
+      {
+        this->Filter->CheckAbort();
+      }
+      if (this->Filter->GetAbortOutput())
+      {
+        break;
+      }
       cellIter->GetCellAtId(triId, npts, tri);
       binIds[0] = this->BinTuples[tri[0]].Bin;
       binIds[1] = this->BinTuples[tri[1]].Bin;
@@ -838,15 +941,17 @@ struct BinAveTriangles
   vtkIdType* OutTris;
   vtkIdType* OutTriOffsets;
   ArrayList* Arrays;
+  vtkBinnedDecimation* Filter;
 
   BinAveTriangles(const BinTuple<TIds>* bt, vtkCellArray* tris, TIds* triMap, vtkIdType* outTris,
-    vtkIdType* outTriOffsets, ArrayList* arrays)
+    vtkIdType* outTriOffsets, ArrayList* arrays, vtkBinnedDecimation* filter)
     : BinTuples(bt)
     , Tris(tris)
     , TriMap(triMap)
     , OutTris(outTris)
     , OutTriOffsets(outTriOffsets)
     , Arrays(arrays)
+    , Filter(filter)
   {
   }
 
@@ -861,9 +966,18 @@ struct BinAveTriangles
     const TIds* triMap = this->TriMap;
     vtkIdType *outTris = this->OutTris, *outTri;
     vtkIdType *outTriOffsets = this->OutTriOffsets, *outOffsets;
+    bool isFirst = vtkSMPTools::GetSingleThread();
 
     for (; triId < endTriId; ++triId)
     {
+      if (isFirst)
+      {
+        this->Filter->CheckAbort();
+      }
+      if (this->Filter->GetAbortOutput())
+      {
+        break;
+      }
       if ((triMap[triId + 1] - triMap[triId]) > 0) // spit out triangle
       {
         cellIter->GetCellAtId(triId, npts, tri);
@@ -893,11 +1007,14 @@ struct GenerateAveTriangles
   const BinTuple<TIds>* BinTuples;
   const TIds* Offsets;
   vtkIdType* OutTris;
+  vtkBinnedDecimation* Filter;
 
-  GenerateAveTriangles(const BinTuple<TIds>* bt, TIds* offsets, vtkIdType* outTris)
+  GenerateAveTriangles(
+    const BinTuple<TIds>* bt, TIds* offsets, vtkIdType* outTris, vtkBinnedDecimation* filter)
     : BinTuples(bt)
     , Offsets(offsets)
     , OutTris(outTris)
+    , Filter(filter)
   {
   }
 
@@ -906,9 +1023,18 @@ struct GenerateAveTriangles
     const BinTuple<TIds>* binTuples = this->BinTuples;
     const TIds* offsets = this->Offsets;
     vtkIdType* outTri = this->OutTris + 3 * triId;
+    bool isFirst = vtkSMPTools::GetSingleThread();
 
     for (; triId < endTriId; ++triId, outTri += 3)
     {
+      if (isFirst)
+      {
+        this->Filter->CheckAbort();
+      }
+      if (this->Filter->GetAbortOutput())
+      {
+        break;
+      }
       outTri[0] = (*(binTuples + offsets[outTri[0]])).PtId;
       outTri[1] = (*(binTuples + offsets[outTri[1]])).PtId;
       outTri[2] = (*(binTuples + offsets[outTri[2]])).PtId;
@@ -926,12 +1052,15 @@ struct MapOffsets
   TIds NumPts;
   TIds NumBins;
   TIds BatchSize;
+  vtkBinnedDecimation* Filter;
 
-  MapOffsets(BinTuple<TIds>* bt, TIds* offsets, TIds numPts, TIds numBins, TIds numBatches)
+  MapOffsets(BinTuple<TIds>* bt, TIds* offsets, TIds numPts, TIds numBins, TIds numBatches,
+    vtkBinnedDecimation* filter)
     : BinTuples(bt)
     , Offsets(offsets)
     , NumPts(numPts)
     , NumBins(numBins)
+    , Filter(filter)
   {
     this->BatchSize = static_cast<int>(ceil(static_cast<double>(numPts) / numBatches));
   }
@@ -963,12 +1092,22 @@ struct MapOffsets
       prevPt = curPt;
     } // else in the middle of a batch
 
+    bool isFirst = vtkSMPTools::GetSingleThread();
+
     // Okay we have a starting point for a bin run. Now we can begin
     // filling in the offsets in this batch. A previous thread should
     // have/will have completed the previous and subsequent runs outside
     // of the [batch,batchEnd) range
     for (curPt = prevPt; curPt < endBatchPt;)
     {
+      if (isFirst)
+      {
+        this->Filter->CheckAbort();
+      }
+      if (this->Filter->GetAbortOutput())
+      {
+        break;
+      }
       for (; curPt->Bin == prevPt->Bin && curPt <= endBatchPt; ++curPt)
       {
         // advance
@@ -998,11 +1137,13 @@ struct CountAvePts
   const int* Dims;
   const TIds* Offsets;
   int* SliceOffsets;
+  vtkBinnedDecimation* Filter;
 
-  CountAvePts(const int* dims, const TIds* offsets, int* sliceOffsets)
+  CountAvePts(const int* dims, const TIds* offsets, int* sliceOffsets, vtkBinnedDecimation* filter)
     : Dims(dims)
     , Offsets(offsets)
     , SliceOffsets(sliceOffsets)
+    , Filter(filter)
   {
   }
 
@@ -1011,9 +1152,18 @@ struct CountAvePts
   void operator()(vtkIdType slice, vtkIdType endSlice)
   {
     int binNum = slice * this->Dims[0] * this->Dims[1];
+    bool isFirst = vtkSMPTools::GetSingleThread();
 
     for (; slice < endSlice; ++slice)
     {
+      if (isFirst)
+      {
+        this->Filter->CheckAbort();
+      }
+      if (this->Filter->GetAbortOutput())
+      {
+        break;
+      }
       vtkIdType numSlicePts = 0;
       for (auto j = 0; j < this->Dims[1]; ++j)
       {
@@ -1057,9 +1207,11 @@ struct GenerateAveBinPoints
   ArrayList* Arrays;
   float* OutPoints;
   vtkSMPThreadLocal<std::vector<vtkIdType>> PtIds;
+  vtkBinnedDecimation* Filter;
 
   GenerateAveBinPoints(const int* dims, PointsT* inPts, const int* sliceOffsets,
-    BinTuple<TIds>* binTuples, const TIds* offsets, ArrayList* arrays, float* outPts)
+    BinTuple<TIds>* binTuples, const TIds* offsets, ArrayList* arrays, float* outPts,
+    vtkBinnedDecimation* filter)
     : Dims(dims)
     , InPoints(inPts)
     , SliceOffsets(sliceOffsets)
@@ -1067,6 +1219,7 @@ struct GenerateAveBinPoints
     , Offsets(offsets)
     , Arrays(arrays)
     , OutPoints(outPts)
+    , Filter(filter)
   {
   }
 
@@ -1082,9 +1235,18 @@ struct GenerateAveBinPoints
     BinTuple<TIds>* pIds;
     TIds pId;
     std::vector<vtkIdType> v = this->PtIds.Local();
+    bool isFirst = vtkSMPTools::GetSingleThread();
 
     for (; slice < endSlice; ++slice)
     {
+      if (isFirst)
+      {
+        this->Filter->CheckAbort();
+      }
+      if (this->Filter->GetAbortOutput())
+      {
+        break;
+      }
       for (auto j = 0; j < this->Dims[1]; ++j)
       {
         for (auto i = 0; i < this->Dims[0]; ++i)
@@ -1136,14 +1298,15 @@ struct GenerateAveBinPoints
 template <typename PointsT, typename TIds>
 void AvePointsDecimate(vtkIdType numPts, PointsT* pts, vtkPointData* inPD, vtkPointData* outPD,
   vtkIdType numTris, vtkCellArray* tris, vtkCellData* inCD, vtkCellData* outCD, vtkIdType numBins,
-  const int* dims, const double* bounds, const double* spacing, vtkPolyData* output)
+  const int* dims, const double* bounds, const double* spacing, vtkPolyData* output,
+  vtkBinnedDecimation* filter)
 {
   // Setup execution. Several arrays are used to transform the data.
   // Define the bin id and associated point id of each point.
   BinTuple<TIds>* binTuples = new BinTuple<TIds>[numPts];
 
   // Now bin points to generate a bin index for each point.
-  BinPointTuples<PointsT, TIds> binPoints(pts, binTuples, dims, bounds, spacing);
+  BinPointTuples<PointsT, TIds> binPoints(pts, binTuples, dims, bounds, spacing, filter);
   vtkSMPTools::For(0, numPts, binPoints);
 
   // Initially, triMap indicates which triangles are output. And then
@@ -1152,7 +1315,7 @@ void AvePointsDecimate(vtkIdType numPts, PointsT* pts, vtkPointData* inPD, vtkPo
 
   // Begin to construct mappings of input points and cells, to output points
   // and cells. First identify the triangles to be sent to the output.
-  MarkBinnedTris<TIds> markBinnedTris(binTuples, tris, triMap);
+  MarkBinnedTris<TIds> markBinnedTris(binTuples, tris, triMap, filter);
   vtkSMPTools::For(0, numTris, markBinnedTris);
 
   // Create a mapping of the input triangles to the output triangles.
@@ -1182,8 +1345,8 @@ void AvePointsDecimate(vtkIdType numPts, PointsT* pts, vtkPointData* inPD, vtkPo
     arrays.AddArrays(numOutTris, inCD, outCD);
   }
 
-  BinAveTriangles<TIds> binTris(
-    binTuples, tris, triMap, outTris, outTriOffsets, (outCD != nullptr ? (&arrays) : nullptr));
+  BinAveTriangles<TIds> binTris(binTuples, tris, triMap, outTris, outTriOffsets,
+    (outCD != nullptr ? (&arrays) : nullptr), filter);
   vtkSMPTools::For(0, numTris, binTris);
   outTrisArray->SetData(outOffsets, outConn);
 
@@ -1196,7 +1359,7 @@ void AvePointsDecimate(vtkIdType numPts, PointsT* pts, vtkPointData* inPD, vtkPo
   // into the sorted bin tuples (i.e., runs of points in each bin).
   TIds* offsets = new TIds[numBins + 1];
   TIds numBatches = (numPts < 10000 ? 1 : 100); // totally arbitrary
-  MapOffsets<TIds> offMapper(binTuples, offsets, numPts, numBins, numBatches);
+  MapOffsets<TIds> offMapper(binTuples, offsets, numPts, numBins, numBatches, filter);
   vtkSMPTools::For(0, numBatches, offMapper);
   offsets[numBins] = numPts;
 
@@ -1205,7 +1368,7 @@ void AvePointsDecimate(vtkIdType numPts, PointsT* pts, vtkPointData* inPD, vtkPo
   // have to count the new points, and then accumulate them with a prefix
   // sum. For convenience, this is done on a bin slice-by-slice manner.
   int* sliceOffsets = new int[dims[2] + 1];
-  CountAvePts<TIds> countPts(dims, offsets, sliceOffsets);
+  CountAvePts<TIds> countPts(dims, offsets, sliceOffsets, filter);
   vtkSMPTools::For(0, dims[2], countPts);
   int numNewPts = sliceOffsets[dims[2]];
 
@@ -1227,12 +1390,12 @@ void AvePointsDecimate(vtkIdType numPts, PointsT* pts, vtkPointData* inPD, vtkPo
   // Do the core work of averaging point coordinates and attributes.
   GenerateAveBinPoints<PointsT, TIds> genPts(dims, pts, sliceOffsets, binTuples, offsets,
     (outPD != nullptr ? (&ptArrays) : nullptr),
-    vtkFloatArray::FastDownCast(newPts->GetData())->GetPointer(0));
+    vtkFloatArray::FastDownCast(newPts->GetData())->GetPointer(0), filter);
   vtkSMPTools::For(0, dims[2], genPts);
   output->SetPoints(newPts);
 
   // Finally map the triangle connectivity list to the new point ids.
-  GenerateAveTriangles<TIds> genAveTris(binTuples, offsets, outTris);
+  GenerateAveTriangles<TIds> genAveTris(binTuples, offsets, outTris, filter);
   vtkSMPTools::For(0, numOutTris, genAveTris);
 
   // Clean up
@@ -1250,7 +1413,7 @@ struct AvePointsWorker
   template <typename DataT>
   void operator()(DataT* pts, vtkPointData* inPD, vtkPointData* outPD, bool largeIds,
     vtkCellArray* tris, vtkCellData* inCD, vtkCellData* outCD, int* divs, double bounds[6],
-    double spacing[3], vtkPolyData* output)
+    double spacing[3], vtkPolyData* output, vtkBinnedDecimation* filter)
   {
     vtkIdType numPts = pts->GetNumberOfTuples();
     vtkIdType numTris = tris->GetNumberOfCells();
@@ -1259,12 +1422,12 @@ struct AvePointsWorker
     if (!largeIds)
     {
       AvePointsDecimate<DataT, int>(numPts, pts, inPD, outPD, numTris, tris, inCD, outCD, numBins,
-        divs, bounds, spacing, output);
+        divs, bounds, spacing, output, filter);
     }
     else
     {
       AvePointsDecimate<DataT, vtkIdType>(numPts, pts, inPD, outPD, numTris, tris, inCD, outCD,
-        numBins, divs, bounds, spacing, output);
+        numBins, divs, bounds, spacing, output, filter);
     }
   }
 };
@@ -1449,10 +1612,10 @@ int vtkBinnedDecimation::RequestData(vtkInformation* vtkNotUsed(request),
     using PointReuseDispatch = vtkArrayDispatch::DispatchByValueType<Reals>;
     PointReuseWorker deciWorker;
     if (!PointReuseDispatch::Execute(inPts->GetData(), deciWorker, this->LargeIds, inTris, inCD,
-          outCD, this->NumberOfDivisions, this->Bounds, this->DivisionSpacing, output))
+          outCD, this->NumberOfDivisions, this->Bounds, this->DivisionSpacing, output, this))
     { // Fallback to slowpath for other point types
       deciWorker(inPts->GetData(), this->LargeIds, inTris, inCD, outCD, this->NumberOfDivisions,
-        this->Bounds, this->DivisionSpacing, output);
+        this->Bounds, this->DivisionSpacing, output, this);
     }
   }
 
@@ -1464,10 +1627,10 @@ int vtkBinnedDecimation::RequestData(vtkInformation* vtkNotUsed(request),
     BinPointsWorker deciWorker;
     if (!BinPointsDispatch::Execute(inPts->GetData(), deciWorker, inPD, outPD, this->LargeIds,
           this->PointGenerationMode, inTris, inCD, outCD, this->NumberOfDivisions, this->Bounds,
-          this->DivisionSpacing, output))
+          this->DivisionSpacing, output, this))
     { // Fallback to slowpath for other point types
       deciWorker(inPts->GetData(), inPD, outPD, this->LargeIds, this->PointGenerationMode, inTris,
-        inCD, outCD, this->NumberOfDivisions, this->Bounds, this->DivisionSpacing, output);
+        inCD, outCD, this->NumberOfDivisions, this->Bounds, this->DivisionSpacing, output, this);
     }
   }
 
@@ -1477,11 +1640,11 @@ int vtkBinnedDecimation::RequestData(vtkInformation* vtkNotUsed(request),
     using AvePointsDispatch = vtkArrayDispatch::DispatchByValueType<Reals>;
     AvePointsWorker deciWorker;
     if (!AvePointsDispatch::Execute(inPts->GetData(), deciWorker, inPD, outPD, this->LargeIds,
-          inTris, inCD, outCD, this->NumberOfDivisions, this->Bounds, this->DivisionSpacing,
-          output))
+          inTris, inCD, outCD, this->NumberOfDivisions, this->Bounds, this->DivisionSpacing, output,
+          this))
     { // Fallback to slowpath for other point types
       deciWorker(inPts->GetData(), inPD, outPD, this->LargeIds, inTris, inCD, outCD,
-        this->NumberOfDivisions, this->Bounds, this->DivisionSpacing, output);
+        this->NumberOfDivisions, this->Bounds, this->DivisionSpacing, output, this);
     }
   }
 

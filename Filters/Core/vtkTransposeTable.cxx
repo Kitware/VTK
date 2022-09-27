@@ -166,6 +166,10 @@ bool vtkTransposeTableInternal::TransposeTable(vtkTable* inTable, vtkTable* outT
   }
   for (int c = idColOffset; c < this->InTable->GetNumberOfColumns(); c++)
   {
+    if (this->Parent->CheckAbort())
+    {
+      break;
+    }
     vtkAbstractArray* column = this->InTable->GetColumn(c);
     if (!column)
     {
@@ -224,6 +228,10 @@ bool vtkTransposeTableInternal::TransposeTable(vtkTable* inTable, vtkTable* outT
   firstCol = this->InTable->GetColumn(0);
   for (int r = 0; r < firstCol->GetNumberOfComponents() * firstCol->GetNumberOfTuples(); r++)
   {
+    if (this->Parent->CheckAbort())
+    {
+      break;
+    }
     vtkAbstractArray* destColumn = this->OutTable->GetColumn(r);
     if (this->Parent->GetUseIdColumn())
     {

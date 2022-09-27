@@ -49,7 +49,7 @@ int vtkMaskPolyData::RequestData(vtkInformation* vtkNotUsed(request),
   vtkIdType numCells;
   const vtkIdType* pts = nullptr;
   vtkIdType npts = 0;
-  int abortExecute = 0;
+  bool abortExecute = false;
 
   // Check input / pass data through
   //
@@ -72,7 +72,7 @@ int vtkMaskPolyData::RequestData(vtkInformation* vtkNotUsed(request),
     if (!(id % tenth))
     {
       this->UpdateProgress((float)id / numCells);
-      abortExecute = this->GetAbortExecute();
+      abortExecute = this->CheckAbort();
     }
     input->GetCellPoints(id, npts, pts);
     output->InsertNextCell(input->GetCellType(id), npts, pts);

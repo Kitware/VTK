@@ -117,6 +117,10 @@ int vtkAppendCompositeDataLeaves::RequestData(vtkInformation* vtkNotUsed(request
   static bool first = true;
   for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     // Loop over all inputs at this "spot" in the composite data tree. locate
     // the first input that has a non-null data-object at this location, if any.
     vtkDataObject* obj = nullptr;
@@ -199,6 +203,7 @@ void vtkAppendCompositeDataLeaves::AppendUnstructuredGrids(vtkInformationVector*
   int numInputs, vtkCompositeDataIterator* iter, vtkCompositeDataSet* output)
 {
   vtkNew<vtkAppendFilter> appender;
+  appender->SetContainerAlgorithm(this);
 
   for (int idx = i; idx < numInputs; ++idx)
   {
@@ -222,6 +227,7 @@ void vtkAppendCompositeDataLeaves::AppendPolyData(vtkInformationVector* inputVec
   int numInputs, vtkCompositeDataIterator* iter, vtkCompositeDataSet* output)
 {
   vtkNew<vtkAppendPolyData> appender;
+  appender->SetContainerAlgorithm(this);
 
   for (int idx = i; idx < numInputs; ++idx)
   {

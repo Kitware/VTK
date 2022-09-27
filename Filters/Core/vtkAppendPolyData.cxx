@@ -342,6 +342,10 @@ int vtkAppendPolyData::ExecuteAppend(vtkPolyData* output, vtkPolyData* inputs[],
   countPD = countCD = 0;
   for (idx = 0; idx < numInputs; ++idx)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     this->UpdateProgress(0.2 + 0.8 * idx / numInputs);
     ds = inputs[idx];
     // this check is not necessary, but I'll put it in anyway

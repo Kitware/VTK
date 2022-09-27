@@ -203,7 +203,7 @@ struct IntersectLinesWorker
   IntersectLinesWorker(DataSetType* input, vtkCellArray* lineCells,
     vtkUnsignedCharArray* lineCellTypes, vtkPoints* linePoints, vtkAbstractCellLocator* locator,
     vtkIdType& connectivitySize, std::unordered_set<vtkIdType>& intersectedCellIds,
-    std::unordered_set<vtkIdType>& intersectedCellPointIds)
+    std::unordered_set<vtkIdType>& intersectedCellPointIds, vtkExtractCellsAlongPolyLine* filter)
     : Input(input)
     , LineCells(lineCells)
     , LineCellTypes(lineCellTypes)
@@ -212,6 +212,7 @@ struct IntersectLinesWorker
     , GlobalIntersectedCellIds(intersectedCellIds)
     , GlobalIntersectedCellPointIds(intersectedCellPointIds)
     , GlobalConnectivitySize(connectivitySize)
+    , Filter(filter)
   {
   }
 
@@ -234,8 +235,19 @@ struct IntersectLinesWorker
     std::unordered_set<vtkIdType>& intersectedCellPointIds = this->IntersectedCellPointIds.Local();
     vtkIdType& connectivitySize = this->ConnectivitySize.Local();
 
+    bool isFirst = vtkSMPTools::GetSingleThread();
+
     for (vtkIdType lineId = startId; lineId < endId; ++lineId)
     {
+      if (isFirst)
+      {
+        this->Filter->CheckAbort();
+      }
+
+      if (this->Filter->GetAbortOutput())
+      {
+        break;
+      }
       ValueType start = lineOffsets[lineId];
       ValueType size = lineOffsets[lineId + 1] - start;
 
@@ -302,6 +314,7 @@ struct IntersectLinesWorker
   std::unordered_set<vtkIdType>& GlobalIntersectedCellIds;
   std::unordered_set<vtkIdType>& GlobalIntersectedCellPointIds;
   vtkIdType& GlobalConnectivitySize;
+  vtkExtractCellsAlongPolyLine* Filter;
 
   vtkSMPThreadLocal<std::unordered_set<vtkIdType>> IntersectedCellIds;
   vtkSMPThreadLocal<std::unordered_set<vtkIdType>> IntersectedCellPointIds;
@@ -313,10 +326,10 @@ template <class DataSetHelperT, class LineCellArrayT>
 void IntersectLines(typename DataSetHelperT::DataSetType* input, vtkCellArray* lineCells,
   vtkUnsignedCharArray* lineCellTypes, vtkPoints* linePoints, vtkAbstractCellLocator* locator,
   vtkIdType& connectivitySize, std::unordered_set<vtkIdType>& intersectedCellIds,
-  std::unordered_set<vtkIdType>& intersectedCellPointIds)
+  std::unordered_set<vtkIdType>& intersectedCellPointIds, vtkExtractCellsAlongPolyLine* self)
 {
   IntersectLinesWorker<DataSetHelperT, LineCellArrayT> worker(input, lineCells, lineCellTypes,
-    linePoints, locator, connectivitySize, intersectedCellIds, intersectedCellPointIds);
+    linePoints, locator, connectivitySize, intersectedCellIds, intersectedCellPointIds, self);
 
   vtkSMPTools::For(0, lineCells->GetNumberOfCells(), worker);
 }
@@ -329,29 +342,41 @@ struct InputUnstructuredGridCellArrayDispatcher
   void operator()(InputCellArrayT*, vtkUnstructuredGrid* input, vtkCellArray* lineCells,
     vtkUnsignedCharArray* lineCellTypes, vtkPoints* linePoints, vtkAbstractCellLocator* locator,
     vtkIdType& connectivitySize, std::unordered_set<vtkIdType>& intersectedCellIds,
-    std::unordered_set<vtkIdType>& intersectedCellPointIds)
+    std::unordered_set<vtkIdType>& intersectedCellPointIds, vtkExtractCellsAlongPolyLine* self)
   {
     ::IntersectLines<::UnstructuredGridHelper<InputCellArrayT>, LineCellArrayT>(input, lineCells,
       lineCellTypes, linePoints, locator, connectivitySize, intersectedCellIds,
-      intersectedCellPointIds);
+      intersectedCellPointIds, self);
   }
 };
 
 //==============================================================================
 struct DataSetPointsCopyWorker
 {
-  DataSetPointsCopyWorker(vtkDataSet* input, vtkPoints* outputPoints, vtkIdList* pointIds)
+  DataSetPointsCopyWorker(vtkDataSet* input, vtkPoints* outputPoints, vtkIdList* pointIds,
+    vtkExtractCellsAlongPolyLine* filter)
     : Input(input)
     , OutputPoints(outputPoints)
     , PointIds(pointIds)
+    , Filter(filter)
   {
   }
 
   void operator()(vtkIdType startId, vtkIdType endId)
   {
     double p[3];
+    bool isFirst = vtkSMPTools::GetSingleThread();
     for (vtkIdType pointId = startId; pointId < endId; ++pointId)
     {
+      if (isFirst)
+      {
+        this->Filter->CheckAbort();
+      }
+      if (this->Filter->GetAbortOutput())
+      {
+        break;
+      }
+
       this->Input->GetPoint(this->PointIds->GetId(pointId), p);
       this->OutputPoints->SetPoint(pointId, p);
     }
@@ -360,11 +385,18 @@ struct DataSetPointsCopyWorker
   vtkDataSet* Input;
   vtkPoints* OutputPoints;
   vtkIdList* PointIds;
+  vtkExtractCellsAlongPolyLine* Filter;
 };
 
 //==============================================================================
 struct PointSetPointsCopyDispatcher
 {
+  vtkExtractCellsAlongPolyLine* Filter;
+
+  PointSetPointsCopyDispatcher(vtkExtractCellsAlongPolyLine* filter)
+    : Filter(filter)
+  {
+  }
   template <class ArrayT1, class ArrayT2>
   void operator()(
     ArrayT1* source, ArrayT2* dest, vtkIdList* ids, vtkIdType startId, vtkIdType endId)
@@ -373,9 +405,19 @@ struct PointSetPointsCopyDispatcher
     auto destRange = vtk::DataArrayTupleRange<3>(dest);
     using ConstSourceReference = typename decltype(sourceRange)::ConstTupleReferenceType;
     using DestReference = typename decltype(destRange)::TupleReferenceType;
+    bool isFirst = vtkSMPTools::GetSingleThread();
 
     for (vtkIdType pointId = startId; pointId < endId; ++pointId)
     {
+
+      if (isFirst)
+      {
+        this->Filter->CheckAbort();
+      }
+      if (this->Filter->GetAbortOutput())
+      {
+        break;
+      }
       ConstSourceReference sourceTuple = sourceRange[ids->GetId(pointId)];
       DestReference destTuple = destRange[pointId];
       std::copy(sourceTuple.begin(), sourceTuple.end(), destTuple.begin());
@@ -386,10 +428,12 @@ struct PointSetPointsCopyDispatcher
 //==============================================================================
 struct PointSetPointsCopyWorker
 {
-  PointSetPointsCopyWorker(vtkPoints* input, vtkPoints* output, vtkIdList* pointIds)
+  PointSetPointsCopyWorker(
+    vtkPoints* input, vtkPoints* output, vtkIdList* pointIds, vtkExtractCellsAlongPolyLine* filter)
     : Input(input)
     , Output(output)
     , PointIds(pointIds)
+    , Filter(filter)
   {
   }
 
@@ -398,7 +442,7 @@ struct PointSetPointsCopyWorker
     using FloatTypes = vtkTypeList::Create<float, double>;
     using Dispatch = vtkArrayDispatch::Dispatch2BySameValueType<FloatTypes>;
 
-    ::PointSetPointsCopyDispatcher dispatcher;
+    ::PointSetPointsCopyDispatcher dispatcher(this->Filter);
     vtkDataArray* inputData = this->Input->GetData();
     vtkDataArray* outputData = this->Output->GetData();
 
@@ -412,6 +456,7 @@ struct PointSetPointsCopyWorker
   vtkPoints* Input;
   vtkPoints* Output;
   vtkIdList* PointIds;
+  vtkExtractCellsAlongPolyLine* Filter;
 };
 
 //==============================================================================
@@ -423,22 +468,32 @@ struct GenerateOutputCellsWorker
   GenerateOutputCellsWorker(vtkIdList* cellIds, DataSetType* input,
     const std::unordered_map<vtkIdType, vtkIdType>& inputToOutputPointIdMap,
     OutputCellArrayRangeT& outputConnectivity, OutputCellArrayRangeT& outputOffsets,
-    vtkUnsignedCharArray* outputCellTypes)
+    vtkUnsignedCharArray* outputCellTypes, vtkExtractCellsAlongPolyLine* filter)
     : CellIds(cellIds)
     , Input(input)
     , InputToOutputPointIdMap(inputToOutputPointIdMap)
     , OutputConnectivity(outputConnectivity)
     , OutputOffsets(outputOffsets)
     , OutputCellTypes(outputCellTypes)
+    , Filter(filter)
   {
   }
 
   void operator()(vtkIdType startId, vtkIdType endId)
   {
     DataSetHelperT helper(this->Input);
+    bool isFirst = vtkSMPTools::GetSingleThread();
 
     for (vtkIdType outputCellId = startId; outputCellId < endId; ++outputCellId)
     {
+      if (isFirst)
+      {
+        this->Filter->CheckAbort();
+      }
+      if (this->Filter->GetAbortOutput())
+      {
+        break;
+      }
       vtkIdType inputCellId = this->CellIds->GetId(outputCellId);
       vtkIdType currentOffset = this->OutputOffsets[outputCellId];
 
@@ -455,6 +510,7 @@ struct GenerateOutputCellsWorker
   OutputCellArrayRangeT& OutputConnectivity;
   OutputCellArrayRangeT& OutputOffsets;
   vtkUnsignedCharArray* OutputCellTypes;
+  vtkExtractCellsAlongPolyLine* Filter;
 };
 
 //------------------------------------------------------------------------------
@@ -462,7 +518,8 @@ template <class DataSetHelperT, class OutputArrayT>
 void GenerateOutputCells(vtkIdList* cellIds,
   const std::unordered_map<vtkIdType, vtkIdType>& inputToOutputPointIdMap,
   typename DataSetHelperT::DataSetType* input, vtkIdType connectivitySize,
-  vtkCellArray* outputCells, vtkUnsignedCharArray* outputCellTypes)
+  vtkCellArray* outputCells, vtkUnsignedCharArray* outputCellTypes,
+  vtkExtractCellsAlongPolyLine* filter)
 {
   vtkIdType numberOfOutputCells = cellIds->GetNumberOfIds();
   DataSetHelperT helper(input);
@@ -488,8 +545,8 @@ void GenerateOutputCells(vtkIdList* cellIds,
     outputOffsets[outputCellId + 1] = currentOffset;
   }
 
-  ::GenerateOutputCellsWorker<DataSetHelperT, decltype(outputConnectivity)> worker(
-    cellIds, input, inputToOutputPointIdMap, outputConnectivity, outputOffsets, outputCellTypes);
+  ::GenerateOutputCellsWorker<DataSetHelperT, decltype(outputConnectivity)> worker(cellIds, input,
+    inputToOutputPointIdMap, outputConnectivity, outputOffsets, outputCellTypes, filter);
 
   vtkSMPTools::For(0, numberOfOutputCells, worker);
 }
@@ -501,10 +558,10 @@ struct GenerateOutputCellsWithInputUnstructuredGridDispatcher
   void operator()(InputArrayT*, OutputArrayT*, vtkIdList* cellIds,
     const std::unordered_map<vtkIdType, vtkIdType>& inputToOutputPointIdMap,
     vtkUnstructuredGrid* input, vtkIdType connectivitySize, vtkCellArray* outputCells,
-    vtkUnsignedCharArray* outputCellTypes)
+    vtkUnsignedCharArray* outputCellTypes, vtkExtractCellsAlongPolyLine* filter)
   {
-    ::GenerateOutputCells<::UnstructuredGridHelper<InputArrayT>, OutputArrayT>(
-      cellIds, inputToOutputPointIdMap, input, connectivitySize, outputCells, outputCellTypes);
+    ::GenerateOutputCells<::UnstructuredGridHelper<InputArrayT>, OutputArrayT>(cellIds,
+      inputToOutputPointIdMap, input, connectivitySize, outputCells, outputCellTypes, filter);
   }
 };
 
@@ -514,10 +571,11 @@ struct GenerateOutputCellsWithInputDataSetDispatcher
   template <class OutputArrayT>
   void operator()(OutputArrayT*, vtkIdList* cellIds,
     const std::unordered_map<vtkIdType, vtkIdType>& inputToOutputPointIdMap, vtkDataSet* input,
-    vtkIdType connectivitySize, vtkCellArray* outputCells, vtkUnsignedCharArray* outputCellTypes)
+    vtkIdType connectivitySize, vtkCellArray* outputCells, vtkUnsignedCharArray* outputCellTypes,
+    vtkExtractCellsAlongPolyLine* filter)
   {
-    ::GenerateOutputCells<::DataSetHelper, OutputArrayT>(
-      cellIds, inputToOutputPointIdMap, input, connectivitySize, outputCells, outputCellTypes);
+    ::GenerateOutputCells<::DataSetHelper, OutputArrayT>(cellIds, inputToOutputPointIdMap, input,
+      connectivitySize, outputCells, outputCellTypes, filter);
   }
 };
 
@@ -573,11 +631,11 @@ int ExtractCells(vtkExtractCellsAlongPolyLine* self, vtkDataSet* input, vtkPoint
       ::InputUnstructuredGridCellArrayDispatcher<LineCellArrayT> dispatcher;
       if (!vtkArrayDispatch::DispatchByArray<CellArrayTypes>::Execute(cells->GetConnectivityArray(),
             dispatcher, inputUG, lineCells, lineCellTypes, linePoints, locator, connectivitySize,
-            intersectedCellIds, intersectedCellPointIds))
+            intersectedCellIds, intersectedCellPointIds, self))
       {
         // fallback if dispatching fails
         dispatcher(cells->GetConnectivityArray(), inputUG, lineCells, lineCellTypes, linePoints,
-          locator, connectivitySize, intersectedCellIds, intersectedCellPointIds);
+          locator, connectivitySize, intersectedCellIds, intersectedCellPointIds, self);
       }
     }
     else
@@ -589,7 +647,7 @@ int ExtractCells(vtkExtractCellsAlongPolyLine* self, vtkDataSet* input, vtkPoint
   else
   {
     ::IntersectLines<::DataSetHelper, LineCellArrayT>(input, lineCells, lineCellTypes, linePoints,
-      locator, connectivitySize, intersectedCellIds, intersectedCellPointIds);
+      locator, connectivitySize, intersectedCellIds, intersectedCellPointIds, self);
   }
 
   // Sorting cell ids and point ids
@@ -650,12 +708,12 @@ int ExtractCells(vtkExtractCellsAlongPolyLine* self, vtkDataSet* input, vtkPoint
 
   if (inputPoints)
   {
-    ::PointSetPointsCopyWorker worker(inputPoints, points, sortedIntersectedCellPointIds);
+    ::PointSetPointsCopyWorker worker(inputPoints, points, sortedIntersectedCellPointIds, self);
     vtkSMPTools::For(0, numberOfPoints, worker);
   }
   else
   {
-    ::DataSetPointsCopyWorker worker(input, points, sortedIntersectedCellPointIds);
+    ::DataSetPointsCopyWorker worker(input, points, sortedIntersectedCellPointIds, self);
     vtkSMPTools::For(0, numberOfPoints, worker);
   }
 
@@ -681,12 +739,12 @@ int ExtractCells(vtkExtractCellsAlongPolyLine* self, vtkDataSet* input, vtkPoint
 
       if (!Dispatcher::Execute(cells->GetConnectivityArray(), outputCells->GetConnectivityArray(),
             dispatcher, sortedIntersectedCellIds, inputToOutputPointIdMap, inputUG,
-            connectivitySize, outputCells, outputCellTypes))
+            connectivitySize, outputCells, outputCellTypes, self))
       {
         // fallback if dispatching fails
         dispatcher(cells->GetConnectivityArray(), outputCells->GetConnectivityArray(),
           sortedIntersectedCellIds, inputToOutputPointIdMap, inputUG, connectivitySize, outputCells,
-          outputCellTypes);
+          outputCellTypes, self);
       }
     }
     else
@@ -702,11 +760,11 @@ int ExtractCells(vtkExtractCellsAlongPolyLine* self, vtkDataSet* input, vtkPoint
 
     if (!Dispatcher::Execute(outputCells->GetConnectivityArray(), dispatcher,
           sortedIntersectedCellIds, inputToOutputPointIdMap, input, connectivitySize, outputCells,
-          outputCellTypes))
+          outputCellTypes, self))
     {
       // fallback if dispatching fails
       dispatcher(outputCells->GetConnectivityArray(), sortedIntersectedCellIds,
-        inputToOutputPointIdMap, input, connectivitySize, outputCells, outputCellTypes);
+        inputToOutputPointIdMap, input, connectivitySize, outputCells, outputCellTypes, self);
     }
   }
 

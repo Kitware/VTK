@@ -113,7 +113,7 @@ struct ContourImageWorker
   template <typename ScalarArrayT>
   void operator()(ScalarArrayT* inScalars, vtkDataArray* newScalars, int roi[6], int dir[3],
     int start[2], int end[2], int offset[3], double* values, vtkIdType numValues,
-    vtkIncrementalPointLocator* p, vtkCellArray* lines)
+    vtkIncrementalPointLocator* p, vtkCellArray* lines, vtkMarchingSquares* self)
   {
     const auto scalars = vtk::DataArrayValueRange<1>(inScalars);
 
@@ -127,6 +127,7 @@ struct ContourImageWorker
     static int edges[4][2] = { { 0, 1 }, { 1, 3 }, { 2, 3 }, { 0, 2 } };
     int* edge;
     double value, s[4];
+    bool abortExecute = false;
 
     lineCases = vtkMarchingSquaresLineCases::GetCases();
     //
@@ -152,14 +153,14 @@ struct ContourImageWorker
     x[dir[2]] = roi[dir[2] * 2];
 
     // Traverse all pixel cells, generating line segments using marching squares.
-    for (j = roi[start[1]]; j < roi[end[1]]; j++)
+    for (j = roi[start[1]]; j < roi[end[1]] && !abortExecute; j++)
     {
 
       jOffset = j * offset[1];
       pts[0][dir[1]] = j;
       yp = j + 1;
 
-      for (i = roi[start[0]]; i < roi[end[0]]; i++)
+      for (i = roi[start[0]]; i < roi[end[0]] && !abortExecute; i++)
       {
         // get scalar values
         idx = i * offset[0] + jOffset + offset[2];
@@ -190,6 +191,11 @@ struct ContourImageWorker
         // Loop over contours in this pixel
         for (contNum = 0; contNum < numValues; contNum++)
         {
+          if (self->CheckAbort())
+          {
+            abortExecute = true;
+            break;
+          }
           value = values[contNum];
 
           // Build the case table
@@ -420,10 +426,10 @@ int vtkMarchingSquares::RequestData(vtkInformation* vtkNotUsed(request),
   ContourImageWorker worker;
   using Dispatcher = vtkArrayDispatch::Dispatch;
   if (!Dispatcher::Execute(inScalars, worker, newScalars, roi, dir, start, end, offset, values,
-        numContours, this->Locator, newLines))
+        numContours, this->Locator, newLines, this))
   { // Fallback to slow path for unknown arrays:
     worker(inScalars, newScalars, roi, dir, start, end, offset, values, numContours, this->Locator,
-      newLines);
+      newLines, this);
   }
 
   vtkDebugMacro(<< "Created: " << newPts->GetNumberOfPoints() << " points, "

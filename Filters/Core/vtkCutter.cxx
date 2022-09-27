@@ -69,9 +69,13 @@ vtkCutter::vtkCutter(vtkImplicitFunction* cf)
   this->OutputPointsPrecision = DEFAULT_PRECISION;
 
   this->SynchronizedTemplates3D = vtkSynchronizedTemplates3D::New();
+  this->SynchronizedTemplates3D->SetContainerAlgorithm(this);
   this->SynchronizedTemplatesCutter3D = vtkSynchronizedTemplatesCutter3D::New();
+  this->SynchronizedTemplatesCutter3D->SetContainerAlgorithm(this);
   this->GridSynchronizedTemplates = vtkGridSynchronizedTemplates3D::New();
+  this->GridSynchronizedTemplates->SetContainerAlgorithm(this);
   this->RectilinearSynchronizedTemplates = vtkRectilinearSynchronizedTemplates::New();
+  this->RectilinearSynchronizedTemplates->SetContainerAlgorithm(this);
 }
 
 //------------------------------------------------------------------------------
@@ -489,7 +493,7 @@ void vtkCutter::DataSetCutter(vtkDataSet* input, vtkPolyData* output)
   vtkCellData *inCD = input->GetCellData(), *outCD = output->GetCellData();
   vtkIdList* cellIds;
   vtkIdType numContours = this->ContourValues->GetNumberOfContours();
-  int abortExecute = 0;
+  bool abortExecute = false;
 
   cellScalars = vtkDoubleArray::New();
 
@@ -594,7 +598,7 @@ void vtkCutter::DataSetCutter(vtkDataSet* input, vtkPolyData* output)
         {
           vtkDebugMacro(<< "Cutting #" << cut);
           this->UpdateProgress(static_cast<double>(cut) / numCuts);
-          abortExecute = this->GetAbortExecute();
+          abortExecute = this->CheckAbort();
         }
 
         input->GetCell(cellId, cell);
@@ -650,7 +654,7 @@ void vtkCutter::DataSetCutter(vtkDataSet* input, vtkPolyData* output)
         {
           vtkDebugMacro(<< "Cutting #" << cellId);
           this->UpdateProgress(static_cast<double>(cellId) / numCells);
-          abortExecute = this->GetAbortExecute();
+          abortExecute = this->CheckAbort();
         }
 
         // I assume that "GetCellType" is fast.
@@ -745,7 +749,7 @@ void vtkCutter::UnstructuredGridCutter(vtkDataSet* input, vtkPolyData* output)
   double* contourValuesEnd = contourValues + numContours;
   double* contourIter;
 
-  int abortExecute = 0;
+  bool abortExecute = false;
 
   double range[2];
 
@@ -855,7 +859,7 @@ void vtkCutter::UnstructuredGridCutter(vtkDataSet* input, vtkPolyData* output)
         {
           vtkDebugMacro(<< "Cutting #" << cut);
           this->UpdateProgress(static_cast<double>(cut) / numCuts);
-          abortExecute = this->GetAbortExecute();
+          abortExecute = this->CheckAbort();
         }
 
         pointIdList = cellIter->GetPointIds();
@@ -936,7 +940,7 @@ void vtkCutter::UnstructuredGridCutter(vtkDataSet* input, vtkPolyData* output)
         {
           vtkDebugMacro(<< "Cutting #" << cellId);
           this->UpdateProgress(static_cast<double>(cellId) / numCuts);
-          abortExecute = this->GetAbortExecute();
+          abortExecute = this->CheckAbort();
         }
 
         // Just fetch the cell type -- least expensive.

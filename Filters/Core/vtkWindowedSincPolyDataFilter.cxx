@@ -96,10 +96,13 @@ struct LineConnectivity
   vtkCellArray* Lines;
   PointConnectivity<TIds>* PtConn;
   vtkSMPThreadLocal<vtkSmartPointer<vtkCellArrayIterator>> LineIterator;
+  vtkWindowedSincPolyDataFilter* Filter;
 
-  LineConnectivity(vtkCellArray* lines, PointConnectivity<TIds>* ptConn)
+  LineConnectivity(
+    vtkCellArray* lines, PointConnectivity<TIds>* ptConn, vtkWindowedSincPolyDataFilter* filter)
     : Lines(lines)
     , PtConn(ptConn)
+    , Filter(filter)
   {
   }
 
@@ -152,9 +155,18 @@ struct LineConnectivity
     vtkCellArrayIterator* cellIter = this->LineIterator.Local();
     vtkIdType npts;
     const vtkIdType* pts;
+    bool isFirst = vtkSMPTools::GetSingleThread();
 
     for (; cellId < endCellId; ++cellId)
     {
+      if (isFirst)
+      {
+        this->Filter->CheckAbort();
+      }
+      if (this->Filter->GetAbortOutput())
+      {
+        break;
+      }
       cellIter->GetCellAtId(cellId, npts, pts);
       bool closedLoop = (pts[0] == pts[npts - 1] && npts > 3);
       this->ProcessCell(closedLoop, npts, pts);
@@ -190,10 +202,13 @@ struct MeshConnectivity
   vtkPoints* Points;
   PointConnectivity<TIds>* PtConn;
   vtkSMPThreadLocal<vtkSmartPointer<vtkCellArrayIterator>> MeshIterator;
+  vtkWindowedSincPolyDataFilter* Filter;
 
-  MeshConnectivity(vtkPolyData* mesh, PointConnectivity<TIds>* ptConn)
+  MeshConnectivity(
+    vtkPolyData* mesh, PointConnectivity<TIds>* ptConn, vtkWindowedSincPolyDataFilter* filter)
     : Mesh(mesh)
     , PtConn(ptConn)
+    , Filter(filter)
   {
     this->Polys = this->Mesh->GetPolys();
     this->Points = this->Mesh->GetPoints();
@@ -237,9 +252,18 @@ struct MeshConnectivity
     vtkCellArrayIterator* cellIter = this->MeshIterator.Local();
     vtkIdType npts;
     const vtkIdType* pts;
+    bool isFirst = vtkSMPTools::GetSingleThread();
 
     for (; cellId < endCellId; ++cellId)
     {
+      if (isFirst)
+      {
+        this->Filter->CheckAbort();
+      }
+      if (this->Filter->GetAbortOutput())
+      {
+        break;
+      }
       cellIter->GetCellAtId(cellId, npts, pts);
       this->ProcessCell(npts, pts);
     }
@@ -431,7 +455,7 @@ struct PointConnectivity : PointConnectivityBase
   {
     this->EdgeInsertionOff(); // edges will be counted
 
-    LineConnectivity<TIds> lineConn(this->Input->GetLines(), this);
+    LineConnectivity<TIds> lineConn(this->Input->GetLines(), this, this->Self);
     lineConn.Execute();
 
     // The mesh may need special treatment (e.g., triangulation
@@ -447,6 +471,7 @@ struct PointConnectivity : PointConnectivityBase
       tmpMesh->SetStrips(this->Input->GetStrips());
       vtkNew<vtkTriangleFilter> toTris;
       toTris->SetInputData(tmpMesh);
+      toTris->SetContainerAlgorithm(this->Self);
       toTris->Update();
       this->Mesh->SetPolys(toTris->GetOutput()->GetPolys());
     }
@@ -465,17 +490,17 @@ struct PointConnectivity : PointConnectivityBase
       this->Normals = ComputeNormals(this->Mesh); // for feature edges
     }
 
-    MeshConnectivity<TIds> meshConn(this->Mesh, this);
+    MeshConnectivity<TIds> meshConn(this->Mesh, this, this->Self);
     meshConn.Execute();
   }
   void InsertEdges()
   {
     this->EdgeInsertionOn(); // incident edges will now be inserted
 
-    LineConnectivity<TIds> lineConn(this->Input->GetLines(), this);
+    LineConnectivity<TIds> lineConn(this->Input->GetLines(), this, this->Self);
     lineConn.Execute();
 
-    MeshConnectivity<TIds> meshConn(this->Mesh, this);
+    MeshConnectivity<TIds> meshConn(this->Mesh, this, this->Self);
     meshConn.Execute();
   }
 }; // PointConnectivity
@@ -780,10 +805,12 @@ struct AnalyzePoints
   TPts* Points;
   PointConnectivity<TIds>* PtConn;
   vtkSMPThreadLocal<vtkSmartPointer<vtkIdList>> Neighbors;
+  vtkWindowedSincPolyDataFilter* Filter;
 
-  AnalyzePoints(TPts* pts, PointConnectivity<TIds>* ptConn)
+  AnalyzePoints(TPts* pts, PointConnectivity<TIds>* ptConn, vtkWindowedSincPolyDataFilter* filter)
     : Points(pts)
     , PtConn(ptConn)
+    , Filter(filter)
   {
   }
 
@@ -793,9 +820,17 @@ struct AnalyzePoints
   {
     PointConnectivity<TIds>* ptConn = this->PtConn;
     vtkIdList* neighbors = this->Neighbors.Local();
-
+    bool isFirst = vtkSMPTools::GetSingleThread();
     for (; ptId < endPtId; ++ptId)
     {
+      if (isFirst)
+      {
+        this->Filter->CheckAbort();
+      }
+      if (this->Filter->GetAbortOutput())
+      {
+        break;
+      }
       // First sort the local list of edges (i.e., the edges incident to
       // ptId). This will group duplicate edges (if any). Manifold edges
       // come in groups of two, boundary edges just a single edge, and
@@ -851,17 +886,18 @@ struct AnalyzePoints
 struct AnalyzeWorker
 {
   template <typename DataT1, typename TIds>
-  void operator()(DataT1* pts, PointConnectivity<TIds>* ptConn)
+  void operator()(
+    DataT1* pts, PointConnectivity<TIds>* ptConn, vtkWindowedSincPolyDataFilter* filter)
   {
     // This analyzes the surface mesh and polylines
-    AnalyzePoints<TIds, DataT1> pppoints(pts, ptConn);
+    AnalyzePoints<TIds, DataT1> pppoints(pts, ptConn, filter);
     pppoints.Execute();
   }
 }; // AnalyzeWorker
 
 // Dispatch to the local point analysis.
 template <typename TIds>
-void AnalyzePointTopology(PointConnectivityBase* ptConnBase)
+void AnalyzePointTopology(PointConnectivityBase* ptConnBase, vtkWindowedSincPolyDataFilter* filter)
 {
   PointConnectivity<TIds>* ptConn = static_cast<PointConnectivity<TIds>*>(ptConnBase);
   vtkPoints* pts = ptConn->Input->GetPoints();
@@ -870,15 +906,15 @@ void AnalyzePointTopology(PointConnectivityBase* ptConnBase)
   using vtkArrayDispatch::Reals;
   using AnalyzeDispatch = vtkArrayDispatch::DispatchByValueType<vtkArrayDispatch::Reals>;
   AnalyzeWorker ppWorker;
-  if (!AnalyzeDispatch::Execute(pts->GetData(), ppWorker, ptConn))
+  if (!AnalyzeDispatch::Execute(pts->GetData(), ppWorker, ptConn, filter))
   { // Fallback to slowpath for other point types
-    ppWorker(pts->GetData(), ptConn);
+    ppWorker(pts->GetData(), ptConn, filter);
   }
 
   // The last word comes from the vertices which will mark points fixed.
   vtkCellArray* verts = ptConn->Input->GetVerts();
   vtkIdType numVerts = (verts != nullptr ? verts->GetNumberOfCells() : 0);
-  if (numVerts > 0)
+  if (numVerts > 0 && !filter->CheckAbort())
   {
     vtkSMPTools::For(0, numVerts, [&, verts, ptConn](vtkIdType cellId, vtkIdType endCellId) {
       vtkSmartPointer<vtkCellArrayIterator> vIter;
@@ -902,16 +938,25 @@ void AnalyzePointTopology(PointConnectivityBase* ptConnBase)
 struct InitializePointsWorker
 {
   template <typename DataT1, typename DataT2>
-  void operator()(
-    DataT1* inPts, DataT2* outPts, vtkIdType numPts, int normalize, double length, double center[3])
+  void operator()(DataT1* inPts, DataT2* outPts, vtkIdType numPts, int normalize, double length,
+    double center[3], vtkWindowedSincPolyDataFilter* filter)
   {
     vtkSMPTools::For(0, numPts, [&](vtkIdType ptId, vtkIdType endPtId) {
       const auto inTuples = vtk::DataArrayTupleRange<3>(inPts);
       auto outTuples = vtk::DataArrayTupleRange<3>(outPts);
       double x[3];
+      bool isFirst = vtkSMPTools::GetSingleThread();
 
       for (; ptId < endPtId; ++ptId)
       {
+        if (isFirst)
+        {
+          filter->CheckAbort();
+        }
+        if (filter->GetAbortOutput())
+        {
+          break;
+        }
         const auto inTuple = inTuples[ptId];
         auto outTuple = outTuples[ptId];
         x[0] = static_cast<double>(inTuple[0]);
@@ -937,8 +982,8 @@ struct InitializePointsWorker
 // Initialize points including possibly normalizing them.
 // Currently the output points are the same type as the
 // input points - could be user specified.
-vtkSmartPointer<vtkPoints> InitializePoints(
-  int normalize, vtkPolyData* input, double& length, double center[3])
+vtkSmartPointer<vtkPoints> InitializePoints(int normalize, vtkPolyData* input, double& length,
+  double center[3], vtkWindowedSincPolyDataFilter* filter)
 {
   vtkPoints* inPts = input->GetPoints();
   vtkIdType numPts = inPts->GetNumberOfPoints();
@@ -957,10 +1002,10 @@ vtkSmartPointer<vtkPoints> InitializePoints(
   using InitializePointsDispatch =
     vtkArrayDispatch::Dispatch2BySameValueType<vtkArrayDispatch::Reals>;
   InitializePointsWorker initPtsWorker;
-  if (!InitializePointsDispatch::Execute(
-        inPts->GetData(), newPts->GetData(), initPtsWorker, numPts, normalize, length, center))
+  if (!InitializePointsDispatch::Execute(inPts->GetData(), newPts->GetData(), initPtsWorker, numPts,
+        normalize, length, center, filter))
   { // Fallback to slowpath for other point types
-    initPtsWorker(inPts->GetData(), newPts->GetData(), numPts, normalize, length, center);
+    initPtsWorker(inPts->GetData(), newPts->GetData(), numPts, normalize, length, center, filter);
   }
 
   return newPts;
@@ -1095,7 +1140,8 @@ struct InitSmoothingWorker
 {
   template <typename DataT, typename TIds>
   void operator()(DataT* vtkNotUsed(pts), vtkIdType numPts, vtkDataArray* da[4],
-    PointConnectivity<TIds>* ptConn, double* c, int ptSelect[4])
+    PointConnectivity<TIds>* ptConn, double* c, int ptSelect[4],
+    vtkWindowedSincPolyDataFilter* filter)
   {
     vtkSMPTools::For(0, numPts, [&](vtkIdType ptId, vtkIdType endPtId) {
       EDGE_COUNT_TYPE numEdges;
@@ -1103,9 +1149,18 @@ struct InitSmoothingWorker
       auto tuples0 = vtk::DataArrayTupleRange<3>(vtkArrayDownCast<DataT>(da[ptSelect[0]]));
       auto tuples1 = vtk::DataArrayTupleRange<3>(vtkArrayDownCast<DataT>(da[ptSelect[1]]));
       auto tuples3 = vtk::DataArrayTupleRange<3>(vtkArrayDownCast<DataT>(da[ptSelect[3]]));
+      bool isFirst = vtkSMPTools::GetSingleThread();
 
       for (; ptId < endPtId; ++ptId)
       {
+        if (isFirst)
+        {
+          filter->CheckAbort();
+        }
+        if (filter->GetAbortOutput())
+        {
+          break;
+        }
         // Grab the edges
         TIds* edges = ptConn->GetEdges(ptId);
         numEdges = ptConn->GetEdgeCount(ptId);
@@ -1150,7 +1205,8 @@ struct SmoothingWorker
 {
   template <typename DataT, typename TIds>
   void operator()(DataT* vtkNotUsed(pts), vtkIdType numPts, vtkDataArray* da[4],
-    PointConnectivity<TIds>* ptConn, int iterNum, double* c, int ptSelect[4])
+    PointConnectivity<TIds>* ptConn, int iterNum, double* c, int ptSelect[4],
+    vtkWindowedSincPolyDataFilter* filter)
   {
     vtkSMPTools::For(0, numPts, [&](vtkIdType ptId, vtkIdType endPtId) {
       EDGE_COUNT_TYPE numEdges;
@@ -1159,9 +1215,18 @@ struct SmoothingWorker
       auto tuples1 = vtk::DataArrayTupleRange<3>(vtkArrayDownCast<DataT>(da[ptSelect[1]]));
       auto tuples2 = vtk::DataArrayTupleRange<3>(vtkArrayDownCast<DataT>(da[ptSelect[2]]));
       auto tuples3 = vtk::DataArrayTupleRange<3>(vtkArrayDownCast<DataT>(da[ptSelect[3]]));
+      bool isFirst = vtkSMPTools::GetSingleThread();
 
       for (; ptId < endPtId; ++ptId)
       {
+        if (isFirst)
+        {
+          filter->CheckAbort();
+        }
+        if (filter->GetAbortOutput())
+        {
+          break;
+        }
         // Grab the edges
         TIds* edges = ptConn->GetEdges(ptId);
         numEdges = ptConn->GetEdgeCount(ptId);
@@ -1209,7 +1274,8 @@ struct SmoothingWorker
 
 // Driver function to perform windowed sinc smoothing
 template <typename TIds>
-vtkSmartPointer<vtkPoints> SmoothMesh(PointConnectivity<TIds>* ptConn, vtkPoints* pts)
+vtkSmartPointer<vtkPoints> SmoothMesh(
+  PointConnectivity<TIds>* ptConn, vtkPoints* pts, vtkWindowedSincPolyDataFilter* filter)
 {
   vtkIdType numPts = ptConn->NumPts;
   int numIters = ptConn->NumberOfIterations;
@@ -1255,9 +1321,10 @@ vtkSmartPointer<vtkPoints> SmoothMesh(PointConnectivity<TIds>* ptConn, vtkPoints
   SmoothingWorker sWorker;
 
   // Threaded execute smoothing initialization pass
-  if (!SmoothingDispatch::Execute(newDA[0], isWorker, numPts, newDA, ptConn, c.data(), ptSelect))
+  if (!SmoothingDispatch::Execute(
+        newDA[0], isWorker, numPts, newDA, ptConn, c.data(), ptSelect, filter))
   { // Fallback to slowpath for other point types
-    isWorker(newDA[0], numPts, newDA, ptConn, c.data(), ptSelect);
+    isWorker(newDA[0], numPts, newDA, ptConn, c.data(), ptSelect, filter);
   }
 
   // for the rest of the iterations
@@ -1265,9 +1332,9 @@ vtkSmartPointer<vtkPoints> SmoothMesh(PointConnectivity<TIds>* ptConn, vtkPoints
   {
     // Threaded execute smoothing pass
     if (!SmoothingDispatch::Execute(
-          newDA[0], sWorker, numPts, newDA, ptConn, iterNum, c.data(), ptSelect))
+          newDA[0], sWorker, numPts, newDA, ptConn, iterNum, c.data(), ptSelect, filter))
     { // Fallback to slowpath for other point types
-      sWorker(newDA[0], numPts, newDA, ptConn, iterNum, c.data(), ptSelect);
+      sWorker(newDA[0], numPts, newDA, ptConn, iterNum, c.data(), ptSelect, filter);
     }
 
     // Update the point arrays. ptSelect[3] is always three. All other pointers
@@ -1286,14 +1353,24 @@ vtkSmartPointer<vtkPoints> SmoothMesh(PointConnectivity<TIds>* ptConn, vtkPoints
 struct UnnormalizePointsWorker
 {
   template <typename DataT>
-  void operator()(DataT* pts, vtkIdType numPts, double length, double center[3])
+  void operator()(DataT* pts, vtkIdType numPts, double length, double center[3],
+    vtkWindowedSincPolyDataFilter* filter)
   {
     vtkSMPTools::For(0, numPts, [&](vtkIdType ptId, vtkIdType endPtId) {
       auto inTuples = vtk::DataArrayTupleRange<3>(pts, ptId, endPtId);
       double x[3];
+      bool isFirst = vtkSMPTools::GetSingleThread();
 
       for (auto tuple : inTuples)
       {
+        if (isFirst)
+        {
+          filter->CheckAbort();
+        }
+        if (filter->GetAbortOutput())
+        {
+          break;
+        }
         x[0] = (static_cast<double>(tuple[0]) * length) + center[0];
         x[1] = (static_cast<double>(tuple[1]) * length) + center[1];
         x[2] = (static_cast<double>(tuple[2]) * length) + center[2];
@@ -1307,16 +1384,18 @@ struct UnnormalizePointsWorker
 }; // UnnormalizePointsWorker
 
 // If points have been normalized, restore them to normal space
-void UnnormalizePoints(vtkPoints* inPts, double& length, double center[3])
+void UnnormalizePoints(
+  vtkPoints* inPts, double& length, double center[3], vtkWindowedSincPolyDataFilter* filter)
 {
   vtkIdType numPts = inPts->GetNumberOfPoints();
 
   using vtkArrayDispatch::Reals;
   using UnnormalizePointsDispatch = vtkArrayDispatch::DispatchByValueType<Reals>;
   UnnormalizePointsWorker unnWorker;
-  if (!UnnormalizePointsDispatch::Execute(inPts->GetData(), unnWorker, numPts, length, center))
+  if (!UnnormalizePointsDispatch::Execute(
+        inPts->GetData(), unnWorker, numPts, length, center, filter))
   { // Fallback to slowpath for other point types
-    unnWorker(inPts->GetData(), numPts, length, center);
+    unnWorker(inPts->GetData(), numPts, length, center, filter);
   }
 } // UnnormalizePoints
 
@@ -1324,16 +1403,26 @@ void UnnormalizePoints(vtkPoints* inPts, double& length, double center[3])
 struct ErrorScalarsWorker
 {
   template <typename DataT1, typename DataT2>
-  void operator()(DataT1* inPts, DataT2* outPts, vtkIdType numPts, vtkFloatArray* es)
+  void operator()(DataT1* inPts, DataT2* outPts, vtkIdType numPts, vtkFloatArray* es,
+    vtkWindowedSincPolyDataFilter* filter)
   {
     vtkSMPTools::For(0, numPts, [&](vtkIdType ptId, vtkIdType endPtId) {
       const auto inTuples = vtk::DataArrayTupleRange<3>(inPts);
       const auto outTuples = vtk::DataArrayTupleRange<3>(outPts);
       float* esPtr = es->GetPointer(0) + ptId;
       double x[3];
+      bool isFirst = vtkSMPTools::GetSingleThread();
 
       for (; ptId < endPtId; ++ptId)
       {
+        if (isFirst)
+        {
+          filter->CheckAbort();
+        }
+        if (filter->GetAbortOutput())
+        {
+          break;
+        }
         const auto inTuple = inTuples[ptId];
         const auto outTuple = outTuples[ptId];
         x[0] = outTuple[0] - inTuple[0];
@@ -1347,7 +1436,8 @@ struct ErrorScalarsWorker
 
 // Dispatch computation of error scalars. Caller takes the
 // reference to the created error scalars.
-vtkSmartPointer<vtkFloatArray> ProduceErrorScalars(vtkPoints* inPts, vtkPoints* outPts)
+vtkSmartPointer<vtkFloatArray> ProduceErrorScalars(
+  vtkPoints* inPts, vtkPoints* outPts, vtkWindowedSincPolyDataFilter* filter)
 {
   vtkIdType numPts = inPts->GetNumberOfPoints();
   vtkNew<vtkFloatArray> errorScalars;
@@ -1358,9 +1448,9 @@ vtkSmartPointer<vtkFloatArray> ProduceErrorScalars(vtkPoints* inPts, vtkPoints* 
   using ErrorScalarsDispatch = vtkArrayDispatch::Dispatch2BySameValueType<vtkArrayDispatch::Reals>;
   ErrorScalarsWorker esWorker;
   if (!ErrorScalarsDispatch::Execute(
-        inPts->GetData(), outPts->GetData(), esWorker, numPts, errorScalars))
+        inPts->GetData(), outPts->GetData(), esWorker, numPts, errorScalars, filter))
   { // Fallback to slowpath for other point types
-    esWorker(inPts->GetData(), outPts->GetData(), numPts, errorScalars);
+    esWorker(inPts->GetData(), outPts->GetData(), numPts, errorScalars, filter);
   }
 
   return errorScalars;
@@ -1370,15 +1460,25 @@ vtkSmartPointer<vtkFloatArray> ProduceErrorScalars(vtkPoints* inPts, vtkPoints* 
 struct ErrorVectorsWorker
 {
   template <typename DataT1, typename DataT2>
-  void operator()(DataT1* inPts, DataT2* outPts, vtkIdType numPts, vtkFloatArray* ev)
+  void operator()(DataT1* inPts, DataT2* outPts, vtkIdType numPts, vtkFloatArray* ev,
+    vtkWindowedSincPolyDataFilter* filter)
   {
     vtkSMPTools::For(0, numPts, [&](vtkIdType ptId, vtkIdType endPtId) {
       const auto inTuples = vtk::DataArrayTupleRange<3>(inPts);
       const auto outTuples = vtk::DataArrayTupleRange<3>(outPts);
       float* evPtr = ev->GetPointer(0) + 3 * ptId;
+      bool isFirst = vtkSMPTools::GetSingleThread();
 
       for (; ptId < endPtId; ++ptId)
       {
+        if (isFirst)
+        {
+          filter->CheckAbort();
+        }
+        if (filter->GetAbortOutput())
+        {
+          break;
+        }
         const auto inTuple = inTuples[ptId];
         const auto outTuple = outTuples[ptId];
         *evPtr++ = outTuple[0] - inTuple[0];
@@ -1391,7 +1491,8 @@ struct ErrorVectorsWorker
 
 // Dispatch computation of error vectors. Caller takes the
 // reference to the created error vectors.
-vtkSmartPointer<vtkFloatArray> ProduceErrorVectors(vtkPoints* inPts, vtkPoints* outPts)
+vtkSmartPointer<vtkFloatArray> ProduceErrorVectors(
+  vtkPoints* inPts, vtkPoints* outPts, vtkWindowedSincPolyDataFilter* filter)
 {
   vtkIdType numPts = inPts->GetNumberOfPoints();
   vtkNew<vtkFloatArray> errorVectors;
@@ -1402,9 +1503,9 @@ vtkSmartPointer<vtkFloatArray> ProduceErrorVectors(vtkPoints* inPts, vtkPoints* 
   using ErrorVectorsDispatch = vtkArrayDispatch::Dispatch2BySameValueType<vtkArrayDispatch::Reals>;
   ErrorVectorsWorker evWorker;
   if (!ErrorVectorsDispatch::Execute(
-        inPts->GetData(), outPts->GetData(), evWorker, numPts, errorVectors))
+        inPts->GetData(), outPts->GetData(), evWorker, numPts, errorVectors, filter))
   { // Fallback to slowpath for other point types
-    evWorker(inPts->GetData(), outPts->GetData(), numPts, errorVectors);
+    evWorker(inPts->GetData(), outPts->GetData(), numPts, errorVectors, filter);
   }
 
   return errorVectors;
@@ -1492,12 +1593,12 @@ int vtkWindowedSincPolyDataFilter::RequestData(vtkInformation* vtkNotUsed(reques
   if (largeIds)
   {
     ptConn = BuildConnectivity<vtkIdType>(input, this);
-    AnalyzePointTopology<vtkIdType>(ptConn);
+    AnalyzePointTopology<vtkIdType>(ptConn, this);
   }
   else
   {
     ptConn = BuildConnectivity<int>(input, this);
-    AnalyzePointTopology<int>(ptConn);
+    AnalyzePointTopology<int>(ptConn, this);
   }
 
   vtkDebugMacro(<< "Found\n\t" << ptConn->NumSimple << " simple vertices\n\t" << ptConn->NumEdges
@@ -1507,30 +1608,32 @@ int vtkWindowedSincPolyDataFilter::RequestData(vtkInformation* vtkNotUsed(reques
   // requested.
   double length = 1.0, center[3];
   vtkSmartPointer<vtkPoints> newPts =
-    InitializePoints(this->NormalizeCoordinates, input, length, center);
+    InitializePoints(this->NormalizeCoordinates, input, length, center, this);
 
   // Now smooth the mesh. Basically what is happening is that the input point
   // positions are adjusted to remove high-frequency information / noise.
   vtkSmartPointer<vtkPoints> outPts;
   if (largeIds)
   {
-    outPts = SmoothMesh<vtkIdType>(static_cast<PointConnectivity<vtkIdType>*>(ptConn), newPts);
+    outPts =
+      SmoothMesh<vtkIdType>(static_cast<PointConnectivity<vtkIdType>*>(ptConn), newPts, this);
   }
   else
   {
-    outPts = SmoothMesh<int>(static_cast<PointConnectivity<int>*>(ptConn), newPts);
+    outPts = SmoothMesh<int>(static_cast<PointConnectivity<int>*>(ptConn), newPts, this);
   }
 
   // If the points were normalized, reverse the normalization process.
   if (this->NormalizeCoordinates)
   {
-    UnnormalizePoints(outPts, length, center);
+    UnnormalizePoints(outPts, length, center, this);
   }
 
   // If error scalars are requested, create them.
   if (this->GenerateErrorScalars)
   {
-    vtkSmartPointer<vtkFloatArray> errorScalars = ProduceErrorScalars(input->GetPoints(), outPts);
+    vtkSmartPointer<vtkFloatArray> errorScalars =
+      ProduceErrorScalars(input->GetPoints(), outPts, this);
     int idx = output->GetPointData()->AddArray(errorScalars);
     output->GetPointData()->SetActiveAttribute(idx, vtkDataSetAttributes::SCALARS);
   }
@@ -1538,7 +1641,8 @@ int vtkWindowedSincPolyDataFilter::RequestData(vtkInformation* vtkNotUsed(reques
   // If error vector are requested, create them.
   if (this->GenerateErrorVectors)
   {
-    vtkSmartPointer<vtkFloatArray> errorVectors = ProduceErrorVectors(input->GetPoints(), outPts);
+    vtkSmartPointer<vtkFloatArray> errorVectors =
+      ProduceErrorVectors(input->GetPoints(), outPts, this);
     output->GetPointData()->AddArray(errorVectors);
   }
 

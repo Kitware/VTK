@@ -85,12 +85,18 @@ int vtkTubeBender::RequestData(vtkInformation* vtkNotUsed(request),
   // Traverse all new cells to insert new points into the paths
   vtkIdType linePoints = 0;
   const vtkIdType* linePointIds = nullptr;
-  for (iLines->InitTraversal(); iLines->GetNextCell(linePoints, linePointIds);)
+  bool abort = false;
+  for (iLines->InitTraversal(); iLines->GetNextCell(linePoints, linePointIds) && !abort;)
   {
     // Process each point in each line cell
     vtkNew<vtkPolyLine> oLine;
     for (vtkIdType lpIndex = 0; lpIndex < linePoints; lpIndex++)
     {
+      if (this->CheckAbort())
+      {
+        abort = true;
+        break;
+      }
       if (lpIndex == 0 || lpIndex == linePoints - 1)
       {
         // The first and last points in each line should be preserved

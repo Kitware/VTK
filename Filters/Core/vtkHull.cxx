@@ -525,8 +525,17 @@ void vtkHull::ComputePlaneDistances(vtkPointSet* input)
   // D value for each of the planes. Threaded because for larger models,
   // looping over all the points for each plane can be a lot of work.
   vtkSMPTools::For(1, numPts, [&](vtkIdType ptId, vtkIdType endPtId) {
+    bool isFirst = vtkSMPTools::GetSingleThread();
     for (; ptId < endPtId; ++ptId)
     {
+      if (isFirst)
+      {
+        this->CheckAbort();
+      }
+      if (this->GetAbortOutput())
+      {
+        break;
+      }
       double v, coord[3];
       inPts->GetPoint(ptId, coord);
       for (auto j = 0; j < numPlanes; j++)
@@ -568,6 +577,10 @@ void vtkHull::ClipPolygonsFromPlanes(
   // won't be a polygon)
   for (i = 0; i < numPlanes; i++)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     // Create the initial polygon - this is a large square around the
     // projected center of the object (projected onto this plane). We
     // now have four vertices.

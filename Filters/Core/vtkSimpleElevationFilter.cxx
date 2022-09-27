@@ -41,12 +41,14 @@ public:
   double Vector[3];
   PointArrayT* PointArray;
   float* Scalars;
+  vtkSimpleElevationFilter* Filter;
 
   vtkSimpleElevationAlgorithm(
     PointArrayT* pointArray, vtkSimpleElevationFilter* filter, float* scalars)
     : NumPts{ pointArray->GetNumberOfTuples() }
     , PointArray{ pointArray }
     , Scalars{ scalars }
+    , Filter(filter)
   {
     filter->GetVector(this->Vector);
   }
@@ -58,9 +60,18 @@ public:
     float* s = this->Scalars + begin;
 
     const auto pointRange = vtk::DataArrayTupleRange<3>(this->PointArray, begin, end);
+    bool isFirst = vtkSMPTools::GetSingleThread();
 
     for (const auto p : pointRange)
     {
+      if (isFirst)
+      {
+        this->Filter->CheckAbort();
+      }
+      if (this->Filter->GetAbortOutput())
+      {
+        break;
+      }
       *s = v[0] * p[0] + v[1] * p[1] + v[2] * p[2];
       ++s;
     }
@@ -169,7 +180,7 @@ int vtkSimpleElevationFilter::RequestData(vtkInformation* vtkNotUsed(request),
       if (!(i % progressInterval))
       {
         this->UpdateProgress((double)i / numPts);
-        abort = this->GetAbortExecute();
+        abort = this->CheckAbort();
       }
 
       input->GetPoint(i, x);

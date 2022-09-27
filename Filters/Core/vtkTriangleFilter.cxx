@@ -51,7 +51,7 @@ int vtkTriangleFilter::RequestData(vtkInformation* vtkNotUsed(request),
   vtkCellArray* cells;
   vtkPoints* inPts = input->GetPoints();
 
-  int abort = 0;
+  bool abort = false;
   updateInterval = numCells / 100 + 1;
   outCD->CopyAllocate(inCD, numCells);
 
@@ -70,7 +70,7 @@ int vtkTriangleFilter::RequestData(vtkInformation* vtkNotUsed(request),
         if (!(cellNum % updateInterval)) // manage progress reports / early abort
         {
           this->UpdateProgress((float)cellNum / numCells);
-          abort = this->GetAbortExecute();
+          abort = this->CheckAbort();
         }
         if (npts > 1)
         {
@@ -108,7 +108,7 @@ int vtkTriangleFilter::RequestData(vtkInformation* vtkNotUsed(request),
         if (!(cellNum % updateInterval)) // manage progress reports / early abort
         {
           this->UpdateProgress((float)cellNum / numCells);
-          abort = this->GetAbortExecute();
+          abort = this->CheckAbort();
         }
         if (npts > 2)
         {
@@ -159,7 +159,7 @@ int vtkTriangleFilter::RequestData(vtkInformation* vtkNotUsed(request),
       if (!(cellNum % updateInterval)) // manage progress reports / early abort
       {
         this->UpdateProgress((float)cellNum / numCells);
-        abort = this->GetAbortExecute();
+        abort = this->CheckAbort();
       }
       if (npts == 0)
       {
@@ -212,7 +212,7 @@ int vtkTriangleFilter::RequestData(vtkInformation* vtkNotUsed(request),
       if (!(cellNum % updateInterval)) // manage progress reports / early abort
       {
         this->UpdateProgress((float)cellNum / numCells);
-        abort = this->GetAbortExecute();
+        abort = this->CheckAbort();
       }
       vtkTriangleStrip::DecomposeStrip(npts, pts, newPolys);
       for (i = 0; i < (npts - 2); i++)

@@ -328,6 +328,10 @@ int vtkPolyDataEdgeConnectivityFilter::RequestData(vtkInformation* vtkNotUsed(re
       if (cellId && !(cellId % 5000))
       {
         this->UpdateProgress(0.1 + 0.8 * cellId / numCells);
+        if (this->CheckAbort())
+        {
+          break;
+        }
       }
 
       if (this->RegionIds[cellId] < 0)
@@ -356,6 +360,10 @@ int vtkPolyDataEdgeConnectivityFilter::RequestData(vtkInformation* vtkNotUsed(re
     {
       for (i = 0; i < (vtkIdType)this->Seeds.size(); i++)
       {
+        if (this->CheckAbort())
+        {
+          break;
+        }
         pt = this->Seeds[i];
         if (pt >= 0)
         {
@@ -371,6 +379,10 @@ int vtkPolyDataEdgeConnectivityFilter::RequestData(vtkInformation* vtkNotUsed(re
     {
       for (i = 0; i < (vtkIdType)this->Seeds.size(); i++)
       {
+        if (this->CheckAbort())
+        {
+          break;
+        }
         cellId = this->Seeds[i];
         if (cellId >= 0)
         {

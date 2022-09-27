@@ -146,6 +146,7 @@ int vtkCompositeCutter::RequestData(
   }
 
   vtkNew<vtkAppendPolyData> append;
+  append->SetContainerAlgorithm(this);
   int numObjects(0);
 
   using Opts = vtk::CompositeDataSetOptions;

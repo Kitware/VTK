@@ -244,6 +244,10 @@ int vtkAppendSelection::RequestData(vtkInformation* vtkNotUsed(request),
       // iterate over all the selection inputs
       for (int inputId = 0; inputId < numInputs; ++inputId)
       {
+        if (this->CheckAbort())
+        {
+          break;
+        }
         vtkSelection* sel = vtkSelection::GetData(inputVector[0]->GetInformationObject(inputId));
         if (sel == nullptr)
         {
@@ -285,6 +289,10 @@ int vtkAppendSelection::RequestData(vtkInformation* vtkNotUsed(request),
       // iterate over all the selection inputs
       for (int inputId = 0; inputId < numInputs; ++inputId)
       {
+        if (this->CheckAbort())
+        {
+          break;
+        }
         vtkSelection* sel = vtkSelection::GetData(inputVector[0]->GetInformationObject(inputId));
         if (sel == nullptr || sel->GetNumberOfNodes() == 0)
         {
@@ -357,6 +365,10 @@ int vtkAppendSelection::RequestData(vtkInformation* vtkNotUsed(request),
     vtkSelection* first = nullptr;
     while (first == nullptr && idx < numInputs)
     {
+      if (this->CheckAbort())
+      {
+        break;
+      }
       first = vtkSelection::GetData(inputVector[0]->GetInformationObject(idx));
       idx++;
     }
@@ -372,6 +384,10 @@ int vtkAppendSelection::RequestData(vtkInformation* vtkNotUsed(request),
     // Take the union of all non-null selections
     for (; idx < numInputs; ++idx)
     {
+      if (this->CheckAbort())
+      {
+        break;
+      }
       vtkSelection* s = vtkSelection::GetData(inputVector[0]->GetInformationObject(idx));
       if (s != nullptr)
       {

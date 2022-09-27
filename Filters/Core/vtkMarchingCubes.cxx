@@ -218,7 +218,7 @@ struct ComputeGradientWorker
     for (k = 0; k < (dims[2] - 1); k++)
     {
       self->UpdateProgress(k / static_cast<double>(dims[2] - 1));
-      if (self->GetAbortExecute())
+      if (self->CheckAbort())
       {
         break;
       }

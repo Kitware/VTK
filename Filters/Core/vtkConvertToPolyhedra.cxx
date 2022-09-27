@@ -80,6 +80,10 @@ int vtkConvertToPolyhedra::RequestData(vtkInformation* vtkNotUsed(request),
   vtkIdType outCellId;
   for (vtkIdType cellId = 0; cellId < numCells; ++cellId)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     // Grab the input cell.
     input->GetCell(cellId, cell);
 

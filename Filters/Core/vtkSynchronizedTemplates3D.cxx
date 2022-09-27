@@ -298,6 +298,7 @@ void ContourImage(vtkSynchronizedTemplates3D* self, int* exExt, vtkImageData* da
   ptr += self->GetArrayComponent();
   vtkPolygonBuilder polyBuilder;
   vtkSmartPointer<vtkIdListCollection> polys = vtkSmartPointer<vtkIdListCollection>::New();
+  bool abort = false;
 
   if (ComputeScalars)
   {
@@ -362,7 +363,7 @@ void ContourImage(vtkSynchronizedTemplates3D* self, int* exExt, vtkImageData* da
   }
 
   // for each contour
-  for (vidx = 0; vidx < numContours; vidx++)
+  for (vidx = 0; vidx < numContours && !abort; vidx++)
   {
     value = values[vidx];
     inPtrZ = ptr;
@@ -372,6 +373,11 @@ void ContourImage(vtkSynchronizedTemplates3D* self, int* exExt, vtkImageData* da
     {
       self->UpdateProgress(
         (double)vidx / numContours + (k - zMin) / ((zMax - zMin + 1.0) * numContours));
+      if (self->CheckAbort())
+      {
+        abort = true;
+        break;
+      }
       z = origin[2] + spacing[2] * k;
       x[2] = z;
 

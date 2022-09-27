@@ -105,6 +105,7 @@ int vtkCompositeDataProbeFilter::RequestData(
   if (sourceHTG)
   {
     vtkNew<vtkHyperTreeGridProbeFilter> htgProbe;
+    htgProbe->SetContainerAlgorithm(this);
     htgProbe->SetPassCellArrays(this->GetPassCellArrays());
     htgProbe->SetPassPointArrays(this->GetPassPointArrays());
     htgProbe->SetPassFieldArrays(this->GetPassFieldArrays());
@@ -132,6 +133,10 @@ int vtkCompositeDataProbeFilter::RequestData(
     int idx = 0;
     for (iter->InitReverseTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
     {
+      if (this->CheckAbort())
+      {
+        break;
+      }
       sourceDS = vtkDataSet::SafeDownCast(iter->GetCurrentDataObject());
       sourceHTG = vtkHyperTreeGrid::SafeDownCast(iter->GetCurrentDataObject());
       if (!sourceDS && !sourceHTG)
@@ -144,6 +149,7 @@ int vtkCompositeDataProbeFilter::RequestData(
       if (sourceHTG)
       {
         vtkNew<vtkHyperTreeGridProbeFilter> htgProbe;
+        htgProbe->SetContainerAlgorithm(this);
         htgProbe->SetPassCellArrays(this->GetPassCellArrays());
         htgProbe->SetPassPointArrays(this->GetPassPointArrays());
         htgProbe->SetPassFieldArrays(this->GetPassFieldArrays());

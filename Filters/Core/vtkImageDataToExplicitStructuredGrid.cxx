@@ -80,6 +80,10 @@ int vtkImageDataToExplicitStructuredGrid::RequestData(
   points->SetNumberOfPoints(nbPoints);
   for (vtkIdType i = 0; i < nbPoints; i++)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     double p[3];
     input->GetPoint(i, p);
     points->SetPoint(i, p);
@@ -91,6 +95,10 @@ int vtkImageDataToExplicitStructuredGrid::RequestData(
   vtkNew<vtkIdList> ptIds;
   for (vtkIdType i = 0; i < nbCells; i++)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     input->GetCellPoints(i, ptIds.Get());
     assert(ptIds->GetNumberOfIds() == 8);
     // Change point order: voxels and hexahedron don't have same connectivity.
