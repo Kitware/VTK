@@ -122,11 +122,15 @@ void vtkCompositeLICHelper::ReplaceShaderValues(
     "in vec3 tcoordVCVSOutput;\n"
     "//VTK::TCoord::Dec");
 
-  // No need to create uniform normalMatrix as it will be done in superclass
-  // if the data contains normals
-  if (this->VBOs->GetNumberOfComponents("normalMC") != 3)
+  // We need to create the uniform normalMatrix here as it will not be done in the superclass
+  // if the data does not contains normals or if drawing spheres / tubes is enabled.
+  if (this->VBOs->GetNumberOfComponents("normalMC") != 3 ||
+    this->DrawingSpheres(*this->LastBoundBO, actor) ||
+    this->DrawingTubes(*this->LastBoundBO, actor))
   {
-    vtkShaderProgram::Substitute(FSSource, "//VTK::TCoord::Dec", "uniform mat3 normalMatrix;");
+    vtkShaderProgram::Substitute(FSSource, "//VTK::Normal::Dec",
+      "//VTK::Normal::Dec\n"
+      "uniform mat3 normalMatrix;");
   }
 
   if (this->PrimitiveInfo[this->LastBoundBO].LastLightComplexity > 0)
