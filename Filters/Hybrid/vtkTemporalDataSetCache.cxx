@@ -503,14 +503,7 @@ void vtkTemporalDataSetCache::ReplaceCacheItem(
   }
   else
   {
-    if (this->GetCacheInMemkind())
-    {
-      cachedData->DeepCopy(input);
-    }
-    else
-    {
-      cachedData->ShallowCopy(input);
-    }
+    cachedData->DeepCopy(input);
   }
   this->Cache[inTime] = std::pair<unsigned long, vtkDataObject*>(outputUpdateTime, cachedData);
 }
