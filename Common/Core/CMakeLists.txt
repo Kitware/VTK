@@ -117,12 +117,14 @@ mark_as_advanced(
 
 option(VTK_BUILD_SCALED_SOA_ARRAYS "Include struct-of-arrays with scaled vtkDataArray implementation." OFF)
 
-option(VTK_BUILD_IMPLICIT_ARRAYS "Include implicit vtkDataArray implementation" OFF)
-option(VTK_DISPATCH_STD_FUNCTION_ARRAYS "Include implicit vtkDataArray subclasses based on std::function in dispatcher" OFF)
+option(VTK_BUILD_IMPLICIT_ARRAYS "Include implicit vtkDataArray implementation" ON)
+option(VTK_DISPATCH_AFFINE_ARRAYS "Include implicit vtkDataArray subclasses based on an affine function backend in dispatcher" OFF)
 option(VTK_DISPATCH_CONSTANT_ARRAYS "Include implicit vtkDataArray subclasses based on a constant backend in dispatcher" OFF)
+option(VTK_DISPATCH_STD_FUNCTION_ARRAYS "Include implicit vtkDataArray subclasses based on std::function in dispatcher" OFF)
 mark_as_advanced(
-  VTK_DISPATCH_STD_FUNCTION_ARRAYS
   VTK_DISPATCH_CONSTANT_ARRAYS
+  VTK_DISPATCH_AFFINE_ARRAYS
+  VTK_DISPATCH_STD_FUNCTION_ARRAYS
 )
 
 set(implicit_array_classes)
@@ -132,7 +134,9 @@ set(implicit_array_headers)
 set(implicit_array_dispatch_list)
 if (VTK_BUILD_IMPLICIT_ARRAYS)
   list(APPEND implicit_array_headers
+    ImplicitBackends/vtkAffineImplicitBackend.h
     ImplicitBackends/vtkConstantImplicitBackend.h
+    vtkAffineArray.h
     vtkConstantArray.h
     vtkStdFunctionArray.h
   )
@@ -163,8 +167,9 @@ foreach (INSTANTIATION_VALUE_TYPE IN LISTS vtkArrayDispatch_all_types)
     list(APPEND _list "vtkScaledSOADataArrayTemplateInstantiate")
   endif ()
   if (VTK_BUILD_IMPLICIT_ARRAYS)
-    list(APPEND _list "vtkStdFunctionArrayInstantiate")
+    list(APPEND _list "vtkAffineArrayInstantiate")
     list(APPEND _list "vtkConstantArrayInstantiate")
+    list(APPEND _list "vtkStdFunctionArrayInstantiate")
   endif ()
   # see comments in vtkGenericDataArray.h for explanation
   if (INSTANTIATION_VALUE_TYPE MATCHES "(^| )long( |$)")
