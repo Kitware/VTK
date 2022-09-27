@@ -3010,7 +3010,7 @@ function (_vtk_module_standard_includes)
       $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
       $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>)
 
-  if (_vtk_build_INSTALL_HEADERS AND _vtk_standard_includes_HEADERS_DESTINATION)
+  if (_vtk_build_INSTALL_HEADERS AND _vtk_standard_includes_HEADERS_DESTINATION AND NOT _vtk_add_module_NO_INSTALL)
     target_include_directories("${_vtk_standard_includes_TARGET}"
       ${_vtk_standard_includes_system}
       "${_vtk_standard_includes_visibility}"
@@ -3435,7 +3435,7 @@ include(GenerateExportHeader)
 
 ~~~
 vtk_module_add_module(<name>
-  [FORCE_STATIC] [HEADER_ONLY] [HEADER_DIRECTORIES]
+  [NO_INSTALL] [FORCE_STATIC] [HEADER_ONLY] [HEADER_DIRECTORIES]
   [EXPORT_MACRO_PREFIX      <prefix>]
   [HEADERS_SUBDIR           <subdir>]
   [LIBRARY_NAME_SUFFIX      <suffix>]
@@ -3457,6 +3457,13 @@ The `PRIVATE_` arguments are analogous to their non-`PRIVATE_` arguments, but
 the associated files are not installed or available for wrapping (`SOURCES` are
 always private, so there is no `PRIVATE_` variant for that argument).
 
+  * `NO_INSTALL`: Skip installation of the module and all its installation
+    artifacts. Note that if this target is used by any other target that is
+    exported, this option may not be used because CMake (in addition to VTK
+    module APIs such as `vtk_module_export_find_packages` and `) will generate
+    references to the target that are expected to be satisfied. It is highly
+    recommended to test that the build and install exports (as used) be tested
+    to make sure that the module is not actually referenced.
   * `FORCE_STATIC`: For a static library to be created. If not provided,
     `BUILD_SHARED_LIBS` will control the library type.
   * `HEADER_ONLY`: The module only contains headers (or templates) and contains
@@ -3502,7 +3509,7 @@ function (vtk_module_add_module name)
   endforeach ()
 
   cmake_parse_arguments(PARSE_ARGV 1 _vtk_add_module
-    "FORCE_STATIC;HEADER_ONLY;HEADER_DIRECTORIES;EXCLUDE_HEADER_TEST"
+    "NO_INSTALL;FORCE_STATIC;HEADER_ONLY;HEADER_DIRECTORIES;EXCLUDE_HEADER_TEST"
     "EXPORT_MACRO_PREFIX;HEADERS_SUBDIR;LIBRARY_NAME_SUFFIX"
     "${_vtk_add_module_source_keywords};SOURCES;NOWRAP_CLASSES;NOWRAP_TEMPLATE_CLASSES;NOWRAP_HEADERS")
 
@@ -3589,12 +3596,14 @@ function (vtk_module_add_module name)
       USE_RELATIVE_PATHS)
   endif ()
 
-  vtk_module_install_headers(
-    ${_vtk_add_module_use_relative_paths}
-    FILES   ${_vtk_add_module_HEADERS}
-            ${_vtk_add_module_NOWRAP_HEADERS}
-            ${_vtk_add_module_TEMPLATES}
-    SUBDIR  "${_vtk_add_module_HEADERS_SUBDIR}")
+  if (NOT _vtk_add_module_NO_INSTALL)
+    vtk_module_install_headers(
+      ${_vtk_add_module_use_relative_paths}
+      FILES   ${_vtk_add_module_HEADERS}
+              ${_vtk_add_module_NOWRAP_HEADERS}
+              ${_vtk_add_module_TEMPLATES}
+      SUBDIR  "${_vtk_add_module_HEADERS_SUBDIR}")
+  endif ()
 
   set(_vtk_add_module_type)
   if (_vtk_add_module_FORCE_STATIC)
@@ -3874,7 +3883,7 @@ function (vtk_module_add_module name)
   set_property(TARGET "${_vtk_add_module_real_target}"
     PROPERTY
       "INTERFACE_vtk_module_headers" "${_vtk_add_module_headers_build}")
-  if (_vtk_build_INSTALL_HEADERS)
+  if (_vtk_build_INSTALL_HEADERS AND NOT _vtk_add_module_NO_INSTALL)
     set_property(TARGET "${_vtk_add_module_real_target}"
       PROPERTY
         "INTERFACE_vtk_module_headers_install" "${_vtk_add_module_headers_install}")
@@ -3990,11 +3999,13 @@ VTK_MODULE_AUTOINIT(${_vtk_add_module_library_name})
   endif ()
 
   _vtk_module_apply_properties("${_vtk_add_module_target_name}")
-  _vtk_module_install("${_vtk_add_module_target_name}")
   _vtk_module_add_header_tests()
 
-  if (_vtk_add_module_build_with_kit)
-    _vtk_module_install("${_vtk_add_module_target_name}-objects")
+  if (NOT _vtk_add_module_NO_INSTALL)
+    _vtk_module_install("${_vtk_add_module_target_name}")
+    if (_vtk_add_module_build_with_kit)
+      _vtk_module_install("${_vtk_add_module_target_name}-objects")
+    endif ()
   endif ()
 
   get_property(_vtk_add_module_LICENSE_FILES GLOBAL
@@ -4003,12 +4014,13 @@ VTK_MODULE_AUTOINIT(${_vtk_add_module_library_name})
     if (_vtk_build_TARGET_SPECIFIC_COMPONENTS)
       string(PREPEND _vtk_build_LICENSE_COMPONENT "${_vtk_build_module}-")
     endif ()
-    install(
-      FILES       ${_vtk_add_module_LICENSE_FILES}
-      DESTINATION "${_vtk_build_LICENSE_DESTINATION}/${_vtk_add_module_library_name}/"
-      COMPONENT   "${_vtk_build_LICENSE_COMPONENT}")
+    if (NOT _vtk_add_module_NO_INSTALL)
+      install(
+        FILES       ${_vtk_add_module_LICENSE_FILES}
+        DESTINATION "${_vtk_build_LICENSE_DESTINATION}/${_vtk_add_module_library_name}/"
+        COMPONENT   "${_vtk_build_LICENSE_COMPONENT}")
+    endif ()
   endif ()
-
 endfunction ()
 
 #[==[
