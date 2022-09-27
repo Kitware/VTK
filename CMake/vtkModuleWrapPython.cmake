@@ -456,8 +456,13 @@ extern PyObject* PyInit_${_vtk_python_library_name}();
       # configuration, whether it is a debug build. If it is, add the postfix
       # (regardless of VTK's build type). Otherwise, no postfix.
       if (_vtk_python_USE_DEBUG_SUFFIX)
+        if (_vtk_python_REPLACE_DEBUG_SUFFIX)
+          set(_vtk_python_append_flag)
+        else ()
+          set(_vtk_python_append_flag APPEND_STRING)
+        endif ()
         set_property(TARGET "${name}"
-          APPEND_STRING
+          ${_vtk_python_append_flag}
           PROPERTY
             DEBUG_POSTFIX "_d")
       endif ()
@@ -554,6 +559,7 @@ vtk_module_wrap_python(
   [PYTHON_PACKAGE <package>]
   [SOABI <soabi>]
   [USE_DEBUG_SUFFIX <ON|OFF>]
+  [REPLACE_DEBUG_SUFFIX <ON|OFF>]
 
   [INSTALL_EXPORT <export>]
   [COMPONENT <component>])
@@ -608,6 +614,8 @@ vtk_module_wrap_python(
   * `USE_DEBUG_SUFFIX` (Defaults to `OFF`): If `ON`, Windows modules will have
     a `_d` suffix appended to the module name. This is intended for use with
     debug Python builds.
+  * `REPLACE_DEBUG_SUFFIX` (Defaults to `OFF`): If `ON`, any project-wide debug
+    suffix will be replaced with the local debug suffix (if enabled).
   * `INSTALL_EXPORT`: If provided, static installs will add the installed
     libraries to the provided export set.
   * `COMPONENT`: Defaults to `python`. All install rules created by this
@@ -616,7 +624,7 @@ vtk_module_wrap_python(
 function (vtk_module_wrap_python)
   cmake_parse_arguments(PARSE_ARGV 0 _vtk_python
     ""
-    "MODULE_DESTINATION;STATIC_MODULE_DESTINATION;LIBRARY_DESTINATION;PYTHON_PACKAGE;BUILD_STATIC;INSTALL_HEADERS;INSTALL_EXPORT;TARGET_SPECIFIC_COMPONENTS;TARGET;COMPONENT;WRAPPED_MODULES;CMAKE_DESTINATION;SOABI;USE_DEBUG_SUFFIX;UTILITY_TARGET;BUILD_PYI_FILES"
+    "MODULE_DESTINATION;STATIC_MODULE_DESTINATION;LIBRARY_DESTINATION;PYTHON_PACKAGE;BUILD_STATIC;INSTALL_HEADERS;INSTALL_EXPORT;TARGET_SPECIFIC_COMPONENTS;TARGET;COMPONENT;WRAPPED_MODULES;CMAKE_DESTINATION;SOABI;USE_DEBUG_SUFFIX;REPLACE_DEBUG_SUFFIX;UTILITY_TARGET;BUILD_PYI_FILES"
     "DEPENDS;MODULES")
 
   if (_vtk_python_UNPARSED_ARGUMENTS)
@@ -658,6 +666,10 @@ function (vtk_module_wrap_python)
 
   if (NOT DEFINED _vtk_python_USE_DEBUG_SUFFIX)
     set(_vtk_python_USE_DEBUG_SUFFIX OFF)
+  endif ()
+
+  if (NOT DEFINED _vtk_python_REPLACE_DEBUG_SUFFIX)
+    set(_vtk_python_REPLACE_DEBUG_SUFFIX OFF)
   endif ()
 
   if (_vtk_python_SOABI)

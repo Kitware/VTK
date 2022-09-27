@@ -282,6 +282,8 @@ More advanced options:
     "${MPIEXEC_EXECUTABLE}" "${MPIEXEC_NUMPROC_FLAG}" "1" ${MPIEXEC_PREFLAGS}
   * `VTK_WINDOWS_PYTHON_DEBUGGABLE` (default `OFF`): Set to `ON` if using a
     debug build of Python.
+  * `VTK_WINDOWS_PYTHON_DEBUGGABLE_REPLACE_SUFFIX` (default `OFF`): Set to `ON`
+    to use just a `_d` suffix for Python modules.
   * `VTK_BUILD_PYI_FILES` (default `OFF`): Set to `ON` to build `.pyi` type
     hint files for VTK's Python interfaces.
   * `VTK_DLL_PATHS` (default `""` or `VTK_DLL_PATHS` from the environment): If
