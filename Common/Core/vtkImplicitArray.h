@@ -285,3 +285,18 @@ VTK_ABI_NAMESPACE_END
 #include "vtkImplicitArray.txx"
 
 #endif // vtkImplicitArray_h
+
+#define vtkInstantiateSecondOrderTemplateMacro(decl0, decl1)                                       \
+  decl0<decl1<float>>;                                                                             \
+  decl0<decl1<double>>;                                                                            \
+  decl0<decl1<char>>;                                                                              \
+  decl0<decl1<signed char>>;                                                                       \
+  decl0<decl1<unsigned char>>;                                                                     \
+  decl0<decl1<short>>;                                                                             \
+  decl0<decl1<unsigned short>>;                                                                    \
+  decl0<decl1<int>>;                                                                               \
+  decl0<decl1<unsigned int>>;                                                                      \
+  decl0<decl1<long>>;                                                                              \
+  decl0<decl1<unsigned long>>;                                                                     \
+  decl0<decl1<long long>>;                                                                         \
+  decl0<decl1<unsigned long long>>

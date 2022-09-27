@@ -489,6 +489,14 @@ class vtkSOADataArrayTemplate;
 template <typename ValueType>
 class vtkScaledSOADataArrayTemplate;
 #endif
+
+#ifdef VTK_USE_IMPLICIT_ARRAYS
+template <typename BackendT>
+class vtkImplicitArray;
+#include "vtkAffineImplicitBackend.h"
+#include "vtkConstantImplicitBackend.h"
+#include <functional>
+#endif
 VTK_ABI_NAMESPACE_END
 
 #define VTK_INSTANTIATE_VALUERANGE_ARRAYTYPE(ArrayType, ValueType)                                 \
@@ -501,18 +509,31 @@ VTK_ABI_NAMESPACE_END
   template VTKCOMMONCORE_EXPORT bool DoComputeVectorRange(ArrayType*, ValueType[2],                \
     vtkDataArrayPrivate::FiniteValues, const unsigned char*, unsigned char);
 
+#ifdef VTK_USE_IMPLICIT_ARRAYS
+#define VTK_INSTANTIATE_VALUERANGE_ADD_IMPLICIT_BACKENDS(ValueType)                                \
+  VTK_INSTANTIATE_VALUERANGE_ARRAYTYPE(                                                            \
+    vtkImplicitArray<vtkAffineImplicitBackend<ValueType>>, ValueType)                              \
+  VTK_INSTANTIATE_VALUERANGE_ARRAYTYPE(                                                            \
+    vtkImplicitArray<vtkConstantImplicitBackend<ValueType>>, ValueType)                            \
+  VTK_INSTANTIATE_VALUERANGE_ARRAYTYPE(vtkImplicitArray<std::function<ValueType(int)>>, ValueType)
+#else
+#define VTK_DECLARE_VALUERANGE_ADD_IMPLICIT_BACKENDS(ValueType)
+#endif
+
 #ifdef VTK_USE_SCALED_SOA_ARRAYS
 
 #define VTK_INSTANTIATE_VALUERANGE_VALUETYPE(ValueType)                                            \
   VTK_INSTANTIATE_VALUERANGE_ARRAYTYPE(vtkAOSDataArrayTemplate<ValueType>, ValueType)              \
   VTK_INSTANTIATE_VALUERANGE_ARRAYTYPE(vtkSOADataArrayTemplate<ValueType>, ValueType)              \
-  VTK_INSTANTIATE_VALUERANGE_ARRAYTYPE(vtkScaledSOADataArrayTemplate<ValueType>, ValueType)
+  VTK_INSTANTIATE_VALUERANGE_ARRAYTYPE(vtkScaledSOADataArrayTemplate<ValueType>, ValueType)        \
+  VTK_DECLARE_VALUERANGE_ADD_IMPLICIT_BACKENDS(ValueType)
 
 #else // VTK_USE_SCALED_SOA_ARRAYS
 
 #define VTK_INSTANTIATE_VALUERANGE_VALUETYPE(ValueType)                                            \
   VTK_INSTANTIATE_VALUERANGE_ARRAYTYPE(vtkAOSDataArrayTemplate<ValueType>, ValueType)              \
-  VTK_INSTANTIATE_VALUERANGE_ARRAYTYPE(vtkSOADataArrayTemplate<ValueType>, ValueType)
+  VTK_INSTANTIATE_VALUERANGE_ARRAYTYPE(vtkSOADataArrayTemplate<ValueType>, ValueType)              \
+  VTK_DECLARE_VALUERANGE_ADD_IMPLICIT_BACKENDS(ValueType)
 
 #endif
 
@@ -538,6 +559,14 @@ class vtkSOADataArrayTemplate;
 template <typename ValueType>
 class vtkScaledSOADataArrayTemplate;
 #endif
+#ifdef VTK_USE_IMPLICIT_ARRAYS
+template <typename BackendT>
+class vtkImplicitArray;
+#include "vtkAffineImplicitBackend.h"
+#include "vtkConstantImplicitBackend.h"
+#include <functional>
+#endif
+
 VTK_ABI_NAMESPACE_END
 
 namespace vtkDataArrayPrivate
@@ -564,19 +593,49 @@ VTK_ABI_NAMESPACE_END
   extern template VTKCOMMONCORE_EXPORT bool DoComputeVectorRange(ArrayType*, ValueType[2],         \
     vtkDataArrayPrivate::FiniteValues, const unsigned char*, unsigned char);
 
+#ifdef VTK_USE_IMPLICIT_ARRAYS
+#define VTK_DECLARE_VALUERANGE_ADD_IMPLICIT_BACKENDS(ValueType)                                    \
+  VTK_DECLARE_VALUERANGE_ARRAYTYPE(                                                                \
+    vtkImplicitArray<vtkAffineImplicitBackend<ValueType>>, ValueType)                              \
+  VTK_DECLARE_VALUERANGE_ARRAYTYPE(                                                                \
+    vtkImplicitArray<vtkConstantImplicitBackend<ValueType>>, ValueType)                            \
+  VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkImplicitArray<std::function<ValueType(int)>>, ValueType)
+#else
+#define VTK_DECLARE_VALUERANGE_ADD_IMPLICIT_BACKENDS(ValueType)
+#endif
+
 #ifdef VTK_USE_SCALED_SOA_ARRAYS
 
 #define VTK_DECLARE_VALUERANGE_VALUETYPE(ValueType)                                                \
   VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkAOSDataArrayTemplate<ValueType>, ValueType)                  \
   VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkSOADataArrayTemplate<ValueType>, ValueType)                  \
-  VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkScaledSOADataArrayTemplate<ValueType>, ValueType)
+  VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkScaledSOADataArrayTemplate<ValueType>, ValueType)            \
+  VTK_DECLARE_VALUERANGE_ADD_IMPLICIT_BACKENDS(ValueType)
 
 #else // VTK_USE_SCALED_SOA_ARRAYS
 
 #define VTK_DECLARE_VALUERANGE_VALUETYPE(ValueType)                                                \
   VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkAOSDataArrayTemplate<ValueType>, ValueType)                  \
-  VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkSOADataArrayTemplate<ValueType>, ValueType)
+  VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkSOADataArrayTemplate<ValueType>, ValueType)                  \
+  VTK_DECLARE_VALUERANGE_ADD_IMPLICIT_BACKENDS(ValueType)
 
+#endif
+
+#ifdef VTK_USE_IMPLICIT_ARRAYS
+#define VTK_DECLARE_VALUERANGE_IMPLICIT_BACKENDTYPE(BackendT)                                      \
+  VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkImplicitArray<BackendT<float>>, double)                      \
+  VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkImplicitArray<BackendT<double>>, double)                     \
+  VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkImplicitArray<BackendT<char>>, double)                       \
+  VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkImplicitArray<BackendT<signed char>>, double)                \
+  VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkImplicitArray<BackendT<unsigned char>>, double)              \
+  VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkImplicitArray<BackendT<short>>, double)                      \
+  VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkImplicitArray<BackendT<unsigned short>>, double)             \
+  VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkImplicitArray<BackendT<int>>, double)                        \
+  VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkImplicitArray<BackendT<unsigned int>>, double)               \
+  VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkImplicitArray<BackendT<long>>, double)                       \
+  VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkImplicitArray<BackendT<unsigned long>>, double)              \
+  VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkImplicitArray<BackendT<long long>>, double)                  \
+  VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkImplicitArray<BackendT<unsigned long long>>, double)
 #endif
 
 namespace vtkDataArrayPrivate
@@ -637,6 +696,26 @@ VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkScaledSOADataArrayTemplate<unsigned long>, d
 VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkScaledSOADataArrayTemplate<long long>, double)
 VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkScaledSOADataArrayTemplate<unsigned long long>, double)
 #endif // VTK_USE_SCALED_SOA_ARRAYS
+
+// These are instantiated in vtk${BackendT}ArrayInstantiate_${i}.cxx
+#ifdef VTK_USE_IMPLICIT_ARRAYS
+VTK_DECLARE_VALUERANGE_IMPLICIT_BACKENDTYPE(vtkAffineImplicitBackend)
+VTK_DECLARE_VALUERANGE_IMPLICIT_BACKENDTYPE(vtkConstantImplicitBackend)
+
+VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkImplicitArray<std::function<float(int)>>, double)
+VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkImplicitArray<std::function<double(int)>>, double)
+VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkImplicitArray<std::function<char(int)>>, double)
+VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkImplicitArray<std::function<signed char>(int)>, double)
+VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkImplicitArray<std::function<unsigned char(int)>>, double)
+VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkImplicitArray<std::function<short(int)>>, double)
+VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkImplicitArray<std::function<unsigned short(int)>>, double)
+VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkImplicitArray<std::function<int(int)>>, double)
+VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkImplicitArray<std::function<unsigned int(int)>>, double)
+VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkImplicitArray<std::function<long(int)>>, double)
+VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkImplicitArray<std::function<unsigned long(int)>>, double)
+VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkImplicitArray<std::function<long long(int)>>, double)
+VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkImplicitArray<std::function<unsigned long long(int)>>, double)
+#endif
 
 VTK_ABI_NAMESPACE_END
 } // namespace vtkDataArrayPrivate
