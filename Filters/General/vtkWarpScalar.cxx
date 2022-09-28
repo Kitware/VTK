@@ -15,24 +15,34 @@
 #include "vtkWarpScalar.h"
 
 #include "vtkArrayDispatch.h"
+#include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkDataArray.h"
 #include "vtkDataArrayRange.h"
 #include "vtkDataSetAttributes.h"
+#include "vtkGenericCell.h"
 #include "vtkImageData.h"
 #include "vtkImageDataToPointSet.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkMarkBoundaryFilter.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPointSet.h"
 #include "vtkPoints.h"
+#include "vtkPolyData.h"
 #include "vtkRectilinearGrid.h"
 #include "vtkRectilinearGridToPointSet.h"
+#include "vtkUnstructuredGrid.h"
+#include "vtkWeakPointer.h"
 
 #include "vtkNew.h"
 #include "vtkSMPTools.h"
 #include "vtkSmartPointer.h"
+
+#include <algorithm>
+#include <bitset>
+#include <numeric>
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkWarpScalar);
@@ -72,6 +82,21 @@ int vtkWarpScalar::RequestDataObject(
 {
   vtkImageData* inImage = vtkImageData::GetData(inputVector[0]);
   vtkRectilinearGrid* inRect = vtkRectilinearGrid::GetData(inputVector[0]);
+
+  if (this->GenerateEnclosure)
+  {
+    vtkStructuredGrid* inStruct = vtkStructuredGrid::GetData(inputVector[0]);
+    if (inImage || inRect || inStruct)
+    {
+      vtkUnstructuredGrid* outUG = vtkUnstructuredGrid::GetData(outputVector);
+      if (!outUG)
+      {
+        vtkNew<vtkUnstructuredGrid> newOutput;
+        outputVector->GetInformationObject(0)->Set(vtkDataObject::DATA_OBJECT(), newOutput);
+      }
+      return 1;
+    }
+  }
 
   if (inImage || inRect)
   {
@@ -223,6 +248,42 @@ int vtkWarpScalar::RequestData(vtkInformation* vtkNotUsed(request),
     return 0;
   }
 
+  bool inputHasBoundary = false;
+  vtkSmartPointer<vtkUnsignedCharArray> boundaryPoints;
+  vtkSmartPointer<vtkUnsignedCharArray> boundaryCells;
+  vtkSmartPointer<vtkIdTypeArray> boundaryFaceIndexes;
+  if (this->GenerateEnclosure)
+  {
+    unsigned int dim = this->GetInputDimension(input);
+    if (dim > 2)
+    {
+      vtkWarningMacro(
+        "Cannot use GenerateEnclosure option with data set with more than 2 spatial dimensions");
+    }
+    else
+    {
+      vtkNew<vtkMarkBoundaryFilter> markBoundary;
+      markBoundary->SetInputData(input);
+      markBoundary->GenerateBoundaryFacesOn();
+      markBoundary->Update();
+      vtkDataSet* ds = vtkDataSet::SafeDownCast(markBoundary->GetOutputDataObject(0));
+      boundaryPoints = vtkArrayDownCast<vtkUnsignedCharArray>(
+        ds->GetPointData()->GetArray(markBoundary->GetBoundaryPointsName()));
+      boundaryCells = vtkArrayDownCast<vtkUnsignedCharArray>(
+        ds->GetCellData()->GetArray(markBoundary->GetBoundaryCellsName()));
+      boundaryFaceIndexes = vtkArrayDownCast<vtkIdTypeArray>(
+        ds->GetCellData()->GetArray(markBoundary->GetBoundaryFacesName()));
+      if (!boundaryPoints || !boundaryCells || !boundaryFaceIndexes)
+      {
+        vtkErrorMacro("Could not extract boundary arrays");
+        return 0;
+      }
+      auto range = vtk::DataArrayValueRange<1>(boundaryCells);
+      inputHasBoundary = (std::find_if(range.begin(), range.end(),
+                            [](unsigned char b) { return b != 0; }) != range.end());
+    }
+  }
+
   vtkPoints* inPts;
   vtkDataArray* inNormals;
   vtkDataArray* inScalars;
@@ -298,6 +359,36 @@ int vtkWarpScalar::RequestData(vtkInformation* vtkNotUsed(request),
   output->GetCellData()->CopyNormalsOff(); // distorted geometry
   output->GetCellData()->PassData(input->GetCellData());
 
+  if (this->GenerateEnclosure && inputHasBoundary)
+  {
+    vtkPolyData* polyOutput = vtkPolyData::SafeDownCast(output);
+    vtkUnstructuredGrid* ugOutput = vtkUnstructuredGrid::SafeDownCast(output);
+    if (!polyOutput && !ugOutput)
+    {
+      vtkErrorMacro("Tried to create sidewalls on unsupported output: must be either "
+                    "vtkPolyData or vtkUnstructuredGrid");
+      return 0;
+    }
+    output->GetPoints()->InsertPoints(
+      output->GetNumberOfPoints(), input->GetNumberOfPoints(), 0, input->GetPoints());
+    vtkWeakPointer<vtkCellArray> topology =
+      polyOutput ? polyOutput->GetPolys() : ugOutput->GetCells();
+    // append the topology to itself with an offset reconstructing the original data set
+    if (!topology)
+    {
+      vtkErrorMacro("Could not recover topology from output");
+      return 0;
+    }
+    {
+      vtkNew<vtkCellArray> topCopy;
+      topCopy->DeepCopy(topology);
+      topology->Append(topCopy, input->GetNumberOfPoints());
+      this->AppendArrays(output->GetPointData());
+      this->AppendArrays(output->GetCellData());
+    }
+    this->BuildSideWalls(
+      output, topology, input->GetNumberOfPoints(), boundaryCells, boundaryFaceIndexes);
+  }
   return 1;
 }
 
@@ -313,4 +404,108 @@ void vtkWarpScalar::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "XY Plane: " << (this->XYPlane ? "On\n" : "Off\n");
   os << indent << "Output Points Precision: " << this->OutputPointsPrecision << "\n";
 }
+
+//------------------------------------------------------------------------------
+namespace
+{
+struct DimensionWorklet
+{
+  int maxDim = 0;
+  vtkSMPThreadLocal<int> localMaxDim;
+  vtkDataSet* input = nullptr;
+
+  DimensionWorklet(vtkDataSet* inDS) { this->input = inDS; }
+
+  void Initialize() { this->localMaxDim.Local() = 0; }
+
+  void operator()(vtkIdType begin, vtkIdType end)
+  {
+    if (!this->input)
+    {
+      return;
+    }
+    vtkNew<vtkGenericCell> cell;
+    for (vtkIdType iCell = begin; iCell < end; iCell++)
+    {
+      input->GetCell(iCell, cell);
+      int locDim = cell->GetCellDimension();
+      this->localMaxDim.Local() = std::max(locDim, this->localMaxDim.Local());
+      if (this->localMaxDim.Local() == 3)
+      {
+        break;
+      }
+    }
+  }
+
+  void Reduce()
+  {
+    std::for_each(this->localMaxDim.begin(), this->localMaxDim.end(),
+      [&](int locMax) { this->maxDim = std::max(this->maxDim, locMax); });
+  }
+};
+}
+
+//------------------------------------------------------------------------------
+unsigned int vtkWarpScalar::GetInputDimension(vtkDataSet* input)
+{
+  ::DimensionWorklet worker(input);
+  vtkSMPTools::For(0, input->GetNumberOfCells(), worker);
+  return static_cast<unsigned int>(worker.maxDim);
+}
+
+//------------------------------------------------------------------------------
+void vtkWarpScalar::BuildSideWalls(vtkPointSet* output, vtkCellArray* topology, int nInputPoints,
+  vtkUnsignedCharArray* boundaryCells, vtkIdTypeArray* boundaryFaceIndexes)
+{
+  vtkNew<vtkIdList> newCell;
+  newCell->SetNumberOfIds(4);
+  vtkIdType iCell = 0;
+  auto bFlagRange = vtk::DataArrayValueRange<1>(boundaryCells);
+  auto bFaceRange = vtk::DataArrayValueRange<1>(boundaryFaceIndexes);
+  auto faceIter = bFaceRange.begin();
+  for (auto val : bFlagRange)
+  {
+    if (val)
+    {
+      constexpr std::size_t nBitsvtkIdType = sizeof(vtkIdType) * CHAR_BIT;
+      std::bitset<nBitsvtkIdType> faceMask = *faceIter;
+      vtkCell* bCell = output->GetCell(iCell);
+      int nEdges = std::max(bCell->GetNumberOfEdges(), static_cast<int>(nBitsvtkIdType));
+      for (int iEdge = 0; iEdge < nEdges; iEdge++)
+      {
+        if (faceMask[iEdge])
+        {
+          vtkCell* bEdge = bCell->GetEdge(iEdge);
+          vtkIdList* pts = bEdge->GetPointIds();
+          for (int iP = 0; iP < 2; iP++)
+          {
+            newCell->SetId(iP, pts->GetId(iP));
+            newCell->SetId(iP + 2, pts->GetId(1 - iP) + nInputPoints);
+          }
+          topology->InsertNextCell(newCell);
+          for (int iArr = 0; iArr < output->GetCellData()->GetNumberOfArrays(); iArr++)
+          {
+            vtkAbstractArray* aa = output->GetCellData()->GetAbstractArray(iArr);
+            aa->InsertNextTuple(iCell, aa);
+          }
+        }
+      }
+    }
+    iCell++;
+    faceIter++;
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkWarpScalar::AppendArrays(vtkDataSetAttributes* setData)
+{
+  for (int iArr = 0; iArr < setData->GetNumberOfArrays(); iArr++)
+  {
+    vtkAbstractArray* aa = setData->GetArray(iArr);
+    vtkSmartPointer<vtkAbstractArray> newAa = vtk::TakeSmartPointer(aa->NewInstance());
+    newAa->DeepCopy(aa);
+    aa->InsertTuples(aa->GetNumberOfTuples(), newAa->GetNumberOfTuples(), 0, newAa);
+  }
+}
+
 VTK_ABI_NAMESPACE_END

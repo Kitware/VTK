@@ -19,6 +19,7 @@ PRIVATE_DEPENDS
   VTK::CommonMath
   VTK::CommonSystem
   VTK::CommonTransforms
+  VTK::FiltersGeometry
   VTK::fmt
 TEST_DEPENDS
   VTK::FiltersExtraction
