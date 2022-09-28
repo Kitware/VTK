@@ -71,6 +71,7 @@
     variables:
         CMAKE_CONFIGURATION: wheel_macos310_x86_64
         PYTHON_VERSION_SUFFIX: "3.10"
+        _PYTHON_HOST_PLATFORM: "macosx-10.10-x86_64"
 
 ### Build and test
 
