@@ -31,7 +31,7 @@ SUBDIRECTORY_OK=Yes
 . "$(git --exec-path)/git-sh-setup"
 
 egrep_q() {
-  egrep "$@" >/dev/null 2>/dev/null
+  grep -E "$@" >/dev/null 2>/dev/null
 }
 
 # Load the project configuration.
