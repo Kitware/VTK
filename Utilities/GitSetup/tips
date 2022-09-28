@@ -20,7 +20,7 @@
 # Project configuration instructions: NONE
 
 egrep_q() {
-	egrep "$@" >/dev/null 2>/dev/null
+	grep -E "$@" >/dev/null 2>/dev/null
 }
 
 # Suggest color configuration.
