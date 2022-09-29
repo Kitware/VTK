@@ -102,6 +102,24 @@ int TestCGNSReader(int argc, char* argv[])
     return EXIT_FAILURE;
   }
 
+  fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/Example_ngon_2d_base.cgns");
+  std::string ngon_2d_base = fname ? fname : "";
+  delete[] fname;
+
+  cout << "Opening " << ngon_2d_base.c_str() << endl;
+  vtkNew<vtkCGNSReader> ngonBaseReader;
+  ngonBaseReader->SetFileName(ngon_2d_base.c_str());
+  ngonBaseReader->UpdateInformation();
+  ngonBaseReader->EnableAllBases();
+  ngonBaseReader->EnableAllFamilies();
+  ngonBaseReader->EnableAllCellArrays();
+  ngonBaseReader->Update();
+  mb = ngonBaseReader->GetOutput();
+  if (mb->GetNumberOfBlocks() != 2)
+  {
+    return EXIT_FAILURE;
+  }
+
   fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/test_cylinder.cgns");
   std::string bcfile = fname ? fname : "";
   delete[] fname;
