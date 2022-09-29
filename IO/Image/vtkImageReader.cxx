@@ -25,6 +25,7 @@
 #include "vtkTransform.h"
 
 #include <cmath>
+#include <ios>
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkObjectFactoryNewMacro(vtkImageReader);
@@ -125,7 +126,7 @@ int vtkImageReader::RequestInformation(vtkInformation* vtkNotUsed(request),
 
 int vtkImageReader::OpenAndSeekFile(int dataExtent[6], int idx)
 {
-  unsigned long streamStart;
+  std::streamoff startOffset;
 
   if (!this->FileName && !this->FilePattern)
   {
@@ -139,31 +140,35 @@ int vtkImageReader::OpenAndSeekFile(int dataExtent[6], int idx)
     return 0;
   }
   // convert data extent into constants that can be used to seek.
-  streamStart = (dataExtent[0] - this->DataExtent[0]) * this->DataIncrements[0];
+  startOffset =
+    static_cast<std::streamoff>(dataExtent[0] - this->DataExtent[0]) * this->DataIncrements[0];
 
   if (this->FileLowerLeft)
   {
-    streamStart = streamStart + (dataExtent[2] - this->DataExtent[2]) * this->DataIncrements[1];
+    startOffset +=
+      static_cast<std::streamoff>(dataExtent[2] - this->DataExtent[2]) * this->DataIncrements[1];
   }
   else
   {
-    streamStart = streamStart +
-      (this->DataExtent[3] - this->DataExtent[2] - dataExtent[2]) * this->DataIncrements[1];
+    startOffset +=
+      static_cast<std::streamoff>(this->DataExtent[3] - this->DataExtent[2] - dataExtent[2]) *
+      this->DataIncrements[1];
   }
 
   // handle three and four dimensional files
   if (this->GetFileDimensionality() >= 3)
   {
-    streamStart = streamStart + (dataExtent[4] - this->DataExtent[4]) * this->DataIncrements[2];
+    startOffset +=
+      static_cast<std::streamoff>(dataExtent[4] - this->DataExtent[4]) * this->DataIncrements[2];
   }
 
-  streamStart += this->GetHeaderSize(idx);
+  startOffset += this->GetHeaderSize(idx);
 
   // error checking
-  this->File->seekg(static_cast<long>(streamStart), ios::beg);
+  this->File->seekg(startOffset, ios::beg);
   if (this->File->fail())
   {
-    vtkErrorMacro(<< "File operation failed: " << streamStart << ", ext: " << dataExtent[0] << ", "
+    vtkErrorMacro(<< "File operation failed: " << startOffset << ", ext: " << dataExtent[0] << ", "
                   << dataExtent[1] << ", " << dataExtent[2] << ", " << dataExtent[3] << ", "
                   << dataExtent[4] << ", " << dataExtent[5]);
     vtkErrorMacro(<< "Header size: " << this->GetHeaderSize(idx)
