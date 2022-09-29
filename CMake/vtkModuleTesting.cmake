@@ -753,7 +753,7 @@ function (vtk_add_test_mangling module)
   cmake_parse_arguments(_vtk_mangling_test "" "" "EXEMPTIONS" ${ARGN})
 
   get_property(vtk_abi_namespace_name GLOBAL PROPERTY _vtk_abi_namespace_name)
-  if (vtk_abi_namespace_name STREQUAL "")
+  if (NOT vtk_abi_namespace_name STREQUAL "")
     _vtk_module_real_target(_vtk_test_target "${module}")
     get_property(has_sources TARGET ${_vtk_test_target} PROPERTY SOURCES)
     get_property(has_test GLOBAL PROPERTY "${module}_HAS_MANGLING_TEST" SET)
