@@ -32,6 +32,7 @@
 
 #include <string> // std::string
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSDSP_EXPORT vtkBandFiltering : public vtkTableAlgorithm
 {
 public:
@@ -176,5 +177,6 @@ private:
   bool OutputInDecibel = false;
   double ReferenceValue = 2e-5;
 };
+VTK_ABI_NAMESPACE_END
 
 #endif // vtkBandFiltering_h

@@ -188,6 +188,7 @@ vtkSmartPointer<vtkDataArray> ProcessColumn(
 }
 };
 
+VTK_ABI_NAMESPACE_BEGIN
 //------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkBandFiltering);
 
@@ -325,3 +326,5 @@ void vtkBandFiltering::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "BandFilteringMode: " << this->BandFilteringMode << std::endl;
   os << indent << "OutputInDecibel: " << this->OutputInDecibel << std::endl;
 }
+
+VTK_ABI_NAMESPACE_END
