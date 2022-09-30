@@ -79,6 +79,10 @@ bool vtkExtractBlockUsingDataAssembly::vtkInternals::Execute(vtkPartitionedDataS
   std::set<unsigned int> datasets_to_copy;
   for (auto nodeid : selected_nodes)
   {
+    if (self->CheckAbort())
+    {
+      break;
+    }
     const auto datasets = assembly->GetDataSetIndices(nodeid,
       /*traverse_subtree=*/self->GetSelectSubtrees());
     datasets_to_copy.insert(datasets.begin(), datasets.end());
@@ -88,6 +92,10 @@ bool vtkExtractBlockUsingDataAssembly::vtkInternals::Execute(vtkPartitionedDataS
   std::map<unsigned int, unsigned int> output_indices;
   for (const auto& in_idx : datasets_to_copy)
   {
+    if (self->CheckAbort())
+    {
+      break;
+    }
     const auto out_idx = output->GetNumberOfPartitionedDataSets();
     output->SetPartitionedDataSet(out_idx, input->GetPartitionedDataSet(in_idx));
     if (input->HasMetaData(in_idx))
@@ -112,6 +120,10 @@ bool vtkExtractBlockUsingDataAssembly::vtkInternals::Execute(vtkPartitionedDataS
   // now map each of the other input assemblies.
   for (auto& iAssembly : assemblies_to_map)
   {
+    if (self->CheckAbort())
+    {
+      break;
+    }
     vtkNew<vtkDataAssembly> oAssembly;
     oAssembly->DeepCopy(iAssembly);
     oAssembly->RemapDataSetIndices(output_indices, /*remove_unmapped=*/true);

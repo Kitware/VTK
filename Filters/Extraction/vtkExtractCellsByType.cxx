@@ -192,6 +192,10 @@ void vtkExtractCellsByType::ExtractPolyDataCells(
     vtkCellArray* verts = vtkCellArray::New();
     for (inVerts->InitTraversal(); inVerts->GetNextCell(npts, pts); ++currentCellId)
     {
+      if (this->CheckAbort())
+      {
+        break;
+      }
       if (this->ExtractCellType(input->GetCellType(currentCellId)))
       {
         ptIds->Reset();
@@ -222,6 +226,10 @@ void vtkExtractCellsByType::ExtractPolyDataCells(
     vtkCellArray* lines = vtkCellArray::New();
     for (inLines->InitTraversal(); inLines->GetNextCell(npts, pts); ++currentCellId)
     {
+      if (this->CheckAbort())
+      {
+        break;
+      }
       if (this->ExtractCellType(input->GetCellType(currentCellId)))
       {
         ptIds->Reset();
@@ -253,6 +261,10 @@ void vtkExtractCellsByType::ExtractPolyDataCells(
     vtkCellArray* polys = vtkCellArray::New();
     for (inPolys->InitTraversal(); inPolys->GetNextCell(npts, pts); ++currentCellId)
     {
+      if (this->CheckAbort())
+      {
+        break;
+      }
       if (this->ExtractCellType(input->GetCellType(currentCellId)))
       {
         ptIds->Reset();
@@ -284,6 +296,10 @@ void vtkExtractCellsByType::ExtractPolyDataCells(
     // All cells are of type VTK_TRIANGLE_STRIP
     for (inStrips->InitTraversal(); inStrips->GetNextCell(npts, pts); ++currentCellId)
     {
+      if (this->CheckAbort())
+      {
+        break;
+      }
       ptIds->Reset();
       for (i = 0; i < npts; ++i)
       {
@@ -340,6 +356,10 @@ void vtkExtractCellsByType::ExtractUnstructuredGridCells(
 
   for (cellId = 0; cellId < numCells; ++cellId)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     cellType = input->GetCellType(cellId);
     if (this->ExtractCellType(cellType))
     {
@@ -415,6 +435,8 @@ int vtkExtractCellsByType::RequestData(vtkInformation* vtkNotUsed(request),
     vtkErrorMacro("Unknown dataset type");
     output->Initialize(); // output is empty
   }
+
+  this->CheckAbort();
 
   return 1;
 }

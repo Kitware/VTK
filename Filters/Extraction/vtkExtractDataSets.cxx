@@ -127,6 +127,10 @@ int vtkExtractDataSets::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInternals::DatasetsType::iterator iter = this->Internals->Datasets.begin();
   for (; iter != this->Internals->Datasets.end(); ++iter)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     vtkUniformGrid* inUG = input->GetDataSet(iter->Level, iter->Index);
     if (inUG)
     {

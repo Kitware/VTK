@@ -135,6 +135,10 @@ int vtkExtractBlock::RequestData(vtkInformation* vtkNotUsed(request),
   for (iter->InitTraversal(); !iter->IsDoneWithTraversal() && !activeIndices.empty();
        iter->GoToNextItem())
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     if (activeIndices.find(iter->GetCurrentFlatIndex()) != activeIndices.end())
     {
       activeIndices.erase(iter->GetCurrentFlatIndex());

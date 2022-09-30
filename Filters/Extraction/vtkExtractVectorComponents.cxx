@@ -131,11 +131,13 @@ class ExtractVectorComponentsFunctor
   ArrayT* ArrayY;
   ArrayT* ArrayZ;
   ArrayT* Vector;
+  vtkExtractVectorComponents* Filter;
 
 public:
-  ExtractVectorComponentsFunctor(
-    vtkDataArray* arrayX, vtkDataArray* arrayY, vtkDataArray* arrayZ, ArrayT* vector)
+  ExtractVectorComponentsFunctor(vtkDataArray* arrayX, vtkDataArray* arrayY, vtkDataArray* arrayZ,
+    ArrayT* vector, vtkExtractVectorComponents* filter)
     : Vector(vector)
+    , Filter(filter)
   {
     this->ArrayX = ArrayT::FastDownCast(arrayX);
     this->ArrayY = ArrayT::FastDownCast(arrayY);
@@ -150,9 +152,18 @@ public:
     auto outX = vtk::DataArrayValueRange<1>(this->ArrayX, begin, end).begin();
     auto outY = vtk::DataArrayValueRange<1>(this->ArrayY, begin, end).begin();
     auto outZ = vtk::DataArrayValueRange<1>(this->ArrayZ, begin, end).begin();
+    bool isFirst = vtkSMPTools::GetSingleThread();
 
     for (auto tuple : inVector)
     {
+      if (isFirst)
+      {
+        this->Filter->CheckAbort();
+      }
+      if (this->Filter->GetAbortOutput())
+      {
+        break;
+      }
       *outX++ = tuple[0];
       *outY++ = tuple[1];
       *outZ++ = tuple[2];
@@ -163,9 +174,10 @@ public:
 struct ExtractVectorComponentsWorker
 {
   template <class ArrayT>
-  void operator()(ArrayT* vectors, vtkDataArray* vx, vtkDataArray* vy, vtkDataArray* vz)
+  void operator()(ArrayT* vectors, vtkDataArray* vx, vtkDataArray* vy, vtkDataArray* vz,
+    vtkExtractVectorComponents* filter)
   {
-    ExtractVectorComponentsFunctor<ArrayT> functor(vx, vy, vz, vectors);
+    ExtractVectorComponentsFunctor<ArrayT> functor(vx, vy, vz, vectors, filter);
     vtkSMPTools::For(0, vectors->GetNumberOfTuples(), functor);
   }
 };
@@ -262,9 +274,10 @@ int vtkExtractVectorComponents::RequestData(vtkInformation* vtkNotUsed(request),
     snprintf(newName, newNameSize, "%s-z", name);
     vz->SetName(newName);
 
-    if (!vtkArrayDispatch::Dispatch::Execute(vectors, ExtractVectorComponentsWorker{}, vx, vy, vz))
+    if (!vtkArrayDispatch::Dispatch::Execute(
+          vectors, ExtractVectorComponentsWorker{}, vx, vy, vz, this))
     {
-      ExtractVectorComponentsWorker{}(vectors, vx, vy, vz);
+      ExtractVectorComponentsWorker{}(vectors, vx, vy, vz, this);
     }
 
     outVx->PassData(pd);
@@ -307,9 +320,9 @@ int vtkExtractVectorComponents::RequestData(vtkInformation* vtkNotUsed(request),
     vzc->SetName(newName);
 
     if (!vtkArrayDispatch::Dispatch::Execute(
-          vectorsc, ExtractVectorComponentsWorker{}, vxc, vyc, vzc))
+          vectorsc, ExtractVectorComponentsWorker{}, vxc, vyc, vzc, this))
     {
-      ExtractVectorComponentsWorker{}(vectorsc, vxc, vyc, vzc);
+      ExtractVectorComponentsWorker{}(vectorsc, vxc, vyc, vzc, this);
     }
 
     outVxc->PassData(cd);
@@ -336,6 +349,8 @@ int vtkExtractVectorComponents::RequestData(vtkInformation* vtkNotUsed(request),
     vzc->Delete();
   }
   delete[] newName;
+
+  this->CheckAbort();
 
   return 1;
 }

@@ -392,6 +392,10 @@ struct vtkExtractSelectedIdsExtractCells
         break;
       }
       self->UpdateProgress(static_cast<double>(idArrayIndex) / (numIds * (passThrough + 1)));
+      if (self->CheckAbort())
+      {
+        break;
+      }
 
       // Advance through and mark all cells with a label EQUAL TO the
       // current selection id, as well as their points.
@@ -523,6 +527,10 @@ struct vtkExtractSelectedIdsExtractPoints
       }
 
       self->UpdateProgress(static_cast<double>(idArrayIndex) / (numIds * (passThrough + 1)));
+      if (self->CheckAbort())
+      {
+        break;
+      }
       if (idArrayIndex >= numIds)
       {
         // We're out of selection ids, so we're done.
@@ -744,7 +752,7 @@ int vtkExtractSelectedIds::ExtractCells(
   idxArray->Delete();
   labelArray->Delete();
 
-  if (!passThrough)
+  if (!this->CheckAbort() && !passThrough)
   {
     vtkIdType* pointMap = new vtkIdType[numPts]; // maps old point ids into new
     vtkExtractSelectedIdsCopyPoints(input, output, pointInArray->GetPointer(0), pointMap);

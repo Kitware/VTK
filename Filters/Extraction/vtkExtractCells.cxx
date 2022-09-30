@@ -589,6 +589,7 @@ int vtkExtractCells::RequestData(vtkInformation* vtkNotUsed(request),
     ::DoExtractPolyhedralFaces(cells, inputUG, work);
   }
   output->SetCells(cells.CellTypes, cells.Connectivity, cells.FaceLocations, cells.Faces);
+  this->CheckAbort();
   return 1;
 }
 

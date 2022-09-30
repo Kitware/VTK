@@ -255,6 +255,8 @@ int vtkExtractTimeSteps::RequestData(
   {
     outData->ShallowCopy(inData);
   }
+
+  this->CheckAbort();
   return 1;
 }
 VTK_ABI_NAMESPACE_END

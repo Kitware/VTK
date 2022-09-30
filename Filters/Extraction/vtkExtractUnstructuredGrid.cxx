@@ -207,6 +207,10 @@ int vtkExtractUnstructuredGrid::RequestData(vtkInformation* vtkNotUsed(request),
   // Traverse cells to extract geometry
   for (cellId = 0; cellId < numCells; cellId++)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     if (allVisible || cellVis[cellId])
     {
       cell = input->GetCell(cellId);

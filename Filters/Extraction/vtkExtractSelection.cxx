@@ -327,6 +327,10 @@ int vtkExtractSelection::RequestData(vtkInformation* vtkNotUsed(request),
     // as the input.
     for (inIter->InitTraversal(); !inIter->IsDoneWithTraversal(); inIter->GoToNextItem())
     {
+      if (this->CheckAbort())
+      {
+        break;
+      }
       auto blockInput = inIter->GetCurrentDataObject();
       if (blockInput)
       {
@@ -341,6 +345,10 @@ int vtkExtractSelection::RequestData(vtkInformation* vtkNotUsed(request),
     vtkLogStartScope(TRACE, "execute selectors");
     for (auto nodeIter = selectors.begin(); nodeIter != selectors.end(); ++nodeIter)
     {
+      if (this->CheckAbort())
+      {
+        break;
+      }
       auto selector = nodeIter->second;
       selector->Execute(inputCD, outputCD);
     }
@@ -376,6 +384,10 @@ int vtkExtractSelection::RequestData(vtkInformation* vtkNotUsed(request),
     for (inIter->GoToFirstItem(), outIter->GoToFirstItem(); !outIter->IsDoneWithTraversal();
          inIter->GoToNextItem(), outIter->GoToNextItem())
     {
+      if (this->CheckAbort())
+      {
+        break;
+      }
       outputCD->SetDataSet(
         outIter, extract(inputCD->GetDataSet(inIter), outIter->GetCurrentDataObject()));
     }
@@ -393,6 +405,10 @@ int vtkExtractSelection::RequestData(vtkInformation* vtkNotUsed(request),
     vtkLogStartScope(TRACE, "execute selectors");
     for (auto nodeIter = selectors.begin(); nodeIter != selectors.end(); ++nodeIter)
     {
+      if (this->CheckAbort())
+      {
+        break;
+      }
       auto selector = nodeIter->second;
       selector->Execute(input, clone);
     }

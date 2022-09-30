@@ -400,6 +400,9 @@ int vtkExpandMarkedElements::RequestData(
     b->MarkedArray->SetName(arrayname.c_str());
     b->Dataset->GetAttributes(assoc)->AddArray(b->MarkedArray);
   });
+
+  comm.barrier();
+  this->CheckAbort();
   return 1;
 }
 

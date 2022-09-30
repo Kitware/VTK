@@ -307,6 +307,10 @@ int vtkExtractSelectedThresholds::ExtractCells(
   // Check that the scalars of each cell satisfy the threshold criterion
   for (cellId = 0; cellId < input->GetNumberOfCells(); cellId++)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     cell = input->GetCell(cellId);
     cellPts = cell->GetPointIds();
     numCellPts = cell->GetNumberOfPoints();
@@ -505,6 +509,10 @@ int vtkExtractSelectedThresholds::ExtractPoints(
   vtkIdType outPtCnt = 0;
   for (vtkIdType ptId = 0; ptId < numPts; ptId++)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     int keepPoint = vtkExtractSelectedThresholds::EvaluateValue(inScalars, comp_no, ptId, lims);
     if (keepPoint ^ inverse)
     {
@@ -625,6 +633,10 @@ int vtkExtractSelectedThresholds::ExtractRows(
   vtkIdType outRCnt = 0;
   for (vtkIdType rowId = 0; rowId < numRows; rowId++)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     int keepRow = vtkExtractSelectedThresholds::EvaluateValue(inScalars, comp_no, rowId, lims);
     if (keepRow ^ inverse)
     {

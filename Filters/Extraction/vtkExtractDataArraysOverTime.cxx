@@ -784,7 +784,7 @@ int vtkExtractDataArraysOverTime::RequestData(
 
   // increment the time index
   this->CurrentTimeIndex++;
-  if (this->CurrentTimeIndex == this->NumberOfTimeSteps)
+  if (this->CheckAbort() || this->CurrentTimeIndex == this->NumberOfTimeSteps)
   {
     this->PostExecute(request, inputVector, outputVector);
     delete this->Internal;
