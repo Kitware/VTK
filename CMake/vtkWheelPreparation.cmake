@@ -20,15 +20,15 @@ set_property(GLOBAL PROPERTY _vtk_python_soabi "${Python3_SOABI}")
 
 execute_process(
   COMMAND "${Python3_EXECUTABLE}"
-          -c "from distutils import util; print(util.get_platform())"
-  OUTPUT_VARIABLE python_platform
+          "${CMAKE_CURRENT_LIST_DIR}/wheel_extract_platlib.py"
+  OUTPUT_VARIABLE build_platlib
   ERROR_VARIABLE  err
   RESULT_VARIABLE res
   OUTPUT_STRIP_TRAILING_WHITESPACE
   ERROR_STRIP_TRAILING_WHITESPACE)
 if (res)
   message(FATAL_ERROR
-    "Failed to determine platform for Python implementation: ${err}")
+    "Failed to determine the platform build directory: ${err}")
 endif ()
 
 set(wheel_data_dir
@@ -48,7 +48,7 @@ set(CMAKE_INSTALL_DOCDIR
 set(vtk_hierarchy_destination_args
   HIERARCHY_DESTINATION "${wheel_data_dir}/headers/hierarchy")
 set(setup_py_build_dir
-  "build/lib.${python_platform}-${Python3_VERSION_MAJOR}.${Python3_VERSION_MINOR}")
+  "${build_platlib}")
 # Required for Windows DLL placement.
 if (WIN32)
   set(CMAKE_INSTALL_BINDIR
