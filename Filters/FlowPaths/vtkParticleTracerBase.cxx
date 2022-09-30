@@ -922,6 +922,8 @@ vtkPolyData* vtkParticleTracerBase::Execute(vtkInformationVector** inputVector)
   this->OutputPointData->Initialize();
   vtkDebugMacro(<< "About to Interpolate allocate space");
   this->OutputPointData->InterpolateAllocate(this->DataReferenceT[0]->GetPointData());
+  this->RenameGhostArray(this->OutputPointData);
+
   this->ParticleAge->SetName("ParticleAge");
   this->ParticleIds->SetName("ParticleId");
   this->ParticleSourceIds->SetName("ParticleSourceId");
@@ -1627,6 +1629,24 @@ void vtkParticleTracerBase::CreateProtoPD(vtkDataObject* input)
 
   this->ProtoPD = vtkSmartPointer<vtkPointData>::New();
   this->ProtoPD->InterpolateAllocate(inputData->GetPointData());
+  this->RenameGhostArray(this->ProtoPD);
+}
+
+//------------------------------------------------------------------------------
+void vtkParticleTracerBase::RenameGhostArray(vtkPointData* pd)
+{
+  if (!pd)
+  {
+    return;
+  }
+
+  // Rename ghost array as ghost information is not valid for the particles
+  std::string ghostArrayName = vtkDataSetAttributes::GhostArrayName();
+  vtkAbstractArray* array = pd->GetArray(ghostArrayName.c_str());
+  if (array)
+  {
+    array->SetName(std::string("Original_" + ghostArrayName).c_str());
+  }
 }
 
 //------------------------------------------------------------------------------
