@@ -28,5 +28,6 @@ TEST_DEPENDS
   VTK::IOParallel
   VTK::ImagingCore
   VTK::ParallelMPI
+  VTK::FiltersParallelDIY2
   VTK::RenderingParallel
   VTK::TestingRendering
