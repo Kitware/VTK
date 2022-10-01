@@ -13,14 +13,18 @@
     script:
         - ls build/
         - dnf install -y --setopt=install_weak_deps=False rsync openssh-clients
-        - chmod 400 $RSYNC_BINARY_KEY
-        - ssh-keygen -y -f $RSYNC_BINARY_KEY > $RSYNC_BINARY_KEY.pub
-        - rsync -tv --recursive -e "ssh -i $RSYNC_BINARY_KEY -o StrictHostKeyChecking=no" build/$SRC_SUBDIR kitware@web.kitware.com:$RSYNC_DESTINATION/
+        - chmod 400 $RSYNC_KEY_PATH
+        - ssh-keygen -y -f $RSYNC_KEY_PATH > $RSYNC_KEY_PATH.pub
+        - rsync -tv --recursive -e "ssh -i $RSYNC_KEY_PATH -o StrictHostKeyChecking=no" $RSYNC_SOURCE kitware@web.kitware.com:$RSYNC_DESTINATION/
+    variables:
+        RSYNC_KEY_PATH: $RSYNC_BINARY_KEY
 
 .rsync_upload_wheel_sdk:
     extends: .rsync_upload
     environment:
         name: rsync-upload-wheel-sdk
+    variables:
+        RSYNC_KEY_PATH: $RSYNC_WHEEL_SDK_KEY
 
 .pypi_upload:
     image: "fedora:34"
