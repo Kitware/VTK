@@ -23,7 +23,7 @@ PURPOSE.  See the above copyright Nonice for more information.
 #include "vtkIdList.h"
 #include "vtkObjectFactory.h"
 
-#include "vtkHyperTreeGridNonOrientedMooreSuperCursorData.h"
+#include "vtkHyperTreeGridNonOrientedMooreSuperCursorData.inl"
 
 #include <cassert>
 
