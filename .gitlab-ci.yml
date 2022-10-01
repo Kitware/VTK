@@ -630,7 +630,7 @@ documentation:upload:
     needs:
         - documentation:build
     variables:
-        SRC_SUBDIR: install/usr/share/doc/vtk/doxygen/html/
+        RSYNC_SOURCE: build/install/usr/share/doc/vtk/doxygen/html/
         RSYNC_DESTINATION: VTKDoxygen/html
 
 source:build:
