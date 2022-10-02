@@ -2,10 +2,10 @@ cmake_minimum_required(VERSION 3.12)
 
 set(python_url_root "https://www.paraview.org/files/dependencies/python-for-wheels")
 
-set(python_version "3.10.1")
+set(python_version "3.11.1")
 if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "windows")
   set(python_subdir "python-${python_version}-windows-x86_64")
-  set(sha256sum "4c61e26989fdfac974309e77bc855c843b1f5b438a8a81b762095c0d838581de")
+  set(sha256sum "b1261ea4cdef506cc49ff7c4c25678a926e9382e961f1dd844326de3c5d25310")
 else ()
   message(FATAL_ERROR
     "Unknown platform for Python")
