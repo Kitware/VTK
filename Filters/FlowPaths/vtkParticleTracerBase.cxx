@@ -832,9 +832,14 @@ struct ParticleTracerFunctor
     auto& cellVectors = this->TLCellVectors.Local();
     const double& currentTime = this->FromTime;
     const double& targetTime = this->PT->CurrentTimeValue;
+    bool isFirst = this->Sequential || vtkSMPTools::GetSingleThread();
 
     for (vtkIdType i = begin; i < end; ++i)
     {
+      if (isFirst)
+      {
+        this->PT->CheckAbort();
+      }
       auto it = this->ParticleHistories[i];
       this->PT->IntegrateParticle(it, currentTime, targetTime, integrator, interpolator,
         cellVectors, this->ParticleCount, this->EraseMutex, this->Sequential);

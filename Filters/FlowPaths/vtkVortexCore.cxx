@@ -45,12 +45,15 @@ class MatrixVectorMultiplyFunctor
   AArrayType* AArray;
   BArrayType* BArray;
   XArrayType* XArray;
+  vtkVortexCore* Filter;
 
 public:
-  MatrixVectorMultiplyFunctor(AArrayType* aArray, BArrayType* bArray, XArrayType* xArray)
+  MatrixVectorMultiplyFunctor(
+    AArrayType* aArray, BArrayType* bArray, XArrayType* xArray, vtkVortexCore* filter)
     : AArray(aArray)
     , BArray(bArray)
     , XArray(xArray)
+    , Filter(filter)
   {
   }
 
@@ -63,9 +66,18 @@ public:
     auto a = aRange.cbegin();
     auto b = bRange.cbegin();
     auto x = xRange.begin();
+    bool isFirst = vtkSMPTools::GetSingleThread();
 
     for (; a != aRange.cend(); ++a, ++b, ++x)
     {
+      if (isFirst)
+      {
+        this->Filter->CheckAbort();
+      }
+      if (this->Filter->GetAbortOutput())
+      {
+        break;
+      }
       for (vtkIdType i = 0; i < 3; ++i)
       {
         (*x)[i] =
@@ -78,9 +90,10 @@ public:
 struct MatrixVectorMultiplyWorker
 {
   template <typename AArrayType, typename BArrayType, typename XArrayType>
-  void operator()(AArrayType* aArray, BArrayType* bArray, XArrayType* xArray)
+  void operator()(AArrayType* aArray, BArrayType* bArray, XArrayType* xArray, vtkVortexCore* filter)
   {
-    MatrixVectorMultiplyFunctor<AArrayType, BArrayType, XArrayType> functor(aArray, bArray, xArray);
+    MatrixVectorMultiplyFunctor<AArrayType, BArrayType, XArrayType> functor(
+      aArray, bArray, xArray, filter);
     vtkSMPTools::For(0, xArray->GetNumberOfTuples(), functor);
   }
 };
@@ -194,12 +207,14 @@ class ComputeCriteriaFunctor
 {
   JacobianArrayType* JacobianArray;
   AcceptedPointsArrayType* AcceptedPointsArray;
+  vtkVortexCore* Filter;
 
 public:
-  ComputeCriteriaFunctor(
-    JacobianArrayType* jacobianArray, AcceptedPointsArrayType* acceptedPointsArray)
+  ComputeCriteriaFunctor(JacobianArrayType* jacobianArray,
+    AcceptedPointsArrayType* acceptedPointsArray, vtkVortexCore* filter)
     : JacobianArray(jacobianArray)
     , AcceptedPointsArray(acceptedPointsArray)
+    , Filter(filter)
   {
   }
 
@@ -210,9 +225,18 @@ public:
 
     auto j = jacobianRange.cbegin();
     auto a = acceptedPointsRange.begin();
+    bool isFirst = vtkSMPTools::GetSingleThread();
 
     for (; j != jacobianRange.cend(); ++j, ++a)
     {
+      if (isFirst)
+      {
+        this->Filter->CheckAbort();
+      }
+      if (this->Filter->GetAbortOutput())
+      {
+        break;
+      }
       std::array<double, 4> vortexCriteria;
       double S[9];
       double Omega[9];
@@ -236,10 +260,11 @@ public:
 struct ComputeCriteriaWorker
 {
   template <typename JacobianArrayType, typename AcceptedPointsArrayType>
-  void operator()(JacobianArrayType* jacobianArray, AcceptedPointsArrayType* acceptedPointsArray)
+  void operator()(JacobianArrayType* jacobianArray, AcceptedPointsArrayType* acceptedPointsArray,
+    vtkVortexCore* filter)
   {
     ComputeCriteriaFunctor<JacobianArrayType, AcceptedPointsArrayType> functor(
-      jacobianArray, acceptedPointsArray);
+      jacobianArray, acceptedPointsArray, filter);
     vtkSMPTools::For(0, acceptedPointsArray->GetNumberOfTuples(), functor);
   }
 };
@@ -373,11 +398,17 @@ int vtkVortexCore::RequestData(
     gradient->SetVorticityArrayName("vorticity");
     gradient->SetInputArrayToProcess(
       0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, velocity->GetName());
+    gradient->SetContainerAlgorithm(this);
     gradient->Update();
 
     dataset = gradient->GetOutput();
 
     jacobian = vtkDataArray::SafeDownCast(dataset->GetPointData()->GetAbstractArray("jacobian"));
+  }
+
+  if (this->CheckAbort())
+  {
+    return 1;
   }
 
   // Compute the acceleration field: a = J * v
@@ -397,14 +428,19 @@ int vtkVortexCore::RequestData(
       vtkArrayDispatch::Reals, vtkArrayDispatch::Reals>;
 
     // Generate optimized workers when mags/vecs are both float|double
-    if (!Dispatcher::Execute(jacobian, velocity, acceleration, worker))
+    if (!Dispatcher::Execute(jacobian, velocity, acceleration, worker, this))
     {
       // Otherwise fallback to using the vtkDataArray API.
-      worker(jacobian.Get(), velocity, acceleration.Get());
+      worker(jacobian.Get(), velocity, acceleration.Get(), this);
     }
 
     dataset->GetPointData()->AddArray(acceleration);
     dataset->GetPointData()->SetActiveVectors(acceleration->GetName());
+  }
+
+  if (this->CheckAbort())
+  {
+    return 1;
   }
 
   vtkDataArray* vField = velocity;
@@ -421,6 +457,7 @@ int vtkVortexCore::RequestData(
       gradientPrime->SetResultArrayName("jacobian_prime");
       gradientPrime->SetInputArrayToProcess(
         0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "jacobian");
+      gradientPrime->SetContainerAlgorithm(this);
       gradientPrime->Update();
       jacobianPrime = vtkDoubleArray::SafeDownCast(
         gradientPrime->GetOutput()->GetPointData()->GetAbstractArray("jacobian_prime"));
@@ -440,15 +477,20 @@ int vtkVortexCore::RequestData(
         vtkArrayDispatch::Reals, vtkArrayDispatch::Reals>;
 
       // Generate optimized workers when mags/vecs are both float|double
-      if (!Dispatcher::Execute(jacobianPrime, velocity, jerk, worker))
+      if (!Dispatcher::Execute(jacobianPrime, velocity, jerk, worker, this))
       {
         // Otherwise, fallback to using the vtkDataArray API.
-        worker(jacobianPrime.Get(), velocity, jerk.Get());
+        worker(jacobianPrime.Get(), velocity, jerk.Get(), this);
       }
     }
 
     dataset->GetPointData()->AddArray(jerk);
     wField = jerk;
+  }
+
+  if (this->CheckAbort())
+  {
+    return 1;
   }
 
   // Use criteria to assign acceptance value to each point in the dataset.
@@ -463,9 +505,9 @@ int vtkVortexCore::RequestData(
     using Dispatcher =
       vtkArrayDispatch::Dispatch2ByValueType<vtkArrayDispatch::Reals, vtkArrayDispatch::Integrals>;
 
-    if (!Dispatcher::Execute(jacobian, acceptedPoints, worker))
+    if (!Dispatcher::Execute(jacobian, acceptedPoints, worker, this))
     {
-      worker(jacobian.Get(), acceptedPoints.Get());
+      worker(jacobian.Get(), acceptedPoints.Get(), this);
     }
   }
   auto vorticityArray = dataset->GetPointData()->GetArray("vorticity");
