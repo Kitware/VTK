@@ -30,7 +30,7 @@ void vtkOpenXRInteractorStyle::SetupActions(vtkRenderWindowInteractor* iren)
   {
     oiren->AddAction("elevation", vtkCommand::ViewerMovement3DEvent);
     oiren->AddAction("movement", vtkCommand::ViewerMovement3DEvent);
-    oiren->AddAction("nextcameraPose", vtkCommand::NextPose3DEvent);
+    oiren->AddAction("nextcamerapose", vtkCommand::NextPose3DEvent);
     oiren->AddAction("positionprop", vtkCommand::PositionProp3DEvent);
     oiren->AddAction("showmenu", vtkCommand::Menu3DEvent);
     oiren->AddAction("startelevation", vtkCommand::ViewerMovement3DEvent);
