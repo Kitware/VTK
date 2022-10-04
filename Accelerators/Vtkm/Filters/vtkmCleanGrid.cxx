@@ -27,8 +27,6 @@
 #include "vtkmlib/DataSetConverters.h"
 #include "vtkmlib/UnstructuredGridConverter.h"
 
-#include "vtkmFilterPolicy.h"
-
 #include <vtkm/filter/clean_grid/CleanGrid.h>
 
 VTK_ABI_NAMESPACE_BEGIN

@@ -20,7 +20,6 @@
 #include "vtkmDataSet.h"
 
 #include "vtkmDataArray.h"
-#include "vtkmFilterPolicy.h"
 #include "vtkmlib/ArrayConverters.h"
 
 #include "vtkCell.h"
@@ -32,8 +31,15 @@
 #include "vtkPoints.h"
 
 #include <vtkm/List.h>
+#include <vtkm/cont/ArrayHandleCast.h>
+#include <vtkm/cont/ArrayHandlePermutation.h>
 #include <vtkm/cont/CellLocatorGeneral.h>
+#include <vtkm/cont/CellSetExplicit.h>
+#include <vtkm/cont/CellSetPermutation.h>
+#include <vtkm/cont/CellSetSingleType.h>
+#include <vtkm/cont/CellSetStructured.h>
 #include <vtkm/cont/DataSet.h>
+#include <vtkm/cont/DefaultTypes.h>
 #include <vtkm/cont/Invoker.h>
 #include <vtkm/cont/PointLocatorSparseGrid.h>
 #include <vtkm/worklet/ScatterPermutation.h>
@@ -44,7 +50,7 @@ VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
 
-using SupportedCellSets = vtkmOutputFilterPolicy::AllCellSetList;
+using SupportedCellSets = tovtkm::CellListAllOutVTK;
 
 template <typename LocatorControl>
 struct VtkmLocator

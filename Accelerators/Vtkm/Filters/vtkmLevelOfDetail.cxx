@@ -28,8 +28,6 @@
 #include "vtkmlib/DataSetConverters.h"
 #include "vtkmlib/PolyDataConverter.h"
 
-#include "vtkmFilterPolicy.h"
-
 #include <vtkm/filter/geometry_refinement/VertexClustering.h>
 // To handle computing custom coordinate sets bounds we need to include
 // the following

@@ -28,9 +28,7 @@
 #include "vtkmlib/ArrayConverters.h"
 #include "vtkmlib/DataSetConverters.h"
 
-#include "vtkmFilterPolicy.h"
-
-#include "vtkm/filter/Probe.h"
+#include "vtkm/filter/resampling/Probe.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkmProbe);
@@ -98,7 +96,7 @@ int vtkmProbe::RequestData(vtkInformation* vtkNotUsed(request), vtkInformationVe
       return 0;
     }
 
-    vtkm::filter::Probe probe;
+    vtkm::filter::resampling::Probe probe;
     // The input in VTK is the geometry in VTKM and the source in VTK is the input
     // in VTKM.
     probe.SetGeometry(in);

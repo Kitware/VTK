@@ -26,8 +26,6 @@
 #include "vtkmlib/ArrayConverters.h"
 #include "vtkmlib/DataSetConverters.h"
 
-#include "vtkmFilterPolicy.h"
-
 #include <vtkm/filter/field_transform/PointElevation.h>
 
 VTK_ABI_NAMESPACE_BEGIN

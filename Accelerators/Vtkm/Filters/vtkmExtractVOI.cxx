@@ -24,8 +24,6 @@
 #include "vtkmlib/ArrayConverters.h"
 #include "vtkmlib/ImageDataConverter.h"
 
-#include "vtkmFilterPolicy.h"
-
 #include "vtkm/filter/entity_extraction/ExtractStructured.h"
 
 VTK_ABI_NAMESPACE_BEGIN

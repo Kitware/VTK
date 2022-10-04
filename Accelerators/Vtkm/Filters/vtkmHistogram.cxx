@@ -30,7 +30,6 @@
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
 
-#include "vtkmFilterPolicy.h"
 #include <vtkm/filter/density_estimate/Histogram.h>
 
 VTK_ABI_NAMESPACE_BEGIN
