@@ -32,6 +32,11 @@ vtkOpenXRRemotingRenderWindow::vtkOpenXRRemotingRenderWindow()
   // for texture orientation.
   this->FramebufferFlipY = true;
 
+  if (this->HelperWindow) // Clear previous window allocated by vtkVRRenderWindow
+  {
+    this->HelperWindow->Delete();
+  }
+
   // Use an OpenGL-DX render window to allow streaming VTK rendering in a D3D texture.
   this->HelperWindow = vtkWin32OpenGLDXRenderWindow::New();
 
