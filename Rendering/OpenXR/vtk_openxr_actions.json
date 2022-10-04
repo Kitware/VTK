@@ -49,14 +49,6 @@
       "type": "boolean"
     },
     {
-      "name": "thickcropdirection",
-      "type": "vector2"
-    },
-    {
-      "name": "thickcropstart",
-      "type": "boolean"
-    },
-    {
       "name": "triggeraction",
       "type": "boolean"
     }
@@ -106,8 +98,6 @@
       "shownavigationpanel": "Show Navigation Panel",
       "startelevation": "Start Elevation",
       "startmovement": "Start Movement",
-      "thickcropdirection": "Thick Crop Direction",
-      "thickcropstart": "Start Thick Crop Movement",
       "triggeraction": "Trigger Action",
       "language_tag": "en_US"
     }
