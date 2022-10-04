@@ -139,15 +139,13 @@ struct GradientWorker
 
     if (idN < 0 || idN == vtkHyperTreeGrid::InvalidIndex)
     {
-      std::cout << "Invalid: " << id << " || " << idN << std::endl;
       // invalid neigh, no computation
       return;
     }
 
     if (id == idN || IsCoarse(supercursor, subCursorId))
     {
-      std::cout << "Avoid: " << id << " || " << idN << " lvl " << supercursor->GetLevel(subCursorId)
-                << std::endl;
+      << std::endl;
       // opposite cell has nothing to bring here
       return;
     }

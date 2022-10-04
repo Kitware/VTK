@@ -175,11 +175,13 @@ public:
   bool IsVirtualLeaf(unsigned int icursor);
 
   /**
-   * returns the value of the ratio to be applied, by multiplication, to
-   * an extensive value (i.e. scaling with volume in 3D or surface in 2D)
-   * betwee the center cursor and the given neighbors.
+   * returns the value of the ratio to be applied to extensive
+   * value for the current cursor, related to the last real
+   * value of the cell. Return 1 for real cells, otherwise
+   * return the portion of the area covered by the subdivieded cell.
    * For intensive valued fields this ratio should not be used.
    */
+  double GetExtensivePropertyRatio();
   double GetExtensivePropertyRatio(vtkIdType index);
 
   /**
@@ -192,6 +194,8 @@ public:
    */
   unsigned int GetLevel();
   unsigned int GetLevel(unsigned int icursor);
+  unsigned int GetLastRealLevel();
+  unsigned int GetLastRealLevel(unsigned int icursor);
 
   /**
    * Move the cursor to child `child' of the current vertex.

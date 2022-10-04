@@ -77,7 +77,7 @@ void vtkHyperTreeGridNonOrientedUnlimitedGeometryCursor::Initialize(
 
 //------------------------------------------------------------------------------
 void vtkHyperTreeGridNonOrientedUnlimitedGeometryCursor::Initialize(vtkHyperTreeGrid* grid,
-  vtkHyperTree* tree, unsigned int level, vtkHyperTreeGridGeometryUnlimitedEntry& entry)
+  vtkHyperTree* tree, unsigned int level, vtkHyperTreeGridGeometryUnlimitedLevelEntry& entry)
 {
   this->Grid = grid;
   this->Tree = tree;
@@ -115,7 +115,7 @@ void vtkHyperTreeGridNonOrientedUnlimitedGeometryCursor::Initialize(
   this->LastValidEntry = 0;
   this->Entries.resize(1);
   // Initially, the index is valid
-  this->Entries[0].Initialize(index, index, origin);
+  this->Entries[0].Initialize(this->Tree, this->Level, index, origin);
 }
 
 //------------------------------------------------------------------------------
@@ -145,7 +145,7 @@ vtkIdType vtkHyperTreeGridNonOrientedUnlimitedGeometryCursor::GetVertexId()
 //------------------------------------------------------------------------------
 vtkIdType vtkHyperTreeGridNonOrientedUnlimitedGeometryCursor::GetGlobalNodeIndex()
 {
-  return this->Entries[this->LastValidEntry].GetGlobalNodeIndex(this->Tree);
+  return this->Entries[this->LastValidEntry].GetGlobalNodeIndex();
 }
 
 //------------------------------------------------------------------------------
@@ -163,13 +163,13 @@ unsigned char vtkHyperTreeGridNonOrientedUnlimitedGeometryCursor::GetNumberOfChi
 //------------------------------------------------------------------------------
 void vtkHyperTreeGridNonOrientedUnlimitedGeometryCursor::SetGlobalIndexStart(vtkIdType index)
 {
-  this->Entries[this->LastValidEntry].SetGlobalIndexStart(this->Tree, index);
+  this->Entries[this->LastValidEntry].SetGlobalIndexStart(index);
 }
 
 //------------------------------------------------------------------------------
 void vtkHyperTreeGridNonOrientedUnlimitedGeometryCursor::SetGlobalIndexFromLocal(vtkIdType index)
 {
-  this->Entries[this->LastValidEntry].SetGlobalIndexFromLocal(this->Tree, index);
+  this->Entries[this->LastValidEntry].SetGlobalIndexFromLocal(index);
 }
 
 //------------------------------------------------------------------------------
@@ -187,50 +187,43 @@ double* vtkHyperTreeGridNonOrientedUnlimitedGeometryCursor::GetSize()
 //------------------------------------------------------------------------------
 void vtkHyperTreeGridNonOrientedUnlimitedGeometryCursor::GetBounds(double bounds[6])
 {
-  this->Entries[this->LastValidEntry].GetBounds(this->GetSize(), bounds);
+  this->Entries[this->LastValidEntry].GetBounds(bounds);
 }
 
 //------------------------------------------------------------------------------
 void vtkHyperTreeGridNonOrientedUnlimitedGeometryCursor::GetPoint(double point[3])
 {
-  this->Entries[this->LastValidEntry].GetPoint(this->GetSize(), point);
+  this->Entries[this->LastValidEntry].GetPoint(point);
 }
 
 //------------------------------------------------------------------------------
 void vtkHyperTreeGridNonOrientedUnlimitedGeometryCursor::SetMask(bool state)
 {
-  this->Entries[this->LastValidEntry].SetMask(this->Grid, this->Tree, state);
+  this->Entries[this->LastValidEntry].SetMask(this->Grid, state);
 }
 
 //------------------------------------------------------------------------------
 bool vtkHyperTreeGridNonOrientedUnlimitedGeometryCursor::IsMasked()
 {
-  return this->Entries[this->LastValidEntry].IsMasked(this->Grid, this->Tree);
+  return this->Entries[this->LastValidEntry].IsMasked(this->Grid);
 }
 
 //------------------------------------------------------------------------------
 bool vtkHyperTreeGridNonOrientedUnlimitedGeometryCursor::IsLeaf()
 {
-  return this->Entries[this->LastValidEntry].IsLeaf(this->Grid, this->Tree, this->Level);
+  return this->Entries[this->LastValidEntry].IsLeaf(this->Grid);
 }
 
 //------------------------------------------------------------------------------
 bool vtkHyperTreeGridNonOrientedUnlimitedGeometryCursor::IsRealLeaf()
 {
-  return this->Entries[this->LastValidEntry].IsRealLeaf(this->Tree);
+  return this->Entries[this->LastValidEntry].IsRealLeaf(this->Grid);
 }
 
 //------------------------------------------------------------------------------
 bool vtkHyperTreeGridNonOrientedUnlimitedGeometryCursor::IsVirtualLeaf()
 {
-  return this->Entries[this->LastValidEntry].IsVirtualLeaf(this->Tree);
-}
-
-//------------------------------------------------------------------------------
-double vtkHyperTreeGridNonOrientedUnlimitedGeometryCursor::GetExtensivePropertyRatio(
-  vtkIdType index)
-{
-  return 1;
+  return this->Entries[this->LastValidEntry].IsVirtualLeaf(this->Grid);
 }
 
 //------------------------------------------------------------------------------
@@ -246,6 +239,12 @@ unsigned int vtkHyperTreeGridNonOrientedUnlimitedGeometryCursor::GetLevel()
 }
 
 //------------------------------------------------------------------------------
+unsigned int vtkHyperTreeGridNonOrientedUnlimitedGeometryCursor::GetLastRealLevel()
+{
+  return this->Entries[this->LastValidEntry].GetLastRealLevel();
+}
+
+//------------------------------------------------------------------------------
 void vtkHyperTreeGridNonOrientedUnlimitedGeometryCursor::ToChild(unsigned char ichild)
 {
   unsigned int oldLastValidEntry = this->LastValidEntry;
@@ -258,15 +257,14 @@ void vtkHyperTreeGridNonOrientedUnlimitedGeometryCursor::ToChild(unsigned char i
   //
   auto& entry = this->Entries[this->LastValidEntry];
   entry.Copy(&this->Entries[oldLastValidEntry]);
-  entry.ToChild(
-    this->Grid, this->Tree, this->Level, this->Scales->GetScale(this->Level + 1), ichild);
+  entry.ToChild(this->Grid, ichild);
   this->Level++;
 }
 
 //------------------------------------------------------------------------------
 void vtkHyperTreeGridNonOrientedUnlimitedGeometryCursor::ToRoot()
 {
-  assert("pre: hypertree_exist" && this->Entries.size() > 0);
+  assert("pre: hypertree_exist" && !this->Entries.empty());
   this->Level -= this->LastValidEntry;
   this->LastValidEntry = 0;
 }

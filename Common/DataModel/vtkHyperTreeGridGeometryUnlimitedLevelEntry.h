@@ -107,6 +107,7 @@ public:
   {
     this->Initialize(entry->Tree, entry->Level, entry->Index, entry->Origin);
     this->LastRealIndex = entry->LastRealIndex;
+    this->LastRealLevel = entry->LastRealLevel;
   }
 
   /**
@@ -222,6 +223,7 @@ public:
    * Get level info from current cache entry.
    */
   unsigned int GetLevel() const { return this->Level; }
+  unsigned int GetLastRealLevel() const { return this->LastRealLevel; }
 
   /**
    * Getter for origin coordinates of the current cell.
@@ -259,6 +261,11 @@ private:
    * index of the last real cell visited in the HyperTree
    */
   vtkIdType LastRealIndex = 0;
+
+  /**
+   * level of the last real cell visited in the HyperTree
+   */
+  vtkIdType LastRealLevel = 0;
 
   /**
    * origin coiordinates of the current cell

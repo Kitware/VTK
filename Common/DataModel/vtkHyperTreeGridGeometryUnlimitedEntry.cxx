@@ -84,7 +84,7 @@ vtkHyperTree* vtkHyperTreeGridGeometryUnlimitedEntry::Initialize(
 vtkIdType vtkHyperTreeGridGeometryUnlimitedEntry::GetGlobalNodeIndex(const vtkHyperTree* tree) const
 {
   assert("pre: not_tree" && tree);
-  return tree->GetGlobalIndexFromLocal(this->Index);
+  return tree->GetGlobalIndexFromLocal(this->LastRealIndex);
 }
 
 //------------------------------------------------------------------------------

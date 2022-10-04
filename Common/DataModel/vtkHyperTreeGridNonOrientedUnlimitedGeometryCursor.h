@@ -45,11 +45,11 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h"
 
-#include "vtkHyperTreeGridGeometryUnlimitedEntry.h" // cache for historic
-#include "vtkHyperTreeGridTools.h"                  // for HasTree
-#include "vtkSmartPointer.h"                        // Used internally
-#include <memory>                                   // std::shared_ptr
-#include <vector>                                   // std::vector
+#include "vtkHyperTreeGridGeometryUnlimitedLevelEntry.h" // cache for historic
+#include "vtkHyperTreeGridTools.h"                       // for HasTree
+#include "vtkSmartPointer.h"                             // Used internally
+#include <memory>                                        // std::shared_ptr
+#include <vector>                                        // std::vector
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkHyperTree;
@@ -86,7 +86,7 @@ public:
    * Initialize cursor at root of given tree index in grid.
    */
   void Initialize(vtkHyperTreeGrid* grid, vtkHyperTree* tree, unsigned int level,
-    vtkHyperTreeGridGeometryUnlimitedEntry& entry);
+    vtkHyperTreeGridGeometryUnlimitedLevelEntry& entry);
 
   /**
    * JB
@@ -188,14 +188,6 @@ public:
   bool IsVirtualLeaf();
 
   /**
-   * returns the value of the ratio to be applied, by multiplication, to
-   * an extensive value (i.e. scaling with volume in 3D or surface in 2D)
-   * betwee the center cursor and the given neighbors.
-   * For intensive valued fields this ratio should not be used.
-   */
-  double GetExtensivePropertyRatio(vtkIdType index);
-
-  /**
    * Is the cursor at tree root?
    */
   bool IsRoot();
@@ -204,6 +196,7 @@ public:
    * Get the level of the tree vertex pointed by the cursor.
    */
   unsigned int GetLevel();
+  unsigned int GetLastRealLevel();
 
   /**
    * Move the cursor to child `child' of the current vertex.
@@ -281,7 +274,7 @@ protected:
   int LastValidEntry;
 
   // Hyper tree grid to which the cursor is attached
-  std::vector<vtkHyperTreeGridGeometryUnlimitedEntry> Entries;
+  std::vector<vtkHyperTreeGridGeometryUnlimitedLevelEntry> Entries;
 
 private:
   vtkHyperTreeGridNonOrientedUnlimitedGeometryCursor(

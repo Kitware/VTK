@@ -55,6 +55,7 @@ void vtkHyperTreeGridGeometryUnlimitedLevelEntry::PrintSelf(ostream& os, vtkInde
   os << indent << "Level:" << this->Level << endl;
   os << indent << "Index:" << this->Index << endl;
   os << indent << "LastRealIndex:" << this->LastRealIndex << endl;
+  os << indent << "LastRealLevel:" << this->LastRealLevel << endl;
   os << indent << "Origin:" << this->Origin[0] << ", " << this->Origin[1] << ", " << this->Origin[2]
      << endl;
 }
@@ -65,6 +66,7 @@ void vtkHyperTreeGridGeometryUnlimitedLevelEntry::Dump(ostream& os)
   os << "Level:" << this->Level << endl;
   os << "Index:" << this->Index << endl;
   os << "LastRealIndex:" << this->LastRealIndex << endl;
+  os << "LastRealLevel:" << this->LastRealLevel << endl;
   os << "Origin:" << this->Origin[0] << ", " << this->Origin[1] << ", " << this->Origin[2] << endl;
 }
 
@@ -169,6 +171,7 @@ void vtkHyperTreeGridGeometryUnlimitedLevelEntry::ToChild(
     {
       this->Index = elder + ichild;
       this->LastRealIndex = this->Index;
+      this->LastRealLevel = this->Level + 1;
     }
     else
     {

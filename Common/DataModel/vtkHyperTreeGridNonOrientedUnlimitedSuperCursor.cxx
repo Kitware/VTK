@@ -27,6 +27,7 @@ PURPOSE.  See the above copyright Nonice for more information.
 #include "vtkHyperTreeGridTools.h"
 
 #include <cassert>
+#include <cmath>
 #include <limits>
 #include <ostream>
 #include <vector>
@@ -323,9 +324,19 @@ bool vtkHyperTreeGridNonOrientedUnlimitedSuperCursor::IsVirtualLeaf()
 }
 
 //------------------------------------------------------------------------------
+double vtkHyperTreeGridNonOrientedUnlimitedSuperCursor::GetExtensivePropertyRatio()
+{
+  const auto nbVirtual = this->GetLevel() - this->GetLastRealLevel();
+  const auto nbDiv = std::pow(this->GetDimension(), nbVirtual * this->GetTree()->GetBranchFactor());
+  return 1.0 / nbDiv;
+}
+
+//------------------------------------------------------------------------------
 double vtkHyperTreeGridNonOrientedUnlimitedSuperCursor::GetExtensivePropertyRatio(vtkIdType index)
 {
-  return 2;
+  const auto nbVirtual = this->GetLevel(index) - this->GetLastRealLevel(index);
+  const auto nbDiv = std::pow(this->GetDimension(), nbVirtual * this->GetTree()->GetBranchFactor());
+  return 1.0 / nbDiv;
 }
 
 //------------------------------------------------------------------------------
@@ -359,6 +370,22 @@ unsigned int vtkHyperTreeGridNonOrientedUnlimitedSuperCursor::GetLevel(unsigned 
     return this->CentralCursor->GetLevel();
   }
   return this->Entries[this->GetIndiceEntry(icursor)].GetLevel();
+}
+
+//------------------------------------------------------------------------------
+unsigned int vtkHyperTreeGridNonOrientedUnlimitedSuperCursor::GetLastRealLevel()
+{
+  return this->CentralCursor->GetLastRealLevel();
+}
+
+//------------------------------------------------------------------------------
+unsigned int vtkHyperTreeGridNonOrientedUnlimitedSuperCursor::GetLastRealLevel(unsigned int icursor)
+{
+  if (icursor == this->IndiceCentralCursor)
+  {
+    return this->CentralCursor->GetLastRealLevel();
+  }
+  return this->Entries[this->GetIndiceEntry(icursor)].GetLastRealLevel();
 }
 
 //------------------------------------------------------------------------------
