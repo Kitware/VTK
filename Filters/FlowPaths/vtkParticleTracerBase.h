@@ -568,6 +568,12 @@ protected:
    */
   virtual void AddRestartSeeds(vtkInformationVector** /*inputVector*/) {}
 
+  /**
+   * Recover the ghost array in provided point data
+   * and rename it by adding "Original_" in front of it, if available.
+   */
+  virtual void RenameGhostArray(vtkPointData* pd);
+
 private:
   /**
    * When particles leave the domain, they must be collected
