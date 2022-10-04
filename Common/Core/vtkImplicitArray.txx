@@ -51,21 +51,23 @@ vtkImplicitArray<BackendT>::~vtkImplicitArray(){};
 
 //-----------------------------------------------------------------------------
 template <class BackendT>
-void vtkImplicitArray<BackendT>::SetValue(vtkIdType idx, ValueType value)
+void vtkImplicitArray<BackendT>::SetValue(vtkIdType vtkNotUsed(idx), ValueType vtkNotUsed(value))
 {
   vtkWarningMacro("Can not set value in read only vtkImplicitArray!");
 }
 
 //-----------------------------------------------------------------------------
 template <class BackendT>
-void vtkImplicitArray<BackendT>::SetTypedTuple(vtkIdType idx, const ValueType* tuple)
+void vtkImplicitArray<BackendT>::SetTypedTuple(
+  vtkIdType vtkNotUsed(idx), const ValueType* vtkNotUsed(tuple))
 {
   vtkWarningMacro("Can not set tuple in read only vtkImplicitArray!");
 }
 
 //-----------------------------------------------------------------------------
 template <class BackendT>
-void vtkImplicitArray<BackendT>::SetTypedComponent(vtkIdType idx, int comp, ValueType value)
+void vtkImplicitArray<BackendT>::SetTypedComponent(
+  vtkIdType vtkNotUsed(idx), int vtkNotUsed(comp), ValueType vtkNotUsed(value))
 {
   vtkWarningMacro("Can not set tuple component in read only vtkImplicitArray!");
 }

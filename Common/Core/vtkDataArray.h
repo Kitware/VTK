@@ -697,6 +697,7 @@ inline vtkDataArray* vtkDataArray::FastDownCast(vtkAbstractArray* source)
     {
       case AoSDataArrayTemplate:
       case SoADataArrayTemplate:
+      case ImplicitArray:
       case TypedDataArray:
       case DataArray:
       case MappedDataArray:

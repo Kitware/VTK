@@ -25,7 +25,7 @@ namespace
 
 struct Const42
 {
-  int operator()(int idx) const { return 42; };
+  int operator()(int vtkNotUsed(idx)) const { return 42; };
 };
 
 struct ConstStruct
@@ -34,7 +34,7 @@ struct ConstStruct
 
   ConstStruct(int val) { this->value = val; }
 
-  int operator()(int idx) const { return this->value; };
+  int operator()(int vtkNotUsed(idx)) const { return this->value; };
 };
 
 };
@@ -115,7 +115,7 @@ int TestImplicitArraysBase(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 
   {
     vtkNew<vtkImplicitArray<::Const42>> copied;
-    copied->DeepCopy(arr42.Get());
+    copied->ImplicitDeepCopy(arr42.Get());
     auto range = vtk::DataArrayValueRange<1>(copied);
     int iArr = 0;
     for (auto val : range)

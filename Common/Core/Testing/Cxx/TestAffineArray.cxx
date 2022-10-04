@@ -21,9 +21,9 @@
 #include <cstdlib>
 #include <memory>
 
+#ifdef DISPATCH_AFFINE_ARRAYS
 namespace
 {
-
 struct ScaleWorker
 {
   template <typename SrcArray, typename DstArray>
@@ -48,8 +48,8 @@ struct ScaleWorker
     }
   }
 };
-
-};
+}
+#endif // DISPATCH_AFFINE_ARRAYS
 
 int TestAffineArray(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
@@ -90,10 +90,12 @@ int TestAffineArray(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
     vtkNew<vtkIntArray> destination;
     destination->SetNumberOfTuples(100);
     destination->SetNumberOfComponents(1);
-    if (!vtkArrayDispatch::Dispatch2::Execute(affine, destination, ::ScaleWorker(), 3.0))
+    ::ScaleWorker worker;
+    if (!vtkArrayDispatch::Dispatch2::Execute(affine, destination, worker, 3.0))
     {
       res = EXIT_FAILURE;
       std::cout << "vtkArrayDispatch failed with vtkAffineArray" << std::endl;
+      worker(affine.Get(), destination.Get(), 3.0);
     }
     int iArr = 0;
     for (auto val : vtk::DataArrayValueRange<1>(destination))

@@ -21,9 +21,9 @@
 #include <cstdlib>
 #include <memory>
 
+#ifdef DISPATCH_STD_FUNCTION_ARRAYS
 namespace
 {
-
 struct ScaleWorker
 {
   template <typename SrcArray, typename DstArray>
@@ -48,8 +48,8 @@ struct ScaleWorker
     }
   }
 };
-
-};
+}
+#endif // DISPATCH_STD_FUNCTION_ARRAYS
 
 int TestStdFunctionArray(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
@@ -91,7 +91,8 @@ int TestStdFunctionArray(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
     vtkNew<vtkIntArray> destination;
     destination->SetNumberOfTuples(100);
     destination->SetNumberOfComponents(1);
-    if (!vtkArrayDispatch::Dispatch2::Execute(identity, destination, ::ScaleWorker(), 3.0))
+    ::ScaleWorker worker;
+    if (!vtkArrayDispatch::Dispatch2::Execute(identity, destination, worker, 3.0))
     {
       res = EXIT_FAILURE;
       std::cout << "vtkArrayDispatch failed with vtkStdFunctionArray" << std::endl;
@@ -103,6 +104,7 @@ int TestStdFunctionArray(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
       {
         res = EXIT_FAILURE;
         std::cout << "dispatch failed to populate the array with the correct values" << std::endl;
+        worker(identity.Get(), destination.Get(), 3.0);
       }
       iArr++;
     }

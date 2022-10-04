@@ -131,12 +131,7 @@ struct DeepCopyWorker
   template <typename BackendTSrc, typename BackendTDst>
   void operator()(vtkImplicitArray<BackendTSrc>* src, vtkImplicitArray<BackendTDst>* dst)
   {
-    static_assert(std::is_same<BackendTSrc, BackendTDst>::value,
-      "Cannot copy implicit array with one type of backend to an implicit array with a different "
-      "type of backend");
-    dst->SetNumberOfComponents(src->GetNumberOfComponents());
-    dst->SetNumberOfTuples(src->GetNumberOfTuples());
-    dst->SetBackend(src->GetBackend());
+    dst->ImplicitDeepCopy(src);
   }
 #endif // VTK_USE_IMPLICIT_ARRAYS
 

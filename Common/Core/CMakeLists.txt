@@ -618,10 +618,10 @@ if (vtk_include_dirs)
       ${vtk_include_dirs})
 endif ()
 if (VTK_BUILD_IMPLICIT_ARRAYS)
-  target_include_directories(CommonCore
+  vtk_module_include(VTK::CommonCore
     PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/ImplicitBackends>
-    $<INSTALL_INTERFACE:ImplicitBackends>
+    $<INSTALL_INTERFACE:${_vtk_build_HEADERS_DESTINATION}/ImplicitBackends>
   )
 endif ()
 

@@ -112,7 +112,7 @@ public:
   /**
    * Copy the tuple at @a tupleIdx into @a tuple.
    */
-  void GetTypedTuple(vtkIdType idx, ValueType* tuple)
+  void GetTypedTuple(vtkIdType idx, ValueType* tuple) const
   {
     const vtkIdType tupIdx = idx * this->NumberOfComponents;
     for (vtkIdType comp = 0; comp < this->NumberOfComponents; comp++)
@@ -179,9 +179,16 @@ public:
 
   /**
    * Specific DeepCopy for implicit arrays
+   *
+   * This method should be prefered for two implicit arrays having the same backend. We cannot call
+   * the method `DeepCopy` since that conflicts with the virtual function of the same name that
+   * cannot be templated (I tried it, it generates warnings). We can call this from the dispatched
+   * version of the `DeepCopy` in `vtkDataArray`. However, the implicit array needs to be
+   * dispatchable in order to to not enter into the Generic implementation of the deep copy. This
+   * dispatch is not always the case for all implicit arrays.
    */
   template <typename OtherBackend>
-  void DeepCopy(vtkImplicitArray<OtherBackend>* other)
+  void ImplicitDeepCopy(vtkImplicitArray<OtherBackend>* other)
   {
     static_assert(std::is_same<BackendT, OtherBackend>::value,
       "Cannot copy implicit array with one type of backend to an implicit array with a different "
@@ -211,8 +218,8 @@ protected:
   /**
    * No allocation necessary
    */
-  bool AllocateTuples(vtkIdType numTuples) { return true; };
-  bool ReallocateTuples(vtkIdType numTuples) { return true; };
+  bool AllocateTuples(vtkIdType vtkNotUsed(numTuples)) { return true; };
+  bool ReallocateTuples(vtkIdType vtkNotUsed(numTuples)) { return true; };
   ///@}
 
   struct vtkInternals;

@@ -16,6 +16,8 @@
 #ifndef vtkConstantImplicitBackend_h
 #define vtkConstantImplicitBackend_h
 
+#include "vtkSetGet.h"
+
 /**
  * \struct vtkConstantImplicitBackend
  * \brief A utility structure serving as a backend for constant implicit arrays
@@ -27,7 +29,7 @@ struct vtkConstantImplicitBackend
   vtkConstantImplicitBackend(ValueType val)
     : Value(val){};
 
-  ValueType operator()(int index) const { return this->Value; };
+  ValueType operator()(int vtkNotUsed(index)) const { return this->Value; };
 
   ValueType Value;
 };

@@ -21,9 +21,9 @@
 #include <cstdlib>
 #include <memory>
 
+#ifdef DISPATCH_CONSTANT_ARRAYS
 namespace
 {
-
 struct ScaleWorker
 {
   template <typename SrcArray, typename DstArray>
@@ -48,8 +48,8 @@ struct ScaleWorker
     }
   }
 };
-
-};
+}
+#endif // DISPATCH_CONSTANT_ARRAYS
 
 int TestConstantArray(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
@@ -90,10 +90,12 @@ int TestConstantArray(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
     vtkNew<vtkIntArray> destination;
     destination->SetNumberOfTuples(100);
     destination->SetNumberOfComponents(1);
-    if (!vtkArrayDispatch::Dispatch2::Execute(identity, destination, ::ScaleWorker(), 3.0))
+    ::ScaleWorker worker;
+    if (!vtkArrayDispatch::Dispatch2::Execute(identity, destination, worker, 3.0))
     {
       res = EXIT_FAILURE;
       std::cout << "vtkArrayDispatch failed with vtkConstantArray" << std::endl;
+      worker(identity.Get(), destination.Get(), 3.0);
     }
     int iArr = 0;
     for (auto val : vtk::DataArrayValueRange<1>(destination))

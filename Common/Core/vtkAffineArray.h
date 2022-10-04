@@ -58,9 +58,7 @@ VTK_ABI_NAMESPACE_END
   VTK_ABI_NAMESPACE_END                                                                            \
   }
 
-#endif // VTK_AFFINE_ARRAY_INSTANTIATING
-
-#ifdef VTK_USE_EXTERN_TEMPLATE
+#elif defined(VTK_USE_EXTERN_TEMPLATE)
 #ifndef VTK_AFFINE_ARRAY_EXTERN
 #define VTK_AFFINE_ARRAY_EXTERN
 #ifdef _MSC_VER
@@ -110,4 +108,4 @@ vtkInstantiateSecondOrderTemplateMacro(
 #pragma warning(pop)
 
 VTK_ABI_NAMESPACE_END
-#endif
+#endif // VTK_AFFINE_ARRAY_INSTANTIATING

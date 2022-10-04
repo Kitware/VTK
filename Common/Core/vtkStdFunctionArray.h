@@ -63,9 +63,7 @@ VTK_ABI_NAMESPACE_END
   VTK_ABI_NAMESPACE_END                                                                            \
   }
 
-#endif // VTK_STD_FUNCTION_ARRAY_INSTANTIATING
-
-#ifdef VTK_USE_EXTERN_TEMPLATE
+#elif defined(VTK_USE_EXTERN_TEMPLATE)
 #ifndef VTK_STD_FUNCTION_ARRAY_EXTERN
 #define VTK_STD_FUNCTION_ARRAY_EXTERN
 #ifdef _MSC_VER
@@ -135,4 +133,4 @@ extern template class VTKCOMMONCORE_EXPORT vtkImplicitArray<std::function<unsign
 #pragma warning(pop)
 
 VTK_ABI_NAMESPACE_END
-#endif
+#endif // VTK_STD_FUNCTION_ARRAY_INSTANTIATING
