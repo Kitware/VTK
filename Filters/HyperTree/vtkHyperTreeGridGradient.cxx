@@ -69,6 +69,16 @@ bool IsCoarse(vtkHyperTreeGridNonOrientedUnlimitedMooreSuperCursor* cursor,
   return !cursor->IsRealLeaf(sid) && !cursor->IsVirtualLeaf(sid);
 }
 
+template <class Cursor>
+float GetExtensiveRatio(Cursor* cursor, vtkIdType sid)
+{
+  return 1;
+}
+float GetExtensiveRatio(vtkHyperTreeGridNonOrientedUnlimitedMooreSuperCursor* cursor, vtkIdType sid)
+{
+  return cursor->GetExtensivePropertyRatio(sid);
+}
+
 //------------------------------------------------------------------------------
 // inherit from tuple to give automatic comparison operator
 struct Neigh : public std::tuple<vtkIdType, vtkIdType>
@@ -100,11 +110,14 @@ struct GradientWorker
   // internal storage
   // WARN: not thread safe
   vtkNew<vtkIdList> Leaves;
+  // apply extensive ratio ?
+  bool ExtensiveComputation = false;
 
   //----------------------------------------------------------------------------
-  GradientWorker(vtkDataArray* in, vtkDoubleArray* out)
+  GradientWorker(vtkDataArray* in, vtkDoubleArray* out, bool extensive)
     : InArray{ in }
     , OutArray{ out }
+    , ExtensiveComputation{ extensive }
   {
     auto outRange = vtk::DataArrayValueRange<3>(out);
     vtkSMPTools::Fill(outRange.begin(), outRange.end(), 0);
@@ -142,7 +155,9 @@ struct GradientWorker
     vtkIdType vid = supercursor->GetVertexId(subCursorId); // TODO use for scalars ?
     const double scal = this->InArray->GetTuple1(id);
     const double nScal = this->InArray->GetTuple1(idN);
-    const double scalDiff = scal - nScal;
+    const double extensiveRatio =
+      this->ExtensiveComputation ? GetExtensiveRatio(supercursor, subCursorId) : 1;
+    const double scalDiff = extensiveRatio * (scal - nScal);
 
     double center[3];
     supercursor->GetPoint(center);
@@ -152,9 +167,11 @@ struct GradientWorker
     std::cout << "Gradient: " << id << " || " << idN << std::endl;
     std::cout << "   " << center[0] << " " << center[1] << " " << center[2] << " " << std::endl;
     std::cout << "   " << centerN[0] << " " << centerN[1] << " " << centerN[2] << " " << std::endl;
+    std::cout << "   ratio:" << extensiveRatio << std::endl;
     std::cout << "_____" << std::endl;
 
     // differential computation
+    // TODO: add the ratio here
     double grad[3] = { scalDiff, scalDiff, scalDiff };
 
     const double dx = center[0] - centerN[0];
@@ -337,7 +354,7 @@ int vtkHyperTreeGridGradient::ProcessTrees(vtkHyperTreeGrid* input, vtkDataObjec
   this->OutGradient->SetNumberOfComponents(3);
   this->OutGradient->SetNumberOfTuples(this->InScalars->GetNumberOfTuples());
 
-  GradientWorker worker(this->InScalars, this->OutGradient);
+  GradientWorker worker(this->InScalars, this->OutGradient, this->ExtensiveComputation);
 
   // Computation
   if (this->Mode == ComputeMode::UNLIMITED)

@@ -175,6 +175,14 @@ public:
   bool IsVirtualLeaf(unsigned int icursor);
 
   /**
+   * returns the value of the ratio to be applied, by multiplication, to
+   * an extensive value (i.e. scaling with volume in 3D or surface in 2D)
+   * betwee the center cursor and the given neighbors.
+   * For intensive valued fields this ratio should not be used.
+   */
+  double GetExtensivePropertyRatio(vtkIdType index);
+
+  /**
    * Is the cursor at tree root?
    */
   bool IsRoot();

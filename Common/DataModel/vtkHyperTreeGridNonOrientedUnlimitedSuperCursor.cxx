@@ -323,6 +323,12 @@ bool vtkHyperTreeGridNonOrientedUnlimitedSuperCursor::IsVirtualLeaf()
 }
 
 //------------------------------------------------------------------------------
+double vtkHyperTreeGridNonOrientedUnlimitedSuperCursor::GetExtensivePropertyRatio(vtkIdType index)
+{
+  return 2;
+}
+
+//------------------------------------------------------------------------------
 bool vtkHyperTreeGridNonOrientedUnlimitedSuperCursor::IsVirtualLeaf(unsigned int icursor)
 {
   if (icursor == this->IndiceCentralCursor)

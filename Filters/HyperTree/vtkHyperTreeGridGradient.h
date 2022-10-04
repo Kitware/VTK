@@ -80,6 +80,16 @@ public:
   vtkGetMacro(Mode, int);
   ///@}
 
+  ///@{
+  /**
+   * Do we apply ratio in unlimited mode ?
+   * no effect in Unstructured mode
+   */
+  vtkSetMacro(ExtensiveComputation, bool);
+  vtkGetMacro(ExtensiveComputation, bool);
+  vtkBooleanMacro(ExtensiveComputation, bool);
+  ///@}
+
 protected:
   vtkHyperTreeGridGradient();
   ~vtkHyperTreeGridGradient() override;
@@ -96,10 +106,13 @@ protected:
   void RecursivelyProcessTree(Cursor*, Worker&);
 
   // Fields
+  // ------
 
   std::string ResultArrayName = "Gradient";
 
   int Mode = ComputeMode::UNLIMITED;
+
+  bool ExtensiveComputation = true;
 
   /**
    * Keep track of selected input scalars
