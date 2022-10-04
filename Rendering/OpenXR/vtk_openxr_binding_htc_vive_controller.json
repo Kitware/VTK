@@ -35,9 +35,6 @@
           "inputs": {
             "click": {
               "output": "rightgripaction"
-            },
-            "pose": {
-              "output": "handposehandgrip"
             }
           },
           "path": "/user/hand/right/input/squeeze"
@@ -46,9 +43,6 @@
           "inputs": {
             "click": {
               "output": "leftgripaction"
-            },
-            "pose": {
-              "output": "handposehandgrip"
             }
           },
           "path": "/user/hand/left/input/squeeze"

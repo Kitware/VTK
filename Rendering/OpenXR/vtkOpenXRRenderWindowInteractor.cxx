@@ -486,7 +486,8 @@ void vtkOpenXRRenderWindowInteractor::Initialize()
   // Create an entry for pose actions that are used to retrieve
   // Orientation and locations of trackers
   this->AddAction("handpose", vtkCommand::Move3DEvent);
-  // this->AddAction("handposehandgrip", vtkCommand::Move3DEvent);
+  // Prevent unbound action warning
+  this->AddAction("handposegrip", [](vtkEventData*) {});
 
   std::string fullpath =
     vtksys::SystemTools::CollapseFullPath(this->ActionManifestFileName.c_str());
