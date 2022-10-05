@@ -31,8 +31,6 @@
 #include "vtkmlib/ArrayConverters.h"
 #include "vtkmlib/DataSetConverters.h"
 
-#include "vtkmFilterPolicy.h"
-
 #include <vtkm/filter/field_transform/CylindricalCoordinateTransform.h>
 #include <vtkm/filter/field_transform/SphericalCoordinateTransform.h>
 

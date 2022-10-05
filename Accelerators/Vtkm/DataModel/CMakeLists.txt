@@ -25,7 +25,6 @@ set(sources
   vtkmlib/ArrayConvertersUnsigned.cxx)
 
 set(private_headers
-  vtkmFilterPolicy.h
   vtkmlib/ArrayConverters.hxx)
 
 set(classes

@@ -31,7 +31,6 @@
 #include "vtkmlib/DataSetConverters.h"
 
 #include "vtkm/cont/DataSetFieldAdd.h"
-#include "vtkmFilterPolicy.h"
 
 #include <vtkm/filter/field_transform/WarpVector.h>
 

@@ -18,8 +18,6 @@
 #include "ArrayConverters.hxx"
 #include "DataSetConverters.h"
 
-#include "vtkmFilterPolicy.h"
-
 #include <vtkm/cont/openmp/DeviceAdapterOpenMP.h>
 #include <vtkm/cont/serial/DeviceAdapterSerial.h>
 #include <vtkm/cont/tbb/DeviceAdapterTBB.h>

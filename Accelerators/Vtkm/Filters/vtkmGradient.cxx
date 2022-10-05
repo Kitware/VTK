@@ -28,8 +28,7 @@
 #include "vtkmlib/DataSetConverters.h"
 #include "vtkmlib/PolyDataConverter.h"
 
-#include "vtkmFilterPolicy.h"
-
+#include <vtkm/cont/Algorithm.h>
 #include <vtkm/cont/ArrayHandleTransform.h>
 #include <vtkm/cont/ErrorFilterExecution.h>
 #include <vtkm/filter/field_conversion/PointAverage.h>

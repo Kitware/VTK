@@ -35,8 +35,6 @@
 #include "vtkmlib/PolyDataConverter.h"
 #include "vtkmlib/UnstructuredGridConverter.h"
 
-#include "vtkmFilterPolicy.h"
-
 #include <vtkm/cont/DataSet.h>
 
 #include <algorithm>

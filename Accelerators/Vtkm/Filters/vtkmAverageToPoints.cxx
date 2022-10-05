@@ -30,8 +30,6 @@
 #include "vtkmlib/ArrayConverters.h"
 #include "vtkmlib/DataSetConverters.h"
 
-#include "vtkmFilterPolicy.h"
-
 #include <vtkm/cont/ErrorFilterExecution.h>
 #include <vtkm/filter/field_conversion/PointAverage.h>
 

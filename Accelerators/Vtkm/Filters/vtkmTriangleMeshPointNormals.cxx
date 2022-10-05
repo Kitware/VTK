@@ -25,8 +25,6 @@
 #include "vtkmlib/ArrayConverters.h"
 #include "vtkmlib/PolyDataConverter.h"
 
-#include "vtkmFilterPolicy.h"
-
 #include "vtkm/filter/vector_analysis/SurfaceNormals.h"
 
 VTK_ABI_NAMESPACE_BEGIN

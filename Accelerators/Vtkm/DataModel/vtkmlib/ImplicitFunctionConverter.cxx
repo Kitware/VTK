@@ -15,8 +15,6 @@
 //=============================================================================
 #include "ImplicitFunctionConverter.h"
 
-#include "vtkmFilterPolicy.h"
-
 #include "vtkBox.h"
 #include "vtkCylinder.h"
 #include "vtkPlane.h"

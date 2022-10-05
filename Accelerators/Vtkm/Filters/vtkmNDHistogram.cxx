@@ -25,7 +25,6 @@
 #include "vtkPointData.h"
 #include "vtkSparseArray.h"
 #include "vtkTable.h"
-#include "vtkmFilterPolicy.h"
 
 #include "vtkmlib/ArrayConverters.h"
 #include "vtkmlib/DataSetConverters.h"

@@ -16,7 +16,6 @@
 #include "ArrayConverters.hxx"
 
 #include "vtkmDataArray.h"
-#include "vtkmFilterPolicy.h"
 
 #include "vtkmlib/PortalTraits.h"
 

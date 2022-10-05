@@ -32,8 +32,6 @@
 #include "vtkmlib/DataSetConverters.h"
 #include "vtkmlib/PolyDataConverter.h"
 
-#include "vtkmFilterPolicy.h"
-
 #include <vtkm/cont/ErrorFilterExecution.h>
 #include <vtkm/filter/contour/Contour.h>
 #include <vtkm/worklet/WorkletMapField.h>
