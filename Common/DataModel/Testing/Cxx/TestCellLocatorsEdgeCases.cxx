@@ -83,9 +83,49 @@ static bool TestLocator(vtkDataSet* ds, vtkAbstractCellLocator* loc)
   return foundIntersectWithLineBest && foundIntersectWithLineAll && foundFindCellAlongLine;
 }
 
+static bool TestCellLocatorEvaluatePosition(char* fname)
+{
+  vtkNew<vtkXMLPolyDataReader> poly_reader;
+  poly_reader->SetFileName(fname);
+  poly_reader->Update();
+
+  vtkNew<vtkCellLocator> loc;
+  loc->SetDataSet(poly_reader->GetOutput());
+  loc->CacheCellBoundsOn();
+  loc->SetNumberOfCellsPerNode(2);
+  loc->BuildLocator();
+
+  double test_point[] = { -5.091451e-02, -1.800857e-01, 1.153756e+00 };
+
+  // expected result
+  const double dist_exp = 1.658136e-01;
+  const double closest_point_exp[] = { -1.582647e-01, -5.475835e-01, 1.015066e+00 };
+  const int cell_id_exp = 1944;
+
+  // threshold for floating point checking
+  const double thresh = 1e-5;
+
+  const double radius = 0.5;
+  double closest_point[3];
+  vtkIdType cell_id;
+  int sub_id, inside;
+  double dist;
+  vtkNew<vtkGenericCell> cell;
+
+  loc->FindClosestPointWithinRadius(
+    test_point, radius, closest_point, cell, cell_id, sub_id, dist, inside);
+  if (fabs(dist - dist_exp) / fabs(dist_exp) < thresh &&
+    fabs(closest_point[0] - closest_point_exp[0]) / fabs(closest_point_exp[0]) < thresh &&
+    fabs(closest_point[1] - closest_point_exp[1]) / fabs(closest_point_exp[1]) < thresh &&
+    fabs(closest_point[2] - closest_point_exp[2]) / fabs(closest_point_exp[2]) < thresh &&
+    cell_id == cell_id_exp)
+    return true;
+  return false;
+}
+
 int TestCellLocatorsEdgeCases(int argc, char* argv[])
 {
-  if (argc < 2)
+  if (argc < 3)
   {
     cout << "Not enough arguments.";
     return EXIT_FAILURE;
@@ -111,6 +151,7 @@ int TestCellLocatorsEdgeCases(int argc, char* argv[])
   // of how this test is executed
   // vtkNew<vtkModifiedBSPTree> mbsp;
   // allTestsPassed &= TestLocator(data, mbsp);
+  allTestsPassed &= TestCellLocatorEvaluatePosition(argv[2]);
 
   //====================
   // Final Tests Outcome

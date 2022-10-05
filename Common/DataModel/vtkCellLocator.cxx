@@ -412,7 +412,7 @@ vtkIdType vtkCellLocator::FindClosestPointWithinRadius(double x[3], double radiu
 
         // evaluate the position to find the closest point
         tmpInside = cell->EvaluatePosition(x, point, subId, pcoords, dist2, weights.data());
-        if (dist2 < minDist2)
+        if (tmpInside != -1 && dist2 < minDist2)
         {
           inside = tmpInside;
           closestCell = cellId;
@@ -530,7 +530,7 @@ vtkIdType vtkCellLocator::FindClosestPointWithinRadius(double x[3], double radiu
               // evaluate the position to find the closest point
               tmpInside = cell->EvaluatePosition(x, point, subId, pcoords, dist2, weights.data());
 
-              if (dist2 < minDist2)
+              if (tmpInside != -1 && dist2 < minDist2)
               {
                 inside = tmpInside;
                 closestCell = cellId;
