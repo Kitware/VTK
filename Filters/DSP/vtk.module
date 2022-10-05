@@ -1,0 +1,19 @@
+NAME
+  VTK::FiltersDSP
+LIBRARY_NAME
+  vtkFiltersDSP
+DESCRIPTION
+  Digital Signal Processing module
+KIT
+  VTK::Filters
+GROUPS
+  StandAlone
+DEPENDS
+  VTK::CommonCore
+  VTK::CommonDataModel
+  VTK::CommonExecutionModel
+  VTK::FiltersGeneral
+PRIVATE_DEPENDS
+  VTK::CommonMath
+TEST_DEPENDS
+  VTK::TestingCore
