@@ -124,7 +124,7 @@ bool vtkHyperTreeGridGeometryUnlimitedLevelEntry::IsLeaf(const vtkHyperTreeGrid*
 //------------------------------------------------------------------------------
 bool vtkHyperTreeGridGeometryUnlimitedLevelEntry::IsRealLeaf(const vtkHyperTreeGrid* grid) const
 {
-  if (this->Level >= const_cast<vtkHyperTreeGrid*>(grid)->GetDepthLimiter())
+  if (this->Level == const_cast<vtkHyperTreeGrid*>(grid)->GetDepthLimiter())
   {
     return true;
   }
@@ -134,7 +134,7 @@ bool vtkHyperTreeGridGeometryUnlimitedLevelEntry::IsRealLeaf(const vtkHyperTreeG
 //------------------------------------------------------------------------------
 bool vtkHyperTreeGridGeometryUnlimitedLevelEntry::IsVirtualLeaf(const vtkHyperTreeGrid* grid) const
 {
-  if (this->Level >= const_cast<vtkHyperTreeGrid*>(grid)->GetDepthLimiter())
+  if (this->Level > const_cast<vtkHyperTreeGrid*>(grid)->GetDepthLimiter())
   {
     return true;
   }

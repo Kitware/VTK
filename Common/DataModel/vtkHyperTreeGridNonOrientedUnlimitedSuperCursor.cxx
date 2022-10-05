@@ -324,22 +324,6 @@ bool vtkHyperTreeGridNonOrientedUnlimitedSuperCursor::IsVirtualLeaf()
 }
 
 //------------------------------------------------------------------------------
-double vtkHyperTreeGridNonOrientedUnlimitedSuperCursor::GetExtensivePropertyRatio()
-{
-  const auto nbVirtual = this->GetLevel() - this->GetLastRealLevel();
-  const auto nbDiv = std::pow(this->GetDimension(), nbVirtual * this->GetTree()->GetBranchFactor());
-  return 1.0 / nbDiv;
-}
-
-//------------------------------------------------------------------------------
-double vtkHyperTreeGridNonOrientedUnlimitedSuperCursor::GetExtensivePropertyRatio(vtkIdType index)
-{
-  const auto nbVirtual = this->GetLevel(index) - this->GetLastRealLevel(index);
-  const auto nbDiv = std::pow(this->GetDimension(), nbVirtual * this->GetTree()->GetBranchFactor());
-  return 1.0 / nbDiv;
-}
-
-//------------------------------------------------------------------------------
 bool vtkHyperTreeGridNonOrientedUnlimitedSuperCursor::IsVirtualLeaf(unsigned int icursor)
 {
   if (icursor == this->IndiceCentralCursor)
@@ -348,6 +332,20 @@ bool vtkHyperTreeGridNonOrientedUnlimitedSuperCursor::IsVirtualLeaf(unsigned int
   }
   auto& entry = this->Entries[this->GetIndiceEntry(icursor)];
   return entry.IsVirtualLeaf(this->Grid);
+}
+
+//------------------------------------------------------------------------------
+double vtkHyperTreeGridNonOrientedUnlimitedSuperCursor::GetExtensivePropertyRatio()
+{
+  return this->GetExtensivePropertyRatio(this->IndiceCentralCursor);
+}
+
+//------------------------------------------------------------------------------
+double vtkHyperTreeGridNonOrientedUnlimitedSuperCursor::GetExtensivePropertyRatio(vtkIdType index)
+{
+  const auto nbVirtual = this->GetLevel(index) - this->GetLastRealLevel(index);
+  const auto nbDiv = std::pow(this->GetTree()->GetBranchFactor(), nbVirtual * this->GetDimension());
+  return 1.0 / nbDiv;
 }
 
 //------------------------------------------------------------------------------

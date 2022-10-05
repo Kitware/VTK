@@ -75,6 +75,7 @@ public:
    * Set/Get the computation method to use:
    * * Unlimited: virtually reffine neighbors
    * * Unstructured: compute gradient like in UG
+   * Dfault is UNLIMITED
    */
   vtkSetClampMacro(Mode, int, UNLIMITED, UNSTRUCTURED);
   vtkGetMacro(Mode, int);
@@ -84,6 +85,7 @@ public:
   /**
    * Do we apply ratio in unlimited mode ?
    * no effect in Unstructured mode
+   * Default is false (intesive computation)
    */
   vtkSetMacro(ExtensiveComputation, bool);
   vtkGetMacro(ExtensiveComputation, bool);
@@ -112,7 +114,7 @@ protected:
 
   int Mode = ComputeMode::UNLIMITED;
 
-  bool ExtensiveComputation = true;
+  bool ExtensiveComputation = false;
 
   /**
    * Keep track of selected input scalars

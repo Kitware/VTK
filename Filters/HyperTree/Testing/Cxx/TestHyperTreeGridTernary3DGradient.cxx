@@ -51,6 +51,7 @@ int TestHyperTreeGridTernary3DGradient(int argc, char* argv[])
   // Gradient
   vtkNew<vtkHyperTreeGridGradient> gradient;
   gradient->SetInputConnection(htGrid->GetOutputPort());
+  gradient->SetMode(vtkHyperTreeGridGradient::UNSTRUCTURED);
 
   // extract cell centers
   vtkNew<vtkHyperTreeGridCellCenters> centers;

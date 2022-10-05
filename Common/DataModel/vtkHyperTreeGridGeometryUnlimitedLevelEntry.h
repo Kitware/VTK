@@ -188,7 +188,7 @@ public:
   bool IsRealLeaf(const vtkHyperTreeGrid* grid) const;
 
   /**
-   * Is the cursor pointing to a virually subdivded leaf?
+   * Is the cursor pointing to a virually subdivided leaf?
    * \pre not_tree: tree
    */
   bool IsVirtualLeaf(const vtkHyperTreeGrid* grid) const;
@@ -219,17 +219,21 @@ public:
    */
   vtkHyperTree* GetTree() const { return this->Tree; }
 
+  ///@{
   /**
    * Get level info from current cache entry.
    */
   unsigned int GetLevel() const { return this->Level; }
   unsigned int GetLastRealLevel() const { return this->LastRealLevel; }
+  ///@}
 
+  ///@{
   /**
    * Getter for origin coordinates of the current cell.
    */
   double* GetOrigin() { return this->Origin; }
   const double* GetOrigin() const { return this->Origin; }
+  ///@}
 
   /**
    * Getter for bounding box of the current cell.
