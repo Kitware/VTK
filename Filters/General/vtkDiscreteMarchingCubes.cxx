@@ -343,6 +343,7 @@ int vtkDiscreteMarchingCubes::RequestData(vtkInformation* vtkNotUsed(request),
   if (this->ComputeScalars)
   {
     newCellScalars = vtkFloatArray::New();
+    newCellScalars->SetName("Scalars");
     newCellScalars->Allocate(estimatedSize, 3);
   }
   else
@@ -353,6 +354,7 @@ int vtkDiscreteMarchingCubes::RequestData(vtkInformation* vtkNotUsed(request),
   if (this->ComputeAdjacentScalars)
   {
     newPointScalars = vtkFloatArray::New();
+    newPointScalars->SetName("AdjacentScalars");
     newPointScalars->Allocate(estimatedSize, estimatedSize / 2);
   }
   else
