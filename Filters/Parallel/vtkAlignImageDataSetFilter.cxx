@@ -49,7 +49,7 @@ bool IsSpacingValid(const vtkVector3d& spacing)
 }
 
 bool ComputeGlobalOrigin(vtkVector3d& origin, const std::vector<vtkImageData*>& images,
-  vtkMultiProcessController* controller)
+  vtkMultiProcessController* controller, const int minimumExtent[3])
 {
   // First, confirm that spacing is compatible. All images must have the same
   // spacing otherwise we cannot pick a valid global origin/extent.
@@ -84,6 +84,14 @@ bool ComputeGlobalOrigin(vtkVector3d& origin, const std::vector<vtkImageData*>& 
   vtkBoundingBox globalBounds;
   controller->AllReduce(bbox, globalBounds);
   globalBounds.GetMinPoint(origin.GetData());
+
+  // globalOrigin is based on the extent set at (0, 0, 0) right now. we need to adjust
+  // globalOrigin based on minimumExtent though.
+  for (int cc = 0; cc < 3; ++cc)
+  {
+    origin[cc] -= minimumExtent[cc] * spacing[cc];
+  }
+
   return true;
 }
 
@@ -136,8 +144,9 @@ int vtkAlignImageDataSetFilter::RequestData(
     return 1;
   }
 
-  vtkVector3d origin(VTK_DOUBLE_MAX);
-  if (!::ComputeGlobalOrigin(origin, images, controller))
+  // the origin that all output image datas will have
+  vtkVector3d globalOrigin(VTK_DOUBLE_MAX);
+  if (!::ComputeGlobalOrigin(globalOrigin, images, controller, this->MinimumExtent))
   {
     vtkErrorMacro("Failed to compute global origin.");
     return 0;
@@ -152,43 +161,36 @@ int vtkAlignImageDataSetFilter::RequestData(
       continue;
     }
 
-    int dims[3];
-    image->GetDimensions(dims);
-
     const vtkVector3d imgOrigin(image->GetOrigin());
     const vtkVector3d imgSpacing(image->GetSpacing());
 
-    vtkVector3i startExt(0);
+    // we know the relationship is:
+    // inputOrigin+inputExtent[any]*spacing=globalOrigin+outputExtent[any]*spacing
+    // remember that spacing is the same for input and output imagedatas
+    int outputExtent[6], inputExtent[6], dims[3];
+    image->GetExtent(inputExtent);
+    image->GetDimensions(dims);
     for (int cc = 0; cc < 3; ++cc)
     {
-      startExt[cc] = static_cast<int>((imgOrigin[cc] - origin[cc]) / imgSpacing[cc]);
+      outputExtent[2 * cc] = static_cast<int>(
+        (imgOrigin[cc] + inputExtent[2 * cc] * imgSpacing[cc]) - globalOrigin[cc] / imgSpacing[cc]);
+      // we compute the max extent based on the imagedata extent to reduce
+      // the chance of round-off error that may change the number of
+      // points and cells in the imagedata
+      outputExtent[2 * cc + 1] = outputExtent[2 * cc] + dims[cc] - 1;
     }
 
-    int extents[6];
-    extents[0] = startExt[0] + this->MinimumExtent[0];
-    extents[1] = extents[0] + dims[0] - 1;
-
-    extents[2] = startExt[1] + this->MinimumExtent[1];
-    extents[3] = extents[2] + dims[1] - 1;
-
-    extents[4] = startExt[2] + this->MinimumExtent[2];
-    extents[5] = extents[4] + dims[2] - 1;
-
-    vtkVector3d lorigin(origin);
-    lorigin -= vtkVector3d(this->MinimumExtent[0], this->MinimumExtent[1], this->MinimumExtent[2]) *
-      imgSpacing;
-
     const vtkVector3d pt0(image->GetPoint(0));
-    image->SetOrigin(lorigin.GetData());
-    image->SetExtent(extents);
+    image->SetOrigin(globalOrigin.GetData());
+    image->SetExtent(outputExtent);
     const vtkVector3d newPt0(image->GetPoint(0));
     if ((newPt0 - pt0).Norm() > 1e-10)
     {
       vtkLogF(ERROR,
         "Global spacing (%f, %f, %f)/origin (%f, %f, %f) incompatible for image with first point "
-        "at (%f, %f, %f)",
-        imgSpacing[0], imgSpacing[1], imgSpacing[2], lorigin[0], lorigin[1], lorigin[2], pt0[0],
-        pt0[1], pt0[2]);
+        "at (%f, %f, %f) by amount %f",
+        imgSpacing[0], imgSpacing[1], imgSpacing[2], globalOrigin[0], globalOrigin[1],
+        globalOrigin[2], pt0[0], pt0[1], pt0[2], (newPt0 - pt0).Norm());
       illalignedOrigins = 1;
     }
   }
