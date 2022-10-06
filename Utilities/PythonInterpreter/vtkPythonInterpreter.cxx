@@ -90,7 +90,7 @@ template <>
 void strFree(wchar_t* foo)
 {
 #if PY_VERSION_HEX >= 0x03050000
-  PyMem_RawFree(foo);
+  delete[] foo;
 #else
   PyMem_Free(foo);
 #endif
