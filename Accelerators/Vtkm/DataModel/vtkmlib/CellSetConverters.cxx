@@ -22,13 +22,17 @@
 #include <vtkm/cont/serial/DeviceAdapterSerial.h>
 #include <vtkm/cont/tbb/DeviceAdapterTBB.h>
 
+#include <vtkm/cont/Algorithm.h>
 #include <vtkm/cont/ArrayCopy.h>
 #include <vtkm/cont/ArrayHandleCast.h>
 #include <vtkm/cont/ArrayHandleGroupVec.h>
+#include <vtkm/cont/ArrayHandleTransform.h>
 #include <vtkm/cont/CellSetSingleType.h>
 #include <vtkm/cont/TryExecute.h>
 
 #include <vtkm/worklet/WorkletMapField.h>
+
+#include <vtkm/BinaryPredicates.h>
 
 #include "vtkCellArray.h"
 #include "vtkCellType.h"
@@ -216,6 +220,16 @@ struct BuildExplicitCellSetVisitor
   }
 };
 
+struct SupportedCellShape
+{
+  VTKM_EXEC_CONT
+  bool operator()(vtkm::UInt8 shape) const
+  {
+    return (shape < vtkm::NUMBER_OF_CELL_SHAPES) && (shape != 2) && (shape != 6) && (shape != 8) &&
+      (shape != 11);
+  }
+};
+
 } // end anon namespace
 
 // convert a cell array of mixed types to a vtkm CellSetExplicit
@@ -224,7 +238,16 @@ vtkm::cont::UnknownCellSet Convert(
 {
   using ShapeArrayType = vtkAOSDataArrayTemplate<vtkm::UInt8>;
   using ShapeConverter = tovtkm::DataArrayToArrayHandle<ShapeArrayType, 1>;
-  return cells->Visit(BuildExplicitCellSetVisitor{}, ShapeConverter::Wrap(types), numberOfPoints);
+
+  auto shapes = ShapeConverter::Wrap(types);
+  if (!vtkm::cont::Algorithm::Reduce(
+        vtkm::cont::make_ArrayHandleTransform(shapes, SupportedCellShape{}), true,
+        vtkm::LogicalAnd()))
+  {
+    throw vtkm::cont::ErrorBadType("Unsupported VTK cell type in CellSet converter.");
+  }
+
+  return cells->Visit(BuildExplicitCellSetVisitor{}, shapes, numberOfPoints);
 }
 
 VTK_ABI_NAMESPACE_END
