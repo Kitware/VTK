@@ -514,6 +514,7 @@ if (VTK_WRAP_PYTHON)
     MODULE_DESTINATION  "${VTK_PYTHON_SITE_PACKAGES_SUFFIX}"
     CMAKE_DESTINATION   "${vtk_cmake_destination}"
     INSTALL_HEADERS     "${VTK_INSTALL_SDK}"
+    HEADERS_DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/vtk${vtk_version_suffix}/vtkpythonmodules"
     BUILD_PYI_FILES     "${VTK_BUILD_PYI_FILES}"
     SOABI               "${vtk_soabi}"
     USE_DEBUG_SUFFIX    "${VTK_WINDOWS_PYTHON_DEBUGGABLE}"
