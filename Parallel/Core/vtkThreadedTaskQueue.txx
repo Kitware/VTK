@@ -39,7 +39,10 @@ public:
 
   void MarkDone()
   {
-    this->Done = true;
+    {
+      std::lock_guard<std::mutex> lock(this->TasksMutex);
+      this->Done = true;
+    }
     this->TasksCV.notify_all();
   }
 
