@@ -12,6 +12,7 @@ Options are as follows:
  -p PACKAGE    The package to generate .pyi files for [vtkmodules]
  -o OUTPUT     The output directory [default is the package directory]
  -e EXT        The file suffix [.pyi]
+ -i IMPORTER   The static module importer (for static builds only)
  -h HELP
 
 With no arguments, the script runs with the defaults (the .pyi files
@@ -566,6 +567,8 @@ def main(argv=sys.argv):
         description="A .pyi generator for the VTK python wrappers.")
     parser.add_argument('-p', '--package', type=str, default="vtkmodules",
                         help="Package name [vtkmodules].")
+    parser.add_argument('-i', '--importer', type=str,
+                        help="Static module importer [].")
     parser.add_argument('-o', '--output', type=str,
                         help="Output directory [package directory].")
     parser.add_argument('-e', '--ext', type=str, default=".pyi",
@@ -581,6 +584,18 @@ def main(argv=sys.argv):
     modules = args.modules
     basedir = args.output
     ext = args.ext
+
+    # if static module importer is needed, it must be handled first
+    if args.importer:
+        if len(modules) == 0:
+            sys.stderr.write(progname + ": when using '-i', all modules " +
+                "in the package must be listed on the command line.\n")
+            return 1
+        # check that the modules aren't already present as builtins
+        # (we replace '.' separators with underscores for static importers)
+        module_exemplar = (packagename + '.' + modules[0]).replace('.', '_')
+        if module_exemplar not in sys.builtin_module_names:
+            importlib.import_module(args.importer)
 
     # get information about the package
     if basedir is None or len(modules) == 0:
