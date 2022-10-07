@@ -1035,6 +1035,13 @@ static void ${_vtk_python_TARGET_NAME}_load() {\n")
         set(_vtk_python_exe "${Python3_EXECUTABLE}")
       endif ()
 
+      if (_vtk_python_BUILD_STATIC)
+        set(_generate_pyi_static_importer_arg
+          -i ${_vtk_python_static_importer_name})
+      else ()
+        set(_generate_pyi_static_importer_arg)
+      endif ()
+
       # XXX(python2): Remove this conditional
       if (NOT VTK_PYTHON_VERSION STREQUAL "2")
         add_custom_command(
@@ -1042,6 +1049,7 @@ static void ${_vtk_python_TARGET_NAME}_load() {\n")
           COMMAND   "${_vtk_python_exe}"
                     -m vtkmodules.generate_pyi
                     -p "${_vtk_python_PYTHON_PACKAGE}"
+                    ${_generate_pyi_static_importer_arg}
                     -o "${CMAKE_BINARY_DIR}/${_vtk_python_MODULE_DESTINATION}/${_vtk_python_package_dir}"
                     ${_vtk_python_modules}
           WORKING_DIRECTORY
