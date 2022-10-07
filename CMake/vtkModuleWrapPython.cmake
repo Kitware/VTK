@@ -1060,7 +1060,7 @@ static void ${_vtk_python_TARGET_NAME}_load() {\n")
 
       if (_vtk_python_BUILD_STATIC)
         set(_generate_pyi_static_importer_arg
-          -i ${_vtk_python_static_importer_name})
+          -i "${_vtk_python_static_importer_name}")
       else ()
         set(_generate_pyi_static_importer_arg)
       endif ()
