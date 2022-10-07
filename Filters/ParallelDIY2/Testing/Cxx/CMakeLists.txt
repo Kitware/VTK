@@ -13,6 +13,7 @@ if (TARGET VTK::mpi)
     TestPUniformGridGhostDataGenerator.cxx,NO_VALID
     TestPUnstructuredGridGhostCellsGenerator.cxx,NO_VALID
     TestRedistributeDataSetFilter.cxx
+    TestRedistributeDataSetFilterImplicitArray.cxx,NO_VALID
     TestRedistributeDataSetFilterOnIOSS.cxx,NO_VALID
     TestStructuredGridGhostDataGenerator.cxx,NO_VALID
     TestUnstructuredGridGeometryFilterGhostCells.cxx,NO_VALID)

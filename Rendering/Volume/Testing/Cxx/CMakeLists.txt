@@ -90,6 +90,7 @@ set (VolumeCxxTests
   TestProjectedTetrahedraVectorComponent.cxx
   TestRemoveVolumeNonCurrentContext.cxx
   TestSmartVolumeMapper.cxx
+  TestSmartVolumeMapperImplicitArray.cxx
   TestSmartVolumeMapperVolumeUpdate.cxx
   TestSmartVolumeMapperWindowLevel.cxx
   )
