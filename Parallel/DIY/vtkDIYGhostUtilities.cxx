@@ -71,7 +71,6 @@ using LinkMap = vtkDIYGhostUtilities::LinkMap;
 template<class DataSetT>
 using DataSetTypeToBlockTypeConverter =
     vtkDIYGhostUtilities::DataSetTypeToBlockTypeConverter<DataSetT>;
-namespace detail = vtkDIYGhostUtilities_detail;
 //@}
 
 //@{
@@ -954,7 +953,7 @@ struct Comparator<false>
   {
     using Scalar = typename ValueToScalar<ValueT1>::Type;
 
-    return std::fabs(val1 - val2) < detail::ComputePrecision<Scalar>(
+    return std::fabs(val1 - val2) < vtkDIYGhostUtilities_detail::ComputePrecision<Scalar>(
         std::max(std::fabs(val1), std::fabs(val2)));
   }
 };
@@ -1256,7 +1255,7 @@ struct StructuredGridFittingWorker
           static_cast<double>(queryPoint[2]) };
 
         vtkIdType pointId = locator->FindClosestPointWithinRadius(
-            detail::ComputePrecision<ValueType>(
+            vtkDIYGhostUtilities_detail::ComputePrecision<ValueType>(
               std::max({ std::fabs(tmp[0]), std::fabs(tmp[1]), std::fabs(tmp[2]) })), tmp, dist2);
 
         if (pointId == -1)
@@ -2387,7 +2386,7 @@ struct MatchingPointExtractor
       {
         vtkMath::Assign(point, p);
         vtkIdType closestPointId = this->KdTree->FindClosestPointWithinRadius(
-            detail::ComputePrecision<ValueType>(
+            vtkDIYGhostUtilities_detail::ComputePrecision<ValueType>(
               std::max({ std::fabs(p[0]), std::fabs(p[1]), std::fabs(p[2]) })),
 
             p, dist2);
@@ -4666,7 +4665,7 @@ struct QueryPointWorker
   void operator()(ArrayT* vtkNotUsed(array), double p[3])
   {
     this->TargetPointId = this->Locator->FindClosestPointWithinRadius(
-        detail::ComputePrecision<ValueT>(
+        vtkDIYGhostUtilities_detail::ComputePrecision<ValueT>(
           std::max({ std::fabs(p[0]), std::fabs(p[1]), std::fabs(p[2]) })),
           p, this->Dist2);
   }

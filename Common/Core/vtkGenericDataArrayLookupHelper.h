@@ -29,7 +29,7 @@
 #include <unordered_map>
 #include <vector>
 
-namespace detail
+namespace vtkGenericDataArrayLookupHelper_detail
 {
 VTK_ABI_NAMESPACE_BEGIN
 template <typename T, bool>
@@ -131,7 +131,7 @@ private:
     for (vtkIdType i = 0; i < num; ++i)
     {
       auto value = this->AssociatedArray->GetValue(i);
-      if (detail::isnan(value))
+      if (vtkGenericDataArrayLookupHelper_detail::isnan(value))
       {
         NanIndices.push_back(i);
       }
@@ -144,7 +144,7 @@ private:
   std::vector<vtkIdType>* FindIndexVec(ValueType value)
   {
     std::vector<vtkIdType>* indices{ nullptr };
-    if (detail::isnan(value) && !this->NanIndices.empty())
+    if (vtkGenericDataArrayLookupHelper_detail::isnan(value) && !this->NanIndices.empty())
     {
       indices = &this->NanIndices;
     }
