@@ -42,6 +42,10 @@
 
 #include <sstream>
 
+#ifdef _MSC_VER
+#include <intrin.h>
+#endif
+
 #ifdef __APPLE__
 #include <sys/sysctl.h>
 #include <sys/types.h>
@@ -443,9 +447,13 @@ bool vtkOSPRayPass::IsSupported()
 
   //////////////////////////////////////////////////////////////////////////////
   // Note that this class is used for OSPRay and OptiX (in addition to any
-  // other RayTracing backends). Currently the only "spoiling" detection is
-  // Apple's Rosetta. Since the only other backend is OptiX today and is not
-  // supported on macOS within VTK anyways, there is no conflict.
+  // other RayTracing backends). Currently the only "spoiling" detections are
+  // Apple's Rosetta not supporting AVX and older processors that don't support
+  // SSE4.1. Since the only other backend is OptiX today and is not supported
+  // on macOS within VTK anyways, there is no conflict. Older processors
+  // without SSE4.1 may be rejected here even if OptiX is supported, but such
+  // old hardware with new video cards is considered a reasonable loss to avoid
+  // crashing outright otherwise.
   //////////////////////////////////////////////////////////////////////////////
 
 #ifdef __APPLE__
@@ -471,6 +479,76 @@ bool vtkOSPRayPass::IsSupported()
       is_supported = false;
     }
   }
+#endif
+
+#ifdef __x86_64__
+#if defined(__has_builtin)
+#if __has_builtin(__builtin_cpu_init)
+#define vtkOSPRayPass_has_builtin_cpu_init 1
+#endif
+#elif defined(__clang__) // Only supported in Clang 6 and up.
+#if __clang_major__ >= 6
+#define vtkOSPRayPass_has_builtin_cpu_init 1
+#endif
+#elif defined(__GNUC__) // GCC has always provided this mechanism
+#define vtkOSPRayPass_has_builtin_cpu_init 1
+#endif
+#ifndef vtkOSPRayPass_has_builtin_cpu_init
+#define vtkOSPRayPass_has_builtin_cpu_init 0
+#endif
+
+  // ISPC detects AVX2, AVX, and SSE4.1 instruction sets. If none are
+  // supported, an `abort()` awaits pretty much any ISPC call. Detect SSE4.1
+  // and, if missing, disable OSPRay support.
+  //
+  // CPU features are detected here:
+  // https://github.com/ispc/ispc/blob/bf959a96af1a362b1fe16895aa2ae997355ea05b/builtins/dispatch.ll#L132-L133
+#if vtkOSPRayPass_has_builtin_cpu_init
+  // Most compilers have a good CPU feature abstraction, so use it if
+  // available.
+  {
+    __builtin_cpu_init();
+    if (!__builtin_cpu_supports("sse4.1"))
+    {
+      is_supported = false;
+    }
+  }
+#elif defined(_MSC_VER)
+  // Query the CPU for instruction support using MSVC instrinsics.
+  // https://learn.microsoft.com/en-us/cpp/intrinsics/cpuid-cpuidex
+  {
+    // Storage for `cpuid` results.
+    std::array<int, 4> cpui;
+
+    // First query how many function IDs are supported.
+    __cpuid(cpui.data(), 0);
+    int const nids = cpui[0];
+
+    constexpr int FeatureBitFunctionId = 1;
+    constexpr size_t Ecx = 2;
+    constexpr int SSE4_1_bit = 19;
+
+    // SSE4.1 support lives in the first function ID vector.
+    // https://en.wikipedia.org/wiki/CPUID#EAX=1:_Processor_Info_and_Feature_Bits
+    if (nids >= FeatureBitFunctionId)
+    {
+      __cpuid(cpui.data(), FeatureBitFunctionId);
+
+      // The `ecx` return is in index 2; bit 19 holds SSE4.1 information.
+      int const sse42_container = cpui[Ecx];
+      if (!(sse42_container & (1 << SSE4_1_bit)))
+      {
+        is_supported = false;
+      }
+    }
+    else
+    {
+      // No feature bit vector present? Something is up; assume the worst and
+      // disable support.
+      is_supported = false;
+    }
+  }
+#endif
 #endif
 
   //////////////////////////////////////////////////////////////////////////////
