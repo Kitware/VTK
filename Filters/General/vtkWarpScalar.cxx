@@ -427,7 +427,7 @@ struct DimensionWorklet
     vtkNew<vtkGenericCell> cell;
     for (vtkIdType iCell = begin; iCell < end; iCell++)
     {
-      input->GetCell(iCell, cell);
+      this->input->GetCell(iCell, cell);
       int locDim = cell->GetCellDimension();
       this->localMaxDim.Local() = std::max(locDim, this->localMaxDim.Local());
       if (this->localMaxDim.Local() == 3)
@@ -448,6 +448,11 @@ struct DimensionWorklet
 //------------------------------------------------------------------------------
 unsigned int vtkWarpScalar::GetInputDimension(vtkDataSet* input)
 {
+  // Ensure that the call to BuildCells is made before the SMP dispatch through a dummy GetCell call
+  {
+    vtkNew<vtkGenericCell> genCell;
+    input->GetCell(0, genCell);
+  }
   ::DimensionWorklet worker(input);
   vtkSMPTools::For(0, input->GetNumberOfCells(), worker);
   return static_cast<unsigned int>(worker.maxDim);
