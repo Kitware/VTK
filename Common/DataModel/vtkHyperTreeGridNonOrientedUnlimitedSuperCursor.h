@@ -83,11 +83,13 @@ public:
   vtkHyperTree* GetTree(unsigned int icursor);
   ///@}
 
+  ///@{
   /**
    * Return the index of the current vertex in the tree.
    */
   vtkIdType GetVertexId();
   vtkIdType GetVertexId(unsigned int icursor);
+  ///@}
 
   /**
    * Return the global index (relative to the grid) of the
@@ -160,23 +162,50 @@ public:
   void GetPoint(double point[3]);
   void GetPoint(unsigned int icursor, double point[3]);
 
+  ///@{
   /**
    * Is the cursor pointing to a leaf?
    */
   bool IsLeaf();
   bool IsLeaf(unsigned int icursor);
   bool IsRealLeaf();
+  bool IsRealLeaf(unsigned int icursor);
+  ///@}
+
+  ///@{
+  /**
+   * Is the cursor pointing to a real node in the tree
+   */
+  bool IsVirtualLeaf();
+  bool IsVirtualLeaf(unsigned int icursor);
+  ///@}
+
+  ///@{
+  /**
+   * returns the value of the ratio to be applied to extensive
+   * value for the current cursor, related to the last real
+   * value of the cell. Return 1 for real cells, otherwise
+   * return the portion of the area covered by the subdivieded cell.
+   * For intensive valued fields this ratio should not be used.
+   */
+  double GetExtensivePropertyRatio();
+  double GetExtensivePropertyRatio(vtkIdType index);
+  ///@}
 
   /**
    * Is the cursor at tree root?
    */
   bool IsRoot();
 
+  ///@{
   /**
    * Get the level of the tree vertex pointed by the cursor.
    */
   unsigned int GetLevel();
   unsigned int GetLevel(unsigned int icursor);
+  unsigned int GetLastRealLevel();
+  unsigned int GetLastRealLevel(unsigned int icursor);
+  ///@}
 
   /**
    * Move the cursor to child `child' of the current vertex.

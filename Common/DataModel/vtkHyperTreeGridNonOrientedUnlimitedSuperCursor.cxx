@@ -27,6 +27,7 @@ PURPOSE.  See the above copyright Nonice for more information.
 #include "vtkHyperTreeGridTools.h"
 
 #include <cassert>
+#include <cmath>
 #include <limits>
 #include <ostream>
 #include <vector>
@@ -289,15 +290,62 @@ bool vtkHyperTreeGridNonOrientedUnlimitedSuperCursor::IsLeaf()
 }
 
 //------------------------------------------------------------------------------
-bool vtkHyperTreeGridNonOrientedUnlimitedSuperCursor::IsLeaf(unsigned int vtkNotUsed(icursor))
+bool vtkHyperTreeGridNonOrientedUnlimitedSuperCursor::IsLeaf(unsigned int icursor)
 {
-  return this->CentralCursor->IsLeaf();
+  if (icursor == this->IndiceCentralCursor)
+  {
+    return this->IsLeaf();
+  }
+  auto& entry = this->Entries[this->GetIndiceEntry(icursor)];
+  return entry.IsLeaf(this->Grid);
 }
 
 //------------------------------------------------------------------------------
 bool vtkHyperTreeGridNonOrientedUnlimitedSuperCursor::IsRealLeaf()
 {
   return this->CentralCursor->IsRealLeaf();
+}
+
+//------------------------------------------------------------------------------
+bool vtkHyperTreeGridNonOrientedUnlimitedSuperCursor::IsRealLeaf(unsigned int icursor)
+{
+  if (icursor == this->IndiceCentralCursor)
+  {
+    return this->IsRealLeaf();
+  }
+  auto& entry = this->Entries[this->GetIndiceEntry(icursor)];
+  return entry.IsRealLeaf(this->Grid);
+}
+
+//------------------------------------------------------------------------------
+bool vtkHyperTreeGridNonOrientedUnlimitedSuperCursor::IsVirtualLeaf()
+{
+  return this->CentralCursor->IsVirtualLeaf();
+}
+
+//------------------------------------------------------------------------------
+bool vtkHyperTreeGridNonOrientedUnlimitedSuperCursor::IsVirtualLeaf(unsigned int icursor)
+{
+  if (icursor == this->IndiceCentralCursor)
+  {
+    return this->IsVirtualLeaf();
+  }
+  auto& entry = this->Entries[this->GetIndiceEntry(icursor)];
+  return entry.IsVirtualLeaf(this->Grid);
+}
+
+//------------------------------------------------------------------------------
+double vtkHyperTreeGridNonOrientedUnlimitedSuperCursor::GetExtensivePropertyRatio()
+{
+  return this->GetExtensivePropertyRatio(this->IndiceCentralCursor);
+}
+
+//------------------------------------------------------------------------------
+double vtkHyperTreeGridNonOrientedUnlimitedSuperCursor::GetExtensivePropertyRatio(vtkIdType index)
+{
+  const auto nbVirtual = this->GetLevel(index) - this->GetLastRealLevel(index);
+  const auto nbDiv = std::pow(this->GetTree()->GetBranchFactor(), nbVirtual * this->GetDimension());
+  return 1.0 / nbDiv;
 }
 
 //------------------------------------------------------------------------------
@@ -320,6 +368,22 @@ unsigned int vtkHyperTreeGridNonOrientedUnlimitedSuperCursor::GetLevel(unsigned 
     return this->CentralCursor->GetLevel();
   }
   return this->Entries[this->GetIndiceEntry(icursor)].GetLevel();
+}
+
+//------------------------------------------------------------------------------
+unsigned int vtkHyperTreeGridNonOrientedUnlimitedSuperCursor::GetLastRealLevel()
+{
+  return this->CentralCursor->GetLastRealLevel();
+}
+
+//------------------------------------------------------------------------------
+unsigned int vtkHyperTreeGridNonOrientedUnlimitedSuperCursor::GetLastRealLevel(unsigned int icursor)
+{
+  if (icursor == this->IndiceCentralCursor)
+  {
+    return this->CentralCursor->GetLastRealLevel();
+  }
+  return this->Entries[this->GetIndiceEntry(icursor)].GetLastRealLevel();
 }
 
 //------------------------------------------------------------------------------

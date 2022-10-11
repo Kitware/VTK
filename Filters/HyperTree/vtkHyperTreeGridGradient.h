@@ -44,6 +44,7 @@ VTK_ABI_NAMESPACE_BEGIN
 
 class vtkHyperTreeGridNonOrientedGeometryCursor;
 class vtkHyperTreeGridNonOrientedMooreSuperCursor;
+class vtkHyperTreeGridNonOrientedUnlimitedMooreSuperCursor;
 class vtkBitArray;
 class vtkDoubleArray;
 class vtkUnsignedCharArray;
@@ -51,6 +52,12 @@ class vtkUnsignedCharArray;
 class VTKFILTERSHYPERTREE_EXPORT vtkHyperTreeGridGradient : public vtkHyperTreeGridAlgorithm
 {
 public:
+  enum ComputeMode
+  {
+    UNLIMITED = 0,
+    UNSTRUCTURED
+  };
+
   static vtkHyperTreeGridGradient* New();
   vtkTypeMacro(vtkHyperTreeGridGradient, vtkHyperTreeGridAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
@@ -61,6 +68,28 @@ public:
    */
   vtkSetMacro(ResultArrayName, std::string);
   vtkGetMacro(ResultArrayName, std::string);
+  ///@}
+
+  ///@{
+  /**
+   * Set/Get the computation method to use:
+   * * Unlimited: virtually reffine neighbors
+   * * Unstructured: compute gradient like in UG
+   * Dfault is UNLIMITED
+   */
+  vtkSetClampMacro(Mode, int, UNLIMITED, UNSTRUCTURED);
+  vtkGetMacro(Mode, int);
+  ///@}
+
+  ///@{
+  /**
+   * Do we apply ratio in unlimited mode ?
+   * no effect in Unstructured mode
+   * Default is false (intesive computation)
+   */
+  vtkSetMacro(ExtensiveComputation, bool);
+  vtkGetMacro(ExtensiveComputation, bool);
+  vtkBooleanMacro(ExtensiveComputation, bool);
   ///@}
 
 protected:
@@ -75,12 +104,17 @@ protected:
   /**
    * Recursively descend into tree down to leaves
    */
-  template <class Worker>
-  void RecursivelyProcessTree(vtkHyperTreeGridNonOrientedMooreSuperCursor*, Worker&);
+  template <class Cursor, class Worker>
+  void RecursivelyProcessTree(Cursor*, Worker&);
 
   // Fields
+  // ------
 
   std::string ResultArrayName = "Gradient";
+
+  int Mode = ComputeMode::UNLIMITED;
+
+  bool ExtensiveComputation = false;
 
   /**
    * Keep track of selected input scalars

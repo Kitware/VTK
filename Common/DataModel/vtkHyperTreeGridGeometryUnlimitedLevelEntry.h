@@ -60,9 +60,9 @@ public:
   /**
    * Constructor
    */
-  vtkHyperTreeGridGeometryUnlimitedLevelEntry()
+  vtkHyperTreeGridGeometryUnlimitedLevelEntry(vtkHyperTree* tree = nullptr)
   {
-    this->Tree = nullptr;
+    this->Tree = tree;
     this->Level = 0;
     this->Index = 0;
     for (unsigned int d = 0; d < 3; ++d)
@@ -107,6 +107,7 @@ public:
   {
     this->Initialize(entry->Tree, entry->Level, entry->Index, entry->Origin);
     this->LastRealIndex = entry->LastRealIndex;
+    this->LastRealLevel = entry->LastRealLevel;
   }
 
   /**
@@ -181,6 +182,18 @@ public:
   bool IsLeaf(const vtkHyperTreeGrid* grid) const;
 
   /**
+   * Is the cursor pointing to a leaf?
+   * \pre not_tree: tree
+   */
+  bool IsRealLeaf(const vtkHyperTreeGrid* grid) const;
+
+  /**
+   * Is the cursor pointing to a virually subdivided leaf?
+   * \pre not_tree: tree
+   */
+  bool IsVirtualLeaf(const vtkHyperTreeGrid* grid) const;
+
+  /**
    * Is the cursor pointing to a coarse with all childrens being leaves ?
    * \pre not_tree: tree
    */
@@ -206,16 +219,21 @@ public:
    */
   vtkHyperTree* GetTree() const { return this->Tree; }
 
+  ///@{
   /**
    * Get level info from current cache entry.
    */
   unsigned int GetLevel() const { return this->Level; }
+  unsigned int GetLastRealLevel() const { return this->LastRealLevel; }
+  ///@}
 
+  ///@{
   /**
    * Getter for origin coordinates of the current cell.
    */
   double* GetOrigin() { return this->Origin; }
   const double* GetOrigin() const { return this->Origin; }
+  ///@}
 
   /**
    * Getter for bounding box of the current cell.
@@ -247,6 +265,11 @@ private:
    * index of the last real cell visited in the HyperTree
    */
   vtkIdType LastRealIndex = 0;
+
+  /**
+   * level of the last real cell visited in the HyperTree
+   */
+  vtkIdType LastRealLevel = 0;
 
   /**
    * origin coiordinates of the current cell
