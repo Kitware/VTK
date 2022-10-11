@@ -88,6 +88,8 @@ int TestPlotBarRangeHandlesItem(int, char*[])
 
   // Add bar plot and handles
   vtkPlotBar* barPlot = vtkPlotBar::SafeDownCast(chart->AddPlot(vtkChart::BAR));
+  // smoke test for https://gitlab.kitware.com/vtk/vtk/-/issues/18682#note_1258974
+  barPlot->GetLookupTable();
   barPlot->SetInputData(table, "Months", "Books");
   chart->SetBarWidthFraction(1.0);
 
