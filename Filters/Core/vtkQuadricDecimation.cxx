@@ -440,6 +440,12 @@ void vtkQuadricDecimation::InitializeQuadrics(vtkIdType numPts)
   A[2] = data + 8;
   A[3] = data + 12;
 
+  double regularizationVariance = 0.0;
+  if (this->Regularize)
+  {
+    regularizationVariance = std::pow(this->Regularization, 2);
+  }
+
   // allocate local QEM sparse matrix
   QEM = new double[11 + 4 * this->NumberOfComponents];
 
@@ -488,6 +494,23 @@ void vtkQuadricDecimation::InitializeQuadrics(vtkIdType numPts)
 
     QEM[9] = d * d;
     QEM[10] = 1;
+
+    if (this->Regularize)
+    {
+      // Add in some regularizing identity \Sigma_n
+      QEM[0] += regularizationVariance;
+      QEM[4] += regularizationVariance;
+      QEM[7] += regularizationVariance;
+
+      // -\Sigma_n . q
+      QEM[3] -= regularizationVariance * point0[0];
+      QEM[6] -= regularizationVariance * point0[1];
+      QEM[8] -= regularizationVariance * point0[2];
+
+      // q^T \Sigma_n q + n^T \Sigma_q n + Tr(\Sigma_n \Sigma_q)
+      QEM[9] +=
+        regularizationVariance * (vtkMath::Dot(point0, point0) + 1 + 3 * regularizationVariance);
+    }
 
     if (this->AttributeErrorMetric)
     {
@@ -899,8 +922,12 @@ double vtkQuadricDecimation::ComputeCost(vtkIdType edgeId, double* x)
   {
     // it would be better to use the normal of the matrix to test singularity??
     vtkMath::LinearSolve3x3(A, b, x);
-    vtkMath::Multiply3x3(A, x, temp);
-    // error too high, backup plans
+    /*
+     * commenting out the next line because it does not seem useful to me but keeping it here in
+     * case I am wrong
+     */
+    // vtkMath::Multiply3x3(A, x, temp);
+    //  error too high, backup plans
   }
   else
   {
