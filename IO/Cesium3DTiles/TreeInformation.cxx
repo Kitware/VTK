@@ -882,7 +882,7 @@ vtkSmartPointer<vtkImageData> TreeInformation::SplitTileTexture(
     average = average + (scatteredRegions[i].Region[1] - scatteredRegions[i].Region[0] + 1);
   }
   average /= scatteredRegions.size();
-  int width = std::round(std::sqrt(scatteredRegions.size())) * average;
+  int width = std::ceil(std::sqrt(scatteredRegions.size())) * average;
 
   // place cells in the new image using Next-Fit Decreasing Height (NFDH) algorithm
   // https://cgi.csc.liv.ac.uk/~epa/surveyhtml.html
@@ -900,6 +900,15 @@ vtkSmartPointer<vtkImageData> TreeInformation::SplitTileTexture(
     }
     else
     {
+      if (currentWidth == 0)
+      {
+        // the region does not fit in an empty row
+        vtkLog(ERROR,
+          "Empty row of size  " << width << " is too small for region of size "
+                                << (scatteredRegions[i].Region[1] - scatteredRegions[i].Region[0] +
+                                     1));
+        return nullptr;
+      }
       // create a new row and add the cell there
       groupedRegions.emplace_back(std::vector<size_t>());
       rowWidthHeight.push_back({ { currentWidth, currentHeight } });
