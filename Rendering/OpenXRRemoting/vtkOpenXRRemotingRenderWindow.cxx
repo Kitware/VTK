@@ -83,6 +83,14 @@ void vtkOpenXRRemotingRenderWindow::Initialize()
 }
 
 //------------------------------------------------------------------------------
+void vtkOpenXRRemotingRenderWindow::CopyResultFrame()
+{
+  vtkWin32OpenGLDXRenderWindow::SafeDownCast(this->HelperWindow)->Lock();
+  this->Superclass::CopyResultFrame();
+  vtkWin32OpenGLDXRenderWindow::SafeDownCast(this->HelperWindow)->Unlock();
+}
+
+//------------------------------------------------------------------------------
 void vtkOpenXRRemotingRenderWindow::StereoUpdate()
 {
   // Lock the shared texture for rendering

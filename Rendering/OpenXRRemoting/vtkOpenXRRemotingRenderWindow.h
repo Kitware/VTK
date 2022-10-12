@@ -42,6 +42,11 @@ public:
    */
   void Initialize() override;
 
+  /**
+   * Overriden to lock the opengl rendering while copying.
+   */
+  void CopyResultFrame() override;
+
   ///@{
   /**
    * Overriden to draw to the shared D3D texture
