@@ -111,8 +111,17 @@ struct IntegratingFunctor
 
   void operator()(vtkIdType partId, vtkIdType endPartId)
   {
+    bool isFirst = vtkSMPTools::GetSingleThread();
     for (vtkIdType id = partId; id < endPartId; id++)
     {
+      if (isFirst)
+      {
+        this->Tracker->CheckAbort();
+      }
+      if (this->Tracker->GetAbortOutput())
+      {
+        break;
+      }
       vtkLagrangianParticle* particle = this->ParticlesVec[id];
       vtkLagrangianThreadedData* localData = this->LocalData.Local();
 
@@ -517,7 +526,7 @@ int vtkLagrangianParticleTracker::RequestData(vtkInformation* vtkNotUsed(request
   this->IntegrationModel->PreIntegrate(particlesQueue);
 
   std::vector<vtkLagrangianParticle*> particlesVec;
-  while (!this->GetAbortExecute())
+  while (!this->CheckAbort())
   {
     // Check for particle feed
     this->GetParticleFeed(particlesQueue);
@@ -547,7 +556,7 @@ int vtkLagrangianParticleTracker::RequestData(vtkInformation* vtkNotUsed(request
   this->IntegrationModel->FinalizeThreadedData(this->SerialThreadedData);
 
   // Abort if necessary
-  if (this->GetAbortExecute())
+  if (this->CheckAbort())
   {
     // delete all remaining particle
     while (!particlesQueue.empty())

@@ -158,6 +158,7 @@ int vtkEvenlySpacedStreamlines2D::RequestData(vtkInformation* vtkNotUsed(request
   // we end streamlines after one loop iteration
   streamTracer->AddCustomTerminationCallback(&vtkEvenlySpacedStreamlines2D::IsStreamlineLooping,
     this, vtkStreamTracer::FIXED_REASONS_FOR_TERMINATION_COUNT);
+  streamTracer->SetContainerAlgorithm(this);
   streamTracer->Update();
 
   auto streamline = vtkSmartPointer<vtkPolyData>::New();
@@ -168,6 +169,7 @@ int vtkEvenlySpacedStreamlines2D::RequestData(vtkInformation* vtkNotUsed(request
   append->UserManagedInputsOn();
   append->SetNumberOfInputs(2);
   output->ShallowCopy(streamline);
+  append->SetContainerAlgorithm(this);
   int currentSeedId = 1;
   int processedSeedId = 0;
 
@@ -196,6 +198,10 @@ int vtkEvenlySpacedStreamlines2D::RequestData(vtkInformation* vtkNotUsed(request
       if (progress > lastProgress)
       {
         this->UpdateProgress(progress);
+        if (this->CheckAbort())
+        {
+          break;
+        }
         lastProgress = progress;
       }
     }

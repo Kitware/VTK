@@ -832,9 +832,14 @@ struct ParticleTracerFunctor
     auto& cellVectors = this->TLCellVectors.Local();
     const double& currentTime = this->FromTime;
     const double& targetTime = this->PT->CurrentTimeValue;
+    bool isFirst = this->Sequential || vtkSMPTools::GetSingleThread();
 
     for (vtkIdType i = begin; i < end; ++i)
     {
+      if (isFirst)
+      {
+        this->PT->CheckAbort();
+      }
       auto it = this->ParticleHistories[i];
       this->PT->IntegrateParticle(it, currentTime, targetTime, integrator, interpolator,
         cellVectors, this->ParticleCount, this->EraseMutex, this->Sequential);
@@ -1005,6 +1010,10 @@ vtkPolyData* vtkParticleTracerBase::Execute(vtkInformationVector** inputVector)
     for (ParticleListIterator itr = this->ParticleHistories.begin();
          itr != this->ParticleHistories.end(); itr++, counter++)
     {
+      if (this->CheckAbort())
+      {
+        break;
+      }
       ParticleInformation& info(*itr);
       this->Interpolator->TestPoint(info.CurrentPosition.x);
       double velocity[3];
@@ -1024,6 +1033,10 @@ vtkPolyData* vtkParticleTracerBase::Execute(vtkInformationVector** inputVector)
     int pass = 0; // really just for debugging
     while (continueExecuting)
     {
+      if (this->CheckAbort())
+      {
+        break;
+      }
       vtkDebugMacro(<< "Begin Pass " << pass << " with " << this->ParticleHistories.size()
                     << " Particles");
       bool sequential = this->ForceSerialExecution || this->ParticleHistories.size() < 100;
@@ -1191,7 +1204,7 @@ int vtkParticleTracerBase::RequestData(
     }
   }
 
-  if (!finished)
+  if (!finished && !this->CheckAbort())
   {
     request->Set(vtkStreamingDemandDrivenPipeline::CONTINUE_EXECUTING(), 1);
     this->FirstIteration = false;
