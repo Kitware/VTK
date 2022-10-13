@@ -44,7 +44,7 @@ mark_as_advanced(VTK_OPENGL_HAS_OSMESA)
 
 set(default_has_egl OFF)
 if (ANDROID)
-  set(VTK_OPENGL_USE_GLES ON CACHE INTERNAL "Use the OpenGL ES API")
+  set(VTK_OPENGL_USE_GLES ON)
   set(default_has_egl ON)
 else ()
   # OpenGLES implementation.
