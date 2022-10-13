@@ -188,6 +188,10 @@ int vtkTemporalInterpolator::RequestInformation(vtkInformation* vtkNotUsed(reque
         OutputTimeValues.push_back(newT);
       }
     }
+
+    // Add the last timestep, as it is never reached
+    OutputTimeValues.push_back(inTimes[numTimes - 1]);
+
     outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), OutputTimeValues.data(),
       static_cast<int>(OutputTimeValues.size()));
   }
