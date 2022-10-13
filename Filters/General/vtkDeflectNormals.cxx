@@ -73,8 +73,17 @@ struct vtkDeflectNormalsWorker
     const double* normal = this->Self->GetUserNormal();
     vtkSMPTools::For(
       0, vectors->GetNumberOfTuples(), [this, vectors, normal](vtkIdType begin, vtkIdType end) {
+        bool isFirst = vtkSMPTools::GetSingleThread();
         for (vtkIdType t = begin; t < end; ++t)
         {
+          if (isFirst)
+          {
+            this->Self->CheckAbort();
+          }
+          if (this->Self->GetAbortOutput())
+          {
+            break;
+          }
           typename VectorArrayT::ValueType vec[3];
           vectors->GetTypedTuple(t, vec);
           this->ComputeTuple(t, vec, normal);
@@ -87,8 +96,17 @@ struct vtkDeflectNormalsWorker
   {
     vtkSMPTools::For(
       0, vectors->GetNumberOfTuples(), [this, vectors, normals](vtkIdType begin, vtkIdType end) {
+        bool isFirst = !vtkSMPTools::GetSingleThread();
         for (vtkIdType t = begin; t < end; ++t)
         {
+          if (isFirst)
+          {
+            this->Self->CheckAbort();
+          }
+          if (this->Self->GetAbortOutput())
+          {
+            break;
+          }
           typename VectorArrayT::ValueType vec[3];
           typename NormalArrayT::ValueType normal[3];
           vectors->GetTypedTuple(t, vec);

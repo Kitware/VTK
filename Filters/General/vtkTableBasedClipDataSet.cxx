@@ -120,9 +120,9 @@ void vtkTableBasedClipDataSet::InternalProgressCallback(vtkAlgorithm* algorithm)
   double progress = algorithm->GetProgress();
   this->UpdateProgress(progress);
   this->CheckAbort();
-  if (this->AbortExecute)
+  if (this->GetAbortOutput())
   {
-    algorithm->SetAbortExecute(1);
+    algorithm->SetAbortExecuteAndUpdateTime();
   }
 }
 
@@ -327,6 +327,7 @@ void vtkTableBasedClipDataSet::ClipDataSet(vtkDataSet* pDataSet, vtkUnstructured
   clipData->SetClipFunction(this->ClipFunction);
   clipData->SetUseValueAsOffset(this->UseValueAsOffset);
   clipData->SetGenerateClipScalars(this->GenerateClipScalars);
+  clipData->SetContainerAlgorithm(this);
   clipData->Update();
   outputUG->ShallowCopy(clipData->GetOutput());
 }
@@ -357,14 +358,16 @@ struct EvaluatePointsWithImplicitFunction
   vtkSmartPointer<vtkAOSDataArrayTemplate<TInputIdType>> PointsMap;
   vtkSmartPointer<vtkDoubleArray> ClipArray;
   TInputIdType NumberOfKeptPoints;
+  vtkTableBasedClipDataSet* Filter;
 
-  EvaluatePointsWithImplicitFunction(
-    TP* points, vtkImplicitFunction* implicitFunction, double isoValue, bool insideOut)
+  EvaluatePointsWithImplicitFunction(TP* points, vtkImplicitFunction* implicitFunction,
+    double isoValue, bool insideOut, vtkTableBasedClipDataSet* filter)
     : Points(points)
     , ImplicitFunction(implicitFunction)
     , IsoValue(isoValue)
     , InsideOut(insideOut)
     , NumberOfKeptPoints(0)
+    , Filter(filter)
   {
     const vtkIdType numberOfPoints = points->GetNumberOfTuples();
     this->PointsMap = vtkSmartPointer<vtkAOSDataArrayTemplate<TInputIdType>>::New();
@@ -385,8 +388,17 @@ struct EvaluatePointsWithImplicitFunction
     double pointCopy[3];
     auto clipArrayIter = clipArray.begin();
     auto pointsMapIter = pointsMap.begin();
+    bool isFirst = vtkSMPTools::GetSingleThread();
     for (const auto& point : points)
     {
+      if (isFirst)
+      {
+        this->Filter->CheckAbort();
+      }
+      if (this->Filter->GetAbortOutput())
+      {
+        break;
+      }
       pointCopy[0] = point[0];
       pointCopy[1] = point[1];
       pointCopy[2] = point[2];
@@ -423,12 +435,15 @@ struct EvaluatePointsWithScalarArray
 
   vtkSmartPointer<vtkAOSDataArrayTemplate<TInputIdType>> PointsMap;
   TInputIdType NumberOfKeptPoints;
+  vtkTableBasedClipDataSet* Filter;
 
-  EvaluatePointsWithScalarArray(vtkDoubleArray* scalars, double isoValue, bool insideOut)
+  EvaluatePointsWithScalarArray(
+    vtkDoubleArray* scalars, double isoValue, bool insideOut, vtkTableBasedClipDataSet* filter)
     : Scalars(scalars)
     , IsoValue(isoValue)
     , InsideOut(insideOut)
     , NumberOfKeptPoints(0)
+    , Filter(filter)
   {
     this->PointsMap = vtkSmartPointer<vtkAOSDataArrayTemplate<TInputIdType>>::New();
     this->PointsMap->SetNumberOfValues(scalars->GetNumberOfTuples());
@@ -441,9 +456,19 @@ struct EvaluatePointsWithScalarArray
     const auto& scalars = vtk::DataArrayValueRange<1>(this->Scalars, beginPointId, endPointId);
     auto pointsMap = vtk::DataArrayValueRange<1>(this->PointsMap, beginPointId, endPointId);
 
+    bool isFirst = vtkSMPTools::GetSingleThread();
+
     auto pointsMapIter = pointsMap.begin();
     for (const auto& scalar : scalars)
     {
+      if (isFirst)
+      {
+        this->Filter->CheckAbort();
+      }
+      if (this->Filter->GetAbortOutput())
+      {
+        break;
+      }
       // Outside points are marked with number < 0.
       *pointsMapIter++ = this->InsideOut ? (scalar - this->IsoValue >= 0.0 ? -1 : 1)
                                          : (scalar - this->IsoValue >= 0.0 ? 1 : -1);
@@ -474,20 +499,22 @@ struct EvaluatePointsWorker
   vtkSmartPointer<vtkDoubleArray> ClipArray;
 
   template <typename TPointsType>
-  void operator()(
-    TPointsType* pts, vtkImplicitFunction* implicitFunction, double isoValue, bool insideOut)
+  void operator()(TPointsType* pts, vtkImplicitFunction* implicitFunction, double isoValue,
+    bool insideOut, vtkTableBasedClipDataSet* filter)
   {
     EvaluatePointsWithImplicitFunction<TPointsType, TInputIdType> evaluatePoints(
-      pts, implicitFunction, isoValue, insideOut);
+      pts, implicitFunction, isoValue, insideOut, filter);
     vtkSMPTools::For(0, pts->GetNumberOfTuples(), evaluatePoints);
     this->NumberOfKeptPoints = evaluatePoints.NumberOfKeptPoints;
     this->PointsMap = evaluatePoints.PointsMap;
     this->ClipArray = evaluatePoints.ClipArray;
   }
 
-  void operator()(vtkDoubleArray* scalars, double isoValue, bool insideOut)
+  void operator()(
+    vtkDoubleArray* scalars, double isoValue, bool insideOut, vtkTableBasedClipDataSet* filter)
   {
-    EvaluatePointsWithScalarArray<TInputIdType> evaluatePoints(scalars, isoValue, insideOut);
+    EvaluatePointsWithScalarArray<TInputIdType> evaluatePoints(
+      scalars, isoValue, insideOut, filter);
     vtkSMPTools::For(0, scalars->GetNumberOfTuples(), evaluatePoints);
     this->NumberOfKeptPoints = evaluatePoints.NumberOfKeptPoints;
     this->PointsMap = evaluatePoints.PointsMap;
@@ -577,9 +604,10 @@ struct EvaluateCellsUnstructured
   vtkIdType ConnectivitySize;
   vtkIdType NumberOfOutputCells;
   vtkIdType NumberOfCentroids;
+  vtkTableBasedClipDataSet* Filter;
 
   EvaluateCellsUnstructured(TGrid* input, vtkDoubleArray* clipArray, double isoValue,
-    bool insideOut, unsigned int batchSize)
+    bool insideOut, unsigned int batchSize, vtkTableBasedClipDataSet* filter)
     : Input(input)
     , ClipArray(clipArray)
     , IsoValue(isoValue)
@@ -588,6 +616,7 @@ struct EvaluateCellsUnstructured
     , ConnectivitySize(0)
     , NumberOfOutputCells(0)
     , NumberOfCentroids(0)
+    , Filter(filter)
   {
     // initialize batches
     this->BatchInfo.BatchSize = batchSize;
@@ -627,7 +656,10 @@ struct EvaluateCellsUnstructured
     uint8_t* thisCase = nullptr;
     const EDGEIDXS* edgeVertices = nullptr;
 
-    for (vtkIdType batchId = beginBatchId; batchId < endBatchId; ++batchId)
+    bool isFirst = vtkSMPTools::GetSingleThread();
+
+    for (vtkIdType batchId = beginBatchId; batchId < endBatchId && !this->Filter->GetAbortOutput();
+         ++batchId)
     {
       TableBasedBatch& batch = this->BatchInfo.Batches[batchId];
       batchSize = static_cast<vtkIdType>(this->BatchInfo.BatchSize);
@@ -637,6 +669,14 @@ struct EvaluateCellsUnstructured
                                                                   : batch.BeginCellId + batchSize);
       for (cellId = batch.BeginCellId; cellId < batch.EndCellId; ++cellId)
       {
+        if (isFirst)
+        {
+          this->Filter->CheckAbort();
+        }
+        if (this->Filter->GetAbortOutput())
+        {
+          break;
+        }
         cellType = this->Input->GetCellType(cellId);
         this->Input->GetCellPoints(cellId, numberOfPoints, pointIndices, idList);
 
@@ -986,9 +1026,10 @@ struct EvaluateCellsStructured
   vtkIdType ConnectivitySize;
   vtkIdType NumberOfOutputCells;
   vtkIdType NumberOfCentroids;
+  vtkTableBasedClipDataSet* Filter;
 
   EvaluateCellsStructured(TGrid* input, vtkDoubleArray* clipArray, double isoValue, bool insideOut,
-    unsigned int batchSize)
+    unsigned int batchSize, vtkTableBasedClipDataSet* filter)
     : Input(input)
     , ClipArray(clipArray)
     , IsoValue(isoValue)
@@ -997,6 +1038,7 @@ struct EvaluateCellsStructured
     , ConnectivitySize(0)
     , NumberOfOutputCells(0)
     , NumberOfCentroids(0)
+    , Filter(filter)
   {
     // initialize batches
     this->BatchInfo.BatchSize = batchSize;
@@ -1075,8 +1117,10 @@ struct EvaluateCellsStructured
     uint8_t numberOfOutputs, shape, numberOfCellPoints, p, pointIndex, point1Index, point2Index;
     uint8_t* thisCase = nullptr;
     const EDGEIDXS* edgeVertices = nullptr;
+    bool isFirst = vtkSMPTools::GetSingleThread();
 
-    for (vtkIdType batchId = beginBatchId; batchId < endBatchId; ++batchId)
+    for (vtkIdType batchId = beginBatchId; batchId < endBatchId && !this->Filter->GetAbortOutput();
+         ++batchId)
     {
       TableBasedBatch& batch = this->BatchInfo.Batches[batchId];
       batchSize = static_cast<vtkIdType>(this->BatchInfo.BatchSize);
@@ -1086,6 +1130,14 @@ struct EvaluateCellsStructured
                                                                   : batch.BeginCellId + batchSize);
       for (cellId = batch.BeginCellId; cellId < batch.EndCellId; ++cellId)
       {
+        if (isFirst)
+        {
+          this->Filter->CheckAbort();
+        }
+        if (this->Filter->GetAbortOutput())
+        {
+          break;
+        }
         theCellI = (this->CellDims[0] > 0 ? cellId % this->CellDims[0] : 0);
         theCellJ = (this->CellDims[1] > 0 ? (cellId / this->CyStride) % this->CellDims[1] : 0);
         theCellK = (this->CellDims[2] > 0 ? (cellId / this->CzStride) : 0);
@@ -1386,6 +1438,7 @@ struct ExtractCellsUnstructured
   vtkIdType NumberOfEdges;
   vtkIdType NumberOfCentroids;
   vtkIdType NumberOfKeptPointsAndEdges;
+  vtkTableBasedClipDataSet* Filter;
 
   vtkSMPThreadLocalObject<vtkIdList> TLIdList;
 
@@ -1400,7 +1453,8 @@ struct ExtractCellsUnstructured
     vtkAOSDataArrayTemplate<TInputIdType>* pointsMap, vtkUnsignedCharArray* cellsMap,
     const TableBasedBatchInfo& batchInfo, ArrayList& cellDataArrays,
     const TEdgeLocator& edgeLocator, vtkIdType connectivitySize, vtkIdType numberOfOutputCells,
-    vtkIdType numberOfKeptPoints, vtkIdType numberOfEdges, vtkIdType numberOfCentroids)
+    vtkIdType numberOfKeptPoints, vtkIdType numberOfEdges, vtkIdType numberOfCentroids,
+    vtkTableBasedClipDataSet* filter)
     : Input(input)
     , ClipArray(clipArray)
     , IsoValue(isoValue)
@@ -1415,6 +1469,7 @@ struct ExtractCellsUnstructured
     , NumberOfKeptPoints(numberOfKeptPoints)
     , NumberOfEdges(numberOfEdges)
     , NumberOfCentroids(numberOfCentroids)
+    , Filter(filter)
   {
     // create connectivity array, offsets array, and types array
     this->Connectivity = vtkSmartPointer<TOutputIdTypeArray>::New();
@@ -1456,7 +1511,10 @@ struct ExtractCellsUnstructured
     uint8_t* thisCase = nullptr;
     const EDGEIDXS* edgeVertices = nullptr;
 
-    for (vtkIdType batchId = beginBatchId; batchId < endBatchId; ++batchId)
+    bool isFirst = vtkSMPTools::GetSingleThread();
+
+    for (vtkIdType batchId = beginBatchId; batchId < endBatchId && !this->Filter->GetAbortOutput();
+         ++batchId)
     {
       const TableBasedBatch& batch = this->BatchInfo.Batches[batchId];
       outputCellId = batch.BeginCellsOffsets;
@@ -1465,6 +1523,14 @@ struct ExtractCellsUnstructured
 
       for (cellId = batch.BeginCellId; cellId < batch.EndCellId; ++cellId)
       {
+        if (isFirst)
+        {
+          this->Filter->CheckAbort();
+        }
+        if (this->Filter->GetAbortOutput())
+        {
+          break;
+        }
         // process cells that has output cells (either itself or at least because it's clipped)
         if (cellsMap[cellId] == 1)
         {
@@ -1782,6 +1848,7 @@ struct ExtractCellsStructured
   vtkIdType NumberOfEdges;
   vtkIdType NumberOfCentroids;
   vtkIdType NumberOfKeptPointsAndEdges;
+  vtkTableBasedClipDataSet* Filter;
 
   enum TwoDimensionType
   {
@@ -1810,7 +1877,8 @@ struct ExtractCellsStructured
     vtkAOSDataArrayTemplate<TInputIdType>* pointsMap, vtkUnsignedCharArray* cellsMap,
     const TableBasedBatchInfo& batchInfo, ArrayList& cellDataArrays,
     const TEdgeLocator& edgeLocator, vtkIdType connectivitySize, vtkIdType numberOfOutputCells,
-    vtkIdType numberOfKeptPoints, vtkIdType numberOfEdges, vtkIdType numberOfCentroids)
+    vtkIdType numberOfKeptPoints, vtkIdType numberOfEdges, vtkIdType numberOfCentroids,
+    vtkTableBasedClipDataSet* filter)
     : Input(input)
     , ClipArray(clipArray)
     , IsoValue(isoValue)
@@ -1825,6 +1893,7 @@ struct ExtractCellsStructured
     , NumberOfKeptPoints(numberOfKeptPoints)
     , NumberOfEdges(numberOfEdges)
     , NumberOfCentroids(numberOfCentroids)
+    , Filter(filter)
   {
     // create connectivity array, offsets array, and types array
     this->Connectivity = vtkSmartPointer<TOutputIdTypeArray>::New();
@@ -1907,7 +1976,10 @@ struct ExtractCellsStructured
     uint8_t* thisCase = nullptr;
     const EDGEIDXS* edgeVertices = nullptr;
 
-    for (vtkIdType batchId = beginBatchId; batchId < endBatchId; ++batchId)
+    bool isFirst = vtkSMPTools::GetSingleThread();
+
+    for (vtkIdType batchId = beginBatchId; batchId < endBatchId && !this->Filter->GetAbortOutput();
+         ++batchId)
     {
       const TableBasedBatch& batch = this->BatchInfo.Batches[batchId];
       outputCellId = batch.BeginCellsOffsets;
@@ -1916,6 +1988,14 @@ struct ExtractCellsStructured
 
       for (cellId = batch.BeginCellId; cellId < batch.EndCellId; ++cellId)
       {
+        if (isFirst)
+        {
+          this->Filter->CheckAbort();
+        }
+        if (this->Filter->GetAbortOutput())
+        {
+          break;
+        }
         // process cells that has output cells (either itself or at least because it's clipped)
         if (cellsMap[cellId] == 1)
         {
@@ -2172,7 +2252,8 @@ struct ExtractPointsWorker
   void operator()(TInputPoints* inputPoints, TOutputPoints* outputPoints,
     vtkAOSDataArrayTemplate<TInputIdType>* pointsMap, ArrayList& pointDataArrays,
     const std::vector<TEdge>& edges, const std::vector<Centroid>& centroids,
-    vtkIdType numberOfKeptPoints, vtkIdType numberOfEdges, vtkIdType numberOfCentroids)
+    vtkIdType numberOfKeptPoints, vtkIdType numberOfEdges, vtkIdType numberOfCentroids,
+    vtkTableBasedClipDataSet* filter)
   {
     // copy kept input points
     auto extractKeptPoints = [&](vtkIdType beginPointId, vtkIdType endPointId) {
@@ -2181,8 +2262,17 @@ struct ExtractPointsWorker
       const auto ptsMap = vtk::DataArrayValueRange<1>(pointsMap);
 
       TInputIdType keptPointId;
+      bool isFirst = vtkSMPTools::GetSingleThread();
       for (vtkIdType pointId = beginPointId; pointId < endPointId; ++pointId)
       {
+        if (isFirst)
+        {
+          filter->CheckAbort();
+        }
+        if (filter->GetAbortOutput())
+        {
+          break;
+        }
         if (ptsMap[pointId] >= 0)
         {
           keptPointId = ptsMap[pointId];
@@ -2203,8 +2293,17 @@ struct ExtractPointsWorker
       auto outPts = vtk::DataArrayTupleRange<3>(outputPoints);
       vtkIdType outputMidEdgePointId;
 
+      bool isFirst = vtkSMPTools::GetSingleThread();
       for (vtkIdType edgeId = beginEdgeId; edgeId < endEdgeId; ++edgeId)
       {
+        if (isFirst)
+        {
+          filter->CheckAbort();
+        }
+        if (filter->GetAbortOutput())
+        {
+          break;
+        }
         const TEdge& edge = edges[edgeId];
         const auto edgePoint1 = inPts[edge.V0];
         const auto edgePoint2 = inPts[edge.V1];
@@ -2229,8 +2328,17 @@ struct ExtractPointsWorker
       double weightFactor;
       uint8_t i;
 
+      bool isFirst = vtkSMPTools::GetSingleThread();
       for (vtkIdType centroidId = beginCentroid; centroidId < endCentroid; ++centroidId)
       {
+        if (isFirst)
+        {
+          filter->CheckAbort();
+        }
+        if (filter->GetAbortOutput())
+        {
+          break;
+        }
         const Centroid& centroid = centroids[centroidId];
         outputCentroidPointId = numberOfKeptPoints + numberOfEdges + centroidId;
         auto outputPoint = outPts[outputCentroidPointId];
@@ -2261,7 +2369,8 @@ struct ExtractPointsWorker
 template <typename TGrid, typename TInputIdType>
 vtkSmartPointer<vtkUnstructuredGrid> ClipUnstructuredData(TGrid* input, vtkPoints* inputPoints,
   vtkImplicitFunction* implicitFunction, vtkDoubleArray* scalars, double isoValue, bool insideOut,
-  bool generateClipScalars, int outputPointsPrecision, unsigned int batchSize)
+  bool generateClipScalars, int outputPointsPrecision, unsigned int batchSize,
+  vtkTableBasedClipDataSet* filter)
 {
   // Evaluate points and calculate numberOfKeptPoints, pointsMap, clipArray
   EvaluatePointsWorker<TInputIdType> evaluatePointsWorker;
@@ -2269,15 +2378,15 @@ vtkSmartPointer<vtkUnstructuredGrid> ClipUnstructuredData(TGrid* input, vtkPoint
   {
     using EvaluatePointsWithImplicitFunctionDispatch =
       vtkArrayDispatch::DispatchByValueType<vtkArrayDispatch::Reals>;
-    if (!EvaluatePointsWithImplicitFunctionDispatch::Execute(
-          inputPoints->GetData(), evaluatePointsWorker, implicitFunction, isoValue, insideOut))
+    if (!EvaluatePointsWithImplicitFunctionDispatch::Execute(inputPoints->GetData(),
+          evaluatePointsWorker, implicitFunction, isoValue, insideOut, filter))
     {
-      evaluatePointsWorker(inputPoints->GetData(), implicitFunction, isoValue, insideOut);
+      evaluatePointsWorker(inputPoints->GetData(), implicitFunction, isoValue, insideOut, filter);
     }
   }
   else
   {
-    evaluatePointsWorker(scalars, isoValue, insideOut);
+    evaluatePointsWorker(scalars, isoValue, insideOut, filter);
   }
   const TInputIdType numberOfKeptPoints = evaluatePointsWorker.NumberOfKeptPoints;
   vtkSmartPointer<vtkAOSDataArrayTemplate<TInputIdType>> pointsMap = evaluatePointsWorker.PointsMap;
@@ -2296,7 +2405,7 @@ vtkSmartPointer<vtkUnstructuredGrid> ClipUnstructuredData(TGrid* input, vtkPoint
   // batchInfo, cellsMap, edges
   using TEdge = EdgeType<TInputIdType>;
   EvaluateCellsUnstructured<TGrid, TInputIdType> evaluateCellsUnstructured(
-    input, clipArray.Get(), isoValue, insideOut, batchSize);
+    input, clipArray.Get(), isoValue, insideOut, batchSize, filter);
   evaluateCellsUnstructured.Execute();
   const vtkIdType connectivitySize = evaluateCellsUnstructured.ConnectivitySize;
   const vtkIdType numberOfOutputCells = evaluateCellsUnstructured.NumberOfOutputCells;
@@ -2360,7 +2469,7 @@ vtkSmartPointer<vtkUnstructuredGrid> ClipUnstructuredData(TGrid* input, vtkPoint
     ExtractCellsUnstructured<TGrid, TInputIdType, TOutputIdType> extractCellsUnstructured(input,
       clipArray, isoValue, insideOut, pointsMap.Get(), cellsMap.Get(), batchInfo, cellDataArrays,
       edgeLocator, connectivitySize, numberOfOutputCells, numberOfKeptPoints, numberOfEdges,
-      numberOfCentroids);
+      numberOfCentroids, filter);
     extractCellsUnstructured.Execute();
     centroids = std::move(extractCellsUnstructured.Centroids);
     outputCellTypes = extractCellsUnstructured.OutputCellTypes;
@@ -2374,7 +2483,7 @@ vtkSmartPointer<vtkUnstructuredGrid> ClipUnstructuredData(TGrid* input, vtkPoint
     ExtractCellsUnstructured<TGrid, TInputIdType, TOutputIdType> extractCellsUnstructured(input,
       clipArray, isoValue, insideOut, pointsMap.Get(), cellsMap.Get(), batchInfo, cellDataArrays,
       edgeLocator, connectivitySize, numberOfOutputCells, numberOfKeptPoints, numberOfEdges,
-      numberOfCentroids);
+      numberOfCentroids, filter);
     extractCellsUnstructured.Execute();
     centroids = std::move(extractCellsUnstructured.Centroids);
     outputCellTypes = extractCellsUnstructured.OutputCellTypes;
@@ -2386,10 +2495,11 @@ vtkSmartPointer<vtkUnstructuredGrid> ClipUnstructuredData(TGrid* input, vtkPoint
     vtkArrayDispatch::Dispatch2ByValueType<vtkArrayDispatch::Reals, vtkArrayDispatch::Reals>;
   if (!ExtractPointsDispatch::Execute(inputPoints->GetData(), outputPoints->GetData(),
         extractPointsWorker, pointsMap.Get(), pointDataArrays, edges, centroids, numberOfKeptPoints,
-        numberOfEdges, numberOfCentroids))
+        numberOfEdges, numberOfCentroids, filter))
   {
     extractPointsWorker(inputPoints->GetData(), outputPoints->GetData(), pointsMap.Get(),
-      pointDataArrays, edges, centroids, numberOfKeptPoints, numberOfEdges, numberOfCentroids);
+      pointDataArrays, edges, centroids, numberOfKeptPoints, numberOfEdges, numberOfCentroids,
+      filter);
   }
 
   // create outputClippedCells
@@ -2405,7 +2515,8 @@ vtkSmartPointer<vtkUnstructuredGrid> ClipUnstructuredData(TGrid* input, vtkPoint
 template <typename TGrid, typename TInputIdType>
 vtkSmartPointer<vtkUnstructuredGrid> ClipStructuredData(TGrid* input, vtkPoints* inputPoints,
   vtkImplicitFunction* implicitFunction, vtkDoubleArray* scalars, double isoValue, bool insideOut,
-  bool generateClipScalars, int outputPointsPrecision, unsigned int batchSize)
+  bool generateClipScalars, int outputPointsPrecision, unsigned int batchSize,
+  vtkTableBasedClipDataSet* filter)
 {
   // Evaluate points and calculate numberOfKeptPoints, pointsMap, clipArray
   EvaluatePointsWorker<TInputIdType> evaluatePointsWorker;
@@ -2413,15 +2524,15 @@ vtkSmartPointer<vtkUnstructuredGrid> ClipStructuredData(TGrid* input, vtkPoints*
   {
     using EvaluatePointsWithImplicitFunctionDispatch =
       vtkArrayDispatch::DispatchByValueType<vtkArrayDispatch::Reals>;
-    if (!EvaluatePointsWithImplicitFunctionDispatch::Execute(
-          inputPoints->GetData(), evaluatePointsWorker, implicitFunction, isoValue, insideOut))
+    if (!EvaluatePointsWithImplicitFunctionDispatch::Execute(inputPoints->GetData(),
+          evaluatePointsWorker, implicitFunction, isoValue, insideOut, filter))
     {
-      evaluatePointsWorker(inputPoints->GetData(), implicitFunction, isoValue, insideOut);
+      evaluatePointsWorker(inputPoints->GetData(), implicitFunction, isoValue, insideOut, filter);
     }
   }
   else
   {
-    evaluatePointsWorker(scalars, isoValue, insideOut);
+    evaluatePointsWorker(scalars, isoValue, insideOut, filter);
   }
   const TInputIdType numberOfKeptPoints = evaluatePointsWorker.NumberOfKeptPoints;
   vtkSmartPointer<vtkAOSDataArrayTemplate<TInputIdType>> pointsMap = evaluatePointsWorker.PointsMap;
@@ -2440,7 +2551,7 @@ vtkSmartPointer<vtkUnstructuredGrid> ClipStructuredData(TGrid* input, vtkPoints*
   // batchInfo, cellsMap, edges
   using TEdge = EdgeType<TInputIdType>;
   EvaluateCellsStructured<TGrid, TInputIdType> evaluateCellsStructured(
-    input, clipArray.Get(), isoValue, insideOut, batchSize);
+    input, clipArray.Get(), isoValue, insideOut, batchSize, filter);
   evaluateCellsStructured.Execute();
   const vtkIdType connectivitySize = evaluateCellsStructured.ConnectivitySize;
   const vtkIdType numberOfOutputCells = evaluateCellsStructured.NumberOfOutputCells;
@@ -2504,7 +2615,7 @@ vtkSmartPointer<vtkUnstructuredGrid> ClipStructuredData(TGrid* input, vtkPoints*
     ExtractCellsStructured<TGrid, TInputIdType, TOutputIdType> extractCellsStructured(input,
       clipArray, isoValue, insideOut, pointsMap.Get(), cellsMap.Get(), batchInfo, cellDataArrays,
       edgeLocator, connectivitySize, numberOfOutputCells, numberOfKeptPoints, numberOfEdges,
-      numberOfCentroids);
+      numberOfCentroids, filter);
     extractCellsStructured.Execute();
     centroids = std::move(extractCellsStructured.Centroids);
     outputCellTypes = extractCellsStructured.OutputCellTypes;
@@ -2518,7 +2629,7 @@ vtkSmartPointer<vtkUnstructuredGrid> ClipStructuredData(TGrid* input, vtkPoints*
     ExtractCellsStructured<TGrid, TInputIdType, TOutputIdType> extractCellsStructured(input,
       clipArray, isoValue, insideOut, pointsMap.Get(), cellsMap.Get(), batchInfo, cellDataArrays,
       edgeLocator, connectivitySize, numberOfOutputCells, numberOfKeptPoints, numberOfEdges,
-      numberOfCentroids);
+      numberOfCentroids, filter);
     extractCellsStructured.Execute();
     centroids = std::move(extractCellsStructured.Centroids);
     outputCellTypes = extractCellsStructured.OutputCellTypes;
@@ -2530,10 +2641,11 @@ vtkSmartPointer<vtkUnstructuredGrid> ClipStructuredData(TGrid* input, vtkPoints*
     vtkArrayDispatch::Dispatch2ByValueType<vtkArrayDispatch::Reals, vtkArrayDispatch::Reals>;
   if (!ExtractPointsDispatch::Execute(inputPoints->GetData(), outputPoints->GetData(),
         extractPointsWorker, pointsMap.Get(), pointDataArrays, edges, centroids, numberOfKeptPoints,
-        numberOfEdges, numberOfCentroids))
+        numberOfEdges, numberOfCentroids, filter))
   {
     extractPointsWorker(inputPoints->GetData(), outputPoints->GetData(), pointsMap.Get(),
-      pointDataArrays, edges, centroids, numberOfKeptPoints, numberOfEdges, numberOfCentroids);
+      pointDataArrays, edges, centroids, numberOfKeptPoints, numberOfEdges, numberOfCentroids,
+      filter);
   }
 
   // create outputClippedCells
@@ -2741,7 +2853,7 @@ void vtkTableBasedClipDataSet::ClipPolyData(vtkDataSet* inputGrid,
       using TInputIdType = vtkTypeInt64;
       clippedOutput = ClipUnstructuredData<vtkPolyData, TInputIdType>(polyData, inputPoints,
         implicitFunction, scalars, isoValue, this->InsideOut, this->GenerateClipScalars,
-        this->OutputPointsPrecision, this->BatchSize);
+        this->OutputPointsPrecision, this->BatchSize, this);
     }
     else
 #endif
@@ -2749,7 +2861,7 @@ void vtkTableBasedClipDataSet::ClipPolyData(vtkDataSet* inputGrid,
       using TInputIdType = vtkTypeInt32;
       clippedOutput = ClipUnstructuredData<vtkPolyData, TInputIdType>(polyData, inputPoints,
         implicitFunction, scalars, isoValue, this->InsideOut, this->GenerateClipScalars,
-        this->OutputPointsPrecision, this->BatchSize);
+        this->OutputPointsPrecision, this->BatchSize, this);
     }
     outputUG->ShallowCopy(clippedOutput);
   }
@@ -2776,7 +2888,7 @@ void vtkTableBasedClipDataSet::ClipUnstructuredGrid(vtkDataSet* inputGrid,
     using TInputIdType = vtkTypeInt64;
     clippedOutput = ClipUnstructuredData<vtkUnstructuredGridBase, TInputIdType>(uGrid, inputPoints,
       implicitFunction, scalars, isoValue, this->InsideOut, this->GenerateClipScalars,
-      this->OutputPointsPrecision, this->BatchSize);
+      this->OutputPointsPrecision, this->BatchSize, this);
   }
   else
 #endif
@@ -2784,7 +2896,7 @@ void vtkTableBasedClipDataSet::ClipUnstructuredGrid(vtkDataSet* inputGrid,
     using TInputIdType = vtkTypeInt32;
     clippedOutput = ClipUnstructuredData<vtkUnstructuredGridBase, TInputIdType>(uGrid, inputPoints,
       implicitFunction, scalars, isoValue, this->InsideOut, this->GenerateClipScalars,
-      this->OutputPointsPrecision, this->BatchSize);
+      this->OutputPointsPrecision, this->BatchSize, this);
   }
   outputUG->ShallowCopy(clippedOutput);
 }
@@ -2846,7 +2958,7 @@ void vtkTableBasedClipDataSet::ClipRectilinearGrid(vtkDataSet* inputGrid,
     using TInputIdType = vtkTypeInt64;
     clippedOutput = ClipStructuredData<vtkRectilinearGrid, TInputIdType>(rectilinearGrid,
       inputPoints, implicitFunction, scalars, isoValue, this->InsideOut, this->GenerateClipScalars,
-      this->OutputPointsPrecision, this->BatchSize);
+      this->OutputPointsPrecision, this->BatchSize, this);
   }
   else
 #endif
@@ -2854,7 +2966,7 @@ void vtkTableBasedClipDataSet::ClipRectilinearGrid(vtkDataSet* inputGrid,
     using TInputIdType = vtkTypeInt32;
     clippedOutput = ClipStructuredData<vtkRectilinearGrid, TInputIdType>(rectilinearGrid,
       inputPoints, implicitFunction, scalars, isoValue, this->InsideOut, this->GenerateClipScalars,
-      this->OutputPointsPrecision, this->BatchSize);
+      this->OutputPointsPrecision, this->BatchSize, this);
   }
   outputUG->ShallowCopy(clippedOutput);
 }
@@ -2876,7 +2988,7 @@ void vtkTableBasedClipDataSet::ClipStructuredGrid(vtkDataSet* inputGrid,
     using TInputIdType = vtkTypeInt64;
     clippedOutput = ClipStructuredData<vtkStructuredGrid, TInputIdType>(structuredGrid, inputPoints,
       implicitFunction, scalars, isoValue, this->InsideOut, this->GenerateClipScalars,
-      this->OutputPointsPrecision, this->BatchSize);
+      this->OutputPointsPrecision, this->BatchSize, this);
   }
   else
 #endif
@@ -2884,7 +2996,7 @@ void vtkTableBasedClipDataSet::ClipStructuredGrid(vtkDataSet* inputGrid,
     using TInputIdType = vtkTypeInt32;
     clippedOutput = ClipStructuredData<vtkStructuredGrid, TInputIdType>(structuredGrid, inputPoints,
       implicitFunction, scalars, isoValue, this->InsideOut, this->GenerateClipScalars,
-      this->OutputPointsPrecision, this->BatchSize);
+      this->OutputPointsPrecision, this->BatchSize, this);
   }
   outputUG->ShallowCopy(clippedOutput);
 }

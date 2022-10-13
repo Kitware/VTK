@@ -82,6 +82,10 @@ int vtkAppendLocationAttributes::RequestData(vtkInformation* vtkNotUsed(request)
       pointArray->SetNumberOfTuples(numPoints);
       for (vtkIdType id = 0; id < numPoints; ++id)
       {
+        if (this->CheckAbort())
+        {
+          break;
+        }
         double x[3];
         input->GetPoint(id, x);
         pointArray->SetTypedTuple(id, x);

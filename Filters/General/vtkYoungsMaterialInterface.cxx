@@ -814,6 +814,10 @@ int vtkYoungsMaterialInterface::RequestData(vtkInformation* vtkNotUsed(request),
 
     for (vtkIdType ci = 0; ci < nCells; ci++)
     {
+      if (this->CheckAbort())
+      {
+        break;
+      }
       int interfaceEdges[MAX_CELL_POINTS * 2];
       double interfaceWeights[MAX_CELL_POINTS];
       int nInterfaceEdges;

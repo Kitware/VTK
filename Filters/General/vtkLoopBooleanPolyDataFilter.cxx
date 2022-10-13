@@ -833,7 +833,7 @@ int vtkLoopBooleanPolyDataFilter::RequestData(vtkInformation* vtkNotUsed(request
   polydataIntersection->SetTolerance(this->Tolerance);
   polydataIntersection->SetContainerAlgorithm(this);
   polydataIntersection->Update();
-  if (polydataIntersection->GetStatus() != 1)
+  if (this->CheckAbort() || polydataIntersection->GetStatus() != 1)
   {
     this->Status = 0;
     return 0;
@@ -855,7 +855,7 @@ int vtkLoopBooleanPolyDataFilter::RequestData(vtkInformation* vtkNotUsed(request
   if (this->NumberOfIntersectionPoints == 0 || this->NumberOfIntersectionLines == 0)
   {
     vtkWarningMacro(<< "No intersections!");
-    if (this->NoIntersectionOutput == 0)
+    if (this->CheckAbort() || this->NoIntersectionOutput == 0)
     {
       delete impl;
       return 1;

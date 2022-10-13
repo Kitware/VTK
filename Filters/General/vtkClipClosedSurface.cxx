@@ -1296,8 +1296,8 @@ void vtkClipClosedSurface::TriangulateContours(vtkPolyData* data, vtkIdType firs
   }
 
   double nnormal[3] = { -normal[0], -normal[1], -normal[2] };
-  int rval =
-    vtkContourTriangulator::TriangulateContours(data, firstLine, numLines, outputPolys, nnormal);
+  int rval = vtkContourTriangulator::TriangulateContours(
+    data, firstLine, numLines, outputPolys, nnormal, this);
 
   if (rval == 0 && this->TriangulationErrorDisplay)
   {

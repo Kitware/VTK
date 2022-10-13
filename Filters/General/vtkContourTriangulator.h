@@ -93,7 +93,7 @@ public:
    * direction to the provided normal.
    */
   static int TriangulateContours(vtkPolyData* data, vtkIdType firstLine, vtkIdType numLines,
-    vtkCellArray* outputPolys, const double normal[3]);
+    vtkCellArray* outputPolys, const double normal[3], vtkPolyDataAlgorithm* self = nullptr);
 
 protected:
   vtkContourTriangulator();

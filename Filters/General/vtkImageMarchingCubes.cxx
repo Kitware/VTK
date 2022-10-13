@@ -217,10 +217,9 @@ int vtkImageMarchingCubes::RequestData(vtkInformation* vtkNotUsed(request),
     inputExec->Update();
 
     this->March(inData, chunkMin, chunkMax, numContours, values);
-    if (!this->AbortExecute)
+    if (!this->GetAbortOutput())
     {
       this->UpdateProgress(static_cast<double>(chunkMax - zMin) / (zMax - zMin));
-      this->CheckAbort();
     }
 
     if (vtkDataObject::GetGlobalReleaseDataFlag() ||

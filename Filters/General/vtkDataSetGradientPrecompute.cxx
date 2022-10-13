@@ -108,8 +108,7 @@ static inline void LINE_CQS_VECTOR(double v0[3], double p[3], double cqs[3])
   vtkMath::Normalize(cqs);
 }
 
-int vtkDataSetGradientPrecompute::GradientPrecompute(
-  vtkDataSet* ds, vtkDataSetGradientPrecompute* self)
+int vtkDataSetGradientPrecompute::GradientPrecompute(vtkDataSet* ds, vtkDataSetAlgorithm* self)
 {
   vtkIdType nCells = ds->GetNumberOfCells();
   vtkIdType nCellNodes = 0;

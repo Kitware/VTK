@@ -85,7 +85,7 @@ int vtkContourTriangulator::RequestData(vtkInformation* vtkNotUsed(request),
   output->GetPointData()->PassData(input->GetPointData());
 
   this->TriangulationError = !vtkContourTriangulator::TriangulateContours(
-    input, input->GetNumberOfVerts(), lines->GetNumberOfCells(), polys, nullptr);
+    input, input->GetNumberOfVerts(), lines->GetNumberOfCells(), polys, nullptr, this);
 
   if (this->TriangulationError && this->TriangulationErrorDisplay)
   {
@@ -2472,7 +2472,7 @@ int vtkCCSCutHoleyPolys(std::vector<vtkCCSPoly>& polys, vtkPoints* points,
 //#define VTK_CCS_SHOW_FAILED_POLYS
 
 int vtkContourTriangulator::TriangulateContours(vtkPolyData* data, vtkIdType firstLine,
-  vtkIdType numLines, vtkCellArray* polys, const double normal[3])
+  vtkIdType numLines, vtkCellArray* polys, const double normal[3], vtkPolyDataAlgorithm* self)
 {
   int triangulationFailure = 0;
 
@@ -2576,6 +2576,10 @@ int vtkContourTriangulator::TriangulateContours(vtkPolyData* data, vtkIdType fir
   // Go through all polys and triangulate them
   for (size_t polyId = 0; polyId < polyGroups.size(); polyId++)
   {
+    if (self && self->CheckAbort())
+    {
+      break;
+    }
     // If group is empty, then poly was a hole without a containing poly
     if (polyGroups[polyId].empty())
     {

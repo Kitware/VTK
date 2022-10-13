@@ -67,7 +67,7 @@ int vtkApproximatingSubdivisionFilter::RequestData(
   inputDS->CopyStructure(input);
   inputDS->CopyAttributes(input);
 
-  int abort = 0;
+  bool abort = false;
   for (level = 0; level < this->NumberOfSubdivisions && !abort; level++)
   {
     this->UpdateProgress(static_cast<double>(level + 1) / this->NumberOfSubdivisions);
@@ -212,6 +212,10 @@ void vtkApproximatingSubdivisionFilter::GenerateSubdivisionCells(
   // Now create new cells from existing points and generated edge points
   for (cellId = 0; cellId < numCells; cellId++)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     if (inputDS->GetCellType(cellId) != VTK_TRIANGLE)
     {
       continue;

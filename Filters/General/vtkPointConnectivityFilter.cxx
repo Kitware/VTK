@@ -47,10 +47,13 @@ struct UpdateConnectivityCount
   vtkDataSet* Input;
   unsigned int* ConnCount;
   vtkSMPThreadLocalObject<vtkIdList> CellIds;
+  vtkPointConnectivityFilter* Filter;
 
-  UpdateConnectivityCount(vtkDataSet* input, unsigned int* connPtr)
+  UpdateConnectivityCount(
+    vtkDataSet* input, unsigned int* connPtr, vtkPointConnectivityFilter* filter)
     : Input(input)
     , ConnCount(connPtr)
+    , Filter(filter)
   {
   }
 
@@ -63,8 +66,17 @@ struct UpdateConnectivityCount
   void operator()(vtkIdType ptId, vtkIdType endPtId)
   {
     vtkIdList*& cellIds = this->CellIds.Local();
+    bool isFirst = vtkSMPTools::GetSingleThread();
     for (; ptId < endPtId; ++ptId)
     {
+      if (isFirst)
+      {
+        this->Filter->CheckAbort();
+      }
+      if (this->Filter->GetAbortOutput())
+      {
+        break;
+      }
       this->Input->GetPointCells(ptId, cellIds);
       this->ConnCount[ptId] = cellIds->GetNumberOfIds();
     }
@@ -105,7 +117,7 @@ int vtkPointConnectivityFilter::RequestData(vtkInformation* vtkNotUsed(request),
   // The first GetPointCells() primes the pump (builds internal structures, etc.)
   vtkNew<vtkIdList> cellIds;
   input->GetPointCells(0, cellIds);
-  UpdateConnectivityCount updateCount(input, connPtr);
+  UpdateConnectivityCount updateCount(input, connPtr, this);
   vtkSMPTools::For(0, numPts, updateCount);
 
   // Pass array to the output

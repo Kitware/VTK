@@ -141,7 +141,7 @@ int vtkDataSetGradient::RequestData(vtkInformation* vtkNotUsed(request),
   {
     vtkDebugMacro(
       << "Couldn't find field array 'GradientPrecomputation', computing it right now.\n");
-    vtkDataSetGradientPrecompute::GradientPrecompute(_output);
+    vtkDataSetGradientPrecompute::GradientPrecompute(_output, this);
     cqsArray = _output->GetFieldData()->GetArray("GradientPrecomputation");
     sizeArray = _output->GetCellData()->GetArray("CellSize");
     if (cqsArray == nullptr || sizeArray == nullptr)

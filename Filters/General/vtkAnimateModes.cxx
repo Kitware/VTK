@@ -56,8 +56,17 @@ struct vtkAnimateModesWorker
     }
 
     vtkSMPTools::For(0, numTuples, [&](vtkIdType start, vtkIdType end) {
+      bool isFirst = vtkSMPTools::GetSingleThread();
       for (vtkIdType cc = start; cc < end; ++cc)
       {
+        if (isFirst)
+        {
+          self->CheckAbort();
+        }
+        if (self->GetAbortOutput())
+        {
+          break;
+        }
         for (int comp = 0; comp < numComps; ++comp)
         {
           opts.Set(cc, comp, ipts.Get(cc, comp) + disp.Get(cc, comp) * scale);
