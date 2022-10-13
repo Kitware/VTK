@@ -216,6 +216,42 @@ Less common, but variables which may be of interest to some:
   * `VTK_ENABLE_CATALYST` (default `OFF`): Enable the CatlystConduit module
   and build the VTK Catalyst implementation. Depends on an external Catalyst.
 
+OpenGL-related options:
+
+Note that if OpenGL is used, there must be a "sensible" setup. Sanity checks
+exist to make sure a broken build is not being made. Note that on Windows, the
+Win32 OpenGL context is always available. Essentially:
+
+- at least one rendering environment (X, Cocoa, SDL2, OSMesa, EGL, etc.) must
+  be available;
+- OSMesa and EGL conflict with each other; and
+- OSMesa only supports off-screen rendering and is therefore incompatible with
+  Cocoa, X, and SDL2.
+
+  * `VTK_USE_COCOA` (default `ON`; requires macOS): Use Cocoa for
+    render windows.
+  * `VTK_USE_X` (default `ON` for Unix-like platforms except macOS,
+    iOS, and Emscripten, `OFF` otherwise): Use X for render windows.
+  * `VTK_USE_SDL2` (default `ON` for Emscripten, `OFF` otherwise): Use
+    SDL2 for render windows.
+  * `VTK_OPENGL_HAS_OSMESA` (default `OFF`): Use to indicate that the
+    OpenGL library being used supports offscreen Mesa rendering
+    (OSMesa).
+  * `VTK_OPENGL_USE_GLES` (default `OFF`; forced `ON` for Android):
+    Whether to use OpenGL ES API for OpenGL or not.
+  * `VTK_OPENGL_HAS_EGL` (default `ON` for Android, `OFF` otherwise):
+    Use to indicate that the OpenGL library being used supports EGL
+    context management.
+  * `VTK_DEFAULT_EGL_DEVICE_INDEX` (default `0`; requires
+    `VTK_OPENGL_HAS_EGL`): The default EGL device to use for EGL render
+    windows.
+  * `VTK_DEFAULT_RENDER_WINDOW_OFFSCREEN` (default `OFF`): Whether to default
+    to offscreen render windows by default or not.
+  * `VTK_USE_OPENGL_DELAYED_LOAD` (default `OFF`; requires Windows and CMake >=
+    3.13): If set, use delayed loading to load the OpenGL DLL at runtime.
+  * `VTK_DEFAULT_RENDER_WINDOW_HEADLESS` (default `OFF`; only available if
+    applicable): Default to a headless render window.
+
 More advanced options:
 
   * `VTK_ABI_NAMESPACE_NAME` (default `<DEFAULT>` aka `""`): If set, VTK will

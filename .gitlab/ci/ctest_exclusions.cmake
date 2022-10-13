@@ -239,7 +239,7 @@ endif ()
 if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "offscreen")
   if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "ext_vtk")
     # Theses tests fail when using an external VTK because the condition
-    # VTK_CAN_DO_ONSCREEN AND NOT VTK_DEFAULT_RENDER_WINDOW_OFFSCREEN should be false
+    # vtk_can_do_onscreen AND NOT VTK_DEFAULT_RENDER_WINDOW_OFFSCREEN should be false
     # in Interaction/Style/Testing/Python/CMakeLists.txt
     list(APPEND test_exclusions
       "^VTK::InteractionStylePython-TestStyleJoystickActor$"

@@ -45,7 +45,7 @@ if (VTK_OPENGL_HAS_EGL)
   list(APPEND opengl_targets OpenGL::EGL)
 endif ()
 
-if (VTK_OPENGL_HAS_OSMESA AND NOT VTK_CAN_DO_ONSCREEN)
+if (VTK_OPENGL_HAS_OSMESA AND NOT vtk_can_do_onscreen)
   vtk_module_third_party_external(
     PACKAGE OSMesa
     TARGETS OSMesa::OSMesa)

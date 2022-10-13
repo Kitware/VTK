@@ -16,14 +16,14 @@ set(default_use_x OFF)
 if(UNIX AND NOT ANDROID AND NOT APPLE AND NOT APPLE_IOS AND NOT CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
   set(default_use_x ON)
 endif()
-option(VTK_USE_X "Use X for VTK render windows" ${default_use_x})
+option(VTK_USE_X "Use X for VTK render windows" "${default_use_x}")
 mark_as_advanced(VTK_USE_X)
 
 set(default_use_sdl2 OFF)
 if(CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
   set(default_use_sdl2 ON)
 endif()
-option(VTK_USE_SDL2 "Add SDL2 classes to VTK" ${default_use_sdl2})
+option(VTK_USE_SDL2 "Add SDL2 classes to VTK" "${default_use_sdl2}")
 mark_as_advanced(VTK_USE_SDL2)
 
 # For optional APIs that could be available for the OpenGL implementation
@@ -44,7 +44,7 @@ mark_as_advanced(VTK_OPENGL_HAS_OSMESA)
 
 set(default_has_egl OFF)
 if (ANDROID)
-  set(VTK_OPENGL_USE_GLES ON CACHE INTERNAL "Use the OpenGL ES API")
+  set(VTK_OPENGL_USE_GLES ON)
   set(default_has_egl ON)
 else ()
   # OpenGLES implementation.
@@ -71,39 +71,39 @@ option(VTK_DEFAULT_RENDER_WINDOW_OFFSCREEN "Use offscreen render window by defau
 mark_as_advanced(VTK_DEFAULT_RENDER_WINDOW_OFFSCREEN)
 
 #-----------------------------------------------------------------------------
-set(VTK_CAN_DO_OFFSCREEN FALSE)
-set(VTK_CAN_DO_ONSCREEN FALSE)
-set(VTK_CAN_DO_HEADLESS FALSE)
+set(vtk_can_do_offscreen FALSE)
+set(vtk_can_do_onscreen FALSE)
+set(vtk_can_do_headless FALSE)
 
-if(WIN32 OR VTK_OPENGL_HAS_OSMESA OR VTK_OPENGL_HAS_EGL OR VTK_USE_SDL2)
-  set(VTK_CAN_DO_OFFSCREEN TRUE)
-endif()
-if(WIN32 OR VTK_USE_COCOA OR VTK_USE_X OR VTK_USE_SDL2) # XXX: See error message below.
-  set(VTK_CAN_DO_ONSCREEN TRUE)
-endif()
+if (WIN32 OR VTK_OPENGL_HAS_OSMESA OR VTK_OPENGL_HAS_EGL OR VTK_USE_SDL2)
+  set(vtk_can_do_offscreen TRUE)
+endif ()
+if (WIN32 OR VTK_USE_COCOA OR VTK_USE_X OR VTK_USE_SDL2) # XXX: See error message below.
+  set(vtk_can_do_onscreen TRUE)
+endif ()
 
-if(VTK_OPENGL_HAS_OSMESA OR VTK_OPENGL_HAS_EGL)
-  set(VTK_CAN_DO_HEADLESS TRUE)
-endif()
+if (VTK_OPENGL_HAS_OSMESA OR VTK_OPENGL_HAS_EGL)
+  set(vtk_can_do_headless TRUE)
+endif ()
 
 # iOS does not use EGL
-if(APPLE_IOS)
-  set(VTK_CAN_DO_OFFSCREEN TRUE)
-  set(VTK_CAN_DO_ONSCREEN TRUE)
-  set(VTK_CAN_DO_HEADLESS FALSE)
-endif()
+if (APPLE_IOS)
+  set(vtk_can_do_offscreen TRUE)
+  set(vtk_can_do_onscreen TRUE)
+  set(vtk_can_do_headless FALSE)
+endif ()
 
-if(CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
-  set(VTK_CAN_DO_HEADLESS FALSE)
-endif()
+if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
+  set(vtk_can_do_headless FALSE)
+endif ()
 
-if (NOT VTK_CAN_DO_ONSCREEN AND NOT VTK_CAN_DO_OFFSCREEN)
+if (NOT vtk_can_do_onscreen AND NOT vtk_can_do_offscreen)
   message(FATAL_ERROR
     "VTK current build configuration is not satisfiable as it supports neither onscreen "
     "nor offscreen rendering. Make sure to set to ON at least one of the following to "
     "be able to configure: `VTK_USE_X`, `VTK_USE_COCOA`, `VTK_OPENGL_HAS_OSMESA`, "
     "`VTK_OPENGL_HAS_EGL` or `VTK_USE_SDL2`.")
-endif()
+endif ()
 
 if (VTK_OPENGL_HAS_OSMESA AND VTK_OPENGL_HAS_EGL)
   message(FATAL_ERROR
@@ -112,7 +112,7 @@ if (VTK_OPENGL_HAS_OSMESA AND VTK_OPENGL_HAS_EGL)
     "Please set to `OFF` any of these two.")
 endif ()
 
-if (VTK_OPENGL_HAS_OSMESA AND VTK_CAN_DO_ONSCREEN)
+if (VTK_OPENGL_HAS_OSMESA AND vtk_can_do_onscreen)
   message(FATAL_ERROR
     "The `VTK_OPENGL_HAS_OSMESA` can't be set to `ON` if any of the following is true: "
     "the target platform is Windows, `VTK_USE_COCOA` is `ON`, or `VTK_USE_X` "
@@ -134,4 +134,5 @@ mark_as_advanced(VTK_USE_OPENGL_DELAYED_LOAD)
 cmake_dependent_option(
   VTK_DEFAULT_RENDER_WINDOW_HEADLESS
   "Enable to create the headless render window when `vtkRenderWindow` is instantiated."
-  OFF "VTK_CAN_DO_ONSCREEN;VTK_CAN_DO_HEADLESS" OFF)
+  OFF
+  "vtk_can_do_onscreen;vtk_can_do_headless" OFF)
