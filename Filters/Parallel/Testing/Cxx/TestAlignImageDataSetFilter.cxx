@@ -25,7 +25,7 @@ namespace
 constexpr int NUM_PIECES = 6;
 constexpr int NUM_GHOSTS = 1;
 
-bool Validate(vtkDataObject* dobj, vtkVector3d origin)
+bool Validate(vtkDataObject* dobj, vtkVector3d origin, bool checkCoord = true)
 {
   vtkNew<vtkRTAnalyticSource> source;
   source->SetWholeExtent(-10, 10, -10, 10, -10, 10);
@@ -36,19 +36,25 @@ bool Validate(vtkDataObject* dobj, vtkVector3d origin)
   {
     if (vtkVector3d(image->GetOrigin()) != origin)
     {
-      vtkLogF(ERROR, "Incorrect origin!");
+      double outputOrigin[3];
+      image->GetOrigin(outputOrigin);
+      vtkLogF(ERROR, "Incorrect origin (%f, %f, %f) != (%f, %f, %f) for piece %d!", outputOrigin[0],
+        outputOrigin[1], outputOrigin[2], origin[0], origin[1], origin[2], piece);
       return false;
     }
 
-    source->UpdatePiece(piece, NUM_PIECES, NUM_GHOSTS);
-    auto* input = vtkImageData::SafeDownCast(source->GetOutputDataObject(0));
-    const vtkVector3d p0(input->GetPoint(0));
-    const vtkVector3d p1(image->GetPoint(0));
-    if (p0 != p1)
+    if (checkCoord)
     {
-      vtkLogF(ERROR, "Incorrect point 0 (%f, %f, %f) != (%f, %f, %f)", p0[0], p0[1], p0[2], p1[0],
-        p1[1], p1[2]);
-      return false;
+      source->UpdatePiece(piece, NUM_PIECES, NUM_GHOSTS);
+      auto* input = vtkImageData::SafeDownCast(source->GetOutputDataObject(0));
+      const vtkVector3d p0(input->GetPoint(0));
+      const vtkVector3d p1(image->GetPoint(0));
+      if (p0 != p1)
+      {
+        vtkLogF(ERROR, "Incorrect point 0 (%f, %f, %f) != (%f, %f, %f) for piece %d", p0[0], p0[1],
+          p0[2], p1[0], p1[1], p1[2], piece);
+        return false;
+      }
     }
 
     ++piece;
@@ -100,6 +106,27 @@ int TestAlignImageDataSetFilter(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   aligner->Update();
   vtkLogIf(ERROR, !Validate(aligner->GetOutputDataObject(0), vtkVector3d(0, 0, -20)),
     "Failed case #3 (MinimumExtent=[-10, -10, 10])");
+
+  // case set up that ParaView issue #21285 fails on:
+  // https://gitlab.kitware.com/paraview/paraview/-/issues/21285
+  pd->Initialize();
+  source->UpdatePiece(0, 1, 0);
+  auto* img = vtkImageData::SafeDownCast(source->GetOutputDataObject(0));
+  vtkNew<vtkImageData> clone0;
+  clone0->ShallowCopy(img);
+  pd->SetPartition(0, clone0);
+
+  vtkNew<vtkImageData> clone1;
+  clone1->ShallowCopy(img);
+  clone1->SetOrigin(20, 0, 0);
+  pd->SetPartition(1, clone1);
+  aligner->SetInputDataObject(pd);
+  aligner->SetMinimumExtent(0, 0, 0);
+  aligner->Update();
+  // we don't check the location of the points since we didn't use pieces from the source to set
+  // up the input to the filter
+  vtkLogIf(ERROR, !Validate(aligner->GetOutputDataObject(0), vtkVector3d(-10, -10, -10), false),
+    "Failed case #4 (MinimumExtent=default)");
 
   return EXIT_SUCCESS;
 }
