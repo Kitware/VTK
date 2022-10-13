@@ -16,14 +16,14 @@ set(default_use_x OFF)
 if(UNIX AND NOT ANDROID AND NOT APPLE AND NOT APPLE_IOS AND NOT CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
   set(default_use_x ON)
 endif()
-option(VTK_USE_X "Use X for VTK render windows" ${default_use_x})
+option(VTK_USE_X "Use X for VTK render windows" "${default_use_x}")
 mark_as_advanced(VTK_USE_X)
 
 set(default_use_sdl2 OFF)
 if(CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
   set(default_use_sdl2 ON)
 endif()
-option(VTK_USE_SDL2 "Add SDL2 classes to VTK" ${default_use_sdl2})
+option(VTK_USE_SDL2 "Add SDL2 classes to VTK" "${default_use_sdl2}")
 mark_as_advanced(VTK_USE_SDL2)
 
 # For optional APIs that could be available for the OpenGL implementation
