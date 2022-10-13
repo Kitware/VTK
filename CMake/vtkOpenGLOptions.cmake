@@ -71,33 +71,33 @@ option(VTK_DEFAULT_RENDER_WINDOW_OFFSCREEN "Use offscreen render window by defau
 mark_as_advanced(VTK_DEFAULT_RENDER_WINDOW_OFFSCREEN)
 
 #-----------------------------------------------------------------------------
-set(VTK_CAN_DO_OFFSCREEN FALSE)
-set(VTK_CAN_DO_ONSCREEN FALSE)
-set(VTK_CAN_DO_HEADLESS FALSE)
+set(vtk_can_do_offscreen FALSE)
+set(vtk_can_do_onscreen FALSE)
+set(vtk_can_do_headless FALSE)
 
 if (WIN32 OR VTK_OPENGL_HAS_OSMESA OR VTK_OPENGL_HAS_EGL OR VTK_USE_SDL2)
-  set(VTK_CAN_DO_OFFSCREEN TRUE)
+  set(vtk_can_do_offscreen TRUE)
 endif ()
 if (WIN32 OR VTK_USE_COCOA OR VTK_USE_X OR VTK_USE_SDL2) # XXX: See error message below.
-  set(VTK_CAN_DO_ONSCREEN TRUE)
+  set(vtk_can_do_onscreen TRUE)
 endif ()
 
 if (VTK_OPENGL_HAS_OSMESA OR VTK_OPENGL_HAS_EGL)
-  set(VTK_CAN_DO_HEADLESS TRUE)
+  set(vtk_can_do_headless TRUE)
 endif ()
 
 # iOS does not use EGL
 if (APPLE_IOS)
-  set(VTK_CAN_DO_OFFSCREEN TRUE)
-  set(VTK_CAN_DO_ONSCREEN TRUE)
-  set(VTK_CAN_DO_HEADLESS FALSE)
+  set(vtk_can_do_offscreen TRUE)
+  set(vtk_can_do_onscreen TRUE)
+  set(vtk_can_do_headless FALSE)
 endif ()
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
-  set(VTK_CAN_DO_HEADLESS FALSE)
+  set(vtk_can_do_headless FALSE)
 endif ()
 
-if (NOT VTK_CAN_DO_ONSCREEN AND NOT VTK_CAN_DO_OFFSCREEN)
+if (NOT vtk_can_do_onscreen AND NOT vtk_can_do_offscreen)
   message(FATAL_ERROR
     "VTK current build configuration is not satisfiable as it supports neither onscreen "
     "nor offscreen rendering. Make sure to set to ON at least one of the following to "
@@ -112,7 +112,7 @@ if (VTK_OPENGL_HAS_OSMESA AND VTK_OPENGL_HAS_EGL)
     "Please set to `OFF` any of these two.")
 endif ()
 
-if (VTK_OPENGL_HAS_OSMESA AND VTK_CAN_DO_ONSCREEN)
+if (VTK_OPENGL_HAS_OSMESA AND vtk_can_do_onscreen)
   message(FATAL_ERROR
     "The `VTK_OPENGL_HAS_OSMESA` can't be set to `ON` if any of the following is true: "
     "the target platform is Windows, `VTK_USE_COCOA` is `ON`, or `VTK_USE_X` "
@@ -135,4 +135,4 @@ cmake_dependent_option(
   VTK_DEFAULT_RENDER_WINDOW_HEADLESS
   "Enable to create the headless render window when `vtkRenderWindow` is instantiated."
   OFF
-  "VTK_CAN_DO_ONSCREEN;VTK_CAN_DO_HEADLESS" OFF)
+  "vtk_can_do_onscreen;vtk_can_do_headless" OFF)
