@@ -3572,8 +3572,9 @@ function (vtk_module_add_module name)
   endforeach ()
 
   if (NOT _vtk_add_module_SOURCES AND NOT _vtk_add_module_HEADER_ONLY)
-    message(WARNING
-      "The ${_vtk_build_module} module has no source files.")
+    message(AUTHOR_WARNING
+      "The ${_vtk_build_module} module has no source files. Did you mean to "
+      "pass the `HEADER_ONLY` flag?")
   endif ()
 
   get_property(_vtk_add_module_third_party GLOBAL
