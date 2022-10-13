@@ -1402,17 +1402,6 @@ void TreeInformation::SaveTileset(vtkIncrementalOctreeNode* root, const std::str
   }
   this->RootJson["geometricError"] = this->ComputeGeometricErrorTileset();
   this->RootJson["root"] = this->GenerateTileJson(root);
-  switch (this->InputType)
-  {
-    case vtkCesium3DTilesWriter::Points:
-      ConvertDataSetCartesian(this->Points);
-      break;
-    case vtkCesium3DTilesWriter::Mesh:
-      ConvertDataSetCartesian(this->Mesh);
-      break;
-    default:
-      break;
-  }
   vtksys::ofstream file(output.c_str());
   if (!file)
   {
@@ -1438,6 +1427,18 @@ json TreeInformation::GenerateTileJson(vtkIncrementalOctreeNode* node)
   tree["geometricError"] = this->GeometricError[node->GetID()];
   if (node == this->Root)
   {
+    // for points and mesh do the conversion to cartesian for the whole dataset
+    switch (this->InputType)
+    {
+      case vtkCesium3DTilesWriter::Points:
+        ConvertDataSetCartesian(this->Points);
+        break;
+      case vtkCesium3DTilesWriter::Mesh:
+        ConvertDataSetCartesian(this->Mesh);
+        break;
+      default:
+        break;
+    }
     tree["refine"] = "REPLACE";
     if (this->InputType != vtkCesium3DTilesWriter::Points || this->ContentGLTF)
     {
