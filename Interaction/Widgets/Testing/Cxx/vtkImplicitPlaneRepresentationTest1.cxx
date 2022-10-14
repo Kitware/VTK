@@ -15,14 +15,28 @@ int vtkImplicitPlaneRepresentationTest1(int, char*[])
   vtkSmartPointer<vtkImplicitPlaneRepresentation> node1 =
     vtkSmartPointer<vtkImplicitPlaneRepresentation>::New();
 
-  EXERCISE_BASIC_IMPLICIT_PLANE_REPRESENTATION_METHODS(vtkImplicitPlaneRepresentation, node1);
-
-  vtkSmartPointer<vtkPolyData> pd;
-  node1->GetPolyData(pd);
-  if (pd == nullptr)
   {
-    std::cout << "Polydata is null" << std::endl;
+    EXERCISE_BASIC_REPRESENTATION_METHODS(vtkImplicitPlaneRepresentation, node1);
+
+    // these incorrectly handle clamping/normalization
+    // TEST_SET_GET_VECTOR3_DOUBLE_RANGE(node1, Origin, -100, 100);
+    // TEST_SET_GET_VECTOR3_DOUBLE_RANGE(node1, Normal, -1, 1);
+    TEST_SET_GET_BOOLEAN(node1, NormalToXAxis);
+    TEST_SET_GET_BOOLEAN(node1, NormalToYAxis);
+    TEST_SET_GET_BOOLEAN(node1, NormalToZAxis);
+    TEST_SET_GET_BOOLEAN(node1, Tubing);
+    TEST_SET_GET_BOOLEAN(node1, DrawPlane);
+    TEST_SET_GET_BOOLEAN(node1, OutlineTranslation);
+    TEST_SET_GET_BOOLEAN(node1, OutsideBounds);
+    TEST_SET_GET_BOOLEAN(node1, ScaleEnabled);
   }
+
+  // vtkSmartPointer<vtkPolyData> pd;
+  // node1->GetPolyData(pd);
+  // if (pd == nullptr)
+  // {
+  //   std::cout << "Polydata is null" << std::endl;
+  // }
 
   vtkSmartPointer<vtkPolyDataAlgorithm> pda = node1->GetPolyDataAlgorithm();
   if (pda == nullptr)
@@ -78,9 +92,9 @@ int vtkImplicitPlaneRepresentationTest1(int, char*[])
     std::cout << "Edges Property is nullptr." << std::endl;
   }
 
-  // clamped 0-7
-  TEST_SET_GET_INT_RANGE(node1, InteractionState, 1, 6);
+  // clamped 0-6
+  TEST_SET_GET_INT_RANGE(node1, InteractionState, 1, 5);
 
-  TEST_SET_GET_INT_RANGE(node1, RepresentationState, 0, 5);
+  TEST_SET_GET_INT_RANGE(node1, RepresentationState, 1, 5);
   return EXIT_SUCCESS;
 }

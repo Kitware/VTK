@@ -1314,6 +1314,7 @@ void vtkDisplaySizedImplicitPlaneRepresentation::SetSelectedWidgetColor(
   this->SelectedNormalProperty->SetColor(r, g, b);
   this->SelectedSphereProperty->SetColor(r, g, b);
   this->SelectedEdgesProperty->SetColor(r, g, b);
+  this->SelectedPlaneProperty->SetColor(r, g, b);
 }
 
 //------------------------------------------------------------------------------
@@ -1329,12 +1330,29 @@ void vtkDisplaySizedImplicitPlaneRepresentation::SetUnselectedWidgetColor(
   this->NormalProperty->SetColor(r, g, b);
   this->SphereProperty->SetColor(r, g, b);
   this->EdgesProperty->SetColor(r, g, b);
+  this->SetEdgesColor(r, g, b);
 }
 
 //------------------------------------------------------------------------------
 void vtkDisplaySizedImplicitPlaneRepresentation::SetUnselectedWidgetColor(double c[3])
 {
   this->SetUnselectedWidgetColor(c[0], c[1], c[2]);
+}
+
+//------------------------------------------------------------------------------
+void vtkDisplaySizedImplicitPlaneRepresentation::SetForegroundWidgetColor(
+  double r, double g, double b)
+{
+  this->PlaneProperty->SetColor(r, g, b);
+  this->OutlineProperty->SetColor(r, g, b);
+  this->IntersectionEdgesProperty->SetColor(r, g, b);
+  this->SetIntersectionEdgesColor(r, g, b);
+}
+
+//------------------------------------------------------------------------------
+void vtkDisplaySizedImplicitPlaneRepresentation::SetForegroundWidgetColor(double c[3])
+{
+  this->SetForegroundWidgetColor(c[0], c[1], c[2]);
 }
 
 //------------------------------------------------------------------------------

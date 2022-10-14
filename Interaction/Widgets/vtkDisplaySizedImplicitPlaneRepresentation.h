@@ -343,13 +343,15 @@ public:
 
   ///@{
   /**
-   * Set the color of all the widgets objects (edges, cone1, cone2, line, sphere, except plane)
-   * when unselected or selected.
+   * Set the color of all the widgets objects (edges, cone1, cone2, line, sphere, selected plane)
+   * when unselected or selected. Foreground color applies to the outlines and unselected plane.
    */
   void SetSelectedWidgetColor(double, double, double);
   void SetSelectedWidgetColor(double c[3]);
   void SetUnselectedWidgetColor(double, double, double);
   void SetUnselectedWidgetColor(double c[3]);
+  void SetForegroundWidgetColor(double, double, double);
+  void SetForegroundWidgetColor(double c[3]);
   ///@}
 
   ///@{
