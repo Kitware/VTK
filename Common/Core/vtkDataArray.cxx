@@ -102,15 +102,7 @@ struct DeepCopyWorker
   void operator()(
     vtkSOADataArrayTemplate<ValueType>* src, vtkSOADataArrayTemplate<ValueType>* dst) const
   {
-    vtkIdType numTuples = src->GetNumberOfTuples();
-    for (int comp = 0; comp < src->GetNumberOfComponents(); ++comp)
-    {
-      ValueType* srcBegin = src->GetComponentArrayPointer(comp);
-      ValueType* srcEnd = srcBegin + numTuples;
-      ValueType* dstBegin = dst->GetComponentArrayPointer(comp);
-
-      std::copy(srcBegin, srcEnd, dstBegin);
-    }
+    dst->CopyData(src);
   }
 
 #ifdef VTK_USE_SCALED_SOA_ARRAYS
