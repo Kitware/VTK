@@ -1186,7 +1186,7 @@ void vtkBoxRepresentation::SetTransform(vtkTransform* t)
   this->PositionHandles();
 }
 
-void vtkBoxRepresentation::SetOutlineColor(double _arg1, double _arg2, double _arg3)
+void vtkBoxRepresentation::SetForegroundColor(double _arg1, double _arg2, double _arg3)
 {
   double* outlineColor = this->OutlineProperty->GetColor();
   if ((outlineColor[0] != _arg1) || (outlineColor[1] != _arg2) || (outlineColor[2] != _arg3))

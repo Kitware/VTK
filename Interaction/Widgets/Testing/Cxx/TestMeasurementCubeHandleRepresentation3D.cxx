@@ -25,8 +25,6 @@
 #include "vtkCutter.h"
 #include "vtkGlyph3D.h"
 #include "vtkHandleWidget.h"
-#include "vtkImplicitPlaneRepresentation.h"
-#include "vtkImplicitPlaneWidget2.h"
 #include "vtkInteractorEventRecorder.h"
 #include "vtkLODActor.h"
 #include "vtkMeasurementCubeHandleRepresentation3D.h"

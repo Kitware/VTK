@@ -1299,7 +1299,7 @@ void vtkImplicitPlaneRepresentation::CreateDefaultProperties()
 }
 
 //------------------------------------------------------------------------------
-void vtkImplicitPlaneRepresentation::SetSelectedWidgetColor(double r, double g, double b)
+void vtkImplicitPlaneRepresentation::SetInteractionColor(double r, double g, double b)
 {
   this->SelectedNormalProperty->SetColor(r, g, b);
   this->SelectedOutlineProperty->SetColor(r, g, b);
@@ -1307,7 +1307,7 @@ void vtkImplicitPlaneRepresentation::SetSelectedWidgetColor(double r, double g, 
 }
 
 //------------------------------------------------------------------------------
-void vtkImplicitPlaneRepresentation::SetUnselectedWidgetColor(double r, double g, double b)
+void vtkImplicitPlaneRepresentation::SetHandleColor(double r, double g, double b)
 {
   this->NormalProperty->SetColor(r, g, b);
   this->EdgesProperty->SetColor(r, g, b);
@@ -1315,7 +1315,7 @@ void vtkImplicitPlaneRepresentation::SetUnselectedWidgetColor(double r, double g
 }
 
 //------------------------------------------------------------------------------
-void vtkImplicitPlaneRepresentation::SetForegroundWidgetColor(double r, double g, double b)
+void vtkImplicitPlaneRepresentation::SetForegroundColor(double r, double g, double b)
 {
   this->PlaneProperty->SetColor(r, g, b);
   this->OutlineProperty->SetColor(r, g, b);

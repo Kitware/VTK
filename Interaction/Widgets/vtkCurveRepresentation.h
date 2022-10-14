@@ -14,8 +14,7 @@
 =========================================================================*/
 /**
  * @class   vtkCurveRepresentation
- * @brief   vtkWidgetRepresentation
- * base class for a widget that represents an curve that connects control
+ * @brief   base class for a widget that represents a curve that connects control
  * points.
  *
  * Base class for widgets used to define curves from points, such as
@@ -23,6 +22,9 @@
  * uses handles, the number of which can be changed, to represent the
  * points that define the curve. The handles can be picked can be
  * picked on the curve itself to translate or rotate it in the scene.
+ *
+ * @sa
+ * vtkPolyLineRepresentation vtkSplineRepresentation
  */
 
 #ifndef vtkCurveRepresentation_h
@@ -240,6 +242,16 @@ public:
    * Ideally one should use GetLineProperty()->SetColor().
    */
   void SetLineColor(double r, double g, double b);
+
+  ///@{
+  /**
+   * Set the color when unselected and selected.
+   */
+  void SetInteractionColor(double, double, double);
+  void SetInteractionColor(double c[3]) { this->SetInteractionColor(c[0], c[1], c[2]); }
+  void SetForegroundColor(double, double, double);
+  void SetForegroundColor(double c[3]) { this->SetForegroundColor(c[0], c[1], c[2]); }
+  ///@}
 
   /*
    * Register internal Pickers within PickingManager

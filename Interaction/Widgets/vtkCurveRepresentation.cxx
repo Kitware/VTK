@@ -571,7 +571,7 @@ void vtkCurveRepresentation::CreateDefaultProperties()
   this->SelectedLineProperty = vtkProperty::New();
   this->SelectedLineProperty->SetRepresentationToWireframe();
   this->SelectedLineProperty->SetAmbient(1.0);
-  this->SelectedLineProperty->SetAmbientColor(0.0, 1.0, 0.0);
+  this->SelectedLineProperty->SetColor(0.0, 1.0, 0.0);
   this->SelectedLineProperty->SetLineWidth(2.0);
 }
 
@@ -961,6 +961,20 @@ double* vtkCurveRepresentation::GetBounds()
 void vtkCurveRepresentation::SetLineColor(double r, double g, double b)
 {
   this->GetLineProperty()->SetColor(r, g, b);
+}
+
+//------------------------------------------------------------------------------
+void vtkCurveRepresentation::SetInteractionColor(double r, double g, double b)
+{
+  this->SelectedHandleProperty->SetColor(r, g, b);
+  this->SelectedLineProperty->SetColor(r, g, b);
+}
+
+//------------------------------------------------------------------------------
+void vtkCurveRepresentation::SetForegroundColor(double r, double g, double b)
+{
+  this->HandleProperty->SetColor(r, g, b);
+  this->LineProperty->SetColor(r, g, b);
 }
 
 //------------------------------------------------------------------------------

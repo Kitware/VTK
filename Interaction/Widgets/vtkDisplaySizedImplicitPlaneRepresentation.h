@@ -37,7 +37,7 @@
 #ifndef vtkDisplaySizedImplicitPlaneRepresentation_h
 #define vtkDisplaySizedImplicitPlaneRepresentation_h
 
-#include "vtkDeprecation.h"              // For VTK_DEPRECATED_IN_9_2_0
+#include "vtkDeprecation.h"              // For VTK_DEPRECATED_IN_9_3_0
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkNew.h"                      // For vtkNew command
 #include "vtkWidgetRepresentation.h"
@@ -343,16 +343,26 @@ public:
 
   ///@{
   /**
-   * Set the color of all the widgets objects (edges, cone1, cone2, line, sphere, selected plane)
-   * when unselected or selected. Foreground color applies to the outlines and unselected plane.
+   * Set the color of all the widget's handles (edges, cone1, cone2, line, sphere, selected plane)
+   * and their color during interaction. Foreground color applies to the outlines and unselected
+   * plane.
    */
-  void SetSelectedWidgetColor(double, double, double);
-  void SetSelectedWidgetColor(double c[3]);
-  void SetUnselectedWidgetColor(double, double, double);
-  void SetUnselectedWidgetColor(double c[3]);
-  void SetForegroundWidgetColor(double, double, double);
-  void SetForegroundWidgetColor(double c[3]);
+  void SetInteractionColor(double, double, double);
+  void SetInteractionColor(double c[3]) { this->SetInteractionColor(c[0], c[1], c[2]); }
+  void SetHandleColor(double, double, double);
+  void SetHandleColor(double c[3]) { this->SetHandleColor(c[0], c[1], c[2]); }
+  void SetForegroundColor(double, double, double);
+  void SetForegroundColor(double c[3]) { this->SetForegroundColor(c[0], c[1], c[2]); }
   ///@}
+
+  VTK_DEPRECATED_IN_9_3_0("Please use SetInteractionColor instead.")
+  void SetSelectedWidgetColor(double a, double b, double c) { this->SetInteractionColor(a, b, c); }
+  VTK_DEPRECATED_IN_9_3_0("Please use SetInteractionColor instead.")
+  void SetSelectedWidgetColor(double c[3]) { this->SetInteractionColor(c); }
+  VTK_DEPRECATED_IN_9_3_0("Please use SetHandleColor instead.")
+  void SetUnselectedWidgetColor(double a, double b, double c) { this->SetHandleColor(a, b, c); }
+  VTK_DEPRECATED_IN_9_3_0("Please use SetHandleColor instead.")
+  void SetUnselectedWidgetColor(double c[3]) { this->SetHandleColor(c); }
 
   ///@{
   /**

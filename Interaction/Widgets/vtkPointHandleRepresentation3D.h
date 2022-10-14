@@ -149,6 +149,16 @@ public:
 
   ///@{
   /**
+   * Set the widget color, and the color of interactive handles.
+   */
+  void SetInteractionColor(double, double, double);
+  void SetInteractionColor(double c[3]) { this->SetInteractionColor(c[0], c[1], c[2]); }
+  void SetForegroundColor(double, double, double);
+  void SetForegroundColor(double c[3]) { this->SetForegroundColor(c[0], c[1], c[2]); }
+  ///@}
+
+  ///@{
+  /**
    * Set the "hot spot" size; i.e., the region around the focus, in which the
    * motion vector is used to control the constrained sliding action. Note the
    * size is specified as a fraction of the length of the diagonal of the

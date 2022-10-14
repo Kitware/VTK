@@ -1308,8 +1308,7 @@ void vtkDisplaySizedImplicitPlaneRepresentation::CreateDefaultProperties()
 }
 
 //------------------------------------------------------------------------------
-void vtkDisplaySizedImplicitPlaneRepresentation::SetSelectedWidgetColor(
-  double r, double g, double b)
+void vtkDisplaySizedImplicitPlaneRepresentation::SetInteractionColor(double r, double g, double b)
 {
   this->SelectedNormalProperty->SetColor(r, g, b);
   this->SelectedSphereProperty->SetColor(r, g, b);
@@ -1318,14 +1317,7 @@ void vtkDisplaySizedImplicitPlaneRepresentation::SetSelectedWidgetColor(
 }
 
 //------------------------------------------------------------------------------
-void vtkDisplaySizedImplicitPlaneRepresentation::SetSelectedWidgetColor(double c[3])
-{
-  this->SetSelectedWidgetColor(c[0], c[1], c[2]);
-}
-
-//------------------------------------------------------------------------------
-void vtkDisplaySizedImplicitPlaneRepresentation::SetUnselectedWidgetColor(
-  double r, double g, double b)
+void vtkDisplaySizedImplicitPlaneRepresentation::SetHandleColor(double r, double g, double b)
 {
   this->NormalProperty->SetColor(r, g, b);
   this->SphereProperty->SetColor(r, g, b);
@@ -1334,25 +1326,12 @@ void vtkDisplaySizedImplicitPlaneRepresentation::SetUnselectedWidgetColor(
 }
 
 //------------------------------------------------------------------------------
-void vtkDisplaySizedImplicitPlaneRepresentation::SetUnselectedWidgetColor(double c[3])
-{
-  this->SetUnselectedWidgetColor(c[0], c[1], c[2]);
-}
-
-//------------------------------------------------------------------------------
-void vtkDisplaySizedImplicitPlaneRepresentation::SetForegroundWidgetColor(
-  double r, double g, double b)
+void vtkDisplaySizedImplicitPlaneRepresentation::SetForegroundColor(double r, double g, double b)
 {
   this->PlaneProperty->SetColor(r, g, b);
   this->OutlineProperty->SetColor(r, g, b);
   this->IntersectionEdgesProperty->SetColor(r, g, b);
   this->SetIntersectionEdgesColor(r, g, b);
-}
-
-//------------------------------------------------------------------------------
-void vtkDisplaySizedImplicitPlaneRepresentation::SetForegroundWidgetColor(double c[3])
-{
-  this->SetForegroundWidgetColor(c[0], c[1], c[2]);
 }
 
 //------------------------------------------------------------------------------
