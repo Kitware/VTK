@@ -114,13 +114,6 @@ void vtkOpenXRCamera::Render(vtkRenderer* ren)
   int renSize[2];
   win->GetRenderBufferSize(renSize[0], renSize[1]);
 
-  // update mats
-  vtkMatrix4x4* wcvc;
-  vtkMatrix3x3* normMat;
-  vtkMatrix4x4* vcdc;
-  vtkMatrix4x4* wcdc;
-  this->GetKeyMatrices(ren, wcvc, normMat, vcdc, wcdc);
-
   // if were on a stereo renderer draw to special parts of screen
   if (this->LeftEye)
   {
