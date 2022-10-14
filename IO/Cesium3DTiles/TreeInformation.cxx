@@ -657,11 +657,9 @@ void TreeInformation::SaveTileBuildings(vtkIncrementalOctreeNode* node, void* au
       std::vector<vtkDataArray*> meshTCoords;
       int numberOfTextures = 0;
       // accumulate all texture file names and tcoords
-      int minMeshWithTexture = 1, maxMeshWithTexture = 1, currentMeshWithTexture = 0;
       std::function<bool(vtkPolyData*)> accumulateNamesAndTCoords =
-        [&meshes, &currentMeshWithTexture, minMeshWithTexture, maxMeshWithTexture,
-          &numberOfTextures, &meshTextureFileNames, &meshTCoords,
-          &meshesWithTexture](vtkPolyData* pd) {
+        [&meshes, &numberOfTextures, &meshTextureFileNames, &meshTCoords, &meshesWithTexture](
+          vtkPolyData* pd) {
           auto pdTextureFileNames = vtkGLTFWriter::GetFieldAsStringVector(pd, "texture_uri");
           if (pdTextureFileNames.empty())
           {
@@ -669,25 +667,20 @@ void TreeInformation::SaveTileBuildings(vtkIncrementalOctreeNode* node, void* au
           }
           else
           {
-            if (currentMeshWithTexture <= maxMeshWithTexture &&
-              currentMeshWithTexture >= minMeshWithTexture)
+            if (numberOfTextures && numberOfTextures != pdTextureFileNames.size())
             {
-              if (numberOfTextures && numberOfTextures != pdTextureFileNames.size())
-              {
-                vtkLog(ERROR,
-                  "Different polydata in the tile have different "
-                  "number of textures "
-                    << pdTextureFileNames.size() << " expecting " << numberOfTextures);
-                // disable texture merging
-                numberOfTextures = 0;
-                return false;
-              }
-              numberOfTextures = pdTextureFileNames.size();
-              meshesWithTexture.push_back(pd);
-              meshTextureFileNames.push_back(pdTextureFileNames);
-              meshTCoords.push_back(pd->GetPointData()->GetTCoords());
+              vtkLog(ERROR,
+                "Different polydata in the tile have different "
+                "number of textures "
+                  << pdTextureFileNames.size() << " expecting " << numberOfTextures);
+              // disable texture merging
+              numberOfTextures = 0;
+              return false;
             }
-            ++currentMeshWithTexture;
+            numberOfTextures = pdTextureFileNames.size();
+            meshesWithTexture.push_back(pd);
+            meshTextureFileNames.push_back(pdTextureFileNames);
+            meshTCoords.push_back(pd->GetPointData()->GetTCoords());
           }
           return true;
         };
@@ -702,9 +695,10 @@ void TreeInformation::SaveTileBuildings(vtkIncrementalOctreeNode* node, void* au
       // merge textures and change the tcoords arrays
       // all textures use the same tcoords array
       // if there is only one texture, there is nothing to merge.
-      std::vector<std::string> mergedFileNames(meshTextureFileNames[0].size());
+      std::vector<std::string> mergedFileNames;
       if (meshTextureFileNames.size() > 1)
       {
+        mergedFileNames.resize(meshTextureFileNames[0].size());
         std::vector<std::array<size_t, 2>> textureOrigin(meshTextureFileNames.size());
         for (int i = 0; i < numberOfTextures; ++i)
         {
@@ -740,7 +734,7 @@ void TreeInformation::SaveTileBuildings(vtkIncrementalOctreeNode* node, void* au
       vtkNew<vtkMultiBlockDataSet> b;
       int meshBlockIndex = 0;
       // merge meshes without textures
-      if (!meshes.empty())
+      if (meshes.size() > 1)
       {
         vtkNew<vtkAppendPolyData> append;
         for (vtkPolyData* pd : meshes)
@@ -751,14 +745,21 @@ void TreeInformation::SaveTileBuildings(vtkIncrementalOctreeNode* node, void* au
         vtkPolyData* tileMeshWithoutTexture = vtkPolyData::SafeDownCast(append->GetOutput());
         b->SetBlock(meshBlockIndex++, tileMeshWithoutTexture);
 
-        vtkNew<vtkXMLPolyDataWriter> writer;
-        writer->SetInputData(tileMeshWithoutTexture);
-        writer->SetFileName("tileMeshWithoutTexture.vtp");
-        writer->Write();
+        // vtkNew<vtkXMLPolyDataWriter> writer;
+        // writer->SetInputData(tileMeshWithoutTexture);
+        // writer->SetFileName("tileMeshWithoutTexture.vtp");
+        // writer->Write();
+      }
+      else
+      {
+        if (!meshes.empty())
+        {
+          b->SetBlock(meshBlockIndex++, meshes[0]);
+        }
       }
 
       // merge meshes with textures
-      if (!meshesWithTexture.empty())
+      if (meshesWithTexture.size() > 1)
       {
         vtkNew<vtkAppendPolyData> append;
         for (vtkPolyData* pd : meshesWithTexture)
@@ -771,14 +772,18 @@ void TreeInformation::SaveTileBuildings(vtkIncrementalOctreeNode* node, void* au
         SetField(tileMeshWithTexture, "texture_uri", mergedFileNames);
         textureBaseDirectory = this->OutputDir + "/" + std::to_string(node->GetID());
 
-        vtkNew<vtkXMLPolyDataWriter> writer;
-        writer->SetInputData(tileMeshWithTexture);
-        writer->SetFileName("tileMeshWithTexture.vtp");
-        writer->Write();
+        // vtkNew<vtkXMLPolyDataWriter> writer;
+        // writer->SetInputData(tileMeshWithTexture);
+        // writer->SetFileName("tileMeshWithTexture.vtp");
+        // writer->Write();
       }
       else
       {
-        textureBaseDirectory = this->TextureBaseDirectory;
+        if (!meshesWithTexture.empty())
+        {
+          b->SetBlock(meshBlockIndex++, meshesWithTexture[0]);
+          textureBaseDirectory = this->TextureBaseDirectory;
+        }
       }
       tile->SetBlock(0, b);
     }
