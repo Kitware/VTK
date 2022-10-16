@@ -140,13 +140,27 @@ std::array<double, 6> TranslateBuildings(vtkMultiBlockDataSet* rootBuildings,
   buildingIt->TraverseSubTreeOff();
   for (buildingIt->InitTraversal(); !buildingIt->IsDoneWithTraversal(); buildingIt->GoToNextItem())
   {
-    auto building = vtkMultiBlockDataSet::SafeDownCast(buildingIt->GetCurrentDataObject());
-    if (!building)
+    auto mbBuilding = vtkMultiBlockDataSet::SafeDownCast(buildingIt->GetCurrentDataObject());
+    auto polyBuilding = vtkPolyData::SafeDownCast(buildingIt->GetCurrentDataObject());
+    if (!mbBuilding)
     {
-      buildings.clear();
-      return wholeBB;
+      if (polyBuilding)
+      {
+        auto mb = vtkSmartPointer<vtkMultiBlockDataSet>::New();
+        mb->SetNumberOfBlocks(1);
+        mb->SetBlock(0, polyBuilding);
+        buildings.emplace_back(mb);
+      }
+      else
+      {
+        buildings.clear();
+        return wholeBB;
+      }
     }
-    buildings.emplace_back(building);
+    else
+    {
+      buildings.emplace_back(mbBuilding);
+    }
   }
   return wholeBB;
 }
