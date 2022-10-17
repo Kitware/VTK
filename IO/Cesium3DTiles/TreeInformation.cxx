@@ -696,7 +696,7 @@ void TreeInformation::SaveTileBuildings(vtkIncrementalOctreeNode* node, void* au
       // all textures use the same tcoords array
       // if there is only one texture, there is nothing to merge.
       std::vector<std::string> mergedFileNames;
-      if (meshTextureFileNames.size() > 1)
+      if (meshTextureFileNames.size() > 1 && this->SaveTextures)
       {
         mergedFileNames.resize(meshTextureFileNames[0].size());
         std::vector<std::array<size_t, 2>> textureOrigin(meshTextureFileNames.size());
