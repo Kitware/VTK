@@ -339,32 +339,6 @@ void vtkOpenGLProjectedTetrahedraMapper::Render(vtkRenderer* renderer, vtkVolume
   vtkUnstructuredGridBase* input = this->GetInput();
   vtkVolumeProperty* property = volume->GetProperty();
 
-  // has something changed that would require us to recreate the shader?
-  if (!this->Tris.Program)
-  {
-    // build the shader source code
-    std::string VSSource = vtkglProjectedTetrahedraVS;
-    std::string FSSource = vtkglProjectedTetrahedraFS;
-    std::string GSSource;
-
-    // compile and bind it if needed
-    vtkShaderProgram* newShader = renWin->GetShaderCache()->ReadyShaderProgram(
-      VSSource.c_str(), FSSource.c_str(), GSSource.c_str());
-
-    // if the shader changed reinitialize the VAO
-    if (newShader != this->Tris.Program)
-    {
-      this->Tris.Program = newShader;
-      this->Tris.VAO->ShaderProgramChanged(); // reset the VAO as the shader has changed
-    }
-
-    this->Tris.ShaderSourceTime.Modified();
-  }
-  else
-  {
-    renWin->GetShaderCache()->ReadyShaderProgram(this->Tris.Program);
-  }
-
   // Check to see if input changed.
   if ((this->InputAnalyzedTime < this->MTime) || (this->InputAnalyzedTime < input->GetMTime()))
   {
@@ -547,6 +521,32 @@ void vtkOpenGLProjectedTetrahedraMapper::ProjectTetrahedra(
       GL_NEAREST);
 
     vtkOpenGLCheckErrorMacro("failed at glBlitFramebuffer");
+  }
+
+  // has something changed that would require us to recreate the shader?
+  if (!this->Tris.Program)
+  {
+    // build the shader source code
+    std::string VSSource = vtkglProjectedTetrahedraVS;
+    std::string FSSource = vtkglProjectedTetrahedraFS;
+    std::string GSSource;
+
+    // compile and bind it if needed
+    vtkShaderProgram* newShader = window->GetShaderCache()->ReadyShaderProgram(
+      VSSource.c_str(), FSSource.c_str(), GSSource.c_str());
+
+    // if the shader changed reinitialize the VAO
+    if (newShader != this->Tris.Program)
+    {
+      this->Tris.Program = newShader;
+      this->Tris.VAO->ShaderProgramChanged(); // reset the VAO as the shader has changed
+    }
+
+    this->Tris.ShaderSourceTime.Modified();
+  }
+  else
+  {
+    window->GetShaderCache()->ReadyShaderProgram(this->Tris.Program);
   }
 
   // TODO:
