@@ -125,10 +125,12 @@ protected:
   ///@}
   void SaveTileBuildings(vtkIncrementalOctreeNode* node, void* auxData);
   void SaveTileMesh(vtkIncrementalOctreeNode* node, void* auxData);
+  void WriteTileTexture(
+    vtkIncrementalOctreeNode* node, const std::string& fileName, vtkImageData* tileImage);
   /**
    * Compute the texture image for the tile and recompute texture coordinates
    */
-  vtkSmartPointer<vtkImageData> ComputeTileMeshTexture(
+  vtkSmartPointer<vtkImageData> SplitTileTexture(
     vtkPolyData* tileMesh, vtkImageData* textureImage, vtkDataArray* tcoordsTile);
   void SaveTilePoints(vtkIncrementalOctreeNode* node, void* auxData);
 
@@ -149,6 +151,12 @@ protected:
   std::string ContentTypeExtension() const;
   void Initialize();
   double GetRootLength2();
+  /**
+   * Execute the passed functor for each polydata. The functor returns true
+   * if it should continue execution. The function returns true if it executed
+   * for all polydata inside each building.
+   */
+  bool ForEachBuilding(vtkIncrementalOctreeNode* node, std::function<bool(vtkPolyData*)> Execute);
 
 private:
   /**

@@ -27,6 +27,7 @@
 #include "vtkFloatArray.h"
 #include "vtkGLTFWriter.h"
 #include "vtkGeometryFilter.h"
+#include "vtkImageAppend.h"
 #include "vtkImageData.h"
 #include "vtkImageIterator.h"
 #include "vtkIncrementalOctreeNode.h"
@@ -57,7 +58,6 @@ using RegionType = std::array<int, 6>;
 
 namespace
 {
-VTK_ABI_NAMESPACE_BEGIN
 constexpr double MIN_ERROR = 20;
 
 //------------------------------------------------------------------------------
@@ -283,7 +283,116 @@ struct InitializeWorker
 std::array<std::string, 3> BuildingsContentTypeExtension = { ".b3dm", ".glb", ".gltf" };
 std::array<std::string, 3> PointsContentTypeExtension = { ".pnts", ".glb", ".gltf" };
 
-VTK_ABI_NAMESPACE_END
+vtkSmartPointer<vtkImageData> GetTexture(
+  const std::string& textureBaseDirectory, const std::string& textureFileName)
+{
+  std::string texturePath = textureBaseDirectory + "/" + textureFileName;
+  auto textureReader = SetupTextureReader(texturePath);
+  vtkSmartPointer<vtkImageData> textureImage;
+  if (textureReader)
+  {
+    textureReader->Update();
+    textureImage = vtkImageData::SafeDownCast(textureReader->GetOutput());
+  }
+  return textureImage;
+}
+
+std::vector<vtkSmartPointer<vtkImageData>> GetTileTextures(const std::string& textureBaseDirectory,
+  const std::vector<std::vector<std::string>>& tileTextureFileNames, int textureIndex,
+  std::string& firstTextureFileName)
+{
+  std::vector<vtkSmartPointer<vtkImageData>> tileTextures(tileTextureFileNames.size());
+  firstTextureFileName = tileTextureFileNames[0][textureIndex];
+  for (int i = 0; i < tileTextureFileNames.size(); ++i)
+  {
+    tileTextures[i] = GetTexture(textureBaseDirectory, tileTextureFileNames[i][textureIndex]);
+  }
+  return tileTextures;
+}
+
+std::string GetMergedTextureFileName(const std::string& firstTextureFileName, int i)
+{
+  size_t pos = firstTextureFileName.find('_');
+  std::string prefix = firstTextureFileName.substr(0, pos);
+  return prefix + "_merged_" + std::to_string(i) + ".png";
+}
+
+void TranslateTCoords(std::vector<vtkSmartPointer<vtkImageData>> tileTextures,
+  const std::vector<std::array<size_t, 2>>& textureOrigin, int tileDims[3],
+  std::vector<vtkDataArray*> tileTCoords)
+{
+  int dims[3];
+  for (int i = 0; i < tileTextures.size(); ++i)
+  {
+    vtkDataArray* tcoordsArray = tileTCoords[i];
+    if (tcoordsArray)
+    {
+      tileTextures[i]->GetDimensions(dims);
+      for (int j = 0; j < tcoordsArray->GetNumberOfTuples(); ++j)
+      {
+        double tcoords[2];
+        tcoordsArray->GetTuple(j, tcoords);
+        double newTCoords[2];
+        for (int k = 0; k < 2; ++k)
+        {
+          newTCoords[k] = (tcoords[k] * dims[k] + textureOrigin[i][k]) / tileDims[k];
+        }
+        tcoordsArray->SetTuple(j, newTCoords);
+      }
+    }
+  }
+}
+
+vtkSmartPointer<vtkImageData> MergeTextures(std::vector<vtkSmartPointer<vtkImageData>> tileTextures,
+  std::vector<size_t> textureId, // sorted decreasing by height
+  size_t texturesPerSide, std::vector<std::array<size_t, 2>>& textureOrigin)
+{
+  vtkNew<vtkImageAppend> append;
+  append->PreserveExtentsOn();
+  std::array<size_t, 2> currentOrigin = { { 0, 0 } };
+  int row = 0, prevRow = -1, column = 0;
+  int dims[3];
+  int extent[6];
+  // currentHeight is set every time the row changes. We set the initial prevRow
+  // so that it shows a row change so currentHeight gets initialized.
+  size_t currentHeight = 0;
+  for (size_t i = 0; i < tileTextures.size(); ++i)
+  {
+    // use currentOrigin to translate the extent of texture
+    tileTextures[textureId[i]]->GetExtent(extent);
+    extent[0] += currentOrigin[0];
+    extent[1] += currentOrigin[0];
+    extent[2] += currentOrigin[1];
+    extent[3] += currentOrigin[1];
+    tileTextures[textureId[i]]->SetExtent(extent);
+    append->AddInputData(tileTextures[textureId[i]]);
+    textureOrigin[textureId[i]] = currentOrigin;
+
+    // compute the currentOrigin for the next texture
+    tileTextures[textureId[i]]->GetDimensions(dims);
+    if (prevRow < row)
+    {
+      currentHeight = dims[1];
+      prevRow = row;
+    }
+    if (column < texturesPerSide - 1)
+    {
+      ++column;
+      currentOrigin[0] += dims[0];
+    }
+    else
+    {
+      ++row;
+      column = 0;
+      currentOrigin[0] = 0;
+      currentOrigin[1] += currentHeight;
+    }
+  }
+  append->Update();
+  vtkImageData* tileImage = vtkImageData::SafeDownCast(append->GetOutputDataObject(0));
+  return tileImage;
+}
+
 }
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -422,6 +531,16 @@ void TreeInformation::SaveTilesBuildings(bool mergeTilePolyData)
   this->PostOrderTraversal(&TreeInformation::SaveTileBuildings, this->Root, &mergeTilePolyData);
 }
 
+void TreeInformation::WriteTileTexture(
+  vtkIncrementalOctreeNode* node, const std::string& fileName, vtkImageData* tileImage)
+{
+  std::string filePath = this->OutputDir + "/" + std::to_string(node->GetID()) + "/" + fileName;
+  vtkNew<vtkPNGWriter> writer;
+  writer->SetFileName(filePath.c_str());
+  writer->SetInputDataObject(tileImage);
+  writer->Write();
+}
+
 //------------------------------------------------------------------------------
 void TreeInformation::SaveTilesMesh()
 {
@@ -429,18 +548,11 @@ void TreeInformation::SaveTilesMesh()
     vtkGLTFWriter::GetFieldAsStringVector(this->Mesh, "texture_uri");
   vtkLog(INFO, "Input has " << textureFileNames.size() << " textures");
 
-  std::vector<vtkSmartPointer<vtkImageData>> textureImages;
-  for (const std::string& textureFileName : textureFileNames)
+  std::vector<vtkSmartPointer<vtkImageData>> textureImages(textureFileNames.size());
+  for (int i = 0; i < textureFileNames.size(); ++i)
   {
-    std::string texturePath = this->TextureBaseDirectory + "/" + textureFileName;
-    auto textureReader = SetupTextureReader(texturePath);
-    if (textureReader)
-    {
-      vtkSmartPointer<vtkImageData> textureImage;
-      textureReader->Update();
-      textureImage = vtkImageData::SafeDownCast(textureReader->GetOutput());
-      textureImages.push_back(textureImage);
-    }
+    auto textureFileName = textureFileNames[i];
+    textureImages[i] = GetTexture(this->TextureBaseDirectory, textureFileName);
   }
   SaveTileMeshData aux(vtkSelectionNode::CELL, textureImages);
   this->PostOrderTraversal(&TreeInformation::SaveTileMesh, this->Root, &aux);
@@ -483,6 +595,26 @@ void TreeInformation::PreOrderTraversal(
   }
 }
 
+bool TreeInformation::ForEachBuilding(
+  vtkIncrementalOctreeNode* node, std::function<bool(vtkPolyData* pd)> Execute)
+{
+  vtkIdList* pointIds = node->GetPointIds();
+  bool continueForEach = true;
+  for (int i = 0; i < pointIds->GetNumberOfIds() && continueForEach; ++i)
+  {
+    int buildingId = pointIds->GetId(i);
+    vtkCompositeDataSet* building = (*this->Buildings)[buildingId];
+    auto it = vtk::TakeSmartPointer(building->NewIterator());
+    // for each poly data in the building
+    for (it->InitTraversal(); !it->IsDoneWithTraversal(); it->GoToNextItem())
+    {
+      vtkPolyData* pd = vtkPolyData::SafeDownCast(it->GetCurrentDataObject());
+      continueForEach = Execute(pd);
+    }
+  }
+  return continueForEach;
+}
+
 //------------------------------------------------------------------------------
 void TreeInformation::SaveTileBuildings(vtkIncrementalOctreeNode* node, void* aux)
 {
@@ -493,25 +625,113 @@ void TreeInformation::SaveTileBuildings(vtkIncrementalOctreeNode* node, void* au
     vtkIdList* pointIds = node->GetPointIds();
     // ostr << "Rendering buildings for node " << node->GetID() << ": ";
     vtkNew<vtkMultiBlockDataSet> tile;
+    std::string textureBaseDirectory;
     if (mergeTilePolyData)
     {
-      vtkNew<vtkAppendPolyData> append;
-      vtkNew<vtkMultiBlockDataSet> b;
-      for (int i = 0; i < pointIds->GetNumberOfIds(); ++i)
+      // each polydata has a vector of textures (for instance 7).
+      // we merge textures for all polydata for index 0, 1, ..., 6. We get 7 merged
+      // textures.
+      std::vector<std::vector<std::string>> tileTextureFileNames;
+      // each polydata has a tcoord array
+      std::vector<vtkDataArray*> tileTCoords;
+      int numberOfTextures = 0;
+      // accumulate all texture file names and tcoords
+      std::function<bool(vtkPolyData*)> accumulateNamesAndTCoords =
+        [&numberOfTextures, &tileTextureFileNames, &tileTCoords](vtkPolyData* pd) {
+          auto pdTextureFileNames = vtkGLTFWriter::GetFieldAsStringVector(pd, "texture_uri");
+          if (pdTextureFileNames.empty())
+          {
+            if (numberOfTextures)
+            {
+              vtkLog(ERROR,
+                "Different polydata in the tile have different "
+                "number of textures "
+                  << pdTextureFileNames.size() << " expecting " << numberOfTextures);
+              // disable texture merging
+              numberOfTextures = 0;
+            }
+            return false;
+          }
+          else
+          {
+            if (numberOfTextures && numberOfTextures != pdTextureFileNames.size())
+            {
+              vtkLog(ERROR,
+                "Different polydata in the tile have different "
+                "number of textures "
+                  << pdTextureFileNames.size() << " expecting " << numberOfTextures);
+              // disable texture merging
+              numberOfTextures = 0;
+              return false;
+            }
+            numberOfTextures = pdTextureFileNames.size();
+          }
+          tileTextureFileNames.push_back(pdTextureFileNames);
+          tileTCoords.push_back(pd->GetPointData()->GetTCoords());
+          return true;
+        };
+      this->ForEachBuilding(node, accumulateNamesAndTCoords);
+      // how many polydata textures along one side of the merged texture
+      size_t texturesPerSide = std::ceil(std::sqrt(tileTextureFileNames[0].size()));
+      // merge textures and change the tcoords arrays
+      // all textures use the same tcoords array
+      // if there is only one texture, there is nothing to merge.
+      std::vector<std::string> mergedFileNames(tileTextureFileNames[0].size());
+      if (tileTextureFileNames.size() > 1)
       {
-        int buildingId = pointIds->GetId(i);
-        vtkCompositeDataSet* building = (*this->Buildings)[buildingId];
-        auto it = vtk::TakeSmartPointer(building->NewIterator());
-        // for each poly data in the building
-        for (it->InitTraversal(); !it->IsDoneWithTraversal(); it->GoToNextItem())
+        std::vector<std::array<size_t, 2>> textureOrigin(tileTextureFileNames.size());
+        for (int i = 0; i < numberOfTextures; ++i)
         {
-          vtkPolyData* pd = vtkPolyData::SafeDownCast(it->GetCurrentDataObject());
-          append->AddInputDataObject(pd);
+          // load all textures we need to merge
+          std::string firstTextureFileName;
+          std::vector<vtkSmartPointer<vtkImageData>> tileTextures = GetTileTextures(
+            this->TextureBaseDirectory, tileTextureFileNames, i, firstTextureFileName);
+          // permutation of indexes to tileTextures
+          // sorted on decreasing height of textures
+          std::vector<size_t> textureIds(tileTextures.size());
+          std::iota(textureIds.begin(), textureIds.end(), 0);
+          std::sort(
+            textureIds.begin(), textureIds.end(), [tileTextures](size_t first, size_t second) {
+              double* firstBounds = tileTextures[first]->GetBounds();
+              double* secondBounds = tileTextures[second]->GetBounds();
+              return (firstBounds[3] - firstBounds[2]) > (secondBounds[3] - secondBounds[2]);
+            });
+          std::string mergedFileName = GetMergedTextureFileName(firstTextureFileName, i);
+          int tileDims[3];
+          vtkSmartPointer<vtkImageData> tileImage =
+            MergeTextures(tileTextures, textureIds, texturesPerSide, textureOrigin);
+          tileImage->GetDimensions(tileDims);
+          mergedFileNames[i] = mergedFileName;
+          this->WriteTileTexture(node, mergedFileName, tileImage);
+          if (i == 0)
+          {
+            // we only need to change the tcoords for the first set of textures
+            // all sets share the same tcoords
+            TranslateTCoords(tileTextures, textureOrigin, tileDims, tileTCoords);
+          }
         }
-        append->Update();
-        b->SetBlock(0, append->GetOutput());
-        tile->SetBlock(0, b);
       }
+
+      // merge meshes
+      auto append = vtkSmartPointer<vtkAppendPolyData>::New();
+      vtkNew<vtkMultiBlockDataSet> b;
+      this->ForEachBuilding(node, [&append](vtkPolyData* pd) {
+        append->AddInputDataObject(pd);
+        return true;
+      });
+      append->Update();
+      vtkPolyData* tileMesh = vtkPolyData::SafeDownCast(append->GetOutput());
+      if (tileTextureFileNames.size() > 1)
+      {
+        SetField(tileMesh, "texture_uri", mergedFileNames);
+        textureBaseDirectory = this->OutputDir + "/" + std::to_string(node->GetID());
+      }
+      else
+      {
+        textureBaseDirectory = this->TextureBaseDirectory;
+      }
+      b->SetBlock(0, tileMesh);
+      tile->SetBlock(0, b);
     }
     else
     {
@@ -522,6 +742,7 @@ void TreeInformation::SaveTileBuildings(vtkIncrementalOctreeNode* node, void* au
         tile->SetBlock(i, (*this->Buildings)[buildingId]);
         // ostr << buildingId << " ";
       }
+      textureBaseDirectory = this->TextureBaseDirectory;
     }
 
     // vtkLog(INFO, << ostr.str());
@@ -532,7 +753,7 @@ void TreeInformation::SaveTileBuildings(vtkIncrementalOctreeNode* node, void* au
     vtkDirectory::MakeDirectory(ostr.str().c_str());
     ostr << "/" << node->GetID() << ".gltf";
     writer->SetFileName(ostr.str().c_str());
-    writer->SetTextureBaseDirectory(this->TextureBaseDirectory.c_str());
+    writer->SetTextureBaseDirectory(textureBaseDirectory.c_str());
     if (!this->PropertyTextureFile.empty())
     {
       writer->SetPropertyTextureFile(this->PropertyTextureFile.c_str());
@@ -556,7 +777,7 @@ struct RegionCellId
 };
 
 //------------------------------------------------------------------------------
-vtkSmartPointer<vtkImageData> TreeInformation::ComputeTileMeshTexture(
+vtkSmartPointer<vtkImageData> TreeInformation::SplitTileTexture(
   vtkPolyData* tileMesh, vtkImageData* datasetImage, vtkDataArray* tcoordsTile)
 {
   if (!datasetImage)
@@ -776,7 +997,7 @@ void TreeInformation::SaveTileMesh(vtkIncrementalOctreeNode* node, void* voidAux
     if (aux->SelectionField == vtkSelectionNode::CELL && !aux->TextureImages.empty() &&
       tileMesh->GetPointData()->GetTCoords())
     {
-      std::vector<std::string> tileImages;
+      std::vector<std::string> tileTextureFileNames;
       vtkDataArray* tcoordsDataset = tileMesh->GetPointData()->GetTCoords();
       auto tcoordsTile = vtk::TakeSmartPointer<vtkDataArray>(tcoordsDataset->NewInstance());
       tcoordsTile->SetNumberOfComponents(2);
@@ -805,22 +1026,18 @@ void TreeInformation::SaveTileMesh(vtkIncrementalOctreeNode* node, void* voidAux
       }
       for (int i = 0; i < aux->TextureImages.size(); ++i)
       {
-        auto textureImage = aux->TextureImages[i];
-        auto tileImage = this->ComputeTileMeshTexture(
-          tileMesh, textureImage, maxIndex == i ? tcoordsTile : nullptr);
+        auto datasetImage = aux->TextureImages[i];
+        auto tileImage =
+          this->SplitTileTexture(tileMesh, datasetImage, maxIndex == i ? tcoordsTile : nullptr);
         if (tileImage)
         {
-          std::string filePath = this->OutputDir + "/" + std::to_string(node->GetID()) + "/" +
-            std::to_string(i) + ".png";
-          vtkNew<vtkPNGWriter> writer;
-          writer->SetFileName(filePath.c_str());
-          writer->SetInputDataObject(tileImage);
-          writer->Write();
-          tileImages.push_back(std::to_string(node->GetID()) + "/" + std::to_string(i) + ".png");
+          this->WriteTileTexture(node, std::to_string(i) + ".png", tileImage);
+          tileTextureFileNames.push_back(
+            std::to_string(node->GetID()) + "/" + std::to_string(i) + ".png");
         }
       }
       tileMesh->GetPointData()->SetTCoords(tcoordsTile);
-      SetField(tileMesh, "texture_uri", tileImages);
+      SetField(tileMesh, "texture_uri", tileTextureFileNames);
     }
     // store tileMesh into a multiblock
     vtkNew<vtkMultiBlockDataSet> buildings;
@@ -1247,47 +1464,38 @@ bool TreeInformation::ConvertTileCartesianBuildings(vtkIncrementalOctreeNode* no
   P = P_for_GIS;
 
   // transform points to Cartesian coordinates
-  vtkIdList* pointIds = node->GetPointIds();
-  // for each building
-  for (int i = 0; i < pointIds->GetNumberOfIds(); ++i)
-  {
-    int buildingId = pointIds->GetId(i);
-    vtkSmartPointer<vtkCompositeDataSet> building = (*this->Buildings)[buildingId];
-    auto it = vtk::TakeSmartPointer(building->NewIterator());
-    // for each poly data in the building
-    for (it->InitTraversal(); !it->IsDoneWithTraversal(); it->GoToNextItem())
+  std::function<bool(vtkPolyData*)> transformPointToCartesian = [P](vtkPolyData* pd) {
+    vtkDataArray* points = pd->GetPoints()->GetData();
+    vtkNew<vtkDoubleArray> newPoints;
+    vtkDoubleArray* da = vtkArrayDownCast<vtkDoubleArray>(points);
+    vtkFloatArray* fa = vtkArrayDownCast<vtkFloatArray>(points);
+    bool conversion = false;
+    if (!da)
     {
-      vtkPolyData* pd = vtkPolyData::SafeDownCast(it->GetCurrentDataObject());
-      vtkDataArray* points = pd->GetPoints()->GetData();
-      vtkNew<vtkDoubleArray> newPoints;
-      vtkDoubleArray* da = vtkArrayDownCast<vtkDoubleArray>(points);
-      vtkFloatArray* fa = vtkArrayDownCast<vtkFloatArray>(points);
-      bool conversion = false;
-      if (!da)
+      if (fa)
       {
-        if (fa)
-        {
-          vtkLog(WARNING, "Converting float to double points.");
-          newPoints->DeepCopy(fa);
-          da = newPoints;
-          conversion = true;
-        }
-        else
-        {
-          vtkLog(ERROR, "Points are not float or double.");
-          break;
-        }
+        vtkLog(WARNING, "Converting float to double points.");
+        newPoints->DeepCopy(fa);
+        da = newPoints;
+        conversion = true;
       }
-      double* d = da->GetPointer(0);
-      int n = da->GetNumberOfTuples();
-      proj_trans_generic(P, PJ_FWD, d, sizeof(d[0]) * 3, n, d + 1, sizeof(d[0]) * 3, n, d + 2,
-        sizeof(d[0]) * 3, n, nullptr, 0, 0);
-      if (conversion)
+      else
       {
-        pd->GetPoints()->SetData(newPoints);
+        vtkLog(ERROR, "Points are not float or double.");
+        return false;
       }
     }
-  }
+    double* d = da->GetPointer(0);
+    int n = da->GetNumberOfTuples();
+    proj_trans_generic(P, PJ_FWD, d, sizeof(d[0]) * 3, n, d + 1, sizeof(d[0]) * 3, n, d + 2,
+      sizeof(d[0]) * 3, n, nullptr, 0, 0);
+    if (conversion)
+    {
+      pd->GetPoints()->SetData(newPoints);
+    }
+    return true;
+  };
+  this->ForEachBuilding(node, transformPointToCartesian);
   proj_destroy(P);
   return true;
 }
