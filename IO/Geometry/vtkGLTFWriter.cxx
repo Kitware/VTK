@@ -824,7 +824,6 @@ void vtkGLTFWriter::WriteToStreamMultiBlock(ostream& output, vtkMultiBlockDataSe
   buildingIt->TraverseSubTreeOff();
 
   bool foundVisibleProp = false;
-  int pdIndex = 0;
   if (this->RelativeCoordinates)
   {
     rendererNode["translation"] = { bounds[0], bounds[2], bounds[4] };
@@ -861,7 +860,7 @@ void vtkGLTFWriter::WriteToStreamMultiBlock(ostream& output, vtkMultiBlockDataSe
           std::vector<std::string> textureFileNames = GetFieldAsStringVector(pd, "texture_uri");
           if (this->SaveTextures)
           {
-            for (int i = 0; i < textureFileNames.size(); ++i)
+            for (size_t i = 0; i < textureFileNames.size(); ++i)
             {
               std::string textureFileName = textureFileNames[i];
               WriteTexture(buffers, bufferViews, textures, samplers, images, this->InlineData,
