@@ -52,6 +52,8 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStringArray.h"
 #include "vtkTexture.h"
+#include "vtkTransform.h"
+#include "vtkTransformFilter.h"
 #include "vtkTriangleFilter.h"
 #include "vtkTrivialProducer.h"
 #include "vtkUnsignedCharArray.h"
@@ -821,6 +823,8 @@ void vtkGLTFWriter::WriteToStreamMultiBlock(ostream& output, vtkMultiBlockDataSe
   buildingIt->TraverseSubTreeOff();
 
   bool foundVisibleProp = false;
+  bool doublePoints = false;
+  int pdIndex = 0;
   // all buildings
   for (buildingIt->InitTraversal(); !buildingIt->IsDoneWithTraversal(); buildingIt->GoToNextItem())
   {
@@ -829,11 +833,34 @@ void vtkGLTFWriter::WriteToStreamMultiBlock(ostream& output, vtkMultiBlockDataSe
     auto it = vtk::TakeSmartPointer(building->NewIterator());
     for (it->InitTraversal(); !it->IsDoneWithTraversal(); it->GoToNextItem())
     {
-      auto pd = vtkPolyData::SafeDownCast(it->GetCurrentDataObject());
+      vtkSmartPointer<vtkPolyData> pd = vtkPolyData::SafeDownCast(it->GetCurrentDataObject());
       if (pd)
       {
         if (pd->GetNumberOfCells() > 0)
         {
+          bool newDoublePoints = pd->GetPoints()->GetDataType() == VTK_DOUBLE;
+          if (pdIndex++ > 0 && newDoublePoints != doublePoints)
+          {
+            vtkLog(WARNING,
+              "Polydata in multiblock dataset has different point type, "
+              "earlier data had "
+                << doublePoints << "current data has " << newDoublePoints);
+          }
+          doublePoints = newDoublePoints;
+          if (doublePoints)
+          {
+            // points in GLTF are saved as floats, for for double points we need to
+            // translate points to origin of the bounding box and save the translation
+            // in the GLTF file.
+            rendererNode["translation"] = { bounds[0], bounds[2], bounds[4] };
+            vtkNew<vtkTransform> transform;
+            transform->Translate(-bounds[0], -bounds[2], -bounds[4]);
+            vtkNew<vtkTransformFilter> transformFilter;
+            transformFilter->SetTransform(transform);
+            transformFilter->SetInputDataObject(pd);
+            transformFilter->Update();
+            pd = vtkPolyData::SafeDownCast(transformFilter->GetOutput());
+          }
           foundVisibleProp = true;
           WriteMesh(accessors, buffers, bufferViews, meshes, nodes, pd, this->FileName,
             this->InlineData, this->SaveNormal, this->SaveBatchId, this->SaveActivePointColor,
