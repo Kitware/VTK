@@ -285,7 +285,7 @@ std::string WriteTextureBufferAndView(const std::string& gltfFullDir,
       result = gltfRelativeTexturePath;
     }
     // byte length
-    vtksys::ifstream textureStream(textureFullPath, ios::binary);
+    vtksys::ifstream textureStream(textureFullPath.c_str(), ios::binary);
     if (textureStream.fail())
     {
       return mimeType; /* empty mimeType signals error*/
