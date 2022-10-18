@@ -288,7 +288,8 @@ std::array<std::string, 3> PointsContentTypeExtension = { ".pnts", ".glb", ".glt
 vtkSmartPointer<vtkImageData> GetTexture(
   const std::string& textureBaseDirectory, const std::string& textureFileName)
 {
-  std::string texturePath = textureBaseDirectory + "/" + textureFileName;
+  std::string texturePath =
+    textureBaseDirectory.empty() ? textureFileName : textureBaseDirectory + "/" + textureFileName;
   auto textureReader = SetupTextureReader(texturePath);
   vtkSmartPointer<vtkImageData> textureImage;
   if (textureReader)
