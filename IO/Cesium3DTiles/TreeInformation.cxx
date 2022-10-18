@@ -183,7 +183,7 @@ void SetField(vtkDataObject* obj, const char* name, const std::vector<std::strin
   }
   vtkNew<vtkStringArray> sa;
   sa->SetNumberOfTuples(values.size());
-  for (int i = 0; i < values.size(); ++i)
+  for (size_t i = 0; i < values.size(); ++i)
   {
     const std::string& value = values[i];
     sa->SetValue(i, value);
@@ -304,7 +304,7 @@ std::vector<vtkSmartPointer<vtkImageData>> GetTileTextures(const std::string& te
   const std::vector<std::vector<std::string>>& tileTextureFileNames, int textureIndex)
 {
   std::vector<vtkSmartPointer<vtkImageData>> tileTextures(tileTextureFileNames.size());
-  for (int i = 0; i < tileTextureFileNames.size(); ++i)
+  for (size_t i = 0; i < tileTextureFileNames.size(); ++i)
   {
     tileTextures[i] = GetTexture(textureBaseDirectory, tileTextureFileNames[i][textureIndex]);
   }
@@ -316,7 +316,7 @@ void TranslateTCoords(std::vector<vtkSmartPointer<vtkImageData>> tileTextures,
   std::vector<vtkDataArray*> tileTCoords)
 {
   int dims[3];
-  for (int i = 0; i < tileTextures.size(); ++i)
+  for (size_t i = 0; i < tileTextures.size(); ++i)
   {
     vtkDataArray* tcoordsArray = tileTCoords[i];
     if (tcoordsArray)
@@ -361,7 +361,8 @@ vtkSmartPointer<vtkImageData> MergeTextures(std::vector<vtkSmartPointer<vtkImage
   vtkNew<vtkImageAppend> append;
   append->PreserveExtentsOn();
   std::array<size_t, 2> currentOrigin = { { 0, 0 } };
-  int row = 0, prevRow = -1, column = 0;
+  int row = 0, prevRow = -1;
+  size_t column = 0;
   int dims[3];
   int extent[6];
   // currentHeight is set every time the row changes. We set the initial prevRow
@@ -407,7 +408,7 @@ vtkSmartPointer<vtkImageData> MergeTextures(std::vector<vtkSmartPointer<vtkImage
 struct MergePolyDataInfo
 {
   bool MergePolyData;
-  int MergedTextureWidth;
+  size_t MergedTextureWidth;
 };
 
 }
@@ -569,7 +570,7 @@ void TreeInformation::SaveTilesMesh()
   vtkLog(INFO, "Input has " << textureFileNames.size() << " textures");
 
   std::vector<vtkSmartPointer<vtkImageData>> textureImages(textureFileNames.size());
-  for (int i = 0; i < textureFileNames.size(); ++i)
+  for (size_t i = 0; i < textureFileNames.size(); ++i)
   {
     auto textureFileName = textureFileNames[i];
     textureImages[i] = GetTexture(this->TextureBaseDirectory, textureFileName);
@@ -656,7 +657,7 @@ void TreeInformation::SaveTileBuildings(vtkIncrementalOctreeNode* node, void* au
       std::vector<vtkPolyData*> meshesWithTexture;
       // each polydata has a tcoord array
       std::vector<vtkDataArray*> meshTCoords;
-      int numberOfTextures = 0;
+      size_t numberOfTextures = 0;
       // accumulate all texture file names and tcoords
       std::function<bool(vtkPolyData*)> accumulateNamesAndTCoords =
         [&meshes, &numberOfTextures, &meshTextureFileNames, &meshTCoords, &meshesWithTexture](
@@ -701,7 +702,7 @@ void TreeInformation::SaveTileBuildings(vtkIncrementalOctreeNode* node, void* au
       {
         mergedFileNames.resize(meshTextureFileNames[0].size());
         std::vector<std::array<size_t, 2>> textureOrigin(meshTextureFileNames.size());
-        for (int i = 0; i < numberOfTextures; ++i)
+        for (size_t i = 0; i < numberOfTextures; ++i)
         {
           // load all textures we need to merge
           std::vector<vtkSmartPointer<vtkImageData>> tileTextures =
@@ -1072,7 +1073,7 @@ void TreeInformation::SaveTileMesh(vtkIncrementalOctreeNode* node, void* voidAux
       int maxDim = dims[0];
       int maxIndex = 0;
       double ratio0 = static_cast<double>(dims[0]) / dims[1];
-      for (int i = 1; i < aux->TextureImages.size(); ++i)
+      for (size_t i = 1; i < aux->TextureImages.size(); ++i)
       {
         auto textureImage = aux->TextureImages[i];
         dims = textureImage->GetDimensions();
@@ -1089,7 +1090,7 @@ void TreeInformation::SaveTileMesh(vtkIncrementalOctreeNode* node, void* voidAux
           maxIndex = i;
         }
       }
-      for (int i = 0; i < aux->TextureImages.size(); ++i)
+      for (size_t i = 0; i < aux->TextureImages.size(); ++i)
       {
         auto datasetImage = aux->TextureImages[i];
         auto tileImage =
