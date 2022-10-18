@@ -239,6 +239,15 @@ More advanced options:
     components, respectively.
   * `VTK_INSTALL_SDK` (default `ON`): If set, VTK will install its headers,
     CMake API, etc. into its install tree for use.
+  * `VTK_FORBID_DOWNLOADS` (default `OFF`): If set, VTK will error on any
+    network activity required during the build (namely remote modules and
+    testing data).
+  * `VTK_DATA_STORE` (default is complicated): If set or detected, points to
+    where VTK external data will be stored or looked up.
+  * `VTK_DATA_EXCLUDE_FROM_ALL` (default is complicated, but
+    generally `OFF`): If set or detected, data downloads will only
+    happen upon explicit request rather than through the build's
+    default target.
   * `VTK_RELOCATABLE_INSTALL` (default `ON`): If set, the install tree will be
     relocatable to another path. If unset, the install tree may be tied to the
     build machine with absolute paths, but finding dependencies in
