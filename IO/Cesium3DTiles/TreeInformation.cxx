@@ -796,6 +796,7 @@ void TreeInformation::SaveTileBuildings(vtkIncrementalOctreeNode* node, void* au
 
     // vtkLog(INFO, << ostr.str());
     vtkNew<vtkGLTFWriter> writer;
+    writer->RelativeCoordinatesOn();
     writer->SetInputData(tile);
     ostr.str("");
     ostr << this->OutputDir << "/" << node->GetID();
@@ -1107,6 +1108,7 @@ void TreeInformation::SaveTileMesh(vtkIncrementalOctreeNode* node, void* voidAux
 
     // write tileMesh to GLTF
     vtkNew<vtkGLTFWriter> writer;
+    writer->RelativeCoordinatesOn();
     writer->SetInputData(buildings);
     std::string fileName = ostr.str() + ".gltf";
     writer->SetFileName(fileName.c_str());

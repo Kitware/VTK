@@ -632,15 +632,13 @@ int TestCesium3DTilesWriter(int argc, char* argv[])
     TestJacksonvillePoints(dataRoot, tempDirectory, true /*contentGLTF*/);
     TestJacksonvilleColorPoints(dataRoot, tempDirectory, false /*contentGLTF*/);
     TestJacksonvilleColorPoints(dataRoot, tempDirectory, true /*contentGLTF*/);
-
     TestJacksonvilleMesh(dataRoot, tempDirectory);
 
+    // we need to use double points for the GLTF reader.
     vtkNew<DoublePointsFactory> factory;
     vtkObjectFactory::RegisterFactory(factory);
-
     vtkNew<vtkRenderer> renderer;
     renderer->SetBackground(0.5, 0.7, 0.7);
-
     vtkNew<vtkRenderWindow> renWin;
     renWin->AddRenderer(renderer);
 
