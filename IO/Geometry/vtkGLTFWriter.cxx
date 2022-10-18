@@ -103,6 +103,7 @@ vtkGLTFWriter::vtkGLTFWriter()
   this->SaveNormal = false;
   this->SaveBatchId = false;
   this->SaveTextures = true;
+  this->RelativeCoordinates = false;
   this->CopyTextures = false;
   this->SaveActivePointColor = false;
 }
@@ -823,8 +824,11 @@ void vtkGLTFWriter::WriteToStreamMultiBlock(ostream& output, vtkMultiBlockDataSe
   buildingIt->TraverseSubTreeOff();
 
   bool foundVisibleProp = false;
-  bool doublePoints = false;
   int pdIndex = 0;
+  if (this->RelativeCoordinates)
+  {
+    rendererNode["translation"] = { bounds[0], bounds[2], bounds[4] };
+  }
   // all buildings
   for (buildingIt->InitTraversal(); !buildingIt->IsDoneWithTraversal(); buildingIt->GoToNextItem())
   {
@@ -838,21 +842,8 @@ void vtkGLTFWriter::WriteToStreamMultiBlock(ostream& output, vtkMultiBlockDataSe
       {
         if (pd->GetNumberOfCells() > 0)
         {
-          bool newDoublePoints = pd->GetPoints()->GetDataType() == VTK_DOUBLE;
-          if (pdIndex++ > 0 && newDoublePoints != doublePoints)
+          if (this->RelativeCoordinates)
           {
-            vtkLog(WARNING,
-              "Polydata in multiblock dataset has different point type, "
-              "earlier data had "
-                << doublePoints << "current data has " << newDoublePoints);
-          }
-          doublePoints = newDoublePoints;
-          if (doublePoints)
-          {
-            // points in GLTF are saved as floats, for for double points we need to
-            // translate points to origin of the bounding box and save the translation
-            // in the GLTF file.
-            rendererNode["translation"] = { bounds[0], bounds[2], bounds[4] };
             vtkNew<vtkTransform> transform;
             transform->Translate(-bounds[0], -bounds[2], -bounds[4]);
             vtkNew<vtkTransformFilter> transformFilter;

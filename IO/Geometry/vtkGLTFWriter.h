@@ -161,6 +161,22 @@ public:
   vtkBooleanMacro(SaveActivePointColor, bool);
   ///@}
 
+  ///@{
+  /**
+   * Save mesh point coordinates relative to the bounding box origin
+   * and add the corresponding translation to the root node.  This is
+   * especially important for 3D Tiles as points are stored as
+   * cartesian coordinates relative to the earth center so they are
+   * stored as doubles. As GLTF can only store floats not setting this
+   * variable on results in a loss of precission of about a meter.
+   * Note that the translation information is stored in json which can
+   * store doubles.
+   */
+  vtkGetMacro(RelativeCoordinates, bool);
+  vtkSetMacro(RelativeCoordinates, bool);
+  vtkBooleanMacro(RelativeCoordinates, bool);
+  ///@}
+
   /**
    * Write the result to a string instead of a file
    */
@@ -192,6 +208,7 @@ protected:
   bool SaveNormal;
   bool SaveBatchId;
   bool SaveTextures;
+  bool RelativeCoordinates;
   bool CopyTextures;
   bool SaveActivePointColor;
 
