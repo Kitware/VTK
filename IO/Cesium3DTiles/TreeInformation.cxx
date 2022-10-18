@@ -1071,7 +1071,7 @@ void TreeInformation::SaveTileMesh(vtkIncrementalOctreeNode* node, void* voidAux
       tcoordsTile->Fill(-1);
       int* dims = aux->TextureImages[0]->GetDimensions();
       int maxDim = dims[0];
-      int maxIndex = 0;
+      size_t maxIndex = 0;
       double ratio0 = static_cast<double>(dims[0]) / dims[1];
       for (size_t i = 1; i < aux->TextureImages.size(); ++i)
       {
