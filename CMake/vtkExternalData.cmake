@@ -89,8 +89,6 @@ if(NOT DEFINED VTK_DATA_EXCLUDE_FROM_ALL)
   else()
     set(vtk_data_exclude_from_all_default OFF)
   endif()
-  set(VTK_DATA_EXCLUDE_FROM_ALL "${vtk_data_exclude_from_all_default}"
-    CACHE BOOL "Exclude test data download from default 'all' target."
-    )
+  option(VTK_DATA_EXCLUDE_FROM_ALL "Exclude test data download from default 'all' target." "${vtk_data_exclude_from_all_default}")
   mark_as_advanced(VTK_DATA_EXCLUDE_FROM_ALL)
 endif()
