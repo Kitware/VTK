@@ -101,6 +101,7 @@ vtkGLTFWriter::vtkGLTFWriter()
   this->SaveNormal = false;
   this->SaveBatchId = false;
   this->SaveTextures = true;
+  this->CopyTextures = false;
   this->SaveActivePointColor = false;
 }
 
@@ -191,7 +192,7 @@ vtkSmartPointer<vtkImageReader2> SetupTextureReader(const std::string& texturePa
   return reader;
 }
 
-std::string GetMimeType(const char* textureFileName)
+std::string GetMimeType(const std::string& textureFileName)
 {
   std::string ext = vtksys::SystemTools::GetFilenameLastExtension(textureFileName);
   if (ext == ".png")
@@ -209,9 +210,12 @@ std::string GetMimeType(const char* textureFileName)
   }
 }
 
-std::string WriteTextureBufferAndView(const char* gltfRelativeTexturePath, const char* texturePath,
-  bool inlineData, nlohmann::json& buffers, nlohmann::json& bufferViews)
+std::string WriteTextureBufferAndView(const std::string& gltfFullDir,
+  const std::string& textureFullPath, bool inlineData, bool copyTextures, nlohmann::json& buffers,
+  nlohmann::json& bufferViews)
 {
+  std::string gltfRelativeTexturePath =
+    vtksys::SystemTools::RelativePath(gltfFullDir, textureFullPath);
   // if inline then base64 encode the data. In this case we need to read the texture
   std::string result;
   std::string mimeType;
@@ -221,7 +225,7 @@ std::string WriteTextureBufferAndView(const char* gltfRelativeTexturePath, const
     vtkSmartPointer<vtkTexture> t;
     vtkSmartPointer<vtkImageData> id;
 
-    auto textureReader = SetupTextureReader(texturePath);
+    auto textureReader = SetupTextureReader(textureFullPath);
     vtkNew<vtkTexture> texture;
     texture->SetInputConnection(textureReader->GetOutputPort());
     texture->Update();
@@ -265,10 +269,20 @@ std::string WriteTextureBufferAndView(const char* gltfRelativeTexturePath, const
   }
   else
   {
-    // otherwise we only refer to the image file.
-    result = gltfRelativeTexturePath;
+    if (copyTextures)
+    {
+      std::vector<std::string> paths = vtksys::SystemTools::SplitString(textureFullPath);
+      vtksys::SystemTools::CopyFileAlways(
+        textureFullPath, gltfFullDir + "/" + paths[paths.size() - 1]);
+      result = paths[paths.size() - 1];
+    }
+    else
+    {
+      // otherwise we only refer to the image file.
+      result = gltfRelativeTexturePath;
+    }
     // byte length
-    vtksys::ifstream textureStream(texturePath, ios::binary);
+    vtksys::ifstream textureStream(textureFullPath, ios::binary);
     if (textureStream.fail())
     {
       return mimeType; /* empty mimeType signals error*/
@@ -276,7 +290,7 @@ std::string WriteTextureBufferAndView(const char* gltfRelativeTexturePath, const
     textureStream.seekg(0, ios::end);
     byteLength = textureStream.tellg();
     // mimeType from extension
-    mimeType = GetMimeType(texturePath);
+    mimeType = GetMimeType(textureFullPath);
   }
 
   nlohmann::json buffer;
@@ -595,7 +609,7 @@ void WriteCamera(nlohmann::json& cameras, vtkRenderer* ren)
 }
 
 void WriteTexture(nlohmann::json& buffers, nlohmann::json& bufferViews, nlohmann::json& textures,
-  nlohmann::json& samplers, nlohmann::json& images, bool inlineData,
+  nlohmann::json& samplers, nlohmann::json& images, bool inlineData, bool copyTextures,
   std::map<std::string, size_t>& textureMap, const char* textureBaseDirectory,
   const std::string& textureFileName, const char* gltfFileName)
 {
@@ -613,10 +627,8 @@ void WriteTexture(nlohmann::json& buffers, nlohmann::json& bufferViews, nlohmann
       vtkLog(WARNING, "Invalid texture file: " << textureFullPath);
       return;
     }
-    std::string gltfRelativeTexturePath =
-      vtksys::SystemTools::RelativePath(gltfFullDir, textureFullPath);
     std::string mimeType = WriteTextureBufferAndView(
-      gltfRelativeTexturePath.c_str(), texturePath.c_str(), inlineData, buffers, bufferViews);
+      gltfFullDir, textureFullPath, inlineData, copyTextures, buffers, bufferViews);
     if (mimeType.empty())
     {
       return;
@@ -835,7 +847,8 @@ void vtkGLTFWriter::WriteToStreamMultiBlock(ostream& output, vtkMultiBlockDataSe
             {
               std::string textureFileName = textureFileNames[i];
               WriteTexture(buffers, bufferViews, textures, samplers, images, this->InlineData,
-                textureMap, this->TextureBaseDirectory, textureFileName, this->FileName);
+                this->CopyTextures, textureMap, this->TextureBaseDirectory, textureFileName,
+                this->FileName);
             }
           }
           meshes[meshes.size() - 1]["primitives"][0]["material"] = materials.size();

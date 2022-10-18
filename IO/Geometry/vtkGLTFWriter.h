@@ -71,7 +71,12 @@ public:
 
   ///@{
   /**
-   * Specify the base directory for texture files.
+   * Specify the property texture file.
+   * This is a json file described by
+   * The json file is described by
+   https://github.com/CesiumGS/3d-tiles/tree/main/specification/Metadata
+   and
+   https://github.com/CesiumGS/glTF/tree/3d-tiles-next/extensions/2.0/Vendor/EXT_structural_metadata
    */
   vtkSetStringMacro(PropertyTextureFile);
   vtkGetStringMacro(PropertyTextureFile);
@@ -117,16 +122,27 @@ public:
 
   ///@{
   /**
-   * If true (default) we save textures. We only include a reference to the
-   * texture file unless you want to include the binary data in the json file using
-   * InlineData in which case we have to load the texture in memory and save
-   * it encoded in the json file.
-   * @sa
-   * TextureBaseDirectory
+   * If true (default) we save textures. We only include a reference
+   * to the texture file unless CopyTextures is true or you want to
+   * include the binary data in the json file using InlineData in
+   * which case we have to load the texture in memory and save it
+   * encoded in the json file.
+   * @sa TextureBaseDirectory
    */
   vtkGetMacro(SaveTextures, bool);
   vtkSetMacro(SaveTextures, bool);
   vtkBooleanMacro(SaveTextures, bool);
+  ///@}
+
+  ///@{
+  /**
+   * If true we copy the textures the the same directory where FileName is saved.
+   * Default is false.
+   * @sa TextureBaseDirectory
+   */
+  vtkGetMacro(CopyTextures, bool);
+  vtkSetMacro(CopyTextures, bool);
+  vtkBooleanMacro(CopyTextures, bool);
   ///@}
 
   ///@{
@@ -155,9 +171,8 @@ public:
    */
   void WriteToStream(ostream& out, vtkDataObject* in);
   /**
-   * This is used to read texture_uri and property_texture_uri fields that contain
-   * respectively a list of texture paths and a list of paths to json files
-   * descriptions according to EXT_structural_metadata
+   * This is used to read texture_uri fields that contain
+   * a list of texture paths
    * @see vtkCityGMLReader
    */
   static std::vector<std::string> GetFieldAsStringVector(vtkDataObject* obj, const char* name);
@@ -177,6 +192,7 @@ protected:
   bool SaveNormal;
   bool SaveBatchId;
   bool SaveTextures;
+  bool CopyTextures;
   bool SaveActivePointColor;
 
 private:
