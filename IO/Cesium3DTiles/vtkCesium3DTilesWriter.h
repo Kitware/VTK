@@ -69,8 +69,9 @@ public:
   /**
    * Optional property texture mapping for the whole dataset.
    * This is a json file described in <a
-   href="https://github.com/CesiumGS/3d-tiles/tree/main/specification/Metadata">3D Metadata and
-    https://github.com/CesiumGS/glTF/tree/3d-tiles-next/extensions/2.0/Vendor/EXT_structural_metadata
+   href="https://github.com/CesiumGS/3d-tiles/tree/main/specification/Metadata">3D Metadata</a> and
+    <a
+   href="https://github.com/CesiumGS/glTF/tree/3d-tiles-next/extensions/2.0/Vendor/EXT_structural_metadata">EXT_structural_metadata</a>
    * @see vtkCityGMLReader
    */
   vtkSetFilePathMacro(PropertyTextureFile);
