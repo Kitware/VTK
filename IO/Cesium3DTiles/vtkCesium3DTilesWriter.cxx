@@ -146,10 +146,10 @@ std::array<double, 6> TranslateBuildings(vtkMultiBlockDataSet* rootBuildings,
     {
       if (polyBuilding)
       {
-        auto mb = vtkSmartPointer<vtkMultiBlockDataSet>::New();
-        mb->SetNumberOfBlocks(1);
-        mb->SetBlock(0, polyBuilding);
-        buildings.emplace_back(mb);
+        auto newMbBuilding = vtkSmartPointer<vtkMultiBlockDataSet>::New();
+        newMbBuilding->SetNumberOfBlocks(1);
+        newMbBuilding->SetBlock(0, polyBuilding);
+        buildings.emplace_back(newMbBuilding);
       }
       else
       {
