@@ -22,9 +22,9 @@
  * or a point cloud.
  *
  * For buildings, each building is made of pieces (polydata), each
- * piece could potentially have a different texture. The mesh input
+ * piece could potentially have several textures. The mesh input
  * is the same as one building. The point cloud input, is the same as
- * mesh input but with Verts instead of Polys.
+ * mesh input but with Verts cells instead of Polys.
 
  * Materials, including textures, are described as fields in the
  * polydata. If InlineData is false, we only refer to textures files
@@ -67,6 +67,14 @@ public:
    */
   vtkSetStringMacro(TextureBaseDirectory);
   vtkGetStringMacro(TextureBaseDirectory);
+  ///@}
+
+  ///@{
+  /**
+   * Specify the base directory for texture files.
+   */
+  vtkSetStringMacro(PropertyTextureFile);
+  vtkGetStringMacro(PropertyTextureFile);
   ///@}
 
   ///@{
@@ -146,6 +154,13 @@ public:
    * Write the result to a provided ostream
    */
   void WriteToStream(ostream& out, vtkDataObject* in);
+  /**
+   * This is used to read texture_uri and property_texture_uri fields that contain
+   * respectively a list of texture paths and a list of paths to json files
+   * descriptions according to EXT_structural_metadata
+   * @see vtkCityGMLReader
+   */
+  static std::vector<std::string> GetFieldAsStringVector(vtkDataObject* obj, const char* name);
 
 protected:
   vtkGLTFWriter();
@@ -157,6 +172,7 @@ protected:
 
   char* FileName;
   char* TextureBaseDirectory;
+  char* PropertyTextureFile;
   bool InlineData;
   bool SaveNormal;
   bool SaveBatchId;

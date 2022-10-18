@@ -96,6 +96,7 @@ vtkGLTFWriter::vtkGLTFWriter()
 {
   this->FileName = nullptr;
   this->TextureBaseDirectory = nullptr;
+  this->PropertyTextureFile = nullptr;
   this->InlineData = false;
   this->SaveNormal = false;
   this->SaveBatchId = false;
@@ -149,21 +150,6 @@ void FlipYTCoords(vtkDataArray* inOutArray)
     // Run the algorithm using the slower vtkDataArray double API instead:
     worker(inOutArray);
   }
-}
-
-std::string GetFieldAsString(vtkDataObject* obj, const char* name)
-{
-  vtkFieldData* fd = obj->GetFieldData();
-  if (!fd)
-  {
-    return std::string();
-  }
-  vtkStringArray* sa = vtkStringArray::SafeDownCast(fd->GetAbstractArray(name));
-  if (!sa)
-  {
-    return std::string();
-  }
-  return sa->GetValue(0);
 }
 
 std::vector<float> GetFieldAsFloat(
@@ -325,7 +311,8 @@ int GetGLType(vtkDataArray* da)
 
 void WriteMesh(nlohmann::json& accessors, nlohmann::json& buffers, nlohmann::json& bufferViews,
   nlohmann::json& meshes, nlohmann::json& nodes, vtkPolyData* pd, const char* fileName,
-  bool inlineData, bool saveNormal, bool saveBatchId, bool saveActivePointColor)
+  bool inlineData, bool saveNormal, bool saveBatchId, bool saveActivePointColor,
+  bool structuralMetadataExtension)
 {
   vtkNew<vtkTriangleFilter> trif;
   trif->SetInputData(pd);
@@ -538,6 +525,11 @@ void WriteMesh(nlohmann::json& accessors, nlohmann::json& buffers, nlohmann::jso
     aprim["mode"] = 4;
     nlohmann::json attribs;
 
+    if (structuralMetadataExtension)
+    {
+      aprim["extensions"] = { { "EXT_structural_metadata", { { "propertyTextures", { 0 } } } } };
+    }
+
     vtkCellArray* da = tris->GetPolys();
     vtkGLTFWriterUtils::WriteCellBufferAndView(da, fileName, inlineData, buffers, bufferViews);
 
@@ -605,7 +597,7 @@ void WriteCamera(nlohmann::json& cameras, vtkRenderer* ren)
 void WriteTexture(nlohmann::json& buffers, nlohmann::json& bufferViews, nlohmann::json& textures,
   nlohmann::json& samplers, nlohmann::json& images, bool inlineData,
   std::map<std::string, size_t>& textureMap, const char* textureBaseDirectory,
-  const char* textureFileName, const char* gltfFileName)
+  const std::string& textureFileName, const char* gltfFileName)
 {
   size_t textureSource = 0;
   if (textureMap.find(textureFileName) == textureMap.end())
@@ -692,6 +684,24 @@ void WriteMaterial(
 }
 }
 
+std::vector<std::string> vtkGLTFWriter::GetFieldAsStringVector(vtkDataObject* obj, const char* name)
+{
+  vtkFieldData* fd = obj->GetFieldData();
+  std::vector<std::string> result;
+  if (!fd)
+  {
+    return result;
+  }
+  vtkStringArray* sa = vtkStringArray::SafeDownCast(fd->GetAbstractArray(name));
+  if (!sa)
+  {
+    return result;
+  }
+  for (int i = 0; i < sa->GetNumberOfTuples(); ++i)
+    result.push_back(sa->GetValue(i));
+  return result;
+}
+
 std::string vtkGLTFWriter::WriteToString()
 {
   std::ostringstream result;
@@ -773,6 +783,27 @@ void vtkGLTFWriter::WriteToStreamMultiBlock(ostream& output, vtkMultiBlockDataSe
   nlohmann::json rendererNode;
   rendererNode["name"] = "Renderer Node";
 
+  nlohmann::json extensions;
+  if (this->PropertyTextureFile)
+  {
+    std::ifstream propertyTextureStream(this->PropertyTextureFile);
+    if (propertyTextureStream.good())
+    {
+      try
+      {
+        extensions = nlohmann::json::parse(propertyTextureStream);
+      }
+      catch (nlohmann::json::parse_error& ex)
+      {
+        vtkLog(ERROR, << "Parse error " << this->PropertyTextureFile << "at byte " << ex.byte);
+      }
+    }
+    else
+    {
+      vtkLog(WARNING, "Error: Cannot open property texture file: " << this->PropertyTextureFile);
+    }
+  }
+
   auto buildingIt = vtk::TakeSmartPointer(mb->NewTreeIterator());
   buildingIt->VisitOnlyLeavesOff();
   buildingIt->TraverseSubTreeOff();
@@ -793,14 +824,19 @@ void vtkGLTFWriter::WriteToStreamMultiBlock(ostream& output, vtkMultiBlockDataSe
         {
           foundVisibleProp = true;
           WriteMesh(accessors, buffers, bufferViews, meshes, nodes, pd, this->FileName,
-            this->InlineData, this->SaveNormal, this->SaveBatchId, this->SaveActivePointColor);
+            this->InlineData, this->SaveNormal, this->SaveBatchId, this->SaveActivePointColor,
+            !extensions.empty());
           rendererNode["children"].emplace_back(nodes.size() - 1);
           size_t oldTextureCount = textures.size();
-          std::string textureFileName = GetFieldAsString(pd, "texture_uri");
-          if (this->SaveTextures && !textureFileName.empty())
+          std::vector<std::string> textureFileNames = GetFieldAsStringVector(pd, "texture_uri");
+          if (this->SaveTextures)
           {
-            WriteTexture(buffers, bufferViews, textures, samplers, images, this->InlineData,
-              textureMap, this->TextureBaseDirectory, textureFileName.c_str(), this->FileName);
+            for (int i = 0; i < textureFileNames.size(); ++i)
+            {
+              std::string textureFileName = textureFileNames[i];
+              WriteTexture(buffers, bufferViews, textures, samplers, images, this->InlineData,
+                textureMap, this->TextureBaseDirectory, textureFileName, this->FileName);
+            }
           }
           meshes[meshes.size() - 1]["primitives"][0]["material"] = materials.size();
           WriteMaterial(pd, materials, oldTextureCount, oldTextureCount != textures.size());
@@ -834,8 +870,12 @@ void vtkGLTFWriter::WriteToStreamMultiBlock(ostream& output, vtkMultiBlockDataSe
   nlohmann::json asset;
   asset["generator"] = "VTK";
   asset["version"] = "2.0";
+  if (!extensions.empty())
+  {
+    root["extensions"] = extensions;
+    root["extensionsUsed"].push_back("EXT_structural_metadata");
+  }
   root["asset"] = asset;
-
   root["scene"] = 0;
   root["cameras"] = cameras;
   root["nodes"] = nodes;
