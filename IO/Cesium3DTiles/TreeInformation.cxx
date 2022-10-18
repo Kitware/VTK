@@ -169,23 +169,8 @@ std::array<double, 6> ToLonLatRadiansHeight(const char* crs, const std::array<do
   return lonlatheight;
 }
 
-std::string GetFieldAsString(vtkDataObject* obj, const char* name)
-{
-  vtkFieldData* fd = obj->GetFieldData();
-  if (!fd)
-  {
-    return std::string();
-  }
-  vtkStringArray* sa = vtkStringArray::SafeDownCast(fd->GetAbstractArray(name));
-  if (!sa)
-  {
-    return std::string();
-  }
-  return sa->GetValue(0);
-}
-
 //------------------------------------------------------------------------------
-void SetField(vtkDataObject* obj, const char* name, const char* value)
+void SetField(vtkDataObject* obj, const char* name, const std::vector<std::string>& values)
 {
   vtkFieldData* fd = obj->GetFieldData();
   if (!fd)
@@ -195,8 +180,12 @@ void SetField(vtkDataObject* obj, const char* name, const char* value)
     fd = newfd;
   }
   vtkNew<vtkStringArray> sa;
-  sa->SetNumberOfTuples(1);
-  sa->SetValue(0, value);
+  sa->SetNumberOfTuples(values.size());
+  for (int i = 0; i < values.size(); ++i)
+  {
+    const std::string& value = values[i];
+    sa->SetValue(i, value);
+  }
   sa->SetName(name);
   fd->AddArray(sa);
 }
@@ -234,13 +223,14 @@ vtkSmartPointer<vtkImageReader2> SetupTextureReader(const std::string& texturePa
 
 struct SaveTileMeshData
 {
-  SaveTileMeshData(int selectionField, vtkSmartPointer<vtkImageData> textureImage)
+  SaveTileMeshData(
+    int selectionField, const std::vector<vtkSmartPointer<vtkImageData>>& textureImages)
     : SelectionField(selectionField)
-    , TextureImage(textureImage)
+    , TextureImages(textureImages)
   {
   }
   int SelectionField;
-  vtkSmartPointer<vtkImageData> TextureImage;
+  std::vector<vtkSmartPointer<vtkImageData>> TextureImages;
 };
 
 struct CopyScalarsWorker
@@ -290,8 +280,8 @@ struct InitializeWorker
   }
 };
 
-std::array<std::string, 3> BuildingsContentTypeExtension = { ".b3dm", ".glb" };
-std::array<std::string, 3> PointsContentTypeExtension = { ".pnts", ".glb" };
+std::array<std::string, 3> BuildingsContentTypeExtension = { ".b3dm", ".glb", ".gltf" };
+std::array<std::string, 3> PointsContentTypeExtension = { ".pnts", ".glb", ".gltf" };
 
 VTK_ABI_NAMESPACE_END
 }
@@ -301,7 +291,8 @@ VTK_ABI_NAMESPACE_BEGIN
 //------------------------------------------------------------------------------
 TreeInformation::TreeInformation(vtkIncrementalOctreeNode* root, int numberOfNodes,
   const std::vector<vtkSmartPointer<vtkCompositeDataSet>>* buildings,
-  const std::string& textureBaseDirectory, bool saveTextures, bool contentGLTF, const char* crs,
+  const std::string& textureBaseDirectory, const std::string& propertyTextureFile,
+  bool saveTextures, bool contentGLTF, bool contentGLTFSaveGLB, const char* crs,
   const std::string& output)
   : InputType(vtkCesium3DTilesWriter::Buildings)
   , Root(root)
@@ -310,8 +301,10 @@ TreeInformation::TreeInformation(vtkIncrementalOctreeNode* root, int numberOfNod
   , Mesh(nullptr)
   , OutputDir(output)
   , TextureBaseDirectory(textureBaseDirectory)
+  , PropertyTextureFile(propertyTextureFile)
   , SaveTextures(saveTextures)
   , ContentGLTF(contentGLTF)
+  , ContentGLTFSaveGLB(contentGLTFSaveGLB)
   , CRS(crs)
   , NodeTightBounds(numberOfNodes)
   , EmptyNode(numberOfNodes)
@@ -322,7 +315,8 @@ TreeInformation::TreeInformation(vtkIncrementalOctreeNode* root, int numberOfNod
 
 //------------------------------------------------------------------------------
 TreeInformation::TreeInformation(vtkIncrementalOctreeNode* root, int numberOfNodes,
-  vtkPointSet* points, bool contentGLTF, const char* crs, const std::string& output)
+  vtkPointSet* points, bool contentGLTF, bool contentGLTFSaveGLB, const char* crs,
+  const std::string& output)
   : InputType(vtkCesium3DTilesWriter::Points)
   , Root(root)
   , Buildings(nullptr)
@@ -331,6 +325,7 @@ TreeInformation::TreeInformation(vtkIncrementalOctreeNode* root, int numberOfNod
   , OutputDir(output)
   , SaveTextures(false)
   , ContentGLTF(contentGLTF)
+  , ContentGLTFSaveGLB(contentGLTFSaveGLB)
   , CRS(crs)
   , NodeTightBounds(numberOfNodes)
   , EmptyNode(numberOfNodes)
@@ -341,8 +336,9 @@ TreeInformation::TreeInformation(vtkIncrementalOctreeNode* root, int numberOfNod
 
 //------------------------------------------------------------------------------
 TreeInformation::TreeInformation(vtkIncrementalOctreeNode* root, int numberOfNodes,
-  vtkPolyData* mesh, const std::string& textureBaseDirectory, bool saveTextures, bool contentGLTF,
-  const char* crs, const std::string& output)
+  vtkPolyData* mesh, const std::string& textureBaseDirectory,
+  const std::string& propertyTextureFile, bool saveTextures, bool contentGLTF,
+  bool contentGLTFSaveGLB, const char* crs, const std::string& output)
   : InputType(vtkCesium3DTilesWriter::Mesh)
   , Root(root)
   , Buildings(nullptr)
@@ -350,8 +346,10 @@ TreeInformation::TreeInformation(vtkIncrementalOctreeNode* root, int numberOfNod
   , Mesh(mesh)
   , OutputDir(output)
   , TextureBaseDirectory(textureBaseDirectory)
+  , PropertyTextureFile(propertyTextureFile)
   , SaveTextures(saveTextures)
   , ContentGLTF(contentGLTF)
+  , ContentGLTFSaveGLB(contentGLTFSaveGLB)
   , CRS(crs)
   , NodeTightBounds(numberOfNodes)
   , EmptyNode(numberOfNodes)
@@ -427,20 +425,24 @@ void TreeInformation::SaveTilesBuildings(bool mergeTilePolyData)
 //------------------------------------------------------------------------------
 void TreeInformation::SaveTilesMesh()
 {
-  // load the texture
-  vtkSmartPointer<vtkImageData> textureImage;
-  std::string textureFileName = GetFieldAsString(this->Mesh, "texture_uri");
-  if (!textureFileName.empty())
+  std::vector<std::string> textureFileNames =
+    vtkGLTFWriter::GetFieldAsStringVector(this->Mesh, "texture_uri");
+  vtkLog(INFO, "Input has " << textureFileNames.size() << " textures");
+
+  std::vector<vtkSmartPointer<vtkImageData>> textureImages;
+  for (const std::string& textureFileName : textureFileNames)
   {
     std::string texturePath = this->TextureBaseDirectory + "/" + textureFileName;
     auto textureReader = SetupTextureReader(texturePath);
     if (textureReader)
     {
+      vtkSmartPointer<vtkImageData> textureImage;
       textureReader->Update();
       textureImage = vtkImageData::SafeDownCast(textureReader->GetOutput());
+      textureImages.push_back(textureImage);
     }
   }
-  SaveTileMeshData aux(vtkSelectionNode::CELL, textureImage);
+  SaveTileMeshData aux(vtkSelectionNode::CELL, textureImages);
   this->PostOrderTraversal(&TreeInformation::SaveTileMesh, this->Root, &aux);
 }
 
@@ -531,7 +533,14 @@ void TreeInformation::SaveTileBuildings(vtkIncrementalOctreeNode* node, void* au
     ostr << "/" << node->GetID() << ".gltf";
     writer->SetFileName(ostr.str().c_str());
     writer->SetTextureBaseDirectory(this->TextureBaseDirectory.c_str());
+    if (!this->PropertyTextureFile.empty())
+    {
+      writer->SetPropertyTextureFile(this->PropertyTextureFile.c_str());
+    }
     writer->SetSaveTextures(this->SaveTextures);
+    // if you use the gltf format, 3DTiles are not served correctly if
+    // the textures are in a different location.
+    writer->SetCopyTextures(true);
     writer->SetSaveNormal(true);
     vtkLog(INFO,
       "Saving GLTF file: " << ostr.str() << " for " << pointIds->GetNumberOfIds()
@@ -548,7 +557,7 @@ struct RegionCellId
 
 //------------------------------------------------------------------------------
 vtkSmartPointer<vtkImageData> TreeInformation::ComputeTileMeshTexture(
-  vtkPolyData* tileMesh, vtkImageData* datasetImage)
+  vtkPolyData* tileMesh, vtkImageData* datasetImage, vtkDataArray* tcoordsTile)
 {
   if (!datasetImage)
   {
@@ -655,10 +664,6 @@ vtkSmartPointer<vtkImageData> TreeInformation::ComputeTileMeshTexture(
   tileImage->GetPointData()->SetScalars(tileColors);
   int tileX = 0, tileY = 0;
   vtkIdType sortedIndex = 0;
-  auto tcoordsTile = vtk::TakeSmartPointer<vtkDataArray>(tcoordsDataset->NewInstance());
-  tcoordsTile->SetNumberOfComponents(2);
-  tcoordsTile->SetNumberOfTuples(tileMesh->GetNumberOfPoints());
-  tcoordsTile->Fill(-1);
 
   vtkCellArray* cellArray = tileMesh->GetPolys();
   // for all rows
@@ -689,34 +694,37 @@ vtkSmartPointer<vtkImageData> TreeInformation::ComputeTileMeshTexture(
       //           tileRegion.end(),
       //           std::ostream_iterator<int>(std::cout," "));
       // std::cout << std::endl;
-      for (int k = 0; k < 3; ++k)
+      if (tcoordsTile)
       {
-        vtkIdType pointId = cell->GetPointId(k);
-        std::array<int, 2> datasetPoint = datasetCoordinates[cellId][k];
-        std::array<int, 2> tilePoint = { { datasetPoint[0] - datasetRegion[0] + tileX,
-          datasetPoint[1] - datasetRegion[2] + tileY } };
-        double tcoords[2] = { static_cast<double>(tilePoint[0]) / tileDims[0],
-          static_cast<double>(tilePoint[1]) / tileDims[1] };
-        // std::cout << "d: " << datasetPoint[0] << ", " << datasetPoint[1]
-        //           << " t: " << tilePoint[0] << ", " << tilePoint[1] << std::endl;
-        double tcoord0;
-        tcoord0 = tcoordsTile->GetComponent(pointId, 0);
-        if (tcoord0 != -1)
+        for (int k = 0; k < 3; ++k)
         {
-          // need to duplicate pointId as it has different texture coordinates in
-          // different cells.
-          vtkPoints* points = tileMesh->GetPoints();
-          points->InsertNextPoint(points->GetPoint(pointId));
-          vtkPointData* pointData = tileMesh->GetPointData();
-          pointData->CopyAllocate(pointData, points->GetNumberOfPoints());
-          pointData->CopyData(pointData, pointId, points->GetNumberOfPoints() - 1);
-          cellArray->ReplaceCellPointAtId(cellId, k, points->GetNumberOfPoints() - 1);
-          pointId = points->GetNumberOfPoints() - 1;
-          tcoordsTile->InsertNextTuple(tcoords);
-        }
-        else
-        {
-          tcoordsTile->SetTuple(pointId, tcoords);
+          vtkIdType pointId = cell->GetPointId(k);
+          std::array<int, 2> datasetPoint = datasetCoordinates[cellId][k];
+          std::array<int, 2> tilePoint = { { datasetPoint[0] - datasetRegion[0] + tileX,
+            datasetPoint[1] - datasetRegion[2] + tileY } };
+          double tcoords[2] = { static_cast<double>(tilePoint[0]) / tileDims[0],
+            static_cast<double>(tilePoint[1]) / tileDims[1] };
+          // std::cout << "d: " << datasetPoint[0] << ", " << datasetPoint[1]
+          //           << " t: " << tilePoint[0] << ", " << tilePoint[1] << std::endl;
+          double tcoord0;
+          tcoord0 = tcoordsTile->GetComponent(pointId, 0);
+          if (tcoord0 != -1)
+          {
+            // need to duplicate pointId as it has different texture coordinates in
+            // different cells.
+            vtkPoints* points = tileMesh->GetPoints();
+            points->InsertNextPoint(points->GetPoint(pointId));
+            vtkPointData* pointData = tileMesh->GetPointData();
+            pointData->CopyAllocate(pointData, points->GetNumberOfPoints());
+            pointData->CopyData(pointData, pointId, points->GetNumberOfPoints() - 1);
+            cellArray->ReplaceCellPointAtId(cellId, k, points->GetNumberOfPoints() - 1);
+            pointId = points->GetNumberOfPoints() - 1;
+            tcoordsTile->InsertNextTuple(tcoords);
+          }
+          else
+          {
+            tcoordsTile->SetTuple(pointId, tcoords);
+          }
         }
       }
       // copy a region from the dataset to the tile image
@@ -734,7 +742,6 @@ vtkSmartPointer<vtkImageData> TreeInformation::ComputeTileMeshTexture(
     tileX = 0;
     tileY += rowWidthHeight[i][1];
   }
-  tileMesh->GetPointData()->SetTCoords(tcoordsTile);
   return tileImage;
 }
 
@@ -765,20 +772,55 @@ void TreeInformation::SaveTileMesh(vtkIncrementalOctreeNode* node, void* voidAux
     ostr << this->OutputDir << "/" << node->GetID();
     vtkDirectory::MakeDirectory(ostr.str().c_str());
     ostr << "/" << node->GetID();
-    if (aux->SelectionField == vtkSelectionNode::CELL)
+    // compute tile texture
+    if (aux->SelectionField == vtkSelectionNode::CELL && !aux->TextureImages.empty() &&
+      tileMesh->GetPointData()->GetTCoords())
     {
-      auto tileImage = this->ComputeTileMeshTexture(tileMesh, aux->TextureImage);
-      if (tileImage)
+      std::vector<std::string> tileImages;
+      vtkDataArray* tcoordsDataset = tileMesh->GetPointData()->GetTCoords();
+      auto tcoordsTile = vtk::TakeSmartPointer<vtkDataArray>(tcoordsDataset->NewInstance());
+      tcoordsTile->SetNumberOfComponents(2);
+      tcoordsTile->SetNumberOfTuples(tileMesh->GetNumberOfPoints());
+      tcoordsTile->Fill(-1);
+      int* dims = aux->TextureImages[0]->GetDimensions();
+      int maxDim = dims[0];
+      int maxIndex = 0;
+      double ratio0 = static_cast<double>(dims[0]) / dims[1];
+      for (int i = 1; i < aux->TextureImages.size(); ++i)
       {
-        std::string filePath = ostr.str() + ".png";
-        vtkNew<vtkPNGWriter> writer;
-        writer->SetFileName(filePath.c_str());
-        writer->SetInputDataObject(tileImage);
-        writer->Write();
-        // add texture file annotation
-        SetField(tileMesh, "texture_uri",
-          (std::to_string(node->GetID()) + "/" + std::to_string(node->GetID()) + ".png").c_str());
+        auto textureImage = aux->TextureImages[i];
+        dims = textureImage->GetDimensions();
+        double ratio = static_cast<double>(dims[0]) / dims[1];
+        if (!vtkMathUtilities::FuzzyCompare(ratio0, ratio))
+        {
+          vtkLog(WARNING,
+            "Different ratios for textures with the same texture coordinates 0:"
+              << ratio0 << " " << i << ": " << ratio);
+        }
+        if (maxDim < dims[0])
+        {
+          maxDim = dims[0];
+          maxIndex = i;
+        }
       }
+      for (int i = 0; i < aux->TextureImages.size(); ++i)
+      {
+        auto textureImage = aux->TextureImages[i];
+        auto tileImage = this->ComputeTileMeshTexture(
+          tileMesh, textureImage, maxIndex == i ? tcoordsTile : nullptr);
+        if (tileImage)
+        {
+          std::string filePath = this->OutputDir + "/" + std::to_string(node->GetID()) + "/" +
+            std::to_string(i) + ".png";
+          vtkNew<vtkPNGWriter> writer;
+          writer->SetFileName(filePath.c_str());
+          writer->SetInputDataObject(tileImage);
+          writer->Write();
+          tileImages.push_back(std::to_string(node->GetID()) + "/" + std::to_string(i) + ".png");
+        }
+      }
+      tileMesh->GetPointData()->SetTCoords(tcoordsTile);
+      SetField(tileMesh, "texture_uri", tileImages);
     }
     // store tileMesh into a multiblock
     vtkNew<vtkMultiBlockDataSet> buildings;
@@ -794,6 +836,10 @@ void TreeInformation::SaveTileMesh(vtkIncrementalOctreeNode* node, void* voidAux
     std::string fileName = ostr.str() + ".gltf";
     writer->SetFileName(fileName.c_str());
     writer->SetTextureBaseDirectory(this->OutputDir.c_str());
+    if (!this->PropertyTextureFile.empty())
+    {
+      writer->SetPropertyTextureFile(this->PropertyTextureFile.c_str());
+    }
     writer->SetSaveTextures(this->SaveTextures);
     if (aux->SelectionField == vtkSelectionNode::CELL)
     {
@@ -812,7 +858,7 @@ void TreeInformation::SaveTilePoints(vtkIncrementalOctreeNode* node, void* voidA
 {
   if (this->ContentGLTF)
   {
-    SaveTileMeshData aux(*static_cast<int*>(voidAux), nullptr);
+    SaveTileMeshData aux(*static_cast<int*>(voidAux), std::vector<vtkSmartPointer<vtkImageData>>());
     SaveTileMesh(node, &aux);
   }
   else if (node->IsLeaf() && !this->EmptyNode[node->GetID()])
@@ -1158,14 +1204,15 @@ json TreeInformation::GenerateTileJson(vtkIncrementalOctreeNode* node)
 
 std::string TreeInformation::ContentTypeExtension() const
 {
+  int index = this->ContentGLTF ? (this->ContentGLTFSaveGLB ? 1 : 2) : 0;
   switch (this->InputType)
   {
     case vtkCesium3DTilesWriter::Buildings:
-      return BuildingsContentTypeExtension[this->ContentGLTF];
+      return BuildingsContentTypeExtension[index];
     case vtkCesium3DTilesWriter::Points:
-      return PointsContentTypeExtension[this->ContentGLTF];
+      return PointsContentTypeExtension[index];
     case vtkCesium3DTilesWriter::Mesh:
-      return BuildingsContentTypeExtension[this->ContentGLTF];
+      return BuildingsContentTypeExtension[index];
     default:
       vtkLog(ERROR, "Invalid InputType " << this->InputType);
       return "";

@@ -21,6 +21,10 @@
  * vtkCityGMLReader) storing 3D buidlings, vtkPointSet storing a point
  * cloud or vtkPolyData for storing a mesh.
  *
+ * @sa
+ * vtkCityGMLReader
+ * vtkMultiBlockDataSet
+ * vtkPolyData
  */
 
 #ifndef vtkCesium3DTilesWriter_h
@@ -59,6 +63,18 @@ public:
    */
   vtkSetFilePathMacro(TextureBaseDirectory);
   vtkGetFilePathMacro(TextureBaseDirectory);
+  ///@}
+
+  ///@{
+  /**
+   * Optional property texture mapping for the whole dataset.
+   * This is a json file described in <a
+   href="https://github.com/CesiumGS/3d-tiles/tree/main/specification/Metadata">3D Metadata and
+    https://github.com/CesiumGS/glTF/tree/3d-tiles-next/extensions/2.0/Vendor/EXT_structural_metadata
+   * @see vtkCityGMLReader
+   */
+  vtkSetFilePathMacro(PropertyTextureFile);
+  vtkGetFilePathMacro(PropertyTextureFile);
   ///@}
 
   ///@{
@@ -109,15 +125,19 @@ public:
   /**
    * What is the file type used to save tiles. If ContentGLTF is false
    * (the default) we use B3DM for Buildings or Mesh and PNTS for
-   * PointCloud otherwise  we use GLB (3DTILES_content_gltf
-   * extension).  If the file type is B3DM or GLB, external programs are
+   * PointCloud otherwise  we use GLB or GLTF (3DTILES_content_gltf
+   * extension, use GLB if ContentGLTFSaveGLB is true).
+   * If the file type is B3DM or GLB, external programs are
    * needed to convert GLTF -> GLB -> B3DM.
    *
    */
   vtkSetMacro(ContentGLTF, bool);
   vtkGetMacro(ContentGLTF, bool);
   vtkBooleanMacro(ContentGLTF, bool);
-  ///@}
+  vtkSetMacro(ContentGLTFSaveGLB, bool);
+  vtkGetMacro(ContentGLTFSaveGLB, bool);
+  vtkBooleanMacro(ContentGLTFSaveGLB, bool);
+  ///@
 
   ///@{
   /**
@@ -158,10 +178,12 @@ protected:
 
   char* DirectoryName;
   char* TextureBaseDirectory;
+  char* PropertyTextureFile;
   double Offset[3];
   bool SaveTextures;
   int InputType;
   bool ContentGLTF;
+  bool ContentGLTFSaveGLB;
   bool SaveTiles;
   bool MergeTilePolyData;
   int NumberOfFeaturesPerTile;

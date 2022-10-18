@@ -34,6 +34,7 @@
 VTK_ABI_NAMESPACE_BEGIN
 class vtkActor;
 class vtkCompositeDataSet;
+class vtkDataArray;
 class vtkIdList;
 class vtkImageData;
 class vtkIntArray;
@@ -50,14 +51,19 @@ public:
   /**
    * Constructors for buildings, points and meshes.
    */
+  // buildings
   TreeInformation(vtkIncrementalOctreeNode* root, int numberOfNodes,
     const std::vector<vtkSmartPointer<vtkCompositeDataSet>>* buildings,
-    const std::string& textureBaseDirectory, bool saveTextures, bool contentGLTF, const char* crs,
+    const std::string& textureBaseDirectory, const std::string& propertyTextureFile,
+    bool saveTextures, bool contentGLTF, bool contentGLTFSaveGLB, const char* crs,
     const std::string& outputDir);
+  // points
   TreeInformation(vtkIncrementalOctreeNode* root, int numberOfNodes, vtkPointSet* points,
-    bool contentGLTF, const char* crs, const std::string& output);
+    bool contentGLTF, bool contentGLTFSaveGLB, const char* crs, const std::string& output);
+  // mesh
   TreeInformation(vtkIncrementalOctreeNode* root, int numberOfNodes, vtkPolyData* mesh,
-    const std::string& textureBaseDirectory, bool saveTextures, bool contentGLTF, const char* crs,
+    const std::string& textureBaseDirectory, const std::string& propertyTextureFile,
+    bool saveTextures, bool contentGLTF, bool contentGLTFSaveGLB, const char* crs,
     const std::string& output);
   ///@}
 
@@ -123,7 +129,7 @@ protected:
    * Compute the texture image for the tile and recompute texture coordinates
    */
   vtkSmartPointer<vtkImageData> ComputeTileMeshTexture(
-    vtkPolyData* tileMesh, vtkImageData* textureImage);
+    vtkPolyData* tileMesh, vtkImageData* textureImage, vtkDataArray* tcoordsTile);
   void SaveTilePoints(vtkIncrementalOctreeNode* node, void* auxData);
 
   ///@{
@@ -161,8 +167,10 @@ private:
 
   std::string OutputDir;
   std::string TextureBaseDirectory;
+  std::string PropertyTextureFile;
   bool SaveTextures;
   bool ContentGLTF;
+  bool ContentGLTFSaveGLB;
 
   const char* CRS;
   /**
