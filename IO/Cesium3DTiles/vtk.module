@@ -12,6 +12,7 @@ PRIVATE_DEPENDS
   VTK::CommonSystem
   VTK::IOImage
   VTK::IOGeometry
+  VTK::IOXML
   VTK::FiltersGeneral
   VTK::FiltersGeometry
   VTK::FiltersExtraction
@@ -20,9 +21,12 @@ PRIVATE_DEPENDS
   VTK::libproj
   VTK::nlohmannjson
 TEST_DEPENDS
+  VTK::InteractionStyle
   VTK::CommonSystem
   VTK::IOCityGML
   VTK::IOGeometry
+  VTK::IOImport
+  VTK::RenderingOpenGL2
   VTK::TestingCore
   VTK::TestingRendering
   VTK::nlohmannjson
