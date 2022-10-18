@@ -592,7 +592,6 @@ void TestBerlinBuildings(const std::string& dataRoot, const std::string& tempDir
 void TestChurchBuildings(
   const std::string& dataRoot, const std::string& tempDirectory, vtkRenderWindow* renderWindow)
 {
-  std::array<std::array<double, 3>, 3> in;
   std::cout << "Test merge textures church (citygml)" << std::endl;
   auto input =
     tiler(std::vector<std::string>{ { dataRoot + "/Data/CityGML/Part-4-Buildings-V4-one.gml" } },
