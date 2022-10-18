@@ -496,9 +496,9 @@ void vtkOpenGLProjectedTetrahedraMapper::ProjectTetrahedra(
   this->AllocateFOResources(renderer);
 
   vtkOpenGLFramebufferObject* fo = nullptr;
-
-  vtkOpenGLState* ostate =
-    static_cast<vtkOpenGLRenderWindow*>(renderer->GetRenderWindow())->GetState();
+  vtkOpenGLRenderWindow* renderWindow =
+    static_cast<vtkOpenGLRenderWindow*>(renderer->GetRenderWindow());
+  vtkOpenGLState* ostate = renderWindow->GetState();
 
   // Copy existing Depth/Color buffers to FO
   if (this->UseFloatingPointFrameBuffer && this->CanDoFloatingPointFrameBuffer)
@@ -517,8 +517,12 @@ void vtkOpenGLProjectedTetrahedraMapper::ProjectTetrahedra(
     }
 
     ostate->vtkglBlitFramebuffer(0, 0, this->CurrentFBOWidth, this->CurrentFBOHeight, 0, 0,
-      this->CurrentFBOWidth, this->CurrentFBOHeight, GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT,
-      GL_NEAREST);
+      this->CurrentFBOWidth, this->CurrentFBOHeight, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+
+    // We need to treat depth buffer blitting specially because depth buffer formats may not
+    // be compatible between the FBO used in this class and the renderwindow's FBO.
+    renderWindow->TextureDepthBlit(
+      renderWindow->GetRenderFramebuffer()->GetDepthAttachmentAsTextureObject());
 
     vtkOpenGLCheckErrorMacro("failed at glBlitFramebuffer");
   }
