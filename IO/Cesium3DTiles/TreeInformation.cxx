@@ -301,7 +301,7 @@ vtkSmartPointer<vtkImageData> GetTexture(
 }
 
 std::vector<vtkSmartPointer<vtkImageData>> GetTileTextures(const std::string& textureBaseDirectory,
-  const std::vector<std::vector<std::string>>& tileTextureFileNames, int textureIndex)
+  const std::vector<std::vector<std::string>>& tileTextureFileNames, size_t textureIndex)
 {
   std::vector<vtkSmartPointer<vtkImageData>> tileTextures(tileTextureFileNames.size());
   for (size_t i = 0; i < tileTextureFileNames.size(); ++i)
@@ -312,7 +312,7 @@ std::vector<vtkSmartPointer<vtkImageData>> GetTileTextures(const std::string& te
 }
 
 void TranslateTCoords(std::vector<vtkSmartPointer<vtkImageData>> tileTextures,
-  const std::vector<std::array<size_t, 2>>& textureOrigin, int tileDims[3],
+  const std::vector<std::array<int, 2>>& textureOrigin, int tileDims[3],
   std::vector<vtkDataArray*> tileTCoords)
 {
   int dims[3];
@@ -349,7 +349,7 @@ void TranslateTCoords(std::vector<vtkSmartPointer<vtkImageData>> tileTextures,
 
 vtkSmartPointer<vtkImageData> MergeTextures(std::vector<vtkSmartPointer<vtkImageData>> tileTextures,
   std::vector<size_t> textureId, // sorted decreasing by height
-  size_t mergedTextureWidth, std::vector<std::array<size_t, 2>>& textureOrigin)
+  size_t mergedTextureWidth, std::vector<std::array<int, 2>>& textureOrigin)
 {
   if (tileTextures.size() != textureId.size() || tileTextures.size() != textureOrigin.size())
   {
@@ -360,14 +360,14 @@ vtkSmartPointer<vtkImageData> MergeTextures(std::vector<vtkSmartPointer<vtkImage
   }
   vtkNew<vtkImageAppend> append;
   append->PreserveExtentsOn();
-  std::array<size_t, 2> currentOrigin = { { 0, 0 } };
+  std::array<int, 2> currentOrigin = { { 0, 0 } };
   int row = 0, prevRow = -1;
   size_t column = 0;
   int dims[3];
   int extent[6];
   // currentHeight is set every time the row changes. We set the initial prevRow
   // so that it shows a row change so currentHeight gets initialized.
-  size_t currentHeight = 0;
+  int currentHeight = 0;
   for (size_t i = 0; i < tileTextures.size(); ++i)
   {
     // use currentOrigin to translate the extent of texture
@@ -701,7 +701,7 @@ void TreeInformation::SaveTileBuildings(vtkIncrementalOctreeNode* node, void* au
       if (meshTextureFileNames.size() > 1 && this->SaveTextures)
       {
         mergedFileNames.resize(meshTextureFileNames[0].size());
-        std::vector<std::array<size_t, 2>> textureOrigin(meshTextureFileNames.size());
+        std::vector<std::array<int, 2>> textureOrigin(meshTextureFileNames.size());
         for (size_t i = 0; i < numberOfTextures; ++i)
         {
           // load all textures we need to merge
