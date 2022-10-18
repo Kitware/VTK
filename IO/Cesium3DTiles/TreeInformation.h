@@ -93,7 +93,7 @@ public:
    * and the geometric error.
    */
   void Compute();
-  void SaveTilesBuildings(bool mergeTilePolyData, int mergedTextureWidth);
+  void SaveTilesBuildings(bool mergeTilePolyData, size_t mergedTextureWidth);
   void SaveTilesMesh();
   void SaveTilesPoints();
   void SaveTileset(const std::string& output);
@@ -177,10 +177,6 @@ private:
   std::string TextureBaseDirectory;
   std::string PropertyTextureFile;
   bool SaveTextures;
-  /**
-   * Width of the merged texture in number of input textures
-   */
-  int MergedTexturesWidth;
   bool ContentGLTF;
   bool ContentGLTFSaveGLB;
 

@@ -544,7 +544,7 @@ void TreeInformation::Compute()
 }
 
 //------------------------------------------------------------------------------
-void TreeInformation::SaveTilesBuildings(bool mergeTilePolyData, int mergedTextureWidth)
+void TreeInformation::SaveTilesBuildings(bool mergeTilePolyData, size_t mergedTextureWidth)
 {
   MergePolyDataInfo info{ mergeTilePolyData, mergedTextureWidth };
   this->PostOrderTraversal(&TreeInformation::SaveTileBuildings, this->Root, &info);
