@@ -50,7 +50,9 @@ struct vtkFidesReader::vtkFidesReaderImpl
   bool HasParsedDataModel{ false };
   bool AllDataSourcesSet{ false };
   bool UsePresetModel{ false };
+  bool SkipNextPrepareCall{ false };
   int NumberOfDataSources{ 0 };
+  bool UseInlineEngine{ false };
   vtkNew<vtkStringArray> SourceNames;
 
   // first -> source name, second -> address of IO object
@@ -90,6 +92,7 @@ struct vtkFidesReader::vtkFidesReaderImpl
     params["engine_type"] = "Inline";
     this->Reader->SetDataSourceParameters(this->IOObjectInfo.first, params);
     this->Reader->SetDataSourceIO(this->IOObjectInfo.first, this->IOObjectInfo.second);
+    this->UseInlineEngine = true;
   }
 };
 
@@ -156,16 +159,35 @@ void vtkFidesReader::SetDataSourceIO(const std::string& name, const std::string&
 // This version is used when a json file with the data model is provided
 void vtkFidesReader::ParseDataModel(const std::string& fname)
 {
-  this->Impl->Reader.reset(new fides::io::DataSetReader(fname));
-  this->Impl->HasParsedDataModel = true;
-  this->Impl->SetupInlineEngine();
+  // Should no longer be used; use ParseDataModel() instead
+  this->FileName = fname;
+  this->ParseDataModel();
 }
 
 // This version is used when a pre-defined data model is being used
 void vtkFidesReader::ParseDataModel()
 {
-  this->Impl->Reader.reset(
-    new fides::io::DataSetReader(this->FileName, fides::io::DataSetReader::DataModelInput::BPFile));
+  // If we have the minimum required info (basically just FileName), then we'll
+  // go ahead and create the reader.
+  // This opens the reader in a random access mode.
+  // If RequestInformation is called again, we may end up deleting it and making
+  // a new reader because we have new information about how the reader should
+  // actually be opened (e.g., with some type of streaming engine)
+  fides::io::DataSetReader::DataModelInput inputType =
+    fides::io::DataSetReader::DataModelInput::JSONFile;
+  if (this->Impl->UsePresetModel)
+  {
+    inputType = fides::io::DataSetReader::DataModelInput::BPFile;
+  }
+  try
+  {
+    this->Impl->Reader.reset(new fides::io::DataSetReader(this->FileName, inputType));
+  }
+  catch (...)
+  {
+    this->Impl->HasParsedDataModel = false;
+    return;
+  }
   this->Impl->HasParsedDataModel = true;
   this->Impl->SetupInlineEngine();
 }
@@ -241,33 +263,42 @@ int vtkFidesReader::RequestDataObject(
 int vtkFidesReader::RequestInformation(
   vtkInformation*, vtkInformationVector**, vtkInformationVector* outputVector)
 {
-  vtkInformation* outInfo = outputVector->GetInformationObject(0);
-  if (this->Impl->NumberOfDataSources == 0)
+  if (this->Impl->UseInlineEngine && this->Impl->HasParsedDataModel)
   {
-    this->Impl->SetNumberOfDataSources();
-    if (this->Impl->Paths.size() == static_cast<size_t>(this->Impl->NumberOfDataSources))
-    {
-      vtkDebugMacro(<< "All data sources have now been set");
-      this->Impl->AllDataSourcesSet = true;
-    }
+    // If we're using the Inline engine, we may get unnecessary
+    // RequestInformation calls, but we don't want to actually reset the
+    // reader
+    return 1;
   }
 
-  if (!this->Impl->UsePresetModel && !this->Impl->HasParsedDataModel)
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
+
+  // okay so basically we will reset our reader on any call to RequestInfo
+  // (except for the situations described above)
+  // because we may later get new metadata that determines how we should actually
+  // have created the reader, configured adios, etc
+  // at bare minimum, FileName has been set, so we can go ahead and call this
+  this->ParseDataModel();
+
+  if (!this->Impl->HasParsedDataModel)
   {
-    this->ParseDataModel(this->FileName);
-    if (this->StreamSteps)
-    {
-      // when streaming UpdateInformation() should be called to get Fides set
-      // up, but don't read metadata yet.
-      return 1;
-    }
+    // for some reason we weren't able to set up the fides reader, so just return
+    return 1;
   }
-  else if (this->Impl->UsePresetModel && !this->Impl->HasParsedDataModel)
+
+  // reset the number of data sources
+  this->Impl->SetNumberOfDataSources();
+  if (!this->Impl->Paths.empty() &&
+    this->Impl->Paths.size() == static_cast<size_t>(this->Impl->NumberOfDataSources))
   {
-    vtkDebugMacro(<< "using preset model but hasn't been parsed yet");
-    this->ParseDataModel();
+    vtkDebugMacro(<< "All data sources have now been set");
+    this->Impl->AllDataSourcesSet = true;
+  }
+
+  // for generated data model, we have to set the paths for sources
+  if (this->Impl->UsePresetModel)
+  {
     vtkStringArray* sourceNames = this->Impl->GetDataSourceNames();
-    this->Impl->NumberOfDataSources = sourceNames->GetNumberOfValues();
     vtkDebugMacro(<< this->Impl->NumberOfDataSources << " data sources were found");
     for (int i = 0; i < this->Impl->NumberOfDataSources; ++i)
     {
@@ -290,14 +321,37 @@ int vtkFidesReader::RequestInformation(
       this->SetDataSourcePath(sourceNames->GetValue(i), path);
     }
   }
-  else if (!this->Impl->HasParsedDataModel || !this->Impl->AllDataSourcesSet)
+
+  if (this->Impl->NumberOfDataSources == 0 || this->Impl->Paths.empty())
   {
-    vtkErrorMacro(
-      << "RequestInfo() has not parsed data model and all data sources have not been set");
+    // no reason to keep going
+    // this can happen when using a JSON file instead of a BP file
     return 1;
   }
 
-  auto metaData = this->Impl->Reader->ReadMetaData(this->Impl->Paths);
+  if (this->StreamSteps)
+  {
+    // This isn't as relevant for earlier BP versions, but for BP5 streaming
+    // as well as staging engines, we need to do the BeginStep() call before
+    // we can read anything, or even just inquire variables/attributes.
+    // Fides does need to get some information about variables/attributes
+    // in ReadMetaData()
+    this->PrepareNextStep();
+    this->Impl->SkipNextPrepareCall = true;
+  }
+
+  fides::metadata::MetaData metaData;
+  try
+  {
+    metaData = this->Impl->Reader->ReadMetaData(this->Impl->Paths);
+  }
+  catch (...)
+  {
+    // it's possible that we were able to set Fides up, but reading metadata
+    // failed, indicating that not all properties have been set before this
+    // RequestInformation call.
+    return 1;
+  }
   vtkDebugMacro(<< "MetaData has been read by Fides");
 
   auto nBlocks = metaData.Get<fides::metadata::Size>(fides::keys::NUMBER_OF_BLOCKS());
@@ -441,8 +495,20 @@ void vtkFidesReader::PrepareNextStep()
     this->NextStepStatus = static_cast<StepStatus>(fides::StepStatus::NotReady);
     return;
   }
-  this->NextStepStatus =
-    static_cast<StepStatus>(this->Impl->Reader->PrepareNextStep(this->Impl->Paths));
+  if (this->Impl->SkipNextPrepareCall)
+  {
+    this->Impl->SkipNextPrepareCall = false;
+    return;
+  }
+  try
+  {
+    this->NextStepStatus =
+      static_cast<StepStatus>(this->Impl->Reader->PrepareNextStep(this->Impl->Paths));
+  }
+  catch (...)
+  {
+    return;
+  }
   vtkDebugMacro(<< "PrepareNextStep() NextStepStatus = " << this->NextStepStatus);
   this->StreamSteps = true;
   this->Modified();
