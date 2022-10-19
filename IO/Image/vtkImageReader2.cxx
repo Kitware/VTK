@@ -30,6 +30,8 @@
 #include "vtksys/FStream.hxx"
 #include "vtksys/SystemTools.hxx"
 
+#include <ios>
+
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImageReader2);
 
@@ -629,28 +631,28 @@ unsigned long vtkImageReader2::GetHeaderSize(unsigned long idx)
 //------------------------------------------------------------------------------
 void vtkImageReader2::SeekFile(int i, int j, int k)
 {
-  unsigned long streamStart;
+  std::streamoff startOffset;
 
   // convert data extent into constants that can be used to seek.
-  streamStart = (i - this->DataExtent[0]) * this->DataIncrements[0];
+  startOffset = static_cast<std::streamoff>(i - this->DataExtent[0]) * this->DataIncrements[0];
 
   if (this->FileLowerLeft)
   {
-    streamStart = streamStart + (j - this->DataExtent[2]) * this->DataIncrements[1];
+    startOffset += static_cast<std::streamoff>(j - this->DataExtent[2]) * this->DataIncrements[1];
   }
   else
   {
-    streamStart =
-      streamStart + (this->DataExtent[3] - this->DataExtent[2] - j) * this->DataIncrements[1];
+    startOffset += static_cast<std::streamoff>(this->DataExtent[3] - this->DataExtent[2] - j) *
+      this->DataIncrements[1];
   }
 
   // handle three and four dimensional files
   if (this->GetFileDimensionality() >= 3)
   {
-    streamStart = streamStart + (k - this->DataExtent[4]) * this->DataIncrements[2];
+    startOffset += static_cast<std::streamoff>(k - this->DataExtent[4]) * this->DataIncrements[2];
   }
 
-  streamStart += this->GetHeaderSize(k);
+  startOffset += this->GetHeaderSize(k);
 
   // error checking
   if (!this->File)
@@ -659,7 +661,7 @@ void vtkImageReader2::SeekFile(int i, int j, int k)
     return;
   }
 
-  this->File->seekg((long)streamStart, ios::beg);
+  this->File->seekg(startOffset, ios::beg);
   if (this->File->fail())
   {
     vtkWarningMacro("File operation failed.");
