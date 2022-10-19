@@ -532,20 +532,20 @@ void vtkExtractDataArraysOverTime::vtkInternal::AddTimeStepInternal(
     return;
   }
 
-  vtkIdTypeArray* indexArray = nullptr;
+  vtkIdTypeArray::Superclass* indexArray = nullptr;
   if (!statsOnly)
   {
     if (this->Self->GetUseGlobalIDs())
     {
-      indexArray = vtkIdTypeArray::SafeDownCast(inDSA->GetGlobalIds());
+      indexArray = vtkIdTypeArray::Superclass::FastDownCast(inDSA->GetGlobalIds());
     }
     else
     {
       // when not reporting stats, user can specify which array to use to index
       // elements.
       int association;
-      indexArray =
-        vtkIdTypeArray::SafeDownCast(this->Self->GetInputArrayToProcess(0, data, association));
+      indexArray = vtkIdTypeArray::Superclass::FastDownCast(
+        this->Self->GetInputArrayToProcess(0, data, association));
       if (indexArray != nullptr && association != attributeType)
       {
         indexArray = nullptr;
