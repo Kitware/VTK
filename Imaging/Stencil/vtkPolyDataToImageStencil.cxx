@@ -63,6 +63,8 @@ POSSIBILITY OF SUCH DAMAGES.
 #include "vtkSignedCharArray.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
+#include "vtkSMPTools.h"
+
 #include <algorithm>
 #include <map>
 #include <utility>
@@ -772,9 +774,9 @@ int vtkPolyDataToImageStencil::RequestData(
 
   int extent[6];
   data->GetExtent(extent);
-  // ThreadedExecute is only called from a single thread for
-  // now, but it could as easily be called from ThreadedRequestData
-  this->ThreadedExecute(data, extent, 0);
+  ParallelWorker worker(extent, this, data);
+
+  vtkSMPTools::For(extent[4], extent[5] + 1, 1, worker);
 
   return 1;
 }
