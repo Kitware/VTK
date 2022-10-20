@@ -10,11 +10,11 @@ set (headers
   vtkfmt/core.h
   vtkfmt/format.h
   vtkfmt/format-inl.h
-  vtkfmt/locale.h
   vtkfmt/os.h
   vtkfmt/ostream.h
   vtkfmt/printf.h
   vtkfmt/ranges.h
+  vtkfmt/std.h
   vtkfmt/xchar.h)
 
 #-----------------------------------------

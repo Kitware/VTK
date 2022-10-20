@@ -1,5 +1,7 @@
-{fmt}
-=====
+.. image:: https://user-images.githubusercontent.com/
+           576385/156254208-f5b743a9-88cf-439d-b0c0-923d53e8d551.png
+   :width: 25%
+   :alt: {fmt}
 
 .. image:: https://github.com/fmtlib/fmt/workflows/linux/badge.svg
    :target: https://github.com/fmtlib/fmt/actions?query=workflow%3Alinux
@@ -9,9 +11,6 @@
 
 .. image:: https://github.com/fmtlib/fmt/workflows/windows/badge.svg
    :target: https://github.com/fmtlib/fmt/actions?query=workflow%3Awindows
-
-.. image:: https://ci.appveyor.com/api/projects/status/ehjkiefde6gucy1v?svg=true
-   :target: https://ci.appveyor.com/project/vitaut/fmt
 
 .. image:: https://oss-fuzz-build-logs.storage.googleapis.com/badges/fmt.svg
    :alt: fmt is continuously fuzzed at oss-fuzz
@@ -26,11 +25,12 @@
 **{fmt}** is an open-source formatting library providing a fast and safe
 alternative to C stdio and C++ iostreams.
 
-If you like this project, please consider donating to the BYSOL
-Foundation that helps victims of political repressions in Belarus:
-https://bysol.org/en/bs/general/.
+If you like this project, please consider donating to one of the funds that
+help victims of the war in Ukraine: https://www.stopputin.net/.
 
 `Documentation <https://fmt.dev>`__
+
+`Cheat Sheets <https://hackingcpp.com/cpp/libs/fmt.html>`__
 
 Q&A: ask questions on `StackOverflow with the tag fmt
 <https://stackoverflow.com/questions/tagged/fmt>`_.
@@ -123,7 +123,7 @@ Output::
     Default format: 42s 100ms
     strftime-like format: 03:15:30
 
-**Print a container** (`run <https://godbolt.org/z/MjsY7c>`_)
+**Print a container** (`run <https://godbolt.org/z/MxM1YqjE7>`_)
 
 .. code:: c++
 
@@ -341,9 +341,12 @@ Projects using this library
 
 * `Folly <https://github.com/facebook/folly>`_: Facebook open-source library
 
+* `GemRB <https://gemrb.org/>`_: a portable open-source implementation of
+  Bioware’s Infinity Engine
+
 * `Grand Mountain Adventure
   <https://store.steampowered.com/app/1247360/Grand_Mountain_Adventure/>`_:
-  A beautiful open-world ski & snowboarding game
+  a beautiful open-world ski & snowboarding game
 
 * `HarpyWar/pvpgn <https://github.com/pvpgn/pvpgn-server>`_:
   Player vs Player Gaming Network with tweaks
