@@ -593,7 +593,7 @@ void TestChurchBuildings(
   const std::string& dataRoot, const std::string& tempDirectory, vtkRenderWindow* renderWindow)
 {
   std::cout << "Test merge textures church (citygml)" << std::endl;
-  auto input =
+  vtkSmartPointer<vtkMultiBlockDataSet> input =
     tiler(std::vector<std::string>{ { dataRoot + "/Data/CityGML/Part-4-Buildings-V4-one.gml" } },
       vtkCesium3DTilesWriter::Buildings, false /*addColor*/, tempDirectory + "/church-3dtiles",
       true /*contentGLTF*/, 1, 1, 3 /*lod*/, std::vector<double>{ { 435200, 3354000, 0 } },
