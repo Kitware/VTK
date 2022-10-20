@@ -1,8 +1,3 @@
-# FIXME: ioss never exports symbols properly
-unset(CMAKE_CXX_VISIBILITY_PRESET)
-unset(CMAKE_VISIBILITY_INLINES_HIDDEN)
-set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
-
 vtk_module_third_party(
   INTERNAL
     LICENSE_FILES "vtkioss/COPYRIGHT"
