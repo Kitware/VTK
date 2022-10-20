@@ -399,12 +399,10 @@ namespace Iocgns {
     properties.add(Ioss::Property("RETAIN_FREE_NODES", "NO"));
 
     if (int_byte_size_api() == 8) {
-      decomp = std::unique_ptr<DecompositionDataBase>(
-          new DecompositionData<int64_t>(properties, util().communicator()));
+      decomp = std::make_unique<DecompositionData<int64_t>>(properties, util().communicator());
     }
     else {
-      decomp = std::unique_ptr<DecompositionDataBase>(
-          new DecompositionData<int>(properties, util().communicator()));
+      decomp = std::make_unique<DecompositionData<int>>(properties, util().communicator());
     }
     assert(decomp != nullptr);
     decomp->decompose_model(get_file_pointer(), m_meshType);

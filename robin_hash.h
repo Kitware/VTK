@@ -77,7 +77,7 @@ namespace tsl {
     }
 
     template <typename T, typename U>
-    static T numeric_cast(U value, const char *error_message = "numeric_cast() failed.")
+    T numeric_cast(U value, const char *error_message = "numeric_cast() failed.")
     {
       T ret = static_cast<T>(value);
       if (static_cast<U>(ret) != value) {
@@ -93,7 +93,7 @@ namespace tsl {
       return ret;
     }
 
-    template <class T, class Deserializer> static T deserialize_value(Deserializer &deserializer)
+    template <class T, class Deserializer> T deserialize_value(Deserializer &deserializer)
     {
       // MSVC < 2017 is not conformant, circumvent the problem by removing the
       // template keyword

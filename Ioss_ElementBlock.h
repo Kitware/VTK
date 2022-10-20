@@ -6,6 +6,8 @@
 
 #pragma once
 
+#include "ioss_export.h"
+
 #include "vtk_ioss_mangle.h"
 
 #include <Ioss_BoundingBox.h>
@@ -20,7 +22,7 @@ namespace Ioss {
 
   /** \brief A collection of elements having the same topology.
    */
-  class ElementBlock : public EntityBlock
+  class IOSS_EXPORT ElementBlock : public EntityBlock
   {
   public:
     ElementBlock(DatabaseIO *io_database, const std::string &my_name,

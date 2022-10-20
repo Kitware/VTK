@@ -74,15 +74,15 @@ namespace {
                       const Ioss::Field::RoleType role, std::ostringstream &buf);
   template <typename T>
   bool compare_field_data(const std::vector<T *> &in_entities_1,
-                          const std::vector<T *> &in_entities_2, DataPool &pool,
+                          const std::vector<T *> &in_entities_2, Ioss::DataPool &pool,
                           const Ioss::Field::RoleType role, const Ioss::MeshCopyOptions &options,
                           std::ostringstream &buf);
   bool compare_field_data(const Ioss::GroupingEntity *ige_1, const Ioss::GroupingEntity *ige_2,
-                          DataPool &pool, const Ioss::Field::RoleType role,
+                          Ioss::DataPool &pool, const Ioss::Field::RoleType role,
                           const Ioss::MeshCopyOptions &options, std::ostringstream &buf,
                           const std::string &prefix = "");
   bool compare_field_data_internal(const Ioss::GroupingEntity *ige_1,
-                                   const Ioss::GroupingEntity *ige_2, DataPool &in_pool,
+                                   const Ioss::GroupingEntity *ige_2, Ioss::DataPool &in_pool,
                                    const std::string           &field_name,
                                    const Ioss::MeshCopyOptions &options, std::ostringstream &buf);
 } // namespace
@@ -1046,7 +1046,7 @@ namespace {
 
   template <typename T>
   bool compare_blocks(const std::vector<T *> &in_blocks_1, const std::vector<T *>     &in_blocks_2,
-                      const Ioss::MeshCopyOptions & /* options */, std::ostringstream &buf)
+                      const Ioss::MeshCopyOptions & /* options */, std::ostringstream &/* buf */)
   {
     bool overall_result = true;
 
@@ -1366,7 +1366,7 @@ namespace {
 
   template <typename T>
   bool compare_field_data(const std::vector<T *> &in_entities_1,
-                          const std::vector<T *> &in_entities_2, DataPool &pool,
+                          const std::vector<T *> &in_entities_2, Ioss::DataPool &pool,
                           const Ioss::Field::RoleType role, const Ioss::MeshCopyOptions &options,
                           std::ostringstream &buf)
   {
@@ -1400,7 +1400,7 @@ namespace {
   }
 
   bool compare_field_data(const Ioss::GroupingEntity *ige_1, const Ioss::GroupingEntity *ige_2,
-                          DataPool &pool, const Ioss::Field::RoleType role,
+                          Ioss::DataPool &pool, const Ioss::Field::RoleType role,
                           const Ioss::MeshCopyOptions &options, std::ostringstream &buf,
                           const std::string &prefix)
   {
@@ -1453,14 +1453,14 @@ namespace {
   }
 
   bool compare_field_data_internal(const Ioss::GroupingEntity *ige_1,
-                                   const Ioss::GroupingEntity *ige_2, DataPool &in_pool,
+                                   const Ioss::GroupingEntity *ige_2, Ioss::DataPool &in_pool,
                                    const std::string           &field_name,
                                    const Ioss::MeshCopyOptions &options, std::ostringstream &buf)
   {
     size_t isize = ige_1->get_field(field_name).get_size();
     size_t osize = ige_2->get_field(field_name).get_size();
 
-    DataPool in_pool_2;
+    Ioss::DataPool in_pool_2;
 
     if (isize != osize) {
       fmt::print(buf, "\n\tFIELD size mismatch for field '{}', ({} vs. {}) on {}", field_name,
@@ -1544,7 +1544,7 @@ namespace {
                    field.type_string(), field_name);
         return false;
       }
-    } break;
+    }
     default:
       if (field_name == "mesh_model_coordinates") {
         fmt::print(Ioss::WarnOut(), "data_storage option not recognized.");

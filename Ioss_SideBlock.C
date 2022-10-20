@@ -1,4 +1,4 @@
-// Copyright(C) 1999-2021 National Technology & Engineering Solutions
+// Copyright(C) 1999-2022 National Technology & Engineering Solutions
 // of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 // NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -94,7 +94,7 @@ std::string Ioss::SideBlock::generate_sideblock_name(const std::string &sideset_
     IOSS_ERROR(errmsg);
   }
 
-  std::vector<std::string> tokens = Ioss::tokenize(sideset_name, "_");
+  auto tokens = Ioss::tokenize(sideset_name, "_");
   if (tokens.size() == 2) {
     bool all_dig = tokens[1].find_first_not_of("0123456789") == std::string::npos;
     if (all_dig && Ioss::Utils::str_equal(tokens[0], "surface")) {

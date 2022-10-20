@@ -8,10 +8,12 @@
 
 #pragma once
 
+#include "ioss_export.h"
+
 #include "vtk_ioss_mangle.h"
 
 namespace Ioss {
-  class Tracer
+  class IOSS_EXPORT Tracer
   {
   public:
     explicit Tracer(const char *function);

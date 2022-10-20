@@ -348,12 +348,14 @@ namespace Iogs {
   int64_t GeneratedMesh::element_count(int64_t block_number) const
   {
     assert(block_number <= structured_block_count());
+    (void)block_number;
     return numX * numY * numZ;
   }
 
   int64_t GeneratedMesh::element_count_proc(int64_t block_number) const
   {
     assert(block_number <= structured_block_count());
+    (void)block_number;
     return numX * numY * myNumZ;
   }
 
@@ -404,6 +406,7 @@ namespace Iogs {
   std::pair<std::string, int> GeneratedMesh::topology_type(int64_t block_number) const
   {
     assert(block_number <= structured_block_count() && block_number > 0);
+    (void)block_number;
     return std::make_pair(std::string(Ioss::Hex8::name), 8);
   }
 

@@ -6,6 +6,8 @@
 
 #pragma once
 
+#include "ioss_export.h"
+
 #include "vtk_ioss_mangle.h"
 
 #include <Ioss_GroupingEntity.h> // for GroupingEntity
@@ -33,7 +35,7 @@ namespace Ioss {
    *
    *
    */
-  class EntitySet : public GroupingEntity
+  class IOSS_EXPORT EntitySet : public GroupingEntity
   {
   public:
     EntitySet &operator=(const EntitySet &)                                     = delete;

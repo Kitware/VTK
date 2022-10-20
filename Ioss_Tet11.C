@@ -139,6 +139,7 @@ Ioss::ElementTopology *Ioss::Tet11::face_type(int face_number) const
   // face_number is 1-based.
 
   assert(face_number >= 0 && face_number <= number_faces());
+  (void)face_number;
   //  return Ioss::ElementTopology::factory("triface6");
   return Ioss::ElementTopology::factory("tri6");
 }
@@ -150,6 +151,7 @@ Ioss::ElementTopology *Ioss::Tet11::edge_type(int edge_number) const
   // edge_number is 1-based.
 
   assert(edge_number >= 0 && edge_number <= number_edges());
+  (void)edge_number;
   return Ioss::ElementTopology::factory("edge3");
 }
 

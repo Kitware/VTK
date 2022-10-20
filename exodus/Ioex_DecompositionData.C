@@ -11,6 +11,7 @@
 #include <Ioss_Field.h>           // for Field, etc
 #include <Ioss_Map.h>             // for Map, MapContainer
 #include <Ioss_PropertyManager.h> // for PropertyManager
+#include <Ioss_SmartAssert.h>
 #include <Ioss_Sort.h>
 #include <Ioss_Utils.h>
 #include <exodus/Ioex_Utils.h>
@@ -933,6 +934,25 @@ namespace Ioex {
     }
   }
 
+  /// relates DecompositionData::get_user_map
+  template <typename INT>
+    int DecompositionData<INT>::get_user_map(int filePtr, ex_entity_type obj_type, ex_entity_id id, int map_index, 
+					     size_t offset, size_t count, void* map_data) const
+  {
+    m_decomposition.show_progress(__func__);
+    if (obj_type == EX_ELEM_MAP) {
+      return get_elem_map(filePtr, id, map_index, offset, count, map_data);
+    }
+    else if (obj_type == EX_NODE_MAP) {
+      // Does not use `id`
+      return get_node_map(filePtr, map_index, offset, count, map_data);
+    }
+    else {
+      assert(1 == 0);
+      return -1;
+    }
+  }
+
   template <typename INT>
   int DecompositionData<INT>::get_attr(int filePtr, ex_entity_type obj_type, ex_entity_id id,
                                        size_t attr_count, double *attrib) const
@@ -1366,6 +1386,38 @@ namespace Ioex {
 
     return ierr;
   }
+
+  template <typename INT>
+    int DecompositionData<INT>::get_elem_map(int filePtr, ex_entity_id id, int map_index, size_t offset, size_t count, 
+					     void* ioss_data) const
+  {
+    m_decomposition.show_progress(__func__);
+    // Reading an element blocks worth of map data and returning in `ioss_data`
+    // The map is the `map_index`th map on the database. 
+    // Find blk_seq corresponding to block the specified id...
+    size_t blk_seq = get_block_seq(EX_ELEM_BLOCK, id);
+    size_t eb_count   = get_block_element_count(blk_seq);
+    size_t eb_offset  = count == 0 ? 0 : get_block_element_offset(blk_seq);
+    int ierr = 0;
+    if (m_decomposition.m_method == "LINEAR") {
+      ierr = ex_get_partial_num_map(filePtr, EX_ELEM_MAP, map_index, offset + eb_offset + 1, eb_count, (INT*)ioss_data);
+    }
+    else {
+      std::vector<INT> file_data(eb_count);
+      ierr = ex_get_partial_num_map(filePtr, EX_ELEM_MAP, map_index, offset + eb_offset + 1, eb_count, file_data.data());
+      if (ierr >= 0) {
+        m_decomposition.communicate_block_data(file_data.data(), (INT*)ioss_data, el_blocks[blk_seq], 1);
+      }
+    }
+    return ierr;
+  }
+
+  template <typename INT>
+    int DecompositionData<INT>::get_node_map(int filePtr, int map_index,
+					     size_t offset, size_t count, void* ioss_data) const
+    {
+      return -1;
+    }
 
   template int DecompositionData<int>::get_set_mesh_var(int filePtr, ex_entity_type type,
                                                         ex_entity_id id, const Ioss::Field &field,

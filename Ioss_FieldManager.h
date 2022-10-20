@@ -6,24 +6,34 @@
 
 #pragma once
 
+#include "ioss_export.h"
+
 #include "vtk_ioss_mangle.h"
 
 #include <Ioss_CodeTypes.h>
 #include <Ioss_Field.h> // for Field, Field::RoleType
-#include <Ioss_Utils.h> // for Utils
 #include <cstddef>      // for size_t
-#include <functional>   // for binary_function
 #include <string>       // for string
+#include <vector>       // for vector
+
+#define USE_ROBIN_MAP
+#if defined USE_ROBIN_MAP
+#include <robin_map.h>
+#else
 #include <unordered_map>
-#include <vector> // for vector
+#endif
 
 namespace Ioss {
-  using FieldMapType   = std::unordered_map<std::string, Field>;
+#if defined USE_ROBIN_MAP
+  using FieldMapType = tsl::robin_pg_map<std::string, Field>;
+#else
+  using FieldMapType = std::unordered_map<std::string, Field>;
+#endif
   using FieldValuePair = FieldMapType::value_type;
 
   /** \brief A collection of Ioss::Field objects.
    */
-  class FieldManager
+  class IOSS_EXPORT FieldManager
   {
   public:
     FieldManager() = default;

@@ -6,6 +6,8 @@
 
 #pragma once
 
+#include "ioss_export.h"
+
 #include "vtk_ioss_mangle.h"
 
 #include <Ioss_CodeTypes.h> // for Int64Vector, IntVector
@@ -15,8 +17,9 @@
 #include <string>  // for string
 #include <vector>  // for vector
 #if IOSS_DEBUG_OUTPUT
-#include <fmt/format.h>
-#include <fmt/ostream.h>
+#include "vtk_fmt.h"
+#include VTK_FMT(fmt/format.h)
+#include VTK_FMT(fmt/ostream.h)
 #endif
 
 #ifdef SEACAS_HAVE_MPI
@@ -25,7 +28,7 @@
 
 namespace Ioss {
 
-  class ParallelUtils
+  class IOSS_EXPORT ParallelUtils
   {
   public:
     ParallelUtils() = default;
@@ -42,8 +45,9 @@ namespace Ioss {
     static Ioss_MPI_Comm comm_self() { return (Ioss_MPI_Comm)MPI_COMM_SELF; }
     static Ioss_MPI_Comm comm_null() { return (Ioss_MPI_Comm)MPI_COMM_NULL; }
 #else
-    static constexpr Ioss_MPI_Comm comm_world() { return 0; }
-    static constexpr Ioss_MPI_Comm comm_self() { return 0; }
+    // NOTE: These values match those used in siMPI package.
+    static constexpr Ioss_MPI_Comm comm_world() { return -100; }
+    static constexpr Ioss_MPI_Comm comm_self() { return -100; }
     static constexpr Ioss_MPI_Comm comm_null() { return 0; }
 #endif
 

@@ -38,6 +38,7 @@ namespace {
   } init;
 } // anonymous namespace
 
+namespace Ioss {
 namespace SmartAssert {
 
   // returns a message corresponding to the type of level
@@ -192,16 +193,15 @@ namespace SmartAssert {
 
 } // namespace SmartAssert
 
-namespace Ioss {
   namespace Private {
 
     void init_assert()
     {
-      Assert::set_log(&::SmartAssert::default_logger);
-      Assert::set_handler(lvl_warn, &::SmartAssert::default_warn_handler);
-      Assert::set_handler(lvl_debug, &::SmartAssert::default_debug_handler);
-      Assert::set_handler(lvl_error, &::SmartAssert::default_error_handler);
-      Assert::set_handler(lvl_fatal, &::SmartAssert::default_fatal_handler);
+      Assert::set_log(&::Ioss::SmartAssert::default_logger);
+      Assert::set_handler(lvl_warn, &::Ioss::SmartAssert::default_warn_handler);
+      Assert::set_handler(lvl_debug, &::Ioss::SmartAssert::default_debug_handler);
+      Assert::set_handler(lvl_error, &::Ioss::SmartAssert::default_error_handler);
+      Assert::set_handler(lvl_fatal, &::Ioss::SmartAssert::default_fatal_handler);
     }
 
     // sets the default logger to write to this stream
