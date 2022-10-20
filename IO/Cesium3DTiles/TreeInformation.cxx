@@ -289,7 +289,7 @@ vtkSmartPointer<vtkImageData> GetTexture(
   const std::string& textureBaseDirectory, const std::string& textureFileName)
 {
   std::string texturePath =
-    textureBaseDirectory.empty() ? textureFileName : textureBaseDirectory + "/" + textureFileName;
+    textureBaseDirectory.empty() ? textureFileName : (textureBaseDirectory + "/" + textureFileName);
   auto textureReader = SetupTextureReader(texturePath);
   vtkSmartPointer<vtkImageData> textureImage;
   if (textureReader)
