@@ -422,6 +422,8 @@ template void Ioss::ParallelUtils::broadcast(int64_t &value, int) const;
 
 template <> void Ioss::ParallelUtils::broadcast(std::string &my_str, int root) const
 {
+  PAR_UNUSED(my_str);
+  PAR_UNUSED(root);
 #ifdef SEACAS_HAVE_MPI
   if (parallel_size() > 1) {
     const int success = MPI_Bcast(const_cast<char *>(my_str.data()), (int)my_str.size() + 1,
@@ -437,6 +439,8 @@ template <> void Ioss::ParallelUtils::broadcast(std::string &my_str, int root) c
 
 template <typename T> void Ioss::ParallelUtils::broadcast(T &my_value, int root) const
 {
+  PAR_UNUSED(my_value);
+  PAR_UNUSED(root);
 #ifdef SEACAS_HAVE_MPI
   if (parallel_size() > 1) {
     const int success = MPI_Bcast((void *)&my_value, 1, mpi_type(T()), root, communicator_);
@@ -463,6 +467,8 @@ template void Ioss::ParallelUtils::broadcast(std::vector<char> &, int) const;
 template <>
 void Ioss::ParallelUtils::broadcast(std::vector<std::pair<int, int>> &my_value, int root) const
 {
+  PAR_UNUSED(my_value);
+  PAR_UNUSED(root);
 #ifdef SEACAS_HAVE_MPI
   if (parallel_size() > 1) {
     const int success =
@@ -478,6 +484,8 @@ void Ioss::ParallelUtils::broadcast(std::vector<std::pair<int, int>> &my_value, 
 
 template <typename T> void Ioss::ParallelUtils::broadcast(std::vector<T> &my_value, int root) const
 {
+  PAR_UNUSED(my_value);
+  PAR_UNUSED(root);
 #ifdef SEACAS_HAVE_MPI
   if (parallel_size() > 1) {
     const int success =

@@ -6,6 +6,8 @@
 
 #pragma once
 
+#include "ioss_export.h"
+
 #include <Ioss_CodeTypes.h>
 #include <assert.h>
 #include <limits>
@@ -29,7 +31,7 @@ namespace Ioss {
   using ElementPermutationMap = std::map<std::string, ElementPermutation *, std::less<std::string>>;
   using EPM_VP                = ElementPermutationMap::value_type;
 
-  class EPRegistry
+  class IOSS_EXPORT EPRegistry
   {
   public:
     void                            insert(const Ioss::EPM_VP &value, bool delete_me);
@@ -50,7 +52,7 @@ namespace Ioss {
   // the positive range is a negative permutation. By convention, the first permutation listed
   // matches the default listed in the Exodus manual
 
-  class ElementPermutation
+  class IOSS_EXPORT ElementPermutation
   {
   public:
     ElementPermutation(const ElementPermutation &)            = delete;
@@ -130,7 +132,7 @@ namespace Ioss {
     std::vector<std::vector<Permutation>> m_permutationNodeOrdinals{};
   };
 
-  class NullPermutation : public ElementPermutation
+  class IOSS_EXPORT NullPermutation : public ElementPermutation
   {
   public:
     static const char *name;
@@ -143,7 +145,7 @@ namespace Ioss {
     NullPermutation();
   };
 
-  class SpherePermutation : public ElementPermutation
+  class IOSS_EXPORT SpherePermutation : public ElementPermutation
   {
   public:
     static const char *name;
@@ -156,7 +158,7 @@ namespace Ioss {
     SpherePermutation();
   };
 
-  class LinePermutation : public ElementPermutation
+  class IOSS_EXPORT LinePermutation : public ElementPermutation
   {
   public:
     static const char *name;
@@ -169,7 +171,7 @@ namespace Ioss {
     LinePermutation();
   };
 
-  class SpringPermutation : public ElementPermutation
+  class IOSS_EXPORT SpringPermutation : public ElementPermutation
   {
   public:
     static const char *name;
@@ -182,7 +184,7 @@ namespace Ioss {
     SpringPermutation();
   };
 
-  class TriPermutation : public ElementPermutation
+  class IOSS_EXPORT TriPermutation : public ElementPermutation
   {
   public:
     static const char *name;
@@ -195,7 +197,7 @@ namespace Ioss {
     TriPermutation();
   };
 
-  class QuadPermutation : public ElementPermutation
+  class IOSS_EXPORT QuadPermutation : public ElementPermutation
   {
   public:
     static const char *name;
@@ -208,7 +210,7 @@ namespace Ioss {
     QuadPermutation();
   };
 
-  class TetPermutation : public ElementPermutation
+  class IOSS_EXPORT TetPermutation : public ElementPermutation
   {
   public:
     static const char *name;
@@ -221,7 +223,7 @@ namespace Ioss {
     TetPermutation();
   };
 
-  class PyramidPermutation : public ElementPermutation
+  class IOSS_EXPORT PyramidPermutation : public ElementPermutation
   {
   public:
     static const char *name;
@@ -234,7 +236,7 @@ namespace Ioss {
     PyramidPermutation();
   };
 
-  class WedgePermutation : public ElementPermutation
+  class IOSS_EXPORT WedgePermutation : public ElementPermutation
   {
   public:
     static const char *name;
@@ -247,7 +249,7 @@ namespace Ioss {
     WedgePermutation();
   };
 
-  class HexPermutation : public ElementPermutation
+  class IOSS_EXPORT HexPermutation : public ElementPermutation
   {
   public:
     static const char *name;
@@ -260,7 +262,7 @@ namespace Ioss {
     HexPermutation();
   };
 
-  class SuperPermutation : public ElementPermutation
+  class IOSS_EXPORT SuperPermutation : public ElementPermutation
   {
   public:
     static const char *basename;

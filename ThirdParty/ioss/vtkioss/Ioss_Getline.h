@@ -17,13 +17,15 @@
 
 #pragma once
 
+#include "ioss_export.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-char *io_getline_int(const char *); /* read a line of input */
-void  io_gl_setwidth(int);          /* specify width of screen */
-void  io_gl_histadd(const char *);  /* adds entries to hist */
+IOSS_EXPORT char *io_getline_int(const char *); /* read a line of input */
+IOSS_EXPORT void  io_gl_setwidth(int);          /* specify width of screen */
+IOSS_EXPORT void  io_gl_histadd(const char *);  /* adds entries to hist */
 
 #ifdef __cplusplus
 } /* close brackets on extern "C" declaration */

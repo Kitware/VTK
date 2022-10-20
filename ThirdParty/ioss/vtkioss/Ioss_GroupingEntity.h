@@ -6,6 +6,8 @@
 
 #pragma once
 
+#include "ioss_export.h"
+
 #include "vtk_ioss_mangle.h"
 
 #include <Ioss_CodeTypes.h>       // for Complex
@@ -65,7 +67,7 @@ namespace Ioss {
    *
    *  -- Data items
    */
-  class GroupingEntity
+  class IOSS_EXPORT GroupingEntity
   {
   public:
     friend class Property;

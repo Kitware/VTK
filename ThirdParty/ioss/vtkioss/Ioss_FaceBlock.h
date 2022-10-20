@@ -6,6 +6,8 @@
 
 #pragma once
 
+#include "ioss_export.h"
+
 #include "vtk_ioss_mangle.h"
 
 #include "Ioss_EntityType.h" // for EntityType, etc
@@ -25,7 +27,7 @@ namespace Ioss {
 
   /** \brief A collection of element faces with the same topology.
    */
-  class FaceBlock : public EntityBlock
+  class IOSS_EXPORT FaceBlock : public EntityBlock
   {
   public:
     FaceBlock(DatabaseIO *io_database, const std::string &my_name, const std::string &face_type,

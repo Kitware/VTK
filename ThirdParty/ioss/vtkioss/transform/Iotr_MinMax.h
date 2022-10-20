@@ -6,6 +6,8 @@
 
 #pragma once
 
+#include "iotr_export.h"
+
 #include "vtk_ioss_mangle.h"
 
 #include "Ioss_VariableType.h" // for VariableType
@@ -17,7 +19,7 @@ namespace Ioss {
 
 namespace Iotr {
 
-  class MinMax_Factory : public Factory
+  class IOTR_EXPORT MinMax_Factory : public Factory
   {
   public:
     static const MinMax_Factory *factory();
@@ -27,7 +29,7 @@ namespace Iotr {
     Ioss::Transform *make(const std::string &type) const override;
   };
 
-  class MinMax : public Ioss::Transform
+  class IOTR_EXPORT MinMax : public Ioss::Transform
   {
     friend class MinMax_Factory;
 

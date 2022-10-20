@@ -65,6 +65,7 @@ int Ioss::Node::number_nodes_face(int face) const
 {
   // face is 1-based.  0 passed in for all faces.
   assert(face >= 0 && face <= number_faces());
+  (void)face;
   return Constants::nfacenode;
 }
 
@@ -72,6 +73,7 @@ int Ioss::Node::number_edges_face(int face) const
 {
   // face is 1-based.  0 passed in for all faces.
   assert(face >= 0 && face <= number_faces());
+  (void)face;
   return Constants::nfaceedge;
 }
 
@@ -84,6 +86,7 @@ Ioss::IntVector Ioss::Node::edge_connectivity(int /* edge_number */) const
 Ioss::IntVector Ioss::Node::face_connectivity(int face_number) const
 {
   assert(face_number > 0 && face_number <= number_faces());
+  (void)face_number;
   Ioss::IntVector connectivity;
   return connectivity;
 }
@@ -104,6 +107,7 @@ Ioss::ElementTopology *Ioss::Node::face_type(int face_number) const
   // face_number is 1-based.
 
   assert(face_number >= 0 && face_number <= number_faces());
+  (void)face_number;
   return (Ioss::ElementTopology *)nullptr;
 }
 
@@ -114,5 +118,6 @@ Ioss::ElementTopology *Ioss::Node::edge_type(int edge_number) const
   // edge_number is 1-based.
 
   assert(edge_number >= 0 && edge_number <= number_edges());
+  (void)edge_number;
   return nullptr;
 }

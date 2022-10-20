@@ -1,4 +1,4 @@
-// Copyright(C) 1999-2021 National Technology & Engineering Solutions
+// Copyright(C) 1999-2022 National Technology & Engineering Solutions
 // of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 // NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -177,16 +177,26 @@ bool Ioss::GroupingEntity::check_for_duplicate(const Ioss::Field &new_field) con
     // Get the existing field so we can compare with `new_field`
     const Ioss::Field &field = fields.getref(new_field.get_name());
     if (field != new_field) {
+      bool allow_duplicate = false;
+      Utils::check_set_bool_property(get_database()->get_property_manager(),
+                                     "IGNORE_DUPLICATE_FIELD_NAMES", allow_duplicate);
+      std::string        warn_err = allow_duplicate ? "WARNING" : "ERROR";
       std::ostringstream errmsg;
-      fmt::print(errmsg, "ERROR: Duplicate incompatible fields named '{}' on {} {}:\n"
-		 "\tExisting  field: {} {} of size {} bytes with role '{}' and storage '{}',\n"
-		 "\tDuplicate field: {} {} of size {} bytes with role '{}' and storage '{}'.",
-		 new_field.get_name(), type_string(), name(),
-		 field.raw_count(), field.type_string(), field.get_size(), field.role_string(), 
-		 field.raw_storage()->name(),
-		 new_field.raw_count(), new_field.type_string(), new_field.get_size(), 
-		 new_field.role_string(), new_field.raw_storage()->name());
-      IOSS_ERROR(errmsg);
+      fmt::print(errmsg,
+                 "{}: Duplicate incompatible fields named '{}' on {} {}:\n"
+                 "\tExisting  field: {} {} of size {} bytes with role '{}' and storage '{}',\n"
+                 "\tDuplicate field: {} {} of size {} bytes with role '{}' and storage '{}'.",
+                 warn_err, new_field.get_name(), type_string(), name(), field.raw_count(),
+                 field.type_string(), field.get_size(), field.role_string(),
+                 field.raw_storage()->name(), new_field.raw_count(), new_field.type_string(),
+                 new_field.get_size(), new_field.role_string(), new_field.raw_storage()->name());
+      if (!allow_duplicate) {
+        IOSS_ERROR(errmsg);
+      }
+      else {
+        fmt::print(Ioss::WarnOut(), "{}\n", errmsg.str());
+        return true;
+      }
     }
   }
   return false;
@@ -382,7 +392,7 @@ bool Ioss::GroupingEntity::equal_(const Ioss::GroupingEntity &rhs, const bool qu
   if (this->entityState != rhs.entityState) {
     if (!quiet) {
       fmt::print(Ioss::OUTPUT(), "GroupingEntity: entityState mismatch ([] vs. [])\n",
-                 this->entityState, rhs.entityState);
+                 static_cast<int>(this->entityState), static_cast<int>(rhs.entityState));
     }
     return false;
   }

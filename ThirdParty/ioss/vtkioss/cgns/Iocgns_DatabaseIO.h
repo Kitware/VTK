@@ -6,6 +6,8 @@
 
 #pragma once
 
+#include "iocgns_export.h"
+
 #include <Ioss_CodeTypes.h>
 #include <Ioss_DBUsage.h>    // for DatabaseUsage
 #include <Ioss_DatabaseIO.h> // for DatabaseIO
@@ -50,7 +52,7 @@ namespace Ioss {
  */
 namespace Iocgns {
 
-  class DatabaseIO : public Ioss::DatabaseIO
+  class IOCGNS_EXPORT DatabaseIO : public Ioss::DatabaseIO
   {
   public:
     enum class entity_type { NODE, ELEM };

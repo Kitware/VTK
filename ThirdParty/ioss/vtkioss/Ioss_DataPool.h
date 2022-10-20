@@ -5,11 +5,15 @@
 // See packages/seacas/LICENSE for details
 
 #pragma once
+
+#include "ioss_export.h"
+
 #include <Ioss_CodeTypes.h>
 #include <cstdlib>
 #include <vector>
 
-struct DataPool
+namespace Ioss {
+struct IOSS_EXPORT DataPool
 {
   // Data space shared by most field input/output routines...
   std::vector<char>    data{};
@@ -44,3 +48,4 @@ struct DataPool
   // have type std::complex entities.
 #endif
 };
+}

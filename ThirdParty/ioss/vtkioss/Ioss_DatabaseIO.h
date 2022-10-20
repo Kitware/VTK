@@ -6,6 +6,8 @@
 
 #pragma once
 
+#include "ioss_export.h"
+
 #include "vtk_ioss_mangle.h"
 
 #include <Ioss_BoundingBox.h>
@@ -56,7 +58,7 @@ namespace Ioss {
   /** \brief An input or output Database.
    *
    */
-  class DatabaseIO
+  class IOSS_EXPORT DatabaseIO
   {
   public:
     friend class SerializeIO;

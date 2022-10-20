@@ -6,6 +6,8 @@
 
 #pragma once
 
+#include "ioss_export.h"
+
 #include "vtk_ioss_mangle.h"
 
 #include "Ioss_EntityType.h" // for EntityType, etc
@@ -25,7 +27,7 @@ namespace Ioss {
 
   /** \brief A homogeneous collection of other GroupingEntities.
    */
-  class Blob : public GroupingEntity
+  class IOSS_EXPORT Blob : public GroupingEntity
   {
   public:
     Blob()                  = default; // Used for template typing only

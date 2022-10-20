@@ -6,6 +6,8 @@
 
 #pragma once
 
+#include "ioex_export.h"
+
 #include "vtk_ioss_mangle.h"
 
 #include "Ioss_DatabaseIO.h" // for DatabaseIO
@@ -19,7 +21,7 @@ namespace Ioss {
 
 namespace Ioex {
 
-  class IOFactory : public Ioss::IOFactory
+  class IOEX_EXPORT IOFactory : public Ioss::IOFactory
   {
   public:
     static const IOFactory *factory();

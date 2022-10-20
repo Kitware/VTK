@@ -6,6 +6,8 @@
 
 #pragma once
 
+#include "ioss_export.h"
+
 namespace Ioss {
   class Region;
   struct MeshCopyOptions;
@@ -14,7 +16,7 @@ namespace Ioss {
 namespace Ioss {
   /* \brief Methods to compare databases.
    */
-  class Compare
+  class IOSS_EXPORT Compare
   {
   public:
     Compare()  = default;
