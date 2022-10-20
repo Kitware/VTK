@@ -73,7 +73,6 @@ public:
   /**
    * Specify the property texture file.
    * This is a json file described by
-   * The json file is described by
    https://github.com/CesiumGS/3d-tiles/tree/main/specification/Metadata
    and
    https://github.com/CesiumGS/glTF/tree/3d-tiles-next/extensions/2.0/Vendor/EXT_structural_metadata
