@@ -36,10 +36,12 @@
  * have a field array with one element called "gml_id" which
  * corresponds to the gml:id for gml:TriangulatedSurface,
  * gml:MultiSurface or gml:CompositeSurface in the CityGML file. If
- * the poly dataset has a texture, we specify this with a double point array
- * called "tcoords" and a field array with one element called
- * "texture_uri" containing the path to the texture file. If the poly
- * dataset has a app::X3DMaterial we store two double field arrays with 3
+ * the poly dataset has a texture, we specify this with a float/double point array
+ * called "tcoords" and a field array called
+ * "texture_uri" containing one tuple per texture file (and one component) with the path
+ * to the file. All textures of the same type should be at the same index in the
+ * texture_uri array. The path can be relative to the citygml file or it can be absolute.
+ * If the dataset has a app::X3DMaterial we store two double field arrays with 3
  * components and 1 tuple: "diffuse_color" and "specular_color" and
  * two double field arrays with 1 component and 1 tuple: "transparency",
  * "shininess"

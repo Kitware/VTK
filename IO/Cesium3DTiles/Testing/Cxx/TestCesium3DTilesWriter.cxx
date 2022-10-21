@@ -14,16 +14,20 @@
 =========================================================================*/
 
 #include "vtkAppendPolyData.h"
+#include "vtkCamera.h"
 #include "vtkCellData.h"
 #include "vtkCesium3DTilesWriter.h"
 #include "vtkCityGMLReader.h"
 #include "vtkCompositeDataIterator.h"
+#include "vtkCompositePolyDataMapper2.h"
 #include "vtkDataObject.h"
 #include "vtkDirectory.h"
 #include "vtkDoubleArray.h"
+#include "vtkGLTFImporter.h"
 #include "vtkGLTFReader.h"
 #include "vtkIncrementalOctreeNode.h"
 #include "vtkIncrementalOctreePointLocator.h"
+#include "vtkJPEGReader.h"
 #include "vtkLogger.h"
 #include "vtkMathUtilities.h"
 #include "vtkMultiBlockDataSet.h"
@@ -31,9 +35,15 @@
 #include "vtkOBJReader.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
+#include "vtkRegressionTestImage.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
 #include "vtkStringArray.h"
+#include "vtkTestUtilities.h"
 #include "vtkTesting.h"
+#include "vtkTexture.h"
 #include "vtksys/FStream.hxx"
 #include "vtksys/SystemTools.hxx"
 
@@ -48,6 +58,60 @@
 
 using namespace vtksys;
 using namespace nlohmann;
+
+class vtkDoublePoints : public vtkPoints
+{
+public:
+  // Methods from vtkObject
+  ~vtkDoublePoints() override = default;
+
+  vtkTypeMacro(vtkDoublePoints, vtkPoints);
+  static vtkDoublePoints* New() { VTK_STANDARD_NEW_BODY(vtkDoublePoints); }
+  vtkDoublePoints() { this->SetDataType(VTK_DOUBLE); }
+  void SetDataType(int type) override
+  {
+    if (type != VTK_DOUBLE)
+    {
+      std::cerr << "This is a double points object. We cannot change the type to " << type
+                << std::endl;
+    }
+    else
+    {
+      vtkPoints::SetDataType(VTK_DOUBLE);
+    }
+  }
+
+private:
+  vtkDoublePoints(const vtkDoublePoints&) = delete;
+  vtkDoublePoints& operator=(const vtkDoublePoints&) = delete;
+};
+
+VTK_CREATE_CREATE_FUNCTION(vtkDoublePoints);
+
+class DoublePointsFactory : public vtkObjectFactory
+{
+public:
+  DoublePointsFactory();
+  static DoublePointsFactory* New()
+  {
+    DoublePointsFactory* f = new DoublePointsFactory;
+    f->InitializeObjectBase();
+    return f;
+  }
+  const char* GetVTKSourceVersion() override { return VTK_SOURCE_VERSION; }
+  const char* GetDescription() override { return "A fine Test Factory"; }
+
+protected:
+  DoublePointsFactory(const DoublePointsFactory&) = delete;
+  DoublePointsFactory& operator=(const DoublePointsFactory&) = delete;
+};
+
+DoublePointsFactory::DoublePointsFactory()
+{
+  this->RegisterOverride("vtkPoints", "vtkDoublePoints", "double vertex factory override", 1,
+    vtkObjectFactoryCreatevtkDoublePoints);
+}
+
 //------------------------------------------------------------------------------
 void SetField(vtkDataObject* obj, const char* name, const char* value)
 {
@@ -224,10 +288,10 @@ std::vector<std::string> getFiles(const std::vector<std::string>& input)
 
 //------------------------------------------------------------------------------
 
-void tiler(const std::vector<std::string>& input, int inputType, bool addColor,
-  const std::string& output, bool contentGLTF, int numberOfBuildings, int buildingsPerTile, int lod,
-  const std::vector<double>& inputOffset, bool saveTiles, bool saveTextures, std::string crs,
-  const int utmZone, char utmHemisphere)
+vtkSmartPointer<vtkMultiBlockDataSet> tiler(const std::vector<std::string>& input, int inputType,
+  bool addColor, const std::string& output, bool contentGLTF, int numberOfBuildings,
+  int buildingsPerTile, int lod, const std::vector<double>& inputOffset, bool saveTiles,
+  bool saveTextures, std::string crs, const int utmZone, char utmHemisphere)
 {
   vtkSmartPointer<vtkMultiBlockDataSet> mbData;
   vtkSmartPointer<vtkPolyData> polyData;
@@ -277,6 +341,7 @@ void tiler(const std::vector<std::string>& input, int inputType, bool addColor,
     writer->SetInputDataObject(polyData);
   }
   writer->SetContentGLTF(contentGLTF);
+  writer->ContentGLTFSaveGLBOff();
   writer->SetInputType(inputType);
   writer->SetDirectoryName(output.c_str());
   writer->SetTextureBaseDirectory(textureBaseDirectory.c_str());
@@ -292,6 +357,7 @@ void tiler(const std::vector<std::string>& input, int inputType, bool addColor,
   }
   writer->SetCRS(crs.c_str());
   writer->Write();
+  return mbData;
 }
 
 bool TrianglesDiffer(std::array<std::array<double, 3>, 3>& in, std::string gltfFileName)
@@ -523,6 +589,21 @@ void TestBerlinBuildings(const std::string& dataRoot, const std::string& tempDir
   }
 }
 
+void TestChurchBuildings(
+  const std::string& dataRoot, const std::string& tempDirectory, vtkRenderWindow* renderWindow)
+{
+  std::cout << "Test merge textures church (citygml)" << std::endl;
+  vtkSmartPointer<vtkMultiBlockDataSet> input =
+    tiler(std::vector<std::string>{ { dataRoot + "/Data/CityGML/Part-4-Buildings-V4-one.gml" } },
+      vtkCesium3DTilesWriter::Buildings, false /*addColor*/, tempDirectory + "/church-3dtiles",
+      true /*contentGLTF*/, 1, 1, 3 /*lod*/, std::vector<double>{ { 435200, 3354000, 0 } },
+      true /*saveTiles*/, true /*saveTextures*/, "", 17, 'N');
+  vtkNew<vtkGLTFImporter> importer;
+  importer->SetFileName((tempDirectory + "/church-3dtiles/0/0.gltf").c_str());
+  importer->SetRenderWindow(renderWindow);
+  importer->Update();
+}
+
 int TestCesium3DTilesWriter(int argc, char* argv[])
 {
   vtkNew<vtkTesting> testHelper;
@@ -540,6 +621,7 @@ int TestCesium3DTilesWriter(int argc, char* argv[])
 
   std::string dataRoot = testHelper->GetDataRoot();
   std::string tempDirectory = testHelper->GetTempDirectory();
+  int retVal = 0;
   try
   {
     TestJacksonvilleBuildings(dataRoot, tempDirectory);
@@ -549,14 +631,41 @@ int TestCesium3DTilesWriter(int argc, char* argv[])
     TestJacksonvillePoints(dataRoot, tempDirectory, true /*contentGLTF*/);
     TestJacksonvilleColorPoints(dataRoot, tempDirectory, false /*contentGLTF*/);
     TestJacksonvilleColorPoints(dataRoot, tempDirectory, true /*contentGLTF*/);
-
     TestJacksonvilleMesh(dataRoot, tempDirectory);
+
+    // we need to use double points for the GLTF reader.
+    vtkNew<DoublePointsFactory> factory;
+    vtkObjectFactory::RegisterFactory(factory);
+    vtkNew<vtkRenderer> renderer;
+    renderer->SetBackground(0.5, 0.7, 0.7);
+    vtkNew<vtkRenderWindow> renWin;
+    renWin->AddRenderer(renderer);
+
+    TestChurchBuildings(dataRoot, tempDirectory, renWin);
+
+    vtkNew<vtkRenderWindowInteractor> interactor;
+    interactor->SetRenderWindow(renWin);
+
+    renderer->ResetCamera();
+    renderer->GetActiveCamera()->Azimuth(90);
+    renderer->GetActiveCamera()->Roll(-90);
+    renderer->GetActiveCamera()->Zoom(1.5);
+
+    renWin->SetSize(400, 400);
+    renWin->Render();
+    interactor->Initialize();
+    renWin->Render();
+
+    retVal = vtkRegressionTestImage(renWin);
+    if (retVal == vtkRegressionTester::DO_INTERACTOR)
+    {
+      interactor->Start();
+    }
   }
-  catch (std::runtime_error& e)
+  catch (std::exception& e)
   {
     vtkLog(ERROR, << e.what());
     return EXIT_FAILURE;
   }
-
-  return EXIT_SUCCESS;
+  return !retVal;
 }

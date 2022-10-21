@@ -22,9 +22,9 @@
  * or a point cloud.
  *
  * For buildings, each building is made of pieces (polydata), each
- * piece could potentially have a different texture. The mesh input
+ * piece could potentially have several textures. The mesh input
  * is the same as one building. The point cloud input, is the same as
- * mesh input but with Verts instead of Polys.
+ * mesh input but with Verts cells instead of Polys.
 
  * Materials, including textures, are described as fields in the
  * polydata. If InlineData is false, we only refer to textures files
@@ -71,6 +71,18 @@ public:
 
   ///@{
   /**
+   * Specify the property texture file.
+   * This is a json file described by
+   https://github.com/CesiumGS/3d-tiles/tree/main/specification/Metadata
+   and
+   https://github.com/CesiumGS/glTF/tree/3d-tiles-next/extensions/2.0/Vendor/EXT_structural_metadata
+   */
+  vtkSetStringMacro(PropertyTextureFile);
+  vtkGetStringMacro(PropertyTextureFile);
+  ///@}
+
+  ///@{
+  /**
    * Should the binary data be included in the json file as a base64
    * string.
    */
@@ -109,16 +121,27 @@ public:
 
   ///@{
   /**
-   * If true (default) we save textures. We only include a reference to the
-   * texture file unless you want to include the binary data in the json file using
-   * InlineData in which case we have to load the texture in memory and save
-   * it encoded in the json file.
-   * @sa
-   * TextureBaseDirectory
+   * If true (default) we save textures. We only include a reference
+   * to the texture file unless CopyTextures is true or you want to
+   * include the binary data in the json file using InlineData in
+   * which case we have to load the texture in memory and save it
+   * encoded in the json file.
+   * @sa TextureBaseDirectory
    */
   vtkGetMacro(SaveTextures, bool);
   vtkSetMacro(SaveTextures, bool);
   vtkBooleanMacro(SaveTextures, bool);
+  ///@}
+
+  ///@{
+  /**
+   * If true we copy the textures the the same directory where FileName is saved.
+   * Default is false.
+   * @sa TextureBaseDirectory
+   */
+  vtkGetMacro(CopyTextures, bool);
+  vtkSetMacro(CopyTextures, bool);
+  vtkBooleanMacro(CopyTextures, bool);
   ///@}
 
   ///@{
@@ -137,6 +160,22 @@ public:
   vtkBooleanMacro(SaveActivePointColor, bool);
   ///@}
 
+  ///@{
+  /**
+   * Save mesh point coordinates relative to the bounding box origin
+   * and add the corresponding translation to the root node.  This is
+   * especially important for 3D Tiles as points are stored as
+   * cartesian coordinates relative to the earth center so they are
+   * stored as doubles. As GLTF can only store floats not setting this
+   * variable on results in a loss of precission of about a meter.
+   * Note that the translation information is stored in json which can
+   * store doubles.
+   */
+  vtkGetMacro(RelativeCoordinates, bool);
+  vtkSetMacro(RelativeCoordinates, bool);
+  vtkBooleanMacro(RelativeCoordinates, bool);
+  ///@}
+
   /**
    * Write the result to a string instead of a file
    */
@@ -146,6 +185,12 @@ public:
    * Write the result to a provided ostream
    */
   void WriteToStream(ostream& out, vtkDataObject* in);
+  /**
+   * This is used to read texture_uri fields that contain
+   * a list of texture paths
+   * @see vtkCityGMLReader
+   */
+  static std::vector<std::string> GetFieldAsStringVector(vtkDataObject* obj, const char* name);
 
 protected:
   vtkGLTFWriter();
@@ -157,10 +202,13 @@ protected:
 
   char* FileName;
   char* TextureBaseDirectory;
+  char* PropertyTextureFile;
   bool InlineData;
   bool SaveNormal;
   bool SaveBatchId;
   bool SaveTextures;
+  bool RelativeCoordinates;
+  bool CopyTextures;
   bool SaveActivePointColor;
 
 private:

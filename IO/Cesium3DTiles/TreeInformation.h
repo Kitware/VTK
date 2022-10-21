@@ -34,6 +34,7 @@
 VTK_ABI_NAMESPACE_BEGIN
 class vtkActor;
 class vtkCompositeDataSet;
+class vtkDataArray;
 class vtkIdList;
 class vtkImageData;
 class vtkIntArray;
@@ -50,14 +51,19 @@ public:
   /**
    * Constructors for buildings, points and meshes.
    */
+  // buildings
   TreeInformation(vtkIncrementalOctreeNode* root, int numberOfNodes,
     const std::vector<vtkSmartPointer<vtkCompositeDataSet>>* buildings,
-    const std::string& textureBaseDirectory, bool saveTextures, bool contentGLTF, const char* crs,
+    const std::string& textureBaseDirectory, const std::string& propertyTextureFile,
+    bool saveTextures, bool contentGLTF, bool contentGLTFSaveGLB, const char* crs,
     const std::string& outputDir);
+  // points
   TreeInformation(vtkIncrementalOctreeNode* root, int numberOfNodes, vtkPointSet* points,
-    bool contentGLTF, const char* crs, const std::string& output);
+    bool contentGLTF, bool contentGLTFSaveGLB, const char* crs, const std::string& output);
+  // mesh
   TreeInformation(vtkIncrementalOctreeNode* root, int numberOfNodes, vtkPolyData* mesh,
-    const std::string& textureBaseDirectory, bool saveTextures, bool contentGLTF, const char* crs,
+    const std::string& textureBaseDirectory, const std::string& propertyTextureFile,
+    bool saveTextures, bool contentGLTF, bool contentGLTFSaveGLB, const char* crs,
     const std::string& output);
   ///@}
 
@@ -87,7 +93,7 @@ public:
    * and the geometric error.
    */
   void Compute();
-  void SaveTilesBuildings(bool mergeTilePolyData);
+  void SaveTilesBuildings(bool mergeTilePolyData, size_t mergedTextureWidth);
   void SaveTilesMesh();
   void SaveTilesPoints();
   void SaveTileset(const std::string& output);
@@ -119,11 +125,13 @@ protected:
   ///@}
   void SaveTileBuildings(vtkIncrementalOctreeNode* node, void* auxData);
   void SaveTileMesh(vtkIncrementalOctreeNode* node, void* auxData);
+  void WriteTileTexture(
+    vtkIncrementalOctreeNode* node, const std::string& fileName, vtkImageData* tileImage);
   /**
    * Compute the texture image for the tile and recompute texture coordinates
    */
-  vtkSmartPointer<vtkImageData> ComputeTileMeshTexture(
-    vtkPolyData* tileMesh, vtkImageData* textureImage);
+  vtkSmartPointer<vtkImageData> SplitTileTexture(
+    vtkPolyData* tileMesh, vtkImageData* textureImage, vtkDataArray* tcoordsTile);
   void SaveTilePoints(vtkIncrementalOctreeNode* node, void* auxData);
 
   ///@{
@@ -143,6 +151,12 @@ protected:
   std::string ContentTypeExtension() const;
   void Initialize();
   double GetRootLength2();
+  /**
+   * Execute the passed functor for each polydata. The functor returns true
+   * if it should continue execution. The function returns true if it executed
+   * for all polydata inside each building.
+   */
+  bool ForEachBuilding(vtkIncrementalOctreeNode* node, std::function<bool(vtkPolyData*)> Execute);
 
 private:
   /**
@@ -161,8 +175,10 @@ private:
 
   std::string OutputDir;
   std::string TextureBaseDirectory;
+  std::string PropertyTextureFile;
   bool SaveTextures;
   bool ContentGLTF;
+  bool ContentGLTFSaveGLB;
 
   const char* CRS;
   /**
