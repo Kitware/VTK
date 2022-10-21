@@ -307,7 +307,7 @@ void vtkResliceCursorRepresentation::ResetCamera()
 
     this->Renderer->SetDisplayPoint(displayFocalPoint);
     this->Renderer->DisplayToWorld();
-    double worldFocalPoint[3];
+    double worldFocalPoint[4];
     this->Renderer->GetWorldPoint(worldFocalPoint);
 
     vtkNew<vtkPlane> plane;
