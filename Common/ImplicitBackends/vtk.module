@@ -1,0 +1,10 @@
+NAME
+  VTK::CommonImplicitBackends
+LIBRARY_NAME
+  vtkCommonImplicitBackends
+DESCRIPTION
+  A VTK library for the backends intended for vtkImplicitArray
+KIT
+  VTK::Common
+GROUPS
+  StandAlone

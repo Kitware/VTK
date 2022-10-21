@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkConstantImplicitBackend.h
+  Module:    vtkVTK_USE_IMPLICIT_ARRAYS.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -13,25 +13,14 @@
 
 =========================================================================*/
 
-#ifndef vtkConstantImplicitBackend_h
-#define vtkConstantImplicitBackend_h
+#ifndef vtkVTK_DISPATCH_IMPLICIT_ARRAYS_h
+#define vtkVTK_DISPATCH_IMPLICIT_ARRAYS_h
 
-#include "vtkSetGet.h"
+// defined if VTK dispatches the vtkConstantArray class
+#cmakedefine VTK_DISPATCH_CONSTANT_ARRAYS
+// defined if VTK dispatches the vtkAffineArray class
+#cmakedefine VTK_DISPATCH_AFFINE_ARRAYS
+// defined if VTK dispatches the vtkStdFunctionArray class
+#cmakedefine VTK_DISPATCH_STD_FUNCTION_ARRAYS
 
-/**
- * \struct vtkConstantImplicitBackend
- * \brief A utility structure serving as a backend for constant implicit arrays
- */
-
-template <typename ValueType>
-struct vtkConstantImplicitBackend
-{
-  vtkConstantImplicitBackend(ValueType val)
-    : Value(val){};
-
-  ValueType operator()(int vtkNotUsed(index)) const { return this->Value; };
-
-  ValueType Value;
-};
-
-#endif // vtkConstantImplicitBackend_h
+#endif // vtkVTK_DISPATCH_IMPLICIT_ARRAYS_h

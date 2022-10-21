@@ -17,11 +17,12 @@
 #include "vtkArrayDispatch.h"
 #include "vtkDataArrayRange.h"
 #include "vtkIntArray.h"
+#include "vtkVTK_DISPATCH_IMPLICIT_ARRAYS.h"
 
 #include <cstdlib>
 #include <memory>
 
-#ifdef DISPATCH_AFFINE_ARRAYS
+#ifdef VTK_DISPATCH_AFFINE_ARRAYS
 namespace
 {
 struct ScaleWorker
@@ -49,7 +50,7 @@ struct ScaleWorker
   }
 };
 }
-#endif // DISPATCH_AFFINE_ARRAYS
+#endif // VTK_DISPATCH_AFFINE_ARRAYS
 
 int TestAffineArray(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
@@ -84,7 +85,7 @@ int TestAffineArray(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
     }
   }
 
-#ifdef DISPATCH_AFFINE_ARRAYS
+#ifdef VTK_DISPATCH_AFFINE_ARRAYS
   {
     std::cout << "vtkAffineArray: performing dispatch tests" << std::endl;
     vtkNew<vtkIntArray> destination;
@@ -108,6 +109,6 @@ int TestAffineArray(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
       iArr++;
     }
   }
-#endif // DISPATCH_AFFINE_ARRAYS
+#endif // VTK_DISPATCH_AFFINE_ARRAYS
   return res;
 };

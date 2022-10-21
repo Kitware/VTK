@@ -17,11 +17,12 @@
 #include "vtkArrayDispatch.h"
 #include "vtkDataArrayRange.h"
 #include "vtkIntArray.h"
+#include "vtkVTK_DISPATCH_IMPLICIT_ARRAYS.h"
 
 #include <cstdlib>
 #include <memory>
 
-#ifdef DISPATCH_STD_FUNCTION_ARRAYS
+#ifdef VTK_DISPATCH_STD_FUNCTION_ARRAYS
 namespace
 {
 struct ScaleWorker
@@ -49,7 +50,7 @@ struct ScaleWorker
   }
 };
 }
-#endif // DISPATCH_STD_FUNCTION_ARRAYS
+#endif // VTK_DISPATCH_STD_FUNCTION_ARRAYS
 
 int TestStdFunctionArray(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
@@ -85,7 +86,7 @@ int TestStdFunctionArray(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
     }
   }
 
-#ifdef DISPATCH_STD_FUNCTION_ARRAYS
+#ifdef VTK_DISPATCH_STD_FUNCTION_ARRAYS
   {
     std::cout << "vtkStdFunctionArray: performing dispatch tests" << std::endl;
     vtkNew<vtkIntArray> destination;
@@ -109,6 +110,6 @@ int TestStdFunctionArray(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
       iArr++;
     }
   }
-#endif // DISPATCH_STD_FUNCTION_ARRAYS
+#endif // VTK_DISPATCH_STD_FUNCTION_ARRAYS
   return res;
 };

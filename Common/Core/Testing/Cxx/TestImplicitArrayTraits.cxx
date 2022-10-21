@@ -39,7 +39,7 @@ struct IsClosure
 
 struct IsNotDefaultConstructible
 {
-  IsNotDefaultConstructible(int& i) { i++; };
+  IsNotDefaultConstructible(int& i) { i++; }
 };
 
 }
@@ -49,6 +49,8 @@ int TestImplicitArrayTraits(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   //--------------------------------------------------------------------------------
   int result = EXIT_SUCCESS;
 
+  static_assert(!vtk::detail::has_map_trait<::HasNothing>::value,
+    "HasNothing being attributed a has_map_trait");
   if (vtk::detail::has_map_trait<::HasNothing>::value)
   {
     std::cout << "Failed has_map_trait check on HasNothing" << std::endl;
@@ -61,6 +63,8 @@ int TestImplicitArrayTraits(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
     result = EXIT_FAILURE;
   }
 
+  static_assert(!vtk::detail::is_closure_trait<::HasNothing>::value,
+    "HasNothing being attributed a is_closure_trait");
   if (vtk::detail::is_closure_trait<::HasNothing>::value)
   {
     std::cout << "Failed is_closure_trait check on HasNothing" << std::endl;
@@ -98,6 +102,8 @@ int TestImplicitArrayTraits(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   }
 
   //--------------------------------------------------------------------------------
+  static_assert(
+    vtk::detail::has_map_trait<::HasMap>::value, "HasMap is not being attributed a has_map_trait");
   if (!vtk::detail::has_map_trait<::HasMap>::value)
   {
     std::cout << "Failed has_map_trait check on HasMap" << std::endl;
@@ -135,6 +141,8 @@ int TestImplicitArrayTraits(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   }
 
   //--------------------------------------------------------------------------------
+  static_assert(vtk::detail::is_closure_trait<::IsClosure>::value,
+    "IsClosure is not being attributed a is_closure_trait");
   if (!vtk::detail::is_closure_trait<::IsClosure>::value)
   {
     std::cout << "Failed is_closure_trait check on IsClosure" << std::endl;
@@ -185,4 +193,4 @@ int TestImplicitArrayTraits(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   }
 
   return result;
-};
+}

@@ -11,6 +11,7 @@ GROUPS
 DEPENDS
   VTK::kwiml
   VTK::vtksys
+  VTK::CommonImplicitBackends
 PRIVATE_DEPENDS
   VTK::utf8
 OPTIONAL_DEPENDS

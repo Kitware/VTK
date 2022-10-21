@@ -65,7 +65,7 @@
  * @code
  * struct Const42
  * {
- *   int operator()(int idx) const { return 42; };
+ *   int operator()(int idx) const { return 42; }
  * };
  * vtkNew<vtkImplicitArray<Const42>> arr42;
  * @endcode
@@ -100,17 +100,17 @@ public:
    * Implementation of vtkGDAConceptMethods
    */
   /**
-   * Get the value at @a valueIdx. @a valueIdx assumes AOS ordering.
+   * Get the value at @a idx. @a idx assumes AOS ordering.
    */
   inline ValueType GetValue(vtkIdType idx) const { return this->GetValue<BackendT>(idx); }
 
   /**
-   * Will fail for these read only arrays!
+   * Will not do anything for these read only arrays!
    */
   void SetValue(vtkIdType idx, ValueType value);
 
   /**
-   * Copy the tuple at @a tupleIdx into @a tuple.
+   * Copy the tuple at @a idx into @a tuple.
    */
   void GetTypedTuple(vtkIdType idx, ValueType* tuple) const
   {
@@ -122,12 +122,12 @@ public:
   }
 
   /**
-   * Will fail for these read only arrays!
+   * Will not do anything for these read only arrays!
    */
   void SetTypedTuple(vtkIdType tupleIdx, const ValueType* tuple);
 
   /**
-   * Get component @a comp of the tuple at @a tupleIdx.
+   * Get component @a comp of the tuple at @a idx.
    */
   inline ValueType GetTypedComponent(vtkIdType idx, int comp) const
   {
@@ -135,7 +135,7 @@ public:
   }
 
   /**
-   * Will fail for these read only arrays!
+   * Will not do anything for these read only arrays!
    */
   void SetTypedComponent(vtkIdType tupleIdx, int comp, ValueType value);
   ///@}
@@ -148,18 +148,18 @@ public:
   {
     this->Backend = newBackend;
     this->Modified();
-  };
-  std::shared_ptr<BackendT> GetBackend() { return this->Backend; };
+  }
+  std::shared_ptr<BackendT> GetBackend() { return this->Backend; }
   ///@}
 
   /**
    * Use of this method is discouraged, it creates a memory copy of the data into
-   * a contiguous AoS-ordered buffer internally and prints a warning.
+   * a contiguous AoS-ordered buffer internally.
    */
   void* GetVoidPointer(vtkIdType valueIdx) override;
 
   /**
-   * Release all extraneous internal memory
+   * Release all extraneous internal memory including the void pointer
    */
   void Squeeze() override;
 
@@ -175,14 +175,15 @@ public:
   {
     this->Initialize<BackendT>();
     this->Squeeze();
-  };
+  }
 
   /**
    * Specific DeepCopy for implicit arrays
    *
    * This method should be prefered for two implicit arrays having the same backend. We cannot call
    * the method `DeepCopy` since that conflicts with the virtual function of the same name that
-   * cannot be templated (I tried it, it generates warnings). We can call this from the dispatched
+   * cannot be templated. The non-interopability of templates and virtual functions is a language
+   * limitation at the time of writing this documentation.  We can call this from the dispatched
    * version of the `DeepCopy` in `vtkDataArray`. However, the implicit array needs to be
    * dispatchable in order to to not enter into the Generic implementation of the deep copy. This
    * dispatch is not always the case for all implicit arrays.
@@ -196,9 +197,8 @@ public:
     this->SetNumberOfComponents(other->GetNumberOfComponents());
     this->SetNumberOfTuples(other->GetNumberOfTuples());
     this->SetBackend(other->GetBackend());
-  };
+  }
 
-#ifndef __VTK_WRAP__
   ///@{
   /**
    * Perform a fast, safe cast from a vtkAbstractArray to a vtkDataArray.
@@ -208,7 +208,6 @@ public:
    */
   static vtkImplicitArray<BackendT>* FastDownCast(vtkAbstractArray* source);
   ///@}
-#endif
 
 protected:
   vtkImplicitArray();
@@ -218,8 +217,8 @@ protected:
   /**
    * No allocation necessary
    */
-  bool AllocateTuples(vtkIdType vtkNotUsed(numTuples)) { return true; };
-  bool ReallocateTuples(vtkIdType vtkNotUsed(numTuples)) { return true; };
+  bool AllocateTuples(vtkIdType vtkNotUsed(numTuples)) { return true; }
+  bool ReallocateTuples(vtkIdType vtkNotUsed(numTuples)) { return true; }
   ///@}
 
   struct vtkInternals;
@@ -291,8 +290,6 @@ VTK_ABI_NAMESPACE_END
 
 #include "vtkImplicitArray.txx"
 
-#endif // vtkImplicitArray_h
-
 #define vtkInstantiateSecondOrderTemplateMacro(decl0, decl1)                                       \
   decl0<decl1<float>>;                                                                             \
   decl0<decl1<double>>;                                                                            \
@@ -307,3 +304,5 @@ VTK_ABI_NAMESPACE_END
   decl0<decl1<unsigned long>>;                                                                     \
   decl0<decl1<long long>>;                                                                         \
   decl0<decl1<unsigned long long>>
+
+#endif // vtkImplicitArray_h

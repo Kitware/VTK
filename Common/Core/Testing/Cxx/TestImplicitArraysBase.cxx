@@ -25,7 +25,7 @@ namespace
 
 struct Const42
 {
-  int operator()(int vtkNotUsed(idx)) const { return 42; };
+  int operator()(int vtkNotUsed(idx)) const { return 42; }
 };
 
 struct ConstStruct
@@ -34,7 +34,7 @@ struct ConstStruct
 
   ConstStruct(int val) { this->value = val; }
 
-  int operator()(int vtkNotUsed(idx)) const { return this->value; };
+  int operator()(int vtkNotUsed(idx)) const { return this->value; }
 };
 
 };
@@ -129,14 +129,6 @@ int TestImplicitArraysBase(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
       iArr++;
     }
   }
-
-  /*
-   * Fails to compile, as it should, since the backend types are not the same
-   */
-  //{
-  // vtkNew<vtkStdFunctionArray<int>> copied;
-  // copied->DeepCopy(arr42.Get());
-  //}
 
   {
     int* vPtr = static_cast<int*>(arr42->GetVoidPointer(0));

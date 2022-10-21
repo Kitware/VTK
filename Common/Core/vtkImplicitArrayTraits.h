@@ -54,6 +54,7 @@ VTK_ABI_NAMESPACE_BEGIN
 template <typename... T>
 using void_t = void;
 
+///@{
 /**
  * \struct has_map_trait
  * \brief used to check whether the template type has a method named map
@@ -92,7 +93,9 @@ struct has_map_trait<R(Arg)>
   static constexpr bool value = true;
   using rtype = R;
 };
+///@}
 
+///@{
 /**
  * \struct is_closure_trait
  * \brief A trait determining whether an object acts like a mono-variable integer closure
@@ -141,6 +144,7 @@ struct is_closure_trait<R(Arg)>
   static constexpr bool value = true;
   using rtype = R;
 };
+///@}
 
 namespace iarrays
 {
@@ -157,6 +161,7 @@ enum ReadOperatorCodes
 };
 }
 
+///@{
 /**
  * \struct can_map_trait
  * \brief An intermediate trait for exposing a unified trait interface
@@ -178,12 +183,13 @@ struct can_map_trait<T, void_t<typename has_map_trait<T>::rtype>>
   using rtype = typename has_map_trait<T>::rtype;
   static constexpr iarrays::ReadOperatorCodes code = iarrays::MAP;
 };
+///@}
 
+///@{
 /**
  * \struct can_close_trait
  * \brief An intermediate trait for exposing a unified trait interface
  */
-
 template <typename T, typename = void>
 struct can_close_trait
 {
@@ -201,6 +207,7 @@ struct can_close_trait<T, void_t<typename is_closure_trait<T>::rtype>>
   using rtype = typename is_closure_trait<T>::rtype;
   static constexpr iarrays::ReadOperatorCodes code = iarrays::CLOSURE;
 };
+///@}
 
 /**
  * \struct implicit_array_traits

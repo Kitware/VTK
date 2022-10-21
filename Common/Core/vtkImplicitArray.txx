@@ -47,13 +47,14 @@ vtkImplicitArray<BackendT>::vtkImplicitArray()
 
 //-----------------------------------------------------------------------------
 template <class BackendT>
-vtkImplicitArray<BackendT>::~vtkImplicitArray(){};
+vtkImplicitArray<BackendT>::~vtkImplicitArray()
+{
+}
 
 //-----------------------------------------------------------------------------
 template <class BackendT>
 void vtkImplicitArray<BackendT>::SetValue(vtkIdType vtkNotUsed(idx), ValueType vtkNotUsed(value))
 {
-  vtkWarningMacro("Can not set value in read only vtkImplicitArray!");
 }
 
 //-----------------------------------------------------------------------------
@@ -61,7 +62,6 @@ template <class BackendT>
 void vtkImplicitArray<BackendT>::SetTypedTuple(
   vtkIdType vtkNotUsed(idx), const ValueType* vtkNotUsed(tuple))
 {
-  vtkWarningMacro("Can not set tuple in read only vtkImplicitArray!");
 }
 
 //-----------------------------------------------------------------------------
@@ -69,7 +69,6 @@ template <class BackendT>
 void vtkImplicitArray<BackendT>::SetTypedComponent(
   vtkIdType vtkNotUsed(idx), int vtkNotUsed(comp), ValueType vtkNotUsed(value))
 {
-  vtkWarningMacro("Can not set tuple component in read only vtkImplicitArray!");
 }
 
 //-----------------------------------------------------------------------------
@@ -78,7 +77,7 @@ void* vtkImplicitArray<BackendT>::GetVoidPointer(vtkIdType idx)
 {
   if (!this->Internals->Cache)
   {
-    this->Internals->Cache = vtk::TakeSmartPointer(vtkAOSDataArrayTemplate<ValueType>::New());
+    this->Internals->Cache = vtkSmartPointer<vtkAOSDataArrayTemplate<ValueType>>::New();
     this->Internals->Cache->DeepCopy(this);
   }
   return this->Internals->Cache->GetVoidPointer(idx);
@@ -92,8 +91,6 @@ void vtkImplicitArray<BackendT>::Squeeze()
 }
 
 //-----------------------------------------------------------------------------
-#ifndef __VTK_WRAP__
-
 template <class BackendT>
 vtkImplicitArray<BackendT>* vtkImplicitArray<BackendT>::FastDownCast(vtkAbstractArray* source)
 {
@@ -119,7 +116,6 @@ vtkImplicitArray<BackendT>* vtkImplicitArray<BackendT>::FastDownCast(vtkAbstract
   }
   return nullptr;
 }
-#endif
 
 VTK_ABI_NAMESPACE_END
 

@@ -134,12 +134,14 @@ set(implicit_array_headers)
 set(implicit_array_dispatch_list)
 if (VTK_BUILD_IMPLICIT_ARRAYS)
   list(APPEND implicit_array_headers
-    ImplicitBackends/vtkAffineImplicitBackend.h
-    ImplicitBackends/vtkConstantImplicitBackend.h
     vtkAffineArray.h
     vtkConstantArray.h
     vtkStdFunctionArray.h
   )
+  configure_file(
+    "${CMAKE_CURRENT_SOURCE_DIR}/vtkVTK_DISPATCH_IMPLICIT_ARRAYS.h.in"
+    "${CMAKE_CURRENT_BINARY_DIR}/vtkVTK_DISPATCH_IMPLICIT_ARRAYS.h"
+    @ONLY)
 endif ()
 
 include("${CMAKE_CURRENT_SOURCE_DIR}/vtkCreateArrayDispatchArrayList.cmake")
@@ -301,7 +303,7 @@ set(classes
   vtkWeakPointerBase
   vtkWeakReference
   vtkWindow
-  vtkXMLFileOutputWindow 
+  vtkXMLFileOutputWindow
 
   # These classes are deprecated.
   vtkCriticalSection)
@@ -344,7 +346,6 @@ if (VTK_BUILD_IMPLICIT_ARRAYS)
     ${implicit_array_template_classes})
   list (APPEND classes 
     ${implicit_array_classes})
-  set(VTK_USE_IMPLICIT_ARRAYS 1)
 endif ()
 configure_file(
   "${CMAKE_CURRENT_SOURCE_DIR}/vtkVTK_USE_IMPLICIT_ARRAYS.h.in"
@@ -616,13 +617,6 @@ if (vtk_include_dirs)
   vtk_module_include(VTK::CommonCore
     PRIVATE
       ${vtk_include_dirs})
-endif ()
-if (VTK_BUILD_IMPLICIT_ARRAYS)
-  vtk_module_include(VTK::CommonCore
-    PUBLIC
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/ImplicitBackends>
-    $<INSTALL_INTERFACE:${_vtk_build_HEADERS_DESTINATION}/ImplicitBackends>
-  )
 endif ()
 
 vtk_module_link(VTK::CommonCore

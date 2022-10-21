@@ -265,11 +265,15 @@ endif ()
 list(APPEND vtk_requested_modules
   # Required for just about everything.
   VTK::CommonCore
-  VTK::CommonDataModel)
+  VTK::CommonDataModel
+  VTK::CommonImplicitBackends
+)
 set("_vtk_module_reason_VTK::CommonCore"
   "because all VTK builds require VTK::CommonCore")
 set("_vtk_module_reason_VTK::CommonDataModel"
   "because all VTK builds require VTK::CommonDataModel")
+set("_vtk_module_reason_VTK::CommonImplicitBackends"
+  "because VTK::CommonCore requires VTK::CommonImplicitBackends")
 
 if (VTK_ENABLE_WRAPPING)
   list(APPEND vtk_requested_modules

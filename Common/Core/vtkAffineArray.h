@@ -70,42 +70,10 @@ VTK_ABI_NAMESPACE_END
 VTK_ABI_NAMESPACE_BEGIN
 vtkInstantiateSecondOrderTemplateMacro(
   extern template class VTKCOMMONCORE_EXPORT vtkImplicitArray, vtkAffineImplicitBackend);
+VTK_ABI_NAMESPACE_END
 #ifdef _MSC_VER
 #pragma warning(pop)
 #endif
-VTK_ABI_NAMESPACE_END
 #endif // VTK_AFFINE_ARRAY_TEMPLATE_EXTERN
 
-// The following clause is only for MSVC 2008 and 2010
-#elif defined(_MSC_VER) && !defined(VTK_BUILD_SHARED_LIBS)
-#pragma warning(push)
-
-// C4091: 'extern ' : ignored on left of 'int' when no variable is declared
-#pragma warning(disable : 4091)
-
-// Compiler-specific extension warning.
-#pragma warning(disable : 4231)
-
-// We need to disable warning 4910 and do an extern dllexport
-// anyway.  When deriving new arrays from an
-// instantiation of this template the compiler does an explicit
-// instantiation of the base class.  From outside the vtkCommon
-// library we block this using an extern dllimport instantiation.
-// For classes inside vtkCommon we should be able to just do an
-// extern instantiation, but VS 2008 complains about missing
-// definitions.  We cannot do an extern dllimport inside vtkCommon
-// since the symbols are local to the dll.  An extern dllexport
-// seems to be the only way to convince VS 2008 to do the right
-// thing, so we just disable the warning.
-#pragma warning(disable : 4910) // extern and dllexport incompatible
-
-// Use an "extern explicit instantiation" to give the class a DLL
-// interface.  This is a compiler-specific extension.
-VTK_ABI_NAMESPACE_BEGIN
-vtkInstantiateSecondOrderTemplateMacro(
-  extern template class VTKCOMMONCORE_EXPORT vtkImplicitArray, vtkAffineImplicitBackend);
-
-#pragma warning(pop)
-
-VTK_ABI_NAMESPACE_END
 #endif // VTK_AFFINE_ARRAY_INSTANTIATING

@@ -17,6 +17,6 @@
 #define vtkVTK_USE_IMPLICIT_ARRAYS_h
 
 // defined if VTK provides the vtkImplicitArray classes
-#cmakedefine VTK_USE_IMPLICIT_ARRAYS
+#cmakedefine VTK_BUILD_IMPLICIT_ARRAYS
 
 #endif // vtkVTK_USE_IMPLICIT_ARRAYS_h
