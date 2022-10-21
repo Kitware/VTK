@@ -60,6 +60,7 @@ using RegionType = std::array<int, 6>;
 
 namespace
 {
+VTK_ABI_NAMESPACE_BEGIN
 constexpr double MIN_ERROR = 20;
 
 //------------------------------------------------------------------------------
@@ -410,7 +411,7 @@ struct MergePolyDataInfo
   bool MergePolyData;
   size_t MergedTextureWidth;
 };
-
+VTK_ABI_NAMESPACE_END
 }
 
 VTK_ABI_NAMESPACE_BEGIN
