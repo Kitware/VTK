@@ -1,5 +1,10 @@
+try:
+    import numpy as np
+except ImportError:
+    raise RuntimeError("This module depends on the numpy module. Please make\
+sure that it is installed properly.")
+
 import base64
-import numpy as np
 
 from vtkmodules.util.numpy_support import vtk_to_numpy
 from vtkmodules.vtkFiltersGeometry import vtkDataSetSurfaceFilter
