@@ -1,8 +1,10 @@
 try:
     import numpy as np
 except ImportError:
-    raise RuntimeError("This module depends on the numpy module. Please make\
-sure that it is installed properly.")
+    raise ImportError(
+        "This module depends on the numpy module. Please make\
+sure that it is installed properly."
+    )
 
 import base64
 
