@@ -39,7 +39,7 @@
 #ifndef vtkImplicitCylinderRepresentation_h
 #define vtkImplicitCylinderRepresentation_h
 
-#include "vtkDeprecation.h"              // For VTK_DEPRECATED_IN_9_2_0
+#include "vtkDeprecation.h"              // For VTK_DEPRECATED_IN_9_3_0
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkWidgetRepresentation.h"
 
@@ -285,13 +285,31 @@ public:
    */
   vtkGetObjectMacro(EdgesProperty, vtkProperty);
   ///@}
+
+  ///@{
+  /**
+   * Set the color of all the widgets handles (edges, axis, selected cylinder)
+   * and their color during interaction. Foreground color applies to the outlines and unselected
+   * cylinder.
+   */
+  void SetInteractionColor(double, double, double);
+  void SetInteractionColor(double c[3]) { this->SetInteractionColor(c[0], c[1], c[2]); }
+  void SetHandleColor(double, double, double);
+  void SetHandleColor(double c[3]) { this->SetHandleColor(c[0], c[1], c[2]); }
+  void SetForegroundColor(double, double, double);
+  void SetForegroundColor(double c[3]) { this->SetForegroundColor(c[0], c[1], c[2]); }
+  ///@}
+
   ///@{
   /**
    * Set color to the edge
    */
-  void SetEdgeColor(vtkLookupTable*);
-  void SetEdgeColor(double, double, double);
-  void SetEdgeColor(double c[3]);
+  VTK_DEPRECATED_IN_9_3_0("Please use GetEdgesProperty or SetHandleColor instead.")
+  void SetEdgeColor(vtkLookupTable*) {}
+  VTK_DEPRECATED_IN_9_3_0("Please use GetEdgesProperty or SetHandleColor instead.")
+  void SetEdgeColor(double, double, double) {}
+  VTK_DEPRECATED_IN_9_3_0("Please use GetEdgesProperty or SetHandleColor instead.")
+  void SetEdgeColor(double[3]) {}
   ///@}
 
   ///@{

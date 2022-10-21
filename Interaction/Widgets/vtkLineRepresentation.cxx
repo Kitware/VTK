@@ -681,12 +681,12 @@ void vtkLineRepresentation::CreateDefaultProperties()
   // Line properties
   this->LineProperty = vtkProperty::New();
   this->LineProperty->SetAmbient(1.0);
-  this->LineProperty->SetAmbientColor(1.0, 1.0, 1.0);
+  this->LineProperty->SetColor(1.0, 1.0, 1.0);
   this->LineProperty->SetLineWidth(2.0);
 
   this->SelectedLineProperty = vtkProperty::New();
   this->SelectedLineProperty->SetAmbient(1.0);
-  this->SelectedLineProperty->SetAmbientColor(0.0, 1.0, 0.0);
+  this->SelectedLineProperty->SetColor(0.0, 1.0, 0.0);
   this->SelectedLineProperty->SetLineWidth(2.0);
 }
 
@@ -844,6 +844,22 @@ void vtkLineRepresentation::SetLineColor(double r, double g, double b)
   {
     this->GetLineProperty()->SetColor(r, g, b);
   }
+}
+
+//------------------------------------------------------------------------------
+void vtkLineRepresentation::SetInteractionColor(double r, double g, double b)
+{
+  this->SelectedEndPointProperty->SetColor(r, g, b);
+  this->SelectedEndPoint2Property->SetColor(r, g, b);
+  this->SelectedLineProperty->SetColor(r, g, b);
+}
+
+//------------------------------------------------------------------------------
+void vtkLineRepresentation::SetForegroundColor(double r, double g, double b)
+{
+  this->EndPointProperty->SetColor(r, g, b);
+  this->EndPoint2Property->SetColor(r, g, b);
+  this->LineProperty->SetColor(r, g, b);
 }
 
 //------------------------------------------------------------------------------

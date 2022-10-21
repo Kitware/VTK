@@ -590,6 +590,14 @@ int TestDisplaySizedImplicitPlaneWidget(int vtkNotUsed(argc), char* vtkNotUsed(a
   rep->SetPlaceFactor(1.25); // This must be set prior to placing the widget
   rep->PlaceWidget(selectActor->GetBounds());
   rep->SetNormal(plane->GetNormal());
+  // Some color variation for a white background
+  // rep->SetSelectedWidgetColor(1, 0, 1);
+  // rep->SetUnselectedWidgetColor(0, 1, 0);
+  // rep->SetForegroundWidgetColor(0, 0, 1);
+  rep->DrawOutlineOn();
+  rep->DrawIntersectionEdgesOn();
+
+  // ren1->SetBackground(1, 1, 1);
 
   vtkNew<Widget> planeWidget;
   planeWidget->SetInteractor(iren);

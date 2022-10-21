@@ -31,6 +31,22 @@
  * way the representation responds to the registered widget events, so the API
  * may vary from widget to widget to reflect this complexity.
  *
+ * Clients of VTK, like ParaView, need a uniform way to set colors on widgets.
+ * Most widgets have standard color setters - new widgets should follow this pattern.
+ * The intended use of these colors is as follows:
+ * | Color       | Description |
+ * | ----------- | ----------- |
+ * | `HandleColor`      | Widget handles that are available to interact with via click+drag. | |
+ * `InteractionColor` | Widget handles the user is interacting with (via a click+drag) or hovering
+ * over.     | | `ForegroundColor`  | Widget elements meant to contrast with the background and
+ * which are not interactive. |
+ *
+ * When hovering, the `InteractionColor` can also be used to show which parts
+ * of the widget will change if this handle is dragged. For instance, using the
+ * `vtkDisplaySizedImplicitPlaneRepresentation`, hovering the axis also displays
+ * the plane disc in the `InteractionColor`, to show it will change when the
+ * axis is rotated.
+ *
  * @warning
  * The separation of the widget event handling and representation enables
  * users and developers to create new appearances for the widget. It also

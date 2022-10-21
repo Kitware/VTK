@@ -724,13 +724,25 @@ void vtkPointHandleRepresentation3D::CreateDefaultProperties()
 {
   this->Property = vtkProperty::New();
   this->Property->SetAmbient(1.0);
-  this->Property->SetAmbientColor(1.0, 1.0, 1.0);
+  this->Property->SetColor(1.0, 1.0, 1.0);
   this->Property->SetLineWidth(0.5);
 
   this->SelectedProperty = vtkProperty::New();
   this->SelectedProperty->SetAmbient(1.0);
-  this->SelectedProperty->SetAmbientColor(0.0, 1.0, 0.0);
+  this->SelectedProperty->SetColor(0.0, 1.0, 0.0);
   this->SelectedProperty->SetLineWidth(2.0);
+}
+
+//------------------------------------------------------------------------------
+void vtkPointHandleRepresentation3D::SetInteractionColor(double r, double g, double b)
+{
+  this->SelectedProperty->SetColor(r, g, b);
+}
+
+//------------------------------------------------------------------------------
+void vtkPointHandleRepresentation3D::SetForegroundColor(double r, double g, double b)
+{
+  this->Property->SetColor(r, g, b);
 }
 
 //------------------------------------------------------------------------------

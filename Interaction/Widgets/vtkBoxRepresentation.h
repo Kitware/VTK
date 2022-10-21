@@ -160,6 +160,29 @@ public:
 
   ///@{
   /**
+   * Set the foreground color (the outline of the box).
+   */
+  void SetForegroundColor(double _arg1, double _arg2, double _arg3);
+  void SetForegroundColor(const double _arg[3])
+  {
+    this->SetForegroundColor(_arg[0], _arg[1], _arg[2]);
+  }
+  ///@}
+
+  ///@{
+  /**
+   * Set the interaction color. Applies to the handle and outline
+   * when interaction is happening.
+   */
+  void SetInteractionColor(double _arg1, double _arg2, double _arg3);
+  void SetInteractionColor(const double _arg[3])
+  {
+    this->SetInteractionColor(_arg[0], _arg[1], _arg[2]);
+  }
+  ///@}
+
+  ///@{
+  /**
    * Control the representation of the outline. This flag enables
    * face wires. By default face wires are off.
    */

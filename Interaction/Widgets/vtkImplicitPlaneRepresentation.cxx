@@ -1269,33 +1269,56 @@ void vtkImplicitPlaneRepresentation::CreateDefaultProperties()
 
   this->SelectedNormalProperty = vtkProperty::New();
   this->SelectedNormalProperty->SetColor(1, 0, 0);
-  this->NormalProperty->SetLineWidth(2);
+  this->SelectedNormalProperty->SetLineWidth(2);
 
   // Plane properties
   this->PlaneProperty = vtkProperty::New();
   this->PlaneProperty->SetAmbient(1.0);
-  this->PlaneProperty->SetAmbientColor(1.0, 1.0, 1.0);
+  this->PlaneProperty->SetColor(1.0, 1.0, 1.0);
   this->PlaneProperty->SetOpacity(0.5);
   this->CutActor->SetProperty(this->PlaneProperty);
 
   this->SelectedPlaneProperty = vtkProperty::New();
   this->SelectedPlaneProperty->SetAmbient(1.0);
-  this->SelectedPlaneProperty->SetAmbientColor(0.0, 1.0, 0.0);
+  this->SelectedPlaneProperty->SetColor(0.0, 1.0, 0.0);
   this->SelectedPlaneProperty->SetOpacity(0.25);
 
   // Outline properties
   this->OutlineProperty = vtkProperty::New();
   this->OutlineProperty->SetAmbient(1.0);
-  this->OutlineProperty->SetAmbientColor(1.0, 1.0, 1.0);
+  this->OutlineProperty->SetColor(1.0, 1.0, 1.0);
 
   this->SelectedOutlineProperty = vtkProperty::New();
   this->SelectedOutlineProperty->SetAmbient(1.0);
-  this->SelectedOutlineProperty->SetAmbientColor(0.0, 1.0, 0.0);
+  this->SelectedOutlineProperty->SetColor(0.0, 1.0, 0.0);
 
   // Edge property
   this->EdgesProperty = vtkProperty::New();
   this->EdgesProperty->SetAmbient(1.0);
-  this->EdgesProperty->SetAmbientColor(1.0, 1.0, 1.0);
+  this->EdgesProperty->SetColor(1.0, 1.0, 1.0);
+}
+
+//------------------------------------------------------------------------------
+void vtkImplicitPlaneRepresentation::SetInteractionColor(double r, double g, double b)
+{
+  this->SelectedNormalProperty->SetColor(r, g, b);
+  this->SelectedOutlineProperty->SetColor(r, g, b);
+  this->SelectedPlaneProperty->SetColor(r, g, b);
+}
+
+//------------------------------------------------------------------------------
+void vtkImplicitPlaneRepresentation::SetHandleColor(double r, double g, double b)
+{
+  this->NormalProperty->SetColor(r, g, b);
+  this->EdgesProperty->SetColor(r, g, b);
+  this->SetEdgeColor(r, g, b);
+}
+
+//------------------------------------------------------------------------------
+void vtkImplicitPlaneRepresentation::SetForegroundColor(double r, double g, double b)
+{
+  this->PlaneProperty->SetColor(r, g, b);
+  this->OutlineProperty->SetColor(r, g, b);
 }
 
 //------------------------------------------------------------------------------

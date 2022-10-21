@@ -91,13 +91,18 @@ vtk_add_test_cxx(vtkInteractionWidgetsCxxTests no_valid_tests
   vtkCaptionWidgetTest1.cxx
   vtkConstrainedPointHandleRepresentationTest1.cxx
   vtkHoverWidgetTest1.cxx
+  vtkImplicitPlaneRepresentationTest1.cxx
+  vtkImplicitPlaneWidget2Test1.cxx
   vtkLineRepresentationTest1.cxx
   vtkLineWidget2Test1.cxx
+  vtkPointHandleRepresentation2DTest1.cxx
+  # vtkPointHandleRepresentation3DTest1.cxx disabled
   vtkPolyLineRepresentationTest1.cxx
   vtkPolyLineWidgetTest1.cxx
   vtkResliceCursorRepresentationTest1.cxx
   vtkSeedRepresentationTest1.cxx
   vtkSeedWidgetTest1.cxx
+  # vtkSphereHandleRepresentationTest1.cxx disabled
   vtkSplineRepresentationTest1.cxx
   vtkSplineWidget2Test1.cxx
   vtkTextRepresentationTest1.cxx

@@ -757,24 +757,6 @@
     std::cout << "Interaction state = " << interactionState << std::endl;                          \
   } while (false)
 
-/// test vtkAngleRepresentation methods
-#define EXERCISE_BASIC_IMPLICIT_PLANE_REPRESENTATION_METHODS(className, object)                    \
-  do                                                                                               \
-  {                                                                                                \
-    EXERCISE_BASIC_REPRESENTATION_METHODS(className, object);                                      \
-                                                                                                   \
-    TEST_SET_GET_VECTOR3_DOUBLE_RANGE(node1, Origin, -100, 100);                                   \
-    TEST_SET_GET_VECTOR3_DOUBLE_RANGE(node1, Normal, -1, 1);                                       \
-    TEST_SET_GET_BOOLEAN(node1, NormalToXAxis);                                                    \
-    TEST_SET_GET_BOOLEAN(node1, NormalToYAxis);                                                    \
-    TEST_SET_GET_BOOLEAN(node1, NormalToZAxis);                                                    \
-    TEST_SET_GET_BOOLEAN(node1, Tubing);                                                           \
-    TEST_SET_GET_BOOLEAN(node1, DrawPlane);                                                        \
-    TEST_SET_GET_BOOLEAN(node1, OutlineTranslation);                                               \
-    TEST_SET_GET_BOOLEAN(node1, OutsideBounds);                                                    \
-    TEST_SET_GET_BOOLEAN(node1, ScaleEnabled);                                                     \
-  } while (false)
-
 /// test objects that have Property and SelectedProperty set/get, with vtkProperty
 #define TEST_SET_GET_PROPERTY(object, variable)                                                    \
   do                                                                                               \
