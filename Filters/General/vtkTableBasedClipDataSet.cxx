@@ -61,7 +61,7 @@
 #include "vtkTableBasedClipCases.cxx"
 
 VTK_ABI_NAMESPACE_BEGIN
-vtkStandardNewMacro(vtkTableBasedClipDataSet);
+vtkObjectFactoryNewMacro(vtkTableBasedClipDataSet);
 vtkCxxSetObjectMacro(vtkTableBasedClipDataSet, ClipFunction, vtkImplicitFunction);
 
 //------------------------------------------------------------------------------

@@ -26,7 +26,9 @@
 #define vtkmClip_h
 
 #include "vtkAcceleratorsVTKmFiltersModule.h" // For export macro
-#include "vtkUnstructuredGridAlgorithm.h"
+#include "vtkDeprecation.h"                   // For VTK_DEPRECATED_IN_9_3_0
+#include "vtkTableBasedClipDataSet.h"
+
 #include "vtkmlib/vtkmInitializer.h" // Need for initializing vtk-m
 
 #include <memory> // For std::unique_ptr
@@ -34,36 +36,30 @@
 VTK_ABI_NAMESPACE_BEGIN
 class vtkImplicitFunction;
 
-class VTKACCELERATORSVTKMFILTERS_EXPORT vtkmClip : public vtkUnstructuredGridAlgorithm
+class VTKACCELERATORSVTKMFILTERS_EXPORT vtkmClip : public vtkTableBasedClipDataSet
 {
 public:
   static vtkmClip* New();
-  vtkTypeMacro(vtkmClip, vtkUnstructuredGridAlgorithm);
+  vtkTypeMacro(vtkmClip, vtkTableBasedClipDataSet);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * The scalar value to use when clipping the dataset. Values greater than
    * ClipValue are preserved in the output dataset. Default is 0.
    */
-  double GetClipValue();
-  void SetClipValue(double);
+  VTK_DEPRECATED_IN_9_3_0("Please use GetValue instead.")
+  double GetClipValue() { return this->GetValue(); }
+
+  VTK_DEPRECATED_IN_9_3_0("Please use SetValue instead.")
+  void SetClipValue(double v) { this->SetValue(v); }
 
   /**
    * If true, all input point data arrays will be mapped onto the output
    * dataset. Default is true.
    */
-  bool GetComputeScalars();
-  void SetComputeScalars(bool);
-
-  /**
-   * Set the implicit function with which to perform the clipping. If set,
-   * \c ClipValue is ignored and the clipping is performed using the implicit
-   * function.
-   */
-  void SetClipFunction(vtkImplicitFunction*);
-  vtkImplicitFunction* GetClipFunction();
-
-  vtkMTimeType GetMTime() override;
+  vtkGetMacro(ComputeScalars, bool);
+  vtkSetMacro(ComputeScalars, bool);
+  vtkBooleanMacro(ComputeScalars, bool);
 
   ///@{
   /**
@@ -82,11 +78,11 @@ protected:
   ~vtkmClip() override;
 
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
-  int FillInputPortInformation(int port, vtkInformation* info) override;
+
+  vtkTypeBool ForceVTKm = false;
+  bool ComputeScalars = true;
 
   struct internals;
-  std::unique_ptr<internals> Internals;
-  vtkTypeBool ForceVTKm = false;
 
 private:
   vtkmClip(const vtkmClip&) = delete;

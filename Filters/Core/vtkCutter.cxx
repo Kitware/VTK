@@ -51,7 +51,7 @@
 #include <cmath>
 
 VTK_ABI_NAMESPACE_BEGIN
-vtkStandardNewMacro(vtkCutter);
+vtkObjectFactoryNewMacro(vtkCutter);
 vtkCxxSetObjectMacro(vtkCutter, CutFunction, vtkImplicitFunction);
 vtkCxxSetObjectMacro(vtkCutter, Locator, vtkIncrementalPointLocator);
 

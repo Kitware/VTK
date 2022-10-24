@@ -271,7 +271,11 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "vtkmoverride")
     # vtkmContour behaves differently than vtkContourFilter for these tests.
     # Further investigation is needed to determine how to best handle these cases.
     "^VTK::FiltersModelingPython-TestBoxFunction$"
-    "^VTK::FiltersCorePython-TestContourCases$")
+    "^VTK::FiltersCorePython-TestContourCases$"
+
+    # this tests for the number of cells and points, which can fail as vtkmClip
+    # can produce different number of cells and points
+    "^VTK::FiltersGeneralPython-tableBasedClip$")    
 endif ()
 
 string(REPLACE ";" "|" test_exclusions "${test_exclusions}")

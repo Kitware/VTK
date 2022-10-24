@@ -20,6 +20,8 @@
 #include "vtkPlane.h"
 #include "vtkSphere.h"
 
+#include <vtkm/cont/ErrorBadType.h>
+
 #include <vtkm/ImplicitFunction.h>
 
 namespace tovtkm
@@ -44,6 +46,12 @@ void ImplicitFunctionConverter::Set(vtkImplicitFunction* function)
   vtkCylinder* cylinder = nullptr;
   vtkPlane* plane = nullptr;
   vtkSphere* sphere = nullptr;
+
+  if (function->GetTransform())
+  {
+    throw vtkm::cont::ErrorBadType(
+      "Vtk-m's implicit functions currently do not support transformations.");
+  }
 
   if ((box = vtkBox::SafeDownCast(function)))
   {
@@ -81,9 +89,9 @@ void ImplicitFunctionConverter::Set(vtkImplicitFunction* function)
   }
   else
   {
-    vtkGenericWarningMacro(<< "The implicit functions " << function->GetClassName()
-                           << " is not supported by vtk-m.");
-    return;
+    std::string message = std::string("The implicit functions ") + function->GetClassName() +
+      std::string(" is not supported by vtk-m.");
+    throw vtkm::cont::ErrorBadType(message);
   }
 
   this->MTime = function->GetMTime();

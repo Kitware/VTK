@@ -37,6 +37,7 @@
 #ifndef vtkThreshold_h
 #define vtkThreshold_h
 
+#include "vtkDeprecation.h"       // For VTK_DEPRECATED_IN_9_3_0
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkUnstructuredGridAlgorithm.h"
 
@@ -101,14 +102,22 @@ public:
    * used. Alternatively you can explicitly set the filter to use point data
    * (AttributeModeToUsePointData) or cell data (AttributeModeToUseCellData).
    */
+  VTK_DEPRECATED_IN_9_3_0("Please use SetInputArrayToProcess instead.")
   vtkSetMacro(AttributeMode, int);
+
+  VTK_DEPRECATED_IN_9_3_0("This method is depricated.")
   vtkGetMacro(AttributeMode, int);
-  void SetAttributeModeToDefault() { this->SetAttributeMode(VTK_ATTRIBUTE_MODE_DEFAULT); }
-  void SetAttributeModeToUsePointData()
-  {
-    this->SetAttributeMode(VTK_ATTRIBUTE_MODE_USE_POINT_DATA);
-  }
-  void SetAttributeModeToUseCellData() { this->SetAttributeMode(VTK_ATTRIBUTE_MODE_USE_CELL_DATA); }
+
+  VTK_DEPRECATED_IN_9_3_0("Please use SetInputArrayToProcess instead.")
+  void SetAttributeModeToDefault();
+
+  VTK_DEPRECATED_IN_9_3_0("Please use SetInputArrayToProcess instead.")
+  void SetAttributeModeToUsePointData();
+
+  VTK_DEPRECATED_IN_9_3_0("Please use SetInputArrayToProcess instead.")
+  void SetAttributeModeToUseCellData();
+
+  VTK_DEPRECATED_IN_9_3_0("This method is depricated.")
   const char* GetAttributeModeAsString();
   ///@}
 
@@ -172,9 +181,16 @@ public:
    * These methods are deprecated. Please use the SetOutputPointsPrecision()
    * and GetOutputPointsPrecision() methods instead.
    */
-  void SetPointsDataTypeToDouble() { this->SetPointsDataType(VTK_DOUBLE); }
-  void SetPointsDataTypeToFloat() { this->SetPointsDataType(VTK_FLOAT); }
+  VTK_DEPRECATED_IN_9_3_0("Please use SetOutputPointsPrecision instead.")
+  void SetPointsDataTypeToDouble();
+
+  VTK_DEPRECATED_IN_9_3_0("Please use SetOutputPointsPrecision instead.")
+  void SetPointsDataTypeToFloat();
+
+  VTK_DEPRECATED_IN_9_3_0("Please use SetOutputPointsPrecision instead.")
   void SetPointsDataType(int type);
+
+  VTK_DEPRECATED_IN_9_3_0("Please use GetOutputPointsPrecision instead.")
   int GetPointsDataType();
   ///@}
 

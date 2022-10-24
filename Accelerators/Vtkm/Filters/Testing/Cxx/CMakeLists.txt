@@ -18,6 +18,7 @@ vtk_add_test_cxx(vtkAcceleratorsVTKmFiltersCxxTests tests
   TestVTKMPointTransform.cxx
   TestVTKMProbe.cxx,NO_VALID
   TestVTKMPolyDataNormals.cxx
+  TestVTKMSlice.cxx,NO_VALID
   TestVTKMThreshold.cxx
   TestVTKMThreshold2.cxx
   TestVTKMTriangleMeshPointNormals.cxx
