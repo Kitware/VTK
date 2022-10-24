@@ -3,6 +3,7 @@ vtk_add_test_cxx(vtkIOInfovisCxxTests tests
   TestBiomTableReader.cxx
   TestDIMACSGraphReader.cxx
   TestDataObjectIO.cxx
+  TestDelimitedTextReaderWithBOM.cxx
   TestISIReader.cxx
   TestFixedWidthTextReader.cxx
   TestNewickTreeReader.cxx
