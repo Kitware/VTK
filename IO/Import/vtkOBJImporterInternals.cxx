@@ -246,8 +246,8 @@ bool tokenGetTexture(size_t& t, std::vector<Token>& tokens, vtkOBJImportedMateri
 }
 }
 
-// NOLINTNEXTLINE(bugprone-suspicious-include)
 VTK_ABI_NAMESPACE_END
+// NOLINTNEXTLINE(bugprone-suspicious-include)
 #include "mtlsyntax.cxx"
 VTK_ABI_NAMESPACE_BEGIN
 std::vector<vtkOBJImportedMaterial*> vtkOBJPolyDataProcessor::ParseOBJandMTL(

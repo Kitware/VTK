@@ -51,8 +51,8 @@ void vtkEarthSource::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Outline: " << (this->Outline ? "On\n" : "Off\n");
 }
 
-// NOLINTNEXTLINE(bugprone-suspicious-include)
 VTK_ABI_NAMESPACE_END
+// NOLINTNEXTLINE(bugprone-suspicious-include)
 #include "vtkEarthSourceData.cxx"
 
 VTK_ABI_NAMESPACE_BEGIN
