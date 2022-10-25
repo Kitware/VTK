@@ -134,7 +134,7 @@ vtk_add_test_cxx(vtkCommonDataModelCxxTests output_tests
 ExternalData_add_test(${_vtk_build_TEST_DATA_TARGET}
   NAME VTK::CommonDataModelCxxTests-TestCellLocatorsEdgeCases
   COMMAND vtkCommonDataModelCxxTests TestCellLocatorsEdgeCases
-  DATA{../Data/test_surface.vtp}
+  DATA{../Data/test_surface.vtp} DATA{../Data/cone.vtp}
   )
 ExternalData_add_test(${_vtk_build_TEST_DATA_TARGET}
   NAME VTK::CommonDataModelCxxTests-TestPolyhedron2
