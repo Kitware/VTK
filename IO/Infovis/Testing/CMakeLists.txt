@@ -1,4 +1,5 @@
 vtk_module_test_data(
+  Data/csvWithBOM.csv
   Data/Infovis/DimacsGraphs/,REGEX:.*
   Data/Infovis/XML/example_phylo.xml
   Data/Infovis/clustered-graph.tlp
