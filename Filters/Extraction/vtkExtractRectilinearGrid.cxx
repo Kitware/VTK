@@ -127,7 +127,7 @@ int vtkExtractRectilinearGrid::RequestInformation(
 
   if (!this->Internal->IsValid())
   {
-    vtkWarningMacro("Error while initializing filter.");
+    vtkDebugMacro("Error while initializing filter.");
     return 0;
   }
 

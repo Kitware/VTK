@@ -151,7 +151,7 @@ int vtkExtractVOI::RequestInformation(vtkInformation* vtkNotUsed(request),
 
   if (!this->Internal->IsValid())
   {
-    vtkWarningMacro("Error while initializing filter.");
+    vtkDebugMacro("Error while initializing filter.");
     return 0;
   }
 
