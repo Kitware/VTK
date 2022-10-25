@@ -102,10 +102,9 @@ namespace Ioex {
       status = nc_put_att_double(rootid, NC_GLOBAL, "last_written_time", NC_DOUBLE, 1, &value);
       if (status != NC_NOERR) {
         ex_opts(EX_VERBOSE);
-        char errmsg[MAX_ERR_LENGTH];
-        fmt::print(errmsg, "Error: failed to define 'last_written_time' attribute to file id {}",
-                   exodusFilePtr);
-        ex_err_fn(exodusFilePtr, __func__, errmsg, status);
+        auto errmsg = fmt::format(
+            "Error: failed to define 'last_written_time' attribute to file id {}", exodusFilePtr);
+        ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
       }
     }
   }
@@ -170,18 +169,18 @@ namespace Ioex {
         found  = true;
       }
       else {
-        char errmsg[MAX_ERR_LENGTH];
         ex_opts(EX_VERBOSE);
-        fmt::print(errmsg, "Error: failed to read last_written_time attribute from file id {}",
-                   exodusFilePtr);
-        ex_err_fn(exodusFilePtr, __func__, errmsg, status);
+        auto errmsg = fmt::format(
+            "Error: failed to read last_written_time attribute from file id {}", exodusFilePtr);
+        ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
         found = false;
       }
     }
     return found;
   }
 
-  bool check_processor_info(const std::string &filename, int exodusFilePtr, int processor_count, int processor_id)
+  bool check_processor_info(const std::string &filename, int exodusFilePtr, int processor_count,
+                            int processor_id)
   {
     // A restart file may contain an attribute which contains
     // information about the processor count and current processor id
@@ -221,11 +220,10 @@ namespace Ioex {
         }
       }
       else {
-        char errmsg[MAX_ERR_LENGTH];
         ex_opts(EX_VERBOSE);
-        fmt::print(errmsg, "Error: failed to read processor info attribute from file {}",
-                   filename);
-        ex_err_fn(exodusFilePtr, __func__, errmsg, status);
+        auto errmsg =
+            fmt::format("Error: failed to read processor info attribute from file {}", filename);
+        ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
         return (EX_FATAL) != 0;
       }
     }
@@ -252,7 +250,7 @@ namespace Ioex {
   void decode_surface_name(Ioex::SideSetMap &fs_map, Ioex::SideSetSet &fs_set,
                            const std::string &name)
   {
-    std::vector<std::string> tokens = Ioss::tokenize(name, "_");
+    auto tokens = Ioss::tokenize(name, "_");
     if (tokens.size() >= 4) {
       // Name of form: "name_eltopo_sidetopo_id" or
       // "name_block_id_sidetopo_id" "name" is typically "surface".
@@ -318,7 +316,7 @@ namespace Ioex {
   // If not of this form, return 0;
   int64_t extract_id(const std::string &name_id)
   {
-    std::vector<std::string> tokens = Ioss::tokenize(name_id, "_");
+    auto tokens = Ioss::tokenize(name_id, "_");
 
     if (tokens.size() == 1) {
       return 0;
@@ -538,15 +536,44 @@ namespace Ioex {
       Ioss::Utils::fixup_name(names[i]);
     }
 
-    if (map_count == 2 && std::strncmp(names[0], "skin:", 5) == 0 &&
-        std::strncmp(names[1], "skin:", 5) == 0) {
-      // Currently, only support the "skin" map -- It will be a 2
-      // component field consisting of "parent_element":"local_side"
-      // pairs.  The parent_element is an element in the original mesh,
-      // not this mesh.
-      block->field_add(Ioss::Field("skin", block->field_int_type(), "Real[2]", Ioss::Field::MESH,
-                                   my_element_count));
+    for (int i = 0; i < map_count; i++) {
+      // If the name does *not* contain a `:`, then assume that this is a scalar map and add to the
+      // block.
+      std::string name{names[i]};
+      if (name.find(':') == std::string::npos) {
+        Ioss::Field field(name, block->field_int_type(), IOSS_SCALAR(), Ioss::Field::MAP,
+                          my_element_count);
+        field.set_index(i + 1);
+        block->field_add(field);
+        continue;
+      }
+
+      // Name does contain a `:` which is a loose convention for naming of maps in IOSS.
+      // If multiple maps start with the same substring before the `:`, then they are considered
+      // components of the same Ioss::Field::MAP field.
+      // Count the number of names that begin with the same substring...
+      auto base = name.substr(0, name.find(':'));
+
+      // Now see if the following name(s) contain the same substring...
+      int ii = i;
+      while (++ii < map_count) {
+        std::string next{names[ii]};
+        std::string next_base = next.substr(0, next.find(':'));
+        if (base != next_base) {
+          break;
+        }
+      }
+
+      int comp_count = ii - i;
+
+      std::string storage = fmt::format("Real[{}]", comp_count);
+      Ioss::Field field(base, block->field_int_type(), storage, Ioss::Field::MAP, my_element_count);
+      field.set_index(i + 1);
+      block->field_add(field);
+
+      i = ii - 1;
     }
+
     Ioss::Utils::delete_name_array(names, map_count);
     return map_count;
   }

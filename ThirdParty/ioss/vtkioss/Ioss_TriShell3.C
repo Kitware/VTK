@@ -135,6 +135,7 @@ Ioss::IntVector Ioss::TriShell3::element_connectivity() const
 Ioss::ElementTopology *Ioss::TriShell3::face_type(int face_number) const
 {
   assert(face_number >= 0 && face_number <= number_faces());
+  (void)face_number;
   //  return Ioss::ElementTopology::factory("triface3");
   return Ioss::ElementTopology::factory("tri3");
 }
@@ -142,6 +143,7 @@ Ioss::ElementTopology *Ioss::TriShell3::face_type(int face_number) const
 Ioss::ElementTopology *Ioss::TriShell3::edge_type(int edge_number) const
 {
   assert(edge_number >= 0 && edge_number <= number_edges());
+  (void)edge_number;
   return Ioss::ElementTopology::factory("edge2");
 }
 

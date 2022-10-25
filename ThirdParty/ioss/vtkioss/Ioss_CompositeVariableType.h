@@ -6,13 +6,15 @@
 
 #pragma once
 
+#include "ioss_export.h"
+
 #include "vtk_ioss_mangle.h"
 
 #include <Ioss_VariableType.h> // for VariableType
 #include <string>              // for string
 
 namespace Ioss {
-  class CompositeVariableType : public VariableType
+  class IOSS_EXPORT CompositeVariableType : public VariableType
   {
   public:
     static std::string   composite_name(const std::string &base, int copies);

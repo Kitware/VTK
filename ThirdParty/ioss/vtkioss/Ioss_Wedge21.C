@@ -150,6 +150,7 @@ Ioss::ElementTopology *Ioss::Wedge21::face_type(int face_number) const
 Ioss::ElementTopology *Ioss::Wedge21::edge_type(int edge_number) const
 {
   assert(edge_number >= 0 && edge_number <= number_edges());
+  (void)edge_number;
   return Ioss::ElementTopology::factory("edge3");
 }
 

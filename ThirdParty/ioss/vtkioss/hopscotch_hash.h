@@ -85,7 +85,7 @@ namespace tsl {
     };
 
     template <typename T, typename U>
-    static T numeric_cast(U value, const char *error_message = "numeric_cast() failed.")
+    T numeric_cast(U value, const char *error_message = "numeric_cast() failed.")
     {
       T ret = static_cast<T>(value);
       if (static_cast<U>(ret) != value) {

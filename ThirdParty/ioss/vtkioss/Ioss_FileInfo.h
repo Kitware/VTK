@@ -6,6 +6,8 @@
 
 #pragma once
 
+#include "ioss_export.h"
+
 #include "vtk_ioss_mangle.h"
 
 #include <Ioss_CodeTypes.h>
@@ -28,7 +30,7 @@ namespace Ioss {
    *  file class.
    */
 
-  class FileInfo
+  class IOSS_EXPORT FileInfo
   {
   public:
     //! Empty class referring to no file.

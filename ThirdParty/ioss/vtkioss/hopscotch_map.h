@@ -363,8 +363,6 @@ namespace tsl {
     }
 
     /**
-     * @copydoc erase(const K& key)
-     *
      * Use the hash value 'precalculated_hash' instead of hashing the key. The
      * hash value should be the same as hash_function()(key). Useful to speed-up
      * the lookup to the value if you already have the hash.
@@ -396,7 +394,6 @@ namespace tsl {
     const T &at(const Key &key) const { return m_ht.at(key); }
 
     /**
-     * @copydoc at(const Key& key, std::size_t precalculated_hash)
      */
     const T &at(const Key &key, std::size_t precalculated_hash) const
     {
@@ -416,8 +413,6 @@ namespace tsl {
     }
 
     /**
-     * @copydoc at(const K& key)
-     *
      * Use the hash value 'precalculated_hash' instead of hashing the key. The
      * hash value should be the same as hash_function()(key). Useful to speed-up
      * the lookup if you already have the hash.
@@ -430,7 +425,6 @@ namespace tsl {
     }
 
     /**
-     * @copydoc at(const K& key)
      */
     template <class K, class KE = KeyEqual,
               typename std::enable_if<has_is_transparent<KE>::value>::type * = nullptr>
@@ -440,7 +434,6 @@ namespace tsl {
     }
 
     /**
-     * @copydoc at(const K& key, std::size_t precalculated_hash)
      */
     template <class K, class KE = KeyEqual,
               typename std::enable_if<has_is_transparent<KE>::value>::type * = nullptr>
@@ -477,8 +470,6 @@ namespace tsl {
     }
 
     /**
-     * @copydoc count(const K& key) const
-     *
      * Use the hash value 'precalculated_hash' instead of hashing the key. The
      * hash value should be the same as hash_function()(key). Useful to speed-up
      * the lookup if you already have the hash.
@@ -505,7 +496,6 @@ namespace tsl {
     const_iterator find(const Key &key) const { return m_ht.find(key); }
 
     /**
-     * @copydoc find(const Key& key, std::size_t precalculated_hash)
      */
     const_iterator find(const Key &key, std::size_t precalculated_hash) const
     {
@@ -525,8 +515,6 @@ namespace tsl {
     }
 
     /**
-     * @copydoc find(const K& key)
-     *
      * Use the hash value 'precalculated_hash' instead of hashing the key. The
      * hash value should be the same as hash_function()(key). Useful to speed-up
      * the lookup if you already have the hash.
@@ -539,7 +527,6 @@ namespace tsl {
     }
 
     /**
-     * @copydoc find(const K& key)
      */
     template <class K, class KE = KeyEqual,
               typename std::enable_if<has_is_transparent<KE>::value>::type * = nullptr>
@@ -549,8 +536,6 @@ namespace tsl {
     }
 
     /**
-     * @copydoc find(const K& key)
-     *
      * Use the hash value 'precalculated_hash' instead of hashing the key. The
      * hash value should be the same as hash_function()(key). Useful to speed-up
      * the lookup if you already have the hash.
@@ -587,8 +572,6 @@ namespace tsl {
     }
 
     /**
-     * @copydoc contains(const K& key) const
-     *
      * Use the hash value 'precalculated_hash' instead of hashing the key. The
      * hash value should be the same as hash_function()(key). Useful to speed-up
      * the lookup if you already have the hash.
@@ -618,7 +601,6 @@ namespace tsl {
     }
 
     /**
-     * @copydoc equal_range(const Key& key, std::size_t precalculated_hash)
      */
     std::pair<const_iterator, const_iterator> equal_range(const Key  &key,
                                                           std::size_t precalculated_hash) const
@@ -639,8 +621,6 @@ namespace tsl {
     }
 
     /**
-     * @copydoc equal_range(const K& key)
-     *
      * Use the hash value 'precalculated_hash' instead of hashing the key. The
      * hash value should be the same as hash_function()(key). Useful to speed-up
      * the lookup if you already have the hash.
@@ -653,7 +633,6 @@ namespace tsl {
     }
 
     /**
-     * @copydoc equal_range(const K& key)
      */
     template <class K, class KE = KeyEqual,
               typename std::enable_if<has_is_transparent<KE>::value>::type * = nullptr>
@@ -663,7 +642,6 @@ namespace tsl {
     }
 
     /**
-     * @copydoc equal_range(const K& key, std::size_t precalculated_hash)
      */
     template <class K, class KE = KeyEqual,
               typename std::enable_if<has_is_transparent<KE>::value>::type * = nullptr>

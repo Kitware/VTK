@@ -32,11 +32,8 @@
 
 #include "vtk_cgns.h"
 #include VTK_CGNS(cgnslib.h)
-#ifndef CG_BUILD_PARALLEL
-#include VTK_CGNS(cgnsconfig.h)
-#endif
 #if CG_BUILD_PARALLEL
-#include VTK_CGNS(pcgnslib.h)
+#include VTK_CGNS(cgnsconfig.h)
 #endif
 
 #include <cgns/Iocgns_Defines.h>
@@ -151,7 +148,6 @@ namespace {
       }
     }
   }
-#endif
 
   template <typename T> void pack(int &idx, std::vector<int> &pack, T *from, int count)
   {
@@ -159,6 +155,7 @@ namespace {
       pack[idx++] = from[i];
     }
   }
+#endif
 
   template <typename T> void unpack(int &idx, const T *pack, T *to, int count)
   {
@@ -727,7 +724,6 @@ namespace Iocgns {
       }
 
       IOSS_ERROR(errmsg);
-      return false;
     }
     return true;
   }
@@ -1336,7 +1332,7 @@ namespace Iocgns {
                      "ERROR: CGNS: Zone {} adjacency data is not correct type. Require "
                      "Abutting1to1 and PointList."
                      " {}\t{}\t{}",
-                     zone, connect_type, ptset_type, donor_ptset_type);
+                     zone, static_cast<int>(connect_type), static_cast<int>(ptset_type), static_cast<int>(donor_ptset_type));
           IOSS_ERROR(errmsg);
         }
 

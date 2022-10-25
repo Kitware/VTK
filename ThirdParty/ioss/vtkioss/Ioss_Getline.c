@@ -348,8 +348,6 @@ char *io_getline_int(const char *prompt)
         io_gl_newline();
         io_gl_cleanup();
         return io_gl_buf;
-        /*NOTREACHED*/
-        break;
       case '\001':
         io_gl_fixup(io_gl_prompt, -1, 0); /* ^A */
         break;

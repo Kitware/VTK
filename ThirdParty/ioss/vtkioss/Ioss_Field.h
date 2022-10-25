@@ -6,6 +6,8 @@
 
 #pragma once
 
+#include "ioss_export.h"
+
 #include "vtk_ioss_mangle.h"
 
 #include <Ioss_CodeTypes.h>
@@ -19,7 +21,7 @@ namespace Ioss {
 
   /** \brief Holds metadata for bulk data associated with a GroupingEntity.
    */
-  class Field
+  class IOSS_EXPORT Field
   {
   public:
     /** \brief The basic data type held in the field.
@@ -59,6 +61,7 @@ namespace Ioss {
                       EntityBlock derived class. Examples would be thickness
                       of the elements in a shell element block or the radius
                       of particles in a particle element block. */
+      MAP,
       COMMUNICATION,
       MESH_REDUCTION, /**< A field which summarizes some non-transient data
                          about an entity (\sa REDUCTION). This could be an

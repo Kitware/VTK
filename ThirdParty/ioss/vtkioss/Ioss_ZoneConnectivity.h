@@ -6,11 +6,15 @@
 
 #pragma once
 
+#include "ioss_export.h"
+
 #include "vtk_ioss_mangle.h"
 
 #include <Ioss_CodeTypes.h>
 #include <array>
 #include <cassert>
+#include "vtk_fmt.h"
+#include VTK_FMT(fmt/ostream.h)
 #include <string>
 
 #if defined(SEACAS_HAVE_CGNS) && !defined(BUILT_IN_SIERRA)
@@ -27,7 +31,10 @@ using IOSS_ZC_INT = int;
 namespace Ioss {
   class Region;
 
-  struct ZoneConnectivity
+  struct ZoneConnectivity;
+  IOSS_EXPORT std::ostream &operator<<(std::ostream &os, const ZoneConnectivity &zgc);
+
+  struct IOSS_EXPORT ZoneConnectivity
   {
     // cereal requires a default constructor when de-serializing vectors of objects.  Because
     // StructuredBlock contains a vector of ZoneConnectivity objects, this default constructor is
@@ -145,3 +152,9 @@ namespace Ioss {
     bool equal_(const Ioss::ZoneConnectivity &rhs, bool quiet) const;
   };
 } // namespace Ioss
+
+namespace fmt {
+  template <> struct formatter<Ioss::ZoneConnectivity> : ostream_formatter
+  {
+  };
+} // namespace fmt

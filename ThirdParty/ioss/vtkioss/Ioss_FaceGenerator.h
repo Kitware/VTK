@@ -6,6 +6,8 @@
 
 #pragma once
 
+#include "ioss_export.h"
+
 #include "vtk_ioss_mangle.h"
 
 #include <algorithm>
@@ -28,7 +30,7 @@
 namespace Ioss {
   class Region;
 
-  class Face
+  class IOSS_EXPORT Face
   {
   public:
     Face() = default;
@@ -72,12 +74,12 @@ namespace Ioss {
     std::array<size_t, 4>         connectivity_{};
   };
 
-  struct FaceHash
+  struct IOSS_EXPORT FaceHash
   {
     size_t operator()(const Face &face) const { return face.hashId_; }
   };
 
-  struct FaceEqual
+  struct IOSS_EXPORT FaceEqual
   {
     bool operator()(const Face &left, const Face &right) const
     {
@@ -110,7 +112,7 @@ namespace Ioss {
   using FaceUnorderedSet = tsl::robin_set<Face, FaceHash, FaceEqual>;
   // using FaceUnorderedSet = tsl::robin_pg_set<Face, FaceHash, FaceEqual>;
 #endif
-  class FaceGenerator
+  class IOSS_EXPORT FaceGenerator
   {
   public:
     explicit FaceGenerator(Ioss::Region &region);

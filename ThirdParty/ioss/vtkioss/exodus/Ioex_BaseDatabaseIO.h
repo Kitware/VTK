@@ -7,6 +7,8 @@
 // -*- Mode: c++ -*-
 #pragma once
 
+#include "ioex_export.h"
+
 #include "vtk_ioss_mangle.h"
 
 #include <Ioss_DBUsage.h>
@@ -70,7 +72,7 @@ namespace Ioex {
   // to ensure that there are no id collisions.
   using EntityIdSet = std::set<std::pair<int64_t, int64_t>>;
 
-  class BaseDatabaseIO : public Ioss::DatabaseIO
+  class IOEX_EXPORT BaseDatabaseIO : public Ioss::DatabaseIO
   {
   public:
     BaseDatabaseIO(Ioss::Region *region, const std::string &filename, Ioss::DatabaseUsage db_usage,
