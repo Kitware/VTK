@@ -124,7 +124,6 @@ void Ioss::Map::build_reverse_map__(int64_t num_to_get, int64_t offset)
     }
   }
   else {
-    m_reverse.reserve(m_reverse.size() + num_to_get);
     for (int64_t i = 0; i < num_to_get; i++) {
       int64_t local_id = offset + i + 1;
       bool    ok       = m_reverse.insert({m_map[local_id], local_id}).second;

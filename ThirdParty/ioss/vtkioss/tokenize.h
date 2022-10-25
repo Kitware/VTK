@@ -7,6 +7,8 @@
  */
 #pragma once
 
+#include "ioss_export.h"
+
 #include "vtk_ioss_mangle.h"
 
 #include <string>
@@ -17,5 +19,5 @@ namespace Ioss {
    * Take the 'str' argument and split it using the list of characters
    * in separators as separators. Use tokens to return the result.
    */
-  std::vector<std::string> tokenize(const std::string &str, const std::string &separators);
+  IOSS_EXPORT std::vector<std::string> tokenize(const std::string &str, const std::string &separators);
 } // namespace Ioss

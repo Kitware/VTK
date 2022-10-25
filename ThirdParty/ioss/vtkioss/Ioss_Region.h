@@ -6,6 +6,8 @@
 
 #pragma once
 
+#include "ioss_export.h"
+
 #include "vtk_ioss_mangle.h"
 
 #include <Ioss_CoordinateFrame.h> // for CoordinateFrame
@@ -75,7 +77,7 @@ namespace Ioss {
    * GroupingEntities is through the Region class; clients of the IO subsystem have no direct
    * access to the underlying GroupingEntities (other than the Region).
    */
-  class Region : public GroupingEntity
+  class IOSS_EXPORT Region : public GroupingEntity
   {
   public:
     explicit Region(DatabaseIO *iodatabase = nullptr, const std::string &my_name = "");

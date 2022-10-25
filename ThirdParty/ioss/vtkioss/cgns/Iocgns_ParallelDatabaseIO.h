@@ -6,6 +6,8 @@
 
 #pragma once
 
+#include "iocgns_export.h"
+
 #include <vtk_cgns.h> // xxx(kitware)
 #include VTK_CGNS(cgnsconfig.h)
 #if CG_BUILD_PARALLEL
@@ -51,7 +53,7 @@ namespace Ioss {
 
 namespace Iocgns {
 
-  class ParallelDatabaseIO : public Ioss::DatabaseIO
+  class IOCGNS_EXPORT ParallelDatabaseIO : public Ioss::DatabaseIO
   {
   public:
     enum class entity_type { NODE, ELEM };

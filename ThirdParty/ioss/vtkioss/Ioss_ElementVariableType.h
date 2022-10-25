@@ -6,6 +6,8 @@
 
 #pragma once
 
+#include "ioss_export.h"
+
 #include "vtk_ioss_mangle.h"
 
 #include <Ioss_CodeTypes.h>
@@ -13,7 +15,7 @@
 #include <string>
 
 namespace Ioss {
-  class ElementVariableType : public Ioss::VariableType
+  class IOSS_EXPORT ElementVariableType : public Ioss::VariableType
   {
   public:
     std::string label(int /*which*/, const char /*suffix_sep*/) const override { return ""; }

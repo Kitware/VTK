@@ -65,6 +65,7 @@ int Ioss::Edge2::number_nodes_face(int face) const
 {
   // face is 1-based.  0 passed in for all faces.
   assert(face >= 0 && face <= number_faces());
+  (void)face;
   return Constants::nfacenode;
 }
 
@@ -72,6 +73,7 @@ int Ioss::Edge2::number_edges_face(int face) const
 {
   // face is 1-based.  0 passed in for all faces.
   assert(face >= 0 && face <= number_faces());
+  (void)face;
   return Constants::nfaceedge;
 }
 

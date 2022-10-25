@@ -6,6 +6,8 @@
 
 #pragma once
 
+#include "ioss_export.h"
+
 #include "vtk_ioss_mangle.h"
 
 #include "Ioss_EntityType.h"     // for EntityType, etc
@@ -23,7 +25,7 @@ namespace Ioss {
 
 namespace Ioss {
 
-  class CommSet : public GroupingEntity
+  class IOSS_EXPORT CommSet : public GroupingEntity
   {
   public:
     CommSet(DatabaseIO *io_database, const std::string &my_name, const std::string &entity_type,

@@ -269,7 +269,7 @@ namespace {
         fmt::print(Ioss::WarnOut(),
                    "On sideset '{}', the boundary condition type was previously set to {}"
                    " which does not match the current value of {}. It will keep the old value.\n",
-                   sset->name(), old_bocotype, bocotype);
+                   sset->name(), old_bocotype, static_cast<int>(bocotype));
       }
     }
     else {
@@ -2235,7 +2235,13 @@ void Iocgns::Utils::add_transient_variables(int cgns_file_ptr, const std::vector
             (block->type() == Ioss::STRUCTUREDBLOCK)
                 ? &(dynamic_cast<Ioss::StructuredBlock *>(block)->get_node_block())
                 : region->get_node_blocks()[0];
-        auto  *nb           = const_cast<Ioss::NodeBlock *>(cnb);
+        auto *nb = const_cast<Ioss::NodeBlock *>(cnb);
+        if (nb == nullptr) {
+          std::ostringstream errmsg;
+          fmt::print(errmsg, "ERROR: CGNS: Null entity accesing nodeblock for structured block {}.",
+                     block->name());
+          IOSS_ERROR(errmsg);
+        }
         size_t entity_count = nb->entity_count();
         Ioss::Utils::get_fields(entity_count, field_names, field_count, Ioss::Field::TRANSIENT,
                                 region->get_database(), nullptr, fields);

@@ -1,12 +1,12 @@
 vtk_module_third_party(
   INTERNAL
     LICENSE_FILES "vtkfmt/LICENSE.rst"
-    VERSION       "8.1.1"
+    VERSION       "9.1.0"
     STANDARD_INCLUDE_DIRS
   EXTERNAL
     PACKAGE fmt
     TARGETS fmt::fmt
-    VERSION       "8.1.1"
+    VERSION       "9.0.0"
     STANDARD_INCLUDE_DIRS)
 
 configure_file(

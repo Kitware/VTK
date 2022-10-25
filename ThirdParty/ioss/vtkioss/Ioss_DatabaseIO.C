@@ -179,6 +179,11 @@ namespace Ioss {
     isParallel  = util_.parallel_size() > 1;
     myProcessor = util_.parallel_rank();
 
+    nodeMap.set_rank(myProcessor);
+    edgeMap.set_rank(myProcessor);
+    faceMap.set_rank(myProcessor);
+    elemMap.set_rank(myProcessor);
+
     // Some operations modify DBFilename and there is a need to get
     // back to the original filename...
     originalDBFilename = DBFilename;

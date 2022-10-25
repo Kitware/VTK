@@ -6,6 +6,8 @@
 
 #pragma once
 
+#include "iohb_export.h"
+
 #include "vtk_ioss_mangle.h"
 
 #include "Iohb_Layout.h"
@@ -48,7 +50,7 @@ namespace Iohb {
 
   enum class Format { DEFAULT = 0, SPYHIS = 1, TEXT, TS_TEXT, CSV, TS_CSV };
 
-  class IOFactory : public Ioss::IOFactory
+  class IOHB_EXPORT IOFactory : public Ioss::IOFactory
   {
   public:
     static const IOFactory *factory();
@@ -60,7 +62,7 @@ namespace Iohb {
                               const Ioss::PropertyManager &props) const override;
   };
 
-  class DatabaseIO : public Ioss::DatabaseIO
+  class IOHB_EXPORT DatabaseIO : public Ioss::DatabaseIO
   {
   public:
     DatabaseIO(Ioss::Region *region, const std::string &filename, Ioss::DatabaseUsage db_usage,

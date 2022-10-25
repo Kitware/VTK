@@ -7,6 +7,8 @@
  */
 #pragma once
 
+#include "iocgns_export.h"
+
 #include <Ioss_CodeTypes.h>
 #include <Ioss_StructuredBlock.h>
 #include <cstddef>
@@ -20,7 +22,7 @@ namespace Iocgns {
     K = 4,
   };
 
-  class StructuredZoneData
+  class IOCGNS_EXPORT StructuredZoneData
   {
   public:
     StructuredZoneData() { m_adam = this; }
