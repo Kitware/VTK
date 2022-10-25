@@ -11,13 +11,16 @@ set(classes
   vtkBase64Utilities
   vtkDataCompressor
   vtkDelimitedTextWriter
+  vtkFileResourceStream
   vtkGlobFileNames
   vtkInputStream
   vtkJavaScriptDataWriter
   vtkLZ4DataCompressor
   vtkLZMADataCompressor
+  vtkMemoryResourceStream
   vtkNumberToString
   vtkOutputStream
+  vtkResourceStream
   vtkSortFileNames
   vtkTextCodec
   vtkTextCodecFactory
