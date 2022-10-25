@@ -27,8 +27,8 @@
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkVectorText);
 
-// NOLINTNEXTLINE(bugprone-suspicious-include)
 VTK_ABI_NAMESPACE_END
+// NOLINTNEXTLINE(bugprone-suspicious-include)
 #include "vtkVectorTextData.cxx"
 
 // Construct object with no string set and backing enabled.
