@@ -141,6 +141,7 @@ vtkDelaunay3D::vtkDelaunay3D()
   this->OutputPointsPrecision = DEFAULT_PRECISION;
   this->Locator = nullptr;
   this->TetraArray = nullptr;
+  this->References = nullptr;
 
   // added for performance
   this->Tetras = vtkIdList::New();
@@ -451,7 +452,14 @@ int vtkDelaunay3D::RequestData(vtkInformation* vtkNotUsed(request),
   //
   if ((inPoints = input->GetPoints()) == nullptr)
   {
-    vtkErrorMacro("<<Cannot triangulate; no input points");
+    vtkWarningMacro("Cannot triangulate; no input points");
+    return 1;
+  }
+
+  numPoints = inPoints->GetNumberOfPoints();
+  if (numPoints == 0)
+  {
+    vtkWarningMacro("Cannot triangulate; no input points");
     return 1;
   }
 
@@ -459,8 +467,6 @@ int vtkDelaunay3D::RequestData(vtkInformation* vtkNotUsed(request),
   cells->Allocate(64);
   holeTetras = vtkIdList::New();
   holeTetras->Allocate(12);
-
-  numPoints = inPoints->GetNumberOfPoints();
 
   // Create initial bounding triangulation. Have to create bounding points.
   // Initialize mesh structure.
@@ -785,6 +791,11 @@ vtkUnstructuredGrid* vtkDelaunay3D::InitPointInsertion(
   vtkIdType pts[4];
   vtkUnstructuredGrid* Mesh = vtkUnstructuredGrid::New();
   Mesh->EditableOn();
+
+  if (numPtsToInsert == 0)
+  {
+    return Mesh;
+  }
 
   this->NumberOfDuplicatePoints = 0;
   this->NumberOfDegeneracies = 0;
