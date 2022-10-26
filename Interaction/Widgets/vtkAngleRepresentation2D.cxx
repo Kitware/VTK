@@ -20,6 +20,8 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointHandleRepresentation2D.h"
 #include "vtkRenderer.h"
+#include "vtkVector.h"
+#include "vtkVectorOperators.h"
 #include "vtkWindow.h"
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -121,6 +123,18 @@ void vtkAngleRepresentation2D::SetPoint1DisplayPosition(double x[3])
 }
 
 //------------------------------------------------------------------------------
+void vtkAngleRepresentation2D::SetPoint1WorldPosition(double x[3])
+{
+  if (!this->Point1Representation)
+  {
+    vtkErrorMacro("SetPoint1DisplayPosition: no point1 representation");
+    return;
+  }
+  this->Point1Representation->SetWorldPosition(x);
+  this->BuildRepresentation();
+}
+
+//------------------------------------------------------------------------------
 void vtkAngleRepresentation2D::SetCenterDisplayPosition(double x[3])
 {
   if (!this->CenterRepresentation)
@@ -136,6 +150,18 @@ void vtkAngleRepresentation2D::SetCenterDisplayPosition(double x[3])
 }
 
 //------------------------------------------------------------------------------
+void vtkAngleRepresentation2D::SetCenterWorldPosition(double x[3])
+{
+  if (!this->CenterRepresentation)
+  {
+    vtkErrorMacro("SetCenterWorldPosition: no center representation");
+    return;
+  }
+  this->CenterRepresentation->SetWorldPosition(x);
+  this->BuildRepresentation();
+}
+
+//------------------------------------------------------------------------------
 void vtkAngleRepresentation2D::SetPoint2DisplayPosition(double x[3])
 {
   if (!this->Point2Representation)
@@ -147,6 +173,18 @@ void vtkAngleRepresentation2D::SetPoint2DisplayPosition(double x[3])
   double p[3];
   this->Point2Representation->GetWorldPosition(p);
   this->Point2Representation->SetWorldPosition(p);
+  this->BuildRepresentation();
+}
+
+//------------------------------------------------------------------------------
+void vtkAngleRepresentation2D::SetPoint2WorldPosition(double x[3])
+{
+  if (!this->Point2Representation)
+  {
+    vtkErrorMacro("SetPoint2DisplayPosition: no point2 representation");
+    return;
+  }
+  this->Point2Representation->SetWorldPosition(x);
   this->BuildRepresentation();
 }
 
@@ -202,109 +240,129 @@ void vtkAngleRepresentation2D::BuildRepresentation()
     return;
   }
 
-  if (this->GetMTime() > this->BuildTime ||
-    this->Point1Representation->GetMTime() > this->BuildTime ||
-    this->CenterRepresentation->GetMTime() > this->BuildTime ||
-    this->Point2Representation->GetMTime() > this->BuildTime ||
-    (this->Renderer && this->Renderer->GetVTKWindow() &&
-      this->Renderer->GetVTKWindow()->GetMTime() > this->BuildTime))
+  if (!(this->GetMTime() > this->BuildTime ||
+        this->Point1Representation->GetMTime() > this->BuildTime ||
+        this->CenterRepresentation->GetMTime() > this->BuildTime ||
+        this->Point2Representation->GetMTime() > this->BuildTime ||
+        (this->Renderer && this->Renderer->GetVTKWindow() &&
+          this->Renderer->GetVTKWindow()->GetMTime() > this->BuildTime)))
   {
-    this->Superclass::BuildRepresentation();
-
-    // Local coordinate values
-    double p1w[3], p2w[3], cw[3], p1d[3], p2d[3], cd[3], vector2[3], vector1[3];
-    this->GetPoint1WorldPosition(p1w);
-    this->GetCenterWorldPosition(cw);
-    this->GetPoint2WorldPosition(p2w);
-    this->GetPoint1DisplayPosition(p1d);
-    this->GetCenterDisplayPosition(cd);
-    this->GetPoint2DisplayPosition(p2d);
-
-    // Update the rays
-    this->Ray1->GetPosition2Coordinate()->SetValue(p1w);
-    this->Ray1->GetPositionCoordinate()->SetValue(cw);
-    this->Ray2->GetPositionCoordinate()->SetValue(cw);
-    this->Ray2->GetPosition2Coordinate()->SetValue(p2w);
-
-    // Compute the angle.
-    // NOTE: There is some concern that there may be fluctuations in the angle
-    // value as the camera moves, etc. This calculation may have to be dampened.
-    vector1[0] = p1w[0] - cw[0];
-    vector1[1] = p1w[1] - cw[1];
-    vector1[2] = p1w[2] - cw[2];
-    vector2[0] = p2w[0] - cw[0];
-    vector2[1] = p2w[1] - cw[1];
-    vector2[2] = p2w[2] - cw[2];
-    vtkMath::Normalize(vector1);
-    vtkMath::Normalize(vector2);
-    double angle = acos(vtkMath::Dot(vector1, vector2));
-    char string[512];
-    snprintf(
-      string, sizeof(string), this->LabelFormat, vtkMath::DegreesFromRadians(angle) * this->Scale);
-    this->Arc->SetLabel(string);
-
-    // Place the label and place the arc
-    double l1 = sqrt(vtkMath::Distance2BetweenPoints(cd, p1d));
-    double l2 = sqrt(vtkMath::Distance2BetweenPoints(cd, p2d));
-
-    // If too small or no render get out
-    if (l1 <= 5.0 || l2 <= 5.0 || !this->Renderer)
-    {
-      this->ArcVisibility = 0;
-      return;
-    }
-
-    // Place the end points for the arc away from the tip of the two rays
-    this->ArcVisibility = 1;
-    this->Arc->SetLabelFormat(this->LabelFormat);
-    const double rayPosition = 0.80;
-    int i;
-    double a1[3], a2[3], t1, t2, w1[4], w2[4], radius;
-    double ray1[3], ray2[3], v[3], z[3];
-    if (l1 < l2)
-    {
-      radius = rayPosition * l1;
-      t1 = rayPosition;
-      t2 = (l1 / l2) * rayPosition;
-    }
-    else
-    {
-      radius = rayPosition * l2;
-      t1 = (l2 / l1) * rayPosition;
-      t2 = rayPosition;
-    }
-    for (i = 0; i < 3; i++)
-    {
-      ray1[i] = p1d[i] - cd[i];
-      ray2[i] = p2d[i] - cd[i];
-      a1[i] = cd[i] + t1 * ray1[i];
-      a2[i] = cd[i] + t2 * ray2[i];
-    }
-    double l = sqrt(vtkMath::Distance2BetweenPoints(a1, a2));
-    vtkInteractorObserver::ComputeDisplayToWorld(this->Renderer, a1[0], a1[1], a1[2], w1);
-    vtkInteractorObserver::ComputeDisplayToWorld(this->Renderer, a2[0], a2[1], a2[2], w2);
-    this->Arc->GetPositionCoordinate()->SetValue(w1);
-    this->Arc->GetPosition2Coordinate()->SetValue(w2);
-    if (l <= 0.0)
-    {
-      this->Arc->SetRadius(0.0);
-    }
-    else
-    {
-      vtkMath::Cross(ray1, ray2, v);
-      z[0] = z[1] = 0.0;
-      z[2] = 1.0;
-      if (vtkMath::Dot(v, z) > 0.0)
-      {
-        this->Arc->SetRadius(-radius / l);
-      }
-      else
-      {
-        this->Arc->SetRadius(radius / l);
-      }
-    }
-    this->BuildTime.Modified();
+    return;
   }
+
+  this->Superclass::BuildRepresentation();
+
+  // Local coordinate values
+  vtkVector3d p1w, p2w, cw;
+  this->GetPoint1WorldPosition(p1w.GetData());
+  this->GetCenterWorldPosition(cw.GetData());
+  this->GetPoint2WorldPosition(p2w.GetData());
+
+  // Update the rays
+  this->Ray1->GetPositionCoordinate()->SetValue(cw.GetData());
+  this->Ray1->GetPosition2Coordinate()->SetValue(p1w.GetData());
+  this->Ray2->GetPositionCoordinate()->SetValue(cw.GetData());
+  this->Ray2->GetPosition2Coordinate()->SetValue(p2w.GetData());
+
+  // Compute the angle.
+  // NOTE: There is some concern that there may be fluctuations in the angle
+  // value as the camera moves, etc. This calculation may have to be dampened.
+
+  vtkVector3d vector1 = p1w - cw;
+  vtkVector3d vector2 = p2w - cw;
+  const double normV1 = vector1.Normalize();
+  const double normV2 = vector2.Normalize();
+  const double angle = vtkMath::DegreesFromRadians(std::acos(vector1.Dot(vector2))) * this->Scale;
+
+  // Construct label
+  const int size_s = std::snprintf(nullptr, 0, this->LabelFormat, angle) + 1;
+  if (size_s <= 0)
+  {
+    this->ArcVisibility = 0;
+    vtkWarningMacro("Couldn't format label.");
+    return;
+  }
+  char* string = new char[size_s];
+  std::snprintf(string, size_s, this->LabelFormat, angle);
+  this->Arc->SetLabel(string);
+  delete[] string;
+
+  // Place the label and place the arc
+  vtkVector3d p1d, p2d, cd;
+  this->GetPoint1DisplayPosition(p1d.GetData());
+  this->GetCenterDisplayPosition(cd.GetData());
+  this->GetPoint2DisplayPosition(p2d.GetData());
+  const double l1 = (cd - p1d).Norm();
+  const double l2 = (cd - p2d).Norm();
+
+  // If too small (pixel-wise) or no renderer get out
+  if (l1 <= 5.0 || l2 <= 5.0 || this->Renderer == nullptr)
+  {
+    this->ArcVisibility = 0;
+    return;
+  }
+
+  // Place the end points for the arc away from the tip of the two rays
+  this->ArcVisibility = 1;
+  this->Arc->SetLabelFormat(this->LabelFormat);
+  constexpr double rayPosition = 0.80;
+  double t1, t2, radius;
+  if (l1 < l2)
+  {
+    radius = rayPosition * l1;
+    t1 = rayPosition;
+    t2 = (l1 / l2) * rayPosition;
+  }
+  else
+  {
+    radius = rayPosition * l2;
+    t1 = (l2 / l1) * rayPosition;
+    t2 = rayPosition;
+  }
+
+  const vtkVector3d ray1 = p1d - cd;
+  const vtkVector3d ray2 = p2d - cd;
+  const vtkVector3d a1 = cd + t1 * ray1;
+  const vtkVector3d a2 = cd + t2 * ray2;
+
+  vtkVector3d w1, w2;
+  if (this->Force3DArcPlacement)
+  {
+    const double dist = std::min(normV1, normV2);
+    w1 = cw + 0.5 * dist * vector1;
+    w2 = cw + 0.5 * dist * vector2;
+  }
+  else
+  {
+    double w1b[4], w2b[4];
+    vtkInteractorObserver::ComputeDisplayToWorld(this->Renderer, a1[0], a1[1], a1[2], w1b);
+    vtkInteractorObserver::ComputeDisplayToWorld(this->Renderer, a2[0], a2[1], a2[2], w2b);
+    w1 = { w1b[0] / w1b[3], w1b[1] / w1b[3], w1b[2] / w1b[3] };
+    w2 = { w2b[0] / w2b[3], w2b[1] / w2b[3], w2b[2] / w2b[3] };
+  }
+  this->Arc->GetPositionCoordinate()->SetValue(w1.GetData());
+  this->Arc->GetPosition2Coordinate()->SetValue(w2.GetData());
+
+  const double length = (a1 - a2).Norm();
+  if (length <= 0.0)
+  {
+    this->Arc->SetRadius(0.0);
+  }
+  else
+  {
+    const vtkVector3d cross = ray1.Cross(ray2);
+    // equivalent to dot against (0,0,1)
+    if (cross[2] > 0.0)
+    {
+      this->Arc->SetRadius(-radius / length);
+    }
+    else
+    {
+      this->Arc->SetRadius(radius / length);
+    }
+  }
+
+  this->BuildTime.Modified();
 }
 
 //------------------------------------------------------------------------------

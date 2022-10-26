@@ -69,8 +69,11 @@ public:
   void GetCenterWorldPosition(double pos[3]) override;
   void GetPoint2WorldPosition(double pos[3]) override;
   void SetPoint1DisplayPosition(double pos[3]) override;
+  void SetPoint1WorldPosition(double pos[3]);
   void SetCenterDisplayPosition(double pos[3]) override;
+  void SetCenterWorldPosition(double pos[3]);
   void SetPoint2DisplayPosition(double pos[3]) override;
+  void SetPoint2WorldPosition(double pos[3]);
   void GetPoint1DisplayPosition(double pos[3]) override;
   void GetCenterDisplayPosition(double pos[3]) override;
   void GetPoint2DisplayPosition(double pos[3]) override;
@@ -78,13 +81,25 @@ public:
 
   ///@{
   /**
-   * Set/Get the three leaders used to create this representation.
+   * Get the three leaders used to create this representation.
    * By obtaining these leaders the user can set the appropriate
    * properties, etc.
    */
   vtkGetObjectMacro(Ray1, vtkLeaderActor2D);
   vtkGetObjectMacro(Ray2, vtkLeaderActor2D);
   vtkGetObjectMacro(Arc, vtkLeaderActor2D);
+  ///@}
+
+  ///@{
+  /**
+   * Set/Get if the widget should use screen space or world space coordinates
+   * when trying to place the arc. Screen space may produce nicer results but
+   * breaks easily when interacting with the camera.
+   *
+   * Default is false (screen space)
+   */
+  vtkSetMacro(Force3DArcPlacement, bool);
+  vtkGetMacro(Force3DArcPlacement, bool);
   ///@}
 
   /**
@@ -109,6 +124,8 @@ protected:
   vtkLeaderActor2D* Ray1;
   vtkLeaderActor2D* Ray2;
   vtkLeaderActor2D* Arc;
+
+  bool Force3DArcPlacement = false;
 
 private:
   vtkAngleRepresentation2D(const vtkAngleRepresentation2D&) = delete;

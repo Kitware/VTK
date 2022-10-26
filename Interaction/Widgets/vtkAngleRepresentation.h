@@ -157,6 +157,7 @@ public:
   void StartWidgetInteraction(double e[2]) override;
   virtual void CenterWidgetInteraction(double e[2]);
   void WidgetInteraction(double e[2]) override;
+  void SetRenderer(vtkRenderer* ren) override;
   ///@}
 
 protected:
