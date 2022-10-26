@@ -20,6 +20,7 @@ PRIVATE_DEPENDS
   VTK::CommonTransforms
   VTK::vtksys
 TEST_DEPENDS
+  VTK::CommonImplicitArrays
   VTK::CommonSystem
   VTK::FiltersFlowPaths
   VTK::FiltersExtraction

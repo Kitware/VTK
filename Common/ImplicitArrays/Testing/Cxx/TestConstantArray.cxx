@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    TestAffineArray.cxx
+  Module:    TestConstantArray.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,17 +12,21 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkAffineArray.h"
+#include "vtkConstantArray.h"
 
-#include "vtkArrayDispatch.h"
 #include "vtkDataArrayRange.h"
 #include "vtkIntArray.h"
 #include "vtkVTK_DISPATCH_IMPLICIT_ARRAYS.h"
 
+#ifdef VTK_DISPATCH_CONSTANT_ARRAYS
+#include "vtkArrayDispatch.h"
+#include "vtkArrayDispatchImplicitArrayList.h"
+#endif // VTK_DISPATCH_CONSTANT_ARRAYS
+
 #include <cstdlib>
 #include <memory>
 
-#ifdef VTK_DISPATCH_AFFINE_ARRAYS
+#ifdef VTK_DISPATCH_CONSTANT_ARRAYS
 namespace
 {
 struct ScaleWorker
@@ -50,58 +54,60 @@ struct ScaleWorker
   }
 };
 }
-#endif // VTK_DISPATCH_AFFINE_ARRAYS
+#endif // VTK_DISPATCH_CONSTANT_ARRAYS
 
-int TestAffineArray(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
+int TestConstantArray(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
   int res = EXIT_SUCCESS;
 
-  vtkNew<vtkAffineArray<int>> affine;
-  affine->SetBackend(std::make_shared<vtkAffineImplicitBackend<int>>(7, 9));
-  affine->SetNumberOfTuples(100);
-  affine->SetNumberOfComponents(1);
+  vtkNew<vtkConstantArray<int>> identity;
+  identity->SetBackend(std::make_shared<vtkConstantImplicitBackend<int>>(1));
+  identity->SetNumberOfTuples(100);
+  identity->SetNumberOfComponents(1);
 
   {
     for (int iArr = 0; iArr < 100; iArr++)
     {
-      if (affine->GetValue(iArr) != 7 * iArr + 9)
+      if (identity->GetValue(iArr) != 1)
       {
         res = EXIT_FAILURE;
-        std::cout << "get value failed with vtkAffineArray" << std::endl;
+        std::cout << "get value failed with vtkConstantArray" << std::endl;
       }
     }
   }
 
   {
     int iArr = 0;
-    for (auto val : vtk::DataArrayValueRange<1>(affine))
+    for (auto val : vtk::DataArrayValueRange<1>(identity))
     {
-      if (val != 7 * iArr + 9)
+      if (val != 1)
       {
         res = EXIT_FAILURE;
-        std::cout << "range iterator failed with vtkAffineArray" << std::endl;
+        std::cout << "range iterator failed with vtkConstantArray" << std::endl;
       }
       iArr++;
     }
   }
 
-#ifdef VTK_DISPATCH_AFFINE_ARRAYS
+#ifdef VTK_DISPATCH_CONSTANT_ARRAYS
   {
-    std::cout << "vtkAffineArray: performing dispatch tests" << std::endl;
+    std::cout << "vtkConstantArray: performing dispatch tests" << std::endl;
     vtkNew<vtkIntArray> destination;
     destination->SetNumberOfTuples(100);
     destination->SetNumberOfComponents(1);
+    using Dispatcher = vtkArrayDispatch::Dispatch2ByArray<vtkArrayDispatch::ReadOnlyArrays,
+      vtkArrayDispatch::Arrays>;
     ::ScaleWorker worker;
-    if (!vtkArrayDispatch::Dispatch2::Execute(affine, destination, worker, 3.0))
+    if (!Dispatcher::Execute(identity, destination, worker, 3.0))
     {
       res = EXIT_FAILURE;
-      std::cout << "vtkArrayDispatch failed with vtkAffineArray" << std::endl;
-      worker(affine.Get(), destination.Get(), 3.0);
+      std::cout << "vtkArrayDispatch failed with vtkConstantArray" << std::endl;
+      worker(identity.Get(), destination.Get(), 3.0);
     }
     int iArr = 0;
     for (auto val : vtk::DataArrayValueRange<1>(destination))
     {
-      if (val != 3 * (7 * iArr + 9))
+      if (val != 3)
       {
         res = EXIT_FAILURE;
         std::cout << "dispatch failed to populate the array with the correct values" << std::endl;
@@ -109,6 +115,6 @@ int TestAffineArray(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
       iArr++;
     }
   }
-#endif // VTK_DISPATCH_AFFINE_ARRAYS
+#endif // VTK_DISPATCH_CONSTANT_ARRAYS
   return res;
 };

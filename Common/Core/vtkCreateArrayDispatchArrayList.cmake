@@ -146,32 +146,6 @@ if (VTK_DISPATCH_TYPED_ARRAYS)
   )
 endif()
 
-if (VTK_BUILD_IMPLICIT_ARRAYS)
-  if (VTK_DISPATCH_STD_FUNCTION_ARRAYS)
-    list(APPEND vtkArrayDispatch_containers vtkStdFunctionArray)
-    set(vtkArrayDispatch_vtkStdFunctionArray_header vtkStdFunctionArray.h)
-    set(vtkArrayDispatch_vtkStdFunctionArray_types
-      ${vtkArrayDispatch_all_types}
-    )
-  endif()
-
-  if (VTK_DISPATCH_CONSTANT_ARRAYS)
-    list(APPEND vtkArrayDispatch_containers vtkConstantArray)
-    set(vtkArrayDispatch_vtkConstantArray_header vtkConstantArray.h)
-    set(vtkArrayDispatch_vtkConstantArray_types
-      ${vtkArrayDispatch_all_types}
-    )
-  endif()
-
-  if (VTK_DISPATCH_AFFINE_ARRAYS)
-    list(APPEND vtkArrayDispatch_containers vtkAffineArray)
-    set(vtkArrayDispatch_vtkAffineArray_header vtkAffineArray.h)
-    set(vtkArrayDispatch_vtkAffineArray_types
-      ${vtkArrayDispatch_all_types}
-    )
-  endif()
-endif()
-
 endmacro()
 
 # Create a header that declares the vtkArrayDispatch::Arrays TypeList.

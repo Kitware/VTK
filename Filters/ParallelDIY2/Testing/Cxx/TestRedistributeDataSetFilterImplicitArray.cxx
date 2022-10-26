@@ -68,7 +68,6 @@ bool RedistributeImageData(vtkMultiProcessController* controller)
   vtkNew<vtkImplicitArray<Backend42>> vortex;
   vortex->SetName("42");
   baseGrid->GetPointData()->AddArray(vortex);
-  baseGrid->GetPointData()->SetActiveVectors("42");
   if (controller->GetLocalProcessId() == 0)
   {
     baseGrid->SetExtent(-halfCells / 2, halfCells, -halfCells, halfCells, -halfCells, halfCells);
@@ -83,6 +82,7 @@ bool RedistributeImageData(vtkMultiProcessController* controller)
     vortex->SetNumberOfComponents(3);
     vortex->SetNumberOfTuples(baseGrid->GetNumberOfPoints());
   }
+  baseGrid->GetPointData()->SetActiveVectors("42");
 
   vtkNew<vtkRedistributeDataSetFilter> redistribute;
   redistribute->SetInputData(baseGrid);

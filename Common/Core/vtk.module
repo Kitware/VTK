@@ -11,11 +11,11 @@ GROUPS
 DEPENDS
   VTK::kwiml
   VTK::vtksys
-  VTK::CommonImplicitBackends
 PRIVATE_DEPENDS
   VTK::utf8
 OPTIONAL_DEPENDS
   VTK::loguru
+  VTK::ImplicitArrays
 TEST_DEPENDS
   VTK::cli11
   VTK::CommonDataModel

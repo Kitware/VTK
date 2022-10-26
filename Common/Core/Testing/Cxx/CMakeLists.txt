@@ -93,16 +93,6 @@ if (VTK_BUILD_SCALED_SOA_ARRAYS)
   set(scale_soa_test TestScaledSOADataArrayTemplate.cxx)
 endif ()
 
-if(VTK_BUILD_IMPLICIT_ARRAYS)
-  set(implicit_array_tests 
-    TestAffineArray.cxx
-    TestConstantArray.cxx
-    TestImplicitArrayTraits.cxx
-    TestImplicitArraysBase.cxx
-    TestStdFunctionArray.cxx
-  )
-endif ()
-
 
 vtk_add_test_cxx(vtkCommonCoreCxxTests tests
   NO_DATA NO_VALID NO_OUTPUT
@@ -179,8 +169,6 @@ vtk_add_test_cxx(vtkCommonCoreCxxTests tests
   ${data_array_tests}
 
   ${scale_soa_test}
-
-  ${implicit_array_tests}
   )
 
 # Special test to check whether disabling loguru signal handling, i.e.,

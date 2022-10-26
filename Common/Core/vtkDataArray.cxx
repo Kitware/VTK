@@ -38,7 +38,7 @@
 #ifdef VTK_USE_SCALED_SOA_ARRAYS
 #include "vtkScaledSOADataArrayTemplate.h" // For fast paths
 #endif
-#ifdef VTK_BUILD_IMPLICIT_ARRAYS
+#ifdef VTK_MODULE_ENABLE_VTK_CommonImplicitArrays
 #include "vtkImplicitArray.h"
 #endif
 #include "vtkSMPTools.h"
@@ -127,13 +127,13 @@ struct DeepCopyWorker
   }
 #endif
 
-#ifdef VTK_BUILD_IMPLICIT_ARRAYS
+#ifdef VTK_MODULE_ENABLE_VTK_CommonImplicitArrays
   template <typename BackendTSrc, typename BackendTDst>
   void operator()(vtkImplicitArray<BackendTSrc>* src, vtkImplicitArray<BackendTDst>* dst)
   {
     dst->ImplicitDeepCopy(src);
   }
-#endif // VTK_BUILD_IMPLICIT_ARRAYS
+#endif // VTK_MODULE_ENABLE_VTK_CommonImplicitArrays
 
 // Undo warning suppression.
 #if defined(__clang__) && defined(__has_warning)
