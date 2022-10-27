@@ -1226,14 +1226,14 @@ void vtkRenderer::ResetCameraClippingRange(const double bounds[6])
   {
     this->ActiveCamera->GetViewPlaneNormal(vn);
     this->ActiveCamera->GetPosition(position);
-    this->ExpandBounds(expandedBounds, this->ActiveCamera->GetModelTransformMatrix());
   }
   else
   {
     this->ActiveCamera->GetEyePosition(position);
     this->ActiveCamera->GetEyePlaneNormal(vn);
-    this->ExpandBounds(expandedBounds, this->ActiveCamera->GetModelViewTransformMatrix());
   }
+
+  this->ExpandBounds(expandedBounds, this->ActiveCamera->GetModelTransformMatrix());
 
   a = -vn[0];
   b = -vn[1];
@@ -1264,6 +1264,12 @@ void vtkRenderer::ResetCameraClippingRange(const double bounds[6])
   if (this->ActiveCamera->GetParallelProjection())
   {
     minGap = 0.1 * this->ActiveCamera->GetParallelScale();
+  }
+  else if (this->ActiveCamera->GetUseOffAxisProjection())
+  {
+    double offAxisAdustment = this->ActiveCamera->GetOffAxisClippingAdjustment();
+    range[0] -= offAxisAdustment;
+    range[1] += offAxisAdustment;
   }
   else
   {

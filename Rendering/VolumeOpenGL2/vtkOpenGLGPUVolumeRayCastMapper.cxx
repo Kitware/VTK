@@ -3673,7 +3673,16 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::SetCameraShaderParameters(
     prog->SetUniform3fv("in_projectionDirection", 1, &fvalue3);
   }
 
-  vtkInternal::ToFloat(cam->GetPosition(), fvalue3, 3);
+  if (!cam->GetUseOffAxisProjection())
+  {
+    vtkInternal::ToFloat(cam->GetPosition(), fvalue3, 3);
+  }
+  else
+  {
+    double eyePos[3];
+    cam->GetEyePosition(eyePos);
+    vtkInternal::ToFloat(eyePos, fvalue3, 3);
+  }
   prog->SetUniform3fv("in_cameraPos", 1, &fvalue3);
 
   // TODO Take consideration of reduction factor

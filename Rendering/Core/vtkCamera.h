@@ -364,15 +364,23 @@ public:
   /**
    * Set/Get use offaxis frustum.
    * OffAxis frustum is used for off-axis frustum calculations specifically
-   * for stereo rendering.
-   * For reference see "High Resolution Virtual Reality", in Proc.
-   * SIGGRAPH '92, Computer Graphics, pages 195-202, 1992.
+   * for head-tracking with stereo rendering.
+   * For reference see "Generalized Perspective Projection" by Robert Kooima,
+   * 2008.
    * @note This setting is ignored when UseExplicitProjectionTransformMatrix
    * is true.
    */
   vtkSetMacro(UseOffAxisProjection, vtkTypeBool);
   vtkGetMacro(UseOffAxisProjection, vtkTypeBool);
   vtkBooleanMacro(UseOffAxisProjection, vtkTypeBool);
+  ///@}
+
+  ///@{
+  /**
+   * Get adjustment to clipping thickness, computed by camera based on the
+   * physical size of the screen and the direction to the tracked head/eye.
+   */
+  double GetOffAxisClippingAdjustment();
   ///@}
 
   ///@{
@@ -773,9 +781,9 @@ protected:
 
   /**
    * Given screen screen top, bottom left and top right
-   * calculate screen rotation.
+   * calculate screen orientation.
    */
-  void ComputeWorldToScreenMatrix();
+  void ComputeScreenOrientationMatrix();
 
   /**
    * Compute and use frustum using offaxis method.
@@ -819,13 +827,13 @@ protected:
   double ScreenBottomLeft[3];
   double ScreenBottomRight[3];
   double ScreenTopRight[3];
+  double ScreenCenter[3];
 
+  double OffAxisClippingAdjustment;
   double EyeSeparation;
 
-  vtkMatrix4x4* WorldToScreenMatrix;
-  vtkTimeStamp WorldToScreenMatrixMTime;
-
   vtkMatrix4x4* EyeTransformMatrix;
+  vtkMatrix4x4* ProjectionPlaneOrientationMatrix;
 
   vtkMatrix4x4* ModelTransformMatrix;
 

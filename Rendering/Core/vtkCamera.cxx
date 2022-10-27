@@ -97,13 +97,17 @@ vtkCamera::vtkCamera()
   this->ScreenTopRight[1] = 0.5;
   this->ScreenTopRight[2] = -0.5;
 
-  this->EyeSeparation = 0.06;
+  this->ScreenCenter[0] = 0.0;
+  this->ScreenCenter[1] = 0.0;
+  this->ScreenCenter[2] = -0.5;
 
-  this->WorldToScreenMatrix = vtkMatrix4x4::New();
-  this->WorldToScreenMatrix->Identity();
+  this->OffAxisClippingAdjustment = 0.0;
+  this->EyeSeparation = 0.06;
 
   this->EyeTransformMatrix = vtkMatrix4x4::New();
   this->EyeTransformMatrix->Identity();
+
+  this->ProjectionPlaneOrientationMatrix = nullptr;
 
   this->ModelTransformMatrix = vtkMatrix4x4::New();
   this->ModelTransformMatrix->Identity();
@@ -169,11 +173,14 @@ vtkCamera::vtkCamera()
 //------------------------------------------------------------------------------
 vtkCamera::~vtkCamera()
 {
-  this->WorldToScreenMatrix->Delete();
-  this->WorldToScreenMatrix = nullptr;
-
   this->EyeTransformMatrix->Delete();
   this->EyeTransformMatrix = nullptr;
+
+  if (this->ProjectionPlaneOrientationMatrix)
+  {
+    this->ProjectionPlaneOrientationMatrix->Delete();
+    this->ProjectionPlaneOrientationMatrix = nullptr;
+  }
 
   this->ModelTransformMatrix->Delete();
   this->ModelTransformMatrix = nullptr;
@@ -369,7 +376,23 @@ void vtkCamera::ComputeViewTransform()
   {
     this->Transform->Concatenate(this->UserViewTransform);
   }
-  this->Transform->SetupCamera(this->Position, this->FocalPoint, this->ViewUp);
+  if (!this->UseOffAxisProjection)
+  {
+    this->Transform->SetupCamera(this->Position, this->FocalPoint, this->ViewUp);
+  }
+  else
+  {
+    double pe[3] = { 0.0 };
+    this->GetEyePosition(pe);
+
+    // Create the view point offset matrix
+    vtkSmartPointer<vtkMatrix4x4> T = vtkSmartPointer<vtkMatrix4x4>::New();
+    T->SetElement(0, 3, -pe[0]);
+    T->SetElement(1, 3, -pe[1]);
+    T->SetElement(2, 3, -pe[2]);
+
+    this->Transform->Concatenate(T);
+  }
   this->ViewTransform->Identity();
   this->ViewTransform->Concatenate(this->Transform->GetMatrix());
 }
@@ -393,84 +416,69 @@ void vtkCamera::ComputeCameraLightTransform()
 }
 
 //------------------------------------------------------------------------------
-void vtkCamera::ComputeWorldToScreenMatrix()
+void vtkCamera::ComputeScreenOrientationMatrix()
 {
-  // Avoid recalculating screen orientation if we don't need to.
-  if (this->WorldToScreenMatrixMTime.GetMTime() < this->GetMTime())
+  if (this->ProjectionPlaneOrientationMatrix == nullptr)
   {
-    double xAxis[3];
-    double yAxis[3];
-    double zAxis[3];
+    // Compute the screen orientation matrix lazily, and only once.
+    double vr[3] = { 0.0 };
+    double vu[3] = { 0.0 };
+    double vn[3] = { 0.0 };
+    double screenDiag[3] = { 0 };
 
     for (int i = 0; i < 3; ++i)
     {
-      xAxis[i] = this->ScreenBottomRight[i] - this->ScreenBottomLeft[i];
-      yAxis[i] = this->ScreenTopRight[i] - this->ScreenBottomRight[i];
+      vr[i] = this->ScreenBottomRight[i] - this->ScreenBottomLeft[i];
+      vu[i] = this->ScreenTopRight[i] - this->ScreenBottomRight[i];
+
+      this->ScreenCenter[i] = (this->ScreenBottomLeft[i] + this->ScreenTopRight[i]) / 2.0;
+      screenDiag[i] = this->ScreenBottomLeft[i] - this->ScreenTopRight[i];
     }
 
-    vtkMath::Normalize(xAxis);
-    vtkMath::Normalize(yAxis);
-    vtkMath::Cross(xAxis, yAxis, zAxis);
-    vtkMath::Normalize(zAxis);
+    this->OffAxisClippingAdjustment = vtkMath::Norm(screenDiag);
 
-    // Setting individual elements of the matrix.
+    vtkMath::Normalize(vr);
+    vtkMath::Normalize(vu);
+    vtkMath::Cross(vr, vu, vn);
+    vtkMath::Normalize(vn);
 
-    // Make it column major and then invert it to make sure the translation is correct
-    // This is using column major (vectors are copied into the column)
-    // \Note: while the initial element assignments are made in column-major
-    // ordering, the matrix will be inverted, resulting in a row-major
-    // matrix that provides the transformation from World to Screen space.
-    this->WorldToScreenMatrix->SetElement(0, 0, xAxis[0]);
-    this->WorldToScreenMatrix->SetElement(1, 0, xAxis[1]);
-    this->WorldToScreenMatrix->SetElement(2, 0, xAxis[2]);
+    this->ProjectionPlaneOrientationMatrix = vtkMatrix4x4::New();
 
-    this->WorldToScreenMatrix->SetElement(0, 1, yAxis[0]);
-    this->WorldToScreenMatrix->SetElement(1, 1, yAxis[1]);
-    this->WorldToScreenMatrix->SetElement(2, 1, yAxis[2]);
-
-    this->WorldToScreenMatrix->SetElement(0, 2, zAxis[0]);
-    this->WorldToScreenMatrix->SetElement(1, 2, zAxis[1]);
-    this->WorldToScreenMatrix->SetElement(2, 2, zAxis[2]);
-
-    this->WorldToScreenMatrix->SetElement(0, 3, this->ScreenBottomLeft[0]);
-    this->WorldToScreenMatrix->SetElement(1, 3, this->ScreenBottomLeft[1]);
-    this->WorldToScreenMatrix->SetElement(2, 3, this->ScreenBottomLeft[2]);
-
-    this->WorldToScreenMatrix->SetElement(3, 3, 1.0);
-
-    // The reason for doing this as an Invert as the goal here is to put
-    // the translation through the rotation that we've just assigned ie.
-    // the translation has to be put into screen space too.
-    this->WorldToScreenMatrix->Invert();
-
-    this->WorldToScreenMatrixMTime.Modified();
+    this->ProjectionPlaneOrientationMatrix->SetElement(0, 0, vr[0]);
+    this->ProjectionPlaneOrientationMatrix->SetElement(0, 1, vr[1]);
+    this->ProjectionPlaneOrientationMatrix->SetElement(0, 2, vr[2]);
+    this->ProjectionPlaneOrientationMatrix->SetElement(1, 0, vu[0]);
+    this->ProjectionPlaneOrientationMatrix->SetElement(1, 1, vu[1]);
+    this->ProjectionPlaneOrientationMatrix->SetElement(1, 2, vu[2]);
+    this->ProjectionPlaneOrientationMatrix->SetElement(2, 0, vn[0]);
+    this->ProjectionPlaneOrientationMatrix->SetElement(2, 1, vn[1]);
+    this->ProjectionPlaneOrientationMatrix->SetElement(2, 2, vn[2]);
   }
 }
 
 //------------------------------------------------------------------------------
 void vtkCamera::ComputeOffAxisProjectionFrustum()
 {
-  this->ComputeWorldToScreenMatrix();
+  // This version of off-axis projection was implemented from the article
+  // referenced below, and variable names in this method were chosen to match
+  // those used in the article.
+  //
+  // TItle: Generalized perspective projection
+  // Author: Robert Kooima
+  // Date: 2009/6
+  // Journal: J. Sch. Electron. Eng. Comput. Sci
+  // Volume: 6
 
-  // \NOTE: Variable names reflect naming convention used in
-  // "High Resolution Virtual Reality", in Proc.
-  // SIGGRAPH '92, Computer Graphics, pages 195-202, 1992.
+  this->ComputeScreenOrientationMatrix();
 
-  // OffAxis calculations.
+  double n = this->ClippingRange[0];
+  double f = this->ClippingRange[1];
+  double pe[3] = { 0.0 };
 
-  // vtkMatrix::MultiplyPoint expect homogeneous coordinate.
+  // Create an eye at the origin so it's easy to do the left/right shifting
   double E[4] = { 0.0, 0.0, 0.0, 1.0 };
+  double shiftDistance = this->EyeSeparation / 2.0;
 
-  double L[4] = { this->ScreenBottomLeft[0], this->ScreenBottomLeft[1], this->ScreenBottomLeft[2],
-    1.0 };
-  double H[4] = { this->ScreenTopRight[0], this->ScreenTopRight[1], this->ScreenTopRight[2], 1.0 };
-
-  double eyeSeparationCorrectionFactor = 10.0;
-  double shiftDistance = this->EyeSeparation / (2.0 * eyeSeparationCorrectionFactor);
-  if (this->Distance < 1.0)
-  {
-    shiftDistance *= this->Distance;
-  }
   if (this->LeftEye)
   {
     E[0] -= shiftDistance;
@@ -480,67 +488,99 @@ void vtkCamera::ComputeOffAxisProjectionFrustum()
     E[0] += shiftDistance;
   }
 
-  // First transform the eye to new position.
+  // Now transform the "origin eye" to its real position and orientation
   this->EyeTransformMatrix->MultiplyPoint(E, E);
+  pe[0] = E[0];
+  pe[1] = E[1];
+  pe[2] = E[2];
 
-  // Now transform the eye and screen corner points into the screen
-  // coordinate system.
-  this->WorldToScreenMatrix->MultiplyPoint(E, E);
-  this->WorldToScreenMatrix->MultiplyPoint(H, H);
-  this->WorldToScreenMatrix->MultiplyPoint(L, L);
+  double pa[4] = { this->ScreenBottomLeft[0], this->ScreenBottomLeft[1], this->ScreenBottomLeft[2],
+    1.0 };
+  double pb[4] = { this->ScreenBottomRight[0], this->ScreenBottomRight[1],
+    this->ScreenBottomRight[2], 1.0 };
+  double pc[4] = { this->ScreenTopRight[0], this->ScreenTopRight[1], this->ScreenTopRight[2], 1.0 };
 
-  double matrix[4][4];
-  double width = H[0] - L[0];
-  double height = H[1] - L[1];
+  double vr[3];
+  vr[0] = this->ProjectionPlaneOrientationMatrix->GetElement(0, 0);
+  vr[1] = this->ProjectionPlaneOrientationMatrix->GetElement(0, 1);
+  vr[2] = this->ProjectionPlaneOrientationMatrix->GetElement(0, 2);
 
-  // Back and front are not traditional near and far.
-  // Front (aka near)
-  double F = E[2] - (this->Distance + this->Thickness); // E[2] - 10000.0;//this->ClippingRange[1];
-  // Back (aka far)
-  double nearDistanceCorrectionFactor = 1000.0;
-  double B =
-    E[2] - (this->Distance / nearDistanceCorrectionFactor); // E[2] - .1;//this->ClippingRange[0];
+  double vu[3];
+  vu[0] = this->ProjectionPlaneOrientationMatrix->GetElement(1, 0);
+  vu[1] = this->ProjectionPlaneOrientationMatrix->GetElement(1, 1);
+  vu[2] = this->ProjectionPlaneOrientationMatrix->GetElement(1, 2);
 
-  double depth = B - F;
-  matrix[0][0] = (2 * E[2]) / width;
-  matrix[1][0] = 0;
-  matrix[2][0] = 0;
-  matrix[3][0] = 0;
+  double vn[3] = { 0.0 };
+  vn[0] = this->ProjectionPlaneOrientationMatrix->GetElement(2, 0);
+  vn[1] = this->ProjectionPlaneOrientationMatrix->GetElement(2, 1);
+  vn[2] = this->ProjectionPlaneOrientationMatrix->GetElement(2, 2);
 
-  matrix[0][1] = 0;
-  matrix[1][1] = (2 * E[2]) / height;
-  matrix[2][1] = 0;
-  matrix[3][1] = 0;
+  double va[3] = { 0.0 };
+  double vb[3] = { 0.0 };
+  double vc[3] = { 0.0 };
 
-  matrix[0][2] = (H[0] + L[0] - 2 * E[0]) / width;
-  matrix[1][2] = (H[1] + L[1] - 2 * E[1]) / height;
-  matrix[2][2] = (B + F - 2 * E[2]) / depth;
-  matrix[3][2] = -1;
-
-  matrix[0][3] = (-E[2] * (H[0] + L[0])) / width;
-  matrix[1][3] = (-E[2] * (H[1] + L[1])) / height;
-  matrix[2][3] = B - E[2] - (B * (B + F - 2 * E[2]) / depth);
-  matrix[3][3] = E[2];
-
-  for (int i = 0; i < 4; i++)
+  for (int i = 0; i < 3; ++i)
   {
-    for (int j = 0; j < 4; j++)
-    {
-      this->ProjectionTransform->GetMatrix()->SetElement(i, j, matrix[i][j]);
-    }
+    va[i] = pa[i] - pe[i];
+    vb[i] = pb[i] - pe[i];
+    vc[i] = pc[i] - pe[i];
   }
 
-  //  Now move the world into display space.
-  vtkMatrix4x4::Multiply4x4(this->ProjectionTransform->GetMatrix(), this->WorldToScreenMatrix,
-    this->ProjectionTransform->GetMatrix());
+  double d = -vtkMath::Dot(vn, va);
+  double nOverD = n / d;
+
+  double l = vtkMath::Dot(vr, va) * (nOverD);
+  double r = vtkMath::Dot(vr, vb) * (nOverD);
+  double b = vtkMath::Dot(vu, va) * (nOverD);
+  double t = vtkMath::Dot(vu, vc) * (nOverD);
+
+  // Populate it as glFrustum would do
+  this->ProjectionTransform->GetMatrix()->SetElement(0, 0, (2.0 * n) / (r - l));
+  this->ProjectionTransform->GetMatrix()->SetElement(0, 1, 0.0);
+  this->ProjectionTransform->GetMatrix()->SetElement(0, 2, (r + l) / (r - l));
+  this->ProjectionTransform->GetMatrix()->SetElement(0, 3, 0.0);
+
+  this->ProjectionTransform->GetMatrix()->SetElement(1, 0, 0.0);
+  this->ProjectionTransform->GetMatrix()->SetElement(1, 1, (2.0 * n) / (t - b));
+  this->ProjectionTransform->GetMatrix()->SetElement(1, 2, (t + b) / (t - b));
+  this->ProjectionTransform->GetMatrix()->SetElement(1, 3, 0.0);
+
+  this->ProjectionTransform->GetMatrix()->SetElement(2, 0, 0.0);
+  this->ProjectionTransform->GetMatrix()->SetElement(2, 1, 0.0);
+  this->ProjectionTransform->GetMatrix()->SetElement(2, 2, -(f + n) / (f - n));
+  this->ProjectionTransform->GetMatrix()->SetElement(2, 3, -(2.0 * f * n) / (f - n));
+
+  this->ProjectionTransform->GetMatrix()->SetElement(3, 0, 0.0);
+  this->ProjectionTransform->GetMatrix()->SetElement(3, 1, 0.0);
+  this->ProjectionTransform->GetMatrix()->SetElement(3, 2, -1.0);
+  this->ProjectionTransform->GetMatrix()->SetElement(3, 3, 0.0);
+
+  vtkMatrix4x4::Multiply4x4(this->ProjectionTransform->GetMatrix(),
+    this->ProjectionPlaneOrientationMatrix, this->ProjectionTransform->GetMatrix());
+
+  // The viewer offset translation matrix, T, described in the paper, is kept
+  // in the view transform (see ComputeViewTransform()).  It's important to keep
+  // it there for lighting purposes.
+}
+
+//------------------------------------------------------------------------------
+double vtkCamera::GetOffAxisClippingAdjustment()
+{
+  return this->OffAxisClippingAdjustment;
 }
 
 //------------------------------------------------------------------------------
 void vtkCamera::ComputeModelViewMatrix()
 {
   if (this->ModelViewTransform->GetMTime() < this->ModelTransformMatrix->GetMTime() ||
-    this->ModelViewTransform->GetMTime() < this->ViewTransform->GetMTime())
+    this->ModelViewTransform->GetMTime() < this->ViewTransform->GetMTime() ||
+    (this->UseOffAxisProjection &&
+      this->ModelViewTransform->GetMTime() < this->EyeTransformMatrix->GetMTime()))
   {
+    if (this->UseOffAxisProjection)
+    {
+      this->ComputeViewTransform();
+    }
     vtkMatrix4x4::Multiply4x4(this->ViewTransform->GetMatrix(), this->ModelTransformMatrix,
       this->ModelViewTransform->GetMatrix());
   }
@@ -1197,9 +1237,12 @@ vtkMatrix4x4* vtkCamera::GetCompositeProjectionTransformMatrix(
   int stereo = this->Stereo;
   this->Stereo = 0;
 
+  vtkMatrix4x4* projectionMatrix = this->GetProjectionTransformMatrix(aspect, nearz, farz);
+  vtkMatrix4x4* viewMatrix = this->GetViewTransformMatrix();
+
   this->Transform->Identity();
-  this->Transform->Concatenate(this->GetProjectionTransformMatrix(aspect, nearz, farz));
-  this->Transform->Concatenate(this->GetViewTransformMatrix());
+  this->Transform->Concatenate(projectionMatrix);
+  this->Transform->Concatenate(viewMatrix);
 
   this->Stereo = stereo;
 
@@ -1477,14 +1520,14 @@ void vtkCamera::ShallowCopy(vtkCamera* source)
     this->EyeTransformMatrix->Register(this);
   }
 
-  if (this->WorldToScreenMatrix != nullptr)
+  if (this->ProjectionPlaneOrientationMatrix != nullptr)
   {
-    this->WorldToScreenMatrix->Delete();
+    this->ProjectionPlaneOrientationMatrix->Delete();
   }
-  this->WorldToScreenMatrix = source->WorldToScreenMatrix;
-  if (this->WorldToScreenMatrix != nullptr)
+  this->ProjectionPlaneOrientationMatrix = source->ProjectionPlaneOrientationMatrix;
+  if (this->ProjectionPlaneOrientationMatrix != nullptr)
   {
-    this->WorldToScreenMatrix->Register(this);
+    this->ProjectionPlaneOrientationMatrix->Register(this);
   }
 
   if (this->ModelTransformMatrix != nullptr)
@@ -1682,22 +1725,22 @@ void vtkCamera::DeepCopy(vtkCamera* source)
     this->EyeTransformMatrix->DeepCopy(source->EyeTransformMatrix);
   }
 
-  if (source->WorldToScreenMatrix == nullptr)
+  if (source->ProjectionPlaneOrientationMatrix == nullptr)
   {
-    if (this->WorldToScreenMatrix != nullptr)
+    if (this->ProjectionPlaneOrientationMatrix != nullptr)
     {
-      this->WorldToScreenMatrix->UnRegister(this);
-      this->WorldToScreenMatrix = nullptr;
+      this->ProjectionPlaneOrientationMatrix->UnRegister(this);
+      this->ProjectionPlaneOrientationMatrix = nullptr;
     }
   }
   else
   {
-    if (this->WorldToScreenMatrix == nullptr)
+    if (this->ProjectionPlaneOrientationMatrix == nullptr)
     {
-      this->WorldToScreenMatrix =
-        static_cast<vtkMatrix4x4*>(source->WorldToScreenMatrix->NewInstance());
+      this->ProjectionPlaneOrientationMatrix =
+        static_cast<vtkMatrix4x4*>(source->ProjectionPlaneOrientationMatrix->NewInstance());
     }
-    this->WorldToScreenMatrix->DeepCopy(source->WorldToScreenMatrix);
+    this->ProjectionPlaneOrientationMatrix->DeepCopy(source->ProjectionPlaneOrientationMatrix);
   }
 }
 
@@ -1735,6 +1778,7 @@ void vtkCamera::PartialCopy(vtkCamera* source)
     this->ScreenBottomLeft[i] = source->ScreenBottomLeft[i];
     this->ScreenBottomRight[i] = source->ScreenBottomRight[i];
     this->ScreenTopRight[i] = source->ScreenTopRight[i];
+    this->ScreenCenter[i] = source->ScreenCenter[i];
     ++i;
   }
 
@@ -1748,11 +1792,11 @@ void vtkCamera::PartialCopy(vtkCamera* source)
   this->Distance = source->Distance;
   this->UseHorizontalViewAngle = source->UseHorizontalViewAngle;
   this->UseOffAxisProjection = source->UseOffAxisProjection;
+  this->OffAxisClippingAdjustment = source->OffAxisClippingAdjustment;
 
   this->FocalDisk = source->FocalDisk;
   this->FocalDistance = source->FocalDistance;
   this->EyeSeparation = source->EyeSeparation;
-  this->WorldToScreenMatrixMTime = source->WorldToScreenMatrixMTime;
 
   this->ViewingRaysMTime = source->ViewingRaysMTime;
 }
@@ -1827,10 +1871,22 @@ void vtkCamera::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "ScreenTopRight: (" << this->ScreenTopRight[0] << ", " << this->ScreenTopRight[1]
      << ", " << this->ScreenTopRight[2] << ")\n";
 
+  os << indent << "ScreenCenter: (" << this->ScreenCenter[0] << ", " << this->ScreenCenter[1]
+     << ", " << this->ScreenCenter[2] << ")\n";
+
+  os << indent << "OffAxisClippingAdjustment: (" << this->OffAxisClippingAdjustment << ")\n";
   os << indent << "EyeSeparation: (" << this->EyeSeparation << ")\n";
 
-  os << indent << "WorldToScreenMatrix: (" << this->WorldToScreenMatrix << "\n";
-  this->WorldToScreenMatrix->PrintSelf(os, indent.GetNextIndent());
+  os << indent << "ProjectionPlaneOrientationMatrix: (";
+  if (this->ProjectionPlaneOrientationMatrix)
+  {
+    os << this->ProjectionPlaneOrientationMatrix << "\n";
+    this->ProjectionPlaneOrientationMatrix->PrintSelf(os, indent.GetNextIndent());
+  }
+  else
+  {
+    os << "none";
+  }
   os << indent << ")\n";
 
   os << indent << "EyeTransformMatrix: (" << this->EyeTransformMatrix << "\n";
@@ -1858,6 +1914,9 @@ void vtkCamera::SetEyePosition(double eyePosition[3])
   this->EyeTransformMatrix->SetElement(0, 3, eyePosition[0]);
   this->EyeTransformMatrix->SetElement(1, 3, eyePosition[1]);
   this->EyeTransformMatrix->SetElement(2, 3, eyePosition[2]);
+
+  this->ComputeViewTransform();
+  this->ComputeCameraLightTransform();
 
   this->Modified();
 }
@@ -1888,13 +1947,16 @@ void vtkCamera::GetEyePlaneNormal(double normal[3])
   // Homogeneous normal.
   double localNormal[4];
 
-  // Get the normal from the screen orientation.
-  localNormal[0] = this->WorldToScreenMatrix->GetElement(2, 0);
-  localNormal[1] = this->WorldToScreenMatrix->GetElement(2, 1);
-  localNormal[2] = this->WorldToScreenMatrix->GetElement(2, 2);
+  // In off-axis projection, the eye matrix is only used for position, and
+  // the view direction is not considered, as the eye could be looking at
+  // any arbitrary region of the screen.  So we approximate the eye plane
+  // normal as the line originating at the center of the screen and pointing
+  // at the eye position.
+  localNormal[0] = this->EyeTransformMatrix->GetElement(0, 3) - this->ScreenCenter[0];
+  localNormal[1] = this->EyeTransformMatrix->GetElement(1, 3) - this->ScreenCenter[1];
+  localNormal[2] = this->EyeTransformMatrix->GetElement(2, 3) - this->ScreenCenter[2];
   localNormal[3] = 0.0;
 
-  // Just to be sure.
   vtkMath::Normalize(localNormal);
 
   normal[0] = localNormal[0];
@@ -1964,6 +2026,10 @@ void vtkCamera::SetEyeTransformMatrix(const double elements[16])
   this->EyeTransformMatrix->Element[3][1] = elements[13];
   this->EyeTransformMatrix->Element[3][2] = elements[14];
   this->EyeTransformMatrix->Element[3][3] = elements[15];
+
+  this->ComputeViewTransform();
+  this->ComputeCameraLightTransform();
+
   this->Modified();
 }
 
