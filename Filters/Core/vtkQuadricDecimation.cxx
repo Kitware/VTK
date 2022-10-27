@@ -39,6 +39,9 @@
 // not useful, usually set around .1, but I did this because the
 // toggling on and off sets it to 1 and 0
 
+// Hide VTK_DEPRECATED_IN_9_3_0() warnings.
+#define VTK_DEPRECATION_LEVEL 0
+
 #include "vtkQuadricDecimation.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
@@ -701,11 +704,23 @@ void vtkQuadricDecimation::AddBoundaryConstraints()
         volatile
 #endif
           double d = -vtkMath::Dot(n, t1);
+        // The above line might merit some review: The same quadric gets added to t1 and t2 and one
+        // might prefere adding a quadric calculated using t1 at t1 and using t2 at t2
         w = vtkMath::Norm(e0);
 
-        // w *= w;
-        // area issue ??
-        // could possible add in angle weights??
+        if (!this->LegacyBoundaryWeighting)
+        {
+          w *=
+            w; // area issue ??
+               // I would argue on homogeneity here. The quadric field is already weighted by
+               // triangle area. It makes sense weighting the boundary constraints by area instead
+               // of length. Length technically has zero measure in terms of units of area. The
+               // squared version also seems to give more coherent results at the boundary.
+        }
+        w *= this->BoundaryWeightFactor;
+
+        // could possible add in
+        // angle weights??
         QEM[0] = n[0] * n[0];
         QEM[1] = n[0] * n[1];
         QEM[2] = n[0] * n[2];

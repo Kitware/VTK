@@ -1,3 +1,6 @@
+// Hide VTK_DEPRECATED_IN_9_3_0() warnings.
+#define VTK_DEPRECATION_LEVEL 0
+
 #include <vtkActor.h>
 #include <vtkCamera.h>
 #include <vtkDataSet.h>
