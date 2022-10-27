@@ -29,7 +29,7 @@
         },
         {
           "path": "/user/hand/left/input/grip/pose",
-          "output": "handposehandgrip"
+          "output": "handposegrip"
         },
 
         {
@@ -38,7 +38,7 @@
         },
         {
           "path": "/user/hand/right/input/grip/pose",
-          "output": "handposehandgrip"
+          "output": "handposegrip"
         }
       ]
     }

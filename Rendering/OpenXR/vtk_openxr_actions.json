@@ -9,7 +9,7 @@
       "type": "pose"
     },
     {
-      "name": "handposehandgrip",
+      "name": "handposegrip",
       "type": "pose"
     },
     {
@@ -41,23 +41,11 @@
       "type": "boolean"
     },
     {
-      "name": "squeezeforce",
-      "type": "float"
-    },
-    {
       "name": "startelevation",
       "type": "boolean"
     },
     {
       "name": "startmovement",
-      "type": "boolean"
-    },
-    {
-      "name": "thickcropdirection",
-      "type": "vector2"
-    },
-    {
-      "name": "thickcropstart",
       "type": "boolean"
     },
     {
@@ -99,7 +87,7 @@
       "elevation": "Elevation",
       "forwardthickcrop": "Move Thick Crop Forward",
       "handpose": "Hand Pose",
-      "handposehandgrip": "Hand Pose Hand Grip",
+      "handposegrip": "Hand Pose Grip",
       "haptic": "Haptic Vibration",
       "leftgripaction": "Left Grip Action",
       "movement": "Trackpad Movement",
@@ -108,11 +96,8 @@
       "rightgripaction": "Right Grip Action",
       "showmenu": "Show Menu",
       "shownavigationpanel": "Show Navigation Panel",
-      "squeezeforce": "Squeeze Force",
       "startelevation": "Start Elevation",
       "startmovement": "Start Movement",
-      "thickcropdirection": "Thick Crop Direction",
-      "thickcropstart": "Start Thick Crop Movement",
       "triggeraction": "Trigger Action",
       "language_tag": "en_US"
     }
