@@ -44,8 +44,8 @@
 #include "vtkDataObject.h"
 #include "vtkSmartPointer.h" // for  vtkSmartPointer.
 
-#include <memory> // for unique_ptr.
 #include <string> // for string.
+#include <vector> // for vector.
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkSelectionNode;
@@ -228,13 +228,13 @@ template <typename MapType>
 inline vtkSmartPointer<vtkSignedCharArray> vtkSelection::Evaluate(const MapType& values_map) const
 {
   const unsigned int num_nodes = this->GetNumberOfNodes();
-  std::unique_ptr<vtkSignedCharArray*[]> values(new vtkSignedCharArray*[num_nodes]);
+  std::vector<vtkSignedCharArray*> values(num_nodes, nullptr);
   for (unsigned int cc = 0; cc < num_nodes; ++cc)
   {
     auto iter = values_map.find(this->GetNodeNameAtIndex(cc));
     values[cc] = iter != values_map.end() ? iter->second : nullptr;
   }
-  return this->Evaluate(&values[0], num_nodes);
+  return this->Evaluate(values.data(), num_nodes);
 }
 
 VTK_ABI_NAMESPACE_END
