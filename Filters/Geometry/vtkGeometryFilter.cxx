@@ -1585,7 +1585,7 @@ struct ExtractStructured : public ExtractCellBoundaries<TInputIdType>
     this->Dims[2] = this->Extent[5] - this->Extent[4] + 1;
     if (merging)
     {
-      this->CreatePointMap(this->Dims[0] * this->Dims[1] * this->Dims[2]);
+      this->CreatePointMap(ds->GetNumberOfPoints());
     }
     this->ForceSimpleVisibilityCheck = extractFaces != nullptr;
     this->AllCellsVisible = !((this->Input->HasAnyGhostCells() || this->Input->HasAnyBlankCells()));
