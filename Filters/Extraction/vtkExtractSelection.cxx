@@ -278,9 +278,9 @@ int vtkExtractSelection::RequestData(vtkInformation* vtkNotUsed(request),
     // Iterate over operators and set up a map from selection node name to insidedness
     // array.
     std::map<std::string, vtkSignedCharArray*> arrayMap;
-    for (auto nodeIter = selectors.begin(); nodeIter != selectors.end(); ++nodeIter)
+    for (const auto& nodeSelector : selectors)
     {
-      auto name = nodeIter->first;
+      auto name = nodeSelector.first;
       auto insidednessArray = vtkSignedCharArray::SafeDownCast(fieldData->GetArray(name.c_str()));
       auto node = selection->GetNode(name);
       if (insidednessArray != nullptr && node->GetProperties()->Has(vtkSelectionNode::INVERSE()) &&
@@ -343,14 +343,13 @@ int vtkExtractSelection::RequestData(vtkInformation* vtkNotUsed(request),
 
     // Evaluate the operators.
     vtkLogStartScope(TRACE, "execute selectors");
-    for (auto nodeIter = selectors.begin(); nodeIter != selectors.end(); ++nodeIter)
+    for (const auto& nodeSelector : selectors)
     {
       if (this->CheckAbort())
       {
         break;
       }
-      auto selector = nodeIter->second;
-      selector->Execute(inputCD, outputCD);
+      nodeSelector.second->Execute(inputCD, outputCD);
     }
     vtkLogEndScope("execute selectors");
 
@@ -403,14 +402,13 @@ int vtkExtractSelection::RequestData(vtkInformation* vtkNotUsed(request),
 
     // Evaluate the operators.
     vtkLogStartScope(TRACE, "execute selectors");
-    for (auto nodeIter = selectors.begin(); nodeIter != selectors.end(); ++nodeIter)
+    for (const auto& nodeSelector : selectors)
     {
       if (this->CheckAbort())
       {
         break;
       }
-      auto selector = nodeIter->second;
-      selector->Execute(input, clone);
+      nodeSelector.second->Execute(input, clone);
     }
     vtkLogEndScope("execute selectors");
 
