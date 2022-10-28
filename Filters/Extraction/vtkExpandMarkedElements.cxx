@@ -15,6 +15,7 @@
 
 #include "vtkExpandMarkedElements.h"
 
+#include "vtkAbstractPointLocator.h"
 #include "vtkBoundingBox.h"
 #include "vtkCompositeDataIterator.h"
 #include "vtkCompositeDataSet.h"
@@ -29,7 +30,6 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointSet.h"
 #include "vtkSignedCharArray.h"
-#include "vtkStaticPointLocator.h"
 #include "vtkVector.h"
 #include "vtkVectorOperators.h"
 
@@ -77,7 +77,7 @@ void ShallowCopy(vtkDataObject* input, vtkDataObject* output)
 struct BlockT
 {
   vtkDataSet* Dataset = nullptr;
-  vtkSmartPointer<vtkStaticPointLocator> Locator;
+  vtkAbstractPointLocator* Locator = nullptr;
   vtkNew<vtkSignedCharArray> SeedMarkedArray;
   vtkNew<vtkSignedCharArray> MarkedArray;
   vtkNew<vtkIntArray> UpdateFlags;
@@ -96,12 +96,11 @@ private:
 
 void BlockT::BuildLocator()
 {
-  if (vtkPointSet::SafeDownCast(this->Dataset))
+  if (auto pointSet = vtkPointSet::SafeDownCast(this->Dataset))
   {
-    this->Locator = vtkSmartPointer<vtkStaticPointLocator>::New();
-    this->Locator->SetTolerance(0.0);
-    this->Locator->SetDataSet(this->Dataset);
-    this->Locator->BuildLocator();
+    // build internal cell locator to avoid rebuilding it
+    pointSet->BuildPointLocator();
+    this->Locator = pointSet->GetPointLocator();
   }
 }
 
