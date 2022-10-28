@@ -54,19 +54,19 @@ public:
 
 class NodeVariable : public Node
 {
-  vtkSignedCharArray* Data;
+  signed char* Data;
   std::string Name;
 
 public:
   NodeVariable(vtkSignedCharArray* data, const std::string& name)
-    : Data(data)
+    : Data(data ? data->GetPointer(0) : nullptr)
     , Name(name)
   {
   }
   bool Evaluate(vtkIdType offset) const override
   {
     assert(this->Data == nullptr || this->Data->GetNumberOfValues() > offset);
-    return this->Data ? (this->Data->GetValue(offset) != 0) : false;
+    return this->Data ? this->Data[offset] != 0 : false;
   }
   void Print(ostream& os) const override { os << this->Name; }
 };
@@ -696,12 +696,12 @@ vtkSmartPointer<vtkSignedCharArray> vtkSelection::Evaluate(
   if (tree && (!values_map.empty()))
   {
     auto result = vtkSmartPointer<vtkSignedCharArray>::New();
-    result->SetNumberOfComponents(1);
-    result->SetNumberOfTuples(numVals);
+    result->SetNumberOfValues(numVals);
+    auto resultPtr = result->GetPointer(0);
     vtkSMPTools::For(0, numVals, [&](vtkIdType start, vtkIdType end) {
       for (vtkIdType idx = start; idx < end; ++idx)
       {
-        result->SetTypedComponent(idx, 0, tree->Evaluate(idx));
+        resultPtr[idx] = static_cast<signed char>(tree->Evaluate(idx));
       }
     });
     return result;
