@@ -60,11 +60,17 @@ int TestDelaunay2D(int argc, char* argv[])
   cout << "input numPts= " << inNumPts << endl;
 
   vtkPolyData* pointCloud = vtkPolyData::New();
-  pointCloud->SetPoints(newPts);
-  newPts->Delete();
+  // quick test with empty data.
+  vtkPoints* emptyPts = vtkPoints::New();
+  pointCloud->SetPoints(emptyPts);
+  emptyPts->Delete();
 
   vtkDelaunay2D* delaunay2D = vtkDelaunay2D::New();
   delaunay2D->SetInputData(pointCloud);
+  delaunay2D->Update();
+
+  pointCloud->SetPoints(newPts);
+  newPts->Delete();
   pointCloud->Delete();
   delaunay2D->Update();
 

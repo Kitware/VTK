@@ -29,10 +29,10 @@ void InitializeUnstructuredGrid(vtkUnstructuredGrid* unstructuredGrid, int dataT
 
   vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
   vtkSmartPointer<vtkCellArray> cells = vtkSmartPointer<vtkCellArray>::New();
-  cells->InsertNextCell(4);
 
   if (dataType == VTK_DOUBLE)
   {
+    cells->InsertNextCell(4);
     points->SetDataType(VTK_DOUBLE);
     for (unsigned int i = 0; i < 4; ++i)
     {
@@ -45,8 +45,9 @@ void InitializeUnstructuredGrid(vtkUnstructuredGrid* unstructuredGrid, int dataT
       cells->InsertCellPoint(points->InsertNextPoint(point));
     }
   }
-  else
+  else if (dataType == VTK_FLOAT)
   {
+    cells->InsertNextCell(4);
     points->SetDataType(VTK_FLOAT);
     for (unsigned int i = 0; i < 4; ++i)
     {
@@ -81,7 +82,7 @@ int Delaunay3D(int dataType, int outputPointsPrecision)
   vtkSmartPointer<vtkUnstructuredGrid> outputUnstructuredGrid = delaunay->GetOutput();
   vtkSmartPointer<vtkPoints> points = outputUnstructuredGrid->GetPoints();
 
-  return points->GetDataType();
+  return points ? points->GetDataType() : VTK_DOUBLE;
 }
 }
 
@@ -123,6 +124,14 @@ int TestDelaunay3D(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   }
 
   dataType = Delaunay3D(VTK_DOUBLE, vtkAlgorithm::DOUBLE_PRECISION);
+
+  if (dataType != VTK_DOUBLE)
+  {
+    return EXIT_FAILURE;
+  }
+
+  // test an empty input UG
+  dataType = Delaunay3D(VTK_VOID, vtkAlgorithm::DOUBLE_PRECISION);
 
   if (dataType != VTK_DOUBLE)
   {
