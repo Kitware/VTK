@@ -43,7 +43,6 @@
 #include <cassert>
 #include <map>
 #include <numeric>
-#include <set>
 #include <vector>
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -305,15 +304,6 @@ int vtkExtractSelection::RequestData(vtkInformation* vtkNotUsed(request),
     }
   };
 
-  auto extract = [&assoc, this](
-                   vtkDataObject* inpDO, vtkDataObject* opDO) -> vtkSmartPointer<vtkDataObject> {
-    auto fd = opDO->GetAttributes(assoc);
-    auto array =
-      fd ? vtkSignedCharArray::SafeDownCast(fd->GetArray("__vtkInsidedness__")) : nullptr;
-    auto resultDO = array ? this->ExtractElements(inpDO, assoc, array) : nullptr;
-    return (resultDO && resultDO->GetNumberOfElements(assoc) > 0) ? resultDO : nullptr;
-  };
-
   if (auto inputCD = vtkCompositeDataSet::SafeDownCast(input))
   {
     auto outputCD = vtkCompositeDataSet::SafeDownCast(output);
@@ -387,8 +377,9 @@ int vtkExtractSelection::RequestData(vtkInformation* vtkNotUsed(request),
       {
         break;
       }
-      outputCD->SetDataSet(
-        outIter, extract(inputCD->GetDataSet(inIter), outIter->GetCurrentDataObject()));
+      auto outputBlock =
+        this->ExtractElements(inputCD->GetDataSet(inIter), assoc, outIter->GetCurrentDataObject());
+      outputCD->SetDataSet(outIter, outputBlock);
     }
     vtkLogEndScope("extract output");
   }
@@ -422,7 +413,7 @@ int vtkExtractSelection::RequestData(vtkInformation* vtkNotUsed(request),
     }
 
     vtkLogStartScope(TRACE, "extract output");
-    if (auto result = extract(input, clone))
+    if (auto result = this->ExtractElements(input, assoc, clone))
     {
       output->ShallowCopy(result);
     }
@@ -464,52 +455,92 @@ vtkSmartPointer<vtkSelector> vtkExtractSelection::NewSelectionOperator(
 
 //------------------------------------------------------------------------------
 vtkSmartPointer<vtkDataObject> vtkExtractSelection::ExtractElements(
-  vtkDataObject* block, vtkDataObject::AttributeTypes type, vtkSignedCharArray* insidednessArray)
+  vtkDataObject* inputBlock, vtkDataObject::AttributeTypes type, vtkDataObject* outputBlock)
 {
-  if (this->PreserveTopology)
+  auto fd = outputBlock->GetAttributes(type);
+  vtkSmartPointer<vtkSignedCharArray> insidednessArray =
+    fd ? vtkSignedCharArray::SafeDownCast(fd->GetArray("__vtkInsidedness__")) : nullptr;
+  vtkSmartPointer<vtkDataObject> result;
+  if (!insidednessArray)
   {
-    auto output = block->NewInstance();
-    output->ShallowCopy(block);
-    insidednessArray->SetName("vtkInsidedness");
-    output->GetAttributesAsFieldData(type)->AddArray(insidednessArray);
-    return vtkSmartPointer<vtkDataObject>::Take(output);
+    return nullptr;
   }
-  if (type == vtkDataObject::POINT)
+  else if (this->PreserveTopology)
   {
-    vtkDataSet* input = vtkDataSet::SafeDownCast(block);
+    insidednessArray->SetName("vtkInsidedness");
+    outputBlock->GetAttributesAsFieldData(type)->AddArray(insidednessArray);
+    result = outputBlock;
+    return result;
+  }
+  else if (type == vtkDataObject::POINT)
+  {
+    vtkDataSet* input = vtkDataSet::SafeDownCast(inputBlock);
     if (!input)
     {
       return nullptr;
     }
-    auto output = vtkUnstructuredGrid::New();
+    // if output is already a vtkUnstructuredGrid, we can use it directly
+    vtkSmartPointer<vtkUnstructuredGrid> output;
+    if (outputBlock->GetDataObjectType() == VTK_UNSTRUCTURED_GRID)
+    {
+      outputBlock->Initialize();
+      output = static_cast<vtkUnstructuredGrid*>(outputBlock);
+    }
+    else
+    {
+      output = vtkSmartPointer<vtkUnstructuredGrid>::New();
+    }
     this->ExtractSelectedPoints(input, output, insidednessArray);
-    return vtkSmartPointer<vtkDataSet>::Take(output);
+    result = output;
   }
   else if (type == vtkDataObject::CELL)
   {
-    vtkDataSet* input = vtkDataSet::SafeDownCast(block);
+    vtkDataSet* input = vtkDataSet::SafeDownCast(inputBlock);
     if (!input)
     {
       return nullptr;
     }
-    auto output = vtkUnstructuredGrid::New();
+    // if output is already a vtkUnstructuredGrid, we can use it directly
+    vtkSmartPointer<vtkUnstructuredGrid> output;
+    if (outputBlock->GetDataObjectType() == VTK_UNSTRUCTURED_GRID)
+    {
+      outputBlock->Initialize();
+      output = static_cast<vtkUnstructuredGrid*>(outputBlock);
+    }
+    else
+    {
+      output = vtkSmartPointer<vtkUnstructuredGrid>::New();
+    }
     this->ExtractSelectedCells(input, output, insidednessArray);
-    return vtkSmartPointer<vtkDataSet>::Take(output);
+    result = output;
   }
   else if (type == vtkDataObject::ROW)
   {
-    vtkTable* input = vtkTable::SafeDownCast(block);
+    vtkTable* input = vtkTable::SafeDownCast(inputBlock);
     if (!input)
     {
       return nullptr;
     }
-    vtkTable* output = vtkTable::New();
+    // if output is already a vtkTable, we can use it directly
+    vtkSmartPointer<vtkTable> output;
+    if (outputBlock->GetDataObjectType() == VTK_TABLE)
+    {
+      outputBlock->Initialize();
+      output = static_cast<vtkTable*>(outputBlock);
+    }
+    else
+    {
+      output = vtkSmartPointer<vtkTable>::New();
+    }
     this->ExtractSelectedRows(input, output, insidednessArray);
-    return vtkSmartPointer<vtkTable>::Take(output);
+    result = output;
   }
-
-  vtkDataObject* output = block->NewInstance();
-  return vtkSmartPointer<vtkDataObject>::Take(output);
+  else
+  {
+    outputBlock->Initialize();
+    result = outputBlock;
+  }
+  return result && result->GetNumberOfElements(type) > 0 ? result : nullptr;
 }
 
 //------------------------------------------------------------------------------

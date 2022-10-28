@@ -112,8 +112,8 @@ protected:
    * insidedness array (if PreserveTopology is on) or returns a new data object
    * containing only the elements to be extracted.
    */
-  vtkSmartPointer<vtkDataObject> ExtractElements(vtkDataObject* block,
-    vtkDataObject::AttributeTypes elementType, vtkSignedCharArray* insidednessArray);
+  vtkSmartPointer<vtkDataObject> ExtractElements(vtkDataObject* inputBlock,
+    vtkDataObject::AttributeTypes elementType, vtkDataObject* outputBlock);
 
   int FillInputPortInformation(int port, vtkInformation* info) override;
 
