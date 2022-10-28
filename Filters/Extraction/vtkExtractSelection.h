@@ -121,20 +121,21 @@ protected:
    * Given a vtkDataSet and an array of which cells to extract, this populates
    * the given vtkUnstructuredGrid with the selected cells.
    */
-  void ExtractSelectedCells(
-    vtkDataSet* input, vtkUnstructuredGrid* output, vtkSignedCharArray* cellInside);
+  void ExtractSelectedCells(vtkDataSet* input, vtkUnstructuredGrid* output,
+    vtkSignedCharArray* cellInside, bool extractAll);
   /**
    * Given a vtkDataSet and an array of which points to extract, the populates
    * the given vtkUnstructuredGrid with the selected points and a cell of type vertex
    * for each point.
    */
-  void ExtractSelectedPoints(
-    vtkDataSet* input, vtkUnstructuredGrid* output, vtkSignedCharArray* pointInside);
+  void ExtractSelectedPoints(vtkDataSet* input, vtkUnstructuredGrid* output,
+    vtkSignedCharArray* pointInside, bool extractAll);
   /**
    * Given an input vtkTable and an array of which rows to extract, this populates
    * the output table with the selected rows.
    */
-  void ExtractSelectedRows(vtkTable* input, vtkTable* output, vtkSignedCharArray* rowsInside);
+  void ExtractSelectedRows(
+    vtkTable* input, vtkTable* output, vtkSignedCharArray* rowsInside, bool extractAll);
 
   bool PreserveTopology = false;
 
