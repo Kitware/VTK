@@ -30,8 +30,6 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointSet.h"
 #include "vtkSignedCharArray.h"
-#include "vtkVector.h"
-#include "vtkVectorOperators.h"
 
 // clang-format off
 #include "vtk_diy2.h"
