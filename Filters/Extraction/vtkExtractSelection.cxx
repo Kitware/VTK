@@ -343,45 +343,58 @@ int vtkExtractSelection::RequestData(vtkInformation* vtkNotUsed(request),
     }
     vtkLogEndScope("execute selectors");
 
-    vtkLogStartScope(TRACE, "evaluate expression");
+    vtkLogStartScope(TRACE, "evaluate expression and extract output");
     // Now iterate again over the composite dataset and evaluate the expression to
-    // combine all the insidedness arrays.
+    // combine all the insidedness arrays and then extract the elements.
     vtkSmartPointer<vtkCompositeDataIterator> outIter;
     outIter.TakeReference(outputCD->NewIterator());
     bool evaluateResult = true;
-    for (outIter->GoToFirstItem(); !outIter->IsDoneWithTraversal(); outIter->GoToNextItem())
-    {
-      auto outputBlock = outIter->GetCurrentDataObject();
-      assert(outputBlock != nullptr);
-      // Evaluate the expression.
-      if (!evaluate(outputBlock))
-      {
-        evaluateResult = false;
-        break;
-      }
-    }
-    vtkLogEndScope("evaluate expression");
-    // check for evaluate result errors
-    if (!evaluateResult)
-    {
-      return 0;
-    }
-
-    vtkLogStartScope(TRACE, "extract output");
     // input iterator is needed because if inputCD is subclass of vtkUniformGridAMR,
     // GetDataSet requires the iterator to be vtkUniformGridAMRDataIterator
-    for (inIter->GoToFirstItem(), outIter->GoToFirstItem(); !outIter->IsDoneWithTraversal();
-         inIter->GoToNextItem(), outIter->GoToNextItem())
+    vtkTypeBool isUniformGridAMR = outputCD->IsA("vtkUniformGridAMR");
+    if (isUniformGridAMR)
+    {
+      inIter->GoToFirstItem();
+    }
+    for (outIter->GoToFirstItem(); !outIter->IsDoneWithTraversal(); outIter->GoToNextItem())
     {
       if (this->CheckAbort())
       {
         break;
       }
-      auto outputBlock =
-        this->ExtractElements(inputCD->GetDataSet(inIter), assoc, outIter->GetCurrentDataObject());
-      outputCD->SetDataSet(outIter, outputBlock);
+      auto outputBlock = outIter->GetCurrentDataObject();
+      if (outputBlock)
+      {
+        // Evaluate the expression.
+        if (evaluate(outputBlock))
+        {
+          // Extract the elements.
+          auto iter = isUniformGridAMR ? inIter : outIter;
+          auto extractResult = this->ExtractElements(inputCD->GetDataSet(iter), assoc, outputBlock);
+          outputCD->SetDataSet(outIter, extractResult);
+        }
+        else
+        {
+          evaluateResult = false;
+          break;
+        }
+      }
+      if (isUniformGridAMR)
+      {
+        inIter->GoToNextItem();
+      }
     }
-    vtkLogEndScope("extract output");
+    vtkLogEndScope("evaluate expression and extract output");
+    // check for evaluate result errors
+    if (!evaluateResult)
+    {
+      // If the expression evaluation failed, then we need to set all the blocks to null.
+      for (outIter->GoToFirstItem(); !outIter->IsDoneWithTraversal(); outIter->GoToNextItem())
+      {
+        outputCD->SetDataSet(outIter, nullptr);
+      }
+      return 0;
+    }
   }
   else
   {
@@ -409,13 +422,14 @@ int vtkExtractSelection::RequestData(vtkInformation* vtkNotUsed(request),
     // check for evaluate result errors
     if (!evaluateResult)
     {
+      output->Initialize();
       return 0;
     }
 
     vtkLogStartScope(TRACE, "extract output");
-    if (auto result = this->ExtractElements(input, assoc, clone))
+    if (auto extractResult = this->ExtractElements(input, assoc, clone))
     {
-      output->ShallowCopy(result);
+      output->ShallowCopy(extractResult);
     }
     vtkLogEndScope("extract output");
   }
