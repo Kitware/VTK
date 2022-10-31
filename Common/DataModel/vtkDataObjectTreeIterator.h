@@ -145,6 +145,10 @@ private:
   class vtkInternals;
   vtkInternals* Internals;
   friend class vtkInternals;
+  /**
+   * Used to improve the speed of vtkDataObjectTree::SafeDownCast().
+   */
+  static bool IsDataObjectTree(vtkDataObject* dataObject);
 
   vtkTypeBool TraverseSubTree;
   vtkTypeBool VisitOnlyLeaves;

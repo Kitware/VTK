@@ -78,7 +78,11 @@ public:
 
     void Initialize(bool reverse, vtkDataObject* dataObj)
     {
-      vtkDataObjectTree* compositeData = vtkDataObjectTree::SafeDownCast(dataObj);
+      vtkDataObjectTree* compositeData = nullptr;
+      if (vtkDataObjectTreeIterator::IsDataObjectTree(dataObj))
+      {
+        compositeData = static_cast<vtkDataObjectTree*>(dataObj);
+      }
       this->Reverse = reverse;
       this->DataObject = dataObj;
       this->CompositeDataSet = compositeData;
@@ -286,6 +290,26 @@ int vtkDataObjectTreeIterator::IsDoneWithTraversal()
 }
 
 //------------------------------------------------------------------------------
+bool vtkDataObjectTreeIterator::IsDataObjectTree(vtkDataObject* dataObject)
+{
+  if (!dataObject)
+  {
+    return false;
+  }
+  switch (dataObject->GetDataObjectType())
+  {
+    case VTK_DATA_OBJECT_TREE:
+    case VTK_PARTITIONED_DATA_SET:
+    case VTK_PARTITIONED_DATA_SET_COLLECTION:
+    case VTK_MULTIPIECE_DATA_SET:
+    case VTK_MULTIBLOCK_DATA_SET:
+      return true;
+    default:
+      return false;
+  }
+}
+
+//------------------------------------------------------------------------------
 void vtkDataObjectTreeIterator::GoToFirstItem()
 {
   this->SetCurrentFlatIndex(0);
@@ -296,7 +320,7 @@ void vtkDataObjectTreeIterator::GoToFirstItem()
   {
     vtkDataObject* dObj = this->Internals->Iterator->GetCurrentDataObject();
     if ((!dObj && this->SkipEmptyNodes) ||
-      (this->VisitOnlyLeaves && vtkDataObjectTree::SafeDownCast(dObj)))
+      (this->VisitOnlyLeaves && vtkDataObjectTreeIterator::IsDataObjectTree(dObj)))
     {
       this->NextInternal();
     }
@@ -318,7 +342,7 @@ void vtkDataObjectTreeIterator::GoToNextItem()
     {
       vtkDataObject* dObj = this->Internals->Iterator->GetCurrentDataObject();
       if ((!dObj && this->SkipEmptyNodes) ||
-        (this->VisitOnlyLeaves && vtkDataObjectTree::SafeDownCast(dObj)))
+        (this->VisitOnlyLeaves && vtkDataObjectTreeIterator::IsDataObjectTree(dObj)))
       {
         this->NextInternal();
       }
