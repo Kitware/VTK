@@ -105,6 +105,21 @@ protected:
   virtual vtkSmartPointer<vtkSelector> NewSelectionOperator(
     vtkSelectionNode::SelectionContent type);
 
+  enum class EvaluationResult
+  {
+    INVALID,
+    NONE,
+    MIXED,
+    ALL
+  };
+  /**
+   * Evaluates the selection for the given content type for a data object and returns
+   * the evaluation result.
+   */
+  EvaluationResult EvaluateSelection(vtkDataObject* dataObject,
+    vtkDataObject::AttributeTypes association, vtkSelection* selection,
+    std::map<std::string, vtkSmartPointer<vtkSelector>>& selectors);
+
   /**
    * Given a non-composite input data object (either a block of a larger composite
    * or the whole input), along with the element type being extracted and the
@@ -113,7 +128,8 @@ protected:
    * containing only the elements to be extracted.
    */
   vtkSmartPointer<vtkDataObject> ExtractElements(vtkDataObject* inputBlock,
-    vtkDataObject::AttributeTypes elementType, vtkDataObject* outputBlock);
+    vtkDataObject::AttributeTypes elementType, EvaluationResult evaluationResult,
+    vtkDataObject* outputBlock);
 
   int FillInputPortInformation(int port, vtkInformation* info) override;
 

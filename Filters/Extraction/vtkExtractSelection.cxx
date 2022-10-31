@@ -267,43 +267,6 @@ int vtkExtractSelection::RequestData(vtkInformation* vtkNotUsed(request),
     }
   }
 
-  auto evaluate = [&selectors, assoc, &selection](vtkDataObject* dobj) -> bool {
-    auto fieldData = dobj->GetAttributes(assoc);
-    if (!fieldData)
-    {
-      return true;
-    }
-
-    // Iterate over operators and set up a map from selection node name to insidedness
-    // array.
-    std::map<std::string, vtkSignedCharArray*> arrayMap;
-    for (const auto& nodeSelector : selectors)
-    {
-      auto name = nodeSelector.first;
-      auto insidednessArray = vtkSignedCharArray::SafeDownCast(fieldData->GetArray(name.c_str()));
-      auto node = selection->GetNode(name);
-      if (insidednessArray != nullptr && node->GetProperties()->Has(vtkSelectionNode::INVERSE()) &&
-        node->GetProperties()->Get(vtkSelectionNode::INVERSE()))
-      {
-        ::InvertSelection(insidednessArray);
-      }
-      arrayMap[name] = insidednessArray;
-    }
-
-    // Evaluate the map of insidedness arrays
-    auto blockInsidedness = selection->Evaluate(arrayMap);
-    if (blockInsidedness)
-    {
-      blockInsidedness->SetName("__vtkInsidedness__");
-      fieldData->AddArray(blockInsidedness);
-      return true;
-    }
-    else
-    {
-      return false;
-    }
-  };
-
   if (auto inputCD = vtkCompositeDataSet::SafeDownCast(input))
   {
     auto outputCD = vtkCompositeDataSet::SafeDownCast(output);
@@ -348,7 +311,7 @@ int vtkExtractSelection::RequestData(vtkInformation* vtkNotUsed(request),
     // combine all the insidedness arrays and then extract the elements.
     vtkSmartPointer<vtkCompositeDataIterator> outIter;
     outIter.TakeReference(outputCD->NewIterator());
-    bool evaluateResult = true;
+    bool globalEvaluationResult = true;
     // input iterator is needed because if inputCD is subclass of vtkUniformGridAMR,
     // GetDataSet requires the iterator to be vtkUniformGridAMRDataIterator
     vtkTypeBool isUniformGridAMR = outputCD->IsA("vtkUniformGridAMR");
@@ -366,16 +329,18 @@ int vtkExtractSelection::RequestData(vtkInformation* vtkNotUsed(request),
       if (outputBlock)
       {
         // Evaluate the expression.
-        if (evaluate(outputBlock))
+        auto evaluationResult = this->EvaluateSelection(outputBlock, assoc, selection, selectors);
+        if (evaluationResult != EvaluationResult::INVALID)
         {
           // Extract the elements.
           auto iter = isUniformGridAMR ? inIter : outIter;
-          auto extractResult = this->ExtractElements(inputCD->GetDataSet(iter), assoc, outputBlock);
+          auto extractResult =
+            this->ExtractElements(inputCD->GetDataSet(iter), assoc, evaluationResult, outputBlock);
           outputCD->SetDataSet(outIter, extractResult);
         }
         else
         {
-          evaluateResult = false;
+          globalEvaluationResult = false;
           break;
         }
       }
@@ -386,7 +351,7 @@ int vtkExtractSelection::RequestData(vtkInformation* vtkNotUsed(request),
     }
     vtkLogEndScope("evaluate expression and extract output");
     // check for evaluate result errors
-    if (!evaluateResult)
+    if (!globalEvaluationResult)
     {
       // If the expression evaluation failed, then we need to set all the blocks to null.
       for (outIter->GoToFirstItem(); !outIter->IsDoneWithTraversal(); outIter->GoToNextItem())
@@ -417,17 +382,17 @@ int vtkExtractSelection::RequestData(vtkInformation* vtkNotUsed(request),
     vtkLogEndScope("execute selectors");
 
     vtkLogStartScope(TRACE, "evaluate expression");
-    bool evaluateResult = evaluate(clone);
+    auto evaluateResult = this->EvaluateSelection(clone, assoc, selection, selectors);
     vtkLogEndScope("evaluate expression");
     // check for evaluate result errors
-    if (!evaluateResult)
+    if (evaluateResult == EvaluationResult::INVALID)
     {
       output->Initialize();
       return 0;
     }
 
     vtkLogStartScope(TRACE, "extract output");
-    if (auto extractResult = this->ExtractElements(input, assoc, clone))
+    if (auto extractResult = this->ExtractElements(input, assoc, evaluateResult, clone))
     {
       output->ShallowCopy(extractResult);
     }
@@ -468,31 +433,79 @@ vtkSmartPointer<vtkSelector> vtkExtractSelection::NewSelectionOperator(
 }
 
 //------------------------------------------------------------------------------
-vtkSmartPointer<vtkDataObject> vtkExtractSelection::ExtractElements(
-  vtkDataObject* inputBlock, vtkDataObject::AttributeTypes type, vtkDataObject* outputBlock)
+vtkExtractSelection::EvaluationResult vtkExtractSelection::EvaluateSelection(
+  vtkDataObject* dataObject, vtkDataObject::AttributeTypes association, vtkSelection* selection,
+  std::map<std::string, vtkSmartPointer<vtkSelector>>& selectors)
 {
-  auto fd = outputBlock->GetAttributes(type);
-  vtkSmartPointer<vtkSignedCharArray> insidednessArray =
-    fd ? vtkSignedCharArray::SafeDownCast(fd->GetArray("__vtkInsidedness__")) : nullptr;
-  vtkSmartPointer<vtkDataObject> result;
-  bool extractAll = false;
-  bool extractNone = false;
-  if (!insidednessArray || insidednessArray->GetNumberOfTuples() <= 0)
+  auto fieldData = dataObject->GetAttributes(association);
+  if (!fieldData)
+  {
+    return EvaluationResult::NONE;
+  }
+
+  // Iterate over operators and set up a map from selection node name to insidedness
+  // array.
+  std::map<std::string, vtkSignedCharArray*> arrayMap;
+  for (const auto& nodeSelector : selectors)
+  {
+    auto name = nodeSelector.first;
+    auto insidednessArray = vtkSignedCharArray::SafeDownCast(fieldData->GetArray(name.c_str()));
+    auto node = selection->GetNode(name);
+    if (insidednessArray != nullptr && node->GetProperties()->Has(vtkSelectionNode::INVERSE()) &&
+      node->GetProperties()->Get(vtkSelectionNode::INVERSE()))
+    {
+      ::InvertSelection(insidednessArray);
+    }
+    arrayMap[name] = insidednessArray;
+  }
+
+  // Evaluate the map of insidedness arrays
+  std::array<signed char, 2> range;
+  auto blockInsidedness = selection->Evaluate(arrayMap, range);
+  if (blockInsidedness)
+  {
+    blockInsidedness->SetName("__vtkInsidedness__");
+    if (range[0] == 0 && range[1] == 0)
+    {
+      return EvaluationResult::NONE;
+    }
+    else if (range[0] == 1 && range[1] == 1)
+    {
+      fieldData->AddArray(blockInsidedness);
+      return EvaluationResult::ALL;
+    }
+    else
+    {
+      fieldData->AddArray(blockInsidedness);
+      return EvaluationResult::MIXED;
+    }
+  }
+  else
+  {
+    return EvaluationResult::INVALID;
+  }
+}
+
+//------------------------------------------------------------------------------
+vtkSmartPointer<vtkDataObject> vtkExtractSelection::ExtractElements(vtkDataObject* inputBlock,
+  vtkDataObject::AttributeTypes type, EvaluationResult evaluationResult, vtkDataObject* outputBlock)
+{
+  bool extractAll = evaluationResult == EvaluationResult::ALL;
+  bool extractNone = evaluationResult == EvaluationResult::NONE;
+  if (extractNone)
   {
     // Assume nothing was selected and return.
     return nullptr;
   }
-  else
+  auto fd = outputBlock->GetAttributes(type);
+  vtkSmartPointer<vtkSignedCharArray> insidednessArray =
+    fd ? vtkSignedCharArray::SafeDownCast(fd->GetArray("__vtkInsidedness__")) : nullptr;
+  if (!insidednessArray || insidednessArray->GetNumberOfTuples() <= 0)
   {
-    const auto range = insidednessArray->GetValueRange(0);
-    extractAll = range[0] == 1 && range[1] == 1;
-    extractNone = range[0] == 0 && range[1] == 0;
-    if (extractNone)
-    {
-      // all elements are being masked out, nothing to do.
-      return nullptr;
-    }
+    // No insidedness array
+    return nullptr;
   }
+  vtkSmartPointer<vtkDataObject> result;
   if (this->PreserveTopology)
   {
     insidednessArray->SetName("vtkInsidedness");

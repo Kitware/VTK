@@ -646,8 +646,62 @@ vtkSelection* vtkSelection::GetData(vtkInformationVector* v, int i)
 }
 
 //------------------------------------------------------------------------------
-vtkSmartPointer<vtkSignedCharArray> vtkSelection::Evaluate(
-  vtkSignedCharArray* const* values, unsigned int num_values) const
+struct vtkSelection::EvaluateFunctor
+{
+  std::array<signed char, 2>& Range;
+  std::shared_ptr<parser::Node> Tree;
+  signed char* Result;
+
+  EvaluateFunctor(std::array<signed char, 2>& range, std::shared_ptr<parser::Node> tree,
+    vtkSignedCharArray* result)
+    : Range(range)
+    , Tree(tree)
+    , Result(result->GetPointer(0))
+  {
+    this->Range = { VTK_SIGNED_CHAR_MAX, VTK_SIGNED_CHAR_MIN };
+  }
+
+  void Initialize(){};
+
+  void operator()(vtkIdType begin, vtkIdType end)
+  {
+    for (vtkIdType i = begin; i < end; ++i)
+    {
+      this->Result[i] = static_cast<signed char>(this->Tree->Evaluate(i));
+      if (this->Range[0] == VTK_SIGNED_CHAR_MAX && this->Result[i] == 0)
+      {
+        this->Range[0] = 0;
+      }
+      else if (this->Range[1] == VTK_SIGNED_CHAR_MIN && this->Result[i] == 1)
+      {
+        this->Range[1] = 1;
+      }
+    }
+  }
+
+  void Reduce()
+  {
+    if (this->Range[0] == VTK_SIGNED_CHAR_MAX)
+    {
+      if (this->Range[1] == VTK_SIGNED_CHAR_MIN)
+      {
+        this->Range[0] = 0;
+      }
+      else
+      {
+        this->Range[0] = this->Range[1];
+      }
+    }
+    if (this->Range[1] == VTK_SIGNED_CHAR_MIN)
+    {
+      this->Range[1] = 0;
+    }
+  }
+};
+
+//------------------------------------------------------------------------------
+vtkSmartPointer<vtkSignedCharArray> vtkSelection::Evaluate(vtkSignedCharArray* const* values,
+  unsigned int num_values, std::array<signed char, 2>& range) const
 {
   std::map<std::string, vtkSignedCharArray*> values_map;
 
@@ -697,13 +751,8 @@ vtkSmartPointer<vtkSignedCharArray> vtkSelection::Evaluate(
   {
     auto result = vtkSmartPointer<vtkSignedCharArray>::New();
     result->SetNumberOfValues(numVals);
-    auto resultPtr = result->GetPointer(0);
-    vtkSMPTools::For(0, numVals, [&](vtkIdType start, vtkIdType end) {
-      for (vtkIdType idx = start; idx < end; ++idx)
-      {
-        resultPtr[idx] = static_cast<signed char>(tree->Evaluate(idx));
-      }
-    });
+    EvaluateFunctor functor(range, tree, result);
+    vtkSMPTools::For(0, numVals, functor);
     return result;
   }
   else if (!tree)
