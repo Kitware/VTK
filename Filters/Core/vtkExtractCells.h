@@ -99,6 +99,17 @@ public:
   vtkGetMacro(AssumeSortedAndUniqueIds, bool);
   vtkBooleanMacro(AssumeSortedAndUniqueIds, bool);
   ///@}
+
+  ///@{
+  /**
+   * If on, the output dataset will have a celldata array that
+   * holds the cell index of the original 3D cell that produced each output
+   * cell. The default is on
+   */
+  vtkSetMacro(PassThroughCellIds, bool);
+  vtkGetMacro(PassThroughCellIds, bool);
+  vtkBooleanMacro(PassThroughCellIds, bool);
+  ///@}
 protected:
   vtkExtractCells();
   ~vtkExtractCells() override;
@@ -112,6 +123,7 @@ protected:
   vtkIdType SubSetUGridFacesArraySize = 0;
   bool ExtractAllCells = false;
   bool AssumeSortedAndUniqueIds = false;
+  bool PassThroughCellIds = true;
 
 private:
   vtkExtractCells(const vtkExtractCells&) = delete;

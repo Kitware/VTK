@@ -568,7 +568,10 @@ int vtkExtractCells::RequestData(vtkInformation* vtkNotUsed(request),
 
   // Copy cell and point data first, since that's easy enough.
   ::CopyCellData(inCD, outCD, work);
-  ::AddOriginalCellIds(outCD, work);
+  if (this->PassThroughCellIds)
+  {
+    ::AddOriginalCellIds(outCD, work);
+  }
   ::CopyPointData(inPD, outPD, chosenPtIds);
   this->UpdateProgress(0.5);
 
@@ -622,7 +625,10 @@ bool vtkExtractCells::Copy(vtkDataSet* input, vtkUnstructuredGrid* output)
   // copy cell/point arrays.
   output->GetPointData()->ShallowCopy(input->GetPointData());
   output->GetCellData()->ShallowCopy(input->GetCellData());
-  ::AddOriginalCellIds(output->GetCellData(), AllElementsWork{ 0, numCells });
+  if (this->PassThroughCellIds)
+  {
+    ::AddOriginalCellIds(output->GetCellData(), AllElementsWork{ 0, numCells });
+  }
   return true;
 }
 
