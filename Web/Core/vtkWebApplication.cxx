@@ -206,7 +206,7 @@ vtkUnsignedCharArray* vtkWebApplication::StillRender(vtkRenderWindow* view, int 
   w2i->FixBoundaryOn();
   w2i->Update();
 
-  vtkImageData* image = vtkImageData::New();
+  auto image = vtkSmartPointer<vtkImageData>::New();
   image->ShallowCopy(w2i->GetOutput());
 
   // vtkTimerLog::MarkEndEvent("CaptureWindow");
