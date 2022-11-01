@@ -15,19 +15,16 @@
 #include "vtkExtractGeometry.h"
 
 #include "vtk3DLinearGridCrinkleExtractor.h"
-#include "vtkCell.h"
-#include "vtkCellData.h"
-#include "vtkCellIterator.h"
+#include "vtkDoubleArray.h"
 #include "vtkEventForwarderCommand.h"
-#include "vtkFloatArray.h"
+#include "vtkExtractCells.h"
 #include "vtkIdList.h"
 #include "vtkImplicitFunction.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkLogger.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
-#include "vtkPointData.h"
+#include "vtkSMPTools.h"
 #include "vtkSmartPointer.h"
 #include "vtkUnstructuredGrid.h"
 
@@ -56,6 +53,7 @@ vtkExtractGeometry::~vtkExtractGeometry()
   this->SetImplicitFunction(nullptr);
 }
 
+//------------------------------------------------------------------------------
 // Overload standard modified time function. If implicit function is modified,
 // then this object is modified as well.
 vtkMTimeType vtkExtractGeometry::GetMTime()
@@ -72,18 +70,127 @@ vtkMTimeType vtkExtractGeometry::GetMTime()
   return mTime;
 }
 
+namespace
+{
+//------------------------------------------------------------------------------
+struct EvaluateCells
+{
+  vtkExtractGeometry* Self;
+  vtkDataSet* Input;
+  vtkUnsignedCharArray* InsidenessPointsArray;
+  vtkDoubleArray* ScalarsArray;
+  vtkIdType NumberOfCells;
+  vtkIdList* KeptCellsList;
+
+  vtkSMPThreadLocal<vtkSmartPointer<vtkIdList>> TLCellIds;
+  vtkNew<vtkUnsignedCharArray> InsidenessCellsArray;
+
+  EvaluateCells(vtkExtractGeometry* self, vtkDataSet* input,
+    vtkUnsignedCharArray* insidenessPointsArray, vtkDoubleArray* scalarsArray,
+    vtkIdList* keptCellsList)
+    : Self(self)
+    , Input(input)
+    , InsidenessPointsArray(insidenessPointsArray)
+    , ScalarsArray(scalarsArray)
+    , NumberOfCells(input->GetNumberOfCells())
+    , KeptCellsList(keptCellsList)
+  {
+    this->InsidenessCellsArray->SetNumberOfValues(input->GetNumberOfCells());
+    if (this->NumberOfCells > 0)
+    {
+      // ensure that internal structures are initialized.
+      this->Input->GetCell(0);
+    }
+  }
+
+  void Initialize() { this->TLCellIds.Local().TakeReference(vtkIdList::New()); }
+
+  void operator()(vtkIdType begin, vtkIdType end)
+  {
+    const bool isFirst = vtkSMPTools::GetSingleThread();
+
+    auto scalars = vtk::DataArrayValueRange<1>(this->ScalarsArray);
+    auto insidePoints = vtk::DataArrayValueRange<1>(this->InsidenessPointsArray);
+    auto insideCells = vtk::DataArrayValueRange<1>(this->InsidenessCellsArray);
+
+    auto cellIds = this->TLCellIds.Local();
+    vtkIdType numCellPts;
+    const vtkIdType* cellPts;
+    for (vtkIdType cellId = begin; cellId < end; ++cellId)
+    {
+      if (isFirst)
+      {
+        this->Self->CheckAbort();
+      }
+      if (this->Self->GetAbortOutput())
+      {
+        break;
+      }
+      this->Input->GetCellPoints(cellId, numCellPts, cellPts, cellIds);
+      if (!this->Self->GetExtractBoundaryCells()) // don't want boundary cells
+      {
+        bool allInside = true;
+        for (vtkIdType i = 0; i < numCellPts; ++i)
+        {
+          if (insidePoints[cellPts[i]] == 0)
+          {
+            allInside = false;
+            break;
+          }
+        }
+        insideCells[cellId] = static_cast<unsigned char>(allInside);
+      }
+      else // want boundary cells
+      {
+        bool inside = false;
+        bool outside = false;
+        for (vtkIdType i = 0; i < numCellPts; ++i)
+        {
+          if (scalars[cellPts[i]] <= 0.0)
+          {
+            inside = true;
+          }
+          else
+          {
+            outside = true;
+          }
+        }
+        if (this->Self->GetExtractOnlyBoundaryCells())
+        {
+          insideCells[cellId] = static_cast<unsigned char>(inside && outside);
+        }
+        else
+        {
+          insideCells[cellId] = static_cast<unsigned char>(inside);
+        }
+      } // if mapping boundary cells
+    }
+    if (isFirst)
+    {
+      this->Self->UpdateProgress(0.5 + end * 0.5 / this->NumberOfCells);
+    }
+  }
+
+  void Reduce()
+  {
+    this->KeptCellsList->Allocate(this->NumberOfCells);
+    for (vtkIdType cellId = 0; cellId < this->NumberOfCells; ++cellId)
+    {
+      if (this->InsidenessCellsArray->GetValue(cellId))
+      {
+        this->KeptCellsList->InsertNextId(cellId);
+      }
+    }
+  }
+};
+} // end anon namespace
+
 //------------------------------------------------------------------------------
 int vtkExtractGeometry::RequestData(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
-  // get the info objects
-  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
-  vtkInformation* outInfo = outputVector->GetInformationObject(0);
-
-  // get the input and output
-  vtkDataSet* input = vtkDataSet::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  vtkUnstructuredGrid* output =
-    vtkUnstructuredGrid::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  // get the input
+  vtkDataSet* input = vtkDataSet::GetData(inputVector[0]->GetInformationObject(0));
 
   if (!this->GetExtractInside() && this->GetExtractOnlyBoundaryCells() &&
     this->GetExtractBoundaryCells() &&
@@ -98,27 +205,8 @@ int vtkExtractGeometry::RequestData(
     progressForwarder->SetTarget(this);
     linear3DExtractor->AddObserver(vtkCommand::ProgressEvent, progressForwarder);
 
-    int retval = linear3DExtractor->ProcessRequest(request, inputVector, outputVector);
-
-    return retval;
+    return linear3DExtractor->ProcessRequest(request, inputVector, outputVector);
   }
-
-  vtkIdType ptId, numPts, numCells, i, newCellId, newId, *pointMap;
-  vtkSmartPointer<vtkCellIterator> cellIter =
-    vtkSmartPointer<vtkCellIterator>::Take(input->NewCellIterator());
-  vtkIdList* pointIdList;
-  int cellType;
-  vtkIdType numCellPts;
-  double x[3];
-  double multiplier;
-  vtkPoints* newPts;
-  vtkIdList* newCellPts;
-  vtkIdList* faces;
-  vtkPointData* pd = input->GetPointData();
-  vtkCellData* cd = input->GetCellData();
-  vtkPointData* outputPD = output->GetPointData();
-  vtkCellData* outputCD = output->GetCellData();
-  int npts;
 
   vtkDebugMacro(<< "Extracting geometry");
 
@@ -128,185 +216,64 @@ int vtkExtractGeometry::RequestData(
     return 1;
   }
 
-  // As this filter is doing a subsetting operation, set the Copy Tuple flag
-  // for GlobalIds array so that, if present, it will be copied to the output.
-  outputPD->CopyGlobalIdsOn();
-  outputCD->CopyGlobalIdsOn();
+  const double multiplier = this->ExtractInside ? 1.0 : -1.0;
 
-  newCellPts = vtkIdList::New();
-  newCellPts->Allocate(VTK_CELL_SIZE);
-
-  if (this->ExtractInside)
-  {
-    multiplier = 1.0;
-  }
-  else
-  {
-    multiplier = -1.0;
-  }
-
-  // Loop over all points determining whether they are inside the
-  // implicit function. Copy the points and point data if they are.
-  //
-  numPts = input->GetNumberOfPoints();
-  numCells = input->GetNumberOfCells();
-  pointMap = new vtkIdType[numPts]; // maps old point ids into new
-  for (i = 0; i < numPts; i++)
-  {
-    pointMap[i] = -1;
-  }
-
-  output->Allocate(numCells / 4); // allocate storage for geometry/topology
-  newPts = vtkPoints::New();
-  newPts->Allocate(numPts / 4, numPts);
-  outputPD->CopyAllocate(pd);
-  outputCD->CopyAllocate(cd);
-  vtkFloatArray* newScalars = nullptr;
-
+  vtkNew<vtkUnsignedCharArray> insidenessArray;
+  vtkNew<vtkDoubleArray> scalarArray;
+  // call that to guarantee thread safety
+  this->ImplicitFunction->EvaluateFunction(0, 0, 0);
   if (!this->ExtractBoundaryCells)
   {
-    for (ptId = 0; ptId < numPts; ptId++)
-    {
-      input->GetPoint(ptId, x);
-      if ((this->ImplicitFunction->FunctionValue(x) * multiplier) < 0.0)
+    insidenessArray->SetNumberOfValues(input->GetNumberOfPoints());
+    vtkSMPTools::For(0, input->GetNumberOfPoints(), [&](vtkIdType begin, vtkIdType end) {
+      double x[3];
+      for (vtkIdType ptId = begin; ptId < end; ++ptId)
       {
-        newId = newPts->InsertNextPoint(x);
-        pointMap[ptId] = newId;
-        outputPD->CopyData(pd, ptId, newId);
+        input->GetPoint(ptId, x);
+        insidenessArray->SetValue(ptId,
+          static_cast<unsigned char>(this->ImplicitFunction->FunctionValue(x) * multiplier < 0.0));
       }
-    }
+    });
   }
   else
   {
-    // To extract boundary cells, we have to create supplemental information
-    double val;
-    newScalars = vtkFloatArray::New();
-    newScalars->SetNumberOfValues(numPts);
+    scalarArray->SetNumberOfValues(input->GetNumberOfPoints());
+    vtkSMPTools::For(0, input->GetNumberOfPoints(), [&](vtkIdType begin, vtkIdType end) {
+      double x[3];
+      for (vtkIdType ptId = begin; ptId < end; ++ptId)
+      {
+        input->GetPoint(ptId, x);
+        scalarArray->SetValue(ptId, this->ImplicitFunction->FunctionValue(x) * multiplier);
+      }
+    });
+  }
+  this->UpdateProgress(0.5);
 
-    for (ptId = 0; ptId < numPts; ptId++)
-    {
-      input->GetPoint(ptId, x);
-      val = this->ImplicitFunction->FunctionValue(x) * multiplier;
-      newScalars->SetValue(ptId, val);
-    }
+  vtkNew<vtkIdList> keptCellsList;
+  EvaluateCells evaluateCells(this, input, insidenessArray, scalarArray, keptCellsList);
+  vtkSMPTools::For(0, input->GetNumberOfCells(), evaluateCells);
+  if (this->CheckAbort())
+  {
+    return 1;
   }
 
-  // Now loop over all cells to see whether they are inside implicit
-  // function (or on boundary if ExtractBoundaryCells is on).
-  //
-  for (cellIter->InitTraversal(); !cellIter->IsDoneWithTraversal(); cellIter->GoToNextCell())
+  // call vtkExtractCells
+  vtkNew<vtkExtractCells> extractCells;
+  extractCells->SetContainerAlgorithm(this);
+  extractCells->SetInputData(input);
+  extractCells->SetExtractAllCells(input->GetNumberOfCells() == keptCellsList->GetNumberOfIds());
+  if (!extractCells->GetExtractAllCells())
   {
-    cellType = cellIter->GetCellType();
-    numCellPts = cellIter->GetNumberOfPoints();
-    pointIdList = cellIter->GetPointIds();
-
-    newCellPts->Reset();
-    if (!this->ExtractBoundaryCells) // requires less work
-    {
-      for (npts = 0, i = 0; i < numCellPts; i++, npts++)
-      {
-        ptId = pointIdList->GetId(i);
-        if (pointMap[ptId] < 0)
-        {
-          break; // this cell won't be inserted
-        }
-        else
-        {
-          newCellPts->InsertId(i, pointMap[ptId]);
-        }
-      }
-    } // if don't want to extract boundary cells
-
-    else // want boundary cells
-    {
-      for (npts = 0, i = 0; i < numCellPts; i++)
-      {
-        ptId = pointIdList->GetId(i);
-        if (newScalars->GetValue(ptId) <= 0.0)
-        {
-          npts++;
-        }
-      }
-      int extraction_condition = 0;
-      if (this->ExtractOnlyBoundaryCells)
-      {
-        if ((npts > 0) && (npts != numCellPts))
-        {
-          extraction_condition = 1;
-        }
-      }
-      else
-      {
-        if (npts > 0)
-        {
-          extraction_condition = 1;
-        }
-      }
-      if (extraction_condition)
-      {
-        for (i = 0; i < numCellPts; i++)
-        {
-          ptId = pointIdList->GetId(i);
-          if (pointMap[ptId] < 0)
-          {
-            input->GetPoint(ptId, x);
-            newId = newPts->InsertNextPoint(x);
-            pointMap[ptId] = newId;
-            outputPD->CopyData(pd, ptId, newId);
-          }
-          newCellPts->InsertId(i, pointMap[ptId]);
-        }
-      } // a boundary or interior cell
-    }   // if mapping boundary cells
-
-    int extraction_condition = 0;
-    if (this->ExtractOnlyBoundaryCells)
-    {
-      if (npts != numCellPts && (this->ExtractBoundaryCells && npts > 0))
-      {
-        extraction_condition = 1;
-      }
-    }
-    else
-    {
-      if (npts >= numCellPts || (this->ExtractBoundaryCells && npts > 0))
-      {
-        extraction_condition = 1;
-      }
-    }
-    if (extraction_condition)
-    {
-      // special handling for polyhedron cells
-      if (cellType == VTK_POLYHEDRON)
-      {
-        newCellPts->Reset();
-        faces = cellIter->GetFaces();
-        for (i = 0; i < faces->GetNumberOfIds(); ++i)
-        {
-          newCellPts->InsertNextId(faces->GetId(i));
-        }
-        vtkUnstructuredGrid::ConvertFaceStreamPointIds(newCellPts, pointMap);
-      }
-      newCellId = output->InsertNextCell(cellType, newCellPts);
-      outputCD->CopyData(cd, cellIter->GetCellId(), newCellId);
-    }
-  } // for all cells
-
-  // Update ourselves and release memory
-  //
-  delete[] pointMap;
-  newCellPts->Delete();
-  output->SetPoints(newPts);
-  newPts->Delete();
-
-  if (this->ExtractBoundaryCells)
-  {
-    newScalars->Delete();
+    extractCells->SetCellList(keptCellsList);
   }
+  extractCells->AssumeSortedAndUniqueIdsOn();
+  extractCells->PassThroughCellIdsOff();
 
-  output->Squeeze();
+  vtkNew<vtkEventForwarderCommand> progressForwarder;
+  progressForwarder->SetTarget(this);
+  extractCells->AddObserver(vtkCommand::ProgressEvent, progressForwarder);
 
-  return 1;
+  return extractCells->ProcessRequest(request, inputVector, outputVector);
 }
 
 //------------------------------------------------------------------------------

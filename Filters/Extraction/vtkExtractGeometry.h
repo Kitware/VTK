@@ -14,9 +14,8 @@
 =========================================================================*/
 /**
  * @class   vtkExtractGeometry
- * @brief   extract cells that lie either entirely inside or outside of a specified implicit
- * function
- *
+ * @brief   extract cells that lie either entirely inside or outside of a specified
+ *          implicit function
  *
  * vtkExtractGeometry extracts from its input dataset all cells that are either
  * completely inside or outside of a specified implicit function. Any type of
@@ -31,6 +30,11 @@
  *
  * A more efficient version of this filter is available for vtkPolyData input.
  * See vtkExtractPolyDataGeometry.
+ *
+ * @warning
+ * This class has been threaded with vtkSMPTools. Using TBB or other
+ * non-sequential type (set in the CMake variable
+ * VTK_SMP_IMPLEMENTATION_TYPE) may improve performance significantly.
  *
  * @sa
  * vtkExtractPolyDataGeometry vtkGeometryFilter vtkExtractVOI
