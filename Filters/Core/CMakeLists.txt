@@ -43,6 +43,7 @@ set(classes
   vtkExecutionTimer
   vtkExplicitStructuredGridCrop
   vtkExplicitStructuredGridToUnstructuredGrid
+  vtkExtractCells
   vtkExtractCellsAlongPolyLine
   vtkExtractEdges
   vtkFeatureEdges

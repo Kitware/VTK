@@ -4,7 +4,6 @@ set(classes
   vtkExpandMarkedElements
   vtkExtractBlock
   vtkExtractBlockUsingDataAssembly
-  vtkExtractCells
   vtkExtractCellsByType
   vtkExtractDataArraysOverTime
   vtkExtractDataOverTime

@@ -40,6 +40,7 @@ vtk_add_test_cxx(vtkFiltersCoreCxxTests tests
   TestExplicitStructuredGridCrop.cxx
   TestExplicitStructuredGridToUnstructuredGrid.cxx
   TestExecutionTimer.cxx,NO_VALID
+  TestExtractCells.cxx,NO_VALID
   TestExtractCellsAlongPolyLine.cxx,NO_VALID
   TestFeatureEdges.cxx,NO_VALID
   TestFlyingEdges.cxx

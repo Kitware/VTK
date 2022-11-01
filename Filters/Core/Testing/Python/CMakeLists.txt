@@ -34,6 +34,7 @@ vtk_add_test_python(
   TestConvertToPolyhedra.py
   TestDecimatePolylineMaximumError.py
   TestElevationFilter.py
+  TestExtractCells.py
   TestFlyingEdges2D.py
   TestFlyingEdges2D2.py
   TestFlyingEdges2DThinPixel.py
