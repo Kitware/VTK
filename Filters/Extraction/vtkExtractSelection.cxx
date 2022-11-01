@@ -267,6 +267,22 @@ int vtkExtractSelection::RequestData(vtkInformation* vtkNotUsed(request),
     }
   }
 
+  // Check if vtkSelector::ExpandToConnectedElements will be used.
+  // This is useful because we can omit shallow copy of the input data.
+  bool expandToConnectedElements = false;
+  for (unsigned int cc = 0, max = selection->GetNumberOfNodes(); cc < max; ++cc)
+  {
+    auto node = selection->GetNode(cc);
+    int association = vtkSelectionNode::ConvertSelectionFieldToAttributeType(node->GetFieldType());
+    const int layers = node->GetProperties()->Get(vtkSelectionNode::CONNECTED_LAYERS());
+
+    if (layers >= 1 && (association == vtkDataObject::POINT || association == vtkDataObject::CELL))
+    {
+      expandToConnectedElements = true;
+      break;
+    }
+  }
+
   if (auto inputCD = vtkCompositeDataSet::SafeDownCast(input))
   {
     auto outputCD = vtkCompositeDataSet::SafeDownCast(output);
@@ -287,10 +303,24 @@ int vtkExtractSelection::RequestData(vtkInformation* vtkNotUsed(request),
       auto blockInput = inIter->GetCurrentDataObject();
       if (blockInput)
       {
-        auto clone = blockInput->NewInstance();
-        clone->ShallowCopy(blockInput);
+        vtkSmartPointer<vtkDataObject> clone;
+        if (expandToConnectedElements || this->PreserveTopology)
+        {
+          clone.TakeReference(input->NewInstance());
+          clone->ShallowCopy(input);
+        }
+        else
+        {
+          if (assoc != vtkDataObject::ROW)
+          {
+            clone.TakeReference(vtkUnstructuredGrid::New());
+          }
+          else
+          {
+            clone.TakeReference(vtkTable::New());
+          }
+        }
         outputCD->SetDataSet(inIter, clone);
-        clone->FastDelete();
       }
     }
 
@@ -366,8 +396,22 @@ int vtkExtractSelection::RequestData(vtkInformation* vtkNotUsed(request),
     assert(output != nullptr);
 
     vtkSmartPointer<vtkDataObject> clone;
-    clone.TakeReference(input->NewInstance());
-    clone->ShallowCopy(input);
+    if (expandToConnectedElements || this->PreserveTopology)
+    {
+      clone.TakeReference(input->NewInstance());
+      clone->ShallowCopy(input);
+    }
+    else
+    {
+      if (assoc != vtkDataObject::ROW)
+      {
+        clone.TakeReference(vtkUnstructuredGrid::New());
+      }
+      else
+      {
+        clone.TakeReference(vtkTable::New());
+      }
+    }
 
     // Evaluate the operators.
     vtkLogStartScope(TRACE, "execute selectors");
