@@ -102,7 +102,7 @@ class vtkWorkQueue
       writer->SetQuality(work.Quality);
       writer->Write();
 
-      vtkNew<vtkUnsignedCharArray> result;
+      auto result = vtkSmartPointer<vtkUnsignedCharArray>::New();
       if (work.Encoding)
       {
         vtkUnsignedCharArray* data = writer->GetResult();
@@ -126,7 +126,7 @@ class vtkWorkQueue
         auto& pair = self->Results[work.Key];
         if (pair.first < work.TimeStamp)
         {
-          pair = std::make_pair(work.TimeStamp, vtk::MakeSmartPointer(result.GetPointer()));
+          pair = std::make_pair(work.TimeStamp, result);
           lock.unlock();
           self->ResultsCondition.notify_all();
         }

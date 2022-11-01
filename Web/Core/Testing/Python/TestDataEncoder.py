@@ -44,15 +44,11 @@ class TestDataEncoder(Testing.vtkTest):
         inputArray = array.array('B', base64String)
         outputBuffer = bytearray(len(inputArray))
 
-        utils = None
         try:
-            utils = vtk.vtkIOCore.vtkBase64Utilities()
+            utils = vtk.vtkBase64Utilities()
         except:
-            try:
-                utils = vtkIOCore.vtkBase64Utilities()
-            except:
-                print('Unable to import required vtkIOCore.vtkBase64Utilities')
-                return
+            print('Unable to import required vtk.vtkBase64Utilities')
+            raise Exception("TestDataEncoder failed.")
 
         actualLength = utils.DecodeSafely(inputArray, len(inputArray), outputBuffer, len(outputBuffer))
         outputArray = bytearray(actualLength)
