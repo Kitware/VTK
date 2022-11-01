@@ -110,6 +110,16 @@ public:
   vtkGetMacro(PassThroughCellIds, bool);
   vtkBooleanMacro(PassThroughCellIds, bool);
   ///@}
+
+  ///@{
+  /**
+   * Set/get the desired precision for the output types. See the documentation
+   * for the vtkAlgorithm::DesiredOutputPrecision enum for an explanation of
+   * the available precision settings.
+   */
+  vtkSetMacro(OutputPointsPrecision, int);
+  vtkGetMacro(OutputPointsPrecision, int);
+  ///@}
 protected:
   vtkExtractCells();
   ~vtkExtractCells() override;
@@ -124,6 +134,7 @@ protected:
   bool ExtractAllCells = false;
   bool AssumeSortedAndUniqueIds = false;
   bool PassThroughCellIds = true;
+  int OutputPointsPrecision = DEFAULT_PRECISION;
 
 private:
   vtkExtractCells(const vtkExtractCells&) = delete;

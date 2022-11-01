@@ -116,12 +116,33 @@ struct SubsetPointsWork
  *  `PointWork::GetPointId(idx)`: original pt id for extracted point at the `idx`
  */
 template <typename PointWorkT>
-vtkSmartPointer<vtkPoints> DoExtractPoints(vtkDataSet* input, const PointWorkT& work)
+vtkSmartPointer<vtkPoints> DoExtractPoints(
+  vtkDataSet* input, int outputPointsPrecision, const PointWorkT& work)
 {
   vtkNew<vtkPoints> pts;
-  pts->SetDataTypeToDouble();
+  // set precision for the points in the output
+  if (outputPointsPrecision == vtkAlgorithm::DEFAULT_PRECISION)
+  {
+    vtkPointSet* inputPointSet = vtkPointSet::SafeDownCast(input);
+    if (inputPointSet && inputPointSet->GetPoints())
+    {
+      pts->SetDataType(inputPointSet->GetPoints()->GetDataType());
+    }
+    else
+    {
+      pts->SetDataType(VTK_FLOAT);
+    }
+  }
+  else if (outputPointsPrecision == vtkAlgorithm::SINGLE_PRECISION)
+  {
+    pts->SetDataType(VTK_FLOAT);
+  }
+  else if (outputPointsPrecision == vtkAlgorithm::DOUBLE_PRECISION)
+  {
+    pts->SetDataType(VTK_DOUBLE);
+  }
   pts->SetNumberOfPoints(work.GetNumberOfPoints());
-  auto array = vtkDoubleArray::SafeDownCast(pts->GetData());
+  auto array = pts->GetData();
 
   vtkSMPTools::For(
     0, work.GetNumberOfPoints(), [&work, &array, &input](vtkIdType first, vtkIdType last) {
@@ -129,7 +150,7 @@ vtkSmartPointer<vtkPoints> DoExtractPoints(vtkDataSet* input, const PointWorkT& 
       for (vtkIdType cc = first; cc < last; ++cc)
       {
         input->GetPoint(work.GetPointId(cc), coords);
-        array->SetTypedTuple(cc, coords);
+        array->SetTuple(cc, coords);
       }
     });
   return pts;
@@ -576,7 +597,7 @@ int vtkExtractCells::RequestData(vtkInformation* vtkNotUsed(request),
   this->UpdateProgress(0.5);
 
   // Get new points
-  auto pts = ::DoExtractPoints(input, SubsetPointsWork{ chosenPtIds });
+  auto pts = ::DoExtractPoints(input, this->OutputPointsPrecision, SubsetPointsWork{ chosenPtIds });
   output->SetPoints(pts);
   this->UpdateProgress(0.75);
 
@@ -614,7 +635,8 @@ bool vtkExtractCells::Copy(vtkDataSet* input, vtkUnstructuredGrid* output)
   {
     // copy points manually.
     const vtkIdType numPoints = input->GetNumberOfPoints();
-    auto pts = ::DoExtractPoints(input, AllElementsWork{ numPoints, 0 });
+    auto pts =
+      ::DoExtractPoints(input, this->OutputPointsPrecision, AllElementsWork{ numPoints, 0 });
     output->SetPoints(pts);
   }
 
