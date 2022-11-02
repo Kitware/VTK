@@ -94,7 +94,7 @@ struct ChunkHeader
 };
 
 // padd at 4 bytes
-inline int GetPaddingAt4Bytes(int size)
+inline size_t GetPaddingAt4Bytes(size_t size)
 {
   return (4 - size % 4) % 4;
 }
@@ -353,7 +353,7 @@ int CopyStream(std::istream& in, std::ostream& out)
 }
 
 std::string WriteTextureBufferAndView(const std::string& textureFullPath,
-  nlohmann::json& bufferViews, ostream& out, unsigned int* currentBufferOffset)
+  nlohmann::json& bufferViews, ostream& out, size_t* currentBufferOffset)
 {
   std::string result;
   std::string mimeType;
@@ -383,7 +383,7 @@ std::string WriteTextureBufferAndView(const std::string& textureFullPath,
 }
 
 void WriteBufferAndView(vtkDataArray* inda, nlohmann::json& bufferViews, ostream& out,
-  unsigned int* currentBufferOffset, int bufferViewTarget)
+  size_t* currentBufferOffset, int bufferViewTarget)
 {
   vtkDataArray* da = inda;
 
@@ -421,7 +421,7 @@ void WriteBufferAndView(vtkDataArray* inda, nlohmann::json& bufferViews, ostream
 
 void WriteBufferAndView(vtkDataArray* da, const char* fileName, bool inlineData,
   nlohmann::json& buffers, nlohmann::json& bufferViews, bool binary, ostream& out,
-  unsigned int* currentBufferOffset)
+  size_t* currentBufferOffset)
 {
   if (binary)
   {
@@ -435,7 +435,7 @@ void WriteBufferAndView(vtkDataArray* da, const char* fileName, bool inlineData,
 }
 
 void WriteCellBufferAndView(
-  vtkCellArray* ca, nlohmann::json& bufferViews, ostream& out, unsigned int* currentBufferOffset)
+  vtkCellArray* ca, nlohmann::json& bufferViews, ostream& out, size_t* currentBufferOffset)
 {
   vtkNew<vtkUnsignedIntArray> ia;
   vtkIdType npts;
@@ -454,7 +454,7 @@ void WriteCellBufferAndView(
 
 void WriteCellBufferAndView(vtkCellArray* ca, const char* fileName, bool inlineData,
   nlohmann::json& buffers, nlohmann::json& bufferViews, bool binary, ostream& out,
-  unsigned int* currentBufferOffset)
+  size_t* currentBufferOffset)
 {
   if (binary)
   {
@@ -469,7 +469,7 @@ void WriteCellBufferAndView(vtkCellArray* ca, const char* fileName, bool inlineD
 void WriteMesh(nlohmann::json& accessors, nlohmann::json& buffers, nlohmann::json& bufferViews,
   nlohmann::json& meshes, nlohmann::json& nodes, vtkPolyData* pd, const char* fileName,
   bool inlineData, bool saveNormal, bool saveBatchId, bool saveActivePointColor,
-  bool structuralMetadataExtension, ostream& output, bool binary, unsigned int* currentBufferOffset)
+  bool structuralMetadataExtension, ostream& output, bool binary, size_t* currentBufferOffset)
 {
   vtkNew<vtkTriangleFilter> trif;
   trif->SetInputData(pd);
@@ -759,7 +759,7 @@ void WriteTexture(nlohmann::json& buffers, nlohmann::json& bufferViews, nlohmann
   nlohmann::json& samplers, nlohmann::json& images, bool inlineData, bool copyTextures,
   std::map<std::string, size_t>& textureMap, const char* textureBaseDirectory,
   const std::string& textureFileName, const char* gltfFileName, bool binary, ostream& out,
-  unsigned int* currentBufferOffset)
+  size_t* currentBufferOffset)
 {
   size_t textureSource = 0;
   if (textureMap.find(textureFileName) == textureMap.end())
@@ -981,7 +981,7 @@ void vtkGLTFWriter::WriteToStreamMultiBlock(ostream& output, vtkMultiBlockDataSe
   {
     rendererNode["translation"] = { bounds[0], bounds[2], bounds[4] };
   }
-  unsigned int binChunkOffset = 0;
+  size_t binChunkOffset = 0;
   // all buildings
   std::string binChunkPath = vtksys::SystemTools::GetFilenamePath(this->FileName) + "/binChunk.bin";
   vtksys::ofstream binChunkOut;
@@ -1119,8 +1119,8 @@ void vtkGLTFWriter::WriteToStreamMultiBlock(ostream& output, vtkMultiBlockDataSe
   {
     // header
     std::string rootString = root.dump();
-    int paddingSizeJSON = GetPaddingAt4Bytes(rootString.size());
-    int paddingSizeBIN = GetPaddingAt4Bytes(binChunkOffset);
+    size_t paddingSizeJSON = GetPaddingAt4Bytes(rootString.size());
+    size_t paddingSizeBIN = GetPaddingAt4Bytes(binChunkOffset);
     FileHeader header(
       12 + 8 + rootString.size() + paddingSizeJSON + 8 + binChunkOffset + paddingSizeBIN);
     // std::cerr << "size: " << rootString.size() << std::endl;
