@@ -987,7 +987,7 @@ void vtkGLTFWriter::WriteToStreamMultiBlock(ostream& output, vtkMultiBlockDataSe
   vtksys::ofstream binChunkOut;
   if (this->Binary)
   {
-    binChunkOut.open(binChunkPath, ios::out | ios::binary);
+    binChunkOut.open(binChunkPath.c_str(), ios::out | ios::binary);
   }
   for (buildingIt->InitTraversal(); !buildingIt->IsDoneWithTraversal(); buildingIt->GoToNextItem())
   {
@@ -1138,7 +1138,7 @@ void vtkGLTFWriter::WriteToStreamMultiBlock(ostream& output, vtkMultiBlockDataSe
     ChunkHeader binChunkHeader;
     binChunkHeader.SetTypeBIN(binChunkOffset + paddingSizeBIN);
     vtkByteSwap::SwapWrite4LERange(&binChunkHeader, 2, &output);
-    vtksys::ifstream binChunkIn(binChunkPath, ios::in | ios::binary);
+    vtksys::ifstream binChunkIn(binChunkPath.c_str(), ios::in | ios::binary);
     CopyStream(binChunkIn, output);
     char paddingBIN[3] = { 0, 0, 0 };
     output.write(paddingBIN, paddingSizeBIN);
