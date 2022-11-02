@@ -1028,6 +1028,18 @@ void vtkGLTFWriter::WriteToStreamMultiBlock(ostream& output, vtkMultiBlockDataSe
                 this->FileName, this->Binary, binChunkOut, &binChunkOffset);
             }
           }
+          if (this->Binary)
+          {
+            // pad at 4 bytes for the next mesh
+            // accessor total byteOffset has to be a multiple of componentType length
+            int paddingSizeNextMesh = GetPaddingAt4Bytes(binChunkOffset);
+            if (paddingSizeNextMesh)
+            {
+              char paddingBIN[3] = { 0, 0, 0 };
+              binChunkOut.write(paddingBIN, paddingSizeNextMesh);
+              binChunkOffset += paddingSizeNextMesh;
+            }
+          }
           meshes[meshes.size() - 1]["primitives"][0]["material"] = materials.size();
           WriteMaterial(pd, materials, oldTextureCount, oldTextureCount != textures.size());
         }
@@ -1126,9 +1138,9 @@ void vtkGLTFWriter::WriteToStreamMultiBlock(ostream& output, vtkMultiBlockDataSe
     ChunkHeader binChunkHeader;
     binChunkHeader.SetTypeBIN(binChunkOffset + paddingSizeBIN);
     vtkByteSwap::SwapWrite4LERange(&binChunkHeader, 2, &output);
-    char paddingBIN[3] = { 0, 0, 0 };
     vtksys::ifstream binChunkIn(binChunkPath, ios::in | ios::binary);
     CopyStream(binChunkIn, output);
+    char paddingBIN[3] = { 0, 0, 0 };
     output.write(paddingBIN, paddingSizeBIN);
     binChunkIn.close();
     vtksys::SystemTools::RemoveFile(binChunkPath);
