@@ -40,7 +40,7 @@ void vtkGLTFWriterUtils::WriteValues(vtkDataArray* ca, vtkBase64OutputStream* os
 }
 
 void vtkGLTFWriterUtils::WriteBufferAndView(vtkDataArray* inda, const char* fileName,
-  bool inlineData, nlohmann::json& buffers, nlohmann::json& bufferViews)
+  bool inlineData, nlohmann::json& buffers, nlohmann::json& bufferViews, int bufferViewTarget)
 {
   vtkDataArray* da = inda;
 
@@ -98,6 +98,7 @@ void vtkGLTFWriterUtils::WriteBufferAndView(vtkDataArray* inda, const char* file
   view["buffer"] = buffers.size() - 1;
   view["byteOffset"] = 0;
   view["byteLength"] = byteLength;
+  view["target"] = bufferViewTarget;
   bufferViews.emplace_back(view);
 
   // delete double to float conversion array
@@ -122,7 +123,7 @@ void vtkGLTFWriterUtils::WriteCellBufferAndView(vtkCellArray* ca, const char* fi
     }
   }
 
-  WriteBufferAndView(ia, fileName, inlineData, buffers, bufferViews);
+  WriteBufferAndView(ia, fileName, inlineData, buffers, bufferViews, GLTF_ELEMENT_ARRAY_BUFFER);
   ia->Delete();
 }
 VTK_ABI_NAMESPACE_END

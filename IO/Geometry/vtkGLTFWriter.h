@@ -176,6 +176,15 @@ public:
   vtkBooleanMacro(RelativeCoordinates, bool);
   ///@}
 
+  ///@{
+  /**
+   * If true, save as GLB (Binary GLTF).
+   * This is set by using .glb extension for FileName
+   * and unset for any other extension (usually .gltf)
+   */
+  vtkGetMacro(Binary, bool);
+  ///@}
+
   /**
    * Write the result to a string instead of a file
    */
@@ -210,6 +219,7 @@ protected:
   bool RelativeCoordinates;
   bool CopyTextures;
   bool SaveActivePointColor;
+  bool Binary;
 
 private:
   vtkGLTFWriter(const vtkGLTFWriter&) = delete;

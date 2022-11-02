@@ -44,7 +44,7 @@ public:
   VTK_WRAPEXCLUDE static void WriteValues(vtkDataArray* ca, std::ostream& myFile);
   VTK_WRAPEXCLUDE static void WriteValues(vtkDataArray* ca, vtkBase64OutputStream* ostr);
   VTK_WRAPEXCLUDE static void WriteBufferAndView(vtkDataArray* inda, const char* fileName,
-    bool inlineData, nlohmann::json& buffers, nlohmann::json& bufferViews);
+    bool inlineData, nlohmann::json& buffers, nlohmann::json& bufferViews, int bufferViewTarget);
   VTK_WRAPEXCLUDE static void WriteCellBufferAndView(vtkCellArray* ca, const char* fileName,
     bool inlineData, nlohmann::json& buffers, nlohmann::json& bufferViews);
 };
@@ -70,6 +70,9 @@ public:
 
 #define ARRAY_BUFFER 34962
 #define ELEMENT_ARRAY_BUFFER 34963
+
+const int GLTF_ARRAY_BUFFER = 34962;
+const int GLTF_ELEMENT_ARRAY_BUFFER = 34963;
 
 VTK_ABI_NAMESPACE_END
 #endif
