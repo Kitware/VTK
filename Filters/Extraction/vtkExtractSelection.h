@@ -105,6 +105,21 @@ protected:
   virtual vtkSmartPointer<vtkSelector> NewSelectionOperator(
     vtkSelectionNode::SelectionContent type);
 
+  enum class EvaluationResult
+  {
+    INVALID,
+    NONE,
+    MIXED,
+    ALL
+  };
+  /**
+   * Evaluates the selection for the given content type for a data object and returns
+   * the evaluation result.
+   */
+  EvaluationResult EvaluateSelection(vtkDataObject* dataObject,
+    vtkDataObject::AttributeTypes association, vtkSelection* selection,
+    std::map<std::string, vtkSmartPointer<vtkSelector>>& selectors);
+
   /**
    * Given a non-composite input data object (either a block of a larger composite
    * or the whole input), along with the element type being extracted and the
@@ -112,8 +127,9 @@ protected:
    * insidedness array (if PreserveTopology is on) or returns a new data object
    * containing only the elements to be extracted.
    */
-  vtkSmartPointer<vtkDataObject> ExtractElements(vtkDataObject* block,
-    vtkDataObject::AttributeTypes elementType, vtkSignedCharArray* insidednessArray);
+  vtkSmartPointer<vtkDataObject> ExtractElements(vtkDataObject* inputBlock,
+    vtkDataObject::AttributeTypes elementType, EvaluationResult evaluationResult,
+    vtkDataObject* outputBlock);
 
   int FillInputPortInformation(int port, vtkInformation* info) override;
 
@@ -121,20 +137,21 @@ protected:
    * Given a vtkDataSet and an array of which cells to extract, this populates
    * the given vtkUnstructuredGrid with the selected cells.
    */
-  void ExtractSelectedCells(
-    vtkDataSet* input, vtkUnstructuredGrid* output, vtkSignedCharArray* cellInside);
+  void ExtractSelectedCells(vtkDataSet* input, vtkUnstructuredGrid* output,
+    vtkSignedCharArray* cellInside, bool extractAll);
   /**
    * Given a vtkDataSet and an array of which points to extract, the populates
    * the given vtkUnstructuredGrid with the selected points and a cell of type vertex
    * for each point.
    */
-  void ExtractSelectedPoints(
-    vtkDataSet* input, vtkUnstructuredGrid* output, vtkSignedCharArray* pointInside);
+  void ExtractSelectedPoints(vtkDataSet* input, vtkUnstructuredGrid* output,
+    vtkSignedCharArray* pointInside, bool extractAll);
   /**
    * Given an input vtkTable and an array of which rows to extract, this populates
    * the output table with the selected rows.
    */
-  void ExtractSelectedRows(vtkTable* input, vtkTable* output, vtkSignedCharArray* rowsInside);
+  void ExtractSelectedRows(
+    vtkTable* input, vtkTable* output, vtkSignedCharArray* rowsInside, bool extractAll);
 
   bool PreserveTopology = false;
 

@@ -44,8 +44,9 @@
 #include "vtkDataObject.h"
 #include "vtkSmartPointer.h" // for  vtkSmartPointer.
 
-#include <memory> // for unique_ptr.
+#include <array>  // for array.
 #include <string> // for string.
+#include <vector> // for vector.
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkSelectionNode;
@@ -193,21 +194,38 @@ public:
   static vtkSelection* GetData(vtkInformationVector* v, int i = 0);
   ///@}
 
+  ///@{
   /**
-   * Evaluates the expression for each element in the values. The order
-   * matches the order of the selection nodes. If not expression is set or if
-   * it's an empty string, then an expression that simply combines all selection
+   * Evaluates the expression for each element in the values and extracts the range.
+   * The order matches the order of the selection nodes. If not expression is set or
+   * if it's an empty string, then an expression that simply combines all selection
    * nodes in an binary-or is assumed.
    */
   vtkSmartPointer<vtkSignedCharArray> Evaluate(
-    vtkSignedCharArray* const* values, unsigned int num_values) const;
+    vtkSignedCharArray* const* values, unsigned int num_values) const
+  {
+    std::array<signed char, 2> range;
+    return this->Evaluate(values, num_values, range);
+  }
+  vtkSmartPointer<vtkSignedCharArray> Evaluate(vtkSignedCharArray* const* values,
+    unsigned int num_values, std::array<signed char, 2>& range) const;
+  ///@}
 
+  ///@{
   /**
    * Convenience method to pass a map of vtkSignedCharArray ptrs (or
-   * vtkSmartPointers).
+   * vtkSmartPointers) and range.
    */
   template <typename MapType>
-  vtkSmartPointer<vtkSignedCharArray> Evaluate(const MapType& values_map) const;
+  vtkSmartPointer<vtkSignedCharArray> Evaluate(const MapType& values_map) const
+  {
+    std::array<signed char, 2> range;
+    return this->Evaluate(values_map, range);
+  }
+  template <typename MapType>
+  vtkSmartPointer<vtkSignedCharArray> Evaluate(
+    const MapType& values_map, std::array<signed char, 2>& range) const;
+  ///@}
 
 protected:
   vtkSelection();
@@ -221,20 +239,22 @@ private:
 
   class vtkInternals;
   vtkInternals* Internals;
+  struct EvaluateFunctor;
 };
 
 //----------------------------------------------------------------------------
 template <typename MapType>
-inline vtkSmartPointer<vtkSignedCharArray> vtkSelection::Evaluate(const MapType& values_map) const
+inline vtkSmartPointer<vtkSignedCharArray> vtkSelection::Evaluate(
+  const MapType& values_map, std::array<signed char, 2>& range) const
 {
   const unsigned int num_nodes = this->GetNumberOfNodes();
-  std::unique_ptr<vtkSignedCharArray*[]> values(new vtkSignedCharArray*[num_nodes]);
+  std::vector<vtkSignedCharArray*> values(num_nodes, nullptr);
   for (unsigned int cc = 0; cc < num_nodes; ++cc)
   {
     auto iter = values_map.find(this->GetNodeNameAtIndex(cc));
     values[cc] = iter != values_map.end() ? iter->second : nullptr;
   }
-  return this->Evaluate(&values[0], num_nodes);
+  return this->Evaluate(values.data(), num_nodes, range);
 }
 
 VTK_ABI_NAMESPACE_END

@@ -43,7 +43,6 @@
 #include <cassert>
 #include <map>
 #include <numeric>
-#include <set>
 #include <vector>
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -268,51 +267,21 @@ int vtkExtractSelection::RequestData(vtkInformation* vtkNotUsed(request),
     }
   }
 
-  auto evaluate = [&selectors, assoc, &selection](vtkDataObject* dobj) -> bool {
-    auto fieldData = dobj->GetAttributes(assoc);
-    if (!fieldData)
-    {
-      return true;
-    }
+  // Check if vtkSelector::ExpandToConnectedElements will be used.
+  // This is useful because we can omit shallow copy of the input data.
+  bool expandToConnectedElements = false;
+  for (unsigned int cc = 0, max = selection->GetNumberOfNodes(); cc < max; ++cc)
+  {
+    auto node = selection->GetNode(cc);
+    int association = vtkSelectionNode::ConvertSelectionFieldToAttributeType(node->GetFieldType());
+    const int layers = node->GetProperties()->Get(vtkSelectionNode::CONNECTED_LAYERS());
 
-    // Iterate over operators and set up a map from selection node name to insidedness
-    // array.
-    std::map<std::string, vtkSignedCharArray*> arrayMap;
-    for (auto nodeIter = selectors.begin(); nodeIter != selectors.end(); ++nodeIter)
+    if (layers >= 1 && (association == vtkDataObject::POINT || association == vtkDataObject::CELL))
     {
-      auto name = nodeIter->first;
-      auto insidednessArray = vtkSignedCharArray::SafeDownCast(fieldData->GetArray(name.c_str()));
-      auto node = selection->GetNode(name);
-      if (insidednessArray != nullptr && node->GetProperties()->Has(vtkSelectionNode::INVERSE()) &&
-        node->GetProperties()->Get(vtkSelectionNode::INVERSE()))
-      {
-        ::InvertSelection(insidednessArray);
-      }
-      arrayMap[name] = insidednessArray;
+      expandToConnectedElements = true;
+      break;
     }
-
-    // Evaluate the map of insidedness arrays
-    auto blockInsidedness = selection->Evaluate(arrayMap);
-    if (blockInsidedness)
-    {
-      blockInsidedness->SetName("__vtkInsidedness__");
-      fieldData->AddArray(blockInsidedness);
-      return true;
-    }
-    else
-    {
-      return false;
-    }
-  };
-
-  auto extract = [&assoc, this](
-                   vtkDataObject* inpDO, vtkDataObject* opDO) -> vtkSmartPointer<vtkDataObject> {
-    auto fd = opDO->GetAttributes(assoc);
-    auto array =
-      fd ? vtkSignedCharArray::SafeDownCast(fd->GetArray("__vtkInsidedness__")) : nullptr;
-    auto resultDO = array ? this->ExtractElements(inpDO, assoc, array) : nullptr;
-    return (resultDO && resultDO->GetNumberOfElements(assoc) > 0) ? resultDO : nullptr;
-  };
+  }
 
   if (auto inputCD = vtkCompositeDataSet::SafeDownCast(input))
   {
@@ -334,99 +303,142 @@ int vtkExtractSelection::RequestData(vtkInformation* vtkNotUsed(request),
       auto blockInput = inIter->GetCurrentDataObject();
       if (blockInput)
       {
-        auto clone = blockInput->NewInstance();
-        clone->ShallowCopy(blockInput);
+        vtkSmartPointer<vtkDataObject> clone;
+        if (expandToConnectedElements || this->PreserveTopology)
+        {
+          clone.TakeReference(input->NewInstance());
+          clone->ShallowCopy(input);
+        }
+        else
+        {
+          if (assoc != vtkDataObject::ROW)
+          {
+            clone.TakeReference(vtkUnstructuredGrid::New());
+          }
+          else
+          {
+            clone.TakeReference(vtkTable::New());
+          }
+        }
         outputCD->SetDataSet(inIter, clone);
-        clone->FastDelete();
       }
     }
 
     // Evaluate the operators.
     vtkLogStartScope(TRACE, "execute selectors");
-    for (auto nodeIter = selectors.begin(); nodeIter != selectors.end(); ++nodeIter)
+    for (const auto& nodeSelector : selectors)
     {
       if (this->CheckAbort())
       {
         break;
       }
-      auto selector = nodeIter->second;
-      selector->Execute(inputCD, outputCD);
+      nodeSelector.second->Execute(inputCD, outputCD);
     }
     vtkLogEndScope("execute selectors");
 
-    vtkLogStartScope(TRACE, "evaluate expression");
+    vtkLogStartScope(TRACE, "evaluate expression and extract output");
     // Now iterate again over the composite dataset and evaluate the expression to
-    // combine all the insidedness arrays.
+    // combine all the insidedness arrays and then extract the elements.
     vtkSmartPointer<vtkCompositeDataIterator> outIter;
     outIter.TakeReference(outputCD->NewIterator());
-    bool evaluateResult = true;
-    for (outIter->GoToFirstItem(); !outIter->IsDoneWithTraversal(); outIter->GoToNextItem())
-    {
-      auto outputBlock = outIter->GetCurrentDataObject();
-      assert(outputBlock != nullptr);
-      // Evaluate the expression.
-      if (!evaluate(outputBlock))
-      {
-        evaluateResult = false;
-        break;
-      }
-    }
-    vtkLogEndScope("evaluate expression");
-    // check for evaluate result errors
-    if (!evaluateResult)
-    {
-      return 0;
-    }
-
-    vtkLogStartScope(TRACE, "extract output");
+    bool globalEvaluationResult = true;
     // input iterator is needed because if inputCD is subclass of vtkUniformGridAMR,
     // GetDataSet requires the iterator to be vtkUniformGridAMRDataIterator
-    for (inIter->GoToFirstItem(), outIter->GoToFirstItem(); !outIter->IsDoneWithTraversal();
-         inIter->GoToNextItem(), outIter->GoToNextItem())
+    vtkTypeBool isUniformGridAMR = outputCD->IsA("vtkUniformGridAMR");
+    if (isUniformGridAMR)
+    {
+      inIter->GoToFirstItem();
+    }
+    for (outIter->GoToFirstItem(); !outIter->IsDoneWithTraversal(); outIter->GoToNextItem())
     {
       if (this->CheckAbort())
       {
         break;
       }
-      outputCD->SetDataSet(
-        outIter, extract(inputCD->GetDataSet(inIter), outIter->GetCurrentDataObject()));
+      auto outputBlock = outIter->GetCurrentDataObject();
+      if (outputBlock)
+      {
+        // Evaluate the expression.
+        auto evaluationResult = this->EvaluateSelection(outputBlock, assoc, selection, selectors);
+        if (evaluationResult != EvaluationResult::INVALID)
+        {
+          // Extract the elements.
+          auto iter = isUniformGridAMR ? inIter : outIter;
+          auto extractResult =
+            this->ExtractElements(inputCD->GetDataSet(iter), assoc, evaluationResult, outputBlock);
+          outputCD->SetDataSet(outIter, extractResult);
+        }
+        else
+        {
+          globalEvaluationResult = false;
+          break;
+        }
+      }
+      if (isUniformGridAMR)
+      {
+        inIter->GoToNextItem();
+      }
     }
-    vtkLogEndScope("extract output");
+    vtkLogEndScope("evaluate expression and extract output");
+    // check for evaluate result errors
+    if (!globalEvaluationResult)
+    {
+      // If the expression evaluation failed, then we need to set all the blocks to null.
+      for (outIter->GoToFirstItem(); !outIter->IsDoneWithTraversal(); outIter->GoToNextItem())
+      {
+        outputCD->SetDataSet(outIter, nullptr);
+      }
+      return 0;
+    }
   }
   else
   {
     assert(output != nullptr);
 
     vtkSmartPointer<vtkDataObject> clone;
-    clone.TakeReference(input->NewInstance());
-    clone->ShallowCopy(input);
+    if (expandToConnectedElements || this->PreserveTopology)
+    {
+      clone.TakeReference(input->NewInstance());
+      clone->ShallowCopy(input);
+    }
+    else
+    {
+      if (assoc != vtkDataObject::ROW)
+      {
+        clone.TakeReference(vtkUnstructuredGrid::New());
+      }
+      else
+      {
+        clone.TakeReference(vtkTable::New());
+      }
+    }
 
     // Evaluate the operators.
     vtkLogStartScope(TRACE, "execute selectors");
-    for (auto nodeIter = selectors.begin(); nodeIter != selectors.end(); ++nodeIter)
+    for (const auto& nodeSelector : selectors)
     {
       if (this->CheckAbort())
       {
         break;
       }
-      auto selector = nodeIter->second;
-      selector->Execute(input, clone);
+      nodeSelector.second->Execute(input, clone);
     }
     vtkLogEndScope("execute selectors");
 
     vtkLogStartScope(TRACE, "evaluate expression");
-    bool evaluateResult = evaluate(clone);
+    auto evaluateResult = this->EvaluateSelection(clone, assoc, selection, selectors);
     vtkLogEndScope("evaluate expression");
     // check for evaluate result errors
-    if (!evaluateResult)
+    if (evaluateResult == EvaluationResult::INVALID)
     {
+      output->Initialize();
       return 0;
     }
 
     vtkLogStartScope(TRACE, "extract output");
-    if (auto result = extract(input, clone))
+    if (auto extractResult = this->ExtractElements(input, assoc, evaluateResult, clone))
     {
-      output->ShallowCopy(result);
+      output->ShallowCopy(extractResult);
     }
     vtkLogEndScope("extract output");
   }
@@ -465,77 +477,164 @@ vtkSmartPointer<vtkSelector> vtkExtractSelection::NewSelectionOperator(
 }
 
 //------------------------------------------------------------------------------
-vtkSmartPointer<vtkDataObject> vtkExtractSelection::ExtractElements(
-  vtkDataObject* block, vtkDataObject::AttributeTypes type, vtkSignedCharArray* insidednessArray)
+vtkExtractSelection::EvaluationResult vtkExtractSelection::EvaluateSelection(
+  vtkDataObject* dataObject, vtkDataObject::AttributeTypes association, vtkSelection* selection,
+  std::map<std::string, vtkSmartPointer<vtkSelector>>& selectors)
 {
+  auto fieldData = dataObject->GetAttributes(association);
+  if (!fieldData)
+  {
+    return EvaluationResult::NONE;
+  }
+
+  // Iterate over operators and set up a map from selection node name to insidedness
+  // array.
+  std::map<std::string, vtkSignedCharArray*> arrayMap;
+  for (const auto& nodeSelector : selectors)
+  {
+    auto name = nodeSelector.first;
+    auto insidednessArray = vtkSignedCharArray::SafeDownCast(fieldData->GetArray(name.c_str()));
+    auto node = selection->GetNode(name);
+    if (insidednessArray != nullptr && node->GetProperties()->Has(vtkSelectionNode::INVERSE()) &&
+      node->GetProperties()->Get(vtkSelectionNode::INVERSE()))
+    {
+      ::InvertSelection(insidednessArray);
+    }
+    arrayMap[name] = insidednessArray;
+  }
+
+  // Evaluate the map of insidedness arrays
+  std::array<signed char, 2> range;
+  auto blockInsidedness = selection->Evaluate(arrayMap, range);
+  if (blockInsidedness)
+  {
+    blockInsidedness->SetName("__vtkInsidedness__");
+    if (range[0] == 0 && range[1] == 0)
+    {
+      return EvaluationResult::NONE;
+    }
+    else if (range[0] == 1 && range[1] == 1)
+    {
+      fieldData->AddArray(blockInsidedness);
+      return EvaluationResult::ALL;
+    }
+    else
+    {
+      fieldData->AddArray(blockInsidedness);
+      return EvaluationResult::MIXED;
+    }
+  }
+  else
+  {
+    return EvaluationResult::INVALID;
+  }
+}
+
+//------------------------------------------------------------------------------
+vtkSmartPointer<vtkDataObject> vtkExtractSelection::ExtractElements(vtkDataObject* inputBlock,
+  vtkDataObject::AttributeTypes type, EvaluationResult evaluationResult, vtkDataObject* outputBlock)
+{
+  bool extractAll = evaluationResult == EvaluationResult::ALL;
+  bool extractNone = evaluationResult == EvaluationResult::NONE;
+  if (extractNone)
+  {
+    // Assume nothing was selected and return.
+    return nullptr;
+  }
+  auto fd = outputBlock->GetAttributes(type);
+  vtkSmartPointer<vtkSignedCharArray> insidednessArray =
+    fd ? vtkSignedCharArray::SafeDownCast(fd->GetArray("__vtkInsidedness__")) : nullptr;
+  if (!insidednessArray || insidednessArray->GetNumberOfTuples() <= 0)
+  {
+    // No insidedness array
+    return nullptr;
+  }
+  vtkSmartPointer<vtkDataObject> result;
   if (this->PreserveTopology)
   {
-    auto output = block->NewInstance();
-    output->ShallowCopy(block);
     insidednessArray->SetName("vtkInsidedness");
-    output->GetAttributesAsFieldData(type)->AddArray(insidednessArray);
-    return vtkSmartPointer<vtkDataObject>::Take(output);
+    outputBlock->GetAttributesAsFieldData(type)->AddArray(insidednessArray);
+    result = outputBlock;
+    return result;
   }
-  if (type == vtkDataObject::POINT)
+  else if (type == vtkDataObject::POINT)
   {
-    vtkDataSet* input = vtkDataSet::SafeDownCast(block);
+    vtkDataSet* input = vtkDataSet::SafeDownCast(inputBlock);
     if (!input)
     {
       return nullptr;
     }
-    auto output = vtkUnstructuredGrid::New();
-    this->ExtractSelectedPoints(input, output, insidednessArray);
-    return vtkSmartPointer<vtkDataSet>::Take(output);
+    // if output is already a vtkUnstructuredGrid, we can use it directly
+    vtkSmartPointer<vtkUnstructuredGrid> output;
+    if (outputBlock->GetDataObjectType() == VTK_UNSTRUCTURED_GRID)
+    {
+      outputBlock->Initialize();
+      output = static_cast<vtkUnstructuredGrid*>(outputBlock);
+    }
+    else
+    {
+      output = vtkSmartPointer<vtkUnstructuredGrid>::New();
+    }
+    this->ExtractSelectedPoints(input, output, insidednessArray, extractAll);
+    result = output;
   }
   else if (type == vtkDataObject::CELL)
   {
-    vtkDataSet* input = vtkDataSet::SafeDownCast(block);
+    vtkDataSet* input = vtkDataSet::SafeDownCast(inputBlock);
     if (!input)
     {
       return nullptr;
     }
-    auto output = vtkUnstructuredGrid::New();
-    this->ExtractSelectedCells(input, output, insidednessArray);
-    return vtkSmartPointer<vtkDataSet>::Take(output);
+    // if output is already a vtkUnstructuredGrid, we can use it directly
+    vtkSmartPointer<vtkUnstructuredGrid> output;
+    if (outputBlock->GetDataObjectType() == VTK_UNSTRUCTURED_GRID)
+    {
+      outputBlock->Initialize();
+      output = static_cast<vtkUnstructuredGrid*>(outputBlock);
+    }
+    else
+    {
+      output = vtkSmartPointer<vtkUnstructuredGrid>::New();
+    }
+    this->ExtractSelectedCells(input, output, insidednessArray, extractAll);
+    result = output;
   }
   else if (type == vtkDataObject::ROW)
   {
-    vtkTable* input = vtkTable::SafeDownCast(block);
+    vtkTable* input = vtkTable::SafeDownCast(inputBlock);
     if (!input)
     {
       return nullptr;
     }
-    vtkTable* output = vtkTable::New();
-    this->ExtractSelectedRows(input, output, insidednessArray);
-    return vtkSmartPointer<vtkTable>::Take(output);
+    // if output is already a vtkTable, we can use it directly
+    vtkSmartPointer<vtkTable> output;
+    if (outputBlock->GetDataObjectType() == VTK_TABLE)
+    {
+      outputBlock->Initialize();
+      output = static_cast<vtkTable*>(outputBlock);
+    }
+    else
+    {
+      output = vtkSmartPointer<vtkTable>::New();
+    }
+    this->ExtractSelectedRows(input, output, insidednessArray, extractAll);
+    result = output;
   }
-
-  vtkDataObject* output = block->NewInstance();
-  return vtkSmartPointer<vtkDataObject>::Take(output);
+  else
+  {
+    outputBlock->Initialize();
+    result = outputBlock;
+  }
+  return result && result->GetNumberOfElements(type) > 0 ? result : nullptr;
 }
 
 //------------------------------------------------------------------------------
 void vtkExtractSelection::ExtractSelectedCells(
-  vtkDataSet* input, vtkUnstructuredGrid* output, vtkSignedCharArray* cellInside)
+  vtkDataSet* input, vtkUnstructuredGrid* output, vtkSignedCharArray* cellInside, bool extractAll)
 {
   vtkLogScopeF(TRACE, "ExtractSelectedCells");
   const vtkIdType numPts = input->GetNumberOfPoints();
   const vtkIdType numCells = input->GetNumberOfCells();
-
-  if (!cellInside || cellInside->GetNumberOfTuples() <= 0)
-  {
-    // Assume nothing was selected and return.
-    return;
-  }
-
-  assert(cellInside->GetNumberOfTuples() == numCells);
-
-  const auto range = cellInside->GetValueRange(0);
-  if (range[0] == 0 && range[1] == 0)
-  {
-    // all elements are being masked out, nothing to do.
-    return;
-  }
 
   // The "input" is a shallow copy of the input to this filter and hence we can
   // modify it. We add original cell ids and point ids arrays.
@@ -554,7 +653,7 @@ void vtkExtractSelection::ExtractSelectedCells(
   input->GetCellData()->AddArray(originalCellIds);
 
   vtkNew<vtkExtractCells> extractor;
-  if (range[0] == 1 && range[1] == 1)
+  if (extractAll)
   {
     // all elements are selected, pass all data.
     // we still use the extractor since it does the data conversion, if needed
@@ -583,14 +682,8 @@ void vtkExtractSelection::ExtractSelectedCells(
 
 //------------------------------------------------------------------------------
 void vtkExtractSelection::ExtractSelectedPoints(
-  vtkDataSet* input, vtkUnstructuredGrid* output, vtkSignedCharArray* pointInside)
+  vtkDataSet* input, vtkUnstructuredGrid* output, vtkSignedCharArray* pointInside, bool extractAll)
 {
-  if (!pointInside || pointInside->GetNumberOfTuples() <= 0)
-  {
-    // Assume nothing was selected and return.
-    return;
-  }
-
   vtkIdType numPts = input->GetNumberOfPoints();
 
   vtkPointData* pd = input->GetPointData();
@@ -599,59 +692,114 @@ void vtkExtractSelection::ExtractSelectedPoints(
   // To copy points in a type agnostic way later
   auto pointSet = vtkPointSet::SafeDownCast(input);
 
-  vtkNew<vtkPoints> newPts;
-  if (pointSet)
-  {
-    newPts->SetDataType(pointSet->GetPoints()->GetDataType());
-  }
-  newPts->Allocate(numPts / 4, numPts);
-
-  vtkNew<vtkIdList> newCellPts;
-  newCellPts->Allocate(VTK_CELL_SIZE);
-
   outputPD->SetCopyGlobalIds(1);
   outputPD->CopyFieldOff("vtkOriginalPointIds");
   outputPD->CopyAllocate(pd);
-
-  double x[3];
 
   vtkNew<vtkIdTypeArray> originalPointIds;
   originalPointIds->SetNumberOfComponents(1);
   originalPointIds->SetName("vtkOriginalPointIds");
   outputPD->AddArray(originalPointIds);
 
-  for (vtkIdType ptId = 0; ptId < numPts; ++ptId)
+  vtkNew<vtkPoints> newPts;
+  if (!extractAll)
   {
-    signed char isInside;
-    assert(ptId < pointInside->GetNumberOfValues());
-    pointInside->GetTypedTuple(ptId, &isInside);
-    if (isInside)
+    if (pointSet)
     {
-      vtkIdType newPointId = -1;
-      if (pointSet)
+      newPts->SetDataType(pointSet->GetPoints()->GetDataType());
+    }
+    newPts->Allocate(numPts / 4, numPts);
+
+    double x[3];
+    for (vtkIdType ptId = 0; ptId < numPts; ++ptId)
+    {
+      signed char isInside;
+      assert(ptId < pointInside->GetNumberOfValues());
+      pointInside->GetTypedTuple(ptId, &isInside);
+      if (isInside)
       {
-        newPointId = newPts->GetNumberOfPoints();
-        newPts->InsertPoints(newPointId, 1, ptId, pointSet->GetPoints());
+        // copy point
+        vtkIdType newPointId = -1;
+        if (pointSet)
+        {
+          newPointId = newPts->GetNumberOfPoints();
+          newPts->InsertPoints(newPointId, 1, ptId, pointSet->GetPoints());
+        }
+        else
+        {
+          input->GetPoint(ptId, x);
+          newPointId = newPts->InsertNextPoint(x);
+        }
+        assert(newPointId >= 0);
+        // copy point data
+        outputPD->CopyData(pd, ptId, newPointId);
+        // set original point id
+        originalPointIds->InsertNextValue(ptId);
       }
-      else
-      {
-        input->GetPoint(ptId, x);
-        newPointId = newPts->InsertNextPoint(x);
-      }
-      assert(newPointId >= 0);
-      outputPD->CopyData(pd, ptId, newPointId);
-      originalPointIds->InsertNextValue(ptId);
     }
   }
-
-  // produce a new vtk_vertex cell for each accepted point
-  for (vtkIdType ptId = 0; ptId < newPts->GetNumberOfPoints(); ++ptId)
+  else
   {
-    newCellPts->Reset();
-    newCellPts->InsertId(0, ptId);
-    output->InsertNextCell(VTK_VERTEX, newCellPts);
+    // copy points
+    if (pointSet)
+    {
+      newPts->ShallowCopy(pointSet->GetPoints());
+    }
+    else
+    {
+      newPts->SetNumberOfPoints(numPts);
+      vtkSMPTools::For(0, numPts, [&](vtkIdType beginPtId, vtkIdType endPtId) {
+        double x[3];
+        for (vtkIdType ptId = beginPtId; ptId < endPtId; ++ptId)
+        {
+          input->GetPoint(ptId, x);
+          newPts->SetPoint(ptId, x);
+        }
+      });
+    }
+    // copy point data
+    outputPD->PassData(pd);
+    // set original point ids
+    originalPointIds->SetNumberOfTuples(numPts);
+    vtkSMPTools::For(0, numPts, [&](vtkIdType beginPtId, vtkIdType endPtId) {
+      for (vtkIdType ptId = beginPtId; ptId < endPtId; ++ptId)
+      {
+        originalPointIds->SetValue(ptId, ptId);
+      }
+    });
   }
   output->SetPoints(newPts);
+
+  // produce a new vtk_vertex cell for each accepted point
+  vtkIdType newNumPts = output->GetNumberOfPoints();
+  // create connectivity array
+  vtkNew<vtkIdTypeArray> connectivity;
+  connectivity->SetNumberOfValues(newNumPts);
+  vtkSMPTools::For(0, newNumPts, [&](vtkIdType beginPtId, vtkIdType endPtId) {
+    for (vtkIdType ptId = beginPtId; ptId < endPtId; ++ptId)
+    {
+      connectivity->SetValue(ptId, ptId);
+    }
+  });
+  // create offsets array
+  vtkNew<vtkIdTypeArray> offsets;
+  offsets->SetNumberOfValues(newNumPts + 1);
+  vtkSMPTools::For(0, newNumPts + 1, [&](vtkIdType begin, vtkIdType end) {
+    for (vtkIdType i = begin; i < end; i++)
+    {
+      offsets->SetValue(i, i);
+    }
+  });
+  // create cell array
+  vtkNew<vtkCellArray> cells;
+  cells->SetData(offsets, connectivity);
+  // create cell types
+  vtkNew<vtkUnsignedCharArray> cellTypes;
+  cellTypes->SetNumberOfValues(newNumPts);
+  static constexpr unsigned char cellType = VTK_VERTEX;
+  vtkSMPTools::Fill(cellTypes->GetPointer(0), cellTypes->GetPointer(newNumPts), cellType);
+  // set cells
+  output->SetCells(cellTypes, cells);
 
   // Copy field data
   output->GetFieldData()->ShallowCopy(input->GetFieldData());
@@ -659,7 +807,7 @@ void vtkExtractSelection::ExtractSelectedPoints(
 
 //------------------------------------------------------------------------------
 void vtkExtractSelection::ExtractSelectedRows(
-  vtkTable* input, vtkTable* output, vtkSignedCharArray* rowsInside)
+  vtkTable* input, vtkTable* output, vtkSignedCharArray* rowsInside, bool extractAll)
 {
   const vtkIdType numRows = input->GetNumberOfRows();
   vtkNew<vtkIdTypeArray> originalRowIds;
@@ -668,15 +816,29 @@ void vtkExtractSelection::ExtractSelectedRows(
   output->GetRowData()->CopyFieldOff("vtkOriginalRowIds");
   output->GetRowData()->CopyStructure(input->GetRowData());
 
-  for (vtkIdType rowId = 0; rowId < numRows; ++rowId)
+  if (!extractAll)
   {
-    signed char isInside;
-    rowsInside->GetTypedTuple(rowId, &isInside);
-    if (isInside)
+    for (vtkIdType rowId = 0; rowId < numRows; ++rowId)
     {
-      output->InsertNextRow(input->GetRow(rowId));
-      originalRowIds->InsertNextValue(rowId);
+      signed char isInside;
+      rowsInside->GetTypedTuple(rowId, &isInside);
+      if (isInside)
+      {
+        output->InsertNextRow(input->GetRow(rowId));
+        originalRowIds->InsertNextValue(rowId);
+      }
     }
+  }
+  else
+  {
+    output->ShallowCopy(input);
+    originalRowIds->SetNumberOfTuples(numRows);
+    vtkSMPTools::For(0, numRows, [&](vtkIdType beginRowId, vtkIdType endRowId) {
+      for (vtkIdType rowId = beginRowId; rowId < endRowId; ++rowId)
+      {
+        originalRowIds->SetValue(rowId, rowId);
+      }
+    });
   }
   output->AddColumn(originalRowIds);
 }

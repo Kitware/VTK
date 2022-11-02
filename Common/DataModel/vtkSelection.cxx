@@ -54,19 +54,19 @@ public:
 
 class NodeVariable : public Node
 {
-  vtkSignedCharArray* Data;
+  signed char* Data;
   std::string Name;
 
 public:
   NodeVariable(vtkSignedCharArray* data, const std::string& name)
-    : Data(data)
+    : Data(data ? data->GetPointer(0) : nullptr)
     , Name(name)
   {
   }
   bool Evaluate(vtkIdType offset) const override
   {
     assert(this->Data == nullptr || this->Data->GetNumberOfValues() > offset);
-    return this->Data ? (this->Data->GetValue(offset) != 0) : false;
+    return this->Data ? this->Data[offset] != 0 : false;
   }
   void Print(ostream& os) const override { os << this->Name; }
 };
@@ -646,8 +646,62 @@ vtkSelection* vtkSelection::GetData(vtkInformationVector* v, int i)
 }
 
 //------------------------------------------------------------------------------
-vtkSmartPointer<vtkSignedCharArray> vtkSelection::Evaluate(
-  vtkSignedCharArray* const* values, unsigned int num_values) const
+struct vtkSelection::EvaluateFunctor
+{
+  std::array<signed char, 2>& Range;
+  std::shared_ptr<parser::Node> Tree;
+  signed char* Result;
+
+  EvaluateFunctor(std::array<signed char, 2>& range, std::shared_ptr<parser::Node> tree,
+    vtkSignedCharArray* result)
+    : Range(range)
+    , Tree(tree)
+    , Result(result->GetPointer(0))
+  {
+    this->Range = { VTK_SIGNED_CHAR_MAX, VTK_SIGNED_CHAR_MIN };
+  }
+
+  void Initialize(){};
+
+  void operator()(vtkIdType begin, vtkIdType end)
+  {
+    for (vtkIdType i = begin; i < end; ++i)
+    {
+      this->Result[i] = static_cast<signed char>(this->Tree->Evaluate(i));
+      if (this->Range[0] == VTK_SIGNED_CHAR_MAX && this->Result[i] == 0)
+      {
+        this->Range[0] = 0;
+      }
+      else if (this->Range[1] == VTK_SIGNED_CHAR_MIN && this->Result[i] == 1)
+      {
+        this->Range[1] = 1;
+      }
+    }
+  }
+
+  void Reduce()
+  {
+    if (this->Range[0] == VTK_SIGNED_CHAR_MAX)
+    {
+      if (this->Range[1] == VTK_SIGNED_CHAR_MIN)
+      {
+        this->Range[0] = 0;
+      }
+      else
+      {
+        this->Range[0] = this->Range[1];
+      }
+    }
+    if (this->Range[1] == VTK_SIGNED_CHAR_MIN)
+    {
+      this->Range[1] = 0;
+    }
+  }
+};
+
+//------------------------------------------------------------------------------
+vtkSmartPointer<vtkSignedCharArray> vtkSelection::Evaluate(vtkSignedCharArray* const* values,
+  unsigned int num_values, std::array<signed char, 2>& range) const
 {
   std::map<std::string, vtkSignedCharArray*> values_map;
 
@@ -696,14 +750,9 @@ vtkSmartPointer<vtkSignedCharArray> vtkSelection::Evaluate(
   if (tree && (!values_map.empty()))
   {
     auto result = vtkSmartPointer<vtkSignedCharArray>::New();
-    result->SetNumberOfComponents(1);
-    result->SetNumberOfTuples(numVals);
-    vtkSMPTools::For(0, numVals, [&](vtkIdType start, vtkIdType end) {
-      for (vtkIdType idx = start; idx < end; ++idx)
-      {
-        result->SetTypedComponent(idx, 0, tree->Evaluate(idx));
-      }
-    });
+    result->SetNumberOfValues(numVals);
+    EvaluateFunctor functor(range, tree, result);
+    vtkSMPTools::For(0, numVals, functor);
     return result;
   }
   else if (!tree)

@@ -15,6 +15,7 @@
 
 #include "vtkExpandMarkedElements.h"
 
+#include "vtkAbstractPointLocator.h"
 #include "vtkBoundingBox.h"
 #include "vtkCompositeDataIterator.h"
 #include "vtkCompositeDataSet.h"
@@ -29,9 +30,6 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointSet.h"
 #include "vtkSignedCharArray.h"
-#include "vtkStaticPointLocator.h"
-#include "vtkVector.h"
-#include "vtkVectorOperators.h"
 
 // clang-format off
 #include "vtk_diy2.h"
@@ -77,7 +75,7 @@ void ShallowCopy(vtkDataObject* input, vtkDataObject* output)
 struct BlockT
 {
   vtkDataSet* Dataset = nullptr;
-  vtkSmartPointer<vtkStaticPointLocator> Locator;
+  vtkAbstractPointLocator* Locator = nullptr;
   vtkNew<vtkSignedCharArray> SeedMarkedArray;
   vtkNew<vtkSignedCharArray> MarkedArray;
   vtkNew<vtkIntArray> UpdateFlags;
@@ -96,12 +94,11 @@ private:
 
 void BlockT::BuildLocator()
 {
-  if (vtkPointSet::SafeDownCast(this->Dataset))
+  if (auto pointSet = vtkPointSet::SafeDownCast(this->Dataset))
   {
-    this->Locator = vtkSmartPointer<vtkStaticPointLocator>::New();
-    this->Locator->SetTolerance(0.0);
-    this->Locator->SetDataSet(this->Dataset);
-    this->Locator->BuildLocator();
+    // build internal cell locator to avoid rebuilding it
+    pointSet->BuildPointLocator();
+    this->Locator = pointSet->GetPointLocator();
   }
 }
 
@@ -111,15 +108,17 @@ void BlockT::EnqueueAndExpand(int assoc, int round, const diy::Master::ProxyWith
   std::set<vtkIdType> chosen_ptids;
   if (assoc == vtkDataObject::FIELD_ASSOCIATION_CELLS)
   {
+    vtkIdType numCellPts, cc;
+    const vtkIdType* cellPts;
     for (vtkIdType cellid = 0, max = this->Dataset->GetNumberOfCells(); cellid < max; ++cellid)
     {
       if (this->MarkedArray->GetTypedComponent(cellid, 0) &&
         (this->UpdateFlags->GetTypedComponent(cellid, 0) == rminusone))
       {
-        this->Dataset->GetCellPoints(cellid, this->PtIds);
-        for (const vtkIdType& ptid : *this->PtIds)
+        this->Dataset->GetCellPoints(cellid, numCellPts, cellPts, this->PtIds);
+        for (cc = 0; cc < numCellPts; ++cc)
         {
-          chosen_ptids.insert(ptid);
+          chosen_ptids.insert(cellPts[cc]);
         }
       }
     }
@@ -206,15 +205,17 @@ void BlockT::Expand(int assoc, int round, const std::set<vtkIdType>& ptids)
 
       // get adjacent cells for the startptid.
       this->Dataset->GetPointCells(startptid, this->CellIds);
+      vtkIdType numCellPts, cc;
+      const vtkIdType* cellPts;
       for (const auto& cellid : *this->CellIds)
       {
-        this->Dataset->GetCellPoints(cellid, this->PtIds);
-        for (const vtkIdType& ptid : *this->PtIds)
+        this->Dataset->GetCellPoints(cellid, numCellPts, cellPts, this->PtIds);
+        for (cc = 0; cc < numCellPts; ++cc)
         {
-          if (this->MarkedArray->GetTypedComponent(ptid, 0) == 0)
+          if (this->MarkedArray->GetTypedComponent(cellPts[cc], 0) == 0)
           {
-            this->MarkedArray->SetTypedComponent(ptid, 0, 1);
-            this->UpdateFlags->SetTypedComponent(ptid, 0, round);
+            this->MarkedArray->SetTypedComponent(cellPts[cc], 0, 1);
+            this->UpdateFlags->SetTypedComponent(cellPts[cc], 0, round);
           }
         }
       }
