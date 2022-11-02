@@ -1032,7 +1032,7 @@ void vtkGLTFWriter::WriteToStreamMultiBlock(ostream& output, vtkMultiBlockDataSe
           {
             // pad at 4 bytes for the next mesh
             // accessor total byteOffset has to be a multiple of componentType length
-            int paddingSizeNextMesh = GetPaddingAt4Bytes(binChunkOffset);
+            size_t paddingSizeNextMesh = GetPaddingAt4Bytes(binChunkOffset);
             if (paddingSizeNextMesh)
             {
               char paddingBIN[3] = { 0, 0, 0 };
@@ -1121,14 +1121,14 @@ void vtkGLTFWriter::WriteToStreamMultiBlock(ostream& output, vtkMultiBlockDataSe
     std::string rootString = root.dump();
     size_t paddingSizeJSON = GetPaddingAt4Bytes(rootString.size());
     size_t paddingSizeBIN = GetPaddingAt4Bytes(binChunkOffset);
-    FileHeader header(
-      12 + 8 + rootString.size() + paddingSizeJSON + 8 + binChunkOffset + paddingSizeBIN);
+    FileHeader header(static_cast<uint32_t>(
+      12 + 8 + rootString.size() + paddingSizeJSON + 8 + binChunkOffset + paddingSizeBIN));
     // std::cerr << "size: " << rootString.size() << std::endl;
     // std::cerr << "length: " << header.Length << std::endl;
     vtkByteSwap::SwapWrite4LERange(&header, 3, &output);
     // JSON
     ChunkHeader jsonChunkHeader;
-    jsonChunkHeader.SetTypeJSON(rootString.size() + paddingSizeJSON);
+    jsonChunkHeader.SetTypeJSON(static_cast<uint32_t>(rootString.size() + paddingSizeJSON));
     // std::cerr << "chunkLength: " << jsonChunkHeader.Length << std::endl;
     vtkByteSwap::SwapWrite4LERange(&jsonChunkHeader, 2, &output);
     output.write(rootString.c_str(), rootString.size());
@@ -1136,7 +1136,7 @@ void vtkGLTFWriter::WriteToStreamMultiBlock(ostream& output, vtkMultiBlockDataSe
     output.write(paddingJSON.c_str(), paddingSizeJSON);
     // BIN
     ChunkHeader binChunkHeader;
-    binChunkHeader.SetTypeBIN(binChunkOffset + paddingSizeBIN);
+    binChunkHeader.SetTypeBIN(static_cast<uint32_t>(binChunkOffset + paddingSizeBIN));
     vtkByteSwap::SwapWrite4LERange(&binChunkHeader, 2, &output);
     vtksys::ifstream binChunkIn(binChunkPath.c_str(), ios::in | ios::binary);
     CopyStream(binChunkIn, output);

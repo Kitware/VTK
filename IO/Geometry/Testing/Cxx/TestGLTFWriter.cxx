@@ -135,7 +135,7 @@ int TestGLTFWriter(int argc, char* argv[])
     {
       lod = std::stoi(argv[3]);
     }
-    catch (std::exception& e)
+    catch (std::exception&)
     {
       lod = 3;
     }
