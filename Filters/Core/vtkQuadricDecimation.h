@@ -56,7 +56,6 @@
 #ifndef vtkQuadricDecimation_h
 #define vtkQuadricDecimation_h
 
-#include "vtkDeprecation.h"       // For VTK_DEPRECATED_IN_9_3_0
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
@@ -135,17 +134,14 @@ public:
   /**
    * Parameters related to the treatment of the boundary of the mesh during decimation.
    *
-   * LegacyBoundaryWeighting: When this boolean is set to true, use the legacy weighting by
+   * WeighBoundaryConstraintsByLength: When this boolean is set to true, use the legacy weighting by
    * boundary_edge_length instead of by boundary_edge_length^2 for backwards compatibility (default
    * to false) BoundaryWeightFactor: A floating point factor to weigh the boundary quadric
    * constraints by: higher factors further constrain the boundary.
    */
-  VTK_DEPRECATED_IN_9_3_0("The new default boundary weighting should give more coherent results.")
-  vtkSetMacro(LegacyBoundaryWeighting, vtkTypeBool);
-  VTK_DEPRECATED_IN_9_3_0("The new default boundary weighting should give more coherent results.")
-  vtkGetMacro(LegacyBoundaryWeighting, vtkTypeBool);
-  VTK_DEPRECATED_IN_9_3_0("The new default boundary weighting should give more coherent results.")
-  vtkBooleanMacro(LegacyBoundaryWeighting, vtkTypeBool);
+  vtkSetMacro(WeighBoundaryConstraintsByLength, vtkTypeBool);
+  vtkGetMacro(WeighBoundaryConstraintsByLength, vtkTypeBool);
+  vtkBooleanMacro(WeighBoundaryConstraintsByLength, vtkTypeBool);
   vtkSetMacro(BoundaryWeightFactor, double);
   vtkGetMacro(BoundaryWeightFactor, double);
   ///@}
@@ -313,7 +309,7 @@ protected:
   double Regularization = 0.05;
 
   // Controlling the boundary weighting behavior
-  vtkTypeBool LegacyBoundaryWeighting = false;
+  vtkTypeBool WeighBoundaryConstraintsByLength = false;
   double BoundaryWeightFactor = 1.0;
 
   // Contains 4 doubles per point. Length = nPoints * 4

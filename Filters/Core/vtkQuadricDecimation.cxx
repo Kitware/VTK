@@ -39,9 +39,6 @@
 // not useful, usually set around .1, but I did this because the
 // toggling on and off sets it to 1 and 0
 
-// Hide VTK_DEPRECATED_IN_9_3_0() warnings.
-#define VTK_DEPRECATION_LEVEL 0
-
 #include "vtkQuadricDecimation.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
@@ -708,14 +705,16 @@ void vtkQuadricDecimation::AddBoundaryConstraints()
         // might prefere adding a quadric calculated using t1 at t1 and using t2 at t2
         w = vtkMath::Norm(e0);
 
-        if (!this->LegacyBoundaryWeighting)
+        if (!this->WeighBoundaryConstraintsByLength)
         {
-          w *=
-            w; // area issue ??
-               // I would argue on homogeneity here. The quadric field is already weighted by
-               // triangle area. It makes sense weighting the boundary constraints by area instead
-               // of length. Length technically has zero measure in terms of units of area. The
-               // squared version also seems to give more coherent results at the boundary.
+          /*
+           * The argument for using area instead of length is based on homogeneity here: The quadric
+           * field is already weighted by triangle area. It makes sense weighting the boundary
+           * constraints by area instead of length. Length technically has zero measure in terms of
+           * units of area. The squared version also seems to give more coherent results at the
+           * boundary.
+           */
+          w *= w;
         }
         w *= this->BoundaryWeightFactor;
 
@@ -937,12 +936,6 @@ double vtkQuadricDecimation::ComputeCost(vtkIdType edgeId, double* x)
   {
     // it would be better to use the normal of the matrix to test singularity??
     vtkMath::LinearSolve3x3(A, b, x);
-    /*
-     * commenting out the next line because it does not seem useful to me but keeping it here in
-     * case I am wrong
-     */
-    // vtkMath::Multiply3x3(A, x, temp);
-    //  error too high, backup plans
   }
   else
   {

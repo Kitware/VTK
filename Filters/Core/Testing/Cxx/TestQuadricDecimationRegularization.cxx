@@ -1,6 +1,3 @@
-// Hide VTK_DEPRECATED_IN_9_3_0() warnings.
-#define VTK_DEPRECATION_LEVEL 0
-
 #include <vtkActor.h>
 #include <vtkCamera.h>
 #include <vtkDataSet.h>
@@ -39,9 +36,17 @@ int TestQuadricDecimationRegularization(int argc, char* argv[])
 
   decimator->Update();
 
+  int nCellsAfter = 0;
   {
     vtkDataSet* output = vtkDataSet::SafeDownCast(decimator->GetOutput(0));
-    std::cout << "NCells after decimation: " << output->GetNumberOfCells() << std::endl;
+    nCellsAfter = output->GetNumberOfCells();
+    std::cout << "NCells after decimation: " << nCellsAfter << std::endl;
+  }
+
+  if (nCellsAfter != 952)
+  {
+    std::cout << "Decimation target not achieved!" << std::endl;
+    return EXIT_FAILURE;
   }
 
   vtkNew<vtkPolyDataMapper> mapper;
