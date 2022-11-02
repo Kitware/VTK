@@ -434,8 +434,8 @@ void WriteBufferAndView(vtkDataArray* da, const char* fileName, bool inlineData,
   }
 }
 
-void WriteCellBufferAndView(vtkCellArray* ca, bool inlineData, nlohmann::json& bufferViews,
-  ostream& out, unsigned int* currentBufferOffset)
+void WriteCellBufferAndView(
+  vtkCellArray* ca, nlohmann::json& bufferViews, ostream& out, unsigned int* currentBufferOffset)
 {
   vtkNew<vtkUnsignedIntArray> ia;
   vtkIdType npts;
@@ -458,7 +458,7 @@ void WriteCellBufferAndView(vtkCellArray* ca, const char* fileName, bool inlineD
 {
   if (binary)
   {
-    WriteCellBufferAndView(ca, inlineData, bufferViews, out, currentBufferOffset);
+    WriteCellBufferAndView(ca, bufferViews, out, currentBufferOffset);
   }
   else
   {
