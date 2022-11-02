@@ -372,6 +372,11 @@ More advanced options:
      of certain VTK filters by their VTK-m counterparts. There is also a runtime
      switch that can be used to enable/disable the overrides at run-time (on by default).
      It can be accessed using the static function `vtkmFilterOverrides::SetEnabled(bool)`.
+  * `VTK_DISPATCH_*_ARRAYS` (default `OFF` for all but AOS): If `ON`, enables the specified
+    type of array to be included in a dispatch type list. Explicit arrays (such as AOS, SOA
+    , etc.) are included in the `vtkArrayDispatchTypeList.h` while `vtkArrayDispatchImplicitTypeList`
+    includes both explicit and implicit arrays. The implicit array framework is included in the
+    `CommonImplicitArrays` module.
 
 The VTK module system provides a number of variables to control modules which
 are not otherwise controlled by the other options provided.

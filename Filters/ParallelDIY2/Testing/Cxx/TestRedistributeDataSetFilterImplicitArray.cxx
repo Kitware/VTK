@@ -48,13 +48,6 @@ int TestRedistributeDataSetFilterImplicitArray(int argc, char* argv[])
 namespace
 {
 
-/*
- * This backend needs to be trivially cosntructible to be compatible with
- * `vtkImplicitArray<...>::NewInstance`. If it is not, then the new instance
- * returns an array without an instanced backend which leads to a segfault on
- * the first get. This is something that might need to be dealt with at some
- * point.
- */
 struct Backend42
 {
   double operator()(int) const { return 42.0; }

@@ -65,14 +65,12 @@ int TestConstantArray(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   identity->SetNumberOfTuples(100);
   identity->SetNumberOfComponents(1);
 
+  for (int iArr = 0; iArr < 100; iArr++)
   {
-    for (int iArr = 0; iArr < 100; iArr++)
+    if (identity->GetValue(iArr) != 1)
     {
-      if (identity->GetValue(iArr) != 1)
-      {
-        res = EXIT_FAILURE;
-        std::cout << "get value failed with vtkConstantArray" << std::endl;
-      }
+      res = EXIT_FAILURE;
+      std::cout << "get value failed with vtkConstantArray" << std::endl;
     }
   }
 

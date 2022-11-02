@@ -16,7 +16,7 @@
 #ifndef vtkImplicitArray_h
 #define vtkImplicitArray_h
 
-#include "vtkCommonCoreModule.h" // for export macro
+#include "vtkCommonImplicitArraysModule.h" // for export macro
 #include "vtkGenericDataArray.h"
 #include "vtkImplicitArrayTraits.h" // for traits
 
@@ -75,7 +75,7 @@
  */
 VTK_ABI_NAMESPACE_BEGIN
 template <class BackendT>
-class VTKCOMMONCORE_EXPORT vtkImplicitArray
+class vtkImplicitArray
   : public vtkGenericDataArray<vtkImplicitArray<BackendT>,
       typename vtk::detail::implicit_array_traits<BackendT>::rtype>
 {

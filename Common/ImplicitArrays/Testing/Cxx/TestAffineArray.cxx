@@ -65,14 +65,12 @@ int TestAffineArray(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   affine->SetNumberOfTuples(100);
   affine->SetNumberOfComponents(1);
 
+  for (int iArr = 0; iArr < 100; iArr++)
   {
-    for (int iArr = 0; iArr < 100; iArr++)
+    if (affine->GetValue(iArr) != 7 * iArr + 9)
     {
-      if (affine->GetValue(iArr) != 7 * iArr + 9)
-      {
-        res = EXIT_FAILURE;
-        std::cout << "get value failed with vtkAffineArray" << std::endl;
-      }
+      res = EXIT_FAILURE;
+      std::cout << "get value failed with vtkAffineArray" << std::endl;
     }
   }
 

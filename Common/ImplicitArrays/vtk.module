@@ -3,7 +3,7 @@ NAME
 LIBRARY_NAME
   vtkCommonImplicitArrays
 DESCRIPTION
-  A VTK library for the for the vtkImplicitArray framework
+  A VTK library for the vtkImplicitArray framework
 KIT
   VTK::Common
 GROUPS

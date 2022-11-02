@@ -54,7 +54,7 @@ VTK_ABI_NAMESPACE_END
 
 #define VTK_INSTANTIATE_STD_FUNCTION_ARRAY(ValueType)                                              \
   VTK_ABI_NAMESPACE_BEGIN                                                                          \
-  template class VTKCOMMONCORE_EXPORT vtkImplicitArray<std::function<ValueType(int)>>;             \
+  template class VTKCOMMONIMPLICITARRAYS_EXPORT vtkImplicitArray<std::function<ValueType(int)>>;   \
   VTK_ABI_NAMESPACE_END                                                                            \
   namespace vtkDataArrayPrivate                                                                    \
   {                                                                                                \
@@ -62,75 +62,4 @@ VTK_ABI_NAMESPACE_END
   VTK_INSTANTIATE_VALUERANGE_ARRAYTYPE(vtkImplicitArray<std::function<ValueType(int)>>, double)    \
   VTK_ABI_NAMESPACE_END                                                                            \
   }
-
-#elif defined(VTK_USE_EXTERN_TEMPLATE)
-#ifndef VTK_STD_FUNCTION_ARRAY_EXTERN
-#define VTK_STD_FUNCTION_ARRAY_EXTERN
-#ifdef _MSC_VER
-#pragma warning(push)
-// The following is needed when the vtkImplicitArray is declared
-// dllexport and is used from another class in vtkCommonCore
-#pragma warning(disable : 4910) // extern and dllexport incompatible
 #endif
-VTK_ABI_NAMESPACE_BEGIN
-extern template class VTKCOMMONCORE_EXPORT vtkImplicitArray<std::function<float(int)>>;
-extern template class VTKCOMMONCORE_EXPORT vtkImplicitArray<std::function<double(int)>>;
-extern template class VTKCOMMONCORE_EXPORT vtkImplicitArray<std::function<char(int)>>;
-extern template class VTKCOMMONCORE_EXPORT vtkImplicitArray<std::function<signed char(int)>>;
-extern template class VTKCOMMONCORE_EXPORT vtkImplicitArray<std::function<unsigned char(int)>>;
-extern template class VTKCOMMONCORE_EXPORT vtkImplicitArray<std::function<short(int)>>;
-extern template class VTKCOMMONCORE_EXPORT vtkImplicitArray<std::function<unsigned short(int)>>;
-extern template class VTKCOMMONCORE_EXPORT vtkImplicitArray<std::function<int(int)>>;
-extern template class VTKCOMMONCORE_EXPORT vtkImplicitArray<std::function<long(int)>>;
-extern template class VTKCOMMONCORE_EXPORT vtkImplicitArray<std::function<unsigned long(int)>>;
-extern template class VTKCOMMONCORE_EXPORT vtkImplicitArray<std::function<long long(int)>>;
-extern template class VTKCOMMONCORE_EXPORT vtkImplicitArray<std::function<unsigned long long(int)>>;
-VTK_ABI_NAMESPACE_END
-#ifdef _MSC_VER
-#pragma warning(pop)
-#endif
-#endif // VTK_STD_FUNCTION_ARRAY_TEMPLATE_EXTERN
-
-// The following clause is only for MSVC
-#elif defined(_MSC_VER) && !defined(VTK_BUILD_SHARED_LIBS)
-#pragma warning(push)
-
-// C4091: 'extern ' : ignored on left of 'int' when no variable is declared
-#pragma warning(disable : 4091)
-
-// Compiler-specific extension warning.
-#pragma warning(disable : 4231)
-
-// We need to disable warning 4910 and do an extern dllexport
-// anyway.  When deriving vtkCharArray and other types from an
-// instantiation of this template the compiler does an explicit
-// instantiation of the base class.  From outside the vtkCommon
-// library we block this using an extern dllimport instantiation.
-// For classes inside vtkCommon we should be able to just do an
-// extern instantiation, but VS complains about missing
-// definitions.  We cannot do an extern dllimport inside vtkCommon
-// since the symbols are local to the dll.  An extern dllexport
-// seems to be the only way to convince VS to do the right
-// thing, so we just disable the warning.
-#pragma warning(disable : 4910) // extern and dllexport incompatible
-
-// Use an "extern explicit instantiation" to give the class a DLL
-// interface.  This is a compiler-specific extension.
-VTK_ABI_NAMESPACE_BEGIN
-extern template class VTKCOMMONCORE_EXPORT vtkImplicitArray<std::function<float(int)>>;
-extern template class VTKCOMMONCORE_EXPORT vtkImplicitArray<std::function<double(int)>>;
-extern template class VTKCOMMONCORE_EXPORT vtkImplicitArray<std::function<char(int)>>;
-extern template class VTKCOMMONCORE_EXPORT vtkImplicitArray<std::function<signed char(int)>>;
-extern template class VTKCOMMONCORE_EXPORT vtkImplicitArray<std::function<unsigned char(int)>>;
-extern template class VTKCOMMONCORE_EXPORT vtkImplicitArray<std::function<short(int)>>;
-extern template class VTKCOMMONCORE_EXPORT vtkImplicitArray<std::function<unsigned short(int)>>;
-extern template class VTKCOMMONCORE_EXPORT vtkImplicitArray<std::function<int(int)>>;
-extern template class VTKCOMMONCORE_EXPORT vtkImplicitArray<std::function<long(int)>>;
-extern template class VTKCOMMONCORE_EXPORT vtkImplicitArray<std::function<unsigned long(int)>>;
-extern template class VTKCOMMONCORE_EXPORT vtkImplicitArray<std::function<long long(int)>>;
-extern template class VTKCOMMONCORE_EXPORT vtkImplicitArray<std::function<unsigned long long(int)>>;
-VTK_ABI_NAMESPACE_END
-
-#pragma warning(pop)
-
-#endif // VTK_STD_FUNCTION_ARRAY_INSTANTIATING

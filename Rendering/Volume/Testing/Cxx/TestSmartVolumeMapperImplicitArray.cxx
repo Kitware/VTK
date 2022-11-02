@@ -61,9 +61,9 @@ int TestSmartVolumeMapperImplicitArray(int argc, char* argv[])
   int halfCells = nPix / 2 - 1;
   baseGrid->SetExtent(-halfCells, halfCells, -halfCells, halfCells, -halfCells, halfCells);
   baseGrid->SetSpacing(1.0 / nPix, 1.0 / nPix, 1.0 / nPix);
-  vtkNew<vtkImplicitArray<TorusLevelSetBackend>> levelSet;
+  vtkNew<vtkImplicitArray<::TorusLevelSetBackend>> levelSet;
   levelSet->SetName("LevelSet");
-  levelSet->SetBackend(std::make_shared<TorusLevelSetBackend>(baseGrid, 0.25, 0.2));
+  levelSet->SetBackend(std::make_shared<::TorusLevelSetBackend>(baseGrid, 0.25, 0.2));
   levelSet->SetNumberOfComponents(1);
   levelSet->SetNumberOfTuples(std::pow(nPix, 3));
   baseGrid->GetPointData()->AddArray(levelSet);

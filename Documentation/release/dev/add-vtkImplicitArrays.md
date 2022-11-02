@@ -1,6 +1,10 @@
 # New vtkImplicitArrays!
 
-VTK now offers new flexible `vtkImplicitArray` template class that implements the `vtkGenericDataArray` interface. It essentially transforms an implicit function mapping integers to values into a pratically zero cost `vtkDataArray`. This is helpful in cases where one needs to attach data to data sets and memory efficiency is paramount.
+## Description
+
+VTK now offers new flexible `vtkImplicitArray` template class that implements a **read-only** `vtkGenericDataArray` interface. It essentially transforms an implicit function mapping integers to values into a pratically zero cost `vtkDataArray`. This is helpful in cases where one needs to attach data to data sets and memory efficiency is paramount.
+
+## Usage
 
 The `vtkImplicitArray` is templated on the backend that is "duck typed" so that it can be any const functor/closure object or anything that has a `map(int) const` method. Here is a small example using a constant functor in an implicit array:
 
@@ -31,3 +35,15 @@ arr42->SetNumberOfComponents(1);
 arr42->SetNumberOfTuples(100);
 CHECK(arr42->GetValue(77) == 42); // always true
 ```
+
+Multi-component arrays have de-facto AOS ordering with respect to the backend.
+
+The read-only parts of the `vtkDataArray` API work out of the box for any `vtkImplicitArray` including the following functionalities:
+  * Get components, typed components, tuples, number of components and number of tuples
+  * `vtkImplicitArray::GetVoidPointer` (implementing and internal deep copy of the array into an AOS array that can be destroyed with `vtkImplicitArray::Squeeze`)
+  * Standard library like ranges and iterators using `vtkDataArrayRange` functionalities
+  * `vtkArrayDispatch`, provided the correct compilation options have been set and the correct type list is used for dispatching (see below)
+
+## Building and Dispatch
+
+The entire implicit array framework is included in the `CommonImplicitArrays` module. Support for dispatching implicit arrays can be enforced by including type lists from `vtkArrayDispatchImplicitTypeList.h` and compiling VTK with the correct `VTK_DISPATCH_*_ARRAYS` option.

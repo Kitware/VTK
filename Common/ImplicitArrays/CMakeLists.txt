@@ -45,7 +45,7 @@ foreach (INSTANTIATION_VALUE_TYPE IN LISTS vtkArrayDispatchImplicit_all_types)
   endforeach ()
 endforeach ()
 
-set(headers
+set(nowrap_headers
   vtkAffineArray.h
   vtkAffineImplicitBackend.h
   vtkConstantArray.h
@@ -55,7 +55,7 @@ set(headers
   "${CMAKE_CURRENT_BINARY_DIR}/vtkVTK_DISPATCH_IMPLICIT_ARRAYS.h"
 )
 
-set(template_classes
+set(nowrap_template_classes
   vtkImplicitArray
 )
 
@@ -64,8 +64,8 @@ set(sources
 )
 
 vtk_module_add_module(VTK::CommonImplicitArrays
-  HEADERS ${headers}
-  TEMPLATE_CLASSES ${template_classes}
+  NOWRAP_HEADERS ${nowrap_headers}
+  NOWRAP_TEMPLATE_CLASSES ${nowrap_template_classes}
   SOURCES ${sources}
 )
 

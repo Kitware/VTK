@@ -67,14 +67,12 @@ int TestStdFunctionArray(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   identity->SetNumberOfTuples(100);
   identity->SetNumberOfComponents(1);
 
+  for (int iArr = 0; iArr < 100; iArr++)
   {
-    for (int iArr = 0; iArr < 100; iArr++)
+    if (identity->GetValue(iArr) != iArr)
     {
-      if (identity->GetValue(iArr) != iArr)
-      {
-        res = EXIT_FAILURE;
-        std::cout << "get value failed with vtkStdFunctionArray" << std::endl;
-      }
+      res = EXIT_FAILURE;
+      std::cout << "get value failed with vtkStdFunctionArray" << std::endl;
     }
   }
 
