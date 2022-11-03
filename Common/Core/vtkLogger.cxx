@@ -109,9 +109,9 @@ static void pop_scope(const char* id)
     LOG_F(ERROR, "Mismatched scope! expected (%s), got (%s)", vector.back().first.c_str(), id);
   }
 }
+VTK_THREAD_LOCAL char ThreadName[128] = {};
 #endif
 
-static VTK_THREAD_LOCAL std::string ThreadName;
 VTK_ABI_NAMESPACE_END
 }
 
@@ -150,9 +150,9 @@ void vtkLogger::Init(int& argc, char* argv[], const char* verbosity_flag /*= "-v
   loguru::Options options;
   options.verbosity_flag = verbosity_flag;
   options.unsafe_signal_handler = vtkLogger::EnableUnsafeSignalHandler;
-  if (!detail::ThreadName.empty())
+  if (strlen(detail::ThreadName) > 0)
   {
-    options.main_thread_name = detail::ThreadName.c_str();
+    options.main_thread_name = detail::ThreadName;
   }
   loguru::init(argc, argv, options);
   loguru::g_stderr_verbosity = current_stderr_verbosity;
@@ -224,7 +224,7 @@ void vtkLogger::SetThreadName(const std::string& name)
   loguru::set_thread_name(name.c_str());
   // Save threadname so if this is called before `Init`, we can pass the thread
   // name to loguru::init().
-  detail::ThreadName = name;
+  strncpy(detail::ThreadName, name.c_str(), sizeof(detail::ThreadName) - 1);
 #else
   (void)name;
 #endif
