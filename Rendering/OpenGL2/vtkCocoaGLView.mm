@@ -55,7 +55,19 @@
   {
     [NSThread detachNewThreadSelector:@selector(emptyMethod:) toTarget:self withObject:nil];
   }
-  [self registerForDraggedTypes:@[ (NSString*)kUTTypeFileURL ]];
+
+  // kUTTypeFileURL is deprecated starting with macOS 12.0 but its replacement,
+  // UTTypeFileURL, is in UniformTypeIdentfiers.framework which doesn't exist
+  // on older versions of macOS.  Conditionally using it would require conditionally
+  // linking to that new framework, which just isn't worth the hassle when both
+  // are just syntactic sugar for the string "public.file-url".
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+  NSString* supportedDragType = (NSString*)kUTTypeFileURL;
+#pragma clang diagnostic pop
+
+  // Register the view for file drops.
+  [self registerForDraggedTypes:@[ supportedDragType ]];
 }
 
 //----------------------------------------------------------------------------
@@ -505,7 +517,18 @@ static const char* vtkMacKeyCodeToKeySymTable[128] = { nullptr, nullptr, nullptr
 - (NSDragOperation)draggingEntered:(id<NSDraggingInfo>)sender
 {
   NSArray* types = [[sender draggingPasteboard] types];
-  if ([types containsObject:(NSString*)kUTTypeFileURL])
+
+  // kUTTypeFileURL is deprecated starting with macOS 12.0 but its replacement,
+  // UTTypeFileURL, is in UniformTypeIdentfiers.framework which doesn't exist
+  // on older versions of macOS.  Conditionally using it would require conditionally
+  // linking to that new framework, which just isn't worth the hassle when both
+  // are just syntactic sugar for the string "public.file-url".
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+  NSString* supportedDragType = (NSString*)kUTTypeFileURL;
+#pragma clang diagnostic pop
+
+  if ([types containsObject:supportedDragType])
   {
     return NSDragOperationCopy;
   }
