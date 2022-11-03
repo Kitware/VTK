@@ -304,6 +304,7 @@ int GetCellType(const Ioss::ElementTopology* topology)
     case Ioss::ElementShape::POINT:
       return VTK_POLY_VERTEX;
 
+    case Ioss::ElementShape::SPRING:
     case Ioss::ElementShape::LINE:
       switch (topology->number_nodes())
       {
