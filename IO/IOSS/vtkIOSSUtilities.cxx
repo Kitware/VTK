@@ -298,6 +298,9 @@ int GetCellType(const Ioss::ElementTopology* topology)
 {
   switch (topology->shape())
   {
+    case Ioss::ElementShape::SPHERE:
+      return VTK_VERTEX;
+
     case Ioss::ElementShape::POINT:
       return VTK_POLY_VERTEX;
 
