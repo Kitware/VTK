@@ -65,7 +65,6 @@ public:
   }
   bool Evaluate(vtkIdType offset) const override
   {
-    assert(this->Data == nullptr || this->Data->GetNumberOfValues() > offset);
     return this->Data ? this->Data[offset] != 0 : false;
   }
   void Print(ostream& os) const override { os << this->Name; }
