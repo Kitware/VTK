@@ -10,10 +10,7 @@ GCC_OPTIMIZATION_LEVEL = 0
 // OTHER_LDFLAGS = -lz
 
 // macOS architectures (match to CMAKE_OSX_ARCHITECTURES used to built VTK itself).
-// ARCHS = x86_64
-
-// macOS SDK (match to CMAKE_OSX_SYSROOT used to built VTK itself).
-// SDKROOT = macosx
+// ARCHS = x86_64 arm64
 
 // macOS Deployment Target (match to CMAKE_OSX_DEPLOYMENT_TARGET used to built VTK itself).
 // MACOSX_DEPLOYMENT_TARGET = 10.9
