@@ -147,6 +147,7 @@ vtk_add_test_cxx(vtkCommonCoreCxxTests tests
   TestOStreamWrapper.cxx
   TestSMP.cxx
   TestSmartPointer.cxx
+  TestSOADataArray.cxx
   TestSortDataArray.cxx
   TestSparseArrayValidation.cxx
   TestSystemInformation.cxx
