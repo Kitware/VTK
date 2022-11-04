@@ -109,6 +109,45 @@ public:
 
   ///@{
   /**
+   * Parameters related to adding a probabilistic uncertainty to the position and normals of the
+   * quadrics following [1]. The goal using these parameters is to regularize the point finding
+   * algorithm so as to have better quality mesh elements at the cost of a slightly lower precision
+   * on the geometry potentially (mostly at sharp edges). Can also be useful for decimating meshes
+   * that have been triangulated on noisy data.
+   *
+   * Regularize: boolean property determining whether or not to use the regularization method
+   * Regularization: user defined variable that can be used to adjust the level of
+   * regularization. One can think of it as the standard deviation of the probability distribution
+   * of normals in the context of noisy data.
+   *
+   * [1] P. Trettner and L. Kobbelt, Fast and Robust QEF Minimization using Probabilistic Quadrics,
+   * EUROGRAPHICS, Volume 39, Number 2 (2020)
+   */
+  vtkSetMacro(Regularize, vtkTypeBool);
+  vtkGetMacro(Regularize, vtkTypeBool);
+  vtkBooleanMacro(Regularize, vtkTypeBool);
+  vtkSetMacro(Regularization, double);
+  vtkGetMacro(Regularization, double);
+  ///@}
+
+  ///@{
+  /**
+   * Parameters related to the treatment of the boundary of the mesh during decimation.
+   *
+   * WeighBoundaryConstraintsByLength: When this boolean is set to true, use the legacy weighting by
+   * boundary_edge_length instead of by boundary_edge_length^2 for backwards compatibility (default
+   * to false) BoundaryWeightFactor: A floating point factor to weigh the boundary quadric
+   * constraints by: higher factors further constrain the boundary.
+   */
+  vtkSetMacro(WeighBoundaryConstraintsByLength, vtkTypeBool);
+  vtkGetMacro(WeighBoundaryConstraintsByLength, vtkTypeBool);
+  vtkBooleanMacro(WeighBoundaryConstraintsByLength, vtkTypeBool);
+  vtkSetMacro(BoundaryWeightFactor, double);
+  vtkGetMacro(BoundaryWeightFactor, double);
+  ///@}
+
+  ///@{
+  /**
    * If attribute errors are to be included in the metric (i.e.,
    * AttributeErrorMetric is on), then the following flags control which
    * attributes are to be included in the error calculation. By default all
@@ -264,6 +303,14 @@ protected:
 
   // One ErrorQuadric per point
   ErrorQuadric* ErrorQuadrics;
+
+  // Controlling regularization behavior
+  vtkTypeBool Regularize = false;
+  double Regularization = 0.05;
+
+  // Controlling the boundary weighting behavior
+  vtkTypeBool WeighBoundaryConstraintsByLength = false;
+  double BoundaryWeightFactor = 1.0;
 
   // Contains 4 doubles per point. Length = nPoints * 4
   double* VolumeConstraints;
