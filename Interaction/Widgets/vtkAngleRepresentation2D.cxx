@@ -33,34 +33,25 @@ vtkAngleRepresentation2D::vtkAngleRepresentation2D()
   // By default, use one of these handles
   this->HandleRepresentation = vtkPointHandleRepresentation2D::New();
 
-  this->Ray1 = vtkLeaderActor2D::New();
   this->Ray1->GetPositionCoordinate()->SetCoordinateSystemToWorld();
   this->Ray1->GetPosition2Coordinate()->SetCoordinateSystemToWorld();
   this->Ray1->SetArrowStyleToOpen();
   this->Ray1->SetArrowPlacementToPoint2();
 
-  this->Ray2 = vtkLeaderActor2D::New();
   this->Ray2->GetPositionCoordinate()->SetCoordinateSystemToWorld();
   this->Ray2->GetPosition2Coordinate()->SetCoordinateSystemToWorld();
   this->Ray2->SetArrowStyleToOpen();
   this->Ray2->SetArrowPlacementToPoint2();
 
-  this->Arc = vtkLeaderActor2D::New();
   this->Arc->GetPositionCoordinate()->SetCoordinateSystemToWorld();
   this->Arc->GetPosition2Coordinate()->SetCoordinateSystemToWorld();
   this->Arc->SetArrowPlacementToNone();
   this->Arc->SetLabel("Angle");
   this->Arc->SetLabelFormat(this->LabelFormat);
-  //  this->Arc->AutoLabelOn();
 }
 
 //------------------------------------------------------------------------------
-vtkAngleRepresentation2D::~vtkAngleRepresentation2D()
-{
-  this->Ray1->Delete();
-  this->Ray2->Delete();
-  this->Arc->Delete();
-}
+vtkAngleRepresentation2D::~vtkAngleRepresentation2D() = default;
 
 //------------------------------------------------------------------------------
 double vtkAngleRepresentation2D::GetAngle()
@@ -234,7 +225,7 @@ void vtkAngleRepresentation2D::GetPoint2DisplayPosition(double pos[3])
 void vtkAngleRepresentation2D::BuildRepresentation()
 {
   if (this->Point1Representation == nullptr || this->CenterRepresentation == nullptr ||
-    this->Point2Representation == nullptr || this->Arc == nullptr)
+    this->Point2Representation == nullptr)
   {
     // for now, return. Could create defaults here.
     return;
@@ -368,18 +359,9 @@ void vtkAngleRepresentation2D::BuildRepresentation()
 //------------------------------------------------------------------------------
 void vtkAngleRepresentation2D::ReleaseGraphicsResources(vtkWindow* w)
 {
-  if (this->Ray1)
-  {
-    this->Ray1->ReleaseGraphicsResources(w);
-  }
-  if (this->Ray2)
-  {
-    this->Ray2->ReleaseGraphicsResources(w);
-  }
-  if (this->Arc)
-  {
-    this->Arc->ReleaseGraphicsResources(w);
-  }
+  this->Ray1->ReleaseGraphicsResources(w);
+  this->Ray2->ReleaseGraphicsResources(w);
+  this->Arc->ReleaseGraphicsResources(w);
 }
 
 //------------------------------------------------------------------------------
@@ -388,15 +370,15 @@ int vtkAngleRepresentation2D::RenderOverlay(vtkViewport* v)
   this->BuildRepresentation();
 
   int count = 0;
-  if (this->Ray1 && this->Ray1Visibility)
+  if (this->Ray1Visibility)
   {
     count += this->Ray1->RenderOverlay(v);
   }
-  if (this->Ray2 && this->Ray2Visibility)
+  if (this->Ray2Visibility)
   {
     count += this->Ray2->RenderOverlay(v);
   }
-  if (this->Arc && this->ArcVisibility)
+  if (this->ArcVisibility)
   {
     count += this->Arc->RenderOverlay(v);
   }
@@ -410,34 +392,12 @@ void vtkAngleRepresentation2D::PrintSelf(ostream& os, vtkIndent indent)
   // Superclass typedef defined in vtkTypeMacro() found in vtkSetGet.h
   this->Superclass::PrintSelf(os, indent);
 
+  os << indent << "Force3DArcPlacement: " << this->Force3DArcPlacement << std::endl;
   os << indent << "Ray1: ";
-  if (this->Ray1)
-  {
-    this->Ray1->PrintSelf(os, indent.GetNextIndent());
-  }
-  else
-  {
-    os << "(none)\n";
-  }
-
+  this->Ray1->PrintSelf(os, indent.GetNextIndent());
   os << indent << "Ray2: ";
-  if (this->Ray2)
-  {
-    this->Ray2->PrintSelf(os, indent.GetNextIndent());
-  }
-  else
-  {
-    os << "(none)\n";
-  }
-
+  this->Ray2->PrintSelf(os, indent.GetNextIndent());
   os << indent << "Arc: ";
-  if (this->Arc)
-  {
-    this->Arc->PrintSelf(os, indent.GetNextIndent());
-  }
-  else
-  {
-    os << "(none)\n";
-  }
+  this->Arc->PrintSelf(os, indent.GetNextIndent());
 }
 VTK_ABI_NAMESPACE_END

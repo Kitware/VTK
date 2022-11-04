@@ -33,6 +33,7 @@
 
 #include "vtkAngleRepresentation.h"
 #include "vtkInteractionWidgetsModule.h" // For export macro
+#include "vtkNew.h"                      // vtkNew
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkLeaderActor2D;
@@ -121,9 +122,9 @@ protected:
   ~vtkAngleRepresentation2D() override;
 
   // The pieces that make up the angle representations
-  vtkLeaderActor2D* Ray1;
-  vtkLeaderActor2D* Ray2;
-  vtkLeaderActor2D* Arc;
+  vtkNew<vtkLeaderActor2D> Ray1;
+  vtkNew<vtkLeaderActor2D> Ray2;
+  vtkNew<vtkLeaderActor2D> Arc;
 
   bool Force3DArcPlacement = false;
 
