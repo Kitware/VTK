@@ -204,8 +204,9 @@ int getFileDataNumComponents(int mode)
       return 1;
     case 3:
     case 4:
-    case 6:
       return 2;
+    case 6:
+      return 1;
     case 16:
       return 3;
     default:
