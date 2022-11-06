@@ -539,16 +539,22 @@ int vtkFidesReader::RequestData(
       auto nSteps = outInfo->Length(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
       std::vector<double> allSteps(nSteps);
       outInfo->Get(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), allSteps.data());
-      auto it = std::find(allSteps.begin(), allSteps.end(), step);
-      if (it != allSteps.end())
+
+      double minDiff = VTK_DOUBLE_MAX;
+      for (unsigned int i = 0; i < allSteps.size(); i++)
       {
-        index = it - allSteps.begin();
+        double diff = std::fabs(allSteps[i] - step);
+        if (diff < minDiff)
+        {
+          minDiff = diff;
+          index = i;
+        }
       }
     }
     if (index == -1)
     {
       vtkErrorMacro(<< "Couldn't find index of time value " << step);
-      index = static_cast<int>(step);
+      index = static_cast<int>(0);
     }
     vtkDebugMacro(<< "RequestData() Not streaming and we have update time step request for step "
                   << step);
