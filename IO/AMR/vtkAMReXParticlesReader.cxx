@@ -13,6 +13,7 @@
 
 =========================================================================*/
 #include "vtkAMReXParticlesReader.h"
+#include "vtkAMReXGridReaderInternal.h"
 
 #include "vtkAOSDataArrayTemplate.h"
 #include "vtkCellArray.h"
@@ -595,6 +596,7 @@ vtkCxxSetObjectMacro(vtkAMReXParticlesReader, Controller, vtkMultiProcessControl
 vtkAMReXParticlesReader::vtkAMReXParticlesReader()
   : Controller(nullptr)
   , ParticleType("particles")
+  , dataTimeStep(0)
   , Header(nullptr)
 {
   this->SetNumberOfInputPorts(0);
@@ -715,6 +717,9 @@ int vtkAMReXParticlesReader::RequestInformation(
 
   auto outInfo = outputVector->GetInformationObject(0);
   outInfo->Set(CAN_HANDLE_PIECE_REQUEST(), 1);
+  // set the timestep value
+  outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), &this->dataTimeStep, 1);
+
   return this->Superclass::RequestInformation(request, inputVector, outputVector);
 }
 
@@ -795,6 +800,24 @@ bool vtkAMReXParticlesReader::ReadMetaData()
     delete headerPtr;
     return false;
   }
+
+  // read the top level header to get time information
+  const std::string gridHdrFileName = this->PlotFileName + "/Header";
+  const auto gridHeaderData = ::ReadAndBroadCastFile(gridHdrFileName, this->Controller, this);
+  if (gridHeaderData.empty())
+  {
+    return false;
+  }
+
+  auto gridHeaderPtr = new vtkAMReXGridHeader();
+  if (!gridHeaderPtr->Parse(gridHeaderData))
+  {
+    delete gridHeaderPtr;
+    return false;
+  }
+  // Add time information.
+  this->dataTimeStep = gridHeaderPtr->time;
+  delete gridHeaderPtr;
 
   this->Header = headerPtr;
   this->Header->PopulatePointArraySelection(this->PointDataArraySelection);

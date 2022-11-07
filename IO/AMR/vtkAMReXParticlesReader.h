@@ -123,6 +123,7 @@ private:
   vtkTimeStamp PlotFileNameMTime;
   vtkTimeStamp MetaDataMTime;
   std::string ParticleType;
+  double dataTimeStep;
   vtkNew<vtkDataArraySelection> PointDataArraySelection;
 
   class AMReXParticleHeader;
