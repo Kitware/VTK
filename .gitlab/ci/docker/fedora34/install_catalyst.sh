@@ -1,8 +1,8 @@
 #!/bin/sh
 
 readonly catalyst_repo="https://gitlab.kitware.com/paraview/catalyst"
-# we are pre-release, use the most recent commit (Feb 23, 2022)
-readonly catalyst_commit="3f7871c0a2e737cb9ed35fc1c2208456fcc00a0e"
+# Use the latest release candidate.
+readonly catalyst_commit="v2.0.0-rc3"
 
 readonly catalyst_root="$HOME/catalyst"
 readonly catalyst_src="$catalyst_root/src"
