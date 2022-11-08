@@ -187,9 +187,10 @@ struct CountPoints
     auto connRange = vtk::DataArrayValueRange<1>(state.GetConnectivity(), connBeginId, connEndId);
 
     // Count number of point uses
+    TIds* linkOffsetsPtr = linkOffsets + idOffset;
     for (const ValueType ptId : connRange)
     {
-      ++linkOffsets[static_cast<size_t>(idOffset + ptId)];
+      ++linkOffsetsPtr[ptId];
     }
   }
 };
