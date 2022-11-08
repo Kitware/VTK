@@ -2616,6 +2616,10 @@ struct FullyProcessUnstructuredDataFunctor
 //------------------------------------------------------------------------------
 bool vtkTableBasedClipDataSet::CanFullyProcessUnstructuredData(vtkDataSet* inputGrid)
 {
+  if (inputGrid->GetNumberOfPoints() == 0 || inputGrid->GetNumberOfCells() == 0)
+  {
+    return false;
+  }
   FullyProcessUnstructuredDataFunctor functor(inputGrid);
   vtkSMPTools::For(0, inputGrid->GetNumberOfCells(), functor);
   return static_cast<bool>(functor.CanFullyProcess);
