@@ -138,6 +138,7 @@ vtkSmoothPolyDataFilter::vtkSmoothPolyDataFilter()
   this->SetNumberOfInputPorts(2);
 }
 
+//------------------------------------------------------------------------------
 vtkSmoothPolyDataFilter::~vtkSmoothPolyDataFilter() = default;
 
 //------------------------------------------------------------------------------
