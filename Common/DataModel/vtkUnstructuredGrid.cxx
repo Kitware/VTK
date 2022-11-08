@@ -288,8 +288,9 @@ vtkUnstructuredGrid::vtkUnstructuredGrid()
   this->Information->Set(vtkDataObject::DATA_NUMBER_OF_GHOST_LEVELS(), 0);
 
   this->DistinctCellTypesUpdateMTime = 0;
-
-  this->AllocateExact(1024, 1024);
+  this->DistinctCellTypes = vtkSmartPointer<vtkCellTypes>::New();
+  this->Types = vtkSmartPointer<vtkUnsignedCharArray>::New();
+  this->Connectivity = vtkSmartPointer<vtkCellArray>::New();
 }
 
 //------------------------------------------------------------------------------
