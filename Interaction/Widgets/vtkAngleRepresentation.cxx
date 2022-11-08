@@ -160,6 +160,30 @@ void vtkAngleRepresentation::WidgetInteraction(double e[2])
 }
 
 //------------------------------------------------------------------------------
+void vtkAngleRepresentation::SetRenderer(vtkRenderer* ren)
+{
+  if (ren == this->Renderer)
+  {
+    return;
+  }
+
+  this->Superclass::SetRenderer(ren);
+  if (this->Point1Representation)
+  {
+    this->Point1Representation->SetRenderer(ren);
+  }
+  if (this->CenterRepresentation)
+  {
+    this->CenterRepresentation->SetRenderer(ren);
+  }
+  if (this->Point2Representation)
+  {
+    this->Point2Representation->SetRenderer(ren);
+  }
+  this->Modified();
+}
+
+//------------------------------------------------------------------------------
 void vtkAngleRepresentation::BuildRepresentation()
 {
   // Make sure that tolerance is consistent between handles and this representation
