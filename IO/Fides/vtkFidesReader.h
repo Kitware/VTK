@@ -141,6 +141,15 @@ public:
   vtkGetMacro(ConvertToVTK, bool);
   ///@}
 
+  ///@{
+  /**
+   * Methods to determine whether streaming mode is used. False by default.
+   */
+  vtkBooleanMacro(StreamSteps, bool);
+  vtkSetMacro(StreamSteps, bool);
+  vtkGetMacro(StreamSteps, bool);
+  ///@}
+
   /**
    * Object to perform point array selection before update.
    */
