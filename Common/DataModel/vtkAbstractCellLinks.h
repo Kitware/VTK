@@ -125,6 +125,7 @@ public:
    * is hardwired for vtkIdType.
    */
   static int ComputeType(vtkIdType maxPtId, vtkIdType maxCellId, vtkCellArray* ca);
+  static int ComputeType(vtkIdType maxPtId, vtkIdType maxCellId, vtkIdType connectivitySize);
 
   /**
    * Return the type of locator (see enum above).
