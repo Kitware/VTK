@@ -2119,6 +2119,17 @@ bool vtkIOSSReader::vtkInternals::GetFields(vtkDataSetAttributes* dsa,
       {
         dsa->SetGlobalIds(vtkDataArray::SafeDownCast(array));
       }
+      else if (fieldname == vtkDataSetAttributes::GhostArrayName())
+      {
+        // Handle vtkGhostType attribute specially. Convert it to the expected vtkUnsignedCharArray.
+        vtkNew<vtkUnsignedCharArray> ghostArray;
+        ghostArray->SetName(vtkDataSetAttributes::GhostArrayName());
+        ghostArray->SetNumberOfComponents(1);
+        ghostArray->SetNumberOfTuples(array->GetNumberOfTuples());
+
+        ghostArray->CopyComponent(0, vtkDataArray::SafeDownCast(array), 0);
+        dsa->AddArray(ghostArray);
+      }
       else
       {
         dsa->AddArray(array);

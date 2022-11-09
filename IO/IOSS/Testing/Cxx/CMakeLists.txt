@@ -12,6 +12,7 @@ vtk_add_test_cxx(vtkIOIOSSCxxTests tests
   TestIOSSNoElementBlocks.cxx,NO_VALID
   TestIOSSTri6.cxx
   TestIOSSUnsupported.cxx,NO_VALID
+  TestIOSSGhostArray.cxx,NO_VALID
 )
 
 if (VTK_USE_LARGE_DATA)
