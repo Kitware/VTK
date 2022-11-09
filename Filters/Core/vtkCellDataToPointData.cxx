@@ -54,62 +54,84 @@ namespace
 template <typename TCellLinks>
 struct UnstructuredDataCD2PD
 {
-  vtkIdType NumPts;
-  vtkDataSetAttributes* InDA;
-  vtkPointData* OutDA;
   TCellLinks* Links;
-  ArrayList* Arrays;
+  ArrayList Arrays;
 
-  UnstructuredDataCD2PD(
-    vtkIdType numPts, vtkDataSetAttributes* inDA, vtkPointData* outDA, TCellLinks* links)
-    : NumPts(numPts)
-    , InDA(inDA)
-    , OutDA(outDA)
-    , Links(links)
+  UnstructuredDataCD2PD(vtkIdType numPts, vtkCellData* inDA, vtkPointData* outDA, TCellLinks* links)
+    : Links(links)
   {
-    this->Arrays = new ArrayList;
-    this->Arrays->AddArrays(numPts, inDA, outDA);
+    this->Arrays.AddArrays(numPts, inDA, outDA);
   }
-  ~UnstructuredDataCD2PD() { delete this->Arrays; }
 
-  void operator()(vtkIdType ptId, vtkIdType endPtId)
+  void operator()(vtkIdType beginPointId, vtkIdType endPointId)
   {
     vtkIdType ncells;
-
-    for (; ptId < endPtId; ++ptId)
+    for (vtkIdType pointId = beginPointId; pointId < endPointId; ++pointId)
     {
-      if ((ncells = this->Links->GetNcells(ptId)) > 0)
+      if ((ncells = this->Links->GetNcells(pointId)) > 0)
       {
-        auto cells = this->Links->GetCells(ptId);
-        this->Arrays->Average(ncells, cells, ptId);
+        auto cells = this->Links->GetCells(pointId);
+        this->Arrays.Average(ncells, cells, pointId);
       }
-    }
-  }
-
-  void Execute()
-  {
-    if (this->NumPts > 0)
-    {
-      vtkSMPTools::For(0, this->NumPts, *this);
     }
   }
 };
 
-// Take care of dispatching to the functor.
-void FastUnstructuredData(
-  vtkIdType numPts, vtkAbstractCellLinks* links, vtkDataSetAttributes* cfl, vtkPointData* pd)
+//------------------------------------------------------------------------------
+// Take care of dispatching to the functor using an abstract cell links.
+void FastUnstructuredDataACL(
+  vtkIdType numPts, vtkAbstractCellLinks* links, vtkCellData* cfl, vtkPointData* pd)
 {
   assert(links != nullptr);
   if (auto staticCellLinks = vtkStaticCellLinks::SafeDownCast(links))
   {
     UnstructuredDataCD2PD<vtkStaticCellLinks> cd2pd(numPts, cfl, pd, staticCellLinks);
-    cd2pd.Execute();
+    vtkSMPTools::For(0, numPts, cd2pd);
   }
   else // vtkCellLinks
   {
     auto cellLinks = vtkCellLinks::SafeDownCast(links);
     UnstructuredDataCD2PD<vtkCellLinks> cd2pd(numPts, cfl, pd, cellLinks);
-    cd2pd.Execute();
+    vtkSMPTools::For(0, numPts, cd2pd);
+  }
+}
+
+//------------------------------------------------------------------------------
+// Take care of dispatching to the functor using a static cell links template instance.
+template <typename TInput>
+void FastUnstructuredDataSCLT(
+  vtkIdType connectivitySize, TInput* input, vtkCellData* cfl, vtkPointData* pd)
+{
+  const auto numberOfPoints = input->GetNumberOfPoints();
+  const auto numberOfCells = input->GetNumberOfCells();
+  auto linksType =
+    vtkAbstractCellLinks::ComputeType(numberOfPoints - 1, numberOfCells - 1, connectivitySize);
+  // build the appropriate static cell links template instance
+  if (linksType == vtkAbstractCellLinks::STATIC_CELL_LINKS_USHORT)
+  {
+    using TCellLinks = vtkStaticCellLinksTemplate<unsigned short>;
+    TCellLinks cellLinks;
+    cellLinks.BuildLinks(input);
+    UnstructuredDataCD2PD<TCellLinks> cd2pd(numberOfPoints, cfl, pd, &cellLinks);
+    vtkSMPTools::For(0, numberOfPoints, cd2pd);
+  }
+#ifdef VTK_USE_64BIT_IDS
+  else if (linksType == vtkAbstractCellLinks::STATIC_CELL_LINKS_UINT)
+  {
+    using TCellLinks = vtkStaticCellLinksTemplate<unsigned int>;
+    TCellLinks cellLinks;
+    cellLinks.BuildLinks(input);
+    UnstructuredDataCD2PD<TCellLinks> cd2pd(numberOfPoints, cfl, pd, &cellLinks);
+    vtkSMPTools::For(0, numberOfPoints, cd2pd);
+  }
+#endif
+  else
+  {
+    using TCellLinks = vtkStaticCellLinksTemplate<vtkIdType>;
+    TCellLinks cellLinks;
+    cellLinks.BuildLinks(input);
+    UnstructuredDataCD2PD<TCellLinks> cd2pd(numberOfPoints, cfl, pd, &cellLinks);
+    vtkSMPTools::For(0, numberOfPoints, cd2pd);
   }
 }
 
@@ -374,6 +396,7 @@ void vtkCellDataToPointData::GetCellArraysToProcess(const char* names[])
 int vtkCellDataToPointData::RequestData(
   vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
+  vtkSMPTools::SetBackend("SEQUENTIAL");
   vtkDataSet* input = vtkDataSet::GetData(inputVector[0]);
   vtkDataSet* output = vtkDataSet::GetData(outputVector);
 
@@ -566,15 +589,39 @@ int vtkCellDataToPointData::RequestDataForUnstructuredData(
   {
     if (auto uGrid = vtkUnstructuredGrid::SafeDownCast(input))
     {
-      uGrid->BuildLinks();
-      FastUnstructuredData(numberOfPoints, uGrid->GetLinks(), processedCellData, outPD);
+      if (uGrid->GetLinks()) // if links are present use them
+      {
+        uGrid->BuildLinks(); // ensure links are up to date
+        FastUnstructuredDataACL(numberOfPoints, uGrid->GetLinks(), processedCellData, outPD);
+      }
+      else // otherwise create links with the minimum size
+      {
+        vtkIdType connectivitySize = uGrid->GetCells()->GetNumberOfConnectivityIds();
+        FastUnstructuredDataSCLT(connectivitySize, uGrid, processedCellData, outPD);
+      }
       return 1;
     }
     else // polydata
     {
       auto polyData = vtkPolyData::SafeDownCast(input);
-      polyData->BuildLinks();
-      FastUnstructuredData(numberOfPoints, polyData->GetLinks(), processedCellData, outPD);
+      if (polyData->GetLinks()) // if links are present use them
+      {
+        polyData->BuildLinks(); // ensure links are up to date
+        FastUnstructuredDataACL(numberOfPoints, polyData->GetLinks(), processedCellData, outPD);
+      }
+      else // otherwise create links with the minimum size
+      {
+        auto verts = polyData->GetVerts();
+        auto lines = polyData->GetLines();
+        auto polys = polyData->GetPolys();
+        auto strips = polyData->GetStrips();
+        vtkIdType connectivitySize = 0;
+        connectivitySize += verts ? verts->GetNumberOfConnectivityIds() : 0;
+        connectivitySize += lines ? lines->GetNumberOfConnectivityIds() : 0;
+        connectivitySize += polys ? polys->GetNumberOfConnectivityIds() : 0;
+        connectivitySize += strips ? strips->GetNumberOfConnectivityIds() : 0;
+        FastUnstructuredDataSCLT(connectivitySize, polyData, processedCellData, outPD);
+      }
       return 1;
     }
   } // fast path
