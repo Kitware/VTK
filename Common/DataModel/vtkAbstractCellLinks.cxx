@@ -12,21 +12,33 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+// VTK_DEPRECATED_IN_9_3_0() warnings for this class.
+#define VTK_DEPRECATION_LEVEL 0
+
 #include "vtkAbstractCellLinks.h"
 
 #include "vtkCellArray.h"
+#include "vtkDataSet.h"
+#include "vtkGarbageCollector.h"
 #include "vtkObjectFactory.h"
 
-//------------------------------------------------------------------------------
 VTK_ABI_NAMESPACE_BEGIN
+//------------------------------------------------------------------------------
+vtkCxxSetObjectMacro(vtkAbstractCellLinks, DataSet, vtkDataSet);
+
+//------------------------------------------------------------------------------
 vtkAbstractCellLinks::vtkAbstractCellLinks()
 {
+  this->DataSet = nullptr;
   this->SequentialProcessing = false;
   this->Type = vtkAbstractCellLinks::LINKS_NOT_DEFINED;
 }
 
 //------------------------------------------------------------------------------
-vtkAbstractCellLinks::~vtkAbstractCellLinks() = default;
+vtkAbstractCellLinks::~vtkAbstractCellLinks()
+{
+  this->SetDataSet(nullptr);
+}
 
 //------------------------------------------------------------------------------
 int vtkAbstractCellLinks::ComputeType(vtkIdType maxPtId, vtkIdType maxCellId, vtkCellArray* ca)
@@ -51,11 +63,32 @@ int vtkAbstractCellLinks::ComputeType(vtkIdType maxPtId, vtkIdType maxCellId, vt
 }
 
 //------------------------------------------------------------------------------
+void vtkAbstractCellLinks::BuildLinks(vtkDataSet* dataset)
+{
+  this->SetDataSet(dataset);
+  this->BuildLinks();
+}
+
+//------------------------------------------------------------------------------
 void vtkAbstractCellLinks::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-
+  if (this->DataSet)
+  {
+    os << indent << "DataSet: " << this->DataSet << "\n";
+  }
+  else
+  {
+    os << indent << "DataSet: (none)\n";
+  }
   os << indent << "Sequential Processing: " << (this->SequentialProcessing ? "true\n" : "false\n");
   os << indent << "Type: " << this->Type << "\n";
+}
+
+//------------------------------------------------------------------------------
+void vtkAbstractCellLinks::ReportReferences(vtkGarbageCollector* collector)
+{
+  this->Superclass::ReportReferences(collector);
+  vtkGarbageCollectorReport(collector, this->DataSet, "DataSet");
 }
 VTK_ABI_NAMESPACE_END

@@ -829,7 +829,8 @@ int vtkGradientFilter::ComputeUnstructuredGridGradient(vtkDataArray* array, int 
       // Make sure that the topological links have been built, since that is not
       // thread safe.
       vtkNew<vtkStaticCellLinks> cellLinks;
-      cellLinks->BuildLinks(input);
+      cellLinks->SetDataSet(input);
+      cellLinks->BuildLinks();
 
       using PointGradientsDispatch = vtkArrayDispatch::DispatchByValueType<vtkArrayDispatch::Reals>;
       PointGradientsWorker pgWorker;

@@ -54,6 +54,7 @@
 #ifndef vtkExplicitStructuredGrid_h
 #define vtkExplicitStructuredGrid_h
 
+#include "vtkAbstractCellLinks.h"     // For vtkAbstractCellLinks
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkNew.h"                   // for vtkNew
 #include "vtkPointSet.h"
@@ -61,7 +62,6 @@
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkCellArray;
-class vtkAbstractCellLinks;
 class vtkEmptyCell;
 class vtkHexahedron;
 
@@ -162,13 +162,18 @@ public:
   vtkGetObjectMacro(Cells, vtkCellArray);
   ///@}
 
-  ///@{
   /**
-   * Create/Get upward links from points to cells that use each point.
-   * Enables topologically complex queries.
+   * Build topological links from points to lists of cells that use each point.
+   * See vtkAbstractCellLinks for more information.
    */
   void BuildLinks();
-  vtkGetObjectMacro(Links, vtkAbstractCellLinks);
+
+  ///@{
+  /**
+   * Set/Get the links that you created possibly without using BuildLinks.
+   */
+  vtkSetSmartPointerMacro(Links, vtkAbstractCellLinks);
+  vtkGetSmartPointerMacro(Links, vtkAbstractCellLinks);
   ///@}
 
   /**
@@ -327,6 +332,8 @@ protected:
   vtkExplicitStructuredGrid();
   ~vtkExplicitStructuredGrid() override;
 
+  void ReportReferences(vtkGarbageCollector*) override;
+
   /**
    * Compute the range of the scalars and cache it into ScalarRange
    * only if the cache became invalid (ScalarRangeComputeTime).
@@ -380,7 +387,7 @@ protected:
   vtkNew<vtkEmptyCell> EmptyCell;
 
   vtkCellArray* Cells;
-  vtkAbstractCellLinks* Links;
+  vtkSmartPointer<vtkAbstractCellLinks> Links;
   int Extent[6];
   char* FacesConnectivityFlagsArrayName;
 

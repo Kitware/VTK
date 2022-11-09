@@ -19,6 +19,7 @@
 #include "vtkCellArrayIterator.h"
 #include "vtkCellData.h"
 #include "vtkEmptyCell.h"
+#include "vtkGarbageCollector.h"
 #include "vtkGenericCell.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
@@ -136,19 +137,18 @@ void vtkPolyData::CopyStructure(vtkDataSet* ds)
   vtkPolyData* pd = vtkPolyData::SafeDownCast(ds);
   if (!pd)
   {
-    vtkErrorMacro("Input dataset is not a polydata!");
+    vtkErrorMacro("Input dataset is not a " << this->GetClassName());
     return;
   }
-
-  vtkPointSet::CopyStructure(ds);
+  this->Superclass::CopyStructure(ds);
 
   this->Verts = pd->Verts;
   this->Lines = pd->Lines;
   this->Polys = pd->Polys;
   this->Strips = pd->Strips;
 
-  this->Cells = nullptr;
-  this->Links = nullptr;
+  this->Cells = pd->Cells;
+  this->Links = pd->Links;
 }
 
 //------------------------------------------------------------------------------
@@ -967,18 +967,29 @@ void vtkPolyData::BuildLinks(int initialSize)
   {
     this->BuildCells();
   }
-
-  this->Links = vtkSmartPointer<vtkCellLinks>::New();
-  if (initialSize > 0)
+  if (!this->Points)
+  {
+    return;
+  }
+  if (!this->Links)
+  {
+    this->Links = vtkSmartPointer<vtkCellLinks>::New();
+    if (initialSize > 0)
+    {
+      this->Links->Allocate(initialSize);
+    }
+    this->Links->SetDataSet(this);
+  }
+  else if (initialSize > 0)
   {
     this->Links->Allocate(initialSize);
+    this->Links->SetDataSet(this);
   }
-  else
+  else if (this->Points->GetMTime() > this->Links->GetMTime())
   {
-    this->Links->Allocate(this->GetNumberOfPoints());
+    this->Links->SetDataSet(this);
   }
-
-  this->Links->BuildLinks(this);
+  this->Links->BuildLinks();
 }
 
 //------------------------------------------------------------------------------
@@ -1458,6 +1469,13 @@ int vtkPolyData::IsEdge(vtkIdType p1, vtkIdType p2)
 }
 
 //------------------------------------------------------------------------------
+void vtkPolyData::ReportReferences(vtkGarbageCollector* collector)
+{
+  this->Superclass::ReportReferences(collector);
+  vtkGarbageCollectorReport(collector, this->Links, "Links");
+}
+
+//------------------------------------------------------------------------------
 unsigned long vtkPolyData::GetActualMemorySize()
 {
   unsigned long size = this->vtkPointSet::GetActualMemorySize();
@@ -1493,9 +1511,13 @@ void vtkPolyData::ShallowCopy(vtkDataObject* dataObject)
 {
   vtkPolyData* polyData = vtkPolyData::SafeDownCast(dataObject);
   if (this == polyData)
+  {
     return;
+  }
 
-  if (polyData != nullptr)
+  // Do superclass
+  this->Superclass::ShallowCopy(dataObject);
+  if (polyData)
   {
     this->SetVerts(polyData->GetVerts());
     this->SetLines(polyData->GetLines());
@@ -1507,37 +1529,57 @@ void vtkPolyData::ShallowCopy(vtkDataObject* dataObject)
     this->Cells = polyData->Cells;
     this->Links = polyData->Links;
   }
-
-  // Do superclass
-  this->vtkPointSet::ShallowCopy(dataObject);
 }
 
 //------------------------------------------------------------------------------
 void vtkPolyData::DeepCopy(vtkDataObject* dataObject)
 {
   auto mkhold = vtkMemkindRAII(this->GetIsInMemkind());
+
+  vtkPolyData* polyData = vtkPolyData::SafeDownCast(dataObject);
   // Do superclass We have to do this BEFORE we call BuildLinks, else
   // there are no points to build the links on (the parent DeepCopy
   // copies the points)
-  this->vtkPointSet::DeepCopy(dataObject);
+  this->Superclass::DeepCopy(dataObject);
 
-  vtkPolyData* polyData = vtkPolyData::SafeDownCast(dataObject);
-
-  if (polyData != nullptr)
+  if (polyData)
   {
-    this->Verts = vtkSmartPointer<vtkCellArray>::New();
-    this->Verts->DeepCopy(polyData->GetVerts());
-
-    this->Lines = vtkSmartPointer<vtkCellArray>::New();
-    this->Lines->DeepCopy(polyData->GetLines());
-
-    this->Polys = vtkSmartPointer<vtkCellArray>::New();
-    this->Polys->DeepCopy(polyData->GetPolys());
-
-    this->Strips = vtkSmartPointer<vtkCellArray>::New();
-    this->Strips->DeepCopy(polyData->GetStrips());
-
-    // only instantiate this if the input dataset has one
+    if (polyData->Verts)
+    {
+      this->Verts = vtkSmartPointer<vtkCellArray>::New();
+      this->Verts->DeepCopy(polyData->Verts);
+    }
+    else
+    {
+      this->Verts = nullptr;
+    }
+    if (polyData->Lines)
+    {
+      this->Lines = vtkSmartPointer<vtkCellArray>::New();
+      this->Lines->DeepCopy(polyData->Lines);
+    }
+    else
+    {
+      this->Lines = nullptr;
+    }
+    if (polyData->Polys)
+    {
+      this->Polys = vtkSmartPointer<vtkCellArray>::New();
+      this->Polys->DeepCopy(polyData->Polys);
+    }
+    else
+    {
+      this->Polys = nullptr;
+    }
+    if (polyData->Strips)
+    {
+      this->Strips = vtkSmartPointer<vtkCellArray>::New();
+      this->Strips->DeepCopy(polyData->Strips);
+    }
+    else
+    {
+      this->Strips = nullptr;
+    }
     if (polyData->Cells)
     {
       this->Cells = vtkSmartPointer<CellMap>::New();
@@ -1547,14 +1589,14 @@ void vtkPolyData::DeepCopy(vtkDataObject* dataObject)
     {
       this->Cells = nullptr;
     }
-
-    if (this->Links)
-    {
-      this->Links = nullptr;
-    }
     if (polyData->Links)
     {
-      this->BuildLinks();
+      this->Links = vtkSmartPointer<vtkCellLinks>::Take(polyData->Links->NewInstance());
+      this->Links->DeepCopy(polyData->Links);
+    }
+    else
+    {
+      this->Links = nullptr;
     }
 
     this->CellsBoundsTime = polyData->CellsBoundsTime;

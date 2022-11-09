@@ -63,10 +63,9 @@ public:
   ///@}
 
   /**
-   * Build the link list array. All subclasses of vtkAbstractCellLinks
-   * must support this method.
+   * Build the link list array from the input dataset.
    */
-  void BuildLinks(vtkDataSet* data) override;
+  void BuildLinks() override;
 
   /**
    * Allocate the specified number of links (i.e., number of points) that
@@ -170,15 +169,7 @@ public:
   void DeepCopy(vtkAbstractCellLinks* src) override;
 
 protected:
-  vtkCellLinks()
-    : Array(nullptr)
-    , Size(0)
-    , MaxId(-1)
-    , Extend(1000)
-    , NumberOfPoints(0)
-    , NumberOfCells(0)
-  {
-  }
+  vtkCellLinks();
   ~vtkCellLinks() override;
 
   /**

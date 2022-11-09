@@ -21,6 +21,7 @@
 #include "vtkCellLinks.h"
 #include "vtkDataSetAttributes.h"
 #include "vtkEmptyCell.h"
+#include "vtkGarbageCollector.h"
 #include "vtkGenericCell.h"
 #include "vtkHexahedron.h"
 #include "vtkInformation.h"
@@ -74,7 +75,6 @@ vtkCxxSetObjectMacro(vtkExplicitStructuredGrid, Cells, vtkCellArray);
 vtkExplicitStructuredGrid::vtkExplicitStructuredGrid()
 {
   this->Cells = nullptr;
-  this->Links = nullptr;
 
   this->FacesConnectivityFlagsArrayName = nullptr;
 
@@ -90,11 +90,6 @@ vtkExplicitStructuredGrid::~vtkExplicitStructuredGrid()
 {
   this->SetFacesConnectivityFlagsArrayName(nullptr);
   this->SetCells(nullptr);
-  if (this->Links)
-  {
-    this->Links->Delete();
-    this->Links = nullptr;
-  }
 }
 
 //------------------------------------------------------------------------------
@@ -110,8 +105,7 @@ void vtkExplicitStructuredGrid::Initialize()
   this->SetCells(nullptr);
   if (this->Links)
   {
-    this->Links->Delete();
-    this->Links = nullptr;
+    this->Links->Initialize();
   }
 }
 
@@ -242,13 +236,13 @@ void vtkExplicitStructuredGrid::GetPointCells(vtkIdType ptId, vtkIdList* cellIds
   vtkIdType numCells, *cells;
   if (!this->Editable)
   {
-    vtkStaticCellLinks* links = static_cast<vtkStaticCellLinks*>(this->Links);
+    vtkStaticCellLinks* links = static_cast<vtkStaticCellLinks*>(this->Links.Get());
     numCells = links->GetNcells(ptId);
     cells = links->GetCells(ptId);
   }
   else
   {
-    vtkCellLinks* links = static_cast<vtkCellLinks*>(this->Links);
+    vtkCellLinks* links = static_cast<vtkCellLinks*>(this->Links.Get());
     numCells = links->GetNcells(ptId);
     cells = links->GetCells(ptId);
   }
@@ -416,68 +410,69 @@ void vtkExplicitStructuredGrid::InternalCopy(vtkExplicitStructuredGrid* src)
 // Copy the topological structure of an input structured grid.
 void vtkExplicitStructuredGrid::CopyStructure(vtkDataSet* ds)
 {
-  this->Superclass::CopyStructure(ds);
-
   vtkExplicitStructuredGrid* grid = vtkExplicitStructuredGrid::SafeDownCast(ds);
+  if (!grid)
+  {
+    vtkErrorMacro("Input dataset is not a " << this->GetClassName());
+    return;
+  }
+  this->Superclass::CopyStructure(ds);
   if (grid)
   {
     this->InternalCopy(grid);
     this->SetCells(grid->GetCells());
-    if (this->Links)
-    {
-      this->Links->Delete();
-      this->Links = nullptr;
-    }
+    this->Links = grid->Links;
   }
 }
 
 //------------------------------------------------------------------------------
 void vtkExplicitStructuredGrid::ShallowCopy(vtkDataObject* dataObject)
 {
-  this->Superclass::ShallowCopy(dataObject);
-
-  if (this->Links)
+  vtkExplicitStructuredGrid* grid = vtkExplicitStructuredGrid::SafeDownCast(dataObject);
+  if (this == grid)
   {
-    this->Links->Delete();
-    this->Links = nullptr;
+    return;
   }
 
-  vtkExplicitStructuredGrid* grid = vtkExplicitStructuredGrid::SafeDownCast(dataObject);
+  this->Superclass::ShallowCopy(dataObject);
   if (grid)
   {
     this->InternalCopy(grid);
 
     this->SetCells(grid->GetCells());
-
-    if (grid->Links)
-    {
-      this->BuildLinks();
-    }
+    this->SetLinks(grid->GetLinks());
   }
 }
 
 //------------------------------------------------------------------------------
 void vtkExplicitStructuredGrid::DeepCopy(vtkDataObject* dataObject)
 {
-  this->Superclass::DeepCopy(dataObject);
-
-  if (this->Links)
-  {
-    this->Links->Delete();
-    this->Links = nullptr;
-  }
+  auto mkhold = vtkMemkindRAII(this->GetIsInMemkind());
 
   vtkExplicitStructuredGrid* grid = vtkExplicitStructuredGrid::SafeDownCast(dataObject);
+  this->Superclass::DeepCopy(dataObject);
+
   if (grid)
   {
     this->InternalCopy(grid);
 
-    vtkNew<vtkCellArray> cells;
-    cells->DeepCopy(grid->GetCells());
-    this->SetCells(cells.Get());
+    if (grid->Cells)
+    {
+      this->Cells = vtkSmartPointer<vtkCellArray>::New();
+      this->Cells->DeepCopy(grid->Cells);
+    }
+    else
+    {
+      this->Cells = nullptr;
+    }
     if (grid->Links)
     {
-      this->BuildLinks();
+      this->Links = vtkSmartPointer<vtkAbstractCellLinks>::Take(grid->Links->NewInstance());
+      this->Links->DeepCopy(grid->Links);
+    }
+    else
+    {
+      this->Links = nullptr;
     }
   }
 }
@@ -506,8 +501,7 @@ void vtkExplicitStructuredGrid::SetExtent(int x0, int x1, int y0, int y1, int z0
 
   if (this->Links)
   {
-    this->Links->Delete();
-    this->Links = nullptr;
+    this->Links->Initialize();
   }
 
   vtkIdType expectedCells = (this->Extent[1] - this->Extent[0]) *
@@ -538,23 +532,31 @@ void vtkExplicitStructuredGrid::SetExtent(int extent[6])
 void vtkExplicitStructuredGrid::BuildLinks()
 {
   // Remove the old links if they are already built
-  if (this->Links)
+  if (!this->Points)
   {
-    this->Links->Delete();
+    return;
   }
 
   // Different types of links depending on whether the data can be edited after
   // initial creation.
-  if (this->Editable)
+  if (!this->Links)
   {
-    this->Links = vtkCellLinks::New();
-    static_cast<vtkCellLinks*>(this->Links)->Allocate(this->GetNumberOfPoints());
+    if (!this->Editable)
+    {
+      this->Links = vtkSmartPointer<vtkStaticCellLinks>::New();
+    }
+    else
+    {
+      this->Links = vtkSmartPointer<vtkCellLinks>::New();
+      static_cast<vtkCellLinks*>(this->Links.Get())->Allocate(this->GetNumberOfPoints());
+    }
+    this->Links->SetDataSet(this);
   }
-  else
+  else if (this->Points->GetMTime() > this->Links->GetMTime())
   {
-    this->Links = vtkStaticCellLinks::New();
+    this->Links->SetDataSet(this);
   }
-  this->Links->BuildLinks(this);
+  this->Links->BuildLinks();
 }
 
 //------------------------------------------------------------------------------
@@ -901,6 +903,13 @@ void vtkExplicitStructuredGrid::Crop(
 
     this->ComputeFacesConnectivityFlagsArray();
   }
+}
+
+//------------------------------------------------------------------------------
+void vtkExplicitStructuredGrid::ReportReferences(vtkGarbageCollector* collector)
+{
+  this->Superclass::ReportReferences(collector);
+  vtkGarbageCollectorReport(collector, this->Links, "Links");
 }
 
 //------------------------------------------------------------------------------

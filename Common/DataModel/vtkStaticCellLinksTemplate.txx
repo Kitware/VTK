@@ -97,6 +97,7 @@ void vtkStaticCellLinksTemplate<TIds>::Initialize()
 template <typename TIds>
 void vtkStaticCellLinksTemplate<TIds>::BuildLinks(vtkDataSet* ds)
 {
+  this->Initialize();
   // Use a fast path if polydata or unstructured grid
   if (ds->GetDataObjectType() == VTK_POLY_DATA)
   {

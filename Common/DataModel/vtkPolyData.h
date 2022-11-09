@@ -711,6 +711,8 @@ protected:
   vtkPolyData();
   ~vtkPolyData() override;
 
+  void ReportReferences(vtkGarbageCollector*) override;
+
   using TaggedCellId = vtkPolyData_detail::TaggedCellId;
   using CellMap = vtkPolyData_detail::CellMap;
 
