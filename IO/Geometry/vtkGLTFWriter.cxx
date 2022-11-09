@@ -348,7 +348,7 @@ int CopyStream(std::istream& in, std::ostream& out)
     in.read(&buf[0], BUF_SIZE);
     out.write(&buf[0], in.gcount());
     streamSize += in.gcount();
-  } while (in.gcount() > 0);
+  } while (in.gcount() == BUF_SIZE);
   return streamSize;
 }
 
@@ -889,7 +889,7 @@ void vtkGLTFWriter::WriteData()
   }
 
   // try opening the files
-  output.open(this->FileName);
+  output.open(this->FileName, ios::binary);
   if (!output.is_open())
   {
     vtkErrorMacro("Unable to open file for gltf output.");
@@ -954,7 +954,7 @@ void vtkGLTFWriter::WriteToStreamMultiBlock(ostream& output, vtkMultiBlockDataSe
   nlohmann::json extensions;
   if (this->PropertyTextureFile)
   {
-    std::ifstream propertyTextureStream(this->PropertyTextureFile);
+    vtksys::ifstream propertyTextureStream(this->PropertyTextureFile, ios::binary);
     if (propertyTextureStream.good())
     {
       try
@@ -987,7 +987,7 @@ void vtkGLTFWriter::WriteToStreamMultiBlock(ostream& output, vtkMultiBlockDataSe
   vtksys::ofstream binChunkOut;
   if (this->Binary)
   {
-    binChunkOut.open(binChunkPath.c_str(), ios::out | ios::binary);
+    binChunkOut.open(binChunkPath.c_str(), ios::binary);
   }
   for (buildingIt->InitTraversal(); !buildingIt->IsDoneWithTraversal(); buildingIt->GoToNextItem())
   {
@@ -1138,7 +1138,7 @@ void vtkGLTFWriter::WriteToStreamMultiBlock(ostream& output, vtkMultiBlockDataSe
     ChunkHeader binChunkHeader;
     binChunkHeader.SetTypeBIN(static_cast<uint32_t>(binChunkOffset + paddingSizeBIN));
     vtkByteSwap::SwapWrite4LERange(&binChunkHeader, 2, &output);
-    vtksys::ifstream binChunkIn(binChunkPath.c_str(), ios::in | ios::binary);
+    vtksys::ifstream binChunkIn(binChunkPath.c_str(), ios::binary);
     CopyStream(binChunkIn, output);
     char paddingBIN[3] = { 0, 0, 0 };
     output.write(paddingBIN, paddingSizeBIN);
