@@ -743,7 +743,7 @@ protected:
   ~vtkAlgorithm() override;
 
   // Time stamp to store the last time any filter was aborted.
-  static vtkTimeStamp* LastAbortTime;
+  static vtkTimeStamp LastAbortTime;
 
   // Time stamp to store the last time this filter checked for an
   // abort.
