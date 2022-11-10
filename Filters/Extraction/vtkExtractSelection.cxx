@@ -306,8 +306,8 @@ int vtkExtractSelection::RequestData(vtkInformation* vtkNotUsed(request),
         vtkSmartPointer<vtkDataObject> clone;
         if (expandToConnectedElements || this->PreserveTopology)
         {
-          clone.TakeReference(input->NewInstance());
-          clone->ShallowCopy(input);
+          clone.TakeReference(blockInput->NewInstance());
+          clone->ShallowCopy(blockInput);
         }
         else
         {
