@@ -406,10 +406,8 @@ int vtkConvertSelection::ConvertCompositeDataSet(
               this->OutputType == vtkSelectionNode::FRUSTUM) &&
           this->OutputType != vtkSelectionNode::GLOBALIDS)
         {
-          if (has_composite_key)
-          {
-            outputNode->GetProperties()->Set(vtkSelectionNode::COMPOSITE_INDEX(), composite_index);
-          }
+          outputNode->GetProperties()->Set(
+            vtkSelectionNode::COMPOSITE_INDEX(), iter->GetCurrentFlatIndex());
 
           if (has_hierarchical_key && hierIter)
           {
