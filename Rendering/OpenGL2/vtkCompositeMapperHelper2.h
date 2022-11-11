@@ -16,7 +16,10 @@
 #define vtkCompositeMapperHelper2_h
 
 #include "vtkOpenGLPolyDataMapper.h"
+
+#include "vtkColor.h"
 #include "vtkRenderingOpenGL2Module.h" // for export macro
+#include "vtk_glew.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkPolyData;
