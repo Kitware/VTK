@@ -86,6 +86,10 @@ int vtkLinkEdgels::RequestData(vtkInformation* vtkNotUsed(request),
   //
   for (ptId = 0; ptId < dimensions[2]; ptId++)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     CurrMap = inDataPtr + dimensions[0] * dimensions[1] * ptId;
 
     this->LinkEdgels(dimensions[0], dimensions[1], CurrMap, inVectors, newLines, newPts, outScalars,

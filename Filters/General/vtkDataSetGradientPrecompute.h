@@ -40,7 +40,7 @@ public:
   vtkTypeMacro(vtkDataSetGradientPrecompute, vtkDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  static int GradientPrecompute(vtkDataSet* ds);
+  static int GradientPrecompute(vtkDataSet* ds, vtkDataSetAlgorithm* self = nullptr);
 
 protected:
   vtkDataSetGradientPrecompute();

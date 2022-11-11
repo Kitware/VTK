@@ -556,6 +556,10 @@ int vtkMultiThreshold::RequestData(
   // For each cell in the mesh:
   for (inCell = 0; inCell < in->GetNumberOfCells(); ++inCell)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     in->GetCell(inCell, cell);
     unresolvedOutputs.clear();
     for (i = 0; i < this->NumberOfOutputs; ++i)

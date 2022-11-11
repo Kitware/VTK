@@ -141,7 +141,7 @@ int vtkDataSetGradient::RequestData(vtkInformation* vtkNotUsed(request),
   {
     vtkDebugMacro(
       << "Couldn't find field array 'GradientPrecomputation', computing it right now.\n");
-    vtkDataSetGradientPrecompute::GradientPrecompute(_output);
+    vtkDataSetGradientPrecompute::GradientPrecompute(_output, this);
     cqsArray = _output->GetFieldData()->GetArray("GradientPrecomputation");
     sizeArray = _output->GetCellData()->GetArray("CellSize");
     if (cqsArray == nullptr || sizeArray == nullptr)
@@ -165,6 +165,11 @@ int vtkDataSetGradient::RequestData(vtkInformation* vtkNotUsed(request),
     vtkIdType cellPoint = 0;
     for (vtkIdType i = 0; i < nCells; i++)
     {
+      if (this->CheckAbort())
+      {
+        break;
+      }
+
       vtkCell* cell = _input->GetCell(i);
       int np = cell->GetNumberOfPoints();
       double gradient[3] = { 0, 0, 0 };
@@ -198,6 +203,11 @@ int vtkDataSetGradient::RequestData(vtkInformation* vtkNotUsed(request),
     vtkIdType cellPoint = 0;
     for (vtkIdType i = 0; i < nCells; i++)
     {
+      if (this->CheckAbort())
+      {
+        break;
+      }
+
       vtkCell* cell = _input->GetCell(i);
       int np = cell->GetNumberOfPoints();
       double scalar = inArray->GetTuple1(i);

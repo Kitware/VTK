@@ -74,6 +74,7 @@ int vtkExtractGhostCells::RequestData(
   threshold->SetThresholdFunction(vtkThreshold::THRESHOLD_UPPER);
   threshold->SetInputArrayToProcess(
     0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_CELLS, vtkDataSetAttributes::GhostArrayName());
+  threshold->SetContainerAlgorithm(this);
   threshold->Update();
 
   outputUG->ShallowCopy(threshold->GetOutputDataObject(0));

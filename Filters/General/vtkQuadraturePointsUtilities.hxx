@@ -41,25 +41,27 @@ struct InterpolateWorker
   // Version without offsets:
   template <typename ValueArrayT>
   void operator()(ValueArrayT* valueArray, vtkUnstructuredGrid* usg, const vtkIdType nCellsUsg,
-    std::vector<vtkQuadratureSchemeDefinition*>& dict, vtkDoubleArray* interpolated)
+    std::vector<vtkQuadratureSchemeDefinition*>& dict, vtkDoubleArray* interpolated,
+    vtkAlgorithm* self)
   {
     this->operator()(valueArray, static_cast<vtkAOSDataArrayTemplate<vtkIdType>*>(nullptr), usg,
-      nCellsUsg, dict, interpolated);
+      nCellsUsg, dict, interpolated, self);
   }
 
   // Version with offsets:
   template <typename ValueArrayT, typename IndexArrayT>
   void operator()(ValueArrayT* valueArray, IndexArrayT* indexArray, vtkUnstructuredGrid* usg,
     const vtkIdType nCellsUsg, std::vector<vtkQuadratureSchemeDefinition*>& dict,
-    vtkDoubleArray* interpolated)
+    vtkDoubleArray* interpolated, vtkAlgorithm* self)
   {
     using IndexType = vtk::GetAPIType<IndexArrayT>;
     const vtk::ComponentIdType nCompsV = valueArray->GetNumberOfComponents();
     const auto valueTuples = vtk::DataArrayTupleRange(valueArray);
+    bool abort = false;
 
     // Walk cells.
     vtkIdType currentIndex = 0;
-    for (vtkIdType cellId = 0; cellId < nCellsUsg; ++cellId)
+    for (vtkIdType cellId = 0; cellId < nCellsUsg && !abort; ++cellId)
     {
       if (indexArray)
       {
@@ -85,6 +87,11 @@ struct InterpolateWorker
       // Walk quadrature points.
       for (int qPtId = 0; qPtId < nQPts; ++qPtId)
       {
+        if (self->CheckAbort())
+        {
+          abort = true;
+          break;
+        }
         // Grab the result and initialize.
         double* r = interpolated->WritePointer(currentIndex, nCompsV);
         for (int q = 0; q < nCompsV; ++q)

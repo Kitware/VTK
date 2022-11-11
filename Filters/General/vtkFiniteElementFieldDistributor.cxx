@@ -2014,7 +2014,7 @@ int vtkFiniteElementFieldDistributor::RequestData(vtkInformation* vtkNotUsed(req
 
         if (c % reportEveryNCells == 0)
         {
-          abortNow = this->GetAbortExecute();
+          abortNow = this->CheckAbort();
           this->UpdateProgress(static_cast<double>(c) / nCells);
         }
       } // for each cell

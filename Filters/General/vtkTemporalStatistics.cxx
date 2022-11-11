@@ -293,7 +293,8 @@ int vtkTemporalStatistics::RequestData(
 
   this->CurrentTimeIndex++;
 
-  if (this->CurrentTimeIndex < inInfo->Length(vtkStreamingDemandDrivenPipeline::TIME_STEPS()))
+  if (this->CurrentTimeIndex < inInfo->Length(vtkStreamingDemandDrivenPipeline::TIME_STEPS()) &&
+    !this->CheckAbort())
   {
     // There is still more to do.
     request->Set(vtkStreamingDemandDrivenPipeline::CONTINUE_EXECUTING(), 1);
@@ -400,6 +401,10 @@ void vtkTemporalStatistics::InitializeArrays(vtkFieldData* inFd, vtkFieldData* o
   int numArrays = inFd->GetNumberOfArrays();
   for (int i = 0; i < numArrays; i++)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     vtkDataArray* array = inFd->GetArray(i);
     if (!array)
       continue; // Array not numeric.
@@ -526,6 +531,10 @@ void vtkTemporalStatistics::AccumulateArrays(vtkFieldData* inFd, vtkFieldData* o
   int numArrays = inFd->GetNumberOfArrays();
   for (int i = 0; i < numArrays; i++)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     vtkDataArray* inArray = inFd->GetArray(i);
     vtkDataArray* outArray;
     if (!inArray)
@@ -652,6 +661,10 @@ void vtkTemporalStatistics::FinishArrays(vtkFieldData* inFd, vtkFieldData* outFd
   int numArrays = inFd->GetNumberOfArrays();
   for (int i = 0; i < numArrays; i++)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     vtkDataArray* inArray = inFd->GetArray(i);
     vtkDataArray* outArray;
     if (!inArray)

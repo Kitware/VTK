@@ -131,7 +131,7 @@ void vtkRandomAttributeGenerator::GenerateRandomTuples(
     if (!(i % tenth))
     {
       this->UpdateProgress(static_cast<double>(i) / total);
-      if (this->GetAbortExecute())
+      if (this->CheckAbort())
       {
         break;
       }
@@ -289,7 +289,7 @@ vtkDataArray* vtkRandomAttributeGenerator::GenerateData(
         if (!(i % tenth))
         {
           this->UpdateProgress(static_cast<double>(i) / total);
-          if (this->GetAbortExecute())
+          if (this->CheckAbort())
           {
             break;
           }
@@ -327,6 +327,10 @@ int vtkRandomAttributeGenerator::RequestData(
   it.TakeReference(input->NewIterator());
   for (it->InitTraversal(); !it->IsDoneWithTraversal(); it->GoToNextItem())
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     vtkDataSet* inputDS = vtkDataSet::SafeDownCast(it->GetCurrentDataObject());
     vtkSmartPointer<vtkDataSet> outputDS;
     outputDS.TakeReference(inputDS->NewInstance());

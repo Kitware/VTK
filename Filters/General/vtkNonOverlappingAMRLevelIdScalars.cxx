@@ -45,6 +45,10 @@ void vtkNonOverlappingAMRLevelIdScalars::AddColorLevels(
 
   for (unsigned int levelIdx = 0; levelIdx < numLevels; levelIdx++)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     unsigned int numDS = input->GetNumberOfDataSets(levelIdx);
     output->SetNumberOfDataSets(levelIdx, numDS);
 

@@ -104,6 +104,8 @@ int vtkCursor2D::RequestData(vtkInformation* vtkNotUsed(request),
   }
   else
   {
+    this->CheckAbort();
+
     return 1;
   }
 
@@ -220,6 +222,8 @@ int vtkCursor2D::RequestData(vtkInformation* vtkNotUsed(request),
     output->SetLines(newLines);
     newLines->Delete();
   }
+
+  this->CheckAbort();
 
   return 1;
 }

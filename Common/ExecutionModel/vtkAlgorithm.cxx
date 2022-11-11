@@ -67,7 +67,7 @@ vtkInformationKeyMacro(vtkAlgorithm, CAN_HANDLE_PIECE_REQUEST, Integer);
 vtkInformationKeyMacro(vtkAlgorithm, ABORTED, Integer);
 
 vtkExecutive* vtkAlgorithm::DefaultExecutivePrototype = nullptr;
-vtkTimeStamp* vtkAlgorithm::LastAbortTime = vtkTimeStamp::New();
+vtkTimeStamp vtkAlgorithm::LastAbortTime;
 
 //------------------------------------------------------------------------------
 class vtkAlgorithmInternals
@@ -203,7 +203,7 @@ bool vtkAlgorithm::CheckAbort()
     return containerResult;
   }
 
-  if (this->LastAbortTime->GetMTime() > this->LastAbortCheckTime.GetMTime())
+  if (this->LastAbortTime.GetMTime() > this->LastAbortCheckTime.GetMTime())
   {
     this->LastAbortCheckTime.Modified();
     for (int port = 0; port < this->GetNumberOfInputPorts(); port++)
@@ -227,7 +227,7 @@ bool vtkAlgorithm::CheckAbort()
 void vtkAlgorithm::SetAbortExecuteAndUpdateTime()
 {
   this->AbortExecute = 1;
-  this->LastAbortTime->Modified();
+  this->LastAbortTime.Modified();
 }
 
 //------------------------------------------------------------------------------
@@ -243,7 +243,7 @@ bool vtkAlgorithm::CheckUpstreamAbort()
     return true;
   }
 
-  if (this->LastAbortTime->GetMTime() > this->LastAbortCheckTime.GetMTime())
+  if (this->LastAbortTime.GetMTime() > this->LastAbortCheckTime.GetMTime())
   {
     this->LastAbortCheckTime.Modified();
     for (int port = 0; port < this->GetNumberOfInputPorts(); port++)

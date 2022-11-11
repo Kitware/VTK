@@ -233,18 +233,30 @@ public:
   class Pass1
   {
   public:
-    Pass1(vtkDiscreteFlyingEdges2DAlgorithm<TT>* algo, double value)
+    Pass1(
+      vtkDiscreteFlyingEdges2DAlgorithm<TT>* algo, double value, vtkDiscreteFlyingEdges2D* filter)
     {
       this->Algo = algo;
       this->Value = value;
+      this->Filter = filter;
     }
     vtkDiscreteFlyingEdges2DAlgorithm<TT>* Algo;
     double Value;
+    vtkDiscreteFlyingEdges2D* Filter;
     void operator()(vtkIdType row, vtkIdType end)
     {
       TT* rowPtr = this->Algo->Scalars + row * this->Algo->Inc1;
+      bool isFirst = vtkSMPTools::GetSingleThread();
       for (; row < end; ++row)
       {
+        if (isFirst)
+        {
+          this->Filter->CheckAbort();
+        }
+        if (this->Filter->GetAbortOutput())
+        {
+          break;
+        }
         this->Algo->ProcessXEdge(this->Value, rowPtr, row);
         rowPtr += this->Algo->Inc1;
       } // for all rows in this batch
@@ -254,12 +266,26 @@ public:
   class Pass2
   {
   public:
-    Pass2(vtkDiscreteFlyingEdges2DAlgorithm<TT>* algo) { this->Algo = algo; }
+    Pass2(vtkDiscreteFlyingEdges2DAlgorithm<TT>* algo, vtkDiscreteFlyingEdges2D* filter)
+    {
+      this->Algo = algo;
+      this->Filter = filter;
+    }
     vtkDiscreteFlyingEdges2DAlgorithm<TT>* Algo;
+    vtkDiscreteFlyingEdges2D* Filter;
     void operator()(vtkIdType row, vtkIdType end)
     {
+      bool isFirst = vtkSMPTools::GetSingleThread();
       for (; row < end; ++row)
       {
+        if (isFirst)
+        {
+          this->Filter->CheckAbort();
+        }
+        if (this->Filter->GetAbortOutput())
+        {
+          break;
+        }
         this->Algo->ProcessYEdges(row);
       } // for all rows in this batch
     }
@@ -268,18 +294,30 @@ public:
   class Pass4
   {
   public:
-    Pass4(vtkDiscreteFlyingEdges2DAlgorithm<TT>* algo, double value)
+    Pass4(
+      vtkDiscreteFlyingEdges2DAlgorithm<TT>* algo, double value, vtkDiscreteFlyingEdges2D* filter)
     {
       this->Algo = algo;
       this->Value = value;
+      this->Filter = filter;
     }
     vtkDiscreteFlyingEdges2DAlgorithm<TT>* Algo;
     double Value;
+    vtkDiscreteFlyingEdges2D* Filter;
     void operator()(vtkIdType row, vtkIdType end)
     {
       T* rowPtr = this->Algo->Scalars + row * this->Algo->Inc1;
+      bool isFirst = vtkSMPTools::GetSingleThread();
       for (; row < end; ++row)
       {
+        if (isFirst)
+        {
+          this->Filter->CheckAbort();
+        }
+        if (this->Filter->GetAbortOutput())
+        {
+          break;
+        }
         this->Algo->GenerateOutput(this->Value, rowPtr, row);
         rowPtr += this->Algo->Inc1;
       } // for all rows in this batch
@@ -784,13 +822,13 @@ void vtkDiscreteFlyingEdges2DAlgorithm<T>::ContourImage(vtkDiscreteFlyingEdges2D
     // PASS 1: Traverse all rows generating intersection points and building
     // the case table. Also accumulate information necessary for later allocation.
     // For example the number of output points is computed.
-    Pass1<T> pass1(&algo, value);
+    Pass1<T> pass1(&algo, value, self);
     vtkSMPTools::For(0, algo.Dims[1], pass1);
 
     // PASS 2: Traverse all rows and process cell y edges. Continue building
     // case table from y contributions (using computational trimming to reduce
     // work) and keep track of cell y intersections.
-    Pass2<T> pass2(&algo);
+    Pass2<T> pass2(&algo, self);
     vtkSMPTools::For(0, algo.Dims[1] - 1, pass2);
 
     // PASS 3: Now allocate and generate output. First we have to update the
@@ -834,7 +872,7 @@ void vtkDiscreteFlyingEdges2DAlgorithm<T>::ContourImage(vtkDiscreteFlyingEdges2D
       }
 
       // PASS 4: Now process each x-row and produce the output primitives.
-      Pass4<T> pass4(&algo, value);
+      Pass4<T> pass4(&algo, value, self);
       vtkSMPTools::For(0, algo.Dims[1] - 1, pass4);
     } // if output generated
 

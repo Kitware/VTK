@@ -44,6 +44,10 @@ void vtkOverlappingAMRLevelIdScalars::AddColorLevels(
   output->CopyStructure(input);
   for (unsigned int levelIdx = 0; levelIdx < numLevels; levelIdx++)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     unsigned int numDS = input->GetNumberOfDataSets(levelIdx);
     for (unsigned int cc = 0; cc < numDS; cc++)
     {

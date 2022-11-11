@@ -60,6 +60,10 @@ int vtkAppendPoints::RequestData(vtkInformation* vtkNotUsed(request),
   std::set<std::string> arrayNames;
   for (int idx = 0; idx < numInputs; ++idx)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     vtkInformation* inInfo = inputVector[0]->GetInformationObject(idx);
     vtkPolyData* input = vtkPolyData::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
     if (input && input->GetNumberOfPoints() > 0)
@@ -98,6 +102,10 @@ int vtkAppendPoints::RequestData(vtkInformation* vtkNotUsed(request),
   std::vector<vtkSmartPointer<vtkPolyData>> inputs;
   for (int idx = 0; idx < numInputs; ++idx)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     vtkInformation* inInfo = inputVector[0]->GetInformationObject(idx);
     vtkPolyData* input = vtkPolyData::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
     if (input && input->GetNumberOfPoints() > 0)
@@ -159,6 +167,10 @@ int vtkAppendPoints::RequestData(vtkInformation* vtkNotUsed(request),
   }
   for (size_t idx = 0; idx < inputs.size(); ++idx)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     vtkPolyData* input = inputs[idx];
     if (input)
     {

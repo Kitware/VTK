@@ -402,6 +402,11 @@ int vtkDensifyPolyData::RequestData(vtkInformation* vtkNotUsed(request),
   for (inputPolys->InitTraversal(); inputPolys->GetNextCell(npts, ptIds); cellId++)
   { // for every cell
 
+    if (this->CheckAbort())
+    {
+      break;
+    }
+
     // Make sure that the polygon is a planar polygon.
     int cellType = input->GetCellType(cellId);
     if (cellType != VTK_POLYGON && cellType != VTK_QUAD && cellType != VTK_TRIANGLE)

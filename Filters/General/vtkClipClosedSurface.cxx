@@ -529,7 +529,7 @@ int vtkClipClosedSurface::RequestData(vtkInformation* vtkNotUsed(request),
   for (int planeId = 0; planes && (plane = planes->GetNextPlane(iter)); planeId++)
   {
     this->UpdateProgress((planeId + 1.0) / (numPlanes + 1.0));
-    if (this->GetAbortExecute())
+    if (this->CheckAbort())
     {
       break;
     }
@@ -1296,8 +1296,8 @@ void vtkClipClosedSurface::TriangulateContours(vtkPolyData* data, vtkIdType firs
   }
 
   double nnormal[3] = { -normal[0], -normal[1], -normal[2] };
-  int rval =
-    vtkContourTriangulator::TriangulateContours(data, firstLine, numLines, outputPolys, nnormal);
+  int rval = vtkContourTriangulator::TriangulateContours(
+    data, firstLine, numLines, outputPolys, nnormal, this);
 
   if (rval == 0 && this->TriangulationErrorDisplay)
   {

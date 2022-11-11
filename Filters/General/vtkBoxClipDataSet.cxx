@@ -295,7 +295,7 @@ int vtkBoxClipDataSet::RequestData(vtkInformation* vtkNotUsed(request),
   vtkGenericCell* cell = vtkGenericCell::New();
   vtkIdType cellId;
 
-  int abort = 0;
+  bool abort = false;
   int num[2];
   int numNew[2];
 
@@ -310,7 +310,7 @@ int vtkBoxClipDataSet::RequestData(vtkInformation* vtkNotUsed(request),
     if (!(cellId % updateTime))
     {
       this->UpdateProgress(static_cast<float>(cellId) / numCells);
-      abort = this->GetAbortExecute();
+      abort = this->CheckAbort();
     }
 
     input->GetCell(cellId, cell);

@@ -191,6 +191,10 @@ int vtkVolumeContourSpectrumFilter::RequestData(vtkInformation* vtkNotUsed(reque
              max = scalarField->GetComponent(vertexIds[vertexIds.size() - 1], 0);
       for (unsigned int i = 0; i < vertexIds.size(); i++)
       {
+        if (this->CheckAbort())
+        {
+          break;
+        }
         scalarValues[i] = scalarField->GetComponent(vertexIds[i], 0);
 
         vtkIdList* starTetrahedronList = vtkIdList::New();

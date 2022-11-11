@@ -86,18 +86,30 @@ struct MarkPointIds
   vtkIdType* PtIds;
   vtkStaticCellLinksTemplate<TIds>* Links;
   CellMapType* CellMap;
+  vtkRemovePolyData* Filter;
 
-  MarkPointIds(vtkIdType* ptIds, vtkStaticCellLinksTemplate<TIds>* links, CellMapType* cellMap)
+  MarkPointIds(vtkIdType* ptIds, vtkStaticCellLinksTemplate<TIds>* links, CellMapType* cellMap,
+    vtkRemovePolyData* filter)
     : PtIds(ptIds)
     , Links(links)
     , CellMap(cellMap)
+    , Filter(filter)
   {
   }
 
   void operator()(vtkIdType idx, vtkIdType endIdx)
   {
+    bool isFirst = vtkSMPTools::GetSingleThread();
     for (; idx < endIdx; ++idx)
     {
+      if (isFirst)
+      {
+        this->Filter->CheckAbort();
+      }
+      if (this->Filter->GetAbortOutput())
+      {
+        break;
+      }
       vtkIdType ptId = this->PtIds[idx];
       vtkIdType ncells = this->Links->GetNcells(ptId);
       auto cells = this->Links->GetCells(ptId);
@@ -108,8 +120,8 @@ struct MarkPointIds
     }
   }
 
-  static void Execute(
-    vtkIdTypeArray* ptIds, vtkStaticCellLinksTemplate<TIds>* links, CellMapType* cellMap)
+  static void Execute(vtkIdTypeArray* ptIds, vtkStaticCellLinksTemplate<TIds>* links,
+    CellMapType* cellMap, vtkRemovePolyData* filter)
   {
     if (ptIds == nullptr)
     {
@@ -117,7 +129,7 @@ struct MarkPointIds
     }
 
     vtkIdType numPtIds = ptIds->GetNumberOfTuples();
-    MarkPointIds<TIds> markPtIds(ptIds->GetPointer(0), links, cellMap);
+    MarkPointIds<TIds> markPtIds(ptIds->GetPointer(0), links, cellMap, filter);
     vtkSMPTools::For(0, numPtIds, markPtIds);
   }
 };
@@ -141,9 +153,11 @@ struct MarkCells
   vtkSMPThreadLocal<vtkSmartPointer<vtkIdList>> LinkedCells;
   vtkSMPThreadLocal<vtkSmartPointer<vtkCellArrayIterator>> CellIterator;
   vtkSMPThreadLocal<vtkSmartPointer<vtkCellArrayIterator>> RCellIterator;
+  vtkRemovePolyData* Filter;
 
   MarkCells(vtkPolyData* input, vtkCellArray* cellArray, vtkStaticCellLinksTemplate<TIds>* links,
-    vtkCellArray* rCellArray, vtkIdType offset, vtkTypeBool exactMatch, CellMapType* cellMap)
+    vtkCellArray* rCellArray, vtkIdType offset, vtkTypeBool exactMatch, CellMapType* cellMap,
+    vtkRemovePolyData* filter)
     : Input(input)
     , Cells(cellArray)
     , Links(links)
@@ -151,6 +165,7 @@ struct MarkCells
     , CellIdOffset(offset)
     , ExactMatch(exactMatch)
     , CellMap(cellMap)
+    , Filter(filter)
   {
   }
 
@@ -169,9 +184,18 @@ struct MarkCells
     vtkCellArrayIterator* cellIter = this->CellIterator.Local();
     vtkCellArrayIterator* rCellIter = this->RCellIterator.Local();
     vtkIdList* linkedCells = this->LinkedCells.Local();
+    bool isFirst = vtkSMPTools::GetSingleThread();
 
     for (; cellId < endCellId; ++cellId)
     {
+      if (isFirst)
+      {
+        this->Filter->CheckAbort();
+      }
+      if (this->Filter->GetAbortOutput())
+      {
+        break;
+      }
       rCellIter->GetCellAtId(cellId, npts, pts);
       this->Links->GetCells(npts, pts, linkedCells);
       auto numLinkedCells = linkedCells->GetNumberOfIds();
@@ -200,9 +224,10 @@ struct MarkCells
 
   static void Execute(vtkPolyData* input, vtkCellArray* cellArray,
     vtkStaticCellLinksTemplate<TIds>* links, vtkIdType numRCells, vtkCellArray* rCellArray,
-    vtkIdType offset, vtkTypeBool exactMatch, CellMapType* cellMap)
+    vtkIdType offset, vtkTypeBool exactMatch, CellMapType* cellMap, vtkRemovePolyData* filter)
   {
-    MarkCells<TIds> markCells(input, cellArray, links, rCellArray, offset, exactMatch, cellMap);
+    MarkCells<TIds> markCells(
+      input, cellArray, links, rCellArray, offset, exactMatch, cellMap, filter);
     vtkSMPTools::For(0, numRCells, markCells);
   }
 };
@@ -215,7 +240,7 @@ struct MarkDeletedCells
 {
   void operator()(vtkPolyData* input, vtkIdType inOffsets[5], vtkIdTypeArray* cellIds,
     vtkIdTypeArray* ptIds, int numInputs, vtkInformationVector** inputVector, bool exactMatch,
-    CellMapType* cellMap)
+    CellMapType* cellMap, vtkRemovePolyData* filter)
   {
     vtkIdType numPts = input->GetNumberOfPoints();
     vtkIdType* cellIdsPtr = (cellIds != nullptr ? cellIds->GetPointer(0) : nullptr);
@@ -260,14 +285,14 @@ struct MarkDeletedCells
     {
       vtkStaticCellLinksTemplate<TIds> links;
       links.ThreadedBuildLinks(numPts, numInVerts, inVerts);
-      MarkPointIds<TIds>::Execute(ptIds, &links, cellMap);
+      MarkPointIds<TIds>::Execute(ptIds, &links, cellMap, filter);
       for (auto i = 1; i < numInputs; ++i)
       {
         cells = vtkPolyData::GetData(inputVector[0], i)->GetVerts();
         if ((nCells = cells->GetNumberOfCells()) > 0)
         {
           MarkCells<TIds>::Execute(
-            input, inVerts, &links, nCells, cells, inOffsets[0], exactMatch, cellMap);
+            input, inVerts, &links, nCells, cells, inOffsets[0], exactMatch, cellMap, filter);
         }
       }
     }
@@ -276,14 +301,14 @@ struct MarkDeletedCells
     {
       vtkStaticCellLinksTemplate<TIds> links;
       links.ThreadedBuildLinks(numPts, numInLines, inLines);
-      MarkPointIds<TIds>::Execute(ptIds, &links, cellMap);
+      MarkPointIds<TIds>::Execute(ptIds, &links, cellMap, filter);
       for (auto i = 1; i < numInputs; ++i)
       {
         cells = vtkPolyData::GetData(inputVector[0], i)->GetLines();
         if ((nCells = cells->GetNumberOfCells()) > 0)
         {
           MarkCells<TIds>::Execute(
-            input, inLines, &links, nCells, cells, inOffsets[1], exactMatch, cellMap);
+            input, inLines, &links, nCells, cells, inOffsets[1], exactMatch, cellMap, filter);
         }
       }
     }
@@ -292,14 +317,14 @@ struct MarkDeletedCells
     {
       vtkStaticCellLinksTemplate<TIds> links;
       links.ThreadedBuildLinks(numPts, numInPolys, inPolys);
-      MarkPointIds<TIds>::Execute(ptIds, &links, cellMap);
+      MarkPointIds<TIds>::Execute(ptIds, &links, cellMap, filter);
       for (auto i = 1; i < numInputs; ++i)
       {
         cells = vtkPolyData::GetData(inputVector[0], i)->GetPolys();
         if ((nCells = cells->GetNumberOfCells()) > 0)
         {
           MarkCells<TIds>::Execute(
-            input, inPolys, &links, nCells, cells, inOffsets[2], exactMatch, cellMap);
+            input, inPolys, &links, nCells, cells, inOffsets[2], exactMatch, cellMap, filter);
         }
       }
     }
@@ -308,14 +333,14 @@ struct MarkDeletedCells
     {
       vtkStaticCellLinksTemplate<TIds> links;
       links.ThreadedBuildLinks(numPts, numInStrips, inStrips);
-      MarkPointIds<TIds>::Execute(ptIds, &links, cellMap);
+      MarkPointIds<TIds>::Execute(ptIds, &links, cellMap, filter);
       for (auto i = 1; i < numInputs; ++i)
       {
         cells = vtkPolyData::GetData(inputVector[0], i)->GetStrips();
         if ((nCells = cells->GetNumberOfCells()) > 0)
         {
           MarkCells<TIds>::Execute(
-            input, inStrips, &links, nCells, cells, inOffsets[3], exactMatch, cellMap);
+            input, inStrips, &links, nCells, cells, inOffsets[3], exactMatch, cellMap, filter);
         }
       }
     }
@@ -348,13 +373,16 @@ struct CountCells
   vtkSMPThreadLocal<vtkIdType> LocalConnSize;
 
   vtkSMPThreadLocal<vtkSmartPointer<vtkCellArrayIterator>> CellIterator;
+  vtkRemovePolyData* Filter;
 
-  CountCells(vtkCellArray* cellArray, CellMapType* cellMap, vtkIdType offset)
+  CountCells(
+    vtkCellArray* cellArray, CellMapType* cellMap, vtkIdType offset, vtkRemovePolyData* filter)
     : CellArray(cellArray)
     , CellMap(cellMap)
     , CellIdOffset(offset)
     , NumCells(0)
     , ConnSize(0)
+    , Filter(filter)
   {
   }
 
@@ -373,9 +401,18 @@ struct CountCells
     vtkIdType& connSize = this->LocalConnSize.Local();
     vtkIdType npts;
     const vtkIdType* pts;
+    bool isFirst = vtkSMPTools::GetSingleThread();
 
     for (; cellId < endCellId; ++cellId)
     {
+      if (isFirst)
+      {
+        this->Filter->CheckAbort();
+      }
+      if (this->Filter->GetAbortOutput())
+      {
+        break;
+      }
       vtkIdType offsetId = cellId + this->CellIdOffset;
       if ((*cellMap)[offsetId] >= 0)
       {
@@ -401,9 +438,9 @@ struct CountCells
   }
 
   static void Execute(vtkCellArray* ca, CellMapType* cellMap, vtkIdType offset,
-    vtkIdType& numOutCells, vtkIdType& connSize)
+    vtkIdType& numOutCells, vtkIdType& connSize, vtkRemovePolyData* filter)
   {
-    CountCells countCells(ca, cellMap, offset);
+    CountCells countCells(ca, cellMap, offset, filter);
     vtkSMPTools::For(0, ca->GetNumberOfCells(), countCells);
     numOutCells = countCells.NumCells;
     connSize = countCells.ConnSize;
@@ -416,7 +453,7 @@ struct CountCells
 struct MapOutput
 {
   void operator()(vtkPolyData* input, vtkIdType inOffsets[5], CellMapType* cellMap,
-    vtkIdType outOffsets[5], vtkIdType connSizes[4])
+    vtkIdType outOffsets[5], vtkIdType connSizes[4], vtkRemovePolyData* filter)
   {
     vtkIdType numInVerts = inOffsets[1] - inOffsets[0];
     vtkIdType numInLines = inOffsets[2] - inOffsets[1];
@@ -430,7 +467,7 @@ struct MapOutput
     if (numInVerts > 0)
     {
       vtkCellArray* inVerts = input->GetVerts();
-      CountCells::Execute(inVerts, cellMap, inOffsets[0], numOutCells, connSizes[0]);
+      CountCells::Execute(inVerts, cellMap, inOffsets[0], numOutCells, connSizes[0], filter);
     }
     outOffsets[1] = outOffsets[0] + numOutCells;
 
@@ -439,7 +476,7 @@ struct MapOutput
     if (numInLines > 0)
     {
       vtkCellArray* inLines = input->GetLines();
-      CountCells::Execute(inLines, cellMap, inOffsets[1], numOutCells, connSizes[1]);
+      CountCells::Execute(inLines, cellMap, inOffsets[1], numOutCells, connSizes[1], filter);
     }
     outOffsets[2] = outOffsets[1] + numOutCells;
 
@@ -448,7 +485,7 @@ struct MapOutput
     if (numInPolys > 0)
     {
       vtkCellArray* inPolys = input->GetPolys();
-      CountCells::Execute(inPolys, cellMap, inOffsets[2], numOutCells, connSizes[2]);
+      CountCells::Execute(inPolys, cellMap, inOffsets[2], numOutCells, connSizes[2], filter);
     }
     outOffsets[3] = outOffsets[2] + numOutCells;
 
@@ -457,7 +494,7 @@ struct MapOutput
     if (numInStrips > 0)
     {
       vtkCellArray* inStrips = input->GetStrips();
-      CountCells::Execute(inStrips, cellMap, inOffsets[3], numOutCells, connSizes[3]);
+      CountCells::Execute(inStrips, cellMap, inOffsets[3], numOutCells, connSizes[3], filter);
     }
     outOffsets[4] = outOffsets[3] + numOutCells;
   }
@@ -475,9 +512,11 @@ struct BuildOffsets
   vtkIdType* Offsets;
 
   vtkSMPThreadLocal<vtkSmartPointer<vtkCellArrayIterator>> CellIterator;
+  vtkRemovePolyData* Filter;
 
   BuildOffsets(CellMapType* cellMap, vtkIdType inCellOffset, vtkIdType outCellOffset,
-    vtkCellArray* inArray, vtkIdType numOutCells, vtkIdType connSize, vtkIdType* offsets)
+    vtkCellArray* inArray, vtkIdType numOutCells, vtkIdType connSize, vtkIdType* offsets,
+    vtkRemovePolyData* filter)
     : CellMap(cellMap)
     , InCellsIdOffset(inCellOffset)
     , OutCellsIdOffset(outCellOffset)
@@ -485,6 +524,7 @@ struct BuildOffsets
     , NumCells(numOutCells)
     , ConnSize(connSize)
     , Offsets(offsets)
+    , Filter(filter)
   {
   }
 
@@ -495,9 +535,18 @@ struct BuildOffsets
     vtkCellArrayIterator* cellIter = this->CellIterator.Local();
     vtkIdType npts;
     const vtkIdType* pts;
+    bool isFirst = vtkSMPTools::GetSingleThread();
 
     for (; cellId < endCellId; ++cellId)
     {
+      if (isFirst)
+      {
+        this->Filter->CheckAbort();
+      }
+      if (this->Filter->GetAbortOutput())
+      {
+        break;
+      }
       vtkIdType inCellId = cellId + this->InCellsIdOffset;
       vtkIdType outCellId = (*this->CellMap)[inCellId] - this->OutCellsIdOffset;
       if (outCellId >= 0)
@@ -535,9 +584,11 @@ struct BuildConnectivity
   ArrayList* Arrays;
 
   vtkSMPThreadLocal<vtkSmartPointer<vtkCellArrayIterator>> CellIterator;
+  vtkRemovePolyData* Filter;
 
   BuildConnectivity(CellMapType* cellMap, vtkIdType inCellsIdOffset, vtkIdType outCellsIdOffset,
-    vtkCellArray* inArray, vtkIdType* offsets, vtkIdType* conn, ArrayList* arrays)
+    vtkCellArray* inArray, vtkIdType* offsets, vtkIdType* conn, ArrayList* arrays,
+    vtkRemovePolyData* filter)
     : CellMap(cellMap)
     , InCellsIdOffset(inCellsIdOffset)
     , OutCellsIdOffset(outCellsIdOffset)
@@ -545,6 +596,7 @@ struct BuildConnectivity
     , Offsets(offsets)
     , Conn(conn)
     , Arrays(arrays)
+    , Filter(filter)
   {
   }
 
@@ -556,9 +608,18 @@ struct BuildConnectivity
     vtkIdType* connPtr;
     vtkIdType npts;
     const vtkIdType* pts;
+    bool isFirst = vtkSMPTools::GetSingleThread();
 
     for (; cellId < endCellId; ++cellId)
     {
+      if (isFirst)
+      {
+        this->Filter->CheckAbort();
+      }
+      if (this->Filter->GetAbortOutput())
+      {
+        break;
+      }
       vtkIdType inCellId = cellId + this->InCellsIdOffset;
       vtkIdType outCellId = (*this->CellMap)[inCellId];
       if (outCellId >= 0)
@@ -581,7 +642,7 @@ struct BuildConnectivity
 struct BuildCellArrays
 {
   void operator()(CellMapType* cellMap, vtkPolyData* input, vtkIdType inOffsets[5],
-    vtkPolyData* output, vtkIdType outOffsets[5], vtkIdType connSizes[4])
+    vtkPolyData* output, vtkIdType outOffsets[5], vtkIdType connSizes[4], vtkRemovePolyData* filter)
   {
     vtkIdType numInVerts = inOffsets[1] - inOffsets[0];
     vtkIdType numInLines = inOffsets[2] - inOffsets[1];
@@ -607,7 +668,7 @@ struct BuildCellArrays
       vtkCellArray* inVerts = input->GetVerts();
       vtkNew<vtkCellArray> outVerts;
       this->BuildArray(cellMap, numInVerts, inVerts, numOutVerts, outVerts, inOffsets[0],
-        outOffsets[0], connSizes[0], &arrays);
+        outOffsets[0], connSizes[0], &arrays, filter);
       output->SetVerts(outVerts);
     }
 
@@ -617,7 +678,7 @@ struct BuildCellArrays
       vtkCellArray* inLines = input->GetLines();
       vtkNew<vtkCellArray> outLines;
       this->BuildArray(cellMap, numInLines, inLines, numOutLines, outLines, inOffsets[1],
-        outOffsets[1], connSizes[1], &arrays);
+        outOffsets[1], connSizes[1], &arrays, filter);
       output->SetLines(outLines);
     }
 
@@ -627,7 +688,7 @@ struct BuildCellArrays
       vtkCellArray* inPolys = input->GetPolys();
       vtkNew<vtkCellArray> outPolys;
       this->BuildArray(cellMap, numInPolys, inPolys, numOutPolys, outPolys, inOffsets[2],
-        outOffsets[2], connSizes[2], &arrays);
+        outOffsets[2], connSizes[2], &arrays, filter);
       output->SetPolys(outPolys);
     }
 
@@ -637,27 +698,27 @@ struct BuildCellArrays
       vtkCellArray* inStrips = input->GetStrips();
       vtkNew<vtkCellArray> outStrips;
       this->BuildArray(cellMap, numInStrips, inStrips, numOutStrips, outStrips, inOffsets[3],
-        outOffsets[3], connSizes[3], &arrays);
+        outOffsets[3], connSizes[3], &arrays, filter);
       output->SetStrips(outStrips);
     }
   }
 
   void BuildArray(CellMapType* cellMap, vtkIdType numInCells, vtkCellArray* inArray,
     vtkIdType numOutCells, vtkCellArray* outArray, vtkIdType inCellsIdOffset,
-    vtkIdType outCellsIdOffset, vtkIdType connSize, ArrayList* arrays)
+    vtkIdType outCellsIdOffset, vtkIdType connSize, ArrayList* arrays, vtkRemovePolyData* filter)
   {
     // Create the offset array, and populate it.
     vtkNew<vtkIdTypeArray> offsets;
     vtkIdType* offsetsPtr = offsets->WritePointer(0, numOutCells + 1);
-    BuildOffsets buildOffsets(
-      cellMap, inCellsIdOffset, outCellsIdOffset, inArray, numOutCells, connSize, offsetsPtr);
+    BuildOffsets buildOffsets(cellMap, inCellsIdOffset, outCellsIdOffset, inArray, numOutCells,
+      connSize, offsetsPtr, filter);
     vtkSMPTools::For(0, numInCells, buildOffsets);
 
     // Now create the connectivity array and populate it.
     vtkNew<vtkIdTypeArray> conn;
     vtkIdType* connPtr = conn->WritePointer(0, connSize);
     BuildConnectivity buildConn(
-      cellMap, inCellsIdOffset, outCellsIdOffset, inArray, offsetsPtr, connPtr, arrays);
+      cellMap, inCellsIdOffset, outCellsIdOffset, inArray, offsetsPtr, connPtr, arrays, filter);
     vtkSMPTools::For(0, numInCells, buildConn);
 
     // Define the cell array
@@ -717,23 +778,23 @@ int vtkRemovePolyData::RequestData(vtkInformation* vtkNotUsed(request),
   {
     MarkDeletedCells<int> markCells;
     markCells(input, inOffsets, this->CellIds, this->PointIds, numInputs, inputVector,
-      this->ExactMatch, &cellMap);
+      this->ExactMatch, &cellMap, this);
   }
   else
   {
     MarkDeletedCells<vtkIdType> markCells;
     markCells(input, inOffsets, this->CellIds, this->PointIds, numInputs, inputVector,
-      this->ExactMatch, &cellMap);
+      this->ExactMatch, &cellMap, this);
   }
 
   // Determine what remains after the deletion of cells, and produce a
   // mapping of input to output cells.
   MapOutput mapOutput;
-  mapOutput(input, inOffsets, &cellMap, outOffsets, connSizes);
+  mapOutput(input, inOffsets, &cellMap, outOffsets, connSizes, this);
 
   // Build the output cell arrays
   BuildCellArrays buildCellArrays;
-  buildCellArrays(&cellMap, input, inOffsets, output, outOffsets, connSizes);
+  buildCellArrays(&cellMap, input, inOffsets, output, outOffsets, connSizes, this);
 
   return 1;
 }

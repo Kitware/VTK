@@ -80,7 +80,7 @@ int vtkBrownianPoints::RequestData(vtkInformation* vtkNotUsed(request),
     if (!(i % tenth))
     {
       this->UpdateProgress(static_cast<double>(i) / numPts);
-      if (this->GetAbortExecute())
+      if (this->CheckAbort())
       {
         break;
       }

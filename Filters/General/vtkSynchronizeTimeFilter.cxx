@@ -197,6 +197,8 @@ int vtkSynchronizeTimeFilter::RequestData(vtkInformation* vtkNotUsed(request),
     double outputTimeValue = this->GetOutputTimeValue(timeValue);
     output->GetInformation()->Set(vtkDataObject::DATA_TIME_STEP(), outputTimeValue);
   }
+
+  this->CheckAbort();
   return 1;
 }
 VTK_ABI_NAMESPACE_END

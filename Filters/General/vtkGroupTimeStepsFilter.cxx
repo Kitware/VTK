@@ -135,7 +135,7 @@ int vtkGroupTimeStepsFilter::RequestData(
     this->AddTimeStep(time, timeStep, clone);
   }
 
-  if ((++this->UpdateTimeIndex) < this->TimeSteps.size())
+  if ((++this->UpdateTimeIndex) < this->TimeSteps.size() && !this->CheckAbort())
   {
     request->Set(vtkStreamingDemandDrivenPipeline::CONTINUE_EXECUTING(), 1);
   }

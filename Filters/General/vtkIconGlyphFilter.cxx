@@ -138,6 +138,10 @@ int vtkIconGlyphFilter::RequestData(vtkInformation* vtkNotUsed(request),
   double sf = 1.0;
   for (ptId = 0; ptId < numPoints; ++ptId)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     iconIndex = scalars->GetValue(ptId);
 
     if (iconIndex >= 0)

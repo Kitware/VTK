@@ -1920,6 +1920,10 @@ int vtkCellValidator::RequestData(vtkInformation* vtkNotUsed(request),
   State state;
   for (it->InitTraversal(); !it->IsDoneWithTraversal(); it->GoToNextCell())
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     it->GetCell(cell);
     state = Check(cell, this->Tolerance);
     stateArray->SetValue(counter, static_cast<short>(state));

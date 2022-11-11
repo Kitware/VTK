@@ -202,6 +202,8 @@ int vtkRectilinearGridClip::RequestData(vtkInformation* vtkNotUsed(request),
     outData->Crop(outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT()));
   }
 
+  this->CheckAbort();
+
   return 1;
 }
 VTK_ABI_NAMESPACE_END

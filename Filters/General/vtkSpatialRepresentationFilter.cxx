@@ -85,6 +85,10 @@ int vtkSpatialRepresentationFilter::RequestData(
   std::set<int>::iterator it;
   for (it = this->Internal->Levels.begin(); it != this->Internal->Levels.end(); ++it)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     if (*it <= this->MaximumLevel)
     {
       vtkNew<vtkPolyData> level_representation;
@@ -98,6 +102,8 @@ int vtkSpatialRepresentationFilter::RequestData(
     output->SetBlock(this->MaximumLevel + 1, leaf_representation);
     this->SpatialRepresentation->GenerateRepresentation(-1, leaf_representation);
   }
+
+  this->CheckAbort();
 
   return 1;
 }

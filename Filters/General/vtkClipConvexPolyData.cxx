@@ -205,6 +205,10 @@ int vtkClipConvexPolyData::RequestData(vtkInformation* vtkNotUsed(request),
   polys->InitTraversal();
   while (polys->GetNextCell(npts, pts))
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     vtkCCPDPolygon* polygon = new vtkCCPDPolygon;
     for (i = 0; i < static_cast<size_t>(npts); i++)
     {
@@ -221,6 +225,10 @@ int vtkClipConvexPolyData::RequestData(vtkInformation* vtkNotUsed(request),
   // For each plane in the collection, clip the polygons with the plane.
   while ((plane = this->Planes->GetNextItem()))
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     if (!this->HasDegeneracies(plane))
     {
       this->ClipWithPlane(plane, tolerance);
@@ -235,6 +243,10 @@ int vtkClipConvexPolyData::RequestData(vtkInformation* vtkNotUsed(request),
   std::vector<vtkIdType> polyPts(32);
   for (i = 0; i < this->Internal->Polygons.size(); i++)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     size_t numPoints = this->Internal->Polygons[i]->Vertices.size();
     if (numPoints > polyPts.size())
     {

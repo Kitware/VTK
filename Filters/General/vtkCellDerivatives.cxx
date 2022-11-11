@@ -72,9 +72,11 @@ struct CellDerivatives
   vtkSMPThreadLocal<vtkSmartPointer<vtkGenericCell>> Cell;
   vtkSMPThreadLocal<vtkSmartPointer<vtkDoubleArray>> CellScalars;
   vtkSMPThreadLocal<vtkSmartPointer<vtkDoubleArray>> CellVectors;
+  vtkCellDerivatives* Filter;
 
   CellDerivatives(vtkDataSet* input, ScalarsT* s, VectorsT* v, vtkDoubleArray* g,
-    vtkDoubleArray* vort, vtkDoubleArray* t, int tMode, int csd, int cvd, int cv)
+    vtkDoubleArray* vort, vtkDoubleArray* t, int tMode, int csd, int cvd, int cv,
+    vtkCellDerivatives* filter)
     : Input(input)
     , InScalars(s)
     , InVectors(v)
@@ -85,6 +87,7 @@ struct CellDerivatives
     , ComputeScalarDerivs(csd)
     , ComputeVectorDerivs(cvd)
     , ComputeVorticity(cv)
+    , Filter(filter)
   {
     if (this->ComputeScalarDerivs)
     {
@@ -121,9 +124,18 @@ struct CellDerivatives
     int computeScalarDerivs = this->ComputeScalarDerivs;
     int computeVectorDerivs = this->ComputeVectorDerivs;
     int computeVorticity = this->ComputeVorticity;
+    bool isFirst = vtkSMPTools::GetSingleThread();
 
     for (; cellId < endCellId; ++cellId)
     {
+      if (isFirst)
+      {
+        this->Filter->CheckAbort();
+      }
+      if (this->Filter->GetAbortOutput())
+      {
+        break;
+      }
       this->Input->GetCell(cellId, cell);
       subId = cell->GetParametricCenter(pcoords);
 
@@ -214,9 +226,10 @@ struct CellDerivativesWorker
 {
   template <typename ScalarsT, typename VectorsT>
   void operator()(ScalarsT* s, VectorsT* v, vtkDataSet* input, vtkIdType numCells,
-    vtkDoubleArray* g, vtkDoubleArray* vort, vtkDoubleArray* t, int tMode, int csd, int cvd, int cv)
+    vtkDoubleArray* g, vtkDoubleArray* vort, vtkDoubleArray* t, int tMode, int csd, int cvd, int cv,
+    vtkCellDerivatives* filter)
   {
-    CellDerivatives<ScalarsT, VectorsT> cd(input, s, v, g, vort, t, tMode, csd, cvd, cv);
+    CellDerivatives<ScalarsT, VectorsT> cd(input, s, v, g, vort, t, tMode, csd, cvd, cv, filter);
     vtkSMPTools::For(0, numCells, cd);
   }
 };
@@ -318,10 +331,10 @@ int vtkCellDerivatives::RequestData(vtkInformation* vtkNotUsed(request),
     CellDerivativesWorker cdWorker;
     if (!CellDerivativesDispatch::Execute(inScalars, inVectors, cdWorker, input, numCells,
           outGradients, outVorticity, outTensors, this->TensorMode, computeScalarDerivs,
-          computeVectorDerivs, computeVorticity))
+          computeVectorDerivs, computeVorticity, this))
     {
       cdWorker(inScalars, inVectors, input, numCells, outGradients, outVorticity, outTensors,
-        this->TensorMode, computeScalarDerivs, computeVectorDerivs, computeVorticity);
+        this->TensorMode, computeScalarDerivs, computeVectorDerivs, computeVorticity, this);
     }
 
   } // if something to compute

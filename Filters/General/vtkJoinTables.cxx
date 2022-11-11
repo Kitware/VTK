@@ -139,6 +139,8 @@ int vtkJoinTables::RequestData(
     vtkErrorMacro("Unsupported types for the key columns.");
     return 0;
   }
+
+  this->CheckAbort();
   return 1;
 }
 

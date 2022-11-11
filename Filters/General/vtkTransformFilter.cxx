@@ -99,6 +99,7 @@ int vtkTransformFilter::RequestData(vtkInformation* vtkNotUsed(request),
     {
       vtkNew<vtkImageDataToPointSet> image2points;
       image2points->SetInputData(inImage);
+      image2points->SetContainerAlgorithm(this);
       image2points->Update();
       input = image2points->GetOutput();
     }
@@ -112,6 +113,7 @@ int vtkTransformFilter::RequestData(vtkInformation* vtkNotUsed(request),
     {
       vtkNew<vtkRectilinearGridToPointSet> rect2points;
       rect2points->SetInputData(inRect);
+      rect2points->SetContainerAlgorithm(this);
       rect2points->Update();
       input = rect2points->GetOutput();
     }
@@ -205,6 +207,10 @@ int vtkTransformFilter::RequestData(vtkInformation* vtkNotUsed(request),
     vtkSmartPointer<vtkDataArray> tmpOutArray;
     for (int i = 0; i < nArrays; i++)
     {
+      if (this->CheckAbort())
+      {
+        break;
+      }
       vtkDataArray* tmpArray = pd->GetArray(i);
       if (tmpArray != inVectors && tmpArray != inNormals && tmpArray->GetNumberOfComponents() == 3)
       {
@@ -253,6 +259,10 @@ int vtkTransformFilter::RequestData(vtkInformation* vtkNotUsed(request),
       vtkSmartPointer<vtkDataArray> tmpOutArray;
       for (int i = 0; i < cd->GetNumberOfArrays(); i++)
       {
+        if (this->CheckAbort())
+        {
+          break;
+        }
         vtkDataArray* tmpArray = cd->GetArray(i);
         if (tmpArray != inCellVectors && tmpArray != inCellNormals &&
           tmpArray->GetNumberOfComponents() == 3)
@@ -311,6 +321,10 @@ int vtkTransformFilter::RequestData(vtkInformation* vtkNotUsed(request),
   {
     for (int i = 0; i < pd->GetNumberOfArrays(); i++)
     {
+      if (this->CheckAbort())
+      {
+        break;
+      }
       if (!outPD->GetArray(pd->GetAbstractArray(i)->GetName()))
       {
         outPD->AddArray(pd->GetAbstractArray(i));

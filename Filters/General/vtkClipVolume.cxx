@@ -280,12 +280,12 @@ int vtkClipVolume::RequestData(vtkInformation* vtkNotUsed(request),
   // variable). The flip variable also controls the generation of tetrahedra
   // in boundary voxels in ClipTets() and the ordered Delaunay triangulation
   // used in ClipVoxel().
-  int abort = 0;
+  bool abort = false;
   for (k = 0; k < numKCells && !abort; k++)
   {
     // Check for progress and abort on every z-slice
     this->UpdateProgress(static_cast<double>(k) / numKCells);
-    abort = this->GetAbortExecute();
+    abort = this->CheckAbort();
     for (j = 0; j < numJCells; j++)
     {
       for (i = 0; i < numICells; i++)

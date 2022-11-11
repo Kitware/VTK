@@ -53,6 +53,10 @@ int vtkMultiBlockMergeFilter::RequestData(vtkInformation* vtkNotUsed(request),
   int first = 1;
   for (int idx = 0; idx < numInputs; ++idx)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     vtkMultiBlockDataSet* input = nullptr;
     vtkInformation* inInfo = inputVector[0]->GetInformationObject(idx);
     if (inInfo)

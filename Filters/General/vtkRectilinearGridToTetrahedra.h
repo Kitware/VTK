@@ -136,7 +136,8 @@ private:
    * Take the grid and make it into a tetrahedral mesh.
    */
   static void GridToTetMesh(vtkRectilinearGrid* RectGrid, vtkSignedCharArray* VoxelSubdivisionType,
-    const int& TetraPerCell, const int& RememberVoxelId, vtkUnstructuredGrid* TetMesh);
+    const int& TetraPerCell, const int& RememberVoxelId, vtkUnstructuredGrid* TetMesh,
+    vtkRectilinearGridToTetrahedra* self);
 
   /**
    * Take a voxel and make tetrahedra out of it.

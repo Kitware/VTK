@@ -195,7 +195,7 @@ void vtkRectilinearGridToTetrahedra::DetermineGridDivisionTypes(
 // Take the grid and make it into a tetrahedral mesh.
 void vtkRectilinearGridToTetrahedra::GridToTetMesh(vtkRectilinearGrid* RectGrid,
   vtkSignedCharArray* VoxelSubdivisionType, const int& tetraPerCell, const int& rememberVoxelId,
-  vtkUnstructuredGrid* TetMesh)
+  vtkUnstructuredGrid* TetMesh, vtkRectilinearGridToTetrahedra* self)
 {
   int i, j;
   int numPts = RectGrid->GetNumberOfPoints();
@@ -247,6 +247,10 @@ void vtkRectilinearGridToTetrahedra::GridToTetMesh(vtkRectilinearGrid* RectGrid,
   int NumTetFromVoxel;
   for (i = 0; i < numRec; i++)
   {
+    if (self->CheckAbort())
+    {
+      break;
+    }
     RectGrid->GetCellPoints(i, VoxelCorners);
     NumTetFromVoxel = TetrahedralizeVoxel(
       VoxelCorners, (int)VoxelSubdivisionType->GetValue(i), NodePoints, TetList);
@@ -566,13 +570,16 @@ int vtkRectilinearGridToTetrahedra::RequestData(vtkInformation* vtkNotUsed(reque
   DetermineGridDivisionTypes(RectGrid, VoxelSubdivisionType, this->TetraPerCell);
 
   // Subdivide each cell to a tetrahedron, forming the TetMesh
-  GridToTetMesh(RectGrid, VoxelSubdivisionType, this->TetraPerCell, this->RememberVoxelId, output);
+  GridToTetMesh(
+    RectGrid, VoxelSubdivisionType, this->TetraPerCell, this->RememberVoxelId, output, this);
 
   vtkDebugMacro(<< "Number of output points: " << output->GetNumberOfPoints());
   vtkDebugMacro(<< "Number of output tetrahedra: " << output->GetNumberOfCells());
 
   // Clean Up
   VoxelSubdivisionType->Delete();
+
+  this->CheckAbort();
 
   return 1;
 }

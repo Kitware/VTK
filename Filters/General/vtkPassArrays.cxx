@@ -242,6 +242,10 @@ int vtkPassArrays::RequestData(
   itEnd = this->Implementation->Arrays.end();
   for (it = this->Implementation->Arrays.begin(); it != itEnd; ++it)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     if (this->UseFieldTypes)
     {
       // Make sure this is a field type we are interested in
@@ -287,6 +291,8 @@ int vtkPassArrays::RequestData(
       }
     }
   }
+
+  this->CheckAbort();
 
   return 1;
 }
