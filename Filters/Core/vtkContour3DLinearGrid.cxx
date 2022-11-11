@@ -1646,17 +1646,6 @@ int vtkContour3DLinearGrid::RequestData(
       vtkLog(TRACE, "No scalars available");
       return 1;
     }
-
-    double scalarRange[2];
-    inputGrid->GetPointData()->GetRange(inScalars->GetName(), scalarRange);
-    double rangeDiff = scalarRange[1] - scalarRange[0];
-
-    // Use provided scalar tree if not a composite data set input and scalar array range
-    // difference between min and max is non-zero.
-    if (this->UseScalarTree && this->ScalarTree && rangeDiff > 0.0)
-    {
-      this->ScalarTreeMap->insert(std::make_pair(inputGrid, this->ScalarTree));
-    }
     this->ProcessPiece(inputGrid, inScalars, outputPD);
   }
 
