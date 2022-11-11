@@ -1694,22 +1694,6 @@ int vtkContour3DLinearGrid::RequestData(
 }
 
 //------------------------------------------------------------------------------
-void vtkContour3DLinearGrid::SetOutputPointsPrecision(int precision)
-{
-  if (this->OutputPointsPrecision != precision)
-  {
-    this->OutputPointsPrecision = precision;
-    this->Modified();
-  }
-}
-
-//------------------------------------------------------------------------------
-int vtkContour3DLinearGrid::GetOutputPointsPrecision() const
-{
-  return this->OutputPointsPrecision;
-}
-
-//------------------------------------------------------------------------------
 bool vtkContour3DLinearGrid::CanFullyProcessDataObject(
   vtkDataObject* object, const char* scalarArrayName)
 {

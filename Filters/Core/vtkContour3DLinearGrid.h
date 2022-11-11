@@ -199,8 +199,8 @@ public:
    * for the vtkAlgorithm::Precision enum for an explanation of the available
    * precision settings.
    */
-  void SetOutputPointsPrecision(int precision);
-  int GetOutputPointsPrecision() const;
+  vtkSetMacro(OutputPointsPrecision, int);
+  vtkGetMacro(OutputPointsPrecision, int);
   ///@}
 
   /**
