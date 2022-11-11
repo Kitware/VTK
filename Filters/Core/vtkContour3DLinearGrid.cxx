@@ -1582,43 +1582,26 @@ void vtkContour3DLinearGrid::ProcessPiece(
 int vtkContour3DLinearGrid::RequestDataObject(
   vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
-  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
-  if (!inInfo)
+  auto inputDO = vtkDataObject::GetData(inputVector[0], 0);
+  int outputType = -1;
+  if (vtkUnstructuredGrid::SafeDownCast(inputDO))
   {
+    outputType = VTK_POLY_DATA;
+  }
+  else if (vtkCompositeDataSet::SafeDownCast(inputDO))
+  {
+    outputType = inputDO->GetDataObjectType();
+  }
+  else
+  {
+    vtkErrorMacro("Unsupported input type: " << inputDO->GetClassName());
     return 0;
   }
 
-  vtkDataObject* inputDO = vtkDataObject::GetData(inputVector[0], 0);
-  vtkDataObject* outputDO = vtkDataObject::GetData(outputVector, 0);
-  assert(inputDO != nullptr);
-
-  vtkInformation* outInfo = outputVector->GetInformationObject(0);
-
-  if (vtkUnstructuredGrid::SafeDownCast(inputDO))
-  {
-    if (vtkPolyData::SafeDownCast(outputDO) == nullptr)
-    {
-      outputDO = vtkPolyData::New();
-      outInfo->Set(vtkDataObject::DATA_OBJECT(), outputDO);
-      outputDO->Delete();
-    }
-    return 1;
-  }
-
-  if (vtkCompositeDataSet::SafeDownCast(inputDO))
-  {
-    // For any composite dataset, we're create a vtkMultiBlockDataSet as output;
-    if (vtkMultiBlockDataSet::SafeDownCast(outputDO) == nullptr)
-    {
-      outputDO = vtkMultiBlockDataSet::New();
-      outInfo->Set(vtkDataObject::DATA_OBJECT(), outputDO);
-      outputDO->Delete();
-    }
-    return 1;
-  }
-
-  vtkErrorMacro("Not sure what type of output to create!");
-  return 0;
+  return vtkDataObjectAlgorithm::SetOutputDataObject(
+           outputType, outputVector->GetInformationObject(0), /*exact*/ true)
+    ? 1
+    : 0;
 }
 
 //------------------------------------------------------------------------------
@@ -1630,22 +1613,15 @@ int vtkContour3DLinearGrid::RequestData(
   vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   // Get the input and output
-  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
-  vtkInformation* outInfo = outputVector->GetInformationObject(0);
+  vtkUnstructuredGrid* inputGrid = vtkUnstructuredGrid::GetData(inputVector[0]);
+  vtkPolyData* outputPD = vtkPolyData::GetData(outputVector);
 
-  vtkUnstructuredGrid* inputGrid =
-    vtkUnstructuredGrid::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  vtkPolyData* outputPolyData =
-    vtkPolyData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
-
-  vtkCompositeDataSet* inputCDS =
-    vtkCompositeDataSet::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  vtkMultiBlockDataSet* outputMBDS =
-    vtkMultiBlockDataSet::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkCompositeDataSet* inputCDS = vtkCompositeDataSet::GetData(inputVector[0]);
+  vtkCompositeDataSet* outputCDS = vtkCompositeDataSet::GetData(outputVector);
 
   // Make sure we have valid input and output of some form
-  if ((inputGrid == nullptr || outputPolyData == nullptr) &&
-    (inputCDS == nullptr || outputMBDS == nullptr))
+  if ((inputGrid == nullptr || outputPD == nullptr) &&
+    (inputCDS == nullptr || outputCDS == nullptr))
   {
     return 0;
   }
@@ -1681,7 +1657,7 @@ int vtkContour3DLinearGrid::RequestData(
     {
       this->ScalarTreeMap->insert(std::make_pair(inputGrid, this->ScalarTree));
     }
-    this->ProcessPiece(inputGrid, inScalars, outputPolyData);
+    this->ProcessPiece(inputGrid, inScalars, outputPD);
   }
 
   // Otherwise it is an input composite data set and each unstructured grid
@@ -1689,15 +1665,12 @@ int vtkContour3DLinearGrid::RequestData(
   // the output multiblock dataset.
   else
   {
-    vtkUnstructuredGrid* grid;
-    vtkPolyData* polydata;
-    outputMBDS->CopyStructure(inputCDS);
+    outputCDS->CopyStructure(inputCDS);
     vtkSmartPointer<vtkCompositeDataIterator> inIter;
     inIter.TakeReference(inputCDS->NewIterator());
     for (inIter->InitTraversal(); !inIter->IsDoneWithTraversal(); inIter->GoToNextItem())
     {
-      auto ds = inIter->GetCurrentDataObject();
-      if ((grid = vtkUnstructuredGrid::SafeDownCast(ds)))
+      if (auto grid = vtkUnstructuredGrid::SafeDownCast(inIter->GetCurrentDataObject()))
       {
         int association = vtkDataObject::FIELD_ASSOCIATION_POINTS;
         inScalars = this->GetInputArrayToProcess(0, grid, association);
@@ -1706,10 +1679,9 @@ int vtkContour3DLinearGrid::RequestData(
           vtkLog(TRACE, "No scalars available");
           continue;
         }
-        polydata = vtkPolyData::New();
+        vtkNew<vtkPolyData> polydata;
         this->ProcessPiece(grid, inScalars, polydata);
-        outputMBDS->SetDataSet(inIter, polydata);
-        polydata->Delete();
+        outputCDS->SetDataSet(inIter, polydata);
       }
       else
       {
