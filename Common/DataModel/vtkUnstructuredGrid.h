@@ -39,7 +39,6 @@
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkCellArray;
-class vtkAbstractCellLinks;
 class vtkBezierCurve;
 class vtkBezierQuadrilateral;
 class vtkBezierHexahedron;
@@ -300,6 +299,7 @@ public:
    * vtkStaticCellLinksTemplate<VTK_ID_TYPE>=4.  (See enum types defined in
    * vtkAbstractCellLinks.)
    */
+  VTK_DEPRECATED_IN_9_3_0("Use GetLinks() instead.")
   vtkAbstractCellLinks* GetCellLinks();
 
   /**
@@ -560,6 +560,8 @@ public:
 protected:
   vtkUnstructuredGrid();
   ~vtkUnstructuredGrid() override;
+
+  void ReportReferences(vtkGarbageCollector*) override;
 
   // These are all the cells that vtkUnstructuredGrid can represent. Used by
   // GetCell() (and similar) methods.

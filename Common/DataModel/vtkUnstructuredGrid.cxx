@@ -39,6 +39,7 @@
 #include "vtkDataArrayRange.h"
 #include "vtkDoubleArray.h"
 #include "vtkEmptyCell.h"
+#include "vtkGarbageCollector.h"
 #include "vtkGenericCell.h"
 #include "vtkHexagonalPrism.h"
 #include "vtkHexahedron.h"
@@ -511,19 +512,21 @@ int vtkUnstructuredGrid::GetGhostLevel()
 // Copy the geometric and topological structure of an input unstructured grid.
 void vtkUnstructuredGrid::CopyStructure(vtkDataSet* ds)
 {
-  // If ds is a vtkUnstructuredGrid, do a shallow copy of the cell data.
-  if (vtkUnstructuredGrid* ug = vtkUnstructuredGrid::SafeDownCast(ds))
+  vtkUnstructuredGrid* ug = vtkUnstructuredGrid::SafeDownCast(ds);
+  if (!ug)
   {
-    this->Connectivity = ug->Connectivity;
-    this->Links = ug->Links;
-    this->Types = ug->Types;
-    this->DistinctCellTypes = nullptr;
-    this->DistinctCellTypesUpdateMTime = 0;
-    this->Faces = ug->Faces;
-    this->FaceLocations = ug->FaceLocations;
+    vtkErrorMacro("Input dataset is not a " << this->GetClassName());
+    return;
   }
-
-  this->Superclass::CopyStructure(ds);
+  this->Superclass::CopyStructure(ug);
+  // If ds is a vtkUnstructuredGrid, do a shallow copy of the cell data.
+  this->Connectivity = ug->Connectivity;
+  this->Types = ug->Types;
+  this->DistinctCellTypes = nullptr;
+  this->DistinctCellTypesUpdateMTime = 0;
+  this->Faces = ug->Faces;
+  this->FaceLocations = ug->FaceLocations;
+  this->Links = ug->Links;
 }
 
 //------------------------------------------------------------------------------
@@ -1554,22 +1557,31 @@ void vtkUnstructuredGrid::SetCells(vtkUnsignedCharArray* cellTypes, vtkCellArray
 //------------------------------------------------------------------------------
 void vtkUnstructuredGrid::BuildLinks()
 {
+  if (!this->Points)
+  {
+    return;
+  }
   // Create appropriate links. Currently, it's either a vtkCellLinks (when
   // the dataset is editable) or vtkStaticCellLinks (when the dataset is
   // not editable).
-  vtkIdType numPts = this->GetNumberOfPoints();
-  if (!this->Editable)
+  if (!this->Links)
   {
-    this->Links = vtkSmartPointer<vtkStaticCellLinks>::New();
+    if (!this->Editable)
+    {
+      this->Links = vtkSmartPointer<vtkStaticCellLinks>::New();
+    }
+    else
+    {
+      this->Links = vtkSmartPointer<vtkCellLinks>::New();
+      static_cast<vtkCellLinks*>(this->Links.Get())->Allocate(this->GetNumberOfPoints());
+    }
+    this->Links->SetDataSet(this);
   }
-  else
+  else if (this->Points->GetMTime() > this->Links->GetMTime())
   {
-    vtkNew<vtkCellLinks> links;
-    links->Allocate(numPts);
-    this->Links = links;
+    this->Links->SetDataSet(this);
   }
-
-  this->Links->BuildLinks(this);
+  this->Links->BuildLinks();
 }
 
 //------------------------------------------------------------------------------
@@ -1915,6 +1927,13 @@ vtkIdType vtkUnstructuredGrid::InsertNextLinkedCell(int type, int npts, const vt
 }
 
 //------------------------------------------------------------------------------
+void vtkUnstructuredGrid::ReportReferences(vtkGarbageCollector* collector)
+{
+  this->Superclass::ReportReferences(collector);
+  vtkGarbageCollectorReport(collector, this->Links, "Links");
+}
+
+//------------------------------------------------------------------------------
 unsigned long vtkUnstructuredGrid::GetActualMemorySize()
 {
   unsigned long size = this->vtkPointSet::GetActualMemorySize();
@@ -1949,7 +1968,13 @@ unsigned long vtkUnstructuredGrid::GetActualMemorySize()
 //------------------------------------------------------------------------------
 void vtkUnstructuredGrid::ShallowCopy(vtkDataObject* dataObject)
 {
-  if (vtkUnstructuredGrid* grid = vtkUnstructuredGrid::SafeDownCast(dataObject))
+  vtkUnstructuredGrid* grid = vtkUnstructuredGrid::SafeDownCast(dataObject);
+  if (this == grid)
+  {
+    return;
+  }
+  this->Superclass::ShallowCopy(dataObject);
+  if (grid)
   {
     // I do not know if this is correct but.
     // ^ I really hope this comment lives for another 20 years.
@@ -1966,8 +1991,7 @@ void vtkUnstructuredGrid::ShallowCopy(vtkDataObject* dataObject)
   {
     // The source object has vtkUnstructuredGrid topology, but a different
     // cell implementation. Deep copy the cells, and shallow copy the rest:
-    vtkSmartPointer<vtkCellIterator> cellIter =
-      vtkSmartPointer<vtkCellIterator>::Take(ugb->NewCellIterator());
+    auto cellIter = vtkSmartPointer<vtkCellIterator>::Take(ugb->NewCellIterator());
     for (cellIter->InitTraversal(); !cellIter->IsDoneWithTraversal(); cellIter->GoToNextCell())
     {
       this->InsertNextCell(cellIter->GetCellType(), cellIter->GetNumberOfPoints(),
@@ -1975,8 +1999,6 @@ void vtkUnstructuredGrid::ShallowCopy(vtkDataObject* dataObject)
         cellIter->GetFaces()->GetPointer(1));
     }
   }
-
-  this->Superclass::ShallowCopy(dataObject);
 }
 
 //------------------------------------------------------------------------------
@@ -1985,8 +2007,13 @@ void vtkUnstructuredGrid::DeepCopy(vtkDataObject* dataObject)
   auto mkhold = vtkMemkindRAII(this->GetIsInMemkind());
   vtkUnstructuredGrid* grid = vtkUnstructuredGrid::SafeDownCast(dataObject);
 
-  if (grid != nullptr)
+  if (grid)
   {
+    // Skip the unstructured grid base implementation, as it uses a less
+    // efficient method of copying cell data.
+    // NOLINTNEXTLINE(bugprone-parent-virtual-call)
+    this->vtkUnstructuredGridBase::Superclass::DeepCopy(grid);
+
     if (grid->Connectivity)
     {
       this->Connectivity = vtkSmartPointer<vtkCellArray>::New();
@@ -1996,7 +2023,6 @@ void vtkUnstructuredGrid::DeepCopy(vtkDataObject* dataObject)
     {
       this->Connectivity = nullptr;
     }
-
     if (grid->Types)
     {
       this->Types = vtkSmartPointer<vtkUnsignedCharArray>::New();
@@ -2006,7 +2032,6 @@ void vtkUnstructuredGrid::DeepCopy(vtkDataObject* dataObject)
     {
       this->Types = nullptr;
     }
-
     if (grid->DistinctCellTypes)
     {
       this->DistinctCellTypes = vtkSmartPointer<vtkCellTypes>::New();
@@ -2016,7 +2041,6 @@ void vtkUnstructuredGrid::DeepCopy(vtkDataObject* dataObject)
     {
       this->DistinctCellTypes = nullptr;
     }
-
     if (grid->Faces)
     {
       this->Faces = vtkSmartPointer<vtkIdTypeArray>::New();
@@ -2026,7 +2050,6 @@ void vtkUnstructuredGrid::DeepCopy(vtkDataObject* dataObject)
     {
       this->Faces = nullptr;
     }
-
     if (grid->FaceLocations)
     {
       this->FaceLocations = vtkSmartPointer<vtkIdTypeArray>::New();
@@ -2036,22 +2059,20 @@ void vtkUnstructuredGrid::DeepCopy(vtkDataObject* dataObject)
     {
       this->FaceLocations = nullptr;
     }
-
-    // Skip the unstructured grid base implementation, as it uses a less
-    // efficient method of copying cell data.
-    // NOLINTNEXTLINE(bugprone-parent-virtual-call)
-    this->vtkUnstructuredGridBase::Superclass::DeepCopy(grid);
+    if (grid->Links)
+    {
+      this->Links = vtkSmartPointer<vtkAbstractCellLinks>::Take(grid->Links->NewInstance());
+      this->Links->DeepCopy(grid->Links);
+    }
+    else
+    {
+      this->Links = nullptr;
+    }
   }
   else
   {
     // Use the vtkUnstructuredGridBase deep copy implementation.
     this->Superclass::DeepCopy(dataObject);
-  }
-
-  // Finally Build Links if we need to
-  if (grid && grid->Links)
-  {
-    this->BuildLinks();
   }
 }
 

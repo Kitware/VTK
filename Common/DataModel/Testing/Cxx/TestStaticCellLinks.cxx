@@ -36,8 +36,9 @@ int TestStaticCellLinks(int, char*[])
 
   //----------------------------------------------------------------------------
   // Build links on volume
-  vtkSmartPointer<vtkStaticCellLinks> imlinks = vtkSmartPointer<vtkStaticCellLinks>::New();
-  imlinks->BuildLinks(volume);
+  vtkNew<vtkStaticCellLinks> imlinks;
+  imlinks->SetDataSet(volume);
+  imlinks->BuildLinks();
 
   vtkIdType ncells = imlinks->GetNumberOfCells(0);
   const vtkIdType* imcells = imlinks->GetCells(0);

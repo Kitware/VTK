@@ -97,6 +97,7 @@ void vtkStaticCellLinksTemplate<TIds>::Initialize()
 template <typename TIds>
 void vtkStaticCellLinksTemplate<TIds>::BuildLinks(vtkDataSet* ds)
 {
+  this->Initialize();
   // Use a fast path if polydata or unstructured grid
   if (ds->GetDataObjectType() == VTK_POLY_DATA)
   {
@@ -187,9 +188,10 @@ struct CountPoints
     auto connRange = vtk::DataArrayValueRange<1>(state.GetConnectivity(), connBeginId, connEndId);
 
     // Count number of point uses
+    TIds* linkOffsetsPtr = linkOffsets + idOffset;
     for (const ValueType ptId : connRange)
     {
-      ++linkOffsets[static_cast<size_t>(idOffset + ptId)];
+      ++linkOffsetsPtr[ptId];
     }
   }
 };

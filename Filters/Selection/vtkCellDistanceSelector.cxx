@@ -157,7 +157,7 @@ int vtkCellDistanceSelector::RequestData(vtkInformation* vtkNotUsed(request),
 
         if (ug_input)
         {
-          if (!ug_input->GetCellLinks())
+          if (!ug_input->GetLinks())
           {
             ug_input->BuildLinks();
           }

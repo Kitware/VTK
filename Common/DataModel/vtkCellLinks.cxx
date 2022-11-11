@@ -24,12 +24,25 @@
 #include <vector>
 
 VTK_ABI_NAMESPACE_BEGIN
+
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkCellLinks);
+
+//------------------------------------------------------------------------------
+vtkCellLinks::vtkCellLinks()
+  : Array(nullptr)
+  , Size(0)
+  , MaxId(-1)
+  , Extend(1000)
+  , NumberOfPoints(0)
+  , NumberOfCells(0)
+{
+  this->Type = vtkAbstractCellLinks::CELL_LINKS;
+}
 
 //------------------------------------------------------------------------------
 vtkCellLinks::~vtkCellLinks()
 {
-  this->Type = vtkAbstractCellLinks::CELL_LINKS;
   this->Initialize();
 }
 
@@ -46,8 +59,10 @@ void vtkCellLinks::Initialize()
     delete[] this->Array;
     this->Array = nullptr;
   }
+  this->Size = 0;
   this->NumberOfPoints = 0;
   this->NumberOfCells = 0;
+  this->Modified();
 }
 
 //------------------------------------------------------------------------------
@@ -55,8 +70,8 @@ void vtkCellLinks::Allocate(vtkIdType sz, vtkIdType ext)
 {
   static vtkCellLinks::Link linkInit = { 0, nullptr };
 
+  this->Initialize();
   this->Size = sz;
-  delete[] this->Array;
   this->Array = new vtkCellLinks::Link[sz];
   this->Extend = ext;
   this->MaxId = -1;
@@ -65,6 +80,7 @@ void vtkCellLinks::Allocate(vtkIdType sz, vtkIdType ext)
   {
     this->Array[i] = linkInit;
   }
+  this->Modified();
 }
 
 //------------------------------------------------------------------------------
@@ -109,6 +125,7 @@ void vtkCellLinks::Squeeze()
 void vtkCellLinks::Reset()
 {
   this->MaxId = -1;
+  this->Modified();
 }
 
 //------------------------------------------------------------------------------
@@ -152,17 +169,24 @@ vtkCellLinks::Link* vtkCellLinks::Resize(vtkIdType sz)
 
 //------------------------------------------------------------------------------
 // Build the link list array.
-void vtkCellLinks::BuildLinks(vtkDataSet* data)
+void vtkCellLinks::BuildLinks()
 {
-  vtkIdType numPts = this->NumberOfPoints = data->GetNumberOfPoints();
-  vtkIdType numCells = this->NumberOfCells = data->GetNumberOfCells();
+  // don't rebuild if build time is newer than modified and dataset modified time
+  if (this->Array && this->BuildTime > this->MTime && this->BuildTime > this->DataSet->GetMTime())
+  {
+    return;
+  }
+  vtkIdType numPts = this->NumberOfPoints = this->DataSet->GetNumberOfPoints();
+  vtkIdType numCells = this->NumberOfCells = this->DataSet->GetNumberOfCells();
   int j;
   vtkIdType cellId;
 
-  // If this method is called outside of dataset (e.g.,
-  // vtkPolyData::BuildLinks()) then will have to perform initial link
-  // allocation.
   if (this->Array == nullptr)
+  {
+    this->Allocate(numPts);
+  }
+  // This is checked to capture changes in the size of the allocation
+  else if (this->DataSet->GetMTime() > this->BuildTime && this->DataSet->GetMTime() > this->MTime)
   {
     this->Allocate(numPts);
   }
@@ -171,12 +195,12 @@ void vtkCellLinks::BuildLinks(vtkDataSet* data)
   std::vector<vtkIdType> linkLoc(numPts, 0);
 
   // Use fast path if polydata
-  if (data->GetDataObjectType() == VTK_POLY_DATA)
+  if (this->DataSet->GetDataObjectType() == VTK_POLY_DATA)
   {
     vtkIdType npts;
     const vtkIdType* pts;
 
-    vtkPolyData* pdata = static_cast<vtkPolyData*>(data);
+    vtkPolyData* pdata = static_cast<vtkPolyData*>(this->DataSet);
     // traverse data to determine number of uses of each point
     for (cellId = 0; cellId < numCells; cellId++)
     {
@@ -209,7 +233,7 @@ void vtkCellLinks::BuildLinks(vtkDataSet* data)
     // traverse data to determine number of uses of each point
     for (cellId = 0; cellId < numCells; cellId++)
     {
-      data->GetCell(cellId, cell);
+      this->DataSet->GetCell(cellId, cell);
       numberOfPoints = cell->GetNumberOfPoints();
       for (j = 0; j < numberOfPoints; j++)
       {
@@ -223,7 +247,7 @@ void vtkCellLinks::BuildLinks(vtkDataSet* data)
 
     for (cellId = 0; cellId < numCells; cellId++)
     {
-      data->GetCell(cellId, cell);
+      this->DataSet->GetCell(cellId, cell);
       numberOfPoints = cell->GetNumberOfPoints();
       for (j = 0; j < numberOfPoints; j++)
       {
@@ -233,6 +257,7 @@ void vtkCellLinks::BuildLinks(vtkDataSet* data)
     }
     cell->Delete();
   } // end else
+  this->BuildTime.Modified();
 }
 
 //------------------------------------------------------------------------------
@@ -290,10 +315,21 @@ unsigned long vtkCellLinks::GetActualMemorySize()
 //------------------------------------------------------------------------------
 void vtkCellLinks::DeepCopy(vtkAbstractCellLinks* src)
 {
+  this->SetDataSet(src->GetDataSet());
+  this->SetSequentialProcessing(src->GetSequentialProcessing());
   vtkCellLinks* clinks = static_cast<vtkCellLinks*>(src);
   this->Allocate(clinks->Size, clinks->Extend);
-  memcpy(this->Array, clinks->Array, this->Size * sizeof(vtkCellLinks::Link));
+  vtkSMPTools::For(0, clinks->MaxId + 1, [this, clinks](vtkIdType ptId, vtkIdType endPtId) {
+    for (; ptId < endPtId; ++ptId)
+    {
+      vtkIdType ncells = clinks->GetNcells(ptId);
+      this->Array[ptId].cells = new vtkIdType[ncells];
+      this->Array[ptId].ncells = ncells;
+      std::copy_n(clinks->Array[ptId].cells, ncells, this->Array[ptId].cells);
+    }
+  });
   this->MaxId = clinks->MaxId;
+  this->BuildTime.Modified();
 }
 
 //------------------------------------------------------------------------------

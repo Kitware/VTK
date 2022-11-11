@@ -12,6 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+
 #include "vtkStaticCellLinks.h"
 #include "vtkObjectFactory.h"
 
@@ -29,6 +30,28 @@ vtkStaticCellLinks::vtkStaticCellLinks()
 vtkStaticCellLinks::~vtkStaticCellLinks()
 {
   delete this->Impl;
+}
+//------------------------------------------------------------------------------
+void vtkStaticCellLinks::BuildLinks()
+{
+  // don't rebuild if build time is newer than modified and dataset modified time
+  if (this->Impl->GetActualMemorySize() != 0 && this->BuildTime > this->MTime &&
+    this->BuildTime > this->DataSet->GetMTime())
+  {
+    return;
+  }
+  this->Impl->SetSequentialProcessing(this->SequentialProcessing);
+  this->Impl->BuildLinks(this->DataSet);
+  this->BuildTime.Modified();
+}
+
+//------------------------------------------------------------------------------
+void vtkStaticCellLinks::DeepCopy(vtkAbstractCellLinks* src)
+{
+  this->SetDataSet(src->GetDataSet());
+  this->SetSequentialProcessing(src->GetSequentialProcessing());
+  this->Impl->DeepCopy(src);
+  this->BuildTime.Modified();
 }
 
 //------------------------------------------------------------------------------
