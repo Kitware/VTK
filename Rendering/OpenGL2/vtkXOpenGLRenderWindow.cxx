@@ -1465,9 +1465,11 @@ void vtkXOpenGLRenderWindow::CloseDisplay()
   if (this->OwnDisplay && this->DisplayId)
   {
     XCloseDisplay(this->DisplayId);
-    this->DisplayId = nullptr;
-    this->OwnDisplay = 0;
   }
+
+  // disconnect from the display, even if we didn't own it
+  this->DisplayId = nullptr;
+  this->OwnDisplay = false;
 }
 
 vtkTypeBool vtkXOpenGLRenderWindow::IsDirect()
