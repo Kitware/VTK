@@ -17,9 +17,9 @@
 
 #include "vtkOpenGLPolyDataMapper.h"
 
-#include "vtkColor.h"
+#include "vtkColor.h"                  // class uses vtkColor
 #include "vtkRenderingOpenGL2Module.h" // for export macro
-#include "vtk_glew.h"
+#include "vtk_glew.h"                  // for OpenGL enums
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkPolyData;
