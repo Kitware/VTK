@@ -379,6 +379,10 @@ void vtkXRenderWindowInteractor::Finalize()
   // disconnect from the display, even if we didn't own it
   this->DisplayId = nullptr;
   this->OwnDisplay = false;
+
+  // revert to uninitialized state
+  this->Initialized = false;
+  this->Enabled = false;
 }
 
 //------------------------------------------------------------------------------
