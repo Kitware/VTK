@@ -62,7 +62,7 @@ struct vtkConstantImplicitBackend
   /**
    * The constant value stored in the backend
    */
-  ValueType Value;
+  const ValueType Value;
 };
 
 #endif // vtkConstantImplicitBackend_h

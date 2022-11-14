@@ -74,44 +74,41 @@ int TestConstantArray(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
     }
   }
 
+  int iArr = 0;
+  for (auto val : vtk::DataArrayValueRange<1>(identity))
   {
-    int iArr = 0;
-    for (auto val : vtk::DataArrayValueRange<1>(identity))
+    if (val != 1)
     {
-      if (val != 1)
-      {
-        res = EXIT_FAILURE;
-        std::cout << "range iterator failed with vtkConstantArray" << std::endl;
-      }
-      iArr++;
+      res = EXIT_FAILURE;
+      std::cout << "range iterator failed with vtkConstantArray" << std::endl;
     }
+    iArr++;
   }
 
 #ifdef VTK_DISPATCH_CONSTANT_ARRAYS
+  std::cout << "vtkConstantArray: performing dispatch tests" << std::endl;
+  vtkNew<vtkIntArray> destination;
+  destination->SetNumberOfTuples(100);
+  destination->SetNumberOfComponents(1);
+  using Dispatcher =
+    vtkArrayDispatch::Dispatch2ByArray<vtkArrayDispatch::ReadOnlyArrays, vtkArrayDispatch::Arrays>;
+  ::ScaleWorker worker;
+  if (!Dispatcher::Execute(identity, destination, worker, 3.0))
   {
-    std::cout << "vtkConstantArray: performing dispatch tests" << std::endl;
-    vtkNew<vtkIntArray> destination;
-    destination->SetNumberOfTuples(100);
-    destination->SetNumberOfComponents(1);
-    using Dispatcher = vtkArrayDispatch::Dispatch2ByArray<vtkArrayDispatch::ReadOnlyArrays,
-      vtkArrayDispatch::Arrays>;
-    ::ScaleWorker worker;
-    if (!Dispatcher::Execute(identity, destination, worker, 3.0))
+    res = EXIT_FAILURE;
+    std::cout << "vtkArrayDispatch failed with vtkConstantArray" << std::endl;
+    worker(identity.Get(), destination.Get(), 3.0);
+  }
+
+  iArr = 0;
+  for (auto val : vtk::DataArrayValueRange<1>(destination))
+  {
+    if (val != 3)
     {
       res = EXIT_FAILURE;
-      std::cout << "vtkArrayDispatch failed with vtkConstantArray" << std::endl;
-      worker(identity.Get(), destination.Get(), 3.0);
+      std::cout << "dispatch failed to populate the array with the correct values" << std::endl;
     }
-    int iArr = 0;
-    for (auto val : vtk::DataArrayValueRange<1>(destination))
-    {
-      if (val != 3)
-      {
-        res = EXIT_FAILURE;
-        std::cout << "dispatch failed to populate the array with the correct values" << std::endl;
-      }
-      iArr++;
-    }
+    iArr++;
   }
 #endif // VTK_DISPATCH_CONSTANT_ARRAYS
   return res;

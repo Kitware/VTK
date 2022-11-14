@@ -74,44 +74,41 @@ int TestAffineArray(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
     }
   }
 
+  int iArr = 0;
+  for (auto val : vtk::DataArrayValueRange<1>(affine))
   {
-    int iArr = 0;
-    for (auto val : vtk::DataArrayValueRange<1>(affine))
+    if (val != 7 * iArr + 9)
     {
-      if (val != 7 * iArr + 9)
-      {
-        res = EXIT_FAILURE;
-        std::cout << "range iterator failed with vtkAffineArray" << std::endl;
-      }
-      iArr++;
+      res = EXIT_FAILURE;
+      std::cout << "range iterator failed with vtkAffineArray" << std::endl;
     }
+    iArr++;
   }
 
 #ifdef VTK_DISPATCH_AFFINE_ARRAYS
+  std::cout << "vtkAffineArray: performing dispatch tests" << std::endl;
+  vtkNew<vtkIntArray> destination;
+  destination->SetNumberOfTuples(100);
+  destination->SetNumberOfComponents(1);
+  using Dispatcher =
+    vtkArrayDispatch::Dispatch2ByArray<vtkArrayDispatch::ReadOnlyArrays, vtkArrayDispatch::Arrays>;
+  ::ScaleWorker worker;
+  if (!Dispatcher::Execute(affine, destination, worker, 3.0))
   {
-    std::cout << "vtkAffineArray: performing dispatch tests" << std::endl;
-    vtkNew<vtkIntArray> destination;
-    destination->SetNumberOfTuples(100);
-    destination->SetNumberOfComponents(1);
-    using Dispatcher = vtkArrayDispatch::Dispatch2ByArray<vtkArrayDispatch::ReadOnlyArrays,
-      vtkArrayDispatch::Arrays>;
-    ::ScaleWorker worker;
-    if (!Dispatcher::Execute(affine, destination, worker, 3.0))
+    res = EXIT_FAILURE;
+    std::cout << "vtkArrayDispatch failed with vtkAffineArray" << std::endl;
+    worker(affine.Get(), destination.Get(), 3.0);
+  }
+
+  iArr = 0;
+  for (auto val : vtk::DataArrayValueRange<1>(destination))
+  {
+    if (val != 3 * (7 * iArr + 9))
     {
       res = EXIT_FAILURE;
-      std::cout << "vtkArrayDispatch failed with vtkAffineArray" << std::endl;
-      worker(affine.Get(), destination.Get(), 3.0);
+      std::cout << "dispatch failed to populate the array with the correct values" << std::endl;
     }
-    int iArr = 0;
-    for (auto val : vtk::DataArrayValueRange<1>(destination))
-    {
-      if (val != 3 * (7 * iArr + 9))
-      {
-        res = EXIT_FAILURE;
-        std::cout << "dispatch failed to populate the array with the correct values" << std::endl;
-      }
-      iArr++;
-    }
+    iArr++;
   }
 #endif // VTK_DISPATCH_AFFINE_ARRAYS
   return res;

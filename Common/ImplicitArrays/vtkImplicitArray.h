@@ -159,7 +159,7 @@ public:
   void* GetVoidPointer(vtkIdType valueIdx) override;
 
   /**
-   * Release all extraneous internal memory including the void pointer
+   * Release all extraneous internal memory including the void pointer used by `GetVoidPointer`
    */
   void Squeeze() override;
 
