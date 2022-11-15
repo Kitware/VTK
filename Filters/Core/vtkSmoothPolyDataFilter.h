@@ -227,7 +227,7 @@ public:
 
 protected:
   vtkSmoothPolyDataFilter();
-  ~vtkSmoothPolyDataFilter() override = default;
+  ~vtkSmoothPolyDataFilter() override;
 
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   int FillInputPortInformation(int port, vtkInformation* info) override;

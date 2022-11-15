@@ -139,6 +139,9 @@ vtkSmoothPolyDataFilter::vtkSmoothPolyDataFilter()
 }
 
 //------------------------------------------------------------------------------
+vtkSmoothPolyDataFilter::~vtkSmoothPolyDataFilter() = default;
+
+//------------------------------------------------------------------------------
 void vtkSmoothPolyDataFilter::SetSourceData(vtkPolyData* source)
 {
   this->SetInputData(1, source);
