@@ -417,12 +417,8 @@ void vtkExplicitStructuredGrid::CopyStructure(vtkDataSet* ds)
     return;
   }
   this->Superclass::CopyStructure(ds);
-  if (grid)
-  {
-    this->InternalCopy(grid);
-    this->SetCells(grid->GetCells());
-    this->Links = grid->Links;
-  }
+  this->InternalCopy(grid);
+  this->SetCells(grid->GetCells());
 }
 
 //------------------------------------------------------------------------------
@@ -440,7 +436,6 @@ void vtkExplicitStructuredGrid::ShallowCopy(vtkDataObject* dataObject)
     this->InternalCopy(grid);
 
     this->SetCells(grid->GetCells());
-    this->SetLinks(grid->GetLinks());
   }
 }
 
