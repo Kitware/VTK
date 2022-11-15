@@ -4,6 +4,7 @@ vtk_add_test_cxx(vtkIOCGNSReaderCxxTests tests
   TestCGNSNoFlowSolutionPointers.cxx
   TestCGNSReader.cxx
   TestCGNSReaderMeshCaching.cxx
+  TestCGNSReaderMissingBase.cxx
   TestCGNSUnsteadyFields.cxx
   TestCGNSUnsteadyGrid.cxx
   TestCGNSUnsteadyTemporalSolution.cxx

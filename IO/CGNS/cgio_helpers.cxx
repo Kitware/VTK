@@ -136,10 +136,13 @@ int readBaseIds(int cgioNum, double rootId, std::vector<double>& baseIds)
 
   for (nbases = 0, nc = 0; nc < baseIds.size(); nc++)
   {
+    // Ignore missing or invalid bases
     if (cgio_get_label(cgioNum, baseIds[nc], nodeLabel) != CG_OK)
     {
-      return 1;
+      vtkWarningWithObjectMacro(nullptr, "Failed to read node label, ignoring current base.");
+      continue;
     }
+
     if (strcmp(nodeLabel, "CGNSBase_t") == 0)
     {
       if (nbases < nc)
