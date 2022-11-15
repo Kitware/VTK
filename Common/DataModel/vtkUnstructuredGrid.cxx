@@ -526,7 +526,6 @@ void vtkUnstructuredGrid::CopyStructure(vtkDataSet* ds)
   this->DistinctCellTypesUpdateMTime = 0;
   this->Faces = ug->Faces;
   this->FaceLocations = ug->FaceLocations;
-  this->Links = ug->Links;
 }
 
 //------------------------------------------------------------------------------
@@ -1980,7 +1979,6 @@ void vtkUnstructuredGrid::ShallowCopy(vtkDataObject* dataObject)
     // ^ I really hope this comment lives for another 20 years.
 
     this->Connectivity = grid->Connectivity;
-    this->Links = grid->Links;
     this->Types = grid->Types;
     this->DistinctCellTypes = nullptr;
     this->DistinctCellTypesUpdateMTime = 0;
