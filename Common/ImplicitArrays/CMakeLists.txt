@@ -57,6 +57,7 @@ set(nowrap_headers
 
 set(nowrap_template_classes
   vtkImplicitArray
+  vtkCompositeImplicitBackend
 )
 
 set(sources
