@@ -1,3 +1,10 @@
+set(test_implicit_array)
+if(TARGET VTK::CommonImplicitArrays)
+  list(APPEND test_implicit_array
+    TestContourImplicitArrays.cxx
+  )
+endif()
+
 vtk_add_test_cxx(vtkFiltersCoreCxxTests tests
   Test3DLinearGridPlaneCutterCellData.cxx
   TestAppendArcLength.cxx,NO_VALID
@@ -20,7 +27,6 @@ vtk_add_test_cxx(vtkFiltersCoreCxxTests tests
   TestClipPolyData.cxx,NO_VALID
   TestCompositeDataProbeFilterWithHyperTreeGrid.cxx
   TestConnectivityFilter.cxx,NO_VALID
-  TestContourImplicitArrays.cxx
   TestCutter.cxx,NO_VALID
   TestDataObjectToPartitionedDataSetCollection.cxx,NO_VALID
   TestDecimatePolylineFilter.cxx
@@ -81,6 +87,7 @@ vtk_add_test_cxx(vtkFiltersCoreCxxTests tests
   TestVaryRadiusTubeFilter.cxx
   UnitTestMaskPoints.cxx,NO_VALID
   UnitTestMergeFilter.cxx,NO_VALID
+  ${test_implicit_array}
   )
 
 vtk_test_cxx_executable(vtkFiltersCoreCxxTests tests)

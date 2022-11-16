@@ -22,7 +22,6 @@ PRIVATE_DEPENDS
   VTK::IOCore
   VTK::eigen
 TEST_DEPENDS
-  VTK::CommonImplicitArrays
   VTK::FiltersAMR
   VTK::FiltersExtraction
   VTK::FiltersGeneral
@@ -36,3 +35,5 @@ TEST_DEPENDS
   VTK::RenderingOpenGL2
   VTK::TestingCore
   VTK::TestingRendering
+TEST_OPTIONAL_DEPENDS
+  VTK::CommonImplicitArrays

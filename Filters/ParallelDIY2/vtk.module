@@ -22,7 +22,6 @@ PRIVATE_DEPENDS
   VTK::IOXML
   VTK::ParallelCore
 TEST_DEPENDS
-  VTK::CommonImplicitArrays
   VTK::diy2
   VTK::FiltersGeometry
   VTK::FiltersParallelMPI
@@ -38,6 +37,7 @@ TEST_DEPENDS
   VTK::TestingCore
   VTK::TestingRendering
 TEST_OPTIONAL_DEPENDS
+  VTK::CommonImplicitArrays
   VTK::FiltersParallelMPI
   VTK::mpi
   VTK::ParallelMPI

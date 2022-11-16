@@ -69,9 +69,7 @@ vtk_module_add_module(VTK::CommonImplicitArrays
   SOURCES ${sources}
 )
 
-vtk_add_test_mangling(VTK::CommonImplicitArrays
-  EXEMPTIONS GetVTKVersion)
-
+vtk_add_test_mangling(VTK::CommonImplicitArrays)
 
 vtk_module_compile_features(VTK::CommonImplicitArrays
   PUBLIC

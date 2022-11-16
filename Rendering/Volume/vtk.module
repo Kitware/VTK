@@ -19,7 +19,6 @@ PRIVATE_DEPENDS
   VTK::CommonTransforms
   VTK::ImagingCore
 TEST_DEPENDS
-  VTK::CommonImplicitArrays
   VTK::CommonSystem
   VTK::FiltersGeometry
   VTK::FiltersModeling
@@ -38,3 +37,5 @@ TEST_DEPENDS
   VTK::RenderingVolumeOpenGL2
   VTK::TestingCore
   VTK::TestingRendering
+TEST_OPTIONAL_DEPENDS
+  VTK::CommonImplicitArrays
