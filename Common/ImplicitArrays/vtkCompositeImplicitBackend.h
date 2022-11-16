@@ -64,3 +64,10 @@ protected:
 VTK_ABI_NAMESPACE_END
 
 #endif // vtkCompositeImplicitBackend_h
+
+#ifdef VTK_COMPOSITE_BACKEND_INSTANTIATING
+#define VTK_INSTANTIATE_COMPOSITE_BACKEND(ValueType)                                               \
+  VTK_ABI_NAMESPACE_BEGIN                                                                          \
+  template class VTKCOMMONIMPLICITARRAYS_EXPORT vtkCompositeImplicitBackend<ValueType>;            \
+  VTK_ABI_NAMESPACE_END
+#endif

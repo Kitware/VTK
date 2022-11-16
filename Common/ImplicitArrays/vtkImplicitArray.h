@@ -313,6 +313,8 @@ VTK_ABI_NAMESPACE_BEGIN
 template <typename ValueType>
 struct vtkAffineImplicitBackend;
 template <typename ValueType>
+class vtkCompositeImplicitBackend;
+template <typename ValueType>
 struct vtkConstantImplicitBackend;
 VTK_ABI_NAMESPACE_END
 #include <functional>
@@ -332,6 +334,8 @@ VTK_ABI_NAMESPACE_END
   VTK_INSTANTIATE_VALUERANGE_ARRAYTYPE(                                                            \
     vtkImplicitArray<vtkAffineImplicitBackend<ValueType>>, ValueType)                              \
   VTK_INSTANTIATE_VALUERANGE_ARRAYTYPE(                                                            \
+    vtkImplicitArray<vtkCompositeImplicitBackend<ValueType>>, ValueType)                           \
+  VTK_INSTANTIATE_VALUERANGE_ARRAYTYPE(                                                            \
     vtkImplicitArray<vtkConstantImplicitBackend<ValueType>>, ValueType)                            \
   VTK_INSTANTIATE_VALUERANGE_ARRAYTYPE(vtkImplicitArray<std::function<ValueType(int)>>, ValueType)
 
@@ -349,6 +353,8 @@ VTK_ABI_NAMESPACE_END
 VTK_ABI_NAMESPACE_BEGIN
 template <typename ValueType>
 struct vtkAffineImplicitBackend;
+template <typename ValueType>
+class vtkCompositeImplicitBackend;
 template <typename ValueType>
 struct vtkConstantImplicitBackend;
 VTK_ABI_NAMESPACE_END
@@ -382,6 +388,8 @@ VTK_ABI_NAMESPACE_END
   VTK_DECLARE_VALUERANGE_ARRAYTYPE(                                                                \
     vtkImplicitArray<vtkAffineImplicitBackend<ValueType>>, ValueType)                              \
   VTK_DECLARE_VALUERANGE_ARRAYTYPE(                                                                \
+    vtkImplicitArray<vtkCompositeImplicitBackend<ValueType>>, ValueType)                           \
+  VTK_DECLARE_VALUERANGE_ARRAYTYPE(                                                                \
     vtkImplicitArray<vtkConstantImplicitBackend<ValueType>>, ValueType)                            \
   VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkImplicitArray<std::function<ValueType(int)>>, ValueType)
 
@@ -405,6 +413,7 @@ namespace vtkDataArrayPrivate
 VTK_ABI_NAMESPACE_BEGIN
 VTK_DECLARE_VALUERANGE_IMPLICIT_BACKENDTYPE(vtkAffineImplicitBackend)
 VTK_DECLARE_VALUERANGE_IMPLICIT_BACKENDTYPE(vtkConstantImplicitBackend)
+VTK_DECLARE_VALUERANGE_IMPLICIT_BACKENDTYPE(vtkCompositeImplicitBackend)
 
 VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkImplicitArray<std::function<float(int)>>, double)
 VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkImplicitArray<std::function<double(int)>>, double)

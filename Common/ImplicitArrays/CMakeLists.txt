@@ -1,9 +1,11 @@
 option(VTK_DISPATCH_AFFINE_ARRAYS "Include implicit vtkDataArray subclasses based on an affine function backend in dispatcher" OFF)
+option(VTK_DISPATCH_COMPOSITE_ARRAYS "Include implicit vtkDataArray subclasses based on a composite binary tree backend in dispatcher" OFF)
 option(VTK_DISPATCH_CONSTANT_ARRAYS "Include implicit vtkDataArray subclasses based on a constant backend in dispatcher" OFF)
 option(VTK_DISPATCH_STD_FUNCTION_ARRAYS "Include implicit vtkDataArray subclasses based on std::function in dispatcher" OFF)
 mark_as_advanced(
-  VTK_DISPATCH_CONSTANT_ARRAYS
   VTK_DISPATCH_AFFINE_ARRAYS
+  VTK_DISPATCH_COMPOSITE_ARRAYS
+  VTK_DISPATCH_CONSTANT_ARRAYS
   VTK_DISPATCH_STD_FUNCTION_ARRAYS
 )
 
@@ -31,6 +33,8 @@ foreach (INSTANTIATION_VALUE_TYPE IN LISTS vtkArrayDispatchImplicit_all_types)
   string(REPLACE " " "_" _suffix "${INSTANTIATION_VALUE_TYPE}")
   
   list(APPEND _list "vtkAffineArrayInstantiate")
+  list(APPEND _list "vtkCompositeArrayInstantiate")
+  list(APPEND _list "vtkCompositeImplicitBackendInstantiate")
   list(APPEND _list "vtkConstantArrayInstantiate")
   list(APPEND _list "vtkStdFunctionArrayInstantiate")
 
@@ -48,6 +52,7 @@ endforeach ()
 set(nowrap_headers
   vtkAffineArray.h
   vtkAffineImplicitBackend.h
+  vtkCompositeArray.h
   vtkConstantArray.h
   vtkConstantImplicitBackend.h
   vtkImplicitArrayTraits.h

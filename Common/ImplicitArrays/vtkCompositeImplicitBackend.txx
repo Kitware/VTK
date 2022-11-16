@@ -42,6 +42,11 @@ vtkCompositeImplicitBackend<ValueType>::vtkCompositeImplicitBackend(
   : Left(leftArr)
   , Right(rightArr)
 {
+  if (this->Left == nullptr || this->Right == nullptr)
+  {
+    vtkWarningWithObjectMacro(nullptr, "Creating composite array with nullptr");
+    return;
+  }
   this->Offset = this->Left->GetDataSize();
 }
 
