@@ -838,6 +838,11 @@ void vtkEnSightWriter::WriteCaseFile(int TotalTimeSteps)
       }
     }
   }
+
+  if (fd)
+  {
+    fclose(fd);
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -883,6 +888,11 @@ void vtkEnSightWriter::WriteSOSCaseFile(int numProcs)
     this->WriteTerminatedStringToFile(charBuffer, fd);
     snprintf(charBuffer, sizeof(charBuffer), "casefile: %s.%d.case\n\n", this->BaseName, i);
     this->WriteTerminatedStringToFile(charBuffer, fd);
+  }
+
+  if (fd)
+  {
+    fclose(fd);
   }
 }
 
