@@ -238,6 +238,7 @@ void vtkEnSightWriter::WriteData()
   if (BlockData == nullptr || strcmp(BlockData->GetName(), "BlockId") != 0)
   {
     BlockData = nullptr;
+    cout << "No BlockID was found\n";
   }
 
   this->ComputeNames();
@@ -346,9 +347,9 @@ void vtkEnSightWriter::WriteData()
   {
     int key = 1;
     if (BlockData)
+    {
       key = (int)(BlockData->GetTuple(i)[0]);
-    else
-      cout << "No BlockID was found\n";
+    }
     if (CellsByPart.count(key) == 0)
     {
       CellsByPart[key] = std::vector<int>();
