@@ -17,13 +17,15 @@
 #define vtkStdFunctionArray_h
 
 #ifdef VTK_STD_FUNCTION_ARRAY_INSTANTIATING
-#define VTK_GDA_VALUERANGE_INSTANTIATING
+#define VTK_IMPLICIT_VALUERANGE_INSTANTIATING
 #include "vtkDataArrayPrivate.txx"
-#include "vtkGenericDataArray.h"
-#undef VTK_GDA_VALUERANGE_INSTANTIATING
 #endif
 
 #include "vtkImplicitArray.h"
+
+#ifdef VTK_STD_FUNCTION_ARRAY_INSTANTIATING
+#undef VTK_IMPLICIT_VALUERANGE_INSTANTIATING
+#endif
 
 #include <functional>
 

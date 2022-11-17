@@ -17,14 +17,16 @@
 #define vtkAffineArray_h
 
 #ifdef VTK_AFFINE_ARRAY_INSTANTIATING
-#define VTK_GDA_VALUERANGE_INSTANTIATING
+#define VTK_IMPLICIT_VALUERANGE_INSTANTIATING
 #include "vtkDataArrayPrivate.txx"
-#include "vtkGenericDataArray.h"
-#undef VTK_GDA_VALUERANGE_INSTANTIATING
 #endif
 
 #include "vtkAffineImplicitBackend.h" // for the array backend
 #include "vtkImplicitArray.h"
+
+#ifdef VTK_AFFINE_ARRAY_INSTANTIATING
+#undef VTK_IMPLICIT_VALUERANGE_INSTANTIATING
+#endif
 
 /**
  * \var vtkAffineArray

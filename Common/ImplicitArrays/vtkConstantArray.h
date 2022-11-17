@@ -17,14 +17,16 @@
 #define vtkConstantArray_h
 
 #ifdef VTK_CONSTANT_ARRAY_INSTANTIATING
-#define VTK_GDA_VALUERANGE_INSTANTIATING
+#define VTK_IMPLICIT_VALUERANGE_INSTANTIATING
 #include "vtkDataArrayPrivate.txx"
-#include "vtkGenericDataArray.h"
-#undef VTK_GDA_VALUERANGE_INSTANTIATING
 #endif
 
 #include "vtkConstantImplicitBackend.h" // for the array backend
 #include "vtkImplicitArray.h"
+
+#ifdef VTK_CONSTANT_ARRAY_INSTANTIATING
+#undef VTK_IMPLICIT_VALUERANGE_INSTANTIATING
+#endif
 
 /**
  * \var vtkConstantArray

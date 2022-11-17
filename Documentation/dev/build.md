@@ -383,17 +383,17 @@ array framework is included in the `CommonImplicitArrays` module. The following 
 currently exist for use with the VTK dispatch mechanism:
 
   * `VTK_DISPATCH_AOS_ARRAYS` (default `ON`): includes dispatching for the commonly used
-  "array-of-structure" ordered arrays derived from `vtkAOSDataArrayTemplate`
+    "array-of-structure" ordered arrays derived from `vtkAOSDataArrayTemplate`
   * `VTK_DISPATCH_SOA_ARRAYS` (default `OFF`): includes dispatching for "structure-of-array"
-  ordered arrays derived from `vtkSOADataArrayTemplate`
+    ordered arrays derived from `vtkSOADataArrayTemplate`
   * `VTK_DISPATCH_TYPED_ARRAYS` (default `OFF`): includes dispatching for arrays derived
-  from `vtkTypedDataArray`
+    from `vtkTypedDataArray`
   * `VTK_DISPATCH_AFFINE_ARRAYS` (default `OFF`): includes dispatching for linearly varying
-  `vtkAffineArray`s as part of the implicit array framework
+    `vtkAffineArray`s as part of the implicit array framework
   * `VTK_DISPATCH_CONSTANT_ARRAYS` (default `OFF`): includes dispatching for constant arrays
-  `vtkConstantArray` as part of the implicit array framework
+    `vtkConstantArray` as part of the implicit array framework
   * `VTK_DISPATCH_STD_FUNCTION_ARRAYS` (default `OFF`): includes dispatching for arrays with
-  an `std::function` backend `vtkStdFunctionArray` as part of the implicit array framework
+    an `std::function` backend `vtkStdFunctionArray` as part of the implicit array framework
 
 The outlier in terms of dispatch support is the family of arrays derived from
 `vtkScaledSOADataArrayTemplate` which are automatically included in dispatch when built setting
