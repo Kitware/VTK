@@ -16,6 +16,7 @@
 
 #include "vtkArrayListTemplate.h" // For processing attribute data
 #include "vtkCellArray.h"
+#include "vtkCellData.h"
 #include "vtkDataArrayRange.h"
 #include "vtkFloatArray.h"
 #include "vtkImageData.h"
@@ -139,6 +140,9 @@ public:
   void ProcessXEdge(double value, T const* inPtr, vtkIdType row, vtkIdType slice); // PASS 1
   void ProcessYZEdges(vtkIdType row, vtkIdType slice);                             // PASS 2
   void GenerateOutput(double value, T* inPtr, vtkIdType row, vtkIdType slice);     // PASS 4
+
+  // Optional copying of cell data
+  void InterpolateCellData(ArrayList* cellArrays, vtkIdType row, vtkIdType slice);
 
   // Place holder for now in case fancy bit fiddling is needed later.
   void SetXEdge(unsigned char* ePtr, unsigned char edgeCase) { *ePtr = edgeCase; }
@@ -426,6 +430,42 @@ public:
             rowPtr += this->Algo->Inc1;
           } // for all rows in this slice
         }   // if there are triangles
+        slicePtr += this->Algo->Inc2;
+        eMD0 = eMD1;
+        eMD1 = eMD0 + 6 * this->Algo->Dims[1];
+      } // for all slices in this batch
+    }
+  };
+
+  template <class TT>
+  struct ProcessCD
+  {
+    ArrayList CellArrays;
+    ProcessCD(vtkFlyingEdges3DAlgorithm<TT>* algo, vtkIdType numCells, vtkCellData* inCD,
+      vtkCellData* outCD)
+    {
+      this->Algo = algo;
+      outCD->CopyAllocate(inCD, numCells);
+      this->CellArrays.AddArrays(numCells, inCD, outCD);
+    }
+    vtkFlyingEdges3DAlgorithm<TT>* Algo;
+    void operator()(vtkIdType slice, vtkIdType end)
+    {
+      vtkIdType row;
+      vtkIdType* eMD0 = this->Algo->EdgeMetaData + slice * 6 * this->Algo->Dims[1];
+      vtkIdType* eMD1 = eMD0 + 6 * this->Algo->Dims[1];
+      TT *rowPtr, *slicePtr = this->Algo->Scalars + slice * this->Algo->Inc2;
+      for (; slice < end; ++slice)
+      {
+        // It's possible to skip entire slices if there is no data to copy
+        if (eMD1[3] > eMD0[3]) // there are triangle primitives!
+        {
+          for (row = 0, rowPtr = slicePtr; row < this->Algo->Dims[1] - 1; ++row)
+          {
+            this->Algo->InterpolateCellData(&this->CellArrays, row, slice);
+            rowPtr += this->Algo->Inc1;
+          } // for all rows in this slice
+        }   // if there are triangles (i.e., output cells)
         slicePtr += this->Algo->Inc2;
         eMD0 = eMD1;
         eMD1 = eMD0 + 6 * this->Algo->Dims[1];
@@ -1232,6 +1272,76 @@ void vtkFlyingEdges3DAlgorithm<T>::GenerateOutput(
 }
 
 //------------------------------------------------------------------------------
+// Copy cell data from input to output
+template <class T>
+void vtkFlyingEdges3DAlgorithm<T>::InterpolateCellData(
+  ArrayList* arrays, vtkIdType row, vtkIdType slice)
+{
+  // Grab the edge meta data surrounding the voxel row.
+  vtkIdType* eMD[4];
+  eMD[0] = this->EdgeMetaData + (slice * this->Dims[1] + row) * 6; // this x-edge
+  eMD[1] = eMD[0] + 6;                                             // x-edge in +y direction
+  eMD[2] = eMD[0] + this->Dims[1] * 6;                             // x-edge in +z direction
+  eMD[3] = eMD[2] + 6;                                             // x-edge in +y+z direction
+
+  // Return if there is nothing to do (i.e., no triangles to generate)
+  if (eMD[0][3] == eMD[1][3])
+  {
+    return;
+  }
+
+  // Get the voxel row trim edges and prepare to generate. Find the voxel row
+  // trim edges, need to check all four x-edges to compute row trim edges.
+  vtkIdType xL = eMD[0][4], xR = eMD[0][5];
+  vtkIdType i;
+  for (i = 1; i < 4; ++i)
+  {
+    xL = (eMD[i][4] < xL ? eMD[i][4] : xL);
+    xR = (eMD[i][5] > xR ? eMD[i][5] : xR);
+  }
+
+  // Grab the four edge cases bounding this voxel x-row. Begin at left trim edge.
+  unsigned char* ePtr[4];
+  ePtr[0] = this->XCases + slice * this->SliceOffset + row * (this->Dims[0] - 1) + xL;
+  ePtr[1] = ePtr[0] + this->Dims[0] - 1;
+  ePtr[2] = ePtr[0] + this->SliceOffset;
+  ePtr[3] = ePtr[2] + this->Dims[0] - 1;
+
+  // Traverse all voxels in this row, those containing the contour are
+  // further identified for copying cell data. Begin by getting the
+  // starting voxel case and cell id.
+  unsigned char eCase = this->GetEdgeCase(ePtr);
+
+  // Determine the input and output cell ids.
+  vtkIdType inCellId =
+    xL + row * (this->Dims[0] - 1) + slice * (this->Dims[0] - 1) * (this->Dims[1] - 1);
+  vtkIdType outCellId = eMD[0][3];
+
+  for (i = xL; i < xR; ++i)
+  {
+    const unsigned char numTris = this->GetNumberOfPrimitives(eCase);
+    if (numTris > 0)
+    {
+      for (auto j = 0; j < numTris; ++j)
+      {
+        arrays->Copy(inCellId, outCellId++);
+      }
+    }
+
+    // advance along voxel row
+    inCellId++;
+    if (i != xR - 1)
+    {
+      ePtr[0]++;
+      ePtr[1]++;
+      ePtr[2]++;
+      ePtr[3]++;
+      eCase = this->GetEdgeCase(ePtr);
+    }
+  } // for voxel cells along row
+}
+
+//------------------------------------------------------------------------------
 // Contouring filter specialized for 3D volumes. This templated function
 // interfaces the vtkFlyingEdges3D class with the templated algorithm
 // class. It also invokes the three passes of the Flying Edges algorithm.
@@ -1401,6 +1511,15 @@ void vtkFlyingEdges3DAlgorithm<T>::Contour(vtkFlyingEdges3D* self, vtkImageData*
     startYPts = numOutYPts;
     startZPts = numOutZPts;
     startTris = numOutTris;
+
+    // Process Cell Data: Some applications require the production of cell
+    // data. Since this slows the filter, we only perform this operation if
+    // cell data is present, and attribute interpolation is enabled.
+    if (self->GetInterpolateAttributes() && input->GetCellData()->GetNumberOfArrays() > 0)
+    {
+      ProcessCD<T> processCD(&algo, numOutTris, input->GetCellData(), output->GetCellData());
+      vtkSMPTools::For(0, algo.Dims[2] - 1, processCD);
+    }
   } // for all contour values
 
   // Clean up and return
