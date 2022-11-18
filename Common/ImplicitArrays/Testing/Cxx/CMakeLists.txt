@@ -6,6 +6,7 @@ vtk_add_test_cxx(vtkCommonImplicitArrayCxxTests tests
   TestConstantArray.cxx
   TestImplicitArraysBase.cxx
   TestImplicitArrayTraits.cxx
+  TestIndexedImplicitBackend.cxx
   TestStdFunctionArray.cxx
 )
 

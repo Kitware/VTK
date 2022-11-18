@@ -36,6 +36,7 @@ foreach (INSTANTIATION_VALUE_TYPE IN LISTS vtkArrayDispatchImplicit_all_types)
   list(APPEND _list "vtkCompositeArrayInstantiate")
   list(APPEND _list "vtkCompositeImplicitBackendInstantiate")
   list(APPEND _list "vtkConstantArrayInstantiate")
+  list(APPEND _list "vtkIndexedImplicitBackendInstantiate")
   list(APPEND _list "vtkStdFunctionArrayInstantiate")
 
   # generate cxx file to instantiate template with this type
@@ -64,6 +65,7 @@ set(nowrap_headers
 set(nowrap_template_classes
   vtkImplicitArray
   vtkCompositeImplicitBackend
+  vtkIndexedImplicitBackend
 )
 
 set(sources
