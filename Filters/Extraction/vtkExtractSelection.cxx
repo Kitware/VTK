@@ -36,13 +36,11 @@
 #include "vtkSignedCharArray.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTable.h"
-#include "vtkUniformGridAMRDataIterator.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkValueSelector.h"
 
 #include <cassert>
 #include <map>
-#include <numeric>
 #include <vector>
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -672,17 +670,17 @@ void vtkExtractSelection::ExtractSelectedCells(
   else
   {
     // convert insideness array to cell ids to extract.
-    std::vector<vtkIdType> ids;
-    ids.reserve(numCells);
+    vtkNew<vtkIdList> ids;
+    ids->Allocate(numCells);
     for (vtkIdType cc = 0; cc < numCells; ++cc)
     {
       if (cellInside->GetValue(cc) != 0)
       {
-        ids.push_back(cc);
+        ids->InsertNextId(cc);
       }
     }
     extractor->SetAssumeSortedAndUniqueIds(true);
-    extractor->SetCellIds(&ids.front(), static_cast<vtkIdType>(ids.size()));
+    extractor->SetCellList(ids);
   }
 
   extractor->SetInputDataObject(input);
@@ -718,35 +716,39 @@ void vtkExtractSelection::ExtractSelectedPoints(
     {
       newPts->SetDataType(pointSet->GetPoints()->GetDataType());
     }
-    newPts->Allocate(numPts / 4, numPts);
-
-    double x[3];
-    for (vtkIdType ptId = 0; ptId < numPts; ++ptId)
+    vtkNew<vtkIdList> ids;
+    ids->Allocate(numPts);
+    for (vtkIdType cc = 0; cc < numPts; ++cc)
     {
-      signed char isInside;
-      assert(ptId < pointInside->GetNumberOfValues());
-      pointInside->GetTypedTuple(ptId, &isInside);
-      if (isInside)
+      if (pointInside->GetValue(cc) != 0)
       {
-        // copy point
-        vtkIdType newPointId = -1;
-        if (pointSet)
-        {
-          newPointId = newPts->GetNumberOfPoints();
-          newPts->InsertPoints(newPointId, 1, ptId, pointSet->GetPoints());
-        }
-        else
-        {
-          input->GetPoint(ptId, x);
-          newPointId = newPts->InsertNextPoint(x);
-        }
-        assert(newPointId >= 0);
-        // copy point data
-        outputPD->CopyData(pd, ptId, newPointId);
-        // set original point id
-        originalPointIds->InsertNextValue(ptId);
+        ids->InsertNextId(cc);
       }
     }
+    const vtkIdType numNewPts = ids->GetNumberOfIds();
+    // copy points
+    newPts->SetNumberOfPoints(numNewPts);
+    vtkSMPTools::For(0, numNewPts, [&](vtkIdType begin, vtkIdType end) {
+      double point[3];
+      auto idsPtr = ids->GetPointer(0);
+      for (vtkIdType ptId = begin; ptId < end; ++ptId)
+      {
+        input->GetPoint(idsPtr[ptId], point);
+        newPts->SetPoint(ptId, point);
+      }
+    });
+    // copy point data
+    outputPD->SetNumberOfTuples(numNewPts);
+    outputPD->CopyData(pd, ids);
+    // set original point ids
+    originalPointIds->SetNumberOfTuples(numNewPts);
+    vtkSMPTools::For(0, numNewPts, [&](vtkIdType begin, vtkIdType end) {
+      auto idsPtr = ids->GetPointer(0);
+      for (vtkIdType ptId = begin; ptId < end; ++ptId)
+      {
+        originalPointIds->SetValue(ptId, idsPtr[ptId]);
+      }
+    });
   }
   else
   {
