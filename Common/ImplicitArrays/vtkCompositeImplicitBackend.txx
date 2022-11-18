@@ -36,7 +36,7 @@ struct vtkCompositeImplicitBackend<ValueType>::Internals
     }
     this->LeftRange = vtk::DataArrayValueRange(this->Left);
     this->RightRange = vtk::DataArrayValueRange(this->Right);
-    this->Offset = LeftRange.size();
+    this->Offset = this->LeftRange.size();
   }
 
   vtkSmartPointer<vtkDataArray> Left;

@@ -33,9 +33,9 @@ vtkSmartPointer<vtkCompositeArray<T>> Concatenate(const std::vector<vtkDataArray
       vtkNew<vtkCompositeArray<T>> composite;
       composite->SetBackend(
         std::make_shared<vtkCompositeImplicitBackend<T>>(lifetimeBuffer[i], lifetimeBuffer[i + 1]));
+      composite->SetNumberOfComponents(lifetimeBuffer[i]->GetNumberOfComponents());
       composite->SetNumberOfTuples(
         lifetimeBuffer[i]->GetNumberOfTuples() + lifetimeBuffer[i + 1]->GetNumberOfTuples());
-      composite->SetNumberOfComponents(lifetimeBuffer[i]->GetNumberOfComponents());
       newComps.emplace_back(composite);
     }
     if (lifetimeBuffer.size() % 2 != 0)
@@ -43,9 +43,9 @@ vtkSmartPointer<vtkCompositeArray<T>> Concatenate(const std::vector<vtkDataArray
       vtkNew<vtkCompositeArray<T>> composite;
       composite->SetBackend(
         std::make_shared<vtkCompositeImplicitBackend<T>>(newComps.back(), lifetimeBuffer.back()));
+      composite->SetNumberOfComponents(lifetimeBuffer.back()->GetNumberOfComponents());
       composite->SetNumberOfTuples(
         newComps.back()->GetNumberOfTuples() + lifetimeBuffer.back()->GetNumberOfTuples());
-      composite->SetNumberOfComponents(lifetimeBuffer.back()->GetNumberOfComponents());
       newComps.back() = composite;
     }
     lifetimeBuffer.assign(newComps.begin(), newComps.end());
