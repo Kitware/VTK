@@ -93,6 +93,8 @@ vtkEnSightWriter::vtkEnSightWriter()
   this->Path = nullptr;
   this->GhostLevelMultiplier = 10000;
   this->GhostLevel = 0;
+  this->WriteNodeIDs = true;
+  this->WriteElementIDs = true;
   this->TransientGeometry = false;
   this->ProcessNumber = 0;
   this->NumberOfProcesses = 1;
@@ -125,6 +127,8 @@ void vtkEnSightWriter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "NumberOfBlocks: " << this->NumberOfBlocks << endl;
   os << indent << "BlockIDs: " << this->BlockIDs << endl;
   os << indent << "GhostLevel: " << this->GhostLevel << endl;
+  os << indent << "WriteNodeIDs: " << this->WriteNodeIDs << endl;
+  os << indent << "WriteElementIDs: " << this->WriteElementIDs << endl;
 }
 
 int vtkEnSightWriter::FillInputPortInformation(int vtkNotUsed(port), vtkInformation* info)
@@ -319,9 +323,22 @@ void vtkEnSightWriter::WriteData()
     // this->WriteStringToFile(this->Title,fd);
     // else
     this->WriteStringToFile("No Title was Specified", fd);
-    // we will specify node and element ID's
-    this->WriteStringToFile("node id given\n", fd);
-    this->WriteStringToFile("element id given\n", fd);
+    if (this->WriteNodeIDs)
+    {
+      this->WriteStringToFile("node id given\n", fd);
+    }
+    else
+    {
+      this->WriteStringToFile("node id off\n", fd);
+    }
+    if (this->WriteElementIDs)
+    {
+      this->WriteStringToFile("element id given\n", fd);
+    }
+    else
+    {
+      this->WriteStringToFile("element id off\n", fd);
+    }
   }
 
   // get the Ghost Cell Array if it exists
@@ -424,7 +441,11 @@ void vtkEnSightWriter::WriteData()
       int NodeCount = 0;
       for (iter2 = NodesPerPart.begin(); iter2 != NodesPerPart.end(); ++iter2)
       {
-        this->WriteIntToFile(*iter2, fd);
+        if (this->WriteNodeIDs)
+        {
+          this->WriteIntToFile(*iter2, fd);
+        }
+
         NodeIdToOrder[*iter2] = NodeCount + 1;
         NodeCount++;
       }
@@ -546,10 +567,13 @@ void vtkEnSightWriter::WriteData()
           this->WriteIntToFile(static_cast<int>(CellsByElement[elementType].size()), fd);
 
           // element ID's
-          for (k = 0; k < CellsByElement[elementType].size(); k++)
+          if (this->WriteElementIDs)
           {
-            int CellId = CellsByElement[elementType][k];
-            this->WriteIntToFile(CellId, fd);
+            for (k = 0; k < CellsByElement[elementType].size(); k++)
+            {
+              int CellId = CellsByElement[elementType][k];
+              this->WriteIntToFile(CellId, fd);
+            }
           }
 
           // element connectivity information
