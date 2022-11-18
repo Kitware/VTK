@@ -384,6 +384,28 @@ void vtkPolyData::CopyCells(vtkPolyData* pd, vtkIdList* idList, vtkIncrementalPo
 }
 
 //------------------------------------------------------------------------------
+// Support GetCellBounds()
+namespace
+{ // anonymous
+struct ComputeCellBoundsVisitor
+{
+  // vtkCellArray::Visit entry point:
+  template <typename CellStateT>
+  void operator()(CellStateT& state, vtkPoints* points, vtkIdType cellId, double bounds[6]) const
+  {
+    using IdType = typename CellStateT::ValueType;
+
+    const IdType beginOffset = state.GetBeginOffset(cellId);
+    const IdType endOffset = state.GetEndOffset(cellId);
+    const IdType numPts = endOffset - beginOffset;
+
+    const auto pointIds = state.GetConnectivity()->GetPointer(beginOffset);
+    vtkBoundingBox::ComputeBounds(points, pointIds, numPts, bounds);
+  }
+};
+} // anonymous
+
+//------------------------------------------------------------------------------
 // Fast implementation of GetCellBounds().  Bounds are calculated without
 // constructing a cell. This method is expected to be thread-safe.
 void vtkPolyData::GetCellBounds(vtkIdType cellId, double bounds[6])
@@ -400,48 +422,9 @@ void vtkPolyData::GetCellBounds(vtkIdType cellId, double bounds[6])
     return;
   }
 
-  vtkIdType numPts;
-  const vtkIdType* pts;
   vtkCellArray* cells = this->GetCellArrayInternal(tag);
-  vtkSmartPointer<vtkCellArrayIterator> iter;
-  if (cells->IsStorageShareable())
-  {
-    // much faster and thread-safe if storage is shareable
-    cells->GetCellAtId(tag.GetCellId(), numPts, pts);
-  }
-  else
-  {
-    // guaranteed thread safe
-    iter = vtk::TakeSmartPointer(cells->NewIterator());
-    iter->GetCellAtId(tag.GetCellId(), numPts, pts);
-  }
-
-  // carefully compute the bounds
-  double x[3];
-  if (numPts)
-  {
-    this->Points->GetPoint(pts[0], x);
-    bounds[0] = x[0];
-    bounds[2] = x[1];
-    bounds[4] = x[2];
-    bounds[1] = x[0];
-    bounds[3] = x[1];
-    bounds[5] = x[2];
-    for (vtkIdType i = 1; i < numPts; ++i)
-    {
-      this->Points->GetPoint(pts[i], x);
-      bounds[0] = std::min(x[0], bounds[0]);
-      bounds[1] = std::max(x[0], bounds[1]);
-      bounds[2] = std::min(x[1], bounds[2]);
-      bounds[3] = std::max(x[1], bounds[3]);
-      bounds[4] = std::min(x[2], bounds[4]);
-      bounds[5] = std::max(x[2], bounds[5]);
-    }
-  }
-  else
-  {
-    vtkMath::UninitializeBounds(bounds);
-  }
+  const vtkIdType localCellId = tag.GetCellId();
+  cells->Visit(ComputeCellBoundsVisitor{}, this->Points, localCellId, bounds);
 }
 
 //------------------------------------------------------------------------------
