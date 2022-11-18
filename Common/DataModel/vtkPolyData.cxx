@@ -32,6 +32,7 @@
 #include "vtkPolyVertex.h"
 #include "vtkPolygon.h"
 #include "vtkQuad.h"
+#include "vtkSMPThreadLocalObject.h"
 #include "vtkSMPTools.h"
 #include "vtkSmartPointer.h"
 #include "vtkTriangle.h"
@@ -477,8 +478,8 @@ void vtkPolyData::ComputeCellsBounds()
   if (this->GetMeshMTime() > this->CellsBoundsTime)
   {
     // If there are no cells, uninitialize the bounds.
-    vtkIdType numPts = this->GetNumberOfPoints();
-    vtkIdType numCells, numPDCells = this->GetNumberOfCells();
+    const vtkIdType numPts = this->GetNumberOfPoints();
+    const vtkIdType numPDCells = this->GetNumberOfCells();
     if (numPDCells <= 0)
     {
       vtkMath::UninitializeBounds(this->CellsBounds);
@@ -489,7 +490,7 @@ void vtkPolyData::ComputeCellsBounds()
     this->CellsBoundsTime.Modified();
 
     // Make sure this vtkPolyData has points.
-    if (this->Points == nullptr || numPts <= 0)
+    if (this->Points == nullptr || numPts <= 0 || numPDCells <= 0)
     {
       vtkMath::UninitializeBounds(this->CellsBounds);
       return;
@@ -498,53 +499,64 @@ void vtkPolyData::ComputeCellsBounds()
     // With cells available, loop over the cells of the polydata.
     // Mark points that are used by one or more cells. Unmarked
     // points do not contribute.
-    vtkCellArray* cellA[4];
-    cellA[0] = this->GetVerts();
-    cellA[1] = this->GetLines();
-    cellA[2] = this->GetPolys();
-    cellA[3] = this->GetStrips();
+    vtkCellArray* cellArrays[4] = { this->GetVerts(), this->GetLines(), this->GetPolys(),
+      this->GetStrips() };
 
     // Process each cell array separately. Note that threading is only used
     // if the model is big enough (since there is a cost to spinning up the
     // thread pool).
     static constexpr int VTK_SMP_THRESHOLD = 250000;
+
+    // Create uses array initialized to 0
+    vtkSMPThreadLocalObject<vtkIdList> tlCellPointIds;
     if (numPDCells > VTK_SMP_THRESHOLD)
     {
       // Create uses array initialized to 0 and supporting threaded access
       std::atomic<unsigned char>* ptUses = new std::atomic<unsigned char>[numPts]();
-      for (auto ca = 0; ca < 4; ca++)
+      for (const auto& cellArray : cellArrays)
       {
-        numCells = cellA[ca]->GetNumberOfCells();
-        // Lambda to threaded compute bounds
-        vtkSMPTools::For(0, numCells, [&](vtkIdType cellId, vtkIdType endCellId) {
+        const auto numCells = cellArray->GetNumberOfCells();
+        if (numCells <= 0)
+        {
+          continue;
+        }
+        // Lambda to threaded mark used points
+        vtkSMPTools::For(0, numCells, [&](vtkIdType beginCellId, vtkIdType endCellId) {
+          auto cellPointIds = tlCellPointIds.Local();
           vtkIdType npts, ptIdx;
           const vtkIdType* pts;
-          auto iter = vtk::TakeSmartPointer(cellA[ca]->NewIterator());
-          for (; cellId < endCellId; ++cellId)
+          for (vtkIdType cellId = beginCellId; cellId < endCellId; ++cellId)
           {
-            iter->GetCellAtId(cellId, npts, pts); // thread-safe
+            cellArray->GetCellAtId(cellId, npts, pts, cellPointIds);
             for (ptIdx = 0; ptIdx < npts; ++ptIdx)
             {
-              ptUses[pts[ptIdx]] = 1;
+              // memory_order_relaxed is safe here, since we're not using the atomics for
+              // synchronization.
+              ptUses[pts[ptIdx]].store(1, std::memory_order_relaxed);
             }
           }
         }); // end lambda
       }
       vtkBoundingBox::ComputeBounds(this->Points, ptUses, this->CellsBounds);
       delete[] ptUses;
-    }                        // threaded
-    else if (numPDCells > 0) // falls through to serial
+    }
+    else
     {
       // Create point uses array initialized to 0
       unsigned char* ptUses = new unsigned char[numPts]();
-      for (auto ca = 0; ca < 4; ca++)
+      for (const auto& cellArray : cellArrays)
       {
-        numCells = cellA[ca]->GetNumberOfCells();
+        const auto numCells = cellArray->GetNumberOfCells();
+        if (numCells <= 0)
+        {
+          continue;
+        }
+        auto cellPointIds = tlCellPointIds.Local();
         vtkIdType npts, ptIdx;
         const vtkIdType* pts;
-        for (auto cellId = 0; cellId < numCells; ++cellId)
+        for (vtkIdType cellId = 0; cellId < numCells; ++cellId)
         {
-          cellA[ca]->GetCellAtId(cellId, npts, pts);
+          cellArray->GetCellAtId(cellId, npts, pts, cellPointIds);
           for (ptIdx = 0; ptIdx < npts; ++ptIdx)
           {
             ptUses[pts[ptIdx]] = 1;
