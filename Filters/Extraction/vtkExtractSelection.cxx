@@ -642,14 +642,24 @@ void vtkExtractSelection::ExtractSelectedCells(
   originalPointIds->SetNumberOfComponents(1);
   originalPointIds->SetName("vtkOriginalPointIds");
   originalPointIds->SetNumberOfTuples(numPts);
-  std::iota(originalPointIds->GetPointer(0), originalPointIds->GetPointer(0) + numPts, 0);
+  vtkSMPTools::For(0, numPts, [&](vtkIdType begin, vtkIdType end) {
+    for (vtkIdType ptId = begin; ptId < end; ++ptId)
+    {
+      originalPointIds->SetValue(ptId, ptId);
+    }
+  });
   input->GetPointData()->AddArray(originalPointIds);
 
   vtkNew<vtkIdTypeArray> originalCellIds;
   originalCellIds->SetNumberOfComponents(1);
   originalCellIds->SetName("vtkOriginalCellIds");
   originalCellIds->SetNumberOfTuples(numCells);
-  std::iota(originalCellIds->GetPointer(0), originalCellIds->GetPointer(0) + numCells, 0);
+  vtkSMPTools::For(0, numCells, [&](vtkIdType begin, vtkIdType end) {
+    for (vtkIdType cellId = begin; cellId < end; ++cellId)
+    {
+      originalCellIds->SetValue(cellId, cellId);
+    }
+  });
   input->GetCellData()->AddArray(originalCellIds);
 
   vtkNew<vtkExtractCells> extractor;
