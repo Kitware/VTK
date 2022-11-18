@@ -1343,20 +1343,20 @@ Ioss::Region* vtkIOSSReader::vtkInternals::GetRegion(const std::string& dbasenam
       {
         switch (properties.get(name).get_type())
         {
-          case vtkioss_Ioss::Property::BasicType::POINTER:
+          case Ioss::Property::BasicType::POINTER:
             vtkLog(TRACE, << name << " : " << properties.get(name).get_pointer());
             break;
-          case vtkioss_Ioss::Property::BasicType::INTEGER:
+          case Ioss::Property::BasicType::INTEGER:
             vtkLog(TRACE, << name << " : " << std::to_string(properties.get(name).get_int()));
             break;
-          case vtkioss_Ioss::Property::BasicType::INVALID:
+          case Ioss::Property::BasicType::INVALID:
             vtkLog(TRACE, << name << " : "
                           << "invalid type");
             break;
-          case vtkioss_Ioss::Property::BasicType::REAL:
+          case Ioss::Property::BasicType::REAL:
             vtkLog(TRACE, << name << " : " << std::to_string(properties.get(name).get_real()));
             break;
-          case vtkioss_Ioss::Property::BasicType::STRING:
+          case Ioss::Property::BasicType::STRING:
             vtkLog(TRACE, << name << " : " << properties.get(name).get_string());
             break;
           default:
