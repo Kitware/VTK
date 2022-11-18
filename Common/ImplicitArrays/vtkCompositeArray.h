@@ -21,7 +21,8 @@
 #include "vtkDataArrayPrivate.txx"
 #endif
 
-#include "vtkCompositeImplicitBackend.h" // for the array backend
+#include "vtkCommonImplicitArraysModule.h" // for export macro
+#include "vtkCompositeImplicitBackend.h"   // for the array backend
 #include "vtkImplicitArray.h"
 
 #ifdef VTK_COMPOSITE_ARRAY_INSTANTIATING
