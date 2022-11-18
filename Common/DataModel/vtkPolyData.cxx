@@ -308,30 +308,6 @@ void vtkPolyData::GetCell(vtkIdType cellId, vtkGenericCell* cell)
   assert(cells != nullptr);
   cells->GetCellAtId(tag.GetCellId(), cell->PointIds);
   this->Points->GetPoints(cell->PointIds, cell->Points);
-
-  // some validation code (that existed previously).
-  const auto numPts = cell->GetNumberOfPoints();
-  switch (tag.GetCellType())
-  {
-    case VTK_VERTEX:
-      assert(numPts == 1);
-      break;
-
-    case VTK_LINE:
-      assert(numPts == 2);
-      break;
-    case VTK_TRIANGLE:
-      assert(numPts == 3);
-      break;
-
-    case VTK_QUAD:
-      assert(numPts == 4);
-      break;
-
-    default:
-      (void)numPts;
-      break;
-  }
 }
 
 //------------------------------------------------------------------------------
