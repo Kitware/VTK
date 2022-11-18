@@ -42,8 +42,8 @@
  * CHECK(compositArr->GetValue(1) == 1);
  * ```
  */
-
-#include "vtkSmartPointer.h" // for internal variables
+#include "vtkCommonImplicitArraysModule.h"
+#include <memory>
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkDataArray;
@@ -52,14 +52,13 @@ class vtkCompositeImplicitBackend
 {
 public:
   vtkCompositeImplicitBackend(vtkDataArray* leftArr, vtkDataArray* rightArr);
-  ~vtkCompositeImplicitBackend() = default;
+  ~vtkCompositeImplicitBackend();
 
   ValueType operator()(int idx) const;
 
 protected:
-  vtkSmartPointer<vtkDataArray> Left = nullptr;
-  vtkSmartPointer<vtkDataArray> Right = nullptr;
-  int Offset = 0;
+  struct Internals;
+  std::unique_ptr<Internals> Internal;
 };
 VTK_ABI_NAMESPACE_END
 
