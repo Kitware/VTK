@@ -15,7 +15,6 @@
 
 #include "vtkFrustumSelector.h"
 
-#include "vtkCell.h"
 #include "vtkDataSet.h"
 #include "vtkDoubleArray.h"
 #include "vtkGenericCell.h"
@@ -28,17 +27,15 @@
 #include "vtkSMPTools.h"
 #include "vtkSelectionNode.h"
 #include "vtkSignedCharArray.h"
-#include "vtkVector.h"
 #include "vtkVectorOperators.h"
 #include "vtkVoxel.h"
 
 #include <vector>
 
-#define MAXPLANE 6
-
 VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
+constexpr int MAX_PLANES = 6;
 //------------------------------------------------------------------------------
 void ComputePlane(
   int idx, double v0[3], double v1[3], double v2[3], vtkPoints* points, vtkDoubleArray* norms)
@@ -63,16 +60,35 @@ void ComputePlane(
 }
 
 //------------------------------------------------------------------------------
+struct FrustumPlanesType : public std::array<vtkSmartPointer<vtkPlane>, MAX_PLANES>
+{
+  FrustumPlanesType()
+  {
+    for (int i = 0; i < MAX_PLANES; ++i)
+    {
+      this->operator[](i) = vtkSmartPointer<vtkPlane>::New();
+    }
+  }
+  void Initialize(vtkPlanes* frustum)
+  {
+    for (int i = 0; i < MAX_PLANES; ++i)
+    {
+      frustum->GetPlane(i, this->operator[](i));
+    }
+  }
+};
+
+//------------------------------------------------------------------------------
 class ComputeCellsInFrustumFunctor
 {
 private:
   vtkPlanes* Frustum;
   vtkDataSet* Input;
   vtkSignedCharArray* Array;
-  int np_vertids[6][2];
+  int NPVertexIds[6][2];
 
   vtkSMPThreadLocalObject<vtkGenericCell> TLCell;
-  vtkSMPThreadLocalObject<vtkPlane> TLPlane;
+  vtkSMPThreadLocal<FrustumPlanesType> TLFrustumPlanes;
   vtkSMPThreadLocal<std::vector<double>> TLVertexBuffer;
 
 public:
@@ -87,48 +103,52 @@ public:
     vtkNew<vtkGenericCell> cell;
     this->Input->GetCell(0, cell);
 
-    vtkIdType i;
     double x[3];
 
     // find the near and far vertices to each plane for quick in/out tests
-    for (i = 0; i < MAXPLANE; i++)
+    for (int i = 0; i < MAX_PLANES; i++)
     {
       this->Frustum->GetNormals()->GetTuple(i, x);
       int xside = (x[0] > 0) ? 1 : 0;
       int yside = (x[1] > 0) ? 1 : 0;
       int zside = (x[2] > 0) ? 1 : 0;
-      this->np_vertids[i][0] = (1 - xside) * 4 + (1 - yside) * 2 + (1 - zside);
-      this->np_vertids[i][1] = xside * 4 + yside * 2 + zside;
+      this->NPVertexIds[i][0] = (1 - xside) * 4 + (1 - yside) * 2 + (1 - zside);
+      this->NPVertexIds[i][1] = xside * 4 + yside * 2 + zside;
     }
   }
+
+  //--------------------------------------------------------------------------
+  void Initialize() { this->TLFrustumPlanes.Local().Initialize(this->Frustum); }
 
   //--------------------------------------------------------------------------
   void operator()(vtkIdType begin, vtkIdType end)
   {
     double bounds[6];
     auto& cell = this->TLCell.Local();
+    auto& frustumPlanes = this->TLFrustumPlanes.Local();
+    auto& vertexBuffer = this->TLVertexBuffer.Local();
 
     for (vtkIdType cellId = begin; cellId < end; ++cellId)
     {
       this->Input->GetCell(cellId, cell);
       cell->GetBounds(bounds);
-      int isect = this->ABoxFrustumIsect(bounds, cell);
-      if (isect == 1)
-      {
-        this->Array->SetValue(cellId, 1);
-      }
-      else
-      {
-        this->Array->SetValue(cellId, 0);
-      }
+      int isect = this->ABoxFrustumIsect(bounds, cell, frustumPlanes, vertexBuffer);
+      this->Array->SetValue(cellId, static_cast<signed char>(isect == 1));
     }
+  }
+
+  //--------------------------------------------------------------------------
+  void Reduce()
+  {
+    // nothing to do here.
   }
 
   //--------------------------------------------------------------------------
   // Intersect the cell (with its associated bounds) with the clipping frustum.
   // Return 1 if at least partially inside, 0 otherwise.
   // Also return a distance to the near plane.
-  int ABoxFrustumIsect(double* bounds, vtkCell* cell)
+  int ABoxFrustumIsect(double* bounds, vtkCell* cell, FrustumPlanesType& frustumPlanes,
+    std::vector<double>& vertexBuffer)
   {
     if (bounds[0] > bounds[1] || bounds[2] > bounds[3] || bounds[4] > bounds[5])
     {
@@ -165,20 +185,19 @@ public:
     int intersect = 0;
 
     // reject if any plane rejects the entire bbox
-    auto& plane = this->TLPlane.Local();
-    for (int pid = 0; pid < MAXPLANE; pid++)
+    for (int pid = 0; pid < MAX_PLANES; pid++)
     {
-      this->Frustum->GetPlane(pid, plane);
+      auto& plane = frustumPlanes[pid];
       double dist;
       int nvid;
       int pvid;
-      nvid = this->np_vertids[pid][0];
+      nvid = this->NPVertexIds[pid][0];
       dist = plane->EvaluateFunction(verts[nvid]);
       if (dist > 0.0)
       {
         return 0;
       }
-      pvid = this->np_vertids[pid][1];
+      pvid = this->NPVertexIds[pid][1];
       dist = plane->EvaluateFunction(verts[pvid]);
       if (dist > 0.0)
       {
@@ -197,14 +216,13 @@ public:
     vtkCell* face;
     vtkCell* edge;
     vtkPoints* pts = nullptr;
-    auto& vertbuffer = this->TLVertexBuffer.Local();
-    vertbuffer.clear();
+    vertexBuffer.clear();
     int maxedges = 16;
     // be ready to resize if we hit a polygon with many vertices
-    vertbuffer.resize(3 * maxedges * 3);
-    double* vlist = &vertbuffer[0 * maxedges * 3];
-    double* wvlist = &vertbuffer[1 * maxedges * 3];
-    double* ovlist = &vertbuffer[2 * maxedges * 3];
+    vertexBuffer.resize(3 * maxedges * 3);
+    double* vlist = &vertexBuffer[0 * maxedges * 3];
+    double* wvlist = &vertexBuffer[1 * maxedges * 3];
+    double* ovlist = &vertexBuffer[2 * maxedges * 3];
 
     int nfaces = cell->GetNumberOfFaces();
     if (nfaces < 1)
@@ -232,10 +250,10 @@ public:
           if (nedges + 4 > maxedges)
           {
             maxedges = (nedges + 4) * 2;
-            vertbuffer.resize(3 * maxedges * 3);
-            vlist = &vertbuffer[0 * maxedges * 3];
-            wvlist = &vertbuffer[1 * maxedges * 3];
-            ovlist = &vertbuffer[2 * maxedges * 3];
+            vertexBuffer.resize(3 * maxedges * 3);
+            vlist = &vertexBuffer[0 * maxedges * 3];
+            wvlist = &vertexBuffer[1 * maxedges * 3];
+            ovlist = &vertexBuffer[2 * maxedges * 3];
           }
           for (vtkIdType i = 0; i < cell->GetNumberOfPoints(); ++i)
           {
@@ -250,10 +268,10 @@ public:
       if (nedges + 4 > maxedges)
       {
         maxedges = (nedges + 4) * 2;
-        vertbuffer.resize(3 * maxedges * 3);
-        vlist = &vertbuffer[0 * maxedges * 3];
-        wvlist = &vertbuffer[1 * maxedges * 3];
-        ovlist = &vertbuffer[2 * maxedges * 3];
+        vertexBuffer.resize(3 * maxedges * 3);
+        vlist = &vertexBuffer[0 * maxedges * 3];
+        wvlist = &vertexBuffer[1 * maxedges * 3];
+        ovlist = &vertexBuffer[2 * maxedges * 3];
       }
       edge = cell->GetEdge(0);
       if (edge)
@@ -303,7 +321,7 @@ public:
           break;
         }
       }
-      if (this->FrustumClipPolygon(nedges, vlist, wvlist, ovlist))
+      if (this->FrustumClipPolygon(nedges, vlist, wvlist, ovlist, frustumPlanes))
       {
         return 1;
       }
@@ -328,10 +346,10 @@ public:
         if (nedges + 4 > maxedges)
         {
           maxedges = (nedges + 4) * 2;
-          vertbuffer.resize(3 * maxedges * 3);
-          vlist = &vertbuffer[0 * maxedges * 3];
-          wvlist = &vertbuffer[1 * maxedges * 3];
-          ovlist = &vertbuffer[2 * maxedges * 3];
+          vertexBuffer.resize(3 * maxedges * 3);
+          vlist = &vertexBuffer[0 * maxedges * 3];
+          wvlist = &vertexBuffer[1 * maxedges * 3];
+          ovlist = &vertexBuffer[2 * maxedges * 3];
         }
         edge = face->GetEdge(0);
         pts = edge->GetPoints();
@@ -375,7 +393,7 @@ public:
             break;
           }
         }
-        if (this->FrustumClipPolygon(nedges, vlist, wvlist, ovlist))
+        if (this->FrustumClipPolygon(nedges, vlist, wvlist, ovlist, frustumPlanes))
         {
           return 1;
         }
@@ -407,17 +425,18 @@ public:
   // if there is no intersection, returns 0
   // if there is an intersection, returns 1
   // update ovlist to contain the resulting clipped vertices
-  int FrustumClipPolygon(int nverts, double* ivlist, double* wvlist, double* ovlist)
+  int FrustumClipPolygon(
+    int nverts, double* ivlist, double* wvlist, double* ovlist, FrustumPlanesType& frustumPlanes)
   {
     int nwverts = nverts;
     memcpy(wvlist, ivlist, nverts * sizeof(double) * 3);
 
     int noverts = 0;
     int pid;
-    for (pid = 0; pid < MAXPLANE; pid++)
+    for (pid = 0; pid < MAX_PLANES; pid++)
     {
       noverts = 0;
-      this->PlaneClipPolygon(nwverts, wvlist, pid, noverts, ovlist);
+      this->PlaneClipPolygon(nwverts, wvlist, pid, noverts, ovlist, frustumPlanes);
       if (noverts == 0)
       {
         return 0;
@@ -432,21 +451,25 @@ public:
   //--------------------------------------------------------------------------
   // clips a polygon against the numbered plane, resulting vertices are stored
   // in ovlist, noverts
-  void PlaneClipPolygon(int nverts, double* ivlist, int pid, int& noverts, double* ovlist)
+  void PlaneClipPolygon(int nverts, double* ivlist, int pid, int& noverts, double* ovlist,
+    FrustumPlanesType& frustumPlanes)
   {
     int vid;
     // run around the polygon and clip to this edge
     for (vid = 0; vid < nverts - 1; vid++)
     {
-      this->PlaneClipEdge(&ivlist[vid * 3], &ivlist[(vid + 1) * 3], pid, noverts, ovlist);
+      this->PlaneClipEdge(
+        &ivlist[vid * 3], &ivlist[(vid + 1) * 3], pid, noverts, ovlist, frustumPlanes);
     }
-    this->PlaneClipEdge(&ivlist[(nverts - 1) * 3], &ivlist[0 * 3], pid, noverts, ovlist);
+    this->PlaneClipEdge(
+      &ivlist[(nverts - 1) * 3], &ivlist[0 * 3], pid, noverts, ovlist, frustumPlanes);
   }
 
   //--------------------------------------------------------------------------
   // clips a line segment against the numbered plane.
   // intersection point and the second vertex are added to overts if on or inside
-  void PlaneClipEdge(double* V0, double* V1, int pid, int& noverts, double* overts)
+  void PlaneClipEdge(
+    double* V0, double* V1, int pid, int& noverts, double* overts, FrustumPlanesType& frustumPlanes)
   {
     double t = 0.0;
     double ISECT[3];
@@ -463,9 +486,7 @@ public:
       noverts++;
     }
 
-    auto& plane = this->TLPlane.Local();
-    this->Frustum->GetPlane(pid, plane);
-
+    auto& plane = frustumPlanes[pid];
     if (plane->EvaluateFunction(V1) < 0.0)
     {
       overts[noverts * 3 + 0] = V1[0];
@@ -511,7 +532,7 @@ public:
       double tmin = 0.0;
       double tmax = 1.0;
       bool mayOverlap = true;
-      for (int pp = 0; mayOverlap && (pp < MAXPLANE); ++pp)
+      for (int pp = 0; mayOverlap && (pp < MAX_PLANES); ++pp)
       {
         this->Frustum->GetNormals()->GetTuple(pp, normal.GetData());
         this->Frustum->GetPoints()->GetPoint(pp, basePoint.GetData());
@@ -555,7 +576,7 @@ public:
   {
     int code = 0;
     vtkVector3d normal, basePoint;
-    for (int pp = 0; pp < MAXPLANE; ++pp)
+    for (int pp = 0; pp < MAX_PLANES; ++pp)
     {
       this->Frustum->GetNormals()->GetTuple(pp, normal.GetData());
       this->Frustum->GetPoints()->GetPoint(pp, basePoint.GetData());
@@ -770,8 +791,9 @@ int vtkFrustumSelector::OverallBoundsTest(double bounds[6])
   p->SetPoint(6, bounds[0], bounds[3], bounds[5]);
   p->SetPoint(7, bounds[1], bounds[3], bounds[5]);
 
-  int rc;
-  rc = functor.ABoxFrustumIsect(bounds, vox);
-  return (rc > 0);
+  FrustumPlanesType frustumPlanes;
+  frustumPlanes.Initialize(this->Frustum);
+  std::vector<double> vertexBuffer;
+  return functor.ABoxFrustumIsect(bounds, vox, frustumPlanes, vertexBuffer) > 0 ? 1 : 0;
 }
 VTK_ABI_NAMESPACE_END
