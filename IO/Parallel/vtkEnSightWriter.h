@@ -198,6 +198,8 @@ protected:
 
   int GetExodusModelIndex(int* ElementArray, int NumberElements, int PartID);
 
+  static int GetDestinationComponent(int srcComponent, int numComponents);
+
   char* Path;
   char* BaseName;
   char* FileName;

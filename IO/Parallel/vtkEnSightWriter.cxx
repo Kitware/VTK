@@ -477,10 +477,11 @@ void vtkEnSightWriter::WriteData()
 
       for (int CurrentDimension = 0; CurrentDimension < DataSize; CurrentDimension++)
       {
+        int OutputComponent = this->GetDestinationComponent(CurrentDimension, DataSize);
         for (std::list<int>::iterator k = NodesPerPart.begin(); k != NodesPerPart.end(); ++k)
         {
           this->WriteFloatToFile(
-            (float)(DataArray->GetTuple(*k)[CurrentDimension]), pointArrayFiles[j]);
+            (float)(DataArray->GetTuple(*k)[OutputComponent]), pointArrayFiles[j]);
         }
       }
     }
@@ -603,12 +604,13 @@ void vtkEnSightWriter::WriteData()
         if (!CellsByElement[elementTypes[k]].empty())
         {
           this->WriteElementTypeToFile(elementTypes[k], cellArrayFiles[j]);
-          for (unsigned int m = 0; m < CellsByElement[elementTypes[k]].size(); m++)
+          for (int CurrentDimension = 0; CurrentDimension < DataSize; CurrentDimension++)
           {
-            for (int CurrentDimension = 0; CurrentDimension < DataSize; CurrentDimension++)
+            int OutputComponent = this->GetDestinationComponent(CurrentDimension, DataSize);
+            for (unsigned int m = 0; m < CellsByElement[elementTypes[k]].size(); m++)
             {
               this->WriteFloatToFile(
-                (float)(DataArray->GetTuple(CellsByElement[elementTypes[k]][m])[CurrentDimension]),
+                (float)(DataArray->GetTuple(CellsByElement[elementTypes[k]][m])[OutputComponent]),
                 cellArrayFiles[j]);
             }
           }
@@ -773,10 +775,10 @@ void vtkEnSightWriter::WriteCaseFile(int TotalTimeSteps)
         strcpy(SmallBuffer, "vector");
         break;
       case (6):
-        strcpy(SmallBuffer, "tensor");
+        strcpy(SmallBuffer, "tensor symm");
         break;
       case (9):
-        strcpy(SmallBuffer, "tensor9");
+        strcpy(SmallBuffer, "tensor asym");
         break;
     }
     if (TotalTimeSteps <= 1)
@@ -822,10 +824,10 @@ void vtkEnSightWriter::WriteCaseFile(int TotalTimeSteps)
         strcpy(SmallBuffer, "vector");
         break;
       case (6):
-        strcpy(SmallBuffer, "tensor");
+        strcpy(SmallBuffer, "tensor symm");
         break;
       case (9):
-        strcpy(SmallBuffer, "tensor9");
+        strcpy(SmallBuffer, "tensor asym");
         break;
     }
     if (TotalTimeSteps <= 1)
@@ -1205,4 +1207,26 @@ void vtkEnSightWriter::ComputeNames()
 
   delete[] buf;
 }
+
+//------------------------------------------------------------------------------
+// Copied from vtkEnSightGoldBinaryReader::vtkUtilities::GetDestinationComponent
+int vtkEnSightWriter::GetDestinationComponent(int srcComponent, int numComponents)
+{
+  if (numComponents == 6)
+  {
+    // for 6 component tensors, the symmetric tensor components XZ and YZ are interchanged
+    // see Paraview issue #10637.
+    switch (srcComponent)
+    {
+      case 4:
+        return 5;
+
+      case 5:
+        return 4;
+    }
+  }
+
+  return srcComponent;
+}
+
 VTK_ABI_NAMESPACE_END
