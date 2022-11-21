@@ -46,6 +46,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
+#include "vtkPolyDataToUnstructuredGrid.h"
 #include "vtkRectilinearGrid.h"
 #include "vtkSMPThreadLocalObject.h"
 #include "vtkSMPTools.h"
@@ -2739,52 +2740,13 @@ bool vtkTableBasedClipDataSet::CanFullyProcessUnstructuredData(vtkDataSet* input
 }
 
 //------------------------------------------------------------------------------
-namespace
-{
-struct BuildCellTypesImpl
-{
-  // Given a polyData cell array and a size to type functor, it creates the cell types
-  template <typename CellStateT, typename SizeToTypeFunctor>
-  void operator()(CellStateT& state, vtkUnsignedCharArray* cellTypes, SizeToTypeFunctor&& typer)
-  {
-    const vtkIdType numCells = state.GetNumberOfCells();
-    if (numCells == 0)
-    {
-      return;
-    }
-
-    vtkSMPTools::For(0, numCells, [&](vtkIdType begin, vtkIdType end) {
-      auto types = cellTypes->GetPointer(0);
-      for (vtkIdType cellId = begin; cellId < end; ++cellId)
-      {
-        types[cellId] = static_cast<unsigned char>(typer(state.GetCellSize(cellId)));
-      }
-    });
-  }
-};
-} // end anonymous namespace
-
-//------------------------------------------------------------------------------
 void vtkTableBasedClipDataSet::ClipPolyData(vtkDataSet* inputGrid,
   vtkImplicitFunction* implicitFunction, vtkDoubleArray* scalars, double isoValue,
   vtkUnstructuredGrid* outputUG)
 {
   // check if it's easily convertible to vtkUnstructuredGrid
   auto polyData = vtkPolyData::SafeDownCast(inputGrid);
-  bool hasOnlyVerts = polyData->GetVerts()->GetNumberOfCells() != 0 &&
-    polyData->GetLines()->GetNumberOfCells() == 0 &&
-    polyData->GetPolys()->GetNumberOfCells() == 0 && polyData->GetStrips()->GetNumberOfCells() == 0;
-  bool hasOnlyLines = polyData->GetVerts()->GetNumberOfCells() == 0 &&
-    polyData->GetLines()->GetNumberOfCells() != 0 &&
-    polyData->GetPolys()->GetNumberOfCells() == 0 && polyData->GetStrips()->GetNumberOfCells() == 0;
-  bool hasOnlyPolys = polyData->GetVerts()->GetNumberOfCells() == 0 &&
-    polyData->GetLines()->GetNumberOfCells() == 0 &&
-    polyData->GetPolys()->GetNumberOfCells() != 0 && polyData->GetStrips()->GetNumberOfCells() == 0;
-  bool hasOnlyStrips = polyData->GetVerts()->GetNumberOfCells() == 0 &&
-    polyData->GetLines()->GetNumberOfCells() == 0 &&
-    polyData->GetPolys()->GetNumberOfCells() == 0 && polyData->GetStrips()->GetNumberOfCells() != 0;
-  bool easilyConvertibleToUGrid = hasOnlyVerts || hasOnlyLines || hasOnlyPolys || hasOnlyStrips;
-  if (easilyConvertibleToUGrid)
+  if (vtkPolyDataToUnstructuredGrid::CanBeProcessedFast(polyData))
   {
     // convert to vtkUnstructuredGrid
     //
@@ -2794,46 +2756,11 @@ void vtkTableBasedClipDataSet::ClipPolyData(vtkDataSet* inputGrid,
     // ones because they perform a bit operation to get the cell type and then based on that, get
     // the correct cell array and extract the cell points. This overhead turns out to increase the
     // execution time by 10%-20%.
-    vtkNew<vtkUnstructuredGrid> uGrid;
-    vtkNew<vtkUnsignedCharArray> cellTypes;
-    cellTypes->SetNumberOfValues(inputGrid->GetNumberOfCells());
-    uGrid->SetPoints(polyData->GetPoints());
-    uGrid->GetPointData()->ShallowCopy(polyData->GetPointData());
-    if (hasOnlyVerts)
-    {
-      polyData->GetVerts()->Visit(BuildCellTypesImpl{}, cellTypes,
-        [](vtkIdType size) -> VTKCellType { return size == 1 ? VTK_VERTEX : VTK_POLY_VERTEX; });
-      uGrid->SetCells(cellTypes, polyData->GetVerts(), nullptr, nullptr);
-    }
-    else if (hasOnlyLines)
-    {
-      polyData->GetLines()->Visit(BuildCellTypesImpl{}, cellTypes,
-        [](vtkIdType size) -> VTKCellType { return size == 2 ? VTK_LINE : VTK_POLY_LINE; });
-      uGrid->SetCells(cellTypes, polyData->GetLines(), nullptr, nullptr);
-    }
-    else if (hasOnlyPolys)
-    {
-      polyData->GetPolys()->Visit(
-        BuildCellTypesImpl{}, cellTypes, [](vtkIdType size) -> VTKCellType {
-          switch (size)
-          {
-            case 3:
-              return VTK_TRIANGLE;
-            case 4:
-              return VTK_QUAD;
-            default:
-              return VTK_POLYGON;
-          }
-        });
-      uGrid->SetCells(cellTypes, polyData->GetPolys(), nullptr, nullptr);
-    }
-    else // hasOnlyStrips
-    {
-      polyData->GetStrips()->Visit(BuildCellTypesImpl{}, cellTypes,
-        [](vtkIdType vtkNotUsed(size)) -> VTKCellType { return VTK_TRIANGLE_STRIP; });
-      uGrid->SetCells(cellTypes, polyData->GetStrips(), nullptr, nullptr);
-    }
-    uGrid->GetCellData()->ShallowCopy(polyData->GetCellData());
+    vtkNew<vtkPolyDataToUnstructuredGrid> converter;
+    converter->SetInputData(polyData);
+    converter->SetContainerAlgorithm(this);
+    converter->Update();
+    auto uGrid = converter->GetOutput();
     this->ClipUnstructuredGrid(uGrid, implicitFunction, scalars, isoValue, outputUG);
   }
   else
