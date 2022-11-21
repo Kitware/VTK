@@ -1123,13 +1123,10 @@ void vtkGLTFWriter::WriteToStreamMultiBlock(ostream& output, vtkMultiBlockDataSe
     size_t paddingSizeBIN = GetPaddingAt4Bytes(binChunkOffset);
     FileHeader header(static_cast<uint32_t>(
       12 + 8 + rootString.size() + paddingSizeJSON + 8 + binChunkOffset + paddingSizeBIN));
-    // std::cerr << "size: " << rootString.size() << std::endl;
-    // std::cerr << "length: " << header.Length << std::endl;
     vtkByteSwap::SwapWrite4LERange(&header, 3, &output);
     // JSON
     ChunkHeader jsonChunkHeader;
     jsonChunkHeader.SetTypeJSON(static_cast<uint32_t>(rootString.size() + paddingSizeJSON));
-    // std::cerr << "chunkLength: " << jsonChunkHeader.Length << std::endl;
     vtkByteSwap::SwapWrite4LERange(&jsonChunkHeader, 2, &output);
     output.write(rootString.c_str(), rootString.size());
     std::string paddingJSON = "   "; // max possible padding = 3 space characters
