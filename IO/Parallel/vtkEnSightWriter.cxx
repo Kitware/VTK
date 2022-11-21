@@ -242,7 +242,7 @@ void vtkEnSightWriter::WriteData()
   if (BlockData == nullptr || strcmp(BlockData->GetName(), "BlockId") != 0)
   {
     BlockData = nullptr;
-    cout << "No BlockID was found\n";
+    vtkLog(WARNING, "No BlockID was found");
   }
 
   this->ComputeNames();
