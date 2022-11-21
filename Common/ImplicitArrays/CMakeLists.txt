@@ -58,6 +58,7 @@ set(nowrap_headers
   vtkImplicitArrayTraits.h
   vtkStdFunctionArray.h
   "${CMAKE_CURRENT_BINARY_DIR}/vtkVTK_DISPATCH_IMPLICIT_ARRAYS.h"
+  "${CMAKE_CURRENT_BINARY_DIR}/vtkArrayDispatchImplicitArrayList.h"
 )
 
 set(nowrap_template_classes
