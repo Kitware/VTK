@@ -270,7 +270,7 @@ bool vtkSelectionNode::EqualProperties(vtkSelectionNode* other, bool fullcompare
     return false;
   }
 
-  vtkSmartPointer<vtkInformationIterator> iterSelf = vtkSmartPointer<vtkInformationIterator>::New();
+  vtkNew<vtkInformationIterator> iterSelf;
 
   iterSelf->SetInformation(this->Properties);
 
@@ -279,7 +279,6 @@ bool vtkSelectionNode::EqualProperties(vtkSelectionNode* other, bool fullcompare
   {
     vtkInformationKey* key = iterSelf->GetCurrentKey();
     vtkInformationIntegerKey* ikey = vtkInformationIntegerKey::SafeDownCast(key);
-    vtkInformationObjectBaseKey* okey = vtkInformationObjectBaseKey::SafeDownCast(key);
     if (ikey)
     {
       if (!otherProperties->Has(ikey) || this->Properties->Get(ikey) != otherProperties->Get(ikey))
@@ -287,11 +286,16 @@ bool vtkSelectionNode::EqualProperties(vtkSelectionNode* other, bool fullcompare
         return false;
       }
     }
-    if (okey)
+    else
     {
-      if (!otherProperties->Has(okey) || this->Properties->Get(okey) != otherProperties->Get(okey))
+      vtkInformationObjectBaseKey* okey = vtkInformationObjectBaseKey::SafeDownCast(key);
+      if (okey)
       {
-        return false;
+        if (!otherProperties->Has(okey) ||
+          this->Properties->Get(okey) != otherProperties->Get(okey))
+        {
+          return false;
+        }
       }
     }
   }
