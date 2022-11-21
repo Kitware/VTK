@@ -29,6 +29,8 @@
 #include "vtkPointData.h"
 #include "vtkPointSet.h"
 #include "vtkPoints.h"
+#include "vtkPolyData.h"
+#include "vtkPolyDataToUnstructuredGrid.h"
 #include "vtkSMPThreadLocalObject.h"
 #include "vtkSMPTools.h"
 #include "vtkTimeStamp.h"
@@ -700,6 +702,16 @@ bool vtkExtractCells::Copy(vtkDataSet* input, vtkUnstructuredGrid* output)
   if (vtkUnstructuredGrid::SafeDownCast(input))
   {
     output->ShallowCopy(input);
+    return true;
+  }
+
+  if (vtkPolyData::SafeDownCast(input))
+  {
+    vtkNew<vtkPolyDataToUnstructuredGrid> converter;
+    converter->SetInputData(input);
+    converter->SetContainerAlgorithm(this);
+    converter->Update();
+    output->ShallowCopy(converter->GetOutput());
     return true;
   }
 
