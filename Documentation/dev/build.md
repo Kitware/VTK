@@ -373,6 +373,35 @@ More advanced options:
      switch that can be used to enable/disable the overrides at run-time (on by default).
      It can be accessed using the static function `vtkmFilterOverrides::SetEnabled(bool)`.
 
+`vtkArrayDispatch` related options:
+
+The `VTK_DISPATCH_<array_type>_ARRAYS` options (default `OFF` for all but AOS) enable the
+specified type of array to be included in a dispatch type list. Explicit arrays (such as
+AOS, SOA and Typed) are included in the `vtkArrayDispatchTypeList.h` while
+`vtkArrayDispatchImplicitTypeList.h` includes both explicit and implicit arrays. The implicit
+array framework is included in the `CommonImplicitArrays` module. The following array types
+currently exist for use with the VTK dispatch mechanism:
+
+  * `VTK_DISPATCH_AOS_ARRAYS` (default `ON`): includes dispatching for the commonly used
+    "array-of-structure" ordered arrays derived from `vtkAOSDataArrayTemplate`
+  * `VTK_DISPATCH_SOA_ARRAYS` (default `OFF`): includes dispatching for "structure-of-array"
+    ordered arrays derived from `vtkSOADataArrayTemplate`
+  * `VTK_DISPATCH_TYPED_ARRAYS` (default `OFF`): includes dispatching for arrays derived
+    from `vtkTypedDataArray`
+  * `VTK_DISPATCH_AFFINE_ARRAYS` (default `OFF`): includes dispatching for linearly varying
+    `vtkAffineArray`s as part of the implicit array framework
+  * `VTK_DISPATCH_CONSTANT_ARRAYS` (default `OFF`): includes dispatching for constant arrays
+    `vtkConstantArray` as part of the implicit array framework
+  * `VTK_DISPATCH_STD_FUNCTION_ARRAYS` (default `OFF`): includes dispatching for arrays with
+    an `std::function` backend `vtkStdFunctionArray` as part of the implicit array framework
+
+The outlier in terms of dispatch support is the family of arrays derived from
+`vtkScaledSOADataArrayTemplate` which are automatically included in dispatch when built setting
+the `VTK_BUILD_SCALED_SOA_ARRAYS`.
+
+> **_WARNING:_**
+> Adding increasing numbers of arrays in the dispatch mechanism can greatly slow down compile times.
+
 The VTK module system provides a number of variables to control modules which
 are not otherwise controlled by the other options provided.
 

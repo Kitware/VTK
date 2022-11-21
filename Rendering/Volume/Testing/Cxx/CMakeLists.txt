@@ -1,3 +1,10 @@
+set(test_implicit_array)
+if(TARGET VTK::CommonImplicitArrays)
+  list(APPEND test_implicit_array
+    TestSmartVolumeMapperImplicitArray.cxx
+  )
+endif()
+
 set (VolumeCxxTests
   ProjectedTetrahedraZoomIn.cxx,NO_VALID
   TestFinalColorWindowLevel.cxx
@@ -92,6 +99,7 @@ set (VolumeCxxTests
   TestSmartVolumeMapper.cxx
   TestSmartVolumeMapperVolumeUpdate.cxx
   TestSmartVolumeMapperWindowLevel.cxx
+  ${test_implicit_array}
   )
 
 # everyone gets these tests

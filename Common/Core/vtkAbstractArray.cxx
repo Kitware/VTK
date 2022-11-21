@@ -550,6 +550,8 @@ const char* vtkAbstractArray::GetArrayTypeAsString() const
       return "MappedDataArray";
     case ScaleSoADataArrayTemplate:
       return "ScaleSoADataArrayTemplate";
+    case ImplicitArray:
+      return "ImplicitArray";
   }
   return "Unknown";
 }

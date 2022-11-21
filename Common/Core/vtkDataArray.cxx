@@ -123,6 +123,7 @@ struct DeepCopyWorker
     dst->SetScale(src->GetScale());
   }
 #endif
+
 // Undo warning suppression.
 #if defined(__clang__) && defined(__has_warning)
 #if __has_warning("-Wunused-template")

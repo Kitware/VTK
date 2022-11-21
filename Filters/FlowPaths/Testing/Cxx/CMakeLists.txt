@@ -15,7 +15,25 @@ vtk_add_test_cxx(vtkFiltersFlowPathsCxxTests tests
   TestVectorFieldTopology.cxx
   TestVectorFieldTopologyNoIterativeSeeding.cxx
   )
-vtk_test_cxx_executable(vtkFiltersFlowPathsCxxTests tests
+
+set(test_implicit_array)
+if(TARGET VTK::CommonImplicitArrays)
+  list(APPEND test_implicit_array
+    TestStreamTracerImplicitArray.cxx
+  )
+endif()
+
+vtk_add_test_cxx(vtkFiltersFlowPathsCxxTests imp_tests
+  NO_VALID
+  ${test_implicit_array}
+)
+
+set(all_tests
+  ${tests}
+  ${imp_tests}
+)
+
+vtk_test_cxx_executable(vtkFiltersFlowPathsCxxTests all_tests
   DISABLE_FLOATING_POINT_EXCEPTIONS
   RENDERING_FACTORY
   )

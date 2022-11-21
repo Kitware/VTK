@@ -538,6 +538,7 @@ class vtkSOADataArrayTemplate;
 template <typename ValueType>
 class vtkScaledSOADataArrayTemplate;
 #endif
+
 VTK_ABI_NAMESPACE_END
 
 namespace vtkDataArrayPrivate

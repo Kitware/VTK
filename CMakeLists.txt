@@ -265,7 +265,8 @@ endif ()
 list(APPEND vtk_requested_modules
   # Required for just about everything.
   VTK::CommonCore
-  VTK::CommonDataModel)
+  VTK::CommonDataModel
+)
 set("_vtk_module_reason_VTK::CommonCore"
   "because all VTK builds require VTK::CommonCore")
 set("_vtk_module_reason_VTK::CommonDataModel"

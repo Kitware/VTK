@@ -42,3 +42,4 @@ TEST_DEPENDS
   VTK::TestingDataModel
 TEST_OPTIONAL_DEPENDS
   VTK::AcceleratorsVTKmFilters
+  VTK::CommonImplicitArrays

@@ -1,0 +1,14 @@
+NAME
+  VTK::CommonImplicitArrays
+LIBRARY_NAME
+  vtkCommonImplicitArrays
+DESCRIPTION
+  A VTK module for the vtkImplicitArray framework
+KIT
+  VTK::Common
+GROUPS
+  StandAlone
+DEPENDS
+  VTK::CommonCore
+TEST_DEPENDS
+  VTK::TestingCore
