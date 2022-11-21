@@ -55,6 +55,12 @@ struct CreateImpl<T1>
   using type = vtkTypeList::TypeList<T1, vtkTypeList::NullType>;
 };
 
+template <>
+struct CreateImpl<>
+{
+  using type = vtkTypeList::NullType;
+};
+
 template <typename T1, typename T2, typename T3, typename T4, typename... Tail>
 struct CreateImpl<T1, T2, T3, T4, Tail...>
 {
