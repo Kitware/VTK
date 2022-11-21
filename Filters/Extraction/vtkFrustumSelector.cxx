@@ -28,7 +28,6 @@
 #include "vtkSelectionNode.h"
 #include "vtkSignedCharArray.h"
 #include "vtkVectorOperators.h"
-#include "vtkVoxel.h"
 
 #include <vector>
 
@@ -130,9 +129,8 @@ public:
 
     for (vtkIdType cellId = begin; cellId < end; ++cellId)
     {
-      this->Input->GetCell(cellId, cell);
-      cell->GetBounds(bounds);
-      int isect = this->ABoxFrustumIsect(bounds, cell, frustumPlanes, vertexBuffer);
+      this->Input->GetCellBounds(cellId, bounds);
+      int isect = this->ABoxFrustumIsect(cellId, bounds, cell, frustumPlanes, vertexBuffer, false);
       this->Array->SetValue(cellId, static_cast<signed char>(isect == 1));
     }
   }
@@ -147,11 +145,15 @@ public:
   // Intersect the cell (with its associated bounds) with the clipping frustum.
   // Return 1 if at least partially inside, 0 otherwise.
   // Also return a distance to the near plane.
-  int ABoxFrustumIsect(double* bounds, vtkCell* cell, FrustumPlanesType& frustumPlanes,
-    std::vector<double>& vertexBuffer)
+  int ABoxFrustumIsect(vtkIdType cellId, double* bounds, vtkGenericCell* cell,
+    FrustumPlanesType& frustumPlanes, std::vector<double>& vertexBuffer, bool cellExtracted)
   {
     if (bounds[0] > bounds[1] || bounds[2] > bounds[3] || bounds[4] > bounds[5])
     {
+      if (!cellExtracted)
+      {
+        this->Input->GetCell(cellId, cell);
+      }
       return this->IsectDegenerateCell(cell);
     }
 
@@ -223,6 +225,11 @@ public:
     double* vlist = &vertexBuffer[0 * maxedges * 3];
     double* wvlist = &vertexBuffer[1 * maxedges * 3];
     double* ovlist = &vertexBuffer[2 * maxedges * 3];
+
+    if (!cellExtracted)
+    {
+      this->Input->GetCell(cellId, cell);
+    }
 
     int nfaces = cell->GetNumberOfFaces();
     if (nfaces < 1)
@@ -780,7 +787,8 @@ int vtkFrustumSelector::OverallBoundsTest(double bounds[6])
 {
   ComputeCellsInFrustumFunctor functor(this->Frustum, nullptr, nullptr);
 
-  vtkNew<vtkVoxel> vox;
+  vtkNew<vtkGenericCell> vox;
+  vox->SetCellType(VTK_VOXEL);
   vtkPoints* p = vox->GetPoints();
   p->SetPoint(0, bounds[0], bounds[2], bounds[4]);
   p->SetPoint(1, bounds[1], bounds[2], bounds[4]);
@@ -794,6 +802,6 @@ int vtkFrustumSelector::OverallBoundsTest(double bounds[6])
   FrustumPlanesType frustumPlanes;
   frustumPlanes.Initialize(this->Frustum);
   std::vector<double> vertexBuffer;
-  return functor.ABoxFrustumIsect(bounds, vox, frustumPlanes, vertexBuffer) > 0 ? 1 : 0;
+  return functor.ABoxFrustumIsect(-1, bounds, vox, frustumPlanes, vertexBuffer, true) > 0 ? 1 : 0;
 }
 VTK_ABI_NAMESPACE_END
