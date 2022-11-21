@@ -82,6 +82,7 @@ set(classes
   vtkPolyDataPlaneClipper
   vtkPolyDataPlaneCutter
   vtkPolyDataTangents
+  vtkPolyDataToUnstructuredGrid
   vtkProbeFilter
   vtkQuadricClustering
   vtkQuadricDecimation
