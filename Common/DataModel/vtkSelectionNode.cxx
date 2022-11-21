@@ -278,7 +278,7 @@ bool vtkSelectionNode::EqualProperties(vtkSelectionNode* other, bool fullcompare
   for (iterSelf->InitTraversal(); !iterSelf->IsDoneWithTraversal(); iterSelf->GoToNextItem())
   {
     vtkInformationKey* key = iterSelf->GetCurrentKey();
-    vtkInformationIntegerKey* ikey = vtkInformationIntegerKey::SafeDownCast(key);
+    auto ikey = static_cast<vtkInformationIntegerKey*>(key);
     if (ikey)
     {
       if (!otherProperties->Has(ikey) || this->Properties->Get(ikey) != otherProperties->Get(ikey))
@@ -288,7 +288,7 @@ bool vtkSelectionNode::EqualProperties(vtkSelectionNode* other, bool fullcompare
     }
     else
     {
-      vtkInformationObjectBaseKey* okey = vtkInformationObjectBaseKey::SafeDownCast(key);
+      auto okey = static_cast<vtkInformationObjectBaseKey*>(key);
       if (okey)
       {
         if (!otherProperties->Has(okey) ||
