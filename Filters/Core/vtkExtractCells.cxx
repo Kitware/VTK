@@ -19,11 +19,9 @@
 
 #include "vtkExtractCells.h"
 
-#include "vtkCell.h"
+#include "vtkArrayDispatch.h"
 #include "vtkCellArray.h"
-#include "vtkCellArrayIterator.h"
 #include "vtkCellData.h"
-#include "vtkDoubleArray.h"
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkNew.h"
@@ -38,7 +36,6 @@
 #include "vtkUnstructuredGrid.h"
 
 #include <algorithm>
-#include <iterator>
 #include <numeric>
 #include <vector>
 
@@ -72,30 +69,17 @@ struct AllElementsWork
   // CellWork API
   inline vtkIdType GetNumberOfCells() const { return this->NumberOfCells; }
   inline vtkIdType GetCellId(vtkIdType index) const { return index; }
-  inline void MapPointIds(vtkIdList*) const {};
 };
 
 struct SubsetCellsWork
 {
-  const std::vector<vtkIdType>::const_iterator Begin;
-  const std::vector<vtkIdType>::const_iterator End;
-  const std::vector<vtkIdType>& PointMap;
+  const vtkIdType* CellListPtr;
+  const vtkIdType* PointMapPtr;
   vtkIdType NumberOfCells;
 
   inline vtkIdType GetNumberOfCells() const { return this->NumberOfCells; }
-  inline vtkIdType GetCellId(vtkIdType index) const { return *std::next(this->Begin, index); }
-  inline vtkIdType MapPointId(vtkIdType id) const
-  {
-    assert(id >= 0 && id < static_cast<vtkIdType>(this->PointMap.size()));
-    return this->PointMap[id];
-  }
-  inline void MapPointIds(vtkIdList* ids) const
-  {
-    for (vtkIdType ptid = 0, max = ids->GetNumberOfIds(); ptid < max; ++ptid)
-    {
-      ids->SetId(ptid, this->MapPointId(ids->GetId(ptid)));
-    }
-  };
+  inline vtkIdType GetCellId(vtkIdType index) const { return this->CellListPtr[index]; }
+  inline vtkIdType GetPointId(vtkIdType id) const { return this->PointMapPtr[id]; }
 };
 
 struct SubsetPointsWork
@@ -107,7 +91,28 @@ struct SubsetPointsWork
     return this->PointIdsToExtract->GetId(index);
   }
 };
+
 //=============================================================================
+template <typename PointWorkT>
+struct ExtractPointsWorker
+{
+  template <typename PointsArrayT>
+  void operator()(PointsArrayT* pointsArray, const PointWorkT& pointWork, vtkDataSet* input)
+  {
+    vtkSMPTools::For(0, pointWork.GetNumberOfPoints(), [&](vtkIdType begin, vtkIdType end) {
+      double point[3];
+      auto points = vtk::DataArrayTupleRange<3>(pointsArray);
+      for (vtkIdType ptId = begin; ptId < end; ++ptId)
+      {
+        const vtkIdType origPtId = pointWork.GetPointId(ptId);
+        input->GetPoint(origPtId, point);
+        points[ptId][0] = point[0];
+        points[ptId][1] = point[1];
+        points[ptId][2] = point[2];
+      }
+    });
+  }
+};
 
 //------------------------------------------------------------------------------
 /* This function returns a new vtkPoints extracted from the `input`.
@@ -116,7 +121,7 @@ struct SubsetPointsWork
  *  `PointWork::GetPointId(idx)`: original pt id for extracted point at the `idx`
  */
 template <typename PointWorkT>
-vtkSmartPointer<vtkPoints> DoExtractPoints(
+vtkSmartPointer<vtkPoints> ExtractPoints(
   vtkDataSet* input, int outputPointsPrecision, const PointWorkT& work)
 {
   vtkNew<vtkPoints> pts;
@@ -144,15 +149,11 @@ vtkSmartPointer<vtkPoints> DoExtractPoints(
   pts->SetNumberOfPoints(work.GetNumberOfPoints());
   auto array = pts->GetData();
 
-  vtkSMPTools::For(
-    0, work.GetNumberOfPoints(), [&work, &array, &input](vtkIdType first, vtkIdType last) {
-      double coords[3];
-      for (vtkIdType cc = first; cc < last; ++cc)
-      {
-        input->GetPoint(work.GetPointId(cc), coords);
-        array->SetTuple(cc, coords);
-      }
-    });
+  ExtractPointsWorker<PointWorkT> worker;
+  if (!vtkArrayDispatch::Dispatch::Execute(array, worker, work, input))
+  {
+    worker(array, work, input);
+  }
   return pts;
 }
 
@@ -171,43 +172,135 @@ void AddOriginalCellIds(vtkCellData* outCD, const CellWorkT& work)
     const auto numCells = work.GetNumberOfCells();
     vtkNew<vtkIdTypeArray> ids;
     ids->SetName("vtkOriginalCellIds");
-    ids->SetNumberOfTuples(numCells);
+    ids->SetNumberOfValues(numCells);
     vtkSMPTools::For(0, numCells, [&ids, &work](vtkIdType start, vtkIdType end) {
       for (vtkIdType cc = start; cc < end; ++cc)
       {
-        ids->SetTypedComponent(cc, 0, work.GetCellId(cc));
+        ids->SetValue(cc, work.GetCellId(cc));
       }
     });
     outCD->AddArray(ids);
   }
 }
 
+//-----------------------------------------------------------------------------
+// Keep track of output information within each batch of cells - this
+// information is eventually rolled up into offsets into the cell
+// connectivity and offsets arrays so that separate threads know where to
+// write their data. We need to know the connectivity size of the output cells.
+struct ExtractCellsBatch
+{
+  vtkIdType CellsConnectivitySize;
+  vtkIdType BeginCellIndex;
+  vtkIdType EndCellIndex;
+  vtkIdType BeginCellsConnectivity;
+
+  ExtractCellsBatch()
+    : CellsConnectivitySize(0)
+    , BeginCellIndex(0)
+    , EndCellIndex(0)
+    , BeginCellsConnectivity(0)
+  {
+  }
+};
+
+//-----------------------------------------------------------------------------
+struct ExtractCellsBatchInfo
+{
+  vtkIdType BatchSize;
+  std::vector<ExtractCellsBatch> Batches;
+};
+
 //------------------------------------------------------------------------------
 /* Extracts cells identified by `work` from the input.
  * Returns ExtractedCellsT with connectivity and cell-types array set.
  */
 template <typename CellWorkT>
-ExtractedCellsT DoExtractCells(vtkDataSet* input, const CellWorkT& work)
+ExtractedCellsT ExtractCells(vtkDataSet* input, const CellWorkT& work, unsigned int batchSize)
 {
-  const auto numCells = work.GetNumberOfCells();
+  const auto outputNumCells = work.GetNumberOfCells();
 
   ExtractedCellsT result;
-  result.Connectivity.TakeReference(vtkCellArray::New());
-  result.Connectivity->AllocateEstimate(numCells, input->GetMaxCellSize());
   result.CellTypes.TakeReference(vtkUnsignedCharArray::New());
-  result.CellTypes->Allocate(numCells);
+  result.CellTypes->SetNumberOfValues(outputNumCells);
 
-  vtkNew<vtkIdList> ptIds;
-  for (vtkIdType cc = 0; cc < numCells; ++cc)
+  // ensure that internal structures are initialized.
+  input->GetCell(0);
+
+  // set cell types
+  vtkSMPTools::For(0, outputNumCells, [&](vtkIdType begin, vtkIdType end) {
+    for (vtkIdType cc = begin; cc < end; ++cc)
+    {
+      result.CellTypes->SetValue(cc, input->GetCellType(work.GetCellId(cc)));
+    }
+  });
+
+  // initialize batches
+  ExtractCellsBatchInfo batchInfo;
+  batchInfo.BatchSize = static_cast<vtkIdType>(batchSize);
+  size_t numberOfBatches = static_cast<size_t>(((outputNumCells - 1) / batchSize) + 1);
+  batchInfo.Batches.resize(numberOfBatches);
+
+  // figure out the connectivity size and the begin values for each batch
+  vtkSMPThreadLocalObject<vtkIdList> TLCellPointIds;
+  vtkSMPTools::For(0, static_cast<vtkIdType>(numberOfBatches), [&](vtkIdType begin, vtkIdType end) {
+    vtkIdType numCellPts, cellId, cellIndex;
+    const vtkIdType* cellPts;
+    auto& cellPointIds = TLCellPointIds.Local();
+    for (vtkIdType batchId = begin; batchId < end; ++batchId)
+    {
+      ExtractCellsBatch& batch = batchInfo.Batches[batchId];
+      batch.BeginCellIndex = batchId * batchInfo.BatchSize;
+      batch.EndCellIndex = (batch.BeginCellIndex + batchInfo.BatchSize > outputNumCells
+          ? outputNumCells
+          : batch.BeginCellIndex + batchInfo.BatchSize);
+      for (cellIndex = batch.BeginCellIndex; cellIndex < batch.EndCellIndex; ++cellIndex)
+      {
+        cellId = work.GetCellId(cellIndex);
+        input->GetCellPoints(cellId, numCellPts, cellPts, cellPointIds);
+        batch.CellsConnectivitySize += numCellPts;
+      }
+    }
+  });
+  // assign BeginCellsConnectivity and calculate connectivity size
+  vtkIdType connectivitySize = 0, beginCellsConnectivity = 0;
+  for (auto& batch : batchInfo.Batches)
   {
-    const auto in_cellid = work.GetCellId(cc);
-    input->GetCellPoints(in_cellid, ptIds);
-    work.MapPointIds(ptIds);
-    result.Connectivity->InsertNextCell(ptIds);
-    result.CellTypes->InsertNextValue(input->GetCellType(in_cellid));
+    batch.BeginCellsConnectivity = beginCellsConnectivity;
+    beginCellsConnectivity += batch.CellsConnectivitySize;
+    connectivitySize += batch.CellsConnectivitySize;
   }
-  result.Connectivity->Squeeze();
-  result.CellTypes->Squeeze();
+
+  // set cell array connectivity
+  vtkNew<vtkIdTypeArray> connectivity;
+  connectivity->SetNumberOfValues(connectivitySize);
+  // set cell array offsets
+  vtkNew<vtkIdTypeArray> offsets;
+  offsets->SetNumberOfValues(outputNumCells + 1);
+  vtkSMPTools::For(0, static_cast<vtkIdType>(numberOfBatches), [&](vtkIdType begin, vtkIdType end) {
+    vtkIdType numCellPts, cellId, cellIndex, ptId;
+    const vtkIdType* cellPts;
+    auto& cellPointIds = TLCellPointIds.Local();
+    for (vtkIdType batchId = begin; batchId < end; ++batchId)
+    {
+      ExtractCellsBatch& batch = batchInfo.Batches[batchId];
+      for (cellIndex = batch.BeginCellIndex; cellIndex < batch.EndCellIndex; ++cellIndex)
+      {
+        cellId = work.GetCellId(cellIndex);
+        input->GetCellPoints(cellId, numCellPts, cellPts, cellPointIds);
+        offsets->SetValue(cellIndex, batch.BeginCellsConnectivity);
+        for (ptId = 0; ptId < numCellPts; ++ptId)
+        {
+          connectivity->SetValue(batch.BeginCellsConnectivity++, work.GetPointId(cellPts[ptId]));
+        }
+      }
+    }
+  });
+  // set last offset
+  offsets->SetValue(outputNumCells, connectivitySize);
+  // set cell array
+  result.Connectivity.TakeReference(vtkCellArray::New());
+  result.Connectivity->SetData(offsets, connectivity);
   return result;
 }
 
@@ -217,7 +310,7 @@ ExtractedCellsT DoExtractCells(vtkDataSet* input, const CellWorkT& work)
  * `FaceLocations` to `result`.
  */
 template <typename CellWorkT>
-void DoExtractPolyhedralFaces(
+void ExtractPolyhedralFaces(
   ExtractedCellsT& result, vtkUnstructuredGrid* input, const CellWorkT& work)
 {
   const auto numCells = work.GetNumberOfCells();
@@ -274,7 +367,7 @@ void DoExtractPolyhedralFaces(
         const auto npts = (*iptr++);
         *optr++ = npts;
         std::transform(
-          iptr, iptr + npts, optr, [&work](vtkIdType id) { return work.MapPointId(id); });
+          iptr, iptr + npts, optr, [&work](vtkIdType id) { return work.GetPointId(id); });
         optr += npts;
         iptr += npts;
       }
@@ -283,131 +376,54 @@ void DoExtractPolyhedralFaces(
 }
 
 //------------------------------------------------------------------------------
-template <typename IteratorType>
-std::vector<vtkIdType> FlagChosenPoints(
-  vtkDataSet* input, const IteratorType& start, const IteratorType& end)
+vtkSmartPointer<vtkIdList> GeneratePointMap(
+  vtkDataSet* input, vtkIdList* cellList, vtkIdType& outNumPoints)
 {
-  std::vector<vtkIdType> chosen_points(input->GetNumberOfPoints(), 0);
-  const vtkIdType num_cells = static_cast<vtkIdType>(std::distance(start, end));
+  vtkNew<vtkIdList> pointMap;
+  pointMap->SetNumberOfIds(input->GetNumberOfPoints());
+  pointMap->Fill(0);
+  const vtkIdType numberOutputCells = cellList->GetNumberOfIds();
 
-  vtkSMPThreadLocalObject<vtkIdList> ptIds;
+  vtkSMPThreadLocalObject<vtkIdList> TLCellPointIds;
+  // ensure that internal structures are initialized.
+  input->GetCell(0);
 
-  // make input API threadsafe by calling it once in a single thread.
-  input->GetCellType(0);
-  input->GetCellPoints(0, ptIds.Local());
-
-  // flag each point used by all of the selected cells.
-  vtkSMPTools::For(0, num_cells, [&](vtkIdType first, vtkIdType last) {
-    auto& lptIds = ptIds.Local();
-    auto celliditer = std::next(start, first);
-    for (vtkIdType cc = first; cc < last; ++cc, ++celliditer)
-    {
-      const auto id = *(celliditer);
-      input->GetCellPoints(id, lptIds);
-      for (vtkIdType i = 0, max = lptIds->GetNumberOfIds(); i < max; ++i)
-      {
-        chosen_points[lptIds->GetId(i)] = 1;
-      }
-    }
-  });
-  return chosen_points;
-}
-
-//------------------------------------------------------------------------------
-// Faster overload for vtkUnstructuredGrid
-template <typename IteratorType>
-std::vector<vtkIdType> FlagChosenPoints(
-  vtkUnstructuredGrid* input, const IteratorType& start, const IteratorType& end)
-{
-  std::vector<vtkIdType> chosen_points(input->GetNumberOfPoints(), 0);
-  const vtkIdType num_cells = static_cast<vtkIdType>(std::distance(start, end));
-  auto cellArray = input->GetCells();
-
-  // flag each point used by all of the selected cells.
-  vtkSMPThreadLocal<vtkSmartPointer<vtkCellArrayIterator>> storage;
-
-  vtkSMPTools::For(0, num_cells, [&](vtkIdType first, vtkIdType last) {
-    auto celliditer = std::next(start, first);
-    auto& caIter = storage.Local();
-    if (caIter.GetPointer() == nullptr)
-    {
-      caIter.TakeReference(cellArray->NewIterator());
-    }
-    vtkIdType npts;
+  auto pointMapPtr = pointMap->GetPointer(0);
+  vtkSMPTools::For(0, numberOutputCells, [&](vtkIdType begin, vtkIdType end) {
+    vtkIdType npts, cellId;
     const vtkIdType* ptids;
-    for (vtkIdType cc = first; cc < last; ++cc, ++celliditer)
+    auto& cellPointIds = TLCellPointIds.Local();
+    for (vtkIdType cellIndex = begin; cellIndex < end; ++cellIndex)
     {
-      const auto id = *(celliditer);
-      caIter->GetCellAtId(id, npts, ptids);
+      cellId = cellList->GetId(cellIndex);
+      input->GetCellPoints(cellId, npts, ptids, cellPointIds);
       for (vtkIdType i = 0; i < npts; ++i)
       {
-        chosen_points[ptids[i]] = 1;
+        pointMapPtr[ptids[i]] = 1;
       }
     }
   });
-  return chosen_points;
-}
-
-//------------------------------------------------------------------------------
-template <typename IteratorType>
-std::vector<vtkIdType> GeneratePointMap(
-  vtkDataSet* input, const IteratorType& start, const IteratorType& end, vtkIdType& outNumPoints)
-{
-  auto ugInput = vtkUnstructuredGrid::SafeDownCast(input);
-  std::vector<vtkIdType> chosen_points = ugInput != nullptr ? FlagChosenPoints(ugInput, start, end)
-                                                            : FlagChosenPoints(input, start, end);
-  // convert flags to  map where index is old id, value is new id and -1 means
+  // convert flags to map where index is old id, value is new id and -1 means
   // the point is to be discarded.
   vtkIdType nextid = 0;
-  for (auto& pt : chosen_points)
+  for (auto& pt : *pointMap)
   {
     pt = pt ? nextid++ : -1;
   }
   outNumPoints = nextid;
-  return chosen_points;
+  return pointMap;
 }
 
 //------------------------------------------------------------------------------
-template <typename CellWorkT>
-void CopyCellData(vtkCellData* input, vtkCellData* output, const CellWorkT& work)
+vtkSmartPointer<vtkIdList> ConvertToPointIdsToExtract(vtkIdList* pointMap)
 {
-  const auto numValues = work.GetNumberOfCells();
-  output->CopyAllocate(input, numValues);
-
+  const auto numberOfInputPoints = pointMap->GetNumberOfIds();
   vtkNew<vtkIdList> srcIds;
-  srcIds->SetNumberOfIds(numValues);
-
-  vtkIdType next = 0;
-  std::generate_n(
-    srcIds->GetPointer(0), numValues, [&work, &next]() { return work.GetCellId(next++); });
-
-  vtkNew<vtkIdList> dstIds;
-  dstIds->SetNumberOfIds(numValues);
-  std::iota(dstIds->GetPointer(0), dstIds->GetPointer(numValues), 0);
-
-  output->CopyData(input, srcIds, dstIds);
-}
-
-//------------------------------------------------------------------------------
-void CopyPointData(vtkPointData* inPD, vtkPointData* outPD, vtkIdList* srcIds)
-{
-  const auto numValues = srcIds->GetNumberOfIds();
-  outPD->CopyAllocate(inPD, numValues);
-  vtkNew<vtkIdList> dstIds;
-  dstIds->SetNumberOfIds(numValues);
-  std::iota(dstIds->GetPointer(0), dstIds->GetPointer(numValues), 0);
-  outPD->CopyData(inPD, srcIds, dstIds);
-}
-
-//------------------------------------------------------------------------------
-vtkSmartPointer<vtkIdList> ConvertToPointIdsToExtract(
-  const std::vector<vtkIdType>& pointMap, const vtkIdType numValues)
-{
-  vtkNew<vtkIdList> srcIds;
-  srcIds->Allocate(numValues);
-  for (vtkIdType cc = 0; cc < static_cast<vtkIdType>(pointMap.size()); ++cc)
+  srcIds->Allocate(numberOfInputPoints);
+  auto pointMapPtr = pointMap->GetPointer(0);
+  for (vtkIdType cc = 0; cc < numberOfInputPoints; ++cc)
   {
-    if (pointMap[cc] != -1)
+    if (pointMapPtr[cc] != -1)
     {
       srcIds->InsertNextId(cc);
     }
@@ -420,57 +436,80 @@ vtkSmartPointer<vtkIdList> ConvertToPointIdsToExtract(
 } // end anonymous namespace
 
 //=============================================================================
-class vtkExtractCellsSTLCloak
+class vtkExtractCellsIdList : public vtkIdList
 {
-  vtkTimeStamp SortTime;
+public:
+  vtkTypeMacro(vtkExtractCellsIdList, vtkIdList);
+  void PrintSelf(ostream& os, vtkIndent indent) override
+  {
+    this->Superclass::PrintSelf(os, indent);
+    os << indent << "SortTime: " << this->SortTime << endl;
+  }
+  static vtkExtractCellsIdList* New() { VTK_STANDARD_NEW_BODY(vtkExtractCellsIdList); }
 
 public:
-  std::vector<vtkIdType> CellIds;
-  std::pair<typename std::vector<vtkIdType>::const_iterator,
-    typename std::vector<vtkIdType>::const_iterator>
-    CellIdsRange;
-
   vtkIdType Prepare(vtkIdType numInputCells, vtkExtractCells* self)
   {
-    if (numInputCells == 0)
+    if (numInputCells == 0 || this->GetNumberOfIds() == 0)
     {
       return 0;
     }
-
     if (!self->GetAssumeSortedAndUniqueIds() && (self->GetMTime() > this->SortTime))
     {
-      vtkSMPTools::Sort(this->CellIds.begin(), this->CellIds.end());
-      auto last = std::unique(this->CellIds.begin(), this->CellIds.end());
-      this->CellIds.erase(last, this->CellIds.end());
+      vtkSMPTools::Sort(this->begin(), this->end());
+      auto last = std::unique(this->begin(), this->end());
+      this->SetNumberOfIds(static_cast<vtkIdType>(std::distance(this->begin(), last)));
       this->SortTime.Modified();
     }
-
-    this->CellIdsRange =
-      std::make_pair(std::lower_bound(this->CellIds.begin(), this->CellIds.end(), 0),
-        std::upper_bound(this->CellIds.begin(), this->CellIds.end(), (numInputCells - 1)));
-    return static_cast<vtkIdType>(
-      std::distance(this->CellIdsRange.first, this->CellIdsRange.second));
+    // check if ids larger than number of cells exist or negative.
+    if (this->GetId(this->GetNumberOfIds() - 1) >= numInputCells || this->GetId(0) < 0)
+    {
+      if (this->GetId(this->GetNumberOfIds() - 1) >= numInputCells && this->GetId(0) >= 0)
+      {
+        auto smallest = this->begin();
+        auto largest = std::upper_bound(this->begin(), this->end(), numInputCells - 1);
+        this->Resize(static_cast<vtkIdType>(std::distance(smallest, largest)));
+      }
+      else
+      {
+        // remove them
+        auto smallest = std::lower_bound(this->begin(), this->end(), 0);
+        auto largest = this->GetId(this->GetNumberOfIds() - 1) >= numInputCells
+          ? std::upper_bound(this->begin(), this->end(), numInputCells - 1)
+          : this->end();
+        std::copy(smallest, largest, this->begin());
+        this->Resize(static_cast<vtkIdType>(std::distance(this->begin(), largest)));
+      }
+    }
+    return this->GetNumberOfIds();
   }
+
+protected:
+  vtkExtractCellsIdList() = default;
+  ~vtkExtractCellsIdList() override = default;
+
+private:
+  vtkExtractCellsIdList(const vtkExtractCellsIdList&) = delete;
+  void operator=(const vtkExtractCellsIdList&) = delete;
+
+  vtkTimeStamp SortTime;
 };
 
+//=============================================================================
 vtkStandardNewMacro(vtkExtractCells);
 //------------------------------------------------------------------------------
 vtkExtractCells::vtkExtractCells()
 {
-  this->CellList = new vtkExtractCellsSTLCloak;
+  this->CellList = vtkSmartPointer<vtkExtractCellsIdList>::New();
 }
 
 //------------------------------------------------------------------------------
-vtkExtractCells::~vtkExtractCells()
-{
-  delete this->CellList;
-}
+vtkExtractCells::~vtkExtractCells() = default;
 
 //------------------------------------------------------------------------------
 void vtkExtractCells::SetCellList(vtkIdList* l)
 {
-  delete this->CellList;
-  this->CellList = new vtkExtractCellsSTLCloak;
+  this->CellList = vtkSmartPointer<vtkExtractCellsIdList>::New();
   if (l != nullptr)
   {
     this->AddCellList(l);
@@ -486,19 +525,13 @@ void vtkExtractCells::AddCellList(vtkIdList* l)
   {
     return;
   }
-
-  auto& cellIds = this->CellList->CellIds;
-  const vtkIdType* inputBegin = l->GetPointer(0);
-  const vtkIdType* inputEnd = inputBegin + inputSize;
-  std::copy(inputBegin, inputEnd, std::back_inserter(cellIds));
-  this->Modified();
+  this->AddCellIds(l->GetPointer(0), l->GetNumberOfIds());
 }
 
 //------------------------------------------------------------------------------
 void vtkExtractCells::SetCellIds(const vtkIdType* ptr, vtkIdType numValues)
 {
-  delete this->CellList;
-  this->CellList = new vtkExtractCellsSTLCloak;
+  this->CellList = vtkSmartPointer<vtkExtractCellsIdList>::New();
   if (ptr != nullptr && numValues > 0)
   {
     this->AddCellIds(ptr, numValues);
@@ -509,8 +542,19 @@ void vtkExtractCells::SetCellIds(const vtkIdType* ptr, vtkIdType numValues)
 //------------------------------------------------------------------------------
 void vtkExtractCells::AddCellIds(const vtkIdType* ptr, vtkIdType numValues)
 {
-  auto& cellIds = this->CellList->CellIds;
-  std::copy(ptr, ptr + numValues, std::back_inserter(cellIds));
+  auto& cellIds = this->CellList;
+  const vtkIdType outputSize = cellIds->GetNumberOfIds();
+  if (outputSize == 0)
+  {
+    cellIds->SetNumberOfIds(numValues);
+  }
+  else
+  {
+    cellIds->Resize(outputSize + numValues);
+  }
+  vtkSMPTools::For(0, numValues, [&](vtkIdType begin, vtkIdType end) {
+    std::copy(ptr + begin, ptr + end, cellIds->GetPointer(outputSize + begin));
+  });
   this->Modified();
 }
 
@@ -527,8 +571,21 @@ void vtkExtractCells::AddCellRange(vtkIdType from, vtkIdType to)
   // compatibility reasons.  Add 1 to `to` to make it consistent.
   ++to;
 
-  auto& cellIds = this->CellList->CellIds;
-  std::generate_n(std::back_inserter(cellIds), (to - from), [&from]() { return from++; });
+  auto& cellIds = this->CellList;
+  const vtkIdType outputSize = cellIds->GetNumberOfIds();
+  const vtkIdType numValues = to - from;
+  if (outputSize == 0)
+  {
+    cellIds->SetNumberOfIds(numValues);
+  }
+  else
+  {
+    cellIds->Resize(outputSize + numValues);
+  }
+  vtkSMPTools::For(0, numValues, [&](vtkIdType begin, vtkIdType end) {
+    std::iota(
+      cellIds->GetPointer(outputSize + begin), cellIds->GetPointer(outputSize + end), from + begin);
+  });
   this->Modified();
 }
 
@@ -549,13 +606,13 @@ int vtkExtractCells::RequestData(vtkInformation* vtkNotUsed(request),
   outPD->CopyAllOn();
   outCD->CopyAllOn();
 
-  const vtkIdType numCellsInput = input->GetNumberOfCells();
-  const vtkIdType numCells =
-    this->ExtractAllCells ? numCellsInput : this->CellList->Prepare(numCellsInput, this);
+  const vtkIdType inputNumCells = input->GetNumberOfCells();
+  const vtkIdType outputNumbCells =
+    this->ExtractAllCells ? inputNumCells : this->CellList->Prepare(inputNumCells, this);
 
   // Handle simple cases, first.
   // Check if no cells are to be extracted
-  if (numCells == 0)
+  if (outputNumbCells == 0)
   {
     // set up a ugrid with same data arrays as input, but
     // no points, cells or data.
@@ -567,53 +624,73 @@ int vtkExtractCells::RequestData(vtkInformation* vtkNotUsed(request),
     output->SetPoints(pts);
     return 1;
   }
-  else if (numCellsInput == numCells)
+  else if (inputNumCells == outputNumbCells)
   {
     // Check if all cells are to be extracted.
     // `Copy` will ShallowCopy input if input is vtkUnstructuredGrid, else
     // convert it to an unstructured grid.
     return this->Copy(input, output) ? 1 : 0;
   }
+  if (this->CheckAbort())
+  {
+    return 1;
+  }
 
   // Build point map for selected cells.
-  const auto& cellids_range = this->CellList->CellIdsRange;
-  assert(cellids_range.first != cellids_range.second);
-
-  vtkIdType numPoints;
-  const auto pointMap =
-    ::GeneratePointMap(input, cellids_range.first, cellids_range.second, numPoints);
-  auto chosenPtIds = ::ConvertToPointIdsToExtract(pointMap, numPoints);
+  vtkIdType outputNumPoints;
+  const auto pointMap = ::GeneratePointMap(input, this->CellList, outputNumPoints);
+  auto chosenPtIds = ::ConvertToPointIdsToExtract(pointMap);
   this->UpdateProgress(0.25);
-
-  const SubsetCellsWork work{ cellids_range.first, cellids_range.second, pointMap, numCells };
+  if (this->CheckAbort())
+  {
+    return 1;
+  }
 
   // Copy cell and point data first, since that's easy enough.
-  ::CopyCellData(inCD, outCD, work);
+  outCD->CopyAllocate(inCD, outputNumbCells);
+  outCD->CopyData(inCD, this->CellList);
+  outPD->CopyAllocate(inPD, outputNumPoints);
+  outPD->CopyData(inPD, chosenPtIds);
+
+  const SubsetCellsWork work{ this->CellList->GetPointer(0), pointMap->GetPointer(0),
+    outputNumbCells };
   if (this->PassThroughCellIds)
   {
     ::AddOriginalCellIds(outCD, work);
   }
-  ::CopyPointData(inPD, outPD, chosenPtIds);
   this->UpdateProgress(0.5);
+  if (this->CheckAbort())
+  {
+    return 1;
+  }
 
   // Get new points
-  auto pts = ::DoExtractPoints(input, this->OutputPointsPrecision, SubsetPointsWork{ chosenPtIds });
+  auto pts = ::ExtractPoints(input, this->OutputPointsPrecision, SubsetPointsWork{ chosenPtIds });
   output->SetPoints(pts);
   this->UpdateProgress(0.75);
+  if (this->CheckAbort())
+  {
+    return 1;
+  }
 
   // Extract cells
-  auto cells = ::DoExtractCells(input, work);
+  auto cells = ::ExtractCells(input, work, this->BatchSize);
   this->UpdateProgress(0.85);
+  if (this->CheckAbort())
+  {
+    return 1;
+  }
 
   // Handle polyhedral cells
   auto inputUG = vtkUnstructuredGrid::SafeDownCast(input);
   if (inputUG && inputUG->GetFaces() && inputUG->GetFaceLocations() &&
     inputUG->GetFaceLocations()->GetRange(0)[1] != -1)
   {
-    ::DoExtractPolyhedralFaces(cells, inputUG, work);
+    ::ExtractPolyhedralFaces(cells, inputUG, work);
   }
   output->SetCells(cells.CellTypes, cells.Connectivity, cells.FaceLocations, cells.Faces);
-  this->CheckAbort();
+  this->UpdateProgress(1.00);
+
   return 1;
 }
 
@@ -635,13 +712,12 @@ bool vtkExtractCells::Copy(vtkDataSet* input, vtkUnstructuredGrid* output)
   {
     // copy points manually.
     const vtkIdType numPoints = input->GetNumberOfPoints();
-    auto pts =
-      ::DoExtractPoints(input, this->OutputPointsPrecision, AllElementsWork{ numPoints, 0 });
+    auto pts = ::ExtractPoints(input, this->OutputPointsPrecision, AllElementsWork{ numPoints, 0 });
     output->SetPoints(pts);
   }
 
   const auto numCells = input->GetNumberOfCells();
-  auto cells = ::DoExtractCells(input, AllElementsWork{ 0, numCells });
+  auto cells = ::ExtractCells(input, AllElementsWork{ 0, numCells }, this->BatchSize);
   output->SetCells(cells.CellTypes, cells.Connectivity, nullptr, nullptr);
 
   // copy cell/point arrays.

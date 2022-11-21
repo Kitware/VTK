@@ -21,22 +21,31 @@
  * @class   vtkExtractCells
  * @brief   subset a vtkDataSet to create a vtkUnstructuredGrid
  *
+ * Given a vtkDataSet and a list of cell ids, create a vtkUnstructuredGrid
+ * composed of these cells.  If the cell list is empty when vtkExtractCells
+ * executes, it will set up the ugrid, point and cell arrays, with no points,
+ * cells or data.
  *
- *    Given a vtkDataSet and a list of cell ids, create a vtkUnstructuredGrid
- *    composed of these cells.  If the cell list is empty when vtkExtractCells
- *    executes, it will set up the ugrid, point and cell arrays, with no points,
- *    cells or data.
+ * @warning
+ * This class is templated. It may run slower than serial execution if the code
+ * is not optimized during compilation. Build in Release or ReleaseWithDebugInfo.
+ *
+ * @warning
+ * This class has been threaded with vtkSMPTools. Using TBB or other
+ * non-sequential type (set in the CMake variable
+ * VTK_SMP_IMPLEMENTATION_TYPE) may improve performance significantly.
  */
 
 #ifndef vtkExtractCells_h
 #define vtkExtractCells_h
 
 #include "vtkFiltersCoreModule.h" // For export macro
+#include "vtkSmartPointer.h"      // For vtkSmartPointer
 #include "vtkUnstructuredGridAlgorithm.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkIdList;
-class vtkExtractCellsSTLCloak;
+class vtkExtractCellsIdList;
 
 class VTKFILTERSCORE_EXPORT vtkExtractCells : public vtkUnstructuredGridAlgorithm
 {
@@ -120,6 +129,19 @@ public:
   vtkSetMacro(OutputPointsPrecision, int);
   vtkGetMacro(OutputPointsPrecision, int);
   ///@}
+
+  ///@{
+  /**
+   * Specify the number of input cells in a batch, where a batch defines
+   * a subset of the input cells operated on during threaded
+   * execution. Generally this is only used for debugging or performance
+   * studies (since batch size affects the thread workload).
+   *
+   * Default is 1000.
+   */
+  vtkSetClampMacro(BatchSize, unsigned int, 1, VTK_INT_MAX);
+  vtkGetMacro(BatchSize, unsigned int);
+  ///@}
 protected:
   vtkExtractCells();
   ~vtkExtractCells() override;
@@ -128,13 +150,12 @@ protected:
   int FillInputPortInformation(int port, vtkInformation* info) override;
   bool Copy(vtkDataSet* input, vtkUnstructuredGrid* output);
 
-  vtkExtractCellsSTLCloak* CellList = nullptr;
-  vtkIdType SubSetUGridCellArraySize = 0;
-  vtkIdType SubSetUGridFacesArraySize = 0;
+  vtkSmartPointer<vtkExtractCellsIdList> CellList;
   bool ExtractAllCells = false;
   bool AssumeSortedAndUniqueIds = false;
   bool PassThroughCellIds = true;
   int OutputPointsPrecision = DEFAULT_PRECISION;
+  unsigned int BatchSize = 1000;
 
 private:
   vtkExtractCells(const vtkExtractCells&) = delete;

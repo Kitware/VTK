@@ -661,6 +661,7 @@ void vtkExtractSelection::ExtractSelectedCells(
   input->GetCellData()->AddArray(originalCellIds);
 
   vtkNew<vtkExtractCells> extractor;
+  extractor->SetContainerAlgorithm(this);
   if (extractAll)
   {
     // all elements are selected, pass all data.
