@@ -50,5 +50,29 @@ int TestCompositeImplicitBackend(int, char*[])
     }
   }
 
+  vtkNew<vtkIntArray> leftMulti;
+  leftMulti->SetNumberOfComponents(3);
+  leftMulti->SetNumberOfTuples(10);
+  auto leftMultiRange = vtk::DataArrayValueRange<3>(leftMulti);
+  std::iota(leftMultiRange.begin(), leftMultiRange.end(), 0);
+
+  vtkNew<vtkIntArray> rightMulti;
+  rightMulti->SetNumberOfComponents(3);
+  rightMulti->SetNumberOfTuples(10);
+  auto rightMultiRange = vtk::DataArrayValueRange<3>(rightMulti);
+  std::iota(rightMultiRange.begin(), rightMultiRange.end(), 30);
+
+  vtkCompositeImplicitBackend<int> compositeMulti(leftMulti, rightMulti);
+
+  for (int i = 0; i < 60; ++i)
+  {
+    if (i != compositeMulti(i))
+    {
+      std::cout << "Composite backend operator not functioning: " << i
+                << " != " << compositeMulti(i) << std::endl;
+      return EXIT_FAILURE;
+    }
+  }
+
   return EXIT_SUCCESS;
 }

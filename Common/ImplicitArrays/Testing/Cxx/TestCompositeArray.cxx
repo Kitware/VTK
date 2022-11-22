@@ -85,7 +85,7 @@ vtkSmartPointer<vtkCompositeArray<int>> SetupCompositeArray(int length)
     interleaf.emplace_back(intArrays[i]);
   }
 
-  return vtkCompositeArrayUtilities::Concatenate<int>(interleaf);
+  return vtk::ConcatenateDataArrays<int>(interleaf);
 }
 
 }

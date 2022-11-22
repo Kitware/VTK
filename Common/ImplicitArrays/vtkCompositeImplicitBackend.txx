@@ -31,7 +31,7 @@ struct vtkCompositeImplicitBackend<ValueType>::Internals
   {
     if (this->Left == nullptr || this->Right == nullptr)
     {
-      vtkWarningWithObjectMacro(nullptr, "Creating composite array with nullptr");
+      vtkErrorWithObjectMacro(nullptr, "Creating composite array with nullptr");
       return;
     }
     this->LeftRange = vtk::DataArrayValueRange(this->Left);
@@ -39,9 +39,9 @@ struct vtkCompositeImplicitBackend<ValueType>::Internals
     this->Offset = this->LeftRange.size();
   }
 
-  vtkSmartPointer<vtkDataArray> Left;
+  const vtkSmartPointer<vtkDataArray> Left;
   vtk::detail::SelectValueRange<vtkDataArray*, vtk::detail::DynamicTupleSize>::type LeftRange;
-  vtkSmartPointer<vtkDataArray> Right;
+  const vtkSmartPointer<vtkDataArray> Right;
   vtk::detail::SelectValueRange<vtkDataArray*, vtk::detail::DynamicTupleSize>::type RightRange;
   int Offset = -1;
 };
@@ -56,9 +56,7 @@ vtkCompositeImplicitBackend<ValueType>::vtkCompositeImplicitBackend(
 
 //-----------------------------------------------------------------------
 template <typename ValueType>
-vtkCompositeImplicitBackend<ValueType>::~vtkCompositeImplicitBackend()
-{
-}
+vtkCompositeImplicitBackend<ValueType>::~vtkCompositeImplicitBackend() = default;
 
 //-----------------------------------------------------------------------
 template <typename ValueType>

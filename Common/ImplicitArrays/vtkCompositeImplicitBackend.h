@@ -37,7 +37,8 @@
  * rightArr->SetNumberOfComponents(1);
  * rightArr->SetNumberOfTuples(1);
  * rightArr->SetValue(0, 1);
- * vtkNew<vtkImplicitArray<vtkCompositeImplicitBackend<int>>> compositeArr;
+ * vtkNew<vtkImplicitArray<vtkCompositeImplicitBackend<int>>> compositeArr; // easier with
+ * `vtkNew<vtkCompositeArray<int>> compositeArr;` if applicable
  * compositeArr->SetBackend(std::make_shared<vtkCompositeImplicitBackend<int>>(leftArr, rightArr));
  * CHECK(compositArr->GetValue(1) == 1);
  * ```
@@ -51,9 +52,19 @@ template <typename ValueType>
 class vtkCompositeImplicitBackend
 {
 public:
+  /**
+   * Constructor for the backend
+   * @param leftArr the array starting the composite at index 0
+   * @param rightArr the array following the leftArr and starting at index
+   * leftArr->GetNumberOfTuples()
+   */
   vtkCompositeImplicitBackend(vtkDataArray* leftArr, vtkDataArray* rightArr);
   ~vtkCompositeImplicitBackend();
 
+  /**
+   * Indexing operator for the composite of the two arrays respecting the `vtkImplicitArray`
+   * expectations
+   */
   ValueType operator()(int idx) const;
 
 protected:

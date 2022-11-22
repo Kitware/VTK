@@ -3,11 +3,12 @@
 #include "vtkDataArray.h"
 
 //-----------------------------------------------------------------------
-namespace vtkCompositeArrayUtilities
+namespace vtk
 {
 VTK_ABI_NAMESPACE_BEGIN
 template <typename T>
-vtkSmartPointer<vtkCompositeArray<T>> Concatenate(const std::vector<vtkDataArray*>& arrays)
+vtkSmartPointer<vtkCompositeArray<T>> ConcatenateDataArrays(
+  const std::vector<vtkDataArray*>& arrays)
 {
   if (arrays.size() < 2)
   {

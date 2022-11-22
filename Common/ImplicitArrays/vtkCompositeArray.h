@@ -38,6 +38,20 @@
  * In order to be usefully included in the dispatchers, these arrays need to be instantiated at the
  * vtk library compile time.
  *
+ * An example of potential usage
+ * ```
+ * vtkNew<vtkIntArray> leftArr;
+ * leftArr->SetNumberOfComponents(1);
+ * leftArr->SetNumberOfTuples(1);
+ * leftArr->SetValue(0, 0);
+ * vtkNew<vtkIntArray> rightArr;
+ * rightArr->SetNumberOfComponents(1);
+ * rightArr->SetNumberOfTuples(1);
+ * rightArr->SetValue(0, 1);
+ * vtkNew<vtkCompositeArray<int>> compositeArr;
+ * compositeArr->SetBackend(std::make_shared<vtkCompositeImplicitBackend<int>>(leftArr, rightArr));
+ * CHECK(compositArr->GetValue(1) == 1);
+ * ```
  * @sa
  * vtkImplicitArray vtkCompositeImplicitBackend
  */
@@ -48,11 +62,12 @@ template <typename T>
 using vtkCompositeArray = vtkImplicitArray<vtkCompositeImplicitBackend<T>>;
 VTK_ABI_NAMESPACE_END
 
-namespace vtkCompositeArrayUtilities
+namespace vtk
 {
 VTK_ABI_NAMESPACE_BEGIN
 template <typename T>
-vtkSmartPointer<vtkCompositeArray<T>> Concatenate(const std::vector<vtkDataArray*>& arrays);
+vtkSmartPointer<vtkCompositeArray<T>> ConcatenateDataArrays(
+  const std::vector<vtkDataArray*>& arrays);
 VTK_ABI_NAMESPACE_END
 }
 
@@ -65,12 +80,12 @@ VTK_ABI_NAMESPACE_END
   template class VTKCOMMONIMPLICITARRAYS_EXPORT                                                    \
     vtkImplicitArray<vtkCompositeImplicitBackend<ValueType>>;                                      \
   VTK_ABI_NAMESPACE_END                                                                            \
-  namespace vtkCompositeArrayUtilities                                                             \
+  namespace vtk                                                                                    \
   {                                                                                                \
   VTK_ABI_NAMESPACE_BEGIN                                                                          \
   template VTKCOMMONIMPLICITARRAYS_EXPORT                                                          \
     vtkSmartPointer<vtkImplicitArray<vtkCompositeImplicitBackend<ValueType>>>                      \
-    Concatenate(const std::vector<vtkDataArray*>& arrays);                                         \
+    ConcatenateDataArrays(const std::vector<vtkDataArray*>& arrays);                               \
   VTK_ABI_NAMESPACE_END                                                                            \
   }                                                                                                \
   namespace vtkDataArrayPrivate                                                                    \

@@ -1,8 +1,8 @@
-# `vtkCompositeArray`: a new implicit array that concatenates other arrays together
+## `vtkCompositeArray`: a new implicit array that concatenates other arrays together
 
-`vtkCompositeArray` is now available in VTK! It is a family of `vtkImplicitArray`s that can concatenate arrays together to interface a group of arrays as if they were a single array.
+The new `vtkCompositeArray` is a family of `vtkImplicitArray`s that can concatenate arrays together to interface a group of arrays as if they were a single array. This concatenation operates in the "tuple" direction and not in the "component" direction.
 
-This new array relies on the `vtkCompositeImplicitBackend` template class to join `vtkDataArray`s two at a time. Creating a hiearchy of `vtkCompositeArray`s can generate a binary tree on the indexes of the composite array leading to access with $O(log_2(m))$ time where $m$ is the number of leaves (or base `vtkDataArray`s) composing the composite (or alternatively $O(l)$ where $l$ is the number of levels in the tree).
+This new array relies on the `vtkCompositeImplicitBackend` template class to join two `vtkDataArray`s at a time. Creating a hiearchy of `vtkCompositeArray`s can generate a binary tree on the indexes of the composite array leading to access with $O(log_2(m))$ time where $m$ is the number of leaves (or base `vtkDataArray`s) composing the composite (or alternatively $O(l)$ where $l$ is the number of levels in the tree).
 
 To facilitate the creation of `vtkCompositeArray`s in practice, a templated utility function `vtkCompositeArrayUtilities::Concatenate` has been made available to users that can take an `std::vector` of `vtkDataArray`s and turn them into a single concatenated `vtkCompositeArray` whose tree structure should be balanced with respect to number of arrays (a possible improvement would be to balance with respect to number of tuples following a "Huffman coding" approach).
 
