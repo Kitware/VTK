@@ -137,6 +137,14 @@ if (VTK_DISPATCH_COMPOSITE_ARRAYS)
   )
 endif()
 
+if (VTK_DISPATCH_INDEXED_ARRAYS)
+  list(APPEND vtkArrayDispatchImplicit_containers vtkIndexedArray)
+  set(vtkArrayDispatchImplicit_vtkIndexedArray_header vtkIndexedArray.h)
+  set(vtkArrayDispatchImplicit_vtkIndexedArray_types
+    ${vtkArrayDispatchImplicit_all_types}
+  )
+endif()
+
 endmacro()
 
 # Create a header that declares the vtkArrayDispatch::Arrays TypeList.

@@ -53,9 +53,9 @@ int TestWithIDList()
   {
     std::vector<vtkIdType> buffer(100);
     std::iota(buffer.begin(), buffer.end(), 0);
-    std::random_device rd;
-    std::mt19937 g(rd());
-    std::shuffle(buffer.begin(), buffer.end(), g);
+    std::random_device randdev;
+    std::mt19937 generator(randdev());
+    std::shuffle(buffer.begin(), buffer.end(), generator);
     for (vtkIdType idx = 0; idx < 100; idx++)
     {
       handles->SetId(idx, buffer[idx]);

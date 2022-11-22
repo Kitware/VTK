@@ -316,6 +316,8 @@ template <typename ValueType>
 class vtkCompositeImplicitBackend;
 template <typename ValueType>
 struct vtkConstantImplicitBackend;
+template <typename ValueType>
+class vtkIndexedImplicitBackend;
 VTK_ABI_NAMESPACE_END
 #include <functional>
 
@@ -337,6 +339,8 @@ VTK_ABI_NAMESPACE_END
     vtkImplicitArray<vtkCompositeImplicitBackend<ValueType>>, ValueType)                           \
   VTK_INSTANTIATE_VALUERANGE_ARRAYTYPE(                                                            \
     vtkImplicitArray<vtkConstantImplicitBackend<ValueType>>, ValueType)                            \
+  VTK_INSTANTIATE_VALUERANGE_ARRAYTYPE(                                                            \
+    vtkImplicitArray<vtkIndexedImplicitBackend<ValueType>>, ValueType)                             \
   VTK_INSTANTIATE_VALUERANGE_ARRAYTYPE(vtkImplicitArray<std::function<ValueType(int)>>, ValueType)
 
 #elif defined(VTK_USE_EXTERN_TEMPLATE) // VTK_IMPLICIT_VALUERANGE_INSTANTIATING
@@ -357,6 +361,8 @@ template <typename ValueType>
 class vtkCompositeImplicitBackend;
 template <typename ValueType>
 struct vtkConstantImplicitBackend;
+template <typename ValueType>
+class vtkIndexedImplicitBackend;
 VTK_ABI_NAMESPACE_END
 #include <functional>
 
@@ -391,6 +397,8 @@ VTK_ABI_NAMESPACE_END
     vtkImplicitArray<vtkCompositeImplicitBackend<ValueType>>, ValueType)                           \
   VTK_DECLARE_VALUERANGE_ARRAYTYPE(                                                                \
     vtkImplicitArray<vtkConstantImplicitBackend<ValueType>>, ValueType)                            \
+  VTK_DECLARE_VALUERANGE_ARRAYTYPE(                                                                \
+    vtkImplicitArray<vtkIndexedImplicitBackend<ValueType>>, ValueType)                             \
   VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkImplicitArray<std::function<ValueType(int)>>, ValueType)
 
 #define VTK_DECLARE_VALUERANGE_IMPLICIT_BACKENDTYPE(BackendT)                                      \
@@ -414,6 +422,7 @@ VTK_ABI_NAMESPACE_BEGIN
 VTK_DECLARE_VALUERANGE_IMPLICIT_BACKENDTYPE(vtkAffineImplicitBackend)
 VTK_DECLARE_VALUERANGE_IMPLICIT_BACKENDTYPE(vtkConstantImplicitBackend)
 VTK_DECLARE_VALUERANGE_IMPLICIT_BACKENDTYPE(vtkCompositeImplicitBackend)
+VTK_DECLARE_VALUERANGE_IMPLICIT_BACKENDTYPE(vtkIndexedImplicitBackend)
 
 VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkImplicitArray<std::function<float(int)>>, double)
 VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkImplicitArray<std::function<double(int)>>, double)
