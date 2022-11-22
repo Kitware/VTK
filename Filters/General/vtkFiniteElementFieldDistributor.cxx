@@ -896,7 +896,7 @@ public:
     }
     jacMats->resize(npts);
     // jacobian will always be 3 irrespective of cell dimensionality.
-    // for 2d cells, keep an extra row and colum with 0. inefficeint, but makes code readable.
+    // for 2d cells, keep an extra row and column with 0. inefficient, but makes code readable.
     for (size_t ptId = 0; ptId < npts; ++ptId)
     {
       auto& jac = (*jacMats)[ptId];

@@ -764,7 +764,7 @@ void PIOAdaptor::addMaterialVariable(vtkStdString& pioFieldName, std::vector<std
   // the variable name. then there are various other material variables that we
   // derive from base variables. to differentiate, we use baseVar and var.
   // baseVar is the variable in the pio field name (base variable)
-  // var is the actual variable name being computed (derived varaible)
+  // var is the actual variable name being computed (derived variable)
   std::string prefix = pioFieldName.substr(0, matchUnderscore);
   std::string baseVar =
     pioFieldName.substr(matchUnderscore + 1, pioFieldName.size() - matchUnderscore);

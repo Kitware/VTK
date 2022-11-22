@@ -1124,7 +1124,7 @@ void vtkExplicitStructuredGrid::CheckConnectedFaces(int& nFoundFaces, int foundF
       for (int axis = 0; axis < 3; axis++)
       {
         int foundFace = foundFaces[axis];
-        // Check if the foundFace point to antoher axis
+        // Check if the foundFace point to another axis
         if (foundFace != -1 && !(foundFace == 2 * axis) && !(foundFace == 2 * axis + 1))
         {
           // A single foundFace which changes face on multiple axis is incoherent and can't be

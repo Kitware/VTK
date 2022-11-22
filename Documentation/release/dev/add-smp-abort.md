@@ -7,5 +7,5 @@ In order to prevent multiple calls to
 `CheckAbort`, `vtkSMPTools` has a new function
 to create a cheap single scope for all
 implementations. The function `GetSingleThread`
-retruns true if the thread is the single thread.
+returns true if the thread is the single thread.
 Otherwise the function returns false.

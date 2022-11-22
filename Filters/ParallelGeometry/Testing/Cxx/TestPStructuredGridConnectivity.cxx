@@ -336,7 +336,7 @@ double GetXYZSumForGrid(vtkUniformGrid* grid)
 
 //------------------------------------------------------------------------------
 // Tests computing the average serially vs. in paraller using a factor*N
-// partitions where N is the total number of processes. An artificialy field
+// partitions where N is the total number of processes. An artificially field
 // F=X+Y+Z is imposed on each node.
 int TestAverage(const int factor)
 {

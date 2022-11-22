@@ -193,7 +193,7 @@ int vtkExtractEnclosedPoints::RequestData(
 // the enclosing surface.
 int vtkExtractEnclosedPoints::FilterPoints(vtkPointSet* input)
 {
-  // Initiailize search structures
+  // Initialize search structures
   vtkStaticCellLocator* locator = vtkStaticCellLocator::New();
 
   vtkPolyData* surface = this->Surface;

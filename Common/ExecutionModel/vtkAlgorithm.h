@@ -244,7 +244,7 @@ public:
 
   ///@{
   /**
-   * Set/Get an internal variable used to comunicate between the algorithm and
+   * Set/Get an internal variable used to communicate between the algorithm and
    * executive. If the executive sees this value is set, it will initialize
    * the output data and pass the ABORTED flag downstream.
    *
@@ -758,7 +758,7 @@ protected:
 
   /**
    * Checks to see if an upstream filter has been aborted. If an abort
-   * has occured, return true.
+   * has occurred, return true.
    */
   bool CheckUpstreamAbort();
 

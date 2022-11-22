@@ -15,7 +15,7 @@
 
 // This test was created following the bug reported by Gilles Rougeron.
 // Some points were not connected in the output triangulation.
-// A fix was added to vtkDelaunay2D. This test exercices the new
+// A fix was added to vtkDelaunay2D. This test exercises the new
 // functionality.
 
 #include "vtkActor.h"

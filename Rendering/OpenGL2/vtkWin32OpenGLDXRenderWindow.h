@@ -39,7 +39,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
-   * Overriden to create the D3D device, context and texture.
+   * Overridden to create the D3D device, context and texture.
    */
   void Initialize() override;
 
@@ -63,14 +63,14 @@ public:
 
   ///@{
   /**
-   * Overriden to resize the internal D3D shared texture
+   * Overridden to resize the internal D3D shared texture
    */
   void SetSize(int width, int height) override;
   ///@}
 
   ///@{
   /**
-   * Overriden to update the internal D3D shared texture
+   * Overridden to update the internal D3D shared texture
    */
   void SetMultiSamples(int samples) override;
   ///@}

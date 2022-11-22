@@ -26,7 +26,7 @@
  * @sa
  * vtkHyperTreeCursor vtkHyperTree vtkHyperTreeGrid
  *
- * This supercursor allows to traverse neighboors attached to coface of
+ * This supercursor allows to traverse neighbors attached to coface of
  * the current position.
  *
  * @par Thanks:

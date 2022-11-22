@@ -153,7 +153,7 @@ Note that same code can be conveniently and compactly defined inline via a C++ l
     }
   }); // end lambda
 ```
-With alternative signatures for `For()` it is possible to provide a grain parameter. Grain is a hint to the underlying backend about the coarseness of the typical range when parallelizing a for loop. If you don’t know what grain will work best for a particular problem, omit the grain specification and let the backend find a suitable grain. TBB in particular does a good job with this. Somethimes, you can eek out a little bit more performance by setting the grain just right. Too small, the task queuing overhead will be too much. Too little, load balancing will suffer.
+With alternative signatures for `For()` it is possible to provide a grain parameter. Grain is a hint to the underlying backend about the coarseness of the typical range when parallelizing a for loop. If you don’t know what grain will work best for a particular problem, omit the grain specification and let the backend find a suitable grain. TBB in particular does a good job with this. Sometimes, you can eek out a little bit more performance by setting the grain just right. Too small, the task queuing overhead will be too much. Too little, load balancing will suffer.
 
 ## Thread Local Storage
 Thread local storage is generally referred to memory that is accessed by one thread only. In the SMP framework, vtkSMPThreadLocal and vtkSMPThreadLocalObject enable the creation objects local to executing threads. The main difference between the two is that vtkSMPThreadLocalObject makes it easy to manage vtkObject and subclasses by allocating and deleting them appropriately.
@@ -275,7 +275,7 @@ mt->SingleMethodExecute();
 std::cout << Total << " " << TotalAtomic.load() << endl;
 ```
 
-When this program is executed, most of the time `Total` will be different (smaller) than `Target` whereas `TotalAtomic` will be exactly the same as `Target`. For example, a test run on a Mac prints: `999982 1000000`. This is because when the integer is not atomic, both threads can read the same value of `Total`, increment and write out the same value, which leads to losing one increment operation. Whereas, when ++ happens atomically, it is guaranteed that it will read, increment and write out `Total` all in one uninterruptable operation. When atomic operations are supported at hardware level, they are very fast.
+When this program is executed, most of the time `Total` will be different (smaller) than `Target` whereas `TotalAtomic` will be exactly the same as `Target`. For example, a test run on a Mac prints: `999982 1000000`. This is because when the integer is not atomic, both threads can read the same value of `Total`, increment and write out the same value, which leads to losing one increment operation. Whereas, when ++ happens atomically, it is guaranteed that it will read, increment and write out `Total` all in one uninterruptible operation. When atomic operations are supported at hardware level, they are very fast.
 
 # Tips
 In this section, we provide some tips that we hope will be useful to those that want to develop shared memory parallel algorithms.
@@ -309,7 +309,7 @@ Parallel algorithms often require significant bookkeeping to properly partition 
 
 A variation of this approach is to use thread local storage to perform computation on a local range of input, store the result in thread local, and then reduce/composite the local storage into the global output. While this is problematic for many reasons (especially since data movement is needed to composite the output data), it still can be used to effectively partition and transform input data to the output, especially if the thread local storage is relatively small in size.
 
-Whatever approach is used, parallel algorithms are often implemened using multiple passes. When designing parallel algorithms, it is important to think in terms of passes, and implement algorithms accordingly.
+Whatever approach is used, parallel algorithms are often implemented using multiple passes. When designing parallel algorithms, it is important to think in terms of passes, and implement algorithms accordingly.
 
 ## Use Parallel Design Patterns
 There are many parallel operations that are used repeatedly. Of course `for` loops and `fill()` are two obvious operations, but the `sort()` operation is more widely used than might be expected. Another is the prefix sum (or inclusive scan, or simply scan) typically used to build indices into data arrays. Become familiar with these and other parallel operations and the task of designing and implementing algorithms will be much easier.

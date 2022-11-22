@@ -591,7 +591,7 @@ if not args.root:
     parser.print_usage()
     sys.exit(1)
 
-# Make sure the root exsits
+# Make sure the root exists
 if not os.path.exists(args.root):
     print("Root path does not exists: %s" % (args.root))
     sys.exit(1)

@@ -82,7 +82,7 @@ int TestWin32OpenGLDXRenderWindow(int argc, char* argv[])
   // VTK scene
   vtkNew<vtkRenderer> renderer;
   renderWindow->AddRenderer(renderer);
-  // We expect the following background color to be overriden by D3D if
+  // We expect the following background color to be overridden by D3D if
   // preserving the color buffer
   renderer->SetBackground(1, 0, 0);
   renderer->PreserveColorBufferOn();

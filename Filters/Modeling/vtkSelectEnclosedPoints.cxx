@@ -198,7 +198,7 @@ int vtkSelectEnclosedPoints::RequestData(vtkInformation* vtkNotUsed(request),
     return 0;
   }
 
-  // Initiailize search structures
+  // Initialize search structures
   this->Initialize(surface);
 
   // Create array to mark inside/outside

@@ -42,7 +42,7 @@ protected:
   ///
   /// Certain input dataset types are not currently supported by vtkm.
   /// This information is internally used to determine if this filter should fall back to
-  /// Superclass implementaion.
+  /// Superclass implementation.
   bool CanProcessInput(vtkDataSet* input);
 
   vtkmSlice();

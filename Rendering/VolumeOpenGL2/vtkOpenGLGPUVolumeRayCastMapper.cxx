@@ -885,7 +885,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::SetLightingShaderParameters(
     // sqrt(3) corresponds to the maximum (the diagonal of the cube)
     float* invTexMat = this->InvTexMatVec.data();
     float minCoef = VTK_FLOAT_MAX;
-    // only take 3x3 sub-matrix because it will be multplied by a vec4(..., 0.0) normalized vec
+    // only take 3x3 sub-matrix because it will be multiplied by a vec4(..., 0.0) normalized vec
     for (int i = 0; i < 3; i++)
     {
       // diagonal coefficient

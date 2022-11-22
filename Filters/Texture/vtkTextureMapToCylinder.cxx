@@ -122,7 +122,7 @@ int vtkTextureMapToCylinder::RequestData(vtkInformation* vtkNotUsed(request),
   v[1] = v[2] = 0.0;
   vtkMath::Cross(axis, v, vP);
   if (vtkMath::Norm(vP) == 0.0)
-  { // must be prependicular
+  { // must be perpendicular
     v[1] = 1.0;
     v[0] = v[2] = 0.0;
     vtkMath::Cross(axis, v, vP);

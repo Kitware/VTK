@@ -16,7 +16,7 @@
  * @class   vtkUnstructuredGridToExplicitStructuredGrid
  * @brief   Filter which converts an unstructured grid data into an explicit structured grid.
  *          The input grid must have a structured coordinates int cell array.
- *          Moreover, its cell must be listed in the i-j-k order (k varying more ofter)
+ *          Moreover, its cell must be listed in the i-j-k order (k varying more often)
  */
 
 #ifndef vtkUnstructuredGridToExplicitStructuredGrid_h

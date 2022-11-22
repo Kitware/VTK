@@ -147,7 +147,8 @@ int vtkHyperTreeGridProbeFilter::RequestUpdateExtent(vtkInformation* vtkNotUsed(
   vtkInformation* sourceInfo = inputVector[1]->GetInformationObject(0);
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
-  // the updating of ouput transfers directly into input while the source is entirely updated always
+  // the updating of output transfers directly into input while the source is entirely updated
+  // always
   vtkDataObject* output = vtkDataObject::GetData(outInfo);
   if (output && (output->IsA("vtkUnstructuredGrid") || output->IsA("vtkPolyData")))
   {

@@ -167,7 +167,7 @@ public:
    * especially important for 3D Tiles as points are stored as
    * cartesian coordinates relative to the earth center so they are
    * stored as doubles. As GLTF can only store floats not setting this
-   * variable on results in a loss of precission of about a meter.
+   * variable on results in a loss of precision of about a meter.
    * Note that the translation information is stored in json which can
    * store doubles.
    */

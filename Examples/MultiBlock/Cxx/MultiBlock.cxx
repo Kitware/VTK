@@ -58,7 +58,7 @@ int main(int argc, char* argv[])
   int i;
   vtkXMLStructuredGridReader* reader = vtkXMLStructuredGridReader::New();
 
-  // vtkMultiBlockDataSet respresents multi-block datasets. See
+  // vtkMultiBlockDataSet represents multi-block datasets. See
   // the class documentation for more information.
   vtkMultiBlockDataSet* mb = vtkMultiBlockDataSet::New();
 

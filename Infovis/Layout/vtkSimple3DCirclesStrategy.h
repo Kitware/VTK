@@ -25,7 +25,7 @@
  *
  * In first step initial points are searched. A point is initial, if its in degree equal zero and
  * out degree is greater than zero (or marked by MarkedStartVertices and out degree is greater than
- * zero). Independent vertices (in and out degree equal zero) are collected separatelly. In second
+ * zero). Independent vertices (in and out degree equal zero) are collected separately. In second
  * step the hierarchical level is generated for every vertex. In third step the hierarchical order
  * is generated. If a vertex has no hierarchical level and it is not independent, the graph has loop
  * so the algorithm exit with error message. Finally the vertices positions are calculated by the

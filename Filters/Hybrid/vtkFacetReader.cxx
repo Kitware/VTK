@@ -190,7 +190,7 @@ int vtkFacetReader::RequestData(vtkInformation* vtkNotUsed(request),
   int error = 0;
   bool abort = false;
 
-  // Loop thrugh individual parts
+  // Loop through individual parts
   for (part = 0; part < num_parts || error; part++)
   {
     if (this->CheckAbort())

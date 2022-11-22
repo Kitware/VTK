@@ -56,7 +56,7 @@
  * vtkImplicitArrayTraits header file. These traits use metaprogramming to check the proposed
  * backend type at compile time. The decision to use this type of structure was taken for the
  * following reasons:
- * - static dispatch of the calls to the backend (when combined with the CRTP strcture of
+ * - static dispatch of the calls to the backend (when combined with the CRTP structure of
  * vtkGenericDataArray)
  * - flexibility regarding the complexity/simplicity/nature/type... of the backend one would like to
  * use
@@ -180,7 +180,7 @@ public:
   /**
    * Specific DeepCopy for implicit arrays
    *
-   * This method should be prefered for two implicit arrays having the same backend. We cannot call
+   * This method should be preferred for two implicit arrays having the same backend. We cannot call
    * the method `DeepCopy` since that conflicts with the virtual function of the same name that
    * cannot be templated. The non-interopability of templates and virtual functions is a language
    * limitation at the time of writing this documentation.  We can call this from the dispatched
@@ -271,7 +271,7 @@ private:
 
   ///@{
   /**
-   * Static dispatch Initialize for non-default constuctible things
+   * Static dispatch Initialize for non-default constructible things
    */
   template <typename U>
   typename std::enable_if<!vtk::detail::implicit_array_traits<U>::default_constructible, void>::type

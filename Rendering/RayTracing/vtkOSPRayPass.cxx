@@ -515,7 +515,7 @@ bool vtkOSPRayPass::IsSupported()
     }
   }
 #elif defined(_MSC_VER)
-  // Query the CPU for instruction support using MSVC instrinsics.
+  // Query the CPU for instruction support using MSVC intrinsics.
   // https://learn.microsoft.com/en-us/cpp/intrinsics/cpuid-cpuidex
   {
     // Storage for `cpuid` results.

@@ -18,7 +18,7 @@
  *
  *
  * Valid inputs include the vtkMultiBlockDataSet (as created by
- * vtkCityGMLReader) storing 3D buidlings, vtkPointSet storing a point
+ * vtkCityGMLReader) storing 3D buildings, vtkPointSet storing a point
  * cloud or vtkPolyData for storing a mesh.
  *
  * @sa

@@ -49,8 +49,8 @@ public:
   /**
    * Specify a uniform integration step unit for MinimumIntegrationStep,
    * InitialIntegrationStep, and MaximumIntegrationStep.
-   * 1 = LENGTH_UNIT, i.e. all sizes are expresed in coordinate scale or cell scale
-   * 2 = CELL_LENGTH_UNIT, i.e. all sizes are expresed in cell scale
+   * 1 = LENGTH_UNIT, i.e. all sizes are expressed in coordinate scale or cell scale
+   * 2 = CELL_LENGTH_UNIT, i.e. all sizes are expressed in cell scale
    */
   vtkSetMacro(IntegrationStepUnit, int);
   vtkGetMacro(IntegrationStepUnit, int);
@@ -254,7 +254,7 @@ private:
    * @param dataset: input vector field
    * @param interestPoints: a set of points that includes both critical points and boundary switch
    * points
-   * @param integrationStepUnit: whether the sizes are expresed in coordinate scale or cell scale
+   * @param integrationStepUnit: whether the sizes are expressed in coordinate scale or cell scale
    * @param dist: size of the offset of the seeding
    * @param stepSize: stepsize of the integrator
    * @param maxNumSteps: maximal number of integration steps
@@ -272,7 +272,7 @@ private:
    * flow change
    * @param separatrices: inegration surfaces
    * @param dataset: input vector field
-   * @param integrationStepUnit: whether the sizes are expresed in coordinate scale or cell scale
+   * @param integrationStepUnit: whether the sizes are expressed in coordinate scale or cell scale
    * @param dist: size of the offset of the seeding
    * @param stepSize: stepsize of the integrator
    * @param maxNumSteps: maximal number of integration steps
@@ -294,7 +294,7 @@ private:
    * @param dataset: input vector field
    * @param interestPoints: a set of points that includes both critical points and boundary switch
    * points
-   * @param integrationStepUnit: whether the sizes are expresed in coordinate scale or cell scale
+   * @param integrationStepUnit: whether the sizes are expressed in coordinate scale or cell scale
    * @param dist: size of the offset of the seeding
    * @param stepSize: stepsize of the integrator
    * @param maxNumSteps: maximal number of integration steps
@@ -315,7 +315,7 @@ private:
    * @param zeroPos: location of the saddle
    * @param streamSurfaces: surfaces that have so far been computed
    * @param dataset: the vector field in which we advect
-   * @param integrationStepUnit: whether the sizes are expresed in coordinate scale or cell scale
+   * @param integrationStepUnit: whether the sizes are expressed in coordinate scale or cell scale
    * @param dist: size of the offset of the seeding
    * @param stepSize: stepsize of the integrator
    * @param maxNumSteps: maximal number of integration steps

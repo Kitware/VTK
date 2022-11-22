@@ -333,7 +333,7 @@ struct GCDTraversal
     }
   }
   // Can be optimized to avoid the modulo %, but coded for simplicity
-  // since the cost of this operation is miniscule compared to everything
+  // since the cost of this operation is minuscule compared to everything
   // else that is going on.
   vtkIdType GetPointId(vtkIdType idx) { return ((this->Prime * idx + this->Offset) % this->NPts); }
 };

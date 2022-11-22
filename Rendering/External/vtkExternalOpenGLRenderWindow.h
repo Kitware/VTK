@@ -85,7 +85,7 @@ public:
   /**
    * Turn on/off a flag which enables/disables using the content from an
    * outside application.  When on the active read buffer is first blitted
-   * into VTK and becomes the starting poiint for VTK's rendering.
+   * into VTK and becomes the starting point for VTK's rendering.
    */
   vtkGetMacro(UseExternalContent, bool);
   vtkSetMacro(UseExternalContent, bool);

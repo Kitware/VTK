@@ -337,7 +337,7 @@ vtkSmartPointer<DataSetT> RemoveGhostArraysIfNeeded(
   return ds;
 }
 VTK_ABI_NAMESPACE_END
-} // namesapce vtkDIYGhostUtilities_detail
+} // namespace vtkDIYGhostUtilities_detail
 
 VTK_ABI_NAMESPACE_BEGIN
 

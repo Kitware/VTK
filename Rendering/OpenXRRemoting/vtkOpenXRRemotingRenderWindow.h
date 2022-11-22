@@ -38,18 +38,18 @@ public:
   void SetRemotingIPAddress(const char* host);
 
   /**
-   * Initialize helper window ressources.
+   * Initialize helper window resources.
    */
   void Initialize() override;
 
   /**
-   * Overriden to lock the opengl rendering while copying.
+   * Overridden to lock the opengl rendering while copying.
    */
   void CopyResultFrame() override;
 
   ///@{
   /**
-   * Overriden to draw to the shared D3D texture
+   * Overridden to draw to the shared D3D texture
    */
   void StereoUpdate() override;
   void StereoMidpoint() override;

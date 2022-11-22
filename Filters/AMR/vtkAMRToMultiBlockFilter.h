@@ -46,7 +46,7 @@ public:
 
   ///@{
   /**
-   * Set/Get a multiprocess controller for paralle processing.
+   * Set/Get a multiprocess controller for parallel processing.
    * By default this parameter is set to nullptr by the constructor.
    */
   virtual void SetController(vtkMultiProcessController*);

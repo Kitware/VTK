@@ -887,7 +887,7 @@ public:
     return Verts[0] == v || Verts[1] == v || Verts[2] == v || Verts[3] == v;
   }
 
-  // check to see if we can change fromV to toV without changing the orietation
+  // check to see if we can change fromV to toV without changing the orientation
   bool Changeable(vtkUnstructuredGridQuadricDecimationVertex* fromV,
     const vtkUnstructuredGridQuadricDecimationVec4& v4)
   {

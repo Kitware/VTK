@@ -18,7 +18,7 @@
  * @brief   OpenXR manager graphics implementation
  *
  * Abstract class that defines the rendering backend used by vtkOpenXRManager.
- * It handles creation and management of the OpenXR rendering ressources,
+ * It handles creation and management of the OpenXR rendering resources,
  * based on the rendering backend implemented by subclasses.
  *
  * @sa

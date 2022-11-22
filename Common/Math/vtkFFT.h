@@ -57,7 +57,7 @@ class VTKCOMMONMATH_EXPORT vtkFFT : public vtkObject
 public:
   ///@{
   /**
-   * Usefull type definitions and utilities.
+   * Useful type definitions and utilities.
    *
    * ScalarNumber is defined as a floating point number.
    *
@@ -350,7 +350,7 @@ protected:
     InputIt begin, InputIt end, Scaling scaling, double fs);
 
   /**
-   * Dispatch the signal to the right FFT fucntion according to the given parameters.
+   * Dispatch the signal to the right FFT function according to the given parameters.
    * Also detrend the signal and multiply it by the window. Used in the `OverlappingFft` function.
    */
   template <typename T, typename TW>

@@ -75,7 +75,7 @@ public:
 
   ///@{
   /**
-   * Set/Get the Axis normal. The accpetable values are defined in the
+   * Set/Get the Axis normal. The acceptable values are defined in the
    * NormalTag enum.
    */
   vtkSetMacro(Normal, int);
@@ -84,7 +84,7 @@ public:
 
   ///@{
   /**
-   * Set/Get a multiprocess controller for paralle processing.
+   * Set/Get a multiprocess controller for parallel processing.
    * By default this parameter is set to nullptr by the constructor.
    */
   virtual void SetController(vtkMultiProcessController*);

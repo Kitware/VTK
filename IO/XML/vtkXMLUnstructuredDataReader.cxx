@@ -623,7 +623,7 @@ int vtkXMLUnstructuredDataReader::ReadCellArray(vtkIdType numberOfCells,
 {
   // This part is here to determine if we need to read the cell array.
   // If the cell array was already generated in a previous time step, there's no need recreating it.
-  // However, withing a same time step, multiple pieces can be present. We need to read them all.
+  // However, within a same time step, multiple pieces can be present. We need to read them all.
   // The logic works as follows:
   // * If there's no output geometry yet, it means we need to create it. We save the current time
   //   step to know in which time step the cell array is being read.

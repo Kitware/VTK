@@ -131,7 +131,7 @@ protected:
   vtkSocketController();
   ~vtkSocketController() override;
 
-  // Initialize only once, finialize on destruction.
+  // Initialize only once, finalize on destruction.
   static int Initialized;
 
 private:

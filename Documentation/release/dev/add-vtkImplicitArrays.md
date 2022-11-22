@@ -2,7 +2,7 @@
 
 ## Description
 
-VTK now offers new flexible `vtkImplicitArray` template class that implements a **read-only** `vtkGenericDataArray` interface. It essentially transforms an implicit function mapping integers to values into a pratically zero cost `vtkDataArray`. This is helpful in cases where one needs to attach data to data sets and memory efficiency is paramount.
+VTK now offers new flexible `vtkImplicitArray` template class that implements a **read-only** `vtkGenericDataArray` interface. It essentially transforms an implicit function mapping integers to values into a practically zero cost `vtkDataArray`. This is helpful in cases where one needs to attach data to data sets and memory efficiency is paramount.
 
 ## Usage
 

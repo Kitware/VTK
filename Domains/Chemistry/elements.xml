@@ -1629,7 +1629,7 @@
     <scalar dataType="xsd:float" dictRef="bo:ionization" units="units:ev">6.1077</scalar>
     <scalar dataType="xsd:float" dictRef="bo:electronAffinity" units="units:ev">0.5</scalar>
     <scalar dataType="xsd:float" dictRef="bo:electronegativityPauling" units="boUnits:paulingScaleUnit">1.24</scalar>
-    <scalar dataType="xsd:string" dictRef="bo:nameOrigin" xml:lang="en">Named ofter the Swedish town of Ytterby. Terbium and Ytterbium are also named after this town.</scalar>
+    <scalar dataType="xsd:string" dictRef="bo:nameOrigin" xml:lang="en">Named after the Swedish town of Ytterby. Terbium and Ytterbium are also named after this town.</scalar>
     <scalar dataType="xsd:float" dictRef="bo:radiusCovalent" units="units:ang">1.65</scalar>
     <scalar dataType="xsd:float" dictRef="bo:radiusVDW" units="units:ang">2.32</scalar>
     <array title="color" dictRef="bo:elementColor" size="3" dataType="xsd:float">0.00 0.90 0.46</array>

@@ -85,7 +85,7 @@ struct UnstructuredGridHelper
 // This class implements:
 // * AddHitCellIdsAndPointIds: Given an input cell that is hit by an input line,
 //   add the cell id in a cell id container and the points of the cell in a point id container,
-//   and update the connectivty size of the output unstructured grid
+//   and update the connectivity size of the output unstructured grid
 // * CopyCell: Given an input input cell id, copy it into the output unstructured grid.
 template <class DataSetT>
 struct InputCellHandler;

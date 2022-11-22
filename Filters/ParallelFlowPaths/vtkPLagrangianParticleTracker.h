@@ -74,7 +74,7 @@ protected:
    * Worker flag working : the worker has at least one particle in it's queue and
       is currently integrating it.
    * Worker flag empty : the worker has no more particle in it's queue and is
-       activelly waiting for more particle to integrate from other ranks.
+       actively waiting for more particle to integrate from other ranks.
    * Worker flag finished : the worker has received a master empty flag and after
        checking one last time, still doesn't have any particle to integrate. It is
        now just waiting for master to send the master finished flag.

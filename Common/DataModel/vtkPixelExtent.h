@@ -267,7 +267,7 @@ public:
 
   /**
    * Merge compatible extents in the list. Extents are compatible
-   * if they are directly adjacent nad have the same extent along
+   * if they are directly adjacent and have the same extent along
    * the adjacent edge.
    */
   static void Merge(std::deque<vtkPixelExtent>& exts);

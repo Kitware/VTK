@@ -308,7 +308,7 @@ int vtkReebGraphToJoinSplitTreeFilter::RequestData(vtkInformation* vtkNotUsed(re
               // twice.
               //
               // High-index degenerate merge have a very very low probability of
-              // appearance which is roughly inversely proportionnal to way more
+              // appearance which is roughly inversely proportional to way more
               // than its index.
               if (representatives[k] == representative)
               {

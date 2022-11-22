@@ -329,7 +329,7 @@ void vtkEuclideanClusterExtraction::InsertIntoWave(vtkIdList* wave, vtkIdType pt
 //------------------------------------------------------------------------------
 // Update current point information including updating cluster number.  Note:
 // traversal occurs across proximally located points, possibly limited by
-// scalar connectivty.
+// scalar connectivity.
 //
 void vtkEuclideanClusterExtraction::TraverseAndMark(vtkPoints* inPts)
 {

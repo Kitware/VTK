@@ -88,7 +88,7 @@ public:
     }
   };
 
-  // Interface implicit function graadient computation to SMP tools.
+  // Interface implicit function gradient computation to SMP tools.
   template <class TT>
   class FunctionGradientOp
   {

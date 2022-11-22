@@ -52,7 +52,7 @@
  * boundary point (versus interior point) changes depending on the input
  * dataset type. For vtkPolyData, boundary *edges* are used to identify
  * boundary points; for all other dataset types, points used by a boundary
- * *face* are considered boundary points. It is also possible to expicitly
+ * *face* are considered boundary points. It is also possible to explicitly
  * specify which points are smoothed, and those that are constrained, by
  * specifying a smooth mask associated with each input point.
  *

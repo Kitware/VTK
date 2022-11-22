@@ -14,10 +14,10 @@
 =========================================================================*/
 /**
  * @class   vtkHyperTreeGridNonOrientedUnlimitedMooreSuperCursor
- * @brief   Specific Moore super cursor that can subdivied neighboorhood
+ * @brief   Specific Moore super cursor that can subdivied neighborhood
  *
  * This supercursor behave like the Moore supercursor but relies on the
- * vtkHyperTreeGridNonOrientedUnlimitedSuperCursor so the neighboorhood
+ * vtkHyperTreeGridNonOrientedUnlimitedSuperCursor so the neighborhood
  * can be refined to reach the level of the current cell in any case.
  *
  * @sa

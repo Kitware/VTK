@@ -1453,7 +1453,7 @@ void vtkDiscreteClipperAlgorithm<T>::ContourImage(vtkDiscreteFlyingEdgesClipper2
 
   // PASS 3: Now allocate output. First we have to update the x-Edge meta
   // data to partition the output into separate pieces so independent threads
-  // can write into separate memory partititions. Once allocation is
+  // can write into separate memory partitions. Once allocation is
   // complete, process on a row by row basis and produce output points and
   // polygon primitives, (if necessary).
   vtkIdType numXPts, numYPts, numPolys, connLen;

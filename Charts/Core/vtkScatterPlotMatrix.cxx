@@ -220,7 +220,7 @@ public:
 namespace
 {
 
-// This is just here for now - quick and dirty historgram calculations...
+// This is just here for now - quick and dirty histogram calculations...
 bool PopulateHistograms(vtkTable* input, vtkTable* output, vtkStringArray* s, int NumberOfBins)
 {
   // The output table will have the twice the number of columns, they will be

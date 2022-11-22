@@ -721,7 +721,7 @@ void LinkGrid(::BlockMapType<typename BlockT::BlockStructureType>& blockStructur
   else
   {
     // idx1, idx2 and idx3 are the indices in extent of current block
-    // such that the intersection of the 3 faces mapped by those 3 indices is the concurrant corner.
+    // such that the intersection of the 3 faces mapped by those 3 indices is the concurrent corner.
     int idx1 = -1, idx2 = -1, idx3 = -1;
     switch (adjacencyMask)
     {
