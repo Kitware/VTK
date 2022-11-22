@@ -1605,6 +1605,14 @@ void vtkCCSPrepareForPolyInPoly(
   // Find the bounding box and tolerance for the polygon
   tol2 = (vtkCCSPolygonBounds(outerPoly, points, bounds) *
     (VTK_CCS_POLYGON_TOLERANCE * VTK_CCS_POLYGON_TOLERANCE));
+
+  // Expand the bounds
+  double tol = sqrt(tol2);
+  for (int i = 0; i < 3; i++)
+  {
+    bounds[2 * i] -= tol;
+    bounds[2 * i + 1] += tol;
+  }
 }
 
 // ---------------------------------------------------
