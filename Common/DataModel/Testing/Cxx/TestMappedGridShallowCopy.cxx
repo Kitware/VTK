@@ -13,7 +13,7 @@
 
 =========================================================================*/
 /*----------------------------------------------------------------------------
-  This test was written by Bengt Rosenberger.
+  This was taken from TestMappedGridDeepCopy and modified by Bengt Rosenberger.
 ----------------------------------------------------------------------------*/
 
 #include "vtkCell.h" // for cell types
