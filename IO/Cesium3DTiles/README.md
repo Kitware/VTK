@@ -4,11 +4,12 @@ Currently, to create a valid 3D Tiles dataset we may need additional
 conversions: from GLTF to GLB and from GLB to B3DM. We can use
 JavaScript tools to do these conversions.
 
-# Install conversion scripts
+# Install conversion and validation scripts
 - Using node and npm installed on Ubuntu 20.04:
 - `cd ~/external/3d-tiles-tools/;npm install 3d-tiles-tools`. Help at: <https://github.com/AnalyticalGraphicsInc/3d-tiles-tools/tree/master/tools>
 - `cd ~/external/gltf-pipeline;npm install gltf-pipeline`. Help at: <https://github.com/CesiumGS/gltf-pipeline>
 - Clone <https://github.com/CesiumGS/3d-tiles-samples>. and then `npm install.`
+- Clone <https://github.com/KhronosGroup/glTF-Validator> and then follow Building section.
 
 # Convert data to GLB or B3DM - Optional
 See Testing/Cxx/Test3DTilesWriter for conversions of Jacksonville data
@@ -25,6 +26,11 @@ find . -name '*.gltf' -exec bash -c 'nodejs ~/external/gltf-pipeline/bin/gltf-pi
 find . -name '*.gltf' -exec rm {} \;
 find . -name '*.bin' -exec rm {} \;
 ```
+- Check glb validity
+```
+~/external/glTF-Validator/build/bin/gltf_validator Testing/Temporary/TestGLTFWriter.glb
+```
+
 - Convert glb to b3dm
 ```
 find . -name '*.glb' -exec bash -c 'nodejs ~/external/3d-tiles-tools/tools/bin/3d-tiles-tools.js glbToB3dm ${0} ${0%.*}.b3dm' {} \;

@@ -133,9 +133,9 @@ public:
    * What is the file type used to save tiles. If ContentGLTF is false
    * (the default) we use B3DM for Buildings or Mesh and PNTS for
    * PointCloud otherwise  we use GLB or GLTF (3DTILES_content_gltf
-   * extension, use GLB if ContentGLTFSaveGLB is true).
-   * If the file type is B3DM or GLB, external programs are
-   * needed to convert GLTF -> GLB -> B3DM.
+   * extension, use GLB if ContentGLTFSaveGLB is true (default is true)).
+   * If the file type is B3DM, external programs are
+   * needed to convert GLB -> B3DM.
    *
    */
   vtkSetMacro(ContentGLTF, bool);

@@ -175,6 +175,10 @@ vtk_add_test_cxx(vtkIOGeometryCxxTests tests
   TestGLTFWriterObj,TestGLTFWriter.cxx DATA{${_vtk_build_TEST_INPUT_DATA_DIRECTORY}/Data/jacksonville_15.obj}
 )
 
+vtk_add_test_cxx(vtkIOGeometryCxxTests tests
+  TestGLTFWriterCityGMLBinary,TestGLTFWriter.cxx DATA{${_vtk_build_TEST_INPUT_DATA_DIRECTORY}/Data/CityGML/Part-4-Buildings-V4-one.gml} binary
+)
+
 
 if(enable_large_data_tests)
   vtk_add_test_cxx(vtkIOGeometryCxxTests large_data_tests

@@ -123,6 +123,23 @@ vtkSmartPointer<vtkMultiBlockDataSet> ReadOBJFiles(int numberOfBuildings, int vt
 int TestGLTFWriter(int argc, char* argv[])
 {
   std::string fileName = argv[1];
+  bool binary = false;
+  if (argc > 2 && std::string(argv[2]) == "binary")
+  {
+    binary = true;
+  }
+  int lod = 3;
+  if (argc > 3)
+  {
+    try
+    {
+      lod = std::stoi(argv[3]);
+    }
+    catch (std::exception&)
+    {
+      lod = 3;
+    }
+  }
   std::string filePath = vtksys::SystemTools::GetFilenamePath(fileName);
   std::string fileExt = vtksys::SystemTools::GetFilenameExtension(fileName);
   std::array<double, 3> fileOffset;
@@ -149,6 +166,7 @@ int TestGLTFWriter(int argc, char* argv[])
   {
     vtkNew<vtkCityGMLReader> reader;
     reader->SetFileName(fileName.c_str());
+    reader->SetLOD(lod);
     reader->Update();
     data = vtkMultiBlockDataSet::SafeDownCast(reader->GetOutputDataObject(0));
   }
@@ -170,7 +188,8 @@ int TestGLTFWriter(int argc, char* argv[])
     vtkTestUtilities::GetArgOrEnvOrDefault("-T", argc, argv, "VTK_TEMP_DIR", "Testing/Temporary");
   std::string tmpDir(tname);
   delete[] tname;
-  std::string outputName = tmpDir + "/TestGLTFWriter.gltf";
+  std::string outputName =
+    tmpDir + "/TestGLTFWriter" + (cityGML ? "CityGML" : "Obj") + (binary ? "Binary.glb" : ".gltf");
 
   vtkNew<vtkGLTFWriter> writer;
   writer->SetFileName(outputName.c_str());

@@ -60,6 +60,7 @@ using RegionType = std::array<int, 6>;
 
 namespace
 {
+VTK_ABI_NAMESPACE_BEGIN
 constexpr double MIN_ERROR = 20;
 
 //------------------------------------------------------------------------------
@@ -410,7 +411,7 @@ struct MergePolyDataInfo
   bool MergePolyData;
   size_t MergedTextureWidth;
 };
-
+VTK_ABI_NAMESPACE_END
 }
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -808,7 +809,7 @@ void TreeInformation::SaveTileBuildings(vtkIncrementalOctreeNode* node, void* au
     ostr.str("");
     ostr << this->OutputDir << "/" << node->GetID();
     vtkDirectory::MakeDirectory(ostr.str().c_str());
-    ostr << "/" << node->GetID() << ".gltf";
+    ostr << "/" << node->GetID() << (this->ContentGLTFSaveGLB ? ".glb" : ".gltf");
     writer->SetFileName(ostr.str().c_str());
     writer->SetTextureBaseDirectory(textureBaseDirectory.c_str());
     if (!this->PropertyTextureFile.empty())
@@ -1117,7 +1118,7 @@ void TreeInformation::SaveTileMesh(vtkIncrementalOctreeNode* node, void* voidAux
     vtkNew<vtkGLTFWriter> writer;
     writer->RelativeCoordinatesOn();
     writer->SetInputData(buildings);
-    std::string fileName = ostr.str() + ".gltf";
+    std::string fileName = ostr.str() + (this->ContentGLTFSaveGLB ? ".glb" : ".gltf");
     writer->SetFileName(fileName.c_str());
     writer->SetTextureBaseDirectory(this->OutputDir.c_str());
     if (!this->PropertyTextureFile.empty())
