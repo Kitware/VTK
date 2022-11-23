@@ -238,7 +238,9 @@ public:
    * @param[in] mode determine which type of value ares returned. It is very dependent to how you
    * want to use the result afterwards.
    * @param[out] shape if not @c nullptr, return the shape (n,m) of the result. `n` is the number of
-   * segment and `m` the number of samples per segment.
+   * segment and `m` the number of samples per segment. Shape is inverted if `transpose` is true.
+   * @param[in] transpose allows to transpose the resulting the resulting matrix into something of
+   * shape (m, n)
    *
    * @return a 1D array that stores all resulting segment. For a shape (N,M), layout is
    * (segment0_sample0, segment0_sample1, ..., segment0_sampleM, segment1_sample0, ...
@@ -248,13 +250,14 @@ public:
   template <typename T, typename TW, typename std::enable_if<isFftType<T>::value>::type* = nullptr>
   static std::vector<ComplexNumber> Spectrogram(const std::vector<T>& signal,
     const std::vector<TW>& window, double sampleRate, int noverlap, bool detrend, bool onesided,
-    vtkFFT::Scaling scaling, vtkFFT::SpectralMode mode, unsigned int* shape = nullptr);
+    vtkFFT::Scaling scaling, vtkFFT::SpectralMode mode, unsigned int* shape = nullptr,
+    bool transpose = false);
 
   template <typename TW>
   static vtkSmartPointer<vtkFFT::vtkScalarNumberArray> Spectrogram(
     vtkFFT::vtkScalarNumberArray* signal, const std::vector<TW>& window, double sampleRate,
     int noverlap, bool detrend, bool onesided, vtkFFT::Scaling scaling, vtkFFT::SpectralMode mode,
-    unsigned int* shape = nullptr);
+    unsigned int* shape = nullptr, bool transpose = false);
 #endif
   ///@}
 
@@ -292,6 +295,21 @@ public:
     vtkFFT::Scaling scaling);
 #endif
   ///@}
+
+  /**
+   * Transpose in place an inlined 2D matrix. This algorithm is not optimized
+   * for square matrices but is generic. This will also effectively swap shape values.
+   * Worst case complexity is : O( (shape[0]*shape[1])^3/2 )
+   *
+   * XXX: some fft librairies such as FFTW already propose functions to do that.
+   * This should be taken into account if the backend is changed at some point.
+   *
+   * XXX: An optimized version could be implemented for square matrices
+   */
+#ifndef __VTK_WRAP__
+  template <typename T>
+  static void Transpose(T* data, unsigned int* shape);
+#endif
 
   ///@{
   /**
