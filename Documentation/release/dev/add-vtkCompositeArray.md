@@ -22,5 +22,5 @@ CHECK(composite->GetComponent(42, 1) == 0.0); // always true
 
 > **WARNINGS**
 >
->   * Any two arrays composited into a `vtkCompositeArray` must have the same number of components.
+>   * Any two arrays composited into a `vtkCompositeArray` using the `vtk::ConcatenateDataArrays` method must have the same number of components.
 >   * Iteration over the composited array incurs a lot of overhead compared to an explicit memory array (~3x slower with only 1 level). The use case is truly when memory efficiency is more important than compute performance.

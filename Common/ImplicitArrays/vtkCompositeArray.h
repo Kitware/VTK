@@ -50,6 +50,8 @@
  * rightArr->SetValue(0, 1);
  * vtkNew<vtkCompositeArray<int>> compositeArr;
  * compositeArr->SetBackend(std::make_shared<vtkCompositeImplicitBackend<int>>(leftArr, rightArr));
+ * compositeArr->SetNumberOfComponents(1);
+ * compositeArr->SetNumberOfTuples(2);
  * CHECK(compositArr->GetValue(1) == 1);
  * ```
  * @sa
@@ -66,6 +68,14 @@ namespace vtk
 {
 VTK_ABI_NAMESPACE_BEGIN
 template <typename T>
+/**
+ * \fn ConcatenateDataArrays
+ * A method that can take a `std::vector` of `vtkDataArray`s and concatenate them together into a
+ * single `vtkCompositeArray`. Input arrays should all have the same number of components and the
+ * resulting composite array has as many tuples as the sum of all the inputs.
+ *
+ * The method is templated based on the value type of composite array the caller wishes as a result.
+ */
 vtkSmartPointer<vtkCompositeArray<T>> ConcatenateDataArrays(
   const std::vector<vtkDataArray*>& arrays);
 VTK_ABI_NAMESPACE_END

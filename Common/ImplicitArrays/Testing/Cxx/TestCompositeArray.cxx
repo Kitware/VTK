@@ -143,5 +143,19 @@ int TestCompositeArray(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
     iArr++;
   }
 #endif // VTK_DISPATCH_COMPOSITE_ARRAYS
+
+  // test a 1 composite
+  vtkSmartPointer<vtkCompositeArray<int>> oneComposite =
+    vtk::ConcatenateDataArrays<int>(std::vector<vtkDataArray*>({ composite }));
+  for (iArr = 0; iArr < 100; iArr++)
+  {
+    if (oneComposite->GetValue(iArr) != iArr)
+    {
+      res = EXIT_FAILURE;
+      std::cout << "get value failed with vtkCompositeArray for composite with one array: " << iArr
+                << " != " << composite->GetValue(iArr) << std::endl;
+    }
+  }
+
   return res;
 };

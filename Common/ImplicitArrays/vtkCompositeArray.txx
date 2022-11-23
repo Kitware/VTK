@@ -10,9 +10,17 @@ template <typename T>
 vtkSmartPointer<vtkCompositeArray<T>> ConcatenateDataArrays(
   const std::vector<vtkDataArray*>& arrays)
 {
-  if (arrays.size() < 2)
+  if (arrays.size() == 0)
   {
     return nullptr;
+  }
+  if (arrays.size() == 1)
+  {
+    vtkNew<vtkCompositeArray<T>> composite;
+    composite->SetBackend(std::make_shared<vtkCompositeImplicitBackend<T>>(arrays[0], nullptr));
+    composite->SetNumberOfComponents(arrays[0]->GetNumberOfComponents());
+    composite->SetNumberOfTuples(arrays[0]->GetNumberOfTuples());
+    return composite;
   }
   vtkIdType nComps = arrays[0]->GetNumberOfComponents();
   for (auto arr : arrays)

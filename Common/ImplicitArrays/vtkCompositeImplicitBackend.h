@@ -42,6 +42,10 @@
  * compositeArr->SetBackend(std::make_shared<vtkCompositeImplicitBackend<int>>(leftArr, rightArr));
  * CHECK(compositArr->GetValue(1) == 1);
  * ```
+ *
+ * > WARNING:
+ * > Arrays input to the backend are flattened upon use and are no longer sensitive to component
+ * > information.
  */
 #include "vtkCommonImplicitArraysModule.h"
 #include <memory>

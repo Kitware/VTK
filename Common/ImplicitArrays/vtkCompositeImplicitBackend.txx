@@ -14,6 +14,7 @@
 =========================================================================*/
 #include "vtkCompositeImplicitBackend.h"
 
+#include "vtkAOSDataArrayTemplate.h"
 #include "vtkArrayDispatch.h"
 #include "vtkArrayDispatchImplicitArrayList.h"
 #include "vtkDataArray.h"
@@ -29,19 +30,28 @@ struct vtkCompositeImplicitBackend<ValueType>::Internals
     : Left(leftArr)
     , Right(rightArr)
   {
-    if (this->Left == nullptr || this->Right == nullptr)
+    if (!this->Left && !this->Right)
     {
-      vtkErrorWithObjectMacro(nullptr, "Creating composite array with nullptr");
-      return;
+      vtkWarningWithObjectMacro(nullptr, "Creating composite array with two nullptrs");
     }
+    auto checkNullRectify = [](vtkSmartPointer<vtkDataArray>& arr) {
+      if (!arr)
+      {
+        arr = vtkSmartPointer<vtkAOSDataArrayTemplate<ValueType>>::New();
+        arr->SetNumberOfComponents(1);
+        arr->SetNumberOfTuples(0);
+      }
+    };
+    checkNullRectify(this->Left);
+    checkNullRectify(this->Right);
     this->LeftRange = vtk::DataArrayValueRange(this->Left);
     this->RightRange = vtk::DataArrayValueRange(this->Right);
     this->Offset = this->LeftRange.size();
   }
 
-  const vtkSmartPointer<vtkDataArray> Left;
+  vtkSmartPointer<vtkDataArray> Left;
   vtk::detail::SelectValueRange<vtkDataArray*, vtk::detail::DynamicTupleSize>::type LeftRange;
-  const vtkSmartPointer<vtkDataArray> Right;
+  vtkSmartPointer<vtkDataArray> Right;
   vtk::detail::SelectValueRange<vtkDataArray*, vtk::detail::DynamicTupleSize>::type RightRange;
   int Offset = -1;
 };
