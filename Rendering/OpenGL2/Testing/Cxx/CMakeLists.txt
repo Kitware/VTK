@@ -76,7 +76,6 @@ vtk_add_test_cxx(vtkRenderingOpenGL2CxxTests tests
   TestPropPicker2Renderers.cxx,NO_DATA
   TestRemoveActorNonCurrentContext.cxx
   TestRenderToImage.cxx
-  TestRenderWindowDifferentThread.cxx,NO_DATA
   TestSetZBuffer.cxx
   TestShadowMapBakerPass.cxx
   TestShadowMapPass.cxx
