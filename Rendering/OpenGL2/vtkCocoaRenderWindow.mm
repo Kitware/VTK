@@ -737,9 +737,8 @@ void vtkCocoaRenderWindow::CreateAWindow()
       // This will show the menu and the dock
       //[theWindow setLevel:NSFloatingWindowLevel];
     }
-    else if (!this->UseOffScreenBuffers)
+    else
     {
-      // initialize the window area only when we're not using offscreen buffers.
       if ((this->Size[0] + this->Size[1]) == 0)
       {
         this->Size[0] = 300;
@@ -772,27 +771,25 @@ void vtkCocoaRenderWindow::CreateAWindow()
                                                 backing:NSBackingStoreBuffered
                                                   defer:NO];
     }
-    if (theWindow)
-    {
-      this->SetRootWindow(theWindow);
-      this->WindowCreated = 1;
 
-      // Since we created the NSWindow, give it a title.
-      NSString* winName = [NSString stringWithFormat:@"Visualization Toolkit - Cocoa #%u", count++];
-      this->SetWindowName([winName UTF8String]);
-
-      // makeKeyAndOrderFront: will show the window
-      if (this->ShowWindow)
-      {
-        [theWindow makeKeyAndOrderFront:nil];
-        [theWindow setAcceptsMouseMovedEvents:YES];
-      }
-    }
-    else if (!this->UseOffScreenBuffers)
+    if (!theWindow)
     {
-      // if we're not using offscreen buffers, we need 'theWindow' for it's default framebuffer.
       vtkErrorMacro("Could not create window, serious error!");
       return;
+    }
+
+    this->SetRootWindow(theWindow);
+    this->WindowCreated = 1;
+
+    // Since we created the NSWindow, give it a title.
+    NSString* winName = [NSString stringWithFormat:@"Visualization Toolkit - Cocoa #%u", count++];
+    this->SetWindowName([winName UTF8String]);
+
+    // makeKeyAndOrderFront: will show the window
+    if (this->ShowWindow)
+    {
+      [theWindow makeKeyAndOrderFront:nil];
+      [theWindow setAcceptsMouseMovedEvents:YES];
     }
   }
 
@@ -870,9 +867,8 @@ void vtkCocoaRenderWindow::CreateAWindow()
       [glView release];
 #endif
     }
-    else if (!this->UseOffScreenBuffers)
+    else
     {
-      // do not initialize gui frame when using offscreen buffers.
       NSRect backingViewRect = NSMakeRect(0.0, 0.0, (CGFloat)this->Size[0], (CGFloat)this->Size[1]);
 
       // Convert from points to pixels.
