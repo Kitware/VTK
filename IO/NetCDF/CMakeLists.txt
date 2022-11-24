@@ -5,6 +5,7 @@ set(classes
   vtkNetCDFCFWriter
   vtkNetCDFPOPReader
   vtkNetCDFReader
+  vtkNetCDFUGRIDReader
   vtkSLACParticleReader
   vtkSLACReader)
 
