@@ -560,26 +560,24 @@ int vtkPLYReader::RequestData(vtkInformation* vtkNotUsed(request),
                     else
                     {
                       size_t sameTexIndex = 0;
-                      if (pointIds[ti].size() > 1)
+
+                      double first[3];
+                      output->GetPoint(vtkVerts[k], first);
+                      for (; sameTexIndex < pointIds[ti].size(); ++sameTexIndex)
                       {
-                        double first[3];
-                        output->GetPoint(vtkVerts[k], first);
-                        for (; sameTexIndex < pointIds[ti].size(); ++sameTexIndex)
+                        double second[3];
+                        output->GetPoint(pointIds[ti][sameTexIndex], second);
+                        if (FuzzyEqual(first, second, this->FaceTextureTolerance))
                         {
-                          double second[3];
-                          output->GetPoint(pointIds[ti][sameTexIndex], second);
-                          if (FuzzyEqual(first, second, this->FaceTextureTolerance))
-                          {
-                            break;
-                          }
+                          break;
                         }
-                        if (sameTexIndex == pointIds[ti].size())
-                        {
-                          // newly seen point for this texture coordinate
-                          vtkIdType dp = duplicateCellPoint(output, cell, k);
-                          texCoordsPoints->SetTuple2(dp, newTex[0], newTex[1]);
-                          pointIds[ti].push_back(dp);
-                        }
+                      }
+                      if (sameTexIndex == pointIds[ti].size())
+                      {
+                        // newly seen point for this texture coordinate
+                        vtkIdType dp = duplicateCellPoint(output, cell, k);
+                        texCoordsPoints->SetTuple2(dp, newTex[0], newTex[1]);
+                        pointIds[ti].push_back(dp);
                       }
 
                       // texture coordinate already seen before, use the vertex
