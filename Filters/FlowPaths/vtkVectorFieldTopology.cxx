@@ -379,7 +379,7 @@ int vtkVectorFieldTopology::ComputeCriticalPoints2D(
     {
       valueMatrix->Invert();
 
-      // barycentric corrdinates of the zero: lambda = f(T)^-1 (-values[0])
+      // barycentric coordinates of the zero: lambda = f(T)^-1 (-values[0])
       double lambda[3] = { -values[0][0], -values[0][1], -values[0][2] };
       valueMatrix->MultiplyPoint(lambda, lambda);
 
@@ -651,14 +651,14 @@ int vtkVectorFieldTopology::ComputeBoundarySwitchPoints(
 
     x = vn0 / y;
 
-    // if the location is inbwteen the two end points of the line
+    // if the location is in between the two end points of the line
     if (x > 0 && x < 1)
     {
       InterpolateVector(0, 1, x, vector0, vector1, vector);
 
       double vectorNorm = vtkMath::Norm(vector);
 
-      // if the verctor at the boundary switch point is not a zero vector
+      // if the vector at the boundary switch point is not a zero vector
       if (vectorNorm > 1e-16)
       {
         vtkMath::MultiplyScalar(vector, 1 / vectorNorm);
@@ -1147,7 +1147,7 @@ int vtkVectorFieldTopology::ComputeSeparatricesBoundarySwitchLines(vtkPolyData* 
     normalArray->SetTuple3(i, x[0], x[1], x[2]);
   }
 
-  // the outputs of the countour filter are potential boundary switch lines.
+  // the outputs of the contour filter are potential boundary switch lines.
   // computed shifted boundary switch lines as seeds for computing separating surfaces
   for (int i = 0; i < contourFilter->GetOutput()->GetNumberOfCells(); i++)
   {
@@ -1197,7 +1197,7 @@ int vtkVectorFieldTopology::ComputeSeparatricesBoundarySwitchLines(vtkPolyData* 
     }
   }
 
-  // use probe filter to interpolate the verctors at seeds points and center points of  lines
+  // use probe filter to interpolate the vectors at seeds points and center points of  lines
   vtkNew<vtkProbeFilter> probe;
   probe->SetInputData(offsetPoints);
   probe->SetSourceData(dataset);

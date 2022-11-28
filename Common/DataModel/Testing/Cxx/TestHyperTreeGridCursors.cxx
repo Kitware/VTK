@@ -69,7 +69,7 @@ public:
   template <typename t, typename std::enable_if<is_unlimited<t>::value>::type* = nullptr>
   int doTest(t* mcur)
   {
-    // For unlimited type, we descend 10 times independantly of the tree shape
+    // For unlimited type, we descend 10 times independently of the tree shape
     // this goes deeper than the lowest child anyway
     for (int i = 0; i < 10; i++)
     {

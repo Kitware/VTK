@@ -58,7 +58,7 @@
 #   - change default --to to '../vtk-dox'
 #
 # 0.52 (barre) :
-#   - rename -l option to --link, add a parameter to preprend in front of
+#   - rename -l option to --link, add a parameter to prepend in front of
 #     the example location/filename.
 #
 # 0.51 (barre) :

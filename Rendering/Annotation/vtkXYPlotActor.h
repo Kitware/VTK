@@ -150,7 +150,7 @@ public:
    * which point array to plot. The array must be a vtkDataArray subclass, i.e.
    * a numeric array. If the array name is NULL, then the default
    * scalars are used.  The array can have multiple components, but only the
-   * first component is ploted. Note that AddInputDataSet() does not setup
+   * first component is plotted. Note that AddInputDataSet() does not setup
    * a pipeline connection whereas AddInputConnection() does.
    */
   void AddDataSetInput(vtkDataSet* ds, const char* arrayName, int component);

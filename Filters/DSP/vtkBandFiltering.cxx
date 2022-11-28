@@ -65,7 +65,7 @@ struct Band
   Limit Upper;
 };
 
-/// Given the FFT frequency array and the bandwidth, constuct the frequency bands
+/// Given the FFT frequency array and the bandwidth, construct the frequency bands
 /// limits that will be used for generating the fitlered values per band later.
 /// Also construct the xAxis which contains the range for each generated bin so
 /// that user can plot the bins nicely.

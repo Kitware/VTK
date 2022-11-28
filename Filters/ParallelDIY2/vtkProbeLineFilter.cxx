@@ -692,7 +692,7 @@ protected:
     validPointMask->SetName("vtkValidPointMask");
     vtkNew<vtkDoubleArray> arclength;
     arclength->SetName("arc_length");
-    // To make data attributes coherant on all ranks we add missing arrays
+    // To make data attributes coherent on all ranks we add missing arrays
     // in early return conditions
     if (inputs.empty())
     {
@@ -1094,7 +1094,7 @@ vtkSmartPointer<vtkPolyData> vtkProbeLineFilter::SampleLineAtEachCell(
     this->Controller->Send(localMerger->GetOutput(), 0, MPI_COMMUNICATION_TAG);
 
     // Even though we don't need to merge the intersections on satellite nodes
-    // we still want valid data attributes informations on output of each nodes
+    // we still want valid data attributes information on output of each nodes
     output = vtkSmartPointer<vtkPolyData>::New();
     auto* localPD = localMerger->GetOutput()->GetPointData();
     for (int i = 0; i < localPD->GetNumberOfArrays(); ++i)

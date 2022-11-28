@@ -44,7 +44,7 @@ vtkHyperTreeGridGeometryUnlimitedEntry::vtkHyperTreeGridGeometryUnlimitedEntry(
   else
   {
     vtkWarningWithObjectMacro(
-      nullptr, "Attemp to construct a geometry entry from an invalid index.");
+      nullptr, "Attempt to construct a geometry entry from an invalid index.");
     this->LastRealIndex = vtkHyperTreeGrid::InvalidIndex;
   }
 

@@ -141,7 +141,7 @@ void vtkBezierTetra::InterpolateFunctions(const double pcoords[3], double* weigh
     vtkIdType lbv[4] = { bv[0], bv[1], bv[2], deg - bv[0] - bv[1] - bv[2] };
     weights[Index(lbv, deg)] = coeffs[i];
   }
-  // If the unit cell has rational weigths: weights_i = weights_i * rationalWeights / sum( weights_i
+  // If the unit cell has rational weights: weights_i = weights_i * rationalWeights / sum( weights_i
   // * rationalWeights )
   const bool has_rational_weights = RationalWeights->GetNumberOfTuples() > 0;
   if (has_rational_weights)

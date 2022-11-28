@@ -9,5 +9,5 @@ Add support for `vtkHyperTreeGrid` in the resampling filters using the `vtkHyper
 
 ## Steps
 
-- refactor exisiting probe functionality into sequential and parallel parts
+- refactor existing probe functionality into sequential and parallel parts
 - insert support for `vtkHyperTreeGrid` into both sequential and parallel resampling filters

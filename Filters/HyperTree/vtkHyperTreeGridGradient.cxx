@@ -97,7 +97,7 @@ struct GradientWorker
 {
   using NeighList = std::set<Neigh>;
 
-  // intput fields
+  // input fields
   vtkDataArray* InArray;
   // output fields
   vtkDoubleArray* OutArray;
@@ -165,7 +165,7 @@ struct GradientWorker
   //----------------------------------------------------------------------------
   void AccumulateGradienAt(vtkHyperTreeGridNonOrientedUnlimitedMooreSuperCursor* supercursor)
   {
-    // Method used to keep the same strcture
+    // Method used to keep the same structure
     this->ComputeGradientUnlimited(supercursor);
   }
 

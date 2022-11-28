@@ -123,7 +123,7 @@ public:
   ///@{
   /**
    * Get/Set tolerance used when finding points in the HTG source.
-   * Overriden when ComputeTolerance == true.
+   * Overridden when ComputeTolerance == true.
    *
    * Default is 0.0
    */
@@ -133,7 +133,7 @@ public:
 
   ///@{
   /**
-   * Get/Set wether or not to compute the tolerance automatically for
+   * Get/Set whether or not to compute the tolerance automatically for
    * when finding points in the HTG source. If false use the tolerance
    * from SetTolerance .
    *
@@ -181,7 +181,7 @@ protected:
   bool PassAttributeData(vtkDataSet* input, vtkDataSet* output);
 
   /**
-   * Helper method for perfoming the probing
+   * Helper method for performing the probing
    */
   bool DoProbing(
     vtkDataSet* input, vtkHyperTreeGrid* source, vtkDataSet* output, vtkIdList* localPointIds);

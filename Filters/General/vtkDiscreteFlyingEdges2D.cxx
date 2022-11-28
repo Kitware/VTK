@@ -833,7 +833,7 @@ void vtkDiscreteFlyingEdges2DAlgorithm<T>::ContourImage(vtkDiscreteFlyingEdges2D
 
     // PASS 3: Now allocate and generate output. First we have to update the
     // x-Edge meta data to partition the output into separate pieces so
-    // independent threads can write into separate memory partititions. Once
+    // independent threads can write into separate memory partitions. Once
     // allocation is complete, process on a row by row basis and produce
     // output points, line primitives, and interpolate point attribute data
     // (if necessary).

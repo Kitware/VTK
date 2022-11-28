@@ -397,7 +397,7 @@ public:
   /**
    * Used to initialize a cursor of the given type.
    *
-   * cursor: the cursor to initalize
+   * cursor: the cursor to initialize
    *
    * index: the index of the tree to use in the HTG
    *
@@ -448,7 +448,7 @@ public:
   /**
    * Used to initialize a cursor of the given type.
    *
-   * cursor: the cursor to initalize
+   * cursor: the cursor to initialize
    *
    * index: the index of the tree to use in the HTG
    *

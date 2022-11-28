@@ -138,7 +138,7 @@ public:
 
   /**
    * Set a fixed number of partitions in which to split the volume
-   * during rendring. This will force by-block rendering without
+   * during rendering. This will force by-block rendering without
    * trying to compute an optimum number of partitions.
    */
   void SetPartitions(unsigned short x, unsigned short y, unsigned short z);

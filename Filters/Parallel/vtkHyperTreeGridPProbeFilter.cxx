@@ -315,7 +315,7 @@ bool vtkHyperTreeGridPProbeFilter::Initialize(
 
   if (!(this->PassAttributeData(input, output)))
   {
-    vtkErrorMacro("Failed to pass attribute data from inpu to output");
+    vtkErrorMacro("Failed to pass attribute data from input to output");
     return false;
   }
 

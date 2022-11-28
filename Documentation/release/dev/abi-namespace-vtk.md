@@ -5,7 +5,7 @@ link different versions of VTK into the same runtime without generating
 conflicts between VTK symbols.
 
 A limitation to this change is it does _NOT_ prevent conflicts between
-third-party symbols, including VTK-m. There is no enforcment in CMake
+third-party symbols, including VTK-m. There is no enforcement in CMake
 for third-party dependencies needing to be external when using the ABI
 namespace, this is left to you to configure. A full known list of known
 issues is listed below.

@@ -93,7 +93,7 @@ struct ChunkHeader
   uint32_t Type;
 };
 
-// padd at 4 bytes
+// pad at 4 bytes
 inline size_t GetPaddingAt4Bytes(size_t size)
 {
   return (4 - size % 4) % 4;

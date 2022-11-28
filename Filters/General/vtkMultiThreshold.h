@@ -320,7 +320,7 @@ public:
     int OutputId; /// The index of the output mesh that will hold this set or -1 if the set is not
                   /// output.
 
-    /// Default constructur. The grid output ID is initialized to indicate that the set should not
+    /// Default constructor. The grid output ID is initialized to indicate that the set should not
     /// be output.
     Set() { this->OutputId = -1; }
     /// Virtual destructor since we have virtual members.

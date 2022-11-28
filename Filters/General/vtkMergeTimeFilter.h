@@ -24,7 +24,7 @@
  *
  * When source time is exactly 0., absolute tolerance is used even in relative mode.
  *
- * Note that the actual merge of timesteps is done duing the RequestInformation pass.
+ * Note that the actual merge of timesteps is done during the RequestInformation pass.
  * In the 'Relative' mode, inputs are processed in order and compararison is done with
  * previously processed inputs.
  */

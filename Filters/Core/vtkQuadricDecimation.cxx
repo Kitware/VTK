@@ -702,7 +702,7 @@ void vtkQuadricDecimation::AddBoundaryConstraints()
 #endif
           double d = -vtkMath::Dot(n, t1);
         // The above line might merit some review: The same quadric gets added to t1 and t2 and one
-        // might prefere adding a quadric calculated using t1 at t1 and using t2 at t2
+        // might prefer adding a quadric calculated using t1 at t1 and using t2 at t2
         w = vtkMath::Norm(e0);
 
         if (!this->WeighBoundaryConstraintsByLength)

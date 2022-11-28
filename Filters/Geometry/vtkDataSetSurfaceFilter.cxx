@@ -849,7 +849,7 @@ void vtkDataSetSurfaceFilter::ExecuteFaceQuads(vtkDataSet* input, vtkPolyData* o
   pInc[0] = 1;
   pInc[1] = (ext[1] - ext[0] + 1);
   pInc[2] = (ext[3] - ext[2] + 1) * pInc[1];
-  // quad increments (cell incraments, but cInc could be confused with c axis).
+  // quad increments (cell increments, but cInc could be confused with c axis).
   qInc[0] = 1;
   qInc[1] = ext[1] - ext[0];
   // The conditions are for when we have one or more degenerate axes (2d or 1d cells).
@@ -976,7 +976,7 @@ void vtkDataSetSurfaceFilter::ExecuteFaceQuads(vtkDataSet* input, vtkPolyData* o
   pInc[0] = 1;
   pInc[1] = (ext[1] - ext[0] + 1);
   pInc[2] = (ext[3] - ext[2] + 1) * pInc[1];
-  // quad increments (cell incraments, but cInc could be confused with c axis).
+  // quad increments (cell increments, but cInc could be confused with c axis).
   qInc[0] = 1;
   qInc[1] = ext[1] - ext[0];
   // The conditions are for when we have one or more degenerate axes (2d or 1d cells).

@@ -543,7 +543,7 @@ void vtkImageMarchingCubesHandleCube(vtkImageMarchingCubes* self, int cellX, int
     {
       cubeIndex += 128;
     }
-    // Make sure we have trianlges
+    // Make sure we have triangles
     if (cubeIndex != 0 && cubeIndex != 255)
     {
       // Get edges.

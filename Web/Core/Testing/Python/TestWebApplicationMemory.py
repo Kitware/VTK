@@ -26,7 +26,7 @@ class TestWebApplicationMemory(Testing.vtkTest):
         renWin.Render()
 
         webApp = vtk.vtkWebApplication()
-        # no memory leaks sould be reported when compiling with VTK_DEBUG_LEAKS
+        # no memory leaks should be reported when compiling with VTK_DEBUG_LEAKS
         webApp.StillRender(renWin)
 
 if __name__ == "__main__":

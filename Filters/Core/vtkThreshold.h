@@ -105,7 +105,7 @@ public:
   VTK_DEPRECATED_IN_9_3_0("Please use SetInputArrayToProcess instead.")
   vtkSetMacro(AttributeMode, int);
 
-  VTK_DEPRECATED_IN_9_3_0("This method is depricated.")
+  VTK_DEPRECATED_IN_9_3_0("This method is deprecated.")
   vtkGetMacro(AttributeMode, int);
 
   VTK_DEPRECATED_IN_9_3_0("Please use SetInputArrayToProcess instead.")
@@ -117,7 +117,7 @@ public:
   VTK_DEPRECATED_IN_9_3_0("Please use SetInputArrayToProcess instead.")
   void SetAttributeModeToUseCellData();
 
-  VTK_DEPRECATED_IN_9_3_0("This method is depricated.")
+  VTK_DEPRECATED_IN_9_3_0("This method is deprecated.")
   const char* GetAttributeModeAsString();
   ///@}
 

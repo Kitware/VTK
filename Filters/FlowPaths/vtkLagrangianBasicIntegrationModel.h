@@ -436,21 +436,21 @@ public:
   virtual void InitializeParticleData(vtkFieldData* particleData, int maxTuples = 0);
 
   /**
-   * Method used by the LPT to insert data from the partice into
+   * Method used by the LPT to insert data from the particle into
    * the provided vtkFieldData. It inserts Id, ParentID, SeedID and Termination.
    * Reimplement as needed in accordance with InitializePathData.
    */
   virtual void InsertPathData(vtkLagrangianParticle* particle, vtkFieldData* data);
 
   /**
-   * Method used by the LPT to insert data from the partice into
+   * Method used by the LPT to insert data from the particle into
    * the provided vtkFieldData. It inserts Interaction.
    * Reimplement as needed in accordance with InitializeInteractionData.
    */
   virtual void InsertInteractionData(vtkLagrangianParticle* particle, vtkFieldData* data);
 
   /**
-   * Method used by the LPT to insert data from the partice into
+   * Method used by the LPT to insert data from the particle into
    * the provided vtkFieldData. It inserts StepNumber, ParticleVelocity, IntegrationTime.
    * stepEnum enables to select which data to insert, Prev, Current or Next.
    * Reimplement as needed in accordance with InitializeParticleData.
@@ -459,7 +459,7 @@ public:
     vtkLagrangianParticle* particle, vtkFieldData* data, int stepEnum);
 
   /**
-   * Method used by the LPT to insert data from the partice into
+   * Method used by the LPT to insert data from the particle into
    * the provided vtkFieldData. It inserts all arrays from the original SeedData.
    * Reimplement as needed.
    */

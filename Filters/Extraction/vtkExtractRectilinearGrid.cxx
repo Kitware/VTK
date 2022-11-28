@@ -82,7 +82,7 @@ int vtkExtractRectilinearGrid::RequestUpdateExtent(
     int oUExt[6];
     outputVector->GetInformationObject(0)->Get(
       vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), oUExt);
-    int oWExt[6]; // For parallel parititon this will be different.
+    int oWExt[6]; // For parallel partition this will be different.
     this->Internal->GetOutputWholeExtent(oWExt);
     for (i = 0; i < 3; i++)
     {

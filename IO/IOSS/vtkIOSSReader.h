@@ -229,7 +229,7 @@ public:
    * By default, this property is off.
    * Example: DENSITY_1, DENSITY_2, DENSITY_3, DENSITY_4
    * If the property is true, those fields will be parsed as a 4-component vtkDataArray
-   * named DESNITY.
+   * named DENSITY.
    * When turned off, DENSITY_1, DENSITY_2, DENSITY_3, DENSITY_4 fields will be parsed as 4
    * vtkDataArrays with 1 component each.
    */

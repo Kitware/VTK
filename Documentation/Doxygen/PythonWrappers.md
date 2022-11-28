@@ -1066,7 +1066,7 @@ will be instances of the override class.  This behavior is global.
     points = vtk.vtkPoints() # returns an instance of CustomPoints
 
 The override can be reversed by setting an override of `None`, but this will
-not impact instantions that have already occurred.
+not impact instantiations that have already occurred.
 
     vtkPoints.override(None)
 

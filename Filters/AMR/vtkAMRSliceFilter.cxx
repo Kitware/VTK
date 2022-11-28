@@ -470,7 +470,7 @@ void vtkAMRSliceFilter::GetSliceCellData(vtkUniformGrid* slice, vtkUniformGrid* 
     vtkUnsignedCharArray* uca = vtkArrayDownCast<vtkUnsignedCharArray>(array);
     if (uca != nullptr && uca == slice->GetCellGhostArray())
     {
-      // initiallize the ghost array
+      // initialize the ghost array
       memset(uca->WritePointer(0, numCells), 0, numCells);
     }
     array->Delete();

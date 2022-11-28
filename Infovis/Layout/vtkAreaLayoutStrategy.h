@@ -78,7 +78,7 @@ public:
    */
   virtual vtkIdType FindVertex(vtkTree* tree, vtkDataArray* array, float pnt[2]) = 0;
 
-  // Descripiton:
+  // Description:
   // The amount that the regions are shrunk as a value from
   // 0.0 (full size) to 1.0 (shrink to nothing).
   vtkSetClampMacro(ShrinkPercentage, double, 0.0, 1.0);

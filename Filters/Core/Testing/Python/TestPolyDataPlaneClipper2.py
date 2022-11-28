@@ -5,7 +5,7 @@ from vtk.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # Test the plane clipper on cell data, point data,
-# and when muliple capping loops are involved.
+# and when multiple capping loops are involved.
 
 # Control test size
 res = 512

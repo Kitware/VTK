@@ -251,7 +251,7 @@ bool vtkHyperTreeGridThreshold::RecursivelyProcessTree(
       {
         break;
       }
-      // Descend into child in intput grid as well
+      // Descend into child in input grid as well
       inCursor->ToChild(ichild);
       // Descend into child in output grid as well
       outCursor->ToChild(ichild);

@@ -1035,7 +1035,7 @@ void vtkExtractCTHPart::ExecuteFaceQuads(vtkDataSet* input, vtkPolyData* output,
   pInc[0] = 1;
   pInc[1] = (originalExtents[1] - originalExtents[0] + 1);
   pInc[2] = (originalExtents[3] - originalExtents[2] + 1) * pInc[1];
-  // quad increments (cell incraments, but cInc could be confused with c axis).
+  // quad increments (cell increments, but cInc could be confused with c axis).
   qInc[0] = 1;
   qInc[1] = originalExtents[1] - originalExtents[0];
   // The conditions are for when we have one or more degenerate axes (2d or 1d cells).

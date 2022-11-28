@@ -5531,7 +5531,7 @@ int vtkExodusIIReader::RequestInformation(vtkInformation* vtkNotUsed(request),
 
   this->AdvertiseTimeSteps(outInfo);
 
-  // Advertize the SIL.
+  // Advertise the SIL.
   outInfo->Set(vtkDataObject::SIL(), this->Metadata->GetSIL());
 
   if (newMetadata)

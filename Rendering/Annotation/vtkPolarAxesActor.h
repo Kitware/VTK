@@ -1040,7 +1040,7 @@ protected:
   double PolarAxisTickRatioSize, LastAxisTickRatioSize, ArcTickRatioSize;
 
   /**
-   * Defines the tickness of the major ticks.
+   * Defines the thickness of the major ticks.
    */
   double PolarAxisMajorTickThickness, LastRadialAxisMajorTickThickness, ArcMajorTickThickness;
 

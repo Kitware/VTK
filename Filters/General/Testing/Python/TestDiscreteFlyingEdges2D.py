@@ -32,7 +32,7 @@ discrete = vtk.vtkDiscreteFlyingEdges2D()
 discrete.SetInputConnection(quantize.GetOutputPort())
 discrete.SetValue(0,0)
 
-# Create polgons
+# Create polygons
 polyLoops = vtk.vtkContourLoopExtraction()
 polyLoops.SetInputConnection(discrete.GetOutputPort())
 

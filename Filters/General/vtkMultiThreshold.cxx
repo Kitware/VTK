@@ -535,7 +535,7 @@ int vtkMultiThreshold::RequestData(
   // II. C. Keep a generic cell handy for when we need to copy the input to the output
   vtkGenericCell* cell = vtkGenericCell::New();
 
-  // III. Loop over each cell, copying it to output meshes as required. The stategy here is:
+  // III. Loop over each cell, copying it to output meshes as required. The strategy here is:
   //      For each cell C_i in the mesh,
   //         setStates <- setStatesInit
   //         unresolvedOutputs <- unresolvedOutputsInit

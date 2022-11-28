@@ -16,7 +16,7 @@
  * @class   vtkResliceCursorThickLineRepresentation
  * @brief   represents a thick slab of the reslice cursor widget
  *
- * This class respresents a thick reslice cursor, that can be used to
+ * This class represents a thick reslice cursor, that can be used to
  * perform interactive thick slab MPR's through data. The class internally
  * uses vtkImageSlabReslice to do its reslicing. The slab thickness is set
  * interactively from the widget. The slab resolution (ie the number of

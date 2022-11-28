@@ -294,7 +294,7 @@ bool ContextSVGTest::Paint(vtkContext2D* painter)
   painter->DrawEllipseWedge(100.0, 89.0, 20, 100, 15, 75, -26.23, 333.77);
   painter->DrawEllipseWedge(100.0, 89.0, 15, 15, 0, 0, -26.23, 333.77);
   painter->DrawEllipseWedge(125.0, 89.0, 20, 100, 0, 0, -26.23, 333.77);
-  // Parital circle, more odd angles:
+  // Partial circle, more odd angles:
   painter->DrawEllipseWedge(150.0, 89.0, 20, 100, 15, 75, 403.f, 541.f);
   painter->DrawEllipseWedge(150.0, 89.0, 15, 75, 0, 0, 181.f, 403.f);
   // Smooth path:

@@ -228,7 +228,7 @@ int vtkContinuousScatterplot::RequestData(
   // working: collect the residual faces for the next iteration of subdivision.
   Polytope fragment = nullptr, residual = nullptr, working = nullptr;
 
-  // structure for storing the current framgent vertices in each cell face.
+  // structure for storing the current fragment vertices in each cell face.
   vtkSmartPointer<vtkIdList> fragmentFace = nullptr;
   // structure for storing the vertices which are not belonging to the current
   // fragment in each cell face.
@@ -320,7 +320,7 @@ int vtkContinuousScatterplot::RequestData(
   // of fragments for the first field and resY number of fragments for the second field.
   // In total, there will be maximal resX * resY number of new points in each edge.
   int estOutputPointSize = this->ResX * this->ResY * 4;
-  // Allocate the memory for the framgent points.
+  // Allocate the memory for the fragment points.
   newPoints->Allocate(estOutputPointSize);
 
   // main loop ...
@@ -352,7 +352,7 @@ int vtkContinuousScatterplot::RequestData(
     // initialise data structure containing the scalar values of the whole fragment.
     fragScalar->Initialize();
     fragScalar->Allocate(this->ResX * this->ResY);
-    // two components are needed to store the bivariate fields of the framgent.
+    // two components are needed to store the bivariate fields of the fragment.
     fragScalar->SetNumberOfComponents(2);
 
     // Initialise the scalar values in this tetrahedral cell.
@@ -366,7 +366,7 @@ int vtkContinuousScatterplot::RequestData(
         cellIndex, 0, inPD->GetArray(this->Fields[1])->GetComponent(pointId, 0));
     }
 
-    // The scalar values of the framgent points are based on the interpolation of the
+    // The scalar values of the fragment points are based on the interpolation of the
     // point data of the tetrahedral cell (tetraPD).
     for (vtkIdType cellPDIndex = 0; cellPDIndex < tetraPD->GetNumberOfTuples(); cellPDIndex++)
     {
@@ -388,7 +388,7 @@ int vtkContinuousScatterplot::RequestData(
     // Get the next cell from input, and place into the working queue.
     // We place into outputQ as each field takes the output of the
     // last step as its input, swapping queues BEFORE processing.
-    // OutputQ : a list of faces of the output framgent
+    // OutputQ : a list of faces of the output fragment
     Polytope ptp = new std::vector<vtkSmartPointer<vtkIdList>>();
     outputQ.push_back(ptp);
 
@@ -488,7 +488,7 @@ int vtkContinuousScatterplot::RequestData(
         // the threshold is increased by one fragmentWidth
         for (double threshold = initThreshold; threshold < maxCell; threshold += fragWidth[fieldNr])
         {
-          // Initialise framgent face structure for the current cutting plane.
+          // Initialise fragment face structure for the current cutting plane.
           delete fragment;
           delete residual;
           fragment = new std::vector<vtkSmartPointer<vtkIdList>>();
@@ -668,7 +668,7 @@ int vtkContinuousScatterplot::RequestData(
           // We cannot guarantee that points in the cut-list are ordered wrt
           // polygon boundary, so we recompute an order by effectively working
           // the convex hull.
-          // The cut-list is added to the framgent and residual array.
+          // The cut-list is added to the fragment and residual array.
           if (cut->GetNumberOfIds() > 2)
           {
             nrPoints = cut->GetNumberOfIds();
@@ -728,7 +728,7 @@ int vtkContinuousScatterplot::RequestData(
           // ------------------------------------------------------
           if (fragment->size() > 3)
           {
-            // add the current framgent to the outpuQ structure.
+            // add the current fragment to the outpuQ structure.
             outputQ.push_back(fragment);
             fragment = nullptr;
             // set threshold at which this fragment was created
@@ -809,7 +809,7 @@ int vtkContinuousScatterplot::RequestData(
     // OUTPUT PHASE: ----------------------------------------------
     // Output generated fragments into main output dataset.
     // ------------------------------------------------------------
-    // For each output framgent, we compute its geometric volume and aggregate over
+    // For each output fragment, we compute its geometric volume and aggregate over
     // the cells.
     for (size_t co = 0; co < outputQ.size(); co++)
     {

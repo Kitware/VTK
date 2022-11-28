@@ -158,7 +158,7 @@ void vtkImageCorrelationExecute(vtkImageCorrelation* self, vtkImageData* in1Data
           xKernMax = in2Extent[1];
         }
 
-        // sumation
+        // summation
         for (kIdxZ = 0; kIdxZ <= zKernMax; kIdxZ++)
         {
           for (kIdxY = 0; kIdxY <= yKernMax; kIdxY++)

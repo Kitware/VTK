@@ -558,7 +558,7 @@ public:
 
   ///@{
   /**
-   * Get a vector of words that are skipped. Skipped wors do not fit
+   * Get a vector of words that are skipped. Skipped words do not fit
    * in the final image.
    */
   ///@}

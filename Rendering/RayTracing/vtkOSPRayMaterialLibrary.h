@@ -148,7 +148,7 @@ public:
    * Given a material @c nickname and a shader variable @c varname, set its data
    * to a specific texture @c tex named @c texturename. If not specified the texture
    * is called "unnamedTexture".
-   * The last parameter, filename, is defaulted to empty. If specified, the absolut path
+   * The last parameter, filename, is defaulted to empty. If specified, the absolute path
    * to find the texture will be stored. Useful when writing the library into a file.
    *
    * Replaces any previous content.

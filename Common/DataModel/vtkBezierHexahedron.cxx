@@ -172,7 +172,7 @@ void vtkBezierHexahedron::InterpolateFunctions(const double pcoords[3], double* 
 {
   vtkBezierInterpolation::Tensor3ShapeFunctions(this->GetOrder(), pcoords, weights);
 
-  // If the unit cell has rational weigths: weights_i = weights_i * rationalWeights / sum(
+  // If the unit cell has rational weights: weights_i = weights_i * rationalWeights / sum(
   // weights_i
   // * rationalWeights )
   const bool has_rational_weights = RationalWeights->GetNumberOfTuples() > 0;

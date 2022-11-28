@@ -1129,7 +1129,7 @@ int vtkYoungsMaterialInterface::RequestData(vtkInformation* vtkNotUsed(request),
                 tetras[i][j] = cell.triangulation[i * 4 + j];
               }
 
-            // compute innterface polygon
+            // compute interface polygon
             vtkYoungsMaterialInterfaceCellCut::cellInterface3D(cell.np, cell.points, cell.nEdges,
               cell.edges, cell.ntri, tetras, fraction, normal, this->UseFractionAsDistance != 0,
               nInterfaceEdges, interfaceEdges, interfaceWeights, nInsidePoints, insidePointIds,
@@ -2297,7 +2297,7 @@ REAL evalPolynomialFunc(const REAL4 F, const REAL x)
 }
 
 /*****************************************
- *** Intergal of a polynomial function ***
+ *** Integral of a polynomial function ***
  *****************************************/
 FUNC_DECL
 REAL3 integratePolynomialFunc(REAL2 linearFunc)

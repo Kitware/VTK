@@ -64,7 +64,7 @@ dnf install -y --setopt=install_weak_deps=False \
     dnf-plugins-core
 
 # Openturns dependencies
-# Diabling for now because Fedora 34 is no longer provided by the OpenSuse science team.
+# Disabling for now because Fedora 34 is no longer provided by the OpenSuse science team.
 #dnf config-manager --add-repo https://download.opensuse.org/repositories/science:/openturns/Fedora_34/science:openturns.repo
 #dnf install -y --setopt=install_weak_deps=False \
 #    openturns-libs openturns-devel

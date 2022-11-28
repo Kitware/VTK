@@ -291,7 +291,7 @@ int TestParallelUnstructuredGridIO(int argc, char* argv[])
   if (!CompareGrids(ug.GetPointer(), read))
     return EXIT_FAILURE;
 
-  // now read the .pvtu file with the paralle reader
+  // now read the .pvtu file with the parallel reader
   vtkNew<vtkXMLPUnstructuredGridReader> pr;
   pr->SetFileName(fn.c_str());
   // this will give a SIGSEGV on vtkXMLPUnstructuredGridReader::ReadPieceData()

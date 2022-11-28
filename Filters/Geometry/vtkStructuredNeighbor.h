@@ -75,7 +75,7 @@ public:
   vtkStructuredNeighbor(const int NeiID, int overlap[6]);
 
   /**
-   * Custom constructor. Constructs a neighbor with the prescribed neigbhor
+   * Custom constructor. Constructs a neighbor with the prescribed neighbor
    * grid/block ID, overlap extent, and orientation
    */
   vtkStructuredNeighbor(const int NeiID, int overlap[6], int orient[3]);

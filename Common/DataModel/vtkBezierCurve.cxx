@@ -115,7 +115,7 @@ void vtkBezierCurve::InterpolateFunctions(const double pcoords[3], double* weigh
 {
   vtkBezierInterpolation::Tensor1ShapeFunctions(this->GetOrder(), pcoords, weights);
 
-  // If the unit cell has rational weigths: weights_i = weights_i * rationalWeights / sum( weights_i
+  // If the unit cell has rational weights: weights_i = weights_i * rationalWeights / sum( weights_i
   // * rationalWeights )
   const bool has_rational_weights = RationalWeights->GetNumberOfTuples() > 0;
   if (has_rational_weights)
