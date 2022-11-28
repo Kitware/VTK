@@ -129,6 +129,13 @@ if (VTK_DISPATCH_AFFINE_ARRAYS)
   )
 endif()
 
+if (VTK_DISPATCH_COMPOSITE_ARRAYS)
+  list(APPEND vtkArrayDispatchImplicit_containers vtkCompositeArray)
+  set(vtkArrayDispatchImplicit_vtkCompositeArray_header vtkCompositeArray.h)
+  set(vtkArrayDispatchImplicit_vtkCompositeArray_types
+    ${vtkArrayDispatchImplicit_all_types}
+  )
+endif()
 
 endmacro()
 

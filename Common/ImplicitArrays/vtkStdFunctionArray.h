@@ -21,6 +21,7 @@
 #include "vtkDataArrayPrivate.txx"
 #endif
 
+#include "vtkCommonImplicitArraysModule.h" // for export macro
 #include "vtkImplicitArray.h"
 
 #ifdef VTK_STD_FUNCTION_ARRAY_INSTANTIATING
