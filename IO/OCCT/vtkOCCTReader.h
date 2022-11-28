@@ -42,6 +42,7 @@ All rights reserved.
 
 #include <vtkMultiBlockDataSetAlgorithm.h>
 
+#include "vtkDeprecation.h"  // For VTK_DEPRECATED_IN_9_3_0
 #include "vtkIOOCCTModule.h" // For export macro
 
 #include <memory> // For std::unique_ptr
@@ -57,7 +58,7 @@ public:
   vtkTypeMacro(vtkOCCTReader, vtkMultiBlockDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  enum class Format : unsigned int
+  enum Format : unsigned int
   {
     STEP,
     IGES
@@ -69,7 +70,9 @@ public:
    * It can be either STEP or IGES.
    * Default is FILE_FORMAT::STEP
    */
+  VTK_DEPRECATED_IN_9_3_0("Use SetFormat with unsigned int instead.")
   vtkSetEnumMacro(FileFormat, Format);
+  vtkSetClampMacro(FileFormat, unsigned int, Format::STEP, Format::IGES);
   ///@}
 
   ///@{
@@ -138,7 +141,7 @@ private:
   double AngularDeflection = 0.5;
   bool RelativeDeflection = false;
   bool ReadWire = false;
-  Format FileFormat = Format::STEP;
+  unsigned int FileFormat = Format::STEP;
   char* FileName = nullptr;
 };
 

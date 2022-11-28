@@ -25,7 +25,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkOCCTReader.h"
 
 // int argc, char* argv are required for vtkRegressionTestImage
-static int TestReader(int argc, char* argv[], const std::string& path, vtkOCCTReader::Format format)
+static int TestReader(int argc, char* argv[], const std::string& path, unsigned int format)
 {
   vtkNew<vtkOCCTReader> reader;
   reader->RelativeDeflectionOn();
