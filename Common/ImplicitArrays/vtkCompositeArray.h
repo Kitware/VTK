@@ -48,8 +48,9 @@
  * rightArr->SetNumberOfComponents(1);
  * rightArr->SetNumberOfTuples(1);
  * rightArr->SetValue(0, 1);
+ * std::vector<vtkDataArray*> arrays({leftArr, rightArr});
  * vtkNew<vtkCompositeArray<int>> compositeArr;
- * compositeArr->SetBackend(std::make_shared<vtkCompositeImplicitBackend<int>>(leftArr, rightArr));
+ * compositeArr->SetBackend(std::make_shared<vtkCompositeImplicitBackend<int>>(arrays));
  * compositeArr->SetNumberOfComponents(1);
  * compositeArr->SetNumberOfTuples(2);
  * CHECK(compositArr->GetValue(1) == 1);

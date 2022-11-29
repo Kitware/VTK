@@ -23,9 +23,9 @@
  * This structure can be classified as a closure and can be called using syntax similar to a
  * function call.
  *
- * The class implements a binary tree like structure for facilitating fast access.
+ * The class implements a flat binary tree like structure for facilitating fast access.
  *
- * At construction it takes two arrays in order to represent their concatenation.
+ * At construction it takes an array arrays in order to represent their concatenation.
  *
  * An example of potential usage in a vtkImplicitArray
  * ```
@@ -39,7 +39,8 @@
  * rightArr->SetValue(0, 1);
  * vtkNew<vtkImplicitArray<vtkCompositeImplicitBackend<int>>> compositeArr; // easier with
  * `vtkNew<vtkCompositeArray<int>> compositeArr;` if applicable
- * compositeArr->SetBackend(std::make_shared<vtkCompositeImplicitBackend<int>>(leftArr, rightArr));
+ * std::vector<vtkDataArray*> arrays({leftArr, rightArr});
+ * compositeArr->SetBackend(std::make_shared<vtkCompositeImplicitBackend<int>>(arrays));
  * CHECK(compositArr->GetValue(1) == 1);
  * ```
  *
@@ -48,7 +49,9 @@
  * > information.
  */
 #include "vtkCommonImplicitArraysModule.h"
+
 #include <memory>
+#include <vector>
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkDataArray;
@@ -58,11 +61,10 @@ class vtkCompositeImplicitBackend
 public:
   /**
    * Constructor for the backend
-   * @param leftArr the array starting the composite at index 0
-   * @param rightArr the array following the leftArr and starting at index
+   * @param arrays std::vector of arrays to composite together
    * leftArr->GetNumberOfTuples()
    */
-  vtkCompositeImplicitBackend(vtkDataArray* leftArr, vtkDataArray* rightArr);
+  vtkCompositeImplicitBackend(const std::vector<vtkDataArray*>& arrays);
   ~vtkCompositeImplicitBackend();
 
   /**
