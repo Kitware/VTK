@@ -40,7 +40,7 @@
  * ```
  */
 template <typename ValueType>
-struct vtkConstantImplicitBackend
+struct vtkConstantImplicitBackend final
 {
   /**
    * A non-trivially contructible constructor
