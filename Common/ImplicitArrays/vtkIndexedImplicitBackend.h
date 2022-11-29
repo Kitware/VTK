@@ -61,7 +61,7 @@ VTK_ABI_NAMESPACE_BEGIN
 class vtkDataArray;
 class vtkIdList;
 template <typename ValueType>
-class vtkIndexedImplicitBackend
+class vtkIndexedImplicitBackend final
 {
 public:
   ///@{

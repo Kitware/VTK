@@ -62,8 +62,9 @@ public:
 
   ValueType GetValue(int idx) const override
   {
-    int iTup = idx / this->Array->GetNumberOfComponents();
-    int iComp = idx - iTup * this->Array->GetNumberOfComponents();
+    const int nComps = this->Array->GetNumberOfComponents();
+    const int iTup = idx / nComps;
+    const int iComp = idx - iTup * nComps;
     return static_cast<ValueType>(this->Array->GetComponent(iTup, iComp));
   }
 
