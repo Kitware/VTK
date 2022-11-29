@@ -15,4 +15,8 @@ vtk_add_test_cxx(vtkIOPLYCxxTests tests
   TestPLYReaderTextureUVFaces,TestPLYReaderTextureUV.cxx squareTexturedFaces.ply
   two_vtk_logos_stacked.png
 )
+vtk_add_test_cxx(vtkIOPLYCxxTests tests
+  TestPLYReaderFaceTexturedWithReusedTCoord,TestPLYReaderTextureUV.cxx FaceTexturedWithReusedTCoords.ply
+  vtk.png
+)
 vtk_test_cxx_executable(vtkIOPLYCxxTests tests)

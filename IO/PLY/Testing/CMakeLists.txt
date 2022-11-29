@@ -1,5 +1,6 @@
 vtk_module_test_data(
   Data/Armadillo.ply
+  Data/FaceTexturedWithReusedTCoords.ply
   Data/PointCloud.ply
   Data/bunny.ply
   Data/squareTextured.ply
