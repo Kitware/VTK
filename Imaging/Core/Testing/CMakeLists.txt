@@ -1,4 +1,6 @@
 vtk_module_test_data(
+  Data/ImageDiff1.png
+  Data/ImageDiff2.png
   Data/beach.tif
   Data/fullhead15.png
   Data/headsq/,REGEX:.*)
