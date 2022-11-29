@@ -23,7 +23,8 @@
  * This structure can be classified as a closure and can be called using syntax similar to a
  * function call.
  *
- * The class implements a flat binary tree like structure for facilitating fast access.
+ * This class uses indirect addressing of cached arrays to provide an access compute complexity of
+ * O(log_2(number_of_arrays)) through its `()` operator.
  *
  * At construction it takes an array arrays in order to represent their concatenation.
  *
@@ -56,7 +57,7 @@
 VTK_ABI_NAMESPACE_BEGIN
 class vtkDataArray;
 template <typename ValueType>
-class vtkCompositeImplicitBackend
+class vtkCompositeImplicitBackend final
 {
 public:
   /**
@@ -69,7 +70,10 @@ public:
 
   /**
    * Indexing operator for the composite of the two arrays respecting the `vtkImplicitArray`
-   * expectations
+   * expectations.
+   *
+   * Conceptually, the composite array uses a binary search algorithm through the use of
+   * `std::upper_bounds` to offer a compute complexity of O(log_2(n_arrays))
    */
   ValueType operator()(int idx) const;
 

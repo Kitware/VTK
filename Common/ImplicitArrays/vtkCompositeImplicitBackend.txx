@@ -19,11 +19,16 @@
 #include "vtkArrayDispatchImplicitArrayList.h"
 #include "vtkDataArray.h"
 #include "vtkDataArrayRange.h"
+#include "vtkImplicitArray.h"
 #include "vtkSmartPointer.h"
 
 namespace
 {
 //-----------------------------------------------------------------------
+/*
+ * A generic interface towards a typed get value. Specialized structures should inherit from this
+ * struct in order to abstractify the array type from the GetValue usage.
+ */
 template <typename ValueType>
 struct TypedArrayCache
 {
@@ -31,6 +36,10 @@ struct TypedArrayCache
   virtual ~TypedArrayCache() = default;
 };
 
+/*
+ * A templated implementation of the TypedArrayCache above that should be used for arrays that
+ * implement the `GetValue` method from the `vtkGenericDataArray` interface.
+ */
 template <typename ValueType, typename ArrayT>
 struct SpecializedCache : public TypedArrayCache<ValueType>
 {
@@ -49,6 +58,10 @@ private:
   vtkSmartPointer<ArrayT> Array;
 };
 
+/*
+ * An implementation of TypedArrayCache for `vtkDataArray` that acts as a fallback implementation
+ * for arrays whose base type cannot be determined by `vtkArrayDispatch`.
+ */
 template <typename ValueType>
 struct SpecializedCache<ValueType, vtkDataArray> : public TypedArrayCache<ValueType>
 {
@@ -70,6 +83,10 @@ private:
 };
 
 //-----------------------------------------------------------------------
+/*
+ * A worker structure to be used with `vtkArrayDispatch` in order to cache typed versions of arrays
+ * once for improving random access speed.
+ */
 template <typename ValueType>
 struct CacheDispatchWorker
 {
@@ -82,6 +99,11 @@ struct CacheDispatchWorker
 
 //-----------------------------------------------------------------------
 template <typename ArrayList, typename ValueType>
+/*
+ * A structure that wraps around a TypedArrayCache and can serve as a backend to a
+ * `vtkImplicitArray`. Its constructor is what uses dispatches the underlying array into a typed
+ * cache.
+ */
 struct TypedCacheWrapper
 {
   TypedCacheWrapper(vtkDataArray* arr)
@@ -110,6 +132,11 @@ struct vtkCompositeImplicitBackend<ValueType>::Internals
   using CachedBackend = ::TypedCacheWrapper<InternalArrayList, ValueType>;
   using CachedArray = vtkImplicitArray<CachedBackend>;
 
+  /*
+   * Construct an internal structure from any range of iterators providing a stream of
+   * `vtkDataArray*`s. At construction, every array is dispatched into a cache and the offsets are
+   * calculated to enable fast binary search in `vtkCompositeImplicitBackend::operator()`.
+   */
   template <class Iterator>
   Internals(Iterator first, Iterator last)
   {
