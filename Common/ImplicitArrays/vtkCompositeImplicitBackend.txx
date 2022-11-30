@@ -19,48 +19,156 @@
 #include "vtkArrayDispatchImplicitArrayList.h"
 #include "vtkDataArray.h"
 #include "vtkDataArrayRange.h"
+#include "vtkImplicitArray.h"
 #include "vtkSmartPointer.h"
+
+namespace
+{
+//-----------------------------------------------------------------------
+/*
+ * A generic interface towards a typed get value. Specialized structures should inherit from this
+ * struct in order to abstractify the array type from the GetValue usage.
+ */
+template <typename ValueType>
+struct TypedArrayCache
+{
+  virtual ValueType GetValue(int idx) const = 0;
+  virtual ~TypedArrayCache() = default;
+};
+
+/*
+ * A templated implementation of the TypedArrayCache above that should be used for arrays that
+ * implement the `GetValue` method from the `vtkGenericDataArray` interface.
+ */
+template <typename ValueType, typename ArrayT>
+struct SpecializedCache : public TypedArrayCache<ValueType>
+{
+public:
+  SpecializedCache(ArrayT* arr)
+    : Array(arr)
+  {
+  }
+
+  ValueType GetValue(int idx) const override
+  {
+    return static_cast<ValueType>(this->Array->GetValue(idx));
+  }
+
+private:
+  vtkSmartPointer<ArrayT> Array;
+};
+
+/*
+ * An implementation of TypedArrayCache for `vtkDataArray` that acts as a fallback implementation
+ * for arrays whose base type cannot be determined by `vtkArrayDispatch`.
+ */
+template <typename ValueType>
+struct SpecializedCache<ValueType, vtkDataArray> : public TypedArrayCache<ValueType>
+{
+public:
+  SpecializedCache(vtkDataArray* arr)
+    : Array(arr)
+  {
+  }
+
+  ValueType GetValue(int idx) const override
+  {
+    int iTup = idx / this->Array->GetNumberOfComponents();
+    int iComp = idx - iTup * this->Array->GetNumberOfComponents();
+    return static_cast<ValueType>(this->Array->GetComponent(iTup, iComp));
+  }
+
+private:
+  vtkSmartPointer<vtkDataArray> Array;
+};
+
+//-----------------------------------------------------------------------
+/*
+ * A worker structure to be used with `vtkArrayDispatch` in order to cache typed versions of arrays
+ * once for improving random access speed.
+ */
+template <typename ValueType>
+struct CacheDispatchWorker
+{
+  template <typename ArrayT>
+  void operator()(ArrayT* arr, std::shared_ptr<TypedArrayCache<ValueType>>& cache)
+  {
+    cache = std::make_shared<SpecializedCache<ValueType, ArrayT>>(arr);
+  }
+};
+
+//-----------------------------------------------------------------------
+template <typename ArrayList, typename ValueType>
+/*
+ * A structure that wraps around a TypedArrayCache and can serve as a backend to a
+ * `vtkImplicitArray`. Its constructor is what uses dispatches the underlying array into a typed
+ * cache.
+ */
+struct TypedCacheWrapper
+{
+  TypedCacheWrapper(vtkDataArray* arr)
+  {
+    CacheDispatchWorker<ValueType> worker;
+    if (!Dispatcher::Execute(arr, worker, this->Cache))
+    {
+      worker(arr, this->Cache);
+    }
+  }
+
+  ValueType operator()(int idx) const { return this->Cache->GetValue(idx); }
+
+private:
+  using Dispatcher = vtkArrayDispatch::DispatchByArray<ArrayList>;
+  std::shared_ptr<TypedArrayCache<ValueType>> Cache = nullptr;
+};
+}
 
 VTK_ABI_NAMESPACE_BEGIN
 //-----------------------------------------------------------------------
 template <typename ValueType>
 struct vtkCompositeImplicitBackend<ValueType>::Internals
 {
-  Internals(vtkDataArray* leftArr, vtkDataArray* rightArr)
-    : Left(leftArr)
-    , Right(rightArr)
+  using InternalArrayList = vtkArrayDispatch::AllArrays;
+  using CachedBackend = ::TypedCacheWrapper<InternalArrayList, ValueType>;
+  using CachedArray = vtkImplicitArray<CachedBackend>;
+
+  /*
+   * Construct an internal structure from any range of iterators providing a stream of
+   * `vtkDataArray*`s. At construction, every array is dispatched into a cache and the offsets are
+   * calculated to enable fast binary search in `vtkCompositeImplicitBackend::operator()`.
+   */
+  template <class Iterator>
+  Internals(Iterator first, Iterator last)
   {
-    if (!this->Left && !this->Right)
+    this->CachedArrays.resize(std::distance(first, last));
+    std::transform(first, last, this->CachedArrays.begin(), [](vtkDataArray* arr) {
+      vtkNew<CachedArray> newCache;
+      newCache->SetBackend(std::make_shared<CachedBackend>(arr));
+      newCache->SetNumberOfComponents(1);
+      newCache->SetNumberOfTuples(arr->GetNumberOfTuples() * arr->GetNumberOfComponents());
+      return newCache;
+    });
+    if (this->CachedArrays.size() > 0)
     {
-      vtkWarningWithObjectMacro(nullptr, "Creating composite array with two nullptrs");
+      this->Offsets.resize(this->CachedArrays.size() - 1);
+      std::size_t runningSum = 0;
+      std::transform(this->CachedArrays.begin(), this->CachedArrays.end() - 1,
+        this->Offsets.begin(), [&runningSum](CachedArray* arr) {
+          runningSum += arr->GetNumberOfTuples();
+          return runningSum;
+        });
     }
-    auto checkNullRectify = [](vtkSmartPointer<vtkDataArray>& arr) {
-      if (!arr)
-      {
-        arr = vtkSmartPointer<vtkAOSDataArrayTemplate<ValueType>>::New();
-        arr->SetNumberOfComponents(1);
-        arr->SetNumberOfTuples(0);
-      }
-    };
-    checkNullRectify(this->Left);
-    checkNullRectify(this->Right);
-    this->LeftRange = vtk::DataArrayValueRange(this->Left);
-    this->RightRange = vtk::DataArrayValueRange(this->Right);
-    this->Offset = this->LeftRange.size();
   }
 
-  vtkSmartPointer<vtkDataArray> Left;
-  vtk::detail::SelectValueRange<vtkDataArray*, vtk::detail::DynamicTupleSize>::type LeftRange;
-  vtkSmartPointer<vtkDataArray> Right;
-  vtk::detail::SelectValueRange<vtkDataArray*, vtk::detail::DynamicTupleSize>::type RightRange;
-  int Offset = -1;
+  std::vector<vtkSmartPointer<CachedArray>> CachedArrays;
+  std::vector<std::size_t> Offsets;
 };
 
 //-----------------------------------------------------------------------
 template <typename ValueType>
 vtkCompositeImplicitBackend<ValueType>::vtkCompositeImplicitBackend(
-  vtkDataArray* leftArr, vtkDataArray* rightArr)
-  : Internal(std::unique_ptr<Internals>(new Internals(leftArr, rightArr)))
+  const std::vector<vtkDataArray*>& arrays)
+  : Internal(std::unique_ptr<Internals>(new Internals(arrays.begin(), arrays.end())))
 {
 }
 
@@ -72,8 +180,10 @@ vtkCompositeImplicitBackend<ValueType>::~vtkCompositeImplicitBackend() = default
 template <typename ValueType>
 ValueType vtkCompositeImplicitBackend<ValueType>::operator()(int idx) const
 {
-  return static_cast<ValueType>((idx < this->Internal->Offset)
-      ? this->Internal->LeftRange[idx]
-      : this->Internal->RightRange[idx - this->Internal->Offset]);
+  auto itPos =
+    std::upper_bound(this->Internal->Offsets.begin(), this->Internal->Offsets.end(), idx);
+  int locIdx = itPos == this->Internal->Offsets.begin() ? idx : idx - *(itPos - 1);
+  return this->Internal->CachedArrays[std::distance(this->Internal->Offsets.begin(), itPos)]
+    ->GetValue(locIdx);
 }
 VTK_ABI_NAMESPACE_END

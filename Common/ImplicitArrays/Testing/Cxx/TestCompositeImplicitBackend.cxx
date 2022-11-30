@@ -37,7 +37,7 @@ int TestCompositeImplicitBackend(int, char*[])
   std::iota(rightRange.begin(), rightRange.end(), 10);
 
   // Make structure
-  vtkCompositeImplicitBackend<int> composite(left, right);
+  vtkCompositeImplicitBackend<int> composite(std::vector<vtkDataArray*>({ left, right }));
 
   // Do checks on structure
   for (int i = 0; i < 20; ++i)
@@ -62,7 +62,8 @@ int TestCompositeImplicitBackend(int, char*[])
   auto rightMultiRange = vtk::DataArrayValueRange<3>(rightMulti);
   std::iota(rightMultiRange.begin(), rightMultiRange.end(), 30);
 
-  vtkCompositeImplicitBackend<int> compositeMulti(leftMulti, rightMulti);
+  vtkCompositeImplicitBackend<int> compositeMulti(
+    std::vector<vtkDataArray*>({ leftMulti, rightMulti }));
 
   for (int i = 0; i < 60; ++i)
   {
