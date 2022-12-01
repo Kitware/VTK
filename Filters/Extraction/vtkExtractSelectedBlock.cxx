@@ -98,7 +98,7 @@ void vtkCopySubTree(std::unordered_set<unsigned int>& ids, vtkCompositeDataItera
     assert(coutput != nullptr);
 
     // shallow copy..this pass the non-leaf nodes over.
-    coutput->ShallowCopy(cinput);
+    coutput->CompositeShallowCopy(cinput);
 
     // now, we need to remove all composite ids for the subtree from the set to
     // extract to avoid attempting to copy them multiple times (although it
@@ -191,7 +191,7 @@ int vtkExtractSelectedBlock::RequestData(vtkInformation* vtkNotUsed(request),
   if (has_root && !inverse)
   {
     // pass everything.
-    output->ShallowCopy(cd);
+    output->CompositeShallowCopy(cd);
     return 1;
   }
 

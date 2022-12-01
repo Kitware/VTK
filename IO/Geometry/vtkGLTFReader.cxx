@@ -882,7 +882,7 @@ int vtkGLTFReader::RequestData(
   // Save current animations
   this->PreviousAnimationSelection->CopySelections(this->AnimationSelection);
 
-  output->ShallowCopy(this->OutputDataSet);
+  output->CompositeShallowCopy(this->OutputDataSet);
   return 1;
 }
 

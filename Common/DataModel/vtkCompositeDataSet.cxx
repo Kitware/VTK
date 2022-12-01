@@ -22,6 +22,7 @@
 #include "vtkInformationIntegerKey.h"
 #include "vtkInformationStringKey.h"
 #include "vtkInformationVector.h"
+#include "vtkLegacy.h"
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
 
@@ -50,36 +51,22 @@ vtkCompositeDataSet* vtkCompositeDataSet::GetData(vtkInformationVector* v, int i
 //------------------------------------------------------------------------------
 void vtkCompositeDataSet::CopyStructure(vtkCompositeDataSet* input)
 {
-  if (input != this)
-  {
-    // copy data-information and other common stuff by calling
-    // superclass' ShallowCopy.
-    this->Superclass::ShallowCopy(input);
-  }
+  // copy data-information and other common stuff by calling
+  // superclass' ShallowCopy.
+  this->Superclass::ShallowCopy(input);
 }
 
 //------------------------------------------------------------------------------
-void vtkCompositeDataSet::ShallowCopy(vtkDataObject* src)
+void vtkCompositeDataSet::CompositeShallowCopy(vtkCompositeDataSet* src)
 {
-  if (src == this)
-  {
-    return;
-  }
-
   this->Superclass::ShallowCopy(src);
-  this->Modified();
 }
 
 //------------------------------------------------------------------------------
-void vtkCompositeDataSet::DeepCopy(vtkDataObject* src)
+void vtkCompositeDataSet::RecursiveShallowCopy(vtkDataObject* src)
 {
-  if (src == this)
-  {
-    return;
-  }
-
-  this->Superclass::DeepCopy(src);
-  this->Modified();
+  VTK_LEGACY_REPLACED_BODY(RecursiveShallowCopy, "VTK 9.3", ShallowCopy);
+  this->ShallowCopy(src);
 }
 
 //------------------------------------------------------------------------------

@@ -65,7 +65,7 @@ int vtkPConvertToMultiBlockDataSet::RequestData(
 
   // ensure that we have exactly the same number of partitions on all ranks.
   vtkNew<vtkPartitionedDataSetCollection> clone;
-  clone->ShallowCopy(input);
+  clone->CompositeShallowCopy(input);
 
   const auto count = input->GetNumberOfPartitionedDataSets();
   std::vector<unsigned int> piece_counts(count);

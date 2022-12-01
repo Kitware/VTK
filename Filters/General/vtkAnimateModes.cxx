@@ -195,7 +195,7 @@ int vtkAnimateModes::RequestData(
     auto outputDT = vtkDataObjectTree::SafeDownCast(outputDO);
     assert(outputDT);
 
-    outputDT->RecursiveShallowCopy(inputDT);
+    outputDT->ShallowCopy(inputDT);
     for (auto block : vtkCompositeDataSet::GetDataSets<vtkPointSet>(outputDT))
     {
       executeBlock(block);

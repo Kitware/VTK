@@ -336,7 +336,7 @@ int vtkExtractBlockUsingDataAssembly::RequestData(
       if (auto result = vtkDataAssemblyUtilities::GenerateCompositeDataSetFromHierarchy(
             xformedOutput, xformedOutput->GetDataAssembly()))
       {
-        outputCD->ShallowCopy(result);
+        outputCD->CompositeShallowCopy(result);
         return 1;
       }
 

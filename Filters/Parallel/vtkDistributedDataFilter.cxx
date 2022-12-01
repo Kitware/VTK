@@ -275,7 +275,7 @@ int vtkDistributedDataFilter::RequestData(vtkInformation* vtkNotUsed(request),
 
   if (outputCD)
   {
-    outputCD->ShallowCopy(input);
+    outputCD->CompositeShallowCopy(vtkCompositeDataSet::SafeDownCast(input));
   }
   else
   {

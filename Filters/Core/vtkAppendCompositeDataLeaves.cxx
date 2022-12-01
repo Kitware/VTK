@@ -100,7 +100,7 @@ int vtkAppendCompositeDataLeaves::RequestData(vtkInformation* vtkNotUsed(request
   if (numInputs == 1)
   {
     // trivial case.
-    output->ShallowCopy(input0);
+    output->CompositeShallowCopy(input0);
     return 1;
   }
 

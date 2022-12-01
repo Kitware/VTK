@@ -114,7 +114,7 @@ int vtkMultiBlockDataGroupFilter::RequestData(vtkInformation* vtkNotUsed(request
   {
     vtkMultiBlockDataSet* block = vtkMultiBlockDataSet::SafeDownCast(output->GetBlock(0));
     block->Register(this);
-    output->ShallowCopy(block);
+    output->CompositeShallowCopy(block);
     block->UnRegister(this);
   }
 

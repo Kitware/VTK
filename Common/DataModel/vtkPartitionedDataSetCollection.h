@@ -164,6 +164,7 @@ public:
   /**
    * Overridden to handle vtkDataAssembly.
    */
+  void CompositeShallowCopy(vtkCompositeDataSet* src) override;
   void ShallowCopy(vtkDataObject* src) override;
   void DeepCopy(vtkDataObject* src) override;
   void CopyStructure(vtkCompositeDataSet* input) override;

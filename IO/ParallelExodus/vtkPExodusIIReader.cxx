@@ -662,7 +662,7 @@ int vtkPExodusIIReader::RequestData(vtkInformation* vtkNotUsed(request),
   if (append->GetNumberOfInputConnections(0) != 0)
   {
     append->Update();
-    output->ShallowCopy(append->GetOutput());
+    output->CompositeShallowCopy(append->GetOutput());
   }
 
   // I've copied append's output to the 'output' so delete append

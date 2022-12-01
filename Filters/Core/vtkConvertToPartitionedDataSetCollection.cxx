@@ -57,7 +57,7 @@ int vtkConvertToPartitionedDataSetCollection::RequestData(
   if (auto pdc = vtkPartitionedDataSetCollection::SafeDownCast(inputDO))
   {
     // nothing to do, input is already a vtkPartitionedDataSetCollection.
-    output->ShallowCopy(pdc);
+    output->CompositeShallowCopy(pdc);
     this->CheckAbort();
     return 1;
   }

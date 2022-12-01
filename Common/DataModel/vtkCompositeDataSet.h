@@ -35,6 +35,7 @@
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkDataObject.h"
+#include "vtkDeprecation.h" // For VTK_DEPRECATED_IN_9_3_0
 
 #include <vector> // For GetDataSets
 
@@ -115,21 +116,20 @@ public:
    */
   void Initialize() override;
 
-  ///@{
   /**
-   * Shallow and Deep copy.
+   * The goal of the method is to copy the data up to the dataset pointers only.
+   * The implementation is delegated to the differenent subclasses.
+   * If you want to copy up to array pointers, @see vtkDataObject::ShallowCopy.
+   *
+   * This method just calls vtkDataObject::ShallowCopy.
    */
-  void ShallowCopy(vtkDataObject* src) override;
-  void DeepCopy(vtkDataObject* src) override;
-  ///@}
+  virtual void CompositeShallowCopy(vtkCompositeDataSet* src);
 
   /**
-   * For historical reasons, `vtkCompositeDataSet::ShallowCopy` simply pass
-   * pointers to the leaf non-composite datasets. In some cases, we truly want
-   * to shallow copy those leaf non-composite datasets as well. For those cases,
-   * use this method.
+   * @deprecated RecursiveShallowCopy method, @see ShallowCopy
    */
-  virtual void RecursiveShallowCopy(vtkDataObject* src) = 0;
+  VTK_DEPRECATED_IN_9_3_0("Use ShallowCopy instead.")
+  virtual void RecursiveShallowCopy(vtkDataObject* src);
 
   /**
    * Returns the total number of points of all blocks. This will

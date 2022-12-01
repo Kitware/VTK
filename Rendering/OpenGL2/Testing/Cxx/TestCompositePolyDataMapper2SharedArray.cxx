@@ -118,7 +118,7 @@ protected:
     group->AddInputData(pd2);
     group->Update();
 
-    output->ShallowCopy(group->GetOutput());
+    output->CompositeShallowCopy(group->GetOutput());
     return 1;
   }
 

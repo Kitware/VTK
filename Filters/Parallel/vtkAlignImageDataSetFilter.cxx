@@ -128,7 +128,7 @@ int vtkAlignImageDataSetFilter::RequestData(
   vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   auto outputCD = vtkCompositeDataSet::GetData(outputVector, 0);
-  outputCD->RecursiveShallowCopy(vtkDataObject::GetData(inputVector[0], 0));
+  outputCD->ShallowCopy(vtkDataObject::GetData(inputVector[0], 0));
   auto images = vtkCompositeDataSet::GetDataSets<vtkImageData>(outputCD);
 
   auto controller = this->GetController()

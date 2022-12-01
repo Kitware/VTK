@@ -467,8 +467,8 @@ int vtkPlot3DMetaReader::RequestData(
     this->Reader->UpdatePiece(outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()),
       outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES()),
       outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS()));
-    vtkDataObject* ioutput = this->Reader->GetOutput();
-    output->ShallowCopy(ioutput);
+    vtkMultiBlockDataSet* ioutput = this->Reader->GetOutput();
+    output->CompositeShallowCopy(ioutput);
     output->GetInformation()->Set(vtkDataObject::DATA_NUMBER_OF_GHOST_LEVELS(),
       ioutput->GetInformation()->Get(vtkDataObject::DATA_NUMBER_OF_GHOST_LEVELS()));
   }

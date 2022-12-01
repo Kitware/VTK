@@ -46,7 +46,7 @@ vtkSmartPointer<vtkCompositeDataSet> EnsureComposite(vtkDataObject* dobj)
   toComposite->Update();
   auto outCds = vtkCompositeDataSet::SafeDownCast(toComposite->GetOutputDataObject(0));
   auto cds = vtkSmartPointer<vtkCompositeDataSet>::Take(outCds->NewInstance());
-  cds->ShallowCopy(outCds);
+  cds->CompositeShallowCopy(outCds);
   return cds;
 }
 

@@ -115,7 +115,7 @@ int vtkExtractBlock::RequestData(vtkInformation* vtkNotUsed(request),
   if (this->Indices->find(0) != this->Indices->end())
   {
     // trivial case.
-    output->ShallowCopy(input);
+    output->CompositeShallowCopy(input);
     return 1;
   }
 
@@ -236,7 +236,7 @@ bool vtkExtractBlock::Prune(vtkMultiBlockDataSet* mblock)
       vtkMultiBlockDataSet::SafeDownCast(mblock->GetBlock(0));
     if (block0)
     {
-      mblock->ShallowCopy(block0);
+      mblock->CompositeShallowCopy(block0);
     }
   }
   return (oindex == 0);

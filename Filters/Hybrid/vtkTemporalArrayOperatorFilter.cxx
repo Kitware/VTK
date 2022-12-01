@@ -223,7 +223,7 @@ vtkDataObject* vtkTemporalArrayOperatorFilter::Process(
     vtkCompositeDataSet* compositeDataSet1 = vtkCompositeDataSet::SafeDownCast(inputData1);
 
     vtkCompositeDataSet* outputCompositeDataSet = compositeDataSet0->NewInstance();
-    outputCompositeDataSet->ShallowCopy(inputData0);
+    outputCompositeDataSet->CompositeShallowCopy(compositeDataSet0);
 
     vtkSmartPointer<vtkCompositeDataIterator> iter;
     iter.TakeReference(compositeDataSet0->NewIterator());

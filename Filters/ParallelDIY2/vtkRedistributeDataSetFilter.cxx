@@ -499,25 +499,30 @@ int vtkRedistributeDataSetFilter::RequestData(
   // ******************************************************
   // Now, package the result into the output.
   // ******************************************************
-  if (vtkPartitionedDataSetCollection::SafeDownCast(outputDO))
+  vtkPartitionedDataSetCollection* outputPDSC =
+    vtkPartitionedDataSetCollection::SafeDownCast(outputDO);
+  vtkPartitionedDataSet* outputPDS = vtkPartitionedDataSet::SafeDownCast(outputDO);
+  vtkMultiBlockDataSet* outputMB = vtkMultiBlockDataSet::SafeDownCast(outputDO);
+
+  if (outputPDSC)
   {
-    outputDO->ShallowCopy(result);
+    outputPDSC->CompositeShallowCopy(result);
   }
-  else if (vtkPartitionedDataSet::SafeDownCast(outputDO))
+  else if (outputPDS)
   {
     assert(result->GetNumberOfPartitionedDataSets() <= 1);
     if (result->GetNumberOfPartitionedDataSets() == 1)
     {
-      outputDO->ShallowCopy(result->GetPartitionedDataSet(0));
+      outputPDS->CompositeShallowCopy(result->GetPartitionedDataSet(0));
     }
   }
-  else if (vtkMultiBlockDataSet::SafeDownCast(outputDO))
+  else if (outputMB)
   {
     // convert result (vtkPartitionedDataSetCollection) to vtkMultiBlockDataSet.
     if (auto mbresult = vtkDataAssemblyUtilities::GenerateCompositeDataSetFromHierarchy(
           result, result->GetDataAssembly()))
     {
-      outputDO->ShallowCopy(mbresult);
+      outputMB->CompositeShallowCopy(mbresult);
     }
     else
     {
@@ -734,7 +739,7 @@ bool vtkRedistributeDataSetFilter::Redistribute(vtkPartitionedDataSet* inputPDS,
       if (this->GenerateGlobalCellIds)
       {
         auto result = this->AssignGlobalCellIds(outputPDS, mb_offset);
-        outputPDS->ShallowCopy(result);
+        outputPDS->CompositeShallowCopy(result);
       }
       break;
 
@@ -784,7 +789,7 @@ bool vtkRedistributeDataSetFilter::RedistributeDataSet(
 
   auto pieces = vtkDIYKdTreeUtilities::Exchange(parts, this->GetController(), this->Assigner);
   assert(pieces->GetNumberOfPartitions() == parts->GetNumberOfPartitions());
-  outputPDS->ShallowCopy(pieces);
+  outputPDS->CompositeShallowCopy(pieces);
   return true;
 }
 
