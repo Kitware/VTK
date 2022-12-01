@@ -41,7 +41,7 @@
  * ```
  */
 template <typename ValueType>
-struct vtkAffineImplicitBackend
+struct vtkAffineImplicitBackend final
 {
   /**
    * A non-trivially constructible constructor
