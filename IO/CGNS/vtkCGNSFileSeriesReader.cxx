@@ -500,7 +500,7 @@ int vtkCGNSFileSeriesReader::RequestData(
 
   vtkMultiBlockDataSet* output = vtkMultiBlockDataSet::GetData(outputVector, 0);
   output->Initialize();
-  output->ShallowCopy(hierarchy.Get());
+  output->CompositeShallowCopy(vtkMultiBlockDataSet::SafeDownCast(hierarchy.Get()));
   return 1;
 }
 VTK_ABI_NAMESPACE_END

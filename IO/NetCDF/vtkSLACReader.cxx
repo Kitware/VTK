@@ -946,7 +946,7 @@ int vtkSLACReader::RequestData(vtkInformation* request,
       }
     }
 
-    this->Internal->MeshCache->ShallowCopy(compositeOutput);
+    this->Internal->MeshCache->CompositeShallowCopy(compositeOutput);
     this->Internal->PointCache = points;
     this->MeshReadTime.Modified();
   }
@@ -1760,8 +1760,10 @@ int vtkSLACReader::MeshUpToDate()
 int vtkSLACReader::RestoreMeshCache(vtkMultiBlockDataSet* surfaceOutput,
   vtkMultiBlockDataSet* volumeOutput, vtkMultiBlockDataSet* compositeOutput)
 {
-  surfaceOutput->ShallowCopy(this->Internal->MeshCache->GetBlock(SURFACE_OUTPUT));
-  volumeOutput->ShallowCopy(this->Internal->MeshCache->GetBlock(VOLUME_OUTPUT));
+  surfaceOutput->CompositeShallowCopy(
+    vtkCompositeDataSet::SafeDownCast(this->Internal->MeshCache->GetBlock(SURFACE_OUTPUT)));
+  volumeOutput->CompositeShallowCopy(
+    vtkCompositeDataSet::SafeDownCast(this->Internal->MeshCache->GetBlock(VOLUME_OUTPUT)));
 
   // Shove two outputs in composite output.
   compositeOutput->SetNumberOfBlocks(2);

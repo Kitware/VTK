@@ -1111,7 +1111,7 @@ bool vtkPLagrangianParticleTracker::UpdateSurfaceCacheIfNeeded(vtkDataObject*& s
       {
         // Rank 0 reconstruct Composite tree
         vtkCompositeDataSet* mb = vtkCompositeDataSet::SafeDownCast(surfaces);
-        this->TmpSurfaceInputMB->ShallowCopy(mb);
+        this->TmpSurfaceInputMB->CompositeShallowCopy(mb);
         vtkCompositeDataIterator* iter = mb->NewIterator();
         iter->SkipEmptyNodesOff();
         for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())

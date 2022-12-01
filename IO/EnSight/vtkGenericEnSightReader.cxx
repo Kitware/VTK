@@ -288,7 +288,8 @@ int vtkGenericEnSightReader::RequestData(vtkInformation* vtkNotUsed(request),
     vtkNew<vtkDataSetTriangleFilter> tetrahedralizeFilter;
     tetrahedralizeFilter->SetInputData(output);
     tetrahedralizeFilter->Update();
-    output->ShallowCopy(tetrahedralizeFilter->GetOutputDataObject(0));
+    output->CompositeShallowCopy(
+      vtkMultiBlockDataSet::SafeDownCast(tetrahedralizeFilter->GetOutputDataObject(0)));
   }
 
   return 1;

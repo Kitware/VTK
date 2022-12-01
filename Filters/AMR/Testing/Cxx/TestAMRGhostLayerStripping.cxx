@@ -287,7 +287,7 @@ vtkOverlappingAMR* GetAMRDataSet(const int dimension, const int refinementRatio)
   amrGPSource->SetRefinementRatio(refinementRatio);
   amrGPSource->Update();
   vtkOverlappingAMR* myAMR = vtkOverlappingAMR::New();
-  myAMR->ShallowCopy(amrGPSource->GetOutput());
+  myAMR->CompositeShallowCopy(amrGPSource->GetOutput());
   amrGPSource->Delete();
   return (myAMR);
 }

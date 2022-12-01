@@ -675,7 +675,7 @@ int vtkPOpenFOAMReader::RequestData(
       // reader->RequestInformation() and RequestData() are called
       // for all reader instances without setting UPDATE_TIME_STEPS
       append->Update();
-      output->ShallowCopy(append->GetOutput());
+      output->CompositeShallowCopy(append->GetOutput());
     }
     append->Delete();
 

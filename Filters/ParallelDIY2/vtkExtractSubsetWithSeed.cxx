@@ -710,7 +710,7 @@ int vtkExtractSubsetWithSeed::RequestData(
 
     // now, put the pieces in output_blocks in the output MB.
     // we use a trick, copy into to output and then replace
-    outputMB->ShallowCopy(inputMB);
+    outputMB->CompositeShallowCopy(inputMB);
 
     std::function<vtkDataObject*(vtkDataObject*)> replaceLeaves;
     replaceLeaves = [&replaceLeaves, &input_dataset_map, &output_blocks](

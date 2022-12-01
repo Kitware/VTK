@@ -69,7 +69,7 @@ int vtkMultiBlockMergeFilter::RequestData(vtkInformation* vtkNotUsed(request),
       {
         // shallow copy first input to output to start off with
         // cerr << "Copy first input" << endl;
-        output->ShallowCopy(vtkMultiBlockDataSet::SafeDownCast(input));
+        output->CompositeShallowCopy(vtkMultiBlockDataSet::SafeDownCast(input));
         first = 0;
       }
       else

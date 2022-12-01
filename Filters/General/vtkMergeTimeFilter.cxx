@@ -249,7 +249,7 @@ int vtkMergeTimeFilter::RequestData(vtkInformation* vtkNotUsed(request),
   }
   groupInputs->SetContainerAlgorithm(this);
   groupInputs->Update();
-  output->ShallowCopy(groupInputs->GetOutput());
+  output->CompositeShallowCopy(groupInputs->GetOutput());
 
   output->GetInformation()->Set(vtkDataObject::DATA_TIME_STEP(), this->RequestedTimeValue);
 

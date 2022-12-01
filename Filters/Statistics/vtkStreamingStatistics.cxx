@@ -148,7 +148,8 @@ int vtkStreamingStatistics::RequestData(
 
   // Shallow copy the internal output to external output
   outData->ShallowCopy(this->StatisticsAlgorithm->GetOutput(OUTPUT_DATA));
-  outModel->ShallowCopy(this->StatisticsAlgorithm->GetOutputDataObject(OUTPUT_MODEL));
+  outModel->CompositeShallowCopy(vtkCompositeDataSet::SafeDownCast(
+    this->StatisticsAlgorithm->GetOutputDataObject(OUTPUT_MODEL)));
   outTest->ShallowCopy(this->StatisticsAlgorithm->GetOutput(OUTPUT_TEST));
 
   return 1;

@@ -37,7 +37,7 @@ vtkCxxSetObjectMacro(vtkPartitionBalancer, Controller, vtkMultiProcessController
 namespace
 {
 //------------------------------------------------------------------------------
-void ShallowCopy(vtkPartitionedDataSet* inputPDS, vtkPartitionedDataSet* outputPDS,
+void CompositeShallowCopy(vtkPartitionedDataSet* inputPDS, vtkPartitionedDataSet* outputPDS,
   int numberOfNonNullPartitionsInInput, int offset = 0)
 {
   for (int outPartitionId = 0, inPartitionId = 0; outPartitionId < numberOfNonNullPartitionsInInput;
@@ -87,7 +87,7 @@ int vtkPartitionBalancer::RequestData(
 
   if (!this->Controller)
   {
-    outputPDS->ShallowCopy(inputPDS);
+    outputPDS->CompositeShallowCopy(inputPDS);
     outputPDS->RemoveNullPartitions();
     return 1;
   }
@@ -103,14 +103,14 @@ int vtkPartitionBalancer::RequestData(
     const int offset = std::accumulate(recvBuf.begin(), recvBuf.begin() + localProcessId, 0);
 
     outputPDS->SetNumberOfPartitions(numberOfPartitions);
-    ShallowCopy(inputPDS, outputPDS, numberOfNonNullPartitionsInInput, offset);
+    ::CompositeShallowCopy(inputPDS, outputPDS, numberOfNonNullPartitionsInInput, offset);
   }
   else if (this->Mode == vtkPartitionBalancer::Squash)
   {
     const int numberOfPartitions = *std::max_element(recvBuf.begin(), recvBuf.end());
 
     outputPDS->SetNumberOfPartitions(numberOfPartitions);
-    ShallowCopy(inputPDS, outputPDS, numberOfNonNullPartitionsInInput);
+    ::CompositeShallowCopy(inputPDS, outputPDS, numberOfNonNullPartitionsInInput);
   }
   else
   {

@@ -101,7 +101,7 @@ int vtkPeriodicFilter::RequestData(vtkInformation* vtkNotUsed(request),
   else if (this->Indices.empty())
   {
     // Trivial case
-    output->ShallowCopy(input);
+    output->CompositeShallowCopy(input);
     return 1;
   }
 

@@ -618,7 +618,7 @@ int vtkAMRSliceFilter::RequestData(vtkInformation* vtkNotUsed(request),
 
   if (this->IsAMRData2D(inputAMR))
   {
-    outputAMR->ShallowCopy(inputAMR);
+    outputAMR->CompositeShallowCopy(inputAMR);
     return 1;
   }
 

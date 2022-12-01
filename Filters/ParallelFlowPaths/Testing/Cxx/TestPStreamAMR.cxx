@@ -106,13 +106,13 @@ protected:
       return 0;
     }
 
-    output->ShallowCopy(input);
+    output->DeepCopy(input);
 
-    for (unsigned int level = 0; level < input->GetNumberOfLevels(); ++level)
+    for (unsigned int level = 0; level < output->GetNumberOfLevels(); ++level)
     {
-      for (unsigned int idx = 0; idx < input->GetNumberOfDataSets(level); ++idx)
+      for (unsigned int idx = 0; idx < output->GetNumberOfDataSets(level); ++idx)
       {
-        vtkUniformGrid* grid = input->GetDataSet(level, idx);
+        vtkUniformGrid* grid = output->GetDataSet(level, idx);
         if (!grid)
         {
           continue;
