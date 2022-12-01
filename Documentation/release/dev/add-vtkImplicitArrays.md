@@ -24,12 +24,12 @@ arr42->SetNumberOfTuples(100);
 CHECK(arr42->GetValue(77) == 42); // always true
 ```
 
-For convenience, a number of backends have been pre-packed into the `vtkImplicitArray` framework. They are, in no particular order:
+For convenience, a number of backends have been pre-packed into the `vtkImplicitArray` framework. They are, in alphabetical order:
 
-- `vtkStdFunctionArray<ValueType>`: using a `std::function<ValueType(int)>` backend capable of covering almost any function one might want to use
-- `vtkConstantArray<ValueType>`: using the `vtkConstantImplicitBackend<ValueType>` closure backend that gets constructed with a given value and then returns that same value regardless of the index queried
 - `vtkAffineArray<ValueType>`: using the `vtkAffineImplicitBackend<ValueType>` closure backend that gets constructed with a slope and intercept and then returns values linearly depending on the queried index
 - `vtkCompositeArray<ValueType>`: using the `vtkCompositeImplicitBackend<ValueType>` closure backend that takes an `std::vector<vtkDataArray*>` at construction and returns values as if the list has been concatenated into one array
+- `vtkConstantArray<ValueType>`: using the `vtkConstantImplicitBackend<ValueType>` closure backend that gets constructed with a given value and then returns that same value regardless of the index queried
+- `vtkStdFunctionArray<ValueType>`: using a `std::function<ValueType(int)>` backend capable of covering almost any function one might want to use
 - `vtkIndexedArray<ValueType>`: using the `vtkIndexedImplicitBackend<ValueType>` closure backend that takes an indexing array (either `vtkIdList` or `vtkDataArray`) and a base `vtkDataArray` at construction and returns values indirected using the indexing array to give access to a shuffled array without the memory cost
 
 Here is a small code snippet example to illustrate the usage of the `vtkConstantArray`:
@@ -110,9 +110,9 @@ CHECK(indexed->GetValue(13) == 130); // always true
 >
 >   * Significant access performance hits can be incurred due to cache missing cause by the inherent indirection in the array.
 
-### Implementing a "supported" `vtkImplicitArray` in VTK
+### Implementing a `vtkImplicitArray` in VTK
 
-Implementing a new supported `vtkImplicitArray` in the VTK library usually passes through the following steps:
+Implementing a new `vtkImplicitArray` in the VTK library usually passes through the following steps:
   * Implementing the backend: this is the step where the underlying functionality of the implicit array needs to be developed.
   * Creating an alias and instantiating the concrete types: once the backend is ready, one can create an alias for the array in its own header (`using MySuperArray = vtkImplicitArray<MySuperBackend>`) and use this header and the au    tomatic instantiation mechanisms present in `Common/ImplicitArrays/CMakeLists.txt` to make sure that the vtk library gets shipped with pre-compiled objects for your arrays.
   * Hooking up the dispatch mechanism: this step ensures that your new arrays can be included in the `vtkArrayDispatch` mechanism when the correct compilation option is set.
