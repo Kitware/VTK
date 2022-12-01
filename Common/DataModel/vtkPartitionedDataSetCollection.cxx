@@ -175,6 +175,16 @@ void vtkPartitionedDataSetCollection::CopyStructure(vtkCompositeDataSet* input)
 }
 
 //------------------------------------------------------------------------------
+void vtkPartitionedDataSetCollection::CompositeShallowCopy(vtkCompositeDataSet* src)
+{
+  this->Superclass::CompositeShallowCopy(src);
+  if (auto pdc = vtkPartitionedDataSetCollection::SafeDownCast(src))
+  {
+    this->SetDataAssembly(pdc->GetDataAssembly());
+  }
+}
+
+//------------------------------------------------------------------------------
 void vtkPartitionedDataSetCollection::ShallowCopy(vtkDataObject* src)
 {
   this->Superclass::ShallowCopy(src);

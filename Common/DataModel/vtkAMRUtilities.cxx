@@ -281,7 +281,7 @@ void vtkAMRUtilities::StripGhostLayers(
 
   if (!vtkAMRUtilities::HasPartiallyOverlappingGhostCells(ghostedAMRData))
   {
-    strippedAMRData->ShallowCopy(ghostedAMRData);
+    strippedAMRData->CompositeShallowCopy(ghostedAMRData);
     return;
   }
 

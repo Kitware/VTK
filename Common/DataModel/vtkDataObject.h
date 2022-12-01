@@ -217,14 +217,23 @@ public:
    */
   virtual void PrepareForNewData() { this->Initialize(); }
 
-  ///@{
   /**
-   * Shallow and Deep copy.  These copy the data, but not any of the
-   * pipeline connections.
+   * The goal of the method is to copy the data up to the array pointers only.
+   * The implementation is delegated to the differenent subclasses.
+   * If you want to copy the actual data, @see DeepCopy.
+   *
+   * This method shallow copy the field data and copy the internal structure.
    */
   virtual void ShallowCopy(vtkDataObject* src);
+
+  /**
+   * The goal of the method is to copy the complete data from src into this object.
+   * The implementation is delegated to the differenent subclasses.
+   * If you want to copy the data up to the array pointers only, @see ShallowCopy.
+   *
+   * This method deep copy the field data and copy the internal structure.
+   */
   virtual void DeepCopy(vtkDataObject* src);
-  ///@}
 
   /**
    * The ExtentType will be left as VTK_PIECES_EXTENT for data objects

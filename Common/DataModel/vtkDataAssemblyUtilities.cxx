@@ -225,7 +225,7 @@ bool vtkDataAssemblyUtilities::GenerateHierarchyInternal(
     }
     if (auto pdc = vtkPartitionedDataSetCollection::SafeDownCast(dobj))
     {
-      output->GetPartitionedDataSet(oid)->ShallowCopy(pdc);
+      output->GetPartitionedDataSet(oid)->CompositeShallowCopy(pdc);
     }
     else if (auto mp = vtkMultiPieceDataSet::SafeDownCast(dobj))
     {
@@ -319,7 +319,7 @@ bool vtkDataAssemblyUtilities::GenerateHierarchyInternal(vtkPartitionedDataSetCo
   assert(input != nullptr && hierarchy != nullptr);
   if (output)
   {
-    output->ShallowCopy(input);
+    output->CompositeShallowCopy(input);
   }
 
   std::map<int, unsigned int> output_node2dataset_map;

@@ -109,7 +109,7 @@ void vtkAMRDataInternals::GenerateIndex(bool force)
   }
 }
 
-void vtkAMRDataInternals::ShallowCopy(vtkObject* src)
+void vtkAMRDataInternals::CompositeShallowCopy(vtkObject* src)
 {
   if (src == this)
   {
@@ -124,7 +124,7 @@ void vtkAMRDataInternals::ShallowCopy(vtkObject* src)
   this->Modified();
 }
 
-void vtkAMRDataInternals::RecursiveShallowCopy(vtkObject* src)
+void vtkAMRDataInternals::ShallowCopy(vtkObject* src)
 {
   if (src == this)
   {
