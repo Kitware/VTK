@@ -2545,12 +2545,16 @@ int vtkCGNSReader::GetUnstructuredZone(
         faceElementsSize += sectionInfoList[curSec].eDataSize;
       }
 
-      std::vector<vtkIdType> faceElementsIdx;
-      std::vector<vtkIdType> faceElementsArr;
       bool old_polygonal_layout = false;
+      // Create Face array
+      vtkNew<vtkIdTypeArray> outFaces;
+      vtkNew<vtkIdTypeArray> outFaceOffsets;
+      outFaces->SetNumberOfValues(faceElementsSize);
+      outFaceOffsets->SetNumberOfValues(numFaces + 1);
+      // now use pointers for interfacing with CGNS MLL
+      vtkIdType* faceElementsArr = outFaces->GetPointer(0);
+      vtkIdType* faceElementsIdx = outFaceOffsets->GetPointer(0);
 
-      faceElementsArr.resize(faceElementsSize);
-      faceElementsIdx.resize(numFaces + 1);
       faceElementsIdx[0] = 0;
       // Now load the faces that are in NGON_n format.
       for (std::size_t sec = 0; sec < ngonSec.size(); sec++)
@@ -2632,8 +2636,7 @@ int vtkCGNSReader::GetUnstructuredZone(
 
         faceElementsIdx[0] = 0;
 
-        for (vtkIdType idxFace = 0; idxFace < static_cast<vtkIdType>(faceElementsIdx.size() - 1);
-             ++idxFace)
+        for (vtkIdType idxFace = 0; idxFace < numFaces; ++idxFace)
         {
           vtkIdType nVertexOnCurFace = faceElementsArr[curFace];
 
@@ -2867,6 +2870,18 @@ int vtkCGNSReader::GetUnstructuredZone(
         // We now have the face-to-node and cell-to-face connectivity arrays.
         // VTK, however, has no concept of faces, and uses cell-to-node connectivity, so the
         // intermediate faces need to be taken out of the description (basic CGNS 3.4 support).
+        //
+        // Do preallocation of arrays with tetrahedron heuristic
+        vtkNew<vtkUnsignedCharArray> reserveCellTypes;
+        vtkNew<vtkIdTypeArray> reserveFaceLocations;
+        vtkNew<vtkIdTypeArray> reserveFaces;
+        vtkNew<vtkCellArray> reserveCells;
+        reserveCellTypes->Allocate(numCells);
+        reserveFaceLocations->Allocate(numCells);
+        reserveFaces->Allocate(numCells * (4 * 4 + 1));
+        reserveCells->Allocate(numCells * 4);
+        ugrid->SetCells(reserveCellTypes, reserveCells, reserveFaceLocations, reserveFaces);
+        //
         for (vtkIdType nc = 0; nc < numCells; nc++)
         {
           int numCellFaces = cellElementsIdx[nc + 1] - cellElementsIdx[nc];
@@ -2929,19 +2944,28 @@ int vtkCGNSReader::GetUnstructuredZone(
       // If NGon_n but no NFace_n, or if FACE_DATA is requested, load polygons
       if (!isPoly3D || this->DataLocation == vtkCGNSReader::FACE_DATA)
       {
-        for (vtkIdType nf = 0; nf < numFaces; ++nf)
+        if (ugrid->GetNumberOfCells() == 0)
         {
-          vtkIdType startNode = faceElementsIdx[nf];
-          vtkIdType endNode = faceElementsIdx[nf + 1];
-          vtkIdType numNodes = endNode - startNode;
-          vtkNew<vtkIdList> nodes;
-
-          for (vtkIdType nn = 0; nn < numNodes; ++nn)
+          vtkNew<vtkCellArray> faces;
+          faces->SetData(outFaceOffsets, outFaces);
+          ugrid->SetCells(VTK_POLYGON, faces);
+        }
+        else
+        {
+          for (vtkIdType nf = 0; nf < numFaces; ++nf)
           {
-            vtkIdType nodeID = faceElementsArr[startNode + nn] - 1;
-            nodes->InsertNextId(nodeID);
+            vtkIdType startNode = faceElementsIdx[nf];
+            vtkIdType endNode = faceElementsIdx[nf + 1];
+            vtkIdType numNodes = endNode - startNode;
+            vtkNew<vtkIdList> nodes;
+
+            for (vtkIdType nn = 0; nn < numNodes; ++nn)
+            {
+              vtkIdType nodeID = faceElementsArr[startNode + nn] - 1;
+              nodes->InsertNextId(nodeID);
+            }
+            ugrid->InsertNextCell(VTK_POLYGON, nodes.GetPointer());
           }
-          ugrid->InsertNextCell(VTK_POLYGON, nodes.GetPointer());
         }
 
         if (this->DataLocation == vtkCGNSReader::FACE_DATA)
@@ -3495,13 +3519,38 @@ int vtkCGNSReader::GetUnstructuredZone(
               // Generate support unstructured grid
               vtkSmartPointer<vtkUnstructuredGrid> bcGrid =
                 vtkSmartPointer<vtkUnstructuredGrid>::New();
-              vtkNew<vtkIdList> sortedBCPtIds;
-              for (auto nodes : bndFaceList)
+              // Create Face array
+
+              vtkNew<vtkIdTypeArray> bcFaces;
+              vtkNew<vtkIdTypeArray> bcFaceOffsets;
+              vtkIdType numBndFace = bndFaceList.size();
+              bcFaceOffsets->SetNumberOfValues(numBndFace + 1);
+              bcFaceOffsets->SetValue(0, 0);
+              vtkIdType* _bcFaceOffsets = bcFaceOffsets->GetPointer(0);
+              // Now transfer bndFaceList to bcFaces/bcFaceOffsets
+              for (vtkIdType idx = 0; idx < numBndFace; idx++)
               {
+                auto nodes = bndFaceList[idx];
+                vtkIdType nnodes = nodes->GetNumberOfIds();
+                _bcFaceOffsets[idx + 1] = _bcFaceOffsets[idx] + nnodes;
+              }
+              bcFaces->SetNumberOfValues(_bcFaceOffsets[numBndFace]);
+              vtkIdType* _bcFaces = bcFaces->GetPointer(0);
+              for (vtkIdType idx = 0; idx < numBndFace; idx++)
+              {
+                auto nodes = bndFaceList[idx];
                 for (vtkIdType ii = 0; ii < nodes->GetNumberOfIds(); ii++)
                 {
-                  sortedBCPtIds->InsertUniqueId(nodes->GetId(ii));
+                  _bcFaces[_bcFaceOffsets[idx] + ii] = nodes->GetId(ii);
                 }
+                nodes->Delete();
+              }
+              bndFaceList.clear();
+              //
+              vtkNew<vtkIdList> sortedBCPtIds;
+              for (vtkIdType ii = 0; ii < _bcFaceOffsets[numBndFace]; ii++)
+              {
+                sortedBCPtIds->InsertUniqueId(_bcFaces[ii]);
               }
 
               sortedBCPtIds->Sort();
@@ -3520,22 +3569,17 @@ int vtkCGNSReader::GetUnstructuredZone(
               points->GetPoints(sortedBCPtIds, bcPoints.Get());
               bcGrid->SetPoints(bcPoints.Get());
 
-              // set new ids in bndFaceList
-              for (auto nodes : bndFaceList)
+              // set new ids in bcFaces
+              for (vtkIdType ii = 0; ii < _bcFaceOffsets[numBndFace]; ii++)
               {
-                for (vtkIdType ii = 0; ii < nodes->GetNumberOfIds(); ii++)
-                {
-                  vtkIdType curId = nodes->GetId(ii);
-                  nodes->SetId(ii, translateIds[curId]);
-                }
+                vtkIdType curId = _bcFaces[ii];
+                _bcFaces[ii] = translateIds[curId];
               }
 
-              // Now transfer bndFaceList to the VTK POLYGONS
-              for (auto nodes : bndFaceList)
-              {
-                bcGrid->InsertNextCell(VTK_POLYGON, nodes);
-                nodes->Delete();
-              }
+              // Now transfer bcFaces to the VTK POLYGONS
+              vtkNew<vtkCellArray> bcFacesArr;
+              bcFacesArr->SetData(bcFaces, bcFaceOffsets);
+              bcGrid->SetCells(VTK_POLYGON, bcFacesArr);
               //
               // Parse BCDataSet CGNS arrays
               //
