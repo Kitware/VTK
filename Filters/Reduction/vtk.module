@@ -1,0 +1,19 @@
+NAME
+  VTK::FiltersReduction
+LIBRARY_NAME
+  vtkFiltersReduction
+KIT
+  VTK::Filters
+GROUPS
+  StandAlone
+DEPENDS
+  VTK::CommonCore
+  VTK::CommonExecutionModel
+OPTIONAL_DEPENDS
+  VTK::CommonImplicitArrays
+PRIVATE_DEPENDS
+  VTK::CommonDataModel
+TEST_DEPENDS
+  VTK::CommonSystem
+  VTK::FiltersSources
+  VTK::TestingCore
