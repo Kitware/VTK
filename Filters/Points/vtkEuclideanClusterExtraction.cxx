@@ -291,6 +291,7 @@ int vtkEuclideanClusterExtraction::RequestData(vtkInformation* vtkNotUsed(reques
   delete[] this->PointMap;
   this->PointIds->Delete();
 
+#ifndef NDEBUG
   // print out some debugging information
   int num = this->GetNumberOfExtractedClusters();
   int count = 0;
@@ -299,6 +300,7 @@ int vtkEuclideanClusterExtraction::RequestData(vtkInformation* vtkNotUsed(reques
   {
     count += this->ClusterSizes->GetValue(ii);
   }
+#endif
   vtkDebugMacro(<< "Total # of points accounted for: " << count);
   vtkDebugMacro(<< "Extracted " << newPts->GetNumberOfPoints() << " points");
   newPts->Delete();

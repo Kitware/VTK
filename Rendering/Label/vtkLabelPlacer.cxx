@@ -548,7 +548,9 @@ int vtkLabelPlacer::RequestData(vtkInformation* vtkNotUsed(request),
   unsigned long allowableLabelArea = static_cast<unsigned long>(
     ((kdbounds[1] - kdbounds[0]) * (kdbounds[3] - kdbounds[2])) * this->MaximumLabelFraction);
   (void)allowableLabelArea;
+#ifndef NDEBUG
   unsigned long renderedLabelArea = 0;
+#endif
   double camVec[3];
   if (this->PositionsAsNormals)
   {
@@ -728,7 +730,9 @@ int vtkLabelPlacer::RequestData(vtkInformation* vtkNotUsed(request),
     float opacity = 1.;
     if (this->Buckets->PlaceLabel(opacity, ll[0], ur[0], ll[1], ur[1]))
     {
+#ifndef NDEBUG
       renderedLabelArea += static_cast<unsigned long>(sz[0] * sz[1]);
+#endif
       vtkIdType conn[4];
       OutputCoordinates coordSys = static_cast<OutputCoordinates>(this->OutputCoordinateSystem);
       if (labelType == 0)

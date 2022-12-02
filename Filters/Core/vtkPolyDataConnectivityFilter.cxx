@@ -447,6 +447,7 @@ int vtkPolyDataConnectivityFilter::RequestData(vtkInformation* vtkNotUsed(reques
   this->CellIds->Delete();
   this->PointIds->Delete();
 
+#ifndef NDEBUG
   int num = this->GetNumberOfExtractedRegions();
   vtkIdType count = 0;
 
@@ -454,6 +455,7 @@ int vtkPolyDataConnectivityFilter::RequestData(vtkInformation* vtkNotUsed(reques
   {
     count += this->RegionSizes->GetValue(ii);
   }
+#endif
   vtkDebugMacro(<< "Total # of cells accounted for: " << count);
   vtkDebugMacro(<< "Extracted " << output->GetNumberOfCells() << " cells");
 

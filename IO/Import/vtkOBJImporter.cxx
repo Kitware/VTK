@@ -440,7 +440,9 @@ int vtkOBJPolyDataProcessor::RequestData(vtkInformation* vtkNotUsed(request),
 
   bool gotFirstUseMaterialTag = false;
 
+#ifndef NDEBUG
   int numPolysWithTCoords = 0;
+#endif
   bool hasTCoords = false;                 // has vt x y z
   bool hasPolysWithTextureIndices = false; // has f i/t/n or f i/t
   bool hasNormals = false;                 // has f i/t/n or f i//n
@@ -832,7 +834,9 @@ int vtkOBJPolyDataProcessor::RequestData(vtkInformation* vtkNotUsed(request),
         normal_polys->UpdateCellCount(nNormals);
 
         // also make a note of whether any cells have tcoords, and whether any have normals
+#ifndef NDEBUG
         numPolysWithTCoords += (int)(nTCoords) > 0;
+#endif
         if ((!hasTCoords) && (nTCoords > 0))
         {
           vtkDebugMacro("got texture coords in obj file! nTCoords = " << nTCoords);
