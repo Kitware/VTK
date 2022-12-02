@@ -43,6 +43,7 @@ set(classes
   vtkExecutionTimer
   vtkExplicitStructuredGridCrop
   vtkExplicitStructuredGridToUnstructuredGrid
+  vtkExtractCells
   vtkExtractCellsAlongPolyLine
   vtkExtractEdges
   vtkFeatureEdges
@@ -81,6 +82,7 @@ set(classes
   vtkPolyDataPlaneClipper
   vtkPolyDataPlaneCutter
   vtkPolyDataTangents
+  vtkPolyDataToUnstructuredGrid
   vtkProbeFilter
   vtkQuadricClustering
   vtkQuadricDecimation

@@ -45,7 +45,7 @@ vtkPointSet::vtkPointSet()
   this->Points = nullptr;
   this->PointLocator = nullptr;
   this->CellLocator = nullptr;
-  this->EmptyCell = vtkEmptyCell::New();
+  this->EmptyCell = nullptr;
 }
 
 //------------------------------------------------------------------------------
@@ -252,6 +252,16 @@ vtkIdType vtkPointSet::FindCell(double x[3], vtkCell* cell, vtkIdType cellId, do
   int& subId, double pcoords[3], double* weights)
 {
   return this->FindCell(x, cell, nullptr, cellId, tol2, subId, pcoords, weights);
+}
+
+//------------------------------------------------------------------------------
+vtkCell* vtkPointSet::GetCell(vtkIdType)
+{
+  if (!this->EmptyCell)
+  {
+    this->EmptyCell = vtkEmptyCell::New();
+  }
+  return this->EmptyCell;
 }
 
 //------------------------------------------------------------------------------

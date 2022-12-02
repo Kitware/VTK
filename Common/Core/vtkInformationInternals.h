@@ -74,8 +74,10 @@ public:
     }
   }
 
+#ifdef VTK_INFORMATION_USE_HASH_MAP
 private:
   vtkInformationInternals(vtkInformationInternals const&) = delete;
+#endif
 };
 
 #undef VTK_INFORMATION_USE_HASH_MAP

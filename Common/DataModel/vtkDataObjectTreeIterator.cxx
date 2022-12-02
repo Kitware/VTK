@@ -240,8 +240,9 @@ public:
       {
         return index;
       }
-      index.push_back(this->ChildIndex);
       vtkDataObjectTreeIndex childIndex = this->ChildIterator->GetCurrentIndex();
+      childIndex.reserve(childIndex.size() + 1);
+      index.push_back(this->ChildIndex);
       index.insert(index.end(), childIndex.begin(), childIndex.end());
       return index;
     }

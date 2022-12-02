@@ -8,7 +8,7 @@ vtk_add_test_python(
   extractUGrid.py
   extractVectors.py
   TestExtractCellsByType.py,NO_RT,NO_VALID
-  TestExtractCells.py
+  ../../../Core/Testing/Python/TestExtractCells.py
   TestExtractEdges.py
   TestExtractEdges2.py
   )

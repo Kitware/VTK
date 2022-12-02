@@ -63,14 +63,6 @@ static int MIRROR_HEXAHEDRON_POINT_MAP[] = {
 vtkStandardNewMacro(vtkExplicitStructuredGrid);
 vtkCxxSetObjectMacro(vtkExplicitStructuredGrid, Cells, vtkCellArray);
 
-#define vtkAdjustBoundsMacro(A, B)                                                                 \
-  A[0] = (B[0] < A[0] ? B[0] : A[0]);                                                              \
-  A[1] = (B[0] > A[1] ? B[0] : A[1]);                                                              \
-  A[2] = (B[1] < A[2] ? B[1] : A[2]);                                                              \
-  A[3] = (B[1] > A[3] ? B[1] : A[3]);                                                              \
-  A[4] = (B[2] < A[4] ? B[2] : A[4]);                                                              \
-  A[5] = (B[2] > A[5] ? B[2] : A[5])
-
 //------------------------------------------------------------------------------
 vtkExplicitStructuredGrid::vtkExplicitStructuredGrid()
 {
@@ -181,6 +173,26 @@ void vtkExplicitStructuredGrid::GetCell(vtkIdType cellId, vtkCell* cell)
 }
 
 //------------------------------------------------------------------------------
+// Support GetCellBounds()
+namespace
+{ // anonymous
+struct ComputeCellBoundsVisitor
+{
+  // vtkCellArray::Visit entry point:
+  template <typename CellStateT>
+  void operator()(CellStateT& state, vtkPoints* points, vtkIdType cellId, double bounds[6]) const
+  {
+    using IdType = typename CellStateT::ValueType;
+
+    const IdType beginOffset = state.GetBeginOffset(cellId);
+
+    const auto pointIds = state.GetConnectivity()->GetPointer(beginOffset);
+    vtkBoundingBox::ComputeBounds(points, pointIds, 8, bounds);
+  }
+};
+} // anonymous
+
+//------------------------------------------------------------------------------
 // Fast implementation of GetCellBounds().
 // Bounds are calculated without constructing a cell.
 void vtkExplicitStructuredGrid::GetCellBounds(vtkIdType cellId, double bounds[6])
@@ -190,35 +202,7 @@ void vtkExplicitStructuredGrid::GetCellBounds(vtkIdType cellId, double bounds[6]
     vtkErrorMacro(<< "No data");
     return;
   }
-
-  vtkIdType* indices = this->GetCellPoints(cellId);
-  double x[3];
-
-  this->Points->GetPoint(indices[0], x);
-  bounds[0] = bounds[1] = x[0];
-  bounds[2] = bounds[3] = x[1];
-  bounds[4] = bounds[5] = x[2];
-
-  this->Points->GetPoint(indices[1], x);
-  vtkAdjustBoundsMacro(bounds, x);
-
-  this->Points->GetPoint(indices[2], x);
-  vtkAdjustBoundsMacro(bounds, x);
-
-  this->Points->GetPoint(indices[3], x);
-  vtkAdjustBoundsMacro(bounds, x);
-
-  this->Points->GetPoint(indices[4], x);
-  vtkAdjustBoundsMacro(bounds, x);
-
-  this->Points->GetPoint(indices[5], x);
-  vtkAdjustBoundsMacro(bounds, x);
-
-  this->Points->GetPoint(indices[6], x);
-  vtkAdjustBoundsMacro(bounds, x);
-
-  this->Points->GetPoint(indices[7], x);
-  vtkAdjustBoundsMacro(bounds, x);
+  this->Cells->Visit(ComputeCellBoundsVisitor{}, this->Points, cellId, bounds);
 }
 
 //------------------------------------------------------------------------------

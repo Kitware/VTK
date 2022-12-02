@@ -449,51 +449,21 @@ int vtkCell::IntersectWithCell(vtkCell* other, double tol)
     other, vtkBoundingBox(this->GetBounds()), vtkBoundingBox(other->GetBounds()), tol);
 }
 
-//----------------------------------------------------------------------------
-// Compute cell bounding box (xmin,xmax,ymin,ymax,zmin,zmax). Return pointer
-// to array of six double values.
-double* vtkCell::GetBounds()
-{
-  double x[3];
-  int i, numPts = this->Points->GetNumberOfPoints();
-
-  if (numPts)
-  {
-    this->Points->GetPoint(0, x);
-    this->Bounds[0] = x[0];
-    this->Bounds[2] = x[1];
-    this->Bounds[4] = x[2];
-    this->Bounds[1] = x[0];
-    this->Bounds[3] = x[1];
-    this->Bounds[5] = x[2];
-    for (i = 1; i < numPts; i++)
-    {
-      this->Points->GetPoint(i, x);
-      this->Bounds[0] = (x[0] < this->Bounds[0] ? x[0] : this->Bounds[0]);
-      this->Bounds[1] = (x[0] > this->Bounds[1] ? x[0] : this->Bounds[1]);
-      this->Bounds[2] = (x[1] < this->Bounds[2] ? x[1] : this->Bounds[2]);
-      this->Bounds[3] = (x[1] > this->Bounds[3] ? x[1] : this->Bounds[3]);
-      this->Bounds[4] = (x[2] < this->Bounds[4] ? x[2] : this->Bounds[4]);
-      this->Bounds[5] = (x[2] > this->Bounds[5] ? x[2] : this->Bounds[5]);
-    }
-  }
-  else
-  {
-    vtkMath::UninitializeBounds(this->Bounds);
-  }
-  return this->Bounds;
-}
-
 //------------------------------------------------------------------------------
 // Compute cell bounding box (xmin,xmax,ymin,ymax,zmin,zmax). Copy result into
 // user provided array.
 void vtkCell::GetBounds(double bounds[6])
 {
-  this->GetBounds();
-  for (int i = 0; i < 6; i++)
-  {
-    bounds[i] = this->Bounds[i];
-  }
+  vtkBoundingBox::ComputeBounds(this->Points, bounds);
+}
+
+//----------------------------------------------------------------------------
+// Compute cell bounding box (xmin,xmax,ymin,ymax,zmin,zmax). Return pointer
+// to array of six double values.
+double* vtkCell::GetBounds()
+{
+  this->GetBounds(this->Bounds);
+  return this->Bounds;
 }
 
 //------------------------------------------------------------------------------

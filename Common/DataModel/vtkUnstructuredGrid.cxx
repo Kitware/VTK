@@ -288,8 +288,9 @@ vtkUnstructuredGrid::vtkUnstructuredGrid()
   this->Information->Set(vtkDataObject::DATA_NUMBER_OF_GHOST_LEVELS(), 0);
 
   this->DistinctCellTypesUpdateMTime = 0;
-
-  this->AllocateExact(1024, 1024);
+  this->DistinctCellTypes = vtkSmartPointer<vtkCellTypes>::New();
+  this->Types = vtkSmartPointer<vtkUnsignedCharArray>::New();
+  this->Connectivity = vtkSmartPointer<vtkCellArray>::New();
 }
 
 //------------------------------------------------------------------------------
@@ -1167,74 +1168,22 @@ void vtkUnstructuredGrid::GetCell(vtkIdType cellId, vtkGenericCell* cell)
 // Support GetCellBounds()
 namespace
 { // anonymous
-struct ComputeCellBoundsWorker
+struct ComputeCellBoundsVisitor
 {
-  struct Visitor
+  // vtkCellArray::Visit entry point:
+  template <typename CellStateT>
+  void operator()(CellStateT& state, vtkPoints* points, vtkIdType cellId, double bounds[6]) const
   {
-    // vtkCellArray::Visit entry point:
-    template <typename CellStateT, typename PointArrayT>
-    void operator()(
-      CellStateT& state, PointArrayT* ptArray, vtkIdType cellId, double bounds[6]) const
-    {
-      using IdType = typename CellStateT::ValueType;
+    using IdType = typename CellStateT::ValueType;
 
-      const auto ptIds = state.GetCellRange(cellId);
-      if (ptIds.size() == 0)
-      {
-        vtkMath::UninitializeBounds(bounds);
-        return;
-      }
+    const IdType beginOffset = state.GetBeginOffset(cellId);
+    const IdType endOffset = state.GetEndOffset(cellId);
+    const IdType numPts = endOffset - beginOffset;
 
-      const auto points = vtk::DataArrayTupleRange<3>(ptArray);
-
-      // Initialize bounds to first point:
-      {
-        const auto pt = points[ptIds[0]];
-
-        // Explicitly reusing a local will improve performance when virtual
-        // calls are involved in the iterator read:
-        const double x = static_cast<double>(pt[0]);
-        const double y = static_cast<double>(pt[1]);
-        const double z = static_cast<double>(pt[2]);
-
-        bounds[0] = x;
-        bounds[1] = x;
-        bounds[2] = y;
-        bounds[3] = y;
-        bounds[4] = z;
-        bounds[5] = z;
-      }
-
-      // Reduce bounds with the rest of the ids:
-      for (const IdType ptId : ptIds.GetSubRange(1))
-      {
-        const auto pt = points[ptId];
-
-        // Explicitly reusing a local will improve performance when virtual
-        // calls are involved in the iterator read:
-        const double x = static_cast<double>(pt[0]);
-        const double y = static_cast<double>(pt[1]);
-        const double z = static_cast<double>(pt[2]);
-
-        bounds[0] = std::min(bounds[0], x);
-        bounds[1] = std::max(bounds[1], x);
-        bounds[2] = std::min(bounds[2], y);
-        bounds[3] = std::max(bounds[3], y);
-        bounds[4] = std::min(bounds[4], z);
-        bounds[5] = std::max(bounds[5], z);
-      }
-    }
-  };
-
-  // vtkArrayDispatch entry point:
-  template <typename PointArrayT>
-  void operator()(
-    PointArrayT* ptArray, vtkCellArray* conn, vtkIdType cellId, double bounds[6]) const
-  {
-    conn->Visit(Visitor{}, ptArray, cellId, bounds);
+    const auto pointIds = state.GetConnectivity()->GetPointer(beginOffset);
+    vtkBoundingBox::ComputeBounds(points, pointIds, numPts, bounds);
   }
 };
-
 } // anonymous
 
 //------------------------------------------------------------------------------
@@ -1242,16 +1191,7 @@ struct ComputeCellBoundsWorker
 // constructing a cell.
 void vtkUnstructuredGrid::GetCellBounds(vtkIdType cellId, double bounds[6])
 {
-  // Fast path for float/double:
-  using vtkArrayDispatch::Reals;
-  using Dispatcher = vtkArrayDispatch::DispatchByValueType<Reals>;
-  ComputeCellBoundsWorker worker;
-
-  vtkDataArray* ptArray = this->Points->GetData();
-  if (!Dispatcher::Execute(ptArray, worker, this->Connectivity, cellId, bounds))
-  { // fallback for weird types:
-    worker(ptArray, this->Connectivity, cellId, bounds);
-  }
+  this->Connectivity->Visit(ComputeCellBoundsVisitor{}, this->Points, cellId, bounds);
 }
 
 //------------------------------------------------------------------------------

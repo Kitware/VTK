@@ -520,10 +520,11 @@ void vtkSelection::PrintSelf(ostream& os, vtkIndent indent)
   unsigned int numNodes = this->GetNumberOfNodes();
   os << indent << "Number of nodes: " << numNodes << endl;
   os << indent << "Nodes: " << endl;
-  for (unsigned int i = 0; i < numNodes; i++)
+  size_t counter = 0;
+  for (const auto& nodePair : this->Internals->Items)
   {
-    os << indent << "Node #" << i << endl;
-    this->GetNode(i)->PrintSelf(os, indent.GetNextIndent());
+    os << indent << "Node #" << counter++ << endl;
+    nodePair.second->PrintSelf(os, indent.GetNextIndent());
   }
 }
 
@@ -563,9 +564,9 @@ void vtkSelection::DeepCopy(vtkDataObject* src)
 //------------------------------------------------------------------------------
 void vtkSelection::Union(vtkSelection* s)
 {
-  for (unsigned int n = 0; n < s->GetNumberOfNodes(); ++n)
+  for (const auto& nodePair : s->Internals->Items)
   {
-    this->Union(s->GetNode(n));
+    this->Union(nodePair.second);
   }
 }
 
@@ -573,12 +574,12 @@ void vtkSelection::Union(vtkSelection* s)
 void vtkSelection::Union(vtkSelectionNode* node)
 {
   bool merged = false;
-  for (unsigned int tn = 0; tn < this->GetNumberOfNodes(); ++tn)
+  for (const auto& nodePair : this->Internals->Items)
   {
-    vtkSelectionNode* tnode = this->GetNode(tn);
-    if (tnode->EqualProperties(node))
+    auto& selNode = nodePair.second;
+    if (selNode->EqualProperties(node))
     {
-      tnode->UnionSelectionList(node);
+      selNode->UnionSelectionList(node);
       merged = true;
       break;
     }
@@ -594,9 +595,9 @@ void vtkSelection::Union(vtkSelectionNode* node)
 //------------------------------------------------------------------------------
 void vtkSelection::Subtract(vtkSelection* s)
 {
-  for (unsigned int n = 0; n < s->GetNumberOfNodes(); ++n)
+  for (const auto& nodePair : s->Internals->Items)
   {
-    this->Subtract(s->GetNode(n));
+    this->Subtract(nodePair.second);
   }
 }
 
@@ -604,13 +605,13 @@ void vtkSelection::Subtract(vtkSelection* s)
 void vtkSelection::Subtract(vtkSelectionNode* node)
 {
   bool subtracted = false;
-  for (unsigned int tn = 0; tn < this->GetNumberOfNodes(); ++tn)
+  for (const auto& nodePair : this->Internals->Items)
   {
-    vtkSelectionNode* tnode = this->GetNode(tn);
+    vtkSelectionNode* selNode = nodePair.second;
 
-    if (tnode->EqualProperties(node))
+    if (selNode->EqualProperties(node))
     {
-      tnode->SubtractSelectionList(node);
+      selNode->SubtractSelectionList(node);
       subtracted = true;
     }
   }
@@ -772,10 +773,11 @@ void vtkSelection::Dump(ostream& os)
 {
   vtkSmartPointer<vtkTable> tmpTable = vtkSmartPointer<vtkTable>::New();
   cerr << "==Selection==" << endl;
-  for (unsigned int i = 0; i < this->GetNumberOfNodes(); ++i)
+  size_t counter = 0;
+  for (const auto& nodePair : this->Internals->Items)
   {
-    os << "===Node " << i << "===" << endl;
-    vtkSelectionNode* node = this->GetNode(i);
+    os << "===Node " << counter++ << "===" << endl;
+    vtkSelectionNode* node = nodePair.second;
     os << "ContentType: ";
     switch (node->GetContentType())
     {

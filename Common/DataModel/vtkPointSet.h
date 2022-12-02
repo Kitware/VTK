@@ -133,7 +133,7 @@ public:
    * This method always return a `vtkEmptyCell`, as there is no cell in a
    * `vtkPointSet`.
    */
-  vtkCell* GetCell(vtkIdType) override { return this->EmptyCell; }
+  vtkCell* GetCell(vtkIdType) override;
 
   ///@{
   /**
