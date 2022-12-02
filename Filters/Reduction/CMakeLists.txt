@@ -1,6 +1,13 @@
 set(classes
-  vtkToImplicitArrayFilter
 )
+
+if (VTK_MODULE_ENABLE_VTK_CommonImplicitArrays)
+list(APPEND classes
+  vtkToConstantArrayStrategy
+  vtkToImplicitArrayFilter
+  vtkToImplicitStrategy
+)
+endif()
 
 vtk_module_add_module(VTK::FiltersReduction
   CLASSES ${classes}
