@@ -38,7 +38,7 @@ const double otherSecond[numValues] = { voidPointerData[1], voidPointerData[3], 
 
 bool ValuesInfOrNaN(double v1, double v2)
 {
-  return (isinf(v1) && isinf(v2)) || (isnan(v1) && isnan(v2));
+  return (std::isinf(v1) && std::isinf(v2)) || (std::isnan(v1) && std::isnan(v2));
 }
 
 bool HasCorrectValues(vtkDataArray* array, bool useVoidPointerData)
