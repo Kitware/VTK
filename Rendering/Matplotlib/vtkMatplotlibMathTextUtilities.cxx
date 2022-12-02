@@ -790,6 +790,7 @@ void vtkMatplotlibMathTextUtilities::ComputeTextColors(vtkTextProperty* tprop, T
 //------------------------------------------------------------------------------
 bool vtkMatplotlibMathTextUtilities::SetMathTextFont(vtkTextProperty* tprop)
 {
+  vtkPythonScopeGilEnsurer gilEnsurer;
   vtkSmartPyObject mplBase(PyImport_ImportModule("matplotlib"));
   if (this->CheckForError(mplBase))
   {
