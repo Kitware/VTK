@@ -36,7 +36,7 @@ vtkStandardNewMacro(vtkDataSetAttributes);
 vtkStandardExtendedNewMacro(vtkDataSetAttributes);
 
 //------------------------------------------------------------------------------
-constexpr char vtkDataSetAttributes::AttributeNames[vtkDataSetAttributes::NUM_ATTRIBUTES][19] = {
+const char vtkDataSetAttributes::AttributeNames[vtkDataSetAttributes::NUM_ATTRIBUTES][19] = {
   "Scalars",
   "Vectors",
   "Normals",
@@ -51,20 +51,19 @@ constexpr char vtkDataSetAttributes::AttributeNames[vtkDataSetAttributes::NUM_AT
 };
 
 //------------------------------------------------------------------------------
-constexpr char vtkDataSetAttributes::LongAttributeNames[vtkDataSetAttributes::NUM_ATTRIBUTES]
-                                                       [42] = {
-                                                         "vtkDataSetAttributes::SCALARS",
-                                                         "vtkDataSetAttributes::VECTORS",
-                                                         "vtkDataSetAttributes::NORMALS",
-                                                         "vtkDataSetAttributes::TCOORDS",
-                                                         "vtkDataSetAttributes::TENSORS",
-                                                         "vtkDataSetAttributes::GLOBALIDS",
-                                                         "vtkDataSetAttributes::PEDIGREEIDS",
-                                                         "vtkDataSetAttributes::EDGEFLAG",
-                                                         "vtkDataSetAttributes::TANGENTS",
-                                                         "vtkDataSetAttributes::RATIONALWEIGHTS",
-                                                         "vtkDataSetAttributes::HIGHERORDERDEGREES",
-                                                       };
+const char vtkDataSetAttributes::LongAttributeNames[vtkDataSetAttributes::NUM_ATTRIBUTES][42] = {
+  "vtkDataSetAttributes::SCALARS",
+  "vtkDataSetAttributes::VECTORS",
+  "vtkDataSetAttributes::NORMALS",
+  "vtkDataSetAttributes::TCOORDS",
+  "vtkDataSetAttributes::TENSORS",
+  "vtkDataSetAttributes::GLOBALIDS",
+  "vtkDataSetAttributes::PEDIGREEIDS",
+  "vtkDataSetAttributes::EDGEFLAG",
+  "vtkDataSetAttributes::TANGENTS",
+  "vtkDataSetAttributes::RATIONALWEIGHTS",
+  "vtkDataSetAttributes::HIGHERORDERDEGREES",
+};
 
 //------------------------------------------------------------------------------
 // Construct object with copying turned on for all data.
@@ -1513,15 +1512,14 @@ int vtkDataSetAttributes::SetActiveAttribute(int index, int attributeType)
 }
 
 //------------------------------------------------------------------------------
-constexpr int
+const int
   vtkDataSetAttributes ::NumberOfAttributeComponents[vtkDataSetAttributes::NUM_ATTRIBUTES] = { 0, 3,
     3, 3, 9, 1, 1, 1, 3, 1, 3 };
 
 //------------------------------------------------------------------------------
 // Scalars set to NOLIMIT
-constexpr int vtkDataSetAttributes ::AttributeLimits[vtkDataSetAttributes::NUM_ATTRIBUTES] = {
-  NOLIMIT, EXACT, EXACT, MAX, EXACT, EXACT, EXACT, EXACT, EXACT, EXACT, EXACT
-};
+const int vtkDataSetAttributes ::AttributeLimits[vtkDataSetAttributes::NUM_ATTRIBUTES] = { NOLIMIT,
+  EXACT, EXACT, MAX, EXACT, EXACT, EXACT, EXACT, EXACT, EXACT, EXACT };
 
 //------------------------------------------------------------------------------
 int vtkDataSetAttributes::CheckNumberOfComponents(vtkAbstractArray* aa, int attributeType)
