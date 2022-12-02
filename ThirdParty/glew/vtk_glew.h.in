@@ -52,10 +52,10 @@
 
 /* some fixes for both ES 2 and 3 */
 #ifdef GL_ES_VERSION_3_0
-#define GL_BACK_LEFT 0
-#define GL_BACK_RIGHT 0
-#define GL_FRONT_LEFT 0
-#define GL_FRONT_RIGHT 0
+#define GL_BACK_LEFT GL_BACK
+#define GL_BACK_RIGHT GL_BACK
+#define GL_FRONT_LEFT GL_FRONT
+#define GL_FRONT_RIGHT GL_FRONT
 
 /* this sends all the data each time as opposed to allowing a subset */
 #define glMultiDrawElements(mode, counts, type, indicies, primcount)                               \

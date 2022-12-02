@@ -52,6 +52,7 @@
 #include "vtkTextureObjectVS.h" // a pass through shader
 
 #include <sstream>
+#include <type_traits>
 using std::ostringstream;
 
 #include <cassert>
@@ -136,6 +137,33 @@ const char* DepthBlitShader =
   }
   )***";
 
+const char* DepthReadShader =
+  R"***(//VTK::System::Dec
+  in vec2 texCoord;
+  uniform sampler2D tex;
+  //VTK::Output::Dec
+
+  void main()
+  {
+    // scale up to max 32-bit unsigned integer.
+    float depth = texture(tex, texCoord).r;
+    float z = floor(depth * 4294967295.0f); // 0xFFFFFFFF
+    // gl_FragData[0] = vec4(z & 0xFF, (z >> 8) & 0xFF, (z >> 16) & 0xFF, (z >> 24) & 0xFF);
+    // extract four 8-bit unsigned integers from the 32-bit unsigned integer.
+    float r = mod(z, 256.0f);
+    z -= r;
+    z /= 256.0f;
+    float g = mod(z, 256.0f);
+    z -= g;
+    z /= 256.0f;
+    float b = mod(z, 256.0f);
+    z -= b;
+    z /= 256.0f;
+    float a = mod(z, 256.0f);
+    gl_FragData[0] = vec4(r / 255.0f, g / 255.0f, b / 255.0f, a / 255.0f);
+  }
+  )***";
+
 const char* FlipShader =
   R"***(
   //VTK::System::Dec
@@ -148,6 +176,198 @@ const char* FlipShader =
     gl_FragData[0] = texture(tex, texCoord);
   }
   )***";
+
+#ifdef GL_ES_VERSION_3_0
+namespace
+{
+// helpers to go from GL_ defines to vtkType*
+template <GLint GLType>
+struct GLTypeToVTKHelper
+{
+};
+
+template <>
+struct GLTypeToVTKHelper<GL_UNSIGNED_BYTE>
+{
+  using vtk_type = vtkTypeUInt8;
+};
+
+template <>
+struct GLTypeToVTKHelper<GL_UNSIGNED_INT>
+{
+  using vtk_type = vtkTypeUInt32;
+};
+
+template <>
+struct GLTypeToVTKHelper<GL_FLOAT>
+{
+  using vtk_type = vtkTypeFloat32;
+};
+
+template <>
+struct GLTypeToVTKHelper<GL_INT>
+{
+  using vtk_type = vtkTypeInt32;
+};
+
+int GetNumberOfColorComponents(const GLint& glFormat)
+{
+  switch (glFormat)
+  {
+    case GL_RGB:
+      return 3;
+    case GL_RGBA:
+    case GL_RGBA_INTEGER:
+      return 4;
+    default:
+      return 0;
+  }
+}
+
+template <typename T1, typename T2>
+bool RGBToRGBA(const T1* const rgb, T2* rgba, const std::size_t& n)
+{
+  constexpr bool is_T1_uint_or_int = std::is_integral<T1>::value || std::is_unsigned<T1>::value;
+  constexpr bool is_T2_uint_or_int = std::is_integral<T2>::value || std::is_unsigned<T2>::value;
+  constexpr bool is_T1_float32 = std::is_floating_point<T1>::value;
+  constexpr bool is_T2_float32 = std::is_floating_point<T2>::value;
+  if ((is_T1_uint_or_int && is_T2_uint_or_int) || (is_T1_float32 && is_T2_float32))
+  {
+    std::size_t idx = 0;
+    while (idx < n)
+    {
+      (*rgba++) = rgb[idx++];
+      (*rgba++) = rgb[idx++];
+      (*rgba++) = rgb[idx++];
+      (*rgba++) = is_T2_uint_or_int ? 255 : 1.0f;
+    }
+  }
+  else if (is_T1_uint_or_int && is_T2_float32)
+  {
+    std::size_t idx = 0;
+    while (idx < n)
+    {
+      (*rgba++) = rgb[idx++] / 255.0f;
+      (*rgba++) = rgb[idx++] / 255.0f;
+      (*rgba++) = rgb[idx++] / 255.0f;
+      (*rgba++) = 1.0f;
+      idx++;
+    }
+  }
+  else if (is_T1_float32 && is_T2_uint_or_int)
+  {
+    std::size_t idx = 0;
+    while (idx < n)
+    {
+      (*rgba++) = static_cast<T2>(rgb[idx++] * 255.0f);
+      (*rgba++) = static_cast<T2>(rgb[idx++] * 255.0f);
+      (*rgba++) = static_cast<T2>(rgb[idx++] * 255.0f);
+      (*rgba++) = 1.0f;
+      idx++;
+    }
+  }
+  else
+  {
+    return false;
+  }
+  return true;
+}
+
+template <typename T1, typename T2>
+bool RGBAToRGB(const T1* const rgba, T2* rgb, const std::size_t& n)
+{
+  constexpr bool is_T1_uint_or_int = std::is_integral<T1>::value || std::is_unsigned<T1>::value;
+  constexpr bool is_T2_uint_or_int = std::is_integral<T2>::value || std::is_unsigned<T2>::value;
+  constexpr bool is_T1_float32 = std::is_floating_point<T1>::value;
+  constexpr bool is_T2_float32 = std::is_floating_point<T2>::value;
+  if ((is_T1_uint_or_int && is_T2_uint_or_int) || (is_T1_float32 && is_T2_float32))
+  {
+    std::size_t idx = 0;
+    while (idx < n)
+    {
+      (*rgb++) = rgba[idx++];
+      (*rgb++) = rgba[idx++];
+      (*rgb++) = rgba[idx++];
+      idx++;
+    }
+  }
+  else if (is_T1_uint_or_int && is_T2_float32)
+  {
+    std::size_t idx = 0;
+    while (idx < n)
+    {
+      (*rgb++) = rgba[idx++] / 255.0f;
+      (*rgb++) = rgba[idx++] / 255.0f;
+      (*rgb++) = rgba[idx++] / 255.0f;
+      idx++;
+    }
+  }
+  else if (is_T1_float32 && is_T2_uint_or_int)
+  {
+    std::size_t idx = 0;
+    while (idx < n)
+    {
+      (*rgb++) = static_cast<T2>(rgba[idx++] * 255.0f);
+      (*rgb++) = static_cast<T2>(rgba[idx++] * 255.0f);
+      (*rgb++) = static_cast<T2>(rgba[idx++] * 255.0f);
+      idx++;
+    }
+  }
+  else
+  {
+    return false;
+  }
+  return true;
+}
+
+/**
+ * Read pixels with parameters <sourceFormat, SourceGLType> and cast into <destFormat,
+ * DestinationGLType> Acceptable glformats: GL_RGB, GL_RGBA, GL_RGBA_INTEGER Acceptable gltypes:
+ * GL_UNSIGNED_BYTE, GL_UNSIGNED_INT, GL_INT, GL_FLOAT
+ */
+template <GLint SourceGLType, GLint DestinationGLType>
+bool ConvertGLColor(GLint sourceFormat, const vtkRecti& rect, void* data, GLint destFormat)
+{
+  using SourceTypeNative = typename GLTypeToVTKHelper<SourceGLType>::vtk_type;
+  using DestinationTypeNative = typename GLTypeToVTKHelper<DestinationGLType>::vtk_type;
+
+  const int numSrcComponents = ::GetNumberOfColorComponents(sourceFormat);
+  const int numDestComponents = ::GetNumberOfColorComponents(destFormat);
+
+  // read pixels in the source color format.
+  std::vector<SourceTypeNative> srcPixels(rect.GetWidth() * rect.GetHeight() * numSrcComponents);
+  glReadPixels(rect.GetLeft(), rect.GetBottom(), rect.GetWidth(), rect.GetHeight(), sourceFormat,
+    SourceGLType, srcPixels.data());
+
+  // cast pixels to destination color format
+  auto dstPixels = static_cast<DestinationTypeNative*>(data);
+  if (sourceFormat == destFormat)
+  {
+    std::copy(srcPixels.begin(), srcPixels.end(), dstPixels);
+    return true;
+  }
+  else if (numSrcComponents == 3 && numDestComponents == 4)
+  {
+    return RGBToRGBA(srcPixels.data(), dstPixels, srcPixels.size());
+  }
+  else if (numSrcComponents == 4 && numDestComponents == 3)
+  {
+    return RGBAToRGB(srcPixels.data(), dstPixels, srcPixels.size());
+  }
+  else
+  {
+    return false;
+  }
+}
+
+// Convenient when both source, dest types are the same.
+template <GLint SameGLType>
+bool ConvertGLColor(GLint sourceFormat, const vtkRecti& rect, void* data, GLint destFormat)
+{
+  return ConvertGLColor<SameGLType, SameGLType>(sourceFormat, rect, data, destFormat);
+}
+}
+#endif
 
 //------------------------------------------------------------------------------
 void vtkOpenGLRenderWindow::SetGlobalMaximumNumberOfMultiSamples(int val)
@@ -179,6 +399,7 @@ vtkOpenGLRenderWindow::vtkOpenGLRenderWindow()
   this->ResolveQuad = nullptr;
   this->DepthBlitQuad = nullptr;
   this->FlipQuad = nullptr;
+  this->DepthReadQuad = nullptr;
   this->FramebufferFlipY = false;
 
   this->Initialized = false;
@@ -195,6 +416,8 @@ vtkOpenGLRenderWindow::vtkOpenGLRenderWindow()
   this->DisplayFramebuffer->SetContext(this);
   this->ResolveFramebuffer = vtkOpenGLFramebufferObject::New();
   this->ResolveFramebuffer->SetContext(this);
+  this->DepthFramebuffer = vtkOpenGLFramebufferObject::New();
+  this->DepthFramebuffer->SetContext(this);
 
   this->DrawPixelsTextureObject = nullptr;
 
@@ -237,6 +460,11 @@ vtkOpenGLRenderWindow::~vtkOpenGLRenderWindow()
   {
     this->ResolveFramebuffer->Delete();
     this->ResolveFramebuffer = nullptr;
+  }
+  if (this->DepthFramebuffer)
+  {
+    this->DepthFramebuffer->Delete();
+    this->DepthFramebuffer = nullptr;
   }
 
   if (this->DrawPixelsTextureObject != nullptr)
@@ -318,9 +546,13 @@ void vtkOpenGLRenderWindow::ReleaseGraphicsResources(vtkWindow* renWin)
   delete this->FlipQuad;
   this->FlipQuad = nullptr;
 
+  delete this->DepthReadQuad;
+  this->DepthReadQuad = nullptr;
+
   this->RenderFramebuffer->ReleaseGraphicsResources(renWin);
   this->DisplayFramebuffer->ReleaseGraphicsResources(renWin);
   this->ResolveFramebuffer->ReleaseGraphicsResources(renWin);
+  this->DepthFramebuffer->ReleaseGraphicsResources(renWin);
 
   // release the registered resources
   if (this->NoiseTextureObject)
@@ -650,25 +882,41 @@ int vtkOpenGLRenderWindow::GetColorBufferSizes(int* rgba)
 
     glGetFramebufferAttachmentParameteriv(
       GL_DRAW_FRAMEBUFFER, attachment, GL_FRAMEBUFFER_ATTACHMENT_RED_SIZE, &size);
-    if (glGetError() == GL_NO_ERROR)
+    if (auto error = glGetError())
+    {
+      vtkErrorMacro(<< "Failed to get red color buffer size. Error code : " << error);
+    }
+    else
     {
       rgba[0] = static_cast<int>(size);
     }
     glGetFramebufferAttachmentParameteriv(
       GL_DRAW_FRAMEBUFFER, attachment, GL_FRAMEBUFFER_ATTACHMENT_GREEN_SIZE, &size);
-    if (glGetError() == GL_NO_ERROR)
+    if (auto error = glGetError())
+    {
+      vtkErrorMacro(<< "Failed to get green color buffer size. Error code : " << error);
+    }
+    else
     {
       rgba[1] = static_cast<int>(size);
     }
     glGetFramebufferAttachmentParameteriv(
       GL_DRAW_FRAMEBUFFER, attachment, GL_FRAMEBUFFER_ATTACHMENT_BLUE_SIZE, &size);
-    if (glGetError() == GL_NO_ERROR)
+    if (auto error = glGetError())
+    {
+      vtkErrorMacro(<< "Failed to get blue color buffer size. Error code : " << error);
+    }
+    else
     {
       rgba[2] = static_cast<int>(size);
     }
     glGetFramebufferAttachmentParameteriv(
       GL_DRAW_FRAMEBUFFER, attachment, GL_FRAMEBUFFER_ATTACHMENT_ALPHA_SIZE, &size);
-    if (glGetError() == GL_NO_ERROR)
+    if (auto error = glGetError())
+    {
+      vtkErrorMacro(<< "Failed to get alpha color buffer size. Error code : " << error);
+    }
+    else
     {
       rgba[3] = static_cast<int>(size);
     }
@@ -869,9 +1117,109 @@ int vtkOpenGLRenderWindow::ReadPixels(
       this->ResolveFramebuffer->ActivateReadBuffer(0);
     }
   }
-
+#ifdef GL_ES_VERSION_3_0
+  // Open GL ES is very strict about the internal formats and data types that can be
+  // used in `glReadPixels`. Even the slightest mistake will result in GL_INVALID_OPERATION
+  // These restrictions are documented in the `Errors` section here -
+  // https://docs.gl/es3/glReadPixels This block of code queries the pixel format and data type of
+  // the currently bound read framebuffer. If those parameters agree with the arguments to this
+  // function, we're good. Otherwise, we need to use current parameters and cast as needed. Example,
+  // current bound read frame buffer is <GL_RGBA, GL_UNSIGNED_BYTE>, whereas this function was
+  // invoked with <GL_RGB, GL_FLOAT>. In this case, `glReadPixels` will be invoked with <GL_RGBA,
+  // GL_UNSIGNED_BYTE>. The result will be cast into <GL_RGB, GL_FLOAT>. Such color down-cast will
+  // skip the alpha channel. Color up-cast sets alpha = 255
+  bool castOk = false;
+  GLint currentGlType = 0;
+  glGetIntegerv(GL_IMPLEMENTATION_COLOR_READ_TYPE, &currentGlType);
+  GLint currentGlFormat = 0;
+  glGetIntegerv(GL_IMPLEMENTATION_COLOR_READ_FORMAT, &currentGlFormat);
+  if (currentGlType == gltype)
+  {
+    if (currentGlFormat == glformat)
+    {
+      glReadPixels(rect.GetLeft(), rect.GetBottom(), rect.GetWidth(), rect.GetHeight(), glformat,
+        gltype, data);
+      castOk = true;
+    }
+    else if (gltype == GL_UNSIGNED_BYTE)
+    {
+      castOk = ConvertGLColor<GL_UNSIGNED_BYTE>(currentGlFormat, rect, data, glformat);
+    }
+    else if (gltype == GL_UNSIGNED_INT)
+    {
+      castOk = ConvertGLColor<GL_UNSIGNED_INT>(currentGlFormat, rect, data, glformat);
+    }
+    else if (gltype == GL_INT)
+    {
+      castOk = ConvertGLColor<GL_INT>(currentGlFormat, rect, data, glformat);
+    }
+    else if (gltype == GL_FLOAT)
+    {
+      castOk = ConvertGLColor<GL_FLOAT>(currentGlFormat, rect, data, glformat);
+    }
+  }
+  else if (currentGlType == GL_UNSIGNED_BYTE)
+  {
+    if (gltype == GL_FLOAT)
+    {
+      castOk = ConvertGLColor<GL_UNSIGNED_BYTE, GL_FLOAT>(currentGlFormat, rect, data, glformat);
+    }
+    else if (gltype == GL_UNSIGNED_INT)
+    {
+      castOk =
+        ConvertGLColor<GL_UNSIGNED_BYTE, GL_UNSIGNED_INT>(currentGlFormat, rect, data, glformat);
+    }
+    else if (gltype == GL_INT)
+    {
+      castOk = ConvertGLColor<GL_UNSIGNED_BYTE, GL_INT>(currentGlFormat, rect, data, glformat);
+    }
+  }
+  else if (currentGlType == GL_UNSIGNED_INT)
+  {
+    if (gltype == GL_FLOAT)
+    {
+      castOk = ConvertGLColor<GL_UNSIGNED_INT, GL_FLOAT>(currentGlFormat, rect, data, glformat);
+    }
+    else if (gltype == GL_UNSIGNED_BYTE)
+    {
+      castOk =
+        ConvertGLColor<GL_UNSIGNED_INT, GL_UNSIGNED_BYTE>(currentGlFormat, rect, data, glformat);
+    }
+    else if (gltype == GL_INT)
+    {
+      castOk = ConvertGLColor<GL_UNSIGNED_INT, GL_INT>(currentGlFormat, rect, data, glformat);
+    }
+  }
+  else if (currentGlType == GL_FLOAT)
+  {
+    if (gltype == GL_UNSIGNED_INT)
+    {
+      castOk = ConvertGLColor<GL_FLOAT, GL_UNSIGNED_INT>(currentGlFormat, rect, data, glformat);
+    }
+    else if (gltype == GL_UNSIGNED_BYTE)
+    {
+      castOk = ConvertGLColor<GL_FLOAT, GL_UNSIGNED_BYTE>(currentGlFormat, rect, data, glformat);
+    }
+    else if (gltype == GL_INT)
+    {
+      castOk = ConvertGLColor<GL_FLOAT, GL_INT>(currentGlFormat, rect, data, glformat);
+    }
+  }
+  if (auto error = glGetError())
+  {
+    vtkErrorMacro(<< "Failed to read pixels in <glformat, gltype>=" << '<' << glformat << ','
+                  << gltype << ">. Error code : " << error);
+  }
+  else if (!castOk)
+  {
+    vtkErrorMacro(<< "Failed to cast pixel format and/or type from <glformat, gltype> "
+                  << currentGlFormat << ',' << currentGlType << " to " << glformat << ','
+                  << gltype);
+  }
+#else
   glReadPixels(
     rect.GetLeft(), rect.GetBottom(), rect.GetWidth(), rect.GetHeight(), glformat, gltype, data);
+#endif
 
   this->GetState()->PopReadFramebufferBinding();
 
@@ -1125,6 +1473,44 @@ bool vtkOpenGLRenderWindow::ResolveFlipRenderFramebuffer()
   return copiedColor;
 }
 
+//------------------------------------------------------------------------------
+bool vtkOpenGLRenderWindow::ReadDepthComponent()
+{
+  bool readDepthBuffer = false;
+  if (!this->DepthReadQuad)
+  {
+    this->DepthReadQuad = new vtkOpenGLQuadHelper(this, nullptr, DepthReadShader, "");
+    if (!this->DepthReadQuad->Program || !this->DepthReadQuad->Program->GetCompiled())
+    {
+      vtkErrorMacro("Couldn't build the shader program for reading depth component.");
+    }
+  }
+  else
+  {
+    this->GetShaderCache()->ReadyShaderProgram(this->DepthReadQuad->Program);
+  }
+
+  if (this->DepthReadQuad->Program && this->DepthReadQuad->Program->GetCompiled())
+  {
+    auto ostate = this->GetState();
+    vtkOpenGLState::ScopedglEnableDisable depthTestSaver(ostate, GL_DEPTH_TEST);
+    ostate->vtkglDisable(GL_DEPTH_TEST);
+    vtkOpenGLState::ScopedglEnableDisable blendSaver(ostate, GL_BLEND);
+    ostate->vtkglDisable(GL_BLEND);
+    auto tex = this->GetBufferNeedsResolving()
+      ? this->ResolveFramebuffer->GetDepthAttachmentAsTextureObject()
+      : this->RenderFramebuffer->GetDepthAttachmentAsTextureObject();
+    tex->Activate();
+    this->DepthReadQuad->Program->SetUniformi("tex", tex->GetTextureUnit());
+    this->DepthReadQuad->Render();
+    tex->Deactivate();
+    readDepthBuffer = true;
+  }
+
+  return readDepthBuffer;
+}
+
+//------------------------------------------------------------------------------
 void vtkOpenGLRenderWindow::BlitDisplayFramebuffersToHardware()
 {
   auto ostate = this->GetState();
@@ -1880,9 +2266,46 @@ int vtkOpenGLRenderWindow::GetZbufferData(int x1, int y1, int x2, int y2, float*
     this->ResolveFramebuffer->ActivateReadBuffer(0);
   }
 
+#ifdef GL_ES_VERSION_3_0
+  {
+    this->GetState()->PushFramebufferBindings();
+    auto readFramebuffer = resolveMSAA ? this->ResolveFramebuffer : this->RenderFramebuffer;
+    int* fbsize = readFramebuffer->GetLastSize();
+    this->DepthFramebuffer->Bind(GL_DRAW_FRAMEBUFFER);
+    this->DepthFramebuffer->ActivateDrawBuffer(0);
+    this->GetState()->vtkglViewport(0, 0, fbsize[0], fbsize[1]);
+    this->GetState()->vtkglScissor(0, 0, fbsize[0], fbsize[1]);
+
+    bool readDepth = this->ReadDepthComponent();
+    if (!readDepth)
+    {
+      vtkErrorMacro(<< "Failed to read depth component!");
+      return VTK_ERROR;
+    }
+    else
+    {
+      this->GetState()->PushReadFramebufferBinding();
+      this->DepthFramebuffer->Bind(GL_READ_FRAMEBUFFER);
+      this->DepthFramebuffer->ActivateReadBuffer(0);
+      std::vector<vtkTypeUInt8> z_data_quarters(width * height * 4, 0);
+      const vtkRecti rect(x_low, y_low, width, height);
+      ConvertGLColor<GL_UNSIGNED_BYTE>(GL_RGBA, rect, z_data_quarters.data(), GL_RGBA);
+      this->GetState()->PopFramebufferBindings();
+      for (int i = 0, j = 0; i < width * height; ++i)
+      {
+        vtkTypeUInt32 z_int = z_data_quarters[j++];
+        z_int += (z_data_quarters[j++] << 8);
+        z_int += (z_data_quarters[j++] << 16);
+        z_int += (z_data_quarters[j++] << 24);
+        z_data[i] = z_int / float(VTK_TYPE_UINT32_MAX);
+      }
+    }
+  }
+#else
   glReadPixels(x_low, y_low, width, height, GL_DEPTH_COMPONENT, GL_FLOAT, z_data);
 
   this->GetState()->PopReadFramebufferBinding();
+#endif
 
   if (glGetError() != GL_NO_ERROR)
   {
@@ -2109,6 +2532,20 @@ int vtkOpenGLRenderWindow::CreateFramebuffers(int width, int height)
     this->GetState()->PopFramebufferBindings();
   }
 
+  if (!this->DepthFramebuffer->GetFBOIndex())
+  {
+    this->GetState()->PushFramebufferBindings();
+    this->DepthFramebuffer->PopulateFramebuffer(width, height,
+      true,                 // textures
+      1, VTK_UNSIGNED_CHAR, // 1 color buffer uchar
+      false, 0,             // depth buffer
+      0, this->StencilCapable != 0);
+    this->GetState()->PopFramebufferBindings();
+  }
+  else
+  {
+    this->DepthFramebuffer->Resize(width, height);
+  }
   return 1;
 }
 
