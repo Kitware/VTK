@@ -133,6 +133,9 @@ if (NOT cdash_show_third_party_warnings)
     # Suppress ThirdParty source code from displaying warnings.
     "[Tt]hird[Pp]arty"
 
+    # Suppress MetaIO warnings.
+    "MetaIO/vtkmetaio"
+
     # clang will often give multiline warnings from macro expansions,
     # where the first part has "warning:" and subsequent parts have "note:"
     # and those will sometimes expand into systems headers. When this occurs
