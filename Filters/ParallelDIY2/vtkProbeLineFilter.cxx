@@ -76,10 +76,10 @@ struct HitCellInfo
 {
   double InT = -1.0;
   double OutT = -1.0;
-  std::array<double, 3> InPCoords = { 0.0, 0.0, 0.0 };
-  std::array<double, 3> OutPCoords = { 0.0, 0.0, 0.0 };
-  std::array<double, 3> InPos = { 0.0, 0.0, 0.0 };
-  std::array<double, 3> OutPos = { 0.0, 0.0, 0.0 };
+  std::array<double, 3> InPCoords = { { 0.0, 0.0, 0.0 } };
+  std::array<double, 3> OutPCoords = { { 0.0, 0.0, 0.0 } };
+  std::array<double, 3> InPos = { { 0.0, 0.0, 0.0 } };
+  std::array<double, 3> OutPos = { { 0.0, 0.0, 0.0 } };
   vtkIdType CellId = -1;
 
   operator bool() const noexcept { return this->InT >= 0.0 && this->OutT >= 0.0; }
