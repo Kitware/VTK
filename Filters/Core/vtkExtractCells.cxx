@@ -431,7 +431,6 @@ vtkSmartPointer<vtkIdList> ConvertToPointIdsToExtract(vtkIdList* pointMap)
     }
   }
   srcIds->Squeeze();
-  assert(numValues == srcIds->GetNumberOfIds());
   return srcIds;
 }
 
