@@ -278,7 +278,7 @@ void vtkAutoCorrelativeStatistics::Learn(
   {
     // Each request contains only one column of interest (if there are others, they are ignored)
     std::set<vtkStdString>::const_iterator it = rit->begin();
-    std::string varName = *it;
+    std::string const& varName = *it;
     if (!inData->GetColumnByName(varName.c_str()))
     {
       vtkWarningMacro("InData table does not have a column " << varName << ". Ignoring it.");

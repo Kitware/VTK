@@ -197,7 +197,7 @@ void vtkOrderStatistics::Learn(
   {
     // Each request contains only one column of interest (if there are others, they are ignored)
     std::set<vtkStdString>::const_iterator it = rit->begin();
-    std::string col = *it;
+    std::string const& col = *it;
     if (!inData->GetColumnByName(col.c_str()))
     {
       vtkWarningMacro("InData table does not have a column " << col << ". Ignoring it.");
@@ -772,7 +772,7 @@ void vtkOrderStatistics::Test(vtkTable* inData, vtkMultiBlockDataSet* inMeta, vt
   {
     // Each request contains only one column of interest (if there are others, they are ignored)
     std::set<vtkStdString>::const_iterator it = rit->begin();
-    std::string varName = *it;
+    std::string const& varName = *it;
     if (!inData->GetColumnByName(varName.c_str()))
     {
       vtkWarningMacro("InData table does not have a column " << varName << ". Ignoring it.");
