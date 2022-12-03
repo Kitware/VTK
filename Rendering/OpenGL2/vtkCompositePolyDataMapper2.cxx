@@ -257,6 +257,7 @@ void vtkCompositeMapperHelper2::RemoveUnused()
 std::vector<vtkPolyData*> vtkCompositeMapperHelper2::GetRenderedList() const
 {
   std::vector<vtkPolyData*> result;
+  result.reserve(this->Data.size());
   for (const auto& pair : this->Data)
   {
     result.push_back(pair.first);
