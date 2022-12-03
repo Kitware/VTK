@@ -106,7 +106,7 @@ vtkIdType TraverseLoop(double dir, vtkPolyData* polyData, vtkIdType lineId, vtkI
     last = (pts[0] != last ? pts[0] : pts[1]);
     numInserted++;
     t = dir * static_cast<double>(numInserted);
-    sortedPoints.push_back(LoopPoint(t, last));
+    sortedPoints.emplace_back(t, last);
     UpdateRange(scalars, last, range);
 
     polyData->GetPointCells(last, ncells, cells);
@@ -433,7 +433,7 @@ int vtkContourLoopExtraction::RequestData(vtkInformation* vtkNotUsed(request),
       visited[lineId] = 1;
       start = pts[0];
       sortedPoints.clear();
-      sortedPoints.push_back(LoopPoint(0.0, start));
+      sortedPoints.emplace_back(0.0, start);
       range[0] = VTK_FLOAT_MAX;
       range[1] = VTK_FLOAT_MIN;
       UpdateRange(scalars, start, range);

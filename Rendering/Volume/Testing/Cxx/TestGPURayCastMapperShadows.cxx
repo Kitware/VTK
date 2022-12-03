@@ -143,9 +143,9 @@ int TestGPURayCastMapperShadows(int argc, char* argv[])
 
   BoxList Boxes;
   // wall
-  Boxes.push_back(ImageDataAABox(0.05, 0.05, 0.05, 0.1, 0.95, 0.95, 1.0));
+  Boxes.emplace_back(0.05, 0.05, 0.05, 0.1, 0.95, 0.95, 1.0);
   // box
-  Boxes.push_back(ImageDataAABox(0.6, 0.35, 0.35, 0.9, 0.65, 0.65, 2.0));
+  Boxes.emplace_back(0.6, 0.35, 0.35, 0.9, 0.65, 0.65, 2.0);
 
   // Camera Parameters
   double camera_position[3] = { 1.85, -1.27, 0.97 };

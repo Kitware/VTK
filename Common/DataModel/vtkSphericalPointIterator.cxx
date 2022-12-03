@@ -162,7 +162,7 @@ struct vtkSphericalPointIterator::SphericalPointIterator
     {
       this->DataSet->GetPoint(ptId, x);
       d2 = vtkMath::Distance2BetweenPoints(x, this->Center);
-      radialSort.emplace_back(RadialTuple(ptId, d2));
+      radialSort.emplace_back(ptId, d2);
     }
     if (dir == vtkSphericalPointIterator::SORT_DESCENDING)
     {

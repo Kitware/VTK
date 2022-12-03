@@ -182,7 +182,7 @@ void vtkExtractCTHPart::AddVolumeArrayName(const char* arrayName)
     std::find(this->Internals->VolumeArrayNames.begin(), this->Internals->VolumeArrayNames.end(),
       std::string(arrayName)) == this->Internals->VolumeArrayNames.end())
   {
-    this->Internals->VolumeArrayNames.push_back(arrayName);
+    this->Internals->VolumeArrayNames.emplace_back(arrayName);
 
     // ensure that the volume arrays are in determinate order. I should just
     // change the code to use a std::set.

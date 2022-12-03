@@ -500,7 +500,7 @@ void vtkGLTFImporter::ImportActors(vtkRenderer* renderer)
         }
         renderer->AddActor(actor);
 
-        this->Actors[nodeId].push_back(actor);
+        this->Actors[nodeId].emplace_back(actor);
 
         this->InvokeEvent(vtkCommand::UpdateDataEvent);
       }

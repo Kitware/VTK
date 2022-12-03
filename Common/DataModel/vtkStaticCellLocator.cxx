@@ -1031,7 +1031,7 @@ vtkIdType CellProcessor<T>::FindClosestPointWithinRadius(const double x[3], doub
 
   // first get ijk containing point
   vtkIdType binId = this->Binner->GetBinIndex(x);
-  queue.push(std::make_pair(0.0, binId));
+  queue.emplace(0.0, binId);
   binHasBeenQueued[binId] = true;
 
   // minimum squared distance to the closest point
@@ -1125,7 +1125,7 @@ vtkIdType CellProcessor<T>::FindClosestPointWithinRadius(const double x[3], doub
             distance2ToCellBounds = Distance2ToBounds(x, bds);
 
             // add to queue
-            queue.push(std::make_pair(distance2ToCellBounds, binId));
+            queue.emplace(distance2ToCellBounds, binId);
           }
         }
       }

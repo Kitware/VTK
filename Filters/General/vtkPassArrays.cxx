@@ -87,7 +87,7 @@ void vtkPassArrays::AddArray(int fieldType, const char* name)
     return;
   }
   std::string n = name;
-  this->Implementation->Arrays.push_back(std::make_pair(fieldType, n));
+  this->Implementation->Arrays.emplace_back(fieldType, n);
   this->Modified();
 }
 

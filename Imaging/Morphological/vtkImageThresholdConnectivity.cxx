@@ -644,27 +644,27 @@ void vtkImageThresholdConnectivityExecute(vtkImageThresholdConnectivity* self, v
       // push the new seeds
       if (seed[2] > 0 && *(maskPtr1 - maskInc[2]) == 0)
       {
-        seedStack.push(vtkFloodFillSeed(seed[0], seed[1], seed[2] - 1));
+        seedStack.emplace(seed[0], seed[1], seed[2] - 1);
       }
       if (seed[2] < maxIdZ && *(maskPtr1 + maskInc[2]) == 0)
       {
-        seedStack.push(vtkFloodFillSeed(seed[0], seed[1], seed[2] + 1));
+        seedStack.emplace(seed[0], seed[1], seed[2] + 1);
       }
       if (seed[1] > 0 && *(maskPtr1 - maskInc[1]) == 0)
       {
-        seedStack.push(vtkFloodFillSeed(seed[0], seed[1] - 1, seed[2]));
+        seedStack.emplace(seed[0], seed[1] - 1, seed[2]);
       }
       if (seed[1] < maxIdY && *(maskPtr1 + maskInc[1]) == 0)
       {
-        seedStack.push(vtkFloodFillSeed(seed[0], seed[1] + 1, seed[2]));
+        seedStack.emplace(seed[0], seed[1] + 1, seed[2]);
       }
       if (seed[0] > 0 && *(maskPtr1 - maskInc[0]) == 0)
       {
-        seedStack.push(vtkFloodFillSeed(seed[0] - 1, seed[1], seed[2]));
+        seedStack.emplace(seed[0] - 1, seed[1], seed[2]);
       }
       if (seed[0] < maxIdX && *(maskPtr1 + maskInc[0]) == 0)
       {
-        seedStack.push(vtkFloodFillSeed(seed[0] + 1, seed[1], seed[2]));
+        seedStack.emplace(seed[0] + 1, seed[1], seed[2]);
       }
     }
   }

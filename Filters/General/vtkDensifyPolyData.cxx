@@ -297,7 +297,7 @@ public:
         t.Verts[3 * id2], t.Verts[3 * id2 + 1], t.Verts[3 * id2 + 2], centroid[0], centroid[1],
         centroid[2] };
       vtkIdType vertIds[3] = { t.VertIds[id1], t.VertIds[id2], id3 };
-      polygons.push_back(Polygon(verts, 3, vertIds, t.NumVerts, t.VertIds));
+      polygons.emplace_back(verts, 3, vertIds, t.NumVerts, t.VertIds);
     }
 
     this->NumPoints++;

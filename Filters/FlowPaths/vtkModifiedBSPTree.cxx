@@ -513,7 +513,7 @@ void vtkModifiedBSPTree::GenerateRepresentation(int level, vtkPolyData* pd)
     ns.pop();
     if (node->depth == level)
     {
-      bl.push_back(box(node->Bounds));
+      bl.emplace_back(node->Bounds);
     }
     else
     {
@@ -528,7 +528,7 @@ void vtkModifiedBSPTree::GenerateRepresentation(int level, vtkPolyData* pd)
       }
       else if (level == -1)
       {
-        bl.push_back(box(node->Bounds));
+        bl.emplace_back(node->Bounds);
       }
     }
   }

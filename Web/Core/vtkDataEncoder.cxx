@@ -153,7 +153,7 @@ public:
     assert(numThreads >= 0);
     for (int cc = 0; cc < numThreads; ++cc)
     {
-      this->ThreadPool.emplace_back(std::thread(&vtkWorkQueue::DoWork, cc, this));
+      this->ThreadPool.emplace_back(&vtkWorkQueue::DoWork, cc, this);
     }
   }
   ~vtkWorkQueue()

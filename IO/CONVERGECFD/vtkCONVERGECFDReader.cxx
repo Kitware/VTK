@@ -196,7 +196,7 @@ bool ReadStrings(hid_t fileId, const char* path, std::vector<std::string>& strin
   strings.clear();
   for (hsize_t i = 0; i < dim; ++i)
   {
-    strings.emplace_back(std::string(rdata[i]));
+    strings.emplace_back(rdata[i]);
   }
 
   delete[] rdata[0];
@@ -1290,7 +1290,7 @@ void vtkCONVERGECFDReader::ReadTimeSteps(vtkInformation* outInfo)
     bool timeRead = this->ReadOutputTime(file, time);
     if (timeRead)
     {
-      timesAndFiles.emplace_back(std::make_pair(time, file));
+      timesAndFiles.emplace_back(time, file);
     }
   }
 

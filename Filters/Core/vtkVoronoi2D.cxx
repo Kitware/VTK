@@ -157,19 +157,19 @@ struct VTile
     double v[2], *bds = this->PaddedBounds;
     v[0] = bds[1];
     v[1] = bds[3];
-    this->Verts.emplace_back(VVertex((-1), this->TileX, v));
+    this->Verts.emplace_back((-1), this->TileX, v);
 
     v[0] = bds[0];
     v[1] = bds[3];
-    this->Verts.emplace_back(VVertex((-1), this->TileX, v));
+    this->Verts.emplace_back((-1), this->TileX, v);
 
     v[0] = bds[0];
     v[1] = bds[2];
-    this->Verts.emplace_back(VVertex((-1), this->TileX, v));
+    this->Verts.emplace_back((-1), this->TileX, v);
 
     v[0] = bds[1];
     v[1] = bds[2];
-    this->Verts.emplace_back(VVertex((-1), this->TileX, v));
+    this->Verts.emplace_back((-1), this->TileX, v);
   }
 
   // Initialize with a convex polygon. The points are in counterclockwise order
@@ -192,7 +192,7 @@ struct VTile
     for (vtkIdType i = 0; i < nPts; ++i)
     {
       pts->GetPoint(p[i], v);
-      this->Verts.emplace_back(VVertex((-1), this->TileX, v));
+      this->Verts.emplace_back((-1), this->TileX, v);
     }
   }
 
@@ -729,7 +729,7 @@ struct VoronoiTiles
         {
           lTiles.push_back((i + numPoints));
           VVertex& tileVertex = tile.Verts.at(i);
-          lPoints.emplace_back(TileVertex(tileVertex.X[0], tileVertex.X[1]));
+          lPoints.emplace_back(tileVertex.X[0], tileVertex.X[1]);
         }
 
         // Accumulate scalars if requested

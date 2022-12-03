@@ -1889,7 +1889,7 @@ vtkOpenGLState::vtkOpenGLState()
 
   this->TextureUnitManager = vtkTextureUnitManager::New();
 
-  this->Stack.push(GLState());
+  this->Stack.emplace();
 
   auto& cs = this->Stack.top();
 

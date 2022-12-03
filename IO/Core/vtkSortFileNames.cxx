@@ -45,7 +45,7 @@ public:
 
   void InsertNextStringArray(vtkStringArray* stringArray)
   {
-    this->Container.push_back(stringArray);
+    this->Container.emplace_back(stringArray);
   }
 
   vtkStringArray* GetStringArray(int i)

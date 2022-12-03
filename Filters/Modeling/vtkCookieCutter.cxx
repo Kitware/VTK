@@ -283,7 +283,7 @@ int CleanSortedPolyline(SortedPointsType& sortedPoints)
     t = sortedPoints[i].T;
     if (end == (num - 1))
     { // last point may require special treatment
-      mergeRange.emplace_back(MergeRange(end, end + 1));
+      mergeRange.emplace_back(end, end + 1);
       break;
     }
     ip = i + 1;
@@ -298,7 +298,7 @@ int CleanSortedPolyline(SortedPointsType& sortedPoints)
     end = ip;
 
     // Add new segment
-    mergeRange.emplace_back(MergeRange(start, end));
+    mergeRange.emplace_back(start, end);
 
     // Move to next segment
     i = start = end;
@@ -347,7 +347,7 @@ int CleanSortedPolyline(SortedPointsType& sortedPoints)
     {
       spc = SortPoint::MULT_INTS;
     }
-    newSortedPoints.emplace_back(SortPoint(minT, spc, minId, onId, sortedPoints[minX].X));
+    newSortedPoints.emplace_back(minT, spc, minId, onId, sortedPoints[minX].X);
   } // across all merge ranges
 
   // Update the sorted points array, now clean!
@@ -408,7 +408,7 @@ void CleanSortedPolygon(vtkIdType npts, SortedPointsType& sortedPoints)
   {
     if (i == (imax - 1))
     {
-      mergeRange.emplace_back(MergeRange(i, imax));
+      mergeRange.emplace_back(i, imax);
       break;
     }
 
@@ -439,7 +439,7 @@ void CleanSortedPolygon(vtkIdType npts, SortedPointsType& sortedPoints)
     end = ip;
 
     // Add new segment
-    mergeRange.emplace_back(MergeRange(start, end));
+    mergeRange.emplace_back(start, end);
 
     // Move to next segment
     i = start = end;
@@ -490,7 +490,7 @@ void CleanSortedPolygon(vtkIdType npts, SortedPointsType& sortedPoints)
     {
       spc = SortPoint::MULT_INTS;
     }
-    newSortedPoints.emplace_back(SortPoint(minT, spc, minId, onId, sortedPoints[minX].X));
+    newSortedPoints.emplace_back(minT, spc, minId, onId, sortedPoints[minX].X);
   } // across all merge ranges
 
   // Update the sorted points array, now clean!
@@ -796,18 +796,18 @@ struct vtkAttributeManager
     // See if it's a vertex (CopyData)
     if (attType < PointAttribute::Intersection)
     {
-      this->PointAttributes.emplace_back(PointAttribute(attType, m0, m1, tm));
+      this->PointAttributes.emplace_back(attType, m0, m1, tm);
       return;
     }
 
     // See if it's an edge (InterpolateData)
     if (this->PointInterpolation == vtkCookieCutter::USE_MESH_EDGES)
     {
-      this->PointAttributes.emplace_back(PointAttribute(PointAttribute::MeshEdge, m0, m1, tm));
+      this->PointAttributes.emplace_back(PointAttribute::MeshEdge, m0, m1, tm);
     }
     else // if ( this->PointInterpolation == vtkCookieCutter::USE_LOOP_EDGES )
     {
-      this->PointAttributes.emplace_back(PointAttribute(PointAttribute::LoopEdge, l0, l1, tl));
+      this->PointAttributes.emplace_back(PointAttribute::LoopEdge, l0, l1, tl);
     }
   }
 
@@ -940,7 +940,7 @@ void vtkCookieCutterHelper::CropLine(vtkIdType cellId, vtkIdType cellOffset, vtk
   {
     t = static_cast<double>(i);
     this->InPoints->GetPoint(pts[i], x);
-    sortedPoints.emplace_back(SortPoint(t, SortPoint::VERTEX, -1, -1, x));
+    sortedPoints.emplace_back(t, SortPoint::VERTEX, -1, -1, x);
     attrMgr->AddPointAttribute(PointAttribute::MeshVertex, pts[i]);
   }
 
@@ -968,7 +968,7 @@ void vtkCookieCutterHelper::CropLine(vtkIdType cellId, vtkIdType cellOffset, vtk
         attrMgr->AddPointAttribute(PointAttribute::Intersection, m0, m1, l0, l1, u, v);
         u += static_cast<double>(i);
         v += static_cast<double>(j);
-        sortedPoints.emplace_back(SortPoint(u, SortPoint::INTERSECTION, numInts, -1, x));
+        sortedPoints.emplace_back(u, SortPoint::INTERSECTION, numInts, -1, x);
         numInts++;
       }
       else if (result == 3) // parallel lines
@@ -986,8 +986,7 @@ void vtkCookieCutterHelper::CropLine(vtkIdType cellId, vtkIdType cellOffset, vtk
           vtkLine::DistanceToLine(x0, y0, y1, u, c);
           if (-VTK_DEGENERATE_TOL <= u && u <= (1.0 + VTK_DEGENERATE_TOL))
           {
-            sortedPoints.emplace_back(
-              SortPoint(static_cast<double>(i), SortPoint::ON, numInts, onId, c));
+            sortedPoints.emplace_back(static_cast<double>(i), SortPoint::ON, numInts, onId, c);
             attrMgr->AddPointAttribute(PointAttribute::MeshVertex, m0);
             numInts++;
           }
@@ -995,23 +994,21 @@ void vtkCookieCutterHelper::CropLine(vtkIdType cellId, vtkIdType cellOffset, vtk
           if (-VTK_DEGENERATE_TOL <= u && u <= (1.0 + VTK_DEGENERATE_TOL))
           {
             sortedPoints.emplace_back(
-              SortPoint(static_cast<double>(i) + 1.0, SortPoint::ON, numInts, onId, c));
+              static_cast<double>(i) + 1.0, SortPoint::ON, numInts, onId, c);
             attrMgr->AddPointAttribute(PointAttribute::MeshVertex, m1);
             numInts++;
           }
           vtkLine::DistanceToLine(y0, x0, x1, u, c);
           if (-VTK_DEGENERATE_TOL <= u && u <= (1.0 + VTK_DEGENERATE_TOL))
           {
-            sortedPoints.emplace_back(
-              SortPoint(static_cast<double>(i) + u, SortPoint::ON, numInts, onId, c));
+            sortedPoints.emplace_back(static_cast<double>(i) + u, SortPoint::ON, numInts, onId, c);
             attrMgr->AddPointAttribute(PointAttribute::LoopVertex, l0);
             numInts++;
           }
           vtkLine::DistanceToLine(y1, x0, x1, u, c);
           if (-VTK_DEGENERATE_TOL <= u && u <= (1.0 + VTK_DEGENERATE_TOL))
           {
-            sortedPoints.emplace_back(
-              SortPoint(static_cast<double>(i) + u, SortPoint::ON, numInts, onId, c));
+            sortedPoints.emplace_back(static_cast<double>(i) + u, SortPoint::ON, numInts, onId, c);
             attrMgr->AddPointAttribute(PointAttribute::LoopVertex, l1);
             numInts++;
           }
@@ -1178,7 +1175,7 @@ void vtkCookieCutterHelper::CropPoly(vtkIdType cellId, vtkIdType cellOffset, vtk
   {
     t = static_cast<double>(i);
     this->InPoints->GetPoint(pts[i], x);
-    polyPoints.emplace_back(SortPoint(t, SortPoint::VERTEX, numPts, -1, x));
+    polyPoints.emplace_back(t, SortPoint::VERTEX, numPts, -1, x);
     attrMgr->AddPointAttribute(PointAttribute::MeshVertex, pts[i]);
     numPts++;
   }
@@ -1188,7 +1185,7 @@ void vtkCookieCutterHelper::CropPoly(vtkIdType cellId, vtkIdType cellOffset, vtk
   {
     t = static_cast<double>(i);
     loop->Points->GetPoint(i, x);
-    loopPoints.emplace_back(SortPoint(t, SortPoint::VERTEX, numPts, -1, x));
+    loopPoints.emplace_back(t, SortPoint::VERTEX, numPts, -1, x);
     attrMgr->AddPointAttribute(PointAttribute::LoopVertex, i);
     numPts++;
   }
@@ -1219,8 +1216,8 @@ void vtkCookieCutterHelper::CropPoly(vtkIdType cellId, vtkIdType cellOffset, vtk
         attrMgr->AddPointAttribute(PointAttribute::Intersection, m0, m1, l0, l1, u, v);
         u += static_cast<double>(i);
         v += static_cast<double>(j);
-        polyPoints.emplace_back(SortPoint(u, SortPoint::INTERSECTION, numPts, -1, x));
-        loopPoints.emplace_back(SortPoint(v, SortPoint::INTERSECTION, numPts, -1, x));
+        polyPoints.emplace_back(u, SortPoint::INTERSECTION, numPts, -1, x);
+        loopPoints.emplace_back(v, SortPoint::INTERSECTION, numPts, -1, x);
         numPts++;
       }
       else if (result == 3) // parallel lines
@@ -1238,40 +1235,32 @@ void vtkCookieCutterHelper::CropPoly(vtkIdType cellId, vtkIdType cellOffset, vtk
           vtkLine::DistanceToLine(x0, y0, y1, u, c);
           if (-VTK_DEGENERATE_TOL <= u && u <= (1.0 + VTK_DEGENERATE_TOL))
           {
-            polyPoints.emplace_back(
-              SortPoint(static_cast<double>(i), SortPoint::ON, numPts, onId, c));
-            loopPoints.emplace_back(
-              SortPoint(static_cast<double>(j) + u, SortPoint::ON, numPts, onId, c));
+            polyPoints.emplace_back(static_cast<double>(i), SortPoint::ON, numPts, onId, c);
+            loopPoints.emplace_back(static_cast<double>(j) + u, SortPoint::ON, numPts, onId, c);
             attrMgr->AddPointAttribute(PointAttribute::MeshVertex, m0);
             numPts++;
           }
           vtkLine::DistanceToLine(x1, y0, y1, u, c);
           if (-VTK_DEGENERATE_TOL <= u && u <= (1.0 + VTK_DEGENERATE_TOL))
           {
-            polyPoints.emplace_back(
-              SortPoint(static_cast<double>(i) + 1.0, SortPoint::ON, numPts, onId, c));
-            loopPoints.emplace_back(
-              SortPoint(static_cast<double>(j) + u, SortPoint::ON, numPts, onId, c));
+            polyPoints.emplace_back(static_cast<double>(i) + 1.0, SortPoint::ON, numPts, onId, c);
+            loopPoints.emplace_back(static_cast<double>(j) + u, SortPoint::ON, numPts, onId, c);
             attrMgr->AddPointAttribute(PointAttribute::MeshVertex, m1);
             numPts++;
           }
           vtkLine::DistanceToLine(y0, x0, x1, u, c);
           if (-VTK_DEGENERATE_TOL <= u && u <= (1.0 + VTK_DEGENERATE_TOL))
           {
-            polyPoints.emplace_back(
-              SortPoint(static_cast<double>(i) + u, SortPoint::ON, numPts, onId, c));
-            loopPoints.emplace_back(
-              SortPoint(static_cast<double>(j), SortPoint::ON, numPts, onId, c));
+            polyPoints.emplace_back(static_cast<double>(i) + u, SortPoint::ON, numPts, onId, c);
+            loopPoints.emplace_back(static_cast<double>(j), SortPoint::ON, numPts, onId, c);
             attrMgr->AddPointAttribute(PointAttribute::LoopVertex, l0);
             numPts++;
           }
           vtkLine::DistanceToLine(y1, x0, x1, u, c);
           if (-VTK_DEGENERATE_TOL <= u && u <= (1.0 + VTK_DEGENERATE_TOL))
           {
-            polyPoints.emplace_back(
-              SortPoint(static_cast<double>(i) + u, SortPoint::ON, numPts, onId, c));
-            loopPoints.emplace_back(
-              SortPoint(static_cast<double>(j) + 1.0, SortPoint::ON, numPts, onId, c));
+            polyPoints.emplace_back(static_cast<double>(i) + u, SortPoint::ON, numPts, onId, c);
+            loopPoints.emplace_back(static_cast<double>(j) + 1.0, SortPoint::ON, numPts, onId, c);
             attrMgr->AddPointAttribute(PointAttribute::LoopVertex, l1);
             numPts++;
           }

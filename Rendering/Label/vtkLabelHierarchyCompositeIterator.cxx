@@ -54,8 +54,8 @@ vtkLabelHierarchyCompositeIterator::~vtkLabelHierarchyCompositeIterator()
 
 void vtkLabelHierarchyCompositeIterator::AddIterator(vtkLabelHierarchyIterator* it, int count)
 {
-  this->Implementation->Iterators.push_back(
-    std::make_pair(vtkSmartPointer<vtkLabelHierarchyIterator>(it), count));
+  this->Implementation->Iterators.emplace_back(
+    vtkSmartPointer<vtkLabelHierarchyIterator>(it), count);
 }
 
 void vtkLabelHierarchyCompositeIterator::ClearIterators()

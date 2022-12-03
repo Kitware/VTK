@@ -219,7 +219,7 @@ struct PolyLineBuilder
         // (...,b)<- ~(a,b)
         if (l.first != c.back().first)
         {
-          c.emplace_back(Link(l.second, l.first));
+          c.emplace_back(l.second, l.first);
         }
         return;
       }
@@ -237,7 +237,7 @@ struct PolyLineBuilder
         // ~(a,b) -> (a,...)
         if (l.second != c.front().second)
         {
-          c.emplace_front(Link(l.second, l.first));
+          c.emplace_front(l.second, l.first);
         }
         return;
       }
@@ -300,7 +300,7 @@ struct PolyLineBuilder
           // (...,a) <- (...,a)
           for (auto linkIt = c2->rbegin(); linkIt != c2->rend(); ++linkIt)
           {
-            c1->emplace_back(Link(linkIt->second, linkIt->first));
+            c1->emplace_back(linkIt->second, linkIt->first);
           }
           c2->clear();
         }

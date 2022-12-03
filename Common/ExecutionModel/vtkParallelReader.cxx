@@ -55,7 +55,7 @@ void vtkParallelReader::AddFileName(const char* fname)
   {
     return;
   }
-  this->Internal->FileNames.push_back(fname);
+  this->Internal->FileNames.emplace_back(fname);
   this->Modified();
 }
 

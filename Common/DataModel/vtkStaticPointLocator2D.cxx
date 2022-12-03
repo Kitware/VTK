@@ -1023,7 +1023,7 @@ void BucketList2D<TIds>::FindClosestNPoints(int N, const double x[3], vtkIdList*
           {
             maxDist2 = dist2;
           }
-          sortedPts.emplace_back(IdTuple(ptId, dist2));
+          sortedPts.emplace_back(ptId, dist2);
         }
         // As soon as N points found, jump out.
         if (static_cast<int>(sortedPts.size()) >= N)
@@ -1065,7 +1065,7 @@ FOUND_N:
             dist2 = Distance2BetweenPoints2D(x, pt);
             if (dist2 <= maxDist2)
             {
-              sortedPts.emplace_back(IdTuple(ptId, dist2));
+              sortedPts.emplace_back(ptId, dist2);
             }
           }
           jStart = 0;
@@ -1381,11 +1381,11 @@ double BucketList2D<TIds>::FindCloseNBoundedPoints(int N, const double x[3], vtk
           if (static_cast<int>(sortedPts.size()) < N)
           {
             maxDist2 = (dist2 > maxDist2 ? dist2 : maxDist2);
-            sortedPts.emplace_back(IdTuple(ptId, dist2));
+            sortedPts.emplace_back(ptId, dist2);
           }
           else if (dist2 <= maxDist2)
           {
-            sortedPts.emplace_back(IdTuple(ptId, dist2));
+            sortedPts.emplace_back(ptId, dist2);
           }
         }
       } // if points in bucket
@@ -1421,7 +1421,7 @@ FOUND_N:
           dist2 = Distance2BetweenPoints2D(x, pt);
           if (dist2 <= maxDist2)
           {
-            sortedPts.emplace_back(IdTuple(ptId, dist2));
+            sortedPts.emplace_back(ptId, dist2);
           }
         }
       } // if points in bucket

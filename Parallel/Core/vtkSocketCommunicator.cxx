@@ -57,7 +57,7 @@ public:
 
   void Push(int tag, int numchars, char* data)
   {
-    this->Buffer[tag].push_back(MessageType());
+    this->Buffer[tag].emplace_back();
     MessageType& msg = this->Buffer[tag].back();
     msg.insert(msg.end(), data, (data + numchars));
   }
