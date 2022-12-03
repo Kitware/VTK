@@ -252,6 +252,7 @@ static void vtkWrapPython_GenerateSpecialHeaders(
 /* This is the main entry point for the python wrappers.  When called,
  * it will print the vtkXXPython.c file contents to "fp".  */
 
+// NOLINTNEXTLINE(modernize-macro-to-enum)
 #define MAX_WRAPPED_CLASSES 256
 
 int VTK_PARSE_MAIN(int argc, char* argv[])

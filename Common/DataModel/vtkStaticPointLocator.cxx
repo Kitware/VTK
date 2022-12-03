@@ -37,7 +37,7 @@ vtkStandardNewMacro(vtkStaticPointLocator);
 
 // There are stack-allocated bucket neighbor lists. This is the initial
 // value. Too small and heap allocation kicks in.
-#define VTK_INITIAL_BUCKET_SIZE 10000
+constexpr size_t VTK_INITIAL_BUCKET_SIZE = 10000;
 
 //------------------------------------------------------------------------------
 // The following code supports threaded point locator construction. The locator

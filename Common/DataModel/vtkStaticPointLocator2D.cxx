@@ -35,7 +35,7 @@ vtkStandardNewMacro(vtkStaticPointLocator2D);
 
 // There are stack-allocated bucket neighbor lists. This is the initial
 // value. Too small and heap allocation kicks in.
-#define VTK_INITIAL_BUCKET_SIZE 10000
+constexpr size_t VTK_INITIAL_BUCKET_SIZE = 10000;
 
 #define Distance2BetweenPoints2D(p1, p2)                                                           \
   (p1[0] - p2[0]) * (p1[0] - p2[0]) + (p1[1] - p2[1]) * (p1[1] - p2[1])

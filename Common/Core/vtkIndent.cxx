@@ -22,8 +22,8 @@ vtkIndent* vtkIndent::New()
   return new vtkIndent; // not a VTK object, don't use object factory macros
 }
 
-#define VTK_STD_INDENT 2
-#define VTK_NUMBER_OF_BLANKS 40
+constexpr int VTK_STD_INDENT = 2;
+constexpr int VTK_NUMBER_OF_BLANKS = 40;
 
 static const char blanks[VTK_NUMBER_OF_BLANKS + 1] = "                                        ";
 
