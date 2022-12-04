@@ -114,6 +114,10 @@ protected:
 
   vtkObject* GetObject(const char* name) const
   {
+    if (!name)
+    {
+      return nullptr;
+    }
     MapType::const_iterator iter = this->Map.find(name);
     if (iter != this->Map.end())
     {
