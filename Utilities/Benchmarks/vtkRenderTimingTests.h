@@ -517,8 +517,6 @@ protected:
 Define a test for depth peeling transluscent geometry.
 =========================================================================*/
 VTK_ABI_NAMESPACE_END
-#include "vtkParametricFunctionSource.h"
-#include "vtkParametricTorus.h"
 #include "vtkProperty.h"
 #include "vtkTransform.h"
 
@@ -646,9 +644,6 @@ protected:
 Define a test for simple triangle mesh surfaces
 =========================================================================*/
 VTK_ABI_NAMESPACE_END
-#include "vtkParametricBoy.h"
-#include "vtkParametricFunctionSource.h"
-#include "vtkParametricTorus.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 class manyActorTest : public vtkRTTest
