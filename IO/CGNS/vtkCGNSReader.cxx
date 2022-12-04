@@ -2946,6 +2946,11 @@ int vtkCGNSReader::GetUnstructuredZone(
       {
         if (ugrid->GetNumberOfCells() == 0)
         {
+          // CGNS uses one-based indexing
+          for (vtkIdType nf = 0; nf < faceElementsSize; ++nf)
+          {
+            faceElementsArr[nf] -= 1;
+          }
           vtkNew<vtkCellArray> faces;
           faces->SetData(outFaceOffsets, outFaces);
           ugrid->SetCells(VTK_POLYGON, faces);
