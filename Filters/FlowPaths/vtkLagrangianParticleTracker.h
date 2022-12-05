@@ -397,8 +397,10 @@ protected:
   vtkDataObject* FlowCache;
   vtkMTimeType FlowTime;
   vtkBoundingBox FlowBoundsCache;
+  bool FlowCacheInvalid = true;
   vtkDataObject* SurfacesCache;
   vtkMTimeType SurfacesTime;
+  bool SurfaceCacheInvalid = true;
 
   std::mutex ProgressMutex;
   friend struct IntegratingFunctor;
