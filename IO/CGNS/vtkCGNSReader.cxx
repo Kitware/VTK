@@ -2947,7 +2947,7 @@ int vtkCGNSReader::GetUnstructuredZone(
         if (ugrid->GetNumberOfCells() == 0)
         {
           // CGNS uses one-based indexing
-          for (vtkIdType nf = 0; nf < faceElementsSize; ++nf)
+          for (vtkIdType nf = 0; nf < static_cast<vtkIdType>(faceElementsSize); ++nf)
           {
             faceElementsArr[nf] -= 1;
           }
