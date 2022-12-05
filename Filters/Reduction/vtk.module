@@ -17,3 +17,5 @@ TEST_DEPENDS
   VTK::CommonSystem
   VTK::FiltersSources
   VTK::TestingCore
+TEST_OPTIONAL_DEPENDS
+  VTK::CommonImplicitArrays
