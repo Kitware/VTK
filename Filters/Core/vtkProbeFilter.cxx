@@ -649,7 +649,7 @@ public:
           auto sourceArray = this->ProbeFilter->SourceCellArrays[i];
           if (sourceArray)
           {
-            this->OutputPD->CopyTuple(sourceArray, inputArray, lastCellId, pointId);
+            inputArray->SetTuple(pointId, lastCellId, sourceArray);
           }
         }
         maskArray[pointId] = static_cast<char>(1);
@@ -863,7 +863,7 @@ void vtkProbeFilter::ProbeImagePointsInCell(vtkGenericCell* cell, vtkIdType cell
             auto sourceArray = this->SourceCellArrays[i];
             if (sourceArray)
             {
-              outPD->CopyTuple(sourceArray, inputArray, cellId, ptId);
+              inputArray->SetTuple(ptId, cellId, sourceArray);
             }
           }
 
@@ -1133,7 +1133,7 @@ void vtkProbeFilter::ProbeImageDataPointsSMP(vtkDataSet* input, vtkImageData* so
         auto sourceArray = this->SourceCellArrays[i];
         if (sourceArray)
         {
-          outPD->CopyTuple(sourceArray, inputArray, cellId, ptId);
+          inputArray->SetTuple(ptId, cellId, sourceArray);
         }
       }
       maskArray[ptId] = static_cast<char>(1);
