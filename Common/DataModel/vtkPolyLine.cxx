@@ -287,6 +287,15 @@ int vtkPolyLine::EvaluatePosition(const double x[3], double closestPoint[3], int
   int ignoreId, i, return_status, status;
   double lineWeights[2], closestWeights[2];
 
+  // Efficient point access
+  const auto pointsArray = vtkDoubleArray::FastDownCast(this->Points->GetData());
+  if (!pointsArray)
+  {
+    vtkErrorMacro(<< "Points should be double type");
+    return 0;
+  }
+  const double* pts = pointsArray->GetPointer(0);
+
   pcoords[1] = pcoords[2] = 0.0;
 
   return_status = 0;
@@ -294,8 +303,8 @@ int vtkPolyLine::EvaluatePosition(const double x[3], double closestPoint[3], int
   closestWeights[0] = closestWeights[1] = 0.0; // Shut up, compiler
   for (minDist2 = VTK_DOUBLE_MAX, i = 0; i < this->Points->GetNumberOfPoints() - 1; i++)
   {
-    this->Line->Points->SetPoint(0, this->Points->GetPoint(i));
-    this->Line->Points->SetPoint(1, this->Points->GetPoint(i + 1));
+    this->Line->Points->SetPoint(0, pts + 3 * i);
+    this->Line->Points->SetPoint(1, pts + 3 * (i + 1));
     status = this->Line->EvaluatePosition(x, closest, ignoreId, pc, dist2, lineWeights);
     if (status != -1 && dist2 < minDist2)
     {

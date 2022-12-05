@@ -303,6 +303,15 @@ int vtkHigherOrderTriangle::EvaluatePosition(const double x[3], double closestPo
   vtkIdType order = this->GetOrder();
   vtkIdType numberOfSubtriangles = this->GetNumberOfSubtriangles();
 
+  // Efficient point access
+  const auto pointsArray = vtkDoubleArray::FastDownCast(this->Points->GetData());
+  if (!pointsArray)
+  {
+    vtkErrorMacro(<< "Points should be double type");
+    return 0;
+  }
+  const double* pts = pointsArray->GetPointer(0);
+
   minDist2 = VTK_DOUBLE_MAX;
   for (vtkIdType subCellId = 0; subCellId < numberOfSubtriangles; subCellId++)
   {
@@ -311,7 +320,7 @@ int vtkHigherOrderTriangle::EvaluatePosition(const double x[3], double closestPo
     for (vtkIdType i = 0; i < 3; i++)
     {
       pointIndices[i] = this->ToIndex(bindices[i]);
-      this->Face->Points->SetPoint(i, this->Points->GetPoint(pointIndices[i]));
+      this->Face->Points->SetPoint(i, pts + 3 * pointIndices[i]);
     }
 
     status = this->Face->EvaluatePosition(x, closest, ignoreId, pc, dist2, tempWeights);
@@ -368,11 +377,20 @@ void vtkHigherOrderTriangle::EvaluateLocation(
 
   this->InterpolateFunctions(pcoords, weights);
 
-  double p[3];
+  // Efficient point access
+  const auto pointsArray = vtkDoubleArray::FastDownCast(this->Points->GetData());
+  if (!pointsArray)
+  {
+    vtkErrorMacro(<< "Points should be double type");
+    return;
+  }
+  const double* pts = pointsArray->GetPointer(0);
+
+  const double* p;
   vtkIdType nPoints = this->GetPoints()->GetNumberOfPoints();
   for (vtkIdType idx = 0; idx < nPoints; idx++)
   {
-    this->Points->GetPoint(idx, p);
+    p = pts + 3 * idx;
     for (vtkIdType jdx = 0; jdx < 3; jdx++)
     {
       x[jdx] += p[jdx] * weights[idx];

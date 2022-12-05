@@ -140,13 +140,22 @@ int vtkQuadraticTetra::EvaluatePosition(const double* x, double closestPoint[3],
   double params[3] = { .25, .25, .25 };
   double derivs[30];
 
+  // Efficient point access
+  const auto pointsArray = vtkDoubleArray::FastDownCast(this->Points->GetData());
+  if (!pointsArray)
+  {
+    vtkErrorMacro(<< "Points should be double type");
+    return 0;
+  }
+  const double* pts = pointsArray->GetPointer(0);
+
   // compute a bound on the volume to get a scale for an acceptable determinant
   double longestEdge = 0;
+  const double *pt0, *pt1;
   for (int i = 0; i < 6; i++)
   {
-    double pt0[3], pt1[3];
-    this->Points->GetPoint(TetraEdges[i][0], pt0);
-    this->Points->GetPoint(TetraEdges[i][1], pt1);
+    pt0 = pts + 3 * TetraEdges[i][0];
+    pt1 = pts + 3 * TetraEdges[i][1];
     double d2 = vtkMath::Distance2BetweenPoints(pt0, pt1);
     if (longestEdge < d2)
     {
@@ -173,8 +182,7 @@ int vtkQuadraticTetra::EvaluatePosition(const double* x, double closestPoint[3],
            tcol[3] = { 0, 0, 0 };
     for (int i = 0; i < 10; i++)
     {
-      double pt[3];
-      this->Points->GetPoint(i, pt);
+      const double* pt = pts + 3 * i;
       for (int j = 0; j < 3; j++)
       {
         fcol[j] += pt[j] * weights[i];
@@ -277,14 +285,23 @@ void vtkQuadraticTetra::EvaluateLocation(
   int& vtkNotUsed(subId), const double pcoords[3], double x[3], double* weights)
 {
   int i, j;
-  double pt[3];
+  const double* pt;
 
   vtkQuadraticTetra::InterpolationFunctions(pcoords, weights);
+
+  // Efficient point access
+  const auto pointsArray = vtkDoubleArray::FastDownCast(this->Points->GetData());
+  if (!pointsArray)
+  {
+    vtkErrorMacro(<< "Points should be double type");
+    return;
+  }
+  const double* pts = pointsArray->GetPointer(0);
 
   x[0] = x[1] = x[2] = 0.0;
   for (i = 0; i < 10; i++)
   {
-    this->Points->GetPoint(i, pt);
+    pt = pts + 3 * i;
     for (j = 0; j < 3; j++)
     {
       x[j] += pt[j] * weights[i];

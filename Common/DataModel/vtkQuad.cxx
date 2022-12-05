@@ -16,6 +16,7 @@
 
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
+#include "vtkDoubleArray.h"
 #include "vtkIncrementalPointLocator.h"
 #include "vtkLine.h"
 #include "vtkMath.h"
@@ -88,7 +89,7 @@ static const int VTK_QUAD_MAX_ITERATION = 20;
 static const double VTK_QUAD_CONVERGED = 1.e-04;
 
 inline static void ComputeNormal(
-  vtkQuad* self, double pt1[3], double pt2[3], double pt3[3], double n[3])
+  vtkQuad* self, const double* pt1, const double* pt2, const double* pt3, double n[3])
 {
   vtkTriangle::ComputeNormal(pt1, pt2, pt3, n);
 
@@ -107,7 +108,8 @@ int vtkQuad::EvaluatePosition(const double x[3], double closestPoint[3], int& su
   double pcoords[3], double& dist2, double weights[])
 {
   int i, j;
-  double pt1[3], pt2[3], pt3[3], pt[3], n[3];
+  const double *pt1, *pt2, *pt3, *pt;
+  double n[3];
   double det;
   double maxComponent;
   int idx = 0, indices[2];
@@ -120,11 +122,20 @@ int vtkQuad::EvaluatePosition(const double x[3], double closestPoint[3], int& su
   pcoords[0] = pcoords[1] = params[0] = params[1] = 0.5;
   pcoords[2] = 0.0;
 
+  // Efficient point access
+  const auto pointsArray = vtkDoubleArray::FastDownCast(this->Points->GetData());
+  if (!pointsArray)
+  {
+    vtkErrorMacro(<< "Points should be double type");
+    return 0;
+  }
+  const double* pts = pointsArray->GetPointer(0);
+
   // Get normal for quadrilateral
   //
-  this->Points->GetPoint(0, pt1);
-  this->Points->GetPoint(1, pt2);
-  this->Points->GetPoint(2, pt3);
+  pt1 = pts;
+  pt2 = pts + 3;
+  pt3 = pts + 6;
   ComputeNormal(this, pt1, pt2, pt3, n);
 
   // Project point to plane
@@ -168,7 +179,7 @@ int vtkQuad::EvaluatePosition(const double x[3], double closestPoint[3], int& su
     }
     for (i = 0; i < 4; i++)
     {
-      this->Points->GetPoint(i, pt);
+      pt = pts + 3 * i;
       for (j = 0; j < 2; j++)
       {
         fcol[j] += pt[indices[j]] * weights[i];
@@ -238,11 +249,11 @@ int vtkQuad::EvaluatePosition(const double x[3], double closestPoint[3], int& su
   else
   {
     double t;
-    double pt4[3];
+    const double* pt4;
 
     if (closestPoint)
     {
-      this->Points->GetPoint(3, pt4);
+      pt4 = pts + 9;
 
       if (pcoords[0] < 0.0 && pcoords[1] < 0.0)
       {
@@ -302,14 +313,23 @@ void vtkQuad::EvaluateLocation(
   int& vtkNotUsed(subId), const double pcoords[3], double x[3], double* weights)
 {
   int i, j;
-  double pt[3];
+  const double* pt;
 
   vtkQuad::InterpolationFunctions(pcoords, weights);
+
+  // Efficient point access
+  const auto pointsArray = vtkDoubleArray::FastDownCast(this->Points->GetData());
+  if (!pointsArray)
+  {
+    vtkErrorMacro(<< "Points should be double type");
+    return;
+  }
+  const double* pts = pointsArray->GetPointer(0);
 
   x[0] = x[1] = x[2] = 0.0;
   for (i = 0; i < 4; i++)
   {
-    this->Points->GetPoint(i, pt);
+    pt = pts + 3 * i;
     for (j = 0; j < 3; j++)
     {
       x[j] += pt[j] * weights[i];

@@ -55,6 +55,15 @@ int vtkQuadraticEdge::EvaluatePosition(const double x[3], double closestPoint[3]
   int ignoreId, i, returnStatus, status;
   double lineWeights[2];
 
+  // Efficient point access
+  const auto pointsArray = vtkDoubleArray::FastDownCast(this->Points->GetData());
+  if (!pointsArray)
+  {
+    vtkErrorMacro(<< "Points should be double type");
+    return 0;
+  }
+  const double* pts = pointsArray->GetPointer(0);
+
   pcoords[1] = pcoords[2] = 0.0;
 
   returnStatus = -1;
@@ -63,13 +72,13 @@ int vtkQuadraticEdge::EvaluatePosition(const double x[3], double closestPoint[3]
   {
     if (i == 0)
     {
-      this->Line->Points->SetPoint(0, this->Points->GetPoint(0));
-      this->Line->Points->SetPoint(1, this->Points->GetPoint(2));
+      this->Line->Points->SetPoint(0, pts + 3 * 0);
+      this->Line->Points->SetPoint(1, pts + 3 * 2);
     }
     else
     {
-      this->Line->Points->SetPoint(0, this->Points->GetPoint(2));
-      this->Line->Points->SetPoint(1, this->Points->GetPoint(1));
+      this->Line->Points->SetPoint(0, pts + 3 * 2);
+      this->Line->Points->SetPoint(1, pts + 3 * 1);
     }
 
     status = this->Line->EvaluatePosition(x, closest, ignoreId, pc, dist2, lineWeights);
@@ -113,10 +122,19 @@ void vtkQuadraticEdge::EvaluateLocation(
   int& vtkNotUsed(subId), const double pcoords[3], double x[3], double* weights)
 {
   int i;
-  double a0[3], a1[3], a2[3];
-  this->Points->GetPoint(0, a0);
-  this->Points->GetPoint(1, a1);
-  this->Points->GetPoint(2, a2); // midside node
+  const double *a0, *a1, *a2;
+
+  // Efficient point access
+  const auto pointsArray = vtkDoubleArray::FastDownCast(this->Points->GetData());
+  if (!pointsArray)
+  {
+    vtkErrorMacro(<< "Points should be double type");
+    return;
+  }
+  const double* pts = pointsArray->GetPointer(0);
+  a0 = pts;
+  a1 = pts + 3;
+  a2 = pts + 6; // midside node
 
   vtkQuadraticEdge::InterpolationFunctions(pcoords, weights);
 

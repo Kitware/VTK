@@ -230,7 +230,8 @@ int vtkBiQuadraticQuadraticHexahedron::EvaluatePosition(const double x[3], doubl
   double params[3];
   double fcol[3], rcol[3], scol[3], tcol[3];
   int i, j;
-  double d, pt[3];
+  double d;
+  const double* pt;
   double derivs[72];
   double hexweights[8];
 
@@ -238,10 +239,21 @@ int vtkBiQuadraticQuadraticHexahedron::EvaluatePosition(const double x[3], doubl
   pcoords[0] = pcoords[1] = pcoords[2] = params[0] = params[1] = params[2] = 0.0;
   subId = 0;
 
+  // Efficient point access
+  const auto pointsArray = vtkDoubleArray::FastDownCast(this->Points->GetData());
+  if (!pointsArray)
+  {
+    vtkErrorMacro(<< "Points should be double type");
+    return 0;
+  }
+  const double* pts = pointsArray->GetPointer(0);
+
   // Use a tri-linear hexahederon to get good starting values
   vtkHexahedron* hex = vtkHexahedron::New();
   for (i = 0; i < 8; i++)
-    hex->GetPoints()->SetPoint(i, this->Points->GetPoint(i));
+  {
+    hex->GetPoints()->SetPoint(i, pts + 3 * i);
+  }
 
   hex->EvaluatePosition(x, closestPoint, subId, pcoords, dist2, hexweights);
   hex->Delete();
@@ -264,7 +276,7 @@ int vtkBiQuadraticQuadraticHexahedron::EvaluatePosition(const double x[3], doubl
     }
     for (i = 0; i < 24; i++)
     {
-      this->Points->GetPoint(i, pt);
+      pt = pts + 3 * i;
       for (j = 0; j < 3; j++)
       {
         fcol[j] += pt[j] * weights[i];
@@ -368,14 +380,23 @@ void vtkBiQuadraticQuadraticHexahedron::EvaluateLocation(
   int& vtkNotUsed(subId), const double pcoords[3], double x[3], double* weights)
 {
   int i, j;
-  double pt[3];
+  const double* pt;
 
   vtkBiQuadraticQuadraticHexahedron::InterpolationFunctions(pcoords, weights);
+
+  // Efficient point access
+  const auto pointsArray = vtkDoubleArray::FastDownCast(this->Points->GetData());
+  if (!pointsArray)
+  {
+    vtkErrorMacro(<< "Points should be double type");
+    return;
+  }
+  const double* pts = pointsArray->GetPointer(0);
 
   x[0] = x[1] = x[2] = 0.0;
   for (i = 0; i < 24; i++)
   {
-    this->Points->GetPoint(i, pt);
+    pt = pts + 3 * i;
     for (j = 0; j < 3; j++)
     {
       x[j] += pt[j] * weights[i];

@@ -400,15 +400,23 @@ int vtkPolygon::EvaluatePosition(const double x[3], double closestPoint[3], int&
     double t, dist2;
     int numPts;
     double closest[3];
-    double pt1[3], pt2[3];
+    const double *pt1, *pt2;
 
     if (closestPoint)
     {
       numPts = this->Points->GetNumberOfPoints();
+      // Efficient point access
+      const auto pointsArray = vtkDoubleArray::FastDownCast(this->Points->GetData());
+      if (!pointsArray)
+      {
+        vtkErrorMacro(<< "Points should be double type");
+        return 0;
+      }
+      const double* pts = pointsArray->GetPointer(0);
       for (minDist2 = VTK_DOUBLE_MAX, i = 0; i < numPts; i++)
       {
-        this->Points->GetPoint(i, pt1);
-        this->Points->GetPoint((i + 1) % numPts, pt2);
+        pt1 = pts + 3 * i;
+        pt2 = pts + 3 * ((i + 1) % numPts);
         dist2 = vtkLine::DistanceToLine(x, pt1, pt2, t, closest);
         if (dist2 < minDist2)
         {

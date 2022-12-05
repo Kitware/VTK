@@ -17,6 +17,7 @@
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkDataArrayRange.h"
+#include "vtkDoubleArray.h"
 #include "vtkIncrementalPointLocator.h"
 #include "vtkMath.h"
 #include "vtkMathUtilities.h"
@@ -44,13 +45,22 @@ vtkLine::vtkLine()
 int vtkLine::EvaluatePosition(const double x[3], double closestPoint[3], int& subId,
   double pcoords[3], double& dist2, double weights[])
 {
-  double a1[3], a2[3];
+  const double *a1, *a2;
 
   subId = 0;
   pcoords[0] = pcoords[1] = pcoords[2] = 0.0;
 
-  this->Points->GetPoint(0, a1);
-  this->Points->GetPoint(1, a2);
+  // Efficient point access
+  const auto pointsArray = vtkDoubleArray::FastDownCast(this->Points->GetData());
+  if (!pointsArray)
+  {
+    vtkErrorMacro(<< "Points should be double type");
+    return 0;
+  }
+  const double* pts = pointsArray->GetPointer(0);
+
+  a1 = pts;
+  a2 = pts + 3;
 
   // DistanceToLine sets pcoords[0] to a value t
   dist2 = vtkLine::DistanceToLine(x, a1, a2, pcoords[0], closestPoint);

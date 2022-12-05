@@ -121,16 +121,25 @@ int vtkQuadraticQuad::EvaluatePosition(const double* x, double closestPoint[3], 
   double tempWeights[4];
   double closest[3];
 
+  // Efficient point access
+  const auto pointsArray = vtkDoubleArray::FastDownCast(this->Points->GetData());
+  if (!pointsArray)
+  {
+    vtkErrorMacro(<< "Points should be double type");
+    return 0;
+  }
+  const double* pts = pointsArray->GetPointer(0);
+
   // compute the midquad node
   this->Subdivide(weights);
 
   // four linear quads are used
   for (minDist2 = VTK_DOUBLE_MAX, i = 0; i < 4; i++)
   {
-    this->Quad->Points->SetPoint(0, this->Points->GetPoint(LinearQuads[i][0]));
-    this->Quad->Points->SetPoint(1, this->Points->GetPoint(LinearQuads[i][1]));
-    this->Quad->Points->SetPoint(2, this->Points->GetPoint(LinearQuads[i][2]));
-    this->Quad->Points->SetPoint(3, this->Points->GetPoint(LinearQuads[i][3]));
+    this->Quad->Points->SetPoint(0, pts + 3 * LinearQuads[i][0]);
+    this->Quad->Points->SetPoint(1, pts + 3 * LinearQuads[i][1]);
+    this->Quad->Points->SetPoint(2, pts + 3 * LinearQuads[i][2]);
+    this->Quad->Points->SetPoint(3, pts + 3 * LinearQuads[i][3]);
 
     status = this->Quad->EvaluatePosition(x, closest, ignoreId, pc, dist2, tempWeights);
     if (status != -1 && dist2 < minDist2)
@@ -186,14 +195,23 @@ void vtkQuadraticQuad::EvaluateLocation(
   int& vtkNotUsed(subId), const double pcoords[3], double x[3], double* weights)
 {
   int i, j;
-  double pt[3];
+  const double* pt;
 
   vtkQuadraticQuad::InterpolationFunctions(pcoords, weights);
+
+  // Efficient point access
+  const auto pointsArray = vtkDoubleArray::FastDownCast(this->Points->GetData());
+  if (!pointsArray)
+  {
+    vtkErrorMacro(<< "Points should be double type");
+    return;
+  }
+  const double* pts = pointsArray->GetPointer(0);
 
   x[0] = x[1] = x[2] = 0.0;
   for (i = 0; i < 8; i++)
   {
-    this->Points->GetPoint(i, pt);
+    pt = pts + 3 * i;
     for (j = 0; j < 3; j++)
     {
       x[j] += pt[j] * weights[i];

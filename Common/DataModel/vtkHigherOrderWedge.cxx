@@ -415,12 +415,21 @@ void vtkHigherOrderWedge::EvaluateLocation(
   subId = 0; // TODO: Should this be -1?
   this->InterpolateFunctions(pcoords, weights);
 
-  double p[3];
+  // Efficient point access
+  const auto pointsArray = vtkDoubleArray::FastDownCast(this->Points->GetData());
+  if (!pointsArray)
+  {
+    vtkErrorMacro(<< "Points should be double type");
+    return;
+  }
+  const double* pts = pointsArray->GetPointer(0);
+
+  const double* p;
   x[0] = x[1] = x[2] = 0.;
   vtkIdType nPoints = this->GetPoints()->GetNumberOfPoints();
   for (vtkIdType idx = 0; idx < nPoints; ++idx)
   {
-    this->Points->GetPoint(idx, p);
+    p = pts + 3 * idx;
     for (vtkIdType jdx = 0; jdx < 3; ++jdx)
     {
       x[jdx] += p[jdx] * weights[idx];

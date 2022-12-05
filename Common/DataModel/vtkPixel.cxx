@@ -17,6 +17,7 @@
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkDataArrayRange.h"
+#include "vtkDoubleArray.h"
 #include "vtkIncrementalPointLocator.h"
 #include "vtkLine.h"
 #include "vtkMath.h"
@@ -63,7 +64,7 @@ vtkPixel::~vtkPixel()
 int vtkPixel::EvaluatePosition(const double x[3], double closestPoint[3], int& subId,
   double pcoords[3], double& dist2, double weights[])
 {
-  double pt1[3], pt2[3], pt3[3];
+  const double *pt1, *pt2, *pt3;
   int i;
   double p[3], p21[3], p31[3], cp[3];
   double l21, l31, n[3];
@@ -71,11 +72,19 @@ int vtkPixel::EvaluatePosition(const double x[3], double closestPoint[3], int& s
   subId = 0;
   pcoords[2] = 0.0;
 
+  // Efficient point access
+  const auto pointsArray = vtkDoubleArray::FastDownCast(this->Points->GetData());
+  if (!pointsArray)
+  {
+    vtkErrorMacro(<< "Points should be double type");
+    return 0;
+  }
+  const double* pts = pointsArray->GetPointer(0);
+
   // Get normal for pixel
-  //
-  this->Points->GetPoint(0, pt1);
-  this->Points->GetPoint(1, pt2);
-  this->Points->GetPoint(2, pt3);
+  pt1 = pts;
+  pt2 = pts + 3;
+  pt3 = pts + 6;
 
   vtkTriangle::ComputeNormal(pt1, pt2, pt3, n);
 
@@ -145,14 +154,23 @@ int vtkPixel::EvaluatePosition(const double x[3], double closestPoint[3], int& s
 //------------------------------------------------------------------------------
 void vtkPixel::EvaluateLocation(int& subId, const double pcoords[3], double x[3], double* weights)
 {
-  double pt1[3], pt2[3], pt3[3];
+  const double *pt1, *pt2, *pt3;
   int i;
 
   subId = 0;
 
-  this->Points->GetPoint(0, pt1);
-  this->Points->GetPoint(1, pt2);
-  this->Points->GetPoint(2, pt3);
+  // Efficient point access
+  const auto pointsArray = vtkDoubleArray::FastDownCast(this->Points->GetData());
+  if (!pointsArray)
+  {
+    vtkErrorMacro(<< "Points should be double type");
+    return;
+  }
+  const double* pts = pointsArray->GetPointer(0);
+
+  pt1 = pts;
+  pt2 = pts + 3;
+  pt3 = pts + 6;
 
   for (i = 0; i < 3; i++)
   {
