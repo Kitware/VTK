@@ -308,7 +308,7 @@ int vtkTriQuadraticPyramid::EvaluatePosition(const double* x, double closestPoin
     longestEdge = std::max(longestEdge, vtkMath::Distance2BetweenPoints(pt0, pt1));
   }
   // longestEdge value is already squared
-  double volumeBound = std::pow(longestEdge, 1.5);
+  double volumeBound = longestEdge * std::sqrt(longestEdge);
   double determinantTolerance = std::min(1e-20, 0.00001 * volumeBound);
 
   //  set initial position for Newton's method

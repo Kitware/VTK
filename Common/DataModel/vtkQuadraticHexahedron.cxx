@@ -236,7 +236,7 @@ int vtkQuadraticHexahedron::EvaluatePosition(const double x[3], double closestPo
     }
   }
   // longestDiagonal value is already squared
-  double volumeBound = pow(longestDiagonal, 1.5);
+  double volumeBound = longestDiagonal * std::sqrt(longestDiagonal);
   double determinantTolerance = 1e-20 < .00001 * volumeBound ? 1e-20 : .00001 * volumeBound;
 
   //  set initial position for Newton's method

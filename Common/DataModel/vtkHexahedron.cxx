@@ -75,8 +75,7 @@ int vtkHexahedron::EvaluatePosition(const double x[3], double closestPoint[3], i
   double derivs[24];
 
   // Efficient point access
-  vtkDoubleArray* ptArray = static_cast<vtkDoubleArray*>(this->Points->GetData());
-  const double* pts = ptArray->GetPointer(0);
+  const double* pts = static_cast<vtkDoubleArray*>(this->Points->GetData())->GetPointer(0);
   const double *pt0, *pt1;
 
   // compute a bound on the volume to get a scale for an acceptable determinant
@@ -93,7 +92,7 @@ int vtkHexahedron::EvaluatePosition(const double x[3], double closestPoint[3], i
     }
   }
   // longestDiagonal value is already squared
-  double volumeBound = pow(longestDiagonal, 1.5);
+  double volumeBound = longestDiagonal * std::sqrt(longestDiagonal);
   double determinantTolerance = 1e-20 < .00001 * volumeBound ? 1e-20 : .00001 * volumeBound;
 
   //  set initial position for Newton's method

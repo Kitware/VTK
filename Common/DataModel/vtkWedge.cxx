@@ -234,7 +234,7 @@ int vtkWedge::EvaluatePosition(const double x[3], double closestPoint[3], int& s
     }
   }
   // longestEdge value is already squared
-  double volumeBound = pow(longestEdge, 1.5);
+  double volumeBound = longestEdge * std::sqrt(longestEdge);
   double determinantTolerance = 1e-20 < .00001 * volumeBound ? 1e-20 : .00001 * volumeBound;
 
   //  set initial position for Newton's method

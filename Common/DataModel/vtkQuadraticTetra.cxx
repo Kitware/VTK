@@ -154,7 +154,7 @@ int vtkQuadraticTetra::EvaluatePosition(const double* x, double closestPoint[3],
     }
   }
   // longestEdge value is already squared
-  double volumeBound = pow(longestEdge, 1.5);
+  double volumeBound = longestEdge * std::sqrt(longestEdge);
   double determinantTolerance = 1e-20 < .00001 * volumeBound ? 1e-20 : .00001 * volumeBound;
 
   //  set initial position for Newton's method
