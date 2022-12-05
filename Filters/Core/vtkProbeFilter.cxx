@@ -899,28 +899,19 @@ public:
   {
     // make source API threadsafe by calling it once in a single thread.
     source->GetCellType(0);
-    source->GetCell(0, this->GenericCell.Local());
+    source->GetCell(0, this->TLGenericCell.Local());
   }
+
+  void Initialize() { this->TLWeights.Local().resize(this->MaxCellSize); }
 
   void operator()(vtkIdType cellBegin, vtkIdType cellEnd)
   {
-    double fastweights[256];
-    double* weights;
-    if (this->MaxCellSize <= 256)
-    {
-      weights = fastweights;
-    }
-    else
-    {
-      std::vector<double>& dynamicweights = this->WeightsBuffer.Local();
-      dynamicweights.resize(this->MaxCellSize);
-      weights = dynamicweights.data();
-    }
+    double* weights = this->TLWeights.Local().data();
 
     auto sourceGhostFlags = vtkUnsignedCharArray::SafeDownCast(
       this->Source->GetCellData()->GetArray(vtkDataSetAttributes::GhostArrayName()));
 
-    auto& cell = this->GenericCell.Local();
+    auto& cell = this->TLGenericCell.Local();
     bool isFirst = vtkSMPTools::GetSingleThread();
     for (vtkIdType cellId = cellBegin; cellId < cellEnd; ++cellId)
     {
@@ -943,6 +934,8 @@ public:
     }
   }
 
+  void Reduce() {}
+
 private:
   vtkProbeFilter* ProbeFilter;
   vtkDataSet* Source;
@@ -954,8 +947,8 @@ private:
   char* MaskArray;
   int MaxCellSize;
 
-  vtkSMPThreadLocal<std::vector<double>> WeightsBuffer;
-  vtkSMPThreadLocalObject<vtkGenericCell> GenericCell;
+  vtkSMPThreadLocal<std::vector<double>> TLWeights;
+  vtkSMPThreadLocalObject<vtkGenericCell> TLGenericCell;
 };
 
 //------------------------------------------------------------------------------
