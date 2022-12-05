@@ -429,7 +429,7 @@ class vtkProbeFilter::ProbeEmptyPointsWorklet
     double LastPCoords[3];
     int LastSubId;
     double LastClosestPoint[3];
-    double LastCellBounds[6];
+    vtkBoundingBox LastBBox;
     double LastLength2;
     vtkIdType LastCellId;
   };
@@ -480,19 +480,6 @@ public:
     tlData.LastCellId = -1;
   }
 
-  static double GetLength2(const double bounds[6])
-  {
-    double diff, l = 0.0;
-    int i;
-
-    for (i = 0; i < 3; i++)
-    {
-      diff = bounds[2 * i + 1] - bounds[2 * i];
-      l += diff * diff;
-    }
-    return l;
-  }
-
   void operator()(vtkIdType beginPointId, vtkIdType endPointId)
   {
     // global data
@@ -508,7 +495,7 @@ public:
     auto& lastPCoords = tlData.LastPCoords;
     auto& lastSubId = tlData.LastSubId;
     auto& lastClosestPoint = tlData.LastClosestPoint;
-    auto& lastCellBounds = tlData.LastCellBounds;
+    auto& lastBBox = tlData.LastBBox;
     auto& lastLength2 = tlData.LastLength2;
     auto& lastCellId = tlData.LastCellId;
     // local data
@@ -542,9 +529,7 @@ public:
       if (lastCellId != -1)
       {
         // check if it's inside cell bounds
-        insideCellBounds = lastCellBounds[0] <= x[0] && x[0] <= lastCellBounds[1] &&
-          lastCellBounds[2] <= x[1] && x[1] <= lastCellBounds[3] && lastCellBounds[4] <= x[2] &&
-          x[2] <= lastCellBounds[5];
+        insideCellBounds = lastBBox.ContainsPoint(x);
         if (insideCellBounds)
         {
           // Use cache cell only if point is inside
@@ -608,9 +593,9 @@ public:
           // using EvaluateLocation
           currentCell->EvaluateLocation(lastSubId, lastPCoords, lastClosestPoint, weights);
           // copy bounds
-          std::copy_n(currentCell->GetBounds(), 6, lastCellBounds);
+          lastBBox.SetBounds(currentCell->GetBounds());
           // compute lastLength2
-          lastLength2 = ProbeEmptyPointsWorklet::GetLength2(lastCellBounds);
+          lastLength2 = lastBBox.GetDiagonalLength2();
         }
         else
         {
@@ -629,9 +614,9 @@ public:
               // weights
               currentCell->EvaluateLocation(lastSubId, lastPCoords, lastClosestPoint, weights);
               // copy bounds
-              std::copy_n(currentCell->GetBounds(), 6, lastCellBounds);
+              lastBBox.SetBounds(currentCell->GetBounds());
               // compute lastLength2
-              lastLength2 = ProbeEmptyPointsWorklet::GetLength2(lastCellBounds);
+              lastLength2 = lastBBox.GetDiagonalLength2();
             }
             else
             {
@@ -800,15 +785,15 @@ static void GetPointIdsInRange(double rangeMin, double rangeMax, double start, d
 }
 
 //------------------------------------------------------------------------------
-void vtkProbeFilter::ProbeImagePointsInCell(vtkCell* cell, vtkIdType cellId, vtkDataSet* source,
-  int srcBlockId, const double start[3], const double spacing[3], const int dim[3],
-  vtkPointData* outPD, char* maskArray, double* wtsBuff)
+void vtkProbeFilter::ProbeImagePointsInCell(vtkGenericCell* cell, vtkIdType cellId,
+  vtkDataSet* source, int srcBlockId, const double start[3], const double spacing[3],
+  const int dim[3], vtkPointData* outPD, char* maskArray, double* wtsBuff)
 {
   vtkPointData* pd = source->GetPointData();
 
   // get coordinates of sampling grids
   double cellBounds[6];
-  cell->GetBounds(cellBounds);
+  source->GetCellBounds(cellId, cellBounds);
 
   int idxBounds[6];
   GetPointIdsInRange(
@@ -824,16 +809,30 @@ void vtkProbeFilter::ProbeImagePointsInCell(vtkCell* cell, vtkIdType cellId, vtk
     return;
   }
 
+  source->GetCell(cellId, cell);
+
   double cpbuf[3];
   double dist2 = 0;
   double* closestPoint = cpbuf;
-  if (cell->IsA("vtkCell3D"))
+  const bool is3D = cell->GetCellDimension() == 3;
+  if (is3D)
   {
     // we only care about closest point and its distance for 2D cells
     closestPoint = nullptr;
   }
 
-  double userTol2 = this->Tolerance * this->Tolerance;
+  // If ComputeTolerance is set, compute a tolerance proportional to the
+  // cell length. Otherwise, use the user specified absolute tolerance.
+  double tol2;
+  if (this->ComputeTolerance)
+  {
+    const vtkBoundingBox bbox(cellBounds);
+    tol2 = CELL_TOLERANCE_FACTOR_SQR * bbox.GetDiagonalLength2();
+  }
+  else
+  {
+    tol2 = this->Tolerance * this->Tolerance;
+  }
   for (int iz = idxBounds[4]; iz <= idxBounds[5]; iz++)
   {
     double p[3];
@@ -848,16 +847,11 @@ void vtkProbeFilter::ProbeImagePointsInCell(vtkCell* cell, vtkIdType cellId, vtk
 
         double pcoords[3];
         int subId;
-        int inside = cell->EvaluatePosition(p, closestPoint, subId, pcoords, dist2, wtsBuff);
+        const int inside = cell->EvaluatePosition(p, closestPoint, subId, pcoords, dist2, wtsBuff);
 
-        // If ComputeTolerance is set, compute a tolerance proportional to the
-        // cell length. Otherwise, use the user specified absolute tolerance.
-        double tol2 =
-          this->ComputeTolerance ? (CELL_TOLERANCE_FACTOR_SQR * cell->GetLength2()) : userTol2;
-
-        if ((inside == 1) && (dist2 <= tol2))
+        if (inside == 1 && dist2 <= tol2)
         {
-          vtkIdType ptId = ix + dim[0] * (iy + dim[1] * iz);
+          const vtkIdType ptId = ix + dim[0] * (iy + dim[1] * iz);
 
           // Interpolate the point data
           outPD->InterpolatePoint(*this->PointList, pd, srcBlockId, ptId, cell->PointIds, wtsBuff);
@@ -928,7 +922,6 @@ public:
         continue;
       }
 
-      this->Source->GetCell(cellId, cell);
       this->ProbeFilter->ProbeImagePointsInCell(cell, cellId, this->Source, this->SrcBlockId,
         this->Start, this->Spacing, this->Dim, this->OutPointData, this->MaskArray, weights);
     }
