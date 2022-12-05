@@ -176,6 +176,10 @@ More advanced options:
     enable Tkinter support for VTK widgets.
   * `VTK_BUILD_COMPILE_TOOLS_ONLY` (default `OFF`): If set, VTK will compile
     just its compile tools for use in a cross-compile build.
+  * `VTK_NO_PYTHON_THREADS` (default `OFF`): If set, then all Python threading
+    in VTK will be disabled.
+  * `VTK_PYTHON_FULL_THREADSAFE` (default `ON`): If set, lock the Python GIL
+    for Python C API calls, to make it safe to allow Python thread concurrency.
   * `VTK_SERIAL_TESTS_USE_MPIEXEC` (default `OFF`): Used on HPC to run
     serial tests on compute nodes. If set, it prefixes serial tests with
     "${MPIEXEC_EXECUTABLE}" "${MPIEXEC_NUMPROC_FLAG}" "1" ${MPIEXEC_PREFLAGS}
