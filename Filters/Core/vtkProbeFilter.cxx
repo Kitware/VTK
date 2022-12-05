@@ -318,7 +318,7 @@ void vtkProbeFilter::InitializeForProbing(vtkDataSet* input, vtkDataSet* output)
   tempCellData->CopyAllOn(vtkDataSetAttributes::COPYTUPLE);
   tempCellData->CopyAllocate(*this->CellList, numPts, numPts);
 
-  this->CellArrays.clear();
+  this->InputCellArrays.clear();
   int numCellArrays = tempCellData->GetNumberOfArrays();
   for (int cc = 0; cc < numCellArrays; cc++)
   {
@@ -326,13 +326,31 @@ void vtkProbeFilter::InitializeForProbing(vtkDataSet* input, vtkDataSet* output)
     if (inArray && inArray->GetName() && !outPD->GetArray(inArray->GetName()))
     {
       outPD->AddArray(inArray);
-      this->CellArrays.push_back(inArray);
+      this->InputCellArrays.push_back(inArray);
     }
   }
   tempCellData->Delete();
 
   this->InitializeOutputArrays(outPD, numPts);
   outPD->AddArray(this->MaskPoints);
+}
+
+//------------------------------------------------------------------------------
+void vtkProbeFilter::InitializeSourceArrays(vtkDataSet* source)
+{
+  if (!this->PointList || !this->CellList)
+  {
+    vtkErrorMacro("BuildFieldList() must be called before calling this method.");
+    return;
+  }
+
+  this->SourceCellArrays.clear();
+  auto cd = source->GetCellData();
+  for (auto& cellArray : this->InputCellArrays)
+  {
+    vtkDataArray* inArray = cd->GetArray(cellArray->GetName());
+    this->SourceCellArrays.push_back(inArray);
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -380,6 +398,7 @@ void vtkProbeFilter::Probe(vtkDataSet* input, vtkDataSet* source, vtkDataSet* ou
 {
   this->BuildFieldList(source);
   this->InitializeForProbing(input, output);
+  this->InitializeSourceArrays(source);
   this->DoProbing(input, 0, source, output);
 }
 
@@ -638,11 +657,14 @@ public:
         // Interpolate the point data
         this->OutputPD->InterpolatePoint(*this->ProbeFilter->PointList, this->SourcePD,
           this->SourceIdx, pointId, currentCell->PointIds, weights);
-        for (auto& cellArray : this->ProbeFilter->CellArrays)
+        for (size_t i = 0, numArrays = this->ProbeFilter->InputCellArrays.size(); i < numArrays;
+             ++i)
         {
-          if (auto inArray = this->SourceCD->GetArray(cellArray->GetName()))
+          auto inputArray = this->ProbeFilter->InputCellArrays[i];
+          auto sourceArray = this->ProbeFilter->SourceCellArrays[i];
+          if (sourceArray)
           {
-            this->OutputPD->CopyTuple(inArray, cellArray, lastCellId, pointId);
+            this->OutputPD->CopyTuple(sourceArray, inputArray, lastCellId, pointId);
           }
         }
         maskArray[pointId] = static_cast<char>(1);
@@ -783,7 +805,6 @@ void vtkProbeFilter::ProbeImagePointsInCell(vtkCell* cell, vtkIdType cellId, vtk
   vtkPointData* outPD, char* maskArray, double* wtsBuff)
 {
   vtkPointData* pd = source->GetPointData();
-  vtkCellData* cd = source->GetCellData();
 
   // get coordinates of sampling grids
   double cellBounds[6];
@@ -842,12 +863,13 @@ void vtkProbeFilter::ProbeImagePointsInCell(vtkCell* cell, vtkIdType cellId, vtk
           outPD->InterpolatePoint(*this->PointList, pd, srcBlockId, ptId, cell->PointIds, wtsBuff);
 
           // Assign cell data
-          for (auto& cellArray : this->CellArrays)
+          for (size_t i = 0, numArrays = this->InputCellArrays.size(); i < numArrays; ++i)
           {
-            vtkDataArray* inArray = cd->GetArray(cellArray->GetName());
-            if (inArray)
+            auto inputArray = this->InputCellArrays[i];
+            auto sourceArray = this->SourceCellArrays[i];
+            if (sourceArray)
             {
-              outPD->CopyTuple(inArray, cellArray, cellId, ptId);
+              outPD->CopyTuple(sourceArray, inputArray, cellId, ptId);
             }
           }
 
@@ -1119,12 +1141,13 @@ void vtkProbeFilter::ProbeImageDataPointsSMP(vtkDataSet* input, vtkImageData* so
 
       // Interpolate the point data
       outPD->InterpolatePoint(*this->PointList, pd, srcIdx, ptId, pointIds, weights);
-      for (auto& cellArray : this->CellArrays)
+      for (size_t i = 0, numArrays = this->InputCellArrays.size(); i < numArrays; ++i)
       {
-        vtkDataArray* inArray = cd->GetArray(cellArray->GetName());
-        if (inArray)
+        auto inputArray = this->InputCellArrays[i];
+        auto sourceArray = this->SourceCellArrays[i];
+        if (sourceArray)
         {
-          outPD->CopyTuple(inArray, cellArray, cellId, ptId);
+          outPD->CopyTuple(sourceArray, inputArray, cellId, ptId);
         }
       }
       maskArray[ptId] = static_cast<char>(1);

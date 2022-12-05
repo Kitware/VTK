@@ -268,6 +268,7 @@ protected:
    * Initializes output and various arrays which keep track for probing status.
    */
   virtual void InitializeForProbing(vtkDataSet* input, vtkDataSet* output);
+  virtual void InitializeSourceArrays(vtkDataSet* source);
   virtual void InitializeOutputArrays(vtkPointData* outPD, vtkIdType numPts);
 
   /**
@@ -327,7 +328,8 @@ private:
 
   class ProbeEmptyPointsWorklet;
 
-  std::vector<vtkDataArray*> CellArrays;
+  std::vector<vtkDataArray*> InputCellArrays;
+  std::vector<vtkDataArray*> SourceCellArrays;
 };
 
 VTK_ABI_NAMESPACE_END
