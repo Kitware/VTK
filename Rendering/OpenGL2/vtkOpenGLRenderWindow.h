@@ -466,6 +466,10 @@ protected:
   // a FSQ we use to flip framebuffer texture
   vtkOpenGLQuadHelper* FlipQuad;
 
+  // a FSQ we use to read depth component on platforms with OpenGL ES implementations
+  // because `glReadPixels` cannot be used to read GL_DEPTH_COMPONENT
+  vtkOpenGLQuadHelper* DepthReadQuad;
+
   // flip quad helpers Y tcoord
   bool FramebufferFlipY;
 
@@ -473,6 +477,15 @@ protected:
   // when copying to displayframebuffer. Returns
   // true if the color buffer was copied.
   virtual bool ResolveFlipRenderFramebuffer();
+
+  // On GLES, the depth attachment buffer cannot be downloaded from
+  // the GPU with `glReadPixels`.
+  // This method reads the depth buffer bits.
+  // Depth is always 32-bit. The values are split into 4 8-bit numbers.
+  // These are stored in the form of an RGBA color attachment in DepthFrameBuffer.
+  // `glReadPixels` can read that RGBA format and reconstruct full 32-bit integer
+  // followed by scaling down to 0-1.
+  bool ReadDepthComponent();
 
   // used in testing for opengl support
   // in the SupportsOpenGL() method
@@ -498,6 +511,10 @@ protected:
   // used when we need to resolve a multisampled
   // framebuffer
   vtkOpenGLFramebufferObject* ResolveFramebuffer;
+
+  // used when we need to read depth component
+  // with OpenGL ES 3
+  vtkOpenGLFramebufferObject* DepthFramebuffer;
 
   /**
    * Create a not-off-screen window.
