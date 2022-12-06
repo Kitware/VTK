@@ -179,7 +179,7 @@ void vtkFFT::ScaleFft(ComplexNumber* fft, unsigned int shape[2], const std::vect
 template <typename T, typename TW, typename std::enable_if<vtkFFT::isFftType<T>::value>::type*>
 std::vector<vtkFFT::ComplexNumber> vtkFFT::Spectrogram(const std::vector<T>& sig,
   const std::vector<TW>& window, double sampleRate, int noverlap, bool detrend, bool onesided,
-  vtkFFT::Scaling scaling, vtkFFT::SpectralMode mode, unsigned int* shape)
+  vtkFFT::Scaling scaling, vtkFFT::SpectralMode mode, unsigned int* shape, bool transpose)
 {
   if (sig.size() <= 1 || window.size() <= 1 || window.size() > sig.size())
   {
@@ -201,6 +201,11 @@ std::vector<vtkFFT::ComplexNumber> vtkFFT::Spectrogram(const std::vector<T>& sig
 
   vtkFFT::ScaleFft(result.data(), shape, window, sampleRate, onesided, scaling, mode);
 
+  if (transpose)
+  {
+    vtkFFT::Transpose(result.data(), shape);
+  }
+
   return result;
 }
 
@@ -208,7 +213,7 @@ std::vector<vtkFFT::ComplexNumber> vtkFFT::Spectrogram(const std::vector<T>& sig
 template <typename TW>
 vtkSmartPointer<vtkFFT::vtkScalarNumberArray> vtkFFT::Spectrogram(vtkScalarNumberArray* signal,
   const std::vector<TW>& window, double sampleRate, int noverlap, bool detrend, bool onesided,
-  Scaling scaling, SpectralMode mode, unsigned int* shape)
+  Scaling scaling, SpectralMode mode, unsigned int* shape, bool transpose)
 {
   auto sig = vtk::DataArrayTupleRange(signal);
   if (sig.size() <= 1 || window.size() <= 1 ||
@@ -232,12 +237,44 @@ vtkSmartPointer<vtkFFT::vtkScalarNumberArray> vtkFFT::Spectrogram(vtkScalarNumbe
 
   vtkFFT::ScaleFft(result, shape, window, sampleRate, onesided, scaling, mode);
 
+  if (transpose)
+  {
+    vtkFFT::Transpose(result, shape);
+  }
+
   auto resultArray = vtkSmartPointer<vtkFFT::vtkScalarNumberArray>::New();
   resultArray->SetNumberOfComponents(2);
   resultArray->SetArray(
     &result[0].r, shape[0] * shape[1] * 2, 0, vtkFFT::vtkScalarNumberArray::VTK_DATA_ARRAY_DELETE);
 
   return resultArray;
+}
+
+//------------------------------------------------------------------------------
+template <typename T>
+void vtkFFT::Transpose(T* data, unsigned int* shape)
+{
+  // Algorithm has been adapted from this StackOverflow answer:
+  // https://stackoverflow.com/a/9320349/9865192
+  const unsigned int size = shape[0] * shape[1];
+  const unsigned int mn1 = size - 1;
+  std::vector<bool> visited(size, false);
+  for (unsigned int cycle = 0; cycle < size; cycle++)
+  {
+    if (visited[cycle])
+    {
+      continue;
+    }
+
+    unsigned int current = cycle;
+    do
+    {
+      current = (current == mn1) ? mn1 : (shape[0] * current) % mn1;
+      std::swap(data[current], data[cycle]);
+      visited[current] = true;
+    } while (current != cycle);
+  }
+  std::swap(shape[0], shape[1]);
 }
 
 //------------------------------------------------------------------------------

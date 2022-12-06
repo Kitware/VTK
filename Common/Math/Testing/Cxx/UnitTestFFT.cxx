@@ -84,6 +84,7 @@ static int Test_rfftfreq();
 static int Test_fft_direct_inverse();
 static int Test_kernel_generation();
 static int Test_csd();
+static int Test_transpose();
 
 int UnitTestFFT(int, char*[])
 {
@@ -99,6 +100,7 @@ int UnitTestFFT(int, char*[])
   status += Test_fft_direct_inverse();
   status += Test_kernel_generation();
   status += Test_csd();
+  status += Test_transpose();
 
   if (status != 0)
   {
@@ -672,7 +674,7 @@ int Test_csd()
     vtkFFT::Csd(signal, window, sample_rate, noverlap, false, onesided, vtkFFT::Scaling::Density);
   if (!::FuzzyCompare(result, TestResults::ExpectedDensity, 1e-14))
   {
-    std::cerr << "..vtkFFT::Csd(scaling=Density) FAILED";
+    std::cerr << "..vtkFFT::Csd(scaling=Density) FAILED" << std::endl;
     status++;
   }
 
@@ -680,7 +682,7 @@ int Test_csd()
     vtkFFT::Csd(signal, window, sample_rate, noverlap, false, onesided, vtkFFT::Scaling::Spectrum);
   if (!::FuzzyCompare(result, TestResults::ExpectedSpectrum, 1e-8))
   {
-    std::cerr << "..vtkFFT::Csd(scaling=Spectrum) FAILED";
+    std::cerr << "..vtkFFT::Csd(scaling=Spectrum) FAILED" << std::endl;
     status++;
   }
 
@@ -688,7 +690,7 @@ int Test_csd()
     vtkFFT::Csd(signal, window, sample_rate, noverlap, true, onesided, vtkFFT::Scaling::Spectrum);
   if (!::FuzzyCompare(result, TestResults::ExpectedSpectrumDetrend, 1e-8))
   {
-    std::cerr << "..vtkFFT::Csd(detrend=true) FAILED";
+    std::cerr << "..vtkFFT::Csd(detrend=true) FAILED" << std::endl;
     status++;
   }
 
@@ -696,7 +698,7 @@ int Test_csd()
     complexSignal, window, sample_rate, noverlap, false, onesided, vtkFFT::Scaling::Density);
   if (!::FuzzyCompare(result, TestResults::ExpectedComplexDensity, 1e-14))
   {
-    std::cerr << "..vtkFFT::Csd(complexSignal) FAILED";
+    std::cerr << "..vtkFFT::Csd(complexSignal) FAILED" << std::endl;
     status++;
   }
 
@@ -704,7 +706,7 @@ int Test_csd()
     vtkSignal, window, sample_rate, noverlap, true, onesided, vtkFFT::Scaling::Spectrum);
   if (!::FuzzyCompare(vtkResult, TestResults::ExpectedSpectrumDetrend, 1e-8))
   {
-    std::cerr << "..vtkFFT::Csd(vtkFFT::vtkScalarNumberArray) FAILED";
+    std::cerr << "..vtkFFT::Csd(vtkFFT::vtkScalarNumberArray) FAILED" << std::endl;
     status++;
   }
 
@@ -715,7 +717,7 @@ int Test_csd()
   {
     if (!FuzzyCompare(TestResults::ExpectedStft[i], resSpectro[i + shape[1]], 1e-9))
     {
-      std::cerr << "..vtkFFT::Spectrogram(vtkFFT::STFT) FAILED";
+      std::cerr << "..vtkFFT::Spectrogram(vtkFFT::STFT) FAILED" << std::endl;
       status++;
       break;
     }
@@ -723,7 +725,49 @@ int Test_csd()
 
   if (status == 0)
   {
-    std::cerr << "..PASSED";
+    std::cerr << "..PASSED" << std::endl;
+  }
+
+  return status;
+}
+
+int Test_transpose()
+{
+  std::cerr << "Test_transpose..";
+  unsigned int shape[2] = { 4, 3 };
+  std::vector<int> input(shape[0] * shape[1]);
+  std::iota(input.begin(), input.end(), 0);
+
+  const std::vector<int> inputCopy = input;
+
+  const std::vector<int> result = { 0, 3, 6, 9, 1, 4, 7, 10, 2, 5, 8, 11 };
+
+  vtkFFT::Transpose(input.data(), shape);
+
+  int status = 0;
+  if (!std::equal(input.cbegin(), input.cend(), result.cbegin()))
+  {
+    std::cerr << "transposed matrix FAILED" << std::endl;
+    status++;
+  }
+
+  if (shape[0] != 3 && shape[1] != 4)
+  {
+    std::cerr << "shape is not the expected result FAILED" << std::endl;
+    status++;
+  }
+
+  vtkFFT::Transpose(input.data(), shape);
+
+  if (!std::equal(input.cbegin(), input.cend(), inputCopy.cbegin()))
+  {
+    std::cerr << "transposed twice matrix FAILED" << std::endl;
+    status++;
+  }
+
+  if (status == 0)
+  {
+    std::cerr << "..PASSED" << std::endl;
   }
 
   return status;
