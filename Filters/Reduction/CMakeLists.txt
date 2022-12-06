@@ -3,6 +3,7 @@ set(classes
 
 if (VTK_MODULE_ENABLE_VTK_CommonImplicitArrays)
 list(APPEND classes
+  vtkToAffineArrayStrategy
   vtkToConstantArrayStrategy
   vtkToImplicitArrayFilter
   vtkToImplicitStrategy

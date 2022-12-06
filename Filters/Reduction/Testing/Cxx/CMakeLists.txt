@@ -5,6 +5,7 @@ set(implicit_no_data_tests)
 
 if (VTK_MODULE_ENABLE_VTK_CommonImplicitArrays)
   list(APPEND implicit_no_data_tests
+    TestToAffineArrayStrategy.cxx
     TestToConstantArrayStrategy.cxx
     TestToImplicitArrayFilter.cxx
   )
