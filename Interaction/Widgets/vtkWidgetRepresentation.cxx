@@ -368,7 +368,7 @@ bool vtkWidgetRepresentation::NearbyEvent(int X, int Y, double bounds[6])
 
   // Compare, in screen space, the position of the cursor relative to the center of the bounds
   int threshold = 10;
-  if (abs(dFocus[0] - X) < threshold && abs(dFocus[1] - Y) < threshold)
+  if (std::abs(dFocus[0] - X) < threshold && std::abs(dFocus[1] - Y) < threshold)
   {
     return true;
   }
