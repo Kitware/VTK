@@ -872,30 +872,30 @@ wheel-macos-python310-x86_64:test:
 
 # Windows
 
-windows-vs2019-kits-mpi-python-qt:build:
+windows-vs2022-kits-mpi-python-qt:build:
     extends:
-        - .windows_vs2019_kits_mpi_python_qt
+        - .windows_vs2022_kits_mpi_python_qt
         - .cmake_build_windows
         - .windows_builder_tags
         - .cmake_build_artifacts
         - .run_manually
     timeout: 180 minutes
 
-windows-vs2019-kits-mpi-python-qt:test:
+windows-vs2022-kits-mpi-python-qt:test:
     extends:
-        - .windows_vs2019_kits_mpi_python_qt
+        - .windows_vs2022_kits_mpi_python_qt
         - .cmake_test_windows
         - .windows_tester_tags
         - .cmake_test_artifacts
         - .run_automatically
     dependencies:
-        - windows-vs2019-kits-mpi-python-qt:build
+        - windows-vs2022-kits-mpi-python-qt:build
     needs:
-        - windows-vs2019-kits-mpi-python-qt:build
+        - windows-vs2022-kits-mpi-python-qt:build
 
-windows-vs2019-kits-mpi-python-qt-stdthread:test:
+windows-vs2022-kits-mpi-python-qt-stdthread:test:
     extends:
-        - .windows_vs2019_kits_mpi_python_qt_stdthread
+        - .windows_vs2022_kits_mpi_python_qt_stdthread
         - .smp_backend_stdthread_env_variable
         - .ctest_new_cdash_submission
         - .cmake_test_windows
@@ -903,9 +903,9 @@ windows-vs2019-kits-mpi-python-qt-stdthread:test:
         - .cmake_test_artifacts
         - .run_automatically
     dependencies:
-        - windows-vs2019-kits-mpi-python-qt:build
+        - windows-vs2022-kits-mpi-python-qt:build
     needs:
-        - windows-vs2019-kits-mpi-python-qt:build
+        - windows-vs2022-kits-mpi-python-qt:build
 
 # This is disabled because VTK-m doesn't make a relocatable installation of its
 # imported targets (cf. `vtkm::tbb` since it embeds the build-time locations
@@ -916,59 +916,59 @@ windows-vs2019-kits-mpi-python-qt-stdthread:test:
 # Also, the `VTK_DLL_PATHS` ends up making a non-relocatable installation. See
 # `.gitlab/ci/configure_windows.cmake` for the relevant code.
 #
-# vtk:windows-vs2019-kits-mpi-python-qt:test-ext:
+# vtk:windows-vs2022-kits-mpi-python-qt:test-ext:
 #     extends:
-#         - .windows_vs2019_kits_mpi_python_qt_ext_vtk
+#         - .windows_vs2022_kits_mpi_python_qt_ext_vtk
 #         - .cmake_test_external_windows
 #         - .windows_ext_builder_tags
 #         - .cmake_junit_artifacts
 #         - .run_automatically
 #     dependencies:
-#         - windows-vs2019-kits-mpi-python-qt:test
+#         - windows-vs2022-kits-mpi-python-qt:test
 #     needs:
-#         - windows-vs2019-kits-mpi-python-qt:test
+#         - windows-vs2022-kits-mpi-python-qt:test
 
-windows-vs2019-mpi-python-qt:build:
+windows-vs2022-mpi-python-qt:build:
     extends:
-        - .windows_vs2019_mpi_python_qt
+        - .windows_vs2022_mpi_python_qt
         - .cmake_build_windows
         - .windows_builder_tags
         - .cmake_build_artifacts
         - .run_manually
     timeout: 180 minutes
 
-windows-vs2019-mpi-python-qt:test:
+windows-vs2022-mpi-python-qt:test:
     extends:
-        - .windows_vs2019_mpi_python_qt
+        - .windows_vs2022_mpi_python_qt
         - .cmake_test_windows
         - .windows_tester_tags
         - .cmake_test_artifacts
         - .run_automatically
     dependencies:
-        - windows-vs2019-mpi-python-qt:build
+        - windows-vs2022-mpi-python-qt:build
     needs:
-        - windows-vs2019-mpi-python-qt:build
+        - windows-vs2022-mpi-python-qt:build
 
-windows-vs2019-mpi-python-qt-static:build:
+windows-vs2022-mpi-python-qt-static:build:
     extends:
-        - .windows_vs2019_mpi_python_qt_static
+        - .windows_vs2022_mpi_python_qt_static
         - .cmake_build_windows
         - .windows_builder_tags
         - .cmake_build_artifacts
         - .run_manually
     timeout: 180 minutes
 
-windows-vs2019-mpi-python-qt-static:test:
+windows-vs2022-mpi-python-qt-static:test:
     extends:
-        - .windows_vs2019_mpi_python_qt_static
+        - .windows_vs2022_mpi_python_qt_static
         - .cmake_test_windows
         - .windows_tester_tags
         - .cmake_test_artifacts
         - .run_automatically
     dependencies:
-        - windows-vs2019-mpi-python-qt-static:build
+        - windows-vs2022-mpi-python-qt-static:build
     needs:
-        - windows-vs2019-mpi-python-qt-static:build
+        - windows-vs2022-mpi-python-qt-static:build
 
 ## Python wheel builds
 

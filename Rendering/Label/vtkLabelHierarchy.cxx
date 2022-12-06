@@ -606,7 +606,9 @@ void vtkLabelHierarchyFullSortIterator::Begin(vtkIdTypeArray* vtkNotUsed(lastPla
   s.push_back(root);
   int numNodes = 0;
   int numLeaf = 0;
+#ifndef NDEBUG
   int totalLeafDepth = 0;
+#endif
   size_t numLabels = 0;
   int maxLabels = 10000;
   while (!s.empty())
@@ -678,7 +680,9 @@ void vtkLabelHierarchyFullSortIterator::Begin(vtkIdTypeArray* vtkNotUsed(lastPla
     else
     {
       ++numLeaf;
+#ifndef NDEBUG
       totalLeafDepth += level;
+#endif
     }
   }
   vtkDebugMacro("max level is " << maxLevel);

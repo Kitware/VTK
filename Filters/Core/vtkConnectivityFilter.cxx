@@ -524,6 +524,7 @@ int vtkConnectivityFilter::RequestData(vtkInformation* vtkNotUsed(request),
     outScalars->Resize(output->GetNumberOfPoints());
   }
 
+#ifndef NDEBUG
   int num = this->GetNumberOfExtractedRegions();
   int count = 0;
 
@@ -531,6 +532,7 @@ int vtkConnectivityFilter::RequestData(vtkInformation* vtkNotUsed(request),
   {
     count += this->RegionSizes->GetValue(ii);
   }
+#endif
   vtkDebugMacro(<< "Total # of cells accounted for: " << count);
   vtkDebugMacro(<< "Extracted " << output->GetNumberOfCells() << " cells");
 
