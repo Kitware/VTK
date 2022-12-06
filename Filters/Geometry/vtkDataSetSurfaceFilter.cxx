@@ -458,6 +458,10 @@ int vtkDataSetSurfaceFilter::RequestData(vtkInformation* vtkNotUsed(request),
         this->OriginalCellIds->SetNumberOfValues(numTup);
         for (vtkIdType cId = 0; cId < numTup; cId++)
         {
+          if (this->CheckAbort())
+          {
+            break;
+          }
           this->OriginalCellIds->SetValue(cId, cId);
         }
         this->OriginalCellIds->Delete();
@@ -475,6 +479,10 @@ int vtkDataSetSurfaceFilter::RequestData(vtkInformation* vtkNotUsed(request),
         this->OriginalPointIds->SetNumberOfValues(numTup);
         for (vtkIdType cId = 0; cId < numTup; cId++)
         {
+          if (this->CheckAbort())
+          {
+            break;
+          }
           this->OriginalPointIds->SetValue(cId, cId);
         }
         this->OriginalPointIds->Delete();
@@ -667,6 +675,7 @@ int vtkDataSetSurfaceFilter::StructuredExecuteNoBlanking(
         vtkNew<vtkRectilinearGridGeometryFilter> filter;
         filter->SetInputData(input);
         filter->SetExtent(ext[0], ext[1], ext[2], ext[3], ext[4], ext[5]);
+        filter->SetContainerAlgorithm(this);
         filter->Update();
         output->ShallowCopy(filter->GetOutput());
         return 1;
@@ -676,6 +685,7 @@ int vtkDataSetSurfaceFilter::StructuredExecuteNoBlanking(
         vtkNew<vtkStructuredGridGeometryFilter> filter;
         filter->SetInputData(input);
         filter->SetExtent(ext[0], ext[1], ext[2], ext[3], ext[4], ext[5]);
+        filter->SetContainerAlgorithm(this);
         filter->Update();
         output->ShallowCopy(filter->GetOutput());
         return 1;
@@ -816,6 +826,8 @@ int vtkDataSetSurfaceFilter::StructuredExecuteNoBlanking(
   }
 
   this->PassThroughCellIds = originalPassThroughCellIds;
+
+  this->CheckAbort();
 
   return 1;
 }
@@ -1128,7 +1140,7 @@ int vtkDataSetSurfaceFilter::DataSetExecute(vtkDataSet* input, vtkPolyData* outp
 
   // Traverse cells to extract geometry
   //
-  int abort = 0;
+  bool abort = false;
   vtkIdType progressInterval = numCells / 20 + 1;
 
   for (cellId = 0; cellId < numCells && !abort; cellId++)
@@ -1138,7 +1150,7 @@ int vtkDataSetSurfaceFilter::DataSetExecute(vtkDataSet* input, vtkPolyData* outp
     {
       vtkDebugMacro(<< "Process cell #" << cellId);
       this->UpdateProgress(static_cast<double>(cellId) / numCells);
-      abort = this->GetAbortExecute();
+      abort = this->CheckAbort();
     }
     vtkCell* cell = input->GetCell(cellId);
     switch (cell->GetCellDimension())
@@ -1409,6 +1421,7 @@ int vtkDataSetSurfaceFilter::UnstructuredGridExecuteInternal(vtkUnstructuredGrid
     uggf->SetPassThroughPointIds(this->PassThroughPointIds);
     uggf->SetOriginalPointIdsName(this->GetOriginalPointIdsName());
     uggf->DuplicateGhostCellClippingOff();
+    uggf->SetContainerAlgorithm(this);
     // Disable point merging as it may prevent the correct visualization
     // of non-continuous attributes.
     uggf->MergingOff();
@@ -1418,6 +1431,11 @@ int vtkDataSetSurfaceFilter::UnstructuredGridExecuteInternal(vtkUnstructuredGrid
     tempInput->ShallowCopy(uggf->GetOutputDataObject(0));
     input = tempInput;
     cellIter = vtkSmartPointer<vtkCellIterator>::Take(input->NewCellIterator());
+
+    if (this->CheckAbort())
+    {
+      return 1;
+    }
   }
 
   vtkUnsignedCharArray* ghosts = input->GetPointGhostArray();
@@ -1539,7 +1557,7 @@ int vtkDataSetSurfaceFilter::UnstructuredGridExecuteInternal(vtkUnstructuredGrid
   // Traverse cells to extract geometry
   //
   progressCount = 0;
-  int abort = 0;
+  bool abort = false;
   vtkIdType progressInterval = numCells / 20 + 1;
 
   // First insert all points lines in output and 3D geometry in hash.
@@ -1561,7 +1579,7 @@ int vtkDataSetSurfaceFilter::UnstructuredGridExecuteInternal(vtkUnstructuredGrid
     {
       vtkDebugMacro(<< "Process cell #" << cellId);
       this->UpdateProgress(static_cast<double>(cellId) / numCells);
-      abort = this->GetAbortExecute();
+      abort = this->CheckAbort();
       progressCount = 0;
     }
     progressCount++;

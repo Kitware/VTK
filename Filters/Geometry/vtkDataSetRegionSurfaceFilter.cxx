@@ -148,6 +148,8 @@ int vtkDataSetRegionSurfaceFilter::RequestData(
     output->GetPointData()->RemoveArray("vtkOriginalPointIds");
   }
 
+  this->CheckAbort();
+
   return 1;
 }
 
@@ -305,7 +307,7 @@ int vtkDataSetRegionSurfaceFilter::UnstructuredGridExecute(
   // Traverse cells to extract geometry
   //
   progressCount = 0;
-  int abort = 0;
+  bool abort = false;
   vtkIdType progressInterval = numCells / 20 + 1;
 
   // First insert all points lines in output and 3D geometry in hash.
@@ -321,7 +323,7 @@ int vtkDataSetRegionSurfaceFilter::UnstructuredGridExecute(
     {
       vtkDebugMacro(<< "Process cell #" << cellId);
       this->UpdateProgress(static_cast<double>(cellId) / numCells);
-      abort = this->GetAbortExecute();
+      abort = this->CheckAbort();
       progressCount = 0;
     }
     progressCount++;

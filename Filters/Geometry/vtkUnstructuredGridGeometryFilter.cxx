@@ -984,7 +984,7 @@ int vtkUnstructuredGridGeometryFilter::RequestData(vtkInformation* vtkNotUsed(re
 
   // Traverse cells to extract geometry
   int progressCount = 0;
-  int abort = 0;
+  bool abort = false;
   vtkIdType progressInterval = numCells / 20 + 1;
 
   vtkPoolManager<vtkSurfel>* pool = new vtkPoolManager<vtkSurfel>;
@@ -1000,7 +1000,7 @@ int vtkUnstructuredGridGeometryFilter::RequestData(vtkInformation* vtkNotUsed(re
     {
       vtkDebugMacro(<< "Process cell #" << cellId);
       this->UpdateProgress((double)cellId / numCells);
-      abort = this->GetAbortExecute();
+      abort = this->CheckAbort();
       progressCount = 0;
     }
     progressCount++;

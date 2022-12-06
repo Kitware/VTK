@@ -152,6 +152,10 @@ int vtkStructuredGridPartitioner::RequestData(vtkInformation* vtkNotUsed(request
   unsigned int blockIdx = 0;
   for (; blockIdx < multiblock->GetNumberOfBlocks(); ++blockIdx)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     extentPartitioner->GetPartitionExtent(blockIdx, subext);
 
     vtkStructuredGrid* subgrid = vtkStructuredGrid::New();

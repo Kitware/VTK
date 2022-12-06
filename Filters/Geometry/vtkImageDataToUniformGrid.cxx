@@ -128,6 +128,10 @@ int vtkImageDataToUniformGrid::RequestData(
   iter->TraverseSubTreeOn();
   for (iter->GoToFirstItem(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     if (vtkImageData* inImageData = vtkImageData::SafeDownCast(iter->GetCurrentDataObject()))
     {
       vtkNew<vtkUniformGrid> outUniformGrid;
@@ -244,6 +248,10 @@ int vtkImageDataToUniformGrid::Process(
 
   for (vtkIdType i = 0; i < blankingArray->GetNumberOfTuples(); i++)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     double scalarValue = inScalars->GetTuple1(i);
     char value = ((scalarValue > -1) && (scalarValue < 1)) ? value1 : value2;
     blankingArray->SetValue(i, value);

@@ -174,7 +174,7 @@ int vtkExplicitStructuredGridSurfaceFilter::ExtractSurface(
   outputCD->CopyAllocate(cd, numCells);
 
   // Traverse cells to extract geometry
-  int abort = 0;
+  bool abort = false;
   vtkIdType progressInterval = numCells / 20 + 1;
   vtkIdType npts;
   const vtkIdType* pts;
@@ -190,7 +190,7 @@ int vtkExplicitStructuredGridSurfaceFilter::ExtractSurface(
     {
       vtkDebugMacro(<< "Process cell #" << cellId);
       this->UpdateProgress(static_cast<double>(cellId) / numCells);
-      abort = this->GetAbortExecute();
+      abort = this->CheckAbort();
     }
 
     // Ignore blank cells and ghost cells
