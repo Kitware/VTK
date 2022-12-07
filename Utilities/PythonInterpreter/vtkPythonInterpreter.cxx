@@ -796,10 +796,10 @@ void vtkPythonInterpreter::SetupPythonPrefix()
     return;
   }
 
-  std::string pythonlib = vtkGetLibraryPathForSymbol(Py_SetProgramName);
+  std::string pythonlib = vtkGetLibraryPathForSymbol(Py_InitializeEx);
   if (pythonlib.empty())
   {
-    VTKPY_DEBUG_MESSAGE("static Python build or `Py_SetProgramName` library couldn't be found. "
+    VTKPY_DEBUG_MESSAGE("static Python build or `Py_InitializeEx` library couldn't be found. "
                         "Set `PYTHONHOME` if Python standard library fails to load.");
     return;
   }
