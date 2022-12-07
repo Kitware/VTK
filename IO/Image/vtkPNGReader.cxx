@@ -102,8 +102,9 @@ public:
     for (int i = 0; i < num_text; ++i)
     {
       if (
-        // we don't deal with compressed text yet
-        text_ptr[i].compression != PNG_TEXT_COMPRESSION_NONE ||
+        // we only deal with uncompressed text or text with zTXt compression
+        (text_ptr[i].compression != PNG_TEXT_COMPRESSION_NONE &&
+          text_ptr[i].compression != PNG_TEXT_COMPRESSION_zTXt) ||
         // we don't deal with international text yet
         text_ptr[i].text_length == 0)
       {
@@ -622,6 +623,7 @@ const char* vtkPNGReader::GetTextValue(int index)
   return this->Internals->TextKeyValue[index].second.c_str();
 }
 
+//------------------------------------------------------------------------------
 size_t vtkPNGReader::GetNumberOfTextChunks()
 {
   return this->Internals->TextKeyValue.size();
