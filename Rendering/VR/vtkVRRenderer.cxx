@@ -236,10 +236,11 @@ void vtkVRRenderer::ResetCamera(const double bounds[6])
   // be done in the actors but then it requires every actor
   // to be adjusted.  It cannot be done with the camera model
   // matrix as that is broken.
-  // The +distance in the Y translation is because we want
-  // the center of the world to be 1 meter up
+  // The additional distance translation in the view up direction is because we
+  // want the center of the world to be above the physical floor instead of at its level.
   vtkVRRenderWindow* win = static_cast<vtkVRRenderWindow*>(this->GetRenderWindow());
-  win->SetPhysicalTranslation(-center[0], -center[1] + distance, -center[2]);
+  win->SetPhysicalTranslation(
+    -center[0] + vup[0] * distance, -center[1] + vup[1] * distance, -center[2] + vup[2] * distance);
 
   win->SetPhysicalScale(distance);
 }
