@@ -58,12 +58,6 @@ namespace
 {
 
 template <class T>
-void strFree(T* foo)
-{
-  delete[] foo;
-}
-
-template <class T>
 class PoolT
 {
   std::vector<T*> Strings;
@@ -73,7 +67,11 @@ public:
   {
     for (T* astring : this->Strings)
     {
-      strFree(astring);
+#if PY_VERSION_HEX >= 0x03000000
+      PyMem_RawFree(astring);
+#else
+      PyMem_Free(astring);
+#endif
     }
   }
 
@@ -86,15 +84,6 @@ public:
 
 using StringPool = PoolT<char>;
 #if PY_VERSION_HEX >= 0x03000000
-template <>
-void strFree(wchar_t* foo)
-{
-#if PY_VERSION_HEX >= 0x03050000
-  PyMem_RawFree(foo);
-#else
-  PyMem_Free(foo);
-#endif
-}
 using WCharStringPool = PoolT<wchar_t>;
 #endif
 
@@ -107,7 +96,7 @@ wchar_t* vtk_Py_UTF8ToWide(const char* arg)
     size_t length = vtksysEncoding_mbstowcs(nullptr, arg, 0);
     if (length > 0)
     {
-      result = new wchar_t[length + 1];
+      result = (wchar_t*)PyMem_RawMalloc(sizeof(wchar_t) * (length + 1));
       vtksysEncoding_mbstowcs(result, arg, length + 1);
     }
   }
@@ -468,7 +457,10 @@ void vtkPythonInterpreter::SetProgramName(const char* programname)
     }
 #else
     static StringPool pool;
-    Py_SetProgramName(pool.push_back(vtksys::SystemTools::DuplicateString(programname)));
+    size_t length = strlen(programname);
+    char* dupe = (char*)PyMem_Malloc(sizeof(char) * (length + 1));
+    strcpy(dupe, programname);
+    Py_SetProgramName(pool.push_back(dupe));
 #endif
   }
 }
