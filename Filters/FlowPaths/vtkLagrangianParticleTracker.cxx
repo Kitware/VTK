@@ -51,8 +51,6 @@
 #include <sstream>
 
 vtkObjectFactoryNewMacro(vtkLagrangianParticleTracker);
-vtkCxxSetObjectMacro(
-  vtkLagrangianParticleTracker, IntegrationModel, vtkLagrangianBasicIntegrationModel);
 vtkCxxSetObjectMacro(vtkLagrangianParticleTracker, Integrator, vtkInitialValueProblemSolver);
 
 struct IntegratingFunctor
@@ -223,7 +221,7 @@ static constexpr double MAX_REINTEGRATION_FACTOR = 1.0e10;
 
 //------------------------------------------------------------------------------
 vtkLagrangianParticleTracker::vtkLagrangianParticleTracker()
-  : IntegrationModel(vtkLagrangianMatidaIntegrationModel::New())
+  : IntegrationModel(vtkSmartPointer<vtkLagrangianMatidaIntegrationModel>::New())
   , Integrator(vtkRungeKutta2::New())
   , CellLengthComputationMode(STEP_CUR_CELL_LENGTH)
   , StepFactor(1.0)
@@ -252,7 +250,6 @@ vtkLagrangianParticleTracker::vtkLagrangianParticleTracker()
 vtkLagrangianParticleTracker::~vtkLagrangianParticleTracker()
 {
   this->SetIntegrator(nullptr);
-  this->SetIntegrationModel(nullptr);
 }
 
 //------------------------------------------------------------------------------
@@ -323,6 +320,18 @@ void vtkLagrangianParticleTracker::SetSurfaceConnection(vtkAlgorithmOutput* algO
 void vtkLagrangianParticleTracker::SetSurfaceData(vtkDataObject* surface)
 {
   this->SetInputData(2, surface);
+}
+
+//------------------------------------------------------------------------------
+void vtkLagrangianParticleTracker::SetIntegrationModel(vtkLagrangianBasicIntegrationModel* model)
+{
+  if (this->IntegrationModel != model)
+  {
+    this->IntegrationModel = model;
+    this->SurfaceCacheInvalid = true;
+    this->FlowCacheInvalid = true;
+    this->Modified();
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -754,7 +763,7 @@ void vtkLagrangianParticleTracker::InsertVertexCells(vtkPolyData* polydata)
 bool vtkLagrangianParticleTracker::InitializeFlow(vtkDataObject* input, vtkBoundingBox* bounds)
 {
   // Check for updated cache
-  if (input == this->FlowCache && input->GetMTime() <= this->FlowTime &&
+  if (!this->FlowCacheInvalid && input == this->FlowCache && input->GetMTime() <= this->FlowTime &&
     this->IntegrationModel->GetLocatorsBuilt())
   {
     bounds->Reset();
@@ -804,16 +813,19 @@ bool vtkLagrangianParticleTracker::InitializeFlow(vtkDataObject* input, vtkBound
   this->FlowTime = input->GetMTime();
   this->FlowBoundsCache.Reset();
   this->FlowBoundsCache.AddBox(*bounds);
+  this->FlowCacheInvalid = false;
   return true;
 }
 
 //------------------------------------------------------------------------------
 bool vtkLagrangianParticleTracker::UpdateSurfaceCacheIfNeeded(vtkDataObject*& surfaces)
 {
-  if (surfaces != this->SurfacesCache || surfaces->GetMTime() > this->SurfacesTime)
+  if (this->SurfaceCacheInvalid || surfaces != this->SurfacesCache ||
+    surfaces->GetMTime() > this->SurfacesTime)
   {
     this->SurfacesCache = surfaces;
     this->SurfacesTime = surfaces->GetMTime();
+    this->SurfaceCacheInvalid = false;
     return true;
   }
   return false;
