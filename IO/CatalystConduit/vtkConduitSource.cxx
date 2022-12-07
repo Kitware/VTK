@@ -14,6 +14,8 @@
 =========================================================================*/
 #include "vtkConduitSource.h"
 
+#include "vtkArrayDispatch.h"
+#include "vtkArrayIteratorIncludes.h"
 #include "vtkCellArray.h"
 #include "vtkCellArrayIterator.h"
 #include "vtkConduitArrayUtilities.h"
@@ -47,6 +49,7 @@
 #include <algorithm>
 #include <functional>
 #include <map>
+#include <set>
 
 namespace detail
 {
@@ -217,6 +220,134 @@ void SetPolyhedralCells(
   grid->SetCells(cellTypes, connectivity, faceLocations, faces);
 }
 
+struct MixedPolyhedralCells
+{
+  conduit_cpp::Node* ElementShapes;
+  conduit_cpp::Node* ElementSizes;
+  conduit_cpp::Node* ElementOffsets;
+
+  conduit_cpp::Node* SubElementSizes;
+  conduit_cpp::Node* SubElementOffsets;
+
+  MixedPolyhedralCells(conduit_cpp::Node* elementShapes, conduit_cpp::Node* elementSizes,
+    conduit_cpp::Node* elementOffsets, conduit_cpp::Node* subElementSizes,
+    conduit_cpp::Node* subElementOffsets)
+    : ElementShapes(elementShapes)
+    , ElementSizes(elementSizes)
+    , ElementOffsets(elementOffsets)
+    , SubElementSizes(subElementSizes)
+    , SubElementOffsets(subElementOffsets)
+  {
+  }
+
+  template <typename ConnectivityArray, typename SubConnectivityArray>
+  void operator()(ConnectivityArray* elementConnectivity,
+    SubConnectivityArray* subElementConnectivity, vtkUnstructuredGrid* ug)
+  {
+    using ConnectivityArrayType = vtk::GetAPIType<ConnectivityArray>;
+    using SubConnectivityArrayType = vtk::GetAPIType<SubConnectivityArray>;
+
+    const auto elementShapesArray =
+      vtkConduitArrayUtilities::MCArrayToVTKArray(conduit_cpp::c_node(this->ElementShapes));
+    const auto elementSizesArray =
+      vtkConduitArrayUtilities::MCArrayToVTKArray(conduit_cpp::c_node(this->ElementSizes));
+    const auto elementOffsetsArray =
+      vtkConduitArrayUtilities::MCArrayToVTKArray(conduit_cpp::c_node(this->ElementOffsets));
+
+    vtkSmartPointer<vtkDataArray> subElementSizesArray(nullptr), subElementOffsetsArray(nullptr);
+    if (this->SubElementSizes != nullptr)
+    {
+      subElementSizesArray =
+        vtkConduitArrayUtilities::MCArrayToVTKArray(conduit_cpp::c_node(this->SubElementSizes));
+    }
+    if (this->SubElementOffsets != nullptr)
+    {
+      subElementOffsetsArray =
+        vtkConduitArrayUtilities::MCArrayToVTKArray(conduit_cpp::c_node(this->SubElementOffsets));
+    }
+
+    auto elementShapesRange = vtk::DataArrayValueRange(elementShapesArray);
+    auto elementSizesRange = vtk::DataArrayValueRange(elementSizesArray);
+    auto elementOffsetsRange = vtk::DataArrayValueRange(elementOffsetsArray);
+
+    assert(elementShapesRange.size() == elementSizesRange.size());
+    assert(elementShapesRange.size() == elementOffsetsRange.size());
+
+    auto elementSizesIterator = elementSizesRange.begin();
+    auto elementOffsetsIterator = elementOffsetsRange.begin();
+
+    const vtkNew<vtkUnsignedCharArray> cellTypes;
+    const vtkNew<vtkCellArray> connectivity;
+    const vtkNew<vtkIdTypeArray> faces;
+    const vtkNew<vtkIdTypeArray> faceLocations;
+
+    for (const auto& cellType : elementShapesRange)
+    {
+      auto type = static_cast<unsigned char>(cellType);
+      cellTypes->InsertNextValue(type);
+      if (type == VTK_POLYHEDRON)
+      {
+        assert(subElementSizesArray != nullptr);
+        assert(subElementOffsetsArray != nullptr);
+
+        std::set<vtkIdType> cellPointSet;
+        auto nCellFaces = static_cast<vtkIdType>(*elementSizesIterator++);
+        auto offset = static_cast<vtkIdType>(*elementOffsetsIterator++);
+        const vtkIdType faceMaxId = faces->GetMaxId() + 1;
+        faceLocations->InsertNextValue(faceMaxId);
+        faces->InsertNextValue(nCellFaces);
+
+        auto elementRange =
+          vtk::DataArrayValueRange(elementConnectivity, offset, offset + nCellFaces);
+
+        for (const ConnectivityArrayType faceId : elementRange)
+        {
+          const vtkIdType nFacePts = subElementSizesArray->GetVariantValue(faceId).ToLongLong();
+          const vtkIdType faceOffset = subElementOffsetsArray->GetVariantValue(faceId).ToLongLong();
+
+          auto facePtRange =
+            vtk::DataArrayValueRange(subElementConnectivity, faceOffset, faceOffset + nFacePts);
+
+          faces->InsertNextValue(nFacePts);
+          for (const SubConnectivityArrayType ptId : facePtRange)
+          {
+            faces->InsertNextValue(ptId);
+            cellPointSet.insert(ptId);
+          }
+        }
+
+        connectivity->InsertNextCell(static_cast<int>(cellPointSet.size()));
+        for (const vtkIdType cellPoint : cellPointSet)
+        {
+          connectivity->InsertCellPoint(cellPoint);
+        }
+      }
+      else
+      {
+        auto npts = static_cast<vtkIdType>(*elementSizesIterator++);
+        auto offset = static_cast<vtkIdType>(*elementOffsetsIterator++);
+        auto elementRange = vtk::DataArrayValueRange(elementConnectivity, offset, offset + npts);
+
+        connectivity->InsertNextCell(static_cast<int>(npts));
+        for (const ConnectivityArrayType item : elementRange)
+        {
+          connectivity->InsertCellPoint(static_cast<vtkIdType>(item));
+        }
+        faceLocations->InsertNextValue(-1);
+      }
+    }
+
+    if (faces->GetNumberOfValues() > 0)
+    {
+      ug->SetCells(cellTypes, connectivity, faceLocations, faces);
+    }
+    else
+    {
+      ug->SetCells(cellTypes, connectivity, nullptr, nullptr);
+    }
+  }
+};
+
 //----------------------------------------------------------------------------
 vtkSmartPointer<vtkDataSet> GetMesh(
   const conduit_cpp::Node& topologyNode, const conduit_cpp::Node& coordsets)
@@ -252,7 +383,8 @@ vtkSmartPointer<vtkDataSet> GetMesh(
     img->SetDimensions(dims);
     return img;
   }
-  else if (topologyNode["type"].as_string() == "rectilinear" &&
+
+  if (topologyNode["type"].as_string() == "rectilinear" &&
     coords["type"].as_string() == "rectilinear")
   {
     vtkNew<vtkRectilinearGrid> rg;
@@ -320,8 +452,8 @@ vtkSmartPointer<vtkDataSet> GetMesh(
     }
     return rg;
   }
-  else if (topologyNode["type"].as_string() == "structured" &&
-    coords["type"].as_string() == "explicit")
+
+  if (topologyNode["type"].as_string() == "structured" && coords["type"].as_string() == "explicit")
   {
     vtkNew<vtkStructuredGrid> sg;
     sg->SetPoints(CreatePoints(coords));
@@ -332,56 +464,131 @@ vtkSmartPointer<vtkDataSet> GetMesh(
                                                : 1);
     return sg;
   }
-  else if (topologyNode["type"].as_string() == "unstructured" &&
-    coords["type"].as_string() == "explicit")
+
+  if (coords["type"].as_string() == "explicit" &&
+    topologyNode["type"].as_string() == "unstructured" && topologyNode.has_path("elements/shape"))
   {
     vtkNew<vtkUnstructuredGrid> ug;
-    conduit_cpp::Node connectivity = topologyNode["elements/connectivity"];
-    const conduit_cpp::DataType dtype0 = connectivity.dtype();
-    const auto nb_cells = dtype0.number_of_elements();
-    if (nb_cells > 0)
+    std::string shape = topologyNode["elements/shape"].as_string();
+    if (shape != "mixed")
     {
-      ug->SetPoints(CreatePoints(coords));
-      const auto vtk_cell_type = GetCellType(topologyNode["elements/shape"].as_string());
-      if (vtk_cell_type == VTK_POLYHEDRON)
+      conduit_cpp::Node connectivity = topologyNode["elements/connectivity"];
+      const conduit_cpp::DataType dtype0 = connectivity.dtype();
+      const auto nb_cells = dtype0.number_of_elements();
+      if (nb_cells > 0)
       {
-        // polyhedra uses O2M and not M2C arrays, so need to process it
-        // differently.
-        conduit_cpp::Node t_elements = topologyNode["elements"];
-        conduit_cpp::Node t_subelements = topologyNode["subelements"];
-        auto elements = vtkConduitArrayUtilities::O2MRelationToVTKCellArray(
-          conduit_cpp::c_node(&t_elements), "connectivity");
-        auto subelements = vtkConduitArrayUtilities::O2MRelationToVTKCellArray(
-          conduit_cpp::c_node(&t_subelements), "connectivity");
+        ug->SetPoints(CreatePoints(coords));
+        const auto vtk_cell_type = GetCellType(topologyNode["elements/shape"].as_string());
+        if (vtk_cell_type == VTK_POLYHEDRON)
+        {
+          // polyhedra uses O2M and not M2C arrays, so need to process it
+          // differently.
+          conduit_cpp::Node t_elements = topologyNode["elements"];
+          conduit_cpp::Node t_subelements = topologyNode["subelements"];
+          auto elements = vtkConduitArrayUtilities::O2MRelationToVTKCellArray(
+            conduit_cpp::c_node(&t_elements), "connectivity");
+          auto subelements = vtkConduitArrayUtilities::O2MRelationToVTKCellArray(
+            conduit_cpp::c_node(&t_subelements), "connectivity");
 
-        // currently, this is an ugly deep-copy. Once vtkUnstructuredGrid is modified
-        // as proposed here (vtk/vtk#18190), this will get simpler.
-        SetPolyhedralCells(ug, elements, subelements);
+          // currently, this is an ugly deep-copy. Once vtkUnstructuredGrid is modified
+          // as proposed here (vtk/vtk#18190), this will get simpler.
+          SetPolyhedralCells(ug, elements, subelements);
+        }
+        else if (vtk_cell_type == VTK_POLYGON)
+        {
+          // polygons use O2M and not M2C arrays, so need to process it
+          // differently.
+          conduit_cpp::Node t_elements = topologyNode["elements"];
+          auto cellArray = vtkConduitArrayUtilities::O2MRelationToVTKCellArray(
+            conduit_cpp::c_node(&t_elements), "connectivity");
+          ug->SetCells(vtk_cell_type, cellArray);
+        }
+        else
+        {
+          const auto cell_size = GetNumberOfPointsInCellType(vtk_cell_type);
+          auto cellArray = vtkConduitArrayUtilities::MCArrayToVTKCellArray(
+            cell_size, conduit_cpp::c_node(&connectivity));
+          ug->SetCells(vtk_cell_type, cellArray);
+        }
       }
-      else if (vtk_cell_type == VTK_POLYGON)
+    }
+    else if (topologyNode.has_path("elements/shape_map") &&
+      topologyNode.has_path("elements/shapes"))
+    {
+      // mixed shapes definition
+      conduit_cpp::Node shape_map = topologyNode["elements/shape_map"];
+
+      // check presence of polyhedra
+      bool hasPolyhedra(false);
+      conduit_index_t nCells = shape_map.number_of_children();
+      for (conduit_index_t i = 0; i < nCells; ++i)
       {
-        // polygons use O2M and not M2C arrays, so need to process it
-        // differently.
-        conduit_cpp::Node t_elements = topologyNode["elements"];
-        auto cellArray = vtkConduitArrayUtilities::O2MRelationToVTKCellArray(
-          conduit_cpp::c_node(&t_elements), "connectivity");
-        ug->SetCells(vtk_cell_type, cellArray);
+        auto child = shape_map.child(i);
+        int cellType = child.to_int32();
+        hasPolyhedra |= (cellType == VTK_POLYHEDRON);
       }
-      else
+      // if polyhedra are present, the subelements should be present as well.
+      if (hasPolyhedra &&
+        !(topologyNode.has_path("subelements/shape") &&
+          topologyNode.has_path("subelements/shape_map") &&
+          topologyNode.has_path("subelements/shapes")))
       {
-        const auto cell_size = GetNumberOfPointsInCellType(vtk_cell_type);
-        auto cellArray = vtkConduitArrayUtilities::MCArrayToVTKCellArray(
-          cell_size, conduit_cpp::c_node(&connectivity));
-        ug->SetCells(vtk_cell_type, cellArray);
+        throw std::runtime_error("no subelements found for polyhedral cell definition.");
+      }
+      if (nCells > 0)
+      {
+        ug->SetPoints(CreatePoints(coords));
+
+        conduit_cpp::Node t_elementShapes = topologyNode["elements/shapes"];
+        conduit_cpp::Node t_elementSizes = topologyNode["elements/sizes"];
+        conduit_cpp::Node t_elementOffsets = topologyNode["elements/offsets"];
+        conduit_cpp::Node t_elementConnectivity = topologyNode["elements/connectivity"];
+
+        auto elementConnectivity =
+          vtkConduitArrayUtilities::MCArrayToVTKArray(conduit_cpp::c_node(&t_elementConnectivity));
+
+        if (elementConnectivity == nullptr)
+        {
+          throw std::runtime_error("element/connectivity not available (nullptr)");
+        }
+
+        conduit_cpp::Node* p_subElementSizes(nullptr);
+        conduit_cpp::Node* p_subElementOffsets(nullptr);
+
+        vtkSmartPointer<vtkDataArray> subConnectivity(nullptr);
+        if (hasPolyhedra)
+        {
+          // get the face nodes for size, offset and connectivity
+          conduit_cpp::Node t_subElementSizes = topologyNode["subelements/sizes"];
+          conduit_cpp::Node t_subElementOffsets = topologyNode["subelements/offsets"];
+          conduit_cpp::Node t_subElementConnectivity = topologyNode["subelements/connectivity"];
+
+          p_subElementOffsets = &t_subElementOffsets;
+          p_subElementSizes = &t_subElementSizes;
+
+          subConnectivity = vtkConduitArrayUtilities::MCArrayToVTKArray(
+            conduit_cpp::c_node(&t_subElementConnectivity));
+
+          if (subConnectivity == nullptr)
+          {
+            throw std::runtime_error("subelements/connectivity not available (nullptr)");
+          }
+        }
+
+        // dispatch the mcarrays to create the mixed element grid
+        MixedPolyhedralCells worker(&t_elementShapes, &t_elementSizes, &t_elementOffsets,
+          p_subElementSizes, p_subElementOffsets);
+        if (!vtkArrayDispatch::Dispatch2::Execute(elementConnectivity, subConnectivity, worker, ug))
+        {
+          worker(elementConnectivity.GetPointer(), subConnectivity.GetPointer(), ug);
+        }
       }
     }
     // if there are no cells in the Conduit mesh, return an empty ug
     return ug;
   }
-  else
-  {
-    throw std::runtime_error("unsupported topology or coordset");
-  }
+
+  throw std::runtime_error("unsupported topology or coordset");
 }
 
 //----------------------------------------------------------------------------
