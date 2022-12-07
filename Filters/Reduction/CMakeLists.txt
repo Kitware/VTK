@@ -8,6 +8,7 @@ list(APPEND classes
   vtkToImplicitArrayFilter
   vtkToImplicitRamerDouglasPeuckerStrategy
   vtkToImplicitStrategy
+  vtkToImplicitTypeErasureStrategy
 )
 endif()
 

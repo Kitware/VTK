@@ -9,6 +9,7 @@ if (VTK_MODULE_ENABLE_VTK_CommonImplicitArrays)
     TestToConstantArrayStrategy.cxx
     TestToImplicitArrayFilter.cxx
     TestToImplicitRamerDouglasPeuckerStrategy.cxx
+    TestToImplicitTypeErasureStrategy.cxx
   )
 endif()
 
