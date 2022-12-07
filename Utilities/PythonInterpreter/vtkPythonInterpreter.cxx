@@ -80,6 +80,17 @@ public:
     this->Strings.push_back(val);
     return val;
   }
+
+  T* pop_last()
+  {
+    if (this->Strings.empty())
+    {
+      return nullptr;
+    }
+    T* last = *this->Strings.rbegin();
+    this->Strings.pop_back();
+    return last;
+  }
 };
 
 using StringPool = PoolT<char>;
@@ -235,6 +246,10 @@ bool vtkPythonInterpreter::Initialize(int initsigs /*=0*/)
   return vtkPythonInterpreter::InitializeWithArgs(initsigs, 0, nullptr);
 }
 
+#if PY_VERSION_HEX >= 0x03080000
+static WCharStringPool PythonProgramName;
+#endif
+
 //------------------------------------------------------------------------------
 // Ensure that Python is pre-initialized enough for VTK to do its
 // initialization. Must be called before any `PyMem_*` calls are made.
@@ -314,6 +329,7 @@ bool vtkPythonInterpreter::InitializeWithArgs(int initsigs, int argc, char* argv
     PyStatus status;
     PyConfig_InitPythonConfig(&config);
     config.install_signal_handlers = initsigs;
+    config.program_name = PythonProgramName.pop_last();
     status = PyConfig_SetArgv(&config, argc, argvForPython.data());
     if (PyStatus_IsError(status))
     {
@@ -435,11 +451,25 @@ void vtkPythonInterpreter::SetProgramName(const char* programname)
   vtkPythonPreConfig();
   if (programname)
   {
+#if PY_VERSION_HEX >= 0x03080000
+    if (wchar_t* argv0 = vtk_Py_UTF8ToWide(programname))
+    {
+      PythonProgramName.push_back(argv0);
+    }
+    else
+    {
+      fprintf(stderr,
+        "Fatal vtkpython error: "
+        "unable to decode the program name\n");
+      wchar_t* empty = (wchar_t*)PyMem_RawMalloc(sizeof(wchar_t));
+      empty[0] = 0;
+      PythonProgramName.push_back(empty);
+    }
 // From Python Docs: The argument should point to a zero-terminated character
 // string in static storage whose contents will not change for the duration of
 // the program's execution. No code in the Python interpreter will change the
 // contents of this storage.
-#if PY_VERSION_HEX >= 0x03000000
+#elif PY_VERSION_HEX >= 0x03000000
     wchar_t* argv0 = vtk_Py_UTF8ToWide(programname);
     if (argv0 == nullptr)
     {
