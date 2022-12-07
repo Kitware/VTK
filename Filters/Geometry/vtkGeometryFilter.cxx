@@ -854,7 +854,6 @@ struct LocalDataType
   using TFaceMemoryPool = FaceMemoryPool<TInputIdType>;
   // Later on (in Reduce()), a thread id is assigned to the thread.
   int ThreadId;
-  bool BaseThread;
 
   // If point merging is specified, then a non-null point map is provided.
   TInputIdType* PointMap;
@@ -1363,7 +1362,6 @@ struct ExtractCellBoundaries
   {
     // Make sure cells have been built
     auto& localData = this->LocalData.Local();
-    localData.BaseThread = false;
     localData.SetPointMap(this->PointMap);
     localData.SetExcludedFaces(this->ExcFaces);
     localData.Verts.SetPointsGhost(this->PointGhost);
@@ -1476,18 +1474,13 @@ struct ExtractUG : public ExtractCellBoundaries<TInputIdType>
     auto faceMap = this->FaceMap.get();
     auto& localData = this->LocalData.Local();
     auto& cellPointIds = localData.CellPointIds;
-    if (beginCellId == 0)
-    {
-      localData.BaseThread = true;
-    }
 
     vtkIdType npts;
     const vtkIdType* pts;
     unsigned char type;
     bool isGhost;
     bool isFirst = vtkSMPTools::GetSingleThread();
-    for (vtkIdType cellId = beginCellId; cellId < endCellId && !this->Self->GetAbortExecute();
-         ++cellId)
+    for (vtkIdType cellId = beginCellId; cellId < endCellId; ++cellId)
     {
       // -------------------------------------Ghost explanation-------------------------------------
       // Note for both cell dimension cases: MASKED_CELL is computed based on RemoveGhostInterfaces.
@@ -1527,7 +1520,7 @@ struct ExtractUG : public ExtractCellBoundaries<TInputIdType>
         ExtractCellGeometry(this->Grid, cellId, type, npts, pts, &localData, faceMap, isGhost);
       } // if cell visible
     }   // for all cells in this batch
-    if (localData.BaseThread)
+    if (isFirst)
     {
       this->Self->UpdateProgress(static_cast<double>(0.8 * endCellId / this->NumberOfCells));
     }
@@ -1693,8 +1686,7 @@ struct ExtractStructured : public ExtractCellBoundaries<TInputIdType>
     ijk[axis] = this->MinFace ? extent[axis2] : extent[axis2 + 1] - 1;
     const int faceWidth_1 = dims[iAxis] - 1;
     bool isFirst = vtkSMPTools::GetSingleThread();
-    for (vtkIdType faceCellId = faceBeginCellId;
-         faceCellId < faceEndCellId && !this->Self->GetAbortExecute(); ++faceCellId)
+    for (vtkIdType faceCellId = faceBeginCellId; faceCellId < faceEndCellId; ++faceCellId)
     {
       if (isFirst)
       {
@@ -1752,8 +1744,7 @@ struct ExtractStructured : public ExtractCellBoundaries<TInputIdType>
     int ijk[3];
     const int faceWidth_1 = dims[iAxis] - 1;
     bool isFirst = vtkSMPTools::GetSingleThread();
-    for (vtkIdType faceCellId = faceBeginCellId;
-         faceCellId < faceEndCellId && !this->Self->GetAbortExecute(); ++faceCellId)
+    for (vtkIdType faceCellId = faceBeginCellId; faceCellId < faceEndCellId; ++faceCellId)
     {
       if (isFirst)
       {
@@ -1817,15 +1808,11 @@ struct ExtractStructured : public ExtractCellBoundaries<TInputIdType>
 
   void operator()(vtkIdType faceBeginCellId, vtkIdType faceEndCellId)
   {
-    auto& localData = this->LocalData.Local();
-    if (faceBeginCellId == 0)
-    {
-      localData.BaseThread = true;
-    }
+    bool isFirst = vtkSMPTools::GetSingleThread();
     if (this->AllCellsVisible || this->ForceSimpleVisibilityCheck)
     {
       this->FaceOperator(faceBeginCellId, faceEndCellId);
-      if (localData.BaseThread)
+      if (isFirst)
       {
         this->Self->UpdateProgress(static_cast<double>(0.05 * (this->CurrentAxis + !this->MinFace) +
           (0.05 * faceEndCellId / this->NumberOfFaces)));
@@ -1834,7 +1821,7 @@ struct ExtractStructured : public ExtractCellBoundaries<TInputIdType>
     else
     {
       this->ShrinkingFacesOperator(faceBeginCellId, faceEndCellId);
-      if (localData.BaseThread)
+      if (isFirst)
       {
         this->Self->UpdateProgress(static_cast<double>(
           0.1 * this->CurrentAxis + (0.1 * faceEndCellId / this->NumberOfFaces)));
@@ -1937,13 +1924,8 @@ struct ExtractDS : public ExtractCellBoundaries<TInputIdType>
   {
     auto& localData = this->LocalData.Local();
     bool isFirst = vtkSMPTools::GetSingleThread();
-    if (beginCellId == 0)
-    {
-      localData.BaseThread = true;
-    }
 
-    for (vtkIdType cellId = beginCellId; cellId < endCellId && !this->Self->GetAbortExecute();
-         ++cellId)
+    for (vtkIdType cellId = beginCellId; cellId < endCellId; ++cellId)
     {
       if (isFirst)
       {
@@ -1966,7 +1948,7 @@ struct ExtractDS : public ExtractCellBoundaries<TInputIdType>
       } // if cell visible
 
     } // for all cells in this batch
-    if (localData.BaseThread)
+    if (isFirst)
     {
       this->Self->UpdateProgress(static_cast<double>(0.8 * endCellId / this->NumberOfCells));
     }
