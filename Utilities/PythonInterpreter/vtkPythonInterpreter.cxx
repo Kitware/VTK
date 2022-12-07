@@ -247,8 +247,39 @@ bool vtkPythonInterpreter::Initialize(int initsigs /*=0*/)
 }
 
 //------------------------------------------------------------------------------
+// Ensure that Python is pre-initialized enough for VTK to do its
+// initialization. Must be called before any `PyMem_*` calls are made.
+static void vtkPythonPreConfig()
+{
+  // Guard against doing this multiple times.
+  static bool done = false;
+  if (done)
+  {
+    return;
+  }
+  done = true;
+
+#if PY_VERSION_HEX >= 0x03080000
+  PyStatus status;
+  PyPreConfig preconfig;
+  PyPreConfig_InitPythonConfig(&preconfig);
+
+  preconfig.allocator = PYMEM_ALLOCATOR_NOT_SET;
+  preconfig.utf8_mode = 1;
+
+  status = Py_PreInitialize(&preconfig);
+  if (PyStatus_Exception(status))
+  {
+    Py_ExitStatusException(status);
+  }
+#endif
+}
+
+//------------------------------------------------------------------------------
 bool vtkPythonInterpreter::InitializeWithArgs(int initsigs, int argc, char* argv[])
 {
+  vtkPythonPreConfig();
+
   if (Py_IsInitialized() == 0)
   {
     // guide the mechanism to locate Python standard library, if possible.
@@ -412,6 +443,7 @@ void vtkPythonInterpreter::Finalize()
 //------------------------------------------------------------------------------
 void vtkPythonInterpreter::SetProgramName(const char* programname)
 {
+  vtkPythonPreConfig();
   if (programname)
   {
 // From Python Docs: The argument should point to a zero-terminated character
