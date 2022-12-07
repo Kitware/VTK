@@ -782,15 +782,9 @@ void vtkPythonInterpreter::SetupPythonPrefix()
 
   const std::string newprogramname =
     systools::GetFilenamePath(pythonlib) + VTK_PATH_SEPARATOR "vtkpython";
-  VTKPY_DEBUG_MESSAGE(
-    "calling Py_SetProgramName(" << newprogramname << ") to aid in setup of Python prefix.");
-#if PY_VERSION_HEX >= 0x03000000
-  static WCharStringPool wpool;
-  Py_SetProgramName(wpool.push_back(vtk_Py_UTF8ToWide(newprogramname.c_str())));
-#else
-  static StringPool pool;
-  Py_SetProgramName(pool.push_back(systools::DuplicateString(newprogramname.c_str())));
-#endif
+  VTKPY_DEBUG_MESSAGE("calling vtkPythonInterpreter::SetProgramName("
+    << newprogramname << ") to aid in setup of Python prefix.");
+  vtkPythonInterpreter::SetProgramName(newprogramname.c_str());
 }
 
 //------------------------------------------------------------------------------
