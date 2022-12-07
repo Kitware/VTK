@@ -6,6 +6,7 @@ list(APPEND classes
   vtkToAffineArrayStrategy
   vtkToConstantArrayStrategy
   vtkToImplicitArrayFilter
+  vtkToImplicitRamerDouglasPeuckerStrategy
   vtkToImplicitStrategy
 )
 endif()

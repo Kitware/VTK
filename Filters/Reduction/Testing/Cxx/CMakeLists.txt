@@ -8,6 +8,7 @@ if (VTK_MODULE_ENABLE_VTK_CommonImplicitArrays)
     TestToAffineArrayStrategy.cxx
     TestToConstantArrayStrategy.cxx
     TestToImplicitArrayFilter.cxx
+    TestToImplicitRamerDouglasPeuckerStrategy.cxx
   )
 endif()
 
