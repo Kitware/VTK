@@ -113,6 +113,10 @@ list(APPEND CTEST_CUSTOM_WARNING_EXCEPTION
   "vtkParse.tab.c.*bugprone-suspicious-include"
   "mocs_compilation.cpp.*bugprone-suspicious-include"
 
+  # Ignore warnings from the standard library.
+  "warning:.*__builtin_memcpy.*stringop-overflow="
+  "note: at offset .* into destination object"
+
   # Ignore some tidy warnings from wrapper code.
   "vtk[^\\.]+(Java|Python).cxx:.*\\[(readability-redundant-string-init)\\]"
 
