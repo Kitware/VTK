@@ -232,7 +232,7 @@ def nonOrientedUnlimitedMooreSuperCursor(htg):
     for treeId in range(3):
         htg.InitializeNonOrientedUnlimitedMooreSuperCursor(cursor, treeId)
         nb += recursive(cursor, 3)
-    if nb != 3*512:
+    if nb != (3 * 512):
         print("ERROR Unexpected value for unlimited cursor")
     return nb
 

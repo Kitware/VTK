@@ -202,7 +202,7 @@ public:
   /**
    * Is the cursor at tree root?
    */
-  bool IsRoot() { return (this->Index == 0); }
+  bool IsRoot() { return this->Index == 0 && this->Level == 0; }
 
   /**
    * Move the cursor to child `child' of the current vertex.
