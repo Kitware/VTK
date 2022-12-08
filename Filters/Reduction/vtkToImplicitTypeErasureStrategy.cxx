@@ -18,6 +18,7 @@
 #include "vtkArrayDispatchImplicitArrayList.h"
 #include "vtkDataArrayRange.h"
 #include "vtkImplicitArray.h"
+#include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkSMPTools.h"
 #include "vtkSmartPointer.h"
@@ -31,7 +32,7 @@
 
 namespace
 {
-const std::vector<int> BYTE_SIZES({ 1, 2, 4, 8 });
+const std::array<unsigned char, 4> BYTE_SIZES({ 1, 2, 4, 8 });
 using Dispatch = vtkArrayDispatch::DispatchByArray<vtkArrayDispatch::AllArrays>;
 
 template <typename ValueType, typename ArrayT>
@@ -44,7 +45,7 @@ public:
   {
   }
 
-  ValueType operator()(int idx) const
+  ValueType operator()(vtkIdType idx) const
   {
     return this->MinimumElement + static_cast<ValueType>(this->Array->GetValue(idx));
   }
@@ -65,7 +66,7 @@ public:
   {
   }
 
-  ValueType operator()(int idx) const
+  ValueType operator()(vtkIdType idx) const
   {
     return this->MinimumElement + static_cast<ValueType>(this->Range[idx]);
   }
@@ -79,22 +80,24 @@ private:
 struct ReductionChecker
 {
   template <typename ArrayT>
-  void operator()(ArrayT* arr, Option<double>& reduction)
+  void operator()(ArrayT* arr, vtkToImplicitStrategy::Optional& reduction)
   {
     using VType = vtk::GetAPIType<ArrayT>;
     if (!std::is_integral<VType>::value)
     {
-      reduction = Option<double>();
+      reduction = vtkToImplicitStrategy::Optional();
       return;
     }
     auto range = vtk::DataArrayValueRange(arr);
-    auto maxElem = std::max_element(range.begin(), range.end());
-    auto minElem = std::min_element(range.begin(), range.end());
+    auto pair = std::minmax_element(range.begin(), range.end());
+    auto minElem = pair.first;
+    auto maxElem = pair.second;
     VType span = *maxElem - *minElem;
-    std::size_t nBytes = std::ceil(std::log2(span) / 8);
-    reduction =
-      (nBytes < sizeof(VType) ? Option<double>(static_cast<double>(nBytes) / sizeof(VType))
-                              : Option<double>());
+    double nBytes = static_cast<double>(vtkMath::CeilLog2(span)) / 8.0;
+    nBytes = *std::upper_bound(BYTE_SIZES.begin(), BYTE_SIZES.end(), nBytes);
+    reduction = (nBytes < sizeof(VType)
+        ? vtkToImplicitStrategy::Optional(static_cast<double>(nBytes) / sizeof(VType))
+        : vtkToImplicitStrategy::Optional());
   }
 };
 
@@ -130,10 +133,11 @@ struct TypeErasureReductor
       return;
     }
     auto range = vtk::DataArrayValueRange(arr);
-    auto maxElem = std::max_element(range.begin(), range.end());
-    auto minElem = std::min_element(range.begin(), range.end());
+    auto pair = std::minmax_element(range.begin(), range.end());
+    auto minElem = pair.first;
+    auto maxElem = pair.second;
     VType span = *maxElem - *minElem;
-    std::size_t nBytes = std::ceil(std::log2(span) / 8);
+    double nBytes = static_cast<double>(vtkMath::CeilLog2(span)) / 8.0;
     auto itSize = std::upper_bound(BYTE_SIZES.begin(), BYTE_SIZES.end(), nBytes);
     switch (*itSize)
     {
@@ -170,19 +174,20 @@ void vtkToImplicitTypeErasureStrategy::PrintSelf(std::ostream& os, vtkIndent ind
 }
 
 //-------------------------------------------------------------------------
-Option<double> vtkToImplicitTypeErasureStrategy::EstimateReduction(vtkDataArray* arr)
+vtkToImplicitStrategy::Optional vtkToImplicitTypeErasureStrategy::EstimateReduction(
+  vtkDataArray* arr)
 {
   if (!arr)
   {
     vtkWarningMacro("Cannot transform nullptr to type erased array.");
-    return Option<double>();
+    return vtkToImplicitStrategy::Optional();
   }
-  int nVals = arr->GetNumberOfValues();
+  vtkIdType nVals = arr->GetNumberOfValues();
   if (!nVals)
   {
-    return Option<double>();
+    return vtkToImplicitStrategy::Optional();
   }
-  Option<double> reduction;
+  vtkToImplicitStrategy::Optional reduction;
   ::ReductionChecker checker;
   ::Dispatch::Execute(arr, checker, reduction);
   return reduction;
@@ -196,7 +201,7 @@ vtkSmartPointer<vtkDataArray> vtkToImplicitTypeErasureStrategy::Reduce(vtkDataAr
     vtkWarningMacro("Cannot transform nullptr to type erased array.");
     return nullptr;
   }
-  int nVals = arr->GetNumberOfValues();
+  vtkIdType nVals = arr->GetNumberOfValues();
   if (!nVals)
   {
     return nullptr;

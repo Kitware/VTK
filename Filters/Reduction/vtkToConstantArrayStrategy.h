@@ -25,7 +25,7 @@ VTK_ABI_NAMESPACE_BEGIN
  * Strategy to be used in conjunction with `vtkToImplicitArrayFilter` to identify and compress
  * constant arrays.
  */
-class VTKFILTERSREDUCTION_EXPORT vtkToConstantArrayStrategy : public vtkToImplicitStrategy
+class VTKFILTERSREDUCTION_EXPORT vtkToConstantArrayStrategy final : public vtkToImplicitStrategy
 {
 public:
   static vtkToConstantArrayStrategy* New();
@@ -36,7 +36,7 @@ public:
   /**
    * Parent API implementing the strategy
    */
-  Option<double> EstimateReduction(vtkDataArray*) override;
+  vtkToImplicitStrategy::Optional EstimateReduction(vtkDataArray*) override;
   vtkSmartPointer<vtkDataArray> Reduce(vtkDataArray*) override;
   ///@}
 

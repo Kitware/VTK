@@ -25,10 +25,16 @@ VTK_ABI_NAMESPACE_BEGIN
  * A strategy for compressing arrays by type when applicable (int -> unsigned char for example) and
  * wrapping them behind a `vtkImplicitArray` to furnish the same interface.
  *
+ * Arrays are able to be compressed when they are integral and their range (`max_val - min_val`) is
+ * able to be represented in a type that takes less memory than the original type. For example, a
+ * `vtkIntArray` with minimum `342` and maximum `416` has a range of `74` and can therefore be
+ * represented by its minimal value and an array of differences stored as `char`s.
+ *
  * @sa
  * vtkImplicitArray vtkToImplicitArrayFilter vtkToImplicitStrategy
  */
-class VTKFILTERSREDUCTION_EXPORT vtkToImplicitTypeErasureStrategy : public vtkToImplicitStrategy
+class VTKFILTERSREDUCTION_EXPORT vtkToImplicitTypeErasureStrategy final
+  : public vtkToImplicitStrategy
 {
 public:
   static vtkToImplicitTypeErasureStrategy* New();
@@ -39,7 +45,7 @@ public:
   /**
    * Parent API implementing the strategy
    */
-  Option<double> EstimateReduction(vtkDataArray*) override;
+  vtkToImplicitStrategy::Optional EstimateReduction(vtkDataArray*) override;
   vtkSmartPointer<vtkDataArray> Reduce(vtkDataArray*) override;
   ///@}
 

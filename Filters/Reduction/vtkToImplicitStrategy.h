@@ -19,25 +19,6 @@
 #include "vtkObject.h"
 
 VTK_ABI_NAMESPACE_BEGIN
-
-template <typename T>
-struct Option
-{
-  bool IsSome = false;
-  T Value;
-
-  Option()
-    : IsSome(false)
-  {
-  }
-
-  Option(T val)
-    : IsSome(true)
-    , Value(val)
-  {
-  }
-};
-
 /**
  * @class vtkToImplicitStrategy
  *
@@ -66,9 +47,32 @@ public:
   ///@}
 
   /**
-   * Estimate the reduction (if possible) that can be obtained on the array using this strategy
+   * A helper structure for communicating a result with an optional double value
    */
-  virtual Option<double> EstimateReduction(vtkDataArray*) = 0;
+  struct Optional
+  {
+    bool IsSome = false;
+    double Value;
+
+    Optional()
+      : IsSome(false)
+    {
+    }
+
+    Optional(double val)
+      : IsSome(true)
+      , Value(val)
+    {
+    }
+  };
+
+  /**
+   * Estimate the reduction (if possible) that can be obtained on the array using this strategy
+   * - if not possible: the returned Optional.IsSome member will be false
+   * - if possible: the returned Option.IsSome member will be true with Optional.Value being the
+   * reduction factor
+   */
+  virtual Optional EstimateReduction(vtkDataArray*) = 0;
 
   /**
    * Return a reduced version of the input array
@@ -77,9 +81,11 @@ public:
 
   /**
    * Destroy any cached variables present in the object (useful for storing calculation results
-   * in-between the estimation and reduction phases)
+   * in-between the estimation and reduction phases).
+   *
+   * The default implementation does nothing.
    */
-  virtual void Squeeze(){};
+  virtual void ClearCache(){};
 
 protected:
   vtkToImplicitStrategy() = default;

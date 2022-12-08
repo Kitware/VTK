@@ -27,7 +27,7 @@ VTK_ABI_NAMESPACE_BEGIN
  * @sa
  * vtkToImplicitStrategy vtkToImplicitArrayFilter vtkAffineArray
  */
-class VTKFILTERSREDUCTION_EXPORT vtkToAffineArrayStrategy : public vtkToImplicitStrategy
+class VTKFILTERSREDUCTION_EXPORT vtkToAffineArrayStrategy final : public vtkToImplicitStrategy
 {
 public:
   static vtkToAffineArrayStrategy* New();
@@ -36,9 +36,9 @@ public:
 
   ///@{
   /**
-   * Parent API
+   * Implements parent API
    */
-  Option<double> EstimateReduction(vtkDataArray*) override;
+  vtkToImplicitStrategy::Optional EstimateReduction(vtkDataArray*) override;
   vtkSmartPointer<vtkDataArray> Reduce(vtkDataArray*) override;
   ///@}
 

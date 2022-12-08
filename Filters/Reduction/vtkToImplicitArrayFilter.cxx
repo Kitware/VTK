@@ -63,9 +63,11 @@ vtkToImplicitArrayFilter::~vtkToImplicitArrayFilter() = default;
 void vtkToImplicitArrayFilter::PrintSelf(std::ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  os << indent << "vtkToImplicitArrayFilter: \n";
-  os << indent << (this->UseMaxNumberOfDOFs ? "MaxNumberOfDegreesOfFreedom: " : "TargetReduction: ")
-     << (this->UseMaxNumberOfDOFs ? this->MaxNumberOfDegreesOfFreedom : this->TargetReduction)
+  os << indent
+     << (this->UseMaxNumberOfDegreesOfFreedom ? "MaxNumberOfDegreesOfFreedom: "
+                                              : "TargetReduction: ")
+     << (this->UseMaxNumberOfDegreesOfFreedom ? this->MaxNumberOfDegreesOfFreedom
+                                              : this->TargetReduction)
      << "\n";
   os << indent << "Strategy:";
   if (this->Internals->Strategy)
@@ -120,20 +122,13 @@ const vtkToImplicitStrategy* vtkToImplicitArrayFilter::GetStrategy() const
 }
 
 //-------------------------------------------------------------------------
-void vtkToImplicitArrayFilter::SetTolerance(double tol)
-{
-  this->Internals->Strategy->SetTolerance(tol);
-}
-
-//-------------------------------------------------------------------------
-double vtkToImplicitArrayFilter::GetTolerance()
-{
-  return this->Internals->Strategy->GetTolerance();
-}
-
-//-------------------------------------------------------------------------
 vtkDataArraySelection* vtkToImplicitArrayFilter::GetArraySelection(int association)
 {
+  if (association < 0 || association >= vtkDataObject::NUMBER_OF_ASSOCIATIONS)
+  {
+    vtkErrorMacro("Attempt to get an array selection that is out of bounds");
+    return nullptr;
+  }
   return this->Internals->ArraySelections[association];
 }
 
@@ -235,28 +230,23 @@ int vtkToImplicitArrayFilter::RequestData(vtkInformation* vtkNotUsed(info),
         continue;
       }
 
-      Option<double> estimatedReduction = this->Internals->Strategy->EstimateReduction(arr);
+      vtkToImplicitStrategy::Optional estimatedReduction =
+        this->Internals->Strategy->EstimateReduction(arr);
 
-      // check can reduce
-      if (!estimatedReduction.IsSome)
+      // check can reduce and that the reduction is sufficient
+      if (!estimatedReduction.IsSome ||
+        (this->UseMaxNumberOfDegreesOfFreedom ? this->MaxNumberOfDegreesOfFreedom <
+              (estimatedReduction.Value * arr->GetNumberOfValues())
+                                              : this->TargetReduction < estimatedReduction.Value))
       {
-        this->Internals->Strategy->Squeeze();
-        continue;
-      }
-
-      // check that the reduction is sufficient
-      if (this->UseMaxNumberOfDOFs ? this->MaxNumberOfDegreesOfFreedom <
-            estimatedReduction.Value * arr->GetNumberOfTuples() * arr->GetNumberOfComponents()
-                                   : this->TargetReduction < estimatedReduction.Value)
-      {
-        this->Internals->Strategy->Squeeze();
+        this->Internals->Strategy->ClearCache();
         continue;
       }
 
       arraysToRemove.emplace_back(iArr);
       arraysToAdd.emplace_back(this->Internals->Strategy->Reduce(arr));
 
-      this->Internals->Strategy->Squeeze();
+      this->Internals->Strategy->ClearCache();
 
       arraysToAdd.back()->SetName(arr->GetName());
 

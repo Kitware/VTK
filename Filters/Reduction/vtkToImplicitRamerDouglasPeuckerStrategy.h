@@ -40,7 +40,7 @@ VTK_ABI_NAMESPACE_BEGIN
  * 112-122. 10.3138/FM57-6770-U75U-7727.
  *
  */
-class VTKFILTERSREDUCTION_EXPORT vtkToImplicitRamerDouglasPeuckerStrategy
+class VTKFILTERSREDUCTION_EXPORT vtkToImplicitRamerDouglasPeuckerStrategy final
   : public vtkToImplicitStrategy
 {
 public:
@@ -50,16 +50,17 @@ public:
 
   ///@{
   /**
-   * Parent API
+   * Implements parent API
    */
-  Option<double> EstimateReduction(vtkDataArray*) override;
+  vtkToImplicitStrategy::Optional EstimateReduction(vtkDataArray*) override;
   vtkSmartPointer<vtkDataArray> Reduce(vtkDataArray*) override;
+  ///@}
+
   /**
    * Destroys intermediate result of Ramer-Douglas-Peucker algorithm on last array passed to
    * `EstimateReduction`
    */
-  void Squeeze() override;
-  ///@}
+  void ClearCache() override;
 
 protected:
   vtkToImplicitRamerDouglasPeuckerStrategy();

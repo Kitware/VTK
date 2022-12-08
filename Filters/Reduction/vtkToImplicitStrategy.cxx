@@ -20,8 +20,7 @@ VTK_ABI_NAMESPACE_BEGIN
 //-------------------------------------------------------------------------
 void vtkToImplicitStrategy::PrintSelf(std::ostream& os, vtkIndent indent)
 {
-  os << indent << "vtkToImplicitStrategy: " << std::endl;
+  this->Superclass::PrintSelf(os, indent);
   os << indent << "Tolerance: " << this->Tolerance << std::endl;
-  Superclass::PrintSelf(os, indent.GetNextIndent());
 }
 VTK_ABI_NAMESPACE_END

@@ -29,6 +29,18 @@ VTK_ABI_NAMESPACE_BEGIN
  * arrays using strategies that inherit from `vtkToImplicitStrategy`. Arrays that are not compressed
  * are shallow copied.
  *
+ * Here is a code snippet using the filter considering that there is a `previousFilter` with an
+ * output data set that has a data array called "Constant" defined on its points:
+ * ```
+ * vtkNew<vtkToImplicitArrayFilter> toImpArr;
+ * vtkNew<vtkToConstantArrayStrategy> strat;
+ * toImpArr->SetStrategy(strat);
+ * toImpArr->SetInputConnection(previousFilter->GetOutputPort());
+ * auto select = toImpArr->GetPointDataArraySelection();
+ * select->EnableArray("Constant");
+ * toImpArr->Update();
+ * ```
+ *
  * @sa
  * vtkToImplicitStrategy, vtkImplicitArray
  */
@@ -44,16 +56,25 @@ public:
 
   ///@{
   /**
-   * Setters/Getters for UseMaxNumberOfDOFs and MaxNumberOfDegreesOfFreedom
+   * Setters/Getters for UseMaxNumberOfDegreesOfFreedom
    *
-   * UseMaxNumberOfDOFs: determines whether to use the MaxNumberOfDegreesOfFreedom (true) to accept
-   * a reduction or the TargetReduction (false) property (false by default).
-   * MaxNumberOfDegreesOfFreedom: The max number of degrees of freedom to accept in an implicit
-   * array for reduction
+   * Determines whether to use the MaxNumberOfDegreesOfFreedom (true) to accept a reduction or the
+   * TargetReduction (false) property (false by default).
    */
-  vtkGetMacro(UseMaxNumberOfDOFs, bool);
-  vtkSetMacro(UseMaxNumberOfDOFs, bool);
-  vtkBooleanMacro(UseMaxNumberOfDOFs, bool);
+  vtkGetMacro(UseMaxNumberOfDegreesOfFreedom, bool);
+  vtkSetMacro(UseMaxNumberOfDegreesOfFreedom, bool);
+  vtkBooleanMacro(UseMaxNumberOfDegreesOfFreedom, bool);
+  ///@}
+
+  ///@{
+  /**
+   * Setters/Getters for MaxNumberOfDegreesOfFreedom
+   *
+   * The max number of degrees of freedom to accept in an implicit array for reduction (100 by
+   * default).
+   *
+   * @see SetUseMaxNumberOfDegreesOfFreedom for use case
+   */
   vtkGetMacro(MaxNumberOfDegreesOfFreedom, std::size_t);
   vtkSetMacro(MaxNumberOfDegreesOfFreedom, std::size_t);
   ///@}
@@ -62,18 +83,10 @@ public:
   /**
    * Setter/Getter for target reduction
    * Value usually inbetween 0 and 1 which sets the acceptible reduction in size of an array for
-   * passing it to its implicit form
+   * passing it to its implicit form (0.1 by default).
    */
   vtkGetMacro(TargetReduction, double);
   vtkSetMacro(TargetReduction, double);
-  ///@}
-
-  ///@{
-  /**
-   * Setter/Getter for strategy tolerance
-   */
-  void SetTolerance(double tol);
-  double GetTolerance();
   ///@}
 
   ///@{
@@ -104,7 +117,7 @@ protected:
 
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
-  bool UseMaxNumberOfDOFs = false;
+  bool UseMaxNumberOfDegreesOfFreedom = false;
   std::size_t MaxNumberOfDegreesOfFreedom = 100;
 
   double TargetReduction = 0.1;
