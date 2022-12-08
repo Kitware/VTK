@@ -544,17 +544,15 @@ void vtkExtractCells::SetCellIds(const vtkIdType* ptr, vtkIdType numValues)
 void vtkExtractCells::AddCellIds(const vtkIdType* ptr, vtkIdType numValues)
 {
   auto& cellIds = this->CellList;
-  const vtkIdType outputSize = cellIds->GetNumberOfIds();
-  if (outputSize == 0)
+  const vtkIdType oldSize = cellIds->GetNumberOfIds();
+  const vtkIdType newSize = oldSize + numValues;
+  if (oldSize != 0)
   {
-    cellIds->SetNumberOfIds(numValues);
+    cellIds->Resize(newSize);
   }
-  else
-  {
-    cellIds->Resize(outputSize + numValues);
-  }
+  cellIds->SetNumberOfIds(newSize);
   vtkSMPTools::For(0, numValues, [&](vtkIdType begin, vtkIdType end) {
-    std::copy(ptr + begin, ptr + end, cellIds->GetPointer(outputSize + begin));
+    std::copy(ptr + begin, ptr + end, cellIds->GetPointer(oldSize + begin));
   });
   this->Modified();
 }
@@ -573,19 +571,17 @@ void vtkExtractCells::AddCellRange(vtkIdType from, vtkIdType to)
   ++to;
 
   auto& cellIds = this->CellList;
-  const vtkIdType outputSize = cellIds->GetNumberOfIds();
+  const vtkIdType oldSize = cellIds->GetNumberOfIds();
   const vtkIdType numValues = to - from;
-  if (outputSize == 0)
+  const vtkIdType newSize = oldSize + numValues;
+  if (oldSize != 0)
   {
-    cellIds->SetNumberOfIds(numValues);
+    cellIds->Resize(newSize);
   }
-  else
-  {
-    cellIds->Resize(outputSize + numValues);
-  }
+  cellIds->SetNumberOfIds(newSize);
   vtkSMPTools::For(0, numValues, [&](vtkIdType begin, vtkIdType end) {
     std::iota(
-      cellIds->GetPointer(outputSize + begin), cellIds->GetPointer(outputSize + end), from + begin);
+      cellIds->GetPointer(oldSize + begin), cellIds->GetPointer(oldSize + end), from + begin);
   });
   this->Modified();
 }

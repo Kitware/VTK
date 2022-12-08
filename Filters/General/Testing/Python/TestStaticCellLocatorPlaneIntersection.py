@@ -40,7 +40,17 @@ print("Number cells extracted: {0}".format(cellIds.GetNumberOfIds()))
 
 extract = vtk.vtkExtractCells()
 extract.SetInputConnection(contour.GetOutputPort())
-extract.SetCellList(cellIds);
+numberOfIds = cellIds.GetNumberOfIds()
+firstHalf = int(numberOfIds / 2)
+secondHalf = numberOfIds - firstHalf
+cellIdsFirstHalf = vtk.vtkIdList()
+for i in range(firstHalf):
+    cellIdsFirstHalf.InsertNextId(cellIds.GetId(i))
+cellIdsSecondHalf = vtk.vtkIdList()
+for i in range(secondHalf):
+    cellIdsSecondHalf.InsertNextId(cellIds.GetId(i + firstHalf))
+extract.AddCellList(cellIdsFirstHalf)
+extract.AddCellList(cellIdsSecondHalf)
 
 mapper = vtk.vtkDataSetMapper()
 #mapper.SetInputConnection(contour.GetOutputPort())
