@@ -350,57 +350,6 @@ PyGetSetDef PyVTKObject_GetSet[] = {
 // for PyVTKObject, so that python can read from a vtkDataArray.
 // This is particularly useful for NumPy.
 
-#ifndef VTK_PY3K
-//------------------------------------------------------------------------------
-static Py_ssize_t PyVTKObject_AsBuffer_GetSegCount(PyObject* op, Py_ssize_t* lenp)
-{
-  PyVTKObject* self = (PyVTKObject*)op;
-  vtkDataArray* da = vtkDataArray::SafeDownCast(self->vtk_ptr);
-  if (da)
-  {
-    if (lenp)
-    {
-      *lenp = da->GetNumberOfTuples() * da->GetNumberOfComponents() * da->GetDataTypeSize();
-    }
-
-    return 1;
-  }
-
-  if (lenp)
-  {
-    *lenp = 0;
-  }
-  return 0;
-}
-
-//------------------------------------------------------------------------------
-static Py_ssize_t PyVTKObject_AsBuffer_GetReadBuf(PyObject* op, Py_ssize_t segment, void** ptrptr)
-{
-  if (segment != 0)
-  {
-    PyErr_SetString(PyExc_ValueError, "accessing non-existing array segment");
-    return -1;
-  }
-
-  PyVTKObject* self = (PyVTKObject*)op;
-  vtkDataArray* da = vtkDataArray::SafeDownCast(self->vtk_ptr);
-  if (da)
-  {
-    *ptrptr = da->GetVoidPointer(0);
-    return da->GetNumberOfTuples() * da->GetNumberOfComponents() * da->GetDataTypeSize();
-  }
-
-  return -1;
-}
-
-//------------------------------------------------------------------------------
-static Py_ssize_t PyVTKObject_AsBuffer_GetWriteBuf(PyObject* op, Py_ssize_t segment, void** ptrptr)
-{
-  return PyVTKObject_AsBuffer_GetReadBuf(op, segment, ptrptr);
-}
-
-#endif
-
 //------------------------------------------------------------------------------
 // Convert a VTK type to a python type char (struct module)
 static const char* pythonTypeFormat(int t)
@@ -494,12 +443,6 @@ static int PyVTKObject_AsBuffer_GetBuffer(PyObject* obj, Py_buffer* view, int fl
       view->ndim = (ncomp > 1 ? 2 : 1);
       view->format = const_cast<char*>(format);
 
-#ifndef VTK_PY3K
-      // use "smalltable" for 1D arrays, like memoryobject.c
-      view->shape = view->smalltable;
-      view->strides = &view->smalltable[1];
-      if (view->ndim > 1)
-#endif
       {
         if (self->vtk_buffer && self->vtk_buffer[0] != view->ndim)
         {
@@ -559,12 +502,6 @@ static void PyVTKObject_AsBuffer_ReleaseBuffer(PyObject* obj, Py_buffer* view)
 
 //------------------------------------------------------------------------------
 PyBufferProcs PyVTKObject_AsBuffer = {
-#ifndef VTK_PY3K
-  PyVTKObject_AsBuffer_GetReadBuf,  // bf_getreadbuffer
-  PyVTKObject_AsBuffer_GetWriteBuf, // bf_getwritebuffer
-  PyVTKObject_AsBuffer_GetSegCount, // bf_getsegcount
-  nullptr,                          // bf_getcharbuffer
-#endif
   PyVTKObject_AsBuffer_GetBuffer,    // bf_getbuffer
   PyVTKObject_AsBuffer_ReleaseBuffer // bf_releasebuffer
 };
@@ -590,14 +527,12 @@ PyObject* PyVTKObject_FromPointer(PyTypeObject* pytype, PyObject* ghostdict, vtk
     PyObject* s = PyObject_GetAttrString((PyObject*)pytype, "__vtkname__");
     if (s)
     {
-#ifdef VTK_PY3K
       PyObject* tmp = PyUnicode_AsUTF8String(s);
       if (tmp)
       {
         Py_DECREF(s);
         s = tmp;
       }
-#endif
       const char* vtkname_classname = PyBytes_AsString(s);
       if (vtkname_classname == nullptr)
       {

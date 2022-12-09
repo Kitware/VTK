@@ -14,12 +14,7 @@ import math, os, sys
 from vtkmodules.vtkRenderingCore import vtkRenderWindow
 from vtkmodules.vtkRenderingUI import vtkGenericRenderWindowInteractor
 
-if sys.hexversion < 0x03000000:
-    # for Python2
-    import Tkinter as tkinter
-else:
-    # for Python3
-    import tkinter
+import tkinter
 
 from .vtkLoadPythonTkWidgets import vtkLoadPythonTkWidgets
 

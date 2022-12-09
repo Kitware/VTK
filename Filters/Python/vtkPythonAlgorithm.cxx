@@ -38,16 +38,12 @@ void vtkPythonAlgorithm::PrintSelf(ostream& os, vtkIndent indent)
   if (str)
   {
     os << indent << "Object (string): ";
-#ifndef VTK_PY3K
-    os << PyString_AsString(str);
-#else
     PyObject* bytes = PyUnicode_EncodeLocale(str, VTK_PYUNICODE_ENC);
     if (bytes)
     {
       os << PyBytes_AsString(bytes);
       Py_DECREF(bytes);
     }
-#endif
     os << std::endl;
   }
 }

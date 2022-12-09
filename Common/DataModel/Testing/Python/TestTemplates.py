@@ -12,12 +12,6 @@ Created on May 29, 2011 by David Gobbi
 """
 
 import sys
-try:
-    # for Python2
-    import exceptions
-except ImportError:
-    # In Python 3 standard exceptions were moved to builtin module.
-    pass
 from vtkmodules.vtkCommonCore import (
     VTK_DOUBLE,
     vtkArray,
@@ -42,11 +36,8 @@ arrayCodes = ['c', 'b', 'B', 'h', 'H',
               'i', 'I', 'l', 'L', 'q', 'Q',
               'f', 'd']
 
-# create a unicode string for python 2 and python 3
-if sys.hexversion >= 0x03000000:
-    francois = 'Fran\xe7ois'
-else:
-    francois = unicode('Fran\xe7ois', 'latin1')
+# create a unicode string
+francois = 'Fran\xe7ois'
 
 class TestTemplates(Testing.vtkTest):
 

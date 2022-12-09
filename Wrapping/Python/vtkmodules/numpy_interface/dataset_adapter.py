@@ -76,11 +76,6 @@ from ..vtkCommonDataModel import vtkDataObject
 from ..vtkCommonCore import vtkWeakReference
 import weakref
 
-if sys.hexversion < 0x03000000:
-    izip = itertools.izip
-else:
-    izip = zip
-
 def reshape_append_ones (a1, a2):
     """Returns a list with the two arguments, any of them may be
     processed.  If the arguments are numpy.ndarrays, append 1s to the
@@ -220,8 +215,6 @@ class VTKArrayMetaClass(type):
         add_default_numeric_ops("add")
         add_default_numeric_ops("sub")
         add_default_numeric_ops("mul")
-        if sys.hexversion < 0x03000000:
-            add_default_numeric_ops("div")
         add_default_numeric_ops("truediv")
         add_default_numeric_ops("floordiv")
         add_default_numeric_ops("mod")
@@ -362,8 +355,6 @@ class VTKNoneArrayMetaClass(type):
         _add_default_ops("add")
         _add_default_ops("sub")
         _add_default_ops("mul")
-        if sys.hexversion < 0x03000000:
-            _add_default_ops("div")
         _add_default_ops("truediv")
         _add_default_ops("floordiv")
         _add_default_ops("mod")
@@ -447,8 +438,6 @@ class VTKCompositeDataArrayMetaClass(type):
         add_default_numeric_ops("add")
         add_default_numeric_ops("sub")
         add_default_numeric_ops("mul")
-        if sys.hexversion < 0x03000000:
-            add_default_numeric_ops("div")
         add_default_numeric_ops("truediv")
         add_default_numeric_ops("floordiv")
         add_default_numeric_ops("mod")
@@ -554,7 +543,7 @@ class VTKCompositeDataArray(object):
         self.__init_from_composite()
         res = []
         if type(index) == VTKCompositeDataArray:
-            for a, idx in izip(self._Arrays, index.Arrays):
+            for a, idx in zip(self._Arrays, index.Arrays):
                 if a is not NoneArray:
                     res.append(a.__getitem__(idx))
                 else:
@@ -573,7 +562,7 @@ class VTKCompositeDataArray(object):
         self.__init_from_composite()
         res = []
         if type(other) == VTKCompositeDataArray:
-            for a1, a2 in izip(self._Arrays, other.Arrays):
+            for a1, a2 in zip(self._Arrays, other.Arrays):
                 if a1 is not NoneArray and a2 is not NoneArray:
                     l = reshape_append_ones(a1, a2)
                     res.append(op(l[0],l[1]))
@@ -595,7 +584,7 @@ class VTKCompositeDataArray(object):
         self.__init_from_composite()
         res = []
         if type(other) == VTKCompositeDataArray:
-            for a1, a2 in izip(self._Arrays, other.Arrays):
+            for a1, a2 in zip(self._Arrays, other.Arrays):
                 if a1 is not NoneArray and a2 is notNoneArray:
                     l = reshape_append_ones(a2,a1)
                     res.append(op(l[0],l[1]))
@@ -804,7 +793,7 @@ class CompositeDataSetAttributes():
                 # don't add the narray since it's a scalar. GetArray() will create a
                 # VTKCompositeArray on-demand.
         else:
-            for ds, array in izip(self.DataSet, narray.Arrays):
+            for ds, array in zip(self.DataSet, narray.Arrays):
                 if array is not None:
                     ds.GetAttributes(self.Association).append(array, name)
                     added = True

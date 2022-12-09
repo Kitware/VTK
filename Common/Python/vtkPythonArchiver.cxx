@@ -160,11 +160,7 @@ void vtkPythonArchiver::InsertIntoArchive(
 
   PyObject* vtkself = VTKToPython(this);
   PyObject* pypath = PyUnicode_FromString(relativePath.c_str());
-#ifndef VTK_PY3K
-  PyObject* pydata = PyString_FromStringAndSize(data, size);
-#else
   PyObject* pydata = PyBytes_FromStringAndSize(data, size);
-#endif
   PyObject* pysize = PyLong_FromSsize_t(size);
   vtkSmartPyObject args(PyTuple_Pack(4, vtkself, pypath, pydata, pysize));
   Py_DECREF(vtkself);
@@ -211,16 +207,12 @@ void vtkPythonArchiver::PrintSelf(ostream& os, vtkIndent indent)
   if (str)
   {
     os << indent << "Object (string): ";
-#ifndef VTK_PY3K
-    os << PyString_AsString(str);
-#else
     PyObject* bytes = PyUnicode_EncodeLocale(str, VTK_PYUNICODE_ENC);
     if (bytes)
     {
       os << PyBytes_AsString(bytes);
       Py_DECREF(bytes);
     }
-#endif
     os << std::endl;
   }
 }

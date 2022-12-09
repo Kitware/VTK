@@ -24,9 +24,6 @@
 #define VTK_PY3K
 #endif
 
-// ===== Macros needed for Python 3 ====
-#ifdef VTK_PY3K
-
 // Int/Long compatibility
 #define PyIntObject PyLongObject
 #define PyInt_Type PyLong_Type
@@ -69,24 +66,5 @@
 #endif
 #endif
 
-#endif
-
-// ===== Macros needed for Python 2 ====
-#ifndef VTK_PY3K
-
-// Py3k introduced a new type "Py_hash_t"
-typedef long Py_hash_t;
-typedef unsigned long Py_uhash_t;
-
-// Buffer struct initialization
-#define VTK_PYBUFFER_INITIALIZER                                                                   \
-  {                                                                                                \
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, { 0, 0 }, 0                                                      \
-  }
-
-// PyTypeObject initialization
-#define VTK_WRAP_PYTHON_SUPPRESS_UNINITIALIZED 0, 0,
-
-#endif
 #endif
 // VTK-HeaderTest-Exclude: vtkPythonCompatibility.h

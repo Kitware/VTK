@@ -184,7 +184,10 @@ void vtkWrapPython_DeclareVariables(FILE* fp, ClassInfo* data, FunctionInfo* the
     /* temps for buffer objects */
     if (vtkWrap_IsVoidPointer(arg) || vtkWrap_IsZeroCopyPointer(arg))
     {
-      fprintf(fp, "  Py_buffer pbuf%d = VTK_PYBUFFER_INITIALIZER;\n", i);
+      fprintf(fp,
+        "  Py_buffer pbuf%d = { nullptr, nullptr, 0, 0, 0, 0, nullptr, nullptr, nullptr, nullptr, "
+        "nullptr };\n",
+        i);
     }
 
     /* temps for conversion constructed objects, which only occur

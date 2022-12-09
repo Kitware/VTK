@@ -535,12 +535,7 @@ int VTK_PARSE_MAIN(int argc, char* argv[])
       fprintf(fp,
         "  if (o)\n"
         "  {\n"
-        "#ifdef VTK_PY3K\n"
-        "    const char *methodname = \"values\";\n"
-        "#else\n"
-        "    char methodname[] = \"values\";\n"
-        "#endif\n"
-        "    PyObject *l = PyObject_CallMethod(o, methodname, nullptr);\n"
+        "    PyObject *l = PyObject_CallMethod(o, \"values\", nullptr);\n"
         "    Py_ssize_t n = PyList_GET_SIZE(l);\n"
         "    for (Py_ssize_t i = 0; i < n; i++)\n"
         "    {\n"

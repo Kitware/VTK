@@ -22,14 +22,9 @@ from vtkmodules.vtkCommonCore import (
 )
 from vtkmodules.test import Testing
 
-if sys.hexversion >= 0x03000000:
-    cedilla = 'Fran\xe7ois'
-    nocedilla = 'Francois'
-    eightbit = 'Francois'.encode('ascii')
-else:
-    cedilla = unicode('Fran\xe7ois', 'latin1')
-    nocedilla = unicode('Francois')
-    eightbit = 'Francois'
+cedilla = 'Fran\xe7ois'
+nocedilla = 'Francois'
+eightbit = 'Francois'.encode('ascii')
 
 class TestString(Testing.vtkTest):
     def testPassByValue(self):
@@ -85,24 +80,19 @@ class TestString(Testing.vtkTest):
     def testPassEncodedString(self):
         """Pass encoded 8-bit strings."""
         a = vtkStringArray()
-        # latin1 encoded string will be returned as "bytes", which is
-        # just a normal str object in Python 2
+        # latin1 encoded string will be returned as "bytes"
         encoded = cedilla.encode('latin1')
         a.InsertNextValue(encoded)
         result = a.GetValue(0)
         self.assertEqual(type(result), bytes)
         self.assertEqual(result, encoded)
-        # utf-8 encoded string will be returned as "str", which is
-        # actually unicode in Python 3
+        # utf-8 encoded string will be returned as "str"
         a = vtkStringArray()
         encoded = cedilla.encode('utf-8')
         a.InsertNextValue(encoded)
         result = a.GetValue(0)
         self.assertEqual(type(result), str)
-        if sys.hexversion >= 0x03000000:
-            self.assertEqual(result.encode('utf-8'), encoded)
-        else:
-            self.assertEqual(result, encoded)
+        self.assertEqual(result.encode('utf-8'), encoded)
 
 if __name__ == "__main__":
     Testing.main([(TestString, 'test')])

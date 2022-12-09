@@ -26,13 +26,6 @@ except ImportError:
     vtkMultiProcessController = None
     vtkMPI4PyCommunicator = None
 
-if sys.hexversion < 0x03000000:
-    izip = itertools.izip
-    def next(itr):
-        return itr.next()
-else:
-    izip = zip
-
 def _apply_func2(func, array, args):
     """Apply a function to each member of a VTKCompositeDataArray.
     Returns a list of arrays.
@@ -75,7 +68,7 @@ def apply_dfunc(dfunc, array1, val2):
     VTKArray and numpy arrays are also supported."""
     if type(array1) == dsa.VTKCompositeDataArray and type(val2) == dsa.VTKCompositeDataArray:
         res = []
-        for a1, a2 in izip(array1.Arrays, val2.Arrays):
+        for a1, a2 in zip(array1.Arrays, val2.Arrays):
             if a1 is dsa.NoneArray or a2 is dsa.NoneArray:
                 res.append(dsa.NoneArray)
             else:
@@ -227,7 +220,7 @@ def bitwise_or(array1, array2):
     that is not NoneArray, treating NoneArray as 0 in the or operation."""
     if type(array1) == dsa.VTKCompositeDataArray and type(array2) == dsa.VTKCompositeDataArray:
         res = []
-        for a1, a2 in izip(array1.Arrays, array2.Arrays):
+        for a1, a2 in zip(array1.Arrays, array2.Arrays):
             l = dsa.reshape_append_ones(a1, a2)
             res.append(bitwise_or(l[0], l[1]))
         return dsa.VTKCompositeDataArray(res, dataset = array1.DataSet)
@@ -486,7 +479,7 @@ def _global_per_block(impl, array, axis=None, controller=None):
 
         # Just get non-empty ids. Doing this again in case
         # the traversal above results in a different order.
-        # We need the same order since we'll use izip below.
+        # We need the same order since we'll use zip below.
         if dataset is not None:
             it = dataset.NewIterator()
             it.UnRegister(None)
@@ -496,7 +489,7 @@ def _global_per_block(impl, array, axis=None, controller=None):
                 it.GoToNextItem()
 
         # Fill the local array with available values.
-        for _id, _res in izip(ids, results):
+        for _id, _res in zip(ids, results):
             success = True
             try:
                 loc = reduce_ids.index(_id)
@@ -845,13 +838,13 @@ def make_vector(arrayx, arrayy, arrayz=None):
     if type(arrayx) == dsa.VTKCompositeDataArray and type(arrayy) == dsa.VTKCompositeDataArray and (type(arrayz) == dsa.VTKCompositeDataArray or arrayz is None):
         res = []
         if arrayz is None:
-            for ax, ay in izip(arrayx.Arrays, arrayy.Arrays):
+            for ax, ay in zip(arrayx.Arrays, arrayy.Arrays):
                 if ax is not dsa.NoneArray and ay is not dsa.NoneArray:
                     res.append(algs.make_vector(ax, ay))
                 else:
                     res.append(dsa.NoneArray)
         else:
-            for ax, ay, az in izip(arrayx.Arrays, arrayy.Arrays, arrayz.Arrays):
+            for ax, ay, az in zip(arrayx.Arrays, arrayy.Arrays, arrayz.Arrays):
                 if ax is not dsa.NoneArray and ay is not dsa.NoneArray and az is not dsa.NoneArray:
                     res.append(algs.make_vector(ax, ay, az))
                 else:

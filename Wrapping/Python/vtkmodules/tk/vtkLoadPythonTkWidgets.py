@@ -71,18 +71,12 @@ def vtkLoadPythonTkWidgets(interp):
     if os.name == 'posix':
         pathlist.append('/usr/local/lib')
 
-    # if python 3, there is no separate "unicode" type
-    if sys.hexversion >= 0x03000000:
-        unicode = str
-    else:
-        unicode = sys.modules['__builtin__'].unicode
-
     # attempt to load
     for path in pathlist:
         try:
             # If the path object is not str, it means that it is a
             # Tkinter path object.
-            if (not isinstance(path, str) and not isinstance(path, unicode)):
+            if not isinstance(path, str):
                 path = path.string
             # try block needed when one uses Gordon McMillan's Python
             # Installer.

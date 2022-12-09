@@ -82,11 +82,7 @@ PyObject* PyVTKSpecialObject_Repr(PyObject* self)
     }
     else
     {
-#ifdef VTK_PY3K
       s = PyString_FromFormat("%s(%S)", name, t);
-#else
-      s = PyString_FromFormat("%s(%s)", name, PyString_AsString(t));
-#endif
     }
   }
   // otherwise just print address of object
@@ -133,13 +129,9 @@ PyObject* PyVTKSpecialObject_SequenceString(PyObject* self)
     {
       if (i > 0)
       {
-#ifdef VTK_PY3K
         PyObject* tmp = PyUnicode_Concat(s, comma);
         Py_DECREF(s);
         s = tmp;
-#else
-        PyString_Concat(&s, comma);
-#endif
       }
       o = PySequence_GetItem(self, i);
       t = nullptr;
@@ -150,14 +142,10 @@ PyObject* PyVTKSpecialObject_SequenceString(PyObject* self)
       }
       if (t)
       {
-#ifdef VTK_PY3K
         PyObject* tmp = PyUnicode_Concat(s, t);
         Py_DECREF(s);
         Py_DECREF(t);
         s = tmp;
-#else
-        PyString_ConcatAndDel(&s, t);
-#endif
       }
       else
       {
@@ -169,15 +157,11 @@ PyObject* PyVTKSpecialObject_SequenceString(PyObject* self)
 
     if (s)
     {
-#ifdef VTK_PY3K
       PyObject* tmp1 = PyString_FromStringAndSize(&bracket[4], 1);
       PyObject* tmp2 = PyUnicode_Concat(s, tmp1);
       Py_DECREF(s);
       Py_DECREF(tmp1);
       s = tmp2;
-#else
-      PyString_ConcatAndDel(&s, PyString_FromStringAndSize(&bracket[4], 1));
-#endif
     }
 
     Py_DECREF(comma);

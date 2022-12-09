@@ -101,11 +101,7 @@ public:
     PyObject* ps1 = PySys_GetObject(const_cast<char*>("ps1"));
     if (!ps1)
     {
-#if PY_VERSION_HEX >= 0x03000000
       ps1 = PyUnicode_FromString(">>> ");
-#else
-      ps1 = PyString_FromString(">>> ");
-#endif
       // The const_cast can be removed for Python 3.3 or later.
       PySys_SetObject(const_cast<char*>("ps1"), ps1);
       Py_XDECREF(ps1);
@@ -115,11 +111,7 @@ public:
     PyObject* ps2 = PySys_GetObject(const_cast<char*>("ps2"));
     if (!ps2)
     {
-#if PY_VERSION_HEX >= 0x03000000
       ps2 = PyUnicode_FromString("... ");
-#else
-      ps2 = PyString_FromString("... ");
-#endif
       // The const_cast can be removed for Python 3.3 or later.
       PySys_SetObject(const_cast<char*>("ps2"), ps2);
       Py_XDECREF(ps2);
@@ -223,19 +215,12 @@ int vtkPythonInteractiveInterpreter::RunStringWithConsoleLocals(const char* scri
   }
 
   Py_DECREF(result);
-#if PY_VERSION_HEX >= 0x03000000
   // The const_cast can be removed for Python 3.3 or later.
   PyObject* f = PySys_GetObject(const_cast<char*>("stdout"));
   if (f == nullptr || PyFile_WriteString("\n", f) != 0)
   {
     PyErr_Clear();
   }
-#else
-  if (Py_FlushLine())
-  {
-    PyErr_Clear();
-  }
-#endif
 
   return 0;
 }

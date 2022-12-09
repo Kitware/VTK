@@ -403,11 +403,7 @@ function (_vtk_module_wrap_python_library name)
 #ifdef __cplusplus
 extern \"C\" {
 #endif
-#if PY_VERSION_HEX < 0x03000000
-extern void init${_vtk_python_library_name}();
-#else
 extern PyObject* PyInit_${_vtk_python_library_name}();
-#endif
 #ifdef __cplusplus
 }
 #endif
@@ -919,16 +915,11 @@ function (vtk_module_wrap_python)
     endforeach ()
 
     string(APPEND _vtk_python_all_modules_include_content
-"#if PY_VERSION_HEX < 0x03000000
-#define PY_APPEND_INIT(module) PyImport_AppendInittab(\"${_vtk_python_import_prefix}\" #module, init ## module)
-#define PY_IMPORT(module) init ## module();
-#else
-#define PY_APPEND_INIT(module) PyImport_AppendInittab(\"${_vtk_python_import_prefix}\" #module, PyInit_ ## module)
+"#define PY_APPEND_INIT(module) PyImport_AppendInittab(\"${_vtk_python_import_prefix}\" #module, PyInit_ ## module)
 #define PY_IMPORT(module) { \\
     PyObject* var_ ## module = PyInit_ ## module(); \\
     PyDict_SetItemString(PyImport_GetModuleDict(), \"${_vtk_python_import_prefix}\" #module,var_ ## module); \\
     Py_DECREF(var_ ## module); }
-#endif
 
 #define PY_APPEND_INIT_OR_IMPORT(module, do_import) \\
   if (do_import) { PY_IMPORT(module); } else { PY_APPEND_INIT(module); }
@@ -991,7 +982,6 @@ static void ${_vtk_python_TARGET_NAME}_load() {\n")
 
   static PyMethodDef Py${_vtk_python_static_importer_name}_Methods[] = {
   {NULL, NULL, 0, NULL}};
-#if PY_VERSION_HEX >= 0x03000000
   static PyModuleDef ${_vtk_python_static_importer_name}Module = {
     PyModuleDef_HEAD_INIT,
     \"${_vtk_python_static_importer_name}\", // m_name
@@ -1003,22 +993,13 @@ static void ${_vtk_python_TARGET_NAME}_load() {\n")
     NULL, // m_clear
     NULL  // m_free
   };
-#endif
 
-#if PY_VERSION_HEX >= 0x03000000
   PyMODINIT_FUNC PyInit_${_vtk_python_static_importer_name}(void)
-#else
-  PyMODINIT_FUNC init${_vtk_python_static_importer_name}(void)
-#endif
   {
     // since this gets called after `Py_Initialize`, this will import the static
     // modules and not just update the init table.
     ${_vtk_python_TARGET_NAME}_load();
-#if PY_VERSION_HEX >= 0x03000000
     return PyModule_Create(&${_vtk_python_static_importer_name}Module);
-#else
-    Py_InitModule(\"${_vtk_python_static_importer_name}\", Py${_vtk_python_static_importer_name}_Methods);
-#endif
   }\n")
 
       file(GENERATE

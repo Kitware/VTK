@@ -105,17 +105,9 @@ Py_ssize_t vtkPythonGetStringSize(PyObject* o)
   }
   else if (PyUnicode_Check(o))
   {
-#ifdef VTK_PY3K
     Py_ssize_t size;
     PyUnicode_AsUTF8AndSize(o, &size);
     return size;
-#else
-    PyObject* s = _PyUnicode_AsDefaultEncodedString(o, nullptr);
-    if (s)
-    {
-      return PyBytes_GET_SIZE(s);
-    }
-#endif
   }
   return 0;
 }
@@ -134,23 +126,8 @@ bool vtkPythonGetStringValue(PyObject* o, const char*& a, const char* exctext)
   }
   else if (PyUnicode_Check(o))
   {
-#ifdef VTK_PY3K
     a = PyUnicode_AsUTF8AndSize(o, nullptr);
     return true;
-#else
-    PyObject* s = _PyUnicode_AsDefaultEncodedString(o, nullptr);
-    if (s)
-    {
-      a = PyBytes_AS_STRING(s);
-      return true;
-    }
-
-    if (exctext)
-    {
-      // set a more specific error message
-      exctext = "(unicode conversion error)";
-    }
-#endif
   }
 
   if (exctext)
@@ -172,24 +149,10 @@ inline bool vtkPythonGetStdStringValue(PyObject* o, std::string& a, const char* 
   }
   else if (PyUnicode_Check(o))
   {
-#ifdef VTK_PY3K
     Py_ssize_t len;
     const char* val = PyUnicode_AsUTF8AndSize(o, &len);
     a = std::string(val, len);
     return true;
-#else
-    PyObject* s = _PyUnicode_AsDefaultEncodedString(o, nullptr);
-    if (s)
-    {
-      char* val;
-      Py_ssize_t len;
-      PyBytes_AsStringAndSize(s, &val, &len);
-      a = std::string(val, len);
-      return true;
-    }
-
-    exctext = "(unicode conversion error)";
-#endif
   }
 
   PyErr_SetString(PyExc_TypeError, exctext);
@@ -206,23 +169,14 @@ static bool vtkPythonGetValue(PyObject* o, const void*& a, Py_buffer* view, char
   void* p = nullptr;
   Py_ssize_t sz = 0;
   const char* format = nullptr;
-#ifndef VTK_PY3K
-  PyBufferProcs* b = Py_TYPE(o)->tp_as_buffer;
-#endif
 
-#if PY_VERSION_HEX < 0x02060000
-  (void)view;
-#else
-#ifdef VTK_PY3K
   PyObject* bytes = nullptr;
   if (PyUnicode_Check(o))
   {
     bytes = PyUnicode_AsUTF8String(o);
     PyBytes_AsStringAndSize(bytes, reinterpret_cast<char**>(&p), &sz);
   }
-  else
-#endif
-    if (PyObject_CheckBuffer(o))
+  else if (PyObject_CheckBuffer(o))
   {
     int flags = (PyBUF_ANY_CONTIGUOUS | PyBUF_FORMAT);
     if (btype == '\0')
@@ -255,51 +209,18 @@ static bool vtkPythonGetValue(PyObject* o, const void*& a, Py_buffer* view, char
       }
     }
   }
-#ifndef VTK_PY3K
-  else
-#endif
-#endif
-#ifndef VTK_PY3K
-  // use the old buffer interface
-  if (b && b->bf_getreadbuffer && b->bf_getsegcount)
-  {
-    if (b->bf_getsegcount(o, nullptr) == 1)
-    {
-      sz = b->bf_getreadbuffer(o, 0, &p);
-    }
-    else
-    {
-      PyErr_SetString(PyExc_TypeError, "buffer must be single-segment");
-      return false;
-    }
-  }
-#endif
 
-#ifdef VTK_PY3K
   if (bytes && btype == '\0')
-#else
-    if (p && sz >= 0 && sz <= VTK_INT_MAX && btype == '\0' &&
-      (format == nullptr || format[0] == 'c' || format[0] == 'B'))
-#endif
   {
     // check for pointer mangled as string
     int s = static_cast<int>(sz);
     a = vtkPythonUtil::UnmanglePointer(reinterpret_cast<char*>(p), &s, "p_void");
-#ifdef VTK_PY3K
     Py_DECREF(bytes);
     if (s != 0)
     {
       PyErr_SetString(PyExc_TypeError, "requires a _addr_p_void string");
       return false;
     }
-#else
-    if (s == -1)
-    {
-      // matched _addr_ but not p_void, assume it isn't a swig ptr string:
-      // use the buffer's pointer as the argument
-      a = p;
-    }
-#endif
     return true;
   }
   else if (p && sz >= 0)
@@ -1605,7 +1526,6 @@ bool vtkPythonArgs::RefineArgTypeError(Py_ssize_t i)
 
     PyErr_Fetch(&exc, &val, &frame);
 
-#ifdef VTK_PY3K
     const char* cp = "";
     if (val && !PyUnicode_Check(val))
     {
@@ -1614,15 +1534,6 @@ bool vtkPythonArgs::RefineArgTypeError(Py_ssize_t i)
     }
     newval = PyUnicode_FromFormat(
       "%s argument %" PY_FORMAT_SIZE_T "d: %V", this->MethodName, i + 1, val, cp);
-#else
-    const char* cp = "";
-    if (val && PyString_Check(val))
-    {
-      cp = PyString_AsString(val);
-    }
-    newval =
-      PyString_FromFormat("%s argument %" PY_FORMAT_SIZE_T "d: %s", this->MethodName, i + 1, cp);
-#endif
 
     Py_XDECREF(val);
     PyErr_Restore(exc, newval, frame);

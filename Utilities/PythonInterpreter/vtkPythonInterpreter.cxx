@@ -67,11 +67,7 @@ public:
   {
     for (T* astring : this->Strings)
     {
-#if PY_VERSION_HEX >= 0x03000000
       PyMem_RawFree(astring);
-#else
-      PyMem_Free(astring);
-#endif
     }
   }
 
@@ -94,11 +90,8 @@ public:
 };
 
 using StringPool = PoolT<char>;
-#if PY_VERSION_HEX >= 0x03000000
 using WCharStringPool = PoolT<wchar_t>;
-#endif
 
-#if PY_VERSION_HEX >= 0x03000000
 wchar_t* vtk_Py_UTF8ToWide(const char* arg)
 {
   wchar_t* result = nullptr;
@@ -128,7 +121,6 @@ std::string vtk_Py_WideToUTF8(const wchar_t* arg)
 
   return result;
 }
-#endif
 
 std::vector<vtkWeakPointer<vtkPythonInterpreter>>* GlobalInterpreters;
 std::vector<std::string> PythonPaths;
@@ -150,11 +142,7 @@ inline void vtkPrependPythonPath(const char* pathtoadd)
   VTKPY_DEBUG_MESSAGE("adding module search path " << pathtoadd);
   vtkPythonScopeGilEnsurer gilEnsurer;
   PyObject* path = PySys_GetObject(const_cast<char*>("path"));
-#if PY_VERSION_HEX >= 0x03000000
   PyObject* newpath = PyUnicode_FromString(pathtoadd);
-#else
-  PyObject* newpath = PyString_FromString(pathtoadd);
-#endif
 
   // avoid adding duplicate paths.
   if (PySequence_Contains(path, newpath) == 0)
@@ -292,7 +280,6 @@ bool vtkPythonInterpreter::InitializeWithArgs(int initsigs, int argc, char* argv
     vtkPythonInterpreter::SetupPythonPrefix();
     bool signals_installed = initsigs != 0;
 
-#if PY_VERSION_HEX >= 0x03000000
     // Need two copies of args, because programs might modify the first
     using OwnedWideString = std::unique_ptr<wchar_t, CharDeleter>;
     std::vector<wchar_t*> argvForPython;
@@ -312,13 +299,6 @@ bool vtkPythonInterpreter::InitializeWithArgs(int initsigs, int argc, char* argv
       argvForPython.push_back(argCopy.get());
       argvCleanup.emplace_back(std::move(argCopy));
     }
-#else // Python 2.x
-    std::vector<char*> argvForPython;
-    for (int i = 0; i < argc; i++)
-    {
-      argvForPython.push_back(argv[i]);
-    }
-#endif
     argvForPython.push_back(nullptr);
 
 #if PY_VERSION_HEX < 0x03080000
@@ -467,11 +447,11 @@ void vtkPythonInterpreter::SetProgramName(const char* programname)
       empty[0] = 0;
       PythonProgramName.push_back(empty);
     }
-// From Python Docs: The argument should point to a zero-terminated character
-// string in static storage whose contents will not change for the duration of
-// the program's execution. No code in the Python interpreter will change the
-// contents of this storage.
-#elif PY_VERSION_HEX >= 0x03000000
+#else
+    // From Python Docs: The argument should point to a zero-terminated character
+    // string in static storage whose contents will not change for the duration of
+    // the program's execution. No code in the Python interpreter will change the
+    // contents of this storage.
     wchar_t* argv0 = vtk_Py_UTF8ToWide(programname);
     if (argv0 == nullptr)
     {
@@ -487,12 +467,6 @@ void vtkPythonInterpreter::SetProgramName(const char* programname)
       static WCharStringPool wpool;
       Py_SetProgramName(wpool.push_back(argv0));
     }
-#else
-    static StringPool pool;
-    size_t length = strlen(programname);
-    char* dupe = (char*)PyMem_Malloc(sizeof(char) * (length + 1));
-    strcpy(dupe, programname);
-    Py_SetProgramName(pool.push_back(dupe));
 #endif
   }
 }
@@ -671,7 +645,6 @@ int vtkPythonInterpreter::PyMain(int argc, char** argv)
 #endif
 
 #if PY_VERSION_HEX < 0x03080000
-#if PY_VERSION_HEX >= 0x03000000
   // Need two copies of args, because programs might modify the first
   using OwnedWideString = std::unique_ptr<wchar_t, CharDeleter>;
   std::vector<wchar_t*> argvForPythonWide;
@@ -696,10 +669,6 @@ int vtkPythonInterpreter::PyMain(int argc, char** argv)
 
   vtkPythonScopeGilEnsurer gilEnsurer(false, true);
   return Py_Main(argvForPythonWideSize, argvForPythonWide.data());
-#else // Python 2.x
-  vtkPythonScopeGilEnsurer gilEnsurer(false, true);
-  return Py_Main(argvForPythonSize, argvForPython.data());
-#endif
 #else
   vtkPythonScopeGilEnsurer gilEnsurer(false, true);
   return Py_RunMain();
@@ -864,11 +833,7 @@ void vtkPythonInterpreter::SetupVTKPythonPaths()
 
   if (vtklib.empty())
   {
-#if PY_VERSION_HEX >= 0x03000000
     vtklib = vtk_Py_WideToUTF8(Py_GetProgramName());
-#else
-    vtklib = Py_GetProgramName();
-#endif
   }
 
   vtklib = systools::CollapseFullPath(vtklib);

@@ -357,17 +357,7 @@ class QVTKRenderWindowInteractor(QVTKRWIBaseClass):
 
         WId = self.winId()
 
-        # Python2
-        if type(WId).__name__ == 'PyCObject':
-            from ctypes import pythonapi, c_void_p, py_object
-
-            pythonapi.PyCObject_AsVoidPtr.restype  = c_void_p
-            pythonapi.PyCObject_AsVoidPtr.argtypes = [py_object]
-
-            WId = pythonapi.PyCObject_AsVoidPtr(WId)
-
-        # Python3
-        elif type(WId).__name__ == 'PyCapsule':
+        if type(WId).__name__ == 'PyCapsule':
             from ctypes import pythonapi, c_void_p, py_object, c_char_p
 
             pythonapi.PyCapsule_GetName.restype = c_char_p
