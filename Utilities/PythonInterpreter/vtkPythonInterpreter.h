@@ -95,14 +95,15 @@ public:
   static bool IsInitialized();
 
   /**
-   * Set the program name. This internally calls `Py_SetProgramName`.
+   * Set the program name.
+   *
    * Python uses the program name to determine values for prefix and exec_prefix
    * paths that are used to locate Python standard libraries and hence call this
-   * if you if you know what you are doing.
+   * only if you know what you are doing.
    *
    * If not explicitly overridden, `Initialize` will try to guess a good default
-   * for the `Py_SetProgramName` to  help find Python standard libraries based
-   * on Python libraries used to build VTK.
+   * for the program name to help find the Python standard libraries based on
+   * Python libraries used to build VTK.
    */
   static void SetProgramName(const char* programname);
 
