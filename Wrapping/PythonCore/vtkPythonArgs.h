@@ -869,7 +869,7 @@ inline PyObject* vtkPythonArgs::BuildValue(const void* a)
   if (a)
   {
     const char* s = vtkPythonUtil::ManglePointer(a, "p_void");
-    return PyString_FromString(s);
+    return PyUnicode_FromString(s);
   }
   Py_INCREF(Py_None);
   return Py_None;
@@ -906,7 +906,7 @@ inline PyObject* vtkPythonArgs::BuildValue(char a)
   char b[2];
   b[0] = a;
   b[1] = '\0';
-  return PyString_FromString(b);
+  return PyUnicode_FromString(b);
 }
 
 inline PyObject* vtkPythonArgs::BuildValue(double a)
@@ -921,7 +921,7 @@ inline PyObject* vtkPythonArgs::BuildValue(bool a)
 
 inline PyObject* vtkPythonArgs::BuildValue(int a)
 {
-  return PyInt_FromLong(a);
+  return PyLong_FromLong(a);
 }
 
 inline PyObject* vtkPythonArgs::BuildValue(unsigned int a)
@@ -931,14 +931,14 @@ inline PyObject* vtkPythonArgs::BuildValue(unsigned int a)
 
 inline PyObject* vtkPythonArgs::BuildValue(long a)
 {
-  return PyInt_FromLong(a);
+  return PyLong_FromLong(a);
 }
 
 inline PyObject* vtkPythonArgs::BuildValue(unsigned long a)
 {
   if (static_cast<long>(a) >= 0)
   {
-    return PyInt_FromLong(static_cast<long>(a));
+    return PyLong_FromLong(static_cast<long>(a));
   }
   return PyLong_FromUnsignedLong(a);
 }

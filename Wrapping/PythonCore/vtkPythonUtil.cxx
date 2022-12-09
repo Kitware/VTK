@@ -1120,7 +1120,7 @@ Py_hash_t vtkPythonUtil::VariantHash(const vtkVariant* v)
     default:
     {
       std::string s = v->ToString();
-      PyObject* tmp = PyString_FromString(s.c_str());
+      PyObject* tmp = PyUnicode_FromString(s.c_str());
       h = PyObject_Hash(tmp);
       Py_DECREF(tmp);
       break;

@@ -53,7 +53,7 @@ inline bool vtkPythonGetValue(PyObject* o, long& a)
 {
   VTK_PYTHON_FLOAT_CHECK();
 
-  a = PyInt_AsLong(o);
+  a = PyLong_AsLong(o);
   return (a != static_cast<long>(-1) || !PyErr_Occurred());
 }
 
@@ -1026,7 +1026,7 @@ int vtkPythonArgs::GetArgAsEnum(PyObject* o, const char* enumname, bool& valid)
   PyTypeObject* pytype = vtkPythonUtil::FindEnum(enumname);
   if (pytype && PyObject_TypeCheck(o, pytype))
   {
-    i = PyInt_AsLong(o);
+    i = PyLong_AsLong(o);
     valid = true;
   }
   else

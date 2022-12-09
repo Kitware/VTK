@@ -112,10 +112,10 @@ vtkMatplotlibMathTextUtilities::Availability vtkMatplotlibMathTextUtilities::Che
     vtkSmartPyObject tracebackStr(PyObject_Str(traceback));
     vtkMplStartUpDebugMacro("Error during matplotlib import:\n"
       << "\nStack:\n"
-      << (tracebackStr ? const_cast<char*>(PyString_AsString(tracebackStr)) : "(none)")
+      << (tracebackStr ? const_cast<char*>(PyUnicode_AsUTF8(tracebackStr)) : "(none)")
       << "\nValue:\n"
-      << (valueStr ? const_cast<char*>(PyString_AsString(valueStr)) : "(none)") << "\nType:\n"
-      << (typeStr ? const_cast<char*>(PyString_AsString(typeStr)) : "(none)"));
+      << (valueStr ? const_cast<char*>(PyUnicode_AsUTF8(valueStr)) : "(none)") << "\nType:\n"
+      << (typeStr ? const_cast<char*>(PyUnicode_AsUTF8(typeStr)) : "(none)"));
     PyErr_Clear();
     vtkMatplotlibMathTextUtilities::MPLMathTextAvailable = UNAVAILABLE;
   }
@@ -297,12 +297,12 @@ bool vtkMatplotlibMathTextUtilities::CheckForError()
       vtkSmartPyObject tracebackStr(PyObject_Str(traceback));
       vtkWarningMacro(<< "Python exception raised:\n"
                       << "\nStack:\n"
-                      << (tracebackStr ? const_cast<char*>(PyString_AsString(tracebackStr))
+                      << (tracebackStr ? const_cast<char*>(PyUnicode_AsUTF8(tracebackStr))
                                        : "(none)")
                       << "\nValue:\n"
-                      << (valueStr ? const_cast<char*>(PyString_AsString(valueStr)) : "(none)")
+                      << (valueStr ? const_cast<char*>(PyUnicode_AsUTF8(valueStr)) : "(none)")
                       << "\nType:\n"
-                      << (typeStr ? const_cast<char*>(PyString_AsString(typeStr)) : "(none)"));
+                      << (typeStr ? const_cast<char*>(PyUnicode_AsUTF8(typeStr)) : "(none)"));
     }
     PyErr_Clear();
     return true;
@@ -715,9 +715,9 @@ bool vtkMatplotlibMathTextUtilities::ComputeCellRowsAndCols(const char* str, PyO
 
   // Call the parse method
   // ftimage, depth = parse(str, dpi, fontProp)
-  vtkSmartPyObject parse(PyString_FromString("parse"));
-  vtkSmartPyObject pyStr(PyString_FromString(str));
-  vtkSmartPyObject pyDpi(PyInt_FromLong(dpi));
+  vtkSmartPyObject parse(PyUnicode_FromString("parse"));
+  vtkSmartPyObject pyStr(PyUnicode_FromString(str));
+  vtkSmartPyObject pyDpi(PyLong_FromLong(dpi));
   vtkSmartPyObject resTupleParse(PyObject_CallMethodObjArgs(this->MaskParser, parse.GetPointer(),
     pyStr.GetPointer(), pyDpi.GetPointer(), pyFontProp, nullptr));
   if (this->CheckForError(resTupleParse))
@@ -739,7 +739,7 @@ bool vtkMatplotlibMathTextUtilities::ComputeCellRowsAndCols(const char* str, PyO
     return false;
   }
 
-  vtkSmartPyObject asarray(PyString_FromString("asarray"));
+  vtkSmartPyObject asarray(PyUnicode_FromString("asarray"));
   vtkSmartPyObject numpyArray(
     PyObject_CallMethodObjArgs(numpy.GetPointer(), asarray.GetPointer(), ftImage, nullptr));
   if (this->CheckForError(numpyArray))
@@ -846,10 +846,10 @@ bool vtkMatplotlibMathTextUtilities::SetMathTextFont(vtkTextProperty* tprop)
   {
     case VTK_TIMES:
       // stix is designed to work well with Times New Roman
-      PyDict_SetItemString(rcParams, "mathtext.fontset", PyString_FromString("stix"));
+      PyDict_SetItemString(rcParams, "mathtext.fontset", PyUnicode_FromString("stix"));
       break;
     default:
-      PyDict_SetItemString(rcParams, "mathtext.fontset", PyString_FromString("dejavusans"));
+      PyDict_SetItemString(rcParams, "mathtext.fontset", PyUnicode_FromString("dejavusans"));
       break;
   }
 
@@ -957,7 +957,7 @@ bool vtkMatplotlibMathTextUtilities::RenderOneCell(vtkImageData* image, int bbox
         {
           return false;
         }
-        const unsigned char val = static_cast<unsigned char>(PyInt_AsLong(item));
+        const unsigned char val = static_cast<unsigned char>(PyLong_AsLong(item));
         if (this->CheckForError())
         {
           return false;
@@ -1535,7 +1535,7 @@ bool vtkMatplotlibMathTextUtilities::StringToPath(
       cbox[3] = vert[1];
     }
 
-    code = PyInt_AsLong(pyCode);
+    code = PyLong_AsLong(pyCode);
     if (this->CheckForError())
     {
       return false;

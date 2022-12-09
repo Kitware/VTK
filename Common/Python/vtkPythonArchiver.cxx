@@ -92,12 +92,12 @@ int vtkPythonArchiver::CheckResult(const char* method, const vtkSmartPyObject& r
     }
     return 0;
   }
-  if (!PyInt_Check(res))
+  if (!PyLong_Check(res))
   {
     return 0;
   }
 
-  int code = PyInt_AsLong(res);
+  int code = PyLong_AsLong(res);
 
   return code;
 }

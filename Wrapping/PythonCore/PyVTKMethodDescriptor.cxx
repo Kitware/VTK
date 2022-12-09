@@ -44,7 +44,7 @@ PyObject* PyVTKMethodDescriptor_New(PyTypeObject* pytype, PyMethodDef* meth)
   {
     Py_XINCREF(pytype);
     PyDescr_TYPE(descr) = pytype;
-    PyDescr_NAME(descr) = PyString_InternFromString(meth->ml_name);
+    PyDescr_NAME(descr) = PyUnicode_InternFromString(meth->ml_name);
     descr->d_method = meth;
 
     if (!PyDescr_NAME(descr))
@@ -131,7 +131,7 @@ static PyObject* PyVTKMethodDescriptor_GetDoc(PyObject* ob, void*)
     return Py_None;
   }
 
-  return PyString_FromString(descr->d_method->ml_doc);
+  return PyUnicode_FromString(descr->d_method->ml_doc);
 }
 
 static PyGetSetDef PyVTKMethodDescriptor_GetSet[] = {

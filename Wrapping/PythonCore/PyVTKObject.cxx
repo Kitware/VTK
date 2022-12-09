@@ -158,7 +158,7 @@ PyTypeObject* PyVTKClass_Add(
   pytype->tp_dict = PyDict_New();
 
   // Add special attribute __vtkname__
-  PyObject* s = PyString_FromString(classname);
+  PyObject* s = PyUnicode_FromString(classname);
   PyDict_SetItemString(pytype->tp_dict, "__vtkname__", s);
   Py_DECREF(s);
 
@@ -196,7 +196,7 @@ PyObject* PyVTKObject_String(PyObject* op)
   std::ostringstream vtkmsg_with_warning_C4701;
   ((PyVTKObject*)op)->vtk_ptr->Print(vtkmsg_with_warning_C4701);
   vtkmsg_with_warning_C4701.put('\0');
-  PyObject* res = PyString_FromString(vtkmsg_with_warning_C4701.str().c_str());
+  PyObject* res = PyUnicode_FromString(vtkmsg_with_warning_C4701.str().c_str());
   return res;
 }
 
@@ -204,7 +204,7 @@ PyObject* PyVTKObject_String(PyObject* op)
 PyObject* PyVTKObject_Repr(PyObject* op)
 {
   PyVTKObject* obj = (PyVTKObject*)op;
-  return PyString_FromFormat("<%s(%p) at %p>", vtkPythonUtil::GetTypeNameForObject(op),
+  return PyUnicode_FromFormat("<%s(%p) at %p>", vtkPythonUtil::GetTypeNameForObject(op),
     static_cast<void*>(obj->vtk_ptr), static_cast<void*>(obj));
 }
 
@@ -329,7 +329,7 @@ static PyObject* PyVTKObject_GetThis(PyObject* op, void*)
     classname = vtkPythonUtil::StripModuleFromObject(op);
   }
   snprintf(buf, sizeof(buf), "p_%.500s", classname);
-  return PyString_FromString(vtkPythonUtil::ManglePointer(self->vtk_ptr, buf));
+  return PyUnicode_FromString(vtkPythonUtil::ManglePointer(self->vtk_ptr, buf));
 }
 
 PyGetSetDef PyVTKObject_GetSet[] = {

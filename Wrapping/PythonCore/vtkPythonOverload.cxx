@@ -342,7 +342,7 @@ int vtkPythonOverload::CheckArg(PyObject* arg, const char* format, const char* n
 
         penalty = vtkPythonIntPenalty(tmpi, penalty, *format);
       }
-      else // not PyInt or PyLong
+      else // not PyLong
       {
         if (level == 0)
         {
@@ -622,7 +622,7 @@ int vtkPythonOverload::CheckArg(PyObject* arg, const char* format, const char* n
         {
           classname++;
         }
-        if (PyInt_Check(arg))
+        if (PyLong_Check(arg))
         {
           PyTypeObject* pytype = vtkPythonUtil::FindEnum(classname);
           if (pytype && PyObject_TypeCheck(arg, pytype))
