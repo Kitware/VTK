@@ -190,12 +190,15 @@ set(vtk_requested_modules)
 set(vtk_rejected_modules)
 if (VTK_WRAP_PYTHON)
   list(APPEND vtk_requested_modules
-    VTK::WrappingPythonCore
-    VTK::PythonInterpreter)
+    VTK::WrappingPythonCore)
   set("_vtk_module_reason_VTK::WrappingPythonCore"
     "via `VTK_WRAP_PYTHON`")
-  set("_vtk_module_reason_VTK::PythonInterpreter"
-    "via `VTK_WRAP_PYTHON`")
+  if (NOT VTK_WHEEL_BUILD)
+    list(APPEND vtk_requested_modules
+      VTK::PythonInterpreter)
+    set("_vtk_module_reason_VTK::PythonInterpreter"
+      "via `VTK_WRAP_PYTHON AND NOT VTK_WHEEL_BUILD`")
+  endif ()
 else ()
   list(APPEND vtk_rejected_modules
     VTK::Python)
