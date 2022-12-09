@@ -24,7 +24,9 @@
 #include "vtkObjectFactory.h"
 #include "vtkPath.h"
 #include "vtkPoints.h"
+#if VTK_MODULE_ENABLE_VTK_PythonInterpreter
 #include "vtkPythonInterpreter.h"
+#endif
 #include "vtkSmartPyObject.h"
 #include "vtkTextProperty.h"
 #include "vtkTransform.h"
@@ -80,10 +82,19 @@ vtkMatplotlibMathTextUtilities::Availability vtkMatplotlibMathTextUtilities::Che
   // VTK_MATPLOTLIB_DEBUG is defined in the process environment.
   bool debug = (vtksys::SystemTools::GetEnv("VTK_MATPLOTLIB_DEBUG") != nullptr);
 
+#if VTK_MODULE_ENABLE_VTK_PythonInterpreter
   // Initialize the python interpreter if needed
   vtkMplStartUpDebugMacro("Initializing Python, if not already.");
   vtkPythonInterpreter::Initialize();
   vtkMplStartUpDebugMacro("Attempting to import matplotlib.");
+#endif
+  if (!Py_IsInitialized())
+  {
+    // Don't store the result; it might be available if Python is initialized
+    // elsewhere later.
+    return UNAVAILABLE;
+  }
+
   vtkPythonScopeGilEnsurer gilEnsurer;
   if (PyErr_Occurred() || !PyImport_ImportModule("matplotlib") || PyErr_Occurred())
   {
@@ -130,16 +141,23 @@ vtkMatplotlibMathTextUtilities::vtkMatplotlibMathTextUtilities()
   , FontPropertiesClass(nullptr)
   , ScaleToPowerOfTwo(true)
 {
+#if VTK_MODULE_ENABLE_VTK_PythonInterpreter
   this->Interpreter = vtkPythonInterpreter::New();
   this->Interpreter->AddObserver(
     vtkCommand::ExitEvent, this, &vtkMatplotlibMathTextUtilities::CleanupPythonObjects);
+#else
+  this->Interpreter = nullptr;
+#endif
 }
 
 //------------------------------------------------------------------------------
 vtkMatplotlibMathTextUtilities::~vtkMatplotlibMathTextUtilities()
 {
   this->CleanupPythonObjects();
-  this->Interpreter->Delete();
+  if (this->Interpreter)
+  {
+    this->Interpreter->Delete();
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -161,8 +179,15 @@ void vtkMatplotlibMathTextUtilities::CleanupPythonObjects()
 //------------------------------------------------------------------------------
 bool vtkMatplotlibMathTextUtilities::InitializeMaskParser()
 {
+#if VTK_MODULE_ENABLE_VTK_PythonInterpreter
   // ensure that Python is initialized.
   vtkPythonInterpreter::Initialize();
+#endif
+  if (!Py_IsInitialized())
+  {
+    return false;
+  }
+
   vtkPythonScopeGilEnsurer gilEnsurer;
   vtkSmartPyObject mplMathTextLib(PyImport_ImportModule("matplotlib.mathtext"));
   if (this->CheckForError(mplMathTextLib))
@@ -189,8 +214,15 @@ bool vtkMatplotlibMathTextUtilities::InitializeMaskParser()
 //------------------------------------------------------------------------------
 bool vtkMatplotlibMathTextUtilities::InitializePathParser()
 {
+#if VTK_MODULE_ENABLE_VTK_PythonInterpreter
   // ensure that Python is initialized.
   vtkPythonInterpreter::Initialize();
+#endif
+  if (!Py_IsInitialized())
+  {
+    return false;
+  }
+
   vtkPythonScopeGilEnsurer gilEnsurer;
   vtkSmartPyObject mplTextPathLib(PyImport_ImportModule("matplotlib.textpath"));
   if (this->CheckForError(mplTextPathLib))
@@ -217,8 +249,15 @@ bool vtkMatplotlibMathTextUtilities::InitializePathParser()
 //------------------------------------------------------------------------------
 bool vtkMatplotlibMathTextUtilities::InitializeFontPropertiesClass()
 {
+#if VTK_MODULE_ENABLE_VTK_PythonInterpreter
   // ensure that Python is initialized.
   vtkPythonInterpreter::Initialize();
+#endif
+  if (!Py_IsInitialized())
+  {
+    return false;
+  }
+
   vtkPythonScopeGilEnsurer gilEnsurer;
   vtkSmartPyObject mplFontManagerLib(PyImport_ImportModule("matplotlib.font_manager"));
   if (this->CheckForError(mplFontManagerLib))
