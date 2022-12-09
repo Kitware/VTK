@@ -5,6 +5,9 @@ set(VTK_LEGACY_SILENT ON)
 set(VTK_ENABLE_WRAPPING ON)
 set(VTK_WRAP_PYTHON ON)
 set(Python3_ARTIFACTS_INTERACTIVE ON)
+# Disable the PythonInterpreter module; there's not much use for it within a
+# Python wheel as the interpreter should be managed externally.
+set(VTK_MODULE_ENABLE_VTK_PythonInterpreter NO)
 
 if (UNIX AND NOT APPLE)
   # On Linux, prefer Legacy OpenGL library. We will revisit
