@@ -842,6 +842,12 @@ void vtkProbeFilter::ProbeImagePointsInCell(vtkGenericCell* cell, vtkIdType cell
       p[1] = start[1] + iy * spacing[1];
       for (int ix = idxBounds[0]; ix <= idxBounds[1]; ix++)
       {
+        // skip processed points
+        const vtkIdType ptId = ix + dim[0] * (iy + dim[1] * iz);
+        if (maskArray[ptId] == 1)
+        {
+          continue;
+        }
         // For each grid point within the cell bound, interpolate values
         p[0] = start[0] + ix * spacing[0];
 
@@ -851,8 +857,6 @@ void vtkProbeFilter::ProbeImagePointsInCell(vtkGenericCell* cell, vtkIdType cell
 
         if (inside == 1 && dist2 <= tol2)
         {
-          const vtkIdType ptId = ix + dim[0] * (iy + dim[1] * iz);
-
           // Interpolate the point data
           outPD->InterpolatePoint(*this->PointList, pd, srcBlockId, ptId, cell->PointIds, wtsBuff);
 
