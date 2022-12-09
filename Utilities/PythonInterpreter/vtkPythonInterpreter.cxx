@@ -58,12 +58,6 @@ namespace
 {
 
 template <class T>
-void strFree(T* foo)
-{
-  delete[] foo;
-}
-
-template <class T>
 class PoolT
 {
   std::vector<T*> Strings;
@@ -73,7 +67,11 @@ public:
   {
     for (T* astring : this->Strings)
     {
-      strFree(astring);
+#if PY_VERSION_HEX >= 0x03000000
+      PyMem_RawFree(astring);
+#else
+      PyMem_Free(astring);
+#endif
     }
   }
 
@@ -82,19 +80,21 @@ public:
     this->Strings.push_back(val);
     return val;
   }
+
+  T* pop_last()
+  {
+    if (this->Strings.empty())
+    {
+      return nullptr;
+    }
+    T* last = *this->Strings.rbegin();
+    this->Strings.pop_back();
+    return last;
+  }
 };
 
 using StringPool = PoolT<char>;
 #if PY_VERSION_HEX >= 0x03000000
-template <>
-void strFree(wchar_t* foo)
-{
-#if PY_VERSION_HEX >= 0x03050000
-  delete[] foo;
-#else
-  PyMem_Free(foo);
-#endif
-}
 using WCharStringPool = PoolT<wchar_t>;
 #endif
 
@@ -107,7 +107,7 @@ wchar_t* vtk_Py_UTF8ToWide(const char* arg)
     size_t length = vtksysEncoding_mbstowcs(nullptr, arg, 0);
     if (length > 0)
     {
-      result = new wchar_t[length + 1];
+      result = (wchar_t*)PyMem_RawMalloc(sizeof(wchar_t) * (length + 1));
       vtksysEncoding_mbstowcs(result, arg, length + 1);
     }
   }
@@ -246,9 +246,44 @@ bool vtkPythonInterpreter::Initialize(int initsigs /*=0*/)
   return vtkPythonInterpreter::InitializeWithArgs(initsigs, 0, nullptr);
 }
 
+#if PY_VERSION_HEX >= 0x03080000
+static WCharStringPool PythonProgramName;
+#endif
+
+//------------------------------------------------------------------------------
+// Ensure that Python is pre-initialized enough for VTK to do its
+// initialization. Must be called before any `PyMem_*` calls are made.
+static void vtkPythonPreConfig()
+{
+  // Guard against doing this multiple times.
+  static bool done = false;
+  if (done)
+  {
+    return;
+  }
+  done = true;
+
+#if PY_VERSION_HEX >= 0x03080000
+  PyStatus status;
+  PyPreConfig preconfig;
+  PyPreConfig_InitPythonConfig(&preconfig);
+
+  preconfig.allocator = PYMEM_ALLOCATOR_NOT_SET;
+  preconfig.utf8_mode = 1;
+
+  status = Py_PreInitialize(&preconfig);
+  if (PyStatus_Exception(status))
+  {
+    Py_ExitStatusException(status);
+  }
+#endif
+}
+
 //------------------------------------------------------------------------------
 bool vtkPythonInterpreter::InitializeWithArgs(int initsigs, int argc, char* argv[])
 {
+  vtkPythonPreConfig();
+
   if (Py_IsInitialized() == 0)
   {
     // guide the mechanism to locate Python standard library, if possible.
@@ -294,6 +329,7 @@ bool vtkPythonInterpreter::InitializeWithArgs(int initsigs, int argc, char* argv
     PyStatus status;
     PyConfig_InitPythonConfig(&config);
     config.install_signal_handlers = initsigs;
+    config.program_name = PythonProgramName.pop_last();
     status = PyConfig_SetArgv(&config, argc, argvForPython.data());
     if (PyStatus_IsError(status))
     {
@@ -412,13 +448,28 @@ void vtkPythonInterpreter::Finalize()
 //------------------------------------------------------------------------------
 void vtkPythonInterpreter::SetProgramName(const char* programname)
 {
+  vtkPythonPreConfig();
   if (programname)
   {
+#if PY_VERSION_HEX >= 0x03080000
+    if (wchar_t* argv0 = vtk_Py_UTF8ToWide(programname))
+    {
+      PythonProgramName.push_back(argv0);
+    }
+    else
+    {
+      fprintf(stderr,
+        "Fatal vtkpython error: "
+        "unable to decode the program name\n");
+      wchar_t* empty = (wchar_t*)PyMem_RawMalloc(sizeof(wchar_t));
+      empty[0] = 0;
+      PythonProgramName.push_back(empty);
+    }
 // From Python Docs: The argument should point to a zero-terminated character
 // string in static storage whose contents will not change for the duration of
 // the program's execution. No code in the Python interpreter will change the
 // contents of this storage.
-#if PY_VERSION_HEX >= 0x03000000
+#elif PY_VERSION_HEX >= 0x03000000
     wchar_t* argv0 = vtk_Py_UTF8ToWide(programname);
     if (argv0 == nullptr)
     {
@@ -436,7 +487,10 @@ void vtkPythonInterpreter::SetProgramName(const char* programname)
     }
 #else
     static StringPool pool;
-    Py_SetProgramName(pool.push_back(vtksys::SystemTools::DuplicateString(programname)));
+    size_t length = strlen(programname);
+    char* dupe = (char*)PyMem_Malloc(sizeof(char) * (length + 1));
+    strcpy(dupe, programname);
+    Py_SetProgramName(pool.push_back(dupe));
 #endif
   }
 }
@@ -772,25 +826,19 @@ void vtkPythonInterpreter::SetupPythonPrefix()
     return;
   }
 
-  std::string pythonlib = vtkGetLibraryPathForSymbol(Py_SetProgramName);
+  std::string pythonlib = vtkGetLibraryPathForSymbol(Py_InitializeEx);
   if (pythonlib.empty())
   {
-    VTKPY_DEBUG_MESSAGE("static Python build or `Py_SetProgramName` library couldn't be found. "
+    VTKPY_DEBUG_MESSAGE("static Python build or `Py_InitializeEx` library couldn't be found. "
                         "Set `PYTHONHOME` if Python standard library fails to load.");
     return;
   }
 
   const std::string newprogramname =
     systools::GetFilenamePath(pythonlib) + VTK_PATH_SEPARATOR "vtkpython";
-  VTKPY_DEBUG_MESSAGE(
-    "calling Py_SetProgramName(" << newprogramname << ") to aid in setup of Python prefix.");
-#if PY_VERSION_HEX >= 0x03000000
-  static WCharStringPool wpool;
-  Py_SetProgramName(wpool.push_back(vtk_Py_UTF8ToWide(newprogramname.c_str())));
-#else
-  static StringPool pool;
-  Py_SetProgramName(pool.push_back(systools::DuplicateString(newprogramname.c_str())));
-#endif
+  VTKPY_DEBUG_MESSAGE("calling vtkPythonInterpreter::SetProgramName("
+    << newprogramname << ") to aid in setup of Python prefix.");
+  vtkPythonInterpreter::SetProgramName(newprogramname.c_str());
 }
 
 //------------------------------------------------------------------------------
