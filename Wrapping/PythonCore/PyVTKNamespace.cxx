@@ -117,8 +117,9 @@ PyObject* PyVTKNamespace_New(const char* name)
     // call the allocator provided by python for this type
     self = PyVTKNamespace_Type.tp_alloc(&PyVTKNamespace_Type, 0);
     // call the superclass init function
-    PyObject* args = PyTuple_New(1);
-    PyTuple_SET_ITEM(args, 0, PyString_FromString(name));
+    PyObject* pyname = PyString_FromString(name);
+    PyObject* args = PyTuple_Pack(1, pyname);
+    Py_DECREF(pyname);
     PyVTKNamespace_Type.tp_base->tp_init(self, args, nullptr);
     Py_DECREF(args);
     // remember the object for later reference

@@ -925,7 +925,7 @@ inline PyObject* vtkPythonBuildTuple(const T* a, size_t n)
     for (Py_ssize_t i = 0; i < m; i++)
     {
       PyObject* o = vtkPythonArgs::BuildValue(a[i]);
-      PyTuple_SET_ITEM(t, i, o);
+      PyTuple_SetItem(t, i, o);
     }
     return t;
   }
@@ -964,11 +964,11 @@ PyObject* vtkPythonArgs::BuildTuple(vtkSmartPointerBase* a, size_t n)
       vtkObjectBase* ob = a[i].GetPointer();
       if (ob)
       {
-        PyTuple_SET_ITEM(t, i, vtkPythonUtil::GetObjectFromPointer(ob));
+        PyTuple_SetItem(t, i, vtkPythonUtil::GetObjectFromPointer(ob));
       }
       else
       {
-        PyTuple_SET_ITEM(t, i, Py_None);
+        PyTuple_SetItem(t, i, Py_None);
         Py_INCREF(Py_None);
       }
     }

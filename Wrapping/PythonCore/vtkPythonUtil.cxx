@@ -772,9 +772,7 @@ void* vtkPythonUtil::GetPointerFromSpecialObject(
     // If a constructor signature exists for "obj", call it
     if (meth && meth->ml_meth)
     {
-      PyObject* args = PyTuple_New(1);
-      PyTuple_SET_ITEM(args, 0, obj);
-      Py_INCREF(obj);
+      PyObject* args = PyTuple_Pack(1, obj);
 
       sobj = meth->ml_meth(nullptr, args);
 
