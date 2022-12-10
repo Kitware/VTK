@@ -144,7 +144,7 @@ void vtkPythonItem::SetPythonObject(PyObject* obj)
   this->Object = obj;
   Py_INCREF(this->Object);
 
-  char mname[] = "Initialize";
+  const char* mname = "Initialize";
   VTK_GET_METHOD(method, this->Object, mname, /* no return */)
 
   PyObject* vtkself = VTKToPython(this);
@@ -160,7 +160,7 @@ void vtkPythonItem::SetPythonObject(PyObject* obj)
 bool vtkPythonItem::Paint(vtkContext2D* painter)
 {
   vtkPythonScopeGilEnsurer gilEnsurer;
-  char mname[] = "Paint";
+  const char* mname = "Paint";
   VTK_GET_METHOD(method, this->Object, mname, 0)
 
   PyObject* vtkself = VTKToPython(this);

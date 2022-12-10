@@ -141,7 +141,7 @@ inline void vtkPrependPythonPath(const char* pathtoadd)
 {
   VTKPY_DEBUG_MESSAGE("adding module search path " << pathtoadd);
   vtkPythonScopeGilEnsurer gilEnsurer;
-  PyObject* path = PySys_GetObject(const_cast<char*>("path"));
+  PyObject* path = PySys_GetObject("path");
   PyObject* newpath = PyUnicode_FromString(pathtoadd);
 
   // avoid adding duplicate paths.
@@ -370,9 +370,9 @@ bool vtkPythonInterpreter::InitializeWithArgs(int initsigs, int argc, char* argv
       vtkPythonStdStreamCaptureHelper* wrapperOut = NewPythonStdStreamCaptureHelper(false);
       vtkPythonStdStreamCaptureHelper* wrapperErr = NewPythonStdStreamCaptureHelper(true);
       vtkPythonScopeGilEnsurer gilEnsurer;
-      PySys_SetObject(const_cast<char*>("stdout"), reinterpret_cast<PyObject*>(wrapperOut));
-      PySys_SetObject(const_cast<char*>("stderr"), reinterpret_cast<PyObject*>(wrapperErr));
-      PySys_SetObject(const_cast<char*>("stdin"), reinterpret_cast<PyObject*>(wrapperOut));
+      PySys_SetObject("stdout", reinterpret_cast<PyObject*>(wrapperOut));
+      PySys_SetObject("stderr", reinterpret_cast<PyObject*>(wrapperErr));
+      PySys_SetObject("stdin", reinterpret_cast<PyObject*>(wrapperOut));
       Py_DECREF(wrapperOut);
       Py_DECREF(wrapperErr);
     }
@@ -690,7 +690,7 @@ int vtkPythonInterpreter::RunSimpleString(const char* script)
   int pyReturn;
   {
     vtkPythonScopeGilEnsurer gilEnsurer;
-    pyReturn = PyRun_SimpleString(const_cast<char*>(buffer.c_str()));
+    pyReturn = PyRun_SimpleString(buffer.c_str());
   }
 
   vtkPythonInterpreter::ConsoleBuffering = false;

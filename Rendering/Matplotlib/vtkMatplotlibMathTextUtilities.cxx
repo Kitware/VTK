@@ -747,7 +747,7 @@ bool vtkMatplotlibMathTextUtilities::ComputeCellRowsAndCols(const char* str, PyO
     return false;
   }
 
-  vtkSmartPyObject dimTuple(PyObject_GetAttrString(numpyArray, const_cast<char*>("shape")));
+  vtkSmartPyObject dimTuple(PyObject_GetAttrString(numpyArray, "shape"));
   if (this->CheckForError(dimTuple))
   {
     return false;

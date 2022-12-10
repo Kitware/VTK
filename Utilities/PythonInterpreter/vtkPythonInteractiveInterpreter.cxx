@@ -76,8 +76,7 @@ public:
                        "__vtkConsoleLocals={'__name__':'__vtkconsole__','__doc__':None}\n"
                        "__vtkConsole=code.InteractiveConsole(__vtkConsoleLocals)\n";
 
-    // The const_cast can be removed for Python 3.3 or later.
-    PyRun_SimpleString(const_cast<char*>(code));
+    PyRun_SimpleString(code);
 
     // Now get the reference to __vtkConsole and save the pointer.
     PyObject* main_module = PyImport_AddModule("__main__");
@@ -93,27 +92,22 @@ public:
     Py_INCREF(this->InteractiveConsole);
     Py_INCREF(this->InteractiveConsoleLocals);
 
-    // The const_cast can be removed for Python 3.3 or later.
-    PyRun_SimpleString(const_cast<char*>("del __vtkConsole; del __vtkConsoleLocals"));
+    PyRun_SimpleString("del __vtkConsole; del __vtkConsoleLocals");
 
     // Maybe we need an API to enable developers to set the prompts.
-    // (The const_cast can be removed for Python 3.3 or later).
-    PyObject* ps1 = PySys_GetObject(const_cast<char*>("ps1"));
+    PyObject* ps1 = PySys_GetObject("ps1");
     if (!ps1)
     {
       ps1 = PyUnicode_FromString(">>> ");
-      // The const_cast can be removed for Python 3.3 or later.
-      PySys_SetObject(const_cast<char*>("ps1"), ps1);
+      PySys_SetObject("ps1", ps1);
       Py_XDECREF(ps1);
     }
 
-    // The const_cast can be removed for Python 3.3 or later.
-    PyObject* ps2 = PySys_GetObject(const_cast<char*>("ps2"));
+    PyObject* ps2 = PySys_GetObject("ps2");
     if (!ps2)
     {
       ps2 = PyUnicode_FromString("... ");
-      // The const_cast can be removed for Python 3.3 or later.
-      PySys_SetObject(const_cast<char*>("ps2"), ps2);
+      PySys_SetObject("ps2", ps2);
       Py_XDECREF(ps2);
     }
 
@@ -180,9 +174,7 @@ bool vtkPythonInteractiveInterpreter::Push(const char* const code)
 
   vtkPythonScopeGilEnsurer gilEnsurer;
   bool ret_value = false;
-  // The const_cast can be removed for Python 3.4 or later.
-  PyObject* res =
-    PyObject_CallMethod(console, const_cast<char*>("push"), const_cast<char*>("z"), buffer.c_str());
+  PyObject* res = PyObject_CallMethod(console, "push", "z", buffer.c_str());
   if (res)
   {
     int status = 0;
@@ -205,8 +197,7 @@ int vtkPythonInteractiveInterpreter::RunStringWithConsoleLocals(const char* scri
 
   vtkPythonScopeGilEnsurer gilEnsurer;
   PyObject* context = this->Internals->GetInteractiveConsoleLocalsPyObject();
-  // The const_cast can be removed for Python 3.3 or later.
-  PyObject* result = PyRun_String(const_cast<char*>(script), Py_file_input, context, context);
+  PyObject* result = PyRun_String(script, Py_file_input, context, context);
 
   if (result == nullptr)
   {
@@ -215,8 +206,7 @@ int vtkPythonInteractiveInterpreter::RunStringWithConsoleLocals(const char* scri
   }
 
   Py_DECREF(result);
-  // The const_cast can be removed for Python 3.3 or later.
-  PyObject* f = PySys_GetObject(const_cast<char*>("stdout"));
+  PyObject* f = PySys_GetObject("stdout");
   if (f == nullptr || PyFile_WriteString("\n", f) != 0)
   {
     PyErr_Clear();

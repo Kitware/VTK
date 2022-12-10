@@ -122,7 +122,7 @@ void vtkPythonArchiver::SetPythonObject(PyObject* obj)
 void vtkPythonArchiver::OpenArchive()
 {
   vtkPythonScopeGilEnsurer gilEnsurer;
-  char mname[] = "OpenArchive";
+  const char* mname = "OpenArchive";
   VTK_GET_METHOD(method, this->Object, mname, )
 
   PyObject* vtkself = VTKToPython(this);
@@ -138,7 +138,7 @@ void vtkPythonArchiver::OpenArchive()
 void vtkPythonArchiver::CloseArchive()
 {
   vtkPythonScopeGilEnsurer gilEnsurer;
-  char mname[] = "CloseArchive";
+  const char* mname = "CloseArchive";
   VTK_GET_METHOD(method, this->Object, mname, )
 
   PyObject* vtkself = VTKToPython(this);
@@ -155,7 +155,7 @@ void vtkPythonArchiver::InsertIntoArchive(
   const std::string& relativePath, const char* data, std::size_t size)
 {
   vtkPythonScopeGilEnsurer gilEnsurer;
-  char mname[] = "InsertIntoArchive";
+  const char* mname = "InsertIntoArchive";
   VTK_GET_METHOD(method, this->Object, mname, )
 
   PyObject* vtkself = VTKToPython(this);
@@ -177,7 +177,7 @@ void vtkPythonArchiver::InsertIntoArchive(
 bool vtkPythonArchiver::Contains(const std::string& relativePath)
 {
   vtkPythonScopeGilEnsurer gilEnsurer;
-  char mname[] = "Contains";
+  const char* mname = "Contains";
   VTK_GET_METHOD(method, this->Object, mname, false)
 
   PyObject* vtkself = VTKToPython(this);

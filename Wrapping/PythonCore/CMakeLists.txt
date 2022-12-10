@@ -47,3 +47,13 @@ vtk_add_test_mangling(VTK::WrappingPythonCore
     PyVTKReference_
     PyVTKStringReference_
     PyVTKTupleReference_)
+
+if (Python3_VERSION VERSION_LESS "3.7")
+  set(old_python_ignore_warning_flag "-Wno-writable-strings")
+  check_compiler_flag(CXX "${old_python_ignore_warning_flag}" "vtk_have_compiler_flag-CXX-${old_python_ignore_warning_flag}")
+  if (vtk_have_compiler_flag-CXX-${old_python_ignore_warning_flag})
+    vtk_module_compile_options(VTK::WrappingPythonCore
+      PRIVATE
+        "${old_python_ignore_warning_flag}")
+  endif ()
+endif ()

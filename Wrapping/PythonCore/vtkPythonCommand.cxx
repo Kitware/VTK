@@ -131,7 +131,7 @@ void vtkPythonCommand::Execute(vtkObject* ptr, unsigned long eventtype, void* ca
   //
   // support for additional types has then been added by Jean-Christophe Fillion-Robin
   //
-  char callDataTypeLiteral[] = "CallDataType"; // Need char*, not const char*.
+  const char* callDataTypeLiteral = "CallDataType"; // Need char*, not const char*.
   PyObject* callDataTypeObj = PyObject_GetAttrString(this->obj, callDataTypeLiteral);
 
   PyObject* arglist = nullptr;
