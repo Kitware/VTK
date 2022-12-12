@@ -83,19 +83,12 @@
         OMPI_ALLOW_RUN_AS_ROOT_CONFIRM: 1
         MODULES: mpi/openmpi-x86_64
 
-.el8_intelmpi_addon:
-    variables:
-        CMAKE_PREFIX_PATH: /usr/local/intelmpi
-        # Disable shared memory; it doesn't work so well inside of containers.
-        I_MPI_SHM: disable
-
-.el8_icc_mpi_python:
+.el8_icc_python:
     extends:
         - .el8_icc
-        - .el8_intelmpi_addon
 
     variables:
-        CMAKE_CONFIGURATION: el8_icc_mpi_python
+        CMAKE_CONFIGURATION: el8_icc_python
 
 .fedora34_doxygen_mpi_python_qt_tbb:
     extends:

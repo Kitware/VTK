@@ -39,25 +39,25 @@ stages:
 
 ## Basic builds
 
-el8-mpi-python:build:
+el8-python:build:
     extends:
-        - .el8_icc_mpi_python
+        - .el8_icc_python
         - .cmake_build_linux
         - .linux_builder_tags
         - .cmake_build_artifacts
         - .run_manually
 
-el8-mpi-python:test:
+el8-python:test:
     extends:
-        - .el8_icc_mpi_python
+        - .el8_icc_python
         - .cmake_test_linux
         - .linux_qt_tester_tags
         - .cmake_test_artifacts
         - .run_automatically
     dependencies:
-        - el8-mpi-python:build
+        - el8-python:build
     needs:
-        - el8-mpi-python:build
+        - el8-python:build
 
 fedora34-mpi-renderless:build:
     extends:

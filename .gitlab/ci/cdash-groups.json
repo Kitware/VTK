@@ -3,7 +3,7 @@
         {
             "group": "master",
             "site": "gitlab-ci",
-            "buildname": "[el8_icc_mpi_python]"
+            "buildname": "[el8_icc_python]"
         },
         {
             "group": "master",
