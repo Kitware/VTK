@@ -69,6 +69,7 @@ public:
   template <typename t, typename std::enable_if<is_unlimited<t>::value>::type* = nullptr>
   int doTest(t* mcur)
   {
+    int status = 0;
     // For unlimited type, we descend 10 times independently of the tree shape
     // this goes deeper than the lowest child anyway
     for (int i = 0; i < 10; i++)
@@ -87,6 +88,13 @@ public:
       {
         // value used in elder child for invalid childs
         std::cerr << "Error: invalid vertex_id encountered while going down in doTest" << std::endl;
+        status = 1;
+      }
+
+      if (mcur->IsRoot())
+      {
+        std::cerr << "Error: a child can never be the root" << std::endl;
+        status = 1;
       }
     }
     for (int i = 0; i < 10; i++)
@@ -96,6 +104,7 @@ public:
       if (vertex_id == std::numeric_limits<unsigned int>::max())
       {
         std::cerr << "Error: invalid vertex_id encountered while going up in doTest" << std::endl;
+        status = 1;
       }
       mcur->ToParent();
     }
@@ -118,6 +127,7 @@ public:
       if (vertex_id == std::numeric_limits<unsigned int>::max())
       {
         std::cerr << "Error: invalid vertex_id encountered while going down in doTest" << std::endl;
+        status = 1;
       }
     }
     for (int i = 0; i < 10; i++)
@@ -127,15 +137,26 @@ public:
       if (vertex_id == std::numeric_limits<unsigned int>::max())
       {
         std::cerr << "Error: invalid vertex_id encountered while going up in doTest" << std::endl;
+        status = 1;
       }
       mcur->ToParent();
     }
 
-    return 0;
+    return status;
   }
 
   ~TestCursor() = default;
 };
+
+//------------------------------------------------------------------------------
+void generateSingleCellTreeHTG(vtkUniformHyperTreeGrid* uhtg, unsigned int treeId)
+{
+  std::cout << "Initializing single cell tree " << treeId << "\n";
+  std::cout.flush();
+  vtkNew<vtkHyperTreeGridNonOrientedCursor> cursor;
+  uhtg->InitializeNonOrientedCursor(cursor, treeId, true);
+  cursor->SetGlobalIndexStart(uhtg->GetNumberOfCells());
+}
 
 //------------------------------------------------------------------------------
 void generateQuadTreeHTG(vtkUniformHyperTreeGrid* uhtg, unsigned int treeId)
@@ -203,6 +224,18 @@ void generateOctreeHTG(vtkUniformHyperTreeGrid* uhtg, unsigned int treeId)
 }
 
 //------------------------------------------------------------------------------
+void initSingleCellTreeHTG(vtkUniformHyperTreeGrid* uhtg)
+{
+  std::cout << "Initializing Uniform Grid\n";
+  std::cout.flush();
+  uhtg->SetBranchFactor(2);
+  uhtg->SetGridScale(1.1);
+  uhtg->SetOrigin(0., 0., 0.);
+  uhtg->SetExtent(0, 1, 0, 1, 0, 0);
+
+  generateSingleCellTreeHTG(uhtg, 0);
+}
+//------------------------------------------------------------------------------
 void initQuadTreeHTG(vtkUniformHyperTreeGrid* uhtg)
 {
   std::cout << "Initializing Uniform Grid\n";
@@ -236,6 +269,50 @@ int TestHyperTreeGridCursors(int, char*[])
   std::cout << "Starting test 1\n";
   std::cout.flush();
 
+  int status = 0;
+
+  // Single cell tree
+  {
+    vtkNew<vtkUniformHyperTreeGrid> uhtg0;
+    initSingleCellTreeHTG(uhtg0);
+
+    const int expectedResult = 1;
+
+    vtkNew<vtkHyperTreeGridNonOrientedMooreSuperCursor> mooreSC;
+    uhtg0->InitializeNonOrientedMooreSuperCursor(mooreSC, 0);
+    TestCursor test1;
+    auto res1 = test1.doTest(mooreSC.Get());
+    if (res1 != expectedResult)
+    {
+      std::cerr << "ERROR non oriented moore supercursor visited " << res1 << " leaves instead of "
+                << expectedResult << std::endl;
+      ++status;
+    }
+
+    vtkNew<vtkHyperTreeGridNonOrientedVonNeumannSuperCursor> vonNeumannSC;
+    uhtg0->InitializeNonOrientedVonNeumannSuperCursor(vonNeumannSC, 0);
+    TestCursor test2;
+    auto res2 = test2.doTest(vonNeumannSC.Get());
+    if (res2 != expectedResult)
+    {
+      std::cerr << "ERROR non oriented von neumann supercursor visited " << res2
+                << " leaves instead of " << expectedResult << std::endl;
+      ++status;
+    }
+
+    vtkNew<vtkHyperTreeGridNonOrientedUnlimitedGeometryCursor> unlimitedGeo;
+    uhtg0->InitializeNonOrientedUnlimitedGeometryCursor(unlimitedGeo, 0);
+    TestCursor test3;
+    status += test3.doTest(unlimitedGeo.Get());
+    // no result for unlimited
+
+    vtkNew<vtkHyperTreeGridNonOrientedUnlimitedMooreSuperCursor> unlimtedMooreSC;
+    uhtg0->InitializeNonOrientedUnlimitedMooreSuperCursor(unlimtedMooreSC, 0);
+    TestCursor test4;
+    status += test4.doTest(unlimtedMooreSC.Get());
+    // no result for unlimited
+  }
+
   // Quad tree
   {
     vtkNew<vtkUniformHyperTreeGrid> uhtg1;
@@ -251,6 +328,7 @@ int TestHyperTreeGridCursors(int, char*[])
     {
       std::cerr << "ERROR non oriented moore supercursor visited " << res1 << " leaves instead of "
                 << expectedResult << std::endl;
+      ++status;
     }
 
     vtkNew<vtkHyperTreeGridNonOrientedVonNeumannSuperCursor> vonNeumannSC;
@@ -261,18 +339,19 @@ int TestHyperTreeGridCursors(int, char*[])
     {
       std::cerr << "ERROR non oriented von neumann supercursor visited " << res2
                 << " leaves instead of " << expectedResult << std::endl;
+      ++status;
     }
 
     vtkNew<vtkHyperTreeGridNonOrientedUnlimitedGeometryCursor> unlimitedGeo;
     uhtg1->InitializeNonOrientedUnlimitedGeometryCursor(unlimitedGeo, 1);
     TestCursor test3;
-    test3.doTest(unlimitedGeo.Get());
+    status += test3.doTest(unlimitedGeo.Get());
     // no result for unlimited
 
     vtkNew<vtkHyperTreeGridNonOrientedUnlimitedMooreSuperCursor> unlimtedMooreSC;
     uhtg1->InitializeNonOrientedUnlimitedMooreSuperCursor(unlimtedMooreSC, 1);
     TestCursor test4;
-    test4.doTest(unlimtedMooreSC.Get());
+    status += test4.doTest(unlimtedMooreSC.Get());
     // no result for unlimited
   }
 
@@ -291,6 +370,7 @@ int TestHyperTreeGridCursors(int, char*[])
     {
       std::cerr << "ERROR non oriented moore supercursor visited " << res1 << " leaves instead of "
                 << expectedResult << std::endl;
+      ++status;
     }
 
     vtkNew<vtkHyperTreeGridNonOrientedVonNeumannSuperCursor> vonNeumannSC;
@@ -301,20 +381,21 @@ int TestHyperTreeGridCursors(int, char*[])
     {
       std::cerr << "ERROR non oriented von neumann supercursor visited " << res2
                 << " leaves instead of " << expectedResult << std::endl;
+      ++status;
     }
 
     vtkNew<vtkHyperTreeGridNonOrientedUnlimitedGeometryCursor> unlimitedGeo;
     uhtg2->InitializeNonOrientedUnlimitedGeometryCursor(unlimitedGeo, 1);
     TestCursor test3;
-    test3.doTest(unlimitedGeo.Get());
+    status += test3.doTest(unlimitedGeo.Get());
     // no result for unlimited
 
     vtkNew<vtkHyperTreeGridNonOrientedUnlimitedMooreSuperCursor> unlimtedMooreSC;
     uhtg2->InitializeNonOrientedUnlimitedMooreSuperCursor(unlimtedMooreSC, 1);
     TestCursor test4;
-    test4.doTest(unlimtedMooreSC.Get());
+    status += test4.doTest(unlimtedMooreSC.Get());
     // no result for unlimited
   }
 
-  return 0;
+  return status;
 }
