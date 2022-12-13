@@ -65,10 +65,17 @@ PyObject* PyVTKSpecialObject_Repr(PyObject* self)
   PyTypeObject* type = Py_TYPE(self);
   const char* name = vtkPythonUtil::GetTypeName(type);
 
+#if PY_VERSION_HEX >= 0x030A0000
+  while (PyType_GetSlot(type, Py_tp_base) && !type->tp_str)
+  {
+    type = (PyTypeObject*)PyType_GetSlot(type, Py_tp_base);
+  }
+#else
   while (type->tp_base && !type->tp_str)
   {
     type = type->tp_base;
   }
+#endif
 
   // use str() if available
   PyObject* s = nullptr;

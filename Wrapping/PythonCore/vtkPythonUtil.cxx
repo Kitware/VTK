@@ -601,11 +601,21 @@ PyVTKClass* vtkPythonUtil::FindNearestBaseClass(vtkObjectBase* ptr)
 
     if (ptr->IsA(pyclass->vtk_name))
     {
-      PyTypeObject* base = pyclass->py_type->tp_base;
+      PyTypeObject* base =
+#if PY_VERSION_HEX >= 0x030A0000
+        (PyTypeObject*)PyType_GetSlot(pyclass->py_type, Py_tp_base)
+#else
+        pyclass->py_type->tp_base
+#endif
+        ;
       // count the hierarchy depth for this class
       for (depth = 0; base != nullptr; depth++)
       {
+#if PY_VERSION_HEX >= 0x030A0000
+        base = (PyTypeObject*)PyType_GetSlot(base, Py_tp_base);
+#else
         base = base->tp_base;
+#endif
       }
       // we want the class that is furthest from vtkObjectBase
       if (depth > maxdepth)
@@ -941,7 +951,14 @@ PyTypeObject* vtkPythonUtil::FindBaseTypeObject(const char* name)
   {
     // in case of override, drill down to get the original (non-override) type,
     // that's what we need to use for the base class of other wrapped classes
-    for (PyTypeObject* pytype = info->py_type; pytype != nullptr; pytype = pytype->tp_base)
+    for (PyTypeObject* pytype = info->py_type; pytype != nullptr;
+         pytype =
+#if PY_VERSION_HEX >= 0x030A0000
+           (PyTypeObject*)PyType_GetSlot(pytype, Py_tp_base)
+#else
+           pytype->tp_base
+#endif
+    )
     {
       if (strcmp(vtkPythonUtil::StripModuleFromType(pytype), name) == 0)
       {

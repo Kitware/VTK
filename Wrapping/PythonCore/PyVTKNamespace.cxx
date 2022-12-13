@@ -39,7 +39,17 @@ static void PyVTKNamespace_Delete(PyObject* op)
   // remove from the map so that there is no dangling reference
   vtkPythonUtil::RemoveNamespaceFromMap(op);
   // call the superclass destructor
+#if PY_VERSION_HEX >= 0x030A0000
+  PyTypeObject* type = Py_TYPE(op);
+  PyTypeObject* base = (PyTypeObject*)PyType_GetSlot(type, Py_tp_base);
+  if (base)
+  {
+    destructor dtor = (destructor)PyType_GetSlot(base, Py_tp_dealloc);
+    dtor(op);
+  }
+#else
   PyVTKNamespace_Type.tp_base->tp_dealloc(op);
+#endif
 }
 
 #ifdef VTK_PYTHON_NEEDS_DEPRECATION_WARNING_SUPPRESSION

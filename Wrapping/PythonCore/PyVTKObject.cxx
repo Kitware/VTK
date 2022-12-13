@@ -68,7 +68,14 @@ static PyObject* PyVTKClass_override(PyObject* cls, PyObject* type)
     if (PyType_IsSubtype(newtypeobj, typeobj))
     {
       // Make sure "type" and intermediate classes aren't wrapped classes
-      for (PyTypeObject* tp = newtypeobj; tp && tp != typeobj; tp = tp->tp_base)
+      for (PyTypeObject* tp = newtypeobj; tp && tp != typeobj;
+           tp =
+#if PY_VERSION_HEX >= 0x030A0000
+             (PyTypeObject*)PyType_GetSlot(tp, Py_tp_base)
+#else
+             tp->tp_base
+#endif
+      )
       {
         PyVTKClass* c = vtkPythonUtil::FindClass(vtkPythonUtil::StripModuleFromType(tp));
         if (c && tp == c->py_type)
