@@ -557,13 +557,13 @@ inline bool vtkPythonGetArray(PyObject* o, T* a, size_t n)
     }
     else if (PyList_Check(o))
     {
-      m = PyList_GET_SIZE(o);
+      m = PyList_Size(o);
       if (m == static_cast<Py_ssize_t>(n))
       {
         bool r = true;
         for (Py_ssize_t i = 0; i < m && r; i++)
         {
-          PyObject* s = PyList_GET_ITEM(o, i);
+          PyObject* s = PyList_GetItem(o, i);
           r = vtkPythonGetValue(s, a[i]);
         }
         return r;
@@ -661,7 +661,7 @@ bool vtkPythonGetNArray(PyObject* o, T* a, int ndim, const size_t* dims)
 
     if (PyList_Check(o))
     {
-      m = PyList_GET_SIZE(o);
+      m = PyList_Size(o);
       if (m == static_cast<Py_ssize_t>(n))
       {
         bool r = true;
@@ -669,7 +669,7 @@ bool vtkPythonGetNArray(PyObject* o, T* a, int ndim, const size_t* dims)
         {
           for (Py_ssize_t i = 0; i < m && r; i++)
           {
-            PyObject* s = PyList_GET_ITEM(o, i);
+            PyObject* s = PyList_GetItem(o, i);
             r = vtkPythonGetNArray(s, a, ndim - 1, dims + 1);
             a += inc;
           }
@@ -678,7 +678,7 @@ bool vtkPythonGetNArray(PyObject* o, T* a, int ndim, const size_t* dims)
         {
           for (Py_ssize_t i = 0; i < m && r; i++)
           {
-            PyObject* s = PyList_GET_ITEM(o, i);
+            PyObject* s = PyList_GetItem(o, i);
             r = vtkPythonGetValue(s, a[i]);
           }
         }
@@ -731,7 +731,7 @@ inline bool vtkPythonSetArray(PyObject* o, const T* a, size_t n)
 
     if (PyList_Check(o))
     {
-      m = PyList_GET_SIZE(o);
+      m = PyList_Size(o);
       if (m == static_cast<Py_ssize_t>(n))
       {
         bool r = true;
@@ -741,8 +741,7 @@ inline bool vtkPythonSetArray(PyObject* o, const T* a, size_t n)
           PyObject* s = vtkPythonArgs::BuildValue(a[i]);
           if (s)
           {
-            Py_DECREF(PyList_GET_ITEM(o, i));
-            PyList_SET_ITEM(o, i, s);
+            PyList_SetItem(o, i, s);
             r = true;
           }
         }
@@ -839,7 +838,7 @@ bool vtkPythonSetNArray(PyObject* o, const T* a, int ndim, const size_t* dims)
 
     if (PyList_Check(o))
     {
-      m = PyList_GET_SIZE(o);
+      m = PyList_Size(o);
       if (m == static_cast<Py_ssize_t>(n))
       {
         bool r = true;
@@ -847,7 +846,7 @@ bool vtkPythonSetNArray(PyObject* o, const T* a, int ndim, const size_t* dims)
         {
           for (Py_ssize_t i = 0; i < m && r; i++)
           {
-            PyObject* s = PyList_GET_ITEM(o, i);
+            PyObject* s = PyList_GetItem(o, i);
             r = vtkPythonSetNArray(s, a, ndim - 1, dims + 1);
             a += inc;
           }
@@ -860,8 +859,7 @@ bool vtkPythonSetNArray(PyObject* o, const T* a, int ndim, const size_t* dims)
             PyObject* s = vtkPythonArgs::BuildValue(a[i]);
             if (s)
             {
-              Py_DECREF(PyList_GET_ITEM(o, i));
-              PyList_SET_ITEM(o, i, s);
+              PyList_SetItem(o, i, s);
               r = true;
             }
           }
