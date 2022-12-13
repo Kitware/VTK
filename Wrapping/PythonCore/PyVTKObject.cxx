@@ -247,6 +247,7 @@ int PyVTKObject_Traverse(PyObject* o, visitproc visit, void* arg)
 //------------------------------------------------------------------------------
 PyObject* PyVTKObject_New(PyTypeObject* tp, PyObject* args, PyObject* kwds)
 {
+  // XXX(python3-abi3): all types will be heap types in abi3
   // If type was subclassed within python, then skip arg checks and
   // simply create a new object.
   if ((tp->tp_flags & Py_TPFLAGS_HEAPTYPE) == 0)
