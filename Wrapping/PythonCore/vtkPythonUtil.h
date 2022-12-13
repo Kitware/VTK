@@ -81,6 +81,14 @@ public:
    */
   static const char* StripModule(const char* tpname);
 
+  ///@{
+  /**
+   * Get the type name for a given type or object.
+   */
+  static const char* GetTypeName(PyTypeObject* pytype);
+  static const char* GetTypeNameForObject(PyObject* ob);
+  ///@}
+
   /**
    * Add a PyVTKClass to the type lookup table, this allows us to later
    * create object given only the class name.

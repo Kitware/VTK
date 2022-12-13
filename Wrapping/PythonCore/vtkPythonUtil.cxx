@@ -23,6 +23,7 @@
 
 #include "vtkObject.h"
 #include "vtkPythonCommand.h"
+#include "vtkSmartPyObject.h"
 #include "vtkVariant.h"
 #include "vtkWeakPointer.h"
 #include "vtkWindows.h"
@@ -512,6 +513,23 @@ const char* vtkPythonUtil::StripModule(const char* tpname)
     }
   }
   return strippedname;
+}
+
+//------------------------------------------------------------------------------
+const char* vtkPythonUtil::GetTypeName(PyTypeObject* pytype)
+{
+#ifdef PY_LIMITED_API
+  vtkSmartPyObject tname = PyType_GetName(pytype);
+  return PyUnicode_AsUTF8AndSize(tname, nullptr);
+#else
+  return pytype->tp_name;
+#endif
+}
+
+//------------------------------------------------------------------------------
+const char* vtkPythonUtil::GetTypeNameForObject(PyObject* ob)
+{
+  return vtkPythonUtil::GetTypeName(Py_TYPE(ob));
 }
 
 //------------------------------------------------------------------------------
