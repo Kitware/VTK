@@ -279,7 +279,7 @@ void vtkPythonUtil::UnRegisterPythonCommand(vtkPythonCommand* cmd)
 PyTypeObject* vtkPythonUtil::AddSpecialTypeToMap(
   PyTypeObject* pytype, PyMethodDef* methods, PyMethodDef* constructors, vtkcopyfunc copyfunc)
 {
-  const char* classname = vtkPythonUtil::StripModule(pytype->tp_name);
+  const char* classname = vtkPythonUtil::StripModuleFromType(pytype);
 
   // lets make sure it isn't already there
   vtkPythonSpecialTypeMap::iterator i = vtkPythonMap->SpecialTypeMap->find(classname);
@@ -478,7 +478,7 @@ const char* vtkPythonUtil::PythonicClassName(const char* classname)
     PyTypeObject* pytype = vtkPythonUtil::FindBaseTypeObject(classname);
     if (pytype)
     {
-      classname = vtkPythonUtil::StripModule(pytype->tp_name);
+      classname = vtkPythonUtil::StripModuleFromType(pytype);
     }
   }
 
@@ -559,7 +559,7 @@ PyTypeObject* vtkPythonUtil::AddClassToMap(
     // if Python type name differs from VTK ClassName, store in ClassNameMap
     // (this only occurs for templated classes, due to their GetClassName()
     // implementation in their type macro in vtkSetGet.h)
-    const char* pyname = vtkPythonUtil::StripModule(pytype->tp_name);
+    const char* pyname = vtkPythonUtil::StripModuleFromType(pytype);
     if (strcmp(pyname, classname) != 0)
     {
       vtkPythonMap->ClassNameMap->insert(
@@ -780,7 +780,7 @@ void* vtkPythonUtil::GetPointerFromSpecialObject(
     return nullptr;
   }
 
-  const char* object_type = vtkPythonUtil::StripModule(Py_TYPE(obj)->tp_name);
+  const char* object_type = vtkPythonUtil::StripModuleFromObject(obj);
 
   // do a lookup on the desired type
   vtkPythonSpecialTypeMap::iterator it = vtkPythonMap->SpecialTypeMap->find(result_type);
@@ -940,7 +940,7 @@ PyTypeObject* vtkPythonUtil::FindBaseTypeObject(const char* name)
     // that's what we need to use for the base class of other wrapped classes
     for (PyTypeObject* pytype = info->py_type; pytype != nullptr; pytype = pytype->tp_base)
     {
-      if (strcmp(vtkPythonUtil::StripModule(pytype->tp_name), name) == 0)
+      if (strcmp(vtkPythonUtil::StripModuleFromType(pytype), name) == 0)
       {
         return pytype;
       }

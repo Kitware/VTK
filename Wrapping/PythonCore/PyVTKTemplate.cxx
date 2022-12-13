@@ -811,14 +811,7 @@ int PyVTKTemplate_AddItem(PyObject* self, PyObject* val)
   }
 
   // get the name, but strip the namespace
-  const char* name = ((PyTypeObject*)val)->tp_name;
-  for (const char* cp = name; *cp != '\0'; cp++)
-  {
-    if (*cp == '.')
-    {
-      name = cp + 1;
-    }
-  }
+  const char* name = vtkPythonUtil::StripModuleFromType((PyTypeObject*)val);
   PyObject* dict = PyModule_GetDict(self);
   PyDict_SetItemString(dict, name, val);
 
