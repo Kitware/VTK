@@ -101,7 +101,7 @@ Py_ssize_t vtkPythonGetStringSize(PyObject* o)
   }
   else if (PyByteArray_Check(o))
   {
-    return PyByteArray_GET_SIZE(o);
+    return PyByteArray_Size(o);
   }
   else if (PyUnicode_Check(o))
   {
@@ -129,7 +129,7 @@ bool vtkPythonGetStringValue(PyObject* o, const char*& a, const char* exctext)
   }
   else if (PyByteArray_Check(o))
   {
-    a = PyByteArray_AS_STRING(o);
+    a = PyByteArray_AsString(o);
     return true;
   }
   else if (PyUnicode_Check(o))
@@ -783,10 +783,10 @@ inline bool vtkPythonSetArray(PyObject* o, const char* a, size_t n)
 
     if (PyByteArray_Check(o))
     {
-      m = PyByteArray_GET_SIZE(o);
+      m = PyByteArray_Size(o);
       if (m == static_cast<Py_ssize_t>(n))
       {
-        char* b = PyByteArray_AS_STRING(o);
+        char* b = PyByteArray_AsString(o);
         for (Py_ssize_t i = 0; i < m; i++)
         {
           b[i] = a[i];
