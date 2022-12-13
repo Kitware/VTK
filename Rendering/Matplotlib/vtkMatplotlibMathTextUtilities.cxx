@@ -175,7 +175,7 @@ bool vtkMatplotlibMathTextUtilities::InitializeMaskParser()
     return false;
   }
 
-  this->MaskParser = PyObject_CallFunction(mathTextParserClass, const_cast<char*>("s"), "bitmap");
+  this->MaskParser = PyObject_CallFunction(mathTextParserClass, const_cast<char*>("s"), "agg");
   if (this->CheckForError(this->MaskParser))
   {
     Py_CLEAR(this->MaskParser);
@@ -684,7 +684,7 @@ bool vtkMatplotlibMathTextUtilities::ComputeCellRowsAndCols(const char* str, PyO
   }
 
   // Get ftimage
-  PyObject* ftImage = PyTuple_GetItem(resTupleParse, 0);
+  PyObject* ftImage = PyTuple_GetItem(resTupleParse, 5);
   if (this->CheckForError(ftImage))
   {
     return false;
