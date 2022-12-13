@@ -122,7 +122,7 @@ static PyObject* PyVTKMethodDescriptor_Get(PyObject* self, PyObject* obj, PyObje
 
 #ifdef VTK_PY3K
   PyErr_Format(PyExc_TypeError, "descriptor '%U' for '%s' objects doesn't apply to '%s' object",
-    PyDescr_NAME(descr), PyDescr_TYPE(descr)->tp_name, Py_TYPE(obj)->tp_name);
+    PyDescr_NAME(descr), PyDescr_TYPE(descr)->tp_name, vtkPythonUtil::GetTypeNameForObject(obj));
 #else
   PyErr_Format(PyExc_TypeError, "descriptor '%s' for '%s' objects doesn't apply to '%s' object",
     PyString_AS_STRING(PyDescr_NAME(descr)), PyDescr_TYPE(descr)->tp_name, Py_TYPE(obj)->tp_name);

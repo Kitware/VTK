@@ -1029,8 +1029,8 @@ PyObject* vtkPythonArgs::GetSelfFromFirstArg(PyObject* self, PyObject* args)
     }
 
     char buf[256];
-    snprintf(
-      buf, sizeof(buf), "unbound method requires a %.200s as the first argument", pytype->tp_name);
+    snprintf(buf, sizeof(buf), "unbound method requires a %.200s as the first argument",
+      vtkPythonUtil::GetTypeName(pytype));
     PyErr_SetString(PyExc_TypeError, buf);
     return nullptr;
   }
@@ -1115,7 +1115,7 @@ int vtkPythonArgs::GetArgAsEnum(PyObject* o, const char* enumname, bool& valid)
     std::string errstring = "expected enum ";
     errstring += enumname;
     errstring += ", got ";
-    errstring += Py_TYPE(o)->tp_name;
+    errstring += vtkPythonUtil::GetTypeNameForObject(o);
     PyErr_SetString(PyExc_TypeError, errstring.c_str());
     valid = false;
   }
@@ -1640,7 +1640,7 @@ bool vtkPythonSequenceError(PyObject* o, size_t n, size_t m)
   if (m == n)
   {
     snprintf(text, sizeof(text), "expected a sequence of %lld value%s, got %s",
-      static_cast<long long>(n), ((n == 1) ? "" : "s"), Py_TYPE(o)->tp_name);
+      static_cast<long long>(n), ((n == 1) ? "" : "s"), vtkPythonUtil::GetTypeNameForObject(o));
   }
   else
   {

@@ -63,7 +63,7 @@ PyObject* PyVTKSpecialObject_Repr(PyObject* self)
 {
   PyVTKSpecialObject* obj = (PyVTKSpecialObject*)self;
   PyTypeObject* type = Py_TYPE(self);
-  const char* name = Py_TYPE(self)->tp_name;
+  const char* name = vtkPythonUtil::GetTypeName(type);
 
   while (type->tp_base && !type->tp_str)
   {

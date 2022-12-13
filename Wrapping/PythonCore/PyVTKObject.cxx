@@ -203,7 +203,7 @@ PyObject* PyVTKObject_String(PyObject* op)
 PyObject* PyVTKObject_Repr(PyObject* op)
 {
   PyVTKObject* obj = (PyVTKObject*)op;
-  return PyString_FromFormat("<%s(%p) at %p>", Py_TYPE(op)->tp_name,
+  return PyString_FromFormat("<%s(%p) at %p>", vtkPythonUtil::GetTypeNameForObject(op),
     static_cast<void*>(obj->vtk_ptr), static_cast<void*>(obj));
 }
 
@@ -542,7 +542,8 @@ static int PyVTKObject_AsBuffer_GetBuffer(PyObject* obj, Py_buffer* view, int fl
     return 0;
   }
 
-  PyErr_Format(PyExc_ValueError, "Cannot get a buffer from %s.", Py_TYPE(obj)->tp_name);
+  PyErr_Format(
+    PyExc_ValueError, "Cannot get a buffer from %s.", vtkPythonUtil::GetTypeNameForObject(obj));
   return -1;
 }
 

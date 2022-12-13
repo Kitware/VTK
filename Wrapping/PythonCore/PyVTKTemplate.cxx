@@ -371,7 +371,7 @@ PyObject* PyVTKTemplate_NameFromKey(PyObject* self, PyObject* key)
     {
       // if type object, get the name of the type
       Py_INCREF(o);
-      tname = ((PyTypeObject*)o)->tp_name;
+      tname = vtkPythonUtil::GetTypeName((PyTypeObject*)o);
       for (const char* cp = tname; *cp != '\0'; cp++)
       {
         if (*cp == '.')
@@ -415,7 +415,7 @@ PyObject* PyVTKTemplate_NameFromKey(PyObject* self, PyObject* key)
       {
         if (PyType_Check(value))
         {
-          const char* cname = ((PyTypeObject*)value)->tp_name;
+          const char* cname = vtkPythonUtil::GetTypeName((PyTypeObject*)value);
           for (const char* cp = cname; *cp != '\0'; cp++)
           {
             if (*cp == '.')
@@ -498,7 +498,7 @@ PyObject* PyVTKTemplate_NameFromKey(PyObject* self, PyObject* key)
         {
           if (PyType_Check(value))
           {
-            const char* cname = ((PyTypeObject*)value)->tp_name;
+            const char* cname = vtkPythonUtil::GetTypeName((PyTypeObject*)value);
             for (const char* cp = cname; *cp != '\0'; cp++)
             {
               if (*cp == '.')
