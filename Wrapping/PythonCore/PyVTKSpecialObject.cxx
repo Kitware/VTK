@@ -122,8 +122,15 @@ PyObject* PyVTKSpecialObject_SequenceString(PyObject* self)
   PyObject *t, *o, *comma;
   const char* bracket = "[...]";
 
+#if PY_VERSION_HEX >= 0x030A0000
+  PyTypeObject* type = Py_TYPE(self);
+  ssizeargfunc sq_item = (ssizeargfunc)PyType_GetSlot(type, Py_sq_item);
+  ssizeobjargproc sq_ass_item = (ssizeobjargproc)PyType_GetSlot(type, Py_sq_ass_item);
+  if (sq_item != nullptr && sq_ass_item == nullptr)
+#else
   if (Py_TYPE(self)->tp_as_sequence && Py_TYPE(self)->tp_as_sequence->sq_item != nullptr &&
     Py_TYPE(self)->tp_as_sequence->sq_ass_item == nullptr)
+#endif
   {
     bracket = "(...)";
   }
