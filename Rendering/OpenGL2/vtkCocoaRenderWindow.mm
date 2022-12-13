@@ -739,12 +739,12 @@ void vtkCocoaRenderWindow::CreateAWindow()
     }
     else
     {
-      if ((this->Size[0] + this->Size[1]) == 0)
+      if ((this->Size[0] == 0) && (this->Size[1] == 0))
       {
         this->Size[0] = 300;
         this->Size[1] = 300;
       }
-      if ((this->Position[0] + this->Position[1]) == 0)
+      if ((this->Position[0] == 0) && (this->Position[1] == 0))
       {
         this->Position[0] = 50;
         this->Position[1] = 50;
