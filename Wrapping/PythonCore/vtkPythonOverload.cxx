@@ -249,6 +249,11 @@ static int vtkPythonIntPenalty(PY_LONG_LONG tmpi, int penalty, char format)
 
 static bool vtkPythonCanConvertToInt(PyObject* arg)
 {
+#if PY_VERSION_HEX >= 0x030A0000
+  unaryfunc asint = (unaryfunc)PyType_GetSlot(Py_TYPE(arg), Py_nb_int);
+  unaryfunc asindex = (unaryfunc)PyType_GetSlot(Py_TYPE(arg), Py_nb_index);
+  return (asint || asindex);
+#else
   // Python 3.8 deprecated implicit conversions via __int__, so we must
   // check for the existence of the __int__ and __index__ slots ourselves
   // instead of simply attempting a conversion.
@@ -257,6 +262,7 @@ static bool vtkPythonCanConvertToInt(PyObject* arg)
   return (nb && (nb->nb_int || nb->nb_index));
 #else
   return (nb && nb->nb_int);
+#endif
 #endif
 }
 
