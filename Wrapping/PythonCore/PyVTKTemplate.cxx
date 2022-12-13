@@ -391,7 +391,7 @@ PyObject* PyVTKTemplate_NameFromKey(PyObject* self, PyObject* key)
       else if (PyUnicode_Check(o))
       {
 #ifdef VTK_PY3K
-        tname = PyUnicode_AsUTF8(o);
+        tname = PyUnicode_AsUTF8AndSize(o, nullptr);
 #else
         PyObject* s = _PyUnicode_AsDefaultEncodedString(o, nullptr);
         tname = PyBytes_AS_STRING(s);
@@ -570,7 +570,7 @@ PyObject* PyVTKTemplate_KeyFromName(PyObject* self, PyObject* arg)
   else if (PyUnicode_Check(arg))
   {
 #ifdef VTK_PY3K
-    name = PyUnicode_AsUTF8(arg);
+    name = PyUnicode_AsUTF8AndSize(arg, nullptr);
 #else
     PyObject* s = _PyUnicode_AsDefaultEncodedString(arg, nullptr);
     name = PyBytes_AS_STRING(s);

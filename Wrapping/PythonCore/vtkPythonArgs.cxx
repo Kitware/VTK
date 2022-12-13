@@ -135,7 +135,7 @@ bool vtkPythonGetStringValue(PyObject* o, const char*& a, const char* exctext)
   else if (PyUnicode_Check(o))
   {
 #ifdef VTK_PY3K
-    a = PyUnicode_AsUTF8(o);
+    a = PyUnicode_AsUTF8AndSize(o, nullptr);
     return true;
 #else
     PyObject* s = _PyUnicode_AsDefaultEncodedString(o, nullptr);
