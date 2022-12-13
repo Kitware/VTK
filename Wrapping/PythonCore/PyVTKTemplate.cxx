@@ -386,7 +386,7 @@ PyObject* PyVTKTemplate_NameFromKey(PyObject* self, PyObject* key)
       o = PyObject_Str(o);
       if (PyBytes_Check(o))
       {
-        tname = PyBytes_AS_STRING(o);
+        tname = PyBytes_AsString(o);
       }
       else if (PyUnicode_Check(o))
       {
@@ -565,7 +565,7 @@ PyObject* PyVTKTemplate_KeyFromName(PyObject* self, PyObject* arg)
   const char* name = nullptr;
   if (PyBytes_Check(arg))
   {
-    name = PyBytes_AS_STRING(arg);
+    name = PyBytes_AsString(arg);
   }
   else if (PyUnicode_Check(arg))
   {

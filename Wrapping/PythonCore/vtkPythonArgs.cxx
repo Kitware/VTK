@@ -97,7 +97,7 @@ Py_ssize_t vtkPythonGetStringSize(PyObject* o)
 {
   if (PyBytes_Check(o))
   {
-    return PyBytes_GET_SIZE(o);
+    return PyBytes_Size(o);
   }
   else if (PyByteArray_Check(o))
   {
@@ -124,7 +124,7 @@ bool vtkPythonGetStringValue(PyObject* o, const char*& a, const char* exctext)
 {
   if (PyBytes_Check(o))
   {
-    a = PyBytes_AS_STRING(o);
+    a = PyBytes_AsString(o);
     return true;
   }
   else if (PyByteArray_Check(o))
