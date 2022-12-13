@@ -871,10 +871,10 @@ PyObject* vtkPythonOverload::CallMethod(PyMethodDef* methods, PyObject* self, Py
     // 2) other conversions third, e.g. double to int
 
     // Loop through args
-    Py_ssize_t n = PyTuple_GET_SIZE(args);
+    Py_ssize_t n = PyTuple_Size(args);
     for (Py_ssize_t i = 0; i < n; i++)
     {
-      PyObject* arg = PyTuple_GET_ITEM(args, i);
+      PyObject* arg = PyTuple_GetItem(args, i);
 
       for (sig = 0; sig < nsig; sig++)
       {

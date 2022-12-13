@@ -352,7 +352,7 @@ PyObject* PyVTKTemplate_NameFromKey(PyObject* self, PyObject* key)
 
   if (PyTuple_Check(key))
   {
-    nargs = PyTuple_GET_SIZE(key);
+    nargs = PyTuple_Size(key);
     multi = true;
   }
 
@@ -363,7 +363,7 @@ PyObject* PyVTKTemplate_NameFromKey(PyObject* self, PyObject* key)
     o = key;
     if (multi)
     {
-      o = PyTuple_GET_ITEM(key, i);
+      o = PyTuple_GetItem(key, i);
     }
 
     tname = nullptr;
