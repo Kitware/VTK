@@ -76,10 +76,15 @@ public:
    */
   static const char* VTKClassName(const char* pyname);
 
+  ///@{
   /**
-   * Given a qualified python name "module.name", remove "module.".
+   * Given a qualified python name, type object, or object, "module.name",
+   * remove "module." from the type name.
    */
   static const char* StripModule(const char* tpname);
+  static const char* StripModuleFromType(PyTypeObject* pytype);
+  static const char* StripModuleFromObject(PyObject* ob);
+  ///@}
 
   ///@{
   /**

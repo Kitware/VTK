@@ -516,6 +516,18 @@ const char* vtkPythonUtil::StripModule(const char* tpname)
 }
 
 //------------------------------------------------------------------------------
+const char* vtkPythonUtil::StripModuleFromType(PyTypeObject* pytype)
+{
+  return vtkPythonUtil::StripModule(vtkPythonUtil::GetTypeName(pytype));
+}
+
+//------------------------------------------------------------------------------
+const char* vtkPythonUtil::StripModuleFromObject(PyObject* ob)
+{
+  return vtkPythonUtil::StripModuleFromType(Py_TYPE(ob));
+}
+
+//------------------------------------------------------------------------------
 const char* vtkPythonUtil::GetTypeName(PyTypeObject* pytype)
 {
 #ifdef PY_LIMITED_API
