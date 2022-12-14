@@ -420,6 +420,7 @@ template void Ioss::ParallelUtils::broadcast(int &value, int) const;
 /// \relates Ioss::ParallelUtils::broadcast
 template void Ioss::ParallelUtils::broadcast(int64_t &value, int) const;
 
+namespace Ioss {
 template <> void Ioss::ParallelUtils::broadcast(std::string &my_str, int root) const
 {
 #ifdef SEACAS_HAVE_MPI
@@ -434,6 +435,8 @@ template <> void Ioss::ParallelUtils::broadcast(std::string &my_str, int root) c
   }
 #endif
 }
+} // namespace Ioss
+
 
 template <typename T> void Ioss::ParallelUtils::broadcast(T &my_value, int root) const
 {
@@ -460,6 +463,7 @@ template void Ioss::ParallelUtils::broadcast(std::vector<long long> &, int) cons
 /// \relates Ioss::ParallelUtils::broadcast
 template void Ioss::ParallelUtils::broadcast(std::vector<char> &, int) const;
 /// \relates Ioss::ParallelUtils::broadcast
+namespace Ioss {
 template <>
 void Ioss::ParallelUtils::broadcast(std::vector<std::pair<int, int>> &my_value, int root) const
 {
@@ -475,6 +479,7 @@ void Ioss::ParallelUtils::broadcast(std::vector<std::pair<int, int>> &my_value, 
   }
 #endif
 }
+} // namespace Ioss
 
 template <typename T> void Ioss::ParallelUtils::broadcast(std::vector<T> &my_value, int root) const
 {

@@ -54,6 +54,7 @@ set(classes
   Ioss_Field
   Ioss_FieldManager
   Ioss_FileInfo
+  Ioss_Getline
   Ioss_GetLongOpt
   Ioss_GroupingEntity
   Ioss_Hex16
@@ -183,14 +184,6 @@ set(headers)
 foreach (class IN LISTS classes)
   list(APPEND sources "${class}.C")
   list(APPEND headers "${class}.h")
-endforeach ()
-
-set(c_sources
-  Ioss_Getline)
-
-foreach (c_source IN LISTS c_sources)
-  list(APPEND sources "${c_source}.c")
-  list(APPEND headers "${c_source}.h")
 endforeach ()
 
 list(APPEND sources
