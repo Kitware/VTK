@@ -10,16 +10,9 @@ Prabhu Ramachandran <prabhu_r at users dot sf dot net>
 
 """
 
-import sys
 import vtk
 from vtk.test import Testing
-try:
-    import weakref
-except ImportError:
-    print("No weakref in this version of Python.  Time to upgrade?")
-    print("Python version:", sys.version)
-    from vtk.test import Testing
-    Testing.skip()
+import weakref
 
 
 class TestWeakref(Testing.vtkTest):
