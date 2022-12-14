@@ -355,6 +355,25 @@ wheel-linux-python310-x86_64:test:
     needs:
         - wheel-linux-python310-x86_64:build
 
+wheel-linux-python311-x86_64:build:
+    extends:
+        - .wheel_linux311_x86_64
+        - .cmake_build_wheel_linux
+        - .linux_builder_tags
+        - .cmake_wheel_artifacts
+        - .run_manually
+
+wheel-linux-python311-x86_64:test:
+    extends:
+        - .wheel_linux311_x86_64
+        - .cmake_test_wheel_linux
+        - .linux_builder_tags
+        - .run_automatically
+    dependencies:
+        - wheel-linux-python311-x86_64:build
+    needs:
+        - wheel-linux-python311-x86_64:build
+
 wheel:pypi:upload:
     extends:
         - .pypi_upload
@@ -365,6 +384,7 @@ wheel:pypi:upload:
         - wheel-linux-python38-x86_64:build
         - wheel-linux-python39-x86_64:build
         - wheel-linux-python310-x86_64:build
+        - wheel-linux-python311-x86_64:build
         - wheel-macos-python36-x86_64:build
         - wheel-macos-python37-x86_64:build
         - wheel-macos-python38-x86_64:build
@@ -372,11 +392,14 @@ wheel:pypi:upload:
         - wheel-macos-python39-x86_64:build
         - wheel-macos-python310-arm64:build
         - wheel-macos-python310-x86_64:build
+        - wheel-macos-python311-arm64:build
+        - wheel-macos-python311-x86_64:build
         - wheel-windows-python36-x86_64:build
         - wheel-windows-python37-x86_64:build
         - wheel-windows-python38-x86_64:build
         - wheel-windows-python39-x86_64:build
         - wheel-windows-python310-x86_64:build
+        - wheel-windows-python311-x86_64:build
     needs:
         - wheel-linux-python36-x86_64:build
         # - wheel-linux-python36-x86_64:test
@@ -388,6 +411,8 @@ wheel:pypi:upload:
         - wheel-linux-python39-x86_64:test
         - wheel-linux-python310-x86_64:build
         - wheel-linux-python310-x86_64:test
+        - wheel-linux-python311-x86_64:build
+        - wheel-linux-python311-x86_64:test
         - wheel-macos-python36-x86_64:build
         - wheel-macos-python36-x86_64:test
         - wheel-macos-python37-x86_64:build
@@ -402,6 +427,10 @@ wheel:pypi:upload:
         - wheel-macos-python310-arm64:test
         - wheel-macos-python310-x86_64:build
         - wheel-macos-python310-x86_64:test
+        - wheel-macos-python311-arm64:build
+        - wheel-macos-python311-arm64:test
+        - wheel-macos-python311-x86_64:build
+        - wheel-macos-python311-x86_64:test
         - wheel-windows-python36-x86_64:build
         # - wheel-windows-python36-x86_64:test
         - wheel-windows-python37-x86_64:build
@@ -412,6 +441,8 @@ wheel:pypi:upload:
         - wheel-windows-python39-x86_64:test
         - wheel-windows-python310-x86_64:build
         - wheel-windows-python310-x86_64:test
+        - wheel-windows-python311-x86_64:build
+        - wheel-windows-python311-x86_64:test
 
 wheel:vtk:upload:
     extends:
@@ -423,6 +454,7 @@ wheel:vtk:upload:
         - wheel-linux-python38-x86_64:build
         - wheel-linux-python39-x86_64:build
         - wheel-linux-python310-x86_64:build
+        - wheel-linux-python311-x86_64:build
         - wheel-macos-python36-x86_64:build
         - wheel-macos-python37-x86_64:build
         - wheel-macos-python38-x86_64:build
@@ -430,11 +462,14 @@ wheel:vtk:upload:
         - wheel-macos-python39-x86_64:build
         - wheel-macos-python310-arm64:build
         - wheel-macos-python310-x86_64:build
+        - wheel-macos-python311-arm64:build
+        - wheel-macos-python311-x86_64:build
         - wheel-windows-python36-x86_64:build
         - wheel-windows-python37-x86_64:build
         - wheel-windows-python38-x86_64:build
         - wheel-windows-python39-x86_64:build
         - wheel-windows-python310-x86_64:build
+        - wheel-windows-python311-x86_64:build
     needs:
         - wheel-linux-python36-x86_64:build
         # - wheel-linux-python36-x86_64:test
@@ -446,6 +481,8 @@ wheel:vtk:upload:
         - wheel-linux-python39-x86_64:test
         - wheel-linux-python310-x86_64:build
         - wheel-linux-python310-x86_64:test
+        - wheel-linux-python311-x86_64:build
+        - wheel-linux-python311-x86_64:test
         - wheel-macos-python36-x86_64:build
         - wheel-macos-python36-x86_64:test
         - wheel-macos-python37-x86_64:build
@@ -460,6 +497,10 @@ wheel:vtk:upload:
         - wheel-macos-python310-arm64:test
         - wheel-macos-python310-x86_64:build
         - wheel-macos-python310-x86_64:test
+        - wheel-macos-python311-arm64:build
+        - wheel-macos-python311-arm64:test
+        - wheel-macos-python311-x86_64:build
+        - wheel-macos-python311-x86_64:test
         - wheel-windows-python36-x86_64:build
         # - wheel-windows-python36-x86_64:test
         - wheel-windows-python37-x86_64:build
@@ -470,6 +511,8 @@ wheel:vtk:upload:
         - wheel-windows-python39-x86_64:test
         - wheel-windows-python310-x86_64:build
         - wheel-windows-python310-x86_64:test
+        - wheel-windows-python311-x86_64:build
+        - wheel-windows-python311-x86_64:test
 
 wheel-sdk:upload:
     extends:
@@ -481,6 +524,7 @@ wheel-sdk:upload:
         - wheel-linux-python38-x86_64:build
         - wheel-linux-python39-x86_64:build
         - wheel-linux-python310-x86_64:build
+        - wheel-linux-python311-x86_64:build
         - wheel-macos-python36-x86_64:build
         - wheel-macos-python37-x86_64:build
         - wheel-macos-python38-x86_64:build
@@ -488,11 +532,14 @@ wheel-sdk:upload:
         - wheel-macos-python39-x86_64:build
         - wheel-macos-python310-arm64:build
         - wheel-macos-python310-x86_64:build
+        - wheel-macos-python311-arm64:build
+        - wheel-macos-python311-x86_64:build
         - wheel-windows-python36-x86_64:build
         - wheel-windows-python37-x86_64:build
         - wheel-windows-python38-x86_64:build
         - wheel-windows-python39-x86_64:build
         - wheel-windows-python310-x86_64:build
+        - wheel-windows-python311-x86_64:build
     needs:
         - wheel-linux-python36-x86_64:build
         - wheel-linux-python37-x86_64:build
@@ -503,6 +550,8 @@ wheel-sdk:upload:
         - wheel-linux-python39-x86_64:test
         - wheel-linux-python310-x86_64:build
         - wheel-linux-python310-x86_64:test
+        - wheel-linux-python311-x86_64:build
+        - wheel-linux-python311-x86_64:test
         - wheel-macos-python36-x86_64:build
         - wheel-macos-python36-x86_64:test
         - wheel-macos-python37-x86_64:build
@@ -517,6 +566,10 @@ wheel-sdk:upload:
         - wheel-macos-python310-arm64:test
         - wheel-macos-python310-x86_64:build
         - wheel-macos-python310-x86_64:test
+        - wheel-macos-python311-arm64:build
+        - wheel-macos-python311-arm64:test
+        - wheel-macos-python311-x86_64:build
+        - wheel-macos-python311-x86_64:test
         - wheel-windows-python36-x86_64:build
         - wheel-windows-python37-x86_64:build
         - wheel-windows-python37-x86_64:test
@@ -526,6 +579,8 @@ wheel-sdk:upload:
         - wheel-windows-python39-x86_64:test
         - wheel-windows-python310-x86_64:build
         - wheel-windows-python310-x86_64:test
+        - wheel-windows-python311-x86_64:build
+        - wheel-windows-python311-x86_64:test
     variables:
         RSYNC_SOURCE: build/vtk-wheel-sdk-*.tar.xz
         RSYNC_DESTINATION: wheel-sdks/
@@ -870,6 +925,45 @@ wheel-macos-python310-x86_64:test:
     needs:
         - wheel-macos-python310-x86_64:build
 
+wheel-macos-python311-arm64:build:
+    extends:
+        - .wheel_macos311_arm64
+        - .cmake_build_wheel_macos
+        - .macos_arm64_wheel_builder_tags
+        - .cmake_wheel_artifacts
+        - .run_manually
+
+wheel-macos-python311-arm64:test:
+    extends:
+        - .wheel_macos311_arm64
+        - .cmake_test_wheel_macos
+        - .macos_arm64_wheel_builder_tags
+        - .run_automatically
+    dependencies:
+        - wheel-macos-python311-arm64:build
+    needs:
+        - wheel-macos-python311-arm64:build
+
+wheel-macos-python311-x86_64:build:
+    extends:
+        - .wheel_macos311_x86_64
+        - .cmake_build_wheel_macos
+        - .macos_wheel_builder_tags
+        - .cmake_wheel_artifacts
+        - .run_manually
+    timeout: 90 minutes
+
+wheel-macos-python311-x86_64:test:
+    extends:
+        - .wheel_macos311_x86_64
+        - .cmake_test_wheel_macos
+        - .macos_wheel_builder_tags
+        - .run_automatically
+    dependencies:
+        - wheel-macos-python311-x86_64:build
+    needs:
+        - wheel-macos-python311-x86_64:build
+
 # Windows
 
 windows-vs2022-kits-mpi-python-qt:build:
@@ -1069,3 +1163,22 @@ wheel-windows-python310-x86_64:test:
         - wheel-windows-python310-x86_64:build
     needs:
         - wheel-windows-python310-x86_64:build
+
+wheel-windows-python311-x86_64:build:
+    extends:
+        - .wheel_windows311_x86_64
+        - .cmake_build_wheel_windows
+        - .windows_wheel_builder_tags
+        - .cmake_wheel_artifacts
+        - .run_manually
+
+wheel-windows-python311-x86_64:test:
+    extends:
+        - .wheel_windows311_x86_64
+        - .cmake_test_wheel_windows
+        - .windows_wheel_builder_tags
+        - .run_automatically
+    dependencies:
+        - wheel-windows-python311-x86_64:build
+    needs:
+        - wheel-windows-python311-x86_64:build

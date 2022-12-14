@@ -9,6 +9,7 @@ set(python37_version "3.7.9") # Source-only releases after this.
 set(python38_version "3.8.10") # Source-only releases after this.
 set(python39_version "3.9.13") # Source-only releases after this.
 set(python310_version "3.10.7")
+set(python311_version "3.11.1")
 
 # Hashes for various deployments.
 set(python36_windows_x86_64_hash "3f70798c4885d11842869c9fb2842c8f8bafed1ebfac04e3f4ae1af6498527ce")
@@ -16,6 +17,7 @@ set(python37_windows_x86_64_hash "edd1b8c491635939f7b7e538650607db8307d6dfd3fef0
 set(python38_windows_x86_64_hash "d4e7e83de0db659697eea034dd2b1620ff26ac7062709b60d723307a68aa5d81")
 set(python39_windows_x86_64_hash "004683810c0e0b4ff10025392ac95e699e99d8c3566f415aa7fa35c6d4882f88")
 set(python310_windows_x86_64_hash "51e5ebc5d3cc3572a5d138881e0582e021ef059762796c0414cdd172dd8662e2")
+set(python311_windows_x86_64_hash "b1261ea4cdef506cc49ff7c4c25678a926e9382e961f1dd844326de3c5d25310")
 
 set(python36_macos_x86_64_hash "bd3b68dfc9787c39312c8bd554853fe750abd999e100690c3ed81c29447b02d3")
 set(python37_macos_x86_64_hash "1d31a228ac921c13787f74e0b9e7a04ae5806e70c5226e23711840bf0f0c9e90")
@@ -24,6 +26,8 @@ set(python39_macos_arm64_hash "e6b95bb926feff99e38bcd4986feb8897b36170a6c6c01b36
 set(python39_macos_x86_64_hash "357fffe2efe80eef7136362db2e6616341c046dac5e26614478c7c0248c16709")
 set(python310_macos_arm64_hash "fac43b4015166ab49dedb553e687b06f6212601902ac7cd833471393e88411b5")
 set(python310_macos_x86_64_hash "79c32332738fe09846939ae86d52d72d955d9d34637fc47b275bcb74943c150f")
+set(python311_macos_arm64_hash "0c803d5b4b078ad2b08e2967a4966b66258967ad1c6fb3023f219f3a6a0b162f")
+set(python311_macos_x86_64_hash "9edbae053ce05ff3e2fa395d97a72fa0d3f5e14034588d7a81fa9e62f901ffaf")
 
 # Extracting information from the build configuration.
 if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "windows")
@@ -47,6 +51,8 @@ elseif ("$ENV{CMAKE_CONFIGURATION}" MATCHES "39_")
   set(python_version 39)
 elseif ("$ENV{CMAKE_CONFIGURATION}" MATCHES "310_")
   set(python_version 310)
+elseif ("$ENV{CMAKE_CONFIGURATION}" MATCHES "311_")
+  set(python_version 311)
 else ()
   message(FATAL_ERROR
     "Unknown version for Python")

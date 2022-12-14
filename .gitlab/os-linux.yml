@@ -49,6 +49,13 @@
         CMAKE_CONFIGURATION: wheel_linux310_x86_64
         PYTHON_PREFIX: /opt/python/cp310-cp310
 
+.wheel_linux311_x86_64:
+    extends: .manylinux2014_x86_64
+
+    variables:
+        CMAKE_CONFIGURATION: wheel_linux311_x86_64
+        PYTHON_PREFIX: /opt/python/cp311-cp311
+
 .fedora34:
     extends: .linux
     image: "kitware/vtk:ci-fedora34-20221107"
