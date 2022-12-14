@@ -171,7 +171,7 @@ std::string vtkOpenXRManager::GetOpenXRPropertiesAsString()
     std::to_string(XR_VERSION_MINOR(instanceProperties.runtimeVersion)) + "." +
     std::to_string(XR_VERSION_PATCH(instanceProperties.runtimeVersion));
 
-  return std::move(properties);
+  return properties;
 }
 
 //------------------------------------------------------------------------------
