@@ -9,13 +9,11 @@ GROUPS
 DEPENDS
   VTK::CommonCore
   VTK::CommonExecutionModel
-OPTIONAL_DEPENDS
   VTK::CommonImplicitArrays
 PRIVATE_DEPENDS
   VTK::CommonDataModel
 TEST_DEPENDS
+  VTK::CommonImplicitArrays
   VTK::CommonSystem
   VTK::FiltersSources
   VTK::TestingCore
-TEST_OPTIONAL_DEPENDS
-  VTK::CommonImplicitArrays
