@@ -36,7 +36,7 @@ Here is a small code snippet example to illustrate the usage of the `vtkConstant
 
 ```
 vtkNew<vtkConstantArray<int>> arr42;
-arr42->SetBackend(std::make_shared<vtkConstantImplicitBackend<int>>(42));
+arr42->ConstructBackend(42);
 arr42->SetNumberOfComponents(1);
 arr42->SetNumberOfTuples(100);
 CHECK(arr42->GetValue(77) == 42); // always true

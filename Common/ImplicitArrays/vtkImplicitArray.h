@@ -153,6 +153,15 @@ public:
   ///@}
 
   /**
+   * Utility method for setting backend parameterization directly
+   */
+  template <typename... Params>
+  void ConstructBackend(Params&&... params)
+  {
+    this->SetBackend(std::make_shared<BackendT>(std::forward<Params>(params)...));
+  }
+
+  /**
    * Use of this method is discouraged, it creates a memory copy of the data into
    * a contiguous AoS-ordered buffer internally.
    */
