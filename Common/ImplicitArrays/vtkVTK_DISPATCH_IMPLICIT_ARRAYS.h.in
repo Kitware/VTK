@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-
+// Funded by CEA, DAM, DIF, F-91297 Arpajon, France
 #ifndef vtkVTK_DISPATCH_IMPLICIT_ARRAYS_h
 #define vtkVTK_DISPATCH_IMPLICIT_ARRAYS_h
 
