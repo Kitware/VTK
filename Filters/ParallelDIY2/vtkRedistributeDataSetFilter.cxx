@@ -911,6 +911,7 @@ vtkSmartPointer<vtkPartitionedDataSet> vtkRedistributeDataSetFilter::SplitDataSe
 
   vtkNew<vtkExtractCells> extractor;
   extractor->SetInputDataObject(clone);
+  extractor->SetOutputPointsPrecision(vtkAlgorithm::DOUBLE_PRECISION);
 
   for (size_t region_idx = 0; region_idx < region_cell_ids.size(); ++region_idx)
   {
