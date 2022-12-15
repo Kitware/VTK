@@ -304,9 +304,7 @@ def DisplayGraph(graph):
     view.GetInteractor().Start()
 
 def main():
-    ver = list(sys.version_info[0:2])
-    ver = ver[0] + ver[1] / 10.0
-    if ver >= 2.7:
+    if sys.version_info >= (2, 7):
         vtkSourceDir, moduleList, moduleTreeDepth = GetProgramParameters()
     else:
         vtkSourceDir, moduleList, moduleTreeDepth = GetProgramParametersOld()
