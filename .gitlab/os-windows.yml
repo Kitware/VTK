@@ -298,4 +298,6 @@
         - pip install (Get-ChildItem build\dist\*.whl | % FullName)
         - python -c "import vtk"
         - if ( "$env:VTK_DISABLE_PYI_TESTING" -ne "1" ) { python -m vtkmodules.generate_pyi --test -p vtkmodules } else { echo "pyi test is disabled." }
+        - ctest -V --output-on-failure -S .gitlab/ci/ctest_test_external_wheel.cmake
+        - .gitlab\ci\check_warnings.ps1 -BuildPath ./Testing/ExternalWheel # This will call exit in case of warnings
     interruptible: true

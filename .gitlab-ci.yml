@@ -279,6 +279,19 @@ wheel-linux-python36-x86_64:build:
 #     needs:
 #         - wheel-linux-python36-x86_64:build
 
+# XXX(rust): This build ends up needing a Rust compiler to compile the
+# `cryptography` package.
+# wheel-linux-python36-x86_64:test-x11:
+#     extends:
+#         - .wheel_linux36_x86_64
+#         - .cmake_test_wheel_linux_x11
+#         - .linux_tester_tags
+#         - .merged_only
+#     dependencies:
+#         - wheel-linux-python36-x86_64:build
+#     needs:
+#         - wheel-linux-python36-x86_64:build
+
 wheel-linux-python37-x86_64:build:
     extends:
         - .wheel_linux37_x86_64
@@ -292,6 +305,17 @@ wheel-linux-python37-x86_64:test:
         - .wheel_linux37_x86_64
         - .cmake_test_wheel_linux
         - .linux_builder_tags
+        - .merged_only
+    dependencies:
+        - wheel-linux-python37-x86_64:build
+    needs:
+        - wheel-linux-python37-x86_64:build
+
+wheel-linux-python37-x86_64:test-x11:
+    extends:
+        - .wheel_linux37_x86_64
+        - .cmake_test_wheel_linux_x11
+        - .linux_tester_tags
         - .merged_only
     dependencies:
         - wheel-linux-python37-x86_64:build
@@ -317,6 +341,17 @@ wheel-linux-python38-x86_64:test:
     needs:
         - wheel-linux-python38-x86_64:build
 
+wheel-linux-python38-x86_64:test-x11:
+    extends:
+        - .wheel_linux38_x86_64
+        - .cmake_test_wheel_linux_x11
+        - .linux_tester_tags
+        - .merged_only
+    dependencies:
+        - wheel-linux-python38-x86_64:build
+    needs:
+        - wheel-linux-python38-x86_64:build
+
 wheel-linux-python39-x86_64:build:
     extends:
         - .wheel_linux39_x86_64
@@ -330,6 +365,17 @@ wheel-linux-python39-x86_64:test:
         - .wheel_linux39_x86_64
         - .cmake_test_wheel_linux
         - .linux_builder_tags
+        - .merged_only
+    dependencies:
+        - wheel-linux-python39-x86_64:build
+    needs:
+        - wheel-linux-python39-x86_64:build
+
+wheel-linux-python39-x86_64:test-x11:
+    extends:
+        - .wheel_linux39_x86_64
+        - .cmake_test_wheel_linux_x11
+        - .linux_tester_tags
         - .merged_only
     dependencies:
         - wheel-linux-python39-x86_64:build
@@ -355,6 +401,17 @@ wheel-linux-python310-x86_64:test:
     needs:
         - wheel-linux-python310-x86_64:build
 
+wheel-linux-python310-x86_64:test-x11:
+    extends:
+        - .wheel_linux310_x86_64
+        - .cmake_test_wheel_linux_x11
+        - .linux_tester_tags
+        - .run_automatically
+    dependencies:
+        - wheel-linux-python310-x86_64:build
+    needs:
+        - wheel-linux-python310-x86_64:build
+
 wheel-linux-python311-x86_64:build:
     extends:
         - .wheel_linux311_x86_64
@@ -368,6 +425,17 @@ wheel-linux-python311-x86_64:test:
         - .wheel_linux311_x86_64
         - .cmake_test_wheel_linux
         - .linux_builder_tags
+        - .run_automatically
+    dependencies:
+        - wheel-linux-python311-x86_64:build
+    needs:
+        - wheel-linux-python311-x86_64:build
+
+wheel-linux-python311-x86_64:test-x11:
+    extends:
+        - .wheel_linux311_x86_64
+        - .cmake_test_wheel_linux_x11
+        - .linux_tester_tags
         - .run_automatically
     dependencies:
         - wheel-linux-python311-x86_64:build
@@ -403,16 +471,22 @@ wheel:pypi:upload:
     needs:
         - wheel-linux-python36-x86_64:build
         # - wheel-linux-python36-x86_64:test
+        # - wheel-linux-python36-x86_64:test-x11
         - wheel-linux-python37-x86_64:build
         - wheel-linux-python37-x86_64:test
+        - wheel-linux-python37-x86_64:test-x11
         - wheel-linux-python38-x86_64:build
         - wheel-linux-python38-x86_64:test
+        - wheel-linux-python38-x86_64:test-x11
         - wheel-linux-python39-x86_64:build
         - wheel-linux-python39-x86_64:test
+        - wheel-linux-python39-x86_64:test-x11
         - wheel-linux-python310-x86_64:build
         - wheel-linux-python310-x86_64:test
+        - wheel-linux-python310-x86_64:test-x11
         - wheel-linux-python311-x86_64:build
         - wheel-linux-python311-x86_64:test
+        - wheel-linux-python311-x86_64:test-x11
         - wheel-macos-python36-x86_64:build
         - wheel-macos-python36-x86_64:test
         - wheel-macos-python37-x86_64:build
