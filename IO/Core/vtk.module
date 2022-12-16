@@ -18,5 +18,6 @@ PRIVATE_DEPENDS
   VTK::utf8
   VTK::vtksys
   VTK::zlib
+  VTK::fast_float
 TEST_DEPENDS
   VTK::TestingCore

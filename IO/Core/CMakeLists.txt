@@ -20,6 +20,7 @@ set(classes
   vtkMemoryResourceStream
   vtkNumberToString
   vtkOutputStream
+  vtkResourceParser
   vtkResourceStream
   vtkSortFileNames
   vtkTextCodec
@@ -36,3 +37,6 @@ vtk_module_add_module(VTK::IOCore
   CLASSES ${classes}
   HEADERS ${headers})
 vtk_add_test_mangling(VTK::IOCore)
+
+set_source_files_properties(vtkResourceParser.cxx
+  PROPERTIES WRAP_EXCLUDE ON)
