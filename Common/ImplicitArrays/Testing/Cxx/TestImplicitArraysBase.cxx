@@ -134,7 +134,7 @@ int TestImplicitArraysBase(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   arr42->Squeeze();
 
   vtkNew<vtkImplicitArray<::ConstStruct>> genericConstArr;
-  genericConstArr->SetBackend(std::make_shared<::ConstStruct>(42));
+  genericConstArr->ConstructBackend(42);
   genericConstArr->SetNumberOfComponents(2);
   genericConstArr->SetNumberOfTuples(50);
   for (iArr = 0; iArr < 50; iArr++)
