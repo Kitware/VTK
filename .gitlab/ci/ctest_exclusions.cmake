@@ -196,8 +196,8 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "windows")
     # Timeout; needs investigated
     "^VTK::FiltersPointsPython-TestPointSmoothingFilter$"
 
-    # Flaky on windows for some reasons: 
-    # https://gitlab.kitware.com/vtk/vtk/-/issues/18640 
+    # Flaky on windows for some reasons:
+    # https://gitlab.kitware.com/vtk/vtk/-/issues/18640
     "^VTK::FiltersStatisticsCxx-TestMultiCorrelativeStatistics$"
 
     # Fail to present D3D resources (see #18657)
@@ -275,7 +275,7 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "vtkmoverride")
 
     # this tests for the number of cells and points, which can fail as vtkmClip
     # can produce different number of cells and points
-    "^VTK::FiltersGeneralPython-tableBasedClip$")    
+    "^VTK::FiltersGeneralPython-tableBasedClip$")
 endif ()
 
 string(REPLACE ";" "|" test_exclusions "${test_exclusions}")
