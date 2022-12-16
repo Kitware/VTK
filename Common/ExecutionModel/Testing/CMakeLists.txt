@@ -4,7 +4,9 @@ vtk_module_test_data(
   Data/many_blocks/many_blocks.vtm
   Data/many_blocks/many_blocks/,REGEX:.*)
 
-add_subdirectory(Cxx)
+if (NOT vtk_testing_cxx_disabled)
+  add_subdirectory(Cxx)
+endif ()
 
 if (VTK_WRAP_PYTHON)
   add_subdirectory(Python)
