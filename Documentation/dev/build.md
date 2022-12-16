@@ -80,7 +80,6 @@ Required:
 Optional dependencies:
 
   * [Python][python]
-    - When using Python 2, at least 2.7 is required
     - When using Python 3, at least 3.4 is required
   * [Qt5][qt]
     - Version 5.9 or newer
@@ -119,7 +118,7 @@ MPI][msmpi] is required.
 
 #### Python
 
-In order to use scripting, [Python][python] is required (versions 2.7 and 3.3).
+In order to use scripting, [Python][python] is required.
 
 #### OSMesa
 
@@ -189,8 +188,6 @@ to modify include:
     not.
   * `VTK_WRAP_PYTHON` (default `OFF`; requires `VTK_ENABLE_WRAPPING`): Whether
     Python support will be available or not.
-  * `VTK_PYTHON_VERSION` (default `3`): The major version of Python to
-    support. Must be either `2` or `3`.
 
 Less common, but variables which may be of interest to some:
 
@@ -474,12 +471,11 @@ following settings affect the Android build:
 #### Python wheels
 
 VTK also supports creating a Python wheel containing its Python wrappers for
-Python3 (Python2 wheels are no longer supported). This is supported by setting
-the `VTK_WHEEL_BUILD` flag. This changes the build directory structure around
-to match that expected by wheels. Once configured, the build tree may be built
-as it would be normally and then the generated `setup.py` file used to create
-the wheel. Note that the `bdist_wheel` command requires that the `wheel`
-package is available (`pip install wheel`).
+Python3. This is supported by setting the `VTK_WHEEL_BUILD` flag. This changes
+the build directory structure around to match that expected by wheels. Once
+configured, the build tree may be built as it would be normally and then the
+generated `setup.py` file used to create the wheel. Note that the `bdist_wheel`
+command requires that the `wheel` package is available (`pip install wheel`).
 
 ```sh
 cmake -GNinja -DVTK_WHEEL_BUILD=ON -DVTK_WRAP_PYTHON=ON path/to/vtk/source

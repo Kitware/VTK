@@ -36,8 +36,7 @@ vtk_module_python_default_destination(<var>
 By default, the destination is `${CMAKE_INSTALL_BINDIR}/Lib/site-packages` on
 Windows and `${CMAKE_INSTALL_LIBDIR}/python<VERSION>/site-packages` otherwise.
 
-`<MAJOR_VERSION>` must be one of `2` or `3`. If not specified, it defaults to
-the value of `${VTK_PYTHON_VERSION}`.
+`<MAJOR_VERSION>`, if specified, must be `3`.
 #]==]
 
 cmake_policy(PUSH)
@@ -55,32 +54,22 @@ function (vtk_module_python_default_destination var)
       "${_vtk_module_python_UNPARSED_ARGUMENTS}")
   endif ()
 
-  if (NOT _vtk_module_python_MAJOR_VERSION)
-    if (NOT DEFINED VTK_PYTHON_VERSION)
-      message(FATAL_ERROR
-        "A major version of Python must be specified (or `VTK_PYTHON_VERSION` "
-        "be set).")
-    endif ()
-
-    set(_vtk_module_python_MAJOR_VERSION "${VTK_PYTHON_VERSION}")
-  endif ()
-
-  if (NOT _vtk_module_python_MAJOR_VERSION STREQUAL "2" AND
+  if (DEFINED _vtk_module_python_MAJOR_VERSION AND
       NOT _vtk_module_python_MAJOR_VERSION STREQUAL "3")
     message(FATAL_ERROR
-      "Only Python2 and Python3 are supported right now.")
+      "Only Python3 is supported right now.")
   endif ()
 
   if (MSVC)
     set(destination "${CMAKE_INSTALL_BINDIR}/Lib/site-packages")
   else ()
-    if (NOT DEFINED "Python${_vtk_module_python_MAJOR_VERSION}_VERSION_MAJOR" OR
-        NOT DEFINED "Python${_vtk_module_python_MAJOR_VERSION}_VERSION_MINOR")
-      find_package("Python${_vtk_module_python_MAJOR_VERSION}" QUIET COMPONENTS Development.Module)
+    if (NOT DEFINED "Python3_VERSION_MAJOR" OR
+        NOT DEFINED "Python3_VERSION_MINOR")
+      find_package("Python3" QUIET COMPONENTS Development.Module)
     endif ()
 
-    if (Python${_vtk_module_python_MAJOR_VERSION}_VERSION_MAJOR AND Python${_vtk_module_python_MAJOR_VERSION}_VERSION_MINOR)
-      set(_vtk_python_version_suffix "${Python${VTK_PYTHON_VERSION}_VERSION_MAJOR}.${Python${VTK_PYTHON_VERSION}_VERSION_MINOR}")
+    if (Python3_VERSION_MAJOR AND Python3_VERSION_MINOR)
+      set(_vtk_python_version_suffix "${Python3_VERSION_MAJOR}.${Python3_VERSION_MINOR}")
     else ()
       message(WARNING
         "The version of Python is unknown; not using a versioned directory "
@@ -1079,31 +1068,28 @@ static void ${_vtk_python_TARGET_NAME}_load() {\n")
         set(_generate_pyi_static_importer_arg)
       endif ()
 
-      # XXX(python2): Remove this conditional
-      if (NOT VTK_PYTHON_VERSION STREQUAL "2" AND _vtk_python_exe)
-        add_custom_command(
-          OUTPUT    ${_vtk_python_pyi_files}
-          COMMAND   ${_vtk_python_exe} # Do not quote; may contain arguments.
-                    -m vtkmodules.generate_pyi
-                    -p "${_vtk_python_PYTHON_PACKAGE}"
-                    ${_generate_pyi_static_importer_arg}
-                    -o "${CMAKE_BINARY_DIR}/${_vtk_python_MODULE_DESTINATION}/${_vtk_python_package_dir}"
-                    ${_vtk_python_modules}
-          WORKING_DIRECTORY
-                    "${CMAKE_BINARY_DIR}/${_vtk_python_MODULE_DESTINATION}"
-          DEPENDS   ${_vtk_python_module_targets}
-                    ${_vtk_python_static_importer_name}
-                    "${_vtk_pyi_script}"
-          COMMENT   "Creating .pyi files for ${_vtk_python_TARGET_NAME}")
+      add_custom_command(
+        OUTPUT    ${_vtk_python_pyi_files}
+        COMMAND   ${_vtk_python_exe} # Do not quote; may contain arguments.
+                  -m vtkmodules.generate_pyi
+                  -p "${_vtk_python_PYTHON_PACKAGE}"
+                  ${_generate_pyi_static_importer_arg}
+                  -o "${CMAKE_BINARY_DIR}/${_vtk_python_MODULE_DESTINATION}/${_vtk_python_package_dir}"
+                  ${_vtk_python_modules}
+        WORKING_DIRECTORY
+                  "${CMAKE_BINARY_DIR}/${_vtk_python_MODULE_DESTINATION}"
+        DEPENDS   ${_vtk_python_module_targets}
+                  ${_vtk_python_static_importer_name}
+                  "${_vtk_pyi_script}"
+        COMMENT   "Creating .pyi files for ${_vtk_python_TARGET_NAME}")
 
-        install(
-          FILES       ${_vtk_python_pyi_files}
-          DESTINATION "${_vtk_python_MODULE_DESTINATION}/${_vtk_python_package_dir}"
-          COMPONENT   "${_vtk_python_component}")
+      install(
+        FILES       ${_vtk_python_pyi_files}
+        DESTINATION "${_vtk_python_MODULE_DESTINATION}/${_vtk_python_package_dir}"
+        COMPONENT   "${_vtk_python_component}")
 
-        add_custom_target("${_vtk_python_TARGET_NAME}_pyi" ALL
-          DEPENDS ${_vtk_python_pyi_files})
-      endif ()
+      add_custom_target("${_vtk_python_TARGET_NAME}_pyi" ALL
+        DEPENDS ${_vtk_python_pyi_files})
     endif ()
   endif ()
 endfunction ()

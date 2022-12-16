@@ -16,18 +16,6 @@ following should be fixed first:
 [VTK dynamic Python lookup issue]: https://gitlab.kitware.com/vtk/vtk/-/issues/17214
 #]==]
 
-if (DEFINED VTK_PYTHON_VERSION)
-  if (NOT VTK_PYTHON_VERSION STREQUAL "3")
-    message(DEPRECATION
-      "Only Python3 is supported anymore. Please migrate to a supported version "
-      "of Python.")
-  endif ()
-  message(WARNING
-    "Removing `VTK_PYTHON_VERSION` from the cache as only version `3` is supported.")
-  unset(VTK_PYTHON_VERSION)
-  unset(VTK_PYTHON_VERSION CACHE)
-endif ()
-
 # VTK only supports a single Python version at a time, so make artifact finding
 # interactive.
 set(Python3_ARTIFACTS_INTERACTIVE ON)

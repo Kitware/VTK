@@ -37,18 +37,14 @@ The following variables are provided by this module:
   * `VTK_ENABLE_VR_COLLABORATION`: Is VR collaboration enabled when VR is enabled.
   * `VTK_SMP_BACKENDS`: The list of available SMP backends.
 
-For more information about the Python in use by VTK, the `VTK_PYTHON_VERSION`
-variable may be used to query the `find_package(Python)` that VTK performs
-internally (note that the `Python` component must be found to guarantee that
-this happens). For example, the following information would be useful:
+For more information about the Python in use by VTK, (note that the `Python`
+component must be found to guarantee that this happens), see the
+[FindPython3][] documentation for what is available. Of particular use are
+likely to be:
 
-  - the `Python${VTK_PYTHON_VERSION}_VERSION` variable; and
-  - the `Python${VTK_PYTHON_VERSION}::Python` target.
+  - the `Python3_VERSION` variable; and
+  - the `Python3::Python` target.
 
-See [FindPython2][] and [FindPython3][] documentation for all of the available
-data.
-
-[FindPython2]: https://cmake.org/cmake/help/v3.13/module/FindPython2.html
 [FindPython3]: https://cmake.org/cmake/help/v3.13/module/FindPython3.html
 [VTK module API]: TODO: Link to hosted documentation.
 #]==]

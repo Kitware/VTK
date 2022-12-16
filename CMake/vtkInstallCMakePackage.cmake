@@ -47,7 +47,7 @@ _vtk_module_write_import_prefix("${vtk_cmake_build_dir}/vtk-prefix.cmake" "${vtk
 
 set(vtk_python_version "")
 if (VTK_WRAP_PYTHON)
-  set(vtk_python_version "${VTK_PYTHON_VERSION}")
+  set(vtk_python_version "3")
 endif ()
 
 set(vtk_has_qml 0)
