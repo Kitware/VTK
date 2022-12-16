@@ -108,6 +108,11 @@
         {
             "group": "master",
             "site": "gitlab-ci",
+            "buildname": "[wheel_linux311_x86_64]"
+        },
+        {
+            "group": "master",
+            "site": "gitlab-ci",
             "buildname": "[wheel_macos36_x86_64]"
         },
         {
@@ -143,6 +148,16 @@
         {
             "group": "master",
             "site": "gitlab-ci",
+            "buildname": "[wheel_macos311_arm64]"
+        },
+        {
+            "group": "master",
+            "site": "gitlab-ci",
+            "buildname": "[wheel_macos311_x86_64]"
+        },
+        {
+            "group": "master",
+            "site": "gitlab-ci",
             "buildname": "[wheel_windows36_x86_64]"
         },
         {
@@ -164,6 +179,11 @@
             "group": "master",
             "site": "gitlab-ci",
             "buildname": "[wheel_windows310_x86_64]"
+        },
+        {
+            "group": "master",
+            "site": "gitlab-ci",
+            "buildname": "[wheel_windows311_x86_64]"
         },
         {
             "group": "master",
