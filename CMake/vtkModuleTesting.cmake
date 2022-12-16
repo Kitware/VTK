@@ -556,6 +556,9 @@ vtk_add_test_python(<EXENAME> <VARNAME> <ARG>...)
 #[==[.md INTERNAL
 If the `_vtk_testing_python_exe` variable is not set, the `vtkpython` binary is
 used by default. Additional arguments may be passed in this variable as well.
+
+If the given Python executable supports VTK's `--enable-bt` flag, setting
+`_vtk_testing_python_exe_supports_bt` to `1` is required to enable it.
 #]==]
 
 #[==[.md
@@ -603,6 +606,7 @@ legacy of the conversion of many tests from Tcl to Python.
 function (vtk_add_test_python)
   if (NOT _vtk_testing_python_exe)
     set(_vtk_testing_python_exe "$<TARGET_FILE:VTK::vtkpython>")
+    set(_vtk_testing_python_exe_supports_bt 1)
   endif ()
   set(python_options
     NO_DATA
@@ -672,9 +676,14 @@ function (vtk_add_test_python)
         "${MPIEXEC_NUMPROC_FLAG}" "1"
         ${MPIEXEC_PREFLAGS})
     endif()
+    set(_vtk_test_python_bt_args)
+    if (_vtk_testing_python_exe_supports_bt)
+      list(APPEND _vtk_test_python_bt_args --enable-bt)
+    endif ()
     set(testArgs NAME "${_vtk_build_test}Python${_vtk_test_python_suffix}-${vtk_test_prefix}${test_name}"
                  COMMAND ${_vtk_test_python_pre_args}
-                         "${_vtk_testing_python_exe}" ${_vtk_test_python_args} --enable-bt
+                         "${_vtk_testing_python_exe}" ${_vtk_test_python_args}
+                         ${_vtk_test_python_bt_args}
                          ${rtImageTest}
                          "${_vtk_build_TEST_FILE_DIRECTORY}/${test_file}"
                          ${args}
@@ -741,6 +750,7 @@ function (vtk_add_test_python_mpi)
 
   if (NOT _vtk_testing_python_exe)
     set(_vtk_testing_python_exe "$<TARGET_FILE:VTK::pvtkpython>")
+    set(_vtk_testing_python_exe_supports_bt 1)
   endif ()
   vtk_add_test_python(${ARGN})
 endfunction ()
