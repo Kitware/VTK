@@ -420,11 +420,12 @@
     script:
         - yum install -y --setopt=install_weak_deps=False libXcursor
         - "$PYTHON_PREFIX/bin/python -m venv venv"
-        - venv/bin/pip install twine
-        - venv/bin/twine check build/dist/*.whl
-        - venv/bin/pip install build/dist/*.whl
-        - venv/bin/python -c "import vtk"
-        - if [ "$VTK_DISABLE_PYI_TESTING" != "1" ]; then venv/bin/python -m vtkmodules.generate_pyi --test -p vtkmodules; else echo "pyi test is disabled."; fi
+        - . venv/bin/activate
+        - pip install twine
+        - twine check build/dist/*.whl
+        - pip install build/dist/*.whl
+        - python -c "import vtk"
+        - if [ "$VTK_DISABLE_PYI_TESTING" != "1" ]; then python -m vtkmodules.generate_pyi --test -p vtkmodules; else echo "pyi test is disabled."; fi
     interruptible: true
 
 .cmake_source_tarballs:

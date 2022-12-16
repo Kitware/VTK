@@ -261,11 +261,12 @@
         - cmake -P .gitlab/ci/download_wheel_python.cmake
         - export PYTHON_PREFIX=$GIT_CLONE_PATH/.gitlab/python/Python.framework/Versions/Current
         - "$PYTHON_PREFIX/bin/python$PYTHON_VERSION_SUFFIX -m venv venv"
+        - . venv/bin/activate
           # Needed to rebuild some dependencies which don't have arm64-compatible wheels yet.
-        - '[ "$( uname -m )" = "arm64" ] && venv/bin/pip install wheel'
-        - venv/bin/pip install twine
-        - venv/bin/twine check build/dist/*.whl
-        - venv/bin/pip install build/dist/*.whl
-        - venv/bin/python -c "import vtk"
-        - if [ "$VTK_DISABLE_PYI_TESTING" != "1" ]; then venv/bin/python -m vtkmodules.generate_pyi --test -p vtkmodules; else echo "pyi test is disabled."; fi
+        - '[ "$( uname -m )" = "arm64" ] && pip install wheel'
+        - pip install twine
+        - twine check build/dist/*.whl
+        - pip install build/dist/*.whl
+        - python -c "import vtk"
+        - if [ "$VTK_DISABLE_PYI_TESTING" != "1" ]; then python -m vtkmodules.generate_pyi --test -p vtkmodules; else echo "pyi test is disabled."; fi
     interruptible: true
