@@ -330,7 +330,7 @@ vtkMTimeType vtkTransform::GetMTime()
 // array of three floating point values.
 void vtkTransform::GetOrientation(double orientation[3], vtkMatrix4x4* amatrix)
 {
-#define VTK_AXIS_EPSILON 0.001
+#define VTK_AXIS_EPSILON 2e-12
 #define VTK_ORTHO_EPSILON 4e-16
   int i;
 
