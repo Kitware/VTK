@@ -1383,14 +1383,6 @@ bool vtkCompositePolyDataMapper2::RecursiveHasTranslucentGeometry(
   vtkDataObject* dobj, unsigned int& flat_index)
 {
   vtkCompositeDataDisplayAttributes* cda = this->GetCompositeDataDisplayAttributes();
-  bool overrides_visibility = (cda && cda->HasBlockVisibility(dobj));
-  if (overrides_visibility)
-  {
-    if (!cda->GetBlockVisibility(dobj))
-    {
-      return false;
-    }
-  }
   bool overrides_opacity = (cda && cda->HasBlockOpacity(dobj));
   if (overrides_opacity)
   {
@@ -1425,7 +1417,17 @@ bool vtkCompositePolyDataMapper2::RecursiveHasTranslucentGeometry(
   }
   else
   {
+    bool overrides_visibility = (cda && cda->HasBlockVisibility(dobj));
+    if (overrides_visibility)
+    {
+      if (!cda->GetBlockVisibility(dobj))
+      {
+        return false;
+      }
+    }
+
     vtkPolyData* pd = vtkPolyData::SafeDownCast(dobj);
+
     // if we think it is opaque check the scalars
     if (this->ScalarVisibility)
     {
