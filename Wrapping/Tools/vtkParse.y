@@ -963,7 +963,7 @@ static void clearTemplate(void)
 {
   if (currentTemplate)
   {
-    free(currentTemplate);
+    vtkParse_FreeTemplate(currentTemplate);
   }
   currentTemplate = NULL;
 }
@@ -4876,7 +4876,7 @@ FileInfo* vtkParse_ParseFile(const char* filename, FILE* ifile, FILE* errfile)
   data->Contents = currentNamespace;
 
   templateDepth = 0;
-  currentTemplate = NULL;
+  clearTemplate();
 
   currentFunction = (FunctionInfo*)malloc(sizeof(FunctionInfo));
   vtkParse_InitFunction(currentFunction);
