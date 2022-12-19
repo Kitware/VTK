@@ -96,6 +96,18 @@ public:
   vtkBooleanMacro(ConvertToLinear, bool);
   ///@}
 
+  ///@{
+  /**
+   * Set/Get the precision of the texture.
+   * If HalfPrecision is enabled, each channel uses 16-bits values instead of 32-bits floating point
+   * values.
+   * Default is true.
+   */
+  vtkGetMacro(HalfPrecision, bool);
+  vtkSetMacro(HalfPrecision, bool);
+  vtkBooleanMacro(HalfPrecision, bool);
+  ///@}
+
   /**
    * Release any graphics resources that are being consumed by this texture.
    * The parameter window could be used to determine which graphic
@@ -113,6 +125,7 @@ protected:
   unsigned int PrefilterMaxSamples = 512;
   vtkOpenGLTexture* InputTexture = nullptr;
   bool ConvertToLinear = false;
+  bool HalfPrecision = true;
 
 private:
   vtkPBRPrefilterTexture(const vtkPBRPrefilterTexture&) = delete;
