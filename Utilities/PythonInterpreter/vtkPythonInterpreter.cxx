@@ -193,10 +193,12 @@ std::string vtkPythonInterpreter::StdErrBuffer;
 std::string vtkPythonInterpreter::StdOutBuffer;
 int vtkPythonInterpreter::LogVerbosity = vtkLogger::VERBOSITY_TRACE;
 
+#if PY_VERSION_HEX >= 0x03000000
 struct CharDeleter
 {
-  void operator()(wchar_t* str) { delete[] str; }
+  void operator()(wchar_t* str) { PyMem_RawFree(str); }
 };
+#endif
 
 vtkStandardNewMacro(vtkPythonInterpreter);
 //------------------------------------------------------------------------------
