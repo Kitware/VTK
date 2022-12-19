@@ -3596,6 +3596,11 @@ static void start_class(const char* classname, int is_struct_or_union)
         vtkParse_AddClassToNamespace(currentNamespace, currentClass);
       }
     }
+    else
+    {
+      /* mark class to be deleted at end of its definition */
+      currentClass->Name = NULL;
+    }
   }
 
   /* template information */
@@ -3624,8 +3629,16 @@ static void start_class(const char* classname, int is_struct_or_union)
 /* reached the end of a class definition */
 static void end_class(void)
 {
-  /* add default constructors */
-  vtkParse_AddDefaultConstructors(currentClass, data->Strings);
+  if (currentClass->Name && currentClass->Name[0] != '\0')
+  {
+    /* add default constructors */
+    vtkParse_AddDefaultConstructors(currentClass, data->Strings);
+  }
+  else
+  {
+    /* classes we had to parse but don't want to record */
+    vtkParse_FreeClass(currentClass);
+  }
 
   popClass();
 }
