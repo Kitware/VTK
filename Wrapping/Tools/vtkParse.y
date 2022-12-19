@@ -3724,7 +3724,7 @@ static void start_enum(const char* name, int is_scoped, unsigned int type, const
       vtkParse_AddEnumToNamespace(currentNamespace, item);
     }
 
-    if (type)
+    if (type && basename)
     {
       vtkParse_AddStringToArray(
         &item->SuperClasses, &item->NumberOfSuperClasses, type_class(type, basename));
