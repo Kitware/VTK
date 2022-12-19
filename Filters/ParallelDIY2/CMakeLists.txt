@@ -11,6 +11,7 @@ set(classes
   vtkGenerateGlobalIds
   vtkGhostCellsGenerator
   vtkOverlappingCellsDetector
+  vtkPartitioningStrategy
   vtkPResampleToImage
   vtkPResampleWithDataSet
   vtkProbeLineFilter
