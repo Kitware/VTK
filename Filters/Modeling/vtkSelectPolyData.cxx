@@ -336,7 +336,7 @@ int vtkSelectPolyData::RequestData(vtkInformation* vtkNotUsed(request),
     default:
       vtkErrorMacro("Unknown edge search mode: " << this->EdgeSearchMode);
   }
-  if (edgePointIds->GetNumberOfIds() == 0)
+  if (edgePointIds->GetNumberOfIds() == 0 || this->CheckAbort())
   {
     return 1;
   }

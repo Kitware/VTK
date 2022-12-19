@@ -232,6 +232,7 @@ int vtkAdaptiveSubdivisionFilter::RequestData(vtkInformation* vtkNotUsed(request
   vtkIdType passNum;
   vtkIdType totalTriangles = 0;
   bool changesMade;
+  bool abort = false;
 
   for (passNum = 0, changesMade = true; passNum < this->MaximumNumberOfPasses &&
        totalTriangles < this->MaximumNumberOfTriangles && changesMade && !abort;
