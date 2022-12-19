@@ -407,7 +407,7 @@ void vtkParse_CopyEnum(EnumInfo* item, const EnumInfo* orig)
 /* Free an Enum struct */
 void vtkParse_FreeEnum(EnumInfo* enum_info)
 {
-  free(enum_info);
+  vtkParse_FreeClass(enum_info);
 }
 
 /* Initialize a Using struct */
