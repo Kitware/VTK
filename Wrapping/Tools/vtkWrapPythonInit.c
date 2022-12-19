@@ -167,6 +167,7 @@ int VTK_PARSE_MAIN(int argc, char* argv[])
   FILE* fout_impl;
   int numFiles = 0;
   int numDepends = 0;
+  int i;
   char libName[250];
   char importName[250];
   char tmpVal[250];
@@ -249,6 +250,16 @@ int VTK_PARSE_MAIN(int argc, char* argv[])
 
   CreateInitFile(libName, fout_init);
   CreateImplFile(libName, importName, numDepends, depends, numFiles, files, fout_impl);
+
+  for (i = 0; i < numFiles; i++)
+  {
+    free(files[i]);
+  }
+  for (i = 0; i < numDepends; i++)
+  {
+    free(depends[i]);
+  }
+
   fclose(fout_init);
   fclose(fout_impl);
 
