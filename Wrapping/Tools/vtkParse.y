@@ -4125,6 +4125,10 @@ static void set_return(
     vtkParse_AddStringToArray(&val->Dimensions, &val->NumberOfDimensions, vtkstrdup(text));
   }
 
+  if (func->ReturnValue)
+  {
+    vtkParse_FreeValue(func->ReturnValue);
+  }
   func->ReturnValue = val;
 
 #ifndef VTK_PARSE_LEGACY_REMOVE
