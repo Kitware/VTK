@@ -139,6 +139,17 @@ void InitializeTableReference(vtkTable* table)
 }
 
 // ----------------------------------------------------------------------------
+void AddFieldToTableInput(vtkTable* table)
+{
+  vtkNew<vtkDoubleArray> columnFieldData;
+  columnFieldData->SetNumberOfTuples(Length);
+  columnFieldData->SetNumberOfComponents(1);
+  columnFieldData->SetArray(const_cast<double*>(col2.data()), Length, /*save*/ 1);
+  columnFieldData->SetName("vtkDummyData");
+  table->AddColumn(columnFieldData);
+}
+
+// ----------------------------------------------------------------------------
 bool FuzzyCompare(vtkDataArray* inArray, vtkDataArray* expected, double epsilon)
 {
   auto inRange = vtk::DataArrayValueRange(inArray);
@@ -222,6 +233,13 @@ int TestTableFFT(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   result = vtkDataArray::SafeDownCast(fftFilter->GetOutput()->GetColumn(0));
   expected = vtkDataArray::SafeDownCast(reference->GetColumnByName("Data"));
   status += static_cast<int>(!details::FuzzyCompare(result, expected, 1.0e-6));
+
+  // Test with output column size different from the input
+  details::AddFieldToTableInput(input);
+  fftFilter->ReturnOnesidedOff();
+  fftFilter->SetAverageFft(true);
+  fftFilter->SetBlockSize(5);
+  fftFilter->Update();
 
   return status;
 }
