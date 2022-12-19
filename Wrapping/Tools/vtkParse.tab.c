@@ -10269,7 +10269,7 @@ FileInfo* vtkParse_ParseFile(const char* filename, FILE* ifile, FILE* errfile)
     return NULL;
   }
 
-  free(currentFunction);
+  vtkParse_FreeFunction(currentFunction);
   yylex_destroy();
 
   /* The main class name should match the file name */
