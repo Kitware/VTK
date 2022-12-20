@@ -607,6 +607,11 @@ int vtkParseMerge_Merge(FileInfo* finfo, MergeInfo* info, ClassInfo* merge, Clas
       super->Functions[j++] = super->Functions[i];
     }
   }
+  if (n && !j)
+  {
+    free(super->Functions);
+    super->Functions = NULL;
+  }
   super->NumberOfFunctions = j;
 
   return depth;
