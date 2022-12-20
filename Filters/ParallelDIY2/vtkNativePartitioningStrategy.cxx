@@ -70,6 +70,7 @@ struct PartitionDistributionWorklet
     this->Res->NumberOfPartitions = this->Cuts->size();
     this->Res->TargetPartitions->SetNumberOfComponents(1);
     this->Res->TargetPartitions->SetNumberOfTuples(this->DS->GetNumberOfCells());
+    this->Res->TargetPartitions->Fill(-1);
   }
 
   void Initialize() { this->LocalData.Local().GenCell = vtkSmartPointer<vtkGenericCell>::New(); }
@@ -78,10 +79,9 @@ struct PartitionDistributionWorklet
   {
     vtkGenericCell* gcell = this->LocalData.Local().GenCell;
     std::vector<double> weights(this->DS->GetMaxCellSize());
-    vtkIdType cellId = first;
-    for (auto itC = (this->Regions->begin() + first); itC != (this->Regions->begin() + last);
-         ++itC, ++cellId)
+    for (vtkIdType cellId = first; cellId < last; ++cellId)
     {
+      auto itC = this->Regions->begin() + cellId;
       if (itC->empty())
       {
         this->Res->TargetPartitions->SetValue(cellId, -1);
@@ -149,7 +149,7 @@ vtkPartitioningStrategy::PartitionInformation CutsToPartition(
     dataset->GetCellData()->GetArray(vtkDataSetAttributes::GhostArrayName()));
 
   const auto numCells = dataset->GetNumberOfCells();
-  std::vector<std::vector<int>> cellRegions(numCells);
+  std::vector<std::vector<int>> cellRegions(numCells, std::vector<int>());
 
   // call GetCell/GetCellBounds once to make it thread safe (see vtkDataSet::GetCell).
   vtkNew<vtkGenericCell> dummyCell;
@@ -178,7 +178,7 @@ vtkPartitioningStrategy::PartitionInformation CutsToPartition(
       for (vtkIdType cellId = first; cellId < last; ++cellId)
       {
         if (ghostCells != nullptr &&
-          (ghostCells->GetTypedComponent(cellId, 0) & vtkDataSetAttributes::DUPLICATECELL) != 0)
+          ((ghostCells->GetTypedComponent(cellId, 0) & vtkDataSetAttributes::DUPLICATECELL) != 0))
         {
           // skip ghost cells, they will not be extracted since they will be
           // extracted on ranks where they are not marked as ghosts.

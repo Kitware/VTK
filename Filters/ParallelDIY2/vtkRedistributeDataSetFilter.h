@@ -5,20 +5,7 @@
  * @brief redistributes input dataset into requested number of partitions
  *
  * vtkRedistributeDataSetFilter is intended for redistributing data in a load
- * balanced fashion. The load balancing attempts to balance the number of cells
- * per target partition approximately. It uses a DIY-based kdtree implementation
- * that builds balances the cell centers among requested number of partitions.
- * Current implementation only supports power-of-2 target partition. If a
- * non-power of two value is specified for `NumberOfPartitions`, then the load
- * balancing simply uses the power-of-two greater than the requested value. The
- * bounding boxes for the kdtree leaf nodes are then used to redistribute the
- * data.
- *
- * Alternatively a collection of bounding boxes may be provided that can be used
- * to distribute the data instead of computing them (see `UseExplicitCuts` and
- * `SetExplicitCuts`). When explicit cuts are specified, it is possible use
- * those cuts strictly or to expand boxes on the edge to fit the domain of the
- * input dataset. This can be controlled by `ExpandExplicitCutsForInputDomain`.
+ * balanced fashion.
  *
  * The filter allows users to pick how cells along the boundary of the cuts
  * either automatically generated or explicitly specified are to be distributed
@@ -40,9 +27,7 @@
  * i.e. vtkUnstructuredGrid, vtkPolyData and composite datasets comprising of
  * the same. It will work when applied to structured datasets as well, however,
  * it results in conversion of the dataset to an unstructured grid -- which is
- * often not suitable. Also, other redistribution and load balancing strategies
- * can be applied to structured data which may be more efficient and hence
- * should be preferred over using this filter.
+ * often not suitable.
  *
  * For composite datasets, the filter supports `vtkPartitionedDataSet` and
  * `vtkPartitionedDataSetCollection`. When input is a
@@ -60,6 +45,7 @@
 
 #include "vtkDataObjectAlgorithm.h"
 #include "vtkFiltersParallelDIY2Module.h" // for export macros
+#include "vtkPartitioningStrategy.h"      // for PartitionInformation
 #include "vtkSmartPointer.h"              // for vtkSmartPointer
 
 #include <memory> // for std::shared_ptr
@@ -77,13 +63,17 @@ class vtkPartitionedDataSet;
 class vtkMultiBlockDataSet;
 class vtkMultiPieceDataSet;
 class vtkDataObjectTree;
-
 class VTKFILTERSPARALLELDIY2_EXPORT vtkRedistributeDataSetFilter : public vtkDataObjectAlgorithm
 {
 public:
   static vtkRedistributeDataSetFilter* New();
   vtkTypeMacro(vtkRedistributeDataSetFilter, vtkDataObjectAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
+
+  /**
+   * Necessary to override this in order to take into account modifications to strategy
+   */
+  vtkMTimeType GetMTime() override;
 
   ///@{
   /**
@@ -130,8 +120,8 @@ public:
    * explicitly provided cuts. Set to false (default) to automatically compute
    * the cuts to use for redistributing the dataset.
    */
-  vtkSetMacro(UseExplicitCuts, bool);
-  vtkGetMacro(UseExplicitCuts, bool);
+  void SetUseExplicitCuts(bool);
+  bool GetUseExplicitCuts() const;
   vtkBooleanMacro(UseExplicitCuts, bool);
   ///@}
 
@@ -140,7 +130,7 @@ public:
    * Specify the cuts to use when `UseExplicitCuts` is true.
    */
   void SetExplicitCuts(const std::vector<vtkBoundingBox>& boxes);
-  const std::vector<vtkBoundingBox>& GetExplicitCuts() const { return this->ExplicitCuts; }
+  const std::vector<vtkBoundingBox>& GetExplicitCuts() const;
   void RemoveAllExplicitCuts();
   void AddExplicitCut(const vtkBoundingBox& bbox);
   void AddExplicitCut(const double bbox[6]);
@@ -169,17 +159,18 @@ public:
    * Default is true, that is explicit cuts will automatically be expanded.
    *
    */
-  vtkSetMacro(ExpandExplicitCuts, bool);
-  vtkGetMacro(ExpandExplicitCuts, bool);
+  void SetExpandExplicitCuts(bool);
+  bool GetExpandExplicitCuts() const;
   vtkBooleanMacro(ExpandExplicitCuts, bool);
   ///@}
 
-  ///@}
+  ///@{
   /**
    * Returns the cuts used by the most recent `RequestData` call. This is only
    * valid after a successful `Update` request.
    */
-  const std::vector<vtkBoundingBox>& GetCuts() const { return this->Cuts; }
+  const std::vector<vtkBoundingBox>& GetCuts() const;
+  ///@}
 
   ///@{
   /**
@@ -190,18 +181,14 @@ public:
    * least as many partitions.
    *
    * This is simply a hint and not an exact number of partitions the data will be
-   * split into. Current implementation results in number of partitions equal to
-   * the power of 2 greater than or equal to the chosen value.
+   * split into.
    *
    * Default is 0.
    *
-   * This has no effect when `UseExplicitCuts` is set to true. In that case, the
-   * number of partitions is dictated by the number of cuts provided.
-   *
-   * @sa PreservePartitionsInOutput, UseExplicitCuts
+   * @sa PreservePartitionsInOutput
    */
-  vtkSetClampMacro(NumberOfPartitions, int, 0, VTK_INT_MAX);
-  vtkGetMacro(NumberOfPartitions, int);
+  void SetNumberOfPartitions(vtkIdType);
+  vtkIdType GetNumberOfPartitions() const;
   ///@}
 
   ///@{
@@ -233,15 +220,6 @@ public:
   vtkBooleanMacro(GenerateGlobalCellIds, bool);
   ///@}
 
-  /**
-   * Helper function to expand a collection of bounding boxes to include the
-   * `bounds` specified. This will expand any boxes in the `cuts` that abut any
-   * of the external faces of the bounding box formed by all the `cuts` to
-   * touch the external faces of the `bounds`.
-   */
-  std::vector<vtkBoundingBox> ExpandCuts(
-    const std::vector<vtkBoundingBox>& cuts, const vtkBoundingBox& bounds);
-
   ///@{
   /**
    * Enable/disable debugging mode. In this mode internal arrays are preserved
@@ -264,9 +242,17 @@ public:
    *
    * Default is true.
    */
-  vtkSetMacro(LoadBalanceAcrossAllBlocks, bool);
-  vtkGetMacro(LoadBalanceAcrossAllBlocks, bool);
+  void SetLoadBalanceAcrossAllBlocks(bool);
+  bool GetLoadBalanceAcrossAllBlocks();
   vtkBooleanMacro(LoadBalanceAcrossAllBlocks, bool);
+  ///@}
+
+  ///@{
+  /**
+   * Setter/Getter for Strategy
+   */
+  vtkPartitioningStrategy* GetStrategy();
+  void SetStrategy(vtkPartitioningStrategy*);
   ///@}
 
 protected:
@@ -277,39 +263,43 @@ protected:
   int RequestDataObject(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
-  /**
-   * This method is called to generate the partitions for the input dataset.
-   * Subclasses should override this to generate partitions using preferred data
-   * redistribution strategy.
+  /*
+   * A method with this signature used to exist. With the refactoring of this filter to accept
+   * different partitioning strategies, this method no longer had any meaning in the generic
+   * sense.
    *
-   * The `data` will either be a `vtkPartitionedDataSet` or a `vtkDataSet`. In
-   * case of `vtkPartitionedDataSet`, the method is expected to redistribute all
-   * datasets (partitions) in the `vtkPartitionedDataSet` taken as a whole.
+   * If you inherited this filter and overrid this method, please implement a new partitioning
+   * strategy instead.
    */
-  virtual std::vector<vtkBoundingBox> GenerateCuts(vtkDataObject* data);
-
-  /**
-   * This method is called to split a vtkDataSet into multiple datasets by the
-   * vector of `vtkBoundingBox` passed in. The returned vtkPartitionedDataSet
-   * must have exactly as many partitions as the number of vtkBoundingBoxes
-   * in the `cuts` vector with each partition matching the bounding box at the
-   * matching index.
-   *
-   * Note, this method duplicates cells that lie on the boundaries and adds cell
-   * arrays that indicate cell ownership and flags boundary cells.
-   */
-  virtual vtkSmartPointer<vtkPartitionedDataSet> SplitDataSet(
-    vtkDataSet* dataset, const std::vector<vtkBoundingBox>& cuts);
+  // virtual vtkSmartPointer<vtkPartitionedDataSet> SplitDataSet(
+  // vtkDataSet* dataset, const std::vector<vtkBoundingBox>& cuts);
 
 private:
   vtkRedistributeDataSetFilter(const vtkRedistributeDataSetFilter&) = delete;
   void operator=(const vtkRedistributeDataSetFilter&) = delete;
 
-  bool InitializeCuts(vtkDataObjectTree* input);
-  bool Redistribute(vtkPartitionedDataSet* inputDO, vtkPartitionedDataSet* outputPDS,
-    const std::vector<vtkBoundingBox>& cuts, vtkIdType* mb_offset = nullptr);
-  bool RedistributeDataSet(
-    vtkDataSet* inputDS, vtkPartitionedDataSet* outputPDS, const std::vector<vtkBoundingBox>& cuts);
+  /**
+   * This method is called to split a vtkDataSet into multiple datasets by the
+   * vector of partition information passed in. The returned vtkPartitionedDataSet
+   * must have exactly as many partitions as the number of information elements
+   * in the `info` vector.
+   *
+   * Note, this method may duplicate cells that lie on the boundaries and add cell
+   * arrays that indicate cell ownership and flag boundary cells.
+   */
+  virtual vtkSmartPointer<vtkPartitionedDataSet> SplitDataSet(
+    vtkDataSet* dataset, const vtkPartitioningStrategy::PartitionInformation& info);
+
+  bool Redistribute(vtkPartitionedDataSetCollection* inputCollection,
+    vtkPartitionedDataSetCollection* outputCollection,
+    const std::vector<vtkPartitioningStrategy::PartitionInformation>& info,
+    bool preserve_input_hierarchy);
+
+  bool RedistributePTD(vtkPartitionedDataSet*, vtkPartitionedDataSet*,
+    const std::vector<vtkPartitioningStrategy::PartitionInformation>&, unsigned int*, vtkIdType*);
+
+  bool RedistributeDataSet(vtkDataSet* inputDS, vtkPartitionedDataSet* outputPDS,
+    const vtkPartitioningStrategy::PartitionInformation& info);
   vtkSmartPointer<vtkDataSet> ClipDataSet(vtkDataSet* dataset, const vtkBoundingBox& bbox);
 
   void MarkGhostCells(vtkPartitionedDataSet* pieces);
@@ -321,20 +311,16 @@ private:
 
   void MarkValidDimensions(const vtkBoundingBox& gbounds);
 
-  std::vector<vtkBoundingBox> ExplicitCuts;
-  std::vector<vtkBoundingBox> Cuts;
   std::shared_ptr<diy::Assigner> Assigner;
 
   vtkMultiProcessController* Controller;
   int BoundaryMode;
-  int NumberOfPartitions;
   bool PreservePartitionsInOutput;
   bool GenerateGlobalCellIds;
-  bool UseExplicitCuts;
-  bool ExpandExplicitCuts;
   bool EnableDebugging;
   bool ValidDim[3];
-  bool LoadBalanceAcrossAllBlocks;
+
+  vtkSmartPointer<vtkPartitioningStrategy> Strategy;
 };
 
 VTK_ABI_NAMESPACE_END
