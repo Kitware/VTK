@@ -742,7 +742,7 @@ class vtkWebLocalRendering(vtkWebProtocol):
     def __init__(self, **kwargs):
         super(vtkWebLocalRendering, self).__init__()
         initializeSerializers()
-        self.context = SynchronizationContext(True)
+        self.context = SynchronizationContext()
         self.trackingViews = {}
         self.mtime = 0
 
