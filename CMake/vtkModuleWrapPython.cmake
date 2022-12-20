@@ -569,6 +569,8 @@ vtk_module_wrap_python(
   [USE_DEBUG_SUFFIX <ON|OFF>]
   [REPLACE_DEBUG_SUFFIX <ON|OFF>]
 
+  [INTERPRETER <interpreter>]
+
   [INSTALL_EXPORT <export>]
   [COMPONENT <component>])
   [TARGET_SPECIFIC_COMPONENTS <ON|OFF>]
@@ -626,6 +628,12 @@ vtk_module_wrap_python(
     debug Python builds.
   * `REPLACE_DEBUG_SUFFIX` (Defaults to `OFF`): If `ON`, any project-wide debug
     suffix will be replaced with the local debug suffix (if enabled).
+  * `INTERPRETER` (Defaults to `VTK::Python` or `Python3::Interpreter`): If
+    provided, this interpreter will be used to run supplemental processes which
+    involve Python scripts including `.pyi` file generation. If a target name
+    is provided, its path will be used, otherwise a string which expands to the
+    path to an interpreter executable may be provided. If the string `DISABLE`
+    is given, any support using interpreters will be disabled.
   * `INSTALL_EXPORT`: If provided, static installs will add the installed
     libraries to the provided export set.
   * `COMPONENT`: Defaults to `python`. All install rules created by this
@@ -634,7 +642,7 @@ vtk_module_wrap_python(
 function (vtk_module_wrap_python)
   cmake_parse_arguments(PARSE_ARGV 0 _vtk_python
     ""
-    "MODULE_DESTINATION;STATIC_MODULE_DESTINATION;LIBRARY_DESTINATION;PYTHON_PACKAGE;BUILD_STATIC;INSTALL_HEADERS;INSTALL_EXPORT;TARGET_SPECIFIC_COMPONENTS;TARGET;COMPONENT;WRAPPED_MODULES;CMAKE_DESTINATION;SOABI;USE_DEBUG_SUFFIX;REPLACE_DEBUG_SUFFIX;UTILITY_TARGET;BUILD_PYI_FILES;HEADERS_DESTINATION"
+    "MODULE_DESTINATION;STATIC_MODULE_DESTINATION;LIBRARY_DESTINATION;PYTHON_PACKAGE;BUILD_STATIC;INSTALL_HEADERS;INSTALL_EXPORT;TARGET_SPECIFIC_COMPONENTS;TARGET;COMPONENT;WRAPPED_MODULES;CMAKE_DESTINATION;SOABI;USE_DEBUG_SUFFIX;REPLACE_DEBUG_SUFFIX;UTILITY_TARGET;BUILD_PYI_FILES;HEADERS_DESTINATION;INTERPRETER"
     "DEPENDS;MODULES")
 
   if (_vtk_python_UNPARSED_ARGUMENTS)
@@ -684,6 +692,29 @@ function (vtk_module_wrap_python)
 
   if (NOT DEFINED _vtk_python_REPLACE_DEBUG_SUFFIX)
     set(_vtk_python_REPLACE_DEBUG_SUFFIX OFF)
+  endif ()
+
+  set(_vtk_python_exe)
+  if (NOT DEFINED _vtk_python_INTERPRETER)
+    if (TARGET VTK::vtkpython)
+      set(_vtk_python_exe "$<TARGET_FILE:VTK::vtkpython>")
+    elseif (TARGET Python3::Interpreter)
+      set(_vtk_python_exe "$<TARGET_FILE:Python3::Interpreter>")
+    elseif (Python3_EXECUTABLE)
+      set(_vtk_python_exe "${Python3_EXECUTABLE}")
+    else ()
+      message(WARNING
+        "No Python interpreter found; `.pyi` support will be disabled.")
+    endif ()
+  elseif (TARGET "${_vtk_python_INTERPRETER}")
+    set(_vtk_python_exe "$<TARGET_FILE:${_vtk_python_INTERPRETER}>")
+  elseif (_vtk_python_INTERPRETER STREQUAL "DISABLE")
+    set(_vtk_python_exe "")
+  elseif (_vtk_python_INTERPRETER)
+    set(_vtk_python_exe "${_vtk_python_INTERPRETER}")
+  else ()
+    message(WARNING
+      "No Python interpreter found; `.pyi` support will be disabled.")
   endif ()
 
   if (_vtk_python_SOABI)
@@ -1060,16 +1091,16 @@ static void ${_vtk_python_TARGET_NAME}_load() {\n")
 
       if (_vtk_python_BUILD_STATIC)
         set(_generate_pyi_static_importer_arg
-          -i ${_vtk_python_static_importer_name})
+          -i "${_vtk_python_static_importer_name}")
       else ()
         set(_generate_pyi_static_importer_arg)
       endif ()
 
       # XXX(python2): Remove this conditional
-      if (NOT VTK_PYTHON_VERSION STREQUAL "2")
+      if (NOT VTK_PYTHON_VERSION STREQUAL "2" AND _vtk_python_exe)
         add_custom_command(
           OUTPUT    ${_vtk_python_pyi_files}
-          COMMAND   "${_vtk_python_exe}"
+          COMMAND   ${_vtk_python_exe} # Do not quote; may contain arguments.
                     -m vtkmodules.generate_pyi
                     -p "${_vtk_python_PYTHON_PACKAGE}"
                     ${_generate_pyi_static_importer_arg}

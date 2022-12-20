@@ -22,6 +22,7 @@
     variables:
         CMAKE_CONFIGURATION: wheel_windows36_x86_64
         VTK_DISABLE_PYI_TESTING: 1
+        EXTRA_PYTHON_PATH: "build\\lib.win-amd64-3.6"
 
 .wheel_windows37_x86_64:
     extends: .wheel_windows_x86_64
@@ -29,6 +30,7 @@
     variables:
         CMAKE_CONFIGURATION: wheel_windows37_x86_64
         VTK_DISABLE_PYI_TESTING: 1
+        EXTRA_PYTHON_PATH: "build\\lib.win-amd64-3.7"
 
 .wheel_windows38_x86_64:
     extends: .wheel_windows_x86_64
@@ -259,6 +261,7 @@
         - Set-Item -Force -Path "env:PATH" -Value "$env:PATH;$pwdpath\.gitlab\buildcache\bin"
         - Invoke-Expression -Command .gitlab/ci/vcvarsall.ps1
         - buildcache --show-stats
+        - 'if ("$env:EXTRA_PYTHON_PATH" -ne "") { Set-Item -Force -Path "env:PATH" -Value "$env:PATH;$pwdpath\$env:EXTRA_PYTHON_PATH\vtkmodules" }'
         - ctest -VV -S .gitlab/ci/ctest_configure.cmake
         - ctest -VV -S .gitlab/ci/ctest_build.cmake | Out-File -FilePath compile_output.log
         - buildcache --show-stats
