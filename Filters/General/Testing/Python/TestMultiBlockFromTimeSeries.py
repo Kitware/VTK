@@ -2,6 +2,10 @@
 import vtk
 from vtk.util.vtkAlgorithm import VTKPythonAlgorithmBase
 
+# VTK_DEPRECATED_IN_9_1_0
+import warnings
+warnings.filterwarnings('ignore', category=DeprecationWarning)
+
 class MovingSphereSource(VTKPythonAlgorithmBase):
     def __init__(self):
         VTKPythonAlgorithmBase.__init__(self,
