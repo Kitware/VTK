@@ -326,6 +326,7 @@ static char* vtkWrapPython_ArgCheckString(ClassInfo* data, FunctionInfo* current
         /* for vectors of anything that isn't a vtkSmartPointer */
         result[endPos++] = vtkWrapPython_FormatChar(ttype);
       }
+      vtkParse_FreeTemplateDecomposition(tname, 2, targs);
     }
 
     /* add the format char to the string */
