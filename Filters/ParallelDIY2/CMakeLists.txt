@@ -10,6 +10,7 @@ set(classes
   vtkExtractSubsetWithSeed
   vtkGenerateGlobalIds
   vtkGhostCellsGenerator
+  vtkNativePartitioningStrategy
   vtkOverlappingCellsDetector
   vtkPartitioningStrategy
   vtkPResampleToImage
