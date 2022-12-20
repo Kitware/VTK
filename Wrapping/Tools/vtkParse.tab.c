@@ -4130,7 +4130,6 @@ static YYRESULTTAG yyuserAction(
         item->Name = getVarName();
         item->Comment = vtkstrdup(getComment());
       }
-
       if (item->Class == NULL)
       {
         vtkParse_FreeValue(item);
@@ -4230,7 +4229,7 @@ static YYRESULTTAG yyuserAction(
       item->Access = access_level;
 
       handle_complex_type(item, getAttributes(), getType(),
-        (((yyGLRStackItem const*)yyvsp)[YYFILL(-2)].yystate.yysemantics.yysval.integer), copySig());
+        (((yyGLRStackItem const*)yyvsp)[YYFILL(-1)].yystate.yysemantics.yysval.integer), copySig());
 
       item->Name = (((yyGLRStackItem const*)yyvsp)[YYFILL(-6)].yystate.yysemantics.yysval.str);
       item->Comment = vtkstrdup(getComment());

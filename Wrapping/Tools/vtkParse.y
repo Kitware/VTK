@@ -2206,7 +2206,7 @@ alias_declaration:
       item->ItemType = VTK_TYPEDEF_INFO;
       item->Access = access_level;
 
-      handle_complex_type(item, getAttributes(), getType(), $<integer>6, copySig());
+      handle_complex_type(item, getAttributes(), getType(), $<integer>7, copySig());
 
       item->Name = $<str>2;
       item->Comment = vtkstrdup(getComment());
