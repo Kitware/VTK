@@ -19,7 +19,7 @@ class FiltersLosingPrecisionBase:
         f.SetClipFunction(p)
         f.SetValue(0)
         f.Update()
-        self.assertEquals(f.GetOutput().GetPoints().GetDataType(), vtk_const.VTK_DOUBLE)
+        self.assertEqual(f.GetOutput().GetPoints().GetDataType(), vtk_const.VTK_DOUBLE)
 
     def test_tablebasedclip(self):
         p = vtkPlane()
@@ -30,7 +30,7 @@ class FiltersLosingPrecisionBase:
         f.SetClipFunction(p)
         f.SetValue(0)
         f.Update()
-        self.assertEquals(f.GetOutput().GetPoints().GetDataType(), vtk_const.VTK_DOUBLE)
+        self.assertEqual(f.GetOutput().GetPoints().GetDataType(), vtk_const.VTK_DOUBLE)
 
 class TestUnstructuredGridFiltersLosingPrecision(unittest.TestCase, FiltersLosingPrecisionBase):
     def setUp(self):
