@@ -272,8 +272,8 @@ if rank == 0:
 else:
     res &= algs.min(dsa.NoneArray, axis=0) is dsa.NoneArray
 
-res = numpy.array(res, dtype=numpy.bool)
+res = numpy.array(res, dtype=bool)
 all_res = numpy.array(res)
-mpitype = algs._lookup_mpi_type(numpy.bool)
+mpitype = algs._lookup_mpi_type(bool)
 MPI.COMM_WORLD.Allreduce([res, mpitype], [all_res, mpitype], MPI.LAND)
 assert all_res
