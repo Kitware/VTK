@@ -482,8 +482,12 @@ FileInfo* vtkParse_Main(int argc, char* argv[])
 
   if (!data)
   {
+    vtkParse_FreeStringCache(&strings);
     exit(1);
   }
+
+  /* merge into a single string cache to avoid leaking strings */
+  vtkParse_MergeStringCache(data->Strings, &strings);
 
   /* check whether -dM option was set */
   if (options.DumpMacros)
