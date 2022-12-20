@@ -1580,6 +1580,11 @@ int VTK_PARSE_MAIN(int argc, char* argv[])
     fprintf(fp, "}\n");
   }
 
+  if (hierarchyInfo)
+  {
+    vtkParseHierarchy_Free(hierarchyInfo);
+  }
+
   vtkParse_Free(file_info);
 
   fclose(fp);
