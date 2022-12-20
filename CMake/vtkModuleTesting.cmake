@@ -619,7 +619,7 @@ function (vtk_add_test_python)
   _vtk_test_parse_args("${python_options}" "py" ${ARGN})
   _vtk_test_set_options("${python_options}" "" ${options})
 
-  set(_vtk_fail_regex "(\n|^)ERROR: " "ERR\\|" "instance(s)? still around")
+  set(_vtk_fail_regex "(\n|^)ERROR: " "ERR\\|" "instance(s)? still around|DeprecationWarning")
 
   set(_vtk_skip_regex
     # Insufficient graphics resources.
