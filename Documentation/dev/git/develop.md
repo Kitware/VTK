@@ -348,9 +348,13 @@ The *leading* line of a comment may optionally be exactly one of the
 following votes followed by nothing but whitespace before the end
 of the line:
 
-*   `-1` or :-1: (`:-1:`) means "The change is not ready for integration."
-*   `+1` or :+1: (`:+1:`) means "The change is ready for integration."
-*   `+2` means "I have tested the change and verified it works."
+* `-1` or `:-1:` indicates "the change is not ready for integration".
+* `+1` or `:+1:` indicates "I like the change".
+  This adds an `Acked-by:` trailer to the merge commit message.
+* `+2` indicates "the change is ready for integration".
+  This adds a `Reviewed-by:` trailer to the merge commit message.
+* `+3` indicates "I have tested the change and verified it works".
+  This adds a `Tested-by:` trailer to the merge commit message.
 
 #### Middle Lines ####
 
@@ -532,8 +536,8 @@ and push it back to GitLab for another review as follows:
 Merge a Topic
 -------------
 
-After a topic has been reviewed and approved in a GitLab Merge Request,
-authorized developers may add a comment with a single
+Once review has concluded that the MR topic is ready for integration
+(at least one `+2`), authorized developers may add a comment with a single
 [*trailing* line](#trailing-lines):
 
     Do: merge
