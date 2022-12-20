@@ -972,7 +972,7 @@ static void clearTemplate(void)
 static void pushTemplate(void)
 {
   templateStack[templateDepth++] = currentTemplate;
-  startTemplate();
+  currentTemplate = NULL;
 }
 
 /* pop a template off the stack */
