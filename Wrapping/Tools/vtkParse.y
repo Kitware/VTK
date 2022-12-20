@@ -4741,9 +4741,13 @@ static void output_function(void)
     if (!match)
     {
       vtkParse_AddFunctionToNamespace(currentNamespace, currentFunction);
-
-      currentFunction = (FunctionInfo*)malloc(sizeof(FunctionInfo));
     }
+    else
+    {
+      vtkParse_FreeFunction(currentFunction);
+    }
+
+    currentFunction = (FunctionInfo*)malloc(sizeof(FunctionInfo));
   }
 
   vtkParse_InitFunction(currentFunction);
