@@ -998,7 +998,7 @@ static void clearTemplate(void)
 {
   if (currentTemplate)
   {
-    free(currentTemplate);
+    vtkParse_FreeTemplate(currentTemplate);
   }
   currentTemplate = NULL;
 }
@@ -1007,7 +1007,7 @@ static void clearTemplate(void)
 static void pushTemplate(void)
 {
   templateStack[templateDepth++] = currentTemplate;
-  startTemplate();
+  currentTemplate = NULL;
 }
 
 /* pop a template off the stack */
@@ -4130,7 +4130,6 @@ static YYRESULTTAG yyuserAction(
         item->Name = getVarName();
         item->Comment = vtkstrdup(getComment());
       }
-
       if (item->Class == NULL)
       {
         vtkParse_FreeValue(item);
@@ -4230,7 +4229,7 @@ static YYRESULTTAG yyuserAction(
       item->Access = access_level;
 
       handle_complex_type(item, getAttributes(), getType(),
-        (((yyGLRStackItem const*)yyvsp)[YYFILL(-2)].yystate.yysemantics.yysval.integer), copySig());
+        (((yyGLRStackItem const*)yyvsp)[YYFILL(-1)].yystate.yysemantics.yysval.integer), copySig());
 
       item->Name = (((yyGLRStackItem const*)yyvsp)[YYFILL(-6)].yystate.yysemantics.yysval.str);
       item->Comment = vtkstrdup(getComment());
@@ -8968,6 +8967,11 @@ static void start_class(const char* classname, int is_struct_or_union)
         vtkParse_AddClassToNamespace(currentNamespace, currentClass);
       }
     }
+    else
+    {
+      /* mark class to be deleted at end of its definition */
+      currentClass->Name = NULL;
+    }
   }
 
   /* template information */
@@ -8996,8 +9000,16 @@ static void start_class(const char* classname, int is_struct_or_union)
 /* reached the end of a class definition */
 static void end_class(void)
 {
-  /* add default constructors */
-  vtkParse_AddDefaultConstructors(currentClass, data->Strings);
+  if (currentClass->Name && currentClass->Name[0] != '\0')
+  {
+    /* add default constructors */
+    vtkParse_AddDefaultConstructors(currentClass, data->Strings);
+  }
+  else
+  {
+    /* classes we had to parse but don't want to record */
+    vtkParse_FreeClass(currentClass);
+  }
 
   popClass();
 }
@@ -9096,7 +9108,7 @@ static void start_enum(const char* name, int is_scoped, unsigned int type, const
       vtkParse_AddEnumToNamespace(currentNamespace, item);
     }
 
-    if (type)
+    if (type && basename)
     {
       vtkParse_AddStringToArray(
         &item->SuperClasses, &item->NumberOfSuperClasses, type_class(type, basename));
@@ -9497,6 +9509,10 @@ static void set_return(
     vtkParse_AddStringToArray(&val->Dimensions, &val->NumberOfDimensions, vtkstrdup(text));
   }
 
+  if (func->ReturnValue)
+  {
+    vtkParse_FreeValue(func->ReturnValue);
+  }
   func->ReturnValue = val;
 
 #ifndef VTK_PARSE_LEGACY_REMOVE
@@ -10096,9 +10112,13 @@ static void output_function(void)
     if (!match)
     {
       vtkParse_AddFunctionToNamespace(currentNamespace, currentFunction);
-
-      currentFunction = (FunctionInfo*)malloc(sizeof(FunctionInfo));
     }
+    else
+    {
+      vtkParse_FreeFunction(currentFunction);
+    }
+
+    currentFunction = (FunctionInfo*)malloc(sizeof(FunctionInfo));
   }
 
   vtkParse_InitFunction(currentFunction);
@@ -10248,7 +10268,7 @@ FileInfo* vtkParse_ParseFile(const char* filename, FILE* ifile, FILE* errfile)
   data->Contents = currentNamespace;
 
   templateDepth = 0;
-  currentTemplate = NULL;
+  clearTemplate();
 
   currentFunction = (FunctionInfo*)malloc(sizeof(FunctionInfo));
   vtkParse_InitFunction(currentFunction);
@@ -10269,7 +10289,7 @@ FileInfo* vtkParse_ParseFile(const char* filename, FILE* ifile, FILE* errfile)
     return NULL;
   }
 
-  free(currentFunction);
+  vtkParse_FreeFunction(currentFunction);
   yylex_destroy();
 
   /* The main class name should match the file name */

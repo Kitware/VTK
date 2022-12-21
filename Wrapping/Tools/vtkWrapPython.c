@@ -599,6 +599,11 @@ int VTK_PARSE_MAIN(int argc, char* argv[])
 
   free(name_from_file);
 
+  if (hinfo)
+  {
+    vtkParseHierarchy_Free(hinfo);
+  }
+
   vtkParse_Free(file_info);
 
   return 0;

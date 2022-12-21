@@ -295,7 +295,6 @@ void vtkWrapPython_GenerateMethods(FILE* fp, const char* classname, ClassInfo* d
   int numberOfWrappedFunctions = 0;
   FunctionInfo** wrappedFunctions;
   FunctionInfo* theFunc;
-  char* cp;
   const char* ccp;
 
   wrappedFunctions = (FunctionInfo**)malloc(data->NumberOfFunctions * sizeof(FunctionInfo*));
@@ -323,9 +322,7 @@ void vtkWrapPython_GenerateMethods(FILE* fp, const char* classname, ClassInfo* d
       (!vtkWrap_IsConstructor(data, theFunc) == !do_constructors))
     {
       ccp = vtkWrapText_PythonSignature(theFunc);
-      cp = (char*)malloc(strlen(ccp) + 1);
-      strcpy(cp, ccp);
-      theFunc->Signature = cp;
+      theFunc->Signature = vtkParse_CacheString(finfo->Strings, ccp, strlen(ccp));
       wrappedFunctions[numberOfWrappedFunctions++] = theFunc;
     }
   }
@@ -344,7 +341,7 @@ void vtkWrapPython_GenerateMethods(FILE* fp, const char* classname, ClassInfo* d
     {
       fprintf(fp, "\n");
 
-      vtkWrapPython_GenerateOneMethod(fp, classname, data, hinfo, wrappedFunctions,
+      vtkWrapPython_GenerateOneMethod(fp, classname, data, finfo, hinfo, wrappedFunctions,
         numberOfWrappedFunctions, fnum, is_vtkobject, do_constructors);
 
     } /* is this method non NULL */

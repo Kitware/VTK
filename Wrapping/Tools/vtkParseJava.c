@@ -1192,6 +1192,11 @@ int VTK_PARSE_MAIN(int argc, char* argv[])
     free(dir);
   }
 
+  if (hierarchyInfo)
+  {
+    vtkParseHierarchy_Free(hierarchyInfo);
+  }
+
   vtkParse_Free(file_info);
 
   return 0;

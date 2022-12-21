@@ -1737,9 +1737,11 @@ const char* preproc_find_include_file(
 
     info->IncludeFiles = (const char**)preproc_array_check(
       (char**)info->IncludeFiles, sizeof(char*), info->NumberOfIncludeFiles);
-    info->IncludeFiles[info->NumberOfIncludeFiles++] = output;
+    info->IncludeFiles[info->NumberOfIncludeFiles++] =
+      vtkParse_CacheString(info->Strings, output, strlen(output));
+    free(output);
 
-    return output;
+    return info->IncludeFiles[info->NumberOfIncludeFiles - 1];
   }
 
   /* Make sure the current filename is already added */

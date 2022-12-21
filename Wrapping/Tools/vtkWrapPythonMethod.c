@@ -1144,8 +1144,8 @@ static void vtkWrapPython_FreeTemporaries(FILE* fp, FunctionInfo* currentFunctio
 /* Write out the code for one method (including all its overloads) */
 
 void vtkWrapPython_GenerateOneMethod(FILE* fp, const char* classname, ClassInfo* data,
-  HierarchyInfo* hinfo, FunctionInfo* wrappedFunctions[], int numberOfWrappedFunctions, int fnum,
-  int is_vtkobject, int do_constructors)
+  FileInfo* finfo, HierarchyInfo* hinfo, FunctionInfo* wrappedFunctions[],
+  int numberOfWrappedFunctions, int fnum, int is_vtkobject, int do_constructors)
 {
   FunctionInfo* theFunc;
   char occSuffix[16];
@@ -1339,7 +1339,7 @@ void vtkWrapPython_GenerateOneMethod(FILE* fp, const char* classname, ClassInfo*
 
       /* memory leak here but ... */
       theOccurrence->Name = NULL;
-      cp = (char*)malloc(siglen + 2 + strlen(theOccurrence->Signature));
+      cp = vtkParse_NewString(finfo->Strings, siglen + 1 + strlen(theOccurrence->Signature));
       strcpy(cp, theFunc->Signature);
       strcpy(&cp[siglen], "\n");
       strcpy(&cp[siglen + 1], theOccurrence->Signature);

@@ -247,6 +247,13 @@ extern "C"
   const char* vtkParse_CacheString(StringCache* cache, const char* cp, size_t n);
 
   /**
+   * Merge the second cache into the first cache, leaving the second
+   * cache empty.
+   */
+  VTKWRAPPINGTOOLS_EXPORT
+  void vtkParse_MergeStringCache(StringCache* cache, StringCache* other);
+
+  /**
    * Free all strings that were created with vtkParse_NewString() or
    * with vtkParse_CacheString().
    */
