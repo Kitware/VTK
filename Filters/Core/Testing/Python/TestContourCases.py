@@ -89,7 +89,7 @@ class CellTestBase:
                         incorrectCases.append(i)
                         break
 
-        self.assertEquals(','.join([str(i) for i in incorrectCases]), '')
+        self.assertEqual(','.join([str(i) for i in incorrectCases]), '')
 
 class TestTetra(Testing.vtkTest, CellTestBase):
     def setUp(self):

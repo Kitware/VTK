@@ -146,7 +146,7 @@ htg.GetCellData().SetActiveScalars("sideArray")
 # DataRange sideArray on PointData HTG
 dataRange = htg.GetCellData().GetArray("sideArray").GetRange()
 print("sideArray on PointData HTG:", dataRange)
-print("HTG:", htg.GetNumberOfVertices())
+print("HTG:", htg.GetNumberOfCells())
 
 
 # Tests cursors... in Python
