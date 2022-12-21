@@ -35,21 +35,24 @@ namespace
 struct RDPAlgorithm
 {
   template <typename ArrayT>
-  void operator()(ArrayT* arr, double tol, std::set<vtkIdType>& vertexes)
+  void operator()(ArrayT* arr, double tol, std::set<vtkIdType>& vertices)
   {
-    auto range = vtk::DataArrayValueRange(arr);
-    vertexes.insert(0);
-    if (range.size() == 1)
+    vertices.insert(0);
+
+    auto range = vtk::DataArrayValueRange(arr).GetSubRange(0, arr->GetNumberOfValues() - 1);
+
+    if (range.size() == 0)
     {
       return;
     }
-    vertexes.insert(range.size() - 1);
-    this->Recurse(range.begin(), range.end(), vertexes, tol);
+
+    vertices.insert(range.size());
+    this->Recurse(range.begin(), range.end(), vertices, tol);
   }
 
   template <typename Iterator>
   void Recurse(
-    Iterator begin, Iterator end, std::set<vtkIdType>& vertexes, double tol, vtkIdType bIdx = 0)
+    Iterator begin, Iterator end, std::set<vtkIdType>& vertices, double tol, vtkIdType bIdx = 0)
   {
     // natural stopping criterion
     if (begin == end || begin + 1 == end)
@@ -81,9 +84,9 @@ struct RDPAlgorithm
     if (maxDist > tol)
     {
       vtkIdType idx = bIdx + std::distance(begin, maxIt);
-      vertexes.insert(idx);
-      this->Recurse(begin, maxIt, vertexes, tol, bIdx);
-      this->Recurse(maxIt, end, vertexes, tol, idx);
+      vertices.insert(idx);
+      this->Recurse(begin, maxIt, vertices, tol, bIdx);
+      this->Recurse(maxIt, end, vertices, tol, idx);
     }
   }
 };
@@ -97,7 +100,7 @@ struct GenerateFunctionalRepresentation
 {
   template <typename ArrayT>
   void operator()(
-    ArrayT* arr, double tol, std::set<vtkIdType>& vertexes, vtkSmartPointer<vtkDataArray>& result)
+    ArrayT* arr, double tol, std::set<vtkIdType>& vertices, vtkSmartPointer<vtkDataArray>& result)
   {
     using VType = vtk::GetAPIType<ArrayT>;
 
@@ -112,22 +115,22 @@ struct GenerateFunctionalRepresentation
     auto range = vtk::DataArrayValueRange(arr);
     // if there is only one index in vertices, the array is constant and can be represented by a
     // simple constant array
-    if (vertexes.size() == 1)
+    if (vertices.size() == 1)
     {
-      result = makeConstant(range[*vertexes.begin()], arr->GetNumberOfValues());
+      result = makeConstant(range[*vertices.begin()], arr->GetNumberOfValues());
       return;
     }
 
     // create the parts of the resulting array in order
     std::vector<vtkSmartPointer<vtkDataArray>> parts;
-    auto beforeLast = vertexes.end()--;
+    auto beforeLast = vertices.end()--;
     /*
      * This skipSingles mechanic comes from the fact that most single index jumps can be skipped in
      * this context. The only ones that cannot be skipped are those that follow another single index
      * skip, hence the flipping of this boolean, or if they are first or last in the vertex list.
      */
     bool skipSingles = false;
-    for (auto it = vertexes.begin(); it != beforeLast; ++it)
+    for (auto it = vertices.begin(); it != beforeLast; ++it)
     {
       auto nxtIt = it;
       nxtIt++;
@@ -190,9 +193,9 @@ public:
    */
   void ClearCache()
   {
-    if (!this->Vertexes.empty())
+    if (!this->Vertices.empty())
     {
-      this->Vertexes.clear();
+      this->Vertices.clear();
     }
     if (this->CachedArray)
     {
@@ -210,9 +213,9 @@ public:
     this->CachedArray = arr;
     this->ArrayMTimeAtCaching = arr->GetMTime();
     ::RDPAlgorithm algo;
-    if (!Dispatch::Execute(arr, algo, tol, this->Vertexes))
+    if (!Dispatch::Execute(arr, algo, tol, this->Vertices))
     {
-      algo(arr, tol, this->Vertexes);
+      algo(arr, tol, this->Vertices);
     }
     return vtkToImplicitStrategy::Optional(
       static_cast<double>(this->EstimateCompressedSize(arr, tol)) / arr->GetNumberOfValues());
@@ -223,11 +226,11 @@ public:
    */
   vtkSmartPointer<vtkDataArray> Reduce(vtkDataArray* arr, double tol)
   {
-    if (this->Vertexes.empty() || (arr != this->CachedArray) ||
+    if (this->Vertices.empty() || (arr != this->CachedArray) ||
       this->ArrayMTimeAtCaching < arr->GetMTime())
     {
       this->EstimateReduction(arr, tol);
-      if (this->Vertexes.empty())
+      if (this->Vertices.empty())
       {
         vtkWarningWithObjectMacro(nullptr, "Could not successfully reduce array");
         return nullptr;
@@ -235,9 +238,9 @@ public:
     }
     vtkSmartPointer<vtkDataArray> res = nullptr;
     ::GenerateFunctionalRepresentation generator;
-    if (!Dispatch::Execute(arr, generator, tol, this->Vertexes, res))
+    if (!Dispatch::Execute(arr, generator, tol, this->Vertices, res))
     {
-      generator(arr, tol, this->Vertexes, res);
+      generator(arr, tol, this->Vertices, res);
     }
     this->ClearCache();
     return res;
@@ -250,10 +253,10 @@ private:
    */
   std::size_t EstimateCompressedSize(vtkDataArray* arr, double tol)
   {
-    std::size_t compressedSize = this->Vertexes.size();
+    std::size_t compressedSize = this->Vertices.size();
     if (!compressedSize)
     {
-      vtkWarningWithObjectMacro(nullptr, "Number of vertexes is zero");
+      vtkWarningWithObjectMacro(nullptr, "Number of vertices is zero");
       return compressedSize;
     }
     if (compressedSize == 1)
@@ -262,9 +265,9 @@ private:
     }
     compressedSize = (compressedSize - 1) * 2;
     auto range = vtk::DataArrayValueRange(arr);
-    auto beforeLast = this->Vertexes.end()--;
+    auto beforeLast = this->Vertices.end()--;
     bool skipSingles = false;
-    for (auto it = this->Vertexes.begin(); it != beforeLast; ++it)
+    for (auto it = this->Vertices.begin(); it != beforeLast; ++it)
     {
       auto nxtIt = it;
       nxtIt++;
@@ -291,7 +294,7 @@ private:
    * Cache for storing the result of the RDP algorithm, std::set chosen because it is sorted and
    * keys are unique
    */
-  std::set<vtkIdType> Vertexes;
+  std::set<vtkIdType> Vertices;
   vtkDataArray* CachedArray = nullptr;
   vtkMTimeType ArrayMTimeAtCaching;
 };
