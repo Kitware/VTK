@@ -85,7 +85,7 @@ void vtkPBRPrefilterTexture::Load(vtkRenderer* ren)
     }
     this->TextureObject->SetContext(renWin);
     this->TextureObject->SetFormat(GL_RGB);
-    this->TextureObject->SetInternalFormat(GL_RGB16F);
+    this->TextureObject->SetInternalFormat(this->HalfPrecision ? GL_RGB16F : GL_RGB32F);
     this->TextureObject->SetDataType(GL_FLOAT);
     this->TextureObject->SetWrapS(vtkTextureObject::ClampToEdge);
     this->TextureObject->SetWrapT(vtkTextureObject::ClampToEdge);

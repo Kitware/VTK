@@ -54,13 +54,19 @@ void vtkPBRLUTTexture::Load(vtkRenderer* ren)
     }
     this->TextureObject->SetContext(renWin);
     this->TextureObject->SetFormat(GL_RG);
-    this->TextureObject->SetInternalFormat(GL_RG16F);
-    this->TextureObject->SetDataType(GL_FLOAT);
     this->TextureObject->SetWrapS(vtkTextureObject::ClampToEdge);
     this->TextureObject->SetWrapT(vtkTextureObject::ClampToEdge);
     this->TextureObject->SetMinificationFilter(vtkTextureObject::Linear);
     this->TextureObject->SetMagnificationFilter(vtkTextureObject::Linear);
-    this->TextureObject->Allocate2D(this->LUTSize, this->LUTSize, 2, VTK_FLOAT);
+#ifdef GL_ES_VERSION_3_0
+    this->TextureObject->SetInternalFormat(GL_RG8);
+    this->TextureObject->SetDataType(GL_UNSIGNED_BYTE);
+    this->TextureObject->Allocate2D(this->LUTSize, this->LUTSize, 2, VTK_UNSIGNED_CHAR);
+#else
+    this->TextureObject->SetInternalFormat(GL_RG16);
+    this->TextureObject->SetDataType(GL_UNSIGNED_SHORT);
+    this->TextureObject->Allocate2D(this->LUTSize, this->LUTSize, 2, VTK_UNSIGNED_SHORT);
+#endif
 
     this->RenderWindow = renWin;
 
