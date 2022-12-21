@@ -63,7 +63,7 @@ struct vtkChartParallelCoordinates::Private final
    * simplify the treatment of selection for addition, subtraction, toggle
    */
   std::vector<std::vector<float>> AxesSelections;
-  std::array<float, 2> CurrentSelection = { -1, -1 };
+  std::array<float, 2> CurrentSelection = { { -1, -1 } };
 
   int CurrentAxis = -1;
   int AxisResize = -1;
