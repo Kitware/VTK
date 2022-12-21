@@ -61,7 +61,7 @@ class TestEnsemble(Testing.vtkTest):
 
         output = shrink.GetOutputDataObject(0)
 
-        self.assertEquals(output.GetNumberOfCells(), TestEnsemble.npolys[2])
+        self.assertEqual(output.GetNumberOfCells(), TestEnsemble.npolys[2])
 
         shrink.Update()
 
@@ -69,7 +69,7 @@ class TestEnsemble(Testing.vtkTest):
         oInfo.Set(vtk.vtkEnsembleSource.UPDATE_MEMBER(), 1)
         shrink.Update()
 
-        self.assertEquals(output.GetNumberOfCells(), TestEnsemble.npolys[1])
+        self.assertEqual(output.GetNumberOfCells(), TestEnsemble.npolys[1])
 
         shrink2 = vtk.vtkShrinkPolyData()
         shrink2.SetInputConnection(r.GetOutputPort())
@@ -78,9 +78,9 @@ class TestEnsemble(Testing.vtkTest):
 
         output2 = shrink2.GetOutputDataObject(0)
 
-        self.assertEquals(output.GetNumberOfCells(), TestEnsemble.npolys[1])
+        self.assertEqual(output.GetNumberOfCells(), TestEnsemble.npolys[1])
 
-        self.assertEquals(nExecutions, 3)
+        self.assertEqual(nExecutions, 3)
 
 if __name__ == "__main__":
     Testing.main([(TestEnsemble, 'test')])

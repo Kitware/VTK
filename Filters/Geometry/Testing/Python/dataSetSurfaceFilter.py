@@ -3,6 +3,10 @@ import vtk
 from vtk.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
+# VTK_DEPRECATED_IN_9_1_0
+import warnings
+warnings.filterwarnings('ignore', category=DeprecationWarning)
+
 # create pipeline - structured grid
 #
 pl3d = vtk.vtkMultiBlockPLOT3DReader()

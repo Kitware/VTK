@@ -40,7 +40,7 @@ class  kMeansDistanceCalculator( Testing.vtkTest ):
     # These distances are the distances of each input observation to that cluster center:
     dists = [ 3.1304951684997055, 2.8284271247461898, 2.2803508501982757, 1.8439088914585773, 9.879271228182775 ]
     for i in range(5):
-      self.failUnlessAlmostEqual( dists[i], av.GetColumn( 2 ).GetValue( i ) )
+      self.assertAlmostEqual( dists[i], av.GetColumn( 2 ).GetValue( i ) )
 
   def testParse(self):
     "Test if vtkKMeansDistanceFunctorCalculator is parseable"

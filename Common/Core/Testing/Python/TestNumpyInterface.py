@@ -120,8 +120,8 @@ assert algs.all(algs.eigenvalue(g) == [2, 1, 1])
 
 assert algs.all(randomVec[:,0] == randomVec[:,0])
 
-int_array1 = numpy.array([1, 0, 1], dtype=numpy.int)
-int_array2 = numpy.array([0, 1, 0], dtype=numpy.int)
+int_array1 = numpy.array([1, 0, 1], dtype=int)
+int_array2 = numpy.array([0, 1, 0], dtype=int)
 assert algs.all(algs.bitwise_or(int_array1, int_array2) == 1)
 assert algs.all(algs.bitwise_or(int_array1, dsa.NoneArray) == int_array1)
 assert algs.all(algs.bitwise_or(dsa.NoneArray, int_array1) == int_array1)
