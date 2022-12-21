@@ -1,4 +1,5 @@
 import io
+import logging
 import struct
 import time
 import zipfile
@@ -16,6 +17,9 @@ from vtkmodules.vtkFiltersGeometry import vtkCompositeDataGeometryFilter
 from vtkmodules.vtkFiltersGeometry import vtkDataSetSurfaceFilter
 from vtkmodules.vtkRenderingCore import vtkColorTransferFunction
 
+logger = logging.getLogger(__name__)
+# Always DEBUG level for this logger. Users can change this
+logger.setLevel(logging.DEBUG)
 
 # -----------------------------------------------------------------------------
 # Array helpers
@@ -61,12 +65,10 @@ def linspace(start, stop, num):
 
 
 class SynchronizationContext:
-    def __init__(self, debug=False):
+    def __init__(self):
         self.dataArrayCache = {}
         self.lastDependenciesMapping = {}
         self.ingoreLastDependencies = False
-        self.debugSerializers = debug
-        self.debugAll = debug
 
     def setIgnoreLastDependencies(self, force):
         self.ingoreLastDependencies = force
@@ -80,8 +82,7 @@ class SynchronizationContext:
         cacheTime = cacheObj["mTime"]
 
         if cacheTime != array.GetMTime():
-            if context.debugAll:
-                print(" ***** ERROR: you asked for an old cache key! ***** ")
+            logger.debug(" ***** ERROR: you asked for an old cache key! ***** ")
 
         if array.GetDataType() == 12:
             # IdType need to be converted to Uint32
@@ -180,11 +181,7 @@ def serializeInstance(parent, instance, instanceId, context, depth):
     if serializer:
         return serializer(parent, instance, instanceId, context, depth)
 
-    if context.debugSerializers:
-        print(
-            "%s!!!No serializer for %s with id %s"
-            % (pad(depth), instanceType, instanceId)
-        )
+    logger.error(f"!!!No serializer for {instanceType} with id {instanceId}")
 
     return None
 
@@ -369,7 +366,7 @@ def extractRequiredFields(
     extractedFields, parent, dataset, context, requestedFields=["Normals", "TCoords"]
 ):
     arrays_to_export = set()
-    export_all = '*' in requestedFields
+    export_all = "*" in requestedFields
     # Identify arrays to export
     if not export_all:
         # FIXME should evolve and support funky mapper which leverage many arrays
@@ -380,7 +377,7 @@ def extractRequiredFields(
             colorArrayName = (
                 mapper.GetArrayName() if arrayAccessMode == 1 else mapper.GetArrayId()
             )
-            colorMode = mapper.GetColorMode()
+            # colorMode = mapper.GetColorMode()
             scalarMode = mapper.GetScalarMode()
             if scalarVisibility and scalarMode in (1, 3):
                 array_to_export = dataset.GetPointData().GetArray(colorArrayName)
@@ -393,20 +390,26 @@ def extractRequiredFields(
                     array_to_export = dataset.GetCellData().GetScalars()
                 arrays_to_export.add(array_to_export)
             if scalarVisibility and scalarMode == 0:
-              array_to_export = dataset.GetPointData().GetScalars()
-              if array_to_export is None:
+                array_to_export = dataset.GetPointData().GetScalars()
+                if array_to_export is None:
                     array_to_export = dataset.GetCellData().GetScalars()
-              arrays_to_export.add(array_to_export)
+                arrays_to_export.add(array_to_export)
 
         if parent and parent.IsA("vtkTexture") and dataset.GetPointData().GetScalars():
             arrays_to_export.add(dataset.GetPointData().GetScalars())
 
         arrays_to_export.update(
-            [getattr(dataset.GetPointData(), "Get" + requestedField, lambda : None)() for requestedField in requestedFields]
+            [
+                getattr(dataset.GetPointData(), "Get" + requestedField, lambda: None)()
+                for requestedField in requestedFields
+            ]
         )
 
     # Browse all arrays
-    for location, field_data in [('pointData', dataset.GetPointData()), ('cellData', dataset.GetCellData())]:
+    for location, field_data in [
+        ("pointData", dataset.GetPointData()),
+        ("cellData", dataset.GetCellData()),
+    ]:
         for array_index in range(field_data.GetNumberOfArrays()):
             array = field_data.GetArray(array_index)
             if export_all or array in arrays_to_export:
@@ -414,7 +417,11 @@ def extractRequiredFields(
                 if arrayMeta:
                     arrayMeta["location"] = location
                     attribute = field_data.IsArrayAnAttribute(array_index)
-                    arrayMeta["registration"] = "set" + field_data.GetAttributeTypeAsString(attribute) if attribute >= 0 else 'addArray'
+                    arrayMeta["registration"] = (
+                        "set" + field_data.GetAttributeTypeAsString(attribute)
+                        if attribute >= 0
+                        else "addArray"
+                    )
                     extractedFields.append(arrayMeta)
 
 # -----------------------------------------------------------------------------
@@ -434,8 +441,7 @@ def genericActorSerializer(parent, actor, actorId, context, depth):
     if actorVisibility:
         mapper = None
         if not hasattr(actor, "GetMapper"):
-            if context.debugAll:
-                print("This actor does not have a GetMapper method")
+            logger.debug("This actor does not have a GetMapper method")
         else:
             mapper = actor.GetMapper()
 
@@ -452,8 +458,7 @@ def genericActorSerializer(parent, actor, actorId, context, depth):
         if hasattr(actor, "GetProperty"):
             prop = actor.GetProperty()
         else:
-            if context.debugAll:
-                print("This actor does not have a GetProperty method")
+            logger.debug("This actor does not have a GetProperty method")
 
         if prop:
             propId = getReferenceId(prop)
@@ -469,8 +474,7 @@ def genericActorSerializer(parent, actor, actorId, context, depth):
         if hasattr(actor, "GetTexture"):
             texture = actor.GetTexture()
         else:
-            if context.debugAll:
-                print("This actor does not have a GetTexture method")
+            logger.debug("This actor does not have a GetTexture method")
 
         if texture:
             textureId = getReferenceId(texture)
@@ -522,8 +526,7 @@ def genericVolumeSerializer(parent, actor, actorId, context, depth):
     if actorVisibility:
         mapper = None
         if not hasattr(actor, "GetMapper"):
-            if context.debugAll:
-                print("This actor does not have a GetMapper method")
+            logger.debug("This actor does not have a GetMapper method")
         else:
             mapper = actor.GetMapper()
 
@@ -540,8 +543,7 @@ def genericVolumeSerializer(parent, actor, actorId, context, depth):
         if hasattr(actor, "GetProperty"):
             prop = actor.GetProperty()
         else:
-            if context.debugAll:
-                print("This actor does not have a GetProperty method")
+            logger.debug("This actor does not have a GetProperty method")
 
         if prop:
             propId = getReferenceId(prop)
@@ -588,8 +590,7 @@ def textureSerializer(parent, texture, textureId, context, depth):
     if hasattr(texture, "GetInput"):
         dataObject = texture.GetInput()
     else:
-        if context.debugAll:
-            print("This texture does not have GetInput method")
+        logger.debug("This texture does not have GetInput method")
 
     if dataObject:
         dataObjectId = "%s-texture" % textureId
@@ -633,10 +634,15 @@ def genericMapperSerializer(parent, mapper, mapperId, context, depth):
         mapper.GetInputAlgorithm().Update()
         dataObject = mapper.GetInputDataObject(0, 0)
     else:
-        if context.debugAll:
-            print("This mapper does not have GetInputDataObject method")
+        logger.debug("This mapper does not have GetInputDataObject method")
 
     if dataObject:
+        if dataObject.IsA("vtkDataSet"):
+            alg = vtkDataSetSurfaceFilter()
+            alg.SetInputData(dataObject)
+            alg.Update()
+            dataObject = alg.GetOutput()
+
         dataObjectId = "%s-dataset" % mapperId
         dataObjectInstance = serializeInstance(
             mapper, dataObject, dataObjectId, context, depth + 1
@@ -651,8 +657,7 @@ def genericMapperSerializer(parent, mapper, mapperId, context, depth):
     if hasattr(mapper, "GetLookupTable"):
         lookupTable = mapper.GetLookupTable()
     else:
-        if context.debugAll:
-            print("This mapper does not have GetLookupTable method")
+        logger.debug("This mapper does not have GetLookupTable method")
 
     if lookupTable:
         lookupTableId = getReferenceId(lookupTable)
@@ -661,7 +666,9 @@ def genericMapperSerializer(parent, mapper, mapperId, context, depth):
         )
         if lookupTableInstance:
             dependencies.append(lookupTableInstance)
-            calls.append(["setLookupTable", [wrapId(lookupTableId)]])
+            calls.append(
+                ["setLookupTable", [wrapId(lookupTableId)]]
+            )
 
     if dataObjectInstance:
         colorArrayName = (
@@ -712,8 +719,7 @@ def genericVolumeMapperSerializer(parent, mapper, mapperId, context, depth):
         mapper.GetInputAlgorithm().Update()
         dataObject = mapper.GetInputDataObject(0, 0)
     else:
-        if context.debugAll:
-            print("This mapper does not have GetInputDataObject method")
+        logger.debug("This mapper does not have GetInputDataObject method")
 
     if dataObject:
         dataObjectId = "%s-dataset" % mapperId
@@ -985,8 +991,7 @@ def polydataSerializer(parent, dataset, datasetId, context, depth, requested_fie
             "properties": properties,
         }
 
-    if context.debugAll:
-        print("This dataset has no points!")
+    logger.debug("This dataset has no points!")
     return None
 
 
@@ -1168,8 +1173,7 @@ def scalarBarActorSerializer(parent, actor, actorId, context, depth):
     if hasattr(actor, "GetProperty"):
         prop = actor.GetProperty()
     else:
-        if context.debugAll:
-            print("This scalarBarActor does not have a GetProperty method")
+        logger.debug("This scalarBarActor does not have a GetProperty method")
 
         if prop:
             propId = getReferenceId(prop)
@@ -1183,16 +1187,6 @@ def scalarBarActorSerializer(parent, actor, actorId, context, depth):
     axisLabel = actor.GetTitle()
     width = actor.GetWidth()
     height = actor.GetHeight()
-
-    # axisTitlePixelOffset = actor.GetTextPad()
-    # position = actor.GetPosition()
-    # position2 = actor.GetPosition2()
-    # print(f'axisTitlePixelOffset: {axisTitlePixelOffset}')
-    # print(f'axisLabel: {axisLabel}')
-    # print(f'width: {width}')
-    # print(f'height: {height}')
-    # print(f'position: {position}')
-    # print(f'position2: {position2}')
 
     return {
         "parent": getReferenceId(parent),
@@ -1218,18 +1212,21 @@ def scalarBarActorSerializer(parent, actor, actorId, context, depth):
             "boxSize": [width, height],
             "axisTitlePixelOffset": 36.0,
             "axisTextStyle": {
-                "fontColor": "white",
+                "fontColor": actor.GetTitleTextProperty().GetColor(),
                 "fontStyle": "normal",
                 "fontSize": 18,
                 "fontFamily": "serif",
             },
             "tickLabelPixelOffset": 14.0,
             "tickTextStyle": {
-                "fontColor": "white",
+                "fontColor": actor.GetTitleTextProperty().GetColor(),
                 "fontStyle": "normal",
                 "fontSize": 14,
                 "fontFamily": "serif",
             },
+            "drawNanAnnotation": actor.GetDrawNanAnnotation(),
+            "drawBelowRangeSwatch": actor.GetDrawBelowRangeSwatch(),
+            "drawAboveRangeSwatch": actor.GetDrawAboveRangeSwatch(),
         },
         "calls": calls,
         "dependencies": dependencies,
