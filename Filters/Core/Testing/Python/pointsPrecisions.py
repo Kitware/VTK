@@ -17,7 +17,7 @@ class FiltersLosingPrecisionBase:
         f.SetNumberOfContours(1)
         f.SetValue(0,0.5)
         f.Update()
-        self.assertEquals(f.GetOutput().GetPoints().GetDataType(), vtk_const.VTK_DOUBLE)
+        self.assertEqual(f.GetOutput().GetPoints().GetDataType(), vtk_const.VTK_DOUBLE)
 
     def test_multiple_contours(self):
         f = vtkContourFilter()
@@ -26,7 +26,7 @@ class FiltersLosingPrecisionBase:
         f.SetValue(0,0.5)
         f.SetValue(1,0.6)
         f.Update()
-        self.assertEquals(f.GetOutput().GetPoints().GetDataType(), vtk_const.VTK_DOUBLE)
+        self.assertEqual(f.GetOutput().GetPoints().GetDataType(), vtk_const.VTK_DOUBLE)
 
     def test_threshold(self):
         f = vtkThreshold()
@@ -35,7 +35,7 @@ class FiltersLosingPrecisionBase:
         f.SetLowerThreshold(0.0)
         f.SetUpperThreshold(1.0)
         f.Update()
-        self.assertEquals(f.GetOutput().GetPoints().GetDataType(), vtk_const.VTK_DOUBLE)
+        self.assertEqual(f.GetOutput().GetPoints().GetDataType(), vtk_const.VTK_DOUBLE)
 
     def test_slice(self):
         p = vtkPlane()
@@ -46,7 +46,7 @@ class FiltersLosingPrecisionBase:
         f.SetCutFunction(p)
         f.SetValue(0,0)
         f.Update()
-        self.assertEquals(f.GetOutput().GetPoints().GetDataType(), vtk_const.VTK_DOUBLE)
+        self.assertEqual(f.GetOutput().GetPoints().GetDataType(), vtk_const.VTK_DOUBLE)
 
 class TestUnstructuredGridFiltersLosingPrecision(unittest.TestCase, FiltersLosingPrecisionBase):
     def setUp(self):

@@ -3,6 +3,10 @@ import vtk
 from vtk.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
+# VTK_DEPRECATED_IN_9_2_0
+import warnings
+warnings.filterwarnings('ignore', category=DeprecationWarning)
+
 # Test and compare vtkGeometryFilter verus
 # vtkDataSetSurfaceFilter.
 
