@@ -59,9 +59,6 @@ class VTKCOMMONCORE_EXPORT vtkSMPToolsImpl
 {
 public:
   //--------------------------------------------------------------------------------
-  vtkSMPToolsImpl() {} // no default because of TBB specialisation
-
-  //--------------------------------------------------------------------------------
   void Initialize(int numThreads = 0);
 
   //--------------------------------------------------------------------------------
