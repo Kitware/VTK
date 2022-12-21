@@ -27,8 +27,9 @@
 #include "vtkSelectionNode.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
+#include <vtksys/RegularExpression.hxx>
+
 #include <algorithm>
-#include <regex>
 #include <sstream>
 #include <vector>
 
@@ -36,15 +37,26 @@ VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
 //------------------------------------------------------------------------------
-void ReplaceStringUsingRegex(
-  std::string& source, const std::regex& regex, const std::string& replace, const std::string& with)
+void ReplaceStringUsingRegex(std::string& source, vtksys::RegularExpression& regex,
+  const std::string& replace, const std::string& with)
 {
-  for (auto match = std::sregex_iterator(source.begin(), source.end(), regex);
-       match != std::sregex_iterator(); ++match)
+  // find all matches
+  std::vector<std::string> matches;
+  for (size_t next = 0; regex.find(source.substr(next)); next += regex.end())
   {
-    if (match->str() == replace)
+    const auto mathWord = source.substr(next + regex.start(), regex.end() - regex.start());
+    if (mathWord == replace)
     {
-      source.replace(match->position(), match->length(), with);
+      matches.push_back(mathWord);
+    }
+  }
+  // replace all matches
+  for (const auto& match : matches)
+  {
+    const auto pos = source.find(match);
+    if (pos != std::string::npos)
+    {
+      source.replace(pos, match.length(), with);
     }
   }
 }
@@ -55,8 +67,8 @@ class vtkAppendSelection::vtkInternals
 {
 public:
   std::vector<std::string> Names;
-  const std::regex RegExNodeId;
-  const std::regex RegExNodeIdInExpression;
+  vtksys::RegularExpression RegExNodeId;
+  vtksys::RegularExpression RegExNodeIdInExpression;
 
   vtkInternals()
     : RegExNodeId("^[a-zA-Z0-9]+$")
@@ -94,7 +106,7 @@ void vtkAppendSelection::SetInputName(int index, const char* name)
     vtkErrorMacro("Empty input selection name");
     return;
   }
-  else if (!std::regex_match(safeInputSelectionName, this->Internals->RegExNodeId))
+  else if (!this->Internals->RegExNodeId.find(safeInputSelectionName))
   {
     vtkErrorMacro("`" << safeInputSelectionName << "` is not in the expected form.");
     return;

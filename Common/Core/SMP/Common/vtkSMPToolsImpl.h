@@ -104,6 +104,27 @@ public:
   template <typename RandomAccessIterator, typename Compare>
   void Sort(RandomAccessIterator begin, RandomAccessIterator end, Compare comp);
 
+  //--------------------------------------------------------------------------------
+  vtkSMPToolsImpl()
+    : NestedActivated(true)
+    , IsParallel(false)
+  {
+  }
+
+  //--------------------------------------------------------------------------------
+  vtkSMPToolsImpl(const vtkSMPToolsImpl& other)
+    : NestedActivated(other.NestedActivated)
+    , IsParallel(other.IsParallel.load())
+  {
+  }
+
+  //--------------------------------------------------------------------------------
+  void operator=(const vtkSMPToolsImpl& other)
+  {
+    this->NestedActivated = other.NestedActivated;
+    this->IsParallel = other.IsParallel.load();
+  }
+
 private:
   bool NestedActivated = false;
   std::atomic<bool> IsParallel{ false };
