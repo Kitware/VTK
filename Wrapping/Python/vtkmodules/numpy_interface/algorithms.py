@@ -142,7 +142,7 @@ def _make_dsfunc2(dsfunc):
 
 def _lookup_mpi_type(ntype):
     from mpi4py import MPI
-    if ntype == numpy.bool:
+    if ntype == bool:
         typecode = 'b'
     else:
         typecode = numpy.dtype(ntype).char
@@ -708,7 +708,7 @@ def all(array, axis=None, controller=None):
             return algs.all(clean_list, axis=0)
 
         def default(self, max_comps):
-            return numpy.ones(max_comps, dtype=numpy.bool)
+            return numpy.ones(max_comps, dtype=bool)
 
     return _global_func(MinImpl(), array, axis, controller)
 
