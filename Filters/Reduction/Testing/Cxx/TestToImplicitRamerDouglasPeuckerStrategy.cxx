@@ -87,7 +87,7 @@ int TestToImplicitRamerDouglasPeuckerStrategy(int, char*[])
     return EXIT_FAILURE;
   }
 
-  for (int iArr = 0; iArr < base->GetNumberOfValues(); iArr++)
+  for (vtkIdType iArr = 0; iArr < base->GetNumberOfValues(); iArr++)
   {
     if (std::abs(composite->GetValue(iArr) - base->GetValue(iArr)) > strat->GetTolerance())
     {
