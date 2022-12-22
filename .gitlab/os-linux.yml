@@ -270,7 +270,7 @@
     tags:
         - build
         - docker
-        - linux
+        - linux-x86_64
         - vtk
 
 .linux_cuda_builder_tags:
@@ -278,21 +278,13 @@
         - build
         - docker
         - large-memory
-        - linux
-        - vtk
-
-.linux_qt_builder_tags:
-    tags:
-        - build
-        - docker
-        - linux
-        - linux-3.17
+        - linux-x86_64
         - vtk
 
 .linux_tester_tags:
     tags:
         - docker
-        - linux
+        - linux-x86_64
         - x11
         - vtk
 
@@ -300,30 +292,13 @@
     tags:
         - cuda-rt
         - docker
-        - linux
-        - vtk
-
-.linux_qt_tester_tags:
-    tags:
-        - docker
-        - linux
-        - linux-3.17
-        - x11
-        - vtk
-
-.linux_qt_tester_priv_tags:
-    tags:
-        - docker
-        - linux
-        - linux-3.17
-        - privileged
-        - x11
+        - linux-x86_64
         - vtk
 
 .linux_tester_priv_tags:
     tags:
         - docker
-        - linux
+        - linux-x86_64
         - privileged
         - x11
         - vtk
@@ -431,7 +406,7 @@
     stage: build
     image: "fedora:34"
     tags:
-        - linux
+        - linux-x86_64
         - docker
         - build
 
@@ -448,7 +423,7 @@
     stage: release-prep
     image: "fedora:34"
     tags:
-        - linux
+        - linux-x86_64
         - docker
         - build
 
