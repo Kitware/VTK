@@ -132,7 +132,7 @@
         - nonconcurrent
         - shell
         - vs2022
-        - windows
+        - windows-x86_64
 
 .windows_wheel_builder_tags:
     tags:
@@ -141,7 +141,7 @@
         - concurrent
         - shell
         - vs2022
-        - windows
+        - windows-x86_64
 
 .windows_tester_tags:
     tags:
@@ -150,7 +150,7 @@
         - nonconcurrent
         - shell
         - vs2022
-        - windows
+        - windows-x86_64
         # - test # Not needed yet?
 
 .windows_ext_builder_tags:
@@ -161,7 +161,7 @@
         - nonconcurrent # FIXME: non-relocatability in VTK-m and `VTK_DLL_PATHS`
         - shell
         - vs2022
-        - windows
+        - windows-x86_64
         # - test # Not needed yet?
 
 ## Windows-specific scripts
