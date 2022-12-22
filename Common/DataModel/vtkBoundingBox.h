@@ -87,10 +87,9 @@ public:
   static void ComputeBounds(
     vtkPoints* pts, const std::atomic<unsigned char>* ptUses, double bounds[6]);
   static void ComputeBounds(
-    vtkPoints* pts, const vtkIdType* ptIds, vtkIdType numPointIds, double bounds[6]);
-#ifdef VTK_USE_64BIT_IDS
+    vtkPoints* pts, const long long* ptIds, long long numPointIds, double bounds[6]);
+  static void ComputeBounds(vtkPoints* pts, const long* ptIds, long numPointIds, double bounds[6]);
   static void ComputeBounds(vtkPoints* pts, const int* ptIds, int numPointIds, double bounds[6]);
-#endif
   void ComputeBounds(vtkPoints* pts)
   {
     double bds[6];
