@@ -202,17 +202,6 @@ vtkObjectFactoryNewMacro(vtkLabeledContourMapper);
 //------------------------------------------------------------------------------
 vtkLabeledContourMapper::vtkLabeledContourMapper()
 {
-  this->SkipDistance = 0.;
-  this->LabelVisibility = true;
-  this->TextActors = nullptr;
-  this->NumberOfTextActors = 0;
-  this->NumberOfUsedTextActors = 0;
-
-  this->StencilQuads = nullptr;
-  this->StencilQuadsSize = 0;
-  this->StencilQuadIndices = nullptr;
-  this->StencilQuadIndicesSize = 0;
-
   this->TextProperties = vtkSmartPointer<vtkTextPropertyCollection>::New();
   vtkNew<vtkTextProperty> defaultTProp;
   this->TextProperties->AddItem(defaultTProp);
