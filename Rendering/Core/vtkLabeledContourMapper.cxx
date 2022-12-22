@@ -1171,35 +1171,46 @@ bool vtkLabeledContourMapper::Private::PixelIsVisible(const vtkVector2<ScalarTyp
 }
 
 //------------------------------------------------------------------------------
-bool vtkLabeledContourMapper::Private::NextLabel(vtkPoints* points, vtkIdType& numIds,
-  const vtkIdType*& ids, const LabelMetric& metrics, LabelInfo& info, double targetSmoothness,
+bool vtkLabeledContourMapper::Private::NextLabel(vtkPoints* points, vtkIdType& numPts,
+  const vtkIdType*& ptIds, const LabelMetric& metrics, LabelInfo& info, double targetSmoothness,
   double skipDistance)
 {
-  if (numIds < 3)
+  if (numPts < 3)
   {
     return false;
   }
 
   // First point in this call to NextLabel (index into ids).
-  vtkIdType firstIdx = 0;
   vtkVector3d firstPoint;
+  points->GetPoint(ptIds[0], firstPoint.GetData());
   vtkVector2d firstPointDisplay;
-  points->GetPoint(ids[firstIdx], firstPoint.GetData());
   this->ActorToDisplay(firstPoint, firstPointDisplay);
 
   // Start of current smooth run (index into ids).
+  vtkVector3d startPoint = firstPoint;
+  vtkVector2d startPointDisplay = firstPointDisplay;
+
+  // Vector of segment prev --> current
+  vtkVector2d segment(0, 0);
+
+  // Account for skip distance:
   vtkIdType startIdx = 0;
-  vtkVector3d startPoint;
-  vtkVector2d startPointDisplay;
-  points->GetPoint(ids[startIdx], startPoint.GetData());
-  this->ActorToDisplay(startPoint, startPointDisplay);
-
-  // Accumulated length of segments since startId
-  std::vector<double> segmentLengths;
-  double rAccum = 0.;
-
-  // Straight-line distance from start --> previous
-  double rPrevStraight = 0.;
+  while (segment.SquaredNorm() < (skipDistance * skipDistance) && (++startIdx) < numPts)
+  {
+    points->GetPoint(ptIds[startIdx], startPoint.GetData());
+    this->ActorToDisplay(startPoint, startPointDisplay);
+    segment = startPointDisplay - firstPointDisplay;
+  }
+  // Find the first visible point
+  while ((++startIdx) < numPts && !this->PixelIsVisible(startPointDisplay))
+  {
+    points->GetPoint(ptIds[startIdx], startPoint.GetData());
+    this->ActorToDisplay(startPoint, startPointDisplay);
+  }
+  if (startIdx >= numPts)
+  {
+    return false;
+  }
 
   // Straight-line distance from start --> current
   double rStraight = 0.;
@@ -1210,33 +1221,12 @@ bool vtkLabeledContourMapper::Private::NextLabel(vtkPoints* points, vtkIdType& n
   // Minimum length of a smooth segment in display space
   const double minLength = 1.2 * metrics.Dimensions[0];
 
-  // Vector of segment prev --> current
-  vtkVector2d segment(0, 0);
-
   // Vector of segment start --> current
   vtkVector2d prevStraight(0, 0);
   vtkVector2d straight(0, 0);
 
   // Smoothness of start --> current
   double smoothness = 0;
-
-  // Account for skip distance:
-  while (segment.Norm() < skipDistance)
-  {
-    ++startIdx;
-    points->GetPoint(ids[startIdx], startPoint.GetData());
-    this->ActorToDisplay(startPoint, startPointDisplay);
-
-    segment = startPointDisplay - firstPointDisplay;
-  }
-
-  // Find the first visible point
-  while (startIdx + 1 < numIds && !this->PixelIsVisible(startPointDisplay))
-  {
-    ++startIdx;
-    points->GetPoint(ids[startIdx], startPoint.GetData());
-    this->ActorToDisplay(startPoint, startPointDisplay);
-  }
 
   // Start point in current segment.
   vtkVector3d prevPoint = startPoint;
@@ -1247,7 +1237,13 @@ bool vtkLabeledContourMapper::Private::NextLabel(vtkPoints* points, vtkIdType& n
   vtkVector3d curPoint = prevPoint;
   vtkVector2d curPointDisplay = prevPointDisplay;
 
-  while (curIdx < numIds)
+  // Accumulated length of segments since startId
+  std::vector<double> segmentLengths;
+  double rAccum = 0.;
+  // Straight-line distance from start --> previous
+  double rPrevStraight = 0.;
+
+  while (curIdx < numPts)
   {
     // Copy cur --> prev
     prevPoint = curPoint;
@@ -1256,7 +1252,7 @@ bool vtkLabeledContourMapper::Private::NextLabel(vtkPoints* points, vtkIdType& n
     rPrevStraight = rStraight;
 
     // Update current:
-    points->GetPoint(ids[curIdx], curPoint.GetData());
+    points->GetPoint(ptIds[curIdx], curPoint.GetData());
     this->ActorToDisplay(curPoint, curPointDisplay);
 
     // Calculate lengths and smoothness.
@@ -1294,12 +1290,19 @@ bool vtkLabeledContourMapper::Private::NextLabel(vtkPoints* points, vtkIdType& n
       else
       {
         // This startIdx won't work. On to the next visible startIdx.
-        do
+        while ((++startIdx) < numPts)
         {
-          ++startIdx;
-          points->GetPoint(ids[startIdx], startPoint.GetData());
+          points->GetPoint(ptIds[startIdx], startPoint.GetData());
           this->ActorToDisplay(startPoint, startPointDisplay);
-        } while (startIdx < numIds && !this->PixelIsVisible(startPointDisplay));
+          if (this->PixelIsVisible(startPointDisplay))
+          {
+            break;
+          }
+        }
+        if (startIdx >= numPts)
+        {
+          return false;
+        }
 
         prevPoint = startPoint;
         prevPointDisplay = startPointDisplay;
@@ -1317,9 +1320,6 @@ bool vtkLabeledContourMapper::Private::NextLabel(vtkPoints* points, vtkIdType& n
   // Was the last segment ok?
   if (rPrevStraight >= minLength)
   {
-    // The final index of the segment:
-    vtkIdType endIdx = curIdx - 1;
-
     // The direction of the text.
     vtkVector3d prevPointWorld;
     vtkVector3d startPointWorld;
@@ -1358,8 +1358,8 @@ bool vtkLabeledContourMapper::Private::NextLabel(vtkPoints* points, vtkIdType& n
       rAccum = tmp;
     }
     targetLength -= rAccum;
-    points->GetPoint(ids[startIdx + endIdxOffset - 1], prevPoint.GetData());
-    points->GetPoint(ids[startIdx + endIdxOffset], curPoint.GetData());
+    points->GetPoint(ptIds[startIdx + endIdxOffset - 1], prevPoint.GetData());
+    points->GetPoint(ptIds[startIdx + endIdxOffset], curPoint.GetData());
     vtkVector3d offset = curPoint - prevPoint;
     double rSegmentActor = offset.Normalize();
     offset = offset * (targetLength * rSegmentActor / rSegment);
@@ -1368,8 +1368,9 @@ bool vtkLabeledContourMapper::Private::NextLabel(vtkPoints* points, vtkIdType& n
     this->ComputeLabelInfo(info, metrics);
 
     // Update the cell array:
-    ids += endIdx;
-    numIds -= endIdx;
+    const vtkIdType endIdx = curIdx - 1;
+    ptIds += endIdx;
+    numPts -= endIdx;
 
     return true;
   }

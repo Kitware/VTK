@@ -51,6 +51,7 @@ vtk_add_test_cxx(vtkRenderingCoreCxxTests tests
   TestInteractorStyleImageProperty.cxx,NO_VALID
   TestInteractorTimers.cxx,NO_VALID
   TestLabeledContourMapper.cxx
+  TestLabeledContourMapperNoLabels.cxx
   TestLabeledContourMapperWithActorMatrix.cxx
   TestManyActors.cxx,NO_VALID
   TestMapVectorsAsRGBColors.cxx
