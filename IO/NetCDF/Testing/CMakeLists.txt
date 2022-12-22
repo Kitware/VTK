@@ -1,4 +1,4 @@
-if (VTK_USE_LARGE_DATA)
+if (NOT vtk_testing_cxx_disabled AND VTK_USE_LARGE_DATA)
   vtk_module_test_data(
     Data/NetCDF/,REGEX:.*
     Data/SLAC/ll-9cell-f523/ll-9cell-f523.ncdf
