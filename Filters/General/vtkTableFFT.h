@@ -121,7 +121,7 @@ public:
    * real values and return a onesided spectrum : this will cause output columns to
    * have from n to ((n / 2) + 1) values.
    * If ReturnOnesided is true but the input contains columns with 2 components
-   * (aka complex data), these columns will be ignored.
+   * (aka complex data) or started with `vtk`, these columns will be ignored.
    *
    * Default is false
    */
@@ -135,6 +135,9 @@ public:
    * Specify if filter should use the Welch / periodogram method. If true the
    * input should be split in multiple segment to compute an average fft across
    * all segments / blocks.
+   *
+   * Note that in this case, complex data and array with name started with "vtk"
+   * will be ignored.
    *
    * @see vtkTableFFT::SetBlockSize(int)
    * @see vtkTableFFT::SetBlockOverlap(int)

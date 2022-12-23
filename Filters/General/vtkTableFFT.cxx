@@ -192,21 +192,10 @@ int vtkTableFFT::RequestData(vtkInformation* vtkNotUsed(request),
       output->AddColumn(fft);
     }
     // else pass the array to the output
-    else
+    else if (!this->ReturnOnesided && !this->AverageFft)
     {
-      if (this->ReturnOnesided)
-      {
-        vtkSmartPointer<vtkAbstractArray> half;
-        half.TakeReference(array->NewInstance());
-        half->DeepCopy(array);
-        half->SetNumberOfTuples(this->Internals->OutputSize);
-        half->Squeeze();
-        output->AddColumn(half);
-      }
-      else
-      {
-        output->AddColumn(array);
-      }
+      assert(array->GetNumberOfTuples() == this->Internals->OutputSize);
+      output->AddColumn(array);
     }
   }
 
