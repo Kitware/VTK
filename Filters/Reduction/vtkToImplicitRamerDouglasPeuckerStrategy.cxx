@@ -123,28 +123,24 @@ struct GenerateFunctionalRepresentation
 
     // create the parts of the resulting array in order
     std::vector<vtkSmartPointer<vtkDataArray>> parts;
-    auto beforeLast = vertices.end()--;
+    const auto beforeLast = std::prev(vertices.end());
+    auto nxtIt = std::next(vertices.begin());
     /*
      * This skipSingles mechanic comes from the fact that most single index jumps can be skipped in
      * this context. The only ones that cannot be skipped are those that follow another single index
      * skip, hence the flipping of this boolean, or if they are first or last in the vertex list.
      */
     bool skipSingles = false;
-    for (auto it = vertices.begin(); it != beforeLast; ++it)
+    for (auto it = vertices.begin(); it != beforeLast; ++it, ++nxtIt)
     {
-      auto nxtIt = it;
-      nxtIt++;
       vtkIdType dist = *nxtIt - *it;
-      if (dist == 1)
+      if ((dist == 1) && skipSingles)
       {
-        if (skipSingles)
-        {
-          parts.back()->SetNumberOfTuples(parts.back()->GetNumberOfTuples() + 1);
-          skipSingles = false;
-          continue;
-        }
+        parts.back()->SetNumberOfTuples(parts.back()->GetNumberOfTuples() + 1);
+        skipSingles = false;
+        continue;
       }
-      if (dist == 1 || std::abs(static_cast<double>(range[*nxtIt] - range[*it])) < tol)
+      if ((dist == 1) || std::abs(static_cast<double>(range[*nxtIt] - range[*it])) < tol)
       {
         parts.emplace_back(makeConstant(range[*it], dist));
       }
@@ -265,23 +261,19 @@ private:
     }
     compressedSize = (compressedSize - 1) * 2;
     auto range = vtk::DataArrayValueRange(arr);
-    auto beforeLast = this->Vertices.end()--;
+    const auto beforeLast = std::prev(this->Vertices.end());
+    auto nxtIt = std::next(this->Vertices.begin());
     bool skipSingles = false;
-    for (auto it = this->Vertices.begin(); it != beforeLast; ++it)
+    for (auto it = this->Vertices.begin(); it != beforeLast; ++it, ++nxtIt)
     {
-      auto nxtIt = it;
-      nxtIt++;
-      vtkIdType dist = *nxtIt - *it;
-      if (dist == 1)
+      bool distEqOne = ((*nxtIt - *it) == 1);
+      if (distEqOne && skipSingles)
       {
-        if (skipSingles)
-        {
-          compressedSize -= 2;
-          skipSingles = false;
-          continue;
-        }
+        compressedSize -= 2;
+        skipSingles = false;
+        continue;
       }
-      if (dist == 1 || std::abs(static_cast<double>(range[*nxtIt] - range[*it])) < tol)
+      if (distEqOne || std::abs(static_cast<double>(range[*nxtIt] - range[*it])) < tol)
       {
         compressedSize--;
       }
