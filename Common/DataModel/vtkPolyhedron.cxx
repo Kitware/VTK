@@ -1255,6 +1255,54 @@ int vtkPolyhedron::Triangulate(int vtkNotUsed(index), vtkIdList* ptIds, vtkPoint
 }
 
 //------------------------------------------------------------------------------
+int vtkPolyhedron::TriangulateFaces(vtkIdList* newFaces)
+{
+  newFaces->Initialize();
+  newFaces->InsertNextId(0); // Keep room for the total nb of faces
+  vtkIdType totalNbOfFaces = 0;
+
+  for (vtkIdType faceId = 0; faceId < this->GetNumberOfFaces(); ++faceId)
+  {
+    vtkCell* face = this->GetFace(faceId);
+    if (!face)
+    {
+      vtkErrorMacro("Unable to retrieve the face !");
+      return 0;
+    }
+
+    vtkNew<vtkIdList> ptIds;
+    vtkNew<vtkPoints> pts;
+
+    // Triangulate the face
+    // - Triangle : returns the triangle
+    // - Quad : adds the "shortest" diagonal
+    // - Polygon : uses "EarCut" triangulation
+    face->Triangulate(0, ptIds, pts);
+
+    // Allocate space for the new triangles
+    newFaces->Resize(newFaces->GetNumberOfIds() + ptIds->GetNumberOfIds());
+
+    // Insert triangles from triangulation
+    const auto nbOfTriangles = ptIds->GetNumberOfIds() / 3;
+    for (unsigned int i = 0; i < nbOfTriangles; i++)
+    {
+      newFaces->InsertNextId(3); // Number of points
+      for (unsigned int j = 0; j < 3; j++)
+      {
+        newFaces->InsertNextId(ptIds->GetId(3 * i + j));
+      }
+    }
+
+    totalNbOfFaces += nbOfTriangles;
+  }
+
+  // Insert the total number of faces (triangles) at the beginning
+  newFaces->InsertId(0, totalNbOfFaces);
+
+  return 1;
+}
+
+//------------------------------------------------------------------------------
 void vtkPolyhedron::GeneratePointToIncidentFacesAndValenceAtPoint()
 {
   // Allocate memory

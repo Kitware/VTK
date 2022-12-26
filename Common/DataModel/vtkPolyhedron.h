@@ -204,6 +204,14 @@ public:
   int Triangulate(int index, vtkIdList* ptIds, vtkPoints* pts) override;
 
   /**
+   * Triangulate each face of the polyhedron.
+   * This method internally use the vtkCell::Triangulate method on each face (so the
+   * triangulation method vary depending on the 2D cell type corresponding to the face).
+   * Can lead to bad results for non-planar faces.
+   */
+  int TriangulateFaces(vtkIdList* newFaces);
+
+  /**
    * Computes derivatives at the point specified by the parameter coordinate.
    * Current implementation uses all vertices and subId is not used.
    * To accelerate the speed, the future implementation can triangulate and
