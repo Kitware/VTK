@@ -20,6 +20,7 @@ vtk_add_test_cxx(vtkRenderingOpenGL2CxxTests tests
   TestCompositePolyDataMapper2Pickability.cxx,NO_DATA
   TestCompositePolyDataMapper2Picking.cxx,NO_DATA
   TestCompositePolyDataMapper2Scalars.cxx,NO_DATA
+  TestCompositePolyDataMapper2ScalarsSurfaceOpacity.cxx,NO_DATA
   TestCompositePolyDataMapper2SharedArray.cxx,NO_DATA
   TestCompositePolyDataMapper2Spheres.cxx,NO_DATA
   TestCompositePolyDataMapper2Vertices.cxx,NO_DATA
