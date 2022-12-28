@@ -156,6 +156,9 @@ static herr_t H5FD_dsm_write(H5FD_t *_file, H5FD_mem_t type, hid_t fapl_id, hadd
 }
 
 static const H5FD_class_t H5FD_dsm_g = {
+#if (H5_VERS_MAJOR>1)||((H5_VERS_MAJOR==1)&&((H5_VERS_MINOR>13)||((H5_VERS_MINOR==13)&&(H5_VERS_RELEASE>=2))))
+    0,                          /*version       */
+#endif
 #if (H5_VERS_MAJOR>1)||((H5_VERS_MAJOR==1)&&(H5_VERS_MINOR>=13))
     H5_VFD_RESERVED + 0xd3f2,   /*value         */
 #endif
@@ -190,6 +193,12 @@ static const H5FD_class_t H5FD_dsm_g = {
     NULL,                       /*get_handle    */
     H5FD_dsm_read,              /*read          */
     H5FD_dsm_write,             /*write         */
+#if (H5_VERS_MAJOR>1)||((H5_VERS_MAJOR==1)&&((H5_VERS_MINOR>13)||((H5_VERS_MINOR==13)&&(H5_VERS_RELEASE>=2))))
+    NULL,                       /*read_vector     */
+    NULL,                       /*write_vector    */
+    NULL,                       /*read_selection  */
+    NULL,                       /*write_selection */
+#endif
     NULL,                       /*flush         */
 #if (H5_VERS_MAJOR>1)||((H5_VERS_MAJOR==1)&&(H5_VERS_MINOR>=8))
     NULL,                       /* truncate     */
