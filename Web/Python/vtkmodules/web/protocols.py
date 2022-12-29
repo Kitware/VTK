@@ -9,6 +9,7 @@ import os, sys, logging, types, inspect, traceback, re, base64, time
 
 from vtkmodules.vtkWebCore import vtkWebInteractionEvent
 
+from vtkmodules.web.errors import WebDependencyMissingError
 from vtkmodules.web.render_window_serializer import (
     serializeInstance,
     SynchronizationContext,
@@ -16,9 +17,12 @@ from vtkmodules.web.render_window_serializer import (
     initializeSerializers,
 )
 
-from wslink import schedule_callback
-from wslink import register as exportRpc
-from wslink.websocket import LinkProtocol
+try:
+    from wslink import schedule_callback
+    from wslink import register as exportRpc
+    from wslink.websocket import LinkProtocol
+except ImportError:
+    raise WebDependencyMissingError()
 
 # =============================================================================
 #

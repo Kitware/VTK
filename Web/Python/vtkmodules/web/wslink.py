@@ -8,8 +8,13 @@ from __future__ import absolute_import, division, print_function
 # import inspect, types, string, random, logging, six, json, re, base64
 import json, base64, logging, time
 
-from wslink import websocket
-from wslink import register as exportRpc
+from vtkmodules.web.errors import WebDependencyMissingError
+
+try:
+    from wslink import websocket
+    from wslink import register as exportRpc
+except ImportError:
+    raise WebDependencyMissingError()
 
 from vtkmodules.web import protocols
 from vtkmodules.vtkWebCore import vtkWebApplication

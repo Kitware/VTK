@@ -487,6 +487,14 @@ if (VTK_WRAP_PYTHON)
   string(REPLACE ";" "\n" vtk_required_python_modules "${vtk_required_python_modules}")
   file(WRITE "${CMAKE_BINARY_DIR}/requirements.txt"
     "${vtk_required_python_modules}\n")
+  get_property(vtk_web_python_modules GLOBAL
+    PROPERTY  vtk_web_python_modules)
+  if (vtk_web_python_modules)
+    list(REMOVE_DUPLICATES vtk_web_python_modules)
+  endif ()
+  string(REPLACE ";" "\n" vtk_web_python_modules "${vtk_web_python_modules}")
+  file(WRITE "${CMAKE_BINARY_DIR}/requirements_web.txt"
+    "${vtk_web_python_modules}\n")
   get_property(vtk_soabi GLOBAL
     PROPERTY  _vtk_python_soabi)
   cmake_dependent_option(VTK_WINDOWS_PYTHON_DEBUGGABLE "Append `_d` to Python module names" OFF
