@@ -40,16 +40,20 @@ class CMakeBuildExt(build_ext):
             super().build_extension(ext)
 
 
-vtk_reqs_path = os.path.join(BUILD_DIR, 'requirements.txt')
-with open(vtk_reqs_path, 'r') as fin:
-    reqs = [
-        line
-        for line in [
-            rawline.strip()
-            for rawline in fin
+def read_requirements(path):
+    with open(path, 'r') as fin:
+        reqs = [
+            line
+            for line in [
+                rawline.strip()
+                for rawline in fin
+            ]
+            if not line.startswith('#')
         ]
-        if not line.startswith('#')
-    ]
+    return reqs
+
+vtk_reqs_path = os.path.join(BUILD_DIR, 'requirements.txt')
+requirements = read_requirements(vtk_reqs_path)
 
 vtk_readme_path = os.path.join(BUILD_DIR, 'README.md')
 with io_open(vtk_readme_path, encoding='utf-8') as fin:
@@ -73,6 +77,8 @@ features.update(vtk_features.FEATURES)
 extra_packages = []
 if 'web' in vtk_features.FEATURES:
     extra_packages.append('vtkmodules.web')
+    # Read from requirements_web.txt
+    features['web'] = read_requirements(os.path.join(BUILD_DIR, 'requirements_web.txt'))
 
 ########################################
 # Version computation logic
@@ -209,7 +215,7 @@ setup(
     description='VTK is an open-source toolkit for 3D computer graphics, image processing, and visualization',
     long_description=readme,
     long_description_content_type='text/markdown',
-    install_requires=reqs,
+    install_requires=requirements,
     extras_require=features,
     include_package_data=True,
     zip_safe=False,
