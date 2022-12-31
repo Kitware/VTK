@@ -111,6 +111,14 @@ public:
 
   ///@{
   /**
+   * Get/Set the origin (bottom-left) coordinate of the scene in pixels (screen coordinates).
+   */
+  vtkSetVector2Macro(Origin, int);
+  vtkGetVector2Macro(Origin, int);
+  ///@}
+
+  ///@{
+  /**
    * Set the width and height of the scene in pixels.
    */
   vtkSetVector2Macro(Geometry, int);
@@ -138,14 +146,32 @@ public:
   ///@}
 
   /**
-   * Get the width of the view
+   * Get the width of the view (render window) containing this scene.
+   * Note that this might be larger than the scene width, which can
+   * be retrieved using the GetSceneWidth method, when multiple
+   * viewports are defined in the render window.
    */
   virtual int GetViewWidth();
 
   /**
-   * Get the height of the view
+   * Get the height of the view (render window) containing this scene.
+   * Note that this might be larger than the scene height, which can
+   * be retrieved using the GetSceneHeight method, when multiple
+   * viewports are defined in the render window.
    */
   virtual int GetViewHeight();
+
+  /**
+   * Get the left of the scene in screen coordinates.
+   * This is equivalent to GetOrigin[0].
+   */
+  virtual int GetSceneLeft();
+
+  /**
+   * Get the bottom of the scene in screen coordinates.
+   * This is equivalent to GetOrigin[1].
+   */
+  virtual int GetSceneBottom();
 
   /**
    * Get the width of the scene.
@@ -315,6 +341,8 @@ protected:
 
   vtkAnnotationLink* AnnotationLink;
 
+  // Store the chart origin - left, bottom of scene in pixels
+  int Origin[2];
   // Store the chart dimensions - width, height of scene in pixels
   int Geometry[2];
 

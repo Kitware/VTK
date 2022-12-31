@@ -201,7 +201,7 @@ vtkChartLegend* vtkChartPie::GetLegend()
 //------------------------------------------------------------------------------
 bool vtkChartPie::Hit(const vtkContextMouseEvent& mouse)
 {
-  vtkVector2i pos(mouse.GetScreenPos());
+  vtkVector2f pos(mouse.GetScenePos());
   return pos[0] > this->Point1[0] && pos[0] < this->Point2[0] && pos[1] > this->Point1[1] &&
     pos[1] < this->Point2[1];
 }
@@ -257,12 +257,12 @@ bool vtkChartPie::LocatePointInPlots(const vtkContextMouseEvent& mouse)
   else
   {
     int dimensions[4];
-    vtkVector2f position(mouse.GetScreenPos().Cast<float>().GetData());
+    vtkVector2f position(mouse.GetScenePos());
     vtkVector2f tolerance(5, 5);
     vtkVector2f plotPos(0, 0);
     this->Private->Plot->GetDimensions(dimensions);
 
-    vtkVector2i pos(mouse.GetScreenPos());
+    vtkVector2f pos(mouse.GetScenePos());
     if (pos[0] >= dimensions[0] && pos[0] <= dimensions[0] + dimensions[2] &&
       pos[1] >= dimensions[1] && pos[1] <= dimensions[1] + dimensions[3])
     {
@@ -275,7 +275,7 @@ bool vtkChartPie::LocatePointInPlots(const vtkContextMouseEvent& mouse)
         std::ostringstream ostr;
         ostr << label << ": " << plotPos.GetY();
         this->Tooltip->SetText(ostr.str().c_str());
-        this->Tooltip->SetPosition(mouse.GetScreenPos()[0] + 2, mouse.GetScreenPos()[1] + 2);
+        this->Tooltip->SetPosition(mouse.GetScenePos()[0] + 2, mouse.GetScenePos()[1] + 2);
         return true;
       }
     }

@@ -147,7 +147,7 @@ void vtkChartBox::Update()
 //------------------------------------------------------------------------------
 bool vtkChartBox::Paint(vtkContext2D* painter)
 {
-  if (this->GetScene()->GetViewWidth() == 0 || this->GetScene()->GetViewHeight() == 0 ||
+  if (this->GetScene()->GetSceneWidth() == 0 || this->GetScene()->GetSceneHeight() == 0 ||
     !this->Visible || !this->Storage->Plot->GetVisible() ||
     this->VisibleColumns->GetNumberOfTuples() < 1)
   {
@@ -388,7 +388,7 @@ float vtkChartBox::GetXPosition(int index)
 //------------------------------------------------------------------------------
 void vtkChartBox::UpdateGeometry(vtkContext2D* painter)
 {
-  vtkVector2i geometry(this->GetScene()->GetViewWidth(), this->GetScene()->GetViewHeight());
+  vtkVector2i geometry(this->GetScene()->GetSceneWidth(), this->GetScene()->GetSceneHeight());
 
   if (this->LayoutStrategy == vtkChart::FILL_SCENE &&
     (geometry.GetX() != this->Geometry[0] || geometry.GetY() != this->Geometry[1]))
@@ -476,7 +476,7 @@ void vtkChartBox::CalculatePlotTransform()
 //------------------------------------------------------------------------------
 bool vtkChartBox::Hit(const vtkContextMouseEvent& mouse)
 {
-  vtkVector2i pos(mouse.GetScreenPos());
+  vtkVector2f pos(mouse.GetScenePos());
   float width = this->Storage->Plot->GetBoxWidth() / 2.f;
   return pos[0] > this->Point1[0] - width && pos[0] < this->Point2[0] + width &&
     pos[1] > this->Point1[1] && pos[1] < this->Point2[1];
@@ -609,7 +609,7 @@ int vtkChartBox::LocatePointInPlot(const vtkVector2f& position, const vtkVector2
 //------------------------------------------------------------------------------
 bool vtkChartBox::LocatePointInPlots(const vtkContextMouseEvent& mouse, int invokeEvent)
 {
-  vtkVector2i pos(mouse.GetScreenPos());
+  vtkVector2f pos(mouse.GetScenePos());
   if (pos[0] > this->Point1[0] && pos[0] < this->Point2[0] && pos[1] > this->Point1[1] &&
     pos[1] < this->Point2[1])
   {
@@ -690,7 +690,7 @@ void vtkChartBox::SetTooltipInfo(const vtkContextMouseEvent& mouse, const vtkVec
 
   // Set the tooltip
   this->Tooltip->SetText(tooltipLabel);
-  this->Tooltip->SetPosition(mouse.GetScreenPos()[0] + 2, mouse.GetScreenPos()[1] + 2);
+  this->Tooltip->SetPosition(mouse.GetScenePos()[0] + 2, mouse.GetScenePos()[1] + 2);
 }
 
 //------------------------------------------------------------------------------

@@ -563,14 +563,14 @@ void vtkControlPointsItem::DrawPoint(vtkContext2D* painter, vtkIdType index)
       bounds[0] = vtkVector2f(-5 / scale[0], -3 / scale[1]);
       bounds[1] = vtkVector2f(bounds[1].GetX() + 10 / scale[0], bounds[1].GetY() + 10 / scale[1]);
 
-      // Pull the tooltip back in if it will go off the edge of the screen.
-      float maxX = (this->Scene->GetViewWidth() - position[0]) / scale[0];
+      // Pull the tooltip back in if it will go off the edge of the scene.
+      float maxX = (this->Scene->GetSceneWidth() - position[0]) / scale[0];
       if (bounds[0].GetX() >= maxX - bounds[1].GetX())
       {
         bounds[0].SetX(maxX - bounds[1].GetX());
       }
-      // Pull the tooltip down in if it will go off the edge of the screen.
-      float maxY = (this->Scene->GetViewHeight() - position[1]) / scale[1];
+      // Pull the tooltip down in if it will go off the edge of the scene.
+      float maxY = (this->Scene->GetSceneHeight() - position[1]) / scale[1];
       if (bounds[0].GetY() >= maxY - bounds[1].GetY())
       {
         bounds[0].SetY(maxY - bounds[1].GetY());

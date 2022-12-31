@@ -222,7 +222,9 @@ int vtkContextActor::RenderOverlay(vtkViewport* viewport)
   }
 
   // Pass the viewport details onto the context device.
-  int size[2];
+  int origin[2], size[2];
+  origin[0] = view_viewport_pixels.x();
+  origin[1] = view_viewport_pixels.y();
   size[0] = view_viewport_pixels.width();
   size[1] = view_viewport_pixels.height();
   vtkRecti viewportRect(actual_viewport_pixels.x() - view_viewport_pixels.x(),
@@ -235,6 +237,7 @@ int vtkContextActor::RenderOverlay(vtkViewport* viewport)
   // First initialize the drawing device.
 
   this->Context->GetDevice()->Begin(viewport);
+  this->Scene->SetOrigin(origin);
   this->Scene->SetGeometry(size);
   this->Scene->Paint(this->Context);
   this->Context->GetDevice()->End();

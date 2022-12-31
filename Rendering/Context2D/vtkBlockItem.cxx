@@ -112,7 +112,8 @@ bool vtkBlockItem::Paint(vtkContext2D* painter)
   // if requested, update the position for the box.
   if (this->AutoComputeDimensions)
   {
-    const vtkVector2i geometry(this->GetScene()->GetViewWidth(), this->GetScene()->GetViewHeight());
+    const vtkVector2i geometry(
+      this->GetScene()->GetSceneWidth(), this->GetScene()->GetSceneHeight());
     vtkLogF(TRACE, "size %d, %d", geometry[0], geometry[1]);
 
     dims[0] = vtkComputePosition(

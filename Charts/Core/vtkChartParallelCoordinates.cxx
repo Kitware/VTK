@@ -161,7 +161,7 @@ void vtkChartParallelCoordinates::Update()
 //------------------------------------------------------------------------------
 bool vtkChartParallelCoordinates::Paint(vtkContext2D* painter)
 {
-  if (this->GetScene()->GetViewWidth() == 0 || this->GetScene()->GetViewHeight() == 0 ||
+  if (this->GetScene()->GetSceneWidth() == 0 || this->GetScene()->GetSceneHeight() == 0 ||
     !this->Visible || !this->Storage->Plot->GetVisible() ||
     this->VisibleColumns->GetNumberOfTuples() < 2)
   {
@@ -401,7 +401,7 @@ vtkIdType vtkChartParallelCoordinates::GetNumberOfAxes()
 //------------------------------------------------------------------------------
 void vtkChartParallelCoordinates::UpdateGeometry()
 {
-  vtkVector2i geometry(this->GetScene()->GetViewWidth(), this->GetScene()->GetViewHeight());
+  vtkVector2i geometry(this->GetScene()->GetSceneWidth(), this->GetScene()->GetSceneHeight());
 
   if (geometry.GetX() != this->Geometry[0] || geometry.GetY() != this->Geometry[1] ||
     !this->GeometryValid)
@@ -466,7 +466,7 @@ void vtkChartParallelCoordinates::RecalculateBounds() {}
 //------------------------------------------------------------------------------
 bool vtkChartParallelCoordinates::Hit(const vtkContextMouseEvent& mouse)
 {
-  vtkVector2i pos(mouse.GetScreenPos());
+  vtkVector2f pos(mouse.GetScenePos());
   return pos[0] > this->Point1[0] - 10 && pos[0] < this->Point2[0] + 10 &&
     pos[1] > this->Point1[1] && pos[1] < this->Point2[1];
 }

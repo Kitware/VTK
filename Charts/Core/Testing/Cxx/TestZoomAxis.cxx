@@ -73,12 +73,13 @@ int TestZoomAxis(int, char*[])
   event.SetLastScenePos(vtkVector2f(0.0f));
   event.SetScenePos(vtkVector2f(0.0f));
   event.SetLastScreenPos(vtkVector2i(0));
+  event.SetScreenPos(vtkVector2i(0));
   event.SetInteractor(view->GetInteractor());
   event.SetButton(vtkContextMouseEvent::LEFT_BUTTON);
-  event.SetScreenPos(vtkVector2i(350, 250));
+  event.SetScenePos(vtkVector2f(350, 250));
   chart->MouseButtonPressEvent(event);
-  event.SetLastScreenPos(event.GetScreenPos());
-  event.SetScreenPos(vtkVector2i(10, 10));
+  event.SetLastScenePos(event.GetScenePos());
+  event.SetScenePos(vtkVector2f(10, 10));
   chart->MouseMoveEvent(event);
   chart->MouseButtonReleaseEvent(event);
 
