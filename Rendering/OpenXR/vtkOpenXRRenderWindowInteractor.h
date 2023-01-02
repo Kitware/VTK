@@ -89,7 +89,7 @@ protected:
   void ProcessXrEvents();
 
   /**
-   * Update tha action states using the OpenXRManager
+   * Update the action states using the OpenXRManager
    * and handle all actions.
    */
   void PollXrActions();
