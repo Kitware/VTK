@@ -127,6 +127,12 @@ void vtkSpline::AddPoint(double t, double x)
 }
 
 //------------------------------------------------------------------------------
+void vtkSpline::FillFromDataPointer(int nb, double* data)
+{
+  this->PiecewiseFunction->FillFromDataPointer(nb, data);
+}
+
+//------------------------------------------------------------------------------
 // Remove a point from the Piecewise Functions.
 void vtkSpline::RemovePoint(double t)
 {

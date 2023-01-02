@@ -94,6 +94,15 @@ public:
   void Initialize();
 
   /**
+   * Add all the tuples to the list of tuples in one time,
+   * and then sort them only once. Much faster than using
+   * AddTuple for each tuple.
+   * t is the time values array, nb is the size of time values array,
+   * data is the array containings tuples to add (by default AOS ordering)
+   */
+  void FillFromData(int nb, double* t, double** data, bool isSOADataArray = false);
+
+  /**
    * Add another tuple to the list of tuples to be interpolated.  Note that
    * using the same time t value more than once replaces the previous tuple
    * value at t.  At least two tuples must be added to define an

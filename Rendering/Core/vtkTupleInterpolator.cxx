@@ -141,6 +141,63 @@ void vtkTupleInterpolator::Initialize()
 }
 
 //------------------------------------------------------------------------------
+void vtkTupleInterpolator::FillFromData(int nb, double* time, double** data, bool isSOADataArray)
+{
+  if (nb <= 0 || !time || !data)
+  {
+    return;
+  }
+
+  // ptr will contains the data relative to the
+  // current tuple dimension (current components)
+  // and the corresponding time data. That is why
+  // it is initialized with 2 * nb values
+  // The time/tuple data are interlaced
+  // to be consistent with the method
+  // FillFromDataPointer from the class
+  // vtkPieceWiseFunction
+  std::vector<double> ptr(2 * nb, 0);
+
+  for (int j = 0; j < nb; ++j)
+  {
+    // Interlacing of time / tuple data
+    // we fill the time data only once since
+    // all the dimension share the same time entry
+    ptr[2 * j] = time[j];
+  }
+
+  for (int i = 0; i < this->NumberOfComponents; i++)
+  {
+    for (int j = 0; j < nb; j++)
+    {
+      // Interlacing of time / tuple data
+      if (isSOADataArray)
+      {
+        ptr[2 * j + 1] = data[i][j];
+      }
+      else
+      {
+        ptr[2 * j + 1] = data[j][i];
+      }
+    }
+
+    if (this->InterpolationType == INTERPOLATION_TYPE_LINEAR && this->Linear[i])
+    {
+      this->Linear[i]->FillFromDataPointer(nb, ptr.data());
+    }
+    else if (this->InterpolationType == INTERPOLATION_TYPE_SPLINE && this->Spline[i])
+    {
+      this->Spline[i]->FillFromDataPointer(nb, ptr.data());
+    }
+    else
+    {
+      vtkWarningMacro(<< "Interpolation initializaton failed for " << this->NumberOfComponents
+                      << " components.");
+    }
+  }
+}
+
+//------------------------------------------------------------------------------
 void vtkTupleInterpolator::InitializeInterpolation()
 {
   // Prepare for new data

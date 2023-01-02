@@ -81,6 +81,12 @@ public:
   vtkPiecewiseFunctionCompareNodes CompareNodes;
   vtkPiecewiseFunctionFindNodeInRange FindNodeInRange;
   vtkPiecewiseFunctionFindNodeOutOfRange FindNodeOutOfRange;
+  vtkPiecewiseFunction::SearchMethod AutomaticSearchMethod = vtkPiecewiseFunction::BINARY_SEARCH;
+  vtkPiecewiseFunction::SearchMethod CustomSearchMethod = vtkPiecewiseFunction::BINARY_SEARCH;
+  bool UseCustomSearchMethod = false;
+  std::vector<vtkPiecewiseFunctionNode*>::iterator UpperBound(vtkPiecewiseFunctionNode* node);
+  std::vector<vtkPiecewiseFunctionNode*>::iterator InterpolationSearch(
+    vtkPiecewiseFunctionNode* node);
 };
 
 //------------------------------------------------------------------------------
@@ -442,7 +448,7 @@ int vtkPiecewiseFunction::AddPoint(double x, double y, double midpoint, double s
 }
 
 //------------------------------------------------------------------------------
-void vtkPiecewiseFunction::SortAndUpdateRange()
+void vtkPiecewiseFunction::SortAndUpdateRange(bool updateSearchMethod)
 {
   // Use stable_sort to avoid shuffling of DuplicateScalars
   std::stable_sort(
@@ -452,6 +458,11 @@ void vtkPiecewiseFunction::SortAndUpdateRange()
   if (!modifiedInvoked)
   {
     this->Modified();
+  }
+
+  if (updateSearchMethod)
+  {
+    this->UpdateSearchMethod();
   }
 }
 
@@ -563,7 +574,7 @@ void vtkPiecewiseFunction::RemoveAllPoints()
   }
   this->Internal->Nodes.clear();
 
-  this->SortAndUpdateRange();
+  this->SortAndUpdateRange(false);
 }
 
 //------------------------------------------------------------------------------
@@ -694,12 +705,97 @@ double vtkPiecewiseFunction::FindMinimumXDistance()
 }
 
 //------------------------------------------------------------------------------
-void vtkPiecewiseFunction::GetTable(
-  double start, double end, int size, double* table, int stride, int logIncrements)
+std::vector<vtkPiecewiseFunctionNode*>::iterator vtkPiecewiseFunctionInternals::InterpolationSearch(
+  vtkPiecewiseFunctionNode* node)
 {
-  int i;
-  int idx = 0;
+  if (this->Nodes.empty())
+  {
+    return this->Nodes.end();
+  }
+
+  std::vector<vtkPiecewiseFunctionNode*>::iterator begin = this->Nodes.begin();
+  std::vector<vtkPiecewiseFunctionNode*>::iterator end = this->Nodes.end();
+  std::vector<vtkPiecewiseFunctionNode*>::iterator mid = this->Nodes.begin();
+  std::vector<vtkPiecewiseFunctionNode*>::iterator lastNode = end - 1;
+
+  if (node->X > (*lastNode)->X)
+  {
+    return this->Nodes.end();
+  }
+
+  // Determines if the last step was to the right
+  // or to the left side of the dichotomy. It is used
+  // to return the upper bound
+  bool side = true;
+
+  // Loop while the value of the node is between the begin and the end
+  // and the bounds are not crossed
+  while ((*begin)->X <= node->X && node->X <= (*lastNode)->X && begin != end)
+  {
+    // Interpolate between the endpoints to have an idea where the Node should lie
+    double fraction = (node->X - (*begin)->X) / ((*lastNode)->X - (*begin)->X);
+
+    // Compute the possible index according to the linear fraction computed
+    mid = begin +
+      std::iterator_traits<std::vector<vtkPiecewiseFunctionNode*>::iterator>::difference_type(
+        fraction * (std::distance(begin, end) - 1));
+
+    if ((*mid)->X < node->X)
+    {
+      begin = mid + 1;
+      side = false;
+    }
+    else if (node->X > (*lastNode)->X)
+    {
+      end = mid;
+      side = true;
+    }
+    else
+    {
+      return mid;
+    }
+  }
+
+  return (side == false) ? mid + 1 : mid;
+}
+
+//------------------------------------------------------------------------------
+std::vector<vtkPiecewiseFunctionNode*>::iterator vtkPiecewiseFunctionInternals::UpperBound(
+  vtkPiecewiseFunctionNode* node)
+{
+  vtkPiecewiseFunctionCompareNodes comparator;
+  vtkPiecewiseFunction::SearchMethod searchMethod = this->AutomaticSearchMethod;
+
+  if (this->UseCustomSearchMethod)
+  {
+    searchMethod = this->CustomSearchMethod;
+  }
+
+  if (searchMethod == vtkPiecewiseFunction::BINARY_SEARCH)
+  {
+    return std::upper_bound(this->Nodes.begin(), this->Nodes.end(), node, comparator);
+  }
+  else if (searchMethod == vtkPiecewiseFunction::INTERPOLATION_SEARCH)
+  {
+    return this->InterpolationSearch(node);
+  }
+  else
+  {
+    vtkErrorWithObjectMacro(
+      nullptr, "The search method should only be binary search or interpolation search.");
+    return this->Nodes.begin();
+  }
+}
+
+// Returns a table of function values evaluated at regular intervals
+void vtkPiecewiseFunction::GetTable(
+  double start, double end, int size, double* table, int stride, int logIncrements, double epsilon)
+{
   int numNodes = static_cast<int>(this->Internal->Nodes.size());
+  double* tptr = nullptr;
+  double xLoc = 0.0;
+  double xStart = start;
+  double xEnd = end;
 
   // Need to keep track of the last value so that
   // we can fill in table locations past this with
@@ -710,17 +806,6 @@ void vtkPiecewiseFunction::GetTable(
     lastValue = this->Internal->Nodes[numNodes - 1]->Y;
   }
 
-  double* tptr = nullptr;
-  double x = 0.0;
-  double x1 = 0.0;
-  double x2 = 0.0;
-  double y1 = 0.0;
-  double y2 = 0.0;
-  double midpoint = 0.0;
-  double sharpness = 0.0;
-  double xStart = start;
-  double xEnd = end;
-
   if (logIncrements)
   {
     xStart = std::log10(xStart);
@@ -728,7 +813,7 @@ void vtkPiecewiseFunction::GetTable(
   }
 
   // For each table entry
-  for (i = 0; i < size; i++)
+  for (int i = 0; i < size; i++)
   {
     // Find our location in the table
     tptr = table + stride * i;
@@ -738,111 +823,100 @@ void vtkPiecewiseFunction::GetTable(
     // be the same in this case)
     if (size > 1)
     {
-      x = xStart + (double(i) / double(size - 1)) * (xEnd - xStart);
+      xLoc = xStart + (static_cast<double>(i) / static_cast<double>(size - 1)) * (xEnd - xStart);
     }
     else
     {
-      x = 0.5 * (xStart + xEnd);
+      xLoc = 0.5 * (xStart + xEnd);
     }
 
     // Convert back into data space if xStart and xEnd are defined in log space:
     if (logIncrements)
     {
-      x = std::pow(10., x);
+      xLoc = std::pow(10., xLoc);
     }
 
-    // Do we need to move to the next node?
-    while (idx < numNodes && x > this->Internal->Nodes[idx]->X)
-    {
-      idx++;
-      // If we are at a valid point index, fill in
-      // the value at this node, and the one before (the
-      // two that surround our current sample location)
-      // idx cannot be 0 since we just incremented it.
-      if (idx < numNodes)
-      {
-        x1 = this->Internal->Nodes[idx - 1]->X;
-        x2 = this->Internal->Nodes[idx]->X;
-
-        y1 = this->Internal->Nodes[idx - 1]->Y;
-        y2 = this->Internal->Nodes[idx]->Y;
-
-        // We only need the previous midpoint and sharpness
-        // since these control this region
-        midpoint = this->Internal->Nodes[idx - 1]->Midpoint;
-        sharpness = this->Internal->Nodes[idx - 1]->Sharpness;
-
-        // Move midpoint away from extreme ends of range to avoid
-        // degenerate math
-        if (midpoint < 0.00001)
-        {
-          midpoint = 0.00001;
-        }
-
-        if (midpoint > 0.99999)
-        {
-          midpoint = 0.99999;
-        }
-      }
-    }
+    vtkPiecewiseFunctionNode node;
+    node.X = xLoc;
+    std::vector<vtkPiecewiseFunctionNode*>::iterator lowBound;
+    std::vector<vtkPiecewiseFunctionNode*>::iterator upBound;
+    upBound = this->Internal->UpperBound(&node);
 
     // Are we at the end? If so, just use the last value
-    if (idx >= numNodes)
+    if (upBound == this->Internal->Nodes.end())
     {
-      *tptr = (this->Clamping) ? (lastValue) : (0.0);
+      *tptr = this->Clamping ? lastValue : 0.0;
     }
     // Are we before the first node? If so, duplicate this nodes values
-    else if (idx == 0)
+    else if (upBound == this->Internal->Nodes.begin())
     {
-      *tptr = (this->Clamping) ? (this->Internal->Nodes[0]->Y) : (0.0);
+      *tptr = this->Clamping ? this->Internal->Nodes[0]->Y : 0.0;
     }
-    // Otherwise, we are between two nodes - interpolate
+    // If we are at a valid point index, fill in
+    // the value at this node, and the one before (the
+    // two that surround our current sample location)
     else
     {
-      // Our first attempt at a normalized location [0,1] -
+      double x1, x2, y1, y2, midpoint, sharpness;
+
+      lowBound = upBound - 1;
+      x1 = (*lowBound)->X;
+      x2 = (*upBound)->X;
+      y1 = (*lowBound)->Y;
+      y2 = (*upBound)->Y;
+
+      // We only need the previous midpoint and sharpness
+      // since these control this region
+      midpoint = (*lowBound)->Midpoint;
+      sharpness = (*lowBound)->Sharpness;
+
+      // Move midpoint away from extreme ends of range to avoid
+      // degenerate math
+      if (midpoint < epsilon)
+      {
+        midpoint = epsilon;
+      }
+
+      if (midpoint > 1 - epsilon)
+      {
+        midpoint = 1 - epsilon;
+      }
+
+      // Our first attempt at a normalized location [0, 1] -
       // we will be modifying this based on midpoint and
       // sharpness to get the curve shape we want and to have
       // it pass through (y1+y2)/2 at the midpoint.
-      double s;
+      double scale;
       if (this->UseLogScale)
       {
         // Don't modify x1/x2 -- these are not reset on each iteration.
-        double xLog = std::log10(x);
+        double xLog = std::log10(xLoc);
         double x1Log = std::log10(x1);
         double x2Log = std::log10(x2);
-        s = (xLog - x1Log) / (x2Log - x1Log);
+        scale = (xLog - x1Log) / (x2Log - x1Log);
       }
       else
       {
-        s = (x - x1) / (x2 - x1);
+        scale = (xLoc - x1) / (x2 - x1);
       }
 
       // Readjust based on the midpoint - linear adjustment
-      if (s < midpoint)
+      if (scale < midpoint)
       {
-        s = 0.5 * s / midpoint;
+        scale = 0.5 * scale / midpoint;
       }
       else
       {
-        s = 0.5 + 0.5 * (s - midpoint) / (1.0 - midpoint);
+        scale = 0.5 + 0.5 * (scale - midpoint) / (1.0 - midpoint);
       }
 
       // override for sharpness > 0.99
       // In this case we just want piecewise constant
       if (sharpness > 0.99)
       {
-        // Use the first value since we are below the midpoint
-        if (s < 0.5)
-        {
-          *tptr = y1;
-          continue;
-        }
+        // Use the first value if we are below the midpoint
         // Use the second value at or above the midpoint
-        else
-        {
-          *tptr = y2;
-          continue;
-        }
+        *tptr = scale < 0.5 ? y1 : y2;
       }
 
       // Override for sharpness < 0.01
@@ -850,7 +924,7 @@ void vtkPiecewiseFunction::GetTable(
       if (sharpness < 0.01)
       {
         // Simple linear interpolation
-        *tptr = (1 - s) * y1 + s * y2;
+        *tptr = (1 - scale) * y1 + scale * y2;
         continue;
       }
 
@@ -861,22 +935,24 @@ void vtkPiecewiseFunction::GetTable(
 
       // First, we will adjust our position based on sharpness in
       // order to make the curve sharper (closer to piecewise constant)
-      if (s < .5)
+      if (scale < 0.5)
       {
-        s = 0.5 * pow(s * 2, 1.0 + 10 * sharpness);
+        scale = 0.5 * std::pow(scale * 2, 1.0 + 10 * sharpness);
       }
-      else if (s > .5)
+      else if (scale > 0.5)
       {
-        s = 1.0 - 0.5 * pow((1.0 - s) * 2, 1 + 10 * sharpness);
+        scale = 1.0 - 0.5 * std::pow((1.0 - scale) * 2, 1 + 10 * sharpness);
       }
 
       // Compute some coefficients we will need for the hermite curve
-      double ss = s * s;
-      double sss = ss * s;
+      // scale squared
+      double ss = scale * scale;
+      // scale cubed
+      double sss = ss * scale;
 
       double h1 = 2 * sss - 3 * ss + 1;
       double h2 = -2 * sss + 3 * ss;
-      double h3 = sss - 2 * ss + s;
+      double h3 = sss - 2 * ss + scale;
       double h4 = sss - ss;
 
       double slope;
@@ -902,11 +978,11 @@ void vtkPiecewiseFunction::GetTable(
 
 //------------------------------------------------------------------------------
 void vtkPiecewiseFunction::GetTable(
-  double xStart, double xEnd, int size, float* table, int stride, int logIncrements)
+  double xStart, double xEnd, int size, float* table, int stride, int logIncrements, double epsilon)
 {
   double* tmpTable = new double[size];
 
-  this->GetTable(xStart, xEnd, size, tmpTable, 1, logIncrements);
+  this->GetTable(xStart, xEnd, size, tmpTable, 1, logIncrements, epsilon);
 
   double* tmpPtr = tmpTable;
   float* tPtr = table;
@@ -977,6 +1053,86 @@ void vtkPiecewiseFunction::FillFromDataPointer(int nb, double* ptr)
   }
 
   this->SortAndUpdateRange();
+}
+
+//------------------------------------------------------------------------------
+void vtkPiecewiseFunction::UpdateSearchMethod(double epsilon, double thresh)
+{
+  double averageDiff = 0;
+  double stdDiff = 0;
+  double currDiff = 0;
+  const size_t nodeCount = this->Internal->Nodes.size();
+
+  if (nodeCount < 3)
+  {
+    this->Internal->AutomaticSearchMethod = BINARY_SEARCH;
+    return;
+  }
+
+  // compute the mean of the sampling rate
+  averageDiff = (this->Internal->Nodes[nodeCount - 1]->X - this->Internal->Nodes[0]->X) /
+    static_cast<double>(nodeCount);
+
+  // It should not happens since the piecewise function
+  // can't have multiple node at the same X
+  if (std::abs(averageDiff) < epsilon)
+  {
+    this->Internal->AutomaticSearchMethod = BINARY_SEARCH;
+    return;
+  }
+
+  // compute the standard deviation of the sampling rate
+  for (size_t k = 0; k < this->Internal->Nodes.size() - 1; ++k)
+  {
+    currDiff = this->Internal->Nodes[k + 1]->X - this->Internal->Nodes[k]->X;
+    stdDiff += std::pow(currDiff - averageDiff, 2);
+  }
+
+  stdDiff /= std::max(static_cast<double>(this->Internal->Nodes.size() - 1), 1.0);
+  stdDiff = std::sqrt(stdDiff);
+
+  double C = std::abs(stdDiff / averageDiff);
+
+  if (C < thresh)
+  {
+    this->Internal->AutomaticSearchMethod = INTERPOLATION_SEARCH;
+  }
+  else
+  {
+    this->Internal->AutomaticSearchMethod = BINARY_SEARCH;
+  }
+}
+
+//------------------------------------------------------------------------------
+int vtkPiecewiseFunction::GetAutomaticSearchMethod()
+{
+  return static_cast<int>(this->Internal->AutomaticSearchMethod);
+}
+
+//------------------------------------------------------------------------------
+void vtkPiecewiseFunction::SetUseCustomSearchMethod(bool useCustomSearchMethod)
+{
+  this->Internal->UseCustomSearchMethod = useCustomSearchMethod;
+}
+
+//------------------------------------------------------------------------------
+void vtkPiecewiseFunction::SetCustomSearchMethod(int type)
+{
+  if (type < 0 || type >= static_cast<int>(MAX_ENUM))
+  {
+    vtkGenericWarningMacro("enum out of scope, binary search will be applied");
+
+    // set to binary search because it is the most general searchMethod
+    this->Internal->CustomSearchMethod = BINARY_SEARCH;
+  }
+
+  this->Internal->CustomSearchMethod = static_cast<SearchMethod>(type);
+}
+
+//------------------------------------------------------------------------------
+int vtkPiecewiseFunction::GetCustomSearchMethod()
+{
+  return static_cast<int>(this->Internal->CustomSearchMethod);
 }
 
 //------------------------------------------------------------------------------
