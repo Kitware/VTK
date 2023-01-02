@@ -2,6 +2,7 @@ set(files
   vtkmodules/web/__init__.py
   vtkmodules/web/camera.py
   vtkmodules/web/dataset_builder.py
+  vtkmodules/web/errors.py
   vtkmodules/web/protocols.py
   vtkmodules/web/query_data_model.py
   vtkmodules/web/render_window_serializer.py
