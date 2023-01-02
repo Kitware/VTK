@@ -69,7 +69,7 @@ void vtkOpenVRModel::CreateTextureObject(vtkOpenGLRenderWindow* win)
   this->TextureObject->SetContext(win);
   this->TextureObject->Create2DFromRaw(this->RawTexture->unWidth, this->RawTexture->unHeight, 4,
     VTK_UNSIGNED_CHAR,
-    const_cast<void*>(static_cast<const void* const>(this->RawTexture->rubTextureMapData)));
+    const_cast<void*>(static_cast<const void*>(this->RawTexture->rubTextureMapData)));
   this->TextureObject->SetWrapS(vtkTextureObject::ClampToEdge);
   this->TextureObject->SetWrapT(vtkTextureObject::ClampToEdge);
 

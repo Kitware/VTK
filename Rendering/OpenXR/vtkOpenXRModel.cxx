@@ -58,7 +58,7 @@ void vtkOpenXRModel::CreateTextureObject(vtkOpenGLRenderWindow* win)
 {
   this->TextureObject->SetContext(win);
   this->TextureObject->Create2DFromRaw(16, 16, 4, VTK_UNSIGNED_CHAR,
-    const_cast<void*>(static_cast<const void* const>(this->TextureData.data())));
+    const_cast<void*>(static_cast<const void*>(this->TextureData.data())));
   this->TextureObject->SetWrapS(vtkTextureObject::ClampToEdge);
   this->TextureObject->SetWrapT(vtkTextureObject::ClampToEdge);
 
