@@ -30,7 +30,9 @@ mark_as_advanced(
 set(vtk_smp_default_name)
 string(TOUPPER "${VTK_SMP_IMPLEMENTATION_TYPE}" vtk_smp_default_name)
 if (NOT VTK_SMP_ENABLE_${vtk_smp_default_name})
-  message(FATAL_ERROR "VTK_SMP_ENABLE_${vtk_smp_default_name} must be enabled as VTK_SMP_IMPLEMENTATION_TYPE is set to ${VTK_SMP_IMPLEMENTATION_TYPE}.")
+  message(FATAL_ERROR
+    "VTK_SMP_ENABLE_${vtk_smp_default_name} must be enabled as "
+    "VTK_SMP_IMPLEMENTATION_TYPE is set to ${VTK_SMP_IMPLEMENTATION_TYPE}.")
 endif()
 
 set(vtk_smp_defines)
