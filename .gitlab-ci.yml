@@ -737,28 +737,40 @@ wheel:vtk:upload:
     needs:
         - wheel-linux-python36-x86_64:build
         # - wheel-linux-python36-x86_64:test
+        # - wheel-linux-python36-x86_64:test-x11
         - wheel-linux-python36-x86_64-osmesa:build
         # - wheel-linux-python36-x86_64-osmesa:test
+        # - wheel-linux-python36-x86_64-osmesa:test-x11
         - wheel-linux-python37-x86_64:build
         - wheel-linux-python37-x86_64:test
+        - wheel-linux-python37-x86_64:test-x11
         - wheel-linux-python37-x86_64-osmesa:build
         - wheel-linux-python37-x86_64-osmesa:test
+        - wheel-linux-python37-x86_64-osmesa:test-x11
         - wheel-linux-python38-x86_64:build
         - wheel-linux-python38-x86_64:test
+        - wheel-linux-python38-x86_64:test-x11
         - wheel-linux-python38-x86_64-osmesa:build
         - wheel-linux-python38-x86_64-osmesa:test
+        - wheel-linux-python38-x86_64-osmesa:test-x11
         - wheel-linux-python39-x86_64:build
         - wheel-linux-python39-x86_64:test
+        - wheel-linux-python39-x86_64:test-x11
         - wheel-linux-python39-x86_64-osmesa:build
         - wheel-linux-python39-x86_64-osmesa:test
+        - wheel-linux-python39-x86_64-osmesa:test-x11
         - wheel-linux-python310-x86_64:build
         - wheel-linux-python310-x86_64:test
+        - wheel-linux-python310-x86_64:test-x11
         - wheel-linux-python310-x86_64-osmesa:build
         - wheel-linux-python310-x86_64-osmesa:test
+        - wheel-linux-python310-x86_64-osmesa:test-x11
         - wheel-linux-python311-x86_64:build
         - wheel-linux-python311-x86_64:test
+        - wheel-linux-python311-x86_64:test-x11
         - wheel-linux-python311-x86_64-osmesa:build
         - wheel-linux-python311-x86_64-osmesa:test
+        - wheel-linux-python311-x86_64-osmesa:test-x11
         - wheel-macos-python36-x86_64:build
         - wheel-macos-python36-x86_64:test
         - wheel-macos-python37-x86_64:build
@@ -827,24 +839,34 @@ wheel-sdk:upload:
         - wheel-linux-python36-x86_64-osmesa:build
         - wheel-linux-python37-x86_64:build
         - wheel-linux-python37-x86_64:test
+        - wheel-linux-python37-x86_64:test-x11
         - wheel-linux-python37-x86_64-osmesa:build
         - wheel-linux-python37-x86_64-osmesa:test
+        - wheel-linux-python37-x86_64-osmesa:test-x11
         - wheel-linux-python38-x86_64:build
         - wheel-linux-python38-x86_64:test
+        - wheel-linux-python38-x86_64:test-x11
         - wheel-linux-python38-x86_64-osmesa:build
         - wheel-linux-python38-x86_64-osmesa:test
+        - wheel-linux-python38-x86_64-osmesa:test-x11
         - wheel-linux-python39-x86_64:build
         - wheel-linux-python39-x86_64:test
+        - wheel-linux-python39-x86_64:test-x11
         - wheel-linux-python39-x86_64-osmesa:build
         - wheel-linux-python39-x86_64-osmesa:test
+        - wheel-linux-python39-x86_64-osmesa:test-x11
         - wheel-linux-python310-x86_64:build
         - wheel-linux-python310-x86_64:test
+        - wheel-linux-python310-x86_64:test-x11
         - wheel-linux-python310-x86_64-osmesa:build
         - wheel-linux-python310-x86_64-osmesa:test
+        - wheel-linux-python310-x86_64-osmesa:test-x11
         - wheel-linux-python311-x86_64:build
         - wheel-linux-python311-x86_64:test
+        - wheel-linux-python311-x86_64:test-x11
         - wheel-linux-python311-x86_64-osmesa:build
         - wheel-linux-python311-x86_64-osmesa:test
+        - wheel-linux-python311-x86_64-osmesa:test-x11
         - wheel-macos-python36-x86_64:build
         - wheel-macos-python36-x86_64:test
         - wheel-macos-python37-x86_64:build
