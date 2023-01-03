@@ -25,6 +25,7 @@
 #ifndef vtkXOpenGLRenderWindow_h
 #define vtkXOpenGLRenderWindow_h
 
+#include "vtkDeprecation.h" // For VTK_DEPRECATED_IN_9_3_0
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include <X11/Xlib.h>                  // Needed for X types used in the public interface
@@ -105,6 +106,7 @@ public:
    * Specify the size of the rendering window in pixels but do not resize
    * the XWindow. Useful when resizing is done interactively.
    */
+  VTK_DEPRECATED_IN_9_3_0("Use vtkRenderWindow::SetSize(w,h) instead")
   void SetSizeNoXResize(int, int);
 
   ///@{
