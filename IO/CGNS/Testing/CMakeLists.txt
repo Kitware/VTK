@@ -9,6 +9,7 @@ vtk_module_test_data(
   Data/Example_ngon_pe.cgns
   Data/Example_ngon_2d_base.cgns
   Data/MissingBase.cgns
+  Data/MixedElementNodes.cgns
   Data/TemporalBox.cgns
   Data/TemporalBox_1.cgns
   Data/TemporalBox_2.cgns

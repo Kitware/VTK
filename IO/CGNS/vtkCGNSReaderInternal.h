@@ -115,6 +115,31 @@ VTK_ABI_NAMESPACE_BEGIN
 typedef char char_33[33];
 
 //------------------------------------------------------------------------------
+// Cell type to cell dimension
+const std::map<CGNS_ENUMT(ElementType_t), int> CellDimensions = {
+  { CGNS_ENUMV(ElementTypeUserDefined), -1 }, { CGNS_ENUMV(ElementTypeNull), -1 },
+  { CGNS_ENUMV(NODE), 0 }, { CGNS_ENUMV(BAR_2), 1 }, { CGNS_ENUMV(BAR_3), 1 },
+  { CGNS_ENUMV(TRI_3), 2 }, { CGNS_ENUMV(TRI_6), 2 }, { CGNS_ENUMV(QUAD_4), 2 },
+  { CGNS_ENUMV(QUAD_8), 2 }, { CGNS_ENUMV(QUAD_9), 2 }, { CGNS_ENUMV(TETRA_4), 3 },
+  { CGNS_ENUMV(TETRA_10), 3 }, { CGNS_ENUMV(PYRA_5), 3 }, { CGNS_ENUMV(PYRA_14), 3 },
+  { CGNS_ENUMV(PENTA_6), 3 }, { CGNS_ENUMV(PENTA_15), 3 }, { CGNS_ENUMV(PENTA_18), 3 },
+  { CGNS_ENUMV(HEXA_8), 3 }, { CGNS_ENUMV(HEXA_20), 3 }, { CGNS_ENUMV(HEXA_27), 3 },
+  { CGNS_ENUMV(MIXED), -1 }, { CGNS_ENUMV(PYRA_13), 3 }, { CGNS_ENUMV(NGON_n), 2 },
+  { CGNS_ENUMV(NFACE_n), 3 }, { CGNS_ENUMV(BAR_4), 1 }, { CGNS_ENUMV(TRI_9), 2 },
+  { CGNS_ENUMV(TRI_10), 2 }, { CGNS_ENUMV(QUAD_12), 2 }, { CGNS_ENUMV(QUAD_16), 2 },
+  { CGNS_ENUMV(TETRA_16), 3 }, { CGNS_ENUMV(TETRA_20), 3 }, { CGNS_ENUMV(PYRA_21), 3 },
+  { CGNS_ENUMV(PYRA_29), 3 }, { CGNS_ENUMV(PYRA_30), 3 }, { CGNS_ENUMV(PENTA_24), 3 },
+  { CGNS_ENUMV(PENTA_38), 3 }, { CGNS_ENUMV(PENTA_40), 3 }, { CGNS_ENUMV(HEXA_32), 3 },
+  { CGNS_ENUMV(HEXA_56), 3 }, { CGNS_ENUMV(HEXA_64), 3 }, { CGNS_ENUMV(BAR_5), 1 },
+  { CGNS_ENUMV(TRI_12), 2 }, { CGNS_ENUMV(TRI_15), 2 }, { CGNS_ENUMV(QUAD_P4_16), 2 },
+  { CGNS_ENUMV(QUAD_25), 2 }, { CGNS_ENUMV(TETRA_22), 3 }, { CGNS_ENUMV(TETRA_34), 3 },
+  { CGNS_ENUMV(TETRA_35), 3 }, { CGNS_ENUMV(PYRA_P4_29), 3 }, { CGNS_ENUMV(PYRA_50), 3 },
+  { CGNS_ENUMV(PYRA_55), 3 }, { CGNS_ENUMV(PENTA_33), 3 }, { CGNS_ENUMV(PENTA_66), 3 },
+  { CGNS_ENUMV(PENTA_75), 3 }, { CGNS_ENUMV(HEXA_44), 3 }, { CGNS_ENUMV(HEXA_98), 3 },
+  { CGNS_ENUMV(HEXA_125), 3 }
+};
+
+//------------------------------------------------------------------------------
 class vtkCGNSArraySelection : public std::map<std::string, bool>
 {
 public:
