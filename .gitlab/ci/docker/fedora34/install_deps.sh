@@ -41,8 +41,12 @@ dnf install -y --setopt=install_weak_deps=False \
 
 # Python dependencies
 dnf install -y --setopt=install_weak_deps=False \
-    python3 python3-devel python3-numpy \
+    python3 python3-devel python3-numpy python3-tkinter \
     python3-pip python3-mpi4py-mpich python3-mpi4py-openmpi python3-matplotlib
+
+# Tcl/Tk dependencies (for building RenderingTk)
+dnf install -y --setopt=install_weak_deps=False \
+    tcl-devel tk-devel
 
 # wslink will bring aiohttp>=3.7.4
 python3 -m pip install 'wslink>=1.0.4'
