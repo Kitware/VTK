@@ -1217,7 +1217,7 @@ void vtkBoundingBox::ComputeBounds(
 
 //------------------------------------------------------------------------------
 void vtkBoundingBox::ComputeBounds(
-  vtkPoints* pts, const vtkIdType* ptIds, vtkIdType numberOfPointsIds, double bounds[6])
+  vtkPoints* pts, const long long* ptIds, long long numberOfPointsIds, double bounds[6])
 {
   // Compute bounds: dispatch to real types, fallback for other types.
   using vtkArrayDispatch::Reals;
@@ -1231,7 +1231,21 @@ void vtkBoundingBox::ComputeBounds(
 }
 
 //------------------------------------------------------------------------------
-#ifdef VTK_USE_64BIT_IDS
+void vtkBoundingBox::ComputeBounds(
+  vtkPoints* pts, const long* ptIds, long numberOfPointsIds, double bounds[6])
+{
+  // Compute bounds: dispatch to real types, fallback for other types.
+  using vtkArrayDispatch::Reals;
+  using Dispatcher = vtkArrayDispatch::DispatchByValueType<Reals>;
+  BoundsPointIdsWorker worker;
+
+  if (!Dispatcher::Execute(pts->GetData(), worker, ptIds, numberOfPointsIds, bounds))
+  { // Fallback to slowpath for other point types
+    worker(pts->GetData(), ptIds, numberOfPointsIds, bounds);
+  }
+}
+
+//------------------------------------------------------------------------------
 void vtkBoundingBox::ComputeBounds(
   vtkPoints* pts, const int* ptIds, int numberOfPointsIds, double bounds[6])
 {
@@ -1245,7 +1259,6 @@ void vtkBoundingBox::ComputeBounds(
     worker(pts->GetData(), ptIds, numberOfPointsIds, bounds);
   }
 }
-#endif
 
 // ---------------------------------------------------------------------------
 void vtkBoundingBox::ComputeLocalBounds(
