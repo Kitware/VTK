@@ -58,7 +58,7 @@
 
 .fedora34:
     extends: .linux
-    image: "kitware/vtk:ci-fedora34-20221107"
+    image: "kitware/vtk:ci-fedora34-20230104"
 
 .el8_icc:
     extends: .linux
@@ -70,7 +70,6 @@
         FC: ifx
 
 .fedora_cuda_addon:
-    image: "kitware/vtk:ci-fedora34-20210824"
     variables:
         CUDACC: "/usr/local/cuda-11.4/bin/nvcc"
         CUDACXX: "/usr/local/cuda-11.4/bin/nvcc"
