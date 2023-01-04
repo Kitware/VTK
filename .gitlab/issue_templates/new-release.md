@@ -65,14 +65,13 @@ git commit -m 'Update version number to @VERSION@@RC@' CMake/vtkVersion.cmake
       - [ ] `git push origin v@VERSION@@RC@`
   - Gather release assets
     - [ ] Source (from the `build:source` CI job in the tag pipeline)
-    - [ ] Documentation (from the `release-prep:documentation` CI job in the tag pipeline)
-    - [ ] Wheels (from the `build:wheel-*` jobs).
-    - [ ] Wheel SDKs (from the `build:wheel-*` jobs (`vtk-wheel-sdk-*.tar.xz`)).
+    - [ ] Documentation (from the `documentation:release-prep` CI job in the tag pipeline)
+    - [ ] Wheels (from the `wheel-*:build` jobs).
+    - [ ] Wheel SDKs (from the `wheel-*:build` jobs (`vtk-wheel-sdk-*.tar.xz`)).
   - Upload assets to `vtk.org`
     - [ ] `rsync -rptv $tarballs $wheels $wheel_sdks user@host:vtk_release/@MAJOR@.@MINOR@/`
-    - [ ] `rsync -rptv $wheel_sdks user@host:wheel-sdks/`
   - [ ] Update `vtk.org/download` with the new release (email
-        `comm@kitware.com` with filenames and hashes)
+        `marketing@kitware.com` with filenames and hashes)
   - Software process updates (these can all be done independently)
     - [ ] Update kwrobot with the new `release` branch rules (@ben.boeckel)
     - [ ] Run [this script][cdash-update-groups] to update the CDash groups
