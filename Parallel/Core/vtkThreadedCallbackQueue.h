@@ -138,6 +138,9 @@ private:
   class vtkInternalController;
   using InvokerPointer = std::unique_ptr<InvokerBase>;
 
+  class ThreadWorker;
+  friend class ThreadWorker;
+
   /**
    * This method terminates when all threads have finished. If `Destroying` is not true or `Running`
    * is not false, then calling this method results in a deadlock.
@@ -145,20 +148,6 @@ private:
    * @param startId The thread id from which we synchronize the threads.
    */
   void Sync(int startId = 0);
-
-  /**
-   * Pops the queue and runs the stored worker.
-   *
-   * @param The id of the thread currently calling this method.
-   */
-  void Pop(int threadId);
-
-  /**
-   * Main function that each thread runs. It pops the callback queue until notified otherwise.
-   *
-   * @param threadId The thread id assigned to the thread running this routine.
-   */
-  void ThreadRoutine(int threadId);
 
   /**
    * Queue of workers responsible for running the jobs that are inserted.
