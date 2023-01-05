@@ -19,46 +19,46 @@
 VTK_ABI_NAMESPACE_BEGIN
 
 //=============================================================================
-struct vtkThreadedCallbackQueue::BaseWorker
+struct vtkThreadedCallbackQueue::InvokerBase
 {
-  virtual ~BaseWorker() = default;
+  virtual ~InvokerBase() = default;
   virtual void operator()() = 0;
 };
 
 //=============================================================================
 template <class FT, class... ArgsT>
-class vtkThreadedCallbackQueue::WorkerWrapper : public vtkThreadedCallbackQueue::BaseWorker
+class vtkThreadedCallbackQueue::Invoker : public vtkThreadedCallbackQueue::InvokerBase
 {
 public:
   template <class FTT, class... ArgsTT>
-  WorkerWrapper(FTT&& f, ArgsTT&&... args)
+  Invoker(FTT&& f, ArgsTT&&... args)
     : Functor(std::forward<FT>(f))
     , Args(std::make_tuple(std::forward<ArgsT>(args)...))
   {
   }
 
-  ~WorkerWrapper() override = default;
+  ~Invoker() override = default;
 
-  void operator()() override { this->Execute(vtkMakeIntegerSequence<sizeof...(ArgsT)>()); }
+  void operator()() override { this->Invoke(MakeIntegerSequence<sizeof...(ArgsT)>()); }
 
 private:
   template <std::size_t... Is>
-  struct vtkIntegerSequence
+  struct IntegerSequence
   {
   };
 
   template <std::size_t N, std::size_t... Is>
-  struct vtkMakeIntegerSequence : vtkMakeIntegerSequence<N - 1, N - 1, Is...>
+  struct MakeIntegerSequence : MakeIntegerSequence<N - 1, N - 1, Is...>
   {
   };
 
   template <std::size_t... Is>
-  struct vtkMakeIntegerSequence<0, Is...> : vtkIntegerSequence<Is...>
+  struct MakeIntegerSequence<0, Is...> : IntegerSequence<Is...>
   {
   };
 
   template <std::size_t... Is>
-  void Execute(vtkIntegerSequence<Is...>)
+  void Invoke(IntegerSequence<Is...>)
   {
     this->Functor(std::get<Is>(this->Args)...);
   }
@@ -75,7 +75,7 @@ void vtkThreadedCallbackQueue::Push(FT&& f, ArgsT&&... args)
     std::lock_guard<std::mutex> lock(this->Mutex);
 
     // We remove referenceness so the tuple holding the arguments is valid
-    this->Workers.emplace(new WorkerWrapper<FT, typename std::remove_reference<ArgsT>::type...>(
+    this->InvokerQueue.emplace(new Invoker<FT, typename std::remove_reference<ArgsT>::type...>(
       std::forward<FT>(f), std::forward<ArgsT>(args)...));
     this->Empty = false;
   }

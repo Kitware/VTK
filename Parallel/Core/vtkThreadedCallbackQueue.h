@@ -123,20 +123,20 @@ public:
 private:
   ///@{
   /**
-   * Worker typedefs that hold the inserted functions and their parameters.
+   * Invoker typedefs that hold the inserted functions and their parameters.
    *
-   * `BaseWorker` is the base abstract type that helps us store the queue of workers to execute.
-   * Each individual stored worker is actually an instance of `WorkerWrapper` which inherits
-   * `BaseWorker`. They share a pure virtual `operator()` that effectively calls the stored workers
-   * with the parameters provided.
+   * `InvokerBase` is the base abstract type that helps us store the queue of functions to execute.
+   * Each individual stored function is actually an instance of `Invoker` which inherits
+   * `InvokerBase`. They share a pure virtual `operator()` that effectively calls the stored
+   * function with the parameters provided.
    */
-  struct BaseWorker;
+  struct InvokerBase;
   template <class FT, class... ArgsT>
-  class WorkerWrapper;
+  class Invoker;
   ///@}
 
   class vtkInternalController;
-  using WorkerPointer = std::unique_ptr<BaseWorker>;
+  using InvokerPointer = std::unique_ptr<InvokerBase>;
 
   /**
    * This method terminates when all threads have finished. If `Destroying` is not true or `Running`
@@ -163,7 +163,7 @@ private:
   /**
    * Queue of workers responsible for running the jobs that are inserted.
    */
-  std::queue<WorkerPointer> Workers;
+  std::queue<InvokerPointer> InvokerQueue;
 
   /**
    * This mutex ensures that the queue can pop and push elements in a thread-safe manner.

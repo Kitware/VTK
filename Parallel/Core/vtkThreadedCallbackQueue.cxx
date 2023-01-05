@@ -217,22 +217,22 @@ void vtkThreadedCallbackQueue::Pop(int threadId)
 {
   std::unique_lock<std::mutex> lock(this->Mutex);
 
-  if (threadId < this->NumberOfThreads && !this->Destroying && this->Workers.empty())
+  if (threadId < this->NumberOfThreads && !this->Destroying && this->InvokerQueue.empty())
   {
     this->ConditionVariable.wait(lock, [this, &threadId] {
-      return threadId >= this->NumberOfThreads || !this->Workers.empty() || !this->Running ||
+      return threadId >= this->NumberOfThreads || !this->InvokerQueue.empty() || !this->Running ||
         this->Destroying;
     });
   }
 
-  if (threadId >= this->NumberOfThreads || !this->Running || this->Workers.empty())
+  if (threadId >= this->NumberOfThreads || !this->Running || this->InvokerQueue.empty())
   {
     return;
   }
 
-  WorkerPointer worker = std::move(this->Workers.front());
-  this->Workers.pop();
-  this->Empty = this->Workers.empty();
+  InvokerPointer worker = std::move(this->InvokerQueue.front());
+  this->InvokerQueue.pop();
+  this->Empty = this->InvokerQueue.empty();
 
   lock.unlock();
 
@@ -246,7 +246,7 @@ void vtkThreadedCallbackQueue::PrintSelf(ostream& os, vtkIndent indent)
 
   std::lock_guard<std::mutex> lock(this->Mutex);
   os << indent << "Threads: " << this->NumberOfThreads << std::endl;
-  os << indent << "Functions to execute: " << this->Workers.size() << std::endl;
+  os << indent << "Callback queue size: " << this->InvokerQueue.size() << std::endl;
   os << indent << "Queue is" << (this->Running ? " not" : "") << " running" << std::endl;
 }
 
