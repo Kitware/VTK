@@ -1,4 +1,5 @@
 import sys, os
+import vtkmodules
 from vtkmodules.vtkCommonCore import vtkVersion
 
 def vtkLoadPythonTkWidgets(interp):
@@ -36,8 +37,19 @@ def vtkLoadPythonTkWidgets(interp):
     extension = interp.call('info', 'sharedlibextension')
     filename = prefix+name+extension
 
-    # create an extensive list of paths to search
-    pathlist = [os.path.join(p, 'vtkmodules') for p in sys.path]
+    # create an list of paths to search
+    vtkmodules_dir = os.path.dirname(vtkmodules.__file__)
+    pathlist = [vtkmodules_dir]
+
+    # a likely relative path for linux
+    if sys.platform == 'linux':
+        package_dir = os.path.dirname(vtkmodules_dir)
+        python_dir = os.path.dirname(package_dir)
+        if os.path.basename(python_dir).startswith('python'):
+            lib_dir = os.path.dirname(python_dir)
+            if os.path.basename(lib_dir).startswith('lib'):
+                pathlist.append(lib_dir)
+
     # add tcl paths, ensure that {} is handled properly
     try:
         auto_paths = interp.getvar('auto_path').split()
@@ -54,7 +66,8 @@ def vtkLoadPythonTkWidgets(interp):
                 pathlist.append(path)
         except AttributeError:
             pass
-    # a common place for these sorts of things
+
+    # a common installation path
     if os.name == 'posix':
         pathlist.append('/usr/local/lib')
 
