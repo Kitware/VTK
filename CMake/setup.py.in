@@ -86,16 +86,21 @@ if 'web' in vtk_features.FEATURES:
 
 # Assume a development version at first.
 version_base = '@VTK_MAJOR_VERSION@.@VTK_MINOR_VERSION@.@VTK_BUILD_VERSION@'
-version = version_base + '.dev0'
+version_suffix = '@VTK_VERSION_SUFFIX@'.strip(' .')  # defaults to `dev0`
+if version_suffix:
+    version = f'{version_base}.{version_suffix}'
+else:
+    version = version_base
 
 if 'GITLAB_CI' in os.environ:
     if 'CI_COMMIT_TAG' in os.environ:
+        # VTK_VERSION_SUFFIX is ignored on tags
         if '.rc' in os.environ['CI_COMMIT_TAG']:
             # rc tag. Add this to the version.
             rc_bit = os.environ['CI_COMMIT_TAG'].split('.')[-1]
-            version = version_base + '.' + rc_bit
+            version = f'{version_base}.{rc_bit}'
         else:
-            # Official release, use the version number.
+            # Official release, use the version number. No suffix.
             version = version_base
     elif 'CI_COMMIT_BRANCH' in os.environ:
         # Build on an official branch.
@@ -136,14 +141,24 @@ if 'GITLAB_CI' in os.environ:
 
             count = len(git_log.stdout.readlines())
 
-        version = version_base + '.dev' + str(count)
+        # Strip number from default VTK_VERSION_SUFFIX (default is `dev0`)
+        # If anything else, leave as is and assume user knows what they are doing
+        if version_suffix == 'dev0':
+            version_suffix = 'dev'
+        version = f'{version_base}.{version_suffix}{str(count)}'
     elif 'CI_MERGE_REQUEST_ID' in os.environ:
         # Build on a merge request.
-        version = version_base + '.dev0' + '+mr' + \
-                os.environ['CI_MERGE_REQUEST_ID']
+        version = f'{version_base}.{version_suffix}+mr{os.environ["CI_MERGE_REQUEST_ID"]}'
+
+
+# Allow modifications to distribution name (e.g., `vtk_osmesa`)
+dist_name = 'vtk'
+dist_suffix = '@VTK_DIST_NAME_SUFFIX@'.strip(' -_')
+if dist_suffix:
+    dist_name = f"{dist_name}_{dist_suffix}"
 
 setup(
-    name='vtk',
+    name=dist_name,
     version=version,
     author='VTK developers',
     packages=[
