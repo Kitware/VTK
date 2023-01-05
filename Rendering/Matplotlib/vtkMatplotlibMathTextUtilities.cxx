@@ -154,10 +154,12 @@ vtkMatplotlibMathTextUtilities::vtkMatplotlibMathTextUtilities()
 vtkMatplotlibMathTextUtilities::~vtkMatplotlibMathTextUtilities()
 {
   this->CleanupPythonObjects();
+#if VTK_MODULE_ENABLE_VTK_PythonInterpreter
   if (this->Interpreter)
   {
     this->Interpreter->Delete();
   }
+#endif
 }
 
 //------------------------------------------------------------------------------
