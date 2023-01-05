@@ -21,10 +21,13 @@
 
 #include <atomic>
 
-int TestThreadedCallbackQueue(int, char*[])
+namespace
+{
+//-----------------------------------------------------------------------------
+void RunThreads(int nthreadsBegin, int nthreadsEnd)
 {
   vtkNew<vtkThreadedCallbackQueue> queue;
-  queue->SetNumberOfThreads(2);
+  queue->SetNumberOfThreads(nthreadsBegin);
   queue->Start();
   std::atomic_int count(0);
   int N = 100000;
@@ -33,6 +36,10 @@ int TestThreadedCallbackQueue(int, char*[])
   for (vtkIdType i = 0; i < N; ++i)
   {
     if (i == N / 2)
+    {
+      queue->Start();
+    }
+    if (i == N / 4)
     {
       queue->Stop();
     }
@@ -46,12 +53,22 @@ int TestThreadedCallbackQueue(int, char*[])
       i, 0, vtkNew<vtkIntArray>(), array);
   }
 
-  queue->SetNumberOfThreads(16);
-  queue->Start();
+  queue->SetNumberOfThreads(nthreadsEnd);
 
   // If the jobs are not run, this test will do an infinite loop
   while (count != N)
     ;
+}
+} // anonymous namespace
 
+int TestThreadedCallbackQueue(int, char*[])
+{
+  vtkLog(INFO, "Testing expanding from 2 to 8 threads");
+  // Testing expanding the number of threads
+  ::RunThreads(2, 8);
+
+  vtkLog(INFO, "Testing shrinking from 8 to 2 threads");
+  // Testing shrinking the number of threads
+  ::RunThreads(8, 2);
   return EXIT_SUCCESS;
 }

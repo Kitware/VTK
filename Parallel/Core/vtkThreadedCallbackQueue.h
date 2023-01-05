@@ -71,9 +71,7 @@ public:
   void Push(FT&& f, ArgsT&&... args);
 
   /**
-   * Sets the number of threads. If the new number of threads is different than the current one,
-   * this method calls `Stop()`, so one needs to call `Start()` after the number of threads are set
-   * in order to make this queue running.
+   * Sets the number of threads. The running state of the queue is not impacted by this method.
    *
    * This method is executed by the `Controller` on a different thread, so this method may terminate
    * before the threads were allocated. Nevertheless, this method is thread-safe. Other calls to
@@ -143,18 +141,24 @@ private:
   /**
    * This method terminates when all threads have finished. If `Destroying` is not true or `Running`
    * is not false, then calling this method results in a deadlock.
+   *
+   * @param startId The thread id from which we synchronize the threads.
    */
-  void Sync();
+  void Sync(int startId = 0);
 
   /**
    * Pops the queue and runs the stored worker.
+   *
+   * @param The id of the thread currently calling this method.
    */
-  void Pop();
+  void Pop(int threadId);
 
   /**
-   * Stop routine forced to be run serially. This function doesn't use the `Controller`.
+   * Main function that each thread runs. It pops the callback queue until notified otherwise.
+   *
+   * @param threadId The thread id assigned to the thread running this routine.
    */
-  static void SerialStop(vtkThreadedCallbackQueue* self);
+  void ThreadRoutine(int threadId);
 
   /**
    * Queue of workers responsible for running the jobs that are inserted.
@@ -189,9 +193,6 @@ private:
    */
   std::atomic_int NumberOfThreads;
 
-  /**
-   * Collection of threads running the jobs.
-   */
   std::vector<std::thread> Threads;
 
   /**

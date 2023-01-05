@@ -16,6 +16,9 @@
 #include "vtkThreadedCallbackQueue.h"
 #include "vtkObjectFactory.h"
 
+#include <algorithm>
+#include <functional>
+
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkThreadedCallbackQueue);
 
@@ -99,47 +102,86 @@ vtkThreadedCallbackQueue::~vtkThreadedCallbackQueue()
 }
 
 //-----------------------------------------------------------------------------
+void vtkThreadedCallbackQueue::ThreadRoutine(int threadId)
+{
+  while (threadId < this->NumberOfThreads && this->Running && (!this->Destroying || !this->Empty))
+  {
+    this->Pop(threadId);
+  }
+}
+
+//-----------------------------------------------------------------------------
 void vtkThreadedCallbackQueue::SetNumberOfThreads(int numberOfThreads)
 {
   ::Execute(
     this->Controller,
     [](vtkThreadedCallbackQueue* self, int n) {
-      if (static_cast<std::size_t>(n) == self->Threads.size())
+      int size = static_cast<int>(self->Threads.size());
+
+      if (size == n)
       {
+        // Nothing to do
+        return;
+      }
+      // We only need to protect the shared atomic NumberOfThreads if we are shrinking.
+      else if (size < n || !self->Running)
+      {
+        self->NumberOfThreads = n;
+      }
+      else
+      {
+        std::lock_guard<std::mutex> lock(self->Mutex);
+        self->NumberOfThreads = n;
+      }
+
+      // If there are no threads running, we can just allocate the vector of threads.
+      if (!self->Running)
+      {
+        self->Threads.resize(n);
         return;
       }
 
-      // We need to use SerialStop so it is not pushed into the controller's queue.
-      // If someone calls Start after SetNumberOfThreads and Start is inserted before Stop,
-      // then we enter a deadlock. Serializing the Stop call prevents that.
-      self->SerialStop(self);
-      self->NumberOfThreads = n;
-      self->Threads.resize(n);
+      // If we are expanding the number of threads, then we just need to spawn
+      // the missing threads.
+      if (size < n)
+      {
+        std::generate_n(std::back_inserter(self->Threads), n - size, [&self] {
+          return std::thread(
+            std::bind(&vtkThreadedCallbackQueue::ThreadRoutine, self, self->Threads.size() - 1));
+        });
+      }
+      // If we are shrinking the number of threads, let's notify all threads
+      // so the threads whose id is more than the updated NumberOfThreads terminate.
+      else
+      {
+        self->ConditionVariable.notify_all();
+        self->Sync(self->NumberOfThreads);
+        self->Threads.resize(n);
+      }
     },
     this, numberOfThreads);
 }
 
 //-----------------------------------------------------------------------------
-void vtkThreadedCallbackQueue::SerialStop(vtkThreadedCallbackQueue* self)
-{
-  if (!self->Running)
-  {
-    return;
-  }
-
-  {
-    std::lock_guard<std::mutex> lock(self->Mutex);
-    self->Running = false;
-  }
-
-  self->ConditionVariable.notify_all();
-  self->Sync();
-}
-
-//-----------------------------------------------------------------------------
 void vtkThreadedCallbackQueue::Stop()
 {
-  ::Execute(this->Controller, this->SerialStop, this);
+  ::Execute(
+    this->Controller,
+    [](vtkThreadedCallbackQueue* self) {
+      if (!self->Running)
+      {
+        return;
+      }
+
+      {
+        std::lock_guard<std::mutex> lock(self->Mutex);
+        self->Running = false;
+      }
+
+      self->ConditionVariable.notify_all();
+      self->Sync();
+    },
+    this);
 }
 
 //-----------------------------------------------------------------------------
@@ -155,40 +197,35 @@ void vtkThreadedCallbackQueue::Start()
 
       self->Running = true;
 
-      for (std::thread& thread : self->Threads)
-      {
-        thread = std::thread([self] {
-          while (self->Running && (!self->Destroying || !self->Empty))
-          {
-            self->Pop();
-          }
-        });
-      }
+      int threadId = -1;
+      std::generate(self->Threads.begin(), self->Threads.end(), [&self, &threadId] {
+        return std::thread(std::bind(&vtkThreadedCallbackQueue::ThreadRoutine, self, ++threadId));
+      });
     },
     this);
 }
 
 //-----------------------------------------------------------------------------
-void vtkThreadedCallbackQueue::Sync()
+void vtkThreadedCallbackQueue::Sync(int startId)
 {
-  for (std::thread& thread : this->Threads)
-  {
-    thread.join();
-  }
+  std::for_each(this->Threads.begin() + startId, this->Threads.end(),
+    [](std::thread& thread) { thread.join(); });
 }
 
 //-----------------------------------------------------------------------------
-void vtkThreadedCallbackQueue::Pop()
+void vtkThreadedCallbackQueue::Pop(int threadId)
 {
   std::unique_lock<std::mutex> lock(this->Mutex);
 
-  if (!this->Destroying && this->Workers.empty())
+  if (threadId < this->NumberOfThreads && !this->Destroying && this->Workers.empty())
   {
-    this->ConditionVariable.wait(
-      lock, [this] { return !this->Workers.empty() || !this->Running || this->Destroying; });
+    this->ConditionVariable.wait(lock, [this, &threadId] {
+      return threadId >= this->NumberOfThreads || !this->Workers.empty() || !this->Running ||
+        this->Destroying;
+    });
   }
 
-  if (!this->Running || this->Workers.empty())
+  if (threadId >= this->NumberOfThreads || !this->Running || this->Workers.empty())
   {
     return;
   }
