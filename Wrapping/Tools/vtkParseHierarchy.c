@@ -1308,7 +1308,7 @@ const char* vtkParseHierarchy_QualifiedEnumName(
         char* scoped_name;
         size_t scoped_len = strlen(data->Name) + strlen(info->Name) + 2;
         scoped_name = vtkParse_NewString(cache, scoped_len);
-        snprintf(scoped_name, scoped_len, "%s::%s", data->Name, info->Name);
+        snprintf(scoped_name, scoped_len + 1, "%s::%s", data->Name, info->Name);
         return scoped_name;
       }
     }
