@@ -71,6 +71,8 @@ int vtkOTFilter::RequestData(vtkInformation* vtkNotUsed(request),
     ret = this->Process(ns);
     delete ns;
   }
+
+  this->CheckAbort();
   return ret;
 }
 
