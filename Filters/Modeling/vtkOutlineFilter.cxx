@@ -255,6 +255,10 @@ int vtkOutlineFilter::RequestData(vtkInformation* vtkNotUsed(request),
       vtkCompositeDataIterator* iter = compInput->NewIterator();
       for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
       {
+        if (this->CheckAbort())
+        {
+          break;
+        }
         vtkDataSet* ds = vtkDataSet::SafeDownCast(iter->GetCurrentDataObject());
         if (ds)
         {
@@ -277,6 +281,10 @@ int vtkOutlineFilter::RequestData(vtkInformation* vtkNotUsed(request),
       unsigned int index;
       for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
       {
+        if (this->CheckAbort())
+        {
+          break;
+        }
         vtkDataSet* ds = vtkDataSet::SafeDownCast(iter->GetCurrentDataObject());
         if (ds)
         {
@@ -300,6 +308,8 @@ int vtkOutlineFilter::RequestData(vtkInformation* vtkNotUsed(request),
   {
     output->SetPolys(faces.GetPointer());
   }
+
+  this->CheckAbort();
 
   return 1;
 }

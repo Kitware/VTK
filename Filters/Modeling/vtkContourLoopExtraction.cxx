@@ -424,6 +424,10 @@ int vtkContourLoopExtraction::RequestData(vtkInformation* vtkNotUsed(request),
   double range[2];
   for (lineId = 0, newLines->InitTraversal(); newLines->GetNextCell(npts, pts); ++lineId)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     if (!visited[lineId])
     {
       visited[lineId] = 1;

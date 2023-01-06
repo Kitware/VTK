@@ -556,6 +556,10 @@ int vtkCollisionDetectionFilter::RequestData(vtkInformation* vtkNotUsed(request)
 
     for (int idx = 0; idx < 2; idx++)
     {
+      if (this->CheckAbort())
+      {
+        break;
+      }
       vtkUnsignedCharArray* scalars = vtkUnsignedCharArray::New();
       output[idx]->GetCellData()->SetScalars(scalars);
       vtkIdType numCells = input[idx]->GetNumberOfCells();
@@ -617,6 +621,8 @@ int vtkCollisionDetectionFilter::RequestData(vtkInformation* vtkNotUsed(request)
     }
   }
   this->InvokeEvent(vtkCommand::EndEvent, nullptr);
+
+  this->CheckAbort();
 
   return 1;
 }

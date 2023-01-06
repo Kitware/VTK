@@ -134,6 +134,10 @@ int vtkProjectedTexture::RequestData(vtkInformation* vtkNotUsed(request),
   // compute s-t coordinates
   for (i = 0; i < numPts; i++)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     output->GetPoint(i, p);
 
     for (j = 0; j < 3; j++)

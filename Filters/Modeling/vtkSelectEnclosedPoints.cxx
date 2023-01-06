@@ -60,6 +60,7 @@ struct SelectInOutCheck
   vtkTypeBool InsideOut;
   vtkRandomPool* Sequence;
   vtkSMPThreadLocal<vtkIntersectionCounter> Counter;
+  vtkSelectEnclosedPoints* Filter;
 
   // Don't want to allocate working arrays on every thread invocation. Thread local
   // storage eliminates lots of new/delete.
@@ -68,7 +69,7 @@ struct SelectInOutCheck
 
   SelectInOutCheck(vtkIdType numPts, vtkDataSet* ds, vtkPolyData* surface, double bds[6],
     double tol, vtkStaticCellLocator* loc, unsigned char* hits, vtkSelectEnclosedPoints* sel,
-    vtkTypeBool io)
+    vtkTypeBool io, vtkSelectEnclosedPoints* filter)
     : NumPts(numPts)
     , DataSet(ds)
     , Surface(surface)
@@ -77,6 +78,7 @@ struct SelectInOutCheck
     , Hits(hits)
     , Selector(sel)
     , InsideOut(io)
+    , Filter(filter)
   {
     this->Bounds[0] = bds[0];
     this->Bounds[1] = bds[1];
@@ -110,9 +112,18 @@ struct SelectInOutCheck
     vtkGenericCell*& cell = this->Cell.Local();
     vtkIdList*& cellIds = this->CellIds.Local();
     vtkIntersectionCounter& counter = this->Counter.Local();
+    bool isFirst = vtkSMPTools::GetSingleThread();
 
     for (; ptId < endPtId; ++ptId)
     {
+      if (isFirst)
+      {
+        this->Filter->CheckAbort();
+      }
+      if (this->Filter->GetAbortOutput())
+      {
+        break;
+      }
       this->DataSet->GetPoint(ptId, x);
 
       if (vtkSelectEnclosedPoints::IsInsideSurface(x, this->Surface, this->Bounds, this->Length,
@@ -132,7 +143,7 @@ struct SelectInOutCheck
   static void Execute(vtkIdType numPts, vtkDataSet* ds, vtkPolyData* surface, double bds[6],
     double tol, vtkStaticCellLocator* loc, unsigned char* hits, vtkSelectEnclosedPoints* sel)
   {
-    SelectInOutCheck inOut(numPts, ds, surface, bds, tol, loc, hits, sel, sel->GetInsideOut());
+    SelectInOutCheck inOut(numPts, ds, surface, bds, tol, loc, hits, sel, sel->GetInsideOut(), sel);
     vtkSMPTools::For(0, numPts, inOut);
   }
 }; // SelectInOutCheck

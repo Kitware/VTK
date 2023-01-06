@@ -93,7 +93,7 @@ struct GeneratePoints
       this->SamplePoints();
     }
     Self->UpdateProgress(0.1);
-    int abort = Self->GetAbortExecute();
+    bool abort = Self->CheckAbort();
 
     // Now the edge points
     if (Self->GetGenerateEdgePoints() && !abort)
@@ -101,6 +101,10 @@ struct GeneratePoints
       auto iter = vtk::TakeSmartPointer(this->InLines->NewIterator());
       for (iter->GoToFirstCell(); !iter->IsDoneWithTraversal(); iter->GoToNextCell())
       {
+        if (Self->CheckAbort())
+        {
+          break;
+        }
         iter->GetCurrentCell(npts, pts);
         for (auto i = 0; i < (npts - 1); i++)
         {
@@ -112,12 +116,16 @@ struct GeneratePoints
         }
       }
       Self->UpdateProgress(0.2);
-      abort = Self->GetAbortExecute();
+      abort = Self->CheckAbort();
 
       vtkIdType p0, p1;
       iter = vtk::TakeSmartPointer(this->InPolys->NewIterator());
       for (iter->GoToFirstCell(); !iter->IsDoneWithTraversal(); iter->GoToNextCell())
       {
+        if (Self->CheckAbort())
+        {
+          break;
+        }
         iter->GetCurrentCell(npts, pts);
         for (auto i = 0; i < npts; i++)
         {
@@ -131,11 +139,15 @@ struct GeneratePoints
         }
       }
       Self->UpdateProgress(0.3);
-      abort = Self->GetAbortExecute();
+      abort = Self->CheckAbort();
 
       iter = vtk::TakeSmartPointer(this->InStrips->NewIterator());
       for (iter->GoToFirstCell(); !iter->IsDoneWithTraversal(); iter->GoToNextCell())
       {
+        if (Self->CheckAbort())
+        {
+          break;
+        }
         iter->GetCurrentCell(npts, pts);
         // The first triangle
         for (auto i = 0; i < 3; i++)
@@ -169,7 +181,7 @@ struct GeneratePoints
       }
     }
     Self->UpdateProgress(0.5);
-    abort = Self->GetAbortExecute();
+    abort = Self->CheckAbort();
 
     // Finally the interior points on polygons and triangle strips
     if (Self->GetGenerateInteriorPoints() && !abort)
@@ -189,7 +201,7 @@ struct GeneratePoints
         }
       }
       Self->UpdateProgress(0.75);
-      abort = Self->GetAbortExecute();
+      abort = Self->CheckAbort();
 
       // Next the triangle strips
       iter = vtk::TakeSmartPointer(this->InStrips->NewIterator());
@@ -603,7 +615,7 @@ int vtkPolyDataPointSampler::RequestData(vtkInformation* vtkNotUsed(request),
     abort = gen();
   }
   this->UpdateProgress(0.90);
-  abort = this->GetAbortExecute();
+  abort = this->CheckAbort();
 
   // Generate vertex cells if requested
   if (this->GenerateVertices && !abort)

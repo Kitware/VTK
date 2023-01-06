@@ -54,18 +54,20 @@ struct ExtrudePoints
   double BoundsCenter[3];
   double BoundsLength;
   double Tol;
+  vtkTrimmedExtrusionFilter* Filter;
 
   // Don't want to allocate working arrays on every thread invocation. Thread local
   // storage eliminates lots of new/delete.
   vtkSMPThreadLocalObject<vtkGenericCell> Cell;
 
   ExtrudePoints(vtkIdType npts, T* inPts, T* points, unsigned char* hits,
-    vtkAbstractCellLocator* loc, double ed[3], double bds[6])
+    vtkAbstractCellLocator* loc, double ed[3], double bds[6], vtkTrimmedExtrusionFilter* filter)
     : NPts(npts)
     , InPoints(inPts)
     , Points(points)
     , Hits(hits)
     , Locator(loc)
+    , Filter(filter)
   {
     this->ExtrusionDirection[0] = ed[0];
     this->ExtrusionDirection[1] = ed[1];
@@ -96,9 +98,18 @@ struct ExtrudePoints
     int subId;
     unsigned char* hits = this->Hits + ptId;
     vtkGenericCell*& cell = this->Cell.Local();
+    bool isFirst = vtkSMPTools::GetSingleThread();
 
     for (; ptId < endPtId; ++ptId, xi += 3, x += 3, xo += 3, ++hits)
     {
+      if (isFirst)
+      {
+        this->Filter->CheckAbort();
+      }
+      if (this->Filter->GetAbortOutput())
+      {
+        break;
+      }
       // Copy input points to output
       x[0] = xi[0];
       x[1] = xi[1];
@@ -137,9 +148,9 @@ struct ExtrudePoints
   void Reduce() {}
 
   static void Execute(vtkIdType numPts, T* inPts, T* points, unsigned char* hits,
-    vtkAbstractCellLocator* loc, double ed[3], double bds[6])
+    vtkAbstractCellLocator* loc, double ed[3], double bds[6], vtkTrimmedExtrusionFilter* filter)
   {
-    ExtrudePoints extrude(numPts, inPts, points, hits, loc, ed, bds);
+    ExtrudePoints extrude(numPts, inPts, points, hits, loc, ed, bds, filter);
     vtkSMPTools::For(0, numPts, extrude);
   }
 }; // ExtrudePoints
@@ -263,7 +274,7 @@ int vtkTrimmedExtrusionFilter::RequestData(vtkInformation* vtkNotUsed(request),
   switch (newPts->GetDataType())
   {
     vtkTemplateMacro(ExtrudePoints<VTK_TT>::Execute(numPts, (VTK_TT*)inPtr, (VTK_TT*)outPtr, hits,
-      this->Locator, this->ExtrusionDirection, surfaceBds));
+      this->Locator, this->ExtrusionDirection, surfaceBds, this));
   }
 
   // Prepare to generate the topology. Different topolgy is built depending
@@ -319,6 +330,10 @@ void vtkTrimmedExtrusionFilter::AdjustPoints(
 
   for (cellId = 0; cellId < numCells; ++cellId)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     input->GetCellPoints(cellId, npts, ptIds);
 
     // Gather information about cell
@@ -522,7 +537,7 @@ void vtkTrimmedExtrusionFilter::ExtrudeEdges(
     if (!(inCellId % progressInterval)) // manage progress / early abort
     {
       this->UpdateProgress(0.4 + 0.6 * inCellId / numCells);
-      abort = this->GetAbortExecute();
+      abort = this->CheckAbort();
     }
 
     input->GetCell(inCellId, cell);

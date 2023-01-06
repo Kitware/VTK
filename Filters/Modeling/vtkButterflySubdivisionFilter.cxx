@@ -60,15 +60,22 @@ int vtkButterflySubdivisionFilter::GenerateSubdivisionPoints(
 
   // Create an edge table to keep track of which edges we've processed
   edgeTable->InitEdgeInsertion(inputDS->GetNumberOfPoints());
+  bool abort = false;
 
   // Generate new points for subdivisions surface
-  for (cellId = 0, inputPolys->InitTraversal(); inputPolys->GetNextCell(npts, pts); cellId++)
+  for (cellId = 0, inputPolys->InitTraversal(); !abort && inputPolys->GetNextCell(npts, pts);
+       cellId++)
   {
     p1 = pts[2];
     p2 = pts[0];
 
     for (edgeId = 0; edgeId < 3; edgeId++)
     {
+      abort = this->CheckAbort();
+      if (abort)
+      {
+        break;
+      }
       // Do we need to create a point on this edge?
       if (edgeTable->IsEdge(p1, p2) == -1)
       {

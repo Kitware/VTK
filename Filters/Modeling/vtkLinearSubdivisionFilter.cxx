@@ -51,15 +51,22 @@ int vtkLinearSubdivisionFilter::GenerateSubdivisionPoints(
 
   double total = inputPolys->GetNumberOfCells();
   double curr = 0;
+  bool abort = false;
 
   // Generate new points for subdivisions surface
-  for (cellId = 0, inputPolys->InitTraversal(); inputPolys->GetNextCell(npts, pts); cellId++)
+  for (cellId = 0, inputPolys->InitTraversal(); !abort && inputPolys->GetNextCell(npts, pts);
+       cellId++)
   {
     p1 = pts[2];
     p2 = pts[0];
 
     for (edgeId = 0; edgeId < 3; edgeId++)
     {
+      abort = this->CheckAbort();
+      if (abort)
+      {
+        break;
+      }
       outputPD->CopyData(inputPD, p1, p1);
       outputPD->CopyData(inputPD, p2, p2);
 

@@ -76,6 +76,7 @@ int vtkHyperTreeGridOutlineFilter::RequestData(vtkInformation* vtkNotUsed(reques
 
   this->OutlineSource->SetBounds(input->GetBounds());
   this->OutlineSource->SetGenerateFaces(this->GenerateFaces);
+  this->OutlineSource->SetContainerAlgorithm(this);
   this->OutlineSource->Update();
 
   output->CopyStructure(this->OutlineSource->GetOutput());

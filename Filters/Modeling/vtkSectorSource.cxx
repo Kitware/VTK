@@ -93,6 +93,7 @@ int vtkSectorSource::RequestData(vtkInformation* vtkNotUsed(request),
 
   lineSource->SetPoint1(x1);
   lineSource->SetPoint2(x2);
+  lineSource->SetContainerAlgorithm(this);
   lineSource->Update();
 
   VTK_CREATE(vtkRotationalExtrusionFilter, rotateFilter);
@@ -102,6 +103,7 @@ int vtkSectorSource::RequestData(vtkInformation* vtkNotUsed(request),
 
   if (piece == 0 && numPieces > 0)
   {
+    rotateFilter->SetContainerAlgorithm(this);
     rotateFilter->Update();
     output->ShallowCopy(rotateFilter->GetOutput());
   }

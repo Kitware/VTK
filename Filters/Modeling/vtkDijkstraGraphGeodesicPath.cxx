@@ -244,6 +244,10 @@ void vtkDijkstraGraphGeodesicPath::TraceShortestPath(
   vtkIdType id;
   while (v != startv)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     if (v < 0)
     {
       // Invalid vertex. Path does not exist.
@@ -321,6 +325,10 @@ void vtkDijkstraGraphGeodesicPath::ShortestPath(vtkDataSet* inData, int startv, 
   bool stop = false;
   while ((u = this->Internals->HeapExtractMin()) >= 0 && !stop)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     // u is now in ClosedVertices since the shortest path to u is determined
     this->Internals->ClosedVertices[u] = true;
     // remove u from OpenVertices

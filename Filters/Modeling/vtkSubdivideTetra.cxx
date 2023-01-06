@@ -92,6 +92,10 @@ int vtkSubdivideTetra::RequestData(vtkInformation* vtkNotUsed(request),
   // done by introducing mid-edge nodes and a single mid-tetra node.
   for (cellId = 0; cellId < numCells; cellId++)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     input->GetCell(cellId, cell);
 
     // get tetra points

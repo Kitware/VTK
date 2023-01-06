@@ -151,6 +151,10 @@ int vtkHausdorffDistancePointSetFilter::RequestData(vtkInformation* vtkNotUsed(r
   // if they do not already exist and they are not self loops
   for (int i = 0; i < inputA->GetNumberOfPoints(); i++)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     inputA->GetPoint(i, currentPoint);
     if (this->TargetDistanceMethod == POINT_TO_POINT)
     {
@@ -175,6 +179,10 @@ int vtkHausdorffDistancePointSetFilter::RequestData(vtkInformation* vtkNotUsed(r
 
   for (int i = 0; i < inputB->GetNumberOfPoints(); i++)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     inputB->GetPoint(i, currentPoint);
     if (this->TargetDistanceMethod == POINT_TO_POINT)
     {
