@@ -329,8 +329,14 @@ class vtkTkRenderWindowInteractor(tkinter.Widget):
         self._Iren.KeyReleaseEvent()
 
     def ConfigureEvent(self, event):
+        oldwidth, oldheight = self._Iren.GetSize()
         self._Iren.SetSize(event.width, event.height)
         self._Iren.ConfigureEvent()
+        # check whether if the window has expanded vs shrunk
+        if event.width <= oldwidth and event.height <= oldheight:
+            # there will be no ExposeEvent if the window didn't grow,
+            # so post a render to occur after any event processing
+            self.after(0, self.Render)
 
     def EnterEvent(self, event, ctrl, shift):
         if self._FocusOnEnter:

@@ -296,7 +296,7 @@ extern "C"
         self->ImageViewer->GetRenderWindow()->GetInteractor()->GetRenderWindow() ==
           self->ImageViewer->GetRenderWindow())
       {
-        self->ImageViewer->GetRenderWindow()->GetInteractor()->SetRenderWindow(0);
+        self->ImageViewer->GetRenderWindow()->GetInteractor()->SetRenderWindow(nullptr);
       }
       if (self->ImageViewer->GetRenderWindow()->GetReferenceCount() > 1)
       {
@@ -328,15 +328,10 @@ extern "C"
     switch (eventPtr->type)
     {
       case Expose:
-        if (eventPtr->xexpose.count == 0)
-        /* && !self->UpdatePending)*/
-        {
-          // bid this in tcl now
-          // self->ImageViewer->Render();
-        }
+        // let the user handle Expose events
         break;
       case ConfigureNotify:
-        if (1 /*Tk_IsMapped(self->TkWin)*/)
+        // if (Tk_IsMapped(self->TkWin))
         {
           self->Width = Tk_Width(self->TkWin);
           self->Height = Tk_Height(self->TkWin);
@@ -801,7 +796,7 @@ static int vtkTkImageViewerWidget_MakeImageViewer(struct vtkTkImageViewerWidget*
 static int vtkTkImageViewerWidget_MakeImageViewer(struct vtkTkImageViewerWidget* self)
 {
   Display* dpy;
-  vtkImageViewer* imgViewer = 0;
+  vtkImageViewer* imgViewer = nullptr;
   vtkXOpenGLRenderWindow* imgWindow;
 
   if (self->ImageViewer)

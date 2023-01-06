@@ -119,7 +119,6 @@ void vtkExtractImageData(unsigned char* buffer, T* inPtr, double shift, double s
       ImagePtr += pixelSize - components;
     }
   }
-  return;
 }
 
 extern "C"
@@ -275,7 +274,7 @@ extern "C"
     block.height = 0;
     block.pixelSize = 0;
     block.pitch = 0;
-    void* TempPointer = 0;
+    void* TempPointer = nullptr;
     switch (orientation)
     {
       case VTKIMAGEDATATOTKPHOTO_TRANSVERSE:
@@ -611,7 +610,7 @@ extern "C"
       if (self->RenderWindow->GetInteractor() &&
         self->RenderWindow->GetInteractor()->GetRenderWindow() == self->RenderWindow)
       {
-        self->RenderWindow->GetInteractor()->SetRenderWindow(0);
+        self->RenderWindow->GetInteractor()->SetRenderWindow(nullptr);
       }
       if (self->RenderWindow->GetReferenceCount() > 1)
       {
@@ -640,12 +639,7 @@ extern "C"
     switch (eventPtr->type)
     {
       case Expose:
-        if (eventPtr->xexpose.count == 0)
-        /* && !self->UpdatePending)*/
-        {
-          // let the user bind expose events
-          // self->RenderWindow->Render();
-        }
+        // let the user handle Expose events
         break;
       case ConfigureNotify:
         // if ( Tk_IsMapped(self->TkWin) )
@@ -1164,7 +1158,7 @@ static int vtkTkRenderWidget_MakeRenderWindow(struct vtkTkRenderWidget* self)
 static int vtkTkRenderWidget_MakeRenderWindow(struct vtkTkRenderWidget* self)
 {
   Display* dpy;
-  vtkXOpenGLRenderWindow* renderWindow = 0;
+  vtkXOpenGLRenderWindow* renderWindow = nullptr;
 
   if (self->RenderWindow)
   {
