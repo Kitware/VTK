@@ -150,6 +150,7 @@ vtk_add_test_cxx(vtkCommonCoreCxxTests tests
   TestSOADataArray.cxx
   TestSortDataArray.cxx
   TestSparseArrayValidation.cxx
+  TestStringToken.cxx
   TestSystemInformation.cxx
   TestTemplateMacro.cxx
   TestTimePointUtility.cxx
