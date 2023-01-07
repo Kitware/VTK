@@ -172,6 +172,14 @@ vtk_add_test_cxx(vtkCommonCoreCxxTests tests
   ${scale_soa_test}
   )
 
+if (VTK_ABI_NAMESPACE_NAME STREQUAL "<DEFAULT>" OR VTK_ABI_NAMESPACE_NAME STREQUAL "")
+  # Only test type-name tokens when namespaces are disabled.
+  vtk_add_test_cxx(vtkCommonCoreCxxTests tests
+    NO_DATA NO_VALID NO_OUTPUT
+    TestInherits.cxx
+  )
+endif()
+
 # Special test to check whether disabling loguru signal handling, i.e.,
 # stack trace printing when it catches a signal, works. We add an
 # executable where the stack trace is disabled. The actual test is a
