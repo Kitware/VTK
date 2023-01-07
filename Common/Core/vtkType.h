@@ -123,6 +123,7 @@
 #define VTK_BSP_CUTS 46
 #define VTK_GEO_JSON_FEATURE 47
 #define VTK_IMAGE_STENCIL_DATA 48
+#define VTK_CELL_GRID 49
 
 /*--------------------------------------------------------------------------*/
 /* Define a casting macro for use by the constants below.  */

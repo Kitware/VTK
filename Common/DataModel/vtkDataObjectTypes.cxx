@@ -18,6 +18,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkAnnotationLayers.h"
 #include "vtkArrayData.h"
 #include "vtkBSPCuts.h"
+#include "vtkCellGrid.h"
 #include "vtkCompositeDataSet.h"
 #include "vtkDataObject.h"
 #include "vtkDataSet.h"
@@ -112,6 +113,7 @@ static const char* vtkDataObjectTypesStrings[] = {
   "vtkBSPCuts",
   "vtkGeoJSONFeature",
   "vtkImageStencilData",
+  "vtkCellGrid",
   nullptr,
 };
 
@@ -119,7 +121,7 @@ namespace
 {
 bool IsTypeIdValid(int typeId)
 {
-  return (typeId >= VTK_POLY_DATA && typeId <= VTK_IMAGE_STENCIL_DATA);
+  return (typeId >= VTK_POLY_DATA && typeId <= VTK_CELL_GRID);
 }
 }
 
@@ -265,6 +267,8 @@ vtkDataObject* vtkDataObjectTypes::NewDataObject(int type)
        * we cannot support creating this since its not part of this module
        */
       return nullptr;
+    case VTK_CELL_GRID:
+      return vtkCellGrid::New();
     default:
       vtkLogF(WARNING, "Unknown data type '%d'", type);
       return nullptr;
@@ -327,7 +331,8 @@ int vtkDataObjectTypes::Validate()
     vtkDataObjectTypes::TypeIdIsA(VTK_OVERLAPPING_AMR, VTK_UNIFORM_GRID_AMR) &&
     vtkDataObjectTypes::TypeIdIsA(VTK_UNSTRUCTURED_GRID, VTK_POINT_SET) &&
     vtkDataObjectTypes::TypeIdIsA(VTK_UNSTRUCTURED_GRID, VTK_DATA_SET) &&
-    vtkDataObjectTypes::TypeIdIsA(VTK_HIERARCHICAL_BOX_DATA_SET, VTK_UNIFORM_GRID_AMR))
+    vtkDataObjectTypes::TypeIdIsA(VTK_HIERARCHICAL_BOX_DATA_SET, VTK_UNIFORM_GRID_AMR) &&
+    vtkDataObjectTypes::TypeIdIsA(VTK_CELL_GRID, VTK_DATA_OBJECT))
   {
     return EXIT_SUCCESS;
   }

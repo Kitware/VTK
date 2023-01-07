@@ -22,6 +22,7 @@ TEST_DEPENDS
   VTK::CommonColor
   VTK::CommonExecutionModel
   VTK::CommonSystem
+  VTK::FiltersCellGrid
   VTK::FiltersExtraction
   VTK::FiltersGeneric
   VTK::FiltersGeometry
@@ -29,6 +30,7 @@ TEST_DEPENDS
   VTK::ImagingCore
   VTK::ImagingSources
   VTK::IOGeometry
+  VTK::IOCellGrid
   VTK::IOLegacy
   VTK::IOXML
   VTK::InteractionStyle

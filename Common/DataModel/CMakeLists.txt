@@ -32,11 +32,17 @@ set(classes
   vtkCell3D
   vtkCellArray
   vtkCellArrayIterator
+  vtkCellAttribute
   vtkCellData
+  vtkCellGrid
+  vtkCellGridBoundsQuery
+  vtkCellGridResponders
+  vtkCellGridSidesQuery
   vtkCellIterator
   vtkCellLinks
   vtkCellLocator
   vtkCellLocatorStrategy
+  vtkCellMetadata
   vtkCellTreeLocator
   vtkCellTypes
   vtkClosestNPointsStrategy
@@ -269,6 +275,9 @@ set(nowrap_classes
   vtkHyperTreeGridLevelEntry)
 
 set(headers
+  vtkCellGridQuery.h
+  vtkCellGridResponder.h
+  vtkCellGridResponderBase.h
   vtkCellType.h
   vtkColor.h
   vtkDataAssemblyVisitor.h
