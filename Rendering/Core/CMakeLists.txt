@@ -22,6 +22,7 @@ set(classes
   vtkCameraActor
   vtkCameraInterpolator
   vtkCellCenterDepthSort
+  vtkCellGridMapper
   vtkColorTransferFunction
   vtkCompositeDataDisplayAttributes
   vtkCompositeDataDisplayAttributesLegacy
