@@ -158,7 +158,6 @@ extern "C"
     }
 
     // Find the image
-#ifdef VTK_PYTHON_BUILD
     char typeCheck[256];
     unsigned long long l;
     sscanf(argv[1], "_%llx_%s", &l, typeCheck);
@@ -189,21 +188,6 @@ extern "C"
       u.p = nullptr;
     }
     image = static_cast<vtkImageData*>(u.p);
-#else
-    image = static_cast<vtkImageData*>(
-      vtkTclGetPointerFromObject(argv[1], "vtkImageData", interp, status));
-    if (!image)
-    {
-      vtkAlgorithmOutput* algOutput = static_cast<vtkAlgorithmOutput*>(
-        vtkTclGetPointerFromObject(argv[1], "vtkAlgorithmOutput", interp, status));
-      if (algOutput)
-      {
-        vtkAlgorithm* alg = algOutput->GetProducer();
-        alg->Update();
-        image = vtkImageData::SafeDownCast(alg->GetOutputDataObject(algOutput->GetIndex()));
-      }
-    }
-#endif
     if (!image)
     {
       Tcl_AppendResult(interp, "could not find vtkImageData: ", argv[1], nullptr);
@@ -894,9 +878,6 @@ static int vtkTkRenderWidget_MakeRenderWindow(struct vtkTkRenderWidget* self)
     self->RenderWindow->Register(nullptr);
     self->RenderWindow->Delete();
     renderWindow = (vtkWin32OpenGLRenderWindow*)(self->RenderWindow);
-#ifndef VTK_PYTHON_BUILD
-    vtkTclGetObjectFromPointer(self->Interp, self->RenderWindow, "vtkRenderWindow");
-#endif
     // in Tcl 8.6.x, ckalloc was changed to return "void *".
     self->RW = static_cast<char*>(
       ckalloc(static_cast<unsigned int>(strlen(Tcl_GetStringResult(self->Interp)) + 1)));
@@ -914,12 +895,7 @@ static int vtkTkRenderWidget_MakeRenderWindow(struct vtkTkRenderWidget* self)
     }
     else
     {
-#ifndef VTK_PYTHON_BUILD
-      renderWindow = (vtkWin32OpenGLRenderWindow*)vtkTclGetPointerFromObject(
-        self->RW, "vtkRenderWindow", self->Interp, new_flag);
-#else
       renderWindow = 0;
-#endif
     }
     if (renderWindow != self->RenderWindow)
     {
@@ -1059,9 +1035,6 @@ static int vtkTkRenderWidget_MakeRenderWindow(struct vtkTkRenderWidget* self)
     self->RenderWindow->Register(nullptr);
     self->RenderWindow->Delete();
     renderWindow = self->RenderWindow;
-#ifndef VTK_PYTHON_BUILD
-    vtkTclGetObjectFromPointer(self->Interp, self->RenderWindow, "vtkRenderWindow");
-#endif
     // in Tcl 8.6.x, ckalloc was changed to return "void *".
     self->RW = static_cast<char*>(
       ckalloc(static_cast<unsigned int>(strlen(Tcl_GetStringResult(self->Interp)) + 1)));
@@ -1076,14 +1049,6 @@ static int vtkTkRenderWidget_MakeRenderWindow(struct vtkTkRenderWidget* self)
       void* tmp;
       sscanf(self->RW + 5, "%p", &tmp);
       renderWindow = reinterpret_cast<vtkRenderWindow*>(tmp);
-    }
-    else
-    {
-#ifndef VTK_PYTHON_BUILD
-      int new_flag;
-      renderWindow = static_cast<vtkRenderWindow*>(
-        vtkTclGetPointerFromObject(self->RW, "vtkRenderWindow", self->Interp, new_flag));
-#endif
     }
 
     if (renderWindow != self->RenderWindow)
@@ -1179,9 +1144,6 @@ static int vtkTkRenderWidget_MakeRenderWindow(struct vtkTkRenderWidget* self)
     self->RenderWindow->Register(nullptr);
     self->RenderWindow->Delete();
     renderWindow = (vtkXOpenGLRenderWindow*)(self->RenderWindow);
-#ifndef VTK_PYTHON_BUILD
-    vtkTclGetObjectFromPointer(self->Interp, self->RenderWindow, "vtkRenderWindow");
-#endif
     // in Tcl 8.6.x, ckalloc was changed to return "void *".
     self->RW = static_cast<char*>(
       ckalloc(static_cast<unsigned int>(strlen(Tcl_GetStringResult(self->Interp)) + 1)));
@@ -1196,14 +1158,6 @@ static int vtkTkRenderWidget_MakeRenderWindow(struct vtkTkRenderWidget* self)
       void* tmp;
       sscanf(self->RW + 5, "%p", &tmp);
       renderWindow = (vtkXOpenGLRenderWindow*)tmp;
-    }
-    else
-    {
-#ifndef VTK_PYTHON_BUILD
-      int new_flag;
-      renderWindow = (vtkXOpenGLRenderWindow*)vtkTclGetPointerFromObject(
-        self->RW, "vtkRenderWindow", self->Interp, new_flag);
-#endif
     }
     if (renderWindow != self->RenderWindow)
     {

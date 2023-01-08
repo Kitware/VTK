@@ -33,9 +33,6 @@
 #include "vtkImageViewer.h"
 #include "vtkTcl.h"
 #include "vtkTk.h"
-#ifndef VTK_PYTHON_BUILD
-#include "vtkTclUtil.h"
-#endif
 #include "vtkWindows.h"
 
 VTK_ABI_NAMESPACE_BEGIN

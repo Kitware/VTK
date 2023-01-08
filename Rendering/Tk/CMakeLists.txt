@@ -21,11 +21,6 @@ set(private_headers
   "${CMAKE_CURRENT_BINARY_DIR}/vtkTkAppInitConfigure.h"
   "${CMAKE_CURRENT_BINARY_DIR}/vtkTkInternals.h")
 
-# For modern VTK, only build for Python
-set_property(SOURCE ${sources}
-  PROPERTY
-    COMPILE_DEFINITIONS VTK_PYTHON_BUILD)
-
 if (VTK_USE_COCOA)
   list(APPEND sources
     vtkCocoaTkUtilities.mm)
