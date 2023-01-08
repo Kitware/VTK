@@ -895,7 +895,7 @@ static int vtkTkRenderWidget_MakeRenderWindow(struct vtkTkRenderWidget* self)
     }
     else
     {
-      renderWindow = 0;
+      renderWindow = nullptr;
     }
     if (renderWindow != self->RenderWindow)
     {

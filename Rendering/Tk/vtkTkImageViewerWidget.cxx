@@ -584,7 +584,7 @@ static int vtkTkImageViewerWidget_MakeImageViewer(struct vtkTkImageViewerWidget*
     }
     else
     {
-      imgViewer = 0;
+      imgViewer = nullptr;
     }
     if (imgViewer != self->ImageViewer)
     {
