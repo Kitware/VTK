@@ -20,6 +20,7 @@
 #include "vtkActor.h"
 #include "vtkCellData.h"
 #include "vtkDataSetMapper.h"
+#include "vtkExplicitStructuredGrid.h"
 #include "vtkExplicitStructuredGridToUnstructuredGrid.h"
 #include "vtkImageDataToExplicitStructuredGrid.h"
 #include "vtkNew.h"
@@ -41,9 +42,13 @@ int TestExplicitStructuredGridToUnstructuredGrid(int argc, char* argv[])
 
   vtkNew<vtkImageDataToExplicitStructuredGrid> esgConvertor;
   esgConvertor->SetInputConnection(wavelet->GetOutputPort());
+  esgConvertor->Update();
+
+  vtkNew<vtkExplicitStructuredGrid> copy;
+  copy->DeepCopy(esgConvertor->GetOutput());
 
   vtkNew<vtkExplicitStructuredGridToUnstructuredGrid> ugConvertor;
-  ugConvertor->SetInputConnection(esgConvertor->GetOutputPort());
+  ugConvertor->SetInputData(copy);
   ugConvertor->Update();
 
   vtkCellData* cellData = ugConvertor->GetOutput()->GetCellData();
