@@ -386,6 +386,8 @@ public:
   void PopContext() override;
   ///@}
 
+  void Render() override;
+
 protected:
   vtkCocoaRenderWindow();
   ~vtkCocoaRenderWindow() override;

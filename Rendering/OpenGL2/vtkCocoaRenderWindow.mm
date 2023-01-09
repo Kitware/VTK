@@ -1086,6 +1086,28 @@ void vtkCocoaRenderWindow::Initialize()
 }
 
 //----------------------------------------------------------------------------
+void vtkCocoaRenderWindow::Render()
+{
+  // Is this the first Render?
+  bool neverRendered = this->NeverRendered;
+
+  // Do the superclass stuff.
+  this->vtkOpenGLRenderWindow::Render();
+
+  // If and only if (1) we created the NSWindow ourselves (as opposed to it being provided to us),
+  // (2) this is the first render ever, (3) we are not already inside the rendering process, (4) we
+  // have passed through Initialize(), and (5) the window is mapped to screen, then kick the main
+  // runloop so that the NSWindow is actually rendered on-screen by macOS. (By running the runloop
+  // 'until' the 'distant past', it will not repeat and only run this once.)
+  if (this->WindowCreated && neverRendered && !this->InRender && this->OnScreenInitialized &&
+    this->Mapped)
+  {
+    NSRunLoop* mainRunLoop = [NSRunLoop mainRunLoop];
+    [mainRunLoop runUntilDate:[NSDate distantPast]];
+  }
+}
+
+//----------------------------------------------------------------------------
 int* vtkCocoaRenderWindow::GetSize()
 {
   // if we aren't mapped then just call super
@@ -1631,4 +1653,5 @@ void vtkCocoaRenderWindow::SetConnectContextToNSView(bool connect)
 {
   this->ConnectContextToNSView = connect;
 }
+
 VTK_ABI_NAMESPACE_END
