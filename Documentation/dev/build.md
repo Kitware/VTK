@@ -412,6 +412,32 @@ Note that the wheel will not include any external third party libraries in its
 wheel (e.g., X11, OpenGL, etc.) to avoid conflicts with systems or other wheels
 doing the same.
 
+##### Modifying Version and/or Distribution Name
+
+When generating a wheel, you can modify the distribution name and/or add a
+suffix to the wheel version string.
+
+By default, the distribution name is `vtk` though you can add a suffix via the
+`VTK_DIST_NAME_SUFFIX` CMake variable (e.g., set `VTK_DIST_NAME_SUFFIX` to
+`'osmesa'` to have the distribution name be `vtk_osmesa`). An underscore (`_`)
+character is automatically placed between `vtk` and the value
+of `VTK_DIST_NAME_SUFFIX`. Please use `_` characters for further delimination in
+the suffix value. Example setting:
+
+```cmake
+set(VTK_DIST_NAME_SUFFIX "osmesa" CACHE STRING "")
+```
+
+By default (outside of a CI release build), `dev0` is appended to the version of
+the package (e.g., `9.2.2.dev0`). This suffix can be controlled through the
+`VTK_VERSION_SUFFIX` CMake variable and is useful if generating multiple
+wheels and wanting to differentiate the build variants by the version string of
+the package.
+
+```cmake
+set(VTK_VERSION_SUFFIX "dev0" CACHE STRING "")
+```
+
 ## Building documentation
 
 The following targets are used to build documentation for VTK:
