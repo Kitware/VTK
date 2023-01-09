@@ -175,94 +175,85 @@ vtkThreadedCallbackQueue::~vtkThreadedCallbackQueue()
 //-----------------------------------------------------------------------------
 void vtkThreadedCallbackQueue::SetNumberOfThreads(int numberOfThreads)
 {
-  ::Execute(
-    this->Controller,
-    [](vtkThreadedCallbackQueue* self, int n) {
-      int size = static_cast<int>(self->Threads.size());
+  ::Execute(this->Controller, [this, numberOfThreads]() {
+    int size = static_cast<int>(this->Threads.size());
 
-      if (size == n)
-      {
-        // Nothing to do
-        return;
-      }
-      // We only need to protect the shared atomic NumberOfThreads if we are shrinking.
-      else if (size < n || !self->Running)
-      {
-        self->NumberOfThreads = n;
-      }
-      else
-      {
-        std::lock_guard<std::mutex> lock(self->Mutex);
-        self->NumberOfThreads = n;
-      }
+    if (size == numberOfThreads)
+    {
+      // Nothing to do
+      return;
+    }
+    // We only need to protect the shared atomic NumberOfThreads if we are shrinking.
+    else if (size < numberOfThreads || !this->Running)
+    {
+      this->NumberOfThreads = numberOfThreads;
+    }
+    else
+    {
+      std::lock_guard<std::mutex> lock(this->Mutex);
+      this->NumberOfThreads = numberOfThreads;
+    }
 
-      // If there are no threads running, we can just allocate the vector of threads.
-      if (!self->Running)
-      {
-        self->Threads.resize(n);
-        return;
-      }
+    // If there are no threads running, we can just allocate the vector of threads.
+    if (!this->Running)
+    {
+      this->Threads.resize(numberOfThreads);
+      return;
+    }
 
-      // If we are expanding the number of threads, then we just need to spawn
-      // the missing threads.
-      if (size < n)
-      {
-        std::generate_n(std::back_inserter(self->Threads), n - size, [&self] {
-          return std::thread(ThreadWorker(self, static_cast<int>(self->Threads.size() - 1)));
-        });
-      }
-      // If we are shrinking the number of threads, let's notify all threads
-      // so the threads whose id is more than the updated NumberOfThreads terminate.
-      else
-      {
-        self->ConditionVariable.notify_all();
-        self->Sync(self->NumberOfThreads);
-        self->Threads.resize(n);
-      }
-    },
-    this, numberOfThreads);
+    // If we are expanding the number of threads, then we just need to spawn
+    // the missing threads.
+    if (size < numberOfThreads)
+    {
+      std::generate_n(std::back_inserter(this->Threads), numberOfThreads - size, [this] {
+        return std::thread(ThreadWorker(this, static_cast<int>(this->Threads.size() - 1)));
+      });
+    }
+    // If we are shrinking the number of threads, let's notify all threads
+    // so the threads whose id is more than the updated NumberOfThreads terminate.
+    else
+    {
+      this->ConditionVariable.notify_all();
+      this->Sync(this->NumberOfThreads);
+      this->Threads.resize(numberOfThreads);
+    }
+  });
 }
 
 //-----------------------------------------------------------------------------
 void vtkThreadedCallbackQueue::Stop()
 {
-  ::Execute(
-    this->Controller,
-    [](vtkThreadedCallbackQueue* self) {
-      if (!self->Running)
-      {
-        return;
-      }
+  ::Execute(this->Controller, [this]() {
+    if (!this->Running)
+    {
+      return;
+    }
 
-      {
-        std::lock_guard<std::mutex> lock(self->Mutex);
-        self->Running = false;
-      }
+    {
+      std::lock_guard<std::mutex> lock(this->Mutex);
+      this->Running = false;
+    }
 
-      self->ConditionVariable.notify_all();
-      self->Sync();
-    },
-    this);
+    this->ConditionVariable.notify_all();
+    this->Sync();
+  });
 }
 
 //-----------------------------------------------------------------------------
 void vtkThreadedCallbackQueue::Start()
 {
-  ::Execute(
-    this->Controller,
-    [](vtkThreadedCallbackQueue* self) {
-      if (self->Running)
-      {
-        return;
-      }
+  ::Execute(this->Controller, [this]() {
+    if (this->Running)
+    {
+      return;
+    }
 
-      self->Running = true;
+    this->Running = true;
 
-      int threadId = -1;
-      std::generate(self->Threads.begin(), self->Threads.end(),
-        [&self, &threadId] { return std::thread(ThreadWorker(self, ++threadId)); });
-    },
-    this);
+    int threadId = -1;
+    std::generate(this->Threads.begin(), this->Threads.end(),
+      [this, &threadId] { return std::thread(ThreadWorker(this, ++threadId)); });
+  });
 }
 
 //-----------------------------------------------------------------------------
