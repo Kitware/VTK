@@ -25,16 +25,16 @@ class TestGridSynchronizedTemplates3D(Testing.vtkTest):
         cf.SetValue(0, value)
         cf.GenerateTrianglesOff()
         cf.Update()
-        self.failUnlessEqual(
+        self.assertEqual(
           cf.GetOutputDataObject(0).GetNumberOfPoints(), 4674)
-        self.failUnlessEqual(
+        self.assertEqual(
           cf.GetOutputDataObject(0).GetNumberOfCells(), 4012)
 
         cf.GenerateTrianglesOn()
         cf.Update()
-        self.failUnlessEqual(
+        self.assertEqual(
           cf.GetOutputDataObject(0).GetNumberOfPoints(), 4674)
-        self.failUnlessEqual(
+        self.assertEqual(
           cf.GetOutputDataObject(0).GetNumberOfCells(), 8076)
 
         # cf ComputeNormalsOff

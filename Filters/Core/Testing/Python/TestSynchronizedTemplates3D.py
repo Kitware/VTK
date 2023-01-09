@@ -20,13 +20,13 @@ class TestSynchronizedTemplates3D(Testing.vtkTest):
 
     stemp.GenerateTrianglesOff()
     stemp.Update()
-    self.failUnlessEqual(stemp.GetOutputDataObject(0).GetNumberOfPoints(),39315)
-    self.failUnlessEqual(stemp.GetOutputDataObject(0).GetNumberOfCells(),39067)
+    self.assertEqual(stemp.GetOutputDataObject(0).GetNumberOfPoints(),39315)
+    self.assertEqual(stemp.GetOutputDataObject(0).GetNumberOfCells(),39067)
 
     stemp.GenerateTrianglesOn()
     stemp.Update()
-    self.failUnlessEqual(stemp.GetOutputDataObject(0).GetNumberOfPoints(),39315)
-    self.failUnlessEqual(stemp.GetOutputDataObject(0).GetNumberOfCells(),78268)
+    self.assertEqual(stemp.GetOutputDataObject(0).GetNumberOfPoints(),39315)
+    self.assertEqual(stemp.GetOutputDataObject(0).GetNumberOfCells(),78268)
 
     mapper = vtk.vtkPolyDataMapper()
     mapper.SetInputConnection(stemp.GetOutputPort())
