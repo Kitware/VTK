@@ -71,9 +71,7 @@ public:
   void Push(FT&& f, ArgsT&&... args);
 
   /**
-   * Sets the number of threads. If the new number of threads is different than the current one,
-   * this method calls `Stop()`, so one needs to call `Start()` after the number of threads are set
-   * in order to make this queue running.
+   * Sets the number of threads. The running state of the queue is not impacted by this method.
    *
    * This method is executed by the `Controller` on a different thread, so this method may terminate
    * before the threads were allocated. Nevertheless, this method is thread-safe. Other calls to
@@ -125,41 +123,36 @@ public:
 private:
   ///@{
   /**
-   * Worker typedefs that hold the inserted functions and their parameters.
+   * Invoker typedefs that hold the inserted functions and their parameters.
    *
-   * `BaseWorker` is the base abstract type that helps us store the queue of workers to execute.
-   * Each individual stored worker is actually an instance of `WorkerWrapper` which inherits
-   * `BaseWorker`. They share a pure virtual `operator()` that effectively calls the stored workers
-   * with the parameters provided.
+   * `InvokerBase` is the base abstract type that helps us store the queue of functions to execute.
+   * Each individual stored function is actually an instance of `Invoker` which inherits
+   * `InvokerBase`. They share a pure virtual `operator()` that effectively calls the stored
+   * function with the parameters provided.
    */
-  struct BaseWorker;
+  struct InvokerBase;
   template <class FT, class... ArgsT>
-  class WorkerWrapper;
+  class Invoker;
   ///@}
 
   class vtkInternalController;
-  using WorkerPointer = std::unique_ptr<BaseWorker>;
+  using InvokerPointer = std::unique_ptr<InvokerBase>;
+
+  class ThreadWorker;
+  friend class ThreadWorker;
 
   /**
    * This method terminates when all threads have finished. If `Destroying` is not true or `Running`
    * is not false, then calling this method results in a deadlock.
+   *
+   * @param startId The thread id from which we synchronize the threads.
    */
-  void Sync();
-
-  /**
-   * Pops the queue and runs the stored worker.
-   */
-  void Pop();
-
-  /**
-   * Stop routine forced to be run serially. This function doesn't use the `Controller`.
-   */
-  static void SerialStop(vtkThreadedCallbackQueue* self);
+  void Sync(int startId = 0);
 
   /**
    * Queue of workers responsible for running the jobs that are inserted.
    */
-  std::queue<WorkerPointer> Workers;
+  std::queue<InvokerPointer> InvokerQueue;
 
   /**
    * This mutex ensures that the queue can pop and push elements in a thread-safe manner.
@@ -189,9 +182,6 @@ private:
    */
   std::atomic_int NumberOfThreads;
 
-  /**
-   * Collection of threads running the jobs.
-   */
   std::vector<std::thread> Threads;
 
   /**
