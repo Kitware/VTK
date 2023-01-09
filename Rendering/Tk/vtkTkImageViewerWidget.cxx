@@ -569,9 +569,6 @@ static int vtkTkImageViewerWidget_MakeImageViewer(struct vtkTkImageViewerWidget*
   {
     // Make the ImageViewer window.
     self->ImageViewer = imgViewer = vtkImageViewer::New();
-#ifndef VTK_PYTHON_BUILD
-    vtkTclGetObjectFromPointer(self->Interp, self->ImageViewer, "vtkImageViewer");
-#endif
     ckfree(self->IV);
     self->IV = strdup(Tcl_GetStringResult(self->Interp));
     Tcl_ResetResult(self->Interp);
@@ -587,12 +584,7 @@ static int vtkTkImageViewerWidget_MakeImageViewer(struct vtkTkImageViewerWidget*
     }
     else
     {
-#ifndef VTK_PYTHON_BUILD
-      imgViewer = (vtkImageViewer*)vtkTclGetPointerFromObject(
-        self->IV, "vtkImageViewer", self->Interp, new_flag);
-#else
-      imgViewer = 0;
-#endif
+      imgViewer = nullptr;
     }
     if (imgViewer != self->ImageViewer)
     {
@@ -733,9 +725,6 @@ static int vtkTkImageViewerWidget_MakeImageViewer(struct vtkTkImageViewerWidget*
   {
     // Make the ImageViewer window.
     self->ImageViewer = imgViewer = vtkImageViewer::New();
-#ifndef VTK_PYTHON_BUILD
-    vtkTclGetObjectFromPointer(self->Interp, self->ImageViewer, "vtkImageViewer");
-#endif
     ckfree(self->IV);
     self->IV = strdup(Tcl_GetStringResult(self->Interp));
     Tcl_ResetResult(self->Interp);
@@ -748,14 +737,6 @@ static int vtkTkImageViewerWidget_MakeImageViewer(struct vtkTkImageViewerWidget*
       void* tmp;
       sscanf(self->IV + 5, "%p", &tmp);
       imgViewer = reinterpret_cast<vtkImageViewer*>(tmp);
-    }
-    else
-    {
-#ifndef VTK_PYTHON_BUILD
-      int new_flag;
-      imgViewer = static_cast<vtkImageViewer*>(
-        vtkTclGetPointerFromObject(self->IV, "vtkImageViewer", self->Interp, new_flag));
-#endif
     }
     if (imgViewer != self->ImageViewer)
     {
@@ -815,9 +796,6 @@ static int vtkTkImageViewerWidget_MakeImageViewer(struct vtkTkImageViewerWidget*
   {
     // Make the ImageViewer window.
     self->ImageViewer = imgViewer = vtkImageViewer::New();
-#ifndef VTK_PYTHON_BUILD
-    vtkTclGetObjectFromPointer(self->Interp, self->ImageViewer, "vtkImageViewer");
-#endif
     self->IV = strdup(Tcl_GetStringResult(self->Interp));
     Tcl_ResetResult(self->Interp);
   }
@@ -829,14 +807,6 @@ static int vtkTkImageViewerWidget_MakeImageViewer(struct vtkTkImageViewerWidget*
       void* tmp;
       sscanf(self->IV + 5, "%p", &tmp);
       imgViewer = (vtkImageViewer*)tmp;
-    }
-    else
-    {
-#ifndef VTK_PYTHON_BUILD
-      int new_flag;
-      imgViewer = (vtkImageViewer*)vtkTclGetPointerFromObject(
-        self->IV, "vtkImageViewer", self->Interp, new_flag);
-#endif
     }
     if (imgViewer != self->ImageViewer)
     {
