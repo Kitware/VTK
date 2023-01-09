@@ -21,6 +21,13 @@ endif ()
 find_package(Python3 COMPONENTS Interpreter Development.Module)
 set_property(GLOBAL PROPERTY _vtk_python_soabi "${Python3_SOABI}")
 
+set(VTK_VERSION_SUFFIX "dev0"
+  CACHE STRING "Suffix to use for the wheel version (e.g, 'dev0')")
+mark_as_advanced(VTK_VERSION_SUFFIX)
+set(VTK_DIST_NAME_SUFFIX ""
+  CACHE STRING "Suffix to use for the wheel distribution name (e.g., 'osmesa')")
+mark_as_advanced(VTK_DIST_NAME_SUFFIX)
+
 execute_process(
   COMMAND "${Python3_EXECUTABLE}"
           "${CMAKE_CURRENT_LIST_DIR}/wheel_extract_platlib.py"
