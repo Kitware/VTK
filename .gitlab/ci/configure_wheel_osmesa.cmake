@@ -1,0 +1,6 @@
+set(VTK_DIST_NAME_SUFFIX "osmesa" CACHE STRING "")
+set(VTK_USE_X OFF CACHE BOOL "")
+
+if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "linux")
+  set(CMAKE_PREFIX_PATH "/opt/osmesa" CACHE PATH "")
+endif ()

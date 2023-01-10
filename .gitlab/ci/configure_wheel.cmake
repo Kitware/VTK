@@ -3,6 +3,10 @@ if (NOT DEFINED "ENV{PYTHON_PREFIX}")
     "The `PYTHON_PREFIX` environment variable is required.")
 endif ()
 
+if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "osmesa")
+  include("${CMAKE_CURRENT_LIST_DIR}/configure_wheel_osmesa.cmake")
+endif ()
+
 set(python_subdir "bin/")
 if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "windows")
   set(python_subdir "")

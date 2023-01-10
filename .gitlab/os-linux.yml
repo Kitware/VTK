@@ -21,12 +21,24 @@
         CMAKE_CONFIGURATION: wheel_linux36_x86_64
         PYTHON_PREFIX: /opt/python/cp36-cp36m
 
+.wheel_linux36_x86_64_osmesa:
+    extends: .wheel_linux36_x86_64
+
+    variables:
+        CMAKE_CONFIGURATION: wheel_linux36_x86_64_osmesa
+
 .wheel_linux37_x86_64:
     extends: .manylinux2014_x86_64
 
     variables:
         CMAKE_CONFIGURATION: wheel_linux37_x86_64
         PYTHON_PREFIX: /opt/python/cp37-cp37m
+
+.wheel_linux37_x86_64_osmesa:
+    extends: .wheel_linux37_x86_64
+
+    variables:
+        CMAKE_CONFIGURATION: wheel_linux37_x86_64_osmesa
 
 .wheel_linux38_x86_64:
     extends: .manylinux2014_x86_64
@@ -35,12 +47,24 @@
         CMAKE_CONFIGURATION: wheel_linux38_x86_64
         PYTHON_PREFIX: /opt/python/cp38-cp38
 
+.wheel_linux38_x86_64_osmesa:
+    extends: .wheel_linux38_x86_64
+
+    variables:
+        CMAKE_CONFIGURATION: wheel_linux38_x86_64_osmesa
+
 .wheel_linux39_x86_64:
     extends: .manylinux2014_x86_64
 
     variables:
         CMAKE_CONFIGURATION: wheel_linux39_x86_64
         PYTHON_PREFIX: /opt/python/cp39-cp39
+
+.wheel_linux39_x86_64_osmesa:
+    extends: .wheel_linux39_x86_64
+
+    variables:
+        CMAKE_CONFIGURATION: wheel_linux39_x86_64_osmesa
 
 .wheel_linux310_x86_64:
     extends: .manylinux2014_x86_64
@@ -49,12 +73,24 @@
         CMAKE_CONFIGURATION: wheel_linux310_x86_64
         PYTHON_PREFIX: /opt/python/cp310-cp310
 
+.wheel_linux310_x86_64_osmesa:
+    extends: .wheel_linux310_x86_64
+
+    variables:
+        CMAKE_CONFIGURATION: wheel_linux310_x86_64_osmesa
+
 .wheel_linux311_x86_64:
     extends: .manylinux2014_x86_64
 
     variables:
         CMAKE_CONFIGURATION: wheel_linux311_x86_64
         PYTHON_PREFIX: /opt/python/cp311-cp311
+
+.wheel_linux311_x86_64_osmesa:
+    extends: .wheel_linux311_x86_64
+
+    variables:
+        CMAKE_CONFIGURATION: wheel_linux311_x86_64_osmesa
 
 .fedora34:
     extends: .linux
@@ -374,9 +410,14 @@
         - yum install -y --setopt=install_weak_deps=False libX11-devel libXcursor-devel mesa-libGL-devel mesa-libGLU-devel git-core git-lfs gcc-c++
         - *before_script_linux
         - .gitlab/ci/sccache.sh
+        - cmake -P .gitlab/ci/download_osmesa.cmake
         - sccache --start-server
         - sccache --show-stats
         - $LAUNCHER ctest -VV -S .gitlab/ci/ctest_configure.cmake
+        # Set `LD_LIBRARY_PATH` for osmesa wheels. Note that we do *not* want
+        # to use rpaths here because we do not want the rpaths to end up in the
+        # wheel binaries and they should instead be bundled.
+        - '[[ "$CMAKE_CONFIGURATION" =~ "osmesa" ]] && export LD_LIBRARY_PATH=/opt/osmesa/lib'
         - $LAUNCHER ctest -VV -S .gitlab/ci/ctest_build.cmake &> $GIT_CLONE_PATH/compile_output.log
         - sccache --show-stats
         - cd build
