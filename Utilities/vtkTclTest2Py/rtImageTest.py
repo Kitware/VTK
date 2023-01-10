@@ -26,7 +26,8 @@ from vtk.util.colors import *
 # Mock class that overrides the Start() method from vtkRenderWindowInteractor
 # to do nothing. This allows VTK's python tests to be standard VTK scripts that
 # call Start() on the interactor.
-class vtkTestingInteractor(vtk.vtkRenderWindowInteractor):
+irenType = type(vtk.vtkRenderWindowInteractor())
+class vtkTestingInteractor(irenType):
     def Start(self):
         pass
 
@@ -95,7 +96,7 @@ for arg in sys.argv[2:]:
 VTK_DATA_ROOT = rtTester.GetDataRoot()
 
 if rtTester.IsInteractiveModeSpecified() == 0:
-    vtk.vtkRenderWindowInteractor = vtkTestingInteractor
+    irenType.override(vtkTestingInteractor)
 
 # load in the script
 test_script = sys.argv[1]
