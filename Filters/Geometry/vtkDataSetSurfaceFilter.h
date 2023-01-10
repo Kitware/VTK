@@ -96,7 +96,6 @@ VTK_ABI_NAMESPACE_BEGIN
 template <typename ArrayType>
 class vtkSmartPointer;
 
-class vtkCellIterator;
 class vtkPointData;
 class vtkPoints;
 class vtkIdTypeArray;
@@ -360,8 +359,8 @@ protected:
 
 private:
   int UnstructuredGridBaseExecute(vtkDataSet* input, vtkPolyData* output);
-  int UnstructuredGridExecuteInternal(vtkUnstructuredGridBase* input, vtkPolyData* output,
-    bool handleSubdivision, vtkSmartPointer<vtkCellIterator> cellIter);
+  int UnstructuredGridExecuteInternal(
+    vtkUnstructuredGridBase* input, vtkPolyData* output, bool handleSubdivision);
 
   int StructuredExecuteNoBlanking(
     vtkDataSet* input, vtkPolyData* output, vtkIdType* ext, vtkIdType* wholeExt);
