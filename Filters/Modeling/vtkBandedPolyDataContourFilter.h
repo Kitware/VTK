@@ -170,7 +170,7 @@ protected:
   int ComputeClippedIndex(double s);
   int InsertNextScalar(vtkFloatArray* scalars, int cellId, int idx);
   // data members
-  vtkContourValues* ContourValues;
+  vtkSmartPointer<vtkContourValues> ContourValues;
 
   vtkTypeBool Clipping;
   int ScalarMode;
