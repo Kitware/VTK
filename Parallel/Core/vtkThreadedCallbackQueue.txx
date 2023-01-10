@@ -229,7 +229,6 @@ private:
 
   // We DO NOT want to hold lvalue references! They could be destroyed before we execute them.
   // This forces to call the copy constructor on lvalue references inputs.
-  // DereferencedFunction Function;
   typename std::remove_reference<FT>::type Function;
   std::tuple<typename std::remove_reference<ArgsT>::type...> Args;
 };
