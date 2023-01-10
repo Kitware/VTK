@@ -55,6 +55,7 @@
 #define vtkExplicitStructuredGrid_h
 
 #include "vtkAbstractCellLinks.h"     // For vtkAbstractCellLinks
+#include "vtkCellArray.h"             // For vtkCellArray
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkNew.h"                   // for vtkNew
 #include "vtkPointSet.h"
@@ -158,8 +159,8 @@ public:
   /**
    * Set/Get the cell array defining hexahedron.
    */
-  void SetCells(vtkCellArray* cells);
-  vtkGetObjectMacro(Cells, vtkCellArray);
+  vtkSetSmartPointerMacro(Cells, vtkCellArray);
+  vtkGetSmartPointerMacro(Cells, vtkCellArray);
   ///@}
 
   /**
@@ -386,7 +387,7 @@ protected:
   vtkNew<vtkHexahedron> Hexahedron;
   vtkNew<vtkEmptyCell> EmptyCell;
 
-  vtkCellArray* Cells;
+  vtkSmartPointer<vtkCellArray> Cells;
   vtkSmartPointer<vtkAbstractCellLinks> Links;
   int Extent[6];
   char* FacesConnectivityFlagsArrayName;

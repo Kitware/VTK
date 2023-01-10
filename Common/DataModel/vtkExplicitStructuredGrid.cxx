@@ -61,12 +61,11 @@ static int MIRROR_HEXAHEDRON_POINT_MAP[] = {
 };
 
 vtkStandardNewMacro(vtkExplicitStructuredGrid);
-vtkCxxSetObjectMacro(vtkExplicitStructuredGrid, Cells, vtkCellArray);
 
 //------------------------------------------------------------------------------
 vtkExplicitStructuredGrid::vtkExplicitStructuredGrid()
 {
-  this->Cells = nullptr;
+  this->Cells = vtkSmartPointer<vtkCellArray>::New();
 
   this->FacesConnectivityFlagsArrayName = nullptr;
 
