@@ -274,6 +274,13 @@ int vtkThreshold::RequestData(
   bool usePointScalars = fieldAssociation == vtkDataObject::FIELD_ASSOCIATION_POINTS;
 
   auto keptCellsList = vtkSmartPointer<vtkIdList>::New(); // maps old point ids into new
+
+  // The result is computed in two steps: EvaluateCellsWorker to select cells &
+  // vtkExtractCells to extract them.  The fraction of the total time required
+  // for these operations varies based on type of dataset (image vs
+  // unstructured) and size of extracted region. To keep things simple we just
+  // devote 50% to each step even if one of they two completes faster.
+  this->SetProgressShiftScale(0, 0.5);
   EvaluateCellsWorker worker;
   if (!vtkArrayDispatch::Dispatch::Execute(
         inScalars, worker, this, input, ghostsArray, usePointScalars, keptCellsList))
@@ -301,6 +308,8 @@ int vtkThreshold::RequestData(
   vtkNew<vtkEventForwarderCommand> progressForwarder;
   progressForwarder->SetTarget(this);
   extractCells->AddObserver(vtkCommand::ProgressEvent, progressForwarder);
+  extractCells->SetProgressShiftScale(0.5, 0.5);
+  this->SetProgressShiftScale(0.5, 0.5);
 
   return extractCells->ProcessRequest(request, inputVector, outputVector);
 }
