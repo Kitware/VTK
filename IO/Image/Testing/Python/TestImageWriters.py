@@ -1,11 +1,25 @@
 #!/usr/bin/env python
 import os
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonDataModel import vtkStructuredPoints
+from vtkmodules.vtkIOImage import (
+    vtkBMPWriter,
+    vtkJPEGWriter,
+    vtkPNGWriter,
+    vtkPNMWriter,
+    vtkPostScriptWriter,
+    vtkTIFFReader,
+    vtkTIFFWriter,
+)
+from vtkmodules.vtkImagingColor import vtkImageLuminance
+from vtkmodules.vtkInteractionImage import vtkImageViewer
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # Image pipeline
-image1 = vtk.vtkTIFFReader()
+image1 = vtkTIFFReader()
 image1.SetFileName(VTK_DATA_ROOT + "/Data/beach.tif")
 # "beach.tif" image contains ORIENTATION tag which is
 # ORIENTATION_TOPLEFT (row 0 top, col 0 lhs) type. The TIFF
@@ -16,7 +30,7 @@ image1.SetFileName(VTK_DATA_ROOT + "/Data/beach.tif")
 image1.SetOrientationType(4)
 image1.Update()
 
-sp = vtk.vtkStructuredPoints()
+sp = vtkStructuredPoints()
 sp.SetDimensions(image1.GetOutput().GetDimensions())
 sp.SetExtent(image1.GetOutput().GetExtent())
 sp.SetScalarType(
@@ -26,7 +40,7 @@ sp.SetNumberOfScalarComponents(
   image1.GetOutputInformation(0))
 sp.GetPointData().SetScalars(image1.GetOutput().GetPointData().GetScalars())
 
-luminance = vtk.vtkImageLuminance()
+luminance = vtkImageLuminance()
 luminance.SetInputData(sp)
 
 # Let's create a dictionary to test the writers, the key will be the writer
@@ -35,9 +49,9 @@ filenames = ["tiff1.tif", "tiff2.tif", "bmp1.bmp", "bmp2.bmp",
   "pnm1.pnm", "pnm2.pnm", "psw1.ps", "psw2.ps",
   "pngw1.png", "pngw2.png", "jpgw1.jpg", "jpgw2.jpg"]
 writerObjects = list()
-writerObjectTypes = ["vtk.vtkTIFFWriter()", "vtk.vtkBMPWriter()",
-  "vtk.vtkPNMWriter()", "vtk.vtkPostScriptWriter()",
-  "vtk.vtkPNGWriter()", "vtk.vtkJPEGWriter()" ]
+writerObjectTypes = ["vtkTIFFWriter()", "vtkBMPWriter()",
+  "vtkPNMWriter()", "vtkPostScriptWriter()",
+  "vtkPNGWriter()", "vtkJPEGWriter()" ]
 idx = 0
 for fn in filenames:
     # Create the writer object
@@ -82,7 +96,7 @@ try:
         except OSError:
             pass
 
-    viewer = vtk.vtkImageViewer()
+    viewer = vtkImageViewer()
     viewer.SetInputConnection(luminance.GetOutputPort())
     viewer.SetColorWindow(255)
     viewer.SetColorLevel(127.5)

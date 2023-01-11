@@ -1,22 +1,24 @@
-import vtk
+from vtkmodules.vtkIOOpenVDB import vtkOpenVDBWriter
+from vtkmodules.vtkImagingCore import vtkRTAnalyticSource
+from vtkmodules.vtkParallelCore import vtkDummyController
 
-import vtk.test.Testing
-from vtk.util.misc import vtkGetTempDir
+import vtkmodules.test.Testing
+from vtkmodules.util.misc import vtkGetTempDir
 
 import sys
 import os
 
 
-dc = vtk.vtkDummyController()
+dc = vtkDummyController()
 dc.SetGlobalController(dc)
 
 
-source = vtk.vtkRTAnalyticSource()
+source = vtkRTAnalyticSource()
 
 
 VTK_TEMP_DIR = vtkGetTempDir()
 
-writer = vtk.vtkOpenVDBWriter()
+writer = vtkOpenVDBWriter()
 writer.SetInputConnection(source.GetOutputPort())
 
 

@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import os, json, sys
-import vtk
+from vtkmodules.vtkIOImage import vtkJSONImageWriter
+from vtkmodules.vtkImagingCore import vtkRTAnalyticSource
 
 args = sys.argv[1:]
 temp_dir = args[args.index("-T") + 1]
@@ -11,7 +12,7 @@ tmp_file = temp_dir + '/wavelet_slice_3.json'
 expected_first_values = [75.9335, 102.695, 91.2387, 115.507, 105.995, 125.724, 118.773, 132.24, 128.255, 134.254, 133.446, 131.431, 133.843, 123.998, 129.505]
 
 # Image pipeline
-image1 = vtk.vtkRTAnalyticSource()
+image1 = vtkRTAnalyticSource()
 image1.Update()
 output = image1.GetOutput()
 dim_ref = [value for value in output.GetDimensions()]
@@ -22,7 +23,7 @@ print(dim_ref)
 print(origin_ref)
 print(spacing_ref)
 
-writer = vtk.vtkJSONImageWriter()
+writer = vtkJSONImageWriter()
 writer.SetInputData(image1.GetOutput())
 writer.SetFileName(tmp_file)
 writer.SetArrayName("RTData")

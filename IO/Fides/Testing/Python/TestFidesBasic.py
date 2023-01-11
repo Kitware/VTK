@@ -2,7 +2,7 @@
 
 from vtkmodules import vtkIOFides
 from vtkmodules.vtkCommonExecutionModel import vtkStreamingDemandDrivenPipeline
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.util.misc import vtkGetDataRoot
 try:
     # Not directly used here, but if it's not imported when VTK_USE_MPI, we get following error:
     # Attempting to use an MPI routine before initializing MPICH

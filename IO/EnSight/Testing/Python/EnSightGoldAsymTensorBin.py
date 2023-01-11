@@ -1,10 +1,23 @@
 #!/usr/bin/env python
 
-from vtk import *
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonDataModel import vtkDataSetAttributes
+from vtkmodules.vtkFiltersCore import vtkAssignAttribute
+from vtkmodules.vtkFiltersGeometry import vtkDataSetSurfaceFilter
+from vtkmodules.vtkIOEnSight import vtkGenericEnSightReader
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkCompositePolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
-rdr = vtk.vtkGenericEnSightReader()
+rdr = vtkGenericEnSightReader()
 rdr.SetCaseFileName(str(VTK_DATA_ROOT) + "/Data/EnSight/RESULT_FLUID_DOMAIN.case")
 rdr.Update()
 

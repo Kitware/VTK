@@ -1,27 +1,37 @@
 #!/usr/bin/env python
 import sys
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonCore import vtkDoubleArray
+from vtkmodules.vtkParallelMPI import vtkMPIController
+from vtkmodules.vtkIOParallel import vtkMultiBlockPLOT3DReader
+from vtkmodules.vtkRenderingCore import (
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+)
+import vtkmodules.vtkIOMPIParallel
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 def Gather(c, arr, root):
-    vtkArr = vtk.vtkDoubleArray()
+    vtkArr = vtkDoubleArray()
     count = len(arr)
     vtkArr.SetNumberOfTuples(count)
     for i in range(count):
         vtkArr.SetValue(i, arr[i])
-    vtkResult = vtk.vtkDoubleArray()
+    vtkResult = vtkDoubleArray()
     c.Gather(vtkArr, vtkResult, root)
     result = [vtkResult.GetValue(i) for i in range(vtkResult.GetNumberOfTuples())]
     return [ tuple(result[i : i + count]) \
                 for i in range(0, vtkResult.GetNumberOfTuples(), count) ]
 
-renWin = vtk.vtkRenderWindow()
+renWin = vtkRenderWindow()
 
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 
-r = vtk.vtkMultiBlockPLOT3DReader()
+r = vtkMultiBlockPLOT3DReader()
 # Since vtkMPIMultiBlockPLOT3DReader is not created on Windows even when MPI
 # is enabled.
 assert r.IsA("vtkMPIMultiBlockPLOT3DReader") == 1 or sys.platform == "win32"
@@ -33,7 +43,7 @@ r.AutoDetectFormatOn()
 
 r.Update()
 
-c = vtk.vtkMPIController.GetGlobalController()
+c = vtkMPIController.GetGlobalController()
 size = c.GetNumberOfProcesses()
 rank = c.GetLocalProcessId()
 block = 0

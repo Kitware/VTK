@@ -1,6 +1,23 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonCore import vtkMath
+from vtkmodules.vtkFiltersGeometry import vtkStructuredGridGeometryFilter
+from vtkmodules.vtkIOParallel import vtkMultiBlockPLOT3DReader
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkActor2D,
+    vtkCamera,
+    vtkLight,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+    vtkTextMapper,
+    vtkTextProperty,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 #
@@ -8,8 +25,8 @@ VTK_DATA_ROOT = vtkGetDataRoot()
 #
 # Create the RenderWindow, Renderer and both Actors
 #
-renWin = vtk.vtkRenderWindow()
-iren = vtk.vtkRenderWindowInteractor()
+renWin = vtkRenderWindow()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 scalarLabels = ["Density", "Pressure", "Temperature", "Enthalpy",
                  "Internal_Energy", "Kinetic_Energy", "Velocity_Magnitude",
@@ -18,21 +35,21 @@ scalarFunctions = ["100", "110", "120", "130",
                     "140", "144", "153",
                     "163", "170", "184"]
 
-camera = vtk.vtkCamera()
+camera = vtkCamera()
 
-light = vtk.vtkLight()
+light = vtkLight()
 
-math = vtk.vtkMath()
+math = vtkMath()
 
 # All text actors will share the same text prop
-textProp = vtk.vtkTextProperty()
+textProp = vtkTextProperty()
 textProp.SetFontSize(10)
 textProp.SetFontFamilyToArial()
 textProp.SetColor(0, 0, 0)
 
 i = 0
 for scalarFunction in scalarFunctions:
-    exec("pl3d" + scalarFunction + " = vtk.vtkMultiBlockPLOT3DReader()")
+    exec("pl3d" + scalarFunction + " = vtkMultiBlockPLOT3DReader()")
     eval("pl3d" + scalarFunction).SetXYZFileName(
       VTK_DATA_ROOT + "/Data/bluntfinxyz.bin")
     eval("pl3d" + scalarFunction).SetQFileName(
@@ -42,20 +59,20 @@ for scalarFunction in scalarFunctions:
 
     output = eval("pl3d" + scalarFunction).GetOutput().GetBlock(0)
 
-    exec("plane" + scalarFunction + " = vtk.vtkStructuredGridGeometryFilter()")
+    exec("plane" + scalarFunction + " = vtkStructuredGridGeometryFilter()")
     eval("plane" + scalarFunction).SetInputData(output)
     eval("plane" + scalarFunction).SetExtent(25, 25, 0, 100, 0, 100)
 
-    exec("mapper" + scalarFunction + " = vtk.vtkPolyDataMapper()")
+    exec("mapper" + scalarFunction + " = vtkPolyDataMapper()")
     eval("mapper" + scalarFunction).SetInputConnection(
       eval("plane" + scalarFunction).GetOutputPort())
     eval("mapper" + scalarFunction).SetScalarRange(
       output.GetPointData().GetScalars().GetRange())
 
-    exec("actor" + scalarFunction + " = vtk.vtkActor()")
+    exec("actor" + scalarFunction + " = vtkActor()")
     eval("actor" + scalarFunction).SetMapper(eval("mapper" + scalarFunction))
 
-    exec("ren" + scalarFunction + " = vtk.vtkRenderer()")
+    exec("ren" + scalarFunction + " = vtkRenderer()")
     eval("ren" + scalarFunction).SetBackground(0, 0, .5)
     eval("ren" + scalarFunction).SetActiveCamera(camera)
     eval("ren" + scalarFunction).AddLight(light)
@@ -66,11 +83,11 @@ for scalarFunction in scalarFunctions:
       math.Random(.5, 1), math.Random(.5, 1), math.Random(.5, 1))
     eval("ren" + scalarFunction).AddActor(eval("actor" + scalarFunction))
 
-    exec("textMapper" + scalarFunction + " = vtk.vtkTextMapper()")
+    exec("textMapper" + scalarFunction + " = vtkTextMapper()")
     eval("textMapper" + scalarFunction).SetInput(scalarLabels[i])
     eval("textMapper" + scalarFunction).SetTextProperty(textProp)
 
-#    exec("text" + scalarFunction + " = vtk.vtkActor2D()")
+#    exec("text" + scalarFunction + " = vtkActor2D()")
 #    eval("text" + scalarFunction).SetMapper(eval("textMapper" + scalarFunction))
 #    eval("text" + scalarFunction).SetPosition(2, 3)
 #

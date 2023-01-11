@@ -4,7 +4,42 @@
 # CEA, DAM, DIF, F-91297 Arpajon, France.
 
 
-import vtk
+from vtkmodules.vtkCommonCore import (
+    vtkBitArray,
+    vtkDoubleArray,
+    vtkLookupTable,
+    vtkUnsignedCharArray,
+)
+from vtkmodules.vtkCommonDataModel import (
+    vtkDataObject,
+    vtkHyperTreeGrid,
+    vtkHyperTreeGridNonOrientedCursor,
+    vtkHyperTreeGridNonOrientedGeometryCursor,
+)
+from vtkmodules.vtkCommonExecutionModel import vtkAlgorithm
+from vtkmodules.vtkFiltersGeneral import vtkShrinkFilter
+from vtkmodules.vtkFiltersHyperTree import (
+    vtkHyperTreeGridDepthLimiter,
+    vtkHyperTreeGridGeometry,
+)
+from vtkmodules.vtkFiltersParallel import vtkHyperTreeGridGhostCells
+from vtkmodules.vtkFiltersPython import vtkPythonAlgorithm
+from vtkmodules.vtkIOImage import vtkPNGWriter
+from vtkmodules.vtkIOXML import (
+    vtkXMLHyperTreeGridReader,
+    vtkXMLHyperTreeGridWriter,
+)
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkDataSetMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+    vtkWindowToImageFilter,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
 
 import math
 
@@ -63,23 +98,23 @@ class Circle:
 #--------------------------------
 
 #Generate a HyperTree Grid
-htg = vtk.vtkHyperTreeGrid()
+htg = vtkHyperTreeGrid()
 htg.Initialize()
 htg.SetDimensions([4, 3, 1]) #GridPoints
 htg.SetBranchFactor(2)
 
 #Scalar Level
-levelArray = vtk.vtkUnsignedCharArray()
+levelArray = vtkUnsignedCharArray()
 levelArray.SetName('level')
 levelArray.SetNumberOfValues(0)
 htg.GetCellData().AddArray(levelArray)
 
-scalarArray = vtk.vtkDoubleArray()
+scalarArray = vtkDoubleArray()
 scalarArray.SetName('scalar')
 scalarArray.SetNumberOfValues(0)
 htg.GetCellData().AddArray(scalarArray)
 
-xValues = vtk.vtkDoubleArray() #x
+xValues = vtkDoubleArray() #x
 xValues.SetNumberOfValues(4)
 xValues.SetValue(0, -1)
 xValues.SetValue(1, 0)
@@ -87,20 +122,20 @@ xValues.SetValue(2, 1)
 xValues.SetValue(3, 2)
 htg.SetXCoordinates(xValues)
 
-yValues = vtk.vtkDoubleArray() #y
+yValues = vtkDoubleArray() #y
 yValues.SetNumberOfValues(3)
 yValues.SetValue(0, -1)
 yValues.SetValue(1, 0)
 yValues.SetValue(2, 1)
 htg.SetYCoordinates(yValues)
 
-zValues = vtk.vtkDoubleArray() #z
+zValues = vtkDoubleArray() #z
 zValues.SetNumberOfValues(1)
 zValues.SetValue(0, 0)
 htg.SetZCoordinates(zValues)
 
 #Create a cursor
-geoCursor = vtk.vtkHyperTreeGridNonOrientedGeometryCursor()
+geoCursor = vtkHyperTreeGridNonOrientedGeometryCursor()
 #Implicit index global
 crtIndex = 0
 
@@ -130,12 +165,12 @@ assert(scalar)
 #(inheriting the vta.VTKAlgorithm). Indeed, the latter does not
 #propose by the method SetInputData !
 #print('With Depth Limiter Filter (HTG)')
-depth = vtk.vtkHyperTreeGridDepthLimiter()
+depth = vtkHyperTreeGridDepthLimiter()
 depth.SetInputData(htg)
 depth.SetDepth(1024) #No depth limiter
 
 #My Filter
-from vtk.util import vtkAlgorithm as vta
+from vtkmodules.util import vtkAlgorithm as vta
 
 class MyAlgorithm(vta.VTKAlgorithm):
   _selectValue = None
@@ -144,11 +179,11 @@ class MyAlgorithm(vta.VTKAlgorithm):
     self._selectValue = value
 
   def FillInputPortInformation(self, vtkself, port, info):
-    info.Set(vtk.vtkAlgorithm.INPUT_REQUIRED_DATA_TYPE(), "vtkHyperTreeGrid")
+    info.Set(vtkAlgorithm.INPUT_REQUIRED_DATA_TYPE(), "vtkHyperTreeGrid")
     return 1
 
   def FillOutputPortInformation(self, vtkself, port, info):
-    info.Set(vtk.vtkDataObject.DATA_TYPE_NAME(), "vtkHyperTreeGrid")
+    info.Set(vtkDataObject.DATA_TYPE_NAME(), "vtkHyperTreeGrid")
     return 1
 
   def RecursiveProcess(self, cursor, scalar, outMask):
@@ -176,10 +211,10 @@ class MyAlgorithm(vta.VTKAlgorithm):
     scalar = inp.GetPointData().GetArray('scalar')
     assert(scalar)
 
-    outMask = vtk.vtkBitArray()
+    outMask = vtkBitArray()
     outMask.SetNumberOfTuples(out.GetNumberOfVertices())
 
-    cursor = vtk.vtkHyperTreeGridNonOrientedCursor()
+    cursor = vtkHyperTreeGridNonOrientedCursor()
     for treeId in range(inp.GetMaxNumberOfTrees()):
       inp.InitializeNonOrientedCursor( cursor, treeId )
       self.RecursiveProcess( cursor, scalar, outMask )
@@ -190,13 +225,13 @@ class MyAlgorithm(vta.VTKAlgorithm):
 myAlgo = MyAlgorithm()
 myAlgo.SetSelectValue(1) # 1 or -1
 
-ex = vtk.vtkPythonAlgorithm()
+ex = vtkPythonAlgorithm()
 ex.SetPythonObject(myAlgo)
 ex.SetInputConnection(depth.GetOutputPort())
 
 ex.Update()
 
-from vtk.util.misc import vtkGetTempDir
+from vtkmodules.util.misc import vtkGetTempDir
 nrep = vtkGetTempDir()
 
 withAscii = False
@@ -205,7 +240,7 @@ if withAscii:
 else:
   filename = nrep+'toto_1_binary.htg'
 #Avant writer default (1.0)
-writer = vtk.vtkXMLHyperTreeGridWriter()
+writer = vtkXMLHyperTreeGridWriter()
 writer.SetInputConnection(ex.GetOutputPort())
 writer.SetFileName(filename)
 #The default is in appended, data at the end of the file
@@ -221,11 +256,11 @@ writer.Write()
 #print('Write Forced(0.1)')
 #
 #print('Read')
-ex = vtk.vtkXMLHyperTreeGridReader()
+ex = vtkXMLHyperTreeGridReader()
 ex.SetFileName(nrep+'toto_0.htg')
 #
 #print('Read '+filename)
-ex = vtk.vtkXMLHyperTreeGridReader()
+ex = vtkXMLHyperTreeGridReader()
 ex.SetFileName(filename)
 #example for load reduction
 ##selected level
@@ -242,7 +277,7 @@ ex.SetFileName(filename)
 #
 ex.Update()
 #print("Avant writer default (1.0)")
-writer = vtk.vtkXMLHyperTreeGridWriter()
+writer = vtkXMLHyperTreeGridWriter()
 writer.SetInputConnection(ex.GetOutputPort())
 if withAscii:
   filename = nrep+'toto_1_ascii_ascii.htg'
@@ -256,7 +291,7 @@ writer.Write()
 
 ex.Update() #The format 1.0 (ascii or binary)
 
-gc = vtk.vtkHyperTreeGridGhostCells()
+gc = vtkHyperTreeGridGhostCells()
 gc.SetInputConnection(ex.GetOutputPort())
 
 ##htg = depth.GetOutput()
@@ -277,19 +312,19 @@ gc.SetInputConnection(ex.GetOutputPort())
 #Warning The range is not goog if we fixed the max level.
 
 #Generate a polygonal representation of a hypertree grid
-geometry = vtk.vtkHyperTreeGridGeometry()
+geometry = vtkHyperTreeGridGeometry()
 geometry.SetInputConnection(gc.GetOutputPort())
 
 #Shrink this mesh
 if True:
-  shrink = vtk.vtkShrinkFilter()
+  shrink = vtkShrinkFilter()
   shrink.SetInputConnection(geometry.GetOutputPort())
   shrink.SetShrinkFactor(.8)
 else:
   shrink = geometry
 
 #Create a new window
-renWin = vtk.vtkRenderWindow()
+renWin = vtkRenderWindow()
 renWin.SetWindowName( "Generator HTG" )
 renWin.SetSize( 800, 400 )
 
@@ -299,12 +334,12 @@ for nameField in ['level', 'scalar']:
   #print('> dataRange:',dataRange)
 
   # LookupTable
-  lut = vtk.vtkLookupTable()
+  lut = vtkLookupTable()
   lut.SetHueRange(0.66, 0)
   lut.Build()
 
   #Create a mapper
-  mapper = vtk.vtkDataSetMapper()
+  mapper = vtkDataSetMapper()
   mapper.SetInputConnection( shrink.GetOutputPort() )
 
   mapper.SetLookupTable(lut)
@@ -314,11 +349,11 @@ for nameField in ['level', 'scalar']:
   mapper.SetScalarRange(dataRange[0], dataRange[1])
 
   #Connect the mapper to an actor
-  actor = vtk.vtkActor()
+  actor = vtkActor()
   actor.SetMapper( mapper )
 
   #Create a renderer and add the actor to ir
-  renderer = vtk.vtkRenderer()
+  renderer = vtkRenderer()
   renderer.SetBackground( 0., 0., 0. )
   renderer.AddActor( actor )
 
@@ -332,7 +367,7 @@ for nameField in ['level', 'scalar']:
 iren = None
 if False: #True, if with interactor
   #Create an interactor
-  iren = vtk.vtkRenderWindowInteractor()
+  iren = vtkRenderWindowInteractor()
   iren.SetRenderWindow( renWin )
 
 #Initialize the interaction and start the rendering loop
@@ -346,14 +381,14 @@ if iren is not None:
 
 if False:
   # screenshot code:
-  w2if = vtk.vtkWindowToImageFilter()
+  w2if = vtkWindowToImageFilter()
   w2if.SetInput(renWin)
   # not exist w2if.SetMagnification(3) # set the resolution of the output image (3 times the current resolution of vtk render window)
   w2if.SetInputBufferTypeToRGBA() # also record the alpha (transparency) channel
   w2if.ReadFrontBufferOff(); # read from the back buffer
   w2if.Update()
 
-  writer = vtk.vtkPNGWriter()
+  writer = vtkPNGWriter()
   writer.SetFileName("screenshot.png")
   writer.SetInputConnection(w2if.GetOutputPort())
   writer.Write()

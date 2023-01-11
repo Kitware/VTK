@@ -1,23 +1,38 @@
 from __future__ import print_function
 
-import vtk, os, sys
+import os
+import sys
 
-ss = vtk.vtkSphereSource() #make mesh to test with
+from vtkmodules.vtkCommonCore import vtkPoints
+from vtkmodules.vtkCommonDataModel import (
+    vtkCellArray,
+    vtkPolyData,
+    vtkVertex,
+)
+from vtkmodules.vtkFiltersCore import (
+    vtkElevationFilter,
+    vtkExtractEdges,
+    vtkGlyph3D,
+)
+from vtkmodules.vtkFiltersSources import vtkSphereSource
+from vtkmodules.vtkIOGeoJSON import vtkGeoJSONWriter
 
-af = vtk.vtkElevationFilter() #add some attributes
+ss = vtkSphereSource() #make mesh to test with
+
+af = vtkElevationFilter() #add some attributes
 af.SetInputConnection(ss.GetOutputPort())
 
-ef = vtk.vtkExtractEdges() #make lines to test
+ef = vtkExtractEdges() #make lines to test
 ef.SetInputConnection(af.GetOutputPort())
 
-gf = vtk.vtkGlyph3D() #make verts to test
-pts = vtk.vtkPoints()
+gf = vtkGlyph3D() #make verts to test
+pts = vtkPoints()
 pts.InsertNextPoint(0,0,0)
-verts = vtk.vtkCellArray()
-avert = vtk.vtkVertex()
+verts = vtkCellArray()
+avert = vtkVertex()
 avert.GetPointIds().SetId(0, 0)
 verts.InsertNextCell(avert)
-onevertglyph = vtk.vtkPolyData()
+onevertglyph = vtkPolyData()
 onevertglyph.SetPoints(pts)
 onevertglyph.SetVerts(verts)
 gf.SetSourceData(onevertglyph)
@@ -32,7 +47,7 @@ for datasetString in testwrites:
     toshow = ef
   else:
     toshow = af
-  gw = vtk.vtkGeoJSONWriter()
+  gw = vtkGeoJSONWriter()
   fname = "sphere_"+datasetString+".json"
   gw.SetInputConnection(toshow.GetOutputPort())
   gw.SetFileName(fname)

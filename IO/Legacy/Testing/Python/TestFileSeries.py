@@ -1,16 +1,17 @@
  #!/usr/bin/env python
 
 import os
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonExecutionModel import vtkStreamingDemandDrivenPipeline
+from vtkmodules.vtkIOLegacy import vtkPolyDataReader
+from vtkmodules.util.misc import vtkGetDataRoot
 
-r = vtk.vtkPolyDataReader()
+r = vtkPolyDataReader()
 r.AddFileName(vtkGetDataRoot() + "/Data/track1.binary.vtk")
 r.AddFileName(vtkGetDataRoot() + "/Data/track2.binary.vtk")
 r.AddFileName(vtkGetDataRoot() + "/Data/track3.binary.vtk")
 r.UpdateInformation()
 
-assert(r.GetOutputInformation(0).Length(vtk.vtkStreamingDemandDrivenPipeline.TIME_STEPS()) == 3)
+assert(r.GetOutputInformation(0).Length(vtkStreamingDemandDrivenPipeline.TIME_STEPS()) == 3)
 
 r.UpdateTimeStep(1)
 rng = r.GetOutput().GetPointData().GetScalars().GetRange(0)

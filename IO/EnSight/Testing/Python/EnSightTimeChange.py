@@ -1,12 +1,13 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonExecutionModel import vtkCompositeDataPipeline
+from vtkmodules.vtkIOEnSight import vtkGenericEnSightReader
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # Make sure all algorithms use the composite data pipeline
-cdp = vtk.vtkCompositeDataPipeline()
+cdp = vtkCompositeDataPipeline()
 
-reader = vtk.vtkGenericEnSightReader()
+reader = vtkGenericEnSightReader()
 reader.SetDefaultExecutivePrototype(cdp)
 reader.SetCaseFileName("" + str(VTK_DATA_ROOT) + "/Data/EnSight/particles/particles.case")
 reader.ReadAllVariablesOn()

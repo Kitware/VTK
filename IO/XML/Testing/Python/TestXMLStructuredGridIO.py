@@ -1,9 +1,26 @@
 #!/usr/bin/env python
 
 import os
-import vtk
-from vtk.util.misc import vtkGetDataRoot
-from vtk.util.misc import vtkGetTempDir
+from vtkmodules.vtkCommonDataModel import vtkStructuredGrid
+from vtkmodules.vtkFiltersCore import vtkContourFilter
+from vtkmodules.vtkFiltersExtraction import vtkExtractGrid
+from vtkmodules.vtkIOParallel import vtkMultiBlockPLOT3DReader
+from vtkmodules.vtkIOXML import (
+    vtkXMLStructuredGridReader,
+    vtkXMLStructuredGridWriter,
+)
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
+from vtkmodules.util.misc import vtkGetTempDir
 
 VTK_DATA_ROOT = vtkGetDataRoot()
 VTK_TEMP_DIR = vtkGetTempDir()
@@ -13,7 +30,7 @@ file1 = VTK_TEMP_DIR + '/sgFile1.vts'
 file2 = VTK_TEMP_DIR + '/sgFile2.vts'
 
 # Create a reader and write out the field
-combReader = vtk.vtkMultiBlockPLOT3DReader()
+combReader = vtkMultiBlockPLOT3DReader()
 combReader.SetXYZFileName(VTK_DATA_ROOT + "/Data/combxyz.bin")
 combReader.SetQFileName(VTK_DATA_ROOT + "/Data/combq.bin")
 combReader.SetScalarFunctionNumber(100)
@@ -22,13 +39,13 @@ output = combReader.GetOutput().GetBlock(0)
 
 
 # extract to reduce extents of grid
-extract = vtk.vtkExtractGrid()
+extract = vtkExtractGrid()
 extract.SetInputData(output)
 extract.SetVOI(0, 28, 0, 32, 0, 24)
 extract.Update()
 
 # write just a piece (extracted piece) as well as the whole thing
-gridWriter = vtk.vtkXMLStructuredGridWriter()
+gridWriter = vtkXMLStructuredGridWriter()
 gridWriter.SetFileName(file0)
 gridWriter.SetInputConnection(extract.GetOutputPort())
 gridWriter.SetDataModeToAscii()
@@ -46,22 +63,22 @@ gridWriter.SetWriteExtent(8, 56, 4, 16, 1, 24)
 gridWriter.Write()
 
 # read the extracted grid
-reader = vtk.vtkXMLStructuredGridReader()
+reader = vtkXMLStructuredGridReader()
 reader.SetFileName(file0)
 reader.WholeSlicesOff()
 reader.Update()
 
-sg = vtk.vtkStructuredGrid()
+sg = vtkStructuredGrid()
 sg.DeepCopy(reader.GetOutput())
-cF0 = vtk.vtkContourFilter()
+cF0 = vtkContourFilter()
 cF0.SetInputData(sg)
 cF0.SetValue(0, 0.38)
 
-mapper0 = vtk.vtkPolyDataMapper()
+mapper0 = vtkPolyDataMapper()
 mapper0.SetInputConnection(cF0.GetOutputPort())
 mapper0.ScalarVisibilityOff()
 
-actor0 = vtk.vtkActor()
+actor0 = vtkActor()
 actor0.SetMapper(mapper0)
 
 
@@ -70,17 +87,17 @@ reader.SetFileName(file1)
 reader.WholeSlicesOn()
 reader.Update()
 
-sg1 = vtk.vtkStructuredGrid()
+sg1 = vtkStructuredGrid()
 sg1.DeepCopy(reader.GetOutput())
-cF1 = vtk.vtkContourFilter()
+cF1 = vtkContourFilter()
 cF1.SetInputData(sg1)
 cF1.SetValue(0, 0.38)
 
-mapper1 = vtk.vtkPolyDataMapper()
+mapper1 = vtkPolyDataMapper()
 mapper1.SetInputConnection(cF1.GetOutputPort())
 mapper1.ScalarVisibilityOff()
 
-actor1 = vtk.vtkActor()
+actor1 = vtkActor()
 actor1.SetMapper(mapper1)
 actor1.SetPosition(0, -10, 0)
 
@@ -89,24 +106,24 @@ actor1.SetPosition(0, -10, 0)
 reader.SetFileName(file2)
 reader.Update()
 
-cF2 = vtk.vtkContourFilter()
+cF2 = vtkContourFilter()
 cF2.SetInputConnection(reader.GetOutputPort())
 cF2.SetValue(0, 0.38)
 
-mapper2 = vtk.vtkPolyDataMapper()
+mapper2 = vtkPolyDataMapper()
 mapper2.SetInputConnection(cF2.GetOutputPort())
 mapper2.ScalarVisibilityOff()
 
-actor2 = vtk.vtkActor()
+actor2 = vtkActor()
 actor2.SetMapper(mapper2)
 actor2.SetPosition(0, 10, 0)
 
 # Create the RenderWindow, Renderer and both Actors
 #
-ren = vtk.vtkRenderer()
-renWin = vtk.vtkRenderWindow()
+ren = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.AddRenderer(ren)
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 
 # Add the actors to the renderer, set the background and size

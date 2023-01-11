@@ -10,7 +10,21 @@ from __future__ import print_function
 
 import os
 import sys
-import vtk
+from vtkmodules.vtkCommonCore import VTK_ERROR
+from vtkmodules.vtkCommonDataModel import (
+    vtkDataSet,
+    vtkGraph,
+)
+from vtkmodules.vtkCommonExecutionModel import vtkCompositeDataPipeline
+from vtkmodules.vtkCommonSystem import vtkTimerLog
+from vtkmodules.vtkFiltersCore import vtkDataObjectGenerator
+from vtkmodules.vtkFiltersGeneral import vtkTimeSourceExample
+from vtkmodules.vtkIOLegacy import vtkDataSetWriter
+from vtkmodules.vtkIOXdmf3 import (
+    vtkXdmf3Reader,
+    vtkXdmf3Writer,
+)
+from vtkmodules.vtkInfovisCore import vtkRandomGraphSource
 
 hasresource = True
 try:
@@ -25,7 +39,7 @@ CleanUpGood = True
 LightDataLimit = 10000
 OutputDir = ""
 
-timer = vtk.vtkTimerLog()
+timer = vtkTimerLog()
 
 testObjects = [
     "ID1",
@@ -60,7 +74,7 @@ def MemUsage(point):
 
 def raiseErrorAndExit(message):
   raise Exception(message)
-  sys.exit(vtk.VTK_ERROR)
+  sys.exit(VTK_ERROR)
 
 def DoFilesExist(xdmfFile, hdf5File, vtkFile, deleteIfSo):
   global CleanUpGood
@@ -129,8 +143,8 @@ def DoDataObjectsDiffer(dobj1, dobj2):
     message += " M2 = " + str(dobj2.GetActualMemorySize())
     raiseErrorAndExit(message)
 
-  ds1 = vtk.vtkDataSet.SafeDownCast(dobj1)
-  ds2 = vtk.vtkDataSet.SafeDownCast(dobj2)
+  ds1 = vtkDataSet.SafeDownCast(dobj1)
+  ds2 = vtkDataSet.SafeDownCast(dobj2)
   if ds1 and ds2:
     if (ds1.GetNumberOfCells() != ds2.GetNumberOfCells()) or\
        (ds1.GetNumberOfPoints() != ds2.GetNumberOfPoints()):
@@ -164,8 +178,8 @@ def DoDataObjectsDiffer(dobj1, dobj2):
       message += " PD2 = " + str(ds2.GetPointData().GetNumberOfArrays())
       raiseErrorAndExit(message)
   else:
-    g1 = vtk.vtkGraph.SafeDownCast(dobj1)
-    g2 = vtk.vtkGraph.SafeDownCast(dobj2)
+    g1 = vtkGraph.SafeDownCast(dobj1)
+    g2 = vtkGraph.SafeDownCast(dobj2)
     if g1 and g2:
       if (g1.GetNumberOfEdges() != g2.GetNumberOfEdges()) or\
           (g1.GetNumberOfVertices() != g2.GetNumberOfVertices()):
@@ -196,7 +210,7 @@ def TestXdmfConversion(dataInput, fileName):
   hdf5File = fileName + ".h5"
   vtkFile = fileName + ".vtk"
 
-  xWriter = vtk.vtkXdmf3Writer()
+  xWriter = vtkXdmf3Writer()
   xWriter.SetLightDataLimit(LightDataLimit)
   xWriter.WriteAllTimeStepsOn()
   xWriter.SetFileName(xdmfFile)
@@ -206,9 +220,9 @@ def TestXdmfConversion(dataInput, fileName):
   timer.StopTimer()
   print("vtkXdmf3Writer took %f seconds to write %s" % (timer.GetElapsedTime(), xdmfFile))
 
-  ds = vtk.vtkDataSet.SafeDownCast(dataInput)
+  ds = vtkDataSet.SafeDownCast(dataInput)
   if ds:
-    dsw = vtk.vtkDataSetWriter()
+    dsw = vtkDataSetWriter()
     dsw.SetFileName(vtkFile)
     dsw.SetInputData(ds)
     dsw.Write()
@@ -217,7 +231,7 @@ def TestXdmfConversion(dataInput, fileName):
     message = "Writer did not create " + xdmfFile
     raiseErrorAndExit(message)
 
-  xReader = vtk.vtkXdmf3Reader()
+  xReader = vtkXdmf3Reader()
   xReader.SetFileName(xdmfFile)
   timer.StartTimer()
   xReader.Update()
@@ -241,7 +255,7 @@ def RunTest():
 
   print("TEST SET 1 - verify reader/writer work for range of canonical datasets")
   print(MemUsage("Before starting TEST SET 1"))
-  dog = vtk.vtkDataObjectGenerator()
+  dog = vtkDataObjectGenerator()
   i = 0
   for testObject in testObjects:
     fileName = "xdmfIOtest_" + str(i)
@@ -254,13 +268,13 @@ def RunTest():
   print("TEST SET 2 - verify reader/writer work for Graphs")
   print(MemUsage("Before starting TEST SET 2"))
   print("Test Graph data")
-  gsrc = vtk.vtkRandomGraphSource()
+  gsrc = vtkRandomGraphSource()
   gsrc.DirectedOn()
   gsrc.Update()
   gFilePrefix = "xdmfIOtest_Graph"
   gFileName = OutputDir + gFilePrefix + ".xdmf"
   ghFileName = OutputDir + gFilePrefix + ".h5"
-  xWriter = vtk.vtkXdmf3Writer()
+  xWriter = vtkXdmf3Writer()
   xWriter.SetLightDataLimit(LightDataLimit)
   xWriter.SetFileName(gFileName)
   xWriter.SetInputConnection(0, gsrc.GetOutputPort(0))
@@ -268,7 +282,7 @@ def RunTest():
   xWriter.Write()
   timer.StopTimer()
   print("vtkXdmf3Writer took %f seconds to write %s" % (timer.GetElapsedTime(), gFileName))
-  xReader = vtk.vtkXdmf3Reader()
+  xReader = vtkXdmf3Reader()
   xReader.SetFileName(gFileName)
   xReader.Update()
   rOutput = xReader.GetOutputDataObject(0)
@@ -283,13 +297,13 @@ def RunTest():
   print("TEST SET 3 - verify reader/writer handle time varying data")
   print(MemUsage("Before starting TEST SET 3"))
   print("Test temporal data")
-  tsrc = vtk.vtkTimeSourceExample()
+  tsrc = vtkTimeSourceExample()
   tsrc.GrowingOn()
   tsrc.SetXAmplitude(2.0)
   tFilePrefix = "xdmfIOTest_Temporal"
   tFileName = OutputDir + tFilePrefix + ".xdmf"
   thFileName = OutputDir + tFilePrefix + ".h5"
-  xWriter = vtk.vtkXdmf3Writer()
+  xWriter = vtkXdmf3Writer()
   xWriter.SetLightDataLimit(LightDataLimit)
   xWriter.WriteAllTimeStepsOn()
   xWriter.SetFileName(tFileName)
@@ -298,13 +312,13 @@ def RunTest():
   xWriter.Write()
   timer.StopTimer()
   print("vtkXdmf3Writer took %f seconds to write %s" % (timer.GetElapsedTime(), tFileName))
-  xReader = vtk.vtkXdmf3Reader()
+  xReader = vtkXdmf3Reader()
   xReader.SetFileName(tFileName)
   xReader.UpdateInformation()
   oi = xReader.GetOutputInformation(0)
-  timerange = oi.Get(vtk.vtkCompositeDataPipeline.TIME_STEPS())
+  timerange = oi.Get(vtkCompositeDataPipeline.TIME_STEPS())
   ii = tsrc.GetOutputInformation(0)
-  correcttimes = ii.Get(vtk.vtkCompositeDataPipeline.TIME_STEPS())
+  correcttimes = ii.Get(vtkCompositeDataPipeline.TIME_STEPS())
 
   #compare number of and values for temporal range
   if len(timerange) != len(correcttimes):

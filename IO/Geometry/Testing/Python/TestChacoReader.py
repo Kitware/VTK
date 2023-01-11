@@ -1,35 +1,46 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkFiltersGeometry import vtkGeometryFilter
+from vtkmodules.vtkIOGeometry import vtkChacoReader
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # read in a Chaco file
-chReader = vtk.vtkChacoReader()
+chReader = vtkChacoReader()
 chReader.SetBaseName(VTK_DATA_ROOT + "/Data/vwgt")
 chReader.SetGenerateGlobalElementIdArray(1)
 chReader.SetGenerateGlobalNodeIdArray(1)
 chReader.SetGenerateEdgeWeightArrays(1)
 chReader.SetGenerateVertexWeightArrays(1)
 
-geom = vtk.vtkGeometryFilter()
+geom = vtkGeometryFilter()
 geom.SetInputConnection(chReader.GetOutputPort())
 
-mapper = vtk.vtkPolyDataMapper()
+mapper = vtkPolyDataMapper()
 mapper.SetInputConnection(geom.GetOutputPort())
 mapper.SetColorModeToMapScalars()
 mapper.SetScalarModeToUsePointFieldData()
 mapper.SelectColorArray("VertexWeight1")
 mapper.SetScalarRange(1, 5)
 
-actor0 = vtk.vtkActor()
+actor0 = vtkActor()
 actor0.SetMapper(mapper)
 
 # Create the RenderWindow, Renderer and interactor
 #
-ren1 = vtk.vtkRenderer()
-renWin = vtk.vtkRenderWindow()
+ren1 = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.AddRenderer(ren1)
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 
 # Add the actor to the renderer, set the background and size

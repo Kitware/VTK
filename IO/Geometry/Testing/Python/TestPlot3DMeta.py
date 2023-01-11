@@ -1,45 +1,58 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonExecutionModel import vtkStreamingDemandDrivenPipeline
+from vtkmodules.vtkFiltersGeometry import vtkStructuredGridGeometryFilter
+from vtkmodules.vtkIOParallel import vtkPlot3DMetaReader
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkCamera,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 
 VTK_DATA_ROOT = vtkGetDataRoot()
 
-renWin = vtk.vtkRenderWindow()
+renWin = vtkRenderWindow()
 
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 
-r = vtk.vtkPlot3DMetaReader()
+r = vtkPlot3DMetaReader()
 r.SetFileName("%s/Data/test.p3d" % VTK_DATA_ROOT)
 
 r.UpdateInformation()
 outInfo = r.GetOutputInformation(0)
-l = outInfo.Length(vtk.vtkStreamingDemandDrivenPipeline.TIME_STEPS())
+l = outInfo.Length(vtkStreamingDemandDrivenPipeline.TIME_STEPS())
 if l != 2:
     raise "Error: wrong number of time steps: %d. Should be 2" % l
 
-outInfo.Set(vtk.vtkStreamingDemandDrivenPipeline.UPDATE_TIME_STEP(), 3.5)
+outInfo.Set(vtkStreamingDemandDrivenPipeline.UPDATE_TIME_STEP(), 3.5)
 r.Update()
 
-outInfo.Set(vtk.vtkStreamingDemandDrivenPipeline.UPDATE_TIME_STEP(), 4.5)
+outInfo.Set(vtkStreamingDemandDrivenPipeline.UPDATE_TIME_STEP(), 4.5)
 r.Update()
 
 output = r.GetOutput().GetBlock(0)
 
-plane = vtk.vtkStructuredGridGeometryFilter()
+plane = vtkStructuredGridGeometryFilter()
 plane.SetInputData(output)
 plane.SetExtent(25,25,0,100,0,100)
 
-mapper = vtk.vtkPolyDataMapper()
+mapper = vtkPolyDataMapper()
 mapper.SetInputConnection(plane.GetOutputPort())
 mapper.SetScalarRange(output.GetPointData().GetScalars().GetRange())
 
-actor = vtk.vtkActor()
+actor = vtkActor()
 actor.SetMapper(mapper)
 
-ren = vtk.vtkRenderer()
+ren = vtkRenderer()
 
-camera = vtk.vtkCamera()
+camera = vtkCamera()
 ren.SetActiveCamera(camera)
 
 renWin.AddRenderer(ren)

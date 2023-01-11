@@ -1,7 +1,26 @@
 #!/usr/bin/env python
 import os
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonCore import vtkLookupTable
+from vtkmodules.vtkFiltersCore import (
+    vtkPointDataToCellData,
+    vtkSimpleElevationFilter,
+)
+from vtkmodules.vtkFiltersSources import vtkSphereSource
+from vtkmodules.vtkIOPLY import (
+    vtkPLYReader,
+    vtkPLYWriter,
+)
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # NOTE: This test only works if the current directory is writable
@@ -11,18 +30,18 @@ try:
     channel = open(filename, "wb")
     channel.close()
 
-    ss = vtk.vtkSphereSource()
+    ss = vtkSphereSource()
     ss.SetPhiResolution(10)
     ss.SetThetaResolution(20)
 
-    ele = vtk.vtkSimpleElevationFilter()
+    ele = vtkSimpleElevationFilter()
     ele.SetInputConnection(ss.GetOutputPort())
 
-    pd2cd = vtk.vtkPointDataToCellData()
+    pd2cd = vtkPointDataToCellData()
     pd2cd.SetInputConnection(ele.GetOutputPort())
 
     # First way or writing
-    w = vtk.vtkPLYWriter()
+    w = vtkPLYWriter()
     w.SetInputConnection(pd2cd.GetOutputPort())
     w.SetFileName(filename)
     w.SetFileTypeToBinary()
@@ -31,7 +50,7 @@ try:
     w.SetColor(255, 0, 0)
     w.Write()
 
-    r = vtk.vtkPLYReader()
+    r = vtkPLYReader()
     r.SetFileName(filename)
     r.Update()
 
@@ -42,17 +61,17 @@ try:
     except OSError:
         pass
 
-    plyMapper = vtk.vtkPolyDataMapper()
+    plyMapper = vtkPolyDataMapper()
     plyMapper.SetInputConnection(r.GetOutputPort())
 
-    plyActor = vtk.vtkActor()
+    plyActor = vtkActor()
     plyActor.SetMapper(plyMapper)
 
     # Second way or writing - it will map through a lookup table
-    lut = vtk.vtkLookupTable()
+    lut = vtkLookupTable()
     lut.Build()
 
-    w2 = vtk.vtkPLYWriter()
+    w2 = vtkPLYWriter()
     w2.SetInputConnection(pd2cd.GetOutputPort())
     w2.SetFileName(filename)
     w2.SetFileTypeToBinary()
@@ -63,23 +82,23 @@ try:
     w2.SetComponent(0)
     w2.Write()
 
-    r2 = vtk.vtkPLYReader()
+    r2 = vtkPLYReader()
     r2.SetFileName(filename)
     r2.Update()
 
-    plyMapper2 = vtk.vtkPolyDataMapper()
+    plyMapper2 = vtkPolyDataMapper()
     plyMapper2.SetInputConnection(r2.GetOutputPort())
 
-    plyActor2 = vtk.vtkActor()
+    plyActor2 = vtkActor()
     plyActor2.SetMapper(plyMapper2)
     plyActor2.AddPosition(1, 0, 0)
 
     # Third way or writing - it will read the previous file with rgb cell color
-    r3 = vtk.vtkPLYReader()
+    r3 = vtkPLYReader()
     r3.SetFileName(filename)
     r3.Update()
 
-    w3 = vtk.vtkPLYWriter()
+    w3 = vtkPLYWriter()
     w3.SetInputConnection(r3.GetOutputPort())
     w3.SetFileName(filename)
     w3.SetFileTypeToBinary()
@@ -89,13 +108,13 @@ try:
     w3.SetComponent(0)
     w3.Write()
 
-    r4 = vtk.vtkPLYReader()
+    r4 = vtkPLYReader()
     r4.SetFileName(filename)
     r4.Update()
 
-    plyMapper3 = vtk.vtkPolyDataMapper()
+    plyMapper3 = vtkPolyDataMapper()
     plyMapper3.SetInputConnection(r4.GetOutputPort())
-    plyActor3 = vtk.vtkActor()
+    plyActor3 = vtkActor()
     plyActor3.SetMapper(plyMapper3)
     plyActor3.AddPosition(2, 0, 0)
 
@@ -108,10 +127,10 @@ try:
 
     # Create the RenderWindow, Renderer and both Actors
     #
-    ren1 = vtk.vtkRenderer()
-    renWin = vtk.vtkRenderWindow()
+    ren1 = vtkRenderer()
+    renWin = vtkRenderWindow()
     renWin.AddRenderer(ren1)
-    iren = vtk.vtkRenderWindowInteractor()
+    iren = vtkRenderWindowInteractor()
     iren.SetRenderWindow(renWin)
 
     # Add the actors to the renderer, set the background and size

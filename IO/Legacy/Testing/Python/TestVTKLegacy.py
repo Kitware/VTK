@@ -1,5 +1,29 @@
 #!/usr/bin/env python
-import vtk
+from vtkmodules.vtkCommonCore import (
+    vtkFloatArray,
+    vtkIntArray,
+    vtkPoints,
+)
+from vtkmodules.vtkCommonDataModel import (
+    vtkImageData,
+    vtkRectilinearGrid,
+    vtkSphere,
+    vtkStructuredGrid,
+)
+from vtkmodules.vtkFiltersExtraction import vtkExtractGeometry
+from vtkmodules.vtkFiltersSources import vtkSphereSource
+from vtkmodules.vtkIOLegacy import (
+    vtkPolyDataReader,
+    vtkPolyDataWriter,
+    vtkRectilinearGridReader,
+    vtkRectilinearGridWriter,
+    vtkStructuredGridReader,
+    vtkStructuredGridWriter,
+    vtkStructuredPointsReader,
+    vtkStructuredPointsWriter,
+    vtkUnstructuredGridReader,
+    vtkUnstructuredGridWriter,
+)
 import sys
 
 # Test writing out / reading of legacy VTK files. Currently
@@ -7,13 +31,13 @@ import sys
 # vtkStructuredGrid, vtkRectilinearGrid.
 
 # Test vtkPolyData
-sphere = vtk.vtkSphereSource()
+sphere = vtkSphereSource()
 sphere.SetThetaResolution(8)
 sphere.SetPhiResolution(4)
 
 # Write / read polygonal data - legacy version
 print("I/O vtkPolyData")
-wpd = vtk.vtkPolyDataWriter()
+wpd = vtkPolyDataWriter()
 wpd.SetFileVersion(42)
 wpd.WriteToOutputStringOn()
 wpd.SetInputConnection(sphere.GetOutputPort())
@@ -22,7 +46,7 @@ wpd.Write()
 legacyOutStr = wpd.GetOutputString()
 #print(legacyOutStr)
 
-rpd = vtk.vtkPolyDataReader()
+rpd = vtkPolyDataReader()
 rpd.ReadFromInputStringOn()
 rpd.SetInputString(legacyOutStr)
 rpd.Update()
@@ -59,13 +83,13 @@ if not "5.1" in outStr:
 # Write / read unstructured data - legacy version
 # Convert polydata to unstructured grid
 print("\nI/O vtkUnstructuredGrid")
-sph = vtk.vtkSphere()
+sph = vtkSphere()
 sph.SetRadius(10000000)
-extract = vtk.vtkExtractGeometry()
+extract = vtkExtractGeometry()
 extract.SetInputConnection(sphere.GetOutputPort())
 extract.SetImplicitFunction(sph)
 
-wug = vtk.vtkUnstructuredGridWriter()
+wug = vtkUnstructuredGridWriter()
 wug.SetFileVersion(42)
 wug.WriteToOutputStringOn()
 wug.SetInputConnection(extract.GetOutputPort())
@@ -74,7 +98,7 @@ wug.Write()
 legacyOutStr = wug.GetOutputString()
 #print(legacyOutStr)
 
-rug = vtk.vtkUnstructuredGridReader()
+rug = vtkUnstructuredGridReader()
 rug.ReadFromInputStringOn()
 rug.SetInputString(legacyOutStr)
 rug.Update()
@@ -110,7 +134,7 @@ if not "5.1" in outStr:
 
 # vtkImageData
 print("\nI/O vtkStructuredPoints (aka vtkImageData)")
-img = vtk.vtkImageData()
+img = vtkImageData()
 img.SetDimensions(3,4,5)
 img.AllocateScalars(4,1) #array of shorts
 num = 3*4*5
@@ -118,7 +142,7 @@ s = img.GetPointData().GetScalars()
 for i in range(0,num):
     s.SetValue(i,i)
 
-iw = vtk.vtkStructuredPointsWriter()
+iw = vtkStructuredPointsWriter()
 iw.SetInputData(img)
 iw.SetFileVersion(42)
 iw.WriteToOutputStringOn()
@@ -127,7 +151,7 @@ iw.Write()
 legacyOutStr = iw.GetOutputString()
 #print(legacyOutStr)
 
-ir = vtk.vtkStructuredPointsReader()
+ir = vtkStructuredPointsReader()
 ir.ReadFromInputStringOn()
 ir.SetInputString(legacyOutStr)
 ir.Update()
@@ -162,12 +186,12 @@ if not "5.1" in outStr:
 
 # vtkStructuredGrid
 print("\nI/O vtkStructuredGrid")
-sg = vtk.vtkStructuredGrid()
+sg = vtkStructuredGrid()
 dims = [3,4,5]
 sg.SetDimensions(dims)
 num = dims[0]*dims[1]*dims[2]
 
-pts = vtk.vtkPoints()
+pts = vtkPoints()
 pts.SetNumberOfPoints(num)
 for k in range(0,dims[2]):
     for j in range(0,dims[1]):
@@ -176,13 +200,13 @@ for k in range(0,dims[2]):
             pts.SetPoint(pId,i,j,k)
 sg.SetPoints(pts)
 
-sgs = vtk.vtkIntArray()
+sgs = vtkIntArray()
 sgs.SetNumberOfTuples(num)
 sg.GetPointData().SetScalars(sgs)
 for i in range(0,num):
     sgs.SetValue(i,i)
 
-sgw = vtk.vtkStructuredGridWriter()
+sgw = vtkStructuredGridWriter()
 sgw.SetInputData(sg)
 sgw.SetFileVersion(42)
 sgw.WriteToOutputStringOn()
@@ -191,7 +215,7 @@ sgw.Write()
 legacyOutStr = sgw.GetOutputString()
 #print(legacyOutStr)
 
-ir = vtk.vtkStructuredGridReader()
+ir = vtkStructuredGridReader()
 ir.ReadFromInputStringOn()
 ir.SetInputString(legacyOutStr)
 ir.Update()
@@ -226,16 +250,16 @@ if not "5.1" in outStr:
 
 # vtkRectilinearGrid
 print("\nI/O vtkRectilinearGrid")
-rg = vtk.vtkRectilinearGrid()
+rg = vtkRectilinearGrid()
 dims = [3,4,5]
 rg.SetDimensions(dims)
 num = dims[0]*dims[1]*dims[2]
 
-xPts = vtk.vtkFloatArray()
+xPts = vtkFloatArray()
 xPts.SetNumberOfTuples(dims[0])
-yPts = vtk.vtkFloatArray()
+yPts = vtkFloatArray()
 yPts.SetNumberOfTuples(dims[1])
-zPts = vtk.vtkFloatArray()
+zPts = vtkFloatArray()
 zPts.SetNumberOfTuples(dims[2])
 
 for i in range(0,dims[0]):
@@ -249,13 +273,13 @@ rg.SetXCoordinates(xPts)
 rg.SetYCoordinates(yPts)
 rg.SetZCoordinates(zPts)
 
-rgs = vtk.vtkIntArray()
+rgs = vtkIntArray()
 rgs.SetNumberOfTuples(num)
 rg.GetPointData().SetScalars(rgs)
 for i in range(0,num):
     rgs.SetValue(i,i)
 
-rgw = vtk.vtkRectilinearGridWriter()
+rgw = vtkRectilinearGridWriter()
 rgw.SetInputData(rg)
 rgw.SetFileVersion(42)
 rgw.WriteToOutputStringOn()
@@ -264,7 +288,7 @@ rgw.Write()
 legacyOutStr = rgw.GetOutputString()
 #print(legacyOutStr)
 
-ir = vtk.vtkRectilinearGridReader()
+ir = vtkRectilinearGridReader()
 ir.ReadFromInputStringOn()
 ir.SetInputString(legacyOutStr)
 ir.Update()

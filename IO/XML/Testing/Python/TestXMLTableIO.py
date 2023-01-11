@@ -2,9 +2,19 @@
 
 import os
 import sys
-import vtk
-from vtk.util.misc import vtkGetDataRoot
-from vtk.util.misc import vtkGetTempDir
+from vtkmodules.vtkCommonCore import (
+    vtkDoubleArray,
+    vtkFloatArray,
+    vtkIntArray,
+)
+from vtkmodules.vtkCommonDataModel import vtkTable
+from vtkmodules.vtkIOInfovis import vtkDelimitedTextReader
+from vtkmodules.vtkIOXML import (
+    vtkXMLTableReader,
+    vtkXMLTableWriter,
+)
+from vtkmodules.util.misc import vtkGetDataRoot
+from vtkmodules.util.misc import vtkGetTempDir
 
 VTK_DATA_ROOT = vtkGetDataRoot()
 VTK_TEMP_DIR = vtkGetTempDir()
@@ -14,14 +24,14 @@ file1 = VTK_TEMP_DIR + '/idFile1.vtt'
 file2 = VTK_TEMP_DIR + '/idFile2.vtt'
 
 # read in some poly data
-csvReader = vtk.vtkDelimitedTextReader()
+csvReader = vtkDelimitedTextReader()
 csvReader.SetFileName(VTK_DATA_ROOT + "/Data/vehicle_data.csv")
 csvReader.DetectNumericColumnsOn();
 csvReader.SetHaveHeaders(True);
 csvReader.Update()
 
 # write various versions
-xmlTableWriter = vtk.vtkXMLTableWriter()
+xmlTableWriter = vtkXMLTableWriter()
 xmlTableWriter.SetFileName(file0)
 xmlTableWriter.SetDataModeToAscii()
 xmlTableWriter.SetInputConnection(csvReader.GetOutputPort())
@@ -33,10 +43,10 @@ xmlTableWriter.SetDataModeToAppended()
 xmlTableWriter.Write()
 
 # Add some arrays to the FieldData
-modifiedTable = vtk.vtkTable()
+modifiedTable = vtkTable()
 modifiedTable.DeepCopy(csvReader.GetOutput())
 
-array0 = vtk.vtkIntArray()
+array0 = vtkIntArray()
 array0.SetName("Array 0")
 array0.SetNumberOfComponents(1)
 array0.SetNumberOfTuples(10)
@@ -45,7 +55,7 @@ for idArray in range(0,10):
 
 modifiedTable.GetFieldData().AddArray(array0)
 
-array1 = vtk.vtkIntArray()
+array1 = vtkIntArray()
 array1.SetName("Array 1")
 array1.SetNumberOfComponents(3)
 array1.SetNumberOfTuples(10)
@@ -54,7 +64,7 @@ for idArray in range(0,10):
 
 modifiedTable.GetFieldData().AddArray(array1)
 
-array2 = vtk.vtkDoubleArray()
+array2 = vtkDoubleArray()
 array2.SetName("Array 2")
 array2.SetNumberOfComponents(1)
 array2.SetNumberOfTuples(10)
@@ -63,7 +73,7 @@ for idArray in range(0,10):
 
 modifiedTable.GetFieldData().AddArray(array2)
 
-array3 = vtk.vtkFloatArray()
+array3 = vtkFloatArray()
 array3.SetName("Array 3")
 array3.SetNumberOfComponents(3)
 array3.SetNumberOfTuples(10)
@@ -72,22 +82,22 @@ for idArray in range(0,10):
 
 modifiedTable.GetFieldData().AddArray(array3)
 
-xmlTableWriter = vtk.vtkXMLTableWriter()
+xmlTableWriter = vtkXMLTableWriter()
 xmlTableWriter.SetFileName(file2)
 xmlTableWriter.SetDataModeToAppended()
 xmlTableWriter.SetInputData(modifiedTable)
 xmlTableWriter.Write()
 
 # read the ASCII version
-reader = vtk.vtkXMLTableReader()
+reader = vtkXMLTableReader()
 reader.SetFileName(file0)
 reader.Update()
 
-reference = vtk.vtkTable()
+reference = vtkTable()
 reference.DeepCopy(csvReader.GetOutput())
 
 # Test the first table
-table = vtk.vtkTable()
+table = vtkTable()
 table.DeepCopy(reader.GetOutput())
 
 # Checks the table dimensions
