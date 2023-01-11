@@ -18,20 +18,31 @@
 =========================================================================
 '''
 
-import vtk
-import vtk.test.Testing
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkImagingHybrid import vtkImageRectilinearWipe
+from vtkmodules.vtkImagingSources import vtkImageCanvasSource2D
+from vtkmodules.vtkRenderingCore import (
+    vtkActor2D,
+    vtkImageMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+import vtkmodules.test.Testing
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
-class TestWipe(vtk.test.Testing.vtkTest):
+class TestWipe(vtkmodules.test.Testing.vtkTest):
 
     def testWipe(self):
 
         # Image pipeline
 
-        renWin = vtk.vtkRenderWindow()
+        renWin = vtkRenderWindow()
 
-        image1 = vtk.vtkImageCanvasSource2D()
+        image1 = vtkImageCanvasSource2D()
         image1.SetNumberOfScalarComponents(3)
         image1.SetScalarTypeToUnsignedChar()
         image1.SetExtent(0, 79, 0, 79, 0, 0)
@@ -39,7 +50,7 @@ class TestWipe(vtk.test.Testing.vtkTest):
         image1.FillBox(0, 79, 0, 79)
         image1.Update()
 
-        image2 = vtk.vtkImageCanvasSource2D()
+        image2 = vtkImageCanvasSource2D()
         image2.SetNumberOfScalarComponents(3)
         image2.SetScalarTypeToUnsignedChar()
         image2.SetExtent(0, 79, 0, 79, 0, 0)
@@ -47,13 +58,13 @@ class TestWipe(vtk.test.Testing.vtkTest):
         image2.FillBox(0, 79, 0, 79)
         image2.Update()
 
-        mapper = vtk.vtkImageMapper()
+        mapper = vtkImageMapper()
         mapper.SetInputConnection(image1.GetOutputPort())
         mapper.SetColorWindow(255)
         mapper.SetColorLevel(127.5)
-        actor = vtk.vtkActor2D()
+        actor = vtkActor2D()
         actor.SetMapper(mapper)
-        imager = vtk.vtkRenderer()
+        imager = vtkRenderer()
         imager.AddActor2D(actor)
 
         renWin.AddRenderer(imager)
@@ -66,21 +77,21 @@ class TestWipe(vtk.test.Testing.vtkTest):
         imagers = dict()
 
         for wipe in wipes:
-            wiper.update({wipe:vtk.vtkImageRectilinearWipe()})
+            wiper.update({wipe:vtkImageRectilinearWipe()})
             wiper[wipe].SetInput1Data(image1.GetOutput())
             wiper[wipe].SetInput2Data(image2.GetOutput())
             wiper[wipe].SetPosition(20, 20)
             eval('wiper[wipe].SetWipeTo' + wipe + '()')
 
-            mapper.update({wipe:vtk.vtkImageMapper()})
+            mapper.update({wipe:vtkImageMapper()})
             mapper[wipe].SetInputConnection(wiper[wipe].GetOutputPort())
             mapper[wipe].SetColorWindow(255)
             mapper[wipe].SetColorLevel(127.5)
 
-            actor.update({wipe:vtk.vtkActor2D()})
+            actor.update({wipe:vtkActor2D()})
             actor[wipe].SetMapper(mapper[wipe])
 
-            imagers.update({wipe:vtk.vtkRenderer()})
+            imagers.update({wipe:vtkRenderer()})
             imagers[wipe].AddActor2D(actor[wipe])
 
             renWin.AddRenderer(imagers[wipe])
@@ -98,13 +109,13 @@ class TestWipe(vtk.test.Testing.vtkTest):
 
         # render and interact with data
 
-        iRen = vtk.vtkRenderWindowInteractor()
+        iRen = vtkRenderWindowInteractor()
         iRen.SetRenderWindow(renWin);
         renWin.Render()
 
         img_file = "TestWipe.png"
-        vtk.test.Testing.compareImage(iRen.GetRenderWindow(), vtk.test.Testing.getAbsImagePath(img_file), threshold=25)
-        vtk.test.Testing.interact()
+        vtkmodules.test.Testing.compareImage(iRen.GetRenderWindow(), vtkmodules.test.Testing.getAbsImagePath(img_file), threshold=25)
+        vtkmodules.test.Testing.interact()
 
 if __name__ == "__main__":
-     vtk.test.Testing.main([(TestWipe, 'test')])
+     vtkmodules.test.Testing.main([(TestWipe, 'test')])

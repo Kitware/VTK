@@ -1,22 +1,38 @@
 #!/usr/bin/env python
 import os
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkFiltersCore import vtkContourFilter
+from vtkmodules.vtkFiltersSources import vtkSphereSource
+from vtkmodules.vtkIOLegacy import (
+    vtkDataSetReader,
+    vtkDataSetWriter,
+)
+from vtkmodules.vtkImagingHybrid import vtkVoxelModeller
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # Now create the RenderWindow, Renderer and Interactor
 #
-ren1 = vtk.vtkRenderer()
-renWin = vtk.vtkRenderWindow()
+ren1 = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.AddRenderer(ren1)
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 
-sphereModel = vtk.vtkSphereSource()
+sphereModel = vtkSphereSource()
 sphereModel.SetThetaResolution(10)
 sphereModel.SetPhiResolution(10)
 
-voxelModel = vtk.vtkVoxelModeller()
+voxelModel = vtkVoxelModeller()
 voxelModel.SetInputConnection(sphereModel.GetOutputPort())
 voxelModel.SetSampleDimensions(21, 21, 21)
 voxelModel.SetModelBounds(-1.5, 1.5, -1.5, 1.5, -1.5, 1.5)
@@ -31,28 +47,28 @@ try:
     channel = open("voxelModel.vtk", "wb")
     channel.close()
 
-    aWriter = vtk.vtkDataSetWriter()
+    aWriter = vtkDataSetWriter()
     aWriter.SetFileName("voxelModel.vtk")
     aWriter.SetInputConnection(voxelModel.GetOutputPort())
     aWriter.Update()
 
-    aReader = vtk.vtkDataSetReader()
+    aReader = vtkDataSetReader()
     aReader.SetFileName("voxelModel.vtk")
 
-    voxelSurface = vtk.vtkContourFilter()
+    voxelSurface = vtkContourFilter()
     voxelSurface.SetInputConnection(aReader.GetOutputPort())
     voxelSurface.SetValue(0, .999)
 
-    voxelMapper = vtk.vtkPolyDataMapper()
+    voxelMapper = vtkPolyDataMapper()
     voxelMapper.SetInputConnection(voxelSurface.GetOutputPort())
 
-    voxelActor = vtk.vtkActor()
+    voxelActor = vtkActor()
     voxelActor.SetMapper(voxelMapper)
 
-    sphereMapper = vtk.vtkPolyDataMapper()
+    sphereMapper = vtkPolyDataMapper()
     sphereMapper.SetInputConnection(sphereModel.GetOutputPort())
 
-    sphereActor = vtk.vtkActor()
+    sphereActor = vtkActor()
     sphereActor.SetMapper(sphereMapper)
 
     ren1.AddActor(sphereActor)
