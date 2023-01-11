@@ -495,8 +495,13 @@ struct ExtractEdgesBase
   struct LocalDataType
   {
     EdgeVectorType LocalEdges;
+    std::vector<IDType> OriginalCellIds;
     CellIter LocalCellIter;
-    LocalDataType() { this->LocalEdges.reserve(2048); }
+    LocalDataType()
+    {
+      this->LocalEdges.reserve(2048);
+      this->OriginalCellIds.reserve(2048 / 3);
+    }
   };
 
   vtkContour3DLinearGrid* Filter;
@@ -505,6 +510,7 @@ struct ExtractEdgesBase
   double Value;
   vtkCellArray* Tris;
   vtkIdType TotalTris; // the total triangles thus far (support multiple contours)
+  std::vector<IDType>& OriginalCellIds;
 
   // Keep track of generated points and triangles on a per-thread basis
   vtkSMPThreadLocal<LocalDataType> LocalData;
@@ -513,13 +519,14 @@ struct ExtractEdgesBase
   EdgeTuple<IDType, EdgeDataType<IDType>>* Edges;
 
   ExtractEdgesBase(vtkContour3DLinearGrid* filter, TScalarsArray* scalars, CellIter* iter,
-    double value, vtkCellArray* tris, vtkIdType totalTris)
+    double value, vtkCellArray* tris, vtkIdType totalTris, std::vector<IDType>& originalCellIds)
     : Filter(filter)
     , Scalars(scalars)
     , Iter(iter)
     , Value(value)
     , Tris(tris)
     , TotalTris(totalTris)
+    , OriginalCellIds(originalCellIds)
     , NumThreadsUsed(0)
     , NumTris(0)
     , Edges(nullptr)
@@ -603,6 +610,12 @@ struct ExtractEdgesBase
         static_cast<vtkIdType>(localData.LocalEdges.size() / 3); // three edges per triangle
       this->NumThreadsUsed++;
     }
+    this->OriginalCellIds.reserve(static_cast<size_t>(numTris));
+    for (auto& localData : this->LocalData)
+    {
+      this->OriginalCellIds.insert(this->OriginalCellIds.end(), localData.OriginalCellIds.begin(),
+        localData.OriginalCellIds.end());
+    }
 
     // Allocate space for VTK triangle output. Take into account previous
     // contours.
@@ -624,8 +637,8 @@ struct ExtractEdges : public ExtractEdgesBase<IDType, TScalarsArray>
   using TExtractEdgesBase = ExtractEdgesBase<IDType, TScalarsArray>;
 
   ExtractEdges(vtkContour3DLinearGrid* filter, TScalarsArray* scalars, CellIter* iter, double value,
-    vtkCellArray* tris, vtkIdType totalTris)
-    : TExtractEdgesBase(filter, scalars, iter, value, tris, totalTris)
+    vtkCellArray* tris, vtkIdType totalTris, std::vector<IDType>& originalCellIds)
+    : TExtractEdgesBase(filter, scalars, iter, value, tris, totalTris, originalCellIds)
   {
   }
   ~ExtractEdges() override = default;
@@ -639,6 +652,7 @@ struct ExtractEdges : public ExtractEdgesBase<IDType, TScalarsArray>
   {
     auto& localData = this->LocalData.Local();
     auto& lEdges = localData.LocalEdges;
+    auto& lOriginalCellIds = localData.OriginalCellIds;
     CellIter* cellIter = &localData.LocalCellIter;
     const vtkIdType* c = cellIter->Initialize(cellId); // connectivity array
     unsigned short isoCase, numEdges, i;
@@ -670,6 +684,11 @@ struct ExtractEdges : public ExtractEdgesBase<IDType, TScalarsArray>
       if (*edges > 0)
       {
         numEdges = *edges++;
+        const int numberOfProducedTriangles = numEdges / 3;
+        for (i = 0; i < numberOfProducedTriangles; ++i)
+        {
+          lOriginalCellIds.push_back(static_cast<IDType>(cellId));
+        }
         for (i = 0; i < numEdges; ++i, edges += 2)
         {
           v0 = edges[0];
@@ -698,8 +717,9 @@ struct ExtractEdgesST : public ExtractEdgesBase<IDType, TScalarsArray>
   vtkIdType NumBatches;
 
   ExtractEdgesST(vtkContour3DLinearGrid* filter, TScalarsArray* scalars, CellIter* iter,
-    double value, vtkScalarTree* st, vtkCellArray* tris, vtkIdType totalTris)
-    : TExtractEdgesBase(filter, scalars, iter, value, tris, totalTris)
+    double value, vtkScalarTree* st, vtkCellArray* tris, vtkIdType totalTris,
+    std::vector<IDType>& originalCellIds)
+    : TExtractEdgesBase(filter, scalars, iter, value, tris, totalTris, originalCellIds)
     , ScalarTree(st)
   {
     this->NumBatches = this->ScalarTree->GetNumberOfCellBatches(value);
@@ -715,6 +735,7 @@ struct ExtractEdgesST : public ExtractEdgesBase<IDType, TScalarsArray>
   {
     auto& localData = this->LocalData.Local();
     auto& lEdges = localData.LocalEdges;
+    auto& lOriginalCellIds = localData.OriginalCellIds;
     CellIter* cellIter = &localData.LocalCellIter;
     const vtkIdType* c;
     unsigned short isoCase, numEdges, i;
@@ -723,7 +744,7 @@ struct ExtractEdgesST : public ExtractEdgesBase<IDType, TScalarsArray>
     float t;
     unsigned char v0, v1;
     const vtkIdType* cellIds;
-    vtkIdType idx, numCells;
+    vtkIdType idx, numCells, cellId;
     bool isFirst = vtkSMPTools::GetSingleThread();
 
     auto scalars = vtk::DataArrayValueRange<1>(this->Scalars);
@@ -740,7 +761,8 @@ struct ExtractEdgesST : public ExtractEdgesBase<IDType, TScalarsArray>
       cellIds = this->ScalarTree->GetCellBatch(batchNum, numCells);
       for (idx = 0; idx < numCells; ++idx)
       {
-        c = cellIter->GetCellIds(cellIds[idx]);
+        cellId = cellIds[idx];
+        c = cellIter->GetCellIds(cellId);
         // Compute case by repeated masking of scalar value
         for (isoCase = 0, i = 0; i < cellIter->NumVerts; ++i)
         {
@@ -752,6 +774,11 @@ struct ExtractEdgesST : public ExtractEdgesBase<IDType, TScalarsArray>
         if (*edges > 0)
         {
           numEdges = *edges++;
+          const int numberOfProducedTriangles = numEdges / 3;
+          for (i = 0; i < numberOfProducedTriangles; ++i)
+          {
+            lOriginalCellIds.push_back(static_cast<IDType>(cellId));
+          }
           for (i = 0; i < numEdges; ++i, edges += 2)
           {
             v0 = edges[0];
@@ -779,12 +806,13 @@ struct ExtractEdgesWorker
   void operator()(TScalarArray* scalars, vtkContour3DLinearGrid* filter, vtkIdType numCells,
     CellIter* cellIter, double isoValue, vtkScalarTree* st, vtkCellArray* newPolys,
     vtkIdType totalTris, vtkIdType& numTris, EdgeTuple<TIds, EdgeDataType<TIds>>*& mergeEdges,
-    int& numThreads)
+    std::vector<TIds>& originalCellIds, int& numThreads)
   {
     if (st != nullptr)
     {
       using TExtractEdgesST = ExtractEdgesST<TIds, TScalarArray>;
-      TExtractEdgesST extractEdges(filter, scalars, cellIter, isoValue, st, newPolys, totalTris);
+      TExtractEdgesST extractEdges(
+        filter, scalars, cellIter, isoValue, st, newPolys, totalTris, originalCellIds);
       EXECUTE_REDUCED_SMPFOR(
         filter->GetSequentialProcessing(), extractEdges.NumBatches, extractEdges, numThreads);
       numTris = extractEdges.NumTris;
@@ -793,7 +821,8 @@ struct ExtractEdgesWorker
     else
     {
       using TExtractEdges = ExtractEdges<TIds, TScalarArray>;
-      TExtractEdges extractEdges(filter, scalars, cellIter, isoValue, newPolys, totalTris);
+      TExtractEdges extractEdges(
+        filter, scalars, cellIter, isoValue, newPolys, totalTris, originalCellIds);
       EXECUTE_REDUCED_SMPFOR(filter->GetSequentialProcessing(), numCells, extractEdges, numThreads);
       numTris = extractEdges.NumTris;
       mergeEdges = extractEdges.Edges;
@@ -972,7 +1001,7 @@ struct ProduceMergedPointsWorker
 // If requested, interpolate point data attributes. The merge tuple contains an
 // interpolation value t for the merged edge.
 template <typename TIds>
-struct ProduceAttributes
+struct ProducePointAttributes
 {
   const EdgeTuple<TIds, EdgeDataType<TIds>>* Edges; // all edges, sorted into groups of merged edges
   const TIds* Offsets;                              // refer to single, unique, merged edge
@@ -980,7 +1009,7 @@ struct ProduceAttributes
   vtkIdType TotalPts; // total points / multiple contours computed previously
   vtkContour3DLinearGrid* Filter;
 
-  ProduceAttributes(const EdgeTuple<TIds, EdgeDataType<TIds>>* mt, const TIds* offsets,
+  ProducePointAttributes(const EdgeTuple<TIds, EdgeDataType<TIds>>* mt, const TIds* offsets,
     ArrayList* arrays, vtkIdType totalPts, vtkContour3DLinearGrid* filter)
     : Edges(mt)
     , Offsets(offsets)
@@ -1016,27 +1045,66 @@ struct ProduceAttributes
   }
 };
 
+// If requested, interpolate cell data attributes.
+template <typename TIds>
+struct ProduceCellAttributes
+{
+  const std::vector<TIds>& OriginalCellIds; // original cell ids
+  ArrayList* Arrays;                        // carry list of attributes to interpolate
+  vtkIdType TotalTris; // total triangles / multiple contours computed previously
+  vtkContour3DLinearGrid* Filter;
+
+  ProduceCellAttributes(const std::vector<TIds>& originalCellIds, ArrayList* arrays,
+    vtkIdType totalTris, vtkContour3DLinearGrid* filter)
+    : OriginalCellIds(originalCellIds)
+    , Arrays(arrays)
+    , TotalTris(totalTris)
+    , Filter(filter)
+  {
+  }
+
+  void operator()(vtkIdType beginCellId, vtkIdType endCellId)
+  {
+    bool isFirst = vtkSMPTools::GetSingleThread();
+
+    for (vtkIdType cellId = beginCellId; cellId < endCellId; ++cellId)
+    {
+      if (isFirst)
+      {
+        this->Filter->CheckAbort();
+      }
+      if (this->Filter->GetAbortOutput())
+      {
+        break;
+      }
+      this->Arrays->Copy(this->OriginalCellIds[cellId], cellId + this->TotalTris);
+    }
+  }
+};
+
 // Wrapper to handle multiple template types for merged processing
 template <typename TIds>
 int ProcessMerged(vtkContour3DLinearGrid* filter, vtkPoints* inPts, vtkPoints* outPts,
   vtkDataArray* inScalars, vtkIdType numCells, CellIter* cellIter, double isoValue,
   vtkScalarTree* st, vtkCellArray* newPolys, vtkTypeBool intAttr, vtkTypeBool computeScalars,
-  vtkPointData* inPD, vtkPointData* outPD, ArrayList* arrays, int& numThreads, vtkIdType totalPts,
+  vtkPointData* inPD, vtkPointData* outPD, ArrayList* pointArrays, vtkCellData* inCD,
+  vtkCellData* outCD, ArrayList* cellArrays, int& numThreads, vtkIdType totalPts,
   vtkIdType totalTris)
 {
   // Extract edges that the contour intersects. Templated on type of scalars.
   // List below the explicit choice of scalars that can be processed.
   vtkIdType numTris = 0;
   EdgeTuple<TIds, EdgeDataType<TIds>>* mergeEdges = nullptr; // may need reference counting
+  std::vector<TIds> originalCellIds;
   ExtractEdgesWorker<TIds> extractEdgesWorker;
   // process these scalar types, others could easily be added
   using ScalarsList = vtkTypeList::Create<unsigned int, int, float, double>;
   using DispatcherExtractEdges = vtkArrayDispatch::DispatchByValueType<ScalarsList>;
   if (!DispatcherExtractEdges::Execute(inScalars, extractEdgesWorker, filter, numCells, cellIter,
-        isoValue, st, newPolys, totalTris, numTris, mergeEdges, numThreads))
+        isoValue, st, newPolys, totalTris, numTris, mergeEdges, originalCellIds, numThreads))
   {
     extractEdgesWorker(inScalars, filter, numCells, cellIter, isoValue, st, newPolys, totalTris,
-      numTris, mergeEdges, numThreads);
+      numTris, mergeEdges, originalCellIds, numThreads);
   }
   int nt = numThreads;
 
@@ -1075,14 +1143,15 @@ int ProcessMerged(vtkContour3DLinearGrid* filter, vtkPoints* inPts, vtkPoints* o
   // Now process point data attributes if requested
   if (intAttr)
   {
+    // interpolate point data
     if (totalPts <= 0) // first contour value generating output
     {
       outPD->InterpolateAllocate(inPD, numPts);
       if (!computeScalars)
       {
-        arrays->ExcludeArray(inScalars);
+        pointArrays->ExcludeArray(inScalars);
       }
-      arrays->AddArrays(numPts, inPD, outPD);
+      pointArrays->AddArrays(numPts, inPD, outPD);
       if (!computeScalars)
       {
         outPD->RemoveArray(inScalars->GetName());
@@ -1090,10 +1159,23 @@ int ProcessMerged(vtkContour3DLinearGrid* filter, vtkPoints* inPts, vtkPoints* o
     }
     else
     {
-      arrays->Realloc(totalPts + numPts);
+      pointArrays->Realloc(totalPts + numPts);
     }
-    ProduceAttributes<TIds> interpolate(mergeEdges, offsets, arrays, totalPts, filter);
+    ProducePointAttributes<TIds> interpolate(mergeEdges, offsets, pointArrays, totalPts, filter);
     EXECUTE_SMPFOR(filter->GetSequentialProcessing(), numPts, interpolate);
+
+    // interpolate cell data
+    if (totalTris <= 0) // first contour value generating output
+    {
+      outCD->CopyAllocate(inCD, numTris);
+      cellArrays->AddArrays(numTris, inCD, outCD);
+    }
+    else
+    {
+      cellArrays->Realloc(totalTris + numTris);
+    }
+    ProduceCellAttributes<TIds> interpolateCell(originalCellIds, cellArrays, totalTris, filter);
+    EXECUTE_SMPFOR(filter->GetSequentialProcessing(), numTris, interpolateCell);
   }
 
   // Clean up
@@ -1446,7 +1528,10 @@ void vtkContour3DLinearGrid::ProcessPiece(
   {
     vtkPointData* inPD = input->GetPointData();
     vtkPointData* outPD = output->GetPointData();
-    ArrayList arrays;
+    vtkCellData* inCD = input->GetCellData();
+    vtkCellData* outCD = output->GetCellData();
+    ArrayList pointArrays;
+    ArrayList cellArrays;
 
     // Determine the size/type of point and cell ids needed to index points
     // and cells. Using smaller ids results in a greatly reduced memory footprint
@@ -1461,8 +1546,9 @@ void vtkContour3DLinearGrid::ProcessPiece(
       if (!this->LargeIds)
       {
         if (!ProcessMerged<int>(this, inPts, outPts, inScalars, numCells, cellIter, value, stree,
-              newPolys, this->InterpolateAttributes, this->ComputeScalars, inPD, outPD, &arrays,
-              this->NumberOfThreadsUsed, totalPts, totalTris))
+              newPolys, this->InterpolateAttributes, this->ComputeScalars, inPD, outPD,
+              &pointArrays, inCD, outCD, &cellArrays, this->NumberOfThreadsUsed, totalPts,
+              totalTris))
         {
           return;
         }
@@ -1471,7 +1557,8 @@ void vtkContour3DLinearGrid::ProcessPiece(
       {
         if (!ProcessMerged<vtkIdType>(this, inPts, outPts, inScalars, numCells, cellIter, value,
               stree, newPolys, this->InterpolateAttributes, this->ComputeScalars, inPD, outPD,
-              &arrays, this->NumberOfThreadsUsed, totalPts, totalTris))
+              &pointArrays, inCD, outCD, &cellArrays, this->NumberOfThreadsUsed, totalPts,
+              totalTris))
         {
           return;
         }
