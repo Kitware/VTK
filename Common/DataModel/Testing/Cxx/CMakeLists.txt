@@ -105,6 +105,7 @@ vtk_add_test_cxx(vtkCommonDataModelCxxTests tests
   )
 vtk_add_test_cxx(vtkCommonDataModelCxxTests data_tests
   TestImageDataOrientation2.cxx,NO_DATA
+  TestLagrangeCurveNonLinearLevel.cxx,NO_DATA
   TestLagrangeTriangle.cxx
   TestLagrangeTetra.cxx
   TestLagrangeWedge.cxx
