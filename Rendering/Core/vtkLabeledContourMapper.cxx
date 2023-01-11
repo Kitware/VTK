@@ -839,7 +839,7 @@ bool vtkLabeledContourMapper::ApplyStencil(vtkRenderer*, vtkActor*)
 //------------------------------------------------------------------------------
 bool vtkLabeledContourMapper::RenderPolyData(vtkRenderer* ren, vtkActor* act)
 {
-  this->PolyDataMapper->SetInputConnection(this->GetInputConnection(0, 0));
+  this->PolyDataMapper->SetInputData(this->GetInput());
   this->PolyDataMapper->Render(ren, act);
   return true;
 }
