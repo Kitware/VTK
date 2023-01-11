@@ -113,9 +113,9 @@ selectionFilter.Update()
 selectionFilter.RemoveObserver(observerId)
 # Check the results
 if cb.event:
-    print(f"As expected, greedy edge search failed: {cb.calldata}")
+    print("As expected, greedy edge search failed: %s" % cb.calldata)
 numberOfOutputPoints = selectionFilter.GetOutput().GetNumberOfPoints()
-print(f"Number of points extracted using greedy edge search (0 means failure): {numberOfOutputPoints}")
+print("Number of points extracted using greedy edge search (0 means failure): %d" % numberOfOutputPoints)
 
 # Run selection filter using Dijkstra method (expected to succeed)
 
@@ -124,7 +124,7 @@ selectionFilter.SetEdgeSearchModeToDijkstra()
 selectionFilter.Update()
 # Check the results
 numberOfOutputPoints = selectionFilter.GetOutput().GetNumberOfPoints()
-print(f"Number of points extracted using Dijkstra edge search (0 means failure): {numberOfOutputPoints}")
+print("Number of points extracted using Dijkstra edge search (0 means failure): %d" % numberOfOutputPoints)
 if numberOfOutputPoints == 0:
     raise ValueError("Dijkstra edge search failed.")
 
