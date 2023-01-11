@@ -5,6 +5,7 @@ set(classes
   vtkArrayDataAlgorithm
   vtkCachedStreamingDemandDrivenPipeline
   vtkCastToConcrete
+  vtkCellGridAlgorithm
   vtkCompositeDataPipeline
   vtkCompositeDataSetAlgorithm
   vtkDataObjectAlgorithm

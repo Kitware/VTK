@@ -1,9 +1,14 @@
+# set(TestCellGrid_ARGS
+#   -D DATA{../Data/Input/dgHex2d.dg}
+# )
+
 vtk_add_test_python(
   ImplicitSum.py
 #  LineIntersectQuadraticCells.py
   PerlinNoise.py
   SelectionLoop.py
   TestBoxPlaneIntersection.py
+  TestCellGrid.py,NO_VALID
   TestComputeBounds.py,NO_DATA,NO_VALID
   TestCopyStructuredData.py,NO_DATA,NO_VALID
   TestGetBounds.py,NO_DATA,NO_VALID

@@ -1,0 +1,20 @@
+NAME
+  VTK::FiltersCellGrid
+LIBRARY_NAME
+  vtkFiltersCellGrid
+DESCRIPTION
+  Filters and cell-types for vtkCellGrid objects
+KIT
+  VTK::Filters
+GROUPS
+  StandAlone
+DEPENDS
+  VTK::CommonCore
+  VTK::CommonDataModel
+  VTK::CommonExecutionModel
+PRIVATE_DEPENDS
+  VTK::FiltersCore
+TEST_DEPENDS
+  VTK::CommonSystem
+  VTK::IOCellGrid
+  VTK::TestingCore

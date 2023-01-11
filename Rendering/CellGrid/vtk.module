@@ -1,0 +1,30 @@
+NAME
+  VTK::RenderingCellGrid
+LIBRARY_NAME
+  vtkRenderingCellGrid
+IMPLEMENTABLE
+KIT
+  VTK::OpenGL
+GROUPS
+  Rendering
+IMPLEMENTS
+  VTK::RenderingCore
+DEPENDS
+  VTK::CommonCore
+  VTK::CommonDataModel
+  VTK::FiltersCellGrid
+  VTK::RenderingCore
+  VTK::RenderingOpenGL2
+  VTK::glew
+PRIVATE_DEPENDS
+  VTK::CommonExecutionModel
+  VTK::opengl
+TEST_DEPENDS
+  VTK::CommonSystem
+  VTK::IOCellGrid
+  VTK::IOImage
+  VTK::ImagingGeneral
+  VTK::InteractionStyle
+  VTK::RenderingImage
+  VTK::TestingCore
+  VTK::TestingRendering

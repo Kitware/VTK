@@ -257,7 +257,9 @@ set(classes
   vtkSortDataArray
   vtkStdString
   vtkStringArray
+  vtkStringManager
   vtkStringOutputWindow
+  vtkStringToken
   vtkTimePointUtility
   vtkTimeStamp
   vtkUnsignedCharArray
@@ -455,8 +457,11 @@ set(nowrap_headers
   vtkDataArrayTupleRange_Generic.h
   vtkDataArrayValueRange_AOS.h
   vtkDataArrayValueRange_Generic.h
+  vtkInherits.h
   vtkMathPrivate.hxx
-  ${vtk_smp_nowrap_headers})
+  vtkTypeName.h
+  ${vtk_smp_nowrap_headers}
+)
 set(generated_headers
   vtkBuild.h
   vtkDebug.h
@@ -537,6 +542,19 @@ endif()
 configure_file(
   "${CMAKE_CURRENT_SOURCE_DIR}/vtkFloatingPointExceptionsConfigure.h.in"
   "${CMAKE_CURRENT_BINARY_DIR}/vtkFloatingPointExceptionsConfigure.h")
+
+include(CheckCXXSymbolExists)
+
+# Determine whether the cxxabi header exists and if it contains a demangle function.
+# XXX(c++17): prefer `__has_include`
+check_include_file_cxx("cxxabi.h" HAVE_CXXABI_H)
+if (HAVE_CXXABI_H)
+  check_cxx_symbol_exists(abi::__cxa_demangle "cxxabi.h" VTK_HAS_CXXABI_DEMANGLE)
+endif()
+configure_file(
+  "${CMAKE_CURRENT_SOURCE_DIR}/vtkCxxABIConfigure.h.in"
+  "${CMAKE_CURRENT_BINARY_DIR}/vtkCxxABIConfigure.h")
+list(APPEND headers "${CMAKE_CURRENT_BINARY_DIR}/vtkCxxABIConfigure.h")
 
 set_property(SOURCE vtkObjectBase.cxx
   PROPERTY
