@@ -39,7 +39,7 @@ vtkOpenXRRenderWindowInteractor::vtkOpenXRRenderWindowInteractor()
   {
     this->DeviceInputDownCount[i] = 0;
   }
-  this->ActionManifestFileName = "./vtk_openxr_actions.json";
+  this->ActionManifestFileName = "vtk_openxr_actions.json";
 
   // OpenXR can't have slashes in the action set name (as well as action names)
   this->ActionSetName = "vtk-actions";
@@ -94,9 +94,7 @@ void vtkOpenXRRenderWindowInteractor::ProcessXrEvents()
       // We lost some data
       case XR_TYPE_EVENT_DATA_EVENTS_LOST:
       {
-        const auto stateEvent = *reinterpret_cast<const XrEventDataEventsLost*>(&eventData);
-        vtkDebugMacro(<< "OpenXR event [XR_TYPE_EVENT_DATA_EVENTS_LOST] : "
-                      << stateEvent.lostEventCount << " events data lost!");
+        vtkDebugMacro(<< "OpenXR event [XR_TYPE_EVENT_DATA_EVENTS_LOST] : some events data lost!");
         // do we care if the runtime loses events?
         break;
       }
@@ -477,7 +475,7 @@ void vtkOpenXRRenderWindowInteractor::Initialize()
   // Make sure the render window is initialized
   renWin->Initialize();
 
-  if (!renWin->GetInitialized())
+  if (!renWin->GetVRInitialized())
   {
     return;
   }
@@ -493,8 +491,8 @@ void vtkOpenXRRenderWindowInteractor::Initialize()
   // Prevent unbound action warning
   this->AddAction("handposegrip", [](vtkEventData*) {});
 
-  std::string fullpath =
-    vtksys::SystemTools::CollapseFullPath(this->ActionManifestFileName.c_str());
+  std::string fullpath = vtksys::SystemTools::CollapseFullPath(
+    this->ActionManifestDirectory + this->ActionManifestFileName);
 
   if (!this->LoadActions(fullpath))
   {

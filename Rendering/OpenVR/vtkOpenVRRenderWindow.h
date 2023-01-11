@@ -81,10 +81,11 @@ public:
   void Initialize() override;
 
   /**
-   * Free up any graphics resources associated with this window
-   * a value of nullptr means the context may already be destroyed
+   * Finalize the rendering window.  This will shutdown all system-specific
+   * resources. After having called this, it should be possible to destroy
+   * a window that was used for a SetWindowId() call without any ill effects.
    */
-  void ReleaseGraphicsResources(vtkWindow* renWin) override;
+  void Finalize() override;
 
   /**
    * Get the system pointer
@@ -151,12 +152,13 @@ public:
 
 protected:
   vtkOpenVRRenderWindow();
-  ~vtkOpenVRRenderWindow() override = default;
+  ~vtkOpenVRRenderWindow() override;
 
   std::string GetWindowTitleFromAPI() override;
   bool GetSizeFromAPI() override;
 
   bool CreateFramebuffers(uint32_t viewCount = 2) override;
+  void RenderFramebuffer(FramebufferDesc& framebufferDesc) override;
   bool CreateOneFramebuffer(int nWidth, int nHeight, FramebufferDesc& framebufferDesc);
 
   /**

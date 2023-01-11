@@ -59,8 +59,6 @@ vtkVRRenderWindow::vtkVRRenderWindow()
 //------------------------------------------------------------------------------
 vtkVRRenderWindow::~vtkVRRenderWindow()
 {
-  this->Finalize();
-
   vtkRenderer* ren;
   vtkCollectionSimpleIterator rit;
   this->Renderers->InitTraversal(rit);
@@ -82,7 +80,7 @@ void vtkVRRenderWindow::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "ContextId: " << this->HelperWindow->GetGenericContext() << "\n";
   os << indent << "Window Id: " << this->HelperWindow->GetGenericWindowId() << "\n";
-  os << indent << "Initialized: " << this->Initialized << "\n";
+  os << indent << "VRInitialized: " << this->VRInitialized << "\n";
   os << indent << "PhysicalViewDirection: (" << this->PhysicalViewDirection[0] << ", "
      << this->PhysicalViewDirection[1] << ", " << this->PhysicalViewDirection[2] << ")\n";
   os << indent << "PhysicalViewUp: (" << this->PhysicalViewUp[0] << ", " << this->PhysicalViewUp[1]
@@ -331,84 +329,11 @@ void vtkVRRenderWindow::AddRenderer(vtkRenderer* ren)
 }
 
 //------------------------------------------------------------------------------
-void vtkVRRenderWindow::Start()
-{
-  // if the renderer has not been initialized, do so now
-  if (this->HelperWindow && !this->Initialized)
-  {
-    this->Initialize();
-  }
-
-  this->Superclass::Start();
-}
-
-//------------------------------------------------------------------------------
-void vtkVRRenderWindow::Initialize()
-{
-  if (this->Initialized)
-  {
-    return;
-  }
-
-  this->GetSizeFromAPI();
-
-  this->HelperWindow->SetDisplayId(this->GetGenericDisplayId());
-  this->HelperWindow->SetShowWindow(false);
-  this->HelperWindow->Initialize();
-
-  this->MakeCurrent();
-
-  this->OpenGLInit();
-
-  // some classes override the ivar in a getter :-(
-  this->MaximumHardwareLineWidth = this->HelperWindow->GetMaximumHardwareLineWidth();
-
-  glDepthRange(0., 1.);
-
-  this->SetWindowName(this->GetWindowTitleFromAPI().c_str());
-
-  this->CreateFramebuffers();
-
-  this->Initialized = true;
-  vtkDebugMacro(<< "End of VRRenderWindow Initialization");
-}
-
-//------------------------------------------------------------------------------
-void vtkVRRenderWindow::Finalize()
-{
-  this->ReleaseGraphicsResources(this);
-  this->DeviceHandleToDeviceDataMap.clear();
-
-  if (this->HelperWindow && this->HelperWindow->GetGenericContext())
-  {
-    this->HelperWindow->Finalize();
-  }
-}
-
-//------------------------------------------------------------------------------
 void vtkVRRenderWindow::Render()
 {
   this->MakeCurrent();
   this->GetState()->ResetGLViewportState();
   this->Superclass::Render();
-}
-
-//------------------------------------------------------------------------------
-void vtkVRRenderWindow::RenderFramebuffer(FramebufferDesc& framebufferDesc)
-{
-  this->GetState()->PushDrawFramebufferBinding();
-  this->GetState()->vtkglBindFramebuffer(GL_DRAW_FRAMEBUFFER, framebufferDesc.ResolveFramebufferId);
-
-  glBlitFramebuffer(0, 0, this->Size[0], this->Size[1], 0, 0, this->Size[0], this->Size[1],
-    GL_COLOR_BUFFER_BIT, GL_LINEAR);
-
-  if (framebufferDesc.ResolveDepthTextureId != 0)
-  {
-    glBlitFramebuffer(0, 0, this->Size[0], this->Size[1], 0, 0, this->Size[0], this->Size[1],
-      GL_DEPTH_BUFFER_BIT, GL_NEAREST);
-  }
-
-  this->GetState()->PopDrawFramebufferBinding();
 }
 
 //------------------------------------------------------------------------------

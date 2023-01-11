@@ -14,46 +14,32 @@
 
 #include "vtkActor.h"
 #include "vtkCamera.h"
+#include "vtkCullerCollection.h"
+#include "vtkLight.h"
 #include "vtkNew.h"
 #include "vtkOpenGLPolyDataMapper.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLVertexBufferObject.h"
+#include "vtkOpenXRCamera.h"
+#include "vtkOpenXRRenderWindow.h"
+#include "vtkOpenXRRenderWindowInteractor.h"
+#include "vtkOpenXRRenderer.h"
 #include "vtkPLYReader.h"
 #include "vtkProperty.h"
-#include "vtkRenderer.h"
-
 #include "vtkRegressionTestImage.h"
-#include "vtkTestUtilities.h"
-
 #include "vtkRenderWindowInteractor.h"
-
-#include "vtkOpenGLRenderWindow.h"
-
-#include "vtkCullerCollection.h"
-#include "vtkOpenVRCamera.h"
+#include "vtkRenderer.h"
+#include "vtkTestUtilities.h"
 #include "vtkTransform.h"
-
-#include "vtkPlaneWidget.h"
-
 #include "vtkTransformPolyDataFilter.h"
 
-#include "vtkLight.h"
-
-#include "vtkOpenVRCamera.h"
-#include "vtkOpenVRRenderWindow.h"
-#include "vtkOpenVRRenderWindowInteractor.h"
-#include "vtkOpenVRRenderer.h"
-
-#include "vtkWin32OpenGLRenderWindow.h"
-#include "vtkWin32RenderWindowInteractor.h"
-
 //------------------------------------------------------------------------------
-int TestDragon(int argc, char* argv[])
+int TestOpenXRInteractiveDragon(int argc, char* argv[])
 {
-  vtkNew<vtkOpenVRRenderer> renderer;
-  vtkNew<vtkOpenVRRenderWindow> renderWindow;
-  vtkNew<vtkOpenVRRenderWindowInteractor> iren;
-  vtkNew<vtkOpenVRCamera> cam;
+  vtkNew<vtkOpenXRRenderer> renderer;
+  vtkNew<vtkOpenXRRenderWindow> renderWindow;
+  vtkNew<vtkOpenXRRenderWindowInteractor> iren;
+  vtkNew<vtkOpenXRCamera> cam;
   renderer->SetShowFloor(true);
   renderer->SetBackground(0.2, 0.3, 0.4);
   renderWindow->AddRenderer(renderer);
@@ -70,10 +56,9 @@ int TestDragon(int argc, char* argv[])
   renderWindow->SetDesiredUpdateRate(350.0);
   iren->SetDesiredUpdateRate(350.0);
   iren->SetStillUpdateRate(350.0);
+  iren->SetActionManifestDirectory("../../");
 
   renderer->RemoveCuller(renderer->GetCullers()->GetLastItem());
-
-  // renderer->UseShadowsOn();
 
   const char* fileName = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/dragon.ply");
   vtkNew<vtkPLYReader> reader;
@@ -81,7 +66,7 @@ int TestDragon(int argc, char* argv[])
 
   vtkNew<vtkTransform> trans;
   trans->Translate(10.0, 20.0, 30.0);
-  // trans->Scale(10.0,10.0,10.0);
+
   vtkNew<vtkTransformPolyDataFilter> tf;
   tf->SetTransform(trans);
   tf->SetInputConnection(reader->GetOutputPort());
@@ -100,7 +85,6 @@ int TestDragon(int argc, char* argv[])
   actor->GetProperty()->SetAmbient(0.5);
   actor->GetProperty()->SetSpecularPower(20.0);
   actor->GetProperty()->SetOpacity(1.0);
-  //  actor->GetProperty()->SetRepresentationToWireframe();
 
   vtkNew<vtkActor> pactor;
   renderer->AddActor(pactor);
@@ -112,7 +96,7 @@ int TestDragon(int argc, char* argv[])
   pmapper->SetInputConnection(reader->GetOutputPort());
   pmapper->SetVBOShiftScaleMethod(vtkOpenGLVertexBufferObject::AUTO_SHIFT_SCALE);
   pactor->SetMapper(pmapper);
-  // pactor->SetScale(3.0, 3.0, 3.0);
+
   pactor->SetUserMatrix(trans2->GetMatrix());
   pactor->GetProperty()->SetAmbientColor(0.2, 1.0, 0.2);
   pactor->GetProperty()->SetDiffuseColor(0.6, 1.0, 1.0);
@@ -146,19 +130,9 @@ int TestDragon(int argc, char* argv[])
   dactor->SetCoordinateSystemRenderer(renderer);
   dactor->UseBoundsOff();
 
-  // the HMD may not be turned on/etc
-  renderWindow->Initialize();
-  if (renderWindow->GetHMD())
-  {
-    renderer->ResetCamera();
-    renderWindow->Render();
+  renderer->ResetCamera();
 
-    int retVal = vtkRegressionTestImage(renderWindow.Get());
-    if (retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
-      iren->Start();
-    }
-    return !retVal;
-  }
+  iren->Start();
+
   return 0;
 }

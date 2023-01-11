@@ -253,23 +253,6 @@ public:
   void AddRenderer(vtkRenderer*) override;
 
   /**
-   * Begin the rendering process.
-   */
-  void Start() override;
-
-  /**
-   * Initialize the rendering window.
-   */
-  void Initialize() override;
-
-  /**
-   * Finalize the rendering window.  This will shutdown all system-specific
-   * resources. After having called this, it should be possible to destroy
-   * a window that was used for a SetWindowId() call without any ill effects.
-   */
-  void Finalize() override;
-
-  /**
    * Make this windows OpenGL context the current context.
    */
   void MakeCurrent() override;
@@ -388,9 +371,10 @@ public:
   virtual void UpdateHMDMatrixPose(){};
 
   /**
-   * Get whether the window has been initialized successfully.
+   * Get whether the XR components of the window
+   * have been initialized successfully.
    */
-  vtkGetMacro(Initialized, bool);
+  vtkGetMacro(VRInitialized, bool);
 
 protected:
   vtkVRRenderWindow();
@@ -416,8 +400,9 @@ protected:
   virtual std::string GetWindowTitleFromAPI() { return "VTK - VR"; }
 
   virtual bool CreateFramebuffers(uint32_t viewCount = 2) = 0;
-  void RenderFramebuffer(FramebufferDesc& framebufferDesc);
+  virtual void RenderFramebuffer(FramebufferDesc& framebufferDesc) = 0;
 
+  bool VRInitialized = false;
   bool TrackHMD = true;
 
   // One per view (typically one per eye)

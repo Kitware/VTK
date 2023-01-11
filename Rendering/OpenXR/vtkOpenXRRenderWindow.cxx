@@ -50,7 +50,7 @@ vtkOpenXRRenderWindow::vtkOpenXRRenderWindow()
 {
   this->StereoCapableWindow = 1;
   this->StereoRender = 1;
-  this->UseOffScreenBuffers = 1;
+  this->UseOffScreenBuffers = true;
   this->Size[0] = 640;
   this->Size[1] = 720;
   this->Position[0] = 100;
@@ -107,8 +107,14 @@ void vtkOpenXRRenderWindow::AddRenderer(vtkRenderer* ren)
 // Initialize the rendering window.
 void vtkOpenXRRenderWindow::Initialize()
 {
-  if (this->Initialized)
+  if (this->VRInitialized)
   {
+    return;
+  }
+
+  if (!this->HelperWindow)
+  {
+    vtkErrorMacro(<< "HelperWindow is not set");
     return;
   }
 
@@ -124,7 +130,6 @@ void vtkOpenXRRenderWindow::Initialize()
   if (!xrManager.Initialize(this->HelperWindow))
   {
     // Set to false because the above init of the HelperWindow sets it to true
-    this->Initialized = false;
     vtkErrorMacro(<< "Failed to initialize OpenXRManager");
     return;
   }
@@ -139,22 +144,27 @@ void vtkOpenXRRenderWindow::Initialize()
   std::string strWindowTitle = "VTK - " + xrManager.GetOpenXRPropertiesAsString();
   this->SetWindowName(strWindowTitle.c_str());
 
-  this->Initialized = true;
-
-  vtkDebugMacro(<< "End of OpenXRRenderWindow Initialization");
+  this->VRInitialized = true;
 }
 
 //------------------------------------------------------------------------------
 void vtkOpenXRRenderWindow::Finalize()
 {
-  this->ReleaseGraphicsResources(this);
-
-  vtkOpenXRManager::GetInstance().Finalize();
+  if (!this->VRInitialized)
+  {
+    return;
+  }
 
   if (this->HelperWindow && this->HelperWindow->GetGenericContext())
   {
     this->HelperWindow->Finalize();
   }
+
+  vtkOpenXRManager::GetInstance().Finalize();
+
+  this->ReleaseGraphicsResources(this);
+
+  this->VRInitialized = false;
 }
 
 //------------------------------------------------------------------------------
