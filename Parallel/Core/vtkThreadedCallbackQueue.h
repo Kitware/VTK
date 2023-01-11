@@ -190,7 +190,6 @@ private:
   struct InvokerImpl;
   ///@}
 
-  class vtkInternalController;
   using InvokerPointer = std::unique_ptr<InvokerBase>;
 
   class ThreadWorker;
@@ -244,16 +243,17 @@ private:
    * `SetNumberOfThreads(int)`. It queues those commands and serially executes them on a separate
    * thread. This allows those methods to not be blocking and run asynchronously.
    */
-  vtkSmartPointer<vtkInternalController> Controller;
+  vtkSmartPointer<vtkThreadedCallbackQueue> Controller;
 
   vtkThreadedCallbackQueue(const vtkThreadedCallbackQueue&) = delete;
   void operator=(const vtkThreadedCallbackQueue&) = delete;
 
-protected:
+  static vtkThreadedCallbackQueue* New(vtkThreadedCallbackQueue* controller);
+
   /**
    * Constructor setting internal `Controller` to the provided controller.
    */
-  vtkThreadedCallbackQueue(vtkSmartPointer<vtkInternalController>&& controller);
+  vtkThreadedCallbackQueue(vtkSmartPointer<vtkThreadedCallbackQueue>&& controller);
 };
 
 VTK_ABI_NAMESPACE_END
