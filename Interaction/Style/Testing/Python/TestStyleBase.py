@@ -2,7 +2,11 @@
 
 from __future__ import print_function
 
-import vtk
+from vtkmodules.vtkCommonCore import vtkMath
+from vtkmodules.vtkRenderingCore import vtkPropPicker
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
 
 class TestStyleBase(object):
 
@@ -10,7 +14,7 @@ class TestStyleBase(object):
         self.ren1 = ren
 
         # Get random numbers
-        self.math = vtk.vtkMath()
+        self.math = vtkMath()
         self.math.RandomSeed(1)
 
 
@@ -51,7 +55,7 @@ class TestStyleBase(object):
 
         # The following line can be problematic, it may use a different picker
         # than what the interactions style uses causing inconsistencies.
-        pick = vtk.vtkPropPicker()
+        pick = vtkPropPicker()
 
         radius = 5 * (1 + use_timers)
 

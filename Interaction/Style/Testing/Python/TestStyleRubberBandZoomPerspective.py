@@ -1,10 +1,22 @@
 #!/usr/bin/env python
 from __future__ import print_function
 
-import vtk
-import vtk.test.Testing
+from vtkmodules.vtkFiltersCore import vtkIdFilter
+from vtkmodules.vtkFiltersSources import vtkSphereSource
+from vtkmodules.vtkInteractionStyle import vtkInteractorStyleRubberBandZoom
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+import vtkmodules.test.Testing
 
-class TestStyleRubberBandZoomPerspective(vtk.test.Testing.vtkTest):
+class TestStyleRubberBandZoomPerspective(vtkmodules.test.Testing.vtkTest):
 
     def initPipeline(self):
         try:
@@ -22,10 +34,10 @@ class TestStyleRubberBandZoomPerspective(vtk.test.Testing.vtkTest):
 
         self.pipelineInitialized = True
 
-        self.sphere = vtk.vtkSphereSource()
-        self.idFilter = vtk.vtkIdFilter()
-        self.mapper = vtk.vtkPolyDataMapper()
-        self.actor = vtk.vtkActor()
+        self.sphere = vtkSphereSource()
+        self.idFilter = vtkIdFilter()
+        self.mapper = vtkPolyDataMapper()
+        self.actor = vtkActor()
 
         self.idFilter.PointIdsOff()
         self.idFilter.CellIdsOn()
@@ -39,16 +51,16 @@ class TestStyleRubberBandZoomPerspective(vtk.test.Testing.vtkTest):
         self.mapper.SetScalarRange(0, 95)
         self.actor.SetMapper(self.mapper)
 
-        self.renderer = vtk.vtkRenderer()
+        self.renderer = vtkRenderer()
         self.renderer.AddActor(self.actor)
 
-        self.renderWindow = vtk.vtkRenderWindow()
+        self.renderWindow = vtkRenderWindow()
         self.renderWindow.AddRenderer(self.renderer)
 
-        self.iren = vtk.vtkRenderWindowInteractor()
+        self.iren = vtkRenderWindowInteractor()
         self.iren.SetRenderWindow(self.renderWindow)
 
-        self.style = vtk.vtkInteractorStyleRubberBandZoom()
+        self.style = vtkInteractorStyleRubberBandZoom()
         self.iren.SetInteractorStyle(self.style)
 
         self.renderer.GetActiveCamera().SetPosition(0, 0, -1)
@@ -64,9 +76,9 @@ class TestStyleRubberBandZoomPerspective(vtk.test.Testing.vtkTest):
 
     def compare(self, suffix):
         img_file = "TestStyleRubberBandZoomPerspective-%s.png" % suffix
-        vtk.test.Testing.compareImage(self.renderWindow,
-                vtk.test.Testing.getAbsImagePath(img_file), threshold=25)
-        vtk.test.Testing.interact()
+        vtkmodules.test.Testing.compareImage(self.renderWindow,
+                vtkmodules.test.Testing.getAbsImagePath(img_file), threshold=25)
+        vtkmodules.test.Testing.interact()
 
     def testDefault(self):
         print("testDefault")
@@ -106,4 +118,4 @@ class TestStyleRubberBandZoomPerspective(vtk.test.Testing.vtkTest):
         self.compare("ParaViewWay")
 
 if __name__ == "__main__":
-    vtk.test.Testing.main([(TestStyleRubberBandZoomPerspective, 'test')])
+    vtkmodules.test.Testing.main([(TestStyleRubberBandZoomPerspective, 'test')])

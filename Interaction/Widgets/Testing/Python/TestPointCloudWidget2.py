@@ -18,9 +18,22 @@
 =========================================================================
 '''
 
-import vtk
-import vtk.test.Testing
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkFiltersSources import vtkPointSource
+from vtkmodules.vtkInteractionWidgets import (
+    vtkPointCloudRepresentation,
+    vtkPointCloudWidget,
+)
+from vtkmodules.vtkRenderingCore import (
+    vtkInteractorEventRecorder,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+import vtkmodules.test.Testing
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # Demonstrate how to use the vtkPointCloudWidget.
@@ -209,7 +222,7 @@ Recording = \
 
 # create a point source
 #
-pc = vtk.vtkPointSource()
+pc = vtkPointSource()
 pc.SetNumberOfPoints(npts)
 pc.SetCenter(5,10,20)
 pc.SetRadius(7.5)
@@ -217,11 +230,11 @@ pc.Update()
 
 # Create the RenderWindow, Renderer and both Actors
 #
-ren = vtk.vtkRenderer()
-renWin = vtk.vtkRenderWindow()
+ren = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.AddRenderer(ren)
 
-iRen = vtk.vtkRenderWindowInteractor()
+iRen = vtkRenderWindowInteractor()
 iRen.SetRenderWindow(renWin);
 
 # Add the actors to the renderer, set the background and size
@@ -241,12 +254,12 @@ def ReportCoords(widget, event_string):
 
 # Conveniently the representation creates an actor/mapper
 # to render the point cloud.
-rep = vtk.vtkPointCloudRepresentation()
+rep = vtkPointCloudRepresentation()
 rep.SetPlaceFactor(1.0);
 rep.PlacePointCloud(pc.GetOutput());
 rep.SetPickingModeToHardware()
 
-pcWidget = vtk.vtkPointCloudWidget()
+pcWidget = vtkPointCloudWidget()
 pcWidget.SetInteractor(iRen)
 pcWidget.SetRepresentation(rep);
 pcWidget.AddObserver("PickEvent",SelectPoint);
@@ -254,7 +267,7 @@ pcWidget.AddObserver("WidgetActivateEvent",ReportCoords);
 pcWidget.On()
 
 # Handle playback of events
-recorder = vtk.vtkInteractorEventRecorder()
+recorder = vtkInteractorEventRecorder()
 recorder.SetInteractor(iRen)
 #recorder.SetFileName("record.log")
 #recorder.On()

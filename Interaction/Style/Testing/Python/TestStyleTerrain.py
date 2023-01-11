@@ -19,9 +19,17 @@
 '''
 
 import sys
-import vtk
-import vtk.test.Testing
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkInteractionStyle import vtkInteractorStyleTerrain
+from vtkmodules.vtkRenderingCore import (
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+import vtkmodules.test.Testing
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 '''
@@ -35,19 +43,19 @@ sys.dont_write_bytecode = True
 import TestStyleBaseSpike
 import TestStyleBase
 
-class TestStyleTerrain(vtk.test.Testing.vtkTest):
+class TestStyleTerrain(vtkmodules.test.Testing.vtkTest):
 
     def testStyleTerrain(self):
 
-        ren = vtk.vtkRenderer()
-        renWin = vtk.vtkRenderWindow()
-        iRen = vtk.vtkRenderWindowInteractor()
+        ren = vtkRenderer()
+        renWin = vtkRenderWindow()
+        iRen = vtkRenderWindowInteractor()
         iRen.SetRenderWindow(renWin);
 
         testStyleBaseSpike = TestStyleBaseSpike.StyleBaseSpike(ren, renWin, iRen)
 
         # Set interactor style
-        inStyle = vtk.vtkInteractorStyleTerrain()
+        inStyle = vtkInteractorStyleTerrain()
         iRen.SetInteractorStyle(inStyle)
 
         # Test style
@@ -57,8 +65,8 @@ class TestStyleTerrain(vtk.test.Testing.vtkTest):
         # render and interact with data
 
         img_file = "TestStyleTerrain.png"
-        vtk.test.Testing.compareImage(iRen.GetRenderWindow(), vtk.test.Testing.getAbsImagePath(img_file), threshold=25)
-        vtk.test.Testing.interact()
+        vtkmodules.test.Testing.compareImage(iRen.GetRenderWindow(), vtkmodules.test.Testing.getAbsImagePath(img_file), threshold=25)
+        vtkmodules.test.Testing.interact()
 
 if __name__ == "__main__":
-     vtk.test.Testing.main([(TestStyleTerrain, 'test')])
+     vtkmodules.test.Testing.main([(TestStyleTerrain, 'test')])

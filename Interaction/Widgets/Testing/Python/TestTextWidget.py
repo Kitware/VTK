@@ -18,29 +18,40 @@
 =========================================================================
 '''
 
-import vtk
-import vtk.test.Testing
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkFiltersSources import vtkSphereSource
+from vtkmodules.vtkInteractionWidgets import vtkTextWidget
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+import vtkmodules.test.Testing
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
-class TestTextWidget(vtk.test.Testing.vtkTest):
+class TestTextWidget(vtkmodules.test.Testing.vtkTest):
 
     def testTextWidget(self):
 
         # Create fake data
         #
-        ss = vtk.vtkSphereSource()
-        mapper = vtk.vtkPolyDataMapper()
+        ss = vtkSphereSource()
+        mapper = vtkPolyDataMapper()
         mapper.SetInputConnection(ss.GetOutputPort())
-        actor = vtk.vtkActor()
+        actor = vtkActor()
         actor.SetMapper(mapper)
 
         # Create the RenderWindow, Renderer and both Actors
         #
-        ren = vtk.vtkRenderer()
-        renWin = vtk.vtkRenderWindow()
+        ren = vtkRenderer()
+        renWin = vtkRenderWindow()
         renWin.AddRenderer(ren)
-        iRen = vtk.vtkRenderWindowInteractor()
+        iRen = vtkRenderWindowInteractor()
         iRen.SetRenderWindow(renWin)
 
         ren.AddActor(actor)
@@ -50,7 +61,7 @@ class TestTextWidget(vtk.test.Testing.vtkTest):
         iRen.Initialize()
         renWin.Render()
 
-        widget = vtk.vtkTextWidget()
+        widget = vtkTextWidget()
         widget.SetInteractor(iRen)
         widget.On()
         widget.GetTextActor().SetInput("This is a test")
@@ -73,8 +84,8 @@ class TestTextWidget(vtk.test.Testing.vtkTest):
 
 
         img_file = "TestTextWidget.png"
-        vtk.test.Testing.compareImage(iRen.GetRenderWindow(), vtk.test.Testing.getAbsImagePath(img_file), threshold=25)
-        vtk.test.Testing.interact()
+        vtkmodules.test.Testing.compareImage(iRen.GetRenderWindow(), vtkmodules.test.Testing.getAbsImagePath(img_file), threshold=25)
+        vtkmodules.test.Testing.interact()
 
 if __name__ == "__main__":
-     vtk.test.Testing.main([(TestTextWidget, 'test')])
+     vtkmodules.test.Testing.main([(TestTextWidget, 'test')])
