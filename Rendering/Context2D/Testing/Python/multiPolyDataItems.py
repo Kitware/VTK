@@ -1,19 +1,41 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonCore import (
+    vtkPoints,
+    vtkUnsignedCharArray,
+)
+from vtkmodules.vtkCommonDataModel import (
+    VTK_POLY_LINE,
+    VTK_TRIANGLE,
+    vtkCellArray,
+    vtkPolyData,
+    vtkRectd,
+    vtkRecti,
+)
+from vtkmodules.vtkChartsCore import (
+    vtkAxis,
+    vtkInteractiveArea,
+)
+from vtkmodules.vtkRenderingCore import VTK_SCALAR_MODE_USE_CELL_DATA
+from vtkmodules.vtkRenderingContext2D import vtkPolyDataItem
+from vtkmodules.vtkViewsContext2D import vtkContextView
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingContextOpenGL2
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 
 def buildPolyDataLine(pt1, pt2):
-    pd = vtk.vtkPolyData()
+    pd = vtkPolyData()
 
-    pts = vtk.vtkPoints()
+    pts = vtkPoints()
     pts.InsertNextPoint(pt1)
     pts.InsertNextPoint(pt2)
 
     pd.SetPoints(pts)
 
-    lines = vtk.vtkCellArray()
+    lines = vtkCellArray()
     lines.InsertNextCell(2)
     lines.InsertCellPoint(0)
     lines.InsertCellPoint(1)
@@ -36,23 +58,23 @@ def buildPolyDataItemMixed():
         [0.9,  0.9, 0.0]
     ]
 
-    pd = vtk.vtkPolyData()
+    pd = vtkPolyData()
     pd.Allocate(50)
 
-    pts = vtk.vtkPoints()
+    pts = vtkPoints()
 
     for pt in ptdata:
         pts.InsertNextPoint(pt)
 
     pd.SetPoints(pts)
 
-    pd.InsertNextCell(vtk.VTK_POLY_LINE, 3, [3, 6, 7])
-    pd.InsertNextCell(vtk.VTK_POLY_LINE, 2, [8, 5])
-    pd.InsertNextCell(vtk.VTK_TRIANGLE,  3, [5, 2, 1])
-    pd.InsertNextCell(vtk.VTK_POLY_LINE, 3, [1, 4, 5])
-    pd.InsertNextCell(vtk.VTK_TRIANGLE,  3, [0, 3, 4])
+    pd.InsertNextCell(VTK_POLY_LINE, 3, [3, 6, 7])
+    pd.InsertNextCell(VTK_POLY_LINE, 2, [8, 5])
+    pd.InsertNextCell(VTK_TRIANGLE,  3, [5, 2, 1])
+    pd.InsertNextCell(VTK_POLY_LINE, 3, [1, 4, 5])
+    pd.InsertNextCell(VTK_TRIANGLE,  3, [0, 3, 4])
 
-    colors = vtk.vtkUnsignedCharArray()
+    colors = vtkUnsignedCharArray()
     colors.SetNumberOfComponents(4)
     colors.SetNumberOfTuples(5)
 
@@ -66,16 +88,16 @@ def buildPolyDataItemMixed():
 
 
 def buildPolyDataTriangle(pt1, pt2, pt3):
-    pd = vtk.vtkPolyData()
+    pd = vtkPolyData()
 
-    pts = vtk.vtkPoints()
+    pts = vtkPoints()
     pts.InsertNextPoint(pt1)
     pts.InsertNextPoint(pt2)
     pts.InsertNextPoint(pt3)
 
     pd.SetPoints(pts)
 
-    tris = vtk.vtkCellArray()
+    tris = vtkCellArray()
     tris.InsertNextCell(3)
     tris.InsertCellPoint(0)
     tris.InsertCellPoint(1)
@@ -87,10 +109,10 @@ def buildPolyDataTriangle(pt1, pt2, pt3):
 
 
 def buildPolyDataLineStrips(ptsList):
-    pd = vtk.vtkPolyData()
+    pd = vtkPolyData()
 
-    pts = vtk.vtkPoints()
-    lines = vtk.vtkCellArray()
+    pts = vtkPoints()
+    lines = vtkCellArray()
 
     ptIdx = 0
 
@@ -139,17 +161,17 @@ polyDataList = [
 width = 400
 height = 400
 
-view = vtk.vtkContextView()
+view = vtkContextView()
 renWin = view.GetRenderWindow()
 renWin.SetSize(width, height)
 
-area = vtk.vtkInteractiveArea()
+area = vtkInteractiveArea()
 view.GetScene().AddItem(area)
 
-drawAreaBounds = vtk.vtkRectd(0.0, 0.0, 1.0, 1.0)
+drawAreaBounds = vtkRectd(0.0, 0.0, 1.0, 1.0)
 
 vp = [0.0500000007451, 0.949999988079, 0.259999990463, 0.860000014305]
-screenGeometry = vtk.vtkRecti(int(vp[0] * width),
+screenGeometry = vtkRecti(int(vp[0] * width),
                               int(vp[2] * height),
                               int((vp[1] - vp[0]) * width),
                               int((vp[3] - vp[2]) * height))
@@ -158,10 +180,10 @@ for obj in polyDataList:
     pd = obj['poly']
     col = obj['color']
 
-    item = vtk.vtkPolyDataItem()
+    item = vtkPolyDataItem()
     item.SetPolyData(pd)
-    item.SetScalarMode(vtk.VTK_SCALAR_MODE_USE_CELL_DATA)
-    mappedColors = vtk.vtkUnsignedCharArray()
+    item.SetScalarMode(VTK_SCALAR_MODE_USE_CELL_DATA)
+    mappedColors = vtkUnsignedCharArray()
     mappedColors.SetNumberOfComponents(4)
     mappedColors.SetNumberOfTuples(pd.GetNumberOfCells())
 
@@ -172,10 +194,10 @@ for obj in polyDataList:
     item.SetVisible(True)
     area.GetDrawAreaItem().AddItem(item)
 
-lastItem = vtk.vtkPolyDataItem()
+lastItem = vtkPolyDataItem()
 pd, colors = buildPolyDataItemMixed()
 lastItem.SetPolyData(pd)
-lastItem.SetScalarMode(vtk.VTK_SCALAR_MODE_USE_CELL_DATA)
+lastItem.SetScalarMode(VTK_SCALAR_MODE_USE_CELL_DATA)
 lastItem.SetMappedColors(colors)
 lastItem.SetVisible(True)
 area.GetDrawAreaItem().AddItem(lastItem)
@@ -185,10 +207,10 @@ area.SetGeometry(screenGeometry)
 area.SetFillViewport(False)
 area.SetShowGrid(False)
 
-axisLeft = area.GetAxis(vtk.vtkAxis.LEFT)
-axisRight = area.GetAxis(vtk.vtkAxis.RIGHT)
-axisBottom = area.GetAxis(vtk.vtkAxis.BOTTOM)
-axisTop = area.GetAxis(vtk.vtkAxis.TOP)
+axisLeft = area.GetAxis(vtkAxis.LEFT)
+axisRight = area.GetAxis(vtkAxis.RIGHT)
+axisBottom = area.GetAxis(vtkAxis.BOTTOM)
+axisTop = area.GetAxis(vtkAxis.TOP)
 axisTop.SetVisible(False)
 axisRight.SetVisible(False)
 axisLeft.SetVisible(False)

@@ -1,6 +1,24 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonDataModel import vtkMultiBlockDataSet
+from vtkmodules.vtkCommonExecutionModel import vtkTrivialProducer
+from vtkmodules.vtkCommonTransforms import vtkTransform
+from vtkmodules.vtkFiltersGeneral import vtkTransformPolyDataFilter
+from vtkmodules.vtkFiltersSources import vtkCubeSource
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkCompositePolyDataMapper,
+    vtkLight,
+    vtkPolyDataMapper,
+    vtkProperty,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+from vtkmodules.vtkRenderingOpenGL2 import vtkCompositePolyDataMapper2
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # This script shows a cube with edges and faces (using a coincident
@@ -16,49 +34,49 @@ VTK_DATA_ROOT = vtkGetDataRoot()
 #    opengl rendering by itself
 
 # The cube
-cube = vtk.vtkCubeSource()
+cube = vtkCubeSource()
 rib=float(1.)
 cube.SetBounds(-rib/2,rib/2,-rib/2,rib/2,-rib/2,rib/2)
 cube.SetCenter(0,0,0)
 cube.Update()
 
 # Rotate the cube to show the faces being displaced
-transform = vtk.vtkTransform()
+transform = vtkTransform()
 transform.Identity()
 transform.RotateX(45)
 transform.RotateY(45)
-transformer=vtk.vtkTransformPolyDataFilter()
+transformer=vtkTransformPolyDataFilter()
 transformer.SetInputConnection(cube.GetOutputPort())
 transformer.SetTransform(transform)
 transformer.Update()
 
 # A trivial multi-block to be used as input for
 # vtkCompositePolyDataMapper and vtkCompositePolyDataMapper2
-mbd = vtk.vtkMultiBlockDataSet()
+mbd = vtkMultiBlockDataSet()
 mbd.SetNumberOfBlocks(1)
 mbd.SetBlock(0,transformer.GetOutput())
-source=vtk.vtkTrivialProducer()
+source=vtkTrivialProducer()
 source.SetOutput(mbd)
 
 # Set up the render window and the interactor.
-renWin=vtk.vtkRenderWindow()
+renWin=vtkRenderWindow()
 renWin.SetSize(600,400)
-iren=vtk.vtkRenderWindowInteractor()
+iren=vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 
 mappers=list()
 actors=list()
 renderers=list()
 
-polyMapper = vtk.vtkPolyDataMapper()
+polyMapper = vtkPolyDataMapper()
 polyMapper.SetInputConnection(transformer.GetOutputPort())
 mappers.append(polyMapper)
 
-mbdMapper = vtk.vtkCompositePolyDataMapper()
+mbdMapper = vtkCompositePolyDataMapper()
 mbdMapper.SetInputConnection(source.GetOutputPort())
 mappers.append(mbdMapper)
 
-mbdMapper2 = vtk.vtkCompositePolyDataMapper2()
+mbdMapper2 = vtkCompositePolyDataMapper2()
 mbdMapper2.SetInputConnection(source.GetOutputPort())
 mappers.append(mbdMapper2)
 
@@ -67,7 +85,7 @@ dx=float(1)/len(mappers)
 
 # Define the property: lighting intensities, color,
 # edge visibility, point visibility
-p1=vtk.vtkProperty()
+p1=vtkProperty()
 p1.SetColor(1,0,0)
 p1.LightingOff()
 p1.SetAmbient(0.2)
@@ -81,11 +99,11 @@ p1.SetVertexColor(0,1,0)
 p1.SetPointSize(4)
 
 # Top row has lighting on
-p2=vtk.vtkProperty()
+p2=vtkProperty()
 p2.DeepCopy(p1)
 p2.LightingOn()
 
-light=vtk.vtkLight()
+light=vtkLight()
 light.SetPosition(1,1,1)
 
 for m in mappers:
@@ -93,11 +111,11 @@ for m in mappers:
     m.SetRelativeCoincidentTopologyPolygonOffsetParameters(0,2)
 
     # Bottom renderer shows cube without lighting
-    actors.append(vtk.vtkActor())
+    actors.append(vtkActor())
     a1=actors[-1]
     a1.SetMapper(m)
     a1.SetProperty(p1)
-    renderers.append(vtk.vtkRenderer())
+    renderers.append(vtkRenderer())
     r1 = renderers[-1]
     r1.AddActor(a1)
     r1.RemoveAllLights()
@@ -106,11 +124,11 @@ for m in mappers:
     renWin.AddRenderer(r1)
 
     # Top renderer shows cube with lighting
-    actors.append(vtk.vtkActor())
+    actors.append(vtkActor())
     a2=actors[-1]
     a2.SetMapper(m)
     a2.SetProperty(p2)
-    renderers.append(vtk.vtkRenderer())
+    renderers.append(vtkRenderer())
     r2 = renderers[-1]
     r2.AddActor(a2)
     r2.RemoveAllLights()

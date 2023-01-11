@@ -1,41 +1,51 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkFiltersSources import vtkConeSource
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # create a rendering window and renderer
-ren1 = vtk.vtkRenderer()
+ren1 = vtkRenderer()
 ren1.AutomaticLightCreationOff()
-renWin = vtk.vtkRenderWindow()
+renWin = vtkRenderWindow()
 renWin.AddRenderer(ren1)
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 # create cones of varying resolution
-cone0 = vtk.vtkConeSource()
+cone0 = vtkConeSource()
 cone0.SetResolution(0)
-cone1 = vtk.vtkConeSource()
+cone1 = vtkConeSource()
 cone1.SetResolution(1)
-cone2 = vtk.vtkConeSource()
+cone2 = vtkConeSource()
 cone2.SetResolution(2)
-cone8 = vtk.vtkConeSource()
+cone8 = vtkConeSource()
 cone8.SetResolution(8)
 cone8.SetDirection(0,0,10)
 cone8.SetCenter(5,0,0)
-cone0Mapper = vtk.vtkPolyDataMapper()
+cone0Mapper = vtkPolyDataMapper()
 cone0Mapper.SetInputConnection(cone0.GetOutputPort())
-cone0Actor = vtk.vtkActor()
+cone0Actor = vtkActor()
 cone0Actor.SetMapper(cone0Mapper)
-cone1Mapper = vtk.vtkPolyDataMapper()
+cone1Mapper = vtkPolyDataMapper()
 cone1Mapper.SetInputConnection(cone1.GetOutputPort())
-cone1Actor = vtk.vtkActor()
+cone1Actor = vtkActor()
 cone1Actor.SetMapper(cone1Mapper)
-cone2Mapper = vtk.vtkPolyDataMapper()
+cone2Mapper = vtkPolyDataMapper()
 cone2Mapper.SetInputConnection(cone2.GetOutputPort())
-cone2Actor = vtk.vtkActor()
+cone2Actor = vtkActor()
 cone2Actor.SetMapper(cone2Mapper)
-cone8Mapper = vtk.vtkPolyDataMapper()
+cone8Mapper = vtkPolyDataMapper()
 cone8Mapper.SetInputConnection(cone8.GetOutputPort())
-cone8Actor = vtk.vtkActor()
+cone8Actor = vtkActor()
 cone8Actor.SetMapper(cone8Mapper)
 # assign our actor to the renderer
 ren1.AddActor(cone0Actor)

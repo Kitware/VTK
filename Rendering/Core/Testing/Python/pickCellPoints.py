@@ -1,38 +1,54 @@
 #!/usr/bin/env python
 import sys
-import vtk
+from vtkmodules.vtkCommonCore import vtkPoints
+from vtkmodules.vtkCommonDataModel import (
+    vtkCellArray,
+    vtkPolyData,
+)
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkCellPicker,
+    vtkHardwarePicker,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
 
 # Quad
-pts = vtk.vtkPoints()
+pts = vtkPoints()
 pts.SetNumberOfPoints(6)
 coords = [(0, 0, 0), (2, 0, 0), (4, 0, 0), (0, 4, 0), (2, 4, 0), (4, 4, 0)]
 for i in range(0, 6):
     pts.InsertPoint(i, coords[i])
-quads = vtk.vtkCellArray()
+quads = vtkCellArray()
 cellpoints = [(0, 1, 4, 3), (1, 2, 5, 4)]
 for i in range(0, 2):
     quads.InsertNextCell(4)
     for j in range(0, 4):
         quads.InsertCellPoint(cellpoints[i][j])
 
-poly = vtk.vtkPolyData()
+poly = vtkPolyData()
 poly.SetPoints(pts)
 poly.SetPolys(quads)
 
-mapper = vtk.vtkPolyDataMapper()
+mapper = vtkPolyDataMapper()
 mapper.SetInputData(poly)
 
-actor = vtk.vtkActor()
+actor = vtkActor()
 actor.SetMapper(mapper)
 
-ren = vtk.vtkRenderer()
+ren = vtkRenderer()
 ren.AddActor(actor)
 
-renWin = vtk.vtkRenderWindow()
+renWin = vtkRenderWindow()
 renWin.AddRenderer(ren)
 renWin.SetSize(200, 200)
 
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 
 renWin.Render()
@@ -47,10 +63,10 @@ pickedPoints = [-1, 0, 1, 1, 2,
 
 cellErrorsCP = 0
 pointErrorsCP = 0
-cellPicker = vtk.vtkCellPicker()
+cellPicker = vtkCellPicker()
 cellErrorsHP = 0
 pointErrorsHP = 0
-hardwarePicker = vtk.vtkHardwarePicker()
+hardwarePicker = vtkHardwarePicker()
 for i in range(0, len(pos)):
     # Check cell picker
     cellPicker.Pick(pos[i][0], pos[i][1], 0, ren)

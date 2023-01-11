@@ -1,14 +1,14 @@
 #!/usr/bin/env python
 
-import vtk
-from vtk.test import Testing
+from vtkmodules.vtkCommonCore import vtkLookupTable
+from vtkmodules.test import Testing
 
 class TestGetRangeLookupTable(Testing.vtkTest):
     ###
     # GetRange test
     ###
     def testGetRangeNoArg(self):
-        cmap = vtk.vtkLookupTable()
+        cmap = vtkLookupTable()
 
         cmap.SetRange(0.0, 1.0)
         crange = cmap.GetRange()
@@ -20,7 +20,7 @@ class TestGetRangeLookupTable(Testing.vtkTest):
     # GetHueRange test
     ###
     def testGetHueRangeNoArg(self):
-        cmap = vtk.vtkLookupTable()
+        cmap = vtkLookupTable()
 
         cmap.SetHueRange(0.0, 1.0)
         crange = cmap.GetHueRange()
@@ -32,7 +32,7 @@ class TestGetRangeLookupTable(Testing.vtkTest):
     # GetSaturationRange test
     ###
     def testGetSaturationRangeNoArg(self):
-        cmap = vtk.vtkLookupTable()
+        cmap = vtkLookupTable()
 
         cmap.SetSaturationRange(0.0, 1.0)
         crange = cmap.GetSaturationRange()
@@ -44,7 +44,7 @@ class TestGetRangeLookupTable(Testing.vtkTest):
     # GetAlphaRange test
     ###
     def testGetAlphaRangeNoArg(self):
-        cmap = vtk.vtkLookupTable()
+        cmap = vtkLookupTable()
 
         cmap.SetAlphaRange(0.0, 1.0)
         crange = cmap.GetAlphaRange()

@@ -1,26 +1,40 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkFiltersSources import (
+    vtkConeSource,
+    vtkSphereSource,
+)
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+from vtkmodules.vtkRenderingAnnotation import vtkCaptionActor2D
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # Create the RenderWindow, Renderer and both Actors
 #
-ren1 = vtk.vtkRenderer()
-renWin = vtk.vtkRenderWindow()
+ren1 = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.AddRenderer(ren1)
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
-sphere = vtk.vtkSphereSource()
-sphereMapper = vtk.vtkPolyDataMapper()
+sphere = vtkSphereSource()
+sphereMapper = vtkPolyDataMapper()
 sphereMapper.SetInputConnection(sphere.GetOutputPort())
-sphereActor = vtk.vtkActor()
+sphereActor = vtkActor()
 sphereActor.SetMapper(sphereMapper)
-coneGlyph = vtk.vtkConeSource()
+coneGlyph = vtkConeSource()
 coneGlyph.SetResolution(6)
-sphereGlyph = vtk.vtkSphereSource()
+sphereGlyph = vtkSphereSource()
 sphereGlyph.SetThetaResolution(12)
 sphereGlyph.SetPhiResolution(6)
-caption = vtk.vtkCaptionActor2D()
+caption = vtkCaptionActor2D()
 caption.SetCaption("This is the\nsouth pole")
 caption.SetAttachmentPoint(0,0,-0.5)
 caption.GetPositionCoordinate().SetCoordinateSystemToNormalizedViewport()
@@ -35,7 +49,7 @@ caption.SetLeaderGlyphSize(0.025)
 caption.GetProperty().SetColor(1,0,0)
 tprop = caption.GetCaptionTextProperty()
 tprop.SetColor(caption.GetProperty().GetColor())
-caption2 = vtk.vtkCaptionActor2D()
+caption2 = vtkCaptionActor2D()
 caption2.SetCaption("Santa lives here")
 caption2.GetProperty().SetColor(1,0,0)
 caption2.SetAttachmentPoint(0,0,0.5)

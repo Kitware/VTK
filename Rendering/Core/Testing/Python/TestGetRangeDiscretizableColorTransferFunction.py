@@ -1,11 +1,14 @@
 #!/usr/bin/env python
 
-import vtk
-from vtk.test import Testing
+from vtkmodules.vtkCommonCore import reference
+from vtkmodules.vtkRenderingCore import vtkDiscretizableColorTransferFunction
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.test import Testing
 
 class TestGetRangeDiscretizableColorTransferFunction(Testing.vtkTest):
     def testGetRangeDoubleStarArg(self):
-        cmap = vtk.vtkDiscretizableColorTransferFunction()
+        cmap = vtkDiscretizableColorTransferFunction()
 
         localRange = [-1, -1]
         cmap.GetRange(localRange)
@@ -13,16 +16,16 @@ class TestGetRangeDiscretizableColorTransferFunction(Testing.vtkTest):
         self.assertEqual(localRange[1], 0.0)
 
     def testGetRangeTwoDoubleStarArg(self):
-        cmap = vtk.vtkDiscretizableColorTransferFunction()
+        cmap = vtkDiscretizableColorTransferFunction()
 
-        localMin = vtk.reference(-1)
-        localMax = vtk.reference(-1)
+        localMin = reference(-1)
+        localMax = reference(-1)
         cmap.GetRange(localMin, localMax)
         self.assertEqual(localMin, 0.0)
         self.assertEqual(localMax, 0.0)
 
     def testGetRangeNoArg(self):
-        cmap = vtk.vtkDiscretizableColorTransferFunction()
+        cmap = vtkDiscretizableColorTransferFunction()
 
         crange = cmap.GetRange()
         self.assertEqual(len(crange), 2)
