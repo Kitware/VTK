@@ -20,6 +20,7 @@ set(VTK_MODULE_ENABLE_VTK_RenderingMatplotlib NO CACHE STRING "") # matplotlib
 set(VTK_MODULE_ENABLE_VTK_RenderingOpenVR NO CACHE STRING "") # openvr
 set(VTK_MODULE_ENABLE_VTK_RenderingOpenXR NO CACHE STRING "") # OpenXR
 set(VTK_MODULE_ENABLE_VTK_RenderingRayTracing NO CACHE STRING "") # ospray
+set(VTK_MODULE_ENABLE_VTK_RenderingZSpace NO CACHE STRING "") # zSpace
 set(VTK_MODULE_ENABLE_VTK_fides NO CACHE STRING "") # adios
 set(VTK_MODULE_ENABLE_VTK_xdmf3 NO CACHE STRING "") # boost
 set(VTK_MODULE_ENABLE_VTK_IOOCCT NO CACHE STRING "") # occt

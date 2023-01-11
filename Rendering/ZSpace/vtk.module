@@ -1,0 +1,11 @@
+NAME
+  VTK::RenderingZSpace
+LIBRARY_NAME
+  vtkRenderingZSpace
+DEPENDS
+  VTK::CommonCore
+  VTK::CommonDataModel
+  VTK::CommonExecutionModel
+  VTK::FiltersSources
+  VTK::RenderingOpenGL2
+  VTK::ViewsInfovis
