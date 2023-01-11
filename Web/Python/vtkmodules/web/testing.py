@@ -35,7 +35,7 @@ r"""
 import_warning_info = ""
 test_module_comm_queue = None
 
-import vtk
+from vtkmodules.vtkTestingRendering import vtkTesting
 
 # Try standard Python imports
 try:
@@ -344,7 +344,7 @@ def compare_images(test_img, baseline_img, tmp_dir="."):
     """
 
     # Create a vtkTesting object and specify a baseline image
-    t = vtk.vtkTesting()
+    t = vtkTesting()
     t.AddArgument("-T")
     t.AddArgument(tmp_dir)
     t.AddArgument("-V")

@@ -1,21 +1,29 @@
 import json
-import vtk
-from vtk.web import render_window_serializer as rws
-from vtk.test import Testing
+from vtkmodules.vtkFiltersSources import vtkConeSource
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderer,
+)
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.web import render_window_serializer as rws
+from vtkmodules.test import Testing
 
 class TestSerializeRenderWindow(Testing.vtkTest):
     def testSerializeRenderWindow(self):
-        cone = vtk.vtkConeSource()
+        cone = vtkConeSource()
 
-        coneMapper = vtk.vtkPolyDataMapper()
+        coneMapper = vtkPolyDataMapper()
         coneMapper.SetInputConnection(cone.GetOutputPort())
 
-        coneActor = vtk.vtkActor()
+        coneActor = vtkActor()
         coneActor.SetMapper(coneMapper)
 
-        ren = vtk.vtkRenderer()
+        ren = vtkRenderer()
         ren.AddActor(coneActor)
-        renWin = vtk.vtkRenderWindow()
+        renWin = vtkRenderWindow()
         renWin.AddRenderer(ren)
 
         ren.ResetCamera()

@@ -1,16 +1,24 @@
-import vtk
+from vtkmodules.vtkAcceleratorsVTKmFilters import (
+    vtkmClip,
+    vtkmSlice,
+)
+from vtkmodules.vtkCommonDataModel import (
+    vtkPlane,
+    vtkSphere,
+)
+from vtkmodules.vtkImagingCore import vtkRTAnalyticSource
 import math
 
 # Creates an unstructured grid dataset with different types of cells:
 #-----------------------------------------------------------------------------
-wavelet = vtk.vtkRTAnalyticSource()
+wavelet = vtkRTAnalyticSource()
 wavelet.SetWholeExtent(-4, 4, -4, 4, -4, 4)
 
-clipPlane = vtk.vtkPlane()
+clipPlane = vtkPlane()
 clipPlane.SetOrigin(0, 0, 0)
 clipPlane.SetNormal(0.93, 0.363, 0.053)
 
-clip = vtk.vtkmClip()
+clip = vtkmClip()
 clip.SetInputConnection(wavelet.GetOutputPort())
 clip.SetClipFunction(clipPlane)
 clip.SetInsideOut(True)
@@ -18,11 +26,11 @@ clip.SetInsideOut(True)
 
 center = [-1.0, 0.0, 0.0]
 radius = 4
-sliceSphere = vtk.vtkSphere()
+sliceSphere = vtkSphere()
 sliceSphere.SetCenter(center)
 sliceSphere.SetRadius(radius)
 
-slicer = vtk.vtkmSlice()
+slicer = vtkmSlice()
 slicer.SetInputConnection(clip.GetOutputPort())
 slicer.SetCutFunction(sliceSphere)
 slicer.Update()

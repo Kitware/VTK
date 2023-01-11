@@ -1,22 +1,23 @@
-import vtk
-from vtk.test import Testing
-from vtk.vtkWebCore import vtkWebApplication
+from vtkmodules.vtkCommonCore import vtkObject
+from vtkmodules.vtkWebCore import vtkObjectIdMap
+from vtkmodules.test import Testing
+from vtkmodules.vtkWebCore import vtkWebApplication
 
 class TestObjectId(Testing.vtkTest):
     def testObjId(self):
-        map = vtk.vtkObjectIdMap()
+        map = vtkObjectIdMap()
         # Just make sure if we call it twice with None, the results match
         objId1 = map.GetGlobalId(None)
         objId1b = map.GetGlobalId(None)
         print('Object ids for None: objId1 => ',objId1,', objId1b => ',objId1b)
         self.assertTrue(objId1 == objId1b)
 
-        object2 = vtk.vtkObject()
+        object2 = vtkObject()
         addr2 = object2.__this__
         addr2 = addr2[1:addr2.find('_', 1)]
         addr2 = int(addr2, 16)
 
-        object3 = vtk.vtkObject()
+        object3 = vtkObject()
         addr3 = object3.__this__
         addr3 = addr3[1:addr3.find('_', 1)]
         addr3 = int(addr3, 16)

@@ -2,33 +2,44 @@
 # -*- coding: utf-8 -*-
 
 import os
-import vtk
-import vtk.test.Testing
+from vtkmodules.vtkCommonCore import (
+    vtkFloatArray,
+    vtkLookupTable,
+)
+from vtkmodules.vtkCommonDataModel import vtkTable
+from vtkmodules.vtkChartsCore import vtkChartParallelCoordinates
+from vtkmodules.vtkRenderingCore import vtkColorTransferFunction
+from vtkmodules.vtkViewsContext2D import vtkContextView
+import vtkmodules.vtkRenderingContextOpenGL2
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+import vtkmodules.test.Testing
 import math
 
-class TestParallelCoordinatesColors(vtk.test.Testing.vtkTest):
+class TestParallelCoordinatesColors(vtkmodules.test.Testing.vtkTest):
     def testLinePlot(self):
         "Test if colored parallel coordinates plots can be built with python"
 
         # Set up a 2D scene, add a PC chart to it
-        view = vtk.vtkContextView()
+        view = vtkContextView()
         view.GetRenderer().SetBackground(1.0, 1.0, 1.0)
         view.GetRenderWindow().SetSize(600,300)
 
-        chart = vtk.vtkChartParallelCoordinates()
+        chart = vtkChartParallelCoordinates()
         view.GetScene().AddItem(chart)
 
         # Create a table with some points in it
-        arrX = vtk.vtkFloatArray()
+        arrX = vtkFloatArray()
         arrX.SetName("XAxis")
 
-        arrC = vtk.vtkFloatArray()
+        arrC = vtkFloatArray()
         arrC.SetName("Cosine")
 
-        arrS = vtk.vtkFloatArray()
+        arrS = vtkFloatArray()
         arrS.SetName("Sine")
 
-        arrS2 = vtk.vtkFloatArray()
+        arrS2 = vtkFloatArray()
         arrS2.SetName("Tan")
 
         numPoints = 200
@@ -40,19 +51,19 @@ class TestParallelCoordinatesColors(vtk.test.Testing.vtkTest):
             arrS.InsertNextValue(math.sin(i * inc) + 0.0)
             arrS2.InsertNextValue(math.tan(i * inc) + 0.5)
 
-        table = vtk.vtkTable()
+        table = vtkTable()
         table.AddColumn(arrX)
         table.AddColumn(arrC)
         table.AddColumn(arrS)
         table.AddColumn(arrS2)
 
         # Create blue to gray to red lookup table
-        lut = vtk.vtkLookupTable()
+        lut = vtkLookupTable()
         lutNum = 256
         lut.SetNumberOfTableValues(lutNum)
         lut.Build()
 
-        ctf = vtk.vtkColorTransferFunction()
+        ctf = vtkColorTransferFunction()
         ctf.SetColorSpaceToDiverging()
         cl = []
         # Variant of Colorbrewer RdBu 5
@@ -82,8 +93,8 @@ class TestParallelCoordinatesColors(vtk.test.Testing.vtkTest):
         view.GetRenderWindow().Render()
 
         img_file = "TestParallelCoordinatesColors.png"
-        vtk.test.Testing.compareImage(view.GetRenderWindow(),vtk.test.Testing.getAbsImagePath(img_file),threshold=25)
-        vtk.test.Testing.interact()
+        vtkmodules.test.Testing.compareImage(view.GetRenderWindow(),vtkmodules.test.Testing.getAbsImagePath(img_file),threshold=25)
+        vtkmodules.test.Testing.interact()
 
 if __name__ == "__main__":
-    vtk.test.Testing.main([(TestParallelCoordinatesColors, 'test')])
+    vtkmodules.test.Testing.main([(TestParallelCoordinatesColors, 'test')])
