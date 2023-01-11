@@ -66,9 +66,63 @@ public:
    * f will be called as soon as a running thread has the occasion to do so, in a FIFO fashion,
    * assuming that `IsRunning()` returns `true`.
    * This method is thread-safe.
+   *
+   * All the arguments of `Push` are stored persistently inside the queue. An argument passed as an
+   * lvalue reference will trigger a copy constructor call. It is thus advised, when possible, to
+   * pass rvalue references or smart pointers (`vtkSmartPointer` or `std::shared_ptr` for example)
+   *
+   * The input function can be a pointer function, a lambda expression, a `std::function`
+   * a functor or a member function pointer.
+   *
+   * If f is a functor, its copy constructor will be invoked if it is passed as an lvalue reference.
+   * Consequently, if the functor is somewhat heavy, it is adviced to pass it as an rvalue reference
+   * or to wrap inside a smart pointer (`std::unique_ptr` for example).
+   *
+   * If f is a member function pointer, an instance of its host class needs to be provided in the
+   * second parameter. Similar to the functor case, it is advised in order to avoid calling the copy
+   * constructor to pass it as an rvalue reference or to wrap it inside a smart pointer.
+   *
+   * Below is a short example showing off different possible insertions to this queue:
+   *
+   * @code
+   *   struct S {
+   *    void operator()(int) {}
+   *    void f() {}
+   *    void f_const() {}
+   *   };
+   *   void f(S&&, const S&) {}
+   *
+   *   vtkNew<vtkThreadedCallbackQueue> queue;
+   *   int x;
+   *   S s;
+   *
+   *   // Pushing a lambda expression.
+   *   queue->Push([]{});
+   *
+   *   // Pushing a function pointer
+   *   // Note that the copy constructor is called for s
+   *   queue->Push(&f, s, S());
+   *
+   *   // Pushing a functor.
+   *   queue->Push(S(), x);
+   *
+   *   // Pushing a functor wrapped inside a smart pointer.
+   *   queue->Push(std::unique_ptr<S>(new S()), x);
+   *
+   *   // Pushing a member function pointer.
+   *   // Don't forget to pass an instance of the host class.
+   *   queue->Push(&S::f, S());
+   *
+   *   // Pushing a const member function pointer.
+   *   // This time, we wrap the instance of the host class inside a smart pointer.
+   *   queue->Push(&S::f_const, std::unique_ptr<S>(new S()));
+   * @endcode
+   *
+   * @warning DO NOT capture lvalue references in a lambda expression pushed into the queue.
+   * Such captures may be destroyed before the lambda is invoked by the queue.
    */
-  template <class FT, class... ArgsT>
-  void Push(FT&& f, ArgsT&&... args);
+  template <class... ArgsT>
+  void Push(ArgsT&&... args);
 
   /**
    * Sets the number of threads. The running state of the queue is not impacted by this method.
@@ -133,6 +187,7 @@ private:
   struct InvokerBase;
   template <class FT, class... ArgsT>
   class Invoker;
+  struct InvokerImpl;
   ///@}
 
   class vtkInternalController;
