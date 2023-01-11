@@ -1624,7 +1624,9 @@ bool vtkContour3DLinearGrid::CanFullyProcessDataObject(
 
   if (ug)
   {
-    vtkDataArray* array = ug->GetPointData()->GetArray(scalarArrayName);
+    vtkDataArray* array = ug->GetPointData()->HasArray(scalarArrayName) == 1
+      ? ug->GetPointData()->GetArray(scalarArrayName)
+      : ug->GetPointData()->GetScalars();
     if (!array)
     {
       vtkLog(INFO, "Scalar array is null");
