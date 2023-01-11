@@ -1,23 +1,44 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonCore import vtkPoints
+from vtkmodules.vtkCommonDataModel import (
+    vtkCellArray,
+    vtkPolyData,
+)
+from vtkmodules.vtkFiltersCore import (
+    vtkAppendPolyData,
+    vtkStripper,
+    vtkTriangleFilter,
+)
+from vtkmodules.vtkFiltersModeling import vtkCookieCutter
+from vtkmodules.vtkFiltersSources import vtkPlaneSource
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 
 # This tests special cases like polylines and triangle strips
 
 # create planes
 # Create the RenderWindow, Renderer
 #
-ren = vtk.vtkRenderer()
-renWin = vtk.vtkRenderWindow()
+ren = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.AddRenderer( ren )
 
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 
 # Custom polydata to test polylines
-linesData = vtk.vtkPolyData()
-linesPts = vtk.vtkPoints()
-linesLines = vtk.vtkCellArray()
+linesData = vtkPolyData()
+linesPts = vtkPoints()
+linesLines = vtkCellArray()
 linesData.SetPoints(linesPts)
 linesData.SetLines(linesLines)
 
@@ -41,27 +62,27 @@ linesLines.InsertCellPoint(6)
 linesLines.InsertCellPoint(2)
 
 # Create a triangle strip to cookie cut
-plane = vtk.vtkPlaneSource()
+plane = vtkPlaneSource()
 plane.SetXResolution(25)
 plane.SetYResolution(1)
 plane.SetOrigin(-1,-0.1,0)
 plane.SetPoint1( 1,-0.1,0)
 plane.SetPoint2(-1, 0.1,0)
 
-tri = vtk.vtkTriangleFilter()
+tri = vtkTriangleFilter()
 tri.SetInputConnection(plane.GetOutputPort())
 
-stripper = vtk.vtkStripper()
+stripper = vtkStripper()
 stripper.SetInputConnection(tri.GetOutputPort())
 
-append = vtk.vtkAppendPolyData()
+append = vtkAppendPolyData()
 append.AddInputData(linesData)
 append.AddInputConnection(stripper.GetOutputPort())
 
 # Create a loop for cookie cutting
-loops = vtk.vtkPolyData()
-loopPts = vtk.vtkPoints()
-loopPolys = vtk.vtkCellArray()
+loops = vtkPolyData()
+loopPts = vtkPoints()
+loopPolys = vtkCellArray()
 loops.SetPoints(loopPts)
 loops.SetPolys(loopPolys)
 
@@ -77,21 +98,21 @@ loopPolys.InsertCellPoint(1)
 loopPolys.InsertCellPoint(2)
 loopPolys.InsertCellPoint(3)
 
-cookie = vtk.vtkCookieCutter()
+cookie = vtkCookieCutter()
 cookie.SetInputConnection(append.GetOutputPort())
 cookie.SetLoopsData(loops)
 cookie.Update()
 
-mapper = vtk.vtkPolyDataMapper()
+mapper = vtkPolyDataMapper()
 mapper.SetInputConnection(cookie.GetOutputPort())
 
-actor = vtk.vtkActor()
+actor = vtkActor()
 actor.SetMapper(mapper)
 
-loopMapper = vtk.vtkPolyDataMapper()
+loopMapper = vtkPolyDataMapper()
 loopMapper.SetInputData(loops)
 
-loopActor = vtk.vtkActor()
+loopActor = vtkActor()
 loopActor.SetMapper(loopMapper)
 loopActor.GetProperty().SetColor(1,0,0)
 loopActor.GetProperty().SetRepresentationToWireframe()

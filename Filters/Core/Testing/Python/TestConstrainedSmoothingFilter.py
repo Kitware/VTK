@@ -1,5 +1,20 @@
 #!/usr/bin/env python
-import vtk
+from vtkmodules.vtkCommonCore import vtkDoubleArray
+from vtkmodules.vtkFiltersCore import (
+    vtkConstrainedSmoothingFilter,
+    vtkExecutionTimer,
+)
+from vtkmodules.vtkFiltersSources import vtkPlaneSource
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
 
 # Test edge smoothing of meshes with generated smoothing stencils, and
 # different constraint types.
@@ -9,7 +24,7 @@ import vtk
 res = 40
 
 # Create a x-y plane
-plane = vtk.vtkPlaneSource()
+plane = vtkPlaneSource()
 plane.SetResolution(res,res)
 plane.SetOrigin(0,0,0)
 plane.SetPoint1(1,0,0)
@@ -17,7 +32,7 @@ plane.SetPoint2(0,1,0)
 plane.Update()
 
 # Create a constraint array
-constraints = vtk.vtkDoubleArray()
+constraints = vtkDoubleArray()
 constraints.SetName("SmoothingConstraints")
 numPts = plane.GetOutput().GetNumberOfPoints()
 constraints.SetNumberOfTuples(numPts)
@@ -32,29 +47,29 @@ output = plane.GetOutput()
 output.GetPointData().AddArray(constraints)
 
 # Now smooth the mesh with a filter constraint
-smooth = vtk.vtkConstrainedSmoothingFilter()
+smooth = vtkConstrainedSmoothingFilter()
 smooth.SetInputConnection(plane.GetOutputPort())
 smooth.SetConstraintStrategyToConstraintDistance()
 smooth.SetConstraintDistance(0.1)
 smooth.SetNumberOfIterations(100)
 smooth.SetRelaxationFactor(.2)
 
-timer = vtk.vtkExecutionTimer()
+timer = vtkExecutionTimer()
 timer.SetFilter(smooth)
 smooth.Update()
 ST = timer.GetElapsedWallClockTime()
 print ("Smooth Edges: ", ST)
 
-smoothMapper = vtk.vtkPolyDataMapper()
+smoothMapper = vtkPolyDataMapper()
 smoothMapper.SetInputConnection(smooth.GetOutputPort())
 smoothMapper.ScalarVisibilityOn()
 
-smoothActor = vtk.vtkActor()
+smoothActor = vtkActor()
 smoothActor.SetMapper(smoothMapper)
 smoothActor.GetProperty().SetInterpolationToFlat()
 
 # Use a constraint array
-smooth2 = vtk.vtkConstrainedSmoothingFilter()
+smooth2 = vtkConstrainedSmoothingFilter()
 smooth2.SetInputConnection(plane.GetOutputPort())
 smooth2.SetConstraintStrategyToConstraintArray()
 smooth2.SetNumberOfIterations(100)
@@ -65,30 +80,30 @@ smooth.Update()
 ST = timer.GetElapsedWallClockTime()
 print ("Smooth Edges (constraint array): ", ST)
 
-smooth2Mapper = vtk.vtkPolyDataMapper()
+smooth2Mapper = vtkPolyDataMapper()
 smooth2Mapper.SetInputConnection(smooth2.GetOutputPort())
 smooth2Mapper.ScalarVisibilityOn()
 
-smooth2Actor = vtk.vtkActor()
+smooth2Actor = vtkActor()
 smooth2Actor.SetMapper(smooth2Mapper)
 smooth2Actor.GetProperty().SetInterpolationToFlat()
 
 # Define graphics objects
-renWin = vtk.vtkRenderWindow()
+renWin = vtkRenderWindow()
 renWin.SetSize(600,300)
 
-ren1 = vtk.vtkRenderer()
+ren1 = vtkRenderer()
 ren1.SetViewport(0,0,0.5,1)
 ren1.SetBackground(0,0,0)
 
-ren2 = vtk.vtkRenderer()
+ren2 = vtkRenderer()
 ren2.SetViewport(0.5,0,1,1)
 ren2.SetBackground(0,0,0)
 
 renWin.AddRenderer(ren1)
 renWin.AddRenderer(ren2)
 
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 
 ren1.AddActor(smoothActor)

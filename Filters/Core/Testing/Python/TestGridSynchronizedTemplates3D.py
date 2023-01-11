@@ -1,13 +1,27 @@
 #!/usr/bin/env python
-import vtk
-from vtk.test import Testing
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkFiltersCore import (
+    vtkGridSynchronizedTemplates3D,
+    vtkStructuredGridOutlineFilter,
+)
+from vtkmodules.vtkIOParallel import vtkMultiBlockPLOT3DReader
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.test import Testing
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 class TestGridSynchronizedTemplates3D(Testing.vtkTest):
     def testAll(self):
         # cut data
-        pl3d = vtk.vtkMultiBlockPLOT3DReader()
+        pl3d = vtkMultiBlockPLOT3DReader()
         pl3d.SetXYZFileName(VTK_DATA_ROOT + "/Data/combxyz.bin")
         pl3d.SetQFileName(VTK_DATA_ROOT + "/Data/combq.bin")
         pl3d.SetScalarFunctionNumber(100)
@@ -20,7 +34,7 @@ class TestGridSynchronizedTemplates3D(Testing.vtkTest):
         max = range[1]
         value = (min + max) / 2.0
 
-        cf = vtk.vtkGridSynchronizedTemplates3D()
+        cf = vtkGridSynchronizedTemplates3D()
         cf.SetInputData(pl3d_output)
         cf.SetValue(0, value)
         cf.GenerateTrianglesOff()
@@ -38,33 +52,33 @@ class TestGridSynchronizedTemplates3D(Testing.vtkTest):
           cf.GetOutputDataObject(0).GetNumberOfCells(), 8076)
 
         # cf ComputeNormalsOff
-        cfMapper = vtk.vtkPolyDataMapper()
+        cfMapper = vtkPolyDataMapper()
         cfMapper.SetInputConnection(cf.GetOutputPort())
         cfMapper.SetScalarRange(
           pl3d_output.GetPointData().GetScalars().GetRange())
 
-        cfActor = vtk.vtkActor()
+        cfActor = vtkActor()
         cfActor.SetMapper(cfMapper)
 
         # outline
-        outline = vtk.vtkStructuredGridOutlineFilter()
+        outline = vtkStructuredGridOutlineFilter()
         outline.SetInputData(pl3d_output)
 
-        outlineMapper = vtk.vtkPolyDataMapper()
+        outlineMapper = vtkPolyDataMapper()
         outlineMapper.SetInputConnection(outline.GetOutputPort())
 
-        outlineActor = vtk.vtkActor()
+        outlineActor = vtkActor()
         outlineActor.SetMapper(outlineMapper)
         outlineActor.GetProperty().SetColor(0, 0, 0)
 
          # # Graphics stuff
          # Create the RenderWindow, Renderer and both Actors
          #
-        ren1 = vtk.vtkRenderer()
-        renWin = vtk.vtkRenderWindow()
+        ren1 = vtkRenderer()
+        renWin = vtkRenderWindow()
         renWin.SetMultiSamples(0)
         renWin.AddRenderer(ren1)
-        iren = vtk.vtkRenderWindowInteractor()
+        iren = vtkRenderWindowInteractor()
         iren.SetRenderWindow(renWin)
 
         # Add the actors to the renderer, set the background and size

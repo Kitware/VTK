@@ -1,6 +1,26 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonCore import vtkMath
+from vtkmodules.vtkCommonSystem import vtkTimerLog
+from vtkmodules.vtkFiltersModeling import vtkOutlineFilter
+from vtkmodules.vtkFiltersPoints import (
+    vtkBoundedPointSource,
+    vtkExtractHierarchicalBins,
+    vtkHierarchicalBinningFilter,
+)
+from vtkmodules.vtkFiltersSources import vtkOutlineSource
+from vtkmodules.vtkIOXML import vtkXMLPolyDataWriter
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPointGaussianMapper,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # Interpolate onto a volume
@@ -8,19 +28,19 @@ VTK_DATA_ROOT = vtkGetDataRoot()
 # Parameters for debugging
 NPts = 1000000
 binNum = 16
-math = vtk.vtkMath()
+math = vtkMath()
 math.RandomSeed(31415)
 
 # create pipeline
 #
-points = vtk.vtkBoundedPointSource()
+points = vtkBoundedPointSource()
 points.SetNumberOfPoints(NPts)
 points.ProduceRandomScalarsOn()
 points.ProduceCellOutputOff()
 points.Update()
 
 # Bin the points
-hBin = vtk.vtkHierarchicalBinningFilter()
+hBin = vtkHierarchicalBinningFilter()
 hBin.SetInputConnection(points.GetOutputPort())
 #hBin.AutomaticOn()
 hBin.AutomaticOff()
@@ -28,7 +48,7 @@ hBin.SetDivisions(2,2,2)
 hBin.SetBounds(points.GetOutput().GetBounds())
 
 # Time execution
-timer = vtk.vtkTimerLog()
+timer = vtkTimerLog()
 timer.StartTimer()
 hBin.Update()
 timer.StopTimer()
@@ -39,14 +59,14 @@ print("   Time to bin: {0}".format(time))
 #print(hBin.GetOutput())
 
 # write stuff out
-w = vtk.vtkXMLPolyDataWriter()
+w = vtkXMLPolyDataWriter()
 w.SetFileName("binPoints.vtp")
 w.SetInputConnection(hBin.GetOutputPort())
 #w.SetDataModeToAscii()
 #w.Write()
 
 # Output a selected bin of points
-extBin = vtk.vtkExtractHierarchicalBins()
+extBin = vtkExtractHierarchicalBins()
 extBin.SetInputConnection(hBin.GetOutputPort())
 extBin.SetBinningFilter(hBin)
 extBin.SetLevel(1000)
@@ -57,42 +77,42 @@ extBin.SetLevel(-1)
 extBin.SetBin(binNum)
 extBin.Update()
 
-subMapper = vtk.vtkPointGaussianMapper()
+subMapper = vtkPointGaussianMapper()
 subMapper.SetInputConnection(extBin.GetOutputPort())
 subMapper.EmissiveOff()
 subMapper.SetScaleFactor(0.0)
 
-subActor = vtk.vtkActor()
+subActor = vtkActor()
 subActor.SetMapper(subMapper)
 
 # Create an outline
-outline = vtk.vtkOutlineFilter()
+outline = vtkOutlineFilter()
 outline.SetInputConnection(points.GetOutputPort())
 
-outlineMapper = vtk.vtkPolyDataMapper()
+outlineMapper = vtkPolyDataMapper()
 outlineMapper.SetInputConnection(outline.GetOutputPort())
 
-outlineActor = vtk.vtkActor()
+outlineActor = vtkActor()
 outlineActor.SetMapper(outlineMapper)
 
 # Create another outline
 bds = [0,0,0,0,0,0]
 hBin.GetBinBounds(binNum,bds)
-binOutline = vtk.vtkOutlineSource()
+binOutline = vtkOutlineSource()
 binOutline.SetBounds(bds)
 
-binOutlineMapper = vtk.vtkPolyDataMapper()
+binOutlineMapper = vtkPolyDataMapper()
 binOutlineMapper.SetInputConnection(binOutline.GetOutputPort())
 
-binOutlineActor = vtk.vtkActor()
+binOutlineActor = vtkActor()
 binOutlineActor.SetMapper(binOutlineMapper)
 
 # Create the RenderWindow, Renderer and both Actors
 #
-ren0 = vtk.vtkRenderer()
-renWin = vtk.vtkRenderWindow()
+ren0 = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.AddRenderer(ren0)
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 
 # Add the actors to the renderer, set the background and size

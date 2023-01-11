@@ -1,7 +1,31 @@
 #!/usr/bin/env python
-import vtk
-from vtk.test import Testing
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonCore import (
+    vtkFloatArray,
+    vtkPoints,
+)
+from vtkmodules.vtkCommonDataModel import (
+    vtkCylinder,
+    vtkPlane,
+    vtkRectilinearGrid,
+    vtkSphere,
+    vtkStructuredGrid,
+)
+from vtkmodules.vtkCommonTransforms import vtkTransform
+from vtkmodules.vtkFiltersCore import vtkThreshold
+from vtkmodules.vtkFiltersGeneral import vtkTableBasedClipDataSet
+from vtkmodules.vtkIOEnSight import vtkEnSightGoldReader
+from vtkmodules.vtkImagingCore import vtkRTAnalyticSource
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkDataSetMapper,
+    vtkRenderWindow,
+    vtkRenderer,
+)
+from vtkmodules.vtkTestingRendering import vtkTesting
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.test import Testing
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 import sys
 
@@ -11,7 +35,7 @@ class TestClip(Testing.vtkTest):
         expectedNCells = [38, 46, 42]
         expectedNClippedCells = [104, 104, 106]
         for plane, nCells, nClippedCells in zip(planes,expectedNCells,expectedNClippedCells):
-            r = vtk.vtkRTAnalyticSource()
+            r = vtkRTAnalyticSource()
             r.SetXFreq(600);
             r.SetYFreq(400);
             r.SetZFreq(900);
@@ -23,7 +47,7 @@ class TestClip(Testing.vtkTest):
                 r.SetWholeExtent(0, 0, -5, 5, -5, 5)
             r.Update()
 
-            c = vtk.vtkTableBasedClipDataSet()
+            c = vtkTableBasedClipDataSet()
             c.SetInputConnection(r.GetOutputPort())
             c.SetUseValueAsOffset(0)
             c.SetValue(150)
@@ -36,15 +60,15 @@ class TestClip(Testing.vtkTest):
             self.assertEqual(c.GetClippedOutput().GetNumberOfCells(), nClippedCells)
 
     def testImage(self):
-        r = vtk.vtkRTAnalyticSource()
+        r = vtkRTAnalyticSource()
         r.SetWholeExtent(-5, 5, -5, 5, -5, 5)
         r.Update()
 
-        s = vtk.vtkSphere()
+        s = vtkSphere()
         s.SetRadius(2)
         s.SetCenter(0,0,0)
 
-        c = vtk.vtkTableBasedClipDataSet()
+        c = vtkTableBasedClipDataSet()
         c.SetInputConnection(r.GetOutputPort())
         c.SetClipFunction(s)
         c.SetInsideOut(1)
@@ -54,40 +78,40 @@ class TestClip(Testing.vtkTest):
         self.assertEqual(c.GetOutput().GetNumberOfCells(), 64)
 
     def testRectilinear(self):
-        rt = vtk.vtkRTAnalyticSource()
+        rt = vtkRTAnalyticSource()
         rt.SetWholeExtent(-5, 5, -5, 5, -5, 5)
         rt.Update()
         i = rt.GetOutput()
 
-        r = vtk.vtkRectilinearGrid()
+        r = vtkRectilinearGrid()
         dims = i.GetDimensions()
         r.SetDimensions(dims)
         exts = i.GetExtent()
         orgs = i.GetOrigin()
 
-        xs = vtk.vtkFloatArray()
+        xs = vtkFloatArray()
         xs.SetNumberOfTuples(dims[0])
         for d in range(dims[0]):
             xs.SetTuple1(d, orgs[0] + exts[0] + d)
         r.SetXCoordinates(xs)
 
-        ys = vtk.vtkFloatArray()
+        ys = vtkFloatArray()
         ys.SetNumberOfTuples(dims[1])
         for d in range(dims[1]):
             ys.SetTuple1(d, orgs[1] + exts[2] + d)
         r.SetYCoordinates(ys)
 
-        zs = vtk.vtkFloatArray()
+        zs = vtkFloatArray()
         zs.SetNumberOfTuples(dims[2])
         for d in range(dims[2]):
             zs.SetTuple1(d, orgs[2] + exts[4] + d)
         r.SetZCoordinates(zs)
 
-        s = vtk.vtkSphere()
+        s = vtkSphere()
         s.SetRadius(2)
         s.SetCenter(0,0,0)
 
-        c = vtk.vtkTableBasedClipDataSet()
+        c = vtkTableBasedClipDataSet()
         c.SetInputData(r)
         c.SetClipFunction(s)
         c.SetInsideOut(1)
@@ -100,7 +124,7 @@ class TestClip(Testing.vtkTest):
         planes = ['XY', 'XZ', 'YZ']
         expectedNCells = [42, 34, 68]
         for plane, nCells in zip(planes,expectedNCells):
-            rt = vtk.vtkRTAnalyticSource()
+            rt = vtkRTAnalyticSource()
             if plane == 'XY':
                 rt.SetWholeExtent(-5, 5, -5, 5, 0, 0)
             elif plane == 'XZ':
@@ -110,25 +134,25 @@ class TestClip(Testing.vtkTest):
             rt.Update()
             i = rt.GetOutput()
 
-            st = vtk.vtkStructuredGrid()
+            st = vtkStructuredGrid()
             st.SetDimensions(i.GetDimensions())
 
             nps = i.GetNumberOfPoints()
-            ps = vtk.vtkPoints()
+            ps = vtkPoints()
             ps.SetNumberOfPoints(nps)
             for idx in range(nps):
                 ps.SetPoint(idx, i.GetPoint(idx))
 
             st.SetPoints(ps)
 
-            cyl = vtk.vtkCylinder()
+            cyl = vtkCylinder()
             cyl.SetRadius(2)
             cyl.SetCenter(0,0,0)
-            transform = vtk.vtkTransform()
+            transform = vtkTransform()
             transform.RotateWXYZ(45,20,1,10)
             cyl.SetTransform(transform)
 
-            c = vtk.vtkTableBasedClipDataSet()
+            c = vtkTableBasedClipDataSet()
             c.SetInputData(st)
             c.SetClipFunction(cyl)
             c.SetInsideOut(1)
@@ -138,27 +162,27 @@ class TestClip(Testing.vtkTest):
             self.assertEqual(c.GetOutput().GetNumberOfCells(), nCells)
 
     def testStructured(self):
-        rt = vtk.vtkRTAnalyticSource()
+        rt = vtkRTAnalyticSource()
         rt.SetWholeExtent(-5, 5, -5, 5, -5, 5)
         rt.Update()
         i = rt.GetOutput()
 
-        st = vtk.vtkStructuredGrid()
+        st = vtkStructuredGrid()
         st.SetDimensions(i.GetDimensions())
 
         nps = i.GetNumberOfPoints()
-        ps = vtk.vtkPoints()
+        ps = vtkPoints()
         ps.SetNumberOfPoints(nps)
         for idx in range(nps):
             ps.SetPoint(idx, i.GetPoint(idx))
 
         st.SetPoints(ps)
 
-        s = vtk.vtkSphere()
+        s = vtkSphere()
         s.SetRadius(2)
         s.SetCenter(0,0,0)
 
-        c = vtk.vtkTableBasedClipDataSet()
+        c = vtkTableBasedClipDataSet()
         c.SetInputData(st)
         c.SetClipFunction(s)
         c.SetInsideOut(1)
@@ -168,19 +192,19 @@ class TestClip(Testing.vtkTest):
         self.assertEqual(c.GetOutput().GetNumberOfCells(), 64)
 
     def testUnstructured(self):
-        rt = vtk.vtkRTAnalyticSource()
+        rt = vtkRTAnalyticSource()
         rt.SetWholeExtent(-5, 5, -5, 5, -5, 5)
 
-        t = vtk.vtkThreshold()
+        t = vtkThreshold()
         t.SetInputConnection(rt.GetOutputPort())
-        t.SetThresholdFunction(vtk.vtkThreshold.THRESHOLD_UPPER)
+        t.SetThresholdFunction(vtkThreshold.THRESHOLD_UPPER)
         t.SetUpperThreshold(-10.0)
 
-        s = vtk.vtkSphere()
+        s = vtkSphere()
         s.SetRadius(2)
         s.SetCenter(0,0,0)
 
-        c = vtk.vtkTableBasedClipDataSet()
+        c = vtkTableBasedClipDataSet()
         c.SetInputConnection(t.GetOutputPort())
         c.SetClipFunction(s)
         c.SetInsideOut(1)
@@ -189,11 +213,11 @@ class TestClip(Testing.vtkTest):
 
         self.assertEqual(c.GetOutput().GetNumberOfCells(), 64)
 
-        eg = vtk.vtkEnSightGoldReader()
+        eg = vtkEnSightGoldReader()
         eg.SetCaseFileName(VTK_DATA_ROOT + "/Data/EnSight/elements.case")
         eg.Update()
 
-        pl = vtk.vtkPlane()
+        pl = vtkPlane()
         pl.SetOrigin(3.5, 3.5, 0.5)
         pl.SetNormal(0, 0, 1)
 
@@ -205,12 +229,12 @@ class TestClip(Testing.vtkTest):
         data = c.GetOutputDataObject(0).GetBlock(0)
         self.assertEqual(data.GetNumberOfCells(), 83)
 
-        rw = vtk.vtkRenderWindow()
-        ren = vtk.vtkRenderer()
+        rw = vtkRenderWindow()
+        ren = vtkRenderer()
         rw.AddRenderer(ren)
-        mapper = vtk.vtkDataSetMapper()
+        mapper = vtkDataSetMapper()
         mapper.SetInputData(data)
-        actor = vtk.vtkActor()
+        actor = vtkActor()
         actor.SetMapper(mapper)
         ren.AddActor(actor)
         ac = ren.GetActiveCamera()
@@ -220,7 +244,7 @@ class TestClip(Testing.vtkTest):
         rw.Render()
         ren.ResetCameraClippingRange()
 
-        rtTester = vtk.vtkTesting()
+        rtTester = vtkTesting()
         for arg in sys.argv[1:]:
             rtTester.AddArgument(arg)
         rtTester.AddArgument("-V")

@@ -1,24 +1,39 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonCore import vtkPoints
+from vtkmodules.vtkCommonDataModel import (
+    vtkCellArray,
+    vtkPolyData,
+)
+from vtkmodules.vtkFiltersModeling import vtkCookieCutter
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 
 # This tests reversing loops and other weird situations
 
 # create planes
 # Create the RenderWindow, Renderer
 #
-ren = vtk.vtkRenderer()
-renWin = vtk.vtkRenderWindow()
+ren = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.AddRenderer( ren )
 
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 
 # Custom polydata to test intersections. Loop are ordered in
 # reverse directions.
-polysData = vtk.vtkPolyData()
-polysPts = vtk.vtkPoints()
-polysPolys = vtk.vtkCellArray()
+polysData = vtkPolyData()
+polysPts = vtkPoints()
+polysPolys = vtkCellArray()
 polysData.SetPoints(polysPts)
 polysData.SetPolys(polysPolys)
 
@@ -44,9 +59,9 @@ polysPolys.InsertCellPoint(6)
 polysPolys.InsertCellPoint(5)
 
 # Create a loop for cookie cutting
-loops = vtk.vtkPolyData()
-loopPts = vtk.vtkPoints()
-loopPolys = vtk.vtkCellArray()
+loops = vtkPolyData()
+loopPts = vtkPoints()
+loopPolys = vtkCellArray()
 loops.SetPoints(loopPts)
 loops.SetPolys(loopPolys)
 
@@ -62,21 +77,21 @@ loopPolys.InsertCellPoint(1)
 loopPolys.InsertCellPoint(2)
 loopPolys.InsertCellPoint(3)
 
-cookie = vtk.vtkCookieCutter()
+cookie = vtkCookieCutter()
 cookie.SetInputData(polysData)
 cookie.SetLoopsData(loops)
 cookie.Update()
 
-mapper = vtk.vtkPolyDataMapper()
+mapper = vtkPolyDataMapper()
 mapper.SetInputConnection(cookie.GetOutputPort())
 
-actor = vtk.vtkActor()
+actor = vtkActor()
 actor.SetMapper(mapper)
 
-loopMapper = vtk.vtkPolyDataMapper()
+loopMapper = vtkPolyDataMapper()
 loopMapper.SetInputData(loops)
 
-loopActor = vtk.vtkActor()
+loopActor = vtkActor()
 loopActor.SetMapper(loopMapper)
 loopActor.GetProperty().SetColor(1,0,0)
 loopActor.GetProperty().SetRepresentationToWireframe()

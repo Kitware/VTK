@@ -1,123 +1,145 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonDataModel import (
+    vtkPlane,
+    vtkSphere,
+)
+from vtkmodules.vtkFiltersCore import (
+    vtkCutter,
+    vtkExecutionTimer,
+    vtkPlaneCutter,
+)
+from vtkmodules.vtkFiltersExtraction import vtkExtractGeometry
+from vtkmodules.vtkFiltersGeneral import vtkRandomAttributeGenerator
+from vtkmodules.vtkFiltersModeling import vtkOutlineFilter
+from vtkmodules.vtkImagingHybrid import vtkSampleFunction
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 res = 50
 
 # Create the RenderWindow, Renderers and both Actors
-ren0 = vtk.vtkRenderer()
-ren1 = vtk.vtkRenderer()
-ren2 = vtk.vtkRenderer()
-renWin = vtk.vtkRenderWindow()
+ren0 = vtkRenderer()
+ren1 = vtkRenderer()
+ren2 = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.SetMultiSamples(0)
 renWin.AddRenderer(ren0)
 renWin.AddRenderer(ren1)
 renWin.AddRenderer(ren2)
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 
 # Create a synthetic source: sample a sphere across a volume
-sphere = vtk.vtkSphere()
+sphere = vtkSphere()
 sphere.SetCenter(0.0, 0.0, 0.0)
 sphere.SetRadius(0.25)
 
-sample = vtk.vtkSampleFunction()
+sample = vtkSampleFunction()
 sample.SetImplicitFunction(sphere)
 sample.SetModelBounds(-0.5, 0.5, -0.5, 0.5, -0.5, 0.5)
 sample.SetSampleDimensions(res, res, res)
 sample.Update()
 
 # Adds random attributes
-random = vtk.vtkRandomAttributeGenerator()
+random = vtkRandomAttributeGenerator()
 random.SetGenerateCellScalars(True)
 random.SetInputConnection(sample.GetOutputPort())
 
 # Convert the image data to unstructured grid
-extractionSphere = vtk.vtkSphere()
+extractionSphere = vtkSphere()
 extractionSphere.SetRadius(100)
 extractionSphere.SetCenter(0, 0, 0)
-extract = vtk.vtkExtractGeometry()
+extract = vtkExtractGeometry()
 extract.SetImplicitFunction(extractionSphere)
 extract.SetInputConnection(random.GetOutputPort())
 extract.Update()
 
 # The cut plane
-plane = vtk.vtkPlane()
+plane = vtkPlane()
 plane.SetOrigin(0, 0, 0)
 plane.SetNormal(1, 1, 1)
 
 # Now create the usual cutter
-cutter = vtk.vtkCutter()
+cutter = vtkCutter()
 cutter.SetInputConnection(extract.GetOutputPort())
 cutter.SetCutFunction(plane)
 
-cutterMapper = vtk.vtkPolyDataMapper()
+cutterMapper = vtkPolyDataMapper()
 cutterMapper.SetInputConnection(cutter.GetOutputPort())
 cutterMapper.ScalarVisibilityOff()
 
-cutterActor = vtk.vtkActor()
+cutterActor = vtkActor()
 cutterActor.SetMapper(cutterMapper)
 cutterActor.GetProperty().SetColor(1, 1, 1)
 
 # Throw in an outline
-outline = vtk.vtkOutlineFilter()
+outline = vtkOutlineFilter()
 outline.SetInputConnection(sample.GetOutputPort())
 
-outlineMapper = vtk.vtkPolyDataMapper()
+outlineMapper = vtkPolyDataMapper()
 outlineMapper.SetInputConnection(outline.GetOutputPort())
 
-outlineActor = vtk.vtkActor()
+outlineActor = vtkActor()
 outlineActor.SetMapper(outlineMapper)
 
 # Accelerated cutter
-cut = vtk.vtkPlaneCutter()
+cut = vtkPlaneCutter()
 cut.SetInputConnection(extract.GetOutputPort())
 cut.SetPlane(plane)
 cut.ComputeNormalsOff()
 
-sCutterMapper = vtk.vtkPolyDataMapper()
+sCutterMapper = vtkPolyDataMapper()
 sCutterMapper.SetInputConnection(cut.GetOutputPort())
 sCutterMapper.ScalarVisibilityOff()
 
-sCutterActor = vtk.vtkActor()
+sCutterActor = vtkActor()
 sCutterActor.SetMapper(sCutterMapper)
 sCutterActor.GetProperty().SetColor(1, 1, 1)
 
 # Accelerated cutter without tree
-ncut = vtk.vtkPlaneCutter()
+ncut = vtkPlaneCutter()
 ncut.SetInputConnection(extract.GetOutputPort())
 ncut.SetPlane(plane)
 ncut.ComputeNormalsOff()
 ncut.BuildTreeOff()
 
-snCutterMapper = vtk.vtkPolyDataMapper()
+snCutterMapper = vtkPolyDataMapper()
 snCutterMapper.SetInputConnection(ncut.GetOutputPort())
 snCutterMapper.ScalarVisibilityOff()
 
-snCutterActor = vtk.vtkActor()
+snCutterActor = vtkActor()
 snCutterActor.SetMapper(snCutterMapper)
 snCutterActor.GetProperty().SetColor(1, 1, 1)
 
-outlineT = vtk.vtkOutlineFilter()
+outlineT = vtkOutlineFilter()
 outlineT.SetInputConnection(sample.GetOutputPort())
 
-outlineMapperT = vtk.vtkPolyDataMapper()
+outlineMapperT = vtkPolyDataMapper()
 outlineMapperT.SetInputConnection(outlineT.GetOutputPort())
 
-outlineActorT = vtk.vtkActor()
+outlineActorT = vtkActor()
 outlineActorT.SetMapper(outlineMapperT)
 
 # Time the execution of the usual cutter
-cutter_timer = vtk.vtkExecutionTimer()
+cutter_timer = vtkExecutionTimer()
 cutter_timer.SetFilter(cutter)
 cutter.Update()
 CT = cutter_timer.GetElapsedWallClockTime()
 print("vtkCutter:", CT)
 
 # Time the execution of the filter w/ sphere tree
-sCutter_timer = vtk.vtkExecutionTimer()
+sCutter_timer = vtkExecutionTimer()
 sCutter_timer.SetFilter(cut)
 cut.Update()
 ST = sCutter_timer.GetElapsedWallClockTime()

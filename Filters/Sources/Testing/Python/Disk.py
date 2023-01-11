@@ -1,23 +1,33 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkFiltersSources import vtkDiskSource
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # Create the RenderWindow, Renderer and both Actors
 #
-ren1 = vtk.vtkRenderer()
-renWin = vtk.vtkRenderWindow()
+ren1 = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.AddRenderer(ren1)
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
-disk = vtk.vtkDiskSource()
+disk = vtkDiskSource()
 disk.SetInnerRadius(1.0)
 disk.SetOuterRadius(2.0)
 disk.SetRadialResolution(1)
 disk.SetCircumferentialResolution(20)
-diskMapper = vtk.vtkPolyDataMapper()
+diskMapper = vtkPolyDataMapper()
 diskMapper.SetInputConnection(disk.GetOutputPort())
-diskActor = vtk.vtkActor()
+diskActor = vtkActor()
 diskActor.SetMapper(diskMapper)
 # Add the actors to the renderer, set the background and size
 #

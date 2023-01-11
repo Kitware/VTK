@@ -1,38 +1,54 @@
 #!/usr/bin/env python
+from vtkmodules.vtkFiltersCore import vtkCleanPolyData
+from vtkmodules.vtkFiltersParallel import (
+    vtkExtractPolyDataPiece,
+    vtkPLinearExtrusionFilter,
+)
+from vtkmodules.vtkFiltersSources import vtkDiskSource
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPolyDataMapper,
+    vtkProperty,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
 
-
-disk = vtk.vtkDiskSource()
+disk = vtkDiskSource()
 disk.SetRadialResolution(2)
 disk.SetCircumferentialResolution(9)
 
-clean = vtk.vtkCleanPolyData()
+clean = vtkCleanPolyData()
 clean.SetInputConnection(disk.GetOutputPort())
 clean.SetTolerance(0.01)
 
-piece = vtk.vtkExtractPolyDataPiece()
+piece = vtkExtractPolyDataPiece()
 piece.SetInputConnection(clean.GetOutputPort())
 
-extrude = vtk.vtkPLinearExtrusionFilter()
+extrude = vtkPLinearExtrusionFilter()
 extrude.SetInputConnection(piece.GetOutputPort())
 extrude.PieceInvariantOn()
 # Create the RenderWindow, Renderer and both Actors
 #
-ren1 = vtk.vtkRenderer()
-renWin = vtk.vtkRenderWindow()
+ren1 = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.AddRenderer(ren1)
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 
-mapper = vtk.vtkPolyDataMapper()
+mapper = vtkPolyDataMapper()
 mapper.SetInputConnection(extrude.GetOutputPort())
 mapper.SetNumberOfPieces(2)
 mapper.SetPiece(1)
 mapper.Update()
 mapper.GetInput().RemoveGhostCells()
 
-bf = vtk.vtkProperty()
+bf = vtkProperty()
 bf.SetColor(1,0,0)
-actor = vtk.vtkActor()
+actor = vtkActor()
 actor.SetMapper(mapper)
 actor.GetProperty().SetColor(1,1,0.8)
 actor.SetBackfaceProperty(bf)

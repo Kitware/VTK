@@ -2,13 +2,23 @@
 
 import sys
 from functools import partial
-import vtk
-from vtk.test import Testing
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkFiltersCore import vtkAppendPolyData
+from vtkmodules.vtkFiltersSources import vtkSuperquadricSource
+from vtkmodules.vtkIOImage import vtkPNMReader
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPolyDataMapper,
+    vtkRenderer,
+    vtkTexture,
+)
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.test import Testing
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
-from vtk.tk.vtkTkRenderWindowInteractor import vtkTkRenderWindowInteractor
-from vtk.tk.vtkTkRenderWidget import vtkTkRenderWidget
+from vtkmodules.tk.vtkTkRenderWindowInteractor import vtkTkRenderWindowInteractor
+from vtkmodules.tk.vtkTkRenderWidget import vtkTkRenderWidget
 
 if sys.hexversion < 0x03000000:
     # for Python2
@@ -123,23 +133,23 @@ class SuperQuadricViewer(Testing.vtkTest):
 
         # Create pipeline
         #
-        squad = vtk.vtkSuperquadricSource()
+        squad = vtkSuperquadricSource()
         squad.SetPhiResolution(20)
         squad.SetThetaResolution(25)
 
-        pnmReader = vtk.vtkPNMReader()
+        pnmReader = vtkPNMReader()
         pnmReader.SetFileName(VTK_DATA_ROOT + "/Data/earth.ppm")
-        atext = vtk.vtkTexture()
+        atext = vtkTexture()
         atext.SetInputConnection(pnmReader.GetOutputPort())
         atext.InterpolateOn()
 
-        appendSquads = vtk.vtkAppendPolyData()
+        appendSquads = vtkAppendPolyData()
         appendSquads.AddInputConnection(squad.GetOutputPort())
 
-        mapper = vtk.vtkPolyDataMapper()
+        mapper = vtkPolyDataMapper()
         mapper.SetInputConnection(squad.GetOutputPort())
         mapper.ScalarVisibilityOff()
-        actor = vtk.vtkActor()
+        actor = vtkActor()
         actor.SetMapper(mapper)
         actor.SetTexture(atext)
         actor.GetProperty().SetDiffuseColor(0.5, 0.8, 0.8)
@@ -155,7 +165,7 @@ class SuperQuadricViewer(Testing.vtkTest):
 
         # Create renderer stuff
         #
-        ren = vtk.vtkRenderer()
+        ren = vtkRenderer()
         ren.SetAmbient(1.0, 1.0, 1.0)
         renWin.AddRenderer(ren)
 

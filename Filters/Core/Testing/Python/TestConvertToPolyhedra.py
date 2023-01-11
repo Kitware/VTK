@@ -1,13 +1,28 @@
 #!/usr/bin/env python
-import vtk
+from vtkmodules.vtkCommonCore import (
+    vtkFloatArray,
+    vtkPoints,
+)
+from vtkmodules.vtkCommonDataModel import vtkUnstructuredGrid
+from vtkmodules.vtkFiltersCore import vtkConvertToPolyhedra
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkDataSetMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
 
 # Test conversion of cells to polyhedra.
 # Create an unstructured grid containing a vtkPolyhedron, a 3D hex cell, and
 # a 2D quad cell.
-grid = vtk.vtkUnstructuredGrid()
+grid = vtkUnstructuredGrid()
 
 # Insert points
-pts = vtk.vtkPoints()
+pts = vtkPoints()
 pts.SetNumberOfPoints(12)
 
 # Hex points
@@ -36,7 +51,7 @@ cellPts = [8,9,10,11]
 grid.InsertNextCell(9,4,cellPts) # Insert quad
 
 # Create some cell scalars
-cellScalars = vtk.vtkFloatArray()
+cellScalars = vtkFloatArray()
 cellScalars.SetNumberOfTuples(2)
 cellScalars.SetTuple1(0,0)
 cellScalars.SetTuple1(1,2)
@@ -44,45 +59,45 @@ cellScalars.SetTuple1(1,2)
 grid.GetCellData().SetScalars(cellScalars)
 
 # Convert mesh to polyhedra
-convert = vtk.vtkConvertToPolyhedra()
+convert = vtkConvertToPolyhedra()
 convert.SetInputData(grid)
 convert.OutputAllCellsOn()
 convert.Update()
 
 # Make sure conversion also handles polyhedra
-convert2 = vtk.vtkConvertToPolyhedra()
+convert2 = vtkConvertToPolyhedra()
 convert2.SetInputConnection(convert.GetOutputPort())
 convert2.OutputAllCellsOn()
 convert2.Update()
 
 # Make sure conversion only passes convertible types
-convert3 = vtk.vtkConvertToPolyhedra()
+convert3 = vtkConvertToPolyhedra()
 convert3.SetInputConnection(convert.GetOutputPort())
 convert3.OutputAllCellsOff()
 convert3.Update()
 
 # Graphics stuff
 # Create the RenderWindow, Renderers and both Actors
-ren0 = vtk.vtkRenderer()
-renWin = vtk.vtkRenderWindow()
+ren0 = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.SetMultiSamples(0)
 renWin.AddRenderer(ren0)
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 
-mapper1 = vtk.vtkDataSetMapper()
+mapper1 = vtkDataSetMapper()
 mapper1.SetInputConnection(convert2.GetOutputPort())
 mapper1.SetScalarRange(0,2)
 
-actor1 = vtk.vtkActor()
+actor1 = vtkActor()
 actor1.SetMapper(mapper1)
 actor1.GetProperty().SetInterpolationToFlat()
 
-mapper2 = vtk.vtkDataSetMapper()
+mapper2 = vtkDataSetMapper()
 mapper2.SetInputConnection(convert3.GetOutputPort())
 mapper2.SetScalarRange(0,2)
 
-actor2 = vtk.vtkActor()
+actor2 = vtkActor()
 actor2.SetMapper(mapper2)
 actor2.GetProperty().SetInterpolationToFlat()
 actor2.AddPosition(2,0,0)

@@ -1,19 +1,38 @@
 #!/usr/bin/env python
-import vtk
+from vtkmodules.vtkCommonCore import (
+    vtkFloatArray,
+    vtkPoints,
+)
+from vtkmodules.vtkCommonDataModel import (
+    vtkCellArray,
+    vtkPolyData,
+)
+from vtkmodules.vtkFiltersCore import vtkFeatureEdges
+from vtkmodules.vtkFiltersModeling import vtkPolyDataPointSampler
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
 
 # Create the RenderWindow, Renderer and interactive renderer
 #
-ren1 = vtk.vtkRenderer()
-renWin = vtk.vtkRenderWindow()
+ren1 = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.SetMultiSamples(0)
 renWin.AddRenderer(ren1)
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 
 # Create a synthetic polydata with two triangles, a quad, a general polygon,
 # and a triangle strip. The polydata also has point attributes.
 #
-pts = vtk.vtkPoints()
+pts = vtkPoints()
 pts.SetNumberOfPoints(11)
 pts.SetPoint(0, 0.0,0.0,0.0)
 pts.SetPoint(1, 1.0,0.0,0.0)
@@ -27,7 +46,7 @@ pts.SetPoint(8, 0.5,3.5,0.0)
 pts.SetPoint(9, 0.0,-1,0.0)
 pts.SetPoint(10, 1.0,-1,0.0)
 
-cells = vtk.vtkCellArray()
+cells = vtkCellArray()
 cells.InsertNextCell(3)
 cells.InsertCellPoint(0)
 cells.InsertCellPoint(1)
@@ -48,14 +67,14 @@ cells.InsertCellPoint(7)
 cells.InsertCellPoint(8)
 cells.InsertCellPoint(6)
 
-strip = vtk.vtkCellArray()
+strip = vtkCellArray()
 strip.InsertNextCell(4)
 strip.InsertCellPoint(10)
 strip.InsertCellPoint(1)
 strip.InsertCellPoint(9)
 strip.InsertCellPoint(0)
 
-scalars = vtk.vtkFloatArray()
+scalars = vtkFloatArray()
 scalars.SetNumberOfTuples(11)
 scalars.SetTuple1(0,0.0)
 scalars.SetTuple1(1,1.0)
@@ -70,7 +89,7 @@ scalars.SetTuple1(9,0.0)
 scalars.SetTuple1(10,1.0)
 
 # Assemble the polydata
-pd = vtk.vtkPolyData()
+pd = vtkPolyData()
 pd.SetPoints(pts)
 pd.SetPolys(cells)
 pd.SetStrips(strip)
@@ -78,7 +97,7 @@ pd.GetPointData().SetScalars(scalars)
 
 # Finally test the point sampler
 # Note that generating points on edges and vertices is less than random
-sampler = vtk.vtkPolyDataPointSampler()
+sampler = vtkPolyDataPointSampler()
 sampler.SetInputData(pd)
 sampler.SetDistance(0.025)
 sampler.SetPointGenerationModeToRandom()
@@ -89,21 +108,21 @@ sampler.GenerateInteriorPointsOn()
 sampler.Update()
 
 # Mapper and actor
-mapper = vtk.vtkPolyDataMapper()
+mapper = vtkPolyDataMapper()
 mapper.SetInputConnection(sampler.GetOutputPort())
 
-actor = vtk.vtkActor()
+actor = vtkActor()
 actor.SetMapper(mapper)
 
 # Produce an outline around the polygons
-feat = vtk.vtkFeatureEdges()
+feat = vtkFeatureEdges()
 feat.SetInputData(pd)
 feat.BoundaryEdgesOn()
 
-featMapper = vtk.vtkPolyDataMapper()
+featMapper = vtkPolyDataMapper()
 featMapper.SetInputConnection(feat.GetOutputPort())
 
-featActor = vtk.vtkActor()
+featActor = vtkActor()
 featActor.SetMapper(featMapper)
 
 # Setup graphics stuff

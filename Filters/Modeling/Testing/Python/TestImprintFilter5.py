@@ -1,5 +1,16 @@
 #!/usr/bin/env python
-import vtk
+from vtkmodules.vtkFiltersModeling import vtkImprintFilter
+from vtkmodules.vtkFiltersSources import vtkSphereSource
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
 
 # Control the resolution of the test
 radius = 10.0
@@ -8,7 +19,7 @@ res = 4
 # Create pipeline. Use two sphere sources:
 # a portion of one sphere imprints on the other.
 #
-target = vtk.vtkSphereSource()
+target = vtkSphereSource()
 target.SetRadius(radius)
 target.SetCenter(0,0,0)
 target.LatLongTessellationOn()
@@ -17,7 +28,7 @@ target.SetPhiResolution(4*res)
 target.SetStartTheta(0)
 target.SetEndTheta(90)
 
-imprint = vtk.vtkSphereSource()
+imprint = vtkSphereSource()
 imprint.SetRadius(radius)
 imprint.SetCenter(0,0,0)
 imprint.LatLongTessellationOn()
@@ -29,38 +40,38 @@ imprint.SetStartPhi(60.0)
 imprint.SetEndPhi(120.0)
 
 # Produce an imprint
-imp = vtk.vtkImprintFilter()
+imp = vtkImprintFilter()
 imp.SetTargetConnection(target.GetOutputPort())
 imp.SetImprintConnection(imprint.GetOutputPort())
 imp.SetOutputTypeToProjectedImprint()
 imp.SetTolerance(0.085)
 imp.Update()
 
-impMapper = vtk.vtkPolyDataMapper()
+impMapper = vtkPolyDataMapper()
 impMapper.SetInputConnection(imp.GetOutputPort())
 impMapper.SetScalarRange(0,2)
 impMapper.SetScalarModeToUseCellFieldData()
 impMapper.SelectColorArray("ImprintedCells")
 
-impActor = vtk.vtkActor()
+impActor = vtkActor()
 impActor.SetMapper(impMapper)
 impActor.GetProperty().SetColor(1,0,0)
 
-imprintMapper = vtk.vtkPolyDataMapper()
+imprintMapper = vtkPolyDataMapper()
 imprintMapper.SetInputConnection(imprint.GetOutputPort())
 
-imprintActor = vtk.vtkActor()
+imprintActor = vtkActor()
 imprintActor.SetMapper(imprintMapper)
 imprintActor.GetProperty().SetColor(1,1,1)
 
 # Create the RenderWindow, Renderer
 #
-ren1 = vtk.vtkRenderer()
-renWin = vtk.vtkRenderWindow()
+ren1 = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.AddRenderer( ren1 )
 renWin.SetSize(300,200)
 
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 
 ren1.AddActor(impActor)

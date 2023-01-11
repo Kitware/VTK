@@ -1,10 +1,28 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonDataModel import vtkSphere
+from vtkmodules.vtkCommonSystem import vtkTimerLog
+from vtkmodules.vtkFiltersCore import (
+    vtkConvertToPolyhedra,
+    vtkStaticCleanUnstructuredGrid,
+)
+from vtkmodules.vtkFiltersExtraction import vtkExtractGeometry
+from vtkmodules.vtkFiltersGeneral import vtkShrinkFilter
+from vtkmodules.vtkIOParallel import vtkMultiBlockPLOT3DReader
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkDataSetMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 
 # Pipeline creation follows
 #
-pl3d = vtk.vtkMultiBlockPLOT3DReader()
+pl3d = vtkMultiBlockPLOT3DReader()
 pl3d.SetXYZFileName( vtkGetDataRoot() + '/Data/combxyz.bin' )
 pl3d.SetQFileName( vtkGetDataRoot() + '/Data/combq.bin' )
 pl3d.SetScalarFunctionNumber( 100 )
@@ -13,10 +31,10 @@ pl3d.Update()
 pl3d_output = pl3d.GetOutput().GetBlock(0)
 
 # Convert to an unstructured grid
-extSphere = vtk.vtkSphere()
+extSphere = vtkSphere()
 extSphere.SetCenter(0,0,0)
 extSphere.SetRadius(1000)
-ugrid = vtk.vtkExtractGeometry()
+ugrid = vtkExtractGeometry()
 ugrid.SetInputData(pl3d_output)
 ugrid.SetImplicitFunction(extSphere)
 ugrid.Update()
@@ -25,19 +43,19 @@ ugrid.Update()
 sample = ugrid.GetOutput()
 
 # Convert mesh to polyhedra
-convert0 = vtk.vtkConvertToPolyhedra()
+convert0 = vtkConvertToPolyhedra()
 convert0.SetInputData(sample)
 convert0.Update()
 
 # Clean the data with zero tolerance
-clean0 = vtk.vtkStaticCleanUnstructuredGrid()
+clean0 = vtkStaticCleanUnstructuredGrid()
 clean0.SetInputConnection(convert0.GetOutputPort())
 clean0.ToleranceIsAbsoluteOn()
 clean0.SetTolerance(0.0)
 clean0.RemoveUnusedPointsOff()
 
 # Time execution
-timer = vtk.vtkTimerLog()
+timer = vtkTimerLog()
 timer.StartTimer()
 clean0.Update()
 timer.StopTimer()
@@ -48,7 +66,7 @@ print("\tRemaining points: {0}".format(clean0.GetOutput().GetNumberOfPoints()))
 print("\tRemaining cells: {0}".format(clean0.GetOutput().GetNumberOfCells()))
 
 # Clean the data with non-zero tolerance
-clean1 = vtk.vtkStaticCleanUnstructuredGrid()
+clean1 = vtkStaticCleanUnstructuredGrid()
 clean1.SetInputConnection(convert0.GetOutputPort())
 clean1.ToleranceIsAbsoluteOff()
 clean1.SetTolerance(0.00001)
@@ -64,7 +82,7 @@ print("\tRemaining points: {0}".format(clean1.GetOutput().GetNumberOfPoints()))
 print("\tRemaining cells: {0}".format(clean1.GetOutput().GetNumberOfCells()))
 
 # Now shrink the data and clean with zero and non-zero tolerance
-shrink0 = vtk.vtkShrinkFilter()
+shrink0 = vtkShrinkFilter()
 shrink0.SetInputData(sample)
 shrink0.SetShrinkFactor(1.0)
 shrink0.Update()
@@ -85,13 +103,13 @@ print("Time to clean grid (zero tolerance): {0}".format(time))
 print("\tRemaining points: {0}".format(clean0.GetOutput().GetNumberOfPoints()))
 print("\tRemaining cells: {0}".format(clean0.GetOutput().GetNumberOfCells()))
 
-shrink1 = vtk.vtkShrinkFilter()
+shrink1 = vtkShrinkFilter()
 shrink1.SetInputData(sample)
 shrink1.SetShrinkFactor(0.999)
 shrink1.Update()
 
 # Convert mesh to polyhedra
-convert1 = vtk.vtkConvertToPolyhedra()
+convert1 = vtkConvertToPolyhedra()
 convert1.SetInputConnection(shrink1.GetOutputPort())
 
 clean1.SetInputConnection(convert1.GetOutputPort())
@@ -110,18 +128,18 @@ print("\tRemaining cells: {0}".format(clean1.GetOutput().GetNumberOfCells()))
 
 # Graphics stuff
 # Create the RenderWindow, Renderers and both Actors
-ren0 = vtk.vtkRenderer()
-renWin = vtk.vtkRenderWindow()
+ren0 = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.SetMultiSamples(0)
 renWin.AddRenderer(ren0)
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 
-mapper1 = vtk.vtkDataSetMapper()
+mapper1 = vtkDataSetMapper()
 mapper1.SetInputConnection(clean1.GetOutputPort())
 mapper1.SetScalarRange(sample.GetPointData().GetScalars().GetRange())
 
-actor1 = vtk.vtkActor()
+actor1 = vtkActor()
 actor1.SetMapper(mapper1)
 actor1.GetProperty().SetInterpolationToFlat()
 

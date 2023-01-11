@@ -1,14 +1,17 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonDataModel import vtkSelectionNode
+from vtkmodules.vtkFiltersExtraction import vtkExtractSelection
+from vtkmodules.vtkFiltersSources import vtkSelectionSource
+from vtkmodules.vtkIOExodus import vtkExodusIIReader
+from vtkmodules.util.misc import vtkGetDataRoot
 
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 
 def GetSelection(ids, inverse=False):
-    selectionSource = vtk.vtkSelectionSource()
+    selectionSource = vtkSelectionSource()
     selectionSource.SetInverse(inverse)
-    selectionSource.SetContentType(vtk.vtkSelectionNode.BLOCKS)
+    selectionSource.SetContentType(vtkSelectionNode.BLOCKS)
     for i in range(len(ids)):
         selectionSource.AddBlock(ids[i])
     return selectionSource
@@ -24,11 +27,11 @@ def GetNumberOfNonNullLeaves(cd):
     return count
 
 
-reader = vtk.vtkExodusIIReader()
+reader = vtkExodusIIReader()
 reader.SetFileName(VTK_DATA_ROOT + "/Data/can.ex2")
 reader.UpdateInformation()
 
-extractor = vtk.vtkExtractSelection()
+extractor = vtkExtractSelection()
 extractor.SetInputConnection(0, reader.GetOutputPort())
 
 # extract 0

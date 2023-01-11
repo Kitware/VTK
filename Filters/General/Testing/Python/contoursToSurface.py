@@ -1,20 +1,35 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonCore import vtkPoints
+from vtkmodules.vtkCommonDataModel import (
+    vtkCellArray,
+    vtkPolyData,
+)
+from vtkmodules.vtkFiltersGeneral import vtkVoxelContoursToSurfaceFilter
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # Create the RenderWindow, Renderer and both Actors
 #
-ren1 = vtk.vtkRenderer()
-renWin = vtk.vtkRenderWindow()
+ren1 = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.AddRenderer(ren1)
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 #
 # Create the data
 #
-points = vtk.vtkPoints()
-polys = vtk.vtkCellArray()
+points = vtkPoints()
+polys = vtkCellArray()
 i = 0
 z = -5
 while z < 30:
@@ -106,14 +121,14 @@ while z < 30:
 #
 # Create a representation of the contours used as input
 #
-contours = vtk.vtkPolyData()
+contours = vtkPolyData()
 contours.SetPoints(points)
 contours.SetPolys(polys)
 
-contourMapper = vtk.vtkPolyDataMapper()
+contourMapper = vtkPolyDataMapper()
 contourMapper.SetInputData(contours)
 
-contourActor = vtk.vtkActor()
+contourActor = vtkActor()
 contourActor.SetMapper(contourMapper)
 contourActor.GetProperty().SetColor(1, 0, 0)
 contourActor.GetProperty().SetAmbient(1)
@@ -133,15 +148,15 @@ renWin.Render()
 
 # Create the contour to surface filter
 #
-f = vtk.vtkVoxelContoursToSurfaceFilter()
+f = vtkVoxelContoursToSurfaceFilter()
 f.SetInputData(contours)
 f.SetMemoryLimitInBytes(100000)
 
-m = vtk.vtkPolyDataMapper()
+m = vtkPolyDataMapper()
 m.SetInputConnection(f.GetOutputPort())
 m.ScalarVisibilityOff()
 
-a = vtk.vtkActor()
+a = vtkActor()
 a.SetMapper(m)
 
 ren1.AddViewProp(a)

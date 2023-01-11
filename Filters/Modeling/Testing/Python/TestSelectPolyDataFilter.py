@@ -1,6 +1,25 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonCore import (
+    VTK_STRING,
+    vtkCommand,
+    vtkIntArray,
+    vtkPoints,
+)
+from vtkmodules.vtkCommonDataModel import vtkPolyData
+from vtkmodules.vtkFiltersCore import vtkClipPolyData
+from vtkmodules.vtkFiltersModeling import vtkSelectPolyData
+from vtkmodules.vtkIOXML import vtkXMLPolyDataReader
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # Callback object to capture errors
@@ -19,7 +38,7 @@ class callback:
         self.calldata = None
 
 
-reader = vtk.vtkXMLPolyDataReader()
+reader = vtkXMLPolyDataReader()
 reader.SetFileName(VTK_DATA_ROOT + "/Data/cow.vtp")
 reader.Update()
 
@@ -68,15 +87,15 @@ loopPointPositions = [[ 4.5208645 ,  2.0485868 , -0.5763462 ],
        [ 4.463926  ,  2.1002119 , -0.5689619 ],
        [ 4.5208645 ,  2.0485868 , -0.5763462 ]]
 
-loopPoints = vtk.vtkPoints()
+loopPoints = vtkPoints()
 for xyz in loopPointPositions:
     loopPoints.InsertNextPoint(xyz)
 
 # Add attribute information
-cowPolyData = vtk.vtkPolyData()
+cowPolyData = vtkPolyData()
 cowPolyData.ShallowCopy(reader.GetOutput())
 
-ptScalarArray = vtk.vtkIntArray()
+ptScalarArray = vtkIntArray()
 ptScalarArray.SetName("ScalarArray")
 ptScalarArray.SetNumberOfComponents(1)
 ptScalarArray.SetNumberOfTuples(cowPolyData.GetNumberOfPoints())
@@ -84,7 +103,7 @@ ptScalarArray.Fill(1)
 
 cowPolyData.GetPointData().AddArray(ptScalarArray)
 
-cellScalarArray = vtk.vtkIntArray()
+cellScalarArray = vtkIntArray()
 cellScalarArray.SetName("ScalarArray")
 cellScalarArray.SetNumberOfComponents(1)
 cellScalarArray.SetNumberOfTuples(cowPolyData.GetNumberOfCells())
@@ -93,7 +112,7 @@ cellScalarArray.Fill(1)
 cowPolyData.GetCellData().AddArray(cellScalarArray)
 
 # Filter setup
-selectionFilter = vtk.vtkSelectPolyData()
+selectionFilter = vtkSelectPolyData()
 selectionFilter.SetInputData(cowPolyData)
 selectionFilter.SetLoop(loopPoints)
 selectionFilter.GenerateSelectionScalarsOn()
@@ -104,8 +123,8 @@ selectionFilter.SetSelectionModeToSmallestRegion()
 
 # Add error observer to catch the expected error (uncaught error would make the test fail)
 cb = callback()
-cb.CallDataType = vtk.VTK_STRING
-observerId = selectionFilter.AddObserver(vtk.vtkCommand.ErrorEvent, cb)
+cb.CallDataType = VTK_STRING
+observerId = selectionFilter.AddObserver(vtkCommand.ErrorEvent, cb)
 # Run the computation
 selectionFilter.SetEdgeSearchModeToGreedy()
 selectionFilter.Update()
@@ -143,20 +162,20 @@ if testCellScalarArray is None:
 # Display results
 
 # Clip the mesh with the selection (cuts out a hole around the cow's ear)
-clipFilter = vtk.vtkClipPolyData()
+clipFilter = vtkClipPolyData()
 clipFilter.SetInputConnection(selectionFilter.GetOutputPort())
 
 # Set up renderer
-ren1 = vtk.vtkRenderer()
-renWin = vtk.vtkRenderWindow()
+ren1 = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.AddRenderer(ren1)
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 
 # Set up actor
-mapper = vtk.vtkPolyDataMapper()
+mapper = vtkPolyDataMapper()
 mapper.SetInputConnection(clipFilter.GetOutputPort())
-actor = vtk.vtkActor()
+actor = vtkActor()
 actor.SetMapper(mapper)
 ren1.AddActor(actor)
 

@@ -1,43 +1,62 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonDataModel import (
+    vtkCylinder,
+    vtkDataObject,
+    vtkSphere,
+)
+from vtkmodules.vtkCommonSystem import vtkTimerLog
+from vtkmodules.vtkFiltersCore import vtkFlyingEdges3D
+from vtkmodules.vtkFiltersGeneral import vtkSampleImplicitFunctionFilter
+from vtkmodules.vtkFiltersModeling import vtkOutlineFilter
+from vtkmodules.vtkImagingHybrid import vtkSampleFunction
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # Create the RenderWindow, Renderer and both Actors
 #
-ren1 = vtk.vtkRenderer()
-renWin = vtk.vtkRenderWindow()
+ren1 = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.SetMultiSamples(0)
 renWin.AddRenderer(ren1)
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 
 # Create a synthetic source
-sphere = vtk.vtkSphere()
+sphere = vtkSphere()
 sphere.SetCenter( 0.0,0.0,0.0)
 sphere.SetRadius(0.25)
 
 # Iso-surface to create geometry. Demonstrate the ability to
 # interpolate data attributes.
-sample = vtk.vtkSampleFunction()
+sample = vtkSampleFunction()
 sample.SetImplicitFunction(sphere)
 sample.SetModelBounds(-0.5,0.5, -0.5,0.5, -0.5,0.5)
 sample.SetSampleDimensions(100,100,100)
 
 # Now create some new attributes
-cyl = vtk.vtkCylinder()
+cyl = vtkCylinder()
 cyl.SetRadius(0.1)
 cyl.SetAxis(1,1,1)
 
-attr = vtk.vtkSampleImplicitFunctionFilter()
+attr = vtkSampleImplicitFunctionFilter()
 attr.SetInputConnection(sample.GetOutputPort())
 attr.SetImplicitFunction(cyl)
 attr.ComputeGradientsOn()
 attr.Update()
 
-iso = vtk.vtkFlyingEdges3D()
+iso = vtkFlyingEdges3D()
 iso.SetInputConnection(attr.GetOutputPort())
-iso.SetInputArrayToProcess(0, 0, 0, vtk.vtkDataObject.FIELD_ASSOCIATION_POINTS, "scalars")
+iso.SetInputArrayToProcess(0, 0, 0, vtkDataObject.FIELD_ASSOCIATION_POINTS, "scalars")
 iso.SetValue(0,0.25)
 iso.ComputeNormalsOn()
 iso.ComputeGradientsOn()
@@ -45,30 +64,30 @@ iso.ComputeScalarsOn()
 iso.InterpolateAttributesOn()
 
 # Time execution
-timer = vtk.vtkTimerLog()
+timer = vtkTimerLog()
 timer.StartTimer()
 iso.Update()
 timer.StopTimer()
 time = timer.GetElapsedTime()
 print("Flying edges with attributes: {0}".format(time))
 
-isoMapper = vtk.vtkPolyDataMapper()
+isoMapper = vtkPolyDataMapper()
 isoMapper.SetInputConnection(iso.GetOutputPort())
 isoMapper.ScalarVisibilityOn()
 isoMapper.SetScalarModeToUsePointFieldData()
 isoMapper.SelectColorArray("Implicit scalars")
 isoMapper.SetScalarRange(0,.3)
 
-isoActor = vtk.vtkActor()
+isoActor = vtkActor()
 isoActor.SetMapper(isoMapper)
 isoActor.GetProperty().SetColor(1,1,1)
 isoActor.GetProperty().SetOpacity(1)
 
-outline = vtk.vtkOutlineFilter()
+outline = vtkOutlineFilter()
 outline.SetInputConnection(sample.GetOutputPort())
-outlineMapper = vtk.vtkPolyDataMapper()
+outlineMapper = vtkPolyDataMapper()
 outlineMapper.SetInputConnection(outline.GetOutputPort())
-outlineActor = vtk.vtkActor()
+outlineActor = vtkActor()
 outlineActor.SetMapper(outlineMapper)
 outlineProp = outlineActor.GetProperty()
 

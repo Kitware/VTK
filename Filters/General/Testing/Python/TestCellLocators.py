@@ -1,10 +1,29 @@
 #!/usr/bin/env python
-import vtk
-from vtk.test import Testing
+from vtkmodules.vtkCommonCore import (
+    reference,
+    vtkIdList,
+    vtkMath,
+    vtkPoints,
+)
+from vtkmodules.vtkCommonDataModel import (
+    vtkCellLocator,
+    vtkCellTreeLocator,
+    vtkGenericCell,
+    vtkPlane,
+    vtkStaticCellLocator,
+)
+from vtkmodules.vtkCommonSystem import vtkTimerLog
+from vtkmodules.vtkFiltersFlowPaths import vtkModifiedBSPTree
+from vtkmodules.vtkFiltersGeneral import (
+    vtkClipDataSet,
+    vtkOBBTree,
+)
+from vtkmodules.vtkImagingSources import vtkImageMandelbrotSource
+from vtkmodules.test import Testing
 
 # create a test dataset
 #
-math = vtk.vtkMath()
+math = vtkMath()
 
 # Note: the bigger the data the better vtkStaticPointLocator performs
 #testSize = "large"
@@ -22,17 +41,17 @@ else:
     numProbes = 5000
 
 # Create an initial set of points and associated dataset
-mandel = vtk.vtkImageMandelbrotSource()
+mandel = vtkImageMandelbrotSource()
 mandel.SetWholeExtent(-res,res,-res,res,-res,res)
 mandel.Update()
 #print mandel.GetOutput()
 
-plane = vtk.vtkPlane()
+plane = vtkPlane()
 plane.SetOrigin(res+1,res+1,res+1)
 plane.SetNormal(-1,-1,-1)
 
 # Clip data to spit out unstructured tets
-clipper = vtk.vtkClipDataSet()
+clipper = vtkClipDataSet()
 clipper.SetInputConnection(mandel.GetOutputPort())
 clipper.SetClipFunction(plane)
 clipper.Update()
@@ -44,38 +63,38 @@ numCells = output.GetNumberOfCells()
 # Create points array which are positions to probe data with
 # FindCell(), We also create an array to hold the results of this
 # probe operation.
-ProbeCells = vtk.vtkPoints()
+ProbeCells = vtkPoints()
 ProbeCells.SetDataTypeToDouble()
 ProbeCells.SetNumberOfPoints(numProbes)
 math.RandomSeed(314159)
 for i in range (0,numProbes):
     ProbeCells.SetPoint(i,math.Random(-3,-0.5),math.Random(-2.5,0),math.Random(-1,1))
-closest = vtk.vtkIdList()
+closest = vtkIdList()
 closest.SetNumberOfIds(numProbes)
-treeClosest = vtk.vtkIdList()
+treeClosest = vtkIdList()
 treeClosest.SetNumberOfIds(numProbes)
-staticClosest = vtk.vtkIdList()
+staticClosest = vtkIdList()
 staticClosest.SetNumberOfIds(numProbes)
-bspClosest = vtk.vtkIdList()
+bspClosest = vtkIdList()
 bspClosest.SetNumberOfIds(numProbes)
-obbClosest = vtk.vtkIdList()
+obbClosest = vtkIdList()
 obbClosest.SetNumberOfIds(numProbes)
-dsClosest = vtk.vtkIdList()
+dsClosest = vtkIdList()
 dsClosest.SetNumberOfIds(numProbes)
 
-genCell = vtk.vtkGenericCell()
+genCell = vtkGenericCell()
 pc = [0,0,0]
 weights = [0,0,0,0,0,0,0,0,0,0,0,0]
-subId = vtk.reference(0)
+subId = reference(0)
 
 # Print initial statistics
 print("Processing NumCells: {0}".format(numCells))
 print("\n")
-timer = vtk.vtkTimerLog()
+timer = vtkTimerLog()
 
 #############################################################
 # Time the creation and building of the static cell locator
-locator2 = vtk.vtkStaticCellLocator()
+locator2 = vtkStaticCellLocator()
 locator2.SetDataSet(output)
 locator2.AutomaticOn()
 locator2.SetNumberOfCellsPerNode(20)
@@ -106,7 +125,7 @@ print("\n")
 
 #############################################################
 # Time the creation and building of the standard cell locator
-locator = vtk.vtkCellLocator()
+locator = vtkCellLocator()
 locator.SetDataSet(output)
 locator.SetNumberOfCellsPerBucket(25)
 locator.AutomaticOn()
@@ -137,7 +156,7 @@ print("\n")
 
 #############################################################
 # Time the creation and building of the cell tree locator
-locator1 = vtk.vtkCellTreeLocator()
+locator1 = vtkCellTreeLocator()
 locator1.SetDataSet(output)
 locator1.AutomaticOn()
 
@@ -167,7 +186,7 @@ print("\n")
 
 #############################################################
 # Time the creation and building of the bsp tree
-locator3 = vtk.vtkModifiedBSPTree()
+locator3 = vtkModifiedBSPTree()
 locator3.SetDataSet(output)
 locator3.AutomaticOn()
 
@@ -197,7 +216,7 @@ print("\n")
 
 #############################################################
 # Time the creation and building of the obb tree
-locator4 = vtk.vtkOBBTree()
+locator4 = vtkOBBTree()
 locator4.SetDataSet(output)
 locator4.AutomaticOn()
 

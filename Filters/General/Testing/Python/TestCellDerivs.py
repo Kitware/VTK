@@ -1,19 +1,59 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonCore import (
+    vtkFloatArray,
+    vtkPoints,
+)
+from vtkmodules.vtkCommonDataModel import (
+    vtkHexagonalPrism,
+    vtkHexahedron,
+    vtkLine,
+    vtkPentagonalPrism,
+    vtkPixel,
+    vtkPolyLine,
+    vtkPolyVertex,
+    vtkPolygon,
+    vtkPyramid,
+    vtkQuad,
+    vtkTetra,
+    vtkTriangle,
+    vtkTriangleStrip,
+    vtkUnstructuredGrid,
+    vtkVertex,
+    vtkVoxel,
+    vtkWedge,
+)
+from vtkmodules.vtkFiltersCore import (
+    vtkCellCenters,
+    vtkGlyph3D,
+    vtkHedgeHog,
+)
+from vtkmodules.vtkFiltersGeneral import vtkCellDerivatives
+from vtkmodules.vtkFiltersSources import vtkSphereSource
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkDataSetMapper,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # Demonstrates vtkCellDerivatives for all cell types
 #
-ren1 = vtk.vtkRenderer()
-renWin = vtk.vtkRenderWindow()
+ren1 = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.AddRenderer(ren1)
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 
 # create a scene with one of each cell type
 # Voxel
-voxelPoints = vtk.vtkPoints()
+voxelPoints = vtkPoints()
 voxelPoints.SetNumberOfPoints(8)
 voxelPoints.InsertPoint(0, 0, 0, 0)
 voxelPoints.InsertPoint(1, 1, 0, 0)
@@ -24,7 +64,7 @@ voxelPoints.InsertPoint(5, 1, 0, 1)
 voxelPoints.InsertPoint(6, 0, 1, 1)
 voxelPoints.InsertPoint(7, 1, 1, 1)
 
-aVoxel = vtk.vtkVoxel()
+aVoxel = vtkVoxel()
 aVoxel.GetPointIds().SetId(0, 0)
 aVoxel.GetPointIds().SetId(1, 1)
 aVoxel.GetPointIds().SetId(2, 2)
@@ -34,20 +74,20 @@ aVoxel.GetPointIds().SetId(5, 5)
 aVoxel.GetPointIds().SetId(6, 6)
 aVoxel.GetPointIds().SetId(7, 7)
 
-aVoxelGrid = vtk.vtkUnstructuredGrid()
+aVoxelGrid = vtkUnstructuredGrid()
 aVoxelGrid.Allocate(1, 1)
 aVoxelGrid.InsertNextCell(aVoxel.GetCellType(), aVoxel.GetPointIds())
 aVoxelGrid.SetPoints(voxelPoints)
 
-aVoxelMapper = vtk.vtkDataSetMapper()
+aVoxelMapper = vtkDataSetMapper()
 aVoxelMapper.SetInputData(aVoxelGrid)
 
-aVoxelActor = vtk.vtkActor()
+aVoxelActor = vtkActor()
 aVoxelActor.SetMapper(aVoxelMapper)
 aVoxelActor.GetProperty().BackfaceCullingOn()
 
 # Hexahedron
-hexahedronPoints = vtk.vtkPoints()
+hexahedronPoints = vtkPoints()
 hexahedronPoints.SetNumberOfPoints(8)
 hexahedronPoints.InsertPoint(0, 0, 0, 0)
 hexahedronPoints.InsertPoint(1, 1, 0, 0)
@@ -58,7 +98,7 @@ hexahedronPoints.InsertPoint(5, 1, 0, 1)
 hexahedronPoints.InsertPoint(6, 1, 1, 1)
 hexahedronPoints.InsertPoint(7, 0, 1, 1)
 
-aHexahedron = vtk.vtkHexahedron()
+aHexahedron = vtkHexahedron()
 aHexahedron.GetPointIds().SetId(0, 0)
 aHexahedron.GetPointIds().SetId(1, 1)
 aHexahedron.GetPointIds().SetId(2, 2)
@@ -68,48 +108,48 @@ aHexahedron.GetPointIds().SetId(5, 5)
 aHexahedron.GetPointIds().SetId(6, 6)
 aHexahedron.GetPointIds().SetId(7, 7)
 
-aHexahedronGrid = vtk.vtkUnstructuredGrid()
+aHexahedronGrid = vtkUnstructuredGrid()
 aHexahedronGrid.Allocate(1, 1)
 aHexahedronGrid.InsertNextCell(aHexahedron.GetCellType(), aHexahedron.GetPointIds())
 aHexahedronGrid.SetPoints(hexahedronPoints)
 
-aHexahedronMapper = vtk.vtkDataSetMapper()
+aHexahedronMapper = vtkDataSetMapper()
 aHexahedronMapper.SetInputData(aHexahedronGrid)
 
-aHexahedronActor = vtk.vtkActor()
+aHexahedronActor = vtkActor()
 aHexahedronActor.SetMapper(aHexahedronMapper)
 aHexahedronActor.AddPosition(2, 0, 0)
 aHexahedronActor.GetProperty().BackfaceCullingOn()
 
 # Tetra
-tetraPoints = vtk.vtkPoints()
+tetraPoints = vtkPoints()
 tetraPoints.SetNumberOfPoints(4)
 tetraPoints.InsertPoint(0, 0, 0, 0)
 tetraPoints.InsertPoint(1, 1, 0, 0)
 tetraPoints.InsertPoint(2, 0, 1, 0)
 tetraPoints.InsertPoint(3, 1, 1, 1)
 
-aTetra = vtk.vtkTetra()
+aTetra = vtkTetra()
 aTetra.GetPointIds().SetId(0, 0)
 aTetra.GetPointIds().SetId(1, 1)
 aTetra.GetPointIds().SetId(2, 2)
 aTetra.GetPointIds().SetId(3, 3)
 
-aTetraGrid = vtk.vtkUnstructuredGrid()
+aTetraGrid = vtkUnstructuredGrid()
 aTetraGrid.Allocate(1, 1)
 aTetraGrid.InsertNextCell(aTetra.GetCellType(), aTetra.GetPointIds())
 aTetraGrid.SetPoints(tetraPoints)
 
-aTetraMapper = vtk.vtkDataSetMapper()
+aTetraMapper = vtkDataSetMapper()
 aTetraMapper.SetInputData(aTetraGrid)
 
-aTetraActor = vtk.vtkActor()
+aTetraActor = vtkActor()
 aTetraActor.SetMapper(aTetraMapper)
 aTetraActor.AddPosition(4, 0, 0)
 aTetraActor.GetProperty().BackfaceCullingOn()
 
 # Wedge
-wedgePoints = vtk.vtkPoints()
+wedgePoints = vtkPoints()
 wedgePoints.SetNumberOfPoints(6)
 wedgePoints.InsertPoint(0, 0, 1, 0)
 wedgePoints.InsertPoint(1, 0, 0, 0)
@@ -118,7 +158,7 @@ wedgePoints.InsertPoint(3, 1, 1, 0)
 wedgePoints.InsertPoint(4, 1, 0, 0)
 wedgePoints.InsertPoint(5, 1, .5, .5)
 
-aWedge = vtk.vtkWedge()
+aWedge = vtkWedge()
 aWedge.GetPointIds().SetId(0, 0)
 aWedge.GetPointIds().SetId(1, 1)
 aWedge.GetPointIds().SetId(2, 2)
@@ -126,21 +166,21 @@ aWedge.GetPointIds().SetId(3, 3)
 aWedge.GetPointIds().SetId(4, 4)
 aWedge.GetPointIds().SetId(5, 5)
 
-aWedgeGrid = vtk.vtkUnstructuredGrid()
+aWedgeGrid = vtkUnstructuredGrid()
 aWedgeGrid.Allocate(1, 1)
 aWedgeGrid.InsertNextCell(aWedge.GetCellType(), aWedge.GetPointIds())
 aWedgeGrid.SetPoints(wedgePoints)
 
-aWedgeMapper = vtk.vtkDataSetMapper()
+aWedgeMapper = vtkDataSetMapper()
 aWedgeMapper.SetInputData(aWedgeGrid)
 
-aWedgeActor = vtk.vtkActor()
+aWedgeActor = vtkActor()
 aWedgeActor.SetMapper(aWedgeMapper)
 aWedgeActor.AddPosition(6, 0, 0)
 aWedgeActor.GetProperty().BackfaceCullingOn()
 
 # Pyramid
-pyramidPoints = vtk.vtkPoints()
+pyramidPoints = vtkPoints()
 pyramidPoints.SetNumberOfPoints(5)
 pyramidPoints.InsertPoint(0, 0, 0, 0)
 pyramidPoints.InsertPoint(1, 1, 0, 0)
@@ -148,143 +188,143 @@ pyramidPoints.InsertPoint(2, 1, 1, 0)
 pyramidPoints.InsertPoint(3, 0, 1, 0)
 pyramidPoints.InsertPoint(4, .5, .5, 1)
 
-aPyramid = vtk.vtkPyramid()
+aPyramid = vtkPyramid()
 aPyramid.GetPointIds().SetId(0, 0)
 aPyramid.GetPointIds().SetId(1, 1)
 aPyramid.GetPointIds().SetId(2, 2)
 aPyramid.GetPointIds().SetId(3, 3)
 aPyramid.GetPointIds().SetId(4, 4)
 
-aPyramidGrid = vtk.vtkUnstructuredGrid()
+aPyramidGrid = vtkUnstructuredGrid()
 aPyramidGrid.Allocate(1, 1)
 aPyramidGrid.InsertNextCell(aPyramid.GetCellType(), aPyramid.GetPointIds())
 aPyramidGrid.SetPoints(pyramidPoints)
 
-aPyramidMapper = vtk.vtkDataSetMapper()
+aPyramidMapper = vtkDataSetMapper()
 aPyramidMapper.SetInputData(aPyramidGrid)
 
-aPyramidActor = vtk.vtkActor()
+aPyramidActor = vtkActor()
 aPyramidActor.SetMapper(aPyramidMapper)
 aPyramidActor.AddPosition(8, 0, 0)
 aPyramidActor.GetProperty().BackfaceCullingOn()
 
 # Pixel
-pixelPoints = vtk.vtkPoints()
+pixelPoints = vtkPoints()
 pixelPoints.SetNumberOfPoints(4)
 pixelPoints.InsertPoint(0, 0, 0, 0)
 pixelPoints.InsertPoint(1, 1, 0, 0)
 pixelPoints.InsertPoint(2, 0, 1, 0)
 pixelPoints.InsertPoint(3, 1, 1, 0)
 
-aPixel = vtk.vtkPixel()
+aPixel = vtkPixel()
 aPixel.GetPointIds().SetId(0, 0)
 aPixel.GetPointIds().SetId(1, 1)
 aPixel.GetPointIds().SetId(2, 2)
 aPixel.GetPointIds().SetId(3, 3)
 
-aPixelGrid = vtk.vtkUnstructuredGrid()
+aPixelGrid = vtkUnstructuredGrid()
 aPixelGrid.Allocate(1, 1)
 aPixelGrid.InsertNextCell(aPixel.GetCellType(), aPixel.GetPointIds())
 aPixelGrid.SetPoints(pixelPoints)
 
-aPixelMapper = vtk.vtkDataSetMapper()
+aPixelMapper = vtkDataSetMapper()
 aPixelMapper.SetInputData(aPixelGrid)
 
-aPixelActor = vtk.vtkActor()
+aPixelActor = vtkActor()
 aPixelActor.SetMapper(aPixelMapper)
 aPixelActor.AddPosition(0, 0, 2)
 aPixelActor.GetProperty().BackfaceCullingOn()
 
 # Quad
-quadPoints = vtk.vtkPoints()
+quadPoints = vtkPoints()
 quadPoints.SetNumberOfPoints(4)
 quadPoints.InsertPoint(0, 0, 0, 0)
 quadPoints.InsertPoint(1, 1, 0, 0)
 quadPoints.InsertPoint(2, 1, 1, 0)
 quadPoints.InsertPoint(3, 0, 1, 0)
 
-aQuad = vtk.vtkQuad()
+aQuad = vtkQuad()
 aQuad.GetPointIds().SetId(0, 0)
 aQuad.GetPointIds().SetId(1, 1)
 aQuad.GetPointIds().SetId(2, 2)
 aQuad.GetPointIds().SetId(3, 3)
 
-aQuadGrid = vtk.vtkUnstructuredGrid()
+aQuadGrid = vtkUnstructuredGrid()
 aQuadGrid.Allocate(1, 1)
 aQuadGrid.InsertNextCell(aQuad.GetCellType(), aQuad.GetPointIds())
 aQuadGrid.SetPoints(quadPoints)
 
-aQuadMapper = vtk.vtkDataSetMapper()
+aQuadMapper = vtkDataSetMapper()
 aQuadMapper.SetInputData(aQuadGrid)
 
-aQuadActor = vtk.vtkActor()
+aQuadActor = vtkActor()
 aQuadActor.SetMapper(aQuadMapper)
 aQuadActor.AddPosition(2, 0, 2)
 aQuadActor.GetProperty().BackfaceCullingOn()
 
 # Triangle
-trianglePoints = vtk.vtkPoints()
+trianglePoints = vtkPoints()
 trianglePoints.SetNumberOfPoints(3)
 trianglePoints.InsertPoint(0, 0, 0, 0)
 trianglePoints.InsertPoint(1, 1, 0, 0)
 trianglePoints.InsertPoint(2, .5, .5, 0)
 
-triangleTCoords = vtk.vtkFloatArray()
+triangleTCoords = vtkFloatArray()
 triangleTCoords.SetNumberOfComponents(2)
 triangleTCoords.SetNumberOfTuples(3)
 triangleTCoords.InsertTuple2(0, 1, 1)
 triangleTCoords.InsertTuple2(1, 2, 2)
 triangleTCoords.InsertTuple2(2, 3, 3)
 
-aTriangle = vtk.vtkTriangle()
+aTriangle = vtkTriangle()
 aTriangle.GetPointIds().SetId(0, 0)
 aTriangle.GetPointIds().SetId(1, 1)
 aTriangle.GetPointIds().SetId(2, 2)
 
-aTriangleGrid = vtk.vtkUnstructuredGrid()
+aTriangleGrid = vtkUnstructuredGrid()
 aTriangleGrid.Allocate(1, 1)
 aTriangleGrid.InsertNextCell(aTriangle.GetCellType(), aTriangle.GetPointIds())
 aTriangleGrid.SetPoints(trianglePoints)
 aTriangleGrid.GetPointData().SetTCoords(triangleTCoords)
 
-aTriangleMapper = vtk.vtkDataSetMapper()
+aTriangleMapper = vtkDataSetMapper()
 aTriangleMapper.SetInputData(aTriangleGrid)
 
-aTriangleActor = vtk.vtkActor()
+aTriangleActor = vtkActor()
 aTriangleActor.SetMapper(aTriangleMapper)
 aTriangleActor.AddPosition(4, 0, 2)
 aTriangleActor.GetProperty().BackfaceCullingOn()
 
 # Polygon
-polygonPoints = vtk.vtkPoints()
+polygonPoints = vtkPoints()
 polygonPoints.SetNumberOfPoints(4)
 polygonPoints.InsertPoint(0, 0, 0, 0)
 polygonPoints.InsertPoint(1, 1, 0, 0)
 polygonPoints.InsertPoint(2, 1, 1, 0)
 polygonPoints.InsertPoint(3, 0, 1, 0)
 
-aPolygon = vtk.vtkPolygon()
+aPolygon = vtkPolygon()
 aPolygon.GetPointIds().SetNumberOfIds(4)
 aPolygon.GetPointIds().SetId(0, 0)
 aPolygon.GetPointIds().SetId(1, 1)
 aPolygon.GetPointIds().SetId(2, 2)
 aPolygon.GetPointIds().SetId(3, 3)
 
-aPolygonGrid = vtk.vtkUnstructuredGrid()
+aPolygonGrid = vtkUnstructuredGrid()
 aPolygonGrid.Allocate(1, 1)
 aPolygonGrid.InsertNextCell(aPolygon.GetCellType(), aPolygon.GetPointIds())
 aPolygonGrid.SetPoints(polygonPoints)
 
-aPolygonMapper = vtk.vtkDataSetMapper()
+aPolygonMapper = vtkDataSetMapper()
 aPolygonMapper.SetInputData(aPolygonGrid)
 
-aPolygonActor = vtk.vtkActor()
+aPolygonActor = vtkActor()
 aPolygonActor.SetMapper(aPolygonMapper)
 aPolygonActor.AddPosition(6, 0, 2)
 aPolygonActor.GetProperty().BackfaceCullingOn()
 
 # Triangle strip
-triangleStripPoints = vtk.vtkPoints()
+triangleStripPoints = vtkPoints()
 triangleStripPoints.SetNumberOfPoints(5)
 triangleStripPoints.InsertPoint(0, 0, 1, 0)
 triangleStripPoints.InsertPoint(1, 0, 0, 0)
@@ -292,7 +332,7 @@ triangleStripPoints.InsertPoint(2, 1, 1, 0)
 triangleStripPoints.InsertPoint(3, 1, 0, 0)
 triangleStripPoints.InsertPoint(4, 2, 1, 0)
 
-triangleStripTCoords = vtk.vtkFloatArray()
+triangleStripTCoords = vtkFloatArray()
 triangleStripTCoords.SetNumberOfComponents(2)
 triangleStripTCoords.SetNumberOfTuples(3)
 triangleStripTCoords.InsertTuple2(0, 1, 1)
@@ -301,7 +341,7 @@ triangleStripTCoords.InsertTuple2(2, 3, 3)
 triangleStripTCoords.InsertTuple2(3, 4, 4)
 triangleStripTCoords.InsertTuple2(4, 5, 5)
 
-aTriangleStrip = vtk.vtkTriangleStrip()
+aTriangleStrip = vtkTriangleStrip()
 aTriangleStrip.GetPointIds().SetNumberOfIds(5)
 aTriangleStrip.GetPointIds().SetId(0, 0)
 aTriangleStrip.GetPointIds().SetId(1, 1)
@@ -309,118 +349,118 @@ aTriangleStrip.GetPointIds().SetId(2, 2)
 aTriangleStrip.GetPointIds().SetId(3, 3)
 aTriangleStrip.GetPointIds().SetId(4, 4)
 
-aTriangleStripGrid = vtk.vtkUnstructuredGrid()
+aTriangleStripGrid = vtkUnstructuredGrid()
 aTriangleStripGrid.Allocate(1, 1)
 aTriangleStripGrid.InsertNextCell(aTriangleStrip.GetCellType(), aTriangleStrip.GetPointIds())
 aTriangleStripGrid.SetPoints(triangleStripPoints)
 aTriangleStripGrid.GetPointData().SetTCoords(triangleStripTCoords)
 
-aTriangleStripMapper = vtk.vtkDataSetMapper()
+aTriangleStripMapper = vtkDataSetMapper()
 aTriangleStripMapper.SetInputData(aTriangleStripGrid)
 
-aTriangleStripActor = vtk.vtkActor()
+aTriangleStripActor = vtkActor()
 aTriangleStripActor.SetMapper(aTriangleStripMapper)
 aTriangleStripActor.AddPosition(8, 0, 2)
 aTriangleStripActor.GetProperty().BackfaceCullingOn()
 
 # Line
-linePoints = vtk.vtkPoints()
+linePoints = vtkPoints()
 linePoints.SetNumberOfPoints(2)
 linePoints.InsertPoint(0, 0, 0, 0)
 linePoints.InsertPoint(1, 1, 1, 0)
 
-aLine = vtk.vtkLine()
+aLine = vtkLine()
 aLine.GetPointIds().SetId(0, 0)
 aLine.GetPointIds().SetId(1, 1)
 
-aLineGrid = vtk.vtkUnstructuredGrid()
+aLineGrid = vtkUnstructuredGrid()
 aLineGrid.Allocate(1, 1)
 aLineGrid.InsertNextCell(aLine.GetCellType(), aLine.GetPointIds())
 aLineGrid.SetPoints(linePoints)
 
-aLineMapper = vtk.vtkDataSetMapper()
+aLineMapper = vtkDataSetMapper()
 aLineMapper.SetInputData(aLineGrid)
 
-aLineActor = vtk.vtkActor()
+aLineActor = vtkActor()
 aLineActor.SetMapper(aLineMapper)
 aLineActor.AddPosition(0, 0, 4)
 aLineActor.GetProperty().BackfaceCullingOn()
 
 # Polyline
-polyLinePoints = vtk.vtkPoints()
+polyLinePoints = vtkPoints()
 polyLinePoints.SetNumberOfPoints(3)
 polyLinePoints.InsertPoint(0, 0, 0, 0)
 polyLinePoints.InsertPoint(1, 1, 1, 0)
 polyLinePoints.InsertPoint(2, 1, 0, 0)
 
-aPolyLine = vtk.vtkPolyLine()
+aPolyLine = vtkPolyLine()
 aPolyLine.GetPointIds().SetNumberOfIds(3)
 aPolyLine.GetPointIds().SetId(0, 0)
 aPolyLine.GetPointIds().SetId(1, 1)
 aPolyLine.GetPointIds().SetId(2, 2)
 
-aPolyLineGrid = vtk.vtkUnstructuredGrid()
+aPolyLineGrid = vtkUnstructuredGrid()
 aPolyLineGrid.Allocate(1, 1)
 aPolyLineGrid.InsertNextCell(aPolyLine.GetCellType(), aPolyLine.GetPointIds())
 aPolyLineGrid.SetPoints(polyLinePoints)
 
-aPolyLineMapper = vtk.vtkDataSetMapper()
+aPolyLineMapper = vtkDataSetMapper()
 aPolyLineMapper.SetInputData(aPolyLineGrid)
 
-aPolyLineActor = vtk.vtkActor()
+aPolyLineActor = vtkActor()
 aPolyLineActor.SetMapper(aPolyLineMapper)
 aPolyLineActor.AddPosition(2, 0, 4)
 aPolyLineActor.GetProperty().BackfaceCullingOn()
 
 # Vertex
-vertexPoints = vtk.vtkPoints()
+vertexPoints = vtkPoints()
 vertexPoints.SetNumberOfPoints(1)
 vertexPoints.InsertPoint(0, 0, 0, 0)
 
-aVertex = vtk.vtkVertex()
+aVertex = vtkVertex()
 aVertex.GetPointIds().SetId(0, 0)
 
-aVertexGrid = vtk.vtkUnstructuredGrid()
+aVertexGrid = vtkUnstructuredGrid()
 aVertexGrid.Allocate(1, 1)
 aVertexGrid.InsertNextCell(aVertex.GetCellType(), aVertex.GetPointIds())
 aVertexGrid.SetPoints(vertexPoints)
 
-aVertexMapper = vtk.vtkDataSetMapper()
+aVertexMapper = vtkDataSetMapper()
 aVertexMapper.SetInputData(aVertexGrid)
 
-aVertexActor = vtk.vtkActor()
+aVertexActor = vtkActor()
 aVertexActor.SetMapper(aVertexMapper)
 aVertexActor.AddPosition(0, 0, 6)
 aVertexActor.GetProperty().BackfaceCullingOn()
 
 # Polyvertex
-polyVertexPoints = vtk.vtkPoints()
+polyVertexPoints = vtkPoints()
 polyVertexPoints.SetNumberOfPoints(3)
 polyVertexPoints.InsertPoint(0, 0, 0, 0)
 polyVertexPoints.InsertPoint(1, 1, 0, 0)
 polyVertexPoints.InsertPoint(2, 1, 1, 0)
 
-aPolyVertex = vtk.vtkPolyVertex()
+aPolyVertex = vtkPolyVertex()
 aPolyVertex.GetPointIds().SetNumberOfIds(3)
 aPolyVertex.GetPointIds().SetId(0, 0)
 aPolyVertex.GetPointIds().SetId(1, 1)
 aPolyVertex.GetPointIds().SetId(2, 2)
 
-aPolyVertexGrid = vtk.vtkUnstructuredGrid()
+aPolyVertexGrid = vtkUnstructuredGrid()
 aPolyVertexGrid.Allocate(1, 1)
 aPolyVertexGrid.InsertNextCell(aPolyVertex.GetCellType(), aPolyVertex.GetPointIds())
 aPolyVertexGrid.SetPoints(polyVertexPoints)
 
-aPolyVertexMapper = vtk.vtkDataSetMapper()
+aPolyVertexMapper = vtkDataSetMapper()
 aPolyVertexMapper.SetInputData(aPolyVertexGrid)
 
-aPolyVertexActor = vtk.vtkActor()
+aPolyVertexActor = vtkActor()
 aPolyVertexActor.SetMapper(aPolyVertexMapper)
 aPolyVertexActor.AddPosition(2, 0, 6)
 aPolyVertexActor.GetProperty().BackfaceCullingOn()
 
 # Pentagonal prism
-pentaPoints = vtk.vtkPoints()
+pentaPoints = vtkPoints()
 pentaPoints.SetNumberOfPoints(10)
 pentaPoints.InsertPoint(0, 0.25, 0.0, 0.0)
 pentaPoints.InsertPoint(1, 0.75, 0.0, 0.0)
@@ -433,7 +473,7 @@ pentaPoints.InsertPoint(7, 1.0, 0.5, 1.0)
 pentaPoints.InsertPoint(8, 0.5, 1.0, 1.0)
 pentaPoints.InsertPoint(9, 0.0, 0.5, 1.0)
 
-aPenta = vtk.vtkPentagonalPrism()
+aPenta = vtkPentagonalPrism()
 aPenta.GetPointIds().SetId(0, 0)
 aPenta.GetPointIds().SetId(1, 1)
 aPenta.GetPointIds().SetId(2, 2)
@@ -445,21 +485,21 @@ aPenta.GetPointIds().SetId(7, 7)
 aPenta.GetPointIds().SetId(8, 8)
 aPenta.GetPointIds().SetId(9, 9)
 
-aPentaGrid = vtk.vtkUnstructuredGrid()
+aPentaGrid = vtkUnstructuredGrid()
 aPentaGrid.Allocate(1, 1)
 aPentaGrid.InsertNextCell(aPenta.GetCellType(), aPenta.GetPointIds())
 aPentaGrid.SetPoints(pentaPoints)
 
-aPentaMapper = vtk.vtkDataSetMapper()
+aPentaMapper = vtkDataSetMapper()
 aPentaMapper.SetInputData(aPentaGrid)
 
-aPentaActor = vtk.vtkActor()
+aPentaActor = vtkActor()
 aPentaActor.SetMapper(aPentaMapper)
 aPentaActor.AddPosition(10, 0, 0)
 aPentaActor.GetProperty().BackfaceCullingOn()
 
 # Hexagonal prism
-hexaPoints = vtk.vtkPoints()
+hexaPoints = vtkPoints()
 hexaPoints.SetNumberOfPoints(12)
 hexaPoints.InsertPoint(0, 0.0, 0.0, 0.0)
 hexaPoints.InsertPoint(1, 0.5, 0.0, 0.0)
@@ -474,7 +514,7 @@ hexaPoints.InsertPoint(9, 1.0, 1.0, 1.0)
 hexaPoints.InsertPoint(10, 0.5, 1.0, 1.0)
 hexaPoints.InsertPoint(11, 0.0, 0.5, 1.0)
 
-aHexa = vtk.vtkHexagonalPrism()
+aHexa = vtkHexagonalPrism()
 aHexa.GetPointIds().SetId(0, 0)
 aHexa.GetPointIds().SetId(1, 1)
 aHexa.GetPointIds().SetId(2, 2)
@@ -488,15 +528,15 @@ aHexa.GetPointIds().SetId(9, 9)
 aHexa.GetPointIds().SetId(10, 10)
 aHexa.GetPointIds().SetId(11, 11)
 
-aHexaGrid = vtk.vtkUnstructuredGrid()
+aHexaGrid = vtkUnstructuredGrid()
 aHexaGrid.Allocate(1, 1)
 aHexaGrid.InsertNextCell(aHexa.GetCellType(), aHexa.GetPointIds())
 aHexaGrid.SetPoints(hexaPoints)
 
-aHexaMapper = vtk.vtkDataSetMapper()
+aHexaMapper = vtkDataSetMapper()
 aHexaMapper.SetInputData(aHexaGrid)
 
-aHexaActor = vtk.vtkActor()
+aHexaActor = vtkActor()
 aHexaActor.SetMapper(aHexaMapper)
 aHexaActor.AddPosition(12, 0, 0)
 aHexaActor.GetProperty().BackfaceCullingOn()
@@ -554,7 +594,7 @@ aHexaActor.GetProperty().SetDiffuseColor(1, 1, 0)
 #
 # get the cell center of each type and put a glyph there
 #
-ball = vtk.vtkSphereSource()
+ball = vtkSphereSource()
 ball.SetRadius(.2)
 
 cellType = ['aVoxel', 'aHexahedron', 'aWedge', 'aPyramid', 'aTetra',
@@ -565,7 +605,7 @@ for cell in cellType:
     N = eval(cell + 'Grid').GetNumberOfPoints()
 
     vn = cell + 'Scalar'
-    exec(vn + ' = vtk.vtkFloatArray()')
+    exec(vn + ' = vtkFloatArray()')
     eval(vn).SetNumberOfTuples(N)
     eval(vn).SetNumberOfComponents(1)
 
@@ -579,34 +619,34 @@ for cell in cellType:
     eval(cell + 'Grid').GetPointData().SetScalars(eval(vn))
 
     for cell in cellType:
-        exec(cell + 'derivs' + ' = vtk.vtkCellDerivatives()')
+        exec(cell + 'derivs' + ' = vtkCellDerivatives()')
         eval(cell + 'derivs').SetInputData(eval(cell + 'Grid'))
         eval(cell + 'derivs').SetVectorModeToComputeGradient()
 
-        exec(cell + 'Centers' + ' = vtk.vtkCellCenters()')
+        exec(cell + 'Centers' + ' = vtkCellCenters()')
         eval(cell + 'Centers').SetInputConnection(eval(cell + 'derivs').GetOutputPort())
         eval(cell + 'Centers').VertexCellsOn()
 
-        exec(cell + 'hog' + ' = vtk.vtkHedgeHog()')
+        exec(cell + 'hog' + ' = vtkHedgeHog()')
         eval(cell + 'hog').SetInputConnection(eval(cell + 'Centers').GetOutputPort())
 
-        exec(cell + 'mapHog' + ' = vtk.vtkPolyDataMapper()')
+        exec(cell + 'mapHog' + ' = vtkPolyDataMapper()')
         eval(cell + 'mapHog').SetInputConnection(eval(cell + 'hog').GetOutputPort())
         eval(cell + 'mapHog').SetScalarModeToUseCellData()
         eval(cell + 'mapHog').ScalarVisibilityOff()
 
-        exec(cell + 'hogActor' + ' = vtk.vtkActor()')
+        exec(cell + 'hogActor' + ' = vtkActor()')
         eval(cell + 'hogActor').SetMapper(eval(cell + 'mapHog'))
         eval(cell + 'hogActor').GetProperty().SetColor(0, 1, 0)
 
-        exec(cell + 'Glyph3D' + ' = vtk.vtkGlyph3D()')
+        exec(cell + 'Glyph3D' + ' = vtkGlyph3D()')
         eval(cell + 'Glyph3D').SetInputConnection(eval(cell + 'Centers').GetOutputPort())
         eval(cell + 'Glyph3D').SetSourceData(ball.GetOutput())
 
-        exec(cell + 'CentersMapper' + ' = vtk.vtkPolyDataMapper()')
+        exec(cell + 'CentersMapper' + ' = vtkPolyDataMapper()')
         eval(cell + 'CentersMapper').SetInputConnection(eval(cell + 'Glyph3D').GetOutputPort())
 
-        exec(cell + 'CentersActor' + ' = vtk.vtkActor()')
+        exec(cell + 'CentersActor' + ' = vtkActor()')
         eval(cell + 'CentersActor').SetMapper(eval(cell + 'CentersMapper'))
 
         eval(cell + 'hogActor').SetPosition(eval(cell + 'Actor').GetPosition())

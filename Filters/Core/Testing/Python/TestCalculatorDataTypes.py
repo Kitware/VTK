@@ -1,8 +1,14 @@
 import sys
-import vtk
-from vtk.test import Testing
+from vtkmodules.vtkCommonDataModel import (
+    vtkDataObject,
+    vtkTable,
+)
+from vtkmodules.vtkFiltersCore import vtkArrayCalculator
+from vtkmodules.vtkFiltersSources import vtkSphereSource
+from vtkmodules.vtkIOChemistry import vtkPDBReader
+from vtkmodules.test import Testing
 
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.util.misc import vtkGetDataRoot
 
 VTK_DATA_ROOT = vtkGetDataRoot()
 
@@ -10,20 +16,20 @@ try:
     import numpy
 except ImportError:
     print("WARNING: This test requires Numeric Python: http://numpy.sf.net")
-    from vtk.test import Testing
+    from vtkmodules.test import Testing
     Testing.skip()
 
-from vtk.util import numpy_support as np_s
+from vtkmodules.util import numpy_support as np_s
 
 def makePolyData(attributeType):
-    ss = vtk.vtkSphereSource()
+    ss = vtkSphereSource()
     ss.Update()
     s = ss.GetOutput()
 
     pd = s.GetAttributes(attributeType)
 
     num = 0
-    if attributeType == vtk.vtkDataObject.POINT:
+    if attributeType == vtkDataObject.POINT:
         num = s.GetNumberOfPoints()
     else:
         num = s.GetNumberOfCells()
@@ -47,7 +53,7 @@ def makePolyData(attributeType):
 
 
 def makeGraph(attributeType):
-    reader = vtk.vtkPDBReader()
+    reader = vtkPDBReader()
     reader.SetFileName("" + str(VTK_DATA_ROOT) + "/Data/3GQP.pdb")
     reader.Update()
 
@@ -56,7 +62,7 @@ def makeGraph(attributeType):
     pd = molecule.GetAttributes(attributeType)
 
     num = 0
-    if attributeType == vtk.vtkDataObject.VERTEX:
+    if attributeType == vtkDataObject.VERTEX:
         num = molecule.GetNumberOfVertices()
     else:
         num = molecule.GetNumberOfEdges()
@@ -79,7 +85,7 @@ def makeGraph(attributeType):
     return molecule
 
 def makeTable():
-    table = vtk.vtkTable()
+    table = vtkTable()
 
     num = 100
 
@@ -101,7 +107,7 @@ def makeTable():
     return table
 
 def testCalculator(dataset, attributeType, attributeTypeForCalc=None):
-    calc = vtk.vtkArrayCalculator()
+    calc = vtkArrayCalculator()
     calc.SetInputData(dataset)
     if attributeTypeForCalc is not None:
         calc.SetAttributeType(attributeTypeForCalc)
@@ -117,8 +123,8 @@ def testCalculator(dataset, attributeType, attributeTypeForCalc=None):
 
 
 if __name__ == '__main__':
-    testCalculator(makePolyData(vtk.vtkDataObject.POINT), vtk.vtkDataObject.POINT)
-    testCalculator(makePolyData(vtk.vtkDataObject.CELL), vtk.vtkDataObject.CELL, vtk.vtkDataObject.CELL)
-    testCalculator(makeGraph(vtk.vtkDataObject.VERTEX), vtk.vtkDataObject.VERTEX)
-    testCalculator(makeGraph(vtk.vtkDataObject.EDGE), vtk.vtkDataObject.EDGE, vtk.vtkDataObject.EDGE)
-    testCalculator(makeTable(), vtk.vtkDataObject.ROW)
+    testCalculator(makePolyData(vtkDataObject.POINT), vtkDataObject.POINT)
+    testCalculator(makePolyData(vtkDataObject.CELL), vtkDataObject.CELL, vtkDataObject.CELL)
+    testCalculator(makeGraph(vtkDataObject.VERTEX), vtkDataObject.VERTEX)
+    testCalculator(makeGraph(vtkDataObject.EDGE), vtkDataObject.EDGE, vtkDataObject.EDGE)
+    testCalculator(makeTable(), vtkDataObject.ROW)

@@ -1,5 +1,32 @@
 #!/usr/bin/env python
-import vtk
+from vtkmodules.vtkCommonDataModel import (
+    vtkCylinder,
+    vtkPlane,
+)
+from vtkmodules.vtkCommonSystem import vtkTimerLog
+from vtkmodules.vtkFiltersCore import (
+    vtkFlyingEdgesPlaneCutter,
+    vtkPointDataToCellData,
+    vtkPolyDataPlaneClipper,
+)
+from vtkmodules.vtkFiltersGeneral import vtkSampleImplicitFunctionFilter
+from vtkmodules.vtkFiltersModeling import (
+    vtkContourLoopExtraction,
+    vtkImprintFilter,
+    vtkOutlineFilter,
+)
+from vtkmodules.vtkFiltersSources import vtkCylinderSource
+from vtkmodules.vtkImagingHybrid import vtkSampleFunction
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
 
 # Test the processing of point and cell data with vtkImprintFilter
 #
@@ -25,12 +52,12 @@ normal = [0,1.01,1]
 # the cookie cutter.
 
 # Create a synthetic source: sample a sphere across a volume
-cyl = vtk.vtkCylinder()
+cyl = vtkCylinder()
 cyl.SetCenter( 0.0,0.0,0.0)
 cyl.SetRadius(0.25)
 cyl.SetAxis(0,1,0)
 
-sample = vtk.vtkSampleFunction()
+sample = vtkSampleFunction()
 sample.SetImplicitFunction(cyl)
 sample.SetModelBounds(-0.75,0.75, -1,1, -0.5,0.5)
 sample.SetSampleDimensions(res,res,res)
@@ -39,76 +66,76 @@ sample.SetOutputScalarTypeToFloat()
 sample.Update()
 
 # The cut plane
-plane = vtk.vtkPlane()
+plane = vtkPlane()
 plane.SetOrigin(0,0,0)
 plane.SetNormal(normal)
 
 # Cut the volume quickly
-cut = vtk.vtkFlyingEdgesPlaneCutter()
+cut = vtkFlyingEdgesPlaneCutter()
 cut.SetInputConnection(sample.GetOutputPort())
 cut.SetPlane(plane)
 cut.ComputeNormalsOff()
 cut.Update()
 
 # Create cell data
-pd2cd = vtk.vtkPointDataToCellData()
+pd2cd = vtkPointDataToCellData()
 pd2cd.SetInputConnection(cut.GetOutputPort())
 pd2cd.PassPointDataOn()
 pd2cd.Update()
 
-cutMapper = vtk.vtkPolyDataMapper()
+cutMapper = vtkPolyDataMapper()
 cutMapper.SetInputConnection(pd2cd.GetOutputPort())
 
-cutActor = vtk.vtkActor()
+cutActor = vtkActor()
 cutActor.SetMapper(cutMapper);
 cutActor.GetProperty().SetColor(0.1,0.1,0.1)
 cutActor.GetProperty().SetRepresentationToWireframe()
 
 # Clip a cylinder shell to produce a a trim loop.
-shell = vtk.vtkCylinderSource()
+shell = vtkCylinderSource()
 shell.SetCenter(0,0,0)
 shell.SetResolution(cylRes)
 shell.SetHeight(5)
 shell.CappingOff()
 shell.Update()
 
-clippedShell = vtk.vtkPolyDataPlaneClipper()
+clippedShell = vtkPolyDataPlaneClipper()
 clippedShell.SetInputConnection(shell.GetOutputPort())
 clippedShell.SetPlane(plane)
 clippedShell.ClippingLoopsOn()
 clippedShell.CappingOff()
 clippedShell.Update()
 
-sampleImp = vtk.vtkSampleImplicitFunctionFilter()
+sampleImp = vtkSampleImplicitFunctionFilter()
 sampleImp.SetInputConnection(clippedShell.GetOutputPort(1))
 sampleImp.SetImplicitFunction(plane)
 sampleImp.ComputeGradientsOff()
 sampleImp.SetScalarArrayName("scalars")
 sampleImp.Update()
 
-clippedShellMapper = vtk.vtkPolyDataMapper()
+clippedShellMapper = vtkPolyDataMapper()
 clippedShellMapper.SetInputConnection(sampleImp.GetOutputPort())
 clippedShellMapper.ScalarVisibilityOff()
 
-clippedShellActor = vtk.vtkActor()
+clippedShellActor = vtkActor()
 clippedShellActor.SetMapper(clippedShellMapper);
 
-trimMapper = vtk.vtkPolyDataMapper()
+trimMapper = vtkPolyDataMapper()
 trimMapper.SetInputConnection(sampleImp.GetOutputPort(0))
 trimMapper.ScalarVisibilityOff()
 
-trimActor = vtk.vtkActor()
+trimActor = vtkActor()
 trimActor.SetMapper(trimMapper);
 trimActor.GetProperty().SetColor(0,0,1)
 
 # Build a loop from the clipper
-buildLoops = vtk.vtkContourLoopExtraction()
+buildLoops = vtkContourLoopExtraction()
 buildLoops.SetInputConnection(sampleImp.GetOutputPort(0))
 buildLoops.CleanPointsOn()
 buildLoops.Update()
 
 # Test passing cell data
-imprint0 = vtk.vtkImprintFilter()
+imprint0 = vtkImprintFilter()
 imprint0.SetTargetConnection(pd2cd.GetOutputPort())
 imprint0.SetImprintConnection(buildLoops.GetOutputPort())
 imprint0.SetOutputTypeToImprintedRegion()
@@ -122,22 +149,22 @@ else:
     imprint0.PassCellDataOn()
     imprint0.PassPointDataOff()
 
-timer = vtk.vtkTimerLog()
+timer = vtkTimerLog()
 timer.StartTimer()
 imprint0.Update()
 timer.StopTimer()
 time = timer.GetElapsedTime()
 print("Imprinting with cell data: {0}".format(time))
 
-imprint0Mapper = vtk.vtkPolyDataMapper()
+imprint0Mapper = vtkPolyDataMapper()
 imprint0Mapper.SetInputConnection(imprint0.GetOutputPort())
 imprint0Mapper.SetScalarRange(0,0.1)
 
-imprint0Actor = vtk.vtkActor()
+imprint0Actor = vtkActor()
 imprint0Actor.SetMapper(imprint0Mapper);
 
 # Test point data - mesh interpolation
-imprint1 = vtk.vtkImprintFilter()
+imprint1 = vtkImprintFilter()
 imprint1.SetTargetConnection(pd2cd.GetOutputPort())
 imprint1.SetImprintConnection(buildLoops.GetOutputPort())
 imprint1.SetOutputTypeToImprintedRegion()
@@ -152,24 +179,24 @@ else:
     imprint1.PassPointDataOn()
     imprint1.SetPointInterpolationToTargetEdges()
 
-timer = vtk.vtkTimerLog()
+timer = vtkTimerLog()
 timer.StartTimer()
 imprint1.Update()
 timer.StopTimer()
 time = timer.GetElapsedTime()
 print("Imprinting with target edge interpolation: {0}".format(time))
 
-imprint1Mapper = vtk.vtkPolyDataMapper()
+imprint1Mapper = vtkPolyDataMapper()
 imprint1Mapper.SetInputConnection(imprint1.GetOutputPort())
 imprint1Mapper.SetScalarRange(0,0.1)
 imprint1Mapper.SetScalarModeToUsePointFieldData()
 imprint1Mapper.SelectColorArray("scalars")
 
-imprint1Actor = vtk.vtkActor()
+imprint1Actor = vtkActor()
 imprint1Actor.SetMapper(imprint1Mapper);
 
 # Test point data - loop edge interpolation
-imprint2 = vtk.vtkImprintFilter()
+imprint2 = vtkImprintFilter()
 imprint2.SetTargetConnection(pd2cd.GetOutputPort())
 imprint2.SetImprintConnection(buildLoops.GetOutputPort())
 imprint2.SetOutputTypeToImprintedRegion()
@@ -184,44 +211,44 @@ else:
     imprint2.PassPointDataOn()
     imprint2.SetPointInterpolationToImprintEdges()
 
-timer = vtk.vtkTimerLog()
+timer = vtkTimerLog()
 timer.StartTimer()
 imprint2.Update()
 timer.StopTimer()
 time = timer.GetElapsedTime()
 print("Imprinting with imprint edge interpolation: {0}".format(time))
 
-imprint2Mapper = vtk.vtkPolyDataMapper()
+imprint2Mapper = vtkPolyDataMapper()
 imprint2Mapper.SetInputConnection(imprint2.GetOutputPort())
 imprint2Mapper.SetScalarRange(0,0.1)
 imprint2Mapper.SetScalarModeToUsePointFieldData()
 imprint2Mapper.SelectColorArray("scalars")
 
-imprint2Actor = vtk.vtkActor()
+imprint2Actor = vtkActor()
 imprint2Actor.SetMapper(imprint2Mapper);
 
 # Bounding boxes are always nice
-outline = vtk.vtkOutlineFilter()
+outline = vtkOutlineFilter()
 outline.SetInputConnection(sample.GetOutputPort())
-outlineMapper = vtk.vtkPolyDataMapper()
+outlineMapper = vtkPolyDataMapper()
 outlineMapper.SetInputConnection(outline.GetOutputPort())
-outlineActor = vtk.vtkActor()
+outlineActor = vtkActor()
 outlineActor.SetMapper(outlineMapper)
 
 # Create three renderers, one to display cell data,
 # one to display mesh-interpolated point data, one
 # to display trim loop interpolated point data.
-ren0 = vtk.vtkRenderer()
+ren0 = vtkRenderer()
 ren0.GetActiveCamera().SetPosition(normal)
 ren0.SetViewport(0,0,0.333,1.0)
-ren1 = vtk.vtkRenderer()
+ren1 = vtkRenderer()
 ren1.SetActiveCamera(ren0.GetActiveCamera())
 ren1.SetViewport(0.333,0,0.667,1.0)
-ren2 = vtk.vtkRenderer()
+ren2 = vtkRenderer()
 ren2.SetActiveCamera(ren0.GetActiveCamera())
 ren2.SetViewport(0.667,0,1.0,1.0)
 
-renWin = vtk.vtkRenderWindow()
+renWin = vtkRenderWindow()
 renWin.AddRenderer( ren0 )
 renWin.AddRenderer( ren1 )
 renWin.AddRenderer( ren2 )
@@ -232,7 +259,7 @@ renWin.SetSize(600,200)
 #ren0.AddActor(clippedShellActor)
 #ren0.AddActor(imprint0Actor)
 
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 
 ren0.AddActor(outlineActor)

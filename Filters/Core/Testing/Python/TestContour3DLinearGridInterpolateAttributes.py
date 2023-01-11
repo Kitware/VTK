@@ -1,18 +1,20 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonDataModel import vtkDataObject
+from vtkmodules.vtkFiltersCore import vtkContour3DLinearGrid
+from vtkmodules.vtkFiltersSources import vtkCellTypeSource
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # Set up source for linear cells
-cellSource = vtk.vtkCellTypeSource()
+cellSource = vtkCellTypeSource()
 cellSource.SetCellType(12)
 cellSource.SetBlocksDimensions(10, 10, 10)
 cellSource.Update()
 
 # Add several contour values
-contour = vtk.vtkContour3DLinearGrid()
+contour = vtkContour3DLinearGrid()
 contour.SetInputConnection(cellSource.GetOutputPort())
-contour.SetInputArrayToProcess(0, 0, 0, vtk.vtkDataObject.FIELD_ASSOCIATION_POINTS, "DistanceToCenter")
+contour.SetInputArrayToProcess(0, 0, 0, vtkDataObject.FIELD_ASSOCIATION_POINTS, "DistanceToCenter")
 contour.SetValue(0, 4)
 contour.SetValue(1, 5)
 contour.SetValue(2, 6)

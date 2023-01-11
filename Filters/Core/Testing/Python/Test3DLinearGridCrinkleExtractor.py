@@ -1,6 +1,28 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonDataModel import (
+    vtkPlane,
+    vtkSphere,
+)
+from vtkmodules.vtkFiltersCore import (
+    vtk3DLinearGridCrinkleExtractor,
+    vtkExecutionTimer,
+)
+from vtkmodules.vtkFiltersExtraction import vtkExtractGeometry
+from vtkmodules.vtkFiltersGeneral import vtkRandomAttributeGenerator
+from vtkmodules.vtkFiltersGeometry import vtkGeometryFilter
+from vtkmodules.vtkFiltersModeling import vtkOutlineFilter
+from vtkmodules.vtkImagingHybrid import vtkSampleFunction
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # Control test size
@@ -8,22 +30,22 @@ res = 50
 #res = 300
 
 # Create the RenderWindow, Renderers and both Actors
-ren0 = vtk.vtkRenderer()
-ren1 = vtk.vtkRenderer()
-ren2 = vtk.vtkRenderer()
-renWin = vtk.vtkRenderWindow()
+ren0 = vtkRenderer()
+ren1 = vtkRenderer()
+ren2 = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.AddRenderer(ren0)
 renWin.AddRenderer(ren1)
 renWin.AddRenderer(ren2)
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 
 # Create a synthetic source: sample a sphere across a volume
-sphere = vtk.vtkSphere()
+sphere = vtkSphere()
 sphere.SetCenter( 0.0,0.0,0.0)
 sphere.SetRadius(0.25)
 
-sample = vtk.vtkSampleFunction()
+sample = vtkSampleFunction()
 sample.SetImplicitFunction(sphere)
 sample.SetModelBounds(-0.5,0.5, -0.5,0.5, -0.5,0.5)
 sample.SetSampleDimensions(res,res,res)
@@ -31,111 +53,111 @@ sample.ComputeNormalsOff()
 sample.Update()
 
 # Adds random attributes
-random = vtk.vtkRandomAttributeGenerator()
+random = vtkRandomAttributeGenerator()
 random.SetGenerateCellScalars(True)
 random.SetInputConnection(sample.GetOutputPort())
 
 # Convert the image data to unstructured grid
-extractionSphere = vtk.vtkSphere()
+extractionSphere = vtkSphere()
 extractionSphere.SetRadius(100)
 extractionSphere.SetCenter(0,0,0)
-extract = vtk.vtkExtractGeometry()
+extract = vtkExtractGeometry()
 extract.SetImplicitFunction(extractionSphere)
 extract.SetInputConnection(random.GetOutputPort())
 extract.Update()
 
 # The cut plane
-plane = vtk.vtkPlane()
+plane = vtkPlane()
 plane.SetOrigin(0,0,0)
 plane.SetNormal(1,1,1)
 
 # Now create the usual extractor
-cutter = vtk.vtkExtractGeometry()
+cutter = vtkExtractGeometry()
 cutter.SetInputConnection(extract.GetOutputPort())
 cutter.SetImplicitFunction(plane)
 cutter.ExtractBoundaryCellsOn()
 cutter.ExtractOnlyBoundaryCellsOn()
 
-cutterSurface = vtk.vtkGeometryFilter()
+cutterSurface = vtkGeometryFilter()
 cutterSurface.SetInputConnection(cutter.GetOutputPort())
 cutterSurface.MergingOff()
 
-cutterMapper = vtk.vtkPolyDataMapper()
+cutterMapper = vtkPolyDataMapper()
 cutterMapper.SetInputConnection(cutterSurface.GetOutputPort())
 
-cutterActor = vtk.vtkActor()
+cutterActor = vtkActor()
 cutterActor.SetMapper(cutterMapper)
 cutterActor.GetProperty().SetColor(1,1,1)
 
 # Throw in an outline
-outline = vtk.vtkOutlineFilter()
+outline = vtkOutlineFilter()
 outline.SetInputConnection(sample.GetOutputPort())
 
-outlineMapper = vtk.vtkPolyDataMapper()
+outlineMapper = vtkPolyDataMapper()
 outlineMapper.SetInputConnection(outline.GetOutputPort())
 
-outlineActor = vtk.vtkActor()
+outlineActor = vtkActor()
 outlineActor.SetMapper(outlineMapper)
 
 # Now create the faster crinkle cutter - cell data
-pcut = vtk.vtk3DLinearGridCrinkleExtractor()
+pcut = vtk3DLinearGridCrinkleExtractor()
 pcut.SetInputConnection(extract.GetOutputPort())
 pcut.SetImplicitFunction(plane)
 pcut.CopyPointDataOff()
 pcut.CopyCellDataOn()
 
-pCutterSurface = vtk.vtkGeometryFilter()
+pCutterSurface = vtkGeometryFilter()
 pCutterSurface.SetInputConnection(pcut.GetOutputPort())
 pCutterSurface.MergingOff()
 
-pCutterMapper = vtk.vtkPolyDataMapper()
+pCutterMapper = vtkPolyDataMapper()
 pCutterMapper.SetInputConnection(pCutterSurface.GetOutputPort())
 
-pCutterActor = vtk.vtkActor()
+pCutterActor = vtkActor()
 pCutterActor.SetMapper(pCutterMapper)
 pCutterActor.GetProperty().SetColor(1,1,1)
 
 # Throw in an outline
-pOutline = vtk.vtkOutlineFilter()
+pOutline = vtkOutlineFilter()
 pOutline.SetInputConnection(sample.GetOutputPort())
 
-pOutlineMapper = vtk.vtkPolyDataMapper()
+pOutlineMapper = vtkPolyDataMapper()
 pOutlineMapper.SetInputConnection(pOutline.GetOutputPort())
 
-pOutlineActor = vtk.vtkActor()
+pOutlineActor = vtkActor()
 pOutlineActor.SetMapper(pOutlineMapper)
 
 # Now create the crinkle cutter - remove unused points + point data
-pcut2 = vtk.vtk3DLinearGridCrinkleExtractor()
+pcut2 = vtk3DLinearGridCrinkleExtractor()
 pcut2.SetInputConnection(extract.GetOutputPort())
 pcut2.SetImplicitFunction(plane)
 pcut2.RemoveUnusedPointsOn()
 pcut2.CopyPointDataOn()
 pcut2.CopyCellDataOn()
 
-pCutterSurface2 = vtk.vtkGeometryFilter()
+pCutterSurface2 = vtkGeometryFilter()
 pCutterSurface2.SetInputConnection(pcut2.GetOutputPort())
 pCutterSurface2.MergingOff()
 
-pCutterMapper2 = vtk.vtkPolyDataMapper()
+pCutterMapper2 = vtkPolyDataMapper()
 pCutterMapper2.SetInputConnection(pCutterSurface2.GetOutputPort())
 
-pCutterActor2 = vtk.vtkActor()
+pCutterActor2 = vtkActor()
 pCutterActor2.SetMapper(pCutterMapper2)
 pCutterActor2.GetProperty().SetColor(1,1,1)
 
 # Throw in an outline
-pOutline2 = vtk.vtkOutlineFilter()
+pOutline2 = vtkOutlineFilter()
 pOutline2.SetInputConnection(sample.GetOutputPort())
 
-pOutlineMapper2 = vtk.vtkPolyDataMapper()
+pOutlineMapper2 = vtkPolyDataMapper()
 pOutlineMapper2.SetInputConnection(pOutline2.GetOutputPort())
 
-pOutlineActor2 = vtk.vtkActor()
+pOutlineActor2 = vtkActor()
 pOutlineActor2.SetMapper(pOutlineMapper2)
 
 # Time the execution of the usual crinkle cutter
-cutter_timer = vtk.vtkExecutionTimer()
+cutter_timer = vtkExecutionTimer()
 cutter_timer.SetFilter(cutter)
 cutter.Update()
 CT = cutter_timer.GetElapsedWallClockTime()

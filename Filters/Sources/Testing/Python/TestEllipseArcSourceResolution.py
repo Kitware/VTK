@@ -1,13 +1,21 @@
 #!/usr/bin/env python
 
 import math
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkFiltersSources import vtkEllipseArcSource
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderer,
+)
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # Demonstrates the generation of an elliptical arc
 
-arc=vtk.vtkEllipseArcSource()
+arc=vtkEllipseArcSource()
 arc.SetRatio(.25)
 arc.SetResolution(40)
 arc.SetStartAngle(45)
@@ -22,9 +30,9 @@ arc.Update()
 
 assert arc.GetOutput().GetNumberOfPoints() == arc.GetResolution()
 
-m=vtk.vtkPolyDataMapper()
+m=vtkPolyDataMapper()
 m.SetInputData(arc.GetOutput())
-a = vtk.vtkActor()
+a = vtkActor()
 a.SetMapper(m)
 a.GetProperty().SetColor(1,1,0)
 a.GetProperty().EdgeVisibilityOn()
@@ -35,10 +43,10 @@ a.GetProperty().VertexVisibilityOn()
 a.GetProperty().RenderPointsAsSpheresOn()
 a.GetProperty().SetPointSize(6)
 
-r=vtk.vtkRenderer()
+r=vtkRenderer()
 r.AddActor(a)
 r.SetBackground(.4,.4,.4)
-renWin=vtk.vtkRenderWindow()
+renWin=vtkRenderWindow()
 renWin.AddRenderer(r)
 renWin.Render()
 

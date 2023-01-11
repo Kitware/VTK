@@ -1,102 +1,116 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonDataModel import vtkSphere
+from vtkmodules.vtkFiltersExtraction import vtkExtractGeometry
+from vtkmodules.vtkFiltersGeometry import vtkDataSetSurfaceFilter
+from vtkmodules.vtkIOLegacy import vtkRectilinearGridReader
+from vtkmodules.vtkIOParallel import vtkMultiBlockPLOT3DReader
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # create pipeline - structured grid
 #
-pl3d = vtk.vtkMultiBlockPLOT3DReader()
+pl3d = vtkMultiBlockPLOT3DReader()
 pl3d.SetXYZFileName("" + str(VTK_DATA_ROOT) + "/Data/combxyz.bin")
 pl3d.SetQFileName("" + str(VTK_DATA_ROOT) + "/Data/combq.bin")
 pl3d.SetScalarFunctionNumber(100)
 pl3d.SetVectorFunctionNumber(202)
 pl3d.Update()
 output = pl3d.GetOutput().GetBlock(0)
-gf = vtk.vtkDataSetSurfaceFilter()
+gf = vtkDataSetSurfaceFilter()
 gf.SetInputData(output)
-gMapper = vtk.vtkPolyDataMapper()
+gMapper = vtkPolyDataMapper()
 gMapper.SetInputConnection(gf.GetOutputPort())
 gMapper.SetScalarRange(output.GetScalarRange())
-gActor = vtk.vtkActor()
+gActor = vtkActor()
 gActor.SetMapper(gMapper)
-gf2 = vtk.vtkDataSetSurfaceFilter()
+gf2 = vtkDataSetSurfaceFilter()
 gf2.SetInputData(output)
-g2Mapper = vtk.vtkPolyDataMapper()
+g2Mapper = vtkPolyDataMapper()
 g2Mapper.SetInputConnection(gf2.GetOutputPort())
 g2Mapper.SetScalarRange(output.GetScalarRange())
-g2Actor = vtk.vtkActor()
+g2Actor = vtkActor()
 g2Actor.SetMapper(g2Mapper)
 g2Actor.AddPosition(0,15,0)
 # create pipeline - poly data
 #
-gf3 = vtk.vtkDataSetSurfaceFilter()
+gf3 = vtkDataSetSurfaceFilter()
 gf3.SetInputConnection(gf.GetOutputPort())
-g3Mapper = vtk.vtkPolyDataMapper()
+g3Mapper = vtkPolyDataMapper()
 g3Mapper.SetInputConnection(gf3.GetOutputPort())
 g3Mapper.SetScalarRange(output.GetScalarRange())
-g3Actor = vtk.vtkActor()
+g3Actor = vtkActor()
 g3Actor.SetMapper(g3Mapper)
 g3Actor.AddPosition(0,0,15)
-gf4 = vtk.vtkDataSetSurfaceFilter()
+gf4 = vtkDataSetSurfaceFilter()
 gf4.SetInputConnection(gf2.GetOutputPort())
-g4Mapper = vtk.vtkPolyDataMapper()
+g4Mapper = vtkPolyDataMapper()
 g4Mapper.SetInputConnection(gf4.GetOutputPort())
 g4Mapper.SetScalarRange(output.GetScalarRange())
-g4Actor = vtk.vtkActor()
+g4Actor = vtkActor()
 g4Actor.SetMapper(g4Mapper)
 g4Actor.AddPosition(0,15,15)
 # create pipeline - unstructured grid
 #
-s = vtk.vtkSphere()
+s = vtkSphere()
 s.SetCenter(output.GetCenter())
 s.SetRadius(100.0)
 #everything
-eg = vtk.vtkExtractGeometry()
+eg = vtkExtractGeometry()
 eg.SetInputData(output)
 eg.SetImplicitFunction(s)
-gf5 = vtk.vtkDataSetSurfaceFilter()
+gf5 = vtkDataSetSurfaceFilter()
 gf5.SetInputConnection(eg.GetOutputPort())
-g5Mapper = vtk.vtkPolyDataMapper()
+g5Mapper = vtkPolyDataMapper()
 g5Mapper.SetInputConnection(gf5.GetOutputPort())
 g5Mapper.SetScalarRange(output.GetScalarRange())
-g5Actor = vtk.vtkActor()
+g5Actor = vtkActor()
 g5Actor.SetMapper(g5Mapper)
 g5Actor.AddPosition(0,0,30)
-gf6 = vtk.vtkDataSetSurfaceFilter()
+gf6 = vtkDataSetSurfaceFilter()
 gf6.SetInputConnection(eg.GetOutputPort())
-g6Mapper = vtk.vtkPolyDataMapper()
+g6Mapper = vtkPolyDataMapper()
 g6Mapper.SetInputConnection(gf6.GetOutputPort())
 g6Mapper.SetScalarRange(output.GetScalarRange())
-g6Actor = vtk.vtkActor()
+g6Actor = vtkActor()
 g6Actor.SetMapper(g6Mapper)
 g6Actor.AddPosition(0,15,30)
 # create pipeline - rectilinear grid
 #
-rgridReader = vtk.vtkRectilinearGridReader()
+rgridReader = vtkRectilinearGridReader()
 rgridReader.SetFileName("" + str(VTK_DATA_ROOT) + "/Data/RectGrid2.vtk")
 rgridReader.Update()
-gf7 = vtk.vtkDataSetSurfaceFilter()
+gf7 = vtkDataSetSurfaceFilter()
 gf7.SetInputConnection(rgridReader.GetOutputPort())
-g7Mapper = vtk.vtkPolyDataMapper()
+g7Mapper = vtkPolyDataMapper()
 g7Mapper.SetInputConnection(gf7.GetOutputPort())
 g7Mapper.SetScalarRange(rgridReader.GetOutput().GetScalarRange())
-g7Actor = vtk.vtkActor()
+g7Actor = vtkActor()
 g7Actor.SetMapper(g7Mapper)
 g7Actor.SetScale(3,3,3)
-gf8 = vtk.vtkDataSetSurfaceFilter()
+gf8 = vtkDataSetSurfaceFilter()
 gf8.SetInputConnection(rgridReader.GetOutputPort())
-g8Mapper = vtk.vtkPolyDataMapper()
+g8Mapper = vtkPolyDataMapper()
 g8Mapper.SetInputConnection(gf8.GetOutputPort())
 g8Mapper.SetScalarRange(rgridReader.GetOutput().GetScalarRange())
-g8Actor = vtk.vtkActor()
+g8Actor = vtkActor()
 g8Actor.SetMapper(g8Mapper)
 g8Actor.SetScale(3,3,3)
 g8Actor.AddPosition(0,15,0)
 # Create the RenderWindow, Renderer and both Actors
-ren1 = vtk.vtkRenderer()
-renWin = vtk.vtkRenderWindow()
+ren1 = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.AddRenderer(ren1)
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 ren1.AddActor(gActor)
 ren1.AddActor(g2Actor)

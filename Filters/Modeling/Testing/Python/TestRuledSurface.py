@@ -1,50 +1,68 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonCore import vtkPoints
+from vtkmodules.vtkCommonDataModel import (
+    vtkCellArray,
+    vtkPolyData,
+)
+from vtkmodules.vtkCommonTransforms import vtkTransform
+from vtkmodules.vtkFiltersCore import vtkAppendPolyData
+from vtkmodules.vtkFiltersGeneral import vtkTransformPolyDataFilter
+from vtkmodules.vtkFiltersModeling import vtkRuledSurfaceFilter
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # Create the RenderWindow, Renderer and both Actors
 #
-ren1 = vtk.vtkRenderer()
-renWin = vtk.vtkRenderWindow()
+ren1 = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.AddRenderer(ren1)
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 # create room profile
 #
-points = vtk.vtkPoints()
+points = vtkPoints()
 points.InsertPoint(0,0,0,0)
 points.InsertPoint(1,1,0,0)
 points.InsertPoint(2,1,1,0)
 points.InsertPoint(3,2,1,0)
-lines = vtk.vtkCellArray()
+lines = vtkCellArray()
 lines.InsertNextCell(4)
 #number of points
 lines.InsertCellPoint(0)
 lines.InsertCellPoint(1)
 lines.InsertCellPoint(2)
 lines.InsertCellPoint(3)
-profile = vtk.vtkPolyData()
+profile = vtkPolyData()
 profile.SetPoints(points)
 profile.SetLines(lines)
-xfm = vtk.vtkTransform()
+xfm = vtkTransform()
 xfm.Translate(0,0,8)
 xfm.RotateZ(90)
-xfmPd = vtk.vtkTransformPolyDataFilter()
+xfmPd = vtkTransformPolyDataFilter()
 xfmPd.SetInputData(profile)
 xfmPd.SetTransform(xfm)
-appendPD = vtk.vtkAppendPolyData()
+appendPD = vtkAppendPolyData()
 appendPD.AddInputData(profile)
 appendPD.AddInputConnection(xfmPd.GetOutputPort())
 # extrude profile to make wall
 #
-extrude = vtk.vtkRuledSurfaceFilter()
+extrude = vtkRuledSurfaceFilter()
 extrude.SetInputConnection(appendPD.GetOutputPort())
 extrude.SetResolution(51,51)
 extrude.SetRuledModeToResample()
-map = vtk.vtkPolyDataMapper()
+map = vtkPolyDataMapper()
 map.SetInputConnection(extrude.GetOutputPort())
-wall = vtk.vtkActor()
+wall = vtkActor()
 wall.SetMapper(map)
 wall.GetProperty().SetColor(0.3800,0.7000,0.1600)
 # Add the actors to the renderer, set the background and size

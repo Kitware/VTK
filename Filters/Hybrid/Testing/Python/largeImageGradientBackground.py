@@ -2,16 +2,25 @@
 
 # Test vtkRenderLargeImage with a renderer that uses a gradient background
 
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkFiltersHybrid import vtkRenderLargeImage
+from vtkmodules.vtkIOImport import vtk3DSImporter
+from vtkmodules.vtkInteractionImage import vtkImageViewer
+from vtkmodules.vtkRenderingCore import (
+    vtkRenderWindow,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
-ren1 = vtk.vtkRenderer()
-renWin1 = vtk.vtkRenderWindow()
+ren1 = vtkRenderer()
+renWin1 = vtkRenderWindow()
 renWin1.AddRenderer(ren1)
 renWin1.SetMultiSamples(0)
 
-importer = vtk.vtk3DSImporter()
+importer = vtk3DSImporter()
 importer.SetRenderWindow(renWin1)
 importer.ComputeNormalsOn()
 importer.SetFileName(VTK_DATA_ROOT + "/Data/iflamigm.3ds")
@@ -37,12 +46,12 @@ ren.GetActiveCamera().Dolly(1.4)
 ren1.ResetCameraClippingRange()
 
 # render the large image
-renderLarge = vtk.vtkRenderLargeImage()
+renderLarge = vtkRenderLargeImage()
 renderLarge.SetInput(ren1)
 renderLarge.SetMagnification(3)
 renderLarge.Update()
 
-viewer = vtk.vtkImageViewer()
+viewer = vtkImageViewer()
 viewer.SetInputConnection(renderLarge.GetOutputPort())
 viewer.SetColorWindow(255)
 viewer.SetColorLevel(127.5)

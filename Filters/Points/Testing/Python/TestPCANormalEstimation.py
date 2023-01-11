@@ -1,6 +1,29 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonCore import vtkMath
+from vtkmodules.vtkCommonDataModel import vtkSphere
+from vtkmodules.vtkCommonSystem import vtkTimerLog
+from vtkmodules.vtkFiltersCore import (
+    vtkHedgeHog,
+    vtkMaskPoints,
+)
+from vtkmodules.vtkFiltersModeling import vtkOutlineFilter
+from vtkmodules.vtkFiltersPoints import (
+    vtkBoundedPointSource,
+    vtkFitImplicitFunction,
+    vtkPCANormalEstimation,
+)
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPointGaussianMapper,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # Interpolate onto a volume
@@ -8,31 +31,31 @@ VTK_DATA_ROOT = vtkGetDataRoot()
 # Parameters for debugging
 NPts = 1000000
 #NPts = 100000000
-math = vtk.vtkMath()
+math = vtkMath()
 math.RandomSeed(31415)
 
 # create pipeline
 #
-points = vtk.vtkBoundedPointSource()
+points = vtkBoundedPointSource()
 points.SetNumberOfPoints(NPts)
 points.ProduceRandomScalarsOn()
 points.ProduceCellOutputOff()
 points.Update()
 
 # Create a sphere implicit function
-sphere = vtk.vtkSphere()
+sphere = vtkSphere()
 sphere.SetCenter(0,0,0)
 sphere.SetRadius(0.75)
 
 # Extract points along sphere surface
-extract = vtk.vtkFitImplicitFunction()
+extract = vtkFitImplicitFunction()
 extract.SetInputConnection(points.GetOutputPort())
 extract.SetImplicitFunction(sphere)
 extract.SetThreshold(0.005)
 extract.Update()
 
 # Now generate normals from resulting points
-norms = vtk.vtkPCANormalEstimation()
+norms = vtkPCANormalEstimation()
 norms.SetInputConnection(extract.GetOutputPort())
 norms.SetSampleSize(20)
 norms.FlipNormalsOn()
@@ -40,7 +63,7 @@ norms.SetNormalOrientationToPoint()
 norms.SetOrientationPoint(0,0,0)
 
 # Time execution
-timer = vtk.vtkTimerLog()
+timer = vtkTimerLog()
 timer.StartTimer()
 norms.Update()
 timer.StopTimer()
@@ -50,47 +73,47 @@ print("   Time to generate normals: {0}".format(time))
 #print(hBin)
 #print(hBin.GetOutput())
 
-subMapper = vtk.vtkPointGaussianMapper()
+subMapper = vtkPointGaussianMapper()
 subMapper.SetInputConnection(norms.GetOutputPort())
 subMapper.EmissiveOff()
 subMapper.SetScaleFactor(0.0)
 
-subActor = vtk.vtkActor()
+subActor = vtkActor()
 subActor.SetMapper(subMapper)
 
 # Draw the normals
-mask = vtk.vtkMaskPoints()
+mask = vtkMaskPoints()
 mask.SetInputConnection(norms.GetOutputPort())
 mask.SetRandomModeType(1)
 mask.SetMaximumNumberOfPoints(250)
 
-hhog = vtk.vtkHedgeHog()
+hhog = vtkHedgeHog()
 hhog.SetInputConnection(mask.GetOutputPort())
 hhog.SetVectorModeToUseNormal()
 hhog.SetScaleFactor(0.25)
 
-hogMapper = vtk.vtkPolyDataMapper()
+hogMapper = vtkPolyDataMapper()
 hogMapper.SetInputConnection(hhog.GetOutputPort())
 
-hogActor = vtk.vtkActor()
+hogActor = vtkActor()
 hogActor.SetMapper(hogMapper)
 
 # Create an outline
-outline = vtk.vtkOutlineFilter()
+outline = vtkOutlineFilter()
 outline.SetInputConnection(points.GetOutputPort())
 
-outlineMapper = vtk.vtkPolyDataMapper()
+outlineMapper = vtkPolyDataMapper()
 outlineMapper.SetInputConnection(outline.GetOutputPort())
 
-outlineActor = vtk.vtkActor()
+outlineActor = vtkActor()
 outlineActor.SetMapper(outlineMapper)
 
 # Create the RenderWindow, Renderer and both Actors
 #
-ren0 = vtk.vtkRenderer()
-renWin = vtk.vtkRenderWindow()
+ren0 = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.AddRenderer(ren0)
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 
 # Add the actors to the renderer, set the background and size

@@ -23,8 +23,9 @@
 
 import math
 
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkFiltersVerdict import vtkMeshQuality
+from vtkmodules.vtkIOLegacy import vtkUnstructuredGridReader
+from vtkmodules.util.misc import vtkGetDataRoot
 
 fname = vtkGetDataRoot() + '/Data/uGridEx.vtk'
 
@@ -44,8 +45,8 @@ def DumpQualityStats(iq, arrayname):
     return outStr
 
 def main():
-    mr = vtk.vtkUnstructuredGridReader()
-    iq = vtk.vtkMeshQuality()
+    mr = vtkUnstructuredGridReader()
+    iq = vtkMeshQuality()
 
     mr.SetFileName(fname)
     mr.Update()

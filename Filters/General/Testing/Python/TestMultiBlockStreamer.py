@@ -1,22 +1,49 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonCore import vtkLookupTable
+from vtkmodules.vtkCommonDataModel import (
+    vtkMultiBlockDataSet,
+    vtkStructuredGrid,
+)
+from vtkmodules.vtkCommonExecutionModel import (
+    vtkAlgorithm,
+    vtkCompositeDataPipeline,
+)
+from vtkmodules.vtkFiltersCore import (
+    vtkAssignAttribute,
+    vtkStructuredGridOutlineFilter,
+)
+from vtkmodules.vtkFiltersExtraction import vtkExtractGrid
+from vtkmodules.vtkFiltersFlowPaths import vtkStreamTracer
+from vtkmodules.vtkFiltersModeling import vtkRibbonFilter
+from vtkmodules.vtkFiltersSources import vtkLineSource
+from vtkmodules.vtkIOParallel import vtkMultiBlockPLOT3DReader
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # we need to use composite data pipeline with multiblock datasets
-alg = vtk.vtkAlgorithm()
-pip = vtk.vtkCompositeDataPipeline()
+alg = vtkAlgorithm()
+pip = vtkCompositeDataPipeline()
 alg.SetDefaultExecutivePrototype(pip)
 #del pip
 
-Ren1 = vtk.vtkRenderer()
+Ren1 = vtkRenderer()
 Ren1.SetBackground(0.33, 0.35, 0.43)
-renWin = vtk.vtkRenderWindow()
+renWin = vtkRenderWindow()
 renWin.AddRenderer(Ren1)
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 
-Plot3D0 = vtk.vtkMultiBlockPLOT3DReader()
+Plot3D0 = vtkMultiBlockPLOT3DReader()
 Plot3D0.SetFileName(VTK_DATA_ROOT + "/Data/combxyz.bin")
 Plot3D0.SetQFileName(VTK_DATA_ROOT + "/Data/combq.bin")
 Plot3D0.SetBinaryFile(1)
@@ -30,16 +57,16 @@ Plot3D0.Update()
 
 output = Plot3D0.GetOutput().GetBlock(0)
 
-Geometry5 = vtk.vtkStructuredGridOutlineFilter()
+Geometry5 = vtkStructuredGridOutlineFilter()
 Geometry5.SetInputData(output)
 
-Mapper5 = vtk.vtkPolyDataMapper()
+Mapper5 = vtkPolyDataMapper()
 Mapper5.SetInputConnection(Geometry5.GetOutputPort())
 Mapper5.UseLookupTableScalarRangeOn()
 Mapper5.SetScalarVisibility(0)
 Mapper5.SetScalarModeToDefault()
 
-Actor5 = vtk.vtkActor()
+Actor5 = vtkActor()
 Actor5.SetMapper(Mapper5)
 Actor5.GetProperty().SetRepresentationToSurface()
 Actor5.GetProperty().SetInterpolationToGouraud()
@@ -52,41 +79,41 @@ Actor5.GetProperty().SetColor(1, 1, 1)
 
 Ren1.AddActor(Actor5)
 
-ExtractGrid0 = vtk.vtkExtractGrid()
+ExtractGrid0 = vtkExtractGrid()
 ExtractGrid0.SetInputData(output)
 ExtractGrid0.SetVOI(0, 14, 0, 32, 0, 24)
 ExtractGrid0.SetSampleRate(1, 1, 1)
 ExtractGrid0.SetIncludeBoundary(0)
 
-ExtractGrid1 = vtk.vtkExtractGrid()
+ExtractGrid1 = vtkExtractGrid()
 ExtractGrid1.SetInputData(output)
 ExtractGrid1.SetVOI(14, 29, 0, 32, 0, 24)
 ExtractGrid1.SetSampleRate(1, 1, 1)
 ExtractGrid1.SetIncludeBoundary(0)
 
-ExtractGrid2 = vtk.vtkExtractGrid()
+ExtractGrid2 = vtkExtractGrid()
 ExtractGrid2.SetInputData(output)
 ExtractGrid2.SetVOI(29, 56, 0, 32, 0, 24)
 ExtractGrid2.SetSampleRate(1, 1, 1)
 ExtractGrid2.SetIncludeBoundary(0)
 
-LineSourceWidget0 = vtk.vtkLineSource()
+LineSourceWidget0 = vtkLineSource()
 LineSourceWidget0.SetPoint1(3.05638, -3.00497, 28.2211)
 LineSourceWidget0.SetPoint2(3.05638, 3.95916, 28.2211)
 LineSourceWidget0.SetResolution(20)
 
-mbds = vtk.vtkMultiBlockDataSet()
+mbds = vtkMultiBlockDataSet()
 mbds.SetNumberOfBlocks(3)
 
 i = 0
 while i < 3:
     eval("ExtractGrid" + str(i)).Update()
-    exec("sg" + str(i) + " = vtk.vtkStructuredGrid()")
+    exec("sg" + str(i) + " = vtkStructuredGrid()")
     eval("sg" + str(i)).ShallowCopy(eval("ExtractGrid" + str(i)).GetOutput())
     mbds.SetBlock(i, eval("sg" + str(i)))
     i += 1
 
-Stream0 = vtk.vtkStreamTracer()
+Stream0 = vtkStreamTracer()
 Stream0.SetInputData(mbds)
 Stream0.SetSourceConnection(LineSourceWidget0.GetOutputPort())
 Stream0.SetIntegrationStepUnit(2)
@@ -99,18 +126,18 @@ Stream0.SetTerminalSpeed(1e-12)
 
 #del mbds
 
-aa = vtk.vtkAssignAttribute()
+aa = vtkAssignAttribute()
 aa.SetInputConnection(Stream0.GetOutputPort())
 aa.Assign("Normals", "NORMALS", "POINT_DATA")
 
-Ribbon0 = vtk.vtkRibbonFilter()
+Ribbon0 = vtkRibbonFilter()
 Ribbon0.SetInputConnection(aa.GetOutputPort())
 Ribbon0.SetWidth(0.1)
 Ribbon0.SetAngle(0)
 Ribbon0.SetDefaultNormal(0, 0, 1)
 Ribbon0.SetVaryWidth(0)
 
-LookupTable1 = vtk.vtkLookupTable()
+LookupTable1 = vtkLookupTable()
 LookupTable1.SetNumberOfTableValues(256)
 LookupTable1.SetHueRange(0, 0.66667)
 LookupTable1.SetSaturationRange(1, 1)
@@ -119,7 +146,7 @@ LookupTable1.SetTableRange(0.197813, 0.710419)
 LookupTable1.SetVectorComponent(0)
 LookupTable1.Build()
 
-Mapper10 = vtk.vtkPolyDataMapper()
+Mapper10 = vtkPolyDataMapper()
 Mapper10.SetInputConnection(Ribbon0.GetOutputPort())
 Mapper10.UseLookupTableScalarRangeOn()
 Mapper10.SetScalarVisibility(1)
@@ -127,7 +154,7 @@ Mapper10.SetScalarModeToUsePointFieldData()
 Mapper10.SelectColorArray("Density")
 Mapper10.SetLookupTable(LookupTable1)
 
-Actor10 = vtk.vtkActor()
+Actor10 = vtkActor()
 Actor10.SetMapper(Mapper10)
 Actor10.GetProperty().SetRepresentationToSurface()
 Actor10.GetProperty().SetInterpolationToGouraud()

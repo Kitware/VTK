@@ -1,17 +1,48 @@
 #!/usr/bin/env python
-import vtk
+from vtkmodules.vtkCommonCore import (
+    vtkIdList,
+    vtkPoints,
+)
+from vtkmodules.vtkCommonDataModel import (
+    VTK_HEXAHEDRON,
+    VTK_QUADRATIC_HEXAHEDRON,
+    vtkHexahedron,
+    vtkPixel,
+    vtkPyramid,
+    vtkQuad,
+    vtkTriangle,
+    vtkUnstructuredGrid,
+    vtkVoxel,
+    vtkWedge,
+)
+from vtkmodules.vtkFiltersCore import (
+    vtkContour3DLinearGrid,
+    vtkSimpleElevationFilter,
+)
+from vtkmodules.vtkFiltersSources import vtkCellTypeSource
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkDataSetMapper,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
 
 # Test filter input validity check on datasets with linear and nonlinear cells
-linearCells = vtk.vtkCellTypeSource()
-linearCells.SetCellType(vtk.VTK_HEXAHEDRON)
+linearCells = vtkCellTypeSource()
+linearCells.SetCellType(VTK_HEXAHEDRON)
 linearCells.Update()
-assert(vtk.vtkContour3DLinearGrid.CanFullyProcessDataObject(linearCells.GetOutput(), 'DistanceToCenter'))
+assert(vtkContour3DLinearGrid.CanFullyProcessDataObject(linearCells.GetOutput(), 'DistanceToCenter'))
 
 # Test filter input validity check on datasets with linear and nonlinear cells
-quadraticCells = vtk.vtkCellTypeSource()
-quadraticCells.SetCellType(vtk.VTK_QUADRATIC_HEXAHEDRON)
+quadraticCells = vtkCellTypeSource()
+quadraticCells.SetCellType(VTK_QUADRATIC_HEXAHEDRON)
 quadraticCells.Update()
-assert(not vtk.vtkContour3DLinearGrid.CanFullyProcessDataObject(quadraticCells.GetOutput(), 'DistanceToCenter'))
+assert(not vtkContour3DLinearGrid.CanFullyProcessDataObject(quadraticCells.GetOutput(), 'DistanceToCenter'))
 
 # Test vtkContour3DLinearGrid on mixed cell types as well as on wedges and
 # pyramids.
@@ -24,8 +55,8 @@ computeNormals = 1
 # Manually create an unstructured grid with a mix of cells.  We have: quad;
 # 3x3x3 volume; triangle; 3x3x3 structured grid; pixel; pyramid; wedge. Total
 # of 76 points, 21 cells.
-ugrid = vtk.vtkUnstructuredGrid()
-pts = vtk.vtkPoints()
+ugrid = vtkUnstructuredGrid()
+pts = vtkPoints()
 pts.SetNumberOfPoints(76)
 ugrid.SetPoints(pts)
 pts.SetPoint(0, 0,0,0)
@@ -112,10 +143,10 @@ pts.SetPoint(74, 25,0,-1)
 pts.SetPoint(75, 25,2,-1)
 
 # Now populate cells
-ids = vtk.vtkIdList()
+ids = vtkIdList()
 
 # quad
-quad = vtk.vtkQuad()
+quad = vtkQuad()
 ids.SetNumberOfIds(4)
 ids.SetId(0,0)
 ids.SetId(1,1)
@@ -124,7 +155,7 @@ ids.SetId(3,2)
 ugrid.InsertNextCell(quad.GetCellType(),ids)
 
 # 8 voxels
-vox = vtk.vtkVoxel()
+vox = vtkVoxel()
 ids.SetNumberOfIds(8)
 ids.SetId(0,4)
 ids.SetId(1,5)
@@ -207,7 +238,7 @@ ids.SetId(7,30)
 ugrid.InsertNextCell(vox.GetCellType(),ids)
 
 # triangle
-tri = vtk.vtkTriangle()
+tri = vtkTriangle()
 ids.SetNumberOfIds(3)
 ids.SetId(0,31)
 ids.SetId(1,32)
@@ -215,7 +246,7 @@ ids.SetId(2,33)
 ugrid.InsertNextCell(tri.GetCellType(),ids)
 
 # 8 hexes
-hexa = vtk.vtkHexahedron()
+hexa = vtkHexahedron()
 ids.SetNumberOfIds(8)
 ids.SetId(0,34)
 ids.SetId(1,35)
@@ -298,7 +329,7 @@ ids.SetId(6,60)
 ugrid.InsertNextCell(hexa.GetCellType(),ids)
 
 # pixel
-pixel = vtk.vtkPixel()
+pixel = vtkPixel()
 ids.SetNumberOfIds(4)
 ids.SetId(0,61)
 ids.SetId(1,62)
@@ -307,7 +338,7 @@ ids.SetId(3,64)
 ugrid.InsertNextCell(pixel.GetCellType(),ids)
 
 # pyramid
-pyr = vtk.vtkPyramid()
+pyr = vtkPyramid()
 ids.SetNumberOfIds(5)
 ids.SetId(0,65)
 ids.SetId(1,66)
@@ -317,7 +348,7 @@ ids.SetId(4,69)
 ugrid.InsertNextCell(pyr.GetCellType(),ids)
 
 # wedge
-wedge = vtk.vtkWedge()
+wedge = vtkWedge()
 ids.SetNumberOfIds(6)
 ids.SetId(0,70)
 ids.SetId(1,71)
@@ -328,11 +359,11 @@ ids.SetId(5,75)
 ugrid.InsertNextCell(wedge.GetCellType(),ids)
 
 # Now contour the cells
-ele = vtk.vtkSimpleElevationFilter()
+ele = vtkSimpleElevationFilter()
 ele.SetInputData(ugrid)
 ele.SetVector(0,1,0)
 
-contour = vtk.vtkContour3DLinearGrid()
+contour = vtkContour3DLinearGrid()
 contour.SetInputConnection(ele.GetOutputPort())
 contour.SetValue(0, 1)
 contour.SetMergePoints(mergePoints)
@@ -340,28 +371,28 @@ contour.SetInterpolateAttributes(interpolateAttr);
 contour.SetComputeNormals(computeNormals);
 contour.Update()
 
-contMapper = vtk.vtkPolyDataMapper()
+contMapper = vtkPolyDataMapper()
 contMapper.SetInputConnection(contour.GetOutputPort())
 contMapper.ScalarVisibilityOff()
 
-contActor = vtk.vtkActor()
+contActor = vtkActor()
 contActor.SetMapper(contMapper)
 contActor.GetProperty().SetColor(.8,.4,.4)
 
 # Display the cells
-cellMapper = vtk.vtkDataSetMapper()
+cellMapper = vtkDataSetMapper()
 cellMapper.SetInputData(ugrid)
 cellMapper.ScalarVisibilityOff()
 
-cellActor = vtk.vtkActor()
+cellActor = vtkActor()
 cellActor.SetMapper(cellMapper)
 cellActor.GetProperty().SetColor(.8,.4,.4)
 cellActor.GetProperty().SetRepresentationToWireframe()
 
 # Define graphics objects
-renWin = vtk.vtkRenderWindow()
+renWin = vtkRenderWindow()
 
-ren1 = vtk.vtkRenderer()
+ren1 = vtkRenderer()
 ren1.SetBackground(1,1,1)
 ren1.GetActiveCamera().SetFocalPoint(0,0,0)
 ren1.GetActiveCamera().SetPosition(0,0.5,1)
@@ -369,7 +400,7 @@ ren1.GetActiveCamera().SetPosition(0,0.5,1)
 renWin.AddRenderer(ren1)
 renWin.SetSize(400,100)
 
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 
 ren1.AddActor(contActor)

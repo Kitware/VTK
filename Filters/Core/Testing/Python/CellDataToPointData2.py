@@ -1,6 +1,24 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonDataModel import vtkSphere
+from vtkmodules.vtkFiltersCore import (
+    vtkCellDataToPointData,
+    vtkPointDataToCellData,
+    vtkSimpleElevationFilter,
+)
+from vtkmodules.vtkFiltersExtraction import vtkExtractGeometry
+from vtkmodules.vtkFiltersSources import vtkSphereSource
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkDataSetMapper,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # Test the fast paths in vtkCellDataToPointData
@@ -11,66 +29,66 @@ VTK_DATA_ROOT = vtkGetDataRoot()
 res = 20
 
 # Create the RenderWindow, Renderer and RenderWindowInteractor
-ren0 = vtk.vtkRenderer()
+ren0 = vtkRenderer()
 ren0.SetViewport(0,0,0.33,1.0)
-ren1 = vtk.vtkRenderer()
+ren1 = vtkRenderer()
 ren1.SetViewport(0.33,0,0.66,1.0)
-ren2 = vtk.vtkRenderer()
+ren2 = vtkRenderer()
 ren2.SetViewport(0.66,0,1.0,1.0)
-renWin = vtk.vtkRenderWindow()
+renWin = vtkRenderWindow()
 renWin.AddRenderer(ren0)
 renWin.AddRenderer(ren1)
 renWin.AddRenderer(ren2)
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 
 # Create a sphere with cell data
-sphere = vtk.vtkSphereSource()
+sphere = vtkSphereSource()
 sphere.SetThetaResolution(res)
 sphere.SetPhiResolution(int(res/2))
 sphere.GenerateNormalsOff()
 
-ele = vtk.vtkSimpleElevationFilter()
+ele = vtkSimpleElevationFilter()
 ele.SetInputConnection(sphere.GetOutputPort())
 
-pd2cd = vtk.vtkPointDataToCellData()
+pd2cd = vtkPointDataToCellData()
 pd2cd.SetInputConnection(ele.GetOutputPort())
 pd2cd.PassPointDataOff()
 
-m0 = vtk.vtkPolyDataMapper()
+m0 = vtkPolyDataMapper()
 m0.SetInputConnection(pd2cd.GetOutputPort())
 
-a0 = vtk.vtkActor()
+a0 = vtkActor()
 a0.SetMapper(m0)
 
 
 # Now test on polydata
-cd2pd1 = vtk.vtkCellDataToPointData()
+cd2pd1 = vtkCellDataToPointData()
 cd2pd1.SetInputConnection(pd2cd.GetOutputPort())
 
-m1 = vtk.vtkPolyDataMapper()
+m1 = vtkPolyDataMapper()
 m1.SetInputConnection(cd2pd1.GetOutputPort())
 
-a1 = vtk.vtkActor()
+a1 = vtkActor()
 a1.SetMapper(m1)
 
 # Now test on unstructured grid
-impFunc = vtk.vtkSphere()
+impFunc = vtkSphere()
 impFunc.SetCenter(0,0,0)
 impFunc.SetRadius(10000000)
-extract = vtk.vtkExtractGeometry()
+extract = vtkExtractGeometry()
 extract.SetImplicitFunction(impFunc)
 extract.SetInputConnection(pd2cd.GetOutputPort())
 extract.ExtractInsideOn()
 extract.Update()
 
-cd2pd2 = vtk.vtkCellDataToPointData()
+cd2pd2 = vtkCellDataToPointData()
 cd2pd2.SetInputConnection(extract.GetOutputPort())
 
-m2 = vtk.vtkDataSetMapper()
+m2 = vtkDataSetMapper()
 m2.SetInputConnection(cd2pd2.GetOutputPort())
 
-a2 = vtk.vtkActor()
+a2 = vtkActor()
 a2.SetMapper(m2)
 
 # Add the actors to the renderer, set the background and size

@@ -1,7 +1,16 @@
 #!/usr/bin/env python
 import sys
-import vtk
-from vtk.test import Testing
+from vtkmodules.vtkCommonCore import (
+    vtkFloatArray,
+    vtkIdTypeArray,
+    vtkPoints,
+)
+from vtkmodules.vtkCommonDataModel import (
+    VTK_QUADRATIC_QUAD,
+    vtkUnstructuredGrid,
+)
+from vtkmodules.vtkFiltersGeometry import vtkDataSetSurfaceFilter
+from vtkmodules.test import Testing
 
 # This script creates an unstructured grid of 4 quadratic quads
 # with vtkIdTypeArray and vtkFloatArray point data and vtkIdTypeArray cell data.
@@ -24,11 +33,11 @@ class TestDataSetSurfaceFilter(Testing.vtkTest):
         my1=[[0,1.5,0],[1,1.5,0],[2,1.5,0]]
         #
         # create points and point data
-        pts=vtk.vtkPoints()
+        pts=vtkPoints()
         pts.Allocate(21)
-        self.point_ids=vtk.vtkIdTypeArray()
+        self.point_ids=vtkIdTypeArray()
         self.point_ids.SetName('point-ids')
-        self.point_values=vtk.vtkFloatArray()
+        self.point_values=vtkFloatArray()
         self.point_values.SetName('point-values')
         i=1
         for coords in (c0,c1,c2,mx0,mx1,mx2,my0,my1):
@@ -47,14 +56,14 @@ class TestDataSetSurfaceFilter(Testing.vtkTest):
                   (9+1,15+2,9+3,15+1),
                   (9+2,15+4,9+4,15+3),
                   (9+3,15+5,9+5,15+4)]
-        self.ug=vtk.vtkUnstructuredGrid()
+        self.ug=vtkUnstructuredGrid()
         self.ug.SetPoints(pts)
         self.ug.Allocate(4)
-        self.cell_ids=vtk.vtkIdTypeArray()
+        self.cell_ids=vtkIdTypeArray()
         self.cell_ids.SetName('cell-ids')
         i=1
         for (c,m) in zip(corners,midnodes):
-            self.ug.InsertNextCell(vtk.VTK_QUADRATIC_QUAD,8,(c+m))
+            self.ug.InsertNextCell(VTK_QUADRATIC_QUAD,8,(c+m))
             self.cell_ids.InsertNextValue(i+1000)
             i+=1
         self.ug.GetPointData().AddArray(self.point_ids)
@@ -62,7 +71,7 @@ class TestDataSetSurfaceFilter(Testing.vtkTest):
         self.ug.GetCellData().AddArray(self.cell_ids)
         #
         # create the surface-filter
-        surface=vtk.vtkDataSetSurfaceFilter()
+        surface=vtkDataSetSurfaceFilter()
         surface.SetInputData(self.ug)
         surface.Update()
 

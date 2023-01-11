@@ -1,17 +1,25 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkFiltersSources import vtkConeSource
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderer,
+)
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
-renWin = vtk.vtkRenderWindow()
+renWin = vtkRenderWindow()
 renWin.OffScreenRenderingOn()
 renWin.SetMultiSamples(0)
-ren = vtk.vtkRenderer()
+ren = vtkRenderer()
 renWin.AddRenderer(ren)
-cone = vtk.vtkConeSource()
-mp = vtk.vtkPolyDataMapper()
+cone = vtkConeSource()
+mp = vtkPolyDataMapper()
 mp.SetInputConnection(cone.GetOutputPort())
-actor = vtk.vtkActor()
+actor = vtkActor()
 actor.SetMapper(mp)
 ren.AddActor(actor)
 renWin.Render()

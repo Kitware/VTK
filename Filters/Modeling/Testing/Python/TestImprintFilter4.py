@@ -1,5 +1,18 @@
 #!/usr/bin/env python
-import vtk
+from vtkmodules.vtkFiltersCore import vtkFeatureEdges
+from vtkmodules.vtkFiltersModeling import vtkImprintFilter
+from vtkmodules.vtkFiltersSources import vtkSphereSource
+from vtkmodules.vtkIOLegacy import vtkPolyDataWriter
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
 
 # Control the resolution of the test
 radius = 10.0
@@ -10,7 +23,7 @@ write = 0
 # Create pipeline. Use two sphere sources:
 # a portion of one sphere imprints on the other.
 #
-target = vtk.vtkSphereSource()
+target = vtkSphereSource()
 target.SetRadius(radius)
 target.SetCenter(0,0,0)
 target.LatLongTessellationOn()
@@ -19,7 +32,7 @@ target.SetPhiResolution(4*res)
 target.SetStartTheta(0)
 target.SetEndTheta(90)
 
-imprint = vtk.vtkSphereSource()
+imprint = vtkSphereSource()
 imprint.SetRadius(radius)
 imprint.SetCenter(0,0,0)
 imprint.LatLongTessellationOn()
@@ -31,7 +44,7 @@ imprint.SetStartPhi(60.0)
 imprint.SetEndPhi(120.0)
 
 # Produce an imprint
-imp = vtk.vtkImprintFilter()
+imp = vtkImprintFilter()
 imp.SetTargetConnection(target.GetOutputPort())
 imp.SetImprintConnection(imprint.GetOutputPort())
 imp.SetTolerance(0.1)
@@ -43,58 +56,58 @@ if debug:
 imp.Update()
 
 if write:
-  w = vtk.vtkPolyDataWriter()
+  w = vtkPolyDataWriter()
   w.SetInputConnection(imp.GetOutputPort(1))
   w.SetFileName("imp.vtk")
   w.Write()
 
-impMapper = vtk.vtkPolyDataMapper()
+impMapper = vtkPolyDataMapper()
 impMapper.SetInputConnection(imp.GetOutputPort())
 impMapper.SetScalarRange(0,2)
 impMapper.SetScalarModeToUseCellFieldData()
 impMapper.SelectColorArray("ImprintedCells")
 
-impActor = vtk.vtkActor()
+impActor = vtkActor()
 impActor.SetMapper(impMapper)
 impActor.GetProperty().SetColor(1,0,0)
 
-imprintMapper = vtk.vtkPolyDataMapper()
+imprintMapper = vtkPolyDataMapper()
 imprintMapper.SetInputConnection(imprint.GetOutputPort())
 
-imprintActor = vtk.vtkActor()
+imprintActor = vtkActor()
 imprintActor.SetMapper(imprintMapper)
 imprintActor.GetProperty().SetColor(1,1,1)
 
-fedges = vtk.vtkFeatureEdges()
+fedges = vtkFeatureEdges()
 fedges.SetInputConnection(imp.GetOutputPort())
 fedges.ExtractAllEdgeTypesOff()
 fedges.NonManifoldEdgesOn()
 fedges.BoundaryEdgesOn()
 
-fedgesMapper = vtk.vtkPolyDataMapper()
+fedgesMapper = vtkPolyDataMapper()
 fedgesMapper.SetInputConnection(fedges.GetOutputPort())
 
-fedgesActor = vtk.vtkActor()
+fedgesActor = vtkActor()
 fedgesActor.SetMapper(fedgesMapper)
 fedgesActor.GetProperty().SetRepresentationToWireframe()
 fedgesActor.GetProperty().SetColor(0,1,0)
 
 # Second output if needed
 if debug:
-    out2Mapper = vtk.vtkPolyDataMapper()
+    out2Mapper = vtkPolyDataMapper()
     out2Mapper.SetInputConnection(imp.GetOutputPort(1))
-    out2Actor = vtk.vtkActor()
+    out2Actor = vtkActor()
     out2Actor.SetMapper(out2Mapper)
     out2Actor.GetProperty().SetColor(1,1,0)
 
 # Create the RenderWindow, Renderer
 #
-ren1 = vtk.vtkRenderer()
-renWin = vtk.vtkRenderWindow()
+ren1 = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.AddRenderer( ren1 )
 renWin.SetSize(300,200)
 
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 
 ren1.AddActor(impActor)

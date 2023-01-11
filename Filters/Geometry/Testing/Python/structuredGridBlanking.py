@@ -2,14 +2,29 @@
 
 #test exists to verify that structured grid blanking works as expected
 
-import vtk
+from vtkmodules.vtkCommonCore import (
+    vtkDoubleArray,
+    vtkPoints,
+)
+from vtkmodules.vtkCommonDataModel import vtkStructuredGrid
+from vtkmodules.vtkFiltersGeometry import vtkDataSetSurfaceFilter
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkDataSetMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
 
 #make up a toy structured grid with known characteristics
 xlim=10
 ylim=10
 zlim=3
 
-sg = vtk.vtkStructuredGrid()
+sg = vtkStructuredGrid()
 sg.SetExtent(0,xlim,0,ylim,0,zlim)
 
 #a handy point iterator, calls action() on each point
@@ -20,14 +35,14 @@ def forEachPoint(xlim,ylim,zlim, action):
                  action((x,y,z))
 
 #make geometry
-points = vtk.vtkPoints()
+points = vtkPoints()
 def makeCoordinate(pt):
     points.InsertNextPoint(pt)
 forEachPoint(xlim,ylim,zlim, makeCoordinate)
 sg.SetPoints(points)
 
 #make a scalar array
-scalars = vtk.vtkDoubleArray()
+scalars = vtkDoubleArray()
 scalars.SetNumberOfComponents(1)
 scalars.SetName("Xcoord")
 def makeScalar(pt):
@@ -47,7 +62,7 @@ for c in range(180,261):
     if c < sg.GetNumberOfCells():
         sg.BlankCell(c)
 
-dsf = vtk.vtkDataSetSurfaceFilter()
+dsf = vtkDataSetSurfaceFilter()
 dsf.SetInputData(sg)
 dsf.Update()
 nviscells = dsf.GetOutput().GetNumberOfCells()
@@ -58,14 +73,14 @@ if nviscells != 356:
     exit(-1)
 
 #render it so we can look at it
-mapper = vtk.vtkDataSetMapper()
+mapper = vtkDataSetMapper()
 mapper.SetInputData(sg)
 mapper.SetScalarRange(scalars.GetRange())
-actor = vtk.vtkActor()
+actor = vtkActor()
 actor.SetMapper(mapper)
-ren = vtk.vtkRenderer()
+ren = vtkRenderer()
 ren.AddActor(actor)
-renWin = vtk.vtkRenderWindow()
+renWin = vtkRenderWindow()
 renWin.SetSize(400, 400)
 renWin.AddRenderer(ren)
 
@@ -75,7 +90,7 @@ cam.SetClippingRange(14.0456, 45.4716)
 cam.SetFocalPoint(5, 5, 1.5)
 cam.SetPosition(-19.0905, -6.73006, -6.37738)
 cam.SetViewUp(-0.400229, 0.225459, 0.888248)
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 iren.Initialize()
 

@@ -1,11 +1,21 @@
-from vtkmodules.util.vtkAlgorithm import VTKPythonAlgorithmBase
-from vtkmodules.vtkIOExodus import vtkExodusIIReader
 from vtkmodules.vtkCommonDataModel import vtkMultiBlockDataSet
-from vtkmodules.vtkCommonExecutionModel import vtkAlgorithm, vtkCompositeDataPipeline
+from vtkmodules.vtkCommonExecutionModel import (
+    vtkAlgorithm,
+    vtkCompositeDataPipeline,
+)
 from vtkmodules.vtkFiltersParallel import vtkAdaptiveTemporalInterpolator
 from vtkmodules.vtkFiltersGeometry import vtkCompositeDataGeometryFilter
-from vtkmodules.vtkRenderingCore import vtkCompositePolyDataMapper, vtkActor, vtkRenderer, vtkRenderWindow, vtkRenderWindowInteractor, vtkWindowToImageFilter
+from vtkmodules.vtkIOExodus import vtkExodusIIReader
+from vtkmodules.vtkRenderingCore import (
+    vtkCompositePolyDataMapper,
+    vtkActor,
+    vtkRenderer,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkWindowToImageFilter,
+)
 from vtkmodules.vtkRenderingOpenGL2 import vtkCompositePolyDataMapper2
+from vtkmodules.util.vtkAlgorithm import VTKPythonAlgorithmBase
 
 
 class SimpleTimeReader(VTKPythonAlgorithmBase):

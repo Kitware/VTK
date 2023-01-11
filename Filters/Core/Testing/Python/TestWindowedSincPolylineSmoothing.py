@@ -1,30 +1,58 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonCore import vtkPoints
+from vtkmodules.vtkCommonDataModel import (
+    vtkCellArray,
+    vtkImageData,
+    vtkPolyData,
+)
+from vtkmodules.vtkCommonTransforms import vtkTransform
+from vtkmodules.vtkFiltersCore import (
+    vtkStripper,
+    vtkWindowedSincPolyDataFilter,
+)
+from vtkmodules.vtkFiltersGeneral import (
+    vtkDiscreteFlyingEdges2D,
+    vtkTransformPolyDataFilter,
+)
+from vtkmodules.vtkFiltersModeling import vtkContourLoopExtraction
+from vtkmodules.vtkImagingCore import vtkImageExtractComponents
+from vtkmodules.vtkImagingColor import vtkImageQuantizeRGBToIndex
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+    vtkWindowToImageFilter,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # Create the render window and renderers
 #
-ren1 = vtk.vtkRenderer()
+ren1 = vtkRenderer()
 ren1.SetViewport(0,0,0.5,1.0)
 ren1.SetBackground(1,1,1)
-ren2 = vtk.vtkRenderer()
+ren2 = vtkRenderer()
 ren2.SetViewport(0.5,0,1.0,1.0)
 ren2.SetBackground(1,1,1)
 
-renWin = vtk.vtkRenderWindow()
+renWin = vtkRenderWindow()
 renWin.AddRenderer(ren1)
 renWin.AddRenderer(ren2)
 renWin.SetMultiSamples(0)
 
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 
 # Create synthetic, aliased data
 # Create a cross and rotate it a small amount to enhance aliasing
-pd = vtk.vtkPolyData()
-pts = vtk.vtkPoints()
-polys = vtk.vtkCellArray()
+pd = vtkPolyData()
+pts = vtkPoints()
+polys = vtkCellArray()
 
 pts.SetNumberOfPoints(12)
 pts.SetPoint(0, 1, -4, 0)
@@ -73,19 +101,19 @@ polys.InsertCellPoint(10)
 pd.SetPoints(pts)
 pd.SetPolys(polys)
 
-transform = vtk.vtkTransform()
+transform = vtkTransform()
 transform.RotateZ(17)
 transform.Translate(0.1,0,0)
 
-xform = vtk.vtkTransformPolyDataFilter()
+xform = vtkTransformPolyDataFilter()
 xform.SetInputData(pd)
 xform.SetTransform(transform)
 
 # Rasterize through the renderer
-mapper = vtk.vtkPolyDataMapper()
+mapper = vtkPolyDataMapper()
 mapper.SetInputConnection(xform.GetOutputPort())
 
-actor = vtk.vtkActor()
+actor = vtkActor()
 actor.SetMapper(mapper)
 actor.GetProperty().SetColor(1,0,0)
 
@@ -93,60 +121,60 @@ renWin.SetSize(50,50)
 ren1.AddActor(actor)
 renWin.Render()
 
-renSource = vtk.vtkWindowToImageFilter()
+renSource = vtkWindowToImageFilter()
 renSource.SetInput(renWin)
 renSource.Update()
 
 # This trick decouples the pipeline so that updates
 # do not affect the renSource.
 output = renSource.GetOutput()
-img = vtk.vtkImageData()
+img = vtkImageData()
 img.DeepCopy(output)
 ren1.RemoveActor(actor)
 
 # Now process the test image. Smooth out the aliasing.
 
 # Next filter can only handle RGB
-extract = vtk.vtkImageExtractComponents()
+extract = vtkImageExtractComponents()
 extract.SetInputData(img)
 extract.SetComponents(0,1,2)
 
 # Quantize the image into an index.
-quantize = vtk.vtkImageQuantizeRGBToIndex()
+quantize = vtkImageQuantizeRGBToIndex()
 quantize.SetInputConnection(extract.GetOutputPort())
 quantize.SetNumberOfColors(3)
 
 # Create the pipeline. This creates discrete polylines.
-discrete = vtk.vtkDiscreteFlyingEdges2D()
+discrete = vtkDiscreteFlyingEdges2D()
 discrete.SetInputConnection(quantize.GetOutputPort())
 discrete.SetValue(0,2)
 
 # Create polygons
-polyLoops = vtk.vtkContourLoopExtraction()
+polyLoops = vtkContourLoopExtraction()
 polyLoops.SetInputConnection(discrete.GetOutputPort())
 polyLoops.SetOutputModeToPolylines()
 
 # Polygons are displayed
-polyMapper = vtk.vtkPolyDataMapper()
+polyMapper = vtkPolyDataMapper()
 polyMapper.SetInputConnection(polyLoops.GetOutputPort())
 
-polyActor = vtk.vtkActor()
+polyActor = vtkActor()
 polyActor.SetMapper(polyMapper)
 polyActor.GetProperty().SetColor(0,1,0)
 
 # Now smooth
-lineStrip = vtk.vtkStripper()
+lineStrip = vtkStripper()
 lineStrip.SetInputConnection(discrete.GetOutputPort())
 
-smoother = vtk.vtkWindowedSincPolyDataFilter()
+smoother = vtkWindowedSincPolyDataFilter()
 smoother.SetInputConnection(lineStrip.GetOutputPort())
 smoother.SetNumberOfIterations(50)
 smoother.SetEdgeAngle(90)
 
-smoothMapper = vtk.vtkPolyDataMapper()
+smoothMapper = vtkPolyDataMapper()
 smoothMapper.SetInputConnection(smoother.GetOutputPort())
 
-smoothActor = vtk.vtkActor()
+smoothActor = vtkActor()
 smoothActor.SetMapper(smoothMapper)
 smoothActor.GetProperty().SetColor(0,1,0)
 

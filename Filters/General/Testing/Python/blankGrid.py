@@ -1,6 +1,29 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonColor import vtkNamedColors
+from vtkmodules.vtkCommonDataModel import (
+    vtkDataSetAttributes,
+    vtkImageData,
+    vtkStructuredGrid,
+)
+from vtkmodules.vtkFiltersCore import vtkStructuredGridOutlineFilter
+from vtkmodules.vtkFiltersExtraction import vtkExtractGrid
+from vtkmodules.vtkFiltersGeneral import (
+    vtkBlankStructuredGrid,
+    vtkBlankStructuredGridWithImage,
+)
+from vtkmodules.vtkFiltersGeometry import vtkStructuredGridGeometryFilter
+from vtkmodules.vtkIOParallel import vtkMultiBlockPLOT3DReader
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 def GetRGBColor(colorName):
@@ -9,7 +32,7 @@ def GetRGBColor(colorName):
         color as doubles.
     '''
     rgb = [0.0, 0.0, 0.0]  # black
-    vtk.vtkNamedColors().GetColorRGB(colorName, rgb)
+    vtkNamedColors().GetColorRGB(colorName, rgb)
     return rgb
 
 # Demonstrate how to use structured grid blanking with an image. There are two
@@ -19,7 +42,7 @@ def GetRGBColor(colorName):
 #
 # create pipeline - start by extracting a single plane from the grid
 #
-pl3d = vtk.vtkMultiBlockPLOT3DReader()
+pl3d = vtkMultiBlockPLOT3DReader()
 pl3d.SetXYZFileName(VTK_DATA_ROOT + "/Data/combxyz.bin")
 pl3d.SetQFileName(VTK_DATA_ROOT + "/Data/combq.bin")
 pl3d.SetScalarFunctionNumber(100)
@@ -28,14 +51,14 @@ pl3d.Update()
 
 output = pl3d.GetOutput().GetBlock(0)
 
-plane = vtk.vtkExtractGrid()
+plane = vtkExtractGrid()
 plane.SetInputData(output)
 plane.SetVOI(0, 57, 0, 33, 0, 0)
 plane.Update()
 
 # Create some data to use for the (image) blanking
 #
-blankImage = vtk.vtkImageData()
+blankImage = vtkImageData()
 
 # vtkType.h has definitions for vtk datatypes VTK_INT, VTK_FLOAT, etc. that
 # don't get wrapped in Python.
@@ -49,7 +72,7 @@ blanking = blankImage.GetPointData().GetScalars()
 numBlanks = 57 * 33
 i = 0
 while i < numBlanks:
-    blanking.SetComponent(i, 0, vtk.vtkDataSetAttributes.HIDDENPOINT)
+    blanking.SetComponent(i, 0, vtkDataSetAttributes.HIDDENPOINT)
     i += 1
 
 # Manually blank out areas corresponding to dilution holes
@@ -61,75 +84,75 @@ blanking.SetComponent(1553, 0, 0)
 
 # The first blanking technique uses the image to set the blanking values
 #
-blankIt = vtk.vtkBlankStructuredGridWithImage()
+blankIt = vtkBlankStructuredGridWithImage()
 blankIt.SetInputConnection(plane.GetOutputPort())
 blankIt.SetBlankingInputData(blankImage)
 
-blankedPlane = vtk.vtkStructuredGridGeometryFilter()
+blankedPlane = vtkStructuredGridGeometryFilter()
 blankedPlane.SetInputConnection(blankIt.GetOutputPort())
 blankedPlane.SetExtent(0, 100, 0, 100, 0, 0)
 
-planeMapper = vtk.vtkPolyDataMapper()
+planeMapper = vtkPolyDataMapper()
 planeMapper.SetInputConnection(blankedPlane.GetOutputPort())
 planeMapper.SetScalarRange(0.197813, 0.710419)
 
-planeActor = vtk.vtkActor()
+planeActor = vtkActor()
 planeActor.SetMapper(planeMapper)
 
 # The second blanking technique uses grid data values to create the blanking.
 # Here we borrow the image data and threshold on that.
 #
-anotherGrid = vtk.vtkStructuredGrid()
+anotherGrid = vtkStructuredGrid()
 anotherGrid.CopyStructure(plane.GetOutput())
 anotherGrid.GetPointData().SetScalars(blankImage.GetPointData().GetScalars())
 
-blankGrid = vtk.vtkBlankStructuredGrid()
+blankGrid = vtkBlankStructuredGrid()
 blankGrid.SetInputData(anotherGrid)
 blankGrid.SetArrayName("blankScalars")
 blankGrid.SetMinBlankingValue(-0.5)
 blankGrid.SetMaxBlankingValue(0.5)
 
-blankedPlane2 = vtk.vtkStructuredGridGeometryFilter()
+blankedPlane2 = vtkStructuredGridGeometryFilter()
 blankedPlane2.SetInputConnection(blankGrid.GetOutputPort())
 blankedPlane2.SetExtent(0, 100, 0, 100, 0, 0)
 
-planeMapper2 = vtk.vtkPolyDataMapper()
+planeMapper2 = vtkPolyDataMapper()
 planeMapper2.SetInputConnection(blankedPlane2.GetOutputPort())
 planeMapper2.SetScalarRange(0.197813, 0.710419)
 
-planeActor2 = vtk.vtkActor()
+planeActor2 = vtkActor()
 planeActor2.SetMapper(planeMapper2)
 
 # An outline around the data
 #
-outline = vtk.vtkStructuredGridOutlineFilter()
+outline = vtkStructuredGridOutlineFilter()
 outline.SetInputData(output)
 
-outlineMapper = vtk.vtkPolyDataMapper()
+outlineMapper = vtkPolyDataMapper()
 outlineMapper.SetInputConnection(outline.GetOutputPort())
 
-outlineActor = vtk.vtkActor()
+outlineActor = vtkActor()
 outlineActor.SetMapper(outlineMapper)
 outlineActor.GetProperty().SetColor(GetRGBColor('black'))
 
-outlineMapper2 = vtk.vtkPolyDataMapper()
+outlineMapper2 = vtkPolyDataMapper()
 outlineMapper2.SetInputConnection(outline.GetOutputPort())
 
-outlineActor2 = vtk.vtkActor()
+outlineActor2 = vtkActor()
 outlineActor2.SetMapper(outlineMapper2)
 outlineActor2.GetProperty().SetColor(GetRGBColor('black'))
 
 # create planes
 # Create the RenderWindow, Renderer and both Actors
 #
-ren1 = vtk.vtkRenderer()
+ren1 = vtkRenderer()
 ren1.SetViewport(0, 0, 0.5, 1)
-ren2 = vtk.vtkRenderer()
+ren2 = vtkRenderer()
 ren2.SetViewport(0.5, 0, 1, 1)
-renWin = vtk.vtkRenderWindow()
+renWin = vtkRenderWindow()
 renWin.AddRenderer(ren1)
 renWin.AddRenderer(ren2)
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 
 # Add the actors to the renderer, set the background and size

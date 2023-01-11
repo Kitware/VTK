@@ -1,6 +1,23 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonCore import vtkIntArray
+from vtkmodules.vtkCommonColor import vtkNamedColors
+from vtkmodules.vtkCommonDataModel import vtkPolyData
+from vtkmodules.vtkFiltersCore import (
+    vtkExtractEdges,
+    vtkTubeFilter,
+)
+from vtkmodules.vtkFiltersGeneral import vtkRectilinearGridToTetrahedra
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 def GetRGBColor(colorName):
@@ -9,18 +26,18 @@ def GetRGBColor(colorName):
         color as doubles.
     '''
     rgb = [0.0, 0.0, 0.0]  # black
-    vtk.vtkNamedColors().GetColorRGB(colorName, rgb)
+    vtkNamedColors().GetColorRGB(colorName, rgb)
     return rgb
 
 # SetUp the pipeline
-FormMesh = vtk.vtkRectilinearGridToTetrahedra()
+FormMesh = vtkRectilinearGridToTetrahedra()
 FormMesh.SetInput(4, 2, 2, 1, 1, 1, 0.001)
 FormMesh.RememberVoxelIdOn()
 
-TetraEdges = vtk.vtkExtractEdges()
+TetraEdges = vtkExtractEdges()
 TetraEdges.SetInputConnection(FormMesh.GetOutputPort())
 
-tubes = vtk.vtkTubeFilter()
+tubes = vtkTubeFilter()
 tubes.SetInputConnection(TetraEdges.GetOutputPort())
 tubes.SetRadius(0.05)
 tubes.SetNumberOfSides(6)
@@ -30,27 +47,27 @@ FormMesh.SetTetraPerCellTo5()
 
 tubes.Update()
 
-Tubes1 = vtk.vtkPolyData()
+Tubes1 = vtkPolyData()
 Tubes1.DeepCopy(tubes.GetOutput())
 
 FormMesh.SetTetraPerCellTo6()
 
 tubes.Update()
 
-Tubes2 = vtk.vtkPolyData()
+Tubes2 = vtkPolyData()
 Tubes2.DeepCopy(tubes.GetOutput())
 
 FormMesh.SetTetraPerCellTo12()
 
 tubes.Update()
 
-Tubes3 = vtk.vtkPolyData()
+Tubes3 = vtkPolyData()
 Tubes3.DeepCopy(tubes.GetOutput())
 
 # Run the pipeline once more, this time converting some cells to
 # 5 and some data to 12 TetMesh
 # Determine which cells are which
-DivTypes = vtk.vtkIntArray()
+DivTypes = vtkIntArray()
 numCell = FormMesh.GetInput().GetNumberOfCells()
 DivTypes.SetNumberOfValues(numCell)
 
@@ -65,17 +82,17 @@ FormMesh.GetInput().GetCellData().SetScalars(DivTypes)
 
 tubes.Update()
 
-Tubes4 = vtk.vtkPolyData()
+Tubes4 = vtkPolyData()
 Tubes4.DeepCopy(tubes.GetOutput())
 
 # Finish the 4 pipelines
 i = 1
 while i < 5:
     idx = str(i)
-    exec("mapEdges" + idx + " = vtk.vtkPolyDataMapper()")
+    exec("mapEdges" + idx + " = vtkPolyDataMapper()")
     eval("mapEdges" + idx).SetInputData(eval("Tubes" + idx))
 
-    exec("edgeActor" + idx + " = vtk.vtkActor()")
+    exec("edgeActor" + idx + " = vtkActor()")
     eval("edgeActor" + idx).SetMapper(eval("mapEdges" + idx))
     eval("edgeActor" + idx).GetProperty().SetColor(GetRGBColor('peacock'))
     eval("edgeActor" + idx).GetProperty().SetSpecularColor(1, 1, 1)
@@ -84,7 +101,7 @@ while i < 5:
     eval("edgeActor" + idx).GetProperty().SetAmbient(0.2)
     eval("edgeActor" + idx).GetProperty().SetDiffuse(0.8)
 
-    exec("ren" + idx + " = vtk.vtkRenderer()")
+    exec("ren" + idx + " = vtkRenderer()")
     eval("ren" + idx).AddActor(eval("edgeActor" + idx))
     eval("ren" + idx).SetBackground(0, 0, 0)
     eval("ren" + idx).ResetCamera()
@@ -98,7 +115,7 @@ while i < 5:
 
 # Create graphics objects
 # Create the rendering window, renderer, and interactive renderer
-renWin = vtk.vtkRenderWindow()
+renWin = vtkRenderWindow()
 renWin.AddRenderer(ren1)
 renWin.AddRenderer(ren2)
 renWin.AddRenderer(ren3)
@@ -106,7 +123,7 @@ renWin.AddRenderer(ren4)
 
 renWin.SetSize(600, 300)
 
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 
 # Add the actors to the renderer, set the background and size

@@ -1,39 +1,50 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkFiltersCore import vtkHull
+from vtkmodules.vtkIOGeometry import vtkBYUReader
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # Create the RenderWindow, Renderer and both Actors
 #
-ren1 = vtk.vtkRenderer()
-renWin = vtk.vtkRenderWindow()
+ren1 = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.SetMultiSamples(0)
 renWin.AddRenderer(ren1)
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 
-byuReader = vtk.vtkBYUReader()
+byuReader = vtkBYUReader()
 byuReader.SetGeometryFileName(VTK_DATA_ROOT + "/Data/teapot.g")
 
-byuMapper = vtk.vtkPolyDataMapper()
+byuMapper = vtkPolyDataMapper()
 byuMapper.SetInputConnection(byuReader.GetOutputPort())
 
 i = 0
 while i < 9:
     idx = str(i)
-    exec("byuActor" + idx + " = vtk.vtkActor()")
+    exec("byuActor" + idx + " = vtkActor()")
     eval("byuActor" + idx).SetMapper(byuMapper)
 
     ren1.AddActor(eval("byuActor" + idx))
 
-    exec("hull" + idx + " = vtk.vtkHull()")
+    exec("hull" + idx + " = vtkHull()")
     eval("hull" + idx).SetInputConnection(byuReader.GetOutputPort())
 
-    exec("hullMapper" + idx + " = vtk.vtkPolyDataMapper()")
+    exec("hullMapper" + idx + " = vtkPolyDataMapper()")
     eval("hullMapper" + idx).SetInputConnection(
       eval("hull" + idx).GetOutputPort())
 
-    exec("hullActor" + idx + " = vtk.vtkActor()")
+    exec("hullActor" + idx + " = vtkActor()")
     eval("hullActor" + idx).SetMapper(eval("hullMapper" + idx))
     eval("hullActor" + idx).GetProperty().SetColor(1, 0, 0)
     eval("hullActor" + idx).GetProperty().SetAmbient(0.2)

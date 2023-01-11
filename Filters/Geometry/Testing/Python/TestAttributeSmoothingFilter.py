@@ -1,6 +1,27 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonCore import (
+    vtkFloatArray,
+    vtkPoints,
+    vtkUnsignedCharArray,
+)
+from vtkmodules.vtkCommonDataModel import (
+    vtkCellArray,
+    vtkPolyData,
+)
+from vtkmodules.vtkFiltersCore import vtkExecutionTimer
+from vtkmodules.vtkFiltersGeometry import vtkAttributeSmoothingFilter
+from vtkmodules.vtkFiltersSources import vtkPlaneSource
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # Test the vtkAttributeSmoothingFilter
@@ -10,19 +31,19 @@ res = 25
 
 # Generate synthetic attributes
 #
-ps = vtk.vtkPlaneSource()
+ps = vtkPlaneSource()
 ps.SetXResolution(res-1)
 ps.SetYResolution(res-1)
 ps.Update()
 
-pd = vtk.vtkPolyData()
-pts = vtk.vtkPoints()
-polys = vtk.vtkCellArray()
+pd = vtkPolyData()
+pts = vtkPoints()
+polys = vtkCellArray()
 pd.SetPoints(ps.GetOutput().GetPoints())
 pd.SetPolys(ps.GetOutput().GetPolys())
 
 # Create some synthetic attribute data
-s = vtk.vtkFloatArray()
+s = vtkFloatArray()
 s.SetNumberOfTuples(res*res)
 s.Fill(4) # Interior all the same value
 pd.GetPointData().SetScalars(s)
@@ -57,71 +78,71 @@ SetColumn(res-1,0)
 SetPoint(int(res/2),int(res/2),0)
 
 # Display what we've got
-pdm0 = vtk.vtkPolyDataMapper()
+pdm0 = vtkPolyDataMapper()
 pdm0.SetInputData(pd)
 pdm0.SetScalarRange(0,4)
 
-a0 = vtk.vtkActor()
+a0 = vtkActor()
 a0.SetMapper(pdm0)
 
 # Different ways smooth the attribute data
-att1 = vtk.vtkAttributeSmoothingFilter()
+att1 = vtkAttributeSmoothingFilter()
 att1.SetInputData(pd)
 att1.SetSmoothingStrategyToAllPoints()
 att1.SetNumberOfIterations(50)
 att1.SetRelaxationFactor(0.1)
 
-timer = vtk.vtkExecutionTimer()
+timer = vtkExecutionTimer()
 timer.SetFilter(att1)
 att1.Update()
 t1 = timer.GetElapsedWallClockTime()
 print ("Smooth Attributes: ", t1)
 
-pdm1 = vtk.vtkPolyDataMapper()
+pdm1 = vtkPolyDataMapper()
 pdm1.SetInputConnection(att1.GetOutputPort())
 pdm1.SetScalarRange(0,4)
 
-a1 = vtk.vtkActor()
+a1 = vtkActor()
 a1.SetMapper(pdm1)
 
 # Smooth everything but the boundary
-att2 = vtk.vtkAttributeSmoothingFilter()
+att2 = vtkAttributeSmoothingFilter()
 att2.SetInputData(pd)
 att2.SetSmoothingStrategyToAllButBoundary()
 att2.SetNumberOfIterations(2)
 att2.SetRelaxationFactor(0.5)
 att2.Update()
 
-pdm2 = vtk.vtkPolyDataMapper()
+pdm2 = vtkPolyDataMapper()
 pdm2.SetInputConnection(att2.GetOutputPort())
 pdm2.SetScalarRange(0,4)
 
-a2 = vtk.vtkActor()
+a2 = vtkActor()
 a2.SetMapper(pdm2)
 
 # Only smooth points near boundary
-att3 = vtk.vtkAttributeSmoothingFilter()
+att3 = vtkAttributeSmoothingFilter()
 att3.SetInputData(pd)
 att3.SetSmoothingStrategyToAdjacentToBoundary()
 att3.SetNumberOfIterations(3)
 att3.SetRelaxationFactor(0.333)
 att3.Update()
 
-pdm3 = vtk.vtkPolyDataMapper()
+pdm3 = vtkPolyDataMapper()
 pdm3.SetInputConnection(att3.GetOutputPort())
 pdm3.SetScalarRange(0,4)
 
-a3 = vtk.vtkActor()
+a3 = vtkActor()
 a3.SetMapper(pdm3)
 
 # Using smoothing mask, smooth all points except center point
-smoothArray = vtk.vtkUnsignedCharArray()
+smoothArray = vtkUnsignedCharArray()
 smoothArray.SetNumberOfTuples(res*res)
 smoothArray.Fill(1) # Smooth all points
 idx = int(res/2) + int(res/2)*res
 smoothArray.SetTuple1(idx,0) # Except the center point
 
-att4 = vtk.vtkAttributeSmoothingFilter()
+att4 = vtkAttributeSmoothingFilter()
 att4.SetInputData(pd)
 att4.SetSmoothingStrategyToSmoothingMask()
 att4.SetNumberOfIterations(50)
@@ -129,25 +150,25 @@ att4.SetRelaxationFactor(0.10)
 att4.SetSmoothingMask(smoothArray)
 att4.Update()
 
-pdm4 = vtk.vtkPolyDataMapper()
+pdm4 = vtkPolyDataMapper()
 pdm4.SetInputConnection(att4.GetOutputPort())
 pdm4.SetScalarRange(0,4)
 
-a4 = vtk.vtkActor()
+a4 = vtkActor()
 a4.SetMapper(pdm4)
 
 # Create the RenderWindow, Renderer and interactive renderer
 #
-renWin = vtk.vtkRenderWindow()
-ren0 = vtk.vtkRenderer()
+renWin = vtkRenderWindow()
+ren0 = vtkRenderer()
 ren0.SetViewport(0,0,0.20,1)
-ren1 = vtk.vtkRenderer()
+ren1 = vtkRenderer()
 ren1.SetViewport(0.20,0,0.40,1)
-ren2 = vtk.vtkRenderer()
+ren2 = vtkRenderer()
 ren2.SetViewport(0.40,0,0.60,1)
-ren3 = vtk.vtkRenderer()
+ren3 = vtkRenderer()
 ren3.SetViewport(0.60,0,0.80,1)
-ren4 = vtk.vtkRenderer()
+ren4 = vtkRenderer()
 ren4.SetViewport(0.80,0,1,1)
 renWin.AddRenderer(ren0)
 renWin.AddRenderer(ren1)
@@ -157,7 +178,7 @@ renWin.AddRenderer(ren4)
 
 # make sure to have the same regression image on all platforms.
 renWin.SetMultiSamples(0)
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 
 ren0.AddActor(a0)

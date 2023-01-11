@@ -1,14 +1,22 @@
 import unittest
 
-from vtk.vtkCommonCore import vtkPoints, vtkDoubleArray, vtkIdList
-from vtk.vtkCommonDataModel import vtkPlane,\
-                                   vtkUnstructuredGrid,\
-                                   vtkStructuredGrid,\
-                                   vtkPolyData
-from vtk.vtkFiltersCore import vtkCutter,\
-                               vtkContourFilter,\
-                               vtkThreshold
-import vtk.util.vtkConstants as vtk_const
+from vtkmodules.vtkCommonCore import (
+    vtkPoints,
+    vtkDoubleArray,
+    vtkIdList,
+)
+from vtkmodules.vtkCommonDataModel import (
+    vtkPlane,
+    vtkUnstructuredGrid,
+    vtkStructuredGrid,
+    vtkPolyData,
+)
+from vtkmodules.vtkFiltersCore import (
+    vtkCutter,
+    vtkContourFilter,
+    vtkThreshold,
+)
+import vtkmodules.util.vtkConstants as vtk_const
 
 class FiltersLosingPrecisionBase:
     def test_contour(self):

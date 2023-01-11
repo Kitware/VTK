@@ -1,6 +1,25 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonCore import (
+    vtkDoubleArray,
+    vtkPoints,
+)
+from vtkmodules.vtkCommonDataModel import (
+    vtkCellArray,
+    vtkPolyData,
+)
+from vtkmodules.vtkFiltersCore import vtkExtractEdges
+from vtkmodules.vtkFiltersModeling import vtkBandedPolyDataContourFilter
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # This test reproduces an issue with vtkBandedPolyDataContourFilter
@@ -32,7 +51,7 @@ def generatePoly(scalars):
    |  |  |
    0--1--2
    """
-   pts = vtk.vtkPoints()
+   pts = vtkPoints()
    nx=3
    ny=int(len(scalars)/nx)
    for y in range(0,ny):
@@ -40,15 +59,15 @@ def generatePoly(scalars):
       pts.InsertNextPoint(x,y,0)
 
    connectivity=[(0,1,4,3),(1,2,5,4)]
-   quads = vtk.vtkCellArray()
+   quads = vtkCellArray()
    for quad in connectivity:
        quads.InsertNextCell(4,quad)
 
-   poly = vtk.vtkPolyData()
+   poly = vtkPolyData()
    poly.SetPoints(pts)
    poly.SetPolys(quads)
 
-   array=vtk.vtkDoubleArray()
+   array=vtkDoubleArray()
    for s in scalars:
       array.InsertNextValue(s)
    poly.GetPointData().SetScalars(array)
@@ -60,7 +79,7 @@ def showBandedContours(poly,values,num):
    high=max(values)
    low=min(values)
 
-   bpdcf = vtk.vtkBandedPolyDataContourFilter()
+   bpdcf = vtkBandedPolyDataContourFilter()
    bpdcf.GenerateContourEdgesOn()
    bpdcf.SetScalarModeToValue()
    bpdcf.SetInputData(poly)
@@ -73,31 +92,31 @@ def showBandedContours(poly,values,num):
    #internalTol=bpdcf.GetClipTolerance()*(high-low)
    #print("internal clip tolerance={}".format(internalTol))
 
-   m = vtk.vtkPolyDataMapper()
+   m = vtkPolyDataMapper()
    m.SetInputConnection(bpdcf.GetOutputPort())
    m.SetScalarModeToUseCellData()
    m.SetScalarRange(0,num-1)
 
-   bands = vtk.vtkActor()
+   bands = vtkActor()
    bands.SetMapper(m)
 
-   m = vtk.vtkPolyDataMapper()
+   m = vtkPolyDataMapper()
    m.SetInputConnection(bpdcf.GetOutputPort(1))
    m.ScalarVisibilityOff()
 
-   edges = vtk.vtkActor()
+   edges = vtkActor()
    edges.GetProperty().SetColor(.4,.4,.4)
    edges.SetMapper(m)
 
    return bands,edges
 
 def showPolyDataEdges(poly):
-   edges=vtk.vtkExtractEdges()
+   edges=vtkExtractEdges()
    edges.SetInputDataObject(0,poly)
-   m = vtk.vtkPolyDataMapper()
+   m = vtkPolyDataMapper()
    m.SetInputConnection(edges.GetOutputPort())
    m.ScalarVisibilityOff()
-   a = vtk.vtkActor()
+   a = vtkActor()
    a.GetProperty().SetColor(1,1,1)
    a.GetProperty().EdgeVisibilityOn()
    a.GetProperty().RenderLinesAsTubesOn()
@@ -127,19 +146,19 @@ if (inbounds[0] > outbounds[0] or
   print("output bounds={}".format(outbounds))
   error=1
 
-ren = vtk.vtkRenderer()
+ren = vtkRenderer()
 ren.AddViewProp( bands )
 ren.AddViewProp( edges )
 ren.AddViewProp( showPolyDataEdges(poly) )
 ren.SetBackground(.6,.6,.6)
 
-renWin = vtk.vtkRenderWindow()
+renWin = vtkRenderWindow()
 renWin.AddRenderer( ren )
 
 ren.GetActiveCamera().SetFocalPoint(1,.5,0)
 ren.GetActiveCamera().SetPosition(1,.5,5)
 ren.GetActiveCamera().SetViewUp(0,1,0)
 
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 iren.Start()

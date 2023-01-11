@@ -1,31 +1,48 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonCore import vtkMath
+from vtkmodules.vtkCommonSystem import vtkTimerLog
+from vtkmodules.vtkFiltersModeling import vtkOutlineFilter
+from vtkmodules.vtkFiltersPoints import (
+    vtkBoundedPointSource,
+    vtkVoxelGrid,
+)
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPointGaussianMapper,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # Interpolate onto a volume
 
 # Parameters for debugging
 NPts = 1000000
-math = vtk.vtkMath()
+math = vtkMath()
 math.RandomSeed(31415)
 
 # create pipeline
 #
-points = vtk.vtkBoundedPointSource()
+points = vtkBoundedPointSource()
 points.SetNumberOfPoints(NPts)
 points.ProduceRandomScalarsOn()
 points.ProduceCellOutputOff()
 points.Update()
 
 # Subsample
-subsample = vtk.vtkVoxelGrid()
+subsample = vtkVoxelGrid()
 subsample.SetInputConnection(points.GetOutputPort())
 subsample.SetConfigurationStyleToManual()
 subsample.SetDivisions(47,47,47)
 
 # Time execution
-timer = vtk.vtkTimerLog()
+timer = vtkTimerLog()
 timer.StartTimer()
 subsample.Update()
 timer.StopTimer()
@@ -36,53 +53,53 @@ print("   Original number of points: {0}".format(NPts))
 print("   Final number of points: {0}".format(subsample.GetOutput().GetNumberOfPoints()))
 
 # Output the original points
-subMapper = vtk.vtkPointGaussianMapper()
+subMapper = vtkPointGaussianMapper()
 subMapper.SetInputConnection(points.GetOutputPort())
 subMapper.EmissiveOff()
 subMapper.SetScaleFactor(0.0)
 
-subActor = vtk.vtkActor()
+subActor = vtkActor()
 subActor.SetMapper(subMapper)
 
 # Create an outline
-outline = vtk.vtkOutlineFilter()
+outline = vtkOutlineFilter()
 outline.SetInputConnection(points.GetOutputPort())
 
-outlineMapper = vtk.vtkPolyDataMapper()
+outlineMapper = vtkPolyDataMapper()
 outlineMapper.SetInputConnection(outline.GetOutputPort())
 
-outlineActor = vtk.vtkActor()
+outlineActor = vtkActor()
 outlineActor.SetMapper(outlineMapper)
 
 # Output the subsampled points
-subMapper1 = vtk.vtkPointGaussianMapper()
+subMapper1 = vtkPointGaussianMapper()
 subMapper1.SetInputConnection(subsample.GetOutputPort())
 subMapper1.EmissiveOff()
 subMapper1.SetScaleFactor(0.0)
 
-subActor1 = vtk.vtkActor()
+subActor1 = vtkActor()
 subActor1.SetMapper(subMapper1)
 
 # Create an outline
-outline1 = vtk.vtkOutlineFilter()
+outline1 = vtkOutlineFilter()
 outline1.SetInputConnection(points.GetOutputPort())
 
-outlineMapper1 = vtk.vtkPolyDataMapper()
+outlineMapper1 = vtkPolyDataMapper()
 outlineMapper1.SetInputConnection(outline1.GetOutputPort())
 
-outlineActor1 = vtk.vtkActor()
+outlineActor1 = vtkActor()
 outlineActor1.SetMapper(outlineMapper1)
 
 # Create the RenderWindow, Renderer and both Actors
 #
-ren0 = vtk.vtkRenderer()
+ren0 = vtkRenderer()
 ren0.SetViewport(0,0,.5,1)
-ren1 = vtk.vtkRenderer()
+ren1 = vtkRenderer()
 ren1.SetViewport(0.5,0,1,1)
-renWin = vtk.vtkRenderWindow()
+renWin = vtkRenderWindow()
 renWin.AddRenderer(ren0)
 renWin.AddRenderer(ren1)
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 
 # Add the actors to the renderer, set the background and size
