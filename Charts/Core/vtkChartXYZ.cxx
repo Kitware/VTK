@@ -1223,11 +1223,11 @@ bool vtkChartXYZ::Rotate(const vtkContextMouseEvent& mouse)
   }
 
   // Figure out how much the mouse has moved in plot coordinates
-  vtkVector2d screenPos(mouse.GetScreenPos().Cast<double>().GetData());
-  vtkVector2d lastScreenPos(mouse.GetLastScreenPos().Cast<double>().GetData());
+  vtkVector2d scenePos(mouse.GetScenePos().Cast<double>().GetData());
+  vtkVector2d lastScenePos(mouse.GetLastScenePos().Cast<double>().GetData());
 
-  double dx = screenPos[0] - lastScreenPos[0];
-  double dy = screenPos[1] - lastScreenPos[1];
+  double dx = scenePos[0] - lastScenePos[0];
+  double dy = scenePos[1] - lastScenePos[1];
 
   double delta_elevation = -20.0 / this->Scene->GetSceneHeight();
   double delta_azimuth = -20.0 / this->Scene->GetSceneWidth();
@@ -1279,11 +1279,11 @@ bool vtkChartXYZ::Rotate(const RotateDirection rotateDirection)
 bool vtkChartXYZ::Pan(const vtkContextMouseEvent& mouse)
 {
   // Figure out how much the mouse has moved in plot coordinates
-  vtkVector2d screenPos(mouse.GetScreenPos().Cast<double>().GetData());
-  vtkVector2d lastScreenPos(mouse.GetLastScreenPos().Cast<double>().GetData());
+  vtkVector2d scenePos(mouse.GetScenePos().Cast<double>().GetData());
+  vtkVector2d lastScenePos(mouse.GetLastScenePos().Cast<double>().GetData());
 
-  double dx = (screenPos[0] - lastScreenPos[0]);
-  double dy = (screenPos[1] - lastScreenPos[1]);
+  double dx = (scenePos[0] - lastScenePos[0]);
+  double dy = (scenePos[1] - lastScenePos[1]);
 
   this->Translation->Translate(dx, dy, 0.0);
 
@@ -1298,13 +1298,13 @@ bool vtkChartXYZ::Pan(const vtkContextMouseEvent& mouse)
 bool vtkChartXYZ::Zoom(const vtkContextMouseEvent& mouse)
 {
   // Figure out how much the mouse has moved and scale accordingly
-  vtkVector2d screenPos(mouse.GetScreenPos().Cast<double>().GetData());
-  vtkVector2d lastScreenPos(mouse.GetLastScreenPos().Cast<double>().GetData());
+  vtkVector2d scenePos(mouse.GetScenePos().Cast<double>().GetData());
+  vtkVector2d lastScenePos(mouse.GetLastScenePos().Cast<double>().GetData());
 
   float delta = 0.0f;
   if (this->Scene->GetSceneHeight() > 0)
   {
-    delta = static_cast<float>(mouse.GetLastScreenPos()[1] - mouse.GetScreenPos()[1]) /
+    delta = static_cast<float>(mouse.GetLastScenePos()[1] - mouse.GetScenePos()[1]) /
       this->Scene->GetSceneHeight();
   }
 
@@ -1323,11 +1323,11 @@ bool vtkChartXYZ::Zoom(const vtkContextMouseEvent& mouse)
 bool vtkChartXYZ::Spin(const vtkContextMouseEvent& mouse)
 {
   // Figure out how much the mouse has moved in plot coordinates
-  vtkVector2d screenPos(mouse.GetScreenPos().Cast<double>().GetData());
-  vtkVector2d lastScreenPos(mouse.GetLastScreenPos().Cast<double>().GetData());
+  vtkVector2d scenePos(mouse.GetScenePos().Cast<double>().GetData());
+  vtkVector2d lastScenePos(mouse.GetLastScenePos().Cast<double>().GetData());
 
-  double newAngle = vtkMath::DegreesFromRadians(atan2(screenPos[1], screenPos[0]));
-  double oldAngle = vtkMath::DegreesFromRadians(atan2(lastScreenPos[1], lastScreenPos[0]));
+  double newAngle = vtkMath::DegreesFromRadians(atan2(scenePos[1], scenePos[0]));
+  double oldAngle = vtkMath::DegreesFromRadians(atan2(lastScenePos[1], lastScenePos[0]));
 
   this->Rotation->RotateZ(-(newAngle - oldAngle));
 

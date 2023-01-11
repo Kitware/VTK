@@ -120,39 +120,39 @@ int TestChartXYZUnconstrained(int, char*[])
 
   vtkContextMouseEvent mouseEvent;
   mouseEvent.SetInteractor(view->GetInteractor());
-  vtkVector2i pos;
-  vtkVector2i lastPos;
+  vtkVector2f pos;
+  vtkVector2f lastPos;
 
   // rotate
   mouseEvent.SetButton(vtkContextMouseEvent::LEFT_BUTTON);
   lastPos.Set(114, 55);
-  mouseEvent.SetLastScreenPos(lastPos);
+  mouseEvent.SetLastScenePos(lastPos);
   pos.Set(174, 121);
-  mouseEvent.SetScreenPos(pos);
+  mouseEvent.SetScenePos(pos);
 
   vtkVector2d sP(pos.Cast<double>().GetData());
   vtkVector2d lSP(lastPos.Cast<double>().GetData());
 
-  vtkVector2d screenPos(mouseEvent.GetScreenPos().Cast<double>().GetData());
-  vtkVector2d lastScreenPos(mouseEvent.GetLastScreenPos().Cast<double>().GetData());
+  vtkVector2d scenePos(mouseEvent.GetScenePos().Cast<double>().GetData());
+  vtkVector2d lastScenePos(mouseEvent.GetLastScenePos().Cast<double>().GetData());
   chart->MouseMoveEvent(mouseEvent);
 
   // spin
   mouseEvent.SetButton(vtkContextMouseEvent::LEFT_BUTTON);
   mouseEvent.GetInteractor()->SetShiftKey(1);
   lastPos.Set(0, 0);
-  mouseEvent.SetLastScreenPos(lastPos);
+  mouseEvent.SetLastScenePos(lastPos);
   pos.Set(20, 10);
-  mouseEvent.SetScreenPos(pos);
+  mouseEvent.SetScenePos(pos);
   chart->MouseMoveEvent(mouseEvent);
 
   // zoom
   mouseEvent.SetButton(vtkContextMouseEvent::RIGHT_BUTTON);
   mouseEvent.GetInteractor()->SetShiftKey(0);
   lastPos.Set(0, 0);
-  mouseEvent.SetLastScreenPos(lastPos);
+  mouseEvent.SetLastScenePos(lastPos);
   pos.Set(0, 10);
-  mouseEvent.SetScreenPos(pos);
+  mouseEvent.SetScenePos(pos);
   chart->MouseMoveEvent(mouseEvent);
 
   // mouse wheel zoom
@@ -162,9 +162,9 @@ int TestChartXYZUnconstrained(int, char*[])
   mouseEvent.SetButton(vtkContextMouseEvent::RIGHT_BUTTON);
   mouseEvent.GetInteractor()->SetShiftKey(1);
   lastPos.Set(0, 0);
-  mouseEvent.SetLastScreenPos(lastPos);
+  mouseEvent.SetLastScenePos(lastPos);
   pos.Set(100, 100);
-  mouseEvent.SetScreenPos(pos);
+  mouseEvent.SetScenePos(pos);
   chart->MouseMoveEvent(mouseEvent);
 
   view->GetRenderWindow()->Render();

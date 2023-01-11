@@ -489,8 +489,10 @@ void vtkContextInteractorStyle::OnKeyRelease()
 inline void vtkContextInteractorStyle::ConstructMouseEvent(vtkContextMouseEvent& event, int button)
 {
   event.SetInteractor(this->Interactor);
-  event.SetPos(
-    vtkVector2f(this->Interactor->GetEventPosition()[0], this->Interactor->GetEventPosition()[1]));
+  event.SetScreenPos(vtkVector2i(this->Interactor->GetEventPosition()));
+  event.SetScenePos(vtkVector2f(event.GetScreenPos()[0] - this->Scene->GetSceneLeft(),
+    event.GetScreenPos()[1] - this->Scene->GetSceneBottom()));
+  event.SetPos(event.GetScenePos());
   event.SetButton(button);
 }
 VTK_ABI_NAMESPACE_END

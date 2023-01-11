@@ -70,6 +70,8 @@ vtkContextScene::vtkContextScene()
   this->AnnotationLink = nullptr;
   this->Geometry[0] = 0;
   this->Geometry[1] = 0;
+  this->Origin[0] = 0;
+  this->Origin[1] = 0;
   this->BufferId = nullptr;
   this->BufferIdDirty = true;
   this->BufferIdSupportTested = false;
@@ -222,6 +224,18 @@ int vtkContextScene::GetViewHeight()
   {
     return 0;
   }
+}
+
+//------------------------------------------------------------------------------
+int vtkContextScene::GetSceneLeft()
+{
+  return this->Origin[0];
+}
+
+//------------------------------------------------------------------------------
+int vtkContextScene::GetSceneBottom()
+{
+  return this->Origin[1];
 }
 
 //------------------------------------------------------------------------------
@@ -665,9 +679,9 @@ inline bool vtkContextScene::ProcessItem(
 inline void vtkContextScene::EventCopy(const vtkContextMouseEvent& e)
 {
   vtkContextMouseEvent& event = this->Storage->Event;
+  event.SetScreenPos(e.GetScreenPos());
+  event.SetScenePos(e.GetScenePos());
   event.SetPos(e.GetPos());
-  event.SetScreenPos(vtkVector2i(e.GetPos().Cast<int>().GetData()));
-  event.SetScenePos(e.GetPos());
   event.SetInteractor(e.GetInteractor());
 }
 

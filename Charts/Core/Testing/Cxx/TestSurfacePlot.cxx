@@ -71,18 +71,18 @@ int TestSurfacePlot(int, char*[])
   // rotate
   vtkContextMouseEvent mouseEvent;
   mouseEvent.SetInteractor(view->GetInteractor());
-  vtkVector2i pos;
-  vtkVector2i lastPos;
+  vtkVector2f pos;
+  vtkVector2f lastPos;
 
   mouseEvent.SetButton(vtkContextMouseEvent::LEFT_BUTTON);
   lastPos.Set(100, 50);
-  mouseEvent.SetLastScreenPos(lastPos);
+  mouseEvent.SetLastScenePos(lastPos);
   pos.Set(150, 100);
-  mouseEvent.SetScreenPos(pos);
+  mouseEvent.SetScenePos(pos);
   vtkVector2d sP(pos.Cast<double>().GetData());
   vtkVector2d lSP(lastPos.Cast<double>().GetData());
-  vtkVector2d screenPos(mouseEvent.GetScreenPos().Cast<double>().GetData());
-  vtkVector2d lastScreenPos(mouseEvent.GetLastScreenPos().Cast<double>().GetData());
+  vtkVector2d scenePos(mouseEvent.GetScenePos().Cast<double>().GetData());
+  vtkVector2d lastScenePos(mouseEvent.GetLastScenePos().Cast<double>().GetData());
   chart->MouseMoveEvent(mouseEvent);
 
   view->GetInteractor()->Start();

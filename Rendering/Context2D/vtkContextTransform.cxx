@@ -133,10 +133,10 @@ bool vtkContextTransform::MouseButtonPressEvent(const vtkContextMouseEvent& mous
       mouse.GetModifiers() == this->SecondaryZoomModifier))
   {
     // Determine anchor to zoom in on
-    vtkVector2d screenPos(mouse.GetScreenPos().Cast<double>().GetData());
+    vtkVector2d scenePos(mouse.GetScenePos().Cast<double>().GetData());
     vtkVector2d pos(0.0, 0.0);
     vtkTransform2D* transform = this->GetTransform();
-    transform->InverseTransformPoints(screenPos.GetData(), pos.GetData(), 1);
+    transform->InverseTransformPoints(scenePos.GetData(), pos.GetData(), 1);
     this->ZoomAnchor = vtkVector2f(pos.Cast<float>().GetData());
     return true;
   }
@@ -157,15 +157,15 @@ bool vtkContextTransform::MouseMoveEvent(const vtkContextMouseEvent& mouse)
       mouse.GetModifiers() == this->SecondaryPanModifier))
   {
     // Figure out how much the mouse has moved by in plot coordinates - pan
-    vtkVector2d screenPos(mouse.GetScreenPos().Cast<double>().GetData());
-    vtkVector2d lastScreenPos(mouse.GetLastScreenPos().Cast<double>().GetData());
+    vtkVector2d scenePos(mouse.GetScenePos().Cast<double>().GetData());
+    vtkVector2d lastScenePos(mouse.GetLastScenePos().Cast<double>().GetData());
     vtkVector2d pos(0.0, 0.0);
     vtkVector2d last(0.0, 0.0);
 
-    // Go from screen to scene coordinates to work out the delta
+    // Go from scene to plot coordinates to work out the delta
     vtkTransform2D* transform = this->GetTransform();
-    transform->InverseTransformPoints(screenPos.GetData(), pos.GetData(), 1);
-    transform->InverseTransformPoints(lastScreenPos.GetData(), last.GetData(), 1);
+    transform->InverseTransformPoints(scenePos.GetData(), pos.GetData(), 1);
+    transform->InverseTransformPoints(lastScenePos.GetData(), last.GetData(), 1);
     vtkVector2f delta((last - pos).Cast<float>().GetData());
     this->Translate(-delta[0], -delta[1]);
 
@@ -185,7 +185,7 @@ bool vtkContextTransform::MouseMoveEvent(const vtkContextMouseEvent& mouse)
     float delta = 0.0f;
     if (this->Scene->GetSceneHeight() > 0)
     {
-      delta = static_cast<float>(mouse.GetLastScreenPos()[1] - mouse.GetScreenPos()[1]) /
+      delta = static_cast<float>(mouse.GetLastScenePos()[1] - mouse.GetScenePos()[1]) /
         this->Scene->GetSceneHeight();
     }
 
@@ -216,10 +216,10 @@ bool vtkContextTransform::MouseWheelEvent(const vtkContextMouseEvent& mouse, int
   if (this->ZoomOnMouseWheel)
   {
     // Determine current position to zoom in on
-    vtkVector2d screenPos(mouse.GetScreenPos().Cast<double>().GetData());
+    vtkVector2d scenePos(mouse.GetScenePos().Cast<double>().GetData());
     vtkVector2d pos(0.0, 0.0);
     vtkTransform2D* transform = this->GetTransform();
-    transform->InverseTransformPoints(screenPos.GetData(), pos.GetData(), 1);
+    transform->InverseTransformPoints(scenePos.GetData(), pos.GetData(), 1);
     vtkVector2f zoomAnchor = vtkVector2f(pos.Cast<float>().GetData());
 
     // Ten "wheels" to double/halve zoom level

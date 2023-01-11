@@ -127,13 +127,13 @@ bool vtkTooltipItem::Paint(vtkContext2D* painter)
   bounds[0] = vtkVector2f(
     this->PositionVector.GetX() - 5 / scale[0], this->PositionVector.GetY() - 3 / scale[1]);
   bounds[1].Set(bounds[1].GetX() + 10 / scale[0], bounds[1].GetY() + 10 / scale[1]);
-  // Pull the tooltip back in if it will go off the edge of the screen.
-  float maxX = (this->Scene->GetViewWidth() - position[0]) / scale[0];
+  // Pull the tooltip back in if it will go off the edge of the scene.
+  float maxX = (this->Scene->GetSceneWidth() - position[0]) / scale[0];
   if (bounds[0].GetX() >= maxX - bounds[1].GetX())
   {
     bounds[0].SetX(maxX - bounds[1].GetX());
   }
-  float maxY = (this->Scene->GetViewHeight() - position[1]) / scale[1];
+  float maxY = (this->Scene->GetSceneHeight() - position[1]) / scale[1];
   if (bounds[0].GetY() >= maxY - bounds[1].GetY())
   {
     bounds[0].SetY(maxY - bounds[1].GetY());

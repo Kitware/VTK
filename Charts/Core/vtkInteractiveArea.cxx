@@ -108,7 +108,7 @@ bool vtkInteractiveArea::Hit(const vtkContextMouseEvent& mouse)
     return false;
   }
 
-  vtkVector2i const pos(mouse.GetScreenPos());
+  vtkVector2f const pos(mouse.GetScenePos());
   vtkVector2i const bottomLeft = this->DrawAreaGeometry.GetBottomLeft();
   vtkVector2i const topRight = this->DrawAreaGeometry.GetTopRight();
 
@@ -139,8 +139,8 @@ bool vtkInteractiveArea::MouseMoveEvent(const vtkContextMouseEvent& mouse)
   if (mouse.GetButton() == this->Actions->Pan())
   {
     // Figure out how much the mouse has moved by in plot coordinates - pan
-    vtkVector2d screenPos(mouse.GetScreenPos().Cast<double>().GetData());
-    vtkVector2d lastScreenPos(mouse.GetLastScreenPos().Cast<double>().GetData());
+    vtkVector2d scenePos(mouse.GetScenePos().Cast<double>().GetData());
+    vtkVector2d lastScenePos(mouse.GetLastScenePos().Cast<double>().GetData());
     vtkVector2d pos(0.0, 0.0);
     vtkVector2d last(0.0, 0.0);
 
@@ -148,8 +148,8 @@ bool vtkInteractiveArea::MouseMoveEvent(const vtkContextMouseEvent& mouse)
     vtkAxis* xAxis = this->BottomAxis;
     vtkAxis* yAxis = this->LeftAxis;
     vtkTransform2D* transform = this->Transform->GetTransform();
-    transform->InverseTransformPoints(screenPos.GetData(), pos.GetData(), 1);
-    transform->InverseTransformPoints(lastScreenPos.GetData(), last.GetData(), 1);
+    transform->InverseTransformPoints(scenePos.GetData(), pos.GetData(), 1);
+    transform->InverseTransformPoints(lastScenePos.GetData(), last.GetData(), 1);
     vtkVector2d delta = last - pos;
     delta[0] /= xAxis->GetScalingFactor();
     delta[1] /= yAxis->GetScalingFactor();
