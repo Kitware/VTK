@@ -1,6 +1,30 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonCore import vtkPoints
+from vtkmodules.vtkCommonDataModel import (
+    vtkCellArray,
+    vtkPolyData,
+)
+from vtkmodules.vtkCommonColor import vtkNamedColors
+from vtkmodules.vtkCommonComputationalGeometry import (
+    vtkCardinalSpline,
+    vtkKochanekSpline,
+)
+from vtkmodules.vtkFiltersCore import (
+    vtkGlyph3D,
+    vtkTubeFilter,
+)
+from vtkmodules.vtkFiltersSources import vtkSphereSource
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 def GetRGBColor(colorName):
@@ -9,38 +33,38 @@ def GetRGBColor(colorName):
         color as doubles.
     '''
     rgb = [0.0, 0.0, 0.0]  # black
-    vtk.vtkNamedColors().GetColorRGB(colorName, rgb)
+    vtkNamedColors().GetColorRGB(colorName, rgb)
     return rgb
 
 # get the interactor ui
 # Now create the RenderWindow, Renderer and Interactor
 #
-ren1 = vtk.vtkRenderer()
-renWin = vtk.vtkRenderWindow()
+ren1 = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.AddRenderer(ren1)
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 
-# math = vtk.vtkMath()
+# math = vtkMath()
 
 numberOfInputPoints = 30
 
-aKSplineX = vtk.vtkKochanekSpline()
+aKSplineX = vtkKochanekSpline()
 aKSplineX.ClosedOn()
-aKSplineY = vtk.vtkKochanekSpline()
+aKSplineY = vtkKochanekSpline()
 aKSplineY.ClosedOn()
-aKSplineZ = vtk.vtkKochanekSpline()
+aKSplineZ = vtkKochanekSpline()
 aKSplineZ.ClosedOn()
 
-aCSplineX = vtk.vtkCardinalSpline()
+aCSplineX = vtkCardinalSpline()
 aCSplineX.ClosedOn()
-aCSplineY = vtk.vtkCardinalSpline()
+aCSplineY = vtkCardinalSpline()
 aCSplineY.ClosedOn()
-aCSplineZ = vtk.vtkCardinalSpline()
+aCSplineZ = vtkCardinalSpline()
 aCSplineZ.ClosedOn()
 
 # add some points
-inputPoints = vtk.vtkPoints()
+inputPoints = vtkPoints()
 x = -1.0
 y = -1.0
 z = 0.0
@@ -85,22 +109,22 @@ aCSplineY.AddPoint(3, y)
 aCSplineZ.AddPoint(3, z)
 inputPoints.InsertPoint(3, x, y, z)
 
-inputData = vtk.vtkPolyData()
+inputData = vtkPolyData()
 inputData.SetPoints(inputPoints)
 
-balls = vtk.vtkSphereSource()
+balls = vtkSphereSource()
 balls.SetRadius(.04)
 balls.SetPhiResolution(10)
 balls.SetThetaResolution(10)
 
-glyphPoints = vtk.vtkGlyph3D()
+glyphPoints = vtkGlyph3D()
 glyphPoints.SetInputData(inputData)
 glyphPoints.SetSourceConnection(balls.GetOutputPort())
 
-glyphMapper = vtk.vtkPolyDataMapper()
+glyphMapper = vtkPolyDataMapper()
 glyphMapper.SetInputConnection(glyphPoints.GetOutputPort())
 
-glyph = vtk.vtkActor()
+glyph = vtkActor()
 glyph.SetMapper(glyphMapper)
 glyph.GetProperty().SetDiffuseColor(GetRGBColor('tomato'))
 glyph.GetProperty().SetSpecular(.3)
@@ -108,10 +132,10 @@ glyph.GetProperty().SetSpecularPower(30)
 
 ren1.AddActor(glyph)
 
-Kpoints = vtk.vtkPoints()
-Cpoints = vtk.vtkPoints()
-profileKData = vtk.vtkPolyData()
-profileCData = vtk.vtkPolyData()
+Kpoints = vtkPoints()
+Cpoints = vtkPoints()
+profileKData = vtkPolyData()
+profileCData = vtkPolyData()
 
 numberOfInputPoints = 5
 numberOfOutputPoints = 100
@@ -132,7 +156,7 @@ def fit ():
 
 fit()
 
-lines = vtk.vtkCellArray()
+lines = vtkCellArray()
 lines.InsertNextCell(numberOfOutputPoints)
 
 i = 0
@@ -145,15 +169,15 @@ profileKData.SetLines(lines)
 profileCData.SetPoints(Cpoints)
 profileCData.SetLines(lines)
 
-profileKTubes = vtk.vtkTubeFilter()
+profileKTubes = vtkTubeFilter()
 profileKTubes.SetNumberOfSides(8)
 profileKTubes.SetInputData(profileKData)
 profileKTubes.SetRadius(.01)
 
-profileKMapper = vtk.vtkPolyDataMapper()
+profileKMapper = vtkPolyDataMapper()
 profileKMapper.SetInputConnection(profileKTubes.GetOutputPort())
 
-profileK = vtk.vtkActor()
+profileK = vtkActor()
 profileK.SetMapper(profileKMapper)
 profileK.GetProperty().SetDiffuseColor(GetRGBColor('banana'))
 profileK.GetProperty().SetSpecular(.3)
@@ -161,15 +185,15 @@ profileK.GetProperty().SetSpecularPower(30)
 
 ren1.AddActor(profileK)
 
-profileCTubes = vtk.vtkTubeFilter()
+profileCTubes = vtkTubeFilter()
 profileCTubes.SetNumberOfSides(8)
 profileCTubes.SetInputData(profileCData)
 profileCTubes.SetRadius(.01)
 
-profileCMapper = vtk.vtkPolyDataMapper()
+profileCMapper = vtkPolyDataMapper()
 profileCMapper.SetInputConnection(profileCTubes.GetOutputPort())
 
-profileC = vtk.vtkActor()
+profileC = vtkActor()
 profileC.SetMapper(profileCMapper)
 profileC.GetProperty().SetDiffuseColor(GetRGBColor('peacock'))
 profileC.GetProperty().SetSpecular(.3)

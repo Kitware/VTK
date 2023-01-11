@@ -1,7 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import vtk
+from vtkmodules.vtkCommonCore import (
+    vtkMath,
+    vtkPoints,
+)
+from vtkmodules.vtkCommonDataModel import vtkBoundingBox
+from vtkmodules.vtkCommonSystem import vtkTimerLog
 import sys
 
 # Test speed, serial versus threaded, of compute bounds in
@@ -10,8 +15,8 @@ import sys
 # Control model size
 baseSize = 1000
 threadingCrossover = 750000
-timer = vtk.vtkTimerLog()
-math = vtk.vtkMath()
+timer = vtkTimerLog()
+math = vtkMath()
 
 # Uncomment if you want to use as a little interactive program
 #if len(sys.argv) >= 2 :
@@ -27,7 +32,7 @@ math = vtk.vtkMath()
 # for smaller data, versus a threaded computation for larger data, due to the
 # cost of spinning up threads.)
 
-serialPoints = vtk.vtkPoints()
+serialPoints = vtkPoints()
 serialPoints.SetDataTypeToDouble()
 serialPoints.SetNumberOfPoints(threadingCrossover - baseSize)
 numSerialPts = threadingCrossover - baseSize;
@@ -36,7 +41,7 @@ for i in range(0,numSerialPts):
                           math.Random(-1.0,1.0),
                           math.Random(-1.0,1.0))
 
-threadedPoints = vtk.vtkPoints()
+threadedPoints = vtkPoints()
 threadedPoints.SetDataTypeToDouble()
 threadedPoints.SetNumberOfPoints(threadingCrossover + baseSize)
 numThreadedPts = threadingCrossover - baseSize;
@@ -48,7 +53,7 @@ for i in range(0,numThreadedPts):
 serialBox = [0.0,0.0,0.0,0.0,0.0,0.0]
 threadedBox = [0.0,0.0,0.0,0.0,0.0,0.0]
 
-bbox = vtk.vtkBoundingBox()
+bbox = vtkBoundingBox()
 timer.StartTimer()
 bbox.ComputeBounds(serialPoints,serialBox)
 timer.StopTimer()

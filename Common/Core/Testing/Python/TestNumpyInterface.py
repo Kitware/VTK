@@ -1,48 +1,66 @@
 import sys
-import vtk.test.Testing
+import vtkmodules.test.Testing
 
 try:
     import numpy
 except ImportError:
     print("Numpy (http://numpy.scipy.org) not found.")
     print("This test requires numpy!")
-    vtk.test.Testing.skip()
+    vtkmodules.test.Testing.skip()
 
-import vtk
-import vtk.numpy_interface.dataset_adapter as dsa
-import vtk.numpy_interface.algorithms as algs
+from vtkmodules.vtkCommonCore import (
+    vtkFloatArray,
+    vtkPoints,
+)
+from vtkmodules.vtkCommonDataModel import (
+    vtkDataSetAttributes,
+    vtkImageData,
+    vtkMultiBlockDataSet,
+    vtkPolyData,
+    vtkStructuredGrid,
+    vtkTable,
+)
+from vtkmodules.vtkFiltersCore import vtkElevationFilter
+from vtkmodules.vtkFiltersGeneral import (
+    vtkBrownianPoints,
+    vtkMultiBlockDataGroupFilter,
+)
+from vtkmodules.vtkFiltersSources import vtkSphereSource
+from vtkmodules.vtkImagingCore import vtkRTAnalyticSource
+import vtkmodules.numpy_interface.dataset_adapter as dsa
+import vtkmodules.numpy_interface.algorithms as algs
 
-w = vtk.vtkRTAnalyticSource()
+w = vtkRTAnalyticSource()
 
-bp = vtk.vtkBrownianPoints()
+bp = vtkBrownianPoints()
 bp.SetInputConnection(w.GetOutputPort())
 bp.Update()
 
-elev = vtk.vtkElevationFilter()
+elev = vtkElevationFilter()
 elev.SetInputConnection(bp.GetOutputPort())
 elev.SetLowPoint(-10, 0, 0)
 elev.SetHighPoint(10, 0, 0)
 elev.SetScalarRange(0, 20)
 
-g = vtk.vtkMultiBlockDataGroupFilter()
+g = vtkMultiBlockDataGroupFilter()
 g.AddInputConnection(elev.GetOutputPort())
 g.AddInputConnection(elev.GetOutputPort())
 
 g.Update()
 
-elev2 = vtk.vtkElevationFilter()
+elev2 = vtkElevationFilter()
 elev2.SetInputConnection(bp.GetOutputPort())
 elev2.SetLowPoint(0, -10, 0)
 elev2.SetHighPoint(0, 10, 0)
 elev2.SetScalarRange(0, 20)
 
-g2 = vtk.vtkMultiBlockDataGroupFilter()
+g2 = vtkMultiBlockDataGroupFilter()
 g2.AddInputConnection(elev2.GetOutputPort())
 g2.AddInputConnection(elev2.GetOutputPort())
 
 g2.Update()
 
-elev3 = vtk.vtkElevationFilter()
+elev3 = vtkElevationFilter()
 elev3.SetInputConnection(bp.GetOutputPort())
 elev3.SetLowPoint(0, 0, -10)
 elev3.SetHighPoint(0, 0, 10)
@@ -50,21 +68,21 @@ elev3.SetScalarRange(0, 20)
 
 elev3.Update()
 
-dobj = vtk.vtkImageData()
+dobj = vtkImageData()
 dobj.DeepCopy(elev3.GetOutput())
 ds1 = dsa.WrapDataObject(dobj)
 elev_copy = numpy.copy(ds1.PointData['Elevation'])
 elev_copy[1] = numpy.nan
 ghosts = numpy.zeros(ds1.GetNumberOfPoints(), dtype=numpy.uint8)
-ghosts[1] = vtk.vtkDataSetAttributes.DUPLICATEPOINT
-ds1.PointData.append(ghosts, vtk.vtkDataSetAttributes.GhostArrayName())
-assert algs.make_point_mask_from_NaNs(ds1, elev_copy)[1] == vtk.vtkDataSetAttributes.DUPLICATEPOINT | vtk.vtkDataSetAttributes.HIDDENPOINT
+ghosts[1] = vtkDataSetAttributes.DUPLICATEPOINT
+ds1.PointData.append(ghosts, vtkDataSetAttributes.GhostArrayName())
+assert algs.make_point_mask_from_NaNs(ds1, elev_copy)[1] == vtkDataSetAttributes.DUPLICATEPOINT | vtkDataSetAttributes.HIDDENPOINT
 
 cell_array = numpy.zeros(ds1.GetNumberOfCells())
 cell_array[1] = numpy.nan
-assert algs.make_cell_mask_from_NaNs(ds1, cell_array)[1] == vtk.vtkDataSetAttributes.HIDDENCELL
+assert algs.make_cell_mask_from_NaNs(ds1, cell_array)[1] == vtkDataSetAttributes.HIDDENCELL
 
-g3 = vtk.vtkMultiBlockDataGroupFilter()
+g3 = vtkMultiBlockDataGroupFilter()
 g3.AddInputConnection(elev3.GetOutputPort())
 g3.AddInputConnection(elev3.GetOutputPort())
 
@@ -134,19 +152,19 @@ assert algs.all(algs.bitwise_or(comp_array1, dsa.NoneArray) == comp_array1)
 assert algs.all(algs.bitwise_or(dsa.NoneArray, comp_array1) == comp_array1)
 assert algs.all(algs.bitwise_or(comp_array1, comp_array3) == dsa.VTKCompositeDataArray([algs.bitwise_or(int_array1, int_array2), int_array2]))
 
-ssource = vtk.vtkSphereSource()
+ssource = vtkSphereSource()
 ssource.Update()
 
 output = ssource.GetOutput()
 
-fd = vtk.vtkFloatArray()
+fd = vtkFloatArray()
 fd.SetNumberOfTuples(11)
 fd.FillComponent(0, 5)
 fd.SetName("field array")
 
 output.GetFieldData().AddArray(fd)
 
-g2 = vtk.vtkMultiBlockDataGroupFilter()
+g2 = vtkMultiBlockDataGroupFilter()
 g2.AddInputData(output)
 g2.AddInputData(output)
 
@@ -194,7 +212,7 @@ assert algs.cross(na, v.Arrays[0]) is na
 
 assert algs.make_vector(na, g[:,0], elev) is na
 
-pd = vtk.vtkPolyData()
+pd = vtkPolyData()
 pdw = dsa.WrapDataObject(pd)
 pdw.PointData.append(na, 'foo')
 assert pdw.PointData.GetNumberOfArrays() == 0
@@ -224,9 +242,9 @@ assert algs.make_vector(na2[:, 0], elev, elev).Arrays[1] is na
 assert algs.make_vector(elev, elev, na2[:, 0]).Arrays[1] is na
 assert algs.make_vector(elev, na2[:, 0], elev).Arrays[1] is na
 
-mb = vtk.vtkMultiBlockDataSet()
+mb = vtkMultiBlockDataSet()
 mb.SetBlock(0, pd)
-pd2 = vtk.vtkPolyData()
+pd2 = vtkPolyData()
 mb.SetBlock(1, pd2)
 mbw = dsa.WrapDataObject(mb)
 
@@ -246,27 +264,27 @@ assert mbw.GetBlock(0).GetPointData().GetArray(1).GetName() == 'maxfoo'
 
 # --------------------------------------
 
-mb = vtk.vtkMultiBlockDataSet()
-mb.SetBlock(0, vtk.vtkImageData())
-mb.SetBlock(1, vtk.vtkImageData())
+mb = vtkMultiBlockDataSet()
+mb.SetBlock(0, vtkImageData())
+mb.SetBlock(1, vtkImageData())
 assert dsa.WrapDataObject(mb).Points is na
 
-mb = vtk.vtkMultiBlockDataSet()
-mb.SetBlock(0, vtk.vtkStructuredGrid())
-mb.SetBlock(1, vtk.vtkImageData())
+mb = vtkMultiBlockDataSet()
+mb.SetBlock(0, vtkStructuredGrid())
+mb.SetBlock(1, vtkImageData())
 assert dsa.WrapDataObject(mb).Points is na
 
-mb = vtk.vtkMultiBlockDataSet()
-sg = vtk.vtkStructuredGrid()
-sg.SetPoints(vtk.vtkPoints())
+mb = vtkMultiBlockDataSet()
+sg = vtkStructuredGrid()
+sg.SetPoints(vtkPoints())
 mb.SetBlock(0, sg)
-mb.SetBlock(1, vtk.vtkImageData())
+mb.SetBlock(1, vtkImageData())
 assert dsa.WrapDataObject(mb).Points.Arrays[0] is not na
 assert dsa.WrapDataObject(mb).Points.Arrays[1] is na
 
 # --------------------------------------
 # try appending scalars
-ssource = vtk.vtkSphereSource()
+ssource = vtkSphereSource()
 ssource.Update()
 output = ssource.GetOutput()
 pdw = dsa.WrapDataObject(output)
@@ -276,7 +294,7 @@ pdw.PointData.append(12.12, "twelve-point-twelve")
 assert pdw.PointData.GetNumberOfArrays() == (2 + original_arrays)
 
 # create a table
-table = dsa.WrapDataObject(vtk.vtkTable())
+table = dsa.WrapDataObject(vtkTable())
 table.RowData.append(numpy.ones(5), "ones")
 table.RowData.append(2*numpy.ones(5), "twos")
 assert table.GetNumberOfRows() == 5

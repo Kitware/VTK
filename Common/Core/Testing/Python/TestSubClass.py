@@ -14,14 +14,22 @@ Created on Sept 26, 2010 by David Gobbi
 """
 
 import sys
-import vtk
-from vtk.test import Testing
+from vtkmodules.vtkCommonCore import (
+    vtkCollection,
+    vtkDataArray,
+    vtkIntArray,
+    vtkObject,
+    vtkObjectBase,
+    vtkPoints,
+)
+from vtkmodules.vtkFiltersSources import vtkSphereSource
+from vtkmodules.test import Testing
 
-class vtkCustomObject(vtk.vtkObject):
+class vtkCustomObject(vtkObject):
     def __init__(self, extra=None):
         """Initialize all attributes."""
         if extra is None:
-            extra = vtk.vtkObject()
+            extra = vtkObject()
         self._ExtraObject = extra
 
     def GetClassName(self):
@@ -35,7 +43,7 @@ class vtkCustomObject(vtk.vtkObject):
     def SetExtraObject(self, o):
         """Setter method."""
         # make sure it is "None" or a vtkobject instance
-        if o == None or isinstance(o, vtk.vtkObjectBase):
+        if o == None or isinstance(o, vtkObjectBase):
             self._ExtraObject = o
             self.Modified()
         else:
@@ -43,12 +51,12 @@ class vtkCustomObject(vtk.vtkObject):
 
     def GetMTime(self):
         """Override a method (only works when called from Python)"""
-        t = vtk.vtkObject.GetMTime(self)
+        t = vtkObject.GetMTime(self)
         if self._ExtraObject:
             t = max(t, self._ExtraObject.GetMTime())
         return t
 
-class vtkPointsCustom(vtk.vtkPoints):
+class vtkPointsCustom(vtkPoints):
     def __init__(self):
         self.some_attribute = "custom"
 
@@ -60,7 +68,7 @@ class TestSubclass(Testing.vtkTest):
 
     def testConstructorArgs(self):
         """Test the use of constructor arguments."""
-        extra = vtk.vtkObject()
+        extra = vtkObject()
         o = vtkCustomObject(extra)
         self.assertEqual(o.GetClassName(), "vtkCustomObject")
         self.assertEqual(id(o.GetExtraObject()), id(extra))
@@ -68,38 +76,38 @@ class TestSubclass(Testing.vtkTest):
     def testCallUnboundMethods(self):
         """Test calling an unbound method in an overridden method"""
         o = vtkCustomObject()
-        a = vtk.vtkIntArray()
+        a = vtkIntArray()
         o.SetExtraObject(a)
         a.Modified()
         # GetMTime should return a's mtime
         self.assertEqual(o.GetMTime(), a.GetMTime())
         # calling the vtkObject mtime should give a lower MTime
-        self.assertNotEqual(o.GetMTime(), vtk.vtkObject.GetMTime(o))
+        self.assertNotEqual(o.GetMTime(), vtkObject.GetMTime(o))
         # another couple quick unbound method check
-        vtk.vtkDataArray.InsertNextTuple1(a, 2)
+        vtkDataArray.InsertNextTuple1(a, 2)
         self.assertEqual(a.GetTuple1(0), 2)
 
     def testPythonRTTI(self):
         """Test the python isinstance and issubclass methods """
         o = vtkCustomObject()
-        d = vtk.vtkIntArray()
-        self.assertEqual(True, isinstance(o, vtk.vtkObjectBase))
-        self.assertEqual(True, isinstance(d, vtk.vtkObjectBase))
+        d = vtkIntArray()
+        self.assertEqual(True, isinstance(o, vtkObjectBase))
+        self.assertEqual(True, isinstance(d, vtkObjectBase))
         self.assertEqual(True, isinstance(o, vtkCustomObject))
         self.assertEqual(False, isinstance(d, vtkCustomObject))
-        self.assertEqual(False, isinstance(o, vtk.vtkDataArray))
-        self.assertEqual(True, issubclass(vtkCustomObject, vtk.vtkObject))
-        self.assertEqual(False, issubclass(vtk.vtkObject, vtkCustomObject))
-        self.assertEqual(False, issubclass(vtkCustomObject, vtk.vtkDataArray))
+        self.assertEqual(False, isinstance(o, vtkDataArray))
+        self.assertEqual(True, issubclass(vtkCustomObject, vtkObject))
+        self.assertEqual(False, issubclass(vtkObject, vtkCustomObject))
+        self.assertEqual(False, issubclass(vtkCustomObject, vtkDataArray))
 
     def testSubclassGhost(self):
         """Make sure ghosting of the class works"""
         o = vtkCustomObject()
-        c = vtk.vtkCollection()
+        c = vtkCollection()
         c.AddItem(o)
         i = id(o)
         del o
-        o = vtk.vtkObject()
+        o = vtkObject()
         o = c.GetItemAsObject(0)
         # make sure the id has changed, but class the same
         self.assertEqual(o.__class__, vtkCustomObject)
@@ -107,20 +115,20 @@ class TestSubclass(Testing.vtkTest):
 
     def testOverride(self):
         """Make sure that overwriting with a subclass works"""
-        self.assertFalse(isinstance(vtk.vtkPoints(), vtkPointsCustom))
+        self.assertFalse(isinstance(vtkPoints(), vtkPointsCustom))
         # check that object has the correct class
-        vtk.vtkPoints.override(vtkPointsCustom)
-        self.assertTrue(isinstance(vtk.vtkPoints(), vtkPointsCustom))
+        vtkPoints.override(vtkPointsCustom)
+        self.assertTrue(isinstance(vtkPoints(), vtkPointsCustom))
         # check object created deep in c++
-        source = vtk.vtkSphereSource()
+        source = vtkSphereSource()
         source.Update()
         points = source.GetOutput().GetPoints()
         self.assertTrue(isinstance(points, vtkPointsCustom))
         # check that __init__ is called
         self.assertEqual(points.some_attribute, "custom")
         # check that overrides can be removed
-        vtk.vtkPoints.override(None)
-        self.assertTrue(vtk.vtkPoints().__class__ == vtk.vtkPoints)
+        vtkPoints.override(None)
+        self.assertTrue(vtkPoints().__class__ == vtkPoints)
 
 if __name__ == "__main__":
     Testing.main([(TestSubclass, 'test')])

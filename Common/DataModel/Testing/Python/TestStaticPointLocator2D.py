@@ -1,9 +1,19 @@
 #!/usr/bin/env python
-import vtk
+from vtkmodules.vtkCommonCore import (
+    reference,
+    vtkIdList,
+    vtkMath,
+    vtkPoints,
+)
+from vtkmodules.vtkCommonDataModel import (
+    vtkPolyData,
+    vtkStaticPointLocator2D,
+)
+from vtkmodules.vtkCommonSystem import vtkTimerLog
 
 # create a test dataset
 #
-math = vtk.vtkMath()
+math = vtkMath()
 math.RandomSeed(314159)
 
 # Note: the bigger the data the better vtkStaticPointLocator performs
@@ -22,25 +32,25 @@ else:
     numProbes = 5000
 
 # Create an initial set of points and associated dataset
-points = vtk.vtkPoints()
+points = vtkPoints()
 points.SetDataTypeToDouble()
 points.SetNumberOfPoints(numPts)
 for i in range(0,numPts):
     points.SetPoint(i,math.Random(-1,1),math.Random(-1,1), 0.0)
 
-polydata = vtk.vtkPolyData()
+polydata = vtkPolyData()
 polydata.SetPoints(points)
 points.ComputeBounds()
 
 # Create points array which are positions to probe data with
 # FindClosestPoint(), We also create an array to hold the results of this
 # probe operation.
-probePoints = vtk.vtkPoints()
+probePoints = vtkPoints()
 probePoints.SetDataTypeToDouble()
 probePoints.SetNumberOfPoints(numProbes)
 for i in range (0,numProbes):
     probePoints.SetPoint(i,math.Random(-1,1),math.Random(-1,1), 0.0)
-staticClosest = vtk.vtkIdList()
+staticClosest = vtkIdList()
 staticClosest.SetNumberOfIds(numProbes)
 
 # Print initial statistics
@@ -49,12 +59,12 @@ print("\n")
 
 # StaticPointLocator
 # Time the creation of static point locator
-staticLocator = vtk.vtkStaticPointLocator2D()
+staticLocator = vtkStaticPointLocator2D()
 staticLocator.SetDataSet(polydata)
 staticLocator.SetNumberOfPointsPerBucket(5)
 staticLocator.AutomaticOn()
 
-staticTimer = vtk.vtkTimerLog()
+staticTimer = vtkTimerLog()
 staticTimer.StartTimer()
 staticLocator.BuildLocator()
 staticTimer.StopTimer()
@@ -72,7 +82,7 @@ print("    Static Closest point probing: {0}".format(staticOpTime))
 print("    Divisions: {0}".format( staticLocator.GetDivisions() ))
 
 # Poke other methods before deleting static locator class
-staticClosestN = vtk.vtkIdList()
+staticClosestN = vtkIdList()
 staticLocator.FindClosestNPoints(10, probePoints.GetPoint(0), staticClosestN)
 
 # Intersect with line
@@ -80,10 +90,10 @@ staticLocator.FindClosestNPoints(10, probePoints.GetPoint(0), staticClosestN)
 a0 = [0.5, 0.5, 1]
 a1 = [0.5, 0.5, -1]
 tol = 0.001
-t = vtk.reference(0.0)
+t = reference(0.0)
 lineX = [0.0,0.0,0.0]
 ptX = [0.0,0.0,0.0]
-ptId = vtk.reference(-100)
+ptId = reference(-100)
 staticLocator.IntersectWithLine(a0,a1,tol,t,lineX,ptX,ptId)
 print("    Out of plane line intersection: PtId {0}".format(ptId))
 
@@ -91,10 +101,10 @@ print("    Out of plane line intersection: PtId {0}".format(ptId))
 a0 = [-1.5, 0.5, 0]
 a1 = [ 1.5, 0.5, 0]
 tol = 0.001
-t = vtk.reference(0.0)
+t = reference(0.0)
 lineX = [0.0,0.0,0.0]
 ptX = [0.0,0.0,0.0]
-ptId = vtk.reference(-100)
+ptId = reference(-100)
 staticLocator.IntersectWithLine(a0,a1,tol,t,lineX,ptX,ptId)
 print("    In plane line intersection: PtId {0}".format(ptId))
 

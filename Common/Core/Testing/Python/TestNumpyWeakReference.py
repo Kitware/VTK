@@ -1,21 +1,21 @@
 import sys
-import vtk.test.Testing
+import vtkmodules.test.Testing
 
 try:
     import numpy
 except ImportError:
     print("Numpy (http://numpy.scipy.org) not found.")
     print("This test requires numpy!")
-    vtk.test.Testing.skip()
+    vtkmodules.test.Testing.skip()
 
-import vtk
-import vtk.numpy_interface.dataset_adapter as dsa
+from vtkmodules.vtkImagingCore import vtkRTAnalyticSource
+import vtkmodules.numpy_interface.dataset_adapter as dsa
 
 # Test getting an array associated with a dataset, creating a derived array in
 # numpy and adding it back to the dataset. Verify that this doesn't create a
 # cycle preventing the dataset from being collected.
 
-source = vtk.vtkRTAnalyticSource()
+source = vtkRTAnalyticSource()
 source.Update()
 dataset = dsa.DataSet(source.GetOutput())
 

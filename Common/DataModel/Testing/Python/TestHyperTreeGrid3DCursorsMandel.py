@@ -1,5 +1,17 @@
 #!/usr/bin/env python
-import vtk
+from vtkmodules.vtkCommonCore import (
+    vtkBitArray,
+    vtkDoubleArray,
+    vtkUnsignedCharArray,
+)
+from vtkmodules.vtkCommonDataModel import (
+    vtkHyperTreeGrid,
+    vtkHyperTreeGridNonOrientedCursor,
+    vtkHyperTreeGridNonOrientedGeometryCursor,
+    vtkHyperTreeGridNonOrientedMooreSuperCursor,
+    vtkHyperTreeGridNonOrientedUnlimitedMooreSuperCursor,
+    vtkHyperTreeGridNonOrientedVonNeumannSuperCursor,
+)
 
 ROOT_SPLIT = 10
 TARGET_LEVEL = 8
@@ -89,44 +101,44 @@ def handleNode(cursor, sideArray, levelArray):
 # Create Simple HTG
 # -----------------------------------------------------------------------------
 
-htg = vtk.vtkHyperTreeGrid()
+htg = vtkHyperTreeGrid()
 htg.Initialize()
 htg.SetDimensions(
     [ROOT_SPLIT + 1, ROOT_SPLIT + 1, 2]
 )  # nb cells, not nb points : GridCell [ROOT_SPLIT, ROOT_SPLIT, 1]
 htg.SetBranchFactor(2)
 
-sideArray = vtk.vtkUnsignedCharArray()
+sideArray = vtkUnsignedCharArray()
 sideArray.SetName("sideArray")
 sideArray.SetNumberOfValues(0)
 sideArray.SetNumberOfComponents(1)
 htg.GetCellData().AddArray(sideArray)
 
-mask = vtk.vtkBitArray()
+mask = vtkBitArray()
 mask.SetName("mask")
 
 # X[-1.75, 0.75]
-xValues = vtk.vtkDoubleArray()
+xValues = vtkDoubleArray()
 xValues.SetNumberOfValues(ROOT_SPLIT + 1)
 for i in range(ROOT_SPLIT + 1):
     xValues.SetValue(i, -1.75 + float(i) * 0.25)
 htg.SetXCoordinates(xValues)
 
 # Y[-1.25, 1.25]
-yValues = vtk.vtkDoubleArray()
+yValues = vtkDoubleArray()
 yValues.SetNumberOfValues(ROOT_SPLIT + 1)
 for i in range(ROOT_SPLIT + 1):
     yValues.SetValue(i, -1.25 + float(i) * 0.25)
 htg.SetYCoordinates(yValues)
 
 # Z[0, 0]
-zValues = vtk.vtkDoubleArray()
+zValues = vtkDoubleArray()
 zValues.SetNumberOfValues(2)
 zValues.SetValue(0, 0)
 zValues.SetValue(1, 0.25)
 htg.SetZCoordinates(zValues)
 
-geoCursor = vtk.vtkHyperTreeGridNonOrientedGeometryCursor()
+geoCursor = vtkHyperTreeGridNonOrientedGeometryCursor()
 
 offsetIndex = 0
 for treeId in range(htg.GetMaxNumberOfTrees()):
@@ -164,7 +176,7 @@ def recursive(cursor, maxDepth=-1):
 
 def nonOrientedCursor(htg, expected):
     nb = 0
-    cursor = vtk.vtkHyperTreeGridNonOrientedCursor()
+    cursor = vtkHyperTreeGridNonOrientedCursor()
     for treeId in range(htg.GetMaxNumberOfTrees()):
         htg.InitializeNonOrientedCursor(cursor, treeId)
         if not cursor.IsMasked():
@@ -180,7 +192,7 @@ expected = nonOrientedCursor(htg, None)
 
 def nonOrientedGeometryCursor(htg, expected):
     nb = 0
-    cursor = vtk.vtkHyperTreeGridNonOrientedGeometryCursor()
+    cursor = vtkHyperTreeGridNonOrientedGeometryCursor()
     for treeId in range(htg.GetMaxNumberOfTrees()):
         htg.InitializeNonOrientedGeometryCursor(cursor, treeId)
         if not cursor.IsMasked():
@@ -196,7 +208,7 @@ nonOrientedGeometryCursor(htg, expected)
 
 def nonOrientedVonNeumannSuperCursor(htg, expected):
     nb = 0
-    cursor = vtk.vtkHyperTreeGridNonOrientedVonNeumannSuperCursor()
+    cursor = vtkHyperTreeGridNonOrientedVonNeumannSuperCursor()
     for treeId in range(htg.GetMaxNumberOfTrees()):
         htg.InitializeNonOrientedVonNeumannSuperCursor(cursor, treeId)
         if not cursor.IsMasked():
@@ -212,7 +224,7 @@ nonOrientedVonNeumannSuperCursor(htg, expected)
 
 def nonOrientedMooreSuperCursor(htg, expected):
     nb = 0
-    cursor = vtk.vtkHyperTreeGridNonOrientedMooreSuperCursor()
+    cursor = vtkHyperTreeGridNonOrientedMooreSuperCursor()
     for treeId in range(htg.GetMaxNumberOfTrees()):
         htg.InitializeNonOrientedMooreSuperCursor(cursor, treeId)
         if not cursor.IsMasked():
@@ -228,7 +240,7 @@ nonOrientedMooreSuperCursor(htg, expected)
 
 def nonOrientedUnlimitedMooreSuperCursor(htg):
     nb = 0
-    cursor = vtk.vtkHyperTreeGridNonOrientedUnlimitedMooreSuperCursor()
+    cursor = vtkHyperTreeGridNonOrientedUnlimitedMooreSuperCursor()
     for treeId in range(3):
         htg.InitializeNonOrientedUnlimitedMooreSuperCursor(cursor, treeId)
         nb += recursive(cursor, 3)

@@ -18,7 +18,7 @@
 =========================================================================
 '''
 
-import vtk
+from vtkmodules.vtkCommonTransforms import vtkTransform
 
 class SliceOrder(object):
     '''
@@ -42,23 +42,23 @@ class SliceOrder(object):
 
     '''
 
-    si = vtk.vtkTransform()
+    si = vtkTransform()
     si.SetMatrix([1, 0, 0, 0, 0, 0, 1, 0, 0, -1, 0, 0, 0, 0, 0, 1])
 
     # 'is' is a reserved word in Python so use 'iss'
-    iss = vtk.vtkTransform()
+    iss = vtkTransform()
     iss.SetMatrix([1, 0, 0, 0, 0, 0, -1, 0, 0, -1, 0, 0, 0, 0, 0, 1])
 
-    ap = vtk.vtkTransform()
+    ap = vtkTransform()
     ap.Scale(1, -1, 1)
 
-    pa = vtk.vtkTransform()
+    pa = vtkTransform()
     pa.Scale(1, -1, -1)
 
-    lr = vtk.vtkTransform()
+    lr = vtkTransform()
     lr.SetMatrix([0, 0, -1, 0, 0, -1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1])
 
-    rl = vtk.vtkTransform()
+    rl = vtkTransform()
     rl.SetMatrix([0, 0, 1, 0, 0, -1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1])
 
     #
@@ -67,29 +67,29 @@ class SliceOrder(object):
     #  Othermodalities such as physical sectioning may view from the head.
     # These transforms modify the original with a 180 rotation about y
     #
-    hf = vtk.vtkTransform()
+    hf = vtkTransform()
     hf.SetMatrix([-1, 0, 0, 0, 0, 1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1])
 
-    hfsi = vtk.vtkTransform()
+    hfsi = vtkTransform()
     hfsi.Concatenate(hf.GetMatrix())
     hfsi.Concatenate(si.GetMatrix())
 
-    hfis = vtk.vtkTransform()
+    hfis = vtkTransform()
     hfis.Concatenate(hf.GetMatrix())
     hfis.Concatenate(iss.GetMatrix())
 
-    hfap = vtk.vtkTransform()
+    hfap = vtkTransform()
     hfap.Concatenate(hf.GetMatrix())
     hfap.Concatenate(ap.GetMatrix())
 
-    hfpa = vtk.vtkTransform()
+    hfpa = vtkTransform()
     hfpa.Concatenate(hf.GetMatrix())
     hfpa.Concatenate(pa.GetMatrix())
 
-    hflr = vtk.vtkTransform()
+    hflr = vtkTransform()
     hflr.Concatenate(hf.GetMatrix())
     hflr.Concatenate(lr.GetMatrix())
 
-    hfrl = vtk.vtkTransform()
+    hfrl = vtkTransform()
     hfrl.Concatenate(hf.GetMatrix())
     hfrl.Concatenate(rl.GetMatrix())

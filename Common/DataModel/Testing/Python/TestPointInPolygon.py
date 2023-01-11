@@ -1,11 +1,11 @@
 #!/usr/bin/env python
-import vtk
+from vtkmodules.vtkCommonDataModel import vtkPolygon
 
 # Test the vtkPolygon::PointInPolygon() method
 #
 
 # Compute point in polygon for a series of points
-polygon = vtk.vtkPolygon()
+polygon = vtkPolygon()
 numPts = 4
 pts = [0,0,0, 1,0,0, 1,1,0, 0,1,0]
 bds = [0,1,0,1,0,1]

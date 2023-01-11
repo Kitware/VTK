@@ -1,7 +1,15 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import vtk
+from vtkmodules.vtkCommonDataModel import vtkBoundingBox
+from vtkmodules.vtkCommonSystem import vtkTimerLog
+from vtkmodules.vtkCommonTransforms import vtkTransform
+from vtkmodules.vtkFiltersCore import (
+    vtkAppendPolyData,
+    vtkFeatureEdges,
+)
+from vtkmodules.vtkFiltersGeneral import vtkTransformPolyDataFilter
+from vtkmodules.vtkFiltersSources import vtkPlaneSource
 import sys
 
 # Test speed of compute bounds in vtkPolyData, vtkPoints, and
@@ -9,7 +17,7 @@ import sys
 
 # Control model size
 res = 500
-timer = vtk.vtkTimerLog()
+timer = vtkTimerLog()
 
 # Uncomment if you want to use as a little interactive program
 #if len(sys.argv) >= 2 :
@@ -19,10 +27,10 @@ timer = vtk.vtkTimerLog()
 
 # Data source. Note that different types of cells are created
 # to exercise the vtkPolyData::GetBounds() properly.
-plane = vtk.vtkPlaneSource()
+plane = vtkPlaneSource()
 plane.SetResolution(res,res)
 
-edges = vtk.vtkFeatureEdges()
+edges = vtkFeatureEdges()
 edges.SetInputConnection(plane.GetOutputPort())
 #edges.ExtractAllEdgeTypesOff()
 edges.BoundaryEdgesOn()
@@ -30,19 +38,19 @@ edges.ManifoldEdgesOff()
 edges.NonManifoldEdgesOff()
 edges.FeatureEdgesOff()
 
-t1 = vtk.vtkTransform()
+t1 = vtkTransform()
 t1.Translate(-1.0,0,0)
-tf1 = vtk.vtkTransformPolyDataFilter()
+tf1 = vtkTransformPolyDataFilter()
 tf1.SetInputConnection(edges.GetOutputPort())
 tf1.SetTransform(t1)
 
-t2 = vtk.vtkTransform()
+t2 = vtkTransform()
 t2.Translate(1.0,0,0)
-tf2 = vtk.vtkTransformPolyDataFilter()
+tf2 = vtkTransformPolyDataFilter()
 tf2.SetInputConnection(edges.GetOutputPort())
 tf2.SetTransform(t2)
 
-append = vtk.vtkAppendPolyData()
+append = vtkAppendPolyData()
 append.AddInputConnection(tf1.GetOutputPort())
 append.AddInputConnection(plane.GetOutputPort())
 append.AddInputConnection(tf2.GetOutputPort())
@@ -94,7 +102,7 @@ assert box[5] ==  0.0
 
 # Uses vtkBoundingBox with vtkSMPTools. This method takes into account
 # an (optional) pointUses array to only consider selected points.
-bbox = vtk.vtkBoundingBox()
+bbox = vtkBoundingBox()
 timer.StartTimer()
 bbox.ComputeBounds(points,box)
 timer.StopTimer()

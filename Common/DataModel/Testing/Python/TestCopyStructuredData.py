@@ -1,7 +1,7 @@
-import vtk
+from vtkmodules.vtkImagingCore import vtkRTAnalyticSource
 try:
     import numpy
-    from vtk.numpy_interface import dataset_adapter as dsa
+    from vtkmodules.numpy_interface import dataset_adapter as dsa
 except ImportError:
     import sys
     sys.exit(0)
@@ -10,12 +10,12 @@ except ImportError:
 # vtkDataSetAttributes::CopyStructuredData() - the code
 # path where we copy from a smaller structured data to
 # a bigger one that has already some values assigned.
-w = vtk.vtkRTAnalyticSource()
+w = vtkRTAnalyticSource()
 w.Update()
 
 w = w.GetOutput()
 
-w2 = vtk.vtkRTAnalyticSource()
+w2 = vtkRTAnalyticSource()
 ext = (0,5,0,5,0,5)
 w2.SetWholeExtent(*ext)
 w2.Update()

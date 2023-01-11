@@ -1,13 +1,16 @@
 #!/usr/bin/env python
-import vtk
+from vtkmodules.vtkCommonDataModel import (
+    vtkImageData,
+    vtkStaticPointLocator,
+)
 
 # This tests the static point locator on non-vtkPointSet
 # datasets.
 #
 
-image = vtk.vtkImageData()
+image = vtkImageData()
 image.SetDimensions(50,50,50)
 
-spl = vtk.vtkStaticPointLocator()
+spl = vtkStaticPointLocator()
 spl.SetDataSet(image)
 spl.BuildLocator()

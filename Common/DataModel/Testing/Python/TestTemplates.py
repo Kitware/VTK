@@ -18,12 +18,25 @@ try:
 except ImportError:
     # In Python 3 standard exceptions were moved to builtin module.
     pass
-import vtk
-from vtk.test import Testing
+from vtkmodules.vtkCommonCore import (
+    VTK_DOUBLE,
+    vtkArray,
+    vtkArrayCoordinates,
+    vtkDenseArray,
+    vtkSparseArray,
+    vtkVariant,
+)
+from vtkmodules.vtkCommonDataModel import (
+    vtkColor4ub,
+    vtkRectf,
+    vtkVector,
+    vtkVector3,
+)
+from vtkmodules.test import Testing
 
 arrayTypes = ['char', 'int8', 'uint8', 'int16', 'uint16',
               'int32', 'uint32', int, 'uint', 'int64', 'uint64',
-              'float32', float, str, vtk.vtkVariant]
+              'float32', float, str, vtkVariant]
 
 arrayCodes = ['c', 'b', 'B', 'h', 'H',
               'i', 'I', 'l', 'L', 'q', 'Q',
@@ -40,9 +53,9 @@ class TestTemplates(Testing.vtkTest):
     def testDenseArray(self):
         """Test vtkDenseArray template"""
         for t in (arrayTypes + arrayCodes):
-            a = vtk.vtkDenseArray[t]()
+            a = vtkDenseArray[t]()
             a.Resize(1)
-            i = vtk.vtkArrayCoordinates(0)
+            i = vtkArrayCoordinates(0)
             if t in ['bool', '?']:
                 value = 1
                 a.SetValue(i, value)
@@ -67,8 +80,8 @@ class TestTemplates(Testing.vtkTest):
                 a.SetValue(i, value)
                 result = a.GetValue(i)
                 self.assertEqual(value, result)
-            elif t in ['vtkVariant', vtk.vtkVariant]:
-                value = vtk.vtkVariant("world")
+            elif t in ['vtkVariant', vtkVariant]:
+                value = vtkVariant("world")
                 a.SetValue(i, value)
                 result = a.GetValue(i)
                 self.assertEqual(value, result)
@@ -81,9 +94,9 @@ class TestTemplates(Testing.vtkTest):
     def testSparseArray(self):
         """Test vtkSparseArray template"""
         for t in (arrayTypes + arrayCodes):
-            a = vtk.vtkSparseArray[t]()
+            a = vtkSparseArray[t]()
             a.Resize(1)
-            i = vtk.vtkArrayCoordinates(0)
+            i = vtkArrayCoordinates(0)
             if t in ['bool', '?']:
                 value = 0
                 a.SetValue(i, value)
@@ -108,8 +121,8 @@ class TestTemplates(Testing.vtkTest):
                 a.SetValue(i, value)
                 result = a.GetValue(i)
                 self.assertEqual(value, result)
-            elif t in ['vtkVariant', vtk.vtkVariant]:
-                value = vtk.vtkVariant("world")
+            elif t in ['vtkVariant', vtkVariant]:
+                value = vtkVariant("world")
                 a.SetValue(i, value)
                 result = a.GetValue(i)
                 self.assertEqual(value, result)
@@ -121,19 +134,19 @@ class TestTemplates(Testing.vtkTest):
 
     def testArray(self):
         """Test array CreateArray"""
-        o = vtk.vtkArray.CreateArray(vtk.vtkArray.DENSE, vtk.VTK_DOUBLE)
-        self.assertEqual(o.__class__, vtk.vtkDenseArray[float])
+        o = vtkArray.CreateArray(vtkArray.DENSE, VTK_DOUBLE)
+        self.assertEqual(o.__class__, vtkDenseArray[float])
 
     def testVector(self):
         """Test vector templates"""
         # make sure Rect inherits operators
-        r = vtk.vtkRectf(0, 0, 2, 2)
+        r = vtkRectf(0, 0, 2, 2)
         self.assertEqual(r[2], 2.0)
-        c = vtk.vtkColor4ub(0, 0, 0)
+        c = vtkColor4ub(0, 0, 0)
         self.assertEqual(list(c), [0, 0, 0, 255])
-        e = vtk.vtkVector['float32', 3]([0.0, 1.0, 2.0])
+        e = vtkVector['float32', 3]([0.0, 1.0, 2.0])
         self.assertEqual(list(e), [0.0, 1.0, 2.0])
-        i = vtk.vtkVector3['i'](0)
+        i = vtkVector3['i'](0)
         self.assertEqual(list(i), [0, 0, 0])
 
 if __name__ == "__main__":

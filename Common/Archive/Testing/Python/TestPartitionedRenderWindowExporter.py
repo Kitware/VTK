@@ -22,30 +22,40 @@ import ctypes
 import io
 import json
 import shutil
-import vtk
-import vtk.test.Testing
-from vtk.util.misc import vtkGetTempDir
+from vtkmodules.vtkCommonArchive import vtkPartitionedArchiver
+from vtkmodules.vtkFiltersSources import vtkConeSource
+from vtkmodules.vtkIOExport import vtkJSONRenderWindowExporter
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderer,
+)
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+import vtkmodules.test.Testing
+from vtkmodules.util.misc import vtkGetTempDir
 import zipfile
 
 VTK_TEMP_DIR = vtkGetTempDir()
 
 # Construct a render window and write it to disk and to buffer. Decompress the
 # buffer and compare its contents to the files on disk.
-class TestPartitionedRenderWindowExporter(vtk.test.Testing.vtkTest):
+class TestPartitionedRenderWindowExporter(vtkmodules.test.Testing.vtkTest):
 
     def testPartitionedRenderWindowExporter(self):
 
-        cone = vtk.vtkConeSource()
+        cone = vtkConeSource()
 
-        coneMapper = vtk.vtkPolyDataMapper()
+        coneMapper = vtkPolyDataMapper()
         coneMapper.SetInputConnection(cone.GetOutputPort())
 
-        coneActor = vtk.vtkActor()
+        coneActor = vtkActor()
         coneActor.SetMapper(coneMapper)
 
-        ren = vtk.vtkRenderer()
+        ren = vtkRenderer()
         ren.AddActor(coneActor)
-        renWin = vtk.vtkRenderWindow()
+        renWin = vtkRenderWindow()
         renWin.AddRenderer(ren)
 
         ren.ResetCamera()
@@ -53,13 +63,13 @@ class TestPartitionedRenderWindowExporter(vtk.test.Testing.vtkTest):
 
         archiveName = VTK_TEMP_DIR + '/scene'
 
-        exporter = vtk.vtkJSONRenderWindowExporter()
+        exporter = vtkJSONRenderWindowExporter()
         exporter.GetArchiver().SetArchiveName(archiveName)
         exporter.SetRenderWindow(renWin)
         exporter.Write()
 
-        partitionedExporter = vtk.vtkJSONRenderWindowExporter()
-        partitionedArchiver = vtk.vtkPartitionedArchiver()
+        partitionedExporter = vtkJSONRenderWindowExporter()
+        partitionedArchiver = vtkPartitionedArchiver()
         partitionedExporter.SetArchiver(partitionedArchiver)
         partitionedExporter.SetRenderWindow(renWin)
         partitionedExporter.Write()
@@ -88,4 +98,4 @@ class TestPartitionedRenderWindowExporter(vtk.test.Testing.vtkTest):
 
 
 if __name__ == "__main__":
-     vtk.test.Testing.main([(TestPartitionedRenderWindowExporter, 'test')])
+     vtkmodules.test.Testing.main([(TestPartitionedRenderWindowExporter, 'test')])

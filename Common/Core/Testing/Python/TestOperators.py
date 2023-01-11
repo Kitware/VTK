@@ -15,36 +15,40 @@ Created on May 7, 2011 by David Gobbi
 """
 
 import sys
-import vtk
-from vtk.test import Testing
+from vtkmodules.vtkCommonCore import (
+    vtkArrayCoordinates,
+    vtkArrayExtents,
+    vtkArrayRange,
+)
+from vtkmodules.test import Testing
 
 class TestOperators(Testing.vtkTest):
 
     def testPrint(self):
         """Use str slot"""
-        c1 = vtk.vtkArrayRange(3,4)
+        c1 = vtkArrayRange(3,4)
         s1 = str(c1)
         s2 = '[3, 4)'
         self.assertEqual(s1, s2)
 
     def testCompare(self):
         """Use comparison operators"""
-        c1 = vtk.vtkArrayRange(3,4)
-        c2 = vtk.vtkArrayRange(3,4)
+        c1 = vtkArrayRange(3,4)
+        c2 = vtkArrayRange(3,4)
         # will fail if the "==" operator is not wrapped
         self.assertEqual(c1, c2)
 
     def testSequence(self):
         """Use sequence operators"""
-        c1 = vtk.vtkArrayCoordinates()
+        c1 = vtkArrayCoordinates()
         c1.SetDimensions(3)
         n = len(c1) # sq_length slot
         self.assertEqual(n, 3)
         c1[1] = 5  # sq_ass_item slot
         n = c1[1]  # sq_item slot
         self.assertEqual(n, 5)
-        r = vtk.vtkArrayRange(3,4)
-        e = vtk.vtkArrayExtents()
+        r = vtkArrayRange(3,4)
+        e = vtkArrayExtents()
         e.SetDimensions(2)
         e[0] = r
         s = e[0]

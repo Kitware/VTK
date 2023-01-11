@@ -13,7 +13,7 @@ The test naturally requires Numeric Python to be installed:
 
 # This test requires Numeric.
 import sys
-from vtk.test import Testing
+from vtkmodules.test import Testing
 
 try:
     import numpy.core.numeric as numeric
@@ -23,10 +23,11 @@ except ImportError:
 
 import os
 import glob
-import vtk
-from vtk.test import Testing
-from vtk.util.vtkImageExportToArray import vtkImageExportToArray
-from vtk.util.vtkImageImportFromArray import vtkImageImportFromArray
+from vtkmodules.vtkIOImage import vtkPNGReader
+from vtkmodules.vtkImagingCore import vtkImageDifference
+from vtkmodules.test import Testing
+from vtkmodules.util.vtkImageExportToArray import vtkImageExportToArray
+from vtkmodules.util.vtkImageImportFromArray import vtkImageImportFromArray
 
 
 class TestNumericArrayImageData(Testing.vtkTest):
@@ -34,12 +35,12 @@ class TestNumericArrayImageData(Testing.vtkTest):
         "Testing if images can be imported to and from numeric arrays."
         imp = vtkImageImportFromArray()
         exp = vtkImageExportToArray()
-        idiff = vtk.vtkImageDifference()
+        idiff = vtkImageDifference()
 
         img_dir = Testing.getAbsImagePath("")
         for i in glob.glob(os.path.join(img_dir, "*.png")):
             # Putting the reader outside the loop causes bad problems.
-            reader = vtk.vtkPNGReader()
+            reader = vtkPNGReader()
             reader.SetFileName(i)
             reader.Update()
 

@@ -1,18 +1,23 @@
 """Test iterating through a vtkCollection with the standard python syntax"""
 
 
-import vtk
-from vtk.test import Testing
+from vtkmodules.vtkCommonCore import (
+    vtkCollection,
+    vtkDataArrayCollection,
+    vtkIntArray,
+    vtkObject,
+)
+from vtkmodules.test import Testing
 
 
 class TestIterateCollection(Testing.vtkTest):
     def setUp(self):
-        self.vtkObjs = [vtk.vtkObject() for _ in range(30)]
-        self.collection = vtk.vtkCollection()
+        self.vtkObjs = [vtkObject() for _ in range(30)]
+        self.collection = vtkCollection()
         for obj in self.vtkObjs:
             self.collection.AddItem(obj)
 
-        self.emptyCollection = vtk.vtkCollection()
+        self.emptyCollection = vtkCollection()
 
     def testIterateCollection(self):
         newObjsList = [obj for obj in self.collection]
@@ -30,9 +35,9 @@ class TestIterateCollection(Testing.vtkTest):
 
     def testCollectionChild(self):
         #check that iteration is being inherited correctly
-        dataArray = vtk.vtkIntArray()
+        dataArray = vtkIntArray()
 
-        dataArrayCollection = vtk.vtkDataArrayCollection()
+        dataArrayCollection = vtkDataArrayCollection()
         dataArrayCollection.AddItem(dataArray)
 
         self.assertEqual([obj for obj in dataArrayCollection],

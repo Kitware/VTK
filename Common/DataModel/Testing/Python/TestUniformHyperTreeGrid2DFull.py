@@ -5,12 +5,32 @@ without mask
 during HTG build we build scalar, used Global Index implicit with SetGlobalIndexStart
 SetGlobalIndexStart, one call by HT
 """
-import vtk
+from vtkmodules.vtkCommonCore import (
+    vtkDoubleArray,
+    vtkLookupTable,
+)
+from vtkmodules.vtkCommonDataModel import (
+    vtkHyperTreeGridNonOrientedCursor,
+    vtkUniformHyperTreeGrid,
+)
+from vtkmodules.vtkFiltersGeneral import vtkShrinkFilter
+from vtkmodules.vtkFiltersHyperTree import vtkHyperTreeGridGeometry
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkCamera,
+    vtkDataSetMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
 
-htg = vtk.vtkUniformHyperTreeGrid()
+htg = vtkUniformHyperTreeGrid()
 htg.Initialize()
 
-scalarArray = vtk.vtkDoubleArray()
+scalarArray = vtkDoubleArray()
 scalarArray.SetName('scalar')
 scalarArray.SetNumberOfValues(0)
 htg.GetCellData().AddArray(scalarArray)
@@ -22,7 +42,7 @@ htg.SetOrigin([-1., -1., -2])
 htg.SetGridScale([1., 1., 1.])
 
 # Let's split the various trees
-cursor = vtk.vtkHyperTreeGridNonOrientedCursor()
+cursor = vtkHyperTreeGridNonOrientedCursor()
 offsetIndex = 0
 
 # ROOT CELL 0
@@ -207,7 +227,7 @@ print('#',scalarArray.GetNumberOfTuples())
 print('DataRange: ',scalarArray.GetRange())
 
 # Geometries
-geometry = vtk.vtkHyperTreeGridGeometry()
+geometry = vtkHyperTreeGridGeometry()
 geometry.SetInputData(htg)
 print('With Geometry Filter (HTG to NS)')
 
@@ -215,7 +235,7 @@ print('With Geometry Filter (HTG to NS)')
 if True:
   print('With Shrink Filter (NS)')
   # En 3D, le shrink ne doit pas se faire sur la geometrie car elle ne represente que la peau
-  shrink = vtk.vtkShrinkFilter()
+  shrink = vtkShrinkFilter()
   shrink.SetInputConnection(geometry.GetOutputPort())
   shrink.SetShrinkFactor(.8)
 else:
@@ -223,13 +243,13 @@ else:
   shrink = geometry
 
 # LookupTable
-lut = vtk.vtkLookupTable()
+lut = vtkLookupTable()
 lut.SetHueRange(0.66, 0)
 lut.UsingLogScale()
 lut.Build()
 
 # Mappers
-mapper = vtk.vtkDataSetMapper()
+mapper = vtkDataSetMapper()
 mapper.SetInputConnection(shrink.GetOutputPort())
 
 mapper.SetLookupTable(lut)
@@ -240,12 +260,12 @@ dataRange = [1,26] # Forced for compare with 2DMask
 mapper.SetScalarRange(dataRange[0], dataRange[1])
 
 # Actors
-actor = vtk.vtkActor()
+actor = vtkActor()
 actor.SetMapper(mapper)
 
 # Camera
 bd = htg.GetBounds()
-camera = vtk.vtkCamera()
+camera = vtkCamera()
 camera.SetClippingRange(1., 100.)
 focal = []
 for i in range(3):
@@ -254,17 +274,17 @@ camera.SetFocalPoint(focal)
 camera.SetPosition(focal[0], focal[1], focal[2] + 4.)
 
 # Renderer
-renderer = vtk.vtkRenderer()
+renderer = vtkRenderer()
 renderer.SetActiveCamera(camera)
 renderer.AddActor(actor)
 
 # Render window
-renWin = vtk.vtkRenderWindow()
+renWin = vtkRenderWindow()
 renWin.AddRenderer(renderer)
 renWin.SetSize(600, 400)
 
 # Render window interactor
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 
 # render the image

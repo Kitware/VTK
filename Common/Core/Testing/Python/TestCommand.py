@@ -10,8 +10,14 @@ Updated on Feb 12, 2014 by Jean-Christophe Fillion-Robin
 
 import sys
 import gc
-import vtk
-from vtk.test import Testing
+from vtkmodules.vtkCommonCore import (
+    VTK_STRING,
+    vtkCommand,
+    vtkLookupTable,
+    vtkObject,
+)
+from vtkmodules.util.misc import calldata_type
+from vtkmodules.test import Testing
 
 class callback:
     def __init__(self):
@@ -32,14 +38,14 @@ class TestCommand(Testing.vtkTest):
     def testEnumConstants(self):
         """Make sure the event id constants are wrapped
         """
-        self.assertEqual(vtk.vtkCommand.ErrorEvent, 39)
+        self.assertEqual(vtkCommand.ErrorEvent, 39)
 
     def testCommandWithArgs(self):
         """Test binding a command that has arguments.
         """
         cb = callback()
-        o = vtk.vtkObject()
-        o.AddObserver(vtk.vtkCommand.ModifiedEvent, cb)
+        o = vtkObject()
+        o.AddObserver(vtkCommand.ModifiedEvent, cb)
         o.Modified()
 
         self.assertEqual(cb.caller, o)
@@ -49,7 +55,7 @@ class TestCommand(Testing.vtkTest):
         """Test binding with a string event name.
         """
         cb = callback()
-        o = vtk.vtkObject()
+        o = vtkObject()
         o.AddObserver("ModifiedEvent", cb)
         o.Modified()
 
@@ -60,8 +66,8 @@ class TestCommand(Testing.vtkTest):
         """Test the optional priority argument
         """
         cb = callback()
-        o = vtk.vtkObject()
-        o.AddObserver(vtk.vtkCommand.ModifiedEvent, cb, 0.5)
+        o = vtkObject()
+        o.AddObserver(vtkCommand.ModifiedEvent, cb, 0.5)
         o.Modified()
 
         self.assertEqual(cb.caller, o)
@@ -70,11 +76,11 @@ class TestCommand(Testing.vtkTest):
         """Test the removal of an observer.
         """
         cb = callback()
-        o = vtk.vtkObject()
-        o.AddObserver(vtk.vtkCommand.ModifiedEvent, cb)
+        o = vtkObject()
+        o.AddObserver(vtkCommand.ModifiedEvent, cb)
         o.Modified()
         self.assertEqual(cb.caller, o)
-        o.RemoveObservers(vtk.vtkCommand.ModifiedEvent)
+        o.RemoveObservers(vtkCommand.ModifiedEvent)
         cb.caller = None
         cb.event = None
         o.Modified()
@@ -84,8 +90,8 @@ class TestCommand(Testing.vtkTest):
         """Test getting the vtkCommand object
         """
         cb = callback()
-        o = vtk.vtkObject()
-        n = o.AddObserver(vtk.vtkCommand.ModifiedEvent, cb)
+        o = vtkObject()
+        n = o.AddObserver(vtkCommand.ModifiedEvent, cb)
         o.Modified()
         self.assertEqual(cb.caller, o)
         c = o.GetCommand(n)
@@ -101,11 +107,11 @@ class TestCommand(Testing.vtkTest):
         """Test correct reference loop reporting for commands
         """
         cb = callback()
-        o = vtk.vtkObject()
-        o.AddObserver(vtk.vtkCommand.ModifiedEvent, cb)
+        o = vtkObject()
+        o.AddObserver(vtkCommand.ModifiedEvent, cb)
         cb.circular_ref = o
         # referent to check if "o" is deleted
-        referent = vtk.vtkObject()
+        referent = vtkObject()
         o.referent = referent
         # make sure gc removes referrer "o" from referent
         s1 = repr(gc.get_referrers(referent))
@@ -123,9 +129,9 @@ class TestCommand(Testing.vtkTest):
         """
         cb = callback()
         cb2 = callback()
-        o = vtk.vtkObject()
-        n = o.AddObserver(vtk.vtkCommand.ModifiedEvent, cb)
-        n2 = o.AddObserver(vtk.vtkCommand.ModifiedEvent, cb2)
+        o = vtkObject()
+        n = o.AddObserver(vtkCommand.ModifiedEvent, cb)
+        n2 = o.AddObserver(vtkCommand.ModifiedEvent, cb2)
         o.Modified()
         self.assertEqual(cb.caller, o)
         self.assertEqual(cb2.caller, o)
@@ -146,9 +152,9 @@ class TestCommand(Testing.vtkTest):
         """Test adding an observer associated with a callback expecting a CallData
         """
         cb = callback()
-        cb.CallDataType = vtk.VTK_STRING
-        lt = vtk.vtkLookupTable()
-        lt.AddObserver(vtk.vtkCommand.ErrorEvent, cb)
+        cb.CallDataType = VTK_STRING
+        lt = vtkLookupTable()
+        lt.AddObserver(vtkCommand.ErrorEvent, cb)
         lt.SetTableRange(2, 1)
         self.assertEqual(cb.caller, lt)
         self.assertEqual(cb.event, "ErrorEvent")
@@ -161,12 +167,12 @@ class TestCommand(Testing.vtkTest):
         """
         self.onErrorCalldata = ''
 
-        @vtk.calldata_type('string0')
+        @calldata_type('string0')
         def onError(caller, event, calldata):
             self.onErrorCalldata = calldata
 
-        lt = vtk.vtkLookupTable()
-        lt.AddObserver(vtk.vtkCommand.ErrorEvent, onError)
+        lt = vtkLookupTable()
+        lt.AddObserver(vtkCommand.ErrorEvent, onError)
         lt.SetTableRange(2, 1)
         self.assertTrue(self.onErrorCalldata.startswith("ERROR: In"))
 
@@ -175,12 +181,12 @@ class TestCommand(Testing.vtkTest):
         """
         self.onErrorCalldata = ''
 
-        @vtk.calldata_type(vtk.VTK_STRING)
+        @calldata_type(VTK_STRING)
         def onError(caller, event, calldata):
             self.onErrorCalldata = calldata
 
-        lt = vtk.vtkLookupTable()
-        lt.AddObserver(vtk.vtkCommand.ErrorEvent, onError)
+        lt = vtkLookupTable()
+        lt.AddObserver(vtkCommand.ErrorEvent, onError)
         lt.SetTableRange(2, 1)
         self.assertTrue(self.onErrorCalldata.startswith("ERROR: In"))
 

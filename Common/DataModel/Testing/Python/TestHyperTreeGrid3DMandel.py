@@ -1,5 +1,32 @@
 #!/usr/bin/env python
-import vtk
+from vtkmodules.vtkCommonCore import (
+    vtkBitArray,
+    vtkDoubleArray,
+    vtkLookupTable,
+    vtkUnsignedCharArray,
+)
+from vtkmodules.vtkCommonDataModel import (
+    vtkHyperTreeGrid,
+    vtkHyperTreeGridNonOrientedGeometryCursor,
+)
+from vtkmodules.vtkFiltersGeneral import vtkShrinkFilter
+from vtkmodules.vtkFiltersHyperTree import (
+    vtkHyperTreeGridDepthLimiter,
+    vtkHyperTreeGridGeometry,
+    vtkHyperTreeGridThreshold,
+    vtkHyperTreeGridToUnstructuredGrid,
+)
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkCamera,
+    vtkDataSetMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
 
 ROOT_SPLIT = 10
 TARGET_LEVEL = 5
@@ -89,38 +116,38 @@ def handleNode(cursor, sideArray, levelArray):
 # Create Simple HTG
 # -----------------------------------------------------------------------------
 
-geoCursor = vtk.vtkHyperTreeGridNonOrientedGeometryCursor()
+geoCursor = vtkHyperTreeGridNonOrientedGeometryCursor()
 
-htg = vtk.vtkHyperTreeGrid()
+htg = vtkHyperTreeGrid()
 htg.Initialize()
 htg.SetDimensions([ROOT_SPLIT+1, ROOT_SPLIT+1, 2])
 htg.SetBranchFactor(2)
 
-sideArray = vtk.vtkUnsignedCharArray()
+sideArray = vtkUnsignedCharArray()
 sideArray.SetName('sideArray')
 sideArray.SetNumberOfValues(0)
 sideArray.SetNumberOfComponents(1)
 htg.GetCellData().AddArray(sideArray)
 
-mask = vtk.vtkBitArray()
+mask = vtkBitArray()
 mask.SetName('mask')
 
 # X[-1.75, 0.75]
-xValues = vtk.vtkDoubleArray()
+xValues = vtkDoubleArray()
 xValues.SetNumberOfValues(ROOT_SPLIT + 1)
 for i in range(ROOT_SPLIT + 1):
     xValues.SetValue(i, -1.75 + float(i) * 0.25)
 htg.SetXCoordinates(xValues)
 
 # Y[-1.25, 1.25]
-yValues = vtk.vtkDoubleArray()
+yValues = vtkDoubleArray()
 yValues.SetNumberOfValues(ROOT_SPLIT + 1)
 for i in range(ROOT_SPLIT + 1):
     yValues.SetValue(i, -1.25 + float(i) * 0.25)
 htg.SetYCoordinates(yValues)
 
 # Z[0, 0]
-zValues = vtk.vtkDoubleArray()
+zValues = vtkDoubleArray()
 zValues.SetNumberOfValues(2)
 zValues.SetValue(0, 0)
 zValues.SetValue(1, 0.25)
@@ -151,7 +178,7 @@ isFilter = False
 depth = None
 if True:
     print('With Depth Limiter Filter (HTG)')
-    depth = vtk.vtkHyperTreeGridDepthLimiter()
+    depth = vtkHyperTreeGridDepthLimiter()
     depth.SetInputData(htg)
     depth.SetDepth(5)
     isFilter = True
@@ -162,7 +189,7 @@ else:
 # Threshold
 threshold = None
 if True:
-    threshold = vtk.vtkHyperTreeGridThreshold()
+    threshold = vtkHyperTreeGridThreshold()
     threshold.SetInputData(htg)
     threshold.SetLowerThreshold(2)
     threshold.SetUpperThreshold(dataRange[1]-1)
@@ -175,7 +202,7 @@ else:
 showSkin = False
 if showSkin:
     # Geometries
-    geometry = vtk.vtkHyperTreeGridGeometry()
+    geometry = vtkHyperTreeGridGeometry()
     if isFilter:
         geometry.SetInputConnection(threshold.GetOutputPort())
     else:
@@ -189,7 +216,7 @@ if showSkin:
     # Shrink Filter
     if True:
         # En 3D, le shrink ne doit pas se faire sur la geometrie car elle ne represente que la peau
-        shrink = vtk.vtkShrinkFilter()
+        shrink = vtkShrinkFilter()
         shrink.SetInputConnection(geometry.GetOutputPort())
         shrink.SetShrinkFactor(.8)
     else:
@@ -201,7 +228,7 @@ if showSkin:
     print('sideArray on CellData shrink:', dataRange)
 else:
     # Geometries
-    ns = vtk.vtkHyperTreeGridToUnstructuredGrid()
+    ns = vtkHyperTreeGridToUnstructuredGrid()
     if isFilter:
         ns.SetInputConnection(threshold.GetOutputPort())
     else:
@@ -215,7 +242,7 @@ else:
     # Shrink Filter
     if True:
         # En 3D, le shrink ne doit pas se faire sur la geometrie car elle ne represente que la peau
-        shrink = vtk.vtkShrinkFilter()
+        shrink = vtkShrinkFilter()
         shrink.SetInputConnection(ns.GetOutputPort())
         shrink.SetShrinkFactor(.8)
     else:
@@ -227,13 +254,13 @@ else:
     print('sideArray on CellData shrink:', dataRange)
 
 # LookupTable
-lut = vtk.vtkLookupTable()
+lut = vtkLookupTable()
 lut.SetHueRange(0.66, 0)
 lut.Build()
 
 # Mappers
-#mapper = vtk.vtkPolyDataMapper()
-mapper = vtk.vtkDataSetMapper()
+#mapper = vtkPolyDataMapper()
+mapper = vtkDataSetMapper()
 mapper.SetInputConnection(shrink.GetOutputPort())
 
 mapper.SetLookupTable(lut)
@@ -243,19 +270,19 @@ mapper.SelectColorArray('sideArray')
 mapper.SetScalarRange(CUT_OFF, dataRange[1])
 
 # Actors
-actor1 = vtk.vtkActor()
+actor1 = vtkActor()
 actor1.SetMapper(mapper)
 actor1.GetProperty().SetColor(0, 0, 0)
 actor1.GetProperty().SetRepresentationToWireframe()
 
-actor2 = vtk.vtkActor()
+actor2 = vtkActor()
 actor2.SetMapper(mapper)
 actor2.GetProperty().EdgeVisibilityOn()
 #actor2.GetProperty().SetColor(1, 1, 1)
 
 # Camera
 bd = htg.GetBounds( )
-camera = vtk.vtkCamera()
+camera = vtkCamera()
 camera.SetClippingRange(1., 100.)
 focal = []
 for i in range(3):
@@ -264,7 +291,7 @@ camera.SetFocalPoint( focal );
 camera.SetPosition( focal[0] + 2, focal[1] + 2, focal[2] - 3. )
 
 # Renderer
-renderer = vtk.vtkRenderer()
+renderer = vtkRenderer()
 #renderer.GetCullers().RemoveAllItems()
 renderer.SetActiveCamera(camera)
 
@@ -272,11 +299,11 @@ renderer.AddActor(actor1)
 renderer.AddActor(actor2)
 
 # Render window
-renWin = vtk.vtkRenderWindow()
+renWin = vtkRenderWindow()
 renWin.AddRenderer(renderer)
 renWin.SetSize(600, 400)
 
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 
 # render the image
