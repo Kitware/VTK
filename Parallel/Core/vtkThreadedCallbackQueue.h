@@ -35,6 +35,7 @@
 
 #include <atomic>             // For atomic_bool
 #include <condition_variable> // For condition variable
+#include <future>             // For future
 #include <memory>             // For unique_ptr
 #include <mutex>              // For mutex
 #include <queue>              // For queue
@@ -47,6 +48,35 @@ VTK_ABI_NAMESPACE_BEGIN
 
 class VTKPARALLELCORE_EXPORT vtkThreadedCallbackQueue : public vtkObject
 {
+private:
+  /**
+   * Helper to extract the parameter types of a function (passed by template)
+   */
+  template <class FT>
+  struct Signature;
+
+  /**
+   * Helper that dereferences the input type `T`. If `T == Object*` or `T ==
+   * std::unique_ptr<Object>`, then `Type` is of type `Object`.
+   */
+  template <class T, class DummyT = std::nullptr_t>
+  struct Dereference
+  {
+    struct Type;
+  };
+
+  /**
+   * Convenient typedef to help lighten the code.
+   */
+  template <class T>
+  using DereferencedType = typename std::decay<typename Dereference<T>::Type>::type;
+
+  /**
+   * This resolves to the return type of the template function `FT`.
+   */
+  template <class FT>
+  using InvokeResult = typename Signature<DereferencedType<FT>>::InvokeResult;
+
 public:
   static vtkThreadedCallbackQueue* New();
   vtkTypeMacro(vtkThreadedCallbackQueue, vtkObject);
@@ -62,9 +92,64 @@ public:
   ~vtkThreadedCallbackQueue() override;
 
   /**
+   * A `vtkCallbackTokenBase` is an object returned by the methods `Push` and `PushDependent`.
+   * It provides a few functionalities to allow one to synchronize tasks.
+   * This token is associated with the task that was pushed.
+   */
+  class vtkCallbackTokenBase : public vtkObjectBase
+  {
+  public:
+    vtkBaseTypeMacro(vtkCallbackTokenBase, vtkObjectBase);
+
+    vtkCallbackTokenBase() = default;
+
+    /**
+     * Blocks current thread until the task associated with this token has terminated.
+     */
+    virtual void Wait() const = 0;
+
+    /**
+     * Returns a copy of this instance.
+     */
+    virtual vtkSmartPointer<vtkCallbackTokenBase> Clone() const = 0;
+
+  private:
+    vtkCallbackTokenBase(const vtkCallbackTokenBase& other) = delete;
+    void operator=(const vtkCallbackTokenBase& other) = delete;
+  };
+
+  /**
+   * A `Token` is an object returned by the methods `Push` and `PushDependent`.
+   * In addition to implementing the pure virtual methods of `vtkCallbackTokenBase`,
+   * this class gives access to a `std::shared_future`.
+   */
+  template <class ReturnT>
+  class vtkCallbackToken : public vtkCallbackTokenBase
+  {
+  public:
+    static vtkCallbackToken<ReturnT>* New();
+    vtkTypeMacro(vtkCallbackToken<ReturnT>, vtkCallbackTokenBase);
+
+    vtkCallbackToken() = default;
+
+    vtkSmartPointer<vtkCallbackTokenBase> Clone() const override;
+    void Wait() const override;
+
+    /**
+     * Future of the task associated with this token.
+     */
+    std::shared_future<ReturnT> Future;
+
+  private:
+    vtkCallbackToken(const vtkCallbackToken<ReturnT>& other) = delete;
+    void operator=(const vtkCallbackToken<ReturnT>& other) = delete;
+  };
+
+  /**
    * Pushes a function f to be passed args... as arguments.
    * f will be called as soon as a running thread has the occasion to do so, in a FIFO fashion,
-   * assuming that `IsRunning()` returns `true`.
+   * assuming that `IsRunning()` returns `true`. This method returns a `Token`, which is an object
+   * allowing to synchronize the code at will through the use of a `std::shared_future`.
    * This method is thread-safe.
    *
    * All the arguments of `Push` are stored persistently inside the queue. An argument passed as an
@@ -121,8 +206,20 @@ public:
    * @warning DO NOT capture lvalue references in a lambda expression pushed into the queue.
    * Such captures may be destroyed before the lambda is invoked by the queue.
    */
-  template <class... ArgsT>
-  void Push(ArgsT&&... args);
+  template <class FT, class... ArgsT>
+  vtkSmartPointer<vtkCallbackToken<InvokeResult<FT>>> Push(FT&& f, ArgsT&&... args);
+
+  /**
+   * This method behaves the same way `Push` does, with the addition of a container of `tokens`.
+   * The function to be pushed will not be executed until the functions associated with the input
+   * tokens have terminated.
+   *
+   * The container of tokens must have forward iterator (presence of a `begin()` and `end()` member
+   * function).
+   */
+  template <class TokenContainerT, class FT, class... ArgsT>
+  vtkSmartPointer<vtkCallbackToken<InvokeResult<FT>>> PushDependent(
+    TokenContainerT&& tokens, FT&& f, ArgsT&&... args);
 
   /**
    * Sets the number of threads. The running state of the queue is not impacted by this method.
@@ -173,6 +270,8 @@ public:
    * returns `true`.
    */
   void Start();
+
+  using TokenPointer = vtkSmartPointer<vtkCallbackTokenBase>;
 
 private:
   ///@{

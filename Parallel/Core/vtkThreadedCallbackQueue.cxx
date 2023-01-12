@@ -74,6 +74,7 @@ private:
     lock.unlock();
 
     (*invoker)();
+
     return true;
   }
 
@@ -94,7 +95,7 @@ private:
   bool Continue() const
   {
     return this->ThreadId < this->Queue->NumberOfThreads && this->Queue->Running &&
-      !this->Queue->InvokerQueue.empty();
+      (!this->Queue->InvokerQueue.empty());
   }
 
   vtkThreadedCallbackQueue* Queue;
@@ -107,8 +108,14 @@ namespace
 template <class FT, class... ArgsT>
 void Execute(vtkThreadedCallbackQueue* controller, FT&& f, ArgsT&&... args)
 {
-  controller ? controller->Push(std::forward<FT>(f), std::forward<ArgsT>(args)...)
-             : f(std::forward<ArgsT>(args)...);
+  if (controller)
+  {
+    controller->Push(std::forward<FT>(f), std::forward<ArgsT>(args)...);
+  }
+  else
+  {
+    f(std::forward<ArgsT>(args)...);
+  }
 }
 } // anonymous namespace
 
