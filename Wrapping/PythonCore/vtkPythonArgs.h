@@ -56,7 +56,7 @@ public:
     : Args(args)
     , MethodName(methodname)
   {
-    this->N = PyTuple_GET_SIZE(args);
+    this->N = PyTuple_Size(args);
     this->M = PyType_Check(self);
     this->I = this->M;
   }
@@ -70,7 +70,7 @@ public:
     : Args(args)
     , MethodName(methodname)
   {
-    this->N = PyTuple_GET_SIZE(args);
+    this->N = PyTuple_Size(args);
     this->M = 0;
     this->I = 0;
   }
@@ -654,14 +654,14 @@ public:
   /**
    * Get the argument count.
    */
-  static int GetArgCount(PyObject* args) { return static_cast<int>(PyTuple_GET_SIZE(args)); }
+  static int GetArgCount(PyObject* args) { return static_cast<int>(PyTuple_Size(args)); }
 
   /**
    * Get the argument count for a method that might be unbound.
    */
   static int GetArgCount(PyObject* self, PyObject* args)
   {
-    return (static_cast<int>(PyTuple_GET_SIZE(args)) - PyType_Check(self));
+    return (static_cast<int>(PyTuple_Size(args)) - PyType_Check(self));
   }
 
   /**

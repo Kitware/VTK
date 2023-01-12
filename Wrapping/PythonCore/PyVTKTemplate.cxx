@@ -134,10 +134,8 @@ static PyObject* PyVTKTemplate_Items(PyObject* ob, PyObject* args)
       key = PyVTKTemplate_KeyFromName(ob, key);
       if (key)
       {
-        Py_INCREF(value);
-        PyObject* t = PyTuple_New(2);
-        PyTuple_SET_ITEM(t, 0, key);
-        PyTuple_SET_ITEM(t, 1, value);
+        PyObject* t = PyTuple_Pack(2, key, value);
+        Py_DECREF(key);
         PyList_Append(l, t);
         Py_DECREF(t);
       }
@@ -354,7 +352,7 @@ PyObject* PyVTKTemplate_NameFromKey(PyObject* self, PyObject* key)
 
   if (PyTuple_Check(key))
   {
-    nargs = PyTuple_GET_SIZE(key);
+    nargs = PyTuple_Size(key);
     multi = true;
   }
 
@@ -365,7 +363,7 @@ PyObject* PyVTKTemplate_NameFromKey(PyObject* self, PyObject* key)
     o = key;
     if (multi)
     {
-      o = PyTuple_GET_ITEM(key, i);
+      o = PyTuple_GetItem(key, i);
     }
 
     tname = nullptr;
@@ -373,7 +371,7 @@ PyObject* PyVTKTemplate_NameFromKey(PyObject* self, PyObject* key)
     {
       // if type object, get the name of the type
       Py_INCREF(o);
-      tname = ((PyTypeObject*)o)->tp_name;
+      tname = vtkPythonUtil::GetTypeName((PyTypeObject*)o);
       for (const char* cp = tname; *cp != '\0'; cp++)
       {
         if (*cp == '.')
@@ -388,12 +386,12 @@ PyObject* PyVTKTemplate_NameFromKey(PyObject* self, PyObject* key)
       o = PyObject_Str(o);
       if (PyBytes_Check(o))
       {
-        tname = PyBytes_AS_STRING(o);
+        tname = PyBytes_AsString(o);
       }
       else if (PyUnicode_Check(o))
       {
 #ifdef VTK_PY3K
-        tname = PyUnicode_AsUTF8(o);
+        tname = PyUnicode_AsUTF8AndSize(o, nullptr);
 #else
         PyObject* s = _PyUnicode_AsDefaultEncodedString(o, nullptr);
         tname = PyBytes_AS_STRING(s);
@@ -417,7 +415,7 @@ PyObject* PyVTKTemplate_NameFromKey(PyObject* self, PyObject* key)
       {
         if (PyType_Check(value))
         {
-          const char* cname = ((PyTypeObject*)value)->tp_name;
+          const char* cname = vtkPythonUtil::GetTypeName((PyTypeObject*)value);
           for (const char* cp = cname; *cp != '\0'; cp++)
           {
             if (*cp == '.')
@@ -500,7 +498,7 @@ PyObject* PyVTKTemplate_NameFromKey(PyObject* self, PyObject* key)
         {
           if (PyType_Check(value))
           {
-            const char* cname = ((PyTypeObject*)value)->tp_name;
+            const char* cname = vtkPythonUtil::GetTypeName((PyTypeObject*)value);
             for (const char* cp = cname; *cp != '\0'; cp++)
             {
               if (*cp == '.')
@@ -567,12 +565,12 @@ PyObject* PyVTKTemplate_KeyFromName(PyObject* self, PyObject* arg)
   const char* name = nullptr;
   if (PyBytes_Check(arg))
   {
-    name = PyBytes_AS_STRING(arg);
+    name = PyBytes_AsString(arg);
   }
   else if (PyUnicode_Check(arg))
   {
 #ifdef VTK_PY3K
-    name = PyUnicode_AsUTF8(arg);
+    name = PyUnicode_AsUTF8AndSize(arg, nullptr);
 #else
     PyObject* s = _PyUnicode_AsDefaultEncodedString(arg, nullptr);
     name = PyBytes_AS_STRING(s);
@@ -774,7 +772,7 @@ PyObject* PyVTKTemplate_KeyFromName(PyObject* self, PyObject* arg)
     key = PyTuple_New(n);
     for (i = 0; i < n; i++)
     {
-      PyTuple_SET_ITEM(key, i, keys[i]);
+      PyTuple_SetItem(key, i, keys[i]);
     }
   }
 
@@ -792,9 +790,11 @@ PyObject* PyVTKTemplate_New(const char* name, const char* docstring)
   // call the allocator provided by python for this type
   PyObject* self = PyVTKTemplate_Type.tp_alloc(&PyVTKTemplate_Type, 0);
   // call the superclass init function
-  PyObject* args = PyTuple_New(2);
-  PyTuple_SET_ITEM(args, 0, PyString_FromString(name));
-  PyTuple_SET_ITEM(args, 1, PyString_FromString(docstring));
+  PyObject* pyname = PyString_FromString(name);
+  PyObject* pydoc = PyString_FromString(docstring);
+  PyObject* args = PyTuple_Pack(2, pyname, pydoc);
+  Py_DECREF(pyname);
+  Py_DECREF(pydoc);
   PyVTKTemplate_Type.tp_base->tp_init(self, args, nullptr);
   Py_DECREF(args);
 
@@ -811,14 +811,7 @@ int PyVTKTemplate_AddItem(PyObject* self, PyObject* val)
   }
 
   // get the name, but strip the namespace
-  const char* name = ((PyTypeObject*)val)->tp_name;
-  for (const char* cp = name; *cp != '\0'; cp++)
-  {
-    if (*cp == '.')
-    {
-      name = cp + 1;
-    }
-  }
+  const char* name = vtkPythonUtil::StripModuleFromType((PyTypeObject*)val);
   PyObject* dict = PyModule_GetDict(self);
   PyDict_SetItemString(dict, name, val);
 

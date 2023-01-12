@@ -60,7 +60,7 @@ VTK_ABI_NAMESPACE_END
 static PyObject* PyVTKClass_override(PyObject* cls, PyObject* type)
 {
   PyTypeObject* typeobj = (PyTypeObject*)cls;
-  std::string clsName = vtkPythonUtil::StripModule(typeobj->tp_name);
+  std::string clsName = vtkPythonUtil::StripModuleFromType(typeobj);
 
   if (Py_TYPE(type) == &PyType_Type)
   {
@@ -70,7 +70,7 @@ static PyObject* PyVTKClass_override(PyObject* cls, PyObject* type)
       // Make sure "type" and intermediate classes aren't wrapped classes
       for (PyTypeObject* tp = newtypeobj; tp && tp != typeobj; tp = tp->tp_base)
       {
-        if (vtkPythonUtil::FindClass(vtkPythonUtil::StripModule(tp->tp_name)))
+        if (vtkPythonUtil::FindClass(vtkPythonUtil::StripModuleFromType(tp)))
         {
           std::string str("method requires overriding with a pure python subclass of ");
           str += clsName;
@@ -203,7 +203,7 @@ PyObject* PyVTKObject_String(PyObject* op)
 PyObject* PyVTKObject_Repr(PyObject* op)
 {
   PyVTKObject* obj = (PyVTKObject*)op;
-  return PyString_FromFormat("<%s(%p) at %p>", Py_TYPE(op)->tp_name,
+  return PyString_FromFormat("<%s(%p) at %p>", vtkPythonUtil::GetTypeNameForObject(op),
     static_cast<void*>(obj->vtk_ptr), static_cast<void*>(obj));
 }
 
@@ -247,6 +247,7 @@ int PyVTKObject_Traverse(PyObject* o, visitproc visit, void* arg)
 //------------------------------------------------------------------------------
 PyObject* PyVTKObject_New(PyTypeObject* tp, PyObject* args, PyObject* kwds)
 {
+  // XXX(python3-abi3): all types will be heap types in abi3
   // If type was subclassed within python, then skip arg checks and
   // simply create a new object.
   if ((tp->tp_flags & Py_TPFLAGS_HEAPTYPE) == 0)
@@ -266,7 +267,7 @@ PyObject* PyVTKObject_New(PyTypeObject* tp, PyObject* args, PyObject* kwds)
     if (o)
     {
       // used to create a VTK object from a SWIG pointer
-      return vtkPythonUtil::GetObjectFromObject(o, vtkPythonUtil::StripModule(tp->tp_name));
+      return vtkPythonUtil::GetObjectFromObject(o, vtkPythonUtil::StripModuleFromType(tp));
     }
   }
 
@@ -324,7 +325,7 @@ static PyObject* PyVTKObject_GetThis(PyObject* op, void*)
   // otherwise, use the pythonic form of the class name
   if (*cp != '\0')
   {
-    classname = vtkPythonUtil::StripModule(Py_TYPE(op)->tp_name);
+    classname = vtkPythonUtil::StripModuleFromObject(op);
   }
   snprintf(buf, sizeof(buf), "p_%.500s", classname);
   return PyString_FromString(vtkPythonUtil::ManglePointer(self->vtk_ptr, buf));
@@ -542,7 +543,8 @@ static int PyVTKObject_AsBuffer_GetBuffer(PyObject* obj, Py_buffer* view, int fl
     return 0;
   }
 
-  PyErr_Format(PyExc_ValueError, "Cannot get a buffer from %s.", Py_TYPE(obj)->tp_name);
+  PyErr_Format(
+    PyExc_ValueError, "Cannot get a buffer from %s.", vtkPythonUtil::GetTypeNameForObject(obj));
   return -1;
 }
 
@@ -571,7 +573,7 @@ PyObject* PyVTKObject_FromPointer(PyTypeObject* pytype, PyObject* ghostdict, vtk
 {
   // This will be set if we create a new C++ object
   bool created = false;
-  std::string classname = vtkPythonUtil::StripModule(pytype->tp_name);
+  std::string classname = vtkPythonUtil::StripModuleFromType(pytype);
   PyVTKClass* cls = nullptr;
 
   if (ptr)

@@ -125,10 +125,9 @@ void vtkPythonArchiver::OpenArchive()
   char mname[] = "OpenArchive";
   VTK_GET_METHOD(method, this->Object, mname, )
 
-  vtkSmartPyObject args(PyTuple_New(1));
-
   PyObject* vtkself = VTKToPython(this);
-  PyTuple_SET_ITEM(args.GetPointer(), 0, vtkself);
+  vtkSmartPyObject args(PyTuple_Pack(1, vtkself));
+  Py_DECREF(vtkself);
 
   vtkSmartPyObject result(PyObject_Call(method, args, nullptr));
 
@@ -142,10 +141,9 @@ void vtkPythonArchiver::CloseArchive()
   char mname[] = "CloseArchive";
   VTK_GET_METHOD(method, this->Object, mname, )
 
-  vtkSmartPyObject args(PyTuple_New(1));
-
   PyObject* vtkself = VTKToPython(this);
-  PyTuple_SET_ITEM(args.GetPointer(), 0, vtkself);
+  vtkSmartPyObject args(PyTuple_Pack(1, vtkself));
+  Py_DECREF(vtkself);
 
   vtkSmartPyObject result(PyObject_Call(method, args, nullptr));
 
@@ -160,24 +158,19 @@ void vtkPythonArchiver::InsertIntoArchive(
   char mname[] = "InsertIntoArchive";
   VTK_GET_METHOD(method, this->Object, mname, )
 
-  vtkSmartPyObject args(PyTuple_New(4));
-
   PyObject* vtkself = VTKToPython(this);
-  PyTuple_SET_ITEM(args.GetPointer(), 0, vtkself);
-
-  PyObject* pypath = PyString_FromString(relativePath.c_str());
-  PyTuple_SET_ITEM(args.GetPointer(), 1, pypath);
-
+  PyObject* pypath = PyUnicode_FromString(relativePath.c_str());
 #ifndef VTK_PY3K
   PyObject* pydata = PyString_FromStringAndSize(data, size);
-  PyTuple_SET_ITEM(args.GetPointer(), 2, pydata);
 #else
   PyObject* pydata = PyBytes_FromStringAndSize(data, size);
-  PyTuple_SET_ITEM(args.GetPointer(), 2, pydata);
 #endif
-
   PyObject* pysize = PyLong_FromSsize_t(size);
-  PyTuple_SET_ITEM(args.GetPointer(), 3, pysize);
+  vtkSmartPyObject args(PyTuple_Pack(4, vtkself, pypath, pydata, pysize));
+  Py_DECREF(vtkself);
+  Py_DECREF(pypath);
+  Py_DECREF(pydata);
+  Py_DECREF(pysize);
 
   vtkSmartPyObject result(PyObject_Call(method, args, nullptr));
 
@@ -191,13 +184,11 @@ bool vtkPythonArchiver::Contains(const std::string& relativePath)
   char mname[] = "Contains";
   VTK_GET_METHOD(method, this->Object, mname, false)
 
-  vtkSmartPyObject args(PyTuple_New(2));
-
   PyObject* vtkself = VTKToPython(this);
-  PyTuple_SET_ITEM(args.GetPointer(), 0, vtkself);
-
-  PyObject* pypath = PyString_FromString(relativePath.c_str());
-  PyTuple_SET_ITEM(args.GetPointer(), 1, pypath);
+  PyObject* pypath = PyUnicode_FromString(relativePath.c_str());
+  vtkSmartPyObject args(PyTuple_Pack(2, vtkself, pypath));
+  Py_DECREF(vtkself);
+  Py_DECREF(pypath);
 
   vtkSmartPyObject result(PyObject_Call(method, args, nullptr));
 

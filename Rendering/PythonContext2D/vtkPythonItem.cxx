@@ -151,10 +151,9 @@ void vtkPythonItem::SetPythonObject(PyObject* obj)
   char mname[] = "Initialize";
   VTK_GET_METHOD(method, this->Object, mname, /* no return */)
 
-  vtkSmartPyObject args(PyTuple_New(1));
-
   PyObject* vtkself = VTKToPython(this);
-  PyTuple_SET_ITEM(args.GetPointer(), 0, vtkself);
+  vtkSmartPyObject args(PyTuple_Pack(1, vtkself));
+  Py_DECREF(vtkself);
 
   vtkSmartPyObject result(PyObject_Call(method, args, nullptr));
 
@@ -168,13 +167,11 @@ bool vtkPythonItem::Paint(vtkContext2D* painter)
   char mname[] = "Paint";
   VTK_GET_METHOD(method, this->Object, mname, 0)
 
-  vtkSmartPyObject args(PyTuple_New(2));
-
   PyObject* vtkself = VTKToPython(this);
-  PyTuple_SET_ITEM(args.GetPointer(), 0, vtkself);
-
   PyObject* pypainter = VTKToPython(painter);
-  PyTuple_SET_ITEM(args.GetPointer(), 1, pypainter);
+  vtkSmartPyObject args(PyTuple_Pack(2, vtkself, pypainter));
+  Py_DECREF(vtkself);
+  Py_DECREF(pypainter);
 
   vtkSmartPyObject result(PyObject_Call(method, args, nullptr));
 

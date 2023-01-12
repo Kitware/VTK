@@ -23,6 +23,7 @@
 
 #include "vtkObject.h"
 #include "vtkPythonCommand.h"
+#include "vtkSmartPyObject.h"
 #include "vtkVariant.h"
 #include "vtkWeakPointer.h"
 #include "vtkWindows.h"
@@ -278,7 +279,7 @@ void vtkPythonUtil::UnRegisterPythonCommand(vtkPythonCommand* cmd)
 PyTypeObject* vtkPythonUtil::AddSpecialTypeToMap(
   PyTypeObject* pytype, PyMethodDef* methods, PyMethodDef* constructors, vtkcopyfunc copyfunc)
 {
-  const char* classname = vtkPythonUtil::StripModule(pytype->tp_name);
+  const char* classname = vtkPythonUtil::StripModuleFromType(pytype);
 
   // lets make sure it isn't already there
   vtkPythonSpecialTypeMap::iterator i = vtkPythonMap->SpecialTypeMap->find(classname);
@@ -477,7 +478,7 @@ const char* vtkPythonUtil::PythonicClassName(const char* classname)
     PyTypeObject* pytype = vtkPythonUtil::FindBaseTypeObject(classname);
     if (pytype)
     {
-      classname = vtkPythonUtil::StripModule(pytype->tp_name);
+      classname = vtkPythonUtil::StripModuleFromType(pytype);
     }
   }
 
@@ -515,6 +516,35 @@ const char* vtkPythonUtil::StripModule(const char* tpname)
 }
 
 //------------------------------------------------------------------------------
+const char* vtkPythonUtil::StripModuleFromType(PyTypeObject* pytype)
+{
+  return vtkPythonUtil::StripModule(vtkPythonUtil::GetTypeName(pytype));
+}
+
+//------------------------------------------------------------------------------
+const char* vtkPythonUtil::StripModuleFromObject(PyObject* ob)
+{
+  return vtkPythonUtil::StripModuleFromType(Py_TYPE(ob));
+}
+
+//------------------------------------------------------------------------------
+const char* vtkPythonUtil::GetTypeName(PyTypeObject* pytype)
+{
+#ifdef PY_LIMITED_API
+  vtkSmartPyObject tname = PyType_GetName(pytype);
+  return PyUnicode_AsUTF8AndSize(tname, nullptr);
+#else
+  return pytype->tp_name;
+#endif
+}
+
+//------------------------------------------------------------------------------
+const char* vtkPythonUtil::GetTypeNameForObject(PyObject* ob)
+{
+  return vtkPythonUtil::GetTypeName(Py_TYPE(ob));
+}
+
+//------------------------------------------------------------------------------
 PyTypeObject* vtkPythonUtil::AddClassToMap(
   PyTypeObject* pytype, PyMethodDef* methods, const char* classname, vtknewfunc constructor)
 {
@@ -529,7 +559,7 @@ PyTypeObject* vtkPythonUtil::AddClassToMap(
     // if Python type name differs from VTK ClassName, store in ClassNameMap
     // (this only occurs for templated classes, due to their GetClassName()
     // implementation in their type macro in vtkSetGet.h)
-    const char* pyname = vtkPythonUtil::StripModule(pytype->tp_name);
+    const char* pyname = vtkPythonUtil::StripModuleFromType(pytype);
     if (strcmp(pyname, classname) != 0)
     {
       vtkPythonMap->ClassNameMap->insert(
@@ -750,7 +780,7 @@ void* vtkPythonUtil::GetPointerFromSpecialObject(
     return nullptr;
   }
 
-  const char* object_type = vtkPythonUtil::StripModule(Py_TYPE(obj)->tp_name);
+  const char* object_type = vtkPythonUtil::StripModuleFromObject(obj);
 
   // do a lookup on the desired type
   vtkPythonSpecialTypeMap::iterator it = vtkPythonMap->SpecialTypeMap->find(result_type);
@@ -772,9 +802,7 @@ void* vtkPythonUtil::GetPointerFromSpecialObject(
     // If a constructor signature exists for "obj", call it
     if (meth && meth->ml_meth)
     {
-      PyObject* args = PyTuple_New(1);
-      PyTuple_SET_ITEM(args, 0, obj);
-      Py_INCREF(obj);
+      PyObject* args = PyTuple_Pack(1, obj);
 
       sobj = meth->ml_meth(nullptr, args);
 
@@ -912,7 +940,7 @@ PyTypeObject* vtkPythonUtil::FindBaseTypeObject(const char* name)
     // that's what we need to use for the base class of other wrapped classes
     for (PyTypeObject* pytype = info->py_type; pytype != nullptr; pytype = pytype->tp_base)
     {
-      if (strcmp(vtkPythonUtil::StripModule(pytype->tp_name), name) == 0)
+      if (strcmp(vtkPythonUtil::StripModuleFromType(pytype), name) == 0)
       {
         return pytype;
       }
