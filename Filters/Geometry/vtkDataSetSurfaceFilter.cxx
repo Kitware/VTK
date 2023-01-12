@@ -1628,9 +1628,9 @@ int vtkDataSetSurfaceFilter::UnstructuredGridExecuteInternal(vtkUnstructuredGrid
           }
           else
           {
-            weights.resize(cell->GetNumberOfPoints());
             double paramCoordDelta = 1. / (numCellPtsAfterSubdivision - 1);
             cellIter->GetCell(cell);
+            weights.resize(cell->GetNumberOfPoints());
             double inParamCoords[3];
             inParamCoords[1] = inParamCoords[2] = 0.;
             for (i = 0; i < (numCellPts - 1); i++)
