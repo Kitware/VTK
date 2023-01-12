@@ -16,7 +16,6 @@
 
 #include "vtkArrayDispatch.h"
 #include "vtkCellArray.h"
-#include "vtkCellArrayIterator.h"
 #include "vtkCellData.h"
 #include "vtkCellLocator.h"
 #include "vtkDoubleArray.h"
@@ -29,6 +28,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPointSet.h"
+#include "vtkSMPThreadLocalObject.h"
 #include "vtkStaticCellLinksTemplate.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
@@ -53,7 +53,7 @@ struct BuildStencil
   vtkIdType* Offsets;
   vtkIdType* Conn;
   // Avoid constructing/deleting the iterator
-  vtkSMPThreadLocal<vtkSmartPointer<vtkCellArrayIterator>> Iter;
+  vtkSMPThreadLocalObject<vtkIdList> TLIdList;
 
   BuildStencil(vtkCellArray* lines, vtkStaticCellLinksTemplate<vtkIdType>* links,
     vtkIdType* offsets, vtkIdType* conn)
@@ -64,11 +64,9 @@ struct BuildStencil
   {
   }
 
-  void Initialize() { this->Iter.Local().TakeReference(this->Lines->NewIterator()); }
-
   void operator()(vtkIdType ptId, vtkIdType endPtId)
   {
-    vtkCellArrayIterator* iter = this->Iter.Local();
+    auto& idList = this->TLIdList.Local();
     vtkStaticCellLinksTemplate<vtkIdType>* links = this->Links;
     vtkIdType npts;
     const vtkIdType* pts;
@@ -81,7 +79,7 @@ struct BuildStencil
       vtkIdType* edges = links->GetCells(ptId);
       for (auto i = 0; i < numEdges; ++i)
       {
-        iter->GetCellAtId(edges[i], npts, pts);
+        this->Lines->GetCellAtId(edges[i], npts, pts, idList);
         *c++ = (pts[0] != ptId ? pts[0] : pts[1]);
       }
       *o++ = links->GetOffset(ptId);
@@ -161,7 +159,7 @@ struct SmoothPoints
   const double* CArray;
   double MaxDistance; // used to determine convergence
   // Avoid constructing/deleting the iterator
-  vtkSMPThreadLocal<vtkSmartPointer<vtkCellArrayIterator>> Iter;
+  vtkSMPThreadLocalObject<vtkIdList> TLIdList;
   // Maximum smoothing distance in this thread
   vtkSMPThreadLocal<double> MaxDistance2;
 
@@ -192,15 +190,11 @@ struct SmoothPoints
     return (this->CArray ? (this->CArray[ptId] * this->CArray[ptId]) : this->CDist2);
   }
 
-  void Initialize()
-  {
-    this->Iter.Local().TakeReference(this->Stencils->NewIterator());
-    this->MaxDistance2.Local() = 0.0;
-  }
+  void Initialize() { this->MaxDistance2.Local() = 0.0; }
 
   void operator()(vtkIdType ptId, vtkIdType endPtId)
   {
-    vtkCellArrayIterator* iter = this->Iter.Local();
+    auto& idList = this->TLIdList.Local();
     double& maxDistance2 = this->MaxDistance2.Local();
 
     const auto inPts = vtk::DataArrayTupleRange<3>(this->InPts);
@@ -215,7 +209,7 @@ struct SmoothPoints
     {
       // Get the original point position and the stencil
       const auto xIn = inPts[ptId];
-      iter->GetCellAtId(ptId, npts, pts);
+      this->Stencils->GetCellAtId(ptId, npts, pts, idList);
 
       // For each point in the stencil, compute an average position.
       // Make sure the stencil is valid (i.e., contains points).
@@ -272,11 +266,9 @@ struct SmoothPoints
   {
     // Roll up the maximum distance a point has moved.
     double maxDistance2 = 0.0;
-    vtkSMPThreadLocal<double>::iterator itr;
-    vtkSMPThreadLocal<double>::iterator itrEnd = this->MaxDistance2.end();
-    for (itr = this->MaxDistance2.begin(); itr != itrEnd; ++itr)
+    for (const auto& localMaxDistance : this->MaxDistance2)
     {
-      maxDistance2 = (*itr > maxDistance2 ? *itr : maxDistance2);
+      maxDistance2 = (localMaxDistance > maxDistance2 ? localMaxDistance : maxDistance2);
     } // over all threads
     this->MaxDistance = sqrt(maxDistance2);
   }
