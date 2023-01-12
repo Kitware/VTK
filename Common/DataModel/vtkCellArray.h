@@ -1452,14 +1452,17 @@ struct GetCellAtIdImpl
   {
     using ValueType = typename CellStateT::ValueType;
 
-    const auto cellPts = state.GetCellRange(cellId);
+    const ValueType beginOffset = state.GetBeginOffset(cellId);
+    const ValueType endOffset = state.GetEndOffset(cellId);
+    const ValueType cellSize = endOffset - beginOffset;
+    const auto cellConnectivity = state.GetConnectivity()->GetPointer(beginOffset);
 
-    ids->SetNumberOfIds(cellPts.size());
+    // ValueType differs from vtkIdType, so we have to copy into a temporary buffer:
+    ids->SetNumberOfIds(cellSize);
     vtkIdType* idPtr = ids->GetPointer(0);
-
-    for (ValueType ptId : cellPts)
+    for (ValueType i = 0; i < cellSize; ++i)
     {
-      *idPtr++ = static_cast<vtkIdType>(ptId);
+      idPtr[i] = static_cast<vtkIdType>(cellConnectivity[i]);
     }
   }
 
@@ -1498,16 +1501,17 @@ struct GetCellAtIdImpl
   {
     using ValueType = typename CellStateT::ValueType;
 
-    const auto cellPts = state.GetCellRange(cellId);
-    cellSize = cellPts.size();
+    const ValueType beginOffset = state.GetBeginOffset(cellId);
+    const ValueType endOffset = state.GetEndOffset(cellId);
+    cellSize = endOffset - beginOffset;
+    const ValueType* cellConnectivity = state.GetConnectivity()->GetPointer(beginOffset);
 
-    // ValueType differs from vtkIdType, so we have to copy into a temporary
-    // buffer:
+    // ValueType differs from vtkIdType, so we have to copy into a temporary buffer:
     temp->SetNumberOfIds(cellSize);
     vtkIdType* tempPtr = temp->GetPointer(0);
-    for (ValueType ptId : cellPts)
+    for (vtkIdType i = 0; i < cellSize; ++i)
     {
-      *tempPtr++ = static_cast<vtkIdType>(ptId);
+      tempPtr[i] = static_cast<vtkIdType>(cellConnectivity[i]);
     }
 
     cellPoints = temp->GetPointer(0);
