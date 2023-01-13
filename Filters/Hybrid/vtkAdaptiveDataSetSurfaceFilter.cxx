@@ -292,7 +292,7 @@ int vtkAdaptiveDataSetSurfaceFilter::DataObjectExecute(vtkDataObject* inputDS, v
     // JB au camera focal point.
     // JB LastCameraFocalPoint retourne le centre de l'ecran dans les coordonnees reelles
     double ratio = this->LastRendererSize[0] / (double)(this->LastRendererSize[1]);
-    this->Radius = cam->GetParallelScale() * sqrt(1 + pow(ratio, 2));
+    this->Radius = cam->GetParallelScale() * sqrt(1 + ratio * ratio);
 
     // JB Le calcul qui suit a pour objet de determiner la boite englobante dans les coordonnees
     // reelles (et sans tenir compte

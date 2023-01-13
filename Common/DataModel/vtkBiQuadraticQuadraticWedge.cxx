@@ -163,12 +163,22 @@ int vtkBiQuadraticQuadraticWedge::EvaluatePosition(const double x[3], double* cl
   double params[3];
   double fcol[3], rcol[3], scol[3], tcol[3];
   int i, j;
-  double d, pt[3];
+  double d;
+  const double* pt;
   double derivs[3 * 18];
 
   //  set initial position for Newton's method
   subId = 0;
   pcoords[0] = pcoords[1] = pcoords[2] = params[0] = params[1] = params[2] = 0.5;
+
+  // Efficient point access
+  const auto pointsArray = vtkDoubleArray::FastDownCast(this->Points->GetData());
+  if (!pointsArray)
+  {
+    vtkErrorMacro(<< "Points should be double type");
+    return 0;
+  }
+  const double* pts = pointsArray->GetPointer(0);
 
   //  enter iteration loop
   for (iteration = converged = 0; !converged && (iteration < VTK_WEDGE_MAX_ITERATION); iteration++)
@@ -184,7 +194,7 @@ int vtkBiQuadraticQuadraticWedge::EvaluatePosition(const double x[3], double* cl
     }
     for (i = 0; i < 18; i++)
     {
-      this->Points->GetPoint(i, pt);
+      pt = pts + 3 * i;
       for (j = 0; j < 3; j++)
       {
         fcol[j] += pt[j] * weights[i];
@@ -287,14 +297,23 @@ int vtkBiQuadraticQuadraticWedge::EvaluatePosition(const double x[3], double* cl
 void vtkBiQuadraticQuadraticWedge::EvaluateLocation(
   int& vtkNotUsed(subId), const double pcoords[3], double x[3], double* weights)
 {
-  double pt[3];
+  const double* pt;
 
   vtkBiQuadraticQuadraticWedge::InterpolationFunctions(pcoords, weights);
+
+  // Efficient point access
+  const auto pointsArray = vtkDoubleArray::FastDownCast(this->Points->GetData());
+  if (!pointsArray)
+  {
+    vtkErrorMacro(<< "Points should be double type");
+    return;
+  }
+  const double* pts = pointsArray->GetPointer(0);
 
   x[0] = x[1] = x[2] = 0.0;
   for (int i = 0; i < 18; i++)
   {
-    this->Points->GetPoint(i, pt);
+    pt = pts + 3 * i;
     for (int j = 0; j < 3; j++)
     {
       x[j] += pt[j] * weights[i];

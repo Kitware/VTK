@@ -376,14 +376,20 @@ double vtkBoundingBox::GetMaxLength() const
 }
 
 //------------------------------------------------------------------------------
-double vtkBoundingBox::GetDiagonalLength() const
+double vtkBoundingBox::GetDiagonalLength2() const
 {
   assert("pre: not_empty" && this->IsValid());
 
   double l[3];
   this->GetLengths(l);
 
-  return sqrt(l[0] * l[0] + l[1] * l[1] + l[2] * l[2]);
+  return l[0] * l[0] + l[1] * l[1] + l[2] * l[2];
+}
+
+//------------------------------------------------------------------------------
+double vtkBoundingBox::GetDiagonalLength() const
+{
+  return std::sqrt(this->GetDiagonalLength2());
 }
 
 //------------------------------------------------------------------------------

@@ -65,8 +65,14 @@ int vtkTetra::EvaluatePosition(const double x[3], double closestPoint[3], int& s
   subId = 0;
   pcoords[0] = pcoords[1] = pcoords[2] = 0.0;
 
-  vtkDoubleArray* pointArray = static_cast<vtkDoubleArray*>(this->Points->GetData());
-  const double* pts = pointArray->GetPointer(0);
+  // Efficient point access
+  const auto pointsArray = vtkDoubleArray::FastDownCast(this->Points->GetData());
+  if (!pointsArray)
+  {
+    vtkErrorMacro(<< "Points should be double type");
+    return 0;
+  }
+  const double* pts = pointsArray->GetPointer(0);
   const double* pt1 = pts + 3;
   const double* pt2 = pts + 6;
   const double* pt3 = pts + 9;
@@ -199,8 +205,13 @@ void vtkTetra::EvaluateLocation(
   int i;
 
   // Efficient point access
-  vtkDoubleArray* pointArray = static_cast<vtkDoubleArray*>(this->Points->GetData());
-  const double* pts = pointArray->GetPointer(0);
+  const auto pointsArray = vtkDoubleArray::FastDownCast(this->Points->GetData());
+  if (!pointsArray)
+  {
+    vtkErrorMacro(<< "Points should be double type");
+    return;
+  }
+  const double* pts = pointsArray->GetPointer(0);
   const double* pt1 = pts + 3;
   const double* pt2 = pts + 6;
   const double* pt3 = pts + 9;

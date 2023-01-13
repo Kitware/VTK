@@ -75,8 +75,14 @@ int vtkHexahedron::EvaluatePosition(const double x[3], double closestPoint[3], i
   double derivs[24];
 
   // Efficient point access
-  vtkDoubleArray* ptArray = static_cast<vtkDoubleArray*>(this->Points->GetData());
-  const double* pts = ptArray->GetPointer(0);
+  const auto pointsArray = vtkDoubleArray::FastDownCast(this->Points->GetData());
+  if (!pointsArray)
+  {
+    vtkErrorMacro(<< "Points should be double type");
+    return 0;
+  }
+  const double* pts = pointsArray->GetPointer(0);
+
   const double *pt0, *pt1;
 
   // compute a bound on the volume to get a scale for an acceptable determinant
@@ -93,7 +99,7 @@ int vtkHexahedron::EvaluatePosition(const double x[3], double closestPoint[3], i
     }
   }
   // longestDiagonal value is already squared
-  double volumeBound = pow(longestDiagonal, 1.5);
+  double volumeBound = longestDiagonal * std::sqrt(longestDiagonal);
   double determinantTolerance = 1e-20 < .00001 * volumeBound ? 1e-20 : .00001 * volumeBound;
 
   //  set initial position for Newton's method
@@ -224,14 +230,19 @@ void vtkHexahedron::InterpolationFunctions(const double pcoords[3], double sf[8]
   sm = 1. - pcoords[1];
   tm = 1. - pcoords[2];
 
-  sf[0] = rm * sm * tm;
-  sf[1] = pcoords[0] * sm * tm;
-  sf[2] = pcoords[0] * pcoords[1] * tm;
-  sf[3] = rm * pcoords[1] * tm;
-  sf[4] = rm * sm * pcoords[2];
-  sf[5] = pcoords[0] * sm * pcoords[2];
-  sf[6] = pcoords[0] * pcoords[1] * pcoords[2];
-  sf[7] = rm * pcoords[1] * pcoords[2];
+  const auto rmXsm = rm * sm;
+  const auto p0Xsm = pcoords[0] * sm;
+  const auto p0Xp1 = pcoords[0] * pcoords[1];
+  const auto rmXp1 = rm * pcoords[1];
+
+  sf[0] = rmXsm * tm;
+  sf[1] = p0Xsm * tm;
+  sf[2] = p0Xp1 * tm;
+  sf[3] = rmXp1 * tm;
+  sf[4] = rmXsm * pcoords[2];
+  sf[5] = p0Xsm * pcoords[2];
+  sf[6] = p0Xp1 * pcoords[2];
+  sf[7] = rmXp1 * pcoords[2];
 }
 
 //------------------------------------------------------------------------------
@@ -245,33 +256,33 @@ void vtkHexahedron::InterpolationDerivs(const double pcoords[3], double derivs[2
 
   // r-derivatives
   derivs[0] = -sm * tm;
-  derivs[1] = sm * tm;
+  derivs[1] = -derivs[0];
   derivs[2] = pcoords[1] * tm;
-  derivs[3] = -pcoords[1] * tm;
+  derivs[3] = -derivs[2];
   derivs[4] = -sm * pcoords[2];
-  derivs[5] = sm * pcoords[2];
+  derivs[5] = -derivs[4];
   derivs[6] = pcoords[1] * pcoords[2];
-  derivs[7] = -pcoords[1] * pcoords[2];
+  derivs[7] = -derivs[6];
 
   // s-derivatives
   derivs[8] = -rm * tm;
   derivs[9] = -pcoords[0] * tm;
-  derivs[10] = pcoords[0] * tm;
-  derivs[11] = rm * tm;
+  derivs[10] = -derivs[9];
+  derivs[11] = -derivs[8];
   derivs[12] = -rm * pcoords[2];
   derivs[13] = -pcoords[0] * pcoords[2];
-  derivs[14] = pcoords[0] * pcoords[2];
-  derivs[15] = rm * pcoords[2];
+  derivs[14] = -derivs[13];
+  derivs[15] = -derivs[12];
 
   // t-derivatives
   derivs[16] = -rm * sm;
   derivs[17] = -pcoords[0] * sm;
   derivs[18] = -pcoords[0] * pcoords[1];
   derivs[19] = -rm * pcoords[1];
-  derivs[20] = rm * sm;
-  derivs[21] = pcoords[0] * sm;
-  derivs[22] = pcoords[0] * pcoords[1];
-  derivs[23] = rm * pcoords[1];
+  derivs[20] = -derivs[16];
+  derivs[21] = -derivs[17];
+  derivs[22] = -derivs[18];
+  derivs[23] = -derivs[19];
 }
 
 //------------------------------------------------------------------------------
@@ -279,14 +290,23 @@ void vtkHexahedron::EvaluateLocation(
   int& vtkNotUsed(subId), const double pcoords[3], double x[3], double* weights)
 {
   int i, j;
-  double pt[3];
+  const double* pt;
 
   this->InterpolationFunctions(pcoords, weights);
+
+  // Efficient point access
+  const auto pointsArray = vtkDoubleArray::FastDownCast(this->Points->GetData());
+  if (!pointsArray)
+  {
+    vtkErrorMacro(<< "Points should be double type");
+    return;
+  }
+  const double* pts = pointsArray->GetPointer(0);
 
   x[0] = x[1] = x[2] = 0.0;
   for (i = 0; i < 8; i++)
   {
-    this->Points->GetPoint(i, pt);
+    pt = pts + 3 * i;
     for (j = 0; j < 3; j++)
     {
       x[j] += pt[j] * weights[i];

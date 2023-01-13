@@ -63,24 +63,33 @@ int vtkCubicLine::EvaluatePosition(const double x[3], double closestPoint[3], in
 
   pcoords[1] = pcoords[2] = 0.0;
 
+  // Efficient point access
+  const auto pointsArray = vtkDoubleArray::FastDownCast(this->Points->GetData());
+  if (!pointsArray)
+  {
+    vtkErrorMacro(<< "Points should be double type");
+    return 0;
+  }
+  const double* pts = pointsArray->GetPointer(0);
+
   returnStatus = -1;
   weights[0] = 0.0;
   for (minDist2 = VTK_DOUBLE_MAX, i = 0; i < 3; i++)
   {
     if (i == 0)
     {
-      this->Line->Points->SetPoint(0, this->Points->GetPoint(0));
-      this->Line->Points->SetPoint(1, this->Points->GetPoint(2));
+      this->Line->Points->SetPoint(0, pts);
+      this->Line->Points->SetPoint(1, pts + 3 * 2);
     }
     else if (i == 1)
     {
-      this->Line->Points->SetPoint(0, this->Points->GetPoint(2));
-      this->Line->Points->SetPoint(1, this->Points->GetPoint(3));
+      this->Line->Points->SetPoint(0, pts + 3 * 2);
+      this->Line->Points->SetPoint(1, pts + 3 * 3);
     }
     else
     {
-      this->Line->Points->SetPoint(0, this->Points->GetPoint(3));
-      this->Line->Points->SetPoint(1, this->Points->GetPoint(1));
+      this->Line->Points->SetPoint(0, pts + 3 * 3);
+      this->Line->Points->SetPoint(1, pts + 3 * 1);
     }
 
     status = this->Line->EvaluatePosition(x, closest, ignoreId, pc, dist2, lineWeights);
@@ -127,12 +136,21 @@ int vtkCubicLine::EvaluatePosition(const double x[3], double closestPoint[3], in
 void vtkCubicLine::EvaluateLocation(
   int& vtkNotUsed(subId), const double pcoords[3], double x[3], double* weights)
 {
+  // Efficient point access
+  const auto pointsArray = vtkDoubleArray::FastDownCast(this->Points->GetData());
+  if (!pointsArray)
+  {
+    vtkErrorMacro(<< "Points should be double type");
+    return;
+  }
+  const double* pts = pointsArray->GetPointer(0);
+
   int i;
-  double a0[3], a1[3], a2[3], a3[3];
-  this->Points->GetPoint(0, a0);
-  this->Points->GetPoint(1, a1);
-  this->Points->GetPoint(2, a2); // first midside node
-  this->Points->GetPoint(3, a3); // second midside node
+  const double *a0, *a1, *a2, *a3;
+  a0 = pts;
+  a1 = pts + 3 * 1;
+  a2 = pts + 3 * 2; // first midside node
+  a3 = pts + 3 * 3; // second midside node
 
   vtkCubicLine::InterpolationFunctions(pcoords, weights);
 

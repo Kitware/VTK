@@ -22,6 +22,7 @@
 
 #include "vtkHexagonalPrism.h"
 
+#include "vtkDoubleArray.h"
 #include "vtkLine.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
@@ -95,8 +96,18 @@ int vtkHexagonalPrism::EvaluatePosition(const double x[3], double closestPoint[3
   double params[3];
   double fcol[3], rcol[3], scol[3], tcol[3];
   int i, j;
-  double d, pt[3];
+  double d;
+  const double* pt;
   double derivs[36];
+
+  // Efficient point access
+  const auto pointsArray = vtkDoubleArray::FastDownCast(this->Points->GetData());
+  if (!pointsArray)
+  {
+    vtkErrorMacro(<< "Points should be double type");
+    return 0;
+  }
+  const double* pts = pointsArray->GetPointer(0);
 
   //  set initial position for Newton's method
   subId = 0;
@@ -116,7 +127,7 @@ int vtkHexagonalPrism::EvaluatePosition(const double x[3], double closestPoint[3
     }
     for (i = 0; i < 12; i++)
     {
-      this->Points->GetPoint(i, pt);
+      pt = pts + 3 * i;
       for (j = 0; j < 3; j++)
       {
         fcol[j] += pt[j] * weights[i];
@@ -314,14 +325,23 @@ void vtkHexagonalPrism::EvaluateLocation(
   int& vtkNotUsed(subId), const double pcoords[3], double x[3], double* weights)
 {
   int i, j;
-  double pt[3];
+  const double* pt;
 
   this->InterpolationFunctions(pcoords, weights);
+
+  // Efficient point access
+  const auto pointsArray = vtkDoubleArray::FastDownCast(this->Points->GetData());
+  if (!pointsArray)
+  {
+    vtkErrorMacro(<< "Points should be double type");
+    return;
+  }
+  const double* pts = pointsArray->GetPointer(0);
 
   x[0] = x[1] = x[2] = 0.0;
   for (i = 0; i < 12; i++)
   {
-    this->Points->GetPoint(i, pt);
+    pt = pts + 3 * i;
     for (j = 0; j < 3; j++)
     {
       x[j] += pt[j] * weights[i];

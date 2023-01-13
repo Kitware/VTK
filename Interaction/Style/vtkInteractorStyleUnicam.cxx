@@ -381,7 +381,7 @@ void vtkInteractorStyleUnicam::RotateXY(int X, int Y)
   this->ComputeWorldToDisplay(center[0], center[1], center[2], cpt);
   this->NormalizeMouseXY(static_cast<int>(cpt[0]), static_cast<int>(cpt[1]), &cpt[0], &cpt[1]);
 
-  double radsq = pow(1.0 + fabs(cpt[0]), 2.0); // squared rad of virtual cylinder
+  double radsq = (1.0 + fabs(cpt[0])) * (1.0 + fabs(cpt[0])); // squared rad of virtual cylinder
 
   double tp[2], te[2];
   this->NormalizeMouseXY(

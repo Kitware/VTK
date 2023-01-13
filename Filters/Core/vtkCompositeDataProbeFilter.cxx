@@ -215,6 +215,7 @@ int vtkCompositeDataProbeFilter::RequestData(
         this->SetFindCellStrategy(nullptr);
       }
 
+      this->InitializeSourceArrays(sourceDS);
       this->DoProbing(input, idx, sourceDS, output);
       idx++;
     }

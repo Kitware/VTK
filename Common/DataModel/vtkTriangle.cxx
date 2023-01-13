@@ -16,6 +16,7 @@
 
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
+#include "vtkDoubleArray.h"
 #include "vtkIncrementalPointLocator.h"
 #include "vtkLine.h"
 #include "vtkMath.h"
@@ -116,22 +117,32 @@ int vtkTriangle::EvaluatePosition(const double x[3], double closestPoint[3], int
   double pcoords[3], double& dist2, double weights[])
 {
   int i, j;
-  double pt1[3], pt2[3], pt3[3], n[3], fabsn;
+  const double *pt1, *pt2, *pt3, *closest;
+  double n[3], fabsn;
   double rhs[2], c1[2], c2[2];
   double det;
   int idx = 0, indices[2];
   double dist2Point, dist2Line1, dist2Line2;
-  double *closest, closestPoint1[3], closestPoint2[3], cp[3];
+  double closestPoint1[3], closestPoint2[3], cp[3];
 
   subId = 0;
   pcoords[2] = 0.0;
 
+  // Efficient point access
+  const auto pointsArray = vtkDoubleArray::FastDownCast(this->Points->GetData());
+  if (!pointsArray)
+  {
+    vtkErrorMacro(<< "Points should be double type");
+    return 0;
+  }
+  const double* pts = pointsArray->GetPointer(0);
+
   // Get normal for triangle, only the normal direction is needed, i.e. the
   // normal need not be normalized (unit length)
   //
-  this->Points->GetPoint(1, pt1);
-  this->Points->GetPoint(2, pt2);
-  this->Points->GetPoint(0, pt3);
+  pt1 = pts + 3;
+  pt2 = pts + 6;
+  pt3 = pts;
 
   vtkTriangle::ComputeNormalDirection(pt1, pt2, pt3, n);
 
@@ -315,11 +326,19 @@ void vtkTriangle::EvaluateLocation(
   int& vtkNotUsed(subId), const double pcoords[3], double x[3], double* weights)
 {
   double u3;
-  double pt0[3], pt1[3], pt2[3];
+  const double *pt0, *pt1, *pt2;
 
-  this->Points->GetPoint(0, pt0);
-  this->Points->GetPoint(1, pt1);
-  this->Points->GetPoint(2, pt2);
+  // Efficient point access
+  const auto pointsArray = vtkDoubleArray::FastDownCast(this->Points->GetData());
+  if (!pointsArray)
+  {
+    vtkErrorMacro(<< "Points should be double type");
+    return;
+  }
+  const double* pts = pointsArray->GetPointer(0);
+  pt0 = pts;
+  pt1 = pts + 3;
+  pt2 = pts + 6;
 
   u3 = 1.0 - pcoords[0] - pcoords[1];
 

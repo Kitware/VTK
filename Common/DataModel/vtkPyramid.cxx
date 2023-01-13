@@ -243,8 +243,13 @@ int vtkPyramid::EvaluatePosition(const double x[3], double closestPoint[3], int&
   subId = 0;
 
   // Efficient point access
-  vtkDoubleArray* pointArray = static_cast<vtkDoubleArray*>(this->Points->GetData());
-  const double* pts = pointArray->GetPointer(0);
+  const auto pointsArray = vtkDoubleArray::FastDownCast(this->Points->GetData());
+  if (!pointsArray)
+  {
+    vtkErrorMacro(<< "Points should be double type");
+    return 0;
+  }
+  const double* pts = pointsArray->GetPointer(0);
   const double *pt0, *pt1, *tmp;
 
   // There are problems searching for the apex point so we check if
@@ -299,7 +304,7 @@ int vtkPyramid::EvaluatePosition(const double x[3], double closestPoint[3], int&
     }
   }
   // longestEdge value is already squared
-  double volumeBound = pow(longestEdge, 1.5);
+  double volumeBound = longestEdge * std::sqrt(longestEdge);
   double determinantTolerance = 1e-20 < .00001 * volumeBound ? 1e-20 : .00001 * volumeBound;
 
   //  set initial position for Newton's method
@@ -423,14 +428,23 @@ void vtkPyramid::EvaluateLocation(
   int& vtkNotUsed(subId), const double pcoords[3], double x[3], double* weights)
 {
   int i, j;
-  double pt[3];
+  const double* pt;
 
   vtkPyramid::InterpolationFunctions(pcoords, weights);
+
+  // Efficient point access
+  const auto pointsArray = vtkDoubleArray::FastDownCast(this->Points->GetData());
+  if (!pointsArray)
+  {
+    vtkErrorMacro(<< "Points should be double type");
+    return;
+  }
+  const double* pts = pointsArray->GetPointer(0);
 
   x[0] = x[1] = x[2] = 0.0;
   for (i = 0; i < 5; i++)
   {
-    this->Points->GetPoint(i, pt);
+    pt = pts + 3 * i;
     for (j = 0; j < 3; j++)
     {
       x[j] += pt[j] * weights[i];

@@ -286,11 +286,14 @@ public:
    */
   double GetMaxLength() const;
 
+  ///@{
   /**
    * Return the length of the diagonal.
    * \pre not_empty: this->IsValid()
    */
+  double GetDiagonalLength2() const;
   double GetDiagonalLength() const;
+  ///@}
 
   ///@{
   /**

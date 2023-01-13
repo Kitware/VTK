@@ -201,6 +201,15 @@ protected:
   vtkIdList();
   ~vtkIdList() override;
 
+  /**
+   * Allocate ids and set the number of ids.
+   */
+  bool AllocateInternal(vtkIdType sz, vtkIdType numberOfIds);
+  /**
+   * Release memory.
+   */
+  void InitializeMemory();
+
   vtkIdType NumberOfIds;
   vtkIdType Size;
   vtkIdType* Ids;

@@ -91,12 +91,21 @@ int vtkBiQuadraticTriangle::EvaluatePosition(const double x[3], double closestPo
 
   pc0 = pc1 = 0;
 
+  // Efficient point access
+  const auto pointsArray = vtkDoubleArray::FastDownCast(this->Points->GetData());
+  if (!pointsArray)
+  {
+    vtkErrorMacro(<< "Points should be double type");
+    return 0;
+  }
+  const double* pts = pointsArray->GetPointer(0);
+
   // six linear triangles are used
   for (minDist2 = VTK_DOUBLE_MAX, i = 0; i < 6; i++)
   {
-    this->Face->Points->SetPoint(0, this->Points->GetPoint(LinearTris[i][0]));
-    this->Face->Points->SetPoint(1, this->Points->GetPoint(LinearTris[i][1]));
-    this->Face->Points->SetPoint(2, this->Points->GetPoint(LinearTris[i][2]));
+    this->Face->Points->SetPoint(0, pts + 3 * LinearTris[i][0]);
+    this->Face->Points->SetPoint(1, pts + 3 * LinearTris[i][1]);
+    this->Face->Points->SetPoint(2, pts + 3 * LinearTris[i][2]);
 
     status = this->Face->EvaluatePosition(x, closest, ignoreId, pc, dist2, tempWeights);
     if (status != -1 && dist2 < minDist2)
@@ -160,15 +169,24 @@ int vtkBiQuadraticTriangle::EvaluatePosition(const double x[3], double closestPo
 void vtkBiQuadraticTriangle::EvaluateLocation(
   int& vtkNotUsed(subId), const double pcoords[3], double x[3], double* weights)
 {
+  // Efficient point access
+  const auto pointsArray = vtkDoubleArray::FastDownCast(this->Points->GetData());
+  if (!pointsArray)
+  {
+    vtkErrorMacro(<< "Points should be double type");
+    return;
+  }
+  const double* pts = pointsArray->GetPointer(0);
+
   int i;
-  double a0[3], a1[3], a2[3], a3[3], a4[3], a5[3], a6[3];
-  this->Points->GetPoint(0, a0);
-  this->Points->GetPoint(1, a1);
-  this->Points->GetPoint(2, a2);
-  this->Points->GetPoint(3, a3);
-  this->Points->GetPoint(4, a4);
-  this->Points->GetPoint(5, a5);
-  this->Points->GetPoint(6, a6);
+  const double *a0, *a1, *a2, *a3, *a4, *a5, *a6;
+  a0 = pts;
+  a1 = pts + 3;
+  a2 = pts + 6;
+  a3 = pts + 9;
+  a4 = pts + 12;
+  a5 = pts + 15;
+  a6 = pts + 18;
 
   vtkBiQuadraticTriangle::InterpolationFunctions(pcoords, weights);
 
