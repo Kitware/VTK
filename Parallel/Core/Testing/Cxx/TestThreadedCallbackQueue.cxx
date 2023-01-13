@@ -65,7 +65,8 @@ void RunThreads(int nthreadsBegin, int nthreadsEnd)
 struct A
 {
   A() { vtkLog(INFO, "Constructor"); }
-  A(const A&& other)
+  A(A&& other)
+  noexcept
     : array(std::move(other.array))
   {
     vtkLog(INFO, "Move constructor");
