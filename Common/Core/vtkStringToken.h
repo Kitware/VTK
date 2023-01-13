@@ -201,7 +201,6 @@ VTK_ABI_NAMESPACE_END
 
 namespace std
 {
-VTK_ABI_NAMESPACE_BEGIN
 /// vtkStringTokens provide a specialization of std::hash so they can be used in unordered
 /// containers.
 template <>
@@ -209,6 +208,5 @@ struct VTKCOMMONCORE_EXPORT hash<vtkStringToken>
 {
   std::size_t operator()(const vtkStringToken& t) const { return t.GetId(); }
 };
-VTK_ABI_NAMESPACE_END
 } // namespace std
 #endif // vtkStringToken_h
