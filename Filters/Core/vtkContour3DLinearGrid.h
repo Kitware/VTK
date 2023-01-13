@@ -50,8 +50,8 @@
  * @warning
  * When the input is of type vtkCompositeDataSet the filter will process the
  * unstructured grid(s) contained in the composite data set. As a result the
- * output of this filter is then a vtkMultiBlockDataSet containing multiple
- * vtkPolyData. When a vtkUnstructuredGrid is provided as input the
+ * output of this filter is then a composite data set (same as input) containing
+ * multiple vtkPolyData. When a vtkUnstructuredGrid is provided as input the
  * output is a single vtkPolyData.
  *
  * @warning
@@ -199,8 +199,8 @@ public:
    * for the vtkAlgorithm::Precision enum for an explanation of the available
    * precision settings.
    */
-  void SetOutputPointsPrecision(int precision);
-  int GetOutputPointsPrecision() const;
+  vtkSetMacro(OutputPointsPrecision, int);
+  vtkGetMacro(OutputPointsPrecision, int);
   ///@}
 
   /**
