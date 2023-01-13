@@ -86,6 +86,11 @@ void vtkOpenGLLabeledContourMapper::ReleaseGraphicsResources(vtkWindow* win)
 //------------------------------------------------------------------------------
 bool vtkOpenGLLabeledContourMapper::ApplyStencil(vtkRenderer* ren, vtkActor* act)
 {
+  if (this->StencilQuadsSize == 0)
+  {
+    return true;
+  }
+
   // Draw stencil quads into stencil buffer:
   // compile and bind it if needed
   vtkOpenGLRenderWindow* renWin = vtkOpenGLRenderWindow::SafeDownCast(ren->GetVTKWindow());
