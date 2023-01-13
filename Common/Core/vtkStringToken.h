@@ -33,7 +33,7 @@ public:
   using Hash = std::uint32_t;
 
   /// Construct a token from a string literal.
-  vtkStringToken(const char* data = nullptr, std::size_t size = std::string::npos);
+  VTK_WRAPEXCLUDE vtkStringToken(const char* data = nullptr, std::size_t size = std::string::npos);
   /// Construct a token from a std::string.
   vtkStringToken(const std::string& data);
   /// Construct a token given its hash value.
@@ -45,6 +45,8 @@ public:
 
   /// Return the token's ID (usually its hash but possibly not in the case of collisions).
   Hash GetId() const { return this->Id; }
+  /// A Python-wrappable (but less strongly typed) alternative to GetId()
+  unsigned int GetHash() const { return static_cast<unsigned int>(this->Id); }
   /// Return the string corresponding to the token.
   const std::string& Data() const;
 

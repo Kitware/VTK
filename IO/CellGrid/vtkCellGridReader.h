@@ -24,11 +24,6 @@
 #include <vector> // For std::vector
 
 VTK_ABI_NAMESPACE_BEGIN
-class vtkDataArraySelection;
-class vtkFieldData;
-class vtkCellGridDocumentLoader;
-class vtkImageData;
-class vtkStringArray;
 
 class VTKIOCELLGRID_EXPORT vtkCellGridReader : public vtkCellGridAlgorithm
 {

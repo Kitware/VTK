@@ -828,6 +828,64 @@ void CreateColorTextureCoordinates(T* input, float* output, vtkIdType numScalars
 
 } // end anonymous namespace
 
+vtkSmartPointer<vtkImageData> vtkMapper::BuildColorTextureImage(
+  vtkScalarsToColors* lkup, int colorMode)
+{
+  double range[2];
+  range[0] = lkup->GetRange()[0];
+  range[1] = lkup->GetRange()[1];
+  bool use_log_scale = (lkup->UsingLogScale() != 0);
+  if (use_log_scale)
+  {
+    // convert range to log.
+    vtkLookupTable::GetLogRange(range, range);
+  }
+
+  double orig_alpha = lkup->GetAlpha();
+
+  auto result = vtkSmartPointer<vtkImageData>::New();
+  // Get the texture map from the lookup table.
+  // Create a dummy ramp of scalars.
+  // In the future, we could extend vtkScalarsToColors.
+  vtkIdType numberOfColors = lkup->GetNumberOfAvailableColors();
+  numberOfColors += 2;
+  // number of available colors can return 2^24
+  // which is an absurd size for a tmap in this case. So we
+  // watch for cases like that and reduce it to a
+  // more reasonable size
+  if (numberOfColors > 65538) // 65536+2
+  {
+    numberOfColors = 8192;
+  }
+  double k = (range[1] - range[0]) / (numberOfColors - 2);
+  vtkDoubleArray* tmp = vtkDoubleArray::New();
+  tmp->SetNumberOfTuples(numberOfColors * 2);
+  double* ptr = tmp->GetPointer(0);
+  for (int i = 0; i < numberOfColors; ++i)
+  {
+    *ptr = range[0] + i * k - k / 2.0; // minus k / 2 to start at below range color
+    if (use_log_scale)
+    {
+      *ptr = pow(10.0, *ptr);
+    }
+    ++ptr;
+  }
+  // Dimension on NaN.
+  double nan = vtkMath::Nan();
+  for (int i = 0; i < numberOfColors; ++i)
+  {
+    *ptr = nan;
+    ++ptr;
+  }
+  result->SetExtent(0, numberOfColors - 1, 0, 1, 0, 0);
+  result->GetPointData()->SetScalars(lkup->MapScalars(tmp, colorMode, 0));
+  lkup->SetAlpha(orig_alpha);
+  // Do we need to delete the scalars?
+  result->GetPointData()->GetScalars()->Delete();
+  tmp->Delete();
+  return result;
+}
+
 // a side effect of this is that this->ColorCoordinates and
 // this->ColorTexture are set.
 void vtkMapper::MapScalarsToTexture(vtkAbstractArray* scalars, double alpha)
@@ -841,8 +899,6 @@ void vtkMapper::MapScalarsToTexture(vtkAbstractArray* scalars, double alpha)
     // convert range to log.
     vtkLookupTable::GetLogRange(range, range);
   }
-
-  double orig_alpha = this->LookupTable->GetAlpha();
 
   // Get rid of vertex color array.  Only texture or vertex coloring
   // can be active at one time.  The existence of the array is the
@@ -865,50 +921,12 @@ void vtkMapper::MapScalarsToTexture(vtkAbstractArray* scalars, double alpha)
       this->ColorTextureMap->UnRegister(this);
       this->ColorTextureMap = nullptr;
     }
-    // Get the texture map from the lookup table.
-    // Create a dummy ramp of scalars.
-    // In the future, we could extend vtkScalarsToColors.
-    vtkIdType numberOfColors = this->LookupTable->GetNumberOfAvailableColors();
-    numberOfColors += 2;
-    // number of available colors can return 2^24
-    // which is an absurd size for a tmap in this case. So we
-    // watch for cases like that and reduce it to a
-    // more reasonable size
-    if (numberOfColors > 65538) // 65536+2
-    {
-      numberOfColors = 8192;
-    }
-    double k = (range[1] - range[0]) / (numberOfColors - 2);
-    vtkDoubleArray* tmp = vtkDoubleArray::New();
-    tmp->SetNumberOfTuples(numberOfColors * 2);
-    double* ptr = tmp->GetPointer(0);
-    for (int i = 0; i < numberOfColors; ++i)
-    {
-      *ptr = range[0] + i * k - k / 2.0; // minus k / 2 to start at below range color
-      if (use_log_scale)
-      {
-        *ptr = pow(10.0, *ptr);
-      }
-      ++ptr;
-    }
-    // Dimension on NaN.
-    double nan = vtkMath::Nan();
-    for (int i = 0; i < numberOfColors; ++i)
-    {
-      *ptr = nan;
-      ++ptr;
-    }
-    this->ColorTextureMap = vtkImageData::New();
-    this->ColorTextureMap->SetExtent(0, numberOfColors - 1, 0, 1, 0, 0);
-    this->ColorTextureMap->GetPointData()->SetScalars(
-      this->LookupTable->MapScalars(tmp, this->ColorMode, 0));
-    this->LookupTable->SetAlpha(orig_alpha);
-    // Do we need to delete the scalars?
-    this->ColorTextureMap->GetPointData()->GetScalars()->Delete();
-    // Consistent register and unregisters
+
+    auto colorMapImage = vtkMapper::BuildColorTextureImage(this->LookupTable, this->ColorMode);
+    this->ColorTextureMap = colorMapImage;
+    // Take ownership from the smart pointer, which will destroy its reference
+    // when it goes out of scope:
     this->ColorTextureMap->Register(this);
-    this->ColorTextureMap->Delete();
-    tmp->Delete();
   }
 
   // Create new coordinates if necessary.

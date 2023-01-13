@@ -33,9 +33,13 @@ set(classes
   vtkCellArray
   vtkCellArrayIterator
   vtkCellAttribute
+  vtkCellAttributeCalculator
   vtkCellData
   vtkCellGrid
   vtkCellGridBoundsQuery
+  vtkCellGridEvaluator
+  vtkCellGridRangeQuery
+  vtkCellGridQuery
   vtkCellGridResponders
   vtkCellGridSidesQuery
   vtkCellIterator
@@ -277,7 +281,6 @@ set(nowrap_classes
   vtkHyperTreeGridLevelEntry)
 
 set(headers
-  vtkCellGridQuery.h
   vtkCellGridResponder.h
   vtkCellGridResponderBase.h
   vtkCellType.h

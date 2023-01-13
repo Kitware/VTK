@@ -30,6 +30,16 @@ vtkSmartPointer<vtkCellMetadata> vtkCellMetadata::NewInstance(
   return result;
 }
 
+std::unordered_set<vtkStringToken> vtkCellMetadata::CellTypes()
+{
+  std::unordered_set<vtkStringToken> cellTypes;
+  for (const auto& ctor : vtkCellMetadata::Constructors)
+  {
+    cellTypes.insert(ctor.first);
+  }
+  return cellTypes;
+}
+
 void vtkCellMetadata::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -50,6 +60,12 @@ bool vtkCellMetadata::Query(vtkCellGridQuery* query)
 {
   bool ok = vtkCellMetadata::Responders->Query(this, query);
   return ok;
+}
+
+vtkCellGridResponders* vtkCellMetadata::GetCaches()
+{
+  (void)this; // Keep clang-tidy from complaining that this method should be static.
+  return vtkCellMetadata::Responders;
 }
 
 VTK_ABI_NAMESPACE_END

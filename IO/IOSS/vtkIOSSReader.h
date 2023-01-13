@@ -265,13 +265,29 @@ public:
 
   ///@{
   /**
-   * When this flag on blocks of entities of exodus data will be merged.
+   * When this flag is on, blocks/sets of like exodus types will be merged.
    *
    * Note: This flag is ignored for non-exodus data.
    */
   void SetMergeExodusEntityBlocks(bool value);
   vtkGetMacro(MergeExodusEntityBlocks, bool);
   vtkBooleanMacro(MergeExodusEntityBlocks, bool);
+  ///@}
+
+  ///@{
+  /**
+   * When this flag is on and MergeExodusEntityBlocks is off,
+   * side sets of exodus data will be annotated with field-data
+   * arrays holding the element-id and side-id for each output cell.
+   *
+   * This flag is true/on by default.
+   *
+   * Note: This flag is ignored for non-exodus data and when
+   * MergeExodusEntityBlocks is enabled.
+   */
+  void SetElementAndSideIds(bool value);
+  vtkGetMacro(ElementAndSideIds, bool);
+  vtkBooleanMacro(ElementAndSideIds, bool);
   ///@}
 
   ///@{
@@ -631,6 +647,7 @@ private:
 
   vtkMultiProcessController* Controller;
   bool MergeExodusEntityBlocks;
+  bool ElementAndSideIds;
   bool GenerateFileId;
   bool ScanForRelatedFiles;
   bool ReadIds;

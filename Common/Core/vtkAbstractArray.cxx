@@ -466,6 +466,40 @@ vtkAbstractArray* vtkAbstractArray::CreateArray(int dataType)
   return vtkDoubleArray::New();
 }
 
+bool vtkAbstractArray::IsIntegral() const
+{
+  if (!this->IsNumeric())
+  {
+    return false;
+  }
+  int dtype = this->GetDataType();
+  switch (dtype)
+  {
+    case VTK_VOID:
+      return false;
+    case VTK_BIT:
+    case VTK_CHAR:
+    case VTK_SIGNED_CHAR:
+    case VTK_UNSIGNED_CHAR:
+    case VTK_SHORT:
+    case VTK_UNSIGNED_SHORT:
+    case VTK_INT:
+    case VTK_UNSIGNED_INT:
+    case VTK_LONG:
+    case VTK_UNSIGNED_LONG:
+    case VTK_ID_TYPE:
+    case VTK_LONG_LONG:
+    case VTK_UNSIGNED_LONG_LONG:
+      return true;
+    default:
+    case VTK_FLOAT:
+    case VTK_DOUBLE:
+    case VTK_STRING:
+    case VTK_OPAQUE:
+      return false;
+  }
+}
+
 //------------------------------------------------------------------------------
 template <typename T>
 vtkVariant vtkAbstractArrayGetVariantValue(T* arr, vtkIdType index)

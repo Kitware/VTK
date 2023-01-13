@@ -62,9 +62,11 @@ public:
    * "partition of unity", "stochastic", etc.), behavior at cell
    * boundaries, and other relevant information.
    * For example, a quadratic field that allows discontinuities
-   * at cell boundaries and uses Lagrange interpolation of arbitrary
-   * order (i.e., order may differ per cell) might return
-   * "discontinuous Lagrange polynomial arbitrary order".
+   * at cell boundaries and uses H(Grad) Lagrange interpolation
+   * of arbitrary order (i.e., order may differ per cell) might
+   * return "DG HGRAD [CI]n", where "n" indicates the integration
+   * order is arbitrary. The "C" or "I" preceding the order
+   * indicates the basis is "complete (C)" or "incomplete (I)."
    *
    * Currently, this is just a free-form string but in the future
    * we may adopt a more rigorous standard.
@@ -126,6 +128,14 @@ public:
   virtual ArraysForCellType GetArraysForCellType(vtkStringToken cellType) const;
 
   /**
+   * Return an array for the given cell type and role.
+   *
+   * This is a convenience for use in language bindings like Python.
+   */
+  vtkAbstractArray* GetArrayForCellTypeAndRole(
+    vtkStringToken cellType, vtkStringToken arrayRole) const;
+
+  /**
    * Set the arrays required to evaluate this attribute on cells
    * of the given type.
    *
@@ -136,6 +146,7 @@ public:
    */
   virtual bool SetArraysForCellType(vtkStringToken cellType, const ArraysForCellType& arrays);
 
+  /// Return a default colormap associated with the attribute.
   vtkScalarsToColors* GetColormap() const { return this->Colormap; }
   bool SetColormap(vtkScalarsToColors* colormap);
 
@@ -151,7 +162,7 @@ public:
    * DeepCopy() with a map of \a arrayRewrites pointers. The
    * vtkCellGrid owns the arrays, not the vtkCellAttribute, so the
    * when deep-copying a vtkCellGrid, it will have a map of array
-   * copies it has created. If any arrays is mentioned in \a AllArrays
+   * copies it has created. If any array is mentioned in \a AllArrays
    * and is not present in \a arrayRewrites, it is copied by reference.
    */
   virtual void ShallowCopy(vtkCellAttribute* other);

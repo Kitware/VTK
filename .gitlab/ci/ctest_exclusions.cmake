@@ -158,10 +158,14 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "macos_arm64")
 endif ()
 
 if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "macos_x86_64")
-  # Screenshot issue for test comparison with background buffer (intermittent)
   list(APPEND test_exclusions
+    # Screenshot issue for test comparison with background buffer (intermittent)
     "^VTK::GUISupportQtQuickCxx-TestQQuickVTKRenderItemWidget$"
-    "^VTK::GUISupportQtQuickCxx-TestQQuickVTKRenderWindow$")
+    "^VTK::GUISupportQtQuickCxx-TestQQuickVTKRenderWindow$"
+    # MacOS OpenGL issue (intermittent)
+    "^VTK::RenderingCellGridPython-TestCellGridRendering$"
+    "^VTK::FiltersCellGridPython-TestUnstructuredGridToCellGrid$"
+  )
 endif ()
 
 if (("$ENV{CMAKE_CONFIGURATION}" MATCHES "offscreen" AND "$ENV{CMAKE_CONFIGURATION}" MATCHES "ext_vtk") OR
@@ -205,6 +209,13 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "wheel")
       "^VTK::FiltersSourcesPython-TestStaticCellLocatorLineIntersection$"
       "^VTK::InteractionWidgetsPython-TestTensorWidget2$")
   endif ()
+  if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "macos.*_x86_64")
+    list(APPEND test_exclusions
+      # MacOS OpenGL issue (intermittent)
+      "^VTK::RenderingCellGridPython-TestCellGridRendering$"
+      "^VTK::FiltersCellGridPython-TestUnstructuredGridToCellGrid$"
+    )
+  endif()
 endif ()
 
 if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "qt" AND

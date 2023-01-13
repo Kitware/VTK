@@ -2,12 +2,15 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkCellGridResponders.h"
 
+#include "vtkCellAttribute.h"
 #include "vtkCellGridQuery.h"
 #include "vtkCellGridResponderBase.h"
 #include "vtkCellMetadata.h"
 #include "vtkObjectFactory.h"
 
 VTK_ABI_NAMESPACE_BEGIN
+
+using namespace vtk::literals;
 
 vtkStandardNewMacro(vtkCellGridResponders);
 
@@ -41,17 +44,86 @@ bool vtkCellGridResponders::Query(vtkCellMetadata* cellType, vtkCellGridQuery* q
   {
     return false;
   }
-  auto it2 = it->second.find(cellType->GetClassName());
-  if (it2 == it->second.end())
+  bool didFind = false;
+  std::unordered_map<vtkStringToken, vtkSmartPointer<vtkCellGridResponderBase>>::const_iterator it2;
+  for (const auto& cellTypeToken : cellType->InheritanceHierarchy())
   {
+    if (cellTypeToken == "vtkObject"_token)
+    {
+      break;
+    }
+    it2 = it->second.find(cellTypeToken);
+    if (it2 == it->second.end())
+    {
+      continue;
+    }
+    if (!it2->second)
+    {
+      continue;
+    }
+    didFind = true;
+    break;
+  }
+  if (!didFind)
+  {
+    vtkIndent indent;
+    this->PrintSelf(std::cout, indent);
+    vtkErrorMacro("No responder for " << query->GetClassName() << " for "
+                                      << cellType->GetClassName() << " found.");
     return false;
   }
-  if (!it2->second)
-  {
-    return false;
-  }
+
   bool result = it2->second->EvaluateQuery(query, cellType, this);
   return result;
+}
+
+vtkSmartPointer<vtkCellAttributeCalculator> vtkCellGridResponders::AttributeCalculator(
+  vtkStringToken calculatorType, vtkCellMetadata* cellType, vtkCellAttribute* cellAttribute) const
+{
+  if (!cellType || !cellAttribute)
+  {
+    vtkErrorMacro("Null cell metadata or attribute.");
+    return nullptr;
+  }
+  auto cit = this->Calculators.find(calculatorType);
+  if (cit == this->Calculators.end())
+  {
+    vtkErrorMacro("No such calculator type " << calculatorType.Data() << ".");
+    return nullptr;
+  }
+  std::unordered_map<vtkStringToken,
+    std::unordered_map<vtkStringToken, vtkSmartPointer<vtkCellAttributeCalculator>>>::const_iterator
+    mit;
+  std::unordered_map<vtkStringToken, vtkSmartPointer<vtkCellAttributeCalculator>>::const_iterator
+    ait;
+  bool didFind = false;
+  vtkStringToken tags = cellAttribute->GetAttributeType();
+  for (const auto& cellTypeToken : cellType->InheritanceHierarchy())
+  {
+    if (cellTypeToken == "vtkObject"_token)
+    {
+      break;
+    }
+    mit = cit->second.find(cellTypeToken);
+    if (mit == cit->second.end())
+    {
+      continue;
+    }
+    ait = mit->second.find(tags);
+    if (ait == mit->second.end() || !ait->second)
+    {
+      continue;
+    }
+    didFind = true;
+    break;
+  }
+  if (!didFind)
+  {
+    vtkErrorMacro("No calculator support for " << cellType->GetClassName() << " cells and "
+                                               << cellAttribute->GetAttributeType().Data() << ".");
+    return nullptr;
+  }
+  return ait->second->Prepare<vtkCellAttributeCalculator>(cellType, cellAttribute);
 }
 
 VTK_ABI_NAMESPACE_END

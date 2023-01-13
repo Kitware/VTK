@@ -2,8 +2,13 @@
 // SPDX-License-Identifier: BSD-3-Clause
 
 #include "vtkCellGrid.h"
+#include "vtkDGEdge.h"
 #include "vtkDGHex.h"
+#include "vtkDGQuad.h"
 #include "vtkDGTet.h"
+#include "vtkDGTri.h"
+#include "vtkDGVert.h"
+#include "vtkFiltersCellGrid.h"
 #include "vtkNew.h"
 #include "vtkSmartPointer.h"
 #include "vtkTypeFloat32Array.h"
@@ -63,24 +68,57 @@ bool TestDGCellType()
     return false;
   }
 
+  bool haveSelfSide = (CellType::Dimension < 3);
   auto sideOffs = cell->GetSideOffsetsAndShapes();
   if (!sideOffs)
   {
     std::cerr << "ERROR: Expected non-null side offsets and shapes.\n";
     return false;
   }
-  std::cout << "  " << (sideOffs->GetNumberOfTuples() - 1) << " side types:\n";
-  int ss = 0;
+  std::cout << "  " << sideOffs->GetNumberOfTuples() << " side types ("
+            << (haveSelfSide ? "including" : "excluding") << " self):\n";
+
+  // Test that side -1 returns the entire cell's connectivity.
+  auto cellConn = cell->GetSideConnectivity(-1);
+  if (cellConn.size() != static_cast<std::size_t>(cell->GetNumberOfCorners()))
+  {
+    std::cerr << "ERROR: Bad connectivity for side -1 (expected " << cell->GetNumberOfCorners()
+              << " entries, got " << cellConn.size() << ").\n";
+    return false;
+  }
+  std::cout << "    -1. " << vtkDGCell::GetShapeName(cell->GetShape()).Data() << " \"side\":\n";
+  vtkIdType expectedNode = 0;
+  for (const auto& nodeId : cellConn)
+  {
+    std::cout << "      " << expectedNode << ": " << nodeId << "\n";
+    if (nodeId != expectedNode)
+    {
+      std::cerr << "\nERROR: Bad connectivity entry " << expectedNode << " in side -1: " << nodeId
+                << "\n";
+      return false;
+    }
+    ++expectedNode;
+  }
+
+  // Now test that "positive" sides match values in the sides+offsets array.
+  // Note that for cells of dimension 2 or less, the input cell's connectivity
+  // is reported as the first side in the sideOffs/sideConn arrays so that
+  // these cells can be rendered directly. We must account for that by
+  // offsetting ss and sideDim below.
+  int ss = haveSelfSide ? -1 : 0;
   for (vtkIdType ii = 0; ii < sideOffs->GetNumberOfTuples() - 1; ++ii)
   {
     int offset = sideOffs->GetTuple(ii)[0];
-    int shapeValue = sideOffs->GetTuple(ii)[1];
-    auto shape = static_cast<vtkDGCell::Shape>(shapeValue);
-    std::cout << "    " << (ii + 1) << ". " << vtkDGCell::GetShapeName(shape).Data() << " sides (@ "
-              << offset << ")\n";
+    auto shape = static_cast<vtkDGCell::Shape>(sideOffs->GetTuple(ii)[1]);
+    // clang-format off
+    std::cout
+      << "    " << (ii + (haveSelfSide ? 0 : 1)) << ". "
+      << vtkDGCell::GetShapeName(shape).Data() << " sides (@ " << offset << ")\n";
+    // clang-format on
     int nn = vtkDGCell::GetShapeCornerCount(shape);
     int nextOffset = sideOffs->GetTuple(ii + 1)[0];
-    int numSidesOfType = cell->GetNumberOfSidesOfDimension(cell->GetDimension() - ii - 1);
+    int sideDim = cell->GetDimension() - (haveSelfSide ? ii : ii + 1);
+    int numSidesOfType = ss < 0 ? 1 : cell->GetNumberOfSidesOfDimension(sideDim);
     if (nextOffset - offset != nn * numSidesOfType)
     {
       std::cerr << "ERROR: Bad offset " << offset << " to " << nextOffset << " vs "
@@ -111,12 +149,19 @@ bool TestDGCellType()
 
 int TestDGCells(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
-  vtkCellMetadata::RegisterType<vtkDGHex>();
-  vtkCellMetadata::RegisterType<vtkDGTet>();
-  if (!TestDGCellType<vtkDGHex>() || !TestDGCellType<vtkDGTet>())
+  vtkFiltersCellGrid::RegisterCellsAndResponders();
+  // clang-format off
+  if (
+    !TestDGCellType<vtkDGEdge>() ||
+    !TestDGCellType<vtkDGHex>() ||
+    !TestDGCellType<vtkDGQuad>() ||
+    !TestDGCellType<vtkDGTet>() ||
+    !TestDGCellType<vtkDGTri>() ||
+    !TestDGCellType<vtkDGVert>())
   {
     return EXIT_FAILURE;
   }
+  // clang-format on
 
   return EXIT_SUCCESS;
 }

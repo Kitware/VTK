@@ -7,8 +7,15 @@
 #include "vtkCxxABIConfigure.h"
 #include "vtkStringToken.h" // For tokenized type-name.
 
+#include <cstring>  // For std::strlen.
 #include <string>   // For return value.
 #include <typeinfo> // For typeid().
+
+#if VTK_HAS_ABI_NAMESPACE
+#define VTK_TYPENAME_STRINGIFY_INTERNAL(x) #x
+#define VTK_TYPENAME_STRINGIFY(x) VTK_TYPENAME_STRINGIFY_INTERNAL(x)
+#define VTK_ABI_NAMESPACE_STRING VTK_TYPENAME_STRINGIFY(VTK_ABI_NAMESPACE_NAME) "::"
+#endif
 
 namespace vtk
 {
@@ -64,6 +71,17 @@ struct Name
          pos = result.find(',', pos + 1))
     {
       result = result.substr(0, pos) + ", " + result.substr(pos + 1);
+    }
+#endif
+    // Finally, vtkABINamespace.h provides a namespace name, we will strip it
+    // from the name. This is done to avoid burdening developers with string
+    // processing when linking to multiple versions of VTK.
+#if VTK_HAS_ABI_NAMESPACE
+    const std::size_t nsLen = std::strlen(VTK_ABI_NAMESPACE_STRING);
+    for (std::string::size_type pos = result.find(VTK_ABI_NAMESPACE_STRING);
+         pos != std::string::npos; pos = result.find(VTK_ABI_NAMESPACE_STRING, pos + 1))
+    {
+      result = result.substr(0, pos) + result.substr(pos + nsLen);
     }
 #endif
     return result;

@@ -20,6 +20,8 @@
 
 VTK_ABI_NAMESPACE_BEGIN
 
+class vtkIdTypeArray;
+
 /**\brief A cell-grid query for enumerating sides of cells.
  *
  * As responders invoke the AddSides() method on this query,
@@ -36,10 +38,46 @@ public:
   vtkTypeMacro(vtkCellGridSidesQuery, vtkCellGridQuery);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
+  /// An enum specifying the work responders should perform for each pass.
+  enum PassWork : int
+  {
+    /// Responders should call AddSide() on each cell's sides to insert
+    /// entries into this->Hashes.
+    HashSides = 0,
+    /// Responders should insert new side sets into their parent cell-grid.
+    /// At the start of this pass, this->Hashes is transformed into this->Sides
+    /// by calling this->SummarizeSides().
+    GenerateSideSets = 1
+  };
+
+  /// A structure created by the GetSideSetArrays() method for responders to use.
+  struct SideSetArray
+  {
+    /// The type of parent cell which created the sides.
+    vtkStringToken CellType;
+    /// The shape of all the sides in the \a Sides array.
+    vtkStringToken SideShape;
+    /// An array of tuples of (cell-id, side-id) specifying sides.
+    vtkSmartPointer<vtkIdTypeArray> Sides;
+  };
+
+  /// Set/get whether renderable cells should be included in the output
+  /// or the output should strictly contain sides of cells.
+  ///
+  /// A cell is renderable if it is of dimension 2 or less (i.e., surfaces,
+  /// edges, and vertices are all renderable; volumetric cells are not).
+  ///
+  /// The default is false.
+  vtkSetMacro(PreserveRenderableCells, vtkTypeBool);
+  vtkGetMacro(PreserveRenderableCells, vtkTypeBool);
+  vtkBooleanMacro(PreserveRenderableCells, vtkTypeBool);
+
   void Initialize() override;
+  void StartPass() override;
+  bool IsAnotherPassRequired() override;
   void Finalize() override;
 
-  std::map<vtkStringToken,
+  std::unordered_map<vtkStringToken,
     std::unordered_map<vtkStringToken, std::unordered_map<vtkIdType, std::set<int>>>>&
   GetSides()
   {
@@ -157,9 +195,8 @@ public:
   }
   //@}
 
-protected:
-  vtkCellGridSidesQuery() = default;
-  ~vtkCellGridSidesQuery() override = default;
+  /// Return arrays of cell+side IDs for the given \a cellType.
+  std::vector<SideSetArray> GetSideSetArrays(vtkStringToken cellType);
 
   // Hash combiner adapted from boost::hash_combine
   class HashCombiner
@@ -201,6 +238,10 @@ protected:
     }
   };
 
+protected:
+  vtkCellGridSidesQuery() = default;
+  ~vtkCellGridSidesQuery() override = default;
+
   struct Side
   {
     vtkStringToken CellType;
@@ -218,8 +259,12 @@ protected:
   {
     std::set<Side> Sides;
   };
+
+  void SummarizeSides();
+
+  vtkTypeBool PreserveRenderableCells{ false };
   std::unordered_map<std::size_t, Entry> Hashes;
-  std::map<vtkStringToken,
+  std::unordered_map<vtkStringToken,
     std::unordered_map<vtkStringToken, std::unordered_map<vtkIdType, std::set<int>>>>
     Sides;
 
