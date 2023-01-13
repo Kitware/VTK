@@ -91,6 +91,9 @@ public:
 
   vtkIdType GetOrder() const { return this->Order; }
   vtkIdType ComputeOrder();
+  /// Return true if the number of points supports a cell of uniform
+  /// degree along each axis.
+  static bool PointCountSupportsUniformOrder(vtkIdType pointsPerTri);
 
   void ToBarycentricIndex(vtkIdType index, vtkIdType* bindex);
   vtkIdType ToIndex(const vtkIdType* bindex);

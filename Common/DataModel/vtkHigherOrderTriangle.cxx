@@ -798,6 +798,24 @@ vtkIdType vtkHigherOrderTriangle::ComputeOrder()
 }
 
 //------------------------------------------------------------------------------
+bool vtkHigherOrderTriangle::PointCountSupportsUniformOrder(vtkIdType pointsPerTri)
+{
+  // Determine if sqrt(8N + 1) is integral (and if so, what is it?).
+  vtkIdType nn = 8 * pointsPerTri + 1;
+  int h = nn % 0x0f; // Perfect squares in base 16 must end in 0, 1, 4, or 9.
+  if (h > 9 || (h > 1 && h < 4) || (h > 4 && h < 9))
+  {
+    return false;
+  }
+  int root = std::floor(std::sqrt(nn) + 0.5);
+  if (root * root != nn)
+  {
+    return false;
+  }
+  return root >= 3 && (root - 3) % 2 == 0;
+}
+
+//------------------------------------------------------------------------------
 void vtkHigherOrderTriangle::ToBarycentricIndex(vtkIdType index, vtkIdType* bindex)
 {
 #ifdef ENABLE_CACHING
