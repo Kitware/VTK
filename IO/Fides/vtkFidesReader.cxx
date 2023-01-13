@@ -105,6 +105,7 @@ vtkFidesReader::vtkFidesReader()
   this->SetNumberOfOutputPorts(1);
   this->PointDataArraySelection = vtkDataArraySelection::New();
   this->CellDataArraySelection = vtkDataArraySelection::New();
+  this->FieldDataArraySelection = vtkDataArraySelection::New();
   this->ConvertToVTK = false;
   this->StreamSteps = false;
   this->NextStepStatus = static_cast<StepStatus>(fides::StepStatus::NotReady);
@@ -114,6 +115,7 @@ vtkFidesReader::~vtkFidesReader()
 {
   this->PointDataArraySelection->Delete();
   this->CellDataArraySelection->Delete();
+  this->FieldDataArraySelection->Delete();
 }
 
 int vtkFidesReader::CanReadFile(const std::string& name)
@@ -402,6 +404,10 @@ int vtkFidesReader::RequestInformation(
       {
         this->CellDataArraySelection->AddArray(field.Name.c_str());
       }
+      else if (field.Association == vtkm::cont::Field::Association::WholeDataSet)
+      {
+        this->FieldDataArraySelection->AddArray(field.Name.c_str());
+      }
     }
   }
 
@@ -675,6 +681,15 @@ int vtkFidesReader::RequestData(
     if (this->CellDataArraySelection->ArrayIsEnabled(aname))
     {
       arraySelection.Data.emplace_back(aname, vtkm::cont::Field::Association::Cells);
+    }
+  }
+  int nFArrays = this->FieldDataArraySelection->GetNumberOfArrays();
+  for (int i = 0; i < nFArrays; i++)
+  {
+    const char* aname = this->FieldDataArraySelection->GetArrayName(i);
+    if (this->FieldDataArraySelection->ArrayIsEnabled(aname))
+    {
+      arraySelection.Data.emplace_back(aname, vtkm::cont::Field::Association::WholeDataSet);
     }
   }
   selections.Set(fides::keys::FIELDS(), arraySelection);

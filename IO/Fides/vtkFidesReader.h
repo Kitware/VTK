@@ -188,6 +188,7 @@ protected:
 
   vtkDataArraySelection* PointDataArraySelection;
   vtkDataArraySelection* CellDataArraySelection;
+  vtkDataArraySelection* FieldDataArraySelection;
 
   static vtkInformationIntegerKey* NUMBER_OF_BLOCKS();
 
