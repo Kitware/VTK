@@ -70,7 +70,8 @@ static PyObject* PyVTKClass_override(PyObject* cls, PyObject* type)
       // Make sure "type" and intermediate classes aren't wrapped classes
       for (PyTypeObject* tp = newtypeobj; tp && tp != typeobj; tp = tp->tp_base)
       {
-        if (vtkPythonUtil::FindClass(vtkPythonUtil::StripModuleFromType(tp)))
+        PyVTKClass* c = vtkPythonUtil::FindClass(vtkPythonUtil::StripModuleFromType(tp));
+        if (c && tp == c->py_type)
         {
           std::string str("method requires overriding with a pure python subclass of ");
           str += clsName;
