@@ -31,19 +31,16 @@ planeActor = vtkActor()
 planeActor.SetMapper(planeMapper)
 planeActor.GetProperty().SetRepresentationToWireframe()
 # procedure for generating glyphs
-def Glyph (__vtk__temp0=0,__vtk__temp1=0):
-    global res
+def Glyph():
     ptId = glypher.GetPointId()
     pd = glypher.GetPointData()
-    xyz = glypher.GetPoint()
-    x = lindex(xyz,0)
-    y = lindex(xyz,1)
+    x,y,z = glypher.GetPoint()
     length = glypher.GetInput(0).GetLength()
-    scale = expr.expr(globals(), locals(),["length","/","(","2.0","*","res",")"])
+    scale = length/(2.0*res)
     squad.SetScale(scale,scale,scale)
-    squad.SetCenter(xyz)
-    squad.SetPhiRoundness(expr.expr(globals(), locals(),["abs","(","x",")*","5.0"]))
-    squad.SetThetaRoundness(expr.expr(globals(), locals(),["abs","(","y",")*","5.0"]))
+    squad.SetCenter(x,y,z)
+    squad.SetPhiRoundness(abs(x)*5.0)
+    squad.SetThetaRoundness(abs(y)*5.0)
     squad.Update()
 
 # create simple poly data so we can apply glyph
