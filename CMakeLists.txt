@@ -630,13 +630,6 @@ if (VTK_BUILD_DOCUMENTATION)
   add_subdirectory(Utilities/Doxygen)
 endif ()
 
-# If python wrapping and testing is enabled then add driver scripts to run
-# tests.  Note: Many python tests used to be automatically converted from TCL
-# scripts. Hence the name vtkTclTest2Py
-if (VTK_BUILD_TESTING AND VTK_WRAP_PYTHON)
-  add_subdirectory(Utilities/vtkTclTest2Py)
-endif ()
-
 if (NOT TARGET uninstall)
   add_custom_target(uninstall
     COMMAND
