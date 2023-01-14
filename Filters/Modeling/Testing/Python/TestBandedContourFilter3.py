@@ -11,6 +11,7 @@ VTK_DATA_ROOT = vtkGetDataRoot()
 # scalar values that are equal to clip values
 pts=vtk.vtkPoints()
 s=vtk.vtkDoubleArray()
+s.SetName("PointScalars")
 for coord in [[0,0],[1,0],[0,1],[1,1],
               [1.5,0],[2,0],[2.5,0],[1.5,0.5],[2.5,0.5],[1.5,1],[2,1],[2.5,1]]:
     pts.InsertNextPoint(coord+[0])
@@ -49,6 +50,7 @@ clip_values=[ 15.0, 16.25, 17.5, 18.75, 20 ]
 for v in clip_values:
     bands.SetValue(clip_values.index(v), v)
 bands.Update()
+assert bands.GetOutput().GetPointData().GetScalars().GetName() == "PointScalars"
 
 # Map the indices to clip values
 out_indices=bands.GetOutput().GetCellData().GetArray("Scalars")
