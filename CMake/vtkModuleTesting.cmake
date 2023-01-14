@@ -590,18 +590,11 @@ Options:
      providing a baseline dir, assuming `NO_VALID` is not specified.
   - `DIRECT_DATA` : If `DIRECT_DATA` is specified, the baseline path will be provided
      as is, without the use of ExternalData_add_test.
-  - `JUST_VALID`: Only applies when both `NO_VALID` and `NO_RT` are not
-    present. If it is not specified, `-A` is passed with path to the directory
-    of the `vtkTclTest2Py` Python package and the test is run via the
-    `rtImageTest.py` script. Note that this currently only works when building
-    against a VTK build tree; the VTK install tree does not include this script
-    or its associated Python package.
+  - `JUST_VALID`: Only applies when neither `NO_VALID` or `NO_RT` are present.
+    If it is not specified, the test is run via `vtkmodules.test.rtImageTest`.
 
 Additional flags may be passed to tests using the `${_vtk_build_test}_ARGS`
 variable or the `<NAME>_ARGS` variable.
-
-Note that the `vtkTclTest2Py` support will eventually be removed. It is a
-legacy of the conversion of many tests from Tcl to Python.
 #]==]
 function (vtk_add_test_python)
   if (NOT _vtk_testing_python_exe)
@@ -637,7 +630,6 @@ function (vtk_add_test_python)
     set(rtImageTest "")
     set(_B "")
     set(_V "")
-    set(_A "")
     if (NOT local_NO_VALID)
       if (local_NO_RT)
         if (local_DIRECT_DATA)
@@ -652,9 +644,7 @@ function (vtk_add_test_python)
           set(_V -V "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/${test_name}.png,:}")
         endif()
         if (NOT local_JUST_VALID)
-          # TODO: This should be fixed to also work from an installed VTK.
-          set(rtImageTest "${VTK_SOURCE_DIR}/Utilities/vtkTclTest2Py/rtImageTest.py")
-          set(_A -A "${VTK_SOURCE_DIR}/Utilities/vtkTclTest2Py")
+          set(rtImageTest -m "vtkmodules.test.rtImageTest")
         endif ()
       endif ()
     endif ()
@@ -689,7 +679,7 @@ function (vtk_add_test_python)
                          ${args}
                          ${${_vtk_build_test}_ARGS}
                          ${${test_name}_ARGS}
-                         ${_D} ${_B} ${_T} ${_V} ${_A})
+                         ${_D} ${_B} ${_T} ${_V})
 
     if (local_DIRECT_DATA)
       add_test(${testArgs})
