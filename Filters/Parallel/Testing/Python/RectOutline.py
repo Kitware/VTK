@@ -11,10 +11,14 @@ from vtkmodules.vtkRenderingCore import (
 import vtkmodules.vtkInteractionStyle
 import vtkmodules.vtkRenderingFreeType
 import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
+
+VTK_DATA_ROOT = vtkGetDataRoot()
+
 # create pipeline
 #
 reader = vtkXMLRectilinearGridReader()
-reader.SetFileName("" + str(VTK_DATA_ROOT) + "/Data/RectGrid2.vtr")
+reader.SetFileName(VTK_DATA_ROOT + "/Data/RectGrid2.vtr")
 
 outline = vtkRectilinearGridOutlineFilter()
 outline.SetInputConnection(reader.GetOutputPort())

@@ -21,7 +21,10 @@ from vtkmodules.vtkRenderingCore import (
 import vtkmodules.vtkInteractionStyle
 import vtkmodules.vtkRenderingFreeType
 import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 import os
+
+VTK_DATA_ROOT = vtkGetDataRoot()
 
 def DoPlot3DReaderTests(reader):
     # Ensure disable function works.

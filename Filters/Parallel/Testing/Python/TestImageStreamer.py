@@ -6,6 +6,9 @@ from vtkmodules.vtkImagingCore import vtkImageMapToColors
 from vtkmodules.vtkInteractionImage import vtkImageViewer
 import vtkmodules.vtkRenderingFreeType
 import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
+
+VTK_DATA_ROOT = vtkGetDataRoot()
 
 reader = vtkImageReader()
 reader.ReleaseDataFlagOff()

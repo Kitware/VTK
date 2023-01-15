@@ -16,6 +16,10 @@ from vtkmodules.vtkRenderingCore import (
 import vtkmodules.vtkInteractionStyle
 import vtkmodules.vtkRenderingFreeType
 import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
+
+VTK_DATA_ROOT = vtkGetDataRoot()
+
 # we need to use composite data pipeline with multiblock datasets
 alg = vtkAlgorithm()
 pip = vtkCompositeDataPipeline()
@@ -32,7 +36,7 @@ iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 
 pvTemp59 = vtkXMLRectilinearGridReader()
-pvTemp59.SetFileName("" + str(VTK_DATA_ROOT) + "/Data/cth.vtr")
+pvTemp59.SetFileName(VTK_DATA_ROOT + "/Data/cth.vtr")
 pvTemp59.UpdateInformation()
 pvTemp59.SetCellArrayStatus("X Velocity",0)
 pvTemp59.SetCellArrayStatus("Y Velocity",0)

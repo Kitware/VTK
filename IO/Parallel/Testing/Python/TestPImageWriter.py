@@ -5,8 +5,11 @@ from vtkmodules.vtkInteractionImage import vtkImageViewer
 import vtkmodules.vtkInteractionStyle
 import vtkmodules.vtkRenderingFreeType
 import vtkmodules.vtkRenderingOpenGL2
-from vtkmodules.vtkTestingRendering import vtkTesting
+from vtkmodules.util.misc import vtkGetDataRoot
 import os
+
+VTK_DATA_ROOT = vtkGetDataRoot()
+
 # Image pipeline
 image1 = vtkTIFFReader()
 image1.SetFileName("" + str(VTK_DATA_ROOT) + "/Data/beach.tif")
