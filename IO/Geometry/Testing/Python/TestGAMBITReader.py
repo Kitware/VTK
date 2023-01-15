@@ -15,7 +15,7 @@ VTK_DATA_ROOT = vtkGetDataRoot()
 
 # Read some Fluent GAMBIT in ASCII form
 reader = vtkGAMBITReader()
-reader.SetFileName("" + str(VTK_DATA_ROOT) + "/Data/prism.neu")
+reader.SetFileName(VTK_DATA_ROOT + "/Data/prism.neu")
 mapper = vtkDataSetMapper()
 mapper.SetInputConnection(reader.GetOutputPort())
 actor = vtkActor()

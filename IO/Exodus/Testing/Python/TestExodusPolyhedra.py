@@ -20,7 +20,7 @@ from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 rdr = vtkExodusIIReader()
-rdr.SetFileName(str(VTK_DATA_ROOT) + "/Data/dodecahedron.exo")
+rdr.SetFileName(VTK_DATA_ROOT + "/Data/dodecahedron.exo")
 rdr.Update()
 
 tfm = vtkTransformFilter()
@@ -32,7 +32,7 @@ tfm.SetTransform(xfm)
 tfm.Update()
 
 rd2 = vtkExodusIIReader()
-rd2.SetFileName(str(VTK_DATA_ROOT) + "/Data/cube-1.exo")
+rd2.SetFileName(VTK_DATA_ROOT + "/Data/cube-1.exo")
 rd2.Update()
 
 shr = vtkShrinkFilter()

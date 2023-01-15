@@ -42,7 +42,7 @@ from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 reader = vtkGenericEnSightReader()
-reader.SetCaseFileName("" + str(VTK_DATA_ROOT) + "/Data/EnSight/emptyParts_bin.case")
+reader.SetCaseFileName(VTK_DATA_ROOT + "/Data/EnSight/emptyParts_bin.case")
 reader.ReadAllVariablesOn()
 reader.Update()
 case = reader.GetOutput()

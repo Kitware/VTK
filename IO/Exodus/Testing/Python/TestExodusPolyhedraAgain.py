@@ -18,7 +18,7 @@ from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 rdr = vtkExodusIIReader()
-rdr.SetFileName(str(VTK_DATA_ROOT) + "/Data/shared_face_polyhedra.exo")
+rdr.SetFileName(VTK_DATA_ROOT + "/Data/shared_face_polyhedra.exo")
 rdr.Update()
 
 srf = vtkDataSetSurfaceFilter()

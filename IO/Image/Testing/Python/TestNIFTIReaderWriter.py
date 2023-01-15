@@ -40,7 +40,7 @@ dispfile = "avg152T1_RL_nifti.nii.gz"
 def TestDisplay(file1):
     """Display the output"""
 
-    inpath = os.path.join(str(VTK_DATA_ROOT), "Data", file1)
+    inpath = os.path.join(VTK_DATA_ROOT, "Data", file1)
 
     reader = vtkNIFTIImageReader()
     reader.SetFileName(inpath)
@@ -122,7 +122,7 @@ def TestDisplay(file1):
 def TestReadWriteRead(infile, outfile):
     """Read, write, and re-read a file, return difference."""
 
-    inpath = os.path.join(str(VTK_DATA_ROOT), "Data", infile)
+    inpath = os.path.join(VTK_DATA_ROOT, "Data", infile)
     outpath = os.path.join(str(VTK_TEMP_DIR), outfile)
 
     # read a NIFTI file

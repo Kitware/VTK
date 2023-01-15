@@ -12,7 +12,7 @@ VTK_DATA_ROOT = vtkGetDataRoot()
 # Displays the 3 components using color.
 # Image pipeline
 reader = vtkDICOMImageReader()
-reader.SetFileName("" + str(VTK_DATA_ROOT) + "/Data/mr.001")
+reader.SetFileName(VTK_DATA_ROOT + "/Data/mr.001")
 sobel = vtkImageSobel2D()
 sobel.SetInputConnection(reader.GetOutputPort())
 sobel.ReleaseDataFlagOff()

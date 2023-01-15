@@ -9,7 +9,7 @@ cdp = vtkCompositeDataPipeline()
 
 reader = vtkGenericEnSightReader()
 reader.SetDefaultExecutivePrototype(cdp)
-reader.SetCaseFileName("" + str(VTK_DATA_ROOT) + "/Data/EnSight/particles/particles.case")
+reader.SetCaseFileName(VTK_DATA_ROOT + "/Data/EnSight/particles/particles.case")
 reader.ReadAllVariablesOn()
 reader.UpdateTimeStep(0.000375)
 reader.UpdateTimeStep(9.9803)

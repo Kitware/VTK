@@ -17,7 +17,7 @@ VTK_DATA_ROOT = vtkGetDataRoot()
 # parallel coordinates,
 # Create a reader and write out the field
 reader = vtkUnstructuredGridReader()
-reader.SetFileName("" + str(VTK_DATA_ROOT) + "/Data/blow.vtk")
+reader.SetFileName(VTK_DATA_ROOT + "/Data/blow.vtk")
 reader.SetVectorsName("displacement9")
 reader.SetScalarsName("thickness9")
 ds2do = vtkDataSetToDataObjectFilter()

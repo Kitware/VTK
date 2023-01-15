@@ -49,7 +49,7 @@ class TestGPURayCastIndependentComponent(vtkmodules.test.Testing.vtkTest):
     def test(self):
         dataRoot = vtkGetDataRoot()
         reader =  vtkXMLImageDataReader()
-        reader.SetFileName("" + str(dataRoot) + "/Data/vase_4comp.vti")
+        reader.SetFileName(dataRoot + "/Data/vase_4comp.vti")
 
         volume = vtkVolume()
         #mapper = vtkFixedPointVolumeRayCastMapper()

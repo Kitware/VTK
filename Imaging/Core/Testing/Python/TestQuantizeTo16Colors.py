@@ -16,7 +16,7 @@ VTK_DATA_ROOT = vtkGetDataRoot()
 # Image pipeline
 reader = vtkPNMReader()
 reader.ReleaseDataFlagOff()
-reader.SetFileName("" + str(VTK_DATA_ROOT) + "/Data/earth.ppm")
+reader.SetFileName(VTK_DATA_ROOT + "/Data/earth.ppm")
 pad = vtkImageMirrorPad()
 pad.SetInputConnection(reader.GetOutputPort())
 pad.SetOutputWholeExtent(-120,320,-120,320,0,0)

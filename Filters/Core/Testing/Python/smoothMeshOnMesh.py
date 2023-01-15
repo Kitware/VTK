@@ -30,7 +30,7 @@ VTK_DATA_ROOT = vtkGetDataRoot()
 # Read some data from a Cyberware scanner
 #
 cyber = vtkPolyDataReader()
-cyber.SetFileName("" + str(VTK_DATA_ROOT) + "/Data/fran_cut.vtk")
+cyber.SetFileName(VTK_DATA_ROOT + "/Data/fran_cut.vtk")
 cyber.Update()
 # Create a patch by manual enumeration
 pts = vtkPoints()

@@ -15,14 +15,14 @@ VTK_DATA_ROOT = vtkGetDataRoot()
 
 # Read some AVS UCD data in ASCII form
 r = vtkAVSucdReader()
-r.SetFileName("" + str(VTK_DATA_ROOT) + "/Data/cellsnd.ascii.inp")
+r.SetFileName(VTK_DATA_ROOT + "/Data/cellsnd.ascii.inp")
 AVSMapper = vtkDataSetMapper()
 AVSMapper.SetInputConnection(r.GetOutputPort())
 AVSActor = vtkActor()
 AVSActor.SetMapper(AVSMapper)
 # Read some AVS UCD data in binary form
 r2 = vtkAVSucdReader()
-r2.SetFileName("" + str(VTK_DATA_ROOT) + "/Data/cellsnd.bin.inp")
+r2.SetFileName(VTK_DATA_ROOT + "/Data/cellsnd.bin.inp")
 AVSMapper2 = vtkDataSetMapper()
 AVSMapper2.SetInputConnection(r2.GetOutputPort())
 AVSActor2 = vtkActor()

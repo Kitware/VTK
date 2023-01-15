@@ -33,7 +33,7 @@ reader = vtkGenericEnSightReader()
 cdp = vtkCompositeDataPipeline()
 reader.SetDefaultExecutivePrototype(cdp)
 del cdp
-reader.SetCaseFileName("" + str(VTK_DATA_ROOT) + "/Data/EnSight/office6_bin.case")
+reader.SetCaseFileName(VTK_DATA_ROOT + "/Data/EnSight/office6_bin.case")
 reader.Update()
 
 outline = vtkStructuredGridOutlineFilter()

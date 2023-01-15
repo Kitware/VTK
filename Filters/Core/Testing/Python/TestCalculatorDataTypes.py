@@ -54,7 +54,7 @@ def makePolyData(attributeType):
 
 def makeGraph(attributeType):
     reader = vtkPDBReader()
-    reader.SetFileName("" + str(VTK_DATA_ROOT) + "/Data/3GQP.pdb")
+    reader.SetFileName(VTK_DATA_ROOT + "/Data/3GQP.pdb")
     reader.Update()
 
     molecule = reader.GetOutputDataObject(1)

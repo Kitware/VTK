@@ -34,8 +34,8 @@ iren.SetRenderWindow(renWin)
 # create pipeline
 #
 pl3d = vtkMultiBlockPLOT3DReader()
-pl3d.SetXYZFileName("" + str(VTK_DATA_ROOT) + "/Data/combxyz.bin")
-pl3d.SetQFileName("" + str(VTK_DATA_ROOT) + "/Data/combq.bin")
+pl3d.SetXYZFileName(VTK_DATA_ROOT + "/Data/combxyz.bin")
+pl3d.SetQFileName(VTK_DATA_ROOT + "/Data/combq.bin")
 pl3d.SetScalarFunctionNumber(110)
 pl3d.SetVectorFunctionNumber(202)
 pl3d.Update()

@@ -18,7 +18,7 @@ from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 rdr = vtkGenericEnSightReader()
-rdr.SetCaseFileName(str(VTK_DATA_ROOT) + "/Data/EnSight/pitzDaily.case")
+rdr.SetCaseFileName(VTK_DATA_ROOT + "/Data/EnSight/pitzDaily.case")
 rdr.Update()
 
 srf = vtkDataSetSurfaceFilter()

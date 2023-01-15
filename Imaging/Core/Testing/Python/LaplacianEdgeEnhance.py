@@ -13,7 +13,7 @@ VTK_DATA_ROOT = vtkGetDataRoot()
 # This script subtracts the 2D laplacian from an image to enhance the edges.
 # Image pipeline
 reader = vtkPNGReader()
-reader.SetFileName("" + str(VTK_DATA_ROOT) + "/Data/fullhead15.png")
+reader.SetFileName(VTK_DATA_ROOT + "/Data/fullhead15.png")
 cast = vtkImageCast()
 cast.SetInputConnection(reader.GetOutputPort())
 cast.SetOutputScalarTypeToDouble()

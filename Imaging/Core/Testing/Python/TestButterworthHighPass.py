@@ -14,7 +14,7 @@ VTK_DATA_ROOT = vtkGetDataRoot()
 # This script shows the result of an ideal highpass filter in frequency space.
 # Image pipeline
 reader = vtkPNGReader()
-reader.SetFileName("" + str(VTK_DATA_ROOT) + "/Data/fullhead15.png")
+reader.SetFileName(VTK_DATA_ROOT + "/Data/fullhead15.png")
 fft = vtkImageFFT()
 fft.SetDimensionality(2)
 fft.SetInputConnection(reader.GetOutputPort())

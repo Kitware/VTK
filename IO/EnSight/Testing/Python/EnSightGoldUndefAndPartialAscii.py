@@ -4,7 +4,7 @@ from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 reader = vtkGenericEnSightReader()
-reader.SetCaseFileName("" + str(VTK_DATA_ROOT) + "/Data/EnSight/UndefAndPartialAscii/grid.case")
+reader.SetCaseFileName(VTK_DATA_ROOT + "/Data/EnSight/UndefAndPartialAscii/grid.case")
 reader.ReadAllVariablesOn()
 reader.Update()
 

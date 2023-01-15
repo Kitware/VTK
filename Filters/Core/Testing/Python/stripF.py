@@ -29,7 +29,7 @@ iren.SetRenderWindow(renWin)
 # create a cyberware source
 #
 cyber = vtkPolyDataReader()
-cyber.SetFileName("" + str(VTK_DATA_ROOT) + "/Data/fran_cut.vtk")
+cyber.SetFileName(VTK_DATA_ROOT + "/Data/fran_cut.vtk")
 normals = vtkPolyDataNormals()
 #enable this for cool effect
 normals.SetInputConnection(cyber.GetOutputPort())

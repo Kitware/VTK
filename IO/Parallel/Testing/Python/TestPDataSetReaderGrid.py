@@ -65,8 +65,8 @@ if os.access(".", os.W_OK):
     # ====== Structured Grid ======
     # First save out a grid in parallel form.
     reader = vtkMultiBlockPLOT3DReader()
-    reader.SetXYZFileName("" + str(VTK_DATA_ROOT) + "/Data/combxyz.bin")
-    reader.SetQFileName("" + str(VTK_DATA_ROOT) + "/Data/combq.bin")
+    reader.SetXYZFileName(VTK_DATA_ROOT + "/Data/combxyz.bin")
+    reader.SetQFileName(VTK_DATA_ROOT + "/Data/combq.bin")
     reader.Update()
 
     # before we continue on with the test, let's quickly do some

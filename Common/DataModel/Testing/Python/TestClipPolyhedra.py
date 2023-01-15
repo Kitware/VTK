@@ -28,7 +28,7 @@ iren.SetRenderWindow(renWin)
 
 # Read input dataset that has n-faced polyhedra
 reader = vtkExodusIIReader()
-reader.SetFileName(str(VTK_DATA_ROOT) + "/Data/cube-1.exo")
+reader.SetFileName(VTK_DATA_ROOT + "/Data/cube-1.exo")
 reader.Update()
 dataset = reader.GetOutput()
 

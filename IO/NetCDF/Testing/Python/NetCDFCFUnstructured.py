@@ -21,7 +21,7 @@ renWin.SetSize(400,200)
 # Case 1: Spherical coordinates off.
 # Open the file.
 reader_cartesian = vtkNetCDFCFReader()
-reader_cartesian.SetFileName("" + str(VTK_DATA_ROOT) + "/Data/sampleGenGrid3.nc")
+reader_cartesian.SetFileName(VTK_DATA_ROOT + "/Data/sampleGenGrid3.nc")
 # Set the arrays we want to load.
 reader_cartesian.UpdateMetaData()
 reader_cartesian.SetVariableArrayStatus("sample",1)
@@ -46,7 +46,7 @@ renWin.AddRenderer(ren_cartesian)
 # Case 2: Spherical coordinates on.
 # Open the file.
 reader_spherical = vtkNetCDFCFReader()
-reader_spherical.SetFileName("" + str(VTK_DATA_ROOT) + "/Data/sampleGenGrid3.nc")
+reader_spherical.SetFileName(VTK_DATA_ROOT + "/Data/sampleGenGrid3.nc")
 # Set the arrays we want to load.
 reader_spherical.UpdateMetaData()
 reader_spherical.SetVariableArrayStatus("sample",1)
@@ -72,7 +72,7 @@ renWin.AddRenderer(ren_spherical)
 # The resulting data is garbage, so we won't actually look at the output.
 # This is just to verify that nothing errors out or crashes.
 reader_structured = vtkNetCDFCFReader()
-reader_structured.SetFileName("" + str(VTK_DATA_ROOT) + "/Data/sampleGenGrid3.nc")
+reader_structured.SetFileName(VTK_DATA_ROOT + "/Data/sampleGenGrid3.nc")
 reader_structured.UpdateMetaData()
 reader_structured.SetVariableArrayStatus("sample",1)
 reader_structured.SphericalCoordinatesOn()

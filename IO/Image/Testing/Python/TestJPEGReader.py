@@ -9,8 +9,8 @@ VTK_DATA_ROOT = vtkGetDataRoot()
 
 # Image pipeline
 createReader = vtkImageReader2Factory()
-reader = createReader.CreateImageReader2("" + str(VTK_DATA_ROOT) + "/Data/beach.jpg")
-reader.SetFileName("" + str(VTK_DATA_ROOT) + "/Data/beach.jpg")
+reader = createReader.CreateImageReader2(VTK_DATA_ROOT + "/Data/beach.jpg")
+reader.SetFileName(VTK_DATA_ROOT + "/Data/beach.jpg")
 viewer = vtkImageViewer()
 viewer.SetInputConnection(reader.GetOutputPort())
 viewer.SetColorWindow(256)

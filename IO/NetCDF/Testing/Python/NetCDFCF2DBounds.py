@@ -21,7 +21,7 @@ renWin.SetSize(400,200)
 # Case 1: Spherical coordinates off.
 # Open the file.
 reader_cartesian = vtkNetCDFCFReader()
-reader_cartesian.SetFileName("" + str(VTK_DATA_ROOT) + "/Data/sampleCurveGrid4.nc")
+reader_cartesian.SetFileName(VTK_DATA_ROOT + "/Data/sampleCurveGrid4.nc")
 # Set the arrays we want to load.
 reader_cartesian.UpdateMetaData()
 reader_cartesian.SetVariableArrayStatus("sample",1)
@@ -50,7 +50,7 @@ renWin.AddRenderer(ren_cartesian)
 # Case 2: Spherical coordinates on.
 # Open the file.
 reader_spherical = vtkNetCDFCFReader()
-reader_spherical.SetFileName("" + str(VTK_DATA_ROOT) + "/Data/sampleCurveGrid4.nc")
+reader_spherical.SetFileName(VTK_DATA_ROOT + "/Data/sampleCurveGrid4.nc")
 # Set the arrays we want to load.
 reader_spherical.UpdateMetaData()
 reader_spherical.SetVariableArrayStatus("sample",1)

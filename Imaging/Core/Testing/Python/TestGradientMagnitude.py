@@ -10,7 +10,7 @@ VTK_DATA_ROOT = vtkGetDataRoot()
 
 # Image pipeline
 reader = vtkGESignaReader()
-reader.SetFileName("" + str(VTK_DATA_ROOT) + "/Data/E07733S002I009.MR")
+reader.SetFileName(VTK_DATA_ROOT + "/Data/E07733S002I009.MR")
 gradient = vtkImageGradientMagnitude()
 gradient.SetDimensionality(2)
 gradient.SetInputConnection(reader.GetOutputPort())

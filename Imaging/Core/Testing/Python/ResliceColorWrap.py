@@ -12,7 +12,7 @@ VTK_DATA_ROOT = vtkGetDataRoot()
 # we have to make sure it works with multiple scalar components
 # Image pipeline
 reader = vtkBMPReader()
-reader.SetFileName("" + str(VTK_DATA_ROOT) + "/Data/masonry.bmp")
+reader.SetFileName(VTK_DATA_ROOT + "/Data/masonry.bmp")
 reader.SetDataExtent(0,255,0,255,0,0)
 reader.SetDataSpacing(1,1,1)
 reader.SetDataOrigin(0,0,0)

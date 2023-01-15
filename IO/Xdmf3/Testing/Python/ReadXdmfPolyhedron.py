@@ -11,7 +11,7 @@ from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 if __name__ == "__main__":
-    fnameIn = "" + str(VTK_DATA_ROOT) + "/Data/XDMF/polyhedron.xmf"
+    fnameIn = VTK_DATA_ROOT + "/Data/XDMF/polyhedron.xmf"
 
     xr = vtkXdmf3Reader()
     xr.CanReadFile(fnameIn)

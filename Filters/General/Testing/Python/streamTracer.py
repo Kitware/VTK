@@ -32,7 +32,7 @@ iren.SetRenderWindow(renWin)
 # read data
 #
 reader = vtkStructuredGridReader()
-reader.SetFileName("" + str(VTK_DATA_ROOT) + "/Data/office.binary.vtk")
+reader.SetFileName(VTK_DATA_ROOT + "/Data/office.binary.vtk")
 reader.Update()
 #force a read to occur
 outline = vtkStructuredGridOutlineFilter()

@@ -60,7 +60,7 @@ if "--do_big_files" in sys.argv:
 if __name__ == "__main__":
   for fname in testfilenames:
     xr = vtkXdmf3Reader()
-    afname = "" + str(VTK_DATA_ROOT) + "/Data/XDMF/" + fname
+    afname = VTK_DATA_ROOT + "/Data/XDMF/" + fname
     print ("Trying %s" % afname)
     xr.CanReadFile(afname)
     xr.SetFileName(afname)

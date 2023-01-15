@@ -20,7 +20,7 @@ VTK_DATA_ROOT = vtkGetDataRoot()
 # read an image that has an extent of 0 255 0 255 0 0
 reader = vtkPNGReader()
 reader.SetDataSpacing(0.8,0.8,1.5)
-reader.SetFileName("" + str(VTK_DATA_ROOT) + "/Data/fullhead15.png")
+reader.SetFileName(VTK_DATA_ROOT + "/Data/fullhead15.png")
 # Uncomment this to make the crash disappear
 #reader Update
 # clip the image down to 0 127 0 127 0 0

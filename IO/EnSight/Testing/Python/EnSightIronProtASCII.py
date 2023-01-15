@@ -34,7 +34,7 @@ reader = vtkGenericEnSightReader()
 # Make sure all algorithms use the composite data pipeline
 cdp = vtkCompositeDataPipeline()
 reader.SetDefaultExecutivePrototype(cdp)
-reader.SetCaseFileName("" + str(VTK_DATA_ROOT) + "/Data/EnSight/ironProt_ascii.case")
+reader.SetCaseFileName(VTK_DATA_ROOT + "/Data/EnSight/ironProt_ascii.case")
 Contour0 = vtkContourFilter()
 Contour0.SetInputConnection(reader.GetOutputPort())
 Contour0.SetValue(0,200)

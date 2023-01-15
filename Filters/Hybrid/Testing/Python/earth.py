@@ -34,7 +34,7 @@ earthActor.SetMapper(earthMapper)
 #
 atext = vtkTexture()
 pnmReader = vtkPNMReader()
-pnmReader.SetFileName("" + str(VTK_DATA_ROOT) + "/Data/earth.ppm")
+pnmReader.SetFileName(VTK_DATA_ROOT + "/Data/earth.ppm")
 atext.SetInputConnection(pnmReader.GetOutputPort())
 atext.InterpolateOn()
 earthActor.SetTexture(atext)

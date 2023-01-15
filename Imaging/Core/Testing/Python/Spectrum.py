@@ -19,7 +19,7 @@ VTK_DATA_ROOT = vtkGetDataRoot()
 # This scripts shows a compressed spectrum of an image.
 # Image pipeline
 reader = vtkPNGReader()
-reader.SetFileName("" + str(VTK_DATA_ROOT) + "/Data/fullhead15.png")
+reader.SetFileName(VTK_DATA_ROOT + "/Data/fullhead15.png")
 fft = vtkImageFFT()
 fft.SetInputConnection(reader.GetOutputPort())
 fft.ReleaseDataFlagOff()

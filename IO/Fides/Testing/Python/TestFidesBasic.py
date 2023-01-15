@@ -17,9 +17,9 @@ from vtk.test import Testing
 class TestFidesBasic(Testing.vtkTest):
     def testFirst(self):
         r = vtkIOFides.vtkFidesReader()
-        r.ParseDataModel("" + str(VTK_DATA_ROOT) + "/Data/vtk-uns-grid-2.json")
+        r.ParseDataModel(VTK_DATA_ROOT + "/Data/vtk-uns-grid-2.json")
         r.SetDataSourcePath("source",
-            "" + str(VTK_DATA_ROOT) + "/Data/tris-blocks-time.bp")
+            VTK_DATA_ROOT + "/Data/tris-blocks-time.bp")
         r.UpdateInformation()
         self.assertTrue(r.GetOutputInformation(0).Has(
             vtkStreamingDemandDrivenPipeline.TIME_STEPS()))
@@ -47,9 +47,9 @@ class TestFidesBasic(Testing.vtkTest):
 
     def testSecond(self):
         r = vtkIOFides.vtkFidesReader()
-        r.ParseDataModel(str(VTK_DATA_ROOT) + "/Data/vtk-uns-grid-2.json")
+        r.ParseDataModel(VTK_DATA_ROOT + "/Data/vtk-uns-grid-2.json")
         r.SetDataSourcePath("source",
-            str(VTK_DATA_ROOT) + "/Data/tris-blocks-time.bp")
+            VTK_DATA_ROOT + "/Data/tris-blocks-time.bp")
         r.UpdateInformation()
         self.assertTrue(r.GetOutputInformation(0).Has(
             vtkStreamingDemandDrivenPipeline.TIME_STEPS()))
@@ -77,9 +77,9 @@ class TestFidesBasic(Testing.vtkTest):
 
     def testThird(self):
         r = vtkIOFides.vtkFidesReader()
-        r.ParseDataModel(str(VTK_DATA_ROOT) + "/Data/vtk-uns-grid-2.json")
+        r.ParseDataModel(VTK_DATA_ROOT + "/Data/vtk-uns-grid-2.json")
         r.SetDataSourcePath("source",
-            str(VTK_DATA_ROOT) + "/Data/tris-blocks-time.bp")
+            VTK_DATA_ROOT + "/Data/tris-blocks-time.bp")
         r.PrepareNextStep()
         r.Update()
         r.PrepareNextStep()

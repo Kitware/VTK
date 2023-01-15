@@ -21,7 +21,7 @@ class TestSynchronizedTemplates3D(Testing.vtkTest):
     reader.SetDataByteOrderToLittleEndian()
     reader.SetDataExtent(0,63,0,63,1,93)
     reader.SetDataSpacing(3.2,3.2,1.5)
-    reader.SetFilePrefix("" + str(VTK_DATA_ROOT) + "/Data/headsq/quarter")
+    reader.SetFilePrefix(VTK_DATA_ROOT + "/Data/headsq/quarter")
     reader.SetDataMask(0x7fff)
     # write isosurface to file
     #vtkSynchronizedTemplates3D stemp

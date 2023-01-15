@@ -13,7 +13,7 @@ VTK_DATA_ROOT = vtkGetDataRoot()
 # first the image is thresholded, then small islands are removed.
 # Image pipeline
 reader = vtkPNGReader()
-reader.SetFileName("" + str(VTK_DATA_ROOT) + "/Data/fullhead15.png")
+reader.SetFileName(VTK_DATA_ROOT + "/Data/fullhead15.png")
 thresh = vtkImageThreshold()
 thresh.SetInputConnection(reader.GetOutputPort())
 thresh.ThresholdByUpper(2000.0)

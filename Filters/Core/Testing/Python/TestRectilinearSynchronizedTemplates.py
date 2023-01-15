@@ -17,7 +17,7 @@ VTK_DATA_ROOT = vtkGetDataRoot()
 # create pipeline - rectilinear grid
 #
 rgridReader = vtkRectilinearGridReader()
-rgridReader.SetFileName("" + str(VTK_DATA_ROOT) + "/Data/RectGrid2.vtk")
+rgridReader.SetFileName(VTK_DATA_ROOT + "/Data/RectGrid2.vtk")
 rgridReader.Update()
 contour = vtkRectilinearSynchronizedTemplates()
 contour.SetInputConnection(rgridReader.GetOutputPort())

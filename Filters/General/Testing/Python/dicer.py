@@ -26,7 +26,7 @@ iren.SetRenderWindow(renWin)
 # create pipeline
 #
 reader = vtkSTLReader()
-reader.SetFileName("" + str(VTK_DATA_ROOT) + "/Data/42400-IDGH.stl")
+reader.SetFileName(VTK_DATA_ROOT + "/Data/42400-IDGH.stl")
 dicer = vtkOBBDicer()
 dicer.SetInputConnection(reader.GetOutputPort())
 dicer.SetNumberOfPointsPerPiece(1000)

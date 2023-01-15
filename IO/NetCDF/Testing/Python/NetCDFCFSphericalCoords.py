@@ -21,7 +21,7 @@ VTK_DATA_ROOT = vtkGetDataRoot()
 # This test checks netCDF reader.  It uses the CF convention.
 # Open the file.
 reader = vtkNetCDFCFReader()
-reader.SetFileName("" + str(VTK_DATA_ROOT) + "/Data/tos_O1_2001-2002.nc")
+reader.SetFileName(VTK_DATA_ROOT + "/Data/tos_O1_2001-2002.nc")
 # Set the arrays we want to load.
 reader.UpdateMetaData()
 reader.SetVariableArrayStatus("tos",1)

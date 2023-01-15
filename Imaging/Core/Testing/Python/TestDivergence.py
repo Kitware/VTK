@@ -12,7 +12,7 @@ VTK_DATA_ROOT = vtkGetDataRoot()
 # Divergence measures rate of change of gradient.
 # Image pipeline
 reader = vtkPNGReader()
-reader.SetFileName("" + str(VTK_DATA_ROOT) + "/Data/fullhead15.png")
+reader.SetFileName(VTK_DATA_ROOT + "/Data/fullhead15.png")
 gradient = vtkImageGradient()
 gradient.SetDimensionality(2)
 gradient.SetInputConnection(reader.GetOutputPort())

@@ -32,7 +32,7 @@ reader = vtkGenericEnSightReader()
 # Make sure all algorithms use the composite data pipeline
 cdp = vtkCompositeDataPipeline()
 reader.SetDefaultExecutivePrototype(cdp)
-reader.SetCaseFileName("" + str(VTK_DATA_ROOT) + "/Data/EnSight/office_bin.case")
+reader.SetCaseFileName(VTK_DATA_ROOT + "/Data/EnSight/office_bin.case")
 reader.Update()
 outline = vtkStructuredGridOutlineFilter()
 #    outline SetInputConnection [reader GetOutputPort]

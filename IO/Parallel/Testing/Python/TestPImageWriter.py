@@ -12,7 +12,7 @@ VTK_DATA_ROOT = vtkGetDataRoot()
 
 # Image pipeline
 image1 = vtkTIFFReader()
-image1.SetFileName("" + str(VTK_DATA_ROOT) + "/Data/beach.tif")
+image1.SetFileName(VTK_DATA_ROOT + "/Data/beach.tif")
 # "beach.tif" image contains ORIENTATION tag which is
 # ORIENTATION_TOPLEFT (row 0 top, col 0 lhs) type. The TIFF
 # reader parses this tag and sets the internal TIFF image

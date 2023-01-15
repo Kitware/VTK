@@ -25,7 +25,7 @@ controller = vtkMultiProcessController.GetGlobalController()
 rank = controller.GetLocalProcessId()
 
 pioreader = vtkPIOReader()
-pioreader.SetFileName("" + str(VTK_DATA_ROOT) + "/Data/PIO/simple.pio")
+pioreader.SetFileName(VTK_DATA_ROOT + "/Data/PIO/simple.pio")
 pioreader.UpdateInformation()
 
 # confirm default arrays are enabled

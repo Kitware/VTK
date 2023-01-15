@@ -24,7 +24,7 @@ iren.SetRenderWindow(renWin)
 # create pipeline
 #
 cow = vtkBYUReader()
-cow.SetGeometryFileName("" + str(VTK_DATA_ROOT) + "/Data/Viewpoint/cow.g")
+cow.SetGeometryFileName(VTK_DATA_ROOT + "/Data/Viewpoint/cow.g")
 cowMapper = vtkPolyDataMapper()
 cowMapper.SetInputConnection(cow.GetOutputPort())
 cowActor = vtkActor()
