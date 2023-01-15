@@ -187,7 +187,6 @@ if os.access(".", os.W_OK):
     if pReader3.GetOutput().GetNumberOfCells() != 48:
         print("pReader3 output should have 48 cells but has %d" % pReader3.GetOutput().GetNumberOfCells())
         sys.exit(1)
-    pass
 
 ren1.SetBackground(0.1,0.2,0.4)
 renWin.SetSize(300,300)

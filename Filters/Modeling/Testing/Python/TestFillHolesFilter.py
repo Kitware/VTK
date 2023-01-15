@@ -61,7 +61,6 @@ while j <= yRes:
             polys.InsertCellPoint(i + ((j - 1) * yPtsRes))
             polys.InsertCellPoint(i + (j * yPtsRes))
             polys.InsertCellPoint(i - 1 + (j * yPtsRes))
-            pass
         i += 1
     j += 1
 

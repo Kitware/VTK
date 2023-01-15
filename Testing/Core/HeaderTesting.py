@@ -79,7 +79,6 @@ class TestVTKFiles:
             "fstream.h",
             "windows.h"
             ]
-        pass
     def SetExport(self, export):
         self.Export = export
     def Print(self, text=""):
@@ -91,11 +90,9 @@ class TestVTKFiles:
     def Error(self, error):
         self.ErrorValue = 1
         self.Errors[error] = 1
-        pass
     def Warning(self, warning):
         self.WarningValue = 1
         self.Warnings[warning] = 1
-        pass
     def PrintErrors(self):
         if self.ErrorValue:
             self.Print( )
@@ -210,7 +207,6 @@ class TestVTKFiles:
         if is_open:
             self.Print( "File: %s does not close an ABI namespace: " % self.FileName )
             self.Error('Missing VTK_ABI_NAMESPACE_END.')
-        pass
 
     def CheckIncludes(self):
         if not self.HasIncludes or not self.HasClass:
@@ -277,7 +273,6 @@ class TestVTKFiles:
             self.Print( "File: %s does not include parent \"%s.h\"" %
                         ( self.FileName, self.ParentName ) )
             self.Error("Does not include parent")
-        pass
 
     def CheckGuard(self):
         guardre = r"^#ifndef\s+([^ ]*)_h$"
@@ -359,7 +354,6 @@ class TestVTKFiles:
         #self.Print( "Classname: %s ParentName: %s" % (cname, pname)
         self.ClassName = cname
         self.ParentName = pname
-        pass
 
     def CheckTypeMacro(self):
         if not self.HasClass:
@@ -421,7 +415,6 @@ class TestVTKFiles:
             self.Print( "Should be:\n vtkTypeMacro(%s, %s)" %
                             (self.ClassName, self.ParentName))
             self.Error("No type macro")
-        pass
 
     def CheckForCopyAndAssignment(self):
         if not self.ClassName:
@@ -477,7 +470,6 @@ class TestVTKFiles:
             self.Print( "File: %s defines multiple assignment operators" %
                         self.FileName )
             self.Error("Multiple assignment operators")
-        pass
 
     def CheckWeirdConstructors(self):
         if not self.HasClass:
@@ -505,7 +497,6 @@ class TestVTKFiles:
                 self.Print( a )
             self.Print( "There should be only:\n %s();" % self.ClassName )
             self.Error("Weird constructor")
-        pass
 
     def CheckPrintSelf(self):
         if not self.ClassName:
@@ -528,7 +519,6 @@ class TestVTKFiles:
             self.Print( "File: %s does not define PrintSelf method:" %
                         self.FileName )
             self.Warning("No PrintSelf method")
-        pass
 
     def CheckWindowsMangling(self):
         lines = []
@@ -552,7 +542,6 @@ class TestVTKFiles:
             for a in lines:
                 self.Print(a)
             self.Error("Windows Mangling Violation - choose another name that does not conflict.")
-        pass
 
 ##
 parser = cli.ArgumentParser()

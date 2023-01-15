@@ -67,7 +67,6 @@ def TkCheckAbort (a=0,b=0,__vtk__temp0=0,__vtk__temp1=0):
     foo = renWin.GetEventPending()
     if (foo != 0):
         renWin.SetAbortRender(1)
-        pass
 
 renWin.AddObserver("AbortCheckEvent",TkCheckAbort)
 # prevent the tk window from showing up then start the event loop

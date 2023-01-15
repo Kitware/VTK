@@ -42,7 +42,6 @@ def changeLUT (a=0,b=0,__vtk__temp0=0,__vtk__temp1=0):
     if (rangeEnd > 1.0):
         rangeStart = 0.0
         rangeEnd = 0.2
-        pass
     LUT.SetHueRange(rangeStart,rangeEnd)
     LUT.Build()
 

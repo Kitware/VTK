@@ -53,7 +53,6 @@ def MotionCallback (x,y,__vtk__temp0=0,__vtk__temp1=0):
     if (val != LastVal):
         renWin.Render()
         LastVal = val
-        pass
 
 def ButtonCallback (x,y,__vtk__temp0=0,__vtk__temp1=0):
     # Compute display point from Tk display point.

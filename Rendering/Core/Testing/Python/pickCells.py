@@ -486,10 +486,8 @@ while x <= 265:
         worldPicker.Pick(x,y,0,ren1)
         if (cellPicker.GetCellId() != "-1"):
             cellCount = cellCount + 1
-            pass
         if (pointPicker.GetPointId() != "-1"):
             pointCount = pointCount + 1
-            pass
         y = y + 6
 
     x = x + 6

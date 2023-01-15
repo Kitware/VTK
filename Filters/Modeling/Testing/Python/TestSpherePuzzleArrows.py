@@ -64,7 +64,6 @@ def MotionCallback (x, y):
     if (val != LastVal):
         renWin.Render()
         LastVal = val
-        pass
 
 def ButtonCallback (x, y):
     WindowY = 400
