@@ -89,16 +89,4 @@ ren3.SetViewport(0,0,.33,1)
 ren2.SetViewport(.33,0,.67,1)
 ren1.SetViewport(.67,0,1,1)
 iren.Initialize()
-def flat (__vtk__temp0=0,__vtk__temp1=0):
-    actor.GetProperty().SetInterpolationToFlat()
-    actor2.GetProperty().SetInterpolationToFlat()
-    actor3.GetProperty().SetInterpolationToFlat()
-    renWin.Render()
-
-def smooth (__vtk__temp0=0,__vtk__temp1=0):
-    actor.GetProperty().SetInterpolationToGouraud()
-    actor2.GetProperty().SetInterpolationToGouraud()
-    actor3.GetProperty().SetInterpolationToGouraud()
-    renWin.Render()
-
 # --- end of script --

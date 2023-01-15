@@ -148,9 +148,8 @@ renWin.Render()
 
 #---------------------------------------------------------
 # test-related code
-def TkCheckAbort (__vtk__temp0=0, __vtk__temp1=0):
-    foo = renWin.GetEventPending()
-    if (foo != 0):
+def TkCheckAbort(obj=None, event=""):
+    if renWin.GetEventPending():
         renWin.SetAbortRender(1)
 
 renWin.AddObserver("AbortCheckEvent", TkCheckAbort)

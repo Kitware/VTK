@@ -79,7 +79,6 @@ vtk_add_test_python(
   TestBlendStencil.py
   TestExtractVOI.py
   TestImageWeightedSum.py
-  # WindowLevelInterface.py  # TCL test not being made as well !!!
   imageMCAll.py,NO_RT
   TestAllBlends.py,NO_RT
   TestAllBlendsFloat.py,NO_RT

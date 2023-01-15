@@ -35,11 +35,11 @@ LUT.Build()
 # The prototype of this function has
 # arguments so that the code can be
 # translated to python for testing.
-def changeLUT (a=0,b=0,__vtk__temp0=0,__vtk__temp1=0):
+def changeLUT(obj=None, event=""):
     global rangeStart, rangeEnd
-    rangeStart = expr.expr(globals(), locals(),["rangeStart","+","0.1"])
-    rangeEnd = expr.expr(globals(), locals(),["rangeEnd","+","0.1"])
-    if (rangeEnd > 1.0):
+    rangeStart += 0.1
+    rangeEnd += 0.1
+    if rangeEnd > 1.0:
         rangeStart = 0.0
         rangeEnd = 0.2
     LUT.SetHueRange(rangeStart,rangeEnd)

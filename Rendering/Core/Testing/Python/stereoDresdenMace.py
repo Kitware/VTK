@@ -63,9 +63,8 @@ cam1.Zoom(1.4)
 iren.Initialize()
 # default arguments added so that the prototype matches
 # as required in Python when the test is translated.
-def TkCheckAbort (a=0,b=0,__vtk__temp0=0,__vtk__temp1=0):
-    foo = renWin.GetEventPending()
-    if (foo != 0):
+def TkCheckAbort(obj=None, event=""):
+    if renWin.GetEventPending():
         renWin.SetAbortRender(1)
 
 renWin.AddObserver("AbortCheckEvent",TkCheckAbort)

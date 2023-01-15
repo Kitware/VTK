@@ -54,7 +54,7 @@ renWin.Render()
 #
 # prevent the tk window from showing up then start the event loop
 #
-def RotateX (__vtk__temp0=0,__vtk__temp1=0):
+def RotateX():
     cowActor.SetOrientation(0,0,0)
     ren1.ResetCameraClippingRange()
     renWin.Render()
@@ -69,7 +69,7 @@ def RotateX (__vtk__temp0=0,__vtk__temp1=0):
 
     renWin.EraseOn()
 
-def RotateY (__vtk__temp0=0,__vtk__temp1=0):
+def RotateY():
     cowActor.SetOrientation(0,0,0)
     ren1.ResetCameraClippingRange()
     renWin.Render()
@@ -84,7 +84,7 @@ def RotateY (__vtk__temp0=0,__vtk__temp1=0):
 
     renWin.EraseOn()
 
-def RotateZ (__vtk__temp0=0,__vtk__temp1=0):
+def RotateZ():
     cowActor.SetOrientation(0,0,0)
     ren1.ResetCameraClippingRange()
     renWin.Render()
@@ -99,7 +99,7 @@ def RotateZ (__vtk__temp0=0,__vtk__temp1=0):
 
     renWin.EraseOn()
 
-def RotateXY (__vtk__temp0=0,__vtk__temp1=0):
+def RotateXY():
     cowActor.SetOrientation(0,0,0)
     cowActor.RotateX(60)
     ren1.ResetCameraClippingRange()

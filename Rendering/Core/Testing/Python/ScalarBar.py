@@ -25,7 +25,7 @@ VTK_DATA_ROOT = vtkGetDataRoot()
 sphere = vtkSphereSource()
 sphere.SetThetaResolution(20)
 sphere.SetPhiResolution(40)
-def colorCells (__vtk__temp0=0,__vtk__temp1=0):
+def colorCells(obj=None, event=""):
     randomColorGenerator = vtkMath()
     input = randomColors.GetInput()
     output = randomColors.GetOutput()
@@ -40,9 +40,6 @@ def colorCells (__vtk__temp0=0,__vtk__temp1=0):
     output.GetCellData().CopyScalarsOff()
     output.GetCellData().PassData(input.GetCellData())
     output.GetCellData().SetScalars(colors)
-    del colors
-    #reference counting - it's ok
-    del randomColorGenerator
 
 # Compute random scalars (colors) for each cell
 randomColors = vtkProgrammableAttributeDataFilter()
@@ -83,5 +80,4 @@ ren1.GetActiveCamera().Zoom(1.5)
 renWin.Render()
 scalarBar.SetNumberOfLabels(8)
 renWin.Render()
-# prevent the tk window from showing up then start the event loop
 # --- end of script --
