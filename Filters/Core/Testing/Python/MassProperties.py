@@ -18,7 +18,7 @@
 =========================================================================
 '''
 
-import StringIO
+from io import StringIO
 import sys
 from vtkmodules.vtkFiltersCore import (
     vtkMassProperties,
@@ -110,7 +110,7 @@ class MassProperties(vtkmodules.test.Testing.vtkTest):
             mp[primitive].SetInputConnection(tf[primitive].GetOutputPort())
 
             # here we capture stdout and write it to a variable for processing.
-            summary = StringIO.StringIO()
+            summary = StringIO()
             # save the original stdout
             old_stdout = sys.stdout
             sys.stdout = summary

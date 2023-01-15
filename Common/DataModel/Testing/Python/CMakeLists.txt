@@ -16,6 +16,7 @@ vtk_add_test_python(
   TestNumericArrayImageData.py,NO_DATA,NO_VALID
   TestPartitionedData.py,NO_DATA,NO_VALID
   TestPointInPolygon.py,NO_DATA,NO_VALID
+  TestPolyDataGetCellPoints.py,NO_DATA,NO_VALID
   TestQuadricClustering.py
   TestStaticPointLocator.py,NO_DATA,NO_VALID
   TestStaticPointLocator2.py,NO_DATA,NO_VALID
@@ -44,6 +45,8 @@ vtk_add_test_python(
   TestHyperTreeGrid3DMask.py,NO_DATA,NO_VALID
   TestHyperTreeGrid3DWithFilters.py,NO_DATA,NO_VALID
   TestHyperTreeGrid3DMandel.py,NO_DATA,NO_VALID
+  TestUniformHyperTreeGrid2DFull.py
+  TestUniformHyperTreeGrid2DMask.py
   TestUniformHyperTreeGrid2DWithFilters.py,NO_DATA,NO_VALID
   TestUniformHyperTreeGrid3DWithFilters.py,NO_DATA,NO_VALID
   TestHyperTreeGrid3DCursorsMandel.py,NO_RT,NO_DATA,NO_VALID
