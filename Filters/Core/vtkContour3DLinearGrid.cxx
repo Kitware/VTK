@@ -1151,7 +1151,7 @@ int ProcessMerged(vtkContour3DLinearGrid* filter, vtkPoints* inPts, vtkPoints* o
       {
         pointArrays->ExcludeArray(inScalars);
       }
-      pointArrays->AddArrays(numPts, inPD, outPD);
+      pointArrays->AddArrays(numPts, inPD, outPD, 0.0, /*promote=*/false);
       if (!computeScalars)
       {
         outPD->RemoveArray(inScalars->GetName());
@@ -1168,7 +1168,7 @@ int ProcessMerged(vtkContour3DLinearGrid* filter, vtkPoints* inPts, vtkPoints* o
     if (totalTris <= 0) // first contour value generating output
     {
       outCD->CopyAllocate(inCD, numTris);
-      cellArrays->AddArrays(numTris, inCD, outCD);
+      cellArrays->AddArrays(numTris, inCD, outCD, 0.0, /*promote=*/false);
     }
     else
     {
