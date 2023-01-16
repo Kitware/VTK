@@ -396,7 +396,6 @@ void vtkCellDataToPointData::GetCellArraysToProcess(const char* names[])
 int vtkCellDataToPointData::RequestData(
   vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
-  vtkSMPTools::SetBackend("SEQUENTIAL");
   vtkDataSet* input = vtkDataSet::GetData(inputVector[0]);
   vtkDataSet* output = vtkDataSet::GetData(outputVector);
 
