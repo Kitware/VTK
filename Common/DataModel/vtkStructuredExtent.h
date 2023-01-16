@@ -40,7 +40,7 @@ public:
   /**
    * Clamps \c ext to fit in \c wholeExt.
    */
-  static void Clamp(int ext[6], const int wholeExt[]);
+  static void Clamp(int ext[6], const int wholeExt[6]);
 
   /**
    * Returns true if \c ext is fits within \c wholeExt with at least 1 dimension
