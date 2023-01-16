@@ -181,6 +181,8 @@ setup(
             '*.dll',
             # Type information stubs
             '*.pyi',
+            # Type information indicators
+            '*.typed',
         ],
     },
     cmdclass={
