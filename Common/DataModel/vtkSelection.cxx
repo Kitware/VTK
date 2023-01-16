@@ -690,7 +690,7 @@ vtkSmartPointer<vtkSignedCharArray> vtkSelection::Evaluate(
   }
 
   auto tree = this->Internals->BuildExpressionTree(expr, values_map);
-  if (tree && (!values_map.empty()))
+  if (tree && (!values_map.empty()) && numVals != -1)
   {
     auto result = vtkSmartPointer<vtkSignedCharArray>::New();
     result->SetNumberOfComponents(1);
@@ -706,6 +706,11 @@ vtkSmartPointer<vtkSignedCharArray> vtkSelection::Evaluate(
   else if (!tree)
   {
     vtkGenericWarningMacro("Failed to parse expression: " << this->Expression);
+  }
+  else if (numVals == -1)
+  {
+    vtkGenericWarningMacro(
+      "No values to evaluate because there was an error in the selection evaluator.");
   }
   return nullptr;
 }
