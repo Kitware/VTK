@@ -254,6 +254,8 @@ void vtkOpenXRRenderWindowInteractor::PollXrActions()
   for (const uint32_t hand :
     { vtkOpenXRManager::ControllerIndex::Left, vtkOpenXRManager::ControllerIndex::Right })
   {
+    // XXX GetHandPose should be replaced by the use of generic API for retrieving devices poses
+    // (see DeviceHandles in vtkVRRenderWindow) in a future refactoring of OpenXR classes.
     XrPosef* handPose = this->GetHandPose(hand);
     if (handPose)
     {
@@ -294,6 +296,42 @@ void vtkOpenXRRenderWindowInteractor::PollXrActions()
       }
     }
   }
+
+  // Handle head movement
+  // XXX This is a temporary solution to stick with the OpenVR behavior.
+  // Move3DEvent is emited by left and right controllers, and the headset.
+  // This is used in vtkOpenXRInteractorStyle for "grounded" movement.
+  // In future refactoring of OpenXR classes, we could add a specific method in
+  // vtkOpenXRManager to retrieve the "real" head pose (for now we use the left
+  // eye direction retrieved in vtkOpenXRRenderWindow::UpdateHMDMatrixPose,
+  // that is close).
+  auto renWin = vtkOpenXRRenderWindow::SafeDownCast(this->RenderWindow);
+  if (!renWin)
+  {
+    vtkErrorMacro("Unable to retrieve the OpenXR render window !");
+    return;
+  }
+
+  // Retrieve headset pose matrix in physical coordinates and convert to position and orientation
+  // in world coordinates
+  vtkMatrix4x4* poseMatrix =
+    renWin->GetDeviceToPhysicalMatrixForDevice(vtkEventDataDevice::HeadMountedDisplay);
+  if (poseMatrix == nullptr)
+  {
+    // Can be undefined at the beginning
+    return;
+  }
+  // XXX In future developments, consider adding a function extracting position and orientation in
+  // world coordinates directly from a pose matrix in world coordinates
+  this->ConvertPoseToWorldCoordinates(poseMatrix, pos, wxyz, ppos, wdir);
+
+  // Generate "head movement" event
+  vtkNew<vtkEventDataDevice3D> edd;
+  edd->SetWorldPosition(pos);
+  edd->SetWorldOrientation(wxyz);
+  edd->SetWorldDirection(wdir);
+  edd->SetDevice(vtkEventDataDevice::HeadMountedDisplay);
+  this->InvokeEvent(vtkCommand::Move3DEvent, edd);
 }
 
 //------------------------------------------------------------------------------
