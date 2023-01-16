@@ -1452,9 +1452,9 @@ struct GetCellAtIdImpl
   {
     using ValueType = typename CellStateT::ValueType;
 
-    const ValueType beginOffset = state.GetBeginOffset(cellId);
-    const ValueType endOffset = state.GetEndOffset(cellId);
-    const ValueType cellSize = endOffset - beginOffset;
+    const vtkIdType beginOffset = state.GetBeginOffset(cellId);
+    const vtkIdType endOffset = state.GetEndOffset(cellId);
+    const vtkIdType cellSize = endOffset - beginOffset;
     const auto cellConnectivity = state.GetConnectivity()->GetPointer(beginOffset);
 
     // ValueType differs from vtkIdType, so we have to copy into a temporary buffer:
@@ -1501,8 +1501,8 @@ struct GetCellAtIdImpl
   {
     using ValueType = typename CellStateT::ValueType;
 
-    const ValueType beginOffset = state.GetBeginOffset(cellId);
-    const ValueType endOffset = state.GetEndOffset(cellId);
+    const vtkIdType beginOffset = state.GetBeginOffset(cellId);
+    const vtkIdType endOffset = state.GetEndOffset(cellId);
     cellSize = endOffset - beginOffset;
     const ValueType* cellConnectivity = state.GetConnectivity()->GetPointer(beginOffset);
 
