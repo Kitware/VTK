@@ -60,7 +60,7 @@ if (VTK_ENABLE_OSPRAY)
     VERSION 2.1)
 
   vtk_module_link(VTK::RenderingRayTracing
-    PUBLIC
+    PRIVATE
       ospray::ospray
       )
   if (VTKOSPRAY_ENABLE_DENOISER)
