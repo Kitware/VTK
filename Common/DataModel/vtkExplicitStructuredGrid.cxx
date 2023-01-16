@@ -181,9 +181,7 @@ struct ComputeCellBoundsVisitor
   template <typename CellStateT>
   void operator()(CellStateT& state, vtkPoints* points, vtkIdType cellId, double bounds[6]) const
   {
-    using IdType = typename CellStateT::ValueType;
-
-    const IdType beginOffset = state.GetBeginOffset(cellId);
+    const vtkIdType beginOffset = state.GetBeginOffset(cellId);
 
     const auto pointIds = state.GetConnectivity()->GetPointer(beginOffset);
     vtkBoundingBox::ComputeBounds(points, pointIds, 8, bounds);
