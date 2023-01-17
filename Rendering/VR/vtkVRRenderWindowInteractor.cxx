@@ -40,6 +40,7 @@ void vtkVRRenderWindowInteractor::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
   os << indent << "ActionSetName: " << this->ActionSetName << endl;
   os << indent << "ActionManifestFileName: " << this->ActionManifestFileName << endl;
+  os << indent << "ActionManifestDirectory: " << this->ActionManifestDirectory << endl;
 }
 
 //------------------------------------------------------------------------------

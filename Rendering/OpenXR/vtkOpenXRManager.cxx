@@ -127,6 +127,7 @@ bool vtkOpenXRManager::Initialize(vtkOpenGLRenderWindow* helperWindow)
 void vtkOpenXRManager::Finalize()
 {
   this->DestroyActionSets();
+  xrRequestExitSession(this->Session);
   xrEndSession(this->Session);
   xrDestroySession(this->Session);
   xrDestroyInstance(this->Instance);
@@ -135,7 +136,7 @@ void vtkOpenXRManager::Finalize()
 //------------------------------------------------------------------------------
 std::tuple<uint32_t, uint32_t> vtkOpenXRManager::GetRecommendedImageRectSize()
 {
-  if (this->RenderResources->ConfigViews.size() == 0)
+  if (this->RenderResources->ConfigViews.empty())
   {
     return std::make_tuple(0, 0);
   }
@@ -146,7 +147,7 @@ std::tuple<uint32_t, uint32_t> vtkOpenXRManager::GetRecommendedImageRectSize()
 //------------------------------------------------------------------------------
 uint32_t vtkOpenXRManager::GetRecommendedSampleCount()
 {
-  if (this->RenderResources->ConfigViews.size() == 0)
+  if (this->RenderResources->ConfigViews.empty())
   {
     return 0;
   }
@@ -1103,7 +1104,7 @@ bool vtkOpenXRManager::CreateActionSet(
 //------------------------------------------------------------------------------
 bool vtkOpenXRManager::SelectActiveActionSet(unsigned int index)
 {
-  if (this->ActionSets.size() == 0)
+  if (this->ActionSets.empty())
   {
     vtkErrorWithObjectMacro(nullptr, << "An action set must be created prior to select one.");
     return false;
@@ -1157,7 +1158,7 @@ XrPath vtkOpenXRManager::GetXrPath(const std::string& path)
   XrPath xrPath;
   this->XrCheckWarn(
     xrStringToPath(this->Instance, path.c_str(), &xrPath), "Failed to get path " + path);
-  return std::move(xrPath);
+  return xrPath;
 }
 
 //------------------------------------------------------------------------------

@@ -46,13 +46,13 @@ set(openxr_input_files
 foreach(inputfile ${openxr_input_files})
   configure_file(
     ${CMAKE_CURRENT_SOURCE_DIR}/${inputfile}
-    ${CMAKE_BINARY_DIR}/${input_file}
+    ${CMAKE_CURRENT_BINARY_DIR}/${input_file}
     COPYONLY)
 endforeach()
 
 install(
   FILES ${openxr_input_files}
-  DESTINATION "${CMAKE_INSTALL_BINDIR}"
+  DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/vr_actions/"
   COMPONENT   runtime
 )
 vtk_add_test_mangling(VTK::RenderingOpenXR)

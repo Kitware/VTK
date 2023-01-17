@@ -12,19 +12,19 @@
 
 =========================================================================*/
 
-#include "vtkOpenXRCamera.h"
-#include "vtkOpenXRRenderWindow.h"
-#include "vtkOpenXRRenderWindowInteractor.h"
-#include "vtkOpenXRRenderer.h"
+#include "vtkOpenVRCamera.h"
+#include "vtkOpenVRRenderWindow.h"
+#include "vtkOpenVRRenderWindowInteractor.h"
+#include "vtkOpenVRRenderer.h"
 
 //------------------------------------------------------------------------------
-// Only initialize, requires a OpenXR implementation but do not render anything
-int TestOpenXRInitialization(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
+// Only initialize, requires a OpenVR implementation but do not render anything
+int TestOpenVRInitialization(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
-  vtkNew<vtkOpenXRRenderer> renderer;
-  vtkNew<vtkOpenXRRenderWindow> renderWindow;
-  vtkNew<vtkOpenXRCamera> cam;
-  vtkNew<vtkOpenXRRenderWindowInteractor> iren;
+  vtkNew<vtkOpenVRRenderer> renderer;
+  vtkNew<vtkOpenVRRenderWindow> renderWindow;
+  vtkNew<vtkOpenVRCamera> cam;
+  vtkNew<vtkOpenVRRenderWindowInteractor> iren;
   vtkNew<vtkActor> actor;
 
   renderer->SetActiveCamera(cam);
@@ -32,7 +32,16 @@ int TestOpenXRInitialization(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   renderWindow->AddRenderer(renderer);
   iren->SetRenderWindow(renderWindow);
   iren->SetActionManifestDirectory("../../");
-  iren->Initialize();
+
+  renderWindow->Initialize();
+  if (renderWindow->GetHMD())
+  {
+    iren->Initialize();
+  }
+  else
+  {
+    return 1;
+  }
 
   return 0;
 }

@@ -79,7 +79,13 @@ public:
     const float duration = 25000000.0f, const float frequency = XR_FREQUENCY_UNSPECIFIED);
 
 protected:
+  /**
+   * Create and set the openxr style on this
+   * Set ActionManifestFileName to vtk_openxr_actions.json
+   * Set ActionSetName to vtk-actions
+   */
   vtkOpenXRRenderWindowInteractor();
+
   ~vtkOpenXRRenderWindowInteractor() override;
   void PrintSelf(ostream& os, vtkIndent indent) override;
 

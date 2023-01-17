@@ -32,7 +32,7 @@ vtkOpenVRRenderWindowInteractor::vtkOpenVRRenderWindowInteractor()
 {
   vtkNew<vtkOpenVRInteractorStyle> style;
   this->SetInteractorStyle(style);
-  this->ActionManifestFileName = "./vtk_openvr_actions.json";
+  this->ActionManifestFileName = "vtk_openvr_actions.json";
   this->ActionSetName = "/actions/vtk";
 }
 
@@ -42,7 +42,8 @@ void vtkOpenVRRenderWindowInteractor::Initialize()
   // Start with superclass initialization
   this->Superclass::Initialize();
 
-  std::string fullpath = vtksys::SystemTools::CollapseFullPath(this->ActionManifestFileName);
+  std::string fullpath = vtksys::SystemTools::CollapseFullPath(
+    this->ActionManifestDirectory + this->ActionManifestFileName);
   vr::VRInput()->SetActionManifestPath(fullpath.c_str());
   vr::VRInput()->GetActionSetHandle(this->ActionSetName.c_str(), &this->ActionsetVTK);
 
