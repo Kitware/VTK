@@ -135,7 +135,7 @@ const double VTK_TETRA_CONVERGED = 1.e-05;
 }
 
 int vtkQuadraticTetra::EvaluatePosition(const double* x, double closestPoint[3], int& subId,
-  double pcoords[3], double& dist2, double weights[])
+  double pcoords[3], double& dist2, double weights[10])
 {
   double params[3] = { .25, .25, .25 };
   double derivs[30];
@@ -429,7 +429,7 @@ int vtkQuadraticTetra::Triangulate(int vtkNotUsed(index), vtkIdList* ptIds, vtkP
 // matrix. Returns 9 elements of 3x3 inverse Jacobian plus interpolation
 // function derivatives.
 void vtkQuadraticTetra::JacobianInverse(
-  const double pcoords[3], double** inverse, double derivs[60])
+  const double pcoords[3], double** inverse, double derivs[30])
 {
   int i, j;
   double *m[3], m0[3], m1[3], m2[3];
