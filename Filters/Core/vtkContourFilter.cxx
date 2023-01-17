@@ -438,6 +438,7 @@ int vtkContourFilter::RequestData(
     {
       cgrid->SetValue(i, values[i]);
     }
+    cgrid->AddObserver(vtkCommand::ProgressEvent, this->InternalProgressCallbackCommand);
     cgrid->SetInputArrayToProcess(0, this->GetInputArrayInformation(0));
     cgrid->UpdatePiece(info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()),
       info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES()),
