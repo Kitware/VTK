@@ -974,7 +974,7 @@ int vtkOBJReader::RequestData(vtkInformation* vtkNotUsed(request),
               }
             }
             // copy the normal for this point across (if there is one)
-            if (n_normal_pts > 0)
+            if (n_normal_pts > 0 && normals->GetNumberOfTuples() > 0)
             {
               new_normals->InsertNextTuple(normals->GetTuple(normal_pts[pointi]));
             }
