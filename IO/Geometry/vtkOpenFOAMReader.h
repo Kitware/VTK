@@ -244,6 +244,19 @@ public:
 
   ///@{
   /**
+   * Set/Get whether to weigh cell to point averaging by size of cells (only meaningful when
+   * CreateCellToPoint is true)
+   *
+   * @sa
+   * CreateCellToPoint
+   */
+  vtkSetMacro(SizeAverageCellToPoint, vtkTypeBool);
+  vtkGetMacro(SizeAverageCellToPoint, vtkTypeBool);
+  vtkBooleanMacro(SizeAverageCellToPoint, vtkTypeBool);
+  ///@}
+
+  ///@{
+  /**
    * Set/Get whether mesh is to be cached.
    */
   vtkSetMacro(CacheMesh, vtkTypeBool);
@@ -364,6 +377,9 @@ protected:
 
   // for creating cell-to-point translated data
   vtkTypeBool CreateCellToPoint;
+
+  // for running size average for cell to point calculation
+  vtkTypeBool SizeAverageCellToPoint = false;
 
   // for caching mesh
   vtkTypeBool CacheMesh;

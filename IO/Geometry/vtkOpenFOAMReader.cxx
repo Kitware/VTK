@@ -172,9 +172,13 @@
 #include "vtkAssume.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
+#include "vtkCellSizeFilter.h"
 #include "vtkCharArray.h"
 #include "vtkCollection.h"
+#include "vtkConstantArray.h"
+#include "vtkDataArrayRange.h"
 #include "vtkDataArraySelection.h"
+#include "vtkDataObjectTreeRange.h"
 #include "vtkDirectory.h"
 #include "vtkDoubleArray.h"
 #include "vtkFloatArray.h"
@@ -182,6 +186,7 @@
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkIntArray.h"
+#include "vtkMath.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
@@ -191,6 +196,7 @@
 #include "vtkPolyhedron.h"
 #include "vtkPyramid.h"
 #include "vtkQuad.h"
+#include "vtkSMPTools.h"
 #include "vtkSmartPointer.h"
 #include "vtkSortDataArray.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
@@ -258,6 +264,9 @@ static constexpr int TIMEINDEX_UNVISITED = -2;
 
 namespace
 {
+
+// Naming convention for an internal buffer array
+const std::string Cell2PointWeightsName = "Cell2PointWeights";
 
 // True if data array uses 64-bit representation for its storage
 bool Is64BitArray(const vtkDataArray* array)
@@ -8536,6 +8545,74 @@ void vtkOpenFOAMReaderPrivate::InterpolateCellToPoint(vtkFloatArray* pData, vtkF
 
   const int nComponents = iData->GetNumberOfComponents();
 
+  auto inCellData = mesh->GetCellData();
+  /*
+   * This method gets called multiple times for a single data set (once for each cell to point
+   * transport operation). This check is to avoid re-calculating it if we already have.
+   */
+  if (!inCellData->HasArray(::Cell2PointWeightsName.c_str()))
+  {
+    vtkNew<vtkConstantArray<double>> ones;
+    ones->ConstructBackend(1.0);
+    ones->SetNumberOfComponents(1);
+    ones->SetNumberOfTuples(mesh->GetNumberOfCells());
+    vtkSmartPointer<vtkDataArray> weights = ones;
+    if (this->Parent->GetSizeAverageCellToPoint())
+    {
+      vtkNew<vtkDoubleArray> buffer;
+      buffer->SetNumberOfComponents(1);
+      buffer->SetNumberOfTuples(mesh->GetNumberOfCells());
+      vtkNew<vtkCellSizeFilter> cellSizeFilter;
+      cellSizeFilter->SetInputData(mesh);
+      cellSizeFilter->Update();
+      auto output = vtkDataSet::SafeDownCast(cellSizeFilter->GetOutputDataObject(0));
+      auto cData = output->GetCellData();
+      if (!cData || !cData->HasArray("VertexCount") || !cData->HasArray("Length") ||
+        !cData->HasArray("Area") || !cData->HasArray("Volume"))
+      {
+        vtkErrorMacro("Could not find correct cell data in output of cell size filter");
+        return;
+      }
+      auto vc = vtk::DataArrayValueRange<1>(cData->GetArray("VertexCount"));
+      auto length = vtk::DataArrayValueRange<1>(cData->GetArray("Length"));
+      auto area = vtk::DataArrayValueRange<1>(cData->GetArray("Area"));
+      auto volume = vtk::DataArrayValueRange<1>(cData->GetArray("Volume"));
+      auto reduce = vtk::DataArrayValueRange<1>(buffer);
+      vtkSMPTools::For(0, mesh->GetNumberOfCells(), [&](vtkIdType first, vtkIdType last) {
+        auto volIt = volume.begin() + first;
+        auto areaIt = area.begin() + first;
+        auto lenIt = length.begin() + first;
+        auto vcIt = vc.begin() + first;
+        for (auto it = reduce.begin() + first; it != reduce.begin() + last;
+             ++it, ++volIt, ++areaIt, ++lenIt, ++vcIt)
+        {
+          *it = (*volIt > 0
+              ? *volIt
+              : (*areaIt > 0 ? *areaIt : (*lenIt > 0 ? *lenIt : (*vcIt > 0 ? *vcIt : -1.0))));
+        }
+      });
+      // this sanity check is necessary since the cell size filter does not yet seem able to support
+      // all cell types. In certain configurations, all measures are 0
+      bool sanityCheckWeights = true;
+      for (auto weight : reduce)
+      {
+        if (weight < 0)
+        {
+          sanityCheckWeights = false;
+          break;
+        }
+      }
+      if (sanityCheckWeights)
+      {
+        weights = buffer;
+      }
+    }
+    weights->SetName(::Cell2PointWeightsName.c_str());
+    inCellData->AddArray(weights);
+  }
+
+  auto weights = inCellData->GetArray(::Cell2PointWeightsName.c_str());
+
   if (nComponents == 1)
   {
     // a special case with the innermost componentI loop unrolled
@@ -8554,11 +8631,14 @@ void vtkOpenFOAMReaderPrivate::InterpolateCellToPoint(vtkFloatArray* pData, vtkF
 
       // use double intermediate variable for precision
       double interpolatedValue = 0.0;
-      for (int cellI = 0; cellI < nCells; cellI++)
+      double patchWeight = 0.0;
+      for (int cellI = 0; cellI < nCells; ++cellI)
       {
-        interpolatedValue += tuples[cells[cellI]];
+        const double locWeight = weights->GetComponent(cells[cellI], 0);
+        interpolatedValue += tuples[cells[cellI]] * locWeight;
+        patchWeight += locWeight;
       }
-      interpolatedValue = (nCells ? interpolatedValue / static_cast<double>(nCells) : 0.0);
+      interpolatedValue = (patchWeight != 0.0 ? interpolatedValue / patchWeight : vtkMath::Nan());
       pData->SetValue(pI, static_cast<float>(interpolatedValue));
     }
   }
@@ -8579,19 +8659,22 @@ void vtkOpenFOAMReaderPrivate::InterpolateCellToPoint(vtkFloatArray* pData, vtkF
       }
 
       // use double intermediate variables for precision
-      const double weight = (nCells ? 1.0 / static_cast<double>(nCells) : 0.0);
       double summedValue0 = 0.0, summedValue1 = 0.0, summedValue2 = 0.0;
+      double patchWeight = 0.0;
 
       // hand unrolling
       for (int cellI = 0; cellI < nCells; cellI++)
       {
         const float* tuple = iData->GetPointer(3 * cells[cellI]);
-        summedValue0 += tuple[0];
-        summedValue1 += tuple[1];
-        summedValue2 += tuple[2];
+        double locWeight = weights->GetComponent(cells[cellI], 0);
+        summedValue0 += tuple[0] * locWeight;
+        summedValue1 += tuple[1] * locWeight;
+        summedValue2 += tuple[2] * locWeight;
+        patchWeight += locWeight;
       }
 
       float* interpolatedValue = &pDataPtr[3 * pI];
+      const double weight = (patchWeight != 0.0 ? 1.0 / patchWeight : vtkMath::Nan());
       interpolatedValue[0] = static_cast<float>(weight * summedValue0);
       interpolatedValue[1] = static_cast<float>(weight * summedValue1);
       interpolatedValue[2] = static_cast<float>(weight * summedValue2);
@@ -8613,17 +8696,20 @@ void vtkOpenFOAMReaderPrivate::InterpolateCellToPoint(vtkFloatArray* pData, vtkF
       }
 
       // use double intermediate variables for precision
-      const double weight = (nCells ? 1.0 / static_cast<double>(nCells) : 0.0);
       float* interpolatedValue = &pDataPtr[nComponents * pI];
       // a bit strange loop order but this works fastest
       for (int componentI = 0; componentI < nComponents; componentI++)
       {
         const float* tuple = iData->GetPointer(componentI);
         double summedValue = 0.0;
+        double patchWeight = 0.0;
         for (int cellI = 0; cellI < nCells; cellI++)
         {
-          summedValue += tuple[nComponents * cells[cellI]];
+          double locWeight = weights->GetComponent(cells[cellI], 0);
+          summedValue += tuple[nComponents * cells[cellI]] * locWeight;
+          patchWeight += locWeight;
         }
+        const double weight = (patchWeight != 0.0 ? 1.0 / patchWeight : vtkMath::Nan());
         interpolatedValue[componentI] = static_cast<float>(weight * summedValue);
       }
     }
@@ -10874,6 +10960,24 @@ int vtkOpenFOAMReaderPrivate::RequestData(vtkMultiBlockDataSet* output)
     }
   }
 
+  for (auto dO : vtk::Range(output,
+         vtk::DataObjectTreeOptions::SkipEmptyNodes | vtk::DataObjectTreeOptions::TraverseSubTree |
+           vtk::DataObjectTreeOptions::VisitOnlyLeaves))
+  {
+    auto ds = vtkDataSet::SafeDownCast(dO);
+    if (!ds)
+    {
+      continue;
+    }
+    auto cData = ds->GetCellData();
+    if (!cData)
+    {
+      continue;
+    }
+    // will do nothing if no array by this name
+    cData->RemoveArray(::Cell2PointWeightsName.c_str());
+  }
+
   if (this->Parent->GetCacheMesh())
   {
     this->TimeStepOld = this->TimeStep;
@@ -11047,6 +11151,7 @@ void vtkOpenFOAMReader::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "File Name: " << (this->FileName ? this->FileName : "(none)") << endl;
   os << indent << "Refresh: " << this->Refresh << endl;
   os << indent << "CreateCellToPoint: " << this->CreateCellToPoint << endl;
+  os << indent << "SizeAverageCellToPoint: " << this->SizeAverageCellToPoint << std::endl;
   os << indent << "CacheMesh: " << this->CacheMesh << endl;
   os << indent << "DecomposePolyhedra: " << this->DecomposePolyhedra << endl;
   os << indent << "PositionsIsIn13Format: " << this->PositionsIsIn13Format << endl;
