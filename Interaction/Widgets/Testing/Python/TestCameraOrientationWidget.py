@@ -18,9 +18,21 @@
 =========================================================================
 '''
 
-import vtk
-import vtk.test.Testing
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkIOXML import vtkXMLPolyDataReader
+from vtkmodules.vtkInteractionWidgets import vtkCameraOrientationWidget
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkInteractorEventRecorder,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+import vtkmodules.test.Testing
+from vtkmodules.util.misc import vtkGetDataRoot
 import os
 VTK_DATA_ROOT = vtkGetDataRoot()
 
@@ -101,7 +113,7 @@ FromMinusZToArbitrary = "# StreamVersion 1.1\n\
           LeftButtonReleaseEvent 246 250 0 0 0 c\n"
 
 
-class TestCameraOrientationWidget(vtk.test.Testing.vtkTest):
+class TestCameraOrientationWidget(vtkmodules.test.Testing.vtkTest):
 
     def spin(self, instructions, widgetBack, widgetUp, camPos, focalPoint, viewUp):
         self.recorder.SetInputString(instructions)
@@ -118,19 +130,19 @@ class TestCameraOrientationWidget(vtk.test.Testing.vtkTest):
             viewUp[i] = cam.GetViewUp()[i]
 
     def testCameraOrientationWidget(self):
-        self.camOrientManipulator = vtk.vtkCameraOrientationWidget()
-        self.renderer = vtk.vtkRenderer()
-        self.renWin = vtk.vtkRenderWindow()
-        self.interactor = vtk.vtkRenderWindowInteractor()
-        self.recorder = vtk.vtkInteractorEventRecorder()
+        self.camOrientManipulator = vtkCameraOrientationWidget()
+        self.renderer = vtkRenderer()
+        self.renWin = vtkRenderWindow()
+        self.interactor = vtkRenderWindowInteractor()
+        self.recorder = vtkInteractorEventRecorder()
 
-        reader = vtk.vtkXMLPolyDataReader()
+        reader = vtkXMLPolyDataReader()
         reader.SetFileName(os.path.join(VTK_DATA_ROOT, "Data/cow.vtp"))
 
-        mapper = vtk.vtkPolyDataMapper()
+        mapper = vtkPolyDataMapper()
         mapper.SetInputConnection(reader.GetOutputPort())
 
-        actor = vtk.vtkActor()
+        actor = vtkActor()
         actor.SetMapper(mapper)
 
         self.renderer.AddActor(actor)
@@ -218,10 +230,10 @@ class TestCameraOrientationWidget(vtk.test.Testing.vtkTest):
         # Remove the observers so we can go interactive. Without this the "-I"
         # testing option fails.
         self.recorder.Off()
-        vtk.test.Testing.compareImage(self.renWin, vtk.test.Testing.getAbsImagePath(
+        vtkmodules.test.Testing.compareImage(self.renWin, vtkmodules.test.Testing.getAbsImagePath(
             "TestCameraOrientationWidget.png"))
-        vtk.test.Testing.interact()
+        vtkmodules.test.Testing.interact()
 
 
 if __name__ == "__main__":
-    vtk.test.Testing.main([(TestCameraOrientationWidget, 'test')])
+    vtkmodules.test.Testing.main([(TestCameraOrientationWidget, 'test')])

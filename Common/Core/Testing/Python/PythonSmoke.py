@@ -1,10 +1,10 @@
 import sys
 
 try:
-  import vtk
+  import vtkmodules.all as vtk
 
 except:
-  print("Cannot import vtk")
+  print("Cannot import vtkmodules.all")
   sys.exit(1)
 try:
   print(dir(vtk))

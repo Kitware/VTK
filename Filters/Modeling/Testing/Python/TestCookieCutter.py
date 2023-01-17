@@ -1,29 +1,49 @@
 #!/usr/bin/env python
-import vtk
+from vtkmodules.vtkCommonCore import (
+    vtkPoints,
+    vtkUnsignedCharArray,
+)
+from vtkmodules.vtkCommonDataModel import (
+    vtkCellArray,
+    vtkPolyData,
+)
+from vtkmodules.vtkFiltersCore import vtkGlyph3D
+from vtkmodules.vtkFiltersModeling import vtkCookieCutter
+from vtkmodules.vtkFiltersSources import vtkPlaneSource
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
 
 # create planes
 # Create the RenderWindow, Renderer
 #
-ren = vtk.vtkRenderer()
-renWin = vtk.vtkRenderWindow()
+ren = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.AddRenderer( ren )
 
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 
 # create pipeline. Use a plane source to create an array
 # of points; then glyph them. Then cookie cut the glphs.
 #
-plane = vtk.vtkPlaneSource()
+plane = vtkPlaneSource()
 plane.SetXResolution(25)
 plane.SetYResolution(25)
 
 # Custom glyph
-glyphData = vtk.vtkPolyData()
-glyphPts = vtk.vtkPoints()
-glyphVerts = vtk.vtkCellArray()
-glyphLines = vtk.vtkCellArray()
-glyphPolys = vtk.vtkCellArray()
+glyphData = vtkPolyData()
+glyphPts = vtkPoints()
+glyphVerts = vtkCellArray()
+glyphLines = vtkCellArray()
+glyphPolys = vtkCellArray()
 glyphData.SetPoints(glyphPts)
 glyphData.SetVerts(glyphVerts)
 glyphData.SetLines(glyphLines)
@@ -68,15 +88,15 @@ glyphPolys.InsertCellPoint(1)
 glyphPolys.InsertCellPoint(2)
 glyphPolys.InsertCellPoint(3)
 
-glyph = vtk.vtkGlyph3D()
+glyph = vtkGlyph3D()
 glyph.SetInputConnection(plane.GetOutputPort())
 glyph.SetSourceData(glyphData)
 glyph.SetScaleFactor( 0.02 )
 
 # Create multiple loops for cookie cutting
-loops = vtk.vtkPolyData()
-loopPts = vtk.vtkPoints()
-loopPolys = vtk.vtkCellArray()
+loops = vtkPolyData()
+loopPts = vtkPoints()
+loopPolys = vtkCellArray()
 loops.SetPoints(loopPts)
 loops.SetPolys(loopPolys)
 
@@ -128,29 +148,29 @@ loopPolys.InsertCellPoint(13)
 loopPolys.InsertCellPoint(14)
 loopPolys.InsertCellPoint(15)
 
-cookie = vtk.vtkCookieCutter()
+cookie = vtkCookieCutter()
 cookie.SetInputConnection(glyph.GetOutputPort())
 cookie.SetLoopsData(loops)
 
 cookie.Update()
 numCells = glyph.GetOutput().GetNumberOfCells()
-glyphScalars = vtk.vtkUnsignedCharArray()
+glyphScalars = vtkUnsignedCharArray()
 glyphScalars.SetNumberOfComponents( 4 )
 glyphScalars.SetNumberOfTuples( numCells )
 for i in range(numCells):
     glyphScalars.SetTuple4(i, 127, 207, 80, 127)
 cookie.GetOutput().GetCellData().SetScalars(glyphScalars)
 
-mapper = vtk.vtkPolyDataMapper()
+mapper = vtkPolyDataMapper()
 mapper.SetInputConnection(cookie.GetOutputPort())
 
-actor = vtk.vtkActor()
+actor = vtkActor()
 actor.SetMapper(mapper)
 
-loopMapper = vtk.vtkPolyDataMapper()
+loopMapper = vtkPolyDataMapper()
 loopMapper.SetInputData(loops)
 
-loopActor = vtk.vtkActor()
+loopActor = vtkActor()
 loopActor.SetMapper(loopMapper)
 loopActor.GetProperty().SetColor(1,0,0)
 loopActor.GetProperty().SetRepresentationToWireframe()

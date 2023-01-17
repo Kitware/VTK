@@ -1,19 +1,24 @@
-import vtk
+from vtkmodules.vtkFiltersCore import vtkStripper
+from vtkmodules.vtkFiltersGeometry import vtkDataSetSurfaceFilter
+from vtkmodules.vtkFiltersParallel import vtkIntegrateAttributes
+from vtkmodules.vtkIOLegacy import vtkDataSetReader
+from vtkmodules.vtkIOXML import vtkXMLUnstructuredGridReader
+from vtkmodules.vtkTestingRendering import vtkTesting
 import sys
 
-testing = vtk.vtkTesting()
+testing = vtkTesting()
 for arg in sys.argv:
     testing.AddArgument(arg)
 VTK_DATA_ROOT = testing.GetDataRoot()
 
 def Test1(datadir):
-    reader = vtk.vtkXMLUnstructuredGridReader()
+    reader = vtkXMLUnstructuredGridReader()
     reader.SetFileName(datadir + "/Data/quadraticTetra01.vtu")
     reader.UpdateInformation();
     reader.GetPointDataArraySelection().EnableAllArrays()
     reader.GetCellDataArraySelection().EnableAllArrays()
 
-    f = vtk.vtkIntegrateAttributes()
+    f = vtkIntegrateAttributes()
     f.SetInputConnection(reader.GetOutputPort())
     f.Update()
 
@@ -26,13 +31,13 @@ def Test1(datadir):
 
 
 def Test2(datadir):
-    reader = vtk.vtkXMLUnstructuredGridReader()
+    reader = vtkXMLUnstructuredGridReader()
     reader.SetFileName(datadir + "/Data/elements.vtu")
     reader.UpdateInformation();
     reader.GetPointDataArraySelection().EnableAllArrays()
     reader.GetCellDataArraySelection().EnableAllArrays()
 
-    f = vtk.vtkIntegrateAttributes()
+    f = vtkIntegrateAttributes()
     f.SetInputConnection(reader.GetOutputPort())
     f.Update()
 
@@ -44,19 +49,19 @@ def Test2(datadir):
     assert (val > 1.999 and val < 2.01)
 
 def Test3(datadir):
-    reader = vtk.vtkDataSetReader()
+    reader = vtkDataSetReader()
     reader.SetFileName(datadir + "/Data/blow.vtk")
     reader.UpdateInformation();
     reader.ReadAllScalarsOn()
     reader.ReadAllVectorsOn()
 
-    dssf = vtk.vtkDataSetSurfaceFilter()
+    dssf = vtkDataSetSurfaceFilter()
     dssf.SetInputConnection(reader.GetOutputPort())
 
-    stripper = vtk.vtkStripper()
+    stripper = vtkStripper()
     stripper.SetInputConnection(dssf.GetOutputPort())
 
-    f = vtk.vtkIntegrateAttributes()
+    f = vtkIntegrateAttributes()
     f.SetInputConnection(stripper.GetOutputPort())
     f.Update()
 

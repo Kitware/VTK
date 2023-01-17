@@ -1,5 +1,28 @@
 #!/usr/bin/env python
-import vtk
+from vtkmodules.vtkCommonCore import vtkFloatArray
+from vtkmodules.vtkCommonDataModel import (
+    vtkDataObject,
+    vtkQuadric,
+    vtkUnstructuredGrid,
+)
+from vtkmodules.vtkCommonExecutionModel import vtkSpanSpace
+from vtkmodules.vtkCommonSystem import vtkTimerLog
+from vtkmodules.vtkFiltersCore import (
+    vtkContour3DLinearGrid,
+    vtkContourFilter,
+    vtkExtractCells,
+)
+from vtkmodules.vtkImagingHybrid import vtkSampleFunction
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
 
 # Test vtkContour3DLinearGrid with vtkScalarTree.
 
@@ -13,9 +36,9 @@ computeNormals = 0
 
 #
 # Quadric definition
-quadric = vtk.vtkQuadric()
+quadric = vtkQuadric()
 quadric.SetCoefficients([.5,1,.2,0,.1,0,0,.2,0,0])
-sample = vtk.vtkSampleFunction()
+sample = vtkSampleFunction()
 sample.SetSampleDimensions(res,res,res)
 sample.SetImplicitFunction(quadric)
 sample.ComputeNormalsOn()
@@ -23,27 +46,27 @@ sample.Update()
 
 #
 # Extract voxel cells
-extract = vtk.vtkExtractCells()
+extract = vtkExtractCells()
 extract.SetInputConnection(sample.GetOutputPort())
 extract.AddCellRange(0,sample.GetOutput().GetNumberOfCells())
 extract.Update()
 
-grid = vtk.vtkUnstructuredGrid()
+grid = vtkUnstructuredGrid()
 grid.DeepCopy(extract.GetOutput())
 
 # Add an array of all zeros
-zeros = vtk.vtkFloatArray()
+zeros = vtkFloatArray()
 zeros.SetNumberOfTuples(grid.GetNumberOfPoints())
 zeros.Fill(0.0)
 zeros.SetName("zeros")
 grid.GetPointData().AddArray(zeros)
 
 # Now contour the cells, using scalar tree or not
-stree = vtk.vtkSpanSpace()
+stree = vtkSpanSpace()
 stree.SetDataSet(grid)
 stree.SetNumberOfCellsPerBucket(1)
 
-contour = vtk.vtkContour3DLinearGrid()
+contour = vtkContour3DLinearGrid()
 contour.SetInputData(grid)
 contour.SetValue(0, 0.5)
 contour.SetValue(1, 0.75)
@@ -53,7 +76,7 @@ contour.SetInterpolateAttributes(interpolateAttr);
 contour.SetComputeNormals(computeNormals);
 contour.UseScalarTreeOff()
 
-contourST = vtk.vtkContour3DLinearGrid()
+contourST = vtkContour3DLinearGrid()
 contourST.SetInputData(grid)
 contourST.SetValue(0, 0.5)
 contourST.SetValue(1, 0.75)
@@ -65,9 +88,9 @@ contourST.UseScalarTreeOn()
 contourST.SetScalarTree(stree)
 
 # Make sure we handle arrays with zero range
-contourSTZero = vtk.vtkContour3DLinearGrid()
+contourSTZero = vtkContour3DLinearGrid()
 contourSTZero.SetInputData(grid)
-contourSTZero.SetInputArrayToProcess(0, 0, 0, vtk.vtkDataObject.FIELD_ASSOCIATION_POINTS, "zero")
+contourSTZero.SetInputArrayToProcess(0, 0, 0, vtkDataObject.FIELD_ASSOCIATION_POINTS, "zero")
 contourSTZero.SetValue(0, 0.5)
 contourSTZero.SetMergePoints(mergePoints)
 contourSTZero.SetInterpolateAttributes(interpolateAttr);
@@ -77,30 +100,30 @@ contourSTZero.Update()
 
 assert(contourSTZero.GetOutput().GetNumberOfCells() == 0)
 
-contMapper = vtk.vtkPolyDataMapper()
+contMapper = vtkPolyDataMapper()
 contMapper.SetInputConnection(contour.GetOutputPort())
 contMapper.ScalarVisibilityOff()
 
-contActor = vtk.vtkActor()
+contActor = vtkActor()
 contActor.SetMapper(contMapper)
 contActor.GetProperty().SetColor(.8,.4,.4)
 
 # Compare against standard contouring
-contour4 = vtk.vtkContourFilter()
+contour4 = vtkContourFilter()
 contour4.SetInputConnection(extract.GetOutputPort())
 contour4.SetValue(0,0.5)
 contour4.SetValue(1, 0.75)
 
-cont4Mapper = vtk.vtkPolyDataMapper()
+cont4Mapper = vtkPolyDataMapper()
 cont4Mapper.SetInputConnection(contour4.GetOutputPort())
 cont4Mapper.ScalarVisibilityOff()
 
-cont4Actor = vtk.vtkActor()
+cont4Actor = vtkActor()
 cont4Actor.SetMapper(cont4Mapper)
 cont4Actor.GetProperty().SetColor(.8,.4,.4)
 
 # Timing comparisons
-timer = vtk.vtkTimerLog()
+timer = vtkTimerLog()
 
 timer.StartTimer()
 stree.BuildTree()
@@ -143,15 +166,15 @@ print("\t\tNumber of points: {0}".format(contour4.GetOutput().GetNumberOfPoints(
 print("\t\tNumber of cells: {0}".format(contour4.GetOutput().GetNumberOfCells()))
 
 # Define graphics objects
-renWin = vtk.vtkRenderWindow()
+renWin = vtkRenderWindow()
 renWin.SetSize(400,200)
 renWin.SetMultiSamples(0)
 
-ren1 = vtk.vtkRenderer()
+ren1 = vtkRenderer()
 ren1.SetViewport(0,0,0.5,1)
 ren1.SetBackground(1,1,1)
 cam1 = ren1.GetActiveCamera()
-ren4 = vtk.vtkRenderer()
+ren4 = vtkRenderer()
 ren4.SetViewport(0.5,0,1,1)
 ren4.SetBackground(1,1,1)
 ren4.SetActiveCamera(cam1)
@@ -159,7 +182,7 @@ ren4.SetActiveCamera(cam1)
 renWin.AddRenderer(ren1)
 renWin.AddRenderer(ren4)
 
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 
 ren1.AddActor(contActor)

@@ -1,14 +1,22 @@
 #!/usr/bin/env python
-import vtk
-from vtk.test import Testing
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonCore import (
+    vtkDoubleArray,
+    vtkPoints,
+)
+from vtkmodules.vtkCommonDataModel import (
+    vtkCellArray,
+    vtkPolyData,
+)
+from vtkmodules.vtkFiltersCore import vtkContourFilter
+from vtkmodules.test import Testing
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 class TestContourFilter(Testing.vtkTest):
     def setUp(self):
-      poly = vtk.vtkPolyData()
-      pts=vtk.vtkPoints()
-      scalars=vtk.vtkDoubleArray()
+      poly = vtkPolyData()
+      pts=vtkPoints()
+      scalars=vtkDoubleArray()
       scalars.SetName('scalars')
       count=0
       for xyz in [[0,0,0],[1,0,0],[1,1,0],[0,1,0]]:
@@ -17,13 +25,13 @@ class TestContourFilter(Testing.vtkTest):
           scalars.InsertNextValue(value)
       poly.SetPoints(pts)
       poly.GetPointData().SetScalars(scalars)
-      polys=vtk.vtkCellArray()
+      polys=vtkCellArray()
       polys.InsertNextCell(3,[0,1,2])
       polys.InsertNextCell(3,[1,2,3])
       poly.SetPolys(polys)
       print(poly)
 
-      self.cf = vtk.vtkContourFilter()
+      self.cf = vtkContourFilter()
       self.cf.SetInputData(poly)
       self.cf.SetValue(0,0.5)
       self.cf.SetValue(1,2.5)

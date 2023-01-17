@@ -1,11 +1,12 @@
-import vtk
-from vtk.test import Testing
+from vtkmodules.vtkCommonCore import vtkArchiver
+from vtkmodules.vtkCommonPython import vtkPythonArchiver
+from vtkmodules.test import Testing
 
 class TestPythonArchiver(Testing.vtkTest):
     def testArchiver(self):
-        class MyArchiver(vtk.vtkArchiver):
+        class MyArchiver(vtkArchiver):
             def __init__(self):
-                vtk.vtkArchiver.__init__(self)
+                vtkArchiver.__init__(self)
                 self.calls = set()
 
             def OpenArchive(self, vtkself):
@@ -22,7 +23,7 @@ class TestPythonArchiver(Testing.vtkTest):
                 return True
 
         pyArchiver = MyArchiver()
-        ex = vtk.vtkPythonArchiver()
+        ex = vtkPythonArchiver()
         ex.SetPythonObject(pyArchiver)
 
         ex.SetArchiveName('my/archive')

@@ -1,6 +1,24 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonColor import vtkNamedColors
+from vtkmodules.vtkCommonSystem import vtkTimerLog
+from vtkmodules.vtkFiltersCore import (
+    vtkBinnedDecimation,
+    vtkPointDataToCellData,
+    vtkSimpleElevationFilter,
+)
+from vtkmodules.vtkFiltersSources import vtkSphereSource
+from vtkmodules.vtkIOLegacy import vtkPolyDataWriter
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 def GetRGBColor(colorName):
@@ -9,7 +27,7 @@ def GetRGBColor(colorName):
         color as doubles.
     '''
     rgb = [0.0, 0.0, 0.0]  # black
-    vtk.vtkNamedColors().GetColorRGB(colorName, rgb)
+    vtkNamedColors().GetColorRGB(colorName, rgb)
     return rgb
 
 # Control resolution of the test
@@ -17,24 +35,24 @@ res = 400
 dim = 40
 
 # For timing the various tests
-timer = vtk.vtkTimerLog()
+timer = vtkTimerLog()
 
 # Set up rendering
-ren0 = vtk.vtkRenderer()
+ren0 = vtkRenderer()
 ren0.SetViewport(0,0,0.5,0.5)
-ren1 = vtk.vtkRenderer()
+ren1 = vtkRenderer()
 ren1.SetViewport(0.5,0,1.0,0.5)
-ren2 = vtk.vtkRenderer()
+ren2 = vtkRenderer()
 ren2.SetViewport(0,0.5,0.5,1.0)
-ren3 = vtk.vtkRenderer()
+ren3 = vtkRenderer()
 ren3.SetViewport(0.5,0.5,1.0,1.0)
 
-renWin = vtk.vtkRenderWindow()
+renWin = vtkRenderWindow()
 renWin.AddRenderer(ren0)
 renWin.AddRenderer(ren1)
 renWin.AddRenderer(ren2)
 renWin.AddRenderer(ren3)
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 
 # Link the renderers' cameras
@@ -43,22 +61,22 @@ ren2.SetActiveCamera(ren0.GetActiveCamera())
 ren3.SetActiveCamera(ren0.GetActiveCamera())
 
 # Pipeline stuff. Create a sphere source at high resolution.
-sphere = vtk.vtkSphereSource()
+sphere = vtkSphereSource()
 sphere.SetThetaResolution(res)
 sphere.SetPhiResolution(int(res/2))
 sphere.GenerateNormalsOff()
 
-ele = vtk.vtkSimpleElevationFilter()
+ele = vtkSimpleElevationFilter()
 ele.SetInputConnection(sphere.GetOutputPort())
 
-pd2cd = vtk.vtkPointDataToCellData()
+pd2cd = vtkPointDataToCellData()
 pd2cd.SetInputConnection(ele.GetOutputPort())
 pd2cd.PassPointDataOn()
 pd2cd.Update()
 
 # Test the binning decimator: each of the four point
 # generation modes.
-mesh0 = vtk.vtkBinnedDecimation()
+mesh0 = vtkBinnedDecimation()
 mesh0.SetInputConnection(pd2cd.GetOutputPort())
 mesh0.SetPointGenerationModeToUseInputPoints()
 mesh0.AutoAdjustNumberOfDivisionsOn()
@@ -78,17 +96,17 @@ print("\tDivisions: {0}".format(mesh0.GetNumberOfDivisions()))
 print("\tNumber output triangles: {0}".format(mesh0.GetOutput().GetNumberOfCells()))
 print("\tReduced by: {0}".format((1.0 - (float(mesh0.GetOutput().GetNumberOfCells()) / float(pd2cd.GetOutput().GetNumberOfCells())))))
 
-mapper0 = vtk.vtkPolyDataMapper()
+mapper0 = vtkPolyDataMapper()
 mapper0.SetInputConnection(mesh0.GetOutputPort())
 
-actor0 = vtk.vtkActor()
+actor0 = vtkActor()
 actor0.SetMapper(mapper0)
 actor0.GetProperty().SetDiffuseColor(GetRGBColor('tomato'))
 actor0.GetProperty().SetDiffuse(.8)
 actor0.GetProperty().SetSpecular(.4)
 actor0.GetProperty().SetSpecularPower(30)
 
-mesh1 = vtk.vtkBinnedDecimation()
+mesh1 = vtkBinnedDecimation()
 mesh1.SetInputConnection(pd2cd.GetOutputPort())
 mesh1.SetPointGenerationModeToBinPoints()
 mesh1.AutoAdjustNumberOfDivisionsOff()
@@ -111,17 +129,17 @@ print("\tDivisions: {0}".format(mesh1.GetNumberOfDivisions()))
 print("\tNumber output triangles: {0}".format(mesh1.GetOutput().GetNumberOfCells()))
 print("\tReduced by: {0}".format((1.0 - (float(mesh1.GetOutput().GetNumberOfCells()) / float(pd2cd.GetOutput().GetNumberOfCells())))))
 
-mapper1 = vtk.vtkPolyDataMapper()
+mapper1 = vtkPolyDataMapper()
 mapper1.SetInputConnection(mesh1.GetOutputPort())
 
-actor1 = vtk.vtkActor()
+actor1 = vtkActor()
 actor1.SetMapper(mapper1)
 actor1.GetProperty().SetDiffuseColor(GetRGBColor('tomato'))
 actor1.GetProperty().SetDiffuse(.8)
 actor1.GetProperty().SetSpecular(.4)
 actor1.GetProperty().SetSpecularPower(30)
 
-mesh2 = vtk.vtkBinnedDecimation()
+mesh2 = vtkBinnedDecimation()
 mesh2.SetInputConnection(pd2cd.GetOutputPort())
 mesh2.SetPointGenerationModeToBinCenters()
 mesh2.AutoAdjustNumberOfDivisionsOn()
@@ -141,17 +159,17 @@ print("\tDivisions: {0}".format(mesh2.GetNumberOfDivisions()))
 print("\tNumber output triangles: {0}".format(mesh2.GetOutput().GetNumberOfCells()))
 print("\tReduced by: {0}".format((1.0 - (float(mesh2.GetOutput().GetNumberOfCells()) / float(pd2cd.GetOutput().GetNumberOfCells())))))
 
-mapper2 = vtk.vtkPolyDataMapper()
+mapper2 = vtkPolyDataMapper()
 mapper2.SetInputConnection(mesh2.GetOutputPort())
 
-actor2 = vtk.vtkActor()
+actor2 = vtkActor()
 actor2.SetMapper(mapper2)
 actor2.GetProperty().SetDiffuseColor(GetRGBColor('tomato'))
 actor2.GetProperty().SetDiffuse(.8)
 actor2.GetProperty().SetSpecular(.4)
 actor2.GetProperty().SetSpecularPower(30)
 
-mesh3 = vtk.vtkBinnedDecimation()
+mesh3 = vtkBinnedDecimation()
 mesh3.SetInputConnection(pd2cd.GetOutputPort())
 mesh3.SetPointGenerationModeToBinAverages()
 mesh3.AutoAdjustNumberOfDivisionsOn()
@@ -172,16 +190,16 @@ print("\tDivisions: {0}".format(mesh3.GetNumberOfDivisions()))
 print("\tNumber output triangles: {0}".format(mesh3.GetOutput().GetNumberOfCells()))
 print("\tReduced by: {0}".format((1.0 - (float(mesh3.GetOutput().GetNumberOfCells()) / float(pd2cd.GetOutput().GetNumberOfCells())))))
 
-w = vtk.vtkPolyDataWriter()
+w = vtkPolyDataWriter()
 w.SetInputConnection(mesh3.GetOutputPort())
 w.SetFileName("vtk.out")
 #w.Write()
 #exit()
 
-mapper3 = vtk.vtkPolyDataMapper()
+mapper3 = vtkPolyDataMapper()
 mapper3.SetInputConnection(mesh3.GetOutputPort())
 
-actor3 = vtk.vtkActor()
+actor3 = vtkActor()
 actor3.SetMapper(mapper3)
 actor3.GetProperty().SetDiffuseColor(GetRGBColor('tomato'))
 actor3.GetProperty().SetDiffuse(.8)

@@ -1,6 +1,11 @@
 #!/usr/bin/env python
+from vtkmodules.vtkCommonCore import vtkLookupTable
+from vtkmodules.vtkFiltersParallelImaging import vtkMemoryLimitImageDataStreamer
+from vtkmodules.vtkIOImage import vtkImageReader
+from vtkmodules.vtkImagingCore import vtkImageMapToColors
+from vtkmodules.vtkInteractionImage import vtkImageViewer
 
-reader = vtk.vtkImageReader()
+reader = vtkImageReader()
 reader.ReleaseDataFlagOff()
 reader.SetDataByteOrderToLittleEndian()
 reader.SetDataExtent(0,63,0,63,1,93)
@@ -8,7 +13,7 @@ reader.SetFilePrefix("" + str(VTK_DATA_ROOT) + "/Data/headsq/quarter")
 reader.SetDataMask(0x7fff)
 rangeStart = 0.0
 rangeEnd = 0.2
-LUT = vtk.vtkLookupTable()
+LUT = vtkLookupTable()
 LUT.SetTableRange(0,1800)
 LUT.SetSaturationRange(1,1)
 LUT.SetHueRange(rangeStart,rangeEnd)
@@ -28,17 +33,17 @@ def changeLUT (a=0,b=0,__vtk__temp0=0,__vtk__temp1=0):
     LUT.SetHueRange(rangeStart,rangeEnd)
     LUT.Build()
 
-mapToRGBA = vtk.vtkImageMapToColors()
+mapToRGBA = vtkImageMapToColors()
 mapToRGBA.SetInputConnection(reader.GetOutputPort())
 mapToRGBA.SetOutputFormatToRGBA()
 mapToRGBA.SetLookupTable(LUT)
 mapToRGBA.AddObserver("EndEvent",changeLUT)
-streamer = vtk.vtkMemoryLimitImageDataStreamer()
+streamer = vtkMemoryLimitImageDataStreamer()
 streamer.SetInputConnection(mapToRGBA.GetOutputPort())
 streamer.SetMemoryLimit(100)
 streamer.UpdateWholeExtent()
 # set the window/level to 255.0/127.5 to view full range
-viewer = vtk.vtkImageViewer()
+viewer = vtkImageViewer()
 viewer.SetInputConnection(streamer.GetOutputPort())
 viewer.SetColorWindow(255.0)
 viewer.SetColorLevel(127.5)

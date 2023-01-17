@@ -1,17 +1,27 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkIOImage import vtkTIFFReader
+from vtkmodules.vtkImagingColor import vtkImageLuminance
+from vtkmodules.vtkRenderingCore import (
+    vtkImageActor,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # Create the RenderWindow, Renderer and both Actors
-ren1 = vtk.vtkRenderer()
-renWin = vtk.vtkRenderWindow()
+ren1 = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.AddRenderer(ren1)
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 # load in the image
 #
-pnmReader = vtk.vtkTIFFReader()
+pnmReader = vtkTIFFReader()
 pnmReader.SetFileName("" + str(VTK_DATA_ROOT) + "/Data/beach.tif")
 # "beach.tif" image contains ORIENTATION tag which is
 # ORIENTATION_TOPLEFT (row 0 top, col 0 lhs) type. The TIFF
@@ -20,9 +30,9 @@ pnmReader.SetFileName("" + str(VTK_DATA_ROOT) + "/Data/beach.tif")
 # convention of ORIENTATION_BOTLEFT (row 0 bottom, col 0 lhs ), invoke
 # SetOrientationType method with parameter value of 4.
 pnmReader.SetOrientationType(4)
-lum = vtk.vtkImageLuminance()
+lum = vtkImageLuminance()
 lum.SetInputConnection(pnmReader.GetOutputPort())
-ia = vtk.vtkImageActor()
+ia = vtkImageActor()
 ia.GetMapper().SetInputConnection(lum.GetOutputPort())
 # Add the actors to the renderer, set the background and size
 ren1.AddActor(ia)

@@ -1,30 +1,41 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkFiltersGeneral import vtkAxes
+from vtkmodules.vtkIOGeometry import vtkBYUReader
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # Create renderer stuff
 #
-ren1 = vtk.vtkRenderer()
-renWin = vtk.vtkRenderWindow()
+ren1 = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.AddRenderer(ren1)
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 # create pipeline
 #
-cow = vtk.vtkBYUReader()
+cow = vtkBYUReader()
 cow.SetGeometryFileName("" + str(VTK_DATA_ROOT) + "/Data/Viewpoint/cow.g")
-cowMapper = vtk.vtkPolyDataMapper()
+cowMapper = vtkPolyDataMapper()
 cowMapper.SetInputConnection(cow.GetOutputPort())
-cowActor = vtk.vtkActor()
+cowActor = vtkActor()
 cowActor.SetMapper(cowMapper)
 cowActor.GetProperty().SetDiffuseColor(0.9608,0.8706,0.7020)
-cowAxesSource = vtk.vtkAxes()
+cowAxesSource = vtkAxes()
 cowAxesSource.SetScaleFactor(10)
 cowAxesSource.SetOrigin(0,0,0)
-cowAxesMapper = vtk.vtkPolyDataMapper()
+cowAxesMapper = vtkPolyDataMapper()
 cowAxesMapper.SetInputConnection(cowAxesSource.GetOutputPort())
-cowAxes = vtk.vtkActor()
+cowAxes = vtkActor()
 cowAxes.SetMapper(cowAxesMapper)
 ren1.AddActor(cowAxes)
 cowAxes.VisibilityOff()

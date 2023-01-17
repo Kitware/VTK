@@ -1,12 +1,23 @@
 #!/usr/bin/env python
-import vtk
-from vtk.test import Testing
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkFiltersCore import vtkSynchronizedTemplates3D
+from vtkmodules.vtkIOImage import vtkImageReader
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.test import Testing
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 class TestSynchronizedTemplates3D(Testing.vtkTest):
   def testAll(self):
-    reader = vtk.vtkImageReader()
+    reader = vtkImageReader()
     reader.SetDataByteOrderToLittleEndian()
     reader.SetDataExtent(0,63,0,63,1,93)
     reader.SetDataSpacing(3.2,3.2,1.5)
@@ -14,7 +25,7 @@ class TestSynchronizedTemplates3D(Testing.vtkTest):
     reader.SetDataMask(0x7fff)
     # write isosurface to file
     #vtkSynchronizedTemplates3D stemp
-    stemp = vtk.vtkSynchronizedTemplates3D()
+    stemp = vtkSynchronizedTemplates3D()
     stemp.SetInputConnection(reader.GetOutputPort())
     stemp.SetValue(0,1150)
 
@@ -28,18 +39,18 @@ class TestSynchronizedTemplates3D(Testing.vtkTest):
     self.assertEqual(stemp.GetOutputDataObject(0).GetNumberOfPoints(),39315)
     self.assertEqual(stemp.GetOutputDataObject(0).GetNumberOfCells(),78268)
 
-    mapper = vtk.vtkPolyDataMapper()
+    mapper = vtkPolyDataMapper()
     mapper.SetInputConnection(stemp.GetOutputPort())
     mapper.ScalarVisibilityOff()
-    head = vtk.vtkActor()
+    head = vtkActor()
     head.SetMapper(mapper)
     head.GetProperty().SetColor(1,0.7,0.6)
     # Create the RenderWindow, Renderer and Interactor
     #
-    ren1 = vtk.vtkRenderer()
-    renWin = vtk.vtkRenderWindow()
+    ren1 = vtkRenderer()
+    renWin = vtkRenderWindow()
     renWin.AddRenderer(ren1)
-    iren = vtk.vtkRenderWindowInteractor()
+    iren = vtkRenderWindowInteractor()
     iren.SetRenderWindow(renWin)
     # Add the actors to the renderer, set the background and size
     #

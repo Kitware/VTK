@@ -1,49 +1,66 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkFiltersSources import (
+    vtkConeSource,
+    vtkCubeSource,
+    vtkCylinderSource,
+    vtkSphereSource,
+)
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkAssembly,
+    vtkCamera,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # Create the RenderWindow, Renderer and both Actors
 #
-ren1 = vtk.vtkRenderer()
-renWin = vtk.vtkRenderWindow()
+ren1 = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.AddRenderer(ren1)
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 # create four parts: a top level assembly and three primitives
 #
-sphere = vtk.vtkSphereSource()
-sphereMapper = vtk.vtkPolyDataMapper()
+sphere = vtkSphereSource()
+sphereMapper = vtkPolyDataMapper()
 sphereMapper.SetInputConnection(sphere.GetOutputPort())
-sphereActor = vtk.vtkActor()
+sphereActor = vtkActor()
 sphereActor.SetMapper(sphereMapper)
 sphereActor.SetOrigin(2,1,3)
 sphereActor.RotateY(6)
 sphereActor.SetPosition(2.25,0,0)
 sphereActor.GetProperty().SetColor(1,0,1)
-cube = vtk.vtkCubeSource()
-cubeMapper = vtk.vtkPolyDataMapper()
+cube = vtkCubeSource()
+cubeMapper = vtkPolyDataMapper()
 cubeMapper.SetInputConnection(cube.GetOutputPort())
-cubeActor = vtk.vtkActor()
+cubeActor = vtkActor()
 cubeActor.SetMapper(cubeMapper)
 cubeActor.SetPosition(0.0,.25,0)
 cubeActor.GetProperty().SetColor(0,0,1)
-cone = vtk.vtkConeSource()
-coneMapper = vtk.vtkPolyDataMapper()
+cone = vtkConeSource()
+coneMapper = vtkPolyDataMapper()
 coneMapper.SetInputConnection(cone.GetOutputPort())
-coneActor = vtk.vtkActor()
+coneActor = vtkActor()
 coneActor.SetMapper(coneMapper)
 coneActor.SetPosition(0,0,.25)
 coneActor.GetProperty().SetColor(0,1,0)
-cylinder = vtk.vtkCylinderSource()
+cylinder = vtkCylinderSource()
 #top part
-cylinderMapper = vtk.vtkPolyDataMapper()
+cylinderMapper = vtkPolyDataMapper()
 cylinderMapper.SetInputConnection(cylinder.GetOutputPort())
 cylinderMapper.SetResolveCoincidentTopologyToPolygonOffset()
-cylinderActor = vtk.vtkActor()
+cylinderActor = vtkActor()
 cylinderActor.SetMapper(cylinderMapper)
 cylinderActor.GetProperty().SetColor(1,0,0)
-assembly = vtk.vtkAssembly()
+assembly = vtkAssembly()
 assembly.AddPart(cylinderActor)
 assembly.AddPart(sphereActor)
 assembly.AddPart(cubeActor)
@@ -59,7 +76,7 @@ ren1.SetBackground(0.1,0.2,0.4)
 renWin.SetSize(200,200)
 # Get handles to some useful objects
 #
-camera = vtk.vtkCamera()
+camera = vtkCamera()
 camera.SetClippingRange(21.9464,30.0179)
 camera.SetFocalPoint(3.49221,2.28844,-0.970866)
 camera.SetPosition(3.49221,2.28844,24.5216)

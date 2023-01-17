@@ -1,25 +1,39 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonCore import vtkPoints
+from vtkmodules.vtkCommonDataModel import (
+    vtkCellArray,
+    vtkPolyData,
+)
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # Create the RenderWindow, Renderer and both Actors
-ren1 = vtk.vtkRenderer()
-renWin = vtk.vtkRenderWindow()
+ren1 = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.AddRenderer(ren1)
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
-points = vtk.vtkPoints()
+points = vtkPoints()
 points.InsertPoint(0,0.0,0.0,0.0)
-verts = vtk.vtkCellArray()
+verts = vtkCellArray()
 verts.InsertNextCell(1)
 verts.InsertCellPoint(0)
-polyData = vtk.vtkPolyData()
+polyData = vtkPolyData()
 polyData.SetPoints(points)
 polyData.SetVerts(verts)
-mapper = vtk.vtkPolyDataMapper()
+mapper = vtkPolyDataMapper()
 mapper.SetInputData(polyData)
-actor = vtk.vtkActor()
+actor = vtkActor()
 actor.SetMapper(mapper)
 actor.GetProperty().SetPointSize(8)
 ren1.AddViewProp(actor)

@@ -1,38 +1,57 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonCore import vtkMath
+from vtkmodules.vtkFiltersCore import (
+    vtkPolyDataNormals,
+    vtkTensorGlyph,
+)
+from vtkmodules.vtkFiltersGeneral import vtkRandomAttributeGenerator
+from vtkmodules.vtkFiltersSources import (
+    vtkPlaneSource,
+    vtkSphereSource,
+)
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # Create the RenderWindow, Renderer and interactive renderer
 #
-ren1 = vtk.vtkRenderer()
-renWin = vtk.vtkRenderWindow()
+ren1 = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.AddRenderer(ren1)
 
 # make sure to have the same regression image on all platforms.
 renWin.SetMultiSamples(0)
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 
 # Force a starting random value
-raMath = vtk.vtkMath()
+raMath = vtkMath()
 raMath.RandomSeed(6)
 
 # Generate random attributes on a plane
 #
-ps = vtk.vtkPlaneSource()
+ps = vtkPlaneSource()
 ps.SetXResolution(10)
 ps.SetYResolution(10)
 
-ag = vtk.vtkRandomAttributeGenerator()
+ag = vtkRandomAttributeGenerator()
 ag.SetInputConnection(ps.GetOutputPort())
 ag.GenerateAllDataOn()
 
-ss = vtk.vtkSphereSource()
+ss = vtkSphereSource()
 ss.SetPhiResolution(16)
 ss.SetThetaResolution(32)
 
-tg = vtk.vtkTensorGlyph()
+tg = vtkTensorGlyph()
 tg.SetInputConnection(ag.GetOutputPort())
 tg.SetSourceConnection(ss.GetOutputPort())
 tg.SetInputArrayToProcess(1,0,0,0,"RandomPointArray")
@@ -41,19 +60,19 @@ tg.SetScaleFactor(0.1)
 tg.SetMaxScaleFactor(10)
 tg.ClampScalingOn()
 
-n = vtk.vtkPolyDataNormals()
+n = vtkPolyDataNormals()
 n.SetInputConnection(tg.GetOutputPort())
 
-pdm = vtk.vtkPolyDataMapper()
+pdm = vtkPolyDataMapper()
 pdm.SetInputConnection(n.GetOutputPort())
 
-a = vtk.vtkActor()
+a = vtkActor()
 a.SetMapper(pdm)
 
-pm = vtk.vtkPolyDataMapper()
+pm = vtkPolyDataMapper()
 pm.SetInputConnection(ps.GetOutputPort())
 
-pa = vtk.vtkActor()
+pa = vtkActor()
 pa.SetMapper(pm)
 
 ren1.AddActor(a)

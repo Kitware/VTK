@@ -1,17 +1,38 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonCore import (
+    vtkLookupTable,
+    vtkMath,
+)
+from vtkmodules.vtkCommonDataModel import (
+    vtkImageData,
+    vtkSphere,
+)
+from vtkmodules.vtkFiltersGeneral import vtkDiscreteFlyingEdges3D
+from vtkmodules.vtkImagingCore import vtkImageThreshold
+from vtkmodules.vtkImagingHybrid import vtkSampleFunction
+from vtkmodules.vtkImagingMath import vtkImageMathematics
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # Create the RenderWindow, Renderer and both Actors
 #
-ren1 = vtk.vtkRenderer()
-renWin = vtk.vtkRenderWindow()
+ren1 = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.AddRenderer(ren1)
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 
-math = vtk.vtkMath()
+math = vtkMath()
 
 # Generate some random colors
 def MakeColors (lut, n):
@@ -27,30 +48,30 @@ def MakeColors (lut, n):
           math.Random(.2, 1), math.Random(.2, 1), 1)
         i += 1
 
-lut = vtk.vtkLookupTable()
+lut = vtkLookupTable()
 MakeColors(lut, 256)
 n = 20
 radius = 10
 
 # This has been moved outside the loop so that the code can be correctly
 # translated to python
-blobImage = vtk.vtkImageData()
+blobImage = vtkImageData()
 
 i = 0
 while i < n:
-    sphere = vtk.vtkSphere()
+    sphere = vtkSphere()
     sphere.SetRadius(radius)
     max = 50 - radius
     sphere.SetCenter(int(math.Random(-max, max)),
       int(math.Random(-max, max)), int(math.Random(-max, max)))
 
-    sampler = vtk.vtkSampleFunction()
+    sampler = vtkSampleFunction()
     sampler.SetImplicitFunction(sphere)
     sampler.SetOutputScalarTypeToFloat()
     sampler.SetSampleDimensions(51, 51, 51)
     sampler.SetModelBounds(-50, 50, -50, 50, -50, 50)
 
-    thres = vtk.vtkImageThreshold()
+    thres = vtkImageThreshold()
     thres.SetInputConnection(sampler.GetOutputPort())
     thres.ThresholdByLower(radius * radius)
     thres.ReplaceInOn()
@@ -61,7 +82,7 @@ while i < n:
     if (i == 0):
         blobImage.DeepCopy(thres.GetOutput())
 
-    maxValue = vtk.vtkImageMathematics()
+    maxValue = vtkImageMathematics()
     maxValue.SetInputData(0, blobImage)
     maxValue.SetInputData(1, thres.GetOutput())
     maxValue.SetOperationToMax()
@@ -72,16 +93,16 @@ while i < n:
 
     i += 1
 
-discrete = vtk.vtkDiscreteFlyingEdges3D()
+discrete = vtkDiscreteFlyingEdges3D()
 discrete.SetInputData(blobImage)
 discrete.GenerateValues(n, 1, n)
 
-mapper = vtk.vtkPolyDataMapper()
+mapper = vtkPolyDataMapper()
 mapper.SetInputConnection(discrete.GetOutputPort())
 mapper.SetLookupTable(lut)
 mapper.SetScalarRange(0, lut.GetNumberOfColors())
 
-actor = vtk.vtkActor()
+actor = vtkActor()
 actor.SetMapper(mapper)
 
 ren1.AddActor(actor)

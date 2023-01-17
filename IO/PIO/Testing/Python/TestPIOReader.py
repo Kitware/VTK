@@ -1,13 +1,30 @@
 #!/usr/bin/env python
 
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonCore import vtkLookupTable
+from vtkmodules.vtkFiltersHyperTree import vtkHyperTreeGridGeometry
+from vtkmodules.vtkIOPIO import vtkPIOReader
+from vtkmodules.vtkParallelCore import vtkMultiProcessController
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkDataSetMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+from vtkmodules.vtkRenderingParallel import (
+    vtkCompositedSynchronizedRenderers,
+    vtkSynchronizedRenderWindows,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
-controller = vtk.vtkMultiProcessController.GetGlobalController()
+controller = vtkMultiProcessController.GetGlobalController()
 rank = controller.GetLocalProcessId()
 
-pioreader = vtk.vtkPIOReader()
+pioreader = vtkPIOReader()
 pioreader.SetFileName("" + str(VTK_DATA_ROOT) + "/Data/PIO/simple.pio")
 pioreader.UpdateInformation()
 
@@ -28,7 +45,7 @@ pioreader.Update()
 grid = pioreader.GetOutput()
 block = grid.GetBlock(0)
 piece = block.GetPieceAsDataObject(rank)
-geometryFilter = vtk.vtkHyperTreeGridGeometry()
+geometryFilter = vtkHyperTreeGridGeometry()
 geometryFilter.SetInputData(piece)
 geometryFilter.Update()
 
@@ -36,28 +53,28 @@ geometryFilter.Update()
 # Rendering
 # ---------------------------------------------------------------------
 
-ren = vtk.vtkRenderer()
-renWin = vtk.vtkRenderWindow()
+ren = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.AddRenderer(ren)
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 
-syncWindows = vtk.vtkSynchronizedRenderWindows()
+syncWindows = vtkSynchronizedRenderWindows()
 syncWindows.SetRenderWindow(renWin)
 syncWindows.SetParallelController(controller)
 syncWindows.SetIdentifier(1)
 
-syncRenderers = vtk.vtkCompositedSynchronizedRenderers()
+syncRenderers = vtkCompositedSynchronizedRenderers()
 syncRenderers.SetRenderer(ren);
 syncRenderers.SetParallelController(controller);
 
-lut = vtk.vtkLookupTable()
+lut = vtkLookupTable()
 lut.SetHueRange(0.66, 0)
 lut.SetSaturationRange(1.0, 0.25);
 lut.SetTableRange(48.5, 50)
 lut.Build()
 
-mapper = vtk.vtkDataSetMapper()
+mapper = vtkDataSetMapper()
 mapper.SetLookupTable(lut)
 mapper.SetColorModeToMapScalars()
 mapper.SetScalarModeToUseCellFieldData()
@@ -68,7 +85,7 @@ mapper.SetInputConnection(geometryFilter.GetOutputPort())
 mapper.UseLookupTableScalarRangeOn()
 mapper.SetScalarRange(48.5, 50)
 
-actor = vtk.vtkActor()
+actor = vtkActor()
 actor.SetMapper(mapper)
 
 ren.AddActor(actor)

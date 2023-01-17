@@ -1,6 +1,15 @@
 #!/usr/bin/env python
-import vtk
-from vtk.test import Testing
+from vtkmodules.vtkCommonCore import (
+    vtkIdTypeArray,
+    vtkMath,
+)
+from vtkmodules.vtkCommonDataModel import (
+    vtkPointLocator,
+    vtkStaticPointLocator,
+)
+from vtkmodules.vtkCommonSystem import vtkTimerLog
+from vtkmodules.vtkFiltersSources import vtkPointSource
+from vtkmodules.test import Testing
 
 try:
     import numpy as np
@@ -9,13 +18,13 @@ except ImportError:
     print("This test requires numpy")
     Testing.skip()
 
-from vtk.util.numpy_support import vtk_to_numpy
+from vtkmodules.util.numpy_support import vtk_to_numpy
 
 # Test the vtkStaticPointLocator::MergePoints() method.
 
 # create a test dataset
 #
-math = vtk.vtkMath()
+math = vtkMath()
 
 # Note: the bigger the data the better vtkStaticPointLocator performs (as
 # compared to vtkPointLocator).
@@ -31,7 +40,7 @@ else:
     numPts = 20000
 
 # Create an initial set of points and associated dataset
-rpts = vtk.vtkPointSource()
+rpts = vtkPointSource()
 rpts.SetNumberOfPoints(numPts)
 rpts.SetDistributionToUniform()
 rpts.SetRadius(1)
@@ -41,10 +50,10 @@ polydata = rpts.GetOutput()
 # Print initial statistics
 print("Processing NumPts: {0}".format(numPts))
 
-timer = vtk.vtkTimerLog()
+timer = vtkTimerLog()
 
 # Create the locator.
-sclean = vtk.vtkStaticPointLocator()
+sclean = vtkStaticPointLocator()
 sclean.SetDataSet(polydata)
 
 timer.StartTimer()
@@ -55,7 +64,7 @@ print("Build Static Point Locator (threaded): {0}".format(time))
 print("Number of Divisions: ", sclean.GetDivisions())
 
 # Create a comparison point locator.
-clean = vtk.vtkPointLocator()
+clean = vtkPointLocator()
 clean.SetDataSet(polydata)
 
 timer.StartTimer()
@@ -66,7 +75,7 @@ print("Build Point Locator (serial): {0}".format(time))
 print("Number of Divisions: ", clean.GetDivisions())
 
 # The merge map indicates how input points are merged to output points.
-mergeMapArray = vtk.vtkIdTypeArray()
+mergeMapArray = vtkIdTypeArray()
 mergeMapArray.SetNumberOfTuples(polydata.GetNumberOfPoints())
 mergeMap = vtk_to_numpy(mergeMapArray)
 

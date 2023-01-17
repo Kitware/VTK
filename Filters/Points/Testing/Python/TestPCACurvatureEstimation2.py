@@ -1,18 +1,42 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonCore import vtkMath
+from vtkmodules.vtkCommonDataModel import (
+    vtkBox,
+    vtkCylinder,
+    vtkImplicitBoolean,
+    vtkSphere,
+)
+from vtkmodules.vtkCommonSystem import vtkTimerLog
+from vtkmodules.vtkFiltersCore import vtkAssignAttribute
+from vtkmodules.vtkFiltersExtraction import vtkExtractVectorComponents
+from vtkmodules.vtkFiltersPoints import (
+    vtkBoundedPointSource,
+    vtkFitImplicitFunction,
+    vtkPCACurvatureEstimation,
+)
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPointGaussianMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # Interpolate onto a volume
 
 # Parameters for debugging
 NPts = 1000000
-math = vtk.vtkMath()
+math = vtkMath()
 math.RandomSeed(31415)
 
 # create pipeline
 #
-points = vtk.vtkBoundedPointSource()
+points = vtkBoundedPointSource()
 points.SetNumberOfPoints(NPts)
 points.SetBounds(-3,3, -1,1, -1,1)
 points.ProduceRandomScalarsOn()
@@ -20,40 +44,40 @@ points.ProduceCellOutputOff()
 points.Update()
 
 # Create a cylinder
-cyl = vtk.vtkCylinder()
+cyl = vtkCylinder()
 cyl.SetCenter(-2,0,0)
 cyl.SetRadius(0.02)
 
 # Create a (thin) box implicit function
-box = vtk.vtkBox()
+box = vtkBox()
 box.SetBounds(-1,0.5, -0.5,0.5, -0.0005, 0.0005)
 
 # Create a sphere implicit function
-sphere = vtk.vtkSphere()
+sphere = vtkSphere()
 sphere.SetCenter(2,0,0)
 sphere.SetRadius(0.8)
 
 # Boolean (union) these together
-imp = vtk.vtkImplicitBoolean()
+imp = vtkImplicitBoolean()
 imp.SetOperationTypeToUnion()
 imp.AddFunction(cyl)
 imp.AddFunction(box)
 imp.AddFunction(sphere)
 
 # Extract points along sphere surface
-extract = vtk.vtkFitImplicitFunction()
+extract = vtkFitImplicitFunction()
 extract.SetInputConnection(points.GetOutputPort())
 extract.SetImplicitFunction(imp)
 extract.SetThreshold(0.0005)
 extract.Update()
 
 # Now generate normals from resulting points
-curv = vtk.vtkPCACurvatureEstimation()
+curv = vtkPCACurvatureEstimation()
 curv.SetInputConnection(extract.GetOutputPort())
 curv.SetSampleSize(6)
 
 # Time execution
-timer = vtk.vtkTimerLog()
+timer = vtkTimerLog()
 timer.StartTimer()
 curv.Update()
 timer.StopTimer()
@@ -62,11 +86,11 @@ print("Points processed: {0}".format(NPts))
 print("   Time to generate curvature: {0}".format(time))
 
 # Break out the curvature into thress separate arrays
-assign = vtk.vtkAssignAttribute()
+assign = vtkAssignAttribute()
 assign.SetInputConnection(curv.GetOutputPort())
 assign.Assign("PCACurvature", "VECTORS", "POINT_DATA")
 
-extract = vtk.vtkExtractVectorComponents()
+extract = vtkExtractVectorComponents()
 extract.SetInputConnection(assign.GetOutputPort())
 extract.Update()
 print(extract.GetOutput(0).GetScalarRange())
@@ -74,39 +98,39 @@ print(extract.GetOutput(1).GetScalarRange())
 print(extract.GetOutput(2).GetScalarRange())
 
 # Three different outputs for different curvatures
-subMapper = vtk.vtkPointGaussianMapper()
+subMapper = vtkPointGaussianMapper()
 subMapper.SetInputConnection(extract.GetOutputPort(0))
 subMapper.EmissiveOff()
 subMapper.SetScaleFactor(0.0)
 
-subActor = vtk.vtkActor()
+subActor = vtkActor()
 subActor.SetMapper(subMapper)
 subActor.AddPosition(0,2.25,0)
 
-sub1Mapper = vtk.vtkPointGaussianMapper()
+sub1Mapper = vtkPointGaussianMapper()
 sub1Mapper.SetInputConnection(extract.GetOutputPort(1))
 sub1Mapper.EmissiveOff()
 sub1Mapper.SetScaleFactor(0.0)
 
-sub1Actor = vtk.vtkActor()
+sub1Actor = vtkActor()
 sub1Actor.SetMapper(sub1Mapper)
 
-sub2Mapper = vtk.vtkPointGaussianMapper()
+sub2Mapper = vtkPointGaussianMapper()
 sub2Mapper.SetInputConnection(extract.GetOutputPort(2))
 sub2Mapper.EmissiveOff()
 sub2Mapper.SetScaleFactor(0.0)
 
-sub2Actor = vtk.vtkActor()
+sub2Actor = vtkActor()
 sub2Actor.SetMapper(sub2Mapper)
 sub2Actor.AddPosition(0,-2.25,0)
 
 # Create the RenderWindow, Renderer and both Actors
 #
-ren0 = vtk.vtkRenderer()
-renWin = vtk.vtkRenderWindow()
+ren0 = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.SetMultiSamples(0)
 renWin.AddRenderer(ren0)
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 
 # Add the actors to the renderer, set the background and size

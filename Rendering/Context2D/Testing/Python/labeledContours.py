@@ -1,7 +1,37 @@
 #!/usr/bin/env python
 import sys
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonCore import (
+    vtkDoubleArray,
+    vtkLookupTable,
+    vtkUnsignedCharArray,
+)
+from vtkmodules.vtkCommonDataModel import (
+    vtkPlane,
+    vtkRectd,
+    vtkRecti,
+)
+from vtkmodules.vtkChartsCore import (
+    vtkAxis,
+    vtkInteractiveArea,
+)
+from vtkmodules.vtkFiltersCore import (
+    vtkContourFilter,
+    vtkCutter,
+    vtkStripper,
+)
+from vtkmodules.vtkImagingCore import vtkRTAnalyticSource
+from vtkmodules.vtkRenderingCore import (
+    VTK_SCALAR_MODE_USE_POINT_DATA,
+    vtkTextProperty,
+    vtkTextPropertyCollection,
+)
+from vtkmodules.vtkRenderingContext2D import vtkLabeledContourPolyDataItem
+from vtkmodules.vtkViewsContext2D import vtkContextView
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingContextOpenGL2
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 
@@ -18,17 +48,17 @@ contourValues = [
     276.0
 ]
 
-wavelet = vtk.vtkRTAnalyticSource()
+wavelet = vtkRTAnalyticSource()
 
-plane = vtk.vtkPlane()
+plane = vtkPlane()
 plane.SetOrigin(0.0, 0.0, 0.0)
 plane.SetNormal(0.0, 0.0, 1.0)
 
-planeCut = vtk.vtkCutter()
+planeCut = vtkCutter()
 planeCut.SetInputConnection(wavelet.GetOutputPort())
 planeCut.SetCutFunction(plane)
 
-contours = vtk.vtkContourFilter()
+contours = vtkContourFilter()
 contours.SetInputConnection(planeCut.GetOutputPort())
 contours.SetNumberOfContours(len(contourValues))
 contours.SetComputeScalars(True)
@@ -36,7 +66,7 @@ contours.SetComputeScalars(True)
 for idx in range(len(contourValues)):
     contours.SetValue(idx, contourValues[idx])
 
-stripper = vtk.vtkStripper()
+stripper = vtkStripper()
 stripper.SetInputConnection(contours.GetOutputPort())
 
 stripper.Update()
@@ -44,15 +74,15 @@ pd = stripper.GetOutput()
 
 pdbounds = pd.GetBounds()
 
-lut = vtk.vtkLookupTable()
+lut = vtkLookupTable()
 lut.SetNumberOfColors(len(contourValues))
 lut.SetRange(84.0, 277.0)
 lut.Build()
 
-tprops = vtk.vtkTextPropertyCollection()
+tprops = vtkTextPropertyCollection()
 
 for i in range(len(contourValues)):
-    textProp = vtk.vtkTextProperty()
+    textProp = vtkTextProperty()
 
     col = [0.0, 0.0, 0.0]
     lut.GetColor(contourValues[i], col)
@@ -74,45 +104,45 @@ for i in range(len(contourValues)):
 
     tprops.AddItem(textProp)
 
-tpropMap = vtk.vtkDoubleArray()
+tpropMap = vtkDoubleArray()
 tpropMap.SetNumberOfComponents(1)
 
 for i in range(len(contourValues)):
     tpropMap.InsertNextTypedTuple([contourValues[i]])
 
-mappedColors = vtk.vtkUnsignedCharArray()
+mappedColors = vtkUnsignedCharArray()
 mappedColors.SetNumberOfComponents(4)
 
 for i in range(pd.GetNumberOfPoints()):
     mappedColors.InsertNextTypedTuple([0, 0, 0, 255])
 
-item = vtk.vtkLabeledContourPolyDataItem()
+item = vtkLabeledContourPolyDataItem()
 item.SetPolyData(pd)
 item.SetTextProperties(tprops)
 item.SetTextPropertyMapping(tpropMap)
 item.SetLabelVisibility(1)
 item.SetSkipDistance(20.0)
-item.SetScalarMode(vtk.VTK_SCALAR_MODE_USE_POINT_DATA)
+item.SetScalarMode(VTK_SCALAR_MODE_USE_POINT_DATA)
 item.SetMappedColors(mappedColors)
 
 width = 600
 height = 600
 
-view = vtk.vtkContextView()
+view = vtkContextView()
 renWin = view.GetRenderWindow()
 renWin.SetSize(width, height)
 
-area = vtk.vtkInteractiveArea()
+area = vtkInteractiveArea()
 view.GetScene().AddItem(area)
 
 xmin = pdbounds[0]
 ymin = pdbounds[2]
 dataWidth = pdbounds[1] - pdbounds[0]
 dataHeight = pdbounds[3] - pdbounds[2]
-drawAreaBounds = vtk.vtkRectd(xmin, ymin, dataWidth, dataHeight)
+drawAreaBounds = vtkRectd(xmin, ymin, dataWidth, dataHeight)
 
 vp = [0.0, 1.0, 0.0, 1.0]
-screenGeometry = vtk.vtkRecti(int(vp[0] * width),
+screenGeometry = vtkRecti(int(vp[0] * width),
                               int(vp[2] * height),
                               int((vp[1] - vp[0]) * width),
                               int((vp[3] - vp[2]) * height))
@@ -122,10 +152,10 @@ area.SetGeometry(screenGeometry)
 area.SetFillViewport(False)
 area.SetShowGrid(False)
 
-axisLeft = area.GetAxis(vtk.vtkAxis.LEFT)
-axisRight = area.GetAxis(vtk.vtkAxis.RIGHT)
-axisBottom = area.GetAxis(vtk.vtkAxis.BOTTOM)
-axisTop = area.GetAxis(vtk.vtkAxis.TOP)
+axisLeft = area.GetAxis(vtkAxis.LEFT)
+axisRight = area.GetAxis(vtkAxis.RIGHT)
+axisBottom = area.GetAxis(vtkAxis.BOTTOM)
+axisTop = area.GetAxis(vtkAxis.TOP)
 axisTop.SetVisible(False)
 axisRight.SetVisible(False)
 axisLeft.SetVisible(False)

@@ -1,9 +1,28 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonCore import vtkPoints
+from vtkmodules.vtkCommonDataModel import (
+    vtkCellArray,
+    vtkPolyData,
+)
+from vtkmodules.vtkFiltersCore import vtkFeatureEdges
+from vtkmodules.vtkFiltersModeling import vtkLoopSubdivisionFilter
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkDataSetMapper,
+    vtkPolyDataMapper,
+    vtkProperty,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+from vtkmodules.vtkRenderingLOD import vtkLODActor
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
-points = vtk.vtkPoints()
+points = vtkPoints()
 points.InsertNextPoint(0,-16,0)
 points.InsertNextPoint(0,0,-14)
 points.InsertNextPoint(0,0,14)
@@ -36,7 +55,7 @@ points.InsertNextPoint(19,-2,-2)
 points.InsertNextPoint(19,-2,2)
 points.InsertNextPoint(15,2,-2)
 points.InsertNextPoint(15,2,2)
-faces = vtk.vtkCellArray()
+faces = vtkCellArray()
 faces.InsertNextCell(3)
 faces.InsertCellPoint(3)
 faces.InsertCellPoint(4)
@@ -293,36 +312,36 @@ faces.InsertNextCell(3)
 faces.InsertCellPoint(31)
 faces.InsertCellPoint(19)
 faces.InsertCellPoint(29)
-model = vtk.vtkPolyData()
+model = vtkPolyData()
 model.SetPolys(faces)
 model.SetPoints(points)
 # Create the RenderWindow, Renderer and both Actors
 #
-ren1 = vtk.vtkRenderer()
-renWin = vtk.vtkRenderWindow()
+ren1 = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.AddRenderer(ren1)
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 #vtkButterflySubdivisionFilter subdivide
-subdivide = vtk.vtkLoopSubdivisionFilter()
+subdivide = vtkLoopSubdivisionFilter()
 subdivide.SetInputData(model)
 subdivide.SetNumberOfSubdivisions(4)
-mapper = vtk.vtkDataSetMapper()
+mapper = vtkDataSetMapper()
 mapper.SetInputConnection(subdivide.GetOutputPort())
-rose = vtk.vtkLODActor()
+rose = vtkLODActor()
 rose.SetMapper(mapper)
-fe = vtk.vtkFeatureEdges()
+fe = vtkFeatureEdges()
 fe.SetInputConnection(subdivide.GetOutputPort())
 fe.SetFeatureAngle(100)
-feMapper = vtk.vtkPolyDataMapper()
+feMapper = vtkPolyDataMapper()
 feMapper.SetInputConnection(fe.GetOutputPort())
-edges = vtk.vtkActor()
+edges = vtkActor()
 edges.SetMapper(feMapper)
 # Add the actors to the renderer, set the background and size
 #
 ren1.AddActor(rose)
 #ren1 AddActor edges
-backP = vtk.vtkProperty()
+backP = vtkProperty()
 backP.SetDiffuseColor(1,1,.3)
 rose.SetBackfaceProperty(backP)
 rose.GetProperty().SetDiffuseColor(1,.4,.3)

@@ -1,9 +1,27 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonCore import (
+    vtkPoints,
+    vtkUnsignedCharArray,
+)
+from vtkmodules.vtkCommonDataModel import (
+    vtkCellArray,
+    vtkPolyData,
+)
+from vtkmodules.vtkFiltersCore import vtkTriangleFilter
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
-pts = vtk.vtkPoints()
+pts = vtkPoints()
 pts.SetNumberOfPoints(22)
 pts.SetPoint(0,0,0,0)
 pts.SetPoint(1,1,0,0)
@@ -27,16 +45,16 @@ pts.SetPoint(18,6,2,0)
 pts.SetPoint(19,7,2,0)
 pts.SetPoint(20,8,2,0)
 pts.SetPoint(21,9,2,0)
-pd = vtk.vtkPolyData()
+pd = vtkPolyData()
 pd.SetPoints(pts)
-verts = vtk.vtkCellArray()
+verts = vtkCellArray()
 verts.InsertNextCell(1)
 verts.InsertCellPoint(0)
 verts.InsertNextCell(2)
 verts.InsertCellPoint(1)
 verts.InsertCellPoint(10)
 pd.SetVerts(verts)
-lines = vtk.vtkCellArray()
+lines = vtkCellArray()
 lines.InsertNextCell(2)
 lines.InsertCellPoint(2)
 lines.InsertCellPoint(11)
@@ -45,7 +63,7 @@ lines.InsertCellPoint(3)
 lines.InsertCellPoint(12)
 lines.InsertCellPoint(17)
 pd.SetLines(lines)
-polys = vtk.vtkCellArray()
+polys = vtkCellArray()
 polys.InsertNextCell(3)
 polys.InsertCellPoint(4)
 polys.InsertCellPoint(5)
@@ -57,7 +75,7 @@ polys.InsertCellPoint(19)
 polys.InsertCellPoint(18)
 polys.InsertCellPoint(14)
 pd.SetPolys(polys)
-strips = vtk.vtkCellArray()
+strips = vtkCellArray()
 strips.InsertNextCell(6)
 strips.InsertCellPoint(8)
 strips.InsertCellPoint(9)
@@ -66,7 +84,7 @@ strips.InsertCellPoint(16)
 strips.InsertCellPoint(20)
 strips.InsertCellPoint(21)
 pd.SetStrips(strips)
-colors = vtk.vtkUnsignedCharArray()
+colors = vtkUnsignedCharArray()
 colors.SetNumberOfComponents(4)
 colors.SetNumberOfTuples(7)
 colors.SetTuple4(0,255,0,0,255)
@@ -77,18 +95,18 @@ colors.SetTuple4(4,255,0,255,255)
 colors.SetTuple4(5,0,255,0,255)
 colors.SetTuple4(6,0,255,255,255)
 pd.GetCellData().SetScalars(colors)
-tf = vtk.vtkTriangleFilter()
+tf = vtkTriangleFilter()
 tf.SetInputData(pd)
-mapper = vtk.vtkPolyDataMapper()
+mapper = vtkPolyDataMapper()
 mapper.SetInputConnection(tf.GetOutputPort())
-actor = vtk.vtkActor()
+actor = vtkActor()
 actor.SetMapper(mapper)
 # Create the RenderWindow, Renderer and interactive renderer
 #
-ren1 = vtk.vtkRenderer()
-renWin = vtk.vtkRenderWindow()
+ren1 = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.AddRenderer(ren1)
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 ren1.AddActor(actor)
 ren1.SetBackground(1,1,1)

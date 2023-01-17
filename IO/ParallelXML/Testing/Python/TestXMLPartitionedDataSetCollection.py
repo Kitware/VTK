@@ -2,8 +2,8 @@ from vtkmodules.vtkIOParallelXML import vtkXMLPartitionedDataSetCollectionWriter
 from vtkmodules.vtkIOXML import vtkXMLPartitionedDataSetCollectionReader
 from vtkmodules.vtkFiltersSources import vtkPartitionedDataSetCollectionSource
 
-from vtk.test import Testing
-from vtk.util.misc import vtkGetTempDir
+from vtkmodules.test import Testing
+from vtkmodules.util.misc import vtkGetTempDir
 
 import os, shutil
 

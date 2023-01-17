@@ -1,75 +1,106 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonExecutionModel import vtkImageToStructuredPoints
+from vtkmodules.vtkFiltersCore import (
+    vtkStripper,
+    vtkThreshold,
+)
+from vtkmodules.vtkFiltersGeneral import (
+    vtkLinkEdgels,
+    vtkSubPixelPositionEdgels,
+)
+from vtkmodules.vtkFiltersGeometry import vtkGeometryFilter
+from vtkmodules.vtkIOImage import vtkPNMReader
+from vtkmodules.vtkImagingCore import (
+    vtkImageCast,
+    vtkImageConstantPad,
+)
+from vtkmodules.vtkImagingColor import vtkImageLuminance
+from vtkmodules.vtkImagingGeneral import (
+    vtkImageGaussianSmooth,
+    vtkImageGradient,
+)
+from vtkmodules.vtkImagingMath import vtkImageMagnitude
+from vtkmodules.vtkImagingMorphological import vtkImageNonMaximumSuppression
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # Create the RenderWindow, Renderer and both Actors
-ren1 = vtk.vtkRenderer()
-renWin = vtk.vtkRenderWindow()
+ren1 = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.SetMultiSamples(0)
 renWin.AddRenderer(ren1)
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 # load in the texture map
 #
-imageIn = vtk.vtkPNMReader()
+imageIn = vtkPNMReader()
 imageIn.SetFileName("" + str(VTK_DATA_ROOT) + "/Data/earth.ppm")
-il = vtk.vtkImageLuminance()
+il = vtkImageLuminance()
 il.SetInputConnection(imageIn.GetOutputPort())
-ic = vtk.vtkImageCast()
+ic = vtkImageCast()
 ic.SetOutputScalarTypeToFloat()
 ic.SetInputConnection(il.GetOutputPort())
 # smooth the image
-gs = vtk.vtkImageGaussianSmooth()
+gs = vtkImageGaussianSmooth()
 gs.SetInputConnection(ic.GetOutputPort())
 gs.SetDimensionality(2)
 gs.SetRadiusFactors(1,1,0)
 # gradient the image
-imgGradient = vtk.vtkImageGradient()
+imgGradient = vtkImageGradient()
 imgGradient.SetInputConnection(gs.GetOutputPort())
 imgGradient.SetDimensionality(2)
-imgMagnitude = vtk.vtkImageMagnitude()
+imgMagnitude = vtkImageMagnitude()
 imgMagnitude.SetInputConnection(imgGradient.GetOutputPort())
 imgMagnitude.Update()
 # non maximum suppression
-nonMax = vtk.vtkImageNonMaximumSuppression()
+nonMax = vtkImageNonMaximumSuppression()
 nonMax.SetMagnitudeInputData(imgMagnitude.GetOutput())
 nonMax.SetVectorInputData(imgGradient.GetOutput())
 nonMax.SetDimensionality(2)
-pad = vtk.vtkImageConstantPad()
+pad = vtkImageConstantPad()
 pad.SetInputConnection(imgGradient.GetOutputPort())
 pad.SetOutputNumberOfScalarComponents(3)
 pad.SetConstant(0)
 pad.Update()
-i2sp1 = vtk.vtkImageToStructuredPoints()
+i2sp1 = vtkImageToStructuredPoints()
 i2sp1.SetInputConnection(nonMax.GetOutputPort())
 i2sp1.SetVectorInputData(pad.GetOutput())
 # link edgles
-imgLink = vtk.vtkLinkEdgels()
+imgLink = vtkLinkEdgels()
 imgLink.SetInputConnection(i2sp1.GetOutputPort())
 imgLink.SetGradientThreshold(2)
 # threshold links
-thresholdEdgels = vtk.vtkThreshold()
+thresholdEdgels = vtkThreshold()
 thresholdEdgels.SetInputConnection(imgLink.GetOutputPort())
-thresholdEdgels.SetThresholdFunction(vtk.vtkThreshold.THRESHOLD_UPPER)
+thresholdEdgels.SetThresholdFunction(vtkThreshold.THRESHOLD_UPPER)
 thresholdEdgels.SetUpperThreshold(10.0)
 thresholdEdgels.AllScalarsOff()
-gf = vtk.vtkGeometryFilter()
+gf = vtkGeometryFilter()
 gf.SetInputConnection(thresholdEdgels.GetOutputPort())
-i2sp = vtk.vtkImageToStructuredPoints()
+i2sp = vtkImageToStructuredPoints()
 i2sp.SetInputConnection(imgMagnitude.GetOutputPort())
 i2sp.SetVectorInputData(pad.GetOutput())
 i2sp.Update()
 # subpixel them
-spe = vtk.vtkSubPixelPositionEdgels()
+spe = vtkSubPixelPositionEdgels()
 spe.SetInputConnection(gf.GetOutputPort())
 spe.SetGradMapsData(i2sp.GetOutput())
-strip = vtk.vtkStripper()
+strip = vtkStripper()
 strip.SetInputConnection(spe.GetOutputPort())
-dsm = vtk.vtkPolyDataMapper()
+dsm = vtkPolyDataMapper()
 dsm.SetInputConnection(strip.GetOutputPort())
 dsm.ScalarVisibilityOff()
-planeActor = vtk.vtkActor()
+planeActor = vtkActor()
 planeActor.SetMapper(dsm)
 planeActor.GetProperty().SetAmbient(1.0)
 planeActor.GetProperty().SetDiffuse(0.0)

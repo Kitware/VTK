@@ -1,22 +1,35 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkFiltersSources import vtkSphereSource
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkActor2D,
+    vtkImageMapper,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+    vtkWindowToImageFilter,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # Create the RenderWindow and Renderer
-ren1 = vtk.vtkRenderer()
-renWin = vtk.vtkRenderWindow()
+ren1 = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.AddRenderer(ren1)
 renWin.SetAlphaBitPlanes(1)
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 
 # create a default polygonal sphere
-sphere = vtk.vtkSphereSource()
-sphmapper = vtk.vtkPolyDataMapper()
+sphere = vtkSphereSource()
+sphmapper = vtkPolyDataMapper()
 sphmapper.SetInputConnection(sphere.GetOutputPort())
 
-sphactor = vtk.vtkActor()
+sphactor = vtkActor()
 sphactor.SetMapper(sphmapper)
 
 # Add the actors to the renderer, set the background to initial
@@ -35,7 +48,7 @@ else:
     print("GetAlphaBitPlanes: " + str(renWin.GetAlphaBitPlanes()))
 
 # create window to image filter, grabbing RGB and alpha
-w2i = vtk.vtkWindowToImageFilter()
+w2i = vtkWindowToImageFilter()
 w2i.SetInput(renWin)
 w2i.SetInputBufferTypeToRGBA()
 
@@ -47,12 +60,12 @@ outputData = w2i.GetOutput().NewInstance()
 outputData.DeepCopy(w2i.GetOutput())
 
 # set up mappers and actors to display the image
-im = vtk.vtkImageMapper()
+im = vtkImageMapper()
 im.SetColorWindow(255)
 im.SetColorLevel(127.5)
 im.SetInputData(outputData)
 
-ia2 = vtk.vtkActor2D()
+ia2 = vtkActor2D()
 ia2.SetMapper(im)
 
 # now, change the image (background is now green)

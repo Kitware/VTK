@@ -1,20 +1,32 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonDataModel import vtkImageData
+from vtkmodules.vtkFiltersGeneral import vtkDiscreteFlyingEdgesClipper2D
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkDataSetMapper,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # Create the RenderWindow, Renderer and both Actors
 #
-ren1 = vtk.vtkRenderer()
+ren1 = vtkRenderer()
 ren1.SetBackground(1,1,1)
-renWin = vtk.vtkRenderWindow()
+renWin = vtkRenderWindow()
 renWin.AddRenderer(ren1)
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 
 # Create synthetic image data
 VTK_SHORT = 4
-img = vtk.vtkImageData()
+img = vtkImageData()
 img.SetDimensions(6,5,1)
 img.AllocateScalars(VTK_SHORT,1)
 
@@ -55,7 +67,7 @@ scalars.SetTuple1(28,0)
 scalars.SetTuple1(29,3)
 
 # Create the pipeline, extract some regions
-discrete = vtk.vtkDiscreteFlyingEdgesClipper2D()
+discrete = vtkDiscreteFlyingEdgesClipper2D()
 discrete.SetInputData(img)
 discrete.SetValue(0,1)
 discrete.SetValue(1,2)
@@ -64,20 +76,20 @@ discrete.SetValue(3,4)
 discrete.Update()
 
 # Clipped polygons are generated
-mapper = vtk.vtkPolyDataMapper()
+mapper = vtkPolyDataMapper()
 mapper.SetInputConnection(discrete.GetOutputPort())
 mapper.SetScalarModeToUseCellData()
 mapper.SetScalarRange(1,4);
 
-actor = vtk.vtkActor()
+actor = vtkActor()
 actor.SetMapper(mapper)
 
 # The image gridlines
-gridMapper = vtk.vtkDataSetMapper()
+gridMapper = vtkDataSetMapper()
 gridMapper.SetInputData(img)
 gridMapper.ScalarVisibilityOff()
 
-gridActor = vtk.vtkActor()
+gridActor = vtkActor()
 gridActor.SetMapper(gridMapper)
 gridActor.GetProperty().SetRepresentationToWireframe()
 gridActor.GetProperty().SetColor(0,0,1)

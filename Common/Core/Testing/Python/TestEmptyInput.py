@@ -5,7 +5,18 @@ import inspect
 import re
 import optparse
 
-import vtk
+import vtkmodules.all
+from vtkmodules.vtkCommonCore import (
+    vtkFileOutputWindow,
+    vtkObject,
+)
+from vtkmodules.vtkCommonDataModel import (
+    vtkImageData,
+    vtkPolyData,
+    vtkRectilinearGrid,
+    vtkStructuredGrid,
+    vtkUnstructuredGrid,
+)
 from pydoc import classname
 
 '''
@@ -16,12 +27,12 @@ from pydoc import classname
    TestOne() emulate this by returning False if an error occurred
    and True if no error occurred.
 '''
-vtk.vtkObject.GlobalWarningDisplayOff()
+vtkObject.GlobalWarningDisplayOff()
 
 def RedirectVTKMessages():
     """ Can be used to redirect VTK related error messages to a
     file."""
-    log = vtk.vtkFileOutputWindow()
+    log = vtkFileOutputWindow()
     log.SetFlush(1)
     log.AppendOff()
     log.SetFileName('TestEmptyInput-err.log')
@@ -55,11 +66,11 @@ classWindowsExceptions = set([
 
 classExceptions = set()
 
-emptyPD = vtk.vtkPolyData()
-emptyID = vtk.vtkImageData()
-emptySG = vtk.vtkStructuredGrid()
-emptyUG = vtk.vtkUnstructuredGrid()
-emptyRG = vtk.vtkRectilinearGrid()
+emptyPD = vtkPolyData()
+emptyID = vtkImageData()
+emptySG = vtkStructuredGrid()
+emptyUG = vtkUnstructuredGrid()
+emptyRG = vtkRectilinearGrid()
 
 # This will hold the classes to be tested.
 vtkClasses = set()
@@ -126,7 +137,7 @@ def GetVTKClasses():
     pattern = r'\<vtkclass (.*)\.(.*)\>'
     regEx = re.compile(pattern)
     vtkClasses = inspect.getmembers(
-                    vtk, inspect.isclass and not inspect.isabstract)
+                    vtkmodules.all, inspect.isclass and not inspect.isabstract)
     res = set()
     for name, obj in vtkClasses:
             result = re.match(regEx, repr(obj))
@@ -269,7 +280,7 @@ def TestOne(cname):
     :return: One of the above return values.
     '''
     try:
-        b = getattr(vtk, cname)()
+        b = getattr(vtkmodules.all, cname)()
         e = ErrorObserver()
         isAlgorithm = False
         # A record of whether b.SetInput() worked or not.

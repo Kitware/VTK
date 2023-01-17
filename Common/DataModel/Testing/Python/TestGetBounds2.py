@@ -1,17 +1,21 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import vtk
+from vtkmodules.vtkCommonCore import vtkPoints
+from vtkmodules.vtkCommonDataModel import (
+    vtkCellArray,
+    vtkPolyData,
+)
 import sys
 
 # Test bounds computation for mixed cells in polydata.
 # Create some points that are unused by any cell as well.
-polyData = vtk.vtkPolyData()
-pts = vtk.vtkPoints()
-verts = vtk.vtkCellArray()
-lines = vtk.vtkCellArray()
-polys = vtk.vtkCellArray()
-strips = vtk.vtkCellArray()
+polyData = vtkPolyData()
+pts = vtkPoints()
+verts = vtkCellArray()
+lines = vtkCellArray()
+polys = vtkCellArray()
+strips = vtkCellArray()
 
 pts.SetNumberOfPoints(13)
 pts.SetPoint(0, 0,0,0)

@@ -1,12 +1,13 @@
 #!/usr/bin/env python
-import vtk
-from vtk.test import Testing
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkFiltersCore import vtkContourGrid
+from vtkmodules.vtkIOExodus import vtkExodusIIReader
+from vtkmodules.test import Testing
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 class TestContourGrid(Testing.vtkTest):
   def testAll(self):
-    reader = vtk.vtkExodusIIReader()
+    reader = vtkExodusIIReader()
     reader.SetFileName("" + str(VTK_DATA_ROOT) + "/Data/disk_out_ref.ex2")
     reader.SetPointResultArrayStatus("Temp", 1);
     reader.SetPointResultArrayStatus("Pres", 1);
@@ -14,7 +15,7 @@ class TestContourGrid(Testing.vtkTest):
 
     input = reader.GetOutput().GetBlock(0).GetBlock(0);
 
-    cf = vtk.vtkContourGrid()
+    cf = vtkContourGrid()
     cf.SetInputData(input)
     cf.SetValue(0,400)
     cf.SetInputArrayToProcess(0, 0, 0, 0, "Temp");

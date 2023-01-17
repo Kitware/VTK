@@ -1,18 +1,44 @@
 #!/usr/bin/env python
 import os
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonCore import vtkLookupTable
+from vtkmodules.vtkFiltersCore import (
+    vtkConnectivityFilter,
+    vtkContourFilter,
+    vtkDataObjectToDataSetFilter,
+    vtkDataSetToDataObjectFilter,
+    vtkFieldDataToAttributeDataFilter,
+    vtkPolyDataNormals,
+)
+from vtkmodules.vtkFiltersGeneral import vtkWarpVector
+from vtkmodules.vtkFiltersGeometry import vtkGeometryFilter
+from vtkmodules.vtkIOLegacy import (
+    vtkDataObjectReader,
+    vtkDataObjectWriter,
+    vtkUnstructuredGridReader,
+)
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkDataSetMapper,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # Read a field representing unstructured grid and display it (similar to blow.tcl)
 
 # create a reader and write out field data
-reader = vtk.vtkUnstructuredGridReader()
+reader = vtkUnstructuredGridReader()
 reader.SetFileName(VTK_DATA_ROOT + "/Data/blow.vtk")
 reader.SetScalarsName("thickness9")
 reader.SetVectorsName("displacement9")
 
-ds2do = vtk.vtkDataSetToDataObjectFilter()
+ds2do = vtkDataSetToDataObjectFilter()
 ds2do.SetInputConnection(reader.GetOutputPort())
 
 # we must be able to write here
@@ -20,16 +46,16 @@ try:
     channel = open("UGridField.vtk", "wb")
     channel.close()
 
-    write = vtk.vtkDataObjectWriter()
+    write = vtkDataObjectWriter()
     write.SetInputConnection(ds2do.GetOutputPort())
     write.SetFileName("UGridField.vtk")
     write.Write()
 
     # Read the field and convert to unstructured grid.
-    dor = vtk.vtkDataObjectReader()
+    dor = vtkDataObjectReader()
     dor.SetFileName("UGridField.vtk")
 
-    do2ds = vtk.vtkDataObjectToDataSetFilter()
+    do2ds = vtkDataObjectToDataSetFilter()
     do2ds.SetInputConnection(dor.GetOutputPort())
     do2ds.SetDataSetTypeToUnstructuredGrid()
     do2ds.SetPointComponent(0, "Points", 0)
@@ -39,7 +65,7 @@ try:
     do2ds.SetCellConnectivityComponent("Cells", 0)
     do2ds.Update()
 
-    fd2ad = vtk.vtkFieldDataToAttributeDataFilter()
+    fd2ad = vtkFieldDataToAttributeDataFilter()
     fd2ad.SetInputData(do2ds.GetUnstructuredGridOutput())
     fd2ad.SetInputFieldToDataObjectField()
     fd2ad.SetOutputAttributeDataToPointData()
@@ -50,64 +76,64 @@ try:
     fd2ad.Update()
 
     # Now start visualizing
-    warp = vtk.vtkWarpVector()
+    warp = vtkWarpVector()
     warp.SetInputData(fd2ad.GetUnstructuredGridOutput())
 
     # extract mold from mesh using connectivity
-    connect = vtk.vtkConnectivityFilter()
+    connect = vtkConnectivityFilter()
     connect.SetInputConnection(warp.GetOutputPort())
     connect.SetExtractionModeToSpecifiedRegions()
     connect.AddSpecifiedRegion(0)
     connect.AddSpecifiedRegion(1)
 
-    moldMapper = vtk.vtkDataSetMapper()
+    moldMapper = vtkDataSetMapper()
     moldMapper.SetInputConnection(connect.GetOutputPort())
     moldMapper.ScalarVisibilityOff()
 
-    moldActor = vtk.vtkActor()
+    moldActor = vtkActor()
     moldActor.SetMapper(moldMapper)
     moldActor.GetProperty().SetColor(.2, .2, .2)
     moldActor.GetProperty().SetRepresentationToWireframe()
 
     # extract parison from mesh using connectivity
-    connect2 = vtk.vtkConnectivityFilter()
+    connect2 = vtkConnectivityFilter()
     connect2.SetInputConnection(warp.GetOutputPort())
     connect2.SetExtractionModeToSpecifiedRegions()
     connect2.AddSpecifiedRegion(2)
 
-    parison = vtk.vtkGeometryFilter()
+    parison = vtkGeometryFilter()
     parison.SetInputConnection(connect2.GetOutputPort())
 
-    normals2 = vtk.vtkPolyDataNormals()
+    normals2 = vtkPolyDataNormals()
     normals2.SetInputConnection(parison.GetOutputPort())
     normals2.SetFeatureAngle(60)
 
-    lut = vtk.vtkLookupTable()
+    lut = vtkLookupTable()
     lut.SetHueRange(0.0, 0.66667)
 
-    parisonMapper = vtk.vtkPolyDataMapper()
+    parisonMapper = vtkPolyDataMapper()
     parisonMapper.SetInputConnection(normals2.GetOutputPort())
     parisonMapper.SetLookupTable(lut)
     parisonMapper.SetScalarRange(0.12, 1.0)
 
-    parisonActor = vtk.vtkActor()
+    parisonActor = vtkActor()
     parisonActor.SetMapper(parisonMapper)
 
-    cf = vtk.vtkContourFilter()
+    cf = vtkContourFilter()
     cf.SetInputConnection(connect2.GetOutputPort())
     cf.SetValue(0, .5)
 
-    contourMapper = vtk.vtkPolyDataMapper()
+    contourMapper = vtkPolyDataMapper()
     contourMapper.SetInputConnection(cf.GetOutputPort())
 
-    contours = vtk.vtkActor()
+    contours = vtkActor()
     contours.SetMapper(contourMapper)
 
     # Create graphics stuff
-    ren1 = vtk.vtkRenderer()
-    renWin = vtk.vtkRenderWindow()
+    ren1 = vtkRenderer()
+    renWin = vtkRenderWindow()
     renWin.AddRenderer(ren1)
-    iren = vtk.vtkRenderWindowInteractor()
+    iren = vtkRenderWindowInteractor()
     iren.SetRenderWindow(renWin)
 
     # Add the actors to the renderer, set the background and size

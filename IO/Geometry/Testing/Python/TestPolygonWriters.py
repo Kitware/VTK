@@ -1,32 +1,59 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkFiltersCore import (
+    vtkCleanPolyData,
+    vtkExtractEdges,
+    vtkTriangleFilter,
+    vtkWindowedSincPolyDataFilter,
+)
+from vtkmodules.vtkIOGeometry import (
+    vtkBYUWriter,
+    vtkCGMWriter,
+    vtkIVWriter,
+    vtkMCubesWriter,
+    vtkSTLWriter,
+)
+from vtkmodules.vtkIOLegacy import (
+    vtkDataSetWriter,
+    vtkPolyDataReader,
+    vtkPolyDataWriter,
+)
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # Create the RenderWindow, Renderer and both Actors
 #
-ren1 = vtk.vtkRenderer()
-renWin = vtk.vtkRenderWindow()
+ren1 = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.AddRenderer(ren1)
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 # read data
 #
-input = vtk.vtkPolyDataReader()
+input = vtkPolyDataReader()
 input.SetFileName("" + str(VTK_DATA_ROOT) + "/Data/brainImageSmooth.vtk")
 #
 # generate vectors
-clean = vtk.vtkCleanPolyData()
+clean = vtkCleanPolyData()
 clean.SetInputConnection(input.GetOutputPort())
-smooth = vtk.vtkWindowedSincPolyDataFilter()
+smooth = vtkWindowedSincPolyDataFilter()
 smooth.SetInputConnection(clean.GetOutputPort())
 smooth.GenerateErrorVectorsOn()
 smooth.GenerateErrorScalarsOn()
 smooth.Update()
-mapper = vtk.vtkPolyDataMapper()
+mapper = vtkPolyDataMapper()
 mapper.SetInputConnection(smooth.GetOutputPort())
 mapper.SetScalarRange(smooth.GetOutput().GetScalarRange())
-brain = vtk.vtkActor()
+brain = vtkActor()
 brain.SetMapper(mapper)
 # Add the actors to the renderer, set the background and size
 #
@@ -51,18 +78,18 @@ if (catch.catch(globals(),"""channel = open("test.tmp", "w")""") == 0):
     #
     #
     # test the writers
-    dsw = vtk.vtkDataSetWriter()
+    dsw = vtkDataSetWriter()
     dsw.SetInputConnection(smooth.GetOutputPort())
     dsw.SetFileName("brain.dsw")
     dsw.Write()
     file.delete("-force", "brain.dsw")
-    pdw = vtk.vtkPolyDataWriter()
+    pdw = vtkPolyDataWriter()
     pdw.SetInputConnection(smooth.GetOutputPort())
     pdw.SetFileName("brain.pdw")
     pdw.Write()
     file.delete("-force", "brain.pdw")
     if (info.command(globals(), locals(),  "vtkIVWriter") != ""):
-        iv = vtk.vtkIVWriter()
+        iv = vtkIVWriter()
         iv.SetInputConnection(smooth.GetOutputPort())
         iv.SetFileName("brain.iv")
         iv.Write()
@@ -70,25 +97,25 @@ if (catch.catch(globals(),"""channel = open("test.tmp", "w")""") == 0):
         pass
     #
     # the next writers only handle triangles
-    triangles = vtk.vtkTriangleFilter()
+    triangles = vtkTriangleFilter()
     triangles.SetInputConnection(smooth.GetOutputPort())
     if (info.command(globals(), locals(),  "vtkIVWriter") != ""):
-        iv2 = vtk.vtkIVWriter()
+        iv2 = vtkIVWriter()
         iv2.SetInputConnection(triangles.GetOutputPort())
         iv2.SetFileName("brain2.iv")
         iv2.Write()
         file.delete("-force", "brain2.iv")
         pass
     if (info.command(globals(), locals(),  "vtkIVWriter") != ""):
-        edges = vtk.vtkExtractEdges()
+        edges = vtkExtractEdges()
         edges.SetInputConnection(triangles.GetOutputPort())
-        iv3 = vtk.vtkIVWriter()
+        iv3 = vtkIVWriter()
         iv3.SetInputConnection(edges.GetOutputPort())
         iv3.SetFileName("brain3.iv")
         iv3.Write()
         file.delete("-force", "brain3.iv")
         pass
-    byu = vtk.vtkBYUWriter()
+    byu = vtkBYUWriter()
     byu.SetGeometryFileName("brain.g")
     byu.SetScalarFileName("brain.s")
     byu.SetDisplacementFileName("brain.d")
@@ -97,25 +124,25 @@ if (catch.catch(globals(),"""channel = open("test.tmp", "w")""") == 0):
     file.delete("-force", "brain.g")
     file.delete("-force", "brain.s")
     file.delete("-force", "brain.d")
-    mcubes = vtk.vtkMCubesWriter()
+    mcubes = vtkMCubesWriter()
     mcubes.SetInputConnection(triangles.GetOutputPort())
     mcubes.SetFileName("brain.tri")
     mcubes.SetLimitsFileName("brain.lim")
     mcubes.Write()
     file.delete("-force", "brain.lim")
     file.delete("-force", "brain.tri")
-    stl = vtk.vtkSTLWriter()
+    stl = vtkSTLWriter()
     stl.SetInputConnection(triangles.GetOutputPort())
     stl.SetFileName("brain.stl")
     stl.Write()
     file.delete("-force", "brain.stl")
-    stlBinary = vtk.vtkSTLWriter()
+    stlBinary = vtkSTLWriter()
     stlBinary.SetInputConnection(triangles.GetOutputPort())
     stlBinary.SetFileName("brainBinary.stl")
     stlBinary.SetFileType(2)
     stlBinary.Write()
     file.delete("-force", "brainBinary.stl")
-    cgm = vtk.vtkCGMWriter()
+    cgm = vtkCGMWriter()
     cgm.SetInputConnection(triangles.GetOutputPort())
     cgm.SetFileName("brain.cgm")
     cgm.Write()

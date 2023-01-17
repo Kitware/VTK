@@ -1,7 +1,20 @@
 #!/usr/bin/env python
 import os
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonColor import vtkNamedColors
+from vtkmodules.vtkIOGeometry import vtkMCubesReader
+from vtkmodules.vtkIOImage import vtkVolume16Reader
+from vtkmodules.vtkImagingHybrid import vtkSliceCubes
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 def GetRGBColor(colorName):
@@ -10,7 +23,7 @@ def GetRGBColor(colorName):
         color as doubles.
     '''
     rgb = [0.0, 0.0, 0.0]  # black
-    vtk.vtkNamedColors().GetColorRGB(colorName, rgb)
+    vtkNamedColors().GetColorRGB(colorName, rgb)
     return rgb
 
 #
@@ -21,7 +34,7 @@ try:
     channel.close()
 
     # reader reads slices
-    v16 = vtk.vtkVolume16Reader()
+    v16 = vtkVolume16Reader()
     v16.SetDataDimensions(64, 64)
     v16.SetDataByteOrderToLittleEndian()
     v16.SetFilePrefix(VTK_DATA_ROOT + "/Data/headsq/quarter")
@@ -30,7 +43,7 @@ try:
     v16.SetDataMask(0x7fff)
 
     # write isosurface to file
-    mcubes = vtk.vtkSliceCubes()
+    mcubes = vtkSliceCubes()
     mcubes.SetReader(v16)
     mcubes.SetValue(1150)
     mcubes.SetFileName("fullHead.tri")
@@ -38,21 +51,21 @@ try:
     mcubes.Update()
 
     # read from file
-    reader = vtk.vtkMCubesReader()
+    reader = vtkMCubesReader()
     reader.SetFileName("fullHead.tri")
     reader.SetLimitsFileName("fullHead.lim")
-    mapper = vtk.vtkPolyDataMapper()
+    mapper = vtkPolyDataMapper()
     mapper.SetInputConnection(reader.GetOutputPort())
-    head = vtk.vtkActor()
+    head = vtkActor()
     head.SetMapper(mapper)
     head.GetProperty().SetColor(GetRGBColor('raw_sienna'))
 
     # Create the RenderWindow, Renderer and Interactor
     #
-    ren1 = vtk.vtkRenderer()
-    renWin = vtk.vtkRenderWindow()
+    ren1 = vtkRenderer()
+    renWin = vtkRenderWindow()
     renWin.AddRenderer(ren1)
-    iren = vtk.vtkRenderWindowInteractor()
+    iren = vtkRenderWindowInteractor()
     iren.SetRenderWindow(renWin)
 
     # Add the actors to the renderer, set the background and size

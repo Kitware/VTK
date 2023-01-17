@@ -1,16 +1,22 @@
 #!/usr/bin/env python
 import math
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonCore import vtkFloatArray
+from vtkmodules.vtkIOImage import vtkPNGReader
+from vtkmodules.vtkImagingGeneral import vtkImageSeparableConvolution
+from vtkmodules.vtkInteractionImage import vtkImageViewer
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # Image pipeline
-reader = vtk.vtkPNGReader()
+reader = vtkPNGReader()
 reader.SetFileName(VTK_DATA_ROOT + "/Data/fullhead15.png")
 
 # Take the gradient in X, and smooth in Y
 # Create a simple gradient filter
-kernel = vtk.vtkFloatArray()
+kernel = vtkFloatArray()
 kernel.SetNumberOfTuples(3)
 kernel.InsertValue(0, -1)
 kernel.InsertValue(1, 0)
@@ -19,7 +25,7 @@ kernel.InsertValue(2, 1)
 # Create a gaussian for Y
 sigma = 1.5
 sigma2 = sigma * sigma
-gaussian = vtk.vtkFloatArray()
+gaussian = vtkFloatArray()
 gaussian.SetNumberOfTuples(31)
 i = 0
 while i < 31:
@@ -28,13 +34,13 @@ while i < 31:
     gaussian.InsertValue(i, g)
     i += 1
 
-convolve = vtk.vtkImageSeparableConvolution()
+convolve = vtkImageSeparableConvolution()
 convolve.SetInputConnection(reader.GetOutputPort())
 convolve.SetDimensionality(2)
 convolve.SetXKernel(kernel)
 convolve.SetYKernel(gaussian)
 
-viewer = vtk.vtkImageViewer()
+viewer = vtkImageViewer()
 # viewer DebugOn
 viewer.SetInputConnection(convolve.GetOutputPort())
 viewer.SetColorWindow(500)

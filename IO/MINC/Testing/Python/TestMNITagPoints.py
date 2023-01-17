@@ -1,7 +1,37 @@
 #!/usr/bin/env python
 import os
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonCore import (
+    vtkDoubleArray,
+    vtkStringArray,
+)
+from vtkmodules.vtkCommonTransforms import vtkTransform
+from vtkmodules.vtkFiltersCore import vtkGlyph3D
+from vtkmodules.vtkFiltersGeneral import vtkTransformFilter
+from vtkmodules.vtkFiltersSources import (
+    vtkPointSource,
+    vtkSphereSource,
+)
+from vtkmodules.vtkIOMINC import (
+    vtkMNITagPointReader,
+    vtkMNITagPointWriter,
+)
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkActor2D,
+    vtkDataSetMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+    vtkTextProperty,
+)
+from vtkmodules.vtkRenderingLabel import (
+    vtkLabelPlacementMapper,
+    vtkPointSetToLabelHierarchy,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # Test label reading from an MNI tag file
@@ -16,17 +46,17 @@ try:
 
     # create some random points in a sphere
     #
-    sphere1 = vtk.vtkPointSource()
+    sphere1 = vtkPointSource()
     sphere1.SetNumberOfPoints(13)
 
-    xform = vtk.vtkTransform()
+    xform = vtkTransform()
     xform.RotateWXYZ(20, 1, 0, 0)
 
-    xformFilter = vtk.vtkTransformFilter()
+    xformFilter = vtkTransformFilter()
     xformFilter.SetTransform(xform)
     xformFilter.SetInputConnection(sphere1.GetOutputPort())
 
-    labels = vtk.vtkStringArray()
+    labels = vtkStringArray()
     labels.InsertNextValue("0")
     labels.InsertNextValue("1")
     labels.InsertNextValue("2")
@@ -41,7 +71,7 @@ try:
     labels.InsertNextValue("11")
     labels.InsertNextValue("12")
 
-    weights = vtk.vtkDoubleArray()
+    weights = vtkDoubleArray()
     weights.InsertNextValue(1.0)
     weights.InsertNextValue(1.1)
     weights.InsertNextValue(1.2)
@@ -56,7 +86,7 @@ try:
     weights.InsertNextValue(0.8)
     weights.InsertNextValue(0.7)
 
-    writer = vtk.vtkMNITagPointWriter()
+    writer = vtkMNITagPointWriter()
     writer.SetFileName(fname)
     writer.SetInputConnection(sphere1.GetOutputPort())
     writer.SetInputConnection(1, xformFilter.GetOutputPort())
@@ -65,49 +95,49 @@ try:
     writer.SetComments("Volume 1: sphere points\nVolume 2: transformed points")
     writer.Write()
 
-    reader = vtk.vtkMNITagPointReader()
+    reader = vtkMNITagPointReader()
     reader.CanReadFile(fname)
     reader.SetFileName(fname)
 
-    textProp = vtk.vtkTextProperty()
+    textProp = vtkTextProperty()
     textProp.SetFontSize(12)
     textProp.SetColor(1.0, 1.0, 0.5)
 
-    labelHier = vtk.vtkPointSetToLabelHierarchy()
+    labelHier = vtkPointSetToLabelHierarchy()
     labelHier.SetInputConnection(reader.GetOutputPort())
     labelHier.SetTextProperty(textProp)
     labelHier.SetLabelArrayName("LabelText")
     labelHier.SetMaximumDepth(15)
     labelHier.SetTargetLabelCount(12)
 
-    labelMapper = vtk.vtkLabelPlacementMapper()
+    labelMapper = vtkLabelPlacementMapper()
     labelMapper.SetInputConnection(labelHier.GetOutputPort())
     labelMapper.UseDepthBufferOff()
     labelMapper.SetShapeToRect()
     labelMapper.SetStyleToOutline()
 
-    labelActor = vtk.vtkActor2D()
+    labelActor = vtkActor2D()
     labelActor.SetMapper(labelMapper)
 
-    glyphSource = vtk.vtkSphereSource()
+    glyphSource = vtkSphereSource()
     glyphSource.SetRadius(0.01)
 
-    glyph = vtk.vtkGlyph3D()
+    glyph = vtkGlyph3D()
     glyph.SetSourceConnection(glyphSource.GetOutputPort())
     glyph.SetInputConnection(reader.GetOutputPort())
 
-    mapper = vtk.vtkDataSetMapper()
+    mapper = vtkDataSetMapper()
     mapper.SetInputConnection(glyph.GetOutputPort())
 
-    actor = vtk.vtkActor()
+    actor = vtkActor()
     actor.SetMapper(mapper)
 
     # Create rendering stuff
-    ren1 = vtk.vtkRenderer()
-    renWin = vtk.vtkRenderWindow()
+    ren1 = vtkRenderer()
+    renWin = vtkRenderWindow()
     renWin.SetMultiSamples(0)
     renWin.AddRenderer(ren1)
-    iren = vtk.vtkRenderWindowInteractor()
+    iren = vtkRenderWindowInteractor()
     iren.SetRenderWindow(renWin)
     # Add the actors to the renderer, set the background and size
     #

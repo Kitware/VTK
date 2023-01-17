@@ -1,12 +1,25 @@
-import vtk
-from vtk.test import Testing
+from vtkmodules.vtkCommonCore import (
+    vtkIdList,
+    vtkPoints,
+)
+from vtkmodules.vtkCommonDataModel import (
+    VTK_POLYHEDRON,
+    vtkPlane,
+    vtkUnstructuredGrid,
+)
+from vtkmodules.vtkFiltersCore import vtkCutter
+from vtkmodules.vtkIOXML import (
+    vtkXMLPolyDataWriter,
+    vtkXMLUnstructuredGridWriter,
+)
+from vtkmodules.test import Testing
 
 class TestPolyhedronCutter(Testing.vtkTest):
     def setUp(self):
-        self.vtk_grid = vtk.vtkUnstructuredGrid()
+        self.vtk_grid = vtkUnstructuredGrid()
 
         # vertices of the non-convex polyhedron
-        vtk_points = vtk.vtkPoints()
+        vtk_points = vtkPoints()
 
         vtk_points.InsertNextPoint(0.0, 0.0, 0.0)
         vtk_points.InsertNextPoint(4.0, 0.0, 0.0)
@@ -28,7 +41,7 @@ class TestPolyhedronCutter(Testing.vtkTest):
         self.vtk_grid.SetPoints(vtk_points)
 
         # connectivity of the polyhedron
-        ids = vtk.vtkIdList()
+        ids = vtkIdList()
         ids.InsertNextId(10) # no. of faces
 
         ids.InsertNextId(8)  # face 1 no. of verts
@@ -99,17 +112,17 @@ class TestPolyhedronCutter(Testing.vtkTest):
         ids.InsertNextId(8)
         ids.InsertNextId(15)
 
-        self.vtk_grid.InsertNextCell(vtk.VTK_POLYHEDRON, ids)
+        self.vtk_grid.InsertNextCell(VTK_POLYHEDRON, ids)
 
-        writer = vtk.vtkXMLUnstructuredGridWriter()
+        writer = vtkXMLUnstructuredGridWriter()
         writer.SetInputData(self.vtk_grid)
         writer.SetFileName('my_grid.vtu')
         writer.Write()
 
     def testCutterTriangles(self):
-        cutter = vtk.vtkCutter()
+        cutter = vtkCutter()
         cutter.GenerateTrianglesOn() # triangle generation is enabled!
-        cutter_function = vtk.vtkPlane()
+        cutter_function = vtkPlane()
         cutter_function.SetOrigin(0.0, 0.0, 0.5)
         cutter_function.SetNormal(0.0, 0.0, 1.0)
         cutter.SetCutFunction(cutter_function)
@@ -117,7 +130,7 @@ class TestPolyhedronCutter(Testing.vtkTest):
         cutter.Update()
         surface = cutter.GetOutput()
 
-        writer = vtk.vtkXMLPolyDataWriter()
+        writer = vtkXMLPolyDataWriter()
         writer.SetInputData(surface)
         writer.SetFileName('surface_tri.vtp')
         writer.Write()
@@ -125,9 +138,9 @@ class TestPolyhedronCutter(Testing.vtkTest):
         self.assertTrue(surface.GetNumberOfCells() > 1)
 
     def testCutterNoTriangles(self):
-        cutter = vtk.vtkCutter()
+        cutter = vtkCutter()
         cutter.GenerateTrianglesOff() # triangle generation is disabled!
-        cutter_function = vtk.vtkPlane()
+        cutter_function = vtkPlane()
         cutter_function.SetOrigin(0.0, 0.0, 0.5)
         cutter_function.SetNormal(0.0, 0.0, 1.0)
         cutter.SetCutFunction(cutter_function)
@@ -135,7 +148,7 @@ class TestPolyhedronCutter(Testing.vtkTest):
         cutter.Update()
         surface = cutter.GetOutput()
 
-        writer = vtk.vtkXMLPolyDataWriter()
+        writer = vtkXMLPolyDataWriter()
         writer.SetInputData(surface)
         writer.SetFileName('surface_poly.vtp')
         writer.Write()

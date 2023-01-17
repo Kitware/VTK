@@ -1,6 +1,20 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonColor import vtkNamedColors
+from vtkmodules.vtkFiltersGeneral import vtkRecursiveDividingCubes
+from vtkmodules.vtkFiltersModeling import vtkOutlineFilter
+from vtkmodules.vtkIOLegacy import vtkStructuredPointsReader
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkCamera,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 def GetRGBColor(colorName):
@@ -9,39 +23,39 @@ def GetRGBColor(colorName):
         color as doubles.
     '''
     rgb = [0.0, 0.0, 0.0]  # black
-    vtk.vtkNamedColors().GetColorRGB(colorName, rgb)
+    vtkNamedColors().GetColorRGB(colorName, rgb)
     return rgb
 
 # Create the RenderWindow, Renderer and both Actors
 #
-ren1 = vtk.vtkRenderer()
-renWin = vtk.vtkRenderWindow()
+ren1 = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.SetMultiSamples(0)
 renWin.AddRenderer(ren1)
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 
 # create pipeline
 #
-reader = vtk.vtkStructuredPointsReader()
+reader = vtkStructuredPointsReader()
 reader.SetFileName(VTK_DATA_ROOT + "/Data/ironProt.vtk")
-iso = vtk.vtkRecursiveDividingCubes()
+iso = vtkRecursiveDividingCubes()
 iso.SetInputConnection(reader.GetOutputPort())
 iso.SetValue(128)
 iso.SetDistance(.5)
 iso.SetIncrement(2)
-isoMapper = vtk.vtkPolyDataMapper()
+isoMapper = vtkPolyDataMapper()
 isoMapper.SetInputConnection(iso.GetOutputPort())
 isoMapper.ScalarVisibilityOff()
-isoActor = vtk.vtkActor()
+isoActor = vtkActor()
 isoActor.SetMapper(isoMapper)
 isoActor.GetProperty().SetColor(GetRGBColor('bisque'))
 
-outline = vtk.vtkOutlineFilter()
+outline = vtkOutlineFilter()
 outline.SetInputConnection(reader.GetOutputPort())
-outlineMapper = vtk.vtkPolyDataMapper()
+outlineMapper = vtkPolyDataMapper()
 outlineMapper.SetInputConnection(outline.GetOutputPort())
-outlineActor = vtk.vtkActor()
+outlineActor = vtkActor()
 outlineActor.SetMapper(outlineMapper)
 outlineActor.GetProperty().SetColor(GetRGBColor('black'))
 
@@ -56,7 +70,7 @@ ren1.SetBackground(0.1, 0.2, 0.4)
 
 renWin.Render()
 
-cam1 = vtk.vtkCamera()
+cam1 = vtkCamera()
 cam1.SetClippingRange(19.1589, 957.946)
 cam1.SetFocalPoint(33.7014, 26.706, 30.5867)
 cam1.SetPosition(150.841, 89.374, -107.462)

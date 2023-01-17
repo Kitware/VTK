@@ -1,8 +1,30 @@
-import vtk
-from vtk.util.misc import vtkGetTempDir
+from vtkmodules.vtkCommonCore import (
+    vtkFloatArray,
+    vtkIntArray,
+    vtkPoints,
+)
+from vtkmodules.vtkCommonDataModel import (
+    vtkDataSetAttributes,
+    vtkRectilinearGrid,
+    vtkStructuredGrid,
+)
+from vtkmodules.vtkCommonExecutionModel import vtkTrivialProducer
+from vtkmodules.vtkFiltersGeneral import vtkDataSetTriangleFilter
+from vtkmodules.vtkFiltersParallel import (
+    vtkTransmitRectilinearGridPiece,
+    vtkTransmitStructuredGridPiece,
+    vtkTransmitUnstructuredGridPiece,
+)
+from vtkmodules.vtkFiltersParallelImaging import vtkTransmitImageDataPiece
+from vtkmodules.vtkImagingCore import vtkRTAnalyticSource
+from vtkmodules.vtkParallelCore import (
+    vtkCommunicator,
+    vtkMultiProcessController,
+)
+from vtkmodules.util.misc import vtkGetTempDir
 VTK_TEMP_DIR = vtkGetTempDir()
 
-contr = vtk.vtkMultiProcessController.GetGlobalController()
+contr = vtkMultiProcessController.GetGlobalController()
 if not contr:
     nranks = 1
     rank = 0
@@ -11,7 +33,7 @@ else:
     rank = contr.GetLocalProcessId()
 
 def GetSource(dataType):
-    s = vtk.vtkRTAnalyticSource()
+    s = vtkRTAnalyticSource()
     # Fake serial source
     if rank == 0:
         s.Update()
@@ -20,7 +42,7 @@ def GetSource(dataType):
         return s.GetOutput()
 
     elif dataType == 'UnstructuredGrid':
-        dst = vtk.vtkDataSetTriangleFilter()
+        dst = vtkDataSetTriangleFilter()
         dst.SetInputData(s.GetOutput())
         dst.Update()
         return dst.GetOutput()
@@ -29,22 +51,22 @@ def GetSource(dataType):
 
         input = s.GetOutput()
 
-        rg = vtk.vtkRectilinearGrid()
+        rg = vtkRectilinearGrid()
         rg.SetExtent(input.GetExtent())
         dims = input.GetDimensions()
         spacing = input.GetSpacing()
 
-        x = vtk.vtkFloatArray()
+        x = vtkFloatArray()
         x.SetNumberOfTuples(dims[0])
         for i in range(dims[0]):
             x.SetValue(i, spacing[0]*i)
 
-        y = vtk.vtkFloatArray()
+        y = vtkFloatArray()
         y.SetNumberOfTuples(dims[1])
         for i in range(dims[1]):
             y.SetValue(i, spacing[1]*i)
 
-        z = vtk.vtkFloatArray()
+        z = vtkFloatArray()
         z.SetNumberOfTuples(dims[2])
         for i in range(dims[2]):
             z.SetValue(i, spacing[2]*i)
@@ -61,9 +83,9 @@ def GetSource(dataType):
 
         input = s.GetOutput()
 
-        sg = vtk.vtkStructuredGrid()
+        sg = vtkStructuredGrid()
         sg.SetExtent(input.GetExtent())
-        pts = vtk.vtkPoints()
+        pts = vtkPoints()
         sg.SetPoints(pts)
         npts = input.GetNumberOfPoints()
         for i in xrange(npts):
@@ -74,11 +96,11 @@ def GetSource(dataType):
 
 def TestDataType(dataType, filter):
     if rank == 0:
-        print dataType
+        print(dataType)
 
     s = GetSource(dataType)
 
-    da = vtk.vtkIntArray()
+    da = vtkIntArray()
     da.SetNumberOfTuples(6)
     if rank == 0:
         try:
@@ -94,17 +116,17 @@ def TestDataType(dataType, filter):
         ext.append(da.GetValue(i))
     ext = tuple(ext)
 
-    tp = vtk.vtkTrivialProducer()
+    tp = vtkTrivialProducer()
     tp.SetOutput(s)
     tp.SetWholeExtent(ext)
 
-    ncells = vtk.vtkIntArray()
+    ncells = vtkIntArray()
     ncells.SetNumberOfTuples(1)
     if rank == 0:
         ncells.SetValue(0, s.GetNumberOfCells())
     contr.Broadcast(ncells, 0)
 
-    result = vtk.vtkIntArray()
+    result = vtkIntArray()
     result.SetNumberOfTuples(1)
     result.SetValue(0, 1)
 
@@ -120,7 +142,7 @@ def TestDataType(dataType, filter):
 
     filter.Update(rank, nranks, 1)
 
-    gl = filter.GetOutput().GetCellData().GetArray(vtk.vtkDataSetAttributes.GhostArrayName())
+    gl = filter.GetOutput().GetCellData().GetArray(vtkDataSetAttributes.GhostArrayName())
     if not gl:
         result.SetValue(0, 0)
     else:
@@ -128,14 +150,14 @@ def TestDataType(dataType, filter):
         if rng[1] != 1:
             result.SetValue(0, 0)
 
-    resArray = vtk.vtkIntArray()
+    resArray = vtkIntArray()
     resArray.SetNumberOfTuples(1)
-    contr.AllReduce(result, resArray, vtk.vtkCommunicator.MIN_OP)
+    contr.AllReduce(result, resArray, vtkCommunicator.MIN_OP)
 
     assert resArray.GetValue(0) == 1
 
 
-TestDataType('ImageData', vtk.vtkTransmitImageDataPiece())
-TestDataType('RectilinearGrid', vtk.vtkTransmitRectilinearGridPiece())
-TestDataType('StructuredGrid', vtk.vtkTransmitStructuredGridPiece())
-TestDataType('UnstructuredGrid', vtk.vtkTransmitUnstructuredGridPiece())
+TestDataType('ImageData', vtkTransmitImageDataPiece())
+TestDataType('RectilinearGrid', vtkTransmitRectilinearGridPiece())
+TestDataType('StructuredGrid', vtkTransmitStructuredGridPiece())
+TestDataType('UnstructuredGrid', vtkTransmitUnstructuredGridPiece())

@@ -1,27 +1,38 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkFiltersGeometry import vtkGeometryFilter
+from vtkmodules.vtkIOEnSight import vtkGenericEnSightReader
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+from vtkmodules.vtkRenderingOpenGL2 import vtkCompositePolyDataMapper2
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # create a rendering window and renderer
-renderer = vtk.vtkRenderer()
-renWin = vtk.vtkRenderWindow()
+renderer = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.AddRenderer(renderer)
 renWin.StereoCapableWindowOn()
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 
 # create pipeline
-reader = vtk.vtkGenericEnSightReader()
+reader = vtkGenericEnSightReader()
 reader.SetCaseFileName("" + str(VTK_DATA_ROOT) + "/Data/EnSight/viga.case")
 
-geometry = vtk.vtkGeometryFilter()
+geometry = vtkGeometryFilter()
 geometry.SetInputConnection(reader.GetOutputPort())
 
-mapper = vtk.vtkCompositePolyDataMapper2()
+mapper = vtkCompositePolyDataMapper2()
 mapper.SetInputConnection(geometry.GetOutputPort())
 
-actor = vtk.vtkActor()
+actor = vtkActor()
 actor.SetMapper(mapper)
 
 # render

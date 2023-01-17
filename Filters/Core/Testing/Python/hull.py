@@ -1,7 +1,26 @@
 #!/usr/bin/env python
 import math
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonCore import (
+    vtkFloatArray,
+    vtkMath,
+    vtkPoints,
+)
+from vtkmodules.vtkCommonDataModel import (
+    vtkPlanes,
+    vtkPolyData,
+)
+from vtkmodules.vtkFiltersCore import vtkHull
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # Generate random planes to form a convex polyhedron.
@@ -10,10 +29,10 @@ VTK_DATA_ROOT = vtkGetDataRoot()
 # create some points lying between 1<=r<5 (r is radius)
 # the points also have normals pointing away from the origin.
 #
-mathObj = vtk.vtkMath()
+mathObj = vtkMath()
 
-points = vtk.vtkPoints()
-normals = vtk.vtkFloatArray()
+points = vtkPoints()
+normals = vtkFloatArray()
 normals.SetNumberOfComponents(3)
 i = 0
 while i < 100:
@@ -27,32 +46,32 @@ while i < 100:
     normals.InsertTuple3(i, x, y, z)
     i += 1
 
-planes = vtk.vtkPlanes()
+planes = vtkPlanes()
 planes.SetPoints(points)
 planes.SetNormals(normals)
 
-# ss = vtk.vtkSphereSource()
+# ss = vtkSphereSource()
 
-hull = vtk.vtkHull()
+hull = vtkHull()
 hull.SetPlanes(planes)
 
-pd = vtk.vtkPolyData()
+pd = vtkPolyData()
 hull.GenerateHull(pd, -20, 20, -20, 20, -20, 20)
 
 # triangulate them
 #
-mapHull = vtk.vtkPolyDataMapper()
+mapHull = vtkPolyDataMapper()
 mapHull.SetInputData(pd)
 
-hullActor = vtk.vtkActor()
+hullActor = vtkActor()
 hullActor.SetMapper(mapHull)
 
 # Create graphics objects
 # Create the rendering window, renderer, and interactive renderer
-ren1 = vtk.vtkRenderer()
-renWin = vtk.vtkRenderWindow()
+ren1 = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.AddRenderer(ren1)
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 
 # Add the actors to the renderer, set the background and size

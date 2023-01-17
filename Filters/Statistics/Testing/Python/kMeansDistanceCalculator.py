@@ -1,15 +1,20 @@
 #!/bin/env vtkpython
-import vtk
-from vtk.test import Testing
+from vtkmodules.vtkCommonCore import vtkDoubleArray
+from vtkmodules.vtkCommonDataModel import vtkTable
+from vtkmodules.vtkFiltersStatistics import (
+    vtkKMeansDistanceFunctorCalculator,
+    vtkKMeansStatistics,
+)
+from vtkmodules.test import Testing
 
 class  kMeansDistanceCalculator( Testing.vtkTest ):
   def testDistanceCalculator(self):
     "See whether the distance calculator evaluates functions properly."
-    xv = vtk.vtkDoubleArray()
-    yv = vtk.vtkDoubleArray()
+    xv = vtkDoubleArray()
+    yv = vtkDoubleArray()
     xv.SetName( 'x' )
     yv.SetName( 'y' )
-    tab = vtk.vtkTable()
+    tab = vtkTable()
     xv.InsertNextValue( 0.0 )
     xv.InsertNextValue( 1.0 )
     xv.InsertNextValue( 0.0 )
@@ -22,9 +27,9 @@ class  kMeansDistanceCalculator( Testing.vtkTest ):
     yv.InsertNextValue( 12.0 )
     tab.AddColumn( xv )
     tab.AddColumn( yv )
-    km = vtk.vtkKMeansStatistics()
+    km = vtkKMeansStatistics()
     km.SetDefaultNumberOfClusters( 1 )
-    df = vtk.vtkKMeansDistanceFunctorCalculator()
+    df = vtkKMeansDistanceFunctorCalculator()
     km.SetDistanceFunctor( df )
     df.SetDistanceExpression( 'sqrt( (x0-y0)*(x0-y0) + (x1-y1)*(x1-y1) )' )
     km.SetInputData( tab )
@@ -44,17 +49,17 @@ class  kMeansDistanceCalculator( Testing.vtkTest ):
 
   def testParse(self):
     "Test if vtkKMeansDistanceFunctorCalculator is parseable"
-    tg = vtk.vtkKMeansDistanceFunctorCalculator()
+    tg = vtkKMeansDistanceFunctorCalculator()
     self._testParse(tg)
 
   def testGetSet(self):
     "Testing Get/Set methods of vtkKMeansDistanceFunctorCalculator"
-    tg = vtk.vtkKMeansDistanceFunctorCalculator()
+    tg = vtkKMeansDistanceFunctorCalculator()
     self._testGetSet(tg)
 
   def testParse(self):
     "Testing Boolean methods of vtkKMeansDistanceFunctorCalculator"
-    tg = vtk.vtkKMeansDistanceFunctorCalculator()
+    tg = vtkKMeansDistanceFunctorCalculator()
     self._testBoolean(tg)
 
 if __name__ == "__main__":

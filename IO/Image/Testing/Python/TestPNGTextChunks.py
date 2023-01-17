@@ -1,8 +1,13 @@
 #!/usr/bin/env python
 import os
 import sys
-import vtk
-from vtk.util.misc import vtkGetDataRoot, vtkGetTempDir
+from vtkmodules.vtkCommonCore import vtkCommand
+from vtkmodules.vtkIOImage import (
+    vtkPNGReader,
+    vtkPNGWriter,
+    vtkTIFFReader,
+)
+from vtkmodules.util.misc import vtkGetDataRoot,vtkGetTempDir
 
 gotWarning = False
 gotError = False
@@ -16,7 +21,7 @@ VTK_DATA_ROOT = vtkGetDataRoot()
 VTK_TEMP_DIR = vtkGetTempDir()
 
 # Image pipeline
-image1 = vtk.vtkTIFFReader()
+image1 = vtkTIFFReader()
 image1.SetFileName(VTK_DATA_ROOT + "/Data/beach.tif")
 # "beach.tif" image contains ORIENTATION tag which is
 # ORIENTATION_TOPLEFT (row 0 top, col 0 lhs) type. The TIFF
@@ -39,7 +44,7 @@ try:
     channel = open(filename, "wb")
     channel.close()
 
-    writer = vtk.vtkPNGWriter()
+    writer = vtkPNGWriter()
     writer.SetInputConnection(image1.GetOutputPort())
     writer.SetFileName(filename)
     writer.AddText(testKey, testValue);
@@ -53,7 +58,7 @@ try:
     writer.AddText(testKey, testValue);
     writer.AddText(testKey, testValue);
 
-    observerId = writer.AddObserver(vtk.vtkCommand.WarningEvent, WarningCallback)
+    observerId = writer.AddObserver(vtkCommand.WarningEvent, WarningCallback)
     # this prints a warning and does not add the text chunk
     writer.AddText("", "this prints a warning")
     if (not gotWarning):
@@ -69,7 +74,7 @@ try:
     writer.RemoveObserver(observerId)
     writer.Write()
 
-    reader = vtk.vtkPNGReader()
+    reader = vtkPNGReader()
     reader.SetFileName(filename);
     reader.Update();
     if (reader.GetNumberOfTextChunks() != 3):

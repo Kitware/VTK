@@ -14,24 +14,43 @@ ImagePlaneWidget.  """
 
 import os
 import os.path
-import vtk
-from vtk.test import Testing
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonCore import (
+    vtkFloatArray,
+    vtkLookupTable,
+    vtkPoints,
+)
+from vtkmodules.vtkCommonDataModel import vtkPolyData
+from vtkmodules.vtkFiltersModeling import vtkOutlineFilter
+from vtkmodules.vtkIOImage import vtkVolume16Reader
+from vtkmodules.vtkInteractionWidgets import vtkImagePlaneWidget
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkCellPicker,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.test import Testing
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 class TestMapperLUT(Testing.vtkTest):
     def testMapScalars(self):
         """Test if the mapper sets the Alpha of the LUT."""
         # Create dummy data.
-        p = vtk.vtkPolyData()
-        pts = vtk.vtkPoints()
+        p = vtkPolyData()
+        pts = vtkPoints()
         pts.InsertNextPoint((0,0,0))
-        sc = vtk.vtkFloatArray()
+        sc = vtkFloatArray()
         sc.InsertNextValue(10.0)
         p.SetPoints(pts)
         p.GetPointData().SetScalars(sc)
-        l = vtk.vtkLookupTable()
-        m = vtk.vtkPolyDataMapper()
+        l = vtkLookupTable()
+        m = vtkPolyDataMapper()
         m.SetInputData(p)
         m.SetScalarRange(0.0, 10.0)
         m.SetLookupTable(l)
@@ -44,7 +63,7 @@ class TestMapperLUT(Testing.vtkTest):
         # Widgets/Python/TestImagePlaneWidget.py
 
         # Load some data.
-        v16 = vtk.vtkVolume16Reader()
+        v16 = vtkVolume16Reader()
         v16.SetDataDimensions(64, 64)
         v16.SetDataByteOrderToLittleEndian()
         v16.SetFilePrefix(os.path.join(VTK_DATA_ROOT,
@@ -62,22 +81,22 @@ class TestMapperLUT(Testing.vtkTest):
         ox, oy, oz = origin
 
         # An outline is shown for context.
-        outline = vtk.vtkOutlineFilter()
+        outline = vtkOutlineFilter()
         outline.SetInputData(img_data)
 
-        outlineMapper = vtk.vtkPolyDataMapper()
+        outlineMapper = vtkPolyDataMapper()
         outlineMapper.SetInputConnection(outline.GetOutputPort())
 
-        outlineActor = vtk.vtkActor()
+        outlineActor = vtkActor()
         outlineActor.SetMapper(outlineMapper)
 
         # The shared picker enables us to use 3 planes at one time
         # and gets the picking order right
-        picker = vtk.vtkCellPicker()
+        picker = vtkCellPicker()
         picker.SetTolerance(0.005)
 
         # The 3 image plane widgets are used to probe the dataset.
-        planeWidgetX = vtk.vtkImagePlaneWidget()
+        planeWidgetX = vtkImagePlaneWidget()
         planeWidgetX.DisplayTextOn()
         planeWidgetX.SetInputData(img_data)
         planeWidgetX.SetPlaneOrientationToXAxes()
@@ -87,7 +106,7 @@ class TestMapperLUT(Testing.vtkTest):
         prop1 = planeWidgetX.GetPlaneProperty()
         prop1.SetColor(1, 0, 0)
 
-        planeWidgetY = vtk.vtkImagePlaneWidget()
+        planeWidgetY = vtkImagePlaneWidget()
         planeWidgetY.DisplayTextOn()
         planeWidgetY.SetInputData(img_data)
         planeWidgetY.SetPlaneOrientationToYAxes()
@@ -101,7 +120,7 @@ class TestMapperLUT(Testing.vtkTest):
         # for the z-slice, turn off texture interpolation:
         # interpolation is now nearest neighbour, to demonstrate
         # cross-hair cursor snapping to pixel centers
-        planeWidgetZ = vtk.vtkImagePlaneWidget()
+        planeWidgetZ = vtkImagePlaneWidget()
         planeWidgetZ.DisplayTextOn()
         planeWidgetZ.SetInputData(img_data)
         planeWidgetZ.SetPlaneOrientationToZAxes()
@@ -114,25 +133,25 @@ class TestMapperLUT(Testing.vtkTest):
 
         # Now create another actor with an opacity < 1 and with some
         # scalars.
-        p = vtk.vtkPolyData()
-        pts = vtk.vtkPoints()
+        p = vtkPolyData()
+        pts = vtkPoints()
         pts.InsertNextPoint((0,0,0))
-        sc = vtk.vtkFloatArray()
+        sc = vtkFloatArray()
         sc.InsertNextValue(1.0)
         p.SetPoints(pts)
         p.GetPointData().SetScalars(sc)
-        m = vtk.vtkPolyDataMapper()
+        m = vtkPolyDataMapper()
         m.SetInputData(p)
         # Share the lookup table of the widgets.
         m.SetLookupTable(planeWidgetX.GetLookupTable())
         m.UseLookupTableScalarRangeOn()
-        dummyActor = vtk.vtkActor()
+        dummyActor = vtkActor()
         dummyActor.SetMapper(m)
         dummyActor.GetProperty().SetOpacity(0.0)
 
         # Create the RenderWindow and Renderer
-        ren = vtk.vtkRenderer()
-        renWin = vtk.vtkRenderWindow()
+        ren = vtkRenderer()
+        renWin = vtkRenderWindow()
         renWin.SetMultiSamples(0)
         renWin.AddRenderer(ren)
 
@@ -148,7 +167,7 @@ class TestMapperLUT(Testing.vtkTest):
         mode_widget = planeWidgetZ
 
         # Set the interactor for the widgets
-        iact = vtk.vtkRenderWindowInteractor()
+        iact = vtkRenderWindowInteractor()
         iact.SetRenderWindow(renWin)
         planeWidgetX.SetInteractor(iact)
         planeWidgetX.On()

@@ -1,15 +1,23 @@
 #!/usr/bin/env python
 
 import os
-import vtk
-from vtk.util.misc import vtkGetTempDir
+from vtkmodules.vtkCommonCore import (
+    vtkIdList,
+    vtkPoints,
+)
+from vtkmodules.vtkCommonDataModel import vtkUnstructuredGrid
+from vtkmodules.vtkIOXML import (
+    vtkXMLUnstructuredGridReader,
+    vtkXMLUnstructuredGridWriter,
+)
+from vtkmodules.util.misc import vtkGetTempDir
 
 VTK_TEMP_DIR = vtkGetTempDir()
 filename = VTK_TEMP_DIR + '/TestCellArray.vtu'
 
 
-ugrid = vtk.vtkUnstructuredGrid()
-pts = vtk.vtkPoints()
+ugrid = vtkUnstructuredGrid()
+pts = vtkPoints()
 ugrid.SetPoints(pts)
 ugrid.Allocate(10)
 
@@ -18,12 +26,12 @@ for i in range(10):
   ids = [i]
   ugrid.InsertNextCell(1, 1, ids) # a vertex
 
-writer = vtk.vtkXMLUnstructuredGridWriter()
+writer = vtkXMLUnstructuredGridWriter()
 writer.SetInputDataObject(ugrid)
 writer.SetFileName(filename)
 writer.Write()
 
-reader = vtk.vtkXMLUnstructuredGridReader()
+reader = vtkXMLUnstructuredGridReader()
 reader.SetFileName(filename)
 reader.Update()
 
@@ -37,7 +45,7 @@ pts = copygrid.GetPoints()
 
 pt = [1, 2, 3]
 
-idlist = vtk.vtkIdList()
+idlist = vtkIdList()
 idlist.SetNumberOfIds(1)
 
 for i in range(5):

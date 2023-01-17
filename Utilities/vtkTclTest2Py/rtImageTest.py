@@ -9,7 +9,10 @@ for i in range(2, len(sys.argv)):
     if sys.argv[i] == '-A' and i < len(sys.argv)-1:
         sys.path = sys.path + [sys.argv[i+1]]
 
-import vtk
+from vtkmodules.vtkCommonCore import vtkMath, vtkObject
+from vtkmodules.vtkRenderingCore import vtkRenderWindowInteractor
+from vtkmodules.vtkTestingRendering import vtkTesting
+import vtkmodules.vtkRenderingUI
 
 #these are the modules that define methods/variables
 #used by many scripts. We just include them always
@@ -20,13 +23,13 @@ import expr
 import file
 import info
 import math
-from vtk.util.colors import *
+from vtkmodules.util.colors import *
 
 
 # Mock class that overrides the Start() method from vtkRenderWindowInteractor
 # to do nothing. This allows VTK's python tests to be standard VTK scripts that
 # call Start() on the interactor.
-irenType = type(vtk.vtkRenderWindowInteractor())
+irenType = type(vtkRenderWindowInteractor())
 class vtkTestingInteractor(irenType):
     def Start(self):
         pass
@@ -83,13 +86,13 @@ except:
     pass #no hassles if Tk is not present.
 
 # setup some common things for testing
-rtTempObject = vtk.vtkObject()
+rtTempObject = vtkObject()
 
-rtExMath = vtk.vtkMath()
+rtExMath = vtkMath()
 rtExMath.RandomSeed(6)
 
 # create the testing class to do the work
-rtTester = vtk.vtkTesting()
+rtTester = vtkTesting()
 for arg in sys.argv[2:]:
     rtTester.AddArgument(arg)
 

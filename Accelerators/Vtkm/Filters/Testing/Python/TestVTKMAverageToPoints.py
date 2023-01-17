@@ -5,27 +5,44 @@ try:
 except ImportError:
     print("Numpy (http://numpy.scipy.org) not found.")
     print("This test requires numpy!")
-    from vtk.test import Testing
+    from vtkmodules.test import Testing
     Testing.skip()
 
-import vtk
-from vtk.numpy_interface import dataset_adapter as dsa
-from vtk.numpy_interface import algorithms as algs
+from vtkmodules.vtkAcceleratorsVTKmFilters import vtkmAverageToPoints
+from vtkmodules.vtkCommonCore import (
+    vtkDoubleArray,
+    vtkPoints,
+)
+from vtkmodules.vtkCommonDataModel import (
+    VTK_LINE,
+    VTK_QUAD,
+    VTK_TRIANGLE,
+    vtkDataObject,
+    vtkUnstructuredGrid,
+)
+from vtkmodules.vtkFiltersCore import (
+    vtkCellDataToPointData,
+    vtkPointDataToCellData,
+)
+from vtkmodules.vtkFiltersGeneral import vtkClipDataSet
+from vtkmodules.vtkImagingCore import vtkRTAnalyticSource
+from vtkmodules.numpy_interface import dataset_adapter as dsa
+from vtkmodules.numpy_interface import algorithms as algs
 
 def test_dataset(ds):
-  p2c = vtk.vtkPointDataToCellData()
+  p2c = vtkPointDataToCellData()
   p2c.SetInputData(ds)
   p2c.Update()
 
-  c2p = vtk.vtkCellDataToPointData()
+  c2p = vtkCellDataToPointData()
   c2p.SetInputConnection(p2c.GetOutputPort())
   c2p.Update()
 
   d1 = dsa.WrapDataObject(c2p.GetOutput())
 
-  c2p = vtk.vtkmAverageToPoints()
+  c2p = vtkmAverageToPoints()
   c2p.SetInputData(p2c.GetOutput())
-  c2p.SetInputArrayToProcess(0, 0, 0, vtk.vtkDataObject.FIELD_ASSOCIATION_CELLS, "RTData")
+  c2p.SetInputArrayToProcess(0, 0, 0, vtkDataObject.FIELD_ASSOCIATION_CELLS, "RTData")
   c2p.Update()
 
   d2 = dsa.WrapDataObject(c2p.GetOutput())
@@ -37,15 +54,15 @@ def test_dataset(ds):
 
 print("Testing simple debugging grid...")
 # This dataset matches the example values in vtkmCellSetExplicit:
-dbg = vtk.vtkUnstructuredGrid()
-dbg.SetPoints(vtk.vtkPoints())
+dbg = vtkUnstructuredGrid()
+dbg.SetPoints(vtkPoints())
 dbg.GetPoints().SetNumberOfPoints(7)
-dbg.InsertNextCell(vtk.VTK_TRIANGLE, 3, [0, 1, 2])
-dbg.InsertNextCell(vtk.VTK_QUAD,     4, [0, 1, 3, 4])
-dbg.InsertNextCell(vtk.VTK_TRIANGLE, 3, [1, 3, 5])
-dbg.InsertNextCell(vtk.VTK_LINE,     2, [5, 6])
+dbg.InsertNextCell(VTK_TRIANGLE, 3, [0, 1, 2])
+dbg.InsertNextCell(VTK_QUAD,     4, [0, 1, 3, 4])
+dbg.InsertNextCell(VTK_TRIANGLE, 3, [1, 3, 5])
+dbg.InsertNextCell(VTK_LINE,     2, [5, 6])
 
-dbgRt = vtk.vtkDoubleArray()
+dbgRt = vtkDoubleArray()
 dbgRt.SetNumberOfTuples(7)
 dbgRt.SetName('RTData')
 dbgRt.SetValue(0, 17.40)
@@ -61,7 +78,7 @@ test_dataset(dbg)
 print("Success!")
 
 print("Testing homogeneous image data...")
-source = vtk.vtkRTAnalyticSource()
+source = vtkRTAnalyticSource()
 source.Update()
 imgData = source.GetOutput()
 test_dataset(imgData)
@@ -74,7 +91,7 @@ rtMax = algs.max(rtData)
 clipScalar = 0.5 * (rtMin + rtMax)
 
 print("Testing non-homogeneous unstructured grid...")
-clip = vtk.vtkClipDataSet()
+clip = vtkClipDataSet()
 clip.SetInputData(imgData)
 clip.SetValue(clipScalar)
 clip.Update()

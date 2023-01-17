@@ -1,6 +1,25 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkFiltersCore import (
+    vtkQuadricDecimation,
+    vtkTriangleFilter,
+)
+from vtkmodules.vtkFiltersGeneral import (
+    vtkRandomAttributeGenerator,
+    vtkWarpScalar,
+)
+from vtkmodules.vtkFiltersSources import vtkPlaneSource
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkCamera,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 res = 100
@@ -8,76 +27,76 @@ res = 100
 # z-direction coordinates. Decimate the data with and without
 # planar constraints and compare.
 #
-ps = vtk.vtkPlaneSource()
+ps = vtkPlaneSource()
 ps.SetResolution(res,res)
 
-tf = vtk.vtkTriangleFilter()
+tf = vtkTriangleFilter()
 tf.SetInputConnection(ps.GetOutputPort())
 
-attr = vtk.vtkRandomAttributeGenerator()
+attr = vtkRandomAttributeGenerator()
 attr.SetInputConnection(tf.GetOutputPort())
 attr.GeneratePointScalarsOn()
 attr.SetMinimumComponentValue(-0.05)
 attr.SetMaximumComponentValue(0.05)
 
 # This jitters the geometry
-warp = vtk.vtkWarpScalar()
+warp = vtkWarpScalar()
 warp.SetInputConnection(attr.GetOutputPort())
 warp.SetScaleFactor(0.02)
 
 # Decimator without volume constraint
-deci = vtk.vtkQuadricDecimation()
+deci = vtkQuadricDecimation()
 deci.SetInputConnection(warp.GetOutputPort())
 deci.SetTargetReduction(.95)
 deci.AttributeErrorMetricOn()
 deci.VolumePreservationOff()
 
-mapper = vtk.vtkPolyDataMapper()
+mapper = vtkPolyDataMapper()
 mapper.SetInputConnection(warp.GetOutputPort())
 
-actor = vtk.vtkActor()
+actor = vtkActor()
 actor.SetMapper(mapper)
 
 # Decimator with volume constraint
-deci2 = vtk.vtkQuadricDecimation()
+deci2 = vtkQuadricDecimation()
 deci2.SetInputConnection(warp.GetOutputPort())
 deci2.SetTargetReduction(.95)
 deci2.AttributeErrorMetricOn()
 deci2.VolumePreservationOn()
 
-mapper2 = vtk.vtkPolyDataMapper()
+mapper2 = vtkPolyDataMapper()
 mapper2.SetInputConnection(deci.GetOutputPort())
 
-actor2 = vtk.vtkActor()
+actor2 = vtkActor()
 actor2.SetMapper(mapper2)
 
 # Original noisy surface
 #
-mapper3 = vtk.vtkPolyDataMapper()
+mapper3 = vtkPolyDataMapper()
 mapper3.SetInputConnection(deci2.GetOutputPort())
 
-actor3 = vtk.vtkActor()
+actor3 = vtkActor()
 actor3.SetMapper(mapper3)
 
 # Create rendering instances
 #
-ren0 = vtk.vtkRenderer()
+ren0 = vtkRenderer()
 ren0.SetViewport(0,0,.33,1)
-ren1 = vtk.vtkRenderer()
+ren1 = vtkRenderer()
 ren1.SetViewport(0.33,0,0.66,1)
-ren2 = vtk.vtkRenderer()
+ren2 = vtkRenderer()
 ren2.SetViewport(0.66,0,1,1)
-renWin = vtk.vtkRenderWindow()
+renWin = vtkRenderWindow()
 renWin.AddRenderer(ren0)
 renWin.AddRenderer(ren1)
 renWin.AddRenderer(ren2)
 
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 
 # Set up the camera parameters
 #
-camera = vtk.vtkCamera()
+camera = vtkCamera()
 camera.SetFocalPoint(0,0,0)
 camera.SetPosition(0,0,1)
 camera.Elevation(45.0)

@@ -1,22 +1,37 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonCore import vtkPoints
+from vtkmodules.vtkCommonDataModel import (
+    vtkCellArray,
+    vtkPolyData,
+)
+from vtkmodules.vtkFiltersModeling import vtkContourLoopExtraction
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # Create the RenderWindow, Renderer
 #
-ren = vtk.vtkRenderer()
-renWin = vtk.vtkRenderWindow()
+ren = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.AddRenderer( ren )
 
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 
 # Create test data. Some simple incomplete loops that touch the boundary.
 #
-loopData = vtk.vtkPolyData()
-loopPts = vtk.vtkPoints()
-loopLines = vtk.vtkCellArray()
+loopData = vtkPolyData()
+loopPts = vtkPoints()
+loopLines = vtkCellArray()
 loopData.SetPoints(loopPts)
 loopData.SetLines(loopLines)
 
@@ -58,14 +73,14 @@ loopLines.InsertNextCell(2)
 loopLines.InsertCellPoint(7)
 loopLines.InsertCellPoint(8)
 
-contours = vtk.vtkContourLoopExtraction()
+contours = vtkContourLoopExtraction()
 contours.SetInputData(loopData)
 
-mapper = vtk.vtkPolyDataMapper()
+mapper = vtkPolyDataMapper()
 mapper.SetInputConnection(contours.GetOutputPort())
 #mapper.SetInputData(loopData)
 
-actor = vtk.vtkActor()
+actor = vtkActor()
 actor.SetMapper(mapper)
 
 ren.AddActor(actor)

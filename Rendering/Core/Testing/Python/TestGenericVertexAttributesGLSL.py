@@ -1,6 +1,17 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkFiltersGeneral import vtkBrownianPoints
+from vtkmodules.vtkFiltersSources import vtkSphereSource
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 
@@ -33,26 +44,26 @@ xmlMaterial = '''<?xml version="1.0" encoding="UTF-8"?>
   </Shader>
 </Material>'''
 
-renWin = vtk.vtkRenderWindow()
-iren = vtk.vtkRenderWindowInteractor()
+renWin = vtkRenderWindow()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
-renderer = vtk.vtkRenderer()
+renderer = vtkRenderer()
 renWin.AddRenderer(renderer)
 
-src1 = vtk.vtkSphereSource()
+src1 = vtkSphereSource()
 src1.SetRadius(5)
 src1.SetPhiResolution(20)
 src1.SetThetaResolution(20)
 
-randomVectors = vtk.vtkBrownianPoints()
+randomVectors = vtkBrownianPoints()
 randomVectors.SetMinimumSpeed(0)
 randomVectors.SetMaximumSpeed(1)
 randomVectors.SetInputConnection(src1.GetOutputPort())
 
-mapper = vtk.vtkPolyDataMapper()
+mapper = vtkPolyDataMapper()
 mapper.SetInputConnection(randomVectors.GetOutputPort())
 
-actor = vtk.vtkActor()
+actor = vtkActor()
 actor.SetMapper(mapper)
 
 # Load the material. Here, we are loading a material

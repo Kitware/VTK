@@ -2,34 +2,38 @@
 # -*- coding: utf-8 -*-
 
 import os
-import vtk
-import vtk.test.Testing
+from vtkmodules.vtkCommonCore import vtkFloatArray
+from vtkmodules.vtkCommonDataModel import vtkTable
+from vtkmodules.vtkChartsCore import vtkChartXY
+from vtkmodules.vtkViewsContext2D import vtkContextView
+import vtkmodules.vtkRenderingContextOpenGL2
+import vtkmodules.test.Testing
 import math
 
-class TestLinePlot(vtk.test.Testing.vtkTest):
+class TestLinePlot(vtkmodules.test.Testing.vtkTest):
     def testLinePlot(self):
         "Test if line plots can be built with python"
 
         # Set up a 2D scene, add an XY chart to it
-        view = vtk.vtkContextView()
+        view = vtkContextView()
         view.GetRenderer().SetBackground(1.0,1.0,1.0)
         view.GetRenderWindow().SetSize(400,300)
-        chart = vtk.vtkChartXY()
+        chart = vtkChartXY()
         view.GetScene().AddItem(chart)
 
         # Create a table with some points in it
-        table = vtk.vtkTable()
+        table = vtkTable()
 
-        arrX = vtk.vtkFloatArray()
+        arrX = vtkFloatArray()
         arrX.SetName("X Axis")
 
-        arrC = vtk.vtkFloatArray()
+        arrC = vtkFloatArray()
         arrC.SetName("Cosine")
 
-        arrS = vtk.vtkFloatArray()
+        arrS = vtkFloatArray()
         arrS.SetName("Sine")
 
-        arrS2 = vtk.vtkFloatArray()
+        arrS2 = vtkFloatArray()
         arrS2.SetName("Sine2")
 
         numPoints = 69
@@ -66,8 +70,8 @@ class TestLinePlot(vtk.test.Testing.vtkTest):
         view.GetRenderWindow().Render()
 
         img_file = "TestLinePlot.png"
-        vtk.test.Testing.compareImage(view.GetRenderWindow(),vtk.test.Testing.getAbsImagePath(img_file),threshold=25)
-        vtk.test.Testing.interact()
+        vtkmodules.test.Testing.compareImage(view.GetRenderWindow(),vtkmodules.test.Testing.getAbsImagePath(img_file),threshold=25)
+        vtkmodules.test.Testing.interact()
 
 if __name__ == "__main__":
-    vtk.test.Testing.main([(TestLinePlot, 'test')])
+    vtkmodules.test.Testing.main([(TestLinePlot, 'test')])

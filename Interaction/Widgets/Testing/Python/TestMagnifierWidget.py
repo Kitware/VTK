@@ -3,9 +3,31 @@
 
 # Test the vtkMagnifierWidget and vtkMagnifierRepresentation classes
 
-import vtk
-import vtk.test.Testing
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkFiltersCore import (
+    vtkFeatureEdges,
+    vtkGlyph3D,
+)
+from vtkmodules.vtkFiltersSources import (
+    vtkConeSource,
+    vtkSphereSource,
+)
+from vtkmodules.vtkInteractionWidgets import (
+    vtkMagnifierRepresentation,
+    vtkMagnifierWidget,
+)
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkInteractorEventRecorder,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+import vtkmodules.test.Testing
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # Control test resolution
@@ -418,56 +440,56 @@ Recording = \
 "
 
 # Create a simple geometry: a mace
-sphere = vtk.vtkSphereSource()
+sphere = vtkSphereSource()
 sphere.SetThetaResolution(res)
 sphere.SetPhiResolution(int(res/2))
 
-cone = vtk.vtkConeSource()
+cone = vtkConeSource()
 cone.SetResolution(int(res/4))
 
-normals = vtk.vtkGlyph3D()
+normals = vtkGlyph3D()
 normals.SetInputConnection(sphere.GetOutputPort())
 normals.SetSourceConnection(cone.GetOutputPort())
 normals.SetVectorModeToUseNormal()
 normals.SetScaleFactor(0.1)
 
-sphereMapper = vtk.vtkPolyDataMapper()
+sphereMapper = vtkPolyDataMapper()
 sphereMapper.SetInputConnection(sphere.GetOutputPort())
 
-spikeMapper = vtk.vtkPolyDataMapper()
+spikeMapper = vtkPolyDataMapper()
 spikeMapper.SetInputConnection(normals.GetOutputPort())
 
-sphereActor = vtk.vtkActor()
+sphereActor = vtkActor()
 sphereActor.SetMapper(sphereMapper)
 
-spikeActor = vtk.vtkActor()
+spikeActor = vtkActor()
 spikeActor.SetMapper(spikeMapper)
 
 # Special effect to see edges
-edges = vtk.vtkFeatureEdges()
+edges = vtkFeatureEdges()
 edges.SetInputConnection(sphere.GetOutputPort())
 edges.ExtractAllEdgeTypesOff()
 edges.ManifoldEdgesOn()
 
-edgeMapper = vtk.vtkPolyDataMapper()
+edgeMapper = vtkPolyDataMapper()
 edgeMapper.SetInputConnection(edges.GetOutputPort())
 edgeMapper.ScalarVisibilityOff()
 
-edgeActor = vtk.vtkActor()
+edgeActor = vtkActor()
 edgeActor.SetMapper(edgeMapper)
 edgeActor.GetProperty().SetColor(1,0,0)
 
 # Create the RenderWindow, Renderer and both Actors
 #
-ren0 = vtk.vtkRenderer()
+ren0 = vtkRenderer()
 ren0.SetViewport(0,0,0.5,1.0)
-ren1 = vtk.vtkRenderer()
+ren1 = vtkRenderer()
 ren1.SetViewport(0.5,0,1.0,1.0)
-renWin = vtk.vtkRenderWindow()
+renWin = vtkRenderWindow()
 renWin.AddRenderer(ren0)
 renWin.AddRenderer(ren1)
 
-iRen = vtk.vtkRenderWindowInteractor()
+iRen = vtkRenderWindowInteractor()
 iRen.SetRenderWindow(renWin)
 
 # Observe events for magnification factor change
@@ -479,7 +501,7 @@ def ChangeMag(widget, event_string):
     magRep.SetMagnificationFactor(magF)
 
 # Add the magnifier widget
-magRep = vtk.vtkMagnifierRepresentation()
+magRep = vtkMagnifierRepresentation()
 magRep.SetRenderer(ren0)
 magRep.GetMagnificationRenderer().SetBackground(0.8,0.8,0.8)
 magRep.BorderOn()
@@ -487,13 +509,13 @@ magRep.GetBorderProperty().SetColor(0,1,0)
 magRep.AddViewProp(sphereActor)
 magRep.AddViewProp(edgeActor)
 
-magW = vtk.vtkMagnifierWidget()
+magW = vtkMagnifierWidget()
 magW.SetInteractor(iRen)
 magW.SetRepresentation(magRep)
 magW.AddObserver("WidgetValueChangedEvent",ChangeMag)
 
 # Handle playback of events
-recorder = vtk.vtkInteractorEventRecorder()
+recorder = vtkInteractorEventRecorder()
 recorder.SetInteractor(iRen)
 #recorder.SetFileName("record.log")
 #recorder.On()

@@ -1,19 +1,30 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkFiltersGeneral import vtkWarpScalar
+from vtkmodules.vtkImagingCore import vtkRTAnalyticSource
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkDataSetMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 
 # create a rendering window
-renWin = vtk.vtkRenderWindow()
+renWin = vtkRenderWindow()
 renWin.SetMultiSamples(0)
 
 renWin.SetSize(200, 200)
 
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 
-wavelet = vtk.vtkRTAnalyticSource()
+wavelet = vtkRTAnalyticSource()
 wavelet.SetWholeExtent(-100, 100, -100, 100, 0, 0)
 wavelet.SetCenter(0, 0, 0)
 wavelet.SetMaximum(255)
@@ -26,17 +37,17 @@ wavelet.SetYMag(18)
 wavelet.SetZMag(5)
 wavelet.SetSubsampleRate(1)
 
-warp = vtk.vtkWarpScalar()
+warp = vtkWarpScalar()
 warp.SetInputConnection(wavelet.GetOutputPort())
 
-mapper = vtk.vtkDataSetMapper()
+mapper = vtkDataSetMapper()
 mapper.SetInputConnection(warp.GetOutputPort())
 mapper.SetScalarRange(75, 290)
 
-actor = vtk.vtkActor()
+actor = vtkActor()
 actor.SetMapper(mapper)
 
-renderer = vtk.vtkRenderer()
+renderer = vtkRenderer()
 renderer.AddActor(actor)
 renderer.ResetCamera()
 renderer.GetActiveCamera().Elevation(-10)

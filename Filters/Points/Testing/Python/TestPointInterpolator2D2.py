@@ -1,17 +1,38 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonCore import (
+    vtkLookupTable,
+    vtkMath,
+)
+from vtkmodules.vtkCommonSystem import vtkTimerLog
+from vtkmodules.vtkFiltersCore import vtkContourFilter
+from vtkmodules.vtkFiltersPoints import (
+    vtkGaussianKernel,
+    vtkPointInterpolator2D,
+)
+from vtkmodules.vtkFiltersSources import vtkPlaneSource
+from vtkmodules.vtkIOImage import vtkDEMReader
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # Parameters for debugging
 res = 200
-math = vtk.vtkMath()
+math = vtkMath()
 
 # create pipeline: use terrain dataset. Just for kicks we'll treat the elevations
 # as a "point cloud" and interpolate the elevation onto a plane.
 #
 # Read the data: a height field results
-demReader = vtk.vtkDEMReader()
+demReader = vtkDEMReader()
 demReader.SetFileName(VTK_DATA_ROOT + "/Data/SainteHelens.dem")
 demReader.Update()
 
@@ -22,7 +43,7 @@ bds = demReader.GetOutput().GetBounds()
 center = demReader.GetOutput().GetCenter()
 
 # Create a plane of onto which to map the elevation data
-plane = vtk.vtkPlaneSource()
+plane = vtkPlaneSource()
 plane.SetResolution(res,res)
 plane.SetOrigin(bds[0],bds[2],bds[4])
 plane.SetPoint1(bds[1],bds[2],bds[4])
@@ -31,11 +52,11 @@ plane.Update()
 
 
 # Gaussian kernel-------------------------------------------------------
-gaussianKernel = vtk.vtkGaussianKernel()
+gaussianKernel = vtkGaussianKernel()
 gaussianKernel.SetSharpness(2)
 gaussianKernel.SetRadius(200)
 
-interp = vtk.vtkPointInterpolator2D()
+interp = vtkPointInterpolator2D()
 interp.SetInputConnection(plane.GetOutputPort())
 interp.SetSourceConnection(demReader.GetOutputPort())
 interp.SetKernel(gaussianKernel)
@@ -44,7 +65,7 @@ interp.GetLocator().SetNumberOfPointsPerBucket(1)
 interp.InterpolateZOff()
 
 # Time execution
-timer = vtk.vtkTimerLog()
+timer = vtkTimerLog()
 timer.StartTimer()
 interp.Update()
 timer.StopTimer()
@@ -53,38 +74,38 @@ print("Interpolate Terrain Points (Gaussian): {0}".format(time))
 
 scalarRange = interp.GetOutput().GetPointData().GetArray("Elevation").GetRange()
 
-lut = vtk.vtkLookupTable()
+lut = vtkLookupTable()
 lut.SetHueRange(0.6, 0)
 lut.SetSaturationRange(1.0, 0)
 lut.SetValueRange(0.5, 1.0)
 
-intMapper = vtk.vtkPolyDataMapper()
+intMapper = vtkPolyDataMapper()
 intMapper.SetInputConnection(interp.GetOutputPort())
 intMapper.SetScalarModeToUsePointFieldData()
 intMapper.SelectColorArray("Elevation")
 intMapper.SetScalarRange(scalarRange)
 intMapper.SetLookupTable(lut)
 
-intActor = vtk.vtkActor()
+intActor = vtkActor()
 intActor.SetMapper(intMapper)
 
 # Create some contours
-cf = vtk.vtkContourFilter()
+cf = vtkContourFilter()
 cf.SetInputConnection(interp.GetOutputPort())
 cf.GenerateValues(20,scalarRange)
 
-cfMapper = vtk.vtkPolyDataMapper()
+cfMapper = vtkPolyDataMapper()
 cfMapper.SetInputConnection(cf.GetOutputPort())
 
-cfActor = vtk.vtkActor()
+cfActor = vtkActor()
 cfActor.SetMapper(cfMapper)
 
 # Create the RenderWindow, Renderer and both Actors
 #
-ren0 = vtk.vtkRenderer()
-renWin = vtk.vtkRenderWindow()
+ren0 = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.AddRenderer(ren0)
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 
 # Add the actors to the renderer, set the background and size

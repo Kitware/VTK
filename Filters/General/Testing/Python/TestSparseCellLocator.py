@@ -1,6 +1,24 @@
 #!/usr/bin/env python
-import vtk
-from vtk.test import Testing
+from vtkmodules.vtkCommonCore import (
+    reference,
+    vtkDoubleArray,
+)
+from vtkmodules.vtkCommonDataModel import (
+    vtkGenericCell,
+    vtkStaticCellLocator,
+)
+from vtkmodules.vtkFiltersSources import vtkSphereSource
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.test import Testing
 import sys
 
 # Test locators with data that is sparsely populated.  That is, points and
@@ -42,7 +60,7 @@ else:
 print("Test size: ", testSize)
 print("Locator tested: ", cellLocClass)
 
-rightInnerSphere = vtk.vtkSphereSource()
+rightInnerSphere = vtkSphereSource()
 rightInnerSphere.SetCenter(2.5,0,0)
 rightInnerSphere.SetRadius(2.5)
 rightInnerSphere.SetPhiResolution(innerSphereRes)
@@ -50,7 +68,7 @@ rightInnerSphere.SetThetaResolution(2*innerSphereRes)
 rightInnerSphere.Update()
 rightInnerPD = rightInnerSphere.GetOutput()
 
-leftInnerSphere = vtk.vtkSphereSource()
+leftInnerSphere = vtkSphereSource()
 leftInnerSphere.SetCenter(-2.5,0,0)
 leftInnerSphere.SetRadius(2.5)
 leftInnerSphere.SetPhiResolution(innerSphereRes)
@@ -58,7 +76,7 @@ leftInnerSphere.SetThetaResolution(2*innerSphereRes)
 leftInnerSphere.Update()
 leftInnerPD = leftInnerSphere.GetOutput()
 
-outerSphere = vtk.vtkSphereSource()
+outerSphere = vtkSphereSource()
 outerSphere.SetCenter(0.0,0,0)
 outerSphere.SetRadius(10)
 outerSphere.SetPhiResolution(outerSphereRes)
@@ -67,23 +85,23 @@ outerSphere.Update()
 outerPD = outerSphere.GetOutput()
 
 # Now drive the locator.
-instantiationString = "vtk." + cellLocClass + "()"
+instantiationString = cellLocClass + "()"
 cellLoc = eval(instantiationString)
 cellLoc.SetDataSet(outerPD)
 cellLoc.SetNumberOfCellsPerNode(1)
 cellLoc.BuildLocator()
 
 x = [0,0,0]
-genCell = vtk.vtkGenericCell()
+genCell = vtkGenericCell()
 closestPt = [0,0,0]
-closestCellId = vtk.reference(-1)
-subId = vtk.reference(0)
-dist2 = vtk.reference(0.0)
+closestCellId = reference(-1)
+subId = reference(0)
+dist2 = reference(0.0)
 
 numInnerPts = rightInnerPD.GetNumberOfPoints()
-rightInnerDA = vtk.vtkDoubleArray()
+rightInnerDA = vtkDoubleArray()
 rightInnerDA.SetNumberOfTuples(numInnerPts)
-leftInnerDA = vtk.vtkDoubleArray()
+leftInnerDA = vtkDoubleArray()
 leftInnerDA.SetNumberOfTuples(numInnerPts)
 
 for pId in range(0,numInnerPts) :
@@ -98,35 +116,35 @@ rightInnerPD.GetPointData().SetScalars(rightInnerDA)
 leftInnerPD.GetPointData().SetScalars(leftInnerDA)
 
 # Display that sucker
-rightInnerMapper = vtk.vtkPolyDataMapper()
+rightInnerMapper = vtkPolyDataMapper()
 rightInnerMapper.SetInputData(rightInnerPD)
 rightInnerMapper.SetScalarRange(rightInnerDA.GetRange())
 
-rightInnerActor = vtk.vtkActor()
+rightInnerActor = vtkActor()
 rightInnerActor.SetMapper(rightInnerMapper)
 
-leftInnerMapper = vtk.vtkPolyDataMapper()
+leftInnerMapper = vtkPolyDataMapper()
 leftInnerMapper.SetInputData(leftInnerPD)
 leftInnerMapper.SetScalarRange(leftInnerDA.GetRange())
 
-leftInnerActor = vtk.vtkActor()
+leftInnerActor = vtkActor()
 leftInnerActor.SetMapper(leftInnerMapper)
 
 # Display that sucker
-outerMapper = vtk.vtkPolyDataMapper()
+outerMapper = vtkPolyDataMapper()
 outerMapper.SetInputData(outerPD)
 outerMapper.ScalarVisibilityOff()
 
-outerActor = vtk.vtkActor()
+outerActor = vtkActor()
 outerActor.SetMapper(outerMapper)
 outerActor.GetProperty().SetRepresentationToWireframe()
 
 # Create the RenderWindow, Renderer and both Actors
 #
-ren1 = vtk.vtkRenderer()
-renWin = vtk.vtkRenderWindow()
+ren1 = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.AddRenderer(ren1)
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 
 # Add the actors to the renderer, set the background and size

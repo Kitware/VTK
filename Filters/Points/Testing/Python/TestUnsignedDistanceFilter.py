@@ -1,18 +1,36 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonCore import (
+    vtkMath,
+    vtkPoints,
+)
+from vtkmodules.vtkCommonDataModel import vtkPolyData
+from vtkmodules.vtkCommonSystem import vtkTimerLog
+from vtkmodules.vtkFiltersCore import vtkFlyingEdges3D
+from vtkmodules.vtkFiltersModeling import vtkOutlineFilter
+from vtkmodules.vtkFiltersPoints import vtkUnsignedDistance
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # Interpolate onto a volume
 
 # Parameters for debugging
 NPts = 100 #Keep test small
-math = vtk.vtkMath()
+math = vtkMath()
 math.RandomSeed(31415)
 res = 50
 
-polyData = vtk.vtkPolyData()
-pts = vtk.vtkPoints()
+polyData = vtkPolyData()
+pts = vtkPoints()
 pts.SetDataTypeToFloat()
 pts.SetNumberOfPoints(NPts)
 for i in range(0,NPts):
@@ -20,7 +38,7 @@ for i in range(0,NPts):
 polyData.SetPoints(pts);
 
 # Generate signed distance function and contour it
-dist = vtk.vtkUnsignedDistance()
+dist = vtkUnsignedDistance()
 dist.SetInputData(polyData)
 dist.SetRadius(0.25) #how far out to propagate distance calculation
 dist.SetDimensions(res,res,res)
@@ -29,13 +47,13 @@ dist.AdjustBoundsOn()
 dist.SetAdjustDistance(0.01)
 
 # Extract the surface with modified flying edges
-fe = vtk.vtkFlyingEdges3D()
+fe = vtkFlyingEdges3D()
 fe.SetInputConnection(dist.GetOutputPort())
 fe.SetValue(0, 0.075)
 fe.ComputeNormalsOff()
 
 # Time the execution
-timer = vtk.vtkTimerLog()
+timer = vtkTimerLog()
 timer.StartTimer()
 fe.Update()
 timer.StopTimer()
@@ -44,28 +62,28 @@ print("Points processed: {0}".format(NPts))
 print("   Time to generate and extract distance function: {0}".format(time))
 print(dist)
 
-feMapper = vtk.vtkPolyDataMapper()
+feMapper = vtkPolyDataMapper()
 feMapper.SetInputConnection(fe.GetOutputPort())
 
-feActor = vtk.vtkActor()
+feActor = vtkActor()
 feActor.SetMapper(feMapper)
 
 # Create an outline
-outline = vtk.vtkOutlineFilter()
+outline = vtkOutlineFilter()
 outline.SetInputConnection(fe.GetOutputPort())
 
-outlineMapper = vtk.vtkPolyDataMapper()
+outlineMapper = vtkPolyDataMapper()
 outlineMapper.SetInputConnection(outline.GetOutputPort())
 
-outlineActor = vtk.vtkActor()
+outlineActor = vtkActor()
 outlineActor.SetMapper(outlineMapper)
 
 # Create the RenderWindow, Renderer and both Actors
 #
-ren0 = vtk.vtkRenderer()
-renWin = vtk.vtkRenderWindow()
+ren0 = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.AddRenderer(ren0)
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 
 # Add the actors to the renderer, set the background and size

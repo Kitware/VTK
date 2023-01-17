@@ -1,5 +1,20 @@
 #!/usr/bin/env python
-import vtk
+from vtkmodules.vtkFiltersCore import (
+    vtkExecutionTimer,
+    vtkExtractEdges,
+    vtkSimpleElevationFilter,
+)
+from vtkmodules.vtkFiltersSources import vtkPlaneSource
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
 
 # Test edge extraction with cell data, and with original
 # point numbering preserved.
@@ -9,7 +24,7 @@ res = 50
 # Test polydata edge extraction
 #
 # Create a plane
-plane = vtk.vtkPlaneSource()
+plane = vtkPlaneSource()
 plane.SetResolution(res,res)
 plane.SetOrigin(0,0,0)
 plane.SetPoint1(1,0,0)
@@ -17,39 +32,39 @@ plane.SetPoint2(0,0,1)
 plane.Update()
 
 # Create some cell data using an elevation filter
-ele = vtk.vtkSimpleElevationFilter()
+ele = vtkSimpleElevationFilter()
 ele.SetInputConnection(plane.GetOutputPort())
 ele.Update()
 
 # Now extract the edges
-extract = vtk.vtkExtractEdges()
+extract = vtkExtractEdges()
 extract.SetInputConnection(ele.GetOutputPort())
 extract.UseAllPointsOn()
 
-timer = vtk.vtkExecutionTimer()
+timer = vtkExecutionTimer()
 timer.SetFilter(extract)
 extract.Update()
 ET = timer.GetElapsedWallClockTime()
 print ("vtkExtractEdges (polygonal):", ET)
 
-extrMapper = vtk.vtkPolyDataMapper()
+extrMapper = vtkPolyDataMapper()
 extrMapper.SetInputConnection(extract.GetOutputPort())
 extrMapper.ScalarVisibilityOn()
 
-extrActor = vtk.vtkActor()
+extrActor = vtkActor()
 extrActor.SetMapper(extrMapper)
 extrActor.GetProperty().SetInterpolationToFlat()
 
 # Define graphics objects
-renWin = vtk.vtkRenderWindow()
+renWin = vtkRenderWindow()
 renWin.SetSize(300,300)
 
-ren1 = vtk.vtkRenderer()
+ren1 = vtkRenderer()
 ren1.SetBackground(0,0,0)
 
 renWin.AddRenderer(ren1)
 
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 
 ren1.AddActor(extrActor)

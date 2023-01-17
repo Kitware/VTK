@@ -1,6 +1,27 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonDataModel import vtkStaticPointLocator
+from vtkmodules.vtkCommonSystem import vtkTimerLog
+from vtkmodules.vtkFiltersCore import vtkStructuredGridOutlineFilter
+from vtkmodules.vtkFiltersPoints import (
+    vtkGaussianKernel,
+    vtkLinearKernel,
+    vtkPointInterpolator,
+    vtkShepardKernel,
+    vtkVoronoiKernel,
+)
+from vtkmodules.vtkFiltersSources import vtkPlaneSource
+from vtkmodules.vtkIOParallel import vtkMultiBlockPLOT3DReader
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # Parameters for debugging
@@ -8,7 +29,7 @@ res = 200
 
 # create pipeline
 #
-pl3d = vtk.vtkMultiBlockPLOT3DReader()
+pl3d = vtkMultiBlockPLOT3DReader()
 pl3d.SetXYZFileName(VTK_DATA_ROOT + "/Data/combxyz.bin")
 pl3d.SetQFileName(VTK_DATA_ROOT + "/Data/combq.bin")
 pl3d.SetScalarFunctionNumber(100)
@@ -20,7 +41,7 @@ output = pl3d.GetOutput().GetBlock(0)
 # Create a probe plane
 center = output.GetCenter()
 
-plane = vtk.vtkPlaneSource()
+plane = vtkPlaneSource()
 plane.SetResolution(res,res)
 plane.SetOrigin(0,0,0)
 plane.SetPoint1(10,0,0)
@@ -29,52 +50,52 @@ plane.SetCenter(center)
 plane.SetNormal(0,1,0)
 
 # Reuse the locator
-locator = vtk.vtkStaticPointLocator()
+locator = vtkStaticPointLocator()
 locator.SetDataSet(output)
 locator.BuildLocator()
 
 # Voronoi kernel------------------------------------------------
-voronoiKernel = vtk.vtkVoronoiKernel()
+voronoiKernel = vtkVoronoiKernel()
 
-interpolator = vtk.vtkPointInterpolator()
+interpolator = vtkPointInterpolator()
 interpolator.SetInputConnection(plane.GetOutputPort())
 interpolator.SetSourceData(output)
 interpolator.SetKernel(voronoiKernel)
 interpolator.SetLocator(locator)
 
 # Time execution
-timer = vtk.vtkTimerLog()
+timer = vtkTimerLog()
 timer.StartTimer()
 interpolator.Update()
 timer.StopTimer()
 time = timer.GetElapsedTime()
 print("Interpolate Points (Voronoi): {0}".format(time))
 
-intMapper = vtk.vtkPolyDataMapper()
+intMapper = vtkPolyDataMapper()
 intMapper.SetInputConnection(interpolator.GetOutputPort())
 
-intActor = vtk.vtkActor()
+intActor = vtkActor()
 intActor.SetMapper(intMapper)
 
 # Create an outline
-outline = vtk.vtkStructuredGridOutlineFilter()
+outline = vtkStructuredGridOutlineFilter()
 outline.SetInputData(output)
 
-outlineMapper = vtk.vtkPolyDataMapper()
+outlineMapper = vtkPolyDataMapper()
 outlineMapper.SetInputConnection(outline.GetOutputPort())
 
-outlineActor = vtk.vtkActor()
+outlineActor = vtkActor()
 outlineActor.SetMapper(outlineMapper)
 
 # Gaussian kernel-------------------------------------------------------
-gaussianKernel = vtk.vtkGaussianKernel()
-#gaussianKernel = vtk.vtkEllipsoidalGaussianKernel()
+gaussianKernel = vtkGaussianKernel()
+#gaussianKernel = vtkEllipsoidalGaussianKernel()
 #gaussianKernel.UseScalarsOn()
 #gaussianKernel.UseNormalsOn()
 gaussianKernel.SetSharpness(4)
 gaussianKernel.SetRadius(0.5)
 
-interpolator1 = vtk.vtkPointInterpolator()
+interpolator1 = vtkPointInterpolator()
 interpolator1.SetInputConnection(plane.GetOutputPort())
 interpolator1.SetSourceData(output)
 interpolator1.SetKernel(gaussianKernel)
@@ -88,28 +109,28 @@ timer.StopTimer()
 time = timer.GetElapsedTime()
 print("Interpolate Points (Gaussian): {0}".format(time))
 
-intMapper1 = vtk.vtkPolyDataMapper()
+intMapper1 = vtkPolyDataMapper()
 intMapper1.SetInputConnection(interpolator1.GetOutputPort())
 
-intActor1 = vtk.vtkActor()
+intActor1 = vtkActor()
 intActor1.SetMapper(intMapper1)
 
 # Create an outline
-outline1 = vtk.vtkStructuredGridOutlineFilter()
+outline1 = vtkStructuredGridOutlineFilter()
 outline1.SetInputData(output)
 
-outlineMapper1 = vtk.vtkPolyDataMapper()
+outlineMapper1 = vtkPolyDataMapper()
 outlineMapper1.SetInputConnection(outline1.GetOutputPort())
 
-outlineActor1 = vtk.vtkActor()
+outlineActor1 = vtkActor()
 outlineActor1.SetMapper(outlineMapper1)
 
 # Shepard kernel-------------------------------------------------------
-shepardKernel = vtk.vtkShepardKernel()
+shepardKernel = vtkShepardKernel()
 shepardKernel.SetPowerParameter(2)
 shepardKernel.SetRadius(0.5)
 
-interpolator2 = vtk.vtkPointInterpolator()
+interpolator2 = vtkPointInterpolator()
 interpolator2.SetInputConnection(plane.GetOutputPort())
 interpolator2.SetSourceData(output)
 interpolator2.SetKernel(shepardKernel)
@@ -123,27 +144,27 @@ timer.StopTimer()
 time = timer.GetElapsedTime()
 print("Interpolate Points (Shepard): {0}".format(time))
 
-intMapper2 = vtk.vtkPolyDataMapper()
+intMapper2 = vtkPolyDataMapper()
 intMapper2.SetInputConnection(interpolator2.GetOutputPort())
 
-intActor2 = vtk.vtkActor()
+intActor2 = vtkActor()
 intActor2.SetMapper(intMapper2)
 
 # Create an outline
-outline2 = vtk.vtkStructuredGridOutlineFilter()
+outline2 = vtkStructuredGridOutlineFilter()
 outline2.SetInputData(output)
 
-outlineMapper2 = vtk.vtkPolyDataMapper()
+outlineMapper2 = vtkPolyDataMapper()
 outlineMapper2.SetInputConnection(outline2.GetOutputPort())
 
-outlineActor2 = vtk.vtkActor()
+outlineActor2 = vtkActor()
 outlineActor2.SetMapper(outlineMapper2)
 
 # Linear kernel-------------------------------------------------------
-linearKernel = vtk.vtkLinearKernel()
+linearKernel = vtkLinearKernel()
 linearKernel.SetRadius(0.5)
 
-interpolator3 = vtk.vtkPointInterpolator()
+interpolator3 = vtkPointInterpolator()
 interpolator3.SetInputConnection(plane.GetOutputPort())
 interpolator3.SetSourceData(output)
 interpolator3.SetKernel(linearKernel)
@@ -158,39 +179,39 @@ timer.StopTimer()
 time = timer.GetElapsedTime()
 print("Interpolate Points (Linear): {0}".format(time))
 
-intMapper3 = vtk.vtkPolyDataMapper()
+intMapper3 = vtkPolyDataMapper()
 intMapper3.SetInputConnection(interpolator3.GetOutputPort())
 
-intActor3 = vtk.vtkActor()
+intActor3 = vtkActor()
 intActor3.SetMapper(intMapper3)
 
 # Create an outline
-outline3 = vtk.vtkStructuredGridOutlineFilter()
+outline3 = vtkStructuredGridOutlineFilter()
 outline3.SetInputData(output)
 
-outlineMapper3 = vtk.vtkPolyDataMapper()
+outlineMapper3 = vtkPolyDataMapper()
 outlineMapper3.SetInputConnection(outline3.GetOutputPort())
 
-outlineActor3 = vtk.vtkActor()
+outlineActor3 = vtkActor()
 outlineActor3.SetMapper(outlineMapper3)
 
 # Create the RenderWindow, Renderer and both Actors
 #
-ren0 = vtk.vtkRenderer()
+ren0 = vtkRenderer()
 ren0.SetViewport(0,0,.5,.5)
-ren1 = vtk.vtkRenderer()
+ren1 = vtkRenderer()
 ren1.SetViewport(0.5,0,1,.5)
-ren2 = vtk.vtkRenderer()
+ren2 = vtkRenderer()
 ren2.SetViewport(0,0.5,.5,1)
-ren3 = vtk.vtkRenderer()
+ren3 = vtkRenderer()
 ren3.SetViewport(0.5,0.5,1,1)
-renWin = vtk.vtkRenderWindow()
+renWin = vtkRenderWindow()
 renWin.SetMultiSamples(0)
 renWin.AddRenderer(ren0)
 renWin.AddRenderer(ren1)
 renWin.AddRenderer(ren2)
 renWin.AddRenderer(ren3)
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 
 # Add the actors to the renderer, set the background and size

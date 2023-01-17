@@ -1,9 +1,19 @@
 #!/usr/bin/env python
-import vtk
+from vtkmodules.vtkCommonCore import (
+    vtkIdList,
+    vtkMath,
+    vtkPoints,
+)
+from vtkmodules.vtkCommonDataModel import (
+    vtkPointLocator,
+    vtkPolyData,
+    vtkStaticPointLocator,
+)
+from vtkmodules.vtkCommonSystem import vtkTimerLog
 
 # create a test dataset
 #
-math = vtk.vtkMath()
+math = vtkMath()
 
 # Note: the bigger the data the better vtkStaticPointLocator performs
 #testSize = "large"
@@ -21,28 +31,28 @@ else:
     numProbes = 5000
 
 # Create an initial set of points and associated dataset
-points = vtk.vtkPoints()
+points = vtkPoints()
 points.SetDataTypeToDouble()
 points.SetNumberOfPoints(numPts)
 for i in range(0,numPts):
     points.SetPoint(i,math.Random(-1,1),math.Random(-1,1),math.Random(-1,1))
 
-polydata = vtk.vtkPolyData()
+polydata = vtkPolyData()
 polydata.SetPoints(points)
 points.ComputeBounds()
 
 # Create points array which are positions to probe data with
 # FindClosestPoint(), We also create an array to hold the results of this
 # probe operation.
-probePoints = vtk.vtkPoints()
+probePoints = vtkPoints()
 probePoints.SetDataTypeToDouble()
 probePoints.SetNumberOfPoints(numProbes)
 math.RandomSeed(314159)
 for i in range (0,numProbes):
     probePoints.SetPoint(i,math.Random(-1,1),math.Random(-1,1),math.Random(-1,1))
-closest = vtk.vtkIdList()
+closest = vtkIdList()
 closest.SetNumberOfIds(numProbes)
-staticClosest = vtk.vtkIdList()
+staticClosest = vtkIdList()
 staticClosest.SetNumberOfIds(numProbes)
 
 # Print initial statistics
@@ -50,12 +60,12 @@ print("Processing NumPts: {0}".format(numPts))
 print("\n")
 
 # Time the creation and building of the incremental point locator
-locator = vtk.vtkPointLocator()
+locator = vtkPointLocator()
 locator.SetDataSet(polydata)
 locator.SetNumberOfPointsPerBucket(5)
 locator.AutomaticOn()
 
-timer = vtk.vtkTimerLog()
+timer = vtkTimerLog()
 timer.StartTimer()
 locator.BuildLocator()
 timer.StopTimer()
@@ -72,7 +82,7 @@ print("    Closest point probing: {0}".format(opTime))
 print("    Divisions: {0}".format( locator.GetDivisions() ))
 
 # Poke other methods before deleting locator class
-closestN = vtk.vtkIdList()
+closestN = vtkIdList()
 locator.FindClosestNPoints(10, probePoints.GetPoint(0), closestN)
 
 # Time the deletion of the locator. The incremental locator is quite slow due
@@ -88,12 +98,12 @@ print("\n")
 
 # StaticPointLocator
 # Time the creation of static point locator
-staticLocator = vtk.vtkStaticPointLocator()
+staticLocator = vtkStaticPointLocator()
 staticLocator.SetDataSet(polydata)
 staticLocator.SetNumberOfPointsPerBucket(5)
 staticLocator.AutomaticOn()
 
-staticTimer = vtk.vtkTimerLog()
+staticTimer = vtkTimerLog()
 staticTimer.StartTimer()
 staticLocator.BuildLocator()
 staticTimer.StopTimer()
@@ -120,7 +130,7 @@ error = 0
 x = [0,0,0]
 y = [0,0,0]
 p = [0,0,0]
-math = vtk.vtkMath()
+math = vtkMath()
 for i in range (0,numProbes):
     staticId = staticClosest.GetId(i)
     closestId = closest.GetId(i)
@@ -134,7 +144,7 @@ for i in range (0,numProbes):
             error = 1
 
 # Poke other methods before deleting static locator class
-staticClosestN = vtk.vtkIdList()
+staticClosestN = vtkIdList()
 staticLocator.FindClosestNPoints(10, probePoints.GetPoint(0), staticClosestN)
 for i in range (0,10):
     staticId = staticClosestN.GetId(i)

@@ -1,5 +1,24 @@
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonCore import (
+    vtkDoubleArray,
+    vtkPoints,
+)
+from vtkmodules.vtkCommonDataModel import (
+    vtkCellArray,
+    vtkPolyData,
+)
+from vtkmodules.vtkFiltersGeneral import vtkShrinkFilter
+from vtkmodules.vtkFiltersModeling import vtkBandedPolyDataContourFilter
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkDataSetMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # This script tests vtkBandedPolyDataContourFilter (BPDCF)
@@ -44,8 +63,8 @@ def generatePolyData(orientation,fillWith,factor):
    """
    Generate poly-data and point-scalars
    """
-   poly = vtk.vtkPolyData()
-   pts = vtk.vtkPoints()
+   poly = vtkPolyData()
+   pts = vtkPoints()
    coords=[ (0,0,0),(1,0,0),(1,1,0),(0,1,0)]
    for coord in coords:
       pts.InsertNextPoint(coord[0],coord[1],coord[2])
@@ -54,7 +73,7 @@ def generatePolyData(orientation,fillWith,factor):
    # Vertices at all corners
    # two 1-point vertices and 1 2-point poly-vertex
    vertices = [[0],[1],[2,3]]
-   verts = vtk.vtkCellArray()
+   verts = vtkCellArray()
    for vertex in vertices:
       InsertCell(verts,vertex,orientation)
    poly.SetVerts(verts)
@@ -62,7 +81,7 @@ def generatePolyData(orientation,fillWith,factor):
    # Lines at all sides of the quad
    # two 2-point lines and 1 3-point line
    edges = [ (0,1),(1,2),(2,3,0) ]
-   lines = vtk.vtkCellArray()
+   lines = vtkCellArray()
    for edge in edges:
       InsertCell(lines,edge,orientation)
    poly.SetLines(lines)
@@ -70,24 +89,24 @@ def generatePolyData(orientation,fillWith,factor):
    # Fill with one quad, two triangles or a triangle-strip
    if fillWith=='quad':
       quad = (0,1,2,3)
-      polys = vtk.vtkCellArray()
+      polys = vtkCellArray()
       InsertCell(polys,quad,orientation)
       poly.SetPolys(polys)
    elif fillWith=='triangles':
       triangles=[(0,1,3),(3,1,2)]
-      strips = vtk.vtkCellArray()
+      strips = vtkCellArray()
       for triangle in triangles:
          InsertCell(strips,triangle,orientation)
       poly.SetStrips(strips)
    elif fillWith=='strip':
       strip=(0,1,3,2)
-      strips = vtk.vtkCellArray()
+      strips = vtkCellArray()
       InsertCell(strips,strip,orientation)
       poly.SetStrips(strips)
 
    # Scalars for contouring
    values = [ 0.0, 0.5, 1.5, 1.0 ]
-   array=vtk.vtkDoubleArray()
+   array=vtkDoubleArray()
    for v in values:
       array.InsertNextValue(factor*v)
    poly.GetPointData().SetScalars(array)
@@ -107,7 +126,7 @@ def contourCase(poly,mode):
    # even if scalar mode is set to value.
    valueRange=poly.GetPointData().GetScalars().GetRange()
    num=5
-   bpdcf = vtk.vtkBandedPolyDataContourFilter()
+   bpdcf = vtkBandedPolyDataContourFilter()
    bpdcf.SetInputData(poly)
    bpdcf.GenerateValues( num, valueRange[0],valueRange[1] )
    bpdcf.GenerateContourEdgesOff()
@@ -119,17 +138,17 @@ def contourCase(poly,mode):
 
    # Shrink all cells somewhat so the contouring of edges can
    # be seen better
-   sf = vtk.vtkShrinkFilter()
+   sf = vtkShrinkFilter()
    sf.SetShrinkFactor(0.90)
    sf.SetInputConnection( bpdcf.GetOutputPort())
 
    # Mapper shows contour index values
-   m = vtk.vtkDataSetMapper()
+   m = vtkDataSetMapper()
    m.SetInputConnection(sf.GetOutputPort())
    m.SetScalarModeToUseCellData()
    m.SetScalarRange(bpdcf.GetOutput().GetCellData().GetArray('Scalars').GetRange())
 
-   a = vtk.vtkActor()
+   a = vtkActor()
    a.SetMapper(m)
 
    return a
@@ -144,13 +163,13 @@ cases = [ (True,  'quad',      100.0, [0.0,0.5,0.5,1.0]),   # 1,5 : upper-left
 # yielding contour-values
 v0=0
 dv=.5
-renWin = vtk.vtkRenderWindow()
+renWin = vtkRenderWindow()
 for mode in ['index','value']:
    for (orient,fill,factor,vp1) in cases:
       vp2 = [ v0 + vp1[0]*dv, vp1[1], v0 + vp1[2]*dv, vp1[3] ]
       poly=generatePolyData(orient,fill,factor)
       actor = contourCase(poly,mode)
-      ren = vtk.vtkRenderer()
+      ren = vtkRenderer()
       ren.AddViewProp( actor )
       ren.SetViewport( vp2 )
       renWin.AddRenderer( ren )
@@ -158,7 +177,7 @@ for mode in ['index','value']:
 
 print(legend)
 renWin.SetSize(400,200)
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 renWin.Render()
 iren.Initialize()

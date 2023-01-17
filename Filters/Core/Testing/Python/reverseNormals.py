@@ -1,6 +1,25 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonColor import vtkNamedColors
+from vtkmodules.vtkCommonDataModel import vtkPlane
+from vtkmodules.vtkCommonTransforms import vtkTransform
+from vtkmodules.vtkFiltersCore import (
+    vtkClipPolyData,
+    vtkPolyDataNormals,
+    vtkReverseSense,
+)
+from vtkmodules.vtkFiltersGeneral import vtkTransformPolyDataFilter
+from vtkmodules.vtkIOGeometry import vtkOBJReader
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 def GetRGBColor(colorName):
@@ -9,48 +28,48 @@ def GetRGBColor(colorName):
         color as doubles.
     '''
     rgb = [0.0, 0.0, 0.0]  # black
-    vtk.vtkNamedColors().GetColorRGB(colorName, rgb)
+    vtkNamedColors().GetColorRGB(colorName, rgb)
     return rgb
 
 # Now create the RenderWindow, Renderer and Interactor
 #
-ren1 = vtk.vtkRenderer()
-renWin = vtk.vtkRenderWindow()
+ren1 = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.AddRenderer(ren1)
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 
-cowReader = vtk.vtkOBJReader()
+cowReader = vtkOBJReader()
 cowReader.SetFileName(VTK_DATA_ROOT + "/Data/Viewpoint/cow.obj")
 
-plane = vtk.vtkPlane()
+plane = vtkPlane()
 plane.SetNormal(1, 0, 0)
 
-cowClipper = vtk.vtkClipPolyData()
+cowClipper = vtkClipPolyData()
 cowClipper.SetInputConnection(cowReader.GetOutputPort())
 cowClipper.SetClipFunction(plane)
 
-cellNormals = vtk.vtkPolyDataNormals()
+cellNormals = vtkPolyDataNormals()
 cellNormals.SetInputConnection(cowClipper.GetOutputPort())
 cellNormals.ComputePointNormalsOn()
 cellNormals.ComputeCellNormalsOn()
 
-reflect = vtk.vtkTransform()
+reflect = vtkTransform()
 reflect.Scale(-1, 1, 1)
 
-cowReflect = vtk.vtkTransformPolyDataFilter()
+cowReflect = vtkTransformPolyDataFilter()
 cowReflect.SetTransform(reflect)
 cowReflect.SetInputConnection(cellNormals.GetOutputPort())
 
-cowReverse = vtk.vtkReverseSense()
+cowReverse = vtkReverseSense()
 cowReverse.SetInputConnection(cowReflect.GetOutputPort())
 cowReverse.ReverseNormalsOn()
 cowReverse.ReverseCellsOff()
 
-reflectedMapper = vtk.vtkPolyDataMapper()
+reflectedMapper = vtkPolyDataMapper()
 reflectedMapper.SetInputConnection(cowReverse.GetOutputPort())
 
-reflected = vtk.vtkActor()
+reflected = vtkActor()
 reflected.SetMapper(reflectedMapper)
 reflected.GetProperty().SetDiffuseColor(GetRGBColor('flesh'))
 reflected.GetProperty().SetDiffuse(.8)
@@ -60,10 +79,10 @@ reflected.GetProperty().FrontfaceCullingOn()
 
 ren1.AddActor(reflected)
 
-cowMapper = vtk.vtkPolyDataMapper()
+cowMapper = vtkPolyDataMapper()
 cowMapper.SetInputConnection(cowClipper.GetOutputPort())
 
-cow = vtk.vtkActor()
+cow = vtkActor()
 cow.SetMapper(cowMapper)
 
 ren1.AddActor(cow)

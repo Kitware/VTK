@@ -1,6 +1,29 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonCore import (
+    vtkDoubleArray,
+    vtkPoints,
+)
+from vtkmodules.vtkCommonDataModel import (
+    vtkCellArray,
+    vtkPolyData,
+)
+from vtkmodules.vtkFiltersCore import (
+    vtkAppendPolyData,
+    vtkStaticCleanPolyData,
+)
+from vtkmodules.vtkIOImage import vtkTIFFReader
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+    vtkTexture,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # Test the merging of points with texture data.
@@ -9,19 +32,19 @@ VTK_DATA_ROOT = vtkGetDataRoot()
 # coordinates).
 
 # The texture map
-cheers = vtk.vtkTIFFReader()
+cheers = vtkTIFFReader()
 cheers.SetFileName(VTK_DATA_ROOT + "/Data/beach.tif")
 
-imageTexture = vtk.vtkTexture()
+imageTexture = vtkTexture()
 imageTexture.InterpolateOn()
 imageTexture.SetInputConnection(cheers.GetOutputPort())
 
 # Create four planes with some coincident points. Some of
 # points have identical texture coordinates, some do not.
 # First plane patch.
-pd0 = vtk.vtkPolyData()
-p0 = vtk.vtkPoints()
-polys0 = vtk.vtkCellArray()
+pd0 = vtkPolyData()
+p0 = vtkPoints()
+polys0 = vtkCellArray()
 pd0.SetPoints(p0)
 pd0.SetPolys(polys0)
 
@@ -36,7 +59,7 @@ p0.SetPoint(6, 0,6,0)
 p0.SetPoint(7, 1,6,0)
 p0.SetPoint(8, 2,6,0)
 
-t0 = vtk.vtkDoubleArray()
+t0 = vtkDoubleArray()
 t0.SetName("TCoords")
 t0.SetNumberOfComponents(2)
 t0.SetNumberOfTuples(9)
@@ -61,9 +84,9 @@ pts = [4,5,8,7]
 polys0.InsertNextCell(4,pts)
 
 # Second plane patch
-pd1 = vtk.vtkPolyData()
-p1 = vtk.vtkPoints()
-polys1 = vtk.vtkCellArray()
+pd1 = vtkPolyData()
+p1 = vtkPoints()
+polys1 = vtkCellArray()
 pd1.SetPoints(p1)
 pd1.SetPolys(polys1)
 
@@ -78,7 +101,7 @@ p1.SetPoint(6, 2,6,0)
 p1.SetPoint(7, 3,6,0)
 p1.SetPoint(8, 4,6,0)
 
-t1 = vtk.vtkDoubleArray()
+t1 = vtkDoubleArray()
 t1.SetName("TCoords")
 t1.SetNumberOfComponents(2)
 t1.SetNumberOfTuples(9)
@@ -103,9 +126,9 @@ pts = [4,5,8,7]
 polys1.InsertNextCell(4,pts)
 
 # Third plane patch
-pd2 = vtk.vtkPolyData()
-p2 = vtk.vtkPoints()
-polys2 = vtk.vtkCellArray()
+pd2 = vtkPolyData()
+p2 = vtkPoints()
+polys2 = vtkCellArray()
 pd2.SetPoints(p2)
 pd2.SetPolys(polys2)
 
@@ -126,7 +149,7 @@ p2.SetPoint(12, 0,4,0)
 p2.SetPoint(13, 1,4,0)
 p2.SetPoint(14, 2,4,0)
 
-t2 = vtk.vtkDoubleArray()
+t2 = vtkDoubleArray()
 t2.SetName("TCoords")
 t2.SetNumberOfComponents(2)
 t2.SetNumberOfTuples(15)
@@ -165,9 +188,9 @@ pts = [10,11,14,13]
 polys2.InsertNextCell(4,pts)
 
 # Fourth plane patch
-pd3 = vtk.vtkPolyData()
-p3 = vtk.vtkPoints()
-polys3 = vtk.vtkCellArray()
+pd3 = vtkPolyData()
+p3 = vtkPoints()
+polys3 = vtkCellArray()
 pd3.SetPoints(p3)
 pd3.SetPolys(polys3)
 
@@ -188,7 +211,7 @@ p3.SetPoint(12, 2,4,0)
 p3.SetPoint(13, 3,4,0)
 p3.SetPoint(14, 4,4,0)
 
-t3 = vtk.vtkDoubleArray()
+t3 = vtkDoubleArray()
 t3.SetName("TCoords")
 t3.SetNumberOfComponents(2)
 t3.SetNumberOfTuples(15)
@@ -227,7 +250,7 @@ pts = [10,11,14,13]
 polys3.InsertNextCell(4,pts)
 
 # Put them all together
-append = vtk.vtkAppendPolyData()
+append = vtkAppendPolyData()
 append.AddInputData(pd0)
 append.AddInputData(pd1)
 append.AddInputData(pd2)
@@ -238,7 +261,7 @@ numAppendPts = append.GetOutput().GetNumberOfPoints()
 print("Number of points before merging: ", append.GetOutput().GetNumberOfPoints())
 assert(numAppendPts == 48)
 
-merge = vtk.vtkStaticCleanPolyData()
+merge = vtkStaticCleanPolyData()
 merge.SetInputConnection(append.GetOutputPort())
 merge.SetMergingArray("TCoords")
 merge.Update()
@@ -247,21 +270,21 @@ numMergedPts = merge.GetOutput().GetNumberOfPoints()
 print("Number of points after merging: ", numMergedPts)
 assert(numMergedPts == 43)
 
-mapper = vtk.vtkPolyDataMapper()
+mapper = vtkPolyDataMapper()
 mapper.SetInputConnection(merge.GetOutputPort())
 
-actor = vtk.vtkActor()
+actor = vtkActor()
 actor.SetMapper(mapper)
 actor.SetTexture(imageTexture)
 
 # Create the RenderWindow, Renderer and both Actors
 #
-ren1 = vtk.vtkRenderer()
-renWin = vtk.vtkRenderWindow()
+ren1 = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.AddRenderer(ren1)
 renWin.SetSize(256,256)
 
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 
 # Add the actors to the renderer, set the background and size

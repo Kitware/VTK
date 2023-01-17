@@ -1,6 +1,26 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonDataModel import vtkSphere
+from vtkmodules.vtkCommonExecutionModel import vtkSphereTree
+from vtkmodules.vtkFiltersCore import (
+    vtkGlyph3D,
+    vtkSphereTreeFilter,
+)
+from vtkmodules.vtkFiltersExtraction import vtkExtractGeometry
+from vtkmodules.vtkFiltersGeneral import vtkImageDataToPointSet
+from vtkmodules.vtkFiltersModeling import vtkOutlineFilter
+from vtkmodules.vtkFiltersSources import vtkSphereSource
+from vtkmodules.vtkImagingHybrid import vtkSampleFunction
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # Control debugging parameters
@@ -8,103 +28,103 @@ res = 25
 
 # Create the RenderWindow, Renderer
 #
-ren0 = vtk.vtkRenderer()
-ren1 = vtk.vtkRenderer()
-renWin = vtk.vtkRenderWindow()
+ren0 = vtkRenderer()
+ren1 = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.SetMultiSamples(0)
 renWin.AddRenderer(ren0)
 renWin.AddRenderer(ren1)
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 
 # Create a synthetic source: sample a sphere across a volume
-sphere = vtk.vtkSphere()
+sphere = vtkSphere()
 sphere.SetCenter(0.0,0.0,0.0)
 sphere.SetRadius(0.25)
 
-sample = vtk.vtkSampleFunction()
+sample = vtkSampleFunction()
 sample.SetImplicitFunction(sphere)
 sample.SetModelBounds(-0.5,0.5, -0.5,0.5, -0.5,0.5)
 sample.SetSampleDimensions(res,res,res)
 
 # Handy dandy filter converts image data to structured grid
-convert = vtk.vtkImageDataToPointSet()
+convert = vtkImageDataToPointSet()
 convert.SetInputConnection(sample.GetOutputPort())
 
 # Create a sphere tree and see what it look like
 # (structured sphere tree)
-stf = vtk.vtkSphereTreeFilter()
+stf = vtkSphereTreeFilter()
 stf.SetInputConnection(convert.GetOutputPort())
 stf.SetLevel(0);
 
-sph = vtk.vtkSphereSource()
+sph = vtkSphereSource()
 sph.SetPhiResolution(8)
 sph.SetThetaResolution(16)
 sph.SetRadius(1)
 
-stfGlyphs = vtk.vtkGlyph3D()
+stfGlyphs = vtkGlyph3D()
 stfGlyphs.SetInputConnection(stf.GetOutputPort())
 stfGlyphs.SetSourceConnection(sph.GetOutputPort())
 
-stfMapper = vtk.vtkPolyDataMapper()
+stfMapper = vtkPolyDataMapper()
 stfMapper.SetInputConnection(stfGlyphs.GetOutputPort())
 stfMapper.ScalarVisibilityOff()
 
-stfActor = vtk.vtkActor()
+stfActor = vtkActor()
 stfActor.SetMapper(stfMapper)
 stfActor.GetProperty().SetColor(1,1,1)
 
 # Throw in an outline
-outline = vtk.vtkOutlineFilter()
+outline = vtkOutlineFilter()
 outline.SetInputConnection(sample.GetOutputPort())
 
-outlineMapper = vtk.vtkPolyDataMapper()
+outlineMapper = vtkPolyDataMapper()
 outlineMapper.SetInputConnection(outline.GetOutputPort())
 
-outlineActor = vtk.vtkActor()
+outlineActor = vtkActor()
 outlineActor.SetMapper(outlineMapper)
 
 # Convert the image data to unstructured grid
-extractionSphere = vtk.vtkSphere()
+extractionSphere = vtkSphere()
 extractionSphere.SetRadius(100)
 extractionSphere.SetCenter(0,0,0)
 
-extract = vtk.vtkExtractGeometry()
+extract = vtkExtractGeometry()
 extract.SetImplicitFunction(extractionSphere)
 extract.SetInputConnection(sample.GetOutputPort())
 extract.Update()
 
 # This time around create a sphere tree, assign it to the filter, and see
 # what it look like (unstructured sphere tree)
-ust = vtk.vtkSphereTree()
+ust = vtkSphereTree()
 ust.BuildHierarchyOn()
 ust.Build(extract.GetOutput())
 print (ust)
 
-ustf = vtk.vtkSphereTreeFilter()
+ustf = vtkSphereTreeFilter()
 ustf.SetSphereTree(ust)
 ustf.SetLevel(0);
 
-ustfGlyphs = vtk.vtkGlyph3D()
+ustfGlyphs = vtkGlyph3D()
 ustfGlyphs.SetInputConnection(ustf.GetOutputPort())
 ustfGlyphs.SetSourceConnection(sph.GetOutputPort())
 
-ustfMapper = vtk.vtkPolyDataMapper()
+ustfMapper = vtkPolyDataMapper()
 ustfMapper.SetInputConnection(ustfGlyphs.GetOutputPort())
 ustfMapper.ScalarVisibilityOff()
 
-ustfActor = vtk.vtkActor()
+ustfActor = vtkActor()
 ustfActor.SetMapper(ustfMapper)
 ustfActor.GetProperty().SetColor(1,1,1)
 
 # Throw in an outline
-uOutline = vtk.vtkOutlineFilter()
+uOutline = vtkOutlineFilter()
 uOutline.SetInputConnection(sample.GetOutputPort())
 
-uOutlineMapper = vtk.vtkPolyDataMapper()
+uOutlineMapper = vtkPolyDataMapper()
 uOutlineMapper.SetInputConnection(uOutline.GetOutputPort())
 
-uOutlineActor = vtk.vtkActor()
+uOutlineActor = vtkActor()
 uOutlineActor.SetMapper(uOutlineMapper)
 
 

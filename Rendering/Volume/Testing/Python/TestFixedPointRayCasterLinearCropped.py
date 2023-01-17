@@ -19,9 +19,16 @@
 '''
 
 import sys
-import vtk
-import vtk.test.Testing
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkRenderingCore import (
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+import vtkmodules.test.Testing
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 '''
@@ -33,13 +40,13 @@ sys.dont_write_bytecode = True
 
 import TestFixedPointRayCasterNearest
 
-class TestFixedPointRayCasterLinearCropped(vtk.test.Testing.vtkTest):
+class TestFixedPointRayCasterLinearCropped(vtkmodules.test.Testing.vtkTest):
 
     def testFixedPointRayCasterLinearCropped(self):
 
-        ren = vtk.vtkRenderer()
-        renWin = vtk.vtkRenderWindow()
-        iRen = vtk.vtkRenderWindowInteractor()
+        ren = vtkRenderer()
+        renWin = vtkRenderWindow()
+        iRen = vtkRenderWindowInteractor()
 
         tFPRCN = TestFixedPointRayCasterNearest.FixedPointRayCasterNearest(ren, renWin, iRen)
         volumeProperty = tFPRCN.GetVolumeProperty()
@@ -58,8 +65,8 @@ class TestFixedPointRayCasterLinearCropped(vtk.test.Testing.vtkTest):
         renWin.Render()
 
         img_file = "TestFixedPointRayCasterLinearCropped.png"
-        vtk.test.Testing.compareImage(iRen.GetRenderWindow(), vtk.test.Testing.getAbsImagePath(img_file), threshold=10)
-        vtk.test.Testing.interact()
+        vtkmodules.test.Testing.compareImage(iRen.GetRenderWindow(), vtkmodules.test.Testing.getAbsImagePath(img_file), threshold=10)
+        vtkmodules.test.Testing.interact()
 
 if __name__ == "__main__":
-     vtk.test.Testing.main([(TestFixedPointRayCasterLinearCropped, 'test')])
+     vtkmodules.test.Testing.main([(TestFixedPointRayCasterLinearCropped, 'test')])

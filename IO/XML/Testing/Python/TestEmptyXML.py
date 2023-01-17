@@ -3,12 +3,48 @@
 
 import os, os.path
 import sys
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonCore import (
+    vtkFileOutputWindow,
+    vtkLogger,
+)
+from vtkmodules.vtkCommonDataModel import (
+    vtkImageData,
+    vtkPolyData,
+    vtkRectilinearGrid,
+    vtkStructuredGrid,
+    vtkUnstructuredGrid,
+)
+from vtkmodules.vtkIOParallelXML import (
+    vtkXMLPDataSetWriter,
+    vtkXMLPImageDataWriter,
+    vtkXMLPPolyDataWriter,
+    vtkXMLPRectilinearGridWriter,
+    vtkXMLPStructuredGridWriter,
+    vtkXMLPUnstructuredGridWriter,
+)
+from vtkmodules.vtkIOXML import (
+    vtkXMLDataSetWriter,
+    vtkXMLImageDataReader,
+    vtkXMLImageDataWriter,
+    vtkXMLPImageDataReader,
+    vtkXMLPolyDataReader,
+    vtkXMLPolyDataWriter,
+    vtkXMLPPolyDataReader,
+    vtkXMLPRectilinearGridReader,
+    vtkXMLPStructuredGridReader,
+    vtkXMLPUnstructuredGridReader,
+    vtkXMLRectilinearGridReader,
+    vtkXMLRectilinearGridWriter,
+    vtkXMLStructuredGridReader,
+    vtkXMLStructuredGridWriter,
+    vtkXMLUnstructuredGridReader,
+    vtkXMLUnstructuredGridWriter,
+)
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # List of types and corresponding file extensions.
-types = [[ 'ImageData', 'vti'],
+types = [['ImageData', 'vti'],
          ['RectilinearGrid', 'vtr'],
          ['StructuredGrid', 'vts'],
          ['PolyData', 'vtp'],
@@ -16,13 +52,13 @@ types = [[ 'ImageData', 'vti'],
 
 # We intentionally cause vtkErrorMacro calls to be made below.  Dump
 # errors to a file to prevent a window from coming up.
-fow = vtk.vtkFileOutputWindow()
+fow = vtkFileOutputWindow()
 fow.SetFileName("TestEmptyXMLErrors.txt")
 fow.SetFlush(0)
 fow.SetInstance(fow)
 
 # Loguru will still send messages to stderr. Disable that.
-vtk.vtkLogger.SetStderrVerbosity(vtk.vtkLogger.VERBOSITY_OFF)
+vtkLogger.SetStderrVerbosity(vtkLogger.VERBOSITY_OFF)
 
 # Prepare some test files.
 f = open('emptyFile.vtk', 'wt')
@@ -35,9 +71,9 @@ f.close()
 for t in types:
     type = t[0]
     ext = t[1]
-    input = eval('vtk.vtk' + type + '()')
+    input = eval('vtk' + type + '()')
 
-    writer = eval('vtk.vtkXML' + type + 'Writer()')
+    writer = eval('vtkXML' + type + 'Writer()')
     writer.SetFileName('empty' + type + '.' + ext)
     sys.stdout.write('Attempting ' + type + ' write with no input.\n')
     writer.Write()
@@ -45,12 +81,12 @@ for t in types:
     writer.SetInputData(input)
     writer.Write()
 
-    reader = eval('vtk.vtkXML' + type + 'Reader()')
+    reader = eval('vtkXML' + type + 'Reader()')
     reader.SetFileName('empty' + type + '.' + ext)
     sys.stdout.write('Attempting read from file with empty ' + type + '.\n')
     reader.Update()
 
-    pwriter = eval('vtk.vtkXMLP' + type + 'Writer()')
+    pwriter = eval('vtkXMLP' + type + 'Writer()')
     pwriter.SetFileName('emptyP' + type + '.p' + ext)
     sys.stdout.write('Attempting P' + type + ' write with no input.\n')
     pwriter.Write()
@@ -58,7 +94,7 @@ for t in types:
     pwriter.SetInputData(input)
     pwriter.Write()
 
-    preader = eval('vtk.vtkXMLP' + type + 'Reader()')
+    preader = eval('vtkXMLP' + type + 'Reader()')
     preader.SetFileName('emptyP' + type + '.p' + ext)
     sys.stdout.write('Attempting read from file with empty P' + type + '.\n')
     preader.Update()
@@ -89,9 +125,9 @@ for t in types:
 for t in types:
     type = t[0]
     ext = t[1]
-    writer = vtk.vtkXMLDataSetWriter()
-    pwriter = vtk.vtkXMLPDataSetWriter()
-    input = eval('vtk.vtk' + type + '()')
+    writer = vtkXMLDataSetWriter()
+    pwriter = vtkXMLPDataSetWriter()
+    input = eval('vtk' + type + '()')
 
     writer.SetFileName('empty' + type + 'DataSet.' + ext)
     sys.stdout.write('Attempting DataSet ' + type + ' write with no input.\n')

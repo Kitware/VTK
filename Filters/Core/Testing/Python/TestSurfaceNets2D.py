@@ -1,19 +1,32 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonDataModel import vtkImageData
+from vtkmodules.vtkCommonSystem import vtkTimerLog
+from vtkmodules.vtkFiltersCore import vtkSurfaceNets2D
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkDataSetMapper,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # Manually create a sample image.
 VTK_SHORT = 4
 rowLen = 10
-image = vtk.vtkImageData()
+image = vtkImageData()
 image.SetDimensions(rowLen,7,1)
 image.AllocateScalars(VTK_SHORT,1)
 
-imMapper = vtk.vtkDataSetMapper()
+imMapper = vtkDataSetMapper()
 imMapper.SetInputData(image)
 
-imActor = vtk.vtkActor()
+imActor = vtkActor()
 imActor.SetMapper(imMapper)
 
 # Fill the scalars with 0 and then set particular values.
@@ -56,7 +69,7 @@ scalars.SetTuple1(GenIndex(9,6),4)
 
 # Extract the boundaries of labels 1-4 with SurfaceNets.
 # Disable smoothing.
-snets = vtk.vtkSurfaceNets2D()
+snets = vtkSurfaceNets2D()
 snets.SetInputData(image)
 snets.SetValue(0,1)
 snets.SetValue(1,2)
@@ -67,7 +80,7 @@ snets.GetSmoother().SetRelaxationFactor(0.2)
 snets.GetSmoother().SetConstraintDistance(0.25)
 snets.ComputeScalarsOff()
 
-timer = vtk.vtkTimerLog()
+timer = vtkTimerLog()
 timer.StartTimer()
 snets.Update()
 timer.StopTimer()
@@ -75,19 +88,19 @@ time = timer.GetElapsedTime()
 print("Time to generate Surface Net: {0}".format(time))
 
 # Clipped polygons are generated
-mapper = vtk.vtkPolyDataMapper()
+mapper = vtkPolyDataMapper()
 mapper.SetInputConnection(snets.GetOutputPort())
 
-actor = vtk.vtkActor()
+actor = vtkActor()
 actor.SetMapper(mapper)
 
 # Create the RenderWindow, Renderer and both Actors
 #
-ren1 = vtk.vtkRenderer()
+ren1 = vtkRenderer()
 ren1.SetBackground(0,0,0)
-renWin = vtk.vtkRenderWindow()
+renWin = vtkRenderWindow()
 renWin.AddRenderer(ren1)
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 
 ren1.AddActor(actor)

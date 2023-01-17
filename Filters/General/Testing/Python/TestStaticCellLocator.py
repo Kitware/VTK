@@ -1,25 +1,49 @@
 #!/usr/bin/env python
-import vtk
-from vtk.test import Testing
+from vtkmodules.vtkCommonCore import (
+    reference,
+    vtkMath,
+    vtkPoints,
+)
+from vtkmodules.vtkCommonDataModel import (
+    vtkCellArray,
+    vtkGenericCell,
+    vtkPolyData,
+    vtkSphere,
+    vtkStaticCellLocator,
+)
+from vtkmodules.vtkFiltersGeneral import vtkClipDataSet
+from vtkmodules.vtkFiltersModeling import vtkOutlineFilter
+from vtkmodules.vtkImagingSources import vtkImageMandelbrotSource
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.test import Testing
 
 # create a test dataset
 #
-math = vtk.vtkMath()
+math = vtkMath()
 
 # Controls size of test
 res = 15
 
 # Create an initial set of points and associated dataset
-mandel = vtk.vtkImageMandelbrotSource()
+mandel = vtkImageMandelbrotSource()
 mandel.SetWholeExtent(-res,res,-res,res,-res,res)
 mandel.Update()
 
-sphere = vtk.vtkSphere()
+sphere = vtkSphere()
 sphere.SetCenter(mandel.GetOutput().GetCenter())
 sphere.SetRadius(mandel.GetOutput().GetLength()/4)
 
 # Clip data to spit out unstructured tets
-clipper = vtk.vtkClipDataSet()
+clipper = vtkClipDataSet()
 clipper.SetInputConnection(mandel.GetOutputPort())
 clipper.SetClipFunction(sphere)
 clipper.InsideOutOn()
@@ -31,16 +55,16 @@ bounds = output.GetBounds()
 #print bounds
 
 # Support subsequent method calls
-genCell = vtk.vtkGenericCell()
-t = vtk.reference(0.0)
+genCell = vtkGenericCell()
+t = reference(0.0)
 x = [0,0,0]
 pc = [0,0,0]
-subId = vtk.reference(0)
-cellId = vtk.reference(0)
+subId = reference(0)
+cellId = reference(0)
 
 # Build the locator
-locator = vtk.vtkStaticCellLocator()
-#locator = vtk.vtkCellLocator()
+locator = vtkStaticCellLocator()
+#locator = vtkCellLocator()
 locator.SetDataSet(output)
 locator.AutomaticOn()
 locator.SetNumberOfCellsPerNode(20)
@@ -48,41 +72,41 @@ locator.CacheCellBoundsOn()
 locator.BuildLocator()
 
 # Now visualize the locator
-locatorPD = vtk.vtkPolyData()
+locatorPD = vtkPolyData()
 locator.GenerateRepresentation(0,locatorPD)
 
-locatorMapper = vtk.vtkPolyDataMapper()
+locatorMapper = vtkPolyDataMapper()
 locatorMapper.SetInputData(locatorPD)
 
-locatorActor = vtk.vtkActor()
+locatorActor = vtkActor()
 locatorActor.SetMapper(locatorMapper)
 
 # Outline around the entire dataset
-outline = vtk.vtkOutlineFilter()
+outline = vtkOutlineFilter()
 outline.SetInputConnection(mandel.GetOutputPort())
 
-outlineMapper = vtk.vtkPolyDataMapper()
+outlineMapper = vtkPolyDataMapper()
 outlineMapper.SetInputConnection(outline.GetOutputPort())
 
-outlineActor = vtk.vtkActor()
+outlineActor = vtkActor()
 outlineActor.SetMapper(outlineMapper)
 
 # Intersect the clipped output with a ray
-ray = vtk.vtkPolyData()
-rayPts = vtk.vtkPoints()
+ray = vtkPolyData()
+rayPts = vtkPoints()
 rayPts.InsertPoint(0, -7.5,-5,-5)
 rayPts.InsertPoint(1,  2.5, 2, 2.5)
-rayLine = vtk.vtkCellArray()
+rayLine = vtkCellArray()
 rayLine.InsertNextCell(2)
 rayLine.InsertCellPoint(0)
 rayLine.InsertCellPoint(1)
 ray.SetPoints(rayPts)
 ray.SetLines(rayLine)
 
-rayMapper = vtk.vtkPolyDataMapper()
+rayMapper = vtkPolyDataMapper()
 rayMapper.SetInputData(ray)
 
-rayActor = vtk.vtkActor()
+rayActor = vtkActor()
 rayActor.SetMapper(rayMapper)
 rayActor.GetProperty().SetColor(0,1,0)
 
@@ -95,10 +119,10 @@ assert cellId == 209
 
 # Create the RenderWindow, Renderer and both Actors
 #
-ren1 = vtk.vtkRenderer()
-renWin = vtk.vtkRenderWindow()
+ren1 = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.AddRenderer(ren1)
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 # Add the actors to the renderer, set the background and size
 #

@@ -1,30 +1,48 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonCore import vtkMath
+from vtkmodules.vtkCommonDataModel import vtkStaticPointLocator
+from vtkmodules.vtkCommonSystem import vtkTimerLog
+from vtkmodules.vtkFiltersModeling import vtkOutlineFilter
+from vtkmodules.vtkFiltersPoints import (
+    vtkBoundedPointSource,
+    vtkRadiusOutlierRemoval,
+)
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPointGaussianMapper,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # Interpolate onto a volume
 
 # Parameters for debugging
 NPts = 10000
-math = vtk.vtkMath()
+math = vtkMath()
 math.RandomSeed(31415)
 
 # create pipeline
 #
-points = vtk.vtkBoundedPointSource()
+points = vtkBoundedPointSource()
 points.SetNumberOfPoints(NPts)
 points.ProduceRandomScalarsOn()
 points.ProduceCellOutputOff()
 points.Update()
 
 # Reuse the locator
-locator = vtk.vtkStaticPointLocator()
+locator = vtkStaticPointLocator()
 locator.SetDataSet(points.GetOutput())
 locator.BuildLocator()
 
 # Remove isolated points
-removal = vtk.vtkRadiusOutlierRemoval()
+removal = vtkRadiusOutlierRemoval()
 removal.SetInputConnection(points.GetOutputPort())
 removal.SetLocator(locator)
 removal.SetRadius(0.1)
@@ -32,7 +50,7 @@ removal.SetNumberOfNeighbors(2)
 removal.GenerateOutliersOn()
 
 # Time execution
-timer = vtk.vtkTimerLog()
+timer = vtkTimerLog()
 timer.StartTimer()
 removal.Update()
 timer.StopTimer()
@@ -42,53 +60,53 @@ print("   Number removed: {0}".format(removal.GetNumberOfPointsRemoved()))
 print("   Original number of points: {0}".format(NPts))
 
 # First output are the non-outliers
-remMapper = vtk.vtkPointGaussianMapper()
+remMapper = vtkPointGaussianMapper()
 remMapper.SetInputConnection(removal.GetOutputPort())
 remMapper.EmissiveOff()
 remMapper.SetScaleFactor(0.0)
 
-remActor = vtk.vtkActor()
+remActor = vtkActor()
 remActor.SetMapper(remMapper)
 
 # Create an outline
-outline = vtk.vtkOutlineFilter()
+outline = vtkOutlineFilter()
 outline.SetInputConnection(points.GetOutputPort())
 
-outlineMapper = vtk.vtkPolyDataMapper()
+outlineMapper = vtkPolyDataMapper()
 outlineMapper.SetInputConnection(outline.GetOutputPort())
 
-outlineActor = vtk.vtkActor()
+outlineActor = vtkActor()
 outlineActor.SetMapper(outlineMapper)
 
 # Second output are the outliers
-remMapper1 = vtk.vtkPointGaussianMapper()
+remMapper1 = vtkPointGaussianMapper()
 remMapper1.SetInputConnection(removal.GetOutputPort(1))
 remMapper1.EmissiveOff()
 remMapper1.SetScaleFactor(0.0)
 
-remActor1 = vtk.vtkActor()
+remActor1 = vtkActor()
 remActor1.SetMapper(remMapper1)
 
 # Create an outline
-outline1 = vtk.vtkOutlineFilter()
+outline1 = vtkOutlineFilter()
 outline1.SetInputConnection(points.GetOutputPort())
 
-outlineMapper1 = vtk.vtkPolyDataMapper()
+outlineMapper1 = vtkPolyDataMapper()
 outlineMapper1.SetInputConnection(outline1.GetOutputPort())
 
-outlineActor1 = vtk.vtkActor()
+outlineActor1 = vtkActor()
 outlineActor1.SetMapper(outlineMapper1)
 
 # Create the RenderWindow, Renderer and both Actors
 #
-ren0 = vtk.vtkRenderer()
+ren0 = vtkRenderer()
 ren0.SetViewport(0,0,.5,1)
-ren1 = vtk.vtkRenderer()
+ren1 = vtkRenderer()
 ren1.SetViewport(0.5,0,1,1)
-renWin = vtk.vtkRenderWindow()
+renWin = vtkRenderWindow()
 renWin.AddRenderer(ren0)
 renWin.AddRenderer(ren1)
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 
 # Add the actors to the renderer, set the background and size

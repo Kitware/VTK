@@ -1,45 +1,61 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonCore import (
+    vtkFloatArray,
+    vtkMath,
+    vtkPoints,
+)
+from vtkmodules.vtkCommonDataModel import vtkPolyData
+from vtkmodules.vtkImagingHybrid import vtkShepardMethod
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkDataSetMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # Create the RenderWindow, Renderer and both Actors
 #
-ren1 = vtk.vtkRenderer()
-renWin = vtk.vtkRenderWindow()
+ren1 = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.AddRenderer(ren1)
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 # create some points
 #
-math = vtk.vtkMath()
-points = vtk.vtkPoints()
+math = vtkMath()
+points = vtkPoints()
 i = 0
 while i < 50:
     points.InsertPoint(i,math.Random(0,1),math.Random(0,1),math.Random(0,1))
     i = i + 1
 
-scalars = vtk.vtkFloatArray()
+scalars = vtkFloatArray()
 i = 0
 while i < 50:
     scalars.InsertValue(i,math.Random(0,1))
     i = i + 1
 
-profile = vtk.vtkPolyData()
+profile = vtkPolyData()
 profile.SetPoints(points)
 profile.GetPointData().SetScalars(scalars)
 # triangulate them
 #
-shepard = vtk.vtkShepardMethod()
+shepard = vtkShepardMethod()
 shepard.SetInputData(profile)
 shepard.SetModelBounds(0,1,0,1,.1,.5)
 #    shepard SetMaximumDistance .1
 shepard.SetNullValue(1)
 shepard.SetSampleDimensions(20,20,20)
 shepard.Update()
-map = vtk.vtkDataSetMapper()
+map = vtkDataSetMapper()
 map.SetInputConnection(shepard.GetOutputPort())
-block = vtk.vtkActor()
+block = vtkActor()
 block.SetMapper(map)
 block.GetProperty().SetColor(1,0,0)
 # Add the actors to the renderer, set the background and size

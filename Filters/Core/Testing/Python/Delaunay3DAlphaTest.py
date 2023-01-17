@@ -1,7 +1,19 @@
-import vtk
+from vtkmodules.vtkCommonCore import vtkPoints
+from vtkmodules.vtkCommonDataModel import vtkPolyData
+from vtkmodules.vtkFiltersCore import vtkDelaunay3D
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkDataSetMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
 
 # Data from our friends at Sandia
-points = vtk.vtkPoints()
+points = vtkPoints()
 points.InsertNextPoint(0,0,0)
 points.InsertNextPoint(1,0,0)
 points.InsertNextPoint(1,1,0)
@@ -23,12 +35,12 @@ points.InsertNextPoint(11,0,0)
 points.InsertNextPoint(11,1,0)
 points.InsertNextPoint(10,1,0)
 
-profile = vtk.vtkPolyData()
+profile = vtkPolyData()
 profile.SetPoints(points)
 
 # triangulate them
 #
-del1 = vtk.vtkDelaunay3D()
+del1 = vtkDelaunay3D()
 del1.SetInputData(profile)
 del1.SetTolerance(0.01)
 del1.SetAlpha(2.8)
@@ -37,17 +49,17 @@ del1.AlphaTrisOn()
 del1.AlphaLinesOff()
 del1.AlphaVertsOn()
 
-map = vtk.vtkDataSetMapper()
+map = vtkDataSetMapper()
 map.SetInputConnection(del1.GetOutputPort())
-triangulation = vtk.vtkActor()
+triangulation = vtkActor()
 triangulation.SetMapper(map)
 triangulation.GetProperty().SetColor(1,0,0)
 # Create graphics stuff
 #
-ren1 = vtk.vtkRenderer()
-renWin = vtk.vtkRenderWindow()
+ren1 = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.AddRenderer(ren1)
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 # Add the actors to the renderer, set the background and size
 #

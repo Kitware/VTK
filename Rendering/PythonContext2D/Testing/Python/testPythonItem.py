@@ -1,6 +1,31 @@
 import sys
-import vtk
-from vtk.test import Testing
+from vtkmodules.vtkCommonCore import (
+    vtkPoints,
+    vtkUnsignedCharArray,
+)
+from vtkmodules.vtkCommonDataModel import (
+    vtkCellArray,
+    vtkPolyData,
+    vtkRectd,
+    vtkRecti,
+)
+from vtkmodules.vtkChartsCore import (
+    vtkAxis,
+    vtkInteractiveArea,
+)
+from vtkmodules.vtkPythonContext2D import vtkPythonItem
+from vtkmodules.vtkRenderingCore import (
+    VTK_SCALAR_MODE_USE_CELL_DATA,
+    vtkTextProperty,
+)
+from vtkmodules.vtkRenderingContext2D import vtkMarkerUtilities
+from vtkmodules.vtkTestingRendering import vtkTesting
+from vtkmodules.vtkViewsContext2D import vtkContextView
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingContextOpenGL2
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.test import Testing
 
 
 class CustomPythonItem(object):
@@ -15,7 +40,7 @@ class CustomPythonItem(object):
                                0.0,
                                self.polydata,
                                self.polydata.GetCellData().GetScalars(),
-                               vtk.VTK_SCALAR_MODE_USE_CELL_DATA)
+                               VTK_SCALAR_MODE_USE_CELL_DATA)
 
         pen = context2D.GetPen()
 
@@ -34,10 +59,10 @@ class CustomPythonItem(object):
         pen.SetWidth(20.0)
         pen.SetColor([0, 0, 0])
         brush.SetColor([0, 0, 0])
-        context2D.DrawMarkers(vtk.vtkMarkerUtilities.CIRCLE, False, [0.1, 0.1, 0.5, 0.5, 0.9, 0.9], 3)
+        context2D.DrawMarkers(vtkMarkerUtilities.CIRCLE, False, [0.1, 0.1, 0.5, 0.5, 0.9, 0.9], 3)
         pen.SetWidth(1.0)
 
-        textProp = vtk.vtkTextProperty()
+        textProp = vtkTextProperty()
         textProp.BoldOn()
         textProp.ItalicOn()
         textProp.SetFontSize(22)
@@ -65,22 +90,22 @@ class CustomPythonItem(object):
 
 
 def buildPolyData():
-    pd = vtk.vtkPolyData()
+    pd = vtkPolyData()
 
-    pts = vtk.vtkPoints()
+    pts = vtkPoints()
     pts.InsertNextPoint([0.1, 0.1, 0.0])
     pts.InsertNextPoint([0.9, 0.9, 0.0])
 
     pd.SetPoints(pts)
 
-    lines = vtk.vtkCellArray()
+    lines = vtkCellArray()
     lines.InsertNextCell(2)
     lines.InsertCellPoint(0)
     lines.InsertCellPoint(1)
 
     pd.SetLines(lines)
 
-    colors = vtk.vtkUnsignedCharArray()
+    colors = vtkUnsignedCharArray()
     colors.SetNumberOfComponents(4)
     colors.InsertNextTypedTuple([27, 128, 89, 255])
 
@@ -94,22 +119,22 @@ class TestPythonItem(Testing.vtkTest):
         width = 400
         height = 400
 
-        view = vtk.vtkContextView()
+        view = vtkContextView()
         renWin = view.GetRenderWindow()
         renWin.SetSize(width, height)
 
-        area = vtk.vtkInteractiveArea()
+        area = vtkInteractiveArea()
         view.GetScene().AddItem(area)
 
-        drawAreaBounds = vtk.vtkRectd(0.0, 0.0, 1.0, 1.0)
+        drawAreaBounds = vtkRectd(0.0, 0.0, 1.0, 1.0)
 
         vp = [0.05, 0.95, 0.05, 0.95]
-        screenGeometry = vtk.vtkRecti(int(vp[0] * width),
+        screenGeometry = vtkRecti(int(vp[0] * width),
                                       int(vp[2] * height),
                                       int((vp[1] - vp[0]) * width),
                                       int((vp[3] - vp[2]) * height))
 
-        item = vtk.vtkPythonItem()
+        item = vtkPythonItem()
         item.SetPythonObject(CustomPythonItem(buildPolyData()))
         item.SetVisible(True)
         area.GetDrawAreaItem().AddItem(item)
@@ -119,10 +144,10 @@ class TestPythonItem(Testing.vtkTest):
         area.SetFillViewport(False)
         area.SetShowGrid(False)
 
-        axisLeft = area.GetAxis(vtk.vtkAxis.LEFT)
-        axisRight = area.GetAxis(vtk.vtkAxis.RIGHT)
-        axisBottom = area.GetAxis(vtk.vtkAxis.BOTTOM)
-        axisTop = area.GetAxis(vtk.vtkAxis.TOP)
+        axisLeft = area.GetAxis(vtkAxis.LEFT)
+        axisRight = area.GetAxis(vtkAxis.RIGHT)
+        axisBottom = area.GetAxis(vtkAxis.BOTTOM)
+        axisTop = area.GetAxis(vtkAxis.TOP)
         axisTop.SetVisible(False)
         axisRight.SetVisible(False)
         axisLeft.SetVisible(False)
@@ -135,7 +160,7 @@ class TestPythonItem(Testing.vtkTest):
         renWin.Render()
 
         # Create a vtkTesting object
-        rtTester = vtk.vtkTesting()
+        rtTester = vtkTesting()
         rtTester.SetRenderWindow(renWin)
 
         for arg in sys.argv[1:]:

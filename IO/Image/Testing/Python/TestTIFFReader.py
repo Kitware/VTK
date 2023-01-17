@@ -1,10 +1,14 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkIOImage import vtkImageReader2Factory
+from vtkmodules.vtkInteractionImage import vtkImageViewer
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # Image pipeline
-createReader = vtk.vtkImageReader2Factory()
+createReader = vtkImageReader2Factory()
 reader = createReader.CreateImageReader2FromExtension("tif")
 reader.SetFileName("" + str(VTK_DATA_ROOT) + "/Data/beach.tif")
 # "beach.tif" image contains ORIENTATION tag which is
@@ -14,7 +18,7 @@ reader.SetFileName("" + str(VTK_DATA_ROOT) + "/Data/beach.tif")
 # convention of ORIENTATION_BOTLEFT (row 0 bottom, col 0 lhs ), invoke
 # SetOrientationType method with parameter value of 4.
 reader.SetOrientationType(4)
-viewer = vtk.vtkImageViewer()
+viewer = vtkImageViewer()
 viewer.SetInputConnection(reader.GetOutputPort())
 viewer.SetColorWindow(256)
 viewer.SetColorLevel(127.5)

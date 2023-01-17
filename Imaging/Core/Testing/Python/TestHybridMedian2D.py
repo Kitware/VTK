@@ -1,10 +1,23 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkImagingCore import vtkImageThreshold
+from vtkmodules.vtkImagingGeneral import (
+    vtkImageHybridMedian2D,
+    vtkImageMedian3D,
+)
+from vtkmodules.vtkImagingMath import vtkImageMathematics
+from vtkmodules.vtkImagingSources import (
+    vtkImageCanvasSource2D,
+    vtkImageNoiseSource,
+)
+from vtkmodules.vtkInteractionImage import vtkImageViewer
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # Show the constant kernel.  Smooth an impulse function.
-imageCanvas = vtk.vtkImageCanvasSource2D()
+imageCanvas = vtkImageCanvasSource2D()
 imageCanvas.SetScalarTypeToDouble()
 imageCanvas.SetExtent(1, 256, 1, 256, 0, 0)
 # back ground zero
@@ -32,48 +45,48 @@ shotNoiseAmplitude = 255.0
 shotNoiseFraction = 0.1
 
 # set shotNoiseExtent "1 256 1 256 0 0"
-shotNoiseSource = vtk.vtkImageNoiseSource()
+shotNoiseSource = vtkImageNoiseSource()
 shotNoiseSource.SetWholeExtent(1, 256, 1, 256, 0, 0)
 # $shotNoiseExtent
 shotNoiseSource.SetMinimum(0.0)
 shotNoiseSource.SetMaximum(1.0)
 shotNoiseSource.ReleaseDataFlagOff()
 
-shotNoiseThresh1 = vtk.vtkImageThreshold()
+shotNoiseThresh1 = vtkImageThreshold()
 shotNoiseThresh1.SetInputConnection(shotNoiseSource.GetOutputPort())
 shotNoiseThresh1.ThresholdByLower(1.0 - shotNoiseFraction)
 shotNoiseThresh1.SetInValue(0)
 shotNoiseThresh1.SetOutValue(shotNoiseAmplitude)
 shotNoiseThresh1.Update()
 
-shotNoiseThresh2 = vtk.vtkImageThreshold()
+shotNoiseThresh2 = vtkImageThreshold()
 shotNoiseThresh2.SetInputConnection(shotNoiseSource.GetOutputPort())
 shotNoiseThresh2.ThresholdByLower(shotNoiseFraction)
 shotNoiseThresh2.SetInValue(-shotNoiseAmplitude)
 shotNoiseThresh2.SetOutValue(0.0)
 shotNoiseThresh2.Update()
 
-shotNoise = vtk.vtkImageMathematics()
+shotNoise = vtkImageMathematics()
 shotNoise.SetInput1Data(shotNoiseThresh1.GetOutput())
 shotNoise.SetInput2Data(shotNoiseThresh2.GetOutput())
 shotNoise.SetOperationToAdd()
 shotNoise.Update()
 
-add = vtk.vtkImageMathematics()
+add = vtkImageMathematics()
 add.SetInput1Data(shotNoise.GetOutput())
 add.SetInput2Data(imageCanvas.GetOutput())
 add.SetOperationToAdd()
 
-median = vtk.vtkImageMedian3D()
+median = vtkImageMedian3D()
 median.SetInputConnection(add.GetOutputPort())
 median.SetKernelSize(3, 3, 1)
 
-hybrid1 = vtk.vtkImageHybridMedian2D()
+hybrid1 = vtkImageHybridMedian2D()
 hybrid1.SetInputConnection(add.GetOutputPort())
-hybrid2 = vtk.vtkImageHybridMedian2D()
+hybrid2 = vtkImageHybridMedian2D()
 hybrid2.SetInputConnection(hybrid1.GetOutputPort())
 
-viewer = vtk.vtkImageViewer()
+viewer = vtkImageViewer()
 viewer.SetInputConnection(hybrid1.GetOutputPort())
 viewer.SetColorWindow(256)
 viewer.SetColorLevel(127.5)

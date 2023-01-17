@@ -1,13 +1,19 @@
 import unittest
 
-from vtk.vtkCommonCore import vtkPoints, vtkDoubleArray, vtkIdList
-from vtk.vtkCommonDataModel import vtkPlane,\
-                                   vtkUnstructuredGrid,\
-                                   vtkStructuredGrid,\
-                                   vtkPolyData
-from vtk.vtkFiltersGeneral import vtkClipDataSet
-from vtk.vtkFiltersGeneral import vtkTableBasedClipDataSet
-import vtk.util.vtkConstants as vtk_const
+from vtkmodules.vtkCommonCore import (
+    vtkPoints,
+    vtkDoubleArray,
+    vtkIdList,
+)
+from vtkmodules.vtkCommonDataModel import (
+    vtkPlane,
+    vtkUnstructuredGrid,
+    vtkStructuredGrid,
+    vtkPolyData,
+)
+from vtkmodules.vtkFiltersGeneral import vtkClipDataSet
+from vtkmodules.vtkFiltersGeneral import vtkTableBasedClipDataSet
+import vtkmodules.util.vtkConstants as vtk_const
 
 class FiltersLosingPrecisionBase:
     def test_clip(self):

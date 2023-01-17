@@ -1,6 +1,29 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonColor import vtkNamedColors
+from vtkmodules.vtkCommonDataModel import (
+    vtkPlane,
+    vtkPolyData,
+)
+from vtkmodules.vtkFiltersCore import (
+    vtkClipPolyData,
+    vtkCutter,
+    vtkPolyDataNormals,
+    vtkStripper,
+    vtkTriangleFilter,
+)
+from vtkmodules.vtkIOGeometry import vtkBYUReader
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPolyDataMapper,
+    vtkProperty,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 def GetRGBColor(colorName):
@@ -9,7 +32,7 @@ def GetRGBColor(colorName):
         color as doubles.
     '''
     rgb = [0.0, 0.0, 0.0]  # black
-    vtk.vtkNamedColors().GetColorRGB(colorName, rgb)
+    vtkNamedColors().GetColorRGB(colorName, rgb)
     return rgb
 
 #
@@ -20,79 +43,79 @@ def GetRGBColor(colorName):
 # create pipeline
 #
 # Read the polygonal data and generate vertex normals
-cow = vtk.vtkBYUReader()
+cow = vtkBYUReader()
 cow.SetGeometryFileName(VTK_DATA_ROOT + "/Data/Viewpoint/cow.g")
-cowNormals = vtk.vtkPolyDataNormals()
+cowNormals = vtkPolyDataNormals()
 cowNormals.SetInputConnection(cow.GetOutputPort())
 
 # Define a clip plane to clip the cow in half
-plane = vtk.vtkPlane()
+plane = vtkPlane()
 plane.SetOrigin(0.25, 0, 0)
 plane.SetNormal(-1, -1, 0)
 
-clipper = vtk.vtkClipPolyData()
+clipper = vtkClipPolyData()
 clipper.SetInputConnection(cowNormals.GetOutputPort())
 clipper.SetClipFunction(plane)
 clipper.GenerateClipScalarsOn()
 clipper.GenerateClippedOutputOn()
 clipper.SetValue(0.5)
 
-clipMapper = vtk.vtkPolyDataMapper()
+clipMapper = vtkPolyDataMapper()
 clipMapper.SetInputConnection(clipper.GetOutputPort())
 clipMapper.ScalarVisibilityOff()
 
-backProp = vtk.vtkProperty()
+backProp = vtkProperty()
 backProp.SetDiffuseColor(GetRGBColor('tomato'))
 
-clipActor = vtk.vtkActor()
+clipActor = vtkActor()
 clipActor.SetMapper(clipMapper)
 clipActor.GetProperty().SetColor(GetRGBColor('peacock'))
 clipActor.SetBackfaceProperty(backProp)
 
 # Create polygons outlining clipped areas and triangulate them to generate cut surface
-cutEdges = vtk.vtkCutter()
+cutEdges = vtkCutter()
 # Generate cut lines
 cutEdges.SetInputConnection(cowNormals.GetOutputPort())
 cutEdges.SetCutFunction(plane)
 cutEdges.GenerateCutScalarsOn()
 cutEdges.SetValue(0, 0.5)
-cutStrips = vtk.vtkStripper()
+cutStrips = vtkStripper()
 
 # Forms loops (closed polylines) from cutter
 cutStrips.SetInputConnection(cutEdges.GetOutputPort())
 cutStrips.Update()
 
-cutPoly = vtk.vtkPolyData()
+cutPoly = vtkPolyData()
 # This trick defines polygons as polyline loop
 cutPoly.SetPoints(cutStrips.GetOutput().GetPoints())
 cutPoly.SetPolys(cutStrips.GetOutput().GetLines())
 
-cutTriangles = vtk.vtkTriangleFilter()
+cutTriangles = vtkTriangleFilter()
 # Triangulates the polygons to create cut surface
 cutTriangles.SetInputData(cutPoly)
-cutMapper = vtk.vtkPolyDataMapper()
+cutMapper = vtkPolyDataMapper()
 cutMapper.SetInputData(cutPoly)
 cutMapper.SetInputConnection(cutTriangles.GetOutputPort())
 
-cutActor = vtk.vtkActor()
+cutActor = vtkActor()
 cutActor.SetMapper(cutMapper)
 cutActor.GetProperty().SetColor(GetRGBColor('peacock'))
 
 # Create the rest of the cow in wireframe
-restMapper = vtk.vtkPolyDataMapper()
+restMapper = vtkPolyDataMapper()
 restMapper.SetInputData(clipper.GetClippedOutput())
 restMapper.ScalarVisibilityOff()
 
-restActor = vtk.vtkActor()
+restActor = vtkActor()
 restActor.SetMapper(restMapper)
 restActor.GetProperty().SetRepresentationToWireframe()
 
 # Create graphics stuff
 #
-ren1 = vtk.vtkRenderer()
-renWin = vtk.vtkRenderWindow()
+ren1 = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.AddRenderer(ren1)
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 
 # Add the actors to the renderer, set the background and size

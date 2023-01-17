@@ -1,7 +1,32 @@
 #!/usr/bin/env python
 import os
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonColor import vtkNamedColors
+from vtkmodules.vtkFiltersCore import (
+    vtkContourFilter,
+    vtkDataObjectToDataSetFilter,
+    vtkDataSetToDataObjectFilter,
+    vtkFieldDataToAttributeDataFilter,
+    vtkPolyDataNormals,
+    vtkStructuredGridOutlineFilter,
+)
+from vtkmodules.vtkIOLegacy import (
+    vtkDataObjectReader,
+    vtkDataObjectWriter,
+    vtkStructuredGridReader,
+    vtkStructuredGridWriter,
+)
+from vtkmodules.vtkIOParallel import vtkMultiBlockPLOT3DReader
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 def GetRGBColor(colorName):
@@ -10,7 +35,7 @@ def GetRGBColor(colorName):
         color as doubles.
     '''
     rgb = [0.0, 0.0, 0.0]  # black
-    vtk.vtkNamedColors().GetColorRGB(colorName, rgb)
+    vtkNamedColors().GetColorRGB(colorName, rgb)
     return rgb
 
 # Demonstrate the generation of a structured grid from field data. The output
@@ -25,7 +50,7 @@ try:
     channel.close()
 
     # Create a reader and write out the field
-    comb = vtk.vtkMultiBlockPLOT3DReader()
+    comb = vtkMultiBlockPLOT3DReader()
     comb.SetXYZFileName(VTK_DATA_ROOT + "/Data/combxyz.bin")
     comb.SetQFileName(VTK_DATA_ROOT + "/Data/combq.bin")
     comb.SetScalarFunctionNumber(100)
@@ -33,28 +58,28 @@ try:
 
     output = comb.GetOutput().GetBlock(0)
 
-    wsg = vtk.vtkStructuredGridWriter()
+    wsg = vtkStructuredGridWriter()
     wsg.SetInputData(output)
     wsg.SetFileTypeToBinary()
     wsg.SetFileName("combsg.vtk")
     wsg.Write()
 
-    pl3d = vtk.vtkStructuredGridReader()
+    pl3d = vtkStructuredGridReader()
     pl3d.SetFileName("combsg.vtk")
 
-    ds2do = vtk.vtkDataSetToDataObjectFilter()
+    ds2do = vtkDataSetToDataObjectFilter()
     ds2do.SetInputConnection(pl3d.GetOutputPort())
 
-    writer = vtk.vtkDataObjectWriter()
+    writer = vtkDataObjectWriter()
     writer.SetInputConnection(ds2do.GetOutputPort())
     writer.SetFileName("SGridField.vtk")
     writer.Write()
 
     # read the field
-    dor = vtk.vtkDataObjectReader()
+    dor = vtkDataObjectReader()
     dor.SetFileName("SGridField.vtk")
 
-    do2ds = vtk.vtkDataObjectToDataSetFilter()
+    do2ds = vtkDataObjectToDataSetFilter()
     do2ds.SetInputConnection(dor.GetOutputPort())
     do2ds.SetDataSetTypeToStructuredGrid()
     do2ds.SetDimensionsComponent("Dimensions", 0)
@@ -63,7 +88,7 @@ try:
     do2ds.SetPointComponent(2, "Points", 2)
     do2ds.Update()
 
-    fd2ad = vtk.vtkFieldDataToAttributeDataFilter()
+    fd2ad = vtkFieldDataToAttributeDataFilter()
     fd2ad.SetInputData(do2ds.GetStructuredGridOutput())
     fd2ad.SetInputFieldToDataObjectField()
     fd2ad.SetOutputAttributeDataToPointData()
@@ -75,36 +100,36 @@ try:
 
     # create pipeline
     #
-    iso = vtk.vtkContourFilter()
+    iso = vtkContourFilter()
     iso.SetInputConnection(fd2ad.GetOutputPort())
     iso.SetValue(0, .38)
 
-    normals = vtk.vtkPolyDataNormals()
+    normals = vtkPolyDataNormals()
     normals.SetInputConnection(iso.GetOutputPort())
     normals.SetFeatureAngle(45)
 
-    isoMapper = vtk.vtkPolyDataMapper()
+    isoMapper = vtkPolyDataMapper()
     isoMapper.SetInputConnection(normals.GetOutputPort())
     isoMapper.ScalarVisibilityOff()
-    isoActor = vtk.vtkActor()
+    isoActor = vtkActor()
     isoActor.SetMapper(isoMapper)
     isoActor.GetProperty().SetColor(GetRGBColor('bisque'))
 
-    outline = vtk.vtkStructuredGridOutlineFilter()
+    outline = vtkStructuredGridOutlineFilter()
     outline.SetInputData(fd2ad.GetStructuredGridOutput())
 
-    outlineMapper = vtk.vtkPolyDataMapper()
+    outlineMapper = vtkPolyDataMapper()
     outlineMapper.SetInputConnection(outline.GetOutputPort())
 
-    outlineActor = vtk.vtkActor()
+    outlineActor = vtkActor()
     outlineActor.SetMapper(outlineMapper)
 
     # Create the RenderWindow, Renderer and both Actors
     #
-    ren1 = vtk.vtkRenderer()
-    renWin = vtk.vtkRenderWindow()
+    ren1 = vtkRenderer()
+    renWin = vtkRenderWindow()
     renWin.AddRenderer(ren1)
-    iren = vtk.vtkRenderWindowInteractor()
+    iren = vtkRenderWindowInteractor()
     iren.SetRenderWindow(renWin)
 
     # Add the actors to the renderer, set the background and size

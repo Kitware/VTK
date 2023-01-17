@@ -20,9 +20,21 @@
 
 # Test the vtkTensorWidget and vtkTensorRepresentation classes
 
-import vtk
-import vtk.test.Testing
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkInteractionWidgets import (
+    vtkTensorRepresentation,
+    vtkTensorWidget,
+)
+from vtkmodules.vtkRenderingCore import (
+    vtkInteractorEventRecorder,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+import vtkmodules.test.Testing
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # These are the pre-recorded events to drive the test
@@ -762,11 +774,11 @@ Recording = \
 
 # Create the RenderWindow, Renderer and both Actors
 #
-ren = vtk.vtkRenderer()
-renWin = vtk.vtkRenderWindow()
+ren = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.AddRenderer(ren)
 
-iRen = vtk.vtkRenderWindowInteractor()
+iRen = vtkRenderWindowInteractor()
 iRen.SetRenderWindow(renWin);
 
 # Define callback for the widget
@@ -781,7 +793,7 @@ def SelectPolygons(widget, event_string):
 
 # Create a representation for the widget
 bbox = [-1,1,-1,1,-1,1]
-rep = vtk.vtkTensorRepresentation()
+rep = vtkTensorRepresentation()
 rep.GetEllipsoidProperty().SetColor(0,0,0)
 rep.GetEllipsoidProperty().SetRepresentationToWireframe()
 rep.GetOutlineProperty().SetColor(0,0,0)
@@ -789,14 +801,14 @@ rep.SetPlaceFactor(1)
 rep.PlaceWidget(bbox)
 
 # The widget proper
-tsWidget = vtk.vtkTensorWidget()
+tsWidget = vtkTensorWidget()
 tsWidget.SetInteractor(iRen)
 tsWidget.SetRepresentation(rep)
 tsWidget.AddObserver("EndInteractionEvent", SelectPolygons)
 tsWidget.On()
 
 # Handle playback of events
-recorder = vtk.vtkInteractorEventRecorder()
+recorder = vtkInteractorEventRecorder()
 recorder.SetInteractor(iRen)
 #recorder.SetFileName("record.log")
 #recorder.On()

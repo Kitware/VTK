@@ -4,15 +4,16 @@ is supposed to be cleared by the consumer algorithm
 once it is done processing it. The following test
 verifies this.
 """
-import vtk
-from vtk.test import Testing
+from vtkmodules.vtkFiltersGeneral import vtkShrinkFilter
+from vtkmodules.vtkFiltersSources import vtkSphereSource
+from vtkmodules.test import Testing
 
 class TestReleaseData(Testing.vtkTest):
     def test(self):
-        sphere = vtk.vtkSphereSource()
+        sphere = vtkSphereSource()
         sphere.ReleaseDataFlagOn()
 
-        shrink = vtk.vtkShrinkFilter()
+        shrink = vtkShrinkFilter()
         shrink.SetInputConnection(sphere.GetOutputPort())
         shrink.ReleaseDataFlagOn()
 

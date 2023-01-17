@@ -1,8 +1,19 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import vtk
-import vtk.test.Testing
+from vtkmodules.vtkFiltersPoints import vtkProjectPointsToPlane
+from vtkmodules.vtkFiltersSources import vtkDiskSource
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+import vtkmodules.test.Testing
 
 # Control test resolution
 res = 10
@@ -11,7 +22,7 @@ res = 10
 normal = [.8,.9,1]
 
 # Create a disk and project it in a variety of ways.
-disk = vtk.vtkDiskSource()
+disk = vtkDiskSource()
 disk.SetInnerRadius(1)
 disk.SetOuterRadius(9)
 disk.SetRadialResolution(res)
@@ -22,113 +33,113 @@ disk.Update()
 print("Disk Center: ", disk.GetOutput().GetCenter())
 print("Disk Normal: ", normal)
 
-diskMapper = vtk.vtkPolyDataMapper()
+diskMapper = vtkPolyDataMapper()
 diskMapper.SetInputConnection(disk.GetOutputPort())
 
-diskActor = vtk.vtkActor()
+diskActor = vtkActor()
 diskActor.SetMapper(diskMapper)
 diskActor.GetProperty().SetColor(0.85,0.5,0.5)
 
 # Project to the x plane.
-dProj0 = vtk.vtkProjectPointsToPlane()
+dProj0 = vtkProjectPointsToPlane()
 dProj0.SetInputConnection(disk.GetOutputPort())
 dProj0.SetProjectionTypeToXPlane()
 
-dMapper0 = vtk.vtkPolyDataMapper()
+dMapper0 = vtkPolyDataMapper()
 dMapper0.SetInputConnection(dProj0.GetOutputPort())
 
-gActor0 = vtk.vtkActor()
+gActor0 = vtkActor()
 gActor0.SetMapper(dMapper0)
 gActor0.GetProperty().SetRepresentationToWireframe()
 gActor0.GetProperty().SetColor(1,1,1)
 
 # Project to the y plane
-dProj1 = vtk.vtkProjectPointsToPlane()
+dProj1 = vtkProjectPointsToPlane()
 dProj1.SetInputConnection(disk.GetOutputPort())
 dProj1.SetProjectionTypeToYPlane()
 
-dMapper1 = vtk.vtkPolyDataMapper()
+dMapper1 = vtkPolyDataMapper()
 dMapper1.SetInputConnection(dProj1.GetOutputPort())
 
-gActor1 = vtk.vtkActor()
+gActor1 = vtkActor()
 gActor1.SetMapper(dMapper1)
 gActor1.GetProperty().SetColor(1,1,1)
 gActor1.GetProperty().SetRepresentationToWireframe()
 
 # Project to the z plane
-dProj2 = vtk.vtkProjectPointsToPlane()
+dProj2 = vtkProjectPointsToPlane()
 dProj2.SetInputConnection(disk.GetOutputPort())
 dProj2.SetProjectionTypeToZPlane()
 
-dMapper2 = vtk.vtkPolyDataMapper()
+dMapper2 = vtkPolyDataMapper()
 dMapper2.SetInputConnection(dProj2.GetOutputPort())
 
-gActor2 = vtk.vtkActor()
+gActor2 = vtkActor()
 gActor2.SetMapper(dMapper2)
 gActor2.GetProperty().SetColor(1,1,1)
 gActor2.GetProperty().SetRepresentationToWireframe()
 
 # Project to the best fitting planea
-dProj3 = vtk.vtkProjectPointsToPlane()
+dProj3 = vtkProjectPointsToPlane()
 dProj3.SetInputConnection(disk.GetOutputPort())
 dProj3.SetProjectionTypeToBestFitPlane()
 dProj3.Update()
 print("Origin: ", dProj3.GetOrigin())
 print("Normal: ", dProj3.GetNormal())
 
-dMapper3 = vtk.vtkPolyDataMapper()
+dMapper3 = vtkPolyDataMapper()
 dMapper3.SetInputConnection(dProj3.GetOutputPort())
 
-gActor3 = vtk.vtkActor()
+gActor3 = vtkActor()
 gActor3.SetMapper(dMapper3)
 gActor3.GetProperty().SetColor(1,1,1)
 gActor3.GetProperty().SetRepresentationToWireframe()
 
 # Project to a specified plane
 specNormal = [.1,.2,.4]
-dProj4 = vtk.vtkProjectPointsToPlane()
+dProj4 = vtkProjectPointsToPlane()
 dProj4.SetInputConnection(disk.GetOutputPort())
 dProj4.SetProjectionTypeToSpecifiedPlane()
 dProj4.SetOrigin(1,1,1)
 dProj4.SetNormal(specNormal)
 
-dMapper4 = vtk.vtkPolyDataMapper()
+dMapper4 = vtkPolyDataMapper()
 dMapper4.SetInputConnection(dProj4.GetOutputPort())
 
-gActor4 = vtk.vtkActor()
+gActor4 = vtkActor()
 gActor4.SetMapper(dMapper4)
 gActor4.GetProperty().SetColor(1,1,1)
 gActor4.GetProperty().SetRepresentationToWireframe()
 
 # Project to the best fit coordinate plane
-dProj5 = vtk.vtkProjectPointsToPlane()
+dProj5 = vtkProjectPointsToPlane()
 dProj5.SetInputConnection(disk.GetOutputPort())
 dProj5.SetProjectionTypeToBestCoordinatePlane()
 
-dMapper5 = vtk.vtkPolyDataMapper()
+dMapper5 = vtkPolyDataMapper()
 dMapper5.SetInputConnection(dProj5.GetOutputPort())
 
-gActor5 = vtk.vtkActor()
+gActor5 = vtkActor()
 gActor5.SetMapper(dMapper5)
 gActor5.GetProperty().SetColor(1,1,1)
 gActor5.GetProperty().SetRepresentationToWireframe()
 
 # Create the RenderWindow, Renderer and both Actors
 #
-ren0 = vtk.vtkRenderer()
+ren0 = vtkRenderer()
 ren0.SetViewport(0, 0, 0.333, 0.5)
-ren1 = vtk.vtkRenderer()
+ren1 = vtkRenderer()
 ren1.SetViewport(0.333, 0, 0.667, 0.5)
-ren2 = vtk.vtkRenderer()
+ren2 = vtkRenderer()
 ren2.SetViewport(0.667, 0, 1, 0.5)
-ren3 = vtk.vtkRenderer()
+ren3 = vtkRenderer()
 ren3.SetViewport(0, 0.5, 0.333, 1)
-ren4 = vtk.vtkRenderer()
+ren4 = vtkRenderer()
 ren4.SetViewport(0.333, 0.5, 0.667, 1)
-ren5 = vtk.vtkRenderer()
+ren5 = vtkRenderer()
 ren5.SetViewport(0.667, 0.5, 1, 1)
 
-renWin = vtk.vtkRenderWindow()
+renWin = vtkRenderWindow()
 renWin.AddRenderer(ren0)
 renWin.AddRenderer(ren1)
 renWin.AddRenderer(ren2)
@@ -136,7 +147,7 @@ renWin.AddRenderer(ren3)
 renWin.AddRenderer(ren4)
 renWin.AddRenderer(ren5)
 
-iRen = vtk.vtkRenderWindowInteractor()
+iRen = vtkRenderWindowInteractor()
 iRen.SetRenderWindow(renWin)
 
 # Add the actors to the renderer, set the background and size

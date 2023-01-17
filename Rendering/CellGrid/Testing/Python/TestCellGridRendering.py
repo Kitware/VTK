@@ -5,11 +5,14 @@ from vtkmodules import vtkImagingCore as ic
 from vtkmodules import vtkIOCellGrid as io
 from vtkmodules import vtkFiltersCellGrid as fc
 from vtkmodules import vtkRenderingCore as rr
-from vtk.util.vtkAlgorithm import VTKPythonAlgorithmBase
-from vtk.util.misc import vtkGetDataRoot
+import vtkmodules.vtkRenderingCellGrid
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.vtkAlgorithm import VTKPythonAlgorithmBase
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
-from vtk.test import Testing
+from vtkmodules.test import Testing
 import os
 
 class TestCellGridRendering(Testing.vtkTest):

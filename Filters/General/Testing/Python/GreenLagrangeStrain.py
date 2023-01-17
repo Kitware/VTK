@@ -5,18 +5,27 @@ from __future__ import print_function
 
 import sys
 import math
-import vtk.test.Testing
+import vtkmodules.test.Testing
 
 try:
     import numpy
 except ImportError:
     print("WARNING: This test requires NumPy: http://http://www.numpy.org/")
-    vtk.test.Testing.skip()
+    vtkmodules.test.Testing.skip()
 
-import vtk
+from vtkmodules.vtkCommonCore import (
+    vtkFloatArray,
+    vtkPoints,
+)
+from vtkmodules.vtkCommonDataModel import (
+    vtkCellArray,
+    vtkHexahedron,
+    vtkUnstructuredGrid,
+)
+from vtkmodules.vtkFiltersGeneral import vtkCellDerivatives
 
 # Create a simple hexahedron
-points = vtk.vtkPoints()
+points = vtkPoints()
 points.SetNumberOfPoints(8)
 points.InsertPoint(0, 0, 0, 0)
 points.InsertPoint(1, 1, 0, 0)
@@ -28,19 +37,19 @@ points.InsertPoint(6, 1, 1, 1)
 points.InsertPoint(7, 0, 1, 1)
 #for k_point in range(8): print points.GetPoint(k_point)
 
-hexahedron = vtk.vtkHexahedron()
+hexahedron = vtkHexahedron()
 for k_point in range(8):
     hexahedron.GetPointIds().SetId(k_point, k_point)
 
-cell_array = vtk.vtkCellArray()
+cell_array = vtkCellArray()
 cell_array.InsertNextCell(hexahedron)
 
-farray_disp = vtk.vtkFloatArray()
+farray_disp = vtkFloatArray()
 farray_disp.SetName("displacement")
 farray_disp.SetNumberOfComponents(3)
 farray_disp.SetNumberOfTuples(8)
 
-ugrid_hex = vtk.vtkUnstructuredGrid()
+ugrid_hex = vtkUnstructuredGrid()
 ugrid_hex.SetPoints(points)
 ugrid_hex.SetCells(hexahedron.GetCellType(), cell_array)
 ugrid_hex.GetPointData().AddArray(farray_disp)
@@ -106,7 +115,7 @@ for F in F_lst:
     print("E = " + str(E))
 
     # Compute displacement gradient using vtkCellDerivatives
-    cell_derivatives = vtk.vtkCellDerivatives()
+    cell_derivatives = vtkCellDerivatives()
     cell_derivatives.SetVectorModeToPassVectors()
     cell_derivatives.SetTensorModeToComputeGradient()
     cell_derivatives.SetInputData(ugrid_hex)
@@ -116,7 +125,7 @@ for F in F_lst:
     assert numpy.allclose(vector_gradient, GU)
 
     # Compute small strain tensor using vtkCellDerivatives
-    cell_derivatives = vtk.vtkCellDerivatives()
+    cell_derivatives = vtkCellDerivatives()
     cell_derivatives.SetVectorModeToPassVectors()
     cell_derivatives.SetTensorModeToComputeStrain()
     cell_derivatives.SetInputData(ugrid_hex)
@@ -126,7 +135,7 @@ for F in F_lst:
     assert numpy.allclose(strain, e)
 
     # Compute Green-Lagrange strain tensor using vtkCellDerivatives
-    cell_derivatives = vtk.vtkCellDerivatives()
+    cell_derivatives = vtkCellDerivatives()
     cell_derivatives.SetVectorModeToPassVectors()
     cell_derivatives.SetTensorModeToComputeGreenLagrangeStrain()
     cell_derivatives.SetInputData(ugrid_hex)

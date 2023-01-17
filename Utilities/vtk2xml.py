@@ -13,13 +13,26 @@ Licence: VTK License.
 """
 
 import sys
-import vtk
+from vtkmodules.vtkIOLegacy import (
+    vtkDataSetReader,
+    vtkPolyDataReader,
+    vtkRectilinearGridReader,
+    vtkStructuredGridReader,
+    vtkStructuredPointsReader,
+    vtkUnstructuredGridReader,
+)
+from vtkmodules.vtkIOXML import (
+    vtkXMLImageDataWriter,
+    vtkXMLPolyDataWriter,
+    vtkXMLRectilinearGridWriter,
+    vtkXMLStructuredGridWriter,
+    vtkXMLUnstructuredGridWriter,
+)
 import os.path
 import getopt
 
-
 def getReaderWriter(file_name, out_dir=None):
-    r = vtk.vtkDataSetReader()
+    r = vtkDataSetReader()
     r.SetFileName(file_name)
     f_base = os.path.splitext(file_name)[0]
     r.Update()
@@ -32,11 +45,11 @@ def getReaderWriter(file_name, out_dir=None):
     for i in ['StructuredPoints', 'StructuredGrid', 'RectilinearGrid',
               'UnstructuredGrid', 'PolyData']:
         if eval('r.IsFile%s()'%i):
-            reader = eval('vtk.vtk%sReader()'%i)
+            reader = eval('vtk%sReader()'%i)
             if i == 'StructuredPoints':
-                writer = eval('vtk.vtkXMLImageDataWriter()')
+                writer = eval('vtkXMLImageDataWriter()')
             else:
-                writer = eval('vtk.vtkXML%sWriter()'%i)
+                writer = eval('vtkXML%sWriter()'%i)
             xmlsuffix = map[i]
             break
     if not reader:
@@ -131,11 +144,11 @@ def main():
 
     try:
         opts, args = getopt.getopt(sys.argv[1:], options, long_opts)
-    except getopt.error, msg:
-        print msg
-        print usage()
-        print '-'*70
-        print msg
+    except getopt.error(msg):
+        print(msg)
+        print(usage())
+        print('-'*70)
+        print(msg)
         sys.exit(1)
 
     mode = 'p'
@@ -143,7 +156,7 @@ def main():
     out_dir = None
     for o, a in opts:
         if o in ('-h', '--help'):
-            print usage()
+            print(usage())
             sys.exit(0)
         if o in ('-b', '--binary'):
             mode = 'b'
@@ -154,22 +167,22 @@ def main():
         if o in ('-d', '--output-dir'):
             out_dir = a
             if not os.path.exists(out_dir):
-                print "Error: Directory %s does not exist!"%out_dir
+                print("Error: Directory %s does not exist!"%out_dir)
                 sys.exit(1)
 
     if len(args) < 1:
-        print "\nError: Incorrect number of arguments\n"
-        print usage()
+        print("\nError: Incorrect number of arguments\n")
+        print(usage())
         sys.exit(1)
 
     for i in args:
         r, w = getReaderWriter(i, out_dir)
         if not r:
-            print "\nError: Could not convert file: %s"%i
-            print "Unsupported data format!\n"
+            print("\nError: Could not convert file: %s"%i)
+            print("Unsupported data format!\n")
         else:
             o = setAllAttributes(r)
-            w.SetInput(o)
+            w.SetInputData(o)
             # set output modes
             if mode == 'a':
                 w.SetDataModeToAscii()

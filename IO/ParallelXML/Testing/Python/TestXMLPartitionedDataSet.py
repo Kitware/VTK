@@ -6,8 +6,8 @@ from vtkmodules.vtkIOParallelXML import vtkXMLPartitionedDataSetWriter
 from vtkmodules.vtkIOXML import vtkXMLPartitionedDataSetReader
 
 
-from vtk.test import Testing
-from vtk.util.misc import vtkGetTempDir
+from vtkmodules.test import Testing
+from vtkmodules.util.misc import vtkGetTempDir
 
 import os
 

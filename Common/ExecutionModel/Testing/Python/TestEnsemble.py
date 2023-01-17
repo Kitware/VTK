@@ -1,26 +1,30 @@
 """ Tests if vtkEnsembleSource works properly. """
-import vtk
-from vtk.test import Testing
+from vtkmodules.vtkCommonCore import vtkIntArray
+from vtkmodules.vtkCommonDataModel import vtkTable
+from vtkmodules.vtkCommonExecutionModel import vtkEnsembleSource
+from vtkmodules.vtkFiltersGeneral import vtkShrinkPolyData
+from vtkmodules.vtkFiltersSources import vtkConeSource
+from vtkmodules.test import Testing
 
 class TestEnsemble(Testing.vtkTest):
     resolutions = [4, 8, 16, 32]
     npolys = [5, 9, 17, 33]
 
     def createSource(self):
-        r = vtk.vtkEnsembleSource()
+        r = vtkEnsembleSource()
 
-        aColumn = vtk.vtkIntArray()
+        aColumn = vtkIntArray()
         aColumn.SetName("Resolution")
         nrows = len(TestEnsemble.resolutions)
         for res in TestEnsemble.resolutions:
             aColumn.InsertNextValue(res)
-        table = vtk.vtkTable()
+        table = vtkTable()
         table.SetNumberOfRows(nrows)
         table.GetRowData().AddArray(aColumn)
         r.SetMetaData(table)
 
         for res in TestEnsemble.resolutions:
-            c = vtk.vtkConeSource()
+            c = vtkConeSource()
             c.SetResolution(res)
             r.AddMember(c)
 
@@ -45,18 +49,18 @@ class TestEnsemble(Testing.vtkTest):
             nExecutions += 1
         r.AddObserver('StartEvent', addToCounter)
 
-        shrink = vtk.vtkShrinkPolyData()
+        shrink = vtkShrinkPolyData()
         shrink.SetInputConnection(r.GetOutputPort())
         shrink.UpdateInformation()
 
-        self.assertTrue(shrink.GetOutputInformation(0).Has(vtk.vtkEnsembleSource.META_DATA()))
+        self.assertTrue(shrink.GetOutputInformation(0).Has(vtkEnsembleSource.META_DATA()))
 
-        metaData = shrink.GetOutputInformation(0).Has(vtk.vtkEnsembleSource.META_DATA())
+        metaData = shrink.GetOutputInformation(0).Has(vtkEnsembleSource.META_DATA())
 
         shrink.Update()
 
         oInfo = shrink.GetOutputInformation(0)
-        oInfo.Set(vtk.vtkEnsembleSource.UPDATE_MEMBER(), 2)
+        oInfo.Set(vtkEnsembleSource.UPDATE_MEMBER(), 2)
         shrink.Update()
 
         output = shrink.GetOutputDataObject(0)
@@ -66,12 +70,12 @@ class TestEnsemble(Testing.vtkTest):
         shrink.Update()
 
         oInfo = shrink.GetOutputInformation(0)
-        oInfo.Set(vtk.vtkEnsembleSource.UPDATE_MEMBER(), 1)
+        oInfo.Set(vtkEnsembleSource.UPDATE_MEMBER(), 1)
         shrink.Update()
 
         self.assertEqual(output.GetNumberOfCells(), TestEnsemble.npolys[1])
 
-        shrink2 = vtk.vtkShrinkPolyData()
+        shrink2 = vtkShrinkPolyData()
         shrink2.SetInputConnection(r.GetOutputPort())
 
         shrink2.Update()

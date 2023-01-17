@@ -1,23 +1,34 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkFiltersModeling import (
+    vtkSpherePuzzle,
+    vtkSpherePuzzleArrows,
+)
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderer,
+)
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # prevent the tk window from showing up then start the event loop
-renWin = vtk.vtkRenderWindow()
+renWin = vtkRenderWindow()
 # create a rendering window and renderer
-ren1 = vtk.vtkRenderer()
+ren1 = vtkRenderer()
 renWin.AddRenderer(ren1)
 renWin.SetSize(400,400)
-puzzle = vtk.vtkSpherePuzzle()
-mapper = vtk.vtkPolyDataMapper()
+puzzle = vtkSpherePuzzle()
+mapper = vtkPolyDataMapper()
 mapper.SetInputConnection(puzzle.GetOutputPort())
-actor = vtk.vtkActor()
+actor = vtkActor()
 actor.SetMapper(mapper)
-arrows = vtk.vtkSpherePuzzleArrows()
-mapper2 = vtk.vtkPolyDataMapper()
+arrows = vtkSpherePuzzleArrows()
+mapper2 = vtkPolyDataMapper()
 mapper2.SetInputConnection(arrows.GetOutputPort())
-actor2 = vtk.vtkActor()
+actor2 = vtkActor()
 actor2.SetMapper(mapper2)
 # Add the actors to the renderer, set the background and size
 #

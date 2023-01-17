@@ -1,5 +1,21 @@
 #!/usr/bin/env python
-import vtk
+from vtkmodules.vtkCommonDataModel import vtkQuadric
+from vtkmodules.vtkFiltersCore import (
+    vtkExecutionTimer,
+    vtkExtractEdges,
+    vtkPointDataToCellData,
+)
+from vtkmodules.vtkImagingHybrid import vtkSampleFunction
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
 
 # Test edge extraction with cell data, and with original
 # point numbering preserved.
@@ -9,48 +25,48 @@ res = 10
 # Test edge extraction for arbitrary datasets
 #
 # Quadric definition
-quadric = vtk.vtkQuadric()
+quadric = vtkQuadric()
 quadric.SetCoefficients([.5,1,.2,0,.1,0,0,.2,0,0])
-sample = vtk.vtkSampleFunction()
+sample = vtkSampleFunction()
 sample.SetSampleDimensions(res,res,res)
 sample.SetImplicitFunction(quadric)
 sample.ComputeNormalsOff()
 sample.Update()
 
 # Create some cell data
-pd2cd = vtk.vtkPointDataToCellData()
+pd2cd = vtkPointDataToCellData()
 pd2cd.SetInputConnection(sample.GetOutputPort())
 pd2cd.PassPointDataOff()
 pd2cd.Update()
 
 # Now extract the edges
-extract = vtk.vtkExtractEdges()
+extract = vtkExtractEdges()
 extract.SetInputConnection(pd2cd.GetOutputPort())
 extract.UseAllPointsOn()
 
-timer = vtk.vtkExecutionTimer()
+timer = vtkExecutionTimer()
 timer.SetFilter(extract)
 extract.Update()
 ET = timer.GetElapsedWallClockTime()
 print ("vtkExtractEdges:", ET)
 
-extrMapper = vtk.vtkPolyDataMapper()
+extrMapper = vtkPolyDataMapper()
 extrMapper.SetInputConnection(extract.GetOutputPort())
 extrMapper.ScalarVisibilityOn()
 
-extrActor = vtk.vtkActor()
+extrActor = vtkActor()
 extrActor.SetMapper(extrMapper)
 
 # Define graphics objects
-renWin = vtk.vtkRenderWindow()
+renWin = vtkRenderWindow()
 renWin.SetSize(300,300)
 
-ren1 = vtk.vtkRenderer()
+ren1 = vtkRenderer()
 ren1.SetBackground(0,0,0)
 
 renWin.AddRenderer(ren1)
 
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 
 ren1.AddActor(extrActor)

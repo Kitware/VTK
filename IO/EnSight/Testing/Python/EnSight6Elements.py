@@ -1,24 +1,37 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonExecutionModel import vtkCompositeDataPipeline
+from vtkmodules.vtkFiltersCore import vtkArrayCalculator
+from vtkmodules.vtkFiltersGeometry import vtkGeometryFilter
+from vtkmodules.vtkIOEnSight import vtkGenericEnSightReader
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkHierarchicalPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # create a rendering window and renderer
-ren1 = vtk.vtkRenderer()
-renWin = vtk.vtkRenderWindow()
+ren1 = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.AddRenderer(ren1)
 renWin.StereoCapableWindowOn()
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
-reader = vtk.vtkGenericEnSightReader()
+reader = vtkGenericEnSightReader()
 # Make sure all algorithms use the composite data pipeline
-cdp = vtk.vtkCompositeDataPipeline()
+cdp = vtkCompositeDataPipeline()
 reader.SetDefaultExecutivePrototype(cdp)
 del cdp
 reader.SetCaseFileName("" + str(VTK_DATA_ROOT) + "/Data/EnSight/elements6.case")
-geom = vtk.vtkGeometryFilter()
+geom = vtkGeometryFilter()
 geom.SetInputConnection(reader.GetOutputPort())
-calc = vtk.vtkArrayCalculator()
+calc = vtkArrayCalculator()
 calc.SetInputConnection(geom.GetOutputPort())
 calc.SetAttributeTypeToPointData()
 calc.SetFunction("dot(pointCVectors_r, pointCVectors_i) + pointScalars")
@@ -26,13 +39,13 @@ calc.AddScalarArrayName("pointScalars",0)
 calc.AddVectorArrayName("pointCVectors_r",0,1,2)
 calc.AddVectorArrayName("pointCVectors_i",0,1,2)
 calc.SetResultArrayName("test")
-mapper = vtk.vtkHierarchicalPolyDataMapper()
+mapper = vtkHierarchicalPolyDataMapper()
 mapper.SetInputConnection(calc.GetOutputPort())
 mapper.SetColorModeToMapScalars()
 mapper.SetScalarModeToUsePointFieldData()
 mapper.ColorByArrayComponent("test",0)
 mapper.SetScalarRange(0,36000)
-actor = vtk.vtkActor()
+actor = vtkActor()
 actor.SetMapper(mapper)
 # assign our actor to the renderer
 ren1.AddActor(actor)

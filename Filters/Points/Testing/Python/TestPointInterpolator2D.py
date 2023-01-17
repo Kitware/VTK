@@ -1,26 +1,56 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonCore import (
+    vtkMath,
+    vtkPoints,
+)
+from vtkmodules.vtkCommonDataModel import (
+    vtkPolyData,
+    vtkSphere,
+)
+from vtkmodules.vtkCommonSystem import vtkTimerLog
+from vtkmodules.vtkFiltersGeneral import (
+    vtkSampleImplicitFunctionFilter,
+    vtkWarpScalar,
+)
+from vtkmodules.vtkFiltersGeometry import vtkImageDataGeometryFilter
+from vtkmodules.vtkFiltersModeling import vtkOutlineFilter
+from vtkmodules.vtkFiltersPoints import (
+    vtkGaussianKernel,
+    vtkPointInterpolator2D,
+    vtkVoronoiKernel,
+)
+from vtkmodules.vtkIOImage import vtkDEMReader
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # Parameters for debugging
 NPts = 1000000
-math = vtk.vtkMath()
+math = vtkMath()
 
 # create pipeline: use terrain dataset
 #
 # Read the data: a height field results
-demReader = vtk.vtkDEMReader()
+demReader = vtkDEMReader()
 demReader.SetFileName(VTK_DATA_ROOT + "/Data/SainteHelens.dem")
 demReader.Update()
 
 lo = demReader.GetOutput().GetScalarRange()[0]
 hi = demReader.GetOutput().GetScalarRange()[1]
 
-geom = vtk.vtkImageDataGeometryFilter()
+geom = vtkImageDataGeometryFilter()
 geom.SetInputConnection(demReader.GetOutputPort())
 
-warp = vtk.vtkWarpScalar()
+warp = vtkWarpScalar()
 warp.SetInputConnection(geom.GetOutputPort())
 warp.SetNormal(0, 0, 1)
 warp.UseNormalOn()
@@ -31,31 +61,31 @@ bds = warp.GetOutput().GetBounds()
 center = warp.GetOutput().GetCenter()
 
 # A randomized point cloud, whose attributes are set via implicit function
-points = vtk.vtkPoints()
+points = vtkPoints()
 points.SetDataTypeToFloat()
 points.SetNumberOfPoints(NPts)
 for i in range(0,NPts):
     points.SetPoint(i,math.Random(bds[0],bds[1]),math.Random(bds[2],bds[3]),math.Random(bds[4],bds[5]))
 
-source = vtk.vtkPolyData()
+source = vtkPolyData()
 source.SetPoints(points)
 
-sphere = vtk.vtkSphere()
+sphere = vtkSphere()
 sphere.SetCenter(center[0],center[1]-7500,center[2])
 
-attr = vtk.vtkSampleImplicitFunctionFilter()
+attr = vtkSampleImplicitFunctionFilter()
 attr.SetInputData(source)
 attr.SetImplicitFunction(sphere)
 attr.Update()
 
 # Gaussian kernel-------------------------------------------------------
-gaussianKernel = vtk.vtkGaussianKernel()
+gaussianKernel = vtkGaussianKernel()
 gaussianKernel.SetSharpness(4)
 gaussianKernel.SetRadius(50)
 
-voronoiKernel = vtk.vtkVoronoiKernel()
+voronoiKernel = vtkVoronoiKernel()
 
-interpolator1 = vtk.vtkPointInterpolator2D()
+interpolator1 = vtkPointInterpolator2D()
 interpolator1.SetInputConnection(warp.GetOutputPort())
 interpolator1.SetSourceConnection(attr.GetOutputPort())
 #interpolator1.SetKernel(gaussianKernel)
@@ -63,7 +93,7 @@ interpolator1.SetKernel(voronoiKernel)
 interpolator1.SetNullPointsStrategyToClosestPoint()
 
 # Time execution
-timer = vtk.vtkTimerLog()
+timer = vtkTimerLog()
 timer.StartTimer()
 interpolator1.Update()
 timer.StopTimer()
@@ -72,29 +102,29 @@ print("Interpolate Terrain Points (Gaussian): {0}".format(time))
 
 scalarRange = attr.GetOutput().GetScalarRange()
 
-intMapper1 = vtk.vtkPolyDataMapper()
+intMapper1 = vtkPolyDataMapper()
 intMapper1.SetInputConnection(interpolator1.GetOutputPort())
 intMapper1.SetScalarRange(scalarRange)
 
-intActor1 = vtk.vtkActor()
+intActor1 = vtkActor()
 intActor1.SetMapper(intMapper1)
 
 # Create an outline
-outline1 = vtk.vtkOutlineFilter()
+outline1 = vtkOutlineFilter()
 outline1.SetInputConnection(warp.GetOutputPort())
 
-outlineMapper1 = vtk.vtkPolyDataMapper()
+outlineMapper1 = vtkPolyDataMapper()
 outlineMapper1.SetInputConnection(outline1.GetOutputPort())
 
-outlineActor1 = vtk.vtkActor()
+outlineActor1 = vtkActor()
 outlineActor1.SetMapper(outlineMapper1)
 
 # Create the RenderWindow, Renderer and both Actors
 #
-ren0 = vtk.vtkRenderer()
-renWin = vtk.vtkRenderWindow()
+ren0 = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.AddRenderer(ren0)
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 
 # Add the actors to the renderer, set the background and size

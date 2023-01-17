@@ -1,6 +1,25 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonDataModel import (
+    vtkDataObject,
+    vtkImageData,
+)
+from vtkmodules.vtkCommonSystem import vtkTimerLog
+from vtkmodules.vtkFiltersCore import (
+    vtkSurfaceNets2D,
+    vtkThreshold,
+)
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkDataSetMapper,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # Manually create a label map. Place a bunch of
@@ -8,16 +27,16 @@ VTK_DATA_ROOT = vtkGetDataRoot()
 # resulting regions.
 VTK_SHORT = 4
 res = 500
-image = vtk.vtkImageData()
+image = vtkImageData()
 image.SetDimensions(res,res,1)
 image.AllocateScalars(VTK_SHORT,1)
 
-imMapper = vtk.vtkDataSetMapper()
+imMapper = vtkDataSetMapper()
 imMapper.SetInputData(image)
 imMapper.ScalarVisibilityOn()
 imMapper.SetScalarRange(0,5)
 
-imActor = vtk.vtkActor()
+imActor = vtkActor()
 imActor.SetMapper(imMapper)
 
 # Fill the scalars with 0 and then set particular values.
@@ -64,7 +83,7 @@ GenCircle(res,center,radius,5)
 
 
 # Extract the boundaries of labels 1-5 with SurfaceNets
-snets = vtk.vtkSurfaceNets2D()
+snets = vtkSurfaceNets2D()
 snets.SetInputData(image)
 snets.SetValue(0,1)
 snets.SetValue(1,2)
@@ -78,7 +97,7 @@ snets.GetSmoother().SetConstraintDistance(0.75)
 snets.ComputeScalarsOn()
 snets.SetBackgroundLabel(-1)
 
-timer = vtk.vtkTimerLog()
+timer = vtkTimerLog()
 timer.StartTimer()
 snets.Update()
 timer.StopTimer()
@@ -96,65 +115,65 @@ if snets.GetSmoothing() > 0:
     print("Time to smooth Surface Net: {0}".format(time))
 
 # Clipped polygons are generated
-mapper = vtk.vtkPolyDataMapper()
+mapper = vtkPolyDataMapper()
 mapper.SetInputConnection(snets.GetOutputPort())
 mapper.ScalarVisibilityOff()
 
-actor = vtk.vtkActor()
+actor = vtkActor()
 actor.SetMapper(mapper)
 
 # Threshold boundary edges (i.e., edges that border background)
-threshL = vtk.vtkThreshold()
+threshL = vtkThreshold()
 threshL.SetInputConnection(snets.GetOutputPort())
 threshL.SetLowerThreshold(0)
 threshL.SetUpperThreshold(5)
-threshL.SetInputArrayToProcess(0,0,0, vtk.vtkDataObject.FIELD_ASSOCIATION_CELLS, "BoundaryLabels")
+threshL.SetInputArrayToProcess(0,0,0, vtkDataObject.FIELD_ASSOCIATION_CELLS, "BoundaryLabels")
 threshL.SetComponentModeToUseAny()
-threshL.SetThresholdFunction(vtk.vtkThreshold.THRESHOLD_LOWER)
+threshL.SetThresholdFunction(vtkThreshold.THRESHOLD_LOWER)
 
-threshLMapper = vtk.vtkDataSetMapper()
+threshLMapper = vtkDataSetMapper()
 threshLMapper.SetInputConnection(threshL.GetOutputPort())
 threshLMapper.ScalarVisibilityOff()
 
-threshLActor = vtk.vtkActor()
+threshLActor = vtkActor()
 threshLActor.SetMapper(threshLMapper)
 
 # Threshold boundary edges (i.e., edges that lie between two segmented
 # objects)
-threshU = vtk.vtkThreshold()
+threshU = vtkThreshold()
 threshU.SetInputConnection(snets.GetOutputPort())
 threshU.SetLowerThreshold(0)
-threshU.SetInputArrayToProcess(0,0,0, vtk.vtkDataObject.FIELD_ASSOCIATION_CELLS, "BoundaryLabels")
+threshU.SetInputArrayToProcess(0,0,0, vtkDataObject.FIELD_ASSOCIATION_CELLS, "BoundaryLabels")
 threshU.SetComponentModeToUseSelected()
 threshU.SetSelectedComponent(1)
 threshU.InvertOn()
-threshU.SetThresholdFunction(vtk.vtkThreshold.THRESHOLD_LOWER)
+threshU.SetThresholdFunction(vtkThreshold.THRESHOLD_LOWER)
 
-threshUMapper = vtk.vtkDataSetMapper()
+threshUMapper = vtkDataSetMapper()
 threshUMapper.SetInputConnection(threshU.GetOutputPort())
 threshUMapper.ScalarVisibilityOff()
 
-threshUActor = vtk.vtkActor()
+threshUActor = vtkActor()
 threshUActor.SetMapper(threshUMapper)
 
 # Create the RenderWindow, Renderer and both Actors
 #
-ren1 = vtk.vtkRenderer()
+ren1 = vtkRenderer()
 ren1.SetBackground(0,0,0)
 ren1.SetViewport(0,0,0.333,1)
-ren2 = vtk.vtkRenderer()
+ren2 = vtkRenderer()
 ren2.SetBackground(0,0,0)
 ren2.SetViewport(0.333,0,0.667,1)
-ren3 = vtk.vtkRenderer()
+ren3 = vtkRenderer()
 ren3.SetBackground(0,0,0)
 ren3.SetViewport(.667,0,1,1)
 
-renWin = vtk.vtkRenderWindow()
+renWin = vtkRenderWindow()
 renWin.SetSize(600,200)
 renWin.AddRenderer(ren1)
 renWin.AddRenderer(ren2)
 renWin.AddRenderer(ren3)
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 
 ren1.AddActor(actor)

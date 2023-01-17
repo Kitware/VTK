@@ -1,17 +1,27 @@
 #!/usr/bin/env python
-
-renWin = vtk.vtkRenderWindow()
-iren = vtk.vtkRenderWindowInteractor()
+from vtkmodules.vtkFiltersSources import vtkSphereSource
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+renWin = vtkRenderWindow()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
-renderer = vtk.vtkRenderer()
+renderer = vtkRenderer()
 renWin.AddRenderer(renderer)
-src1 = vtk.vtkSphereSource()
+src1 = vtkSphereSource()
 src1.SetRadius(5)
 src1.SetPhiResolution(20)
 src1.SetThetaResolution(20)
-mapper = vtk.vtkPolyDataMapper()
+mapper = vtkPolyDataMapper()
 mapper.SetInputConnection(src1.GetOutputPort())
-actor = vtk.vtkActor()
+actor = vtkActor()
 actor.SetMapper(mapper)
 # Load the material. Here, we are loading a material
 # defined in the Vtk Library. One can also specify

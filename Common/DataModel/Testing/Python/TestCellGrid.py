@@ -3,9 +3,9 @@ from vtkmodules import vtkCommonDataModel as dm
 from vtkmodules import vtkCommonExecutionModel as em
 from vtkmodules import vtkImagingCore as ic
 from vtkmodules import vtkIOCellGrid as io
-from vtk.util.vtkAlgorithm import VTKPythonAlgorithmBase
+from vtkmodules.util.vtkAlgorithm import VTKPythonAlgorithmBase
 
-from vtk.test import Testing
+from vtkmodules.test import Testing
 import os
 
 class TestCellGrid(Testing.vtkTest):

@@ -2,9 +2,10 @@
 
 # This tests vtkAMRResampleFilter
 
-import vtk
-from vtk.test import Testing
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkFiltersAMR import vtkAMRResampleFilter
+from vtkmodules.vtkIOAMR import vtkAMREnzoReader
+from vtkmodules.test import Testing
+from vtkmodules.util.misc import vtkGetDataRoot
 
 VTK_DATA_ROOT = vtkGetDataRoot()
 
@@ -12,12 +13,12 @@ class TestAMRResampleFilter(Testing.vtkTest):
   def testAMR(self):
     filename= VTK_DATA_ROOT +"/Data/AMR/Enzo/DD0010/moving7_0010.hierarchy"
 
-    reader = vtk.vtkAMREnzoReader()
+    reader = vtkAMREnzoReader()
     reader.SetFileName(filename)
     reader.SetMaxLevel(10)
     reader.SetCellArrayStatus("TotalEnergy",1)
 
-    filter = vtk.vtkAMRResampleFilter()
+    filter = vtkAMRResampleFilter()
     filter.SetMin([0.2,0.2,0])
     filter.SetMax([0.8,0.8,1])
     filter.SetNumberOfSamples([30,30,30])

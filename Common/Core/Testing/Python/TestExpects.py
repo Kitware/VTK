@@ -2,14 +2,17 @@
 """
 
 import sys
-import vtk
-from vtk.test import Testing
+from vtkmodules.vtkCommonCore import (
+    vtkDoubleArray,
+    vtkPoints,
+)
+from vtkmodules.test import Testing
 
 class TestExpects(Testing.vtkTest):
     def testPoints(self):
         """Test the index limits for vtkPoints
         """
-        points = vtk.vtkPoints()
+        points = vtkPoints()
         p = (1.0, 2.0, 3.0)
         points.InsertNextPoint(p)
         self.assertEqual(points.GetPoint(0), p)
@@ -25,7 +28,7 @@ class TestExpects(Testing.vtkTest):
     def testArray(self):
         """Test values, tuples, components of arrays
         """
-        array = vtk.vtkDoubleArray()
+        array = vtkDoubleArray()
         array.SetNumberOfComponents(2)
         t = (2.0, 10.0)
         array.InsertNextTuple(t)

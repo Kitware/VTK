@@ -1,39 +1,57 @@
 #!/usr/bin/env python
 
 import math
-import vtk
-import vtk.test.Testing
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonCore import vtkPoints
+from vtkmodules.vtkCommonDataModel import vtkPolyData
+from vtkmodules.vtkFiltersCore import (
+    vtkElevationFilter,
+    vtkSimpleElevationFilter,
+    vtkTriangleFilter,
+)
+from vtkmodules.vtkFiltersSources import vtkPlaneSource
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkCamera,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+import vtkmodules.test.Testing
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 res = 200
 
 # Create the RenderWindow, Renderer and both Actors
 #
-ren1 = vtk.vtkRenderer()
-ren2 = vtk.vtkRenderer()
-renWin = vtk.vtkRenderWindow()
+ren1 = vtkRenderer()
+ren2 = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.AddRenderer(ren1)
 renWin.AddRenderer(ren2)
 
 # Create the data -- a plane
 #
-plane = vtk.vtkPlaneSource()
+plane = vtkPlaneSource()
 plane.SetXResolution(res)
 plane.SetYResolution(res)
 plane.SetOrigin(-10,-10,0)
 plane.SetPoint1(10,-10,0)
 plane.SetPoint2(-10,10,0)
 
-tf = vtk.vtkTriangleFilter()
+tf = vtkTriangleFilter()
 tf.SetInputConnection(plane.GetOutputPort())
 tf.Update()
 
-pd = vtk.vtkPolyData()
+pd = vtkPolyData()
 pd.CopyStructure(tf.GetOutput())
 numPts = pd.GetNumberOfPoints()
 oldPts = tf.GetOutput().GetPoints()
-newPts = vtk.vtkPoints()
+newPts = vtkPoints()
 newPts.SetNumberOfPoints(numPts)
 for i in range(0, numPts):
     pt = oldPts.GetPoint(i)
@@ -42,25 +60,25 @@ for i in range(0, numPts):
     newPts.SetPoint(i, pt[0], pt[1], z)
 pd.SetPoints(newPts)
 
-ele = vtk.vtkSimpleElevationFilter()
+ele = vtkSimpleElevationFilter()
 ele.SetInputData(pd)
 
-mapper = vtk.vtkPolyDataMapper()
+mapper = vtkPolyDataMapper()
 mapper.SetInputConnection(ele.GetOutputPort())
 
-actor = vtk.vtkActor()
+actor = vtkActor()
 actor.SetMapper(mapper)
 
-ele2 = vtk.vtkElevationFilter()
+ele2 = vtkElevationFilter()
 ele2.SetInputData(pd)
 ele2.SetLowPoint(0,0,-1.5)
 ele2.SetHighPoint(0,0,1.5)
 ele2.SetScalarRange(-1.5,1.5)
 
-mapper2 = vtk.vtkPolyDataMapper()
+mapper2 = vtkPolyDataMapper()
 mapper2.SetInputConnection(ele2.GetOutputPort())
 
-actor2 = vtk.vtkActor()
+actor2 = vtkActor()
 actor2.SetMapper(mapper2)
 
 # Add the actors to the renderer, set the background and size
@@ -71,7 +89,7 @@ ren2.SetViewport(.5, 0, 1, 1)
 ren1.AddActor(actor)
 ren2.AddActor(actor2)
 
-camera = vtk.vtkCamera()
+camera = vtkCamera()
 camera.SetPosition(1,1,1)
 ren1.SetActiveCamera(camera)
 ren2.SetActiveCamera(camera)
@@ -83,7 +101,7 @@ renWin.SetSize(500, 250)
 
 # render and interact with data
 
-iRen = vtk.vtkRenderWindowInteractor()
+iRen = vtkRenderWindowInteractor()
 iRen.SetRenderWindow(renWin);
 ren1.ResetCamera()
 renWin.Render()

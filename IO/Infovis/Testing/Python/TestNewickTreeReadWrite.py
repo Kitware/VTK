@@ -1,18 +1,21 @@
 import sys
-import vtk
-from vtk.test import Testing
+from vtkmodules.vtkIOInfovis import (
+    vtkNewickTreeReader,
+    vtkNewickTreeWriter,
+)
+from vtkmodules.test import Testing
 
 class TestNewickTreeReadWrite(Testing.vtkTest):
 
     def testReadWrite(self):
         t = '(A:1,B:2,(C:3,D:4)E:5)F;'
 
-        reader = vtk.vtkNewickTreeReader()
+        reader = vtkNewickTreeReader()
         reader.SetReadFromInputString(True)
         reader.SetInputString(t)
         reader.Update()
 
-        writer = vtk.vtkNewickTreeWriter()
+        writer = vtkNewickTreeWriter()
         writer.WriteToOutputStringOn()
         writer.SetInputData(reader.GetOutput())
         writer.Update()

@@ -1,22 +1,42 @@
 #!/usr/bin/env python
-import vtk
-from vtk.test import Testing
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonDataModel import (
+    vtkPlane,
+    vtkPlaneCollection,
+)
+from vtkmodules.vtkCommonSystem import vtkTimerLog
+from vtkmodules.vtkFiltersCore import (
+    vtkClipPolyData,
+    vtkPolyDataPlaneClipper,
+)
+from vtkmodules.vtkFiltersGeneral import vtkClipClosedSurface
+from vtkmodules.vtkFiltersSources import vtkSphereSource
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.test import Testing
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # Control test size
 res = 1024
 
 # Create the RenderWindow, Renderers and both Actors
-ren0 = vtk.vtkRenderer()
-renWin = vtk.vtkRenderWindow()
+ren0 = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.SetMultiSamples(0)
 renWin.AddRenderer(ren0)
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 
 # Create a synthetic sphere
-sphere = vtk.vtkSphereSource()
+sphere = vtkSphereSource()
 sphere.SetCenter(0.0, 0.0, 0.0)
 sphere.SetRadius(0.25)
 sphere.SetThetaResolution(2*res)
@@ -25,32 +45,32 @@ sphere.Update()
 print("Processing: ", sphere.GetOutput().GetNumberOfCells(), " triangles")
 
 # The cut plane
-plane = vtk.vtkPlane()
+plane = vtkPlane()
 plane.SetOrigin(0, 0, 0)
 plane.SetNormal(-1, -1, -1)
-planes = vtk.vtkPlaneCollection()
+planes = vtkPlaneCollection()
 planes.AddItem(plane)
 
 # vtkPolyDataPlaneClipper
-clipper = vtk.vtkPolyDataPlaneClipper()
+clipper = vtkPolyDataPlaneClipper()
 clipper.SetInputConnection(sphere.GetOutputPort())
 clipper.SetPlane(plane)
 clipper.SetBatchSize(10000)
 clipper.CappingOn()
 
 # Compare to vtkClipClosedSurface
-closedClipper = vtk.vtkClipClosedSurface()
+closedClipper = vtkClipClosedSurface()
 closedClipper.SetInputConnection(sphere.GetOutputPort())
 closedClipper.SetClippingPlanes(planes)
 
 # Compare to vtkClipPolyData
-oldClipper = vtk.vtkClipPolyData()
+oldClipper = vtkClipPolyData()
 oldClipper.SetInputConnection(sphere.GetOutputPort())
 oldClipper.SetValue(0.0)
 oldClipper.SetClipFunction(plane)
 
 # Time execution
-timer = vtk.vtkTimerLog()
+timer = vtkTimerLog()
 timer.StartTimer()
 clipper.Update()
 timer.StopTimer()
@@ -67,17 +87,17 @@ print("vtkPolyDataPlaneClipper Execution time: ", timer.GetElapsedTime())
 #print("vtkClipPolyData Execution time: ", timer.GetElapsedTime())
 
 # Display the clipped cells
-mapper = vtk.vtkPolyDataMapper()
+mapper = vtkPolyDataMapper()
 mapper.SetInputConnection(clipper.GetOutputPort())
 
-actor = vtk.vtkActor()
+actor = vtkActor()
 actor.SetMapper(mapper)
 
 # Display the cap
-capMapper = vtk.vtkPolyDataMapper()
+capMapper = vtkPolyDataMapper()
 capMapper.SetInputConnection(clipper.GetOutputPort(1))
 
-capActor = vtk.vtkActor()
+capActor = vtkActor()
 capActor.SetMapper(capMapper)
 capActor.GetProperty().SetColor(1,0,0)
 

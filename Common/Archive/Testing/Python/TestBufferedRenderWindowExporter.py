@@ -23,30 +23,40 @@ import io
 import json
 from random import random, seed
 import shutil
-import vtk
-import vtk.test.Testing
-from vtk.util.misc import vtkGetTempDir
+from vtkmodules.vtkCommonArchive import vtkBufferedArchiver
+from vtkmodules.vtkFiltersSources import vtkConeSource
+from vtkmodules.vtkIOExport import vtkJSONRenderWindowExporter
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderer,
+)
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+import vtkmodules.test.Testing
+from vtkmodules.util.misc import vtkGetTempDir
 import zipfile
 
 VTK_TEMP_DIR = vtkGetTempDir()
 
 # Construct a render window and write it to disk and to buffer. Decompress the
 # buffer and compare its contents to the files on disk.
-class TestBufferedRenderWindowExporter(vtk.test.Testing.vtkTest):
+class TestBufferedRenderWindowExporter(vtkmodules.test.Testing.vtkTest):
 
     def testBufferedRenderWindowExporter(self):
 
-        cone = vtk.vtkConeSource()
+        cone = vtkConeSource()
 
-        coneMapper = vtk.vtkPolyDataMapper()
+        coneMapper = vtkPolyDataMapper()
         coneMapper.SetInputConnection(cone.GetOutputPort())
 
-        coneActor = vtk.vtkActor()
+        coneActor = vtkActor()
         coneActor.SetMapper(coneMapper)
 
-        ren = vtk.vtkRenderer()
+        ren = vtkRenderer()
         ren.AddActor(coneActor)
-        renWin = vtk.vtkRenderWindow()
+        renWin = vtkRenderWindow()
         renWin.AddRenderer(ren)
 
         ren.ResetCamera()
@@ -55,13 +65,13 @@ class TestBufferedRenderWindowExporter(vtk.test.Testing.vtkTest):
         seed(0)
         archiveName = VTK_TEMP_DIR + '/scene_' + str(random())
 
-        exporter = vtk.vtkJSONRenderWindowExporter()
+        exporter = vtkJSONRenderWindowExporter()
         exporter.GetArchiver().SetArchiveName(archiveName)
         exporter.SetRenderWindow(renWin)
         exporter.Write()
 
-        bufferedExporter = vtk.vtkJSONRenderWindowExporter()
-        bufferedArchiver = vtk.vtkBufferedArchiver()
+        bufferedExporter = vtkJSONRenderWindowExporter()
+        bufferedArchiver = vtkBufferedArchiver()
         bufferedExporter.SetArchiver(bufferedArchiver)
         bufferedExporter.SetRenderWindow(renWin)
         bufferedExporter.Write()
@@ -85,4 +95,4 @@ class TestBufferedRenderWindowExporter(vtk.test.Testing.vtkTest):
 
 
 if __name__ == "__main__":
-     vtk.test.Testing.main([(TestBufferedRenderWindowExporter, 'test')])
+     vtkmodules.test.Testing.main([(TestBufferedRenderWindowExporter, 'test')])

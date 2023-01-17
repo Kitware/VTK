@@ -1,42 +1,59 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkFiltersSources import (
+    vtkConeSource,
+    vtkCubeSource,
+    vtkCylinderSource,
+    vtkSphereSource,
+)
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkAssembly,
+    vtkPolyDataMapper,
+    vtkPropAssembly,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # demonstrates the use of vtkPropAssembly
 # create four parts: a top level assembly and three primitives
 #
-sphere = vtk.vtkSphereSource()
-sphereMapper = vtk.vtkPolyDataMapper()
+sphere = vtkSphereSource()
+sphereMapper = vtkPolyDataMapper()
 sphereMapper.SetInputConnection(sphere.GetOutputPort())
-sphereActor = vtk.vtkActor()
+sphereActor = vtkActor()
 sphereActor.SetMapper(sphereMapper)
 sphereActor.SetOrigin(2,1,3)
 sphereActor.RotateY(6)
 sphereActor.SetPosition(2.25,0,0)
 sphereActor.GetProperty().SetColor(1,0,1)
-cube = vtk.vtkCubeSource()
-cubeMapper = vtk.vtkPolyDataMapper()
+cube = vtkCubeSource()
+cubeMapper = vtkPolyDataMapper()
 cubeMapper.SetInputConnection(cube.GetOutputPort())
-cubeActor = vtk.vtkActor()
+cubeActor = vtkActor()
 cubeActor.SetMapper(cubeMapper)
 cubeActor.SetPosition(0.0,.25,0)
 cubeActor.GetProperty().SetColor(0,0,1)
-cone = vtk.vtkConeSource()
-coneMapper = vtk.vtkPolyDataMapper()
+cone = vtkConeSource()
+coneMapper = vtkPolyDataMapper()
 coneMapper.SetInputConnection(cone.GetOutputPort())
-coneActor = vtk.vtkActor()
+coneActor = vtkActor()
 coneActor.SetMapper(coneMapper)
 coneActor.SetPosition(0,0,.25)
 coneActor.GetProperty().SetColor(0,1,0)
-cylinder = vtk.vtkCylinderSource()
+cylinder = vtkCylinderSource()
 #top part
-cylinderMapper = vtk.vtkPolyDataMapper()
+cylinderMapper = vtkPolyDataMapper()
 cylinderMapper.SetInputConnection(cylinder.GetOutputPort())
-cylinderActor = vtk.vtkActor()
+cylinderActor = vtkActor()
 cylinderActor.SetMapper(cylinderMapper)
 cylinderActor.GetProperty().SetColor(1,0,0)
-compositeAssembly = vtk.vtkAssembly()
+compositeAssembly = vtkAssembly()
 compositeAssembly.AddPart(cylinderActor)
 compositeAssembly.AddPart(sphereActor)
 compositeAssembly.AddPart(cubeActor)
@@ -45,15 +62,15 @@ compositeAssembly.SetOrigin(5,10,15)
 compositeAssembly.AddPosition(5,0,0)
 compositeAssembly.RotateX(15)
 # Build the prop assembly out of a vtkActor and a vtkAssembly
-assembly = vtk.vtkPropAssembly()
+assembly = vtkPropAssembly()
 assembly.AddPart(compositeAssembly)
 assembly.AddPart(coneActor)
 # Create the RenderWindow, Renderer and both Actors
 #
-ren1 = vtk.vtkRenderer()
-renWin = vtk.vtkRenderWindow()
+ren1 = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.AddRenderer(ren1)
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 # Add the actors to the renderer, set the background and size
 #

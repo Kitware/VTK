@@ -1,29 +1,47 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonCore import vtkLookupTable
+from vtkmodules.vtkFiltersCore import vtkElevationFilter
+from vtkmodules.vtkFiltersSources import (
+    vtkConeSource,
+    vtkTexturedSphereSource,
+)
+from vtkmodules.vtkIOImage import vtkPNGReader
+from vtkmodules.vtkInteractionStyle import vtkInteractorStyleTrackballCamera
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+    vtkTexture,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
-cone = vtk.vtkConeSource()
+cone = vtkConeSource()
 cone.SetHeight(3.0)
 cone.SetRadius(1.0)
 cone.SetResolution(10)
 
-coneMapper = vtk.vtkPolyDataMapper()
+coneMapper = vtkPolyDataMapper()
 coneMapper.SetInputConnection(cone.GetOutputPort())
 
 # Actor for opacity as a property value.
-coneActor = vtk.vtkActor()
+coneActor = vtkActor()
 coneActor.SetMapper(coneMapper)
 coneActor.GetProperty().SetOpacity(0.5)
 
 # Actor for opacity through LUT.
-elevation = vtk.vtkElevationFilter()
+elevation = vtkElevationFilter()
 elevation.SetInputConnection(cone.GetOutputPort())
 
-coneMapper2 = vtk.vtkPolyDataMapper()
+coneMapper2 = vtkPolyDataMapper()
 coneMapper2.SetInputConnection(elevation.GetOutputPort())
 
-lut = vtk.vtkLookupTable()
+lut = vtkLookupTable()
 lut.SetAlphaRange(0.9, 0.1)
 lut.SetHueRange(0, 0)
 lut.SetSaturationRange(1, 1)
@@ -34,32 +52,32 @@ coneMapper2.SetScalarModeToUsePointData()
 coneMapper2.SetScalarVisibility(1)
 coneMapper2.InterpolateScalarsBeforeMappingOn()
 
-coneActorLUT = vtk.vtkActor()
+coneActorLUT = vtkActor()
 coneActorLUT.SetMapper(coneMapper2)
 coneActorLUT.SetPosition(0.1, 1.0, 0)
 coneActorLUT.GetProperty().SetOpacity(0.99)
 
 # Actor for opacity through texture.
-reader = vtk.vtkPNGReader()
+reader = vtkPNGReader()
 reader.SetFileName(VTK_DATA_ROOT + "/Data/alphachannel.png")
 reader.Update()
 
-sphere = vtk.vtkTexturedSphereSource()
+sphere = vtkTexturedSphereSource()
 
-texture = vtk.vtkTexture()
+texture = vtkTexture()
 texture.SetInputConnection(reader.GetOutputPort())
 
-coneMapper3 = vtk.vtkPolyDataMapper()
+coneMapper3 = vtkPolyDataMapper()
 coneMapper3.SetInputConnection(sphere.GetOutputPort())
 
-coneActorTexture = vtk.vtkActor()
+coneActorTexture = vtkActor()
 coneActorTexture.SetTexture(texture)
 coneActorTexture.SetMapper(coneMapper3)
 coneActorTexture.SetPosition(0, -1.0, 0)
 coneActorTexture.GetProperty().SetColor(0.5, 0.5, 1)
 coneActorTexture.GetProperty().SetOpacity(0.99)
 
-ren1 = vtk.vtkRenderer()
+ren1 = vtkRenderer()
 ren1.AddActor(coneActor)
 ren1.AddActor(coneActorLUT)
 ren1.AddActor(coneActorTexture)
@@ -70,16 +88,16 @@ ren1.SetMaximumNumberOfPeels(20)
 # 2 out of 1000 pixels
 ren1.SetOcclusionRatio(0.002)
 
-renWin = vtk.vtkRenderWindow()
+renWin = vtkRenderWindow()
 renWin.SetMultiSamples(0)
 renWin.SetAlphaBitPlanes(1)
 renWin.AddRenderer(ren1)
 
 renWin.SetSize(300, 300)
 
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
-style = vtk.vtkInteractorStyleTrackballCamera()
+style = vtkInteractorStyleTrackballCamera()
 iren.SetInteractorStyle(style)
 iren.Initialize()
 

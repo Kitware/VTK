@@ -1,18 +1,24 @@
 #!/usr/bin/env python
 
-import vtk
+from vtkmodules.vtkCommonCore import vtkUnsignedCharArray
+from vtkmodules.vtkCommonDataModel import vtkDataSetAttributes
+from vtkmodules.vtkFiltersParallel import vtkRemoveGhosts
+from vtkmodules.vtkFiltersSources import (
+    vtkCellTypeSource,
+    vtkDiskSource,
+)
 import sys
 
 def CheckFilter(inputDS):
     numOrigCells = inputDS.GetNumberOfCells()
-    ghostArray = vtk.vtkUnsignedCharArray()
+    ghostArray = vtkUnsignedCharArray()
     ghostArray.SetNumberOfTuples(numOrigCells)
-    ghostArray.SetName(vtk.vtkDataSetAttributes.GhostArrayName())
+    ghostArray.SetName(vtkDataSetAttributes.GhostArrayName())
     ghostArray.Fill(0)
 
     inputDS.GetCellData().AddArray(ghostArray)
 
-    removeGhosts = vtk.vtkRemoveGhosts()
+    removeGhosts = vtkRemoveGhosts()
     removeGhosts.SetInputDataObject(inputDS)
     removeGhosts.Update()
 
@@ -34,7 +40,7 @@ def CheckFilter(inputDS):
 
 # =================== testing polydata ========================
 
-disk = vtk.vtkDiskSource()
+disk = vtkDiskSource()
 disk.SetRadialResolution(2)
 disk.SetCircumferentialResolution(9)
 
@@ -44,7 +50,7 @@ CheckFilter(disk.GetOutput())
 
 # =================== testing unstructured grid ========================
 
-cellTypeSource = vtk.vtkCellTypeSource()
+cellTypeSource = vtkCellTypeSource()
 cellTypeSource.SetBlocksDimensions(4, 5, 6)
 
 cellTypeSource.Update()

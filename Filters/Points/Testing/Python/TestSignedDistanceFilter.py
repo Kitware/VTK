@@ -1,48 +1,73 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonCore import vtkMath
+from vtkmodules.vtkCommonDataModel import (
+    vtkImplicitBoolean,
+    vtkPlane,
+    vtkSphere,
+)
+from vtkmodules.vtkCommonSystem import vtkTimerLog
+from vtkmodules.vtkFiltersModeling import vtkOutlineFilter
+from vtkmodules.vtkFiltersPoints import (
+    vtkBoundedPointSource,
+    vtkExtractSurface,
+    vtkFitImplicitFunction,
+    vtkPCANormalEstimation,
+    vtkSignedDistance,
+)
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPointGaussianMapper,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # Interpolate onto a volume
 
 # Parameters for debugging
 NPts = 1000000
-math = vtk.vtkMath()
+math = vtkMath()
 math.RandomSeed(31415)
 
 # create pipeline
 #
-points = vtk.vtkBoundedPointSource()
+points = vtkBoundedPointSource()
 points.SetNumberOfPoints(NPts)
 points.ProduceRandomScalarsOn()
 points.ProduceCellOutputOff()
 points.Update()
 
 # Create a sphere implicit function
-sphere = vtk.vtkSphere()
+sphere = vtkSphere()
 sphere.SetCenter(0,0,0)
 sphere.SetRadius(0.75)
 
 # Cut the sphere in half with a plane
-plane = vtk.vtkPlane()
+plane = vtkPlane()
 plane.SetOrigin(0,0,0)
 plane.SetNormal(1,1,1)
 
 # Boolean (intersect) these together to create a hemi-sphere
-imp = vtk.vtkImplicitBoolean()
+imp = vtkImplicitBoolean()
 imp.SetOperationTypeToIntersection()
 imp.AddFunction(sphere)
 imp.AddFunction(plane)
 
 # Extract points along hemi-sphere surface
-extract = vtk.vtkFitImplicitFunction()
+extract = vtkFitImplicitFunction()
 extract.SetInputConnection(points.GetOutputPort())
 extract.SetImplicitFunction(imp)
 extract.SetThreshold(0.005)
 extract.Update()
 
 # Now generate normals from resulting points
-norms = vtk.vtkPCANormalEstimation()
+norms = vtkPCANormalEstimation()
 norms.SetInputConnection(extract.GetOutputPort())
 norms.SetSampleSize(20)
 norms.FlipNormalsOff()
@@ -51,30 +76,30 @@ norms.SetNormalOrientationToGraphTraversal()
 #norms.SetOrientationPoint(0.3,0.3,0.3)
 norms.Update()
 
-subMapper = vtk.vtkPointGaussianMapper()
+subMapper = vtkPointGaussianMapper()
 subMapper.SetInputConnection(extract.GetOutputPort())
 subMapper.EmissiveOff()
 subMapper.SetScaleFactor(0.0)
 
-subActor = vtk.vtkActor()
+subActor = vtkActor()
 subActor.SetMapper(subMapper)
 
 # Generate signed distance function and contour it
-dist = vtk.vtkSignedDistance()
+dist = vtkSignedDistance()
 dist.SetInputConnection(norms.GetOutputPort())
 dist.SetRadius(0.1) #how far out to propagate distance calculation
 dist.SetBounds(-1,1, -1,1, -1,1)
 dist.SetDimensions(50,50,50)
 
 # Extract the surface with modified flying edges
-#fe = vtk.vtkFlyingEdges3D()
+#fe = vtkFlyingEdges3D()
 #fe.SetValue(0,0.0)
-fe = vtk.vtkExtractSurface()
+fe = vtkExtractSurface()
 fe.SetInputConnection(dist.GetOutputPort())
 fe.SetRadius(0.1) # this should match the signed distance radius
 
 # Time the execution
-timer = vtk.vtkTimerLog()
+timer = vtkTimerLog()
 timer.StartTimer()
 fe.Update()
 timer.StopTimer()
@@ -83,28 +108,28 @@ print("Points processed: {0}".format(NPts))
 print("   Time to generate and extract distance function: {0}".format(time))
 print("   Resulting bounds: {}".format(fe.GetOutput().GetBounds()))
 
-feMapper = vtk.vtkPolyDataMapper()
+feMapper = vtkPolyDataMapper()
 feMapper.SetInputConnection(fe.GetOutputPort())
 
-feActor = vtk.vtkActor()
+feActor = vtkActor()
 feActor.SetMapper(feMapper)
 
 # Create an outline
-outline = vtk.vtkOutlineFilter()
+outline = vtkOutlineFilter()
 outline.SetInputConnection(points.GetOutputPort())
 
-outlineMapper = vtk.vtkPolyDataMapper()
+outlineMapper = vtkPolyDataMapper()
 outlineMapper.SetInputConnection(outline.GetOutputPort())
 
-outlineActor = vtk.vtkActor()
+outlineActor = vtkActor()
 outlineActor.SetMapper(outlineMapper)
 
 # Create the RenderWindow, Renderer and both Actors
 #
-ren0 = vtk.vtkRenderer()
-renWin = vtk.vtkRenderWindow()
+ren0 = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.AddRenderer(ren0)
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 
 # Add the actors to the renderer, set the background and size

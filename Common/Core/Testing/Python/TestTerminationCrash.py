@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import vtk
+from vtkmodules.vtkCommonCore import vtkObject
 
 class TerminationCrashTestCase:
 
@@ -24,7 +24,7 @@ class TerminationCrashTestCase:
     self).  """
 
     def __init__(self) :
-        self.Object = vtk.vtkObject()
+        self.Object = vtkObject()
         self.Object.AddObserver('StartEvent', self.Handler)
     def Handler(self, obj, evt) :
         print('event received')

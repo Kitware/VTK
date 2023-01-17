@@ -7,12 +7,12 @@ Without the fix as applied in the patch there, this code should crash on
 exit.
 """
 
-import vtk
+from vtkmodules.vtkFiltersProgrammable import vtkProgrammableFilter
 
 
 class TestCase2 :
  def __init__(self) :
-   self.Filter = vtk.vtkProgrammableFilter()
+   self.Filter = vtkProgrammableFilter()
    self.Filter.SetExecuteMethod(self.ExecMethod)
  def ExecMethod(self) :
    print('execute method called')

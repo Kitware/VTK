@@ -3,27 +3,35 @@
 # This script tests the bounds calculation of vtkCompositePolyDataMapper
 # when the composite data set has empty blocks.
 
-import vtk
+from vtkmodules.vtkCommonCore import vtkPoints
+from vtkmodules.vtkCommonDataModel import (
+    vtkCellArray,
+    vtkMultiBlockDataSet,
+    vtkPolyData,
+)
+from vtkmodules.vtkRenderingCore import vtkCompositePolyDataMapper
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
 import sys
 
 # If a composite data set had an empty block following one or more non-empty
 # blocks, the invalid bounds of the empty block ([1,-1,1,-1,1,-1]) would be
 # compared with the current bounds, e.g. -3 is less than -1 hence y_max would
 # be -1.
-pts = vtk.vtkPoints()
+pts = vtkPoints()
 bounds = [2.,4.,-5.,-3.,0.0,0.0]
 for y in bounds[2:4]:
   for x in bounds[0:2]:
     pts.InsertNextPoint( x,y,0 )
 
 # One cell
-polys=vtk.vtkCellArray()
+polys=vtkCellArray()
 polys.InsertNextCell(4)
 for pid in [0,1,3,2]:
   polys.InsertCellPoint(pid)
 
 # create a polydata with a single quad
-pd=vtk.vtkPolyData()
+pd=vtkPolyData()
 pd.SetPoints(pts)
 pd.SetPolys(polys)
 pdBounds = pd.GetBounds()
@@ -35,15 +43,15 @@ for i in range(0,6):
     break
 
 # An empty polydata
-empty=vtk.vtkPolyData()
+empty=vtkPolyData()
 
 # A composite data set with an empty block following a non-empty block
-mbd=vtk.vtkMultiBlockDataSet()
+mbd=vtkMultiBlockDataSet()
 mbd.SetBlock(0,pd)
 mbd.SetBlock(1,empty)
 
 # The composite polydata mapper maps the composite dataset
-cpdm=vtk.vtkCompositePolyDataMapper()
+cpdm=vtkCompositePolyDataMapper()
 cpdm.SetInputDataObject(mbd)
 
 # Calculate the bounds

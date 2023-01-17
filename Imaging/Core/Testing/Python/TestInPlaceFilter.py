@@ -1,6 +1,13 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkFiltersCore import vtkImageAppend
+from vtkmodules.vtkIOImage import vtkSLCReader
+from vtkmodules.vtkImagingCore import vtkImageMagnify
+from vtkmodules.vtkImagingHybrid import vtkImageCursor3D
+from vtkmodules.vtkInteractionImage import vtkImageViewer
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # Derived from Cursor3D.  This script increases the coverage of the
@@ -14,22 +21,22 @@ IMAGE_MAG_Y = 2
 IMAGE_MAG_Z = 1
 
 # pipeline stuff
-reader = vtk.vtkSLCReader()
+reader = vtkSLCReader()
 reader.SetFileName(VTK_DATA_ROOT + "/Data/nut.slc")
 
 # make the image a little bigger
-magnify1 = vtk.vtkImageMagnify()
+magnify1 = vtkImageMagnify()
 magnify1.SetInputConnection(reader.GetOutputPort())
 magnify1.SetMagnificationFactors(IMAGE_MAG_X, IMAGE_MAG_Y, IMAGE_MAG_Z)
 magnify1.ReleaseDataFlagOn()
 
-magnify2 = vtk.vtkImageMagnify()
+magnify2 = vtkImageMagnify()
 magnify2.SetInputConnection(reader.GetOutputPort())
 magnify2.SetMagnificationFactors(IMAGE_MAG_X, IMAGE_MAG_Y, IMAGE_MAG_Z)
 magnify2.ReleaseDataFlagOn()
 
 # a filter that does in place processing (magnify ReleaseDataFlagOn)
-cursor = vtk.vtkImageCursor3D()
+cursor = vtkImageCursor3D()
 cursor.SetInputConnection(magnify1.GetOutputPort())
 cursor.SetCursorPosition(CURSOR_X * IMAGE_MAG_X,
                           CURSOR_Y * IMAGE_MAG_Y,
@@ -39,12 +46,12 @@ cursor.SetCursorRadius(50 * IMAGE_MAG_X)
 
 # stream to increase coverage of in place filter.
 # put the two together in one image
-imageAppend = vtk.vtkImageAppend()
+imageAppend = vtkImageAppend()
 imageAppend.SetAppendAxis(0)
 imageAppend.AddInputConnection(magnify2.GetOutputPort())
 imageAppend.AddInputConnection(cursor.GetOutputPort())
 
-viewer = vtk.vtkImageViewer()
+viewer = vtkImageViewer()
 viewer.SetInputConnection(imageAppend.GetOutputPort())
 viewer.SetZSlice(CURSOR_Z * IMAGE_MAG_Z)
 viewer.SetColorWindow(200)

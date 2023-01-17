@@ -1,27 +1,56 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonCore import (
+    vtkLookupTable,
+    vtkPoints,
+)
+from vtkmodules.vtkCommonDataModel import (
+    vtkCellArray,
+    vtkPolyData,
+)
+from vtkmodules.vtkFiltersCore import (
+    vtkFlyingEdges2D,
+    vtkGlyph3D,
+    vtkIdFilter,
+    vtkTriangleFilter,
+)
+from vtkmodules.vtkFiltersModeling import (
+    vtkContourLoopExtraction,
+    vtkCookieCutter,
+)
+from vtkmodules.vtkFiltersSources import vtkPlaneSource
+from vtkmodules.vtkIOImage import vtkDEMReader
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # create planes
 # Create the RenderWindow, Renderer
 #
-ren = vtk.vtkRenderer()
-renWin = vtk.vtkRenderWindow()
+ren = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.AddRenderer( ren )
 
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 
 # Create pipeline. generate contours from terrain data.
 #
-lut = vtk.vtkLookupTable()
+lut = vtkLookupTable()
 lut.SetHueRange(0.6, 0)
 lut.SetSaturationRange(1.0, 0)
 lut.SetValueRange(0.5, 1.0)
 
 # Read the data: a height field results
-demReader = vtk.vtkDEMReader()
+demReader = vtkDEMReader()
 demReader.SetFileName(VTK_DATA_ROOT + "/Data/SainteHelens.dem")
 demReader.Update()
 
@@ -29,18 +58,18 @@ lo = demReader.GetOutput().GetScalarRange()[0]
 hi = demReader.GetOutput().GetScalarRange()[1]
 
 # Generate contours
-contours = vtk.vtkFlyingEdges2D()
+contours = vtkFlyingEdges2D()
 contours.SetInputConnection(demReader.GetOutputPort())
 contours.SetValue(0, (hi + lo)/2.0)
 
 # Construct loops
-loops = vtk.vtkContourLoopExtraction()
+loops = vtkContourLoopExtraction()
 loops.SetInputConnection(contours.GetOutputPort())
 loops.Update()
 bds = loops.GetOutput().GetBounds()
 
 # Place glyphs inside polygons
-plane = vtk.vtkPlaneSource()
+plane = vtkPlaneSource()
 plane.SetXResolution(25)
 plane.SetYResolution(25)
 plane.SetOrigin(bds[0],bds[2],bds[4]);
@@ -48,11 +77,11 @@ plane.SetPoint1(bds[1],bds[2],bds[4]);
 plane.SetPoint2(bds[0],bds[3],bds[4]);
 
 # Custom glyph
-glyphData = vtk.vtkPolyData()
-glyphPts = vtk.vtkPoints()
-glyphVerts = vtk.vtkCellArray()
-glyphLines = vtk.vtkCellArray()
-glyphPolys = vtk.vtkCellArray()
+glyphData = vtkPolyData()
+glyphPts = vtkPoints()
+glyphVerts = vtkCellArray()
+glyphLines = vtkCellArray()
+glyphPolys = vtkCellArray()
 glyphData.SetPoints(glyphPts)
 glyphData.SetVerts(glyphVerts)
 glyphData.SetLines(glyphLines)
@@ -97,36 +126,36 @@ glyphPolys.InsertCellPoint(1)
 glyphPolys.InsertCellPoint(2)
 glyphPolys.InsertCellPoint(3)
 
-glyph = vtk.vtkGlyph3D()
+glyph = vtkGlyph3D()
 glyph.SetInputConnection(plane.GetOutputPort())
 glyph.SetSourceData(glyphData)
 glyph.SetScaleFactor( 100 )
 
-ids = vtk.vtkIdFilter()
+ids = vtkIdFilter()
 ids.SetInputConnection(glyph.GetOutputPort())
 ids.Update()
 
-cookie = vtk.vtkCookieCutter()
+cookie = vtkCookieCutter()
 cookie.SetInputConnection(ids.GetOutputPort())
 cookie.SetLoopsConnection(loops.GetOutputPort())
 cookie.PassPointDataOff()
 cookie.PassCellDataOff()
 
-tri = vtk.vtkTriangleFilter()
+tri = vtkTriangleFilter()
 tri.SetInputConnection(cookie.GetOutputPort())
 
-mapper = vtk.vtkPolyDataMapper()
+mapper = vtkPolyDataMapper()
 mapper.SetInputConnection(tri.GetOutputPort())
 mapper.ScalarVisibilityOff()
 
-actor = vtk.vtkActor()
+actor = vtkActor()
 actor.SetMapper(mapper)
 
 # Show the loop
-loopMapper = vtk.vtkPolyDataMapper()
+loopMapper = vtkPolyDataMapper()
 loopMapper.SetInputConnection(loops.GetOutputPort())
 
-loopActor = vtk.vtkActor()
+loopActor = vtkActor()
 loopActor.SetMapper(loopMapper)
 loopActor.GetProperty().SetRepresentationToWireframe()
 
