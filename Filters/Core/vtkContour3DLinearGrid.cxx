@@ -1151,7 +1151,7 @@ int ProcessMerged(vtkContour3DLinearGrid* filter, vtkPoints* inPts, vtkPoints* o
       {
         pointArrays->ExcludeArray(inScalars);
       }
-      pointArrays->AddArrays(numPts, inPD, outPD);
+      pointArrays->AddArrays(numPts, inPD, outPD, 0.0, /*promote=*/false);
       if (!computeScalars)
       {
         outPD->RemoveArray(inScalars->GetName());
@@ -1168,7 +1168,7 @@ int ProcessMerged(vtkContour3DLinearGrid* filter, vtkPoints* inPts, vtkPoints* o
     if (totalTris <= 0) // first contour value generating output
     {
       outCD->CopyAllocate(inCD, numTris);
-      cellArrays->AddArrays(numTris, inCD, outCD);
+      cellArrays->AddArrays(numTris, inCD, outCD, 0.0, /*promote=*/false);
     }
     else
     {
@@ -1526,7 +1526,23 @@ void vtkContour3DLinearGrid::ProcessPiece(
   else // Need to merge points, and possibly perform attribute interpolation
        // and generate normals. Hence use the slower path.
   {
-    vtkPointData* inPD = input->GetPointData();
+    vtkPointData* inPDOriginal = input->GetPointData();
+    // We don't want to change the active scalars in the input, but we
+    // need to set the active scalars to match the input array to
+    // process so that the point data copying works as expected. Create
+    // a shallow copy of point data so that we can do this without
+    // changing the input.
+    vtkNew<vtkPointData> inPD;
+    inPD->ShallowCopy(inPDOriginal);
+    // Keep track of the old active scalars because when we set the new
+    // scalars, the old scalars are removed from the point data entirely
+    // and we have to add them back.
+    vtkAbstractArray* oldScalars = inPD->GetScalars();
+    inPD->SetScalars(inScalars);
+    if (oldScalars)
+    {
+      inPD->AddArray(oldScalars);
+    }
     vtkPointData* outPD = output->GetPointData();
     vtkCellData* inCD = input->GetCellData();
     vtkCellData* outCD = output->GetCellData();
