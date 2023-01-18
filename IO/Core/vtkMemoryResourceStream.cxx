@@ -16,6 +16,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include "vtkObjectFactory.h"
 
+#include <algorithm> // std::min
 #include <cstring>
 
 VTK_ABI_NAMESPACE_BEGIN
