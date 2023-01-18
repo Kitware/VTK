@@ -49,7 +49,7 @@ struct vtkThreadedCallbackQueue::InvokerImpl
    * to a std::tuple.
    */
   template <class FT>
-  using ArgsTuple = typename Signature<typename std::remove_reference<FT>::type>::ArgsTuple;
+  using ArgsTuple = typename Signature<typename std::decay<FT>::type>::ArgsTuple;
 
   /**
    * Convenient typedef that, given a function of type FT and an index I, returns the type of the
@@ -205,15 +205,14 @@ private:
     // The static_cast to ArgType forces casts to the correct types of the function.
     // There are conflicts with rvalue references not being able to be converted to lvalue
     // references if this static_cast is not performed
-    return (deref.*Function)(
-      static_cast<ArgType<decltype(deref), Is>>(std::get<Is>(this->Args))...);
+    return (deref.*Function)(static_cast<ArgType<FT, Is>>(std::get<Is>(this->Args))...);
   }
 
   FT Function;
   // We DO NOT want to hold lvalue references! They could be destroyed before we execute them.
   // This forces to call the copy constructor on lvalue references inputs.
-  typename std::remove_reference<ObjectT>::type Instance;
-  std::tuple<typename std::remove_reference<ArgsT>::type...> Args;
+  typename std::decay<ObjectT>::type Instance;
+  std::tuple<typename std::decay<ArgsT>::type...> Args;
 };
 
 //=============================================================================
@@ -232,8 +231,6 @@ public:
   InvokeResult<FT> operator()() { return this->Invoke(MakeIntegerSequence<sizeof...(ArgsT)>()); }
 
 private:
-  using FunctionType = typename std::decay<FT>::type;
-
   template <std::size_t... Is>
   InvokeResult<FT> Invoke(IntegerSequence<Is...>)
   {
@@ -249,8 +246,8 @@ private:
 
   // We DO NOT want to hold lvalue references! They could be destroyed before we execute them.
   // This forces to call the copy constructor on lvalue references inputs.
-  typename std::remove_reference<FT>::type Function;
-  std::tuple<typename std::remove_reference<ArgsT>::type...> Args;
+  typename std::decay<FT>::type Function;
+  std::tuple<typename std::decay<ArgsT>::type...> Args;
 };
 
 //=============================================================================
