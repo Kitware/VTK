@@ -32,7 +32,7 @@
 
 namespace
 {
-const std::array<unsigned char, 4> BYTE_SIZES({ 1, 2, 4, 8 });
+const std::array<unsigned char, 4> BYTE_SIZES{ 1, 2, 4, 8 };
 using Dispatch = vtkArrayDispatch::DispatchByArray<vtkArrayDispatch::AllArrays>;
 
 template <typename ValueType, typename ArrayT>
