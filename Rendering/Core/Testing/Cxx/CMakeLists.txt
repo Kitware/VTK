@@ -90,6 +90,7 @@ vtk_add_test_cxx(vtkRenderingCoreCxxTests tests
   TestTStripsNormalsColorsTCoords.cxx
   TestTStripsNormalsTCoords.cxx
   TestTStripsTCoords.cxx
+  TestTupleInterpolator.cxx,NO_VALID,NO_DATA
   TestWindowToImageFilter.cxx
   TestResizingWindowToImageFilter.cxx
   TestTextureWrap.cxx

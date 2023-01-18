@@ -109,6 +109,16 @@ public:
   void AddPoint(double t, double x);
 
   /**
+   * Add all the points to the list of points in one time,
+   * and then sort them only once. Much faster than using
+   * AddPoint for each point.
+   *
+   * Note that the data is copied and this method does not
+   * take ownership of the parameter array.
+   */
+  void FillFromDataPointer(int nb, double* data);
+
+  /**
    * Remove a point from the data to be fit with the spline.
    */
   void RemovePoint(double t);
