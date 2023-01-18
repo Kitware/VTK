@@ -6,6 +6,7 @@ import vtkmodules.vtkInteractionStyle
 import vtkmodules.vtkRenderingFreeType
 import vtkmodules.vtkRenderingOpenGL2
 from vtkmodules.vtkTestingRendering import vtkTesting
+import os
 # Image pipeline
 image1 = vtkTIFFReader()
 image1.SetFileName("" + str(VTK_DATA_ROOT) + "/Data/beach.tif")
@@ -18,18 +19,15 @@ image1.SetFileName("" + str(VTK_DATA_ROOT) + "/Data/beach.tif")
 image1.SetOrientationType(4)
 image1.Update()
 #
-# If the current directory is writable, then test the witers
+# If the current directory is writable, then test the writers
 #
-if (catch.catch(globals(),"""channel = open(test.tmp, w)""") == 0):
-    channel.close()
-    file.delete("-force", test.tmp)
+if os.access('.', os.W_OK):
     piw = vtkPImageWriter()
     piw.SetInputConnection(image1.GetOutputPort())
-    piw.SetFileName(piw.raw)
+    piw.SetFileName('piw.raw')
     piw.SetMemoryLimit(1)
     piw.Write()
-    file.delete("-force", piw.raw)
-    pass
+    os.remove('piw.raw')
 viewer = vtkImageViewer()
 viewer.SetInputConnection(image1.GetOutputPort())
 viewer.SetColorWindow(255)

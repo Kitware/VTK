@@ -21,6 +21,7 @@ from vtkmodules.vtkRenderingCore import (
 import vtkmodules.vtkInteractionStyle
 import vtkmodules.vtkRenderingFreeType
 import vtkmodules.vtkRenderingOpenGL2
+import os
 
 def DoPlot3DReaderTests(reader):
     # Ensure disable function works.
@@ -57,9 +58,7 @@ iren.SetRenderWindow(renWin)
 #
 # If the current directory is writable, then test the witers
 #
-if (catch.catch(globals(),"""channel = open("test.tmp", "w")""") == 0):
-    channel.close()
-    file.delete("-force", "test.tmp")
+if os.access(".", os.W_OK):
     # ====== Structured Grid ======
     # First save out a grid in parallel form.
     reader = vtkMultiBlockPLOT3DReader()
@@ -93,14 +92,14 @@ if (catch.catch(globals(),"""channel = open("test.tmp", "w")""") == 0):
     w = vtkDataSetWriter()
 #    w.SetInputData(mapper.GetInput())
     w.SetInputData(surface.GetInput())
-    w.SetFileName("foo.vtk")
+    w.SetFileName(os.path.join(".", "foo.vtk"))
     w.SetFileTypeToASCII()
     w.Write()
-    file.delete("-force", "comb.pvtk")
-    file.delete("-force", "comb.0.vtk")
-    file.delete("-force", "comb.1.vtk")
-    file.delete("-force", "comb.2.vtk")
-    file.delete("-force", "comb.3.vtk")
+    os.remove("comb.pvtk")
+    os.remove("comb.0.vtk")
+    os.remove("comb.1.vtk")
+    os.remove("comb.2.vtk")
+    os.remove("comb.3.vtk")
     actor = vtkActor()
     actor.SetMapper(mapper)
     actor.SetPosition(-5,0,-29)
@@ -134,11 +133,11 @@ if (catch.catch(globals(),"""channel = open("test.tmp", "w")""") == 0):
     mapper2.Update()
     # Strip the ghost cells requested by the contour filter
     mapper2.GetInput().RemoveGhostCells()
-    file.delete("-force", "fractal.pvtk")
-    file.delete("-force", "fractal.0.vtk")
-    file.delete("-force", "fractal.1.vtk")
-    file.delete("-force", "fractal.2.vtk")
-    file.delete("-force", "fractal.3.vtk")
+    os.remove("fractal.pvtk")
+    os.remove("fractal.0.vtk")
+    os.remove("fractal.1.vtk")
+    os.remove("fractal.2.vtk")
+    os.remove("fractal.3.vtk")
     actor2 = vtkActor()
     actor2.SetMapper(mapper2)
     actor2.SetScale(5,5,5)
@@ -163,11 +162,11 @@ if (catch.catch(globals(),"""channel = open("test.tmp", "w")""") == 0):
     mapper3.SetPiece(0)
     mapper3.SetGhostLevel(1)
     mapper3.Update()
-    file.delete("-force", "sphere.pvtk")
-    file.delete("-force", "sphere.0.vtk")
-    file.delete("-force", "sphere.1.vtk")
-    file.delete("-force", "sphere.2.vtk")
-    file.delete("-force", "sphere.3.vtk")
+    os.remove("sphere.pvtk")
+    os.remove("sphere.0.vtk")
+    os.remove("sphere.1.vtk")
+    os.remove("sphere.2.vtk")
+    os.remove("sphere.3.vtk")
     actor3 = vtkActor()
     actor3.SetMapper(mapper3)
     actor3.SetPosition(6,6,6)
@@ -186,6 +185,7 @@ if (catch.catch(globals(),"""channel = open("test.tmp", "w")""") == 0):
         print("pReader3 output should have 48 cells but has %d" % pReader3.GetOutput().GetNumberOfCells())
         sys.exit(1)
     pass
+
 ren1.SetBackground(0.1,0.2,0.4)
 renWin.SetSize(300,300)
 # render the image
@@ -196,5 +196,4 @@ cam1.Elevation(40)
 ren1.ResetCamera()
 cam1.Zoom(1.2)
 iren.Initialize()
-# prevent the tk window from showing up then start the event loop
 # --- end of script --

@@ -24,7 +24,7 @@ outlineMapper.SetNumberOfPieces(2)
 outlineMapper.SetPiece(1)
 outlineActor = vtkActor()
 outlineActor.SetMapper(outlineMapper)
-outlineActor.GetProperty().SetColor(black)
+outlineActor.GetProperty().SetColor(0.0, 0.0, 0.0)
 # Graphics stuff
 # Create the RenderWindow, Renderer and both Actors
 #

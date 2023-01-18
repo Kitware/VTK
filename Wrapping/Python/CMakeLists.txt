@@ -131,6 +131,7 @@ set(python_files
   vtkmodules/test/BlackBox.py
   vtkmodules/test/ErrorObserver.py
   vtkmodules/test/Testing.py
+  vtkmodules/test/rtImageTest.py
   vtkmodules/test/__init__.py
   vtkmodules/tk/__init__.py
   vtkmodules/tk/vtkLoadPythonTkWidgets.py

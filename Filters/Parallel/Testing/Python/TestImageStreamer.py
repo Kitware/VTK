@@ -4,6 +4,8 @@ from vtkmodules.vtkFiltersParallelImaging import vtkMemoryLimitImageDataStreamer
 from vtkmodules.vtkIOImage import vtkImageReader
 from vtkmodules.vtkImagingCore import vtkImageMapToColors
 from vtkmodules.vtkInteractionImage import vtkImageViewer
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
 
 reader = vtkImageReader()
 reader.ReleaseDataFlagOff()
@@ -22,14 +24,13 @@ LUT.SetAlphaRange(1,1)
 LUT.Build()
 # added these unused default arguments so that the prototype
 # matches as required in python.
-def changeLUT (a=0,b=0,__vtk__temp0=0,__vtk__temp1=0):
+def changeLUT(*args):
     global rangeStart, rangeEnd
-    rangeStart = expr.expr(globals(), locals(),["rangeStart","+","0.1"])
-    rangeEnd = expr.expr(globals(), locals(),["rangeEnd","+","0.1"])
-    if (rangeEnd > 1.0):
+    rangeStart += 0.1
+    rangeEnd += 0.1
+    if rangeEnd > 1.0:
         rangeStart = 0.0
         rangeEnd = 0.2
-        pass
     LUT.SetHueRange(rangeStart,rangeEnd)
     LUT.Build()
 

@@ -47,28 +47,23 @@ transformSquad.SetInputConnection(squadColors.GetOutputPort())
 transformSquad.SetTransform(squadTransform)
 transformSquad.Update()
 # procedure for generating glyphs
-def Glyph (__vtk__temp0=0,__vtk__temp1=0):
-    global res
+def Glyph():
     ptId = glypher.GetPointId()
     pd = glypher.GetPointData()
-    xyz = glypher.GetPoint()
-    x = lindex(xyz,0)
-    y = lindex(xyz,1)
+    x,y,z = glypher.GetPoint()
     length = glypher.GetInput(0).GetLength()
-    scale = expr.expr(globals(), locals(),["length","/","(","2.0","*","res",")"])
+    scale = length/(2.0*res)
     squadTransform.Identity()
-    if (x == y):
+    if x == y:
         squad.ToroidalOn()
-        squadTransform.Translate(xyz)
+        squadTransform.Translate(x,y,z)
         squadTransform.RotateX(90)
-        pass
     else:
-        squadTransform.Translate(xyz)
+        squadTransform.Translate(x,y,z)
         squad.ToroidalOff()
-        pass
     squadTransform.Scale(scale,scale,scale)
-    squad.SetPhiRoundness(expr.expr(globals(), locals(),["abs","(","x",")*","5.0"]))
-    squad.SetThetaRoundness(expr.expr(globals(), locals(),["abs","(","y",")*","5.0"]))
+    squad.SetPhiRoundness(abs(x)*5.0)
+    squad.SetThetaRoundness(abs(y)*5.0)
 
 glypher = vtkProgrammableGlyphFilter()
 glypher.SetInputConnection(colors.GetOutputPort())

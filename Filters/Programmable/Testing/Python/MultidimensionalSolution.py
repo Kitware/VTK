@@ -20,6 +20,8 @@ import vtkmodules.vtkInteractionStyle
 import vtkmodules.vtkRenderingFreeType
 import vtkmodules.vtkRenderingOpenGL2
 from vtkmodules.util.misc import vtkGetDataRoot
+import math
+
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 #
@@ -83,10 +85,8 @@ velocity.SetScaleFactor(0.0015)
 pressureGradient = vtkHedgeHog()
 pressureGradient.SetInputConnection(probe_gradient.GetOutputPort())
 pressureGradient.SetScaleFactor(0.00002)
-def ExecuteDot (__vtk__temp0=0,__vtk__temp1=0):
-    # proc for ProgrammableAttributeDataFilter.  Note the use of "double()"
-    # in the calculations.  This protects us from Python using ints and
-    # overflowing.
+def ExecuteDot():
+    # proc for ProgrammableAttributeDataFilter.
     inputs = dotProduct.GetInputList()
     input0 = inputs.GetDataSet(0)
     input1 = inputs.GetDataSet(1)
@@ -94,31 +94,18 @@ def ExecuteDot (__vtk__temp0=0,__vtk__temp1=0):
     vectors0 = input0.GetPointData().GetVectors()
     vectors1 = input1.GetPointData().GetVectors()
     scalars = vtkFloatArray()
-    i = 0
-    while i < numPts:
-        v0 = vectors0.GetTuple3(i)
-        v1 = vectors1.GetTuple3(i)
-        v0x = lindex(v0,0)
-        v0y = lindex(v0,1)
-        v0z = lindex(v0,2)
-        v1x = lindex(v1,0)
-        v1y = lindex(v1,1)
-        v1z = lindex(v1,2)
-        l0 = expr.expr(globals(), locals(),["double","(","v0x",")*","double","(","v0x",")","+","double","(","v0y",")*","double","(","v0y",")","+","double","(","v0z",")*","double","(","v0z",")"])
-        l1 = expr.expr(globals(), locals(),["double","(","v1x",")*","double","(","v1x",")","+","double","(","v1y",")*","double","(","v1y",")","+","double","(","v1z",")*","double","(","v1z",")"])
-        l0 = expr.expr(globals(), locals(),["sqrt","(","double","(","l0","))"])
-        l1 = expr.expr(globals(), locals(),["sqrt","(","double","(","l1","))"])
-        if (l0 > 0.0 and l1 > 0.0):
-            d = expr.expr(globals(), locals(),["(","double","(","v0x",")*","double","(","v1x",")","+","double","(","v0y",")*","double","(","v1y",")","+","double","(","v0z",")*","double","(","v1z","))/(","l0","*","l1",")"])
-            pass
+    for i in range(numPts):
+        v0x,v0y,v0z = vectors0.GetTuple3(i)
+        v1x,v1y,v1z = vectors1.GetTuple3(i)
+        l0 = math.sqrt(v0x*v0x + v0y*v0y + v0z*v0z)
+        l1 = math.sqrt(v1x*v1x + v1y*v1y + v1z*v1z)
+        if l0 > 0.0 and l1 > 0.0:
+            d = (v0x*v1x + v0y*v1y + v0z*v1z)/(l0*l1)
         else:
             d = 0.0
-            pass
         scalars.InsertValue(i,d)
-        i = i + 1
 
     dotProduct.GetOutput().GetPointData().SetScalars(scalars)
-    del scalars
 
 #
 # We use the ProgrammableAttributeDataFilter to compute the cosine
