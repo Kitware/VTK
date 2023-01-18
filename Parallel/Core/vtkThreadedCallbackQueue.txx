@@ -48,7 +48,7 @@ struct vtkThreadedCallbackQueue::InvokerImpl
    * Convenient typedef that use Signature to convert the parameters of function of type FT
    * to a std::tuple.
    */
-  template <class FT>
+  template <class FT, std::size_t N = Signature<typename std::decay<FT>::type>::ArgsSize>
   using ArgsTuple = typename Signature<typename std::decay<FT>::type>::ArgsTuple;
 
   /**
@@ -57,6 +57,41 @@ struct vtkThreadedCallbackQueue::InvokerImpl
    */
   template <class FT, std::size_t I>
   using ArgType = typename std::tuple_element<I, ArgsTuple<FT>>::type;
+
+  /**
+   * This helper function returns a tuple of cherry-picked types from the argument types from
+   * the input function or the argument types of the provided input following this criterion:
+   * * If the input function expects an lvalue reference, store it in its decayed type.
+   * * Otherwise, store it as is (decayed input type). The conversion to the function argument
+   *   type will be done upon invoking.
+   *
+   * This specific casting allows us to permit to call the constructor for rvalue reference inputs
+   * when the type differs from the one provided by the user (take a const char* input when the
+   * function expects a std::string for instance).
+   * We want to keep the input type in all other circumstances in case the user inputs smart
+   * pointers and the function only expects a raw pointer. If we casted it to the function argument
+   * type, we would not own a reference to the smart pointer.
+   *
+   * FunctionArgsTupleT is a tuple of the function native argument types (extracted from its
+   * signature), and InputArgsTupleT is a tuple of the types provided by the user as input
+   * parameters.
+   */
+  template <class FunctionArgsTupleT, class InputArgsTupleT, std::size_t... Is>
+  static std::tuple<typename std::conditional<
+    std::is_lvalue_reference<typename std::tuple_element<Is, FunctionArgsTupleT>::type>::value,
+    typename std::decay<typename std::tuple_element<Is, FunctionArgsTupleT>::type>::type,
+    typename std::decay<typename std::tuple_element<Is, InputArgsTupleT>::type>::type>::type...>
+  GetStaticCastArgsTuple(IntegerSequence<Is...>);
+
+  /**
+   * Convenient typedef to create a tuple of types allowing to call the constructor of the function
+   * argument type when relevant, or hold a copy of the input parameters provided by the user
+   * instead.
+   */
+  template <class FunctionArgsTupleT, class... InputArgsT>
+  using StaticCastArgsTuple =
+    decltype(GetStaticCastArgsTuple<FunctionArgsTupleT, std::tuple<InputArgsT...>>(
+      MakeIntegerSequence<sizeof...(InputArgsT)>()));
 
   /**
    * This holds the attributes of a function.
@@ -96,6 +131,7 @@ struct vtkThreadedCallbackQueue::Signature<ReturnT(ArgsT...)>
 {
   using ArgsTuple = std::tuple<ArgsT...>;
   using InvokeResult = ReturnT;
+  static constexpr std::size_t ArgsSize = sizeof...(ArgsT);
 };
 
 //=============================================================================
@@ -105,6 +141,7 @@ struct vtkThreadedCallbackQueue::Signature<ReturnT (ClassT::*)(ArgsT...)>
 {
   using ArgsTuple = std::tuple<ArgsT...>;
   using InvokeResult = ReturnT;
+  static constexpr std::size_t ArgsSize = sizeof...(ArgsT);
 };
 
 //=============================================================================
@@ -114,6 +151,7 @@ struct vtkThreadedCallbackQueue::Signature<ReturnT (ClassT::*)(ArgsT...) const>
 {
   using ArgsTuple = std::tuple<ArgsT...>;
   using InvokeResult = ReturnT;
+  static constexpr std::size_t ArgsSize = sizeof...(ArgsT);
 };
 
 //=============================================================================
@@ -123,6 +161,7 @@ struct vtkThreadedCallbackQueue::Signature<ReturnT (*)(ArgsT...)>
 {
   using ArgsTuple = std::tuple<ArgsT...>;
   using InvokeResult = ReturnT;
+  static constexpr std::size_t ArgsSize = sizeof...(ArgsT);
 };
 
 //=============================================================================
@@ -180,7 +219,7 @@ struct vtkThreadedCallbackQueue::Dereference<T, std::nullptr_t>
 
 //=============================================================================
 template <class FT, class ObjectT, class... ArgsT>
-class vtkThreadedCallbackQueue::InvokerImpl::InvokerHandle<true /* IsMemberFunctionPointer */, FT,
+class vtkThreadedCallbackQueue::InvokerImpl::InvokerHandle<true /* IsMemberFunctionPoNinter */, FT,
   ObjectT, ArgsT...>
 {
 public:
@@ -209,10 +248,20 @@ private:
   }
 
   FT Function;
+
   // We DO NOT want to hold lvalue references! They could be destroyed before we execute them.
   // This forces to call the copy constructor on lvalue references inputs.
   typename std::decay<ObjectT>::type Instance;
-  std::tuple<typename std::decay<ArgsT>::type...> Args;
+
+  // We want to hold an instance of the arguments in the type expected by the function rather than
+  // the types provided by the user when the function expects a lvalue reference.
+  // This way, if there is a conversion to be done, it can be done
+  // in the constructor of each type.
+  //
+  // Example: The user provides a string as "example", but the function expects a std::string&.
+  // We can directly store this argument as a std::string and allow to pass it to the function as a
+  // std::string.
+  StaticCastArgsTuple<ArgsTuple<FT>, ArgsT...> Args;
 };
 
 //=============================================================================
@@ -247,7 +296,16 @@ private:
   // We DO NOT want to hold lvalue references! They could be destroyed before we execute them.
   // This forces to call the copy constructor on lvalue references inputs.
   typename std::decay<FT>::type Function;
-  std::tuple<typename std::decay<ArgsT>::type...> Args;
+
+  // We want to hold an instance of the arguments in the type expected by the function rather than
+  // the types provided by the user when the function expects a lvalue reference.
+  // This way, if there is a conversion to be done, it can be done
+  // in the constructor of each type.
+  //
+  // Example: The user provides a string as "example", but the function expects a std::string&.
+  // We can directly store this argument as a std::string and allow to pass it to the function as a
+  // std::string.
+  StaticCastArgsTuple<ArgsTuple<typename Dereference<FT>::Type>, ArgsT...> Args;
 };
 
 //=============================================================================

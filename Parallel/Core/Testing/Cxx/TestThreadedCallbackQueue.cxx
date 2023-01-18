@@ -153,11 +153,11 @@ bool TestTokens()
 
     using Array = std::vector<vtkThreadedCallbackQueue::TokenPointer>;
 
-    auto token1 = queue->Push(f, std::string("t1"), 0, 1);
-    auto token2 = queue->PushDependent(Array{ token1 }, f, std::string("t2"), 1, 4);
-    auto token3 = queue->PushDependent(Array{ token1, token2 }, f, std::string("t3"), 2, 5);
-    auto token4 = queue->PushDependent(Array{ token1 }, f, std::string("t4"), 1, 4);
-    auto token5 = queue->Push(f, std::string("t5"), 0, 4);
+    auto token1 = queue->Push(f, "t1", 0, 1);
+    auto token2 = queue->PushDependent(Array{ token1 }, f, "t2", 1, 4);
+    auto token3 = queue->PushDependent(Array{ token1, token2 }, f, "t3", 2, 5);
+    auto token4 = queue->PushDependent(Array{ token1 }, f, "t4", 1, 4);
+    auto token5 = queue->Push(f, "t5", 0, 4);
     queue->Start();
 
     token3->Future.wait();
