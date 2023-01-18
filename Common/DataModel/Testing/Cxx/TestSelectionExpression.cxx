@@ -83,6 +83,15 @@ void Validate(vtkSelection* expr, const char* exprstr, const MapType& arrays, co
 
 int TestSelectionExpression(int, char*[])
 {
+  // Test null arrays
+  vtkNew<vtkSelection> testEmptySelection;
+  testEmptySelection->SetNode("A", vtkSmartPointer<vtkSelectionNode>::New());
+  testEmptySelection->SetNode("B", vtkSmartPointer<vtkSelectionNode>::New());
+  testEmptySelection->SetNode("C", vtkSmartPointer<vtkSelectionNode>::New());
+  testEmptySelection->SetExpression("A|B|C");
+  std::vector<vtkSignedCharArray*> emptyArrays(testEmptySelection->GetNumberOfNodes(), nullptr);
+  testEmptySelection->Evaluate(emptyArrays.data(), static_cast<unsigned int>(emptyArrays.size()));
+
   vtkNew<vtkSelection> expr;
   vtkNew<vtkSelectionNode> aItem;
   vtkNew<vtkSelectionNode> bItem;
