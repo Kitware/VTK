@@ -86,7 +86,8 @@ bool TestDGCellType()
   for (vtkIdType ii = 0; ii < sideOffs->GetNumberOfTuples() - 1; ++ii)
   {
     int offset = sideOffs->GetTuple(ii)[0];
-    auto shape = static_cast<vtkDGCell::Shape>(sideOffs->GetTuple(ii)[1]);
+    int shapeValue = sideOffs->GetTuple(ii)[1];
+    auto shape = static_cast<vtkDGCell::Shape>(shapeValue);
     std::cout << "    " << (ii + 1) << ". " << vtkDGCell::GetShapeName(shape).Data() << " sides (@ "
               << offset << ")\n";
     int nn = vtkDGCell::GetShapeCornerCount(shape);
