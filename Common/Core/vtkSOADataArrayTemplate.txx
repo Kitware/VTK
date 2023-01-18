@@ -540,8 +540,8 @@ void vtkSOADataArrayTemplate<ValueType>::CopyData(vtkSOADataArrayTemplate<ValueT
     std::vector<ValueType> tuple(numberOfComponents);
     for (vtkIdType i = 0; i < numberOfTuples; i++)
     {
-      src->GetTypedTuple(i, &tuple[0]);
-      this->SetTypedTuple(i, &tuple[0]);
+      src->GetTypedTuple(i, tuple.data());
+      this->SetTypedTuple(i, tuple.data());
     }
   }
 }

@@ -63,7 +63,7 @@ inline int readNodeData(int cgioNum, double nodeId, std::vector<T>& data)
   data.resize(size);
 
   // read data
-  if (cgio_read_all_data_type(cgioNum, nodeId, dtName, &data[0]) != CG_OK)
+  if (cgio_read_all_data_type(cgioNum, nodeId, dtName, data.data()) != CG_OK)
   {
     return 1;
   }

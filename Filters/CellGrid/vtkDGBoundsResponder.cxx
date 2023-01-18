@@ -59,7 +59,7 @@ bool vtkDGBoundsResponder::Query(
   entry.resize(nc);
   for (vtkIdType ii = 0; ii < conn->GetNumberOfTuples(); ++ii)
   {
-    conn->GetTypedTuple(ii, &entry[0]);
+    conn->GetTypedTuple(ii, entry.data());
     for (int jj = 0; jj < nc; ++jj)
     {
       pointIDs.insert(entry[jj]);
@@ -74,14 +74,14 @@ bool vtkDGBoundsResponder::Query(
     // Initialize the bounds:
     vtkBoundingBox bbox;
     pts->GetTuple(
-      0, &pcoord[0]); // TODO: Check isnan/isinf() on each component and iterate if true.
-    bbox.SetMinPoint(&pcoord[0]);
-    bbox.SetMaxPoint(&pcoord[0]);
+      0, pcoord.data()); // TODO: Check isnan/isinf() on each component and iterate if true.
+    bbox.SetMinPoint(pcoord.data());
+    bbox.SetMaxPoint(pcoord.data());
 
     for (const auto& pointID : pointIDs)
     {
-      pts->GetTuple(pointID, &pcoord[0]);
-      bbox.AddPoint(&pcoord[0]);
+      pts->GetTuple(pointID, pcoord.data());
+      bbox.AddPoint(pcoord.data());
     }
     query->AddBounds(bbox);
   }

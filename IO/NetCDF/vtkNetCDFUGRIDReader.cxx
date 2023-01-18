@@ -796,6 +796,7 @@ std::string vtkNetCDFUGRIDReader::GetAttributeString(int var, std::string name)
 
   std::string output{};
   output.resize(size);
+  // NOLINTNEXTLINE(readability-container-data-pointer)
   if (!this->CheckError(nc_get_att_text(this->NcId, var, name.c_str(), &output[0])))
   {
     vtkErrorMacro("Invalid mesh #" << var << ". Missing attribute " << name);
