@@ -309,7 +309,7 @@ vtkSmartPointer<vtkDataSet> GetMesh(
     {
       rg->SetXCoordinates(xArray);
     }
-    if (has_z_values)
+    if (has_y_values)
     {
       rg->SetYCoordinates(yArray);
     }
