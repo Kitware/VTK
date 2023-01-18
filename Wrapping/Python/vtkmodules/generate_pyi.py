@@ -638,6 +638,10 @@ def main(argv=sys.argv):
             with open(pyifile, "w") as f:
                 module_pyi(mod, f)
 
+    # add 'py.typed' to the package
+    with open(os.path.join(basedir, 'py.typed'), 'w') as f:
+        pass
+
 if __name__ == '__main__':
     result = main(sys.argv)
     if result is not None:

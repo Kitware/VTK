@@ -1082,6 +1082,8 @@ static void ${_vtk_python_TARGET_NAME}_load() {\n")
           list(APPEND _vtk_python_module_targets "${_vtk_python_library_name}Python")
         endif ()
       endforeach ()
+      list(APPEND _vtk_python_pyi_files
+        "${CMAKE_BINARY_DIR}/${_vtk_python_MODULE_DESTINATION}/${_vtk_python_package_dir}/py.typed")
 
       if (TARGET VTK::vtkpython)
         set(_vtk_python_exe $<TARGET_FILE:VTK::vtkpython>)
