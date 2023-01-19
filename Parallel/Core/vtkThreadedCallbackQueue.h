@@ -263,30 +263,18 @@ private:
   friend class ThreadWorker;
 
   /**
-   * Stops the threads as soon as they are done with their current task.
-   *
-   * This method is executed by the `Controller` on a different thread, so this method may terminate
-   * before the threads stopped running. Nevertheless, this method is thread-safe. Other calls to
-   * `Stop()` will be queued by the `Controller`, which executes all received command serially in
-   * the background. When the `Controller` is done executing this command, `Running` effectively
-   * becomes `false`.
-   */
-  void Stop();
-
-  /**
    * Starts the threads as soon as they are done with their current tasks.
    *
    * This method is executed by the `Controller` on a different thread, so this method may terminate
    * before the threads are spawned. Nevertheless, this method is thread-safe. Other calls to
    * `Start()` will be queued by the `Controller`, which executes all received command serially in
-   * the background. When the `Controller` is done executing this command, `Running` effectively
-   * becomes `true`.
+   * the background.
    */
   void Start();
 
   /**
-   * This method terminates when all threads have finished. If `Destroying` is not true or `Running`
-   * is not false, then calling this method results in a deadlock.
+   * This method terminates when all threads have finished. If `Destroying` is not true
+   * then calling this method results in a deadlock.
    *
    * @param startId The thread id from which we synchronize the threads.
    */
@@ -316,11 +304,6 @@ private:
   std::atomic_bool Destroying;
 
   /**
-   * This atomic boolean is true when the queue is running, false when the queue is on hold.
-   */
-  std::atomic_bool Running;
-
-  /**
    * Number of allocated threads. Allocated threads are not necessarily running.
    */
   std::atomic_int NumberOfThreads;
@@ -328,7 +311,7 @@ private:
   std::vector<std::thread> Threads;
 
   /**
-   * The controller is responsible for taking care of the calls to `Stop()`, `Start()`, and
+   * The controller is responsible for taking care of the calls to `Start()`, and
    * `SetNumberOfThreads(int)`. It queues those commands and serially executes them on a separate
    * thread. This allows those methods to not be blocking and run asynchronously.
    */
