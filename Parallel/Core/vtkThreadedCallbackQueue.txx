@@ -65,12 +65,12 @@ struct vtkThreadedCallbackQueue::InvokerImpl
    * * Otherwise, store it as is (decayed input type). The conversion to the function argument
    *   type will be done upon invoking.
    *
-   * This specific casting allows us to permit to call the constructor for rvalue reference inputs
+   * This specific casting allows us to permit calling the constructor for rvalue reference inputs
    * when the type differs from the one provided by the user (take a const char* input when the
    * function expects a std::string for instance).
    * We want to keep the input type in all other circumstances in case the user inputs smart
    * pointers and the function only expects a raw pointer. If we casted it to the function argument
-   * type, we would not own a reference to the smart pointer.
+   * type, we would not own a reference of the smart pointer.
    *
    * FunctionArgsTupleT is a tuple of the function native argument types (extracted from its
    * signature), and InputArgsTupleT is a tuple of the types provided by the user as input
@@ -101,6 +101,10 @@ struct vtkThreadedCallbackQueue::InvokerImpl
   template <bool IsMemberFunctionPointer, class... ArgsT>
   class InvokerHandle;
 
+  /**
+   * Actually invokes the function and sets its future. An specific implementation is needed for
+   * void return types.
+   */
   template <class ReturnT>
   struct InvokerHelper
   {
@@ -219,7 +223,7 @@ struct vtkThreadedCallbackQueue::Dereference<T, std::nullptr_t>
 
 //=============================================================================
 template <class FT, class ObjectT, class... ArgsT>
-class vtkThreadedCallbackQueue::InvokerImpl::InvokerHandle<true /* IsMemberFunctionPoNinter */, FT,
+class vtkThreadedCallbackQueue::InvokerImpl::InvokerHandle<true /* IsMemberFunctionPointer */, FT,
   ObjectT, ArgsT...>
 {
 public:
@@ -333,7 +337,7 @@ public:
 
   std::shared_future<InvokeResult<FT>> GetFuture()
   {
-    return std::shared_future<vtkThreadedCallbackQueue::InvokeResult<FT>>(this->Future);
+    return std::shared_future<InvokeResult<FT>>(this->Future);
   }
 
 private:

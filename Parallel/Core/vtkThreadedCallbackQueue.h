@@ -23,6 +23,9 @@
  * executed.
  *
  * All public methods of this class are thread safe.
+ *
+ * @warning All pushed tasks MUST terminate! If not, one could end up with a deadlock when using
+ * `vtkCallbackTokenBase::Wait()` on the token associated with this task.
  */
 
 #ifndef vtkThreadedCallbackQueue_h
@@ -55,8 +58,8 @@ private:
   struct Signature;
 
   /**
-   * Helper that dereferences the input type `T`. If `T == Object*` or `T ==
-   * std::unique_ptr<Object>`, then `Type` is of type `Object`.
+   * Helper that dereferences the input type `T`. If `T == Object`, or
+   * `T == Object*` or `T == std::unique_ptr<Object>`, then `Type` is of type `Object`.
    */
   template <class T, class DummyT = std::nullptr_t>
   struct Dereference
@@ -85,8 +88,6 @@ public:
 
   /**
    * Any remaining function that was not executed yet will be executed in this destructor.
-   * In such an instance, the destructor terminates after all functions
-   * have been run.
    */
   ~vtkThreadedCallbackQueue() override;
 
@@ -118,7 +119,7 @@ public:
   };
 
   /**
-   * A `Token` is an object returned by the methods `Push` and `PushDependent`.
+   * A `vtkCallbackToken` is an object returned by the methods `Push` and `PushDependent`.
    * In addition to implementing the pure virtual methods of `vtkCallbackTokenBase`,
    * this class gives access to a `std::shared_future`.
    */
@@ -202,8 +203,9 @@ public:
    *   queue->Push(&S::f_const, std::unique_ptr<S>(new S()));
    * @endcode
    *
-   * @warning DO NOT capture lvalue references in a lambda expression pushed into the queue.
-   * Such captures may be destroyed before the lambda is invoked by the queue.
+   * @warning DO NOT capture lvalue references in a lambda expression pushed into the queue
+   * unless you can ensure that the function will be executed in the same scope where the input
+   * lives. If not, such captures may be destroyed before the lambda is invoked by the queue.
    */
   template <class FT, class... ArgsT>
   vtkSmartPointer<vtkCallbackToken<InvokeResult<FT>>> Push(FT&& f, ArgsT&&... args);
