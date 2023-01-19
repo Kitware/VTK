@@ -48,8 +48,9 @@
 
 #include "vtkMathConfigure.h" // For <cmath> and VTK_HAS_ISNAN etc.
 
-#include <algorithm> // for std::clamp
-#include <cassert>   // assert() in inline implementations.
+#include <algorithm>   // for std::clamp
+#include <cassert>     // assert() in inline implementations.
+#include <type_traits> // for type_traits
 
 #ifndef DBL_MIN
 #define VTK_DBL_MIN 2.2250738585072014e-308
@@ -349,6 +350,20 @@ public:
   }
 
   /**
+   * Addition of two 3-vectors (double version). Result is stored in c according to c = a + b.
+   *
+   * Each parameter needs to implement `operator[]`
+   */
+  template <class VectorT1, class VectorT2, class VectorT3>
+  static void Add(VectorT1&& a, VectorT2&& b, VectorT3& c)
+  {
+    for (int i = 0; i < 3; ++i)
+    {
+      c[i] = a[i] + b[i];
+    }
+  }
+
+  /**
    * Subtraction of two 3-vectors (float version). Result is stored in c according to c = a - b.
    */
   static void Subtract(const float a[3], const float b[3], float c[3])
@@ -498,6 +513,14 @@ public:
       }
     }
   }
+
+  /**
+   * Cross product of two 3-vectors. Result (a x b) is stored in c.
+   *
+   * Input vectors need to implement operator[]
+   */
+  template <class VectorT1, class VectorT2, class VectorT3>
+  static void Cross(VectorT1&& a, VectorT2&& b, VectorT3& c);
 
   /**
    * Cross product of two 3-vectors. Result (a x b) is stored in c.
@@ -1789,6 +1812,15 @@ inline ReturnTypeT vtkMath::Distance2BetweenPoints(const TupleRangeT1& p1, const
 {
   return ((p1[0] - p2[0]) * (p1[0] - p2[0]) + (p1[1] - p2[1]) * (p1[1] - p2[1]) +
     (p1[2] - p2[2]) * (p1[2] - p2[2]));
+}
+
+//----------------------------------------------------------------------------
+template <class VectorT1, class VectorT2, class VectorT3>
+void vtkMath::Cross(VectorT1&& a, VectorT2&& b, VectorT3& c)
+{
+  c[0] = a[1] * b[2] - a[2] * b[1];
+  c[1] = a[2] * b[0] - a[0] * b[2];
+  c[2] = a[0] * b[1] - a[1] * b[0];
 }
 
 //----------------------------------------------------------------------------
