@@ -10,7 +10,7 @@ import vtkmodules.test.Testing
 try:
     import numpy
 except ImportError:
-    print("WARNING: This test requires NumPy: http://http://www.numpy.org/")
+    print("This test requires numpy!")
     vtkmodules.test.Testing.skip()
 
 from vtkmodules.vtkCommonCore import (

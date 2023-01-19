@@ -15,7 +15,7 @@ VTK_DATA_ROOT = vtkGetDataRoot()
 try:
     import numpy
 except ImportError:
-    print("WARNING: This test requires Numeric Python: http://numpy.sf.net")
+    print("This test requires numpy!")
     from vtkmodules.test import Testing
     Testing.skip()
 
