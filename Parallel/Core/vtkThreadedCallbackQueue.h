@@ -17,11 +17,10 @@
  * @brief simple threaded callback queue
  *
  * This callback queue executes pushed functions and functors on threads whose
- * purpose is to execute those functions. When instantiating
- * this class, no threads are spawned yet. They are spawned upon calling `Start()`.
+ * purpose is to execute those functions.
  * By default, one thread is created by this class, so it is advised to set `NumberOfThreads`.
  * Upon destruction of an instance of this callback queue, remaining unexecuted threads are
- * executed, unless `IsRunning()` returns `false`.
+ * executed.
  *
  * All public methods of this class are thread safe.
  */
@@ -85,8 +84,8 @@ public:
   vtkThreadedCallbackQueue();
 
   /**
-   * Any remaining function that was not executed yet will be executed in the destructor if
-   * `IsRunning()` returns true. In such an instance, the destructor terminates after all functions
+   * Any remaining function that was not executed yet will be executed in this destructor.
+   * In such an instance, the destructor terminates after all functions
    * have been run.
    */
   ~vtkThreadedCallbackQueue() override;
@@ -147,8 +146,8 @@ public:
 
   /**
    * Pushes a function f to be passed args... as arguments.
-   * f will be called as soon as a running thread has the occasion to do so, in a FIFO fashion,
-   * assuming that `IsRunning()` returns `true`. This method returns a `Token`, which is an object
+   * f will be called as soon as a running thread has the occasion to do so, in a FIFO fashion.
+   * This method returns a `Token`, which is an object
    * allowing to synchronize the code at will through the use of a `std::shared_future`.
    * This method is thread-safe.
    *
@@ -240,37 +239,6 @@ public:
    */
   int GetNumberOfThreads() const { return this->NumberOfThreads; }
 
-  /**
-   * Returns true if the queue is currently running. The running state of this instance is
-   * controlled by `Start()` and `Stop()`.
-   *
-   * @note `Start()` and `Stop()` are running in the background. So the running state of the queue
-   * might change asynchronously as those commands are executed.
-   */
-  bool IsRunning() const { return this->Running; }
-
-  /**
-   * Stops the threads as soon as they are done with their current task.
-   *
-   * This method is executed by the `Controller` on a different thread, so this method may terminate
-   * before the threads stopped running. Nevertheless, this method is thread-safe. Other calls to
-   * `Stop()` will be queued by the `Controller`, which executes all received command serially in
-   * the background. When the `Controller` is done executing this command, `IsRunning()` effectively
-   * returns `false`.
-   */
-  void Stop();
-
-  /**
-   * Starts the threads as soon as they are done with their current tasks.
-   *
-   * This method is executed by the `Controller` on a different thread, so this method may terminate
-   * before the threads are spawned. Nevertheless, this method is thread-safe. Other calls to
-   * `Start()` will be queued by the `Controller`, which executes all received command serially in
-   * the background. When the `Controller` is done executing this command, `IsRunning()` effectively
-   * returns `true`.
-   */
-  void Start();
-
   using TokenPointer = vtkSmartPointer<vtkCallbackTokenBase>;
 
 private:
@@ -293,6 +261,28 @@ private:
 
   class ThreadWorker;
   friend class ThreadWorker;
+
+  /**
+   * Stops the threads as soon as they are done with their current task.
+   *
+   * This method is executed by the `Controller` on a different thread, so this method may terminate
+   * before the threads stopped running. Nevertheless, this method is thread-safe. Other calls to
+   * `Stop()` will be queued by the `Controller`, which executes all received command serially in
+   * the background. When the `Controller` is done executing this command, `Running` effectively
+   * becomes `false`.
+   */
+  void Stop();
+
+  /**
+   * Starts the threads as soon as they are done with their current tasks.
+   *
+   * This method is executed by the `Controller` on a different thread, so this method may terminate
+   * before the threads are spawned. Nevertheless, this method is thread-safe. Other calls to
+   * `Start()` will be queued by the `Controller`, which executes all received command serially in
+   * the background. When the `Controller` is done executing this command, `Running` effectively
+   * becomes `true`.
+   */
+  void Start();
 
   /**
    * This method terminates when all threads have finished. If `Destroying` is not true or `Running`

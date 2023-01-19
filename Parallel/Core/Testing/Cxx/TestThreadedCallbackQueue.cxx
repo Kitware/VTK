@@ -31,21 +31,12 @@ void RunThreads(int nthreadsBegin, int nthreadsEnd)
 {
   vtkNew<vtkThreadedCallbackQueue> queue;
   queue->SetNumberOfThreads(nthreadsBegin);
-  queue->Start();
   std::atomic_int count(0);
   int N = 100000;
 
   // We are testing if the queue can properly resize itself and doesn't have deadlocks
   for (vtkIdType i = 0; i < N; ++i)
   {
-    if (i == N / 2)
-    {
-      queue->Start();
-    }
-    if (i == N / 4)
-    {
-      queue->Stop();
-    }
     vtkSmartPointer<vtkIntArray> array = vtkSmartPointer<vtkIntArray>::New();
     queue->Push(
       [&count](const int& n, const double&&, char, vtkIntArray* a1, vtkIntArray* a2) {
@@ -125,7 +116,6 @@ void TestFunctionTypeCompleteness()
     std::function<void(::A&, ::A &&)> func = f;
     queue->Push(func, ::A(), ::A());
   }
-  queue->Start();
 }
 
 //-----------------------------------------------------------------------------
@@ -158,7 +148,6 @@ bool TestTokens()
     auto token3 = queue->PushDependent(Array{ token1, token2 }, f, "t3", 2, 5);
     auto token4 = queue->PushDependent(Array{ token1 }, f, "t4", 1, 4);
     auto token5 = queue->Push(f, "t5", 0, 4);
-    queue->Start();
 
     token3->Future.wait();
 

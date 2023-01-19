@@ -136,11 +136,7 @@ vtkThreadedCallbackQueue::vtkThreadedCallbackQueue(
   , Threads(NumberOfThreads)
   , Controller(controller)
 {
-  if (this->Controller)
-  {
-    this->Controller->SetNumberOfThreads(1);
-    this->Controller->Start();
-  }
+  this->Start();
 }
 
 //-----------------------------------------------------------------------------
@@ -196,9 +192,8 @@ void vtkThreadedCallbackQueue::SetNumberOfThreads(int numberOfThreads)
     // the missing threads.
     if (size < numberOfThreads)
     {
-      std::generate_n(std::back_inserter(this->Threads), numberOfThreads - size, [this] {
-        return std::thread(ThreadWorker(this, static_cast<int>(this->Threads.size() - 1)));
-      });
+      std::generate_n(std::back_inserter(this->Threads), numberOfThreads - size,
+        [this] { return std::thread(ThreadWorker(this, static_cast<int>(this->Threads.size()))); });
     }
     // If we are shrinking the number of threads, let's notify all threads
     // so the threads whose id is more than the updated NumberOfThreads terminate.
