@@ -17,6 +17,7 @@
 
 #include "vtkmDataArray.h"
 
+#include "vtkmlib/DataSetUtils.h"
 #include "vtkmlib/PortalTraits.h"
 
 #include <vtkm/cont/ArrayHandle.h>
@@ -137,8 +138,8 @@ bool ConvertArrays(const vtkm::cont::DataSet& input, vtkDataSet* output)
   vtkPointData* pd = output->GetPointData();
   vtkCellData* cd = output->GetCellData();
 
-  vtkm::IdComponent numFields = input.GetNumberOfFields();
-  for (vtkm::IdComponent i = 0; i < numFields; ++i)
+  // Do not copy the coordinate systems, this is done in a higher level routine.
+  for (auto i : GetFieldsIndicesWithoutCoords(input))
   {
     const vtkm::cont::Field& f = input.GetField(i);
     vtkDataArray* vfield = Convert(f);

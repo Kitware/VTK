@@ -24,6 +24,7 @@
 
 #include "vtkmlib/ArrayConverters.h"
 #include "vtkmlib/DataSetConverters.h"
+#include "vtkmlib/DataSetUtils.h"
 
 #include <vtkm/cont/ErrorFilterExecution.h>
 #include <vtkm/filter/field_conversion/CellAverage.h>
@@ -132,7 +133,7 @@ int vtkmAverageToCells::RequestData(
 
     // Execute the vtk-m filter
     vtkm::filter::field_conversion::CellAverage filter;
-    for (int i = 0; i < in.GetNumberOfFields(); ++i)
+    for (auto i : GetFieldsIndicesWithoutCoords(in))
     {
       const auto& name = in.GetField(i).GetName();
       filter.SetActiveField(name, vtkm::cont::Field::Association::Points);

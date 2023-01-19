@@ -56,16 +56,6 @@ configure_file(
 set(headers
   "${CMAKE_CURRENT_BINARY_DIR}/vtkmConfigFilters.h")
 
-if (TARGET vtkm::cuda)
-  enable_language(CUDA)
-
-  # Temporarily suppress "has address taken but no possible call to it" warnings,
-  # until we figure out its implications.
-  # We are disabling all warnings as nvlink has no known way to suppress
-  # individual warning types.
-  string(APPEND CMAKE_CUDA_FLAGS " -Xnvlink -w")
-endif ()
-
 #=============================================================================
 # Option to enable VTK-m override of corresponding VTK filters. Note that
 # there is also a run-time option that needs to be enabled. It can be accessed
@@ -116,12 +106,6 @@ vtk_module_add_module(VTK::AcceleratorsVTKmFilters
   SOURCES ${sources}
   HEADERS ${headers}
   CLASSES ${classes})
-_vtk_module_real_target(vtkm_accel_target VTK::AcceleratorsVTKmFilters)
-vtkm_add_target_information(${vtkm_accel_target}
-                            EXTENDS_VTKM
-                            MODIFY_CUDA_FLAGS
-                            DEVICE_SOURCES ${sources})
-
 vtk_module_set_property(VTK::AcceleratorsVTKmFilters
   PROPERTY  JOB_POOL_COMPILE
   VALUE     vtkm_pool)
@@ -132,15 +116,23 @@ vtk_module_link(VTK::AcceleratorsVTKmFilters
 vtk_module_definitions(VTK::AcceleratorsVTKmFilters
   PUBLIC "VTK_ENABLE_VTKM_OVERRIDES=$<BOOL:${VTK_ENABLE_VTKM_OVERRIDES}>")
 
+_vtk_module_real_target(vtkm_accel_target VTK::AcceleratorsVTKmFilters)
+vtkm_add_target_information(${vtkm_accel_target}
+                            EXTENDS_VTKM
+                            MODIFY_CUDA_FLAGS
+                            DEVICE_SOURCES ${sources})
+
 if (TARGET vtkm::cuda)
+  # Temporarily suppress "has address taken but no possible call to it" warnings,
+  # until we figure out its implications.
+  # We are disabling all warnings as nvlink has no known way to suppress
+  # individual warning types.
+  string(APPEND CMAKE_CUDA_FLAGS " -Xnvlink -w")
+
   list(TRANSFORM classes APPEND ".cxx" OUTPUT_VARIABLE cuda_impl)
-  set_source_files_properties(${cuda_impl} PROPERTIES
-    LANGUAGE CUDA
-    CUDA_SOURCE_PROPERTY_FORMAT OBJ
-    CUDA_SEPARABLE_COMPILATION ON)
+  set_source_files_properties(${cuda_impl} PROPERTIES LANGUAGE CUDA)
 
   vtk_module_set_properties(VTK::AcceleratorsVTKmFilters
-    LANGUAGE CUDA
     CUDA_SEPARABLE_COMPILATION ON)
 
   vtk_module_compile_options(VTK::AcceleratorsVTKmFilters

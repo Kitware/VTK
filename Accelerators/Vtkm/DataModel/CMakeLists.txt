@@ -48,16 +48,6 @@ configure_file(
 list(APPEND headers
   "${CMAKE_CURRENT_BINARY_DIR}/vtkmConfigDataModel.h")
 
-if (TARGET vtkm::cuda)
-  enable_language(CUDA)
-
-  # Temporarily suppress "has address taken but no possible call to it" warnings,
-  # until we figure out its implications.
-  # We are disabling all warnings as nvlink has no known way to suppress
-  # individual warning types.
-  string(APPEND CMAKE_CUDA_FLAGS " -Xnvlink -w")
-endif ()
-
 vtk_module_add_module(VTK::AcceleratorsVTKmDataModel
   HEADER_DIRECTORIES
   SOURCES ${sources}
@@ -65,25 +55,27 @@ vtk_module_add_module(VTK::AcceleratorsVTKmDataModel
   CLASSES ${classes}
   NOWRAP_CLASSES  ${nowrap_classes}
   PRIVATE_HEADERS ${private_headers})
+vtk_module_set_property(VTK::AcceleratorsVTKmDataModel
+  PROPERTY  JOB_POOL_COMPILE
+  VALUE     vtkm_pool)
 _vtk_module_real_target(vtkm_accel_target VTK::AcceleratorsVTKmDataModel)
 vtkm_add_target_information(${vtkm_accel_target}
                             EXTENDS_VTKM
                             MODIFY_CUDA_FLAGS
                             DEVICE_SOURCES ${sources})
 
-vtk_module_set_property(VTK::AcceleratorsVTKmDataModel
-  PROPERTY  JOB_POOL_COMPILE
-  VALUE     vtkm_pool)
-
 if (TARGET vtkm::cuda)
-  set(cuda_impl ${nowrap_classes} vtkmDataSet.cxx)
-  set_source_files_properties(${cuda_impl} PROPERTIES
-    LANGUAGE CUDA
-    CUDA_SOURCE_PROPERTY_FORMAT OBJ
-    CUDA_SEPARABLE_COMPILATION ON)
+  # Temporarily suppress "has address taken but no possible call to it" warnings,
+  # until we figure out its implications.
+  # We are disabling all warnings as nvlink has no known way to suppress
+  # individual warning types.
+  string(APPEND CMAKE_CUDA_FLAGS " -Xnvlink -w")
+
+  list(TRANSFORM nowrap_classes APPEND ".cxx" OUTPUT_VARIABLE nowrap_sources)
+  set(cuda_impl ${nowrap_sources} vtkmDataSet.cxx)
+  set_source_files_properties(${cuda_impl} PROPERTIES LANGUAGE CUDA)
 
   vtk_module_set_properties(VTK::AcceleratorsVTKmDataModel
-    LANGUAGE CUDA
     CUDA_SEPARABLE_COMPILATION ON)
 
   vtk_module_compile_options(VTK::AcceleratorsVTKmDataModel

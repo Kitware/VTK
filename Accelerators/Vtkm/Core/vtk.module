@@ -6,7 +6,7 @@ DESCRIPTION
   VTKm data structures
 DEPENDS
   VTK::CommonCore
-  VTK::vtkm
+  VTK::vtkvtkm
 TEST_DEPENDS
   VTK::CommonSystem
   VTK::FiltersSources

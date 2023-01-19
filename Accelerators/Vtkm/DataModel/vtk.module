@@ -8,7 +8,7 @@ DEPENDS
   VTK::AcceleratorsVTKmCore
   VTK::CommonCore
   VTK::CommonDataModel
-  VTK::vtkm
+  VTK::vtkvtkm
 TEST_DEPENDS
   VTK::FiltersGeneral
   VTK::TestingCore

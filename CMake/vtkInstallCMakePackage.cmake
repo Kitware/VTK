@@ -34,7 +34,7 @@ foreach (_vtk_non_module_component IN LISTS _vtk_non_module_components)
   endif ()
 endforeach ()
 
-if (TARGET "VTK::vtkm")
+if (TARGET "VTK::vtkvtkm")
   set(vtk_has_vtkm ON)
 else ()
   set(vtk_has_vtkm OFF)

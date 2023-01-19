@@ -1,3 +1,13 @@
+# We need this in order to make External Test builds to work: TestVTKMDataSet
+# includes MakeTestDataSet, however, both MakeTestDataSet.h source tree and
+# installed tree has two different paths. To deal with it, we need to determine
+# at configure time the VTKm dependency type and pass that information down to
+# the build tool so that the source code can parametrize the include.
+if (NOT VTKm_FOUND)
+  set_source_files_properties(TestVTKMDataSet.cxx PROPERTIES
+    COMPILE_DEFINITIONS VTKm_INCLUDED_IN_VTK)
+endif()
+
 # We are splitting the tests into two executables to workaround an issue in
 # cuda. With all the tests in the same executable several tests are failing
 # in cuda. We have not identified the root cause of the problem yet.
@@ -6,18 +16,11 @@ vtk_add_test_cxx(vtkAcceleratorsVTKmDataModelCxxTests tests
   )
 
 if (TARGET vtkm::cuda)
-  #the enable_language call is scoped! so we have to re-enable
-  #cuda in the test directory
-  enable_language(CUDA)
-
   foreach(src IN LISTS tests)
     string(REPLACE "," ";" src ${src})
     list(GET src 0 src)
 
-    set_source_files_properties(${src} PROPERTIES
-      LANGUAGE CUDA
-      CUDA_SOURCE_PROPERTY_FORMAT OBJ
-      CUDA_SEPARABLE_COMPILATION ON)
+    set_source_files_properties(${src} PROPERTIES LANGUAGE CUDA)
   endforeach()
 
   #the tests aren't scoped as a child directory of vtkAcceleratorsVTKmDataModel
