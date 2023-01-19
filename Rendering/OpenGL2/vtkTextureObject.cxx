@@ -1140,13 +1140,66 @@ bool vtkTextureObject::Create1DFromRaw(unsigned int width, int numComps, int dat
 bool vtkTextureObject::CreateTextureBuffer(
   unsigned int numValues, int numComps, int dataType, vtkOpenGLBufferObject* bo)
 {
-  assert(this->Context);
-  vtkErrorMacro("TextureBuffers not supported in OpenGL ES");
-  // TODO: implement 1D and Texture buffers using 2D textures
-  return false;
+  return this->EmulateTextureBufferWith2DTextures(numValues, numComps, dataType, bo);
 }
 
 #endif // not ES 2.0 or 3.0
+
+//------------------------------------------------------------------------------
+bool vtkTextureObject::EmulateTextureBufferWith2DTextures(
+  unsigned int numValues, int numComps, int dataType, vtkOpenGLBufferObject* bo)
+{
+  assert(this->Context);
+  auto ostate = this->GetContext()->GetState();
+  int maxSize = 0;
+  ostate->vtkglGetIntegerv(GL_MAX_TEXTURE_SIZE, &maxSize);
+  if (numValues > static_cast<unsigned int>(maxSize * maxSize))
+  {
+    vtkErrorMacro("Requested texture buffer size exceeds hardware limits. "
+                  "On the current OpenGL device, GL_MAX_TEXTURE_SIZE x GL_MAX_TEXTURE_SIZE = "
+      << maxSize << " values. However, requested size is " << numValues << ".");
+    return false;
+  }
+  else
+  {
+    unsigned int maxTexDim = maxSize;
+    int width = numValues > maxTexDim ? maxTexDim : numValues % (maxTexDim + 1);
+    int height = vtkMath::Ceil(static_cast<double>(numValues) / width);
+
+    // copy data from 'src' array buffer object to a pbo's unpacked buffer.
+    GLenum srcTarget = GL_ARRAY_BUFFER;
+    GLenum dstTarget = GL_PIXEL_UNPACK_BUFFER;
+    if (bo->GetType() == vtkOpenGLBufferObject::ElementArrayBuffer)
+    {
+      srcTarget = GL_ELEMENT_ARRAY_BUFFER;
+    }
+    GLint64 srcNumBytes = 0;
+    bo->Bind();
+    glGetBufferParameteri64v(srcTarget, GL_BUFFER_SIZE, &srcNumBytes);
+    vtkOpenGLCheckErrors("glGetBufferParameteri64v ");
+
+    // issue 3 (https://registry.khronos.org/OpenGL/extensions/ARB/ARB_pixel_buffer_object.txt)
+    // says it's alright to bind any b.o (GL_ARRAY_BUFFER, etc) to unpacked buffer
+    // and go ahead with glTexImage,
+    // however, issue 4 cautions that some driver implementations
+    // may perform sub-optimally. so let's do a b.o->b.o copy instead of shortcuts.
+    vtkNew<vtkPixelBufferObject> pbo;
+    pbo->SetContext(this->GetContext());
+    pbo->Allocate(dataType, width * height, numComps, vtkPixelBufferObject::UNPACKED_BUFFER);
+    pbo->BindToUnPackedBuffer();
+    // transfers within gpu memory space on most GL driver implementations.
+    glCopyBufferSubData(srcTarget, dstTarget, 0, 0, srcNumBytes);
+    vtkOpenGLCheckErrors("glCopyBufferSubData ");
+
+    // unbind
+    bo->Release();
+    pbo->UnBind();
+
+    // source a 2D texture with the pbo.
+    this->Create2D(width, height, numComps, pbo, false);
+    return true;
+  }
+}
 
 //------------------------------------------------------------------------------
 bool vtkTextureObject::Create2D(unsigned int width, unsigned int height, int numComps,

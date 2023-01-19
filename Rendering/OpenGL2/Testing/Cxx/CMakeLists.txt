@@ -94,6 +94,7 @@ vtk_add_test_cxx(vtkRenderingOpenGL2CxxTests tests
   TestSurfaceInterpolationSwitch.cxx
   TestTexture16Bits.cxx,NO_DATA
   TestTexture32Bits.cxx,NO_DATA
+  TestTextureBufferEmulation.cxx,NO_DATA,NO_VALID,NO_OUTPUT
   TestToneMappingPass.cxx,NO_DATA
   TestUserShader.cxx
   TestUserShader2.cxx
