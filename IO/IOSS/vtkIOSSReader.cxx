@@ -449,6 +449,28 @@ private:
   ///@}
 
   /**
+   * Get a vector of cell arrays and their cell type for the entity block (or set) with the
+   * given name (`blockname`) and type (vtk_entity_type).
+   *
+   * `handle` is the database / file handle for the current piece / rank
+   * obtained by calling `GetDatabaseHandles`.
+   *
+   * Returns a vector of cell arrays and their cell type.
+   *
+   * On file reading error, `std::runtime_error` is thrown.
+   */
+  std::vector<std::pair<int, vtkSmartPointer<vtkCellArray>>> GetTopology(
+    const std::string& blockname, vtkIOSSReader::EntityType vtk_entity_type,
+    const DatabaseHandle& handle);
+
+  /**
+   * Combine a vector cell types, cell arrays pairs into a single
+   * vtkUnsignedCharArray of cell types and a vtkCellArray.
+   */
+  std::pair<vtkSmartPointer<vtkUnsignedCharArray>, vtkSmartPointer<vtkCellArray>> CombineTopologies(
+    const std::vector<std::pair<int, vtkSmartPointer<vtkCellArray>>>& topologies);
+
+  /**
    * Fill up the `grid` with connectivity information for the entity block (or
    * set) with the given name (`blockname`) and type (vtk_entity_type).
    *
@@ -1832,7 +1854,7 @@ bool vtkIOSSReader::vtkInternals::GenerateEntityIdArray(vtkDataSet* dataset,
 }
 
 //----------------------------------------------------------------------------
-bool vtkIOSSReader::vtkInternals::GetTopology(vtkUnstructuredGrid* grid,
+std::vector<std::pair<int, vtkSmartPointer<vtkCellArray>>> vtkIOSSReader::vtkInternals::GetTopology(
   const std::string& blockname, vtkIOSSReader::EntityType vtk_entity_type,
   const DatabaseHandle& handle)
 {
@@ -1841,51 +1863,27 @@ bool vtkIOSSReader::vtkInternals::GetTopology(vtkUnstructuredGrid* grid,
   auto group_entity = region->get_entity(blockname, ioss_entity_type);
   if (!group_entity)
   {
-    return false;
+    return {};
   }
 
   vtkLogScopeF(TRACE, "GetTopology (%s)[file=%s]", blockname.c_str(),
     this->GetRawFileName(handle, true).c_str());
+  std::vector<std::pair<int, vtkSmartPointer<vtkCellArray>>> blocks;
   if (ioss_entity_type == Ioss::EntityType::SIDESET)
   {
     // for side set, the topology is stored in nested elements called
     // SideBlocks. Since we split side sets by topologies, each sideblock can be
     // treated as a regular entity block.
     assert(group_entity->get_database()->get_surface_split_type() == Ioss::SPLIT_BY_TOPOLOGIES);
-    std::vector<std::pair<int, vtkSmartPointer<vtkCellArray>>> sideblock_cells;
     auto sideSet = static_cast<Ioss::SideSet*>(group_entity);
-    vtkIdType numCells = 0, connectivitySize = 0;
     for (auto sideBlock : sideSet->get_side_blocks())
     {
       int cell_type = VTK_EMPTY_CELL;
       auto cellarray = vtkIOSSUtilities::GetConnectivity(sideBlock, cell_type, &this->Cache);
       if (cellarray != nullptr && cell_type != VTK_EMPTY_CELL)
       {
-        numCells += cellarray->GetNumberOfCells();
-        sideblock_cells.emplace_back(cell_type, cellarray);
+        blocks.emplace_back(cell_type, cellarray);
       }
-    }
-    if (sideblock_cells.size() == 1)
-    {
-      grid->SetCells(sideblock_cells.front().first, sideblock_cells.front().second);
-      return true;
-    }
-    else if (sideblock_cells.size() > 1)
-    {
-      // this happens when side block has mixed topological elements.
-      vtkNew<vtkCellArray> appendedCellArray;
-      appendedCellArray->AllocateExact(numCells, connectivitySize);
-      vtkNew<vtkUnsignedCharArray> cellTypesArray;
-      cellTypesArray->SetNumberOfTuples(numCells);
-      auto ptr = cellTypesArray->GetPointer(0);
-      for (auto& pair : sideblock_cells)
-      {
-        appendedCellArray->Append(pair.second);
-        ptr =
-          std::fill_n(ptr, pair.second->GetNumberOfCells(), static_cast<unsigned char>(pair.first));
-      }
-      grid->SetCells(cellTypesArray, appendedCellArray);
-      return true;
     }
   }
   else
@@ -1894,11 +1892,71 @@ bool vtkIOSSReader::vtkInternals::GetTopology(vtkUnstructuredGrid* grid,
     auto cellarray = vtkIOSSUtilities::GetConnectivity(group_entity, cell_type, &this->Cache);
     if (cell_type != VTK_EMPTY_CELL && cellarray != nullptr)
     {
-      grid->SetCells(cell_type, cellarray);
-      return true;
+      blocks.emplace_back(cell_type, cellarray);
     }
   }
-  return false;
+  return blocks;
+}
+
+//----------------------------------------------------------------------------
+std::pair<vtkSmartPointer<vtkUnsignedCharArray>, vtkSmartPointer<vtkCellArray>>
+vtkIOSSReader::vtkInternals::CombineTopologies(
+  const std::vector<std::pair<int, vtkSmartPointer<vtkCellArray>>>& topologicalBlocks)
+{
+  if (topologicalBlocks.empty())
+  {
+    return { nullptr, nullptr };
+  }
+  else if (topologicalBlocks.size() == 1)
+  {
+    const int cell_type = topologicalBlocks[0].first;
+    const auto cellarray = topologicalBlocks[0].second;
+    auto cellTypes = vtkSmartPointer<vtkUnsignedCharArray>::New();
+    cellTypes->SetNumberOfTuples(cellarray->GetNumberOfCells());
+    cellTypes->FillValue(cell_type);
+    return { cellTypes, cellarray };
+  }
+  else
+  {
+    vtkIdType numCells = 0, connectivitySize = 0;
+    for (const auto& block : topologicalBlocks)
+    {
+      const auto cellarray = block.second;
+      numCells += cellarray->GetNumberOfCells();
+      connectivitySize += cellarray->GetNumberOfConnectivityEntries();
+    }
+    // this happens when side block has mixed topological elements.
+    vtkNew<vtkCellArray> appendedCellArray;
+    appendedCellArray->AllocateExact(numCells, connectivitySize);
+    vtkNew<vtkUnsignedCharArray> cellTypesArray;
+    cellTypesArray->SetNumberOfTuples(numCells);
+    auto ptr = cellTypesArray->GetPointer(0);
+    for (auto& block : topologicalBlocks)
+    {
+      const int cell_type = block.first;
+      const auto cellarray = block.second;
+      appendedCellArray->Append(cellarray);
+      ptr =
+        std::fill_n(ptr, block.second->GetNumberOfCells(), static_cast<unsigned char>(cell_type));
+    }
+    return { cellTypesArray, appendedCellArray };
+  }
+}
+
+//----------------------------------------------------------------------------
+bool vtkIOSSReader::vtkInternals::GetTopology(vtkUnstructuredGrid* grid,
+  const std::string& blockname, vtkIOSSReader::EntityType vtk_entity_type,
+  const DatabaseHandle& handle)
+{
+  const auto cellArraysWithCellType = this->GetTopology(blockname, vtk_entity_type, handle);
+  const auto cellArrayAndCellTypesCombined = this->CombineTopologies(cellArraysWithCellType);
+  if (cellArrayAndCellTypesCombined.first == nullptr ||
+    cellArrayAndCellTypesCombined.second == nullptr)
+  {
+    return false;
+  }
+  grid->SetCells(cellArrayAndCellTypesCombined.first, cellArrayAndCellTypesCombined.second);
+  return true;
 }
 
 //----------------------------------------------------------------------------
