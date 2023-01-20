@@ -25,6 +25,13 @@
 #include <string>
 #include <vtksys/SystemTools.hxx>
 
+#ifdef _WIN32
+#include <direct.h>
+#include <string.h>
+#define strcasecmp _stricmp
+#define getcwd _getcwd
+#endif
+
 vtkStandardNewMacro(vtkNek5000Reader);
 
 void ByteSwap32(void* aVals, int nVals);
@@ -153,9 +160,7 @@ void vtkNek5000Reader::GetAllTimesAndVariableNames(vtkInformationVector* outputV
 
   char dfName[265];
   char firstTags[32];
-  char param[32];
   int file_index;
-  float test_time_val;
 
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
   // vtkInformation* outInfo1 = outputVector->GetInformationObject(1);
@@ -189,7 +194,7 @@ void vtkNek5000Reader::GetAllTimesAndVariableNames(vtkInformationVector* outputV
                   << this->datafile_start << "  i: " << i << " file_index: " << file_index
                   << " dfName: " << dfName);
 
-    dfPtr.open(dfName);
+    dfPtr.open(dfName, std::ifstream::binary);
 
     if ((dfPtr.rdstate() & std::ifstream::failbit) != 0)
       std::cerr << "Error opening : " << dfName << endl;
@@ -236,7 +241,7 @@ void vtkNek5000Reader::GetAllTimesAndVariableNames(vtkInformationVector* outputV
   this->GetVariableNamesFromData(firstTags);
 
   outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), &(*this->TimeSteps.begin()),
-    this->TimeSteps.size());
+    static_cast<int>(this->TimeSteps.size()));
 
   double timeRange[2];
   timeRange[0] = *this->TimeSteps.begin();
@@ -249,10 +254,10 @@ void vtkNek5000Reader::GetAllTimesAndVariableNames(vtkInformationVector* outputV
 } // vtkNek5000Reader::GetAllTimes()
 
 //----------------------------------------------------------------------------
-unsigned long vtkNek5000Reader::GetMTime()
+vtkMTimeType vtkNek5000Reader::GetMTime()
 {
-  unsigned long mTime = this->Superclass::GetMTime();
-  unsigned long time;
+  vtkMTimeType mTime = this->Superclass::GetMTime();
+  vtkMTimeType time;
 
   time = this->PointDataArraySelection->GetMTime();
   mTime = (time > mTime ? time : mTime);
@@ -279,13 +284,13 @@ const char* vtkNek5000Reader::GetPointArrayName(int index)
 }
 
 //----------------------------------------------------------------------------
-int vtkNek5000Reader::GetPointArrayStatus(const char* name)
+bool vtkNek5000Reader::GetPointArrayStatus(const char* name)
 {
   return this->PointDataArraySelection->ArrayIsEnabled(name);
 }
 
 //----------------------------------------------------------------------------
-int vtkNek5000Reader::GetPointArrayStatus(int index)
+bool vtkNek5000Reader::GetPointArrayStatus(int index)
 {
   return this->PointDataArraySelection->GetArraySetting(index);
 }
@@ -408,7 +413,7 @@ void vtkNek5000Reader::updateVariableStatus()
 }
 
 //----------------------------------------------------------------------------
-int vtkNek5000Reader::GetVariableNamesFromData(char* varTags)
+size_t vtkNek5000Reader::GetVariableNamesFromData(char* varTags)
 {
   int ind = 0;
   char l_var_name[2];
@@ -448,7 +453,7 @@ int vtkNek5000Reader::GetVariableNamesFromData(char* varTags)
     my_rank = 0;
   }
 
-  int len = strlen(varTags);
+  size_t len = strlen(varTags);
   //  vtkDebugMacro(<< "vtkNek5000Reader::GetVariableNamesFromData:after strlen my_rank:
   //  "<<my_rank<< "  varTags = \'"<< varTags<< "\'  len= "<< len);
 
@@ -544,7 +549,7 @@ void vtkNek5000Reader::readData(char* dfName)
   long read_size;
   std::ifstream dfPtr;
   float* dataPtr;
-  double* tmpDblPtr;
+  double* tmpDblPtr = nullptr;
 
   int my_rank;
   vtkMultiProcessController* ctrl = vtkMultiProcessController::GetGlobalController();
@@ -671,7 +676,7 @@ void vtkNek5000Reader::readData(char* dfName)
 
         // if this is velocity, also add the velocity magnitude if and only if it has also been
         // requested
-        if (strcmp(this->var_names[i], "Velocity") == 0 and
+        if (strcmp(this->var_names[i], "Velocity") == 0 &&
           this->GetPointArrayStatus("Velocity Magnitude"))
         {
           float vx, vy, vz;
@@ -785,7 +790,7 @@ void vtkNek5000Reader::partitionAndReadMesh()
   }
 
   sprintf(dfName, this->datafile_format.c_str(), 0, this->datafile_start);
-  dfPtr.open(dfName);
+  dfPtr.open(dfName, std::ifstream::binary);
 
   if ((dfPtr.rdstate() & std::ifstream::failbit) != 0)
   {
@@ -1039,8 +1044,6 @@ void vtkNek5000Reader::partitionAndReadMesh()
 int vtkNek5000Reader::RequestInformation(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
-  double timer_diff;
-
   string tag;
   char buf[2048];
 
@@ -1131,7 +1134,7 @@ int vtkNek5000Reader::RequestInformation(vtkInformation* vtkNotUsed(request),
 
     inPtr.close();
 
-    int ii;
+    size_t ii = 0;
     if (this->datafile_format[0] != '/')
     {
       for (ii = strlen(filename) - 1; ii >= 0; ii--)
@@ -1145,16 +1148,12 @@ int vtkNek5000Reader::RequestInformation(vtkInformation* vtkNotUsed(request),
     }
     if (ii == -1)
     {
-#ifdef _WIN32
-      _getcwd(buf, 512);
-#else
       getcwd(buf, 512);
-#endif
       strcat(buf, "/");
       this->datafile_format.insert(0, buf, strlen(buf));
     }
 
-#ifdef _WIN32
+#if 0
     for (ii = 0; ii < fileTemplate.size(); ii++)
     {
       if (fileTemplate[ii] == '/')
@@ -1193,7 +1192,6 @@ int vtkNek5000Reader::RequestInformation(vtkInformation* vtkNotUsed(request),
 int vtkNek5000Reader::RequestData(vtkInformation* request,
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
-  double timer_diff;
   double total_timer_diff;
   int i;
   char dfName[256];
@@ -1232,9 +1230,6 @@ int vtkNek5000Reader::RequestData(vtkInformation* request,
   // Update the status of the requested variables
 
   this->updateVariableStatus();
-
-  double l_time_val_0 = 0.0;
-  double l_time_val_1 = 0.0;
 
   // Check if a particular time was requested.
   bool hasTimeValue = false;

@@ -60,7 +60,7 @@ public:
   vtkTypeMacro(vtkNek5000Reader, vtkUnstructuredGridAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  unsigned long GetMTime() override;
+  vtkMTimeType GetMTime() override;
 
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
@@ -100,8 +100,8 @@ public:
   // Description:
   // Get/Set whether the point array with the given name or index is to
   // be read.
-  int GetPointArrayStatus(const char* name);
-  int GetPointArrayStatus(int index);
+  bool GetPointArrayStatus(const char* name);
+  bool GetPointArrayStatus(int index);
   void SetPointArrayStatus(const char* name, int status);
 
   // Description:
@@ -130,7 +130,7 @@ public:
 #endif
   // Description:
   // Get the names of variables stored in the data
-  int GetVariableNamesFromData(char* varTags);
+  size_t GetVariableNamesFromData(char* varTags);
 
   int CanReadFile(const char* fname);
 
