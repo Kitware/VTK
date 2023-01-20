@@ -36,6 +36,7 @@
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkUnstructuredGridAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSGENERAL_EXPORT vtkCleanUnstructuredGridCells : public vtkUnstructuredGridAlgorithm
 {
 public:
@@ -56,5 +57,5 @@ private:
   vtkCleanUnstructuredGridCells(const vtkCleanUnstructuredGridCells&) = delete;
   void operator=(const vtkCleanUnstructuredGridCells&) = delete;
 };
-
+VTK_ABI_NAMESPACE_END
 #endif
