@@ -1,19 +1,14 @@
 #ifndef vtkNek5000Reader_h
 #define vtkNek5000Reader_h
 
-#include <fstream>
-#include <iostream>
-#include <vector>
-
-//#include <string>
-using std::string;
-
 #include "vtkIOParallelModule.h" // For export macro
 #include "vtkUnstructuredGridAlgorithm.h"
 class vtkPoints;
 class vtkDataArraySelection;
 
 #define MAX_VARS 100
+
+VTK_ABI_NAMESPACE_BEGIN
 
 class nek5KObject
 {
@@ -263,4 +258,5 @@ private:
   int CleanGrid;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

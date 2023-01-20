@@ -32,6 +32,8 @@
 #define getcwd _getcwd
 #endif
 
+using std::string;
+
 vtkStandardNewMacro(vtkNek5000Reader);
 
 void ByteSwap32(void* aVals, int nVals);
