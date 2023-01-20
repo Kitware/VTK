@@ -549,7 +549,7 @@ private:
    * any. The array named "object_id" is added as a cell-data array to follow
    * the pattern used by vtkExodusIIReader.
    */
-  bool GenerateEntityIdArray(vtkDataSet* grid, const std::string& blockname,
+  bool GenerateEntityIdArray(vtkCellData* cd, vtkIdType numberOfCells, const std::string& blockname,
     vtkIOSSReader::EntityType vtk_entity_type, const DatabaseHandle& handle);
 
   /**
@@ -594,8 +594,8 @@ private:
   /**
    * Adds 'file_id' array to indicate which file the dataset was read from.
    */
-  bool GenerateFileId(
-    vtkDataSet* grid, Ioss::GroupingEntity* group_entity, const DatabaseHandle& handle);
+  bool GenerateFileId(vtkCellData* cd, vtkIdType numberOfCells, Ioss::GroupingEntity* group_entity,
+    const DatabaseHandle& handle);
 
   /**
    * Fields like "ids" have to be vtkIdTypeArray in VTK. This method does the
@@ -1557,12 +1557,13 @@ std::vector<vtkSmartPointer<vtkDataSet>> vtkIOSSReader::vtkInternals::GetExodusD
 
   if (self->GetGenerateFileId())
   {
-    this->GenerateFileId(dataset, group_entity, handle);
+    this->GenerateFileId(dataset->GetCellData(), dataset->GetNumberOfCells(), group_entity, handle);
   }
 
   if (self->GetReadIds())
   {
-    this->GenerateEntityIdArray(dataset, blockname, vtk_entity_type, handle);
+    this->GenerateEntityIdArray(
+      dataset->GetCellData(), dataset->GetNumberOfCells(), blockname, vtk_entity_type, handle);
   }
 
   return { dataset.GetPointer() };
@@ -1610,12 +1611,13 @@ std::vector<vtkSmartPointer<vtkDataSet>> vtkIOSSReader::vtkInternals::GetCGNSDat
 
       if (self->GetGenerateFileId())
       {
-        this->GenerateFileId(grid, group_entity, handle);
+        this->GenerateFileId(grid->GetCellData(), grid->GetNumberOfCells(), group_entity, handle);
       }
 
       if (self->GetReadIds())
       {
-        this->GenerateEntityIdArray(grid, blockname, vtk_entity_type, handle);
+        this->GenerateEntityIdArray(
+          grid->GetCellData(), grid->GetNumberOfCells(), blockname, vtk_entity_type, handle);
       }
 
       grids.emplace_back(grid.GetPointer());
@@ -1821,7 +1823,7 @@ bool vtkIOSSReader::vtkInternals::GetMesh(vtkStructuredGrid* grid, const std::st
 }
 
 //----------------------------------------------------------------------------
-bool vtkIOSSReader::vtkInternals::GenerateEntityIdArray(vtkDataSet* dataset,
+bool vtkIOSSReader::vtkInternals::GenerateEntityIdArray(vtkCellData* cd, vtkIdType numberOfCells,
   const std::string& blockname, vtkIOSSReader::EntityType vtk_entity_type,
   const DatabaseHandle& handle)
 {
@@ -1838,16 +1840,16 @@ bool vtkIOSSReader::vtkInternals::GenerateEntityIdArray(vtkDataSet* dataset,
 
   if (auto cachedArray = vtkIdTypeArray::SafeDownCast(cache.Find(group_entity, cacheKey)))
   {
-    dataset->GetCellData()->AddArray(cachedArray);
+    cd->AddArray(cachedArray);
   }
   else
   {
     vtkNew<vtkIdTypeArray> objectId;
-    objectId->SetNumberOfTuples(dataset->GetNumberOfCells());
+    objectId->SetNumberOfTuples(numberOfCells);
     objectId->FillValue(static_cast<vtkIdType>(group_entity->get_property("id").get_int()));
     objectId->SetName("object_id");
     cache.Insert(group_entity, cacheKey, objectId);
-    dataset->GetCellData()->AddArray(objectId);
+    cd->AddArray(objectId);
   }
 
   return true;
@@ -2260,8 +2262,8 @@ bool vtkIOSSReader::vtkInternals::GetNodeFields(vtkDataSetAttributes* dsa,
 }
 
 //----------------------------------------------------------------------------
-bool vtkIOSSReader::vtkInternals::GenerateFileId(
-  vtkDataSet* grid, Ioss::GroupingEntity* group_entity, const DatabaseHandle& handle)
+bool vtkIOSSReader::vtkInternals::GenerateFileId(vtkCellData* cd, vtkIdType numberOfCells,
+  Ioss::GroupingEntity* group_entity, const DatabaseHandle& handle)
 {
   if (!group_entity)
   {
@@ -2271,14 +2273,14 @@ bool vtkIOSSReader::vtkInternals::GenerateFileId(
   auto& cache = this->Cache;
   if (auto file_ids = vtkDataArray::SafeDownCast(cache.Find(group_entity, "__vtk_file_ids__")))
   {
-    assert(grid->GetNumberOfCells() == file_ids->GetNumberOfTuples());
-    grid->GetCellData()->AddArray(file_ids);
+    assert(numberOfCells == file_ids->GetNumberOfTuples());
+    cd->AddArray(file_ids);
     return true;
   }
 
   vtkNew<vtkIntArray> file_ids;
   file_ids->SetName("file_id");
-  file_ids->SetNumberOfTuples(grid->GetNumberOfCells());
+  file_ids->SetNumberOfTuples(numberOfCells);
 
   int fileId = handle.second;
 
@@ -2296,9 +2298,9 @@ bool vtkIOSSReader::vtkInternals::GenerateFileId(
   {
   }
 
-  std::fill(file_ids->GetPointer(0), file_ids->GetPointer(0) + grid->GetNumberOfCells(), fileId);
+  std::fill(file_ids->GetPointer(0), file_ids->GetPointer(0) + numberOfCells, fileId);
   cache.Insert(group_entity, "__vtk_file_ids__", file_ids.GetPointer());
-  grid->GetCellData()->AddArray(file_ids);
+  cd->AddArray(file_ids);
   return true;
 }
 
