@@ -79,15 +79,15 @@ vtk_add_test_python(
   TestBlendStencil.py
   TestExtractVOI.py
   TestImageWeightedSum.py
-  imageMCAll.py,NO_RT
-  TestAllBlends.py,NO_RT
-  TestAllBlendsFloat.py,NO_RT
-  TestAllLogic.py,NO_RT
-  TestAllMaskBits.py,NO_RT
-  TestAllMathematics.py,NO_RT
-  TestAllShrinks.py,NO_RT
-  TestImageThresholdConnectivity.py,NO_RT
-  TestThreshold.py,NO_RT
-  TestWipe.py,NO_RT
-  reconstructSurface.py,NO_RT
+  imageMCAll.py
+  TestAllBlends.py
+  TestAllBlendsFloat.py
+  TestAllLogic.py
+  TestAllMaskBits.py
+  TestAllMathematics.py
+  TestAllShrinks.py
+  TestImageThresholdConnectivity.py
+  TestThreshold.py
+  TestWipe.py
+  reconstructSurface.py
   )

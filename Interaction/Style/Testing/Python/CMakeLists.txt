@@ -5,12 +5,12 @@ if (vtk_can_do_onscreen AND NOT VTK_DEFAULT_RENDER_WINDOW_OFFSCREEN)
     TestStyleRubberBandZoom.py
     TestStyleRubberBandZoomPerspective.py,NO_RT
     TestInteractorStyleTerrain.py
-    TestStyleBaseSpike.py,NO_RT
+    TestStyleBaseSpike.py
     TestStyleJoystickActor.py
-    TestStyleJoystickCamera.py,NO_RT
-    TestStyleTerrain.py,NO_RT
+    TestStyleJoystickCamera.py
+    TestStyleTerrain.py
     TestStyleTrackballActor.py
-    TestStyleTrackballCamera.py,NO_RT
+    TestStyleTrackballCamera.py
     TestStyleUser.py
     )
 

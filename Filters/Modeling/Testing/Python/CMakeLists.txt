@@ -45,8 +45,8 @@ vtk_add_test_python(
   subDivideTetra.py
   subdividePointData.py
   TestFillHolesFilter.py
-  TestNamedColorsIntegration.py,NO_RT
-  contour2DAll.py,NO_RT
-  contour3DAll.py,NO_RT
-  sync3dAll.py,NO_RT
+  TestNamedColorsIntegration.py
+  contour2DAll.py
+  contour3DAll.py
+  sync3dAll.py
   )

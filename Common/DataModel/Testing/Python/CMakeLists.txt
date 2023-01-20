@@ -29,12 +29,12 @@ vtk_add_test_python(
   scalarColors.py
   scalarConn.py
   TestConvexPointSet.py
-  otherDataSetAttributes.py,NO_DATA,NO_VALID,NO_RT
-  quadricCut.py,NO_RT
-  quadraticQuadDeriv.py,NO_VALID,NO_RT
+  otherDataSetAttributes.py,NO_DATA,NO_VALID
+  quadricCut.py
+  quadraticQuadDeriv.py,NO_VALID
   Test3DCellsEvaluatePosition.py,NO_DATA,NO_VALID,NO_OUTPUT
-  TestICPTransform.py,NO_RT
-  TestMolecule.py,NO_VALID,NO_RT
+  TestICPTransform.py
+  TestMolecule.py,NO_VALID
   TestClipPolyhedra.py
   TestPolyhedronCutter.py,NO_DATA,NO_VALID
   TestHyperTreeGrid2DFull.py,NO_DATA,NO_VALID
@@ -49,5 +49,5 @@ vtk_add_test_python(
   TestUniformHyperTreeGrid2DMask.py
   TestUniformHyperTreeGrid2DWithFilters.py,NO_DATA,NO_VALID
   TestUniformHyperTreeGrid3DWithFilters.py,NO_DATA,NO_VALID
-  TestHyperTreeGrid3DCursorsMandel.py,NO_RT,NO_DATA,NO_VALID
+  TestHyperTreeGrid3DCursorsMandel.py,NO_DATA,NO_VALID
   )
