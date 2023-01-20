@@ -793,4 +793,11 @@ const int* vtkHigherOrderHexahedron::GetOrder()
   }
   return this->Order;
 }
+
+bool vtkHigherOrderHexahedron::PointCountSupportsUniformOrder(vtkIdType pointsPerCell)
+{
+  // Determine if the cube root of N is integral.
+  auto rr = static_cast<int>(std::floor(std::cbrt(pointsPerCell) + 0.5));
+  return (rr * rr * rr == pointsPerCell);
+}
 VTK_ABI_NAMESPACE_END

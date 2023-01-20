@@ -84,6 +84,11 @@ public:
   virtual void SetOrder(const int s, const int t);
   virtual const int* GetOrder();
   virtual int GetOrder(int i) { return this->GetOrder()[i]; }
+  /// Return true if the number of points supports a cell of uniform
+  /// degree along each axis.
+  ///
+  /// For quadrilaterals, \a pointsPerCell must be a perfect square >= 4.
+  static bool PointCountSupportsUniformOrder(vtkIdType pointsPerCell);
 
   void InterpolateFunctions(const double pcoords[3], double* weights) override = 0;
   void InterpolateDerivs(const double pcoords[3], double* derivs) override = 0;

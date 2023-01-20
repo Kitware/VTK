@@ -1289,4 +1289,17 @@ const int* vtkHigherOrderWedge::GetOrder()
   }
   return this->Order;
 }
+
+bool vtkHigherOrderWedge::PointCountSupportsUniformOrder(vtkIdType pointsPerCell)
+{
+  const double n = static_cast<double>(pointsPerCell);
+  static const double third(1. / 3.);
+  static const double ninth(1. / 9.);
+  static const double twentyseventh(1. / 27.);
+  const double term =
+    std::cbrt(third * sqrt(third) * sqrt((27.0 * n - 2.0) * n) + n - twentyseventh);
+  int deg = static_cast<int>(round(term + ninth / term - 4 * third));
+  int numPointsFromDeg = (deg + 1) * (deg + 2) / 2 * (deg + 1);
+  return (numPointsFromDeg == static_cast<int>(pointsPerCell));
+}
 VTK_ABI_NAMESPACE_END

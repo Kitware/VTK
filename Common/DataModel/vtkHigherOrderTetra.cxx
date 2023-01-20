@@ -925,6 +925,13 @@ vtkIdType vtkHigherOrderTetra::ComputeOrder(const vtkIdType nPoints)
 }
 
 //------------------------------------------------------------------------------
+bool vtkHigherOrderTetra::PointCountSupportsUniformOrder(vtkIdType pointsPerCell)
+{
+  auto nn = vtkHigherOrderTetra::ComputeOrder(pointsPerCell);
+  return (nn * nn * nn == pointsPerCell);
+}
+
+//------------------------------------------------------------------------------
 void vtkHigherOrderTetra::ToBarycentricIndex(vtkIdType index, vtkIdType* bindex)
 {
 #ifdef ENABLE_CACHING

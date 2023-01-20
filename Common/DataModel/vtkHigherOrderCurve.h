@@ -74,6 +74,11 @@ public:
 
   const int* GetOrder();
   int GetOrder(int i) { return this->GetOrder()[i]; }
+  /// Return true if the number of points supports a cell of uniform
+  /// degree along each axis.
+  ///
+  /// For curves, this is trivially true when \a pointsPerCell >= 2.
+  static bool PointCountSupportsUniformOrder(vtkIdType pointsPerCell);
 
   void InterpolateFunctions(const double pcoords[3], double* weights) override = 0;
   void InterpolateDerivs(const double pcoords[3], double* derivs) override = 0;

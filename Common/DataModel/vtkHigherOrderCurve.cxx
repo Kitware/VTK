@@ -315,6 +315,11 @@ const int* vtkHigherOrderCurve::GetOrder()
   return this->Order;
 }
 
+bool vtkHigherOrderCurve::PointCountSupportsUniformOrder(vtkIdType pointsPerCell)
+{
+  return pointsPerCell >= 2;
+}
+
 /// Return a linear segment used to approximate a region of the nonlinear curve.
 vtkLine* vtkHigherOrderCurve::GetApprox()
 {

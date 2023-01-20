@@ -624,4 +624,23 @@ const int* vtkHigherOrderQuadrilateral::GetOrder()
   }
   return this->Order;
 }
+
+bool vtkHigherOrderQuadrilateral::PointCountSupportsUniformOrder(vtkIdType pointsPerCell)
+{
+  // Determine if sqrt(N) is integral (and if so, what is it?).
+  vtkIdType nn = pointsPerCell;
+  int h = nn % 0x0f; // Perfect squares in base 16 must end in 0, 1, 4, or 9.
+  if (h > 9 || (h > 1 && h < 4) || (h > 4 && h < 9))
+  {
+    // Trivially reject numbers with a bad final digit.
+    return false;
+  }
+  // There's a chance we have a perfect square, do the hard work.
+  int root = std::floor(std::sqrt(nn) + 0.5);
+  if (root * root != nn)
+  {
+    return false;
+  }
+  return root >= 4;
+}
 VTK_ABI_NAMESPACE_END
