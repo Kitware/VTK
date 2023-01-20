@@ -303,8 +303,6 @@ gzFile ZEXPORT gzopen_w(const wchar_t *path, const char *mode)
 
 /* -- see zlib.h -- */
 int ZEXPORT gzbuffer(gzFile file, unsigned size)
-    gzFile file;
-    unsigned size;
 {
     gz_statep state;
 
