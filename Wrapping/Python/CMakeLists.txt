@@ -73,6 +73,7 @@ endif ()
 
 set(_vtkmodules_all)
 set(_vtk_python_imports)
+set(_vtk_python_external_imports)
 foreach (_vtk_python_module IN LISTS vtk_python_wrapped_modules)
   get_property(_vtk_python_library_name
     TARGET    "${_vtk_python_module}"
@@ -81,6 +82,8 @@ foreach (_vtk_python_module IN LISTS vtk_python_wrapped_modules)
     "    \'${_vtk_python_library_name}\',\n")
   string(APPEND _vtk_python_imports
     "from .${_vtk_python_library_name} import *\n")
+  string(APPEND _vtk_python_external_imports
+    "from vtkmodules.${_vtk_python_library_name} import *\n")
 endforeach ()
 
 set(_vtk_python_files)
@@ -93,13 +96,6 @@ foreach (_vtk_module IN LISTS vtk_modules)
 endforeach()
 
 configure_file(
-  "${CMAKE_CURRENT_SOURCE_DIR}/vtkmodules/all.py.in"
-  "${CMAKE_BINARY_DIR}/${VTK_PYTHON_SITE_PACKAGES_SUFFIX}/vtkmodules/all.py"
-  @ONLY)
-list(APPEND _vtk_python_files
-  "${CMAKE_BINARY_DIR}/${VTK_PYTHON_SITE_PACKAGES_SUFFIX}/vtkmodules/all.py")
-
-configure_file(
   "${CMAKE_CURRENT_SOURCE_DIR}/vtkmodules/generate_pyi.py"
   "${CMAKE_BINARY_DIR}/${VTK_PYTHON_SITE_PACKAGES_SUFFIX}/vtkmodules/generate_pyi.py"
   COPYONLY)
@@ -108,15 +104,15 @@ list(APPEND _vtk_python_files
 
 if (BUILD_SHARED_LIBS)
   install(
-    FILES       "${CMAKE_BINARY_DIR}/${VTK_PYTHON_SITE_PACKAGES_SUFFIX}/vtkmodules/all.py"
-                "${CMAKE_BINARY_DIR}/${VTK_PYTHON_SITE_PACKAGES_SUFFIX}/vtkmodules/generate_pyi.py"
+    FILES       "${CMAKE_BINARY_DIR}/${VTK_PYTHON_SITE_PACKAGES_SUFFIX}/vtkmodules/generate_pyi.py"
     DESTINATION "${VTK_PYTHON_SITE_PACKAGES_SUFFIX}/vtkmodules"
     COMPONENT   "python")
 endif ()
 
 set(python_files
-  vtk.py
+  vtk.py.in
   vtkmodules/__init__.py.in
+  vtkmodules/all.py.in
   vtkmodules/gtk/GtkGLExtVTKRenderWindow.py
   vtkmodules/gtk/GtkGLExtVTKRenderWindowInteractor.py
   vtkmodules/gtk/GtkVTKRenderWindow.py
