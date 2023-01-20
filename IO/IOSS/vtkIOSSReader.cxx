@@ -464,6 +464,21 @@ private:
     vtkIOSSReader::EntityType vtk_entity_type, const DatabaseHandle& handle);
 
   /**
+   * Get with point coordinates aka geometry read from the block
+   * with the given name (`blockname`). The point coordinates are always
+   * read from a block of type NODEBLOCK.
+   *
+   * `handle` is the database / file handle for the current piece / rank
+   * obtained by calling `GetDatabaseHandles`.
+   *
+   * Returns points on success.
+   *
+   * On file reading error, `std::runtime_error` is thrown.
+   */
+  vtkSmartPointer<vtkPoints> GetGeometry(
+    const std::string& blockname, const DatabaseHandle& handle);
+
+  /**
    * Fill up `grid` with point coordinates aka geometry read from the block
    * with the given name (`blockname`). The point coordinates are always
    * read from a block of type NODEBLOCK.
@@ -1887,21 +1902,31 @@ bool vtkIOSSReader::vtkInternals::GetTopology(vtkUnstructuredGrid* grid,
 }
 
 //----------------------------------------------------------------------------
-bool vtkIOSSReader::vtkInternals::GetGeometry(
-  vtkUnstructuredGrid* grid, const std::string& blockname, const DatabaseHandle& handle)
+vtkSmartPointer<vtkPoints> vtkIOSSReader::vtkInternals::GetGeometry(
+  const std::string& blockname, const DatabaseHandle& handle)
 {
   auto region = this->GetRegion(handle);
   auto group_entity = region->get_entity(blockname, Ioss::EntityType::NODEBLOCK);
   if (!group_entity)
   {
-    return false;
+    return nullptr;
   }
-
   vtkLogScopeF(TRACE, "GetGeometry(%s)[file=%s]", blockname.c_str(),
     this->GetRawFileName(handle, true).c_str());
-  auto pts = vtkIOSSUtilities::GetMeshModelCoordinates(group_entity, &this->Cache);
-  grid->SetPoints(pts);
-  return true;
+  return vtkIOSSUtilities::GetMeshModelCoordinates(group_entity, &this->Cache);
+}
+
+//----------------------------------------------------------------------------
+bool vtkIOSSReader::vtkInternals::GetGeometry(
+  vtkUnstructuredGrid* grid, const std::string& blockname, const DatabaseHandle& handle)
+{
+  auto pts = this->GetGeometry(blockname, handle);
+  if (pts)
+  {
+    grid->SetPoints(pts);
+    return true;
+  }
+  return false;
 }
 
 //----------------------------------------------------------------------------
