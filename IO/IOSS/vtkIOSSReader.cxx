@@ -44,7 +44,6 @@
 #include "vtkSmartPointer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStringArray.h"
-#include "vtkStructuredData.h"
 #include "vtkStructuredGrid.h"
 #include "vtkTriangle.h"
 #include "vtkUnsignedCharArray.h"
@@ -77,12 +76,10 @@
 
 #include <array>
 #include <cassert>
-#include <cctype>
 #include <functional>
 #include <iterator>
 #include <map>
 #include <memory>
-#include <numeric>
 #include <set>
 #include <string>
 #include <utility>
