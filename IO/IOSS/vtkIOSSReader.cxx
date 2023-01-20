@@ -329,6 +329,13 @@ public:
     vtkIOSSReader* self);
 
   /**
+   * Reads datasets (meshes and fields) for the given exodus entity.
+   */
+  vtkSmartPointer<vtkDataSet> GetExodusEntityDataSet(const std::vector<std::string>& blockNames,
+    vtkIOSSReader::EntityType vtk_entity_type, const DatabaseHandle& handle, int timestep,
+    vtkIOSSReader* self);
+
+  /**
    * Read quality assurance and information data from the file.
    */
   bool GetQAAndInformationRecords(vtkFieldData* fd, const DatabaseHandle& handle);
@@ -538,6 +545,17 @@ private:
     bool remove_unused_points);
 
   /**
+   * Adds geometry (points) and topology (cell) information to the grid for all the
+   * entity blocks or sets chosen using the names (`blockNames`) and type
+   * (`vtk_entity_type`).
+   *
+   * `handle` is the database / file handle for the current piece / rank
+   * obtained by calling `GetDatabaseHandles`.
+   */
+  bool GetEntityMesh(vtkUnstructuredGrid* grid, const std::vector<std::string>& blockNames,
+    vtkIOSSReader::EntityType vtk_entity_type, const DatabaseHandle& handle);
+
+  /**
    * Reads a structured block. vtk_entity_type must be
    * `vtkIOSSReader::STRUCTUREDBLOCK`.
    */
@@ -582,14 +600,15 @@ private:
    */
   bool GetNodeFields(vtkDataSetAttributes* dsa, vtkDataArraySelection* selection,
     Ioss::Region* region, Ioss::GroupingEntity* group_entity, const DatabaseHandle& handle,
-    int timestep, bool read_ioss_ids);
+    int timestep, bool read_ioss_ids, bool mergeExodusEntityBlocks = false);
 
   /**
    * Reads node block array with displacements and then transforms
    * the points in the grid using those displacements.
    */
   bool ApplyDisplacements(vtkPointSet* grid, Ioss::Region* region,
-    Ioss::GroupingEntity* group_entity, const DatabaseHandle& handle, int timestep);
+    Ioss::GroupingEntity* group_entity, const DatabaseHandle& handle, int timestep,
+    bool mergeExodusEntityBlocks = false);
 
   /**
    * Adds 'file_id' array to indicate which file the dataset was read from.
@@ -1237,7 +1256,7 @@ bool vtkIOSSReader::vtkInternals::UpdateAssembly(vtkIOSSReader* self, int* tag)
 
 //----------------------------------------------------------------------------
 bool vtkIOSSReader::vtkInternals::GenerateOutput(
-  vtkPartitionedDataSetCollection* output, vtkIOSSReader*)
+  vtkPartitionedDataSetCollection* output, vtkIOSSReader* self)
 {
   // we skip NODEBLOCK since we never put out NODEBLOCK in the output by itself.
   vtkNew<vtkDataAssembly> assembly;
@@ -1258,18 +1277,40 @@ bool vtkIOSSReader::vtkInternals::GenerateOutput(
     const int entity_node =
       assembly->AddNode(vtkIOSSReader::GetDataAssemblyNodeNameForEntityType(etype));
 
-    // EntityNames are sorted by their exodus "id".
-    for (const auto& ename : namesSet)
+    // check if we are gonna merge all of the blocks/sets of an entity type into a single one
+    const bool mergeEntityBlocks =
+      this->GetFormat() == vtkIOSSUtilities::DatabaseFormatType::EXODUS &&
+      self->GetMergeExodusEntityBlocks();
+    if (!mergeEntityBlocks)
     {
+      // EntityNames are sorted by their exodus "id".
+      for (const auto& ename : namesSet)
+      {
+        const auto pdsIdx = output->GetNumberOfPartitionedDataSets();
+        vtkNew<vtkPartitionedDataSet> parts;
+        output->SetPartitionedDataSet(pdsIdx, parts);
+        output->GetMetaData(pdsIdx)->Set(vtkCompositeDataSet::NAME(), ename.second.c_str());
+        output->GetMetaData(pdsIdx)->Set(
+          vtkIOSSReader::ENTITY_TYPE(), etype); // save for vtkIOSSReader use.
+        auto node = assembly->AddNode(
+          vtkDataAssembly::MakeValidNodeName(ename.second.c_str()).c_str(), entity_node);
+        assembly->SetAttribute(node, "label", ename.second.c_str());
+        assembly->AddDataSetIndex(node, pdsIdx);
+      }
+    }
+    else
+    {
+      const auto mergedEntityName = vtkIOSSReader::GetMergedEntityNameForEntityType(etype);
+      // merge all entity blocks into a single partitioned dataset.
       const auto pdsIdx = output->GetNumberOfPartitionedDataSets();
       vtkNew<vtkPartitionedDataSet> parts;
       output->SetPartitionedDataSet(pdsIdx, parts);
-      output->GetMetaData(pdsIdx)->Set(vtkCompositeDataSet::NAME(), ename.second.c_str());
+      output->GetMetaData(pdsIdx)->Set(vtkCompositeDataSet::NAME(), mergedEntityName);
       output->GetMetaData(pdsIdx)->Set(
         vtkIOSSReader::ENTITY_TYPE(), etype); // save for vtkIOSSReader use.
       auto node = assembly->AddNode(
-        vtkDataAssembly::MakeValidNodeName(ename.second.c_str()).c_str(), entity_node);
-      assembly->SetAttribute(node, "label", ename.second.c_str());
+        vtkDataAssembly::MakeValidNodeName(mergedEntityName).c_str(), entity_node);
+      assembly->SetAttribute(node, "label", mergedEntityName);
       assembly->AddDataSetIndex(node, pdsIdx);
     }
   }
@@ -1513,6 +1554,175 @@ std::vector<vtkSmartPointer<vtkDataSet>> vtkIOSSReader::vtkInternals::GetDataSet
         ERROR, "Format not setup correctly or unknown format (%d)", static_cast<int>(this->Format));
       return {};
   }
+}
+
+//----------------------------------------------------------------------------
+bool vtkIOSSReader::vtkInternals::GetEntityMesh(vtkUnstructuredGrid* entityGrid,
+  const std::vector<std::string>& blockNames, vtkIOSSReader::EntityType vtk_entity_type,
+  const DatabaseHandle& handle)
+{
+  const auto ioss_entity_type = vtkIOSSUtilities::GetIOSSEntityType(vtk_entity_type);
+  auto region = this->GetRegion(handle.first, handle.second);
+  if (!region)
+  {
+    return false;
+  }
+
+  // find the first group entity that has a block with cells.
+  Ioss::GroupingEntity* first_group_entity = nullptr;
+  for (const auto& blockName : blockNames)
+  {
+    auto local_group_entity = region->get_entity(blockName, ioss_entity_type);
+    if (!local_group_entity)
+    {
+      return false;
+    }
+    // get the connectivity of the block of the entity
+    const auto blockCellArrayAndType = this->GetTopology(blockName, vtk_entity_type, handle);
+    if (!blockCellArrayAndType.empty())
+    {
+      first_group_entity = local_group_entity;
+      break;
+    }
+  }
+  if (!first_group_entity)
+  {
+    return false;
+  }
+
+  // if we have a cached dataset for the merged entity, it will be saved in the cache
+  // using the first group entity and __vtk_merged_mesh__ as the key.
+  auto& cache = this->Cache;
+  const static std::string cacheKey{ "__vtk_merged_mesh__" };
+  if (auto cachedDataset = vtkDataSet::SafeDownCast(cache.Find(first_group_entity, cacheKey)))
+  {
+    entityGrid->CopyStructure(cachedDataset);
+    return true;
+  }
+
+  // get the points of the entity
+  auto points = this->GetGeometry("nodeblock_1", handle);
+  if (!points)
+  {
+    return false;
+  }
+  // set the points of the entity
+  entityGrid->SetPoints(points);
+
+  std::vector<std::pair<int, vtkSmartPointer<vtkCellArray>>> cellArraysAndType;
+  for (const auto& blockName : blockNames)
+  {
+    auto group_entity = region->get_entity(blockName, ioss_entity_type);
+    if (!group_entity)
+    {
+      continue;
+    }
+    // get the connectivity of the block of the entity
+    const auto blockCellArrayAndType = this->GetTopology(blockName, vtk_entity_type, handle);
+    if (blockCellArrayAndType.empty())
+    {
+      continue;
+    }
+    cellArraysAndType.insert(
+      cellArraysAndType.end(), blockCellArrayAndType.begin(), blockCellArrayAndType.end());
+  }
+  const auto cellArrayAndTypeCombined = this->CombineTopologies(cellArraysAndType);
+  if (cellArrayAndTypeCombined.first == nullptr || cellArrayAndTypeCombined.second == nullptr)
+  {
+    return false;
+  }
+  entityGrid->SetCells(cellArrayAndTypeCombined.first, cellArrayAndTypeCombined.second);
+
+  // if we have more than one block, we cache the merged mesh.
+  vtkNew<vtkUnstructuredGrid> clone;
+  clone->CopyStructure(entityGrid);
+  cache.Insert(first_group_entity, cacheKey, clone);
+  return true;
+}
+
+//----------------------------------------------------------------------------
+vtkSmartPointer<vtkDataSet> vtkIOSSReader::vtkInternals::GetExodusEntityDataSet(
+  const std::vector<std::string>& blockNames, vtkIOSSReader::EntityType vtk_entity_type,
+  const DatabaseHandle& handle, int timestep, vtkIOSSReader* self)
+{
+  const auto ioss_entity_type = vtkIOSSUtilities::GetIOSSEntityType(vtk_entity_type);
+  auto region = this->GetRegion(handle.first, handle.second);
+  if (!region)
+  {
+    return nullptr;
+  }
+
+  vtkNew<vtkUnstructuredGrid> entityGrid;
+  if (!this->GetEntityMesh(entityGrid, blockNames, vtk_entity_type, handle))
+  {
+    return {};
+  }
+  vtkPointData* entityPD = entityGrid->GetPointData();
+  vtkCellData* entityCD = entityGrid->GetCellData();
+
+  auto fieldSelection = self->GetFieldSelection(vtk_entity_type);
+  assert(fieldSelection != nullptr);
+  auto nodeFieldSelection = self->GetNodeBlockFieldSelection();
+  assert(nodeFieldSelection != nullptr);
+
+  size_t numberOfValidBlocks = 0;
+  for (const auto& blockName : blockNames)
+  {
+    auto group_entity = region->get_entity(blockName, ioss_entity_type);
+    if (!group_entity)
+    {
+      continue;
+    }
+
+    // get the connectivity of the block of the entity
+    const auto blockCellArrayAndType = this->GetTopology(blockName, vtk_entity_type, handle);
+    if (blockCellArrayAndType.empty())
+    {
+      continue;
+    }
+    ++numberOfValidBlocks;
+
+    // compute number of cells in this block
+    vtkIdType blockNumberOfCells = 0;
+    for (const auto& cellArrayAndType : blockCellArrayAndType)
+    {
+      blockNumberOfCells += cellArrayAndType.second->GetNumberOfCells();
+    }
+
+    // handle all point data once
+    if (numberOfValidBlocks == 1)
+    {
+      this->GetNodeFields(entityPD, nodeFieldSelection, region, group_entity, handle, timestep,
+        self->GetReadIds(), true);
+      if (self->GetApplyDisplacements())
+      {
+        this->ApplyDisplacements(entityGrid, region, group_entity, handle, timestep, true);
+      }
+    }
+
+    // handle local cell data
+    vtkNew<vtkCellData> blockCD;
+    this->GetFields(
+      blockCD, fieldSelection, region, group_entity, handle, timestep, self->GetReadIds());
+    if (self->GetGenerateFileId())
+    {
+      this->GenerateFileId(blockCD, blockNumberOfCells, group_entity, handle);
+    }
+    if (self->GetReadIds())
+    {
+      this->GenerateEntityIdArray(blockCD, blockNumberOfCells, blockName, vtk_entity_type, handle);
+    }
+    if (numberOfValidBlocks == 1)
+    {
+      // copy allocate needs to be performed first because we need to build the required arrays
+      // for future calls of CopyData
+      entityCD->CopyGlobalIdsOn();
+      entityCD->CopyAllocate(blockCD, blockNumberOfCells);
+    }
+    entityCD->CopyData(blockCD, entityCD->GetNumberOfTuples(), blockNumberOfCells, 0);
+  }
+
+  return entityGrid;
 }
 
 //----------------------------------------------------------------------------
@@ -2226,7 +2436,7 @@ bool vtkIOSSReader::vtkInternals::GetFields(vtkDataSetAttributes* dsa,
 //----------------------------------------------------------------------------
 bool vtkIOSSReader::vtkInternals::GetNodeFields(vtkDataSetAttributes* dsa,
   vtkDataArraySelection* selection, Ioss::Region* region, Ioss::GroupingEntity* group_entity,
-  const DatabaseHandle& handle, int timestep, bool read_ioss_ids)
+  const DatabaseHandle& handle, int timestep, bool read_ioss_ids, bool mergeExodusEntityBlocks)
 {
   if (group_entity->type() == Ioss::EntityType::STRUCTUREDBLOCK)
   {
@@ -2251,8 +2461,9 @@ bool vtkIOSSReader::vtkInternals::GetNodeFields(vtkDataSetAttributes* dsa,
     // Exodus
     const auto blockname = group_entity->name();
     auto& cache = this->Cache;
-    auto vtk_raw_ids_array =
-      vtkIdTypeArray::SafeDownCast(cache.Find(group_entity, "__vtk_mesh_original_pt_ids__"));
+    vtkIdTypeArray* vtk_raw_ids_array = !mergeExodusEntityBlocks
+      ? vtkIdTypeArray::SafeDownCast(cache.Find(group_entity, "__vtk_mesh_original_pt_ids__"))
+      : nullptr;
     const std::string cache_key_suffix = vtk_raw_ids_array != nullptr ? blockname : std::string();
 
     auto nodeblock = region->get_entity("nodeblock_1", Ioss::EntityType::NODEBLOCK);
@@ -2306,7 +2517,8 @@ bool vtkIOSSReader::vtkInternals::GenerateFileId(vtkCellData* cd, vtkIdType numb
 
 //----------------------------------------------------------------------------
 bool vtkIOSSReader::vtkInternals::ApplyDisplacements(vtkPointSet* grid, Ioss::Region* region,
-  Ioss::GroupingEntity* group_entity, const DatabaseHandle& handle, int timestep)
+  Ioss::GroupingEntity* group_entity, const DatabaseHandle& handle, int timestep,
+  bool mergeExodusEntityBlocks)
 {
   if (!group_entity)
   {
@@ -2314,8 +2526,11 @@ bool vtkIOSSReader::vtkInternals::ApplyDisplacements(vtkPointSet* grid, Ioss::Re
   }
 
   auto& cache = this->Cache;
-  const auto xformPtsCacheKey = "__vtk_xformed_pts_" + std::to_string(timestep) +
-    std::to_string(std::hash<double>{}(this->DisplacementMagnitude));
+  const auto xformPtsCacheKeyEnding =
+    std::to_string(timestep) + std::to_string(std::hash<double>{}(this->DisplacementMagnitude));
+  const auto xformPtsCacheKey = !mergeExodusEntityBlocks
+    ? "__vtk_xformed_pts_" + xformPtsCacheKeyEnding
+    : "__vtk_merged_xformed_pts_" + xformPtsCacheKeyEnding;
   if (auto xformedPts = vtkPoints::SafeDownCast(cache.Find(group_entity, xformPtsCacheKey)))
   {
     assert(xformedPts->GetNumberOfPoints() == grid->GetNumberOfPoints());
@@ -2352,8 +2567,9 @@ bool vtkIOSSReader::vtkInternals::ApplyDisplacements(vtkPointSet* grid, Ioss::Re
       return false;
     }
 
-    auto vtk_raw_ids_array =
-      vtkIdTypeArray::SafeDownCast(cache.Find(group_entity, "__vtk_mesh_original_pt_ids__"));
+    auto vtk_raw_ids_array = !mergeExodusEntityBlocks
+      ? vtkIdTypeArray::SafeDownCast(cache.Find(group_entity, "__vtk_mesh_original_pt_ids__"))
+      : nullptr;
     const std::string cache_key_suffix =
       vtk_raw_ids_array != nullptr ? group_entity->name() : std::string();
     array = vtkDataArray::SafeDownCast(this->GetField(
@@ -2466,6 +2682,7 @@ vtkInformationKeyMacro(vtkIOSSReader, ENTITY_TYPE, Integer);
 //----------------------------------------------------------------------------
 vtkIOSSReader::vtkIOSSReader()
   : Controller(nullptr)
+  , MergeExodusEntityBlocks(false)
   , GenerateFileId(false)
   , ScanForRelatedFiles(true)
   , ReadIds(true)
@@ -2552,6 +2769,18 @@ void vtkIOSSReader::SetScanForRelatedFiles(bool val)
     this->ScanForRelatedFiles = val;
     auto& internals = (*this->Internals);
     internals.FileNamesMTime.Modified();
+    this->Modified();
+  }
+}
+
+//----------------------------------------------------------------------------
+void vtkIOSSReader::SetMergeExodusEntityBlocks(bool val)
+{
+  if (this->MergeExodusEntityBlocks != val)
+  {
+    // clear cache to ensure we read appropriate points/point data.
+    this->Internals->ClearCache();
+    this->MergeExodusEntityBlocks = val;
     this->Modified();
   }
 }
@@ -2748,41 +2977,96 @@ int vtkIOSSReader::ReadMesh(
     internals.ReadAssemblies(collection, dbaseHandles[0]);
   }
 
-  for (unsigned int pdsIdx = 0; pdsIdx < collection->GetNumberOfPartitionedDataSets(); ++pdsIdx)
+  // check if we are gonna merge all of the blocks/sets of an entity type into a single one
+  const bool mergeEntityBlocks =
+    internals.GetFormat() == vtkIOSSUtilities::DatabaseFormatType::EXODUS &&
+    this->GetMergeExodusEntityBlocks();
+  if (!mergeEntityBlocks)
   {
-    const std::string blockname(collection->GetMetaData(pdsIdx)->Get(vtkCompositeDataSet::NAME()));
-    const auto vtk_entity_type =
-      static_cast<vtkIOSSReader::EntityType>(collection->GetMetaData(pdsIdx)->Get(ENTITY_TYPE()));
-
-    auto selection = this->GetEntitySelection(vtk_entity_type);
-    if (!selection->ArrayIsEnabled(blockname.c_str()) &&
-      selectedAssemblyIndices.find(pdsIdx) == selectedAssemblyIndices.end())
+    for (unsigned int pdsIdx = 0; pdsIdx < collection->GetNumberOfPartitionedDataSets(); ++pdsIdx)
     {
-      // skip disabled blocks.
-      continue;
-    }
+      const std::string blockName(
+        collection->GetMetaData(pdsIdx)->Get(vtkCompositeDataSet::NAME()));
+      const auto entity_type = collection->GetMetaData(pdsIdx)->Get(ENTITY_TYPE());
+      const auto vtk_entity_type = static_cast<vtkIOSSReader::EntityType>(entity_type);
 
-    auto pds = collection->GetPartitionedDataSet(pdsIdx);
-    assert(pds != nullptr);
-    for (unsigned int cc = 0; cc < static_cast<unsigned int>(dbaseHandles.size()); ++cc)
-    {
-      const auto& handle = dbaseHandles[cc];
-      try
+      auto selection = this->GetEntitySelection(vtk_entity_type);
+      if (!selection->ArrayIsEnabled(blockName.c_str()) &&
+        selectedAssemblyIndices.find(pdsIdx) == selectedAssemblyIndices.end())
       {
-        auto datasets = internals.GetDataSets(blockname, vtk_entity_type, handle, timestep, this);
-        for (auto& ds : datasets)
+        // skip disabled blocks.
+        continue;
+      }
+
+      auto pds = collection->GetPartitionedDataSet(pdsIdx);
+      assert(pds != nullptr);
+      for (const auto& handle : dbaseHandles)
+      {
+        try
         {
-          pds->SetPartition(pds->GetNumberOfPartitions(), ds);
+          auto datasets = internals.GetDataSets(blockName, vtk_entity_type, handle, timestep, this);
+          for (auto& ds : datasets)
+          {
+            pds->SetPartition(pds->GetNumberOfPartitions(), ds);
+          }
+        }
+        catch (const std::runtime_error& e)
+        {
+          vtkLogF(ERROR,
+            "Error reading entity block (or set) named '%s' from '%s'; skipping. Details: %s",
+            blockName.c_str(), internals.GetRawFileName(handle).c_str(), e.what());
+        }
+        // Note: Consider using the inner ReleaseHandles (and not the outer) for debugging purposes
+        // internals.ReleaseHandles();
+      }
+    }
+  }
+  else
+  {
+    for (unsigned int pdsIdx = 0; pdsIdx < collection->GetNumberOfPartitionedDataSets(); ++pdsIdx)
+    {
+      const auto entity_type = collection->GetMetaData(pdsIdx)->Get(ENTITY_TYPE());
+      const auto vtk_entity_type = static_cast<vtkIOSSReader::EntityType>(entity_type);
+      auto selection = this->GetEntitySelection(vtk_entity_type);
+
+      // get all the active block names for this entity type.
+      std::vector<std::string> blockNames;
+      for (int i = 0; i < selection->GetNumberOfArrays(); ++i)
+      {
+        if (selection->ArrayIsEnabled(selection->GetArrayName(i)))
+        {
+          blockNames.emplace_back(selection->GetArrayName(i));
         }
       }
-      catch (const std::runtime_error& e)
+
+      if (blockNames.empty())
       {
-        vtkLogF(ERROR,
-          "Error reading entity block (or set) named '%s' from '%s'; skipping. Details: %s",
-          blockname.c_str(), internals.GetRawFileName(handle).c_str(), e.what());
+        // skip disabled blocks.
+        continue;
       }
-      // Note: Consider using the inner ReleaseHandles (and not the outer) for debugging purposes
-      // internals.ReleaseHandles();
+
+      auto pds = collection->GetPartitionedDataSet(pdsIdx);
+      assert(pds != nullptr);
+      for (const auto& handle : dbaseHandles)
+      {
+        try
+        {
+          auto dataset =
+            internals.GetExodusEntityDataSet(blockNames, vtk_entity_type, handle, timestep, this);
+          if (dataset != nullptr)
+          {
+            pds->SetPartition(pds->GetNumberOfPartitions(), dataset);
+          }
+        }
+        catch (const std::runtime_error& e)
+        {
+          vtkLogF(ERROR, "Error reading entity named '%s' from '%s'; skipping. Details: %s",
+            vtkIOSSReader::GetDataAssemblyNodeNameForEntityType(entity_type),
+            internals.GetRawFileName(handle).c_str(), e.what());
+        }
+        // Note: Consider using the inner ReleaseHandles (and not the outer) for debugging
+        // purposes internals.ReleaseHandles();
+      }
     }
   }
   internals.ReleaseHandles();
@@ -2949,6 +3233,37 @@ const char* vtkIOSSReader::GetDataAssemblyNodeNameForEntityType(int type)
       return "element_sets";
     case SIDESET:
       return "side_sets";
+    default:
+      vtkLogF(ERROR, "Invalid type '%d'", type);
+      return nullptr;
+  }
+}
+
+//----------------------------------------------------------------------------
+const char* vtkIOSSReader::GetMergedEntityNameForEntityType(int type)
+{
+  switch (type)
+  {
+    case NODEBLOCK:
+      return "merged_node_blocks";
+    case EDGEBLOCK:
+      return "merged_edge_blocks";
+    case FACEBLOCK:
+      return "merged_face_blocks";
+    case ELEMENTBLOCK:
+      return "merged_element_blocks";
+    case STRUCTUREDBLOCK:
+      return "merged_structured_blocks";
+    case NODESET:
+      return "merged_node_sets";
+    case EDGESET:
+      return "merged_edge_sets";
+    case FACESET:
+      return "merged_face_sets";
+    case ELEMENTSET:
+      return "merged_element_sets";
+    case SIDESET:
+      return "merged_side_sets";
     default:
       vtkLogF(ERROR, "Invalid type '%d'", type);
       return nullptr;
