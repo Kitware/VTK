@@ -135,6 +135,57 @@ void vtkQuadricDecimation::SetPointAttributeArray(vtkIdType ptId, const double* 
   }
 }
 
+void vtkQuadricDecimation::SetPointAttributeArray(vtkIdType ptId[2], const double* x)
+{
+  auto points = this->Mesh->GetPoints();
+  if (!points)
+  {
+    vtkErrorMacro("Points in internal mesh are not allocated");
+    return;
+  }
+
+  if (this->MapPointData || this->AttributeErrorMetric)
+  {
+    // calculate weights equivalent to projecting back to the initial edge and interpolating there
+    std::array<double, 3> pt = { 0 };
+    points->GetPoint(ptId[0], pt.data());
+    double weightBegin = vtkMath::Distance2BetweenPoints(pt.data(), x);
+    points->GetPoint(ptId[1], pt.data());
+    double weightEnd = vtkMath::Distance2BetweenPoints(pt.data(), x);
+    double norm = weightBegin + weightEnd;
+    weightBegin /= norm;
+    weightEnd /= norm;
+    // iterate over all arrays and apply edge interpolation
+    for (int iArr = 0; iArr < this->Mesh->GetPointData()->GetNumberOfArrays(); ++iArr)
+    {
+      auto dArray = this->Mesh->GetPointData()->GetArray(iArr);
+      if (!dArray)
+      {
+        continue;
+      }
+      std::vector<double> res(dArray->GetNumberOfComponents(), 0.0);
+      std::vector<double> buffer(dArray->GetNumberOfComponents(), 0.0);
+      dArray->GetTuple(ptId[0], res.data());
+      for (auto& val : res)
+      {
+        val *= weightBegin;
+      }
+      dArray->GetTuple(ptId[1], buffer.data());
+      for (auto& val : buffer)
+      {
+        val *= weightEnd;
+      }
+      for (std::size_t comp = 0; comp < res.size(); ++comp)
+      {
+        res[comp] += buffer[comp];
+      }
+      dArray->SetTuple(ptId[0], res.data());
+    }
+  }
+
+  points->SetPoint(ptId[0], x);
+}
+
 void vtkQuadricDecimation::GetPointAttributeArray(vtkIdType ptId, double* x)
 {
   int i;
@@ -195,7 +246,6 @@ int vtkQuadricDecimation::RequestData(vtkInformation* vtkNotUsed(request),
   vtkCellArray* polys;
   vtkDataArray* attrib;
   vtkPoints* points;
-  vtkPointData* pointData;
   vtkIdType endPtIds[2];
   vtkIdList* outputCellList;
   vtkIdType npts;
@@ -218,7 +268,6 @@ int vtkQuadricDecimation::RequestData(vtkInformation* vtkNotUsed(request),
 
   polys = vtkCellArray::New();
   points = vtkPoints::New();
-  pointData = vtkPointData::New();
   outputCellList = vtkIdList::New();
 
   // copy the input (only polys) to our working mesh
@@ -229,11 +278,10 @@ int vtkQuadricDecimation::RequestData(vtkInformation* vtkNotUsed(request),
   polys->DeepCopy(input->GetPolys());
   this->Mesh->SetPolys(polys);
   polys->Delete();
-  if (this->AttributeErrorMetric)
+  if (this->AttributeErrorMetric || this->MapPointData)
   {
     this->Mesh->GetPointData()->DeepCopy(input->GetPointData());
   }
-  pointData->Delete();
   this->Mesh->GetFieldData()->PassData(input->GetFieldData());
   this->Mesh->BuildCells();
   this->Mesh->BuildLinks();
@@ -351,7 +399,7 @@ int vtkQuadricDecimation::RequestData(vtkInformation* vtkNotUsed(request),
     this->NumberOfEdgeCollapses++;
 
     // Set the new coordinates of point0.
-    this->SetPointAttributeArray(endPtIds[0], x);
+    this->SetPointAttributeArray(endPtIds, x);
     vtkDebugMacro(<< "Cost: " << cost << " Edge: " << endPtIds[0] << " " << endPtIds[1]);
 
     // Merge the quadrics of the two points.
@@ -404,7 +452,7 @@ int vtkQuadricDecimation::RequestData(vtkInformation* vtkNotUsed(request),
   outputCellList->Delete();
 
   // renormalize, clamp attributes
-  if (this->AttributeErrorMetric)
+  if (this->AttributeErrorMetric || this->MapPointData)
   {
     if (nullptr != (attrib = output->GetPointData()->GetNormals()))
     {
