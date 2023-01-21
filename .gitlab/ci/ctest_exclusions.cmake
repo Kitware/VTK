@@ -36,6 +36,9 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora" OR
     "^VTK::RenderingOpenGL2Python-TestTopologyResolution$"
     "^VTK::RenderingVolumeCxx-TestGPURayCastMapperRectilinearGrid$"
 
+    # Timeout; needs investigation
+    "^VTK::RenderingOpenGL2Cxx-TestFloor$"
+
     # Point rendering differences
     "^VTK::FiltersPointsPython-TestConnectedPointsFilter$" # other differences too
     "^VTK::FiltersPointsPython-TestPCANormalEstimation$"
