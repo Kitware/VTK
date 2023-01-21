@@ -36,6 +36,7 @@
 class vtkIncrementalPointLocator;
 class vtkDataSet;
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSGENERAL_EXPORT vtkCleanUnstructuredGrid : public vtkUnstructuredGridAlgorithm
 {
 public:
@@ -104,4 +105,5 @@ private:
   vtkCleanUnstructuredGrid(const vtkCleanUnstructuredGrid&) = delete;
   void operator=(const vtkCleanUnstructuredGrid&) = delete;
 };
+VTK_ABI_NAMESPACE_END
 #endif
