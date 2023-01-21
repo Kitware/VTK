@@ -400,9 +400,10 @@ void ExerciseType(vtkMultiProcessController* controller)
     char name[80];
     snprintf(name, sizeof(name), "%lf", vtkMath::Random());
     sourceArrays[i]->SetName(name);
+    double min = std::is_unsigned<baseType>() ? 0.0 : -16.0;
     for (int j = 0; j < arraySize; j++)
     {
-      sourceArrays[i]->SetValue(j, static_cast<baseType>(vtkMath::Random(-16.0, 16.0)));
+      sourceArrays[i]->SetValue(j, static_cast<baseType>(vtkMath::Random(min, 16.0)));
     }
   }
   COUT("Source Arrays:");
