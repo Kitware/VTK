@@ -153,25 +153,10 @@ void vtkNek5000Reader::GetAllTimesAndVariableNames(vtkInformationVector* outputV
 
   char dfName[265];
   char firstTags[32];
-  char param[32];
   int file_index;
-  float test_time_val;
 
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
   // vtkInformation* outInfo1 = outputVector->GetInformationObject(1);
-
-  int num_ranks, my_rank;
-  vtkMultiProcessController* ctrl = vtkMultiProcessController::GetGlobalController();
-  if (ctrl != nullptr)
-  {
-    num_ranks = ctrl->GetNumberOfProcesses();
-    my_rank = ctrl->GetLocalProcessId();
-  }
-  else
-  {
-    num_ranks = 1;
-    my_rank = 0;
-  }
 
   this->TimeStepRange[0] = 0;
   this->TimeStepRange[1] = this->NumberOfTimeSteps - 1;
@@ -411,7 +396,6 @@ void vtkNek5000Reader::updateVariableStatus()
 int vtkNek5000Reader::GetVariableNamesFromData(char* varTags)
 {
   int ind = 0;
-  char l_var_name[2];
   int numSFields = 0;
 
   char* sPtr = nullptr;
@@ -435,22 +419,7 @@ int vtkNek5000Reader::GetVariableNamesFromData(char* varTags)
 
   this->num_vars = 0;
 
-  l_var_name[1] = '\0';
-
-  int my_rank;
-  vtkMultiProcessController* ctrl = vtkMultiProcessController::GetGlobalController();
-  if (ctrl != nullptr)
-  {
-    my_rank = ctrl->GetLocalProcessId();
-  }
-  else
-  {
-    my_rank = 0;
-  }
-
   int len = strlen(varTags);
-  //  vtkDebugMacro(<< "vtkNek5000Reader::GetVariableNamesFromData:after strlen my_rank:
-  //  "<<my_rank<< "  varTags = \'"<< varTags<< "\'  len= "<< len);
 
   // allocate space for variable names and lengths,
   // will be at most 4 + numSFields  (4 for velocity, velocity_magnitude, pressure and temperature)
@@ -545,17 +514,6 @@ void vtkNek5000Reader::readData(char* dfName)
   std::ifstream dfPtr;
   float* dataPtr;
   double* tmpDblPtr;
-
-  int my_rank;
-  vtkMultiProcessController* ctrl = vtkMultiProcessController::GetGlobalController();
-  if (ctrl != nullptr)
-  {
-    my_rank = ctrl->GetLocalProcessId();
-  }
-  else
-  {
-    my_rank = 0;
-  }
 
   dfPtr.open(dfName, std::ifstream::binary);
   if (dfPtr.is_open())
@@ -1039,21 +997,17 @@ void vtkNek5000Reader::partitionAndReadMesh()
 int vtkNek5000Reader::RequestInformation(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
-  double timer_diff;
-
   string tag;
   char buf[2048];
 
-  int num_ranks, my_rank;
+  int my_rank;
   vtkMultiProcessController* ctrl = vtkMultiProcessController::GetGlobalController();
   if (ctrl != nullptr)
   {
-    num_ranks = ctrl->GetNumberOfProcesses();
     my_rank = ctrl->GetLocalProcessId();
   }
   else
   {
-    num_ranks = 1;
     my_rank = 0;
   }
 
@@ -1193,7 +1147,6 @@ int vtkNek5000Reader::RequestInformation(vtkInformation* vtkNotUsed(request),
 int vtkNek5000Reader::RequestData(vtkInformation* request,
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
-  double timer_diff;
   double total_timer_diff;
   int i;
   char dfName[256];
@@ -1232,9 +1185,6 @@ int vtkNek5000Reader::RequestData(vtkInformation* request,
   // Update the status of the requested variables
 
   this->updateVariableStatus();
-
-  double l_time_val_0 = 0.0;
-  double l_time_val_1 = 0.0;
 
   // Check if a particular time was requested.
   bool hasTimeValue = false;
@@ -1283,16 +1233,14 @@ int vtkNek5000Reader::RequestData(vtkInformation* request,
     this->ActualTimeStep = this->TimeStepRange[1];
   }
 
-  int num_ranks, my_rank;
+  int my_rank;
   vtkMultiProcessController* ctrl = vtkMultiProcessController::GetGlobalController();
   if (ctrl != nullptr)
   {
-    num_ranks = ctrl->GetNumberOfProcesses();
     my_rank = ctrl->GetLocalProcessId();
   }
   else
   {
-    num_ranks = 1;
     my_rank = 0;
   }
   vtkDebugMacro(<< "RequestData: ENTER: rank: " << my_rank << "  outputPort: " << outputPort
@@ -1388,16 +1336,14 @@ void vtkNek5000Reader::updateVtuData(vtkUnstructuredGrid* pv_ugrid)
 {
   double timer_diff;
 
-  int num_ranks, my_rank;
+  int my_rank;
   vtkMultiProcessController* ctrl = vtkMultiProcessController::GetGlobalController();
   if (ctrl != nullptr)
   {
-    num_ranks = ctrl->GetNumberOfProcesses();
     my_rank = ctrl->GetLocalProcessId();
   }
   else
   {
-    num_ranks = 1;
     my_rank = 0;
   }
 
@@ -1723,16 +1669,14 @@ void vtkNek5000Reader::copyContinuumPoints(vtkPoints* points)
 
 void vtkNek5000Reader::copyContinuumData(vtkUnstructuredGrid* pv_ugrid)
 {
-  int num_ranks, my_rank;
+  int my_rank;
   vtkMultiProcessController* ctrl = vtkMultiProcessController::GetGlobalController();
   if (ctrl != nullptr)
   {
-    num_ranks = ctrl->GetNumberOfProcesses();
     my_rank = ctrl->GetLocalProcessId();
   }
   else
   {
-    num_ranks = 1;
     my_rank = 0;
   }
 
@@ -1858,19 +1802,6 @@ void vtkNek5000Reader::copyContinuumData(vtkUnstructuredGrid* pv_ugrid)
 // return true if it is, otherwise false
 bool vtkNek5000Reader::isObjectMissingData()
 {
-  int num_ranks, my_rank;
-  vtkMultiProcessController* ctrl = vtkMultiProcessController::GetGlobalController();
-  if (ctrl != nullptr)
-  {
-    num_ranks = ctrl->GetNumberOfProcesses();
-    my_rank = ctrl->GetLocalProcessId();
-  }
-  else
-  {
-    num_ranks = 1;
-    my_rank = 0;
-  }
-
   // check the stored variables
   for (int i = 0; i < this->num_vars; i++)
   {
@@ -1887,19 +1818,6 @@ bool vtkNek5000Reader::objectMatchesRequest()
 {
   // see if the current object matches the requested data
   // return false if it does not match, otherwise true
-  int num_ranks, my_rank;
-  vtkMultiProcessController* ctrl = vtkMultiProcessController::GetGlobalController();
-  if (ctrl != nullptr)
-  {
-    num_ranks = ctrl->GetNumberOfProcesses();
-    my_rank = ctrl->GetLocalProcessId();
-  }
-  else
-  {
-    num_ranks = 1;
-    my_rank = 0;
-  }
-
   for (int i = 0; i < this->num_vars; i++)
   {
     if (this->GetPointArrayStatus(i) != this->curObj->vars[i])
@@ -1915,16 +1833,14 @@ bool vtkNek5000Reader::objectHasExtraData()
   // see if the current object has extra data than was requested
   // return false if object has less than request, otherwise true
 
-  int num_ranks, my_rank;
+  int my_rank;
   vtkMultiProcessController* ctrl = vtkMultiProcessController::GetGlobalController();
   if (ctrl != nullptr)
   {
-    num_ranks = ctrl->GetNumberOfProcesses();
     my_rank = ctrl->GetLocalProcessId();
   }
   else
   {
-    num_ranks = 1;
     my_rank = 0;
   }
 
