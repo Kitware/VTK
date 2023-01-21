@@ -3163,6 +3163,8 @@ function (vtk_module_build)
       continue ()
     endif ()
 
+    _vtk_module_debug(testing "@_vtk_build_test@ testing enabled")
+
     get_property(_vtk_build_module_file GLOBAL
       PROPERTY  "_vtk_module_${_vtk_build_test}_file")
 
