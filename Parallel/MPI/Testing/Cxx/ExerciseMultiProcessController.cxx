@@ -545,6 +545,7 @@ void ExerciseType(vtkMultiProcessController* controller)
     lengths[i] = static_cast<vtkIdType>(vtkMath::Random(0.0, arraySize + 0.99));
   }
   buffer->SetNumberOfTuples(offsets[numProc - 1] + lengths[numProc - 1]);
+  buffer->Fill(0.);
   result = 1;
   controller->AllGatherV(sourceArrays[rank]->GetPointer(0), buffer->GetPointer(0), lengths[rank],
     lengths.data(), offsets.data());
