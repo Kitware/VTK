@@ -469,7 +469,7 @@ void ExerciseType(vtkMultiProcessController* controller)
       {
         if (sourceArrays[i]->GetValue(j) != buffer->GetValue(i * arraySize + j))
         {
-          vtkGenericWarningMacro("Gathered array from " << i << " incorrect.");
+          vtkGenericWarningMacro("Gathered array from " << i << " incorrect at " << j << ".");
           result = 0;
           break;
         }
@@ -491,7 +491,7 @@ void ExerciseType(vtkMultiProcessController* controller)
     {
       if (sourceArrays[i]->GetValue(j) != buffer->GetValue(i * arraySize + j))
       {
-        vtkGenericWarningMacro("Gathered array from " << i << " incorrect.");
+        vtkGenericWarningMacro("Gathered array from " << i << " incorrect at " << j << ".");
         result = 0;
         break;
       }
@@ -554,7 +554,7 @@ void ExerciseType(vtkMultiProcessController* controller)
     {
       if (sourceArrays[i]->GetValue(j) != buffer->GetValue(offsets[i] + j))
       {
-        vtkGenericWarningMacro("Gathered array from " << i << " incorrect.");
+        vtkGenericWarningMacro("Gathered array from " << i << " incorrect at " << j << ".");
         result = 0;
         break;
       }
@@ -580,7 +580,8 @@ void ExerciseType(vtkMultiProcessController* controller)
   {
     if (sourceArrays[srcProcessId]->GetValue(rank * length + i) != buffer->GetValue(i))
     {
-      vtkGenericWarningMacro(<< "Scattered array from " << srcProcessId << " incorrect.");
+      vtkGenericWarningMacro(<< "Scattered array from " << srcProcessId << " incorrect at " << i
+                             << ".");
       result = 0;
       break;
     }
