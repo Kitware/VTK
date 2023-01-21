@@ -1094,7 +1094,7 @@ int vtkNek5000Reader::RequestInformation(vtkInformation* vtkNotUsed(request),
 
     inPtr.close();
 
-    size_t ii = 0;
+    int ii = 0;
     if (this->datafile_format[0] != '/')
     {
       for (ii = strlen(filename) - 1; ii >= 0; ii--)
@@ -1112,14 +1112,6 @@ int vtkNek5000Reader::RequestInformation(vtkInformation* vtkNotUsed(request),
       strcat(buf, "/");
       this->datafile_format.insert(0, buf, strlen(buf));
     }
-
-#if 0
-    for (ii = 0; ii < fileTemplate.size(); ii++)
-    {
-      if (fileTemplate[ii] == '/')
-        fileTemplate[ii] = '\\';
-    }
-#endif
 
     vtkDebugMacro(<< "vtkNek5000Reader::RequestInformation:  this->datafile_format: "
                   << this->datafile_format);
