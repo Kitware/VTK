@@ -406,7 +406,7 @@ void vtkNek5000Reader::updateVariableStatus()
 //----------------------------------------------------------------------------
 size_t vtkNek5000Reader::GetVariableNamesFromData(char* varTags)
 {
-  int ind = 0;
+  size_t ind = 0;
   int numSFields = 0;
 
   char* sPtr = nullptr;
@@ -430,7 +430,7 @@ size_t vtkNek5000Reader::GetVariableNamesFromData(char* varTags)
 
   this->num_vars = 0;
 
-  int len = strlen(varTags);
+  size_t len = strlen(varTags);
 
   // allocate space for variable names and lengths,
   // will be at most 4 + numSFields  (4 for velocity, velocity_magnitude, pressure and temperature)
@@ -1100,7 +1100,7 @@ int vtkNek5000Reader::RequestInformation(vtkInformation* vtkNotUsed(request),
     int ii = 0;
     if (this->datafile_format[0] != '/')
     {
-      for (ii = strlen(filename) - 1; ii >= 0; ii--)
+      for (ii = static_cast<int>(strlen(filename)) - 1; ii >= 0; ii--)
       {
         if (filename[ii] == '/' || filename[ii] == '\\')
         {
@@ -1135,7 +1135,7 @@ int vtkNek5000Reader::RequestInformation(vtkInformation* vtkNotUsed(request),
 
     vtkDebugMacro(<< "Rank: " << my_rank << " :: this->datafile_start= " << this->datafile_start);
 
-    sprintf(dfName, this->datafile_format.c_str(), 0, this->datafile_start);
+    snprintf(dfName, sizeof(dfName), this->datafile_format.c_str(), 0, this->datafile_start);
     this->SetDataFileName(dfName);
 
     vtkInformation* outInfo0 = outputVector->GetInformationObject(0);
@@ -1312,7 +1312,7 @@ int vtkNek5000Reader::RequestData(vtkInformation* request,
 
     // Get the file name for requested time step
 
-    sprintf(dfName, this->datafile_format.c_str(), 0, this->requested_step);
+    snprintf(dfName, sizeof(dfName), this->datafile_format.c_str(), 0, this->requested_step);
     vtkDebugMacro(<< "vtkNek5000Reader::RequestData: Rank: " << my_rank
                   << " Now reading data from file: " << dfName
                   << " this->requested_step: " << this->requested_step);
