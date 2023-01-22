@@ -80,6 +80,7 @@ if (VTK_ENABLE_EXTRA_BUILD_WARNINGS_EVERYTHING)
   vtk_add_flag(-Wno-weak-template-vtables ${langs})
   vtk_add_flag(-Wno-weak-vtables ${langs})
   vtk_add_flag(-Wno-zero-as-null-pointer-constant ${langs})
+  vtk_add_flag(-Wno-unsafe-buffer-usage ${langs})
 
   # These should be fixed at some point prior to updating VTK's standard
   # version. See #18585.
