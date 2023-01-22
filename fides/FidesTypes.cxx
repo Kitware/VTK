@@ -24,7 +24,7 @@ vtkm::cont::Field::Association ConvertToVTKmAssociation(fides::Association assoc
     case fides::Association::CELL_SET:
       return vtkm::cont::Field::Association::Cells;
     case fides::Association::FIELD_DATA:
-      return vtkm::cont::Field::Association::WholeMesh;
+      return vtkm::cont::Field::Association::WholeDataSet;
     default:
       throw std::runtime_error("unknown association provided");
   }

@@ -14,13 +14,10 @@ Documentation is hosted at [Read The Docs](https://fides.readthedocs.io/en/lates
 
 ## Dependencies
 
-Fides depends of VTK-m and ADIOS2.
+Fides depends of VTK-m and ADIOS2:
 
-A commit of VTK-m which is known to work is 4df064f3 (from Apr 14, 2021).
-
-Due to recent fixes in ADIOS, use commit 3324c77f95 (from Apr 13, 2020) or later.
-Run the unit tests if doubt arises.
-
+- For VTK-m, we require any version equal or higher than 2.0.
+- For ADIOS2, we recommend v2.8.0 or later. Run the unit tests if doubt arises.
 
 ## Testing
 
