@@ -255,6 +255,14 @@ fedora34-mpi-python-vtkmoverride:test:
     needs:
         - fedora34-mpi-python-vtkmoverride:build
 
+## Webassembly build
+webassembly:build:
+    extends:
+        - .webassembly
+        - .cmake_build_linux
+        - .linux_builder_tags
+        - .cmake_build_artifacts
+        - .run_manually
 
 ## Python wheel builds
 

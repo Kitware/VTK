@@ -308,6 +308,12 @@
         - linux-x86_64-v3
         - vtk
 
+.webassembly:
+    image: "dockcross/web-wasm:20230116-670f7f7"
+
+    variables:
+        CMAKE_CONFIGURATION: webassembly
+
 .linux_builder_tags:
     tags:
         - build

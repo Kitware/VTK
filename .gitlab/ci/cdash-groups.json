@@ -83,6 +83,11 @@
         {
             "group": "master",
             "site": "gitlab-ci",
+            "buildname": "[webassembly]"
+        },
+        {
+            "group": "master",
+            "site": "gitlab-ci",
             "buildname": "[wheel_linux36_x86_64]"
         },
         {
