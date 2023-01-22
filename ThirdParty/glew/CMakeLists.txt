@@ -8,6 +8,7 @@ vtk_module_third_party(
     TARGETS GLEW::GLEW
     STANDARD_INCLUDE_DIRS)
 
+include(vtkOpenGLOptions)
 if(VTK_OPENGL_USE_GLES OR ANDROID AND NOT VTK_IOS_BUILD)
   set(VTK_MODULE_vtkglew_GLES3 1)
 endif()
