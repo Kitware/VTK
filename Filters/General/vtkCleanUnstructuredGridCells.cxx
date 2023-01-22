@@ -31,10 +31,10 @@ PURPOSE.  See the above copyright notice for more information.
 vtkStandardNewMacro(vtkCleanUnstructuredGridCells);
 
 //----------------------------------------------------------------------------
-vtkCleanUnstructuredGridCells::vtkCleanUnstructuredGridCells() {}
+vtkCleanUnstructuredGridCells::vtkCleanUnstructuredGridCells() = default;
 
 //----------------------------------------------------------------------------
-vtkCleanUnstructuredGridCells::~vtkCleanUnstructuredGridCells() {}
+vtkCleanUnstructuredGridCells::~vtkCleanUnstructuredGridCells() = default;
 
 //----------------------------------------------------------------------------
 void vtkCleanUnstructuredGridCells::PrintSelf(ostream& os, vtkIndent indent)
@@ -82,7 +82,7 @@ int vtkCleanUnstructuredGridCells::RequestData(vtkInformation* vtkNotUsed(reques
   std::set<std::set<int>>::iterator cellIter;
 
   // Now copy the cells.
-  vtkIdList* cellPoints = vtkIdList::New();
+  vtkNew<vtkIdList> cellPoints;
   const vtkIdType numberOfCells = input->GetNumberOfCells();
   vtkIdType progressStep = numberOfCells / 100;
   if (progressStep == 0)
@@ -154,7 +154,6 @@ int vtkCleanUnstructuredGridCells::RequestData(vtkInformation* vtkNotUsed(reques
                   << " duplicate cells (multiple instances of a cell) have been"
                   << " removed." << endl);
 
-    cellPoints->Delete();
     output->Squeeze();
   }
 

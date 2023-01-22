@@ -31,18 +31,34 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkUnstructuredGrid.h"
 
 vtkStandardNewMacro(vtkCleanUnstructuredGrid);
-vtkCxxSetObjectMacro(vtkCleanUnstructuredGrid, Locator, vtkIncrementalPointLocator);
+vtkCxxSetSmartPointerMacro(vtkCleanUnstructuredGrid, Locator, vtkIncrementalPointLocator);
 
 //----------------------------------------------------------------------------
-vtkCleanUnstructuredGrid::~vtkCleanUnstructuredGrid()
-{
-  this->SetLocator(nullptr);
-}
+vtkCleanUnstructuredGrid::vtkCleanUnstructuredGrid() = default;
+
+//----------------------------------------------------------------------------
+vtkCleanUnstructuredGrid::~vtkCleanUnstructuredGrid() = default;
 
 //----------------------------------------------------------------------------
 void vtkCleanUnstructuredGrid::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+
+  if (this->Locator)
+  {
+    os << indent << "Locator: ";
+    this->Locator->PrintSelf(os, indent.GetNextIndent());
+  }
+  else
+  {
+    os << indent << "Locator: none\n";
+  }
+  os << indent << "ToleranceIsAbsolute: " << (this->ToleranceIsAbsolute ? "On\n" : "Off\n");
+  os << indent << "Tolerance: " << this->Tolerance << std::endl;
+  os << indent << "AbsoluteTolerance: " << this->AbsoluteTolerance << std::endl;
+  os << indent
+     << "RemovePointsWithoutCells: " << (this->RemovePointsWithoutCells ? "On\n" : "Off\n");
+  os << indent << "OutputPointsPrecision: " << this->OutputPointsPrecision << std::endl;
 }
 
 //----------------------------------------------------------------------------
@@ -63,9 +79,8 @@ int vtkCleanUnstructuredGrid::RequestData(vtkInformation* vtkNotUsed(request),
     output->Allocate(1);
     output->GetPointData()->CopyAllocate(input->GetPointData(), VTK_CELL_SIZE);
     output->GetCellData()->CopyAllocate(input->GetCellData(), 1);
-    vtkPoints* pts = vtkPoints::New();
+    vtkNew<vtkPoints> pts;
     output->SetPoints(pts);
-    pts->Delete();
     return 1;
   }
 
@@ -74,7 +89,7 @@ int vtkCleanUnstructuredGrid::RequestData(vtkInformation* vtkNotUsed(request),
 
   // First, create a new points array that eliminate duplicate points.
   // Also create a mapping from the old point id to the new.
-  vtkPoints* newPts = vtkPoints::New();
+  vtkNew<vtkPoints> newPts;
 
   // Set the desired precision for the points in the output.
   if (this->OutputPointsPrecision == vtkAlgorithm::DEFAULT_PRECISION)
@@ -103,7 +118,7 @@ int vtkCleanUnstructuredGrid::RequestData(vtkInformation* vtkNotUsed(request),
   vtkIdType num = input->GetNumberOfPoints();
   vtkIdType id;
   vtkIdType newId;
-  vtkIdType* ptMap = new vtkIdType[num];
+  std::vector<vtkIdType> ptMap(num);
   double pt[3];
 
   this->CreateDefaultLocator(input);
@@ -124,37 +139,59 @@ int vtkCleanUnstructuredGrid::RequestData(vtkInformation* vtkNotUsed(request),
   {
     progressStep = 1;
   }
+
+  vtkNew<vtkIdList> pointCells;
   for (id = 0; id < num; ++id)
   {
     if (id % progressStep == 0)
     {
       this->UpdateProgress(0.8 * ((float)id / num));
     }
-    input->GetPoint(id, pt);
-    if (this->Locator->InsertUniquePoint(pt, newId))
+
+    bool insert = true;
+    if (this->RemovePointsWithoutCells)
     {
-      output->GetPointData()->CopyData(input->GetPointData(), id, newId);
+      input->GetPointCells(id, pointCells);
+      if (pointCells->GetNumberOfIds() == 0)
+      {
+        insert = false;
+      }
     }
-    ptMap[id] = newId;
+
+    if (insert)
+    {
+      input->GetPoint(id, pt);
+      if (this->Locator->InsertUniquePoint(pt, newId))
+      {
+        output->GetPointData()->CopyData(input->GetPointData(), id, newId);
+      }
+      ptMap[id] = newId;
+    }
+    else
+    {
+      // Strictly speaking, this is not needed
+      // as this is never accessed, but better not let
+      // an id undefined.
+      ptMap[id] = -1;
+    }
   }
   output->SetPoints(newPts);
-  newPts->Delete();
 
   // Now copy the cells.
-  vtkIdList* cellPoints = vtkIdList::New();
+  vtkNew<vtkIdList> cellPoints;
   num = input->GetNumberOfCells();
   output->Allocate(num);
   for (id = 0; id < num; ++id)
   {
     if (id % progressStep == 0)
     {
-      this->UpdateProgress(0.8 + 0.2 * ((float)id / num));
+      this->UpdateProgress(0.8 + 0.2 * (static_cast<float>(id) / num));
     }
     // special handling for polyhedron cells
     if (vtkUnstructuredGrid::SafeDownCast(input) && input->GetCellType(id) == VTK_POLYHEDRON)
     {
       vtkUnstructuredGrid::SafeDownCast(input)->GetFaceStream(id, cellPoints);
-      vtkUnstructuredGrid::ConvertFaceStreamPointIds(cellPoints, ptMap);
+      vtkUnstructuredGrid::ConvertFaceStreamPointIds(cellPoints, ptMap.data());
     }
     else
     {
@@ -169,10 +206,7 @@ int vtkCleanUnstructuredGrid::RequestData(vtkInformation* vtkNotUsed(request),
     output->InsertNextCell(input->GetCellType(id), cellPoints);
   }
 
-  delete[] ptMap;
-  cellPoints->Delete();
   output->Squeeze();
-
   return 1;
 }
 
@@ -181,6 +215,12 @@ int vtkCleanUnstructuredGrid::FillInputPortInformation(int vtkNotUsed(port), vtk
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
   return 1;
+}
+
+//------------------------------------------------------------------------------
+vtkIncrementalPointLocator* vtkCleanUnstructuredGrid::GetLocator()
+{
+  return this->Locator;
 }
 
 //----------------------------------------------------------------------------
@@ -203,19 +243,15 @@ void vtkCleanUnstructuredGrid::CreateDefaultLocator(vtkDataSet* input)
     }
   }
 
-  if (this->Locator == nullptr)
+  if (this->Locator.Get() == nullptr)
   {
     if (tol == 0.0)
     {
-      this->Locator = vtkMergePoints::New();
-      this->Locator->Register(this);
-      this->Locator->Delete();
+      this->Locator = vtkSmartPointer<vtkMergePoints>::New();
     }
     else
     {
-      this->Locator = vtkPointLocator::New();
-      this->Locator->Register(this);
-      this->Locator->Delete();
+      this->Locator = vtkSmartPointer<vtkPointLocator>::New();
     }
   }
   else
@@ -223,10 +259,7 @@ void vtkCleanUnstructuredGrid::CreateDefaultLocator(vtkDataSet* input)
     // check that the tolerance wasn't changed from zero to non-zero
     if ((tol > 0.0) && (this->GetLocator()->GetTolerance() == 0.0))
     {
-      this->SetLocator(nullptr);
-      this->Locator = vtkPointLocator::New();
-      this->Locator->Register(this);
-      this->Locator->Delete();
+      this->Locator = vtkSmartPointer<vtkPointLocator>::New();
     }
   }
 }
