@@ -71,8 +71,6 @@ private:
     InvokerBasePointer invoker = std::move(invokerQueue.front());
     invokerQueue.pop_front();
 
-    this->Queue->Empty = this->Queue->InvokerQueue.empty();
-
     lock.unlock();
 
     (*invoker)();
@@ -89,7 +87,7 @@ private:
   bool OnHold() const
   {
     return this->ThreadId < this->Queue->NumberOfThreads && !this->Queue->Destroying &&
-      this->Queue->Empty;
+      this->Queue->InvokerQueue.empty();
   }
 
   /**
@@ -98,7 +96,7 @@ private:
    */
   bool Continue() const
   {
-    return this->ThreadId < this->Queue->NumberOfThreads && !this->Queue->Empty;
+    return this->ThreadId < this->Queue->NumberOfThreads && !this->Queue->InvokerQueue.empty();
   }
 
   vtkThreadedCallbackQueue* Queue;
@@ -132,9 +130,7 @@ vtkThreadedCallbackQueue::vtkThreadedCallbackQueue()
 //-----------------------------------------------------------------------------
 vtkThreadedCallbackQueue::vtkThreadedCallbackQueue(
   vtkSmartPointer<vtkThreadedCallbackQueue>&& controller)
-  : Empty(true)
-  , Destroying(false)
-  , NumberOfThreads(1)
+  : NumberOfThreads(1)
   , Threads(NumberOfThreads)
   , Controller(controller)
 {
@@ -252,8 +248,6 @@ void vtkThreadedCallbackQueue::SignalDependentSharedFutures(const InvokerBase* i
   if (!invokersToLaunch.empty())
   {
     std::lock_guard<std::mutex> lock(this->Mutex);
-
-    this->Empty = false;
     for (InvokerBasePointer& inv : invokersToLaunch)
     {
       // This dependent has been waiting enough, let's give him some priority.

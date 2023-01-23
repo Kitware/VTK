@@ -366,15 +366,10 @@ private:
   std::condition_variable ConditionVariable;
 
   /**
-   * This atomic boolean makes checking if there are workers to process thread-safe.
-   */
-  std::atomic_bool Empty;
-
-  /**
    * This atomic boolean is false until destruction. It is then used by the workers
    * so they know that they need to terminate when the queue is empty.
    */
-  std::atomic_bool Destroying;
+  bool Destroying = false;
 
   /**
    * Number of allocated threads. Allocated threads are not necessarily running.

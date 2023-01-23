@@ -628,7 +628,6 @@ vtkThreadedCallbackQueue::Push(FT&& f, ArgsT&&... args)
   {
     std::lock_guard<std::mutex> lock(this->Mutex);
     this->InvokerQueue.emplace_back(std::move(pair.first));
-    this->Empty = false;
   }
 
   this->ConditionVariable.notify_one();
