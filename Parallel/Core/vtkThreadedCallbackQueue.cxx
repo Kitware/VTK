@@ -238,9 +238,13 @@ void vtkThreadedCallbackQueue::SignalDependentSharedFutures(const InvokerBase* i
       {
         // We can unlock at this point, we don't touch the future anymore
         futureLock.unlock();
-        std::lock_guard<std::mutex> onHoldLock(this->OnHoldMutex);
-        auto it = this->InvokersOnHold.find(future);
-        InvokerBasePointer& waitingInvoker = it->second;
+        InvokerBasePointer waitingInvoker = [this, &future] {
+          std::lock_guard<std::mutex> onHoldLock(this->OnHoldMutex);
+          auto it = this->InvokersOnHold.find(future);
+          InvokerBasePointer tmp = std::move(it->second);
+          this->InvokersOnHold.erase(it);
+          return tmp;
+        }();
 
         // Invoker is high priority if it comes from vtkThreadedCallbackQueue::Wait for example.
         if (waitingInvoker->IsHighPriority)
@@ -252,7 +256,6 @@ void vtkThreadedCallbackQueue::SignalDependentSharedFutures(const InvokerBase* i
         {
           invokersToLaunch.emplace_back(std::move(waitingInvoker));
         }
-        this->InvokersOnHold.erase(it);
       }
     }
   }
