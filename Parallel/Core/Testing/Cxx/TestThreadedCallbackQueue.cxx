@@ -128,28 +128,42 @@ bool TestTokens()
     vtkNew<vtkThreadedCallbackQueue> queue;
     queue->SetNumberOfThreads(4);
 
-    int count = 0;
+    std::atomic_int count(0);
+    std::mutex mutex;
 
-    auto f = [&count](std::string&, int low, int up) {
-      if (count < low || count > up)
+    auto f = [&count, &mutex](std::string& s, int low) {
+      std::unique_lock<std::mutex> lock(mutex);
+      if (count++ < low)
       {
-        ++count;
+        vtkLog(ERROR,
+          "Task " << s.c_str() << " started too early, in " << count << "th position"
+                  << " instead of " << low << "th.");
         return false;
       }
-      ++count;
+      lock.unlock();
       std::this_thread::sleep_for(std::chrono::milliseconds(10));
       return true;
     };
 
-    using Array = std::vector<vtkThreadedCallbackQueue::TokenPointer>;
+    using Array = std::vector<vtkThreadedCallbackQueue::TokenBasePointer>;
 
-    auto token1 = queue->Push(f, "t1", 0, 1);
-    auto token2 = queue->PushDependent(Array{ token1 }, f, "t2", 1, 4);
-    auto token3 = queue->PushDependent(Array{ token1, token2 }, f, "t3", 2, 5);
-    auto token4 = queue->PushDependent(Array{ token1 }, f, "t4", 1, 4);
-    auto token5 = queue->Push(f, "t5", 0, 4);
+    int n = 5;
 
-    token3->Future.wait();
+    auto token1 = queue->Push(f, "t1", 0);
+    auto token2 = queue->PushDependent(Array{ token1 }, f, "t2", 1);
+    auto token3 = queue->PushDependent(Array{ token1, token2 }, f, "t4", 2);
+    // These pushes makes the scenario where token2 and token4 are ready to run but have a higher
+    // token id than them. Token2 and token4 will need to wait here and we're ensuring everything
+    // goes well.
+    for (int i = 0; i < n; ++i)
+    {
+      queue->Push(f, "spam", 0);
+    }
+    auto token4 = queue->PushDependent(Array{ token2 }, f, "t4", 3);
+    auto token5 = queue->PushDependent(Array{ token3, token4 }, f, "t5", 4);
+    auto token6 = queue->Push(f, "t6", 0);
+
+    token5->Future.wait();
 
     retVal &= (token1->Future.get() && token2->Future.get() && token3->Future.get() &&
       token4->Future.get() && token5->Future.get());

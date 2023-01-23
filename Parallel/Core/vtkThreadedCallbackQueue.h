@@ -37,11 +37,13 @@
 
 #include <atomic>             // For atomic_bool
 #include <condition_variable> // For condition variable
+#include <deque>              // For deque
+#include <functional>         // For greater
 #include <future>             // For future
 #include <memory>             // For unique_ptr
 #include <mutex>              // For mutex
-#include <queue>              // For queue
 #include <thread>             // For thread
+#include <unordered_map>      // For unordered_map
 #include <vector>             // For vector
 
 #if !defined(__WRAP__)
@@ -91,6 +93,8 @@ public:
    */
   ~vtkThreadedCallbackQueue() override;
 
+  struct InvokerTokenSharedState;
+
   /**
    * A `vtkCallbackTokenBase` is an object returned by the methods `Push` and `PushDependent`.
    * It provides a few functionalities to allow one to synchronize tasks.
@@ -113,7 +117,13 @@ public:
      */
     virtual vtkSmartPointer<vtkCallbackTokenBase> Clone() const = 0;
 
+    virtual bool IsReady() const = 0;
+
+    friend class vtkThreadedCallbackQueue;
+
   private:
+    std::shared_ptr<InvokerTokenSharedState> SharedState;
+
     vtkCallbackTokenBase(const vtkCallbackTokenBase& other) = delete;
     void operator=(const vtkCallbackTokenBase& other) = delete;
   };
@@ -134,6 +144,7 @@ public:
 
     vtkSmartPointer<vtkCallbackTokenBase> Clone() const override;
     void Wait() const override;
+    bool IsReady() const override;
 
     /**
      * Future of the task associated with this token.
@@ -144,6 +155,10 @@ public:
     vtkCallbackToken(const vtkCallbackToken<ReturnT>& other) = delete;
     void operator=(const vtkCallbackToken<ReturnT>& other) = delete;
   };
+
+  using TokenBasePointer = vtkSmartPointer<vtkCallbackTokenBase>;
+  template <class ReturnT>
+  using TokenPointer = vtkSmartPointer<vtkCallbackToken<ReturnT>>;
 
   /**
    * Pushes a function f to be passed args... as arguments.
@@ -208,7 +223,7 @@ public:
    * lives. If not, such captures may be destroyed before the lambda is invoked by the queue.
    */
   template <class FT, class... ArgsT>
-  vtkSmartPointer<vtkCallbackToken<InvokeResult<FT>>> Push(FT&& f, ArgsT&&... args);
+  TokenPointer<InvokeResult<FT>> Push(FT&& f, ArgsT&&... args);
 
   /**
    * This method behaves the same way `Push` does, with the addition of a container of `tokens`.
@@ -219,8 +234,8 @@ public:
    * function).
    */
   template <class TokenContainerT, class FT, class... ArgsT>
-  vtkSmartPointer<vtkCallbackToken<InvokeResult<FT>>> PushDependent(
-    TokenContainerT&& tokens, FT&& f, ArgsT&&... args);
+  TokenPointer<InvokeResult<FT>> PushDependent(
+    TokenContainerT&& priorTokens, FT&& f, ArgsT&&... args);
 
   /**
    * Sets the number of threads. The running state of the queue is not impacted by this method.
@@ -241,8 +256,6 @@ public:
    */
   int GetNumberOfThreads() const { return this->NumberOfThreads; }
 
-  using TokenPointer = vtkSmartPointer<vtkCallbackTokenBase>;
-
 private:
   ///@{
   /**
@@ -255,11 +268,13 @@ private:
    */
   struct InvokerBase;
   template <class FT, class... ArgsT>
-  class Invoker;
+  struct Invoker;
   struct InvokerImpl;
   ///@}
 
-  using InvokerPointer = std::unique_ptr<InvokerBase>;
+  using InvokerBasePointer = std::unique_ptr<InvokerBase>;
+  template <class FT, class... ArgsT>
+  using InvokerPointer = std::unique_ptr<Invoker<FT, ArgsT...>>;
 
   class ThreadWorker;
   friend class ThreadWorker;
@@ -283,14 +298,48 @@ private:
   void Sync(int startId = 0);
 
   /**
+   * We go over all the dependent token ids that have been added to the invoker we just invoked.
+   * For each token, we retrieve the corresponding invoker that is stored inside InvokersOnHold,
+   * and decrease the counter of the number of remaining invokers it depends on.
+   * When this counter reaches zero, we can move the invoker from InvokersOnHold to InvokerQueues.
+   */
+  void SignalDependentTokens(const InvokerBase* invoker);
+
+  /**
+   * This function takes an `invoker` associated with `tokens`. If all tokens from the input
+   * `priorTokens` are ready, then `invoker` is executed. Else, it is stored in an internal
+   * container waiting to be awakened when its dependents tokens have terminated.
+   */
+  template <class TokenContainerT, class InvokerT, class TokenT>
+  void HandleDependentInvoker(TokenContainerT&& priorTokens, InvokerT&& invoker, TokenT&& tokens);
+
+  /**
+   * This function allocates an invoker and its bound token.
+   */
+  template <class FT, class... ArgsT>
+  std::pair<InvokerPointer<FT, ArgsT...>, TokenPointer<InvokeResult<FT>>> CreateInvokerAndToken(
+    FT&& f, ArgsT&&... args);
+
+  /**
    * Queue of workers responsible for running the jobs that are inserted.
    */
-  std::queue<InvokerPointer> InvokerQueue;
+  std::deque<InvokerBasePointer> InvokerQueue;
+
+  /**
+   * This is where we put invokers that are not ready to be run. This can happen in `PushDependent`
+   * when an invoker associated with an input token is not done running yet.
+   */
+  std::unordered_map<vtkCallbackTokenBase*, InvokerBasePointer> InvokersOnHold;
 
   /**
    * This mutex ensures that the queue can pop and push elements in a thread-safe manner.
    */
   std::mutex Mutex;
+
+  /**
+   * This mutex ensures that `InvokersOnHold` is accessed in a thread-safe manner.
+   */
+  std::mutex OnHoldMutex;
 
   std::condition_variable ConditionVariable;
 

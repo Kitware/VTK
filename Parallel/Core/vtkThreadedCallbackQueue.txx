@@ -15,11 +15,39 @@
 
 #include "vtkObjectFactory.h"
 
-#include <functional>
+#include <chrono>
 #include <tuple>
 #include <type_traits>
 
 VTK_ABI_NAMESPACE_BEGIN
+
+//=============================================================================
+struct vtkThreadedCallbackQueue::InvokerTokenSharedState
+{
+  InvokerTokenSharedState()
+    : NumberOfPriorTokensRemaining(0)
+  {
+  }
+
+  /**
+   * Number of tokens that need to terminate before we can run.
+   */
+  std::atomic_int NumberOfPriorTokensRemaining;
+
+  /**
+   * List of tokens which are depending on us. This is filled by them as they get pushed if we are
+   * not done with our task.
+   */
+  std::vector<TokenBasePointer> DependentTokens;
+
+  /**
+   * Constructing is true until we have filled the DependentTokens of the tokens we depend on, and
+   * until NumberOfPriorTokensRemaining is not final.
+   */
+  bool Constructing = true;
+
+  std::mutex Mutex;
+};
 
 //=============================================================================
 struct vtkThreadedCallbackQueue::InvokerImpl
@@ -315,18 +343,25 @@ private:
 //=============================================================================
 struct vtkThreadedCallbackQueue::InvokerBase
 {
+  InvokerBase(std::shared_ptr<InvokerTokenSharedState>& sharedState)
+    : SharedState(sharedState)
+  {
+  }
+
   virtual ~InvokerBase() = default;
   virtual void operator()() = 0;
+
+  std::shared_ptr<InvokerTokenSharedState> SharedState;
 };
 
 //=============================================================================
 template <class FT, class... ArgsT>
-class vtkThreadedCallbackQueue::Invoker : public vtkThreadedCallbackQueue::InvokerBase
+struct vtkThreadedCallbackQueue::Invoker : public vtkThreadedCallbackQueue::InvokerBase
 {
-public:
   template <class... ArgsTT>
-  Invoker(ArgsTT&&... args)
-    : Impl(std::forward<ArgsTT>(args)...)
+  Invoker(std::shared_ptr<InvokerTokenSharedState>& sharedState, ArgsTT&&... args)
+    : InvokerBase(sharedState)
+    , Impl(std::forward<ArgsTT>(args)...)
   {
   }
 
@@ -340,7 +375,6 @@ public:
     return std::shared_future<InvokeResult<FT>>(this->Future);
   }
 
-private:
   InvokerImpl::InvokerHandle<std::is_member_function_pointer<FT>::value, FT, ArgsT...> Impl;
   std::promise<InvokeResult<FT>> Promise;
   std::shared_future<InvokeResult<FT>> Future = Promise.get_future();
@@ -356,12 +390,13 @@ vtkThreadedCallbackQueue::vtkCallbackToken<ReturnT>::New()
 
 //-----------------------------------------------------------------------------
 template <class ReturnT>
-vtkSmartPointer<vtkThreadedCallbackQueue::vtkCallbackTokenBase>
+vtkThreadedCallbackQueue::TokenBasePointer
 vtkThreadedCallbackQueue::vtkCallbackToken<ReturnT>::Clone() const
 {
   vtkCallbackToken<ReturnT>* result = vtkCallbackToken<ReturnT>::New();
   result->Future = this->Future;
-  return vtkSmartPointer<vtkCallbackTokenBase>::Take(result);
+  result->SharedState = this->SharedState;
+  return TokenBasePointer::Take(result);
 }
 
 //-----------------------------------------------------------------------------
@@ -372,75 +407,119 @@ void vtkThreadedCallbackQueue::vtkCallbackToken<ReturnT>::Wait() const
 }
 
 //-----------------------------------------------------------------------------
-template <class TokenContainerT, class FT, class... ArgsT>
-vtkSmartPointer<
-  vtkThreadedCallbackQueue::vtkCallbackToken<vtkThreadedCallbackQueue::InvokeResult<FT>>>
-vtkThreadedCallbackQueue::PushDependent(TokenContainerT&& tokens, FT&& f, ArgsT&&... args)
+template <class ReturnT>
+bool vtkThreadedCallbackQueue::vtkCallbackToken<ReturnT>::IsReady() const
 {
-  using InvokerType = Invoker<FT, ArgsT...>;
-  using TokenType = vtkCallbackToken<InvokeResult<FT>>;
-
-  auto invoker = std::unique_ptr<InvokerType>(
-    new InvokerType(std::forward<FT>(f), std::forward<ArgsT>(args)...));
-  auto newToken = vtkSmartPointer<TokenType>::New();
-  newToken->Future = invoker->GetFuture();
-
-  // TODO
-  // Be smarter about this. This is a waste to make threads wait for other threads.
-  // A better design would involve storing the invoker, and let know the invokers on which it
-  // depends on that this invoker is waiting. When the invokers terminate, they could tell the
-  // waiting invokers that they have terminated. When an invoker doesn't wait on anyone, we could
-  // push it back into the waiting queue.
-  //
-  // If we associate to each invoker an ID, we can store the waiting invokers inside a hash map, and
-  // probably store the number of invokers it is waiting on.
-  // The communication between the waiting invokers and the invokers on which they depend on
-  // could be done through
-  // a shared variable stored inside the tokens. We could put a container of waiting ids inside it,
-  // and the invoker could go through them when it is done and decrease the counter of the waiting
-  // invoker. When the waiting invoker reaches zero, push it back into the queue.
-  //
-  // We could also refine the pushing back into the queue in such a way that it is not placed before
-  // invokers of greater ID by having a third invoker container in the form of a priority queue that
-  // could be popped when the front of the invoker queue has an id higher than the top of the
-  // priority queue. The invoker could be then pushed to the front (which means we need
-  // InvokerQueue to be a std::deque).
-  this->Push(
-    [](TokenContainerT&& _tokens, std::unique_ptr<InvokerType>&& _invoker) {
-      for (const auto& token : _tokens)
-      {
-        token->Clone()->Wait();
-      }
-      (*_invoker)();
-    },
-    std::forward<TokenContainerT>(tokens), std::move(invoker));
-
-  return newToken;
+  return this->Future.wait_for(std::chrono::microseconds(0)) == std::future_status::ready;
 }
 
 //-----------------------------------------------------------------------------
 template <class FT, class... ArgsT>
-vtkSmartPointer<
-  vtkThreadedCallbackQueue::vtkCallbackToken<vtkThreadedCallbackQueue::InvokeResult<FT>>>
+std::pair<vtkThreadedCallbackQueue::InvokerPointer<FT, ArgsT...>,
+  vtkThreadedCallbackQueue::TokenPointer<vtkThreadedCallbackQueue::InvokeResult<FT>>>
+vtkThreadedCallbackQueue::CreateInvokerAndToken(FT&& f, ArgsT&&... args)
+{
+  auto token = TokenPointer<InvokeResult<FT>>::New();
+  token->SharedState = std::shared_ptr<InvokerTokenSharedState>(new InvokerTokenSharedState());
+  auto invoker = InvokerPointer<FT, ArgsT...>(new Invoker<FT, ArgsT...>(
+    token->SharedState, std::forward<FT>(f), std::forward<ArgsT>(args)...));
+  token->Future = invoker->GetFuture();
+
+  return std::make_pair(std::move(invoker), std::move(token));
+}
+
+//-----------------------------------------------------------------------------
+template <class TokenContainerT, class InvokerT, class TokenT>
+void vtkThreadedCallbackQueue::HandleDependentInvoker(
+  TokenContainerT&& priorTokens, InvokerT&& invoker, TokenT&& token)
+{
+  // We look at all the dependent tokens. Each time we find one, we notify the corresponding
+  // invoker that we are waiting on it through its SharedState.
+  // We count the number of dependents that are not done yet, and we put this counter bundled
+  // with the new invoker inside InvokersOnHold.
+  // When the signaled invokers terminate, the counter will be decreased, and when it reaches
+  // zero, this invoker will be ready to run.
+  if (!priorTokens.empty())
+  {
+    for (const auto& prior : priorTokens)
+    {
+      // For each prior, we create a clone so there is no race condition on the same shared_ptr.
+      TokenBasePointer clone = prior->Clone();
+
+      // TODO easy continue if clone is ready.
+      // We need to lock the clone (so we block the invoker side).
+      // This way, we can make sure that if the invoker is still running, we notify it that we
+      // depend on it before it checks its dependents in SignalDependentTokens
+      std::unique_lock<std::mutex> lock(clone->SharedState->Mutex);
+      if (!clone->IsReady())
+      {
+        // We notify the invoker we depend on by adding ourselves in DependentTokens.
+        clone->SharedState->DependentTokens.emplace_back(token);
+
+        // This does not need to be locked because the shared state of this token is not done
+        // constructing yet, so the invoker in SignalDependentTokens will never try do anything with
+        // it. And it is okay, because at the end of the day, we increment, the invoker decrements,
+        // and if we end up with 0 remaining prior tokens, we execute the invoker anyway, so the
+        // invoker side has nothing to do.
+        lock.unlock();
+        ++token->SharedState->NumberOfPriorTokensRemaining;
+      }
+    }
+  }
+  // We notify every invokers we depend on that our SharedState is done constructing. This means
+  // that we inserted ourselves in InvokersOnHold if necessary and that if the invoker finds no
+  // remaining prior tokens in this dependent, it can move the invoker associated with us to the
+  // runnin queue.
+  std::unique_lock<std::mutex> lock(token->SharedState->Mutex);
+  token->SharedState->Constructing = false;
+  if (token->SharedState->NumberOfPriorTokensRemaining)
+  {
+    std::lock_guard<std::mutex> onHoldLock(this->OnHoldMutex);
+    this->InvokersOnHold.emplace(token, std::move(invoker));
+  }
+  else
+  {
+    // We can unlock the token lock because we're done touching sensitive data. There's no prior
+    // token we're waiting for, so we can just run the invoker and signal our potential dependents.
+    lock.unlock();
+    (*invoker)();
+    this->SignalDependentTokens(invoker.get());
+  }
+}
+
+//-----------------------------------------------------------------------------
+template <class TokenContainerT, class FT, class... ArgsT>
+vtkThreadedCallbackQueue::TokenPointer<vtkThreadedCallbackQueue::InvokeResult<FT>>
+vtkThreadedCallbackQueue::PushDependent(TokenContainerT&& priorTokens, FT&& f, ArgsT&&... args)
+{
+  using InvokerPointerType = InvokerPointer<FT, ArgsT...>;
+  using TokenPointerType = TokenPointer<InvokeResult<FT>>;
+
+  auto pair = this->CreateInvokerAndToken(std::forward<FT>(f), std::forward<ArgsT>(args)...);
+
+  this->Push(&vtkThreadedCallbackQueue::HandleDependentInvoker<TokenContainerT, InvokerPointerType,
+               TokenPointerType>,
+    this, std::forward<TokenContainerT>(priorTokens), std::move(pair.first), pair.second);
+
+  return pair.second;
+}
+
+//-----------------------------------------------------------------------------
+template <class FT, class... ArgsT>
+vtkThreadedCallbackQueue::TokenPointer<vtkThreadedCallbackQueue::InvokeResult<FT>>
 vtkThreadedCallbackQueue::Push(FT&& f, ArgsT&&... args)
 {
-  using InvokerType = Invoker<FT, ArgsT...>;
-  using TokenType = vtkCallbackToken<InvokeResult<FT>>;
-
-  auto invoker = std::unique_ptr<InvokerType>(
-    new InvokerType(std::forward<FT>(f), std::forward<ArgsT>(args)...));
-  auto token = vtkSmartPointer<TokenType>::New();
-  token->Future = invoker->GetFuture();
+  auto pair = this->CreateInvokerAndToken(std::forward<FT>(f), std::forward<ArgsT>(args)...);
 
   {
     std::lock_guard<std::mutex> lock(this->Mutex);
-    this->InvokerQueue.emplace(std::move(invoker));
+    this->InvokerQueue.emplace_back(std::move(pair.first));
     this->Empty = false;
   }
 
   this->ConditionVariable.notify_one();
 
-  return token;
+  return pair.second;
 }
 
 VTK_ABI_NAMESPACE_END

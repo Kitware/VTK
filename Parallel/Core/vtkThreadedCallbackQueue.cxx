@@ -67,13 +67,17 @@ private:
       return false;
     }
 
-    InvokerPointer invoker = std::move(this->Queue->InvokerQueue.front());
-    this->Queue->InvokerQueue.pop();
+    auto& invokerQueue = this->Queue->InvokerQueue;
+    InvokerBasePointer invoker = std::move(invokerQueue.front());
+    invokerQueue.pop_front();
+
     this->Queue->Empty = this->Queue->InvokerQueue.empty();
 
     lock.unlock();
 
     (*invoker)();
+
+    this->Queue->SignalDependentTokens(invoker.get());
 
     return true;
   }
@@ -85,7 +89,7 @@ private:
   bool OnHold() const
   {
     return this->ThreadId < this->Queue->NumberOfThreads && !this->Queue->Destroying &&
-      this->Queue->InvokerQueue.empty();
+      this->Queue->Empty;
   }
 
   /**
@@ -94,7 +98,7 @@ private:
    */
   bool Continue() const
   {
-    return this->ThreadId < this->Queue->NumberOfThreads && (!this->Queue->InvokerQueue.empty());
+    return this->ThreadId < this->Queue->NumberOfThreads && !this->Queue->Empty;
   }
 
   vtkThreadedCallbackQueue* Queue;
@@ -212,13 +216,66 @@ void vtkThreadedCallbackQueue::Sync(int startId)
 }
 
 //-----------------------------------------------------------------------------
+void vtkThreadedCallbackQueue::SignalDependentTokens(const InvokerBase* invoker)
+{
+  // We put invokers to launch in a separate container so we can separate the usage of mutices as
+  // much as possible
+  std::vector<InvokerBasePointer> invokersToLaunch;
+  {
+    auto& invokerState = invoker->SharedState;
+
+    // We are iterating on our dependents, which mean we cannot let any dependent add themselves to
+    // this container. At this point we're "ready" anyway so no dependents should be waiting in most
+    // cases.
+    std::lock_guard<std::mutex> lock(invokerState->Mutex);
+    for (auto& token : invokerState->DependentTokens)
+    {
+      auto& tokenState = token->SharedState;
+
+      // We're locking the dependent token. When the lock is released, either the token is not done
+      // constructing and we have nothing to do, we can let it run itself, or the token is done
+      // constructing, in which case if we hit zero prior tokens remaining, we've gotta move its
+      // associated invoker in the running queue.
+      std::unique_lock<std::mutex> tokenLock(tokenState->Mutex);
+      --token->SharedState->NumberOfPriorTokensRemaining;
+      if (!tokenState->Constructing && !tokenState->NumberOfPriorTokensRemaining)
+      {
+        // We can unlock at this point, we don't touch the token anymore
+        tokenLock.unlock();
+        std::lock_guard<std::mutex> onHoldLock(this->OnHoldMutex);
+        auto it = this->InvokersOnHold.find(token);
+        invokersToLaunch.emplace_back(std::move(it->second));
+        this->InvokersOnHold.erase(it);
+      }
+    }
+  }
+  if (!invokersToLaunch.empty())
+  {
+    std::lock_guard<std::mutex> lock(this->Mutex);
+
+    this->Empty = false;
+    for (InvokerBasePointer& inv : invokersToLaunch)
+    {
+      // This dependent has been waiting enough, let's give him some priority.
+      // Anyway, the invoker is past due if it was put inside InvokersOnHold.
+      this->InvokerQueue.emplace_front(std::move(inv));
+    }
+  }
+  for (std::size_t i = 0; i < invokersToLaunch.size(); ++i)
+  {
+    this->ConditionVariable.notify_one();
+  }
+}
+
+//-----------------------------------------------------------------------------
 void vtkThreadedCallbackQueue::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 
-  std::lock_guard<std::mutex> lock(this->Mutex);
+  std::lock_guard<std::mutex> lock1(this->Mutex), lock2(this->OnHoldMutex);
   os << indent << "Threads: " << this->NumberOfThreads << std::endl;
   os << indent << "Callback queue size: " << this->InvokerQueue.size() << std::endl;
+  os << indent << "Number of functions on hold: " << this->InvokersOnHold.size() << std::endl;
 }
 
 VTK_ABI_NAMESPACE_END
