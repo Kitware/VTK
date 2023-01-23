@@ -94,19 +94,11 @@ vtkNek5000Reader::vtkNek5000Reader()
 //----------------------------------------------------------------------------
 vtkNek5000Reader::~vtkNek5000Reader()
 {
-  if (this->use_variable)
-    delete[] this->use_variable;
-  if (this->timestep_has_mesh)
-    delete[] this->timestep_has_mesh;
-  if (this->FileName)
-    delete[] this->FileName;
-  if (this->DataFileName)
-    delete[] this->DataFileName;
-
-  if (this->myList)
-  {
-    delete this->myList;
-  }
+  delete[] this->use_variable;
+  delete[] this->timestep_has_mesh;
+  delete[] this->FileName;
+  delete[] this->DataFileName;
+  delete this->myList;
 
   if (this->dataArray)
   {
@@ -130,24 +122,19 @@ vtkNek5000Reader::~vtkNek5000Reader()
         free(this->var_names[i]);
       }
   }
-  if (this->proc_numBlocks)
-  {
-    delete[] this->proc_numBlocks;
-  }
+  delete[] this->proc_numBlocks;
 
   if (this->UGrid)
   {
     this->UGrid->Delete();
   }
 
-  if (this->var_length)
-    delete[] this->var_length;
+  delete[] this->var_length;
   if (this->var_names)
     free(this->var_names);
   this->PointDataArraySelection->Delete();
 
-  if (this->myBlockPositions)
-    delete[] this->myBlockPositions;
+  delete[] this->myBlockPositions;
 }
 
 //----------------------------------------------------------------------------
@@ -216,7 +203,7 @@ void vtkNek5000Reader::GetAllTimesAndVariableNames(vtkInformationVector* outputV
 
     // If this file contains a mesh, the first variable codes after the
     // cycle number will be X Y
-    if (v.find("X") != std::string::npos)
+    if (v.find('X') != std::string::npos)
       this->timestep_has_mesh[i] = true;
 
     dfPtr.close();
@@ -908,8 +895,7 @@ void vtkNek5000Reader::partitionAndReadMesh()
   }
 
   delete[] tmpBlocks;
-  if (map_elements != nullptr)
-    delete[] map_elements;
+  delete[] map_elements;
 
   // now read the coordinates for all of my blocks
   if (nullptr == this->meshCoords)
@@ -1358,7 +1344,7 @@ void vtkNek5000Reader::updateVtuData(vtkUnstructuredGrid* pv_ugrid)
   if (this->curObj->ugrid)
   {
     vtkDebugMacro(<< "updateVtuData: my_rank= " << my_rank
-                  << ": this->curObj->ugrid != NULL, see if it matches");
+                  << ": this->curObj->ugrid != nullptr, see if it matches");
     if (this->objectMatchesRequest())
     {
       // copy the ugrid
@@ -1702,10 +1688,10 @@ void vtkNek5000Reader::copyContinuumData(vtkUnstructuredGrid* pv_ugrid)
   int num_verts = this->myNumBlocks * this->totalBlockSize;
 
   vtkFloatArray** scalars;
-  scalars = (vtkFloatArray**)malloc(this->num_used_scalars * sizeof(vtkFloatArray*));
+  scalars = (vtkFloatArray**)malloc(this->num_used_scalars * sizeof(scalars[0]));
 
   vtkFloatArray** vectors;
-  vectors = (vtkFloatArray**)malloc(this->num_used_vectors * sizeof(vtkFloatArray*));
+  vectors = (vtkFloatArray**)malloc(this->num_used_vectors * sizeof(vectors[0]));
 
   // allocate arrays for used scalars and vectors
   for (auto jj = 0; jj < this->num_vars; jj++)
@@ -1798,12 +1784,12 @@ void vtkNek5000Reader::copyContinuumData(vtkUnstructuredGrid* pv_ugrid)
     else
     {
       // remove array if present, it is not needed
-      if (pv_ugrid->GetPointData()->GetArray(this->var_names[v_index]) != NULL)
+      if (pv_ugrid->GetPointData()->GetArray(this->var_names[v_index]) != nullptr)
       {
         pv_ugrid->GetPointData()->RemoveArray(this->var_names[v_index]);
       }
       // Do I already have this array?  If so, remove it.
-      if (this->UGrid->GetPointData()->GetArray(this->var_names[v_index]) != NULL)
+      if (this->UGrid->GetPointData()->GetArray(this->var_names[v_index]) != nullptr)
       {
         this->UGrid->GetPointData()->RemoveArray(this->var_names[v_index]);
       }
@@ -1887,7 +1873,7 @@ int vtkNek5000Reader::CanReadFile(const char* fname)
 
 nek5KObject::nek5KObject()
 {
-  this->ugrid = NULL;
+  this->ugrid = nullptr;
   this->vorticity = false;
   this->lambda_2 = false;
 
