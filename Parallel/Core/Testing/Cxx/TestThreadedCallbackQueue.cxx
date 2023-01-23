@@ -149,7 +149,7 @@ bool TestSharedFutures()
 
     int n = 5;
 
-    Array spamTokens;
+    Array tokens;
 
     auto token1 = queue->Push(f, "t1", 0);
     auto token2 = queue->PushDependent(Array{ token1 }, f, "t2", 1);
@@ -159,16 +159,22 @@ bool TestSharedFutures()
     // everything goes well.
     for (int i = 0; i < n; ++i)
     {
-      spamTokens.emplace_back(queue->Push(f, "spam", 0));
+      tokens.emplace_back(queue->Push(f, "spam", 0));
     }
     auto token4 = queue->PushDependent(Array{ token2 }, f, "t4", 3);
     auto token5 = queue->PushDependent(Array{ token3, token4 }, f, "t5", 4);
     auto token6 = queue->Push(f, "t6", 0);
 
-    token5->Wait();
-    retVal &= token1->Get() && token2->Get() && token3->Get() && token4->Get() && token5->Get() &&
-      token6->Get();
-    for (auto& token : spamTokens)
+    tokens.emplace_back(token1);
+    tokens.emplace_back(token2);
+    tokens.emplace_back(token3);
+    tokens.emplace_back(token4);
+    tokens.emplace_back(token5);
+    tokens.emplace_back(token6);
+
+    queue->Wait(tokens);
+
+    for (auto& token : tokens)
     {
       retVal &= token->Get();
     }

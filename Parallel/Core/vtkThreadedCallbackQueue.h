@@ -259,6 +259,20 @@ public:
     SharedFutureContainerT&& priorSharedFutures, FT&& f, ArgsT&&... args);
 
   /**
+   * This method blocks the current thread until all the tasks associated with each shared future
+   * inside `priorSharedFuture` has terminated.
+   *
+   * It is in general more efficient to call this function than to call `Wait`
+   * on each shared future if there are strictly more than one shared future in the container.
+   * The current thread is blocked at most once by this function.
+   *
+   * `SharedFutureContainerT` must have a forward iterator (presence of a `begin()` and `end()`
+   * member function).
+   */
+  template <class SharedFutureContainerT>
+  void Wait(SharedFutureContainerT&& priorSharedFuture);
+
+  /**
    * Sets the number of threads. The running state of the queue is not impacted by this method.
    *
    * This method is executed by the `Controller` on a different thread, so this method may terminate
@@ -341,6 +355,12 @@ private:
   template <class FT, class... ArgsT>
   std::pair<InvokerPointer<FT, ArgsT...>, SharedFuturePointer<InvokeResult<FT>>>
   CreateInvokerAndSharedFuture(FT&& f, ArgsT&&... args);
+
+  /**
+   * Returns true if any prior is not ready.
+   */
+  template <class SharedFutureContainerT>
+  static bool MustWait(SharedFutureContainerT&& priorSharedFutures);
 
   /**
    * Queue of workers responsible for running the jobs that are inserted.

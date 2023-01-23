@@ -240,7 +240,18 @@ void vtkThreadedCallbackQueue::SignalDependentSharedFutures(const InvokerBase* i
         futureLock.unlock();
         std::lock_guard<std::mutex> onHoldLock(this->OnHoldMutex);
         auto it = this->InvokersOnHold.find(future);
-        invokersToLaunch.emplace_back(std::move(it->second));
+        InvokerBasePointer& waitingInvoker = it->second;
+
+        // Invoker is high priority if it comes from vtkThreadedCallbackQueue::Wait for example.
+        if (waitingInvoker->IsHighPriority)
+        {
+          (*waitingInvoker)();
+          this->SignalDependentSharedFutures(waitingInvoker.get());
+        }
+        else
+        {
+          invokersToLaunch.emplace_back(std::move(waitingInvoker));
+        }
         this->InvokersOnHold.erase(it);
       }
     }

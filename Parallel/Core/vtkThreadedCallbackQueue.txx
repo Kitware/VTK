@@ -436,6 +436,8 @@ struct vtkThreadedCallbackQueue::InvokerBase
 
   virtual std::shared_ptr<InvokerFutureSharedStateBase> GetSharedState() = 0;
   virtual std::shared_ptr<const InvokerFutureSharedStateBase> GetSharedState() const = 0;
+
+  bool IsHighPriority = false;
 };
 
 //=============================================================================
@@ -600,11 +602,58 @@ void vtkThreadedCallbackQueue::HandleDependentInvoker(
 }
 
 //-----------------------------------------------------------------------------
+template <class SharedFutureContainerT>
+bool vtkThreadedCallbackQueue::MustWait(SharedFutureContainerT&& priorSharedFutures)
+{
+  for (const SharedFutureBasePointer& prior : priorSharedFutures)
+  {
+    if (!prior->GetSharedState()->IsReady)
+    {
+      return true;
+    }
+  }
+  return false;
+}
+
+//-----------------------------------------------------------------------------
+template <class SharedFutureContainerT>
+void vtkThreadedCallbackQueue::Wait(SharedFutureContainerT&& priorSharedFutures)
+{
+  if (!this->MustWait(std::forward<SharedFutureContainerT>(priorSharedFutures)))
+  {
+    return;
+  }
+
+  // Some priors are not ready...
+  // We create an invoker and a token with an empty lambda.
+  // The idea is to pass the prior shared futures to the routine HandleDependentInvoker.
+  // If any prior is not done, the created invoker will be placed in InvokersOnHold and launched
+  // automatically when it is ready.
+  // We can just wait on the shared future we just created
+  auto pair = this->CreateInvokerAndSharedFuture([] {});
+
+  // We notify whoever harvests this invoker that we want to be run right away and not pushed in the
+  // InvokerQueue.
+  pair.first->IsHighPriority = true;
+
+  this->HandleDependentInvoker(
+    std::forward<SharedFutureContainerT>(priorSharedFutures), std::move(pair.first), pair.second);
+
+  pair.second->Wait();
+}
+
+//-----------------------------------------------------------------------------
 template <class SharedFutureContainerT, class FT, class... ArgsT>
 vtkThreadedCallbackQueue::SharedFuturePointer<vtkThreadedCallbackQueue::InvokeResult<FT>>
 vtkThreadedCallbackQueue::PushDependent(
   SharedFutureContainerT&& priorSharedFutures, FT&& f, ArgsT&&... args)
 {
+  // If we can avoid doing tricks with dependent shared futures, let's do it.
+  if (!this->MustWait(std::forward<SharedFutureContainerT>(priorSharedFutures)))
+  {
+    return this->Push(std::forward<FT>(f), std::forward<ArgsT>(args)...);
+  }
+
   using InvokerPointerType = InvokerPointer<FT, ArgsT...>;
   using SharedFuturePointerType = SharedFuturePointer<InvokeResult<FT>>;
 
