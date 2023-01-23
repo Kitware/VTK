@@ -1688,10 +1688,12 @@ void vtkNek5000Reader::copyContinuumData(vtkUnstructuredGrid* pv_ugrid)
   int num_verts = this->myNumBlocks * this->totalBlockSize;
 
   vtkFloatArray** scalars;
-  scalars = (vtkFloatArray**)malloc(this->num_used_scalars * sizeof(scalars[0]));
+  // warning: suspicious usage of 'sizeof(A*)'; pointer to aggregate [bugprone-sizeof-expression]
+  scalars = (vtkFloatArray**)malloc(this->num_used_scalars * sizeof(vtkFloatArray*)); // NOLINT
 
   vtkFloatArray** vectors;
-  vectors = (vtkFloatArray**)malloc(this->num_used_vectors * sizeof(vectors[0]));
+  // warning: suspicious usage of 'sizeof(A*)'; pointer to aggregate [bugprone-sizeof-expression]
+  vectors = (vtkFloatArray**)malloc(this->num_used_vectors * sizeof(vtkFloatArray*)); // NOLINT
 
   // allocate arrays for used scalars and vectors
   for (auto jj = 0; jj < this->num_vars; jj++)
