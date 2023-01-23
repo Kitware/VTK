@@ -20,7 +20,9 @@
 #include "vtkSmartPointer.h"
 
 #include <atomic>
+#include <chrono>
 #include <functional>
+#include <thread>
 
 namespace
 {
@@ -85,47 +87,94 @@ struct A
 
 //-----------------------------------------------------------------------------
 void f(A&, A&&) {}
+
+//-----------------------------------------------------------------------------
+void TestFunctionTypeCompleteness()
+{
+  // We create a queue outside of the score where things are pushed to ensure that the pushed
+  // objects are persistent.
+  vtkNew<vtkThreadedCallbackQueue> queue;
+  {
+    // Testing the queue on some exotic inputs
+
+    // lambdas
+    queue->Push([](A&&) {}, ::A());
+    queue->Push([](::A&, const ::A&, ::A&&, const ::A&&) {}, ::A(), ::A(), ::A(), ::A());
+
+    // member function pointers
+    queue->Push(&::A::f, ::A(), ::A(), ::A());
+    queue->Push(&::A::const_f, ::A(), ::A(), ::A());
+
+    // functor
+    queue->Push(::A(), ::A(), ::A());
+
+    // function pointer
+    queue->Push(&::f, ::A(), ::A());
+
+    // Passing an lvalue reference, which needs to be copied.
+    A a;
+    queue->Push(a, ::A(), ::A());
+
+    // Passing a pointer wrapped functor
+    queue->Push(std::unique_ptr<A>(new ::A()), ::A(), ::A());
+
+    // Passing a pointer wrapped object with a member function pointer
+    queue->Push(&::A::f, std::unique_ptr<A>(new ::A()), ::A(), ::A());
+
+    // Passing a std::function
+    std::function<void(::A&, ::A &&)> func = f;
+    queue->Push(func, ::A(), ::A());
+  }
+  queue->Start();
+}
+
+//-----------------------------------------------------------------------------
+bool TestTokens()
+{
+  int N = 100;
+  bool retVal = true;
+  while (--N && retVal)
+  {
+    vtkNew<vtkThreadedCallbackQueue> queue;
+    queue->SetNumberOfThreads(4);
+
+    int count = 0;
+
+    auto f = [&count](std::string&, int low, int up) {
+      if (count < low || count > up)
+      {
+        ++count;
+        return false;
+      }
+      ++count;
+      std::this_thread::sleep_for(std::chrono::milliseconds(10));
+      return true;
+    };
+
+    using Array = std::vector<vtkThreadedCallbackQueue::TokenPointer>;
+
+    auto token1 = queue->Push(f, std::string("t1"), 0, 1);
+    auto token2 = queue->PushDependent(Array{ token1 }, f, std::string("t2"), 1, 4);
+    auto token3 = queue->PushDependent(Array{ token1, token2 }, f, std::string("t3"), 2, 5);
+    auto token4 = queue->PushDependent(Array{ token1 }, f, std::string("t4"), 1, 4);
+    auto token5 = queue->Push(f, std::string("t5"), 0, 4);
+    queue->Start();
+
+    token3->Future.wait();
+
+    retVal &= (token1->Future.get() && token2->Future.get() && token3->Future.get() &&
+      token4->Future.get() && token5->Future.get());
+  }
+  return retVal;
+}
 } // anonymous namespace
 
 int TestThreadedCallbackQueue(int, char*[])
 {
-  {
-    // We create a queue outside of the score where things are pushed to ensure that the pushed
-    // objects are persistent.
-    vtkNew<vtkThreadedCallbackQueue> queue;
-    {
-      // Testing the queue on some exotic inputs
+  vtkLog(INFO, "Testing tokens");
+  bool retVal = ::TestTokens();
 
-      // lambdas
-      queue->Push([](A&&) {}, ::A());
-      queue->Push([](::A&, const ::A&, ::A&&, const ::A&&) {}, ::A(), ::A(), ::A(), ::A());
-
-      // member function pointers
-      queue->Push(&::A::f, ::A(), ::A(), ::A());
-      queue->Push(&::A::const_f, ::A(), ::A(), ::A());
-
-      // functor
-      queue->Push(::A(), ::A(), ::A());
-
-      // function pointer
-      queue->Push(&::f, ::A(), ::A());
-
-      // Passing an lvalue reference, which needs to be copied.
-      A a;
-      queue->Push(a, ::A(), ::A());
-
-      // Passing a pointer wrapped functor
-      queue->Push(std::unique_ptr<A>(new ::A()), ::A(), ::A());
-
-      // Passing a pointer wrapped object with a member function pointer
-      queue->Push(&::A::f, std::unique_ptr<A>(new ::A()), ::A(), ::A());
-
-      // Passing a std::function
-      std::function<void(::A&, ::A &&)> func = f;
-      queue->Push(func, ::A(), ::A());
-    }
-    queue->Start();
-  }
+  ::TestFunctionTypeCompleteness();
 
   vtkLog(INFO, "Testing expanding from 2 to 8 threads");
   // Testing expanding the number of threads
@@ -134,5 +183,6 @@ int TestThreadedCallbackQueue(int, char*[])
   vtkLog(INFO, "Testing shrinking from 8 to 2 threads");
   // Testing shrinking the number of threads
   ::RunThreads(8, 2);
-  return EXIT_SUCCESS;
+
+  return retVal ? EXIT_SUCCESS : EXIT_FAILURE;
 }

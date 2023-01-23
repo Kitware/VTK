@@ -21,30 +21,13 @@
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkThreadedCallbackQueue);
 
-//=============================================================================
-// This class is basically vtkThreadedCallbackQueue.
-// Its uses the nullptr constructor of its parent to avoid infinite recursion
-// on the Controller member.
-// It is the only way to call the contructor with a parameter because New() doesn't accept
-// arguments.
-class vtkThreadedCallbackQueue::vtkInternalController : public vtkThreadedCallbackQueue
+//-----------------------------------------------------------------------------
+vtkThreadedCallbackQueue* vtkThreadedCallbackQueue::New(vtkThreadedCallbackQueue* controller)
 {
-public:
-  static vtkInternalController* New();
-  vtkTypeMacro(vtkInternalController, vtkThreadedCallbackQueue);
-
-  vtkInternalController()
-    : vtkThreadedCallbackQueue(nullptr)
-  {
-  }
-  ~vtkInternalController() override = default;
-
-private:
-  vtkInternalController(const vtkInternalController&) = delete;
-  void operator=(const vtkInternalController&) = delete;
-};
-
-vtkStandardNewMacro(vtkThreadedCallbackQueue::vtkInternalController);
+  vtkThreadedCallbackQueue* result = new vtkThreadedCallbackQueue(controller);
+  result->InitializeObjectBase();
+  return result;
+}
 
 //=============================================================================
 class vtkThreadedCallbackQueue::ThreadWorker
@@ -91,6 +74,7 @@ private:
     lock.unlock();
 
     (*invoker)();
+
     return true;
   }
 
@@ -111,7 +95,7 @@ private:
   bool Continue() const
   {
     return this->ThreadId < this->Queue->NumberOfThreads && this->Queue->Running &&
-      !this->Queue->InvokerQueue.empty();
+      (!this->Queue->InvokerQueue.empty());
   }
 
   vtkThreadedCallbackQueue* Queue;
@@ -124,20 +108,27 @@ namespace
 template <class FT, class... ArgsT>
 void Execute(vtkThreadedCallbackQueue* controller, FT&& f, ArgsT&&... args)
 {
-  controller ? controller->Push(std::forward<FT>(f), std::forward<ArgsT>(args)...)
-             : f(std::forward<ArgsT>(args)...);
+  if (controller)
+  {
+    controller->Push(std::forward<FT>(f), std::forward<ArgsT>(args)...);
+  }
+  else
+  {
+    f(std::forward<ArgsT>(args)...);
+  }
 }
 } // anonymous namespace
 
 //-----------------------------------------------------------------------------
 vtkThreadedCallbackQueue::vtkThreadedCallbackQueue()
-  : vtkThreadedCallbackQueue(vtkSmartPointer<vtkInternalController>::New())
+  : vtkThreadedCallbackQueue(
+      vtkSmartPointer<vtkThreadedCallbackQueue>::Take(vtkThreadedCallbackQueue::New(nullptr)))
 {
 }
 
 //-----------------------------------------------------------------------------
 vtkThreadedCallbackQueue::vtkThreadedCallbackQueue(
-  vtkSmartPointer<vtkInternalController>&& controller)
+  vtkSmartPointer<vtkThreadedCallbackQueue>&& controller)
   : Empty(true)
   , Destroying(false)
   , Running(false)
