@@ -77,7 +77,7 @@ private:
 
     (*invoker)();
 
-    this->Queue->SignalDependentTokens(invoker.get());
+    this->Queue->SignalDependentSharedFutures(invoker.get());
 
     return true;
   }
@@ -216,34 +216,34 @@ void vtkThreadedCallbackQueue::Sync(int startId)
 }
 
 //-----------------------------------------------------------------------------
-void vtkThreadedCallbackQueue::SignalDependentTokens(const InvokerBase* invoker)
+void vtkThreadedCallbackQueue::SignalDependentSharedFutures(const InvokerBase* invoker)
 {
-  // We put invokers to launch in a separate container so we can separate the usage of mutices as
+  // We put invokers to launch in a separate container so we can separate the usage of mutexes as
   // much as possible
   std::vector<InvokerBasePointer> invokersToLaunch;
   {
-    auto& invokerState = invoker->SharedState;
+    auto invokerState = invoker->GetSharedState();
 
     // We are iterating on our dependents, which mean we cannot let any dependent add themselves to
     // this container. At this point we're "ready" anyway so no dependents should be waiting in most
     // cases.
     std::lock_guard<std::mutex> lock(invokerState->Mutex);
-    for (auto& token : invokerState->DependentTokens)
+    for (auto& future : invokerState->DependentSharedFutures)
     {
-      auto& tokenState = token->SharedState;
+      auto futureState = future->GetSharedState();
 
-      // We're locking the dependent token. When the lock is released, either the token is not done
-      // constructing and we have nothing to do, we can let it run itself, or the token is done
-      // constructing, in which case if we hit zero prior tokens remaining, we've gotta move its
-      // associated invoker in the running queue.
-      std::unique_lock<std::mutex> tokenLock(tokenState->Mutex);
-      --token->SharedState->NumberOfPriorTokensRemaining;
-      if (!tokenState->Constructing && !tokenState->NumberOfPriorTokensRemaining)
+      // We're locking the dependent future. When the lock is released, either the future is not
+      // done constructing and we have nothing to do, we can let it run itself, or the future is
+      // done constructing, in which case if we hit zero prior futures remaining, we've gotta move
+      // its associated invoker in the running queue.
+      std::unique_lock<std::mutex> futureLock(futureState->Mutex);
+      --futureState->NumberOfPriorSharedFuturesRemaining;
+      if (!futureState->Constructing && !futureState->NumberOfPriorSharedFuturesRemaining)
       {
-        // We can unlock at this point, we don't touch the token anymore
-        tokenLock.unlock();
+        // We can unlock at this point, we don't touch the future anymore
+        futureLock.unlock();
         std::lock_guard<std::mutex> onHoldLock(this->OnHoldMutex);
-        auto it = this->InvokersOnHold.find(token);
+        auto it = this->InvokersOnHold.find(future);
         invokersToLaunch.emplace_back(std::move(it->second));
         this->InvokersOnHold.erase(it);
       }

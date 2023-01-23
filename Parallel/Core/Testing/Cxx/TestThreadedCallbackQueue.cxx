@@ -119,7 +119,7 @@ void TestFunctionTypeCompleteness()
 }
 
 //-----------------------------------------------------------------------------
-bool TestTokens()
+bool TestSharedFutures()
 {
   int N = 100;
   bool retVal = true;
@@ -137,7 +137,7 @@ bool TestTokens()
       {
         vtkLog(ERROR,
           "Task " << s.c_str() << " started too early, in " << count << "th position"
-                  << " instead of " << low << "th.");
+                  << " instead of " << low + 1 << "th.");
         return false;
       }
       lock.unlock();
@@ -145,28 +145,33 @@ bool TestTokens()
       return true;
     };
 
-    using Array = std::vector<vtkThreadedCallbackQueue::TokenBasePointer>;
+    using Array = std::vector<vtkThreadedCallbackQueue::SharedFuturePointer<bool>>;
 
     int n = 5;
 
+    Array spamTokens;
+
     auto token1 = queue->Push(f, "t1", 0);
     auto token2 = queue->PushDependent(Array{ token1 }, f, "t2", 1);
-    auto token3 = queue->PushDependent(Array{ token1, token2 }, f, "t4", 2);
+    auto token3 = queue->PushDependent(Array{ token1, token2 }, f, "t3", 2);
     // These pushes makes the scenario where token2 and token4 are ready to run but have a higher
-    // token id than them. Token2 and token4 will need to wait here and we're ensuring everything
-    // goes well.
+    // token id than them. SharedFuture2 and token4 will need to wait here and we're ensuring
+    // everything goes well.
     for (int i = 0; i < n; ++i)
     {
-      queue->Push(f, "spam", 0);
+      spamTokens.emplace_back(queue->Push(f, "spam", 0));
     }
     auto token4 = queue->PushDependent(Array{ token2 }, f, "t4", 3);
     auto token5 = queue->PushDependent(Array{ token3, token4 }, f, "t5", 4);
     auto token6 = queue->Push(f, "t6", 0);
 
-    token5->Future.wait();
-
-    retVal &= (token1->Future.get() && token2->Future.get() && token3->Future.get() &&
-      token4->Future.get() && token5->Future.get());
+    token5->Wait();
+    retVal &= token1->Get() && token2->Get() && token3->Get() && token4->Get() && token5->Get() &&
+      token6->Get();
+    for (auto& token : spamTokens)
+    {
+      retVal &= token->Get();
+    }
   }
   return retVal;
 }
@@ -175,7 +180,7 @@ bool TestTokens()
 int TestThreadedCallbackQueue(int, char*[])
 {
   vtkLog(INFO, "Testing tokens");
-  bool retVal = ::TestTokens();
+  bool retVal = ::TestSharedFutures();
 
   ::TestFunctionTypeCompleteness();
 
