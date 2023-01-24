@@ -220,6 +220,15 @@ public:
     unsigned int numValues, int numComps, int dataType, vtkOpenGLBufferObject* bo);
 
   /**
+   * Emulates a texture buffer with 2D texture. Useful if hardware doesn't support texture buffers.
+   * Shader program that use this sampler will need to account for the change in indexing scheme.
+   * When VTK is compiled with GLES support, `vtkOpenGLShaderCache::ReplaceShaderValues()`
+   * patches the shader code to ensure all uses of 1D texture buffers work as usual.
+   */
+  bool EmulateTextureBufferWith2DTextures(
+    unsigned int numValues, int numComps, int dataType, vtkOpenGLBufferObject* bo);
+
+  /**
    * Create a cube texture from 6 buffers from client memory.
    * Image data must be provided in the following order: +X -X +Y -Y +Z -Z.
    * numComps must be in [1-4].
