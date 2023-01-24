@@ -72,9 +72,7 @@ bool vtkmContour::CanProcessInput(vtkDataSet* input)
   auto imageData = vtkImageData::SafeDownCast(input);
   if (imageData && imageData->GetDataDimension() == 3)
   {
-    // Currently, vtkm's flying edges implementation crashes for some cases.
-    // Temporarily disabling this code path
-    return false;
+    return true;
   }
 
   auto rectilinearGrid = vtkRectilinearGrid::SafeDownCast(input);
