@@ -37,7 +37,18 @@ struct vtkThreadedCallbackQueue::InvokerFutureSharedStateBase
   /**
    * Waits until the return value can be retrieved.
    */
-  void Wait() const;
+  void Wait() const
+  {
+    if (this->IsReady)
+    {
+      return;
+    }
+    std::unique_lock<std::mutex> lock(this->Mutex);
+    if (!this->IsReady)
+    {
+      this->ConditionVariable.wait(lock, [this] { return this->IsReady == true; });
+    }
+  }
 
   /**
    * Number of futures that need to terminate before we can run.
@@ -64,20 +75,6 @@ struct vtkThreadedCallbackQueue::InvokerFutureSharedStateBase
   mutable std::mutex Mutex;
   mutable std::condition_variable ConditionVariable;
 };
-
-//-----------------------------------------------------------------------------
-void vtkThreadedCallbackQueue::InvokerFutureSharedStateBase::Wait() const
-{
-  if (this->IsReady)
-  {
-    return;
-  }
-  std::unique_lock<std::mutex> lock(this->Mutex);
-  if (!this->IsReady)
-  {
-    this->ConditionVariable.wait(lock, [this] { return this->IsReady == true; });
-  }
-}
 
 //=============================================================================
 template <>
@@ -535,6 +532,14 @@ vtkThreadedCallbackQueue::vtkSharedFuture<ReturnT>::GetSharedState()
 
 //-----------------------------------------------------------------------------
 template <class ReturnT>
+const vtkThreadedCallbackQueue::InvokerFutureSharedStateBase*
+vtkThreadedCallbackQueue::vtkSharedFuture<ReturnT>::GetSharedState() const
+{
+  return this->SharedState.get();
+}
+
+//-----------------------------------------------------------------------------
+template <class ReturnT>
 typename vtkThreadedCallbackQueue::InvokerFutureSharedState<ReturnT>::ReturnLValueRef
 vtkThreadedCallbackQueue::vtkSharedFuture<ReturnT>::Get()
 {
@@ -633,7 +638,7 @@ void vtkThreadedCallbackQueue::HandleDependentInvoker(
 template <class SharedFutureContainerT>
 bool vtkThreadedCallbackQueue::MustWait(SharedFutureContainerT&& priorSharedFutures)
 {
-  for (const SharedFutureBasePointer& prior : priorSharedFutures)
+  for (const vtkSharedFutureBase* prior : priorSharedFutures)
   {
     if (!prior->GetSharedState()->IsReady)
     {
@@ -653,7 +658,7 @@ void vtkThreadedCallbackQueue::Wait(SharedFutureContainerT&& priorSharedFutures)
   }
 
   // Some priors are not ready...
-  // We create an invoker and a token with an empty lambda.
+  // We create an invoker and a future with an empty lambda.
   // The idea is to pass the prior shared futures to the routine HandleDependentInvoker.
   // If any prior is not done, the created invoker will be placed in InvokersOnHold and launched
   // automatically when it is ready.

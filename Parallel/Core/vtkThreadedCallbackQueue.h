@@ -123,6 +123,7 @@ public:
      * children of this class.
      */
     virtual InvokerFutureSharedStateBase* GetSharedState() = 0;
+    virtual const InvokerFutureSharedStateBase* GetSharedState() const = 0;
 
     vtkSharedFutureBase(const vtkSharedFutureBase& other) = delete;
     void operator=(const vtkSharedFutureBase& other) = delete;
@@ -161,6 +162,7 @@ public:
 
   private:
     InvokerFutureSharedStateBase* GetSharedState() override;
+    const InvokerFutureSharedStateBase* GetSharedState() const override;
 
     std::shared_ptr<InvokerFutureSharedState<ReturnT>> SharedState =
       std::make_shared<InvokerFutureSharedState<ReturnT>>();
