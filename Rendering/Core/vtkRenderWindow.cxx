@@ -175,14 +175,155 @@ void vtkRenderWindow::SetInteractor(vtkRenderWindowInteractor* rwi)
   }
 }
 
-void vtkRenderWindow::GetPhysicalToWorldMatrix(vtkMatrix4x4* matrix)
+//------------------------------------------------------------------------------
+void vtkRenderWindow::SetPhysicalViewDirection(double x, double y, double z)
 {
-  if (matrix)
+  if (this->PhysicalViewDirection[0] != x || this->PhysicalViewDirection[1] != y ||
+    this->PhysicalViewDirection[2] != z)
   {
-    matrix->Identity();
+    this->PhysicalViewDirection[0] = x;
+    this->PhysicalViewDirection[1] = y;
+    this->PhysicalViewDirection[2] = z;
+    this->InvokeEvent(vtkRenderWindow::PhysicalToWorldMatrixModified);
+    this->Modified();
   }
 }
 
+//------------------------------------------------------------------------------
+void vtkRenderWindow::SetPhysicalViewDirection(double dir[3])
+{
+  this->SetPhysicalViewDirection(dir[0], dir[1], dir[2]);
+}
+
+//------------------------------------------------------------------------------
+void vtkRenderWindow::SetPhysicalViewUp(double x, double y, double z)
+{
+  if (this->PhysicalViewUp[0] != x || this->PhysicalViewUp[1] != y || this->PhysicalViewUp[2] != z)
+  {
+    this->PhysicalViewUp[0] = x;
+    this->PhysicalViewUp[1] = y;
+    this->PhysicalViewUp[2] = z;
+    this->InvokeEvent(vtkRenderWindow::PhysicalToWorldMatrixModified);
+    this->Modified();
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkRenderWindow::SetPhysicalViewUp(double dir[3])
+{
+  this->SetPhysicalViewUp(dir[0], dir[1], dir[2]);
+}
+
+//------------------------------------------------------------------------------
+void vtkRenderWindow::SetPhysicalTranslation(double x, double y, double z)
+{
+  if (this->PhysicalTranslation[0] != x || this->PhysicalTranslation[1] != y ||
+    this->PhysicalTranslation[2] != z)
+  {
+    this->PhysicalTranslation[0] = x;
+    this->PhysicalTranslation[1] = y;
+    this->PhysicalTranslation[2] = z;
+    this->InvokeEvent(vtkRenderWindow::PhysicalToWorldMatrixModified);
+    this->Modified();
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkRenderWindow::SetPhysicalTranslation(double trans[3])
+{
+  this->SetPhysicalTranslation(trans[0], trans[1], trans[2]);
+}
+
+//------------------------------------------------------------------------------
+void vtkRenderWindow::SetPhysicalScale(double scale)
+{
+  if (this->PhysicalScale != scale)
+  {
+    this->PhysicalScale = scale;
+    this->InvokeEvent(vtkRenderWindow::PhysicalToWorldMatrixModified);
+    this->Modified();
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkRenderWindow::SetPhysicalToWorldMatrix(vtkMatrix4x4* matrix)
+{
+  if (!matrix)
+  {
+    return;
+  }
+  vtkNew<vtkMatrix4x4> currentPhysicalToWorldMatrix;
+  this->GetPhysicalToWorldMatrix(currentPhysicalToWorldMatrix);
+  bool matrixDifferent = false;
+  for (int i = 0; i < 4; i++)
+  {
+    for (int j = 0; j < 4; j++)
+    {
+      if (fabs(matrix->GetElement(i, j) - currentPhysicalToWorldMatrix->GetElement(i, j)) >= 1e-3)
+      {
+        matrixDifferent = true;
+        break;
+      }
+    }
+  }
+  if (!matrixDifferent)
+  {
+    return;
+  }
+
+  vtkNew<vtkTransform> hmdToWorldTransform;
+  hmdToWorldTransform->SetMatrix(matrix);
+
+  double translation[3] = { 0.0 };
+  hmdToWorldTransform->GetPosition(translation);
+  this->PhysicalTranslation[0] = (-1.0) * translation[0];
+  this->PhysicalTranslation[1] = (-1.0) * translation[1];
+  this->PhysicalTranslation[2] = (-1.0) * translation[2];
+
+  double scale[3] = { 0.0 };
+  hmdToWorldTransform->GetScale(scale);
+  this->PhysicalScale = scale[0];
+
+  this->PhysicalViewUp[0] = matrix->GetElement(0, 1);
+  this->PhysicalViewUp[1] = matrix->GetElement(1, 1);
+  this->PhysicalViewUp[2] = matrix->GetElement(2, 1);
+  vtkMath::Normalize(this->PhysicalViewUp);
+  this->PhysicalViewDirection[0] = (-1.0) * matrix->GetElement(0, 2);
+  this->PhysicalViewDirection[1] = (-1.0) * matrix->GetElement(1, 2);
+  this->PhysicalViewDirection[2] = (-1.0) * matrix->GetElement(2, 2);
+  vtkMath::Normalize(this->PhysicalViewDirection);
+
+  this->InvokeEvent(vtkRenderWindow::PhysicalToWorldMatrixModified);
+  this->Modified();
+}
+
+//------------------------------------------------------------------------------
+void vtkRenderWindow::GetPhysicalToWorldMatrix(vtkMatrix4x4* physicalToWorldMatrix)
+{
+  if (!physicalToWorldMatrix)
+  {
+    return;
+  }
+
+  physicalToWorldMatrix->Identity();
+
+  // construct physical to non-scaled world axes (scaling is applied later)
+  double physicalZ_NonscaledWorld[3] = { -this->PhysicalViewDirection[0],
+    -this->PhysicalViewDirection[1], -this->PhysicalViewDirection[2] };
+  double* physicalY_NonscaledWorld = this->PhysicalViewUp;
+  double physicalX_NonscaledWorld[3] = { 0.0 };
+  vtkMath::Cross(physicalY_NonscaledWorld, physicalZ_NonscaledWorld, physicalX_NonscaledWorld);
+
+  for (int row = 0; row < 3; ++row)
+  {
+    physicalToWorldMatrix->SetElement(row, 0, physicalX_NonscaledWorld[row] * this->PhysicalScale);
+    physicalToWorldMatrix->SetElement(row, 1, physicalY_NonscaledWorld[row] * this->PhysicalScale);
+    physicalToWorldMatrix->SetElement(row, 2, physicalZ_NonscaledWorld[row] * this->PhysicalScale);
+    physicalToWorldMatrix->SetElement(row, 3, -this->PhysicalTranslation[row]);
+  }
+}
+
+//------------------------------------------------------------------------------
 bool vtkRenderWindow::GetDeviceToWorldMatrixForDevice(
   vtkEventDataDevice vtkNotUsed(device), vtkMatrix4x4* vtkNotUsed(deviceToWorldMatrix))
 {
@@ -465,6 +606,14 @@ void vtkRenderWindow::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "MultiSamples: " << this->MultiSamples << "\n";
   os << indent << "StencilCapable: " << (this->StencilCapable ? "True" : "False") << endl;
+
+  os << indent << "PhysicalViewDirection: (" << this->PhysicalViewDirection[0] << ", "
+     << this->PhysicalViewDirection[1] << ", " << this->PhysicalViewDirection[2] << ")\n";
+  os << indent << "PhysicalViewUp: (" << this->PhysicalViewUp[0] << ", " << this->PhysicalViewUp[1]
+     << ", " << this->PhysicalViewUp[2] << ")\n";
+  os << indent << "PhysicalTranslation: (" << this->PhysicalTranslation[0] << ", "
+     << this->PhysicalTranslation[1] << ", " << this->PhysicalTranslation[2] << ")\n";
+  os << indent << "PhysicalScale: " << this->PhysicalScale << "\n";
 }
 
 //------------------------------------------------------------------------------

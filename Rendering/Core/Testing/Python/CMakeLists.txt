@@ -17,6 +17,7 @@ vtk_add_test_python(
   TestParallelCoordinates.py
   TestRotate.py
   TestTransformInterpolator.py
+  TestWorldVsPhysicalActors.py
   TransformConcatenation.py
   TransformCoverage.py
   TransformImageData.py
