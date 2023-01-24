@@ -4,6 +4,7 @@ vtk_module_test_data(
   Data/blowGeom.vtk
   Data/headsq/,REGEX:.*
   Data/nonWatertightPolyhedron.vtu
+  Data/poly_lines.vtu
   Data/quadraticTetra01.vtu)
 
 if (NOT vtk_testing_cxx_disabled)
