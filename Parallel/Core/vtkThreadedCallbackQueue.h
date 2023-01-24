@@ -115,14 +115,6 @@ public:
      */
     virtual void Wait() const = 0;
 
-    /**
-     * Returns a copy of this instance.
-     * This is important to not call any API of this class on the same instance on different threads
-     * to avoid race conditions. Clone provides an instance that is copy safe to use within
-     * one thread.
-     */
-    virtual vtkSmartPointer<vtkSharedFutureBase> Clone() const = 0;
-
     friend class vtkThreadedCallbackQueue;
 
   private:
@@ -130,7 +122,7 @@ public:
      * Returns the shared state owned by this instance. The shared state is instantiated in the
      * children of this class.
      */
-    virtual std::shared_ptr<InvokerFutureSharedStateBase> GetSharedState() = 0;
+    virtual InvokerFutureSharedStateBase* GetSharedState() = 0;
 
     vtkSharedFutureBase(const vtkSharedFutureBase& other) = delete;
     void operator=(const vtkSharedFutureBase& other) = delete;
@@ -151,7 +143,6 @@ public:
 
     vtkSharedFuture() = default;
 
-    vtkSmartPointer<vtkSharedFutureBase> Clone() const override;
     void Wait() const override;
 
     /**
@@ -169,7 +160,7 @@ public:
     friend class vtkThreadedCallbackQueue;
 
   private:
-    std::shared_ptr<InvokerFutureSharedStateBase> GetSharedState() override;
+    InvokerFutureSharedStateBase* GetSharedState() override;
 
     std::shared_ptr<InvokerFutureSharedState<ReturnT>> SharedState =
       std::make_shared<InvokerFutureSharedState<ReturnT>>();

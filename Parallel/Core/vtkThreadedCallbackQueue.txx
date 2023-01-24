@@ -31,8 +31,11 @@ struct vtkThreadedCallbackQueue::InvokerFutureSharedStateBase
   {
   }
 
+  template <class ReturnT, bool IsLValueReference = std::is_lvalue_reference<ReturnT>::value>
+  struct ReturnValueWrapper;
+
   /**
-   *
+   * Waits until the return value can be retrieved.
    */
   void Wait() const;
 
@@ -97,7 +100,46 @@ struct vtkThreadedCallbackQueue::InvokerFutureSharedState<void>
     this->ConditionVariable.notify_all();
   }
 
-  void Get() { this->Wait(); }
+  void Get() const { this->Wait(); }
+};
+
+//=============================================================================
+template <class ReturnT>
+struct vtkThreadedCallbackQueue::InvokerFutureSharedStateBase ::ReturnValueWrapper<ReturnT,
+  true /* IsLValueReference */>
+{
+  using ReturnValueImpl = ReturnValueWrapper<ReturnT, false>;
+
+  ReturnValueWrapper() = default;
+  ReturnValueWrapper(ReturnT& value)
+    : Value(std::unique_ptr<ReturnValueImpl>(new ReturnValueImpl(value)))
+  {
+  }
+
+  ReturnT& Get() { return this->Value->Get(); }
+
+  const ReturnT& Get() const { return this->Value->Get(); }
+
+  std::unique_ptr<ReturnValueImpl> Value;
+};
+
+//=============================================================================
+template <class ReturnT>
+struct vtkThreadedCallbackQueue::InvokerFutureSharedStateBase ::ReturnValueWrapper<ReturnT,
+  false /* IsLValueReference */>
+{
+  ReturnValueWrapper() = default;
+  template <class ReturnTT>
+  ReturnValueWrapper(ReturnTT&& value)
+    : Value(std::forward<ReturnTT>(value))
+  {
+  }
+
+  ReturnT& Get() { return this->Value; }
+
+  const ReturnT& Get() const { return this->Value; }
+
+  ReturnT Value;
 };
 
 //=============================================================================
@@ -111,16 +153,17 @@ struct vtkThreadedCallbackQueue::InvokerFutureSharedState<ReturnT>
   ReturnT& Get()
   {
     this->Wait();
-    return this->Value;
+    return this->ReturnValue.Get();
   }
 
   const ReturnT& Get() const
   {
     this->Wait();
-    return this->Value;
+    return this->ReturnValue.Get();
   }
 
-  void Set(ReturnT&& val)
+  template <class ReturnTT>
+  void Set(ReturnTT&& val)
   {
     if (this->IsReady)
     {
@@ -129,12 +172,12 @@ struct vtkThreadedCallbackQueue::InvokerFutureSharedState<ReturnT>
     {
       std::lock_guard<std::mutex> lock(this->Mutex);
       this->IsReady = true;
-      this->Value = std::move(val);
+      this->ReturnValue = ReturnValueWrapper<ReturnT>(std::forward<ReturnTT>(val));
     }
     this->ConditionVariable.notify_all();
   }
 
-  ReturnT Value;
+  ReturnValueWrapper<ReturnT> ReturnValue;
 };
 
 //=============================================================================
@@ -351,7 +394,7 @@ public:
   {
   }
 
-  InvokeResult<FT> operator()() { this->Invoke(MakeIntegerSequence<sizeof...(ArgsT)>()); }
+  InvokeResult<FT> operator()() { return this->Invoke(MakeIntegerSequence<sizeof...(ArgsT)>()); }
 
 private:
   template <std::size_t... Is>
@@ -434,8 +477,8 @@ struct vtkThreadedCallbackQueue::InvokerBase
   virtual ~InvokerBase() = default;
   virtual void operator()() = 0;
 
-  virtual std::shared_ptr<InvokerFutureSharedStateBase> GetSharedState() = 0;
-  virtual std::shared_ptr<const InvokerFutureSharedStateBase> GetSharedState() const = 0;
+  virtual InvokerFutureSharedStateBase* GetSharedState() = 0;
+  virtual const InvokerFutureSharedStateBase* GetSharedState() const = 0;
 
   bool IsHighPriority = false;
 };
@@ -456,14 +499,11 @@ struct vtkThreadedCallbackQueue::Invoker : public vtkThreadedCallbackQueue::Invo
     InvokerImpl::InvokerHelper<InvokeResult<FT>>::Invoke(this->Impl, this->SharedState.get());
   }
 
-  std::shared_ptr<InvokerFutureSharedStateBase> GetSharedState() override
-  {
-    return this->SharedState;
-  }
+  InvokerFutureSharedStateBase* GetSharedState() override { return this->SharedState.get(); }
 
-  std::shared_ptr<const InvokerFutureSharedStateBase> GetSharedState() const override
+  const InvokerFutureSharedStateBase* GetSharedState() const override
   {
-    return this->SharedState;
+    return this->SharedState.get();
   }
 
   std::shared_ptr<InvokerFutureSharedState<InvokeResult<FT>>> SharedState;
@@ -480,16 +520,6 @@ vtkThreadedCallbackQueue::vtkSharedFuture<ReturnT>::New()
 
 //-----------------------------------------------------------------------------
 template <class ReturnT>
-vtkThreadedCallbackQueue::SharedFutureBasePointer
-vtkThreadedCallbackQueue::vtkSharedFuture<ReturnT>::Clone() const
-{
-  vtkSharedFuture<ReturnT>* result = vtkSharedFuture<ReturnT>::New();
-  result->SharedState = this->SharedState;
-  return SharedFutureBasePointer::Take(result);
-}
-
-//-----------------------------------------------------------------------------
-template <class ReturnT>
 void vtkThreadedCallbackQueue::vtkSharedFuture<ReturnT>::Wait() const
 {
   this->SharedState->Wait();
@@ -497,10 +527,10 @@ void vtkThreadedCallbackQueue::vtkSharedFuture<ReturnT>::Wait() const
 
 //-----------------------------------------------------------------------------
 template <class ReturnT>
-std::shared_ptr<vtkThreadedCallbackQueue::InvokerFutureSharedStateBase>
+vtkThreadedCallbackQueue::InvokerFutureSharedStateBase*
 vtkThreadedCallbackQueue::vtkSharedFuture<ReturnT>::GetSharedState()
 {
-  return this->SharedState;
+  return this->SharedState.get();
 }
 
 //-----------------------------------------------------------------------------
@@ -550,8 +580,6 @@ void vtkThreadedCallbackQueue::HandleDependentInvoker(
   {
     for (const auto& prior : priorSharedFutures)
     {
-      // For each prior, we create a clone of the shared staste so there is no race condition
-      // on the same shared_ptr.
       auto state = prior->GetSharedState();
 
       // We can do a quick check to avoid locking if possible. If the prior shared future is ready,
@@ -561,7 +589,7 @@ void vtkThreadedCallbackQueue::HandleDependentInvoker(
         continue;
       }
 
-      // We need to lock the clone (so we block the invoker side).
+      // We need to lock the shared state (so we block the invoker side).
       // This way, we can make sure that if the invoker is still running, we notify it that we
       // depend on it before it checks its dependents in SignalDependentSharedFutures
       std::unique_lock<std::mutex> lock(state->Mutex);

@@ -72,8 +72,10 @@ struct A
   void f(A&, A&&) {}
   void const_f(A&, A&&) const {}
   void operator()(A&, A&&) { std::cout << *array << std::endl; }
+  int& get() { return val; }
 
   vtkSmartPointer<vtkIntArray> array = vtkSmartPointer<vtkIntArray>::New();
+  int val = 0;
 };
 
 //-----------------------------------------------------------------------------
@@ -95,6 +97,9 @@ void TestFunctionTypeCompleteness()
     // member function pointers
     queue->Push(&::A::f, ::A(), ::A(), ::A());
     queue->Push(&::A::const_f, ::A(), ::A(), ::A());
+
+    // Fetching an lvalue reference return type
+    queue->Push(&::A::get, ::A());
 
     // functor
     queue->Push(::A(), ::A(), ::A());
@@ -149,34 +154,34 @@ bool TestSharedFutures()
 
     int n = 5;
 
-    Array tokens;
+    Array futures;
 
-    auto token1 = queue->Push(f, "t1", 0);
-    auto token2 = queue->PushDependent(Array{ token1 }, f, "t2", 1);
-    auto token3 = queue->PushDependent(Array{ token1, token2 }, f, "t3", 2);
-    // These pushes makes the scenario where token2 and token4 are ready to run but have a higher
-    // token id than them. SharedFuture2 and token4 will need to wait here and we're ensuring
+    auto future1 = queue->Push(f, "t1", 0);
+    auto future2 = queue->PushDependent(Array{ future1 }, f, "t2", 1);
+    auto future3 = queue->PushDependent(Array{ future1, future2 }, f, "t3", 2);
+    // These pushes makes the scenario where future2 and future4 are ready to run but have a higher
+    // future id than them. SharedFuture2 and future4 will need to wait here and we're ensuring
     // everything goes well.
     for (int i = 0; i < n; ++i)
     {
-      tokens.emplace_back(queue->Push(f, "spam", 0));
+      futures.emplace_back(queue->Push(f, "spam", 0));
     }
-    auto token4 = queue->PushDependent(Array{ token2 }, f, "t4", 3);
-    auto token5 = queue->PushDependent(Array{ token3, token4 }, f, "t5", 4);
-    auto token6 = queue->Push(f, "t6", 0);
+    auto future4 = queue->PushDependent(Array{ future2 }, f, "t4", 3);
+    auto future5 = queue->PushDependent(Array{ future3, future4 }, f, "t5", 4);
+    auto future6 = queue->Push(f, "t6", 0);
 
-    tokens.emplace_back(token1);
-    tokens.emplace_back(token2);
-    tokens.emplace_back(token3);
-    tokens.emplace_back(token4);
-    tokens.emplace_back(token5);
-    tokens.emplace_back(token6);
+    futures.emplace_back(future1);
+    futures.emplace_back(future2);
+    futures.emplace_back(future3);
+    futures.emplace_back(future4);
+    futures.emplace_back(future5);
+    futures.emplace_back(future6);
 
-    queue->Wait(tokens);
+    queue->Wait(futures);
 
-    for (auto& token : tokens)
+    for (auto& future : futures)
     {
-      retVal &= token->Get();
+      retVal &= future->Get();
     }
   }
   return retVal;
@@ -185,7 +190,7 @@ bool TestSharedFutures()
 
 int TestThreadedCallbackQueue(int, char*[])
 {
-  vtkLog(INFO, "Testing tokens");
+  vtkLog(INFO, "Testing futures");
   bool retVal = ::TestSharedFutures();
 
   ::TestFunctionTypeCompleteness();
