@@ -320,6 +320,11 @@ public:
   void SetOutputMeshTypeToQuads() { this->SetOutputMeshType(MESH_TYPE_QUADS); }
   ///@}
 
+  // The following code is used to control the smoothing process. Internally
+  // there is a vtkConstrainedSmoothingFilter that can be directly
+  // manipulated.  In addition, methods that delegate to this filter are also
+  // provided.
+
   ///@{
   /**
    * Indicate whether smoothing should be enabled. By default, after the
@@ -329,6 +334,20 @@ public:
   vtkSetMacro(Smoothing, bool);
   vtkGetMacro(Smoothing, bool);
   vtkBooleanMacro(Smoothing, bool);
+  ///@}
+
+  ///@{
+  /**
+   * Convenience methods that delegate to the internal smoothing filter
+   * follow below. See the documentation for vtkConstrainedSmoothingAlgorithm
+   * for more information.
+   */
+  void SetNumberOfIterations(int n) { this->Smoother->SetNumberOfIterations(n); }
+  int GetNumberOfIterations() { return this->Smoother->GetNumberOfIterations(); }
+  void SetRelaxationFactor(double f) { this->Smoother->SetRelaxationFactor(f); }
+  double GetRelaxationFactor() { return this->Smoother->GetRelaxationFactor(); }
+  void SetConstraintDistance(double d) { this->Smoother->SetConstraintDistance(d); }
+  double GetConstraintDistance() { return this->Smoother->GetConstraintDistance(); }
   ///@}
 
   ///@{
@@ -353,6 +372,8 @@ public:
    */
   vtkGetSmartPointerMacro(Smoother, vtkConstrainedSmoothingFilter);
   ///@}
+
+  // The following code is used to control what is produced for output.
 
   /**
    * This enum is used to control the production of the filter output.
