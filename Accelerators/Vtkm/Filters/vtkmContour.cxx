@@ -211,20 +211,12 @@ int vtkmContour::RequestData(
     }
 
     // convert the input dataset to a vtkm::cont::DataSet
-    vtkm::cont::DataSet in;
-    if (this->ComputeScalars)
+    vtkm::cont::DataSet in = tovtkm::Convert(input, tovtkm::FieldsFlag::PointsAndCells);
+    if (!this->ComputeScalars)
     {
-      in = tovtkm::Convert(input, tovtkm::FieldsFlag::PointsAndCells);
-    }
-    else
-    {
-      in = tovtkm::Convert(input, tovtkm::FieldsFlag::None);
-      // explicitly convert just the field we need
-      auto inField = tovtkm::Convert(inputArray, association);
-      in.AddField(inField);
-      // don't pass this field
+      // don't pass the scalar field
       filter.SetFieldsToPass(
-        vtkm::filter::FieldSelection(vtkm::filter::FieldSelection::Mode::None));
+        vtkm::filter::FieldSelection(scalarFieldName, vtkm::filter::FieldSelection::Mode::Exclude));
     }
 
     vtkm::cont::DataSet result = filter.Execute(in);
