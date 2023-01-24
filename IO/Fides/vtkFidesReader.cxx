@@ -150,6 +150,10 @@ void vtkFidesReader::SetFileName(const std::string& fname)
 
 void vtkFidesReader::SetDataSourceIO(const std::string& name, const std::string& ioAddress)
 {
+  if (name.empty() || ioAddress.empty())
+  {
+    return;
+  }
   // can't call SetDataSourceIO in Fides yet, so just save the address for now
   this->Impl->IOObjectInfo = std::make_pair(name, ioAddress);
   this->StreamSteps = true;
