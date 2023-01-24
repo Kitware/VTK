@@ -1,3 +1,26 @@
+/*=========================================================================
+
+  Program:   Visualization Toolkit
+  Module:    vtkEnSightWriter.h
+
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the above copyright notice for more information.
+
+=========================================================================*/
+/**
+ * @class   vtkNek5000Reader
+ * @brief   Reads Nek5000 format data files.
+ *
+ * @par Thanks:
+ * This class was developed by  Jean Favre (jfavre@cscs.ch) from
+ * the Swiss National Supercomputing Centre
+ */
+
 #ifndef vtkNek5000Reader_h
 #define vtkNek5000Reader_h
 
@@ -64,67 +87,85 @@ public:
   vtkGetStringMacro(DataFileName);
 
   vtkGetMacro(NumberOfTimeSteps, int);
-  // Description:
-  // Returns the available range of valid integer time steps.
+  ///@{
+  /**
+   * Returns the available range of valid integer time steps.
+   */
   vtkGetVector2Macro(TimeStepRange, int);
   vtkSetVector2Macro(TimeStepRange, int);
+  ///@}
 
-  //  // set/get the resolution to use for each element of the input grid
-  //  void SetElementResolution(int);
-  //  vtkGetMacro(ElementResolution, int);
-
-  // Description:
-  // Get the number of point arrays available in the input.
+  /**
+   * Get the number of point arrays available in the input.
+   */
   int GetNumberOfPointArrays(void);
 
-  // Description:
-  // Get the name of the  point array with the given index in
-  // the input.
+  /**
+   * Get the name of the  point array with the given index in
+   * the input.
+   */
   const char* GetPointArrayName(int index);
-
-  // used for ParaView to decide if cleaning the grid to merge points
+  /**
+   * used for ParaView to decide if cleaning the grid to merge points
+   */
   vtkSetMacro(CleanGrid, int);
   vtkGetMacro(CleanGrid, int);
   vtkBooleanMacro(CleanGrid, int);
 
-  // used for ParaView to decide if showing the spectral elements ids as cell-data
+  ///@{
+  /**
+   * used for ParaView to decide if showing the spectral elements ids as cell-data
+   */
   vtkSetMacro(SpectralElementIds, int);
   vtkGetMacro(SpectralElementIds, int);
   vtkBooleanMacro(SpectralElementIds, int);
+  ///@}
 
-  // Description:
-  // Get/Set whether the point array with the given name or index is to
-  // be read.
+  ///@{
+  /**
+   * Get/Set whether the point array with the given name or index is to be read.
+   */
   bool GetPointArrayStatus(const char* name);
   bool GetPointArrayStatus(int index);
   void SetPointArrayStatus(const char* name, int status);
+  ///@}
 
-  // Description:
-  // Turn on/off all point arrays.
+  ///@{
+  /**
+   * Turn on/off all point arrays.
+   */
   void DisableAllPointArrays();
   void EnableAllPointArrays();
+  ///@}
 
 #ifdef unused
   int GetNumberOfDerivedVariableArrays(void);
 
-  // Description:
-  // Get the name of the  derived variable array with the given index in
-  // the input.
+  /**
+   * Get the name of the  derived variable array with the given index in
+   * the input.
+   */
   const char* GetDerivedVariableArrayName(int index);
 
-  // Description:
-  // Get/Set whether the derived variable array with the given name is to
-  // be read.
+  ///@{
+  /**
+   * Get/Set whether the derived variable array with the given name is to
+   * be read.
+   */
   int GetDerivedVariableArrayStatus(const char* name);
   void SetDerivedVariableArrayStatus(const char* name, int status);
+  ///@}
 
-  // Description:
-  // Turn on/off all derived variable arrays.
+  ///@{
+  /**
+   * Turn on/off all derived variable arrays.
+   */
   void DisableAllDerivedVariableArrays();
   void EnableAllDerivedVariableArrays();
 #endif
-  // Description:
-  // Get the names of variables stored in the data
+  /**
+   * Get the names of variables stored in the data
+   */
   size_t GetVariableNamesFromData(char* varTags);
 
   int CanReadFile(const char* fname);
