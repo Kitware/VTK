@@ -636,15 +636,19 @@ struct CopyPointAttributes
   {
     const vtkIdType* ptMap = this->PointMap;
     bool isFirst = vtkSMPTools::GetSingleThread();
+    vtkIdType checkAbortInterval = fmin((endPtId - ptId) / 10 + 1, 1000);
     for (; ptId < endPtId; ++ptId)
     {
-      if (isFirst)
+      if (ptid % checkAbortInterval == 0)
       {
-        this->Filter->CheckAbort();
-      }
-      if (this->Filter->GetAbortOutput())
-      {
-        break;
+        if (isFirst)
+        {
+          this->Filter->CheckAbort();
+        }
+        if (this->Filter->GetAbortOutput())
+        {
+          break;
+        }
       }
 
       if (ptMap[ptId] >= 0)

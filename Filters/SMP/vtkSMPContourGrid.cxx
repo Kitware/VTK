@@ -282,6 +282,7 @@ public:
     T range[2];
     vtkIdType cellid;
     bool isFirst = vtkSMPTools::GetSingleThread();
+    vtkIdType checkAbortInterval = fmin((end - begin) / 10 + 1, 1000);
 
     // If UseScalarTree is enabled at this point, we assume that a scalar
     // tree has been computed and thus the way cells are traversed changes.
@@ -291,14 +292,18 @@ public:
       // to invoking contour.
       for (cellid = begin; cellid < end; cellid++)
       {
-        if (isFirst)
+        if (cellid % checkAbortInterval == 0)
         {
-          this->Filter->CheckAbort();
+          if (isFirst)
+          {
+            this->Filter->CheckAbort();
+          }
+          if (this->Filter->GetAbortOutput())
+          {
+            break;
+          }
         }
-        if (this->Filter->GetAbortOutput())
-        {
-          break;
-        }
+
         this->Input->GetCellPoints(cellid, pids);
         cs->SetNumberOfTuples(pids->GetNumberOfIds());
         this->InScalars->GetTuples(pids, cs);

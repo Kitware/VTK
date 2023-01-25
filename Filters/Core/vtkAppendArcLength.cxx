@@ -65,9 +65,11 @@ int vtkAppendArcLength::RequestData(
   vtkIdType numCellPoints;
   const vtkIdType* cellPoints;
   lines->InitTraversal();
+  vtkIdType checkAbortInterval = fmin(lines->GetNumberOfCells() / 10 + 1, 1000);
+  vtkIdType progressCounter = 0;
   while (lines->GetNextCell(numCellPoints, cellPoints))
   {
-    if (this->CheckAbort())
+    if (progressCounter % checkAbortInterval == 0 && this->CheckAbort())
     {
       break;
     }
@@ -87,6 +89,7 @@ int vtkAppendArcLength::RequestData(
       arc_length->SetTuple1(cellPoints[cc], arc_distance);
       memcpy(prevPoint, curPoint, 3 * sizeof(double));
     }
+    progressCounter++;
   }
   output->GetPointData()->AddArray(arc_length);
   arc_length->Delete();
