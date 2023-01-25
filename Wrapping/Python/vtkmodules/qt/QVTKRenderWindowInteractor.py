@@ -202,15 +202,21 @@ else:
 
 if PyQtImpl == 'PyQt6':
     CursorShape = Qt.CursorShape
-    MouseButton = Qt.MouseButton
-    WindowType = Qt.WindowType
     WidgetAttribute = Qt.WidgetAttribute
-    KeyboardModifier = Qt.KeyboardModifier
     FocusPolicy = Qt.FocusPolicy
     ConnectionType = Qt.ConnectionType
     Key = Qt.Key
     SizePolicy = QSizePolicy.Policy
     EventType = QEvent.Type
+    try:
+        MouseButton = Qt.MouseButton
+        WindowType = Qt.WindowType
+        KeyboardModifier = Qt.KeyboardModifier
+    except AttributeError:
+        # Fallback solution for PyQt6 versions < 6.1.0
+        MouseButton = Qt.MouseButtons
+        WindowType = Qt.WindowFlags
+        KeyboardModifier = Qt.KeyboardModifiers
 else:
     CursorShape = MouseButton = WindowType = WidgetAttribute = \
         KeyboardModifier = FocusPolicy = ConnectionType = Key = Qt
