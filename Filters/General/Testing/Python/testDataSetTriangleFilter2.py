@@ -27,7 +27,7 @@ iren.SetRenderWindow(renWin)
 # create pipeline
 #
 reader = vtkDataSetReader()
-reader.SetFileName("" + str(VTK_DATA_ROOT) + "/Data/uGridEx.vtk")
+reader.SetFileName(VTK_DATA_ROOT + "/Data/uGridEx.vtk")
 tris = vtkDataSetTriangleFilter()
 tris.SetInputConnection(reader.GetOutputPort())
 shrink = vtkShrinkFilter()

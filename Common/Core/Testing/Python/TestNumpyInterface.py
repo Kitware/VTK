@@ -4,7 +4,6 @@ import vtkmodules.test.Testing
 try:
     import numpy
 except ImportError:
-    print("Numpy (http://numpy.scipy.org) not found.")
     print("This test requires numpy!")
     vtkmodules.test.Testing.skip()
 

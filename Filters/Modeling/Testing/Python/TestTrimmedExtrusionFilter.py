@@ -156,7 +156,7 @@ ren.GetActiveCamera().SetPosition(556898, 5.10151e+006, 7906.19)
 
 # added these unused default arguments so that the prototype
 # matches as required in python.
-def reportCamera (a=0,b=0,__vtk__temp0=0,__vtk__temp1=0):
+def reportCamera(obj=None, event=""):
     print("Camera: {}".format(ren.GetActiveCamera()))
 
 picker = vtkCellPicker()

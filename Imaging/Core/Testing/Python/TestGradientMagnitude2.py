@@ -14,7 +14,7 @@ VTK_DATA_ROOT = vtkGetDataRoot()
 
 # Image pipeline
 reader = vtkPNGReader()
-reader.SetFileName("" + str(VTK_DATA_ROOT) + "/Data/fullhead15.png")
+reader.SetFileName(VTK_DATA_ROOT + "/Data/fullhead15.png")
 clip = vtkImageClip()
 clip.SetInputConnection(reader.GetOutputPort())
 clip.SetOutputWholeExtent(80,230,80,230,0,0)

@@ -12,7 +12,7 @@ VTK_DATA_ROOT = vtkGetDataRoot()
 # export of BMPs
 # Image pipeline
 reader = vtkBMPReader()
-reader.SetFileName("" + str(VTK_DATA_ROOT) + "/Data/masonry.bmp")
+reader.SetFileName(VTK_DATA_ROOT + "/Data/masonry.bmp")
 reader.SetAllow8BitBMP(1)
 map = vtkImageMapToColors()
 map.SetInputConnection(reader.GetOutputPort())

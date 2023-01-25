@@ -14,7 +14,7 @@ VTK_DATA_ROOT = vtkGetDataRoot()
 # Image pipeline
 reader = vtkPNMReader()
 reader.ReleaseDataFlagOff()
-reader.SetFileName("" + str(VTK_DATA_ROOT) + "/Data/earth.ppm")
+reader.SetFileName(VTK_DATA_ROOT + "/Data/earth.ppm")
 reader.Update()
 sphere = vtkImageEllipsoidSource()
 sphere.SetWholeExtent(0,511,0,255,0,0)

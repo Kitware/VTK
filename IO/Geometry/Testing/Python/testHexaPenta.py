@@ -25,7 +25,7 @@ VTK_DATA_ROOT = vtkGetDataRoot()
 # read the football dataset:
 #
 reader = vtkUnstructuredGridReader()
-reader.SetFileName("" + str(VTK_DATA_ROOT) + "/Data/PentaHexa.vtk")
+reader.SetFileName(VTK_DATA_ROOT + "/Data/PentaHexa.vtk")
 reader.Update()
 # Clip
 #

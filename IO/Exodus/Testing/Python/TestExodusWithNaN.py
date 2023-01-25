@@ -6,7 +6,7 @@ from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 rdr = vtkExodusIIReader()
-rdr.SetFileName(str(VTK_DATA_ROOT) + "/Data/cyl_with_NaN.g")
+rdr.SetFileName(VTK_DATA_ROOT + "/Data/cyl_with_NaN.g")
 rdr.UpdateInformation()
 rdr.SetPointResultArrayStatus("dist_from_origin", 1);
 rdr.Update()

@@ -59,7 +59,7 @@ convert.SetInputConnection(sample.GetOutputPort())
 convert.Update()
 
 cthvtr = vtkXMLRectilinearGridReader()
-cthvtr.SetFileName("" + str(VTK_DATA_ROOT) + "/Data/cth.vtr")
+cthvtr.SetFileName(VTK_DATA_ROOT + "/Data/cth.vtr")
 cthvtr.CellArrayStatus = ['Pressure', 'Void Volume Fraction', 'X Velocity', 'Y Velocity', 'Z Velocity',
                           'Volume Fraction for Armor Plate', 'Mass for Armor Plate', 'Volume Fraction for Body, Nose',
                           'Mass for Body, Nose']

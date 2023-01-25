@@ -96,11 +96,9 @@ ren.AddActor(demActor)
 ren.SetBackground(.4, .4, .4)
 
 iren.SetDesiredUpdateRate(1)
-def TkCheckAbort (__vtk__temp0=0, __vtk__temp1=0):
-    foo = renWin.GetEventPending()
-    if (foo != 0):
+def TkCheckAbort(obj=None, event=""):
+    if renWin.GetEventPending():
         renWin.SetAbortRender(1)
-        pass
 
 renWin.AddObserver("AbortCheckEvent", TkCheckAbort)
 ren.GetActiveCamera().SetViewUp(0, 0, 1)

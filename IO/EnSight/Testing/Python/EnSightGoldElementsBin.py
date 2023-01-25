@@ -29,7 +29,7 @@ reader = vtkGenericEnSightReader()
 # Make sure all algorithms use the composite data pipeline
 cdp = vtkCompositeDataPipeline()
 reader.SetDefaultExecutivePrototype(cdp)
-reader.SetCaseFileName("" + str(VTK_DATA_ROOT) + "/Data/EnSight/elements-bin.case")
+reader.SetCaseFileName(VTK_DATA_ROOT + "/Data/EnSight/elements-bin.case")
 reader.UpdateInformation()
 reader.GetOutputInformation(0).Set(vtkStreamingDemandDrivenPipeline.UPDATE_TIME_STEP(), 0.1)
 geom0 = vtkGeometryFilter()

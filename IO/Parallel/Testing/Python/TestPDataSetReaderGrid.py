@@ -21,7 +21,10 @@ from vtkmodules.vtkRenderingCore import (
 import vtkmodules.vtkInteractionStyle
 import vtkmodules.vtkRenderingFreeType
 import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 import os
+
+VTK_DATA_ROOT = vtkGetDataRoot()
 
 def DoPlot3DReaderTests(reader):
     # Ensure disable function works.
@@ -62,8 +65,8 @@ if os.access(".", os.W_OK):
     # ====== Structured Grid ======
     # First save out a grid in parallel form.
     reader = vtkMultiBlockPLOT3DReader()
-    reader.SetXYZFileName("" + str(VTK_DATA_ROOT) + "/Data/combxyz.bin")
-    reader.SetQFileName("" + str(VTK_DATA_ROOT) + "/Data/combq.bin")
+    reader.SetXYZFileName(VTK_DATA_ROOT + "/Data/combxyz.bin")
+    reader.SetQFileName(VTK_DATA_ROOT + "/Data/combq.bin")
     reader.Update()
 
     # before we continue on with the test, let's quickly do some
@@ -184,7 +187,6 @@ if os.access(".", os.W_OK):
     if pReader3.GetOutput().GetNumberOfCells() != 48:
         print("pReader3 output should have 48 cells but has %d" % pReader3.GetOutput().GetNumberOfCells())
         sys.exit(1)
-    pass
 
 ren1.SetBackground(0.1,0.2,0.4)
 renWin.SetSize(300,300)

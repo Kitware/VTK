@@ -12,7 +12,7 @@ VTK_DATA_ROOT = vtkGetDataRoot()
 # Tst the OpenClose3D filter.
 # Image pipeline
 reader = vtkPNGReader()
-reader.SetFileName("" + str(VTK_DATA_ROOT) + "/Data/fullhead15.png")
+reader.SetFileName(VTK_DATA_ROOT + "/Data/fullhead15.png")
 thresh = vtkImageThreshold()
 thresh.SetInputConnection(reader.GetOutputPort())
 thresh.SetOutputScalarTypeToUnsignedChar()

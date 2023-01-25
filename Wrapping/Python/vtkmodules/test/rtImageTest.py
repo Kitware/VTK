@@ -55,10 +55,7 @@ def main(test_script):
     sys.path.insert(0, test_script_dir)
 
     # we provide an initial set of variables for the test script
-    test_script_vars = {
-        "__name__" : "__main__",
-        "VTK_DATA_ROOT" : rtTester.GetDataRoot(),
-    }
+    test_script_vars = { "__name__" : "__main__" }
 
     try:
         # run the test and capture all of its global variables

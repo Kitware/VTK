@@ -25,7 +25,7 @@ VTK_DATA_ROOT = vtkGetDataRoot()
 
 # create reader and warp data with vectors
 reader = vtkDataSetReader()
-reader.SetFileName("" + str(VTK_DATA_ROOT) + "/Data/blow.vtk")
+reader.SetFileName(VTK_DATA_ROOT + "/Data/blow.vtk")
 reader.SetScalarsName("thickness9")
 reader.SetVectorsName("displacement9")
 castToUnstructuredGrid = vtkCastToConcrete()

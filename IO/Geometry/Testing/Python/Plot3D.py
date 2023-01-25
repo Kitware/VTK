@@ -19,8 +19,8 @@ class TestPlot3D(Testing.vtkTest):
                 r.MultiGridOn()
             else:
                 r.AutoDetectFormatOn()
-            r.SetFileName(str(VTK_DATA_ROOT) + "/Data/" + name[0])
-            r.SetQFileName(str(VTK_DATA_ROOT) + "/Data/" + name[1])
+            r.SetFileName(VTK_DATA_ROOT + "/Data/" + name[0])
+            r.SetQFileName(VTK_DATA_ROOT + "/Data/" + name[1])
             r.Update()
 
             output = r.GetOutput()
@@ -45,8 +45,8 @@ class TestPlot3D(Testing.vtkTest):
             r = vtkMultiBlockPLOT3DReader()
             print("Testing ", name[0])
             r.AutoDetectFormatOn()
-            r.SetFileName(str(VTK_DATA_ROOT) + "/Data/" + name[0])
-            r.SetQFileName(str(VTK_DATA_ROOT) + "/Data/" + name[1])
+            r.SetFileName(VTK_DATA_ROOT + "/Data/" + name[0])
+            r.SetQFileName(VTK_DATA_ROOT + "/Data/" + name[1])
             r.Update()
 
             output = r.GetOutput()
@@ -66,7 +66,7 @@ class TestPlot3D(Testing.vtkTest):
 
     def testMetaReader(self):
         r = vtkPlot3DMetaReader()
-        r.SetFileName(str(VTK_DATA_ROOT) + "/Data/multi.p3d")
+        r.SetFileName(VTK_DATA_ROOT + "/Data/multi.p3d")
         r.Update()
         self.assertTrue(r.GetOutput().GetBlock(0).GetPointData().GetArray("Function0"))
 

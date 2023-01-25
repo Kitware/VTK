@@ -16,7 +16,7 @@ VTK_DATA_ROOT = vtkGetDataRoot()
 
 # Read some Fluent UCD data in ASCII form
 r = vtkFLUENTReader()
-r.SetFileName("" + str(VTK_DATA_ROOT) + "/Data/room.cas")
+r.SetFileName(VTK_DATA_ROOT + "/Data/room.cas")
 r.EnableAllCellArrays()
 
 g = vtkGeometryFilter()

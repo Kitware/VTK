@@ -19,9 +19,9 @@ VTK_DATA_ROOT = vtkGetDataRoot()
 # to stencil another
 # Image pipeline
 reader1 = vtkBMPReader()
-reader1.SetFileName("" + str(VTK_DATA_ROOT) + "/Data/masonry.bmp")
+reader1.SetFileName(VTK_DATA_ROOT + "/Data/masonry.bmp")
 reader2 = vtkPNMReader()
-reader2.SetFileName("" + str(VTK_DATA_ROOT) + "/Data/B.pgm")
+reader2.SetFileName(VTK_DATA_ROOT + "/Data/B.pgm")
 translate = vtkImageTranslateExtent()
 translate.SetInputConnection(reader2.GetOutputPort())
 translate.SetTranslation(60,60,0)

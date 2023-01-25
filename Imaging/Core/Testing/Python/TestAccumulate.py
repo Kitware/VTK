@@ -15,7 +15,7 @@ VTK_DATA_ROOT = vtkGetDataRoot()
 
 # Image pipeline
 reader = vtkPNGReader()
-reader.SetFileName("" + str(VTK_DATA_ROOT) + "/Data/fullhead15.png")
+reader.SetFileName(VTK_DATA_ROOT + "/Data/fullhead15.png")
 smooth = vtkImageGaussianSmooth()
 smooth.SetDimensionality(2)
 smooth.SetStandardDeviations(1,1)

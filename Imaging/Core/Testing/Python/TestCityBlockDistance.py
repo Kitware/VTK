@@ -17,7 +17,7 @@ VTK_DATA_ROOT = vtkGetDataRoot()
 # Values below 2000 are set to 0.
 # Image pipeline
 reader = vtkPNGReader()
-reader.SetFileName("" + str(VTK_DATA_ROOT) + "/Data/fullhead15.png")
+reader.SetFileName(VTK_DATA_ROOT + "/Data/fullhead15.png")
 cast = vtkImageCast()
 cast.SetOutputScalarTypeToShort()
 cast.SetInputConnection(reader.GetOutputPort())

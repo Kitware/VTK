@@ -10,7 +10,7 @@ VTK_DATA_ROOT = vtkGetDataRoot()
 
 # Image pipeline
 reader = vtkPNGReader()
-reader.SetFileName("" + str(VTK_DATA_ROOT) + "/Data/fullhead15.png")
+reader.SetFileName(VTK_DATA_ROOT + "/Data/fullhead15.png")
 diffusion = vtkImageAnisotropicDiffusion2D()
 diffusion.SetInputConnection(reader.GetOutputPort())
 diffusion.SetDiffusionFactor(1.0)

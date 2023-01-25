@@ -11,7 +11,7 @@ VTK_DATA_ROOT = vtkGetDataRoot()
 # Test the median filter.
 # Image pipeline
 reader = vtkPNGReader()
-reader.SetFileName("" + str(VTK_DATA_ROOT) + "/Data/fullhead15.png")
+reader.SetFileName(VTK_DATA_ROOT + "/Data/fullhead15.png")
 median = vtkImageMedian3D()
 median.SetInputConnection(reader.GetOutputPort())
 median.SetKernelSize(7,7,1)

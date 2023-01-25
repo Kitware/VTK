@@ -16,7 +16,7 @@ VTK_DATA_ROOT = vtkGetDataRoot()
 # the center of the image.
 reader = vtkPNGReader()
 reader.SetDataSpacing(0.8,0.8,1.5)
-reader.SetFileName("" + str(VTK_DATA_ROOT) + "/Data/fullhead15.png")
+reader.SetFileName(VTK_DATA_ROOT + "/Data/fullhead15.png")
 # first center the image at (0,0,0)
 information = vtkImageChangeInformation()
 information.SetInputConnection(reader.GetOutputPort())

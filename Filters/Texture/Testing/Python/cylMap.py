@@ -43,7 +43,7 @@ mapper.SetInputConnection(xform.GetOutputPort())
 # load in the texture map and assign to actor
 #
 bmpReader = vtkBMPReader()
-bmpReader.SetFileName("" + str(VTK_DATA_ROOT) + "/Data/masonry.bmp")
+bmpReader.SetFileName(VTK_DATA_ROOT + "/Data/masonry.bmp")
 atext = vtkTexture()
 atext.SetInputConnection(bmpReader.GetOutputPort())
 atext.InterpolateOn()

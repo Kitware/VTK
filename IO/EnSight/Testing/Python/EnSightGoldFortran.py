@@ -24,7 +24,7 @@ iren.SetRenderWindow(renWin)
 
 # create pipeline
 reader = vtkGenericEnSightReader()
-reader.SetCaseFileName("" + str(VTK_DATA_ROOT) + "/Data/EnSight/viga.case")
+reader.SetCaseFileName(VTK_DATA_ROOT + "/Data/EnSight/viga.case")
 
 geometry = vtkGeometryFilter()
 geometry.SetInputConnection(reader.GetOutputPort())

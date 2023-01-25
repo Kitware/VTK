@@ -9,7 +9,7 @@ VTK_DATA_ROOT = vtkGetDataRoot()
 class TestContourPolyData(Testing.vtkTest):
   def testAll(self):
     reader = vtkXMLPolyDataReader()
-    reader.SetFileName("" + str(VTK_DATA_ROOT) + "/Data/disk_out_ref_surface.vtp")
+    reader.SetFileName(VTK_DATA_ROOT + "/Data/disk_out_ref_surface.vtp")
     reader.SetPointArrayStatus("Temp", 1);
     reader.SetPointArrayStatus("Pres", 1);
     reader.Update();

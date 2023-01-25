@@ -44,7 +44,7 @@ iren.SetRenderWindow(renWin)
 # load in the texture map
 #
 imageIn = vtkPNMReader()
-imageIn.SetFileName("" + str(VTK_DATA_ROOT) + "/Data/earth.ppm")
+imageIn.SetFileName(VTK_DATA_ROOT + "/Data/earth.ppm")
 il = vtkImageLuminance()
 il.SetInputConnection(imageIn.GetOutputPort())
 ic = vtkImageCast()

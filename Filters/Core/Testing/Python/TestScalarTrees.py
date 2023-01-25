@@ -36,7 +36,7 @@ iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 
 reader = vtkExodusIIReader()
-reader.SetFileName("" + str(VTK_DATA_ROOT) + "/Data/disk_out_ref.ex2")
+reader.SetFileName(VTK_DATA_ROOT + "/Data/disk_out_ref.ex2")
 reader.SetPointResultArrayStatus("Temp",1);
 reader.Update ();
 input = reader.GetOutput().GetBlock(0).GetBlock(0);

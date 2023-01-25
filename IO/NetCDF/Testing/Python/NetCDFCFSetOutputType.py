@@ -25,7 +25,7 @@ renWin.SetSize(400,400)
 # Case 1: Image type.
 # Open the file.
 reader_image = vtkNetCDFCFReader()
-reader_image.SetFileName("" + str(VTK_DATA_ROOT) + "/Data/tos_O1_2001-2002.nc")
+reader_image.SetFileName(VTK_DATA_ROOT + "/Data/tos_O1_2001-2002.nc")
 reader_image.SetOutputTypeToImage()
 # Set the arrays we want to load.
 reader_image.UpdateMetaData()
@@ -53,7 +53,7 @@ renWin.AddRenderer(ren_image)
 # Case 2: Rectilinear type.
 # Open the file.
 reader_rect = vtkNetCDFCFReader()
-reader_rect.SetFileName("" + str(VTK_DATA_ROOT) + "/Data/tos_O1_2001-2002.nc")
+reader_rect.SetFileName(VTK_DATA_ROOT + "/Data/tos_O1_2001-2002.nc")
 reader_rect.SetOutputTypeToRectilinear()
 # Set the arrays we want to load.
 reader_rect.UpdateMetaData()
@@ -81,7 +81,7 @@ renWin.AddRenderer(ren_rect)
 # Case 3: Structured type.
 # Open the file.
 reader_struct = vtkNetCDFCFReader()
-reader_struct.SetFileName("" + str(VTK_DATA_ROOT) + "/Data/tos_O1_2001-2002.nc")
+reader_struct.SetFileName(VTK_DATA_ROOT + "/Data/tos_O1_2001-2002.nc")
 reader_struct.SetOutputTypeToStructured()
 # Set the arrays we want to load.
 reader_struct.UpdateMetaData()
@@ -109,7 +109,7 @@ renWin.AddRenderer(ren_struct)
 # Case 4: Unstructured type.
 # Open the file.
 reader_auto = vtkNetCDFCFReader()
-reader_auto.SetFileName("" + str(VTK_DATA_ROOT) + "/Data/tos_O1_2001-2002.nc")
+reader_auto.SetFileName(VTK_DATA_ROOT + "/Data/tos_O1_2001-2002.nc")
 reader_auto.SetOutputTypeToUnstructured()
 # Set the arrays we want to load.
 reader_auto.UpdateMetaData()

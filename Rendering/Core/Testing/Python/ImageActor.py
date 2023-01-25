@@ -22,7 +22,7 @@ iren.SetRenderWindow(renWin)
 # load in the image
 #
 pnmReader = vtkTIFFReader()
-pnmReader.SetFileName("" + str(VTK_DATA_ROOT) + "/Data/beach.tif")
+pnmReader.SetFileName(VTK_DATA_ROOT + "/Data/beach.tif")
 # "beach.tif" image contains ORIENTATION tag which is
 # ORIENTATION_TOPLEFT (row 0 top, col 0 lhs) type. The TIFF
 # reader parses this tag and sets the internal TIFF image

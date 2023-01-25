@@ -16,8 +16,8 @@ VTK_DATA_ROOT = vtkGetDataRoot()
 # This script shows the result of an ideal highpass filter in spatial domain
 # Image pipeline
 createReader = vtkImageReader2Factory()
-reader = createReader.CreateImageReader2("" + str(VTK_DATA_ROOT) + "/Data/fullhead15.png")
-reader.SetFileName("" + str(VTK_DATA_ROOT) + "/Data/fullhead15.png")
+reader = createReader.CreateImageReader2(VTK_DATA_ROOT + "/Data/fullhead15.png")
+reader.SetFileName(VTK_DATA_ROOT + "/Data/fullhead15.png")
 fft = vtkImageFFT()
 fft.SetInputConnection(reader.GetOutputPort())
 highPass = vtkImageIdealHighPass()

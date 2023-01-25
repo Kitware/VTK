@@ -40,7 +40,7 @@ IMAGE_MAG_Z = 1
 # Pipeline stuff
 
 reader = vtkSLCReader()
-reader.SetFileName(str(VTK_DATA_ROOT) + "/Data/neghip.slc")
+reader.SetFileName(VTK_DATA_ROOT + "/Data/neghip.slc")
 
 # Cursor stuff
 

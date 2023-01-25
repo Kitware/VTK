@@ -203,7 +203,7 @@ if PointOfInterest >= 0:
 
 # added these unused default arguments so that the prototype
 # matches as required in python.
-def reportPointId (a=0,b=0,__vtk__temp0=0,__vtk__temp1=0):
+def reportPointId(obj=None, event=""):
     print("Point Id: {}".format(picker.GetPointId()))
 
 picker = vtkPointPicker()

@@ -5,11 +5,14 @@ from vtkmodules.vtkInteractionImage import vtkImageViewer
 import vtkmodules.vtkInteractionStyle
 import vtkmodules.vtkRenderingFreeType
 import vtkmodules.vtkRenderingOpenGL2
-from vtkmodules.vtkTestingRendering import vtkTesting
+from vtkmodules.util.misc import vtkGetDataRoot
 import os
+
+VTK_DATA_ROOT = vtkGetDataRoot()
+
 # Image pipeline
 image1 = vtkTIFFReader()
-image1.SetFileName("" + str(VTK_DATA_ROOT) + "/Data/beach.tif")
+image1.SetFileName(VTK_DATA_ROOT + "/Data/beach.tif")
 # "beach.tif" image contains ORIENTATION tag which is
 # ORIENTATION_TOPLEFT (row 0 top, col 0 lhs) type. The TIFF
 # reader parses this tag and sets the internal TIFF image

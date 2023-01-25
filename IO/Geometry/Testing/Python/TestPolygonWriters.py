@@ -45,7 +45,7 @@ iren.SetRenderWindow(renWin)
 # read data
 #
 input = vtkPolyDataReader()
-input.SetFileName("" + str(VTK_DATA_ROOT) + "/Data/brainImageSmooth.vtk")
+input.SetFileName(VTK_DATA_ROOT + "/Data/brainImageSmooth.vtk")
 #
 # generate vectors
 clean = vtkCleanPolyData()

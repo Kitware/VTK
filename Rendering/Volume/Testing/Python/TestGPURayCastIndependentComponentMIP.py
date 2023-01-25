@@ -35,7 +35,6 @@ import vtkmodules.vtkRenderingOpenGL2
 import vtkmodules.vtkRenderingVolumeOpenGL2
 import vtkmodules.test.Testing
 from vtkmodules.util.misc import vtkGetDataRoot
-VTK_DATA_ROOT = vtkGetDataRoot()
 
 '''
   Prevent .pyc files from being created.
@@ -49,7 +48,7 @@ class TestGPURayCastIndependentComponentMIP(vtkmodules.test.Testing.vtkTest):
     def test(self):
         dataRoot = vtkGetDataRoot()
         reader =  vtkXMLImageDataReader()
-        reader.SetFileName("" + str(dataRoot) + "/Data/vase_4comp.vti")
+        reader.SetFileName(dataRoot + "/Data/vase_4comp.vti")
 
         volume = vtkVolume()
         #mapper = vtkFixedPointVolumeRayCastMapper()

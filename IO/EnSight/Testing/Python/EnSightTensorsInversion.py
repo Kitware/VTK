@@ -28,7 +28,7 @@ reader = vtkGenericEnSightReader()
 cdp = vtkCompositeDataPipeline()
 reader.SetDefaultExecutivePrototype(cdp)
 del cdp
-reader.SetCaseFileName("" + str(VTK_DATA_ROOT) + "/Data/EnSight/elements6.case")
+reader.SetCaseFileName(VTK_DATA_ROOT + "/Data/EnSight/elements6.case")
 geom = vtkGeometryFilter()
 geom.SetInputConnection(reader.GetOutputPort())
 calc = vtkArrayCalculator()

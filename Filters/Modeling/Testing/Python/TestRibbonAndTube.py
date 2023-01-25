@@ -20,10 +20,10 @@ VTK_DATA_ROOT = vtkGetDataRoot()
 # create pipeline
 #
 reader = vtkPolyDataReader()
-reader.SetFileName("" + str(VTK_DATA_ROOT) + "/Data/vtk.vtk")
+reader.SetFileName(VTK_DATA_ROOT + "/Data/vtk.vtk")
 # Read a ruler texture
 r = vtkPNGReader()
-r.SetFileName("" + str(VTK_DATA_ROOT) + "/Data/ruler.png")
+r.SetFileName(VTK_DATA_ROOT + "/Data/ruler.png")
 atext = vtkTexture()
 atext.SetInputConnection(r.GetOutputPort())
 atext.InterpolateOn()

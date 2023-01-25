@@ -15,7 +15,7 @@ VTK_DATA_ROOT = vtkGetDataRoot()
 # This script shows how to use vtkImageEuclideanDistance
 # Image pipeline
 reader = vtkPNGReader()
-reader.SetFileName("" + str(VTK_DATA_ROOT) + "/Data/fullhead15.png")
+reader.SetFileName(VTK_DATA_ROOT + "/Data/fullhead15.png")
 cast = vtkImageCast()
 cast.SetOutputScalarTypeToShort()
 cast.SetInputConnection(reader.GetOutputPort())

@@ -18,7 +18,7 @@ from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 rdr = vtkGenericEnSightReader()
-rdr.SetCaseFileName(str(VTK_DATA_ROOT) + "/Data/EnSight/RESULT_FLUID_DOMAIN.case")
+rdr.SetCaseFileName(VTK_DATA_ROOT + "/Data/EnSight/RESULT_FLUID_DOMAIN.case")
 rdr.Update()
 
 srf = vtkDataSetSurfaceFilter()

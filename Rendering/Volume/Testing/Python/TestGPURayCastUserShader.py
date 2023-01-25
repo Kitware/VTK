@@ -51,9 +51,8 @@ sys.dont_write_bytecode = True
 # Disable object factory override for vtkNrrdReader
 vtkObjectFactory.SetAllEnableFlags(False, "vtkNrrdReader", "vtkPNrrdReader")
 
-dataRoot = vtkGetDataRoot()
 reader = vtkNrrdReader()
-reader.SetFileName("" + str(dataRoot) + "/Data/tooth.nhdr")
+reader.SetFileName(VTK_DATA_ROOT + "/Data/tooth.nhdr")
 reader.Update()
 
 volumeProperty = vtkVolumeProperty()

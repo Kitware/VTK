@@ -6,12 +6,15 @@ from vtkmodules.vtkImagingCore import vtkImageMapToColors
 from vtkmodules.vtkInteractionImage import vtkImageViewer
 import vtkmodules.vtkRenderingFreeType
 import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
+
+VTK_DATA_ROOT = vtkGetDataRoot()
 
 reader = vtkImageReader()
 reader.ReleaseDataFlagOff()
 reader.SetDataByteOrderToLittleEndian()
 reader.SetDataExtent(0,63,0,63,1,93)
-reader.SetFilePrefix("" + str(VTK_DATA_ROOT) + "/Data/headsq/quarter")
+reader.SetFilePrefix(VTK_DATA_ROOT + "/Data/headsq/quarter")
 reader.SetDataMask(0x7fff)
 rangeStart = 0.0
 rangeEnd = 0.2

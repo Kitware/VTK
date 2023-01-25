@@ -15,7 +15,7 @@ VTK_DATA_ROOT = vtkGetDataRoot()
 try:
     import numpy
 except ImportError:
-    print("WARNING: This test requires Numeric Python: http://numpy.sf.net")
+    print("This test requires numpy!")
     from vtkmodules.test import Testing
     Testing.skip()
 
@@ -54,7 +54,7 @@ def makePolyData(attributeType):
 
 def makeGraph(attributeType):
     reader = vtkPDBReader()
-    reader.SetFileName("" + str(VTK_DATA_ROOT) + "/Data/3GQP.pdb")
+    reader.SetFileName(VTK_DATA_ROOT + "/Data/3GQP.pdb")
     reader.Update()
 
     molecule = reader.GetOutputDataObject(1)

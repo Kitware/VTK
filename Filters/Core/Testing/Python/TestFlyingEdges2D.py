@@ -26,7 +26,7 @@ iren.SetRenderWindow(renWin)
 
 # Pipeline
 reader = vtkPNGReader()
-reader.SetFileName("" + str(VTK_DATA_ROOT) + "/Data/fullhead15.png")
+reader.SetFileName(VTK_DATA_ROOT + "/Data/fullhead15.png")
 
 iso = vtkFlyingEdges2D()
 iso.SetInputConnection(reader.GetOutputPort())

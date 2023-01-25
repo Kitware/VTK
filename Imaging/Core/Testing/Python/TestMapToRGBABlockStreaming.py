@@ -21,7 +21,7 @@ reader = vtkImageReader()
 reader.SetDataByteOrderToLittleEndian()
 reader.SetDataExtent(0,63,0,63,1,93)
 reader.SetDataSpacing(3.2,3.2,1.5)
-reader.SetFilePrefix("" + str(VTK_DATA_ROOT) + "/Data/headsq/quarter")
+reader.SetFilePrefix(VTK_DATA_ROOT + "/Data/headsq/quarter")
 reader.SetDataMask(0x7fff)
 rangeStart = 0.0
 rangeEnd = 0.2
@@ -35,14 +35,13 @@ LUT.Build()
 # The prototype of this function has
 # arguments so that the code can be
 # translated to python for testing.
-def changeLUT (a=0,b=0,__vtk__temp0=0,__vtk__temp1=0):
+def changeLUT(obj=None, event=""):
     global rangeStart, rangeEnd
-    rangeStart = expr.expr(globals(), locals(),["rangeStart","+","0.1"])
-    rangeEnd = expr.expr(globals(), locals(),["rangeEnd","+","0.1"])
-    if (rangeEnd > 1.0):
+    rangeStart += 0.1
+    rangeEnd += 0.1
+    if rangeEnd > 1.0:
         rangeStart = 0.0
         rangeEnd = 0.2
-        pass
     LUT.SetHueRange(rangeStart,rangeEnd)
     LUT.Build()
 

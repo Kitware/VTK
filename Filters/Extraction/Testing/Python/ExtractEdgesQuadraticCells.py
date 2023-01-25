@@ -42,7 +42,7 @@ try:
     import numpy as np
     from vtkmodules.util.numpy_support import numpy_to_vtk as ntov
 except ImportError:
-    print("WARNING: This test requires Numeric Python: http://numpy.sf.net")
+    print("This test requires numpy!")
     from vtkmodules.test import Testing
 
     Testing.skip()

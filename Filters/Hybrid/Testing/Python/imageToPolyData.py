@@ -19,7 +19,7 @@ VTK_DATA_ROOT = vtkGetDataRoot()
 
 # create reader and extract the velocity and temperature
 reader = vtkPNGReader()
-reader.SetFileName("" + str(VTK_DATA_ROOT) + "/Data/vtk.png")
+reader.SetFileName(VTK_DATA_ROOT + "/Data/vtk.png")
 quant = vtkImageQuantizeRGBToIndex()
 quant.SetInputConnection(reader.GetOutputPort())
 quant.SetNumberOfColors(32)

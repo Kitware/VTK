@@ -222,10 +222,8 @@ def cases (id, mask):
         m = mask[i]
         if m & id == 0:
             Scalars.SetValue(i, 0)
-            pass
         else:
             Scalars.SetValue(i, 1)
-            pass
         caseLabel.SetText("Case " + str(id))
         i += 1
 

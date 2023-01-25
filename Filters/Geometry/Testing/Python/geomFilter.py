@@ -30,8 +30,8 @@ import sys
 # create pipeline - structured grid
 #
 pl3d = vtkMultiBlockPLOT3DReader()
-pl3d.SetXYZFileName("" + str(VTK_DATA_ROOT) + "/Data/combxyz.bin")
-pl3d.SetQFileName("" + str(VTK_DATA_ROOT) + "/Data/combq.bin")
+pl3d.SetXYZFileName(VTK_DATA_ROOT + "/Data/combxyz.bin")
+pl3d.SetQFileName(VTK_DATA_ROOT + "/Data/combq.bin")
 pl3d.SetScalarFunctionNumber(100)
 pl3d.SetVectorFunctionNumber(202)
 pl3d.Update()
@@ -121,7 +121,7 @@ g6Actor.AddPosition(0,15,30)
 # create pipeline - rectilinear grid
 #
 rgridReader = vtkRectilinearGridReader()
-rgridReader.SetFileName("" + str(VTK_DATA_ROOT) + "/Data/RectGrid2.vtk")
+rgridReader.SetFileName(VTK_DATA_ROOT + "/Data/RectGrid2.vtk")
 rgridReader.Update()
 gf7 = vtkGeometryFilter()
 gf7.SetInputConnection(rgridReader.GetOutputPort())

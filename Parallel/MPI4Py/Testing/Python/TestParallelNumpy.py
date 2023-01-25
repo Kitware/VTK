@@ -7,7 +7,6 @@ import sys
 try:
     import numpy
 except ImportError:
-    print("Numpy (http://numpy.scipy.org) not found.", end=' ')
     print("This test requires numpy!")
     from vtkmodules.test import Testing
     Testing.skip()
