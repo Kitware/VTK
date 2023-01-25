@@ -792,7 +792,10 @@ void vtkLine::Clip(double value, vtkDataArray* cellScalars, vtkIncrementalPointL
         this->Points->GetPoint(vertexId, x);
         if (locator->InsertUniquePoint(x, pts[i]))
         {
-          outPd->CopyData(inPd, this->PointIds->GetId(vertexId), pts[i]);
+          if (outPd)
+          {
+            outPd->CopyData(inPd, this->PointIds->GetId(vertexId), pts[i]);
+          }
         }
       }
 
@@ -810,9 +813,11 @@ void vtkLine::Clip(double value, vtkDataArray* cellScalars, vtkIncrementalPointL
 
         if (locator->InsertUniquePoint(x, pts[i]))
         {
-          vtkIdType p1 = this->PointIds->GetId(0);
-          vtkIdType p2 = this->PointIds->GetId(1);
-          outPd->InterpolateEdge(inPd, pts[i], p1, p2, t);
+          if (outPd)
+          {
+            outPd->InterpolateEdge(
+              inPd, pts[i], this->PointIds->GetId(0), this->PointIds->GetId(1), t);
+          }
         }
       }
     }
@@ -820,7 +825,10 @@ void vtkLine::Clip(double value, vtkDataArray* cellScalars, vtkIncrementalPointL
     if (pts[0] != pts[1])
     {
       newCellId = lines->InsertNextCell(2, pts);
-      outCd->CopyData(inCd, cellId, newCellId);
+      if (outCd)
+      {
+        outCd->CopyData(inCd, cellId, newCellId);
+      }
     }
   }
 }

@@ -36,6 +36,7 @@ vtk_add_test_python(
   TestICPTransform.py,NO_RT
   TestMolecule.py,NO_VALID,NO_RT
   TestClipPolyhedra.py
+  TestClipPolyLine.py
   TestPolyhedronCutter.py,NO_DATA,NO_VALID
   TestHyperTreeGrid2DFull.py,NO_DATA,NO_VALID
   TestHyperTreeGrid2DFullGI.py,NO_DATA,NO_VALID
