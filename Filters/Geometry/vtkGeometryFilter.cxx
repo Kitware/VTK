@@ -1787,7 +1787,7 @@ struct ExtractStructured : public ExtractCellBoundaries<TInputIdType>
       if (!minFace && !this->FastMode)
       {
         cellId = static_cast<TInputIdType>(vtkStructuredData::ComputeCellIdForExtent(extent, ijk));
-        ijk[axis] = extent[5] - 1;
+        ijk[axis] = extent[axis2 + 1] - 1;
         const auto face = this->GetFace(ijk, /*minFace=*/false, FaceMode::SHRINKING_FACES);
         polys.template InsertNextCell<TInputIdType>(4, face.data(), cellId);
       }
