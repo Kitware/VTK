@@ -255,8 +255,11 @@ public:
    * This method blocks the current thread until all the tasks associated with each shared future
    * inside `priorSharedFuture` has terminated.
    *
-   * It is in general more efficient to call this function than to call `Wait`
-   * on each shared future if there are strictly more than one shared future in the container.
+   * It is in general more efficient to call this function than to call `Wait` on each future
+   * individually because
+   * if any task associated with `priorSharedFuture` is allowed to run (i.e. it is not depending on
+   * any other future) and is currently waiting in queue, this function will actually run it.
+   *
    * The current thread is blocked at most once by this function.
    *
    * `SharedFutureContainerT` must have a forward iterator (presence of a `begin()` and `end()`
@@ -305,7 +308,49 @@ private:
   using InvokerPointer = std::unique_ptr<Invoker<FT, ArgsT...>>;
 
   class ThreadWorker;
+
   friend class ThreadWorker;
+  friend struct InvokerFutureSharedStateBase;
+  template <class ReturnT, class DummyT>
+  friend struct InvokerFutureSharedState;
+
+  /**
+   * Status that an invoker can be in.
+   * This enum is used in InvokerFutureSharedStateBase.
+   *
+   * @note This is an exclusive status. The status should not combine those bits.
+   */
+  enum SharedStatus
+  {
+    /**
+     * The invoker has finished working and the returned value is available.
+     */
+    READY = 0x01,
+
+    /**
+     * The invoker is currently running its task.
+     */
+    RUNNING = 0x02,
+
+    /**
+     * The invoker is on hold, stored in `InvokersOnHold`.
+     */
+    ON_HOLD = 0x04,
+
+    /**
+     * The shared state of this invoker might already have been shared with invokers it
+     * depends on, but this invoker's status is still hanging. At this point we cannot tell if it
+     * needs to be put in `InvokersOnHold` or just directly ran. An invoker seeing such a status in
+     * a dependent invoker should ignore it.
+     */
+    CONSTRUCTING = 0x08,
+
+    /**
+     * The invoker is currently stored inside `InvokerQueue`. It is waiting to be picked up by a
+     * thread.
+     */
+    ENQUEUED = 0x10
+  };
 
   /**
    * Starts the threads as soon as they are done with their current tasks.
@@ -326,6 +371,12 @@ private:
   void Sync(int startId = 0);
 
   /**
+   * Pops all the `nullptr` pointers at the front of `InvokerQueue` until either the queue is empty,
+   * or the front is not `nullptr`.
+   */
+  void PopFrontNullptr();
+
+  /**
    * We go over all the dependent future ids that have been added to the invoker we just invoked.
    * For each future, we retrieve the corresponding invoker that is stored inside InvokersOnHold,
    * and decrease the counter of the number of remaining invokers it depends on.
@@ -343,11 +394,17 @@ private:
     SharedFutureContainerT&& priorSharedFutures, InvokerT&& invoker, SharedFutureT&& futures);
 
   /**
+   * This function should always be used to invoke.
+   * lock should be locked upon calling this function.
+   */
+  void Invoke(InvokerBasePointer&& invoker, std::unique_lock<std::mutex>& lock);
+
+  /**
    * This function allocates an invoker and its bound future.
    */
   template <class FT, class... ArgsT>
   std::pair<InvokerPointer<FT, ArgsT...>, SharedFuturePointer<InvokeResult<FT>>>
-  CreateInvokerAndSharedFuture(FT&& f, ArgsT&&... args);
+  CreateInvokerAndSharedFuture(int status, FT&& f, ArgsT&&... args);
 
   /**
    * Returns true if any prior is not ready.

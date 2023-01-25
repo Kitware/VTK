@@ -152,7 +152,7 @@ bool TestSharedFutures()
 
     using Array = std::vector<vtkThreadedCallbackQueue::SharedFuturePointer<bool>>;
 
-    int n = 5;
+    int n = 10;
 
     Array futures;
 
@@ -166,6 +166,7 @@ bool TestSharedFutures()
     {
       futures.emplace_back(queue->Push(f, "spam", 0));
     }
+    auto fastFuture = queue->Push(f, "spam", 0);
     auto future4 = queue->PushDependent(Array{ future2 }, f, "t4", 3);
     auto future5 = queue->PushDependent(Array{ future3, future4 }, f, "t5", 4);
     auto future6 = queue->Push(f, "t6", 0);
@@ -177,6 +178,11 @@ bool TestSharedFutures()
     futures.emplace_back(future5);
     futures.emplace_back(future6);
 
+    // Testing the case where Wait executes the task associated with a function that wasn't invoked
+    // yet.
+    queue->Wait(Array{ fastFuture });
+
+    // Testing all other scenarios in Wait
     queue->Wait(futures);
 
     for (auto& future : futures)
@@ -184,6 +190,7 @@ bool TestSharedFutures()
       retVal &= future->Get();
     }
   }
+
   return retVal;
 }
 } // anonymous namespace
