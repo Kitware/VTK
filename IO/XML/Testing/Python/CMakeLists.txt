@@ -6,6 +6,7 @@ vtk_add_test_python(
   TestWriteReadRandomHyperTreeGridAppendBinaryMode1.py,NO_DATA,NO_VALID,NO_RT
   TestXMLMultiBlock.py,NO_DATA,NO_VALID,NO_RT
   TestXMLTimeInField.py,NO_DATA,NO_VALID,NO_RT
+  # TestXMLHyperTreeGrid.py # test code does not run (fix me!)
   TestXMLImageDataIO.py
   TestXMLPolyDataIO.py
   TestXMLRectilinearGridIO.py

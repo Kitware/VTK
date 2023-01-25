@@ -1,11 +1,3 @@
-# Data files:
-#  deciPlane,NO_RT
-#  financialField,NO_RT
-#  skinOrder,NO_RT
-#  MassProperties,NO_RT
-#  financialField2,NO_RT
-#  financialField3,NO_RT
-
 vtk_add_test_python(
   CellDataToPointData.py
   CellDataToPointData2.py
@@ -14,6 +6,7 @@ vtk_add_test_python(
   Delaunay2DTransform.py
   Delaunay3D.py
   Delaunay3DAlphaTest.py
+  MassProperties.py,NO_RT
   QuadricDecimation.py
   QuadricDecimation2.py
   StreamPolyData.py
@@ -83,6 +76,7 @@ vtk_add_test_python(
   TestVectorDotNorm.py
   TestVoronoi2D.py
   TestVoronoi2D2.py
+  TestVoronoi2D3.py
   TestWindowedSincPolylineSmoothing.py
   capCow.py
   capSphere.py
@@ -96,11 +90,15 @@ vtk_add_test_python(
   cutLoop.py
   cutPolygons.py
   cutter.py
+  deciPlane.py,NO_RT
   dispPlot.py
   fieldToPolyData.py
   fieldToRGrid.py
   fieldToSGrid.py
   fieldToUGrid.py
+  financialField.py,NO_RT
+  financialField2.py,NO_RT
+  financialField3.py,NO_RT
   glyphComb.py
   hull.py
   mergeFilter.py
@@ -111,6 +109,7 @@ vtk_add_test_python(
   probeComb.py
   probeComb2.py
   reverseNormals.py
+  skinOrder.py,NO_RT
   smoothMeshOnMesh.py
   streamComb.py
   streamSurface.py

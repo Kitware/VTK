@@ -76,7 +76,7 @@ class financialField3(vtkmodules.test.Testing.vtkTest):
             line = f.readline().split()
             # From the size calculate the number of lines.
             numPts = int(line[1])
-            numLines = (numPts - 1) / 8 + 1
+            numLines = (numPts - 1) // 8 + 1
 
             # create the data object
             field = vtkFieldData()
