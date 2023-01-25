@@ -148,7 +148,7 @@ struct GradientWorker
     const double dz = center[2] - centerN[2];
     grad[2] *= dz;
     norm += dz * dz;
-    if (norm)
+    if (norm != 0)
     {
       grad[0] /= norm;
       grad[1] /= norm;
