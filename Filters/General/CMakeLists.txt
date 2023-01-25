@@ -14,6 +14,8 @@ set(classes
   vtkBrownianPoints
   vtkCellDerivatives
   vtkCellValidator
+  vtkCleanUnstructuredGrid
+  vtkCleanUnstructuredGridCells
   vtkClipClosedSurface
   vtkClipConvexPolyData
   vtkClipDataSet

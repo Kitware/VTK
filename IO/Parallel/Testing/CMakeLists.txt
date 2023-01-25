@@ -25,7 +25,8 @@ if (VTK_WRAP_PYTHON)
     Data/beach.tif
     Data/combq.bin
     Data/combxyz.bin
-    Data/multicomb_0.vts)
+    Data/multicomb_0.vts
+    Data/nek5000/eddy_uv/,REGEX:.*)
 
   add_subdirectory(Python)
 endif ()

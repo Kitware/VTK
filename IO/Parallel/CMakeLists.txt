@@ -1,6 +1,7 @@
 set(classes
   vtkEnSightWriter
   vtkMultiBlockPLOT3DReader
+  vtkNek5000Reader
   vtkPChacoReader
   vtkPDataSetReader
   vtkPDataSetWriter
