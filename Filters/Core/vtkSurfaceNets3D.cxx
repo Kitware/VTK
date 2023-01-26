@@ -1681,12 +1681,14 @@ struct NetsWorker
     // which will likely by updated in pass1, pass2, or pass3.
     algo.NumberOfEdges = algo.TriadDims[1] * algo.TriadDims[2]; // y-z plane of edges
     algo.EdgeMetaData = new vtkIdType[algo.NumberOfEdges * algo.EdgeMetaDataSize]();
-    for (auto eNum = 0; eNum < algo.NumberOfEdges; ++eNum)
-    {
-      vtkIdType* eMD = algo.EdgeMetaData + eNum * algo.EdgeMetaDataSize;
-      eMD[3] = algo.TriadDims[0];
-      eMD[4] = 0;
-    }
+    vtkSMPTools::For(0, algo.NumberOfEdges, [&](vtkIdType begin, vtkIdType end) {
+      for (vtkIdType eNum = begin; eNum < end; ++eNum)
+      {
+        vtkIdType* eMD = algo.EdgeMetaData + eNum * algo.EdgeMetaDataSize;
+        eMD[3] = algo.TriadDims[0];
+        eMD[4] = 0;
+      }
+    });
 
     // Compute the starting offset location for scalar data.  We may be operating
     // on a part of the volume.
