@@ -1658,6 +1658,15 @@ struct NetsWorker
 
 }; // NetsWorker
 
+// This function is used to compute smoothing constraints from the voxel spacing.
+void ComputeSmoothingConstraints(
+  vtkConstrainedSmoothingFilter* smoother, double spacing[3], double constraintScale)
+{
+  smoother->SetConstraintDistance((vtkMath::Norm(spacing) / 2.0) * constraintScale);
+  smoother->SetConstraintBox(
+    constraintScale * spacing[0], constraintScale * spacing[1], constraintScale * spacing[2]);
+}
+
 // This function is used to smooth the output points and quads to produce a
 // more pleasing result. Because of smoothing, the quads typically become
 // non-planar and are usually decomposed into triangles (although this can
@@ -2090,6 +2099,10 @@ vtkSurfaceNets3D::vtkSurfaceNets3D()
   this->Smoothing = true;
   this->OptimizedSmoothingStencils = true;
   this->Smoother = vtkSmartPointer<vtkConstrainedSmoothingFilter>::New();
+  this->Smoother->SetNumberOfIterations(16);
+  this->Smoother->SetRelaxationFactor(0.5);
+  this->AutomaticSmoothingConstraints = true;
+  this->ConstraintScale = 2.0;
 
   this->OutputStyle = OUTPUT_STYLE_DEFAULT;
 
@@ -2269,6 +2282,10 @@ int vtkSurfaceNets3D::RequestData(vtkInformation* vtkNotUsed(request),
     this->Smoother->GetNumberOfIterations() > 0)
   {
     smoothing = true;
+    if (this->AutomaticSmoothingConstraints)
+    {
+      ComputeSmoothingConstraints(this->Smoother, input->GetSpacing(), this->ConstraintScale);
+    }
     SmoothOutput(this->GeometryCache, this->StencilsCache, output, this->Smoother);
   }
   else
@@ -2353,6 +2370,9 @@ void vtkSurfaceNets3D::PrintSelf(ostream& os, vtkIndent indent)
   os << indent
      << "Optimized Smoothing Stencils: " << (this->OptimizedSmoothingStencils ? "On\n" : "Off\n");
   os << indent << "Smoother: " << this->Smoother.Get() << endl;
+  os << indent << "Automatic Smoothing Constraints: "
+     << (this->AutomaticSmoothingConstraints ? "On\n" : "Off\n");
+  os << indent << "ConstraintScale: " << this->ConstraintScale << endl;
 
   os << indent << "Output Style: " << this->OutputStyle << endl;
   os << indent << "Number of Selected Labels: " << this->SelectedLabels.size() << endl;

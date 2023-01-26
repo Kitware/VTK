@@ -18,12 +18,12 @@
  *
  * vtkSurfaceNets3D creates boundary/isocontour surfaces from a label map
  * (e.g., a segmented image) using a threaded, 3D version of the multiple
- * regions/labels Surface Nets algorithm. The input is a 3D image (i.e.,
+ * objects/labels Surface Nets algorithm. The input is a 3D image (i.e.,
  * volume) where each voxel is labeled (integer labels are preferred to real
  * values), and the output data is a polygonal mesh separating labeled
  * regions / objects.  (Note that on output each region [corresponding to a
  * different segmented object] will share points/edges on a common boundary,
- * i.e., two adjacent objects will share the boundary that separates them.)
+ * i.e., two neighboring objects will share the boundary that separates them.)
  * This threaded implementation uses concepts from Flying Edges to achieve
  * high performance and scalability.
  *
@@ -48,16 +48,16 @@
  * internal instance of vtkConstrainedSmoothingFilter, through which these
  * smoothing parameters may be specified, and which actually performs the
  * smoothing operation. (Note: it is possible to skip the smoothing process
- * altogether by disabling smoothing (e.g., invoking SmoothingOff()) or
+ * altogether by disabling smoothing [e.g., invoking SmoothingOff()] or
  * setting the number of smoothing iterations to zero. This can be useful
  * when using a different smoothing filter like
  * vtkWindowedSincPolyDataFilter; or if an unsmoothed, aliased output is
  * desired. The reason the smoothing is built in to this filter is to remain
- * faithful to the original published literature describing the surface nets
+ * faithful to the original published literature describing the Surface Nets
  * algorithm, and for performance reasons since smoothing stencils can be
  * generated on the fly.)
  *
- * The SurfaceNets algorithm was first proposed by Sarah Frisken.  Two
+ * The Surface Nets algorithm was first proposed by Sarah Frisken.  Two
  * important papers include the description of surface nets for binary
  * objects (i.e., extracting just one segmented object from a volume) and
  * multi-label (multiple object extraction).
@@ -131,7 +131,7 @@
  * meaning that intermittent gaps may form between regions. This Surface Nets
  * implementation fully shares the boundary (points and cells) between
  * adjacent objects; and no gaps between objects are formed (if the objects
- * are coincident).
+ * are neighbors to one another).
  *
  * @warning
  * This class has been threaded with vtkSMPTools. Using TBB or other
@@ -348,6 +348,42 @@ public:
   double GetRelaxationFactor() { return this->Smoother->GetRelaxationFactor(); }
   void SetConstraintDistance(double d) { this->Smoother->SetConstraintDistance(d); }
   double GetConstraintDistance() { return this->Smoother->GetConstraintDistance(); }
+  void SetConstraintBox(double sx, double sy, double sz)
+  {
+    this->Smoother->SetConstraintBox(sx, sy, sz);
+  };
+  void SetConstraintBox(double s[3]) { this->Smoother->SetConstraintBox(s); };
+  double* GetConstraintBox() VTK_SIZEHINT(3) { return this->Smoother->GetConstraintBox(); }
+  void GetConstraintBox(double s[3]) { this->Smoother->GetConstraintBox(s); }
+  void SetConstraintStrategyToConstraintDistance()
+  {
+    this->Smoother->SetConstraintStrategyToConstraintDistance();
+  }
+  void SetConstraintStrategyToConstraintBox()
+  {
+    this->Smoother->SetConstraintStrategyToConstraintBox();
+  }
+  int GetConstraintStrategy() { return this->Smoother->GetConstraintStrategy(); }
+  ///@}
+
+  ///@{
+  /**
+   * Specify whether to set the smoothing constraints automatically. If
+   * automatic is on, the constraint distance and constraint box will
+   * calculated and set (based on the input size of the volume voxel). Note
+   * that the ConstraintScale is used to adjust the size of the constraint
+   * distance or box when set automatically. (Typically the constraint
+   * distance defines a circumscribing sphere around a voxel, and the
+   * constraint box is a box with voxel spacing.)  If constraints are not set
+   * automatically, then the constraint distance and/or constraint box should
+   * be set manually.) By default, automatic smoothing constraints are
+   * enabled.
+   */
+  vtkSetMacro(AutomaticSmoothingConstraints, bool);
+  vtkGetMacro(AutomaticSmoothingConstraints, bool);
+  vtkBooleanMacro(AutomaticSmoothingConstraints, bool);
+  vtkSetClampMacro(ConstraintScale, double, 0, 100);
+  vtkGetMacro(ConstraintScale, double);
   ///@}
 
   ///@{
@@ -497,6 +533,8 @@ protected:
   bool Smoothing;
   bool OptimizedSmoothingStencils;
   vtkSmartPointer<vtkConstrainedSmoothingFilter> Smoother;
+  bool AutomaticSmoothingConstraints;
+  double ConstraintScale;
 
   // Support data caching of the extracted surface nets. This is used to
   // avoid repeated surface extraction when only smoothing filter
