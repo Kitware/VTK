@@ -639,7 +639,7 @@ struct CopyPointAttributes
     vtkIdType checkAbortInterval = fmin((endPtId - ptId) / 10 + 1, 1000);
     for (; ptId < endPtId; ++ptId)
     {
-      if (ptid % checkAbortInterval == 0)
+      if (ptId % checkAbortInterval == 0)
       {
         if (isFirst)
         {
