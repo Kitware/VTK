@@ -1,3 +1,10 @@
+set(theora_external_targets THEORA::THEORA)
+if (NOT WIN32 OR (WIN32 AND (MSYS OR MINGW)))
+  list(APPEND theora_external_targets
+    THEORA::ENC
+    THEORA::DEC)
+endif ()
+
 vtk_module_third_party(
   INTERNAL
     LICENSE_FILES "vtktheora/COPYING"
@@ -5,9 +12,7 @@ vtk_module_third_party(
     STANDARD_INCLUDE_DIRS
   EXTERNAL
     PACKAGE THEORA
-    TARGETS THEORA::THEORA
-            THEORA::DEC
-            THEORA::ENC
+    TARGETS ${theora_external_targets}
     STANDARD_INCLUDE_DIRS)
 
 configure_file(
