@@ -414,7 +414,7 @@ struct SurfaceNets
 
   // Return whether a triad, and its associated voxel cell, requires the
   // generation of a point.
-  bool ProducesPoint(TriadType triad) { return ((triad & SurfaceNets::ProducePoint) > 0); }
+  inline bool ProducesPoint(TriadType triad) { return (triad & SurfaceNets::ProducePoint) > 0; }
 
   // Input and output data.
   T* Scalars;                // input image scalars
@@ -557,12 +557,20 @@ struct SurfaceNets
     }
   } // ClassifyZEdge
 
+  using TrimmedEdgesCase = unsigned char;
   // Composite the trimming information to determine which portion of the
   // volume x-edge (row,slice) to process. Since processing occurs across 3x3
   // bundles of edges, we need to composite the metadata from these nine
   // edges to determine trimming. Also get the 3x3 triads and 3x3 bundle of
-  // edge meta data.
-  void GetTrimmedEdges(vtkIdType row, vtkIdType slice, vtkIdType& xL, vtkIdType& xR,
+  // edge meta data. This function always return not nullptr ePtrs, and tPtrs for
+  // the 4,5,7,8 indices. The index 0 is not nullptr if row != 0 && slice != 0.
+  // The index 1 is not nullptr if slice != 0. The index 2 is not nullptr if
+  // row != 0 && slice != 0. So there are basically 4 cases.
+  // if return value is 0: row == 0 && slice == 0
+  // if return value is 1: row != 0 && slice == 0
+  // if return value is 2: row == 0 && slice != 0
+  // if return value is 3: row != 0 && slice != 0
+  TrimmedEdgesCase GetTrimmedEdges(vtkIdType row, vtkIdType slice, vtkIdType& xL, vtkIdType& xR,
     vtkIdType* ePtrs[9], TriadType* tPtrs[9])
   {
     // Grab the meta data for the 3x3 bundle of rows. Watch out for
@@ -574,6 +582,7 @@ struct SurfaceNets
     vtkIdType size = this->EdgeMetaDataSize;
     TriadType* triads = this->Triads;
     vtkIdType sliceOffset = this->TriadSliceOffset;
+    TrimmedEdgesCase trimmedEdgesCase = (row != 0) + ((slice != 0) << 1);
 
     // Initialize the triads and edge meta data. This simplifies
     // the code.
@@ -633,6 +642,7 @@ struct SurfaceNets
         xR = (eMD[4] > xR ? eMD[4] : xR);
       }
     }
+    return trimmedEdgesCase;
   } // GetTrimmedEdges
 
   // The following two methods are used to help generate output points,
@@ -659,14 +669,81 @@ struct SurfaceNets
   // surrounding it, have points generated inside of them.  Note that the
   // point ids refer to the nine edges in the 3x3 edge bundle centered around
   // the current edge being processed.
-  void AdvanceRowIterator(vtkIdType i, TriadType* tPtrs[9], vtkIdType pIds[9])
+  void AdvanceRowIterator(
+    vtkIdType i, TriadType* tPtrs[9], vtkIdType pIds[9], TrimmedEdgesCase trimmedEdgesCase)
   {
-    for (auto idx = 0; idx < 9; ++idx)
+    if (this->ProducesPoint(tPtrs[4][i]))
     {
-      if (tPtrs[idx] && this->ProducesPoint(tPtrs[idx][i]))
+      pIds[4]++;
+    }
+    if (this->ProducesPoint(tPtrs[5][i]))
+    {
+      pIds[5]++;
+    }
+    if (this->ProducesPoint(tPtrs[7][i]))
+    {
+      pIds[7]++;
+    }
+    if (this->ProducesPoint(tPtrs[8][i]))
+    {
+      pIds[8]++;
+    }
+    switch (trimmedEdgesCase)
+    {
+      case 1: // if not on -y boundary
       {
-        pIds[idx]++;
+        // do the checks only for 3 and 6 ids
+        if (this->ProducesPoint(tPtrs[3][i]))
+        {
+          pIds[3]++;
+        }
+        if (this->ProducesPoint(tPtrs[6][i]))
+        {
+          pIds[6]++;
+        }
+        break;
       }
+      case 2: // if not on -z boundary
+      {
+        // do the checks only for 1 and 2 ids
+        if (this->ProducesPoint(tPtrs[1][i]))
+        {
+          pIds[1]++;
+        }
+        if (this->ProducesPoint(tPtrs[2][i]))
+        {
+          pIds[2]++;
+        }
+        break;
+      }
+      case 3: // if not on -y boundary and not on -z boundary
+      {
+        // do the checks for 0, 1, 2, 3,6 ids
+        if (this->ProducesPoint(tPtrs[0][i]))
+        {
+          pIds[0]++;
+        }
+        if (this->ProducesPoint(tPtrs[1][i]))
+        {
+          pIds[1]++;
+        }
+        if (this->ProducesPoint(tPtrs[2][i]))
+        {
+          pIds[2]++;
+        }
+        if (this->ProducesPoint(tPtrs[3][i]))
+        {
+          pIds[3]++;
+        }
+        if (this->ProducesPoint(tPtrs[6][i]))
+        {
+          pIds[6]++;
+        }
+        break;
+      }
+      case 0:
+      default:
+        break;
     }
   }
 
@@ -1360,7 +1437,7 @@ void SurfaceNets<T>::GenerateOutput(vtkIdType row, vtkIdType slice)
   vtkIdType xL, xR;      // computational trim edges
   TriadType* tPtrs[9];   // pointers to the 3x3 bundle of row triad cases
   vtkIdType* eMDPtrs[9]; // pointers to the 3x3 bundle of edge meta data
-  this->GetTrimmedEdges(row, slice, xL, xR, eMDPtrs, tPtrs);
+  TrimmedEdgesCase trimmedEdgesCase = this->GetTrimmedEdges(row, slice, xL, xR, eMDPtrs, tPtrs);
   TriadType* tPtr = tPtrs[4]; // triad pointers for current row
 
   // Initialize the point numbering process using a row iterator. This uses
@@ -1404,7 +1481,7 @@ void SurfaceNets<T>::GenerateOutput(vtkIdType row, vtkIdType slice)
     } // if need to generate a point
 
     // Need to increment the point ids.
-    this->AdvanceRowIterator(i, tPtrs, pIds);
+    this->AdvanceRowIterator(i, tPtrs, pIds, trimmedEdgesCase);
   } // for all triads on this row
 
 } // GenerateOutput
