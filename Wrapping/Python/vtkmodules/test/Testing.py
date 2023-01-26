@@ -289,7 +289,9 @@ def isInteractive():
 def getAbsImagePath(img_basename):
     """Returns the full path to the image given the basic image
     name."""
-    global VTK_BASELINE_ROOT
+    for path in VTK_BASELINE_PATHS:
+        if os.path.basename(path) == img_basename:
+            return path
     return os.path.join(VTK_BASELINE_ROOT, img_basename)
 
 def _getTempImagePath(img_fname):
@@ -598,7 +600,13 @@ def parseCmdLine():
                     'no-image', 'interact']
 
     try:
-        opts, args = getopt.getopt(arguments, options, long_options)
+        # getopt expects options to be first
+        first = 0
+        for i, arg in enumerate(arguments):
+            if arg.startswith('-'):
+                first = i
+                break
+        opts, args = getopt.getopt(arguments[first:], options, long_options)
     except getopt.error as msg:
         print(usage())
         print('-'*70)

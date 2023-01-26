@@ -7,13 +7,13 @@ vtk_add_test_python(
   TestEllipseArcSourceResolution.py
   TestExponentialPointSource.py
   TestGlyphScaling.py
-  TestPlatonicSolids.py,NO_RT
+  TestPlatonicSolids.py
   TestRegularPolygonSource.py
   TestStaticCellLocatorLineIntersection.py
   TestStaticPointLocatorLineIntersection.py
   )
 if(TARGET VTK::RenderingTk)
   vtk_add_test_python(
-    squadViewer.py,NO_RT
+    squadViewer.py
     )
 endif()

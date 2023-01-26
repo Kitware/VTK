@@ -6,7 +6,7 @@ vtk_add_test_python(
   Delaunay2DTransform.py
   Delaunay3D.py
   Delaunay3DAlphaTest.py
-  MassProperties.py,NO_RT
+  MassProperties.py
   QuadricDecimation.py
   QuadricDecimation2.py
   StreamPolyData.py
@@ -69,7 +69,7 @@ vtk_add_test_python(
   TestContourFilter.py,NO_DATA,NO_VALID
   TestContourGrid.py,NO_VALID
   TestContourPolyData.py,NO_VALID
-  TestTensorGlyph.py,NO_RT
+  TestTensorGlyph.py
   TestTextureGlyph.py
   TestTriangleFilter.py
   TestUnstructuredGridPlaneCutter.py
@@ -85,20 +85,20 @@ vtk_add_test_python(
   constrainedDelaunay.py
   contourCells.py
   contourQuadraticCells.py
-  contourQuadraticTetra.py,NO_RT
+  contourQuadraticTetra.py
   createBFont.py
   cutLoop.py
   cutPolygons.py
   cutter.py
-  deciPlane.py,NO_RT
+  deciPlane.py
   dispPlot.py
   fieldToPolyData.py
   fieldToRGrid.py
   fieldToSGrid.py
   fieldToUGrid.py
-  financialField.py,NO_RT
-  financialField2.py,NO_RT
-  financialField3.py,NO_RT
+  financialField.py
+  financialField2.py
+  financialField3.py
   glyphComb.py
   hull.py
   mergeFilter.py
@@ -109,7 +109,7 @@ vtk_add_test_python(
   probeComb.py
   probeComb2.py
   reverseNormals.py
-  skinOrder.py,NO_RT
+  skinOrder.py
   smoothMeshOnMesh.py
   streamComb.py
   streamSurface.py
@@ -117,9 +117,9 @@ vtk_add_test_python(
   stripF.py
   teapotHulls.py
   tubeComb.py
-  deciFranFace.py,NO_RT
+  deciFranFace.py
   TestContourCases.py,NO_DATA,NO_VALID
-  pointsPrecisions.py,NO_OUTPUT,NO_DATA,NO_VALID,NO_RT
+  pointsPrecisions.py,NO_OUTPUT,NO_DATA,NO_VALID
   TestCompositeCutter.py,NO_VALID
   testPDNormals.py,NO_DATA,NO_VALID
   )
