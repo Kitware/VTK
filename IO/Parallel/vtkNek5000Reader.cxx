@@ -153,7 +153,7 @@ vtkNek5000Reader::~vtkNek5000Reader()
 
 //----------------------------------------------------------------------------
 
-void vtkNek5000Reader::GetAllTimesAndVariableNames(vtkInformationVector* outputVector)
+bool vtkNek5000Reader::GetAllTimesAndVariableNames(vtkInformationVector* outputVector)
 {
   std::ifstream dfPtr;
   char dummy[64];
@@ -187,7 +187,10 @@ void vtkNek5000Reader::GetAllTimesAndVariableNames(vtkInformationVector* outputV
     dfPtr.open(dfName, std::ifstream::binary);
 
     if ((dfPtr.rdstate() & std::ifstream::failbit) != 0)
-      std::cerr << "Error opening : " << dfName << endl;
+    {
+      vtkErrorMacro(<< "Error opening : " << dfName);
+      return false;
+    }
 
     dfPtr >> dummy >> dummy >> dummy >> dummy >> dummy >> dummy >> dummy;
     dfPtr >> t >> c >> dummy;
@@ -240,7 +243,7 @@ void vtkNek5000Reader::GetAllTimesAndVariableNames(vtkInformationVector* outputV
                 << ", timeRange[1] = " << timeRange[1]);
 
   outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_RANGE(), timeRange, 2);
-
+  return true;
 } // vtkNek5000Reader::GetAllTimes()
 
 //----------------------------------------------------------------------------
@@ -1127,7 +1130,10 @@ int vtkNek5000Reader::RequestInformation(vtkInformation* vtkNotUsed(request),
     // GetAllTimes() now also calls GetVariableNamesFromData()
     vtkNew<vtkTimerLog> timer;
 
-    this->GetAllTimesAndVariableNames(outputVector);
+    if (!this->GetAllTimesAndVariableNames(outputVector))
+    {
+      return 0;
+    }
 
     this->use_variable = new bool[this->num_vars];
 
@@ -1158,6 +1164,11 @@ int vtkNek5000Reader::RequestData(vtkInformation* request,
 #endif
   int i;
   char dfName[256];
+  if (!this->IAM_INITIALLIZED)
+  {
+    vtkErrorMacro("Reader not initialized properly");
+    return 0;
+  }
 
   // which output port did the request come from
   int outputPort = request->Get(vtkDemandDrivenPipeline::FROM_OUTPUT_PORT());
