@@ -463,7 +463,8 @@ int GetVTKElemType(
 //------------------------------------------------------------------------------
 void CGNS2VTKorder(const vtkIdType size, const int* cells_types, vtkIdType* elements);
 //------------------------------------------------------------------------------
-void CGNS2VTKorderMonoElem(const vtkIdType size, const int cell_type, vtkIdType* elements);
+void ReorderMonoCellPointsCGNS2VTK(
+  const vtkIdType size, const int cell_type, const vtkIdType numPointsPerCell, vtkIdType* elements);
 //------------------------------------------------------------------------------
 template <typename T, typename Y>
 int get_XYZ_mesh(const int cgioNum, const std::vector<double>& gridChildId,

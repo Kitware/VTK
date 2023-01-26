@@ -65,16 +65,16 @@ int TestCGNSReaderMixedElementNodes(int argc, char* argv[])
     return EXIT_FAILURE;
   }
 
-  if (internal->GetCellType(0) != VTK_POLYHEDRON)
+  if (internal->GetCellType(0) != VTK_HEXAHEDRON)
   {
-    std::cerr << "Wrong type of cell in main mesh. Expected VTK_POLYHEDRON for cell 0 but got "
+    std::cerr << "Wrong type of cell in main mesh. Expected VTK_HEXAHEDRON for cell 0 but got "
               << vtkCellTypes::GetClassNameFromTypeId(internal->GetCellType(0)) << "." << std::endl;
     return EXIT_FAILURE;
   }
 
-  if (internal->GetCellType(4000) != VTK_HEXAHEDRON)
+  if (internal->GetCellType(4000) != VTK_POLYHEDRON)
   {
-    std::cerr << "Wrong type of cell in main mesh. Expected VTK_HEXAHEDRON for cell 4000 but got "
+    std::cerr << "Wrong type of cell in main mesh. Expected VTK_POLYHEDRON for cell 4000 but got "
               << vtkCellTypes::GetClassNameFromTypeId(internal->GetCellType(4000)) << "."
               << std::endl;
     return EXIT_FAILURE;

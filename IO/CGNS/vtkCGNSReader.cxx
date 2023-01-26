@@ -51,7 +51,6 @@
 #include "vtkStructuredGrid.h"
 #include "vtkTypeInt32Array.h"
 #include "vtkTypeInt64Array.h"
-#include "vtkUnsignedIntArray.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkVertex.h"
 
@@ -2257,8 +2256,8 @@ int vtkCGNSReader::GetUnstructuredZone(
   // Find sections layout
   // A section is composed of 1 or more volumes (core) + boundary surfaces
   // Boundary surfaces are pointed to by BC_t nodes
-  // Determine dim to allocate for connectivity reading
-  cgsize_t totalElementSize = 0;
+  // Determine dim to allocate for non arbitrary cell connectivity reading
+  cgsize_t elemConnectivitySize = 0;
   vtkIdType numElemCells = 0;
 
   std::vector<int> sections;
@@ -2387,22 +2386,15 @@ int vtkCGNSReader::GetUnstructuredZone(
       continue;
     }
 
-    // Compute total data size for elements
-    cgsize_t elemDataSize = dimVals[0];
-
-    if (elemType != CGNS_ENUMV(MIXED))
-    {
-      elemDataSize += elementSize;
-    }
-
+    // Define total data size for elements
     if (elemType != CGNS_ENUMV(NGON_n) && elemType != CGNS_ENUMV(NFACE_n))
     {
-      sizeElemSec.push_back(elemDataSize);
+      sizeElemSec.push_back(dimVals[0]);
       startElemSec.push_back(sectionInfoList[sec].range[0] - 1);
       numElemCells += elementSize;
+      elemConnectivitySize += dimVals[0];
     }
 
-    totalElementSize += elemDataSize;
     sections.push_back(sec);
   }
 
@@ -2417,7 +2409,7 @@ int vtkCGNSReader::GetUnstructuredZone(
   bool hasElem = false;
   bool hasMixedElem = false;
 
-  for (std::size_t idx = 0; idx < nsections; ++idx)
+  for (int idx = 0; idx < nsections; ++idx)
   {
     if (sectionInfoList[idx].elemType == CGNS_ENUMV(NFACE_n))
     {
@@ -2531,6 +2523,254 @@ int vtkCGNSReader::GetUnstructuredZone(
     ugrid = vtkSmartPointer<vtkUnstructuredGrid>::New();
     ugrid->SetPoints(points.Get());
 
+    // Read element connectivity (triangles, hexahedra, etc.)
+    if (hasElem && this->DataLocation == vtkCGNSReader::CELL_DATA)
+    {
+      // Create data arrays to define cells
+      vtkNew<vtkIdTypeArray> connectivity;
+      vtkNew<vtkIdTypeArray> offsets;
+      vtkNew<vtkIntArray> cellTypes;
+      vtkIdType offsetsIdx = 0;
+
+      // Allocate according to number of non arbitrary cells
+      offsets->SetNumberOfTuples(numElemCells + 1);
+      cellTypes->SetNumberOfTuples(numElemCells);
+      connectivity->SetNumberOfValues(elemConnectivitySize);
+
+      // First offset is always 0
+      offsets->SetValue(0, 0);
+      offsetsIdx++;
+
+      // Determine ascending order for sections element range to define cells
+      // in the same order as in the CGNS file
+      std::vector<std::size_t> indices(elemSec.size());
+      std::iota(indices.begin(), indices.end(), 0);
+      std::sort(
+        indices.begin(), indices.end(), [&elemSec, &sectionInfoList](std::size_t a, std::size_t b) {
+          return sectionInfoList[elemSec[a]].range[0] < sectionInfoList[elemSec[b]].range[0];
+        });
+
+      std::vector<vtkIdType> startArraySec(elemSec.size());
+
+      for (std::size_t idx : indices)
+      {
+        int curStart = startElemSec[idx];
+        vtkIdType curArrayStart = 0;
+
+        for (std::size_t secondIdx : indices)
+        {
+          if (startElemSec[secondIdx] < curStart)
+          {
+            curArrayStart += sizeElemSec[secondIdx];
+          }
+        }
+
+        startArraySec[idx] = curArrayStart;
+      }
+
+      // Use pointer to interface with the CGNS Mid Level Library
+      vtkIdType* connectivityPointer = connectivity->GetPointer(0);
+
+      if (!connectivityPointer)
+      {
+        vtkErrorMacro(<< "Could not allocate memory for connectivity.");
+        return 1;
+      }
+
+      int cellTypeOffset = 0;
+      int* cellTypesPointer = cellTypes->GetPointer(0);
+
+      if (!cellTypesPointer)
+      {
+        vtkErrorMacro(<< "Could not allocate memory for cell types.");
+        return 1;
+      }
+
+      // Iterate over element sections.
+      for (std::size_t id : indices)
+      {
+        size_t sec = elemSec[id];
+        CGNS_ENUMT(ElementType_t) elemType = CGNS_ENUMV(ElementTypeNull);
+        cgsize_t start = 1, end = 1;
+        cgsize_t elementSize = 0;
+
+        start = sectionInfoList[sec].range[0];
+        end = sectionInfoList[sec].range[1];
+        elemType = sectionInfoList[sec].elemType;
+        elementSize = end - start + 1;
+
+        double cgioSectionId = elemIdList[sec];
+        int cellType;
+
+        // All cells are of the same type
+        if (elemType != CGNS_ENUMV(MIXED))
+        {
+          int numPointsPerCell = 0;
+
+          // Retrieve cell type
+          if (cg_npe(elemType, &numPointsPerCell) || numPointsPerCell == 0)
+          {
+            vtkErrorMacro(<< "Invalid number of points per cell: " << numPointsPerCell);
+          }
+
+          // Fill offsets array from number of points per cell
+          for (vtkIdType idx = 0; idx < elementSize; idx++)
+          {
+            offsets->SetValue(offsetsIdx, offsets->GetValue(offsetsIdx - 1) + numPointsPerCell);
+            offsetsIdx++;
+          }
+
+          bool higherOrderWarning = false;
+          bool reOrderElements = false;
+          cellType = CGNSRead::GetVTKElemType(elemType, higherOrderWarning, reOrderElements);
+
+          for (vtkIdType i = start - 1; i < end; i++)
+          {
+            cellTypesPointer[cellTypeOffset] = cellType;
+            cellTypeOffset++;
+          }
+
+          cgsize_t elemDataSize = sectionInfoList[sec].elemDataSize;
+
+          if (elemDataSize != numPointsPerCell * elementSize)
+          {
+            vtkErrorMacro(<< "Number of points is unexpected: " << elemDataSize << " instead of "
+                          << numPointsPerCell * elementSize);
+          }
+
+          // Define a pointer at starting position for current section
+          vtkIdType* localConnectivity = &(connectivityPointer[startArraySec[id]]);
+          cgsize_t memDim[2];
+          cgsize_t npe = numPointsPerCell;
+          // How to handle per process reading for unstructured mesh
+          // + npe* ( wantedstartperprocess-start ) ; startoffset
+          srcStart[0] = 1;
+          srcStart[1] = 1;
+
+          srcEnd[0] = elementSize * npe;
+          srcEnd[1] = 1;
+          srcStride[0] = 1;
+          srcStride[1] = 1;
+
+          memStart[0] = 1;
+          memStart[1] = 1;
+          memEnd[0] = npe;
+          memEnd[1] = elementSize;
+          memStride[0] = 1;
+          memStride[1] = 1;
+          memDim[0] = npe;
+          memDim[1] = elementSize;
+
+          memset(localConnectivity, 1, sizeof(vtkIdType) * npe * elementSize);
+
+          CGNSRead::get_section_connectivity(this->cgioNum, cgioSectionId, 2, srcStart, srcEnd,
+            srcStride, memStart, memEnd, memStride, memDim, localConnectivity);
+
+          // Add -1 on indices due to indexing from 1
+          for (vtkIdType icell = 0; icell < elementSize * npe; ++icell)
+          {
+            localConnectivity[icell] = localConnectivity[icell] - 1;
+          }
+
+          if (reOrderElements)
+          {
+            CGNSRead::ReorderMonoCellPointsCGNS2VTK(
+              elementSize, cellType, numPointsPerCell, localConnectivity);
+          }
+        }
+        else
+        {
+          cgsize_t elemDataSize = sectionInfoList[sec].elemDataSize;
+          cgsize_t memDim[2];
+
+          srcStart[0] = 1;
+          srcEnd[0] = elemDataSize;
+          srcStride[0] = 1;
+
+          memStart[0] = 1;
+          memStart[1] = 1;
+          memEnd[0] = elemDataSize;
+          memEnd[1] = 1;
+          memStride[0] = 1;
+          memStride[1] = 1;
+          memDim[0] = elemDataSize;
+          memDim[1] = 1;
+
+          // Define a pointer to retrieve cell connectivity array
+          vtkNew<vtkIdTypeArray> localConnectivityArray;
+          localConnectivityArray->SetNumberOfTuples(elemDataSize);
+          vtkIdType* localConnectivity = localConnectivityArray->GetPointer(0);
+
+          CGNSRead::get_section_connectivity(this->cgioNum, cgioSectionId, 1, srcStart, srcEnd,
+            srcStride, memStart, memEnd, memStride, memDim, localConnectivity);
+
+          vtkIdType pos = 0;
+          bool reOrderElements = false;
+
+          // In MIXED CGNS nodes, connectivity contains the CGNS cell type
+          // [... cellTypeN, ptIdN1, ptIdN2, ...]
+          for (vtkIdType icell = 0; icell < elementSize; ++icell)
+          {
+            bool orderFlag = false;
+            bool higherOrderWarning = false;
+            int numPointsPerCell = 0;
+
+            // Retrieve cell type
+            elemType = static_cast<CGNS_ENUMT(ElementType_t)>(localConnectivity[pos]);
+            cg_npe(elemType, &numPointsPerCell);
+            cellType = CGNSRead::GetVTKElemType(elemType, higherOrderWarning, orderFlag);
+            cellTypesPointer[cellTypeOffset] = cellType;
+            cellTypeOffset++;
+
+            // Define offset for current cell
+            offsets->SetValue(offsetsIdx, offsets->GetValue(offsetsIdx - 1) + numPointsPerCell);
+            offsetsIdx++;
+
+            reOrderElements = reOrderElements | orderFlag;
+            localConnectivity[pos] = static_cast<vtkIdType>(numPointsPerCell);
+            pos++;
+
+            for (vtkIdType ip = 0; ip < numPointsPerCell; ip++)
+            {
+              localConnectivity[ip + pos] = localConnectivity[ip + pos] - 1;
+            }
+
+            pos += numPointsPerCell;
+          }
+
+          if (reOrderElements)
+          {
+            CGNSRead::CGNS2VTKorder(
+              elementSize, &cellTypesPointer[cellTypeOffset - elementSize], localConnectivity);
+          }
+
+          // Fill connectivity array by removing offsets from localConnectivity
+          vtkIdType connIdx = 0;
+          pos = 0;
+
+          for (vtkIdType cell = 0; cell < elementSize; cell++)
+          {
+            vtkIdType numPoints = localConnectivity[pos];
+            pos++;
+
+            for (vtkIdType pt = 0; pt < numPoints; pt++)
+            {
+              connectivityPointer[startArraySec[id] + connIdx] = localConnectivity[pos];
+              connIdx++;
+              pos++;
+            }
+          }
+        }
+
+        cgio_release_id(this->cgioNum, cgioSectionId);
+      }
+
+      // Define and assign cells to grid
+      vtkNew<vtkCellArray> cells;
+      cells->SetData(offsets, connectivity);
+      ugrid->SetCells(cellTypesPointer, cells);
+    }
+
     // Read arbitrary polygons connectivity
     if (hasNGon)
     {
@@ -2570,7 +2810,7 @@ int vtkCGNSReader::GetUnstructuredZone(
       vtkNew<vtkIdTypeArray> outFaceOffsets;
       outFaces->SetNumberOfValues(faceElementsSize);
       outFaceOffsets->SetNumberOfValues(numFaces + 1);
-      // now use pointers for interfacing with CGNS MLL
+      // now use pointers for interfacing with CGNS Mid Level Library
       vtkIdType* faceElementsArr = outFaces->GetPointer(0);
       vtkIdType* faceElementsIdx = outFaceOffsets->GetPointer(0);
 
@@ -2701,10 +2941,8 @@ int vtkCGNSReader::GetUnstructuredZone(
           cellElementsSize += sectionInfoList[curSec].elemDataSize;
         }
 
-        std::vector<vtkIdType> cellElementsArr;
-        std::vector<vtkIdType> cellElementsIdx;
-        cellElementsArr.resize(cellElementsSize);
-        cellElementsIdx.resize(numCells + 1);
+        std::vector<vtkIdType> cellElementsArr(cellElementsSize);
+        std::vector<vtkIdType> cellElementsIdx(numCells + 1);
 
         // Load NFace_n connectivities to build 3D cells
         for (std::size_t sec = 0; sec < nfaceSec.size(); sec++)
@@ -2882,18 +3120,6 @@ int vtkCGNSReader::GetUnstructuredZone(
         // We now have the face-to-node and cell-to-face connectivity arrays.
         // VTK, however, has no concept of faces, and uses cell-to-node connectivity, so the
         // intermediate faces need to be taken out of the description (basic CGNS 3.4 support).
-        //
-        // Do preallocation of arrays with tetrahedron heuristic
-        vtkNew<vtkUnsignedCharArray> reserveCellTypes;
-        vtkNew<vtkIdTypeArray> reserveFaceLocations;
-        vtkNew<vtkIdTypeArray> reserveFaces;
-        vtkNew<vtkCellArray> reserveCells;
-        reserveCellTypes->Allocate(numCells);
-        reserveFaceLocations->Allocate(numCells);
-        reserveFaces->Allocate(numCells * (4 * 4 + 1));
-        reserveCells->Allocate(numCells * 4);
-        ugrid->SetCells(reserveCellTypes, reserveCells, reserveFaceLocations, reserveFaces);
-        //
         for (vtkIdType nc = 0; nc < numCells; nc++)
         {
           int numCellFaces = cellElementsIdx[nc + 1] - cellElementsIdx[nc];
@@ -2953,8 +3179,8 @@ int vtkCGNSReader::GetUnstructuredZone(
         }
       }
 
-      // If NGon_n is defined but not NFace_n, or if FACE_DATA is requested, load polygons
-      if (!isPoly3D || this->DataLocation == vtkCGNSReader::FACE_DATA)
+      // If we have a 2D mesh or if FACE_DATA is requested, load polygons
+      if (cellDim == 2 || this->DataLocation == vtkCGNSReader::FACE_DATA)
       {
         if (ugrid->GetNumberOfCells() == 0)
         {
@@ -2991,236 +3217,6 @@ int vtkCGNSReader::GetUnstructuredZone(
           zsize[1] = numFaces;
         }
       }
-    }
-
-    // Read element connectivity (triangles, hexahedra, etc.)
-    if (hasElem && this->DataLocation == vtkCGNSReader::CELL_DATA)
-    {
-      // Determine ascending order for sections element range to define cells
-      // in the same order as in the CGNS file
-      std::vector<std::size_t> indices(elemSec.size());
-      std::iota(indices.begin(), indices.end(), 0);
-      std::sort(indices.begin(), indices.end(), [&elemSec, &sectionInfoList](int a, int b) {
-        return sectionInfoList[elemSec[a]].range[0] < sectionInfoList[elemSec[b]].range[0];
-      });
-
-      std::vector<vtkIdType> startArraySec(elemSec.size());
-
-      for (std::size_t idx : indices)
-      {
-        int curStart = startElemSec[idx];
-        vtkIdType curArrayStart = 0;
-
-        for (std::size_t secondIdx : indices)
-        {
-          if (startElemSec[secondIdx] < curStart)
-          {
-            curArrayStart += sizeElemSec[secondIdx];
-          }
-        }
-
-        startArraySec[idx] = curArrayStart;
-      }
-
-      // Create Cell Array
-      vtkNew<vtkCellArray> cells;
-
-      // Modification for memory reliability
-      vtkNew<vtkIdTypeArray> cellLocations;
-      cellLocations->SetNumberOfValues(totalElementSize);
-
-      vtkIdType* elements = cellLocations->GetPointer(0);
-      if (!elements)
-      {
-        vtkErrorMacro(<< "Could not allocate memory for connectivity.");
-        return 1;
-      }
-
-      int cellTypeOffset = 0;
-      int* cellsTypes = new int[numElemCells];
-
-      if (!cellsTypes)
-      {
-        vtkErrorMacro(<< "Could not allocate memory for cell types.");
-        return 1;
-      }
-
-      // Iterate over element sections.
-      for (std::size_t id : indices)
-      {
-        size_t sec = elemSec[id];
-        CGNS_ENUMT(ElementType_t) elemType = CGNS_ENUMV(ElementTypeNull);
-        cgsize_t start = 1, end = 1;
-        cgsize_t elementSize = 0;
-
-        start = sectionInfoList[sec].range[0];
-        end = sectionInfoList[sec].range[1];
-        elemType = sectionInfoList[sec].elemType;
-        elementSize = end - start + 1;
-
-        double cgioSectionId = elemIdList[sec];
-        int cellType;
-
-        // All cells are of the same type
-        if (elemType != CGNS_ENUMV(MIXED))
-        {
-          int numPointsPerCell = 0;
-
-          // Retrieve cell type
-          if (cg_npe(elemType, &numPointsPerCell) || numPointsPerCell == 0)
-          {
-            vtkErrorMacro(<< "Invalid number of points per cell: " << numPointsPerCell);
-          }
-
-          bool higherOrderWarning = false;
-          bool reOrderElements = false;
-          cellType = CGNSRead::GetVTKElemType(elemType, higherOrderWarning, reOrderElements);
-
-          for (vtkIdType i = start - 1; i < end; i++)
-          {
-            cellsTypes[cellTypeOffset] = cellType;
-            cellTypeOffset++;
-          }
-
-          cgsize_t elemDataSize = 0;
-          cgsize_t elemEnd = elementSize + start - 1;
-          elemDataSize = sectionInfoList[sec].elemDataSize;
-
-          if (elemDataSize != numPointsPerCell * elementSize)
-          {
-            vtkErrorMacro(<< "Number of points is unexpected: " << elemDataSize << " instead of "
-                          << numPointsPerCell * elementSize);
-          }
-
-          // pointer on start !!
-          vtkIdType* localElements = &(elements[startArraySec[id]]);
-          cgsize_t memDim[2];
-          cgsize_t npe = numPointsPerCell;
-          // How to handle per process reading for unstructured mesh
-          // + npe* ( wantedstartperprocess-start ) ; startoffset
-          srcStart[0] = 1;
-          srcStart[1] = 1;
-
-          srcEnd[0] = (elemEnd - start + 1) * npe;
-          srcEnd[1] = 1;
-          srcStride[0] = 1;
-          srcStride[1] = 1;
-
-          memStart[0] = 2;
-          memStart[1] = 1;
-          memEnd[0] = npe + 1;
-          memEnd[1] = elemEnd - start + 1;
-          memStride[0] = 1;
-          memStride[1] = 1;
-          memDim[0] = npe + 1;
-          memDim[1] = elemEnd - start + 1;
-
-          memset(localElements, 1, sizeof(vtkIdType) * (npe + 1) * (elemEnd - start + 1));
-
-          CGNSRead::get_section_connectivity(this->cgioNum, cgioSectionId, 2, srcStart, srcEnd,
-            srcStride, memStart, memEnd, memStride, memDim, localElements);
-
-          // Add -1 on indices due to indexing from 1
-          for (vtkIdType icell = 0; icell < elementSize; ++icell)
-          {
-            vtkIdType pos = icell * (numPointsPerCell + 1);
-            localElements[pos] = static_cast<vtkIdType>(numPointsPerCell);
-
-            for (vtkIdType ip = 0; ip < numPointsPerCell; ++ip)
-            {
-              pos++;
-              localElements[pos] = localElements[pos] - 1;
-            }
-          }
-
-          if (reOrderElements)
-          {
-            CGNSRead::CGNS2VTKorderMonoElem(elementSize, cellType, localElements);
-          }
-        }
-        else
-        {
-          cgsize_t elemDataSize = sectionInfoList[sec].elemDataSize;
-          cgsize_t memDim[2];
-
-          srcStart[0] = 1;
-          srcEnd[0] = elemDataSize;
-          srcStride[0] = 1;
-
-          memStart[0] = 1;
-          memStart[1] = 1;
-          memEnd[0] = elemDataSize;
-          memEnd[1] = 1;
-          memStride[0] = 1;
-          memStride[1] = 1;
-          memDim[0] = elemDataSize;
-          memDim[1] = 1;
-
-          // pointer on start !!
-          vtkIdType* localElements = &(elements[startArraySec[id]]);
-
-          CGNSRead::get_section_connectivity(this->cgioNum, cgioSectionId, 1, srcStart, srcEnd,
-            srcStride, memStart, memEnd, memStride, memDim, localElements);
-
-          vtkIdType pos = 0;
-          bool reOrderElements = false;
-
-          for (vtkIdType icell = 0, i = start - 1; icell < elementSize; ++icell, ++i)
-          {
-            bool orderFlag = false;
-            bool higherOrderWarning = false;
-            int numPointsPerCell = 0;
-
-            // Retrieve cell type
-            elemType = static_cast<CGNS_ENUMT(ElementType_t)>(localElements[pos]);
-            cg_npe(elemType, &numPointsPerCell);
-            cellType = CGNSRead::GetVTKElemType(elemType, higherOrderWarning, orderFlag);
-            cellsTypes[cellTypeOffset] = cellType;
-            cellTypeOffset++;
-
-            reOrderElements = reOrderElements | orderFlag;
-            localElements[pos] = static_cast<vtkIdType>(numPointsPerCell);
-            pos++;
-
-            for (vtkIdType ip = 0; ip < numPointsPerCell; ip++)
-            {
-              localElements[ip + pos] = localElements[ip + pos] - 1;
-            }
-
-            pos += numPointsPerCell;
-          }
-
-          if (reOrderElements)
-          {
-            CGNSRead::CGNS2VTKorder(
-              elementSize, &cellsTypes[cellTypeOffset - elementSize], localElements);
-          }
-        }
-
-        cgio_release_id(this->cgioNum, cgioSectionId);
-      }
-
-      // Insert cells
-      // cellLocations contains [numCellPts0, ptId0, ptId1, ..., numCellPts1, ...]
-      vtkIdType offset = 0;
-
-      for (vtkIdType i = 0; i < numElemCells; i++)
-      {
-        vtkIdType numCellPoints = cellLocations->GetValue(offset);
-        offset++;
-
-        vtkNew<vtkIdList> cellPoints;
-        cellPoints->SetNumberOfIds(numCellPoints);
-
-        for (vtkIdType pt = 0; pt < numCellPoints; pt++)
-        {
-          cellPoints->SetId(pt, cellLocations->GetValue(offset));
-          offset++;
-        }
-        ugrid->InsertNextCell(cellsTypes[i], cellPoints);
-      }
-
-      delete[] cellsTypes;
     }
 
     if (caching)
