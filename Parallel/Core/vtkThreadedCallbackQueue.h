@@ -271,6 +271,22 @@ public:
   template <class SharedFutureContainerT>
   void Wait(SharedFutureContainerT&& priorSharedFuture);
 
+  ///@{
+  /**
+   * Get the returned value from the task associated with the input future.
+   * It effectlively calls `Wait`. If the task has not started yet upon the call of this function,
+   * then the current thread will run the task itself.
+   *
+   * This function returns `void` if `ReturnT` is void. It returns `ReturnT&` or `const ReturnT&`
+   * otherwise.
+   */
+  template <class ReturnT>
+  typename vtkSharedFuture<ReturnT>::ReturnLValueRef Get(SharedFuturePointer<ReturnT>& future);
+  template <class ReturnT>
+  typename vtkSharedFuture<ReturnT>::ReturnConstLValueRef Get(
+    const SharedFuturePointer<ReturnT>& future);
+  ///@}
+
   /**
    * Sets the number of threads. The running state of the queue is not impacted by this method.
    *

@@ -15,8 +15,7 @@
 
 #include "vtkObjectFactory.h"
 
-#include "vtkLogger.h"
-
+#include <array>
 #include <cassert>
 #include <stdexcept>
 #include <tuple>
@@ -709,6 +708,24 @@ void vtkThreadedCallbackQueue::Wait(SharedFutureContainerT&& priorSharedFutures)
     std::forward<SharedFutureContainerT>(priorSharedFutures), std::move(pair.first), pair.second);
 
   pair.second->Wait();
+}
+
+//-----------------------------------------------------------------------------
+template <class ReturnT>
+typename vtkThreadedCallbackQueue::vtkSharedFuture<ReturnT>::ReturnLValueRef
+vtkThreadedCallbackQueue::Get(SharedFuturePointer<ReturnT>& future)
+{
+  this->Wait(std::array<vtkSharedFuture<ReturnT>*, 1>{ future });
+  return future->Get();
+}
+
+//-----------------------------------------------------------------------------
+template <class ReturnT>
+typename vtkThreadedCallbackQueue::vtkSharedFuture<ReturnT>::ReturnConstLValueRef
+vtkThreadedCallbackQueue::Get(const SharedFuturePointer<ReturnT>& future)
+{
+  this->Wait(std::array<vtkSharedFuture<ReturnT>*, 1>{ future });
+  return future->Get();
 }
 
 //-----------------------------------------------------------------------------

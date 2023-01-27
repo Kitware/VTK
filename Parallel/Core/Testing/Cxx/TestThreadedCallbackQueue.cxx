@@ -195,7 +195,7 @@ bool TestSharedFutures()
 
     for (auto& future : futures)
     {
-      retVal &= future->Get();
+      retVal &= queue->Get(future);
     }
   }
 
