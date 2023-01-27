@@ -16,6 +16,8 @@
 #ifndef vtkAffineImplicitBackend_h
 #define vtkAffineImplicitBackend_h
 
+#include "vtkCommonImplicitArraysModule.h"
+
 /**
  * \struct vtkAffineImplicitBackend
  * \brief A utility structure serving as a backend for affine (as a function of the index) implicit
@@ -40,6 +42,7 @@
  * double value = affineArray->GetTypedComponent(index_in_tuple_range, index_in_component_range);
  * ```
  */
+VTK_ABI_NAMESPACE_BEGIN
 template <typename ValueType>
 struct vtkAffineImplicitBackend final
 {
@@ -72,5 +75,6 @@ struct vtkAffineImplicitBackend final
    */
   ValueType Intercept;
 };
+VTK_ABI_NAMESPACE_END
 
 #endif // vtkAffineImplicitBackend_h
