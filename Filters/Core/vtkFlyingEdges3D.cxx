@@ -341,16 +341,21 @@ public:
       vtkIdType row;
       TT *rowPtr, *slicePtr = this->Algo->Scalars + slice * this->Algo->Inc2;
       bool isFirst = vtkSMPTools::GetSingleThread();
+      vtkIdType checkAbortInterval = fmin((end - slice) / 10 + 1, 1000);
       for (; slice < end; ++slice)
       {
-        if (isFirst)
+        if (slice % checkAbortInterval == 0)
         {
-          this->Filter->CheckAbort();
+          if (isFirst)
+          {
+            this->Filter->CheckAbort();
+          }
+          if (this->Filter->GetAbortOutput())
+          {
+            break;
+          }
         }
-        if (this->Filter->GetAbortOutput())
-        {
-          break;
-        }
+
         for (row = 0, rowPtr = slicePtr; row < this->Algo->Dims[1]; ++row)
         {
           this->Algo->ProcessXEdge(this->Value, rowPtr, row, slice);
@@ -374,15 +379,19 @@ public:
     void operator()(vtkIdType slice, vtkIdType end)
     {
       bool isFirst = vtkSMPTools::GetSingleThread();
+      vtkIdType checkAbortInterval = fmin((end - slice) / 10 + 1, 1000);
       for (; slice < end; ++slice)
       {
-        if (isFirst)
+        if (slice % checkAbortInterval == 0)
         {
-          this->Filter->CheckAbort();
-        }
-        if (this->Filter->GetAbortOutput())
-        {
-          break;
+          if (isFirst)
+          {
+            this->Filter->CheckAbort();
+          }
+          if (this->Filter->GetAbortOutput())
+          {
+            break;
+          }
         }
         for (vtkIdType row = 0; row < (this->Algo->Dims[1] - 1); ++row)
         {
@@ -411,15 +420,19 @@ public:
       vtkIdType* eMD1 = eMD0 + 6 * this->Algo->Dims[1];
       TT *rowPtr, *slicePtr = this->Algo->Scalars + slice * this->Algo->Inc2;
       bool isFirst = vtkSMPTools::GetSingleThread();
+      vtkIdType checkAbortInterval = fmin((end - slice) / 10 + 1, 1000);
       for (; slice < end; ++slice)
       {
-        if (isFirst)
+        if (slice % checkAbortInterval == 0)
         {
-          this->Filter->CheckAbort();
-        }
-        if (this->Filter->GetAbortOutput())
-        {
-          break;
+          if (isFirst)
+          {
+            this->Filter->CheckAbort();
+          }
+          if (this->Filter->GetAbortOutput())
+          {
+            break;
+          }
         }
         // It's possible to skip entire slices if there is nothing to generate
         if (eMD1[3] > eMD0[3]) // there are triangle primitives!
@@ -1395,10 +1408,11 @@ void vtkFlyingEdges3DAlgorithm<T>::Contour(vtkFlyingEdges3D* self, vtkImageData*
   algo.InterpolateAttributes =
     self->GetInterpolateAttributes() && input->GetPointData()->GetNumberOfArrays() > 1;
 
+  vtkIdType checkAbortInterval = fmin(numContours / 10 + 1, 1000);
   // Loop across each contour value. This encompasses all three passes.
   for (vidx = 0; vidx < numContours; vidx++)
   {
-    if (self->CheckAbort())
+    if (vidx % checkAbortInterval == 0 && self->CheckAbort())
     {
       break;
     }

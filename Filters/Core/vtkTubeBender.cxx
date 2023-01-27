@@ -86,13 +86,15 @@ int vtkTubeBender::RequestData(vtkInformation* vtkNotUsed(request),
   vtkIdType linePoints = 0;
   const vtkIdType* linePointIds = nullptr;
   bool abort = false;
+  vtkIdType checkAbortInterval = 0;
   for (iLines->InitTraversal(); iLines->GetNextCell(linePoints, linePointIds) && !abort;)
   {
     // Process each point in each line cell
     vtkNew<vtkPolyLine> oLine;
+    checkAbortInterval = fmin(linePoints / 10 + 1, 1000);
     for (vtkIdType lpIndex = 0; lpIndex < linePoints; lpIndex++)
     {
-      if (this->CheckAbort())
+      if (lpIndex % checkAbortInterval == 0 && this->CheckAbort())
       {
         abort = true;
         break;

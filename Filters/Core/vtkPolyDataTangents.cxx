@@ -47,15 +47,19 @@ struct TangentComputation
   void operator()(vtkIdType beginId, vtkIdType endId)
   {
     bool isFirst = vtkSMPTools::GetSingleThread();
+    vtkIdType checkAbortInterval = fmin((endId - beginId) / 10 + 1, 1000);
     for (vtkIdType cellId = beginId; cellId < endId; cellId++)
     {
-      if (isFirst)
+      if (cellId % checkAbortInterval == 0)
       {
-        this->Filter->CheckAbort();
-      }
-      if (this->Filter->GetAbortOutput())
-      {
-        break;
+        if (isFirst)
+        {
+          this->Filter->CheckAbort();
+        }
+        if (this->Filter->GetAbortOutput())
+        {
+          break;
+        }
       }
       double tangent[3];
 

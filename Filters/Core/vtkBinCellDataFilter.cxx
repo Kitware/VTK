@@ -200,13 +200,16 @@ int vtkBinCellDataFilter::RequestData(vtkInformation* vtkNotUsed(request),
   vtkCellIterator* srcIt = source->NewCellIterator();
   double pcoords[3], coords[3];
   int subId;
+  int checkAbortCounter = 0;
+  int checkAbortInterval = fmin(source->GetNumberOfCells() / 10 + 1, 1000);
   // iterate over each cell in the source mesh
   for (srcIt->InitTraversal(); !srcIt->IsDoneWithTraversal(); srcIt->GoToNextCell())
   {
-    if (this->CheckAbort())
+    if (checkAbortCounter % checkAbortInterval == 0 && this->CheckAbort())
     {
       break;
     }
+    checkAbortCounter++;
     if (this->CellOverlapMethod == vtkBinCellDataFilter::CELL_CENTROID)
     {
       // identify the centroid of the source cell

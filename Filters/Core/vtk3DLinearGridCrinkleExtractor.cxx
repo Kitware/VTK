@@ -144,16 +144,19 @@ struct PlaneClassifyPoints : public Classify
     TP* pts = this->Points + 3 * ptId;
     unsigned char* ioa = this->InOutArray + ptId;
     bool isFirst = vtkSMPTools::GetSingleThread();
+    vtkIdType checkAbortInterval = fmin((endPtId - ptId) / 10 + 1, 1000);
     for (; ptId < endPtId; ++ptId)
     {
-      if (isFirst)
+      if (ptId % checkAbortInterval == 0)
       {
-        this->Filter->CheckAbort();
-      }
-
-      if (this->Filter->GetAbortOutput())
-      {
-        break;
+        if (isFirst)
+        {
+          this->Filter->CheckAbort();
+        }
+        if (this->Filter->GetAbortOutput())
+        {
+          break;
+        }
       }
       // Access each point
       p[0] = static_cast<double>(*pts);
@@ -196,16 +199,19 @@ struct FunctionClassifyPoints : public Classify
     TP* pts = this->Points + 3 * ptId;
     unsigned char* ioa = this->InOutArray + ptId;
     bool isFirst = vtkSMPTools::GetSingleThread();
+    vtkIdType checkAbortInterval = fmin((endPtId - ptId) / 10 + 1, 1000);
     for (; ptId < endPtId; ++ptId)
     {
-      if (isFirst)
+      if (ptId % checkAbortInterval == 0)
       {
-        this->Filter->CheckAbort();
-      }
-
-      if (this->Filter->GetAbortOutput())
-      {
-        break;
+        if (isFirst)
+        {
+          this->Filter->CheckAbort();
+        }
+        if (this->Filter->GetAbortOutput())
+        {
+          break;
+        }
       }
       // Access each point
       p[0] = static_cast<double>(*pts);
@@ -320,16 +326,20 @@ struct ExtractCells : public ExtractCellsBase
     vtkIdType npts;
 
     bool isFirst = vtkSMPTools::GetSingleThread();
+    vtkIdType checkAbortInterval = fmin((endCellId - cellId) / 10 + 1, 1000);
 
     for (; cellId < endCellId; ++cellId)
     {
-      if (isFirst)
+      if (cellId % checkAbortInterval == 0)
       {
-        this->Filter->CheckAbort();
-      }
-      if (this->Filter->GetAbortOutput())
-      {
-        break;
+        if (isFirst)
+        {
+          this->Filter->CheckAbort();
+        }
+        if (this->Filter->GetAbortOutput())
+        {
+          break;
+        }
       }
       // Does the implicit function cut this cell?
       npts = cellIter->NumVerts;
@@ -432,17 +442,20 @@ struct ExtractPointsAndCells : public ExtractCellsBase
     vtkIdType* pointMap = this->PointMap;
 
     bool isFirst = vtkSMPTools::GetSingleThread();
+    vtkIdType checkAbortInterval = fmin((endCellId - cellId) / 10 + 1, 1000);
 
     for (; cellId < endCellId; ++cellId)
     {
-      if (isFirst)
+      if (cellId % checkAbortInterval == 0)
       {
-        this->Filter->CheckAbort();
-      }
-
-      if (this->Filter->GetAbortOutput())
-      {
-        break;
+        if (isFirst)
+        {
+          this->Filter->CheckAbort();
+        }
+        if (this->Filter->GetAbortOutput())
+        {
+          break;
+        }
       }
       // Does the implicit function cut this cell?
       npts = cellIter->NumVerts;
@@ -555,15 +568,19 @@ struct CopyCellAttributes
   void operator()(vtkIdType cellId, vtkIdType endCellId)
   {
     bool isFirst = vtkSMPTools::GetSingleThread();
+    vtkIdType checkAbortInterval = fmin((endCellId - cellId) / 10 + 1, 1000);
     for (; cellId < endCellId; ++cellId)
     {
-      if (isFirst)
+      if (cellId % checkAbortInterval == 0)
       {
-        this->Filter->CheckAbort();
-      }
-      if (this->Filter->GetAbortOutput())
-      {
-        break;
+        if (isFirst)
+        {
+          this->Filter->CheckAbort();
+        }
+        if (this->Filter->GetAbortOutput())
+        {
+          break;
+        }
       }
       this->Arrays->Copy(this->CellMap[cellId], cellId);
     }
@@ -594,16 +611,20 @@ struct GeneratePoints
     const vtkIdType* ptMap = this->PointMap;
     TPOut *outPts = this->OutPts, *x;
     bool isFirst = vtkSMPTools::GetSingleThread();
+    vtkIdType checkAbortInterval = fmin((endPtId - ptId) / 10 + 1, 1000);
 
     for (; ptId < endPtId; ++ptId, p += 3)
     {
-      if (isFirst)
+      if (ptId % checkAbortInterval == 0)
       {
-        this->Filter->CheckAbort();
-      }
-      if (this->Filter->GetAbortOutput())
-      {
-        break;
+        if (isFirst)
+        {
+          this->Filter->CheckAbort();
+        }
+        if (this->Filter->GetAbortOutput())
+        {
+          break;
+        }
       }
 
       if (ptMap[ptId] >= 0)
@@ -1006,7 +1027,7 @@ int vtk3DLinearGridCrinkleExtractor::RequestData(
     inIter.TakeReference(inputCDS->NewIterator());
     for (inIter->InitTraversal(); !inIter->IsDoneWithTraversal(); inIter->GoToNextItem())
     {
-      if (this->CheckAbort())
+      if (this->GetAbortOutput())
       {
         break;
       }

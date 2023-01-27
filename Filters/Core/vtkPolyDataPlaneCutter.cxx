@@ -98,17 +98,22 @@ struct EvaluatePoints
     const auto pts = vtk::DataArrayTupleRange<3>(this->Points);
     double p[3], *n = this->Normal, *o = this->Origin;
     bool isFirst = vtkSMPTools::GetSingleThread();
+    vtkIdType checkAbortInterval = fmin((endPtId - ptId) / 10 + 1, 1000);
 
     for (; ptId < endPtId; ++ptId)
     {
-      if (isFirst)
+      if (ptId % checkAbortInterval == 0)
       {
-        this->Filter->CheckAbort();
+        if (isFirst)
+        {
+          this->Filter->CheckAbort();
+        }
+        if (this->Filter->GetAbortOutput())
+        {
+          break;
+        }
       }
-      if (this->Filter->GetAbortOutput())
-      {
-        break;
-      }
+
       auto pt = pts[ptId];
       p[0] = pt[0];
       p[1] = pt[1];
@@ -230,17 +235,21 @@ struct EvaluateCells
     const vtkIdType* cell;
     vtkCellArrayIterator* cellIter = this->CellIterator.Local();
     bool isFirst = vtkSMPTools::GetSingleThread();
+    vtkIdType checkAbortInterval = fmin((endBatchNum - batchNum) / 10 + 1, 1000);
 
     // Over batches of cells
     for (; batchNum < endBatchNum; ++batchNum)
     {
-      if (isFirst)
+      if (batchNum % checkAbortInterval == 0)
       {
-        this->Filter->CheckAbort();
-      }
-      if (this->Filter->GetAbortOutput())
-      {
-        break;
+        if (isFirst)
+        {
+          this->Filter->CheckAbort();
+        }
+        if (this->Filter->GetAbortOutput())
+        {
+          break;
+        }
       }
       vtkIdType cellId = batchNum * this->BatchSize;
       vtkIdType endCellId =
@@ -345,17 +354,21 @@ struct ExtractLines
     std::vector<EdgeTupleType>& edges = this->Edges;
     ArrayList* arrays = this->Arrays;
     bool isFirst = vtkSMPTools::GetSingleThread();
+    vtkIdType checkAbortInterval = fmin((endBatchNum - batchNum) / 10 + 1, 1000);
 
     // For each batch, process the intersected cells in the batch.
     for (; batchNum < endBatchNum; ++batchNum)
     {
-      if (isFirst)
+      if (batchNum % checkAbortInterval == 0)
       {
-        this->Filter->CheckAbort();
-      }
-      if (this->Filter->GetAbortOutput())
-      {
-        break;
+        if (isFirst)
+        {
+          this->Filter->CheckAbort();
+        }
+        if (this->Filter->GetAbortOutput())
+        {
+          break;
+        }
       }
       vtkIdType cellId = batchNum * this->EC.BatchSize;
       vtkIdType endCellId =
@@ -442,17 +455,22 @@ struct OutputLines
       0, numNewPts, [&, edges, offsets, linesConn](vtkIdType newPtId, vtkIdType endNewPtId) {
         const EdgeTupleType* edge;
         bool isFirst = vtkSMPTools::GetSingleThread();
+        vtkIdType checkAbortInterval = fmin((endNewPtId - newPtId) / 10 + 1, 1000);
 
         for (; newPtId < endNewPtId; ++newPtId)
         {
-          if (isFirst)
+          if (newPtId % checkAbortInterval == 0)
           {
-            this->Filter->CheckAbort();
+            if (isFirst)
+            {
+              this->Filter->CheckAbort();
+            }
+            if (this->Filter->GetAbortOutput())
+            {
+              break;
+            }
           }
-          if (this->Filter->GetAbortOutput())
-          {
-            break;
-          }
+
           vtkIdType numEdges = offsets[newPtId + 1] - offsets[newPtId];
           vtkIdType updatedId = newPtId;
           for (auto i = 0; i < numEdges; ++i)
@@ -487,16 +505,20 @@ struct OutputPointsWorker
         auto out = vtk::DataArrayTupleRange<3>(outPts);
         double x0[3], x1[3];
         bool isFirst = vtkSMPTools::GetSingleThread();
+        vtkIdType checkAbortInterval = fmin((endNewPtId - newPtId) / 10 + 1, 1000);
 
         for (; newPtId < endNewPtId; ++newPtId)
         {
-          if (isFirst)
+          if (newPtId % checkAbortInterval == 0)
           {
-            filter->CheckAbort();
-          }
-          if (filter->GetAbortOutput())
-          {
-            break;
+            if (isFirst)
+            {
+              filter->CheckAbort();
+            }
+            if (filter->GetAbortOutput())
+            {
+              break;
+            }
           }
           const EdgeTupleType* edge = mergeEdges + mergeOffsets[newPtId];
           const auto x0T = in[edge->V0];

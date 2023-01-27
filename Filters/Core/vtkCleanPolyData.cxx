@@ -245,6 +245,8 @@ int vtkCleanPolyData::RequestData(vtkInformation* vtkNotUsed(request),
   vtkCellData* outStrpData = nullptr;
   vtkIdType vertIDcounter = 0, lineIDcounter = 0;
   vtkIdType polyIDcounter = 0, strpIDcounter = 0;
+  int checkAbortInterval = 0;
+  int progressCounter = 0;
 
   // Begin to adjust topology.
   //
@@ -254,14 +256,15 @@ int vtkCleanPolyData::RequestData(vtkInformation* vtkNotUsed(request),
   {
     newVerts = vtkCellArray::New();
     newVerts->AllocateEstimate(inVerts->GetNumberOfCells(), 1);
-
+    checkAbortInterval = fmin(inVerts->GetNumberOfCells() / 10 + 1, 1000);
     vtkDebugMacro(<< "Starting Verts " << inCellID);
     for (inVerts->InitTraversal(); inVerts->GetNextCell(npts, pts); inCellID++)
     {
-      if (this->CheckAbort())
+      if (progressCounter % checkAbortInterval == 0 && this->CheckAbort())
       {
         break;
       }
+      progressCounter++;
       for (numNewPts = 0, i = 0; i < npts; ++i)
       {
         inPts->GetPoint(pts[i], x);
@@ -309,12 +312,15 @@ int vtkCleanPolyData::RequestData(vtkInformation* vtkNotUsed(request),
     outLineData->CopyAllocate(inputCD);
     //
     vtkDebugMacro(<< "Starting Lines " << inCellID);
+    checkAbortInterval = fmin(inLines->GetNumberOfCells() / 10 + 1, 1000);
+    progressCounter = 0;
     for (inLines->InitTraversal(); inLines->GetNextCell(npts, pts); inCellID++)
     {
-      if (this->CheckAbort())
+      if (progressCounter % checkAbortInterval == 0 && this->CheckAbort())
       {
         break;
       }
+      progressCounter++;
       for (numNewPts = 0, i = 0; i < npts; i++)
       {
         inPts->GetPoint(pts[i], x);
@@ -386,9 +392,11 @@ int vtkCleanPolyData::RequestData(vtkInformation* vtkNotUsed(request),
     outPolyData->CopyAllocate(inputCD);
 
     vtkDebugMacro(<< "Starting Polys " << inCellID);
+    checkAbortInterval = fmin(inPolys->GetNumberOfCells() / 10 + 1, 1000);
+    progressCounter = 0;
     for (inPolys->InitTraversal(); inPolys->GetNextCell(npts, pts); inCellID++)
     {
-      if (this->CheckAbort())
+      if (progressCounter % checkAbortInterval == 0 && this->CheckAbort())
       {
         break;
       }
@@ -483,10 +491,12 @@ int vtkCleanPolyData::RequestData(vtkInformation* vtkNotUsed(request),
     outStrpData = vtkCellData::New();
     outStrpData->CopyAllOn(vtkDataSetAttributes::COPYTUPLE);
     outStrpData->CopyAllocate(inputCD);
+    checkAbortInterval = fmin(inStrips->GetNumberOfCells() / 10 + 1, 1000);
+    progressCounter = 0;
 
     for (inStrips->InitTraversal(); inStrips->GetNextCell(npts, pts); inCellID++)
     {
-      if (this->CheckAbort())
+      if (progressCounter % checkAbortInterval == 0 && this->CheckAbort())
       {
         break;
       }

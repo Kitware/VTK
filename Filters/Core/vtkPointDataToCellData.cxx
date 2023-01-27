@@ -70,16 +70,19 @@ public:
   {
     auto& cellPts = this->TLCellPts.Local();
     bool isFirst = vtkSMPTools::GetSingleThread();
-
+    vtkIdType checkAbortInterval = fmin((endCellId - beginCellId) / 10 + 1, 1000);
     for (vtkIdType cellId = beginCellId; cellId < endCellId; ++cellId)
     {
-      if (isFirst)
+      if (cellId % checkAbortInterval == 0)
       {
-        this->Filter->CheckAbort();
-      }
-      if (this->Filter->GetAbortOutput())
-      {
-        break;
+        if (isFirst)
+        {
+          this->Filter->CheckAbort();
+        }
+        if (this->Filter->GetAbortOutput())
+        {
+          break;
+        }
       }
       this->Input->GetCellPoints(cellId, cellPts);
       vtkIdType numPts = cellPts->GetNumberOfIds();
@@ -263,16 +266,19 @@ public:
     auto& histogram = this->TLHistogram.Local();
     const auto scalars = vtk::DataArrayValueRange<1>(this->Scalars);
     bool isFirst = vtkSMPTools::GetSingleThread();
-
-    for (vtkIdType cellId = beginCellId; cellId < endCellId; cellId++)
+    vtkIdType checkAbortInterval = fmin((endCellId - beginCellId) / 10 + 1, 1000);
+    for (vtkIdType cellId = beginCellId; cellId < endCellId; ++cellId)
     {
-      if (isFirst)
+      if (cellId % checkAbortInterval == 0)
       {
-        this->Filter->CheckAbort();
-      }
-      if (this->Filter->GetAbortOutput())
-      {
-        break;
+        if (isFirst)
+        {
+          this->Filter->CheckAbort();
+        }
+        if (this->Filter->GetAbortOutput())
+        {
+          break;
+        }
       }
       this->Input->GetCellPoints(cellId, cellPts);
       vtkIdType numPts = cellPts->GetNumberOfIds();

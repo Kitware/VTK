@@ -67,16 +67,21 @@ public:
   {
     auto& tuple = this->Tuple.Local();
     bool isFirst = vtkSMPTools::GetSingleThread();
+    vtkIdType checkAbortInterval = fmin((end - begin) / 10 + 1, 1000);
     for (vtkIdType cc = begin; cc < end; ++cc)
     {
-      if (isFirst)
+      if (cc % checkAbortInterval == 0)
       {
-        this->Filter->CheckAbort();
+        if (isFirst)
+        {
+          this->Filter->CheckAbort();
+        }
+        if (this->Filter->GetAbortOutput())
+        {
+          break;
+        }
       }
-      if (this->Filter->GetAbortOutput())
-      {
-        break;
-      }
+
       this->Input->GetTypedTuple(cc, tuple.data());
       std::transform(tuple.begin(), tuple.end(), tuple.begin(),
         [this](vtkIdType id) { return this->PointMap[id]; });

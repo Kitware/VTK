@@ -152,6 +152,8 @@ struct ContourImageWorker
     // assign coordinate value to non-varying coordinate direction
     x[dir[2]] = roi[dir[2] * 2];
 
+    int checkAbortInterval = fmin(numValues / 10 + 1, 1000);
+
     // Traverse all pixel cells, generating line segments using marching squares.
     for (j = roi[start[1]]; j < roi[end[1]] && !abortExecute; j++)
     {
@@ -191,7 +193,7 @@ struct ContourImageWorker
         // Loop over contours in this pixel
         for (contNum = 0; contNum < numValues; contNum++)
         {
-          if (self->CheckAbort())
+          if (contNum % checkAbortInterval == 0 && self->CheckAbort())
           {
             abortExecute = true;
             break;

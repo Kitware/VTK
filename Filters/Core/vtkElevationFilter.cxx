@@ -78,17 +78,23 @@ struct vtkElevationAlgorithm
     const auto pointRange = vtk::DataArrayTupleRange<3>(this->PointArray, begin, end);
 
     bool isFirst = vtkSMPTools::GetSingleThread();
+    vtkIdType checkAbortInterval = fmin((end - begin) / 10 + 1, 1000);
 
     for (const auto point : pointRange)
     {
-      if (isFirst)
+      if (begin % checkAbortInterval == 0)
       {
-        this->Filter->CheckAbort();
+        if (isFirst)
+        {
+          this->Filter->CheckAbort();
+        }
+        if (this->Filter->GetAbortOutput())
+        {
+          break;
+        }
       }
-      if (this->Filter->GetAbortOutput())
-      {
-        break;
-      }
+      begin++;
+
       double vec[3];
       vec[0] = point[0] - lp[0];
       vec[1] = point[1] - lp[1];

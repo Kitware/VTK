@@ -170,16 +170,22 @@ struct EvaluatePointsWithPlaneFunctor
     auto inOutItr = inOut.begin();
     auto sliceItr = slice.begin();
     bool isFirst = vtkSMPTools::GetSingleThread();
+    vtkIdType checkAbortInterval = fmin((endPtId - beginPtId) / 10 + 1, 1000);
     for (; pointsItr != points.end(); ++pointsItr, ++inOutItr, ++sliceItr)
     {
-      if (isFirst)
+      if (beginPtId % checkAbortInterval == 0)
       {
-        this->Filter->CheckAbort();
+        if (isFirst)
+        {
+          this->Filter->CheckAbort();
+        }
+        if (this->Filter->GetAbortOutput())
+        {
+          break;
+        }
       }
-      if (this->Filter->GetAbortOutput())
-      {
-        break;
-      }
+      beginPtId++;
+
       // Access each point
       p[0] = static_cast<double>((*pointsItr)[0]);
       p[1] = static_cast<double>((*pointsItr)[1]);
@@ -398,17 +404,22 @@ struct EvaluateCellsStructuredFunctor
     double s[8], point1ToPoint2, point1ToIso, point1Weight;
     bool needCell;
     bool isFirst = vtkSMPTools::GetSingleThread();
+    vtkIdType checkAbortInterval = fmin((endBatchId - beginBatchId) / 10 + 1, 1000);
 
     for (vtkIdType batchId = beginBatchId; batchId < endBatchId; ++batchId)
     {
-      if (isFirst)
+      if (batchId % checkAbortInterval == 0)
       {
-        this->Filter->CheckAbort();
+        if (isFirst)
+        {
+          this->Filter->CheckAbort();
+        }
+        if (this->Filter->GetAbortOutput())
+        {
+          break;
+        }
       }
-      if (this->Filter->GetAbortOutput())
-      {
-        break;
-      }
+
       SliceBatch& batch = this->BatchInfo.Batches[batchId];
       batchSize = static_cast<vtkIdType>(this->BatchInfo.BatchSize);
       batch.BeginCellId = batchId * batchSize;
@@ -717,16 +728,20 @@ struct ExtractCellsStructuredFunctor
     int caseIndex, point1Index, point2Index, i;
     double s[8];
     bool isFirst = vtkSMPTools::GetSingleThread();
+    vtkIdType checkAbortInterval = fmin((endBatchId - beginBatchId) / 10 + 1, 1000);
 
     for (vtkIdType batchId = beginBatchId; batchId < endBatchId; ++batchId)
     {
-      if (isFirst)
+      if (batchId % checkAbortInterval == 0)
       {
-        this->Filter->CheckAbort();
-      }
-      if (this->Filter->GetAbortOutput())
-      {
-        break;
+        if (isFirst)
+        {
+          this->Filter->CheckAbort();
+        }
+        if (this->Filter->GetAbortOutput())
+        {
+          break;
+        }
       }
       const SliceBatch& batch = this->BatchInfo.Batches[batchId];
       outputCellId = batch.BeginCellsOffsets;
@@ -863,16 +878,20 @@ struct ExtractPointsWorker
       const auto& inPts = vtk::DataArrayTupleRange<3>(inputPoints);
       auto outPts = vtk::DataArrayTupleRange<3>(outputPoints);
       bool isFirst = vtkSMPTools::GetSingleThread();
+      vtkIdType checkAbortInterval = fmin((endEdgeId - beginEdgeId) / 10 + 1, 1000);
 
       for (vtkIdType edgeId = beginEdgeId; edgeId < endEdgeId; ++edgeId)
       {
-        if (isFirst)
+        if (edgeId % checkAbortInterval == 0)
         {
-          filter->CheckAbort();
-        }
-        if (filter->GetAbortOutput())
-        {
-          break;
+          if (isFirst)
+          {
+            filter->CheckAbort();
+          }
+          if (filter->GetAbortOutput())
+          {
+            break;
+          }
         }
         const TEdge& edge = edges[edgeId];
         const auto edgePoint1 = inPts[edge.V0];

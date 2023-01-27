@@ -78,9 +78,10 @@ int vtkConvertToPolyhedra::RequestData(vtkInformation* vtkNotUsed(request),
   std::vector<vtkIdType> faces;
   int cellType = VTK_POLYHEDRON;
   vtkIdType outCellId;
+  vtkIdType checkAbortInterval = fmin(numCells / 10 + 1, 1000);
   for (vtkIdType cellId = 0; cellId < numCells; ++cellId)
   {
-    if (this->CheckAbort())
+    if (cellId % checkAbortInterval == 0 && this->CheckAbort())
     {
       break;
     }

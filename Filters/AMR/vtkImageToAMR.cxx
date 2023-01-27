@@ -326,7 +326,7 @@ int vtkImageToAMR::RequestData(vtkInformation* vtkNotUsed(request),
 
   for (unsigned int level = 0; level < numLevels && !abort; level++)
   {
-    if (i % checkAbortInterval == 0)
+    if (level % checkAbortInterval == 0)
     {
       abort = this->CheckAbort();
     }
@@ -339,7 +339,7 @@ int vtkImageToAMR::RequestData(vtkInformation* vtkNotUsed(request),
 
   for (unsigned int level = 0; level < numLevels && !abort; level++)
   {
-    if (i % checkAbortInterval == 0)
+    if (level % checkAbortInterval == 0)
     {
       abort = this->CheckAbort();
     }

@@ -236,18 +236,23 @@ struct IntersectLinesWorker
     vtkIdType& connectivitySize = this->ConnectivitySize.Local();
 
     bool isFirst = vtkSMPTools::GetSingleThread();
+    vtkIdType checkAbortInterval = fmin((endId - startId) / 10 + 1, 1000);
 
     for (vtkIdType lineId = startId; lineId < endId; ++lineId)
     {
-      if (isFirst)
+      if (lineId % checkAbortInterval == 0)
       {
-        this->Filter->CheckAbort();
+        if (isFirst)
+        {
+          this->Filter->CheckAbort();
+        }
+
+        if (this->Filter->GetAbortOutput())
+        {
+          break;
+        }
       }
 
-      if (this->Filter->GetAbortOutput())
-      {
-        break;
-      }
       ValueType start = lineOffsets[lineId];
       ValueType size = lineOffsets[lineId + 1] - start;
 
@@ -366,15 +371,21 @@ struct DataSetPointsCopyWorker
   {
     double p[3];
     bool isFirst = vtkSMPTools::GetSingleThread();
+    vtkIdType checkAbortInterval = fmin((endId - startId) / 10 + 1, 1000);
+
     for (vtkIdType pointId = startId; pointId < endId; ++pointId)
     {
-      if (isFirst)
+      if (pointId % checkAbortInterval == 0)
       {
-        this->Filter->CheckAbort();
-      }
-      if (this->Filter->GetAbortOutput())
-      {
-        break;
+        if (isFirst)
+        {
+          this->Filter->CheckAbort();
+        }
+
+        if (this->Filter->GetAbortOutput())
+        {
+          break;
+        }
       }
 
       this->Input->GetPoint(this->PointIds->GetId(pointId), p);
@@ -406,17 +417,21 @@ struct PointSetPointsCopyDispatcher
     using ConstSourceReference = typename decltype(sourceRange)::ConstTupleReferenceType;
     using DestReference = typename decltype(destRange)::TupleReferenceType;
     bool isFirst = vtkSMPTools::GetSingleThread();
+    vtkIdType checkAbortInterval = fmin((endId - startId) / 10 + 1, 1000);
 
     for (vtkIdType pointId = startId; pointId < endId; ++pointId)
     {
+      if (pointId % checkAbortInterval == 0)
+      {
+        if (isFirst)
+        {
+          this->Filter->CheckAbort();
+        }
 
-      if (isFirst)
-      {
-        this->Filter->CheckAbort();
-      }
-      if (this->Filter->GetAbortOutput())
-      {
-        break;
+        if (this->Filter->GetAbortOutput())
+        {
+          break;
+        }
       }
       ConstSourceReference sourceTuple = sourceRange[ids->GetId(pointId)];
       DestReference destTuple = destRange[pointId];
@@ -483,16 +498,21 @@ struct GenerateOutputCellsWorker
   {
     DataSetHelperT helper(this->Input);
     bool isFirst = vtkSMPTools::GetSingleThread();
+    vtkIdType checkAbortInterval = fmin((endId - startId) / 10 + 1, 1000);
 
     for (vtkIdType outputCellId = startId; outputCellId < endId; ++outputCellId)
     {
-      if (isFirst)
+      if (outputCellId % checkAbortInterval == 0)
       {
-        this->Filter->CheckAbort();
-      }
-      if (this->Filter->GetAbortOutput())
-      {
-        break;
+        if (isFirst)
+        {
+          this->Filter->CheckAbort();
+        }
+
+        if (this->Filter->GetAbortOutput())
+        {
+          break;
+        }
       }
       vtkIdType inputCellId = this->CellIds->GetId(outputCellId);
       vtkIdType currentOffset = this->OutputOffsets[outputCellId];

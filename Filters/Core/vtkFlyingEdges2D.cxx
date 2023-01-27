@@ -247,16 +247,21 @@ public:
     {
       TT* rowPtr = this->Algo->Scalars + row * this->Algo->Inc1;
       bool isFirst = vtkSMPTools::GetSingleThread();
+      vtkIdType checkAbortInterval = fmin((end - row) / 10 + 1, 1000);
       for (; row < end; ++row)
       {
-        if (isFirst)
+        if (row % checkAbortInterval == 0)
         {
-          this->Filter->CheckAbort();
+          if (isFirst)
+          {
+            this->Filter->CheckAbort();
+          }
+          if (this->Filter->GetAbortOutput())
+          {
+            break;
+          }
         }
-        if (this->Filter->GetAbortOutput())
-        {
-          break;
-        }
+
         this->Algo->ProcessXEdge(this->Value, rowPtr, row);
         rowPtr += this->Algo->Inc1;
       } // for all rows in this batch
@@ -276,15 +281,19 @@ public:
     void operator()(vtkIdType row, vtkIdType end)
     {
       bool isFirst = vtkSMPTools::GetSingleThread();
+      vtkIdType checkAbortInterval = fmin((end - row) / 10 + 1, 1000);
       for (; row < end; ++row)
       {
-        if (isFirst)
+        if (row % checkAbortInterval == 0)
         {
-          this->Filter->CheckAbort();
-        }
-        if (this->Filter->GetAbortOutput())
-        {
-          break;
+          if (isFirst)
+          {
+            this->Filter->CheckAbort();
+          }
+          if (this->Filter->GetAbortOutput())
+          {
+            break;
+          }
         }
         this->Algo->ProcessYEdges(row);
       } // for all rows in this batch
@@ -307,15 +316,19 @@ public:
     {
       T* rowPtr = this->Algo->Scalars + row * this->Algo->Inc1;
       bool isFirst = vtkSMPTools::GetSingleThread();
+      vtkIdType checkAbortInterval = fmin((end - row) / 10 + 1, 1000);
       for (; row < end; ++row)
       {
-        if (isFirst)
+        if (row % checkAbortInterval == 0)
         {
-          this->Filter->CheckAbort();
-        }
-        if (this->Filter->GetAbortOutput())
-        {
-          break;
+          if (isFirst)
+          {
+            this->Filter->CheckAbort();
+          }
+          if (this->Filter->GetAbortOutput())
+          {
+            break;
+          }
         }
         this->Algo->GenerateOutput(this->Value, rowPtr, row);
         rowPtr += this->Algo->Inc1;
@@ -830,10 +843,11 @@ void vtkFlyingEdges2DAlgorithm<T>::ContourImage(vtkFlyingEdges2D* self, T* scala
   // pass generates polylines from the cases and intersection information.
   // In the final and third pass output points and lines are generated.
 
+  vtkIdType checkAbortInterval = fmin(numContours / 10 + 1, 1000);
   // Loop across each contour value. This encompasses all three passes.
   for (vidx = 0; vidx < numContours; vidx++)
   {
-    if (self->CheckAbort())
+    if (vidx % checkAbortInterval == 0 && self->CheckAbort())
     {
       break;
     }

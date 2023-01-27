@@ -610,16 +610,21 @@ int vtkContourFilter::RequestData(
       // Loop over all contour values.  Then for each contour value,
       // loop over all cells.
       //
+      int progressCounter = 0;
+      int checkAbortInterval = 0;
       for (int i = 0; i < numContours && !abortExecute; i++)
       {
+        progressCounter = 0;
+        checkAbortInterval = this->ScalarTree->GetNumberOfCellBatches(values[i]);
         for (this->ScalarTree->InitTraversal(values[i]);
              (cell = this->ScalarTree->GetNextCell(cellId, cellPts, cellScalars)) != nullptr;)
         {
-          if (this->CheckAbort())
+          if (progressCounter % checkAbortInterval == 0 && this->CheckAbort())
           {
             abortExecute = true;
             break;
           }
+          progressCounter++;
           helper.Contour(cell, values[i], cellScalars, cellId);
         } // for all cells
       }   // for all contour values

@@ -161,15 +161,19 @@ struct ClassifyPoints : public Classify
     unsigned char* ioa = this->InOutArray + ptId;
     double* dist = this->DistanceArray + ptId;
     bool isFirst = vtkSMPTools::GetSingleThread();
+    vtkIdType checkAbortInterval = fmin((endPtId - ptId) / 10 + 1, 1000);
     for (; ptId < endPtId; ++ptId, ++dist)
     {
-      if (isFirst)
+      if (ptId % checkAbortInterval == 0)
       {
-        this->Filter->CheckAbort();
-      }
-      if (this->Filter->GetAbortOutput())
-      {
-        break;
+        if (isFirst)
+        {
+          this->Filter->CheckAbort();
+        }
+        if (this->Filter->GetAbortOutput())
+        {
+          break;
+        }
       }
       // Access each point
       p[0] = static_cast<double>(*pts);
@@ -333,16 +337,20 @@ struct ExtractEdges : public ExtractEdgesBase<IDType, TIP>
     const unsigned short* edges;
     double s[MAX_CELL_VERTS];
     bool isFirst = vtkSMPTools::GetSingleThread();
+    vtkIdType checkAbortInterval = fmin((endCellId - cellId) / 10 + 1, 1000);
 
     for (; cellId < endCellId; ++cellId)
     {
-      if (isFirst)
+      if (cellId % checkAbortInterval == 0)
       {
-        this->Filter->CheckAbort();
-      }
-      if (this->Filter->GetAbortOutput())
-      {
-        break;
+        if (isFirst)
+        {
+          this->Filter->CheckAbort();
+        }
+        if (this->Filter->GetAbortOutput())
+        {
+          break;
+        }
       }
       // Does the plane cut this cell?
       if (Classify::PlaneIntersects(this->InOut, cellIter->NumVerts, c))
@@ -428,15 +436,19 @@ struct ProducePoints
   void operator()(vtkIdType ptId, vtkIdType endPtId)
   {
     bool isFirst = vtkSMPTools::GetSingleThread();
+    vtkIdType checkAbortInterval = fmin((endPtId - ptId) / 10 + 1, 1000);
     for (; ptId < endPtId; ++ptId)
     {
-      if (isFirst)
+      if (ptId % checkAbortInterval == 0)
       {
-        this->Filter->CheckAbort();
-      }
-      if (this->Filter->GetAbortOutput())
-      {
-        break;
+        if (isFirst)
+        {
+          this->Filter->CheckAbort();
+        }
+        if (this->Filter->GetAbortOutput())
+        {
+          break;
+        }
       }
       const MergeTupleType& mergeTuple = this->Edges[ptId];
       const TIP* x0 = this->InPts + 3 * mergeTuple.V0;
@@ -523,15 +535,19 @@ struct ProducePDAttributes
   void operator()(vtkIdType ptId, vtkIdType endPtId)
   {
     bool isFirst = vtkSMPTools::GetSingleThread();
+    vtkIdType checkAbortInterval = fmin((endPtId - ptId) / 10 + 1, 1000);
     for (; ptId < endPtId; ++ptId)
     {
-      if (isFirst)
+      if (ptId % checkAbortInterval == 0)
       {
-        this->Filter->CheckAbort();
-      }
-      if (this->Filter->GetAbortOutput())
-      {
-        break;
+        if (isFirst)
+        {
+          this->Filter->CheckAbort();
+        }
+        if (this->Filter->GetAbortOutput())
+        {
+          break;
+        }
       }
       const auto& mergeTuple = this->Edges[ptId];
       TIds v0 = mergeTuple.V0;
@@ -560,15 +576,19 @@ struct ProduceCDAttributes
   void operator()(vtkIdType cellId, vtkIdType endCellId)
   {
     bool isFirst = vtkSMPTools::GetSingleThread();
+    vtkIdType checkAbortInterval = fmin((endCellId - cellId) / 10 + 1, 1000);
     for (; cellId < endCellId; ++cellId)
     {
-      if (isFirst)
+      if (cellId % checkAbortInterval == 0)
       {
-        this->Filter->CheckAbort();
-      }
-      if (this->Filter->GetAbortOutput())
-      {
-        break;
+        if (isFirst)
+        {
+          this->Filter->CheckAbort();
+        }
+        if (this->Filter->GetAbortOutput())
+        {
+          break;
+        }
       }
       // retrieve CellData for the corresponding cell
       this->Arrays->Copy(this->Cells[cellId], cellId);
@@ -614,16 +634,20 @@ struct ProduceMergedTriangles
       using ValueType = typename CellStateT::ValueType;
       auto* conn = state.GetConnectivity();
       bool isFirst = vtkSMPTools::GetSingleThread();
+      vtkIdType checkAbortInterval = fmin((endPtId - ptId) / 10 + 1, 1000);
 
       for (; ptId < endPtId; ++ptId)
       {
-        if (isFirst)
+        if (ptId % checkAbortInterval == 0)
         {
-          filter->CheckAbort();
-        }
-        if (filter->GetAbortOutput())
-        {
-          break;
+          if (isFirst)
+          {
+            filter->CheckAbort();
+          }
+          if (filter->GetAbortOutput())
+          {
+            break;
+          }
         }
         const IDType numPtsInGroup = offsets[ptId + 1] - offsets[ptId];
         for (IDType i = 0; i < numPtsInGroup; ++i)
@@ -691,15 +715,19 @@ struct ProduceMergedPoints
   void operator()(vtkIdType ptId, vtkIdType endPtId)
   {
     bool isFirst = vtkSMPTools::GetSingleThread();
+    vtkIdType checkAbortInterval = fmin((endPtId - ptId) / 10 + 1, 1000);
     for (; ptId < endPtId; ++ptId)
     {
-      if (isFirst)
+      if (ptId % checkAbortInterval == 0)
       {
-        this->Filter->CheckAbort();
-      }
-      if (this->Filter->GetAbortOutput())
-      {
-        break;
+        if (isFirst)
+        {
+          this->Filter->CheckAbort();
+        }
+        if (this->Filter->GetAbortOutput())
+        {
+          break;
+        }
       }
       const MergeTupleType* mergeTuple = this->MergeArray + this->Offsets[ptId];
       const TIP* x0 = this->InPts + 3 * mergeTuple->V0;
@@ -751,16 +779,20 @@ struct ProduceMergedAttributes
     TIds v0, v1;
     float t;
     bool isFirst = vtkSMPTools::GetSingleThread();
+    vtkIdType checkAbortInterval = fmin((endPtId - ptId) / 10 + 1, 1000);
 
     for (; ptId < endPtId; ++ptId)
     {
-      if (isFirst)
+      if (ptId % checkAbortInterval == 0)
       {
-        this->Filter->CheckAbort();
-      }
-      if (this->Filter->GetAbortOutput())
-      {
-        break;
+        if (isFirst)
+        {
+          this->Filter->CheckAbort();
+        }
+        if (this->Filter->GetAbortOutput())
+        {
+          break;
+        }
       }
       mergeTuple = this->Edges + this->Offsets[ptId];
       v0 = mergeTuple->V0;
@@ -1002,16 +1034,20 @@ struct ComputePointNormals
   {
     float* n = this->PointNormals + 3 * ptId;
     bool isFirst = vtkSMPTools::GetSingleThread();
+    vtkIdType checkAbortInterval = fmin((endPtId - ptId) / 10 + 1, 1000);
 
     for (; ptId < endPtId; ++ptId, n += 3)
     {
-      if (isFirst)
+      if (ptId % checkAbortInterval == 0)
       {
-        this->Filter->CheckAbort();
-      }
-      if (this->Filter->GetAbortOutput())
-      {
-        break;
+        if (isFirst)
+        {
+          this->Filter->CheckAbort();
+        }
+        if (this->Filter->GetAbortOutput())
+        {
+          break;
+        }
       }
       n[0] = this->Normal[0];
       n[1] = this->Normal[1];
@@ -1315,7 +1351,7 @@ int vtk3DLinearGridPlaneCutter::RequestData(
     inIter.TakeReference(inputCDS->NewIterator());
     for (inIter->InitTraversal(); !inIter->IsDoneWithTraversal(); inIter->GoToNextItem())
     {
-      if (this->CheckAbort())
+      if (this->GetAbortOutput())
       {
         break;
       }

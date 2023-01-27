@@ -24,6 +24,7 @@
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
+#include <cmath>
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkMergeDataObjectFilter);
@@ -103,9 +104,11 @@ int vtkMergeDataObjectFilter::RequestData(vtkInformation* vtkNotUsed(request),
       vtkErrorMacro(<< "Field data size incompatible with number of cells");
       return 1;
     }
+
+    int checkAbortInterval = fmin(fd->GetNumberOfArrays() / 10 + 1, 1000);
     for (int i = 0; i < fd->GetNumberOfArrays(); i++)
     {
-      if (this->CheckAbort())
+      if (i % checkAbortInterval == 0 && this->CheckAbort())
       {
         break;
       }

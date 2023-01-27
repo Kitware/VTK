@@ -393,17 +393,22 @@ struct UnstructuredDataFunctor : public CuttingFunctor<TPointsArray>
     bool isFirst = vtkSMPTools::GetSingleThread();
 
     vtkIdList*& cellPointIds = this->CellPointIds.Local();
+    vtkIdType checkAbortInterval = fmin((endCellId - beginCellId) / 10 + 1, 1000);
     // Loop over the cell, processing only the one that are needed
     for (vtkIdType cellId = beginCellId; cellId < endCellId; ++cellId)
     {
-      if (isFirst)
+      if (cellId % checkAbortInterval == 0)
       {
-        this->Filter->CheckAbort();
+        if (isFirst)
+        {
+          this->Filter->CheckAbort();
+        }
+        if (this->Filter->GetAbortOutput())
+        {
+          break;
+        }
       }
-      if (this->Filter->GetAbortOutput())
-      {
-        break;
-      }
+
       needCell = false;
       if (this->SphereTree)
       {

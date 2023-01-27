@@ -174,6 +174,7 @@ protected:
   int FillInputPortInformation(int port, vtkInformation* info) override;
 
   vtkFieldList* FieldList;
+  int FieldCount;
 
 private:
   vtkMergeFilter(const vtkMergeFilter&) = delete;

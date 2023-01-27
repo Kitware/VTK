@@ -78,9 +78,10 @@ int vtkImageDataToExplicitStructuredGrid::RequestData(
   vtkNew<vtkPoints> points;
   points->SetDataTypeToDouble();
   points->SetNumberOfPoints(nbPoints);
+  vtkIdType checkAbortInterval = fmin(nbPoints / 10 + 1, 1000);
   for (vtkIdType i = 0; i < nbPoints; i++)
   {
-    if (this->CheckAbort())
+    if (i % checkAbortInterval == 0 && this->CheckAbort())
     {
       break;
     }
@@ -93,9 +94,10 @@ int vtkImageDataToExplicitStructuredGrid::RequestData(
   vtkNew<vtkCellArray> cells;
   cells->AllocateEstimate(nbCells, 8);
   vtkNew<vtkIdList> ptIds;
+  checkAbortInterval = fmin(nbCells / 10 + 1, 1000);
   for (vtkIdType i = 0; i < nbCells; i++)
   {
-    if (this->CheckAbort())
+    if (i % checkAbortInterval == 0 && this->CheckAbort())
     {
       break;
     }

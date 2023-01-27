@@ -23,6 +23,7 @@
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkStringArray.h"
+#include <cmath>
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkArrayRename);
@@ -173,9 +174,10 @@ int vtkArrayRename::RequestData(vtkInformation* vtkNotUsed(request),
     }
 
     vtkFieldData::Iterator arrayIterator(inFd);
+    vtkIdType checkAbortInterval = fmin(input->GetNumberOfElements(type) / 10 + 1, 1000);
     for (vtkIdType idx = arrayIterator.BeginIndex(); idx != -1; idx = arrayIterator.NextIndex())
     {
-      if (this->CheckAbort())
+      if (idx % checkAbortInterval == 0 && this->CheckAbort())
       {
         abort = true;
         break;

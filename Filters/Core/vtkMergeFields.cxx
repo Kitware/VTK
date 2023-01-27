@@ -178,6 +178,12 @@ int vtkMergeFields::RequestData(vtkInformation* vtkNotUsed(request),
     return 1;
   }
 
+  if (this->NumberOfComponents <= 0)
+  {
+    vtkErrorMacro("NumberOfComponents has be set prior to the execution of "
+                  "this filter");
+  }
+
   // Check if the data types of the input fields are the same
   // Otherwise warn the user.
   // Check if the number of tuples are the same for all arrays.
@@ -186,12 +192,15 @@ int vtkMergeFields::RequestData(vtkInformation* vtkNotUsed(request),
   int sameDataType = 1;
   int numTuples = -1;
   int sameNumTuples = 1;
+  int checkAbortInterval = fmin(this->NumberOfComponents / 10 + 1, 1000);
+  int progressCount = 0;
   do
   {
-    if (this->CheckAbort())
+    if (progressCount % checkAbortInterval == 0 && this->CheckAbort())
     {
       break;
     }
+    progressCount++;
     before = cur;
     cur = cur->Next;
     inputArray = fd->GetArray(before->FieldName);
@@ -247,24 +256,21 @@ int vtkMergeFields::RequestData(vtkInformation* vtkNotUsed(request),
     outputArray = vtkDataArray::CreateDataArray(dataType);
   }
 
-  if (this->NumberOfComponents <= 0)
-  {
-    vtkErrorMacro("NumberOfComponents has be set prior to the execution of "
-                  "this filter");
-  }
-
   outputArray->SetNumberOfComponents(this->NumberOfComponents);
   outputArray->SetNumberOfTuples(numTuples);
   outputArray->SetName(this->FieldName);
+
+  progressCount = 0;
 
   // Merge
   cur = this->GetFirst();
   do
   {
-    if (this->CheckAbort())
+    if (progressCount % checkAbortInterval == 0 && this->CheckAbort())
     {
       break;
     }
+    progressCount++;
     before = cur;
     cur = cur->Next;
     inputArray = fd->GetArray(before->FieldName);

@@ -673,6 +673,8 @@ vtkDataObject* vtkDataObjectGenerator::FillOutputDataObjects(
       hbo->SetGridDescription(VTK_XYZ_GRID);
       vtkIdType gcnt = 0;
       bool abort = false;
+      int progressCounter = 0;
+      int checkAbortInterval = 0;
       for (git = structure->children.begin(); git != structure->children.end() && !abort; ++git)
       {
         // cerr << "LVL=" << gcnt  << endl;
@@ -694,17 +696,20 @@ vtkDataObject* vtkDataObjectGenerator::FillOutputDataObjects(
 
         int r2 = static_cast<int>(pow(static_cast<double>(refinement), static_cast<double>(gcnt)));
         // how many children across each dimension
+        checkAbortInterval = fmin(maxchildren / 10 + 1, 1000);
+        progressCounter = 0;
 
         for (dit = gptr->children.begin();
              dit != gptr->children.end() && dcnt < maxchildren // ignore extra children
              ;
              ++dit)
         {
-          if (this->CheckAbort())
+          if (progressCounter % checkAbortInterval == 0 && this->CheckAbort())
           {
             abort = true;
             break;
           }
+          progressCounter++;
           // cerr << "DS=" << dcnt  << endl;
           vtkInternalStructureCache* dptr = *dit;
           // dptr->type should be UF1
@@ -782,10 +787,11 @@ vtkDataObject* vtkDataObjectGenerator::FillOutputDataObjects(
       mbo->SetNumberOfBlocks(static_cast<unsigned int>(structure->children.size()));
       std::vector<vtkInternalStructureCache*>::iterator git;
       vtkIdType gcnt = 0;
+      vtkIdType checkAbortInterval = fmin(structure->children.size() / 10 + 1, 1000);
 
       for (git = structure->children.begin(); git != structure->children.end(); ++git)
       {
-        if (this->CheckAbort())
+        if (gcnt % checkAbortInterval == 0 && this->CheckAbort())
         {
           break;
         }
@@ -848,10 +854,10 @@ void vtkDataObjectGenerator::MakeValues(vtkDataSet* ds)
   zcoords->SetName("Cell Z");
   zcoords->SetNumberOfComponents(1);
   zcoords->SetNumberOfTuples(num);
-
+  vtkIdType checkAbortInterval = fmin(num / 10 + 1, 1000);
   for (vtkIdType i = 0; i < num; i++)
   {
-    if (this->CheckAbort())
+    if (i % checkAbortInterval == 0 && this->CheckAbort())
     {
       break;
     }
@@ -890,9 +896,10 @@ void vtkDataObjectGenerator::MakeValues(vtkDataSet* ds)
   zcoords->SetNumberOfComponents(1);
   zcoords->SetNumberOfTuples(num);
 
+  checkAbortInterval = fmin(num / 10 + 1, 1000);
   for (vtkIdType i = 0; i < num; i++)
   {
-    if (this->CheckAbort())
+    if (i % checkAbortInterval == 0 && this->CheckAbort())
     {
       break;
     }

@@ -696,17 +696,22 @@ struct VoronoiTiles
     VTile& tile = localData.Tile;
     const double* x = this->Points + 3 * ptId;
     bool isFirst = vtkSMPTools::GetSingleThread();
+    vtkIdType checkAbortInterval = fmin((endPtId - ptId) / 10 + 1, 1000);
 
     for (; ptId < endPtId; ++ptId, x += 3)
     {
-      if (isFirst)
+      if (ptId % checkAbortInterval == 0)
       {
-        this->Filter->CheckAbort();
+        if (isFirst)
+        {
+          this->Filter->CheckAbort();
+        }
+        if (this->Filter->GetAbortOutput())
+        {
+          break;
+        }
       }
-      if (this->Filter->GetAbortOutput())
-      {
-        break;
-      }
+
       // Initialize the Voronoi tile
       tile.Initialize(ptId, x);
 
