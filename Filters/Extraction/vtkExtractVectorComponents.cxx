@@ -153,17 +153,23 @@ public:
     auto outY = vtk::DataArrayValueRange<1>(this->ArrayY, begin, end).begin();
     auto outZ = vtk::DataArrayValueRange<1>(this->ArrayZ, begin, end).begin();
     bool isFirst = vtkSMPTools::GetSingleThread();
+    vtkIdType checkAbortInterval = fmin((end - begin) / 10 + 1, 1000);
 
     for (auto tuple : inVector)
     {
-      if (isFirst)
+      if (begin % checkAbortInterval == 0)
       {
-        this->Filter->CheckAbort();
+        if (isFirst)
+        {
+          this->Filter->CheckAbort();
+        }
+        if (this->Filter->GetAbortOutput())
+        {
+          break;
+        }
       }
-      if (this->Filter->GetAbortOutput())
-      {
-        break;
-      }
+      begin++;
+
       *outX++ = tuple[0];
       *outY++ = tuple[1];
       *outZ++ = tuple[2];

@@ -177,15 +177,19 @@ int vtkExtractPolyDataGeometry::RequestData(vtkInformation* vtkNotUsed(request),
     newStrips->AllocateCopy(inStrips);
   }
 
+  int checkAbortInterval = 0;
+  int progressCounter = 0;
   // verts
   if (newVerts && !this->CheckAbort())
   {
+    checkAbortInterval = fmin(inVerts->GetNumberOfCells() / 10 + 1, 1000);
     for (inVerts->InitTraversal(); inVerts->GetNextCell(npts, pts);)
     {
-      if (this->CheckAbort())
+      if (progressCounter % checkAbortInterval == 0 && this->CheckAbort())
       {
         break;
       }
+      progressCounter++;
       for (numIn = 0, i = 0; i < npts; i++)
       {
         if (newScalars->GetValue(pts[i]) <= 0.0)
@@ -226,12 +230,14 @@ int vtkExtractPolyDataGeometry::RequestData(vtkInformation* vtkNotUsed(request),
   // lines
   if (newLines && !this->CheckAbort())
   {
+    checkAbortInterval = fmin(inLines->GetNumberOfCells() / 10 + 1, 1000);
     for (inLines->InitTraversal(); inLines->GetNextCell(npts, pts);)
     {
-      if (this->CheckAbort())
+      if (progressCounter % checkAbortInterval == 0 && this->CheckAbort())
       {
         break;
       }
+      progressCounter++;
       for (numIn = 0, i = 0; i < npts; i++)
       {
         if (newScalars->GetValue(pts[i]) <= 0.0)
@@ -272,9 +278,10 @@ int vtkExtractPolyDataGeometry::RequestData(vtkInformation* vtkNotUsed(request),
   // polys
   if (newPolys && !this->CheckAbort())
   {
+    checkAbortInterval = fmin(inPolys->GetNumberOfCells() / 10 + 1, 1000);
     for (inPolys->InitTraversal(); inPolys->GetNextCell(npts, pts);)
     {
-      if (this->CheckAbort())
+      if (progressCounter % checkAbortInterval == 0 && this->CheckAbort())
       {
         break;
       }
@@ -318,9 +325,10 @@ int vtkExtractPolyDataGeometry::RequestData(vtkInformation* vtkNotUsed(request),
   // strips
   if (newStrips && !this->CheckAbort())
   {
+    checkAbortInterval = fmin(inStrips->GetNumberOfCells() / 10 + 1, 1000);
     for (inStrips->InitTraversal(); inStrips->GetNextCell(npts, pts);)
     {
-      if (this->CheckAbort())
+      if (progressCounter % checkAbortInterval == 0 && this->CheckAbort())
       {
         break;
       }

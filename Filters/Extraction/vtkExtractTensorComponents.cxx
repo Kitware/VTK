@@ -186,17 +186,22 @@ int vtkExtractTensorComponents::RequestData(vtkInformation* vtkNotUsed(request),
     double v[3];
     double sx, sy, sz, txy, tyz, txz;
     bool isFirst = vtkSMPTools::GetSingleThread();
+    vtkIdType checkAbortInterval = fmin((endPtId - ptId) / 10 + 1, 1000);
 
     for (; ptId < endPtId; ++ptId)
     {
-      if (isFirst)
+      if (ptId % checkAbortInterval == 0)
       {
-        this->CheckAbort();
+        if (isFirst)
+        {
+          this->CheckAbort();
+        }
+        if (this->GetAbortOutput())
+        {
+          break;
+        }
       }
-      if (this->GetAbortOutput())
-      {
-        break;
-      }
+
       inTensors->GetTuple(ptId, tensor);
       if (inTensors->GetNumberOfComponents() == 6)
       {

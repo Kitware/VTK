@@ -116,16 +116,21 @@ struct EvaluateCells
     auto cellIds = this->TLCellIds.Local();
     vtkIdType numCellPts;
     const vtkIdType* cellPts;
+    vtkIdType checkAbortInterval = fmin((end - begin) / 10 + 1, 1000);
     for (vtkIdType cellId = begin; cellId < end; ++cellId)
     {
-      if (isFirst)
+      if (cellId % checkAbortInterval == 0)
       {
-        this->Self->CheckAbort();
+        if (isFirst)
+        {
+          this->Self->CheckAbort();
+        }
+        if (this->Self->GetAbortOutput())
+        {
+          break;
+        }
       }
-      if (this->Self->GetAbortOutput())
-      {
-        break;
-      }
+
       this->Input->GetCellPoints(cellId, numCellPts, cellPts, cellIds);
       if (!this->Self->GetExtractBoundaryCells()) // don't want boundary cells
       {
