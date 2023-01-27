@@ -26,12 +26,13 @@
 
 #include "vtkIOParallelModule.h" // For export macro
 #include "vtkUnstructuredGridAlgorithm.h"
+
+VTK_ABI_NAMESPACE_BEGIN
+
 class vtkPoints;
 class vtkDataArraySelection;
 
 #define MAX_VARS 100
-
-VTK_ABI_NAMESPACE_BEGIN
 
 class nek5KObject
 {

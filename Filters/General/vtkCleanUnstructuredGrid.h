@@ -34,10 +34,11 @@
 #include "vtkSmartPointer.h"
 #include "vtkUnstructuredGridAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
+
 class vtkIncrementalPointLocator;
 class vtkDataSet;
 
-VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSGENERAL_EXPORT vtkCleanUnstructuredGrid : public vtkUnstructuredGridAlgorithm
 {
 public:
