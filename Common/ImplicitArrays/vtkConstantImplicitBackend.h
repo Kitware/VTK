@@ -16,7 +16,8 @@
 #ifndef vtkConstantImplicitBackend_h
 #define vtkConstantImplicitBackend_h
 
-#include "vtkSetGet.h"
+#include "vtkCommonImplicitArraysModule.h"
+#include "vtkSetGet.h" // for vtkNotUsed
 
 /**
  * \struct vtkConstantImplicitBackend
@@ -39,6 +40,7 @@
  * CHECK(constant == value); // always true
  * ```
  */
+VTK_ABI_NAMESPACE_BEGIN
 template <typename ValueType>
 struct vtkConstantImplicitBackend final
 {
@@ -64,5 +66,6 @@ struct vtkConstantImplicitBackend final
    */
   const ValueType Value;
 };
+VTK_ABI_NAMESPACE_END
 
 #endif // vtkConstantImplicitBackend_h
