@@ -327,6 +327,16 @@ struct vtkThreadedCallbackQueue::Signature<ReturnT (*)(ArgsT...)>
 };
 
 //=============================================================================
+// For function pointers
+template <class ReturnT, class... ArgsT>
+struct vtkThreadedCallbackQueue::Signature<ReturnT (&)(ArgsT...)>
+{
+  using ArgsTuple = std::tuple<ArgsT...>;
+  using InvokeResult = ReturnT;
+  static constexpr std::size_t ArgsSize = sizeof...(ArgsT);
+};
+
+//=============================================================================
 // For functors
 template <class FT>
 struct vtkThreadedCallbackQueue::Signature
