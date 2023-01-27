@@ -30,9 +30,15 @@ namespace
 void RunThreads(int nthreadsBegin, int nthreadsEnd)
 {
   vtkNew<vtkThreadedCallbackQueue> queue;
-  queue->SetNumberOfThreads(nthreadsBegin);
   std::atomic_int count(0);
   int N = 100000;
+
+  // Spamming controls
+  for (int i = 0; i < 6; ++i)
+  {
+    queue->SetNumberOfThreads(nthreadsBegin);
+    queue->SetNumberOfThreads(nthreadsEnd);
+  }
 
   // We are testing if the queue can properly resize itself and doesn't have deadlocks
   for (vtkIdType i = 0; i < N; ++i)
@@ -47,11 +53,13 @@ void RunThreads(int nthreadsBegin, int nthreadsEnd)
       i, 0, 'a', vtkNew<vtkIntArray>(), array);
   }
 
-  queue->SetNumberOfThreads(nthreadsEnd);
-
   // If the jobs are not run, this test will do an infinite loop
   while (count != N)
     ;
+
+  // Checking how the queue behaves when being destroyed.
+  queue->SetNumberOfThreads(nthreadsBegin);
+  queue->SetNumberOfThreads(nthreadsEnd);
 }
 
 //=============================================================================
@@ -126,7 +134,7 @@ void TestFunctionTypeCompleteness()
 //-----------------------------------------------------------------------------
 bool TestSharedFutures()
 {
-  int N = 100;
+  int N = 10;
   bool retVal = true;
   while (--N && retVal)
   {

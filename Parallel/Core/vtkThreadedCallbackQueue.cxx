@@ -21,28 +21,29 @@
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkThreadedCallbackQueue);
 
-//-----------------------------------------------------------------------------
-vtkThreadedCallbackQueue* vtkThreadedCallbackQueue::New(vtkThreadedCallbackQueue* controller)
-{
-  vtkThreadedCallbackQueue* result = new vtkThreadedCallbackQueue(controller);
-  result->InitializeObjectBase();
-  return result;
-}
-
 //=============================================================================
 class vtkThreadedCallbackQueue::ThreadWorker
 {
 public:
-  ThreadWorker(vtkThreadedCallbackQueue* queue, int threadId)
+  ThreadWorker(vtkThreadedCallbackQueue* queue, std::shared_ptr<std::atomic_int>& threadIndex)
     : Queue(queue)
-    , ThreadId(threadId)
+    , ThreadIndex(threadIndex)
+  {
+  }
+
+  ThreadWorker(ThreadWorker&& other) noexcept
+    : Queue(std::move(other.Queue))
+    , ThreadIndex(std::move(other.ThreadIndex))
   {
   }
 
   void operator()()
   {
     while (this->Pop())
-      ;
+    {
+    }
+    std::lock_guard<std::mutex> lock(this->Queue->ControlMutex);
+    this->Queue->ThreadIdToIndex.erase(std::this_thread::get_id());
   }
 
 private:
@@ -72,11 +73,11 @@ private:
     InvokerBasePointer invoker = std::move(invokerQueue.front());
     invokerQueue.pop_front();
 
-    assert(invoker->GetSharedState()->Status & ENQUEUED && "Status should be ENQUEUED.");
-
     this->Queue->PopFrontNullptr();
+    lock.unlock();
 
-    this->Queue->Invoke(std::move(invoker), lock);
+    std::unique_lock<std::mutex> stateLock(invoker->GetSharedState()->Mutex);
+    this->Queue->Invoke(std::move(invoker), stateLock);
 
     return true;
   }
@@ -87,7 +88,7 @@ private:
    */
   bool OnHold() const
   {
-    return this->ThreadId < this->Queue->NumberOfThreads && !this->Queue->Destroying &&
+    return *this->ThreadIndex < this->Queue->NumberOfThreads && !this->Queue->Destroying &&
       this->Queue->InvokerQueue.empty();
   }
 
@@ -97,58 +98,28 @@ private:
    */
   bool Continue() const
   {
-    return this->ThreadId < this->Queue->NumberOfThreads && !this->Queue->InvokerQueue.empty();
+    return *this->ThreadIndex < this->Queue->NumberOfThreads && !this->Queue->InvokerQueue.empty();
   }
 
   vtkThreadedCallbackQueue* Queue;
-  int ThreadId;
+  std::shared_ptr<std::atomic_int> ThreadIndex;
 };
-
-namespace
-{
-//-----------------------------------------------------------------------------
-template <class FT, class... ArgsT>
-void Execute(vtkThreadedCallbackQueue* controller, FT&& f, ArgsT&&... args)
-{
-  if (controller)
-  {
-    controller->Push(std::forward<FT>(f), std::forward<ArgsT>(args)...);
-  }
-  else
-  {
-    f(std::forward<ArgsT>(args)...);
-  }
-}
-} // anonymous namespace
 
 //-----------------------------------------------------------------------------
 vtkThreadedCallbackQueue::vtkThreadedCallbackQueue()
-  : vtkThreadedCallbackQueue(
-      vtkSmartPointer<vtkThreadedCallbackQueue>::Take(vtkThreadedCallbackQueue::New(nullptr)))
 {
-}
-
-//-----------------------------------------------------------------------------
-vtkThreadedCallbackQueue::vtkThreadedCallbackQueue(
-  vtkSmartPointer<vtkThreadedCallbackQueue>&& controller)
-  : NumberOfThreads(1)
-  , Threads(NumberOfThreads)
-  , Controller(controller)
-{
-  this->Start();
+  this->SetNumberOfThreads(1);
 }
 
 //-----------------------------------------------------------------------------
 vtkThreadedCallbackQueue::~vtkThreadedCallbackQueue()
 {
-  // By deleting the controller, we ensure that all the Start()
-  // and SetNumberOfThreads() calls are terminated and that we have a sane state
-  // of our queue.
-  this->Controller = nullptr;
-
   {
-    std::lock_guard<std::mutex> lock(this->Mutex);
-    this->Destroying = true;
+    std::lock_guard<std::mutex> destroyLock(this->DestroyMutex);
+    {
+      std::lock_guard<std::mutex> lock(this->Mutex);
+      this->Destroying = true;
+    }
   }
 
   this->ConditionVariable.notify_all();
@@ -158,50 +129,67 @@ vtkThreadedCallbackQueue::~vtkThreadedCallbackQueue()
 //-----------------------------------------------------------------------------
 void vtkThreadedCallbackQueue::SetNumberOfThreads(int numberOfThreads)
 {
-  ::Execute(this->Controller, [this, numberOfThreads]() {
+  this->PushControl([this, numberOfThreads]() {
     int size = static_cast<int>(this->Threads.size());
 
+    std::lock_guard<std::mutex> destroyLock(this->DestroyMutex);
+    if (this->Destroying)
+    {
+      return;
+    }
     if (size == numberOfThreads)
     {
       // Nothing to do
       return;
     }
-    // We only need to protect the shared atomic NumberOfThreads if we are shrinking.
+    // If we are expanding the number of threads, then we just need to spawn
+    // the missing threads.
     else if (size < numberOfThreads)
     {
       this->NumberOfThreads = numberOfThreads;
-    }
-    else
-    {
-      std::lock_guard<std::mutex> lock(this->Mutex);
-      this->NumberOfThreads = numberOfThreads;
-    }
 
-    // If we are expanding the number of threads, then we just need to spawn
-    // the missing threads.
-    if (size < numberOfThreads)
-    {
-      std::generate_n(std::back_inserter(this->Threads), numberOfThreads - size,
-        [this] { return std::thread(ThreadWorker(this, static_cast<int>(this->Threads.size()))); });
+      std::generate_n(std::back_inserter(this->Threads), numberOfThreads - size, [this] {
+        auto threadIndex =
+          std::make_shared<std::atomic_int>(static_cast<int>(this->Threads.size()));
+        auto thread = std::thread(ThreadWorker(this, threadIndex));
+        {
+          std::lock_guard<std::mutex> threadIdLock(this->ThreadIdToIndexMutex);
+          this->ThreadIdToIndex.emplace(thread.get_id(), threadIndex);
+        }
+        return thread;
+      });
     }
     // If we are shrinking the number of threads, let's notify all threads
     // so the threads whose id is more than the updated NumberOfThreads terminate.
     else
     {
+      // If we have a thread index larger than the new number of threads, we swap ourself with
+      // thread 0. We now know we will live after this routine and can synchronize terminating
+      // threads ourselves.
+      {
+        std::unique_lock<std::mutex> lock(this->ThreadIdToIndexMutex);
+        std::atomic_int& threadIndex = *this->ThreadIdToIndex.at(std::this_thread::get_id());
+        if (threadIndex && threadIndex >= numberOfThreads)
+        {
+          std::atomic_int& thread0Index = *this->ThreadIdToIndex.at(this->Threads[0].get_id());
+          lock.unlock();
+
+          std::swap(this->Threads[threadIndex], this->Threads[0]);
+
+          // Swapping the value of atomic ThreadIndex inside ThreadWorker.
+          int tmp = thread0Index;
+          thread0Index.exchange(threadIndex);
+          threadIndex = tmp;
+        }
+      }
+
+      this->NumberOfThreads = numberOfThreads;
       this->ConditionVariable.notify_all();
       this->Sync(this->NumberOfThreads);
+
+      // Excess threads are done, we can resize
       this->Threads.resize(numberOfThreads);
     }
-  });
-}
-
-//-----------------------------------------------------------------------------
-void vtkThreadedCallbackQueue::Start()
-{
-  ::Execute(this->Controller, [this]() {
-    int threadId = -1;
-    std::generate(this->Threads.begin(), this->Threads.end(),
-      [this, &threadId] { return std::thread(ThreadWorker(this, ++threadId)); });
   });
 }
 
@@ -254,8 +242,7 @@ void vtkThreadedCallbackQueue::SignalDependentSharedFutures(const InvokerBase* i
       // its associated invoker in the running queue.
       std::unique_lock<std::mutex> futureLock(futureState->Mutex);
       --futureState->NumberOfPriorSharedFuturesRemaining;
-      if (!(futureState->Status & CONSTRUCTING) &&
-        !futureState->NumberOfPriorSharedFuturesRemaining)
+      if (futureState->Status & ON_HOLD && !futureState->NumberOfPriorSharedFuturesRemaining)
       {
         // We can unlock at this point, we don't touch the future anymore
         futureLock.unlock();
@@ -293,22 +280,61 @@ void vtkThreadedCallbackQueue::SignalDependentSharedFutures(const InvokerBase* i
     {
       assert(inv->GetSharedState()->Status & ON_HOLD && "Status should be ON_HOLD");
       inv->GetSharedState()->InvokerIndex = --index;
-      {
-        // We're locking the invoker's mutex so a potential thread calling Wait can pick this
-        // invoker up.
-        std::lock_guard<std::mutex> invLock(inv->GetSharedState()->Mutex);
 
-        // This dependent has been waiting enough, let's give him some priority.
-        // Anyway, the invoker is past due if it was put inside InvokersOnHold.
-        inv->GetSharedState()->Status = ENQUEUED;
-        this->InvokerQueue.emplace_front(std::move(inv));
-      }
+      std::lock_guard<std::mutex> stateLock(inv->GetSharedState()->Mutex);
+      inv->GetSharedState()->Status = ENQUEUED;
+
+      // This dependent has been waiting enough, let's give him some priority.
+      // Anyway, the invoker is past due if it was put inside InvokersOnHold.
+      this->InvokerQueue.emplace_front(std::move(inv));
     }
   }
   for (std::size_t i = 0; i < invokersToLaunch.size(); ++i)
   {
     this->ConditionVariable.notify_one();
   }
+}
+
+//-----------------------------------------------------------------------------
+bool vtkThreadedCallbackQueue::TryInvoke(InvokerFutureSharedStateBase* state)
+{
+  std::unique_lock<std::mutex> stateLock(state->Mutex);
+  InvokerBasePointer invoker = [this, &state] {
+    // We need to check again if we cannot run in case the thread worker just popped this
+    // invoker. We are guarded by this->Mutex so there cannot be a conflict here.
+    if (state->Status != ENQUEUED)
+    {
+      // Someone picked up the invoker right before us, we can abort.
+      return InvokerBasePointer(nullptr);
+    }
+
+    std::lock_guard<std::mutex> lock(this->Mutex);
+
+    if (this->InvokerQueue.empty())
+    {
+      return InvokerBasePointer(nullptr);
+    }
+
+    // There has to be a front if we are here.
+    vtkIdType index =
+      state->InvokerIndex - this->InvokerQueue.front()->GetSharedState()->InvokerIndex;
+    InvokerBasePointer result = std::move(this->InvokerQueue[index]);
+
+    // If we just picked the front invoker, let's pop the queue.
+    if (index == 0)
+    {
+      this->InvokerQueue.pop_front();
+      this->PopFrontNullptr();
+    }
+    return result;
+  }();
+  if (!invoker)
+  {
+    return false;
+  }
+
+  this->Invoke(std::move(invoker), stateLock);
+  return true;
 }
 
 //-----------------------------------------------------------------------------

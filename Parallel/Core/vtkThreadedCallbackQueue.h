@@ -45,6 +45,7 @@
 #include <mutex>              // For mutex
 #include <thread>             // For thread
 #include <unordered_map>      // For unordered_map
+#include <unordered_set>      // For unordered_set
 #include <vector>             // For vector
 
 #if !defined(__WRAP__)
@@ -325,44 +326,34 @@ private:
   enum SharedStatus
   {
     /**
-     * The invoker has finished working and the returned value is available.
-     */
-    READY = 0x01,
-
-    /**
-     * The invoker is currently running its task.
-     */
-    RUNNING = 0x02,
-
-    /**
-     * The invoker is on hold, stored in `InvokersOnHold`.
-     */
-    ON_HOLD = 0x04,
-
-    /**
      * The shared state of this invoker might already have been shared with invokers it
      * depends on, but this invoker's status is still hanging. At this point we cannot tell if it
      * needs to be put in `InvokersOnHold` or just directly ran. An invoker seeing such a status in
      * a dependent invoker should ignore it.
      */
-    CONSTRUCTING = 0x08,
+    CONSTRUCTING = 0x00,
+
+    /**
+     * The invoker is on hold, stored in `InvokersOnHold`.
+     */
+    ON_HOLD = 0x01,
 
     /**
      * The invoker is currently stored inside `InvokerQueue`. It is waiting to be picked up by a
      * thread.
      */
-    ENQUEUED = 0x10
-  };
+    ENQUEUED = 0x02,
 
-  /**
-   * Starts the threads as soon as they are done with their current tasks.
-   *
-   * This method is executed by the `Controller` on a different thread, so this method may terminate
-   * before the threads are spawned. Nevertheless, this method is thread-safe. Other calls to
-   * `Start()` will be queued by the `Controller`, which executes all received command serially in
-   * the background.
-   */
-  void Start();
+    /**
+     * The invoker is currently running its task.
+     */
+    RUNNING = 0x04,
+
+    /**
+     * The invoker has finished working and the returned value is available.
+     */
+    READY = 0x08
+  };
 
   /**
    * This method terminates when all threads have finished. If `Destroying` is not true
@@ -402,11 +393,24 @@ private:
   void Invoke(InvokerBasePointer&& invoker, std::unique_lock<std::mutex>& lock);
 
   /**
+   * This will try to invoke the invoker owning a reference of `state`. The invoker will be ran if
+   * and only if its status is `ENQUEUED`. If not, nothing happens.
+   */
+  bool TryInvoke(InvokerFutureSharedStateBase* state);
+
+  /**
    * This function allocates an invoker and its bound future.
    */
   template <class FT, class... ArgsT>
   std::pair<InvokerPointer<FT, ArgsT...>, SharedFuturePointer<InvokeResult<FT>>>
-  CreateInvokerAndSharedFuture(int status, FT&& f, ArgsT&&... args);
+  CreateInvokerAndSharedFuture(FT&& f, ArgsT&&... args);
+
+  /**
+   * Method to use when executing a control on the queue. Each control is run asynchronously, in the
+   * order they were sent to the queue, by the queue itself.
+   */
+  template <class FT, class... ArgsT>
+  void PushControl(FT&& f, ArgsT&&... args);
 
   /**
    * Returns true if any prior is not ready.
@@ -435,6 +439,22 @@ private:
    */
   std::mutex OnHoldMutex;
 
+  /**
+   * Mutex to use when interacting with `ControlFutures`.
+   */
+  std::mutex ControlMutex;
+
+  /**
+   * This mutex is used to synchronize destruction of this queue.
+   * Any control should abort if the queue is being destroyed.
+   */
+  std::mutex DestroyMutex;
+
+  /**
+   * This mutex is used to protect access to `ThreadIdToIndex`.
+   */
+  std::mutex ThreadIdToIndexMutex;
+
   std::condition_variable ConditionVariable;
 
   /**
@@ -451,21 +471,22 @@ private:
   std::vector<std::thread> Threads;
 
   /**
-   * The controller is responsible for taking care of the calls to `Start()`, and
-   * `SetNumberOfThreads(int)`. It queues those commands and serially executes them on a separate
-   * thread. This allows those methods to not be blocking and run asynchronously.
+   * Maps the thread id to its position inside `Threads`.
+   *
+   * This variable is used to swap threads when changing the number of threads. If we want to shrink
+   * the number of threads and the thread executing the shrinkage is supposed to finish, we solve
+   * the problem by swapping this thread id with the one of 0, who will finish in its place.
    */
-  vtkSmartPointer<vtkThreadedCallbackQueue> Controller;
+  std::unordered_map<std::thread::id, std::shared_ptr<std::atomic_int>> ThreadIdToIndex;
+
+  /**
+   * Futures of controls that were passed to they queue. They allow to run controls in the same
+   * order they were passed to the queue.
+   */
+  std::unordered_set<vtkSharedFutureBase*> ControlFutures;
 
   vtkThreadedCallbackQueue(const vtkThreadedCallbackQueue&) = delete;
   void operator=(const vtkThreadedCallbackQueue&) = delete;
-
-  static vtkThreadedCallbackQueue* New(vtkThreadedCallbackQueue* controller);
-
-  /**
-   * Constructor setting internal `Controller` to the provided controller.
-   */
-  vtkThreadedCallbackQueue(vtkSmartPointer<vtkThreadedCallbackQueue>&& controller);
 };
 
 VTK_ABI_NAMESPACE_END
