@@ -340,6 +340,7 @@ void vtkModifiedBSPTree::Subdivide(BSPNode* node, Sorted_cell_extents_Lists* lis
           //
           // process the MAX-List
           ext = lists->Maxs[Daxis][i];
+          this->GetCellBounds(ext.cell_ID, cellBoundsPtr);
           if (cellBoundsPtr[2 * node->mAxis + 1] < pDiv)
           {
             left->Maxs[Daxis][Cmax_l[Daxis]++] = ext;
