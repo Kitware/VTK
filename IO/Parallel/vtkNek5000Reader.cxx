@@ -2048,89 +2048,89 @@ vtkNek5000Reader::nek5KList::nek5KList()
 vtkNek5000Reader::nek5KList::~nek5KList()
 {
   int new_cnt = 0;
-  nek5KObject* curObj = this->head;
-  while (curObj && new_cnt < this->cur_count)
+  nek5KObject* obj = this->head;
+  while (obj && new_cnt < this->cur_count)
   {
     this->head = this->head->next;
-    delete curObj;
-    curObj = this->head;
+    delete obj;
+    obj = this->head;
     new_cnt++;
   }
 }
 
 vtkNek5000Reader::nek5KObject* vtkNek5000Reader::nek5KList::getObject(int id)
 {
-  nek5KObject* curObj = this->head;
-  while (curObj)
+  nek5KObject* obj = this->head;
+  while (obj)
   {
-    if (curObj->index == id) // if we found it
+    if (obj->index == id) // if we found it
     {
       // move found obj to tail of the list
       // if already tail, do nothing
-      if (curObj == this->tail)
+      if (obj == this->tail)
         break;
 
       // if it's the head, update head to next
-      if (curObj == this->head)
+      if (obj == this->head)
       {
         this->head = this->head->next;
       }
-      // now move curObj to tail
-      curObj->next->prev = curObj->prev;
-      if (curObj->prev) // i.e. if current was not the head
+      // now move obj to tail
+      obj->next->prev = obj->prev;
+      if (obj->prev) // i.e. if current was not the head
       {
-        curObj->prev->next = curObj->next;
+        obj->prev->next = obj->next;
       }
-      this->tail->next = curObj;
-      curObj->prev = this->tail;
-      curObj->next = nullptr;
-      this->tail = curObj;
+      this->tail->next = obj;
+      obj->prev = this->tail;
+      obj->next = nullptr;
+      this->tail = obj;
       break;
     }
     else // otherwise, lok at the next one
     {
-      curObj = curObj->next;
+      obj = obj->next;
     }
   }
 
   // if we didn't find it
-  if (curObj == nullptr)
+  if (obj == nullptr)
   {
     // if we are not over allocated,
     // create a new object, and put it at the tail
     if (this->cur_count < this->max_count)
     {
       this->cur_count++;
-      // curObj = nek5KObject::New();
-      curObj = new nek5KObject();
+      // obj = nek5KObject::New();
+      obj = new nek5KObject();
       if (this->head == nullptr) // if list is empty
       {
-        this->head = curObj;
-        this->tail = curObj;
+        this->head = obj;
+        this->tail = obj;
       }
       else
       {
-        this->tail->next = curObj;
-        curObj->prev = this->tail;
-        curObj->next = nullptr;
-        this->tail = curObj;
+        this->tail->next = obj;
+        obj->prev = this->tail;
+        obj->next = nullptr;
+        this->tail = obj;
       }
       // set the index to the one requested
-      curObj->index = id;
+      obj->index = id;
     }
     else // otherwise reuse oldest obj (head), reset and move to tail
     {
-      curObj = this->head;
+      obj = this->head;
       this->head = this->head->next;
       this->head->prev = nullptr;
 
-      this->tail->next = curObj;
-      curObj->prev = this->tail;
-      curObj->next = nullptr;
-      this->tail = curObj;
-      curObj->reset();
-      curObj->index = id;
+      this->tail->next = obj;
+      obj->prev = this->tail;
+      obj->next = nullptr;
+      this->tail = obj;
+      obj->reset();
+      obj->index = id;
     }
   }
-  return (curObj);
+  return (obj);
 }
