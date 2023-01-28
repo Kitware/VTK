@@ -399,50 +399,6 @@ void vtkNek5000Reader::DisableAllPointArrays()
   this->PointDataArraySelection->DisableAllArrays();
 }
 
-#ifdef unused
-//----------------------------------------------------------------------------
-int vtkNek5000Reader::GetNumberOfDerivedVariableArrays()
-{
-  return this->DerivedVariableDataArraySelection->GetNumberOfArrays();
-}
-
-//----------------------------------------------------------------------------
-const char* vtkNek5000Reader::GetDerivedVariableArrayName(int index)
-{
-  return this->DerivedVariableDataArraySelection->GetArrayName(index);
-}
-
-//----------------------------------------------------------------------------
-int vtkNek5000Reader::GetDerivedVariableArrayStatus(const char* name)
-{
-  return this->DerivedVariableDataArraySelection->ArrayIsEnabled(name);
-}
-
-//----------------------------------------------------------------------------
-void vtkNek5000Reader::SetDerivedVariableArrayStatus(const char* name, int status)
-{
-  if (status)
-  {
-    this->DerivedVariableDataArraySelection->EnableArray(name);
-  }
-  else
-  {
-    this->DerivedVariableDataArraySelection->DisableArray(name);
-  }
-}
-
-//----------------------------------------------------------------------------
-void vtkNek5000Reader::EnableAllDerivedVariableArrays()
-{
-  this->DerivedVariableDataArraySelection->EnableAllArrays();
-}
-
-//----------------------------------------------------------------------------
-void vtkNek5000Reader::DisableAllDerivedVariableArrays()
-{
-  this->DerivedVariableDataArraySelection->DisableAllArrays();
-}
-#endif
 //----------------------------------------------------------------------------
 
 void vtkNek5000Reader::updateVariableStatus()

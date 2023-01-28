@@ -99,31 +99,6 @@ public:
   void EnableAllPointArrays();
   ///@}
 
-#ifdef unused
-  int GetNumberOfDerivedVariableArrays(void);
-
-  /**
-   * Get the name of the  derived variable array with the given index in
-   * the input.
-   */
-  const char* GetDerivedVariableArrayName(int index);
-
-  ///@{
-  /**
-   * Get/Set whether the derived variable array with the given name is to
-   * be read.
-   */
-  int GetDerivedVariableArrayStatus(const char* name);
-  void SetDerivedVariableArrayStatus(const char* name, int status);
-  ///@}
-
-  ///@{
-  /**
-   * Turn on/off all derived variable arrays.
-   */
-  void DisableAllDerivedVariableArrays();
-  void EnableAllDerivedVariableArrays();
-#endif
   /**
    * Get the names of variables stored in the data
    */
