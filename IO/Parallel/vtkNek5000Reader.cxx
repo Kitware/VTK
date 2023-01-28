@@ -50,9 +50,58 @@ using std::string;
 
 vtkStandardNewMacro(vtkNek5000Reader);
 
-void ByteSwap32(void* aVals, int nVals);
-void ByteSwap64(void* aVals, int nVals);
-int compare_ids(const void* id1, const void* id2);
+namespace
+{
+
+void ByteSwap32(void* aVals, int nVals)
+{
+  char* v = (char*)aVals;
+  char tmp;
+  for (long ii = 0; ii < nVals; ii++, v += 4)
+  {
+    tmp = v[0];
+    v[0] = v[3];
+    v[3] = tmp;
+    tmp = v[1];
+    v[1] = v[2];
+    v[2] = tmp;
+  }
+}
+
+void ByteSwap64(void* aVals, int nVals)
+{
+  char* v = (char*)aVals;
+  char tmp;
+  for (long ii = 0; ii < nVals; ii++, v += 8)
+  {
+    tmp = v[0];
+    v[0] = v[7];
+    v[7] = tmp;
+    tmp = v[1];
+    v[1] = v[6];
+    v[6] = tmp;
+    tmp = v[2];
+    v[2] = v[5];
+    v[5] = tmp;
+    tmp = v[3];
+    v[3] = v[4];
+    v[4] = tmp;
+  }
+}
+
+int compare_ids(const void* id1, const void* id2)
+{
+  int* a = (int*)id1;
+  int* b = (int*)id2;
+
+  if (*a < *b)
+    return (-1);
+  if (*a > *b)
+    return (1);
+  return (0);
+}
+
+} // end anonymous namespace
 
 //----------------------------------------------------------------------------
 class vtkNek5000Reader::nek5KObject
@@ -2084,52 +2133,4 @@ vtkNek5000Reader::nek5KObject* vtkNek5000Reader::nek5KList::getObject(int id)
     }
   }
   return (curObj);
-}
-
-void ByteSwap32(void* aVals, int nVals)
-{
-  char* v = (char*)aVals;
-  char tmp;
-  for (long ii = 0; ii < nVals; ii++, v += 4)
-  {
-    tmp = v[0];
-    v[0] = v[3];
-    v[3] = tmp;
-    tmp = v[1];
-    v[1] = v[2];
-    v[2] = tmp;
-  }
-}
-
-void ByteSwap64(void* aVals, int nVals)
-{
-  char* v = (char*)aVals;
-  char tmp;
-  for (long ii = 0; ii < nVals; ii++, v += 8)
-  {
-    tmp = v[0];
-    v[0] = v[7];
-    v[7] = tmp;
-    tmp = v[1];
-    v[1] = v[6];
-    v[6] = tmp;
-    tmp = v[2];
-    v[2] = v[5];
-    v[5] = tmp;
-    tmp = v[3];
-    v[3] = v[4];
-    v[4] = tmp;
-  }
-}
-
-int compare_ids(const void* id1, const void* id2)
-{
-  int* a = (int*)id1;
-  int* b = (int*)id2;
-
-  if (*a < *b)
-    return (-1);
-  if (*a > *b)
-    return (1);
-  return (0);
 }
