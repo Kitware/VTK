@@ -55,7 +55,47 @@ void ByteSwap64(void* aVals, int nVals);
 int compare_ids(const void* id1, const void* id2);
 
 //----------------------------------------------------------------------------
+class vtkNek5000Reader::nek5KObject
+{
+public:
+  static constexpr int MAX_VARS = 100;
+  vtkUnstructuredGrid* ugrid;
+  bool vorticity;
+  bool lambda_2;
+  bool wss;
+  bool stress_tensor;
+  bool vars[MAX_VARS];
+  bool der_vars[MAX_VARS];
+  int index;
 
+  nek5KObject* prev;
+  nek5KObject* next;
+  char* dataFilename;
+
+  void setDataFilename(char* filename);
+  void reset();
+
+  // protected:
+  nek5KObject();
+  ~nek5KObject();
+};
+
+//----------------------------------------------------------------------------
+class vtkNek5000Reader::nek5KList
+{
+public:
+  nek5KObject* head;
+  nek5KObject* tail;
+  int max_count;
+  int cur_count;
+  nek5KObject* getObject(int);
+
+  // protected:
+  nek5KList();
+  ~nek5KList();
+};
+
+//----------------------------------------------------------------------------
 vtkNek5000Reader::vtkNek5000Reader()
 {
   this->DebugOff();
@@ -1887,7 +1927,7 @@ int vtkNek5000Reader::CanReadFile(const char* fname)
     return 1;
 } // vtkNek5000Reader::CanReadFile()
 
-nek5KObject::nek5KObject()
+vtkNek5000Reader::nek5KObject::nek5KObject()
 {
   this->ugrid = nullptr;
   this->vorticity = false;
@@ -1904,7 +1944,7 @@ nek5KObject::nek5KObject()
   this->dataFilename = nullptr;
 }
 
-nek5KObject::~nek5KObject()
+vtkNek5000Reader::nek5KObject::~nek5KObject()
 {
   if (this->ugrid)
     this->ugrid->Delete();
@@ -1915,7 +1955,7 @@ nek5KObject::~nek5KObject()
   }
 }
 
-void nek5KObject::reset()
+void vtkNek5000Reader::nek5KObject::reset()
 {
   this->vorticity = false;
   this->lambda_2 = false;
@@ -1939,7 +1979,7 @@ void nek5KObject::reset()
   }
 }
 
-void nek5KObject::setDataFilename(char* filename)
+void vtkNek5000Reader::nek5KObject::setDataFilename(char* filename)
 {
   if (this->dataFilename)
   {
@@ -1948,7 +1988,7 @@ void nek5KObject::setDataFilename(char* filename)
   this->dataFilename = strdup(filename);
 }
 
-nek5KList::nek5KList()
+vtkNek5000Reader::nek5KList::nek5KList()
 {
   this->head = nullptr;
   this->tail = nullptr;
@@ -1956,7 +1996,7 @@ nek5KList::nek5KList()
   this->cur_count = 0;
 }
 
-nek5KList::~nek5KList()
+vtkNek5000Reader::nek5KList::~nek5KList()
 {
   int new_cnt = 0;
   nek5KObject* curObj = this->head;
@@ -1969,7 +2009,7 @@ nek5KList::~nek5KList()
   }
 }
 
-nek5KObject* nek5KList::getObject(int id)
+vtkNek5000Reader::nek5KObject* vtkNek5000Reader::nek5KList::getObject(int id)
 {
   nek5KObject* curObj = this->head;
   while (curObj)

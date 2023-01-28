@@ -32,46 +32,6 @@ VTK_ABI_NAMESPACE_BEGIN
 class vtkPoints;
 class vtkDataArraySelection;
 
-#define MAX_VARS 100
-
-class nek5KObject
-{
-public:
-  vtkUnstructuredGrid* ugrid;
-  bool vorticity;
-  bool lambda_2;
-  bool wss;
-  bool stress_tensor;
-  bool vars[MAX_VARS];
-  bool der_vars[MAX_VARS];
-  int index;
-
-  nek5KObject* prev;
-  nek5KObject* next;
-  char* dataFilename;
-
-  void setDataFilename(char* filename);
-  void reset();
-
-  // protected:
-  nek5KObject();
-  ~nek5KObject();
-};
-
-class nek5KList
-{
-public:
-  nek5KObject* head;
-  nek5KObject* tail;
-  int max_count;
-  int cur_count;
-  nek5KObject* getObject(int);
-
-  // protected:
-  nek5KList();
-  ~nek5KList();
-};
-
 class VTKIOPARALLEL_EXPORT vtkNek5000Reader : public vtkUnstructuredGridAlgorithm
 {
 public:
@@ -199,6 +159,8 @@ protected:
   bool* use_variable;
 
   // Tri* T;
+  class nek5KList;
+  class nek5KObject;
   nek5KList* myList;
   nek5KObject* curObj;
   int displayed_step;
