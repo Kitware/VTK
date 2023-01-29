@@ -50,12 +50,101 @@ using std::string;
 
 vtkStandardNewMacro(vtkNek5000Reader);
 
-void ByteSwap32(void* aVals, int nVals);
-void ByteSwap64(void* aVals, int nVals);
-int compare_ids(const void* id1, const void* id2);
+namespace
+{
+
+void ByteSwap32(void* aVals, int nVals)
+{
+  char* v = (char*)aVals;
+  char tmp;
+  for (long ii = 0; ii < nVals; ii++, v += 4)
+  {
+    tmp = v[0];
+    v[0] = v[3];
+    v[3] = tmp;
+    tmp = v[1];
+    v[1] = v[2];
+    v[2] = tmp;
+  }
+}
+
+void ByteSwap64(void* aVals, int nVals)
+{
+  char* v = (char*)aVals;
+  char tmp;
+  for (long ii = 0; ii < nVals; ii++, v += 8)
+  {
+    tmp = v[0];
+    v[0] = v[7];
+    v[7] = tmp;
+    tmp = v[1];
+    v[1] = v[6];
+    v[6] = tmp;
+    tmp = v[2];
+    v[2] = v[5];
+    v[5] = tmp;
+    tmp = v[3];
+    v[3] = v[4];
+    v[4] = tmp;
+  }
+}
+
+int compare_ids(const void* id1, const void* id2)
+{
+  int* a = (int*)id1;
+  int* b = (int*)id2;
+
+  if (*a < *b)
+    return (-1);
+  if (*a > *b)
+    return (1);
+  return (0);
+}
+
+} // end anonymous namespace
 
 //----------------------------------------------------------------------------
+class vtkNek5000Reader::nek5KObject
+{
+public:
+  static constexpr int MAX_VARS = 100;
+  vtkUnstructuredGrid* ugrid;
+  bool vorticity;
+  bool lambda_2;
+  bool wss;
+  bool stress_tensor;
+  bool vars[MAX_VARS];
+  bool der_vars[MAX_VARS];
+  int index;
 
+  nek5KObject* prev;
+  nek5KObject* next;
+  char* dataFilename;
+
+  void setDataFilename(char* filename);
+  void reset();
+
+  // protected:
+  nek5KObject();
+  ~nek5KObject();
+};
+
+//----------------------------------------------------------------------------
+class vtkNek5000Reader::nek5KList
+{
+public:
+  nek5KObject* head;
+  nek5KObject* tail;
+  int max_count;
+  int cur_count;
+  nek5KObject* getObject(int);
+
+  // protected:
+  nek5KList();
+  ~nek5KList();
+};
+
+//----------------------------------------------------------------------------
 vtkNek5000Reader::vtkNek5000Reader()
 {
   this->DebugOff();
@@ -310,50 +399,6 @@ void vtkNek5000Reader::DisableAllPointArrays()
   this->PointDataArraySelection->DisableAllArrays();
 }
 
-#ifdef unused
-//----------------------------------------------------------------------------
-int vtkNek5000Reader::GetNumberOfDerivedVariableArrays()
-{
-  return this->DerivedVariableDataArraySelection->GetNumberOfArrays();
-}
-
-//----------------------------------------------------------------------------
-const char* vtkNek5000Reader::GetDerivedVariableArrayName(int index)
-{
-  return this->DerivedVariableDataArraySelection->GetArrayName(index);
-}
-
-//----------------------------------------------------------------------------
-int vtkNek5000Reader::GetDerivedVariableArrayStatus(const char* name)
-{
-  return this->DerivedVariableDataArraySelection->ArrayIsEnabled(name);
-}
-
-//----------------------------------------------------------------------------
-void vtkNek5000Reader::SetDerivedVariableArrayStatus(const char* name, int status)
-{
-  if (status)
-  {
-    this->DerivedVariableDataArraySelection->EnableArray(name);
-  }
-  else
-  {
-    this->DerivedVariableDataArraySelection->DisableArray(name);
-  }
-}
-
-//----------------------------------------------------------------------------
-void vtkNek5000Reader::EnableAllDerivedVariableArrays()
-{
-  this->DerivedVariableDataArraySelection->EnableAllArrays();
-}
-
-//----------------------------------------------------------------------------
-void vtkNek5000Reader::DisableAllDerivedVariableArrays()
-{
-  this->DerivedVariableDataArraySelection->DisableAllArrays();
-}
-#endif
 //----------------------------------------------------------------------------
 
 void vtkNek5000Reader::updateVariableStatus()
@@ -1887,7 +1932,7 @@ int vtkNek5000Reader::CanReadFile(const char* fname)
     return 1;
 } // vtkNek5000Reader::CanReadFile()
 
-nek5KObject::nek5KObject()
+vtkNek5000Reader::nek5KObject::nek5KObject()
 {
   this->ugrid = nullptr;
   this->vorticity = false;
@@ -1904,7 +1949,7 @@ nek5KObject::nek5KObject()
   this->dataFilename = nullptr;
 }
 
-nek5KObject::~nek5KObject()
+vtkNek5000Reader::nek5KObject::~nek5KObject()
 {
   if (this->ugrid)
     this->ugrid->Delete();
@@ -1915,7 +1960,7 @@ nek5KObject::~nek5KObject()
   }
 }
 
-void nek5KObject::reset()
+void vtkNek5000Reader::nek5KObject::reset()
 {
   this->vorticity = false;
   this->lambda_2 = false;
@@ -1939,7 +1984,7 @@ void nek5KObject::reset()
   }
 }
 
-void nek5KObject::setDataFilename(char* filename)
+void vtkNek5000Reader::nek5KObject::setDataFilename(char* filename)
 {
   if (this->dataFilename)
   {
@@ -1948,7 +1993,7 @@ void nek5KObject::setDataFilename(char* filename)
   this->dataFilename = strdup(filename);
 }
 
-nek5KList::nek5KList()
+vtkNek5000Reader::nek5KList::nek5KList()
 {
   this->head = nullptr;
   this->tail = nullptr;
@@ -1956,140 +2001,92 @@ nek5KList::nek5KList()
   this->cur_count = 0;
 }
 
-nek5KList::~nek5KList()
+vtkNek5000Reader::nek5KList::~nek5KList()
 {
   int new_cnt = 0;
-  nek5KObject* curObj = this->head;
-  while (curObj && new_cnt < this->cur_count)
+  nek5KObject* obj = this->head;
+  while (obj && new_cnt < this->cur_count)
   {
     this->head = this->head->next;
-    delete curObj;
-    curObj = this->head;
+    delete obj;
+    obj = this->head;
     new_cnt++;
   }
 }
 
-nek5KObject* nek5KList::getObject(int id)
+vtkNek5000Reader::nek5KObject* vtkNek5000Reader::nek5KList::getObject(int id)
 {
-  nek5KObject* curObj = this->head;
-  while (curObj)
+  nek5KObject* obj = this->head;
+  while (obj)
   {
-    if (curObj->index == id) // if we found it
+    if (obj->index == id) // if we found it
     {
       // move found obj to tail of the list
       // if already tail, do nothing
-      if (curObj == this->tail)
+      if (obj == this->tail)
         break;
 
       // if it's the head, update head to next
-      if (curObj == this->head)
+      if (obj == this->head)
       {
         this->head = this->head->next;
       }
-      // now move curObj to tail
-      curObj->next->prev = curObj->prev;
-      if (curObj->prev) // i.e. if current was not the head
+      // now move obj to tail
+      obj->next->prev = obj->prev;
+      if (obj->prev) // i.e. if current was not the head
       {
-        curObj->prev->next = curObj->next;
+        obj->prev->next = obj->next;
       }
-      this->tail->next = curObj;
-      curObj->prev = this->tail;
-      curObj->next = nullptr;
-      this->tail = curObj;
+      this->tail->next = obj;
+      obj->prev = this->tail;
+      obj->next = nullptr;
+      this->tail = obj;
       break;
     }
     else // otherwise, lok at the next one
     {
-      curObj = curObj->next;
+      obj = obj->next;
     }
   }
 
   // if we didn't find it
-  if (curObj == nullptr)
+  if (obj == nullptr)
   {
     // if we are not over allocated,
     // create a new object, and put it at the tail
     if (this->cur_count < this->max_count)
     {
       this->cur_count++;
-      // curObj = nek5KObject::New();
-      curObj = new nek5KObject();
+      // obj = nek5KObject::New();
+      obj = new nek5KObject();
       if (this->head == nullptr) // if list is empty
       {
-        this->head = curObj;
-        this->tail = curObj;
+        this->head = obj;
+        this->tail = obj;
       }
       else
       {
-        this->tail->next = curObj;
-        curObj->prev = this->tail;
-        curObj->next = nullptr;
-        this->tail = curObj;
+        this->tail->next = obj;
+        obj->prev = this->tail;
+        obj->next = nullptr;
+        this->tail = obj;
       }
       // set the index to the one requested
-      curObj->index = id;
+      obj->index = id;
     }
     else // otherwise reuse oldest obj (head), reset and move to tail
     {
-      curObj = this->head;
+      obj = this->head;
       this->head = this->head->next;
       this->head->prev = nullptr;
 
-      this->tail->next = curObj;
-      curObj->prev = this->tail;
-      curObj->next = nullptr;
-      this->tail = curObj;
-      curObj->reset();
-      curObj->index = id;
+      this->tail->next = obj;
+      obj->prev = this->tail;
+      obj->next = nullptr;
+      this->tail = obj;
+      obj->reset();
+      obj->index = id;
     }
   }
-  return (curObj);
-}
-
-void ByteSwap32(void* aVals, int nVals)
-{
-  char* v = (char*)aVals;
-  char tmp;
-  for (long ii = 0; ii < nVals; ii++, v += 4)
-  {
-    tmp = v[0];
-    v[0] = v[3];
-    v[3] = tmp;
-    tmp = v[1];
-    v[1] = v[2];
-    v[2] = tmp;
-  }
-}
-
-void ByteSwap64(void* aVals, int nVals)
-{
-  char* v = (char*)aVals;
-  char tmp;
-  for (long ii = 0; ii < nVals; ii++, v += 8)
-  {
-    tmp = v[0];
-    v[0] = v[7];
-    v[7] = tmp;
-    tmp = v[1];
-    v[1] = v[6];
-    v[6] = tmp;
-    tmp = v[2];
-    v[2] = v[5];
-    v[5] = tmp;
-    tmp = v[3];
-    v[3] = v[4];
-    v[4] = tmp;
-  }
-}
-
-int compare_ids(const void* id1, const void* id2)
-{
-  int* a = (int*)id1;
-  int* b = (int*)id2;
-
-  if (*a < *b)
-    return (-1);
-  if (*a > *b)
-    return (1);
-  return (0);
+  return (obj);
 }
