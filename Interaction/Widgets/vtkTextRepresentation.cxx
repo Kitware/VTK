@@ -145,7 +145,10 @@ void vtkTextRepresentation::BuildRepresentation()
 //------------------------------------------------------------------------------
 void vtkTextRepresentation::GetActors2D(vtkPropCollection* pc)
 {
-  pc->AddItem(this->TextActor);
+  if (pc != nullptr && this->GetVisibility())
+  {
+    pc->AddItem(this->TextActor);
+  }
   this->Superclass::GetActors2D(pc);
 }
 

@@ -432,14 +432,18 @@ double* vtkTexturedButtonRepresentation::GetBounds()
 //------------------------------------------------------------------------------
 void vtkTexturedButtonRepresentation::GetActors(vtkPropCollection* pc)
 {
-  if (this->FollowCamera)
+  if (pc != nullptr && this->GetVisibility())
   {
-    this->Follower->GetActors(pc);
+    if (this->FollowCamera)
+    {
+      this->Follower->GetActors(pc);
+    }
+    else
+    {
+      this->Actor->GetActors(pc);
+    }
   }
-  else
-  {
-    this->Actor->GetActors(pc);
-  }
+  this->Superclass::GetActors(pc);
 }
 
 //------------------------------------------------------------------------------

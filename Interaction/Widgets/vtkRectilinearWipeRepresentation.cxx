@@ -420,7 +420,10 @@ void vtkRectilinearWipeRepresentation::BuildRepresentation()
 //------------------------------------------------------------------------------
 void vtkRectilinearWipeRepresentation::GetActors2D(vtkPropCollection* pc)
 {
-  this->WipeActor->GetActors2D(pc);
+  if (pc != nullptr && this->GetVisibility())
+  {
+    this->WipeActor->GetActors2D(pc);
+  }
 }
 
 //------------------------------------------------------------------------------

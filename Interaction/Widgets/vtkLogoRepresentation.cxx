@@ -183,7 +183,10 @@ void vtkLogoRepresentation::BuildRepresentation()
 //------------------------------------------------------------------------------
 void vtkLogoRepresentation::GetActors2D(vtkPropCollection* pc)
 {
-  pc->AddItem(this->TextureActor);
+  if (pc != nullptr && this->GetVisibility())
+  {
+    pc->AddItem(this->TextureActor);
+  }
   this->Superclass::GetActors2D(pc);
 }
 

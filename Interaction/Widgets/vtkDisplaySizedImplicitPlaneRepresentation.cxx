@@ -656,14 +656,17 @@ double* vtkDisplaySizedImplicitPlaneRepresentation::GetBounds()
 //------------------------------------------------------------------------------
 void vtkDisplaySizedImplicitPlaneRepresentation::GetActors(vtkPropCollection* pc)
 {
-  pc->AddItem(this->OutlineActor);
-  pc->AddItem(this->PlaneActor);
-  pc->AddItem(this->EdgesActor);
-  pc->AddItem(this->IntersectionEdgesActor);
-  pc->AddItem(this->ConeActor);
-  pc->AddItem(this->LineActor);
-  pc->AddItem(this->ConeActor2);
-  pc->AddItem(this->SphereActor);
+  if (pc != nullptr && this->GetVisibility())
+  {
+    pc->AddItem(this->OutlineActor);
+    pc->AddItem(this->PlaneActor);
+    pc->AddItem(this->EdgesActor);
+    pc->AddItem(this->IntersectionEdgesActor);
+    pc->AddItem(this->ConeActor);
+    pc->AddItem(this->LineActor);
+    pc->AddItem(this->ConeActor2);
+    pc->AddItem(this->SphereActor);
+  }
   this->Superclass::GetActors(pc);
 }
 

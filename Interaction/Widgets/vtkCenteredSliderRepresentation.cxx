@@ -445,9 +445,13 @@ void vtkCenteredSliderRepresentation::BuildRepresentation()
 //------------------------------------------------------------------------------
 void vtkCenteredSliderRepresentation::GetActors(vtkPropCollection* propCollections)
 {
-  propCollections->AddItem(this->TubeActor);
-  propCollections->AddItem(this->SliderActor);
-  propCollections->AddItem(this->LabelActor);
+  if (propCollections != nullptr && this->GetVisibility())
+  {
+    propCollections->AddItem(this->TubeActor);
+    propCollections->AddItem(this->SliderActor);
+    propCollections->AddItem(this->LabelActor);
+  }
+  this->Superclass::GetActors(propCollections);
 }
 
 //------------------------------------------------------------------------------
