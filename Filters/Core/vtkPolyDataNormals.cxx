@@ -176,7 +176,14 @@ int vtkPolyDataNormals::RequestData(vtkInformation* vtkNotUsed(request),
   newMesh->SetPoints(inPoints);
   // create a copy because we're modifying it
   vtkNew<vtkCellArray> newPolys;
-  newPolys->DeepCopy(polys);
+  if (this->AutoOrientNormals || this->Consistency || this->Splitting)
+  {
+    newPolys->DeepCopy(polys);
+  }
+  else // just shallow copy
+  {
+    newPolys->ShallowCopy(polys);
+  }
   newMesh->SetPolys(newPolys);
   newMesh->BuildCells(); // builds connectivity
 
