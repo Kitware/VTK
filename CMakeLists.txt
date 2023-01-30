@@ -529,8 +529,8 @@ if (VTK_WRAP_PYTHON)
       message(AUTHOR_WARNING
         "Disabling `.pyi` compilation as building it in the wheel does not "
         "work. Please update to Python 3.8 for `.pyi` support in Windows "
-        "wheels. If the interpreter is known to be able to import `vtkmodules`,
-        please set `vtk_python_interpreter_can_import_vtk` to `ON`.")
+        "wheels. If the interpreter is known to be able to import `vtkmodules`, "
+        "please set `vtk_python_interpreter_can_import_vtk` to `ON`.")
       list(APPEND vtk_python_interpreter_args
         INTERPRETER "DISABLE")
     endif ()
