@@ -163,7 +163,10 @@ int vtkPolyDataNormals::RequestData(vtkInformation* vtkNotUsed(request),
     oldMesh->SetPolys(inPolys);
     polys = inPolys;
   }
-  oldMesh->BuildLinks();
+  if (this->AutoOrientNormals || this->Consistency || this->Splitting)
+  {
+    oldMesh->BuildLinks();
+  }
   this->UpdateProgress(0.10);
 
   vtkPointData* inPD = input->GetPointData();
