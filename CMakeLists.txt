@@ -526,11 +526,14 @@ if (VTK_WRAP_PYTHON)
     if (VTK_PYTHON_VERSION STREQUAL "3" AND
         Python3_VERSION VERSION_LESS "3.8" AND
         WIN32)
-      message(AUTHOR_WARNING
-        "Disabling `.pyi` compilation as building it in the wheel does not "
-        "work. Please update to Python 3.8 for `.pyi` support in Windows "
-        "wheels. If the interpreter is known to be able to import `vtkmodules`, "
-        "please set `vtk_python_interpreter_can_import_vtk` to `ON`.")
+      if ("$ENV{CI}" STREQUAL "")
+        message(AUTHOR_WARNING
+          "Disabling `.pyi` compilation as building it in the wheel does not "
+          "work. Please update to Python 3.8 for `.pyi` support in Windows "
+          "wheels. If the interpreter is known to be able to import "
+          "`vtkmodules`, " "please set "
+          "`vtk_python_interpreter_can_import_vtk` to `ON`.")
+      endif ()
       list(APPEND vtk_python_interpreter_args
         INTERPRETER "DISABLE")
     endif ()
