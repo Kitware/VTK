@@ -8,10 +8,12 @@ GROUPS
   StandAlone
 DEPENDS
   VTK::CommonExecutionModel
-  VTK::verdict
 PRIVATE_DEPENDS
   VTK::CommonCore
   VTK::CommonDataModel
+  VTK::FiltersCore
+  VTK::FiltersGeometry
+  VTK::verdict
 TEST_DEPENDS
   VTK::FiltersSources
   VTK::IOLegacy
