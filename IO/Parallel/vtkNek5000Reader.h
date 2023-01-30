@@ -216,7 +216,7 @@ protected:
 
   // Time query function. Called by ExecuteInformation().
   // Fills the TimestepValues array.
-  void GetAllTimesAndVariableNames(vtkInformationVector*);
+  bool GetAllTimesAndVariableNames(vtkInformationVector*);
 
   // Description:
   // Populates the TIME_STEPS and TIME_RANGE keys based on file metadata.
