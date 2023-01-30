@@ -72,6 +72,8 @@ private:
     InvokerBasePointer invoker = std::move(invokerQueue.front());
     invokerQueue.pop_front();
 
+    assert(invoker->GetSharedState()->Status & ENQUEUED && "Status should be ENQUEUED.");
+
     this->Queue->PopFrontNullptr();
 
     this->Queue->Invoke(std::move(invoker), lock);
@@ -289,6 +291,7 @@ void vtkThreadedCallbackQueue::SignalDependentSharedFutures(const InvokerBase* i
       : this->InvokerQueue.front()->GetSharedState()->InvokerIndex;
     for (InvokerBasePointer& inv : invokersToLaunch)
     {
+      assert(inv->GetSharedState()->Status & ON_HOLD && "Status should be ON_HOLD");
       inv->GetSharedState()->InvokerIndex = --index;
       {
         // We're locking the invoker's mutex so a potential thread calling Wait can pick this

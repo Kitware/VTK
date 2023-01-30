@@ -15,7 +15,7 @@
 
 #include "vtkObjectFactory.h"
 
-#include <chrono>
+#include <cassert>
 #include <stdexcept>
 #include <tuple>
 #include <type_traits>
@@ -491,10 +491,9 @@ struct vtkThreadedCallbackQueue::Invoker : public vtkThreadedCallbackQueue::Invo
   {
   }
 
-  // WARNING!!
-  // SharedState->Status should be equal to RUNNING before calling this function.
   void operator()() override
   {
+    assert(this->SharedState->Status & RUNNING && "Status should be RUNNING");
     InvokerImpl::InvokerHelper<InvokeResult<FT>>::Invoke(this->Impl, this->SharedState.get());
   }
 
