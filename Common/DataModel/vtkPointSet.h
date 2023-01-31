@@ -80,6 +80,11 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
   ///@}
 
+  /**
+   * Standard vtkDataSet API methods. See vtkDataSet for more information.
+   */
+  int GetDataObjectType() override { return VTK_POINT_SET; }
+
   ///@{
   /**
    * Specify whether this dataset is editable after creation. Meaning, once

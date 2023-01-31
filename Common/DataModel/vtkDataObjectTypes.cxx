@@ -176,7 +176,7 @@ vtkDataObject* vtkDataObjectTypes::NewDataObject(int type)
     case VTK_DATA_SET:
       return nullptr;
     case VTK_POINT_SET:
-      return nullptr;
+      return vtkPointSet::New();
     case VTK_UNIFORM_GRID:
       return vtkUniformGrid::New();
     case VTK_COMPOSITE_DATA_SET:
