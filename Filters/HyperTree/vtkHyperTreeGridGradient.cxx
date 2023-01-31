@@ -137,13 +137,23 @@ struct GradientWorker
 
     // differential computation
     double grad[3] = { scalDiff, scalDiff, scalDiff };
+    double norm = 0;
 
     const double dx = center[0] - centerN[0];
     grad[0] *= dx;
+    norm += dx * dx;
     const double dy = center[1] - centerN[1];
     grad[1] *= dy;
+    norm += dy * dy;
     const double dz = center[2] - centerN[2];
     grad[2] *= dz;
+    norm += dz * dz;
+    if (norm != 0)
+    {
+      grad[0] /= norm;
+      grad[1] /= norm;
+      grad[2] /= norm;
+    }
 
     // The part below is not THREAD SAFE
 
@@ -193,14 +203,16 @@ struct GradientWorker
         continue;
       }
 
-      if (supercursor->IsRealLeaf(i))
+      if (supercursor->IsRealLeaf(i) && supercursor->GetGlobalNodeIndex() <= idN)
       {
-        vtkIdType id = supercursor->GetGlobalNodeIndex();
-        if (id <= idN)
-        {
-          // avoid double computation between siblings
-          continue;
-        }
+        // avoid double computation between siblings
+        continue;
+      }
+
+      if (supercursor->IsMasked(i))
+      {
+        // do not consider masked cells
+        continue;
       }
 
       ComputeGradientAt(supercursor, i);
@@ -253,6 +265,12 @@ struct GradientWorker
         if (idN < 0 || !supercursor->IsLeaf(cursorId))
         {
           // invalid neigh (boundary or coarse)
+          continue;
+        }
+
+        if (supercursor->IsMasked(cursorId))
+        {
+          // masked neigh are ignored
           continue;
         }
 

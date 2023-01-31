@@ -68,7 +68,7 @@ int TestHyperTreeGridTernary3DGradient(int argc, char* argv[])
   glypher->SetVectorModeToUseVector();
   glypher->ScalingOn();
   glypher->SetScaleModeToScaleByVector();
-  glypher->SetScaleFactor(0.3);
+  glypher->SetScaleFactor(20);
 
   // mapper
   vtkNew<vtkPolyDataMapper> mapper1;
