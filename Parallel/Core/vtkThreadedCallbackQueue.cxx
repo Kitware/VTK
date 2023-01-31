@@ -60,20 +60,23 @@ private:
       this->Queue->ConditionVariable.wait(lock, [this] { return !this->OnHold(); });
     }
 
-    // Note that if the queue is empty at this point, it means that either the Stop command has
-    // been called, or the current thread id is now out of bound, or the queue is being destroyed.
+    // Note that if the queue is empty at this point, it means that either the current thread id
+    // is now out of bound, or the queue is being destroyed.
     if (!this->Continue())
     {
       return false;
     }
 
-    InvokerPointer invoker = std::move(this->Queue->InvokerQueue.front());
-    this->Queue->InvokerQueue.pop();
-    this->Queue->Empty = this->Queue->InvokerQueue.empty();
+    auto& invokerQueue = this->Queue->InvokerQueue;
 
-    lock.unlock();
+    InvokerBasePointer invoker = std::move(invokerQueue.front());
+    invokerQueue.pop_front();
 
-    (*invoker)();
+    assert(invoker->GetSharedState()->Status & ENQUEUED && "Status should be ENQUEUED.");
+
+    this->Queue->PopFrontNullptr();
+
+    this->Queue->Invoke(std::move(invoker), lock);
 
     return true;
   }
@@ -85,7 +88,7 @@ private:
   bool OnHold() const
   {
     return this->ThreadId < this->Queue->NumberOfThreads && !this->Queue->Destroying &&
-      this->Queue->Running && this->Queue->InvokerQueue.empty();
+      this->Queue->InvokerQueue.empty();
   }
 
   /**
@@ -94,8 +97,7 @@ private:
    */
   bool Continue() const
   {
-    return this->ThreadId < this->Queue->NumberOfThreads && this->Queue->Running &&
-      (!this->Queue->InvokerQueue.empty());
+    return this->ThreadId < this->Queue->NumberOfThreads && !this->Queue->InvokerQueue.empty();
   }
 
   vtkThreadedCallbackQueue* Queue;
@@ -129,38 +131,28 @@ vtkThreadedCallbackQueue::vtkThreadedCallbackQueue()
 //-----------------------------------------------------------------------------
 vtkThreadedCallbackQueue::vtkThreadedCallbackQueue(
   vtkSmartPointer<vtkThreadedCallbackQueue>&& controller)
-  : Empty(true)
-  , Destroying(false)
-  , Running(false)
-  , NumberOfThreads(1)
+  : NumberOfThreads(1)
   , Threads(NumberOfThreads)
   , Controller(controller)
 {
-  if (this->Controller)
-  {
-    this->Controller->SetNumberOfThreads(1);
-    this->Controller->Start();
-  }
+  this->Start();
 }
 
 //-----------------------------------------------------------------------------
 vtkThreadedCallbackQueue::~vtkThreadedCallbackQueue()
 {
-  // By deleting the controller, we ensure that all the Start(), Stop()
+  // By deleting the controller, we ensure that all the Start()
   // and SetNumberOfThreads() calls are terminated and that we have a sane state
   // of our queue.
   this->Controller = nullptr;
 
-  if (this->Running)
   {
-    {
-      std::lock_guard<std::mutex> lock(this->Mutex);
-      this->Destroying = true;
-    }
-
-    this->ConditionVariable.notify_all();
-    this->Sync();
+    std::lock_guard<std::mutex> lock(this->Mutex);
+    this->Destroying = true;
   }
+
+  this->ConditionVariable.notify_all();
+  this->Sync();
 }
 
 //-----------------------------------------------------------------------------
@@ -175,7 +167,7 @@ void vtkThreadedCallbackQueue::SetNumberOfThreads(int numberOfThreads)
       return;
     }
     // We only need to protect the shared atomic NumberOfThreads if we are shrinking.
-    else if (size < numberOfThreads || !this->Running)
+    else if (size < numberOfThreads)
     {
       this->NumberOfThreads = numberOfThreads;
     }
@@ -185,20 +177,12 @@ void vtkThreadedCallbackQueue::SetNumberOfThreads(int numberOfThreads)
       this->NumberOfThreads = numberOfThreads;
     }
 
-    // If there are no threads running, we can just allocate the vector of threads.
-    if (!this->Running)
-    {
-      this->Threads.resize(numberOfThreads);
-      return;
-    }
-
     // If we are expanding the number of threads, then we just need to spawn
     // the missing threads.
     if (size < numberOfThreads)
     {
-      std::generate_n(std::back_inserter(this->Threads), numberOfThreads - size, [this] {
-        return std::thread(ThreadWorker(this, static_cast<int>(this->Threads.size() - 1)));
-      });
+      std::generate_n(std::back_inserter(this->Threads), numberOfThreads - size,
+        [this] { return std::thread(ThreadWorker(this, static_cast<int>(this->Threads.size()))); });
     }
     // If we are shrinking the number of threads, let's notify all threads
     // so the threads whose id is more than the updated NumberOfThreads terminate.
@@ -212,35 +196,9 @@ void vtkThreadedCallbackQueue::SetNumberOfThreads(int numberOfThreads)
 }
 
 //-----------------------------------------------------------------------------
-void vtkThreadedCallbackQueue::Stop()
-{
-  ::Execute(this->Controller, [this]() {
-    if (!this->Running)
-    {
-      return;
-    }
-
-    {
-      std::lock_guard<std::mutex> lock(this->Mutex);
-      this->Running = false;
-    }
-
-    this->ConditionVariable.notify_all();
-    this->Sync();
-  });
-}
-
-//-----------------------------------------------------------------------------
 void vtkThreadedCallbackQueue::Start()
 {
   ::Execute(this->Controller, [this]() {
-    if (this->Running)
-    {
-      return;
-    }
-
-    this->Running = true;
-
     int threadId = -1;
     std::generate(this->Threads.begin(), this->Threads.end(),
       [this, &threadId] { return std::thread(ThreadWorker(this, ++threadId)); });
@@ -255,14 +213,113 @@ void vtkThreadedCallbackQueue::Sync(int startId)
 }
 
 //-----------------------------------------------------------------------------
+void vtkThreadedCallbackQueue::PopFrontNullptr()
+{
+  while (!this->InvokerQueue.empty() && !this->InvokerQueue.front())
+  {
+    this->InvokerQueue.pop_front();
+  }
+}
+
+//-----------------------------------------------------------------------------
+void vtkThreadedCallbackQueue::Invoke(
+  InvokerBasePointer&& invoker, std::unique_lock<std::mutex>& lock)
+{
+  invoker->GetSharedState()->Status = RUNNING;
+  lock.unlock();
+  (*invoker)();
+  this->SignalDependentSharedFutures(invoker.get());
+}
+
+//-----------------------------------------------------------------------------
+void vtkThreadedCallbackQueue::SignalDependentSharedFutures(const InvokerBase* invoker)
+{
+  // We put invokers to launch in a separate container so we can separate the usage of mutexes as
+  // much as possible
+  std::vector<InvokerBasePointer> invokersToLaunch;
+  {
+    auto invokerState = invoker->GetSharedState();
+
+    // We are iterating on our dependents, which mean we cannot let any dependent add themselves to
+    // this container. At this point we're "ready" anyway so no dependents should be waiting in most
+    // cases.
+    std::lock_guard<std::mutex> lock(invokerState->Mutex);
+    for (auto& future : invokerState->DependentSharedFutures)
+    {
+      auto futureState = future->GetSharedState();
+
+      // We're locking the dependent future. When the lock is released, either the future is not
+      // done constructing and we have nothing to do, we can let it run itself, or the future is
+      // done constructing, in which case if we hit zero prior futures remaining, we've gotta move
+      // its associated invoker in the running queue.
+      std::unique_lock<std::mutex> futureLock(futureState->Mutex);
+      --futureState->NumberOfPriorSharedFuturesRemaining;
+      if (!(futureState->Status & CONSTRUCTING) &&
+        !futureState->NumberOfPriorSharedFuturesRemaining)
+      {
+        // We can unlock at this point, we don't touch the future anymore
+        futureLock.unlock();
+        InvokerBasePointer waitingInvoker = [this, &future] {
+          std::lock_guard<std::mutex> onHoldLock(this->OnHoldMutex);
+          auto it = this->InvokersOnHold.find(future);
+          InvokerBasePointer tmp = std::move(it->second);
+          this->InvokersOnHold.erase(it);
+          return tmp;
+        }();
+
+        // Invoker is high priority if it comes from vtkThreadedCallbackQueue::Wait for example.
+        if (waitingInvoker->IsHighPriority)
+        {
+          futureLock.lock();
+          this->Invoke(std::move(waitingInvoker), futureLock);
+        }
+        else
+        {
+          invokersToLaunch.emplace_back(std::move(waitingInvoker));
+        }
+      }
+    }
+  }
+  if (!invokersToLaunch.empty())
+  {
+    std::lock_guard<std::mutex> lock(this->Mutex);
+    // We need to handle the invoker index.
+    // If the InvokerQueue is empty, then we set it such that after this look, the front has index
+    // 0.
+    std::size_t index = this->InvokerQueue.empty()
+      ? invokersToLaunch.size()
+      : this->InvokerQueue.front()->GetSharedState()->InvokerIndex;
+    for (InvokerBasePointer& inv : invokersToLaunch)
+    {
+      assert(inv->GetSharedState()->Status & ON_HOLD && "Status should be ON_HOLD");
+      inv->GetSharedState()->InvokerIndex = --index;
+      {
+        // We're locking the invoker's mutex so a potential thread calling Wait can pick this
+        // invoker up.
+        std::lock_guard<std::mutex> invLock(inv->GetSharedState()->Mutex);
+
+        // This dependent has been waiting enough, let's give him some priority.
+        // Anyway, the invoker is past due if it was put inside InvokersOnHold.
+        inv->GetSharedState()->Status = ENQUEUED;
+        this->InvokerQueue.emplace_front(std::move(inv));
+      }
+    }
+  }
+  for (std::size_t i = 0; i < invokersToLaunch.size(); ++i)
+  {
+    this->ConditionVariable.notify_one();
+  }
+}
+
+//-----------------------------------------------------------------------------
 void vtkThreadedCallbackQueue::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 
-  std::lock_guard<std::mutex> lock(this->Mutex);
+  std::lock_guard<std::mutex> lock1(this->Mutex), lock2(this->OnHoldMutex);
   os << indent << "Threads: " << this->NumberOfThreads << std::endl;
   os << indent << "Callback queue size: " << this->InvokerQueue.size() << std::endl;
-  os << indent << "Queue is" << (this->Running ? " not" : "") << " running" << std::endl;
+  os << indent << "Number of functions on hold: " << this->InvokersOnHold.size() << std::endl;
 }
 
 VTK_ABI_NAMESPACE_END

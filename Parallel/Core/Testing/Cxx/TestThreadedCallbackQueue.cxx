@@ -31,21 +31,12 @@ void RunThreads(int nthreadsBegin, int nthreadsEnd)
 {
   vtkNew<vtkThreadedCallbackQueue> queue;
   queue->SetNumberOfThreads(nthreadsBegin);
-  queue->Start();
   std::atomic_int count(0);
   int N = 100000;
 
   // We are testing if the queue can properly resize itself and doesn't have deadlocks
   for (vtkIdType i = 0; i < N; ++i)
   {
-    if (i == N / 2)
-    {
-      queue->Start();
-    }
-    if (i == N / 4)
-    {
-      queue->Stop();
-    }
     vtkSmartPointer<vtkIntArray> array = vtkSmartPointer<vtkIntArray>::New();
     queue->Push(
       [&count](const int& n, const double&&, char, vtkIntArray* a1, vtkIntArray* a2) {
@@ -81,8 +72,10 @@ struct A
   void f(A&, A&&) {}
   void const_f(A&, A&&) const {}
   void operator()(A&, A&&) { std::cout << *array << std::endl; }
+  int& get() { return val; }
 
   vtkSmartPointer<vtkIntArray> array = vtkSmartPointer<vtkIntArray>::New();
+  int val = 0;
 };
 
 //-----------------------------------------------------------------------------
@@ -105,6 +98,9 @@ void TestFunctionTypeCompleteness()
     queue->Push(&::A::f, ::A(), ::A(), ::A());
     queue->Push(&::A::const_f, ::A(), ::A(), ::A());
 
+    // Fetching an lvalue reference return type
+    queue->Push(&::A::get, ::A());
+
     // functor
     queue->Push(::A(), ::A(), ::A());
 
@@ -125,11 +121,10 @@ void TestFunctionTypeCompleteness()
     std::function<void(::A&, ::A &&)> func = f;
     queue->Push(func, ::A(), ::A());
   }
-  queue->Start();
 }
 
 //-----------------------------------------------------------------------------
-bool TestTokens()
+bool TestSharedFutures()
 {
   int N = 100;
   bool retVal = true;
@@ -138,41 +133,72 @@ bool TestTokens()
     vtkNew<vtkThreadedCallbackQueue> queue;
     queue->SetNumberOfThreads(4);
 
-    int count = 0;
+    std::atomic_int count(0);
+    std::mutex mutex;
 
-    auto f = [&count](std::string&, int low, int up) {
-      if (count < low || count > up)
+    auto f = [&count, &mutex](std::string& s, int low) {
+      std::unique_lock<std::mutex> lock(mutex);
+      if (count++ < low)
       {
-        ++count;
+        vtkLog(ERROR,
+          "Task " << s.c_str() << " started too early, in " << count << "th position"
+                  << " instead of " << low + 1 << "th.");
         return false;
       }
-      ++count;
+      lock.unlock();
       std::this_thread::sleep_for(std::chrono::milliseconds(10));
       return true;
     };
 
-    using Array = std::vector<vtkThreadedCallbackQueue::TokenPointer>;
+    using Array = std::vector<vtkThreadedCallbackQueue::SharedFuturePointer<bool>>;
 
-    auto token1 = queue->Push(f, std::string("t1"), 0, 1);
-    auto token2 = queue->PushDependent(Array{ token1 }, f, std::string("t2"), 1, 4);
-    auto token3 = queue->PushDependent(Array{ token1, token2 }, f, std::string("t3"), 2, 5);
-    auto token4 = queue->PushDependent(Array{ token1 }, f, std::string("t4"), 1, 4);
-    auto token5 = queue->Push(f, std::string("t5"), 0, 4);
-    queue->Start();
+    int n = 10;
 
-    token3->Future.wait();
+    Array futures;
 
-    retVal &= (token1->Future.get() && token2->Future.get() && token3->Future.get() &&
-      token4->Future.get() && token5->Future.get());
+    auto future1 = queue->Push(f, "t1", 0);
+    auto future2 = queue->PushDependent(Array{ future1 }, f, "t2", 1);
+    auto future3 = queue->PushDependent(Array{ future1, future2 }, f, "t3", 2);
+    // These pushes makes the scenario where future2 and future4 are ready to run but have a higher
+    // future id than them. SharedFuture2 and future4 will need to wait here and we're ensuring
+    // everything goes well.
+    for (int i = 0; i < n; ++i)
+    {
+      futures.emplace_back(queue->Push(f, "spam", 0));
+    }
+    auto fastFuture = queue->Push(f, "spam", 0);
+    auto future4 = queue->PushDependent(Array{ future2 }, f, "t4", 3);
+    auto future5 = queue->PushDependent(Array{ future3, future4 }, f, "t5", 4);
+    auto future6 = queue->Push(f, "t6", 0);
+
+    futures.emplace_back(future1);
+    futures.emplace_back(future2);
+    futures.emplace_back(future3);
+    futures.emplace_back(future4);
+    futures.emplace_back(future5);
+    futures.emplace_back(future6);
+
+    // Testing the case where Wait executes the task associated with a function that wasn't invoked
+    // yet.
+    queue->Wait(Array{ fastFuture });
+
+    // Testing all other scenarios in Wait
+    queue->Wait(futures);
+
+    for (auto& future : futures)
+    {
+      retVal &= future->Get();
+    }
   }
+
   return retVal;
 }
 } // anonymous namespace
 
 int TestThreadedCallbackQueue(int, char*[])
 {
-  vtkLog(INFO, "Testing tokens");
-  bool retVal = ::TestTokens();
+  vtkLog(INFO, "Testing futures");
+  bool retVal = ::TestSharedFutures();
 
   ::TestFunctionTypeCompleteness();
 
