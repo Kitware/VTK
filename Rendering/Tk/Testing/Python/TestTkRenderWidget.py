@@ -10,12 +10,7 @@ import vtkmodules.vtkRenderingFreeType
 import vtkmodules.vtkRenderingOpenGL2
 from vtkmodules.test import Testing
 
-if sys.hexversion < 0x03000000:
-    # for Python2
-    import Tkinter as tkinter
-else:
-    # for Python3
-    import tkinter
+import tkinter
 
 from vtkmodules.tk.vtkTkRenderWidget import vtkTkRenderWidget
 

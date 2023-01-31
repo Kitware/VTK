@@ -16,61 +16,30 @@ following should be fixed first:
 [VTK dynamic Python lookup issue]: https://gitlab.kitware.com/vtk/vtk/-/issues/17214
 #]==]
 
-if (NOT DEFINED VTK_PYTHON_VERSION)
-  set(VTK_PYTHON_VERSION "3"
-    CACHE STRING "")
-  set_property(CACHE VTK_PYTHON_VERSION
-    PROPERTY
-      STRINGS "2;3")
-endif ()
-
-if (VTK_PYTHON_VERSION STREQUAL "2")
-  message(DEPRECATION
-    "Python2 support is deprecated and will be removed in a future release. "
-    "Please migrate to a supported version of Python.")
-endif ()
-
 # VTK only supports a single Python version at a time, so make artifact finding
 # interactive.
-set("Python${VTK_PYTHON_VERSION}_ARTIFACTS_INTERACTIVE" ON)
+set(Python3_ARTIFACTS_INTERACTIVE ON)
 
-if (VTK_PYTHON_VERSION STREQUAL "2")
-  set(vtk_python_min_version "2.7")
-  set(vtk_python_version_support "2.7")
-  if (VTK_REMOVE_LEGACY)
-    set(vtk_python_min_version "${vtk_python_version_support}")
-  endif ()
-  vtk_module_find_package(
-    PACKAGE Python2
-    VERSION "${vtk_python_min_version}"
-    COMPONENTS Interpreter Development.Module
-    OPTIONAL_COMPONENTS Development.Embed
-    FORWARD_VERSION_REQ MINOR)
-elseif (VTK_PYTHON_VERSION STREQUAL "3")
-  set(vtk_python_min_version "3.4")
-  set(vtk_python_version_support "3.6")
-  if (VTK_REMOVE_LEGACY)
-    set(vtk_python_min_version "${vtk_python_version_support}")
-  endif ()
-  vtk_module_find_package(
-    PACKAGE Python3
-    VERSION "${vtk_python_min_version}"
-    COMPONENTS Interpreter Development.Module
-    OPTIONAL_COMPONENTS Development.Embed
-    FORWARD_VERSION_REQ MINOR)
-else ()
-  message(FATAL_ERROR
-    "`VTK_PYTHON_VERSION` must either be 2 or 3.")
+set(vtk_python_min_version "3.4")
+set(vtk_python_version_support "3.6")
+if (VTK_REMOVE_LEGACY)
+  set(vtk_python_min_version "${vtk_python_version_support}")
 endif ()
-set(vtk_python_includes "${Python${VTK_PYTHON_VERSION}_INCLUDE_DIRS}")
-set(vtk_python_target "Python${VTK_PYTHON_VERSION}::Module")
-set(vtk_python_embed_target "Python${VTK_PYTHON_VERSION}::Python")
-set(vtk_python_version "${Python${VTK_PYTHON_VERSION}_VERSION}")
-set(vtk_python_version_pair "${Python${VTK_PYTHON_VERSION}_VERSION_MAJOR}.${Python${VTK_PYTHON_VERSION}_VERSION_MINOR}")
+vtk_module_find_package(
+  PACKAGE Python3
+  VERSION "${vtk_python_min_version}"
+  COMPONENTS Interpreter Development.Module
+  OPTIONAL_COMPONENTS Development.Embed
+  FORWARD_VERSION_REQ MINOR)
+set(vtk_python_includes "${Python3_INCLUDE_DIRS}")
+set(vtk_python_target "Python3::Module")
+set(vtk_python_embed_target "Python3::Python")
+set(vtk_python_version "${Python3_VERSION}")
+set(vtk_python_version_pair "${Python3_VERSION_MAJOR}.${Python3_VERSION_MINOR}")
 
-set_property(GLOBAL PROPERTY _vtk_python_soabi "${Python${VTK_PYTHON_VERSION}_SOABI}")
-set_property(GLOBAL PROPERTY _vtk_python_version_major "${Python${VTK_PYTHON_VERSION}_VERSION_MAJOR}")
-set_property(GLOBAL PROPERTY _vtk_python_version_minor "${Python${VTK_PYTHON_VERSION}_VERSION_MINOR}")
+set_property(GLOBAL PROPERTY _vtk_python_soabi "${Python3_SOABI}")
+set_property(GLOBAL PROPERTY _vtk_python_version_major "${Python3_VERSION_MAJOR}")
+set_property(GLOBAL PROPERTY _vtk_python_version_minor "${Python3_VERSION_MINOR}")
 
 # Check deprecated versions of Python
 if (NOT VTK_LEGACY_SILENT AND vtk_python_version VERSION_LESS vtk_python_version_support)

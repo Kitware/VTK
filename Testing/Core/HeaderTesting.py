@@ -119,10 +119,7 @@ class TestVTKFiles:
         classre = "^class(\s+VTK_DEPRECATED)?(\s+[^\s]*_EXPORT)?\s+(vtkm?[A-Z0-9_][^ :\n]*)\s*:\s*public\s+(vtk[^ \n\{]*)"
         regx = re.compile(classre)
         try:
-            if sys.hexversion >= 0x03000000:
-                file = open(filename, encoding='ascii', errors='ignore')
-            else:
-                file = open(filename)
+            file = open(filename, encoding='ascii', errors='ignore')
             self.FileLines = file.readlines()
             file.close()
             funcre = "[a-zA-Z0-9_]*\s+[a-zA-Z0-9_]*\s*\([^\n\{]*\);"

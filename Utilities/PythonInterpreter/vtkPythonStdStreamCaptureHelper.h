@@ -74,15 +74,11 @@ static PyObject* vtkFlush(PyObject* self, PyObject* args);
 static PyObject* vtkIsatty(PyObject* self, PyObject* args);
 static PyObject* vtkClose(PyObject* self, PyObject* args);
 
-// const_cast since older versions of python are not const correct.
-static PyMethodDef vtkPythonStdStreamCaptureHelperMethods[] = {
-  { const_cast<char*>("write"), vtkWrite, METH_VARARGS, const_cast<char*>("Dump message") },
-  { const_cast<char*>("readline"), vtkRead, METH_VARARGS, const_cast<char*>("Read input line") },
-  { const_cast<char*>("flush"), vtkFlush, METH_VARARGS, const_cast<char*>("Flush") },
-  { const_cast<char*>("isatty"), vtkIsatty, METH_VARARGS, const_cast<char*>("Is a TTY") },
-  { const_cast<char*>("close"), vtkClose, METH_VARARGS, const_cast<char*>("Close") },
-  { nullptr, nullptr, 0, nullptr }
-};
+static PyMethodDef vtkPythonStdStreamCaptureHelperMethods[] = { { "write", vtkWrite, METH_VARARGS,
+                                                                  "Dump message" },
+  { "readline", vtkRead, METH_VARARGS, "Read input line" },
+  { "flush", vtkFlush, METH_VARARGS, "Flush" }, { "isatty", vtkIsatty, METH_VARARGS, "Is a TTY" },
+  { "close", vtkClose, METH_VARARGS, "Close" }, { nullptr, nullptr, 0, nullptr } };
 
 static PyObject* vtkPythonStdStreamCaptureHelperNew(
   PyTypeObject* type, PyObject* /*args*/, PyObject* /*kwds*/)
@@ -91,8 +87,8 @@ static PyObject* vtkPythonStdStreamCaptureHelperNew(
 }
 
 static PyMemberDef vtkPythonStdStreamCaptureHelperMembers[] = {
-  { const_cast<char*>("softspace"), T_INT, offsetof(vtkPythonStdStreamCaptureHelper, softspace), 0,
-    const_cast<char*>("Placeholder so print can keep state.") },
+  { "softspace", T_INT, offsetof(vtkPythonStdStreamCaptureHelper, softspace), 0,
+    "Placeholder so print can keep state." },
   { nullptr, 0, 0, 0, nullptr }
 };
 

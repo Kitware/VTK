@@ -377,12 +377,6 @@ static void vtkWrapPython_GenerateObjectNew(
     "    return (PyObject *)pytype;\n"
     "  }\n\n");
 
-  /* add any flags specific to this type */
-  fprintf(fp,
-    "#ifndef VTK_PY3K\n"
-    "  pytype->tp_flags |= Py_TPFLAGS_HAVE_NEWBUFFER;\n"
-    "#endif\n\n");
-
   /* find the first superclass that is a VTK class, create it first */
   name = vtkWrapPython_GetSuperClass(data, hinfo, &supermodule);
   if (name)

@@ -13,12 +13,7 @@ from vtkmodules.vtkCommonExecutionModel import vtkStreamingDemandDrivenPipeline
 from vtkmodules.vtkInteractionImage import vtkImageViewer
 from vtkmodules.vtkRenderingCore import vtkActor2D, vtkTextMapper
 
-if sys.hexversion < 0x03000000:
-    # for Python2
-    import Tkinter as tkinter
-else:
-    # for Python3
-    import tkinter
+import tkinter
 
 from .vtkLoadPythonTkWidgets import vtkLoadPythonTkWidgets
 

@@ -82,17 +82,13 @@ PyObject* PyVTKSpecialObject_Repr(PyObject* self)
     }
     else
     {
-#ifdef VTK_PY3K
-      s = PyString_FromFormat("%s(%S)", name, t);
-#else
-      s = PyString_FromFormat("%s(%s)", name, PyString_AsString(t));
-#endif
+      s = PyUnicode_FromFormat("%s(%S)", name, t);
     }
   }
   // otherwise just print address of object
   else if (obj->vtk_ptr)
   {
-    s = PyString_FromFormat(
+    s = PyUnicode_FromFormat(
       "<%s(%p) at %p>", name, static_cast<void*>(obj->vtk_ptr), static_cast<void*>(obj));
   }
 
@@ -120,26 +116,22 @@ PyObject* PyVTKSpecialObject_SequenceString(PyObject* self)
   }
   else if (i > 0)
   {
-    return PyString_FromString(bracket);
+    return PyUnicode_FromString(bracket);
   }
 
   n = PySequence_Size(self);
   if (n >= 0)
   {
-    comma = PyString_FromString(", ");
-    s = PyString_FromStringAndSize(bracket, 1);
+    comma = PyUnicode_FromString(", ");
+    s = PyUnicode_FromStringAndSize(bracket, 1);
 
     for (i = 0; i < n && s != nullptr; i++)
     {
       if (i > 0)
       {
-#ifdef VTK_PY3K
         PyObject* tmp = PyUnicode_Concat(s, comma);
         Py_DECREF(s);
         s = tmp;
-#else
-        PyString_Concat(&s, comma);
-#endif
       }
       o = PySequence_GetItem(self, i);
       t = nullptr;
@@ -150,14 +142,10 @@ PyObject* PyVTKSpecialObject_SequenceString(PyObject* self)
       }
       if (t)
       {
-#ifdef VTK_PY3K
         PyObject* tmp = PyUnicode_Concat(s, t);
         Py_DECREF(s);
         Py_DECREF(t);
         s = tmp;
-#else
-        PyString_ConcatAndDel(&s, t);
-#endif
       }
       else
       {
@@ -169,15 +157,11 @@ PyObject* PyVTKSpecialObject_SequenceString(PyObject* self)
 
     if (s)
     {
-#ifdef VTK_PY3K
-      PyObject* tmp1 = PyString_FromStringAndSize(&bracket[4], 1);
+      PyObject* tmp1 = PyUnicode_FromStringAndSize(&bracket[4], 1);
       PyObject* tmp2 = PyUnicode_Concat(s, tmp1);
       Py_DECREF(s);
       Py_DECREF(tmp1);
       s = tmp2;
-#else
-      PyString_ConcatAndDel(&s, PyString_FromStringAndSize(&bracket[4], 1));
-#endif
     }
 
     Py_DECREF(comma);

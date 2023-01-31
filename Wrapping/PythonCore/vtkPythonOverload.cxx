@@ -244,7 +244,6 @@ static int vtkPythonIntPenalty(PY_LONG_LONG tmpi, int penalty, char format)
   return penalty;
 }
 
-#ifdef VTK_PY3K
 //------------------------------------------------------------------------------
 // Check if object supports conversion to integer
 
@@ -260,7 +259,6 @@ static bool vtkPythonCanConvertToInt(PyObject* arg)
   return (nb && nb->nb_int);
 #endif
 }
-#endif
 
 //------------------------------------------------------------------------------
 // This must check the same format chars that are used by
@@ -322,10 +320,8 @@ int vtkPythonOverload::CheckArg(PyObject* arg, const char* format, const char* n
     case 'L':
     case 'i':
     case 'I':
-#ifdef VTK_PY3K
     case 'k':
     case 'K':
-#endif
       // integer types
       if (PyBool_Check(arg))
       {
@@ -335,24 +331,8 @@ int vtkPythonOverload::CheckArg(PyObject* arg, const char* format, const char* n
           penalty++;
         }
       }
-#ifndef VTK_PY3K
-      else if (PyInt_Check(arg))
-      {
-#if VTK_SIZEOF_LONG == VTK_SIZEOF_INT
-        if (*format != 'i')
-        {
-          penalty = VTK_PYTHON_GOOD_MATCH;
-        }
-#else
-        penalty = vtkPythonIntPenalty(PyInt_AsLong(arg), penalty, *format);
-#endif
-      }
-#endif /* VTK_PY3K */
       else if (PyLong_Check(arg))
       {
-#ifndef VTK_PY3K
-        penalty = VTK_PYTHON_GOOD_MATCH;
-#endif
         PY_LONG_LONG tmpi = PyLong_AsLongLong(arg);
         if (PyErr_Occurred())
         {
@@ -362,24 +342,15 @@ int vtkPythonOverload::CheckArg(PyObject* arg, const char* format, const char* n
 
         penalty = vtkPythonIntPenalty(tmpi, penalty, *format);
       }
-      else // not PyInt or PyLong
+      else // not PyLong
       {
         if (level == 0)
         {
           penalty = VTK_PYTHON_NEEDS_CONVERSION;
-#ifdef VTK_PY3K
           if (!vtkPythonCanConvertToInt(arg))
           {
             penalty = VTK_PYTHON_INCOMPATIBLE;
           }
-#else
-          long tmpi = PyInt_AsLong(arg);
-          if (tmpi == -1 || PyErr_Occurred())
-          {
-            PyErr_Clear();
-            penalty = VTK_PYTHON_INCOMPATIBLE;
-          }
-#endif
         }
         else
         {
@@ -387,40 +358,6 @@ int vtkPythonOverload::CheckArg(PyObject* arg, const char* format, const char* n
         }
       }
       break;
-
-#ifndef VTK_PY3K
-    case 'k':
-    case 'K':
-      if (!PyLong_Check(arg))
-      {
-        penalty = VTK_PYTHON_GOOD_MATCH;
-        if (!PyInt_Check(arg))
-        {
-          if (level == 0)
-          {
-            penalty = VTK_PYTHON_NEEDS_CONVERSION;
-#ifdef VTK_PY3K
-            if (!vtkPythonCanConvertToInt(arg))
-            {
-              penalty = VTK_PYTHON_INCOMPATIBLE;
-            }
-#else
-            PyLong_AsLongLong(arg);
-            if (PyErr_Occurred())
-            {
-              PyErr_Clear();
-              penalty = VTK_PYTHON_INCOMPATIBLE;
-            }
-#endif
-          }
-          else
-          {
-            penalty = VTK_PYTHON_INCOMPATIBLE;
-          }
-        }
-      }
-      break;
-#endif
 
     case 'f':
     case 'd':
@@ -453,11 +390,7 @@ int vtkPythonOverload::CheckArg(PyObject* arg, const char* format, const char* n
 
     case 'c':
       // penalize chars, they must be converted from strings
-#ifdef VTK_PY3K
       if (PyUnicode_Check(arg) && PyUnicode_GetLength(arg) == 1)
-#else
-      if (PyUnicode_Check(arg) && PyUnicode_GetSize(arg) == 1)
-#endif
       {
         penalty = VTK_PYTHON_NEEDS_CONVERSION;
       }
@@ -689,7 +622,7 @@ int vtkPythonOverload::CheckArg(PyObject* arg, const char* format, const char* n
         {
           classname++;
         }
-        if (PyInt_Check(arg))
+        if (PyLong_Check(arg))
         {
           PyTypeObject* pytype = vtkPythonUtil::FindEnum(classname);
           if (pytype && PyObject_TypeCheck(arg, pytype))

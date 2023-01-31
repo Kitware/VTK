@@ -42,8 +42,6 @@ arrayType = {
 class TestBuffer(Testing.vtkTest):
     def testOneDimensionalDataArray(self):
         """Test one-dimensional data array."""
-        if sys.hexversion < 0x02070000:
-            return
         for atype,ainfo in arrayType.items():
             aclass = getattr(vtkmodules.vtkCommonCore, 'vtk' + atype + 'Array')
             a = aclass()
@@ -68,8 +66,6 @@ class TestBuffer(Testing.vtkTest):
 
     def testTwoDimensionalDataArray(self):
         """Test data array with components."""
-        if sys.hexversion < 0x02070000:
-            return
         for atype,ainfo in arrayType.items():
             aclass = getattr(vtkmodules.vtkCommonCore, 'vtk' + atype + 'Array')
             a = aclass()
@@ -88,8 +84,6 @@ class TestBuffer(Testing.vtkTest):
 
     def testCharArray(self):
         """Test the special case of the char array."""
-        if sys.hexversion < 0x02070000:
-            return
         # bit array is actually stored as a byte array
         a = vtkCharArray()
         a.SetNumberOfComponents(5)
@@ -106,8 +100,6 @@ class TestBuffer(Testing.vtkTest):
 
     def testBitArray(self):
         """Test the special case of the bit array."""
-        if sys.hexversion < 0x02070000:
-            return
         # bit array is actually stored as a byte array
         a = vtkBitArray()
         a.InsertNextValue(0)
@@ -142,13 +134,8 @@ class TestBuffer(Testing.vtkTest):
         c.DeepCopy(a)
         self.assertEqual(buffer_shared(a, c), False)
 
-        if sys.hexversion >= 0x02070000:
-            m = memoryview(a)
-            self.assertEqual(buffer_shared(a, m), True)
-
-        if sys.hexversion < 0x03000000:
-            m = buffer(a)
-            self.assertEqual(buffer_shared(a, m), True)
+        m = memoryview(a)
+        self.assertEqual(buffer_shared(a, m), True)
 
 if __name__ == "__main__":
     Testing.main([(TestBuffer, 'test')])

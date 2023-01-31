@@ -13,7 +13,7 @@
 
 =========================================================================*/
 /*-----------------------------------------------------------------------
-  This header contains macros to make Python 2 and Python 3 play nice.
+  This header contains macros to make Python 3 play nice.
   It must be included after vtkPython.h.
 -----------------------------------------------------------------------*/
 #ifndef vtkPythonCompatibility_h
@@ -23,24 +23,6 @@
 #if PY_MAJOR_VERSION >= 3
 #define VTK_PY3K
 #endif
-
-// ===== Macros needed for Python 3 ====
-#ifdef VTK_PY3K
-
-// Int/Long compatibility
-#define PyIntObject PyLongObject
-#define PyInt_Type PyLong_Type
-#define PyInt_Check PyLong_Check
-#define PyInt_FromLong PyLong_FromLong
-#define PyInt_AsLong PyLong_AsLong
-
-// Unicode/String compatibility
-#define PyString_AsString PyUnicode_AsUTF8
-#define PyString_InternFromString PyUnicode_InternFromString
-#define PyString_FromFormat PyUnicode_FromFormat
-#define PyString_Check PyUnicode_Check
-#define PyString_FromString PyUnicode_FromString
-#define PyString_FromStringAndSize PyUnicode_FromStringAndSize
 
 // Use this for PyUnicode_EncodeLocale, see PEP 383
 #define VTK_PYUNICODE_ENC "surrogateescape"
@@ -69,24 +51,5 @@
 #endif
 #endif
 
-#endif
-
-// ===== Macros needed for Python 2 ====
-#ifndef VTK_PY3K
-
-// Py3k introduced a new type "Py_hash_t"
-typedef long Py_hash_t;
-typedef unsigned long Py_uhash_t;
-
-// Buffer struct initialization
-#define VTK_PYBUFFER_INITIALIZER                                                                   \
-  {                                                                                                \
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, { 0, 0 }, 0                                                      \
-  }
-
-// PyTypeObject initialization
-#define VTK_WRAP_PYTHON_SUPPRESS_UNINITIALIZED 0, 0,
-
-#endif
 #endif
 // VTK-HeaderTest-Exclude: vtkPythonCompatibility.h

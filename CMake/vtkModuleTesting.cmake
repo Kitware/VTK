@@ -762,7 +762,7 @@ function (vtk_add_test_mangling module)
       set_property(GLOBAL PROPERTY "${module}_HAS_MANGLING_TEST" 1)
       add_test(
         NAME    "${module}-ManglingTest"
-        COMMAND "${Python${VTK_PYTHON_VERSION}_EXECUTABLE}"
+        COMMAND "${Python3_EXECUTABLE}"
                 # TODO: What to do when using this from a VTK install?
                 "${VTK_SOURCE_DIR}/Testing/Core/CheckSymbolMangling.py"
                 "--files"

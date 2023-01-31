@@ -38,16 +38,12 @@ void vtkPythonAlgorithm::PrintSelf(ostream& os, vtkIndent indent)
   if (str)
   {
     os << indent << "Object (string): ";
-#ifndef VTK_PY3K
-    os << PyString_AsString(str);
-#else
     PyObject* bytes = PyUnicode_EncodeLocale(str, VTK_PYUNICODE_ENC);
     if (bytes)
     {
       os << PyBytes_AsString(bytes);
       Py_DECREF(bytes);
     }
-#endif
     os << std::endl;
   }
 }
@@ -118,12 +114,12 @@ int vtkPythonAlgorithm::CheckResult(const char* method, const vtkSmartPyObject& 
     }
     return 0;
   }
-  if (!PyInt_Check(res))
+  if (!PyLong_Check(res))
   {
     return 0;
   }
 
-  int code = PyInt_AsLong(res);
+  int code = PyLong_AsLong(res);
 
   return code;
 }
@@ -199,7 +195,7 @@ int vtkPythonAlgorithm::FillInputPortInformation(int port, vtkInformation* info)
   VTK_GET_METHOD(method, this->Object, mname, 0)
 
   PyObject* vtkself = VTKToPython(this);
-  PyObject* pyport = PyInt_FromLong(port);
+  PyObject* pyport = PyLong_FromLong(port);
   PyObject* pyinfo = VTKToPython(info);
   vtkSmartPyObject args(PyTuple_Pack(3, vtkself, pyport, pyinfo));
   Py_DECREF(vtkself);
@@ -218,7 +214,7 @@ int vtkPythonAlgorithm::FillOutputPortInformation(int port, vtkInformation* info
   VTK_GET_METHOD(method, this->Object, mname, 0)
 
   PyObject* vtkself = VTKToPython(this);
-  PyObject* pyport = PyInt_FromLong(port);
+  PyObject* pyport = PyLong_FromLong(port);
   PyObject* pyinfo = VTKToPython(info);
   vtkSmartPyObject args(PyTuple_Pack(3, vtkself, pyport, pyinfo));
   Py_DECREF(vtkself);

@@ -6,32 +6,36 @@ mark_as_advanced(VTK_ENABLE_WRAPPING)
 include(CMakeDependentOption)
 cmake_dependent_option(VTK_WRAP_PYTHON "Should VTK Python wrapping be built?" OFF
   "VTK_ENABLE_WRAPPING" OFF)
-set(VTK_PYTHON_VERSION 3 CACHE STRING
-  "Python version to use")
-set_property(CACHE VTK_PYTHON_VERSION
-  PROPERTY
-    STRINGS "2;3")
-
-if (VTK_PYTHON_VERSION STREQUAL "3")
-  set(default_dll_paths)
-  if (NOT "$ENV{VTK_DLL_PATHS}" STREQUAL "")
-    if (CMAKE_HOST_WIN32)
-      file(TO_CMAKE_PATH "${vtk_dll_path}" default_dll_paths)
-    else ()
-      string(REPLACE ":" ";" default_dll_paths "$ENV{VTK_DLL_PATHS}")
-    endif ()
+if (DEFINED VTK_PYTHON_VERSION)
+  if (NOT VTK_PYTHON_VERSION STREQUAL "3")
+    message(FATAL_ERROR
+      "Only Python3 is supported.")
   endif ()
-  set(VTK_DLL_PATHS "${default_dll_paths}"
-    CACHE STRING "DLL paths to use during Python module loading.")
-  mark_as_advanced(VTK_DLL_PATHS)
+  message(DEPRECATION
+    "Manually specifying `VTK_PYTHON_VERSION` is deprecated as only Python3 "
+    "is supported.")
+  unset(VTK_PYTHON_VERSION)
+  unset(VTK_PYTHON_VERSION CACHE)
 endif ()
+
+set(default_dll_paths)
+if (NOT "$ENV{VTK_DLL_PATHS}" STREQUAL "")
+  if (CMAKE_HOST_WIN32)
+    file(TO_CMAKE_PATH "${vtk_dll_path}" default_dll_paths)
+  else ()
+    string(REPLACE ":" ";" default_dll_paths "$ENV{VTK_DLL_PATHS}")
+  endif ()
+endif ()
+set(VTK_DLL_PATHS "${default_dll_paths}"
+  CACHE STRING "DLL paths to use during Python module loading.")
+mark_as_advanced(VTK_DLL_PATHS)
 
 if (VTK_BUILD_TESTING OR VTK_WRAP_PYTHON)
   # VTK only supports a single Python version at a time, so make artifact
   # finding interactive.
-  set("Python${VTK_PYTHON_VERSION}_ARTIFACTS_INTERACTIVE" ON)
+  set(Python3_ARTIFACTS_INTERACTIVE ON)
   # Need PYTHON_EXECUTABLE for HeaderTesting or python wrapping
-  find_package("Python${VTK_PYTHON_VERSION}" QUIET COMPONENTS Interpreter)
+  find_package(Python3 QUIET COMPONENTS Interpreter)
 endif()
 
 if(VTK_WRAP_PYTHON)

@@ -47,7 +47,7 @@ _vtk_module_write_import_prefix("${vtk_cmake_build_dir}/vtk-prefix.cmake" "${vtk
 
 set(vtk_python_version "")
 if (VTK_WRAP_PYTHON)
-  set(vtk_python_version "${VTK_PYTHON_VERSION}")
+  set(vtk_python_version "3")
 endif ()
 
 set(vtk_has_qml 0)
@@ -163,7 +163,6 @@ set(vtk_cmake_patch_files
   patches/3.22/FindMPI/test_mpi.f90.in
   patches/3.22/FindMPI.cmake
   patches/3.23/FindPython/Support.cmake
-  patches/3.23/FindPython2.cmake
   patches/3.23/FindPython3.cmake
   patches/99/FindHDF5.cmake
   patches/99/FindOpenGL.cmake)

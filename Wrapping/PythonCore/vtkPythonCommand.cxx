@@ -131,22 +131,22 @@ void vtkPythonCommand::Execute(vtkObject* ptr, unsigned long eventtype, void* ca
   //
   // support for additional types has then been added by Jean-Christophe Fillion-Robin
   //
-  char callDataTypeLiteral[] = "CallDataType"; // Need char*, not const char*.
+  const char* callDataTypeLiteral = "CallDataType"; // Need char*, not const char*.
   PyObject* callDataTypeObj = PyObject_GetAttrString(this->obj, callDataTypeLiteral);
 
   PyObject* arglist = nullptr;
   if (callData && callDataTypeObj)
   {
-    if (PyInt_Check(callDataTypeObj))
+    if (PyLong_Check(callDataTypeObj))
     {
-      long callDataTypeLong = PyInt_AsLong(callDataTypeObj);
+      long callDataTypeLong = PyLong_AsLong(callDataTypeObj);
       int invalid = (callDataTypeLong == -1) && PyErr_Occurred();
       if (!invalid)
       {
         if (callDataTypeLong == VTK_STRING)
         {
           // this means the user wants the callData cast as a string
-          PyObject* callDataAsString = PyString_FromString(reinterpret_cast<char*>(callData));
+          PyObject* callDataAsString = PyUnicode_FromString(reinterpret_cast<char*>(callData));
           arglist = BuildCallDataArgList(obj2, eventname, callDataAsString);
         }
         else if (callDataTypeLong == VTK_OBJECT)
@@ -159,7 +159,7 @@ void vtkPythonCommand::Execute(vtkObject* ptr, unsigned long eventtype, void* ca
         else if (callDataTypeLong == VTK_INT)
         {
           // this means the user wants the callData cast as an int
-          PyObject* callDataAsInt = PyInt_FromLong(*reinterpret_cast<int*>(callData));
+          PyObject* callDataAsInt = PyLong_FromLong(*reinterpret_cast<int*>(callData));
           arglist = BuildCallDataArgList(obj2, eventname, callDataAsInt);
         }
         else if (callDataTypeLong == VTK_LONG)
@@ -188,24 +188,20 @@ void vtkPythonCommand::Execute(vtkObject* ptr, unsigned long eventtype, void* ca
         arglist = Py_BuildValue("(NsN)", obj2, eventname, Py_None);
       }
     }
-    else if (PyString_Check(callDataTypeObj))
+    else if (PyUnicode_Check(callDataTypeObj))
     {
-#ifdef VTK_PY3K
       PyObject* bytes = PyUnicode_AsEncodedString(callDataTypeObj, nullptr, nullptr);
       const char* callDataTypeString = nullptr;
       if (bytes)
       {
         callDataTypeString = PyBytes_AsString(bytes);
       }
-#else
-      const char* callDataTypeString = PyString_AsString(callDataTypeObj);
-#endif
       if (callDataTypeString)
       {
         if (strcmp(callDataTypeString, "string0") == 0)
         {
           // this means the user wants the callData cast as a string
-          PyObject* callDataAsString = PyString_FromString(reinterpret_cast<char*>(callData));
+          PyObject* callDataAsString = PyUnicode_FromString(reinterpret_cast<char*>(callData));
           arglist = BuildCallDataArgList(obj2, eventname, callDataAsString);
         }
       }
@@ -215,9 +211,7 @@ void vtkPythonCommand::Execute(vtkObject* ptr, unsigned long eventtype, void* ca
         Py_INCREF(Py_None);
         arglist = Py_BuildValue("(NsN)", obj2, eventname, Py_None);
       }
-#ifdef VTK_PY3K
       Py_XDECREF(bytes);
-#endif
     }
     else
     {

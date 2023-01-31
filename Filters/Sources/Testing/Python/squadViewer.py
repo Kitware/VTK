@@ -20,12 +20,7 @@ VTK_DATA_ROOT = vtkGetDataRoot()
 from vtkmodules.tk.vtkTkRenderWindowInteractor import vtkTkRenderWindowInteractor
 from vtkmodules.tk.vtkTkRenderWidget import vtkTkRenderWidget
 
-if sys.hexversion < 0x03000000:
-    # for Python2
-    import Tkinter as tkinter
-else:
-    # for Python3
-    import tkinter
+import tkinter
 
 # tkinter constants.
 E = tkinter.E

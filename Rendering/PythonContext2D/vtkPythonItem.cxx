@@ -40,16 +40,12 @@ void vtkPythonItem::PrintSelf(ostream& os, vtkIndent indent)
   if (str)
   {
     os << indent << "Object (string): ";
-#ifndef VTK_PY3K
-    os << PyString_AsString(str);
-#else
     PyObject* bytes = PyUnicode_EncodeLocale(str, VTK_PYUNICODE_ENC);
     if (bytes)
     {
       os << PyBytes_AsString(bytes);
       Py_DECREF(bytes);
     }
-#endif
     os << std::endl;
   }
 }
@@ -148,7 +144,7 @@ void vtkPythonItem::SetPythonObject(PyObject* obj)
   this->Object = obj;
   Py_INCREF(this->Object);
 
-  char mname[] = "Initialize";
+  const char* mname = "Initialize";
   VTK_GET_METHOD(method, this->Object, mname, /* no return */)
 
   PyObject* vtkself = VTKToPython(this);
@@ -164,7 +160,7 @@ void vtkPythonItem::SetPythonObject(PyObject* obj)
 bool vtkPythonItem::Paint(vtkContext2D* painter)
 {
   vtkPythonScopeGilEnsurer gilEnsurer;
-  char mname[] = "Paint";
+  const char* mname = "Paint";
   VTK_GET_METHOD(method, this->Object, mname, 0)
 
   PyObject* vtkself = VTKToPython(this);

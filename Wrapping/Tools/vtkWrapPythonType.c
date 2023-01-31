@@ -197,7 +197,7 @@ static void vtkWrapPython_PrintProtocol(
       "    os << *static_cast<const %s *>(obj->vtk_ptr);\n"
       "  }\n"
       "  const std::string &s = os.str();\n"
-      "  return PyString_FromStringAndSize(s.data(), s.size());\n"
+      "  return PyUnicode_FromStringAndSize(s.data(), s.size());\n"
       "}\n"
       "\n",
       classname, data->Name);

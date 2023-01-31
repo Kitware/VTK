@@ -59,25 +59,6 @@ def GetProgramParameters():
     moduleTreeDepth = args.moduleTreeDepth
     return (vtkSourceDir, moduleList, moduleTreeDepth)
 
-def GetProgramParametersOld():
-    '''
-    Used for Python versions < 2.7
-    '''
-    if len(sys.argv) < 3:
-        s = 'Usage: ' + sys.argv[0] + ' vtkSourceDir moduleList [moduleTreeDepth]'
-        print(s)
-        exit(0)
-    args = dict()
-    args['vtkSourceDir'] = sys.argv[1]
-    args['moduleList'] = sys.argv[2]
-    args['moduleTreeDepth'] = 0
-    if len(sys.argv) > 3:
-        args['moduleTreeDepth'] = int(sys.argv[3])
-    vtkSourceDir = args['vtkSourceDir']
-    moduleList = [x.strip() for x in args['moduleList'].split(',')]
-    moduleTreeDepth = args['moduleTreeDepth']
-    return (vtkSourceDir, moduleList, moduleTreeDepth)
-
 def FindModuleFiles(path):
     '''
     Get a list of module files in the VTK directory.
@@ -323,10 +304,7 @@ def DisplayGraph(graph):
     view.GetInteractor().Start()
 
 def main():
-    if sys.version_info >= (2, 7):
-        vtkSourceDir, moduleList, moduleTreeDepth = GetProgramParameters()
-    else:
-        vtkSourceDir, moduleList, moduleTreeDepth = GetProgramParametersOld()
+    vtkSourceDir, moduleList, moduleTreeDepth = GetProgramParameters()
 
     # Parse the module files making a dictionary of each module and its
     # dependencies or what it implements.

@@ -34,7 +34,7 @@ static void* buffer_pointer_and_size(PyObject* o, Py_ssize_t* size)
   void* ptr = nullptr;
 
   // New buffer protocol
-  Py_buffer view = VTK_PYBUFFER_INITIALIZER;
+  Py_buffer view = { nullptr, nullptr, 0, 0, 0, 0, nullptr, nullptr, nullptr, nullptr, nullptr };
   if (PyObject_CheckBuffer(o))
   {
     // Check for a simple buffer
@@ -58,27 +58,6 @@ static void* buffer_pointer_and_size(PyObject* o, Py_ssize_t* size)
       return ptr;
     }
   }
-
-#ifndef VTK_PY3K
-  // Old buffer protocol
-  PyBufferProcs* b = Py_TYPE(o)->tp_as_buffer;
-  if (b && b->bf_getreadbuffer && b->bf_getsegcount)
-  {
-    if (b->bf_getsegcount(o, nullptr) == 1)
-    {
-      *size = b->bf_getreadbuffer(o, 0, &ptr);
-      if (ptr)
-      {
-        return ptr;
-      }
-    }
-    else
-    {
-      PyErr_SetString(PyExc_TypeError, "buffer must be single-segment");
-      return nullptr;
-    }
-  }
-#endif
 
   PyErr_SetString(PyExc_TypeError, "object does not have a readable buffer");
 

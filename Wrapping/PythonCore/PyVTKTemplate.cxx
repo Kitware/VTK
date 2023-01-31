@@ -242,7 +242,7 @@ static PyMappingMethods PyVTKTemplate_AsMapping = {
 //------------------------------------------------------------------------------
 static PyObject* PyVTKTemplate_Repr(PyObject* self)
 {
-  return PyString_FromFormat("<template %s>", PyModule_GetName(self));
+  return PyUnicode_FromFormat("<template %s>", PyModule_GetName(self));
 }
 
 //------------------------------------------------------------------------------
@@ -390,12 +390,7 @@ PyObject* PyVTKTemplate_NameFromKey(PyObject* self, PyObject* key)
       }
       else if (PyUnicode_Check(o))
       {
-#ifdef VTK_PY3K
         tname = PyUnicode_AsUTF8AndSize(o, nullptr);
-#else
-        PyObject* s = _PyUnicode_AsDefaultEncodedString(o, nullptr);
-        tname = PyBytes_AS_STRING(s);
-#endif
       }
     }
 
@@ -550,11 +545,7 @@ PyObject* PyVTKTemplate_NameFromKey(PyObject* self, PyObject* key)
   // close the list of template arguments
   name.push_back('E');
 
-#ifdef VTK_PY3K
   return PyUnicode_FromStringAndSize(name.data(), name.length());
-#else
-  return PyBytes_FromStringAndSize(name.data(), name.length());
-#endif
 }
 
 //------------------------------------------------------------------------------
@@ -569,12 +560,7 @@ PyObject* PyVTKTemplate_KeyFromName(PyObject* self, PyObject* arg)
   }
   else if (PyUnicode_Check(arg))
   {
-#ifdef VTK_PY3K
     name = PyUnicode_AsUTF8AndSize(arg, nullptr);
-#else
-    PyObject* s = _PyUnicode_AsDefaultEncodedString(arg, nullptr);
-    name = PyBytes_AS_STRING(s);
-#endif
   }
 
   if (!name)
@@ -635,7 +621,7 @@ PyObject* PyVTKTemplate_KeyFromName(PyObject* self, PyObject* arg)
         sign = -1;
         cp++;
       }
-      keys[i] = PyInt_FromLong(sign * strtol(cp, nullptr, 0));
+      keys[i] = PyLong_FromLong(sign * strtol(cp, nullptr, 0));
       while (*cp != 'E' && *cp != '\0')
       {
         cp++;
@@ -757,7 +743,7 @@ PyObject* PyVTKTemplate_KeyFromName(PyObject* self, PyObject* arg)
         // unrecognized mangled type.
         return nullptr;
       }
-      keys[i] = PyString_FromStringAndSize(ptype, (Py_ssize_t)j);
+      keys[i] = PyUnicode_FromStringAndSize(ptype, (Py_ssize_t)j);
     }
   }
 
@@ -790,8 +776,8 @@ PyObject* PyVTKTemplate_New(const char* name, const char* docstring)
   // call the allocator provided by python for this type
   PyObject* self = PyVTKTemplate_Type.tp_alloc(&PyVTKTemplate_Type, 0);
   // call the superclass init function
-  PyObject* pyname = PyString_FromString(name);
-  PyObject* pydoc = PyString_FromString(docstring);
+  PyObject* pyname = PyUnicode_FromString(name);
+  PyObject* pydoc = PyUnicode_FromString(docstring);
   PyObject* args = PyTuple_Pack(2, pyname, pydoc);
   Py_DECREF(pyname);
   Py_DECREF(pydoc);

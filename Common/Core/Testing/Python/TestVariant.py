@@ -36,10 +36,7 @@ from vtkmodules.vtkCommonCore import (
 )
 from vtkmodules.test import Testing
 
-if sys.hexversion >= 0x03000000:
-    cedilla = 'Fran\xe7ois'
-else:
-    cedilla = unicode('Fran\xe7ois', 'latin1')
+cedilla = 'Fran\xe7ois'
 
 
 class TestVariant(Testing.vtkTest):
@@ -152,11 +149,7 @@ class TestVariant(Testing.vtkTest):
         self.assertEqual(vtkVariantLessThan(v1, v2), False)
         # compare with different types being non-equivalent
         self.assertEqual(vtkVariantStrictEquality(v1, v2), False)
-        if sys.hexversion >= 0x03000000:
-            self.assertEqual(vtkVariantStrictWeakOrder(v1, v2), True)
-        else:
-            # for Python 2, it worked like the cmp() function
-            self.assertEqual(vtkVariantStrictWeakOrder(v1, v2), -1)
+        self.assertEqual(vtkVariantStrictWeakOrder(v1, v2), True)
 
     def testStrictWeakOrder(self):
         """Use vtkVariantStrictWeakOrder to sort a list of vtkVariants"""

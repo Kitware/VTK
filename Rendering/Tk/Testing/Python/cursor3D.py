@@ -33,14 +33,8 @@ from vtkmodules.test import Testing
 from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
-if sys.hexversion < 0x03000000:
-    # for Python2
-    import Tkinter as tkinter
-    from Tkinter import Pack
-else:
-    # for Python3
-    import tkinter
-    from tkinter import Pack
+import tkinter
+from tkinter import Pack
 
 #from vtk.tk.vtkTkRenderWindowInteractor import vtkTkRenderWindowInteractor
 from vtkmodules.tk.vtkTkRenderWidget import vtkTkRenderWidget

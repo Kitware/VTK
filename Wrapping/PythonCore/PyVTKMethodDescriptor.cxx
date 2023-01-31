@@ -44,7 +44,7 @@ PyObject* PyVTKMethodDescriptor_New(PyTypeObject* pytype, PyMethodDef* meth)
   {
     Py_XINCREF(pytype);
     PyDescr_TYPE(descr) = pytype;
-    PyDescr_NAME(descr) = PyString_InternFromString(meth->ml_name);
+    PyDescr_NAME(descr) = PyUnicode_InternFromString(meth->ml_name);
     descr->d_method = meth;
 
     if (!PyDescr_NAME(descr))
@@ -72,13 +72,8 @@ static void PyVTKMethodDescriptor_Delete(PyObject* ob)
 static PyObject* PyVTKMethodDescriptor_Repr(PyObject* ob)
 {
   PyMethodDescrObject* descr = (PyMethodDescrObject*)ob;
-#ifdef VTK_PY3K
   return PyUnicode_FromFormat(
     "<method \'%U\' of \'%s\' objects>", PyDescr_NAME(descr), PyDescr_TYPE(descr)->tp_name);
-#else
-  return PyString_FromFormat(
-    "<method \'%s\' of \'%s\' objects>", PyString_AS_STRING(descr->d_name), descr->d_type->tp_name);
-#endif
 }
 
 static int PyVTKMethodDescriptor_Traverse(PyObject* ob, visitproc visit, void* arg)
@@ -120,13 +115,8 @@ static PyObject* PyVTKMethodDescriptor_Get(PyObject* self, PyObject* obj, PyObje
     return PyCFunction_New(descr->d_method, obj);
   }
 
-#ifdef VTK_PY3K
   PyErr_Format(PyExc_TypeError, "descriptor '%U' for '%s' objects doesn't apply to '%s' object",
     PyDescr_NAME(descr), PyDescr_TYPE(descr)->tp_name, vtkPythonUtil::GetTypeNameForObject(obj));
-#else
-  PyErr_Format(PyExc_TypeError, "descriptor '%s' for '%s' objects doesn't apply to '%s' object",
-    PyString_AS_STRING(PyDescr_NAME(descr)), PyDescr_TYPE(descr)->tp_name, Py_TYPE(obj)->tp_name);
-#endif
 
   return nullptr;
 }
@@ -141,7 +131,7 @@ static PyObject* PyVTKMethodDescriptor_GetDoc(PyObject* ob, void*)
     return Py_None;
   }
 
-  return PyString_FromString(descr->d_method->ml_doc);
+  return PyUnicode_FromString(descr->d_method->ml_doc);
 }
 
 static PyGetSetDef PyVTKMethodDescriptor_GetSet[] = {
