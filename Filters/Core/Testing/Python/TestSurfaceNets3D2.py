@@ -7,9 +7,7 @@ VTK_DATA_ROOT = vtkGetDataRoot()
 math = vtk.vtkMath()
 
 # Set the size of the test
-dim = 512
-dim = 256
-#dim = 64
+dim = 128
 numBlobs = 12
 
 # Generate some random colors
