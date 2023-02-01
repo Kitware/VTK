@@ -120,26 +120,26 @@ void vtkSSAOPass::InitializeGraphicsResources(vtkOpenGLRenderWindow* renWin, int
     // see "Scalable ambient obscurance"
     this->PositionTexture = vtkTextureObject::New();
     this->PositionTexture->SetContext(renWin);
-    this->PositionTexture->SetFormat(GL_RGB);
-    this->PositionTexture->SetInternalFormat(GL_RGB16F);
+    this->PositionTexture->SetFormat(GL_RGBA);
+    this->PositionTexture->SetInternalFormat(GL_RGBA16F);
     this->PositionTexture->SetDataType(GL_FLOAT);
     this->PositionTexture->SetWrapS(vtkTextureObject::ClampToEdge);
     this->PositionTexture->SetWrapT(vtkTextureObject::ClampToEdge);
     this->PositionTexture->SetMinificationFilter(vtkTextureObject::NearestMipmapNearest);
     this->PositionTexture->SetMaxLevel(10);
-    this->PositionTexture->Allocate2D(w, h, 3, VTK_FLOAT);
+    this->PositionTexture->Allocate2D(w, h, 4, VTK_FLOAT);
   }
 
   if (this->NormalTexture == nullptr)
   {
     this->NormalTexture = vtkTextureObject::New();
     this->NormalTexture->SetContext(renWin);
-    this->NormalTexture->SetFormat(GL_RGB);
-    this->NormalTexture->SetInternalFormat(GL_RGB16F);
+    this->NormalTexture->SetFormat(GL_RGBA);
+    this->NormalTexture->SetInternalFormat(GL_RGBA16F);
     this->NormalTexture->SetDataType(GL_FLOAT);
     this->NormalTexture->SetWrapS(vtkTextureObject::ClampToEdge);
     this->NormalTexture->SetWrapT(vtkTextureObject::ClampToEdge);
-    this->NormalTexture->Allocate2D(w, h, 3, VTK_FLOAT);
+    this->NormalTexture->Allocate2D(w, h, 4, VTK_FLOAT);
   }
 
   if (this->SSAOTexture == nullptr)
@@ -240,6 +240,7 @@ void vtkSSAOPass::RenderDelegate(const vtkRenderState* s, int w, int h)
   this->NumberOfRenderedProps += this->DelegatePass->GetNumberOfRenderedProps();
 
   this->FrameBufferObject->RemoveColorAttachments(3);
+  this->FrameBufferObject->RemoveDepthAttachment();
 
   this->FrameBufferObject->GetContext()->GetState()->PopFramebufferBindings();
 
@@ -290,7 +291,7 @@ void vtkSSAOPass::RenderSSAO(vtkOpenGLRenderWindow* renWin, vtkMatrix4x4* projec
          "    if (fragPosDC.z - depth < 0.0001)\n"
          "    {\n"
          "      vec3 normal = texture(texNormal, texCoord).rgb;\n"
-         "      vec2 tilingShift = size / textureSize(texNoise, 0);\n"
+         "      vec2 tilingShift = vec2(size) / vec2(textureSize(texNoise, 0));\n"
          "      float randomAngle = 6.283185 * texture(texNoise, texCoord * tilingShift).r;\n"
          "      vec3 randomVec = vec3(cos(randomAngle), sin(randomAngle), 0.0);\n"
          "      vec3 tangent = normalize(randomVec - normal * dot(randomVec, normal));\n"
