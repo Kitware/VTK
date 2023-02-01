@@ -174,7 +174,7 @@ public:
    */
   virtual unsigned char IsCellVisible(vtkIdType cellId);
 
-  virtual vtkImageData* NewImageDataCopy();
+  virtual VTK_NEWINSTANCE vtkImageData* NewImageDataCopy();
 
   ///@{
   /**
