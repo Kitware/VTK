@@ -40,14 +40,14 @@ struct vtkThreadedCallbackQueue::InvokerFutureSharedStateBase
    */
   void Wait() const
   {
-    if (this->Status & READY)
+    if (this->Status == READY)
     {
       return;
     }
     std::unique_lock<std::mutex> lock(this->Mutex);
-    if (!(this->Status & READY))
+    if (this->Status != READY)
     {
-      this->ConditionVariable.wait(lock, [this] { return this->Status & READY; });
+      this->ConditionVariable.wait(lock, [this] { return this->Status == READY; });
     }
   }
 
@@ -90,7 +90,7 @@ struct vtkThreadedCallbackQueue::InvokerFutureSharedState<void>
 
   void Set()
   {
-    if (this->Status & READY)
+    if (this->Status == READY)
     {
       throw std::logic_error("Result already set.");
     }
@@ -163,7 +163,7 @@ struct vtkThreadedCallbackQueue::InvokerFutureSharedState<ReturnT>
   template <class ReturnTT>
   void Set(ReturnTT&& val)
   {
-    if (this->Status & READY)
+    if (this->Status == READY)
     {
       throw std::logic_error("Result already set.");
     }
@@ -504,7 +504,7 @@ struct vtkThreadedCallbackQueue::Invoker : public vtkThreadedCallbackQueue::Invo
 
   void operator()() override
   {
-    assert(this->SharedState->Status & RUNNING && "Status should be RUNNING");
+    assert(this->SharedState->Status == RUNNING && "Status should be RUNNING");
     InvokerImpl::InvokerHelper<InvokeResult<FT>>::Invoke(this->Impl, this->SharedState.get());
   }
 
@@ -602,7 +602,7 @@ void vtkThreadedCallbackQueue::HandleDependentInvoker(
 
       // We can do a quick check to avoid locking if possible. If the prior shared future is ready,
       // we can just move on.
-      if (state->Status & READY)
+      if (state->Status == READY)
       {
         continue;
       }
@@ -611,7 +611,7 @@ void vtkThreadedCallbackQueue::HandleDependentInvoker(
       // This way, we can make sure that if the invoker is still running, we notify it that we
       // depend on it before it checks its dependents in SignalDependentSharedFutures
       std::unique_lock<std::mutex> lock(state->Mutex);
-      if (!(state->Status & READY))
+      if (state->Status != READY)
       {
         // We notify the invoker we depend on by adding ourselves in DependentSharedFutures.
         state->DependentSharedFutures.emplace_back(future);
@@ -651,7 +651,7 @@ bool vtkThreadedCallbackQueue::MustWait(SharedFutureContainerT&& priorSharedFutu
 {
   for (const vtkSharedFutureBase* prior : priorSharedFutures)
   {
-    if (!(prior->GetSharedState()->Status & READY))
+    if (prior->GetSharedState()->Status != READY)
     {
       return true;
     }

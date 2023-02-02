@@ -242,7 +242,7 @@ void vtkThreadedCallbackQueue::SignalDependentSharedFutures(const InvokerBase* i
       // its associated invoker in the running queue.
       std::unique_lock<std::mutex> futureLock(futureState->Mutex);
       --futureState->NumberOfPriorSharedFuturesRemaining;
-      if (futureState->Status & ON_HOLD && !futureState->NumberOfPriorSharedFuturesRemaining)
+      if (futureState->Status == ON_HOLD && !futureState->NumberOfPriorSharedFuturesRemaining)
       {
         // We can unlock at this point, we don't touch the future anymore
         futureLock.unlock();
@@ -278,7 +278,7 @@ void vtkThreadedCallbackQueue::SignalDependentSharedFutures(const InvokerBase* i
       : this->InvokerQueue.front()->GetSharedState()->InvokerIndex;
     for (InvokerBasePointer& inv : invokersToLaunch)
     {
-      assert(inv->GetSharedState()->Status & ON_HOLD && "Status should be ON_HOLD");
+      assert(inv->GetSharedState()->Status == ON_HOLD && "Status should be ON_HOLD");
       inv->GetSharedState()->InvokerIndex = --index;
 
       std::lock_guard<std::mutex> stateLock(inv->GetSharedState()->Mutex);
