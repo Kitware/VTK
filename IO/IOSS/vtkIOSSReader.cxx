@@ -425,6 +425,8 @@ public:
     this->TimestepValuesMTime = vtkTimeStamp();
   }
 
+  void ResetDatabaseNamesMTime() { this->DatabaseNamesMTime = vtkTimeStamp(); }
+
 private:
   std::vector<int> GetFileIds(const std::string& dbasename, int myrank, int numRanks) const;
   Ioss::Region* GetRegion(const std::string& dbasename, int fileid);
@@ -947,6 +949,12 @@ bool vtkIOSSReader::vtkInternals::UpdateEntityAndFieldSelections(vtkIOSSReader* 
     // about all blocks in all files. If we read only the first file, we will not know about
     // block_2.
     auto fileids = this->GetFileIds(pair.first, rank, numRanks);
+    // Nonetheless, if you know that all files have the same structure, you can skip reading
+    // all files and just read the first file.
+    if (!self->GetReadAllFilesToDetermineStructure())
+    {
+      fileids.resize(rank == 0 ? 1 : 0);
+    }
 
     for (const auto& fileid : fileids)
     {
@@ -2370,6 +2378,7 @@ vtkIOSSReader::vtkIOSSReader()
   , ReadIds(true)
   , RemoveUnusedPoints(true)
   , ApplyDisplacements(true)
+  , ReadAllFilesToDetermineStructure(true)
   , ReadGlobalFields(true)
   , ReadQAAndInformationRecords(true)
   , DatabaseTypeOverride(nullptr)
@@ -2817,6 +2826,17 @@ void vtkIOSSReader::SetRemoveUnusedPoints(bool val)
     // clear cache to ensure we read appropriate points/point data.
     this->Internals->ClearCache();
     this->RemoveUnusedPoints = val;
+    this->Modified();
+  }
+}
+
+//----------------------------------------------------------------------------
+void vtkIOSSReader::SetReadAllFilesToDetermineStructure(bool val)
+{
+  if (this->ReadAllFilesToDetermineStructure != val)
+  {
+    this->ReadAllFilesToDetermineStructure = val;
+    this->Internals->ResetDatabaseNamesMTime();
     this->Modified();
   }
 }
