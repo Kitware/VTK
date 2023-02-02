@@ -336,6 +336,14 @@ void vtkOpenGLES30PolyDataMapper::GetShaderTemplate(
 }
 
 //------------------------------------------------------------------------------
+void vtkOpenGLES30PolyDataMapper::ReplaceShaderValues(
+  std::map<vtkShader::Type, vtkShader*> shaders, vtkRenderer* ren, vtkActor* act)
+{
+  this->ReplaceShaderPointSize(shaders, ren, act);
+  this->Superclass::ReplaceShaderValues(shaders, ren, act);
+}
+
+//------------------------------------------------------------------------------
 void vtkOpenGLES30PolyDataMapper::ReplaceShaderColor(
   std::map<vtkShader::Type, vtkShader*> shaders, vtkRenderer* ren, vtkActor* act)
 {
@@ -511,6 +519,29 @@ void vtkOpenGLES30PolyDataMapper::ReplaceShaderEdges(
     }
     shaders[vtkShader::Fragment]->SetSource(FSSource);
   }
+}
+
+//------------------------------------------------------------------------------
+void vtkOpenGLES30PolyDataMapper::ReplaceShaderPointSize(
+  std::map<vtkShader::Type, vtkShader*> shaders, vtkRenderer* ren, vtkActor* act)
+{
+  std::string VSSource = shaders[vtkShader::Vertex]->GetSource();
+  vtkShaderProgram::Substitute(VSSource, "//VTK::PointSizeGLES30::Dec", "uniform float PointSize;");
+  vtkShaderProgram::Substitute(
+    VSSource, "//VTK::PointSizeGLES30::Impl", "gl_PointSize = PointSize;");
+  shaders[vtkShader::Vertex]->SetSource(VSSource);
+}
+
+//------------------------------------------------------------------------------
+void vtkOpenGLES30PolyDataMapper::SetMapperShaderParameters(
+  vtkOpenGLHelper& cellBO, vtkRenderer* ren, vtkActor* act)
+{
+  this->Superclass::SetMapperShaderParameters(cellBO, ren, act);
+  if (cellBO.Program->IsUniformUsed("PointSize"))
+  {
+    cellBO.Program->SetUniformf("PointSize", act->GetProperty()->GetPointSize());
+  }
+  vtkOpenGLCheckErrorMacro("failed after UpdateShader PointSize ");
 }
 
 //------------------------------------------------------------------------------

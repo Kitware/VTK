@@ -52,8 +52,13 @@ in vec4 vertexMC;
 // Surface with edges on GLES 3.0
 //VTK::EdgesGLES30::Dec
 
+// PointSize on GLES 3.0
+//VTK::PointSizeGLES30::Dec
+
 void main()
 {
+  //VTK::PointSizeGLES30::Impl
+
   //VTK::CustomBegin::Impl
 
   //VTK::Color::Impl
@@ -74,7 +79,7 @@ void main()
 
   //VTK::Picking::Impl
 
-  //VTK::EdgesGLES30::Impl
-
   //VTK::CustomEnd::Impl
+
+  //VTK::EdgesGLES30::Impl
 }

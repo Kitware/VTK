@@ -67,6 +67,8 @@ protected:
    * Perform string replacements on the shader templates, called from
    * ReplaceShaderValues
    */
+  void ReplaceShaderValues(
+    std::map<vtkShader::Type, vtkShader*> shaders, vtkRenderer* ren, vtkActor* act) override;
   void ReplaceShaderColor(
     std::map<vtkShader::Type, vtkShader*> shaders, vtkRenderer* ren, vtkActor* act) override;
   void ReplaceShaderNormal(
@@ -75,6 +77,8 @@ protected:
     std::map<vtkShader::Type, vtkShader*> shaders, vtkRenderer* ren, vtkActor* act) override;
   void ReplaceShaderEdges(
     std::map<vtkShader::Type, vtkShader*> shaders, vtkRenderer* ren, vtkActor* act) override;
+  void ReplaceShaderPointSize(
+    std::map<vtkShader::Type, vtkShader*> shaders, vtkRenderer* ren, vtkActor* act);
   ///@}
 
   /**
