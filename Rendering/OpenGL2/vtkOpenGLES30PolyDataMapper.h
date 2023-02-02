@@ -62,6 +62,17 @@ protected:
   void GetShaderTemplate(
     std::map<vtkShader::Type, vtkShader*> shaders, vtkRenderer* ren, vtkActor* act) override;
 
+  ///@{
+  /**
+   * Perform string replacements on the shader templates, called from
+   * ReplaceShaderValues
+   */
+  void ReplaceShaderColor(
+    std::map<vtkShader::Type, vtkShader*> shaders, vtkRenderer* ren, vtkActor* act) override;
+  void ReplaceShaderNormal(
+    std::map<vtkShader::Type, vtkShader*> shaders, vtkRenderer* ren, vtkActor* act) override;
+  ///@}
+
   /**
    * Set the shader parameters related to the mapper/input data, called by UpdateShader
    */

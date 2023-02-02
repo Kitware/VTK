@@ -309,6 +309,23 @@ void vtkOpenGLES30PolyDataMapper::GetShaderTemplate(
 }
 
 //------------------------------------------------------------------------------
+void vtkOpenGLES30PolyDataMapper::ReplaceShaderColor(
+  std::map<vtkShader::Type, vtkShader*> shaders, vtkRenderer* ren, vtkActor* act)
+{
+  // false so that superclass uses point color vertex attribute.
+  ScopedValueRollback<bool> cellScalarsBkp(this->HaveCellScalars, false);
+  this->Superclass::ReplaceShaderColor(shaders, ren, act);
+}
+
+//------------------------------------------------------------------------------
+void vtkOpenGLES30PolyDataMapper::ReplaceShaderNormal(
+  std::map<vtkShader::Type, vtkShader*> shaders, vtkRenderer* ren, vtkActor* act)
+{
+  ScopedValueRollback<bool> cellNormalsBkp(this->HaveCellNormals, false);
+  this->Superclass::ReplaceShaderNormal(shaders, ren, act);
+}
+
+//------------------------------------------------------------------------------
 void vtkOpenGLES30PolyDataMapper::BuildBufferObjects(vtkRenderer* ren, vtkActor* act)
 {
   vtkPolyData* polydata = this->CurrentInput;
@@ -546,9 +563,58 @@ void vtkOpenGLES30PolyDataMapper::AppendOneBufferObject(vtkRenderer* ren, vtkAct
     {
       vbos->AppendDataArray("scalarColor", newVertexAttrs.colors, VTK_UNSIGNED_CHAR);
     }
+    else if (this->HaveCellScalars && (primType != PrimitiveVertices))
+    {
+      const int numComp = this->Colors->GetNumberOfComponents();
+      assert(numComp == 4);
+      vtkNew<vtkUnsignedCharArray> cellColors;
+      cellColors->SetNumberOfComponents(4);
+      const bool useFieldData =
+        this->FieldDataTupleId > -1 && this->ScalarMode == VTK_SCALAR_MODE_USE_FIELD_DATA;
+
+      // either return field tuple ID or map the primitive ID to a vtk cell ID.
+      auto getDestinationColorID =
+        useFieldData ? [](const std::size_t&, vtkOpenGLCellToVTKCellMap*,
+                         const vtkIdType& fieldTupleId) -> vtkIdType { return fieldTupleId; }
+      : [](const std::size_t& i, vtkOpenGLCellToVTKCellMap* cellmap,
+          const vtkIdType&) -> vtkIdType { return cellmap->GetValue(i); };
+      // for each primitive
+      for (std::size_t i = 0; i < numPrimitives; ++i)
+      {
+        // repeat for every corner of the primitive.
+        const vtkIdType destID =
+          getDestinationColorID(i + primitiveStart, prim2cellMap, this->FieldDataTupleId) * numComp;
+        for (std::size_t j = 0; j < PrimitiveSizes[primType]; ++j)
+        {
+          cellColors->InsertNextTypedTuple(this->Colors->GetPointer(destID));
+        }
+      }
+      vbos->AppendDataArray("scalarColor", cellColors, VTK_UNSIGNED_CHAR);
+    }
     if (newVertexAttrs.normals != nullptr)
     {
       vbos->AppendDataArray("normalMC", newVertexAttrs.normals, VTK_FLOAT);
+    }
+    else if (this->HaveCellNormals && (primType != PrimitiveVertices))
+    {
+      vtkDataArray* srcCellNormals = polydata->GetCellData()->GetNormals();
+      const int numComp = srcCellNormals->GetNumberOfComponents();
+      assert(numComp == 3);
+      vtkNew<vtkFloatArray> cellNormals;
+      cellNormals->SetNumberOfComponents(numComp);
+      for (std::size_t i = 0; i < numPrimitives; ++i)
+      {
+        double* norms = srcCellNormals->GetTuple(prim2cellMap->GetValue(i + primitiveStart));
+        // repeat for every corner of the primitive.
+        for (std::size_t j = 0; j < PrimitiveSizes[primType]; ++j)
+        {
+          for (int comp = 0; comp < numComp; ++comp)
+          {
+            cellNormals->InsertNextValue(static_cast<float>(norms[comp]));
+          }
+        }
+      }
+      vbos->AppendDataArray("normalMC", cellNormals, VTK_FLOAT);
     }
     if (newVertexAttrs.tangents != nullptr)
     {
@@ -558,6 +624,7 @@ void vtkOpenGLES30PolyDataMapper::AppendOneBufferObject(vtkRenderer* ren, vtkAct
     {
       vbos->AppendDataArray("tcoord", newVertexAttrs.tcoords, VTK_FLOAT);
     }
+    primitiveStart += numPrimitives;
   }
 }
 
