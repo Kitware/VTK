@@ -19,6 +19,11 @@
 #include "vtkAppendSelection.h"
 
 #include "vtkAlgorithmOutput.h"
+#include "vtkCellData.h"
+#include "vtkDataArray.h"
+#include "vtkDataSetAttributes.h"
+#include "vtkDoubleArray.h"
+#include "vtkFloatArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkNew.h"
@@ -26,10 +31,12 @@
 #include "vtkSelection.h"
 #include "vtkSelectionNode.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkUnsignedCharArray.h"
 
 #include <vtksys/RegularExpression.hxx>
 
 #include <algorithm>
+#include <array>
 #include <sstream>
 #include <vector>
 
@@ -67,6 +74,7 @@ class vtkAppendSelection::vtkInternals
 {
 public:
   std::vector<std::string> Names;
+  std::vector<std::array<double, 3>> Colors;
   vtksys::RegularExpression RegExNodeId;
   vtksys::RegularExpression RegExNodeIdInExpression;
 
@@ -166,6 +174,47 @@ void vtkAppendSelection::RemoveAllInputNames()
 }
 
 //------------------------------------------------------------------------------
+void vtkAppendSelection::SetInputColor(int index, double r, double g, double b)
+{
+  if (index < 0)
+  {
+    vtkErrorMacro("Invalid index specified '" << index << "'.");
+    return;
+  }
+
+  if (this->Internals->Colors.size() <= static_cast<size_t>(index))
+  {
+    this->Internals->Colors.resize(index + 1);
+  }
+
+  this->Internals->Colors[index][0] = r;
+  this->Internals->Colors[index][1] = g;
+  this->Internals->Colors[index][2] = b;
+  this->Modified();
+}
+
+//------------------------------------------------------------------------------
+double* vtkAppendSelection::GetInputColor(int index) const
+{
+  if (index < 0 || static_cast<size_t>(index) >= this->Internals->Colors.size())
+  {
+    vtkErrorMacro("Invalid index: " << index);
+    return nullptr;
+  }
+  return this->Internals->Colors[index].data();
+}
+
+//------------------------------------------------------------------------------
+void vtkAppendSelection::RemoveAllInputColors()
+{
+  if (!this->Internals->Colors.empty())
+  {
+    this->Internals->Colors.clear();
+    this->Modified();
+  }
+}
+
+//------------------------------------------------------------------------------
 // Add a dataset to the list of data to append.
 void vtkAppendSelection::AddInputData(vtkSelection* ds)
 {
@@ -231,6 +280,50 @@ void vtkAppendSelection::SetInputConnectionByNumber(int num, vtkAlgorithmOutput*
 }
 
 //------------------------------------------------------------------------------
+void vtkAppendSelection::SetColorArray(vtkSelectionNode* node, double* color)
+{
+  if (!node || !color)
+  {
+    return;
+  }
+
+  const char* colorArrayName = vtkAppendSelection::GetColorArrayName();
+
+  auto* selectionData = node->GetSelectionData();
+  auto* arr = selectionData->GetArray(colorArrayName);
+  if (arr)
+  {
+    return;
+  }
+
+  vtkNew<vtkUnsignedCharArray> colorArray;
+  colorArray->SetName(colorArrayName);
+  colorArray->SetNumberOfComponents(3);
+
+  int length = selectionData->GetNumberOfTuples();
+  colorArray->SetNumberOfTuples(length);
+  for (int i = 0; i < length; i++)
+  {
+    colorArray->SetTuple3(i, color[0] * 255, color[1] * 255, color[2] * 255);
+  }
+
+  if (length > 0)
+  {
+    colorArray->CreateDefaultLookupTable();
+    selectionData->AddArray(colorArray);
+
+    selectionData->SetAttribute(colorArray, vtkDataSetAttributes::SCALARS);
+    selectionData->SetActiveAttribute(colorArrayName, vtkDataSetAttributes::SCALARS);
+
+    selectionData->SetScalars(colorArray);
+
+    selectionData->CopyScalarsOn();
+    selectionData->Modified();
+    selectionData->Update();
+  }
+}
+
+//------------------------------------------------------------------------------
 int vtkAppendSelection::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -272,6 +365,11 @@ int vtkAppendSelection::RequestData(vtkInformation* vtkNotUsed(request),
           vtkSelectionNode* inputNode = sel->GetNode(subNodeId);
           vtkNew<vtkSelectionNode> outputNode;
           outputNode->ShallowCopy(inputNode);
+          bool canAddColorArray = this->Internals->Colors.size() == static_cast<size_t>(numInputs);
+          if (canAddColorArray)
+          {
+            this->SetColorArray(outputNode, this->Internals->Colors[inputId].data());
+          }
           const std::string subNodeName = sel->GetNodeNameAtIndex(subNodeId);
           const std::string combinedNodeName = subSelectionName + subNodeName;
           output->SetNode(combinedNodeName, outputNode);
@@ -326,6 +424,14 @@ int vtkAppendSelection::RequestData(vtkInformation* vtkNotUsed(request),
             vtkSelectionNode* inputNode = sel->GetNode(subNodeId);
             vtkNew<vtkSelectionNode> outputNode;
             outputNode->ShallowCopy(inputNode);
+
+            bool canAddColorArray =
+              this->Internals->Colors.size() == static_cast<size_t>(numInputs);
+            if (canAddColorArray)
+            {
+              this->SetColorArray(outputNode, this->Internals->Colors[inputId].data());
+            }
+
             const std::string subNodeName = sel->GetNodeNameAtIndex(subNodeId);
             const std::string combinedNodeName = subSelectionName + subNodeName;
             output->SetNode(combinedNodeName, outputNode);
@@ -345,6 +451,14 @@ int vtkAppendSelection::RequestData(vtkInformation* vtkNotUsed(request),
             vtkSelectionNode* inputNode = sel->GetNode(subNodeId);
             vtkNew<vtkSelectionNode> outputNode;
             outputNode->ShallowCopy(inputNode);
+
+            bool canAddColorArray =
+              this->Internals->Colors.size() == static_cast<size_t>(numInputs);
+            if (canAddColorArray)
+            {
+              this->SetColorArray(outputNode, this->Internals->Colors[inputId].data());
+            }
+
             const std::string subNodeName = sel->GetNodeNameAtIndex(subNodeId);
             const std::string combinedNodeName = subSelectionName + subNodeName;
             output->SetNode(combinedNodeName, outputNode);
@@ -439,6 +553,12 @@ void vtkAppendSelection::PrintSelf(ostream& os, vtkIndent indent)
   for (size_t i = 0; i < this->Internals->Names.size(); ++i)
   {
     os << "InputName " << i << ": " << this->Internals->Names[i] << endl;
+  }
+
+  for (size_t i = 0; i < this->Internals->Colors.size(); ++i)
+  {
+    os << "InputColor " << i << ": {" << this->Internals->Colors[i][0] << ","
+       << this->Internals->Colors[i][1] << "," << this->Internals->Colors[i][2] << "}" << endl;
   }
 }
 VTK_ABI_NAMESPACE_END

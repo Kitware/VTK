@@ -14,6 +14,7 @@
 =========================================================================*/
 #include "vtkExtractSelection.h"
 
+#include "vtkAppendSelection.h"
 #include "vtkBlockSelector.h"
 #include "vtkCell.h"
 #include "vtkCellData.h"
@@ -36,6 +37,7 @@
 #include "vtkSignedCharArray.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTable.h"
+#include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkValueSelector.h"
 
@@ -360,10 +362,15 @@ int vtkExtractSelection::RequestData(vtkInformation* vtkNotUsed(request),
         auto evaluationResult = this->EvaluateSelection(outputBlock, assoc, selection, selectors);
         if (evaluationResult != EvaluationResult::INVALID)
         {
+          vtkSmartPointer<vtkUnsignedCharArray> colorArray =
+            this->EvaluateColorArrayInSelection(outputBlock, assoc, selection);
+
           // Extract the elements.
           auto iter = isUniformGridAMR ? inIter : outIter;
           auto extractResult =
             this->ExtractElements(inputCD->GetDataSet(iter), assoc, evaluationResult, outputBlock);
+
+          this->AddColorArrayOnObject(extractResult, colorArray);
           outputCD->SetDataSet(outIter, extractResult);
         }
         else
@@ -433,12 +440,17 @@ int vtkExtractSelection::RequestData(vtkInformation* vtkNotUsed(request),
       return 0;
     }
 
+    vtkSmartPointer<vtkUnsignedCharArray> colorArray =
+      this->EvaluateColorArrayInSelection(clone, assoc, selection);
+
     vtkLogStartScope(TRACE, "extract output");
     if (auto extractResult = this->ExtractElements(input, assoc, evaluateResult, clone))
     {
       output->ShallowCopy(extractResult);
     }
     vtkLogEndScope("extract output");
+
+    this->AddColorArrayOnObject(output, colorArray);
   }
 
   return 1;
@@ -525,6 +537,119 @@ vtkExtractSelection::EvaluationResult vtkExtractSelection::EvaluateSelection(
   else
   {
     return EvaluationResult::INVALID;
+  }
+}
+
+//------------------------------------------------------------------------------
+vtkSmartPointer<vtkUnsignedCharArray> vtkExtractSelection::EvaluateColorArrayInSelection(
+  vtkDataObject* dataObject, vtkDataObject::AttributeTypes association, vtkSelection* selection)
+{
+  vtkSmartPointer<vtkUnsignedCharArray> outputArray = vtkSmartPointer<vtkUnsignedCharArray>::New();
+  auto fieldData = dataObject->GetAttributes(association);
+  if (!fieldData)
+  {
+    return nullptr;
+  }
+
+  vtkSignedCharArray* insidednessArray = nullptr;
+
+  std::vector<vtkSignedCharArray*> selArrays;
+  for (int i = 0; i < fieldData->GetNumberOfArrays(); i++)
+  {
+    auto* selArray = vtkSignedCharArray::SafeDownCast(fieldData->GetArray(i));
+    if (!selArray)
+    {
+      continue;
+    }
+    // Internal array added by the EvaluateSelection method, __vtkInsidedness__ is used to know
+    // which cell/point from the dataSet are inside a selection, it is useful here to follow the
+    // expression setted by the user and color the selection as the user expect.
+    if (strcmp(selArray->GetName(), "__vtkInsidedness__") == 0)
+    {
+      insidednessArray = selArray;
+    }
+    else
+    {
+      selArrays.push_back(selArray);
+    }
+  }
+
+  const char* colorArrayName = vtkAppendSelection::GetColorArrayName();
+
+  std::vector<vtkUnsignedCharArray*> colorArrays;
+  for (unsigned int i = 0; i < selection->GetNumberOfNodes(); i++)
+  {
+    auto* selectionNode = selection->GetNode(i);
+    auto* colorArray = vtkUnsignedCharArray::SafeDownCast(
+      selectionNode->GetSelectionData()->GetArray(colorArrayName));
+    if (colorArray)
+    {
+      colorArrays.push_back(colorArray);
+    }
+  }
+
+  if (selArrays.size() != colorArrays.size())
+  {
+    // Silently do nothing as a color array for a selection isn't required
+    return nullptr;
+  }
+
+  if (!insidednessArray)
+  {
+    return nullptr;
+  }
+
+  unsigned int numberOfElement = insidednessArray->GetNumberOfTuples();
+
+  std::vector<double*> colors;
+  std::vector<unsigned int> indexOffsetPerColorArray(colorArrays.size(), 0);
+  // Populate the array
+  for (unsigned int i = 0; i < numberOfElement; i++)
+  {
+    if (insidednessArray->GetValue(i) == 0)
+    {
+      continue;
+    }
+
+    for (std::size_t selIdx = selArrays.size(); selIdx-- != 0;)
+    {
+      if (selArrays[selIdx]->GetValue(i) == 0)
+      {
+        continue;
+      }
+
+      double* color = colorArrays[selIdx]->GetTuple3(indexOffsetPerColorArray[selIdx]);
+      colors.push_back(color);
+      indexOffsetPerColorArray[selIdx]++;
+      break;
+    }
+  }
+
+  outputArray->SetName(colorArrayName);
+  outputArray->SetNumberOfComponents(3);
+  outputArray->SetNumberOfTuples(colors.size());
+  for (std::size_t i = 0; i < colors.size(); i++)
+  {
+    double* color = colors[i];
+    outputArray->SetTuple3(i, color[0], color[1], color[2]);
+  }
+
+  return outputArray;
+}
+
+//------------------------------------------------------------------------------
+void vtkExtractSelection::AddColorArrayOnObject(
+  vtkDataObject* dataObject, vtkUnsignedCharArray* colorArray)
+{
+  if (!dataObject || !colorArray)
+  {
+    return;
+  }
+
+  auto* outputFieldData = dataObject->GetAttributes(vtkDataObject::CELL);
+  if (outputFieldData && colorArray->GetNumberOfTuples() != 0)
+  {
+    outputFieldData->SetScalars(colorArray);
   }
 }
 
@@ -623,6 +748,7 @@ vtkSmartPointer<vtkDataObject> vtkExtractSelection::ExtractElements(vtkDataObjec
     outputBlock->Initialize();
     result = outputBlock;
   }
+
   return result && result->GetNumberOfElements(type) > 0 ? result : nullptr;
 }
 

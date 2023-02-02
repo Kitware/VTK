@@ -109,6 +109,22 @@ public:
 
   ///@{
   /**
+   * Set/Get colors for inputs selections.
+   *
+   * Assign a color to a selection specified by its index.
+   * If defined, the given color will be used to display this selection.
+   */
+  void SetInputColor(int index, double r, double g, double b);
+  double* GetInputColor(int index) const;
+  ///@}
+
+  /**
+   * Remove all assigned input selection colors.
+   */
+  void RemoveAllInputColors();
+
+  ///@{
+  /**
    * UserManagedInputs allows the user to set inputs by number instead of
    * using the AddInput/RemoveInput functions. Calls to
    * SetNumberOfInputs/SetInputByNumber should not be mixed with calls
@@ -165,6 +181,11 @@ public:
   vtkBooleanMacro(AppendByUnion, vtkTypeBool);
   ///@}
 
+  /**
+   * Return the specific name used for the selection color array.
+   */
+  static const char* GetColorArrayName() { return "vtkSelectionColor"; }
+
 protected:
   vtkAppendSelection();
   ~vtkAppendSelection() override;
@@ -179,6 +200,11 @@ private:
   {
     vtkErrorMacro(<< "AddInput() must be called with a vtkSelection not a vtkDataObject.");
   }
+
+  /**
+   * Add on SelectionData a new special array named `vtkSelectionColor` containing the given color.
+   */
+  void SetColorArray(vtkSelectionNode* node, double* color);
 
   vtkTypeBool UserManagedInputs;
   vtkTypeBool AppendByUnion;
