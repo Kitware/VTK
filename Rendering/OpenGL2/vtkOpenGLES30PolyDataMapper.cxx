@@ -211,6 +211,14 @@ void vtkOpenGLES30PolyDataMapper::PrintSelf(ostream& os, vtkIndent indent) {}
 //------------------------------------------------------------------------------
 void vtkOpenGLES30PolyDataMapper::RenderPieceStart(vtkRenderer* ren, vtkActor* act)
 {
+  // render points for point picking in a special way
+  // all cell types should be rendered as points
+  vtkHardwareSelector* selector = ren->GetSelector();
+  this->PointPicking = false;
+  if (selector && selector->GetFieldAssociation() == vtkDataObject::FIELD_ASSOCIATION_POINTS)
+  {
+    this->PointPicking = true;
+  }
 
   // timer calls take time, for lots of "small" actors
   // the timer can be a big hit. So we only update
@@ -240,6 +248,21 @@ void vtkOpenGLES30PolyDataMapper::RenderPieceStart(vtkRenderer* ren, vtkActor* a
   // make sure the BOs are up to date
   this->UpdateBufferObjects(ren, act);
 
+  // render points for point picking in a special way
+  if (selector && selector->GetFieldAssociation() == vtkDataObject::FIELD_ASSOCIATION_POINTS)
+  {
+    static_cast<vtkOpenGLRenderer*>(ren)->GetState()->vtkglDepthMask(GL_FALSE);
+  }
+  if (selector && this->PopulateSelectionSettings)
+  {
+    selector->BeginRenderProp();
+    if (selector->GetCurrentPass() == vtkHardwareSelector::COMPOSITE_INDEX_PASS)
+    {
+      selector->RenderCompositeIndex(1);
+    }
+
+    this->UpdateMaximumPointCellIds(ren, act);
+  }
   // If we are coloring by texture, then load the texture map.
   // Use Map as indicator, because texture hangs around.
   if (this->ColorTextureMap)
@@ -283,6 +306,17 @@ void vtkOpenGLES30PolyDataMapper::RenderPieceDraw(vtkRenderer* ren, vtkActor* ac
 //------------------------------------------------------------------------------
 void vtkOpenGLES30PolyDataMapper::RenderPieceFinish(vtkRenderer* ren, vtkActor* act)
 {
+  vtkHardwareSelector* selector = ren->GetSelector();
+  // render points for point picking in a special way
+  if (selector && selector->GetFieldAssociation() == vtkDataObject::FIELD_ASSOCIATION_POINTS)
+  {
+    static_cast<vtkOpenGLRenderer*>(ren)->GetState()->vtkglDepthMask(GL_TRUE);
+  }
+  if (selector && this->PopulateSelectionSettings)
+  {
+    selector->EndRenderProp();
+  }
+
   if (this->LastBoundBO)
   {
     this->LastBoundBO->VAO->Release();
@@ -522,6 +556,63 @@ void vtkOpenGLES30PolyDataMapper::ReplaceShaderEdges(
 }
 
 //------------------------------------------------------------------------------
+void vtkOpenGLES30PolyDataMapper::ReplaceShaderPicking(
+  std::map<vtkShader::Type, vtkShader*> shaders, vtkRenderer* ren, vtkActor* act)
+{
+
+  if (this->LastSelectionState == vtkHardwareSelector::CELL_ID_LOW24 ||
+    this->LastSelectionState == vtkHardwareSelector::CELL_ID_HIGH24)
+  {
+    this->Superclass::ReplaceShaderPicking(shaders, ren, act);
+
+    std::string VSSource = shaders[vtkShader::Vertex]->GetSource();
+    std::string FSSource = shaders[vtkShader::Fragment]->GetSource();
+
+    vtkShaderProgram::Substitute(VSSource, "//VTK::Picking::Dec", "flat out int vertexIDVSOutput;");
+    vtkShaderProgram::Substitute(
+      VSSource, "//VTK::Picking::Impl", "  vertexIDVSOutput = gl_VertexID;\n");
+    vtkShaderProgram::Substitute(
+      FSSource, "//VTK::Picking::Dec", "flat in int vertexIDVSOutput;\n");
+
+    switch (this->LastBoundBO->PrimitiveType)
+    {
+      case PrimitivePoints:
+        vtkShaderProgram::Substitute(
+          FSSource, "gl_PrimitiveID + PrimitiveIDOffset", "vertexIDVSOutput + PrimitiveIDOffset");
+        break;
+      case PrimitiveLines:
+        vtkShaderProgram::Substitute(FSSource, "gl_PrimitiveID + PrimitiveIDOffset",
+          "vertexIDVSOutput / 2 + PrimitiveIDOffset");
+        break;
+      case PrimitiveTris:
+      case PrimitiveTriStrips:
+      default:
+        vtkShaderProgram::Substitute(FSSource, "gl_PrimitiveID + PrimitiveIDOffset",
+          "vertexIDVSOutput / 3 + PrimitiveIDOffset");
+        break;
+    }
+
+    shaders[vtkShader::Vertex]->SetSource(VSSource);
+    shaders[vtkShader::Fragment]->SetSource(FSSource);
+    return;
+  }
+  else if (this->LastSelectionState == vtkHardwareSelector::POINT_ID_LOW24 ||
+    this->LastSelectionState == vtkHardwareSelector::POINT_ID_HIGH24)
+  {
+    std::string VSSource = shaders[vtkShader::Vertex]->GetSource();
+
+    vtkShaderProgram::Substitute(VSSource, "//VTK::Picking::Dec",
+      "in float vtkVertexID;\n"
+      "flat out int vertexIDVSOutput;");
+    vtkShaderProgram::Substitute(
+      VSSource, "//VTK::Picking::Impl", "  vertexIDVSOutput = int(vtkVertexID);\n");
+
+    shaders[vtkShader::Vertex]->SetSource(VSSource);
+  }
+  this->Superclass::ReplaceShaderPicking(shaders, ren, act);
+}
+
+//------------------------------------------------------------------------------
 void vtkOpenGLES30PolyDataMapper::ReplaceShaderPointSize(
   std::map<vtkShader::Type, vtkShader*> shaders, vtkRenderer* ren, vtkActor* act)
 {
@@ -539,7 +630,9 @@ void vtkOpenGLES30PolyDataMapper::SetMapperShaderParameters(
   this->Superclass::SetMapperShaderParameters(cellBO, ren, act);
   if (cellBO.Program->IsUniformUsed("PointSize"))
   {
-    cellBO.Program->SetUniformf("PointSize", act->GetProperty()->GetPointSize());
+    cellBO.Program->SetUniformf("PointSize",
+      this->PointPicking ? this->GetPointPickingPrimitiveSize(cellBO.PrimitiveType)
+                         : act->GetProperty()->GetPointSize());
   }
   vtkOpenGLCheckErrorMacro("failed after UpdateShader PointSize ");
 }
@@ -577,6 +670,14 @@ void vtkOpenGLES30PolyDataMapper::BuildBufferObjects(vtkRenderer* ren, vtkActor*
       }
       vbos->CacheDataArray("edgeValue", edgeValuesArray, ren, VTK_FLOAT);
     }
+
+    // upload vtk vertex IDs that span 0 .. polydata->GetNumberOfPoints()
+    const auto& indices = this->PrimitiveIndexArrays[primType];
+    vtkNew<vtkFloatArray> vertexIDs;
+    vertexIDs->SetNumberOfComponents(1);
+    vertexIDs->SetNumberOfValues(this->PrimitiveIndexArrays[primType].size());
+    std::copy(indices.begin(), indices.end(), vertexIDs->Begin());
+    vbos->CacheDataArray("vtkVertexID", vertexIDs, ren, VTK_FLOAT);
 
     for (auto name : { "vertexMC", "prevVertexMC", "nextVertexMC" })
     {
@@ -679,6 +780,13 @@ void vtkOpenGLES30PolyDataMapper::AppendOneBufferObject(vtkRenderer* ren, vtkAct
   }
 
   int representation = act->GetProperty()->GetRepresentation();
+  vtkHardwareSelector* selector = ren->GetSelector();
+  if (selector && this->PopulateSelectionSettings &&
+    selector->GetFieldAssociation() == vtkDataObject::FIELD_ASSOCIATION_POINTS)
+  {
+    representation = VTK_POINTS;
+  }
+
   vtkCellArray* prims[4];
   prims[0] = polydata->GetVerts();
   prims[1] = polydata->GetLines();
@@ -879,6 +987,17 @@ void vtkOpenGLES30PolyDataMapper::AppendOneBufferObject(vtkRenderer* ren, vtkAct
       vbos->AppendDataArray("nextVertexMC", nextPoints, VTK_FLOAT);
     }
     primitiveStart += numPrimitives;
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkOpenGLES30PolyDataMapper::UpdateMaximumPointCellIds(vtkRenderer* ren, vtkActor* actor)
+{
+  vtkHardwareSelector* selector = ren->GetSelector();
+  vtkIdType maxPointId = this->CurrentInput->GetPoints()->GetNumberOfPoints() - 1;
+  for (auto& indexArray : this->PrimitiveIndexArrays)
+  {
+    selector->UpdateMaximumPointId(indexArray.size());
   }
 }
 

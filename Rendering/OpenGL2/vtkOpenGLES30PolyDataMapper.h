@@ -77,6 +77,8 @@ protected:
     std::map<vtkShader::Type, vtkShader*> shaders, vtkRenderer* ren, vtkActor* act) override;
   void ReplaceShaderEdges(
     std::map<vtkShader::Type, vtkShader*> shaders, vtkRenderer* ren, vtkActor* act) override;
+  void ReplaceShaderPicking(
+    std::map<vtkShader::Type, vtkShader*> shaders, vtkRenderer* ren, vtkActor* act) override;
   void ReplaceShaderPointSize(
     std::map<vtkShader::Type, vtkShader*> shaders, vtkRenderer* ren, vtkActor* act);
   ///@}
@@ -92,6 +94,11 @@ protected:
   void BuildBufferObjects(vtkRenderer* ren, vtkActor* act) override;
   void AppendOneBufferObject(vtkRenderer* ren, vtkActor* act, vtkPolyData* polydata,
     vtkOpenGLCellToVTKCellMap* prim2cellMap, vtkIdType& voffset);
+
+  /**
+   * Compute and set the maximum point and cell ID used in selection
+   */
+  void UpdateMaximumPointCellIds(vtkRenderer* ren, vtkActor* actor) override;
 
   /**
    * Get flat 0-based indices that form GL primitives for given vtk-cell connectivity and actor
