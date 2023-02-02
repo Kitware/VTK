@@ -1,4 +1,5 @@
 set(classes
+  vtkBoundaryMeshQuality
   vtkCellQuality
   vtkCellSizeFilter
   vtkMatrixMathFilter
