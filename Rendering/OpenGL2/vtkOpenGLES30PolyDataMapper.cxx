@@ -326,6 +326,18 @@ void vtkOpenGLES30PolyDataMapper::ReplaceShaderNormal(
 }
 
 //------------------------------------------------------------------------------
+void vtkOpenGLES30PolyDataMapper::ReplaceShaderCoincidentOffset(
+  std::map<vtkShader::Type, vtkShader*> shaders, vtkRenderer* ren, vtkActor* act)
+{
+  this->Superclass::ReplaceShaderCoincidentOffset(shaders, ren, act);
+
+  std::string FSSource = shaders[vtkShader::Fragment]->GetSource();
+  // gles wants explicit type specification when mixed type arguments are used with an operand
+  vtkShaderProgram::Substitute(FSSource, "cOffset/65000", "cOffset/65000.0f");
+  shaders[vtkShader::Fragment]->SetSource(FSSource);
+}
+
+//------------------------------------------------------------------------------
 void vtkOpenGLES30PolyDataMapper::BuildBufferObjects(vtkRenderer* ren, vtkActor* act)
 {
   vtkPolyData* polydata = this->CurrentInput;
