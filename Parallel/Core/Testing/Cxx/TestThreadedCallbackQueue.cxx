@@ -69,11 +69,13 @@ struct A
   A(A&& other)
   noexcept
     : array(std::move(other.array))
+    , val(std::move(other.val))
   {
     vtkLog(INFO, "Move constructor");
   }
   A(const A& other)
     : array(other.array)
+    , val(other.val)
   {
     vtkLog(INFO, "Copy constructor called.");
   }
@@ -90,7 +92,7 @@ struct A
 void f(A&, A&&) {}
 
 //-----------------------------------------------------------------------------
-void TestFunctionTypeCompleteness()
+bool TestFunctionTypeCompleteness()
 {
   // We create a queue outside of the score where things are pushed to ensure that the pushed
   // objects are persistent.
@@ -106,8 +108,10 @@ void TestFunctionTypeCompleteness()
     queue->Push(&::A::f, ::A(), ::A(), ::A());
     queue->Push(&::A::const_f, ::A(), ::A(), ::A());
 
+    std::shared_ptr<A> persistentA = std::make_shared<A>();
+
     // Fetching an lvalue reference return type
-    queue->Push(&::A::get, ::A());
+    auto future = queue->Push(&::A::get, persistentA);
 
     // functor
     queue->Push(::A(), ::A(), ::A());
@@ -128,7 +132,16 @@ void TestFunctionTypeCompleteness()
     // Passing a std::function
     std::function<void(::A&, ::A &&)> func = f;
     queue->Push(func, ::A(), ::A());
+
+    // Testing lvalue reference return type behavior
+    int& val = queue->Get(future);
+    if (&val != &persistentA->val)
+    {
+      vtkLog(ERROR, "lvalue reference was not correctly passed through the queue.");
+      return false;
+    }
   }
+  return true;
 }
 
 //-----------------------------------------------------------------------------
@@ -208,7 +221,7 @@ int TestThreadedCallbackQueue(int, char*[])
   vtkLog(INFO, "Testing futures");
   bool retVal = ::TestSharedFutures();
 
-  ::TestFunctionTypeCompleteness();
+  retVal &= ::TestFunctionTypeCompleteness();
 
   vtkLog(INFO, "Testing expanding from 2 to 8 threads");
   // Testing expanding the number of threads
