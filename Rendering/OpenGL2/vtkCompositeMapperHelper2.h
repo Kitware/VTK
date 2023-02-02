@@ -15,11 +15,19 @@
 #ifndef vtkCompositeMapperHelper2_h
 #define vtkCompositeMapperHelper2_h
 
-#include "vtkOpenGLPolyDataMapper.h"
-
 #include "vtkColor.h"                  // class uses vtkColor
 #include "vtkRenderingOpenGL2Module.h" // for export macro
 #include "vtk_glew.h"                  // for OpenGL enums
+// clang-format off
+// Must be included after vtk_glew.h for GL_ES_VERSION_3_0
+#ifndef GL_ES_VERSION_3_0
+#include "vtkOpenGLPolyDataMapper.h"
+#define vtkOpenGLPolyDataMapperImplementation vtkOpenGLPolyDataMapper
+#else
+#include "vtkOpenGLES30PolyDataMapper.h"
+#define vtkOpenGLPolyDataMapperImplementation vtkOpenGLES30PolyDataMapper
+#endif
+// clang-format on
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkPolyData;
@@ -57,11 +65,12 @@ public:
 
 //===================================================================
 /// Helper class for vtkCompositePolyDataMapper2 that is a subclass of vtkOpenGLPolyDataMapper
-class VTKRENDERINGOPENGL2_EXPORT vtkCompositeMapperHelper2 : public vtkOpenGLPolyDataMapper
+class VTKRENDERINGOPENGL2_EXPORT vtkCompositeMapperHelper2
+  : public vtkOpenGLPolyDataMapperImplementation
 {
 public:
   static vtkCompositeMapperHelper2* New();
-  vtkTypeMacro(vtkCompositeMapperHelper2, vtkOpenGLPolyDataMapper);
+  vtkTypeMacro(vtkCompositeMapperHelper2, vtkOpenGLPolyDataMapperImplementation);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   void SetParent(vtkCompositePolyDataMapper2* p) { this->Parent = p; }
