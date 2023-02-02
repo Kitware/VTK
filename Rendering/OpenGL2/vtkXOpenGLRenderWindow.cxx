@@ -577,7 +577,10 @@ void vtkXOpenGLRenderWindow::CreateAWindow()
         (const GLubyte*)"glXCreateContextAttribsARB");
 
     int context_attribs[] = { GLX_CONTEXT_MAJOR_VERSION_ARB, 3, GLX_CONTEXT_MINOR_VERSION_ARB, 2,
-      // GLX_CONTEXT_FLAGS_ARB        , GLX_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB,
+    // GLX_CONTEXT_FLAGS_ARB        , GLX_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB,
+#ifdef GL_ES_VERSION_3_0
+      GLX_CONTEXT_PROFILE_MASK_ARB, GLX_CONTEXT_ES_PROFILE_BIT_EXT,
+#endif
       0 };
 
     if (glXCreateContextAttribsARB)
@@ -599,7 +602,12 @@ void vtkXOpenGLRenderWindow::CreateAWindow()
 
       // we believe that these later versions are all compatible with
       // OpenGL 3.2 so get a more recent context if we can.
+      // For GLES, version 3.0 is best supported by VTK shaders.
+#ifdef GL_ES_VERSION_3_0
+      int attemptedVersions[] = { 3, 0 };
+#else
       int attemptedVersions[] = { 4, 5, 4, 4, 4, 3, 4, 2, 4, 1, 4, 0, 3, 3, 3, 2 };
+#endif
 
       // try shared context first, the fallback to not shared
       bool done = false;
