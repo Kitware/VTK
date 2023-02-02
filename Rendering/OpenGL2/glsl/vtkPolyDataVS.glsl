@@ -49,6 +49,9 @@ in vec4 vertexMC;
 // picking support
 //VTK::Picking::Dec
 
+// Surface with edges on GLES 3.0
+//VTK::EdgesGLES30::Dec
+
 void main()
 {
   //VTK::CustomBegin::Impl
@@ -70,6 +73,8 @@ void main()
   //VTK::Light::Impl
 
   //VTK::Picking::Impl
+
+  //VTK::EdgesGLES30::Impl
 
   //VTK::CustomEnd::Impl
 }

@@ -167,6 +167,33 @@ struct vtkExpandVertexAttributes
   }
 };
 
+struct vtkPopulateNeighborVertices
+{
+  template <typename T1, typename T2, typename T3>
+  void operator()(T1* input, T2* prev, T3* next, const vtkIdType primitiveSize)
+  {
+    auto inputRange = vtk::DataArrayValueRange(input);
+    auto nextRange = vtk::DataArrayValueRange(next);
+    auto prevRange = vtk::DataArrayValueRange(prev);
+    const int numComponents = input->GetNumberOfComponents();
+    if (numComponents != prev->GetNumberOfComponents() ||
+      numComponents != next->GetNumberOfComponents())
+    {
+      vtkLog(ERROR, << __func__ << ": Mismatch in input and prev,next number of components.");
+    }
+    for (vtkIdType i = 0; i < input->GetNumberOfValues(); i += primitiveSize * numComponents)
+    {
+      auto start = inputRange.begin() + i;
+      auto nextStart = nextRange.begin() + i;
+      std::rotate_copy(
+        start, start + numComponents, start + primitiveSize * numComponents, nextStart);
+      auto prevStart = prevRange.begin() + i;
+      std::rotate_copy(start, start + primitiveSize * numComponents - numComponents,
+        start + primitiveSize * numComponents, prevStart);
+    }
+  }
+};
+
 } // end anonymous namespace
 
 //------------------------------------------------------------------------------
@@ -336,6 +363,155 @@ void vtkOpenGLES30PolyDataMapper::ReplaceShaderCoincidentOffset(
   vtkShaderProgram::Substitute(FSSource, "cOffset/65000", "cOffset/65000.0f");
   shaders[vtkShader::Fragment]->SetSource(FSSource);
 }
+//------------------------------------------------------------------------------
+void vtkOpenGLES30PolyDataMapper::ReplaceShaderEdges(
+  std::map<vtkShader::Type, vtkShader*> shaders, vtkRenderer* ren, vtkActor* act)
+{
+  std::string VSSource = shaders[vtkShader::Vertex]->GetSource();
+  std::string FSSource = shaders[vtkShader::Fragment]->GetSource();
+
+  if (this->DrawingEdges(ren, act))
+  {
+    vtkShaderProgram::Substitute(VSSource, "//VTK::EdgesGLES30::Dec",
+      "uniform vec4 vpDims;\n"
+      "uniform float lineWidth;\n"
+      "in float edgeValue;\n"
+      "in vec4 nextVertexMC;\n"
+      "in vec4 prevVertexMC;\n"
+      "out vec4 edgeEqn[3];");
+    vtkShaderProgram::Substitute(VSSource, "//VTK::EdgesGLES30::Impl",
+      "  vec4 nextPosition = MCDCMatrix * nextVertexMC;\n"
+      "  vec4 prevPosition = MCDCMatrix * prevVertexMC;\n"
+      "  vec2 pos[4];\n"
+      "  float vertexId = float(gl_VertexID);\n"
+      "  int useID = 0;\n"
+      "  if (mod(vertexId, 3.0) == 0.0)"
+      "  {\n"
+      "    pos[0] = gl_Position.xy/gl_Position.w;\n"
+      "    pos[1] = nextPosition.xy/nextPosition.w;\n"
+      "    pos[2] = prevPosition.xy/prevPosition.w;\n"
+      "  }\n"
+      "  else if (mod(vertexId, 3.0) == 1.0)"
+      "  {\n"
+      "    pos[0] = prevPosition.xy/prevPosition.w;\n"
+      "    pos[1] = gl_Position.xy/gl_Position.w;\n"
+      "    pos[2] = nextPosition.xy/nextPosition.w;\n"
+      "    useID = 1;\n"
+      "  }\n"
+      "  else if (mod(vertexId, 3.0) == 2.0)"
+      "  {\n"
+      "    pos[0] = nextPosition.xy/nextPosition.w;\n"
+      "    pos[1] = prevPosition.xy/prevPosition.w;\n"
+      "    pos[2] = gl_Position.xy/gl_Position.w;\n"
+      "    useID = 2;\n"
+      "  }\n"
+
+      "for(int i = 0; i < 3; ++i)\n"
+      "{\n"
+      "  pos[i] = pos[i]*vec2(0.5) + vec2(0.5);\n"
+      "  pos[i] = pos[i]*vpDims.zw + vpDims.xy;\n"
+      "}\n"
+      "pos[3] = pos[0];\n"
+      "float ccw = sign(cross(vec3(pos[1] - pos[0], 0.0), vec3(pos[2] - pos[0], 0.0)).z);\n"
+
+      "for (int i = 0; i < 3; i++)\n"
+      "{\n"
+      "  vec2 tmp = normalize(pos[i+1] - pos[i]);\n"
+      "  tmp = ccw*vec2(-tmp.y, tmp.x);\n"
+      "  float d = dot(pos[i], tmp);\n"
+      "  edgeEqn[i] = vec4(tmp.x, tmp.y, 0.0, -d);\n"
+      "}\n"
+
+      "vec2 offsets[3];\n"
+      "offsets[0] = edgeEqn[2].xy + edgeEqn[0].xy;\n"
+      "offsets[0] = -0.5*normalize(offsets[0])*lineWidth;\n"
+      "offsets[0] /= vpDims.zw;\n"
+      "offsets[1] = edgeEqn[0].xy + edgeEqn[1].xy;\n"
+      "offsets[1] = -0.5*normalize(offsets[1])*lineWidth;\n"
+      "offsets[1] /= vpDims.zw;\n"
+      "offsets[2] = edgeEqn[1].xy + edgeEqn[2].xy;\n"
+      "offsets[2] = -0.5*normalize(offsets[2])*lineWidth;\n"
+      "offsets[2] /= vpDims.zw;\n"
+
+      "if (edgeValue < 4.0) edgeEqn[2].z = lineWidth;\n"
+      "if (mod(edgeValue, 4.0) < 2.0) edgeEqn[1].z = lineWidth;\n"
+      "if (mod(edgeValue, 2.0) < 1.0) edgeEqn[0].z = lineWidth;\n"
+
+      "gl_Position.xy = gl_Position.xy + offsets[useID]*gl_Position.w;\n");
+    shaders[vtkShader::Vertex]->SetSource(VSSource);
+
+    vtkShaderProgram::Substitute(FSSource, "//VTK::Edges::Dec",
+      "in vec4 edgeEqn[3];\n"
+      "uniform float lineWidth;\n"
+      "uniform vec3 edgeColor;\n");
+
+    std::string fsimpl =
+      // distance gets larger as you go inside the polygon
+      "float edist[3];\n"
+      "edist[0] = dot(edgeEqn[0].xy, gl_FragCoord.xy) + edgeEqn[0].w;\n"
+      "edist[1] = dot(edgeEqn[1].xy, gl_FragCoord.xy) + edgeEqn[1].w;\n"
+      "edist[2] = dot(edgeEqn[2].xy, gl_FragCoord.xy) + edgeEqn[2].w;\n"
+
+      // this yields wireframe only
+      // "if (abs(edist[0]) > 0.5*lineWidth && abs(edist[1]) > 0.5*lineWidth && abs(edist[2]) > "
+      // "0.5*lineWidth) discard;\n"
+
+      "if (edist[0] < -0.5 && edgeEqn[0].z > 0.0) discard;\n"
+      "if (edist[1] < -0.5 && edgeEqn[1].z > 0.0) discard;\n"
+      "if (edist[2] < -0.5 && edgeEqn[2].z > 0.0) discard;\n"
+
+      "edist[0] += edgeEqn[0].z;\n"
+      "edist[1] += edgeEqn[1].z;\n"
+      "edist[2] += edgeEqn[2].z;\n"
+
+      "float emix = clamp(0.5 + 0.5*lineWidth - min( min( edist[0], edist[1]), edist[2]), 0.0, "
+      "1.0);\n";
+
+    bool canRenderLinesAsTube =
+      act->GetProperty()->GetRenderLinesAsTubes() && ren->GetLights()->GetNumberOfItems() > 0;
+    if (canRenderLinesAsTube)
+    {
+      fsimpl += "  diffuseColor = mix(diffuseColor, diffuseIntensity*edgeColor, emix);\n"
+                "  ambientColor = mix(ambientColor, ambientIntensity*edgeColor, emix);\n"
+        // " else { discard; }\n" // this yields wireframe only
+        ;
+    }
+    else
+    {
+      fsimpl += "  diffuseColor = mix(diffuseColor, vec3(0.0), emix);\n"
+                "  ambientColor = mix( ambientColor, edgeColor, emix);\n"
+        // " else { discard; }\n" // this yields wireframe only
+        ;
+    }
+    vtkShaderProgram::Substitute(FSSource, "//VTK::Edges::Impl", fsimpl);
+
+    // even more fake tubes, for surface with edges this implementation
+    // just adjusts the normal calculation but not the zbuffer
+    if (canRenderLinesAsTube)
+    {
+      vtkShaderProgram::Substitute(FSSource, "//VTK::Normal::Impl",
+        "//VTK::Normal::Impl\n"
+        "  float cdist = min(edist[0], edist[1]);\n"
+        "  vec4 cedge = mix(edgeEqn[0], edgeEqn[1], 0.5 + 0.5*sign(edist[0] - edist[1]));\n"
+        "  cedge = mix(cedge, edgeEqn[2], 0.5 + 0.5*sign(cdist - edist[2]));\n"
+        "  vec3 tnorm = normalize(cross(normalVCVSOutput, cross(vec3(cedge.xy,0.0), "
+        "normalVCVSOutput)));\n"
+        "  float rdist = 2.0*min(cdist, edist[2])/lineWidth;\n"
+
+        // these two lines adjust for the fact that normally part of the
+        // tube would be self occluded but as these are fake tubes this does
+        // not happen. The code adjusts the computed location on the tube as
+        // the surface normal dot view direction drops.
+        "  float A = tnorm.z;\n"
+        "  rdist = 0.5*rdist + 0.5*(rdist + A)/(1.0+abs(A));\n"
+
+        "  float lenZ = clamp(sqrt(1.0 - rdist*rdist),0.0,1.0);\n"
+        "  normalVCVSOutput = mix(normalVCVSOutput, normalize(rdist*tnorm + "
+        "normalVCVSOutput*lenZ), emix);\n");
+    }
+    shaders[vtkShader::Fragment]->SetSource(FSSource);
+  }
+}
 
 //------------------------------------------------------------------------------
 void vtkOpenGLES30PolyDataMapper::BuildBufferObjects(vtkRenderer* ren, vtkActor* act)
@@ -358,8 +534,20 @@ void vtkOpenGLES30PolyDataMapper::BuildBufferObjects(vtkRenderer* ren, vtkActor*
   for (int primType = 0; primType < PrimitiveEnd; ++primType)
   {
     auto& vbos = this->PrimitiveVBOGroup[primType];
+    if (draw_surface_with_edges && (primType == PrimitiveTris))
+    {
+      vtkNew<vtkFloatArray> edgeValuesArray;
+      edgeValuesArray->SetNumberOfComponents(1);
+      for (const auto& val : this->EdgeValues)
+      {
+        edgeValuesArray->InsertNextValue(val);
+        edgeValuesArray->InsertNextValue(val);
+        edgeValuesArray->InsertNextValue(val);
+      }
+      vbos->CacheDataArray("edgeValue", edgeValuesArray, ren, VTK_FLOAT);
+    }
 
-    for (auto name : { "vertexMC" })
+    for (auto name : { "vertexMC", "prevVertexMC", "nextVertexMC" })
     {
       vtkOpenGLVertexBufferObject* posVBO = vbos->GetVBO(name);
       if (posVBO)
@@ -635,6 +823,29 @@ void vtkOpenGLES30PolyDataMapper::AppendOneBufferObject(vtkRenderer* ren, vtkAct
     if (newVertexAttrs.tcoords != nullptr)
     {
       vbos->AppendDataArray("tcoord", newVertexAttrs.tcoords, VTK_FLOAT);
+    }
+    if (draw_surface_with_edges && primType == PrimitiveTris)
+    {
+      vtkPopulateNeighborVertices worker;
+
+      auto prevPoints = vtk::TakeSmartPointer(newVertexAttrs.points->NewInstance());
+      prevPoints->SetNumberOfComponents(newVertexAttrs.points->GetNumberOfComponents());
+      prevPoints->SetNumberOfValues(newVertexAttrs.points->GetNumberOfValues());
+
+      auto nextPoints = vtk::TakeSmartPointer(newVertexAttrs.points->NewInstance());
+      nextPoints->SetNumberOfComponents(newVertexAttrs.points->GetNumberOfComponents());
+      nextPoints->SetNumberOfValues(newVertexAttrs.points->GetNumberOfValues());
+
+      using Dispatch3T = vtkArrayDispatch::Dispatch3BySameValueType<vtkArrayDispatch::AllTypes>;
+      constexpr int primitiveSize = 3;
+      if (!Dispatch3T::Execute(
+            newVertexAttrs.points.Get(), prevPoints.Get(), nextPoints.Get(), worker, primitiveSize))
+      {
+        worker(newVertexAttrs.points.Get(), prevPoints.Get(), nextPoints.Get(), primitiveSize);
+      }
+
+      vbos->AppendDataArray("prevVertexMC", prevPoints, VTK_FLOAT);
+      vbos->AppendDataArray("nextVertexMC", nextPoints, VTK_FLOAT);
     }
     primitiveStart += numPrimitives;
   }
