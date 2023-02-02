@@ -42,7 +42,8 @@
 #define vtkPLYReader_h
 
 #include "vtkAbstractPolyDataReader.h"
-#include "vtkIOPLYModule.h" // For export macro
+#include "vtkIOPLYModule.h"    // For export macro
+#include "vtkResourceStream.h" // For vtkResourceStream
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkStringArray;
@@ -87,6 +88,24 @@ public:
   void SetInputString(const std::string& s) { this->InputString = s; }
   ///@}
 
+  ///@{
+  /**
+   * Specify stream to read from
+   */
+  vtkSetSmartPointerMacro(Stream, vtkResourceStream);
+  vtkGetSmartPointerMacro(Stream, vtkResourceStream);
+  ///@}
+
+  ///@{
+  /**
+   * Enable reading from an InputStream
+   * `ReadFromInputStream` has an higher priotity than `ReadFromInputString`.
+   */
+  vtkSetMacro(ReadFromInputStream, bool);
+  vtkGetMacro(ReadFromInputStream, bool);
+  vtkBooleanMacro(ReadFromInputStream, bool);
+  ///@}
+
   /**
    * If true (default) and the "face" element has the property "texcoord" duplicate
    * face points if they have 2 or more different texture coordinates.
@@ -106,6 +125,9 @@ protected:
   bool ReadFromInputString;
   // The input string.
   std::string InputString;
+
+  bool ReadFromInputStream = false;
+  vtkSmartPointer<vtkResourceStream> Stream;
 
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 

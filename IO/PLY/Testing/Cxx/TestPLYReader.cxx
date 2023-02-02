@@ -17,6 +17,7 @@
 //
 
 #include "vtkDebugLeaks.h"
+#include "vtkFileResourceStream.h"
 #include "vtkPLYReader.h"
 
 #include "vtkActor.h"
@@ -39,9 +40,13 @@ int TestPLYReader(int argc, char* argv[])
   int canRead = vtkPLYReader::CanReadFile(fname);
   (void)canRead;
 
+  vtkNew<vtkFileResourceStream> stream;
+  stream->Open(fname);
+
   // Create the reader.
   vtkPLYReader* reader = vtkPLYReader::New();
-  reader->SetFileName(fname);
+  reader->SetStream(stream);
+  reader->SetReadFromInputStream(true);
   reader->Update();
   delete[] fname;
 

@@ -181,7 +181,15 @@ int vtkPLYReader::RequestData(vtkInformation* vtkNotUsed(request),
   int nelems, numElems, nprops;
   char **elist, *elemName;
 
-  if (this->ReadFromInputString)
+  if (this->ReadFromInputStream)
+  {
+    if (!(ply = vtkPLY::ply_read(this->Stream, &nelems, &elist)))
+    {
+      vtkWarningMacro(<< "Could not open PLY file");
+      return 0;
+    }
+  }
+  else if (this->ReadFromInputString)
   {
     if (!(ply = vtkPLY::ply_open_for_reading_from_string(this->InputString, &nelems, &elist)))
     {
