@@ -356,6 +356,51 @@ int vtkBoundingBox::Contains(const vtkBoundingBox& bbox) const
 }
 
 //------------------------------------------------------------------------------
+bool vtkBoundingBox::ContainsLine(const double x[3], const double s[3], const double lineEnd[3],
+  double& t, double xInt[3], int& plane)
+{
+  double v[3], tMin = VTK_DOUBLE_MAX;
+  double halfBox[3] = { s[0] / 2.0, s[1] / 2.0, s[2] / 2.0 };
+  for (auto i = 0; i < 3; ++i)
+  {
+    v[i] = (lineEnd[i] - x[i]);
+
+    // Compare to - plane
+    if (v[i] < -halfBox[i])
+    {
+      if ((t = (-halfBox[i] / v[i])) < tMin)
+      {
+        tMin = t;
+        plane = 2 * i;
+      }
+    }
+    // else compare to + plane
+    else if (v[i] > halfBox[i])
+    {
+      if ((t = (halfBox[i] / v[i])) < tMin)
+      {
+        tMin = t;
+        plane = 2 * i + 1;
+      }
+    }
+  } // for all 3 pairs of +/- planes
+
+  // See if there are any intersections, and if so compute intersection point.
+  if (tMin == VTK_DOUBLE_MAX)
+  {
+    return true; // line is contained by box
+  }
+  else
+  {
+    t = tMin;
+    xInt[0] = x[0] + t * v[0];
+    xInt[1] = x[1] + t * v[1];
+    xInt[2] = x[2] + t * v[2];
+    return false; // line is not contained by box
+  }
+}
+
+//------------------------------------------------------------------------------
 double vtkBoundingBox::GetMaxLength() const
 {
   double l[3];

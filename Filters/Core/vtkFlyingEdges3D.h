@@ -45,12 +45,15 @@
  * Algorithm" by Schroeder, Maynard, Geveci. Proc. of LDAV 2015. Chicago, IL.
  *
  * @warning
- * This filter is specialized to 3D volumes. This implementation can produce
- * degenerate triangles (i.e., zero-area triangles).
+ * This filter is specialized to 3D volumes. Note that Flying Edges can produce
+ * degenerate triangles (i.e., zero-area triangles). Consequently, this filter
+ * may not produce the exact same output as Marching Cubes (since many
+ * implementations of MC remove degenerate triangles / duplicate points on
+ * output).
  *
  * @warning
  * If you are interested in extracting segmented regions from a label mask,
- * consider using vtkDiscreteFlyingEdges3D.
+ * consider using vtkSurfaceNets3D or vtkDiscreteFlyingEdges3D.
  *
  * @warning
  * This class has been threaded with vtkSMPTools. Using TBB or other
@@ -59,8 +62,8 @@
  *
  * @sa
  * vtkContourFilter vtkFlyingEdges2D vtkSynchronizedTemplates3D
- * vtkMarchingCubes vtkDiscreteFlyingEdges3D vtkContour3DLinearGrid
- * vtkFlyingEdgesPlaneCutter
+ * vtkMarchingCubes vtkSurfaceNets3D vtkDiscreteFlyingEdges3D
+ * vtkContour3DLinearGrid vtkFlyingEdgesPlaneCutter
  */
 
 #ifndef vtkFlyingEdges3D_h
@@ -76,9 +79,15 @@ class vtkImageData;
 class VTKFILTERSCORE_EXPORT vtkFlyingEdges3D : public vtkPolyDataAlgorithm
 {
 public:
+  ///@{
+  /**
+   * Standard methods for instantiation, obtaining type information, and printing
+   * information.
+   */
   static vtkFlyingEdges3D* New();
   vtkTypeMacro(vtkFlyingEdges3D, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
+  ///@}
 
   /**
    * Because we delegate to vtkContourValues.

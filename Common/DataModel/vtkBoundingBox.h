@@ -218,6 +218,25 @@ public:
    */
   int Contains(const vtkBoundingBox& bbox) const;
 
+  /**
+   * A specialized, performant method to compute the containment of a finite
+   * line emanating from the center of a bounding box. The method returns
+   * true if the box contains the line defined by (x,lineEnd); and false if
+   * the line intersects the box (i.e., the line passes through the boundary
+   * of the box). The box is defined by specifying a point at the center of
+   * the box x[3] with sides lengths s[3] (in the x-y-z directions). If an
+   * intersection occurs (i.e., the containment return value is false), then
+   * the function returns the parametric coordinate of intersection t, the
+   * position of intersection xInt[3], and the plane of intersection where
+   * integers (0, 1, 2, 3, 4, 5) stand for the (xmin, xmax, ymin, ymax, zmin,
+   * zmax) box planes respectively.  (If no intersection occurs, i.e., the
+   * line is contained, then the line (x,lineEnd) is contained within the box
+   * with x-y-z lengths s[3] centered around the point x, and the values of
+   * t, xInt, and plane are undefined.)
+   */
+  static bool ContainsLine(const double x[3], const double s[3], const double lineEnd[3], double& t,
+    double xInt[3], int& plane);
+
   ///@{
   /**
    * Get the bounds of the box (defined by VTK style).
