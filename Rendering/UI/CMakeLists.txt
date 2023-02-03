@@ -52,6 +52,11 @@ elseif (ANDROID)
     OVERRIDE vtkAndroidRenderWindowInteractor)
   list(APPEND classes vtkAndroidRenderWindowInteractor)
   include_directories("${CMAKE_ANDROID_NDK}/sources/android/native_app_glue")
+elseif (EMSCRIPTEN)
+  # Add some custom overrides
+  vtk_object_factory_declare(
+    BASE vtkRenderWindowInteractor
+    OVERRIDE vtkSDL2RenderWindowInteractor)
 elseif (APPLE_IOS)
   # Add some custom overrides
   vtk_object_factory_declare(
