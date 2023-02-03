@@ -1168,7 +1168,7 @@ int vtkLagrangianParticleTracker::Integrate(vtkInitialValueProblemSolver* integr
       stepFactor = stepTime * reintegrationFactor * velocityMagnitude / cellLength;
     }
     if (this->MaximumNumberOfSteps > -1 &&
-      particle->GetNumberOfSteps() == this->MaximumNumberOfSteps &&
+      particle->GetNumberOfSteps() >= this->MaximumNumberOfSteps &&
       particle->GetTermination() == vtkLagrangianParticle::PARTICLE_TERMINATION_NOT_TERMINATED)
     {
       particle->SetTermination(vtkLagrangianParticle::PARTICLE_TERMINATION_OUT_OF_STEPS);
