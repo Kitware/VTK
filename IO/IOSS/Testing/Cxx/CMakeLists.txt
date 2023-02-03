@@ -10,6 +10,7 @@ vtk_add_test_cxx(vtkIOIOSSCxxTests tests
   TestIOSSExodusWriter.cxx
   TestIOSSFilePatternMatching.cxx,NO_VALID
   TestIOSSNoElementBlocks.cxx,NO_VALID
+  TestIOSSReadAllFilesToDetermineStructure.cxx,NO_VALID
   TestIOSSTri6.cxx
   TestIOSSUnsupported.cxx,NO_VALID
 )

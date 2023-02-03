@@ -17,7 +17,11 @@ set(datasets
   Data/Exodus/hello_world_fix-d_frf.frq
   Data/Exodus/RubiksCubeWithRotations_gold.g
   Data/Exodus/SAND2020-4077_O-tri6sWFace2.exo
-  Data/Exodus/test-nfaced.exo)
+  Data/Exodus/test-nfaced.exo
+  Data/FSIobject/FSIobject.inp.EXODUS_DATA.e-s.00001.4.0
+  Data/FSIobject/FSIobject.inp.EXODUS_DATA.e-s.00001.4.1
+  Data/FSIobject/FSIobject.inp.EXODUS_DATA.e-s.00001.4.2
+  Data/FSIobject/FSIobject.inp.EXODUS_DATA.e-s.00001.4.3)
 
 if (VTK_USE_LARGE_DATA)
   list(APPEND datasets
