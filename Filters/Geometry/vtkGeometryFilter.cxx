@@ -2856,6 +2856,11 @@ int ExecuteUnstructuredGrid(vtkGeometryFilter* self, vtkDataSet* dataSetInput, v
     vtkNew<vtkPolyData> polyDataInput;
     polyDataInput->SetPoints(uGrid->GetPoints());
     polyDataInput->GetPointData()->ShallowCopy(uGrid->GetPointData());
+    if (self->GetPassThroughPointIds() &&
+      polyDataInput->GetPointData()->HasArray(self->GetOriginalPointIdsName()))
+    {
+      polyDataInput->GetPointData()->RemoveArray(self->GetOriginalPointIdsName());
+    }
     if (info->HasOnlyVerts())
     {
       polyDataInput->SetVerts(uGrid->GetCells());
@@ -2873,6 +2878,11 @@ int ExecuteUnstructuredGrid(vtkGeometryFilter* self, vtkDataSet* dataSetInput, v
       polyDataInput->SetStrips(uGrid->GetCells());
     }
     polyDataInput->GetCellData()->ShallowCopy(uGrid->GetCellData());
+    if (self->GetPassThroughCellIds() &&
+      polyDataInput->GetCellData()->HasArray(self->GetOriginalCellIdsName()))
+    {
+      polyDataInput->GetCellData()->RemoveArray(self->GetOriginalCellIdsName());
+    }
     if (info_owned)
     {
       delete info;
