@@ -236,7 +236,7 @@ void vtkXRenderWindowInteractor::ProcessEvents()
       minTv.tv_sec = std::min(tv.tv_sec, minTv.tv_sec);
       minTv.tv_usec = std::min(tv.tv_usec, minTv.tv_usec);
     }
-    else
+    while (XPending((*rwi)->DisplayId) != 0)
     {
       // If events are pending, dispatch them to the right RenderWindowInteractor
       XNextEvent((*rwi)->DisplayId, &event);
