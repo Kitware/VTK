@@ -277,6 +277,17 @@ public:
 
   ///@{
   /**
+   * When this flag on blocks of entities of exodus data will be merged.
+   *
+   * Note: This flag is ignored for non-exodus data.
+   */
+  void SetMergeExodusEntityBlocks(bool value);
+  vtkGetMacro(MergeExodusEntityBlocks, bool);
+  vtkBooleanMacro(MergeExodusEntityBlocks, bool);
+  ///@}
+
+  ///@{
+  /**
    * When set to true, the reader will add a cell-data array for cells named
    * 'file_id' which identifies the file number when reading spatially
    * partitioned files.
@@ -397,6 +408,7 @@ public:
   static bool GetEntityTypeIsBlock(int type) { return (type >= BLOCK_START && type < BLOCK_END); }
   static bool GetEntityTypeIsSet(int type) { return (type >= SET_START && type < SET_END); }
   static const char* GetDataAssemblyNodeNameForEntityType(int type);
+  static const char* GetMergedEntityNameForEntityType(int type);
 
   vtkDataArraySelection* GetEntitySelection(int type);
   vtkDataArraySelection* GetNodeBlockSelection() { return this->GetEntitySelection(NODEBLOCK); }
@@ -614,6 +626,7 @@ private:
   vtkNew<vtkStringArray> EntityIdMapStrings[NUMBER_OF_ENTITY_TYPES + 1];
 
   vtkMultiProcessController* Controller;
+  bool MergeExodusEntityBlocks;
   bool GenerateFileId;
   bool ScanForRelatedFiles;
   bool ReadIds;
