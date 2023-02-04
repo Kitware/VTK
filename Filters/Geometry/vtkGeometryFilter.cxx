@@ -338,16 +338,16 @@ class Face
 {
 public:
   Face* Next = nullptr;
-  TInputIdType OriginalCellId;
-  TInputIdType* PointIds;
   int NumberOfPoints;
   bool IsGhost;
+  TInputIdType OriginalCellId;
+  TInputIdType* PointIds;
 
   Face() = default;
   Face(const vtkIdType& originalCellId, const vtkIdType& numberOfPoints, const bool& isGhost)
-    : OriginalCellId(static_cast<TInputIdType>(originalCellId))
-    , NumberOfPoints(numberOfPoints)
+    : NumberOfPoints(static_cast<int>(numberOfPoints))
     , IsGhost(isGhost)
+    , OriginalCellId(static_cast<TInputIdType>(originalCellId))
   {
   }
 
@@ -505,33 +505,34 @@ class FaceMemoryPool
 private:
   using TFace = Face<TInputIdType>;
 
-  vtkIdType NumberOfArrays;
-  vtkIdType ArrayLength;
-  vtkIdType NextArrayIndex;
-  vtkIdType NextFaceIndex;
-  unsigned char** Arrays;
+  static constexpr int FSize = sizeof(TFace);
+  static constexpr int SizeId = sizeof(TInputIdType);
+  static constexpr int PointerSize = sizeof(void*);
+  static constexpr bool Is64BitsSystem = PointerSize == 8;
+  static constexpr bool IsId64Bits = SizeId == 8;
+  // The following assert holds for both 32 and 64 bit Ids for both 32 and 64 bit systems.
+  static_assert(FSize % SizeId == 0, "Face size must be a multiple of Id size");
+  static constexpr bool EasyToComputeSize = !Is64BitsSystem || IsId64Bits;
+  static constexpr int FSizeDivSizeId = FSize / SizeId;
 
-  inline static int SizeofFace(const int& numberOfPoints)
+  inline static constexpr int SizeOfFace(const int& numberOfPoints)
   {
-    static constexpr int fSize = sizeof(TFace);
-    static constexpr int sizeId = sizeof(TInputIdType);
-    if (fSize % sizeId == 0)
-    {
-      return static_cast<int>(fSize + numberOfPoints * sizeId);
-    }
-    else
-    {
-      return static_cast<int>((fSize / sizeId + 1 + numberOfPoints) * sizeId);
-    }
+    return FaceMemoryPool::FSize +
+      (FaceMemoryPool::EasyToComputeSize
+          ? numberOfPoints * FaceMemoryPool::SizeId
+          : (numberOfPoints + (numberOfPoints & 1 /*fast %2*/)) * FaceMemoryPool::SizeId);
   }
+
+  size_t ChunkSize;
+  size_t NextChunkIndex;
+  size_t NextFaceIndex;
+  std::vector<std::shared_ptr<unsigned char>> Chunks;
 
 public:
   FaceMemoryPool()
-    : NumberOfArrays(0)
-    , ArrayLength(0)
-    , NextArrayIndex(0)
+    : ChunkSize(0)
+    , NextChunkIndex(0)
     , NextFaceIndex(0)
-    , Arrays(nullptr)
   {
   }
 
@@ -546,94 +547,54 @@ public:
   void Initialize(const vtkIdType& numberOfPoints)
   {
     this->Destroy();
-    this->NumberOfArrays = 100;
-    this->NextArrayIndex = 0;
-    this->NextFaceIndex = 0;
-    this->Arrays = new unsigned char*[this->NumberOfArrays];
-    for (auto i = 0; i < this->NumberOfArrays; i++)
-    {
-      this->Arrays[i] = nullptr;
-    }
     // size the chunks based on the size of a quadrilateral
-    int quadSize = SizeofFace(4);
-    if (numberOfPoints < this->NumberOfArrays)
-    {
-      this->ArrayLength = 50 * quadSize;
-    }
-    else
-    {
-      this->ArrayLength = (numberOfPoints / 2) * quadSize;
-    }
+    static constexpr int numberOfInitialChunks = 100;
+    static constexpr int quadSize = FaceMemoryPool::SizeOfFace(4);
+    this->ChunkSize =
+      numberOfPoints < numberOfInitialChunks ? 50 * quadSize : (numberOfPoints / 2) * quadSize;
+    this->NextChunkIndex = 0;
+    this->NextFaceIndex = 0;
+    this->Chunks.resize(numberOfInitialChunks, nullptr);
+    // Initialize the first chunk
+    this->Chunks[0] = std::shared_ptr<unsigned char>(
+      new unsigned char[this->ChunkSize], std::default_delete<unsigned char[]>());
   }
 
   void Destroy()
   {
-    for (auto i = 0; i < this->NumberOfArrays; i++)
-    {
-      delete[] this->Arrays[i];
-      this->Arrays[i] = nullptr;
-    }
-    delete[] this->Arrays;
-    this->Arrays = nullptr;
-    this->ArrayLength = 0;
-    this->NumberOfArrays = 0;
-    this->NextArrayIndex = 0;
+    this->ChunkSize = 0;
+    this->NextChunkIndex = 0;
     this->NextFaceIndex = 0;
+    this->Chunks.clear();
   }
 
   TFace* Allocate(const int& numberOfPoints)
   {
     // see if there's room for this one
-    const int polySize = SizeofFace(numberOfPoints);
-    if (this->NextFaceIndex + polySize > this->ArrayLength)
+    const int polySize = FaceMemoryPool::SizeOfFace(numberOfPoints);
+    if (this->NextFaceIndex + polySize > this->ChunkSize)
     {
-      ++this->NextArrayIndex;
+      ++this->NextChunkIndex;
       this->NextFaceIndex = 0;
-    }
 
-    // Although this should not happen often, check first.
-    if (this->NextArrayIndex >= this->NumberOfArrays)
-    {
-      int idx, num;
-      unsigned char** newArrays;
-      num = this->NumberOfArrays * 2;
-      newArrays = new unsigned char*[num];
-      for (idx = 0; idx < num; ++idx)
+      // Although this should not happen often, check first.
+      if (this->NextChunkIndex >= this->Chunks.size())
       {
-        newArrays[idx] = nullptr;
-        if (idx < this->NumberOfArrays)
-        {
-          newArrays[idx] = this->Arrays[idx];
-        }
+        this->Chunks.resize(this->Chunks.size() * 2);
       }
-      delete[] this->Arrays;
-      this->Arrays = newArrays;
-      this->NumberOfArrays = num;
-    }
 
-    // Next: allocate a new array if necessary.
-    if (this->Arrays[this->NextArrayIndex] == nullptr)
-    {
-      this->Arrays[this->NextArrayIndex] = new unsigned char[this->ArrayLength];
+      // Next: allocate a new array if necessary.
+      if (this->Chunks[this->NextChunkIndex] == nullptr)
+      {
+        this->Chunks[this->NextChunkIndex] = std::shared_ptr<unsigned char>(
+          new unsigned char[this->ChunkSize], std::default_delete<unsigned char[]>());
+      }
     }
 
     TFace* face =
-      reinterpret_cast<TFace*>(this->Arrays[this->NextArrayIndex] + this->NextFaceIndex);
+      reinterpret_cast<TFace*>(this->Chunks[this->NextChunkIndex].get() + this->NextFaceIndex);
     face->NumberOfPoints = numberOfPoints;
-
-    static constexpr int fSize = sizeof(TFace);
-    static constexpr int sizeId = sizeof(TInputIdType);
-    // If necessary, we create padding after TFace such that
-    // the beginning of ids aligns evenly with sizeof(TInputIdType).
-    if (fSize % sizeId == 0)
-    {
-      face->PointIds = (TInputIdType*)face + fSize / sizeId;
-    }
-    else
-    {
-      face->PointIds = (TInputIdType*)face + fSize / sizeId + 1;
-    }
-
+    face->PointIds = (TInputIdType*)face + FaceMemoryPool::FSizeDivSizeId;
     this->NextFaceIndex += polySize;
 
     return face;
