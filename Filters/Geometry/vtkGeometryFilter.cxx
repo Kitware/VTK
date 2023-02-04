@@ -51,6 +51,7 @@
 #include "vtkVoxel.h"
 #include "vtkWedge.h"
 
+#include <cstring>
 #include <memory>
 #include <mutex>
 
@@ -732,11 +733,8 @@ public:
     TFace* newF = pool.Allocate(f.GetSize());
     newF->Next = nullptr;
     newF->OriginalCellId = f.OriginalCellId;
+    std::memcpy(newF->PointIds, f.PointIds, f.GetSize() * sizeof(TInputIdType));
     newF->IsGhost = f.IsGhost;
-    for (int i = 0; i < f.GetSize(); ++i)
-    {
-      newF->PointIds[i] = f.PointIds[i];
-    }
     if (bucketHead == nullptr)
     {
       bucketHead = newF;
