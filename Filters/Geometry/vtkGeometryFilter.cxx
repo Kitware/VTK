@@ -495,25 +495,6 @@ public:
   }
 };
 
-template <typename TInputIdType>
-using Triangle = StaticFace<3, TInputIdType>;
-template <typename TInputIdType>
-using Quad = StaticFace<4, TInputIdType>;
-template <typename TInputIdType>
-using Pentagon = StaticFace<5, TInputIdType>;
-template <typename TInputIdType>
-using Hexagon = StaticFace<6, TInputIdType>;
-template <typename TInputIdType>
-using Heptagon = StaticFace<7, TInputIdType>;
-template <typename TInputIdType>
-using Octagon = StaticFace<8, TInputIdType>;
-template <typename TInputIdType>
-using Nonagon = StaticFace<9, TInputIdType>;
-template <typename TInputIdType>
-using Decagon = StaticFace<10, TInputIdType>;
-template <typename TInputIdType>
-using Polygon = DynamicFace<TInputIdType>;
-
 /**
  * Memory pool for faces.
  * Code was aggregated from vtkDataSetSurfaceFilter
@@ -1078,6 +1059,15 @@ void ExtractCellGeometry(vtkUnstructuredGridBase* input, vtkIdType cellId, int c
   vtkIdType npts, const vtkIdType* pts, LocalDataType<TInputIdType>* localData,
   FaceHashMap<TInputIdType>* faceMap, const bool& isGhost)
 {
+  using Triangle = StaticFace<3, TInputIdType>;
+  using Quad = StaticFace<4, TInputIdType>;
+  using Pentagon = StaticFace<5, TInputIdType>;
+  using Hexagon = StaticFace<6, TInputIdType>;
+  using Heptagon = StaticFace<7, TInputIdType>;
+  using Octagon = StaticFace<8, TInputIdType>;
+  using Nonagon = StaticFace<9, TInputIdType>;
+  using Decagon = StaticFace<10, TInputIdType>;
+  using Polygon = DynamicFace<TInputIdType>;
   using TCellArrayType = CellArrayType<TInputIdType>;
   TCellArrayType& verts = localData->Verts;
   TCellArrayType& lines = localData->Lines;
@@ -1134,7 +1124,7 @@ void ExtractCellGeometry(vtkUnstructuredGridBase* input, vtkIdType cellId, int c
         ptIds[0] = pts[faceVerts[0]];
         ptIds[1] = pts[faceVerts[1]];
         ptIds[2] = pts[faceVerts[2]];
-        faceMap->Insert(Triangle<TInputIdType>(cellId, ptIds, isGhost), localData->FacePool);
+        faceMap->Insert(Triangle(cellId, ptIds, isGhost), localData->FacePool);
       }
       break;
 
@@ -1146,7 +1136,7 @@ void ExtractCellGeometry(vtkUnstructuredGridBase* input, vtkIdType cellId, int c
         ptIds[1] = pts[faceVerts[pixelConvert[1]]];
         ptIds[2] = pts[faceVerts[pixelConvert[2]]];
         ptIds[3] = pts[faceVerts[pixelConvert[3]]];
-        faceMap->Insert(Quad<TInputIdType>(cellId, ptIds, isGhost), localData->FacePool);
+        faceMap->Insert(Quad(cellId, ptIds, isGhost), localData->FacePool);
       }
       break;
 
@@ -1158,7 +1148,7 @@ void ExtractCellGeometry(vtkUnstructuredGridBase* input, vtkIdType cellId, int c
         ptIds[1] = pts[faceVerts[1]];
         ptIds[2] = pts[faceVerts[2]];
         ptIds[3] = pts[faceVerts[3]];
-        faceMap->Insert(Quad<TInputIdType>(cellId, ptIds, isGhost), localData->FacePool);
+        faceMap->Insert(Quad(cellId, ptIds, isGhost), localData->FacePool);
       }
       break;
 
@@ -1171,12 +1161,12 @@ void ExtractCellGeometry(vtkUnstructuredGridBase* input, vtkIdType cellId, int c
         ptIds[2] = pts[faceVerts[2]];
         if (faceVerts[3] < 0)
         {
-          faceMap->Insert(Triangle<TInputIdType>(cellId, ptIds, isGhost), localData->FacePool);
+          faceMap->Insert(Triangle(cellId, ptIds, isGhost), localData->FacePool);
         }
         else
         {
           ptIds[3] = pts[faceVerts[3]];
-          faceMap->Insert(Quad<TInputIdType>(cellId, ptIds, isGhost), localData->FacePool);
+          faceMap->Insert(Quad(cellId, ptIds, isGhost), localData->FacePool);
         }
       }
       break;
@@ -1190,12 +1180,12 @@ void ExtractCellGeometry(vtkUnstructuredGridBase* input, vtkIdType cellId, int c
         ptIds[2] = pts[faceVerts[2]];
         if (faceVerts[3] < 0)
         {
-          faceMap->Insert(Triangle<TInputIdType>(cellId, ptIds, isGhost), localData->FacePool);
+          faceMap->Insert(Triangle(cellId, ptIds, isGhost), localData->FacePool);
         }
         else
         {
           ptIds[3] = pts[faceVerts[3]];
-          faceMap->Insert(Quad<TInputIdType>(cellId, ptIds, isGhost), localData->FacePool);
+          faceMap->Insert(Quad(cellId, ptIds, isGhost), localData->FacePool);
         }
       }
       break;
@@ -1210,13 +1200,13 @@ void ExtractCellGeometry(vtkUnstructuredGridBase* input, vtkIdType cellId, int c
         ptIds[3] = pts[faceVerts[3]];
         if (faceVerts[4] < 0)
         {
-          faceMap->Insert(Quad<TInputIdType>(cellId, ptIds, isGhost), localData->FacePool);
+          faceMap->Insert(Quad(cellId, ptIds, isGhost), localData->FacePool);
         }
         else
         {
           ptIds[4] = pts[faceVerts[4]];
           ptIds[5] = pts[faceVerts[5]];
-          faceMap->Insert(Hexagon<TInputIdType>(cellId, ptIds, isGhost), localData->FacePool);
+          faceMap->Insert(Hexagon(cellId, ptIds, isGhost), localData->FacePool);
         }
       }
       break;
@@ -1231,12 +1221,12 @@ void ExtractCellGeometry(vtkUnstructuredGridBase* input, vtkIdType cellId, int c
         ptIds[3] = pts[faceVerts[3]];
         if (faceVerts[4] < 0)
         {
-          faceMap->Insert(Quad<TInputIdType>(cellId, ptIds, isGhost), localData->FacePool);
+          faceMap->Insert(Quad(cellId, ptIds, isGhost), localData->FacePool);
         }
         else
         {
           ptIds[4] = pts[faceVerts[4]];
-          faceMap->Insert(Pentagon<TInputIdType>(cellId, ptIds, isGhost), localData->FacePool);
+          faceMap->Insert(Pentagon(cellId, ptIds, isGhost), localData->FacePool);
         }
       }
       break;
@@ -1255,42 +1245,38 @@ void ExtractCellGeometry(vtkUnstructuredGridBase* input, vtkIdType cellId, int c
           {
             case 3:
               faceMap->Insert(
-                Triangle<TInputIdType>(cellId, face->PointIds->GetPointer(0), isGhost),
-                localData->FacePool);
+                Triangle(cellId, face->PointIds->GetPointer(0), isGhost), localData->FacePool);
               break;
             case 4:
-              faceMap->Insert(Quad<TInputIdType>(cellId, face->PointIds->GetPointer(0), isGhost),
-                localData->FacePool);
+              faceMap->Insert(
+                Quad(cellId, face->PointIds->GetPointer(0), isGhost), localData->FacePool);
               break;
             case 5:
               faceMap->Insert(
-                Pentagon<TInputIdType>(cellId, face->PointIds->GetPointer(0), isGhost),
-                localData->FacePool);
+                Pentagon(cellId, face->PointIds->GetPointer(0), isGhost), localData->FacePool);
               break;
             case 6:
-              faceMap->Insert(Hexagon<TInputIdType>(cellId, face->PointIds->GetPointer(0), isGhost),
-                localData->FacePool);
+              faceMap->Insert(
+                Hexagon(cellId, face->PointIds->GetPointer(0), isGhost), localData->FacePool);
               break;
             case 7:
               faceMap->Insert(
-                Heptagon<TInputIdType>(cellId, face->PointIds->GetPointer(0), isGhost),
-                localData->FacePool);
+                Heptagon(cellId, face->PointIds->GetPointer(0), isGhost), localData->FacePool);
               break;
             case 8:
-              faceMap->Insert(Octagon<TInputIdType>(cellId, face->PointIds->GetPointer(0), isGhost),
-                localData->FacePool);
+              faceMap->Insert(
+                Octagon(cellId, face->PointIds->GetPointer(0), isGhost), localData->FacePool);
               break;
             case 9:
-              faceMap->Insert(Nonagon<TInputIdType>(cellId, face->PointIds->GetPointer(0), isGhost),
-                localData->FacePool);
+              faceMap->Insert(
+                Nonagon(cellId, face->PointIds->GetPointer(0), isGhost), localData->FacePool);
               break;
             case 10:
-              faceMap->Insert(Decagon<TInputIdType>(cellId, face->PointIds->GetPointer(0), isGhost),
-                localData->FacePool);
+              faceMap->Insert(
+                Decagon(cellId, face->PointIds->GetPointer(0), isGhost), localData->FacePool);
               break;
             default:
-              faceMap->Insert(
-                Polygon<TInputIdType>(cellId, numFacePts, face->PointIds->GetPointer(0), isGhost),
+              faceMap->Insert(Polygon(cellId, numFacePts, face->PointIds->GetPointer(0), isGhost),
                 localData->FacePool);
               break;
           }
