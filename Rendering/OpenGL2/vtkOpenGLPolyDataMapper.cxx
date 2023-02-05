@@ -2544,20 +2544,26 @@ void vtkOpenGLPolyDataMapper::UpdateShaders(
 
     // compile and bind the program if needed
     vtkShaderProgram* newShader = renWin->GetShaderCache()->ReadyShaderProgram(shaders);
-
-    vss->Delete();
-    fss->Delete();
-    gss->Delete();
-
-    // if the shader changed reinitialize the VAO
-    if (newShader != cellBO.Program || cellBO.Program->GetMTime() > cellBO.AttributeUpdateTime)
+    if (newShader)
     {
-      cellBO.Program = newShader;
-      // reset the VAO as the shader has changed
-      cellBO.VAO->ReleaseGraphicsResources();
-    }
+      vss->Delete();
+      fss->Delete();
+      gss->Delete();
 
-    cellBO.ShaderSourceTime.Modified();
+      // if the shader changed reinitialize the VAO
+      if (newShader != cellBO.Program || cellBO.Program->GetMTime() > cellBO.AttributeUpdateTime)
+      {
+        cellBO.Program = newShader;
+        // reset the VAO as the shader has changed
+        cellBO.VAO->ReleaseGraphicsResources();
+      }
+
+      cellBO.ShaderSourceTime.Modified();
+    }
+    else
+    {
+      vtkErrorMacro("Could not set shader program");
+    }
   }
   else
   {
