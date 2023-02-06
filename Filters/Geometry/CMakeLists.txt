@@ -12,6 +12,7 @@ set(classes
   vtkLinearToQuadraticCellsFilter
   vtkMarkBoundaryFilter
   vtkProjectSphereFilter
+  vtkRecoverGeometryWireframe
   vtkRectilinearGridGeometryFilter
   vtkRectilinearGridPartitioner
   vtkStructuredAMRGridConnectivity
