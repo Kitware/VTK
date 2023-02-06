@@ -1,3 +1,11 @@
+# This module requires CMake 3.19 features (the `CheckCompilerFlag`
+# module). Just skip it for older CMake versions.
+if (CMAKE_VERSION VERSION_LESS "3.19")
+  return ()
+endif ()
+
+include(CheckCompilerFlag)
+
 set(classes
   PyVTKEnum
   PyVTKExtras
