@@ -281,6 +281,12 @@ elseif (ANDROID)
     OVERRIDE vtkEGLRenderWindow)
   set(has_vtkRenderWindow_override 1)
   include_directories("${CMAKE_ANDROID_NDK}/sources/android/native_app_glue")
+elseif (EMSCRIPTEN)
+  # Add some custom overrides
+  vtk_object_factory_declare(
+    BASE vtkRenderWindow
+    OVERRIDE vtkSDL2OpenGLRenderWindow)
+  set(has_vtkRenderWindow_override 1)
 elseif (APPLE_IOS)
   # Add some custom overrides
   vtk_object_factory_declare(
