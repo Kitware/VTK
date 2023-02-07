@@ -221,10 +221,18 @@ public:
    */
   void TakeReference(T* t) { *this = vtkSmartPointer<T>(t, NoReference()); }
 
+  ///@{
   /**
    * Create an instance of a VTK object.
    */
   static vtkSmartPointer<T> New() { return vtkSmartPointer<T>(T::New(), NoReference()); }
+  template <class... ArgsT>
+  static vtkSmartPointer<T> New(ArgsT&&... args)
+  {
+    return vtkSmartPointer<T>(T::New(std::forward<ArgsT>(args)...), NoReference());
+  }
+  ///@}
+
   /**
    * Create an instance of a VTK object in a memkind extended memory space. Note that not all
    * vtkObjects support this yet and that VTK needs to be compiled with VTK_USE_MEMKIND to enable
