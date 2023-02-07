@@ -5,6 +5,7 @@ vtk_add_test_cxx(vtkIOCGNSReaderCxxTests tests
   TestCGNSReader.cxx
   TestCGNSReaderMeshCaching.cxx
   TestCGNSReaderMissingBase.cxx
+  TestCGNSReaderMixedElementNodes.cxx
   TestCGNSUnsteadyFields.cxx
   TestCGNSUnsteadyGrid.cxx
   TestCGNSUnsteadyTemporalSolution.cxx

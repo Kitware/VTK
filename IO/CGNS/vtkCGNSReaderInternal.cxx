@@ -18,6 +18,7 @@
 
 #include "cgio_helpers.h"
 #include "vtkCellType.h"
+#include "vtkIdTypeArray.h"
 #include "vtkMultiProcessStream.h"
 
 #include <algorithm>
@@ -676,11 +677,12 @@ void CGNS2VTKorder(const vtkIdType size, const int* cells_types, vtkIdType* elem
 }
 
 //------------------------------------------------------------------------------
-void CGNS2VTKorderMonoElem(const vtkIdType size, const int cell_type, vtkIdType* elements)
+void ReorderMonoCellPointsCGNS2VTK(
+  const vtkIdType size, const int cell_type, const vtkIdType numPointsPerCell, vtkIdType* elements)
 {
-  const int maxPointsPerCells = 64;
+  vtkNew<vtkIdTypeArray> tempArray;
+  tempArray->SetNumberOfTuples(numPointsPerCell);
 
-  int tmp[maxPointsPerCells];
   const int* translator;
   translator = getTranslator(cell_type);
   if (translator == nullptr)
@@ -691,15 +693,13 @@ void CGNS2VTKorderMonoElem(const vtkIdType size, const int cell_type, vtkIdType*
   vtkIdType pos = 0;
   for (vtkIdType icell = 0; icell < size; ++icell)
   {
-    vtkIdType numPointsPerCell = elements[pos];
-    pos++;
     for (vtkIdType ip = 0; ip < numPointsPerCell; ++ip)
     {
-      tmp[ip] = elements[translator[ip] + pos];
+      tempArray->SetValue(ip, elements[translator[ip] + pos]);
     }
     for (vtkIdType ip = 0; ip < numPointsPerCell; ++ip)
     {
-      elements[pos + ip] = tmp[ip];
+      elements[pos + ip] = tempArray->GetValue(ip);
     }
     pos += numPointsPerCell;
   }
