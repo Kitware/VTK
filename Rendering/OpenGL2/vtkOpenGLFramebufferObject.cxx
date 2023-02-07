@@ -1540,9 +1540,11 @@ bool vtkOpenGLFramebufferObject::PopulateFramebuffer(int width, int height, bool
           case 16:
             depth->AllocateDepth(this->LastSize[0], this->LastSize[1], vtkTextureObject::Fixed16);
             break;
+#ifdef GL_DEPTH_COMPONENT32
           case 32:
             depth->AllocateDepth(this->LastSize[0], this->LastSize[1], vtkTextureObject::Fixed32);
             break;
+#endif
           case 24:
           default:
             depth->AllocateDepth(this->LastSize[0], this->LastSize[1], vtkTextureObject::Fixed24);

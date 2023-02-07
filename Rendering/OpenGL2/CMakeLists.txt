@@ -205,6 +205,22 @@ set(opengl_overrides
   TextMapper
   Texture)
 
+include(vtkOpenGLOptions)
+if (VTK_OPENGL_USE_GLES)
+  # Add custom overrides
+  set(opengles_overrides
+    PolyDataMapper)
+  list(APPEND classes 
+    vtkOpenGLES30PolyDataMapper)
+  foreach (opengles_override IN LISTS opengles_overrides)
+    vtk_object_factory_declare(
+      BASE "vtk${opengles_override}"
+      OVERRIDE "vtkOpenGLES30${opengles_override}")
+    # remove opengl override
+    list(REMOVE_ITEM opengl_overrides ${opengles_override})
+  endforeach()
+endif ()
+
 # Now to see about the GPU info list.
 list(APPEND classes vtkDummyGPUInfoList)
 vtk_object_factory_declare(

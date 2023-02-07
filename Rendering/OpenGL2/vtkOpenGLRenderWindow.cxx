@@ -145,11 +145,15 @@ const char* DepthReadShader =
 
   void main()
   {
-    // scale up to max 32-bit unsigned integer.
+    // define the number of bits in the depth attachment as an integer `depthSize`.
+    //VTK::DepthSize::Impl
+    float maxNBitUintValue = float(1 << depthSize) - 1.0f;
     float depth = texture(tex, texCoord).r;
-    float z = floor(depth * 4294967295.0f); // 0xFFFFFFFF
+    // scale up to max n-bit unsigned integer.
+    float z = floor(depth * maxNBitUintValue);
+    // extract 8-bit unsigned integers from the n-bit unsigned integer.
+    // assume maxNBits == 32, we'll skip unnecessary 8-bit values during reconstruction.
     // gl_FragData[0] = vec4(z & 0xFF, (z >> 8) & 0xFF, (z >> 16) & 0xFF, (z >> 24) & 0xFF);
-    // extract four 8-bit unsigned integers from the 32-bit unsigned integer.
     float r = mod(z, 256.0f);
     z -= r;
     z /= 256.0f;
@@ -1474,12 +1478,16 @@ bool vtkOpenGLRenderWindow::ResolveFlipRenderFramebuffer()
 }
 
 //------------------------------------------------------------------------------
-bool vtkOpenGLRenderWindow::ReadDepthComponent()
+bool vtkOpenGLRenderWindow::ReadDepthComponent(int depthSize)
 {
   bool readDepthBuffer = false;
   if (!this->DepthReadQuad)
   {
-    this->DepthReadQuad = new vtkOpenGLQuadHelper(this, nullptr, DepthReadShader, "");
+    std::string shader = DepthReadShader;
+    std::ostringstream os;
+    os << "int depthSize = " << depthSize << ';';
+    vtkShaderProgram::Substitute(shader, "//VTK::DepthSize::Impl", os.str());
+    this->DepthReadQuad = new vtkOpenGLQuadHelper(this, nullptr, shader.c_str(), "");
     if (!this->DepthReadQuad->Program || !this->DepthReadQuad->Program->GetCompiled())
     {
       vtkErrorMacro("Couldn't build the shader program for reading depth component.");
@@ -2268,7 +2276,8 @@ int vtkOpenGLRenderWindow::GetZbufferData(int x1, int y1, int x2, int y2, float*
 
 #ifdef GL_ES_VERSION_3_0
   {
-    this->GetState()->PushFramebufferBindings();
+    const int depthSize = this->GetDepthBufferSize();
+    this->GetState()->PushDrawFramebufferBinding();
     auto readFramebuffer = resolveMSAA ? this->ResolveFramebuffer : this->RenderFramebuffer;
     int* fbsize = readFramebuffer->GetLastSize();
     this->DepthFramebuffer->Bind(GL_DRAW_FRAMEBUFFER);
@@ -2276,7 +2285,9 @@ int vtkOpenGLRenderWindow::GetZbufferData(int x1, int y1, int x2, int y2, float*
     this->GetState()->vtkglViewport(0, 0, fbsize[0], fbsize[1]);
     this->GetState()->vtkglScissor(0, 0, fbsize[0], fbsize[1]);
 
-    bool readDepth = this->ReadDepthComponent();
+    bool readDepth = this->ReadDepthComponent(depthSize);
+    this->GetState()->PopDrawFramebufferBinding();
+    this->GetState()->PopReadFramebufferBinding();
     if (!readDepth)
     {
       vtkErrorMacro(<< "Failed to read depth component!");
@@ -2290,14 +2301,18 @@ int vtkOpenGLRenderWindow::GetZbufferData(int x1, int y1, int x2, int y2, float*
       std::vector<vtkTypeUInt8> z_data_quarters(width * height * 4, 0);
       const vtkRecti rect(x_low, y_low, width, height);
       ConvertGLColor<GL_UNSIGNED_BYTE>(GL_RGBA, rect, z_data_quarters.data(), GL_RGBA);
-      this->GetState()->PopFramebufferBindings();
+      this->GetState()->PopReadFramebufferBinding();
       for (int i = 0, j = 0; i < width * height; ++i)
       {
         vtkTypeUInt32 z_int = z_data_quarters[j++];
         z_int += (z_data_quarters[j++] << 8);
+#if defined(GL_DEPTH_COMPONENT24) || defined(GL_DEPTH_COMPONENT32)
         z_int += (z_data_quarters[j++] << 16);
+#endif
+#ifdef GL_DEPTH_COMPONENT32
         z_int += (z_data_quarters[j++] << 24);
-        z_data[i] = z_int / float(VTK_TYPE_UINT32_MAX);
+#endif
+        z_data[i] = z_int / float(0xffffff);
       }
     }
   }
@@ -2628,7 +2643,15 @@ int vtkOpenGLRenderWindow::SupportsOpenGL()
     this->OpenGLSupportResult = 1;
     this->OpenGLSupportMessage = "The system appears to support OpenGL 3.2/3.1";
   }
-
+#else
+#ifdef GL_ES_VERSION_2_0
+  this->OpenGLSupportResult = 1;
+  this->OpenGLSupportMessage = "The system appears to support OpenGL ES 2.0";
+#endif
+#ifdef GL_ES_VERSION_3_0
+  this->OpenGLSupportResult = 1;
+  this->OpenGLSupportMessage = "The system appears to support OpenGL ES 3.0";
+#endif
 #endif
 
   if (this->OpenGLSupportResult)

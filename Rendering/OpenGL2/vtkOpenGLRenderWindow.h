@@ -481,11 +481,11 @@ protected:
   // On GLES, the depth attachment buffer cannot be downloaded from
   // the GPU with `glReadPixels`.
   // This method reads the depth buffer bits.
-  // Depth is always 32-bit. The values are split into 4 8-bit numbers.
+  // The depth attachment size can be 8,16,24 or 32. The values are split into 4 8-bit numbers.
   // These are stored in the form of an RGBA color attachment in DepthFrameBuffer.
-  // `glReadPixels` can read that RGBA format and reconstruct full 32-bit integer
+  // `glReadPixels` can read that RGBA format and reconstruct full 8,16,24 or 32-bit integer
   // followed by scaling down to 0-1.
-  bool ReadDepthComponent();
+  bool ReadDepthComponent(int depthSize);
 
   // used in testing for opengl support
   // in the SupportsOpenGL() method

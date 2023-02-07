@@ -63,6 +63,26 @@
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkCompositeMapperHelper2);
 
+namespace
+{
+template <typename T>
+class ScopedValueRollback
+{
+public:
+  ScopedValueRollback(T& value, T newValue)
+  {
+    Value = value;
+    Pointer = &value;
+    *Pointer = newValue;
+  }
+  ~ScopedValueRollback() { *Pointer = Value; }
+
+private:
+  T* Pointer = nullptr;
+  T Value;
+};
+} // end anonymous namespace
+
 //------------------------------------------------------------------------------
 void vtkCompositeMapperHelper2::PrintSelf(ostream& os, vtkIndent indent)
 {
@@ -435,6 +455,7 @@ void vtkCompositeMapperHelper2::DrawIBO(vtkRenderer* ren, vtkActor* actor, int p
 
 //------------------------------------------------------------------------------
 void vtkCompositeMapperHelper2::RenderPieceDraw(vtkRenderer* ren, vtkActor* actor)
+#ifndef GL_ES_VERSION_3_0
 {
   int representation = actor->GetProperty()->GetRepresentation();
 
@@ -488,6 +509,80 @@ void vtkCompositeMapperHelper2::RenderPieceDraw(vtkRenderer* ren, vtkActor* acto
     this->CurrentSelector->SetPropColorValue(this->PrimitiveIDOffset);
   }
 }
+#else
+{
+  int representation = actor->GetProperty()->GetRepresentation();
+  // render points for point picking in a special way
+  // all cell types should be rendered as points
+  this->CurrentSelector = ren->GetSelector();
+  if (this->CurrentSelector && this->PopulateSelectionSettings &&
+    this->CurrentSelector->GetFieldAssociation() == vtkDataObject::FIELD_ASSOCIATION_POINTS)
+  {
+    representation = VTK_POINTS;
+    this->PointPicking = true;
+  }
+
+  this->PrimitiveIDOffset = 0;
+
+  for (int primType = vtkOpenGLPolyDataMapper::PrimitiveStart;
+       primType < (this->CurrentSelector ? vtkOpenGLPolyDataMapper::PrimitiveTriStrips + 1
+                                         : vtkOpenGLPolyDataMapper::PrimitiveEnd);
+       primType++)
+  {
+    this->DrawingVertices = primType > PrimitiveTriStrips;
+    this->DrawingSelection = false;
+    const auto numVerts = this->PrimitiveIndexArrays[primType].size();
+    if (!numVerts)
+    {
+      continue;
+    }
+    // set index count and vbos so that UpdateShaders and everyone else can function correctly.
+    ScopedValueRollback<vtkOpenGLVertexBufferObjectGroup*> vbogBkp(
+      this->VBOs, this->PrimitiveVBOGroup[primType].Get());
+    ScopedValueRollback<std::size_t> indexCountBkp(
+      this->Primitives[primType].IBO->IndexCount, numVerts);
+    this->UpdateShaders(this->Primitives[primType], ren, actor);
+
+    bool selecting = this->CurrentSelector != nullptr;
+    bool tpass = actor->IsRenderingTranslucentPolygonalGeometry();
+    vtkShaderProgram* prog = this->Primitives[primType].Program;
+    this->PrimIDUsed = prog->IsUniformUsed("PrimitiveIDOffset");
+    this->OverideColorUsed = prog->IsUniformUsed("OverridesColor");
+
+    for (auto& data : this->Data)
+    {
+      vtkCompositeMapperHelperData* starthdata = data.second;
+      bool shouldDraw = starthdata->Visibility     // must be visible
+        && (!selecting || starthdata->Pickability) // and pickable when selecting
+        && (((selecting || starthdata->IsOpaque || actor->GetForceOpaque()) &&
+              !tpass) // opaque during opaque or when selecting
+             || ((!starthdata->IsOpaque || actor->GetForceTranslucent()) && tpass &&
+                  !selecting)); // translucent during translucent and never selecting
+
+      const unsigned int first = starthdata->StartIndex[primType];
+      const GLsizei count = starthdata->NextIndex[primType] - first;
+
+      if (shouldDraw && starthdata->NextIndex[primType] > starthdata->StartIndex[primType])
+      {
+        if (primType <= vtkOpenGLPolyDataMapper::PrimitiveTriStrips)
+        {
+          this->SetShaderValues(
+            prog, starthdata, starthdata->CellCellMap->GetPrimitiveOffsets()[primType]);
+        }
+        GLenum mode = this->GetOpenGLMode(representation, primType);
+        glDrawArrays(mode, first, count);
+      }
+    }
+  }
+
+  if (this->CurrentSelector &&
+    (this->CurrentSelector->GetCurrentPass() == vtkHardwareSelector::CELL_ID_LOW24 ||
+      this->CurrentSelector->GetCurrentPass() == vtkHardwareSelector::CELL_ID_HIGH24))
+  {
+    this->CurrentSelector->SetPropColorValue(this->PrimitiveIDOffset);
+  }
+}
+#endif
 
 //------------------------------------------------------------------------------
 vtkCompositeMapperHelperData* vtkCompositeMapperHelper2::AddData(
@@ -534,6 +629,7 @@ bool vtkCompositeMapperHelper2::GetNeedToRebuildBufferObjects(
 
 //------------------------------------------------------------------------------
 void vtkCompositeMapperHelper2::BuildBufferObjects(vtkRenderer* ren, vtkActor* act)
+#ifndef GL_ES_VERSION_3_0
 {
   // render using the composite data attributes
 
@@ -711,7 +807,130 @@ void vtkCompositeMapperHelper2::BuildBufferObjects(vtkRenderer* ren, vtkActor* a
 
   this->VBOBuildTime.Modified();
 }
+#else
+{
+  // render using the composite data attributes
+  // this class keeps a member `IndexArrays` but that's not accessible from
+  // `vtkOpenGLES30PolyDataMapper`. work with `vtkOpenGLES30PolyDataMapper::PrimitiveIndexArrays`
+  for (int i = 0; i < PrimitiveEnd; ++i)
+  {
+    this->PrimitiveVBOGroup[i]->ClearAllVBOs();
+    this->PrimitiveIndexArrays[i].clear();
+  }
+  if (this->Data.begin() == this->Data.end())
+  {
+    this->VBOBuildTime.Modified();
+    return;
+  }
+  this->EdgeValues.clear();
 
+  vtkBoundingBox bbox;
+  double bounds[6] = {};
+  this->Data.begin()->second->Data->GetPoints()->GetBounds(bounds);
+  bbox.SetBounds(bounds);
+  vtkCompositeMapperHelperData* prevhdata = nullptr;
+  vtkIdType vOffset = 0;
+  // these are normals and colors of all polydata
+  std::vector<unsigned char> newColors;
+  std::vector<float> newNormals;
+  for (auto& data : this->Data)
+  {
+    vtkCompositeMapperHelperData* hdata = data.second;
+    vtkPolyData* geometry = hdata->Data;
+
+    geometry->GetPoints()->GetBounds(bounds);
+    bbox.AddBounds(bounds);
+    for (int i = 0; i < PrimitiveEnd; ++i)
+    {
+      hdata->StartIndex[i] = this->PrimitiveIndexArrays[i].size();
+    }
+    hdata->StartVertex = 0;
+    hdata->CellCellMap->SetStartOffset(prevhdata ? prevhdata->CellCellMap->GetFinalOffset() : 0);
+    this->AppendOneBufferObject(ren, act, hdata, vOffset, newColors, newNormals);
+    for (int i = 0; i < PrimitiveEnd; i++)
+    {
+      hdata->NextIndex[i] = this->PrimitiveIndexArrays[i].size();
+    }
+    prevhdata = hdata;
+  }
+
+  bool draw_surface_with_edges = (act->GetProperty()->GetEdgeVisibility() &&
+    act->GetProperty()->GetRepresentation() == VTK_SURFACE);
+
+  for (int primType = 0; primType < PrimitiveEnd; ++primType)
+  {
+    auto& vbos = this->PrimitiveVBOGroup[primType];
+    if (draw_surface_with_edges && (primType == PrimitiveTris))
+    {
+      vtkNew<vtkFloatArray> edgeValuesArray;
+      edgeValuesArray->SetNumberOfComponents(1);
+      for (const auto& val : this->EdgeValues)
+      {
+        edgeValuesArray->InsertNextValue(val);
+        edgeValuesArray->InsertNextValue(val);
+        edgeValuesArray->InsertNextValue(val);
+      }
+      vbos->CacheDataArray("edgeValue", edgeValuesArray, ren, VTK_FLOAT);
+    }
+
+    // upload vtk vertex IDs that span 0 .. polydata->GetNumberOfPoints()
+    const auto& indices = this->PrimitiveIndexArrays[primType];
+    vtkNew<vtkFloatArray> vertexIDs;
+    vertexIDs->SetNumberOfComponents(1);
+    vertexIDs->SetNumberOfValues(this->PrimitiveIndexArrays[primType].size());
+    std::copy(indices.begin(), indices.end(), vertexIDs->Begin());
+    vbos->CacheDataArray("vtkVertexID", vertexIDs, ren, VTK_FLOAT);
+
+    for (auto name : { "vertexMC", "prevVertexMC", "nextVertexMC" })
+    {
+      vtkOpenGLVertexBufferObject* posVBO = vbos->GetVBO(name);
+      if (posVBO)
+      {
+        if (this->ShiftScaleMethod == vtkOpenGLVertexBufferObject::AUTO_SHIFT_SCALE)
+        {
+          posVBO->SetCoordShiftAndScaleMethod(vtkOpenGLVertexBufferObject::MANUAL_SHIFT_SCALE);
+          bbox.GetBounds(bounds);
+          std::vector<double> shift;
+          std::vector<double> scale;
+          for (int i = 0; i < 3; i++)
+          {
+            shift.push_back(0.5 * (bounds[i * 2] + bounds[i * 2 + 1]));
+            scale.push_back((bounds[i * 2 + 1] - bounds[i * 2])
+                ? 1.0 / (bounds[i * 2 + 1] - bounds[i * 2])
+                : 1.0);
+          }
+          posVBO->SetShift(shift);
+          posVBO->SetScale(scale);
+        }
+        else
+        {
+          posVBO->SetCoordShiftAndScaleMethod(
+            static_cast<vtkOpenGLVertexBufferObject::ShiftScaleMethod>(this->ShiftScaleMethod));
+          posVBO->SetProp3D(act);
+          posVBO->SetCamera(ren->GetActiveCamera());
+        }
+      }
+    }
+
+    vbos->BuildAllVBOs(ren);
+
+    auto posVBO = vbos->GetVBO("vertexMC");
+    if (posVBO)
+    {
+      if (posVBO->GetCoordShiftAndScaleEnabled())
+      {
+        std::vector<double> const& shift = posVBO->GetShift();
+        std::vector<double> const& scale = posVBO->GetScale();
+        this->VBOInverseTransform->Identity();
+        this->VBOInverseTransform->Translate(shift[0], shift[1], shift[2]);
+        this->VBOInverseTransform->Scale(1.0 / scale[0], 1.0 / scale[1], 1.0 / scale[2]);
+        this->VBOInverseTransform->GetTranspose(this->VBOShiftScale);
+      }
+    }
+  }
+  this->VBOBuildTime.Modified();
+}
+#endif
 //------------------------------------------------------------------------------
 void vtkCompositeMapperHelper2::BuildSelectionIBO(vtkPolyData* vtkNotUsed(poly),
   std::vector<unsigned int> (&indices)[4], vtkIdType vtkNotUsed(offset))
@@ -726,6 +945,7 @@ void vtkCompositeMapperHelper2::BuildSelectionIBO(vtkPolyData* vtkNotUsed(poly),
 void vtkCompositeMapperHelper2::AppendOneBufferObject(vtkRenderer* ren, vtkActor* act,
   vtkCompositeMapperHelperData* hdata, vtkIdType& voffset, std::vector<unsigned char>& newColors,
   std::vector<float>& newNorms)
+#ifndef GL_ES_VERSION_3_0
 {
   vtkPolyData* poly = hdata->Data;
 
@@ -969,6 +1189,11 @@ void vtkCompositeMapperHelper2::AppendOneBufferObject(vtkRenderer* ren, vtkActor
       this->IndexArray[vtkOpenGLPolyDataMapper::PrimitiveVertices], prims, voffset);
   }
 }
+#else
+{
+  this->Superclass::AppendOneBufferObject(ren, act, hdata->Data, hdata->CellCellMap, voffset);
+}
+#endif
 
 //------------------------------------------------------------------------------
 void vtkCompositeMapperHelper2::ProcessSelectorPixelBuffers(
