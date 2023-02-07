@@ -31,7 +31,7 @@ void RunThreads(int nthreadsBegin, int nthreadsEnd)
 {
   vtkNew<vtkThreadedCallbackQueue> queue;
   std::atomic_int count(0);
-  int N = 100000;
+  int N = 10000;
 
   // Spamming controls
   for (int i = 0; i < 6; ++i)

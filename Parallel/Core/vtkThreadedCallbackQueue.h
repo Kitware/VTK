@@ -24,8 +24,7 @@
  *
  * When a task is pushed, a `vtkSharedFuture` is returned. This instance can be used to get the
  * returned value when the task is finished, and provides functionalities to synchronize the main
- * thread with the status of its associated task. Note that a `vtkSharedFuture` should be cloned if
- * used in different threads.
+ * thread with the status of its associated task.
  *
  * All public methods of this class are thread safe.
  */
@@ -83,6 +82,16 @@ private:
   template <class FT>
   using InvokeResult = typename Signature<DereferencedType<FT>>::InvokeResult;
 
+  /**
+   * This class wraps the returned value and gives access to it.
+   */
+  template <class ReturnT, bool IsLValueReference = std::is_lvalue_reference<ReturnT>::value>
+  class ReturnValueWrapper
+  {
+    class ReturnLValueRef;
+    class ReturnConstLValueRef;
+  };
+
 public:
   static vtkThreadedCallbackQueue* New();
   vtkTypeMacro(vtkThreadedCallbackQueue, vtkObject);
@@ -95,36 +104,63 @@ public:
    */
   ~vtkThreadedCallbackQueue() override;
 
-  struct InvokerFutureSharedStateBase;
-  template <class ReturnT, class DummyT = void>
-  struct InvokerFutureSharedState;
-
   /**
-   * A `vtkSharedFutureBase` is an object returned by the methods `Push` and `PushDependent`.
-   * It provides a few functionalities to allow one to synchronize tasks.
-   * This future is associated with the task that was pushed.
+   * `vtkSharedFutureBase` is the base block to store, run, get the returned value of the tasks that
+   * are pushed in the queue.
    */
   class vtkSharedFutureBase : public vtkObjectBase
   {
   public:
     vtkBaseTypeMacro(vtkSharedFutureBase, vtkObjectBase);
 
-    vtkSharedFutureBase() = default;
+    vtkSharedFutureBase();
 
     /**
      * Blocks current thread until the task associated with this future has terminated.
      */
-    virtual void Wait() const = 0;
+    virtual void Wait() const;
 
     friend class vtkThreadedCallbackQueue;
 
   private:
     /**
-     * Returns the shared state owned by this instance. The shared state is instantiated in the
-     * children of this class.
+     * This runs the stored task.
      */
-    virtual InvokerFutureSharedStateBase* GetSharedState() = 0;
-    virtual const InvokerFutureSharedStateBase* GetSharedState() const = 0;
+    virtual void operator()() = 0;
+
+    /**
+     * Number of futures that need to terminate before we can run.
+     */
+    std::atomic_int NumberOfPriorSharedFuturesRemaining;
+
+    /**
+     * Exclusive binary mask giving the status of the current invoker sharing this state.
+     * Status can be READY, RUNNING, ON_HOLD, CONSTRUCTING, ENQUEUED.
+     * See vtkThreadedCallbackQueue::Status for more detail.
+     */
+    std::atomic_int Status;
+
+    /**
+     * Index that is set by the invoker to this shared state.
+     * The position of this invoker in the InvokerQueue can be found by subtracting this
+     * InvokerIndex with the one of the front invoker.
+     */
+    vtkIdType InvokerIndex;
+
+    /**
+     * When set to true, when this invoker becomes ready, whoever picked this invoker must directly
+     * run it.
+     */
+    bool IsHighPriority = false;
+
+    /**
+     * List of futures which are depending on us. This is filled by them as they get pushed if we
+     * are not done with our task.
+     */
+    std::vector<vtkSmartPointer<vtkSharedFutureBase>> Dependents;
+
+    mutable std::mutex Mutex;
+    mutable std::condition_variable ConditionVariable;
 
     vtkSharedFutureBase(const vtkSharedFutureBase& other) = delete;
     void operator=(const vtkSharedFutureBase& other) = delete;
@@ -137,18 +173,12 @@ public:
   class vtkSharedFuture : public vtkSharedFutureBase
   {
   public:
-    static vtkSharedFuture<ReturnT>* New();
-    vtkTypeMacro(vtkSharedFuture<ReturnT>, vtkSharedFutureBase);
+    vtkAbstractTypeMacro(vtkSharedFuture<ReturnT>, vtkSharedFutureBase);
 
-    using ReturnLValueRef = typename InvokerFutureSharedState<ReturnT>::ReturnLValueRef;
-    using ReturnConstLValueRef = typename InvokerFutureSharedState<ReturnT>::ReturnConstLValueRef;
+    using ReturnLValueRef = typename ReturnValueWrapper<ReturnT>::ReturnLValueRef;
+    using ReturnConstLValueRef = typename ReturnValueWrapper<ReturnT>::ReturnConstLValueRef;
 
-    vtkSharedFuture()
-      : SharedState(std::make_shared<InvokerFutureSharedState<ReturnT>>())
-    {
-    }
-
-    void Wait() const override;
+    vtkSharedFuture() = default;
 
     /**
      * This returns the return value of the pushed function.
@@ -165,10 +195,7 @@ public:
     friend class vtkThreadedCallbackQueue;
 
   private:
-    InvokerFutureSharedStateBase* GetSharedState() override;
-    const InvokerFutureSharedStateBase* GetSharedState() const override;
-
-    std::shared_ptr<InvokerFutureSharedState<ReturnT>> SharedState;
+    ReturnValueWrapper<ReturnT> ReturnValue;
 
     vtkSharedFuture(const vtkSharedFuture<ReturnT>& other) = delete;
     void operator=(const vtkSharedFuture<ReturnT>& other) = delete;
@@ -181,7 +208,7 @@ public:
   /**
    * Pushes a function f to be passed args... as arguments.
    * f will be called as soon as a running thread has the occasion to do so, in a FIFO fashion.
-   * This method returns a `SharedFuture`, which is an object
+   * This method returns a `vtkSharedFuture`, which is an object
    * allowing to synchronize the code.
    *
    * All the arguments of `Push` are stored persistently inside the queue. An argument passed as an
@@ -309,48 +336,39 @@ public:
 private:
   ///@{
   /**
-   * Invoker typedefs that hold the inserted functions and their parameters.
-   *
-   * `InvokerBase` is the base abstract type that helps us store the queue of functions to execute.
-   * Each individual stored function is actually an instance of `Invoker` which inherits
-   * `InvokerBase`. They share a pure virtual `operator()` that effectively calls the stored
-   * function with the parameters provided.
+   * A `vtkInvoker` subclasses `vtkSharedFuture`. It provides storage and capabilities to run the
+   * input function with the given parameters.
    */
-  struct InvokerBase;
   template <class FT, class... ArgsT>
-  struct Invoker;
-  struct InvokerImpl;
+  class vtkInvoker;
   ///@}
 
-  using InvokerBasePointer = std::unique_ptr<InvokerBase>;
+  struct InvokerImpl;
+
   template <class FT, class... ArgsT>
-  using InvokerPointer = std::unique_ptr<Invoker<FT, ArgsT...>>;
+  using InvokerPointer = vtkSmartPointer<vtkInvoker<FT, ArgsT...>>;
 
   class ThreadWorker;
 
   friend class ThreadWorker;
-  friend struct InvokerFutureSharedStateBase;
-  template <class ReturnT, class DummyT>
-  friend struct InvokerFutureSharedState;
 
   /**
    * Status that an invoker can be in.
-   * This enum is used in InvokerFutureSharedStateBase.
    *
    * @note This is an exclusive status. The status should not combine those bits.
    */
-  enum SharedStatus
+  enum Status
   {
     /**
      * The shared state of this invoker might already have been shared with invokers it
      * depends on, but this invoker's status is still hanging. At this point we cannot tell if it
-     * needs to be put in `InvokersOnHold` or just directly ran. An invoker seeing such a status in
+     * needs to be put `ON_HOLD` or just directly ran. An invoker seeing such a status in
      * a dependent invoker should ignore it.
      */
     CONSTRUCTING = 0x00,
 
     /**
-     * The invoker is on hold, stored in `InvokersOnHold`.
+     * The invoker is on hold.
      */
     ON_HOLD = 0x01,
 
@@ -387,39 +405,30 @@ private:
 
   /**
    * We go over all the dependent future ids that have been added to the invoker we just invoked.
-   * For each future, we retrieve the corresponding invoker that is stored inside InvokersOnHold,
-   * and decrease the counter of the number of remaining invokers it depends on.
-   * When this counter reaches zero, we can move the invoker from InvokersOnHold to InvokerQueues.
+   * For each future, we decrease the counter of the number of remaining invokers it depends on.
+   * When this counter reaches zero, we can move the invoker to `InvokerQueues`.
    */
-  void SignalDependentSharedFutures(const InvokerBase* invoker);
+  void SignalDependentSharedFutures(vtkSharedFutureBase* invoker);
 
   /**
-   * This function takes an `invoker` associated with `futures`. If all futures from the input
+   * This function takes an `invoker`. If all futures from the input
    * `priorSharedFutures` are ready, then `invoker` is executed. Else, it is stored in an internal
    * container waiting to be awakened when its dependents futures have terminated.
    */
-  template <class SharedFutureContainerT, class InvokerT, class SharedFutureT>
-  void HandleDependentInvoker(
-    SharedFutureContainerT&& priorSharedFutures, InvokerT&& invoker, SharedFutureT&& futures);
+  template <class SharedFutureContainerT, class InvokerT>
+  void HandleDependentInvoker(SharedFutureContainerT&& priorSharedFutures, InvokerT&& invoker);
 
   /**
    * This function should always be used to invoke.
    * lock should be locked upon calling this function.
    */
-  void Invoke(InvokerBasePointer&& invoker, std::unique_lock<std::mutex>& lock);
+  void Invoke(vtkSharedFutureBase* invoker, std::unique_lock<std::mutex>& lock);
 
   /**
    * This will try to invoke the invoker owning a reference of `state`. The invoker will be ran if
    * and only if its status is `ENQUEUED`. If not, nothing happens.
    */
-  bool TryInvoke(InvokerFutureSharedStateBase* state);
-
-  /**
-   * This function allocates an invoker and its bound future.
-   */
-  template <class FT, class... ArgsT>
-  std::pair<InvokerPointer<FT, ArgsT...>, SharedFuturePointer<InvokeResult<FT>>>
-  CreateInvokerAndSharedFuture(FT&& f, ArgsT&&... args);
+  bool TryInvoke(vtkSharedFutureBase* invoker);
 
   /**
    * Method to use when executing a control on the queue. Each control is run asynchronously, in the
@@ -437,23 +446,12 @@ private:
   /**
    * Queue of workers responsible for running the jobs that are inserted.
    */
-  std::deque<InvokerBasePointer> InvokerQueue;
-
-  /**
-   * This is where we put invokers that are not ready to be run. This can happen in `PushDependent`
-   * when an invoker associated with an input future is not done running yet.
-   */
-  std::unordered_map<vtkSharedFutureBase*, InvokerBasePointer> InvokersOnHold;
+  std::deque<SharedFutureBasePointer> InvokerQueue;
 
   /**
    * This mutex ensures that the queue can pop and push elements in a thread-safe manner.
    */
   std::mutex Mutex;
-
-  /**
-   * This mutex ensures that `InvokersOnHold` is accessed in a thread-safe manner.
-   */
-  std::mutex OnHoldMutex;
 
   /**
    * Mutex to use when interacting with `ControlFutures`.
@@ -499,7 +497,7 @@ private:
    * Futures of controls that were passed to they queue. They allow to run controls in the same
    * order they were passed to the queue.
    */
-  std::unordered_set<vtkSharedFutureBase*> ControlFutures;
+  std::unordered_set<SharedFutureBasePointer> ControlFutures;
 
   vtkThreadedCallbackQueue(const vtkThreadedCallbackQueue&) = delete;
   void operator=(const vtkThreadedCallbackQueue&) = delete;
