@@ -884,7 +884,7 @@ int vtkOpenGLRenderWindow::GetColorBufferSizes(int* rgba)
       GL_DRAW_FRAMEBUFFER, attachment, GL_FRAMEBUFFER_ATTACHMENT_RED_SIZE, &size);
     if (auto error = glGetError())
     {
-      vtkErrorMacro(<< "Failed to get red color buffer size. Error code : " << error);
+      vtkWarningMacro(<< "Failed to get red color buffer size (" << error << ')');
     }
     else
     {
@@ -894,7 +894,7 @@ int vtkOpenGLRenderWindow::GetColorBufferSizes(int* rgba)
       GL_DRAW_FRAMEBUFFER, attachment, GL_FRAMEBUFFER_ATTACHMENT_GREEN_SIZE, &size);
     if (auto error = glGetError())
     {
-      vtkErrorMacro(<< "Failed to get green color buffer size. Error code : " << error);
+      vtkWarningMacro(<< "Failed to get green color buffer size (" << error << ')');
     }
     else
     {
@@ -904,7 +904,7 @@ int vtkOpenGLRenderWindow::GetColorBufferSizes(int* rgba)
       GL_DRAW_FRAMEBUFFER, attachment, GL_FRAMEBUFFER_ATTACHMENT_BLUE_SIZE, &size);
     if (auto error = glGetError())
     {
-      vtkErrorMacro(<< "Failed to get blue color buffer size. Error code : " << error);
+      vtkWarningMacro(<< "Failed to get blue color buffer size (" << error << ')');
     }
     else
     {
@@ -914,7 +914,7 @@ int vtkOpenGLRenderWindow::GetColorBufferSizes(int* rgba)
       GL_DRAW_FRAMEBUFFER, attachment, GL_FRAMEBUFFER_ATTACHMENT_ALPHA_SIZE, &size);
     if (auto error = glGetError())
     {
-      vtkErrorMacro(<< "Failed to get alpha color buffer size. Error code : " << error);
+      vtkWarningMacro(<< "Failed to get alpha color buffer size (" << error << ')');
     }
     else
     {
