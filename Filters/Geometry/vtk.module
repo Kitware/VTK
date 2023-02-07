@@ -17,6 +17,7 @@ PRIVATE_DEPENDS
   VTK::vtksys
 TEST_DEPENDS
   VTK::CommonSystem
+  VTK::FiltersExtraction
   VTK::FiltersGeneral
   VTK::FiltersGeometry
   VTK::FiltersSources
