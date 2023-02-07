@@ -119,29 +119,26 @@ bool vtkSDL2RenderWindowInteractor::ProcessEvent(void* arg)
     break;
 
     case SDL_KEYDOWN:
+    case SDL_KEYUP:
     {
-      // simplified, not fully implemented
       std::string keyname = SDL_GetKeyName(event->key.keysym.sym);
-      if (keyname.size())
       {
-        this->SetKeyEventInformation(ctrl, shift, keyname[0], event->key.repeat, keyname.c_str());
+        this->SetKeyEventInformation(
+          ctrl, shift, event->key.keysym.sym, event->key.repeat, keyname.c_str());
         this->SetAltKey(alt);
-        this->InvokeEvent(vtkCommand::KeyPressEvent, nullptr);
+        this->InvokeEvent(
+          (event->type == SDL_KEYDOWN) ? vtkCommand::KeyPressEvent : vtkCommand::KeyReleaseEvent,
+          nullptr);
       }
     }
     break;
 
-    case SDL_KEYUP:
+    case SDL_TEXTINPUT:
     {
-      // simplified, not fully implemented
-      std::string keyname = SDL_GetKeyName(event->key.keysym.sym);
-      if (keyname.size())
-      {
-        this->SetKeyEventInformation(ctrl, shift, keyname[0], event->key.repeat, keyname.c_str());
-        this->SetAltKey(alt);
-        this->InvokeEvent(vtkCommand::KeyReleaseEvent, nullptr);
-        this->InvokeEvent(vtkCommand::CharEvent, nullptr);
-      }
+      this->SetKeyEventInformation(
+        ctrl, shift, event->text.text[0], event->key.repeat, event->text.text);
+      this->SetAltKey(alt);
+      this->InvokeEvent(vtkCommand::CharEvent);
     }
     break;
 
