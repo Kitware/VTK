@@ -81,6 +81,15 @@ int TestWarpScalarGenerateEnclosure(int argc, char* argv[])
     std::cout << "Did not output a poly data for plane transformation" << std::endl;
     return EXIT_FAILURE;
   }
+  vtkIdType outNbCells = output->GetNumberOfCells();
+  for (vtkIdType cid = 0; cid < outNbCells; cid++)
+  {
+    if (output->GetCellType(cid) == VTK_EMPTY_CELL)
+    {
+      std::cerr << "Error: output contains invalid cells" << std::endl;
+      return EXIT_FAILURE;
+    }
+  }
   output->GetPointData()->SetActiveScalars("Warp");
   vtkNew<vtkLookupTable> surfaceLUT;
   surfaceLUT->SetRange(output->GetPointData()->GetScalars()->GetRange());
