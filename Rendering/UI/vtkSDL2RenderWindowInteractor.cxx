@@ -33,6 +33,19 @@
 #include "vtkObjectFactory.h"
 
 VTK_ABI_NAMESPACE_BEGIN
+
+#ifdef __EMSCRIPTEN__
+namespace
+{
+EM_BOOL ResizeCallback(int eventType, const EmscriptenUiEvent* e, void* userData)
+{
+  auto interactor = reinterpret_cast<vtkRenderWindowInteractor*>(userData);
+  interactor->UpdateSize(e->windowInnerWidth, e->windowInnerHeight);
+  return 0;
+}
+}
+#endif
+
 vtkStandardNewMacro(vtkSDL2RenderWindowInteractor);
 
 //------------------------------------------------------------------------------
@@ -234,6 +247,8 @@ void vtkSDL2RenderWindowInteractor::StartEventLoop()
 
   this->StartedMessageLoop = 1;
 #ifdef __EMSCRIPTEN__
+  emscripten_set_resize_callback(
+    EMSCRIPTEN_EVENT_TARGET_WINDOW, reinterpret_cast<void*>(this), 1, ::ResizeCallback);
   emscripten_set_main_loop_arg(&mainLoopCallback, (void*)this, 0, 1);
 #else
   while (!this->Done)
