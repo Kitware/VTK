@@ -142,8 +142,8 @@ protected:
   /**
    * When GenerateEnclosure is active, construct the cells between the base and warped surfaces
    */
-  void BuildSideWalls(vtkPointSet* output, vtkCellArray* topology, int nInputPoints,
-    vtkUnsignedCharArray* boundaryCells, vtkIdTypeArray* boundaryFaceIndexes);
+  void BuildSideWalls(vtkPointSet* output, int nInputPoints, vtkUnsignedCharArray* boundaryCells,
+    vtkIdTypeArray* boundaryFaceIndexes);
   /**
    * Append the values in the arrays of the array attribute collection to themselves
    */

@@ -406,13 +406,17 @@ int vtkWarpScalar::RequestData(vtkInformation* vtkNotUsed(request),
     else
     {
       vtkNew<vtkUnsignedCharArray> cTypes;
-      cTypes->DeepCopy(ugOutput->GetDistinctCellTypesArray());
+      // append types to themselves too
+      cTypes->DeepCopy(ugOutput->GetCellTypesArray());
+      vtkIdType typeSize = cTypes->GetNumberOfTuples();
+      cTypes->InsertTuples(typeSize, typeSize, 0, cTypes);
+      // update the output UG
+      ugOutput->SetEditable(true);
       ugOutput->SetCells(cTypes, topCopy);
     }
     this->AppendArrays(output->GetPointData());
     this->AppendArrays(output->GetCellData());
-    this->BuildSideWalls(
-      output, topCopy, input->GetNumberOfPoints(), boundaryCells, boundaryFaceIndexes);
+    this->BuildSideWalls(output, input->GetNumberOfPoints(), boundaryCells, boundaryFaceIndexes);
   }
   return 1;
 }
@@ -484,9 +488,13 @@ unsigned int vtkWarpScalar::GetInputDimension(vtkDataSet* input)
 }
 
 //------------------------------------------------------------------------------
-void vtkWarpScalar::BuildSideWalls(vtkPointSet* output, vtkCellArray* topology, int nInputPoints,
+void vtkWarpScalar::BuildSideWalls(vtkPointSet* output, int nInputPoints,
   vtkUnsignedCharArray* boundaryCells, vtkIdTypeArray* boundaryFaceIndexes)
 {
+  vtkPolyData* polyOutput = vtkPolyData::SafeDownCast(output);
+  vtkUnstructuredGrid* ugOutput = vtkUnstructuredGrid::SafeDownCast(output);
+  assert(polyOutput || ugOutput); // already tested in calling method
+
   vtkNew<vtkIdList> newCell;
   newCell->SetNumberOfIds(4);
   vtkIdType iCell = 0;
@@ -512,7 +520,16 @@ void vtkWarpScalar::BuildSideWalls(vtkPointSet* output, vtkCellArray* topology, 
             newCell->SetId(iP, pts->GetId(iP));
             newCell->SetId(iP + 2, pts->GetId(1 - iP) + nInputPoints);
           }
-          topology->InsertNextCell(newCell);
+
+          if (polyOutput)
+          {
+            polyOutput->InsertNextCell(VTK_QUAD, newCell);
+          }
+          else
+          {
+            ugOutput->InsertNextCell(VTK_QUAD, newCell);
+          }
+
           for (int iArr = 0; iArr < output->GetCellData()->GetNumberOfArrays(); iArr++)
           {
             vtkAbstractArray* aa = output->GetCellData()->GetAbstractArray(iArr);
