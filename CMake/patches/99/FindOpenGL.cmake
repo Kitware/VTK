@@ -188,8 +188,11 @@ else()
       "/usr/lib32/nvidia-*")
   elseif (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
     # This is the path where <GL/gl.h> is found in emsdk
+    # Do not look under ${EMSCRIPTEN_ROOT_PATH}/system/include
+    # as it generates a compiler error.
+    # https://github.com/emscripten-core/emscripten/issues/17024
     set(_OPENGL_INCLUDE_PATH
-      "${EMSCRIPTEN_ROOT_PATH}/system/include")
+      "${EMSCRIPTEN_ROOT_PATH}/cache/sysroot/include")
 
     # These two inevitably include ${EMSCRIPTEN_SYSROOT} in the search path for
     # OpenGL leading to all kinds of redefinition errors.
