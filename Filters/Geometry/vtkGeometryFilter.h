@@ -319,14 +319,25 @@ public:
 
   ///@{
   /**
-   * If on, the output polygonal dataset will have a celldata array that
-   * holds the cell index of the original 3D cell that produced each output
-   * cell. This is useful for cell picking. The default is off to conserve
-   * memory.
+   * This parameter drives the generation or not of a CellData array for the output
+   * polygonal dataset that holds the cell index of the original 3D cell that produced
+   * each output cell. This is useful for cell picking. The default is off to conserve memory.
+   *
+   * Note: Use SetOriginalCellIdsName() to set the name of the CellData array.
    */
   vtkSetMacro(PassThroughCellIds, vtkTypeBool);
   vtkGetMacro(PassThroughCellIds, vtkTypeBool);
   vtkBooleanMacro(PassThroughCellIds, vtkTypeBool);
+  ///@}
+
+  ///@{
+  /**
+   * This parameter drives the generation or not of a PointData array for the output
+   * polygonal dataset that holds the cell/point index of the original point that produced
+   * each output point. This is useful for point picking. The default is off to conserve memory.
+   *
+   * Note: Use SetOriginalPointIdsName() to set the name of the PointData array.
+   */
   vtkSetMacro(PassThroughPointIds, vtkTypeBool);
   vtkGetMacro(PassThroughPointIds, vtkTypeBool);
   vtkBooleanMacro(PassThroughPointIds, vtkTypeBool);
