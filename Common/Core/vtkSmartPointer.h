@@ -293,6 +293,7 @@ private:
   void TakeReference(const vtkSmartPointerBase&) = delete;
   static void Take(const vtkSmartPointerBase&) = delete;
 };
+VTK_ABI_NAMESPACE_END
 
 template <class T>
 struct std::hash<vtkSmartPointer<T>>
@@ -302,6 +303,7 @@ struct std::hash<vtkSmartPointer<T>>
   std::hash<T*> Hasher;
 };
 
+VTK_ABI_NAMESPACE_BEGIN
 #define VTK_SMART_POINTER_DEFINE_OPERATOR(op)                                                      \
   template <class T, class U>                                                                      \
   inline bool operator op(const vtkSmartPointer<T>& l, const vtkSmartPointer<U>& r)                \
