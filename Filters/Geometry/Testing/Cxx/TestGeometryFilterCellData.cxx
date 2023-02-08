@@ -26,6 +26,7 @@
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 #include "vtkSmartPointer.h"
+#include "vtkStringArray.h"
 #include "vtkUnstructuredGrid.h"
 
 int TestGeometryFilter(vtkUnstructuredGrid* ug);
@@ -172,6 +173,18 @@ vtkUnstructuredGrid* GridFactory::Get()
   }
   this->Grid->GetCellData()->AddArray(cellDataArray);
 
+  // Create a new string cell data array
+  name = "foobar";
+  vtkSmartPointer<vtkStringArray> sArray = vtkSmartPointer<vtkStringArray>::New();
+  sArray->SetName(name);
+  sArray->SetNumberOfComponents(1);
+  std::string v("Value");
+  for (int i = 0; i < num; ++i)
+  {
+    sArray->InsertNextValue(v);
+  }
+  this->Grid->GetCellData()->AddArray(sArray);
+
   return this->Grid;
 }
 
@@ -261,7 +274,9 @@ int CheckFieldData(vtkIdType numGridEntities, vtkFieldData* fd)
 
   for (int i = 0; i < fd->GetNumberOfArrays(); ++i)
   {
-    vtkAbstractArray* a = fd->GetArray(i);
+    vtkAbstractArray* a = fd->GetAbstractArray(i);
+    std::cout << "\t" << name << " array '" << a->GetName()
+              << "' has #tuples=" << a->GetNumberOfTuples() << std::endl;
     if (a->GetNumberOfTuples() != numGridEntities)
     {
       vtkGenericWarningMacro(<< name << " array '" << a->GetName() << "' has #tuples="
