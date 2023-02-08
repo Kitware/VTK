@@ -770,7 +770,7 @@ int vtkExecutive::CheckAlgorithm(const char* method, vtkInformation* request)
 
     // Tests should fail when this happens because there is a bug in
     // the code.
-    if (getenv("DASHBOARD_TEST_FROM_CTEST") || getenv("DART_TEST_FROM_DART"))
+    if (getenv("DASHBOARD_TEST_FROM_CTEST"))
     {
       abort();
     }

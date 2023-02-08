@@ -53,7 +53,7 @@ vtkWin32OutputWindow::vtkWin32OutputWindow()
 {
   // Default to sending output to stderr/cerr when running a dashboard
   // and logging is not enabled.
-  if (getenv("DART_TEST_FROM_DART") || getenv("DASHBOARD_TEST_FROM_CTEST"))
+  if (getenv("DASHBOARD_TEST_FROM_CTEST"))
   {
     this->SetDisplayModeToDefault();
   }
