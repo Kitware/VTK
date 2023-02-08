@@ -146,6 +146,13 @@ int vtkRecoverGeometryWireframe::RequestData(vtkInformation* vtkNotUsed(request)
   vtkPolyData* input = vtkPolyData::GetData(inputVector[0]);
   vtkPolyData* output = vtkPolyData::GetData(outputVector);
 
+  // If nothing to do, early return
+  if (input->GetNumberOfCells() == 0 || input->GetNumberOfPoints() == 0)
+  {
+    output->ShallowCopy(input);
+    return 1;
+  }
+
   if (!input->GetCellData()->HasArray(this->CellIdsAttribute.c_str()))
   {
     vtkWarningMacro("Couldn't find any cell attribute, passing through the input.");
