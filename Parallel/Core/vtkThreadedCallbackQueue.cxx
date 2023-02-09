@@ -32,7 +32,7 @@ public:
   }
 
   ThreadWorker(ThreadWorker&& other) noexcept
-    : Queue(std::move(other.Queue))
+    : Queue(other.Queue)
     , ThreadIndex(std::move(other.ThreadIndex))
   {
   }

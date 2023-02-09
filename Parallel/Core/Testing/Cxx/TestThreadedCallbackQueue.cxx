@@ -69,7 +69,7 @@ struct A
   A(A&& other)
   noexcept
     : array(std::move(other.array))
-    , val(std::move(other.val))
+    , val(other.val)
   {
     vtkLog(INFO, "Move constructor");
   }
