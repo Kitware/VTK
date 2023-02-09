@@ -700,49 +700,34 @@ public:
     this->Buckets.resize(this->Size);
   }
 
+  /**
+   * @brief Try to insert a face into the hash map, if it's already there, delete it.
+   */
   template <typename FaceType>
-  void Insert(const FaceType& f, TFaceMemoryPool& pool)
+  void Insert(const FaceType& face, TFaceMemoryPool& pool)
   {
-    const size_t key = static_cast<size_t>(f.PointIds[0]) % this->Size;
+    const size_t key = static_cast<size_t>(face.PointIds[0]) % this->Size;
     auto& bucket = this->Buckets[key];
-    auto& bucketHead = bucket.Head;
-    auto& bucketLock = bucket.Lock;
 
-    std::lock_guard<vtkAtomicMutex> lock(bucketLock);
-    auto current = bucketHead;
-    auto previous = current;
-    while (current != nullptr)
+    std::lock_guard<vtkAtomicMutex> lock(bucket.Lock);
+    TFace** current = &bucket.Head;
+    while (*current != nullptr)
     {
-      if (*current == f)
+      if (**current == face)
       {
         // delete the duplicate
-        if (bucketHead == current)
-        {
-          bucketHead = current->Next;
-        }
-        else
-        {
-          previous->Next = current->Next;
-        }
+        *current = (*current)->Next;
         return;
       }
-      previous = current;
-      current = current->Next;
+      current = &(*current)->Next;
     }
-    // not found
-    TFace* newF = pool.Allocate(f.GetSize());
-    newF->Next = nullptr;
-    newF->OriginalCellId = f.OriginalCellId;
-    std::memcpy(newF->PointIds, f.PointIds, f.GetSize() * sizeof(TInputIdType));
-    newF->IsGhost = f.IsGhost;
-    if (bucketHead == nullptr)
-    {
-      bucketHead = newF;
-    }
-    else
-    {
-      previous->Next = newF;
-    }
+    // not found, add it
+    TFace* newFace = pool.Allocate(face.GetSize());
+    newFace->Next = nullptr;
+    newFace->OriginalCellId = face.OriginalCellId;
+    std::memcpy(newFace->PointIds, face.PointIds, face.GetSize() * sizeof(TInputIdType));
+    newFace->IsGhost = face.IsGhost;
+    *current = newFace;
   }
 
   void PopulateCellArrays(std::vector<TCellArrayType*>& threadedPolys)
