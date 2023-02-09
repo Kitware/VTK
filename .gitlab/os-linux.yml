@@ -301,6 +301,13 @@
         # around ASan not being first in the initial library list.
         CMAKE_CONFIGURATION: fedora34_mpi_python_qt_tbb_ubsan
 
+.linux_fast_builder_tags:
+    tags:
+        - build
+        - docker
+        - linux-x86_64-v3
+        - vtk
+
 .linux_builder_tags:
     tags:
         - build
