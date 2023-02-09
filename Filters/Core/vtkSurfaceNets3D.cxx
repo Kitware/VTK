@@ -2066,6 +2066,7 @@ struct SelectWorker
     if (outputStyle == vtkSurfaceNets3D::OUTPUT_STYLE_SELECTED)
     {
       std::vector<double> labels;
+      labels.reserve(static_cast<size_t>(self->GetNumberOfSelectedLabels()));
       for (auto i = 0; i < self->GetNumberOfSelectedLabels(); ++i)
       {
         labels.push_back(self->GetSelectedLabel(i));
