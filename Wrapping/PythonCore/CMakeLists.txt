@@ -1,11 +1,3 @@
-# This module requires CMake 3.19 features (the `CheckCompilerFlag`
-# module). Just skip it for older CMake versions.
-if (CMAKE_VERSION VERSION_LESS "3.19")
-  return ()
-endif ()
-
-include(CheckCompilerFlag)
-
 set(classes
   PyVTKEnum
   PyVTKExtras
@@ -56,7 +48,8 @@ vtk_add_test_mangling(VTK::WrappingPythonCore
     PyVTKStringReference_
     PyVTKTupleReference_)
 
-if (Python3_VERSION VERSION_LESS "3.7")
+if (Python3_VERSION VERSION_LESS "3.7" AND NOT CMAKE_VERSION VERSION_LESS "3.19")
+  include(CheckCompilerFlag)
   set(old_python_ignore_warning_flag "-Wno-writable-strings")
   check_compiler_flag(CXX "${old_python_ignore_warning_flag}" "vtk_have_compiler_flag-CXX-${old_python_ignore_warning_flag}")
   if (vtk_have_compiler_flag-CXX-${old_python_ignore_warning_flag})
