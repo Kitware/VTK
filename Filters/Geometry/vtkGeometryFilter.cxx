@@ -750,17 +750,14 @@ public:
     std::vector<TFace*> faces;
     for (auto& bucket : this->Buckets)
     {
-      if (bucket.Head != nullptr)
+      auto current = bucket.Head;
+      while (current != nullptr)
       {
-        auto current = bucket.Head;
-        while (current != nullptr)
+        if (!current->IsGhost)
         {
-          if (!current->IsGhost)
-          {
-            faces.push_back(current);
-          }
-          current = current->Next;
+          faces.push_back(current);
         }
+        current = current->Next;
       }
     }
     const vtkIdType numberOfThreads = static_cast<vtkIdType>(threadedPolys.size());
