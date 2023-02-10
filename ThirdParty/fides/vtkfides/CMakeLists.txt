@@ -27,7 +27,7 @@ include(FidesModule)
 
 if (FALSE) # XXX(kitware): VTK handles VTK-m
 find_package(ADIOS2 REQUIRED)
-find_package(VTKm REQUIRED)
+find_package(VTKm 2.0 REQUIRED)
 else ()
 vtk_module_find_package(PACKAGE ADIOS2)
 endif ()

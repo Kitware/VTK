@@ -771,7 +771,10 @@ std::vector<vtkm::cont::DataSet> DataSetReader::ReadDataSetInternal(
     }
     if (i < cellSets.size())
     {
-      dataSets[i].SetCellSet(cellSets[i]);
+      if (cellSets[i].IsValid())
+      {
+        dataSets[i].SetCellSet(cellSets[i]);
+      }
     }
   }
 

@@ -71,9 +71,9 @@ public:
     : DataSets(dataSets)
     , OutputFileName(fname)
 #ifdef FIDES_USE_MPI
-    , Adios(MPI_COMM_WORLD, adios2::DebugON)
+    , Adios(MPI_COMM_WORLD)
 #else
-    , Adios(true)
+    , Adios()
 #endif
     , FieldsToWriteSet(false)
   {
@@ -315,6 +315,12 @@ public:
       const auto& name = field.GetName();
       if (!this->ShouldWriteVariable(name))
         continue;
+
+      // CoordinatesSystems are handled at WriteCoordinates
+      if (ds0.HasCoordinateSystem(name))
+      {
+        continue;
+      }
 
       std::size_t numComponents = static_cast<std::size_t>(field.GetData().GetNumberOfComponents());
       std::vector<std::size_t> shape, offset, size;

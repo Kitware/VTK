@@ -48,7 +48,7 @@ void Field::ProcessJSON(const rapidjson::Value& json, DataSourcesType& sources)
     }
     else if (assoc == "field_data")
     {
-      this->Association = vtkm::cont::Field::Association::WholeMesh;
+      this->Association = vtkm::cont::Field::Association::WholeDataSet;
     }
     else
     {
@@ -117,7 +117,7 @@ void Field::ProcessExpandedField(const std::string& name,
   }
   else if (assoc == "field_data")
   {
-    this->Association = vtkm::cont::Field::Association::WholeMesh;
+    this->Association = vtkm::cont::Field::Association::WholeDataSet;
   }
   else
   {
