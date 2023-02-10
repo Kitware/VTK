@@ -66,6 +66,7 @@ POSSIBILITY OF SUCH DAMAGES.
 #include "vtkImagingStencilModule.h" // For export macro
 
 VTK_ABI_NAMESPACE_BEGIN
+class vtkIdList;
 class vtkMergePoints;
 class vtkDataSet;
 class vtkPolyData;
@@ -101,11 +102,13 @@ protected:
   vtkPolyDataToImageStencil();
   ~vtkPolyDataToImageStencil() override;
 
-  void ThreadedExecute(vtkImageStencilData* output, int extent[6], int threadId);
+  void ThreadedExecute(
+    vtkImageStencilData* output, vtkIdList* storage, int extent[6], int threadId);
 
-  static void PolyDataCutter(vtkPolyData* input, vtkPolyData* output, double z);
+  static void PolyDataCutter(vtkPolyData* input, vtkPolyData* output, vtkIdList* storage, double z);
 
-  static void PolyDataSelector(vtkPolyData* input, vtkPolyData* output, double z, double thickness);
+  static void PolyDataSelector(
+    vtkPolyData* input, vtkPolyData* output, vtkIdList* storage, double z, double thickness);
 
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
