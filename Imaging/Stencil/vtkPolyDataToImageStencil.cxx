@@ -281,6 +281,36 @@ bool EdgeLocator::InterpolateEdge(vtkPoints* points, vtkPoints* outPoints, vtkId
 } // end anonymous namespace
 
 //------------------------------------------------------------------------------
+class vtkPolyDataToImageStencil::ThreadWorker
+{
+public:
+  ThreadWorker(const int extent[6], vtkPolyDataToImageStencil* algorithm, vtkImageStencilData* data)
+    : XMin(extent[0])
+    , XMax(extent[1])
+    , YMin(extent[2])
+    , YMax(extent[3])
+    , ZMin(extent[4])
+    // ZMax is not needed by the worker
+    , Algorithm(algorithm)
+    , Data(data)
+  {
+  }
+  ~ThreadWorker() = default;
+
+  void operator()(int begin, int end)
+  {
+    int subExtent[6] = { XMin, XMax, YMin, YMax, begin, end - 1 };
+    int piece = subExtent[4] - ZMin;
+    this->Algorithm->ThreadedExecute(this->Data, subExtent, piece);
+  }
+
+protected:
+  int XMin, XMax, YMin, YMax, ZMin;
+  vtkPolyDataToImageStencil* Algorithm;
+  vtkImageStencilData* Data;
+};
+
+//------------------------------------------------------------------------------
 // Select contours within slice z
 void vtkPolyDataToImageStencil::PolyDataSelector(
   vtkPolyData* input, vtkPolyData* output, double z, double thickness)
@@ -774,7 +804,7 @@ int vtkPolyDataToImageStencil::RequestData(
 
   int extent[6];
   data->GetExtent(extent);
-  ParallelWorker worker(extent, this, data);
+  ThreadWorker worker(extent, this, data);
 
   vtkSMPTools::For(extent[4], extent[5] + 1, 1, worker);
 

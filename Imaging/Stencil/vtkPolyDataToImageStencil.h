@@ -116,34 +116,7 @@ protected:
    */
   double Tolerance;
 
-  class ParallelWorker
-  {
-  public:
-    ParallelWorker(int extent[6], vtkPolyDataToImageStencil* algorithm, vtkImageStencilData* data)
-    {
-      Extent[0] = extent[0];
-      Extent[1] = extent[1];
-      Extent[2] = extent[2];
-      Extent[3] = extent[3];
-      Extent[4] = extent[4];
-      Extent[5] = extent[5];
-      Algorithm = algorithm;
-      Data = data;
-    }
-    ~ParallelWorker() {}
-
-    void operator()(int begin, int end)
-    {
-      int subExtent[6] = { Extent[0], Extent[1], Extent[2], Extent[3], begin, end - 1 };
-      int piece = subExtent[4] - this->Extent[4];
-      this->Algorithm->ThreadedExecute(this->Data, subExtent, piece);
-    }
-
-  protected:
-    int Extent[6];
-    vtkPolyDataToImageStencil* Algorithm;
-    vtkImageStencilData* Data;
-  };
+  class ThreadWorker;
 
 private:
   vtkPolyDataToImageStencil(const vtkPolyDataToImageStencil&) = delete;
