@@ -81,6 +81,8 @@ vtkPolyDataToImageStencil::vtkPolyDataToImageStencil()
 {
   // The default tolerance is 0.5*2^(-16)
   this->Tolerance = 7.62939453125e-06;
+  // Multi-threading is enabled by default
+  this->EnableSMP = true;
 }
 
 //------------------------------------------------------------------------------
@@ -110,6 +112,7 @@ void vtkPolyDataToImageStencil::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Input: " << this->GetInput() << "\n";
   os << indent << "Tolerance: " << this->Tolerance << "\n";
+  os << indent << "EnableSMP: " << (this->EnableSMP ? "On\n" : "Off\n");
 }
 
 //------------------------------------------------------------------------------
@@ -807,9 +810,17 @@ int vtkPolyDataToImageStencil::RequestData(
 
   int extent[6];
   data->GetExtent(extent);
-  ThreadWorker worker(extent, this, data);
 
-  vtkSMPTools::For(extent[4], extent[5] + 1, 1, worker);
+  if (this->EnableSMP)
+  {
+    ThreadWorker worker(extent, this, data);
+    vtkSMPTools::For(extent[4], extent[5] + 1, worker);
+  }
+  else
+  {
+    vtkNew<vtkIdList> storage;
+    this->ThreadedExecute(data, storage, extent, 0);
+  }
 
   return 1;
 }

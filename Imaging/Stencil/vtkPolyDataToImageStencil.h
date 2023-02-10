@@ -98,6 +98,14 @@ public:
   vtkGetMacro(Tolerance, double);
   ///@}
 
+  ///@{
+  /**
+   * Enable/Disable SMP for multithreading. SMP is On by default.
+   */
+  vtkGetMacro(EnableSMP, bool);
+  vtkSetMacro(EnableSMP, bool);
+  ///@}
+
 protected:
   vtkPolyDataToImageStencil();
   ~vtkPolyDataToImageStencil() override;
@@ -119,6 +127,7 @@ protected:
    */
   double Tolerance;
 
+  bool EnableSMP;
   class ThreadWorker;
 
 private:
