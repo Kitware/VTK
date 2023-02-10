@@ -513,7 +513,7 @@ protected:
   // used to occasionally invoke timers
   unsigned int TimerQueryCounter;
 
-  // stores the mapping from vtk cells to gl_PrimitiveId
+  // stores the mapping from OpenGL primitives IDs (gl_PrimitiveId) to VTK cells IDs
   vtkNew<vtkOpenGLCellToVTKCellMap> CellCellMap;
 
   // compute and set the maximum point and cell ID used in selection
