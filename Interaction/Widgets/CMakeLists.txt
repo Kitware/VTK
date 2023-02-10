@@ -1,4 +1,6 @@
 set(classes
+  vtk3DCursorRepresentation
+  vtk3DCursorWidget
   vtk3DWidget
   vtkAbstractPolygonalHandleRepresentation3D
   vtkAbstractSplineRepresentation
