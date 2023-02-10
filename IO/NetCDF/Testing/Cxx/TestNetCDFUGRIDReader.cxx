@@ -42,6 +42,7 @@ PURPOSE.  See the above copyright notice for more information.
  *     0.2, 0.3, 0.3, _, 0.2, 0.2, 0.3 ;
  * area = 1.0, 0.5,
  *        0.5, 1.5 ;
+ * nb_points (non temporal) = 4, 3 ;
  * time = 0, 31 ;
  */
 
@@ -59,7 +60,8 @@ const std::array<vtkIdType, 4> expectedQuadIds{ 0, 1, 2, 3 };
 const std::array<vtkIdType, 3> expectedTriangleIds{ 4, 5, 6 };
 
 const std::array<double, 7> expectedPointData{ 0.2, 0.3, 0.3, vtkMath::Nan(), 0.2, 0.2, 0.3 };
-const std::array<float, 2> expectedCellData{ 0.5f, 1.5f };
+const std::array<float, 2> expectedAreaCellData{ 0.5f, 1.5f };
+const std::array<int, 2> expectedNbPointsCellData{ 4, 3 };
 
 #define check(expr, message)                                                                       \
   if (!(expr))                                                                                     \
@@ -135,17 +137,30 @@ int TestNetCDFUGRIDReader(int argc, char* argv[])
 
   // Check cell data
   auto cellData = ugrid->GetCellData();
-  check(cellData->GetNumberOfArrays() == 1, "Wrong number of array");
-  check(cellData->HasArray("area"), "Wrong point data array name, must match variable name");
+  check(cellData->GetNumberOfArrays() == 2, "Wrong number of arrays");
+
+  // Check first cell array
+  check(cellData->HasArray("area"), "Wrong cell data array name, must match variable name");
   auto area = cellData->GetArray("area");
-  check(area->GetDataType() == VTK_FLOAT, "Wrong point data array data type");
-  check(area->GetNumberOfComponents() == 1, "Wrong point data array number of component");
-  check(area->GetNumberOfTuples() == 2, "Wrong point data array number of tuples");
+  check(area->GetDataType() == VTK_FLOAT, "Wrong cell data array data type");
+  check(area->GetNumberOfComponents() == 1, "Wrong cell data array number of components");
+  check(area->GetNumberOfTuples() == 2, "Wrong cell data array number of tuples");
   auto areaData = vtk::DataArrayValueRange(vtkFloatArray::SafeDownCast(area));
-  check(std::equal(areaData.begin(), areaData.end(), expectedCellData.begin()), "Wrong point data");
+  check(
+    std::equal(areaData.begin(), areaData.end(), expectedAreaCellData.begin()), "Wrong cell data");
+
+  // Check second cell array
+  check(cellData->HasArray("nb_points"), "Wrong cell data array name, must match variable name");
+  auto nbPts = cellData->GetArray("nb_points");
+  check(nbPts->GetDataType() == VTK_INT, "Wrong cell data array data type");
+  check(nbPts->GetNumberOfComponents() == 1, "Wrong cell data array number of components");
+  check(nbPts->GetNumberOfTuples() == 2, "Wrong cell data array number of tuples");
+  auto nbPtsData = vtk::DataArrayValueRange(vtkIntArray::SafeDownCast(nbPts));
+  check(std::equal(nbPtsData.begin(), nbPtsData.end(), expectedNbPointsCellData.begin()),
+    "Wrong cell data");
 
   // check array selection
-  check(reader->GetNumberOfCellArrays() == 1, "Wrong number of cell array");
+  check(reader->GetNumberOfCellArrays() == 2, "Wrong number of cell array");
   check(std::strcmp(reader->GetCellArrayName(0), "area") == 0, "Wrong cell array name");
   check(reader->GetCellArrayStatus("area") == 1, "Array must be enable by default");
   reader->SetCellArrayStatus("area", 0);

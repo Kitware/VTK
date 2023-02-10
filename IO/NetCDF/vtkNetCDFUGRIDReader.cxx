@@ -842,17 +842,26 @@ struct DataArrayExtractor
 {
   template <typename OutArray>
   void operator()(OutArray* output, int NcId, int var, std::size_t time, std::size_t size,
-    bool replaceFill, int& result)
+    bool isTemporal, bool replaceFill, int& result)
   {
     using T = vtk::GetAPIType<OutArray>;
 
     output->SetNumberOfComponents(1);
     output->SetNumberOfTuples(size);
 
-    const std::array<std::size_t, 2> start{ time, 0 };
-    const std::array<std::size_t, 2> count{ 1, size };
+    if (isTemporal)
+    {
+      const std::array<std::size_t, 2> start{ time, 0 };
+      const std::array<std::size_t, 2> count{ 1, size };
+      result = nc_get_vara(NcId, var, start.data(), count.data(), output->GetPointer(0));
+    }
+    else
+    {
+      const std::array<std::size_t, 1> start{ 0 };
+      const std::array<std::size_t, 1> count{ size };
+      result = nc_get_vara(NcId, var, start.data(), count.data(), output->GetPointer(0));
+    }
 
-    result = nc_get_vara(NcId, var, start.data(), count.data(), output->GetPointer(0));
     if (result != NC_NOERR)
     {
       return;
@@ -895,9 +904,19 @@ vtkSmartPointer<vtkDataArray> vtkNetCDFUGRIDReader::GetArrayData(
 
   output->SetName(this->GetVariableName(var).c_str());
 
+  // Check if variable is time-dependent
+  int varDimCount{};
+  if (!this->CheckError(nc_inq_varndims(this->NcId, var, &varDimCount)))
+  {
+    vtkErrorMacro(
+      "Could not obtain number of dimensions for variable " << this->GetVariableName(var));
+    return nullptr;
+  }
+  const bool isTemporal = (varDimCount > 1);
+
   int result{ NC_NOERR };
   Dispatcher::Execute(
-    output, worker, this->NcId, var, time, size, this->ReplaceFillValueWithNan, result);
+    output, worker, this->NcId, var, time, size, isTemporal, this->ReplaceFillValueWithNan, result);
 
   if (!this->CheckError(result))
   {
