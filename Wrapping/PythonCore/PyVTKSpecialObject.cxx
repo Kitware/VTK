@@ -66,7 +66,7 @@ PyObject* PyVTKSpecialObject_Repr(PyObject* self)
   const char* name = vtkPythonUtil::GetTypeName(type);
 
 #if PY_VERSION_HEX >= 0x030A0000
-  while (PyType_GetSlot(type, Py_tp_base) && !type->tp_str)
+  while (PyType_GetSlot(type, Py_tp_base) && !PyType_GetSlot(type, Py_tp_str))
   {
     type = (PyTypeObject*)PyType_GetSlot(type, Py_tp_base);
   }
@@ -79,9 +79,21 @@ PyObject* PyVTKSpecialObject_Repr(PyObject* self)
 
   // use str() if available
   PyObject* s = nullptr;
+#if PY_VERSION_HEX >= 0x030A0000
+  reprfunc type_str = (reprfunc)PyType_GetSlot(type, Py_tp_str);
+  reprfunc base_type_str = (reprfunc)PyType_GetSlot(&PyBaseObject_Type, Py_tp_str);
+  if (type_str && type_str != base_type_str)
+#else
   if (type->tp_str && type->tp_str != (&PyBaseObject_Type)->tp_str)
+#endif
   {
-    PyObject* t = type->tp_str(self);
+    PyObject* t =
+#if PY_VERSION_HEX >= 0x030A0000
+      type_str(self)
+#else
+      type->tp_str(self)
+#endif
+      ;
     if (t == nullptr)
     {
       Py_XDECREF(s);
