@@ -63,6 +63,7 @@ POSSIBILITY OF SUCH DAMAGES.
 #include "vtkSignedCharArray.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
+#include "vtkSMPThreadLocalObject.h"
 #include "vtkSMPTools.h"
 
 #include <algorithm>
@@ -80,6 +81,8 @@ vtkPolyDataToImageStencil::vtkPolyDataToImageStencil()
 {
   // The default tolerance is 0.5*2^(-16)
   this->Tolerance = 7.62939453125e-06;
+  // Multi-threading is enabled by default
+  this->EnableSMP = true;
 }
 
 //------------------------------------------------------------------------------
@@ -109,6 +112,7 @@ void vtkPolyDataToImageStencil::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Input: " << this->GetInput() << "\n";
   os << indent << "Tolerance: " << this->Tolerance << "\n";
+  os << indent << "EnableSMP: " << (this->EnableSMP ? "On\n" : "Off\n");
 }
 
 //------------------------------------------------------------------------------
@@ -281,9 +285,40 @@ bool EdgeLocator::InterpolateEdge(vtkPoints* points, vtkPoints* outPoints, vtkId
 } // end anonymous namespace
 
 //------------------------------------------------------------------------------
+class vtkPolyDataToImageStencil::ThreadWorker
+{
+public:
+  ThreadWorker(const int extent[6], vtkPolyDataToImageStencil* algorithm, vtkImageStencilData* data)
+    : XMin(extent[0])
+    , XMax(extent[1])
+    , YMin(extent[2])
+    , YMax(extent[3])
+    , ZMin(extent[4])
+    // ZMax is not needed by the worker
+    , Algorithm(algorithm)
+    , Data(data)
+  {
+  }
+  ~ThreadWorker() = default;
+
+  void operator()(int begin, int end)
+  {
+    int subExtent[6] = { XMin, XMax, YMin, YMax, begin, end - 1 };
+    int piece = subExtent[4] - ZMin;
+    this->Algorithm->ThreadedExecute(this->Data, this->Storage.Local(), subExtent, piece);
+  }
+
+protected:
+  int XMin, XMax, YMin, YMax, ZMin;
+  vtkPolyDataToImageStencil* Algorithm;
+  vtkImageStencilData* Data;
+  vtkSMPThreadLocalObject<vtkIdList> Storage;
+};
+
+//------------------------------------------------------------------------------
 // Select contours within slice z
 void vtkPolyDataToImageStencil::PolyDataSelector(
-  vtkPolyData* input, vtkPolyData* output, double z, double thickness)
+  vtkPolyData* input, vtkPolyData* output, vtkIdList* storage, double z, double thickness)
 {
   vtkPoints* points = input->GetPoints();
   vtkCellArray* lines = input->GetLines();
@@ -305,7 +340,7 @@ void vtkPolyDataToImageStencil::PolyDataSelector(
     // check if all points in cell are within the slice
     vtkIdType npts;
     const vtkIdType* ptIds;
-    lines->GetCellAtId(cellId, npts, ptIds);
+    lines->GetCellAtId(cellId, npts, ptIds, storage);
     vtkIdType i;
     for (i = 0; i < npts; i++)
     {
@@ -348,7 +383,8 @@ void vtkPolyDataToImageStencil::PolyDataSelector(
 }
 
 //------------------------------------------------------------------------------
-void vtkPolyDataToImageStencil::PolyDataCutter(vtkPolyData* input, vtkPolyData* output, double z)
+void vtkPolyDataToImageStencil::PolyDataCutter(
+  vtkPolyData* input, vtkPolyData* output, vtkIdList* storage, double z)
 {
   vtkPoints* points = input->GetPoints();
   vtkCellArray* inputPolys = input->GetPolys();
@@ -380,7 +416,7 @@ void vtkPolyDataToImageStencil::PolyDataCutter(vtkPolyData* input, vtkPolyData* 
 
     vtkIdType npts;
     const vtkIdType* ptIds;
-    cellArray->GetCellAtId(realCellId++, npts, ptIds);
+    cellArray->GetCellAtId(realCellId++, npts, ptIds, storage);
 
     vtkIdType numSubCells = 1;
     if (cellArray == inputStrips)
@@ -446,7 +482,7 @@ void vtkPolyDataToImageStencil::PolyDataCutter(vtkPolyData* input, vtkPolyData* 
 
 //------------------------------------------------------------------------------
 void vtkPolyDataToImageStencil::ThreadedExecute(
-  vtkImageStencilData* data, int extent[6], int threadId)
+  vtkImageStencilData* data, vtkIdList* storage, int extent[6], int threadId)
 {
   // Description of algorithm:
   // 1) cut the polydata at each z slice to create polylines
@@ -509,12 +545,12 @@ void vtkPolyDataToImageStencil::ThreadedExecute(
     // Step 1: Cut the data into slices
     if (input->GetNumberOfPolys() > 0 || input->GetNumberOfStrips() > 0)
     {
-      this->PolyDataCutter(input, slice, z);
+      this->PolyDataCutter(input, slice, storage, z);
     }
     else
     {
       // if no polys, select polylines instead
-      this->PolyDataSelector(input, slice, z, spacing[2]);
+      this->PolyDataSelector(input, slice, storage, z, spacing[2]);
     }
 
     if (!slice->GetNumberOfLines())
@@ -548,7 +584,7 @@ void vtkPolyDataToImageStencil::ThreadedExecute(
     vtkIdType numCells = lines->GetNumberOfCells();
     for (vtkIdType cellId = 0; cellId < numCells; ++cellId)
     {
-      lines->GetCellAtId(cellId, npts, pointIds);
+      lines->GetCellAtId(cellId, npts, pointIds, storage);
       if (npts > 0)
       {
         pointNeighborCounts[pointIds[0]] += 1;
@@ -725,7 +761,7 @@ void vtkPolyDataToImageStencil::ThreadedExecute(
     numCells = lines->GetNumberOfCells();
     for (vtkIdType cellId = 0; cellId < numCells; ++cellId)
     {
-      lines->GetCellAtId(cellId, npts, pointIds);
+      lines->GetCellAtId(cellId, npts, pointIds, storage);
       if (npts > 0)
       {
         vtkIdType pointId0 = pointIds[0];
@@ -774,9 +810,17 @@ int vtkPolyDataToImageStencil::RequestData(
 
   int extent[6];
   data->GetExtent(extent);
-  ParallelWorker worker(extent, this, data);
 
-  vtkSMPTools::For(extent[4], extent[5] + 1, 1, worker);
+  if (this->EnableSMP)
+  {
+    ThreadWorker worker(extent, this, data);
+    vtkSMPTools::For(extent[4], extent[5] + 1, worker);
+  }
+  else
+  {
+    vtkNew<vtkIdList> storage;
+    this->ThreadedExecute(data, storage, extent, 0);
+  }
 
   return 1;
 }

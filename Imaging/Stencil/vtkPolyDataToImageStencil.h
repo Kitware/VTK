@@ -66,6 +66,7 @@ POSSIBILITY OF SUCH DAMAGES.
 #include "vtkImagingStencilModule.h" // For export macro
 
 VTK_ABI_NAMESPACE_BEGIN
+class vtkIdList;
 class vtkMergePoints;
 class vtkDataSet;
 class vtkPolyData;
@@ -97,15 +98,25 @@ public:
   vtkGetMacro(Tolerance, double);
   ///@}
 
+  ///@{
+  /**
+   * Enable/Disable SMP for multithreading. SMP is On by default.
+   */
+  vtkGetMacro(EnableSMP, bool);
+  vtkSetMacro(EnableSMP, bool);
+  ///@}
+
 protected:
   vtkPolyDataToImageStencil();
   ~vtkPolyDataToImageStencil() override;
 
-  void ThreadedExecute(vtkImageStencilData* output, int extent[6], int threadId);
+  void ThreadedExecute(
+    vtkImageStencilData* output, vtkIdList* storage, int extent[6], int threadId);
 
-  static void PolyDataCutter(vtkPolyData* input, vtkPolyData* output, double z);
+  static void PolyDataCutter(vtkPolyData* input, vtkPolyData* output, vtkIdList* storage, double z);
 
-  static void PolyDataSelector(vtkPolyData* input, vtkPolyData* output, double z, double thickness);
+  static void PolyDataSelector(
+    vtkPolyData* input, vtkPolyData* output, vtkIdList* storage, double z, double thickness);
 
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
@@ -116,34 +127,8 @@ protected:
    */
   double Tolerance;
 
-  class ParallelWorker
-  {
-  public:
-    ParallelWorker(int extent[6], vtkPolyDataToImageStencil* algorithm, vtkImageStencilData* data)
-    {
-      Extent[0] = extent[0];
-      Extent[1] = extent[1];
-      Extent[2] = extent[2];
-      Extent[3] = extent[3];
-      Extent[4] = extent[4];
-      Extent[5] = extent[5];
-      Algorithm = algorithm;
-      Data = data;
-    }
-    ~ParallelWorker() {}
-
-    void operator()(int begin, int end)
-    {
-      int subExtent[6] = { Extent[0], Extent[1], Extent[2], Extent[3], begin, end - 1 };
-      int piece = subExtent[4] - this->Extent[4];
-      this->Algorithm->ThreadedExecute(this->Data, subExtent, piece);
-    }
-
-  protected:
-    int Extent[6];
-    vtkPolyDataToImageStencil* Algorithm;
-    vtkImageStencilData* Data;
-  };
+  bool EnableSMP;
+  class ThreadWorker;
 
 private:
   vtkPolyDataToImageStencil(const vtkPolyDataToImageStencil&) = delete;

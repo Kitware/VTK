@@ -315,6 +315,7 @@ int TestStencilWithPolyDataContour(int, char*[])
   memset(vptr, 255, image->GetNumberOfPoints());
 
   vtkSmartPointer<vtkCellArray> lines = vtkSmartPointer<vtkCellArray>::New();
+  lines->Use32BitStorage(); // to increase coverage of 32-bit cell arrays
   vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
   points->SetNumberOfPoints(262);
   lines->InsertNextCell(262);
