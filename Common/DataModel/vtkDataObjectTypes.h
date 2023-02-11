@@ -56,12 +56,12 @@ public:
   /**
    * Create (New) and return a data object of the given classname.
    */
-  static vtkDataObject* NewDataObject(const char* classname);
+  static VTK_NEWINSTANCE vtkDataObject* NewDataObject(const char* classname);
 
   /**
    * Create (New) and return a data object of the given type id.
    */
-  static vtkDataObject* NewDataObject(int typeId);
+  static VTK_NEWINSTANCE vtkDataObject* NewDataObject(int typeId);
 
   /*
    * Returns true if the `typeId` is same or a subclass of

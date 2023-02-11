@@ -405,25 +405,30 @@ public:
    */
   void InitializeOrientedCursor(
     vtkHyperTreeGridOrientedCursor* cursor, vtkIdType index, bool create = false);
+  VTK_NEWINSTANCE
   vtkHyperTreeGridOrientedCursor* NewOrientedCursor(vtkIdType index, bool create = false);
 
   void InitializeOrientedGeometryCursor(
     vtkHyperTreeGridOrientedGeometryCursor* cursor, vtkIdType index, bool create = false);
+  VTK_NEWINSTANCE
   vtkHyperTreeGridOrientedGeometryCursor* NewOrientedGeometryCursor(
     vtkIdType index, bool create = false);
 
   void InitializeNonOrientedCursor(
     vtkHyperTreeGridNonOrientedCursor* cursor, vtkIdType index, bool create = false);
+  VTK_NEWINSTANCE
   vtkHyperTreeGridNonOrientedCursor* NewNonOrientedCursor(vtkIdType index, bool create = false);
 
   void InitializeNonOrientedGeometryCursor(
     vtkHyperTreeGridNonOrientedGeometryCursor* cursor, vtkIdType index, bool create = false);
+  VTK_NEWINSTANCE
   vtkHyperTreeGridNonOrientedGeometryCursor* NewNonOrientedGeometryCursor(
     vtkIdType index, bool create = false);
 
   void InitializeNonOrientedUnlimitedGeometryCursor(
     vtkHyperTreeGridNonOrientedUnlimitedGeometryCursor* cursor, vtkIdType index,
     bool create = false);
+  VTK_NEWINSTANCE
   vtkHyperTreeGridNonOrientedUnlimitedGeometryCursor* NewNonOrientedUnlimitedGeometryCursor(
     vtkIdType index, bool create = false);
   ///@}
@@ -456,28 +461,33 @@ public:
    */
   void InitializeNonOrientedVonNeumannSuperCursor(
     vtkHyperTreeGridNonOrientedVonNeumannSuperCursor* cursor, vtkIdType index, bool create = false);
+  VTK_NEWINSTANCE
   vtkHyperTreeGridNonOrientedVonNeumannSuperCursor* NewNonOrientedVonNeumannSuperCursor(
     vtkIdType index, bool create = false);
 
   void InitializeNonOrientedVonNeumannSuperCursorLight(
     vtkHyperTreeGridNonOrientedVonNeumannSuperCursorLight* cursor, vtkIdType index,
     bool create = false);
+  VTK_NEWINSTANCE
   vtkHyperTreeGridNonOrientedVonNeumannSuperCursorLight* NewNonOrientedVonNeumannSuperCursorLight(
     vtkIdType index, bool create = false);
 
   void InitializeNonOrientedMooreSuperCursor(
     vtkHyperTreeGridNonOrientedMooreSuperCursor* cursor, vtkIdType index, bool create = false);
+  VTK_NEWINSTANCE
   vtkHyperTreeGridNonOrientedMooreSuperCursor* NewNonOrientedMooreSuperCursor(
     vtkIdType index, bool create = false);
 
   void InitializeNonOrientedMooreSuperCursorLight(
     vtkHyperTreeGridNonOrientedMooreSuperCursorLight* cursor, vtkIdType index, bool create = false);
+  VTK_NEWINSTANCE
   vtkHyperTreeGridNonOrientedMooreSuperCursorLight* NewNonOrientedMooreSuperCursorLight(
     vtkIdType index, bool create = false);
 
   void InitializeNonOrientedUnlimitedMooreSuperCursor(
     vtkHyperTreeGridNonOrientedUnlimitedMooreSuperCursor* cursor, vtkIdType index,
     bool create = false);
+  VTK_NEWINSTANCE
   vtkHyperTreeGridNonOrientedUnlimitedMooreSuperCursor* NewNonOrientedUnlimitedMooreSuperCursor(
     vtkIdType index, bool create = false);
   ///@}
