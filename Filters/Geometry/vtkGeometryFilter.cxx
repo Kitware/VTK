@@ -362,52 +362,41 @@ public:
     {
       case 3:
       {
-        return this->PointIds[0] == other.PointIds[0] &&
-          ((this->PointIds[1] == other.PointIds[2] && this->PointIds[2] == other.PointIds[1]) ||
-            (this->PointIds[1] == other.PointIds[1] && this->PointIds[2] == other.PointIds[2]));
+        return (this->PointIds[1] == other.PointIds[2] && this->PointIds[2] == other.PointIds[1]) ||
+          (this->PointIds[1] == other.PointIds[1] && this->PointIds[2] == other.PointIds[2]);
       }
       case 4:
       {
-        return this->PointIds[0] == other.PointIds[0] && this->PointIds[2] == other.PointIds[2] &&
+        return this->PointIds[2] == other.PointIds[2] &&
           ((this->PointIds[1] == other.PointIds[3] && this->PointIds[3] == other.PointIds[1]) ||
             (this->PointIds[1] == other.PointIds[1] && this->PointIds[3] == other.PointIds[3]));
       }
       default:
       {
-        bool match = true;
-        if (this->PointIds[0] == other.PointIds[0])
+        // if the first two points match loop through forwards
+        // checking all points
+        if (this->NumberOfPoints > 1 && this->PointIds[1] == other.PointIds[1])
         {
-          // if the first two points match loop through forwards
-          // checking all points
-          if (this->NumberOfPoints > 1 && this->PointIds[1] == other.PointIds[1])
+          for (auto i = 2; i < this->NumberOfPoints; ++i)
           {
-            for (auto i = 2; i < this->NumberOfPoints; ++i)
+            if (this->PointIds[i] != other.PointIds[i])
             {
-              if (this->PointIds[i] != other.PointIds[i])
-              {
-                match = false;
-                break;
-              }
-            }
-          }
-          else
-          {
-            // check if the points go in the opposite direction
-            for (auto i = 1; i < this->NumberOfPoints; ++i)
-            {
-              if (this->PointIds[this->NumberOfPoints - i] != other.PointIds[i])
-              {
-                match = false;
-                break;
-              }
+              return false;
             }
           }
         }
         else
         {
-          match = false;
+          // check if the points go in the opposite direction
+          for (auto i = 1; i < this->NumberOfPoints; ++i)
+          {
+            if (this->PointIds[this->NumberOfPoints - i] != other.PointIds[i])
+            {
+              return false;
+            }
+          }
         }
-        return match;
+        return true;
       }
     }
   }
@@ -690,15 +679,10 @@ private:
     {
     }
   };
-  size_t Size;
   std::vector<Bucket> Buckets;
 
 public:
-  FaceHashMap(const size_t& size)
-    : Size(size)
-  {
-    this->Buckets.resize(this->Size);
-  }
+  FaceHashMap(const size_t& size) { this->Buckets.resize(size); }
 
   /**
    * @brief Try to insert a face into the hash map, if it's already there, delete it.
@@ -706,7 +690,9 @@ public:
   template <typename FaceType>
   void Insert(const FaceType& face, TFaceMemoryPool& pool)
   {
-    const size_t key = static_cast<size_t>(face.PointIds[0]) % this->Size;
+    // all point ids are assumed to be less than the size of the hash map
+    // if 2 faces belong to the same bucket, they are guaranteed to have the same first point id
+    const auto& key = face.PointIds[0];
     auto& bucket = this->Buckets[key];
 
     std::lock_guard<vtkAtomicMutex> lock(bucket.Lock);
