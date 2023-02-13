@@ -179,30 +179,29 @@ int vtkRecoverGeometryWireframe::RequestData(vtkInformation* vtkNotUsed(request)
   vtkPointData* outputPD = output->GetPointData();
   outputPD->CopyAllocate(inputPD);
   const vtkIdType numOriginalPoints = points->GetNumberOfPoints();
-  vtkSMPTools::For(0, numOriginalPoints, [inputPD, outputPD](vtkIdType begin, vtkIdType end) {
-    for (vtkIdType i = begin; i < end; ++i)
-    {
-      outputPD->CopyData(inputPD, i, i);
-    }
-  });
+  for (vtkIdType i = 0; i < numOriginalPoints; ++i)
+  {
+    outputPD->CopyData(inputPD, i, i);
+  }
 
   // Create an edge flag array.
   vtkNew<vtkUnsignedCharArray> edgeflags;
   edgeflags->SetName("vtkEdgeFlags");
   edgeflags->SetNumberOfComponents(1);
   edgeflags->SetNumberOfTuples(numOriginalPoints);
-  std::fill(edgeflags->GetPointer(0), edgeflags->GetPointer(numOriginalPoints), NO_EDGE_FLAG);
+  auto edgeflagsRange = vtk::DataArrayValueRange<1>(edgeflags);
+  std::fill(edgeflagsRange.begin(), edgeflagsRange.end(), NO_EDGE_FLAG);
   outputPD->AddArray(edgeflags);
   outputPD->SetActiveAttribute("vtkEdgeFlags", vtkDataSetAttributes::EDGEFLAG);
 
-  auto tagEdgeFlags = [&edgeflags](vtkCellArray* inputCell, vtkIdType last = 0) {
+  auto tagEdgeFlags = [&edgeflags](vtkCellArray* inputCell, vtkIdType offset = 0) {
     auto cellIter = vtk::TakeSmartPointer(inputCell->NewIterator());
     vtkIdType npts;
     const vtkIdType* pts;
     for (cellIter->GoToFirstCell(); !cellIter->IsDoneWithTraversal(); cellIter->GoToNextCell())
     {
       cellIter->GetCurrentCell(npts, pts);
-      for (vtkIdType i = 0; i < npts - last; i++)
+      for (vtkIdType i = 0; i < npts + offset; i++)
       {
         edgeflags->SetValue(pts[i], 1);
       }
@@ -303,15 +302,9 @@ int vtkRecoverGeometryWireframe::RequestData(vtkInformation* vtkNotUsed(request)
 
   // If any points are unmarked, set some edge flag on them (although they
   // are probably not referenced by any cell).
-  vtkSMPTools::For(0, numOriginalPoints, [&edgeflags](vtkIdType begin, vtkIdType end) {
-    for (vtkIdType i = begin; i < end; i++)
-    {
-      if (edgeflags->GetValue(i) == NO_EDGE_FLAG)
-      {
-        edgeflags->SetValue(i, 1);
-      }
-    }
-  });
+  edgeflagsRange = vtk::DataArrayValueRange<1>(edgeflags);
+  vtkSMPTools::Transform(edgeflagsRange.cbegin(), edgeflagsRange.cend(), edgeflagsRange.begin(),
+    [](unsigned char value) { return (value == NO_EDGE_FLAG) ? 1 : value; });
 
   return 1;
 }
