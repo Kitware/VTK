@@ -295,13 +295,16 @@ private:
 };
 VTK_ABI_NAMESPACE_END
 
+namespace std
+{
 template <class T>
-struct std::hash<vtkSmartPointer<T>>
+struct hash<vtkSmartPointer<T>>
 {
   std::size_t operator()(const vtkSmartPointer<T>& p) const { return this->Hasher(p.Get()); }
 
   std::hash<T*> Hasher;
 };
+}
 
 VTK_ABI_NAMESPACE_BEGIN
 #define VTK_SMART_POINTER_DEFINE_OPERATOR(op)                                                      \
