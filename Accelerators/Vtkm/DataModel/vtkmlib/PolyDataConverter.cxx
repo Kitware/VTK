@@ -84,9 +84,13 @@ vtkm::cont::DataSet Convert(vtkPolyData* input, FieldsFlag fields)
   // set where possible
   vtkm::cont::DataSet dataset;
 
-  // first step convert the points over to an array handle
-  vtkm::cont::CoordinateSystem coords = Convert(input->GetPoints());
-  dataset.AddCoordinateSystem(coords);
+  // Only set coordinates if they exists in the vtkPolyData
+  if (input->GetPoints())
+  {
+    // first step convert the points over to an array handle
+    vtkm::cont::CoordinateSystem coords = Convert(input->GetPoints());
+    dataset.AddCoordinateSystem(coords);
+  }
 
   // first check if we only have polys/lines/verts
   bool filled = false;

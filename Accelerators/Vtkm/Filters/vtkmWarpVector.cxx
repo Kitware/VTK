@@ -30,7 +30,7 @@
 #include "vtkmlib/ArrayConverters.h"
 #include "vtkmlib/DataSetConverters.h"
 
-#include "vtkm/cont/DataSetFieldAdd.h"
+#include "vtkm/cont/DataSet.h"
 
 #include <vtkm/filter/field_transform/WarpVector.h>
 

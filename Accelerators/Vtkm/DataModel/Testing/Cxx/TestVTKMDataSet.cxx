@@ -17,9 +17,16 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkmDataArray.h"
+#include "vtkmlib/DataArrayConverters.h"
 
 #include <vtkm/cont/ArrayHandleUniformPointCoordinates.h>
+
+// Note the difference between the below two includes (testing != testlib)
+#ifdef VTKm_INCLUDED_IN_VTK
 #include <vtkm/cont/testing/MakeTestDataSet.h>
+#else
+#include <vtkm/cont/testlib/MakeTestDataSet.h>
+#endif
 
 #include <array>
 #include <random>

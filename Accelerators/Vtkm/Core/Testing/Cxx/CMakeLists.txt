@@ -7,17 +7,11 @@ vtk_add_test_cxx(vtkAcceleratorsVTKmCoreCxxTests tests
   )
 
 if (TARGET vtkm::cuda)
-  #the enable_language call is scoped! so we have to re-enable
-  #cuda in the test directory
-  enable_language(CUDA)
   foreach(src IN LISTS tests)
     string(REPLACE "," ";" src ${src})
     list(GET src 0 src)
 
-    set_source_files_properties(${src} PROPERTIES
-      LANGUAGE CUDA
-      CUDA_SOURCE_PROPERTY_FORMAT OBJ
-      CUDA_SEPARABLE_COMPILATION ON)
+    set_source_files_properties(${src} PROPERTIES LANGUAGE CUDA)
   endforeach()
 
   #the tests aren't scoped as a child directory of vtkAcceleratorsVTKmCore

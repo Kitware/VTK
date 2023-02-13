@@ -3,7 +3,7 @@ NAME
 LIBRARY_NAME
   vtkfides
 DEPENDS
-  VTK::vtkm
+  VTK::vtkvtkm
 OPTIONAL_DEPENDS
   VTK::mpi
 THIRD_PARTY

@@ -134,6 +134,11 @@ if (${CMAKE_FIND_PACKAGE_NAME}_HAS_VTKm)
   if (NOT VTKm_FOUND)
     set("${CMAKE_FIND_PACKAGE_NAME}_FOUND" 0)
   endif ()
+
+  # Prior to VTK-m 2.0, the main VTK module was called VTK::vtkm
+  if (TARGET VTK::vtkvtkm)
+    add_library(VTK::vtkm ALIAS VTK::vtkvtkm)
+  endif()
 endif ()
 
 include("${CMAKE_CURRENT_LIST_DIR}/vtkCMakeBackports.cmake")

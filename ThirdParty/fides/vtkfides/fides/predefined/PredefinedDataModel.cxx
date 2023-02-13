@@ -305,11 +305,11 @@ void PredefinedDataModel::AddFieldAttributes(
     }
 
     std::string assoc;
-    if (field.IsFieldCell())
+    if (field.IsCellField())
     {
       assoc = "cell_set";
     }
-    else if (field.IsFieldPoint())
+    else if (field.IsPointField())
     {
       assoc = "points";
     }
@@ -350,9 +350,9 @@ void PredefinedDataModel::CreateFields(rapidjson::Value& parent)
       auto fieldName = SetString(this->Doc.GetAllocator(), field.GetName());
       fieldObj.AddMember("name", fieldName, this->Doc.GetAllocator());
       std::string assoc = "unknown";
-      if (field.IsFieldCell())
+      if (field.IsCellField())
         assoc = "cell_set";
-      else if (field.IsFieldPoint())
+      else if (field.IsPointField())
         assoc = "points";
       else
         throw std::runtime_error("Unsupported field association");
