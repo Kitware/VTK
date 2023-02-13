@@ -28,7 +28,7 @@ Learning Resources
 
 * Community discussion takes place on the [VTK Discourse][vtk-discourse] forum.
 
-* Commercial [support and training][Kitware Support]
+* Commercial [support and training][kitware-support]
   are available from [Kitware][].
 
 * Doxygen-generated nightly reference documentation is
