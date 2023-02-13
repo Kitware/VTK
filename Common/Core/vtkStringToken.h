@@ -143,7 +143,7 @@ VTK_ABI_NAMESPACE_BEGIN
 /// occurs at build time. This is more efficient than
 /// a sequence of if-conditionals performing string
 /// comparisons.
-inline constexpr VTKCOMMONCORE_EXPORT vtkStringToken::Hash operator""_hash(
+inline constexpr VTKCOMMONCORE_EXPORT vtkStringToken::Hash operator"" _hash(
   const char* data, std::size_t size)
 {
   return vtkStringToken::StringHash(data, size);
@@ -158,7 +158,7 @@ inline constexpr VTKCOMMONCORE_EXPORT vtkStringToken::Hash operator""_hash(
 /// // std::cout << t.value() << "\n"; // Prints "test" if someone else constructed the token from a
 /// ctor; else throws exception.
 /// ```
-inline constexpr VTKCOMMONCORE_EXPORT vtkStringToken operator""_token(
+inline constexpr VTKCOMMONCORE_EXPORT vtkStringToken operator"" _token(
   const char* data, std::size_t size)
 {
   return vtkStringToken(vtkStringToken::StringHash(data, size));
