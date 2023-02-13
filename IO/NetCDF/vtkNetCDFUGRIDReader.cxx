@@ -334,7 +334,7 @@ bool vtkNetCDFUGRIDReader::ParseHeader()
 
     for (int i = 0; i < attCount; ++i)
     {
-      const auto name{ this->GetAttributeName(var, i) };
+      const auto name(this->GetAttributeName(var, i));
 
       nc_type type{ NC_NAT };
       if (!this->CheckError(nc_inq_atttype(this->NcId, var, name.c_str(), &type)))
@@ -463,7 +463,7 @@ bool vtkNetCDFUGRIDReader::ParseHeader()
   }
   else
   {
-    const auto name{ this->GetDimensionName(faceDimIds[0]) };
+    const auto name(this->GetDimensionName(faceDimIds[0]));
     if (this->GetAttributeString(this->MeshVarId, "face_dimension") == name)
     {
       this->FaceCount = faceDimSize[0];
@@ -684,7 +684,7 @@ bool vtkNetCDFUGRIDReader::FillArrays(vtkUnstructuredGrid* output, std::size_t t
       continue;
     }
 
-    const auto array{ this->GetArrayData(this->FaceArrayVarIds[i], timeStep, this->FaceCount) };
+    const auto array(this->GetArrayData(this->FaceArrayVarIds[i], timeStep, this->FaceCount));
     if (!array)
     {
       return false;
@@ -700,7 +700,7 @@ bool vtkNetCDFUGRIDReader::FillArrays(vtkUnstructuredGrid* output, std::size_t t
       continue;
     }
 
-    const auto array{ this->GetArrayData(this->NodeArrayVarIds[i], timeStep, this->NodeCount) };
+    const auto array(this->GetArrayData(this->NodeArrayVarIds[i], timeStep, this->NodeCount));
     if (!array)
     {
       return false;
@@ -876,7 +876,7 @@ struct DataArrayExtractor
         return;
       }
 
-      auto range{ vtk::DataArrayValueRange(output) };
+      auto range(vtk::DataArrayValueRange(output));
       std::replace(range.begin(), range.end(), fillValue, static_cast<T>(vtkMath::Nan()));
     }
   }
@@ -895,7 +895,7 @@ vtkSmartPointer<vtkDataArray> vtkNetCDFUGRIDReader::GetArrayData(
   DataArrayExtractor worker{};
   using Dispatcher = vtkArrayDispatch::DispatchByValueType<vtkArrayDispatch::AllTypes>;
 
-  auto output{ MakeDataArray(type) };
+  auto output(MakeDataArray(type));
   if (!output)
   {
     vtkErrorMacro("Unsupported data array type");
