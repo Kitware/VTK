@@ -19,6 +19,8 @@
 #include "vtkArrowSource.h"
 #include "vtkCamera.h"
 #include "vtkCellData.h"
+#include "vtkDoubleArray.h"
+#include "vtkExtractTensorComponents.h"
 #include "vtkGlyph3D.h"
 #include "vtkHyperTreeGrid.h"
 #include "vtkHyperTreeGridCellCenters.h"
@@ -46,36 +48,61 @@ int TestHyperTreeGridTernary3DGradient(int argc, char* argv[])
   htGrid->SetFileName(fileName.c_str());
   htGrid->Update();
   vtkHyperTreeGrid* ht = vtkHyperTreeGrid::SafeDownCast(htGrid->GetOutputDataObject(0));
-  ht->GetCellData()->SetActiveScalars("Depth");
+
+  // Add vector attributes
+  vtkDataArray* depth = ht->GetCellData()->GetArray("Depth");
+  vtkIdType nbCells = ht->GetNumberOfCells();
+  vtkNew<vtkDoubleArray> vectArr;
+  vectArr->SetNumberOfComponents(3);
+  vectArr->SetNumberOfTuples(nbCells);
+  vectArr->SetName("Vect");
+  for (vtkIdType cellId = 0; cellId < nbCells; cellId++)
+  {
+    double cellDepth = depth->GetTuple1(cellId);
+    vectArr->SetTuple3(cellId, cellDepth, cellId, cellId * cellDepth);
+  }
+  ht->GetCellData()->AddArray(vectArr);
+  ht->GetCellData()->SetActiveVectors("Vect");
 
   // Gradient
   vtkNew<vtkHyperTreeGridGradient> gradient;
   gradient->SetInputConnection(htGrid->GetOutputPort());
-  gradient->SetMode(vtkHyperTreeGridGradient::UNSTRUCTURED);
+  gradient->SetMode(vtkHyperTreeGridGradient::UNLIMITED);
+  gradient->SetInputArrayToProcess(0, 0, 0, vtkDataSet::CELL, "Vect");
+  gradient->ComputeDivergenceOn();
+  gradient->ComputeVorticityOn();
 
   // extract cell centers
   vtkNew<vtkHyperTreeGridCellCenters> centers;
   centers->SetInputConnection(gradient->GetOutputPort());
   centers->SetVertexCells(true);
 
+  vtkNew<vtkExtractTensorComponents> extractVect;
+  extractVect->SetInputConnection(centers->GetOutputPort());
+  extractVect->SetInputArrayToProcess(0, 0, 0, vtkDataSet::POINT, "Gradient");
+  extractVect->ExtractVectorsOn();
+
   // Generate glyphs
   vtkNew<vtkArrowSource> glyph;
   vtkNew<vtkGlyph3D> glypher;
-  glypher->SetInputConnection(centers->GetOutputPort());
+  glypher->SetInputConnection(extractVect->GetOutputPort());
   glypher->SetSourceConnection(glyph->GetOutputPort());
-  glypher->SetInputArrayToProcess(1, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "Gradient");
+  glypher->SetInputArrayToProcess(
+    1, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "TensorVectors");
   glypher->OrientOn();
   glypher->SetVectorModeToUseVector();
   glypher->ScalingOn();
   glypher->SetScaleModeToScaleByVector();
-  glypher->SetScaleFactor(20);
+  glypher->SetScaleFactor(10);
+  glypher->Update();
+  glypher->GetOutput(0)->GetPointData()->SetActiveScalars("Divergence");
 
   // mapper
   vtkNew<vtkPolyDataMapper> mapper1;
   mapper1->SetInputConnection(glypher->GetOutputPort());
   mapper1->SetColorModeToDefault();
   mapper1->SetScalarVisibility(true);
-  mapper1->SetScalarRange(10, 50);
+  mapper1->SetScalarRange(-11, 34);
   // color by magnitude
   vtkNew<vtkLookupTable> colormap;
   colormap->SetVectorModeToMagnitude();

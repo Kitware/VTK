@@ -34,6 +34,7 @@
 
 #include "vtkFiltersHyperTreeModule.h" // For export macro
 
+#include "vtkDeprecation.h" // for deprecatin S/GetRenderWindow
 #include "vtkHyperTreeGridAlgorithm.h"
 #include "vtkNew.h"          // for internal fields
 #include "vtkSmartPointer.h" // for internal fields
@@ -42,9 +43,7 @@
 
 VTK_ABI_NAMESPACE_BEGIN
 
-class vtkHyperTreeGridNonOrientedGeometryCursor;
-class vtkHyperTreeGridNonOrientedMooreSuperCursor;
-class vtkHyperTreeGridNonOrientedUnlimitedMooreSuperCursor;
+class vtkHyperTreeGridNonOrientedCursor;
 class vtkBitArray;
 class vtkDoubleArray;
 class vtkUnsignedCharArray;
@@ -64,15 +63,29 @@ public:
 
   ///@{
   /**
-   * Set/Get the name of computed vector array.
+   * Enable / disable gradient computation.
+   * default is On.
    */
-  vtkSetMacro(ResultArrayName, std::string);
-  vtkGetMacro(ResultArrayName, std::string);
+  vtkSetMacro(ComputeGradient, bool);
+  vtkGetMacro(ComputeGradient, bool);
+  vtkBooleanMacro(ComputeGradient, bool);
   ///@}
 
   ///@{
   /**
-   * Set/Get the computation method to use:
+   * Set/Get the name of gradient vector array.
+   */
+  vtkSetMacro(GradientArrayName, std::string);
+  vtkGetMacro(GradientArrayName, std::string);
+  VTK_DEPRECATED_IN_9_3_0("Please use unambiguous SetGradientArrayName method instead.")
+  void SetResultArrayName(std::string name) { this->SetGradientArrayName(name); }
+  VTK_DEPRECATED_IN_9_3_0("Please use unambiguous GetGradientArrayName method instead.")
+  std::string GetResultArrayName() { return this->GetGradientArrayName(); }
+  ///@}
+
+  ///@{
+  /**
+   * Set/Get the gradient computation method to use:
    * * Unlimited: virtually reffine neighbors
    * * Unstructured: compute gradient like in UG
    * Dfault is UNLIMITED
@@ -83,13 +96,67 @@ public:
 
   ///@{
   /**
-   * Do we apply ratio in unlimited mode ?
-   * no effect in Unstructured mode
-   * Default is false (intesive computation)
+   * Do we apply ratio in unlimited mode for the gradient computation ?
+   * No effect in Unstructured mode
+   * Default is false (intensive computation)
    */
   vtkSetMacro(ExtensiveComputation, bool);
   vtkGetMacro(ExtensiveComputation, bool);
   vtkBooleanMacro(ExtensiveComputation, bool);
+  ///@}
+
+  ///@{
+  /**
+   * Enable / disable divergence computation.
+   * default is Off.
+   */
+  vtkSetMacro(ComputeDivergence, bool);
+  vtkGetMacro(ComputeDivergence, bool);
+  vtkBooleanMacro(ComputeDivergence, bool);
+  ///@}
+
+  ///@{
+  /**
+   * Set/Get the name of divergence vector array.
+   */
+  vtkSetMacro(DivergenceArrayName, std::string);
+  vtkGetMacro(DivergenceArrayName, std::string);
+  ///@}
+
+  ///@{
+  /**
+   * Enable / disable vorticity computation.
+   * default is Off.
+   */
+  vtkSetMacro(ComputeVorticity, bool);
+  vtkGetMacro(ComputeVorticity, bool);
+  vtkBooleanMacro(ComputeVorticity, bool);
+  ///@}
+
+  ///@{
+  /**
+   * Set/Get the name of vorticity array.
+   */
+  vtkSetMacro(VorticityArrayName, std::string);
+  vtkGetMacro(VorticityArrayName, std::string);
+  ///@}
+
+  ///@{
+  /**
+   * Enable / disable q-criterion computation.
+   * default is Off.
+   */
+  vtkSetMacro(ComputeQCriterion, bool);
+  vtkGetMacro(ComputeQCriterion, bool);
+  vtkBooleanMacro(ComputeQCriterion, bool);
+  ///@}
+
+  ///@{
+  /**
+   * Set/Get the name of q-criterion array.
+   */
+  vtkSetMacro(QCriterionArrayName, std::string);
+  vtkGetMacro(QCriterionArrayName, std::string);
   ///@}
 
 protected:
@@ -102,29 +169,48 @@ protected:
   int ProcessTrees(vtkHyperTreeGrid*, vtkDataObject*) override;
 
   /**
-   * Recursively descend into tree down to leaves
+   * Recursively descend into tree down to leaves to compute gradient
+   * Uses a heavy supercursor
    */
-  template <class Cursor, class Worker>
-  void RecursivelyProcessTree(Cursor*, Worker&);
+  template <class Cursor, class GradWorker>
+  void RecursivelyProcessGradientTree(Cursor*, GradWorker&);
+
+  /**
+   * Compute Vorticity, Divergence and QCriterion upon request,
+   * from the Gradient cell array
+   */
+  template <class FieldsWorker>
+  void ProcessFields(FieldsWorker&);
 
   // Fields
   // ------
 
-  std::string ResultArrayName = "Gradient";
-
+  // Gradient
+  bool ComputeGradient = true;
+  vtkNew<vtkDoubleArray> OutGradArray;
+  std::string GradientArrayName = "Gradient";
   int Mode = ComputeMode::UNLIMITED;
-
   bool ExtensiveComputation = false;
 
-  /**
-   * Keep track of selected input scalars
-   */
-  vtkSmartPointer<vtkDataArray> InScalars;
+  // Divergence
+  bool ComputeDivergence = false;
+  vtkNew<vtkDoubleArray> OutDivArray;
+  std::string DivergenceArrayName = "Divergence";
+
+  // Vorticity
+  bool ComputeVorticity = false;
+  vtkNew<vtkDoubleArray> OutVortArray;
+  std::string VorticityArrayName = "Vorticity";
+
+  // QCriterion
+  bool ComputeQCriterion = false;
+  vtkNew<vtkDoubleArray> OutQCritArray;
+  std::string QCriterionArrayName = "QCriterion";
 
   /**
-   * Computed gradient
+   * Keep track of selected input scalars / vectors
    */
-  vtkNew<vtkDoubleArray> OutGradient;
+  vtkSmartPointer<vtkDataArray> InArray;
 
   // shortcut to HTG fields
   vtkBitArray* InMask = nullptr;
