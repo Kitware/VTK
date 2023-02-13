@@ -190,7 +190,6 @@ public:
    * THIS METHOD IS THREAD SAFE IF FIRST CALLED FROM A SINGLE THREAD AND
    * THE DATASET IS NOT MODIFIED
    */
-  VTK_DEPRECATED_IN_9_2_0("Please use GetDistinctCellTypesArray() instead.")
   void GetCellTypes(vtkCellTypes* types) override;
 
   /**
