@@ -98,7 +98,7 @@ Now test using `vtkpython`, `python3` and then build and test the C++ version:
 cd ~/dev/my-tests
 # Set your environment.
 export VTK_DIR=$HOME/dev/vtk/build
-export PYTHONPATH=~/dev/vtk/build/lib/python3.9/site-packages:PYTHONPATH
+export PYTHONPATH=~/dev/vtk/build/lib/python3.9/site-packages:$PYTHONPATH
 alias vtkpython=~/dev/vtk/build/bin/vtkpython
 # Test vtkpython.
 vtkpython CylinderExample.py
