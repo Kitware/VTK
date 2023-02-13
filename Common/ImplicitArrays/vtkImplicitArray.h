@@ -82,8 +82,7 @@ class vtkImplicitArray
   using trait = vtk::detail::implicit_array_traits<BackendT>;
   static_assert(trait::can_read,
     "Supplied backend type does not have mandatory read trait. Must implement either map() const "
-    "or "
-    "operator() const.");
+    "or operator() const.");
   using ValueTypeT = typename trait::rtype;
   using GenericDataArrayType = vtkGenericDataArray<vtkImplicitArray<BackendT>, ValueTypeT>;
 
