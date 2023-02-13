@@ -4,7 +4,7 @@ Develop VTK with Git
 This page documents how to develop VTK through [Git][].
 See the [README](README.md) for more information.
 
-[Git]: http://git-scm.com
+[Git]: https://git-scm.com
 
 Git is an extremely powerful version control tool that supports many
 different "workflows" for individual development and collaboration.
@@ -37,7 +37,7 @@ Before you begin, perform initial setup:
     called `gitlab` to refer to it.
 
 5.  (Optional, but highly recommended.)
-    [Register](https://open.cdash.org/register.php) with the VTK project
+    [Register][cdash-registration] with the VTK project
     on Kitware's CDash instance to better know how your code performs in
     regression tests.  After registering and signing in, click on
     "All Dashboards" link in the upper left corner, scroll down and click
@@ -46,6 +46,7 @@ Before you begin, perform initial setup:
 [GitLab Access]: https://gitlab.kitware.com/users/sign_in
 [Fork VTK]: https://gitlab.kitware.com/vtk/vtk/-/forks/new
 [developer setup script]: /Utilities/SetupForDevelopment.sh
+[cdash-registration]: https://open.cdash.org/register
 
 Workflow
 --------
@@ -67,7 +68,7 @@ Our collaboration workflow consists of three main steps:
     * [Merge a Topic](#merge-a-topic) (requires permission in GitLab)
     * [Delete a Topic](#delete-a-topic)
 
-[branchy workflow]: http://public.kitware.com/Wiki/Git/Workflow/Topic
+[branchy workflow]: https://public.kitware.com/Wiki/Git/Workflow/Topic
 
 Update
 ------

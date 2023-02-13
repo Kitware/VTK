@@ -28,8 +28,8 @@ Learning Resources
 
 * Community discussion takes place on the [VTK Discourse][vtk-discourse] forum.
 
-* Commercial [support][kitware-support] and [training][kitware-training]
-  are available from [Kitware][kitware].
+* Commercial [support and training][kitware-support]
+  are available from [Kitware][].
 
 * Doxygen-generated nightly reference documentation is
   available [online][vtk-doxygen].
@@ -88,8 +88,7 @@ See [Copyright.txt][vtk-copyright] for details.
 
 
 [kitware]: https://www.kitware.com/
-[kitware-support]: https://www.kitware.com/what-we-offer/#support
-[kitware-training]: https://www.kitware.com/what-we-offer/#training
+[kitware-support]: https://www.kitware.com/support/
 [vtk-banner]: vtkBanner.gif
 [vtk-build]: Documentation/dev/build.md#building-vtk
 [vtk-contributing]: CONTRIBUTING.md#contributing-to-vtk
