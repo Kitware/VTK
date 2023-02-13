@@ -98,7 +98,7 @@ struct EvaluatePoints
     const auto pts = vtk::DataArrayTupleRange<3>(this->Points);
     double p[3], *n = this->Normal, *o = this->Origin;
     bool isFirst = vtkSMPTools::GetSingleThread();
-    vtkIdType checkAbortInterval = fmin((endPtId - ptId) / 10 + 1, 1000);
+    vtkIdType checkAbortInterval = std::min((endPtId - ptId) / 10 + 1, (vtkIdType)1000);
 
     for (; ptId < endPtId; ++ptId)
     {
@@ -235,7 +235,7 @@ struct EvaluateCells
     const vtkIdType* cell;
     vtkCellArrayIterator* cellIter = this->CellIterator.Local();
     bool isFirst = vtkSMPTools::GetSingleThread();
-    vtkIdType checkAbortInterval = fmin((endBatchNum - batchNum) / 10 + 1, 1000);
+    vtkIdType checkAbortInterval = std::min((endBatchNum - batchNum) / 10 + 1, (vtkIdType)1000);
 
     // Over batches of cells
     for (; batchNum < endBatchNum; ++batchNum)
@@ -354,7 +354,7 @@ struct ExtractLines
     std::vector<EdgeTupleType>& edges = this->Edges;
     ArrayList* arrays = this->Arrays;
     bool isFirst = vtkSMPTools::GetSingleThread();
-    vtkIdType checkAbortInterval = fmin((endBatchNum - batchNum) / 10 + 1, 1000);
+    vtkIdType checkAbortInterval = std::min((endBatchNum - batchNum) / 10 + 1, (vtkIdType)1000);
 
     // For each batch, process the intersected cells in the batch.
     for (; batchNum < endBatchNum; ++batchNum)
@@ -455,7 +455,7 @@ struct OutputLines
       0, numNewPts, [&, edges, offsets, linesConn](vtkIdType newPtId, vtkIdType endNewPtId) {
         const EdgeTupleType* edge;
         bool isFirst = vtkSMPTools::GetSingleThread();
-        vtkIdType checkAbortInterval = fmin((endNewPtId - newPtId) / 10 + 1, 1000);
+        vtkIdType checkAbortInterval = std::min((endNewPtId - newPtId) / 10 + 1, (vtkIdType)1000);
 
         for (; newPtId < endNewPtId; ++newPtId)
         {
@@ -505,7 +505,7 @@ struct OutputPointsWorker
         auto out = vtk::DataArrayTupleRange<3>(outPts);
         double x0[3], x1[3];
         bool isFirst = vtkSMPTools::GetSingleThread();
-        vtkIdType checkAbortInterval = fmin((endNewPtId - newPtId) / 10 + 1, 1000);
+        vtkIdType checkAbortInterval = std::min((endNewPtId - newPtId) / 10 + 1, (vtkIdType)1000);
 
         for (; newPtId < endNewPtId; ++newPtId)
         {

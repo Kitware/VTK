@@ -378,8 +378,8 @@ int vtkSmoothPolyDataFilter::RequestData(vtkInformation* vtkNotUsed(request),
     }
   }
   this->UpdateProgress(0.10);
-  int checkAbortInterval = fmin(input->GetNumberOfLines() / 10 + 1, 1000);
-  int progressCounter = 0;
+  vtkIdType checkAbortInterval = std::min(input->GetNumberOfLines() / 10 + 1, (vtkIdType)1000);
+  vtkIdType progressCounter = 0;
 
   // now check lines. Only manifold lines can be smoothed------------
   for (inLines = input->GetLines(), inLines->InitTraversal(); inLines->GetNextCell(npts, pts);)
@@ -461,7 +461,7 @@ int vtkSmoothPolyDataFilter::RequestData(vtkInformation* vtkNotUsed(request),
     polys = Mesh->GetPolys();
     this->UpdateProgress(0.375);
 
-    checkAbortInterval = fmin(polys->GetNumberOfCells() / 10 + 1, 1000);
+    checkAbortInterval = std::min(polys->GetNumberOfCells() / 10 + 1, (vtkIdType)1000);
 
     for (cellId = 0, polys->InitTraversal(); polys->GetNextCell(npts, pts); cellId++)
     {
@@ -568,7 +568,7 @@ int vtkSmoothPolyDataFilter::RequestData(vtkInformation* vtkNotUsed(request),
 
   this->UpdateProgress(0.50);
 
-  checkAbortInterval = fmin(numPts / 10 + 1, 100);
+  checkAbortInterval = std::min(numPts / 10 + 1, (vtkIdType)1000);
 
   // post-process edge vertices to make sure we can smooth them
   for (i = 0; i < numPts; i++)

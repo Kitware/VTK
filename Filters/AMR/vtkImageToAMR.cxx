@@ -310,7 +310,7 @@ int vtkImageToAMR::RequestData(vtkInformation* vtkNotUsed(request),
   amr->SetGridDescription(gridDescription);
 
   double spacingi[3] = { spacing0[0], spacing0[1], spacing0[2] };
-  unsigned int checkAbortInterval = fmin(numLevels / 10 + 1, 1000);
+  unsigned int checkAbortInterval = std::min(numLevels / 10 + 1, (unsigned int)1000);
   for (unsigned int i = 0; i < numLevels && !abort; i++)
   {
     if (i % checkAbortInterval == 0)

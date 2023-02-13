@@ -105,7 +105,7 @@ int vtkMergeDataObjectFilter::RequestData(vtkInformation* vtkNotUsed(request),
       return 1;
     }
 
-    int checkAbortInterval = fmin(fd->GetNumberOfArrays() / 10 + 1, 1000);
+    int checkAbortInterval = std::min(fd->GetNumberOfArrays() / 10 + 1, 1000);
     for (int i = 0; i < fd->GetNumberOfArrays(); i++)
     {
       if (i % checkAbortInterval == 0 && this->CheckAbort())

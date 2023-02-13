@@ -504,7 +504,7 @@ public:
     int inside;
     bool foundInCache, insideCellBounds;
     bool isFirst = vtkSMPTools::GetSingleThread();
-    vtkIdType checkAbortInterval = fmin((endPointId - beginPointId) / 10 + 1, 1000);
+    vtkIdType checkAbortInterval = std::min((endPointId - beginPointId) / 10 + 1, (vtkIdType)1000);
 
     for (vtkIdType pointId = beginPointId; pointId < endPointId; ++pointId)
     {
@@ -916,7 +916,7 @@ public:
 
     auto& cell = this->TLGenericCell.Local();
     bool isFirst = vtkSMPTools::GetSingleThread();
-    vtkIdType checkAbortInterval = fmin((cellEnd - cellBegin) / 10 + 1, 1000);
+    vtkIdType checkAbortInterval = std::min((cellEnd - cellBegin) / 10 + 1, (vtkIdType)1000);
     for (vtkIdType cellId = cellBegin; cellId < cellEnd; ++cellId)
     {
       if (cellId % checkAbortInterval == 0)

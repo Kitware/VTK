@@ -615,7 +615,8 @@ int vtkContourFilter::RequestData(
       for (int i = 0; i < numContours && !abortExecute; i++)
       {
         progressCounter = 0;
-        checkAbortInterval = this->ScalarTree->GetNumberOfCellBatches(values[i]);
+        checkAbortInterval =
+          std::min(this->ScalarTree->GetNumberOfCellBatches(values[i]), (vtkIdType)1000);
         for (this->ScalarTree->InitTraversal(values[i]);
              (cell = this->ScalarTree->GetNextCell(cellId, cellPts, cellScalars)) != nullptr;)
         {

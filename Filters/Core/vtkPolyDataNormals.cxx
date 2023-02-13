@@ -140,7 +140,7 @@ int vtkPolyDataNormals::RequestData(vtkInformation* vtkNotUsed(request),
     vtkNew<vtkIdList> tempCellPointIds;
     vtkIdType npts = 0;
     const vtkIdType* pts = nullptr;
-    checkAbortInterval = fmin(numStrips / 10 + 1, 1000);
+    checkAbortInterval = std::min(numStrips / 10 + 1, (vtkIdType)1000);
     for (vtkIdType stripId = 0, inCellIdx = numPolys, outCellIdx = numPolys; stripId < numStrips;
          ++stripId, ++inCellIdx)
     {
@@ -242,7 +242,7 @@ int vtkPolyDataNormals::RequestData(vtkInformation* vtkNotUsed(request),
       // which needs to be seeded independently with a correctly
       // oriented polygon.
       double n[3];
-      checkAbortInterval = fmin(numPts / 10 + 1, 1000);
+      checkAbortInterval = std::min(numPts / 10 + 1, (vtkIdType)1000);
       vtkIdType progressCounter = 0;
       while (leftmostPoints->GetNumberOfItems())
       {
@@ -307,7 +307,7 @@ int vtkPolyDataNormals::RequestData(vtkInformation* vtkNotUsed(request),
     }    // automatically orient normals
     else // this->Consistency
     {
-      checkAbortInterval = fmin(numPolys / 10 + 1, 1000);
+      checkAbortInterval = std::min(numPolys / 10 + 1, (vtkIdType)1000);
       for (vtkIdType cellId = 0; cellId < numPolys; cellId++)
       {
         if (cellId % checkAbortInterval == 0 && this->CheckAbort())
@@ -345,7 +345,7 @@ int vtkPolyDataNormals::RequestData(vtkInformation* vtkNotUsed(request),
   vtkSMPTools::For(0, offsetCells, [&](vtkIdType begin, vtkIdType end) {
     static const double n[3] = { 1.0, 0.0, 0.0 };
     bool isFirst = vtkSMPTools::GetSingleThread();
-    checkAbortInterval = fmin((end - begin) / 10 + 1, 1000);
+    checkAbortInterval = std::min((end - begin) / 10 + 1, (vtkIdType)1000);
     for (vtkIdType cellId = begin; cellId < end; cellId++)
     {
       if (cellId % checkAbortInterval == 0)
@@ -373,7 +373,7 @@ int vtkPolyDataNormals::RequestData(vtkInformation* vtkNotUsed(request),
     const vtkIdType* pts = nullptr;
     double n[3];
     bool isFirst = vtkSMPTools::GetSingleThread();
-    checkAbortInterval = fmin((end - begin) / 10 + 1, 1000);
+    checkAbortInterval = std::min((end - begin) / 10 + 1, (vtkIdType)1000);
     for (vtkIdType polyId = begin; polyId < end; polyId++)
     {
       if (polyId % checkAbortInterval == 0)
@@ -408,7 +408,7 @@ int vtkPolyDataNormals::RequestData(vtkInformation* vtkNotUsed(request),
     newToOldPointsMap->SetNumberOfIds(numPts);
     vtkSMPTools::For(0, numPts, [&](vtkIdType begin, vtkIdType end) {
       bool isFirst = vtkSMPTools::GetSingleThread();
-      checkAbortInterval = fmin((end - begin) / 10 + 1, 1000);
+      checkAbortInterval = std::min((end - begin) / 10 + 1, (vtkIdType)1000);
       for (vtkIdType i = begin; i < end; i++)
       {
         if (i % checkAbortInterval == 0)
@@ -463,7 +463,7 @@ int vtkPolyDataNormals::RequestData(vtkInformation* vtkNotUsed(request),
     vtkSMPTools::For(0, numNewPts, [&](vtkIdType begin, vtkIdType end) {
       double p[3];
       bool isFirst = vtkSMPTools::GetSingleThread();
-      checkAbortInterval = fmin((end - begin) / 10 + 1, 1000);
+      checkAbortInterval = std::min((end - begin) / 10 + 1, (vtkIdType)1000);
       for (vtkIdType newPointId = begin; newPointId < end; newPointId++)
       {
         if (newPointId % checkAbortInterval == 0)
@@ -519,7 +519,7 @@ int vtkPolyDataNormals::RequestData(vtkInformation* vtkNotUsed(request),
       vtkIdType npts = 0;
       const vtkIdType* pts = nullptr;
       bool isFirst = vtkSMPTools::GetSingleThread();
-      checkAbortInterval = fmin((end - begin) / 10 + 1, 1000);
+      checkAbortInterval = std::min((end - begin) / 10 + 1, (vtkIdType)1000);
       for (vtkIdType polyId = begin; polyId < end; polyId++)
       {
         if (polyId % checkAbortInterval == 0)
@@ -548,7 +548,7 @@ int vtkPolyDataNormals::RequestData(vtkInformation* vtkNotUsed(request),
     vtkSMPTools::For(0, numNewPts, [&](vtkIdType begin, vtkIdType end) {
       double length;
       bool isFirst = vtkSMPTools::GetSingleThread();
-      checkAbortInterval = fmin((end - begin) / 10 + 1, 1000);
+      checkAbortInterval = std::min((end - begin) / 10 + 1, (vtkIdType)1000);
       for (vtkIdType pointId = begin; pointId < end; pointId++)
       {
         if (pointId % checkAbortInterval == 0)
@@ -736,7 +736,7 @@ struct vtkPolyDataNormals::MarkAndSplitFunctor
     vtkIdType ncells, *cells, i, j, numPts;
     const vtkIdType* pts;
     bool isFirst = vtkSMPTools::GetSingleThread();
-    vtkIdType checkAbortInterval = fmin((end - begin) / 10 + 1, 1000);
+    vtkIdType checkAbortInterval = std::min((end - begin) / 10 + 1, (vtkIdType)1000);
     for (vtkIdType pointId = begin; pointId < end; pointId++)
     {
       if (pointId % checkAbortInterval == 0)

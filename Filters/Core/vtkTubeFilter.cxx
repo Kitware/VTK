@@ -239,7 +239,7 @@ int vtkTubeFilter::RequestData(vtkInformation* vtkNotUsed(request),
   vtkPolyLine* lineNormalGenerator = vtkPolyLine::New();
   // the line cellIds start after the last vert cellId
   inCellId = input->GetNumberOfVerts();
-  int checkAbortInterval = fmin(numLines / 10 + 1, 1000);
+  int checkAbortInterval = std::min(numLines / 10 + 1, (vtkIdType)1000);
   int progressCounter = 0;
   for (inLines->InitTraversal(); inLines->GetNextCell(npts, ptsOrig) && !abort; inCellId++)
   {

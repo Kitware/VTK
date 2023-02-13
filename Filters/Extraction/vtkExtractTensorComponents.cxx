@@ -186,7 +186,7 @@ int vtkExtractTensorComponents::RequestData(vtkInformation* vtkNotUsed(request),
     double v[3];
     double sx, sy, sz, txy, tyz, txz;
     bool isFirst = vtkSMPTools::GetSingleThread();
-    vtkIdType checkAbortInterval = fmin((endPtId - ptId) / 10 + 1, 1000);
+    vtkIdType checkAbortInterval = std::min((endPtId - ptId) / 10 + 1, (vtkIdType)1000);
 
     for (; ptId < endPtId; ++ptId)
     {

@@ -291,7 +291,7 @@ int vtkExtractSelectedLocations::ExtractCells(
   double* weights = new double[input->GetMaxCellSize()];
 
   vtkIdType ptId, cellId, locArrayIndex;
-  vtkIdType checkAbortInterval = fmin(numLocs / 10 + 1, 1000);
+  vtkIdType checkAbortInterval = std::min(numLocs / 10 + 1, (vtkIdType)1000);
   for (locArrayIndex = 0; locArrayIndex < numLocs; locArrayIndex++)
   {
     if (locArrayIndex % checkAbortInterval == 0 && this->CheckAbort())
@@ -459,7 +459,7 @@ int vtkExtractSelectedLocations::ExtractPoints(
   double epsSquared = epsilon * epsilon;
   if (numPts > 0)
   {
-    vtkIdType checkAbortInterval = fmin(numLocs / 10 + 1, 1000);
+    vtkIdType checkAbortInterval = std::min(numLocs / 10 + 1, (vtkIdType)1000);
     for (locArrayIndex = 0; locArrayIndex < numLocs; locArrayIndex++)
     {
       if (locArrayIndex % checkAbortInterval == 0 && this->CheckAbort())

@@ -368,7 +368,7 @@ void ContourRectilinearGrid(vtkRectilinearSynchronizedTemplates* self, int* exEx
     isect1[((ydim - 1) * xdim + i) * 3 * 2 + 1] = -1;
   }
 
-  int checkAbortInterval = fmin((zMax - zMin) / 10 + 1, 1000);
+  int checkAbortInterval = std::min((zMax - zMin) / 10 + 1, 1000);
 
   // for each contour
   for (vidx = 0; vidx < numContours && !abort; vidx++)

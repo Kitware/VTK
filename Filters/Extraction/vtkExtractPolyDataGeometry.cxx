@@ -177,12 +177,12 @@ int vtkExtractPolyDataGeometry::RequestData(vtkInformation* vtkNotUsed(request),
     newStrips->AllocateCopy(inStrips);
   }
 
-  int checkAbortInterval = 0;
-  int progressCounter = 0;
+  vtkIdType checkAbortInterval = 0;
+  vtkIdType progressCounter = 0;
   // verts
   if (newVerts && !this->CheckAbort())
   {
-    checkAbortInterval = fmin(inVerts->GetNumberOfCells() / 10 + 1, 1000);
+    checkAbortInterval = std::min(inVerts->GetNumberOfCells() / 10 + 1, (vtkIdType)1000);
     for (inVerts->InitTraversal(); inVerts->GetNextCell(npts, pts);)
     {
       if (progressCounter % checkAbortInterval == 0 && this->CheckAbort())
@@ -230,7 +230,7 @@ int vtkExtractPolyDataGeometry::RequestData(vtkInformation* vtkNotUsed(request),
   // lines
   if (newLines && !this->CheckAbort())
   {
-    checkAbortInterval = fmin(inLines->GetNumberOfCells() / 10 + 1, 1000);
+    checkAbortInterval = std::min(inLines->GetNumberOfCells() / 10 + 1, (vtkIdType)1000);
     for (inLines->InitTraversal(); inLines->GetNextCell(npts, pts);)
     {
       if (progressCounter % checkAbortInterval == 0 && this->CheckAbort())
@@ -278,7 +278,7 @@ int vtkExtractPolyDataGeometry::RequestData(vtkInformation* vtkNotUsed(request),
   // polys
   if (newPolys && !this->CheckAbort())
   {
-    checkAbortInterval = fmin(inPolys->GetNumberOfCells() / 10 + 1, 1000);
+    checkAbortInterval = std::min(inPolys->GetNumberOfCells() / 10 + 1, (vtkIdType)1000);
     for (inPolys->InitTraversal(); inPolys->GetNextCell(npts, pts);)
     {
       if (progressCounter % checkAbortInterval == 0 && this->CheckAbort())
@@ -325,7 +325,7 @@ int vtkExtractPolyDataGeometry::RequestData(vtkInformation* vtkNotUsed(request),
   // strips
   if (newStrips && !this->CheckAbort())
   {
-    checkAbortInterval = fmin(inStrips->GetNumberOfCells() / 10 + 1, 1000);
+    checkAbortInterval = std::min(inStrips->GetNumberOfCells() / 10 + 1, (vtkIdType)1000);
     for (inStrips->InitTraversal(); inStrips->GetNextCell(npts, pts);)
     {
       if (progressCounter % checkAbortInterval == 0 && this->CheckAbort())

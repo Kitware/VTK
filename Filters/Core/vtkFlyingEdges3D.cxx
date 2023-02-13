@@ -341,7 +341,7 @@ public:
       vtkIdType row;
       TT *rowPtr, *slicePtr = this->Algo->Scalars + slice * this->Algo->Inc2;
       bool isFirst = vtkSMPTools::GetSingleThread();
-      vtkIdType checkAbortInterval = fmin((end - slice) / 10 + 1, 1000);
+      vtkIdType checkAbortInterval = std::min((end - slice) / 10 + 1, (vtkIdType)1000);
       for (; slice < end; ++slice)
       {
         if (slice % checkAbortInterval == 0)
@@ -379,7 +379,7 @@ public:
     void operator()(vtkIdType slice, vtkIdType end)
     {
       bool isFirst = vtkSMPTools::GetSingleThread();
-      vtkIdType checkAbortInterval = fmin((end - slice) / 10 + 1, 1000);
+      vtkIdType checkAbortInterval = std::min((end - slice) / 10 + 1, (vtkIdType)1000);
       for (; slice < end; ++slice)
       {
         if (slice % checkAbortInterval == 0)
@@ -420,7 +420,7 @@ public:
       vtkIdType* eMD1 = eMD0 + 6 * this->Algo->Dims[1];
       TT *rowPtr, *slicePtr = this->Algo->Scalars + slice * this->Algo->Inc2;
       bool isFirst = vtkSMPTools::GetSingleThread();
-      vtkIdType checkAbortInterval = fmin((end - slice) / 10 + 1, 1000);
+      vtkIdType checkAbortInterval = std::min((end - slice) / 10 + 1, (vtkIdType)1000);
       for (; slice < end; ++slice)
       {
         if (slice % checkAbortInterval == 0)
@@ -1408,7 +1408,7 @@ void vtkFlyingEdges3DAlgorithm<T>::Contour(vtkFlyingEdges3D* self, vtkImageData*
   algo.InterpolateAttributes =
     self->GetInterpolateAttributes() && input->GetPointData()->GetNumberOfArrays() > 1;
 
-  vtkIdType checkAbortInterval = fmin(numContours / 10 + 1, 1000);
+  vtkIdType checkAbortInterval = std::min(numContours / 10 + 1, (vtkIdType)1000);
   // Loop across each contour value. This encompasses all three passes.
   for (vidx = 0; vidx < numContours; vidx++)
   {

@@ -216,7 +216,7 @@ bool vtkExtractRectilinearGrid::RequestDataImpl(
     out_coords[dim] = vtkDataArray::CreateDataArray(in_coords[dim]->GetDataType());
     out_coords[dim]->SetNumberOfTuples(outDims[dim]);
 
-    checkAbortInterval = fmin((outExt[2 * dim + 1] - outExt[2 * dim]) / 10 + 1, 1000);
+    checkAbortInterval = std::min((outExt[2 * dim + 1] - outExt[2 * dim]) / 10 + 1, 1000);
 
     for (int oExtVal = outExt[2 * dim]; oExtVal <= outExt[2 * dim + 1]; ++oExtVal)
     {

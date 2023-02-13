@@ -366,7 +366,7 @@ struct vtkExtractSelectedIdsExtractCells
 
     vtkIdType idArrayIndex = 0, labelArrayIndex = 0;
 
-    vtkIdType checkAbortInterval = fmin(numCells / 10 + 1, 1000);
+    vtkIdType checkAbortInterval = std::min(numCells / 10 + 1, (vtkIdType)1000);
 
     // Check each cell to see if it's selected
     while (labelArrayIndex < numCells)
@@ -508,7 +508,7 @@ struct vtkExtractSelectedIdsExtractPoints
     vtkIdType numPts = input->GetNumberOfPoints();
     vtkIdType idArrayIndex = 0, labelArrayIndex = 0;
 
-    vtkIdType checkAbortInterval = fmin(numPts / 10 + 1, 1000);
+    vtkIdType checkAbortInterval = std::min(numPts / 10 + 1, (vtkIdType)1000);
 
     // Check each point to see if it's selected
     while (labelArrayIndex < numPts)

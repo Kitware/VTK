@@ -184,7 +184,7 @@ int vtkPolyDataConnectivityFilter::RequestData(vtkInformation* vtkNotUsed(reques
   this->CellIds->Allocate(8, VTK_CELL_SIZE);
   this->PointIds = vtkIdList::New();
   this->PointIds->Allocate(8, VTK_CELL_SIZE);
-  int checkAbortInterval = 0;
+  vtkIdType checkAbortInterval = 0;
 
   if (this->ExtractionMode != VTK_EXTRACT_POINT_SEEDED_REGIONS &&
     this->ExtractionMode != VTK_EXTRACT_CELL_SEEDED_REGIONS &&
@@ -225,7 +225,7 @@ int vtkPolyDataConnectivityFilter::RequestData(vtkInformation* vtkNotUsed(reques
 
     if (this->ExtractionMode == VTK_EXTRACT_POINT_SEEDED_REGIONS)
     {
-      checkAbortInterval = fmin(this->Seeds->GetNumberOfIds() / 10 + 1, 1000);
+      checkAbortInterval = std::min(this->Seeds->GetNumberOfIds() / 10 + 1, (vtkIdType)1000);
       for (i = 0; i < this->Seeds->GetNumberOfIds(); i++)
       {
         if (i % checkAbortInterval == 0 && this->CheckAbort())
@@ -245,7 +245,7 @@ int vtkPolyDataConnectivityFilter::RequestData(vtkInformation* vtkNotUsed(reques
     }
     else if (this->ExtractionMode == VTK_EXTRACT_CELL_SEEDED_REGIONS)
     {
-      checkAbortInterval = fmin(this->Seeds->GetNumberOfIds() / 10 + 1, 1000);
+      checkAbortInterval = std::min(this->Seeds->GetNumberOfIds() / 10 + 1, (vtkIdType)1000);
       for (i = 0; i < this->Seeds->GetNumberOfIds(); i++)
       {
         if (i % checkAbortInterval == 0 && this->CheckAbort())
@@ -263,7 +263,7 @@ int vtkPolyDataConnectivityFilter::RequestData(vtkInformation* vtkNotUsed(reques
     { // loop over points, find closest one
       double minDist2, dist2, x[3];
       int minId = 0;
-      checkAbortInterval = fmin(numPts / 10 + 1, 1000);
+      checkAbortInterval = std::min(numPts / 10 + 1, (vtkIdType)1000);
       for (minDist2 = VTK_DOUBLE_MAX, i = 0; i < numPts; i++)
       {
         if (i % checkAbortInterval == 0 && this->CheckAbort())
@@ -300,7 +300,7 @@ int vtkPolyDataConnectivityFilter::RequestData(vtkInformation* vtkNotUsed(reques
   // Pass through point data that has been visited
   outputPD->CopyAllocate(pd);
   outputCD->CopyAllocate(cd);
-  checkAbortInterval = fmin(numPts / 10 + 1, 1000);
+  checkAbortInterval = std::min(numPts / 10 + 1, (vtkIdType)1000);
 
   for (i = 0; i < numPts; i++)
   {
@@ -357,7 +357,7 @@ int vtkPolyDataConnectivityFilter::RequestData(vtkInformation* vtkNotUsed(reques
     newStrips->Delete();
   }
 
-  checkAbortInterval = fmin(numCells / 10 + 1, 1000);
+  checkAbortInterval = std::min(numCells / 10 + 1, (vtkIdType)1000);
   if (this->ExtractionMode == VTK_EXTRACT_POINT_SEEDED_REGIONS ||
     this->ExtractionMode == VTK_EXTRACT_CELL_SEEDED_REGIONS ||
     this->ExtractionMode == VTK_EXTRACT_CLOSEST_POINT_REGION ||

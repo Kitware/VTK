@@ -227,7 +227,7 @@ void ContourImage(vtkSynchronizedTemplatesCutter3D* self, int* exExt, vtkImageDa
   T* scalars1 = scalars;
   T* scalars2 = scalars + xdim * ydim;
 
-  int checkAbortInterval = fmin((zMax - zMin) / 10 + 1, 1000);
+  int checkAbortInterval = std::min((zMax - zMin) / 10 + 1, 1000);
 
   // for each contour
   for (vidx = 0; vidx < numContours && !abort; vidx++)

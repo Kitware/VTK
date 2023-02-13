@@ -316,7 +316,7 @@ struct ContourCells : public ContourCellsBase<TInputPointsArray, TOutputPointsAr
 
     auto inPts = vtk::DataArrayTupleRange<3>(this->InPts);
     auto scalars = vtk::DataArrayValueRange<1>(this->Scalars);
-    vtkIdType checkAbortInterval = fmin((endCellId - cellId) / 10 + 1, 1000);
+    vtkIdType checkAbortInterval = std::min((endCellId - cellId) / 10 + 1, (vtkIdType)1000);
 
     for (; cellId < endCellId; ++cellId)
     {
@@ -406,7 +406,7 @@ struct ContourCellsST
 
     auto inPts = vtk::DataArrayTupleRange<3>(this->InPts);
     auto scalars = vtk::DataArrayValueRange<1>(this->Scalars);
-    vtkIdType checkAbortInterval = fmin((endBatchNum - batchNum) / 10 + 1, 1000);
+    vtkIdType checkAbortInterval = std::min((endBatchNum - batchNum) / 10 + 1, (vtkIdType)1000);
 
     for (; batchNum < endBatchNum; ++batchNum)
     {
@@ -574,7 +574,7 @@ struct ExtractEdgesBase
       const EdgeVectorType* lEdges;
       EdgeTuple<IDT, EdgeDataType<IDT>>* edges;
       bool isFirst = vtkSMPTools::GetSingleThread();
-      vtkIdType checkAbortInterval = fmin((endThreadId - threadId) / 10 + 1, 1000);
+      vtkIdType checkAbortInterval = std::min((endThreadId - threadId) / 10 + 1, (vtkIdType)1000);
 
       for (; threadId < endThreadId; ++threadId)
       {
@@ -674,7 +674,7 @@ struct ExtractEdges : public ExtractEdgesBase<IDType, TScalarsArray>
     unsigned char v0, v1;
     bool isFirst = vtkSMPTools::GetSingleThread();
     auto scalars = vtk::DataArrayValueRange<1>(this->Scalars);
-    vtkIdType checkAbortInterval = fmin((endCellId - cellId) / 10 + 1, 1000);
+    vtkIdType checkAbortInterval = std::min((endCellId - cellId) / 10 + 1, (vtkIdType)1000);
 
     for (; cellId < endCellId; ++cellId)
     {
@@ -764,7 +764,7 @@ struct ExtractEdgesST : public ExtractEdgesBase<IDType, TScalarsArray>
     bool isFirst = vtkSMPTools::GetSingleThread();
 
     auto scalars = vtk::DataArrayValueRange<1>(this->Scalars);
-    vtkIdType checkAbortInterval = fmin((endBatchNum - batchNum) / 10 + 1, 1000);
+    vtkIdType checkAbortInterval = std::min((endBatchNum - batchNum) / 10 + 1, (vtkIdType)1000);
 
     for (; batchNum < endBatchNum; ++batchNum)
     {
@@ -894,7 +894,7 @@ struct ProduceMergedTriangles
       using ValueType = typename CellStateT::ValueType;
       auto* conn = state.GetConnectivity();
       bool isFirst = vtkSMPTools::GetSingleThread();
-      vtkIdType checkAbortInterval = fmin((endPtId - ptId) / 10 + 1, 1000);
+      vtkIdType checkAbortInterval = std::min((endPtId - ptId) / 10 + 1, (vtkIdType)1000);
 
       for (; ptId < endPtId; ++ptId)
       {
@@ -984,7 +984,7 @@ struct ProduceMergedPoints
     auto inPoints = vtk::DataArrayTupleRange<3>(this->InPts);
     auto outPoints =
       vtk::DataArrayTupleRange<3>(this->OutPts, this->TotalPrevPoints, this->TotalOutputPoints);
-    vtkIdType checkAbortInterval = fmin((endPtId - ptId) / 10 + 1, 1000);
+    vtkIdType checkAbortInterval = std::min((endPtId - ptId) / 10 + 1, (vtkIdType)1000);
 
     for (; ptId < endPtId; ++ptId)
     {
@@ -1054,7 +1054,7 @@ struct ProducePointAttributes
     TIds v0, v1;
     float t;
     bool isFirst = vtkSMPTools::GetSingleThread();
-    vtkIdType checkAbortInterval = fmin((endPtId - ptId) / 10 + 1, 1000);
+    vtkIdType checkAbortInterval = std::min((endPtId - ptId) / 10 + 1, (vtkIdType)1000);
 
     for (; ptId < endPtId; ++ptId)
     {
@@ -1100,7 +1100,7 @@ struct ProduceCellAttributes
   {
     bool isFirst = vtkSMPTools::GetSingleThread();
 
-    vtkIdType checkAbortInterval = fmin((endCellId - beginCellId) / 10 + 1, 1000);
+    vtkIdType checkAbortInterval = std::min((endCellId - beginCellId) / 10 + 1, (vtkIdType)1000);
     for (vtkIdType cellId = beginCellId; cellId < endCellId; ++cellId)
     {
       if (cellId % checkAbortInterval == 0)
@@ -1248,7 +1248,7 @@ struct ComputeCellNormals
     vtkIdType unused = 3;
     const vtkIdType* tri = nullptr;
     bool isFirst = vtkSMPTools::GetSingleThread();
-    vtkIdType checkAbortInterval = fmin((endTriId - triId) / 10 + 1, 1000);
+    vtkIdType checkAbortInterval = std::min((endTriId - triId) / 10 + 1, (vtkIdType)1000);
 
     for (cellIt->GoToCell(triId); cellIt->GetCurrentCellId() < endTriId; cellIt->GoToNextCell())
     {
@@ -1316,7 +1316,7 @@ struct AverageNormals
     const float* nc;
     float* n = this->PointNormals + 3 * ptId;
     bool isFirst = vtkSMPTools::GetSingleThread();
-    vtkIdType checkAbortInterval = fmin((endPtId - ptId) / 10 + 1, 1000);
+    vtkIdType checkAbortInterval = std::min((endPtId - ptId) / 10 + 1, (vtkIdType)1000);
 
     for (; ptId < endPtId; ++ptId, n += 3)
     {

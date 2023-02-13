@@ -82,7 +82,7 @@ int vtkMoleculeAppend::RequestData(
   uniquePoints->InitPointInsertion(uniquePointsList, bounds, 0);
   std::set<std::pair<vtkIdType, vtkIdType>> uniqueBonds;
 
-  int checkAbortInterval = fmin(this->GetNumberOfInputConnections(0) / 10 + 1, 1000);
+  int checkAbortInterval = std::min(this->GetNumberOfInputConnections(0) / 10 + 1, 1000);
 
   // ********************
   // Process each input

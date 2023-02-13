@@ -156,7 +156,8 @@ bool vtkTransposeTableInternal::TransposeTable(vtkTable* inTable, vtkTable* outT
   // Check column type consistency
   bool useVariant = false;
   vtkAbstractArray* firstCol = this->InTable->GetColumn(idColOffset);
-  int checkAbortInterval = fmin((this->InTable->GetNumberOfColumns() - idColOffset) / 10 + 1, 1000);
+  vtkIdType checkAbortInterval =
+    std::min((this->InTable->GetNumberOfColumns() - idColOffset) / 10 + 1, (vtkIdType)1000);
   for (int c = idColOffset; c < this->InTable->GetNumberOfColumns(); c++)
   {
     if (strcmp(firstCol->GetClassName(), this->InTable->GetColumn(c)->GetClassName()) != 0)
@@ -228,8 +229,8 @@ bool vtkTransposeTableInternal::TransposeTable(vtkTable* inTable, vtkTable* outT
   // Set id column on transposed table
   firstCol = this->InTable->GetColumn(0);
 
-  checkAbortInterval =
-    fmin((firstCol->GetNumberOfComponents() * firstCol->GetNumberOfTuples()) / 10 + 1, 1000);
+  checkAbortInterval = std::min(
+    (firstCol->GetNumberOfComponents() * firstCol->GetNumberOfTuples()) / 10 + 1, (vtkIdType)1000);
   for (int r = 0; r < firstCol->GetNumberOfComponents() * firstCol->GetNumberOfTuples(); r++)
   {
     if (r % checkAbortInterval == 0 && this->Parent->CheckAbort())

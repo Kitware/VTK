@@ -215,7 +215,7 @@ struct ComputeGradientWorker
     // using marching cubes algorithm.
     //
     sliceSize = dims[0] * dims[1];
-    int checkAbortInterval = fmin((dims[2] - 1) / 10 + 1, 1000);
+    int checkAbortInterval = std::min((dims[2] - 1) / 10 + 1, 1000);
     for (k = 0; k < (dims[2] - 1); k++)
     {
       self->UpdateProgress(k / static_cast<double>(dims[2] - 1));

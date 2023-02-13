@@ -156,7 +156,7 @@ struct LineConnectivity
     vtkIdType npts;
     const vtkIdType* pts;
     bool isFirst = vtkSMPTools::GetSingleThread();
-    vtkIdType checkAbortInterval = fmin((endCellId - cellId) / 10 + 1, 1000);
+    vtkIdType checkAbortInterval = std::min((endCellId - cellId) / 10 + 1, (vtkIdType)1000);
 
     for (; cellId < endCellId; ++cellId)
     {
@@ -258,7 +258,7 @@ struct MeshConnectivity
     vtkIdType npts;
     const vtkIdType* pts;
     bool isFirst = vtkSMPTools::GetSingleThread();
-    vtkIdType checkAbortInterval = fmin((endCellId - cellId) / 10 + 1, 1000);
+    vtkIdType checkAbortInterval = std::min((endCellId - cellId) / 10 + 1, (vtkIdType)1000);
 
     for (; cellId < endCellId; ++cellId)
     {
@@ -830,7 +830,7 @@ struct AnalyzePoints
     PointConnectivity<TIds>* ptConn = this->PtConn;
     vtkIdList* neighbors = this->Neighbors.Local();
     bool isFirst = vtkSMPTools::GetSingleThread();
-    vtkIdType checkAbortInterval = fmin((endPtId - ptId) / 10 + 1, 1000);
+    vtkIdType checkAbortInterval = std::min((endPtId - ptId) / 10 + 1, (vtkIdType)1000);
 
     for (; ptId < endPtId; ++ptId)
     {
@@ -960,7 +960,7 @@ struct InitializePointsWorker
       auto outTuples = vtk::DataArrayTupleRange<3>(outPts);
       double x[3];
       bool isFirst = vtkSMPTools::GetSingleThread();
-      vtkIdType checkAbortInterval = fmin((endPtId - ptId) / 10 + 1, 1000);
+      vtkIdType checkAbortInterval = std::min((endPtId - ptId) / 10 + 1, (vtkIdType)1000);
 
       for (; ptId < endPtId; ++ptId)
       {
@@ -1168,7 +1168,7 @@ struct InitSmoothingWorker
       auto tuples1 = vtk::DataArrayTupleRange<3>(vtkArrayDownCast<DataT>(da[ptSelect[1]]));
       auto tuples3 = vtk::DataArrayTupleRange<3>(vtkArrayDownCast<DataT>(da[ptSelect[3]]));
       bool isFirst = vtkSMPTools::GetSingleThread();
-      vtkIdType checkAbortInterval = fmin((endPtId - ptId) / 10 + 1, 1000);
+      vtkIdType checkAbortInterval = std::min((endPtId - ptId) / 10 + 1, (vtkIdType)1000);
 
       for (; ptId < endPtId; ++ptId)
       {
@@ -1238,7 +1238,7 @@ struct SmoothingWorker
       auto tuples2 = vtk::DataArrayTupleRange<3>(vtkArrayDownCast<DataT>(da[ptSelect[2]]));
       auto tuples3 = vtk::DataArrayTupleRange<3>(vtkArrayDownCast<DataT>(da[ptSelect[3]]));
       bool isFirst = vtkSMPTools::GetSingleThread();
-      vtkIdType checkAbortInterval = fmin((endPtId - ptId) / 10 + 1, 1000);
+      vtkIdType checkAbortInterval = std::min((endPtId - ptId) / 10 + 1, (vtkIdType)1000);
 
       for (; ptId < endPtId; ++ptId)
       {
@@ -1386,7 +1386,7 @@ struct UnnormalizePointsWorker
       auto inTuples = vtk::DataArrayTupleRange<3>(pts, ptId, endPtId);
       double x[3];
       bool isFirst = vtkSMPTools::GetSingleThread();
-      vtkIdType checkAbortInterval = fmin((endPtId - ptId) / 10 + 1, 1000);
+      vtkIdType checkAbortInterval = std::min((endPtId - ptId) / 10 + 1, (vtkIdType)1000);
 
       for (auto tuple : inTuples)
       {
@@ -1443,7 +1443,7 @@ struct ErrorScalarsWorker
       float* esPtr = es->GetPointer(0) + ptId;
       double x[3];
       bool isFirst = vtkSMPTools::GetSingleThread();
-      vtkIdType checkAbortInterval = fmin((endPtId - ptId) / 10 + 1, 1000);
+      vtkIdType checkAbortInterval = std::min((endPtId - ptId) / 10 + 1, (vtkIdType)1000);
 
       for (; ptId < endPtId; ++ptId)
       {
@@ -1503,7 +1503,7 @@ struct ErrorVectorsWorker
       const auto outTuples = vtk::DataArrayTupleRange<3>(outPts);
       float* evPtr = ev->GetPointer(0) + 3 * ptId;
       bool isFirst = vtkSMPTools::GetSingleThread();
-      vtkIdType checkAbortInterval = fmin((endPtId - ptId) / 10 + 1, 1000);
+      vtkIdType checkAbortInterval = std::min((endPtId - ptId) / 10 + 1, (vtkIdType)1000);
 
       for (; ptId < endPtId; ++ptId)
       {

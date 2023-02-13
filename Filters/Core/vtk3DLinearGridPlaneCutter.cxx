@@ -161,7 +161,7 @@ struct ClassifyPoints : public Classify
     unsigned char* ioa = this->InOutArray + ptId;
     double* dist = this->DistanceArray + ptId;
     bool isFirst = vtkSMPTools::GetSingleThread();
-    vtkIdType checkAbortInterval = fmin((endPtId - ptId) / 10 + 1, 1000);
+    vtkIdType checkAbortInterval = std::min((endPtId - ptId) / 10 + 1, (vtkIdType)1000);
     for (; ptId < endPtId; ++ptId, ++dist)
     {
       if (ptId % checkAbortInterval == 0)
@@ -337,7 +337,7 @@ struct ExtractEdges : public ExtractEdgesBase<IDType, TIP>
     const unsigned short* edges;
     double s[MAX_CELL_VERTS];
     bool isFirst = vtkSMPTools::GetSingleThread();
-    vtkIdType checkAbortInterval = fmin((endCellId - cellId) / 10 + 1, 1000);
+    vtkIdType checkAbortInterval = std::min((endCellId - cellId) / 10 + 1, (vtkIdType)1000);
 
     for (; cellId < endCellId; ++cellId)
     {
@@ -436,7 +436,7 @@ struct ProducePoints
   void operator()(vtkIdType ptId, vtkIdType endPtId)
   {
     bool isFirst = vtkSMPTools::GetSingleThread();
-    vtkIdType checkAbortInterval = fmin((endPtId - ptId) / 10 + 1, 1000);
+    vtkIdType checkAbortInterval = std::min((endPtId - ptId) / 10 + 1, (vtkIdType)1000);
     for (; ptId < endPtId; ++ptId)
     {
       if (ptId % checkAbortInterval == 0)
@@ -535,7 +535,7 @@ struct ProducePDAttributes
   void operator()(vtkIdType ptId, vtkIdType endPtId)
   {
     bool isFirst = vtkSMPTools::GetSingleThread();
-    vtkIdType checkAbortInterval = fmin((endPtId - ptId) / 10 + 1, 1000);
+    vtkIdType checkAbortInterval = std::min((endPtId - ptId) / 10 + 1, (vtkIdType)1000);
     for (; ptId < endPtId; ++ptId)
     {
       if (ptId % checkAbortInterval == 0)
@@ -576,7 +576,7 @@ struct ProduceCDAttributes
   void operator()(vtkIdType cellId, vtkIdType endCellId)
   {
     bool isFirst = vtkSMPTools::GetSingleThread();
-    vtkIdType checkAbortInterval = fmin((endCellId - cellId) / 10 + 1, 1000);
+    vtkIdType checkAbortInterval = std::min((endCellId - cellId) / 10 + 1, (vtkIdType)1000);
     for (; cellId < endCellId; ++cellId)
     {
       if (cellId % checkAbortInterval == 0)
@@ -634,7 +634,7 @@ struct ProduceMergedTriangles
       using ValueType = typename CellStateT::ValueType;
       auto* conn = state.GetConnectivity();
       bool isFirst = vtkSMPTools::GetSingleThread();
-      vtkIdType checkAbortInterval = fmin((endPtId - ptId) / 10 + 1, 1000);
+      vtkIdType checkAbortInterval = std::min((endPtId - ptId) / 10 + 1, (vtkIdType)1000);
 
       for (; ptId < endPtId; ++ptId)
       {
@@ -715,7 +715,7 @@ struct ProduceMergedPoints
   void operator()(vtkIdType ptId, vtkIdType endPtId)
   {
     bool isFirst = vtkSMPTools::GetSingleThread();
-    vtkIdType checkAbortInterval = fmin((endPtId - ptId) / 10 + 1, 1000);
+    vtkIdType checkAbortInterval = std::min((endPtId - ptId) / 10 + 1, (vtkIdType)1000);
     for (; ptId < endPtId; ++ptId)
     {
       if (ptId % checkAbortInterval == 0)
@@ -779,7 +779,7 @@ struct ProduceMergedAttributes
     TIds v0, v1;
     float t;
     bool isFirst = vtkSMPTools::GetSingleThread();
-    vtkIdType checkAbortInterval = fmin((endPtId - ptId) / 10 + 1, 1000);
+    vtkIdType checkAbortInterval = std::min((endPtId - ptId) / 10 + 1, (vtkIdType)1000);
 
     for (; ptId < endPtId; ++ptId)
     {
@@ -1034,7 +1034,7 @@ struct ComputePointNormals
   {
     float* n = this->PointNormals + 3 * ptId;
     bool isFirst = vtkSMPTools::GetSingleThread();
-    vtkIdType checkAbortInterval = fmin((endPtId - ptId) / 10 + 1, 1000);
+    vtkIdType checkAbortInterval = std::min((endPtId - ptId) / 10 + 1, (vtkIdType)1000);
 
     for (; ptId < endPtId; ++ptId, n += 3)
     {

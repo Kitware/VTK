@@ -246,8 +246,8 @@ int vtkStaticCleanPolyData::RequestData(vtkInformation* vtkNotUsed(request),
   // small set so find() will execute relatively fast.
   std::vector<vtkIdType> cellIds;
   vtkIdType inCellID = 0;
-  int progressCounter = 0;
-  int checkAbortInterval = 0;
+  vtkIdType progressCounter = 0;
+  vtkIdType checkAbortInterval = 0;
 
   //
   // Vertices are renumbered and we remove duplicates
@@ -255,7 +255,7 @@ int vtkStaticCleanPolyData::RequestData(vtkInformation* vtkNotUsed(request),
   {
     newVerts.TakeReference(vtkCellArray::New());
     newVerts->AllocateEstimate(inVerts->GetNumberOfCells(), 1);
-    checkAbortInterval = fmin(inVerts->GetNumberOfCells() / 10 + 1, 1000);
+    checkAbortInterval = std::min(inVerts->GetNumberOfCells() / 10 + 1, (vtkIdType)1000);
 
     vtkDebugMacro(<< "Starting Verts " << inCellID);
     for (inVerts->InitTraversal(); inVerts->GetNextCell(npts, pts); inCellID++)
@@ -291,7 +291,7 @@ int vtkStaticCleanPolyData::RequestData(vtkInformation* vtkNotUsed(request),
     newLines->AllocateEstimate(inLines->GetNumberOfCells(), 2);
     outLineData.TakeReference(vtkCellData::New());
     outLineData->CopyAllocate(inCD);
-    checkAbortInterval = fmin(inLines->GetNumberOfCells() / 10 + 1, 1000);
+    checkAbortInterval = std::min(inLines->GetNumberOfCells() / 10 + 1, (vtkIdType)1000);
     progressCounter = 0;
     //
     vtkDebugMacro(<< "Starting Lines " << inCellID);
@@ -340,7 +340,7 @@ int vtkStaticCleanPolyData::RequestData(vtkInformation* vtkNotUsed(request),
     newPolys->AllocateCopy(inPolys);
     outPolyData.TakeReference(vtkCellData::New());
     outPolyData->CopyAllocate(inCD);
-    checkAbortInterval = fmin(inPolys->GetNumberOfCells() / 10 + 1, 1000);
+    checkAbortInterval = std::min(inPolys->GetNumberOfCells() / 10 + 1, (vtkIdType)1000);
     progressCounter = 0;
 
     vtkDebugMacro(<< "Starting Polys " << inCellID);
@@ -401,7 +401,7 @@ int vtkStaticCleanPolyData::RequestData(vtkInformation* vtkNotUsed(request),
     newStrips->AllocateCopy(inStrips);
     outStrpData.TakeReference(vtkCellData::New());
     outStrpData->CopyAllocate(inCD);
-    checkAbortInterval = fmin(inStrips->GetNumberOfCells() / 10 + 1, 1000);
+    checkAbortInterval = std::min(inStrips->GetNumberOfCells() / 10 + 1, (vtkIdType)1000);
     progressCounter = 0;
 
     for (inStrips->InitTraversal(); inStrips->GetNextCell(npts, pts); inCellID++)

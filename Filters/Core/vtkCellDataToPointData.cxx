@@ -163,7 +163,7 @@ struct Spread
     if (contributingCellOption != vtkCellDataToPointData::Patch)
     {
       vtkNew<vtkIdList> pointIds;
-      checkAbortInterval = fmin(ncells / 10 + 1, 1000);
+      checkAbortInterval = std::min(ncells / 10 + 1, (vtkIdType)1000);
       for (vtkIdType cid = 0; cid < ncells; ++cid)
       {
         if (cid % checkAbortInterval == 0 && filter->CheckAbort())
@@ -187,7 +187,7 @@ struct Spread
       }
       // average
 
-      checkAbortInterval = fmin(npoints / 10 + 1, 1000);
+      checkAbortInterval = std::min(npoints / 10 + 1, (vtkIdType)1000);
       for (vtkIdType pid = 0; pid < npoints; ++pid)
       {
         if (pid % checkAbortInterval == 0 && filter->CheckAbort())
@@ -209,7 +209,7 @@ struct Spread
     { // compute over cell patches
       vtkNew<vtkIdList> cellsOnPoint;
       std::vector<T> data(4 * ncomps);
-      checkAbortInterval = fmin(npoints / 10 + 1, 1000);
+      checkAbortInterval = std::min(npoints / 10 + 1, (vtkIdType)1000);
       for (vtkIdType pid = 0; pid < npoints; ++pid)
       {
         if (pid % checkAbortInterval == 0 && filter->CheckAbort())

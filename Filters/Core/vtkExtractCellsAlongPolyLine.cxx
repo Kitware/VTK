@@ -236,7 +236,7 @@ struct IntersectLinesWorker
     vtkIdType& connectivitySize = this->ConnectivitySize.Local();
 
     bool isFirst = vtkSMPTools::GetSingleThread();
-    vtkIdType checkAbortInterval = fmin((endId - startId) / 10 + 1, 1000);
+    vtkIdType checkAbortInterval = std::min((endId - startId) / 10 + 1, (vtkIdType)1000);
 
     for (vtkIdType lineId = startId; lineId < endId; ++lineId)
     {
@@ -371,7 +371,7 @@ struct DataSetPointsCopyWorker
   {
     double p[3];
     bool isFirst = vtkSMPTools::GetSingleThread();
-    vtkIdType checkAbortInterval = fmin((endId - startId) / 10 + 1, 1000);
+    vtkIdType checkAbortInterval = std::min((endId - startId) / 10 + 1, (vtkIdType)1000);
 
     for (vtkIdType pointId = startId; pointId < endId; ++pointId)
     {
@@ -417,7 +417,7 @@ struct PointSetPointsCopyDispatcher
     using ConstSourceReference = typename decltype(sourceRange)::ConstTupleReferenceType;
     using DestReference = typename decltype(destRange)::TupleReferenceType;
     bool isFirst = vtkSMPTools::GetSingleThread();
-    vtkIdType checkAbortInterval = fmin((endId - startId) / 10 + 1, 1000);
+    vtkIdType checkAbortInterval = std::min((endId - startId) / 10 + 1, (vtkIdType)1000);
 
     for (vtkIdType pointId = startId; pointId < endId; ++pointId)
     {
@@ -498,7 +498,7 @@ struct GenerateOutputCellsWorker
   {
     DataSetHelperT helper(this->Input);
     bool isFirst = vtkSMPTools::GetSingleThread();
-    vtkIdType checkAbortInterval = fmin((endId - startId) / 10 + 1, 1000);
+    vtkIdType checkAbortInterval = std::min((endId - startId) / 10 + 1, (vtkIdType)1000);
 
     for (vtkIdType outputCellId = startId; outputCellId < endId; ++outputCellId)
     {

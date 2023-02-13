@@ -108,7 +108,7 @@ int vtkMassProperties::RequestData(vtkInformation* vtkNotUsed(request),
     kxyz[idx] = 0.0;
   }
 
-  vtkIdType checkAbortInterval = fmin(numCells / 10 + 1, 1000);
+  vtkIdType checkAbortInterval = std::min(numCells / 10 + 1, (vtkIdType)1000);
 
   for (cellId = 0; cellId < numCells; cellId++)
   {

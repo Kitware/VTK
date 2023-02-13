@@ -116,7 +116,7 @@ struct EvaluateCells
     auto cellIds = this->TLCellIds.Local();
     vtkIdType numCellPts;
     const vtkIdType* cellPts;
-    vtkIdType checkAbortInterval = fmin((end - begin) / 10 + 1, 1000);
+    vtkIdType checkAbortInterval = std::min((end - begin) / 10 + 1, (vtkIdType)1000);
     for (vtkIdType cellId = begin; cellId < end; ++cellId)
     {
       if (cellId % checkAbortInterval == 0)

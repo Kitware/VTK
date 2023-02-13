@@ -94,7 +94,7 @@ void vtkAMRGaussianPulseSource::GeneratePulseField(vtkUniformGrid* grid)
 
   double centroid[3];
   vtkIdType cellIdx = 0;
-  vtkIdType checkAbortInterval = fmin(grid->GetNumberOfCells() / 10 + 1, 1000);
+  vtkIdType checkAbortInterval = std::min(grid->GetNumberOfCells() / 10 + 1, (vtkIdType)1000);
   for (; cellIdx < grid->GetNumberOfCells(); ++cellIdx)
   {
     if (cellIdx % checkAbortInterval == 0 && this->CheckAbort())

@@ -531,7 +531,7 @@ void ContourGrid(vtkGridSynchronizedTemplates3D* self, int* exExt, T* scalars,
   // fprintf(stderr, "%d: -------- Extent %d, %d, %d, %d, %d, %d\n", threadId,
   //      exExt[0], exExt[1], exExt[2], exExt[3], exExt[4], exExt[5]);
 
-  int checkAbortInterval = fmin((XMax - XMin) / 10 + 1, 1000);
+  int checkAbortInterval = std::min((XMax - XMin) / 10 + 1, 1000);
   // for each contour
   for (vidx = 0; vidx < numContours && !abort; vidx++)
   {

@@ -194,7 +194,7 @@ void vtkContourImage(vtkSynchronizedTemplates2D* self, T* scalars, vtkPoints* ne
   scalars += incs[0] * (updateExt[0] - ext[0]) + incs[1] * (updateExt[2] - ext[2]) +
     incs[2] * (updateExt[4] - ext[4]) + self->GetArrayComponent();
 
-  int checkAbortInterval = fmin(numContours / 10 + 1, 1000);
+  int checkAbortInterval = std::min(numContours / 10 + 1, (vtkIdType)1000);
 
   // for each contour
   for (vidx = 0; vidx < numContours; vidx++)

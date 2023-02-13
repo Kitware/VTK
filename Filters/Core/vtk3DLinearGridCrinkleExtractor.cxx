@@ -144,7 +144,7 @@ struct PlaneClassifyPoints : public Classify
     TP* pts = this->Points + 3 * ptId;
     unsigned char* ioa = this->InOutArray + ptId;
     bool isFirst = vtkSMPTools::GetSingleThread();
-    vtkIdType checkAbortInterval = fmin((endPtId - ptId) / 10 + 1, 1000);
+    vtkIdType checkAbortInterval = std::min((endPtId - ptId) / 10 + 1, (vtkIdType)1000);
     for (; ptId < endPtId; ++ptId)
     {
       if (ptId % checkAbortInterval == 0)
@@ -199,7 +199,7 @@ struct FunctionClassifyPoints : public Classify
     TP* pts = this->Points + 3 * ptId;
     unsigned char* ioa = this->InOutArray + ptId;
     bool isFirst = vtkSMPTools::GetSingleThread();
-    vtkIdType checkAbortInterval = fmin((endPtId - ptId) / 10 + 1, 1000);
+    vtkIdType checkAbortInterval = std::min((endPtId - ptId) / 10 + 1, (vtkIdType)1000);
     for (; ptId < endPtId; ++ptId)
     {
       if (ptId % checkAbortInterval == 0)
@@ -326,7 +326,7 @@ struct ExtractCells : public ExtractCellsBase
     vtkIdType npts;
 
     bool isFirst = vtkSMPTools::GetSingleThread();
-    vtkIdType checkAbortInterval = fmin((endCellId - cellId) / 10 + 1, 1000);
+    vtkIdType checkAbortInterval = std::min((endCellId - cellId) / 10 + 1, (vtkIdType)1000);
 
     for (; cellId < endCellId; ++cellId)
     {
@@ -442,7 +442,7 @@ struct ExtractPointsAndCells : public ExtractCellsBase
     vtkIdType* pointMap = this->PointMap;
 
     bool isFirst = vtkSMPTools::GetSingleThread();
-    vtkIdType checkAbortInterval = fmin((endCellId - cellId) / 10 + 1, 1000);
+    vtkIdType checkAbortInterval = std::min((endCellId - cellId) / 10 + 1, (vtkIdType)1000);
 
     for (; cellId < endCellId; ++cellId)
     {
@@ -568,7 +568,7 @@ struct CopyCellAttributes
   void operator()(vtkIdType cellId, vtkIdType endCellId)
   {
     bool isFirst = vtkSMPTools::GetSingleThread();
-    vtkIdType checkAbortInterval = fmin((endCellId - cellId) / 10 + 1, 1000);
+    vtkIdType checkAbortInterval = std::min((endCellId - cellId) / 10 + 1, (vtkIdType)1000);
     for (; cellId < endCellId; ++cellId)
     {
       if (cellId % checkAbortInterval == 0)
@@ -611,7 +611,7 @@ struct GeneratePoints
     const vtkIdType* ptMap = this->PointMap;
     TPOut *outPts = this->OutPts, *x;
     bool isFirst = vtkSMPTools::GetSingleThread();
-    vtkIdType checkAbortInterval = fmin((endPtId - ptId) / 10 + 1, 1000);
+    vtkIdType checkAbortInterval = std::min((endPtId - ptId) / 10 + 1, (vtkIdType)1000);
 
     for (; ptId < endPtId; ++ptId, p += 3)
     {
@@ -657,7 +657,7 @@ struct CopyPointAttributes
   {
     const vtkIdType* ptMap = this->PointMap;
     bool isFirst = vtkSMPTools::GetSingleThread();
-    vtkIdType checkAbortInterval = fmin((endPtId - ptId) / 10 + 1, 1000);
+    vtkIdType checkAbortInterval = std::min((endPtId - ptId) / 10 + 1, (vtkIdType)1000);
     for (; ptId < endPtId; ++ptId)
     {
       if (ptId % checkAbortInterval == 0)

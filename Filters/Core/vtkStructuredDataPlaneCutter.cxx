@@ -170,7 +170,7 @@ struct EvaluatePointsWithPlaneFunctor
     auto inOutItr = inOut.begin();
     auto sliceItr = slice.begin();
     bool isFirst = vtkSMPTools::GetSingleThread();
-    vtkIdType checkAbortInterval = fmin((endPtId - beginPtId) / 10 + 1, 1000);
+    vtkIdType checkAbortInterval = std::min((endPtId - beginPtId) / 10 + 1, (vtkIdType)1000);
     for (; pointsItr != points.end(); ++pointsItr, ++inOutItr, ++sliceItr)
     {
       if (beginPtId % checkAbortInterval == 0)
@@ -404,7 +404,7 @@ struct EvaluateCellsStructuredFunctor
     double s[8], point1ToPoint2, point1ToIso, point1Weight;
     bool needCell;
     bool isFirst = vtkSMPTools::GetSingleThread();
-    vtkIdType checkAbortInterval = fmin((endBatchId - beginBatchId) / 10 + 1, 1000);
+    vtkIdType checkAbortInterval = std::min((endBatchId - beginBatchId) / 10 + 1, (vtkIdType)1000);
 
     for (vtkIdType batchId = beginBatchId; batchId < endBatchId; ++batchId)
     {
@@ -728,7 +728,7 @@ struct ExtractCellsStructuredFunctor
     int caseIndex, point1Index, point2Index, i;
     double s[8];
     bool isFirst = vtkSMPTools::GetSingleThread();
-    vtkIdType checkAbortInterval = fmin((endBatchId - beginBatchId) / 10 + 1, 1000);
+    vtkIdType checkAbortInterval = std::min((endBatchId - beginBatchId) / 10 + 1, (vtkIdType)1000);
 
     for (vtkIdType batchId = beginBatchId; batchId < endBatchId; ++batchId)
     {
@@ -878,7 +878,7 @@ struct ExtractPointsWorker
       const auto& inPts = vtk::DataArrayTupleRange<3>(inputPoints);
       auto outPts = vtk::DataArrayTupleRange<3>(outputPoints);
       bool isFirst = vtkSMPTools::GetSingleThread();
-      vtkIdType checkAbortInterval = fmin((endEdgeId - beginEdgeId) / 10 + 1, 1000);
+      vtkIdType checkAbortInterval = std::min((endEdgeId - beginEdgeId) / 10 + 1, (vtkIdType)1000);
 
       for (vtkIdType edgeId = beginEdgeId; edgeId < endEdgeId; ++edgeId)
       {

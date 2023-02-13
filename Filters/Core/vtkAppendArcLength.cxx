@@ -65,7 +65,7 @@ int vtkAppendArcLength::RequestData(
   vtkIdType numCellPoints;
   const vtkIdType* cellPoints;
   lines->InitTraversal();
-  vtkIdType checkAbortInterval = fmin(lines->GetNumberOfCells() / 10 + 1, 1000);
+  vtkIdType checkAbortInterval = std::min(lines->GetNumberOfCells() / 10 + 1, (vtkIdType)1000);
   vtkIdType progressCounter = 0;
   while (lines->GetNextCell(numCellPoints, cellPoints))
   {

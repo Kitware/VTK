@@ -247,7 +247,7 @@ public:
     {
       TT* rowPtr = this->Algo->Scalars + row * this->Algo->Inc1;
       bool isFirst = vtkSMPTools::GetSingleThread();
-      vtkIdType checkAbortInterval = fmin((end - row) / 10 + 1, 1000);
+      vtkIdType checkAbortInterval = std::min((end - row) / 10 + 1, (vtkIdType)1000);
       for (; row < end; ++row)
       {
         if (row % checkAbortInterval == 0)
@@ -281,7 +281,7 @@ public:
     void operator()(vtkIdType row, vtkIdType end)
     {
       bool isFirst = vtkSMPTools::GetSingleThread();
-      vtkIdType checkAbortInterval = fmin((end - row) / 10 + 1, 1000);
+      vtkIdType checkAbortInterval = std::min((end - row) / 10 + 1, (vtkIdType)1000);
       for (; row < end; ++row)
       {
         if (row % checkAbortInterval == 0)
@@ -316,7 +316,7 @@ public:
     {
       T* rowPtr = this->Algo->Scalars + row * this->Algo->Inc1;
       bool isFirst = vtkSMPTools::GetSingleThread();
-      vtkIdType checkAbortInterval = fmin((end - row) / 10 + 1, 1000);
+      vtkIdType checkAbortInterval = std::min((end - row) / 10 + 1, (vtkIdType)1000);
       for (; row < end; ++row)
       {
         if (row % checkAbortInterval == 0)
@@ -843,7 +843,7 @@ void vtkFlyingEdges2DAlgorithm<T>::ContourImage(vtkFlyingEdges2D* self, T* scala
   // pass generates polylines from the cases and intersection information.
   // In the final and third pass output points and lines are generated.
 
-  vtkIdType checkAbortInterval = fmin(numContours / 10 + 1, 1000);
+  vtkIdType checkAbortInterval = std::min(numContours / 10 + 1, (vtkIdType)1000);
   // Loop across each contour value. This encompasses all three passes.
   for (vidx = 0; vidx < numContours; vidx++)
   {

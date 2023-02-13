@@ -204,7 +204,7 @@ int vtkExtractUnstructuredGrid::RequestData(vtkInformation* vtkNotUsed(request),
     }
   }
 
-  vtkIdType checkAbortInterval = fmin(numCells / 10 + 1, 1000);
+  vtkIdType checkAbortInterval = std::min(numCells / 10 + 1, (vtkIdType)1000);
   // Traverse cells to extract geometry
   for (cellId = 0; cellId < numCells; cellId++)
   {

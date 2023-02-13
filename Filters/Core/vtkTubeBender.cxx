@@ -91,7 +91,7 @@ int vtkTubeBender::RequestData(vtkInformation* vtkNotUsed(request),
   {
     // Process each point in each line cell
     vtkNew<vtkPolyLine> oLine;
-    checkAbortInterval = fmin(linePoints / 10 + 1, 1000);
+    checkAbortInterval = std::min(linePoints / 10 + 1, (vtkIdType)1000);
     for (vtkIdType lpIndex = 0; lpIndex < linePoints; lpIndex++)
     {
       if (lpIndex % checkAbortInterval == 0 && this->CheckAbort())

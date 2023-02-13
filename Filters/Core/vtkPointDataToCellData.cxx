@@ -70,7 +70,7 @@ public:
   {
     auto& cellPts = this->TLCellPts.Local();
     bool isFirst = vtkSMPTools::GetSingleThread();
-    vtkIdType checkAbortInterval = fmin((endCellId - beginCellId) / 10 + 1, 1000);
+    vtkIdType checkAbortInterval = std::min((endCellId - beginCellId) / 10 + 1, (vtkIdType)1000);
     for (vtkIdType cellId = beginCellId; cellId < endCellId; ++cellId)
     {
       if (cellId % checkAbortInterval == 0)
@@ -266,7 +266,7 @@ public:
     auto& histogram = this->TLHistogram.Local();
     const auto scalars = vtk::DataArrayValueRange<1>(this->Scalars);
     bool isFirst = vtkSMPTools::GetSingleThread();
-    vtkIdType checkAbortInterval = fmin((endCellId - beginCellId) / 10 + 1, 1000);
+    vtkIdType checkAbortInterval = std::min((endCellId - beginCellId) / 10 + 1, (vtkIdType)1000);
     for (vtkIdType cellId = beginCellId; cellId < endCellId; ++cellId)
     {
       if (cellId % checkAbortInterval == 0)

@@ -152,7 +152,7 @@ struct ContourImageWorker
     // assign coordinate value to non-varying coordinate direction
     x[dir[2]] = roi[dir[2] * 2];
 
-    int checkAbortInterval = fmin(numValues / 10 + 1, 1000);
+    vtkIdType checkAbortInterval = std::min(numValues / 10 + 1, (vtkIdType)1000);
 
     // Traverse all pixel cells, generating line segments using marching squares.
     for (j = roi[start[1]]; j < roi[end[1]] && !abortExecute; j++)

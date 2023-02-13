@@ -187,8 +187,8 @@ void vtkExtractCellsByType::ExtractPolyDataCells(
   vtkIdType npts;
   const vtkIdType* pts;
   vtkCellArray* inVerts = input->GetVerts();
-  int progressCounter = 0;
-  int checkAbortInterval = fmin(inVerts->GetNumberOfCells() / 10 + 1, 1000);
+  vtkIdType progressCounter = 0;
+  vtkIdType checkAbortInterval = std::min(inVerts->GetNumberOfCells() / 10 + 1, (vtkIdType)1000);
   if (this->ExtractCellType(VTK_VERTEX) || this->ExtractCellType(VTK_POLY_VERTEX))
   {
     vtkCellArray* verts = vtkCellArray::New();
@@ -228,7 +228,7 @@ void vtkExtractCellsByType::ExtractPolyDataCells(
   {
     vtkCellArray* lines = vtkCellArray::New();
     progressCounter = 0;
-    checkAbortInterval = fmin(inLines->GetNumberOfCells() / 10 + 1, 1000);
+    checkAbortInterval = std::min(inLines->GetNumberOfCells() / 10 + 1, (vtkIdType)1000);
     for (inLines->InitTraversal(); inLines->GetNextCell(npts, pts); ++currentCellId)
     {
       if (progressCounter % checkAbortInterval == 0 && this->CheckAbort())
@@ -266,7 +266,7 @@ void vtkExtractCellsByType::ExtractPolyDataCells(
   {
     vtkCellArray* polys = vtkCellArray::New();
     progressCounter = 0;
-    checkAbortInterval = fmin(inPolys->GetNumberOfCells() / 10 + 1, 1000);
+    checkAbortInterval = std::min(inPolys->GetNumberOfCells() / 10 + 1, (vtkIdType)1000);
     for (inPolys->InitTraversal(); inPolys->GetNextCell(npts, pts); ++currentCellId)
     {
       if (progressCounter % checkAbortInterval == 0 && this->CheckAbort())
@@ -302,7 +302,7 @@ void vtkExtractCellsByType::ExtractPolyDataCells(
   if (this->ExtractCellType(VTK_TRIANGLE_STRIP))
   {
     vtkCellArray* strips = vtkCellArray::New();
-    checkAbortInterval = fmin(inStrips->GetNumberOfCells() / 10 + 1, 1000);
+    checkAbortInterval = std::min(inStrips->GetNumberOfCells() / 10 + 1, (vtkIdType)1000);
     progressCounter++;
     // All cells are of type VTK_TRIANGLE_STRIP
     for (inStrips->InitTraversal(); inStrips->GetNextCell(npts, pts); ++currentCellId)
@@ -366,7 +366,7 @@ void vtkExtractCellsByType::ExtractUnstructuredGridCells(
   output->Allocate(numCells);
   outCD->CopyAllocate(inCD);
 
-  vtkIdType checkAbortInterval = fmin(numCells / 10 + 1, 1000);
+  vtkIdType checkAbortInterval = std::min(numCells / 10 + 1, (vtkIdType)1000);
 
   for (cellId = 0; cellId < numCells; ++cellId)
   {

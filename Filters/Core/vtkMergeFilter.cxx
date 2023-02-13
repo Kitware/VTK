@@ -481,7 +481,7 @@ int vtkMergeFilter::RequestData(vtkInformation* vtkNotUsed(request),
   vtkDataArray* da;
   const char* name;
   vtkIdType num;
-  int checkAbortInterval = fmin(this->FieldCount / 10 + 1, 1000);
+  int checkAbortInterval = std::min(this->FieldCount / 10 + 1, 1000);
   int progressCounter = 0;
   for (it.Begin(); !it.End(); it.Next())
   {

@@ -165,7 +165,7 @@ struct AppendWorker
     const int forPoints = forCells ? 0 : 1;
     vtkIdType inCounter = 0;
     bool abort = false;
-    int checkAbortInterval = fmin((inExt[1] + forPoints - inExt[0]) / 10 + 1, 1000);
+    int checkAbortInterval = std::min((inExt[1] + forPoints - inExt[0]) / 10 + 1, 1000);
 
     for (int k = inExt[4]; k < inExt[5] + forPoints && !abort; k++)
     {
@@ -242,7 +242,7 @@ int vtkStructuredGridAppend::RequestData(
   using Dispatcher = vtkArrayDispatch::Dispatch2SameValueType;
   AppendWorker worker;
 
-  int checkAbortInterval = fmin(this->GetNumberOfInputConnections(0) / 10 + 1, 1000);
+  int checkAbortInterval = std::min(this->GetNumberOfInputConnections(0) / 10 + 1, 1000);
 
   for (int idx1 = 0; idx1 < this->GetNumberOfInputConnections(0); ++idx1)
   {

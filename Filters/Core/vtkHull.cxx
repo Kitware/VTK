@@ -526,7 +526,7 @@ void vtkHull::ComputePlaneDistances(vtkPointSet* input)
   // looping over all the points for each plane can be a lot of work.
   vtkSMPTools::For(1, numPts, [&](vtkIdType ptId, vtkIdType endPtId) {
     bool isFirst = vtkSMPTools::GetSingleThread();
-    vtkIdType checkAbortInterval = fmin((endPtId - ptId) / 10 + 1, 1000);
+    vtkIdType checkAbortInterval = std::min((endPtId - ptId) / 10 + 1, (vtkIdType)1000);
     for (; ptId < endPtId; ++ptId)
     {
       if (ptId % checkAbortInterval == 0)
@@ -578,7 +578,7 @@ void vtkHull::ClipPolygonsFromPlanes(
   // vertCount = 0;
   int numPlanes = this->GetNumberOfPlanes();
 
-  int checkAbortInterval = fmin(numPlanes / 10 + 1, 1000);
+  int checkAbortInterval = std::min(numPlanes / 10 + 1, 1000);
 
   // For each plane, create a polygon (if it gets completely clipped there
   // won't be a polygon)

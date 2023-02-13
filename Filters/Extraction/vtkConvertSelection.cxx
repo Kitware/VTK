@@ -525,7 +525,8 @@ int vtkConvertSelection::ConvertFromQueryAndBlockSelectionNodeCompositeDataSet(
 //------------------------------------------------------------------------------
 int vtkConvertSelection::Convert(vtkSelection* input, vtkDataObject* data, vtkSelection* output)
 {
-  unsigned int checkAbortInterval = fmin(input->GetNumberOfNodes() / 10 + 1, 1000);
+  unsigned int checkAbortInterval =
+    std::min(input->GetNumberOfNodes() / 10 + 1, (unsigned int)1000);
   for (unsigned int n = 0; n < input->GetNumberOfNodes(); ++n)
   {
     if (n % checkAbortInterval == 0 && this->CheckAbort())

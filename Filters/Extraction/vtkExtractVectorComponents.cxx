@@ -153,7 +153,7 @@ public:
     auto outY = vtk::DataArrayValueRange<1>(this->ArrayY, begin, end).begin();
     auto outZ = vtk::DataArrayValueRange<1>(this->ArrayZ, begin, end).begin();
     bool isFirst = vtkSMPTools::GetSingleThread();
-    vtkIdType checkAbortInterval = fmin((end - begin) / 10 + 1, 1000);
+    vtkIdType checkAbortInterval = std::min((end - begin) / 10 + 1, (vtkIdType)1000);
 
     for (auto tuple : inVector)
     {

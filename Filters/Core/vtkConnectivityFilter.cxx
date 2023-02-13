@@ -278,7 +278,7 @@ int vtkConnectivityFilter::RequestData(vtkInformation* vtkNotUsed(request),
 
     if (this->ExtractionMode == VTK_EXTRACT_POINT_SEEDED_REGIONS)
     {
-      checkAbortInterval = fmin(this->Seeds->GetNumberOfIds() / 10 + 1, 1000);
+      checkAbortInterval = std::min(this->Seeds->GetNumberOfIds() / 10 + 1, (vtkIdType)1000);
       for (i = 0; i < this->Seeds->GetNumberOfIds(); i++)
       {
         if (i % checkAbortInterval == 0 && this->CheckAbort())
@@ -298,7 +298,7 @@ int vtkConnectivityFilter::RequestData(vtkInformation* vtkNotUsed(request),
     }
     else if (this->ExtractionMode == VTK_EXTRACT_CELL_SEEDED_REGIONS)
     {
-      checkAbortInterval = fmin(this->Seeds->GetNumberOfIds() / 10 + 1, 1000);
+      checkAbortInterval = std::min(this->Seeds->GetNumberOfIds() / 10 + 1, (vtkIdType)1000);
       for (i = 0; i < this->Seeds->GetNumberOfIds(); i++)
       {
         if (i % checkAbortInterval == 0 && this->CheckAbort())
@@ -316,7 +316,7 @@ int vtkConnectivityFilter::RequestData(vtkInformation* vtkNotUsed(request),
     { // loop over points, find closest one
       double minDist2, dist2, x[3];
       vtkIdType minId = 0;
-      checkAbortInterval = fmin(numPts / 10 + 1, 1000);
+      checkAbortInterval = std::min(numPts / 10 + 1, (vtkIdType)1000);
       for (minDist2 = VTK_DOUBLE_MAX, i = 0; i < numPts; i++)
       {
         if (i % checkAbortInterval == 0 && this->CheckAbort())
@@ -332,7 +332,7 @@ int vtkConnectivityFilter::RequestData(vtkInformation* vtkNotUsed(request),
         }
       }
       input->GetPointCells(minId, this->CellIds);
-      checkAbortInterval = fmin(this->CellIds->GetNumberOfIds() / 10 + 1, 1000);
+      checkAbortInterval = std::min(this->CellIds->GetNumberOfIds() / 10 + 1, (vtkIdType)1000);
       for (j = 0; j < this->CellIds->GetNumberOfIds(); j++)
       {
         if (j % checkAbortInterval == 0 && this->CheckAbort())
@@ -551,11 +551,11 @@ void vtkConnectivityFilter::TraverseAndMark(vtkDataSet* input)
 {
   vtkIdType i, j, k, cellId, numIds, ptId, numPts, numCells;
   vtkIdList* tmpWave;
-  int checkAbortInterval = 0;
+  vtkIdType checkAbortInterval = 0;
 
-  while ((numIds = this->Wave->GetNumberOfIds()) > 0 || this->GetAbortOutput())
+  while ((numIds = this->Wave->GetNumberOfIds()) > 0 && !this->GetAbortOutput())
   {
-    checkAbortInterval = fmin(numIds / 10 + 1, 1000);
+    checkAbortInterval = std::min(numIds / 10 + 1, (vtkIdType)1000);
     for (i = 0; i < numIds; i++)
     {
       if (i % checkAbortInterval == 0 && this->CheckAbort())

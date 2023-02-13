@@ -324,7 +324,7 @@ struct vtkFlyingEdgesPlaneCutterAlgorithm
       xL[0] = this->Algo->XL;
       xR[0] = this->Algo->XR;
       bool isFirst = vtkSMPTools::GetSingleThread();
-      vtkIdType checkAbortInterval = fmin((end - slice) / 10 + 1, 1000);
+      vtkIdType checkAbortInterval = std::min((end - slice) / 10 + 1, (vtkIdType)1000);
       for (; slice < end; ++slice)
       {
         if (slice % checkAbortInterval == 0)
@@ -364,7 +364,7 @@ struct vtkFlyingEdgesPlaneCutterAlgorithm
     void operator()(vtkIdType slice, vtkIdType end)
     {
       bool isFirst = vtkSMPTools::GetSingleThread();
-      vtkIdType checkAbortInterval = fmin((end - slice) / 10 + 1, 1000);
+      vtkIdType checkAbortInterval = std::min((end - slice) / 10 + 1, (vtkIdType)1000);
       for (; slice < end; ++slice)
       {
         if (slice % checkAbortInterval == 0)
@@ -402,7 +402,7 @@ struct vtkFlyingEdgesPlaneCutterAlgorithm
       vtkIdType* eMD1 = eMD0 + 6 * this->Algo->Dims[1];
       TT *rowPtr, *slicePtr = this->Algo->Scalars + slice * this->Algo->Inc2;
       bool isFirst = vtkSMPTools::GetSingleThread();
-      vtkIdType checkAbortInterval = fmin((end - slice) / 10 + 1, 1000);
+      vtkIdType checkAbortInterval = std::min((end - slice) / 10 + 1, (vtkIdType)1000);
       for (; slice < end; ++slice)
       {
         if (slice % checkAbortInterval == 0)
@@ -454,7 +454,7 @@ struct vtkFlyingEdgesPlaneCutterAlgorithm
       vtkIdType* eMD1 = eMD0 + 6 * this->Algo->Dims[1];
       TT *rowPtr, *slicePtr = this->Algo->Scalars + slice * this->Algo->Inc2;
       bool isFirst = vtkSMPTools::GetSingleThread();
-      vtkIdType checkAbortInterval = fmin((end - slice) / 10 + 1, 1000);
+      vtkIdType checkAbortInterval = std::min((end - slice) / 10 + 1, (vtkIdType)1000);
       for (; slice < end; ++slice)
       {
         // It's possible to skip entire slices if there is no data to copy

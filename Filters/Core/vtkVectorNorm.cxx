@@ -61,7 +61,7 @@ struct NormOp
     auto vectorRange = vtk::DataArrayTupleRange<3>(this->Algo->Vectors, k, end);
     float* s = this->Algo->Scalars + k;
     bool isFirst = vtkSMPTools::GetSingleThread();
-    vtkIdType checkAbortInterval = fmin((end - k) / 10 + 1, 1000);
+    vtkIdType checkAbortInterval = std::min((end - k) / 10 + 1, (vtkIdType)1000);
     for (auto v : vectorRange)
     {
       if (k % checkAbortInterval == 0)

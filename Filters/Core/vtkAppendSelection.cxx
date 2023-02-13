@@ -338,7 +338,7 @@ int vtkAppendSelection::RequestData(vtkInformation* vtkNotUsed(request),
     return 1;
   }
 
-  int checkAbortInterval = fmin(numInputs / 10 + 1, 1000);
+  int checkAbortInterval = std::min(numInputs / 10 + 1, 1000);
   if (!this->AppendByUnion)
   {
     // Expression is not set, so the vtkSelection automatically merges the nodes

@@ -393,7 +393,7 @@ struct UnstructuredDataFunctor : public CuttingFunctor<TPointsArray>
     bool isFirst = vtkSMPTools::GetSingleThread();
 
     vtkIdList*& cellPointIds = this->CellPointIds.Local();
-    vtkIdType checkAbortInterval = fmin((endCellId - beginCellId) / 10 + 1, 1000);
+    vtkIdType checkAbortInterval = std::min((endCellId - beginCellId) / 10 + 1, (vtkIdType)1000);
     // Loop over the cell, processing only the one that are needed
     for (vtkIdType cellId = beginCellId; cellId < endCellId; ++cellId)
     {

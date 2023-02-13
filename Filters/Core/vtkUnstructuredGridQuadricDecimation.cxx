@@ -1251,7 +1251,7 @@ int vtkUnstructuredGridQuadricDecimationTetMesh::Simplify(int n, int desiredTets
 {
   int count = 0;
   int run = 0;
-  int checkAbortInterval = fmin(n / 10 + 1, 1000);
+  int checkAbortInterval = std::min(n / 10 + 1, 1000);
   while ((count < n || desiredTets < (tCount - unusedTets)) && (run < 1000))
   {
     if ((run + count) % checkAbortInterval == 0 && this->filter->CheckAbort())

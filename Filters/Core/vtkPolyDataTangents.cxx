@@ -47,7 +47,7 @@ struct TangentComputation
   void operator()(vtkIdType beginId, vtkIdType endId)
   {
     bool isFirst = vtkSMPTools::GetSingleThread();
-    vtkIdType checkAbortInterval = fmin((endId - beginId) / 10 + 1, 1000);
+    vtkIdType checkAbortInterval = std::min((endId - beginId) / 10 + 1, (vtkIdType)1000);
     for (vtkIdType cellId = beginId; cellId < endId; cellId++)
     {
       if (cellId % checkAbortInterval == 0)

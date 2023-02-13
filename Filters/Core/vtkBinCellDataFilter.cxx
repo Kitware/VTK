@@ -200,8 +200,8 @@ int vtkBinCellDataFilter::RequestData(vtkInformation* vtkNotUsed(request),
   vtkCellIterator* srcIt = source->NewCellIterator();
   double pcoords[3], coords[3];
   int subId;
-  int checkAbortCounter = 0;
-  int checkAbortInterval = fmin(source->GetNumberOfCells() / 10 + 1, 1000);
+  vtkIdType checkAbortCounter = 0;
+  vtkIdType checkAbortInterval = std::min(source->GetNumberOfCells() / 10 + 1, (vtkIdType)1000);
   // iterate over each cell in the source mesh
   for (srcIt->InitTraversal(); !srcIt->IsDoneWithTraversal(); srcIt->GoToNextCell())
   {

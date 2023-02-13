@@ -696,7 +696,7 @@ struct VoronoiTiles
     VTile& tile = localData.Tile;
     const double* x = this->Points + 3 * ptId;
     bool isFirst = vtkSMPTools::GetSingleThread();
-    vtkIdType checkAbortInterval = fmin((endPtId - ptId) / 10 + 1, 1000);
+    vtkIdType checkAbortInterval = std::min((endPtId - ptId) / 10 + 1, (vtkIdType)1000);
 
     for (; ptId < endPtId; ++ptId, x += 3)
     {
