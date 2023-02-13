@@ -230,6 +230,18 @@ endif ()
 # old, broken warning implementations when newer compilers tell us when we
 # aren't doing things properly.
 if (NOT "$ENV{CI}" STREQUAL "")
+  # Warning exclusions for old compilers and dependencies.
+  if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "mindeps")
+    # GCC 4.8.5
+    if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "el7")
+      list(APPEND CTEST_CUSTOM_WARNING_EXCEPTION
+        # Deprecated classes trigger "usage" warnings in methods marked with
+        # either `= default` or `= delete` generated implementations. This is not
+        # helpful, so just ignore them all.
+        "Wdeprecated-declarations"
+      )
+    endif ()
+  endif ()
 endif ()
 
 list(APPEND CTEST_CUSTOM_COVERAGE_EXCLUDE
