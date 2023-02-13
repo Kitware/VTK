@@ -142,7 +142,10 @@ public:
     using ReturnLValueRef = typename InvokerFutureSharedState<ReturnT>::ReturnLValueRef;
     using ReturnConstLValueRef = typename InvokerFutureSharedState<ReturnT>::ReturnConstLValueRef;
 
-    vtkSharedFuture() = default;
+    vtkSharedFuture()
+      : SharedState(std::make_shared<InvokerFutureSharedState<ReturnT>>())
+    {
+    }
 
     void Wait() const override;
 
@@ -164,8 +167,7 @@ public:
     InvokerFutureSharedStateBase* GetSharedState() override;
     const InvokerFutureSharedStateBase* GetSharedState() const override;
 
-    std::shared_ptr<InvokerFutureSharedState<ReturnT>> SharedState =
-      std::make_shared<InvokerFutureSharedState<ReturnT>>();
+    std::shared_ptr<InvokerFutureSharedState<ReturnT>> SharedState;
 
     vtkSharedFuture(const vtkSharedFuture<ReturnT>& other) = delete;
     void operator=(const vtkSharedFuture<ReturnT>& other) = delete;
