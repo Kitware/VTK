@@ -23,7 +23,6 @@
 #include "vtkGenericEnSightReader.h"
 #include "vtkIOEnSightModule.h" // For export macro
 
-VTK_ABI_NAMESPACE_BEGIN
 class vtkDataSet;
 class vtkDataSetCollection;
 class vtkEnSightReaderCellIdsType;
@@ -131,6 +130,8 @@ protected:
   int ReadCaseFileVariable(char* line);
   int ReadCaseFileTime(char* line);
   int ReadCaseFileFile(char* line);
+  int ReadCaseFileSripts(char* line);
+
   ///@}
 
   // set in UpdateInformation to value returned from ReadCaseFile
@@ -350,5 +351,4 @@ private:
   void operator=(const vtkEnSightReader&) = delete;
 };
 
-VTK_ABI_NAMESPACE_END
 #endif

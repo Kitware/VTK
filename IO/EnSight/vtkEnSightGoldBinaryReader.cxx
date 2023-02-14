@@ -39,6 +39,7 @@
 #include <string>
 #include <sys/stat.h>
 #include <vector>
+#include <algorithm>
 
 #if defined(_WIN32)
 #define VTK_STAT_STRUCT struct _stat64
@@ -55,7 +56,6 @@
 #define VTK_STAT_FUNC stat64
 #endif
 
-VTK_ABI_NAMESPACE_BEGIN
 class vtkEnSightGoldBinaryReader::vtkUtilities
 {
   static int GetDestinationComponent(int srcComponent, int numComponents)
@@ -346,6 +346,14 @@ int vtkEnSightGoldBinaryReader::InitializeFile(const char* fileName)
     return 0;
   }
   std::string sfilename;
+  std::string filename_string(fileName);
+  char quotes = '\"';
+  size_t found = filename_string.find(quotes);
+  if (found != std::string::npos)
+  {
+    filename_string.erase(
+      std::remove(filename_string.begin(), filename_string.end(), quotes), filename_string.end());
+  }
   if (this->FilePath)
   {
     sfilename = this->FilePath;
@@ -353,12 +361,12 @@ int vtkEnSightGoldBinaryReader::InitializeFile(const char* fileName)
     {
       sfilename += "/";
     }
-    sfilename += fileName;
+    sfilename += filename_string;
     vtkDebugMacro("full path to geometry file: " << sfilename);
   }
   else
   {
-    sfilename = fileName;
+    sfilename = filename_string;
   }
 
   if (this->OpenFile(sfilename.c_str()) == 0)
@@ -1244,6 +1252,14 @@ int vtkEnSightGoldBinaryReader::ReadMeasuredGeometryFile(
     return 0;
   }
   std::string sfilename;
+  std::string filename_string(fileName);
+  char quotes = '\"';
+  size_t found = filename_string.find(quotes);
+  if (found != std::string::npos)
+  {
+    filename_string.erase(
+      std::remove(filename_string.begin(), filename_string.end(), quotes), filename_string.end());
+  }
   if (this->FilePath)
   {
     sfilename = this->FilePath;
@@ -1251,12 +1267,12 @@ int vtkEnSightGoldBinaryReader::ReadMeasuredGeometryFile(
     {
       sfilename += "/";
     }
-    sfilename += fileName;
+    sfilename += filename_string;
     vtkDebugMacro("full path to measured geometry file: " << sfilename);
   }
   else
   {
-    sfilename = fileName;
+    sfilename = filename_string;
   }
 
   if (this->OpenFile(sfilename.c_str()) == 0)
@@ -1396,6 +1412,14 @@ bool vtkEnSightGoldBinaryReader::OpenVariableFile(const char* fileName, const ch
   }
 
   std::string sfilename;
+  std::string filename_string(fileName);
+  char quotes = '\"';
+  size_t found = filename_string.find(quotes);
+  if (found != std::string::npos)
+  {
+    filename_string.erase(
+      std::remove(filename_string.begin(), filename_string.end(), quotes), filename_string.end());
+  }
   if (this->FilePath)
   {
     sfilename = this->FilePath;
@@ -1403,12 +1427,12 @@ bool vtkEnSightGoldBinaryReader::OpenVariableFile(const char* fileName, const ch
     {
       sfilename += "/";
     }
-    sfilename += fileName;
+    sfilename += filename_string;
     vtkDebugMacro("full path to variable (" << type << ") file: " << sfilename);
   }
   else
   {
-    sfilename = fileName;
+    sfilename = filename_string;
   }
 
   if (this->OpenFile(sfilename.c_str()) == 0)
@@ -3625,4 +3649,3 @@ void vtkEnSightGoldBinaryReader::AddFileIndexToCache(const char* fileName)
   }
   this->GoldIFile->seekg(0l, ios::beg);
 }
-VTK_ABI_NAMESPACE_END
