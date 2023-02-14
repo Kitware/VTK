@@ -124,14 +124,8 @@ protected:
 
   int* var_length;
 
-  int dynamic_coord_index;
-  int velocity_index;
-  int sm_displacement_index;
-  int sm_acceleration_index;
-  int sm_velocity_index;
   int num_used_scalars;
   int num_used_vectors;
-  bool* use_variable;
 
   // Tri* T;
   class nek5KList;
@@ -188,9 +182,7 @@ protected:
                        //  bool READ_BOUNDARY_GEOM_FLAG; // true = need boundary geom from disk
   bool IAM_INITIALLIZED;
   bool I_HAVE_DATA;
-  bool FIRST_DATA;
-  //  bool USE_MESH_ONLY;
-  //  bool NEED_TO_BACKUP_MESH;
+
   bool MeshIs3D;
   // int TimeStep;
   int precision;
@@ -217,10 +209,6 @@ protected:
   // Time query function. Called by ExecuteInformation().
   // Fills the TimestepValues array.
   bool GetAllTimesAndVariableNames(vtkInformationVector*);
-
-  // Description:
-  // Populates the TIME_STEPS and TIME_RANGE keys based on file metadata.
-  void AdvertiseTimeSteps(vtkInformation* outputInfo);
 
   int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
