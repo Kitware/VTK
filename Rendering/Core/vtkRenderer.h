@@ -410,15 +410,21 @@ public:
   /**
    * Automatically set up the camera based on the visible actors.
    * Use a screen space bounding box to zoom closer to the data.
+   *
+   * OffsetRatio can be used to add a zoom offset.
+   * Default value is 0.9, which means that the camera will be 10% further from the data
    */
-  virtual void ResetCameraScreenSpace();
+  virtual void ResetCameraScreenSpace(const double offsetRatio = 0.9);
 
   /**
    * Automatically set up the camera based on a specified bounding box
    * (xmin, xmax, ymin, ymax, zmin, zmax).
    * Use a screen space bounding box to zoom closer to the data.
+   *
+   * OffsetRatio can be used to add a zoom offset.
+   * Default value is 0.9, which means that the camera will be 10% further from the data.
    */
-  virtual void ResetCameraScreenSpace(const double bounds[6]);
+  virtual void ResetCameraScreenSpace(const double bounds[6], const double offsetRatio = 0.9);
 
   using vtkViewport::DisplayToWorld;
 
@@ -436,9 +442,12 @@ public:
 
   /**
    * Alternative version of ResetCameraScreenSpace(bounds[6]);
+   *
+   * OffsetRatio can be used to add a zoom offset.
+   * Default value is 0.9, which means that the camera will be 10% further from the data.
    */
-  virtual void ResetCameraScreenSpace(
-    double xmin, double xmax, double ymin, double ymax, double zmin, double zmax);
+  virtual void ResetCameraScreenSpace(double xmin, double xmax, double ymin, double ymax,
+    double zmin, double zmax, const double offsetRatio = 0.9);
 
   ///@{
   /**
