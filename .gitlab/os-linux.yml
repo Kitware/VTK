@@ -229,6 +229,14 @@
     variables:
         CMAKE_CONFIGURATION: fedora34_mpi_python_qt_tbb_ext_vtk
 
+.fedora34_mpi_ospray_python_qt_tbb:
+    extends:
+        - .fedora34
+        - .fedora_mpich_addon
+
+    variables:
+        CMAKE_CONFIGURATION: fedora34_mpi_ospray_python_qt_tbb
+
 .fedora34_mpi_python_qt_stdthread:
     extends:
         - .fedora34
