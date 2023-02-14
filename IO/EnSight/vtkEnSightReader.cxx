@@ -441,6 +441,24 @@ int vtkEnSightReader::RequestInformation(vtkInformation* vtkNotUsed(request),
   return this->CaseFileRead;
 }
 
+//-----------------------------------------------------------------------------
+int vtkEnSightReader::ReadCaseFileScripts(char* line)
+{
+  /* The scripts variable is a new area of the EnSight Gold Format which is used
+  to reference an eventual metadata xml file for handling units. The function
+  just skips it.*/
+  int lineRead = this->ReadNextDataLine(line);
+  while (lineRead)
+  {
+    if (strncmp(line, "metadata:", 9) == 0)
+    {
+      vtkDebugMacro("Skipping metadata");
+    }
+    lineRead = this->ReadNextDataLine(line);
+  }
+  return lineRead;
+}
+
 //------------------------------------------------------------------------------
 int vtkEnSightReader::ReadCaseFileGeometry(char* line)
 {
@@ -456,20 +474,20 @@ int vtkEnSightReader::ReadCaseFileGeometry(char* line)
   {
     if (strncmp(line, "model:", 6) == 0)
     {
-      if (sscanf(line, " %*s %d%*[ \t]%d%*[ \t]%s", &timeSet, &fileSet, subLine) == 3)
+      if (sscanf(line, " %*s %d%*[ \t]%d%*[ \t]%[^\t\n]", &timeSet, &fileSet, subLine) == 3)
       {
         this->GeometryTimeSet = timeSet;
         this->GeometryFileSet = fileSet;
         this->SetGeometryFileName(subLine);
         vtkDebugMacro(<< this->GetGeometryFileName());
       }
-      else if (sscanf(line, " %*s %d%*[ \t]%s", &timeSet, subLine) == 2)
+      else if (sscanf(line, " %*s %d%*[ \t]%[^\t\n]", &timeSet, subLine) == 2)
       {
         this->GeometryTimeSet = timeSet;
         this->SetGeometryFileName(subLine);
         vtkDebugMacro(<< this->GetGeometryFileName());
       }
-      else if (sscanf(line, " %*s %s", subLine) == 1)
+      else if (sscanf(line, " %*s %[^\t\n]", subLine) == 1)
       {
         this->SetGeometryFileName(subLine);
         vtkDebugMacro(<< this->GetGeometryFileName());
@@ -477,20 +495,20 @@ int vtkEnSightReader::ReadCaseFileGeometry(char* line)
     }
     else if (strncmp(line, "measured:", 9) == 0)
     {
-      if (sscanf(line, " %*s %d%*[ \t]%d%*[ \t]%s", &timeSet, &fileSet, subLine) == 3)
+      if (sscanf(line, " %*s %d%*[ \t]%d%*[ \t]%[^\t\n]", &timeSet, &fileSet, subLine) == 3)
       {
         this->MeasuredTimeSet = timeSet;
         this->MeasuredFileSet = fileSet;
         this->SetMeasuredFileName(subLine);
         vtkDebugMacro(<< this->GetMeasuredFileName());
       }
-      else if (sscanf(line, " %*s %d%*[ \t]%s", &timeSet, subLine) == 2)
+      else if (sscanf(line, " %*s %d%*[ \t]%[^\t\n]", &timeSet, subLine) == 2)
       {
         this->MeasuredTimeSet = timeSet;
         this->SetMeasuredFileName(subLine);
         vtkDebugMacro(<< this->GetMeasuredFileName());
       }
-      else if (sscanf(line, " %*s %s", subLine) == 1)
+      else if (sscanf(line, " %*s %[^\t\n]", subLine) == 1)
       {
         this->SetMeasuredFileName(subLine);
         vtkDebugMacro(<< this->GetMeasuredFileName());
@@ -498,7 +516,7 @@ int vtkEnSightReader::ReadCaseFileGeometry(char* line)
     }
     else if (strncmp(line, "match:", 6) == 0)
     {
-      sscanf(line, " %*s %s", subLine);
+      sscanf(line, " %*s %[^\t\n]", subLine);
       this->SetMatchFileName(subLine);
       vtkDebugMacro(<< this->GetMatchFileName());
     }
@@ -533,7 +551,7 @@ int vtkEnSightReader::ReadCaseFileVariable(char* line)
   lineRead = this->ReadNextDataLine(line);
   while (lineRead && strncmp(line, "FORMAT", 6) != 0 && strncmp(line, "GEOMETRY", 8) != 0 &&
     strncmp(line, "VARIABLE", 8) != 0 && strncmp(line, "TIME", 4) != 0 &&
-    strncmp(line, "FILE", 4) != 0)
+    strncmp(line, "FILE", 4) != 0 && strncmp(line, "SCRIPTS", 7) != 0)
   {
     if (strncmp(line, "constant", 8) == 0)
     {
@@ -551,19 +569,19 @@ int vtkEnSightReader::ReadCaseFileVariable(char* line)
           this->VariableTimeSetIds->InsertNextId(timeSet);
           this->VariableFileSetIds->InsertNextId(fileSet);
           this->AddVariableDescription(subLine);
-          sscanf(line, " %*s %*s %*s %*d %*d %*s %s", subLine);
+          sscanf(line, " %*s %*s %*s %*d %*d %*s %[^\t\n]", subLine);
         }
         else if (sscanf(line, " %*s %*s %*s %d %s", &timeSet, subLine) == 2)
         {
           this->VariableTimeSetIds->InsertNextId(timeSet);
           this->AddVariableDescription(subLine);
-          sscanf(line, " %*s %*s %*s %*d %*s %s", subLine);
+          sscanf(line, " %*s %*s %*s %*d %*s %[^\t\n]", subLine);
         }
         else if (sscanf(line, " %*s %*s %*s %s", subLine) == 1)
         {
           this->VariableTimeSetIds->InsertNextId(1);
           this->AddVariableDescription(subLine);
-          sscanf(line, " %*s %*s %*s %*s %s", subLine);
+          sscanf(line, " %*s %*s %*s %*s %[^\t\n]", subLine);
         }
         this->AddVariableType();
         this->NumberOfScalarsPerNode++;
@@ -577,19 +595,19 @@ int vtkEnSightReader::ReadCaseFileVariable(char* line)
           this->VariableTimeSetIds->InsertNextId(timeSet);
           this->VariableFileSetIds->InsertNextId(fileSet);
           this->AddVariableDescription(subLine);
-          sscanf(line, " %*s %*s %*s %*d %*d %*s %s", subLine);
+          sscanf(line, " %*s %*s %*s %*d %*d %*s %[^\t\n]", subLine);
         }
         else if (sscanf(line, " %*s %*s %*s %d %s", &timeSet, subLine) == 2)
         {
           this->VariableTimeSetIds->InsertNextId(timeSet);
           this->AddVariableDescription(subLine);
-          sscanf(line, " %*s %*s %*s %*d %*s %s", subLine);
+          sscanf(line, " %*s %*s %*s %*d %*s %[^\t\n]", subLine);
         }
         else if (sscanf(line, " %*s %*s %*s %s", subLine) == 1)
         {
           this->VariableTimeSetIds->InsertNextId(1);
           this->AddVariableDescription(subLine);
-          sscanf(line, " %*s %*s %*s %*s %s", subLine);
+          sscanf(line, " %*s %*s %*s %*s %[^\t\n]", subLine);
         }
         this->AddVariableType();
         this->NumberOfScalarsPerElement++;
@@ -603,19 +621,19 @@ int vtkEnSightReader::ReadCaseFileVariable(char* line)
           this->VariableTimeSetIds->InsertNextId(timeSet);
           this->VariableFileSetIds->InsertNextId(fileSet);
           this->AddVariableDescription(subLine);
-          sscanf(line, " %*s %*s %*s %*s %*d %*d %*s %s", subLine);
+          sscanf(line, " %*s %*s %*s %*s %*d %*d %*s %[^\t\n]", subLine);
         }
         else if (sscanf(line, " %*s %*s %*s %*s %d %s", &timeSet, subLine) == 2)
         {
           this->VariableTimeSetIds->InsertNextId(timeSet);
           this->AddVariableDescription(subLine);
-          sscanf(line, " %*s %*s %*s %*s %*d %*s %s", subLine);
+          sscanf(line, " %*s %*s %*s %*s %*d %*s %[^\t\n]", subLine);
         }
         else if (sscanf(line, " %*s %*s %*s %*s %s", subLine) == 1)
         {
           this->VariableTimeSetIds->InsertNextId(1);
           this->AddVariableDescription(subLine);
-          sscanf(line, " %*s %*s %*s %*s %*s %s", subLine);
+          sscanf(line, " %*s %*s %*s %*s %*s %[^\t\n]", subLine);
         }
         this->AddVariableType();
         this->NumberOfScalarsPerMeasuredNode++;
@@ -635,19 +653,19 @@ int vtkEnSightReader::ReadCaseFileVariable(char* line)
           this->VariableTimeSetIds->InsertNextId(timeSet);
           this->VariableFileSetIds->InsertNextId(fileSet);
           this->AddVariableDescription(subLine);
-          sscanf(line, " %*s %*s %*s %*d %*d %*s %s", subLine);
+          sscanf(line, " %*s %*s %*s %*d %*d %*s %[^\t\n]", subLine);
         }
         else if (sscanf(line, " %*s %*s %*s %d %s", &timeSet, subLine) == 2)
         {
           this->VariableTimeSetIds->InsertNextId(timeSet);
           this->AddVariableDescription(subLine);
-          sscanf(line, " %*s %*s %*s %*d %*s %s", subLine);
+          sscanf(line, " %*s %*s %*s %*d %*s %[^\t\n]", subLine);
         }
         else if (sscanf(line, " %*s %*s %*s %s", subLine) == 1)
         {
           this->VariableTimeSetIds->InsertNextId(1);
           this->AddVariableDescription(subLine);
-          sscanf(line, " %*s %*s %*s %*s %s", subLine);
+          sscanf(line, " %*s %*s %*s %*s %[^\t\n]", subLine);
         }
         this->AddVariableType();
         this->NumberOfVectorsPerNode++;
@@ -661,19 +679,19 @@ int vtkEnSightReader::ReadCaseFileVariable(char* line)
           this->VariableTimeSetIds->InsertNextId(timeSet);
           this->VariableFileSetIds->InsertNextId(fileSet);
           this->AddVariableDescription(subLine);
-          sscanf(line, " %*s %*s %*s %*d %*d %*s %s", subLine);
+          sscanf(line, " %*s %*s %*s %*d %*d %*s %[^\t\n]", subLine);
         }
         else if (sscanf(line, " %*s %*s %*s %d %s", &timeSet, subLine) == 2)
         {
           this->VariableTimeSetIds->InsertNextId(timeSet);
           this->AddVariableDescription(subLine);
-          sscanf(line, " %*s %*s %*s %*d %*s %s", subLine);
+          sscanf(line, " %*s %*s %*s %*d %*s %[^\t\n]", subLine);
         }
         else if (sscanf(line, " %*s %*s %*s %s", subLine) == 1)
         {
           this->VariableTimeSetIds->InsertNextId(1);
           this->AddVariableDescription(subLine);
-          sscanf(line, " %*s %*s %*s %*s %s", subLine);
+          sscanf(line, " %*s %*s %*s %*s %[^\t\n]", subLine);
         }
         this->AddVariableType();
         this->NumberOfVectorsPerElement++;
@@ -687,19 +705,19 @@ int vtkEnSightReader::ReadCaseFileVariable(char* line)
           this->VariableTimeSetIds->InsertNextId(timeSet);
           this->VariableFileSetIds->InsertNextId(fileSet);
           this->AddVariableDescription(subLine);
-          sscanf(line, " %*s %*s %*s %*s %*d %*d %*s %s", subLine);
+          sscanf(line, " %*s %*s %*s %*s %*d %*d %*s %[^\t\n]", subLine);
         }
         else if (sscanf(line, " %*s %*s %*s %*s %d %s", &timeSet, subLine) == 2)
         {
           this->VariableTimeSetIds->InsertNextId(timeSet);
           this->AddVariableDescription(subLine);
-          sscanf(line, " %*s %*s %*s %*s %*d %*s %s", subLine);
+          sscanf(line, " %*s %*s %*s %*s %*d %*s %[^\t\n]", subLine);
         }
         else if (sscanf(line, " %*s %*s %*s %*s %s", subLine) == 1)
         {
           this->VariableTimeSetIds->InsertNextId(1);
           this->AddVariableDescription(subLine);
-          sscanf(line, " %*s %*s %*s %*s %*s %s", subLine);
+          sscanf(line, " %*s %*s %*s %*s %*s %[^\t\n]", subLine);
         }
         this->AddVariableType();
         this->NumberOfVectorsPerMeasuredNode++;
@@ -752,19 +770,19 @@ int vtkEnSightReader::ReadCaseFileVariable(char* line)
           this->VariableTimeSetIds->InsertNextId(timeSet);
           this->VariableFileSetIds->InsertNextId(fileSet);
           this->AddVariableDescription(subLine);
-          sscanf(line, " %*s %*s %*s %*s %*d %*d %*s %s", subLine);
+          sscanf(line, " %*s %*s %*s %*s %*d %*d %*s %[^\t\n]", subLine);
         }
         else if (sscanf(line, " %*s %*s %*s %*s %d %s", &timeSet, subLine) == 2)
         {
           this->VariableTimeSetIds->InsertNextId(timeSet);
           this->AddVariableDescription(subLine);
-          sscanf(line, " %*s %*s %*s %*s %*d %*s %s", subLine);
+          sscanf(line, " %*s %*s %*s %*s %*d %*s %[^\t\n]", subLine);
         }
         else if (sscanf(line, " %*s %*s %*s %*s %s", subLine) == 1)
         {
           this->VariableTimeSetIds->InsertNextId(1);
           this->AddVariableDescription(subLine);
-          sscanf(line, " %*s %*s %*s %*s %*s %s", subLine);
+          sscanf(line, " %*s %*s %*s %*s %*s %[^\t\n]", subLine);
         }
         this->AddVariableType();
         if (asym)
@@ -786,19 +804,19 @@ int vtkEnSightReader::ReadCaseFileVariable(char* line)
           this->VariableTimeSetIds->InsertNextId(timeSet);
           this->VariableFileSetIds->InsertNextId(fileSet);
           this->AddVariableDescription(subLine);
-          sscanf(line, " %*s %*s %*s %*s %*d %*d %*s %s", subLine);
+          sscanf(line, " %*s %*s %*s %*s %*d %*d %*s %[^\t\n]", subLine);
         }
         else if (sscanf(line, " %*s %*s %*s %*s %d %s", &timeSet, subLine) == 2)
         {
           this->VariableTimeSetIds->InsertNextId(timeSet);
           this->AddVariableDescription(subLine);
-          sscanf(line, " %*s %*s %*s %*s %*d %*s %s", subLine);
+          sscanf(line, " %*s %*s %*s %*s %*d %*s %[^\t\n]", subLine);
         }
         else if (sscanf(line, " %*s %*s %*s %*s %s", subLine) == 1)
         {
           this->VariableTimeSetIds->InsertNextId(1);
           this->AddVariableDescription(subLine);
-          sscanf(line, " %*s %*s %*s %*s %*s %s", subLine);
+          sscanf(line, " %*s %*s %*s %*s %*s %[^\t\n]", subLine);
         }
         this->AddVariableType();
         if (asym)
@@ -1412,6 +1430,12 @@ int vtkEnSightReader::ReadCaseFile()
       // found FILE section
       vtkDebugMacro(<< "*** FILE section");
       ret = this->ReadCaseFileFile(line);
+    }
+    else if (strncmp(line, "SCRIPTS", 7) == 0)
+    {
+      // found SCRIPTS section
+      vtkDebugMacro(<< "*** SCRIPTS section");
+      ret = this->ReadCaseFileScripts(line);
     }
   }
 

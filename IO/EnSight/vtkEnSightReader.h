@@ -131,6 +131,8 @@ protected:
   int ReadCaseFileVariable(char* line);
   int ReadCaseFileTime(char* line);
   int ReadCaseFileFile(char* line);
+  int ReadCaseFileScripts(char* line);
+
   ///@}
 
   // set in UpdateInformation to value returned from ReadCaseFile
