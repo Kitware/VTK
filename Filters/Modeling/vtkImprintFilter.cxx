@@ -2566,7 +2566,6 @@ struct Triangulate
   {
     vtkTriEdgeList triEdgeList(this->OutPts);
     double normal[3];
-    vtkCellMapType& cellMap = *(this->CellMap);
     bool isFirst = vtkSMPTools::GetSingleThread();
 
     // The cellId below is the candidate target cell id, not the target cell id,
@@ -2589,9 +2588,10 @@ struct Triangulate
       {
         // Produce requested debugging output
         if (this->DebugOption == vtkImprintFilter::TRIANGULATION_INPUT &&
-          this->DebugOutput != nullptr)
+          this->DebugOutput != nullptr && this->CellMap != nullptr)
         {
-          if (cellMap[cellId] == this->DebugCellId)
+          const vtkCellMapType* cellMap = this->CellMap;
+          if ((*cellMap)[cellId] == this->DebugCellId)
           {
             this->ProduceTriangulationInput(cellId);
           }
@@ -2631,9 +2631,10 @@ struct Triangulate
 
         // Produce the requested debugging output
         if (this->DebugOption == vtkImprintFilter::TRIANGULATION_OUTPUT &&
-          this->DebugOutput != nullptr)
+          this->DebugOutput != nullptr && this->CellMap != nullptr)
         {
-          if (cellMap[cellId] == this->DebugCellId)
+          const vtkCellMapType* cellMap = this->CellMap;
+          if ((*cellMap)[cellId] == this->DebugCellId)
           {
             this->ProduceTriangulationOutput(cellId);
           }
@@ -2653,7 +2654,6 @@ struct Triangulate
     int cellType;
     vtkIdType numCandidates = static_cast<vtkIdType>(this->CandidateList->size());
     int outputType = this->OutputType;
-    vtkCellMapType& cellMap = *(this->CellMap);
     vtkAttributeManager* attrMgr = this->AttributeManager;
 
     for (auto cellId = 0; cellId < numCandidates; cellId++)
@@ -2672,7 +2672,7 @@ struct Triangulate
         {
           cId = this->Output->InsertNextCell(cellType, npts, pts);
           this->CellLabels->InsertValue(cId, cellClassification);
-          attrMgr->CopyCellData(&cellMap, cellId, cId);
+          attrMgr->CopyCellData(this->CellMap, cellId, cId);
         }
       }
 
@@ -2693,7 +2693,7 @@ struct Triangulate
           {
             cId = this->Output->InsertNextCell(cellType, npts, pts);
             this->CellLabels->InsertValue(cId, cInfo->OutCellsClass[i]);
-            attrMgr->CopyCellData(&cellMap, cellId, cId);
+            attrMgr->CopyCellData(this->CellMap, cellId, cId);
           }
           offset += npts;
         } // for all cells in this target candidate cell
