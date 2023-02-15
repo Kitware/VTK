@@ -35,7 +35,7 @@ VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkAndroidRenderWindowInteractor);
 
 void (*vtkAndroidRenderWindowInteractor::ClassExitMethod)(void*) = (void (*)(void*)) nullptr;
-void* vtkAndroidRenderWindowInteractor::ClassExitMethodArg = (void*)nullptr;
+void* vtkAndroidRenderWindowInteractor::ClassExitMethodArg = nullptr;
 void (*vtkAndroidRenderWindowInteractor::ClassExitMethodArgDelete)(
   void*) = (void (*)(void*)) nullptr;
 

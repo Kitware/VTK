@@ -67,7 +67,7 @@ static Tk_ConfigSpec vtkTkRenderWidgetConfigSpecs[] = {
   { TK_CONFIG_STRING, (char*)"-rw", (char*)"rw", (char*)"RW", (char*)"",
     Tk_Offset(struct vtkTkRenderWidget, RW), 0, nullptr },
 
-  { TK_CONFIG_END, (char*)nullptr, (char*)nullptr, (char*)nullptr, (char*)nullptr, 0, 0, nullptr }
+  { TK_CONFIG_END, nullptr, nullptr, nullptr, nullptr, 0, 0, nullptr }
 };
 
 // Forward prototypes
@@ -421,7 +421,7 @@ extern "C"
       {
         /* Return list of all configuration parameters */
         result = Tk_ConfigureInfo(
-          interp, self->TkWin, vtkTkRenderWidgetConfigSpecs, (char*)self, (char*)nullptr, 0);
+          interp, self->TkWin, vtkTkRenderWidgetConfigSpecs, (char*)self, nullptr, 0);
       }
       else if (argc == 3)
       {
@@ -501,7 +501,7 @@ extern "C"
     // Create the window.
     name = argv[1];
     // Possibly X dependent
-    tkwin = Tk_CreateWindowFromPath(interp, main, name, (char*)nullptr);
+    tkwin = Tk_CreateWindowFromPath(interp, main, name, nullptr);
     if (tkwin == nullptr)
     {
       return TCL_ERROR;

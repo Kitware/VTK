@@ -307,7 +307,7 @@ public:
    */
   void* GetGenericDisplayId() override { return (void*)this->HelperWindow->GetGenericDisplayId(); }
   void* GetGenericWindowId() override { return (void*)this->HelperWindow->GetGenericWindowId(); }
-  void* GetGenericParentId() override { return (void*)nullptr; }
+  void* GetGenericParentId() override { return nullptr; }
   void* GetGenericContext() override { return (void*)this->HelperWindow->GetGenericContext(); }
   void* GetGenericDrawable() override { return (void*)this->HelperWindow->GetGenericDrawable(); }
   ///@}

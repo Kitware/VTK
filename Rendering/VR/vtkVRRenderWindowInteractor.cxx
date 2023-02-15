@@ -19,9 +19,9 @@
 #include "vtkVRRenderWindow.h"
 
 VTK_ABI_NAMESPACE_BEGIN
-void (*vtkVRRenderWindowInteractor::ClassExitMethod)(void*) = (void (*)(void*)) nullptr;
-void* vtkVRRenderWindowInteractor::ClassExitMethodArg = (void*)nullptr;
-void (*vtkVRRenderWindowInteractor::ClassExitMethodArgDelete)(void*) = (void (*)(void*)) nullptr;
+void (*vtkVRRenderWindowInteractor::ClassExitMethod)(void*) = nullptr;
+void* vtkVRRenderWindowInteractor::ClassExitMethodArg = nullptr;
+void (*vtkVRRenderWindowInteractor::ClassExitMethodArgDelete)(void*) = nullptr;
 
 //------------------------------------------------------------------------------
 vtkVRRenderWindowInteractor::vtkVRRenderWindowInteractor()

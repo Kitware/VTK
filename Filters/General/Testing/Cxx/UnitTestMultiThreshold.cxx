@@ -283,7 +283,7 @@ int TestErrorsAndWarnings()
 
   // WARNING: You passed a null array name
   intervalSets.push_back(threshold->AddIntervalSet(0, 2, vtkMultiThreshold::CLOSED,
-    vtkMultiThreshold::CLOSED, vtkDataObject::FIELD_ASSOCIATION_POINTS, (char*)nullptr, 0, 1));
+    vtkMultiThreshold::CLOSED, vtkDataObject::FIELD_ASSOCIATION_POINTS, nullptr, 0, 1));
   if (filterObserver->GetWarning())
   {
     std::cout << "Caught expected warning: " << filterObserver->GetWarningMessage();
