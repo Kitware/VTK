@@ -134,24 +134,20 @@ static PyObject* PyVTKMethodDescriptor_GetDoc(PyObject* ob, void*)
   return PyUnicode_FromString(descr->d_method->ml_doc);
 }
 
-static PyGetSetDef PyVTKMethodDescriptor_GetSet[] = {
 #if PY_VERSION_HEX >= 0x03070000
-  { "__doc__", PyVTKMethodDescriptor_GetDoc, nullptr, nullptr, nullptr },
+#define pystr(x) x
 #else
-  { const_cast<char*>("__doc__"), PyVTKMethodDescriptor_GetDoc, nullptr, nullptr, nullptr },
+#define pystr(x) const_cast<char*>(x)
 #endif
+
+static PyGetSetDef PyVTKMethodDescriptor_GetSet[] = {
+  { pystr("__doc__"), PyVTKMethodDescriptor_GetDoc, nullptr, nullptr, nullptr },
   { nullptr, nullptr, nullptr, nullptr, nullptr }
 };
 
 static PyMemberDef PyVTKMethodDescriptor_Members[] = {
-#if PY_VERSION_HEX >= 0x03070000
-  { "__objclass__", T_OBJECT, offsetof(PyDescrObject, d_type), READONLY, nullptr },
-  { "__name__", T_OBJECT, offsetof(PyDescrObject, d_name), READONLY, nullptr },
-#else
-  { const_cast<char*>("__objclass__"), T_OBJECT, offsetof(PyDescrObject, d_type), READONLY,
-    nullptr },
-  { const_cast<char*>("__name__"), T_OBJECT, offsetof(PyDescrObject, d_name), READONLY, nullptr },
-#endif
+  { pystr("__objclass__"), T_OBJECT, offsetof(PyDescrObject, d_type), READONLY, nullptr },
+  { pystr("__name__"), T_OBJECT, offsetof(PyDescrObject, d_name), READONLY, nullptr },
   { nullptr, 0, 0, 0, nullptr }
 };
 

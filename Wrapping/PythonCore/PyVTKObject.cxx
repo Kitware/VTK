@@ -332,18 +332,16 @@ static PyObject* PyVTKObject_GetThis(PyObject* op, void*)
   return PyUnicode_FromString(vtkPythonUtil::ManglePointer(self->vtk_ptr, buf));
 }
 
-PyGetSetDef PyVTKObject_GetSet[] = {
 #if PY_VERSION_HEX >= 0x03070000
-  { "__dict__", PyVTKObject_GetDict, nullptr, "Dictionary of attributes set by user.", nullptr },
-  { "__this__", PyVTKObject_GetThis, nullptr, "Pointer to the C++ object.", nullptr },
+#define pystr(x) x
 #else
-  { const_cast<char*>("__dict__"), PyVTKObject_GetDict, nullptr,
-    const_cast<char*>("Dictionary of attributes set by user."), nullptr },
-  { const_cast<char*>("__this__"), PyVTKObject_GetThis, nullptr,
-    const_cast<char*>("Pointer to the C++ object."), nullptr },
+#define pystr(x) const_cast<char*>(x)
 #endif
-  { nullptr, nullptr, nullptr, nullptr, nullptr }
-};
+
+PyGetSetDef PyVTKObject_GetSet[] = { { pystr("__dict__"), PyVTKObject_GetDict, nullptr,
+                                       pystr("Dictionary of attributes set by user."), nullptr },
+  { pystr("__this__"), PyVTKObject_GetThis, nullptr, pystr("Pointer to the C++ object."), nullptr },
+  { nullptr, nullptr, nullptr, nullptr, nullptr } };
 
 //------------------------------------------------------------------------------
 // The following methods and struct define the "buffer" protocol
