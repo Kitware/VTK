@@ -7,8 +7,6 @@
         - docker
         - linux-x86_64
         - build
-    environment:
-        name: rsync-upload
 
     script:
         - ls build/
@@ -16,8 +14,13 @@
         - chmod 400 $RSYNC_KEY_PATH
         - ssh-keygen -y -f $RSYNC_KEY_PATH > $RSYNC_KEY_PATH.pub
         - rsync -tv --recursive -e "ssh -i $RSYNC_KEY_PATH -o StrictHostKeyChecking=no" $RSYNC_SOURCE kitware@web.kitware.com:$RSYNC_DESTINATION/
+
+.rsync_upload_docs:
+    extends: .rsync_upload
+    environment:
+        name: rsync-upload-docs
     variables:
-        RSYNC_KEY_PATH: $RSYNC_BINARY_KEY
+        RSYNC_KEY_PATH: $RSYNC_DOCS_KEY
 
 .rsync_upload_wheel_sdk:
     extends: .rsync_upload
@@ -25,6 +28,15 @@
         name: rsync-upload-wheel-sdk
     variables:
         RSYNC_KEY_PATH: $RSYNC_WHEEL_SDK_KEY
+
+.rsync_upload_release_artifacts:
+    extends: .rsync_upload
+    environment:
+        name: rsync-upload-release-artifacts
+    before_script:
+        - . .gitlab/ci/prepare-release-env.sh
+    variables:
+        RSYNC_KEY_PATH: $RSYNC_RELEASE_KEY
 
 .pypi_upload:
     image: "fedora:34"
