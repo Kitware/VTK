@@ -305,11 +305,11 @@ public:
   /**
    * Implement required virtual functions.
    */
-  void* GetGenericDisplayId() override { return (void*)this->HelperWindow->GetGenericDisplayId(); }
-  void* GetGenericWindowId() override { return (void*)this->HelperWindow->GetGenericWindowId(); }
+  void* GetGenericDisplayId() override { return this->HelperWindow->GetGenericDisplayId(); }
+  void* GetGenericWindowId() override { return this->HelperWindow->GetGenericWindowId(); }
   void* GetGenericParentId() override { return nullptr; }
-  void* GetGenericContext() override { return (void*)this->HelperWindow->GetGenericContext(); }
-  void* GetGenericDrawable() override { return (void*)this->HelperWindow->GetGenericDrawable(); }
+  void* GetGenericContext() override { return this->HelperWindow->GetGenericContext(); }
+  void* GetGenericDrawable() override { return this->HelperWindow->GetGenericDrawable(); }
   ///@}
 
   /**
