@@ -213,9 +213,12 @@ void vtkScalarBarRepresentation::SetVisibility(vtkTypeBool vis)
 //------------------------------------------------------------------------------
 void vtkScalarBarRepresentation::GetActors2D(vtkPropCollection* collection)
 {
-  if (this->ScalarBarActor)
+  if (collection != nullptr && this->GetVisibility())
   {
-    collection->AddItem(this->ScalarBarActor);
+    if (this->ScalarBarActor)
+    {
+      collection->AddItem(this->ScalarBarActor);
+    }
   }
   this->Superclass::GetActors2D(collection);
 }

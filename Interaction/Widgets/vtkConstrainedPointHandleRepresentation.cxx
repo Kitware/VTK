@@ -646,7 +646,11 @@ void vtkConstrainedPointHandleRepresentation::BuildRepresentation()
 //------------------------------------------------------------------------------
 void vtkConstrainedPointHandleRepresentation::GetActors(vtkPropCollection* pc)
 {
-  this->Actor->GetActors(pc);
+  if (pc != nullptr && this->GetVisibility())
+  {
+    this->Actor->GetActors(pc);
+  }
+  this->Superclass::GetActors(pc);
 }
 
 //------------------------------------------------------------------------------

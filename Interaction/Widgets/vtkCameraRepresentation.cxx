@@ -199,7 +199,10 @@ void vtkCameraRepresentation::InitializePath()
 //------------------------------------------------------------------------------
 void vtkCameraRepresentation::GetActors2D(vtkPropCollection* pc)
 {
-  pc->AddItem(this->Actor);
+  if (pc != nullptr && this->GetVisibility())
+  {
+    pc->AddItem(this->Actor);
+  }
   this->Superclass::GetActors2D(pc);
 }
 

@@ -357,15 +357,19 @@ void vtkCameraOrientationRepresentation::ApplyInteractionState(const int& state)
 //-----------------------------------------------------------------------------
 void vtkCameraOrientationRepresentation::GetActors(vtkPropCollection* ac)
 {
-  ac->AddItem(this->Container);
-  for (int ax = 0; ax < 3; ++ax)
+  if (ac != nullptr && this->GetVisibility())
   {
-    ac->AddItem(this->Shafts);
-    for (int dir = 0; dir < 2; ++dir)
+    ac->AddItem(this->Container);
+    for (int ax = 0; ax < 3; ++ax)
     {
-      ac->AddItem(this->Handles[ax][dir]);
+      ac->AddItem(this->Shafts);
+      for (int dir = 0; dir < 2; ++dir)
+      {
+        ac->AddItem(this->Handles[ax][dir]);
+      }
     }
   }
+  this->Superclass::GetActors(ac);
 }
 
 //-----------------------------------------------------------------------------

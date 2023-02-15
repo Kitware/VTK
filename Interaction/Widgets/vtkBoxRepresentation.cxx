@@ -1810,16 +1810,15 @@ void vtkBoxRepresentation::RegisterPickers()
 //------------------------------------------------------------------------------
 void vtkBoxRepresentation::GetActors(vtkPropCollection* pc)
 {
-  if (!pc)
+  if (pc != nullptr && this->GetVisibility())
   {
-    return;
-  }
-  pc->AddItem(this->HexActor);
-  pc->AddItem(this->HexFace);
-  pc->AddItem(this->HexOutline);
-  for (int j = 0; j < 7; j++)
-  {
-    pc->AddItem(this->Handle[j]);
+    pc->AddItem(this->HexActor);
+    pc->AddItem(this->HexFace);
+    pc->AddItem(this->HexOutline);
+    for (int j = 0; j < 7; j++)
+    {
+      pc->AddItem(this->Handle[j]);
+    }
   }
   this->Superclass::GetActors(pc);
 }

@@ -980,14 +980,13 @@ void vtkCurveRepresentation::SetForegroundColor(double r, double g, double b)
 //------------------------------------------------------------------------------
 void vtkCurveRepresentation::GetActors(vtkPropCollection* pc)
 {
-  if (!pc)
+  if (pc != nullptr && this->GetVisibility())
   {
-    return;
-  }
-  pc->AddItem(this->LineActor);
-  for (int i = 0; i < this->GetNumberOfHandles(); ++i)
-  {
-    pc->AddItem(this->GetHandleActor(i));
+    pc->AddItem(this->LineActor);
+    for (int i = 0; i < this->GetNumberOfHandles(); ++i)
+    {
+      pc->AddItem(this->GetHandleActor(i));
+    }
   }
   this->Superclass::GetActors(pc);
 }

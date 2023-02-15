@@ -772,8 +772,12 @@ void vtkBorderRepresentation::BuildRepresentation()
 //------------------------------------------------------------------------------
 void vtkBorderRepresentation::GetActors2D(vtkPropCollection* pc)
 {
-  pc->AddItem(this->BWActorEdges);
-  pc->AddItem(this->BWActorPolygon);
+  if (pc != nullptr && this->GetVisibility())
+  {
+    pc->AddItem(this->BWActorEdges);
+    pc->AddItem(this->BWActorPolygon);
+  }
+  this->Superclass::GetActors2D(pc);
 }
 
 //------------------------------------------------------------------------------

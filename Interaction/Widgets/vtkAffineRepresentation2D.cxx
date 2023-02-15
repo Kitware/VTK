@@ -1001,14 +1001,18 @@ void vtkAffineRepresentation2D::ShallowCopy(vtkProp* prop)
 //------------------------------------------------------------------------------
 void vtkAffineRepresentation2D::GetActors2D(vtkPropCollection* pc)
 {
-  this->BoxActor->GetActors2D(pc);
-  this->HBoxActor->GetActors2D(pc);
-  this->CircleActor->GetActors2D(pc);
-  this->HCircleActor->GetActors2D(pc);
-  this->XAxis->GetActors2D(pc);
-  this->YAxis->GetActors2D(pc);
-  this->HXAxis->GetActors2D(pc);
-  this->HYAxis->GetActors2D(pc);
+  if (pc != nullptr && this->GetVisibility())
+  {
+    this->BoxActor->GetActors2D(pc);
+    this->HBoxActor->GetActors2D(pc);
+    this->CircleActor->GetActors2D(pc);
+    this->HCircleActor->GetActors2D(pc);
+    this->XAxis->GetActors2D(pc);
+    this->YAxis->GetActors2D(pc);
+    this->HXAxis->GetActors2D(pc);
+    this->HYAxis->GetActors2D(pc);
+  }
+  this->Superclass::GetActors2D(pc);
 }
 
 //------------------------------------------------------------------------------

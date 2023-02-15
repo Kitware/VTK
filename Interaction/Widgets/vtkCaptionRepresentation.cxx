@@ -229,7 +229,10 @@ void vtkCaptionRepresentation::AdjustCaptionBoundary()
 //------------------------------------------------------------------------------
 void vtkCaptionRepresentation::GetActors2D(vtkPropCollection* pc)
 {
-  pc->AddItem(this->CaptionActor2D);
+  if (pc != nullptr && this->GetVisibility())
+  {
+    pc->AddItem(this->CaptionActor2D);
+  }
   this->Superclass::GetActors2D(pc);
 }
 

@@ -485,11 +485,15 @@ void vtkSliderRepresentation2D::BuildRepresentation()
 //------------------------------------------------------------------------------
 void vtkSliderRepresentation2D::GetActors2D(vtkPropCollection* propCollection)
 {
-  propCollection->AddItem(this->SliderActor);
-  propCollection->AddItem(this->TubeActor);
-  propCollection->AddItem(this->CapActor);
-  propCollection->AddItem(this->LabelActor);
-  propCollection->AddItem(this->TitleActor);
+  if (propCollection != nullptr && this->GetVisibility())
+  {
+    propCollection->AddItem(this->SliderActor);
+    propCollection->AddItem(this->TubeActor);
+    propCollection->AddItem(this->CapActor);
+    propCollection->AddItem(this->LabelActor);
+    propCollection->AddItem(this->TitleActor);
+  }
+  this->Superclass::GetActors2D(propCollection);
 }
 
 //------------------------------------------------------------------------------

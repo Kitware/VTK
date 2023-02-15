@@ -160,7 +160,11 @@ double* vtkQWidgetRepresentation::GetBounds()
 //------------------------------------------------------------------------------
 void vtkQWidgetRepresentation::GetActors(vtkPropCollection* pc)
 {
-  this->PlaneActor->GetActors(pc);
+  if (pc != nullptr && this->GetVisibility())
+  {
+    this->PlaneActor->GetActors(pc);
+  }
+  this->Superclass::GetActors(pc);
 }
 
 //------------------------------------------------------------------------------

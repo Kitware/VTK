@@ -894,10 +894,14 @@ int vtkLineRepresentation::InBounds(double x[3])
 //------------------------------------------------------------------------------
 void vtkLineRepresentation::GetActors(vtkPropCollection* pc)
 {
-  this->LineActor->GetActors(pc);
-  this->Handle[0]->GetActors(pc);
-  this->Handle[1]->GetActors(pc);
-  this->TextActor->GetActors(pc);
+  if (pc != nullptr && this->GetVisibility())
+  {
+    this->LineActor->GetActors(pc);
+    this->Handle[0]->GetActors(pc);
+    this->Handle[1]->GetActors(pc);
+    this->TextActor->GetActors(pc);
+  }
+  this->Superclass::GetActors(pc);
 }
 
 //------------------------------------------------------------------------------
