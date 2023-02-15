@@ -553,7 +553,7 @@ extern "C"
           0) == TCL_ERROR)
     {
       Tk_DestroyWindow(tkwin);
-      Tcl_DeleteCommand(interp, (char*)"vtkTkRenderWidget");
+      Tcl_DeleteCommand(interp, "vtkTkRenderWidget");
       // Don't free it, if we do a crash occurs later...
       // free(self);
       return TCL_ERROR;
@@ -730,17 +730,16 @@ extern "C"
 int VTK_EXPORT Vtktkrenderwidget_Init(Tcl_Interp* interp)
 {
   // This widget requires Tk to function.
-  Tcl_PkgRequire(interp, (char*)"Tk", (char*)TK_VERSION, 0);
-  if (Tcl_PkgPresent(interp, (char*)"Tk", (char*)TK_VERSION, 0))
+  Tcl_PkgRequire(interp, "Tk", TK_VERSION, 0);
+  if (Tcl_PkgPresent(interp, "Tk", TK_VERSION, 0))
   {
     // Register the commands for this package.
     Tcl_CreateCommand(
-      interp, (char*)"vtkTkRenderWidget", vtkTkRenderWidget_Cmd, Tk_MainWindow(interp), nullptr);
-    Tcl_CreateCommand(
-      interp, (char*)"vtkImageDataToTkPhoto", vtkImageDataToTkPhoto_Cmd, nullptr, nullptr);
+      interp, "vtkTkRenderWidget", vtkTkRenderWidget_Cmd, Tk_MainWindow(interp), nullptr);
+    Tcl_CreateCommand(interp, "vtkImageDataToTkPhoto", vtkImageDataToTkPhoto_Cmd, nullptr, nullptr);
 
     // Report that the package is provided.
-    return Tcl_PkgProvide(interp, (char*)"Vtktkrenderwidget", (char*)VTKTK_VERSION);
+    return Tcl_PkgProvide(interp, "Vtktkrenderwidget", VTKTK_VERSION);
   }
   else
   {
