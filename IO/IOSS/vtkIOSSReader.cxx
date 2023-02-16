@@ -1574,9 +1574,10 @@ bool vtkIOSSReader::vtkInternals::GetEntityMesh(vtkUnstructuredGrid* entityGrid,
   for (const auto& blockName : blockNames)
   {
     auto local_group_entity = region->get_entity(blockName, ioss_entity_type);
+    // if the local group entity does not exist, go to the next one
     if (!local_group_entity)
     {
-      return false;
+      continue;
     }
     // get the connectivity of the block of the entity
     const auto blockCellArrayAndType = this->GetTopology(blockName, vtk_entity_type, handle);
@@ -1586,6 +1587,7 @@ bool vtkIOSSReader::vtkInternals::GetEntityMesh(vtkUnstructuredGrid* entityGrid,
       break;
     }
   }
+  // if there is no valid group entity based on the given blocks, then GetEntityMesh failed
   if (!first_group_entity)
   {
     return false;
