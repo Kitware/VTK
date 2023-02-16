@@ -51,7 +51,7 @@
 #include <sstream>
 
 vtkObjectFactoryNewMacro(vtkLagrangianParticleTracker);
-vtkCxxSetObjectMacro(vtkLagrangianParticleTracker, Integrator, vtkInitialValueProblemSolver);
+vtkCxxSetSmartPointerMacro(vtkLagrangianParticleTracker, Integrator, vtkInitialValueProblemSolver);
 
 struct IntegratingFunctor
 {
@@ -222,7 +222,7 @@ static constexpr double MAX_REINTEGRATION_FACTOR = 1.0e10;
 //------------------------------------------------------------------------------
 vtkLagrangianParticleTracker::vtkLagrangianParticleTracker()
   : IntegrationModel(vtkSmartPointer<vtkLagrangianMatidaIntegrationModel>::New())
-  , Integrator(vtkRungeKutta2::New())
+  , Integrator(vtkSmartPointer<vtkRungeKutta2>::New())
   , CellLengthComputationMode(STEP_CUR_CELL_LENGTH)
   , StepFactor(1.0)
   , StepFactorMin(0.5)
@@ -247,10 +247,7 @@ vtkLagrangianParticleTracker::vtkLagrangianParticleTracker()
 }
 
 //------------------------------------------------------------------------------
-vtkLagrangianParticleTracker::~vtkLagrangianParticleTracker()
-{
-  this->SetIntegrator(nullptr);
-}
+vtkLagrangianParticleTracker::~vtkLagrangianParticleTracker() = default;
 
 //------------------------------------------------------------------------------
 void vtkLagrangianParticleTracker::PrintSelf(ostream& os, vtkIndent indent)
@@ -332,6 +329,18 @@ void vtkLagrangianParticleTracker::SetIntegrationModel(vtkLagrangianBasicIntegra
     this->FlowCacheInvalid = true;
     this->Modified();
   }
+}
+
+//------------------------------------------------------------------------------
+vtkLagrangianBasicIntegrationModel* vtkLagrangianParticleTracker::GetIntegrationModel()
+{
+  return this->IntegrationModel;
+}
+
+//------------------------------------------------------------------------------
+vtkInitialValueProblemSolver* vtkLagrangianParticleTracker::GetIntegrator()
+{
+  return this->Integrator;
 }
 
 //------------------------------------------------------------------------------

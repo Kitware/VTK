@@ -216,6 +216,12 @@ int vtkExtractBlockUsingDataAssembly::RequestDataObject(
   vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   auto input = vtkCompositeDataSet::GetData(inputVector[0], 0);
+  if (!input)
+  {
+    vtkErrorMacro("Input is missing.");
+    return 0;
+  }
+
   auto output = vtkCompositeDataSet::GetData(outputVector, 0);
   if (vtkOverlappingAMR::SafeDownCast(input) != nullptr)
   {

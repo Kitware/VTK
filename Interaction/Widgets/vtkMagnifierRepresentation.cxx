@@ -124,8 +124,8 @@ void vtkMagnifierRepresentation::WidgetInteraction(double eventPos[2])
   viewPort[1] = eventPos[1] / winSize[1];
   viewPort[2] = viewPort[0] + static_cast<double>(this->Size[0]) / winSize[0];
   viewPort[3] = viewPort[1] + static_cast<double>(this->Size[1]) / winSize[1];
-  viewPort[2] = (viewPort[2] > vpxMax ? vpxMax : viewPort[2]);
-  viewPort[3] = (viewPort[3] > vpyMax ? vpyMax : viewPort[3]);
+  viewPort[2] = ((viewPort[2] - viewPort[0]) > vpxMax ? vpxMax : viewPort[2]);
+  viewPort[3] = ((viewPort[3] - viewPort[1]) > vpyMax ? vpyMax : viewPort[3]);
 
   this->MagnificationRenderer->SetViewport(viewPort);
 

@@ -14,6 +14,8 @@
 =========================================================================*/
 #include "vtkPolygon.h"
 
+#include "vtkArrayDispatch.h"
+#include "vtkArrayRange.h"
 #include "vtkBoundingBox.h"
 #include "vtkBox.h"
 #include "vtkCellArray.h"
@@ -103,6 +105,72 @@ bool vtkPolygon::IsConvex()
 #define VTK_POLYGON_INTERSECTION 2
 #define VTK_POLYGON_ON_LINE 3
 
+namespace
+{
+//------------------------------------------------------------------------------
+template <bool PointIdRedirection>
+vtkIdType GetPointId(const vtkIdType* pts, vtkIdType id);
+
+//------------------------------------------------------------------------------
+template <>
+vtkIdType GetPointId<true>(const vtkIdType* pts, vtkIdType id)
+{
+  return pts[id];
+}
+
+//------------------------------------------------------------------------------
+template <>
+vtkIdType GetPointId<false>(const vtkIdType*, vtkIdType id)
+{
+  return id;
+}
+
+//==============================================================================
+template <bool PointIdRedirection>
+struct NormalWorker
+{
+  /**
+   * To compute the normal, given an arbitrary point C on the plane spanned by the polygon,
+   * we accumulate for each segment P_i, P_j (with j = i + 1) the vector
+   * (P_i - C) x (P_j - C) where x is the cross product.
+   * We set C = P_0 so we can skip the 2 segments where this point exists.
+   * If C was set to 0, there could be numerical imprecision on small polygon far from the origin.
+   * Setting it to P_0 avoids such caveat while allowing us to save 2 cross products in the
+   * computation.
+   */
+  template <class ArrayT>
+  void operator()(ArrayT* p, int numPts, const vtkIdType* pts, double* n)
+  {
+    auto points = vtk::DataArrayTupleRange<3>(p);
+    using ValueType = typename decltype(points[0])::value_type;
+    using PointType = typename decltype(points)::ConstTupleReferenceType;
+    ValueType tmp[3], v1[3], v2[3];
+    PointType p0 = points[::GetPointId<PointIdRedirection>(pts, 0)];
+    vtkMath::Subtract(points[::GetPointId<PointIdRedirection>(pts, 1)], p0, v1);
+
+    for (vtkIdType pointId = 2; pointId < numPts; ++pointId)
+    {
+      vtkMath::Subtract(points[::GetPointId<PointIdRedirection>(pts, pointId)], p0, v2);
+      vtkMath::Cross(v1, v2, tmp);
+      vtkMath::Add(n, tmp, n);
+      std::swap(v1, v2);
+    }
+  }
+};
+
+//------------------------------------------------------------------------------
+template <bool PointIdRedirection>
+void ComputeNormal(vtkPoints* p, int numPts, const vtkIdType* pts, double* n)
+{
+  using Dispatcher = vtkArrayDispatch::DispatchByValueType<vtkArrayDispatch::Reals>;
+  ::NormalWorker<PointIdRedirection> worker;
+  if (!Dispatcher::Execute(p->GetData(), worker, numPts, pts, n))
+  {
+    worker(p->GetData(), numPts, pts, n);
+  }
+}
+} // anonymous namespace
+
 //------------------------------------------------------------------------------
 //
 // In many of the functions that follow, the Points and PointIds members
@@ -116,9 +184,6 @@ bool vtkPolygon::IsConvex()
 // non-convex polygons.
 void vtkPolygon::ComputeNormal(vtkPoints* p, int numPts, const vtkIdType* pts, double* n)
 {
-  int i;
-  double v[3][3], *v0 = v[0], *v1 = v[1], *v2 = v[2], *tmp;
-  double ax, ay, az, bx, by, bz;
   //
   // Check for special triangle case. Saves extra work.
   //
@@ -128,67 +193,13 @@ void vtkPolygon::ComputeNormal(vtkPoints* p, int numPts, const vtkIdType* pts, d
     return;
   }
 
-  if (numPts == 3)
-  {
-    if (pts)
-    {
-      p->GetPoint(pts[0], v0);
-      p->GetPoint(pts[1], v1);
-      p->GetPoint(pts[2], v2);
-    }
-    else
-    {
-      p->GetPoint(0, v0);
-      p->GetPoint(1, v1);
-      p->GetPoint(2, v2);
-    }
-    vtkTriangle::ComputeNormal(v0, v1, v2, n);
-    return;
-  }
-
-  //  Because polygon may be concave, need to accumulate cross products to
-  //  determine true normal.
-  //
-
-  // set things up for loop
   if (pts)
   {
-    p->GetPoint(pts[0], v1);
-    p->GetPoint(pts[1], v2);
+    ::ComputeNormal<true>(p, numPts, pts, n);
   }
   else
   {
-    p->GetPoint(0, v1);
-    p->GetPoint(1, v2);
-  }
-
-  for (i = 0; i < numPts; i++)
-  {
-    tmp = v0;
-    v0 = v1;
-    v1 = v2;
-    v2 = tmp;
-
-    if (pts)
-    {
-      p->GetPoint(pts[(i + 2) % numPts], v2);
-    }
-    else
-    {
-      p->GetPoint((i + 2) % numPts, v2);
-    }
-
-    // order is important!!! to maintain consistency with polygon vertex order
-    ax = v2[0] - v1[0];
-    ay = v2[1] - v1[1];
-    az = v2[2] - v1[2];
-    bx = v0[0] - v1[0];
-    by = v0[1] - v1[1];
-    bz = v0[2] - v1[2];
-
-    n[0] += (ay * bz - az * by);
-    n[1] += (az * bx - ax * bz);
-    n[2] += (ax * by - ay * bx);
+    ::ComputeNormal<false>(p, numPts, pts, n);
   }
 
   vtkMath::Normalize(n);

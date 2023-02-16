@@ -1113,6 +1113,7 @@ void vtkOpenGLContextDevice2D::DrawPointSprites(
       cbo->Program->SetUniformi("texture1", tunit);
     }
 
+#ifdef GL_POINT_SPRITE
     // We can actually use point sprites here
     if (this->RenderWindow->IsPointSpriteBugPresent())
     {
@@ -1120,14 +1121,17 @@ void vtkOpenGLContextDevice2D::DrawPointSprites(
       glTexEnvi(GL_POINT_SPRITE, GL_COORD_REPLACE, GL_TRUE);
     }
     glPointParameteri(GL_POINT_SPRITE_COORD_ORIGIN, GL_LOWER_LEFT);
+#endif
 
     glDrawArrays(GL_POINTS, 0, n);
 
+#ifdef GL_POINT_SPRITE
     if (this->RenderWindow->IsPointSpriteBugPresent())
     {
       glTexEnvi(GL_POINT_SPRITE, GL_COORD_REPLACE, GL_FALSE);
       glDisable(GL_POINT_SPRITE);
     }
+#endif
 
     if (sprite)
     {

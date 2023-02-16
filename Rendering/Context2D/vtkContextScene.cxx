@@ -647,7 +647,7 @@ inline bool vtkContextScene::ProcessItem(
   vtkContextMouseEvent itemEvent = event;
   itemEvent.SetPos(cur->MapFromScene(event.GetPos()));
   itemEvent.SetLastPos(cur->MapFromScene(event.GetLastPos()));
-  while (cur && !(cur->*eventPtr)(itemEvent))
+  while (cur && !(cur->GetInteractive() && (cur->*eventPtr)(itemEvent)))
   {
     cur = cur->GetParent();
     if (cur)
