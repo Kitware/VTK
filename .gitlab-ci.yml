@@ -897,7 +897,7 @@ wheel-sdk:upload:
         - wheel-windows-python311-x86_64:build
         - wheel-windows-python311-x86_64:test
     variables:
-        RSYNC_SOURCE: build/vtk-wheel-sdk-*.tar.xz
+        RSYNC_SOURCE: build/*-wheel-sdk-*.tar.xz
         RSYNC_DESTINATION: wheel-sdks/
 
 ## Static analysis builds
