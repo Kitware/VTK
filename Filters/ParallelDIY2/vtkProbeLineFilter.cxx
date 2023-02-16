@@ -390,7 +390,9 @@ struct vtkProbeLineFilter::vtkInternals
     for (auto& distIntersections : *block)
     {
       ReduceLimitPointHit(distIntersections);
-      auto prevEnd = intersections.insert(intersections.end(), distIntersections.begin(), distIntersections.end());
+      const size_t numIntersections = intersections.size();
+      intersections.insert(intersections.end(), distIntersections.begin(), distIntersections.end());
+      auto prevEnd = intersections.begin() + numIntersections;
       std::inplace_merge(intersections.begin(), prevEnd, intersections.end());
     }
 
