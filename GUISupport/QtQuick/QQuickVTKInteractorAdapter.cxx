@@ -105,9 +105,16 @@ void QQuickVTKInteractorAdapter::QueueWheelEvent(QQuickItem* item, QWheelEvent* 
   p = e->posF();
   gp = e->globalPosF();
 #endif
+#if QT_VERSION >= QT_VERSION_CHECK(5, 12, 0)
   QWheelEvent* newEvent = new QWheelEvent(this->mapEventPosition(item, p),
     this->mapEventPosition(item, gp), e->pixelDelta(), e->angleDelta(), e->buttons(),
     e->modifiers(), e->phase(), e->inverted(), e->source());
+#else
+  QWheelEvent* newEvent = new QWheelEvent(this->mapEventPosition(item, p),
+    this->mapEventPosition(item, gp), e->pixelDelta(), e->angleDelta(), //
+    0, Qt::Horizontal, // Qt4 compatibility arguments
+    e->buttons(), e->modifiers(), e->phase(), e->source(), e->inverted());
+#endif
   QueueEvent(newEvent);
 }
 
