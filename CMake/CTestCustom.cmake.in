@@ -78,6 +78,9 @@ list(APPEND CTEST_CUSTOM_WARNING_EXCEPTION
   "note: see declaration of"
   "note: see previous definition of"
 
+  # Ignore macro expansion lines from GCC
+  "note: in expansion of macro"
+
   # function cast in vtkLogger/loguru
   "vtkLogger.cxx.*: warning: cast between incompatible function types"
 
