@@ -42,6 +42,7 @@
 #include "vtkSmartPointer.h"  // for smart pointer
 
 VTK_ABI_NAMESPACE_BEGIN
+class vtkUnsignedCharArray;
 class vtkSignedCharArray;
 class vtkSelection;
 class vtkSelectionNode;
@@ -119,6 +120,22 @@ protected:
   EvaluationResult EvaluateSelection(vtkDataObject* dataObject,
     vtkDataObject::AttributeTypes association, vtkSelection* selection,
     std::map<std::string, vtkSmartPointer<vtkSelector>>& selectors);
+
+  /**
+   * Initialize and populate outputColorArray as cell array depending on vtkSelectionData available
+   * in the selection. dataObject and association are used to find the vtkInsidedness array, it's
+   * used to know if a point or cell is inside the selection.
+   *
+   * @note When several selections select the same point/cell, the color chosen will be that of the
+   * last selection.
+   */
+  vtkSmartPointer<vtkUnsignedCharArray> EvaluateColorArrayInSelection(
+    vtkDataObject* dataObject, vtkDataObject::AttributeTypes association, vtkSelection* selection);
+
+  /**
+   * Add colorArray has cell array on the dataObject.
+   */
+  void AddColorArrayOnObject(vtkDataObject* dataObject, vtkUnsignedCharArray* colorArray);
 
   /**
    * Given a non-composite input data object (either a block of a larger composite
