@@ -1650,7 +1650,6 @@ public:
 //------------------------------------------------------------------------------
 void vtkUnstructuredGrid::GetCellTypes(vtkCellTypes* types)
 {
-  VTK_LEGACY_BODY(vtkCellTypes::GetCellTypes, "VTK 9.2");
   this->GetDistinctCellTypesArray();
   types->DeepCopy(this->DistinctCellTypes);
 }
