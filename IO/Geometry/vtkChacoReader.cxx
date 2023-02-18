@@ -1294,7 +1294,7 @@ double vtkChacoReader::ReadVal(FILE* infile, int* end_flag)
     /* Now read next line, or next segment of current one. */
     ptr2 = fgets(&Line[length_left], length, infile);
 
-    if (ptr2 == (char*)nullptr)
+    if (ptr2 == nullptr)
     {
       *end_flag = -1;
       return ((double)0.0);
@@ -1401,7 +1401,7 @@ vtkIdType vtkChacoReader::ReadInt(FILE* infile, int* end_flag)
     /* Now read next line, or next segment of current one. */
     ptr2 = fgets(&Line[length_left], length, infile);
 
-    if (ptr2 == (char*)nullptr)
+    if (ptr2 == nullptr)
     {
       *end_flag = -1;
       return (0);

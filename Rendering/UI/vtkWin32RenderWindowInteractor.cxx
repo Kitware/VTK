@@ -85,7 +85,7 @@ VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkWin32RenderWindowInteractor);
 
 void (*vtkWin32RenderWindowInteractor::ClassExitMethod)(void*) = (void (*)(void*)) nullptr;
-void* vtkWin32RenderWindowInteractor::ClassExitMethodArg = (void*)nullptr;
+void* vtkWin32RenderWindowInteractor::ClassExitMethodArg = nullptr;
 void (*vtkWin32RenderWindowInteractor::ClassExitMethodArgDelete)(void*) = (void (*)(void*)) nullptr;
 
 //------------------------------------------------------------------------------

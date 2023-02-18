@@ -85,7 +85,7 @@ void* vtkOSMesaCreateWindow(int width, int height)
 
 vtkOSOpenGLRenderWindow::vtkOSOpenGLRenderWindow()
 {
-  //   this->ParentId = (Window)nullptr;
+  //   this->ParentId = nullptr;
   this->ScreenSize[0] = 1280;
   this->ScreenSize[1] = 1024;
   this->OwnDisplay = 0;

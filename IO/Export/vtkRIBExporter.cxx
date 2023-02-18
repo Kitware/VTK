@@ -275,7 +275,7 @@ void vtkRIBExporter::WriteProperty(vtkProperty* aProperty, vtkTexture* aTexture)
   //
   // if there is a texture map we need to declare it
   //
-  mapName = (char*)nullptr;
+  mapName = nullptr;
   if (aTexture)
   {
     mapName = this->GetTextureName(aTexture);
