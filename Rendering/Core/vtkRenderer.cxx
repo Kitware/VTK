@@ -1341,7 +1341,7 @@ void vtkRenderer::ResetCameraClippingRange(
 
 // Automatically set up the camera based on the visible actors.
 // Use a screen space bounding box to zoom closer to the data.
-void vtkRenderer::ResetCameraScreenSpace()
+void vtkRenderer::ResetCameraScreenSpace(const double offsetRatio)
 {
   double allBounds[6];
 
@@ -1353,7 +1353,7 @@ void vtkRenderer::ResetCameraScreenSpace()
   }
   else
   {
-    this->ResetCameraScreenSpace(allBounds);
+    this->ResetCameraScreenSpace(allBounds, offsetRatio);
   }
 
   // Here to let parallel/distributed compositing intercept
@@ -1362,8 +1362,8 @@ void vtkRenderer::ResetCameraScreenSpace()
 }
 
 // Alternative version of ResetCameraScreenSpace(bounds[6]);
-void vtkRenderer::ResetCameraScreenSpace(
-  double xmin, double xmax, double ymin, double ymax, double zmin, double zmax)
+void vtkRenderer::ResetCameraScreenSpace(double xmin, double xmax, double ymin, double ymax,
+  double zmin, double zmax, const double offsetRatio)
 {
   double bounds[6];
 
@@ -1374,11 +1374,11 @@ void vtkRenderer::ResetCameraScreenSpace(
   bounds[4] = zmin;
   bounds[5] = zmax;
 
-  this->ResetCameraScreenSpace(bounds);
+  this->ResetCameraScreenSpace(bounds, offsetRatio);
 }
 
 // Use a screen space bounding box to zoom closer to the data.
-void vtkRenderer::ResetCameraScreenSpace(const double bounds[6])
+void vtkRenderer::ResetCameraScreenSpace(const double bounds[6], const double offsetRatio)
 {
   // Make sure all bounds are visible to project into screen space
   this->ResetCamera(bounds);
@@ -1445,8 +1445,7 @@ void vtkRenderer::ResetCameraScreenSpace(const double bounds[6])
   // Now the focal point is at the center of the box
 
   const vtkRecti box(xmin, ymin, xmax - xmin, ymax - ymin);
-  // We let a 10% offset around the zoomed data
-  this->ZoomToBoxUsingViewAngle(box, 0.9);
+  this->ZoomToBoxUsingViewAngle(box, offsetRatio);
 }
 
 // Display to world using vtkVector3d
