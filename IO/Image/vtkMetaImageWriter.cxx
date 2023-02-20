@@ -112,14 +112,9 @@ void vtkMetaImageWriter::Write()
   this->GetInputAlgorithm()->UpdateExtent(ext);
 
   double origin[3];
-  double spacingDouble[3];
+  double spacing[3];
   this->GetInput()->GetOrigin(origin);
-  this->GetInput()->GetSpacing(spacingDouble);
-
-  float spacing[3];
-  spacing[0] = spacingDouble[0];
-  spacing[1] = spacingDouble[1];
-  spacing[2] = spacingDouble[2];
+  this->GetInput()->GetSpacing(spacing);
 
   int dimSize[3];
   dimSize[0] = ext[1] - ext[0] + 1;
