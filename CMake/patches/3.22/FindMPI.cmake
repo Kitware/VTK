@@ -1203,10 +1203,19 @@ macro(_MPI_create_imported_target LANG)
   endif()
 
   # When this is consumed for compiling CUDA, use '-Xcompiler' to wrap '-pthread' and '-fexceptions'.
-  string(REPLACE "-pthread" "$<$<COMPILE_LANG_AND_ID:CUDA,NVIDIA>:SHELL:-Xcompiler >-pthread"
-    _MPI_${LANG}_COMPILE_OPTIONS "${MPI_${LANG}_COMPILE_OPTIONS}")
-  string(REPLACE "-fexceptions" "$<$<COMPILE_LANG_AND_ID:CUDA,NVIDIA>:SHELL:-Xcompiler >-fexceptions"
-    _MPI_${LANG}_COMPILE_OPTIONS "${_MPI_${LANG}_COMPILE_OPTIONS}")
+  if (CMAKE_VERSION VERSION_LESS "3.15") # Introduction of $<COMPILE_LANG_AND_ID>
+    if (CMAKE_CUDA_COMPILER)
+      message(AUTHOR_WARNING
+        "MPI cannot indicate that its pthreads and exceptions flags are meant "
+        "for the underlying compiler and not CUDA. Please use CMake 3.15+ for "
+        "proper flags when using CUDA.")
+    endif ()
+  else ()
+    string(REPLACE "-pthread" "$<$<COMPILE_LANG_AND_ID:CUDA,NVIDIA>:SHELL:-Xcompiler >-pthread"
+      _MPI_${LANG}_COMPILE_OPTIONS "${MPI_${LANG}_COMPILE_OPTIONS}")
+    string(REPLACE "-fexceptions" "$<$<COMPILE_LANG_AND_ID:CUDA,NVIDIA>:SHELL:-Xcompiler >-fexceptions"
+      _MPI_${LANG}_COMPILE_OPTIONS "${_MPI_${LANG}_COMPILE_OPTIONS}")
+  endif ()
   set_property(TARGET MPI::MPI_${LANG} PROPERTY INTERFACE_COMPILE_OPTIONS "${_MPI_${LANG}_COMPILE_OPTIONS}")
   unset(_MPI_${LANG}_COMPILE_OPTIONS)
 
