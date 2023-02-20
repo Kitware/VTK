@@ -153,6 +153,15 @@ public:
   const QCursor& defaultCursor() const { return this->VTKOpenGLWindow->defaultCursor(); }
   ///@}
 
+  ///@{
+  /**
+   * Set/get the cursor to use for this widget.
+   * Internally calls QWindow::setCursor / QWindow::cursor on the embedded window.
+   */
+  void setCursorCustom(const QCursor& cursor) { this->VTKOpenGLWindow->setCursor(cursor); };
+  QCursor cursorCustom() const { return this->VTKOpenGLWindow->cursor(); }
+  ///@}
+
   /**
    * Returns true if the internal QOpenGLWindow's is valid, i.e. if OpenGL
    * resources, like the context, have been successfully initialized.

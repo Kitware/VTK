@@ -200,6 +200,15 @@ public:
   const QCursor& defaultCursor() const { return this->DefaultCursor; }
   ///@}
 
+  ///@{
+  /**
+   * Convenience method by symmetry with QVTKOpenGLStereoWidget.
+   * Internally just calls QWidget::setCursor / QWidget::cursor.
+   */
+  void setCursorCustom(const QCursor& cursor) { this->setCursor(cursor); }
+  QCursor cursorCustom() const { return this->cursor(); }
+  ///@}
+
 protected Q_SLOTS:
   /**
    * Called as a response to `QOpenGLContext::aboutToBeDestroyed`. This may be
