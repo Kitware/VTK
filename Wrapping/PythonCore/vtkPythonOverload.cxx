@@ -877,7 +877,14 @@ PyObject* vtkPythonOverload::CallMethod(PyMethodDef* methods, PyObject* self, Py
 
   if (meth)
   {
-    return meth->ml_meth(self, args);
+    PyObject* func = PyCFunction_New(meth, self);
+    PyObject* sobj = nullptr;
+    if (func)
+    {
+      sobj = PyObject_Call(func, args, nullptr);
+      Py_DECREF(func);
+    }
+    return sobj;
   }
 
   PyErr_SetString(PyExc_TypeError, "arguments do not match any overloaded methods");

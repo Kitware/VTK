@@ -869,7 +869,7 @@ static void vtkWrapPython_ReplaceInvokeEvent(FILE* fp, const char* classname, Cl
       for (eventIdx = 0; eventIdx < 2; eventIdx++)
       {
         fprintf(fp,
-          "  {nullptr, PyvtkObject_InvokeEvent_%s%s, METH_VARARGS,\n"
+          "  {\"InvokeEvent\", PyvtkObject_InvokeEvent_%s%s, METH_VARARGS,\n"
           "   \"@%s%s\"},\n",
           eventTypeString[eventIdx], callBackTypeString[callBackIdx], eventTypeString[eventIdx],
           fullCallBackTypeString[callBackIdx]);

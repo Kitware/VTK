@@ -803,9 +803,12 @@ void* vtkPythonUtil::GetPointerFromSpecialObject(
     if (meth && meth->ml_meth)
     {
       PyObject* args = PyTuple_Pack(1, obj);
-
-      sobj = meth->ml_meth(nullptr, args);
-
+      PyObject* func = PyCFunction_New(meth, nullptr);
+      if (func)
+      {
+        sobj = PyObject_Call(func, args, nullptr);
+        Py_DECREF(func);
+      }
       Py_DECREF(args);
     }
 

@@ -509,9 +509,10 @@ void vtkWrapPython_OverloadMethodDef(FILE* fp, const char* classname, ClassInfo*
     }
 
     fprintf(fp,
-      "  {nullptr, Py%s_%s%s, METH_VARARGS%s,\n"
+      "  {\"%s\", Py%s_%s%s, METH_VARARGS%s,\n"
       "   \"%s\"},\n",
-      classname, theOccurrence->Name, occSuffix, theOccurrence->IsStatic ? " | METH_STATIC" : "",
+      theOccurrence->Name, classname, theOccurrence->Name, occSuffix,
+      theOccurrence->IsStatic ? " | METH_STATIC" : "",
       vtkWrapPython_ArgCheckString(data, theOccurrence));
   }
 
