@@ -147,7 +147,6 @@ int vtkCompositeCutter::RequestData(
 
   vtkNew<vtkAppendPolyData> append;
   append->SetContainerAlgorithm(this);
-  int numObjects(0);
 
   using Opts = vtk::CompositeDataSetOptions;
   for (vtkDataObject* dObj : vtk::Range(inData, Opts::SkipEmptyNodes))
@@ -159,7 +158,6 @@ int vtkCompositeCutter::RequestData(
     outInfo->Set(vtkDataObject::DATA_OBJECT(), out);
     this->Superclass::RequestData(request, inputVector, outputVector);
     append->AddInputData(out);
-    numObjects++;
   }
   append->Update();
 

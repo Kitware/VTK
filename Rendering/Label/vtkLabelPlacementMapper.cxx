@@ -872,7 +872,9 @@ void vtkLabelPlacementMapper::RenderOverlay(vtkViewport* viewport, vtkActor2D* v
 
   vtkDebugMacro("------");
   vtkDebugMacro("Placed: " << placed);
+  (void)placed;
   vtkDebugMacro("Labels Occluded: " << occluded);
+  (void)occluded;
 
   delete[] zPtr;
 

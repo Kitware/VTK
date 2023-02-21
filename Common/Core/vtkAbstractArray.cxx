@@ -784,7 +784,6 @@ void vtkAbstractArray::UpdateDiscreteValueSet(double uncertainty, double minimum
   constexpr int sampleFactor = 5;
 
   // I. Determine the granularity at which the array should be sampled.
-  int numberOfComponentsWithProminentValues = 0;
   int nc = this->NumberOfComponents;
   int blockSize = cacheLineSize / (this->GetDataTypeSize() * nc);
   if (!blockSize)
@@ -838,7 +837,6 @@ void vtkAbstractArray::UpdateDiscreteValueSet(double uncertainty, double minimum
   {
     if (!uniques[c].empty() && uniques[c].size() <= this->MaxDiscreteValues)
     {
-      ++numberOfComponentsWithProminentValues;
       iv = this->GetInformation()->Get(PER_COMPONENT());
       if (!iv)
       {
@@ -861,7 +859,6 @@ void vtkAbstractArray::UpdateDiscreteValueSet(double uncertainty, double minimum
   }
   if (nc > 1 && uniques[nc].size() <= this->MaxDiscreteValues * nc)
   {
-    ++numberOfComponentsWithProminentValues;
     this->GetInformation()->Set(
       DISCRETE_VALUES(), uniques[nc].data(), static_cast<int>(uniques[nc].size()));
   }

@@ -858,7 +858,10 @@ int vtkOTMesh::CreateInsertionCavity(OTPoint* p, OTTetra* initialTet, double[4])
   // Process queue of tetras until exhausted
   //
   int i, valid;
+#if 0
+  //please leave this for debugging purposes
   int somethingNotValid = 0;
+#endif
   OTTetra *nei, *tetra;
   TetraQueueIterator t;
   for (int numCycles = 0; !this->TetraStack.empty(); numCycles++)
@@ -914,7 +917,10 @@ int vtkOTMesh::CreateInsertionCavity(OTPoint* p, OTTetra* initialTet, double[4])
     // check for validity
     if (!valid) // broke out due to invalid face
     {
+#if 0
+      //please leave this for debugging purposes
       somethingNotValid++;
+#endif
       // add this tetra to queue
       this->DegenerateQueue.push_back(tetra);
 

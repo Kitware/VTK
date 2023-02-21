@@ -1910,7 +1910,6 @@ std::string ComputeColorMultiDeclaration(
 std::string ComputeOpacityMultiDeclaration(vtkOpenGLGPUVolumeRayCastMapper::VolumeInputMap& inputs)
 {
   std::ostringstream ss;
-  int i = 0;
   for (auto& item : inputs)
   {
     auto prop = item.second.Volume->GetProperty();
@@ -1920,7 +1919,6 @@ std::string ComputeOpacityMultiDeclaration(vtkOpenGLGPUVolumeRayCastMapper::Volu
     auto& map = item.second.OpacityTablesMap;
     const auto numComp = map.size();
     ss << "uniform sampler2D " << ArrayBaseName(map[0]) << "[" << numComp << "];\n";
-    i++;
   }
 
   ss << "float computeOpacity(vec4 scalar, const in sampler2D opacityTF)\n"
@@ -1936,7 +1934,6 @@ std::string ComputeGradientOpacityMulti1DDecl(
 {
   std::ostringstream ss;
 
-  int i = 0;
   for (auto& item : inputs)
   {
     auto prop = item.second.Volume->GetProperty();
@@ -1946,7 +1943,6 @@ std::string ComputeGradientOpacityMulti1DDecl(
     auto& map = item.second.GradientOpacityTablesMap;
     const auto numComp = map.size();
     ss << "uniform sampler2D " << ArrayBaseName(map[0]) << "[" << numComp << "];\n";
-    i++;
   }
 
   ss << "float computeGradientOpacity(vec4 grad, const in sampler2D gradientTF)\n"
@@ -2116,7 +2112,6 @@ std::string ComputeColor2DDeclaration(vtkRenderer* vtkNotUsed(ren),
 std::string Transfer2DDeclaration(vtkOpenGLGPUVolumeRayCastMapper::VolumeInputMap& inputs)
 {
   std::ostringstream ss;
-  int i = 0;
   for (auto& item : inputs)
   {
     auto prop = item.second.Volume->GetProperty();
@@ -2126,7 +2121,6 @@ std::string Transfer2DDeclaration(vtkOpenGLGPUVolumeRayCastMapper::VolumeInputMa
     auto& map = item.second.TransferFunctions2DMap;
     const auto numComp = map.size();
     ss << "uniform sampler2D " << ArrayBaseName(map[0]) << "[" << numComp << "];\n";
-    i++;
   }
 
   std::string result = ss.str() +

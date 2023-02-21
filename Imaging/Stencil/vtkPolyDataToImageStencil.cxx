@@ -219,10 +219,8 @@ bool EdgeLocator::InsertUniqueEdge(vtkIdType i0, vtkIdType i1, vtkIdType& edgeId
     return false;
   }
 
-  int i = 1;
   while (node->next != nullptr)
   {
-    i++;
     node = node->next;
 
     if (node->ptId == i1)

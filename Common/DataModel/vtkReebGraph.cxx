@@ -1971,7 +1971,6 @@ void vtkReebGraph::CloseStream()
   } while (aIt != localAdjacency.end());
 
   // now cleanup the internal representation
-  int nmyend = 0;
   for (vtkIdType N = 1; N < this->Storage->MainNodeTable.Size; N++)
   {
     // clear the node
@@ -1982,7 +1981,6 @@ void vtkReebGraph::CloseStream()
 
     if (!n->IsFinalized)
     {
-      nmyend++;
       this->Storage->EndVertex(N);
     }
   }

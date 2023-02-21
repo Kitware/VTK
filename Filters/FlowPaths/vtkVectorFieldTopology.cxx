@@ -1456,17 +1456,12 @@ int vtkVectorFieldTopology::ComputeSeparatrices(vtkPolyData* criticalPoints,
 
     Eigen::EigenSolver<Eigen::Matrix<double, 3, 3>> eigenS(eigenMatrix);
 
-    int countReal = 0;
     int countComplex = 0;
     int countPos = 0;
     int countNeg = 0;
     for (int i = 0; i < this->Dimension; i++)
     {
-      if (imag(eigenS.eigenvalues()[i]) == 0.0)
-      {
-        countReal++;
-      }
-      else
+      if (imag(eigenS.eigenvalues()[i]) != 0.0)
       {
         countComplex++;
       }

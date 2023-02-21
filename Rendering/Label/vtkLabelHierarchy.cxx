@@ -687,7 +687,9 @@ void vtkLabelHierarchyFullSortIterator::Begin(vtkIdTypeArray* vtkNotUsed(lastPla
   }
   vtkDebugMacro("max level is " << maxLevel);
   vtkDebugMacro("num nodes " << numNodes);
+  (void)numNodes;
   vtkDebugMacro("avg leaf depth " << static_cast<double>(totalLeafDepth) / numLeaf);
+  (void)numLeaf;
 
   this->NodesTraversed = 0;
   this->NodeIterator = this->NodeSet.begin();

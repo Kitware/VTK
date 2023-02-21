@@ -199,20 +199,6 @@ int vtkBoxClipDataSet::RequestData(vtkInformation* vtkNotUsed(request),
   int numOutputs = 1;
   int inputObjectType = input->GetDataObjectType();
 
-  // if we have volumes
-  if (inputObjectType == VTK_STRUCTURED_POINTS || inputObjectType == VTK_IMAGE_DATA)
-  {
-    int dimension;
-    int* dims = vtkImageData::SafeDownCast(input)->GetDimensions();
-    for (dimension = 3, i = 0; i < 3; i++)
-    {
-      if (dims[i] <= 1)
-      {
-        dimension--;
-      }
-    }
-  }
-
   // Initialize self; create output objects
   //
   if (numPts < 1)

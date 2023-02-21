@@ -139,7 +139,6 @@ int vtkFillHolesFilter::RequestData(vtkInformation* vtkNotUsed(request),
   // Track all free edges and see whether polygons can be built from them.
   // For each polygon of appropriate HoleSize, triangulate the hole and
   // add to the output list of cells
-  vtkIdType numHolesFilled = 0;
   numCells = newLines->GetNumberOfCells();
   vtkCellArray* newCells = nullptr;
   if (numCells >= 3) // only do the work if there are free edges
@@ -209,7 +208,6 @@ int vtkFillHolesFilter::RequestData(vtkInformation* vtkNotUsed(request),
           if (sphere[3] <= this->HoleSize)
           {
             // Now triangulate the loop and pass to the output
-            numHolesFilled++;
             polygon->NonDegenerateTriangulate(neighbors);
             for (i = 0; i < neighbors->GetNumberOfIds(); i += 3)
             {

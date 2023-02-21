@@ -173,6 +173,7 @@ void vtkImageConnector::MarkData(vtkImageData* data, int numberOfAxes, int exten
     delete seed;
   }
   vtkDebugMacro("Marked " << count << " pixels");
+  (void)count;
 }
 
 void vtkImageConnector::PrintSelf(ostream& os, vtkIndent indent)

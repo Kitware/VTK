@@ -713,7 +713,6 @@ void vtkAMRResampleFilter::TransferToGridNodes(vtkUniformGrid* g, vtkOverlapping
   }
 
   // STEP 3: Loop through all the points and find the donors.
-  int numPoints = 0;
   unsigned int donorLevel = 0;
   unsigned int donorGridId = 0;
   double qPoint[3];
@@ -740,7 +739,6 @@ void vtkAMRResampleFilter::TransferToGridNodes(vtkUniformGrid* g, vtkOverlapping
       {
         useCached = false;
         // Point is outside the domain, blank it
-        ++numPoints;
         g->BlankPoint(pIdx);
       }
     } // END for all grid nodes
@@ -767,7 +765,6 @@ void vtkAMRResampleFilter::TransferToGridNodes(vtkUniformGrid* g, vtkOverlapping
       {
         useCached = false;
         // Point is outside the domain, blank it
-        ++numPoints;
         g->BlankPoint(pIdx);
       }
     } // END for all grid nodes

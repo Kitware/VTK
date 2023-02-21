@@ -287,10 +287,8 @@ vtkIdType* vtkCCSEdgeLocator::InsertUniqueEdge(vtkIdType i0, vtkIdType i1, vtkId
     return nullptr;
   }
 
-  int i = 1;
   while (node->next != nullptr)
   {
-    i++;
     node = node->next;
 
     if (node->ptId0 == i0 && node->ptId1 == i1)
