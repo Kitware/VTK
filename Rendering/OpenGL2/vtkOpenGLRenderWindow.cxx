@@ -966,6 +966,8 @@ int vtkOpenGLRenderWindow::GetColorBufferInternalFormat(int attachmentPoint)
     }
     vtkOpenGLClearErrorMacro();
   }
+#else
+  (void)attachmentPoint;
 #endif
 
   return format;

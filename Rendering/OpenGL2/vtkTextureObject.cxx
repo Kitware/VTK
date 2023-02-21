@@ -727,6 +727,7 @@ unsigned int vtkTextureObject::GetDefaultFormat(
         return GL_RGBA;
     }
 #else
+  (void)shaderSupportsTextureInt;
   {
     switch (numComps)
     {
@@ -1401,6 +1402,8 @@ vtkPixelBufferObject* vtkTextureObject::Download(unsigned int target, unsigned i
 #ifndef GL_ES_VERSION_3_0
   glGetTexImage(target, level, this->Format, this->Type, BUFFER_OFFSET(0));
 #else
+  (void)level;
+  (void)target;
   // you can do something with glReadPixels and binding a texture as a FBO
   // I believe for ES 2.0
 #endif
@@ -1495,6 +1498,11 @@ bool vtkTextureObject::AllocateProxyTexture3D(unsigned int const width, unsigned
 
   return testWidth != 0;
 #else
+  (void)width;
+  (void)height;
+  (void)depth;
+  (void)numComps;
+  (void)dataType;
   return true;
 #endif
 }
@@ -1764,6 +1772,9 @@ bool vtkTextureObject::Allocate1D(unsigned int width, int numComps, int vtkType)
   this->Deactivate();
   return true;
 #else
+  (void)width;
+  (void)numComps;
+  (void)vtkType;
   return false;
 #endif
 }

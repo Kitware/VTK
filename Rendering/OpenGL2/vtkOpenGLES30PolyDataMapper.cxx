@@ -206,7 +206,10 @@ vtkOpenGLES30PolyDataMapper::vtkOpenGLES30PolyDataMapper() = default;
 vtkOpenGLES30PolyDataMapper::~vtkOpenGLES30PolyDataMapper() = default;
 
 //------------------------------------------------------------------------------
-void vtkOpenGLES30PolyDataMapper::PrintSelf(ostream& os, vtkIndent indent) {}
+void vtkOpenGLES30PolyDataMapper::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os, indent);
+}
 
 //------------------------------------------------------------------------------
 void vtkOpenGLES30PolyDataMapper::RenderPieceStart(vtkRenderer* ren, vtkActor* act)
@@ -304,7 +307,7 @@ void vtkOpenGLES30PolyDataMapper::RenderPieceDraw(vtkRenderer* ren, vtkActor* ac
 }
 
 //------------------------------------------------------------------------------
-void vtkOpenGLES30PolyDataMapper::RenderPieceFinish(vtkRenderer* ren, vtkActor* act)
+void vtkOpenGLES30PolyDataMapper::RenderPieceFinish(vtkRenderer* ren, vtkActor* vtkNotUsed(act))
 {
   vtkHardwareSelector* selector = ren->GetSelector();
   // render points for point picking in a special way
@@ -614,7 +617,8 @@ void vtkOpenGLES30PolyDataMapper::ReplaceShaderPicking(
 
 //------------------------------------------------------------------------------
 void vtkOpenGLES30PolyDataMapper::ReplaceShaderPointSize(
-  std::map<vtkShader::Type, vtkShader*> shaders, vtkRenderer* ren, vtkActor* act)
+  std::map<vtkShader::Type, vtkShader*> shaders, vtkRenderer* vtkNotUsed(ren),
+  vtkActor* vtkNotUsed(act))
 {
   std::string VSSource = shaders[vtkShader::Vertex]->GetSource();
   vtkShaderProgram::Substitute(VSSource, "//VTK::PointSizeGLES30::Dec", "uniform float PointSize;");
@@ -713,7 +717,7 @@ void vtkOpenGLES30PolyDataMapper::BuildBufferObjects(vtkRenderer* ren, vtkActor*
 
 //------------------------------------------------------------------------------
 void vtkOpenGLES30PolyDataMapper::AppendOneBufferObject(vtkRenderer* ren, vtkActor* act,
-  vtkPolyData* polydata, vtkOpenGLCellToVTKCellMap* prim2cellMap, vtkIdType& voffset)
+  vtkPolyData* polydata, vtkOpenGLCellToVTKCellMap* prim2cellMap, vtkIdType& vtkNotUsed(voffset))
 {
   vtkProperty* prop = act->GetProperty();
 
@@ -991,7 +995,8 @@ void vtkOpenGLES30PolyDataMapper::AppendOneBufferObject(vtkRenderer* ren, vtkAct
 }
 
 //------------------------------------------------------------------------------
-void vtkOpenGLES30PolyDataMapper::UpdateMaximumPointCellIds(vtkRenderer* ren, vtkActor* actor)
+void vtkOpenGLES30PolyDataMapper::UpdateMaximumPointCellIds(
+  vtkRenderer* ren, vtkActor* vtkNotUsed(actor))
 {
   vtkHardwareSelector* selector = ren->GetSelector();
   vtkIdType maxPointId = this->CurrentInput->GetPoints()->GetNumberOfPoints() - 1;

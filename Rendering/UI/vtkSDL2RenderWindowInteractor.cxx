@@ -38,7 +38,7 @@ VTK_ABI_NAMESPACE_BEGIN
 #ifdef __EMSCRIPTEN__
 namespace
 {
-EM_BOOL ResizeCallback(int eventType, const EmscriptenUiEvent* e, void* userData)
+EM_BOOL ResizeCallback(int vtkNotUsed(eventType), const EmscriptenUiEvent* e, void* userData)
 {
   auto interactor = reinterpret_cast<vtkRenderWindowInteractor*>(userData);
   interactor->UpdateSize(e->windowInnerWidth, e->windowInnerHeight);

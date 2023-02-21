@@ -1191,6 +1191,8 @@ void vtkCompositeMapperHelper2::AppendOneBufferObject(vtkRenderer* ren, vtkActor
 }
 #else
 {
+  (void)newColors;
+  (void)newNorms;
   this->Superclass::AppendOneBufferObject(ren, act, hdata->Data, hdata->CellCellMap, voffset);
 }
 #endif

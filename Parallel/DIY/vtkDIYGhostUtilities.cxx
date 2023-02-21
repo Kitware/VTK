@@ -2790,6 +2790,8 @@ void FillUnstructuredDataTopologyBuffer(
   {
     cellArray->ConvertTo32BitStorage();
   }
+#else
+  (void)maxPointId;
 #endif
 
   int mask = (cellArray->IsStorage64Bit() << 1) |
@@ -2838,6 +2840,8 @@ void FillUnstructuredDataTopologyBuffer(
 #ifdef VTK_USE_64BIT_IDS
   bool convertTo32Bits = !(maxPointId >> 31) || !(connectivitySize[0] >> 31) ||
     !(connectivitySize[1] >> 31) || !(connectivitySize[2]) >> 31;
+#else
+  (void)maxPointId;
 #endif
 
   for (int i = 0; i < 3; ++i)
