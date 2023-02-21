@@ -206,7 +206,6 @@ vtkNek5000Reader::~vtkNek5000Reader()
     delete[] this->dataArray;
     this->dataArray = nullptr;
   }
-
   if (this->num_vars > 0)
   {
     for (auto i = 0; i < this->num_vars; i++)
@@ -1701,7 +1700,6 @@ void vtkNek5000Reader::copyContinuumData(vtkUnstructuredGrid* pv_ugrid)
         vectors->SetName(this->var_names[v_index]);
 
         // for each  element/block in the continuum mesh
-
         for (int b_index = 0; b_index < this->myNumBlocks; ++b_index)
         {
           // for every point in this element/block
@@ -1720,15 +1718,15 @@ void vtkNek5000Reader::copyContinuumData(vtkUnstructuredGrid* pv_ugrid)
             index++;
           }
         }
-
         this->UGrid->GetPointData()->AddArray(vectors);
         vectors->Delete();
         delete[] this->dataArray[v_index];
       }
       //
       // std::cerr << __LINE__ << " deleting this->dataArray[" << v_index << "]\n";
+
     } // if(this->use_variable[v_index])
-    /*else
+    else
     {
       // remove array if present, it is not needed
       if (pv_ugrid->GetPointData()->GetArray(this->var_names[v_index]) != nullptr)
@@ -1740,7 +1738,7 @@ void vtkNek5000Reader::copyContinuumData(vtkUnstructuredGrid* pv_ugrid)
       {
         this->UGrid->GetPointData()->RemoveArray(this->var_names[v_index]);
       }
-    }*/
+    }
   }
 } // vtkNek5000Reader::copyContinuumData()
 
