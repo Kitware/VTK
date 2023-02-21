@@ -98,7 +98,7 @@ public:
    * NOTE: Note that a set of bounding planes must be supplied. The Oblique
    * plane, if supplied is ignored.
    */
-  int ComputeWorldPosition(vtkRenderer* ren, double displayPos[2], double refWorldPos[2],
+  int ComputeWorldPosition(vtkRenderer* ren, double displayPos[2], double refWorldPos[3],
     double worldPos[3], double worldOrient[9]) override;
 
   /**

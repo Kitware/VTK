@@ -416,7 +416,7 @@ vtkDiscreteFlyingEdges2DAlgorithm<T>::vtkDiscreteFlyingEdges2DAlgorithm()
 // proximity to boundary when computing gradients, etc.
 template <class T>
 void vtkDiscreteFlyingEdges2DAlgorithm<T>::InterpolateEdge(double vtkNotUsed(value),
-  T* vtkNotUsed(s), int ijk[3], unsigned char edgeNum, unsigned char edgeUses[12], vtkIdType* eIds)
+  T* vtkNotUsed(s), int ijk[3], unsigned char edgeNum, unsigned char edgeUses[4], vtkIdType* eIds)
 {
   // if this edge is not used then get out
   if (!edgeUses[edgeNum])

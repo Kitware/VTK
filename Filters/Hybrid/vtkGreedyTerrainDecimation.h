@@ -244,7 +244,7 @@ protected:
 
   void UpdateTriangles(vtkIdType meshPtId); // update all points connected to this point
   void UpdateTriangle(vtkIdType triId, vtkIdType p1, vtkIdType p2, vtkIdType p3);
-  void UpdateTriangle(vtkIdType triId, int ij1[2], int ij2[2], int ij3[2], double h[4]);
+  void UpdateTriangle(vtkIdType triId, int ij1[2], int ij2[2], int ij3[2], double h[3]);
 
   int CharacterizeTriangle(int ij1[2], int ij2[2], int ij[3], int*& min, int*& max, int*& midL,
     int*& midR, int*& mid, int mid2[2], double h[3], double& hMin, double& hMax, double& hL,

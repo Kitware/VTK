@@ -155,7 +155,7 @@ protected:
   vtkTransform* Transform;
 
   void TransformSlice(
-    unsigned short* slice, unsigned short* pixels, int k, int dimensions[3], int bounds[3]);
+    unsigned short* slice, unsigned short* pixels, int k, int dimensions[3], int bounds[6]);
   void ComputeTransformedDimensions(int dimensions[3]);
   void ComputeTransformedBounds(int bounds[6]);
   void ComputeTransformedSpacing(double Spacing[3]);

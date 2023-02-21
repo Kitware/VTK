@@ -78,7 +78,7 @@ protected:
   void SetTransformMatrix(
     vtkMatrix4x4* matrix, vtkImagePlaneWidget* currentImagePlane, int indexOfModifiedPlane);
 
-  void GetBounds(double bounds[3]);
+  void GetBounds(double bounds[6]);
 
   // The plane definitions prior to any rotations or scales
   double Origin[3][3];

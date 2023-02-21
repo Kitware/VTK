@@ -341,7 +341,7 @@ double* vtkLabeledContourMapper::GetBounds()
 }
 
 //------------------------------------------------------------------------------
-void vtkLabeledContourMapper::GetBounds(double bounds[])
+void vtkLabeledContourMapper::GetBounds(double bounds[6])
 {
   this->Superclass::GetBounds(bounds);
 }

@@ -145,7 +145,7 @@ protected:
 
   // used in CreateFrustum
   void ComputePlane(
-    int idx, double v0[3], double v1[2], double v2[3], vtkPoints* points, vtkDoubleArray* norms);
+    int idx, double v0[3], double v1[3], double v2[3], vtkPoints* points, vtkDoubleArray* norms);
 
   // modes
   int FieldType;

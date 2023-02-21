@@ -1050,7 +1050,7 @@ void vtkPentagonalPrism::Derivatives(
 // matrix. Returns 9 elements of 3x3 inverse Jacobian plus interpolation
 // function derivatives.
 void vtkPentagonalPrism::JacobianInverse(
-  const double pcoords[3], double** inverse, double derivs[24])
+  const double pcoords[3], double** inverse, double derivs[30])
 {
   int i, j;
   double *m[3], m0[3], m1[3], m2[3];
