@@ -932,7 +932,8 @@ unsigned int vtkHyperTreeGrid::RecurseDichotomic(
     return iBegin;
   }
   unsigned int iMid = iBegin + (iEnd - iBegin) / 2;
-  double currentTol = (iMid == coord->GetNumberOfTuples() - 1) ? tol : 0.0;
+  double currentTol =
+    (iMid == static_cast<unsigned int>(coord->GetNumberOfTuples() - 1)) ? tol : 0.0;
   if (value < (coord->GetValue(iMid) + currentTol))
   {
     return this->RecurseDichotomic(value, coord, tol, iBegin, iMid);

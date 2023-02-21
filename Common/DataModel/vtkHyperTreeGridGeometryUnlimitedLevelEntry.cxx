@@ -167,7 +167,7 @@ void vtkHyperTreeGridGeometryUnlimitedLevelEntry::ToChild(
   if (this->Index >= 0 && this->Index < static_cast<vtkIdType>(indexMax))
   {
     const vtkIdType elder = this->Tree->GetElderChildIndex(this->Index);
-    if (elder != std::numeric_limits<unsigned int>::max())
+    if (elder != static_cast<vtkIdType>(std::numeric_limits<unsigned int>::max()))
     {
       this->Index = elder + ichild;
       this->LastRealIndex = this->Index;
