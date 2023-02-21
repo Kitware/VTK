@@ -110,7 +110,6 @@ bool vtkSDL2RenderWindowInteractor::ProcessEvent(void* arg)
     {
       return true;
     }
-    break;
 
     case SDL_USEREVENT:
     {
