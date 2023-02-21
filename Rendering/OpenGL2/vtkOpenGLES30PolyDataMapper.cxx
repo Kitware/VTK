@@ -280,8 +280,6 @@ void vtkOpenGLES30PolyDataMapper::RenderPieceStart(vtkRenderer* ren, vtkActor* a
 void vtkOpenGLES30PolyDataMapper::RenderPieceDraw(vtkRenderer* ren, vtkActor* act)
 {
   const int representation = act->GetProperty()->GetRepresentation();
-  vtkOpenGLRenderWindow* renWin = static_cast<vtkOpenGLRenderWindow*>(ren->GetRenderWindow());
-  vtkOpenGLState* ostate = renWin->GetState();
   vtkHardwareSelector* selector = ren->GetSelector();
   bool draw_surface_with_edges =
     (act->GetProperty()->GetEdgeVisibility() && representation == VTK_SURFACE) && !selector;
@@ -644,7 +642,6 @@ void vtkOpenGLES30PolyDataMapper::SetMapperShaderParameters(
 //------------------------------------------------------------------------------
 void vtkOpenGLES30PolyDataMapper::BuildBufferObjects(vtkRenderer* ren, vtkActor* act)
 {
-  vtkPolyData* polydata = this->CurrentInput;
   vtkIdType vOffset = 0;
 
   for (auto& indexArray : this->PrimitiveIndexArrays)
@@ -1000,6 +997,8 @@ void vtkOpenGLES30PolyDataMapper::UpdateMaximumPointCellIds(
 {
   vtkHardwareSelector* selector = ren->GetSelector();
   vtkIdType maxPointId = this->CurrentInput->GetPoints()->GetNumberOfPoints() - 1;
+  // TODO: figure out custom pointArrayId `selector->UpdateMaximumCellId`
+  (void)maxPointId;
   for (auto& indexArray : this->PrimitiveIndexArrays)
   {
     selector->UpdateMaximumPointId(indexArray.size());

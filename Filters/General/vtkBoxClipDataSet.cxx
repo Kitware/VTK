@@ -197,7 +197,6 @@ int vtkBoxClipDataSet::RequestData(vtkInformation* vtkNotUsed(request),
   int j;
   int cellType = 0;
   int numOutputs = 1;
-  int inputObjectType = input->GetDataObjectType();
 
   // Initialize self; create output objects
   //
