@@ -18,7 +18,6 @@
 #include <algorithm>
 #include <cctype>
 #include <random>
-#include <regex>
 
 // exprtk macros
 #define exprtk_disable_string_capabilities
