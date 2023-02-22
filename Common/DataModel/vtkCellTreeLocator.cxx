@@ -27,7 +27,6 @@
 
 #include <algorithm>
 #include <array>
-#include <memory>
 #include <stack>
 #include <vector>
 
@@ -49,6 +48,7 @@ enum
   POS_Z,
   NEG_Z
 };
+#define CELLTREE_MAX_DEPTH 32
 
 //------------------------------------------------------------------------------
 // Perform locator operations like FindCell. Uses templated subclasses
@@ -235,7 +235,7 @@ struct CellPointTraversal
   using TCellTree = CellTree<T>;
   using TCellTreeNode = typename TCellTree::TCellTreeNode;
   const TCellTree& Tree;
-  std::unique_ptr<T[]> Stack = nullptr;
+  T Stack[CELLTREE_MAX_DEPTH];
   T* StackPtr;       // stack pointer
   const double* Pos; // 3-D coordinates of the points
 
@@ -246,9 +246,8 @@ struct CellPointTraversal
     : Tree(tree)
     , Pos(pos)
   {
-    this->Stack = std::unique_ptr<T[]>(new T[tree.Locator->GetCelltreeMaxDepth()]);
-    this->Stack[0] = 0;                     // first element is set to zero
-    this->StackPtr = this->Stack.get() + 1; // this points to the second element of the stack
+    this->Stack[0] = 0;               // first element is set to zero
+    this->StackPtr = this->Stack + 1; // this points to the second element of the stack
   }
 
   // this returns n (the location in the CellTree) if it is a leaf or 0 if the point doesn't
@@ -257,7 +256,7 @@ struct CellPointTraversal
   {
     while (true)
     {
-      if (this->StackPtr == this->Stack.get()) // This means the point is not within the domain
+      if (this->StackPtr == this->Stack) // This means the point is not within the domain
       {
         return nullptr;
       }
@@ -1295,7 +1294,9 @@ VTK_ABI_NAMESPACE_BEGIN
 //------------------------------------------------------------------------------
 vtkCellTreeLocator::vtkCellTreeLocator()
 {
-  this->SetNumberOfCellsPerNode(8);
+  this->NumberOfCellsPerNode = 8;
+  this->NumberOfBuckets = 6;
+  this->Tree = nullptr;
 }
 
 //------------------------------------------------------------------------------
@@ -1490,7 +1491,6 @@ void vtkCellTreeLocator::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   os << indent << "NumberOfBuckets: " << this->NumberOfBuckets << "\n";
-  os << indent << "CelltreeMaxDepth: " << this->CelltreeMaxDepth << "\n";
   os << indent << "LargeIds: " << this->LargeIds << "\n";
 }
 VTK_ABI_NAMESPACE_END
