@@ -187,8 +187,11 @@ bool vtkSDL2RenderWindowInteractor::ProcessEvent(void* arg)
       this->SetControlKey(ctrl);
       this->SetShiftKey(shift);
       this->SetAltKey(alt);
-      int ev = event->wheel.y > 0 ? vtkCommand::MouseWheelForwardEvent
-                                  : vtkCommand::MouseWheelBackwardEvent;
+      // The precise y value is more robust because browsers set a value b/w 0 and 1.
+      // Otherwise, the value is often rounded to an integer =zero which causes a stutter
+      // in dolly motion.
+      int ev = event->wheel.preciseY > 0 ? vtkCommand::MouseWheelForwardEvent
+                                         : vtkCommand::MouseWheelBackwardEvent;
       this->InvokeEvent(ev, nullptr);
     }
     break;
