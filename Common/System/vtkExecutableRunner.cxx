@@ -17,8 +17,8 @@
 
 #include <algorithm>
 #include <cctype>
-#include <regex>
 #include <string>
+#include <utility>
 #include <vector>
 
 namespace details
@@ -36,51 +36,7 @@ static inline void rtrim(std::string& s)
     std::find_if(s.rbegin(), s.rend(), [](unsigned char ch) { return !std::isspace(ch); }).base(),
     s.end());
 }
-
-std::vector<std::string> ParseCommand(std::string command)
-{
-  std::vector<std::string> res;
-
-  // Extract program name using regex
-  // regex recognize pattern such as `exec`, `./exec`, `/d1/d_2/exec`, `/d1/d\ 2/exec`, or `"/d1/d
-  // 2/exec"`. There is only one capturing group and that is the executable without the "
-  // characters, when this technique is used to escape the spaces.
-  std::regex programRegex = std::regex(R"~(^\.?(?:\/?(?:[^\s\\"]+(?:\\ )*)+)+|^"([^"]+)")~");
-  std::smatch match;
-  if (std::regex_search(command, match, programRegex))
-  {
-    // If escape group with '"' matched
-    if (match[1].matched)
-    {
-      res.emplace_back(match[1].str());
-    }
-    else
-    {
-      res.emplace_back(match[0].str());
-    }
-    command = command.substr(match[0].length(), command.length());
-  }
-
-  // Extract arguments. Split by space except if surrounded by the '"' character.
-  std::regex argRegex = std::regex(R"~(\s*([^\s"]+|"([^"]*)"))~");
-  while (std::regex_search(command, match, argRegex))
-  {
-    // If escape group for arguments with '"' matched
-    if (match[2].matched)
-    {
-      res.emplace_back(match[2].str());
-    }
-    else if (match[1].matched)
-    {
-      res.emplace_back(match[1].str());
-    }
-    command = command.substr(match[0].length(), command.length());
-  }
-
-  return res;
-}
-VTK_ABI_NAMESPACE_END
-}
+};
 
 VTK_ABI_NAMESPACE_BEGIN
 //------------------------------------------------------------------------------
@@ -93,16 +49,16 @@ void vtkExecutableRunner::Execute()
   details::ltrim(command);
   if (!command.empty())
   {
-    std::vector<std::string> parsed = details::ParseCommand(command);
+    std::vector<std::string> splittedCommand = this->GetCommandToExecute();
 
     // get a vector of C string for vtksys
-    const auto size = parsed.size();
-    std::vector<const char*> stringViewC(size + 1);
-    for (std::size_t i = 0; i < size; ++i)
+    std::vector<const char*> stringViewC;
+    stringViewC.reserve(splittedCommand.size() + 1);
+    for (const auto& cmd : splittedCommand)
     {
-      stringViewC[i] = parsed[i].c_str();
+      stringViewC.emplace_back(cmd.c_str());
     }
-    stringViewC[size] = nullptr;
+    stringViewC.emplace_back(nullptr);
 
     // Configure and launch process
     vtksysProcess* process = vtksysProcess_New();
@@ -120,17 +76,17 @@ void vtkExecutableRunner::Execute()
     // the vtksysProcess streams. If output is too big we have to append.
     do
     {
-      char* cp;
+      char* output = nullptr;
       int length = 0;
-      pipe = vtksysProcess_WaitForData(process, &cp, &length, nullptr);
+      pipe = vtksysProcess_WaitForData(process, &output, &length, nullptr);
       switch (pipe)
       {
         case vtksysProcess_Pipe_STDOUT:
-          out.append(std::string(cp, length));
+          out.append(std::string(output, length));
           break;
 
         case vtksysProcess_Pipe_STDERR:
-          err.append(std::string(cp, length));
+          err.append(std::string(output, length));
           break;
       }
     } while (pipe != vtksysProcess_Pipe_None);
@@ -187,6 +143,58 @@ int vtkExecutableRunner::ExitProcess(vtksysProcess* process)
   }
 
   return code;
+}
+
+//------------------------------------------------------------------------------
+std::vector<std::string> vtkExecutableRunner::GetCommandToExecute() const
+{
+  std::vector<std::string> result;
+  if (this->ExecuteInSystemShell)
+  {
+    result.reserve(3);
+#if defined(WIN32) || defined(_WIN32) || defined(__WIN32__)
+    result.emplace_back("cmd.exe");
+    result.emplace_back("/c");
+#else
+    result.emplace_back("sh");
+    result.emplace_back("-c");
+#endif
+    result.emplace_back(this->Command);
+  }
+  else
+  {
+    result.reserve(this->Arguments.size() + 1);
+    result.emplace_back(this->Command);
+    for (const auto& arg : this->Arguments)
+    {
+      result.emplace_back(arg);
+    }
+  }
+
+  return result;
+}
+
+//------------------------------------------------------------------------------
+void vtkExecutableRunner::AddArgument(const std::string& arg)
+{
+  this->Arguments.emplace_back(arg);
+  this->Modified();
+}
+
+//------------------------------------------------------------------------------
+void vtkExecutableRunner::ClearArguments()
+{
+  if (!this->Arguments.empty())
+  {
+    this->Arguments.clear();
+    this->Modified();
+  }
+}
+
+//------------------------------------------------------------------------------
+vtkIdType vtkExecutableRunner::GetNumberOfArguments() const
+{
+  return this->Arguments.size();
 }
 
 //------------------------------------------------------------------------------
