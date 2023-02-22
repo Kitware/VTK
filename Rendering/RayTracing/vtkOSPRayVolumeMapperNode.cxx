@@ -227,6 +227,29 @@ void vtkOSPRayVolumeMapperNode::Render(bool prepass)
       scale[1] = (bds[3] - bds[2]) / double(dim[1] - 1);
       scale[2] = (bds[5] - bds[4]) / double(dim[2] - 1);
 
+      float samplingRate = 1.f;
+      // automatically determine sampling rate
+      // smaller volumes are sampled at higher rates to reduce edge artifacts
+      int minBound = std::min(std::min(dim[0], dim[1]), dim[2]);
+      float minSamplingRate = 0.075f; // lower for min adaptive sampling step
+      if (minBound < 100)
+      {
+        float s = (100.0f - minBound) / 100.0f;
+        samplingRate = s * 6.f + 1.f;
+      }
+      else if (minBound < 1000)
+      {
+        float s = std::min((900.0f - minBound) / 1000.0f, 1.f);
+        samplingRate = (s * s * s * (0.5f - minSamplingRate) + minSamplingRate);
+      }
+      else
+      {
+        samplingRate = minSamplingRate;
+      }
+
+      vtkOSPRayRendererNode::SetVolumeSamplingRate(
+        samplingRate, vtkRenderer::SafeDownCast(orn->GetRenderable()));
+
       ospSetVec3f(this->OSPRayVolume, "gridOrigin", origin[0], origin[1], origin[2]);
       ospSetVec3f(this->OSPRayVolume, "gridSpacing", scale[0], scale[1], scale[2]);
       this->SamplingStep = std::min(scale[0], std::min(scale[1], scale[2]));

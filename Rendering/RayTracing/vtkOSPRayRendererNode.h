@@ -243,6 +243,19 @@ public:
   ///@}
 
   /**
+   * the rate of sampling for volumes, higher numbers increase
+   * the number of samples.  Defaults to 1.0.
+   */
+  static vtkInformationDoubleKey* VOLUME_SAMPLING_RATE();
+  ///@{
+  /**
+   * Convenience method VOLUME_SAMPLING_RATE on a vtkRenderer.
+   */
+  static void SetVolumeSamplingRate(double, vtkRenderer* renderer);
+  static double GetVolumeSamplingRate(vtkRenderer* renderer);
+  ///@}
+
+  /**
    * used to make the renderer add ospray's content onto GL rendered
    * content on the window
    */
