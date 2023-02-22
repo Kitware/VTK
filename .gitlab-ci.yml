@@ -39,6 +39,29 @@ stages:
 
 ## Basic builds
 
+el7-mindeps-python-qt:build:
+    extends:
+        - .el7_mindeps_python_qt
+        - .cmake_build_linux
+        - .linux_builder_tags
+        - .cmake_build_artifacts
+        - .run_manually
+
+# Disable testing for now. Even with a modern Mesa and the llvmpipe backend,
+# modern enough OpenGL is just not working in CI. Rather than disabling just
+# about everything in the test suite, just skip testing altogether.
+# el7-mindeps-python-qt:test:
+#     extends:
+#         - .el7_mindeps_python_qt
+#         - .cmake_test_linux
+#         - .linux_tester_tags
+#         - .cmake_test_artifacts
+#         - .run_automatically
+#     dependencies:
+#         - el7-mindeps-python-qt:build
+#     needs:
+#         - el7-mindeps-python-qt:build
+
 el8-python:build:
     extends:
         - .el8_icc_python

@@ -199,6 +199,19 @@ bool DGState::RebuildShadersIfNeeded(vtkOpenGLCellGridRenderRequest* request)
   shaders[vtkShader::Fragment]->SetType(vtkShader::Fragment);
   shaders[vtkShader::Geometry]->SetType(vtkShader::Geometry);
   shaders[vtkShader::Vertex]->SetSource(vtkCellGridVS);
+  // XXX(c++14)
+#if __cplusplus < 201400L
+  if (this->ShortTypeToken.GetId() == "DGHex"_hash)
+  {
+    shaders[vtkShader::Fragment]->SetSource(vtkCellGridFS_DGHex);
+    shaders[vtkShader::Geometry]->SetSource(vtkCellGridGS_DGHex);
+  }
+  else if (this->ShortTypeToken.GetId() == "DGTet"_hash)
+  {
+    shaders[vtkShader::Fragment]->SetSource(vtkCellGridFS_DGTet);
+    shaders[vtkShader::Geometry]->SetSource(vtkCellGridGS_DGTet);
+  }
+#else
   switch (this->ShortTypeToken.GetId())
   {
     case "DGHex"_hash:
@@ -210,6 +223,7 @@ bool DGState::RebuildShadersIfNeeded(vtkOpenGLCellGridRenderRequest* request)
       shaders[vtkShader::Geometry]->SetSource(vtkCellGridGS_DGTet);
       break;
   }
+#endif
 
   this->ReplaceShaderRenderPass(shaders, request, true);
   this->ReplaceShaderColor(shaders, request);

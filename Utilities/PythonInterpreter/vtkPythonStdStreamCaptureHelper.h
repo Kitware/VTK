@@ -86,11 +86,20 @@ static PyObject* vtkPythonStdStreamCaptureHelperNew(
   return type->tp_alloc(type, 0);
 }
 
+#if PY_VERSION_HEX >= 0x03070000
+#define VTK_PYTHON_MEMBER_DEF_STR(x) x
+#else
+#define VTK_PYTHON_MEMBER_DEF_STR(x) const_cast<char*>(x)
+#endif
+
 static PyMemberDef vtkPythonStdStreamCaptureHelperMembers[] = {
-  { "softspace", T_INT, offsetof(vtkPythonStdStreamCaptureHelper, softspace), 0,
-    "Placeholder so print can keep state." },
+  { VTK_PYTHON_MEMBER_DEF_STR("softspace"), T_INT,
+    offsetof(vtkPythonStdStreamCaptureHelper, softspace), 0,
+    VTK_PYTHON_MEMBER_DEF_STR("Placeholder so print can keep state.") },
   { nullptr, 0, 0, 0, nullptr }
 };
+
+#undef VTK_PYTHON_MEMBER_DEF_STR
 
 #ifdef VTK_PYTHON_NEEDS_DEPRECATION_WARNING_SUPPRESSION
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
