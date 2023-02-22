@@ -513,7 +513,9 @@ template <class ReturnT>
 vtkThreadedCallbackQueue::vtkSharedFuture<ReturnT>*
 vtkThreadedCallbackQueue::vtkSharedFuture<ReturnT>::New()
 {
-  VTK_STANDARD_NEW_BODY(vtkThreadedCallbackQueue::vtkSharedFuture<ReturnT>);
+  auto result = new vtkSharedFuture<ReturnT>();
+  result->InitializeObjectBase();
+  return result;
 }
 
 //-----------------------------------------------------------------------------
