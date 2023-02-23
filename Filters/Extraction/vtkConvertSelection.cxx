@@ -280,10 +280,22 @@ int vtkConvertSelection::ConvertToBlockSelection(
   outputNode->SetFieldType(fieldType);
   if (this->OutputType == vtkSelectionNode::BLOCKS)
   {
+    std::vector<unsigned int> vIndices(indices.size());
+    std::copy(indices.begin(), indices.end(), vIndices.begin());
+
+    // get the composite ids from the selectors that correspond to the indices.
+    // this is done to avoid selecting pieces/datasets from a partitioned/multi-piece dataset
+    // and selecting only partitioned/multi-piece datasets, except if the parent of the index is
+    // a multiblock
+    auto hierarchy =
+      vtkDataAssemblyUtilities::GetDataAssembly(vtkDataAssemblyUtilities::HierarchyName(), data);
+    const auto selectorsCompositeIds =
+      vtkDataAssemblyUtilities::GetSelectorsCompositeIdsForCompositeIds(vIndices, hierarchy);
+
     vtkNew<vtkUnsignedIntArray> selectionList;
-    selectionList->SetNumberOfTuples(static_cast<vtkIdType>(indices.size()));
+    selectionList->SetNumberOfTuples(static_cast<vtkIdType>(selectorsCompositeIds.size()));
     vtkIdType cc = 0;
-    for (const auto& id : indices)
+    for (const auto& id : selectorsCompositeIds)
     {
       selectionList->SetValue(cc++, id);
     }
