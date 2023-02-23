@@ -39,9 +39,11 @@ if (VTK_ENABLE_EXTRA_BUILD_WARNINGS_EVERYTHING)
 
   # Instead of enabling warnings, this mode *disables* warnings.
   vtk_add_flag(-Wno-cast-align ${langs})
+  vtk_add_flag(-Wno-cast-function-type-strict ${langs})
   vtk_add_flag(-Wno-cast-qual ${langs})
   vtk_add_flag(-Wno-conversion ${langs})
   vtk_add_flag(-Wno-covered-switch-default ${langs})
+  vtk_add_flag(-Wno-declaration-after-statement ${langs})
   vtk_add_flag(-Wno-direct-ivar-access ${langs})
   vtk_add_flag(-Wno-disabled-macro-expansion ${langs})
   vtk_add_flag(-Wno-documentation ${langs})
@@ -63,6 +65,7 @@ if (VTK_ENABLE_EXTRA_BUILD_WARNINGS_EVERYTHING)
   vtk_add_flag(-Wno-reserved-id-macro ${langs})
   vtk_add_flag(-Wno-shorten-64-to-32 ${langs})
   vtk_add_flag(-Wno-sign-conversion ${langs})
+  vtk_add_flag(-Wno-strict-prototypes ${langs})
   vtk_add_flag(-Wno-switch-enum ${langs})
   vtk_add_flag(-Wno-undef ${langs})
   vtk_add_flag(-Wno-unused-macros ${langs})
@@ -80,6 +83,7 @@ if (VTK_ENABLE_EXTRA_BUILD_WARNINGS_EVERYTHING)
   vtk_add_flag(-Wno-weak-template-vtables ${langs})
   vtk_add_flag(-Wno-weak-vtables ${langs})
   vtk_add_flag(-Wno-zero-as-null-pointer-constant ${langs})
+  vtk_add_flag(-Wno-unsafe-buffer-usage ${langs})
 
   # These should be fixed at some point prior to updating VTK's standard
   # version. See #18585.

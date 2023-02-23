@@ -34,6 +34,7 @@
 
 #include "vtkDeprecation.h"              // For VTK_DEPRECATED_IN_9_2_0
 #include "vtkInteractionWidgetsModule.h" // For export macro
+#include "vtkLegacy.h"                   // for VTK_LEGACY_REMOVE
 #include "vtkNew.h"                      // For vtkNew command
 #include "vtkWidgetRepresentation.h"
 

@@ -385,7 +385,6 @@ public:
     { // scalar tree provided
       // The begin / end parameters to this function represent batches of candidate
       // cells.
-      vtkIdType numCellsContoured = 0;
       vtkScalarTree* scalarTree = this->Filter->GetScalarTree();
       const vtkIdType* cellIds;
       vtkIdType numCells;
@@ -408,7 +407,6 @@ public:
           this->InScalars->GetTuples(pids, cs);
 
           // Okay let's grab the cell and contour it
-          numCellsContoured++;
           this->Input->GetCell(cellid, cell);
           vtkIdType begVertCellSize = vrts->GetNumberOfCells();
           vtkIdType begVertConnSize = vrts->GetNumberOfConnectivityIds();

@@ -813,7 +813,6 @@ void vtkMultiCorrelativeStatistics::Assess(
       assessValues->Delete();
     }
 
-    vtkIdType count = 0;
     // Assess each entry of the column
     vtkDoubleArray* assessResult = vtkDoubleArray::New();
     for (vtkIdType r = 0; r < nRow; ++r)
@@ -827,7 +826,6 @@ void vtkMultiCorrelativeStatistics::Assess(
       {
         outData->SetValueByName(r, names[v].c_str(), assessResult->GetValue(v));
       }
-      ++count;
     }
 
     assessResult->Delete();

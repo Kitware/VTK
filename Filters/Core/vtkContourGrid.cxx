@@ -209,7 +209,6 @@ void vtkContourGridExecute(vtkContourGrid* self, vtkDataSet* input, vtkPolyData*
     estimatedSize, generateTriangles);
   // If enabled, build a scalar tree to accelerate search
   //
-  vtkIdType numCellsContoured = 0;
   if (!useScalarTree)
   {
     // Three passes over the cells to process lower dimensional cells first.
@@ -338,8 +337,6 @@ void vtkContourGridExecute(vtkContourGrid* self, vtkDataSet* input, vtkPolyData*
           break;
         }
         helper.Contour(tmpCell, values[i], cellScalars, cellId);
-        numCellsContoured++;
-
         // don't want to call Contour any more than necessary
       } // for all cells
     }   // for all contour values

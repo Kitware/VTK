@@ -209,7 +209,7 @@ protected:
   int ProfileSeekOffset;
   int ElevationReference;
 
-  void ComputeExtentOriginAndSpacing(int extent[6], double origin[6], double spacing[6]);
+  void ComputeExtentOriginAndSpacing(int extent[6], double origin[3], double spacing[3]);
   int ReadTypeARecord();
   int ReadProfiles(vtkImageData* data);
   int RequestData(vtkInformation* request, vtkInformationVector** inputVector,

@@ -1333,6 +1333,7 @@ int vtkYoungsMaterialInterface::RequestData(vtkInformation* vtkNotUsed(request),
               Mats[m].cells.push_back(nptId);
               Mats[m].cellArrayCount++;
             }
+            (void)prevMatInterfToBeAdded;
 
             Mats[m].pointCount += nInterfaceEdges + pointsCopied + prevMatInterfAdded;
 

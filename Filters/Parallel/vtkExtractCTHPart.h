@@ -180,7 +180,7 @@ protected:
    */
   vtkSmartPointer<vtkDataSet> ExtractSolid(vtkCompositeDataSet* input, const char* arrayName);
 
-  void ExecuteFaceQuads(vtkDataSet* input, vtkPolyData* output, int maxFlag, int originExtents[3],
+  void ExecuteFaceQuads(vtkDataSet* input, vtkPolyData* output, int maxFlag, int originExtents[6],
     int ext[6], int aAxis, int bAxis, int cAxis);
 
   /**

@@ -415,8 +415,8 @@ vtkFlyingEdges2DAlgorithm<T>::vtkFlyingEdges2DAlgorithm()
 // Interpolate a new point along a boundary edge. Make sure to consider
 // proximity to boundary when computing gradients, etc.
 template <class T>
-void vtkFlyingEdges2DAlgorithm<T>::InterpolateEdge(double value, T* s, int ijk[3],
-  unsigned char edgeNum, unsigned char edgeUses[12], vtkIdType* eIds)
+void vtkFlyingEdges2DAlgorithm<T>::InterpolateEdge(
+  double value, T* s, int ijk[3], unsigned char edgeNum, unsigned char edgeUses[4], vtkIdType* eIds)
 {
   // if this edge is not used then get out
   if (!edgeUses[edgeNum])

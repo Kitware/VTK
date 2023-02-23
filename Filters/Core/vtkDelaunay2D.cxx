@@ -979,6 +979,7 @@ int vtkDelaunay2D::RequestData(vtkInformation* vtkNotUsed(request),
       }
     }
     vtkDebugMacro("numSwaps " << numSwaps);
+    (void)numSwaps;
   }
 
   // Update output; free up supporting data structures.

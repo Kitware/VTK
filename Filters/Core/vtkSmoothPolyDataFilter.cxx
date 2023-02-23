@@ -630,6 +630,10 @@ int vtkSmoothPolyDataFilter::RequestData(vtkInformation* vtkNotUsed(request),
   vtkDebugMacro(<< "Found\n\t" << numSimple << " simple vertices\n\t" << numFEdges
                 << " feature edge vertices\n\t" << numBEdges << " boundary edge vertices\n\t"
                 << numFixed << " fixed vertices\n\t");
+  (void)numSimple;
+  (void)numBEdges;
+  (void)numFixed;
+  (void)numFEdges;
 
   vtkDebugMacro(<< "Beginning smoothing iterations...");
 

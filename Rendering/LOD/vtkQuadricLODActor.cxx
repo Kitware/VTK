@@ -181,13 +181,12 @@ void vtkQuadricLODActor::Render(vtkRenderer* ren, vtkMapper* vtkNotUsed(m))
       h[1] = bounds[3] - bounds[2];
       h[2] = bounds[5] - bounds[4];
       double hMax = (h[0] > h[1]) ? (h[0] > h[2] ? h[0] : h[2]) : (h[1] > h[2] ? h[1] : h[2]);
-      int nDivs[3], numSmallDims = 0;
+      int nDivs[3];
       for (int i = 0; i < 3; i++)
       {
         if (h[i] <= (this->CollapseDimensionRatio * hMax))
         {
           nDivs[i] = 1;
-          numSmallDims++;
         }
         else
         {

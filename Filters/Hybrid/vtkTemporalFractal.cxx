@@ -1020,6 +1020,7 @@ void vtkTemporalFractal::AddTestArray(vtkHierarchicalBoxDataSet* output)
         }
       }
       assert("check: valid_debugcounter" && debugcounter == numCells);
+      (void)debugcounter;
       array->SetName("TestX");
       grid->GetCellData()->AddArray(array);
       array->Delete();
@@ -1218,7 +1219,6 @@ void vtkTemporalFractal::AddDepthArray(vtkHierarchicalBoxDataSet* output)
 {
   int levels = output->GetNumberOfLevels();
   int level = 0;
-  int blockId = 0;
   while (level < levels)
   {
     int blocks = output->GetNumberOfDataSets(level);
@@ -1242,7 +1242,6 @@ void vtkTemporalFractal::AddDepthArray(vtkHierarchicalBoxDataSet* output)
       grid->GetCellData()->AddArray(array);
       array->Delete();
       ++block;
-      ++blockId;
     }
     ++level;
   }

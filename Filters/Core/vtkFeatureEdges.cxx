@@ -495,6 +495,8 @@ int vtkFeatureEdges::RequestData(vtkInformation* vtkNotUsed(request),
   vtkDebugMacro(<< "Created " << numBEdges << " boundary edges, " << numNonManifoldEdges
                 << " non-manifold edges, " << numFedges << " feature edges, " << numManifoldEdges
                 << " manifold edges," << numOutLines << " lines.");
+  (void)numBEdges;
+  (void)numOutLines;
 
   //  Update ourselves.
   //

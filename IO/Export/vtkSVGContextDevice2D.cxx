@@ -1473,7 +1473,7 @@ void vtkSVGContextDevice2D::DrawImage(const vtkRectf& pos, vtkImageData* image)
 }
 
 //------------------------------------------------------------------------------
-void vtkSVGContextDevice2D::SetColor4(unsigned char[])
+void vtkSVGContextDevice2D::SetColor4(unsigned char[4])
 {
   // This is how the OpenGL2 impl handles this...
   vtkErrorMacro("color cannot be set this way.");

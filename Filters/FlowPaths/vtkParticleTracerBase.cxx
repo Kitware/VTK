@@ -1074,6 +1074,7 @@ vtkPolyData* vtkParticleTracerBase::Execute(vtkInformationVector** inputVector)
       }
       pass++;
     } // end of pass
+    (void)pass;
   }
 
   bool injectionFlag(false);

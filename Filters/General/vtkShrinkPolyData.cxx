@@ -50,7 +50,7 @@ struct ShrinkWorker
     vtkCellArray *newVerts, *newLines, *newPolys;
     vtkPointData* pd;
     vtkCellArray *inVerts, *inLines, *inPolys, *inStrips;
-    vtkIdType numNewPts, numNewLines, numNewPolys, polyAllocSize;
+    vtkIdType numNewPts, numNewLines, polyAllocSize;
     vtkIdType npts = 0;
     const vtkIdType* pts = nullptr;
     vtkIdType newIds[3] = { 0, 0, 0 };
@@ -71,7 +71,6 @@ struct ShrinkWorker
     //
     numNewPts = input->GetNumberOfVerts();
     numNewLines = 0;
-    numNewPolys = 0;
     polyAllocSize = 0;
 
     for (inLines->InitTraversal(); inLines->GetNextCell(npts, pts);)
@@ -82,7 +81,6 @@ struct ShrinkWorker
     for (inPolys->InitTraversal(); inPolys->GetNextCell(npts, pts);)
     {
       numNewPts += npts;
-      numNewPolys++;
       polyAllocSize += npts + 1;
     }
     for (inStrips->InitTraversal(); inStrips->GetNextCell(npts, pts);)

@@ -99,7 +99,7 @@ public:
    * @param[out] cell pointer to a vtkCell object corresponding to cellId
    * @return an integer with 0 if no intersection could be found
    */
-  int IntersectWithLine(const double p0[3], const double p1[2], double tol, double& t, double x[3],
+  int IntersectWithLine(const double p0[3], const double p1[3], double tol, double& t, double x[3],
     double pcoords[3], int& subId, vtkIdType& cellId, vtkGenericCell* cell) override;
 
   /**

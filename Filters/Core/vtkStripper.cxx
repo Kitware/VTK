@@ -495,6 +495,7 @@ int vtkStripper::RequestData(vtkInformation* vtkNotUsed(request),
                   << " triangle strips \n\t(Average " << (float)numCells / numStrips
                   << " triangles per strip, longest strip = "
                   << ((longestStrip - 2) > 0 ? (longestStrip - 2) : 0) << " triangles)");
+    (void)numStrips;
 
     if (newPolys->GetNumberOfCells() > 0)
     {
@@ -646,6 +647,7 @@ int vtkStripper::RequestData(vtkInformation* vtkNotUsed(request),
                   << " poly-lines \n\t(Average " << (float)numCells / numLines
                   << " lines per poly-line, longest poly-line = "
                   << ((longestLine - 1) > 0 ? (longestLine - 1) : 0) << " lines)");
+    (void)numLines;
   }
 
   // pass through verts

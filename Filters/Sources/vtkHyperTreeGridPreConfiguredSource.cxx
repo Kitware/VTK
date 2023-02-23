@@ -188,7 +188,7 @@ void vtkHyperTreeGridPreConfiguredSource::GenerateUnbalanced(vtkHyperTreeGrid* h
   auto cursor = vtk::TakeSmartPointer(htg->NewNonOrientedCursor(0, true));
   cursor->GetTree()->SetGlobalIndexStart(0);
   levels->InsertValue(0, 0);
-  for (vtkIdType l = 0; l < depth; l++)
+  for (unsigned int l = 0; l < depth; l++)
   {
     cursor->SubdivideLeaf();
     int numChildren = cursor->GetNumberOfChildren();

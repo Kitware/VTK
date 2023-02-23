@@ -2,6 +2,11 @@
 include(CheckLibraryExists)
 include(CheckSymbolExists)
 
+if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
+  set(VTK_NO_PLATFORM_SOCKETS ON)
+  return ()
+endif ()
+
 check_library_exists("socket" getsockname "" VTK_HAVE_LIBSOCKET)
 
 if(NOT DEFINED VTK_HAVE_GETSOCKNAME_WITH_SOCKLEN_T)

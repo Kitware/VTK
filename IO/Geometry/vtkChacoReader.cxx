@@ -875,16 +875,14 @@ int vtkChacoReader::InputGeom(vtkIdType nvtxs, // Number of vertices to read in
   double* x, double* y, double* z)
 {
   double xc = 0.0, yc = 0.0, zc = 0.0;
-  int line_num, end_flag, ndims, i = 0;
+  int end_flag, ndims, i = 0;
 
   rewind(this->CurrentGeometryFP);
 
-  line_num = 0;
   end_flag = 1;
   while (end_flag == 1)
   {
     xc = this->ReadVal(this->CurrentGeometryFP, &end_flag);
-    ++line_num;
   }
 
   if (end_flag == -1)
@@ -945,7 +943,6 @@ int vtkChacoReader::InputGeom(vtkIdType nvtxs, // Number of vertices to read in
 
   for (int nread = 1; nread < nvtxs; nread++)
   {
-    ++line_num;
     if (ndims == 1)
     {
       i = fscanf(this->CurrentGeometryFP, "%lf", x + nread);

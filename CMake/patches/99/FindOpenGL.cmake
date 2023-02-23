@@ -188,8 +188,11 @@ else()
       "/usr/lib32/nvidia-*")
   elseif (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
     # This is the path where <GL/gl.h> is found in emsdk
+    # Do not look under ${EMSCRIPTEN_ROOT_PATH}/system/include
+    # as it generates a compiler error.
+    # https://github.com/emscripten-core/emscripten/issues/17024
     set(_OPENGL_INCLUDE_PATH
-      "${EMSCRIPTEN_ROOT_PATH}/system/include")
+      "${EMSCRIPTEN_ROOT_PATH}/cache/sysroot/include")
 
     # These two inevitably include ${EMSCRIPTEN_SYSROOT} in the search path for
     # OpenGL leading to all kinds of redefinition errors.
@@ -604,16 +607,16 @@ if(OPENGL_FOUND)
 
     if(EMSCRIPTEN)
       # For GLES3 we force EMSCRIPTEN to use WebGL 2
-      list(APPEND _opengl_gles_cxx_flags
+      list(APPEND _opengl_gles_cxx_link_flags_flags
         "SHELL:-s FULL_ES3=1"
       )
       if(EMSCRIPTEN_VERSION VERSION_GREATER_EQUAL "1.39.5")
-        list(APPEND _opengl_gles_cxx_flags
+        list(APPEND _opengl_gles_cxx_link_flags_flags
           "SHELL:-s MIN_WEBGL_VERSION=2"
           "SHELL:-s MAX_WEBGL_VERSION=2"
         )
       else()
-        list(APPEND _opengl_gles_cxx_flags
+        list(APPEND _opengl_gles_cxx_link_flags_flags
           "SHELL:-s USE_WEBGL2=1"
         )
       endif()
@@ -640,10 +643,8 @@ if(OPENGL_FOUND)
     set_target_properties(OpenGL::GLES3 PROPERTIES
       INTERFACE_INCLUDE_DIRECTORIES
         "${OPENGL_GLES3_INCLUDE_DIR}"
-      INTERFACE_COMPILE_OPTIONS
-        "${_opengl_gles_cxx_flags}"
       INTERFACE_LINK_OPTIONS
-        "${_opengl_gles_cxx_flags}"
+        "${_opengl_gles_cxx_link_flags_flags}"
     )
 
     if (OPENGL_USE_GLES3)

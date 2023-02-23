@@ -463,7 +463,6 @@ public:
     if (posList)
     {
       vtkNew<vtkLine> line;
-      vtkIdType i = 1;
       std::istringstream iss(posList.child_value());
       bool validPoint = true;
       double p[3] = { 0., 0., 0. };
@@ -505,7 +504,6 @@ public:
           points->InsertNextPoint(p);
           line->GetPointIds()->SetId(1, points->GetNumberOfPoints() - 1);
           lines->InsertNextCell(line);
-          ++i;
         }
       } while (validPoint);
       // first point is repeated in the last position

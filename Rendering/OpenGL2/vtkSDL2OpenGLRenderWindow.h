@@ -175,7 +175,6 @@ protected:
   SDL_GLContext ContextId;
   std::stack<SDL_GLContext> ContextStack;
   std::stack<SDL_Window*> WindowStack;
-  int ScreenSize[2];
   static const std::string DEFAULT_BASE_WINDOW_NAME;
 
   void CleanUpRenderers();

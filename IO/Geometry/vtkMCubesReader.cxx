@@ -278,7 +278,7 @@ int vtkMCubesReader::RequestData(vtkInformation* vtkNotUsed(request),
   vtkDebugMacro(<< "Read: " << newPts->GetNumberOfPoints() << " points, "
                 << newPolys->GetNumberOfCells() << " triangles\n"
                 << "(Removed " << numDegenerate << " degenerate triangles)");
-
+  (void)numDegenerate;
   fclose(fp);
   //
   // Update ourselves

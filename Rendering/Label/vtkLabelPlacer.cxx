@@ -797,6 +797,8 @@ int vtkLabelPlacer::RequestData(vtkInformation* vtkNotUsed(request),
       placed++;
     }
   }
+  (void)placed;
+  (void)occluded;
   vtkDebugMacro("------");
   // cout << "Not Placed: " << notPlaced << endl;
   // cout << "Labels Occluded: " << occluded << endl;

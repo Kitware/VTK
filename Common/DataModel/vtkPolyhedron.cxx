@@ -1284,10 +1284,10 @@ int vtkPolyhedron::TriangulateFaces(vtkIdList* newFaces)
 
     // Insert triangles from triangulation
     const auto nbOfTriangles = ptIds->GetNumberOfIds() / 3;
-    for (unsigned int i = 0; i < nbOfTriangles; i++)
+    for (vtkIdType i = 0; i < nbOfTriangles; i++)
     {
       newFaces->InsertNextId(3); // Number of points
-      for (unsigned int j = 0; j < 3; j++)
+      for (vtkIdType j = 0; j < 3; j++)
       {
         newFaces->InsertNextId(ptIds->GetId(3 * i + j));
       }

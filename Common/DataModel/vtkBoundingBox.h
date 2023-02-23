@@ -169,7 +169,7 @@ public:
    * Adjust the bounding box so it contains the specified bounds (defined by
    * the VTK representation (xmin,xmax, ymin,ymax, zmin,zmax).
    */
-  void AddBounds(const double bounds[]);
+  void AddBounds(const double bounds[6]);
 
   /**
    * Returns true if this instance is entirely contained by bbox.

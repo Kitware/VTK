@@ -442,7 +442,7 @@ struct vtkHyperTreeGridGeometricLocator::RecurseTreesFunctor
       {
         vtkErrorWithObjectMacro(nullptr, << "Could not release local point memory.");
       }
-      for (unsigned int i = 0; i < it->LocCellIds->GetNumberOfIds(); i++)
+      for (unsigned int i = 0; i < static_cast<unsigned int>(it->LocCellIds->GetNumberOfIds()); i++)
       {
         this->GlobCellIds->InsertId(nCells + i, it->LocCellIds->GetId(i));
       }
@@ -463,7 +463,7 @@ int vtkHyperTreeGridGeometricLocator::IntersectWithLine(const double p0[3], cons
     return 0;
   }
   // setup computation
-  unsigned int nInitialPoints = points->GetNumberOfPoints();
+  const auto nInitialPoints = points->GetNumberOfPoints();
   std::vector<double> ts;
 
   {

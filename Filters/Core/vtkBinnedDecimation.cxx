@@ -367,7 +367,6 @@ void ReuseDecimate(vtkIdType numPts, PointsT* pts, vtkIdType numTris, vtkCellArr
   // Prefix sums to roll up the points and cells, and setup offsets for
   // subsequent threading. This could be threaded, although the gains
   // are likely modest.
-  vtkIdType numOutPts = 0;
   for (vtkIdType ptId = 0; ptId < numPts; ++ptId)
   {
     if (ptUses[ptId] > 0)
@@ -375,7 +374,6 @@ void ReuseDecimate(vtkIdType numPts, PointsT* pts, vtkIdType numTris, vtkCellArr
       if (ptMap[binIds[ptId]] < 0)
       {
         ptMap[binIds[ptId]] = ptId;
-        ++numOutPts;
       }
     }
   }

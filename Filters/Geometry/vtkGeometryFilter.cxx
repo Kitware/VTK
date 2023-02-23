@@ -3125,10 +3125,10 @@ int ExecuteUnstructuredGrid(vtkGeometryFilter* self, vtkDataSet* dataSetInput, v
   outCD->CopyAllocate(inCD, numCells);
   cellArrays.AddArrays(numCells, inCD, outCD, 0.0, false);
 
+#ifdef VTK_USE_64BIT_IDS
   vtkIdType connectivitySize =
     extract->VertsNumPts + extract->LinesNumPts + extract->PolysNumPts + extract->StripsNumPts;
 
-#ifdef VTK_USE_64BIT_IDS
   bool use64BitsIds = connectivitySize > VTK_TYPE_INT32_MAX;
   if (use64BitsIds)
   {
@@ -3655,10 +3655,10 @@ int ExecuteDataSet(vtkGeometryFilter* self, vtkDataSet* input, vtkPolyData* outp
   outCD->CopyAllocate(inCD, numCells);
   cellArrays.AddArrays(numCells, inCD, outCD, 0.0, false);
 
+#ifdef VTK_USE_64BIT_IDS
   vtkIdType connectivitySize =
     extract.VertsNumPts + extract.LinesNumPts + extract.PolysNumPts + extract.StripsNumPts;
 
-#ifdef VTK_USE_64BIT_IDS
   bool use64BitsIds = connectivitySize > VTK_TYPE_INT32_MAX;
   if (use64BitsIds)
   {

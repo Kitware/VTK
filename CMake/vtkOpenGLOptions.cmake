@@ -46,6 +46,8 @@ set(default_has_egl OFF)
 if (ANDROID)
   set(VTK_OPENGL_USE_GLES ON)
   set(default_has_egl ON)
+elseif (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
+  set(VTK_OPENGL_USE_GLES ON)
 else ()
   # OpenGLES implementation.
   option(VTK_OPENGL_USE_GLES "Use the OpenGL ES API" OFF)

@@ -609,9 +609,8 @@ int vtkIntersectionPolyDataFilter::Impl ::SplitMesh(
 
         vtkIdType npts;
         const vtkIdType* ptIds;
-        vtkIdType subCellId;
         splitCells->InitTraversal();
-        for (subCellId = 0; splitCells->GetNextCell(npts, ptIds); subCellId++)
+        while (splitCells->GetNextCell(npts, ptIds))
         {
           // Check for reversed cells. I'm not sure why, but in some
           // cases, cells are reversed.

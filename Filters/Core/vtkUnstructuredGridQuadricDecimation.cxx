@@ -1254,7 +1254,6 @@ void vtkUnstructuredGridQuadricDecimationTetMesh::DeleteMin(
 int vtkUnstructuredGridQuadricDecimationTetMesh::Simplify(int n, int desiredTets)
 {
   int count = 0;
-  int uncontractable = 0;
   int run = 0;
   while ((count < n || desiredTets < (tCount - unusedTets)) && (run < 1000))
   {
@@ -1288,7 +1287,6 @@ int vtkUnstructuredGridQuadricDecimationTetMesh::Simplify(int n, int desiredTets
     }
     else
     {
-      uncontractable++;
       run++;
     }
   }

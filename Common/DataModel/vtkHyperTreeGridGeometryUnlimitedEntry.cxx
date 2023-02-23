@@ -1,3 +1,4 @@
+
 /*=========================================================================
 
 Program:   Visualization Toolkit
@@ -37,7 +38,7 @@ vtkHyperTreeGridGeometryUnlimitedEntry::vtkHyperTreeGridGeometryUnlimitedEntry(
   vtkIdType index, const double* origin)
 {
   this->Index = index;
-  if (index != std::numeric_limits<unsigned int>::max())
+  if (index != static_cast<vtkIdType>(std::numeric_limits<unsigned int>::max()))
   {
     this->LastRealIndex = index;
   }
@@ -175,7 +176,7 @@ void vtkHyperTreeGridGeometryUnlimitedEntry::ToChild(const vtkHyperTreeGrid* gri
   if (this->Index >= 0 && this->Index < static_cast<vtkIdType>(indexMax))
   {
     vtkIdType elder = tree->GetElderChildIndex(this->Index);
-    if (elder != std::numeric_limits<unsigned int>::max())
+    if (elder != static_cast<vtkIdType>(std::numeric_limits<unsigned int>::max()))
     {
       this->Index = elder + ichild;
       this->LastRealIndex = this->Index;

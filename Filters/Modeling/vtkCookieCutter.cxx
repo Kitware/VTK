@@ -1163,7 +1163,7 @@ void vtkCookieCutterHelper::CropPoly(vtkIdType cellId, vtkIdType cellOffset, vtk
   // paths with outside paths, sort of like a "braid". To construct polygon
   // loops, the braid is woven together to form the loops.
   double* p = static_cast<double*>(poly->Points->GetVoidPointer(0));
-  vtkIdType i, j, newCellId, numPts = 0, numInts = 0;
+  vtkIdType i, j, newCellId, numPts = 0;
   double t, u, v, x[3], x0[3], x1[3], y0[3], y1[3];
   int result;
   SortedPointsType loopPoints, polyPoints;
@@ -1221,7 +1221,6 @@ void vtkCookieCutterHelper::CropPoly(vtkIdType cellId, vtkIdType cellOffset, vtk
         v += static_cast<double>(j);
         polyPoints.emplace_back(SortPoint(u, SortPoint::INTERSECTION, numPts, -1, x));
         loopPoints.emplace_back(SortPoint(v, SortPoint::INTERSECTION, numPts, -1, x));
-        numInts++;
         numPts++;
       }
       else if (result == 3) // parallel lines
@@ -1244,7 +1243,6 @@ void vtkCookieCutterHelper::CropPoly(vtkIdType cellId, vtkIdType cellOffset, vtk
             loopPoints.emplace_back(
               SortPoint(static_cast<double>(j) + u, SortPoint::ON, numPts, onId, c));
             attrMgr->AddPointAttribute(PointAttribute::MeshVertex, m0);
-            numInts++;
             numPts++;
           }
           vtkLine::DistanceToLine(x1, y0, y1, u, c);
@@ -1255,7 +1253,6 @@ void vtkCookieCutterHelper::CropPoly(vtkIdType cellId, vtkIdType cellOffset, vtk
             loopPoints.emplace_back(
               SortPoint(static_cast<double>(j) + u, SortPoint::ON, numPts, onId, c));
             attrMgr->AddPointAttribute(PointAttribute::MeshVertex, m1);
-            numInts++;
             numPts++;
           }
           vtkLine::DistanceToLine(y0, x0, x1, u, c);
@@ -1266,7 +1263,6 @@ void vtkCookieCutterHelper::CropPoly(vtkIdType cellId, vtkIdType cellOffset, vtk
             loopPoints.emplace_back(
               SortPoint(static_cast<double>(j), SortPoint::ON, numPts, onId, c));
             attrMgr->AddPointAttribute(PointAttribute::LoopVertex, l0);
-            numInts++;
             numPts++;
           }
           vtkLine::DistanceToLine(y1, x0, x1, u, c);
@@ -1277,7 +1273,6 @@ void vtkCookieCutterHelper::CropPoly(vtkIdType cellId, vtkIdType cellOffset, vtk
             loopPoints.emplace_back(
               SortPoint(static_cast<double>(j) + 1.0, SortPoint::ON, numPts, onId, c));
             attrMgr->AddPointAttribute(PointAttribute::LoopVertex, l1);
-            numInts++;
             numPts++;
           }
         }
