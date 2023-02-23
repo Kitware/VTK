@@ -100,16 +100,6 @@ public:
   vtkGetMacro(NumberOfBuckets, int);
   ///@}
 
-  ///@{
-  /**
-   * Set/Get the max depth of a celltree.
-   *
-   * Default is 32. Must be non-zero positive.
-   */
-  vtkSetClampMacro(CelltreeMaxDepth, int, 1, VTK_INT_MAX);
-  vtkGetMacro(CelltreeMaxDepth, int);
-  ///@}
-
   /**
    * Inform the user as to whether large ids are being used. This flag only
    * has meaning after the locator has been built. Large ids are used when the
@@ -194,11 +184,10 @@ protected:
 
   void BuildLocatorInternal() override;
 
-  int NumberOfBuckets = 6;
-  int CelltreeMaxDepth = 32;
+  int NumberOfBuckets;
   bool LargeIds = false;
 
-  detail::vtkCellTree* Tree = nullptr;
+  detail::vtkCellTree* Tree;
 
 private:
   vtkCellTreeLocator(const vtkCellTreeLocator&) = delete;

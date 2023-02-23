@@ -17,7 +17,6 @@
 #include "vtkPointData.h"
 
 #include "vtkCellTreeLocator.h"
-#include "vtkClipDataSet.h"
 #include "vtkNew.h"
 #include "vtkPolyData.h"
 #include "vtkSphereSource.h"
@@ -99,52 +98,9 @@ int TestWithCachedCellBoundsParameter(int cachedCellBounds)
   return EXIT_SUCCESS;
 }
 
-int TestWithCustomMaxDepth(int celltreeMaxDepth)
-{
-  // sphere1: the outer sphere
-  vtkNew<vtkSphereSource> sphere;
-  sphere->SetThetaResolution(100);
-  sphere->SetPhiResolution(100);
-  sphere->SetRadius(1);
-  sphere->Update();
-
-  // the cell locator
-  vtkNew<vtkCellTreeLocator> locator;
-  locator->SetDataSet(sphere->GetOutput());
-  locator->SetCelltreeMaxDepth(celltreeMaxDepth);
-  locator->AutomaticOn();
-  locator->BuildLocator();
-
-  double pos[3];
-  double pcoords[3];
-  double weights[3];
-  const double x = 0.0;
-  int subId;
-  vtkNew<vtkGenericCell> cell;
-
-  sphere->GetOutput()->GetPoint(sphere->GetOutput()->GetNumberOfPoints() / 2, pos);
-  const vtkIdType id = locator->FindCell(pos, x, cell, subId, pcoords, weights);
-
-  if (id < 0)
-  {
-    vtkGenericWarningMacro("ERROR: did not find cell.");
-    return EXIT_FAILURE;
-  }
-  else
-  {
-    std::cout << "Passed: found cell with  " << celltreeMaxDepth << " max depth." << std::endl;
-  }
-
-  return EXIT_SUCCESS;
-}
-
 int CellTreeLocator(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
   int retVal = TestWithCachedCellBoundsParameter(0);
   retVal += TestWithCachedCellBoundsParameter(1);
-
-  retVal += TestWithCustomMaxDepth(32);
-  retVal += TestWithCustomMaxDepth(64);
-
   return retVal;
 }
