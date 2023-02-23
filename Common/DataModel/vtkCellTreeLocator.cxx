@@ -45,7 +45,7 @@ enum
   POS_Z,
   NEG_Z
 };
-#define CELLTREE_MAX_DEPTH 32
+#define CELLTREE_MAX_DEPTH 64
 
 //------------------------------------------------------------------------------
 // Perform locator operations like FindCell. Uses templated subclasses
