@@ -3,6 +3,7 @@
 
 #include "vtkABINamespace.h"
 
+#include <cstdint>
 #include <fstream>
 #include <iostream>
 #include <list>
