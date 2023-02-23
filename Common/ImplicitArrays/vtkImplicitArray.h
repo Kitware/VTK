@@ -70,6 +70,10 @@
  * vtkNew<vtkImplicitArray<Const42>> arr42;
  * @endcode
  *
+ *
+ * > WARNING: The CommonImplicitArrays module does not currently compile with gcc4.8.5 due to its
+ * partial > c++11 support
+ *
  * @sa
  * vtkGenericDataArray vtkImplicitArrayTraits vtkDataArray
  */
