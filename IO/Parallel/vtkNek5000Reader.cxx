@@ -13,7 +13,7 @@
 
 =========================================================================*/
 #include "vtkNek5000Reader.h"
-
+#include "vtkAOSDataArrayTemplate.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkCellType.h"
@@ -40,6 +40,7 @@
 #include <vtksys/SystemTools.hxx>
 
 #ifdef _WIN32
+#include <algorithm>
 #include <direct.h>
 #include <string.h>
 #define strcasecmp _stricmp
@@ -164,7 +165,6 @@ vtkNek5000Reader::vtkNek5000Reader()
   this->CALC_GEOM_FLAG = true;
   this->IAM_INITIALLIZED = false;
   this->I_HAVE_DATA = false;
-  this->FIRST_DATA = true;
   this->MeshIs3D = true;
   this->swapEndian = false;
   this->ActualTimeStep = 0;
@@ -182,10 +182,9 @@ vtkNek5000Reader::vtkNek5000Reader()
   this->meshCoords = nullptr;
   this->myBlockIDs = nullptr;
   this->myBlockPositions = nullptr;
-  this->use_variable = nullptr;
   this->timestep_has_mesh = nullptr;
   this->proc_numBlocks = nullptr;
-  this->velocity_index = -1;
+
   this->SpectralElementIds = 0;
   this->CleanGrid = 0;
 
@@ -197,7 +196,6 @@ vtkNek5000Reader::vtkNek5000Reader()
 //----------------------------------------------------------------------------
 vtkNek5000Reader::~vtkNek5000Reader()
 {
-  delete[] this->use_variable;
   delete[] this->timestep_has_mesh;
   delete[] this->FileName;
   delete[] this->DataFileName;
@@ -205,18 +203,9 @@ vtkNek5000Reader::~vtkNek5000Reader()
 
   if (this->dataArray)
   {
-    vtkDebugMacro(<< "~vtkNek5000Reader():: Release memory for dataArrays");
-
-    for (auto i = 0; i < this->num_vars; i++)
-    {
-      if (this->dataArray[i])
-      {
-        delete[] this->dataArray[i];
-      }
-    }
     delete[] this->dataArray;
+    this->dataArray = nullptr;
   }
-
   if (this->num_vars > 0)
   {
     for (auto i = 0; i < this->num_vars; i++)
@@ -422,19 +411,11 @@ void vtkNek5000Reader::updateVariableStatus()
   this->num_used_vectors = 0;
   this->num_used_scalars = 0;
 
-  // set all variables to false
-  for (auto i = 0; i < this->num_vars; i++)
-  {
-    this->use_variable[i] = false;
-  }
-
   // if a variable is used, set it to true
   for (auto i = 0; i < this->num_vars; i++)
   {
-    if (this->GetPointArrayStatus(i) == 1)
+    if (this->GetPointArrayStatus(i))
     {
-      this->use_variable[i] = true;
-
       // increment the number of vectors or scalars used, accordingly
       if (this->var_length[i] > 1)
       {
@@ -506,7 +487,6 @@ size_t vtkNek5000Reader::GetVariableNamesFromData(char* varTags)
         vtkDebugMacro(<< "GetVariableNamesFromData:  this->var_names[" << this->num_vars
                       << "] = " << this->var_names[this->num_vars]);
         this->var_length[this->num_vars] = 3; // this is a vector
-        // this->velocity_index = ind;
         ind++;
         this->num_vars++;
         // Also add a magnitude scalar
@@ -652,7 +632,7 @@ void vtkNek5000Reader::readData(char* dfName)
             */
             if (strcmp(this->var_names[i], "Velocity") == 0 && !this->MeshIs3D)
             {
-              // memset(&dataPtr[read_size], 0, read_size*sizeof(float));
+              std::fill_n(&dataPtr[read_size], this->totalBlockSize, 0);
             }
             dataPtr += this->totalBlockSize * this->var_length[i];
           }
@@ -724,58 +704,6 @@ void vtkNek5000Reader::readData(char* dfName)
     std::cerr << "Error opening datafile : " << dfName << endl;
     exit(1);
   }
-
-#ifdef COMPUTE_MIN_MAX
-  for (auto i = 0; i < this->num_vars; i++)
-  {
-    float dmin[3] = { VTK_FLOAT_MAX, VTK_FLOAT_MAX, VTK_FLOAT_MAX };
-    float dmax[3] = { VTK_FLOAT_MIN, VTK_FLOAT_MIN, VTK_FLOAT_MIN };
-
-    dataPtr = this->dataArray[i];
-    if (dataPtr)
-    {
-      // Check the data ranges
-      for (auto j = 0; j < this->myNumBlocks; j++)
-      {
-        for (int a = 0; a < this->totalBlockSize; a++)
-        {
-          if (i == 0)
-          {
-            for (auto k = 0; k < 3; k++)
-            {
-              if (this->dataArray[i][j * this->totalBlockSize * 3 + a +
-                    (this->totalBlockSize * k)] > dmax[k])
-                dmax[k] =
-                  this->dataArray[i][j * this->totalBlockSize * 3 + a + (this->totalBlockSize * k)];
-              if (this->dataArray[i][j * this->totalBlockSize * 3 + a +
-                    (this->totalBlockSize * k)] < dmin[k])
-                dmin[k] =
-                  this->dataArray[i][j * this->totalBlockSize * 3 + a + (this->totalBlockSize * k)];
-            }
-          }
-          else
-          {
-            if (this->dataArray[i][j * this->totalBlockSize + a] > dmax[0])
-              dmax[0] = this->dataArray[i][j * this->totalBlockSize + a];
-            if (this->dataArray[i][j * this->totalBlockSize + a] < dmin[0])
-              dmin[0] = this->dataArray[i][j * this->totalBlockSize + a];
-          }
-        }
-      }
-
-      vtkDebugMacro(<< "Rank: " << my_rank << "  dataArray[" << this->var_names[i] << "] : ["
-                    << dmin[0] << ", " << dmax[0] << "]");
-      if (!strcmp(this->var_names[i], "Velocity"))
-      {
-        vtkDebugMacro(<< "Rank: " << my_rank << "  dataArray[" << this->var_names[i] << "][1] : ["
-                      << dmin[1] << ", " << dmax[1] << "]");
-        vtkDebugMacro(<< "Rank: " << my_rank << "  dataArray[" << this->var_names[i] << "][2] : ["
-                      << dmin[2] << ", " << dmax[2] << "]");
-      }
-    }
-  } // for all vars
-#endif
-
 } // vtkNek5000Reader::readData(char* dfName)
 
 //----------------------------------------------------------------------------
@@ -1015,7 +943,7 @@ void vtkNek5000Reader::partitionAndReadMesh()
         if (!dfPtr)
           std::cerr << __LINE__ << ": read error\n";
         // now set the Z component to 0.0
-        memset(&coordPtr[read_size], 0, this->totalBlockSize * sizeof(float));
+        std::fill_n(&coordPtr[read_size], this->totalBlockSize, 0);
         coordPtr += (this->totalBlockSize * 3);
       }
     }
@@ -1071,6 +999,7 @@ int vtkNek5000Reader::RequestInformation(vtkInformation* vtkNotUsed(request),
     my_rank = 0;
   }
 #endif
+
   if (!this->IAM_INITIALLIZED)
   {
     // Might consider having just the master node read the .nek5000 file, and broadcast each line to
@@ -1180,8 +1109,6 @@ int vtkNek5000Reader::RequestInformation(vtkInformation* vtkNotUsed(request),
       return 0;
     }
 
-    this->use_variable = new bool[this->num_vars];
-
     char dfName[265];
 
     vtkDebugMacro(<< "Rank: " << my_rank << " :: this->datafile_start= " << this->datafile_start);
@@ -1241,14 +1168,10 @@ int vtkNek5000Reader::RequestData(vtkInformation* request,
 
   vtkDebugMacro(<< "RequestData: tsLength= " << tsLength);
 
-  // *** Not sure whether we will need this
-  // Update the status of the requested variables
-
   this->updateVariableStatus();
 
   // Check if a particular time was requested.
   bool hasTimeValue = false;
-
   vtkDebugMacro(<< __LINE__ << " RequestData:");
   // Collect the time step requested
   vtkInformationDoubleKey* timeKey = vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP();
@@ -1283,16 +1206,6 @@ int vtkNek5000Reader::RequestData(vtkInformation* request,
 
   vtkDebugMacro(<< "RequestData: this->ActualTimeStep= " << this->ActualTimeStep);
 
-  // Force TimeStep into the "known good" range. Although this
-  if (this->ActualTimeStep < this->TimeStepRange[0])
-  {
-    this->ActualTimeStep = this->TimeStepRange[0];
-  }
-  else if (this->ActualTimeStep > this->TimeStepRange[1])
-  {
-    this->ActualTimeStep = this->TimeStepRange[1];
-  }
-
 #ifndef NDEBUG
   int my_rank;
   vtkMultiProcessController* ctrl = vtkMultiProcessController::GetGlobalController();
@@ -1310,8 +1223,6 @@ int vtkNek5000Reader::RequestData(vtkInformation* request,
 
   vtkUnstructuredGrid* ugrid =
     vtkUnstructuredGrid::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
-  //  vtkUnstructuredGrid* boundary_ugrid =
-  //  vtkUnstructuredGrid::SafeDownCast(outInfo1->Get(vtkDataObject::DATA_OBJECT()));
 
   // Save the time value in the output (ugrid) data information.
   if (steps)
@@ -1323,7 +1234,7 @@ int vtkNek5000Reader::RequestData(vtkInformation* request,
   this->requested_step = this->datafile_start + this->ActualTimeStep;
 
   //  if the step being displayed is different than the one requested
-  // if(this->displayed_step != this->requested_step)
+  if (this->displayed_step != this->requested_step)
   {
     // get the requested object from the list, if the ugrid in the object is NULL
     // then we have not loaded it yet
@@ -1345,44 +1256,39 @@ int vtkNek5000Reader::RequestData(vtkInformation* request,
     this->partitionAndReadMesh();
     this->READ_GEOM_FLAG = false;
   }
-  if (!this->I_HAVE_DATA)
+
+  if (!this->dataArray)
   {
-    // See if we have allocated memory to store the data from disk, if not, allocate it
-    if (!this->dataArray)
+    this->dataArray = new float*[this->num_vars];
+  }
+  // only allocate data array if the varname has been selected
+  for (i = 0; i < this->num_vars; i++)
+  {
+    if (this->GetPointArrayStatus(i))
     {
-      this->dataArray = new float*[this->num_vars];
-      // only allocate data array if the varname has been selected
-      for (i = 0; i < this->num_vars; i++)
-      {
-        if (this->use_variable[i])
-        {
-          this->dataArray[i] =
-            new float[this->myNumBlocks * this->totalBlockSize * this->var_length[i]];
-        }
-        else
-        {
-          this->dataArray[i] = nullptr;
-        }
-      }
+      this->dataArray[i] =
+        new float[this->myNumBlocks * this->totalBlockSize * this->var_length[i]];
     }
+    else
+    {
+      this->dataArray[i] = nullptr;
+    }
+  }
 
-    // Get the file name for requested time step
+  // Get the file name for requested time step
 
-    snprintf(dfName, sizeof(dfName), this->datafile_format.c_str(), 0, this->requested_step);
-    vtkDebugMacro(<< "vtkNek5000Reader::RequestData: Rank: " << my_rank
-                  << " Now reading data from file: " << dfName
-                  << " this->requested_step: " << this->requested_step);
+  snprintf(dfName, sizeof(dfName), this->datafile_format.c_str(), 0, this->requested_step);
+  vtkDebugMacro(<< "vtkNek5000Reader::RequestData: Rank: " << my_rank
+                << " Now reading data from file: " << dfName
+                << " this->requested_step: " << this->requested_step);
 
-    this->readData(dfName);
+  this->readData(dfName);
+  this->curObj->setDataFilename(dfName);
 
-    this->curObj->setDataFilename(dfName);
+  this->I_HAVE_DATA = true;
+  this->memory_step = this->requested_step;
 
-    this->I_HAVE_DATA = true;
-    this->memory_step = this->requested_step;
-
-  } // if(!this->I_HAVE_DATA)
-
-  this->updateVtuData(ugrid); //, boundary_ugrid); // , outputPort);
+  this->updateVtuData(ugrid);
 
   this->SetDataFileName(this->curObj->dataFilename);
 
@@ -1392,6 +1298,7 @@ int vtkNek5000Reader::RequestData(vtkInformation* request,
 #endif
   vtkDebugMacro(<< "vtkNek5000Reader::RequestData: Rank: " << my_rank
                 << "  outputPort: " << outputPort << " EXIT :: Total time: " << total_timer_diff);
+
   return 1;
 } // vtkNek5000Reader::RequestData()
 
@@ -1415,7 +1322,7 @@ void vtkNek5000Reader::updateVtuData(vtkUnstructuredGrid* pv_ugrid)
   {
     vtkDebugMacro(<< "updateVtuData: my_rank= " << my_rank
                   << ": this->curObj->ugrid != nullptr, see if it matches");
-    if (this->objectMatchesRequest())
+    if (this->objectMatchesRequest() && (this->displayed_step == this->requested_step))
     {
       // copy the ugrid
       pv_ugrid->ShallowCopy(this->curObj->ugrid);
@@ -1452,7 +1359,7 @@ void vtkNek5000Reader::updateVtuData(vtkUnstructuredGrid* pv_ugrid)
       {
         this->SetDataFileName(curObj->dataFilename);
       }
-      return;
+      // return;
     } // else if(this->objectHasExtraData())
   }   // if(this->curObj->ugrid)
 
@@ -1507,6 +1414,7 @@ void vtkNek5000Reader::updateVtuData(vtkUnstructuredGrid* pv_ugrid)
   vtkDebugMacro(<< "updateVtuData: my_rank= " << my_rank << ": call copyContinuumData()");
 
   this->copyContinuumData(pv_ugrid);
+
 #ifndef NDEBUG
   vtkNew<vtkTimerLog> timer;
   timer->StartTimer();
@@ -1753,81 +1661,44 @@ void vtkNek5000Reader::copyContinuumData(vtkUnstructuredGrid* pv_ugrid)
   }
 #endif
   int index = 0;
-  int cur_scalar_index = 0;
-  int cur_vector_index = 0;
   int num_verts = this->myNumBlocks * this->totalBlockSize;
-
-  vtkFloatArray** scalars;
-  // warning: suspicious usage of 'sizeof(A*)'; pointer to aggregate [bugprone-sizeof-expression]
-  scalars = (vtkFloatArray**)malloc(this->num_used_scalars * sizeof(vtkFloatArray*)); // NOLINT
-
-  vtkFloatArray** vectors;
-  // warning: suspicious usage of 'sizeof(A*)'; pointer to aggregate [bugprone-sizeof-expression]
-  vectors = (vtkFloatArray**)malloc(this->num_used_vectors * sizeof(vtkFloatArray*)); // NOLINT
-
-  // allocate arrays for used scalars and vectors
-  for (auto jj = 0; jj < this->num_vars; jj++)
-  {
-    if (this->GetPointArrayStatus(jj) == 1)
-    {
-      // if this variable is a scalar
-      if (this->var_length[jj] == 1)
-      {
-        vtkDebugMacro(<< "copyContinuumData: my_rank= " << my_rank << ": var[" << jj
-                      << "]: allocate scalars[" << cur_scalar_index
-                      << "]:  name= " << this->var_names[jj]);
-        scalars[cur_scalar_index] = vtkFloatArray::New();
-        scalars[cur_scalar_index]->SetNumberOfComponents(1);
-        scalars[cur_scalar_index]->SetNumberOfValues(num_verts);
-        scalars[cur_scalar_index]->SetName(this->var_names[jj]);
-        cur_scalar_index++;
-      }
-      // if this variable is a vector
-      else if (this->var_length[jj] > 1)
-      {
-        vtkDebugMacro(<< "copyContinuumData: my_rank= " << my_rank << ": var[" << jj
-                      << "]: allocate vectors[" << cur_vector_index
-                      << "]:  name= " << this->var_names[jj]);
-        vectors[cur_vector_index] = vtkFloatArray::New();
-        vectors[cur_vector_index]->SetNumberOfComponents(3);
-        vectors[cur_vector_index]->SetNumberOfTuples(num_verts);
-        vectors[cur_vector_index]->SetName(this->var_names[jj]);
-        cur_vector_index++;
-      }
-    }
-  }
-
-  cur_scalar_index = 0;
-  cur_vector_index = 0;
 
   // for each variable
   for (auto v_index = 0; v_index < this->num_vars; v_index++)
   {
-    if (this->use_variable[v_index])
+    if (this->GetPointArrayStatus(v_index))
     {
       // if this is a scalar
       if (this->var_length[v_index] == 1)
       {
         index = 0;
-        // for each  element/block in the continuum mesh
+        vtkFloatArray* scalars = vtkFloatArray::New();
+        // scalars->SetNumberOfComponents(1);
+        // scalars->SetNumberOfTuples(num_verts);
+        scalars->SetName(this->var_names[v_index]);
+        scalars->SetArray(
+          this->dataArray[v_index], num_verts, 0, vtkDataArray::VTK_DATA_ARRAY_DELETE);
+        /*
         for (int b_index = 0; b_index < this->myNumBlocks; ++b_index)
         {
-          // for every point in this element/block
           for (int p_index = 0; p_index < this->totalBlockSize; ++p_index)
           {
-            scalars[cur_scalar_index]->SetValue(index, this->dataArray[v_index][index]);
+            scalars->SetValue(index, this->dataArray[v_index][index]);
             index++;
           }
-        }
-
-        this->UGrid->GetPointData()->AddArray(scalars[cur_scalar_index]);
-        scalars[cur_scalar_index]->Delete();
-        cur_scalar_index++;
+        }*/
+        this->UGrid->GetPointData()->AddArray(scalars);
+        scalars->Delete();
       }
       // if this is a vector
       else if (this->var_length[v_index] > 1)
       {
         index = 0;
+        vtkFloatArray* vectors = vtkFloatArray::New();
+        vectors->SetNumberOfComponents(3);
+        vectors->SetNumberOfTuples(num_verts);
+        vectors->SetName(this->var_names[v_index]);
+
         // for each  element/block in the continuum mesh
         for (int b_index = 0; b_index < this->myNumBlocks; ++b_index)
         {
@@ -1838,20 +1709,22 @@ void vtkNek5000Reader::copyContinuumData(vtkUnstructuredGrid* pv_ugrid)
 
           for (int p_index = 0; p_index < this->totalBlockSize; ++p_index)
           {
-            float vx, vy, vz;
-            vx = this->dataArray[v_index][comp_block_offset + p_index];
-            vy = this->dataArray[v_index][comp_block_offset + p_index + this->totalBlockSize];
-            vz = this->dataArray[v_index][comp_block_offset + p_index + this->totalBlockSize +
+            float vxyz[3];
+            vxyz[0] = this->dataArray[v_index][comp_block_offset + p_index];
+            vxyz[1] = this->dataArray[v_index][comp_block_offset + p_index + this->totalBlockSize];
+            vxyz[2] = this->dataArray[v_index][comp_block_offset + p_index + this->totalBlockSize +
               this->totalBlockSize];
-            vectors[cur_vector_index]->SetTuple3(index, vx, vy, vz);
+            vectors->SetTypedTuple(index, vxyz);
             index++;
           }
         }
-
-        this->UGrid->GetPointData()->AddArray(vectors[cur_vector_index]);
-        vectors[cur_vector_index]->Delete();
-        cur_vector_index++;
+        this->UGrid->GetPointData()->AddArray(vectors);
+        vectors->Delete();
+        delete[] this->dataArray[v_index];
       }
+      //
+      // std::cerr << __LINE__ << " deleting this->dataArray[" << v_index << "]\n";
+
     } // if(this->use_variable[v_index])
     else
     {
@@ -1867,9 +1740,6 @@ void vtkNek5000Reader::copyContinuumData(vtkUnstructuredGrid* pv_ugrid)
       }
     }
   }
-
-  free(scalars);
-  free(vectors);
 } // vtkNek5000Reader::copyContinuumData()
 
 // see if the current object is missing data that was requested
