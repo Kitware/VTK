@@ -8,43 +8,13 @@ https://about.dicehub.com/.
 
 ## Compiling VTK for Emscripten
 
-```
-mkdir -p work/build-vtk-wasm
-cd work
-
-git clone https://gitlab.kitware.com/vtk/vtk.git src
-cd src
-git submodule update --init --recursive
-```
-
-Start docker inside that working directory
-
-```
-docker run --rm --entrypoint /bin/bash -v $PWD:/work -it dockcross/web-wasm:20200416-a6b6635
-
-cd /work/build-vtk-wasm
-
-cmake \
-  -G Ninja \
-  -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE} \
-  -DBUILD_SHARED_LIBS:BOOL=OFF \
-  -DCMAKE_BUILD_TYPE:STRING=Release \
-  -DVTK_ENABLE_LOGGING:BOOL=OFF \
-  -DVTK_ENABLE_WRAPPING:BOOL=OFF \
-  -DVTK_LEGACY_REMOVE:BOOL=ON \
-  -DVTK_OPENGL_USE_GLES:BOOL=ON \
-  -DVTK_USE_SDL2:BOOL=ON \
-  -DVTK_NO_PLATFORM_SOCKETS:BOOL=ON \
-  -DVTK_MODULE_ENABLE_VTK_hdf5:STRING=NO \
-  /work/src
-
-cmake --build .
-```
+Please refer to [Documentation/dev/build_wasm_emscripten.md](https://gitlab.kitware.com/vtk/-/blob/master/Documentation/dev/build_wasm_emscripten.md) for
+detailed instructions.
 
 ## Compiling all Emscripten examples
 
 ```
-docker run --rm --entrypoint /bin/bash -v $PWD:/work -it dockcross/web-wasm:20200416-a6b6635
+docker run --rm --entrypoint /bin/bash -v $PWD:/work -p 8000:8000 -it dockcross/web-wasm:20230222-162287d
 
 mkdir -p /work/build-examples-wasm
 cd /work/build-examples-wasm
