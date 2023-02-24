@@ -34,7 +34,7 @@
         {
           "inputs": {
             "click": {
-              "output": "rightgripaction"
+              "output": "complexgestureaction"
             }
           },
           "path": "/user/hand/right/input/squeeze"
@@ -42,7 +42,7 @@
         {
           "inputs": {
             "click": {
-              "output": "leftgripaction"
+              "output": "complexgestureaction"
             }
           },
           "path": "/user/hand/left/input/squeeze"
