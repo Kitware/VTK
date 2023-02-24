@@ -16,6 +16,7 @@
 4. [Creating the Build Environment](#creating-the-build-environment)
     1. [Linux (Ubuntu/Debian)](#linux-(ubuntu/debian))
     2. [Windows](#windows)
+    3. [WebAssembly (Emscripten)](#webassembly-(emscripten))
 5. [Building](#building)
     1. [Missing dependencies](#missing-dependencies)
     2. [Build Settings](#build-settings)
@@ -150,6 +151,14 @@ can be found on [its website][mesa].
   * Get [ninja][ninja]. Unzip the binary and put it in `PATH`. Note that newer
     Visual Studio releases come with a version of `ninja` already and should
     already exist in `PATH` within the command prompt.
+
+### WebAssembly (Emscripten)
+
+  * [emsdk](https://github.com/emscripten-core/emsdk)
+    - Install latest toolchain with `./emsdk install latest`
+    - Activate the toolchain `./emsdk activate latest`
+    - Run `emsdk_env.bat` or `emsdk_env.ps1` (Windows) or `source ./emsdk_env.sh` (Linux and OS X) to set up the environment for the calling terminal.
+
 
 ## Building
 
