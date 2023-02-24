@@ -25,8 +25,9 @@
 #include "vtkImageAlgorithm.h"
 #include "vtkNew.h" // for ivars
 
-#include <array>  // for std::array
-#include <string> // for std::string
+#include <array>   // for std::array
+#include <cstdint> // for std::uint8_t and std::uint32_t
+#include <string>  // for std::string
 
 namespace details
 {
