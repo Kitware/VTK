@@ -115,6 +115,7 @@ private:
 
   class ProbePointsWorklet;
   struct ProbePointsThreadLocal;
+  struct ProbePointsThreadStruct;
 
   /**
    * This method is called from the work threads if SMP is used, or called
