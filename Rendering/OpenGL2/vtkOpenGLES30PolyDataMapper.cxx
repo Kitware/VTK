@@ -867,12 +867,12 @@ void vtkOpenGLES30PolyDataMapper::AppendOneBufferObject(vtkRenderer* ren, vtkAct
     }
   };
 
-  const std::size_t PrimitiveSizes[PrimitiveEnd] = {
-    1, // points
-    2, // lines
-    3, // tris,
-    3, // tristrips,
-    1, // verts
+  const std::size_t PrimitiveSizes[VTK_SURFACE + 1][PrimitiveEnd] = { // points
+    { 1, 1, 1, 1, 1 },
+    // wireframe
+    { 1, 2, 2, 2, 1 },
+    // surf
+    { 1, 2, 3, 3, 1 }
   };
   std::size_t primitiveStart = 0;
   for (int primType = 0; primType < PrimitiveEnd; ++primType)
@@ -886,7 +886,7 @@ void vtkOpenGLES30PolyDataMapper::AppendOneBufferObject(vtkRenderer* ren, vtkAct
     {
       continue;
     }
-    const auto numPrimitives = numIndices / PrimitiveSizes[primType];
+    const auto numPrimitives = numIndices / PrimitiveSizes[representation][primType];
     newVertexAttrs.Resize(numIndices);
     const auto start = indexArray.data() + iFirsts[primType];
     expand(originalVAttribs.colors, newVertexAttrs.colors, start, numIndices);
@@ -924,7 +924,7 @@ void vtkOpenGLES30PolyDataMapper::AppendOneBufferObject(vtkRenderer* ren, vtkAct
         // repeat for every corner of the primitive.
         const vtkIdType destID =
           getDestinationColorID(i + primitiveStart, prim2cellMap, this->FieldDataTupleId) * numComp;
-        for (std::size_t j = 0; j < PrimitiveSizes[primType]; ++j)
+        for (std::size_t j = 0; j < PrimitiveSizes[representation][primType]; ++j)
         {
           cellColors->InsertNextTypedTuple(this->Colors->GetPointer(destID));
         }
@@ -946,7 +946,7 @@ void vtkOpenGLES30PolyDataMapper::AppendOneBufferObject(vtkRenderer* ren, vtkAct
       {
         double* norms = srcCellNormals->GetTuple(prim2cellMap->GetValue(i + primitiveStart));
         // repeat for every corner of the primitive.
-        for (std::size_t j = 0; j < PrimitiveSizes[primType]; ++j)
+        for (std::size_t j = 0; j < PrimitiveSizes[representation][primType]; ++j)
         {
           for (int comp = 0; comp < numComp; ++comp)
           {
