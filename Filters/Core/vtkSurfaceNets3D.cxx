@@ -557,6 +557,35 @@ struct SurfaceNets
     }
   } // ClassifyZEdge
 
+  // Composite trimming information to determine which portion of the
+  // volume x-edge (row,slice) to process. In particular, gather the 2x2
+  // trim edge metadata that forms a row of voxel cells.
+  vtkIdType* Get2x2EdgeTrim(vtkIdType row, vtkIdType slice, vtkIdType& xL, vtkIdType& xR)
+  {
+    // Grab the meta data for the 2x2 bundle of rows.
+    vtkIdType* EMD = this->EdgeMetaData;
+    vtkIdType* dims = this->TriadDims;
+    vtkIdType size = this->EdgeMetaDataSize;
+
+    // Gather the four edge metadata rows that form a column of voxel cells.
+    vtkIdType* ePtrs[4] = { nullptr, nullptr, nullptr, nullptr };
+    ePtrs[0] = EMD + (slice * dims[1] + row) * size; // current edge row
+    ePtrs[1] = ePtrs[0] + size;                      // to the right of the current edge
+    ePtrs[2] = ePtrs[0] + dims[1] * size;            // above the current edge
+    ePtrs[3] = ePtrs[2] + size;                      // above and to the right of the current edge
+
+    // Determine the trim over the 2x2 bundle of metadata.
+    xL = this->TriadDims[0];
+    xR = 0;
+    for (auto i = 0; i < 4; ++i)
+    {
+      vtkIdType* eMD = ePtrs[i];
+      xL = (eMD[3] < xL ? eMD[3] : xL);
+      xR = (eMD[4] > xR ? eMD[4] : xR);
+    }
+    return ePtrs[0];
+  } // Get2x2EdgeTrim
+
   using TrimmedEdgesCase = unsigned char;
   // Composite the trimming information to determine which portion of the
   // volume x-edge (row,slice) to process. Since processing occurs across 3x3
@@ -570,7 +599,7 @@ struct SurfaceNets
   // if return value is 1: row != 0 && slice == 0
   // if return value is 2: row == 0 && slice != 0
   // if return value is 3: row != 0 && slice != 0
-  TrimmedEdgesCase GetTrimmedEdges(vtkIdType row, vtkIdType slice, vtkIdType& xL, vtkIdType& xR,
+  TrimmedEdgesCase Get3x3EdgeTrim(vtkIdType row, vtkIdType slice, vtkIdType& xL, vtkIdType& xR,
     vtkIdType* ePtrs[9], TriadType* tPtrs[9])
   {
     // Grab the meta data for the 3x3 bundle of rows. Watch out for
@@ -643,7 +672,7 @@ struct SurfaceNets
       }
     }
     return trimmedEdgesCase;
-  } // GetTrimmedEdges
+  } // Get3x3EdgeTrim
 
   // The following two methods are used to help generate output points,
   // polygons, stencils, and scalar data. They manage the numbering of points
@@ -1217,6 +1246,12 @@ void SurfaceNets<T>::ClassifyYZEdges(T* inPtr, vtkIdType row, vtkIdType slice)
   vtkIdType* eMDY = eMD + this->EdgeMetaDataSize;
   vtkIdType* eMDZ = eMD + this->TriadDims[1] * this->EdgeMetaDataSize;
 
+  // By default, all non-padded voxels on this volume-x-row will be
+  // processed. However, based on the edge trim from the first pass, or the
+  // particulars of the data surrounding this edge, the edge trim (xL,xR) may
+  // be modified.
+  vtkIdType xL = 1, xR = (numTriads - 1);
+
   // A quick check to determine whether this row of voxels needs processing
   // (this is a relatively common situation). If no x-edge intersections
   // exist (eMD[3]==numTriads) in this row or the rows to the right and
@@ -1224,25 +1259,55 @@ void SurfaceNets<T>::ClassifyYZEdges(T* inPtr, vtkIdType row, vtkIdType slice)
   // be skipped. Note that tPtr[1] is the first triad with an associated
   // voxel value (due to padding).
   bool xInts = !((eMD[3] >= numTriads) && (eMDY[3] >= numTriads) && (eMDZ[3] >= numTriads));
-  if (!xInts && tPtr[1] == tPtrY[1] && tPtr[1] == tPtrZ[1])
+  if (!xInts)
   {
     if (tPtr[1] == SurfaceNets::Outside)
-    {         // fairly common
-      return; // there are no x-, y-, or z-ints, and triads are all background value.
+    {
+      if (tPtrY[1] == SurfaceNets::Outside && tPtrZ[1] == SurfaceNets::Outside)
+      {
+        return; // This is a fairly common situation
+      }
     }
-    else
-    { // rare situation
+    else // no volume-x-edge intersections, voxel values inside the same labeled region
+    {
       unsigned char yEdgeClass = this->ClassifyYEdge(inPtr, 1, tPtr[1], row, tPtrY[1]);
       unsigned char zEdgeClass = this->ClassifyZEdge(inPtr, 1, tPtr[1], slice, tPtrZ[1]);
       if (!yEdgeClass && !zEdgeClass)
       {
-        return; // no ints, and voxel values are the same
+        return; // no volume-x-edge ints, and voxel values are in the same material
       }
     }
-  }
+  } // If no intersections along volume-x-edges
+
+  else // There are intersections along one of the volume-x-edges
+  {
+    // First check the triad edges x-y,x-z to make sure they are in the
+    // same material. If not, leave edge trim to default values. Otherwise,
+    // reset the edge trim to the trim values determined in Pass1 / ClassifyXEdges
+    // because this is the only place where voxel value changes can occur.
+    unsigned char yEdgeClass = this->ClassifyYEdge(inPtr, 1, tPtr[1], row, tPtrY[1]);
+    unsigned char zEdgeClass = this->ClassifyZEdge(inPtr, 1, tPtr[1], slice, tPtrZ[1]);
+    if (!yEdgeClass && !zEdgeClass)
+    {
+      xL = eMD[3];
+      xL = (eMDY[3] < xL ? eMDY[3] : xL);
+      xL = (eMDZ[3] < xL ? eMDZ[3] : xL);
+      xL = (xL < 1 ? 1 : xL);
+    }
+    vtkIdType lastValue = numTriads - 2;
+    yEdgeClass = this->ClassifyYEdge(inPtr, lastValue, tPtr[lastValue], row, tPtrY[lastValue]);
+    zEdgeClass = this->ClassifyZEdge(inPtr, lastValue, tPtr[lastValue], slice, tPtrZ[lastValue]);
+    if (!yEdgeClass && !zEdgeClass)
+    {
+      xR = eMD[4];
+      xR = (eMDY[4] > xR ? eMDY[4] : xR);
+      xR = (eMDZ[4] > xR ? eMDZ[4] : xR);
+      xR = (xR >= numTriads ? (numTriads - 1) : xR);
+    }
+  } // Intersections along one of the volume-x-edges
 
   // Classify all the triad y- and z-edges, excluding the padded triads.
-  for (vtkIdType i = 1; i < (numTriads - 1); ++i)
+  for (vtkIdType i = xL; i < xR; ++i)
   {
     TriadType tCase = tPtr[i];
     tCase |= this->ClassifyYEdge(inPtr, i, tPtr[i], row, tPtrY[i]);
@@ -1252,6 +1317,10 @@ void SurfaceNets<T>::ClassifyYZEdges(T* inPtr, vtkIdType row, vtkIdType slice)
       this->SetTriadClassification(tPtr + i, tCase);
     }
   } // for all voxels in this volume x-row
+
+  // Update the edge trim
+  eMD[3] = xL;
+  eMD[4] = xR;
 } // ClassifyYZEdges
 
 // Process the voxels in a row, combining triads to determine the voxel
@@ -1276,18 +1345,20 @@ void SurfaceNets<T>::ProduceVoxelCases(vtkIdType group, int whichEdge, vtkIdType
     return; // don't process +y,+z padded boundaries
   }
 
-  vtkIdType edgeNum = row + slice * this->TriadDims[1];
-  vtkIdType minInt = numTriads, maxInt = 0;
-
   // Grab the triad data for this row; and the meta data for this row, and the rows
   // that are needed to form a column of voxel cells.
+  vtkIdType xL, xR; // computational edge trim
+  vtkIdType* eMD = this->Get2x2EdgeTrim(row, slice, xL, xR);
   TriadType* tPtr = this->Triads + row * numTriads + slice * this->TriadSliceOffset;
-  vtkIdType* eMD = this->EdgeMetaData + edgeNum * this->EdgeMetaDataSize;
 
-  // Loop across voxels in this row. We need to determine the case number of each
-  // voxel from the seven triads that contribute to the complete edge case. (The
-  // eighth triad contributes nothing to the edge case.)
-  for (vtkIdType i = 0; i < (numTriads - 1); ++i)
+  // Loop across voxels in this row. We need to determine the case number of
+  // each voxel from the seven triads that contribute to the complete edge
+  // case. (The eighth triad contributes nothing to the edge case.) Note,
+  // because the smoothing stencils may include +/-x points before and after
+  // the current voxel, the left edge trim is started one before the current
+  // location along the voxel-x-edge.
+  xL = (xL <= 0 ? 0 : xL - 1);
+  for (vtkIdType i = xL; i < xR; ++i)
   {
     EdgeCaseType eCase = this->GetEdgeCase(tPtr + i);
     if (eCase > 0) // then a point must be generated in this voxel
@@ -1301,14 +1372,12 @@ void SurfaceNets<T>::ProduceVoxelCases(vtkIdType group, int whichEdge, vtkIdType
       eMD[0]++;                                       // number of points generated
       eMD[1] += this->GetNumberOfQuads(triad);        // number of quads
       eMD[2] += this->GetNumberOfStencilEdges(eCase); // stencil edges
+    }                                                 // if produces a point
+  }                                                   // for all triads on this row
 
-      // Edge trimming
-      minInt = (i < minInt ? i : minInt);
-      maxInt = i + 1;
-    } // if produces a point
-    eMD[3] = minInt;
-    eMD[4] = (maxInt < numTriads ? maxInt : numTriads);
-  } // for all triads on this row
+  // Update the edge trim
+  eMD[3] = xL;
+  eMD[4] = xR;
 } // ProduceVoxelCases
 
 //------------------------------------------------------------------------------
@@ -1337,7 +1406,8 @@ void SurfaceNets<T>::ConfigureOutput(
   for (auto edgeNum = 0; edgeNum < 4; ++edgeNum)
   {
     // Edge groups consist of four neighboring volume x-edges (+/-y,+/-z). Process
-    // in interleaving fashion to avoid races.
+    // in interleaving fashion (i.e., checkerboard) to avoid races (ProduceVoxelCases()
+    // may write to the voxel classifications while they are being processed).
     vtkSMPTools::For(
       0, numGroups, [this, edgeNum, numRowPairs](vtkIdType group, vtkIdType endGroup) {
         for (; group < endGroup; ++group)
@@ -1415,6 +1485,7 @@ void SurfaceNets<T>::ConfigureOutput(
 // rows immediately surrounding the current row (i.e., all those rows to
 // to which stencil edges connect to, as well as generated quads). This forms
 // a 3x3 bundle of volume edges / voxel rows centered on the current x-row.
+// The edge trim is used to reduce the amount of computation to perform.
 template <typename T>
 void SurfaceNets<T>::GenerateOutput(vtkIdType row, vtkIdType slice)
 {
@@ -1423,9 +1494,10 @@ void SurfaceNets<T>::GenerateOutput(vtkIdType row, vtkIdType slice)
   vtkIdType* eMDNei = eMD + this->EdgeMetaDataSize;
 
   // Return if there is nothing to do (i.e., no points, quads or stencils to
-  // generate). eMD[0] is the number of points generated along this volume
-  // x-edge. If (eMDNei[0]-eMD[0])<=0 nothing is produced along the edge (i.e.,
-  // no points generated) so it can be skipped.
+  // generate). After the prefix sum in Pass3, eMD[0] is the starting number
+  // of the points generated along this volume x-edge. So if (eMDNei[0]-eMD[0])<=0
+  // nothing is produced along the edge (i.e., no points generated) so it can be
+  // skipped.
   if (eMDNei[0] <= eMD[0])
   {
     return;
@@ -1437,7 +1509,7 @@ void SurfaceNets<T>::GenerateOutput(vtkIdType row, vtkIdType slice)
   vtkIdType xL, xR;      // computational trim edges
   TriadType* tPtrs[9];   // pointers to the 3x3 bundle of row triad cases
   vtkIdType* eMDPtrs[9]; // pointers to the 3x3 bundle of edge meta data
-  TrimmedEdgesCase trimmedEdgesCase = this->GetTrimmedEdges(row, slice, xL, xR, eMDPtrs, tPtrs);
+  TrimmedEdgesCase trimmedEdgesCase = this->Get3x3EdgeTrim(row, slice, xL, xR, eMDPtrs, tPtrs);
   TriadType* tPtr = tPtrs[4]; // triad pointers for current row
 
   // Initialize the point numbering process using a row iterator. This uses
