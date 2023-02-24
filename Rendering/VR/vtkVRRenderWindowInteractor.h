@@ -202,9 +202,12 @@ protected:
    * Store physical to world matrix at the start of a complex gesture.
    */
   vtkNew<vtkMatrix4x4> StartingPhysicalToWorldMatrix;
+
   int DeviceInputDownCount[vtkEventDataNumberOfDevices];
+
   std::string ActionManifestFileName;
   std::string ActionManifestDirectory;
+
   std::string ActionSetName;
 
 private:
