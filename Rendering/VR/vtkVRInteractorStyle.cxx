@@ -531,7 +531,7 @@ void vtkVRInteractorStyle::EndMovement3D(vtkEventDataDevice3D* ed)
 }
 
 //------------------------------------------------------------------------------
-// Multitouch interaction methods
+// Complex gesture interaction methods
 //------------------------------------------------------------------------------
 void vtkVRInteractorStyle::OnPan()
 {
@@ -924,7 +924,7 @@ void vtkVRInteractorStyle::EndAction(int state, vtkEventDataDevice3D* edata)
       break;
   }
 
-  // Reset multitouch state because a button has been released
+  // Reset complex gesture state because a button has been released
   for (int d = 0; d < vtkEventDataNumberOfDevices; ++d)
   {
     switch (this->InteractionState[d])

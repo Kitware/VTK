@@ -80,7 +80,7 @@ public:
 
   ///@{
   /**
-   * Multitouch events binding.
+   * Complex gesture events binding.
    */
   void OnPan() override;
   void OnPinch() override;

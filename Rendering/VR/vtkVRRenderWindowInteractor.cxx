@@ -351,7 +351,7 @@ void vtkVRRenderWindowInteractor::HandleComplexGestureEvents(vtkEventData* ed)
     vtkVRRenderWindow* renWin = vtkVRRenderWindow::SafeDownCast(this->RenderWindow);
     renWin->GetPhysicalToWorldMatrix(this->StartingPhysicalToWorldMatrix);
 
-    // Both controllers have a button down, start complex gesture handling (aka multitouch)
+    // Both controllers have a button down, start complex gesture handling
     if (this->DeviceInputDownCount[static_cast<int>(vtkEventDataDevice::LeftController)] &&
       this->DeviceInputDownCount[static_cast<int>(vtkEventDataDevice::RightController)])
     {
