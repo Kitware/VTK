@@ -328,7 +328,7 @@ void vtkVRRenderWindowInteractor::StartEventLoop()
 }
 
 //------------------------------------------------------------------------------
-void vtkVRRenderWindowInteractor::HandleGripEvents(vtkEventData* ed)
+void vtkVRRenderWindowInteractor::HandleComplexGestureEvents(vtkEventData* ed)
 {
   vtkEventDataDevice3D* edata = ed->GetAsEventDataDevice3D();
   if (!edata)
@@ -351,7 +351,7 @@ void vtkVRRenderWindowInteractor::HandleGripEvents(vtkEventData* ed)
     vtkVRRenderWindow* renWin = vtkVRRenderWindow::SafeDownCast(this->RenderWindow);
     renWin->GetPhysicalToWorldMatrix(this->StartingPhysicalToWorldMatrix);
 
-    // Both controllers have the grip down, start multitouch
+    // Both controllers have a button down, start complex gesture handling (aka multitouch)
     if (this->DeviceInputDownCount[static_cast<int>(vtkEventDataDevice::LeftController)] &&
       this->DeviceInputDownCount[static_cast<int>(vtkEventDataDevice::RightController)])
     {
@@ -365,24 +365,21 @@ void vtkVRRenderWindowInteractor::HandleGripEvents(vtkEventData* ed)
   {
     this->DeviceInputDownCount[this->PointerIndex] = 0;
 
-    if (edata->GetInput() == vtkEventDataDeviceInput::Grip)
+    if (this->CurrentGesture == vtkCommand::PinchEvent)
     {
-      if (this->CurrentGesture == vtkCommand::PinchEvent)
-      {
-        this->EndPinchEvent();
-      }
-      if (this->CurrentGesture == vtkCommand::PanEvent)
-      {
-        this->EndPanEvent();
-      }
-      if (this->CurrentGesture == vtkCommand::RotateEvent)
-      {
-        this->EndRotateEvent();
-      }
-      this->CurrentGesture = vtkCommand::NoEvent;
-
-      return;
+      this->EndPinchEvent();
     }
+    if (this->CurrentGesture == vtkCommand::PanEvent)
+    {
+      this->EndPanEvent();
+    }
+    if (this->CurrentGesture == vtkCommand::RotateEvent)
+    {
+      this->EndRotateEvent();
+    }
+    this->CurrentGesture = vtkCommand::NoEvent;
+
+    return;
   }
 }
 

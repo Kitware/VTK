@@ -181,10 +181,10 @@ protected:
    * After computing the distance along each of these axes in meters, the first
    * to break the hard-coded threshold wins.
    *
-   * Overriding both HandleGripEvents()  and RecognizeComplexGesture() allows to define
-   * a different heuristic
+   * Overriding both HandleComplexGestureEvents() and RecognizeComplexGesture() allows to define
+   * a different heuristic.
    */
-  virtual void HandleGripEvents(vtkEventData* ed);
+  virtual void HandleComplexGestureEvents(vtkEventData* ed);
   virtual void RecognizeComplexGesture(vtkEventDataDevice3D* edata);
   ///@}
 
