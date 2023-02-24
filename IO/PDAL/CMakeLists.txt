@@ -1,16 +1,20 @@
-vtk_module_find_package(PACKAGE PDAL)
+vtk_module_find_package(PACKAGE PDAL VERSION 2.1)
 
 set(classes
   vtkPDALReader)
+
+set(pdal_libraries pdal_util)
+if (APPLE OR WIN32)
+  list(APPEND pdal_libraries
+    pdalcpp)
+else()
+  list(APPEND pdal_libraries
+    pdal_base)
+endif()
 
 vtk_module_add_module(VTK::IOPDAL
   CLASSES ${classes})
 vtk_module_link(VTK::IOPDAL
   PRIVATE
-    pdal_base)
-# XXX(pdal): PDAL should add include interfaces to its exported targets. See
-# https://github.com/PDAL/PDAL/issues/2262.
-vtk_module_include(VTK::IOPDAL
-  PRIVATE
-    ${PDAL_INCLUDE_DIRS})
+    ${pdal_libraries})
 vtk_add_test_mangling(VTK::IOPDAL)
