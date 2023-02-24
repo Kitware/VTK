@@ -1,6 +1,7 @@
 #if !defined(_PIODATA_H)
 #define _PIODATA_H
 
+#include <cstdint>
 #include <fstream>
 #include <iostream>
 #include <list>
