@@ -175,7 +175,6 @@
 #include "vtkCellSizeFilter.h"
 #include "vtkCharArray.h"
 #include "vtkCollection.h"
-#include "vtkConstantArray.h"
 #include "vtkDataArrayRange.h"
 #include "vtkDataArraySelection.h"
 #include "vtkDataObjectTreeRange.h"
@@ -211,6 +210,10 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtkVertex.h"
 #include "vtkWedge.h"
+
+#if VTK_MODULE_ENABLE_VTK_CommonImplicitArrays
+#include "vtkConstantArray.h"
+#endif
 
 #if !(defined(_WIN32) && !defined(__CYGWIN__) || defined(__LIBCATAMOUNT__))
 #include <pwd.h> // For getpwnam(), getpwuid()
@@ -8552,10 +8555,17 @@ void vtkOpenFOAMReaderPrivate::InterpolateCellToPoint(vtkFloatArray* pData, vtkF
    */
   if (!inCellData->HasArray(::Cell2PointWeightsName.c_str()))
   {
+#if VTK_MODULE_ENABLE_VTK_CommonImplicitArrays
     vtkNew<vtkConstantArray<double>> ones;
     ones->ConstructBackend(1.0);
     ones->SetNumberOfComponents(1);
     ones->SetNumberOfTuples(mesh->GetNumberOfCells());
+#else
+    vtkNew<vtkDoubleArray> ones;
+    ones->SetNumberOfComponents(1);
+    ones->SetNumberOfTuples(mesh->GetNumberOfCells());
+    ones->Fill(1.0);
+#endif
     vtkSmartPointer<vtkDataArray> weights = ones;
     if (this->Parent->GetSizeAverageCellToPoint())
     {

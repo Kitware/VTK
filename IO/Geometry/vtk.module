@@ -14,8 +14,9 @@ DEPENDS
   VTK::IOCore
   VTK::IOLegacy
   VTK::nlohmannjson
-PRIVATE_DEPENDS
+OPTIONAL_DEPENDS
   VTK::CommonImplicitArrays
+PRIVATE_DEPENDS
   VTK::CommonMisc
   VTK::CommonSystem
   VTK::CommonTransforms
