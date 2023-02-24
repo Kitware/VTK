@@ -591,7 +591,7 @@ vtkSmartPointer<vtkImageData> TreeInformation::ComputeTileMeshTexture(
   }
   // sort decreasing on height of the BB
   std::sort(scatteredRegions.begin(), scatteredRegions.end(),
-    [](RegionCellId& first, RegionCellId& second) {
+    [](const RegionCellId& first, const RegionCellId& second) {
       return (first.Region[3] - first.Region[2]) > (second.Region[3] - second.Region[2]);
     });
   // approximate the width in pixels of the new image
