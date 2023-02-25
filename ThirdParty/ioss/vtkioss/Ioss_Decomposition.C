@@ -342,7 +342,7 @@ namespace Ioss {
     }
 
     show_progress("\tfinished with decomposition method");
-    Ioss::qsort(importElementMap);
+    Ioss::sort(importElementMap);
     show_progress("\tfinished with sort");
 
     std::copy(importElementCount.begin(), importElementCount.end(), importElementIndex.begin());
