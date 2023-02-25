@@ -755,6 +755,16 @@ function (vtk_add_test_mangling module)
   get_property(vtk_abi_namespace_name GLOBAL PROPERTY _vtk_abi_namespace_name)
   if (NOT vtk_abi_namespace_name STREQUAL "")
     _vtk_module_real_target(_vtk_test_target "${module}")
+    if (CMAKE_VERSION VERSION_LESS "3.19")
+      get_property(target_type TARGET ${_vtk_test_target} PROPERTY TYPE)
+      # CMake 3.19 introduced support for regular properties on `INTERFACE`
+      # libraries. Before that, it was an error to ask for properties like
+      # `SOURCES`. Avoid the error in this case (there aren't any objects
+      # anyways, so no need to make any noise).
+      if (target_type STREQUAL "INTERFACE_LIBRARY")
+        return ()
+      endif ()
+    endif ()
     get_property(has_sources TARGET ${_vtk_test_target} PROPERTY SOURCES)
     get_property(has_test GLOBAL PROPERTY "${module}_HAS_MANGLING_TEST" SET)
 
