@@ -234,12 +234,13 @@ vtkSmartPointer<vtkImageReader2> SetupTextureReader(const std::string& texturePa
 
 struct SaveTileMeshData
 {
-  SaveTileMeshData(int selectionField, vtkSmartPointer<vtkImageData> textureImage)
+  SaveTileMeshData(
+    vtkSelectionNode::SelectionField selectionField, vtkSmartPointer<vtkImageData> textureImage)
     : SelectionField(selectionField)
     , TextureImage(textureImage)
   {
   }
-  int SelectionField;
+  vtkSelectionNode::SelectionField SelectionField;
   vtkSmartPointer<vtkImageData> TextureImage;
 };
 
@@ -782,7 +783,7 @@ void TreeInformation::SaveTilePoints(vtkIncrementalOctreeNode* node, void* voidA
 {
   if (this->ContentGLTF)
   {
-    SaveTileMeshData aux(*static_cast<int*>(voidAux), nullptr);
+    SaveTileMeshData aux(*static_cast<vtkSelectionNode::SelectionField*>(voidAux), nullptr);
     SaveTileMesh(node, &aux);
   }
   else if (node->IsLeaf() && !this->EmptyNode[node->GetID()])
