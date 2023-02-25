@@ -52,8 +52,6 @@
 #include <sstream>
 #include <vtksys/FStream.hxx>
 
-using namespace nlohmann;
-
 using RegionType = std::array<int, 6>;
 
 namespace
@@ -1034,7 +1032,7 @@ void TreeInformation::SaveTileset(const std::string& output)
 //------------------------------------------------------------------------------
 void TreeInformation::SaveTileset(vtkIncrementalOctreeNode* root, const std::string& output)
 {
-  json v;
+  nlohmann::json v;
   this->RootJson["asset"]["version"] = "1.0";
   if (this->ContentGLTF)
   {
@@ -1072,10 +1070,10 @@ void TreeInformation::SaveTileset(vtkIncrementalOctreeNode* root, const std::str
 }
 
 //------------------------------------------------------------------------------
-json TreeInformation::GenerateTileJson(vtkIncrementalOctreeNode* node)
+nlohmann::json TreeInformation::GenerateTileJson(vtkIncrementalOctreeNode* node)
 {
-  json tree;
-  json v;
+  nlohmann::json tree;
+  nlohmann::json v;
   std::array<double, 6> nodeBounds = this->NodeTightBounds[node->GetID()];
   std::array<double, 6> lonLatRadiansHeight = ToLonLatRadiansHeight(this->CRS, nodeBounds);
   std::ostringstream ostr;

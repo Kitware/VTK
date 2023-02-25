@@ -47,7 +47,6 @@
 #include VTK_NLOHMANN_JSON(json.hpp)
 
 using namespace vtksys;
-using namespace nlohmann;
 //------------------------------------------------------------------------------
 void SetField(vtkDataObject* obj, const char* name, const char* value)
 {
@@ -327,7 +326,7 @@ bool TrianglesDiffer(std::array<std::array<double, 3>, 3>& in, std::string gltfF
   return false;
 }
 
-bool JsonEqual(json& l, json& r) noexcept
+bool JsonEqual(nlohmann::json& l, nlohmann::json& r) noexcept
 {
   try
   {
@@ -345,7 +344,8 @@ bool JsonEqual(json& l, json& r) noexcept
     }
     else if (l.is_number() && r.is_number())
     {
-      if (l.type() == json::value_t::number_float || r.type() == json::value_t::number_float)
+      if (l.type() == nlohmann::json::value_t::number_float ||
+        r.type() == nlohmann::json::value_t::number_float)
       {
         return vtkMathUtilities::NearlyEqual(l.get<double>(), r.get<double>());
       }
@@ -356,8 +356,8 @@ bool JsonEqual(json& l, json& r) noexcept
     }
     else if (l.is_object() && r.is_object())
     {
-      json::iterator itL = l.begin();
-      json::iterator itR = r.begin();
+      nlohmann::json::iterator itL = l.begin();
+      nlohmann::json::iterator itR = r.begin();
       while (itL != l.end() && itR != r.end())
       {
         if (itL.key() != itR.key())
@@ -379,8 +379,8 @@ bool JsonEqual(json& l, json& r) noexcept
     }
     else if (l.is_array() && r.is_array())
     {
-      json::iterator itL = l.begin();
-      json::iterator itR = r.begin();
+      nlohmann::json::iterator itL = l.begin();
+      nlohmann::json::iterator itR = r.begin();
       while (itL != l.end() && itR != r.end())
       {
         if (!JsonEqual(*itL, *itR))
@@ -397,7 +397,7 @@ bool JsonEqual(json& l, json& r) noexcept
       return true;
     }
   }
-  catch (json::exception& e)
+  catch (nlohmann::json::exception& e)
   {
     std::cerr << "json::exception: " << e.what() << std::endl;
   }
@@ -410,7 +410,7 @@ std::array<std::array<double, 3>, 3> triangleJacksonville = {
     { { 797971.0970941731939092, -5452573.6701772613450885, 3200667.5626786206848919 } } }
 };
 
-json ReadTileset(const std::string& fileName)
+nlohmann::json ReadTileset(const std::string& fileName)
 {
   vtksys::ifstream fileStream(fileName.c_str());
   if (fileStream.fail())
@@ -419,7 +419,7 @@ json ReadTileset(const std::string& fileName)
     ostr << "Cannot open: " << fileName << std::endl;
     throw std::runtime_error(ostr.str());
   }
-  json tilesetJson = json::parse(fileStream);
+  nlohmann::json tilesetJson = nlohmann::json::parse(fileStream);
   return tilesetJson;
 }
 
@@ -437,8 +437,8 @@ void TestJacksonvilleBuildings(const std::string& dataRoot, const std::string& t
   }
   std::string baselineFile = dataRoot + "/Data/3DTiles/jacksonville-tileset.json";
   std::string testFile = tempDirectory + "/jacksonville-3dtiles/tileset.json";
-  json baseline = ReadTileset(baselineFile);
-  json test = ReadTileset(testFile);
+  nlohmann::json baseline = ReadTileset(baselineFile);
+  nlohmann::json test = ReadTileset(testFile);
   if (!JsonEqual(baseline, test))
   {
     std::ostringstream ostr;
@@ -511,9 +511,9 @@ void TestBerlinBuildings(const std::string& dataRoot, const std::string& tempDir
     throw std::runtime_error("Triangles differ failure");
   }
   std::string basefname = dataRoot + "/Data/3DTiles/berlin-tileset.json";
-  json baseline = ReadTileset(basefname);
+  nlohmann::json baseline = ReadTileset(basefname);
   std::string testfname = tempDirectory + "/berlin-3dtiles/tileset.json";
-  json test = ReadTileset(testfname);
+  nlohmann::json test = ReadTileset(testfname);
   if (!JsonEqual(baseline, test))
   {
     std::ostringstream ostr;
