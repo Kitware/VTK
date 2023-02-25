@@ -26,11 +26,11 @@
 
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkWin32OpenGLRenderWindow.h"
-VTK_ABI_NAMESPACE_BEGIN
 
 struct ID3D11Device;
 struct ID3D11Texture2D;
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKRENDERINGOPENGL2_EXPORT vtkWin32OpenGLDXRenderWindow : public vtkWin32OpenGLRenderWindow
 {
 public:
