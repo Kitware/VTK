@@ -52,8 +52,6 @@
 #include <sstream>
 #include <vtksys/FStream.hxx>
 
-using namespace nlohmann;
-
 using RegionType = std::array<int, 6>;
 
 namespace
@@ -234,12 +232,13 @@ vtkSmartPointer<vtkImageReader2> SetupTextureReader(const std::string& texturePa
 
 struct SaveTileMeshData
 {
-  SaveTileMeshData(int selectionField, vtkSmartPointer<vtkImageData> textureImage)
+  SaveTileMeshData(
+    vtkSelectionNode::SelectionField selectionField, vtkSmartPointer<vtkImageData> textureImage)
     : SelectionField(selectionField)
     , TextureImage(textureImage)
   {
   }
-  int SelectionField;
+  vtkSelectionNode::SelectionField SelectionField;
   vtkSmartPointer<vtkImageData> TextureImage;
 };
 
@@ -590,7 +589,7 @@ vtkSmartPointer<vtkImageData> TreeInformation::ComputeTileMeshTexture(
   }
   // sort decreasing on height of the BB
   std::sort(scatteredRegions.begin(), scatteredRegions.end(),
-    [](RegionCellId& first, RegionCellId& second) {
+    [](const RegionCellId& first, const RegionCellId& second) {
       return (first.Region[3] - first.Region[2]) > (second.Region[3] - second.Region[2]);
     });
   // approximate the width in pixels of the new image
@@ -782,7 +781,7 @@ void TreeInformation::SaveTilePoints(vtkIncrementalOctreeNode* node, void* voidA
 {
   if (this->ContentGLTF)
   {
-    SaveTileMeshData aux(*static_cast<int*>(voidAux), nullptr);
+    SaveTileMeshData aux(*static_cast<vtkSelectionNode::SelectionField*>(voidAux), nullptr);
     SaveTileMesh(node, &aux);
   }
   else if (node->IsLeaf() && !this->EmptyNode[node->GetID()])
@@ -1034,7 +1033,7 @@ void TreeInformation::SaveTileset(const std::string& output)
 //------------------------------------------------------------------------------
 void TreeInformation::SaveTileset(vtkIncrementalOctreeNode* root, const std::string& output)
 {
-  json v;
+  nlohmann::json v;
   this->RootJson["asset"]["version"] = "1.0";
   if (this->ContentGLTF)
   {
@@ -1072,10 +1071,10 @@ void TreeInformation::SaveTileset(vtkIncrementalOctreeNode* root, const std::str
 }
 
 //------------------------------------------------------------------------------
-json TreeInformation::GenerateTileJson(vtkIncrementalOctreeNode* node)
+nlohmann::json TreeInformation::GenerateTileJson(vtkIncrementalOctreeNode* node)
 {
-  json tree;
-  json v;
+  nlohmann::json tree;
+  nlohmann::json v;
   std::array<double, 6> nodeBounds = this->NodeTightBounds[node->GetID()];
   std::array<double, 6> lonLatRadiansHeight = ToLonLatRadiansHeight(this->CRS, nodeBounds);
   std::ostringstream ostr;
