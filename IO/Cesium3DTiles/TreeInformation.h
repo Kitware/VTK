@@ -23,6 +23,7 @@
 #ifndef TreeInformation_h
 #define TreeInformation_h
 
+#include "vtkCesium3DTilesWriter.h"
 #include <vtkSmartPointer.h>
 
 #include <vtk_nlohmannjson.h>
@@ -147,7 +148,7 @@ private:
   /**
    * Buildings, Points or Mesh. @see vtkCesium3DTilesWriter::InputType
    */
-  int InputType;
+  enum vtkCesium3DTilesWriter::InputType InputType;
   vtkIncrementalOctreeNode* Root;
   ///@{
   /**
