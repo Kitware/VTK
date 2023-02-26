@@ -1,17 +1,31 @@
 # Python Wrappers
 
-The Python wrappers for VTK are produced algorithmically from the VTK header
-files, and using VTK through Python is very much like using VTK through C++.
-Nearly all of the same functionality is available, with Python types converted
-automatically to C++ types and vice-versa. This document assumes that you
-are already familiar with VTK itself, and want to know more details about
-how to use VTK through Python.
+# Introduction {#introduction}
+
+This document is a reference for using VTK from Python. It is not a tutorial
+and provides very little information about VTK itself, but instead describes
+in detail the features of the Python wrappers and how using VTK from Python
+differs from using VTK from C++.  It assumes that the reader is already
+somewhat familiar with both Python and VTK.
+
+
+# Background {#background}
+
+The Python wrappers are automatically generated from the VTK source code,
+and for the most part, there is a one-to-one mapping between the VTK classes
+and methods that you can use from Python and the ones that you can use from
+C++.  More specifically, the wrappers are a package of Python extension modules
+that interface directly to the VTK C++ libraries.  When you use VTK through
+the wrappers, you are actually executing compiled C++ code, and there is
+very little performance difference between VTK/C++ and VTK/Python.
 
 
 # Installation {#installation}
 
-The most convenient way to install VTK for Python is with pip, which is a
-package manager that comes with Python:
+VTK for Python can be installed via either conda or pip, where the conda
+packages is maintained on conda-forge, while the pip packages are maintained
+by the VTK developers themselves.  If you are first getting started, then pip
+is probably the most convenient way to install VTK for Python:
 
     pip install vtk
 
@@ -107,26 +121,25 @@ into your program, even if you are not certain that you need them.
 * For `vtkRenderingVolume`, `import vtkRenderingVolumeOpenGL2`
 * For `vtkCharts`, `import vtkContextOpenGL2`
 
-## Obsolete VTK Import {#obsolete-import}
+## Classic VTK Import {#classic-import}
 
-There are many VTK programs that still use the old '`vtk`' module,
-instead of using the '`vtkmodules`' package introduced in VTK 8.2:
+There are many VTK programs that still import the '`vtk`' module, which
+has been available since VTK 4.0, rather than using the '`vtkmodules`'
+package that was introduced in VTK 8.2:
 
     import vtk
 
-Although this works, it is not recommended.  The '`vtk`' module is only for
-backwards-compatibility and is, in fact, just the '`vtkmodules.all`' with a
-different name.  Because of the details of how the renaming is done, the
-'`import vtk`' statement can confuse IDEs like PyCharm and make them unable
-to index the module.  Instead, if you desire a module named '`vtk`', either
-for personal preference or a need for backwards compatibility, then use this:
+The advantage (and disadvantage) of this is that it imports everything.  It
+requires just one import statement for all of VTK, but it can be slow because
+VTK has grown to be very large over the years.
+
+Also note that, between VTK 8.2 and VTK 9.2.5, the use of the `vtk` module
+would confuse the auto-completion features of IDEs such as PyCharm.  This
+was fixed in VTK 9.2.6.  For 9.2.5 and earlier, the following can be used:
 
     import vtkmodules.all as vtk
 
-This will make it clear to people who read your code that '`vtk`' is simply a
-different name for '`vtkmodules.all`'.  It will also keep your IDE from
-becoming confused about what exactly the '`vtk`' module is.
-
+From the programmer's perspective, this is equivalent to '`import vtk`'.
 
 # VTK Classes and Objects {#classes-and-objects}
 
