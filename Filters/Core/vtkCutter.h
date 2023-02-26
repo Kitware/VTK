@@ -241,15 +241,15 @@ protected:
   vtkImplicitFunction* CutFunction;
   vtkTypeBool GenerateTriangles;
 
-  vtkSynchronizedTemplates3D* SynchronizedTemplates3D;
-  vtkSynchronizedTemplatesCutter3D* SynchronizedTemplatesCutter3D;
-  vtkGridSynchronizedTemplates3D* GridSynchronizedTemplates;
-  vtkRectilinearSynchronizedTemplates* RectilinearSynchronizedTemplates;
+  vtkNew<vtkSynchronizedTemplates3D> SynchronizedTemplates3D;
+  vtkNew<vtkSynchronizedTemplatesCutter3D> SynchronizedTemplatesCutter3D;
+  vtkNew<vtkGridSynchronizedTemplates3D> GridSynchronizedTemplates;
+  vtkNew<vtkRectilinearSynchronizedTemplates> RectilinearSynchronizedTemplates;
   vtkNew<vtkPlaneCutter> PlaneCutter;
 
   vtkIncrementalPointLocator* Locator;
   int SortBy;
-  vtkContourValues* ContourValues;
+  vtkNew<vtkContourValues> ContourValues;
   vtkTypeBool GenerateCutScalars;
   int OutputPointsPrecision;
 
