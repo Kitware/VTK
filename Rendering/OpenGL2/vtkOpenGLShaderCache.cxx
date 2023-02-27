@@ -165,6 +165,7 @@ unsigned int vtkOpenGLShaderCache::ReplaceShaderValues(
       "#define mediump\n"
       "#define lowp\n"
       "#if __VERSION__ == 150\n"
+      "#define texelFetchBuffer texelFetch\n"
       "#define texture1D texture\n"
       "#define texture2D texture\n"
       "#define texture3D texture\n"
