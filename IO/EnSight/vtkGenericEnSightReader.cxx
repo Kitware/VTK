@@ -383,18 +383,18 @@ int vtkGenericEnSightReader::DetermineEnSightVersion(int quiet)
             this->ReadNextDataLine(line);
             if (strncmp(line, "model:", 6) == 0)
             {
-              if (sscanf(line, " %*s %d %d%*[ \t]%[^\t\n]", &xtimeSet, &fileSet, subLine) == 3)
+              if (sscanf(line, " %*s %d %d%*[ \t]%[^\t\r\n]", &xtimeSet, &fileSet, subLine) == 3)
               {
                 timeSet = xtimeSet;
                 fileSet = xfileSet;
                 this->SetGeometryFileName(subLine);
               }
-              else if (sscanf(line, " %*s %d%*[ \t]%[^\t\n]", &xtimeSet, subLine) == 2)
+              else if (sscanf(line, " %*s %d%*[ \t]%[^\t\r\n]", &xtimeSet, subLine) == 2)
               {
                 timeSet = xtimeSet;
                 this->SetGeometryFileName(subLine);
               }
-              else if (sscanf(line, " %*s %[^\t\n]", subLine) == 1)
+              else if (sscanf(line, " %*s %[^\t\r\n]", subLine) == 1)
               {
                 this->SetGeometryFileName(subLine);
               }
