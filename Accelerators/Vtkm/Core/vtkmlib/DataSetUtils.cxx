@@ -36,3 +36,4 @@ std::vector<vtkm::Id> GetFieldsIndicesWithoutCoords(const vtkm::cont::DataSet& i
 
   return fields;
 }
+VTK_ABI_NAMESPACE_END
