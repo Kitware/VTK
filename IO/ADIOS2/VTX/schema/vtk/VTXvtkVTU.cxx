@@ -24,6 +24,7 @@
 #include "VTXvtkVTU.txx"
 
 #include "vtkCellArray.h"
+#include "vtkCellData.h"
 #include "vtkDoubleArray.h"
 #include "vtkIdTypeArray.h"
 #include "vtkIntArray.h"
@@ -83,9 +84,28 @@ void VTXvtkVTU::ReadPiece(const size_t step, const size_t pieceID)
                                 "information, in VTK::IOADIOS2 VTX reader\n");
   }
 
+  // optional
+  ReadDataSets(types::DataSetType::CellData, step, pieceID);
+
   this->Engine.PerformGets();
 
-  // TODO CellData
+  // Associate CellData
+  {
+    auto itCellDataSet = this->Pieces[pieceID].find(types::DataSetType::CellData);
+
+    if (itCellDataSet != this->Pieces[pieceID].end())
+    {
+      types::DataSet& dataSet = this->Pieces[pieceID][types::DataSetType::CellData];
+      for (auto& dataArrayPair : dataSet)
+      {
+        types::DataArray& dataArray = dataArrayPair.second;
+        if (dataArray.IsUpdated)
+        {
+          this->UnstructuredGrid->GetCellData()->AddArray(dataArray.Data.GetPointer());
+        }
+      }
+    }
+  }
 
   // Associate PointData
   {
@@ -216,11 +236,11 @@ void VTXvtkVTU::ReadPiece(const size_t step, const size_t pieceID)
 void VTXvtkVTU::Init()
 {
   auto lf_InitPieceDataSetType = [&](types::Piece& piece, const types::DataSetType type,
-                                   const pugi::xml_node& pieceNode) {
+                                   const pugi::xml_node& pieceNode, const bool persist) {
     const std::string nodeName = DataSetType(type);
     const pugi::xml_node dataSetNode = helper::XMLNode(
       nodeName, pieceNode, true, "when reading " + nodeName + " node in ImageData", false);
-    types::DataSet dataSet = helper::XMLInitDataSet(dataSetNode, VTXvtkVTU::SpecialNames);
+    types::DataSet dataSet = helper::XMLInitDataSet(dataSetNode, this->SpecialNames, persist);
     piece[type] = dataSet;
   };
 
@@ -238,9 +258,11 @@ void VTXvtkVTU::Init()
   for (const pugi::xml_node& xmlPieceNode : xmlUnstructuredGridNode.children("Piece"))
   {
     types::Piece piece;
-    lf_InitPieceDataSetType(piece, types::DataSetType::PointData, xmlPieceNode);
-    lf_InitPieceDataSetType(piece, types::DataSetType::Cells, xmlPieceNode);
-    lf_InitPieceDataSetType(piece, types::DataSetType::Points, xmlPieceNode);
+    // CellData persist
+    lf_InitPieceDataSetType(piece, types::DataSetType::CellData, xmlPieceNode, true);
+    lf_InitPieceDataSetType(piece, types::DataSetType::PointData, xmlPieceNode, false);
+    lf_InitPieceDataSetType(piece, types::DataSetType::Cells, xmlPieceNode, true);
+    lf_InitPieceDataSetType(piece, types::DataSetType::Points, xmlPieceNode, true);
 
     this->Pieces.push_back(piece);
     ++pieces;
