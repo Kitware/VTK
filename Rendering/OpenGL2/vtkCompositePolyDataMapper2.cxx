@@ -570,7 +570,15 @@ void vtkCompositeMapperHelper2::RenderPieceDraw(vtkRenderer* ren, vtkActor* acto
             prog, starthdata, starthdata->CellCellMap->GetPrimitiveOffsets()[primType]);
         }
         GLenum mode = this->GetOpenGLMode(representation, primType);
-        glDrawArrays(mode, first, count);
+        if (mode == GL_LINES && this->HaveWideLines(ren, actor))
+        {
+          glDrawArraysInstanced(
+            mode, first, count, 2 * vtkMath::Ceil(actor->GetProperty()->GetLineWidth()));
+        }
+        else
+        {
+          glDrawArrays(mode, first, count);
+        }
       }
     }
   }

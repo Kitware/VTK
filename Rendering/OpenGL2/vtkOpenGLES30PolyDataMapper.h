@@ -79,7 +79,16 @@ protected:
     std::map<vtkShader::Type, vtkShader*> shaders, vtkRenderer* ren, vtkActor* act) override;
   void ReplaceShaderPicking(
     std::map<vtkShader::Type, vtkShader*> shaders, vtkRenderer* ren, vtkActor* act) override;
+  /**
+   * In GLES 3.0, point size is set from the vertex shader.
+   */
   void ReplaceShaderPointSize(
+    std::map<vtkShader::Type, vtkShader*> shaders, vtkRenderer* ren, vtkActor* act);
+  /**
+   * GLES 3.0 does not support wide lines (width > 1). Shader computations combined with
+   * instanced rendering is used to emulate wide lines.
+   */
+  void ReplaceShaderWideLines(
     std::map<vtkShader::Type, vtkShader*> shaders, vtkRenderer* ren, vtkActor* act);
   ///@}
 
@@ -87,6 +96,12 @@ protected:
    * Set the shader parameters related to the mapper/input data, called by UpdateShader
    */
   void SetMapperShaderParameters(vtkOpenGLHelper& cellBO, vtkRenderer* ren, vtkActor* act) override;
+
+  /**
+   * Set the shader parameters related to the property, called by UpdateShader
+   */
+  void SetPropertyShaderParameters(
+    vtkOpenGLHelper& cellBO, vtkRenderer* ren, vtkActor* act) override;
 
   /**
    * Build the VBO, called by UpdateBufferObjects
@@ -108,6 +123,9 @@ protected:
     std::vector<unsigned char>& edgeArray, vtkCellArray* prims[4], vtkPoints* points,
     int representation, bool draw_surf_with_edges = false, bool vertex_visibility = false,
     vtkDataArray* ef = nullptr);
+
+  bool DrawingPoints(vtkActor* actor);
+  bool DrawingLines(vtkActor* actor);
 
   vtkNew<vtkOpenGLVertexBufferObjectGroup> PrimitiveVBOGroup[PrimitiveEnd];
   std::vector<unsigned int> PrimitiveIndexArrays[PrimitiveEnd];

@@ -55,6 +55,9 @@ in vec4 vertexMC;
 // PointSize on GLES 3.0
 //VTK::PointSizeGLES30::Dec
 
+// LineWidth on GLES 3.0
+//VTK::LineWidthGLES30::Dec
+
 void main()
 {
   //VTK::PointSizeGLES30::Impl
@@ -72,6 +75,8 @@ void main()
   //VTK::PrimID::Impl
 
   //VTK::PositionVC::Impl
+
+  //VTK::LineWidthGLES30::Impl
 
   //VTK::ValuePass::Impl
 

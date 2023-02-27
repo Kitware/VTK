@@ -84,6 +84,12 @@ protected:
   void ReplaceShaderPointSize(std::string& VSSource, vtkViewport* ren, vtkActor2D* act);
 
   /**
+   * GLES 3.0 does not support wide lines (width > 1). Shader computations combined with
+   * instanced rendering is used to emulate wide lines.
+   */
+  void ReplaceShaderWideLines(std::string& VSSource, vtkViewport* ren, vtkActor2D* act);
+
+  /**
    * Determine what shader to use and compile/link it
    */
   void UpdateShaders(vtkOpenGLHelper& cellBO, vtkViewport* viewport, vtkActor2D* act) override;

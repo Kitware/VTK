@@ -24,6 +24,7 @@
 #include "vtkImageData.h"
 #include "vtkLightCollection.h"
 #include "vtkLogger.h"
+#include "vtkMath.h"
 #include "vtkOpenGLCellToVTKCellMap.h"
 #include "vtkOpenGLError.h"
 #include "vtkOpenGLIndexBufferObject.h"
@@ -300,7 +301,15 @@ void vtkOpenGLES30PolyDataMapper::RenderPieceDraw(vtkRenderer* ren, vtkActor* ac
 
     this->UpdateShaders(this->Primitives[primType], ren, act);
     GLenum mode = this->PointPicking ? GL_POINTS : this->GetOpenGLMode(representation, primType);
-    glDrawArrays(mode, 0, numVerts);
+    if (mode == GL_LINES && this->HaveWideLines(ren, act))
+    {
+      glDrawArraysInstanced(
+        mode, 0, numVerts, 2 * vtkMath::Ceil(act->GetProperty()->GetLineWidth()));
+    }
+    else
+    {
+      glDrawArrays(mode, 0, numVerts);
+    }
   }
 }
 
@@ -375,6 +384,7 @@ void vtkOpenGLES30PolyDataMapper::ReplaceShaderValues(
   std::map<vtkShader::Type, vtkShader*> shaders, vtkRenderer* ren, vtkActor* act)
 {
   this->ReplaceShaderPointSize(shaders, ren, act);
+  this->ReplaceShaderWideLines(shaders, ren, act);
   this->Superclass::ReplaceShaderValues(shaders, ren, act);
 }
 
@@ -614,15 +624,58 @@ void vtkOpenGLES30PolyDataMapper::ReplaceShaderPicking(
 }
 
 //------------------------------------------------------------------------------
-void vtkOpenGLES30PolyDataMapper::ReplaceShaderPointSize(
-  std::map<vtkShader::Type, vtkShader*> shaders, vtkRenderer* vtkNotUsed(ren),
-  vtkActor* vtkNotUsed(act))
+bool vtkOpenGLES30PolyDataMapper::DrawingPoints(vtkActor* actor)
 {
-  std::string VSSource = shaders[vtkShader::Vertex]->GetSource();
-  vtkShaderProgram::Substitute(VSSource, "//VTK::PointSizeGLES30::Dec", "uniform float PointSize;");
-  vtkShaderProgram::Substitute(
-    VSSource, "//VTK::PointSizeGLES30::Impl", "gl_PointSize = PointSize;");
-  shaders[vtkShader::Vertex]->SetSource(VSSource);
+  return (this->LastBoundBO->PrimitiveType == PrimitivePoints || this->PointPicking ||
+    actor->GetProperty()->GetRepresentation() == VTK_POINTS);
+}
+
+//------------------------------------------------------------------------------
+bool vtkOpenGLES30PolyDataMapper::DrawingLines(vtkActor* actor)
+{
+  return (this->LastBoundBO->PrimitiveType == PrimitiveLines ||
+    actor->GetProperty()->GetRepresentation() == VTK_WIREFRAME);
+}
+
+//------------------------------------------------------------------------------
+void vtkOpenGLES30PolyDataMapper::ReplaceShaderPointSize(
+  std::map<vtkShader::Type, vtkShader*> shaders, vtkRenderer* vtkNotUsed(ren), vtkActor* act)
+{
+  if (this->DrawingPoints(act))
+  {
+    std::string VSSource = shaders[vtkShader::Vertex]->GetSource();
+    vtkShaderProgram::Substitute(
+      VSSource, "//VTK::PointSizeGLES30::Dec", "uniform float PointSize;");
+    vtkShaderProgram::Substitute(
+      VSSource, "//VTK::PointSizeGLES30::Impl", "gl_PointSize = PointSize;");
+    shaders[vtkShader::Vertex]->SetSource(VSSource);
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkOpenGLES30PolyDataMapper::ReplaceShaderWideLines(
+  std::map<vtkShader::Type, vtkShader*> shaders, vtkRenderer* ren, vtkActor* act)
+{
+  if (this->DrawingLines(act) && this->HaveWideLines(ren, act) && !this->DrawingEdges(ren, act))
+  {
+    std::string VSSource = shaders[vtkShader::Vertex]->GetSource();
+    vtkShaderProgram::Substitute(VSSource, "//VTK::LineWidthGLES30::Dec",
+      "uniform vec2 viewportSize;\n"
+      "uniform float lineWidthStepSize;\n"
+      "uniform float halfLineWidth;");
+    vtkShaderProgram::Substitute(VSSource, "//VTK::LineWidthGLES30::Impl",
+      "if (halfLineWidth > 0.0)\n"
+      "{\n"
+      "  float offset = float(gl_InstanceID / 2) * lineWidthStepSize - halfLineWidth;\n"
+      "  vec4 tmpPos = gl_Position;\n"
+      "  vec3 tmpPos2 = tmpPos.xyz / tmpPos.w;\n"
+      "  tmpPos2.x = tmpPos2.x + 2.0 * mod(float(gl_InstanceID), 2.0) * offset / viewportSize[0];\n"
+      "  tmpPos2.y = tmpPos2.y + 2.0 * mod(float(gl_InstanceID + 1), 2.0) * offset / "
+      "viewportSize[1];\n"
+      "  gl_Position = vec4(tmpPos2.xyz * tmpPos.w, tmpPos.w);\n"
+      "}\n");
+    shaders[vtkShader::Vertex]->SetSource(VSSource);
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -630,13 +683,34 @@ void vtkOpenGLES30PolyDataMapper::SetMapperShaderParameters(
   vtkOpenGLHelper& cellBO, vtkRenderer* ren, vtkActor* act)
 {
   this->Superclass::SetMapperShaderParameters(cellBO, ren, act);
-  if (cellBO.Program->IsUniformUsed("PointSize"))
+}
+
+//------------------------------------------------------------------------------
+void vtkOpenGLES30PolyDataMapper::SetPropertyShaderParameters(
+  vtkOpenGLHelper& cellBO, vtkRenderer* ren, vtkActor* act)
+{
+  this->Superclass::SetPropertyShaderParameters(cellBO, ren, act);
+  if (this->DrawingPoints(act))
   {
     cellBO.Program->SetUniformf("PointSize",
       this->PointPicking ? this->GetPointPickingPrimitiveSize(cellBO.PrimitiveType)
                          : act->GetProperty()->GetPointSize());
+    vtkOpenGLCheckErrorMacro("failed after UpdateShader PointSize ");
   }
-  vtkOpenGLCheckErrorMacro("failed after UpdateShader PointSize ");
+  if (this->DrawingLines(act) && this->HaveWideLines(ren, act) && !this->DrawingEdges(ren, act))
+  {
+    int vp[4] = {};
+    auto renWin = vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow());
+    vtkOpenGLState* ostate = renWin->GetState();
+    ostate->vtkglGetIntegerv(GL_VIEWPORT, vp);
+    float vpSize[2];
+    vpSize[0] = vp[2];
+    vpSize[1] = vp[3];
+    const float lineWidth = act->GetProperty()->GetLineWidth();
+    cellBO.Program->SetUniform2f("viewportSize", vpSize);
+    cellBO.Program->SetUniformf("lineWidthStepSize", lineWidth / vtkMath::Ceil(lineWidth));
+    cellBO.Program->SetUniformf("halfLineWidth", lineWidth / 2.0);
+  }
 }
 
 //------------------------------------------------------------------------------
