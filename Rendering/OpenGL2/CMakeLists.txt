@@ -209,9 +209,11 @@ include(vtkOpenGLOptions)
 if (VTK_OPENGL_USE_GLES)
   # Add custom overrides
   set(opengles_overrides
-    PolyDataMapper)
+    PolyDataMapper
+    PolyDataMapper2D)
   list(APPEND classes 
-    vtkOpenGLES30PolyDataMapper)
+    vtkOpenGLES30PolyDataMapper
+    vtkOpenGLES30PolyDataMapper2D)
   foreach (opengles_override IN LISTS opengles_overrides)
     vtk_object_factory_declare(
       BASE "vtk${opengles_override}"
