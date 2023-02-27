@@ -114,6 +114,20 @@ bool TestRemoveGhostCells()
   // ghosts: 1 0 0 1 1 0 0 0
   // ids:    0 1 2 3 4 5 6 7
 
+  // Add dummy point data and field data
+  vtkNew<vtkIdTypeArray> pointDataIds;
+  pointDataIds->SetName("pointDataIds");
+  for (vtkIdType pointId = 0; pointId < pd->GetNumberOfPoints(); ++pointId)
+  {
+    pointDataIds->InsertNextValue(pointId);
+  }
+  pd->GetPointData()->AddArray(pointDataIds);
+
+  vtkNew<vtkIdTypeArray> field;
+  field->SetName("field");
+  field->InsertNextValue(17);
+  pd->GetFieldData()->AddArray(field);
+
   pd->RemoveGhostCells();
 
   const int nVerts = 1, nLines = 1, nPolys = 1, nStrips = 2;
@@ -141,6 +155,21 @@ bool TestRemoveGhostCells()
   if (pd->GetNumberOfPoints() != 4)
   {
     vtkLog(ERROR, "Removing ghosts fails... Wrong number of points.");
+    return false;
+  }
+
+  // Check point data is still present and of the expected size
+  vtkAbstractArray* ptArray = pd->GetPointData()->GetAbstractArray(pointDataIds->GetName());
+  if (!ptArray || ptArray->GetNumberOfValues() != 4)
+  {
+    vtkLog(ERROR, "Removing ghosts failed... Unexepected point data content.");
+    return false;
+  }
+  vtkIdTypeArray* fArray =
+    vtkArrayDownCast<vtkIdTypeArray>(pd->GetFieldData()->GetAbstractArray(field->GetName()));
+  if (!fArray || fArray->GetNumberOfValues() != 1 || fArray->GetValue(0) != 17)
+  {
+    vtkLog(ERROR, "Removing ghosts failed... Unexepected field data content.");
     return false;
   }
 
