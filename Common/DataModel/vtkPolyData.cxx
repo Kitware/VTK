@@ -1767,6 +1767,7 @@ void vtkPolyData::RemoveGhostCells()
   newCellData->Squeeze();
   newPointData->Squeeze();
 
+  newPD->GetFieldData()->ShallowCopy(this->GetFieldData());
   this->ShallowCopy(newPD);
 
   this->CellData->RemoveArray(vtkDataSetAttributes::GhostArrayName());
