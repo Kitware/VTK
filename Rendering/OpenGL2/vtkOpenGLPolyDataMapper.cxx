@@ -310,6 +310,7 @@ bool vtkOpenGLPolyDataMapper::HaveWideLines(vtkRenderer* ren, vtkActor* actor)
     (this->GetOpenGLMode(this->SelectionType, this->LastBoundBO->PrimitiveType) == GL_LINES);
 }
 
+//------------------------------------------------------------------------------
 bool vtkOpenGLPolyDataMapper::DrawingEdges(vtkRenderer*, vtkActor* actor)
 {
   if (this->PointPicking)
@@ -397,6 +398,7 @@ vtkMTimeType vtkOpenGLPolyDataMapper::GetRenderPassStageMTime(
   return renderPassMTime;
 }
 
+//------------------------------------------------------------------------------
 std::string vtkOpenGLPolyDataMapper::GetTextureCoordinateName(const char* tname)
 {
   for (const auto& it : this->ExtraAttributes)
@@ -783,6 +785,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderColor(
   shaders[vtkShader::Fragment]->SetSource(FSSource);
 }
 
+//------------------------------------------------------------------------------
 void vtkOpenGLPolyDataMapper::ReplaceShaderLight(
   std::map<vtkShader::Type, vtkShader*> shaders, vtkRenderer* ren, vtkActor* actor)
 {
@@ -1420,6 +1423,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderLight(
   shaders[vtkShader::Fragment]->SetSource(FSSource);
 }
 
+//------------------------------------------------------------------------------
 void vtkOpenGLPolyDataMapper::ReplaceShaderTCoord(
   std::map<vtkShader::Type, vtkShader*> shaders, vtkRenderer*, vtkActor* actor)
 {
@@ -1764,6 +1768,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderTCoord(
   shaders[vtkShader::Fragment]->SetSource(FSSource);
 }
 
+//------------------------------------------------------------------------------
 void vtkOpenGLPolyDataMapper::ReplaceShaderPicking(
   std::map<vtkShader::Type, vtkShader*> shaders, vtkRenderer* /* ren */, vtkActor*)
 {
@@ -1840,6 +1845,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderPicking(
   shaders[vtkShader::Fragment]->SetSource(FSSource);
 }
 
+//------------------------------------------------------------------------------
 void vtkOpenGLPolyDataMapper::ReplaceShaderClip(
   std::map<vtkShader::Type, vtkShader*> shaders, vtkRenderer*, vtkActor*)
 {
@@ -1899,6 +1905,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderClip(
   shaders[vtkShader::Geometry]->SetSource(GSSource);
 }
 
+//------------------------------------------------------------------------------
 void vtkOpenGLPolyDataMapper::ReplaceShaderNormal(
   std::map<vtkShader::Type, vtkShader*> shaders, vtkRenderer*, vtkActor* actor)
 {
@@ -2266,6 +2273,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderNormal(
   }
 }
 
+//------------------------------------------------------------------------------
 void vtkOpenGLPolyDataMapper::ReplaceShaderPositionVC(
   std::map<vtkShader::Type, vtkShader*> shaders, vtkRenderer*, vtkActor* actor)
 {
@@ -2307,6 +2315,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderPositionVC(
   shaders[vtkShader::Fragment]->SetSource(FSSource);
 }
 
+//------------------------------------------------------------------------------
 void vtkOpenGLPolyDataMapper::ReplaceShaderPrimID(
   std::map<vtkShader::Type, vtkShader*> shaders, vtkRenderer*, vtkActor*)
 {
@@ -2318,6 +2327,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderPrimID(
   shaders[vtkShader::Geometry]->SetSource(GSSource);
 }
 
+//------------------------------------------------------------------------------
 void vtkOpenGLPolyDataMapper::ReplaceShaderCoincidentOffset(
   std::map<vtkShader::Type, vtkShader*> shaders, vtkRenderer* ren, vtkActor* actor)
 {
@@ -2358,6 +2368,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderCoincidentOffset(
   }
 }
 
+//------------------------------------------------------------------------------
 // If MSAA is enabled, don't write to gl_FragDepth unless we absolutely have
 // to. See VTK issue 16899.
 void vtkOpenGLPolyDataMapper::ReplaceShaderDepth(
@@ -2366,6 +2377,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderDepth(
   // noop by default
 }
 
+//------------------------------------------------------------------------------
 void vtkOpenGLPolyDataMapper::ReplaceShaderValues(
   std::map<vtkShader::Type, vtkShader*> shaders, vtkRenderer* ren, vtkActor* actor)
 {
@@ -2389,6 +2401,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderValues(
   // cout << "FS: " << shaders[vtkShader::Fragment]->GetSource() << endl;
 }
 
+//------------------------------------------------------------------------------
 bool vtkOpenGLPolyDataMapper::DrawingTubesOrSpheres(vtkOpenGLHelper& cellBO, vtkActor* actor)
 {
   unsigned int mode =
@@ -2399,6 +2412,7 @@ bool vtkOpenGLPolyDataMapper::DrawingTubesOrSpheres(vtkOpenGLHelper& cellBO, vtk
     (prop->GetRenderLinesAsTubes() && mode == GL_LINES && prop->GetLineWidth() > 1.0);
 }
 
+//------------------------------------------------------------------------------
 bool vtkOpenGLPolyDataMapper::DrawingSpheres(vtkOpenGLHelper& cellBO, vtkActor* actor)
 {
   return (actor->GetProperty()->GetRenderPointsAsSpheres() &&
@@ -2406,6 +2420,7 @@ bool vtkOpenGLPolyDataMapper::DrawingSpheres(vtkOpenGLHelper& cellBO, vtkActor* 
       GL_POINTS);
 }
 
+//------------------------------------------------------------------------------
 bool vtkOpenGLPolyDataMapper::DrawingTubes(vtkOpenGLHelper& cellBO, vtkActor* actor)
 {
   return (actor->GetProperty()->GetRenderLinesAsTubes() &&
@@ -2597,6 +2612,7 @@ void vtkOpenGLPolyDataMapper::UpdateShaders(
   vtkOpenGLCheckErrorMacro("failed after UpdateShader");
 }
 
+//------------------------------------------------------------------------------
 void vtkOpenGLPolyDataMapper::SetCustomUniforms(vtkOpenGLHelper& cellBO, vtkActor* actor)
 {
   vtkShaderProperty* sp = actor->GetShaderProperty();
@@ -2608,6 +2624,7 @@ void vtkOpenGLPolyDataMapper::SetCustomUniforms(vtkOpenGLHelper& cellBO, vtkActo
   gu->SetUniforms(cellBO.Program);
 }
 
+//------------------------------------------------------------------------------
 void vtkOpenGLPolyDataMapper::SetMapperShaderParameters(
   vtkOpenGLHelper& cellBO, vtkRenderer* ren, vtkActor* actor)
 {
@@ -3145,6 +3162,7 @@ void vtkOpenGLPolyDataMapper::SetPropertyShaderParameters(
 
 namespace
 {
+//------------------------------------------------------------------------------
 // helper to get the state of picking
 int getPickState(vtkRenderer* ren)
 {
@@ -3158,6 +3176,7 @@ int getPickState(vtkRenderer* ren)
 }
 }
 
+//------------------------------------------------------------------------------
 void vtkOpenGLPolyDataMapper::GetCoincidentParameters(
   vtkRenderer* ren, vtkActor* actor, float& factor, float& offset)
 {
@@ -3219,6 +3238,7 @@ void vtkOpenGLPolyDataMapper::GetCoincidentParameters(
   }
 }
 
+//------------------------------------------------------------------------------
 void vtkOpenGLPolyDataMapper::UpdateMaximumPointCellIds(vtkRenderer* ren, vtkActor* actor)
 {
   vtkHardwareSelector* selector = ren->GetSelector();
@@ -3549,6 +3569,7 @@ void vtkOpenGLPolyDataMapper::RenderPiece(vtkRenderer* ren, vtkActor* actor)
   this->RenderPieceFinish(ren, actor);
 }
 
+//------------------------------------------------------------------------------
 void vtkOpenGLPolyDataMapper::UpdateCameraShiftScale(vtkRenderer* ren, vtkActor* actor)
 {
   if (this->PauseShiftScale)
@@ -3656,6 +3677,7 @@ bool vtkOpenGLPolyDataMapper::GetNeedToRebuildBufferObjects(
   return false;
 }
 
+//------------------------------------------------------------------------------
 // create the cell scalar array adjusted for ogl Cells
 void vtkOpenGLPolyDataMapper::AppendCellTextures(vtkRenderer* /*ren*/, vtkActor*,
   vtkCellArray* prims[4], int representation, std::vector<unsigned char>& newColors,
@@ -3719,6 +3741,7 @@ void vtkOpenGLPolyDataMapper::AppendCellTextures(vtkRenderer* /*ren*/, vtkActor*
   }
 }
 
+//------------------------------------------------------------------------------
 void vtkOpenGLPolyDataMapper::BuildCellTextures(
   vtkRenderer* ren, vtkActor* actor, vtkCellArray* prims[4], int representation)
 {
@@ -4301,6 +4324,7 @@ void vtkOpenGLPolyDataMapper::ShallowCopy(vtkAbstractMapper* mapper)
   this->vtkPolyDataMapper::ShallowCopy(mapper);
 }
 
+//------------------------------------------------------------------------------
 void vtkOpenGLPolyDataMapper::SetVBOShiftScaleMethod(int m)
 {
   if (this->ShiftScaleMethod == m)
@@ -4317,6 +4341,7 @@ void vtkOpenGLPolyDataMapper::SetVBOShiftScaleMethod(int m)
   }
 }
 
+//------------------------------------------------------------------------------
 int vtkOpenGLPolyDataMapper::GetOpenGLMode(int representation, int primType)
 {
   if (representation == VTK_POINTS || primType == PrimitivePoints || primType == PrimitiveVertices)
@@ -4330,6 +4355,7 @@ int vtkOpenGLPolyDataMapper::GetOpenGLMode(int representation, int primType)
   return GL_TRIANGLES;
 }
 
+//------------------------------------------------------------------------------
 int vtkOpenGLPolyDataMapper::GetPointPickingPrimitiveSize(int primType)
 {
   if (primType == PrimitivePoints)
@@ -4350,6 +4376,7 @@ void vtkOpenGLPolyDataMapper::MapDataArrayToVertexAttribute(
   this->MapDataArray(vertexAttributeName, dataArrayName, "", fieldAssociation, componentno);
 }
 
+//------------------------------------------------------------------------------
 void vtkOpenGLPolyDataMapper::MapDataArrayToMultiTextureAttribute(
   const char* tname, const char* dataArrayName, int fieldAssociation, int componentno)
 {
@@ -4358,6 +4385,7 @@ void vtkOpenGLPolyDataMapper::MapDataArrayToMultiTextureAttribute(
   this->MapDataArray(coordname.c_str(), dataArrayName, tname, fieldAssociation, componentno);
 }
 
+//------------------------------------------------------------------------------
 void vtkOpenGLPolyDataMapper::MapDataArray(const char* vertexAttributeName,
   const char* dataArrayName, const char* tname, int fieldAssociation, int componentno)
 {
@@ -4412,6 +4440,7 @@ void vtkOpenGLPolyDataMapper::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
 }
 
+//------------------------------------------------------------------------------
 void vtkOpenGLPolyDataMapper::ProcessSelectorPixelBuffers(
   vtkHardwareSelector* sel, std::vector<unsigned int>& pixeloffsets, vtkProp* prop)
 {
