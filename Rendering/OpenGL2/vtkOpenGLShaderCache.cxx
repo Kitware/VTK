@@ -151,7 +151,12 @@ unsigned int vtkOpenGLShaderCache::ReplaceShaderValues(
       "precision mediump sampler2D;\n"
       "precision mediump sampler3D;\n"
       "#endif\n"
+#ifdef GL_ES_VERSION_3_0
+      "#define texelFetchBuffer(a,b) texelFetch(a, Get2DIndexFrom1DIndex(b, textureSize(a, 0)), "
+      "0)\n"
+#else
       "#define texelFetchBuffer texelFetch\n"
+#endif
       "#define texture1D texture\n"
       "#define texture2D texture\n"
       "#define texture3D texture\n"
@@ -160,12 +165,6 @@ unsigned int vtkOpenGLShaderCache::ReplaceShaderValues(
       "#define mediump\n"
       "#define lowp\n"
       "#if __VERSION__ == 150\n"
-#ifdef GL_ES_VERSION_3_0
-      "#define texelFetchBuffer(a,b) texelFetch(a, Get2DIndexFrom1DIndex(b, textureSize(a, 0)), "
-      "0)\n"
-#else
-      "#define texelFetchBuffer texelFetch\n"
-#endif
       "#define texture1D texture\n"
       "#define texture2D texture\n"
       "#define texture3D texture\n"
