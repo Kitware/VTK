@@ -194,6 +194,15 @@ public:
   vtkGetMacro(OutputPointsPrecision, int);
   ///@}
 
+  ///@{
+  /**
+   * Setter/Getter for stable clipping non-linear cells (default value is true)
+   */
+  vtkGetMacro(StableClipNonLinear, bool);
+  vtkSetMacro(StableClipNonLinear, bool);
+  vtkBooleanMacro(StableClipNonLinear, bool);
+  ///@}
+
 protected:
   vtkClipDataSet(vtkImplicitFunction* cf = nullptr);
   ~vtkClipDataSet() override;
@@ -224,6 +233,8 @@ protected:
 
   bool UseValueAsOffset;
   int OutputPointsPrecision;
+
+  bool StableClipNonLinear = true;
 
 private:
   vtkClipDataSet(const vtkClipDataSet&) = delete;

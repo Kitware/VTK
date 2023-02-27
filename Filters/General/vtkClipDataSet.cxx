@@ -28,6 +28,7 @@
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkMergePoints.h"
+#include "vtkNonLinearCell.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyhedron.h"
@@ -174,7 +175,6 @@ int vtkClipDataSet::RequestData(vtkInformation* vtkNotUsed(request),
   double s;
   vtkIdType npts;
   const vtkIdType* pts;
-  int cellType = 0;
   vtkIdType i;
   int j;
   vtkIdType estimatedSize;
@@ -368,6 +368,8 @@ int vtkClipDataSet::RequestData(vtkInformation* vtkNotUsed(request),
   num[0] = num[1] = 0;
   int numNew[2];
   numNew[0] = numNew[1] = 0;
+  bool sameCell[2] = { false, false };
+
   for (vtkIdType cellId = 0; cellId < numCells && !abort; cellId++)
   {
     if (!(cellId % updateTime))
@@ -380,6 +382,7 @@ int vtkClipDataSet::RequestData(vtkInformation* vtkNotUsed(request),
     cellPts = cell->GetPoints();
     cellIds = cell->GetPointIds();
     npts = cellPts->GetNumberOfPoints();
+    vtkNonLinearCell* nonLinearCell = vtkNonLinearCell::SafeDownCast(cell->GetRepresentativeCell());
 
     // evaluate implicit cutting function
     for (i = 0; i < npts; i++)
@@ -395,60 +398,68 @@ int vtkClipDataSet::RequestData(vtkInformation* vtkNotUsed(request),
     }
 
     // perform the clipping
-    cell->Clip(value, cellScalars, this->Locator, conn[0], inPD, outPD, inCD, cellId, outCD[0],
-      this->InsideOut);
-    numNew[0] = conn[0]->GetNumberOfCells() - num[0];
-    num[0] = conn[0]->GetNumberOfCells();
-
-    if (this->GenerateClippedOutput)
+    for (i = 0; i < numOutputs; ++i)
     {
-      cell->Clip(value, cellScalars, this->Locator, conn[1], inPD, outPD, inCD, cellId, outCD[1],
-        !this->InsideOut);
-      numNew[1] = conn[1]->GetNumberOfCells() - num[1];
-      num[1] = conn[1]->GetNumberOfCells();
+      if (this->StableClipNonLinear && nonLinearCell != nullptr)
+      {
+        sameCell[i] = nonLinearCell->StableClip(value, cellScalars, this->Locator, conn[i], inPD,
+          outPD, inCD, cellId, outCD[i], this->InsideOut);
+        numNew[i] = conn[i]->GetNumberOfCells() - num[i];
+        num[i] = conn[i]->GetNumberOfCells();
+      }
+      else
+      {
+        cell->Clip(value, cellScalars, this->Locator, conn[i], inPD, outPD, inCD, cellId, outCD[i],
+          this->InsideOut);
+        numNew[i] = conn[i]->GetNumberOfCells() - num[i];
+        num[i] = conn[i]->GetNumberOfCells();
+        sameCell[i] = false;
+      }
     }
 
-    for (i = 0; i < numOutputs; i++) // for both outputs
+    auto getCellType = [](vtkGenericCell* gCell, vtkIdType nPts, bool isSameCell) {
+      if (isSameCell)
+      {
+        return static_cast<VTKCellType>(gCell->GetCellType());
+      }
+      else if (gCell->GetCellType() == VTK_POLYHEDRON)
+      {
+        return VTK_POLYHEDRON;
+      }
+      else
+      {
+        switch (gCell->GetCellDimension())
+        {
+          case 0: // points are generated--------------------------------
+            return (nPts > 1 ? VTK_POLY_VERTEX : VTK_VERTEX);
+
+          case 1: // lines are generated---------------------------------
+            return (nPts > 2 ? VTK_POLY_LINE : VTK_LINE);
+
+          case 2: // polygons are generated------------------------------
+            return (nPts == 3 ? VTK_TRIANGLE : (nPts == 4 ? VTK_QUAD : VTK_POLYGON));
+
+          case 3: // tetrahedra or wedges are generated------------------
+            return (nPts == 4 ? VTK_TETRA : VTK_WEDGE);
+
+          default:
+            vtkErrorWithObjectMacro(nullptr, "Dimension cannot be lower than 0 or higher than 3");
+            break;
+        }
+      }
+
+      return VTK_EMPTY_CELL;
+    };
+
+    for (i = 0; i < numOutputs; i++)
     {
       for (j = 0; j < numNew[i]; j++)
       {
-        if (cell->GetCellType() == VTK_POLYHEDRON)
-        {
-          // Polyhedron cells have a special cell connectivity format
-          //(nCell0Faces, nFace0Pts, i, j, k, nFace1Pts, i, j, k, ...).
-          // But we don't need to deal with it here. The special case is handled
-          // by vtkUnstructuredGrid::SetCells(), which will be called next.
-          types[i]->InsertNextValue(VTK_POLYHEDRON);
-        }
-        else
-        {
-          conn[i]->GetNextCell(npts, pts);
-
-          // For each new cell added, got to set the type of the cell
-          switch (cell->GetCellDimension())
-          {
-            case 0: // points are generated--------------------------------
-              cellType = (npts > 1 ? VTK_POLY_VERTEX : VTK_VERTEX);
-              break;
-
-            case 1: // lines are generated---------------------------------
-              cellType = (npts > 2 ? VTK_POLY_LINE : VTK_LINE);
-              break;
-
-            case 2: // polygons are generated------------------------------
-              cellType = (npts == 3 ? VTK_TRIANGLE : (npts == 4 ? VTK_QUAD : VTK_POLYGON));
-              break;
-
-            case 3: // tetrahedra or wedges are generated------------------
-              cellType = (npts == 4 ? VTK_TETRA : VTK_WEDGE);
-              break;
-          } // switch
-
-          types[i]->InsertNextValue(cellType);
-        }
-      } // for each new cell
-    }   // for both outputs
-  }     // for each cell
+        conn[i]->GetNextCell(npts, pts);
+        types[i]->InsertNextValue(getCellType(cell, npts, sameCell[i]));
+      }
+    }
+  }
 
   cell->Delete();
   cellScalars->Delete();
