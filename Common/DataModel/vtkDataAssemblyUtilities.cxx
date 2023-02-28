@@ -27,12 +27,9 @@
 #include "vtkUniformGrid.h"
 #include "vtkUniformGridAMR.h"
 
-#include <algorithm>
 #include <cassert>
 #include <functional>
-#include <iterator>
 #include <set>
-#include <sstream>
 #include <tuple>
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -803,6 +800,58 @@ private:
 
 vtkStandardNewMacro(vtkSelectorsForCompositeIdsVisitor);
 
+class vtkSelectorsCompositeIdsForCompositeIdsVisitor : public vtkDataAssemblyVisitor
+{
+public:
+  static vtkSelectorsCompositeIdsForCompositeIdsVisitor* New();
+  vtkTypeMacro(vtkSelectorsCompositeIdsForCompositeIdsVisitor, vtkDataAssemblyVisitor);
+
+  std::vector<unsigned int> SelectorsCompositeIds;
+  std::set<unsigned int> CompositeIds;
+
+protected:
+  vtkSelectorsCompositeIdsForCompositeIdsVisitor() = default;
+  ~vtkSelectorsCompositeIdsForCompositeIdsVisitor() override = default;
+
+  void Visit(int nodeid) override
+  {
+    const auto ids = this->GetCurrentDataSetIndices();
+    if (ids.size() != 1)
+    {
+      // this happens for AMR if a level has no datasets.
+      return;
+    }
+
+    const auto assembly = this->GetAssembly();
+    // get the composite id of this node.
+    const unsigned int cid = ids.front();
+    // get the number of partitions for this node.
+    unsigned int childCount = assembly->GetAttributeOrDefault(nodeid, "number_of_partitions", 0u);
+    // get the number of pieces for this node.
+    childCount = assembly->GetAttributeOrDefault(nodeid, "vtk_num_pieces", childCount);
+    // get the composite id range of the children of this node.
+    const auto cid_range = std::make_pair(cid, cid + 1 + childCount);
+    // iterate over the composite id range of the children of this node.
+    for (auto id = cid_range.first; id < cid_range.second; ++id)
+    {
+      // if any of the children of this node is in the list of composite ids
+      if (this->CompositeIds.find(id) != this->CompositeIds.end())
+      {
+        // add the composite id of this node to the list of selectors composite ids.
+        this->SelectorsCompositeIds.push_back(cid);
+        break;
+      }
+    }
+  }
+
+private:
+  vtkSelectorsCompositeIdsForCompositeIdsVisitor(
+    const vtkSelectorsCompositeIdsForCompositeIdsVisitor&) = delete;
+  void operator=(const vtkSelectorsCompositeIdsForCompositeIdsVisitor&) = delete;
+};
+
+vtkStandardNewMacro(vtkSelectorsCompositeIdsForCompositeIdsVisitor);
+
 } // namespace {}
 
 //----------------------------------------------------------------------------
@@ -827,6 +876,35 @@ std::vector<std::string> vtkDataAssemblyUtilities::GetSelectorsForCompositeIds(
       ids.begin(), ids.end(), std::inserter(visitor->CompositeIds, visitor->CompositeIds.end()));
     hierarchy->Visit(visitor);
     return visitor->Selectors;
+  }
+
+  // in theory, this can work for AMR too, but I am leaving that until we have a
+  // use-case.
+  return {};
+}
+
+//----------------------------------------------------------------------------
+std::vector<unsigned int> vtkDataAssemblyUtilities::GetSelectorsCompositeIdsForCompositeIds(
+  const std::vector<unsigned int>& ids, vtkDataAssembly* hierarchy)
+{
+  const auto root = vtkDataAssembly::GetRootNode();
+  if (strcmp(hierarchy->GetAttributeOrDefault(root, CATEGORY_ATTRIBUTE_NAME, ""),
+        CATEGORY_HIERARCHY) != 0)
+  {
+    vtkLogF(ERROR,
+      "GetSelectorForCompositeId is only supported on a data-assembly representation a hierarchy.");
+    return {};
+  }
+
+  const auto dataType = hierarchy->GetAttributeOrDefault(root, "vtk_type", -1);
+  if (vtkDataObjectTypes::TypeIdIsA(dataType, VTK_PARTITIONED_DATA_SET_COLLECTION) ||
+    vtkDataObjectTypes::TypeIdIsA(dataType, VTK_MULTIBLOCK_DATA_SET))
+  {
+    vtkNew<vtkSelectorsCompositeIdsForCompositeIdsVisitor> visitor;
+    std::copy(
+      ids.begin(), ids.end(), std::inserter(visitor->CompositeIds, visitor->CompositeIds.end()));
+    hierarchy->Visit(visitor);
+    return visitor->SelectorsCompositeIds;
   }
 
   // in theory, this can work for AMR too, but I am leaving that until we have a
