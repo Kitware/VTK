@@ -5,15 +5,13 @@
 
 #include <iostream>
 #include <string>
+#include <utility>
+#include <vector>
 
 int TestExecutableRunner(int, char*[])
 {
   vtkNew<vtkExecutableRunner> process;
-#if defined(WIN32) || defined(_WIN32) || defined(__WIN32__)
-  process->SetCommand("cmd.exe /c \"echo Hello World\"");
-#else
-  process->SetCommand("echo \"Hello World\"");
-#endif
+  process->SetCommand("echo Hello World");
   process->Execute();
   std::string out = process->GetStdOut();
   std::string err = process->GetStdErr();
@@ -60,6 +58,26 @@ int TestExecutableRunner(int, char*[])
   if (code == 0)
   {
     std::cerr << " === ERROR: command did not return a failure but was supposed to." << std::endl;
+    returnValue = EXIT_FAILURE;
+  }
+
+  // ---
+  process->SetExecuteInSystemShell(false);
+#if defined(WIN32) || defined(_WIN32) || defined(__WIN32__)
+  process->SetCommand("cmd.exe");
+  process->AddArgument("/c");
+  process->AddArgument("echo Hello World");
+#else
+  process->SetCommand("echo");
+  process->AddArgument("Hello World");
+#endif
+  process->Execute();
+  out = process->GetStdOut();
+  err = process->GetStdErr();
+  code = process->GetReturnValue();
+  if (code != 0 || out != "Hello World" || !err.empty())
+  {
+    std::cerr << " === ERROR: wrong result with SetExecuteInSystemShell(false) option" << std::endl;
     returnValue = EXIT_FAILURE;
   }
 

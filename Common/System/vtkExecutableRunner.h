@@ -21,13 +21,18 @@
 #include "vtksys/Process.h" // For class vtksysProcess
 
 #include <string> // for class std::string
+#include <vector> // for class std::vector
 
 /**
  * @class   vtkExecutableRunner
  * @brief   Launch a process on the current machine and get its output
  *
  * Launch a process on the current machine and get its standard output and
- * standard error output.
+ * standard error output. When `ExecuteInSystemShell` is false, arguments
+ * needs to be added separately using the `AddArgument` / `ClearArguments`
+ * API, otherwise command may not work correctly. If one does not know how to
+ * parse the arguments of the command it want to execute then
+ * `ExecuteInSystemShell` should be set to true.
  */
 VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONSYSTEM_EXPORT vtkExecutableRunner : public vtkObject
@@ -78,6 +83,31 @@ public:
 
   ///@{
   /**
+   * Allows the command to be launched using the system shell (`sh` on unix
+   * systems, cmd.exe on windows). This is handy when the user doesn't know
+   * how to split arguments from a single string.
+   *
+   * Default to true.
+   */
+  vtkSetMacro(ExecuteInSystemShell, bool);
+  vtkGetMacro(ExecuteInSystemShell, bool);
+  vtkBooleanMacro(ExecuteInSystemShell, bool);
+  ///@}
+
+  ///@{
+  /**
+   * API to control arguments passed to the command when `ExecuteInSystemShell`
+   * is false.
+   *
+   * Default is no argument.
+   */
+  virtual void AddArgument(const std::string& arg);
+  virtual void ClearArguments();
+  virtual vtkIdType GetNumberOfArguments() const;
+  ///@}
+
+  ///@{
+  /**
    * Get output of the previously run command.
    */
   vtkGetCharFromStdStringMacro(StdOut);
@@ -95,6 +125,7 @@ protected:
   vtkSetMacro(StdOut, std::string);
   vtkSetMacro(StdErr, std::string);
 
+  std::vector<std::string> GetCommandToExecute() const;
   int ExitProcess(vtksysProcess* process);
 
 private:
@@ -105,6 +136,8 @@ private:
   double Timeout = 5;
   std::string Command;
   int ReturnValue = -1;
+  bool ExecuteInSystemShell = true;
+  std::vector<std::string> Arguments;
 
   std::string StdOut;
   std::string StdErr;
