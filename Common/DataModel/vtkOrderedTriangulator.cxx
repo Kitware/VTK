@@ -34,6 +34,9 @@
 #include <stack>
 #include <vector>
 
+// Dumps insertion cavity when the cavity is invalid.
+// #define DEBUG_vtkOrderedTriangulator
+
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOrderedTriangulator);
 
@@ -858,8 +861,8 @@ int vtkOTMesh::CreateInsertionCavity(OTPoint* p, OTTetra* initialTet, double[4])
   // Process queue of tetras until exhausted
   //
   int i, valid;
-#if 0
-  //please leave this for debugging purposes
+#ifdef DEBUG_vtkOrderedTriangulator
+  // please leave this for debugging purposes
   int somethingNotValid = 0;
 #endif
   OTTetra *nei, *tetra;
@@ -917,8 +920,8 @@ int vtkOTMesh::CreateInsertionCavity(OTPoint* p, OTTetra* initialTet, double[4])
     // check for validity
     if (!valid) // broke out due to invalid face
     {
-#if 0
-      //please leave this for debugging purposes
+#ifdef DEBUG_vtkOrderedTriangulator
+      // please leave this for debugging purposes
       somethingNotValid++;
 #endif
       // add this tetra to queue
@@ -974,12 +977,12 @@ int vtkOTMesh::CreateInsertionCavity(OTPoint* p, OTTetra* initialTet, double[4])
     }
   }
 
-#if 0
-  //please leave this for debugging purposes
-  if ( somethingNotValid )
+#ifdef DEBUG_vtkOrderedTriangulator
+  // please leave this for debugging purposes
+  if (somethingNotValid)
   {
     this->DumpInsertionCavity(p->P);
-//    exit(1);
+    //    exit(1);
   }
 #endif
 

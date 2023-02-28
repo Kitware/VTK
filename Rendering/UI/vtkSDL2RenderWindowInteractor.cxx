@@ -28,10 +28,14 @@
 // 5. SDL2/SDL_sensor.h: warning: identifier '_SDL_Sensor'
 // 6. SDL2/SDL_gamecontroller.h: warning: identifier '_SDL_GameController'
 // 7. SDL2/SDL_haptic.h: warning: identifier '_SDL_Haptic'
+#ifdef __clang__
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wreserved-identifier"
+#endif
 #include <SDL.h>
+#ifdef __clang__
 #pragma clang diagnostic pop
+#endif
 
 #ifdef __EMSCRIPTEN__
 #include "emscripten.h"
