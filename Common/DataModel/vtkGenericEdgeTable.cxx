@@ -643,9 +643,6 @@ void vtkGenericEdgeTable::InsertPointAndScalar(vtkIdType ptId, double pt[3], dou
   // sizeof(s)=this->NumberOfComponents
   vtkIdType pos = this->HashFunction(ptId);
 
-  // Need to check size first
-  // this->HashPoints->Resize( pos );
-
   // Be careful with reference the equal is not overloaded
   vtkEdgeTablePoints::VectorPointTableType& vect = this->HashPoints->PointVector[pos];
 
