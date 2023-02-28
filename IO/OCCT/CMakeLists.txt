@@ -1,5 +1,4 @@
 vtk_module_find_package(
-  PRIVATE
   PACKAGE OpenCASCADE
   COMPONENTS
     FoundationClasses
