@@ -43,6 +43,7 @@ vtk_add_test_cxx(vtkCommonDataModelCxxTests tests
   TestImageDataInterpolation.cxx
   TestImageDataOrientation.cxx
   TestImageIterator.cxx
+  TestInformationDataObjectKey.cxx
   TestInterpolationDerivs.cxx
   TestInterpolationFunctions.cxx
   TestMappedGridDeepCopy.cxx

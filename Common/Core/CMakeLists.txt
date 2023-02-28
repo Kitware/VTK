@@ -406,16 +406,6 @@ elseif (CMAKE_USE_WIN32_THREADS_INIT)
   set(VTK_USE_WIN32_THREADS 1)
 endif ()
 
-# We can't check for the target since we're before VTK::CommonDataModel in the
-# dependency graph.
-if (VTK_MODULE_ENABLE_VTK_CommonDataModel)
-  list(APPEND vtk_include_dirs
-    "${CMAKE_CURRENT_BINARY_DIR}/../DataModel")
-  set_property(SOURCE vtkInformationDataObjectKey.cxx
-    PROPERTY
-      COMPILE_DEFINITIONS vtkCommonDataModel_ENABLED)
-endif ()
-
 if(WIN32)
   list(APPEND classes
     vtkWin32OutputWindow
