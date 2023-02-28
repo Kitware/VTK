@@ -150,6 +150,8 @@ protected:
   ~vtkEnSightWriter() override;
 
   int FillInputPortInformation(int port, vtkInformation* info) override;
+  int RequestData(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
 
   void WriteData() override; // method to allow this class to be instantiated and delegated to
 
