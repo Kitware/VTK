@@ -15,9 +15,12 @@
 
 #include "vtkFrustumSelector.h"
 
+#include "vtkDataArrayRange.h"
 #include "vtkDataSet.h"
 #include "vtkDoubleArray.h"
 #include "vtkGenericCell.h"
+#include "vtkHyperTreeGrid.h"
+#include "vtkHyperTreeGridNonOrientedGeometryCursor.h"
 #include "vtkInformation.h"
 #include "vtkNew.h"
 #include "vtkPlane.h"
@@ -26,9 +29,11 @@
 #include "vtkSMPThreadLocalObject.h"
 #include "vtkSMPTools.h"
 #include "vtkSelectionNode.h"
+#include "vtkSelector.h"
 #include "vtkSignedCharArray.h"
 #include "vtkVectorOperators.h"
 
+#include <bitset>
 #include <vector>
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -59,6 +64,24 @@ void ComputePlane(
 }
 
 //------------------------------------------------------------------------------
+std::array<int, MAX_PLANES * 2> ComputeNPVertexIds(vtkPlanes* frustum)
+{
+  std::array<int, MAX_PLANES * 2> res;
+  std::array<double, 3> x;
+  // find the near and far vertices to each plane for quick in/out tests
+  for (int i = 0; i < MAX_PLANES; i++)
+  {
+    frustum->GetNormals()->GetTuple(i, x.data());
+    int xside = (x[0] > 0) ? 1 : 0;
+    int yside = (x[1] > 0) ? 1 : 0;
+    int zside = (x[2] > 0) ? 1 : 0;
+    res[2 * i] = (1 - xside) * 4 + (1 - yside) * 2 + (1 - zside);
+    res[2 * i + 1] = xside * 4 + yside * 2 + zside;
+  }
+  return res;
+}
+
+//------------------------------------------------------------------------------
 struct FrustumPlanesType : public std::array<vtkSmartPointer<vtkPlane>, MAX_PLANES>
 {
   FrustumPlanesType()
@@ -84,7 +107,7 @@ private:
   vtkPlanes* Frustum;
   vtkDataSet* Input;
   vtkSignedCharArray* Array;
-  int NPVertexIds[6][2];
+  std::array<int, MAX_PLANES * 2> NPVertexIds;
 
   vtkSMPThreadLocalObject<vtkGenericCell> TLCell;
   vtkSMPThreadLocal<FrustumPlanesType> TLFrustumPlanes;
@@ -102,18 +125,7 @@ public:
     vtkNew<vtkGenericCell> cell;
     this->Input->GetCell(0, cell);
 
-    double x[3];
-
-    // find the near and far vertices to each plane for quick in/out tests
-    for (int i = 0; i < MAX_PLANES; i++)
-    {
-      this->Frustum->GetNormals()->GetTuple(i, x);
-      int xside = (x[0] > 0) ? 1 : 0;
-      int yside = (x[1] > 0) ? 1 : 0;
-      int zside = (x[2] > 0) ? 1 : 0;
-      this->NPVertexIds[i][0] = (1 - xside) * 4 + (1 - yside) * 2 + (1 - zside);
-      this->NPVertexIds[i][1] = xside * 4 + yside * 2 + zside;
-    }
+    this->NPVertexIds = ComputeNPVertexIds(this->Frustum);
   }
 
   //--------------------------------------------------------------------------
@@ -193,13 +205,13 @@ public:
       double dist;
       int nvid;
       int pvid;
-      nvid = this->NPVertexIds[pid][0];
+      nvid = this->NPVertexIds[2 * pid];
       dist = plane->EvaluateFunction(verts[nvid]);
       if (dist > 0.0)
       {
         return 0;
       }
-      pvid = this->NPVertexIds[pid][1];
+      pvid = this->NPVertexIds[2 * pid + 1];
       dist = plane->EvaluateFunction(verts[pvid]);
       if (dist > 0.0)
       {
@@ -592,6 +604,170 @@ public:
     return code;
   }
 };
+
+struct ComputeHTGCellsInFrustumFunctor
+{
+public:
+  ComputeHTGCellsInFrustumFunctor(
+    vtkPlanes* frustum, vtkHyperTreeGrid* input, vtkSignedCharArray* insideArray)
+    : Frustum(frustum)
+    , HTG(input)
+    , Array(insideArray)
+  {
+    insideArray->Fill(static_cast<signed char>(0));
+  }
+
+  void Initialize() { this->TLPlanes.Local().Initialize(this->Frustum); }
+
+  void operator()(vtkIdType beginTree, vtkIdType endTree)
+  {
+    for (vtkIdType iTree = beginTree; iTree < endTree; ++iTree)
+    {
+      vtkNew<vtkHyperTreeGridNonOrientedGeometryCursor> cursor;
+      cursor->Initialize(this->HTG, iTree);
+      this->RecursivelyIntersectTree(cursor);
+    }
+  }
+
+  void RecursivelyIntersectTree(vtkHyperTreeGridNonOrientedGeometryCursor* cursor)
+  {
+    std::array<double, 6> bounds;
+    cursor->GetBounds(bounds.data());
+    auto& cell = this->TLCell.Local();
+    if (!this->ConstructCell(cursor, cell))
+    {
+      vtkErrorWithObjectMacro(nullptr, "Unable to construct cell");
+      return;
+    }
+    vtkIdType cellId = cursor->GetGlobalNodeIndex();
+    int isect = this->CheckCellFrustumHit(cell);
+    this->Array->SetValue(cellId, isect);
+    if (isect && !cursor->IsLeaf())
+    {
+      for (vtkIdType iChild = 0; iChild < cursor->GetNumberOfChildren(); ++iChild)
+      {
+        cursor->ToChild(iChild);
+        this->RecursivelyIntersectTree(cursor);
+        cursor->ToParent();
+      }
+    }
+  }
+
+  bool CheckCellFrustumHit(vtkGenericCell* cell)
+  {
+    // check every point in the cell if it is in Frustum
+    vtkPoints* points = cell->GetPoints();
+    std::array<double, 3> point;
+    for (vtkIdType iPt = 0; iPt < cell->GetNumberOfPoints(); iPt++)
+    {
+      points->GetPoint(iPt, point.data());
+      if (this->Frustum->EvaluateFunction(point.data()) < 0.0)
+      {
+        return true;
+      }
+    }
+    // if no point is in frustum check if frustum is contained in the cell
+    // do this by checking if there is a plane for which all the points in the cell
+    // are a positive distance away from it
+    std::vector<double> distances(cell->GetNumberOfPoints());
+    auto checkAllPositive = [](std::vector<double>& vals) {
+      for (auto val : vals)
+      {
+        if (val < 0)
+        {
+          return false;
+        }
+      }
+      return true;
+    };
+    FrustumPlanesType& planes = this->TLPlanes.Local();
+    for (const auto& plane : planes)
+    {
+      for (vtkIdType iPt = 0; iPt < cell->GetNumberOfPoints(); iPt++)
+      {
+        points->GetPoint(iPt, point.data());
+        distances[iPt] = plane->EvaluateFunction(point.data());
+      }
+      if (checkAllPositive(distances))
+      {
+        return false;
+      }
+    }
+    // if the cell has no points in the frustum but is not completely on one side of all the planes
+    // than it must either englobe the frustum or at least one of its faces must traverse it
+    return true;
+  }
+
+  bool ConstructCell(vtkHyperTreeGridNonOrientedGeometryCursor* cursor, vtkGenericCell* cell) const
+  {
+    double* origin = cursor->GetOrigin();
+    double* size = cursor->GetSize();
+    if (cell == nullptr || origin == nullptr || size == nullptr)
+    {
+      vtkErrorWithObjectMacro(nullptr, "Cell, origin or size that was passed is nullptr");
+      return false;
+    }
+
+    const unsigned int dim = this->HTG->GetDimension();
+    switch (dim)
+    {
+      case (1):
+        cell->SetCellTypeToLine();
+        break;
+      case (2):
+        cell->SetCellTypeToPixel();
+        break;
+      case (3):
+        cell->SetCellTypeToVoxel();
+        break;
+      default:
+        vtkErrorWithObjectMacro(nullptr, "Wrong HyperTreeGrid dimension");
+        return false;
+    }
+
+    unsigned int nPoints = std::pow(2, dim);
+    for (unsigned int iP = 0; iP < nPoints; iP++)
+    {
+      cell->PointIds->SetId(iP, iP);
+    }
+
+    auto cubePoint = [dim, origin, size](std::bitset<3>& pos, std::vector<double>* cubePt) {
+      for (unsigned int d = 0; d < dim; d++)
+      {
+        cubePt->at(d) = origin[d] + pos[d] * size[d];
+      }
+    };
+    std::vector<double> pt(3, 0.0);
+    std::vector<std::bitset<3>> positions(8);
+    positions[0] = 0; // 000
+    positions[1] = 1; // 001 -> +x
+    positions[2] = 2; // 010 -> +y
+    positions[3] = 3; // 011 -> +xy
+    positions[4] = 4; // 100 -> +z
+    positions[5] = 5; // 101 -> +zx
+    positions[6] = 6; // 110 -> +zy
+    positions[7] = 7; // 111 -> +zxy
+    for (unsigned int iP = 0; iP < nPoints; iP++)
+    {
+      cubePoint(positions[iP], &pt);
+      cell->Points->SetPoint(iP, pt.data());
+    }
+    return true;
+  }
+
+  void Reduce()
+  { /* do nothing */
+  }
+
+protected:
+  vtkPlanes* Frustum;
+  vtkHyperTreeGrid* HTG;
+  vtkSignedCharArray* Array;
+
+  vtkSMPThreadLocalObject<vtkGenericCell> TLCell;
+  vtkSMPThreadLocal<FrustumPlanesType> TLPlanes;
+};
+
 }
 
 //------------------------------------------------------------------------------
@@ -704,21 +880,39 @@ bool vtkFrustumSelector::ComputeSelectedElements(
   vtkDataObject* input, vtkSignedCharArray* insidednessArray)
 {
   vtkDataSet* inputDS = vtkDataSet::SafeDownCast(input);
-  // frustum selection only supports datasets
+  vtkHyperTreeGrid* inputHTG = vtkHyperTreeGrid::SafeDownCast(input);
+  // frustum selection only supports datasets and HTGs
   // if we don't have a selection node, the frustum is uninitialized...
-  if (!inputDS || !this->Node)
+  if (!inputDS && !inputHTG)
   {
-    vtkErrorMacro("Frustum selection only supports inputs of type vtkDataSet");
+    vtkErrorMacro("Frustum selection only supports inputs of type vtkDataSet or vtkHypertreeGrid");
+    return false;
+  }
+  if (!this->Node)
+  {
+    vtkErrorMacro("Frustum node selection is not set");
     return false;
   }
   auto fieldType = this->Node->GetProperties()->Get(vtkSelectionNode::FIELD_TYPE());
   if (fieldType == vtkSelectionNode::POINT)
   {
+    if (inputHTG)
+    {
+      vtkErrorMacro("vtkHyperTreeGrids do not support point selection");
+      return false;
+    }
     this->ComputeSelectedPoints(inputDS, insidednessArray);
   }
   else if (fieldType == vtkSelectionNode::CELL)
   {
-    this->ComputeSelectedCells(inputDS, insidednessArray);
+    if (inputHTG)
+    {
+      this->ComputeSelectedCells(inputHTG, insidednessArray);
+    }
+    else
+    {
+      this->ComputeSelectedCells(inputDS, insidednessArray);
+    }
   }
   else
   {
@@ -772,6 +966,21 @@ void vtkFrustumSelector::ComputeSelectedCells(vtkDataSet* input, vtkSignedCharAr
 
   ComputeCellsInFrustumFunctor functor(this->Frustum, input, cellSelected);
   vtkSMPTools::For(0, numCells, functor);
+}
+
+//------------------------------------------------------------------------------
+void vtkFrustumSelector::ComputeSelectedCells(
+  vtkHyperTreeGrid* input, vtkSignedCharArray* cellSelected)
+{
+  vtkIdType numCells = input->GetNumberOfCells();
+  if (numCells == 0)
+  {
+    return;
+  }
+
+  vtkIdType nTrees = input->GetMaxNumberOfTrees();
+  ComputeHTGCellsInFrustumFunctor functor(this->Frustum, input, cellSelected);
+  vtkSMPTools::For(0, nTrees, functor);
 }
 
 //------------------------------------------------------------------------------
