@@ -10,7 +10,12 @@ vtk_module_third_party(
     STANDARD_INCLUDE_DIRS)
 
 include(vtkDetectLibraryType)
-vtk_detect_library_shared(vtkfreetype Freetype::Freetype)
+# Detect `freetype-config` usage.
+if (VTK_MODULE_USE_EXTERNAL_vtkfreetype AND TARGET freetype)
+  vtk_detect_library_shared(vtkfreetype freetype)
+else ()
+  vtk_detect_library_shared(vtkfreetype Freetype::Freetype)
+endif ()
 
 set(VTK_FREETYPE_SHARED "${vtkfreetype_is_shared}")
 
