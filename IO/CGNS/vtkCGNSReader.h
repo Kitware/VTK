@@ -360,9 +360,9 @@ private:
   int UnsteadySolutionStartTimestep = 0;
 
   // For internal cgio calls (low level IO)
-  int cgioNum;      // cgio file reference
-  double rootId;    // id of root node
-  double currentId; // id of node currently being read (zone)
+  int cgioNum;          // cgio file reference
+  double rootId;        // id of root node
+  double currentZoneId; // id of node currently being read (zone)
 
   unsigned int NumberOfBases = 0;
   int ActualTimeStep = 0;

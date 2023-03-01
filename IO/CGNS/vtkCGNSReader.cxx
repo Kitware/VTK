@@ -511,7 +511,7 @@ public:
   static int readBCData(double nodeId, int cellDim, int physicalDim,
     CGNS_ENUMT(GridLocation_t) locationParam, vtkDataSet* dataset, vtkCGNSReader* self);
 
-  static std::string GenerateMeshKey(const char* basename, const char* zonename);
+  static std::string GenerateMeshKey(const char* baseName, const char* zoneName);
 
   vtkPrivate();
   ~vtkPrivate();
@@ -646,10 +646,10 @@ void vtkCGNSReader::SetController(vtkMultiProcessController* c)
 
 //------------------------------------------------------------------------------
 
-std::string vtkCGNSReader::vtkPrivate::GenerateMeshKey(const char* basename, const char* zonename)
+std::string vtkCGNSReader::vtkPrivate::GenerateMeshKey(const char* baseName, const char* zoneName)
 {
   std::ostringstream query;
-  query << "/" << basename << "/" << zonename;
+  query << "/" << baseName << "/" << zoneName;
   return query.str();
 }
 
@@ -688,7 +688,7 @@ int vtkCGNSReader::vtkPrivate::getGridAndSolutionNames(int base, std::string& gr
   // Check if we have ZoneIterativeData_t/GridCoordinatesPointers present. If
   // so, use those to read grid coordinates for current timestep.
   double ziterId = 0;
-  bool hasZoneIterativeData = (CGNSRead::getFirstNodeId(self->cgioNum, self->currentId,
+  bool hasZoneIterativeData = (CGNSRead::getFirstNodeId(self->cgioNum, self->currentZoneId,
                                  "ZoneIterativeData_t", &ziterId) == CG_OK);
 
   if (hasZoneIterativeData && baseInfo.useGridPointers)
@@ -719,8 +719,8 @@ int vtkCGNSReader::vtkPrivate::getGridAndSolutionNames(int base, std::string& gr
     // GridCoordinatesPointers, locate the first element of type
     // `GridCoordinates_t`. That's the coordinates array.
     double giterId;
-    if (CGNSRead::getFirstNodeId(self->cgioNum, self->currentId, "GridCoordinates_t", &giterId) ==
-      CG_OK)
+    if (CGNSRead::getFirstNodeId(
+          self->cgioNum, self->currentZoneId, "GridCoordinates_t", &giterId) == CG_OK)
     {
       CGNSRead::char_33 nodeName;
       if (cgio_get_name(self->cgioNum, giterId, nodeName) == CG_OK)
@@ -779,8 +779,8 @@ int vtkCGNSReader::vtkPrivate::getGridAndSolutionNames(int base, std::string& gr
     {
       double solId = 0.0;
 
-      if (cgio_get_node_id(
-            self->cgioNum, self->currentId, unvalidatedSolutionNames[cc].c_str(), &solId) == CG_OK)
+      if (cgio_get_node_id(self->cgioNum, self->currentZoneId, unvalidatedSolutionNames[cc].c_str(),
+            &solId) == CG_OK)
       {
         solutionNames.push_back(unvalidatedSolutionNames[cc]);
       }
@@ -814,7 +814,7 @@ int vtkCGNSReader::vtkPrivate::getGridAndSolutionNames(int base, std::string& gr
   }
 
   std::vector<double> childId;
-  CGNSRead::getNodeChildrenId(self->cgioNum, self->currentId, childId);
+  CGNSRead::getNodeChildrenId(self->cgioNum, self->currentZoneId, childId);
   // Case where FlowSolutionPointers where not enough but there is a pattern in nodeName.
   if (useUnsteadyPattern)
   {
@@ -957,7 +957,7 @@ int vtkCGNSReader::vtkPrivate::getCoordsIdAndFillRind(const std::string& gridCoo
   nCoordsArray = 0;
   // Get GridCoordinate node ID for low level access
   double gridId;
-  if (cgio_get_node_id(self->cgioNum, self->currentId, GridCoordName, &gridId) != CG_OK)
+  if (cgio_get_node_id(self->cgioNum, self->currentZoneId, GridCoordName, &gridId) != CG_OK)
   {
     char message[81];
     cgio_error_message(message);
@@ -1100,7 +1100,7 @@ int vtkCGNSReader::vtkPrivate::readSolution(const std::string& solutionNameStr, 
   solutionName[32] = '\0';
 
   double cgioSolId = 0.0;
-  if (cgio_get_node_id(self->cgioNum, self->currentId, solutionName, &cgioSolId) != CG_OK)
+  if (cgio_get_node_id(self->cgioNum, self->currentZoneId, solutionName, &cgioSolId) != CG_OK)
   {
     char errmsg[CGIO_MAX_ERROR_LENGTH + 1];
     cgio_error_message(errmsg);
@@ -1832,10 +1832,10 @@ vtkSmartPointer<vtkDataObject> vtkCGNSReader::vtkPrivate::readCurvilinearZone(in
   if (caching)
   {
     // Try to get from cache
-    const char* basename = self->Internals->Internal->GetBase(base).name;
-    const char* zonename = self->Internals->Internal->GetBase(base).zones[zone].name;
-    // build a key /basename/zonename
-    keyMesh = vtkPrivate::GenerateMeshKey(basename, zonename);
+    const char* baseName = self->Internals->Internal->GetBase(base).name;
+    const char* zoneName = self->Internals->Internal->GetBase(base).zones[zone].name;
+    // build a key /baseName/zoneName
+    keyMesh = vtkPrivate::GenerateMeshKey(baseName, zoneName);
 
     points = self->Internals->MeshPointsCache.Find(keyMesh);
     if (points.Get() != nullptr)
@@ -2019,7 +2019,7 @@ int vtkCGNSReader::GetCurvilinearZone(
     newZoneMB->GetMetaData(1)->Set(vtkCompositeDataSet::NAME(), "Patches");
 
     std::vector<double> zoneChildren;
-    CGNSRead::getNodeChildrenId(this->cgioNum, this->currentId, zoneChildren);
+    CGNSRead::getNodeChildrenId(this->cgioNum, this->currentZoneId, zoneChildren);
     for (auto iter = zoneChildren.begin(); iter != zoneChildren.end(); ++iter)
     {
       CGNSRead::char_33 nodeLabel;
@@ -2164,10 +2164,10 @@ int vtkCGNSReader::GetUnstructuredZone(
   if (caching)
   {
     // Try to get from cache
-    const char* basename = this->Internals->Internal->GetBase(base).name;
-    const char* zonename = this->Internals->Internal->GetBase(base).zones[zone].name;
-    // build a key /basename/zonename
-    keyMesh = vtkPrivate::GenerateMeshKey(basename, zonename);
+    const char* baseName = this->Internals->Internal->GetBase(base).name;
+    const char* zoneName = this->Internals->Internal->GetBase(base).zones[zone].name;
+    // build a key /baseName/zoneName
+    keyMesh = vtkPrivate::GenerateMeshKey(baseName, zoneName);
 
     points = this->Internals->MeshPointsCache.Find(keyMesh);
     if (points.Get() != nullptr)
@@ -2228,7 +2228,7 @@ int vtkCGNSReader::GetUnstructuredZone(
 
   // Read list of zone children IDs
   std::vector<double> zoneChildId;
-  CGNSRead::getNodeChildrenId(this->cgioNum, this->currentId, zoneChildId);
+  CGNSRead::getNodeChildrenId(this->cgioNum, this->currentZoneId, zoneChildId);
 
   // Store IDs of Elements_t nodes defining cells
   std::vector<double> elemIdList;
@@ -2494,12 +2494,12 @@ int vtkCGNSReader::GetUnstructuredZone(
   {
     // Try to get the Grid Connectivity from cache
     // else create new grid
-    const char* basename = this->Internals->Internal->GetBase(base).name;
-    const char* zonename = this->Internals->Internal->GetBase(base).zones[zone].name;
+    const char* baseName = this->Internals->Internal->GetBase(base).name;
+    const char* zoneName = this->Internals->Internal->GetBase(base).zones[zone].name;
 
-    // build a key /basename/zonename
+    // build a key /baseName/zoneName
     std::ostringstream query;
-    query << "/" << basename << "/" << zonename << "/core";
+    query << "/" << baseName << "/" << zoneName << "/core";
     keyConnect = query.str();
 
     ugrid = this->Internals->ConnectivitiesCache.Find(keyConnect);
@@ -3280,7 +3280,7 @@ int vtkCGNSReader::GetUnstructuredZone(
 
     // Identify BC_t nodes among zone sub nodes
     std::vector<double> zoneChildren;
-    CGNSRead::getNodeChildrenId(this->cgioNum, this->currentId, zoneChildren);
+    CGNSRead::getNodeChildrenId(this->cgioNum, this->currentZoneId, zoneChildren);
 
     for (auto iter = zoneChildren.begin(); iter != zoneChildren.end(); ++iter)
     {
@@ -4592,7 +4592,7 @@ int vtkCGNSReader::RequestData(vtkInformation* vtkNotUsed(request),
         mbase->GetMetaData(zone)->Set(zonefamily, familyName.c_str());
       }
 
-      this->currentId = baseChildId[zone];
+      this->currentZoneId = baseChildId[zone];
 
       double zoneTypeId;
       zt = CGNS_ENUMV(Structured);
@@ -4630,20 +4630,20 @@ int vtkCGNSReader::RequestData(vtkInformation* vtkNotUsed(request),
           break;
         case CGNS_ENUMV(Structured):
         {
-          ier = GetCurvilinearZone(numBase, zone, cellDim, physicalDim, zsize, mbase);
+          ier = this->GetCurvilinearZone(numBase, zone, cellDim, physicalDim, zsize, mbase);
           if (ier != CG_OK)
           {
-            vtkErrorMacro(<< "Error Reading file");
+            vtkErrorMacro("Could not read file.");
             return 0;
           }
 
           break;
         }
         case CGNS_ENUMV(Unstructured):
-          ier = GetUnstructuredZone(numBase, zone, cellDim, physicalDim, zsize, mbase);
+          ier = this->GetUnstructuredZone(numBase, zone, cellDim, physicalDim, zsize, mbase);
           if (ier != CG_OK)
           {
-            vtkErrorMacro(<< "Error Reading file");
+            vtkErrorMacro("Could not read file.");
             return 0;
           }
           break;
