@@ -12,6 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+
 #include "vtkPCANormalEstimation.h"
 
 #include "vtkAbstractPointLocator.h"
@@ -26,7 +27,6 @@
 #include "vtkPoints.h"
 #include "vtkSMPThreadLocalObject.h"
 #include "vtkSMPTools.h"
-#include "vtkStaticPointLocator.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPCANormalEstimation);
@@ -34,6 +34,59 @@ vtkCxxSetObjectMacro(vtkPCANormalEstimation, Locator, vtkAbstractPointLocator);
 
 namespace
 {
+namespace Utils
+{
+//------------------------------------------------------------------------------
+///@{
+/**
+ * Find the closest points to a given point according to the behavior set
+ * by SearchMode. If SearchMode is set to KNN, K points (set by SampleSize)
+ * are selected regardless of their location, if Radius is also set to a
+ * value, the code checks if the farthest point found (K-th) is inside this
+ * radius. In that case, the surrounding points are reselected inside this
+ * radius. If SearchMode is set to Radius, the surrounding points are
+ * selected inside the radius, if SampleSize is also set to a value, the
+ * code checks if at least SampleSize (K) points have been selected.
+ * Otherwise, SampleSize (K) points are reselected.
+ */
+template <typename T>
+static void FindPoints(vtkAbstractPointLocator* locator, T* inPts, double x[3], int searchMode,
+  int sampleSize, double radius, vtkIdList* ids)
+{
+  switch (searchMode)
+  {
+    case vtkPCANormalEstimation::RADIUS:
+    {
+      locator->FindPointsWithinRadius(radius, x, ids);
+      // If not enough points are found, then use K nearest neighbors
+      if (ids->GetNumberOfIds() < sampleSize)
+      {
+        locator->FindClosestNPoints(sampleSize, x, ids);
+      }
+      break;
+    }
+    case vtkPCANormalEstimation::KNN:
+    {
+      locator->FindClosestNPoints(sampleSize, x, ids);
+      // Retrieve the farthest point found
+      double farthestPoint[3];
+      const T* point = inPts + 3 * ids->GetId(ids->GetNumberOfIds() - 1);
+      for (int i = 0; i < 3; ++i)
+      {
+        farthestPoint[i] = static_cast<double>(*point++);
+      }
+
+      double squaredDistance = vtkMath::Distance2BetweenPoints(x, farthestPoint);
+      // If the points found are too densely packed, then use radius search
+      if (squaredDistance < radius * radius)
+      {
+        locator->FindPointsWithinRadius(radius, x, ids);
+      }
+      break;
+    }
+  }
+}
+} // Utils namespace
 
 //------------------------------------------------------------------------------
 // The threaded core of the algorithm.
@@ -43,7 +96,9 @@ struct GenerateNormals
   const T* Points;
   vtkAbstractPointLocator* Locator;
   int SampleSize;
+  float Radius;
   float* Normals;
+  int SearchMode;
   int Orient;
   double OPoint[3];
   bool Flip;
@@ -52,12 +107,14 @@ struct GenerateNormals
   // storage lots of new/delete.
   vtkSMPThreadLocalObject<vtkIdList> PIds;
 
-  GenerateNormals(T* points, vtkAbstractPointLocator* loc, int sample, float* normals, int orient,
-    double opoint[3], bool flip)
+  GenerateNormals(T* points, vtkAbstractPointLocator* loc, int sample, double radius,
+    float* normals, int searchMode, int orient, double opoint[3], bool flip)
     : Points(points)
     , Locator(loc)
     , SampleSize(sample)
+    , Radius(radius)
     , Normals(normals)
+    , SearchMode(searchMode)
     , Orient(orient)
     , Flip(flip)
   {
@@ -100,7 +157,9 @@ struct GenerateNormals
       x[2] = static_cast<double>(*px++);
 
       // Retrieve the local neighborhood
-      this->Locator->FindClosestNPoints(this->SampleSize, x, pIds);
+      Utils::FindPoints(
+        this->Locator, this->Points, x, this->SearchMode, this->SampleSize, this->Radius, pIds);
+
       numPts = pIds->GetNumberOfIds();
 
       // First step: compute the mean position of the neighborhood.
@@ -175,28 +234,16 @@ struct GenerateNormals
   void Reduce() {}
 
   static void Execute(vtkPCANormalEstimation* self, vtkIdType numPts, T* points, float* normals,
-    int orient, double opoint[3], bool flip)
+    int searchMode, int orient, double opoint[3], bool flip)
   {
-    GenerateNormals gen(
-      points, self->GetLocator(), self->GetSampleSize(), normals, orient, opoint, flip);
+    GenerateNormals gen(points, self->GetLocator(), self->GetSampleSize(), self->GetRadius(),
+      normals, searchMode, orient, opoint, flip);
     vtkSMPTools::For(0, numPts, gen);
   }
 }; // GenerateNormals
-
 } // anonymous namespace
 
 //================= Begin VTK class proper =======================================
-//------------------------------------------------------------------------------
-vtkPCANormalEstimation::vtkPCANormalEstimation()
-{
-
-  this->SampleSize = 25;
-  this->Locator = vtkStaticPointLocator::New();
-  this->NormalOrientation = vtkPCANormalEstimation::POINT;
-  this->OrientationPoint[0] = this->OrientationPoint[1] = this->OrientationPoint[2] = 0.0;
-  this->FlipNormals = false;
-}
-
 //------------------------------------------------------------------------------
 vtkPCANormalEstimation::~vtkPCANormalEstimation()
 {
@@ -247,7 +294,7 @@ int vtkPCANormalEstimation::RequestData(vtkInformation* vtkNotUsed(request),
   switch (input->GetPoints()->GetDataType())
   {
     vtkTemplateMacro(GenerateNormals<VTK_TT>::Execute(this, numPts, (VTK_TT*)inPtr, n,
-      this->NormalOrientation, this->OrientationPoint, this->FlipNormals));
+      this->SearchMode, this->NormalOrientation, this->OrientationPoint, this->FlipNormals));
   }
 
   // Orient the normals in a consistent fashion (if requested). This requires a traversal
@@ -305,9 +352,24 @@ void vtkPCANormalEstimation::TraverseAndFlip(
     for (i = 0; i < numIds; i++) // for all points in this wave
     {
       ptId = wave->GetId(i);
-      inPts->GetPoint(ptId, x);
+
+      void* inPtr = inPts->GetVoidPointer(0);
+      switch (inPts->GetDataType())
+      {
+        // Use template macro to use raw data of the points for all data types
+        vtkTemplateMacro({
+          const VTK_TT* points = (VTK_TT*)inPtr;
+          for (int l = 0; l < 3; ++l)
+          {
+            x[l] = static_cast<double>(points[3 * ptId + l]);
+          }
+          // Select neighboring points according to the SearchMode
+          ::Utils::FindPoints(this->Locator, points, x, this->SearchMode, this->SampleSize,
+            this->Radius, neighborPointIds);
+        });
+      }
+
       n = normals + 3 * ptId;
-      this->Locator->FindClosestNPoints(this->SampleSize, x, neighborPointIds);
 
       numPts = neighborPointIds->GetNumberOfIds();
       for (j = 0; j < numPts; ++j)
@@ -350,6 +412,8 @@ void vtkPCANormalEstimation::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
 
   os << indent << "Sample Size: " << this->SampleSize << "\n";
+  os << indent << "Radius: " << this->Radius << "\n";
+  os << indent << "Search Mode: " << this->SearchMode << endl;
   os << indent << "Normal Orientation: " << this->NormalOrientation << endl;
   os << indent << "Orientation Point: (" << this->OrientationPoint[0] << ","
      << this->OrientationPoint[1] << "," << this->OrientationPoint[2] << ")\n";
