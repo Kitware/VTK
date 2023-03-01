@@ -36,6 +36,9 @@ in vec4 vertexWC;
 // PointSize on GLES 3.0
 //VTK::PointSizeGLES30::Dec
 
+// LineWidth on GLES 3.0
+//VTK::LineWidthGLES30::Dec
+
 uniform mat4 WCVCMatrix;  // World to view matrix
 
 void main()
@@ -46,6 +49,7 @@ void main()
   //VTK::PrimID::Impl
 
   gl_Position = WCVCMatrix*vertexWC;
+  //VTK::LineWidthGLES30::Impl
   //VTK::TCoord::Impl
   //VTK::Color::Impl
 }

@@ -20,6 +20,7 @@
 #include "vtkHardwareSelector.h"
 #include "vtkInformation.h"
 #include "vtkLogger.h"
+#include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLCellToVTKCellMap.h"
 #include "vtkOpenGLError.h"
@@ -222,7 +223,15 @@ void vtkOpenGLES30PolyDataMapper2D::RenderOverlay(vtkViewport* viewport, vtkActo
       this->VBOs, this->PrimitiveVBOGroup[primType].Get());
     this->CurrentDrawCallPrimtiveType = static_cast<PrimitiveTypes>(primType);
     this->UpdateShaders(*cellBOs[primType], ren, actor);
-    glDrawArrays(modes[primType], 0, numVerts);
+    if (modes[primType] == GL_LINES && this->HaveWideLines(ren, actor))
+    {
+      glDrawArraysInstanced(
+        GL_LINES, 0, numVerts, 2 * vtkMath::Ceil(actor->GetProperty()->GetLineWidth()));
+    }
+    else
+    {
+      glDrawArrays(modes[primType], 0, numVerts);
+    }
   }
 
   if (this->LastBoundBO)
@@ -261,19 +270,45 @@ void vtkOpenGLES30PolyDataMapper2D::BuildShaders(std::string& VSSource, std::str
   ScopedValueRollback<bool> cellScalarsBkp(this->HaveCellScalars, false);
   this->Superclass::BuildShaders(VSSource, FSSource, GSSource, viewport, actor);
   GSSource.clear();
-  if (this->CurrentDrawCallPrimtiveType == PrimitivePoints)
-  {
-    this->ReplaceShaderPointSize(VSSource, viewport, actor);
-  }
+  this->ReplaceShaderPointSize(VSSource, viewport, actor);
+  this->ReplaceShaderWideLines(VSSource, viewport, actor);
 }
 
 //------------------------------------------------------------------------------
 void vtkOpenGLES30PolyDataMapper2D::ReplaceShaderPointSize(
   std::string& VSSource, vtkViewport* vtkNotUsed(viewport), vtkActor2D* vtkNotUsed(act))
 {
-  vtkShaderProgram::Substitute(VSSource, "//VTK::PointSizeGLES30::Dec", "uniform float PointSize;");
-  vtkShaderProgram::Substitute(
-    VSSource, "//VTK::PointSizeGLES30::Impl", "gl_PointSize = PointSize;");
+  if (this->CurrentDrawCallPrimtiveType == PrimitivePoints)
+  {
+    vtkShaderProgram::Substitute(
+      VSSource, "//VTK::PointSizeGLES30::Dec", "uniform float PointSize;");
+    vtkShaderProgram::Substitute(
+      VSSource, "//VTK::PointSizeGLES30::Impl", "gl_PointSize = PointSize;");
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkOpenGLES30PolyDataMapper2D::ReplaceShaderWideLines(
+  std::string& VSSource, vtkViewport* viewport, vtkActor2D* act)
+{
+  if (this->CurrentDrawCallPrimtiveType == PrimitiveLines && this->HaveWideLines(viewport, act))
+  {
+    vtkShaderProgram::Substitute(VSSource, "//VTK::LineWidthGLES30::Dec",
+      "uniform vec2 viewportSize;\n"
+      "uniform float lineWidthStepSize;\n"
+      "uniform float halfLineWidth;");
+    vtkShaderProgram::Substitute(VSSource, "//VTK::LineWidthGLES30::Impl",
+      "if (halfLineWidth > 0.0)\n"
+      "{\n"
+      "  float offset = float(gl_InstanceID / 2) * lineWidthStepSize - halfLineWidth;\n"
+      "  vec4 tmpPos = gl_Position;\n"
+      "  vec3 tmpPos2 = tmpPos.xyz / tmpPos.w;\n"
+      "  tmpPos2.x = tmpPos2.x + 2.0 * mod(float(gl_InstanceID), 2.0) * offset / viewportSize[0];\n"
+      "  tmpPos2.y = tmpPos2.y + 2.0 * mod(float(gl_InstanceID + 1), 2.0) * offset / "
+      "viewportSize[1];\n"
+      "  gl_Position = vec4(tmpPos2.xyz * tmpPos.w, tmpPos.w);\n"
+      "}\n");
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -290,10 +325,24 @@ void vtkOpenGLES30PolyDataMapper2D::SetMapperShaderParameters(
   // false so that superclass doesn't try to fetch cell scalar texture. we don't do that here.
   ScopedValueRollback<bool> cellScalarsBkp(this->HaveCellScalars, false);
   this->Superclass::SetMapperShaderParameters(cellBO, viewport, act);
-  if (this->CurrentDrawCallPrimtiveType == PrimitivePoints &&
-    cellBO.Program->IsUniformUsed("PointSize"))
+  if (this->CurrentDrawCallPrimtiveType == PrimitivePoints)
   {
     cellBO.Program->SetUniformf("PointSize", act->GetProperty()->GetPointSize());
+  }
+  else if (this->CurrentDrawCallPrimtiveType == PrimitiveLines &&
+    this->HaveWideLines(viewport, act))
+  {
+    int vp[4] = {};
+    auto renWin = vtkOpenGLRenderWindow::SafeDownCast(viewport->GetVTKWindow());
+    vtkOpenGLState* ostate = renWin->GetState();
+    ostate->vtkglGetIntegerv(GL_VIEWPORT, vp);
+    float vpSize[2];
+    vpSize[0] = vp[2];
+    vpSize[1] = vp[3];
+    const float lineWidth = act->GetProperty()->GetLineWidth();
+    cellBO.Program->SetUniform2f("viewportSize", vpSize);
+    cellBO.Program->SetUniformf("lineWidthStepSize", lineWidth / vtkMath::Ceil(lineWidth));
+    cellBO.Program->SetUniformf("halfLineWidth", lineWidth / 2.0);
   }
   vtkOpenGLCheckErrorMacro("failed after UpdateShader PointSize ");
 }
