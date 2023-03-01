@@ -51,10 +51,11 @@ Do_not_include_vtkWin32Header_directly_vtkSystemIncludes_includes_it;
 // Windows specific stuff------------------------------------------
 #if defined(_WIN32)
 
-// define strict header for windows
-#ifndef STRICT
-#define STRICT
+// Define strict header for Windows (definition as itself ensures that no code breaks)
+#ifdef STRICT
+#undef STRICT
 #endif
+#define STRICT STRICT
 
 #ifndef NOMINMAX
 #define NOMINMAX
