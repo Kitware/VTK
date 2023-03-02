@@ -34,6 +34,7 @@
 #include "vtkDoubleArray.h"
 #include "vtkErrorCode.h"
 #include "vtkExtractGrid.h"
+#include "vtkFieldData.h"
 #include "vtkFloatArray.h"
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
@@ -48,6 +49,7 @@
 #include "vtkPointData.h"
 #include "vtkPolyhedron.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkStringArray.h"
 #include "vtkStructuredGrid.h"
 #include "vtkTypeInt32Array.h"
 #include "vtkTypeInt64Array.h"
@@ -513,6 +515,9 @@ public:
 
   static std::string GenerateMeshKey(const char* baseName, const char* zoneName);
 
+  static void AddZoneNameAsFieldData(
+    const std::string& baseName, const std::string& zoneName, vtkFieldData* fieldData);
+
   vtkPrivate();
   ~vtkPrivate();
 
@@ -651,6 +656,18 @@ std::string vtkCGNSReader::vtkPrivate::GenerateMeshKey(const char* baseName, con
   std::ostringstream query;
   query << "/" << baseName << "/" << zoneName;
   return query.str();
+}
+
+//------------------------------------------------------------------------------
+void vtkCGNSReader::vtkPrivate::AddZoneNameAsFieldData(
+  const std::string& baseName, const std::string& zoneName, vtkFieldData* fieldData)
+{
+  vtkNew<vtkStringArray> array;
+  array->SetName("Base/Zone");
+  array->SetNumberOfTuples(1);
+  array->SetValue(0, baseName + "/" + zoneName);
+
+  fieldData->AddArray(array);
 }
 
 //------------------------------------------------------------------------------
@@ -2000,6 +2017,12 @@ int vtkCGNSReader::GetCurvilinearZone(
   vtkSmartPointer<vtkDataObject> zoneDO = CGNSRead::ReadGridForZone(this, baseInfo, zoneInfo)
     ? vtkPrivate::readCurvilinearZone(base, zone, cellDim, physicalDim, zsize, nullptr, this)
     : vtkSmartPointer<vtkDataObject>();
+
+  // Add base and zone names as field data
+  const char* baseName = this->Internals->Internal->GetBase(base).name;
+  const char* zoneName = this->Internals->Internal->GetBase(base).zones[zone].name;
+  vtkPrivate::AddZoneNameAsFieldData(baseName, zoneName, zoneDO->GetFieldData());
+
   mbase->SetBlock(zone, zoneDO.Get());
 
   //----------------------------------------------------------------------------
@@ -2157,15 +2180,16 @@ int vtkCGNSReader::GetUnstructuredZone(
 
   // Retrieve points from cache or build them
   vtkSmartPointer<vtkPoints> points;
+  const char* baseName = this->Internals->Internal->GetBase(base).name;
+  const char* zoneName = this->Internals->Internal->GetBase(base).zones[zone].name;
 
   // If it is not a deforming mesh, gridCoordName keep the standard name
   // Only Volume mesh points, not subset are cached
   bool caching = (gridCoordName == "GridCoordinates" && this->CacheMesh);
+
   if (caching)
   {
     // Try to get from cache
-    const char* baseName = this->Internals->Internal->GetBase(base).name;
-    const char* zoneName = this->Internals->Internal->GetBase(base).zones[zone].name;
     // build a key /baseName/zoneName
     keyMesh = vtkPrivate::GenerateMeshKey(baseName, zoneName);
 
@@ -2494,9 +2518,6 @@ int vtkCGNSReader::GetUnstructuredZone(
   {
     // Try to get the Grid Connectivity from cache
     // else create new grid
-    const char* baseName = this->Internals->Internal->GetBase(base).name;
-    const char* zoneName = this->Internals->Internal->GetBase(base).zones[zone].name;
-
     // build a key /baseName/zoneName
     std::ostringstream query;
     query << "/" << baseName << "/" << zoneName << "/core";
@@ -2522,6 +2543,9 @@ int vtkCGNSReader::GetUnstructuredZone(
   {
     ugrid = vtkSmartPointer<vtkUnstructuredGrid>::New();
     ugrid->SetPoints(points.Get());
+
+    // Add base and zone names as field data
+    vtkPrivate::AddZoneNameAsFieldData(baseName, zoneName, ugrid->GetFieldData());
 
     // Read element connectivity (triangles, hexahedra, etc.)
     if (hasElem && this->DataLocation == vtkCGNSReader::CELL_DATA)
