@@ -85,7 +85,7 @@ struct vtkThreadedCallbackQueue::ReturnValueWrapper<ReturnT, false /* IsLValueRe
 
   ReturnValueWrapper() = default;
   template <class ReturnTT>
-  ReturnValueWrapper(ReturnTT&& value)
+  ReturnValueWrapper(ReturnTT&& value) // NOLINT(bugprone-forwarding-reference-overload)
     : Value(std::forward<ReturnTT>(value))
   {
   }
