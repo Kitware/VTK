@@ -14,6 +14,7 @@ vtk_module_test_data(
   Data/TemporalBox_1.cgns
   Data/TemporalBox_2.cgns
   Data/test_cylinder.cgns
-  Data/test_node_and_cell.cgns)
+  Data/test_node_and_cell.cgns
+  Data/UserDefinedData.cgns)
 
 add_subdirectory(Cxx)

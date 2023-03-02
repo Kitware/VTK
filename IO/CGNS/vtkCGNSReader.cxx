@@ -24,6 +24,7 @@
 #include "vtkCGNSReader.h"
 #include "vtkCGNSReaderInternal.h" // For parsing information request
 
+#include "vtkArrayDispatch.h"
 #include "vtkAssume.h"
 #include "vtkCGNSCache.h"
 #include "vtkCellArray.h"
@@ -48,6 +49,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyhedron.h"
+#include "vtkSMPTools.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStringArray.h"
 #include "vtkStructuredGrid.h"
@@ -4293,6 +4295,150 @@ int vtkCGNSReader::GetUnstructuredZone(
   return 0;
 }
 
+//------------------------------------------------------------------------------
+struct VectorCopy
+{
+  template <typename OutArray, typename ValueType = vtk::GetAPIType<OutArray>>
+  void operator()(OutArray* output, const std::vector<ValueType>& data)
+  {
+    output->SetNumberOfComponents(1);
+    output->SetNumberOfTuples(data.size());
+    auto range(vtk::DataArrayValueRange<1>(output));
+    vtkSMPTools::Transform(
+      data.begin(), data.end(), range.begin(), [](ValueType val) { return val; });
+  }
+};
+
+//------------------------------------------------------------------------------
+int vtkCGNSReader::ReadUserDefinedData(int zoneId, vtkMultiBlockDataSet* mbase)
+{
+  // Retrieve field data
+  vtkSmartPointer<vtkFieldData> fieldData;
+
+  if (vtkUnstructuredGrid::SafeDownCast(mbase->GetBlock(zoneId)) ||
+    vtkStructuredGrid::SafeDownCast(mbase->GetBlock(zoneId)))
+  {
+    fieldData = mbase->GetBlock(zoneId)->GetFieldData();
+  }
+  else
+  {
+    vtkMultiBlockDataSet* zoneBlock = vtkMultiBlockDataSet::SafeDownCast(mbase->GetBlock(zoneId));
+    fieldData = zoneBlock->GetBlock(0u)->GetFieldData();
+  }
+
+  // Search for UserDefinedData_t child nodes in current zone
+  std::vector<double> childrenIds;
+  CGNSRead::getNodeChildrenId(this->cgioNum, this->currentZoneId, childrenIds);
+  char errMsg[CGIO_MAX_ERROR_LENGTH + 1];
+
+  for (std::size_t udd = 0; udd < childrenIds.size(); udd++)
+  {
+    char label[CGIO_MAX_NAME_LENGTH + 1];
+
+    if (cgio_get_label(this->cgioNum, childrenIds[udd], label) != CG_OK)
+    {
+      cgio_error_message(errMsg);
+      vtkWarningMacro(<< "Could not read node label: " << errMsg);
+      continue;
+    }
+
+    if (strcmp(label, "UserDefinedData_t") != 0)
+    {
+      cgio_release_id(this->cgioNum, childrenIds[udd]);
+      continue;
+    }
+
+    // Search for DataArray_t child nodes and add them as field data arrays
+    std::vector<double> dataIds;
+    CGNSRead::getNodeChildrenId(this->cgioNum, childrenIds[udd], dataIds);
+
+    for (std::size_t id = 0; id < dataIds.size(); id++)
+    {
+      if (cgio_get_label(this->cgioNum, dataIds[id], label) != CG_OK)
+      {
+        cgio_error_message(errMsg);
+        vtkWarningMacro(<< "Could not read node label: " << errMsg);
+        continue;
+      }
+
+      if (strcmp(label, "DataArray_t") != 0)
+      {
+        cgio_release_id(this->cgioNum, dataIds[id]);
+        continue;
+      }
+
+      // Determine data type
+      CGNSRead::char_33 dataType;
+
+      if (cgio_get_data_type(this->cgioNum, dataIds[id], dataType) != CG_OK)
+      {
+        cgio_error_message(errMsg);
+        vtkErrorMacro(<< "Could not read node data type: " << errMsg);
+        return CG_ERROR;
+      }
+
+      // Read data according to type
+      using SupportedTypes =
+        vtkTypeList::Create<vtkTypeInt32Array, vtkTypeInt64Array, vtkFloatArray, vtkDoubleArray>;
+      using Dispatcher = vtkArrayDispatch::DispatchByArray<SupportedTypes>;
+      vtkSmartPointer<vtkDataArray> array;
+      VectorCopy worker;
+
+      if (strcmp(dataType, "I4") == 0)
+      {
+        std::vector<vtkTypeInt32> data;
+        CGNSRead::readNodeData<vtkTypeInt32>(this->cgioNum, dataIds[id], data);
+        array.TakeReference(
+          vtkDataArray::FastDownCast(vtkAbstractArray::CreateArray(VTK_TYPE_INT32)));
+        Dispatcher::Execute(array, worker, data);
+      }
+      else if (strcmp(dataType, "I8") == 0)
+      {
+        std::vector<vtkTypeInt64> data;
+        CGNSRead::readNodeData<vtkTypeInt64>(this->cgioNum, dataIds[id], data);
+        array.TakeReference(
+          vtkDataArray::FastDownCast(vtkAbstractArray::CreateArray(VTK_TYPE_INT64)));
+        Dispatcher::Execute(array, worker, data);
+      }
+      else if (strcmp(dataType, "R4") == 0)
+      {
+        std::vector<float> data;
+        CGNSRead::readNodeData<float>(this->cgioNum, dataIds[id], data);
+        array.TakeReference(vtkDataArray::FastDownCast(vtkAbstractArray::CreateArray(VTK_FLOAT)));
+        Dispatcher::Execute(array, worker, data);
+      }
+      else if (strcmp(dataType, "R8") == 0)
+      {
+        std::vector<double> data;
+        CGNSRead::readNodeData<double>(this->cgioNum, dataIds[id], data);
+        array.TakeReference(vtkDataArray::FastDownCast(vtkAbstractArray::CreateArray(VTK_DOUBLE)));
+        Dispatcher::Execute(array, worker, data);
+      }
+      else
+      {
+        continue;
+      }
+
+      // Read node name
+      char name[CGIO_MAX_NAME_LENGTH + 1];
+
+      if (cgio_get_name(this->cgioNum, dataIds[id], name) != CG_OK)
+      {
+        cgio_error_message(errMsg);
+        vtkErrorMacro(<< "Could not read node name: " << errMsg);
+        return CG_ERROR;
+      }
+
+      array->SetName(name);
+
+      // Assign field data array
+      fieldData->AddArray(array);
+    }
+  }
+
+  return CG_OK;
+}
+
 //----------------------------------------------------------------------------
 int vtkCGNSReader::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
@@ -4672,6 +4818,13 @@ int vtkCGNSReader::RequestData(vtkInformation* vtkNotUsed(request),
           }
           break;
       }
+
+      // Read UserDefinedData_t nodes in the current zone
+      if (this->ReadUserDefinedData(zone, mbase) != CG_OK)
+      {
+        vtkWarningMacro("Could not read UserDefinedData_t in zone " << zoneName);
+      }
+
       this->UpdateProgress(0.5);
     }
     rootNode->SetBlock(blockIndex, mbase);
