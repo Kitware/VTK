@@ -20,6 +20,7 @@
 #include <stdexcept>
 #include <tuple>
 #include <type_traits>
+#include <utility>
 
 VTK_ABI_NAMESPACE_BEGIN
 
@@ -500,7 +501,7 @@ void vtkThreadedCallbackQueue::HandleDependentInvoker(
   }
   else
   {
-    this->Invoke(std::move(invoker), lock);
+    this->Invoke(std::forward<InvokerT>(invoker), lock);
   }
 }
 
