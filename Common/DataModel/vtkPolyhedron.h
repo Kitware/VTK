@@ -46,7 +46,6 @@ class vtkQuad;
 class vtkTetra;
 class vtkPolygon;
 class vtkLine;
-class vtkPointIdMap;
 class vtkIdToIdVectorMapType;
 class vtkIdToIdMapType;
 class vtkEdgeTable;
@@ -58,6 +57,8 @@ class vtkPointLocator;
 class VTKCOMMONDATAMODEL_EXPORT vtkPolyhedron : public vtkCell3D
 {
 public:
+  typedef std::map<vtkIdType, vtkIdType> vtkPointIdMap;
+
   ///@{
   /**
    * Standard new methods.
@@ -345,6 +346,8 @@ protected:
 private:
   vtkPolyhedron(const vtkPolyhedron&) = delete;
   void operator=(const vtkPolyhedron&) = delete;
+
+  friend class vtkPolyhedronUtilities;
 };
 
 //----------------------------------------------------------------------------

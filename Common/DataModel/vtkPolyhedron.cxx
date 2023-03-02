@@ -46,9 +46,6 @@ vtkStandardNewMacro(vtkPolyhedron);
 
 // Special typedef
 typedef std::vector<vtkIdType> vtkIdVectorType;
-class vtkPointIdMap : public std::map<vtkIdType, vtkIdType>
-{
-};
 
 // an edge consists of two id's and their order
 // is *not* important. To that end special hash and
@@ -1349,8 +1346,9 @@ vtkIdType vtkPolyhedron::GetPointToIncidentFaces(vtkIdType pointId, const vtkIdT
   return this->ValenceAtPoint[pointId];
 }
 
-bool IntersectWithContour(vtkCell* cell, vtkDataArray* pointScalars, vtkPointIdMap* pointIdMap,
-  double value, std::function<bool(double, double)>& compare, bool& allTrue)
+bool IntersectWithContour(vtkCell* cell, vtkDataArray* pointScalars,
+  vtkPolyhedron::vtkPointIdMap* pointIdMap, double value,
+  std::function<bool(double, double)>& compare, bool& allTrue)
 {
   allTrue = true;
   bool allFalse = true;
@@ -1571,8 +1569,8 @@ int TriangulatePolygonAt(vtkCell* polygon, int offset, vtkIdList* triIds)
   return nPoints - 2;
 }
 
-void CalculateAngles(const vtkIdType* tri, vtkPoints* phPoints, const vtkPointIdMap* pointIdMap,
-  double& minAngle, double& maxAngle)
+void CalculateAngles(const vtkIdType* tri, vtkPoints* phPoints,
+  const vtkPolyhedron::vtkPointIdMap* pointIdMap, double& minAngle, double& maxAngle)
 {
   vtkIdType idx0 = tri[0];
   vtkIdType idx1 = tri[1];
@@ -1620,7 +1618,7 @@ void CalculateAngles(const vtkIdType* tri, vtkPoints* phPoints, const vtkPointId
 }
 
 void TriangulatePolygon(vtkCell* polygon, FaceVector& faces, vtkIdList* triIds, vtkPoints* phPoints,
-  vtkPointIdMap* pointIdMap)
+  vtkPolyhedron::vtkPointIdMap* pointIdMap)
 {
   // attempt a fan triangulation for each point on the polygon and choose the
   // fan triangulation with the lowest range in internal angles differing from 60 degrees
@@ -1666,7 +1664,7 @@ void TriangulatePolygon(vtkCell* polygon, FaceVector& faces, vtkIdList* triIds, 
 }
 
 void TriangulateFace(vtkCell* face, FaceVector& faces, vtkIdList* triIds, vtkPoints* phPoints,
-  vtkPointIdMap* pointIdMap)
+  vtkPolyhedron::vtkPointIdMap* pointIdMap)
 {
   switch (face->GetCellType())
   {
@@ -1710,7 +1708,7 @@ bool CheckNonManifoldTriangulation(EdgeFaceSetMap& edgeFaceMap)
 }
 
 bool GetContourPoints(double value, vtkPolyhedron* cell,
-  vtkPointIdMap* pointIdMap, // from global id to local cell id
+  vtkPolyhedron::vtkPointIdMap* pointIdMap, // from global id to local cell id
   FaceEdgesVector& faceEdgesVector, EdgeFaceSetMap& edgeFaceMap, EdgeSet& originalEdges,
   std::vector<std::vector<vtkIdType>>& oririginalFaceTriFaceMap,
   PointIndexEdgeMultiMap& contourPointEdgeMultiMap, EdgePointIndexMap& edgeContourPointMap,

@@ -191,6 +191,7 @@ set(classes
   vtkPolyVertex
   vtkPolygon
   vtkPolyhedron
+  vtkPolyhedronUtilities
   vtkPyramid
   vtkQuad
   vtkQuadraticEdge

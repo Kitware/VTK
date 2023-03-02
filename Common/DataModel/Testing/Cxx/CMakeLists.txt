@@ -120,6 +120,7 @@ vtk_add_test_cxx(vtkCommonDataModelCxxTests data_tests
   TestMeanValueCoordinatesInterpolation1.cxx
   TestMeanValueCoordinatesInterpolation2.cxx
   TestPolyhedron4.cxx,NO_VALID,NO_OUTPUT
+  TestPolyhedronDecompose.cxx,NO_DATA
   TestSmoothErrorMetric.cxx
   TestQuadraticPolygonFilters.cxx
   )
