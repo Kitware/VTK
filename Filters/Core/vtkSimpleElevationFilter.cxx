@@ -61,17 +61,23 @@ public:
 
     const auto pointRange = vtk::DataArrayTupleRange<3>(this->PointArray, begin, end);
     bool isFirst = vtkSMPTools::GetSingleThread();
+    vtkIdType checkAbortInterval = std::min((end - begin) / 10 + 1, (vtkIdType)1000);
 
     for (const auto p : pointRange)
     {
-      if (isFirst)
+      if (begin % checkAbortInterval == 0)
       {
-        this->Filter->CheckAbort();
+        if (isFirst)
+        {
+          this->Filter->CheckAbort();
+        }
+        if (this->Filter->GetAbortOutput())
+        {
+          break;
+        }
       }
-      if (this->Filter->GetAbortOutput())
-      {
-        break;
-      }
+      begin++;
+
       *s = v[0] * p[0] + v[1] * p[1] + v[2] * p[2];
       ++s;
     }

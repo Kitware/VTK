@@ -173,9 +173,11 @@ int vtkArrayRename::RequestData(vtkInformation* vtkNotUsed(request),
     }
 
     vtkFieldData::Iterator arrayIterator(inFd);
+    vtkIdType checkAbortInterval =
+      std::min(input->GetNumberOfElements(type) / 10 + 1, (vtkIdType)1000);
     for (vtkIdType idx = arrayIterator.BeginIndex(); idx != -1; idx = arrayIterator.NextIndex())
     {
-      if (this->CheckAbort())
+      if (idx % checkAbortInterval == 0 && this->CheckAbort())
       {
         abort = true;
         break;

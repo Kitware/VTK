@@ -504,17 +504,22 @@ public:
     int inside;
     bool foundInCache, insideCellBounds;
     bool isFirst = vtkSMPTools::GetSingleThread();
+    vtkIdType checkAbortInterval = std::min((endPointId - beginPointId) / 10 + 1, (vtkIdType)1000);
 
     for (vtkIdType pointId = beginPointId; pointId < endPointId; ++pointId)
     {
-      if (isFirst)
+      if (pointId % checkAbortInterval == 0)
       {
-        this->ProbeFilter->CheckAbort();
+        if (isFirst)
+        {
+          this->ProbeFilter->CheckAbort();
+        }
+        if (this->ProbeFilter->GetAbortOutput())
+        {
+          break;
+        }
       }
-      if (this->ProbeFilter->GetAbortOutput())
-      {
-        break;
-      }
+
       if (maskArray[pointId] == static_cast<char>(1))
       {
         // skip points which have already been probed with success.
@@ -911,15 +916,19 @@ public:
 
     auto& cell = this->TLGenericCell.Local();
     bool isFirst = vtkSMPTools::GetSingleThread();
+    vtkIdType checkAbortInterval = std::min((cellEnd - cellBegin) / 10 + 1, (vtkIdType)1000);
     for (vtkIdType cellId = cellBegin; cellId < cellEnd; ++cellId)
     {
-      if (isFirst)
+      if (cellId % checkAbortInterval == 0)
       {
-        this->ProbeFilter->CheckAbort();
-      }
-      if (this->ProbeFilter->GetAbortOutput())
-      {
-        break;
+        if (isFirst)
+        {
+          this->ProbeFilter->CheckAbort();
+        }
+        if (this->ProbeFilter->GetAbortOutput())
+        {
+          break;
+        }
       }
       if (IsBlankedCell(sourceGhostFlags, cellId))
       {

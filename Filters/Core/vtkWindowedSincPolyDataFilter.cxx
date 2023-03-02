@@ -156,17 +156,22 @@ struct LineConnectivity
     vtkIdType npts;
     const vtkIdType* pts;
     bool isFirst = vtkSMPTools::GetSingleThread();
+    vtkIdType checkAbortInterval = std::min((endCellId - cellId) / 10 + 1, (vtkIdType)1000);
 
     for (; cellId < endCellId; ++cellId)
     {
-      if (isFirst)
+      if (cellId % checkAbortInterval == 0)
       {
-        this->Filter->CheckAbort();
+        if (isFirst)
+        {
+          this->Filter->CheckAbort();
+        }
+        if (this->Filter->GetAbortOutput())
+        {
+          break;
+        }
       }
-      if (this->Filter->GetAbortOutput())
-      {
-        break;
-      }
+
       cellIter->GetCellAtId(cellId, npts, pts);
       bool closedLoop = (pts[0] == pts[npts - 1] && npts > 3);
       this->ProcessCell(closedLoop, npts, pts);
@@ -253,16 +258,20 @@ struct MeshConnectivity
     vtkIdType npts;
     const vtkIdType* pts;
     bool isFirst = vtkSMPTools::GetSingleThread();
+    vtkIdType checkAbortInterval = std::min((endCellId - cellId) / 10 + 1, (vtkIdType)1000);
 
     for (; cellId < endCellId; ++cellId)
     {
-      if (isFirst)
+      if (cellId % checkAbortInterval == 0)
       {
-        this->Filter->CheckAbort();
-      }
-      if (this->Filter->GetAbortOutput())
-      {
-        break;
+        if (isFirst)
+        {
+          this->Filter->CheckAbort();
+        }
+        if (this->Filter->GetAbortOutput())
+        {
+          break;
+        }
       }
       cellIter->GetCellAtId(cellId, npts, pts);
       this->ProcessCell(npts, pts);
@@ -821,15 +830,20 @@ struct AnalyzePoints
     PointConnectivity<TIds>* ptConn = this->PtConn;
     vtkIdList* neighbors = this->Neighbors.Local();
     bool isFirst = vtkSMPTools::GetSingleThread();
+    vtkIdType checkAbortInterval = std::min((endPtId - ptId) / 10 + 1, (vtkIdType)1000);
+
     for (; ptId < endPtId; ++ptId)
     {
-      if (isFirst)
+      if (ptId % checkAbortInterval == 0)
       {
-        this->Filter->CheckAbort();
-      }
-      if (this->Filter->GetAbortOutput())
-      {
-        break;
+        if (isFirst)
+        {
+          this->Filter->CheckAbort();
+        }
+        if (this->Filter->GetAbortOutput())
+        {
+          break;
+        }
       }
       // First sort the local list of edges (i.e., the edges incident to
       // ptId). This will group duplicate edges (if any). Manifold edges
@@ -946,16 +960,20 @@ struct InitializePointsWorker
       auto outTuples = vtk::DataArrayTupleRange<3>(outPts);
       double x[3];
       bool isFirst = vtkSMPTools::GetSingleThread();
+      vtkIdType checkAbortInterval = std::min((endPtId - ptId) / 10 + 1, (vtkIdType)1000);
 
       for (; ptId < endPtId; ++ptId)
       {
-        if (isFirst)
+        if (ptId % checkAbortInterval == 0)
         {
-          filter->CheckAbort();
-        }
-        if (filter->GetAbortOutput())
-        {
-          break;
+          if (isFirst)
+          {
+            filter->CheckAbort();
+          }
+          if (filter->GetAbortOutput())
+          {
+            break;
+          }
         }
         const auto inTuple = inTuples[ptId];
         auto outTuple = outTuples[ptId];
@@ -1150,16 +1168,20 @@ struct InitSmoothingWorker
       auto tuples1 = vtk::DataArrayTupleRange<3>(vtkArrayDownCast<DataT>(da[ptSelect[1]]));
       auto tuples3 = vtk::DataArrayTupleRange<3>(vtkArrayDownCast<DataT>(da[ptSelect[3]]));
       bool isFirst = vtkSMPTools::GetSingleThread();
+      vtkIdType checkAbortInterval = std::min((endPtId - ptId) / 10 + 1, (vtkIdType)1000);
 
       for (; ptId < endPtId; ++ptId)
       {
-        if (isFirst)
+        if (ptId % checkAbortInterval == 0)
         {
-          filter->CheckAbort();
-        }
-        if (filter->GetAbortOutput())
-        {
-          break;
+          if (isFirst)
+          {
+            filter->CheckAbort();
+          }
+          if (filter->GetAbortOutput())
+          {
+            break;
+          }
         }
         // Grab the edges
         TIds* edges = ptConn->GetEdges(ptId);
@@ -1216,16 +1238,20 @@ struct SmoothingWorker
       auto tuples2 = vtk::DataArrayTupleRange<3>(vtkArrayDownCast<DataT>(da[ptSelect[2]]));
       auto tuples3 = vtk::DataArrayTupleRange<3>(vtkArrayDownCast<DataT>(da[ptSelect[3]]));
       bool isFirst = vtkSMPTools::GetSingleThread();
+      vtkIdType checkAbortInterval = std::min((endPtId - ptId) / 10 + 1, (vtkIdType)1000);
 
       for (; ptId < endPtId; ++ptId)
       {
-        if (isFirst)
+        if (ptId % checkAbortInterval == 0)
         {
-          filter->CheckAbort();
-        }
-        if (filter->GetAbortOutput())
-        {
-          break;
+          if (isFirst)
+          {
+            filter->CheckAbort();
+          }
+          if (filter->GetAbortOutput())
+          {
+            break;
+          }
         }
         // Grab the edges
         TIds* edges = ptConn->GetEdges(ptId);
@@ -1360,17 +1386,22 @@ struct UnnormalizePointsWorker
       auto inTuples = vtk::DataArrayTupleRange<3>(pts, ptId, endPtId);
       double x[3];
       bool isFirst = vtkSMPTools::GetSingleThread();
+      vtkIdType checkAbortInterval = std::min((endPtId - ptId) / 10 + 1, (vtkIdType)1000);
 
       for (auto tuple : inTuples)
       {
-        if (isFirst)
+        if (ptId % checkAbortInterval == 0)
         {
-          filter->CheckAbort();
+          if (isFirst)
+          {
+            filter->CheckAbort();
+          }
+          if (filter->GetAbortOutput())
+          {
+            break;
+          }
         }
-        if (filter->GetAbortOutput())
-        {
-          break;
-        }
+        ptId++;
         x[0] = (static_cast<double>(tuple[0]) * length) + center[0];
         x[1] = (static_cast<double>(tuple[1]) * length) + center[1];
         x[2] = (static_cast<double>(tuple[2]) * length) + center[2];
@@ -1412,16 +1443,20 @@ struct ErrorScalarsWorker
       float* esPtr = es->GetPointer(0) + ptId;
       double x[3];
       bool isFirst = vtkSMPTools::GetSingleThread();
+      vtkIdType checkAbortInterval = std::min((endPtId - ptId) / 10 + 1, (vtkIdType)1000);
 
       for (; ptId < endPtId; ++ptId)
       {
-        if (isFirst)
+        if (ptId % checkAbortInterval == 0)
         {
-          filter->CheckAbort();
-        }
-        if (filter->GetAbortOutput())
-        {
-          break;
+          if (isFirst)
+          {
+            filter->CheckAbort();
+          }
+          if (filter->GetAbortOutput())
+          {
+            break;
+          }
         }
         const auto inTuple = inTuples[ptId];
         const auto outTuple = outTuples[ptId];
@@ -1468,16 +1503,20 @@ struct ErrorVectorsWorker
       const auto outTuples = vtk::DataArrayTupleRange<3>(outPts);
       float* evPtr = ev->GetPointer(0) + 3 * ptId;
       bool isFirst = vtkSMPTools::GetSingleThread();
+      vtkIdType checkAbortInterval = std::min((endPtId - ptId) / 10 + 1, (vtkIdType)1000);
 
       for (; ptId < endPtId; ++ptId)
       {
-        if (isFirst)
+        if (ptId % checkAbortInterval == 0)
         {
-          filter->CheckAbort();
-        }
-        if (filter->GetAbortOutput())
-        {
-          break;
+          if (isFirst)
+          {
+            filter->CheckAbort();
+          }
+          if (filter->GetAbortOutput())
+          {
+            break;
+          }
         }
         const auto inTuple = inTuples[ptId];
         const auto outTuple = outTuples[ptId];

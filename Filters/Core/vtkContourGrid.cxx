@@ -326,12 +326,14 @@ void vtkContourGridExecute(vtkContourGrid* self, vtkDataSet* input, vtkPolyData*
     vtkCell* tmpCell;
     vtkIdList* dummyIdList = nullptr;
     vtkIdType cellId = cellIter->GetCellId();
+    vtkIdType numCellsContoured = 0;
+    vtkIdType checkAbortInterval = std::min(numCells / 10 + 1, (vtkIdType)1000);
     for (i = 0; i < numContours && !abortExecute; i++)
     {
       for (scalarTree->InitTraversal(values[i]);
            (tmpCell = scalarTree->GetNextCell(cellId, dummyIdList, cellScalars));)
       {
-        if (self->CheckAbort())
+        if (numCellsContoured % checkAbortInterval == 0 && self->CheckAbort())
         {
           abortExecute = true;
           break;

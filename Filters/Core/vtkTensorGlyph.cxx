@@ -257,9 +257,11 @@ int vtkTensorGlyph::RequestData(vtkInformation* vtkNotUsed(request),
   //
   trans->PreMultiply();
 
+  int checkAbortInterval = std::min(numPts / 10 + 1, (vtkIdType)1000);
+
   for (inPtId = 0; inPtId < numPts; inPtId++)
   {
-    if (this->CheckAbort())
+    if (inPtId % checkAbortInterval == 0 && this->CheckAbort())
     {
       break;
     }

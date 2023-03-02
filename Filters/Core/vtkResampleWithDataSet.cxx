@@ -242,15 +242,19 @@ public:
   void operator()(vtkIdType begin, vtkIdType end)
   {
     bool isFirst = vtkSMPTools::GetSingleThread();
+    vtkIdType checkAbortInterval = std::min((end - begin) / 10 + 1, (vtkIdType)1000);
     for (vtkIdType i = begin; i < end; ++i)
     {
-      if (isFirst)
+      if (i % checkAbortInterval == 0)
       {
-        this->Filter->CheckAbort();
-      }
-      if (this->Filter->GetAbortOutput())
-      {
-        break;
+        if (isFirst)
+        {
+          this->Filter->CheckAbort();
+        }
+        if (this->Filter->GetAbortOutput())
+        {
+          break;
+        }
       }
       if (!this->MaskArray[i])
       {
@@ -282,16 +286,19 @@ public:
   {
     vtkIdList* cellPoints = this->PointIds.Local();
     bool isFirst = vtkSMPTools::GetSingleThread();
-
+    vtkIdType checkAbortInterval = std::min((end - begin) / 10 + 1, (vtkIdType)1000);
     for (vtkIdType i = begin; i < end; ++i)
     {
-      if (isFirst)
+      if (i % checkAbortInterval == 0)
       {
-        this->Filter->CheckAbort();
-      }
-      if (this->Filter->GetAbortOutput())
-      {
-        break;
+        if (isFirst)
+        {
+          this->Filter->CheckAbort();
+        }
+        if (this->Filter->GetAbortOutput())
+        {
+          break;
+        }
       }
       this->Data->GetCellPoints(i, cellPoints);
       vtkIdType npts = cellPoints->GetNumberOfIds();

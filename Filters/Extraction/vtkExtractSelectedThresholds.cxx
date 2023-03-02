@@ -305,9 +305,10 @@ int vtkExtractSelectedThresholds::ExtractCells(
   flag = -flag;
 
   // Check that the scalars of each cell satisfy the threshold criterion
+  vtkIdType checkAbortInterval = std::min(input->GetNumberOfCells() / 10 + 1, (vtkIdType)1000);
   for (cellId = 0; cellId < input->GetNumberOfCells(); cellId++)
   {
-    if (this->CheckAbort())
+    if (cellId % checkAbortInterval == 0 && this->CheckAbort())
     {
       break;
     }
@@ -507,9 +508,10 @@ int vtkExtractSelectedThresholds::ExtractPoints(
   flag = -flag;
 
   vtkIdType outPtCnt = 0;
+  vtkIdType checkAbortInterval = std::min(numPts / 10 + 1, (vtkIdType)1000);
   for (vtkIdType ptId = 0; ptId < numPts; ptId++)
   {
-    if (this->CheckAbort())
+    if (ptId % checkAbortInterval == 0 && this->CheckAbort())
     {
       break;
     }
@@ -631,9 +633,10 @@ int vtkExtractSelectedThresholds::ExtractRows(
   flag = -flag;
 
   vtkIdType outRCnt = 0;
+  vtkIdType checkAbortInterval = std::min(numRows / 10 + 1, (vtkIdType)1000);
   for (vtkIdType rowId = 0; rowId < numRows; rowId++)
   {
-    if (this->CheckAbort())
+    if (rowId % checkAbortInterval == 0 && this->CheckAbort())
     {
       break;
     }

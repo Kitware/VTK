@@ -338,6 +338,7 @@ int vtkAppendSelection::RequestData(vtkInformation* vtkNotUsed(request),
     return 1;
   }
 
+  int checkAbortInterval = std::min(numInputs / 10 + 1, 1000);
   if (!this->AppendByUnion)
   {
     // Expression is not set, so the vtkSelection automatically merges the nodes
@@ -349,7 +350,7 @@ int vtkAppendSelection::RequestData(vtkInformation* vtkNotUsed(request),
       // iterate over all the selection inputs
       for (int inputId = 0; inputId < numInputs; ++inputId)
       {
-        if (this->CheckAbort())
+        if (inputId % checkAbortInterval == 0 && this->CheckAbort())
         {
           break;
         }
@@ -399,7 +400,7 @@ int vtkAppendSelection::RequestData(vtkInformation* vtkNotUsed(request),
       // iterate over all the selection inputs
       for (int inputId = 0; inputId < numInputs; ++inputId)
       {
-        if (this->CheckAbort())
+        if (inputId % checkAbortInterval == 0 && this->CheckAbort())
         {
           break;
         }
@@ -491,7 +492,7 @@ int vtkAppendSelection::RequestData(vtkInformation* vtkNotUsed(request),
     vtkSelection* first = nullptr;
     while (first == nullptr && idx < numInputs)
     {
-      if (this->CheckAbort())
+      if (idx % checkAbortInterval == 0 && this->CheckAbort())
       {
         break;
       }
@@ -510,7 +511,7 @@ int vtkAppendSelection::RequestData(vtkInformation* vtkNotUsed(request),
     // Take the union of all non-null selections
     for (; idx < numInputs; ++idx)
     {
-      if (this->CheckAbort())
+      if (idx % checkAbortInterval == 0 && this->CheckAbort())
       {
         break;
       }

@@ -184,6 +184,7 @@ int vtkPolyDataConnectivityFilter::RequestData(vtkInformation* vtkNotUsed(reques
   this->CellIds->Allocate(8, VTK_CELL_SIZE);
   this->PointIds = vtkIdList::New();
   this->PointIds->Allocate(8, VTK_CELL_SIZE);
+  vtkIdType checkAbortInterval = 0;
 
   if (this->ExtractionMode != VTK_EXTRACT_POINT_SEEDED_REGIONS &&
     this->ExtractionMode != VTK_EXTRACT_CELL_SEEDED_REGIONS &&
@@ -224,9 +225,10 @@ int vtkPolyDataConnectivityFilter::RequestData(vtkInformation* vtkNotUsed(reques
 
     if (this->ExtractionMode == VTK_EXTRACT_POINT_SEEDED_REGIONS)
     {
+      checkAbortInterval = std::min(this->Seeds->GetNumberOfIds() / 10 + 1, (vtkIdType)1000);
       for (i = 0; i < this->Seeds->GetNumberOfIds(); i++)
       {
-        if (this->CheckAbort())
+        if (i % checkAbortInterval == 0 && this->CheckAbort())
         {
           break;
         }
@@ -243,9 +245,10 @@ int vtkPolyDataConnectivityFilter::RequestData(vtkInformation* vtkNotUsed(reques
     }
     else if (this->ExtractionMode == VTK_EXTRACT_CELL_SEEDED_REGIONS)
     {
+      checkAbortInterval = std::min(this->Seeds->GetNumberOfIds() / 10 + 1, (vtkIdType)1000);
       for (i = 0; i < this->Seeds->GetNumberOfIds(); i++)
       {
-        if (this->CheckAbort())
+        if (i % checkAbortInterval == 0 && this->CheckAbort())
         {
           break;
         }
@@ -260,9 +263,10 @@ int vtkPolyDataConnectivityFilter::RequestData(vtkInformation* vtkNotUsed(reques
     { // loop over points, find closest one
       double minDist2, dist2, x[3];
       int minId = 0;
+      checkAbortInterval = std::min(numPts / 10 + 1, (vtkIdType)1000);
       for (minDist2 = VTK_DOUBLE_MAX, i = 0; i < numPts; i++)
       {
-        if (this->CheckAbort())
+        if (i % checkAbortInterval == 0 && this->CheckAbort())
         {
           break;
         }
@@ -296,10 +300,11 @@ int vtkPolyDataConnectivityFilter::RequestData(vtkInformation* vtkNotUsed(reques
   // Pass through point data that has been visited
   outputPD->CopyAllocate(pd);
   outputCD->CopyAllocate(cd);
+  checkAbortInterval = std::min(numPts / 10 + 1, (vtkIdType)1000);
 
   for (i = 0; i < numPts; i++)
   {
-    if (this->CheckAbort())
+    if (i % checkAbortInterval == 0 && this->CheckAbort())
     {
       break;
     }
@@ -352,13 +357,18 @@ int vtkPolyDataConnectivityFilter::RequestData(vtkInformation* vtkNotUsed(reques
     newStrips->Delete();
   }
 
+  checkAbortInterval = std::min(numCells / 10 + 1, (vtkIdType)1000);
   if (this->ExtractionMode == VTK_EXTRACT_POINT_SEEDED_REGIONS ||
     this->ExtractionMode == VTK_EXTRACT_CELL_SEEDED_REGIONS ||
     this->ExtractionMode == VTK_EXTRACT_CLOSEST_POINT_REGION ||
     this->ExtractionMode == VTK_EXTRACT_ALL_REGIONS)
   { // extract any cell that's been visited
-    for (cellId = 0; cellId < numCells && !this->CheckAbort(); cellId++)
+    for (cellId = 0; cellId < numCells; cellId++)
     {
+      if (cellId % checkAbortInterval == 0 && this->CheckAbort())
+      {
+        break;
+      }
       if (this->Visited[cellId] >= 0)
       {
         this->Mesh->GetCellPoints(cellId, npts, pts);
@@ -383,6 +393,10 @@ int vtkPolyDataConnectivityFilter::RequestData(vtkInformation* vtkNotUsed(reques
   {
     for (cellId = 0; cellId < numCells; cellId++)
     {
+      if (cellId % checkAbortInterval == 0 && this->CheckAbort())
+      {
+        break;
+      }
       int inReg, regionId;
       if ((regionId = this->Visited[cellId]) >= 0)
       {
@@ -417,8 +431,12 @@ int vtkPolyDataConnectivityFilter::RequestData(vtkInformation* vtkNotUsed(reques
   }
   else // extract largest region
   {
-    for (cellId = 0; cellId < numCells && !this->CheckAbort(); cellId++)
+    for (cellId = 0; cellId < numCells; cellId++)
     {
+      if (cellId % checkAbortInterval == 0 && this->CheckAbort())
+      {
+        break;
+      }
       if (this->Visited[cellId] == largestRegionId)
       {
         this->Mesh->GetCellPoints(cellId, npts, pts);

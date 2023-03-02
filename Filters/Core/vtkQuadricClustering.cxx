@@ -411,10 +411,11 @@ void vtkQuadricClustering::AddStrips(vtkCellArray* strips, vtkPoints* points, in
   double pts[3][3];
   vtkIdType binIds[3];
   int odd; // Used to flip order of every other triangle in a strip.
+  vtkIdType checkAbortInterval = std::min(strips->GetNumberOfCells() / 10 + 1, (vtkIdType)1000);
 
   for (strips->InitTraversal(); strips->GetNextCell(numPts, ptIds);)
   {
-    if (this->CheckAbort())
+    if (this->InCellCount % checkAbortInterval == 0 && this->CheckAbort())
     {
       break;
     }
@@ -604,9 +605,10 @@ void vtkQuadricClustering::AddEdges(
   // Add the edges to the error function.
   numCells = edges->GetNumberOfCells();
   edges->InitTraversal();
+  vtkIdType checkAbortInterval = std::min(numCells / 10 + 1, (vtkIdType)1000);
   for (vtkIdType i = 0; i < numCells; ++i)
   {
-    if (this->CheckAbort())
+    if (i % checkAbortInterval == 0 && this->CheckAbort())
     {
       break;
     }
@@ -756,9 +758,10 @@ void vtkQuadricClustering::AddVertices(
   double curr = 0;
 
   verts->InitTraversal();
+  vtkIdType checkAbortInterval = std::min(numCells / 10 + 1, (vtkIdType)1000);
   for (vtkIdType i = 0; i < numCells; ++i)
   {
-    if (this->CheckAbort())
+    if (i % checkAbortInterval == 0 && this->CheckAbort())
     {
       break;
     }

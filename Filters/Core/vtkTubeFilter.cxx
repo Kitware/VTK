@@ -239,10 +239,17 @@ int vtkTubeFilter::RequestData(vtkInformation* vtkNotUsed(request),
   vtkPolyLine* lineNormalGenerator = vtkPolyLine::New();
   // the line cellIds start after the last vert cellId
   inCellId = input->GetNumberOfVerts();
+  int checkAbortInterval = std::min(numLines / 10 + 1, (vtkIdType)1000);
+  int progressCounter = 0;
   for (inLines->InitTraversal(); inLines->GetNextCell(npts, ptsOrig) && !abort; inCellId++)
   {
     this->UpdateProgress((double)inCellId / numLines);
-    abort = this->CheckAbort();
+    if (progressCounter % checkAbortInterval == 0 && this->CheckAbort())
+    {
+      abort = this->CheckAbort();
+      break;
+    }
+    progressCounter++;
 
     // Make a copy of point indices to avoid modifying input polydata cells
     // while removing degenerate lines.

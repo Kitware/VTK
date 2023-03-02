@@ -152,16 +152,19 @@ struct EvaluatePoints
     double p[3], *n = this->Normal, *o = this->Origin;
     vtkIdType* map = this->PtMap + ptId;
     bool isFirst = vtkSMPTools::GetSingleThread();
-
-    for (; ptId < endPtId; ++ptId)
+    vtkIdType checkAbortInterval = std::min((endPtId - ptId) / 10 + 1, (vtkIdType)1000);
+    for (; ptId < endPtId; ptId++)
     {
-      if (isFirst)
+      if (ptId % checkAbortInterval == 0)
       {
-        this->Filter->CheckAbort();
-      }
-      if (this->Filter->GetAbortOutput())
-      {
-        break;
+        if (isFirst)
+        {
+          this->Filter->CheckAbort();
+        }
+        if (this->Filter->GetAbortOutput())
+        {
+          break;
+        }
       }
       auto pt = pts[ptId];
       p[0] = pt[0];
@@ -318,6 +321,7 @@ struct EvaluateCells
     const vtkIdType* cell;
     vtkCellArrayIterator* cellIter = this->CellIterator.Local();
     bool isFirst = vtkSMPTools::GetSingleThread();
+    vtkIdType checkAbortInterval = 0;
 
     for (; batchId < endBatchId; ++batchId)
     {
@@ -333,15 +337,19 @@ struct EvaluateCells
       vtkIdType* cellMap = this->CellMap + cellId;
       vtkIdType numKeptPts;
 
-      for (; cellId < endCellId; ++cellId)
+      checkAbortInterval = std::min((endCellId - cellId) / 10 + 1, (vtkIdType)1000);
+      for (; cellId < endCellId; cellId++)
       {
-        if (isFirst)
+        if (cellId % checkAbortInterval == 0)
         {
-          this->Filter->CheckAbort();
-        }
-        if (this->Filter->GetAbortOutput())
-        {
-          break;
+          if (isFirst)
+          {
+            this->Filter->CheckAbort();
+          }
+          if (this->Filter->GetAbortOutput())
+          {
+            break;
+          }
         }
         cellIter->GetCellAtId(cellId, npts, cell);
         numKeptPts = CellCases::ComputeCase(npts, cell, this->PtMap);
@@ -461,6 +469,7 @@ struct ExtractCells
     vtkCellArrayIterator* cellIter = this->CellIterator.Local();
     const vtkIdType* ptMap = this->PtMap;
     bool isFirst = vtkSMPTools::GetSingleThread();
+    vtkIdType checkAbortInterval = 0;
 
     for (; batchNum < endBatchNum; ++batchNum)
     {
@@ -484,16 +493,21 @@ struct ExtractCells
       EdgeTupleType* edge = this->Edges + batch->LinesConnOffset;
       ArrayList* arrays = this->Arrays;
 
+      checkAbortInterval = std::min((endCellId - cellId) / 10 + 1, (vtkIdType)1000);
       for (; cellId < endCellId; ++cellId, ++cellMap)
       {
-        if (isFirst)
+        if (cellId % checkAbortInterval == 0)
         {
-          this->Filter->CheckAbort();
+          if (isFirst)
+          {
+            this->Filter->CheckAbort();
+          }
+          if (this->Filter->GetAbortOutput())
+          {
+            break;
+          }
         }
-        if (this->Filter->GetAbortOutput())
-        {
-          break;
-        }
+
         if (*cellMap != 0) // if the cell is clipped or kept
         {
           cellIter->GetCellAtId(cellId, npts, cell);
@@ -570,17 +584,22 @@ struct OutputPointsWorker
         const auto in = vtk::DataArrayTupleRange<3>(inPts);
         auto out = vtk::DataArrayTupleRange<3>(outPts);
         bool isFirst = vtkSMPTools::GetSingleThread();
+        vtkIdType checkAbortInterval = std::min((endPtId - ptId) / 10 + 1, (vtkIdType)1000);
 
         for (; ptId < endPtId; ++ptId)
         {
-          if (isFirst)
+          if (ptId % checkAbortInterval == 0)
           {
-            filter->CheckAbort();
+            if (isFirst)
+            {
+              filter->CheckAbort();
+            }
+            if (filter->GetAbortOutput())
+            {
+              break;
+            }
           }
-          if (filter->GetAbortOutput())
-          {
-            break;
-          }
+
           if (ptMap[ptId] >= 0)
           {
             auto xin = in[ptId];
@@ -608,16 +627,20 @@ struct OutputPointsWorker
         auto out = vtk::DataArrayTupleRange<3>(outPts);
         double x0[3], x1[3];
         bool isFirst = vtkSMPTools::GetSingleThread();
+        vtkIdType checkAbortInterval = std::min((endNewPtId - newPtId) / 10 + 1, (vtkIdType)1000);
 
         for (; newPtId < endNewPtId; ++newPtId)
         {
-          if (isFirst)
+          if (newPtId % checkAbortInterval == 0)
           {
-            filter->CheckAbort();
-          }
-          if (filter->GetAbortOutput())
-          {
-            break;
+            if (isFirst)
+            {
+              filter->CheckAbort();
+            }
+            if (filter->GetAbortOutput())
+            {
+              break;
+            }
           }
           const EdgeTupleType* edge = mergeEdges + mergeOffsets[newPtId];
           const auto x0T = in[edge->V0];
@@ -681,16 +704,20 @@ struct OutputCells
         vtkIdType newPtId, vtkIdType endNewPtId) {
         const EdgeTupleType* edge;
         bool isFirst = vtkSMPTools::GetSingleThread();
+        vtkIdType checkAbortInterval = std::min((endNewPtId - newPtId) / 10 + 1, (vtkIdType)1000);
 
         for (; newPtId < endNewPtId; ++newPtId)
         {
-          if (isFirst)
+          if (newPtId % checkAbortInterval == 0)
           {
-            filter->CheckAbort();
-          }
-          if (filter->GetAbortOutput())
-          {
-            break;
+            if (isFirst)
+            {
+              filter->CheckAbort();
+            }
+            if (filter->GetAbortOutput())
+            {
+              break;
+            }
           }
           vtkIdType numEdges = offsets[newPtId + 1] - offsets[newPtId];
           vtkIdType updatedId = newPtId + numKeptPts;

@@ -124,17 +124,23 @@ struct MapWorker
 
     using ScalarRef = typename decltype(scalars)::ReferenceType;
     bool isFirst = vtkSMPTools::GetSingleThread();
+    vtkIdType checkAbortInterval = std::min((end - begin) / 10 + 1, (vtkIdType)1000);
 
     for (ScalarRef s : scalars)
     {
-      if (isFirst)
+      if (begin % checkAbortInterval == 0)
       {
-        this->Filter->CheckAbort();
+        if (isFirst)
+        {
+          this->Filter->CheckAbort();
+        }
+        if (this->Filter->GetAbortOutput())
+        {
+          break;
+        }
       }
-      if (this->Filter->GetAbortOutput())
-      {
-        break;
-      }
+      begin++;
+
       // Map from inRange to outRange:
       s = this->OutMin + ((s - this->InMin) / this->InRange) * this->OutRange;
     }

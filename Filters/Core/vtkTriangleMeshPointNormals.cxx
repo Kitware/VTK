@@ -45,12 +45,15 @@ struct ComputeNormalsDirection
     float a[3], b[3], tn[3];
 
     auto cellIter = vtk::TakeSmartPointer(mesh->GetPolys()->NewIterator());
+    int checkAbortInterval = std::min(mesh->GetNumberOfCells() / 10 + 1, (vtkIdType)1000);
+    int progressCounter = 0;
     for (cellIter->GoToFirstCell(); !cellIter->IsDoneWithTraversal(); cellIter->GoToNextCell())
     {
-      if (self->CheckAbort())
+      if (progressCounter % checkAbortInterval == 0 && self->CheckAbort())
       {
         break;
       }
+      progressCounter++;
       vtkIdType cellSize;
       const vtkIdType* cell;
       cellIter->GetCurrentCell(cellSize, cell);
@@ -184,9 +187,10 @@ int vtkTriangleMeshPointNormals::RequestData(vtkInformation* vtkNotUsed(request)
   float l;
   unsigned int i3;
   float* n = normals->GetPointer(0);
+  vtkIdType checkAbortInterval = std::min(numPts / 10 + 1, (vtkIdType)1000);
   for (vtkIdType i = 0; i < numPts; ++i)
   {
-    if (this->CheckAbort())
+    if (i % checkAbortInterval == 0 && this->CheckAbort())
     {
       break;
     }

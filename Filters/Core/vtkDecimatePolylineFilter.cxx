@@ -178,16 +178,19 @@ int vtkDecimatePolylineFilter::RequestData(vtkInformation* vtkNotUsed(request),
 
   vtkIdType polylineSize = 0;
   const vtkIdType* polyLineVerts;
+  vtkIdType checkAbortInterval = std::min(inputLines->GetNumberOfCells() / 10 + 1, (vtkIdType)1000);
+  vtkIdType progessInterval = 0;
 
   std::map<vtkIdType, vtkIdType> pointIdMap;
   // Decimate each polyline (represented as a single cell) in series
   for (lineIter->GoToFirstCell(); !lineIter->IsDoneWithTraversal();
        lineIter->GoToNextCell(), firstVertexIndex += polylineSize)
   {
-    if (this->CheckAbort())
+    if (progessInterval % checkAbortInterval == 0 && this->CheckAbort())
     {
       break;
     }
+    progessInterval++;
     lineIter->GetCurrentCell(polylineSize, polyLineVerts);
 
     // construct a polyline as a doubly linked list

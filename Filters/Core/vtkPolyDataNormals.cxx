@@ -117,6 +117,7 @@ int vtkPolyDataNormals::RequestData(vtkInformation* vtkNotUsed(request),
   vtkCellArray* polys;
   vtkNew<vtkPolyData> oldMesh;
   oldMesh->SetPoints(inPoints);
+  vtkIdType checkAbortInterval = 0;
   if (numStrips > 0) // have to decompose strips into triangles
   {
     vtkDataSetAttributes* inCD = input->GetCellData();
@@ -139,10 +140,11 @@ int vtkPolyDataNormals::RequestData(vtkInformation* vtkNotUsed(request),
     vtkNew<vtkIdList> tempCellPointIds;
     vtkIdType npts = 0;
     const vtkIdType* pts = nullptr;
+    checkAbortInterval = std::min(numStrips / 10 + 1, (vtkIdType)1000);
     for (vtkIdType stripId = 0, inCellIdx = numPolys, outCellIdx = numPolys; stripId < numStrips;
          ++stripId, ++inCellIdx)
     {
-      if (this->CheckAbort())
+      if (stripId % checkAbortInterval == 0 && this->CheckAbort())
       {
         break;
       }
@@ -240,12 +242,15 @@ int vtkPolyDataNormals::RequestData(vtkInformation* vtkNotUsed(request),
       // which needs to be seeded independently with a correctly
       // oriented polygon.
       double n[3];
+      checkAbortInterval = std::min(numPts / 10 + 1, (vtkIdType)1000);
+      vtkIdType progressCounter = 0;
       while (leftmostPoints->GetNumberOfItems())
       {
-        if (this->CheckAbort())
+        if (progressCounter % checkAbortInterval == 0 && this->CheckAbort())
         {
           break;
         }
+        progressCounter++;
         foundLeftmostCell = 0;
         // Keep iterating through leftmost points and cells located at
         // those points until I've got a leftmost point with
@@ -302,9 +307,10 @@ int vtkPolyDataNormals::RequestData(vtkInformation* vtkNotUsed(request),
     }    // automatically orient normals
     else // this->Consistency
     {
+      checkAbortInterval = std::min(numPolys / 10 + 1, (vtkIdType)1000);
       for (vtkIdType cellId = 0; cellId < numPolys; cellId++)
       {
-        if (this->CheckAbort())
+        if (cellId % checkAbortInterval == 0 && this->CheckAbort())
         {
           break;
         }
@@ -339,16 +345,21 @@ int vtkPolyDataNormals::RequestData(vtkInformation* vtkNotUsed(request),
   vtkSMPTools::For(0, offsetCells, [&](vtkIdType begin, vtkIdType end) {
     static const double n[3] = { 1.0, 0.0, 0.0 };
     bool isFirst = vtkSMPTools::GetSingleThread();
+    checkAbortInterval = std::min((end - begin) / 10 + 1, (vtkIdType)1000);
     for (vtkIdType cellId = begin; cellId < end; cellId++)
     {
-      if (isFirst)
+      if (cellId % checkAbortInterval == 0)
       {
-        this->CheckAbort();
+        if (isFirst)
+        {
+          this->CheckAbort();
+        }
+        if (this->GetAbortOutput())
+        {
+          break;
+        }
       }
-      if (this->GetAbortOutput())
-      {
-        break;
-      }
+
       // add a default value for vertices and lines
       // normals do not have meaningful values, we set them to X
       cellNormals->SetTuple(cellId, n);
@@ -362,15 +373,19 @@ int vtkPolyDataNormals::RequestData(vtkInformation* vtkNotUsed(request),
     const vtkIdType* pts = nullptr;
     double n[3];
     bool isFirst = vtkSMPTools::GetSingleThread();
+    checkAbortInterval = std::min((end - begin) / 10 + 1, (vtkIdType)1000);
     for (vtkIdType polyId = begin; polyId < end; polyId++)
     {
-      if (isFirst)
+      if (polyId % checkAbortInterval == 0)
       {
-        this->CheckAbort();
-      }
-      if (this->GetAbortOutput())
-      {
-        break;
+        if (isFirst)
+        {
+          this->CheckAbort();
+        }
+        if (this->GetAbortOutput())
+        {
+          break;
+        }
       }
       newPolys->GetCellAtId(polyId, npts, pts, tempCellPointIds);
       vtkPolygon::ComputeNormal(inPoints, npts, pts, n);
@@ -393,15 +408,19 @@ int vtkPolyDataNormals::RequestData(vtkInformation* vtkNotUsed(request),
     newToOldPointsMap->SetNumberOfIds(numPts);
     vtkSMPTools::For(0, numPts, [&](vtkIdType begin, vtkIdType end) {
       bool isFirst = vtkSMPTools::GetSingleThread();
+      checkAbortInterval = std::min((end - begin) / 10 + 1, (vtkIdType)1000);
       for (vtkIdType i = begin; i < end; i++)
       {
-        if (isFirst)
+        if (i % checkAbortInterval == 0)
         {
-          this->CheckAbort();
-        }
-        if (this->GetAbortOutput())
-        {
-          break;
+          if (isFirst)
+          {
+            this->CheckAbort();
+          }
+          if (this->GetAbortOutput())
+          {
+            break;
+          }
         }
         newToOldPointsMap->SetId(i, i);
       }
@@ -444,15 +463,19 @@ int vtkPolyDataNormals::RequestData(vtkInformation* vtkNotUsed(request),
     vtkSMPTools::For(0, numNewPts, [&](vtkIdType begin, vtkIdType end) {
       double p[3];
       bool isFirst = vtkSMPTools::GetSingleThread();
+      checkAbortInterval = std::min((end - begin) / 10 + 1, (vtkIdType)1000);
       for (vtkIdType newPointId = begin; newPointId < end; newPointId++)
       {
-        if (isFirst)
+        if (newPointId % checkAbortInterval == 0)
         {
-          this->CheckAbort();
-        }
-        if (this->GetAbortOutput())
-        {
-          break;
+          if (isFirst)
+          {
+            this->CheckAbort();
+          }
+          if (this->GetAbortOutput())
+          {
+            break;
+          }
         }
         vtkIdType& oldPointId = mapPtr[newPointId];
         inPoints->GetPoint(oldPointId, p);
@@ -496,15 +519,19 @@ int vtkPolyDataNormals::RequestData(vtkInformation* vtkNotUsed(request),
       vtkIdType npts = 0;
       const vtkIdType* pts = nullptr;
       bool isFirst = vtkSMPTools::GetSingleThread();
-      for (vtkIdType polyId = begin; polyId < end; ++polyId)
+      checkAbortInterval = std::min((end - begin) / 10 + 1, (vtkIdType)1000);
+      for (vtkIdType polyId = begin; polyId < end; polyId++)
       {
-        if (isFirst)
+        if (polyId % checkAbortInterval == 0)
         {
-          this->CheckAbort();
-        }
-        if (this->GetAbortOutput())
-        {
-          break;
+          if (isFirst)
+          {
+            this->CheckAbort();
+          }
+          if (this->GetAbortOutput())
+          {
+            break;
+          }
         }
         newPolys->GetCellAtId(polyId, npts, pts, tempCellPointIds);
         for (vtkIdType i = 0; i < npts; ++i)
@@ -521,15 +548,19 @@ int vtkPolyDataNormals::RequestData(vtkInformation* vtkNotUsed(request),
     vtkSMPTools::For(0, numNewPts, [&](vtkIdType begin, vtkIdType end) {
       double length;
       bool isFirst = vtkSMPTools::GetSingleThread();
-      for (vtkIdType pointId = begin; pointId < end; ++pointId)
+      checkAbortInterval = std::min((end - begin) / 10 + 1, (vtkIdType)1000);
+      for (vtkIdType pointId = begin; pointId < end; pointId++)
       {
-        if (isFirst)
+        if (pointId % checkAbortInterval == 0)
         {
-          this->CheckAbort();
-        }
-        if (this->GetAbortOutput())
-        {
-          break;
+          if (isFirst)
+          {
+            this->CheckAbort();
+          }
+          if (this->GetAbortOutput())
+          {
+            break;
+          }
         }
         length = vtkMath::Norm(&pointNormalsPtr[3 * pointId]) * flipDirection;
         if (length != 0.0)
@@ -705,15 +736,19 @@ struct vtkPolyDataNormals::MarkAndSplitFunctor
     vtkIdType ncells, *cells, i, j, numPts;
     const vtkIdType* pts;
     bool isFirst = vtkSMPTools::GetSingleThread();
-    for (vtkIdType pointId = begin; pointId < end; ++pointId)
+    vtkIdType checkAbortInterval = std::min((end - begin) / 10 + 1, (vtkIdType)1000);
+    for (vtkIdType pointId = begin; pointId < end; pointId++)
     {
-      if (isFirst)
+      if (pointId % checkAbortInterval == 0)
       {
-        this->Filter->CheckAbort();
-      }
-      if (this->Filter->GetAbortOutput())
-      {
-        break;
+        if (isFirst)
+        {
+          this->Filter->CheckAbort();
+        }
+        if (this->Filter->GetAbortOutput())
+        {
+          break;
+        }
       }
       // Get the cells using this point and make sure that we have to do something
       this->OldMesh->GetPointCells(pointId, ncells, cells);

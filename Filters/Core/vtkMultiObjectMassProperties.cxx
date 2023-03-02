@@ -130,16 +130,20 @@ public:
     double x0[3], x1[3], x2[3], tetVol;
     double v210, v120, v201, v021, v102, v012;
     bool isFirst = vtkSMPTools::GetSingleThread();
+    vtkIdType checkAbortInterval = std::min((endPolyId - beginPolyId) / 10 + 1, (vtkIdType)1000);
 
     for (vtkIdType polyId = beginPolyId; polyId < endPolyId; ++polyId)
     {
-      if (isFirst)
+      if (polyId % checkAbortInterval == 0)
       {
-        this->Filter->CheckAbort();
-      }
-      if (this->Filter->GetAbortOutput())
-      {
-        break;
+        if (isFirst)
+        {
+          this->Filter->CheckAbort();
+        }
+        if (this->Filter->GetAbortOutput())
+        {
+          break;
+        }
       }
       vtkIdType& objectId = this->ObjectIds[polyId];
       this->Mesh->GetCellPoints(polyId, npts, pts);

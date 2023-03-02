@@ -187,15 +187,18 @@ void vtkExtractCellsByType::ExtractPolyDataCells(
   vtkIdType npts;
   const vtkIdType* pts;
   vtkCellArray* inVerts = input->GetVerts();
+  vtkIdType progressCounter = 0;
+  vtkIdType checkAbortInterval = std::min(inVerts->GetNumberOfCells() / 10 + 1, (vtkIdType)1000);
   if (this->ExtractCellType(VTK_VERTEX) || this->ExtractCellType(VTK_POLY_VERTEX))
   {
     vtkCellArray* verts = vtkCellArray::New();
     for (inVerts->InitTraversal(); inVerts->GetNextCell(npts, pts); ++currentCellId)
     {
-      if (this->CheckAbort())
+      if (progressCounter % checkAbortInterval == 0 && this->CheckAbort())
       {
         break;
       }
+      progressCounter++;
       if (this->ExtractCellType(input->GetCellType(currentCellId)))
       {
         ptIds->Reset();
@@ -224,12 +227,15 @@ void vtkExtractCellsByType::ExtractPolyDataCells(
   if (this->ExtractCellType(VTK_LINE) || this->ExtractCellType(VTK_POLY_LINE))
   {
     vtkCellArray* lines = vtkCellArray::New();
+    progressCounter = 0;
+    checkAbortInterval = std::min(inLines->GetNumberOfCells() / 10 + 1, (vtkIdType)1000);
     for (inLines->InitTraversal(); inLines->GetNextCell(npts, pts); ++currentCellId)
     {
-      if (this->CheckAbort())
+      if (progressCounter % checkAbortInterval == 0 && this->CheckAbort())
       {
         break;
       }
+      progressCounter++;
       if (this->ExtractCellType(input->GetCellType(currentCellId)))
       {
         ptIds->Reset();
@@ -259,12 +265,15 @@ void vtkExtractCellsByType::ExtractPolyDataCells(
     this->ExtractCellType(VTK_POLYGON))
   {
     vtkCellArray* polys = vtkCellArray::New();
+    progressCounter = 0;
+    checkAbortInterval = std::min(inPolys->GetNumberOfCells() / 10 + 1, (vtkIdType)1000);
     for (inPolys->InitTraversal(); inPolys->GetNextCell(npts, pts); ++currentCellId)
     {
-      if (this->CheckAbort())
+      if (progressCounter % checkAbortInterval == 0 && this->CheckAbort())
       {
         break;
       }
+      progressCounter++;
       if (this->ExtractCellType(input->GetCellType(currentCellId)))
       {
         ptIds->Reset();
@@ -293,13 +302,16 @@ void vtkExtractCellsByType::ExtractPolyDataCells(
   if (this->ExtractCellType(VTK_TRIANGLE_STRIP))
   {
     vtkCellArray* strips = vtkCellArray::New();
+    checkAbortInterval = std::min(inStrips->GetNumberOfCells() / 10 + 1, (vtkIdType)1000);
+    progressCounter++;
     // All cells are of type VTK_TRIANGLE_STRIP
     for (inStrips->InitTraversal(); inStrips->GetNextCell(npts, pts); ++currentCellId)
     {
-      if (this->CheckAbort())
+      if (progressCounter % checkAbortInterval == 0 && this->CheckAbort())
       {
         break;
       }
+      progressCounter++;
       ptIds->Reset();
       for (i = 0; i < npts; ++i)
       {
@@ -354,9 +366,11 @@ void vtkExtractCellsByType::ExtractUnstructuredGridCells(
   output->Allocate(numCells);
   outCD->CopyAllocate(inCD);
 
+  vtkIdType checkAbortInterval = std::min(numCells / 10 + 1, (vtkIdType)1000);
+
   for (cellId = 0; cellId < numCells; ++cellId)
   {
-    if (this->CheckAbort())
+    if (cellId % checkAbortInterval == 0 && this->CheckAbort())
     {
       break;
     }

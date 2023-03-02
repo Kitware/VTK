@@ -355,12 +355,13 @@ int vtkPolyDataEdgeConnectivityFilter::RequestData(vtkInformation* vtkNotUsed(re
   else // regions have been seeded, everything considered in same region
   {
     this->NumCellsInRegion = 0;
+    vtkIdType checkAbortInterval = std::min(this->Seeds.size() / 10 + 1, (std::size_t)1000);
 
     if (this->ExtractionMode == VTK_EXTRACT_POINT_SEEDED_REGIONS)
     {
       for (i = 0; i < (vtkIdType)this->Seeds.size(); i++)
       {
-        if (this->CheckAbort())
+        if (i % checkAbortInterval == 0 && this->CheckAbort())
         {
           break;
         }
@@ -379,7 +380,7 @@ int vtkPolyDataEdgeConnectivityFilter::RequestData(vtkInformation* vtkNotUsed(re
     {
       for (i = 0; i < (vtkIdType)this->Seeds.size(); i++)
       {
-        if (this->CheckAbort())
+        if (i % checkAbortInterval == 0 && this->CheckAbort())
         {
           break;
         }
@@ -394,8 +395,13 @@ int vtkPolyDataEdgeConnectivityFilter::RequestData(vtkInformation* vtkNotUsed(re
     { // loop over points, find closest one
       double minDist2, dist2, x[3];
       int minId = 0;
+      checkAbortInterval = std::min(numPts / 10 + 1, (vtkIdType)1000);
       for (minDist2 = VTK_DOUBLE_MAX, i = 0; i < numPts; i++)
       {
+        if (i % checkAbortInterval == 0 && this->CheckAbort())
+        {
+          break;
+        }
         inPts->GetPoint(i, x);
         dist2 = vtkMath::Distance2BetweenPoints(x, this->ClosestPoint);
         if (dist2 < minDist2)

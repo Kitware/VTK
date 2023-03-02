@@ -147,7 +147,7 @@ struct Spread
   template <typename SrcArrayT, typename DstArrayT>
   void operator()(SrcArrayT* const srcarray, DstArrayT* const dstarray, vtkDataSet* const src,
     vtkUnsignedIntArray* const num, vtkIdType ncells, vtkIdType npoints, vtkIdType ncomps,
-    int highestCellDimension, int contributingCellOption) const
+    int highestCellDimension, int contributingCellOption, vtkCellDataToPointData* filter) const
   {
     // Both arrays will have the same value type:
     using T = vtk::GetAPIType<SrcArrayT>;
@@ -157,13 +157,19 @@ struct Spread
 
     const auto srcTuples = vtk::DataArrayTupleRange(srcarray);
     auto dstTuples = vtk::DataArrayTupleRange(dstarray);
+    vtkIdType checkAbortInterval;
 
     // accumulate
     if (contributingCellOption != vtkCellDataToPointData::Patch)
     {
       vtkNew<vtkIdList> pointIds;
+      checkAbortInterval = std::min(ncells / 10 + 1, (vtkIdType)1000);
       for (vtkIdType cid = 0; cid < ncells; ++cid)
       {
+        if (cid % checkAbortInterval == 0 && filter->CheckAbort())
+        {
+          break;
+        }
         int dimension = vtkCellTypes::GetDimension(src->GetCellType(cid));
         if (dimension >= highestCellDimension)
         {
@@ -180,8 +186,14 @@ struct Spread
         }
       }
       // average
+
+      checkAbortInterval = std::min(npoints / 10 + 1, (vtkIdType)1000);
       for (vtkIdType pid = 0; pid < npoints; ++pid)
       {
+        if (pid % checkAbortInterval == 0 && filter->CheckAbort())
+        {
+          break;
+        }
         // guard against divide by zero
         if (unsigned int const denom = num->GetValue(pid))
         {
@@ -197,8 +209,13 @@ struct Spread
     { // compute over cell patches
       vtkNew<vtkIdList> cellsOnPoint;
       std::vector<T> data(4 * ncomps);
+      checkAbortInterval = std::min(npoints / 10 + 1, (vtkIdType)1000);
       for (vtkIdType pid = 0; pid < npoints; ++pid)
       {
+        if (pid % checkAbortInterval == 0 && filter->CheckAbort())
+        {
+          break;
+        }
         std::fill(data.begin(), data.end(), 0);
         T numPointCells[4] = { 0, 0, 0, 0 };
         // Get all cells touching this point.
@@ -678,11 +695,6 @@ int vtkCellDataToPointData::RequestDataForUnstructuredData(
     this->UpdateProgress((fid + 1.0) / nfields);
     ++fid;
 
-    if (this->CheckAbort())
-    {
-      return;
-    }
-
     vtkDataArray* const srcarray = vtkDataArray::FastDownCast(aa_srcarray);
     vtkDataArray* const dstarray = vtkDataArray::FastDownCast(aa_dstarray);
     if (srcarray && dstarray)
@@ -693,10 +705,10 @@ int vtkCellDataToPointData::RequestDataForUnstructuredData(
       Spread worker;
       using Dispatcher = vtkArrayDispatch::Dispatch2SameValueType;
       if (!Dispatcher::Execute(srcarray, dstarray, worker, input, num, numberOfCells,
-            numberOfPoints, ncomps, highestCellDimension, this->ContributingCellOption))
+            numberOfPoints, ncomps, highestCellDimension, this->ContributingCellOption, this))
       { // fallback for unknown arrays:
         worker(srcarray, dstarray, input, num, numberOfCells, numberOfPoints, ncomps,
-          highestCellDimension, this->ContributingCellOption);
+          highestCellDimension, this->ContributingCellOption, this);
       }
     }
   };

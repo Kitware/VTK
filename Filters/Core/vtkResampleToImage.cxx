@@ -244,16 +244,21 @@ public:
   void operator()(vtkIdType begin, vtkIdType end)
   {
     bool isFirst = vtkSMPTools::GetSingleThread();
+    vtkIdType checkAbortInterval = std::min((end - begin) / 10 + 1, (vtkIdType)1000);
     for (vtkIdType i = begin; i < end; ++i)
     {
-      if (isFirst)
+      if (i % checkAbortInterval == 0)
       {
-        this->Filter->CheckAbort();
+        if (isFirst)
+        {
+          this->Filter->CheckAbort();
+        }
+        if (this->Filter->GetAbortOutput())
+        {
+          break;
+        }
       }
-      if (this->Filter->GetAbortOutput())
-      {
-        break;
-      }
+
       if (!this->MaskArray[i])
       {
         this->PointGhostArray->SetValue(
@@ -293,15 +298,19 @@ public:
   void operator()(vtkIdType begin, vtkIdType end)
   {
     bool isFirst = vtkSMPTools::GetSingleThread();
+    vtkIdType checkAbortInterval = std::min((end - begin) / 10 + 1, (vtkIdType)1000);
     for (vtkIdType cellId = begin; cellId < end; ++cellId)
     {
-      if (isFirst)
+      if (cellId % checkAbortInterval == 0)
       {
-        this->Filter->CheckAbort();
-      }
-      if (this->Filter->GetAbortOutput())
-      {
-        break;
+        if (isFirst)
+        {
+          this->Filter->CheckAbort();
+        }
+        if (this->Filter->GetAbortOutput())
+        {
+          break;
+        }
       }
       int ptijk[3];
       ptijk[2] = cellId / this->CellSliceSize;

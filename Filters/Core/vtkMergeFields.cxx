@@ -188,10 +188,6 @@ int vtkMergeFields::RequestData(vtkInformation* vtkNotUsed(request),
   int sameNumTuples = 1;
   do
   {
-    if (this->CheckAbort())
-    {
-      break;
-    }
     before = cur;
     cur = cur->Next;
     inputArray = fd->GetArray(before->FieldName);
@@ -257,14 +253,18 @@ int vtkMergeFields::RequestData(vtkInformation* vtkNotUsed(request),
   outputArray->SetNumberOfTuples(numTuples);
   outputArray->SetName(this->FieldName);
 
+  int checkAbortInterval = std::min(this->NumberOfComponents / 10 + 1, 1000);
+  int progressCount = 0;
+
   // Merge
   cur = this->GetFirst();
   do
   {
-    if (this->CheckAbort())
+    if (progressCount % checkAbortInterval == 0 && this->CheckAbort())
     {
       break;
     }
+    progressCount++;
     before = cur;
     cur = cur->Next;
     inputArray = fd->GetArray(before->FieldName);

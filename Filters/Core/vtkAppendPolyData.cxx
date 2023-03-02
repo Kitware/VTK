@@ -340,9 +340,10 @@ int vtkAppendPolyData::ExecuteAppend(vtkPolyData* output, vtkPolyData* inputs[],
   vtkIdType polysOffset = numVerts + numLines;
   vtkIdType stripsOffset = numVerts + numLines + numPolys;
   countPD = countCD = 0;
+  int checkAbortInterval = std::min(numInputs / 10 + 1, 1000);
   for (idx = 0; idx < numInputs; ++idx)
   {
-    if (this->CheckAbort())
+    if (idx % checkAbortInterval == 0 && this->CheckAbort())
     {
       break;
     }

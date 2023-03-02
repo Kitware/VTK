@@ -133,17 +133,23 @@ struct BinPoints
     double x[3];
     TIds* bins = this->BinIds + ptId;
     bool isFirst = vtkSMPTools::GetSingleThread();
+    vtkIdType checkAbortInterval = std::min((endPtId - ptId) / 10 + 1, (vtkIdType)1000);
 
     for (const auto tuple : points)
     {
-      if (isFirst)
+      if (ptId % checkAbortInterval == 0)
       {
-        this->Filter->CheckAbort();
+        if (isFirst)
+        {
+          this->Filter->CheckAbort();
+        }
+        if (this->Filter->GetAbortOutput())
+        {
+          break;
+        }
       }
-      if (this->Filter->GetAbortOutput())
-      {
-        break;
-      }
+      ptId++;
+
       x[0] = static_cast<double>(tuple[0]);
       x[1] = static_cast<double>(tuple[1]);
       x[2] = static_cast<double>(tuple[2]);
@@ -193,16 +199,20 @@ struct GenerateTriangles
     vtkIdType *outTris = this->OutTris, *outTri;
     vtkIdType *outTriOffsets = this->OutTriOffsets, *outOffsets;
     bool isFirst = vtkSMPTools::GetSingleThread();
+    vtkIdType checkAbortInterval = std::min((endTriId - triId) / 10 + 1, (vtkIdType)1000);
 
     for (; triId < endTriId; ++triId)
     {
-      if (isFirst)
+      if (triId % checkAbortInterval == 0)
       {
-        this->Filter->CheckAbort();
-      }
-      if (this->Filter->GetAbortOutput())
-      {
-        break;
+        if (isFirst)
+        {
+          this->Filter->CheckAbort();
+        }
+        if (this->Filter->GetAbortOutput())
+        {
+          break;
+        }
       }
       if ((triMap[triId + 1] - triMap[triId]) > 0) // spit out triangle
       {
@@ -258,16 +268,20 @@ struct SelectOutput
     TIds* triMap = this->TriMap + triId;
     unsigned char* ptUses = this->PointUses;
     bool isFirst = vtkSMPTools::GetSingleThread();
+    vtkIdType checkAbortInterval = std::min((endTriId - triId) / 10 + 1, (vtkIdType)1000);
 
     for (; triId < endTriId; ++triId, ++triMap)
     {
-      if (isFirst)
+      if (triId % checkAbortInterval == 0)
       {
-        this->Filter->CheckAbort();
-      }
-      if (this->Filter->GetAbortOutput())
-      {
-        break;
+        if (isFirst)
+        {
+          this->Filter->CheckAbort();
+        }
+        if (this->Filter->GetAbortOutput())
+        {
+          break;
+        }
       }
       cellIter->GetCellAtId(triId, npts, tri);
       // All three points have to be in different bins
@@ -314,16 +328,20 @@ struct InitializePointMap
     const unsigned char* ptUses = this->PointUses + ptId;
     TIds* ptMap = this->PointMap;
     bool isFirst = vtkSMPTools::GetSingleThread();
+    vtkIdType checkAbortInterval = std::min((endPtId - ptId) / 10 + 1, (vtkIdType)1000);
 
     for (; ptId < endPtId; ++ptId)
     {
-      if (isFirst)
+      if (ptId % checkAbortInterval == 0)
       {
-        this->Filter->CheckAbort();
-      }
-      if (this->Filter->GetAbortOutput())
-      {
-        break;
+        if (isFirst)
+        {
+          this->Filter->CheckAbort();
+        }
+        if (this->Filter->GetAbortOutput())
+        {
+          break;
+        }
       }
       if (*ptUses++ > 0)
       {
@@ -497,16 +515,20 @@ struct MapOutput
     std::atomic<TIds>* ptMap = this->PointMap;
     TIds binIds[3];
     bool isFirst = vtkSMPTools::GetSingleThread();
+    vtkIdType checkAbortInterval = std::min((endTriId - triId) / 10 + 1, (vtkIdType)1000);
 
     for (; triId < endTriId; ++triId, ++triMap)
     {
-      if (isFirst)
+      if (triId % checkAbortInterval == 0)
       {
-        this->Filter->CheckAbort();
-      }
-      if (this->Filter->GetAbortOutput())
-      {
-        break;
+        if (isFirst)
+        {
+          this->Filter->CheckAbort();
+        }
+        if (this->Filter->GetAbortOutput())
+        {
+          break;
+        }
       }
       cellIter->GetCellAtId(triId, npts, tri);
       binIds[0] = this->BinIds[tri[0]];
@@ -558,16 +580,20 @@ struct CountPoints
   {
     int binOffset = slice * this->Dims[0] * this->Dims[1];
     bool isFirst = vtkSMPTools::GetSingleThread();
+    vtkIdType checkAbortInterval = std::min((endSlice - slice) / 10 + 1, (vtkIdType)1000);
 
     for (; slice < endSlice; ++slice)
     {
-      if (isFirst)
+      if (slice % checkAbortInterval == 0)
       {
-        this->Filter->CheckAbort();
-      }
-      if (this->Filter->GetAbortOutput())
-      {
-        break;
+        if (isFirst)
+        {
+          this->Filter->CheckAbort();
+        }
+        if (this->Filter->GetAbortOutput())
+        {
+          break;
+        }
       }
       vtkIdType numSlicePts = 0;
       for (auto j = 0; j < this->Dims[1]; ++j)
@@ -640,16 +666,20 @@ struct GenerateBinPoints
     double xIn[3];
     const auto pts = vtk::DataArrayTupleRange<3>(this->InPoints);
     bool isFirst = vtkSMPTools::GetSingleThread();
+    vtkIdType checkAbortInterval = std::min((endSlice - slice) / 10 + 1, (vtkIdType)1000);
 
     for (; slice < endSlice; ++slice)
     {
-      if (isFirst)
+      if (slice % checkAbortInterval == 0)
       {
-        this->Filter->CheckAbort();
-      }
-      if (this->Filter->GetAbortOutput())
-      {
-        break;
+        if (isFirst)
+        {
+          this->Filter->CheckAbort();
+        }
+        if (this->Filter->GetAbortOutput())
+        {
+          break;
+        }
       }
       for (auto j = 0; j < this->Dims[1]; ++j)
       {
@@ -850,15 +880,19 @@ struct BinPointTuples : public BinPoints<PointsT, TIds>
     double x[3];
     BinTuple<TIds>* bins = this->BinTuples + ptId;
     bool isFirst = vtkSMPTools::GetSingleThread();
+    vtkIdType checkAbortInterval = std::min((endPtId - ptId) / 10 + 1, (vtkIdType)1000);
     for (const auto tuple : points)
     {
-      if (isFirst)
+      if (ptId % checkAbortInterval == 0)
       {
-        this->Filter->CheckAbort();
-      }
-      if (this->Filter->GetAbortOutput())
-      {
-        break;
+        if (isFirst)
+        {
+          this->Filter->CheckAbort();
+        }
+        if (this->Filter->GetAbortOutput())
+        {
+          break;
+        }
       }
       (*bins).PtId = ptId++;
       x[0] = static_cast<double>(tuple[0]);
@@ -897,16 +931,20 @@ struct MarkBinnedTris
     TIds* triMap = this->TriMap + triId;
     TIds binIds[3];
     bool isFirst = vtkSMPTools::GetSingleThread();
+    vtkIdType checkAbortInterval = std::min((endTriId - triId) / 10 + 1, (vtkIdType)1000);
 
     for (; triId < endTriId; ++triId, ++triMap)
     {
-      if (isFirst)
+      if (triId % checkAbortInterval == 0)
       {
-        this->Filter->CheckAbort();
-      }
-      if (this->Filter->GetAbortOutput())
-      {
-        break;
+        if (isFirst)
+        {
+          this->Filter->CheckAbort();
+        }
+        if (this->Filter->GetAbortOutput())
+        {
+          break;
+        }
       }
       cellIter->GetCellAtId(triId, npts, tri);
       binIds[0] = this->BinTuples[tri[0]].Bin;
@@ -965,16 +1003,20 @@ struct BinAveTriangles
     vtkIdType *outTris = this->OutTris, *outTri;
     vtkIdType *outTriOffsets = this->OutTriOffsets, *outOffsets;
     bool isFirst = vtkSMPTools::GetSingleThread();
+    vtkIdType checkAbortInterval = std::min((endTriId - triId) / 10 + 1, (vtkIdType)1000);
 
     for (; triId < endTriId; ++triId)
     {
-      if (isFirst)
+      if (triId % checkAbortInterval == 0)
       {
-        this->Filter->CheckAbort();
-      }
-      if (this->Filter->GetAbortOutput())
-      {
-        break;
+        if (isFirst)
+        {
+          this->Filter->CheckAbort();
+        }
+        if (this->Filter->GetAbortOutput())
+        {
+          break;
+        }
       }
       if ((triMap[triId + 1] - triMap[triId]) > 0) // spit out triangle
       {
@@ -1022,16 +1064,20 @@ struct GenerateAveTriangles
     const TIds* offsets = this->Offsets;
     vtkIdType* outTri = this->OutTris + 3 * triId;
     bool isFirst = vtkSMPTools::GetSingleThread();
+    vtkIdType checkAbortInterval = std::min((endTriId - triId) / 10 + 1, (vtkIdType)1000);
 
     for (; triId < endTriId; ++triId, outTri += 3)
     {
-      if (isFirst)
+      if (triId % checkAbortInterval == 0)
       {
-        this->Filter->CheckAbort();
-      }
-      if (this->Filter->GetAbortOutput())
-      {
-        break;
+        if (isFirst)
+        {
+          this->Filter->CheckAbort();
+        }
+        if (this->Filter->GetAbortOutput())
+        {
+          break;
+        }
       }
       outTri[0] = (*(binTuples + offsets[outTri[0]])).PtId;
       outTri[1] = (*(binTuples + offsets[outTri[1]])).PtId;
@@ -1096,16 +1142,23 @@ struct MapOffsets
     // filling in the offsets in this batch. A previous thread should
     // have/will have completed the previous and subsequent runs outside
     // of the [batch,batchEnd) range
+    vtkIdType checkAbortInterval =
+      std::min((vtkIdType)(endBatchPt - prevPt) / 10 + 1, (vtkIdType)1000);
+
     for (curPt = prevPt; curPt < endBatchPt;)
     {
-      if (isFirst)
+      if (batch % checkAbortInterval == 0)
       {
-        this->Filter->CheckAbort();
+        if (isFirst)
+        {
+          this->Filter->CheckAbort();
+        }
+        if (this->Filter->GetAbortOutput())
+        {
+          break;
+        }
       }
-      if (this->Filter->GetAbortOutput())
-      {
-        break;
-      }
+      batch++;
       for (; curPt->Bin == prevPt->Bin && curPt <= endBatchPt; ++curPt)
       {
         // advance
@@ -1151,16 +1204,20 @@ struct CountAvePts
   {
     int binNum = slice * this->Dims[0] * this->Dims[1];
     bool isFirst = vtkSMPTools::GetSingleThread();
+    vtkIdType checkAbortInterval = std::min((endSlice - slice) / 10 + 1, (vtkIdType)1000);
 
     for (; slice < endSlice; ++slice)
     {
-      if (isFirst)
+      if (slice % checkAbortInterval == 0)
       {
-        this->Filter->CheckAbort();
-      }
-      if (this->Filter->GetAbortOutput())
-      {
-        break;
+        if (isFirst)
+        {
+          this->Filter->CheckAbort();
+        }
+        if (this->Filter->GetAbortOutput())
+        {
+          break;
+        }
       }
       vtkIdType numSlicePts = 0;
       for (auto j = 0; j < this->Dims[1]; ++j)
@@ -1234,16 +1291,20 @@ struct GenerateAveBinPoints
     TIds pId;
     std::vector<vtkIdType> v = this->PtIds.Local();
     bool isFirst = vtkSMPTools::GetSingleThread();
+    vtkIdType checkAbortInterval = std::min((endSlice - slice) / 10 + 1, (vtkIdType)1000);
 
     for (; slice < endSlice; ++slice)
     {
-      if (isFirst)
+      if (slice % checkAbortInterval == 0)
       {
-        this->Filter->CheckAbort();
-      }
-      if (this->Filter->GetAbortOutput())
-      {
-        break;
+        if (isFirst)
+        {
+          this->Filter->CheckAbort();
+        }
+        if (this->Filter->GetAbortOutput())
+        {
+          break;
+        }
       }
       for (auto j = 0; j < this->Dims[1]; ++j)
       {

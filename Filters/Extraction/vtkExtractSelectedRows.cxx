@@ -186,9 +186,12 @@ int vtkExtractSelectedRows::RequestData(vtkInformation* vtkNotUsed(request),
 
   output->GetRowData()->CopyStructure(input->GetRowData());
 
+  unsigned int checkAbortInterval =
+    std::min(converted->GetNumberOfNodes() / 10 + 1, (unsigned int)1000);
+
   for (unsigned int i = 0; i < converted->GetNumberOfNodes(); ++i)
   {
-    if (this->CheckAbort())
+    if (i % checkAbortInterval == 0 && this->CheckAbort())
     {
       break;
     }

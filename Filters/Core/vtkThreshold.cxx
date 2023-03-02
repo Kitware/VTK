@@ -159,16 +159,20 @@ struct vtkThreshold::EvaluateCellsFunctor
     auto cellIds = this->TLCellIds.Local();
     vtkIdType numCellPts;
     const vtkIdType* cellPts;
+    vtkIdType checkAbortInterval = std::min((end - begin) / 10 + 1, (vtkIdType)1000);
 
     for (vtkIdType cellId = begin; cellId < end; ++cellId)
     {
-      if (isFirst)
+      if (cellId % checkAbortInterval == 0)
       {
-        this->Self->CheckAbort();
-      }
-      if (this->Self->GetAbortOutput())
-      {
-        break;
+        if (isFirst)
+        {
+          this->Self->CheckAbort();
+        }
+        if (this->Self->GetAbortOutput())
+        {
+          break;
+        }
       }
 
       if (this->GhostArray && this->GhostArray->GetValue(cellId) & vtkDataSetAttributes::HIDDENCELL)

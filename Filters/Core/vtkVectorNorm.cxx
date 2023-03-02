@@ -61,16 +61,21 @@ struct NormOp
     auto vectorRange = vtk::DataArrayTupleRange<3>(this->Algo->Vectors, k, end);
     float* s = this->Algo->Scalars + k;
     bool isFirst = vtkSMPTools::GetSingleThread();
+    vtkIdType checkAbortInterval = std::min((end - k) / 10 + 1, (vtkIdType)1000);
     for (auto v : vectorRange)
     {
-      if (isFirst)
+      if (k % checkAbortInterval == 0)
       {
-        this->Filter->CheckAbort();
+        if (isFirst)
+        {
+          this->Filter->CheckAbort();
+        }
+        if (this->Filter->GetAbortOutput())
+        {
+          break;
+        }
       }
-      if (this->Filter->GetAbortOutput())
-      {
-        break;
-      }
+      k++;
       const ValueType mag = v[0] * v[0] + v[1] * v[1] + v[2] * v[2];
       *s = static_cast<float>(sqrt(static_cast<double>(mag)));
       max = (*s > max ? *s : max);

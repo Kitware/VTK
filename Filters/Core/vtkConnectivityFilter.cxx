@@ -274,12 +274,14 @@ int vtkConnectivityFilter::RequestData(vtkInformation* vtkNotUsed(request),
   else // regions have been seeded, everything considered in same region
   {
     this->NumCellsInRegion = 0;
+    int checkAbortInterval = 0;
 
     if (this->ExtractionMode == VTK_EXTRACT_POINT_SEEDED_REGIONS)
     {
+      checkAbortInterval = std::min(this->Seeds->GetNumberOfIds() / 10 + 1, (vtkIdType)1000);
       for (i = 0; i < this->Seeds->GetNumberOfIds(); i++)
       {
-        if (this->CheckAbort())
+        if (i % checkAbortInterval == 0 && this->CheckAbort())
         {
           break;
         }
@@ -296,9 +298,10 @@ int vtkConnectivityFilter::RequestData(vtkInformation* vtkNotUsed(request),
     }
     else if (this->ExtractionMode == VTK_EXTRACT_CELL_SEEDED_REGIONS)
     {
+      checkAbortInterval = std::min(this->Seeds->GetNumberOfIds() / 10 + 1, (vtkIdType)1000);
       for (i = 0; i < this->Seeds->GetNumberOfIds(); i++)
       {
-        if (this->CheckAbort())
+        if (i % checkAbortInterval == 0 && this->CheckAbort())
         {
           break;
         }
@@ -313,9 +316,10 @@ int vtkConnectivityFilter::RequestData(vtkInformation* vtkNotUsed(request),
     { // loop over points, find closest one
       double minDist2, dist2, x[3];
       vtkIdType minId = 0;
+      checkAbortInterval = std::min(numPts / 10 + 1, (vtkIdType)1000);
       for (minDist2 = VTK_DOUBLE_MAX, i = 0; i < numPts; i++)
       {
-        if (this->CheckAbort())
+        if (i % checkAbortInterval == 0 && this->CheckAbort())
         {
           break;
         }
@@ -328,9 +332,10 @@ int vtkConnectivityFilter::RequestData(vtkInformation* vtkNotUsed(request),
         }
       }
       input->GetPointCells(minId, this->CellIds);
+      checkAbortInterval = std::min(this->CellIds->GetNumberOfIds() / 10 + 1, (vtkIdType)1000);
       for (j = 0; j < this->CellIds->GetNumberOfIds(); j++)
       {
-        if (this->CheckAbort())
+        if (j % checkAbortInterval == 0 && this->CheckAbort())
         {
           break;
         }
@@ -546,15 +551,17 @@ void vtkConnectivityFilter::TraverseAndMark(vtkDataSet* input)
 {
   vtkIdType i, j, k, cellId, numIds, ptId, numPts, numCells;
   vtkIdList* tmpWave;
+  vtkIdType checkAbortInterval = 0;
 
-  while ((numIds = this->Wave->GetNumberOfIds()) > 0)
+  while ((numIds = this->Wave->GetNumberOfIds()) > 0 && !this->GetAbortOutput())
   {
-    if (this->CheckAbort())
-    {
-      break;
-    }
+    checkAbortInterval = std::min(numIds / 10 + 1, (vtkIdType)1000);
     for (i = 0; i < numIds; i++)
     {
+      if (i % checkAbortInterval == 0 && this->CheckAbort())
+      {
+        break;
+      }
       cellId = this->Wave->GetId(i);
       if (this->Visited[cellId] < 0)
       {

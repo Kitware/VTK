@@ -88,9 +88,10 @@ int vtkExplicitStructuredGridToUnstructuredGrid::RequestData(
   vtkNew<vtkCellArray> cells;
   cells->AllocateEstimate(nbCells, 8);
   int i, j, k;
+  vtkIdType checkAbortInterval = std::min(nbCells / 10 + 1, (vtkIdType)1000);
   for (vtkIdType cellId = 0; cellId < nbCells; cellId++)
   {
-    if (this->CheckAbort())
+    if (cellId % checkAbortInterval == 0 && this->CheckAbort())
     {
       break;
     }

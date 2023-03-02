@@ -1173,10 +1173,6 @@ void vtkUnstructuredGridQuadricDecimationTetMesh::BuildFullMesh()
   vtkUnstructuredGridQuadricDecimationFaceHashMap::iterator fi = faces.begin();
   while (fi != faces.end())
   {
-    if (this->filter->CheckAbort())
-    {
-      break;
-    }
     vtkUnstructuredGridQuadricDecimationFace* f = (*fi).second;
     f->UpdateQuadric(boundaryWeight);
     ++fi;
@@ -1255,9 +1251,10 @@ int vtkUnstructuredGridQuadricDecimationTetMesh::Simplify(int n, int desiredTets
 {
   int count = 0;
   int run = 0;
+  int checkAbortInterval = std::min(n / 10 + 1, 1000);
   while ((count < n || desiredTets < (tCount - unusedTets)) && (run < 1000))
   {
-    if (this->filter->CheckAbort())
+    if ((run + count) % checkAbortInterval == 0 && this->filter->CheckAbort())
     {
       break;
     }

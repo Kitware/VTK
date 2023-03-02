@@ -311,9 +311,11 @@ int vtkExtractParticlesOverTime::RequestData(
       numberOfPoints = particleDataSet->GetNumberOfPoints();
     }
 
+    vtkIdType checkAbortInterval = std::min(numberOfPoints / 10 + 1, (vtkIdType)1000);
+
     for (vtkIdType index = 0; index < numberOfPoints; ++index)
     {
-      if (this->CheckAbort())
+      if (index % checkAbortInterval == 0 && this->CheckAbort())
       {
         break;
       }

@@ -110,9 +110,10 @@ int vtkExtractSelectedPolyDataIds::RequestData(vtkInformation* vtkNotUsed(reques
   vtkIdList* ids = vtkIdList::New();
 
   vtkIdType numInputCells = input->GetNumberOfCells();
+  vtkIdType checkAbortInterval = std::min(numCells / 10 + 1, (vtkIdType)1000);
   for (vtkIdType i = 0; i < numCells; i++)
   {
-    if (this->CheckAbort())
+    if (i % checkAbortInterval == 0 && this->CheckAbort())
     {
       break;
     }
