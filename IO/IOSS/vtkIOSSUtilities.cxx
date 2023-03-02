@@ -397,14 +397,16 @@ int GetCellType(const Ioss::ElementTopology* topology)
     case Ioss::ElementShape::WEDGE:
       switch (topology->number_nodes())
       {
+        case 6:
+          return VTK_WEDGE;
+        case 12:
+          return VTK_QUADRATIC_LINEAR_WEDGE;
         case 15:
           return VTK_QUADRATIC_WEDGE;
         case 18:
           return VTK_BIQUADRATIC_QUADRATIC_WEDGE;
         case 21:
           return VTK_LAGRANGE_WEDGE;
-        case 6:
-          return VTK_WEDGE;
       }
       // If we don't have a "fast-path" cell, see if the arbitrary-order
       // Lagrange cell can handle it.
