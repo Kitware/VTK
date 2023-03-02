@@ -942,8 +942,9 @@ int checkFunctionSignature(ClassInfo* data)
   unsigned int baseType = 0;
 
   /* some functions will not get wrapped no matter what else */
-  if (thisFunction->IsOperator || thisFunction->ArrayFailure || thisFunction->IsExcluded ||
-    thisFunction->IsDeleted || !thisFunction->IsPublic || !thisFunction->Name)
+  if (thisFunction->IsOperator || thisFunction->ArrayFailure || thisFunction->Template ||
+    thisFunction->IsExcluded || thisFunction->IsDeleted || !thisFunction->IsPublic ||
+    !thisFunction->Name)
   {
     return 0;
   }
