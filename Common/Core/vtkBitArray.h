@@ -20,6 +20,9 @@
  * so that each byte stores eight bits. vtkBitArray provides methods
  * for insertion and retrieval of bits, and will automatically resize
  * itself to hold new data.
+ *
+ * > WARNING
+ * > This class is not thread-safe during write access
  */
 
 #ifndef vtkBitArray_h
@@ -77,12 +80,16 @@ public:
    * This method assumes that the two arrays have the same type
    * and structure. Note that range checking and memory allocation is not
    * performed; use in conjunction with SetNumberOfTuples() to allocate space.
+   *
+   * NOT THREAD-SAFE
    */
   void SetTuple(vtkIdType i, vtkIdType j, vtkAbstractArray* source) override;
 
   /**
    * Insert the jth tuple in the source array, at ith location in this array.
    * Note that memory allocation is performed as necessary to hold the data.
+   *
+   * NOT THREAD-SAFE
    */
   void InsertTuple(vtkIdType i, vtkIdType j, vtkAbstractArray* source) override;
 
@@ -90,6 +97,8 @@ public:
    * Copy the tuples indexed in srcIds from the source array to the tuple
    * locations indexed by dstIds in this array.
    * Note that memory allocation is performed as necessary to hold the data.
+   *
+   * NOT THREAD-SAFE
    */
   void InsertTuples(vtkIdList* dstIds, vtkIdList* srcIds, vtkAbstractArray* source) override;
 
@@ -97,6 +106,8 @@ public:
    * Copy the tuples indexed in srcIds from the source array to the tuple
    * locations starting at index dstStart.
    * Note that memory allocation is performed as necessary to hold the data.
+   *
+   * NOT THREAD-SAFE
    */
   void InsertTuplesStartingAt(
     vtkIdType dstStart, vtkIdList* srcIds, vtkAbstractArray* source) override;
@@ -105,6 +116,8 @@ public:
    * Copy n consecutive tuples starting at srcStart from the source array to
    * this array, starting at the dstStart location.
    * Note that memory allocation is performed as necessary to hold the data.
+   *
+   * NOT THREAD-SAFE
    */
   void InsertTuples(
     vtkIdType dstStart, vtkIdType n, vtkIdType srcStart, vtkAbstractArray* source) override;
@@ -113,6 +126,8 @@ public:
    * Insert the jth tuple in the source array, at the end in this array.
    * Note that memory allocation is performed as necessary to hold the data.
    * Returns the location at which the data was inserted.
+   *
+   * NOT THREAD-SAFE
    */
   vtkIdType InsertNextTuple(vtkIdType j, vtkAbstractArray* source) override;
 
@@ -130,6 +145,8 @@ public:
   ///@{
   /**
    * Set the tuple value at the ith location in the array.
+   *
+   * NOT THREAD-SAFE
    */
   void SetTuple(vtkIdType i, const float* tuple) override;
   void SetTuple(vtkIdType i, const double* tuple) override;
@@ -139,6 +156,8 @@ public:
   /**
    * Insert (memory allocation performed) the tuple into the ith location
    * in the array.
+   *
+   * NOT THREAD-SAFE
    */
   void InsertTuple(vtkIdType i, const float* tuple) override;
   void InsertTuple(vtkIdType i, const double* tuple) override;
@@ -147,6 +166,8 @@ public:
   ///@{
   /**
    * Insert (memory allocation performed) the tuple onto the end of the array.
+   *
+   * NOT THREAD-SAFE
    */
   vtkIdType InsertNextTuple(const float* tuple) override;
   vtkIdType InsertNextTuple(const double* tuple) override;
@@ -157,6 +178,8 @@ public:
    * These methods remove tuples from the data array. They shift data and
    * resize array, so the data array is still valid after this operation. Note,
    * this operation is fairly slow.
+   *
+   * NOT THREAD-SAFE
    */
   void RemoveTuple(vtkIdType id) override;
   void RemoveFirstTuple() override;
@@ -168,6 +191,8 @@ public:
    * Note that i is less then NumberOfTuples and j is less then
    * NumberOfComponents. Make sure enough memory has been allocated (use
    * SetNumberOfTuples() and  SetNumberOfComponents()).
+   *
+   * NOT THREAD-SAFE
    */
   void SetComponent(vtkIdType i, int j, double c) override;
 
@@ -189,21 +214,29 @@ public:
   /**
    * Set the data at a particular index. Does not do range checking. Make sure
    * you use the method SetNumberOfValues() before inserting data.
+   *
+   * NOT THREAD-SAFE
    */
   void SetValue(vtkIdType id, int value);
 
   /**
    * Inserts values and checks to make sure there is enough memory
+   *
+   * NOT THREAD-SAFE
    */
   void InsertValue(vtkIdType id, int i);
 
   /**
    * Set a value in the array from a variant.
+   *
+   * NOT THREAD-SAFE
    */
   void SetVariantValue(vtkIdType idx, vtkVariant value) override;
 
   /**
    * Inserts values from a variant and checks to ensure there is enough memory
+   *
+   * NOT THREAD-SAFE
    */
   void InsertVariantValue(vtkIdType idx, vtkVariant value) override;
 
@@ -212,6 +245,8 @@ public:
   /**
    * Insert the data component at ith tuple and jth component location.
    * Note that memory allocation is performed as necessary to hold the data.
+   *
+   * NOT THREAD-SAFE
    */
   void InsertComponent(vtkIdType i, int j, double c) override;
 
