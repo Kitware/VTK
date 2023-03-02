@@ -17,7 +17,6 @@
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkCellType.h"
-#include "vtkCleanUnstructuredGrid.h"
 #include "vtkDataArraySelection.h"
 #include "vtkFloatArray.h"
 #include "vtkIdTypeArray.h"
@@ -28,6 +27,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkSmartPointer.h"
+#include "vtkStaticCleanUnstructuredGrid.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTimerLog.h"
 #include "vtkTrivialProducer.h"
@@ -1438,7 +1438,7 @@ void vtkNek5000Reader::updateVtuData(vtkUnstructuredGrid* pv_ugrid)
 #ifndef NDEBUG
     timer->StartTimer();
 #endif
-    vtkNew<vtkCleanUnstructuredGrid> clean;
+    vtkNew<vtkStaticCleanUnstructuredGrid> clean;
 
     vtkNew<vtkUnstructuredGrid> tmpGrid;
     tmpGrid->ShallowCopy(this->UGrid);
