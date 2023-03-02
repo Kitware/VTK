@@ -10,7 +10,7 @@ template <typename T>
 vtkSmartPointer<vtkCompositeArray<T>> ConcatenateDataArrays(
   const std::vector<vtkDataArray*>& arrays)
 {
-  if (arrays.size() == 0)
+  if (arrays.empty())
   {
     return nullptr;
   }
