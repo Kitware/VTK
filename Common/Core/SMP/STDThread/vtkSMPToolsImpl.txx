@@ -33,19 +33,6 @@ namespace smp
 VTK_ABI_NAMESPACE_BEGIN
 
 int VTKCOMMONCORE_EXPORT GetNumberOfThreadsSTDThread();
-bool VTKCOMMONCORE_EXPORT GetSingleThreadSTDThread();
-void VTKCOMMONCORE_EXPORT PushThreadId(std::thread::id id);
-void VTKCOMMONCORE_EXPORT PopThreadId();
-
-//--------------------------------------------------------------------------------
-template <typename FunctorInternal>
-void ExecuteFunctorSTDThread(void* functor, vtkIdType from, vtkIdType grain, vtkIdType last)
-{
-  const vtkIdType to = std::min(from + grain, last);
-
-  FunctorInternal& fi = *reinterpret_cast<FunctorInternal*>(functor);
-  fi.Execute(from, to);
-}
 
 //--------------------------------------------------------------------------------
 template <>
@@ -59,7 +46,7 @@ void vtkSMPToolsImpl<BackendType::STDThread>::For(
     return;
   }
 
-  if (grain >= n || (!this->NestedActivated && this->IsParallel))
+  if (grain >= n || (!this->NestedActivated && vtkSMPThreadPool::GetInstance().IsParallelScope()))
   {
     fi.Execute(first, last);
   }
@@ -73,32 +60,15 @@ void vtkSMPToolsImpl<BackendType::STDThread>::For(
       grain = (estimateGrain > 0) ? estimateGrain : 1;
     }
 
-    // /!\ This behaviour should be changed if we want more control on nested
-    // (e.g only the 2 first nested For are in parallel)
-    bool fromParallelCode = this->IsParallel.exchange(true);
-
-    vtkSMPThreadPool pool(threadNumber);
-    PushThreadId((pool.GetThreads())->at(0).get_id());
+    auto proxy = vtkSMPThreadPool::GetInstance().AllocateThreads(threadNumber);
 
     for (vtkIdType from = first; from < last; from += grain)
     {
-      auto job = std::bind(ExecuteFunctorSTDThread<FunctorInternal>, &fi, from, grain, last);
-      pool.DoJob(job);
+      const auto to = (std::min)(from + grain, last);
+      proxy.DoJob([&fi, from, to] { fi.Execute(from, to); });
     }
-    pool.Join();
 
-    PopThreadId();
-    // Atomic contortion to achieve this->IsParallel &= fromParallelCode.
-    // This compare&exchange basically boils down to:
-    // if (IsParallel == trueFlag)
-    //   IsParallel = fromParallelCode;
-    // else
-    //   trueFlag = IsParallel;
-    // Which either leaves IsParallel as false or sets it to fromParallelCode (i.e. &=).
-    // Note that the return value of compare_exchange_weak() is not needed,
-    // and that no looping is necessary.
-    bool trueFlag = true;
-    this->IsParallel.compare_exchange_weak(trueFlag, fromParallelCode);
+    proxy.Join();
   }
 }
 
@@ -168,6 +138,10 @@ int vtkSMPToolsImpl<BackendType::STDThread>::GetEstimatedNumberOfThreads();
 //--------------------------------------------------------------------------------
 template <>
 bool vtkSMPToolsImpl<BackendType::STDThread>::GetSingleThread();
+
+//--------------------------------------------------------------------------------
+template <>
+bool vtkSMPToolsImpl<BackendType::STDThread>::IsParallelScope();
 
 VTK_ABI_NAMESPACE_END
 } // namespace smp

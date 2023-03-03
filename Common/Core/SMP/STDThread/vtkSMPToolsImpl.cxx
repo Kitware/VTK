@@ -17,7 +17,6 @@
 #include "SMP/STDThread/vtkSMPToolsImpl.txx"
 
 #include <cstdlib> // For std::getenv()
-#include <stack>   // For std::stack
 #include <thread>  // For std::thread::hardware_concurrency()
 
 namespace vtk
@@ -28,8 +27,12 @@ namespace smp
 {
 VTK_ABI_NAMESPACE_BEGIN
 static int specifiedNumThreads = 0;
-static std::stack<std::thread::id> threadIdStack;
-static std::mutex threadIdStackLock;
+
+//------------------------------------------------------------------------------
+int GetNumberOfThreadsSTDThread()
+{
+  return specifiedNumThreads ? specifiedNumThreads : std::thread::hardware_concurrency();
+}
 
 //------------------------------------------------------------------------------
 template <>
@@ -56,45 +59,24 @@ void vtkSMPToolsImpl<BackendType::STDThread>::Initialize(int numThreads)
 }
 
 //------------------------------------------------------------------------------
-int GetNumberOfThreadsSTDThread()
-{
-  return specifiedNumThreads ? specifiedNumThreads : std::thread::hardware_concurrency();
-}
-
-//------------------------------------------------------------------------------
-void PushThreadId(std::thread::id id)
-{
-  threadIdStackLock.lock();
-  threadIdStack.emplace(id);
-  threadIdStackLock.unlock();
-}
-
-//------------------------------------------------------------------------------
-void PopThreadId()
-{
-  threadIdStackLock.lock();
-  threadIdStack.pop();
-  threadIdStackLock.unlock();
-}
-
-//------------------------------------------------------------------------------
-bool GetSingleThreadSTDThread()
-{
-  return threadIdStack.top() == std::this_thread::get_id();
-}
-
-//------------------------------------------------------------------------------
 template <>
 int vtkSMPToolsImpl<BackendType::STDThread>::GetEstimatedNumberOfThreads()
 {
-  return GetNumberOfThreadsSTDThread();
+  return specifiedNumThreads > 0 ? specifiedNumThreads : std::thread::hardware_concurrency();
 }
 
 //------------------------------------------------------------------------------
 template <>
 bool vtkSMPToolsImpl<BackendType::STDThread>::GetSingleThread()
 {
-  return GetSingleThreadSTDThread();
+  return vtkSMPThreadPool::GetInstance().GetSingleThread();
+}
+
+//------------------------------------------------------------------------------
+template <>
+bool vtkSMPToolsImpl<BackendType::STDThread>::IsParallelScope()
+{
+  return vtkSMPThreadPool::GetInstance().IsParallelScope();
 }
 
 VTK_ABI_NAMESPACE_END
