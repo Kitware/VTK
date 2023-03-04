@@ -19,7 +19,6 @@
 
 #include "vtkArrayDispatch.h"
 #include "vtkArrayListTemplate.h" // For processing attribute data
-#include "vtkAtomicMutex.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkCellTypes.h"
@@ -41,6 +40,7 @@
 #include "vtkRectilinearGrid.h"
 #include "vtkSMPTools.h"
 #include "vtkStaticCellLinksTemplate.h"
+#include "vtkStaticFaceHashMapTemplate.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStructuredData.h"
 #include "vtkStructuredGrid.h"
@@ -182,8 +182,10 @@ template <typename TInputIdType>
 struct vtkExcludedFaces
 {
   vtkStaticCellLinksTemplate<TInputIdType>* Links;
+  vtkPolyData* ExcludedFaces;
   vtkExcludedFaces()
     : Links(nullptr)
+    , ExcludedFaces(nullptr)
   {
   }
   ~vtkExcludedFaces() { delete this->Links; }
@@ -513,15 +515,14 @@ private:
           : (numberOfPoints + (numberOfPoints & 1 /*fast %2*/)) * FaceMemoryPool::SizeId);
   }
 
-  size_t ChunkSize;
+  static constexpr size_t ChunkSize = static_cast<size_t>(5000 * FaceMemoryPool::SizeOfFace(4));
   size_t NextChunkIndex;
   size_t NextFaceIndex;
   std::vector<std::shared_ptr<unsigned char>> Chunks;
 
 public:
   FaceMemoryPool()
-    : ChunkSize(0)
-    , NextChunkIndex(0)
+    : NextChunkIndex(0)
     , NextFaceIndex(0)
   {
   }
@@ -532,29 +533,30 @@ public:
   // Copy assignment operator.
   FaceMemoryPool& operator=(const FaceMemoryPool&) = default;
 
-  ~FaceMemoryPool() { this->Destroy(); }
+  ~FaceMemoryPool() = default;
 
-  void Initialize(const vtkIdType& numberOfPoints)
+  void Initialize()
   {
-    this->Destroy();
+    this->Reset();
     // size the chunks based on the size of a quadrilateral
     static constexpr int numberOfInitialChunks = 100;
-    static constexpr int quadSize = FaceMemoryPool::SizeOfFace(4);
-    this->ChunkSize =
-      numberOfPoints < numberOfInitialChunks ? 50 * quadSize : (numberOfPoints / 2) * quadSize;
     this->NextChunkIndex = 0;
     this->NextFaceIndex = 0;
     this->Chunks.resize(numberOfInitialChunks, nullptr);
     // Initialize the first chunk
     this->Chunks[0] = std::shared_ptr<unsigned char>(
-      new unsigned char[this->ChunkSize], std::default_delete<unsigned char[]>());
+      new unsigned char[FaceMemoryPool::ChunkSize], std::default_delete<unsigned char[]>());
   }
 
-  void Destroy()
+  void ResetIndices()
   {
-    this->ChunkSize = 0;
     this->NextChunkIndex = 0;
     this->NextFaceIndex = 0;
+  }
+
+  void Reset()
+  {
+    this->ResetIndices();
     this->Chunks.clear();
   }
 
@@ -562,7 +564,7 @@ public:
   {
     // see if there's room for this one
     const int polySize = FaceMemoryPool::SizeOfFace(numberOfPoints);
-    if (this->NextFaceIndex + polySize > this->ChunkSize)
+    if (this->NextFaceIndex + polySize > FaceMemoryPool::ChunkSize)
     {
       ++this->NextChunkIndex;
       this->NextFaceIndex = 0;
@@ -577,7 +579,7 @@ public:
       if (this->Chunks[this->NextChunkIndex] == nullptr)
       {
         this->Chunks[this->NextChunkIndex] = std::shared_ptr<unsigned char>(
-          new unsigned char[this->ChunkSize], std::default_delete<unsigned char[]>());
+          new unsigned char[FaceMemoryPool::ChunkSize], std::default_delete<unsigned char[]>());
       }
     }
 
@@ -620,8 +622,8 @@ public:
   vtkIdType GetNumberOfCells() { return static_cast<vtkIdType>(this->OrigCellIds.size()); }
   vtkIdType GetNumberOfConnEntries() { return static_cast<vtkIdType>(this->Cells.size()); }
 
-  template <typename TGivenIds>
-  void InsertNextCell(TGivenIds npts, const TGivenIds* pts, TGivenIds cellId)
+  template <typename TGivenIds, typename TCellIdType>
+  void InsertNextCell(TGivenIds npts, const TGivenIds* pts, TCellIdType cellId)
   {
     // Only insert the face cell if it's not excluded
     if (this->ExcFaces && this->ExcFaces->MatchesCell(npts, pts))
@@ -661,42 +663,49 @@ public:
 };
 
 /**
- * Hash map for faces
+ * Forward list for faces
  */
 template <typename TInputIdType>
-class FaceHashMap
+class FaceForwardList
 {
 private:
   using TFace = Face<TInputIdType>;
   using TCellArrayType = CellArrayType<TInputIdType>;
   using TFaceMemoryPool = FaceMemoryPool<TInputIdType>;
-  struct Bucket
-  {
-    TFace* Head;
-    vtkAtomicMutex Lock;
-    Bucket()
-      : Head(nullptr)
-    {
-    }
-  };
-  std::vector<Bucket> Buckets;
+
+  TFaceMemoryPool FacePool;
+  TFace* Head = nullptr;
 
 public:
-  FaceHashMap(const size_t& size) { this->Buckets.resize(size); }
+  FaceForwardList() = default;
 
   /**
-   * @brief Try to insert a face into the hash map, if it's already there, delete it.
+   * Initialize the list
+   */
+  void Initialize()
+  {
+    this->FacePool.Initialize();
+    this->Reset();
+  }
+
+  /**
+   * Reset the list
+   */
+  void Reset()
+  {
+    // reset list
+    this->Head = nullptr;
+    // reset face memory pool
+    this->FacePool.ResetIndices();
+  }
+
+  /**
+   * Try to insert a face into the list, if it's already there, delete it.
    */
   template <typename FaceType>
-  void Insert(const FaceType& face, TFaceMemoryPool& pool)
+  void Insert(const FaceType& face)
   {
-    // all point ids are assumed to be less than the size of the hash map
-    // if 2 faces belong to the same bucket, they are guaranteed to have the same first point id
-    const auto& key = face.PointIds[0];
-    auto& bucket = this->Buckets[key];
-
-    std::lock_guard<vtkAtomicMutex> lock(bucket.Lock);
-    TFace** current = &bucket.Head;
+    TFace** current = &this->Head;
     while (*current != nullptr)
     {
       if (**current == face)
@@ -708,7 +717,7 @@ public:
       current = &(*current)->Next;
     }
     // not found, add it
-    TFace* newFace = pool.Allocate(face.GetSize());
+    TFace* newFace = this->FacePool.Allocate(face.GetSize());
     newFace->Next = nullptr;
     newFace->OriginalCellId = face.OriginalCellId;
     std::memcpy(newFace->PointIds, face.PointIds, face.GetSize() * sizeof(TInputIdType));
@@ -716,36 +725,19 @@ public:
     *current = newFace;
   }
 
-  void PopulateCellArrays(std::vector<TCellArrayType*>& threadedPolys)
+  /**
+   * Populate the cell array
+   */
+  void PopulateCellArray(TCellArrayType* polys)
   {
-    std::vector<TFace*> faces;
-    for (auto& bucket : this->Buckets)
+    for (auto currentFace = this->Head; currentFace != nullptr; currentFace = currentFace->Next)
     {
-      auto current = bucket.Head;
-      while (current != nullptr)
+      if (!currentFace->IsGhost)
       {
-        if (!current->IsGhost)
-        {
-          faces.push_back(current);
-        }
-        current = current->Next;
+        polys->template InsertNextCell<TInputIdType>(
+          currentFace->NumberOfPoints, currentFace->PointIds, currentFace->OriginalCellId);
       }
     }
-    const vtkIdType numberOfThreads = static_cast<vtkIdType>(threadedPolys.size());
-    const vtkIdType numberOfFaces = static_cast<vtkIdType>(faces.size());
-    vtkSMPTools::For(0, numberOfThreads, [&](vtkIdType beginThreadId, vtkIdType endThreadId) {
-      for (vtkIdType threadId = beginThreadId; threadId < endThreadId; ++threadId)
-      {
-        vtkIdType begin = threadId * numberOfFaces / numberOfThreads;
-        vtkIdType end = (threadId + 1) * numberOfFaces / numberOfThreads;
-        for (vtkIdType i = begin; i < end; ++i)
-        {
-          auto& f = faces[i];
-          threadedPolys[threadId]->template InsertNextCell<TInputIdType>(
-            f->NumberOfPoints, f->PointIds, f->OriginalCellId);
-        }
-      }
-    });
   }
 };
 
@@ -759,7 +751,7 @@ template <typename TInputIdType>
 struct LocalDataType
 {
   using TCellArrayType = CellArrayType<TInputIdType>;
-  using TFaceMemoryPool = FaceMemoryPool<TInputIdType>;
+  using TFaceForwardList = FaceForwardList<TInputIdType>;
   // Later on (in Reduce()), a thread id is assigned to the thread.
   int ThreadId;
 
@@ -788,11 +780,8 @@ struct LocalDataType
   vtkSmartPointer<vtkGenericCell> Cell;
   vtkSmartPointer<vtkIdList> CellIds;
   vtkSmartPointer<vtkIdList> IPts;
-  vtkSmartPointer<vtkIdList> ICellIds;
-  vtkSmartPointer<vtkIdList> CellPointIds;
-  vtkSmartPointer<vtkPoints> Coords;
 
-  TFaceMemoryPool FacePool;
+  TFaceForwardList FaceList;
 
   LocalDataType()
   {
@@ -800,9 +789,6 @@ struct LocalDataType
     this->Cell.TakeReference(vtkGenericCell::New());
     this->CellIds.TakeReference(vtkIdList::New());
     this->IPts.TakeReference(vtkIdList::New());
-    this->ICellIds.TakeReference(vtkIdList::New());
-    this->CellPointIds.TakeReference(vtkIdList::New());
-    this->Coords.TakeReference(vtkPoints::New());
   }
 
   LocalDataType(const LocalDataType& other)
@@ -828,11 +814,8 @@ struct LocalDataType
     this->Cell.TakeReference(vtkGenericCell::New());
     this->CellIds.TakeReference(vtkIdList::New());
     this->IPts.TakeReference(vtkIdList::New());
-    this->ICellIds.TakeReference(vtkIdList::New());
-    this->CellPointIds.TakeReference(vtkIdList::New());
-    this->Coords.TakeReference(vtkPoints::New());
 
-    this->FacePool = other.FacePool;
+    this->FaceList = other.FaceList;
   }
 
   LocalDataType& operator=(const LocalDataType& other)
@@ -867,11 +850,8 @@ struct LocalDataType
     swap(this->Cell, other.Cell);
     swap(this->CellIds, other.CellIds);
     swap(this->IPts, other.IPts);
-    swap(this->ICellIds, other.ICellIds);
-    swap(this->CellPointIds, other.CellPointIds);
-    swap(this->Coords, other.Coords);
 
-    swap(this->FacePool, other.FacePool);
+    swap(this->FaceList, other.FaceList);
   }
 
   void SetPointMap(TInputIdType* ptMap)
@@ -889,11 +869,6 @@ struct LocalDataType
     this->Lines.SetExcludedFaces(exc);
     this->Polys.SetExcludedFaces(exc);
     this->Strips.SetExcludedFaces(exc);
-  }
-
-  void InitializeFacePool(const vtkIdType& numberOfPoints)
-  {
-    this->FacePool.Initialize(numberOfPoints);
   }
 };
 
@@ -981,10 +956,10 @@ void ExtractDSCellGeometry(
 // Given a cell and a bunch of supporting objects (to support computing and
 // minimize allocation/deallocation), extract boundary features from the cell.
 // This method works with unstructured grids.
-template <typename TInputIdType>
+template <typename TInputIdType, typename TCellArrayValueType>
 void ExtractCellGeometry(vtkUnstructuredGridBase* input, vtkIdType cellId, int cellType,
-  vtkIdType npts, const vtkIdType* pts, LocalDataType<TInputIdType>* localData,
-  FaceHashMap<TInputIdType>* faceMap, const bool& isGhost)
+  TCellArrayValueType npts, const TCellArrayValueType* pts, int faceId,
+  LocalDataType<TInputIdType>* localData, const bool& isGhost)
 {
   using Triangle = StaticFace<3, TInputIdType>;
   using Quad = StaticFace<4, TInputIdType>;
@@ -995,14 +970,7 @@ void ExtractCellGeometry(vtkUnstructuredGridBase* input, vtkIdType cellId, int c
   using Nonagon = StaticFace<9, TInputIdType>;
   using Decagon = StaticFace<10, TInputIdType>;
   using Polygon = DynamicFace<TInputIdType>;
-  using TCellArrayType = CellArrayType<TInputIdType>;
-  TCellArrayType& verts = localData->Verts;
-  TCellArrayType& lines = localData->Lines;
-  TCellArrayType& polys = localData->Polys;
-  TCellArrayType& strips = localData->Strips;
-  vtkGenericCell* cell = localData->Cell.Get();
 
-  int faceId, numFaces, numFacePts;
   static constexpr int MAX_FACE_POINTS = 32;
   vtkIdType ptIds[MAX_FACE_POINTS]; // cell face point ids
   const vtkIdType* faceVerts;
@@ -1015,22 +983,22 @@ void ExtractCellGeometry(vtkUnstructuredGridBase* input, vtkIdType cellId, int c
 
     case VTK_VERTEX:
     case VTK_POLY_VERTEX:
-      verts.InsertNextCell(npts, pts, cellId);
+      localData->Verts.InsertNextCell(npts, pts, cellId);
       break;
 
     case VTK_LINE:
     case VTK_POLY_LINE:
-      lines.InsertNextCell(npts, pts, cellId);
+      localData->Lines.InsertNextCell(npts, pts, cellId);
       break;
 
     case VTK_TRIANGLE:
     case VTK_QUAD:
     case VTK_POLYGON:
-      polys.InsertNextCell(npts, pts, cellId);
+      localData->Polys.InsertNextCell(npts, pts, cellId);
       break;
 
     case VTK_TRIANGLE_STRIP:
-      strips.InsertNextCell(npts, pts, cellId);
+      localData->Strips.InsertNextCell(npts, pts, cellId);
       break;
 
     case VTK_PIXEL:
@@ -1041,174 +1009,143 @@ void ExtractCellGeometry(vtkUnstructuredGridBase* input, vtkIdType cellId, int c
       ptIds[1] = pts[pixelConvert[1]];
       ptIds[2] = pts[pixelConvert[2]];
       ptIds[3] = pts[pixelConvert[3]];
-      polys.InsertNextCell(npts, ptIds, cellId);
+      localData->Polys.InsertNextCell(static_cast<vtkIdType>(npts), ptIds, cellId);
       break;
 
     case VTK_TETRA:
-      for (faceId = 0; faceId < 4; faceId++)
-      {
-        faceVerts = vtkTetra::GetFaceArray(faceId);
-        ptIds[0] = pts[faceVerts[0]];
-        ptIds[1] = pts[faceVerts[1]];
-        ptIds[2] = pts[faceVerts[2]];
-        faceMap->Insert(Triangle(cellId, ptIds, isGhost), localData->FacePool);
-      }
+      faceVerts = vtkTetra::GetFaceArray(faceId);
+      ptIds[0] = pts[faceVerts[0]];
+      ptIds[1] = pts[faceVerts[1]];
+      ptIds[2] = pts[faceVerts[2]];
+      localData->FaceList.Insert(Triangle(cellId, ptIds, isGhost));
       break;
 
     case VTK_VOXEL:
-      for (faceId = 0; faceId < 6; faceId++)
-      {
-        faceVerts = vtkVoxel::GetFaceArray(faceId);
-        ptIds[0] = pts[faceVerts[pixelConvert[0]]];
-        ptIds[1] = pts[faceVerts[pixelConvert[1]]];
-        ptIds[2] = pts[faceVerts[pixelConvert[2]]];
-        ptIds[3] = pts[faceVerts[pixelConvert[3]]];
-        faceMap->Insert(Quad(cellId, ptIds, isGhost), localData->FacePool);
-      }
+      faceVerts = vtkVoxel::GetFaceArray(faceId);
+      ptIds[0] = pts[faceVerts[pixelConvert[0]]];
+      ptIds[1] = pts[faceVerts[pixelConvert[1]]];
+      ptIds[2] = pts[faceVerts[pixelConvert[2]]];
+      ptIds[3] = pts[faceVerts[pixelConvert[3]]];
+      localData->FaceList.Insert(Quad(cellId, ptIds, isGhost));
       break;
 
     case VTK_HEXAHEDRON:
-      for (faceId = 0; faceId < 6; faceId++)
-      {
-        faceVerts = vtkHexahedron::GetFaceArray(faceId);
-        ptIds[0] = pts[faceVerts[0]];
-        ptIds[1] = pts[faceVerts[1]];
-        ptIds[2] = pts[faceVerts[2]];
-        ptIds[3] = pts[faceVerts[3]];
-        faceMap->Insert(Quad(cellId, ptIds, isGhost), localData->FacePool);
-      }
+      faceVerts = vtkHexahedron::GetFaceArray(faceId);
+      ptIds[0] = pts[faceVerts[0]];
+      ptIds[1] = pts[faceVerts[1]];
+      ptIds[2] = pts[faceVerts[2]];
+      ptIds[3] = pts[faceVerts[3]];
+      localData->FaceList.Insert(Quad(cellId, ptIds, isGhost));
       break;
 
     case VTK_WEDGE:
-      for (faceId = 0; faceId < 5; faceId++)
+      faceVerts = vtkWedge::GetFaceArray(faceId);
+      ptIds[0] = pts[faceVerts[0]];
+      ptIds[1] = pts[faceVerts[1]];
+      ptIds[2] = pts[faceVerts[2]];
+      if (faceVerts[3] < 0)
       {
-        faceVerts = vtkWedge::GetFaceArray(faceId);
-        ptIds[0] = pts[faceVerts[0]];
-        ptIds[1] = pts[faceVerts[1]];
-        ptIds[2] = pts[faceVerts[2]];
-        if (faceVerts[3] < 0)
-        {
-          faceMap->Insert(Triangle(cellId, ptIds, isGhost), localData->FacePool);
-        }
-        else
-        {
-          ptIds[3] = pts[faceVerts[3]];
-          faceMap->Insert(Quad(cellId, ptIds, isGhost), localData->FacePool);
-        }
+        localData->FaceList.Insert(Triangle(cellId, ptIds, isGhost));
+      }
+      else
+      {
+        ptIds[3] = pts[faceVerts[3]];
+        localData->FaceList.Insert(Quad(cellId, ptIds, isGhost));
       }
       break;
 
     case VTK_PYRAMID:
-      for (faceId = 0; faceId < 5; faceId++)
+      faceVerts = vtkPyramid::GetFaceArray(faceId);
+      ptIds[0] = pts[faceVerts[0]];
+      ptIds[1] = pts[faceVerts[1]];
+      ptIds[2] = pts[faceVerts[2]];
+      if (faceVerts[3] < 0)
       {
-        faceVerts = vtkPyramid::GetFaceArray(faceId);
-        ptIds[0] = pts[faceVerts[0]];
-        ptIds[1] = pts[faceVerts[1]];
-        ptIds[2] = pts[faceVerts[2]];
-        if (faceVerts[3] < 0)
-        {
-          faceMap->Insert(Triangle(cellId, ptIds, isGhost), localData->FacePool);
-        }
-        else
-        {
-          ptIds[3] = pts[faceVerts[3]];
-          faceMap->Insert(Quad(cellId, ptIds, isGhost), localData->FacePool);
-        }
+        localData->FaceList.Insert(Triangle(cellId, ptIds, isGhost));
+      }
+      else
+      {
+        ptIds[3] = pts[faceVerts[3]];
+        localData->FaceList.Insert(Quad(cellId, ptIds, isGhost));
       }
       break;
 
     case VTK_HEXAGONAL_PRISM:
-      for (faceId = 0; faceId < 8; faceId++)
+      faceVerts = vtkHexagonalPrism::GetFaceArray(faceId);
+      ptIds[0] = pts[faceVerts[0]];
+      ptIds[1] = pts[faceVerts[1]];
+      ptIds[2] = pts[faceVerts[2]];
+      ptIds[3] = pts[faceVerts[3]];
+      if (faceVerts[4] < 0)
       {
-        faceVerts = vtkHexagonalPrism::GetFaceArray(faceId);
-        ptIds[0] = pts[faceVerts[0]];
-        ptIds[1] = pts[faceVerts[1]];
-        ptIds[2] = pts[faceVerts[2]];
-        ptIds[3] = pts[faceVerts[3]];
-        if (faceVerts[4] < 0)
-        {
-          faceMap->Insert(Quad(cellId, ptIds, isGhost), localData->FacePool);
-        }
-        else
-        {
-          ptIds[4] = pts[faceVerts[4]];
-          ptIds[5] = pts[faceVerts[5]];
-          faceMap->Insert(Hexagon(cellId, ptIds, isGhost), localData->FacePool);
-        }
+        localData->FaceList.Insert(Quad(cellId, ptIds, isGhost));
+      }
+      else
+      {
+        ptIds[4] = pts[faceVerts[4]];
+        ptIds[5] = pts[faceVerts[5]];
+        localData->FaceList.Insert(Hexagon(cellId, ptIds, isGhost));
       }
       break;
 
     case VTK_PENTAGONAL_PRISM:
-      for (faceId = 0; faceId < 7; faceId++)
+      faceVerts = vtkPentagonalPrism::GetFaceArray(faceId);
+      ptIds[0] = pts[faceVerts[0]];
+      ptIds[1] = pts[faceVerts[1]];
+      ptIds[2] = pts[faceVerts[2]];
+      ptIds[3] = pts[faceVerts[3]];
+      if (faceVerts[4] < 0)
       {
-        faceVerts = vtkPentagonalPrism::GetFaceArray(faceId);
-        ptIds[0] = pts[faceVerts[0]];
-        ptIds[1] = pts[faceVerts[1]];
-        ptIds[2] = pts[faceVerts[2]];
-        ptIds[3] = pts[faceVerts[3]];
-        if (faceVerts[4] < 0)
-        {
-          faceMap->Insert(Quad(cellId, ptIds, isGhost), localData->FacePool);
-        }
-        else
-        {
-          ptIds[4] = pts[faceVerts[4]];
-          faceMap->Insert(Pentagon(cellId, ptIds, isGhost), localData->FacePool);
-        }
+        localData->FaceList.Insert(Quad(cellId, ptIds, isGhost));
+      }
+      else
+      {
+        ptIds[4] = pts[faceVerts[4]];
+        localData->FaceList.Insert(Pentagon(cellId, ptIds, isGhost));
       }
       break;
 
     default:
       // Other types of 3D linear cells handled by vtkGeometryFilter. Exactly what
       // is a linear cell is defined by vtkCellTypes::IsLinear().
+      auto cell = localData->Cell;
       input->GetCell(cellId, cell);
-      if (cell->GetCellDimension() == 3)
+      if (cell->GetCellDimension() == 3 && cell->GetNumberOfFaces() > 0)
       {
-        for (faceId = 0, numFaces = cell->GetNumberOfFaces(); faceId < numFaces; faceId++)
+        vtkCell* face = cell->GetFace(faceId);
+        const int numFacePts = static_cast<int>(face->PointIds->GetNumberOfIds());
+        switch (numFacePts)
         {
-          vtkCell* face = cell->GetFace(faceId);
-          numFacePts = static_cast<int>(face->PointIds->GetNumberOfIds());
-          switch (numFacePts)
-          {
-            case 3:
-              faceMap->Insert(
-                Triangle(cellId, face->PointIds->GetPointer(0), isGhost), localData->FacePool);
-              break;
-            case 4:
-              faceMap->Insert(
-                Quad(cellId, face->PointIds->GetPointer(0), isGhost), localData->FacePool);
-              break;
-            case 5:
-              faceMap->Insert(
-                Pentagon(cellId, face->PointIds->GetPointer(0), isGhost), localData->FacePool);
-              break;
-            case 6:
-              faceMap->Insert(
-                Hexagon(cellId, face->PointIds->GetPointer(0), isGhost), localData->FacePool);
-              break;
-            case 7:
-              faceMap->Insert(
-                Heptagon(cellId, face->PointIds->GetPointer(0), isGhost), localData->FacePool);
-              break;
-            case 8:
-              faceMap->Insert(
-                Octagon(cellId, face->PointIds->GetPointer(0), isGhost), localData->FacePool);
-              break;
-            case 9:
-              faceMap->Insert(
-                Nonagon(cellId, face->PointIds->GetPointer(0), isGhost), localData->FacePool);
-              break;
-            case 10:
-              faceMap->Insert(
-                Decagon(cellId, face->PointIds->GetPointer(0), isGhost), localData->FacePool);
-              break;
-            default:
-              faceMap->Insert(Polygon(cellId, numFacePts, face->PointIds->GetPointer(0), isGhost),
-                localData->FacePool);
-              break;
-          }
-        } // for all cell faces
-      }   // if 3D
+          case 3:
+            localData->FaceList.Insert(Triangle(cellId, face->PointIds->GetPointer(0), isGhost));
+            break;
+          case 4:
+            localData->FaceList.Insert(Quad(cellId, face->PointIds->GetPointer(0), isGhost));
+            break;
+          case 5:
+            localData->FaceList.Insert(Pentagon(cellId, face->PointIds->GetPointer(0), isGhost));
+            break;
+          case 6:
+            localData->FaceList.Insert(Hexagon(cellId, face->PointIds->GetPointer(0), isGhost));
+            break;
+          case 7:
+            localData->FaceList.Insert(Heptagon(cellId, face->PointIds->GetPointer(0), isGhost));
+            break;
+          case 8:
+            localData->FaceList.Insert(Octagon(cellId, face->PointIds->GetPointer(0), isGhost));
+            break;
+          case 9:
+            localData->FaceList.Insert(Nonagon(cellId, face->PointIds->GetPointer(0), isGhost));
+            break;
+          case 10:
+            localData->FaceList.Insert(Decagon(cellId, face->PointIds->GetPointer(0), isGhost));
+            break;
+          default:
+            localData->FaceList.Insert(
+              Polygon(cellId, numFacePts, face->PointIds->GetPointer(0), isGhost));
+            break;
+        }
+      } // if 3D
       else
       {
         vtkLog(ERROR, "Unknown cell type.");
@@ -1346,23 +1283,24 @@ struct ExtractCellBoundaries
 
 // Extract unstructured grid boundary by visiting each cell and examining
 // cell features.
-template <typename TInputIdType>
+template <typename TInputIdType, typename TFaceIdType>
 struct ExtractUG : public ExtractCellBoundaries<TInputIdType>
 {
   // The unstructured grid to process
-  vtkUnstructuredGridBase* Grid;
-  using TFaceHashMap = FaceHashMap<TInputIdType>;
-  std::shared_ptr<TFaceHashMap> FaceMap;
+  vtkUnstructuredGrid* Grid;
+  using TFaceHashMap = vtkStaticFaceHashMapTemplate<TInputIdType, TFaceIdType>;
+  const TFaceHashMap& FaceHashMap;
   bool RemoveGhostInterfaces;
 
   vtkIdType NumberOfCells;
   const unsigned char MASKED_CELL;
 
-  ExtractUG(vtkGeometryFilter* self, vtkUnstructuredGridBase* grid, const char* cellVis,
-    const unsigned char* cellGhost, const unsigned char* pointGhost,
+  ExtractUG(vtkGeometryFilter* self, vtkUnstructuredGrid* grid, TFaceHashMap& faceHashMap,
+    const char* cellVis, const unsigned char* cellGhost, const unsigned char* pointGhost,
     vtkExcludedFaces<TInputIdType>* exc, ThreadOutputType<TInputIdType>* t)
     : ExtractCellBoundaries<TInputIdType>(self, cellVis, cellGhost, pointGhost, exc, t)
     , Grid(grid)
+    , FaceHashMap(faceHashMap)
     , RemoveGhostInterfaces(self->GetRemoveGhostInterfaces())
     , NumberOfCells(grid->GetNumberOfCells())
     , MASKED_CELL(
@@ -1372,86 +1310,111 @@ struct ExtractUG : public ExtractCellBoundaries<TInputIdType>
     {
       this->CreatePointMap(grid->GetNumberOfPoints());
     }
-    this->FaceMap = std::make_shared<TFaceHashMap>(static_cast<size_t>(grid->GetNumberOfPoints()));
   }
 
   // Initialize thread data
   void Initialize() override
   {
     this->ExtractCellBoundaries<TInputIdType>::Initialize();
-    this->LocalData.Local().InitializeFacePool(this->Grid->GetNumberOfPoints());
+    this->LocalData.Local().FaceList.Initialize();
   }
 
-  void operator()(vtkIdType beginCellId, vtkIdType endCellId)
+  struct FaceOperator
   {
-    auto faceMap = this->FaceMap.get();
-    auto& localData = this->LocalData.Local();
-    auto& cellPointIds = localData.CellPointIds;
-
-    vtkIdType npts;
-    const vtkIdType* pts;
-    unsigned char type;
-    bool isGhost;
-    bool isFirst = vtkSMPTools::GetSingleThread();
-    for (vtkIdType cellId = beginCellId; cellId < endCellId; ++cellId)
+    template <typename CellStateT>
+    void operator()(CellStateT& state, ExtractUG* This, vtkIdType beginHash, vtkIdType endHash)
     {
-      // -------------------------------------Ghost explanation-------------------------------------
-      // Note for both cell dimension cases: MASKED_CELL is computed based on RemoveGhostInterfaces.
-      //
-      // For 0d-1d-2d cells, we have 2 cases:
-      // 1) When RemoveGhostInterfaces is on, we want to remove all types of ghosts.
-      // Since isGhost is always true for every type of ghost, and dim < 3, they will be skipped.
-      // 2) When RemoveGhostInterfaces is off, we want to keep only the duplicate ghosts.
-      // Since isGhost will be false for duplicates, the duplicates cells will be kept
-      // the rest will be skipped.
-      //
-      // For 3d cells, we have 2 cases:
-      // 1) When RemoveGhostInterfaces is on, we want to remove all types of ghosts.
-      // Since isGhost is always true for every type of ghost, these cells will be processed
-      // and their faces will be removed in the PopulateCellArrays step of the FaceHashMap.
-      // 2) When RemoveGhostInterfaces is off, we want to keep only the duplicate ghosts.
-      // Since isGhost is always false for duplicates, the duplicate cells will be kept and the
-      // the rest will be skipped.
+      auto& localData = This->LocalData.Local();
+      auto& faceHashMap = This->FaceHashMap;
+      auto& faceList = localData.FaceList;
+      auto& polys = localData.Polys;
+
+      using ValueType = typename CellStateT::ValueType;
+      const ValueType* connectivityPtr = state.GetConnectivity()->GetPointer(0);
+      const ValueType* offsetsPtr = state.GetOffsets()->GetPointer(0);
+      const unsigned char* cellTypes = This->Grid->GetCellTypesArray()->GetPointer(0);
+
+      vtkIdType localFaceId;
+      bool isGhost;
+      const bool isFirst = vtkSMPTools::GetSingleThread();
+      for (vtkIdType hash = beginHash; hash < endHash; ++hash)
+      {
+        if (isFirst)
+        {
+          This->Self->CheckAbort();
+        }
+        if (This->Self->GetAbortOutput())
+        {
+          break;
+        }
+        const auto numberOfFaces = faceHashMap.GetNumberOfFacesInHash(hash);
+        if (numberOfFaces == 0)
+        {
+          continue;
+        }
+        const auto cellsOfFacesInHash = faceHashMap.GetCellIdOfFacesInHash(hash);
+        const auto facesOfFacesInHash = faceHashMap.GetFaceIdOfFacesInHash(hash);
+        for (localFaceId = 0; localFaceId < numberOfFaces; ++localFaceId)
+        {
+          auto& cellId = cellsOfFacesInHash[localFaceId];
+          auto& faceId = facesOfFacesInHash[localFaceId];
+          // ----------------------------------Ghost explanation------------------------------------
+          // Note: Both cell dimension compute MASKED_CELL based on RemoveGhostInterfaces.
+          //
+          // For 0d-1d-2d cells, we have 2 cases:
+          // 1) When RemoveGhostInterfaces is on, we want to remove all types of ghosts.
+          // Since isGhost is always true for every type of ghost, and dim < 3, they will be
+          // skipped. 2) When RemoveGhostInterfaces is off, we want to keep only the duplicate
+          // ghosts. Since isGhost will be false for duplicates, the duplicates cells will be kept
+          // the rest will be skipped.
+          //
+          // For 3d cells, we have 2 cases:
+          // 1) When RemoveGhostInterfaces is on, we want to remove all types of ghosts.
+          // Since isGhost is always true for every type of ghost, these cells will be processed
+          // and their faces will be removed in the PopulateCellArray step of the FaceHashMap.
+          // 2) When RemoveGhostInterfaces is off, we want to keep only the duplicate ghosts.
+          // Since isGhost is always false for duplicates, the duplicate cells will be kept and the
+          // the rest will be skipped.
+          const unsigned char& type = cellTypes[cellId];
+          isGhost = This->CellGhosts && This->CellGhosts[cellId] & This->MASKED_CELL;
+          if (isGhost && (vtkCellTypes::GetDimension(type) < 3 || !This->RemoveGhostInterfaces))
+          {
+            continue;
+          }
+          // If the cell is visible process it
+          if (!This->CellVis || This->CellVis[cellId])
+          {
+            // get cell points by just accessing the connectivity/offsets array
+            const ValueType npts = offsetsPtr[cellId + 1] - offsetsPtr[cellId];
+            const ValueType* pts = connectivityPtr + offsetsPtr[cellId];
+            ExtractCellGeometry(This->Grid, cellId, type, npts, pts, faceId, &localData, isGhost);
+          } // if cell visible
+        }   // for all cells in this hash
+        // add external faces from the face list to polys (if any)
+        faceList.PopulateCellArray(&polys);
+        // and reset the list.
+        faceList.Reset();
+      } // for all populated hashes
       if (isFirst)
       {
-        this->Self->CheckAbort();
+        This->Self->UpdateProgress(
+          static_cast<double>(0.4 * endHash / faceHashMap.GetNumberOfHashes() + 0.4));
       }
-      if (this->Self->GetAbortOutput())
-      {
-        break;
-      }
-      type = static_cast<unsigned char>(this->Grid->GetCellType(cellId));
-      isGhost = this->CellGhosts && this->CellGhosts[cellId] & this->MASKED_CELL;
-      if (isGhost && (vtkCellTypes::GetDimension(type) < 3 || !this->RemoveGhostInterfaces))
-      {
-        continue;
-      }
-      // If the cell is visible process it
-      if (!this->CellVis || this->CellVis[cellId])
-      {
-        this->Grid->GetCellPoints(cellId, npts, pts, cellPointIds);
-        ExtractCellGeometry(this->Grid, cellId, type, npts, pts, &localData, faceMap, isGhost);
-      } // if cell visible
-    }   // for all cells in this batch
-    if (isFirst)
-    {
-      this->Self->UpdateProgress(static_cast<double>(0.8 * endCellId / this->NumberOfCells));
     }
-  } // operator()
+  };
+
+  void operator()(vtkIdType beginHash, vtkIdType endHash)
+  {
+    this->Grid->GetCells()->Visit(FaceOperator{}, this, beginHash, endHash);
+  }
 
   // Composite local thread data
   void Reduce() override
   {
-    std::vector<CellArrayType<TInputIdType>*> threadedPolys;
+    // free up memory from the face list
     for (auto& localData : this->LocalData)
     {
-      threadedPolys.push_back(&localData.Polys);
-    }
-    this->FaceMap->PopulateCellArrays(threadedPolys);
-    // Deallocate threaded face memory pools since CellArrays are now populated
-    for (auto& localData : this->LocalData)
-    {
-      localData.FacePool.Destroy();
+      localData.FaceList.Initialize();
     }
     this->ExtractCellBoundaries<TInputIdType>::Reduce();
   }
@@ -2552,6 +2515,7 @@ int vtkGeometryFilter::PolyDataExecute(
     vtkExcludedFaces<TInputIdType> exc;
     if (excludedFaces)
     {
+      exc.ExcludedFaces = excludedFaces;
       vtkCellArray* excPolys = excludedFaces->GetPolys();
       if (excPolys->GetNumberOfCells() > 0)
       {
@@ -2569,6 +2533,7 @@ int vtkGeometryFilter::PolyDataExecute(
     vtkExcludedFaces<TInputIdType> exc;
     if (excludedFaces)
     {
+      exc.ExcludedFaces = excludedFaces;
       vtkCellArray* excPolys = excludedFaces->GetPolys();
       if (excPolys->GetNumberOfCells() > 0)
       {
@@ -2792,7 +2757,7 @@ void vtkGeometryFilterHelper::CopyFilterParams(vtkDataSetSurfaceFilter* dssf, vt
 namespace
 {
 //----------------------------------------------------------------------------
-template <typename TInputIdType>
+template <typename TInputIdType, typename TFaceIdType>
 int ExecuteUnstructuredGrid(vtkGeometryFilter* self, vtkDataSet* dataSetInput, vtkPolyData* output,
   vtkGeometryFilterHelper* info, vtkExcludedFaces<TInputIdType>* exc)
 {
@@ -2824,6 +2789,15 @@ int ExecuteUnstructuredGrid(vtkGeometryFilter* self, vtkDataSet* dataSetInput, v
     dssf->UnstructuredGridExecute(dataSetInput, output, info);
     delete info;
     return 1;
+  }
+  // if it's an unstructured grid base and not an unstructured grid
+  if (!uGrid && uGridBase)
+  {
+    if (info_owned)
+    {
+      delete info;
+    }
+    return self->DataSetExecute(uGridBase, output, exc->ExcludedFaces);
   }
   // fast conversion when input is actually polydata with one cell array
   if (uGrid &&
@@ -2874,11 +2848,11 @@ int ExecuteUnstructuredGrid(vtkGeometryFilter* self, vtkDataSet* dataSetInput, v
   vtkIdType npts = 0;
   vtkNew<vtkIdList> pointIdList;
   const vtkIdType* pts = nullptr;
-  vtkPoints* inPts = uGridBase->GetPoints();
-  vtkIdType numInputPts = uGridBase->GetNumberOfPoints(), numOutputPts;
-  vtkIdType numCells = uGridBase->GetNumberOfCells();
-  vtkPointData* inPD = uGridBase->GetPointData();
-  vtkCellData* inCD = uGridBase->GetCellData();
+  vtkPoints* inPts = uGrid->GetPoints();
+  vtkIdType numInputPts = uGrid->GetNumberOfPoints(), numOutputPts;
+  vtkIdType numCells = uGrid->GetNumberOfCells();
+  vtkPointData* inPD = uGrid->GetPointData();
+  vtkCellData* inCD = uGrid->GetCellData();
   vtkPointData* outPD = output->GetPointData();
   vtkCellData* outCD = output->GetCellData();
   vtkNew<vtkAOSDataArrayTemplate<char>> cellVisArray;
@@ -2932,7 +2906,7 @@ int ExecuteUnstructuredGrid(vtkGeometryFilter* self, vtkDataSet* dataSetInput, v
     double x[3];
     for (cellId = 0; cellId < numCells; ++cellId)
     {
-      uGridBase->GetCellPoints(cellId, npts, pts, pointIdList);
+      uGrid->GetCellPoints(cellId, npts, pts, pointIdList);
       cellVis[cellId] = 1;
       if (cellClipping && (cellId < cellMinimum || cellId > cellMaximum))
       {
@@ -2992,6 +2966,11 @@ int ExecuteUnstructuredGrid(vtkGeometryFilter* self, vtkDataSet* dataSetInput, v
   output->SetPolys(polys);
   output->SetStrips(strips);
 
+  // Build a face hash table to quickly determine the faces that have the same hash.
+  vtkStaticFaceHashMapTemplate<TInputIdType, TFaceIdType> faceHashMap;
+  faceHashMap.BuildHashMap(uGrid);
+  self->UpdateProgress(0.4);
+
   // Threaded visit of each cell to extract boundary features. Each thread gathers
   // output which is then composited into the final vtkPolyData.
   // Keep track of each thread's output, we'll need this later for compositing.
@@ -3000,11 +2979,13 @@ int ExecuteUnstructuredGrid(vtkGeometryFilter* self, vtkDataSet* dataSetInput, v
   // Perform the threaded boundary cell extraction. This performs some
   // initial reduction and allocation of the output. It also computes offsets
   // and sizes for allocation and writing of data.
-  auto* extract =
-    new ExtractUG<TInputIdType>(self, uGridBase, cellVis, cellGhosts, pointGhosts, exc, &threads);
-  vtkSMPTools::For(0, numCells, *extract);
+  auto* extract = new ExtractUG<TInputIdType, TFaceIdType>(
+    self, uGrid, faceHashMap, cellVis, cellGhosts, pointGhosts, exc, &threads);
+  vtkSMPTools::For(0, faceHashMap.GetNumberOfHashes(), *extract);
   numCells = extract->NumCells;
   self->UpdateProgress(0.8);
+  // free up the hash map
+  faceHashMap.Reset();
 
   // If merging points, then it's necessary to allocate the points array,
   // configure the point map, and generate the new points. Here we are using
@@ -3087,6 +3068,7 @@ int ExecuteUnstructuredGrid(vtkGeometryFilter* self, vtkDataSet* dataSetInput, v
 int vtkGeometryFilter::UnstructuredGridExecute(vtkDataSet* dataSetInput, vtkPolyData* output,
   vtkGeometryFilterHelper* info, vtkPolyData* excludedFaces)
 {
+  const auto uGrid = vtkUnstructuredGrid::SafeDownCast(dataSetInput);
 #ifdef VTK_USE_64BIT_IDS
   bool use64BitsIds = (dataSetInput->GetNumberOfPoints() > VTK_TYPE_INT32_MAX ||
     dataSetInput->GetNumberOfCells() > VTK_TYPE_INT32_MAX);
@@ -3096,6 +3078,7 @@ int vtkGeometryFilter::UnstructuredGridExecute(vtkDataSet* dataSetInput, vtkPoly
     vtkExcludedFaces<TInputIdType> exc;
     if (excludedFaces)
     {
+      exc.ExcludedFaces = excludedFaces;
       vtkCellArray* excPolys = excludedFaces->GetPolys();
       if (excPolys->GetNumberOfCells() > 0)
       {
@@ -3104,7 +3087,18 @@ int vtkGeometryFilter::UnstructuredGridExecute(vtkDataSet* dataSetInput, vtkPoly
           dataSetInput->GetNumberOfPoints(), excPolys->GetNumberOfCells(), excPolys);
       }
     }
-    return ExecuteUnstructuredGrid<TInputIdType>(this, dataSetInput, output, info, &exc);
+    if (uGrid && !uGrid->GetFaces())
+    {
+      using TFaceIdType = vtkTypeInt8;
+      return ExecuteUnstructuredGrid<TInputIdType, TFaceIdType>(
+        this, dataSetInput, output, info, &exc);
+    }
+    else
+    {
+      using TFaceIdType = vtkTypeInt32;
+      return ExecuteUnstructuredGrid<TInputIdType, TFaceIdType>(
+        this, dataSetInput, output, info, &exc);
+    }
   }
   else
 #endif
@@ -3113,6 +3107,7 @@ int vtkGeometryFilter::UnstructuredGridExecute(vtkDataSet* dataSetInput, vtkPoly
     vtkExcludedFaces<TInputIdType> exc;
     if (excludedFaces)
     {
+      exc.ExcludedFaces = excludedFaces;
       vtkCellArray* excPolys = excludedFaces->GetPolys();
       if (excPolys->GetNumberOfCells() > 0)
       {
@@ -3121,7 +3116,18 @@ int vtkGeometryFilter::UnstructuredGridExecute(vtkDataSet* dataSetInput, vtkPoly
           dataSetInput->GetNumberOfPoints(), excPolys->GetNumberOfCells(), excPolys);
       }
     }
-    return ExecuteUnstructuredGrid<TInputIdType>(this, dataSetInput, output, info, &exc);
+    if (uGrid && !uGrid->GetFaces())
+    {
+      using TFaceIdType = vtkTypeInt8;
+      return ExecuteUnstructuredGrid<TInputIdType, TFaceIdType>(
+        this, dataSetInput, output, info, &exc);
+    }
+    else
+    {
+      using TFaceIdType = vtkTypeInt32;
+      return ExecuteUnstructuredGrid<TInputIdType, TFaceIdType>(
+        this, dataSetInput, output, info, &exc);
+    }
   }
 }
 
@@ -3370,6 +3376,7 @@ int vtkGeometryFilter::StructuredExecute(vtkDataSet* input, vtkPolyData* output,
     vtkExcludedFaces<TInputIdType> exc;
     if (excludedFaces)
     {
+      exc.ExcludedFaces = excludedFaces;
       vtkCellArray* excPolys = excludedFaces->GetPolys();
       if (excPolys->GetNumberOfCells() > 0)
       {
@@ -3387,6 +3394,7 @@ int vtkGeometryFilter::StructuredExecute(vtkDataSet* input, vtkPolyData* output,
     vtkExcludedFaces<TInputIdType> exc;
     if (excludedFaces)
     {
+      exc.ExcludedFaces = excludedFaces;
       vtkCellArray* excPolys = excludedFaces->GetPolys();
       if (excPolys->GetNumberOfCells() > 0)
       {
@@ -3623,6 +3631,7 @@ int vtkGeometryFilter::DataSetExecute(
     vtkExcludedFaces<TInputIdType> exc;
     if (excludedFaces)
     {
+      exc.ExcludedFaces = excludedFaces;
       vtkCellArray* excPolys = excludedFaces->GetPolys();
       if (excPolys->GetNumberOfCells() > 0)
       {
@@ -3639,6 +3648,7 @@ int vtkGeometryFilter::DataSetExecute(
     vtkExcludedFaces<TInputIdType> exc;
     if (excludedFaces)
     {
+      exc.ExcludedFaces = excludedFaces;
       vtkCellArray* excPolys = excludedFaces->GetPolys();
       if (excPolys->GetNumberOfCells() > 0)
       {
