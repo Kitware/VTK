@@ -412,19 +412,79 @@ template <int TSize, typename TInputIdType>
 class StaticFace : public Face<TInputIdType>
 {
 private:
-  std::array<TInputIdType, TSize> PointIdsContainer{};
+  TInputIdType PointIdsContainer[TSize];
 
 public:
   StaticFace(const vtkIdType& originalCellId, const vtkIdType* pointIds, const bool& isGhost)
     : Face<TInputIdType>(originalCellId, TSize, isGhost)
   {
-    this->PointIds = this->PointIdsContainer.data();
+    this->PointIds = this->PointIdsContainer;
     this->Initialize(pointIds);
   }
 
   inline static constexpr int GetSize() { return TSize; }
 
-  void Initialize(const vtkIdType* pointIds)
+  template <int Size = TSize>
+  typename std::enable_if<(Size == 3), void>::type Initialize(const vtkIdType* pointIds)
+  {
+    // Reorder to get smallest id in first.
+    if (pointIds[1] < pointIds[0] && pointIds[1] < pointIds[2])
+    {
+      this->PointIds[0] = static_cast<TInputIdType>(pointIds[1]);
+      this->PointIds[1] = static_cast<TInputIdType>(pointIds[2]);
+      this->PointIds[2] = static_cast<TInputIdType>(pointIds[0]);
+    }
+    else if (pointIds[2] < pointIds[0] && pointIds[2] < pointIds[1])
+    {
+      this->PointIds[0] = static_cast<TInputIdType>(pointIds[2]);
+      this->PointIds[1] = static_cast<TInputIdType>(pointIds[0]);
+      this->PointIds[2] = static_cast<TInputIdType>(pointIds[1]);
+    }
+    else
+    {
+      this->PointIds[0] = static_cast<TInputIdType>(pointIds[0]);
+      this->PointIds[1] = static_cast<TInputIdType>(pointIds[1]);
+      this->PointIds[2] = static_cast<TInputIdType>(pointIds[2]);
+    }
+  }
+
+  template <int Size = TSize>
+  typename std::enable_if<(Size == 4), void>::type Initialize(const vtkIdType* pointIds)
+  {
+    // Reorder to get smallest id in first.
+    if (pointIds[1] < pointIds[0] && pointIds[1] < pointIds[2] && pointIds[1] < pointIds[3])
+    {
+      this->PointIds[0] = static_cast<TInputIdType>(pointIds[1]);
+      this->PointIds[1] = static_cast<TInputIdType>(pointIds[2]);
+      this->PointIds[2] = static_cast<TInputIdType>(pointIds[3]);
+      this->PointIds[3] = static_cast<TInputIdType>(pointIds[0]);
+    }
+    else if (pointIds[2] < pointIds[0] && pointIds[2] < pointIds[1] && pointIds[2] < pointIds[3])
+    {
+      this->PointIds[0] = static_cast<TInputIdType>(pointIds[2]);
+      this->PointIds[1] = static_cast<TInputIdType>(pointIds[3]);
+      this->PointIds[2] = static_cast<TInputIdType>(pointIds[0]);
+      this->PointIds[3] = static_cast<TInputIdType>(pointIds[1]);
+    }
+    else if (pointIds[3] < pointIds[0] && pointIds[3] < pointIds[1] && pointIds[3] < pointIds[2])
+    {
+      this->PointIds[0] = static_cast<TInputIdType>(pointIds[3]);
+      this->PointIds[1] = static_cast<TInputIdType>(pointIds[0]);
+      this->PointIds[2] = static_cast<TInputIdType>(pointIds[1]);
+      this->PointIds[3] = static_cast<TInputIdType>(pointIds[2]);
+    }
+    else
+    {
+      this->PointIds[0] = static_cast<TInputIdType>(pointIds[0]);
+      this->PointIds[1] = static_cast<TInputIdType>(pointIds[1]);
+      this->PointIds[2] = static_cast<TInputIdType>(pointIds[2]);
+      this->PointIds[3] = static_cast<TInputIdType>(pointIds[3]);
+    }
+  }
+
+  template <int Size = TSize>
+  typename std::enable_if<(Size != 3 && Size != 4), void>::type Initialize(
+    const vtkIdType* pointIds)
   {
     // find the index to the smallest id
     int offset = 0;
