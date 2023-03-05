@@ -32,6 +32,7 @@
 
 #include "vtkAbstractArray.h"
 #include "vtkCommonMathModule.h"
+#include "vtkTypeTraits.h"
 
 #include <algorithm>
 #include <cmath>
@@ -116,21 +117,22 @@ protected:
 
     while (true)
     {
-      Integer delta = static_cast<Integer>(floor(log(unitUniform(generator)) / log(1.0 - w)) + 1);
-      if (delta < 0)
+      double delta = floor(log(unitUniform(generator)) / log(1.0 - w)) + 1.0;
+      if (delta < 0.0 || delta > static_cast<double>(vtkTypeTraits<Integer>::Max()))
       {
         // If delta overflows the size of the integer, we are done.
         break;
       }
+      Integer intDelta = static_cast<Integer>(delta);
       // Be careful here since delta may be large and nn may be
       // at or near numeric_limits<Integer>::max().
-      if (nn - ii > delta)
+      if (nn - ii > intDelta)
       {
         Integer jj = randomIndex(generator);
 #if 0
-        std::cout << "      i " << ii << " δ " << delta << " w " << w << " → j " << jj << "\n";
+        std::cout << "      i " << ii << " δ " << intDelta << " w " << w << " → j " << jj << "\n";
 #endif
-        ii += delta;
+        ii += intDelta;
         data[jj] = ii;
         w *= exp(log(unitUniform(generator)) / kk);
       }

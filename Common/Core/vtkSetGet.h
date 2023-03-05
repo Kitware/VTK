@@ -1251,6 +1251,22 @@ public:
 #define VTK_FALLTHROUGH ((void)0)
 #endif
 
+//----------------------------------------------------------------------------
+// To suppress code with undefined behaviour. Ideally, such code should be fixed
+// but sometimes suppression can be useful.
+
+#if defined(__has_attribute)
+#if __has_attribute(no_sanitize)
+#define VTK_NO_UBSAN __attribute__((no_sanitize("undefined")))
+#else
+#define VTK_NO_UBSAN
+#endif
+#else
+#define VTK_NO_UBSAN
+#endif
+
+//----------------------------------------------------------------------------
+
 // XXX(xcode-8)
 // AppleClang first supported thread_local only by Xcode 8, for older Xcodes
 // fall back to the non-standard __thread which is equivalent for many, but

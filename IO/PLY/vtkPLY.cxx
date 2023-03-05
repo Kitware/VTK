@@ -2181,6 +2181,7 @@ Exit:
   double_val - double-precision floating point value
 ******************************************************************************/
 
+VTK_NO_UBSAN
 void vtkPLY::get_stored_item(
   const void* ptr, int type, int* int_val, unsigned int* uint_val, double* double_val)
 {
@@ -2474,6 +2475,7 @@ Exit:
   double_val - double-precision floating point value
 ******************************************************************************/
 
+VTK_NO_UBSAN
 void vtkPLY::get_ascii_item(
   const char* word, int type, int* int_val, unsigned int* uint_val, double* double_val)
 {

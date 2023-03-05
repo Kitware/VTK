@@ -567,9 +567,18 @@ void vtkImageResizeFilter3D(const T* inPtr, T* outPtr, const vtkIdType outInc[3]
   aY += extent[2] * kernelSizeY;
   aZ += extent[4] * kernelSizeZ;
 
-  fX += extent[0] * kernelSizeX;
-  fY += extent[2] * kernelSizeY;
-  fZ += extent[4] * kernelSizeZ;
+  if (fX)
+  {
+    fX += extent[0] * kernelSizeX;
+  }
+  if (fY)
+  {
+    fY += extent[2] * kernelSizeY;
+  }
+  if (fZ)
+  {
+    fZ += extent[4] * kernelSizeZ;
+  }
 
   if (kernelSizeX == 1 && kernelSizeY == 1 && kernelSizeZ == 1)
   {

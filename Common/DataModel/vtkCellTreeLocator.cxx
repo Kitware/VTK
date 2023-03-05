@@ -471,25 +471,14 @@ private:
 
     buckets.Reset();
 
-    double cen;
-    int ind;
-
     for (const CellInfo* pc = begin; pc != end; ++pc)
     {
       for (uint8_t d = 0; d < 3; ++d)
       {
-        cen = (pc->Min[d] + pc->Max[d]) / 2.0;
-        ind = (int)((cen - min[d]) * iext[d]);
-
-        if (ind < 0)
-        {
-          ind = 0;
-        }
-
-        if (ind >= this->NumberOfBuckets)
-        {
-          ind = this->NumberOfBuckets - 1;
-        }
+        double cen = (pc->Min[d] + pc->Max[d]) / 2.0;
+        double dblIdx = (cen - min[d]) * iext[d];
+        dblIdx = vtkMath::ClampValue(dblIdx, 0.0, static_cast<double>(this->NumberOfBuckets - 1));
+        size_t ind = static_cast<size_t>(dblIdx);
 
         buckets[d][ind].Add(pc->Min[d], pc->Max[d]);
       }
