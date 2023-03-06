@@ -51,8 +51,14 @@ namespace detail
 
 VTK_ABI_NAMESPACE_BEGIN
 
-template <typename... T>
-using void_t = void;
+template <typename... Ts>
+struct make_void
+{
+  using type = void;
+};
+
+template <typename... Ts>
+using void_t = typename make_void<Ts...>::type;
 
 ///@{
 /**
