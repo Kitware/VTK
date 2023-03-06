@@ -693,6 +693,8 @@ struct EvaluateCellsUnstructured
         numberOfOutputs = 0;
         switch (cellType)
         {
+          case VTK_EMPTY_CELL:
+            break;
           case VTK_VOXEL:
             startIndex = vtkTableBasedClipperClipTables::StartClipShapesVox[caseIndex];
             thisCase = &vtkTableBasedClipperClipTables::ClipShapesVox[startIndex];
@@ -1550,6 +1552,8 @@ struct ExtractCellsUnstructured
           numberOfOutputs = 0;
           switch (cellType)
           {
+            case VTK_EMPTY_CELL:
+              break;
             case VTK_VOXEL:
               startIndex = vtkTableBasedClipperClipTables::StartClipShapesVox[caseIndex];
               thisCase = &vtkTableBasedClipperClipTables::ClipShapesVox[startIndex];
@@ -2687,6 +2691,7 @@ struct FullyProcessUnstructuredDataFunctor
     {
       switch (this->Input->GetCellType(cellId))
       {
+        case VTK_EMPTY_CELL:
         case VTK_VOXEL:
         case VTK_HEXAHEDRON:
         case VTK_WEDGE:
