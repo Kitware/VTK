@@ -41,6 +41,7 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtkValueSelector.h"
 
+#include <array>
 #include <cassert>
 #include <map>
 #include <vector>
@@ -551,6 +552,45 @@ vtkSmartPointer<vtkUnsignedCharArray> vtkExtractSelection::EvaluateColorArrayInS
     return nullptr;
   }
 
+  // Map for each selectionNode the corresponding insidednessArray which take in account if the
+  // selection is inverted
+  std::string expression = selection->GetExpression();
+  std::map<std::string, vtkSignedCharArray*> arrayMap;
+  for (unsigned int i = 0; i < selection->GetNumberOfNodes(); i++)
+  {
+    std::string name = selection->GetNodeNameAtIndex(i);
+    if (name.empty())
+    {
+      continue;
+    }
+
+    auto* insidednessArray = vtkSignedCharArray::SafeDownCast(fieldData->GetArray(name.c_str()));
+    if (!insidednessArray)
+    {
+      continue;
+    }
+
+    std::size_t pos = expression.find(name);
+    if (pos == std::string::npos)
+    {
+      continue;
+    }
+    // Corner case for the first selectionNode in the expression, in this case the selection cannot
+    // be inverted
+    else if (pos <= 1)
+    {
+      arrayMap[name] = insidednessArray;
+      continue;
+    }
+
+    std::string operand = expression.substr(pos - 2, 1);
+    if (operand == "!")
+    {
+      ::InvertSelection(insidednessArray);
+    }
+    arrayMap[name] = insidednessArray;
+  }
+
   vtkSignedCharArray* insidednessArray = nullptr;
 
   std::vector<vtkSignedCharArray*> selArrays;
@@ -576,15 +616,33 @@ vtkSmartPointer<vtkUnsignedCharArray> vtkExtractSelection::EvaluateColorArrayInS
 
   const char* colorArrayName = vtkAppendSelection::GetColorArrayName();
 
-  std::vector<vtkUnsignedCharArray*> colorArrays;
-  for (unsigned int i = 0; i < selection->GetNumberOfNodes(); i++)
+  // Find the associated color for each selection
+  std::vector<std::array<double, 3>> colorArrays;
+  for (unsigned int selIdx = 0; selIdx < selection->GetNumberOfNodes(); selIdx++)
   {
-    auto* selectionNode = selection->GetNode(i);
+    auto* selectionNode = selection->GetNode(selIdx);
     auto* colorArray = vtkUnsignedCharArray::SafeDownCast(
       selectionNode->GetSelectionData()->GetArray(colorArrayName));
-    if (colorArray)
+    if (!colorArray)
     {
-      colorArrays.push_back(colorArray);
+      continue;
+    }
+
+    bool findColor = false;
+    for (int i = 0; i < colorArray->GetNumberOfTuples(); i++)
+    {
+      double* currColor = colorArray->GetTuple3(i);
+      if (currColor[0] != 0 || currColor[1] != 0 || currColor[2] != 0)
+      {
+        colorArrays.emplace_back(std::array<double, 3>{ currColor[0], currColor[1], currColor[2] });
+        findColor = true;
+        break;
+      }
+    }
+
+    if (!findColor)
+    {
+      colorArrays.emplace_back(std::array<double, 3>{ 0, 0, 0 });
     }
   }
 
@@ -611,15 +669,15 @@ vtkSmartPointer<vtkUnsignedCharArray> vtkExtractSelection::EvaluateColorArrayInS
       continue;
     }
 
-    for (std::size_t selIdx = selArrays.size(); selIdx-- != 0;)
+    std::size_t selIdx = selArrays.size();
+    for (auto it = arrayMap.rbegin(); it != arrayMap.rend() && selIdx-- != 0; ++it)
     {
-      if (selArrays[selIdx]->GetValue(i) == 0)
+      if (it->second->GetValue(i) == 0)
       {
         continue;
       }
 
-      double* color = colorArrays[selIdx]->GetTuple3(indexOffsetPerColorArray[selIdx]);
-      colors.push_back(color);
+      colors.emplace_back(colorArrays[selIdx].data());
       indexOffsetPerColorArray[selIdx]++;
       break;
     }
