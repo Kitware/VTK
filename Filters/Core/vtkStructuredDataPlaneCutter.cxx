@@ -1312,6 +1312,9 @@ int vtkStructuredDataPlaneCutter::RequestData(vtkInformation* vtkNotUsed(request
     output->GetPointData()->AddArray(newNormals);
   }
 
+  // Shallow copy field data
+  output->GetFieldData()->PassData(input->GetFieldData());
+
   return 1;
 }
 VTK_ABI_NAMESPACE_END
