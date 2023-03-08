@@ -258,7 +258,7 @@ PyObject* PyVTKObject_New(PyTypeObject* tp, PyObject* args, PyObject* kwds)
   // XXX(python3-abi3): all types will be heap types in abi3
   // If type was subclassed within python, then skip arg checks and
   // simply create a new object.
-  if ((tp->tp_flags & Py_TPFLAGS_HEAPTYPE) == 0)
+  if ((PyType_GetFlags(tp) & Py_TPFLAGS_HEAPTYPE) == 0)
   {
     if (kwds != nullptr && PyDict_Size(kwds))
     {
@@ -602,7 +602,7 @@ PyObject* PyVTKObject_FromPointer(PyTypeObject* pytype, PyObject* ghostdict, vtk
     }
   }
 
-  if ((pytype->tp_flags & Py_TPFLAGS_HEAPTYPE) != 0)
+  if ((PyType_GetFlags(pytype) & Py_TPFLAGS_HEAPTYPE) != 0)
   {
     // Incref if class was declared in python (see PyType_GenericAlloc).
     Py_INCREF(pytype);
