@@ -45,13 +45,13 @@ std::pair<std::string, std::string> GetBlockNameAndLabel(
     metadata->Get(vtkCompositeDataSet::NAME()))
   {
     std::string label = metadata->Get(vtkCompositeDataSet::NAME());
-    std::string name = vtkDataAssembly::MakeValidNodeName(label.c_str());
-    return std::make_pair(name, label);
+    if (label.size() > 0)
+    {
+      std::string name = vtkDataAssembly::MakeValidNodeName(label.c_str());
+      return std::make_pair(name, label);
+    }
   }
-  else
-  {
-    return std::make_pair(defaultName, std::string());
-  }
+  return std::make_pair(defaultName, std::string());
 }
 
 // String used as the attribute name for data assembly nodes to identify
