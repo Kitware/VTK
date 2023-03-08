@@ -543,7 +543,7 @@ int VTK_PARSE_MAIN(int argc, char* argv[])
         "      const char *nt = nullptr;\n"
         "      if (PyType_Check(ot))\n"
         "      {\n"
-        "        nt = ((PyTypeObject *)ot)->tp_name;\n"
+        "        nt = vtkPythonUtil::GetTypeName((PyTypeObject *)ot);\n"
         "      }\n"
         "      if (nt)\n"
         "      {\n"

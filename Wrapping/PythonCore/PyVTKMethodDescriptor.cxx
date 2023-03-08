@@ -72,8 +72,8 @@ static void PyVTKMethodDescriptor_Delete(PyObject* ob)
 static PyObject* PyVTKMethodDescriptor_Repr(PyObject* ob)
 {
   PyMethodDescrObject* descr = (PyMethodDescrObject*)ob;
-  return PyUnicode_FromFormat(
-    "<method \'%U\' of \'%s\' objects>", PyDescr_NAME(descr), PyDescr_TYPE(descr)->tp_name);
+  return PyUnicode_FromFormat("<method \'%U\' of \'%s\' objects>", PyDescr_NAME(descr),
+    vtkPythonUtil::GetTypeName(PyDescr_TYPE(descr)));
 }
 
 static int PyVTKMethodDescriptor_Traverse(PyObject* ob, visitproc visit, void* arg)
@@ -116,7 +116,8 @@ static PyObject* PyVTKMethodDescriptor_Get(PyObject* self, PyObject* obj, PyObje
   }
 
   PyErr_Format(PyExc_TypeError, "descriptor '%U' for '%s' objects doesn't apply to '%s' object",
-    PyDescr_NAME(descr), PyDescr_TYPE(descr)->tp_name, vtkPythonUtil::GetTypeNameForObject(obj));
+    PyDescr_NAME(descr), vtkPythonUtil::GetTypeName(PyDescr_TYPE(descr)),
+    vtkPythonUtil::GetTypeNameForObject(obj));
 
   return nullptr;
 }

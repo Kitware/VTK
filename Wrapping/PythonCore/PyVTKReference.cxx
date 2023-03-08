@@ -238,8 +238,8 @@ static PyObject* PyVTKReference_Trunc(PyObject* self, PyObject* args)
     PyObject* meth = _PyType_Lookup(Py_TYPE(ob), attr);
     if (meth == nullptr)
     {
-      PyErr_Format(
-        PyExc_TypeError, "type %.100s doesn't define __trunc__ method", Py_TYPE(ob)->tp_name);
+      PyErr_Format(PyExc_TypeError, "type %.100s doesn't define __trunc__ method",
+        vtkPythonUtil::GetTypeNameForObject(ob));
       return nullptr;
     }
     return PyObject_CallFunction(meth, "O", ob);
@@ -259,8 +259,8 @@ static PyObject* PyVTKReference_Round(PyObject* self, PyObject* args)
     PyObject* meth = _PyType_Lookup(Py_TYPE(ob), attr);
     if (meth == nullptr)
     {
-      PyErr_Format(
-        PyExc_TypeError, "type %.100s doesn't define __round__ method", Py_TYPE(ob)->tp_name);
+      PyErr_Format(PyExc_TypeError, "type %.100s doesn't define __round__ method",
+        vtkPythonUtil::GetTypeNameForObject(ob));
       return nullptr;
     }
     if (opn)
@@ -638,7 +638,7 @@ static void PyVTKReference_Delete(PyObject* ob)
 static PyObject* PyVTKReference_Repr(PyObject* ob)
 {
   PyObject* r = nullptr;
-  const char* name = Py_TYPE(ob)->tp_name;
+  const char* name = vtkPythonUtil::GetTypeNameForObject(ob);
   PyObject* s = PyObject_Repr(((PyVTKReference*)ob)->value);
   if (s)
   {
@@ -696,8 +696,8 @@ static PyObject* PyVTKReference_GetAttr(PyObject* self, PyObject* attr)
     PyErr_Clear();
   }
 
-  PyErr_Format(
-    PyExc_AttributeError, "'%.50s' object has no attribute '%U'", Py_TYPE(self)->tp_name, attr);
+  PyErr_Format(PyExc_AttributeError, "'%.50s' object has no attribute '%U'",
+    vtkPythonUtil::GetTypeNameForObject(self), attr);
   return nullptr;
 }
 

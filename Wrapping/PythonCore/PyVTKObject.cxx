@@ -267,7 +267,7 @@ PyObject* PyVTKObject_New(PyTypeObject* tp, PyObject* args, PyObject* kwds)
     }
 
     PyObject* o = nullptr;
-    if (!PyArg_UnpackTuple(args, tp->tp_name, 0, 1, &o))
+    if (!PyArg_UnpackTuple(args, vtkPythonUtil::GetTypeName(tp), 0, 1, &o))
     {
       return nullptr;
     }
