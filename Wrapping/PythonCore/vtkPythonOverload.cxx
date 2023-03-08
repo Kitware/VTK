@@ -442,7 +442,7 @@ int vtkPythonOverload::CheckArg(PyObject* arg, const char* format, const char* n
         penalty = VTK_PYTHON_NEEDS_CONVERSION;
       }
       // make sure that arg can act as a buffer
-      else if (Py_TYPE(arg)->tp_as_buffer == nullptr)
+      else if (!PyObject_CheckBuffer(arg))
       {
         penalty = VTK_PYTHON_INCOMPATIBLE;
       }
