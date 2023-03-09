@@ -668,39 +668,22 @@ void vtkScatterPlotMatrix::AdvanceAnimation()
       vtkRectf size = this->Private->BigChart->GetSize();
       float zSize;
       this->Private->FinalAngle = 90.0;
-      this->Private->IncAngle = this->Private->FinalAngle / this->NumberOfFrames;
 
       if (this->Private->NextActivePlot.GetY() == this->ActivePlot.GetY())
       {
         // Horizontal move.
         zColumn = this->Private->NextActivePlot.GetX();
         isX = false;
-        if (this->ActivePlot.GetX() < zColumn)
-        {
-          this->Private->IncAngle *= 1.0;
-          zSize = size.GetWidth();
-        }
-        else
-        {
-          this->Private->IncAngle *= -1.0;
-          zSize = -size.GetWidth();
-        }
+        this->Private->IncAngle = this->Private->FinalAngle / this->NumberOfFrames;
+        zSize = size.GetWidth();
       }
       else
       {
         // Vertical move.
         zColumn = this->GetSize().GetY() - this->Private->NextActivePlot.GetY() - 1;
         isX = true;
-        if (this->GetSize().GetY() - this->ActivePlot.GetY() - 1 < zColumn)
-        {
-          this->Private->IncAngle *= -1.0;
-          zSize = size.GetHeight();
-        }
-        else
-        {
-          this->Private->IncAngle *= 1.0;
-          zSize = -size.GetHeight();
-        }
+        this->Private->IncAngle = -this->Private->FinalAngle / this->NumberOfFrames;
+        zSize = size.GetHeight();
       }
       chart->SetAroundX(isX);
       chart->SetGeometry(size);
@@ -732,10 +715,11 @@ void vtkScatterPlotMatrix::AdvanceAnimation()
     case 1: // Make BigChart invisible, and BigChart3D visible.
       this->Private->BigChart->SetVisible(false);
       this->AddItem(this->Private->BigChart3D);
+      this->Private->CurrentAngle = 0.0;
+      this->Private->BigChart3D->SetAngle(0.0);
       this->Private->BigChart3D->SetVisible(true);
       this->GetScene()->SetDirty(true);
       ++this->Private->AnimationPhase;
-      this->Private->CurrentAngle = 0.0;
       return;
     case 2: // Rotation of the 3D chart from start to end angle.
       if (fabs(this->Private->CurrentAngle) < (this->Private->FinalAngle - 0.001))
