@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkStructuredData.h"
 
+#include "vtkCellType.h"
+#include "vtkConstantArray.h"
 #include "vtkDataSetAttributes.h"
 #include "vtkIdList.h"
 #include "vtkObjectFactory.h"
@@ -238,6 +240,25 @@ vtkSmartPointer<vtkStructuredCellArray> vtkStructuredData::GetCellArray(
   auto implicitCellArray = vtkSmartPointer<vtkStructuredCellArray>::New();
   implicitCellArray->SetData(extent, usePixelVoxelOrientation);
   return implicitCellArray;
+}
+
+//------------------------------------------------------------------------------
+vtkSmartPointer<vtkConstantArray<int>> vtkStructuredData::GetCellTypesArray(
+  int extent[6], bool usePixelVoxelOrientation)
+{
+  const int dataDescription = vtkStructuredData::GetDataDescriptionFromExtent(extent);
+  const int dimension = vtkStructuredData::GetDataDimension(dataDescription);
+  const int cellType = dimension == 3
+    ? (usePixelVoxelOrientation ? VTK_VOXEL : VTK_HEXAHEDRON)
+    : dimension == 2 ? (usePixelVoxelOrientation ? VTK_PIXEL : VTK_QUAD)
+                     : dimension == 1
+        ? VTK_LINE
+        : dimension == 0 && dataDescription == VTK_SINGLE_POINT ? VTK_VERTEX : VTK_EMPTY_CELL;
+  auto cellTypesArray = vtkSmartPointer<vtkConstantArray<int>>::New();
+  cellTypesArray->ConstructBackend(cellType);
+  cellTypesArray->SetNumberOfComponents(1);
+  cellTypesArray->SetNumberOfTuples(vtkStructuredData::GetNumberOfCells(extent));
+  return cellTypesArray;
 }
 
 //------------------------------------------------------------------------------

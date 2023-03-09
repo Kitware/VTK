@@ -28,6 +28,13 @@ class vtkPoints;
 class vtkStructuredCellArray;
 class vtkUnsignedCharArray;
 
+template <typename T>
+class vtkImplicitArray;
+template <typename Type>
+struct vtkConstantImplicitBackend;
+template <typename Type>
+using vtkConstantArray = vtkImplicitArray<vtkConstantImplicitBackend<Type>>;
+
 #define VTK_UNCHANGED 0
 #define VTK_SINGLE_POINT 1
 #define VTK_X_LINE 2
@@ -245,6 +252,12 @@ public:
    */
   static vtkSmartPointer<vtkPoints> GetPoints(vtkDataArray* xCoords, vtkDataArray* yCoords,
     vtkDataArray* zCoords, int extent[6], double dirMatrix[9]);
+
+  /**
+   * Get the implicit cell array types for structured data.
+   */
+  VTK_WRAPEXCLUDE static vtkSmartPointer<vtkConstantArray<int>> GetCellTypesArray(
+    int extent[6], bool usePixelVoxelOrientation);
 
 protected:
   vtkStructuredData() = default;
