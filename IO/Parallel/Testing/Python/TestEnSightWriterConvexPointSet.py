@@ -41,7 +41,6 @@ writer = vtk.vtkEnSightWriter()
 writer.SetFileName(os.path.join(VTK_TEMP_DIR, "ensightWriterConvexPointSet.case"))
 writer.SetInputData(reference_mesh)
 writer.Write()
-writer.WriteCaseFile(0)
 
 reader = vtk.vtkEnSightGoldBinaryReader()
 reader.SetCaseFileName(os.path.join(VTK_TEMP_DIR, "ensightWriterConvexPointSet.0.case"))
