@@ -48,6 +48,7 @@
 #include "vtkUnsignedShortArray.h"
 
 #include <algorithm> // for min(), max()
+#include <vector>
 
 namespace
 {
@@ -1631,9 +1632,14 @@ void vtkDataArray::ComputeFiniteRange(
   }
   else
   {
+    std::vector<double> allCompRanges(this->NumberOfComponents * 2);
     if (ghosts)
     {
-      this->ComputeFiniteScalarRange(range, ghosts, ghostsToSkip);
+      if (this->ComputeFiniteScalarRange(allCompRanges.data(), ghosts, ghostsToSkip))
+      {
+        range[0] = allCompRanges[comp * 2];
+        range[1] = allCompRanges[(comp * 2) + 1];
+      }
       return;
     }
     rkey = COMPONENT_RANGE();
@@ -1641,8 +1647,7 @@ void vtkDataArray::ComputeFiniteRange(
     // hasValidKey will update range to the cached value if it exists.
     if (!hasValidKey(info, PER_FINITE_COMPONENT(), rkey, range, comp))
     {
-      double* allCompRanges = new double[this->NumberOfComponents * 2];
-      const bool computed = this->ComputeFiniteScalarRange(allCompRanges);
+      const bool computed = this->ComputeFiniteScalarRange(allCompRanges.data());
       if (computed)
       {
         // construct the keys and add them to the info object
@@ -1652,7 +1657,7 @@ void vtkDataArray::ComputeFiniteRange(
         infoVec->SetNumberOfInformationObjects(this->NumberOfComponents);
         for (int i = 0; i < this->NumberOfComponents; ++i)
         {
-          infoVec->GetInformationObject(i)->Set(rkey, allCompRanges + (i * 2), 2);
+          infoVec->GetInformationObject(i)->Set(rkey, allCompRanges.data() + (i * 2), 2);
         }
         infoVec->FastDelete();
 
@@ -1660,7 +1665,6 @@ void vtkDataArray::ComputeFiniteRange(
         range[0] = allCompRanges[comp * 2];
         range[1] = allCompRanges[(comp * 2) + 1];
       }
-      delete[] allCompRanges;
     }
   }
 }
@@ -1710,9 +1714,14 @@ void vtkDataArray::ComputeRange(
   }
   else
   {
+    std::vector<double> allCompRanges(this->NumberOfComponents * 2);
     if (ghosts)
     {
-      this->ComputeScalarRange(range, ghosts, ghostsToSkip);
+      if (this->ComputeScalarRange(allCompRanges.data(), ghosts, ghostsToSkip))
+      {
+        range[0] = allCompRanges[comp * 2];
+        range[1] = allCompRanges[(comp * 2) + 1];
+      }
       return;
     }
     rkey = COMPONENT_RANGE();
@@ -1720,8 +1729,7 @@ void vtkDataArray::ComputeRange(
     // hasValidKey will update range to the cached value if it exists.
     if (!hasValidKey(info, PER_COMPONENT(), rkey, range, comp))
     {
-      double* allCompRanges = new double[this->NumberOfComponents * 2];
-      const bool computed = this->ComputeScalarRange(allCompRanges);
+      const bool computed = this->ComputeScalarRange(allCompRanges.data());
       if (computed)
       {
         // construct the keys and add them to the info object
@@ -1731,7 +1739,7 @@ void vtkDataArray::ComputeRange(
         infoVec->SetNumberOfInformationObjects(this->NumberOfComponents);
         for (int i = 0; i < this->NumberOfComponents; ++i)
         {
-          infoVec->GetInformationObject(i)->Set(rkey, allCompRanges + (i * 2), 2);
+          infoVec->GetInformationObject(i)->Set(rkey, allCompRanges.data() + (i * 2), 2);
         }
         infoVec->FastDelete();
 
@@ -1739,7 +1747,6 @@ void vtkDataArray::ComputeRange(
         range[0] = allCompRanges[comp * 2];
         range[1] = allCompRanges[(comp * 2) + 1];
       }
-      delete[] allCompRanges;
     }
   }
 }
