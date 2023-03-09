@@ -1,6 +1,7 @@
 set(classes
   vtkAMRBox
   vtkAMRUtilities
+  vtkAbstractCellArray
   vtkAbstractCellLinks
   vtkAbstractCellLocator
   vtkAbstractElectronicData

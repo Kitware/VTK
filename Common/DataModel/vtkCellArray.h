@@ -117,14 +117,14 @@
  * version of the vtkCellArray API, the VTK_CELL_ARRAY_V2 preprocessor
  * definition may be used to detect which API is being compiled against.
  *
- * @sa vtkCellTypes vtkCellLinks
+ * @sa vtkAbstractCellArray vtkCellTypes vtkCellLinks
  */
 
 #ifndef vtkCellArray_h
 #define vtkCellArray_h
 
+#include "vtkAbstractCellArray.h"
 #include "vtkCommonDataModelModule.h" // For export macro
-#include "vtkObject.h"
 
 #include "vtkAOSDataArrayTemplate.h" // Needed for inline methods
 #include "vtkCell.h"                 // Needed for inline methods
@@ -166,7 +166,7 @@ VTK_ABI_NAMESPACE_BEGIN
 class vtkCellArrayIterator;
 class vtkIdTypeArray;
 
-class VTKCOMMONDATAMODEL_EXPORT vtkCellArray : public vtkObject
+class VTKCOMMONDATAMODEL_EXPORT vtkCellArray : public vtkAbstractCellArray
 {
 public:
   using ArrayType32 = vtkTypeInt32Array;
@@ -178,7 +178,7 @@ public:
    * printing.
    */
   static vtkCellArray* New();
-  vtkTypeMacro(vtkCellArray, vtkObject);
+  vtkTypeMacro(vtkCellArray, vtkAbstractCellArray);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   void PrintDebug(ostream& os);
   ///@}
@@ -271,7 +271,7 @@ public:
   /**
    * Free any memory and reset to an empty state.
    */
-  void Initialize();
+  void Initialize() override;
 
   /**
    * Reuse list. Reset to initial state without freeing memory.
@@ -300,7 +300,7 @@ public:
   /**
    * Get the number of cells in the array.
    */
-  vtkIdType GetNumberOfCells() const
+  vtkIdType GetNumberOfCells() const override
   {
     if (this->Storage.Is64Bit())
     {
@@ -316,7 +316,7 @@ public:
    * Get the number of elements in the offsets array. This will be the number of
    * cells + 1.
    */
-  vtkIdType GetNumberOfOffsets() const
+  vtkIdType GetNumberOfOffsets() const override
   {
     if (this->Storage.Is64Bit())
     {
@@ -331,7 +331,7 @@ public:
   /**
    * Get the offset (into the connectivity) for a specified cell id.
    */
-  vtkIdType GetOffset(vtkIdType cellId)
+  vtkIdType GetOffset(vtkIdType cellId) override
   {
     if (this->Storage.Is64Bit())
     {
@@ -349,7 +349,7 @@ public:
    * GetNumberOfConnectivityEntries(), which refers to the legacy memory
    * layout.
    */
-  vtkIdType GetNumberOfConnectivityIds() const
+  vtkIdType GetNumberOfConnectivityIds() const override
   {
     if (this->Storage.Is64Bit())
     {
@@ -428,7 +428,7 @@ public:
    * storage is such that copying of data can be avoided, and instead
    * a pointer to vtkIdType can be used.
    */
-  bool IsStorageShareable() const
+  bool IsStorageShareable() const override
   {
     if (this->Storage.Is64Bit())
     {
@@ -537,7 +537,7 @@ public:
    * * 0 = Cell array empty
    * * n (positive integer) = homogeneous array of cell size n
    */
-  vtkIdType IsHomogeneous();
+  vtkIdType IsHomogeneous() override;
 
   /**
    * @warning This method is not thread-safe. Consider using the NewIterator()
@@ -581,28 +581,16 @@ public:
   /**
    * Return the point ids for the cell at @a cellId.
    *
-   * @warning Subsequent calls to this method may invalidate previous call
-   * results if the internal storage type is not the same as vtkIdType and
-   * cannot be shared through the @a cellPoints pointer. In other words, the
-   * method may not be thread safe. Check if shareable (using
-   * IsStorageShareable()), or use a vtkCellArrayIterator to guarantee thread
-   * safety.
-   */
-  void GetCellAtId(vtkIdType cellId, vtkIdType& cellSize, vtkIdType const*& cellPoints)
-    VTK_SIZEHINT(cellPoints, cellSize) VTK_EXPECTS(0 <= cellId && cellId < GetNumberOfCells());
-
-  /**
-   * Return the point ids for the cell at @a cellId.
-   *
    * Subsequent calls to this method may invalidate previous call
    * results if the internal storage type is not the same as vtkIdType and
    * cannot be shared through the @a cellPoints pointer. If that occurs,
    * the method will use ptIds, which is an object that is created by each thread,
    * to guarantee thread safety.
    */
-  void GetCellAtId(
-    vtkIdType cellId, vtkIdType& cellSize, vtkIdType const*& cellPoints, vtkIdList* ptIds)
-    VTK_SIZEHINT(cellPoints, cellSize) VTK_EXPECTS(0 <= cellId && cellId < GetNumberOfCells());
+  using vtkAbstractCellArray::GetCellAtId;
+  void GetCellAtId(vtkIdType cellId, vtkIdType& cellSize, vtkIdType const*& cellPoints,
+    vtkIdList* ptIds) VTK_SIZEHINT(cellPoints, cellSize)
+    VTK_EXPECTS(0 <= cellId && cellId < GetNumberOfCells()) override;
 
   /**
    * Return the point ids for the cell at @a cellId. This always copies
@@ -610,12 +598,22 @@ public:
    * vtkIdList). This method is thread safe.
    */
   void GetCellAtId(vtkIdType cellId, vtkIdList* pts)
-    VTK_EXPECTS(0 <= cellId && cellId < GetNumberOfCells());
+    VTK_EXPECTS(0 <= cellId && cellId < GetNumberOfCells()) override;
+
+  /**
+   * Return the point ids for the cell at @a cellId. This always copies
+   * the cell ids into cellSize and cellPoints. This method is thread safe.
+   *
+   * Note: the cellPoints need to have the correct size already allocated otherwise memory
+   * issues can occur.
+   */
+  void GetCellAtId(vtkIdType cellId, vtkIdType& cellSize, vtkIdType* cellPoints) VTK_SIZEHINT(
+    cellPoints, cellSize) VTK_EXPECTS(0 <= cellId && cellId < GetNumberOfCells()) override;
 
   /**
    * Return the size of the cell at @a cellId.
    */
-  vtkIdType GetCellSize(vtkIdType cellId) const;
+  vtkIdType GetCellSize(vtkIdType cellId) const override;
 
   /**
    * Insert a cell object. Return the cell id of the cell.
@@ -720,17 +718,17 @@ public:
    * Returns the size of the largest cell. The size is the number of points
    * defining the cell.
    */
-  int GetMaxCellSize();
+  int GetMaxCellSize() override;
 
   /**
    * Perform a deep copy (no reference counting) of the given cell array.
    */
-  void DeepCopy(vtkCellArray* ca);
+  void DeepCopy(vtkAbstractCellArray* ca) override;
 
   /**
    * Shallow copy @a ca into this cell array.
    */
-  void ShallowCopy(vtkCellArray* ca);
+  void ShallowCopy(vtkAbstractCellArray* ca) override;
 
   /**
    * Append cells from src into this. Point ids are offset by @a pointOffset.
@@ -1333,7 +1331,6 @@ protected:
   };
 
   Storage Storage;
-  vtkNew<vtkIdList> TempCell;
   vtkIdType TraversalCellId{ 0 };
 
   vtkNew<vtkIdTypeArray> LegacyData; // For GetData().
@@ -1464,6 +1461,24 @@ struct GetCellAtIdImpl
     }
   }
 
+  template <typename CellStateT>
+  void operator()(
+    CellStateT& state, const vtkIdType cellId, vtkIdType& cellSize, vtkIdType* cellPoints)
+  {
+    using ValueType = typename CellStateT::ValueType;
+
+    const vtkIdType beginOffset = state.GetBeginOffset(cellId);
+    const vtkIdType endOffset = state.GetEndOffset(cellId);
+    cellSize = endOffset - beginOffset;
+    const ValueType* cellConnectivity = state.GetConnectivity()->GetPointer(beginOffset);
+
+    // ValueType differs from vtkIdType, so we have to copy into a temporary buffer:
+    for (vtkIdType i = 0; i < cellSize; ++i)
+    {
+      cellPoints[i] = static_cast<vtkIdType>(cellConnectivity[i]);
+    }
+  }
+
   // SFINAE helper to check if a VisitState's connectivity array's memory
   // can be used as a vtkIdType*.
   template <typename CellStateT>
@@ -1573,13 +1588,6 @@ inline vtkIdType vtkCellArray::GetCellSize(const vtkIdType cellId) const
 
 //----------------------------------------------------------------------------
 inline void vtkCellArray::GetCellAtId(vtkIdType cellId, vtkIdType& cellSize,
-  vtkIdType const*& cellPoints) VTK_SIZEHINT(cellPoints, cellSize)
-{
-  this->Visit(vtkCellArray_detail::GetCellAtIdImpl{}, cellId, cellSize, cellPoints, this->TempCell);
-}
-
-//----------------------------------------------------------------------------
-inline void vtkCellArray::GetCellAtId(vtkIdType cellId, vtkIdType& cellSize,
   vtkIdType const*& cellPoints, vtkIdList* ptIds) VTK_SIZEHINT(cellPoints, cellSize)
 {
   this->Visit(vtkCellArray_detail::GetCellAtIdImpl{}, cellId, cellSize, cellPoints, ptIds);
@@ -1589,6 +1597,12 @@ inline void vtkCellArray::GetCellAtId(vtkIdType cellId, vtkIdType& cellSize,
 inline void vtkCellArray::GetCellAtId(vtkIdType cellId, vtkIdList* pts)
 {
   this->Visit(vtkCellArray_detail::GetCellAtIdImpl{}, cellId, pts);
+}
+
+//----------------------------------------------------------------------------
+inline void vtkCellArray::GetCellAtId(vtkIdType cellId, vtkIdType& cellSize, vtkIdType* cellPoints)
+{
+  this->Visit(vtkCellArray_detail::GetCellAtIdImpl{}, cellId, cellSize, cellPoints);
 }
 
 //----------------------------------------------------------------------------
