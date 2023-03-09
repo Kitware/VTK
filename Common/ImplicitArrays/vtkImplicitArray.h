@@ -31,7 +31,9 @@
  * This templated array class allows one to mimic the vtkDataArray interface using an implicit map
  * behind the scenes. The `BackendT` type can be a class or a struct that implements a const map
  * method that takes integers to any VTK value type. It can also be any type of Closure/Functor that
- * implements a const operator() method from integers to the value type of the array.
+ * implements a const operator() method from integers to the value type of the array. If a void
+ * mapTuple(vtkIdType, TupleType*) const method is also present, the array will use this method to
+ * to populate the tuple instead of the map method.
  *
  * The ordering of the array for tuples and components is implicitly AOS.
  *
@@ -68,6 +70,36 @@
  *   int operator()(int idx) const { return 42; }
  * };
  * vtkNew<vtkImplicitArray<Const42>> arr42;
+ * @endcode
+ *
+ * Example for array that implements map and mapTuple
+ * @code
+ * struct ConstTupleStruct
+ * {
+ * int Tuple[3] = { 0, 0, 0 };
+ * // constructor
+ * ConstTupleStruct(int tuple[3])
+ * {
+ *  this->Tuple[0] = tuple[0];
+ *  this->Tuple[1] = tuple[1];
+ *  this->Tuple[2] = tuple[2];
+ * }
+ *
+ * // used for GetValue
+ * int map(int idx) const
+ * {
+ *   int tuple[3];
+ *   this->mapTuple(idx / 3, tuple);
+ *   return tuple[idx % 3];
+ * }
+ * // used for GetTypedTuple
+ * void mapTuple(int vtkNotUsed(idx), int* tuple) const
+ * {
+ *   tuple[0] = this->tuple[0];
+ *   tuple[1] = this->tuple[1];
+ *   tuple[2] = this->tuple[2];
+ * }
+ * };
  * @endcode
  *
  *
@@ -117,11 +149,7 @@ public:
    */
   void GetTypedTuple(vtkIdType idx, ValueType* tuple) const
   {
-    const vtkIdType tupIdx = idx * this->NumberOfComponents;
-    for (vtkIdType comp = 0; comp < this->NumberOfComponents; comp++)
-    {
-      tuple[comp] = this->GetValue(tupIdx + comp);
-    }
+    this->GetTypedTupleImpl<BackendT>(idx, tuple);
   }
 
   /**
@@ -290,6 +318,37 @@ private:
   Initialize()
   {
     this->Backend = nullptr;
+  }
+  ///@}
+
+  ///@{
+  /**
+   * Static dispatch tuple mapping for compatible backends
+   */
+  template <typename U>
+  typename std::enable_if<vtk::detail::implicit_array_traits<U>::can_direct_read_tuple, void>::type
+  GetTypedTupleImpl(vtkIdType idx, ValueType* tuple) const
+  {
+    static_assert(
+      std::is_same<typename vtk::detail::can_map_tuple_trait<U>::rtype, ValueType>::value,
+      "Tuple type should be the same as the return type of the mapTuple");
+    this->Backend->mapTuple(idx, tuple);
+  }
+  ///@}
+
+  ///@{
+  /**
+   * Static dispatch tuple mapping for incompatible backends
+   */
+  template <typename U>
+  typename std::enable_if<!vtk::detail::implicit_array_traits<U>::can_direct_read_tuple, void>::type
+  GetTypedTupleImpl(vtkIdType idx, ValueType* tuple) const
+  {
+    const vtkIdType tupIdx = idx * this->NumberOfComponents;
+    for (vtkIdType comp = 0; comp < this->NumberOfComponents; comp++)
+    {
+      tuple[comp] = this->GetValue(tupIdx + comp);
+    }
   }
   ///@}
 
