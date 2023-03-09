@@ -37,6 +37,33 @@ struct ConstStruct
   int operator()(int vtkNotUsed(idx)) const { return this->value; }
 };
 
+struct ConstTupleStruct
+{
+  int Tuple[3] = { 0, 0, 0 };
+
+  ConstTupleStruct(int tuple[3])
+  {
+    this->Tuple[0] = tuple[0];
+    this->Tuple[1] = tuple[1];
+    this->Tuple[2] = tuple[2];
+  }
+
+  // used for GetValue
+  int map(int idx) const
+  {
+    int tuple[3];
+    this->mapTuple(idx / 3, tuple);
+    return tuple[idx % 3];
+  }
+  // used for GetTypedTuple
+  void mapTuple(int vtkNotUsed(idx), int* tuple) const
+  {
+    tuple[0] = this->Tuple[0];
+    tuple[1] = this->Tuple[1];
+    tuple[2] = this->Tuple[2];
+  }
+};
+
 };
 
 int TestImplicitArraysBase(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
@@ -147,6 +174,38 @@ int TestImplicitArraysBase(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
         std::cout << iArr << " generic ConstStruct component entry is not equal to constant 42!"
                   << std::endl;
       }
+    }
+  }
+
+  // test backend with mapTuple
+  vtkNew<vtkImplicitArray<::ConstTupleStruct>> genericTupleConstArr;
+  int tuple[3] = { 1, 2, 3 };
+  genericTupleConstArr->ConstructBackend(tuple);
+  genericTupleConstArr->SetNumberOfComponents(3);
+  genericTupleConstArr->SetNumberOfTuples(50);
+
+  // test GetValue
+  for (iArr = 0; iArr < 150; iArr += 3)
+  {
+    if (genericTupleConstArr->GetValue(iArr + 0) != 1 ||
+      genericTupleConstArr->GetValue(iArr + 1) != 2 ||
+      genericTupleConstArr->GetValue(iArr + 2) != 3)
+    {
+      res = EXIT_FAILURE;
+      std::cout << iArr << " generic ConstTupleStruct tuple entry is not equal to constant 1, 2, 3!"
+                << std::endl;
+    }
+  }
+
+  // test GetTypedTuple
+  for (iArr = 0; iArr < 50; iArr++)
+  {
+    genericTupleConstArr->GetTypedTuple(iArr, tuple);
+    if (tuple[0] != 1 || tuple[1] != 2 || tuple[2] != 3)
+    {
+      res = EXIT_FAILURE;
+      std::cout << iArr << " generic ConstTupleStruct tuple entry is not equal to constant 1, 2, 3!"
+                << std::endl;
     }
   }
 
