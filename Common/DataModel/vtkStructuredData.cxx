@@ -5,8 +5,10 @@
 #include "vtkDataSetAttributes.h"
 #include "vtkIdList.h"
 #include "vtkObjectFactory.h"
+#include "vtkPoints.h"
 #include "vtkStructuredCellArray.h"
 #include "vtkStructuredExtent.h"
+#include "vtkStructuredPointArray.h"
 #include "vtkUnsignedCharArray.h"
 
 #include <algorithm>
@@ -320,6 +322,17 @@ void vtkStructuredData::GetCellPoints(
       }
     }
   }
+}
+
+//------------------------------------------------------------------------------
+vtkSmartPointer<vtkPoints> vtkStructuredData::GetPoints(vtkDataArray* xCoords,
+  vtkDataArray* yCoords, vtkDataArray* zCoords, int extent[6], double dirMatrix[9])
+{
+  auto points = vtkSmartPointer<vtkPoints>::New();
+  const auto implicitPointArray = vtk::CreateStructuredPointArray<double>(xCoords, yCoords, zCoords,
+    extent, vtkStructuredData::GetDataDescriptionFromExtent(extent), dirMatrix);
+  points->SetData(implicitPointArray);
+  return points;
 }
 
 //------------------------------------------------------------------------------

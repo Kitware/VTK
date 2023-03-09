@@ -22,7 +22,9 @@
 #include "vtkSmartPointer.h" // For vtkSmartPointer
 
 VTK_ABI_NAMESPACE_BEGIN
+class vtkDataArray;
 class vtkIdList;
+class vtkPoints;
 class vtkStructuredCellArray;
 class vtkUnsignedCharArray;
 
@@ -236,6 +238,13 @@ public:
    */
   static vtkSmartPointer<vtkStructuredCellArray> GetCellArray(
     int extent[6], bool usePixelVoxelOrientation);
+
+  /**
+   * Given 3 arrays describing the xCoords, yCoords, and zCoords, the extent, and the direction
+   * matrix, create an implicit vtkPoints object.
+   */
+  static vtkSmartPointer<vtkPoints> GetPoints(vtkDataArray* xCoords, vtkDataArray* yCoords,
+    vtkDataArray* zCoords, int extent[6], double dirMatrix[9]);
 
 protected:
   vtkStructuredData() = default;
