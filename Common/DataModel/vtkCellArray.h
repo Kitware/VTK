@@ -117,7 +117,7 @@
  * version of the vtkCellArray API, the VTK_CELL_ARRAY_V2 preprocessor
  * definition may be used to detect which API is being compiled against.
  *
- * @sa vtkAbstractCellArray vtkCellTypes vtkCellLinks
+ * @sa vtkAbstractCellArray vtkStructuredCellArray vtkCellTypes vtkCellLinks
  */
 
 #ifndef vtkCellArray_h

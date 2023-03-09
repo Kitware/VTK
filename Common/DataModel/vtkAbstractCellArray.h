@@ -8,7 +8,7 @@
  * listing the point ids that make up each cell.
  *
  * @sa
- * vtkCellArray
+ * vtkCellArray vtkStructuredCellArray
  */
 #ifndef vtkAbstractCellArray_h
 #define vtkAbstractCellArray_h

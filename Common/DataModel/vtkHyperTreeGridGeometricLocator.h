@@ -36,8 +36,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkHyperTreeGridGeometricLocator : public vtkHyp
 {
 public:
   vtkTypeMacro(vtkHyperTreeGridGeometricLocator, vtkHyperTreeGridLocator);
-
-  using vtkHyperTreeGridLocator::PrintSelf;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   static vtkHyperTreeGridGeometricLocator* New();
 

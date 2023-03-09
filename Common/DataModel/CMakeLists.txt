@@ -227,6 +227,7 @@ set(classes
   vtkStaticCellLocator
   vtkStaticPointLocator
   vtkStaticPointLocator2D
+  vtkStructuredCellArray
   vtkStructuredData
   vtkStructuredExtent
   vtkStructuredGrid
