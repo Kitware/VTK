@@ -5,6 +5,7 @@
 #include "vtkDataSetAttributes.h"
 #include "vtkIdList.h"
 #include "vtkObjectFactory.h"
+#include "vtkStructuredCellArray.h"
 #include "vtkStructuredExtent.h"
 #include "vtkUnsignedCharArray.h"
 
@@ -226,6 +227,15 @@ int vtkStructuredData::SetExtent(VTK_FUTURE_CONST int inExt[6], int ext[6])
   }
 
   return dataDescription;
+}
+
+//------------------------------------------------------------------------------
+vtkSmartPointer<vtkStructuredCellArray> vtkStructuredData::GetCellArray(
+  int extent[6], bool usePixelVoxelOrientation)
+{
+  auto implicitCellArray = vtkSmartPointer<vtkStructuredCellArray>::New();
+  implicitCellArray->SetData(extent, usePixelVoxelOrientation);
+  return implicitCellArray;
 }
 
 //------------------------------------------------------------------------------

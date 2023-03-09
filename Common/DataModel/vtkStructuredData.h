@@ -19,9 +19,11 @@
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h"
+#include "vtkSmartPointer.h" // For vtkSmartPointer
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkIdList;
+class vtkStructuredCellArray;
 class vtkUnsignedCharArray;
 
 #define VTK_UNCHANGED 0
@@ -228,6 +230,12 @@ public:
    */
   static void ComputePointStructuredCoords(
     vtkIdType ptId, const int dim[3], int ijk[3], int dataDescription = VTK_EMPTY);
+
+  /**
+   * Get the implicit cell array for structured data.
+   */
+  static vtkSmartPointer<vtkStructuredCellArray> GetCellArray(
+    int extent[6], bool usePixelVoxelOrientation);
 
 protected:
   vtkStructuredData() = default;
