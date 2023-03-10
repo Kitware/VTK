@@ -947,6 +947,17 @@ int vtkXMLReader::ReadArrayValues(vtkXMLDataElement* da, vtkIdType arrayIndex,
 }
 
 //------------------------------------------------------------------------------
+int vtkXMLReader::ReadArrayTuples(vtkXMLDataElement* da, vtkIdType arrayTupleIndex,
+  vtkAbstractArray* array, vtkIdType startTupleIndex, vtkIdType numTuples, FieldType fieldType)
+{
+  assert(array != nullptr);
+
+  int noc = array->GetNumberOfComponents();
+  return this->ReadArrayValues(
+    da, noc * arrayTupleIndex, array, noc * startTupleIndex, noc * numTuples, fieldType);
+}
+
+//------------------------------------------------------------------------------
 void vtkXMLReader::ReadXMLData()
 {
   // Initialize the output's data.

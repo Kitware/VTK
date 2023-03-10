@@ -298,6 +298,16 @@ protected:
   virtual int ReadArrayValues(vtkXMLDataElement* da, vtkIdType arrayIndex, vtkAbstractArray* array,
     vtkIdType startIndex, vtkIdType numValues, FieldType type = OTHER);
 
+  // Read an Array values starting at the given tuple index and up to numTuples
+  // taking into account the number of components declared in array.
+  // This method assumes that the array is of correct size to
+  // accommodate all numTuples multiplied by number of components.
+  // arrayTupleIndex is the tuple index at which the read
+  // values will be put in the array.
+  virtual int ReadArrayTuples(vtkXMLDataElement* da, vtkIdType arrayTupleIndex,
+    vtkAbstractArray* array, vtkIdType startTupleIndex, vtkIdType numTuples,
+    FieldType type = OTHER);
+
   // Setup the data array selections for the input's set of arrays.
   void SetDataArraySelections(vtkXMLDataElement* eDSA, vtkDataArraySelection* sel);
 
