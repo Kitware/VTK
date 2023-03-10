@@ -1182,44 +1182,13 @@ int vtkStructuredDataPlaneCutter::RequestData(vtkInformation* vtkNotUsed(request
   vtkSmartPointer<vtkPolyData> result;
   if (inputImage && (this->GetGeneratePolygons() == 1 || !allCellsVisible))
   {
-    int i, j;
-    int dataDims[3];
-    double spacings[3];
-    double tmpValue;
-    inputImage->GetDimensions(dataDims);
-    inputImage->GetSpacing(spacings);
-    const double* dataBBox = inputImage->GetBounds();
-    vtkNew<vtkDoubleArray> pxCoords;
-    vtkNew<vtkDoubleArray> pyCoords;
-    vtkNew<vtkDoubleArray> pzCoords;
-    vtkDoubleArray* tmpArrays[3] = { pxCoords.Get(), pyCoords.Get(), pzCoords.Get() };
-    for (j = 0; j < 3; j++)
-    {
-      tmpArrays[j]->SetNumberOfComponents(1);
-      tmpArrays[j]->SetNumberOfTuples(dataDims[j]);
-      for (tmpValue = dataBBox[j << 1], i = 0; i < dataDims[j]; i++, tmpValue += spacings[j])
-      {
-        tmpArrays[j]->SetValue(i, tmpValue);
-      }
-      tmpArrays[j] = nullptr;
-    }
-
-    vtkNew<vtkRectilinearGrid> rectGrid;
-    rectGrid->SetDimensions(dataDims);
-    rectGrid->SetXCoordinates(pxCoords);
-    rectGrid->SetYCoordinates(pyCoords);
-    rectGrid->SetZCoordinates(pzCoords);
-    rectGrid->GetPointData()->ShallowCopy(inputImage->GetPointData());
-    rectGrid->GetCellData()->ShallowCopy(inputImage->GetCellData());
-    vtkNew<vtkPoints> points;
-    rectGrid->GetPoints(points);
-    auto pointsArray = points->GetData();
+    auto pointsArray = inputImage->GetPoints()->GetData();
 #ifdef VTK_USE_64BIT_IDS
     bool use64BitsIds = numPts > VTK_INT_MAX;
     if (use64BitsIds)
     {
       using TInputIdType = vtkTypeInt64;
-      result = SliceStructuredData<vtkRectilinearGrid, TInputIdType>(rectGrid, pointsArray,
+      result = SliceStructuredData<vtkImageData, TInputIdType>(inputImage, pointsArray,
         this->OutputPointsPrecision, this->SphereTree, planeOrigin, planeNormal,
         this->InterpolateAttributes, this->GeneratePolygons, allCellsVisible, this->BatchSize,
         this);
@@ -1228,7 +1197,7 @@ int vtkStructuredDataPlaneCutter::RequestData(vtkInformation* vtkNotUsed(request
 #endif
     {
       using TInputIdType = vtkTypeInt32;
-      result = SliceStructuredData<vtkRectilinearGrid, TInputIdType>(rectGrid, pointsArray,
+      result = SliceStructuredData<vtkImageData, TInputIdType>(inputImage, pointsArray,
         this->OutputPointsPrecision, this->SphereTree, planeOrigin, planeNormal,
         this->InterpolateAttributes, this->GeneratePolygons, allCellsVisible, this->BatchSize,
         this);
@@ -1259,9 +1228,7 @@ int vtkStructuredDataPlaneCutter::RequestData(vtkInformation* vtkNotUsed(request
   }
   else // inputRG
   {
-    vtkNew<vtkPoints> points;
-    inputRG->GetPoints(points);
-    auto pointsArray = points->GetData();
+    auto pointsArray = inputRG->GetPoints()->GetData();
 #ifdef VTK_USE_64BIT_IDS
     bool use64BitsIds = numPts > VTK_INT_MAX;
     if (use64BitsIds)

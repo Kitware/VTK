@@ -27,6 +27,7 @@
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkDataSet.h"
+#include "vtkDeprecation.h"    // For VTK_DEPRECATED_IN_9_3_0
 #include "vtkSmartPointer.h"   // For vtkSmartPointer
 #include "vtkStructuredData.h" // For inline methods
 
@@ -179,6 +180,7 @@ public:
    * Given a user-supplied vtkPoints container object, this method fills in all
    * the points of the RectilinearGrid.
    */
+  VTK_DEPRECATED_IN_9_3_0("Use vtkPoints* GetPoints() instead.")
   void GetPoints(vtkPoints* points);
 
   ///@{
