@@ -54,6 +54,7 @@ struct vtkFidesReader::vtkFidesReaderImpl
   bool SkipNextPrepareCall{ false };
   int NumberOfDataSources{ 0 };
   bool UseInlineEngine{ false };
+  fides::Params AllParams;
   vtkNew<vtkStringArray> SourceNames;
 
   // first -> source name, second -> address of IO object
@@ -186,7 +187,8 @@ void vtkFidesReader::ParseDataModel()
   }
   try
   {
-    this->Impl->Reader.reset(new fides::io::DataSetReader(this->FileName, inputType));
+    this->Impl->Reader.reset(new fides::io::DataSetReader(
+      this->FileName, inputType, this->StreamSteps, this->Impl->AllParams));
   }
   catch (...)
   {
@@ -212,6 +214,19 @@ void vtkFidesReader::SetDataSourcePath(const std::string& name, const std::strin
     vtkDebugMacro(<< "All data sources have now been set");
     this->Impl->AllDataSourcesSet = true;
   }
+}
+
+void vtkFidesReader::SetDataSourceEngine(const std::string& name, const std::string& engine)
+{
+  if (name.empty() || engine.empty())
+  {
+    return;
+  }
+  fides::DataSourceParams params;
+  params["engine_type"] = engine;
+  vtkDebugMacro(<< "for data source " << name << ", setting ADIOS engine to " << engine);
+  this->Impl->AllParams.insert(std::make_pair(name, params));
+  this->Modified();
 }
 
 void vtkFidesReader::PrintSelf(ostream& os, vtkIndent indent)
@@ -268,6 +283,14 @@ int vtkFidesReader::RequestDataObject(
 int vtkFidesReader::RequestInformation(
   vtkInformation*, vtkInformationVector**, vtkInformationVector* outputVector)
 {
+  if (this->StreamSteps && this->NextStepStatus != StepStatus::NotReady)
+  {
+    // if we're in StreamSteps mode, updating the step status could cause
+    // RequestInformation to be called again. In this case, we'll assume
+    // that if NextStepStatus is good, that we'll just return here instead
+    // of resetting the DataSetReader
+    return 1;
+  }
   if (this->Impl->UseInlineEngine && this->Impl->HasParsedDataModel)
   {
     // If we're using the Inline engine, we may get unnecessary
@@ -404,6 +427,7 @@ int vtkFidesReader::RequestInformation(
     double timeRange[2];
     timeRange[0] = times[0];
     timeRange[1] = times[nSteps - 1];
+    vtkDebugMacro(<< "time min: " << timeRange[0] << ", time max: " << timeRange[1]);
 
     outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), times.data(), nSteps);
     outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_RANGE(), timeRange, 2);
@@ -628,7 +652,7 @@ int vtkFidesReader::RequestData(
       index = static_cast<int>(0);
     }
     vtkDebugMacro(<< "RequestData() Not streaming and we have update time step request for step "
-                  << step);
+                  << step << " with index " << index);
     fides::metadata::Index idx(index);
     selections.Set(fides::keys::STEP_SELECTION(), idx);
   }

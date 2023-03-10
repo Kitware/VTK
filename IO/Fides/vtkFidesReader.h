@@ -94,6 +94,11 @@ public:
   void SetDataSourcePath(const std::string& name, VTK_FILEPATH const std::string& path);
 
   /**
+   * Set the engine for a Fides data source. Defaults to BP engine.
+   */
+  void SetDataSourceEngine(const std::string& name, const std::string& engine);
+
+  /**
    * Set the ADIOS2::IO object to be used for setting up the Inline engine reader.
    * This should not be used for any other engine type.
    * ioAddress is a string containing the address of the IO object, which Fides
