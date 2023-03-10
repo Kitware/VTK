@@ -475,6 +475,12 @@ static int isClassWrapped(const char* classname)
       return 0;
     }
 
+    /* Templated classes are not wrapped in Java */
+    if (strchr(classname, '<'))
+    {
+      return 0;
+    }
+
     /* Only the primary class in the header is wrapped in Java */
     return vtkParseHierarchy_IsPrimary(entry);
   }

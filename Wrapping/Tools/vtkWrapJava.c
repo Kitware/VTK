@@ -924,6 +924,12 @@ static int isClassWrapped(const char* classname)
     }
   }
 
+  /* Templated classes are not wrapped in Java */
+  if (strchr(classname, '<'))
+  {
+    return 0;
+  }
+
   return 1;
 }
 
