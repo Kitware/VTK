@@ -226,7 +226,6 @@ namespace
 template <typename InputArrayType, typename OutputArrayType>
 struct CutWorker
 {
-  using InputValueType = vtk::GetAPIType<InputArrayType>;
   using OutputValueType = vtk::GetAPIType<OutputArrayType>;
 
   InputArrayType* Input;
@@ -241,17 +240,20 @@ struct CutWorker
   }
   void operator()(vtkIdType begin, vtkIdType end)
   {
-    const auto srcTuples = vtk::DataArrayTupleRange<3>(this->Input, begin, end);
-    auto dstValues = vtk::DataArrayValueRange<1>(this->Output, begin, end);
+    const auto srcTuples = vtk::DataArrayTupleRange<3>(this->Input);
+    auto dstValues = vtk::DataArrayValueRange<1>(this->Output);
 
-    using DstTupleCRefType = typename decltype(srcTuples)::ConstTupleReferenceType;
-
-    std::transform(srcTuples.cbegin(), srcTuples.cend(), dstValues.begin(),
-      [&](DstTupleCRefType tuple) -> OutputValueType {
-        return this->Normal[0] * (static_cast<OutputValueType>(tuple[0]) - this->Origin[0]) +
-          this->Normal[1] * (static_cast<OutputValueType>(tuple[1]) - this->Origin[1]) +
-          this->Normal[2] * (static_cast<OutputValueType>(tuple[2]) - this->Origin[2]);
-      });
+    double tuple[3];
+    for (vtkIdType pointId = begin; pointId < end; ++pointId)
+    {
+      // GetTuple creates a copy of the tuple using GetTypedTuple if it's not a vktDataArray
+      // we do that since the input points can be implicit points, and GetTypedTuple is faster
+      // than accessing the component of the TupleReference using GetTypedComponent internally.
+      srcTuples.GetTuple(pointId, tuple);
+      dstValues[pointId] = this->Normal[0] * (tuple[0] - this->Origin[0]) +
+        this->Normal[1] * (tuple[1] - this->Origin[1]) +
+        this->Normal[2] * (tuple[2] - this->Origin[2]);
+    }
   }
 };
 
@@ -271,8 +273,8 @@ struct CutFunctionWorker
     VTK_ASSUME(output->GetNumberOfComponents() == 1);
     vtkIdType numTuples = input->GetNumberOfTuples();
     CutWorker<InputArrayType, OutputArrayType> cut(input, output);
-    std::copy_n(Normal, 3, cut.Normal);
-    std::copy_n(Origin, 3, cut.Origin);
+    std::copy_n(this->Normal, 3, cut.Normal);
+    std::copy_n(this->Origin, 3, cut.Origin);
     vtkSMPTools::For(0, numTuples, cut);
   }
 };
@@ -284,7 +286,9 @@ void vtkPlane::EvaluateFunction(vtkDataArray* input, vtkDataArray* output)
   CutFunctionWorker worker(this->Normal, this->Origin);
   typedef vtkTypeList::Create<float, double> InputTypes;
   typedef vtkTypeList::Create<float, double> OutputTypes;
-  typedef vtkArrayDispatch::Dispatch2ByValueType<InputTypes, OutputTypes> MyDispatch;
+  typedef vtkArrayDispatch::Dispatch2ByValueTypeUsingArrays<vtkArrayDispatch::AllArrays, InputTypes,
+    OutputTypes>
+    MyDispatch;
   if (!MyDispatch::Execute(input, output, worker))
   {
     worker(input, output); // Use vtkDataArray API if dispatch fails.
