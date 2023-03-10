@@ -31,6 +31,7 @@
 #include "vtksys/FStream.hxx"
 #include <vtksys/SystemTools.hxx>
 
+#include <algorithm> /* std::remove */
 #include <cassert>
 #include <cctype> /* isspace */
 #include <map>
@@ -382,18 +383,18 @@ int vtkGenericEnSightReader::DetermineEnSightVersion(int quiet)
             this->ReadNextDataLine(line);
             if (strncmp(line, "model:", 6) == 0)
             {
-              if (sscanf(line, " %*s %d %d%*[ \t]%s", &xtimeSet, &fileSet, subLine) == 3)
+              if (sscanf(line, " %*s %d %d%*[ \t]%[^\t\r\n]", &xtimeSet, &fileSet, subLine) == 3)
               {
                 timeSet = xtimeSet;
                 fileSet = xfileSet;
                 this->SetGeometryFileName(subLine);
               }
-              else if (sscanf(line, " %*s %d%*[ \t]%s", &xtimeSet, subLine) == 2)
+              else if (sscanf(line, " %*s %d%*[ \t]%[^\t\r\n]", &xtimeSet, subLine) == 2)
               {
                 timeSet = xtimeSet;
                 this->SetGeometryFileName(subLine);
               }
-              else if (sscanf(line, " %*s %s", subLine) == 1)
+              else if (sscanf(line, " %*s %[^\t\r\n]", subLine) == 1)
               {
                 this->SetGeometryFileName(subLine);
               }
@@ -427,6 +428,17 @@ int vtkGenericEnSightReader::DetermineEnSightVersion(int quiet)
                 return -1;
               }
             }
+            // The EnSight Gold Case file can reference the geometry file using quotes,
+            // in case
+            std::string filenameString(fileName);
+            char quotes = '\"';
+            size_t found = filenameString.find(quotes);
+            if (found != std::string::npos)
+            {
+              filenameString.erase(
+                std::remove(filenameString.begin(), filenameString.end(), quotes),
+                filenameString.end());
+            }
             sfilename = "";
             if (this->FilePath)
             {
@@ -435,14 +447,13 @@ int vtkGenericEnSightReader::DetermineEnSightVersion(int quiet)
               {
                 sfilename += "/";
               }
-              sfilename += fileName;
+              sfilename += filenameString;
               vtkDebugMacro("full path to geometry file: " << sfilename);
             }
             else
             {
-              sfilename = fileName;
+              sfilename = filenameString;
             }
-
             // got full path to geometry file
 
             this->IFile = vtksys::SystemTools::Fopen(sfilename, "rb");
