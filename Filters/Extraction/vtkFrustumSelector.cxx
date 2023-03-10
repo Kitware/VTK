@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-
+// Funded by CEA, DAM, DIF, F-91297 Arpajon, France
 #include "vtkFrustumSelector.h"
 
 #include "vtkDataArrayRange.h"
