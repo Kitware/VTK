@@ -43,7 +43,7 @@ std::pair<std::string, std::string> GetBlockNameAndLabel(
     metadata->Get(vtkCompositeDataSet::NAME()))
   {
     std::string label = metadata->Get(vtkCompositeDataSet::NAME());
-    if (label.size() > 0)
+    if (!label.empty())
     {
       std::string name = vtkDataAssembly::MakeValidNodeName(label.c_str());
       return std::make_pair(name, label);
