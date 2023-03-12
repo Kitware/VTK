@@ -36,14 +36,17 @@ template <class T>
 void vtkImageYIQToRGBExecute(
   vtkImageYIQToRGB* self, vtkImageData* inData, vtkImageData* outData, int outExt[6], int id, T*)
 {
+  if (std::is_unsigned<T>::value && id == 0)
+  {
+    vtkErrorWithObjectMacro(self, "YIQ color space requires negative numbers");
+  }
+
   vtkImageIterator<T> inIt(inData, outExt);
   vtkImageProgressIterator<T> outIt(outData, outExt, self, id);
-  int maxC;
-  double R, G, B, Y, I, Q;
   double max = self->GetMaximum();
 
   // find the region to loop over
-  maxC = inData->GetNumberOfScalarComponents() - 1;
+  int maxC = inData->GetNumberOfScalarComponents() - 1;
 
   // Loop through output pixels
   while (!outIt.IsAtEnd())
@@ -54,11 +57,11 @@ void vtkImageYIQToRGBExecute(
     while (outSI != outSIEnd)
     {
       // Pixel operation
-      Y = static_cast<double>(*inSI) / max;
+      double Y = static_cast<double>(*inSI) / max;
       inSI++;
-      I = static_cast<double>(*inSI) / max;
+      double I = static_cast<double>(*inSI) / max;
       inSI++;
-      Q = static_cast<double>(*inSI) / max;
+      double Q = static_cast<double>(*inSI) / max;
       inSI++;
 
       // vtkMath::RGBToHSV(R, G, B, &H, &S, &V);
@@ -66,9 +69,9 @@ void vtkImageYIQToRGBExecute(
       // The numbers used below are standard numbers used from here
       // http://www.cs.rit.edu/~ncs/color/t_convert.html
       // Please do not change these numbers
-      R = 1 * Y + 0.956 * I + 0.621 * Q;
-      G = 1 * Y - 0.272 * I - 0.647 * Q;
-      B = 1 * Y - 1.105 * I + 1.702 * Q;
+      double R = 1 * Y + 0.956 * I + 0.621 * Q;
+      double G = 1 * Y - 0.272 * I - 0.647 * Q;
+      double B = 1 * Y - 1.105 * I + 1.702 * Q;
       //----------------------------------------------------------------
 
       R *= max;

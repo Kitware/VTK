@@ -292,13 +292,6 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "wheel")
     # https://gitlab.kitware.com/vtk/vtk/-/issues/18750
     "^VTK::GeovisCorePython-TestGeoProjection$")
 
-  if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "macos" AND
-      "$ENV{CMAKE_CONFIGURATION}" MATCHES "x86_64")
-    list(APPEND test_exclusions
-      # Flaky; needs investigation.
-      "^VTK::ImagingCorePython-TestYIQToRGB$")
-  endif ()
-
   if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "linux")
     list(APPEND test_exclusions
       # Line rendering differences.
