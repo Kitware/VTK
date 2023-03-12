@@ -17,7 +17,7 @@ will not be replaced with escaping, so it is recommended to avoid their usage
 in the input.
 
 ~~~
-vtk_encode_string
+vtk_encode_string(
   INPUT           <input>
   [NAME           <name>]
   [EXPORT_SYMBOL  <symbol>]
