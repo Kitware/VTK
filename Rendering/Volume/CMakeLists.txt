@@ -34,6 +34,10 @@ set(classes
   vtkVolumePicker
   vtkVolumeRayCastSpaceLeapingImageFilter)
 
+set(headers
+  vtkBlockSortHelper.h)
+
 vtk_module_add_module(VTK::RenderingVolume
-  CLASSES ${classes})
+  CLASSES ${classes}
+  HEADERS ${headers})
 vtk_add_test_mangling(VTK::RenderingVolume)
