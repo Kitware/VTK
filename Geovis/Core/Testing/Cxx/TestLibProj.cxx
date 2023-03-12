@@ -6,16 +6,16 @@
 
 int TestLibProj(int, char*[])
 {
-  int epsgCode = 3978;
-  std::set<std::string> expectedProjStrings = {
-    "+proj=lcc +lat_0=49 +lon_0=-95 +lat_1=49 +lat_2=77 +x_0=0 "
-    "+y_0=0 +datum=NAD83 +units=m +no_defs +type=crs",
-
-    "+proj=lcc +lat_0=49 +lon_0=-95 +lat_1=49 +lat_2=77 +x_0=0 +y_0=0 +ellps=GRS80 "
-    "+towgs84=0,0,0,0,0,0,0 +units=m +no_defs +type=crs"
-  };
   try
   {
+    int epsgCode = 3978;
+    std::set<std::string> expectedProjStrings = {
+      "+proj=lcc +lat_0=49 +lon_0=-95 +lat_1=49 +lat_2=77 +x_0=0 "
+      "+y_0=0 +datum=NAD83 +units=m +no_defs +type=crs",
+
+      "+proj=lcc +lat_0=49 +lon_0=-95 +lat_1=49 +lat_2=77 +x_0=0 +y_0=0 +ellps=GRS80 "
+      "+towgs84=0,0,0,0,0,0,0 +units=m +no_defs +type=crs"
+    };
     namespace projio = osgeo::proj::io;
     namespace projutil = osgeo::proj::util;
     namespace projcrs = osgeo::proj::crs;
