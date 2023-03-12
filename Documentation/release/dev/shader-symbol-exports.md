@@ -5,3 +5,4 @@ only those that are available through installed headers are available. These
 include:
 
 - `vtkTextureObjectVS` from `VTK::RenderingOpenGL2`
+- `vtkCompositeZPassFS` from `VTK::RenderingParallel`

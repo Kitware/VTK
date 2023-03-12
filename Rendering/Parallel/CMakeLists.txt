@@ -15,7 +15,8 @@ set(classes
   vtkTreeCompositer)
 
 set(shader_files
-  vtkCompositeZPassShader_fs.glsl
+  vtkCompositeZPassShader_fs.glsl)
+set(public_shader_files
   vtkCompositeZPassFS.glsl)
 
 set(sources)
@@ -23,17 +24,27 @@ set(private_headers)
 foreach (shader_file IN LISTS shader_files)
   vtk_encode_string(
     INPUT         "${shader_file}"
-    EXPORT_SYMBOL "VTKRENDERINGPARALLEL_EXPORT"
-    EXPORT_HEADER "vtkRenderingParallelModule.h"
     HEADER_OUTPUT header
     SOURCE_OUTPUT source)
   list(APPEND sources ${source})
   list(APPEND private_headers ${header})
 endforeach ()
+set(headers)
+foreach (shader_file IN LISTS public_shader_files)
+  vtk_encode_string(
+    INPUT         "${shader_file}"
+    EXPORT_SYMBOL "VTKRENDERINGPARALLEL_EXPORT"
+    EXPORT_HEADER "vtkRenderingParallelModule.h"
+    HEADER_OUTPUT header
+    SOURCE_OUTPUT source)
+  list(APPEND sources ${source})
+  list(APPEND headers ${header})
+endforeach ()
 
 vtk_module_add_module(VTK::RenderingParallel
   CLASSES ${classes}
   SOURCES ${sources}
+  HEADERS ${headers}
   PRIVATE_HEADERS ${private_headers})
 
 vtk_module_definitions(VTK::RenderingParallel
