@@ -133,7 +133,6 @@ void vtkSegYTraceReader::ReadTrace(
       break;
     default:
       std::cerr << "Data sample format code " << formatCode << " not supported." << std::endl;
-      value = 0;
   }
 
   startPos += 240 + this->GetTraceSize(numSamples, formatCode);
