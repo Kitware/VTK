@@ -24,6 +24,11 @@ vtk_encode_string(
   [EXPORT_HEADER  <header>]
   [HEADER_OUTPUT  <variable>]
   [SOURCE_OUTPUT  <variable>]
+
+  [ABI_MANGLE_SYMBOL_BEGIN <being>]
+  [ABI_MANGLE_SYMBOL_END   <end>]
+  [ABI_MANGLE_HEADER       <header>]
+
   [BINARY] [NUL_TERMINATE])
 ~~~
 
@@ -49,11 +54,18 @@ library.
     makes sense with the `BINARY` flag. This is intended to be used if
     embedding a file as a C string exceeds compiler limits on string literals
     in various compilers.
+  * `ABI_MANGLE_SYMBOL_BEGIN`: Open a mangling namespace with the given symbol.
+    If given, `ABI_MANGLE_SYMBOL_END` and `ABI_MANGLE_HEADER` must also be set.
+  * `ABI_MANGLE_SYMBOL_END`: Close a mangling namespace with the given symbol.
+    If given, `ABI_MANGLE_SYMBOL_BEGIN` and `ABI_MANGLE_HEADER` must also be set.
+  * `ABI_MANGLE_HEADER`: The header which provides the ABI mangling symbols.
+    If given, `ABI_MANGLE_SYMBOL_BEGIN` and `ABI_MANGLE_SYMBOL_END` must also
+    be set.
 #]==]
 function (vtk_encode_string)
   cmake_parse_arguments(PARSE_ARGV 0 _vtk_encode_string
     "BINARY;NUL_TERMINATE"
-    "INPUT;NAME;EXPORT_SYMBOL;EXPORT_HEADER;HEADER_OUTPUT;SOURCE_OUTPUT"
+    "INPUT;NAME;EXPORT_SYMBOL;EXPORT_HEADER;HEADER_OUTPUT;SOURCE_OUTPUT;ABI_MANGLE_SYMBOL_BEGIN;ABI_MANGLE_SYMBOL_END;ABI_MANGLE_HEADER"
     "")
 
   if (_vtk_encode_string_UNPARSED_ARGUMENTS)
@@ -82,6 +94,30 @@ function (vtk_encode_string)
       NOT DEFINED _vtk_encode_string_EXPORT_SYMBOL)
     message(WARNING
       "Missing `EXPORT_SYMBOL` when using `EXPORT_HEADER`.")
+  endif ()
+
+  if (DEFINED _vtk_encode_string_ABI_MANGLE_SYMBOL_BEGIN AND
+      (NOT DEFINED _vtk_encode_string_ABI_MANGLE_SYMBOL_END OR
+       NOT DEFINED _vtk_encode_string_ABI_MANGLE_HEADER))
+    message(WARNING
+      "Missing `ABI_MANGLE_SYMBOL_END` or `ABI_MANGLE_HEADER` when using "
+      "`ABI_MANGLE_SYMBOL_BEGIN`.")
+  endif ()
+
+  if (DEFINED _vtk_encode_string_ABI_MANGLE_SYMBOL_END AND
+      (NOT DEFINED _vtk_encode_string_ABI_MANGLE_SYMBOL_BEGIN OR
+       NOT DEFINED _vtk_encode_string_ABI_MANGLE_HEADER))
+    message(WARNING
+      "Missing `ABI_MANGLE_SYMBOL_BEGIN` or `ABI_MANGLE_HEADER` when using "
+      "`ABI_MANGLE_SYMBOL_END`.")
+  endif ()
+
+  if (DEFINED _vtk_encode_string_ABI_MANGLE_HEADER AND
+      (NOT DEFINED _vtk_encode_string_ABI_MANGLE_SYMBOL_BEGIN OR
+       NOT DEFINED _vtk_encode_string_ABI_MANGLE_SYMBOL_END))
+    message(WARNING
+      "Missing `ABI_MANGLE_SYMBOL_BEGIN` or `ABI_MANGLE_SYMBOL_END` when "
+      "using `ABI_MANGLE_HEADER`.")
   endif ()
 
   if (NOT _vtk_encode_string_BINARY AND _vtk_encode_string_NUL_TERMINATE)
@@ -114,6 +150,9 @@ function (vtk_encode_string)
             "-Doutput_name=${_vtk_encode_string_NAME}"
             "-Dexport_symbol=${_vtk_encode_string_EXPORT_SYMBOL}"
             "-Dexport_header=${_vtk_encode_string_EXPORT_HEADER}"
+            "-Dabi_mangle_symbol_begin=${_vtk_encode_string_ABI_MANGLE_SYMBOL_BEGIN}"
+            "-Dabi_mangle_symbol_end=${_vtk_encode_string_ABI_MANGLE_SYMBOL_END}"
+            "-Dabi_mangle_header=${_vtk_encode_string_ABI_MANGLE_HEADER}"
             "-Dbinary=${_vtk_encode_string_BINARY}"
             "-Dnul_terminate=${_vtk_encode_string_NUL_TERMINATE}"
             "-D_vtk_encode_string_run=ON"
@@ -141,12 +180,17 @@ if (_vtk_encode_string_run AND CMAKE_SCRIPT_MODE_FILE)
 
   file(APPEND "${output_header}"
     "#ifndef ${output_name}_h\n#define ${output_name}_h\n\n")
+  if (export_header)
+    file(APPEND "${output_header}"
+      "#include \"${export_header}\"\n")
+  endif ()
+  if (abi_mangle_header AND abi_mangle_symbol_begin)
+    file(APPEND "${output_header}"
+      "#include \"${abi_mangle_header}\"\n\n${abi_mangle_symbol_begin}\n\n")
+  endif ()
   if (export_symbol)
     file(APPEND "${output_header}"
-      "#include \"${export_header}\"\n\nVTK_ABI_NAMESPACE_BEGIN\n${export_symbol} ")
-  else ()
-    file(APPEND "${output_header}"
-      "#include \"vtkABINamespace.h\"\n\nVTK_ABI_NAMESPACE_BEGIN\n")
+      "${export_symbol} ")
   endif ()
 
   if (IS_ABSOLUTE "${source_file}")
@@ -167,10 +211,22 @@ if (_vtk_encode_string_run AND CMAKE_SCRIPT_MODE_FILE)
     string(LENGTH "${original_content}" output_size)
     math(EXPR output_size "${output_size} / 2")
     file(APPEND "${output_header}"
-      "extern const unsigned char ${output_name}[${output_size}];\n\nVTK_ABI_NAMESPACE_END\n#endif\n")
+      "extern const unsigned char ${output_name}[${output_size}];\n\n")
+    if (abi_mangle_symbol_end)
+      file(APPEND "${output_header}"
+        "${abi_mangle_symbol_end}\n")
+    endif ()
+    file(APPEND "${output_header}"
+      "#endif\n")
 
     file(APPEND "${output_source}"
-      "#include \"${output_name}.h\"\n\nVTK_ABI_NAMESPACE_BEGIN\n\nconst unsigned char ${output_name}[${output_size}] = {\n")
+      "#include \"${output_name}.h\"\n\n")
+    if (abi_mangle_symbol_begin)
+      file(APPEND "${output_source}"
+        "${abi_mangle_symbol_begin}\n\n")
+    endif ()
+    file(APPEND "${output_source}"
+      "const unsigned char ${output_name}[${output_size}] = {\n")
     string(REGEX REPLACE "\([0-9a-f][0-9a-f]\)" ",0x\\1" escaped_content "${original_content}")
     # Hard line wrap the file.
     string(REGEX REPLACE "\(..........................................................................,\)" "\\1\n" escaped_content "${escaped_content}")
@@ -179,10 +235,20 @@ if (_vtk_encode_string_run AND CMAKE_SCRIPT_MODE_FILE)
     file(APPEND "${output_source}"
       "${escaped_content}\n")
     file(APPEND "${output_source}"
-      "};\nVTK_ABI_NAMESPACE_END\n")
+      "};\n")
+    if (abi_mangle_symbol_end)
+      file(APPEND "${output_source}"
+        "${abi_mangle_symbol_end}\n")
+    endif ()
   else ()
     file(APPEND "${output_header}"
-      "extern const char *${output_name};\n\nVTK_ABI_NAMESPACE_END\n#endif\n")
+      "extern const char *${output_name};\n\n")
+    if (abi_mangle_symbol_end)
+      file(APPEND "${output_header}"
+        "${abi_mangle_symbol_end}\n\n")
+    endif ()
+    file(APPEND "${output_header}"
+      "#endif\n")
 
     # Escape literal backslashes.
     string(REPLACE "\\" "\\\\" escaped_content "${original_content}")
@@ -192,8 +258,18 @@ if (_vtk_encode_string_run AND CMAKE_SCRIPT_MODE_FILE)
     string(REPLACE "\n" "\\n\"\n\"" escaped_content "${escaped_content}")
 
     file(APPEND "${output_source}"
-      "#include \"${output_name}.h\"\n\nVTK_ABI_NAMESPACE_BEGIN\n\nconst char *${output_name} =\n")
+      "#include \"${output_name}.h\"\n\n")
+    if (abi_mangle_symbol_begin)
+      file(APPEND "${output_source}"
+        "${abi_mangle_symbol_begin}\n\n")
+    endif ()
     file(APPEND "${output_source}"
-      "\"${escaped_content}\";\nVTK_ABI_NAMESPACE_END\n")
+      "const char *${output_name} =\n")
+    file(APPEND "${output_source}"
+      "\"${escaped_content}\";\n")
+    if (abi_mangle_symbol_end)
+      file(APPEND "${output_source}"
+        "\n${abi_mangle_symbol_end}\n")
+    endif ()
   endif ()
 endif ()
