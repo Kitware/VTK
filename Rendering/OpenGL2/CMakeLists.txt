@@ -175,7 +175,10 @@ foreach(file IN LISTS public_shader_files)
     EXPORT_SYMBOL "VTKRENDERINGOPENGL2_EXPORT"
     EXPORT_HEADER "vtkRenderingOpenGL2Module.h"
     HEADER_OUTPUT header
-    SOURCE_OUTPUT source)
+    SOURCE_OUTPUT source
+    ABI_MANGLE_HEADER       "vtkABINamespace.h"
+    ABI_MANGLE_SYMBOL_BEGIN "VTK_ABI_NAMESPACE_BEGIN"
+    ABI_MANGLE_SYMBOL_END   "VTK_ABI_NAMESPACE_END")
   list(APPEND sources
     "${source}")
   list(APPEND headers
