@@ -356,7 +356,7 @@ public:
     vtkStdString TypeName;
     // number of boundaries per entry
     // The index is the dimensionality of the entry. 0=node, 1=edge, 2=face
-    int BdsPerEntry[3];
+    int64_t BdsPerEntry[3];
     vtkIdType AttributesPerEntry;
     std::vector<vtkStdString> AttributeNames;
     std::vector<int> AttributeStatus;
