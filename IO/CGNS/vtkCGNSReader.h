@@ -274,7 +274,7 @@ public:
   ///@{
   /**
    * This reader can cache the mesh points if they are time invariant.
-   * They will be stored with a unique reference to their /base/zonename
+   * They will be stored with a unique reference to their /base/zoneName
    * and not be read in the file when doing unsteady analysis.
    * Default is false.
    */
@@ -286,7 +286,7 @@ public:
   ///@{
   /**
    * This reader can cache the mesh connectivities if they are time invariant.
-   * They will be stored with a unique reference to their /base/zonename
+   * They will be stored with a unique reference to their /base/zoneName
    * and not be read in the file when doing unsteady analysis.
    * Default is false.
    */
@@ -330,6 +330,12 @@ protected:
   int GetUnstructuredZone(
     int base, int zone, int cell_dim, int phys_dim, void* zsize, vtkMultiBlockDataSet* mbase);
 
+  /**
+   * Read "UserDefinedData_t" nodes in the given zone. "DataArray_t" nodes found inside
+   * are added as field data arrays.
+   */
+  int ReadUserDefinedData(int zone, vtkMultiBlockDataSet* mbase);
+
   vtkMultiProcessController* Controller = nullptr;
   vtkIdType ProcRank = 0;
   vtkIdType ProcSize = 1;
@@ -360,9 +366,9 @@ private:
   int UnsteadySolutionStartTimestep = 0;
 
   // For internal cgio calls (low level IO)
-  int cgioNum;      // cgio file reference
-  double rootId;    // id of root node
-  double currentId; // id of node currently being read (zone)
+  int cgioNum;          // cgio file reference
+  double rootId;        // id of root node
+  double currentZoneId; // id of node currently being read (zone)
 
   unsigned int NumberOfBases = 0;
   int ActualTimeStep = 0;
