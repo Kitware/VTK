@@ -47,9 +47,7 @@ vtkImplicitArray<BackendT>::vtkImplicitArray()
 
 //-----------------------------------------------------------------------------
 template <class BackendT>
-vtkImplicitArray<BackendT>::~vtkImplicitArray()
-{
-}
+vtkImplicitArray<BackendT>::~vtkImplicitArray() = default;
 
 //-----------------------------------------------------------------------------
 template <class BackendT>

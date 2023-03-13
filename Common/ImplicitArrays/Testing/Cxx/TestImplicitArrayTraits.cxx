@@ -32,6 +32,13 @@ struct HasMap
   float map(int) const { return 0.0; }
 };
 
+struct HasMapAndMapTuple
+{
+  float map(int) const { return 0.0; }
+
+  void mapTuple(int, float* tuple) const { tuple[0] = tuple[1] = tuple[2] = 0.0; }
+};
+
 struct IsClosure
 {
   float operator()(int) const { return 0.0; }
@@ -60,6 +67,12 @@ int TestImplicitArrayTraits(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   if (vtk::detail::can_map_trait<::HasNothing>::value)
   {
     std::cout << "Failed can_map_trait check on HasNothing" << std::endl;
+    result = EXIT_FAILURE;
+  }
+
+  if (vtk::detail::can_map_tuple_trait<::HasNothing>::value)
+  {
+    std::cout << "Failed can_map_tuple_trait check on HasNothing" << std::endl;
     result = EXIT_FAILURE;
   }
 
@@ -116,6 +129,12 @@ int TestImplicitArrayTraits(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
     result = EXIT_FAILURE;
   }
 
+  if (vtk::detail::can_map_tuple_trait<::HasMap>::value)
+  {
+    std::cout << "Failed can_map_tuple_trait check on HasMap" << std::endl;
+    result = EXIT_FAILURE;
+  }
+
   if (!vtk::detail::implicit_array_traits<::HasMap>::can_read)
   {
     std::cout << "Failed can_read check on HasMap" << std::endl;
@@ -141,6 +160,54 @@ int TestImplicitArrayTraits(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   }
 
   //--------------------------------------------------------------------------------
+  static_assert(vtk::detail::has_map_trait<::HasMapAndMapTuple>::value,
+    "HasMap is not being attributed a has_map_trait");
+  static_assert(vtk::detail::has_map_tuple_trait<::HasMapAndMapTuple>::value,
+    "HasMapAndMapTuple is not being attributed a has_map_tuple_trait");
+  if (!vtk::detail::has_map_tuple_trait<::HasMapAndMapTuple>::value)
+  {
+    std::cout << "Failed has_map_trait check on HasMap" << std::endl;
+    result = EXIT_FAILURE;
+  }
+
+  if (!vtk::detail::can_map_trait<::HasMapAndMapTuple>::value)
+  {
+    std::cout << "Failed can_map_trait check on HasMapAndMapTuple" << std::endl;
+    result = EXIT_FAILURE;
+  }
+
+  if (!vtk::detail::can_map_tuple_trait<::HasMapAndMapTuple>::value)
+  {
+    std::cout << "Failed can_map_tuple_trait check on HasMapAndMapTuple" << std::endl;
+    result = EXIT_FAILURE;
+  }
+
+  if (!vtk::detail::implicit_array_traits<::HasMapAndMapTuple>::can_read)
+  {
+    std::cout << "Failed can_read check on HasMapAndMapTuple" << std::endl;
+    result = EXIT_FAILURE;
+  }
+
+  if (!std::is_same<vtk::detail::implicit_array_traits<::HasMapAndMapTuple>::rtype, float>::value)
+  {
+    std::cout << "Failed rtype check on HasMapAndMapTuple" << std::endl;
+    result = EXIT_FAILURE;
+  }
+
+  if (!std::is_same<vtk::detail::implicit_array_traits<::HasMapAndMapTuple>::type,
+        ::HasMapAndMapTuple>::value)
+  {
+    std::cout << "Failed type check on HasMapAndMapTuple" << std::endl;
+    result = EXIT_FAILURE;
+  }
+
+  if (vtk::detail::implicit_array_traits<::HasMapAndMapTuple>::code != vtk::detail::iarrays::MAP)
+  {
+    std::cout << "Failed code check on HasMapAndMapTuple" << std::endl;
+    result = EXIT_FAILURE;
+  }
+
+  //--------------------------------------------------------------------------------
   static_assert(vtk::detail::is_closure_trait<::IsClosure>::value,
     "IsClosure is not being attributed a is_closure_trait");
   if (!vtk::detail::is_closure_trait<::IsClosure>::value)
@@ -152,6 +219,12 @@ int TestImplicitArrayTraits(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   if (!vtk::detail::can_close_trait<::IsClosure>::value)
   {
     std::cout << "Failed can_close_trait check on IsClosure" << std::endl;
+    result = EXIT_FAILURE;
+  }
+
+  if (vtk::detail::can_map_tuple_trait<::IsClosure>::value)
+  {
+    std::cout << "Failed can_map_tuple_trait check on IsClosure" << std::endl;
     result = EXIT_FAILURE;
   }
 
