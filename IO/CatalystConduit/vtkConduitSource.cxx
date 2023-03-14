@@ -705,7 +705,7 @@ bool AddGlobalData(vtkDataObject* output, const conduit_cpp::Node& globalFields)
   return true;
 }
 
-bool AddFieldData(vtkDataObject* output, const conduit_cpp::Node& stateFields, bool isAMR = false)
+bool AddFieldData(vtkDataObject* output, const conduit_cpp::Node& stateFields, bool isAMReX = false)
 {
   auto field_data = output->GetFieldData();
   auto number_of_children = stateFields.number_of_children();
@@ -743,14 +743,17 @@ bool AddFieldData(vtkDataObject* output, const conduit_cpp::Node& stateFields, b
             conduit_cpp::c_node(&field_node), field_name);
         }
 
-        if (!isAMR && dataArray)
+        if (dataArray)
         {
-          field_data->AddArray(dataArray);
-        }
-        if (isAMR && dataArray)
-        {
-          auto ug = vtkUniformGrid::SafeDownCast(output);
-          ug->GetCellData()->AddArray(dataArray);
+          if (isAMReX)
+          {
+            auto ug = vtkUniformGrid::SafeDownCast(output);
+            ug->GetCellData()->AddArray(dataArray);
+          }
+          else
+          {
+            field_data->AddArray(dataArray);
+          }
         }
       }
     }
