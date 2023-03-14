@@ -16,6 +16,9 @@
 // Description
 // Tests QQuickVTKRenderItem
 
+// VTK_DEPRECATED_IN_9_3_0 applies to the classes tested here
+#define VTK_DEPRECATION_LEVEL 0
+
 #include "QQuickVTKInteractiveWidget.h"
 #include "QQuickVTKRenderItem.h"
 #include "QQuickVTKRenderWindow.h"

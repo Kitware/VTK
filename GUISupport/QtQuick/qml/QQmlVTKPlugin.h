@@ -16,6 +16,7 @@
 #define QQmlVTKPlugin_h
 
 #include "vtkABINamespace.h"
+#include "vtkDeprecation.h"
 
 // Qt includes
 #include <QQmlExtensionPlugin>
@@ -60,7 +61,8 @@
  * against VTK 9.0.x, the VTK module version will be 9.0
  */
 VTK_ABI_NAMESPACE_BEGIN
-class QQmlVTKPlugin : public QQmlExtensionPlugin
+class VTK_DEPRECATED_IN_9_3_0("Use QQuickVTKItem instead") QQmlVTKPlugin
+  : public QQmlExtensionPlugin
 {
   Q_OBJECT
   typedef QQmlExtensionPlugin Superclass;
