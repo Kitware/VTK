@@ -1066,7 +1066,7 @@ void vtkPolarAxesActor::BuildAxes(vtkViewport* viewport)
   }
 
   // Build radial axes
-  this->BuildRadialAxes();
+  this->BuildRadialAxes(viewport);
 
   // Build ticks located on the last arc
   if (this->PolarTickVisibility)
@@ -1304,7 +1304,7 @@ void vtkPolarAxesActor::CreateRadialAxes(int axisCount)
 }
 
 //------------------------------------------------------------------------------
-void vtkPolarAxesActor::BuildRadialAxes()
+void vtkPolarAxesActor::BuildRadialAxes(vtkViewport* viewport)
 {
   bool originToPolarAxis = this->RadialAxesOriginToPolarAxis != 0.0;
 
@@ -1492,6 +1492,12 @@ void vtkPolarAxesActor::BuildRadialAxes()
     {
       axis->SetLabelVisibility(0);
       axis->SetTickVisibility(0);
+    }
+
+    if (viewport)
+    {
+      // Build to make sure properties are immediately set
+      axis->BuildAxis(viewport, true);
     }
   }
 }
