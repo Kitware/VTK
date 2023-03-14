@@ -413,7 +413,7 @@ public:
         }
         else
         {
-          throw CGIOUnsupported("Unsupported unstrured grid location " + location);
+          throw CGIOUnsupported("Unsupported unstructured grid location " + location);
         }
       }
     }
@@ -2021,9 +2021,12 @@ int vtkCGNSReader::GetCurvilinearZone(
     : vtkSmartPointer<vtkDataObject>();
 
   // Add base and zone names as field data
-  const char* baseName = this->Internals->Internal->GetBase(base).name;
-  const char* zoneName = this->Internals->Internal->GetBase(base).zones[zone].name;
-  vtkPrivate::AddZoneNameAsFieldData(baseName, zoneName, zoneDO->GetFieldData());
+  if (zoneDO)
+  {
+    const char* baseName = this->Internals->Internal->GetBase(base).name;
+    const char* zoneName = this->Internals->Internal->GetBase(base).zones[zone].name;
+    vtkPrivate::AddZoneNameAsFieldData(baseName, zoneName, zoneDO->GetFieldData());
+  }
 
   mbase->SetBlock(zone, zoneDO.Get());
 
@@ -4312,6 +4315,12 @@ struct VectorCopy
 //------------------------------------------------------------------------------
 int vtkCGNSReader::ReadUserDefinedData(int zoneId, vtkMultiBlockDataSet* mbase)
 {
+  // Ignore empty block
+  if (!mbase->GetBlock(zoneId))
+  {
+    return CG_OK;
+  }
+
   // Retrieve field data
   vtkSmartPointer<vtkFieldData> fieldData;
 
@@ -4323,6 +4332,13 @@ int vtkCGNSReader::ReadUserDefinedData(int zoneId, vtkMultiBlockDataSet* mbase)
   else
   {
     vtkMultiBlockDataSet* zoneBlock = vtkMultiBlockDataSet::SafeDownCast(mbase->GetBlock(zoneId));
+
+    // Ignore empty mesh
+    if (!zoneBlock->GetBlock(0u))
+    {
+      return CG_OK;
+    }
+
     fieldData = zoneBlock->GetBlock(0u)->GetFieldData();
   }
 
