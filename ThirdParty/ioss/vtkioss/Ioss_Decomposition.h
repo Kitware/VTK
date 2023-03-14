@@ -136,6 +136,10 @@ namespace Ioss {
   {
   public:
     Decomposition(const Ioss::PropertyManager &props, Ioss_MPI_Comm comm);
+    Decomposition(Decomposition const&) = default;
+    Decomposition(Decomposition&&) = default;
+    Decomposition& operator=(Decomposition const&) = default;
+    Decomposition& operator=(Decomposition&&) = default;
 
     size_t global_node_count() const { return m_globalNodeCount; }
     size_t global_elem_count() const { return m_globalElementCount; }

@@ -71,7 +71,7 @@ namespace Ioex {
                        const Ioss::PropertyManager &properties);
     ParallelDatabaseIO(const ParallelDatabaseIO &from)            = delete;
     ParallelDatabaseIO &operator=(const ParallelDatabaseIO &from) = delete;
-    ~ParallelDatabaseIO()                                         = default;
+    ~ParallelDatabaseIO();
 
     int  get_file_pointer() const override; // Open file and set exodusFilePtr.
     bool needs_shared_node_information() const override { return true; }
