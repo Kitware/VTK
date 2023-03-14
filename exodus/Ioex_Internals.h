@@ -8,6 +8,8 @@
 
 #pragma once
 
+#include "ioex_export.h"
+
 #include "vtk_ioss_mangle.h"
 
 #include "Ioss_ParallelUtils.h" // for ParallelUtils
@@ -67,7 +69,7 @@ namespace Ioss {
  * </ul>
  */
 namespace Ioex {
-  struct NodeBlock
+  struct IOEX_EXPORT NodeBlock
   {
     NodeBlock()                       = default;
     NodeBlock(const NodeBlock &other) = default;
@@ -83,7 +85,7 @@ namespace Ioex {
     int64_t     procOffset{0};
   };
 
-  struct Assembly
+  struct IOEX_EXPORT Assembly
   {
     Assembly()                      = default;
     Assembly(const Assembly &other) = default;
@@ -98,7 +100,7 @@ namespace Ioex {
     std::vector<int64_t> memberIdList;
   };
 
-  struct Blob
+  struct IOEX_EXPORT Blob
   {
     Blob()                  = default;
     Blob(const Blob &other) = default;
@@ -113,7 +115,7 @@ namespace Ioex {
     int64_t     procOffset{0};
   };
 
-  struct EdgeBlock
+  struct IOEX_EXPORT EdgeBlock
   {
     EdgeBlock() { Ioss::Utils::copy_string(elType, ""); }
 
@@ -140,7 +142,7 @@ namespace Ioex {
   private:
   };
 
-  struct FaceBlock
+  struct IOEX_EXPORT FaceBlock
   {
     FaceBlock() { Ioss::Utils::copy_string(elType, ""); }
 
@@ -168,7 +170,7 @@ namespace Ioex {
   private:
   };
 
-  struct ElemBlock
+  struct IOEX_EXPORT ElemBlock
   {
     ElemBlock() { Ioss::Utils::copy_string(elType, ""); }
 
@@ -198,7 +200,7 @@ namespace Ioex {
     int64_t     procOffset{0};
   };
 
-  struct NodeSet
+  struct IOEX_EXPORT NodeSet
   {
     NodeSet()                     = default;
     NodeSet(const NodeSet &other) = default;
@@ -214,7 +216,7 @@ namespace Ioex {
     int64_t     procOffset{0};
   };
 
-  struct EdgeSet
+  struct IOEX_EXPORT EdgeSet
   {
     EdgeSet()                     = default;
     EdgeSet(const EdgeSet &other) = default;
@@ -228,7 +230,7 @@ namespace Ioex {
     int64_t     procOffset{0};
   };
 
-  struct FaceSet
+  struct IOEX_EXPORT FaceSet
   {
     FaceSet()                     = default;
     FaceSet(const FaceSet &other) = default;
@@ -242,7 +244,7 @@ namespace Ioex {
     int64_t     procOffset{0};
   };
 
-  struct ElemSet
+  struct IOEX_EXPORT ElemSet
   {
     ElemSet()                     = default;
     ElemSet(const ElemSet &other) = default;
@@ -256,7 +258,7 @@ namespace Ioex {
     int64_t     procOffset{0};
   };
 
-  struct SideSet
+  struct IOEX_EXPORT SideSet
   {
     SideSet() = default;
     explicit SideSet(const Ioss::SideBlock &other);
@@ -271,7 +273,7 @@ namespace Ioex {
     int64_t     dfProcOffset{0};
   };
 
-  struct CommunicationMap
+  struct IOEX_EXPORT CommunicationMap
   {
     CommunicationMap() = default;
     CommunicationMap(entity_id the_id, int64_t count, char the_type)
@@ -283,7 +285,7 @@ namespace Ioex {
     char      type{'U'}; // 'n' for node, 'e' for element
   };
 
-  struct CommunicationMetaData
+  struct IOEX_EXPORT CommunicationMetaData
   {
     CommunicationMetaData()                              = default;
     CommunicationMetaData(const CommunicationMetaData &) = delete;
@@ -305,11 +307,11 @@ namespace Ioex {
     bool                          outputNemesis{false};
   };
 
-  class Redefine
+  class IOEX_EXPORT Redefine
   {
   public:
     explicit Redefine(int exoid);
-    Redefine(const Redefine &from) = delete;
+    Redefine(const Redefine &from)            = delete;
     Redefine &operator=(const Redefine &from) = delete;
     ~Redefine();
 
@@ -317,7 +319,7 @@ namespace Ioex {
     int exodusFilePtr;
   };
 
-  class Mesh
+  class IOEX_EXPORT Mesh
   {
   public:
     Mesh() = default;
@@ -356,11 +358,11 @@ namespace Ioex {
     Ioss::ParallelUtils    parallelUtil;
   };
 
-  class Internals
+  class IOEX_EXPORT Internals
   {
   public:
     Internals(int exoid, int maximum_name_length, const Ioss::ParallelUtils &util);
-    Internals(const Internals &from) = delete;
+    Internals(const Internals &from)            = delete;
     Internals &operator=(const Internals &from) = delete;
 
     int initialize_state_file(Mesh &mesh, const ex_var_params &var_params,

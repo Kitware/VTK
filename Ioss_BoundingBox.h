@@ -6,10 +6,12 @@
 
 #pragma once
 
+#include "ioss_export.h"
+
 #include "vtk_ioss_mangle.h"
 
 namespace Ioss {
-  struct AxisAlignedBoundingBox
+  struct IOSS_EXPORT AxisAlignedBoundingBox
   {
     AxisAlignedBoundingBox() = default;
 

@@ -102,10 +102,9 @@ namespace Ioex {
       status = nc_put_att_double(rootid, NC_GLOBAL, "last_written_time", NC_DOUBLE, 1, &value);
       if (status != NC_NOERR) {
         ex_opts(EX_VERBOSE);
-        char errmsg[MAX_ERR_LENGTH];
-        fmt::print(errmsg, "Error: failed to define 'last_written_time' attribute to file id {}",
-                   exodusFilePtr);
-        ex_err_fn(exodusFilePtr, __func__, errmsg, status);
+        auto errmsg = fmt::format(
+            "Error: failed to define 'last_written_time' attribute to file id {}", exodusFilePtr);
+        ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
       }
     }
   }
@@ -144,6 +143,8 @@ namespace Ioex {
     case Ioss::NODEBLOCK: return EX_NODAL;
     case Ioss::NODESET: return EX_NODE_SET;
     case Ioss::SIDESET: return EX_SIDE_SET;
+    case Ioss::SIDEBLOCK: return EX_SIDE_SET;
+    case Ioss::COMMSET: return static_cast<ex_entity_type>(0);
     default: return EX_INVALID;
     }
   }
@@ -168,18 +169,18 @@ namespace Ioex {
         found  = true;
       }
       else {
-        char errmsg[MAX_ERR_LENGTH];
         ex_opts(EX_VERBOSE);
-        fmt::print(errmsg, "Error: failed to read last_written_time attribute from file id {}",
-                   exodusFilePtr);
-        ex_err_fn(exodusFilePtr, __func__, errmsg, status);
+        auto errmsg = fmt::format(
+            "Error: failed to read last_written_time attribute from file id {}", exodusFilePtr);
+        ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
         found = false;
       }
     }
     return found;
   }
 
-  bool check_processor_info(int exodusFilePtr, int processor_count, int processor_id)
+  bool check_processor_info(const std::string &filename, int exodusFilePtr, int processor_count,
+                            int processor_id)
   {
     // A restart file may contain an attribute which contains
     // information about the processor count and current processor id
@@ -202,29 +203,27 @@ namespace Ioex {
       status = nc_get_att_int(exodusFilePtr, NC_GLOBAL, "processor_info", proc_info);
       if (status == NC_NOERR) {
         if (proc_info[0] != processor_count && proc_info[0] > 1) {
-          fmt::print(Ioss::WARNING(),
+          fmt::print(Ioss::WarnOut(),
                      "Processor decomposition count in file ({}) does not match current "
-                     "processor "
-                     "count ({}).\n",
-                     proc_info[0], processor_count);
+                     "processor count ({}) in file named '{}'.\n",
+                     proc_info[0], processor_count, filename);
           matches = false;
         }
         if (proc_info[1] != processor_id) {
           fmt::print(
-              Ioss::WARNING(),
-              "This file was originally written on processor {}, but is now being read on "
+              Ioss::WarnOut(),
+              "The file '{}' was originally written on processor {}, but is now being read on "
               "processor {}.\n"
               "This may cause problems if there is any processor-dependent data on the file.\n",
-              proc_info[1], processor_id);
+              filename, proc_info[1], processor_id);
           matches = false;
         }
       }
       else {
-        char errmsg[MAX_ERR_LENGTH];
         ex_opts(EX_VERBOSE);
-        fmt::print(errmsg, "Error: failed to read processor info attribute from file id {}",
-                   exodusFilePtr);
-        ex_err_fn(exodusFilePtr, __func__, errmsg, status);
+        auto errmsg =
+            fmt::format("Error: failed to read processor info attribute from file {}", filename);
+        ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
         return (EX_FATAL) != 0;
       }
     }
@@ -251,7 +250,7 @@ namespace Ioex {
   void decode_surface_name(Ioex::SideSetMap &fs_map, Ioex::SideSetSet &fs_set,
                            const std::string &name)
   {
-    std::vector<std::string> tokens = Ioss::tokenize(name, "_");
+    auto tokens = Ioss::tokenize(name, "_");
     if (tokens.size() >= 4) {
       // Name of form: "name_eltopo_sidetopo_id" or
       // "name_block_id_sidetopo_id" "name" is typically "surface".
@@ -286,7 +285,7 @@ namespace Ioex {
     }
   }
 
-  bool set_id(const Ioss::GroupingEntity *entity, ex_entity_type type, Ioex::EntityIdSet *idset)
+  bool set_id(const Ioss::GroupingEntity *entity, Ioex::EntityIdSet *idset)
   {
     // See description of 'get_id' function.  This function just primes
     // the idset with existing ids so that when we start generating ids,
@@ -300,7 +299,8 @@ namespace Ioex {
       int64_t id = entity->get_property(id_prop).get_int();
 
       // See whether it already exists...
-      succeed = idset->insert(std::make_pair(static_cast<int>(type), id)).second;
+      auto type = map_exodus_type(entity->type());
+      succeed   = idset->insert(std::make_pair(static_cast<int>(type), id)).second;
       if (!succeed) {
         // Need to remove the property so it doesn't cause problems
         // later...
@@ -316,7 +316,7 @@ namespace Ioex {
   // If not of this form, return 0;
   int64_t extract_id(const std::string &name_id)
   {
-    std::vector<std::string> tokens = Ioss::tokenize(name_id, "_");
+    auto tokens = Ioss::tokenize(name_id, "_");
 
     if (tokens.size() == 1) {
       return 0;
@@ -333,7 +333,7 @@ namespace Ioex {
     return 0;
   }
 
-  int64_t get_id(const Ioss::GroupingEntity *entity, ex_entity_type type, Ioex::EntityIdSet *idset)
+  int64_t get_id(const Ioss::GroupingEntity *entity, Ioex::EntityIdSet *idset)
   {
     // Sierra uses names to refer to grouping entities; however,
     // exodusII requires integer ids.  When reading an exodusII file,
@@ -384,6 +384,7 @@ namespace Ioex {
     // At this point, we either have an id equal to '1' or we have an id
     // extracted from the entities name. Increment it until it is
     // unique...
+    ex_entity_type type = map_exodus_type(entity->type());
     while (idset->find(std::make_pair(int(type), id)) != idset->end()) {
       ++id;
     }
@@ -469,7 +470,7 @@ namespace Ioex {
             db_has_name = false;
             if (name_id != id) {
               std::string new_name = Ioss::Utils::encode_entity_name(basename, id);
-              fmt::print(Ioss::WARNING(),
+              fmt::print(Ioss::WarnOut(),
                          "The entity named '{}' has the id {} which does not match the "
                          "embedded id {}.\n"
                          "         This can cause issues later; the entity will be renamed to '{}' "
@@ -535,15 +536,44 @@ namespace Ioex {
       Ioss::Utils::fixup_name(names[i]);
     }
 
-    if (map_count == 2 && std::strncmp(names[0], "skin:", 5) == 0 &&
-        std::strncmp(names[1], "skin:", 5) == 0) {
-      // Currently, only support the "skin" map -- It will be a 2
-      // component field consisting of "parent_element":"local_side"
-      // pairs.  The parent_element is an element in the original mesh,
-      // not this mesh.
-      block->field_add(Ioss::Field("skin", block->field_int_type(), "Real[2]", Ioss::Field::MESH,
-                                   my_element_count));
+    for (int i = 0; i < map_count; i++) {
+      // If the name does *not* contain a `:`, then assume that this is a scalar map and add to the
+      // block.
+      std::string name{names[i]};
+      if (name.find(':') == std::string::npos) {
+        Ioss::Field field(name, block->field_int_type(), IOSS_SCALAR(), Ioss::Field::MAP,
+                          my_element_count);
+        field.set_index(i + 1);
+        block->field_add(field);
+        continue;
+      }
+
+      // Name does contain a `:` which is a loose convention for naming of maps in IOSS.
+      // If multiple maps start with the same substring before the `:`, then they are considered
+      // components of the same Ioss::Field::MAP field.
+      // Count the number of names that begin with the same substring...
+      auto base = name.substr(0, name.find(':'));
+
+      // Now see if the following name(s) contain the same substring...
+      int ii = i;
+      while (++ii < map_count) {
+        std::string next{names[ii]};
+        std::string next_base = next.substr(0, next.find(':'));
+        if (base != next_base) {
+          break;
+        }
+      }
+
+      int comp_count = ii - i;
+
+      std::string storage = fmt::format("Real[{}]", comp_count);
+      Ioss::Field field(base, block->field_int_type(), storage, Ioss::Field::MAP, my_element_count);
+      field.set_index(i + 1);
+      block->field_add(field);
+
+      i = ii - 1;
     }
+
     Ioss::Utils::delete_name_array(names, map_count);
     return map_count;
   }

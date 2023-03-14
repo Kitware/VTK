@@ -6,6 +6,8 @@
 
 #pragma once
 
+#include "ioss_export.h"
+
 #include "vtk_ioss_mangle.h"
 
 #include "Ioss_Super.h"
@@ -20,7 +22,7 @@ namespace Ioss {
 
 namespace Ioss {
 
-  class Super : public Ioss::ElementTopology
+  class IOSS_EXPORT Super : public Ioss::ElementTopology
   {
 
   public:

@@ -5,6 +5,8 @@
 // See packages/seacas/LICENSE for details
 #pragma once
 
+#include "ioex_export.h"
+
 #include "vtk_ioss_mangle.h"
 
 #include "Ioss_EntityType.h"     // for EntityType, etc
@@ -22,7 +24,7 @@ namespace Ioss {
 } // namespace Ioss
 
 namespace Ioex {
-  class SuperElement : public Ioss::GroupingEntity
+  class IOEX_EXPORT SuperElement : public Ioss::GroupingEntity
   {
   public:
     SuperElement(std::string filename, const std::string &my_name);

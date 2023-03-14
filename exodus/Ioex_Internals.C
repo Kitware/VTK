@@ -1052,7 +1052,6 @@ int Internals::put_metadata(const Mesh &mesh, const CommunicationMetaData &comm)
 {
   int numdimdim  = 0;
   int numnoddim  = 0;
-  int strdim     = 0;
   int namestrdim = 0;
   int varid      = 0;
   int timedim    = 0;
@@ -1071,7 +1070,7 @@ int Internals::put_metadata(const Mesh &mesh, const CommunicationMetaData &comm)
   }
 
   if (rootid == exodusFilePtr) {
-    // We are creating a grouped file, the title and other attributes haveee
+    // We are creating a grouped file, the title and other attributes have
     // already been defined when the root group was created; don't redo now.
     int status = nc_put_att_text(rootid, NC_GLOBAL, ATT_TITLE,
                                  static_cast<int>(std::strlen(mesh.title)) + 1, mesh.title);
@@ -1129,22 +1128,12 @@ int Internals::put_metadata(const Mesh &mesh, const CommunicationMetaData &comm)
     }
   }
 
-  // inquire previously defined dimensions
-  int status = nc_inq_dimid(rootid, DIM_STR, &strdim);
-  if (status != NC_NOERR) {
-    ex_opts(EX_VERBOSE);
-    std::string errmsg =
-        fmt::format("Error: failed to get string length in file id {}", exodusFilePtr);
-    ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
-    return (EX_FATAL);
-  }
-
   /* create name string length dimension */
   if (maximumNameLength < 32) {
     maximumNameLength = 32;
   }
   if (nc_inq_dimid(rootid, DIM_STR_NAME, &namestrdim) != NC_NOERR) {
-    status = nc_def_dim(rootid, DIM_STR_NAME, maximumNameLength + 1, &namestrdim);
+    int status = nc_def_dim(rootid, DIM_STR_NAME, maximumNameLength + 1, &namestrdim);
     if (status != NC_NOERR) {
       ex_opts(EX_VERBOSE);
       std::string errmsg =
@@ -1154,7 +1143,7 @@ int Internals::put_metadata(const Mesh &mesh, const CommunicationMetaData &comm)
     }
   }
 
-  status = nc_def_dim(exodusFilePtr, DIM_NUM_DIM, mesh.dimensionality, &numdimdim);
+  int status = nc_def_dim(exodusFilePtr, DIM_NUM_DIM, mesh.dimensionality, &numdimdim);
   if (status != NC_NOERR) {
     ex_opts(EX_VERBOSE);
     std::string errmsg =
@@ -1533,7 +1522,7 @@ int Internals::put_metadata(const Mesh &mesh, const CommunicationMetaData &comm)
     // by this quantity.
     {
       const char   *vars[]  = {VAR_NS_IDS_GLOBAL, VAR_NS_NODE_CNT_GLOBAL, VAR_NS_DF_CNT_GLOBAL,
-                            nullptr};
+                               nullptr};
       const nc_type types[] = {ids_type, bulk_type, bulk_type};
 
       status = define_variables(exodusFilePtr, static_cast<int>(comm.globalNodeSets),
@@ -1548,7 +1537,7 @@ int Internals::put_metadata(const Mesh &mesh, const CommunicationMetaData &comm)
     // by this quantity.
     {
       const char   *vars[]  = {VAR_SS_IDS_GLOBAL, VAR_SS_SIDE_CNT_GLOBAL, VAR_SS_DF_CNT_GLOBAL,
-                            nullptr};
+                               nullptr};
       const nc_type types[] = {ids_type, bulk_type, bulk_type};
 
       status = define_variables(exodusFilePtr, static_cast<int>(comm.globalSideSets),

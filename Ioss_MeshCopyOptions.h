@@ -11,8 +11,10 @@
 
 #include <vector>
 
+#include "ioss_export.h"
+
 namespace Ioss {
-  struct MeshCopyOptions
+  struct IOSS_EXPORT MeshCopyOptions
   {
     std::vector<double> selected_times{};
     double              minimum_time{0.0};
@@ -25,6 +27,7 @@ namespace Ioss {
     bool memory_statistics{false};
     bool debug{false};
     bool verbose{false};
+    bool output_summary{false};
     bool ints_64_bit{false};
     bool delete_timesteps{false};
     bool reverse{false};          // Used for testing CGNS

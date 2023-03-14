@@ -7,6 +7,8 @@
  */
 #pragma once
 
+#include "ioex_export.h"
+
 #include "vtk_ioss_mangle.h"
 
 #include <vtk_exodusII.h>
@@ -31,10 +33,12 @@ namespace Ioss {
 }
 namespace Ioex {
 
-  class DecompositionDataBase
+  class IOEX_EXPORT DecompositionDataBase
   {
   public:
     DecompositionDataBase(Ioss_MPI_Comm comm) : comm_(comm) {}
+    DecompositionDataBase(const DecompositionDataBase&) = delete;
+    DecompositionDataBase& operator=(const DecompositionDataBase&) = delete;
 
     virtual ~DecompositionDataBase()            = default;
     virtual int    int_size() const             = 0;
@@ -87,13 +91,15 @@ namespace Ioex {
     virtual size_t get_commset_node_size() const = 0;
 
     virtual int get_node_coordinates(int filePtr, double *ioss_data,
-                                     const Ioss::Field &field) const         = 0;
+                                     const Ioss::Field &field) const                 = 0;
     virtual int get_one_attr(int exoid, ex_entity_type obj_type, ex_entity_id obj_id,
-                             int attrib_index, double *attrib) const         = 0;
+                             int attrib_index, double *attrib) const                 = 0;
     virtual int get_attr(int exoid, ex_entity_type obj_type, ex_entity_id obj_id, size_t attr_count,
-                         double *attrib) const                               = 0;
+                         double *attrib) const                                       = 0;
     virtual int get_var(int filePtr, int step, ex_entity_type type, int var_index, ex_entity_id id,
-                        int64_t num_entity, std::vector<double> &data) const = 0;
+                        int64_t num_entity, std::vector<double> &data) const         = 0;
+    virtual int get_user_map(int exoid, ex_entity_type obj_type, ex_entity_id id, int map_index,
+                             size_t offset, size_t num_entity, void *map_data) const = 0;
   };
 
   template <typename INT> class DecompositionData : public DecompositionDataBase
@@ -152,6 +158,9 @@ namespace Ioex {
     int get_var(int filePtr, int step, ex_entity_type type, int var_index, ex_entity_id id,
                 int64_t num_entity, std::vector<double> &data) const;
 
+    int get_user_map(int exoid, ex_entity_type obj_type, ex_entity_id id, int map_index,
+                     size_t offset, size_t num_entity, void *map_data) const;
+
     template <typename T>
     int get_set_mesh_var(int filePtr, ex_entity_type type, ex_entity_id id,
                          const Ioss::Field &field, T *ioss_data) const;
@@ -195,6 +204,11 @@ namespace Ioex {
                      double *ioss_data) const;
     int get_node_attr(int filePtr, ex_entity_id id, size_t comp_count, double *ioss_data) const;
     int get_elem_attr(int filePtr, ex_entity_id id, size_t comp_count, double *ioss_data) const;
+
+    int get_elem_map(int filePtr, ex_entity_id blk_id, int map_index, size_t offset, size_t count,
+                     void *ioss_data) const;
+    int get_node_map(int filePtr, int map_index, size_t offset, size_t count,
+                     void *ioss_data) const;
 
     int get_node_var(int filePtr, int step, int var_index, ex_entity_id id, int64_t num_entity,
                      std::vector<double> &ioss_data) const;

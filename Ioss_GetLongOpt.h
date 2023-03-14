@@ -9,6 +9,8 @@
 
 #pragma once
 
+#include "ioss_export.h"
+
 #include "vtk_ioss_mangle.h"
 
 #include <cstdlib>
@@ -20,7 +22,7 @@ namespace Ioss {
    *
    *  A collection of long command line option names for a program that uses the Ioss library.
    */
-  class GetLongOption
+  class IOSS_EXPORT GetLongOption
   {
   public:
     enum OptType { NoValue, OptionalValue, MandatoryValue };
@@ -29,13 +31,13 @@ namespace Ioss {
     struct Cell
     {
       const char *option{nullptr};      // option name
-      OptType     type{NoValue};        // option type
       const char *description{nullptr}; // a description of option
       const char *value{nullptr};       // value of option (string)
       const char *opt_value{
-          nullptr};            // If optional value and value not entered, assign opt_value to value
-      Cell *next{nullptr};     // pointer to the next cell
-      bool  extra_line{false}; // True if `usage()` should output extra line at end of entry
+          nullptr};          // If optional value and value not entered, assign opt_value to value
+      Cell   *next{nullptr}; // pointer to the next cell
+      OptType type{NoValue}; // option type
+      bool    extra_line{false}; // True if `usage()` should output extra line at end of entry
 
       Cell() = default;
     };

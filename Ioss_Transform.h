@@ -6,6 +6,8 @@
 
 #pragma once
 
+#include "ioss_export.h"
+
 #include "vtk_ioss_mangle.h"
 
 #include <Ioss_CodeTypes.h>
@@ -18,7 +20,7 @@ namespace Ioss {
   class Field;
   class VariableType;
 
-  class Transform
+  class IOSS_EXPORT Transform
   {
   public:
     virtual ~Transform();
@@ -43,7 +45,7 @@ namespace Iotr {
   class Factory;
   using FactoryMap = std::map<std::string, Factory *, std::less<std::string>>;
 
-  class Factory
+  class IOSS_EXPORT Factory
   {
   public:
     virtual ~Factory() = default;

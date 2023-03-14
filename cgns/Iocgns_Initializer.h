@@ -6,8 +6,10 @@
 
 #pragma once
 
+#include "iocgns_export.h"
+
 namespace Iocgns {
-  class Initializer
+  class IOCGNS_EXPORT Initializer
   {
   public:
     Initializer();

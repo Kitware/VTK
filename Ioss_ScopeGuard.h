@@ -7,6 +7,8 @@
  */
 #pragma once
 
+#include "ioss_export.h"
+
 #include "vtk_ioss_mangle.h"
 
 /*
@@ -14,6 +16,7 @@
   Modified by Joshua Lehrer, FactSet Research Systems, November 2005.
 */
 
+namespace Ioss {
 template <class T> class RefHolder
 {
   T &ref_;
@@ -26,7 +29,7 @@ public:
 
 template <class T> inline RefHolder<T> ByRef(T &t) { return RefHolder<T>(t); }
 
-class ScopeGuardImplBase
+class IOSS_EXPORT ScopeGuardImplBase
 {
   ScopeGuardImplBase &operator=(const ScopeGuardImplBase &) = delete;
 
@@ -270,3 +273,4 @@ MakeGuard(Ret (Obj2::*memFun)(P1a, P2a), Obj1 *obj, P1b p1, P2b p2)
 
 #define ON_BLOCK_EXIT     ScopeGuard ANONYMOUS_VARIABLE(scopeGuard) = MakeGuard
 #define ON_BLOCK_EXIT_OBJ ScopeGuard ANONYMOUS_VARIABLE(scopeGuard) = MakeObjGuard
+} // namespace Ioss

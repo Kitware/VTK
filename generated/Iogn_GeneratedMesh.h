@@ -6,6 +6,8 @@
 
 #pragma once
 
+#include "iogn_export.h"
+
 #include "vtk_ioss_mangle.h"
 
 #include <Ioss_CodeTypes.h>
@@ -19,7 +21,7 @@
 #include <vector>  // for vector
 
 namespace Iogn {
-  class GeneratedMesh
+  class IOGN_EXPORT GeneratedMesh
   {
   public:
     enum ShellLocation { MX = 0, PX = 1, MY = 2, PY = 3, MZ = 4, PZ = 5 };
@@ -168,7 +170,7 @@ namespace Iogn {
     explicit GeneratedMesh(const std::string &parameters, int proc_count = 1, int my_proc = 0);
     GeneratedMesh(int64_t num_x, int64_t num_y, int64_t num_z, int proc_count = 1, int my_proc = 0);
     GeneratedMesh();
-    GeneratedMesh(const GeneratedMesh &) = delete;
+    GeneratedMesh(const GeneratedMesh &)            = delete;
     GeneratedMesh &operator=(const GeneratedMesh &) = delete;
 
     virtual ~GeneratedMesh() = default;

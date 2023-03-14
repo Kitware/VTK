@@ -6,6 +6,8 @@
 
 #pragma once
 
+#include "ionit_export.h"
+
 #include "vtk_ioss_mangle.h"
 
 namespace Ioss {
@@ -17,7 +19,7 @@ namespace Ioss {
      *  An object of this type must be created before using any other
      *  functions or methods in the Ioss library.
      */
-    class Initializer
+    class IONIT_EXPORT Initializer
     {
     public:
       Initializer();

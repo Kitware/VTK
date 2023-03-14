@@ -7,6 +7,8 @@
 // -*- Mode: c++ -*-
 #pragma once
 
+#include "ioex_export.h"
+
 #include "vtk_ioss_mangle.h"
 
 #include <Ioss_DBUsage.h>
@@ -70,12 +72,12 @@ namespace Ioex {
   // to ensure that there are no id collisions.
   using EntityIdSet = std::set<std::pair<int64_t, int64_t>>;
 
-  class BaseDatabaseIO : public Ioss::DatabaseIO
+  class IOEX_EXPORT BaseDatabaseIO : public Ioss::DatabaseIO
   {
   public:
     BaseDatabaseIO(Ioss::Region *region, const std::string &filename, Ioss::DatabaseUsage db_usage,
                    Ioss_MPI_Comm communicator, const Ioss::PropertyManager &props);
-    BaseDatabaseIO(const BaseDatabaseIO &from) = delete;
+    BaseDatabaseIO(const BaseDatabaseIO &from)            = delete;
     BaseDatabaseIO &operator=(const BaseDatabaseIO &from) = delete;
 
     ~BaseDatabaseIO() override;
@@ -225,8 +227,8 @@ namespace Ioex {
 
     void output_results_names(ex_entity_type type, VariableNameMap &variables,
                               bool reduction) const;
-    int  gather_names(ex_entity_type type, VariableNameMap &variables,
-                      const Ioss::GroupingEntity *ge, int index, bool reduction);
+    int  gather_names(VariableNameMap &variables, const Ioss::GroupingEntity *ge, int index,
+                      bool reduction);
 
     void get_nodeblocks();
     void get_assemblies();
@@ -234,8 +236,8 @@ namespace Ioex {
 
     void update_block_omissions_from_assemblies();
 
-    void add_attribute_fields(ex_entity_type entity_type, Ioss::GroupingEntity *block,
-                              int attribute_count, const std::string &type);
+    void add_attribute_fields(Ioss::GroupingEntity *block, int attribute_count,
+                              const std::string &type);
 
     void common_write_meta_data(Ioss::IfDatabaseExistsBehavior behavior);
     void output_other_meta_data();
@@ -244,17 +246,16 @@ namespace Ioex {
                                         int64_t position, int64_t block_count,
                                         Ioss::IntVector       &truth_table,
                                         Ioex::VariableNameMap &variables);
-    int64_t add_results_fields(ex_entity_type type, Ioss::GroupingEntity *entity,
-                               int64_t position = 0);
-    int64_t add_reduction_results_fields(ex_entity_type type, Ioss::GroupingEntity *entity);
-    void add_mesh_reduction_fields(ex_entity_type type, int64_t id, Ioss::GroupingEntity *entity);
+    int64_t add_results_fields(Ioss::GroupingEntity *entity, int64_t position = 0);
+    int64_t add_reduction_results_fields(Ioss::GroupingEntity *entity);
+    void    add_mesh_reduction_fields(int64_t id, Ioss::GroupingEntity *entity);
 
     void add_region_fields();
-    void store_reduction_field(ex_entity_type type, const Ioss::Field &field,
-                               const Ioss::GroupingEntity *ge, void *variables) const;
+    void store_reduction_field(const Ioss::Field &field, const Ioss::GroupingEntity *ge,
+                               void *variables) const;
 
-    void get_reduction_field(ex_entity_type type, const Ioss::Field &field,
-                             const Ioss::GroupingEntity *ge, void *variables) const;
+    void get_reduction_field(const Ioss::Field &field, const Ioss::GroupingEntity *ge,
+                             void *variables) const;
     void write_reduction_fields() const;
     void read_reduction_fields() const;
 

@@ -1,4 +1,4 @@
-// Copyright(C) 1999-2021 National Technology & Engineering Solutions
+// Copyright(C) 1999-2022 National Technology & Engineering Solutions
 // of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 // NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -97,6 +97,23 @@ Ioss::ElementTopology *Ioss::ElementTopology::factory(const std::string &type, b
     }
   }
 
+  // See if we can recognize an element topology consisting of the first 3 or 4 letters
+  // of the name concatenated with the digits at the end of the name (if any)...
+  if (iter == registry().end()) {
+    auto first_three    = ltype.substr(0, 3);
+    auto first_four     = ltype.substr(0, 4);
+    auto node_count_str = Ioss::Utils::get_trailing_digits(ltype);
+    if (!node_count_str.empty()) {
+      first_three += node_count_str;
+      first_four += node_count_str;
+    }
+
+    iter = registry().find(first_four);
+    if (iter == registry().end()) {
+      iter = registry().find(first_three);
+    }
+  }
+
   if (iter == registry().end()) {
     if (!ok_to_fail) {
       std::ostringstream errmsg;
@@ -134,7 +151,7 @@ unsigned int Ioss::ElementTopology::get_unique_id(const std::string &type)
   std::string  ltype    = Ioss::Utils::lowercase(type);
   auto         iter     = registry().find(ltype);
   if (iter == registry().end()) {
-    fmt::print(Ioss::WARNING(), "The topology type '{}' is not supported.\n", type);
+    fmt::print(Ioss::WarnOut(), "The topology type '{}' is not supported.\n", type);
   }
   else {
     Ioss::ElementTopology *inst = (*iter).second;
@@ -279,6 +296,10 @@ Ioss::IntVector Ioss::ElementTopology::boundary_connectivity(int bnd_number) con
       assert(spatial_dimension() == 3);
       return edge_connectivity(bnd_number);
     }
+    if (parametric_dimension() == 1) {
+      // Spring/line-type element -- has node as boundary.
+      return Ioss::IntVector{bnd_number - 1};
+    }
   }
   return Ioss::IntVector();
 }
@@ -320,6 +341,10 @@ Ioss::ElementTopology *Ioss::ElementTopology::boundary_type(int bnd_number) cons
     if (parametric_dimension() == 2) {
       assert(spatial_dimension() == 3);
       return edge_type(bnd_number);
+    }
+    if (parametric_dimension() == 1) {
+      assert(spatial_dimension() == 3 || spatial_dimension() == 2);
+      return Ioss::ElementTopology::factory("node");
     }
   }
   return nullptr;

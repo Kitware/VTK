@@ -6,6 +6,8 @@
 
 #pragma once
 
+#include "ioss_export.h"
+
 #include "vtk_ioss_mangle.h"
 
 #include <Ioss_BoundingBox.h>
@@ -56,13 +58,13 @@ namespace Ioss {
   /** \brief An input or output Database.
    *
    */
-  class DatabaseIO
+  class IOSS_EXPORT DatabaseIO
   {
   public:
     friend class SerializeIO;
 
-    DatabaseIO()                   = delete;
-    DatabaseIO(const DatabaseIO &) = delete;
+    DatabaseIO()                              = delete;
+    DatabaseIO(const DatabaseIO &)            = delete;
     DatabaseIO &operator=(const DatabaseIO &) = delete;
 
     /** \brief Check to see if database state is OK.
@@ -648,7 +650,7 @@ namespace Ioss {
     /*! Scale the time read/written from/to the file by the specified
       scaleFactor.  If the database times are 0.1, 0.2, 0.3 and the
       scaleFactor is 20, then the application will think that the
-      times read are 20, 40, 60.
+      times read are 2.0, 4.0, 6.0.
 
       If specified for an output database, then the analysis time
       is divided by the scaleFactor time prior to output.

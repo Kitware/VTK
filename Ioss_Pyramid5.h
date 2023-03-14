@@ -6,6 +6,8 @@
 
 #pragma once
 
+#include "ioss_export.h"
+
 #include "vtk_ioss_mangle.h"
 
 #include <Ioss_CodeTypes.h>          // for IntVector
@@ -15,7 +17,7 @@
 // STL Includes
 
 namespace Ioss {
-  class Pyramid5 : public Ioss::ElementTopology
+  class IOSS_EXPORT Pyramid5 : public Ioss::ElementTopology
   {
 
   public:

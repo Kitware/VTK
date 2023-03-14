@@ -6,6 +6,8 @@
 
 #pragma once
 
+#include "iogn_export.h"
+
 #include "vtk_ioss_mangle.h"
 
 #include <Ioss_Beam2.h>
@@ -23,7 +25,7 @@ namespace Iogn {
 
   enum { INVALID = -1, NUMBER_OF_SURFACES = 2, SPATIAL_DIMENSION = 3, NUM_NODES_PER_QUAD_FACE = 4 };
 
-  struct SharedNode
+  struct IOGN_EXPORT SharedNode
   {
     SharedNode() = default;
     int nodeId{-1};
@@ -42,7 +44,7 @@ namespace Iogn {
     throw std::exception();
   }
 
-  struct ExodusData
+  struct IOGN_EXPORT ExodusData
   {
     std::vector<double>                 coordinates{};
     const std::vector<std::vector<int>> elementBlockConnectivity;
@@ -86,7 +88,7 @@ namespace Iogn {
     }
   };
 
-  struct DashSurfaceData
+  struct IOGN_EXPORT DashSurfaceData
   {
     const std::vector<double> coordinates{};
     const std::vector<int>    surfaceAConnectivity{};
@@ -133,7 +135,7 @@ namespace Iogn {
     }
   };
 
-  class DashSurfaceMesh : public GeneratedMesh
+  class IOGN_EXPORT DashSurfaceMesh : public GeneratedMesh
   {
   public:
     explicit DashSurfaceMesh(DashSurfaceData &dashSurfaceData) : mDashSurfaceData(dashSurfaceData)
@@ -191,7 +193,7 @@ namespace Iogn {
     DashSurfaceData mDashSurfaceData;
   };
 
-  class ExodusMesh : public GeneratedMesh
+  class IOGN_EXPORT ExodusMesh : public GeneratedMesh
   {
   public:
     explicit ExodusMesh(const ExodusData &exodusData);

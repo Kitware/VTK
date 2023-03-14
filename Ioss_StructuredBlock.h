@@ -6,6 +6,8 @@
 
 #pragma once
 
+#include "ioss_export.h"
+
 #include "vtk_ioss_mangle.h"
 
 #include <Ioss_BoundingBox.h>
@@ -16,6 +18,8 @@
 #include <Ioss_ZoneConnectivity.h>
 #include <array>
 #include <cassert>
+#include "vtk_fmt.h"
+#include VTK_FMT(fmt/ostream.h)
 #include <string>
 
 #if defined(SEACAS_HAVE_CGNS) && !defined(BUILT_IN_SIERRA)
@@ -32,7 +36,10 @@ using IOSS_SB_INT = int;
 namespace Ioss {
   class Region;
 
-  struct BoundaryCondition
+  struct BoundaryCondition;
+  IOSS_EXPORT std::ostream &operator<<(std::ostream &os, const BoundaryCondition &bc);
+
+  struct IOSS_EXPORT BoundaryCondition
   {
     BoundaryCondition(std::string name, std::string fam_name, Ioss::IJK_t range_beg,
                       Ioss::IJK_t range_end)
@@ -91,7 +98,7 @@ namespace Ioss {
 
   /** \brief A structured zone -- i,j,k
    */
-  class StructuredBlock : public EntityBlock
+  class IOSS_EXPORT StructuredBlock : public EntityBlock
   {
   public:
     StructuredBlock(DatabaseIO *io_database, const std::string &my_name, int index_dim, int ni,
@@ -273,7 +280,7 @@ namespace Ioss {
         }
       }
 
-      for (auto idx_id : m_globalIdMap) {
+      for (const auto &idx_id : m_globalIdMap) {
         idata[idx_id.first] = idx_id.second;
       }
 
@@ -359,3 +366,9 @@ namespace Ioss {
     }
   };
 } // namespace Ioss
+
+namespace fmt {
+  template <> struct formatter<Ioss::BoundaryCondition> : ostream_formatter
+  {
+  };
+} // namespace fmt

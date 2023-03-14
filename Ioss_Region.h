@@ -6,6 +6,8 @@
 
 #pragma once
 
+#include "ioss_export.h"
+
 #include "vtk_ioss_mangle.h"
 
 #include <Ioss_CoordinateFrame.h> // for CoordinateFrame
@@ -75,7 +77,7 @@ namespace Ioss {
    * GroupingEntities is through the Region class; clients of the IO subsystem have no direct
    * access to the underlying GroupingEntities (other than the Region).
    */
-  class Region : public GroupingEntity
+  class IOSS_EXPORT Region : public GroupingEntity
   {
   public:
     explicit Region(DatabaseIO *iodatabase = nullptr, const std::string &my_name = "");
@@ -129,6 +131,10 @@ namespace Ioss {
      *  \returns True if the metadata related to the transient data has been set.
      */
     bool transient_defined() const { return transientDefined; }
+
+    /** \brief Remove all fields of the specified `role` from all entities in the region
+     */
+    void erase_fields(Field::RoleType role);
 
     // Return a pair consisting of the step (1-based) corresponding to
     // the maximum time on the database and the corresponding maximum

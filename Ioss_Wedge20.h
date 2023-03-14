@@ -7,6 +7,8 @@
 // -*- Mode: c++ -*-
 #pragma once
 
+#include "ioss_export.h"
+
 #include "vtk_ioss_mangle.h"
 
 #include <Ioss_CodeTypes.h>       // for IntVector
@@ -15,7 +17,7 @@
 // STL Includes
 
 namespace Ioss {
-  class Wedge20 : public Ioss::ElementTopology
+  class IOSS_EXPORT Wedge20 : public Ioss::ElementTopology
   {
 
   public:

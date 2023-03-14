@@ -6,6 +6,8 @@
 
 #pragma once
 
+#include "iogs_export.h"
+
 #include "vtk_ioss_mangle.h"
 
 #include <Ioss_CodeTypes.h>
@@ -19,7 +21,7 @@
 #include <vector>  // for vector
 
 namespace Iogs {
-  class GeneratedMesh
+  class IOGS_EXPORT GeneratedMesh
   {
   public:
     enum ShellLocation { MX = 0, PX = 1, MY = 2, PY = 3, MZ = 4, PZ = 5 };

@@ -6,6 +6,8 @@
 
 #pragma once
 
+#include "iogs_export.h"
+
 #include "vtk_ioss_mangle.h"
 
 #include "Ioss_State.h" // for State
@@ -49,7 +51,7 @@ namespace Ioss {
  */
 namespace Iogs {
 
-  class IOFactory : public Ioss::IOFactory
+  class IOGS_EXPORT IOFactory : public Ioss::IOFactory
   {
   public:
     static const IOFactory *factory();
@@ -61,12 +63,12 @@ namespace Iogs {
                               const Ioss::PropertyManager &props) const override;
   };
 
-  class DatabaseIO : public Ioss::DatabaseIO
+  class IOGS_EXPORT DatabaseIO : public Ioss::DatabaseIO
   {
   public:
     DatabaseIO(Ioss::Region *region, const std::string &filename, Ioss::DatabaseUsage db_usage,
                Ioss_MPI_Comm communicator, const Ioss::PropertyManager &props);
-    DatabaseIO(const DatabaseIO &from) = delete;
+    DatabaseIO(const DatabaseIO &from)            = delete;
     DatabaseIO &operator=(const DatabaseIO &from) = delete;
 
     ~DatabaseIO() override;

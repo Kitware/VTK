@@ -6,6 +6,8 @@
 
 #pragma once
 
+#include "ioss_export.h"
+
 #include "vtk_ioss_mangle.h"
 
 #include "Ioss_EntityType.h"  // for EntityType, etc
@@ -25,7 +27,7 @@ namespace Ioss {
 
   /** \brief A collection of element edges with the same topology.
    */
-  class EdgeBlock : public EntityBlock
+  class IOSS_EXPORT EdgeBlock : public EntityBlock
   {
   public:
     EdgeBlock(DatabaseIO *io_database, const std::string &my_name, const std::string &edge_type,

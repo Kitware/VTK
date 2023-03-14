@@ -1,4 +1,4 @@
-// Copyright(C) 1999-2021 National Technology & Engineering Solutions
+// Copyright(C) 1999-2022 National Technology & Engineering Solutions
 // of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 // NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -170,6 +170,38 @@ Ioss::Property Ioss::GroupingEntity::get_implicit_property(const std::string &my
   IOSS_ERROR(errmsg);
 }
 
+bool Ioss::GroupingEntity::check_for_duplicate(const Ioss::Field &new_field) const
+{
+  // See if a field with the same name exists...
+  if (field_exists(new_field.get_name())) {
+    // Get the existing field so we can compare with `new_field`
+    const Ioss::Field &field = fields.getref(new_field.get_name());
+    if (field != new_field) {
+      bool allow_duplicate = false;
+      Utils::check_set_bool_property(get_database()->get_property_manager(),
+                                     "IGNORE_DUPLICATE_FIELD_NAMES", allow_duplicate);
+      std::string        warn_err = allow_duplicate ? "WARNING" : "ERROR";
+      std::ostringstream errmsg;
+      fmt::print(errmsg,
+                 "{}: Duplicate incompatible fields named '{}' on {} {}:\n"
+                 "\tExisting  field: {} {} of size {} bytes with role '{}' and storage '{}',\n"
+                 "\tDuplicate field: {} {} of size {} bytes with role '{}' and storage '{}'.",
+                 warn_err, new_field.get_name(), type_string(), name(), field.raw_count(),
+                 field.type_string(), field.get_size(), field.role_string(),
+                 field.raw_storage()->name(), new_field.raw_count(), new_field.type_string(),
+                 new_field.get_size(), new_field.role_string(), new_field.raw_storage()->name());
+      if (!allow_duplicate) {
+        IOSS_ERROR(errmsg);
+      }
+      else {
+        fmt::print(Ioss::WarnOut(), "{}\n", errmsg.str());
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
 /** \brief Add a field to the entity's field manager.
  *
  *  Assumes that a field with the same name does not already exist.
@@ -185,7 +217,9 @@ void Ioss::GroupingEntity::field_add(Ioss::Field new_field)
     if (field_size == 0) {
       new_field.reset_count(1);
     }
-    fields.add(new_field);
+    if (!check_for_duplicate(new_field)) {
+      fields.add(new_field);
+    }
     return;
   }
 
@@ -204,7 +238,9 @@ void Ioss::GroupingEntity::field_add(Ioss::Field new_field)
                type_string(), name(), entity_size, new_field.get_name(), field_size, filename);
     IOSS_ERROR(errmsg);
   }
-  fields.add(new_field);
+  if (!check_for_duplicate(new_field)) {
+    fields.add(new_field);
+  }
 }
 
 /** \brief Read field data from the database file into memory using a pointer.
@@ -356,7 +392,7 @@ bool Ioss::GroupingEntity::equal_(const Ioss::GroupingEntity &rhs, const bool qu
   if (this->entityState != rhs.entityState) {
     if (!quiet) {
       fmt::print(Ioss::OUTPUT(), "GroupingEntity: entityState mismatch ([] vs. [])\n",
-                 this->entityState, rhs.entityState);
+                 static_cast<int>(this->entityState), static_cast<int>(rhs.entityState));
     }
     return false;
   }

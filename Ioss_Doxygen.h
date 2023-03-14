@@ -6,11 +6,11 @@
 \section avail Availability
 
 The IOSS library source code is available on Github at
-https://github.com/gsjaardema/seacas
+https://github.com/sandialabs/seacas
 
 For bug reports, documentation errors, and enhancement suggestions, contact:
 - Gregory D. Sjaardema
-- WEB:   https://github.com/gsjaardema/seacas/issues
+- WEB:   https://github.com/sandialabs/seacas/issues
 - EMAIL: gdsjaar@sandia.gov
 - EMAIL: gsjaardema@gmail.com
 - PHONE: (505) 844-2701 (office)
@@ -102,10 +102,56 @@ PARALLEL_IO_MODE | netcdf4, hdf5, pnetcdf, (mpiio and mpiposix are deprecated)
  APPEND_OUTPUT_AFTER_STEP | {step}| Max step to read from an input db or a db being appended to (typically used with APPEND_OUTPUT)
  APPEND_OUTPUT_AFTER_TIME | {time}| Max time to read from an input db or a db being appended to (typically used with APPEND_OUTPUT)
  FILE_PER_STATE        | on/[off] | Put data for each output timestep into a separate file.
- CYCLE_COUNT           | {cycle}  | If using FILE_PER_STATE, then use {cycle} different files and then overwrite.
- OVERLAY_COUNT         | {overlay}| If using FILE_PER_STATE, then put {overlay} timesteps worth of data into each file before going to next file.
+ CYCLE_COUNT           | {cycle}  | If using FILE_PER_STATE, then use {cycle} different files and then overwrite. Otherwise, there will be a maximum of {cycle} time steps in the file. See below.
+ OVERLAY_COUNT         | {overlay}| If using FILE_PER_STATE, then put {overlay} timesteps worth of data into each file before going to next file. Otherwise, each output step in the file will be overwritten {overlay} times. See below.
  ENABLE_DATAWARP       | on/[off] | If the system supports Cray DataWarp (burst buffer), should it be used for buffering output files.
 
+### Cycle and Overlay Behavior:
+(Properties `CYCLE_COUNT`, `OVERLAY_COUNT`, and `FILE_PER_STATE`)
+The `overlay` specifies the number of output steps which will be
+overlaid on top of the currently written step before advancing to the
+next step on the database.
+     
+For example, if output every 0.1 seconds and the overlay count is
+specified as 2, then IOSS will write time 0.1 to step 1 of the
+database.  It will then write 0.2 and 0.3 also to step 1.  It will
+then increment the database step and write 0.4 to step 2 and overlay
+0.5 and 0.6 on step 2. At the end of the analysis, (assuming it runs
+to completion), the database would have times 0.3, 0.6, 0.9,
+... However, if there were a problem during the analysis, the last
+step on the database would contain an intermediate step.
+     
+The `cycle_count` specifies the number of restart steps which will be
+written to the restart database before previously written steps are
+overwritten.  For example, if the `cycle` count is 5 and output is
+written every 0.1 seconds, IOSS will write data at times 0.1, 0.2,
+0.3, 0.4, 0.5 to the database. It will then overwrite the first step
+with data from time 0.6, the second with time 0.7.  At time 0.8, the
+database would contain data at times 0.6, 0.7, 0.8, 0.4, 0.5.  Note
+that time will not necessarily be monotonically increasing on a
+database that specifies the cycle count.
+     
+The cycle count and overlay count can both be used at the same time
+also.  The basic formula is:
+```     
+   db_step = (((output_step - 1) / overlay) % cycle) + 1
+```     
+where `output_step` is the step that this would have been on the
+database in a normal write (1,2,3,....) and `db_step` is the step
+number that this will be written to.
+    
+If you only want the last step available on the database,
+use `set_cycle_count(1)`.
+
+If `FILE_PER_STATE` is specified, then `cycle` specifies the number of
+separate files which will be created and `overlay` specifies how many
+timesteps will be written to each file.  If we have `cycle=2` and
+`overlay=3` and the code is outputting every 0.1 seconds, we will get
+0.1, 0.2, 0.3 in the first file; 0.4, 0.5, 0.6 in the second
+file. Then, the first file will be reopened and steps 0.7, 0.8, and
+0.9 will be written to the first file.
+
+ 
 ## Properties for the heartbeat output
  Property              | Value  | Description
 -----------------------|:------:|-----------------------------------------------------------
@@ -141,6 +187,7 @@ sequentially, so if you have hundreds to thousands of files, the time
 for the call is additive and since timesteps are record variables in
 netCDF, accessing the data for all timesteps involves lseeks
 throughout the file.
+
 
 ## Debugging / Profiling
 

@@ -16,7 +16,7 @@ namespace Ioss {
 
   Tracer::Tracer(const char *function)
   {
-    fmt::print(Ioss::DEBUG(), "Entering Function: {} at level {}\n", function, ++level);
+    fmt::print(Ioss::DebugOut(), "Entering Function: {} at level {}\n", function, ++level);
     assert(level == 1);
   }
 

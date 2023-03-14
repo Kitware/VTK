@@ -7,6 +7,8 @@
 // -*- Mode: c++ -*-
 #pragma once
 
+#include "ioex_export.h"
+
 #include "vtk_ioss_mangle.h"
 
 #include <Ioss_DBUsage.h>
@@ -54,12 +56,12 @@ namespace Ioex {
  *  parallel exodus database format.
  */
 namespace Ioex {
-  class DatabaseIO : public Ioex::BaseDatabaseIO
+  class IOEX_EXPORT DatabaseIO : public Ioex::BaseDatabaseIO
   {
   public:
     DatabaseIO(Ioss::Region *region, const std::string &filename, Ioss::DatabaseUsage db_usage,
                Ioss_MPI_Comm communicator, const Ioss::PropertyManager &props);
-    DatabaseIO(const DatabaseIO &from) = delete;
+    DatabaseIO(const DatabaseIO &from)            = delete;
     DatabaseIO &operator=(const DatabaseIO &from) = delete;
     ~DatabaseIO() override                        = default;
 
@@ -147,10 +149,10 @@ namespace Ioex {
     {
       return -1;
     }
-    int64_t put_Xset_field_internal(ex_entity_type type, const Ioss::EntitySet *ns,
-                                    const Ioss::Field &field, void *data, size_t data_size) const;
-    int64_t get_Xset_field_internal(ex_entity_type type, const Ioss::EntitySet *ns,
-                                    const Ioss::Field &field, void *data, size_t data_size) const;
+    int64_t put_Xset_field_internal(const Ioss::EntitySet *ns, const Ioss::Field &field, void *data,
+                                    size_t data_size) const;
+    int64_t get_Xset_field_internal(const Ioss::EntitySet *ns, const Ioss::Field &field, void *data,
+                                    size_t data_size) const;
 
   private:
     int64_t read_nodal_coordinates();
@@ -162,28 +164,25 @@ namespace Ioex {
     void read_meta_data__() override;
     void read_communication_metadata();
 
-    int64_t read_transient_field(ex_entity_type type, const Ioex::VariableNameMap &variables,
-                                 const Ioss::Field &field, const Ioss::GroupingEntity *ge,
-                                 void *data) const;
-
-    int64_t read_attribute_field(ex_entity_type type, const Ioss::Field &field,
+    int64_t read_transient_field(const Ioex::VariableNameMap &variables, const Ioss::Field &field,
                                  const Ioss::GroupingEntity *ge, void *data) const;
 
-    int64_t write_attribute_field(ex_entity_type type, const Ioss::Field &field,
-                                  const Ioss::GroupingEntity *ge, void *data) const;
+    int64_t read_attribute_field(const Ioss::Field &field, const Ioss::GroupingEntity *ge,
+                                 void *data) const;
+
+    int64_t write_attribute_field(const Ioss::Field &field, const Ioss::GroupingEntity *ge,
+                                  void *data) const;
 
     // Handles subsetting of side blocks.
     int64_t read_ss_transient_field(const Ioss::Field &field, int64_t id, void *variables,
                                     std::vector<int> &is_valid_side) const;
 
     // Should be made more generic again so can rejoin with write_element_transient field
-    void write_nodal_transient_field(ex_entity_type type, const Ioss::Field &field,
-                                     const Ioss::NodeBlock *ge, int64_t count,
-                                     void *variables) const;
+    void write_nodal_transient_field(const Ioss::Field &field, const Ioss::NodeBlock *ge,
+                                     int64_t count, void *variables) const;
     // Should be made more generic again so can rejoin with write_nodal_transient field
-    void write_entity_transient_field(ex_entity_type type, const Ioss::Field &field,
-                                      const Ioss::GroupingEntity *ge, int64_t count,
-                                      void *variables) const;
+    void write_entity_transient_field(const Ioss::Field &field, const Ioss::GroupingEntity *ge,
+                                      int64_t count, void *variables) const;
     void write_meta_data(Ioss::IfDatabaseExistsBehavior behavior) override;
     void gather_communication_metadata(Ioex::CommunicationMetaData *meta);
 

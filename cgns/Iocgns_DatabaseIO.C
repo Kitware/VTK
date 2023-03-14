@@ -33,7 +33,7 @@
 #include "vtk_cgns.h"
 #include VTK_CGNS(cgnslib.h)
 #if CG_BUILD_PARALLEL
-#include VTK_CGNS(pcgnslib.h)
+#include VTK_CGNS(cgnsconfig.h)
 #endif
 
 #include <cgns/Iocgns_Defines.h>
@@ -148,7 +148,6 @@ namespace {
       }
     }
   }
-#endif
 
   template <typename T> void pack(int &idx, std::vector<int> &pack, T *from, int count)
   {
@@ -156,6 +155,7 @@ namespace {
       pack[idx++] = from[i];
     }
   }
+#endif
 
   template <typename T> void unpack(int &idx, const T *pack, T *to, int count)
   {
@@ -296,7 +296,7 @@ namespace {
             global[ijk] += blocks[br].range[ijk];
 #if IOSS_DEBUG_OUTPUT
             const auto b = blocks[br];
-            fmt::print(Ioss::DEBUG(), "Min {}: {} {} ({} {} {})  [{}]\n",
+            fmt::print(Ioss::DebugOut(), "Min {}: {} {} ({} {} {})  [{}]\n",
                        (ijk == 0   ? 'i'
                         : ijk == 1 ? 'j'
                                    : 'k'),
@@ -724,7 +724,6 @@ namespace Iocgns {
       }
 
       IOSS_ERROR(errmsg);
-      return false;
     }
     return true;
   }
@@ -877,8 +876,9 @@ namespace Iocgns {
           set_block_offset(bbeg, bend, blocks, proc_block_map);
 
 #if IOSS_DEBUG_OUTPUT
-          fmt::print(Ioss::DEBUG(), "Range of blocks for {} is {} to {} Global I,J,K = {} {} {}\n",
-                     b.name, i, j - 1, b.glob_range[0], b.glob_range[1], b.glob_range[2]);
+          fmt::print(Ioss::DebugOut(),
+                     "Range of blocks for {} is {} to {} Global I,J,K = {} {} {}\n", b.name, i,
+                     j - 1, b.glob_range[0], b.glob_range[1], b.glob_range[2]);
 #endif
           // All processors need to know about it...
           for (int p = 0; p < proc_count; p++) {
@@ -920,7 +920,7 @@ namespace Iocgns {
 
 #if IOSS_DEBUG_OUTPUT
       for (const auto &b : resolved_blocks) {
-        fmt::print(Ioss::DEBUG(), "{} {} {} ({} {} {}) ({} {} {}) ({} {} {}) [{}]\n", b.name,
+        fmt::print(Ioss::DebugOut(), "{} {} {} ({} {} {}) ({} {} {}) ({} {} {}) [{}]\n", b.name,
                    b.proc, b.local_zone, b.range[0], b.range[1], b.range[2], b.glob_range[0],
                    b.glob_range[1], b.glob_range[2], b.offset[0], b.offset[1], b.offset[2],
                    b.face_adj.to_string('.', '+'));
@@ -1332,7 +1332,7 @@ namespace Iocgns {
                      "ERROR: CGNS: Zone {} adjacency data is not correct type. Require "
                      "Abutting1to1 and PointList."
                      " {}\t{}\t{}",
-                     zone, connect_type, ptset_type, donor_ptset_type);
+                     zone, static_cast<int>(connect_type), static_cast<int>(ptset_type), static_cast<int>(donor_ptset_type));
           IOSS_ERROR(errmsg);
         }
 
@@ -3144,7 +3144,7 @@ namespace Iocgns {
       else if (field.get_name() == "distribution_factors") {
         static bool warning_output = false;
         if (!warning_output) {
-          fmt::print(Ioss::WARNING(),
+          fmt::print(Ioss::WarnOut(),
                      "For CGNS output, the sideset distribution factors are not output.\n");
           warning_output = true;
         }

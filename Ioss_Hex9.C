@@ -102,6 +102,7 @@ int Ioss::Hex9::number_edges_face(int face) const
 Ioss::IntVector Ioss::Hex9::edge_connectivity(int edge_number) const
 {
   assert(edge_number > 0 && edge_number <= Constants::nedge);
+  (void)edge_number;
   Ioss::IntVector connectivity(Constants::nedgenode);
 
   for (int i = 0; i < Constants::nedgenode; i++) {
@@ -139,6 +140,7 @@ Ioss::ElementTopology *Ioss::Hex9::face_type(int face_number) const
   // face_number is 1-based.
 
   assert(face_number >= 0 && face_number <= number_faces());
+  (void)face_number;
   //  return Ioss::ElementTopology::factory("quadface4");
   return Ioss::ElementTopology::factory("quad4");
 }
@@ -150,6 +152,7 @@ Ioss::ElementTopology *Ioss::Hex9::edge_type(int edge_number) const
   // edge_number is 1-based.
 
   assert(edge_number >= 0 && edge_number <= number_edges());
+  (void)edge_number;
   return Ioss::ElementTopology::factory("edge2");
 }
 

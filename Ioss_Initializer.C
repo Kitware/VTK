@@ -103,3 +103,5 @@ Ioss::Initializer::Initializer()
 
   Ioss::Super::factory();
 }
+
+Ioss::Initializer::~Initializer() = default;

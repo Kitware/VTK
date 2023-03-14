@@ -5,6 +5,8 @@
 
 #pragma once
 
+#include "ioss_export.h"
+
 #include <memory>
 #include <string>
 #include <tuple>
@@ -17,7 +19,7 @@ namespace Ioss {
 
     template <class charT> class Automata;
 
-    class Error : public std::exception
+    class IOSS_EXPORT Error : public std::exception
     {
     public:
       Error(const std::string &msg) : msg_{msg} {}
@@ -1445,7 +1447,7 @@ namespace Ioss {
         ast_consumer.GenAutomata(ast_ptr.get(), automata_);
       }
 
-      ExtendedGlob(const ExtendedGlob &) = delete;
+      ExtendedGlob(const ExtendedGlob &)      = delete;
       ExtendedGlob &operator=(ExtendedGlob &) = delete;
 
       ExtendedGlob(ExtendedGlob &&glob) : automata_{std::move(glob.automata_)} {}
@@ -1474,7 +1476,7 @@ namespace Ioss {
     public:
       SimpleGlob(const String<charT> &pattern) { Parser(pattern); }
 
-      SimpleGlob(const SimpleGlob &) = delete;
+      SimpleGlob(const SimpleGlob &)      = delete;
       SimpleGlob &operator=(SimpleGlob &) = delete;
 
       SimpleGlob(SimpleGlob &&glob) : automata_{std::move(glob.automata_)} {}
@@ -1552,7 +1554,7 @@ namespace Ioss {
     public:
       BasicGlob(const String<charT> &pattern) : glob_{pattern} {}
 
-      BasicGlob(const BasicGlob &) = delete;
+      BasicGlob(const BasicGlob &)      = delete;
       BasicGlob &operator=(BasicGlob &) = delete;
 
       BasicGlob(BasicGlob &&glob) : glob_{std::move(glob.glob_)} {}

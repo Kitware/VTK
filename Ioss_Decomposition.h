@@ -7,6 +7,8 @@
  */
 #pragma once
 
+#include "ioss_export.h"
+
 #include "vtk_ioss_mangle.h"
 
 #include <Ioss_CodeTypes.h>
@@ -38,7 +40,7 @@
 namespace Ioss {
   const std::vector<std::string> &valid_decomp_methods();
 
-  class BlockDecompositionData
+  class IOSS_EXPORT BlockDecompositionData
   {
   public:
     BlockDecompositionData() = default;
@@ -85,7 +87,7 @@ namespace Ioss {
     std::vector<int> importIndex;
   };
 
-  class SetDecompositionData
+  class IOSS_EXPORT SetDecompositionData
   {
   public:
     SetDecompositionData()                             = default;
@@ -134,6 +136,10 @@ namespace Ioss {
   {
   public:
     Decomposition(const Ioss::PropertyManager &props, Ioss_MPI_Comm comm);
+    Decomposition(Decomposition const&) = default;
+    Decomposition(Decomposition&&) = default;
+    Decomposition& operator=(Decomposition const&) = default;
+    Decomposition& operator=(Decomposition&&) = default;
 
     size_t global_node_count() const { return m_globalNodeCount; }
     size_t global_elem_count() const { return m_globalElementCount; }

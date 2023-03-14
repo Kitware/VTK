@@ -288,6 +288,14 @@ namespace {
     return iodatabase->is_input() || iodatabase->open_create_behavior() == Ioss::DB_APPEND ||
            iodatabase->open_create_behavior() == Ioss::DB_MODIFY;
   }
+
+  template <typename T>
+  void internal_erase_fields(const std::vector<T> &entities, Ioss::Field::RoleType role)
+  {
+    for (const auto &entity : entities) {
+      entity->field_erase(role);
+    }
+  }
 } // namespace
 
 namespace Ioss {
@@ -467,17 +475,17 @@ namespace Ioss {
     int64_t total_nodes    = get_property("node_count").get_int();
     int64_t total_elements = get_property("element_count").get_int();
     auto    max_entity = std::max({total_sides, total_es_elements, total_fs_faces, total_es_edges,
-                                total_ns_nodes, total_cells, total_nodes, total_elements});
+                                   total_ns_nodes, total_cells, total_nodes, total_elements});
 
     int64_t num_ts = get_property("state_count").get_int();
     auto    max_sb = std::max(
            {get_property("spatial_dimension").get_int(), get_property("node_block_count").get_int(),
-         get_property("edge_block_count").get_int(), get_property("face_block_count").get_int(),
-         get_property("element_block_count").get_int(),
-         get_property("structured_block_count").get_int(), get_property("node_set_count").get_int(),
-         get_property("edge_set_count").get_int(), get_property("face_set_count").get_int(),
-         get_property("element_set_count").get_int(), get_property("side_set_count").get_int(),
-         get_property("assembly_count").get_int(), get_property("blob_count").get_int(), num_ts});
+            get_property("edge_block_count").get_int(), get_property("face_block_count").get_int(),
+            get_property("element_block_count").get_int(),
+            get_property("structured_block_count").get_int(), get_property("node_set_count").get_int(),
+            get_property("edge_set_count").get_int(), get_property("face_set_count").get_int(),
+            get_property("element_set_count").get_int(), get_property("side_set_count").get_int(),
+            get_property("assembly_count").get_int(), get_property("blob_count").get_int(), num_ts});
 
     // Global variables transitioning from TRANSIENT to REDUCTION..
     size_t num_glo_vars  = field_count(Ioss::Field::TRANSIENT);
@@ -513,12 +521,12 @@ namespace Ioss {
     }
 
     auto max_vr    = std::max({num_glo_vars,     num_nod_vars,     num_ele_vars,     num_str_vars,
-                            num_ns_vars,      num_ss_vars,      num_edg_vars,     num_fac_vars,
-                            num_es_vars,      num_fs_vars,      num_els_vars,     num_blob_vars,
-                            num_asm_vars,     num_glo_red_vars, num_nod_red_vars, num_edg_red_vars,
-                            num_fac_red_vars, num_ele_red_vars, num_str_red_vars, num_ns_red_vars,
-                            num_es_red_vars,  num_fs_red_vars,  num_els_red_vars, num_asm_red_vars,
-                            num_blob_red_vars});
+                               num_ns_vars,      num_ss_vars,      num_edg_vars,     num_fac_vars,
+                               num_es_vars,      num_fs_vars,      num_els_vars,     num_blob_vars,
+                               num_asm_vars,     num_glo_red_vars, num_nod_red_vars, num_edg_red_vars,
+                               num_fac_red_vars, num_ele_red_vars, num_str_red_vars, num_ns_red_vars,
+                               num_es_red_vars,  num_fs_red_vars,  num_els_red_vars, num_asm_red_vars,
+                               num_blob_red_vars});
     int  vr_width  = Ioss::Utils::number_width(max_vr, true) + 2;
     int  num_width = Ioss::Utils::number_width(max_entity, true) + 2;
     int  sb_width  = Ioss::Utils::number_width(max_sb, true) + 2;
@@ -656,7 +664,6 @@ namespace Ioss {
         IOSS_ERROR(errmsg);
       }
 
-      break;
       default: {
         std::ostringstream errmsg;
         fmt::print(errmsg, "Invalid nesting of begin/end pairs in {}",
@@ -795,7 +802,7 @@ namespace Ioss {
       // Check that time is increasing...
       static bool warning_output = false;
       if (!warning_output) {
-        fmt::print(Ioss::WARNING(),
+        fmt::print(Ioss::WarnOut(),
                    "Current time {} is not greater than previous time {} in\n\t{}.\n"
                    "This may cause problems in applications that assume monotonically increasing "
                    "time values.\n",
@@ -900,9 +907,9 @@ namespace Ioss {
     DatabaseIO *db = get_database();
     db->get_step_times();
 
-    int    step     = -1;
-    double max_time = -1.0;
-    for (int i = 0; i < static_cast<int>(stateTimes.size()); i++) {
+    int    step     = stateTimes.empty() ? -1 : 0;
+    double max_time = stateTimes.empty() ? -1 : stateTimes[0];
+    for (int i = 1; i < static_cast<int>(stateTimes.size()); i++) {
       if (stateTimes[i] > max_time) {
         step     = i;
         max_time = stateTimes[i];
@@ -1028,6 +1035,24 @@ namespace Ioss {
     db->end_state(state, time);
     currentState = -1;
     return time;
+  }
+
+  void Region::erase_fields(Field::RoleType role)
+  {
+    field_erase(role);
+    internal_erase_fields(get_node_blocks(), role);
+    internal_erase_fields(get_edge_blocks(), role);
+    internal_erase_fields(get_face_blocks(), role);
+    internal_erase_fields(get_element_blocks(), role);
+    internal_erase_fields(get_nodesets(), role);
+    internal_erase_fields(get_edgesets(), role);
+    internal_erase_fields(get_facesets(), role);
+    internal_erase_fields(get_elementsets(), role);
+    internal_erase_fields(get_sidesets(), role);
+    internal_erase_fields(get_commsets(), role);
+    internal_erase_fields(get_structured_blocks(), role);
+    internal_erase_fields(get_assemblies(), role);
+    internal_erase_fields(get_blobs(), role);
   }
 
   /** \brief Add a structured block to the region.
@@ -1622,7 +1647,7 @@ namespace Ioss {
                "\n\nERROR: The entity named '{}' of type {} which is being aliased to '{}' does "
                "not exist in "
                "region '{}'.\n",
-               db_name, type, alias, name());
+               db_name, static_cast<int>(type), alias, name());
     IOSS_ERROR(errmsg);
   }
 
@@ -1843,7 +1868,6 @@ namespace Ioss {
           "that does not support duplicate names.",
           nfound, my_name, filename);
       IOSS_ERROR(errmsg);
-      return nullptr;
     }
     return entity;
   }

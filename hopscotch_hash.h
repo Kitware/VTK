@@ -85,7 +85,7 @@ namespace tsl {
     };
 
     template <typename T, typename U>
-    static T numeric_cast(U value, const char *error_message = "numeric_cast() failed.")
+    T numeric_cast(U value, const char *error_message = "numeric_cast() failed.")
     {
       T ret = static_cast<T>(value);
       if (static_cast<U>(ret) != value) {
@@ -523,10 +523,10 @@ namespace tsl {
         {
         }
 
-        hopscotch_iterator(const hopscotch_iterator &other) = default;
-        hopscotch_iterator(hopscotch_iterator &&other)      = default;
+        hopscotch_iterator(const hopscotch_iterator &other)            = default;
+        hopscotch_iterator(hopscotch_iterator &&other)                 = default;
         hopscotch_iterator &operator=(const hopscotch_iterator &other) = default;
-        hopscotch_iterator &operator=(hopscotch_iterator &&other) = default;
+        hopscotch_iterator &operator=(hopscotch_iterator &&other)      = default;
 
         const typename hopscotch_hash::key_type &key() const
         {

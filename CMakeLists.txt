@@ -27,6 +27,7 @@ set(classes
   Ioss_Beam3
   Ioss_Beam4
   Ioss_Blob
+  Ioss_ChainGenerator
   Ioss_CommSet
   Ioss_Compare
   Ioss_CompositeVariableType
@@ -190,7 +191,6 @@ list(APPEND sources
   transform/Iotr_Factory.C)
 
 list(APPEND headers
-  catch.hpp
   bhopscotch_map.h
   bhopscotch_set.h
   hopscotch_growth_policy.h
@@ -335,6 +335,15 @@ list(APPEND headers
   robin_set.h
   tokenize.h
 
+  "${CMAKE_CURRENT_BINARY_DIR}/ioss_export.h"
+  iocgns_export.h
+  ioex_export.h
+  iogn_export.h
+  iogs_export.h
+  iohb_export.h
+  ionit_export.h
+  iotr_export.h
+
   vtk_ioss_mangle.h)
 
 vtk_module_find_package(PACKAGE Threads)
@@ -357,6 +366,11 @@ vtk_module_definitions(VTK::ioss
 vtk_module_link(VTK::ioss
   PRIVATE
     Threads::Threads)
+
+include(GenerateExportHeader)
+generate_export_header(ioss
+  EXPORT_MACRO_NAME IOSS_EXPORT
+  EXPORT_FILE_NAME ioss_export.h)
 
 # for GetProcessMemoryInfo
 if (MINGW)

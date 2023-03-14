@@ -6,6 +6,8 @@
 
 #pragma once
 
+#include "iotr_export.h"
+
 #include "vtk_ioss_mangle.h"
 
 #include "Ioss_VariableType.h" // for VariableType
@@ -17,7 +19,7 @@ namespace Ioss {
 
 namespace Iotr {
 
-  class Tensor_Factory : public Factory
+  class IOTR_EXPORT Tensor_Factory : public Factory
   {
   public:
     static const Tensor_Factory *factory();
@@ -27,7 +29,7 @@ namespace Iotr {
     Ioss::Transform *make(const std::string &type) const override;
   };
 
-  class Tensor : public Ioss::Transform
+  class IOTR_EXPORT Tensor : public Ioss::Transform
   {
     friend class Tensor_Factory;
     enum TranType {

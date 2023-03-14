@@ -6,6 +6,8 @@
 
 #pragma once
 
+#include "iocatalyst_export.h"
+
 #include "Ioss_EntitySet.h"
 #include "Ioss_Region.h"  // for Region, SideSetContainer, etc
 #include "Ioss_SideSet.h" // for SideBlockContainer, SideSet
@@ -19,7 +21,7 @@
 /** \brief A namespace for the Catalyst 2.0 database format.
  */
 namespace Iocatalyst {
-  class DatabaseIO : public Ioss::DatabaseIO
+  class IOCATALYST_EXPORT DatabaseIO : public Ioss::DatabaseIO
   {
     using Superclass = Ioss::DatabaseIO;
 

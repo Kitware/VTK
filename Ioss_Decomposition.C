@@ -136,7 +136,7 @@ namespace {
     common_nodes = pu.global_minmax(common_nodes, Ioss::ParallelUtils::DO_MIN);
 
 #if IOSS_DEBUG_OUTPUT
-    fmt::print(Ioss::DEBUG(), "Setting common_nodes to {}\n", common_nodes);
+    fmt::print(Ioss::DebugOut(), "Setting common_nodes to {}\n", common_nodes);
 #endif
     return common_nodes;
   }
@@ -284,6 +284,8 @@ namespace Ioss {
     }
   }
 
+  // ========================================================================
+  // Decompose model function (confusing with all the #if...
   template void Decomposition<int>::decompose_model(
 #if !defined(NO_ZOLTAN_SUPPORT)
       Zoltan &zz,
@@ -294,6 +296,7 @@ namespace Ioss {
       Zoltan &zz,
 #endif
       std::vector<BlockDecompositionData> &element_blocks);
+
   template <typename INT>
   void Decomposition<INT>::decompose_model(
 #if !defined(NO_ZOLTAN_SUPPORT)
@@ -308,7 +311,7 @@ namespace Ioss {
                  m_method, fmt::group_digits(m_globalElementCount), m_processorCount);
 
       if ((size_t)m_processorCount > m_globalElementCount) {
-        fmt::print(Ioss::WARNING(),
+        fmt::print(Ioss::WarnOut(),
                    "Decomposing {} elements across {} mpi ranks will "
                    "result in some processors with *NO* elements.\n",
                    m_globalElementCount, m_processorCount);
@@ -432,7 +435,7 @@ namespace Ioss {
     }
 
 #if IOSS_DEBUG_OUTPUT
-    fmt::print(Ioss::DEBUG(),
+    fmt::print(Ioss::DebugOut(),
                "Processor {} communicates {} nodes from and {} nodes to other processors\n",
                m_processor, fmt::group_digits(sumr), fmt::group_digits(sums));
 #endif
@@ -622,7 +625,7 @@ namespace Ioss {
     // Check that values in the map/variable are in range
     if (max_proc < m_processorCount - 1) {
       if (m_processor == 0) {
-        fmt::print(Ioss::WARNING(),
+        fmt::print(Ioss::WarnOut(),
                    "Max value in element processor {} is {} which is\n"
                    "\tless than the processor count ({}). Make sure this is correct.\n",
                    label, max_proc, m_processorCount);
@@ -658,7 +661,7 @@ namespace Ioss {
 
     exportElementCount[m_processor] = 0;
 #if IOSS_DEBUG_OUTPUT
-    fmt::print(Ioss::DEBUG(), "[{}] Export Count: {}\n", m_processor,
+    fmt::print(Ioss::DebugOut(), "[{}] Export Count: {}\n", m_processor,
                fmt::join(exportElementCount, " "));
 #endif
     MPI_Alltoall(exportElementCount.data(), 1, Ioss::mpi_type((INT)0), importElementCount.data(), 1,
@@ -694,7 +697,7 @@ namespace Ioss {
     show_progress("\tguided_decompose Communication 2 finished");
 
 #if IOSS_DEBUG_OUTPUT
-    fmt::print(Ioss::DEBUG(), "Processor {}:\t{} local, {} imported and {} exported elements\n",
+    fmt::print(Ioss::DebugOut(), "Processor {}:\t{} local, {} imported and {} exported elements\n",
                m_processor, fmt::group_digits(m_elementCount - exp_size),
                fmt::group_digits(imp_size), fmt::group_digits(exp_size));
 #endif
@@ -862,7 +865,7 @@ namespace Ioss {
     show_progress("\tmetis_decompose Communication 2 finished");
 
 #if IOSS_DEBUG_OUTPUT
-    fmt::print(Ioss::DEBUG(), "Processor {}:\t{} local, {} imported and {} exported elements\n",
+    fmt::print(Ioss::DebugOut(), "Processor {}:\t{} local, {} imported and {} exported elements\n",
                m_processor, fmt::group_digits(m_elementCount - exp_size),
                fmt::group_digits(imp_size), fmt::group_digits(exp_size));
 #endif
@@ -900,7 +903,7 @@ namespace Ioss {
                                    &ncon, &common_nodes, &nparts, tp_wgts.data(), ub_vec.data(),
                                    options.data(), &edge_cuts, elem_partition, &m_comm);
 #if IOSS_DEBUG_OUTPUT
-      fmt::print(Ioss::DEBUG(), "Edge Cuts = {}\n", edge_cuts);
+      fmt::print(Ioss::DebugOut(), "Edge Cuts = {}\n", edge_cuts);
 #endif
       if (rc != METIS_OK) {
         std::ostringstream errmsg;
@@ -938,7 +941,7 @@ namespace Ioss {
       }
 
 #if IOSS_DEBUG_OUTPUT
-      fmt::print(Ioss::DEBUG(), "Edge Cuts = {}\n", edge_cuts);
+      fmt::print(Ioss::DebugOut(), "Edge Cuts = {}\n", edge_cuts);
 #endif
       METIS_Free(dual_xadj);
       METIS_Free(dual_adjacency);
@@ -1027,7 +1030,7 @@ namespace Ioss {
     show_progress("\tZoltan lb_partition finished");
 
 #if IOSS_DEBUG_OUTPUT
-    fmt::print(Ioss::DEBUG(), "Processor {}:\t{} local, {} imported and {} exported elements\n",
+    fmt::print(Ioss::DebugOut(), "Processor {}:\t{} local, {} imported and {} exported elements\n",
                m_processor, fmt::group_digits(m_elementCount - num_export),
                fmt::group_digits(num_import), fmt::group_digits(num_export));
 #endif
@@ -1343,7 +1346,7 @@ namespace Ioss {
           nodes.push_back(i + m_nodeOffset);
           found_count++;
 #if IOSS_DEBUG_OUTPUT
-          fmt::print(Ioss::DEBUG(), "Processor {}:\tNode {} not connected to any elements\n",
+          fmt::print(Ioss::DebugOut(), "Processor {}:\tNode {} not connected to any elements\n",
                      m_processor, i + m_nodeOffset + 1);
 #endif
         }
@@ -1373,7 +1376,7 @@ namespace Ioss {
 // Map that converts nodes from the global index (1-based) to a
 // local-per-processor index (1-based)
 #if IOSS_DEBUG_OUTPUT
-    fmt::print(Ioss::DEBUG(), "Processor {}:\tNode Count = {}\n", m_processor,
+    fmt::print(Ioss::DebugOut(), "Processor {}:\tNode Count = {}\n", m_processor,
                fmt::group_digits(nodes.size()));
 #endif
     nodeGTL.swap(nodes);
@@ -1501,7 +1504,7 @@ namespace Ioss {
       m_nodeCommMap[i] = node_global_to_local(m_nodeCommMap[i] + 1);
     }
 #if IOSS_DEBUG_OUTPUT
-    fmt::print(Ioss::DEBUG(), "Processor {} has {} shared nodes\n", m_processor,
+    fmt::print(Ioss::DebugOut(), "Processor {} has {} shared nodes\n", m_processor,
                fmt::group_digits(m_nodeCommMap.size() / 2));
 #endif
     show_progress(__func__);

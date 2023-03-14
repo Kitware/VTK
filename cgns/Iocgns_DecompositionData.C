@@ -158,7 +158,7 @@ namespace {
 
 #if IOSS_DEBUG_OUTPUT
         if (rank == 0) {
-          fmt::print(Ioss::DEBUG(), "Adding zgc {} to {} donor: {}\n", connectname, zone_name,
+          fmt::print(Ioss::DebugOut(), "Adding zgc {} to {} donor: {}\n", connectname, zone_name,
                      donorname);
         }
 #endif
@@ -297,17 +297,17 @@ namespace Iocgns {
           auto zone_node_count =
               (zone->m_ordinal[0] + 1) * (zone->m_ordinal[1] + 1) * (zone->m_ordinal[2] + 1);
           fmt::print(
-              Ioss::DEBUG(),
+              Ioss::DebugOut(),
               "Zone {}({}) assigned to processor {}, Adam zone = {}, Cells = {}, Nodes = {}\n",
               zone->m_name, zone->m_zone, zone->m_proc, zone->m_adam->m_zone, zone->work(),
               zone_node_count);
           auto zgcs = zone->m_zoneConnectivity;
 #if 0
 	  // This should work, but doesn't...
-          fmt::print(Ioss::DEBUG(), "{}\n", fmt::join(zgcs, "\n"));
+          fmt::print(Ioss::DebugOut(), "{}\n", fmt::join(zgcs, "\n"));
 #else
           for (auto &zgc : zgcs) {
-            fmt::print(Ioss::DEBUG(), "{}\n", zgc);
+            fmt::print(Ioss::DebugOut(), "{}\n", zgc);
           }
 #endif
         }
@@ -347,7 +347,7 @@ namespace Iocgns {
 #if IOSS_DEBUG_OUTPUT
     MPI_Barrier(m_decomposition.m_comm);
     if (rank == 0) {
-      fmt::print(Ioss::DEBUG(), "{}",
+      fmt::print(Ioss::DebugOut(), "{}",
                  fmt::format(fg(fmt::color::green), "Returning from decomposition\n"));
     }
 #endif
@@ -431,7 +431,7 @@ namespace Iocgns {
 
 #if IOSS_DEBUG_OUTPUT
     if (rank == 0) {
-      fmt::print(Ioss::DEBUG(),
+      fmt::print(Ioss::DebugOut(),
                  "Processor {0} has {1} elements; offset = {2}\n"
                  "Processor {0} has {3} nodes; offset = {4}.\n",
                  m_decomposition.m_processor, decomp_elem_count(), decomp_elem_offset(),
@@ -557,7 +557,8 @@ namespace Iocgns {
         if (dz != zone) {
 #if IOSS_DEBUG_OUTPUT
           if (m_decomposition.m_processor == 0) {
-            fmt::print(Ioss::DEBUG(), "Zone {} shares {} nodes with {}\n", zone, npnts, donorname);
+            fmt::print(Ioss::DebugOut(), "Zone {} shares {} nodes with {}\n", zone, npnts,
+                       donorname);
           }
 #endif
           // The 'ids' in 'points' and 'donors' will be zone-local 1-based.
@@ -580,7 +581,7 @@ namespace Iocgns {
             m_zoneSharedMap.insert({point, donor});
 #if IOSS_DEBUG_OUTPUT
             if (m_decomposition.m_processor == 0) {
-              fmt::print(Ioss::DEBUG(), "Inserted {} to {}\n", point, donor);
+              fmt::print(Ioss::DebugOut(), "Inserted {} to {}\n", point, donor);
             }
 #endif
           }
@@ -769,7 +770,8 @@ namespace Iocgns {
       blk_end                 = blk_end < 0 ? 0 : blk_end;
 #if IOSS_DEBUG_OUTPUT
       if (rank == 0) {
-        fmt::print(Ioss::DEBUG(), "Processor {} has {} elements on element block {}\t({} to {})\n",
+        fmt::print(Ioss::DebugOut(),
+                   "Processor {} has {} elements on element block {}\t({} to {})\n",
                    m_decomposition.m_processor, overlap, block.name(), blk_start, blk_end);
       }
 #endif
@@ -958,7 +960,7 @@ namespace Iocgns {
 #if IOSS_DEBUG_OUTPUT
       if (rank == 0) {
         fmt::print(
-            Ioss::DEBUG(),
+            Ioss::DebugOut(),
             "{}: reading {} nodes from zone {} starting at {} with an offset of {} ending at {}\n",
             m_decomposition.m_processor, count, zone, start, offset, finish);
       }
@@ -1129,7 +1131,7 @@ namespace Iocgns {
         if (it != boundary.end()) {
           cgsize_t fid = (*it).element[0];
 #if IOSS_DEBUG_OUTPUT
-          fmt::print(Ioss::DEBUG(), "Connectivity: {} {} {} {} maps to element {}, face {}\n",
+          fmt::print(Ioss::DebugOut(), "Connectivity: {} {} {} {} maps to element {}, face {}\n",
                      conn[0], conn[1], conn[2], conn[3], fid / 10, fid % 10 + 1);
 #endif
           ioss_data[j++] = fid / 10 + zone_element_id_offset;

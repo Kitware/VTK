@@ -6,6 +6,8 @@
 
 #pragma once
 
+#include "ioss_export.h"
+
 #include "vtk_ioss_mangle.h"
 
 #include <Ioss_CodeTypes.h>
@@ -15,7 +17,7 @@
 namespace Ioss {
   class DatabaseIO;
 
-  class NullEntity : public GroupingEntity
+  class IOSS_EXPORT NullEntity : public GroupingEntity
   {
   public:
     NullEntity() : Ioss::GroupingEntity(nullptr, "null_entity", 0) {}

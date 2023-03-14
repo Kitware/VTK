@@ -6,6 +6,8 @@
 
 #pragma once
 
+#include "iocatalyst_export.h"
+
 namespace Iocatalyst {
   /** \brief Initialization of the Catalyst database parts of the Ioss library.
    *
@@ -13,7 +15,7 @@ namespace Iocatalyst {
    *  then an object of this type must be created before using any other functions
    *  or methods in the Ioss library except Ioss::Init::Initializer().
    */
-  class Initializer
+  class IOCATALYST_EXPORT Initializer
   {
   public:
     Initializer();

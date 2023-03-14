@@ -81,9 +81,6 @@ std::string   Ioss::Utils::m_preWarningText = "\nIOSS WARNING: ";
 namespace {
   auto initial_time = std::chrono::steady_clock::now();
 
-  template <typename INT>
-  void set_owned_node_count(Ioss::Region &region, int my_processor, INT dummy);
-
   ////////////////////////////////////////////////////////////////////////
   bool is_separator(const char separator, const char value) { return separator == value; }
 
@@ -152,35 +149,17 @@ void Ioss::Utils::set_all_streams(std::ostream &out_stream)
   m_warningStream = &out_stream;
 }
 
-void Ioss::Utils::set_output_stream(std::ostream &out_stream)
-{
-  m_outputStream  = &out_stream;
-}
+void Ioss::Utils::set_output_stream(std::ostream &out_stream) { m_outputStream = &out_stream; }
 
-void Ioss::Utils::set_debug_stream(std::ostream &out_stream)
-{
-  m_debugStream   = &out_stream;
-}
+void Ioss::Utils::set_debug_stream(std::ostream &out_stream) { m_debugStream = &out_stream; }
 
-void Ioss::Utils::set_warning_stream(std::ostream &out_stream)
-{
-  m_warningStream = &out_stream;
-}
+void Ioss::Utils::set_warning_stream(std::ostream &out_stream) { m_warningStream = &out_stream; }
 
-std::ostream& Ioss::Utils::get_output_stream()
-{
-  return *m_outputStream;
-}
+std::ostream &Ioss::Utils::get_output_stream() { return *m_outputStream; }
 
-std::ostream& Ioss::Utils::get_warning_stream()
-{
-  return *m_warningStream;
-}
+std::ostream &Ioss::Utils::get_warning_stream() { return *m_warningStream; }
 
-std::ostream& Ioss::Utils::get_debug_stream()
-{
-  return *m_debugStream;
-}
+std::ostream &Ioss::Utils::get_debug_stream() { return *m_debugStream; }
 
 void Ioss::Utils::time_and_date(char *time_string, char *date_string, size_t length)
 {
@@ -229,6 +208,15 @@ std::string Ioss::Utils::decode_filename(const std::string &filename, int proces
   return filename;
 }
 
+std::string Ioss::Utils::get_trailing_digits(const std::string &name)
+{
+  size_t digits = name.find_last_not_of("0123456789");
+  if (digits != std::string::npos) {
+    return name.substr(digits + 1);
+  }
+  return std::string{};
+}
+
 int Ioss::Utils::get_number(const std::string &suffix)
 {
   int  N       = 0;
@@ -243,7 +231,7 @@ int Ioss::Utils::extract_id(const std::string &name_id)
 {
   int id = 0;
 
-  std::vector<std::string> tokens = Ioss::tokenize(name_id, "_");
+  auto tokens = Ioss::tokenize(name_id, "_");
   if (tokens.size() > 1) {
     // Check whether last token is an integer...
     std::string str_id = tokens.back();
@@ -403,7 +391,7 @@ int Ioss::Utils::field_warning(const Ioss::GroupingEntity *ge, const Ioss::Field
                                const std::string &inout)
 {
   if (field.get_name() != "ids") {
-    fmt::print(Ioss::WARNING(), "{} '{}'. Unknown {} field '{}'\n", ge->type_string(), ge->name(),
+    fmt::print(Ioss::WarnOut(), "{} '{}'. Unknown {} field '{}'\n", ge->type_string(), ge->name(),
                inout, field.get_name());
   }
   return -4;
@@ -425,7 +413,7 @@ namespace {
 
     char suffix[2] = {suffix_separator, '\0'};
 
-    std::vector<std::string> tokens = Ioss::tokenize(names[which_names.back()], suffix);
+    auto tokens = Ioss::tokenize(names[which_names.back()], suffix);
 
     if (tokens.size() <= 2) {
       return nullptr;
@@ -450,7 +438,7 @@ namespace {
     // Gather the first 'inner_ccomp' inner field suffices...
     std::vector<Ioss::Suffix> suffices;
     for (size_t i = 0; i < inner_comp; i++) {
-      std::vector<std::string> ltokens = Ioss::tokenize(names[which_names[i]], suffix);
+      auto ltokens = Ioss::tokenize(std::string(names[which_names[i]]), suffix);
       // The second-last token is the suffix for this component...
       Ioss::Suffix tmp(ltokens[inner_token]);
       suffices.push_back(tmp);
@@ -461,7 +449,7 @@ namespace {
     size_t j = inner_comp;
     for (int copy = 1; copy < N; copy++) {
       for (size_t i = 0; i < inner_comp; i++) {
-        std::vector<std::string> ltokens = Ioss::tokenize(names[which_names[j++]], suffix);
+        auto ltokens = Ioss::tokenize(std::string(names[which_names[j++]]), suffix);
         // The second-last token is the suffix for this component...
         if (suffices[i] != ltokens[inner_token]) {
           return nullptr;
@@ -489,8 +477,8 @@ namespace {
     char suffix[2] = {suffix_separator, '\0'};
 
     for (int which_name : which_names) {
-      std::vector<std::string> tokens     = Ioss::tokenize(names[which_name], suffix);
-      size_t                   num_tokens = tokens.size();
+      auto   tokens     = Ioss::tokenize(names[which_name], suffix);
+      size_t num_tokens = tokens.size();
 
       // The last token is the suffix for this component...
       Ioss::Suffix tmp(tokens[num_tokens - 1]);
@@ -531,7 +519,8 @@ namespace {
     // not valid for this grouping entity (truth_table entry == 0).
     assert(index < num_names && names[index][0] != '\0' &&
            (truth_table == nullptr || truth_table[index] == 1));
-    char *name = names[index];
+    char *name        = names[index];
+    auto  name_length = strlen(name);
 
     // Split the name up into tokens separated by the
     // 'suffix_separator'.  Note that the basename itself could
@@ -570,76 +559,87 @@ namespace {
     // (num_tokens-suffix_size) tokens and see if their suffices form
     // a valid variable type...
     while (suffix_size > 0) {
-      Ioss::IntVector which_names; // Contains index of names that
-      // potentially match as components
-      // of a higher-order type.
-
-      std::string base_name = tokens[0];
-      for (size_t i = 1; i < num_tokens - suffix_size; i++) {
+      for (int i = 0; i <= 1; i++) {
+        bool            same_length = (i == 0);
+        Ioss::IntVector which_names; // Contains index of names that potentially match as components
+                                     // of a higher-order type.
+        std::string base_name = tokens[0];
+        for (size_t it = 1; it < num_tokens - suffix_size; it++) {
+          base_name += suffix_separator;
+          base_name += tokens[it];
+        }
         base_name += suffix_separator;
-        base_name += tokens[i];
-      }
-      base_name += suffix_separator;
-      size_t bn_len = base_name.length(); // Length of basename portion only
-      size_t length = std::strlen(name);  // Length of total name (with suffix)
+        size_t bn_len = base_name.length(); // Length of basename portion only
 
-      // Add the current name...
-      which_names.push_back(index);
+        // Add the current name...
+        which_names.push_back(index);
 
-      // Gather all other names that are valid for this entity, and
-      // have the same overall length and match in the first 'bn_len'
-      // characters.
-      //
-      // Check that they have the same number of tokens,
-      // It is possible that the first name(s) that match with two
-      // suffices have a basename that match other names with only a
-      // single suffix lc_cam_x, lc_cam_y, lc_sfarea.
-      for (int i = index + 1; i < num_names; i++) {
-        char                    *tst_name = names[i];
-        std::vector<std::string> subtokens;
-        field_tokenize(tst_name, suffix_separator, subtokens);
-        if ((truth_table == nullptr || truth_table[i] == 1) && // Defined on this entity
-            std::strlen(tst_name) == length &&                 // names must be same length
-            std::strncmp(name, tst_name, bn_len) == 0 &&       // base portion must match
-            subtokens.size() == num_tokens) {
-          which_names.push_back(i);
+        // Gather all other names that are valid for this entity, and
+        // match in the first 'bn_len' characters.
+        //
+        // Check that they have the same number of tokens,
+        // It is possible that the first name(s) that match with two
+        // suffices have a basename that match other names with only a
+        // single suffix lc_cam_x, lc_cam_y, lc_sfarea.
+        for (int id = index + 1; id < num_names; id++) {
+          char                    *tst_name = names[id];
+          std::vector<std::string> subtokens;
+          field_tokenize(tst_name, suffix_separator, subtokens);
+          if ((truth_table == nullptr || truth_table[id] == 1) && // Defined on this entity
+              std::strncmp(name, tst_name, bn_len) == 0 &&       // base portion must match
+              (!same_length || (strlen(tst_name) == name_length)) &&
+              subtokens.size() == num_tokens) {
+            which_names.push_back(id);
+          }
+        }
+
+        const Ioss::VariableType *type = nullptr;
+        if (suffix_size == 2) {
+          if (which_names.size() > 1) {
+            type = match_composite_field(names, which_names, suffix_separator);
+          }
+        }
+        else {
+          assert(suffix_size == 1);
+          type = match_single_field(names, which_names, suffix_separator, ignore_realn_fields);
+        }
+
+        if (type != nullptr) {
+          // A valid variable type was recognized.
+          // Mark the names which were used so they aren't used for another field on this entity.
+          // Create a field of that variable type.
+          assert(type->component_count() == static_cast<int>(which_names.size()));
+          Ioss::Field field(base_name.substr(0, bn_len - 1), Ioss::Field::REAL, type, fld_role,
+                            count);
+          if (suffix_separator != '_') {
+            field.set_suffix_separator(suffix_separator);
+          }
+          // Are suffices upper or lowercase...
+          std::vector<std::string> tmp;
+          field_tokenize(names[which_names[0]], suffix_separator, tmp);
+          Ioss::Suffix suffix{tmp[tmp.size() - 1]};
+          field.set_suffices_uppercase(suffix.is_uppercase());
+          field.set_index(index);
+          for (const auto &which_name : which_names) {
+            names[which_name][0] = '\0';
+          }
+          return field;
+        }
+        if (suffix_size == 1 && !same_length) {
+          // Failure recognizing a higher-order field; just take the
+          // first field and return it as a scalar...
+          Ioss::Field field(name, Ioss::Field::REAL, IOSS_SCALAR(), fld_role, count);
+
+          // Are suffices upper or lowercase...
+          std::vector<std::string> tmp;
+          field_tokenize(names[which_names[0]], suffix_separator, tmp);
+          Ioss::Suffix suffix{tmp[tmp.size() - 1]};
+          field.set_suffices_uppercase(suffix.is_uppercase());
+          field.set_index(index);
+          names[index][0] = '\0';
+          return field;
         }
       }
-
-      const Ioss::VariableType *type = nullptr;
-      if (suffix_size == 2) {
-        if (which_names.size() > 1) {
-          type = match_composite_field(names, which_names, suffix_separator);
-        }
-      }
-      else {
-        assert(suffix_size == 1);
-        type = match_single_field(names, which_names, suffix_separator, ignore_realn_fields);
-      }
-
-      if (type != nullptr) {
-        // A valid variable type was recognized.
-        // Mark the names which were used so they aren't used for another field on this entity.
-        // Create a field of that variable type.
-        assert(type->component_count() == static_cast<int>(which_names.size()));
-        Ioss::Field field(base_name.substr(0, bn_len - 1), Ioss::Field::REAL, type, fld_role,
-                          count);
-        if (suffix_separator != '_') {
-          field.set_suffix_separator(suffix_separator);
-        }
-        field.set_index(index);
-        for (const auto &which_name : which_names) {
-          names[which_name][0] = '\0';
-        }
-        return field;
-      }
-      if (suffix_size == 1) {
-        Ioss::Field field(name, Ioss::Field::REAL, IOSS_SCALAR(), fld_role, count);
-        field.set_index(index);
-        names[index][0] = '\0';
-        return field;
-      }
-
       suffix_size--;
     }
     return Ioss::Field("", Ioss::Field::INVALID, IOSS_SCALAR(), fld_role, 1);
@@ -718,6 +718,7 @@ void Ioss::Utils::get_fields(int64_t entity_count, // The number of objects in t
     for (int i = 0; i < num_names; i++) {
       if (local_truth == nullptr || local_truth[i] == 1) {
         Ioss::Field field(names[i], Ioss::Field::REAL, IOSS_SCALAR(), fld_role, entity_count);
+        field.set_index(i);
         fields.push_back(field);
         names[i][0] = '\0';
       }
@@ -824,6 +825,31 @@ void Ioss::Utils::get_fields(int64_t entity_count, // The number of objects in t
       }
     }
   }
+}
+
+bool Ioss::Utils::check_int_to_real_overflow(const Ioss::Field &field, int64_t *data,
+                                             size_t num_entity)
+{
+  // Check all values in `data` to make sure that if they are converted to a double and
+  // back again, there will be no data loss.  This requires that the value be less than 2^53.
+  static int64_t max_double = 2LL << 53;
+  assert(int64_t(double(max_double)) == max_double);
+  assert(int64_t(double(max_double + 1)) != max_double + 1);
+
+  size_t comp_count = field.get_component_count(Ioss::Field::InOut::OUTPUT);
+  for (size_t i = 0; i < num_entity * comp_count; i++) {
+    if (data[i] > max_double) {
+      fmt::print(
+          Ioss::WarnOut(),
+          "Field '{}' contains 64-bit integer data that is not representable as a double value.\n"
+          "\tThis value can not currently be stored in the exodus database without data loss.\n"
+          "\tThe first such value is at location {}, component {} (1-based) with value {}.\n",
+          field.get_name(), fmt::group_digits(i / comp_count + 1), i % comp_count + 1,
+          fmt::group_digits(data[i]));
+      return true;
+    }
+  }
+  return false;
 }
 
 std::string Ioss::Utils::platform_information()
@@ -1075,6 +1101,30 @@ std::string Ioss::Utils::shape_to_string(const Ioss::ElementShape &shape)
   case Ioss::ElementShape::SUPER: return std::string("Super");
   }
   return std::string("Invalid shape [") + std::to_string(unsigned(shape)) + std::string("]");
+}
+
+std::string Ioss::Utils::entity_type_to_string(const Ioss::EntityType &type)
+{
+  switch (type) {
+  case Ioss::EntityType::NODEBLOCK: return std::string("NODEBLOCK");
+  case Ioss::EntityType::EDGEBLOCK: return std::string("EDGEBLOCK");
+  case Ioss::EntityType::FACEBLOCK: return std::string("FACEBLOCK");
+  case Ioss::EntityType::ELEMENTBLOCK: return std::string("ELEMENTBLOCK");
+  case Ioss::EntityType::NODESET: return std::string("NODESET");
+  case Ioss::EntityType::EDGESET: return std::string("EDGESET");
+  case Ioss::EntityType::FACESET: return std::string("FACESET");
+  case Ioss::EntityType::ELEMENTSET: return std::string("ELEMENTSET");
+  case Ioss::EntityType::SIDESET: return std::string("SIDESET");
+  case Ioss::EntityType::COMMSET: return std::string("COMMSET");
+  case Ioss::EntityType::SIDEBLOCK: return std::string("SIDEBLOCK");
+  case Ioss::EntityType::REGION: return std::string("REGION");
+  case Ioss::EntityType::SUPERELEMENT: return std::string("SUPERELEMENT");
+  case Ioss::EntityType::STRUCTUREDBLOCK: return std::string("STRUCTUREDBLOCK");
+  case Ioss::EntityType::ASSEMBLY: return std::string("ASSEMBLY");
+  case Ioss::EntityType::BLOB: return std::string("BLOB");
+  case Ioss::EntityType::INVALID_TYPE: return std::string("INVALID_TYPE");
+  }
+  return std::string("Invalid entity type [") + std::to_string(unsigned(type)) + std::string("]");
 }
 
 unsigned int Ioss::Utils::hash(const std::string &name)

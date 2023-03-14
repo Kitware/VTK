@@ -6,6 +6,8 @@
 
 #pragma once
 
+#include "ioss_export.h"
+
 #include "vtk_ioss_mangle.h"
 
 #include <cstdint> // for int64_t
@@ -21,7 +23,7 @@ namespace Ioss {
   /** \brief A named value that has a known type.
    *
    */
-  class Property
+  class IOSS_EXPORT Property
   {
   public:
     enum BasicType { INVALID = -1, REAL, INTEGER, POINTER, STRING, VEC_INTEGER, VEC_DOUBLE };

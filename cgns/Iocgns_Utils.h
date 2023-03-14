@@ -6,6 +6,8 @@
 
 #pragma once
 
+#include "iocgns_export.h"
+
 #include <Ioss_CodeTypes.h>
 #include <Ioss_DatabaseIO.h>
 #include <Ioss_ElementTopology.h>
@@ -50,7 +52,7 @@
 namespace Iocgns {
   class StructuredZoneData;
 
-  struct ZoneBC
+  struct IOCGNS_EXPORT ZoneBC
   {
     ZoneBC(std::string bc_name, std::array<cgsize_t, 2> &point_range)
         : name(std::move(bc_name)), range_beg(point_range[0]), range_end(point_range[1])
@@ -62,7 +64,7 @@ namespace Iocgns {
     cgsize_t    range_end;
   };
 
-  class Utils
+  class IOCGNS_EXPORT Utils
   {
   public:
     Utils()  = default;

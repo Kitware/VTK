@@ -6,10 +6,13 @@
 
 #pragma once
 
+#include "ioss_export.h"
+
 #include "vtk_ioss_mangle.h"
 
 #include <Ioss_CodeTypes.h>
 #include <Ioss_ElementTopology.h>
+#include <Ioss_EntityType.h>
 #include <Ioss_Field.h>
 #include <Ioss_Property.h>
 #include <Ioss_Sort.h>
@@ -34,34 +37,10 @@ namespace Ioss {
 
 #define IOSS_ERROR(errmsg) throw std::runtime_error((errmsg).str())
 
-namespace {
-  // SEE: http://lemire.me/blog/2017/04/10/removing-duplicates-from-lists-quickly
-  template <typename T> size_t unique(std::vector<T> &out, bool skip_first)
-  {
-    if (out.empty())
-      return 0;
-    size_t i    = 1;
-    size_t pos  = 1;
-    T      oldv = out[0];
-    if (skip_first) {
-      i    = 2;
-      pos  = 2;
-      oldv = out[1];
-    }
-    for (; i < out.size(); ++i) {
-      T newv   = out[i];
-      out[pos] = newv;
-      pos += (newv != oldv);
-      oldv = newv;
-    }
-    return pos;
-  }
-} // namespace
-
 namespace Ioss {
   /* \brief Utility methods.
    */
-  class Utils
+  class IOSS_EXPORT Utils
   {
   public:
     Utils()  = default;
@@ -85,15 +64,15 @@ namespace Ioss {
 
     /** \brief get the debug stream.
      */
-    static std::ostream& get_debug_stream();
+    static std::ostream &get_debug_stream();
 
     /** \brief get the warning stream.
      */
-    static std::ostream& get_warning_stream();
+    static std::ostream &get_warning_stream();
 
     /** \brief get the output stream.
      */
-    static std::ostream& get_output_stream();
+    static std::ostream &get_output_stream();
 
     /** \brief set the output stream to the specified `output_stream`
      */
@@ -293,6 +272,12 @@ namespace Ioss {
     static int         extract_id(const std::string &name_id);
     static std::string encode_entity_name(const std::string &entity_type, int64_t id);
 
+    /** Return the trailing digits (if any) from `name`
+     * `hex20` would return the string `20`
+     * `tetra` would return an empty string.
+     */
+    static std::string get_trailing_digits(const std::string &name);
+
     /** \brief create a string that describes the list of input `ids` collapsing ranges if possible.
      *
      * Traverse the sorted input vector `ids` and return a string that has all sequential ranges
@@ -400,6 +385,13 @@ namespace Ioss {
      */
     static bool substr_equal(const std::string &prefix, const std::string &str);
 
+    /** Check all values in `data` to make sure that if they are converted to a double and
+     * back again, there will be no data loss.  This requires that the value be less than 2^53.
+     * This is done in the exodus database since it stores all transient data as doubles...
+     */
+    static bool check_int_to_real_overflow(const Ioss::Field &field, int64_t *data,
+                                           size_t num_entity);
+
     /** \brief Get a string containing `uname` output.
      *
      *  This output contains information about the current computing platform.
@@ -498,6 +490,8 @@ namespace Ioss {
 
     static std::string shape_to_string(const Ioss::ElementShape &shape);
 
+    static std::string entity_type_to_string(const Ioss::EntityType &type);
+
     /** \brief Create a nominal mesh for use in history databases.
      *
      *  The model for a history file is a single sphere element (1 node, 1 element).
@@ -515,13 +509,36 @@ namespace Ioss {
     static void info_property(const Ioss::GroupingEntity *ige, Ioss::Property::Origin origin,
                               const std::string &header, const std::string &suffix = "\n\t",
                               bool print_empty = false);
+
+  private:
+    // SEE: http://lemire.me/blog/2017/04/10/removing-duplicates-from-lists-quickly
+    template <typename T> static size_t unique(std::vector<T> &out, bool skip_first)
+    {
+      if (out.empty())
+        return 0;
+      size_t i    = 1;
+      size_t pos  = 1;
+      T      oldv = out[0];
+      if (skip_first) {
+        i    = 2;
+        pos  = 2;
+        oldv = out[1];
+      }
+      for (; i < out.size(); ++i) {
+        T newv   = out[i];
+        out[pos] = newv;
+        pos += (newv != oldv);
+        oldv = newv;
+      }
+      return pos;
+    }
   };
 
   inline std::ostream &OUTPUT() { return *Utils::m_outputStream; }
 
-  inline std::ostream &DEBUG() { return *Utils::m_debugStream; }
+  inline std::ostream &DebugOut() { return *Utils::m_debugStream; }
 
-  inline std::ostream &WARNING()
+  inline std::ostream &WarnOut()
   {
     *Utils::m_warningStream << Utils::m_preWarningText;
     return *Utils::m_warningStream;

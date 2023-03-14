@@ -6,6 +6,8 @@
 
 #pragma once
 
+#include "ioss_export.h"
+
 #include "vtk_ioss_mangle.h"
 
 #include <Ioss_BoundingBox.h>
@@ -26,7 +28,7 @@ namespace Ioss {
 
   /** \brief A collection of all nodes in the region.
    */
-  class NodeBlock : public EntityBlock
+  class IOSS_EXPORT NodeBlock : public EntityBlock
   {
   public:
     NodeBlock(DatabaseIO *io_database, const std::string &my_name, int64_t node_count,
