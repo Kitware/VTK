@@ -12,9 +12,11 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+// Funded by CEA, DAM, DIF, F-91297 Arpajon, France
 #include "vtkExtractSelection.h"
 
 #include "vtkAppendSelection.h"
+#include "vtkBitArray.h"
 #include "vtkBlockSelector.h"
 #include "vtkCell.h"
 #include "vtkCellData.h"
@@ -23,6 +25,8 @@
 #include "vtkDataSet.h"
 #include "vtkExtractCells.h"
 #include "vtkFrustumSelector.h"
+#include "vtkHyperTreeGrid.h"
+#include "vtkHyperTreeGridNonOrientedCursor.h"
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
@@ -45,6 +49,36 @@
 #include <cassert>
 #include <map>
 #include <vector>
+
+namespace
+{
+
+// Recursive check for visible cells and propagate up visibility to parents
+bool SanitizeHTGMask(vtkHyperTreeGridNonOrientedCursor* cursor)
+{
+  if (!cursor->IsLeaf())
+  {
+    bool isMasked = cursor->IsMasked();
+    if (isMasked)
+    {
+      cursor->SetMask(false);
+    }
+    bool checkLowerLevelVisible = false;
+    for (vtkIdType iChild = 0; iChild < cursor->GetNumberOfChildren(); ++iChild)
+    {
+      cursor->ToChild(iChild);
+      checkLowerLevelVisible = SanitizeHTGMask(cursor) || checkLowerLevelVisible;
+      cursor->ToParent();
+    }
+    if (!checkLowerLevelVisible && isMasked)
+    {
+      cursor->SetMask(true);
+    }
+  }
+  return !cursor->IsMasked();
+}
+
+}
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkExtractSelection);
@@ -305,7 +339,8 @@ int vtkExtractSelection::RequestData(vtkInformation* vtkNotUsed(request),
       if (blockInput)
       {
         vtkSmartPointer<vtkDataObject> clone;
-        if (expandToConnectedElements || this->PreserveTopology)
+        if (expandToConnectedElements || this->PreserveTopology ||
+          vtkHyperTreeGrid::SafeDownCast(blockInput))
         {
           clone.TakeReference(blockInput->NewInstance());
           clone->ShallowCopy(blockInput);
@@ -402,7 +437,8 @@ int vtkExtractSelection::RequestData(vtkInformation* vtkNotUsed(request),
     assert(output != nullptr);
 
     vtkSmartPointer<vtkDataObject> clone;
-    if (expandToConnectedElements || this->PreserveTopology)
+    if (expandToConnectedElements || this->PreserveTopology ||
+      vtkHyperTreeGrid::SafeDownCast(input))
     {
       clone.TakeReference(input->NewInstance());
       clone->ShallowCopy(input);
@@ -731,6 +767,37 @@ vtkSmartPointer<vtkDataObject> vtkExtractSelection::ExtractElements(vtkDataObjec
     return nullptr;
   }
   vtkSmartPointer<vtkDataObject> result;
+
+  if (vtkHyperTreeGrid* htg = vtkHyperTreeGrid::SafeDownCast(inputBlock))
+  {
+    vtkNew<vtkBitArray> mask;
+    mask->SetNumberOfComponents(1);
+    mask->SetNumberOfTuples(insidednessArray->GetNumberOfTuples());
+    auto masking = [&mask, &insidednessArray](vtkIdType begin, vtkIdType end) {
+      for (vtkIdType iMask = begin; iMask < end; ++iMask)
+      {
+        mask->SetValue(iMask, static_cast<int>(insidednessArray->GetValue(iMask) == 0));
+      }
+    };
+    // lambda method is not thread safe due to vtkBitArray (see issue #18837)
+    //---------------------------------------------------------------------
+    masking(0, mask->GetNumberOfTuples());
+    // vtkSMPTools::For(0, mask->GetNumberOfTuples(), masking);
+    //---------------------------------------------------------------------
+    result.TakeReference(htg->NewInstance());
+    vtkHyperTreeGrid* outHTG = vtkHyperTreeGrid::SafeDownCast(result);
+    outHTG->ShallowCopy(htg);
+    outHTG->SetMask(mask);
+    // sanitize the mask
+    for (vtkIdType iTree = 0; iTree < outHTG->GetMaxNumberOfTrees(); ++iTree)
+    {
+      vtkNew<vtkHyperTreeGridNonOrientedCursor> cursor;
+      cursor->Initialize(outHTG, iTree);
+      ::SanitizeHTGMask(cursor);
+    }
+    return result;
+  }
+
   if (this->PreserveTopology)
   {
     insidednessArray->SetName("vtkInsidedness");

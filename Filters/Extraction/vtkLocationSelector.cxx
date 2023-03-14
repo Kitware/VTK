@@ -16,12 +16,15 @@
 
 #include "vtkDataSetAttributes.h"
 #include "vtkGenericCell.h"
+#include "vtkHyperTreeGrid.h"
+#include "vtkHyperTreeGridGeometricLocator.h"
 #include "vtkInformation.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPoints.h"
 #include "vtkSMPTools.h"
 #include "vtkSelectionNode.h"
+#include "vtkSelector.h"
 #include "vtkSignedCharArray.h"
 #include "vtkStaticPointLocator.h"
 #include "vtkUnstructuredGrid.h"
@@ -39,6 +42,11 @@ public:
 
   virtual ~vtkInternals() = default;
   virtual bool Execute(vtkDataSet* dataset, vtkSignedCharArray* insidednessArray) = 0;
+  virtual bool Execute(vtkDataObject* dataObject, vtkSignedCharArray* insidednessArray)
+  {
+    auto ds = vtkDataSet::SafeDownCast(dataObject);
+    return ds && this->Execute(ds, insidednessArray);
+  }
 
 protected:
   vtkSmartPointer<vtkDataArray> SelectionList;
@@ -144,6 +152,51 @@ public:
     insidednessArray->Modified();
     return true;
   }
+
+  bool Execute(vtkDataObject* dataObject, vtkSignedCharArray* insidednessArray) override
+  {
+    vtkHyperTreeGrid* htg = vtkHyperTreeGrid::SafeDownCast(dataObject);
+    if (htg)
+    {
+      return this->Execute(htg, insidednessArray);
+    }
+    else
+    {
+      return this->vtkLocationSelector::vtkInternals::Execute(dataObject, insidednessArray);
+    }
+  }
+
+  bool Execute(vtkHyperTreeGrid* htg, vtkSignedCharArray* insidednessArray)
+  {
+    if (!htg)
+    {
+      vtkErrorWithObjectMacro(
+        nullptr, "The vtkHyperTreeGrid passed to the execute method is a nullptr.");
+      return false;
+    }
+
+    // setup locator
+    vtkNew<vtkHyperTreeGridGeometricLocator> locator;
+    locator->SetHTG(htg);
+
+    // fill insidedness array with zeros
+    auto inside = vtk::DataArrayValueRange<1>(insidednessArray);
+    vtkSMPTools::Fill(inside.begin(), inside.end(), 0);
+
+    // locate positions
+    std::array<double, 3> location;
+    for (vtkIdType iCell = 0; iCell < this->SelectionList->GetNumberOfTuples(); ++iCell)
+    {
+      this->SelectionList->GetTuple(iCell, location.data());
+      vtkIdType id = locator->Search(location.data());
+      if (id > -1)
+      {
+        inside[id] = static_cast<signed char>(true);
+      }
+    }
+    insidednessArray->Modified();
+    return true;
+  }
 };
 
 vtkStandardNewMacro(vtkLocationSelector);
@@ -217,10 +270,7 @@ bool vtkLocationSelector::ComputeSelectedElements(
   vtkDataObject* input, vtkSignedCharArray* insidednessArray)
 {
   assert(input != nullptr && insidednessArray != nullptr);
-  vtkDataSet* ds = vtkDataSet::SafeDownCast(input);
-  return (this->Internals != nullptr && ds != nullptr)
-    ? this->Internals->Execute(ds, insidednessArray)
-    : false;
+  return this->Internals && this->Internals->Execute(input, insidednessArray);
 }
 
 //------------------------------------------------------------------------------
