@@ -37,6 +37,8 @@ namespace Ioex {
   {
   public:
     DecompositionDataBase(Ioss_MPI_Comm comm) : comm_(comm) {}
+    DecompositionDataBase(const DecompositionDataBase&) = delete;
+    DecompositionDataBase& operator=(const DecompositionDataBase&) = delete;
 
     virtual ~DecompositionDataBase()            = default;
     virtual int    int_size() const             = 0;
