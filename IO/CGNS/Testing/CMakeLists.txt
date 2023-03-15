@@ -1,4 +1,6 @@
 vtk_module_test_data(
+  Data/BCDirichletStructured.cgns
+  Data/BCNeumannUnstructured.cgns
   Data/bc_struct.cgns
   Data/BoxWithFaceData.cgns
   Data/channelBump_solution.cgns
