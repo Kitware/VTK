@@ -117,6 +117,7 @@
 #define QQuickVTKRenderWindow_h
 
 // vtk includes
+#include "vtkDeprecation.h"
 #include "vtkSmartPointer.h" // For vtkSmartPointer
 
 // Qt includes
@@ -141,7 +142,8 @@ class vtkRenderWindow;
 class vtkRenderer;
 class vtkWindowToImageFilter;
 
-class VTKGUISUPPORTQTQUICK_EXPORT QQuickVTKRenderWindow
+class VTK_DEPRECATED_IN_9_3_0(
+  "Use QQuickVTKItem instead") VTKGUISUPPORTQTQUICK_EXPORT QQuickVTKRenderWindow
   : public QQuickItem
   , protected QOpenGLFunctions
 {

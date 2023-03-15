@@ -135,8 +135,9 @@
 
 // vtk includes
 #include "QQuickVTKRenderWindow.h" // For QQuickVTKRenderWindow
-#include "vtkNew.h"                // For vtkNew
-#include "vtkRenderer.h"           // For vtkRenderer
+#include "vtkDeprecation.h"
+#include "vtkNew.h"      // For vtkNew
+#include "vtkRenderer.h" // For vtkRenderer
 
 #include "vtkGUISupportQtQuickModule.h" // for export macro
 
@@ -150,7 +151,8 @@ VTK_ABI_NAMESPACE_BEGIN
 class QQuickVTKInteractiveWidget;
 class vtkImageData;
 
-class VTKGUISUPPORTQTQUICK_EXPORT QQuickVTKRenderItem
+class VTK_DEPRECATED_IN_9_3_0(
+  "Use QQuickVTKItem instead") VTKGUISUPPORTQTQUICK_EXPORT QQuickVTKRenderItem
   : public QQuickItem
   , protected QOpenGLFunctions
 {

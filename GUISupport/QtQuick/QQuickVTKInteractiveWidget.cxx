@@ -12,6 +12,9 @@
   PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+// this class is deprecated, don't warn about deprecated classes it uses
+#define VTK_DEPRECATION_LEVEL 0
+
 #include "QQuickVTKInteractiveWidget.h"
 
 // vtk includes
