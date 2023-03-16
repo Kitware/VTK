@@ -850,12 +850,29 @@ bool vtkPolarAxesActor::CheckMembersConsistency()
     return false;
   }
 
+  if (this->MaximumRadius < this->MinimumRadius)
+  {
+    // MaximumRadius should not be lower than MinimumRadius
+    vtkWarningMacro(<< "Maximum Radius cannot be lower than Minimum one: "
+                    << "MinimumRadius : " << this->MinimumRadius
+                    << " _ MaximumRadius: " << this->MaximumRadius);
+    return false;
+  }
+
   // Min/Max Range
   if (vtkMathUtilities::FuzzyCompare(this->Range[0], this->Range[1]))
   {
     // MaximumRadius and this->MinimumRadius are too close
     vtkWarningMacro(<< "Maximum and Minimum Range cannot be distinct: "
                     << " Range[0]: " << this->Range[0] << " _ Range[1]: " << this->Range[1]);
+    return false;
+  }
+
+  if (this->Range[1] < this->Range[0])
+  {
+    // Range bounds should respect ascending order
+    vtkWarningMacro(<< "Maximum range bound cannot be lower than Minimum one: "
+                    << "Range[0] : " << this->Range[0] << " _ Range[1]: " << this->Range[1]);
     return false;
   }
 
@@ -944,24 +961,6 @@ void vtkPolarAxesActor::BuildAxes(vtkViewport* viewport)
   {
     this->AutoScale(viewport);
     return;
-  }
-
-  if (this->MaximumRadius - this->MinimumRadius < 0.0)
-  {
-    std::swap(this->MinimumRadius, this->MaximumRadius);
-  }
-  if (Range[0] > Range[1])
-  {
-    std::swap(Range[0], Range[1]);
-  }
-  if (this->DeltaRangeMajor < 0.0)
-  {
-    this->DeltaRangeMajor *= -1.0;
-  }
-
-  if (this->DeltaRangeMinor < 0.0)
-  {
-    this->DeltaRangeMinor *= -1.0;
   }
 
   // ---------- Angles check -----------
