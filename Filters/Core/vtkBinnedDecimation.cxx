@@ -1106,7 +1106,8 @@ struct MapOffsets
     , NumBins(numBins)
     , Filter(filter)
   {
-    this->BatchSize = static_cast<int>(ceil(static_cast<double>(numPts) / numBatches));
+    // Round up BatchSize so that final batch isn't larger than the rest
+    this->BatchSize = static_cast<int>((numPts - 1) / numBatches + 1);
   }
 
   // Traverse sorted points (i.e., tuples) and update bin offsets.
@@ -1114,14 +1115,18 @@ struct MapOffsets
   {
     TIds* offsets = this->Offsets;
     const BinTuple<TIds>* curPt = this->BinTuples + batch * this->BatchSize;
-    const BinTuple<TIds>* endBatchPt = this->BinTuples + batchEnd * this->BatchSize;
     const BinTuple<TIds>* endPt = this->BinTuples + this->NumPts;
-    const BinTuple<TIds>* prevPt;
-    endBatchPt = (endBatchPt > endPt ? endPt : endBatchPt);
+    // Use endPt if we're on the last batch, otherwise use BatchSize
+    const BinTuple<TIds>* endBatchPt = endPt;
+    if (batchEnd * this->BatchSize <= this->NumPts)
+    {
+      endBatchPt = this->BinTuples + batchEnd * this->BatchSize;
+    }
 
     // Special case at the very beginning of the bin tuples array.  If
     // the first point is in bin# N, then all bins up and including
     // N must refer to the first point.
+    const BinTuple<TIds>* prevPt;
     if (curPt == this->BinTuples)
     {
       prevPt = this->BinTuples;
@@ -1159,7 +1164,7 @@ struct MapOffsets
         }
       }
       batch++;
-      for (; curPt->Bin == prevPt->Bin && curPt <= endBatchPt; ++curPt)
+      for (; curPt < endBatchPt && curPt->Bin == prevPt->Bin; ++curPt)
       {
         // advance
       }
