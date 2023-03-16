@@ -338,7 +338,7 @@ void vtkOBJWriter::WriteData()
       {
         f << "usemtl " << matName << "\n";
       }
-      while (materialIds->GetValue(faceIndex) == matIndex && validCell)
+      while (validCell && materialIds->GetValue(faceIndex) == matIndex)
       {
         f << "f";
         for (vtkIdType i = 0; i < cellNpts; i++)
