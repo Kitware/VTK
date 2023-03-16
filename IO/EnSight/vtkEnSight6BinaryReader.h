@@ -134,20 +134,20 @@ protected:
    * vtkUnstructuredGrid output.  Return 0 if EOF reached.
    */
   int CreateUnstructuredGridOutput(
-    int partId, char line[80], const char* name, vtkMultiBlockDataSet* output) override;
+    int partId, char line[81], const char* name, vtkMultiBlockDataSet* output) override;
 
   /**
    * Read a structured part from the geometry file and create a
    * vtkStructuredGridOutput.  Return 0 if EOF reached.
    */
   int CreateStructuredGridOutput(
-    int partId, char line[80], const char* name, vtkMultiBlockDataSet* output) override;
+    int partId, char line[81], const char* name, vtkMultiBlockDataSet* output) override;
 
   /**
-   * Internal function to read in a line up to 80 characters.
+   * Internal function to read in a line up to 80 characters. Adds NUL char at index 80.
    * Returns zero if there was an error.
    */
-  int ReadLine(char result[80]);
+  int ReadLine(char result[81]);
 
   /**
    * Internal function to read in a single integer.

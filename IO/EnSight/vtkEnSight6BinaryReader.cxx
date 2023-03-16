@@ -122,7 +122,7 @@ int vtkEnSight6BinaryReader::OpenFile(const char* filename)
 int vtkEnSight6BinaryReader::ReadGeometryFile(
   const char* fileName, int timeStep, vtkMultiBlockDataSet* output)
 {
-  char line[80], subLine[80];
+  char line[81], subLine[81];
   int partId, realId;
   int lineRead;
   float* coordinateArray;
@@ -160,7 +160,7 @@ int vtkEnSight6BinaryReader::ReadGeometryFile(
   }
 
   lineRead = this->ReadLine(line);
-  sscanf(line, " %*s %s", subLine);
+  sscanf(line, " %*s %80s", subLine);
   if (strcmp(subLine, "Binary") != 0 && strcmp(subLine, "binary") != 0)
   {
     vtkErrorMacro("This is not an EnSight6 binary file. Try "
@@ -192,7 +192,7 @@ int vtkEnSight6BinaryReader::ReadGeometryFile(
 
   // Read the node id and element id lines.
   this->ReadLine(line); // node id *
-  sscanf(line, " %*s %*s %s", subLine);
+  sscanf(line, " %*s %*s %80s", subLine);
   if (strcmp(subLine, "given") == 0)
   {
     this->UnstructuredNodeIds = vtkIdTypeArray::New();
@@ -208,7 +208,7 @@ int vtkEnSight6BinaryReader::ReadGeometryFile(
   }
 
   this->ReadLine(line); // element id *
-  sscanf(line, " %*s %*s %s", subLine);
+  sscanf(line, " %*s %*s %80s", subLine);
   if (strcmp(subLine, "given") == 0 || strcmp(subLine, "ignore") == 0)
   {
     this->ElementIdsListed = 1;
@@ -303,7 +303,7 @@ int vtkEnSight6BinaryReader::ReadGeometryFile(
 //------------------------------------------------------------------------------
 int vtkEnSight6BinaryReader::SkipTimeStep()
 {
-  char line[80], subLine[80];
+  char line[81], subLine[81];
   int lineRead;
   int pointIdsListed;
 
@@ -319,7 +319,7 @@ int vtkEnSight6BinaryReader::SkipTimeStep()
 
   // Read the node id and element id lines.
   this->ReadLine(line); // node id *
-  sscanf(line, " %*s %*s %s", subLine);
+  sscanf(line, " %*s %*s %80s", subLine);
   if (strcmp(subLine, "given") == 0 || strcmp(subLine, "ignore") == 0)
   {
     pointIdsListed = 1;
@@ -330,7 +330,7 @@ int vtkEnSight6BinaryReader::SkipTimeStep()
   }
 
   this->ReadLine(line); // element id *
-  sscanf(line, " %*s %*s %s", subLine);
+  sscanf(line, " %*s %*s %80s", subLine);
   if (strcmp(subLine, "given") == 0 || strcmp(subLine, "ignore") == 0)
   {
     this->ElementIdsListed = 1;
@@ -383,13 +383,13 @@ int vtkEnSight6BinaryReader::SkipTimeStep()
 //------------------------------------------------------------------------------
 int vtkEnSight6BinaryReader::SkipStructuredGrid(char line[256])
 {
-  char subLine[80];
+  char subLine[81];
   int lineRead;
   int iblanked = 0;
   int dimensions[3];
   int numPts;
 
-  if (sscanf(line, " %*s %s", subLine) == 1)
+  if (sscanf(line, " %*s %80s", subLine) == 1)
   {
     if (strcmp(subLine, "iblanked") == 0)
     {
@@ -708,7 +708,7 @@ int vtkEnSight6BinaryReader::SkipUnstructuredGrid(char line[256])
 int vtkEnSight6BinaryReader::ReadMeasuredGeometryFile(
   const char* fileName, int timeStep, vtkMultiBlockDataSet* output)
 {
-  char line[80], subLine[80];
+  char line[81], subLine[81];
   vtkIdType i;
   int* pointIds;
   float* coords;
@@ -751,7 +751,7 @@ int vtkEnSight6BinaryReader::ReadMeasuredGeometryFile(
   }
 
   this->ReadLine(line);
-  sscanf(line, " %*s %s", subLine);
+  sscanf(line, " %*s %80s", subLine);
   if (strcmp(subLine, "Binary") != 0)
   {
     vtkErrorMacro("This is not a binary data set. Try "
@@ -864,7 +864,7 @@ int vtkEnSight6BinaryReader::ReadScalarsPerNode(const char* fileName, const char
   int timeStep, vtkMultiBlockDataSet* compositeOutput, int measured, int numberOfComponents,
   int component)
 {
-  char line[80];
+  char line[81];
   int partId, realId, numPts, numParts, i;
   vtkFloatArray* scalars;
   float* scalarsRead;
@@ -1119,7 +1119,7 @@ int vtkEnSight6BinaryReader::ReadScalarsPerNode(const char* fileName, const char
 int vtkEnSight6BinaryReader::ReadVectorsPerNode(const char* fileName, const char* description,
   int timeStep, vtkMultiBlockDataSet* compositeOutput, int measured)
 {
-  char line[80];
+  char line[81];
   int partId, realId, numPts, i;
   vtkFloatArray* vectors;
   float vector[3];
@@ -1327,7 +1327,7 @@ int vtkEnSight6BinaryReader::ReadAsymmetricTensorsPerNode(const char* vtkNotUsed
 int vtkEnSight6BinaryReader::ReadTensorsPerNode(const char* fileName, const char* description,
   int timeStep, vtkMultiBlockDataSet* compositeOutput)
 {
-  char line[80];
+  char line[81];
   int partId, realId, numPts, i;
   vtkFloatArray* tensors;
   float tensor[6];
@@ -1495,7 +1495,7 @@ int vtkEnSight6BinaryReader::ReadTensorsPerNode(const char* fileName, const char
 int vtkEnSight6BinaryReader::ReadScalarsPerElement(const char* fileName, const char* description,
   int timeStep, vtkMultiBlockDataSet* compositeOutput, int numberOfComponents, int component)
 {
-  char line[80];
+  char line[81];
   int partId, realId, numCells, numCellsPerElement, i, idx;
   vtkFloatArray* scalars;
   int elementType;
@@ -1686,7 +1686,7 @@ int vtkEnSight6BinaryReader::ReadScalarsPerElement(const char* fileName, const c
 int vtkEnSight6BinaryReader::ReadVectorsPerElement(const char* fileName, const char* description,
   int timeStep, vtkMultiBlockDataSet* compositeOutput)
 {
-  char line[80];
+  char line[81];
   int partId, realId, numCells, numCellsPerElement, i, idx;
   vtkFloatArray* vectors;
   int elementType;
@@ -1873,7 +1873,7 @@ int vtkEnSight6BinaryReader::ReadAsymmetricTensorsPerElement(const char* vtkNotU
 int vtkEnSight6BinaryReader::ReadTensorsPerElement(const char* fileName, const char* description,
   int timeStep, vtkMultiBlockDataSet* compositeOutput)
 {
-  char line[80];
+  char line[81];
   int partId, realId, numCells, numCellsPerElement, i, idx;
   vtkFloatArray* tensors;
   int elementType;
@@ -2055,7 +2055,7 @@ int vtkEnSight6BinaryReader::ReadTensorsPerElement(const char* fileName, const c
 
 //------------------------------------------------------------------------------
 int vtkEnSight6BinaryReader::CreateUnstructuredGridOutput(
-  int partId, char line[80], const char* name, vtkMultiBlockDataSet* compositeOutput)
+  int partId, char line[81], const char* name, vtkMultiBlockDataSet* compositeOutput)
 {
   int lineRead = 1;
   int i, j;
@@ -2610,9 +2610,9 @@ int vtkEnSight6BinaryReader::CreateUnstructuredGridOutput(
 
 //------------------------------------------------------------------------------
 int vtkEnSight6BinaryReader::CreateStructuredGridOutput(
-  int partId, char line[80], const char* name, vtkMultiBlockDataSet* compositeOutput)
+  int partId, char line[81], const char* name, vtkMultiBlockDataSet* compositeOutput)
 {
-  char subLine[80];
+  char subLine[81];
   int lineRead;
   int iblanked = 0;
   int dimensions[3];
@@ -2637,7 +2637,7 @@ int vtkEnSight6BinaryReader::CreateStructuredGridOutput(
     vtkStructuredGrid::SafeDownCast(this->GetDataSetFromBlock(compositeOutput, partId));
   this->SetBlockName(compositeOutput, partId, name);
 
-  if (sscanf(line, " %*s %s", subLine) == 1)
+  if (sscanf(line, " %*s %80s", subLine) == 1)
   {
     if (strcmp(subLine, "iblanked") == 0)
     {
@@ -2693,10 +2693,14 @@ int vtkEnSight6BinaryReader::CreateStructuredGridOutput(
   return lineRead;
 }
 
-// Internal function to read in a line up to 80 characters.
+// Internal function to read in a line up to 80 characters. Adds NUL char at index 80
 // Returns zero if there was an error.
-int vtkEnSight6BinaryReader::ReadLine(char result[80])
+int vtkEnSight6BinaryReader::ReadLine(char result[81])
 {
+  // Unconditionally NUL terminate, in case the caller ignores the return value and treats result as
+  // a NUL-terminates C string.
+  result[80] = '\0';
+
   if (!this->BinaryIFile->read(result, sizeof(char) * 80))
   {
     return 0;
