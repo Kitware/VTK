@@ -678,14 +678,12 @@ void vtkFlyingEdges2DAlgorithm<T>::GenerateOutput(double value, T* rowPtr, vtkId
   }
 
   // Get the trim edges and prepare to generate
-  vtkIdType i;
   vtkIdType xL = ((eMD0[3] < eMD1[3]) ? eMD0[3] : eMD1[3]);
   vtkIdType xR = ((eMD0[4] > eMD1[4]) ? eMD0[4] : eMD1[4]);
 
   // Grab the two edge cases bounding this pixel x-row. Begin at left trim edge.
-  unsigned char *ePtr0, *ePtr1;
-  ePtr0 = this->XCases + row * (this->Dims[0] - 1) + xL;
-  ePtr1 = ePtr0 + this->Dims[0] - 1;
+  unsigned char* ePtr0 = this->XCases + row * (this->Dims[0] - 1) + xL;
+  unsigned char* ePtr1 = ePtr0 + this->Dims[0] - 1;
 
   // Traverse all pixels in this row, those containing the contour are
   // further identified for processing, meaning generating points and
@@ -713,8 +711,16 @@ void vtkFlyingEdges2DAlgorithm<T>::GenerateOutput(double value, T* rowPtr, vtkId
   int ijk[3];
   ijk[1] = row;
   ijk[2] = this->K;
-  for (i = xL; i < xR; ++i)
+  for (vtkIdType i = xL; i < xR; ++i)
   {
+    // advance along pixel row (excluding the first iteration of this loop)
+    if (i > xL)
+    {
+      ePtr0++;
+      ePtr1++;
+      eCase = GetEdgeCase(ePtr0, ePtr1);
+    }
+
     if ((numLines = this->GetNumberOfPrimitives(eCase)) > 0)
     {
       // Start by generating triangles for this case
@@ -738,11 +744,6 @@ void vtkFlyingEdges2DAlgorithm<T>::GenerateOutput(double value, T* rowPtr, vtkId
 
       this->AdvancePixelIds(eCase, eIds);
     }
-
-    // advance along pixel row
-    ePtr0++;
-    ePtr1++;
-    eCase = GetEdgeCase(ePtr0, ePtr1);
   } // for all non-trimmed cells along this x-edge
 }
 
