@@ -501,7 +501,7 @@ vtkVector2i vtkChartMatrix::GetChartIndex(const vtkVector2f& position)
     const vtkRectf& rect = this->ComputeCurrentElementSceneRect(index, offset, increment);
     vtkBoundingBox bbox(rect.GetLeft(), rect.GetRight(), rect.GetBottom(), rect.GetTop(),
       VTK_DOUBLE_MIN, VTK_DOUBLE_MAX);
-    if (bbox.ContainsPoint(position))
+    if (bbox.ContainsPoint(position.GetX(), position.GetY(), 0.0))
     {
       return this->Private->Index;
     }
