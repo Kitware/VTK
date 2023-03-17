@@ -281,7 +281,10 @@ int vtkPolyDataEdgeConnectivityFilter::RequestData(vtkInformation* vtkNotUsed(re
   this->RegionIds.resize(numCells);
   std::fill_n(this->RegionIds.begin(), numCells, (-1));
 
-  this->PointMap.reserve(numPts);
+  if (this->PointMap.size() < static_cast<size_t>(numPts))
+  {
+    this->PointMap.resize(numPts);
+  }
   std::fill_n(this->PointMap.begin(), numPts, (-1));
 
   this->RegionSizes->Reset();
