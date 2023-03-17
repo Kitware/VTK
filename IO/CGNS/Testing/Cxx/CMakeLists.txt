@@ -3,6 +3,8 @@ vtk_add_test_cxx(vtkIOCGNSReaderCxxTests tests
   TestCGNSFaceMesh.cxx
   TestCGNSNoFlowSolutionPointers.cxx
   TestCGNSReader.cxx
+  TestCGNSReaderBCDirichlet.cxx
+  TestCGNSReaderBCNeumann.cxx
   TestCGNSReaderIgnoreMesh.cxx
   TestCGNSReaderMeshCaching.cxx
   TestCGNSReaderMissingBase.cxx

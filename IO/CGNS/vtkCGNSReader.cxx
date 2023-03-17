@@ -81,6 +81,8 @@ vtkStandardNewMacro(vtkCGNSReader);
 
 namespace
 {
+const std::set<std::string> SupportedBCTypes = { { "FamilySpecified", "BCDirichlet",
+  "BCNeumann" } };
 
 /**
  * A quick function to check if vtkIdType can hold the value being
@@ -183,9 +185,11 @@ public:
       throw CGIOError("Invalid data type for `BC_t` node.");
     }
 
+    // Identify boundary condition type
     std::string bctype;
     CGNSRead::readNodeStringData(cgioNum, nodeId, bctype);
-    if (bctype != "FamilySpecified")
+
+    if (SupportedBCTypes.find(bctype) == SupportedBCTypes.end())
     {
       throw CGIOUnsupported(
         std::string("BC_t type '") + bctype + std::string("' not supported yet."));
@@ -343,9 +347,11 @@ public:
     }
     this->Location = CGNS_ENUMV(FaceCenter);
 
+    // Identify boundary condition type
     std::string bctype;
     CGNSRead::readNodeStringData(cgioNum, nodeId, bctype);
-    if (bctype != "FamilySpecified")
+
+    if (SupportedBCTypes.find(bctype) == SupportedBCTypes.end())
     {
       // waiting for c++20 to be replaced by starts_with
       if (bctype.rfind("BCWall", 0) == 0)

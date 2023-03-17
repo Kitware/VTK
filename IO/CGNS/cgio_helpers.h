@@ -14,32 +14,28 @@
   =========================================================================*/
 //  Copyright 2013-2014 Mickael Philit.
 
-// .NAME cgio_helpers -- function used by vtkCGNSReader
-//                       and vtkCGNSReaderInternal
-// .SECTION Description
-//     provide function to simplify "CGNS" reading through cgio
-//
-// .SECTION Caveats
-//
-//
-// .SECTION Thanks
-// Thanks to .
+/**
+ * This file defines functions used by vtkCGNSReader and vtkCGNSReaderInternal.
+ * These functions are provided to simplify CGNS file reading through the low
+ * level CGIO interface.
+ */
 
 #ifndef cgio_helpers_h
 #define cgio_helpers_h
 
-#include <map>
+#include "vtkCGNSReaderInternal.h"
+
 #include <string.h> // for inline strcmp
 #include <string>
 #include <vector>
-
-#include "vtkCGNSReaderInternal.h"
 
 namespace CGNSRead
 {
 VTK_ABI_NAMESPACE_BEGIN
 
-//------------------------------------------------------------------------------
+/**
+ * Read data of the specified type from the given node.
+ */
 template <typename T>
 inline int readNodeData(int cgioNum, double nodeId, std::vector<T>& data)
 {
@@ -75,7 +71,6 @@ inline int readNodeData(int cgioNum, double nodeId, std::vector<T>& data)
   return 0;
 }
 
-//------------------------------------------------------------------------------
 /*
  * Converts data read from the file using native type to the type specified
  * as the template argument. Just uses static_cast to do type conversion.
@@ -83,12 +78,12 @@ inline int readNodeData(int cgioNum, double nodeId, std::vector<T>& data)
 template <typename T>
 inline int readNodeDataAs(int cgioNum, double nodeId, std::vector<T>& data)
 {
-  // let's get type in file.
+  // Retrieve data type from node
   char dtype[CGIO_MAX_DATATYPE_LENGTH + 1];
   if (cgio_get_data_type(cgioNum, nodeId, dtype) != CG_OK)
   {
     cgio_error_exit("cgio_get_data_type");
-    return 1;
+    return CG_ERROR;
   }
 
   if (strcmp(dtype, "I4") == 0)
@@ -121,57 +116,80 @@ inline int readNodeDataAs(int cgioNum, double nodeId, std::vector<T>& data)
   }
   else
   {
-    return 1;
+    return CG_ERROR;
   }
+
   return CG_OK;
 }
 
-//------------------------------------------------------------------------------
-// Specialize char array
+/*
+ * Read data of char type from the given node.
+ * Specialization of readNodeData<>().
+ */
 template <>
 int readNodeData<char>(int cgioNum, double nodeId, std::vector<char>& data);
 
-//------------------------------------------------------------------------------
+/**
+ * Read string data from the given node.
+ */
 int readNodeStringData(int cgioNum, double nodeId, std::string& data);
 
-//------------------------------------------------------------------------------
+/**
+ * Read IDs of all children for the node with the given ID.
+ */
 int getNodeChildrenId(int cgioNum, double fatherId, std::vector<double>& childrenIds);
 
-//------------------------------------------------------------------------------
+/**
+ * Search for bases under the node with the given ID and read their IDs.
+ */
 int readBaseIds(int cgioNum, double rootId, std::vector<double>& baseIds);
 
-//------------------------------------------------------------------------------
+/**
+ * Read name, cell and physical dimensions for the given CGNSBase_t node.
+ */
 int readBaseCoreInfo(int cgioNum, double baseId, CGNSRead::BaseInformation& baseInfo);
 
-//------------------------------------------------------------------------------
+/**
+ * Read timesteps information in the given BaseIterativeData_t node.
+ */
 int readBaseIteration(int cgioNum, double nodeId, CGNSRead::BaseInformation& baseInfo);
 
-//------------------------------------------------------------------------------
+/**
+ * Read which type of pointers are used for temporal data in the given ZoneIterativeData_t node.
+ */
 int readZoneIterInfo(int cgioNum, double nodeId, CGNSRead::BaseInformation& baseInfo);
 
-//------------------------------------------------------------------------------
+/**
+ * Read data arrays information in the given FlowSolution_t node.
+ */
 int readSolInfo(int cgioNum, double nodeId, CGNSRead::BaseInformation& baseInfo);
 
-//------------------------------------------------------------------------------
+/**
+ * Read base family information in the given Family_t node.
+ */
 int readBaseFamily(int cgioNum, double nodeId, CGNSRead::BaseInformation& baseInfo,
   const std::string& parentPath = "");
 
-//------------------------------------------------------------------------------
+/**
+ * Read reference state information in the given ReferenceState_t node.
+ */
 int readBaseReferenceState(int cgioNum, double nodeId, CGNSRead::BaseInformation& baseInfo);
 
-//------------------------------------------------------------------------------
+/**
+ * Read general data array information in the given Zone_t node.
+ */
 int readZoneInfo(int cgioNum, double nodeId, CGNSRead::BaseInformation& baseInfo);
 
-//------------------------------------------------------------------------------
 /**
- * Fills up ZoneInformation using the zoneId for the Zone_t node.
+ * Read family name and boundary conditions information in the given Zone_t node.
  */
 int readZoneInfo(int cgioNum, double zoneId, CGNSRead::ZoneInformation& zoneInfo);
-//------------------------------------------------------------------------------
+
 /**
- * release all ids in the vector.
+ * Release all IDs in the vector.
  */
 void releaseIds(int cgioNum, const std::vector<double>& ids);
+
 VTK_ABI_NAMESPACE_END
 }
 #endif // cgio_helpers_h

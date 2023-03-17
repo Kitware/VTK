@@ -19,7 +19,7 @@
 namespace CGNSRead
 {
 VTK_ABI_NAMESPACE_BEGIN
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int readNodeStringData(int cgioNum, double nodeId, std::string& data)
 {
   int n;
@@ -52,8 +52,8 @@ int readNodeStringData(int cgioNum, double nodeId, std::string& data)
 
   return 0;
 }
+
 //------------------------------------------------------------------------------
-// Specialize char array
 template <>
 int readNodeData<char>(int cgioNum, double nodeId, std::vector<char>& data)
 {
