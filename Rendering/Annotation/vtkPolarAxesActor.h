@@ -429,6 +429,15 @@ public:
 
   ///@{
   /**
+   * Turn on and off the use of radial axes angle for arc major ticks.
+   */
+  vtkSetMacro(ArcTickMatchesRadialAxes, vtkTypeBool);
+  vtkGetMacro(ArcTickMatchesRadialAxes, vtkTypeBool);
+  vtkBooleanMacro(ArcTickMatchesRadialAxes, vtkTypeBool);
+  ///@}
+
+  ///@{
+  /**
    * Set/Get the size of the major ticks on the last arc.
    */
   vtkSetMacro(ArcMajorTickSize, double);
@@ -557,10 +566,10 @@ public:
 
   ///@{
   /**
-   * Set/Get the angle between 2 radial axes.
+   * Set/Get requested delta angle for radial axes.
    */
-  vtkSetMacro(DeltaAngleRadialAxes, double);
-  vtkGetMacro(DeltaAngleRadialAxes, double);
+  vtkSetMacro(RequestedDeltaAngleRadialAxes, double);
+  vtkGetMacro(RequestedDeltaAngleRadialAxes, double);
   ///@}
 
   //------------------------------------------------
@@ -870,6 +879,11 @@ protected:
   double DeltaAngleRadialAxes;
 
   /**
+   * Requested delta angle for radial axes.
+   */
+  double RequestedDeltaAngleRadialAxes;
+
+  /**
    * Minimum polar radius.
    * Default: 0.0
    */
@@ -1030,6 +1044,11 @@ protected:
    * Enable / Disable major/minor tick visibility on the last arc displayed
    */
   vtkTypeBool ArcTickVisibility, ArcMinorTickVisibility;
+
+  /**
+   * Enable / Disable major ticks matching radial axes angle (and minor half angle)
+   */
+  vtkTypeBool ArcTickMatchesRadialAxes;
 
   /**
    * Defines the length of the ticks located on the last arc

@@ -52,10 +52,6 @@ void vtkPolarAxesActor::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "ScreenSize: " << this->ScreenSize << "\n";
 
-  os << indent << "Number Of Radial Axes: " << this->NumberOfRadialAxes << endl;
-
-  os << indent << "Range: (" << this->Range[0] << ", " << this->Range[1] << ")\n";
-
   os << indent << "Pole: (" << this->Pole[0] << ", " << this->Pole[1] << ", " << this->Pole[2]
      << ")\n";
 
@@ -70,6 +66,7 @@ void vtkPolarAxesActor::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Maximum Angle: " << this->MaximumAngle << endl;
   os << indent << "Smallest Visible Polar Angle: " << this->SmallestVisiblePolarAngle << endl;
   os << indent << "Radial Units (degrees): " << (this->RadialUnits ? "On\n" : "Off\n") << endl;
+  os << indent << "Range: (" << this->Range[0] << ", " << this->Range[1] << ")\n";
 
   if (this->Camera)
   {
@@ -176,6 +173,9 @@ void vtkPolarAxesActor::PrintSelf(ostream& os, vtkIndent indent)
      << endl;
   if (this->ArcTickVisibility && this->PolarTickVisibility)
   {
+    os << indent
+       << "Arc Major Ticks Matches Radial Axes: " << (this->ArcTickMatchesRadialAxes ? "On" : "Off")
+       << endl;
     os << indent << "Arc Major Angle Step: " << this->DeltaAngleMajor << endl;
     os << indent << "Arc Major Ticks Size: " << this->ArcMajorTickSize << endl;
     os << indent << "Arc Major Ticks Thickness: " << this->ArcMajorTickThickness << endl;
@@ -423,8 +423,12 @@ vtkPolarAxesActor::vtkPolarAxesActor()
   // Angle between 2 minor ticks on the last arc.
   this->DeltaAngleMinor = 0.5 * this->DeltaAngleMajor;
 
+  // Angle between 2 major ticks on the last arc should match radial axes.
+  this->ArcTickMatchesRadialAxes = true;
+
   this->RadialAxesOriginToPolarAxis = 1;
   this->DeltaAngleRadialAxes = 45.0;
+  this->RequestedDeltaAngleRadialAxes = 45.0;
   this->NumberOfRadialAxes = 0;
   this->RequestedNumberOfRadialAxes = 0;
 
@@ -909,6 +913,14 @@ bool vtkPolarAxesActor::CheckMembersConsistency()
     return false;
   }
 
+  // Requested angle/number of radial axes
+  if (this->RequestedNumberOfRadialAxes == 0 && this->RequestedDeltaAngleRadialAxes == 0.0)
+  {
+    vtkWarningMacro(<< "Either NumberOfRadialAxes or DeltaAngleRadialAxes must be set. "
+                    << "Both values equal 0: can't perform automatic computation.");
+    return false;
+  }
+
   // Angle Step
   if (this->DeltaAngleMajor <= 0.0 || this->DeltaAngleMajor >= 360.0 ||
     this->DeltaAngleMinor <= 0.0 || this->DeltaAngleMinor >= 360.0)
@@ -916,15 +928,6 @@ bool vtkPolarAxesActor::CheckMembersConsistency()
     vtkWarningMacro(<< "Arc Delta Angle: "
                     << "DeltaAngleMajor: " << this->DeltaAngleMajor << " _ DeltaAngleMinor: "
                     << this->DeltaAngleMinor << "_ DeltaAngles should be in ]0.0, 360.0[ range. ");
-    return false;
-  }
-
-  // Angle Step
-  if (this->DeltaAngleRadialAxes <= 0.0 || this->DeltaAngleRadialAxes >= 360.0)
-  {
-    vtkWarningMacro(<< "Delta Angle for radial axes: "
-                    << "DeltaAngleRadialAxes: " << this->DeltaAngleRadialAxes
-                    << "_ DeltaAngleRadialAxes should be in ]0.0, 360.0[ range. ");
     return false;
   }
 
@@ -1280,7 +1283,6 @@ void vtkPolarAxesActor::CreateRadialAxes(int axisCount)
     this->RadialAxes = nullptr;
   }
 
-  // Create and set n radial axes of type X
   this->NumberOfRadialAxes = axisCount;
 
   // Create requested number of secondary radial axes
@@ -1299,7 +1301,6 @@ void vtkPolarAxesActor::CreateRadialAxes(int axisCount)
     axis->SetUse2DMode(this->PolarAxis->GetUse2DMode());
     axis->LastMajorTickPointCorrectionOn();
   }
-  this->Modified();
 }
 
 //------------------------------------------------------------------------------
@@ -1318,7 +1319,19 @@ void vtkPolarAxesActor::BuildRadialAxes(vtkViewport* viewport)
     angleSection = 360.0;
   }
 
-  this->ComputeDeltaAngleRadialAxes(this->RequestedNumberOfRadialAxes);
+  // Update delta angle of radial axes
+  if (this->RequestedDeltaAngleRadialAxes > 0.0)
+  {
+    if (this->DeltaAngleRadialAxes != this->RequestedDeltaAngleRadialAxes)
+    {
+      this->DeltaAngleRadialAxes = this->RequestedDeltaAngleRadialAxes;
+    }
+  }
+  else if (this->RequestedNumberOfRadialAxes > 1)
+  {
+    this->ComputeDeltaAngleRadialAxes(this->RequestedNumberOfRadialAxes);
+  }
+
   bool positiveSection = false;
   double dAlpha = this->DeltaAngleRadialAxes;
   double alphaDeg, currentAlpha;
@@ -1332,7 +1345,6 @@ void vtkPolarAxesActor::BuildRadialAxes(vtkViewport* viewport)
   double alphaStart = (originToPolarAxis)
     ? this->MinimumAngle + dAlpha
     : std::floor(this->MinimumAngle / dAlpha) * dAlpha + dAlpha;
-  double alphaStop = angleSection + this->MinimumAngle + dAlpha;
 
   int nAxes;
 
@@ -1348,19 +1360,19 @@ void vtkPolarAxesActor::BuildRadialAxes(vtkViewport* viewport)
   }
   else
   {
-    nAxes = this->RequestedNumberOfRadialAxes - 1;
+    nAxes = std::min(
+      this->RequestedNumberOfRadialAxes - 1, static_cast<int>(std::ceil(angleSection / dAlpha)));
   }
 
   // init radial axis. Does nothing if number of radial axes doesn't change
   this->CreateRadialAxes(nAxes);
 
   char titleValue[64];
-  for (alphaDeg = alphaStart; alphaDeg <= alphaStop && i < this->NumberOfRadialAxes;
-       alphaDeg += dAlpha, i++)
+  for (alphaDeg = alphaStart; i < this->NumberOfRadialAxes; alphaDeg += dAlpha, ++i)
   {
     currentAlpha = alphaDeg;
 
-    if (currentAlpha > angleSection + this->MinimumAngle || (i == this->NumberOfRadialAxes - 1))
+    if (i == this->NumberOfRadialAxes - 1)
     {
       currentAlpha = angleSection + this->MinimumAngle;
     }
@@ -1392,7 +1404,7 @@ void vtkPolarAxesActor::BuildRadialAxes(vtkViewport* viewport)
     vtkAxisActor* axis = this->RadialAxes[i];
 
     // The last arc has its own property
-    if ((alphaDeg + dAlpha) >= alphaStop)
+    if (i < this->NumberOfRadialAxes - 1)
     {
       axis->SetAxisLinesProperty(this->LastRadialAxisProperty);
       axis->SetTitleTextProperty(this->LastRadialAxisTextProperty);
@@ -1521,8 +1533,8 @@ void vtkPolarAxesActor::BuildArcTicks()
   this->ArcMajorTickPts->Reset();
   this->ArcMinorTickPts->Reset();
 
-  // Create requested number of radial axes
-  double dAlpha = this->DeltaAngleMajor;
+  double dAlpha =
+    this->ArcTickMatchesRadialAxes ? this->DeltaAngleRadialAxes : this->DeltaAngleMajor;
   double alphaStart;
   alphaStart = (originToPolarAxis) ? this->MinimumAngle + dAlpha
                                    : std::floor(this->MinimumAngle / dAlpha) * dAlpha + dAlpha;
@@ -1538,7 +1550,8 @@ void vtkPolarAxesActor::BuildArcTicks()
   // StoreTicksPtsFromParamEllipse()
   // without running twice through the ellipse
 
-  dAlpha = this->DeltaAngleMinor;
+  dAlpha =
+    this->ArcTickMatchesRadialAxes ? this->DeltaAngleRadialAxes / 2.0 : this->DeltaAngleMinor;
   alphaStart = (originToPolarAxis) ? this->MinimumAngle + dAlpha
                                    : std::floor(this->MinimumAngle / dAlpha) * dAlpha + dAlpha;
   for (double alphaDeg = alphaStart; alphaDeg < (angleSection + this->MinimumAngle);
@@ -2418,16 +2431,6 @@ void vtkPolarAxesActor::SetNumberOfPolarAxisTicks(int tickCountRequired)
 //------------------------------------------------------------------------------
 void vtkPolarAxesActor::ComputeDeltaAngleRadialAxes(vtkIdType n)
 {
-  if (n <= 1)
-  {
-    if (this->DeltaAngleRadialAxes != 45.)
-    {
-      this->DeltaAngleRadialAxes = 45.0;
-      this->Modified();
-    }
-    return;
-  }
-
   double angleSection = (this->MaximumAngle > this->MinimumAngle)
     ? this->MaximumAngle - this->MinimumAngle
     : 360.0 - fabs(this->MaximumAngle - this->MinimumAngle);
@@ -2447,7 +2450,6 @@ void vtkPolarAxesActor::ComputeDeltaAngleRadialAxes(vtkIdType n)
   if (this->DeltaAngleRadialAxes != step)
   {
     this->DeltaAngleRadialAxes = step;
-    this->Modified();
   }
 }
 
