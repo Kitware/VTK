@@ -93,6 +93,8 @@ vtkEnSightWriter::vtkEnSightWriter()
   this->Path = nullptr;
   this->GhostLevelMultiplier = 10000;
   this->GhostLevel = 0;
+  this->WriteNodeIDs = true;
+  this->WriteElementIDs = true;
   this->TransientGeometry = false;
   this->ProcessNumber = 0;
   this->NumberOfProcesses = 1;
@@ -125,6 +127,8 @@ void vtkEnSightWriter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "NumberOfBlocks: " << this->NumberOfBlocks << endl;
   os << indent << "BlockIDs: " << this->BlockIDs << endl;
   os << indent << "GhostLevel: " << this->GhostLevel << endl;
+  os << indent << "WriteNodeIDs: " << this->WriteNodeIDs << endl;
+  os << indent << "WriteElementIDs: " << this->WriteElementIDs << endl;
 }
 
 int vtkEnSightWriter::FillInputPortInformation(int vtkNotUsed(port), vtkInformation* info)
@@ -238,6 +242,7 @@ void vtkEnSightWriter::WriteData()
   if (BlockData == nullptr || strcmp(BlockData->GetName(), "BlockId") != 0)
   {
     BlockData = nullptr;
+    vtkLog(WARNING, "No BlockID was found");
   }
 
   this->ComputeNames();
@@ -318,9 +323,22 @@ void vtkEnSightWriter::WriteData()
     // this->WriteStringToFile(this->Title,fd);
     // else
     this->WriteStringToFile("No Title was Specified", fd);
-    // we will specify node and element ID's
-    this->WriteStringToFile("node id given\n", fd);
-    this->WriteStringToFile("element id given\n", fd);
+    if (this->WriteNodeIDs)
+    {
+      this->WriteStringToFile("node id given\n", fd);
+    }
+    else
+    {
+      this->WriteStringToFile("node id off\n", fd);
+    }
+    if (this->WriteElementIDs)
+    {
+      this->WriteStringToFile("element id given\n", fd);
+    }
+    else
+    {
+      this->WriteStringToFile("element id off\n", fd);
+    }
   }
 
   // get the Ghost Cell Array if it exists
@@ -346,9 +364,9 @@ void vtkEnSightWriter::WriteData()
   {
     int key = 1;
     if (BlockData)
+    {
       key = (int)(BlockData->GetTuple(i)[0]);
-    else
-      cout << "No BlockID was found\n";
+    }
     if (CellsByPart.count(key) == 0)
     {
       CellsByPart[key] = std::vector<int>();
@@ -423,7 +441,11 @@ void vtkEnSightWriter::WriteData()
       int NodeCount = 0;
       for (iter2 = NodesPerPart.begin(); iter2 != NodesPerPart.end(); ++iter2)
       {
-        this->WriteIntToFile(*iter2, fd);
+        if (this->WriteNodeIDs)
+        {
+          this->WriteIntToFile(*iter2, fd);
+        }
+
         NodeIdToOrder[*iter2] = NodeCount + 1;
         NodeCount++;
       }
@@ -455,10 +477,11 @@ void vtkEnSightWriter::WriteData()
 
       for (int CurrentDimension = 0; CurrentDimension < DataSize; CurrentDimension++)
       {
+        int OutputComponent = this->GetDestinationComponent(CurrentDimension, DataSize);
         for (std::list<int>::iterator k = NodesPerPart.begin(); k != NodesPerPart.end(); ++k)
         {
           this->WriteFloatToFile(
-            (float)(DataArray->GetTuple(*k)[CurrentDimension]), pointArrayFiles[j]);
+            (float)(DataArray->GetTuple(*k)[OutputComponent]), pointArrayFiles[j]);
         }
       }
     }
@@ -492,8 +515,6 @@ void vtkEnSightWriter::WriteData()
     std::vector<int> elementTypes;
 
     // list the types that EnSight understands
-    // the noticeable absences are the ones without a fixed number of Nodes
-    // for the ghost cell types
     elementTypes.push_back(VTK_VERTEX);
     elementTypes.push_back(VTK_LINE);
     elementTypes.push_back(VTK_TRIANGLE);
@@ -504,6 +525,7 @@ void vtkEnSightWriter::WriteData()
     elementTypes.push_back(VTK_WEDGE);
     elementTypes.push_back(VTK_PYRAMID);
     elementTypes.push_back(VTK_CONVEX_POINT_SET);
+    elementTypes.push_back(VTK_POLYHEDRON);
     elementTypes.push_back(VTK_QUADRATIC_EDGE);
     elementTypes.push_back(VTK_QUADRATIC_TRIANGLE);
     elementTypes.push_back(VTK_QUADRATIC_QUAD);
@@ -521,6 +543,7 @@ void vtkEnSightWriter::WriteData()
     elementTypes.push_back(this->GhostLevelMultiplier + VTK_WEDGE);
     elementTypes.push_back(this->GhostLevelMultiplier + VTK_PYRAMID);
     elementTypes.push_back(this->GhostLevelMultiplier + VTK_CONVEX_POINT_SET);
+    elementTypes.push_back(this->GhostLevelMultiplier + VTK_POLYHEDRON);
     elementTypes.push_back(this->GhostLevelMultiplier + VTK_QUADRATIC_EDGE);
     elementTypes.push_back(this->GhostLevelMultiplier + VTK_QUADRATIC_TRIANGLE);
     elementTypes.push_back(this->GhostLevelMultiplier + VTK_QUADRATIC_QUAD);
@@ -529,6 +552,57 @@ void vtkEnSightWriter::WriteData()
     elementTypes.push_back(this->GhostLevelMultiplier + VTK_QUADRATIC_WEDGE);
     elementTypes.push_back(this->GhostLevelMultiplier + VTK_QUADRATIC_PYRAMID);
 
+    // EnSight Gold unstructured grid element block has the following general structure:
+    //
+    //     element-type         <--  80*char, eg. "tria3"
+    //     number-of-elements   <--  1*int
+    //     (element-ids)        <--  number-of-elements*int, optional
+    //     connectivity         <--  depends on element-type
+    //
+    // There are three variants of connectivity definition based on element type.
+    //
+    // Ghost cells have separate element types prefixed by "g_" but use the same representation
+    // as corresponding non-ghost types.
+    //
+    // For element types with fixed number of nodes, it simply lists nodes for the first element,
+    // for second element, etc.:
+    //
+    //     tetra4               <--  80*char (element-type)
+    //     2                    <--  1*int (number-of-elements)
+    //     100 101              <--  number-of-elements*int (element IDs)
+    //     1 2 3 4              <--  number-of-elements*nodes-per-element*int       [first tetra]
+    //     2 3 4 5                                                                  [second tetra]
+    //
+    // For "nsided" elements (ie. polygons), first the number of nodes for each polygon is given,
+    // followed by nodes for the first polygon, second polygon, etc.:
+    //
+    //     nsided               <--  80*char (element-type)
+    //     2                    <--  1*int (number-of-elements)
+    //     100 101              <--  number-of-elements*int (element IDs)
+    //     5 6                  <--  number-of-elements*int (nodes-per-polygon)
+    //     1 2 3 4 5            <--  sum(nodes-per-polygon)*int                     [first polygon]
+    //     4 5 6 7 8 9                                                              [second polygon]
+    //
+    // For "nfaced" elements (ie. polyhedra), definition is similar to "nsided" but it starts with
+    // defining the number of faces for each element, followed by number of nodes for each face, and
+    // then nodes for the faces. The following example defines the same two tetrahedrons as "tetra4"
+    // example above, but using "nfaced" elements.
+    //
+    //     nfaced               <--  80*char (element-type)
+    //     2                    <--  1*int (number-of-elements)
+    //     100 101              <--  number-of-elements*int (element IDs)
+    //     4 4                  <--  number-of-elements*int (faces-per-polyhedron)
+    //     3 3 3 3              <--  sum(faces-per-polyhedron)*int (nodes-per-face) [1st polyhedron]
+    //     3 3 3 3                                                                  [2nd polyhedron]
+    //     1 2 3                <--  sum(nodes-per-face)*int                        [cell 1, face 1]
+    //     1 2 4                                                                    [cell 1, face 2]
+    //     2 3 4                                                                    [cell 1, face 3]
+    //     1 3 4                                                                    [cell 1, face 4]
+    //     2 3 4                                                                    [cell 2, face 1]
+    //     2 3 5                                                                    [cell 2, face 2]
+    //     3 4 5                                                                    [cell 2, face 3]
+    //     2 4 5                                                                    [cell 2, face 4]
+
     // write out each type of element
     if (this->ShouldWriteGeometry())
     {
@@ -536,6 +610,7 @@ void vtkEnSightWriter::WriteData()
       {
         unsigned int k;
         int elementType = elementTypes[j];
+        int elementTypeWithoutGhostLevel = elementType % GhostLevelMultiplier;
         if (CellsByElement.count(elementType) > 0)
         {
           // switch on element type to write correct type to file
@@ -545,21 +620,179 @@ void vtkEnSightWriter::WriteData()
           this->WriteIntToFile(static_cast<int>(CellsByElement[elementType].size()), fd);
 
           // element ID's
-          for (k = 0; k < CellsByElement[elementType].size(); k++)
+          if (this->WriteElementIDs)
           {
-            int CellId = CellsByElement[elementType][k];
-            this->WriteIntToFile(CellId, fd);
+            for (k = 0; k < CellsByElement[elementType].size(); k++)
+            {
+              int CellId = CellsByElement[elementType][k];
+              this->WriteIntToFile(CellId, fd);
+            }
           }
 
           // element connectivity information
-          for (k = 0; k < CellsByElement[elementType].size(); k++)
+          if (elementTypeWithoutGhostLevel == VTK_POLYGON)
           {
-            int CellId = CellsByElement[elementType][k];
-            vtkIdList* PointIds = input->GetCell(CellId)->GetPointIds();
-            for (int m = 0; m < PointIds->GetNumberOfIds(); m++)
+            // VTK_POLYGON is represented as "nsided" EnSight element (which has special
+            // representation)
+
+            // write number of nodes per polygon
+            for (k = 0; k < CellsByElement[elementType].size(); k++)
             {
-              int PointId = PointIds->GetId(m);
+              int CellId = CellsByElement[elementType][k];
+              int NumberOfNodes = input->GetCellSize(CellId);
+              this->WriteIntToFile(NumberOfNodes, fd);
+            }
+
+            // write nodes for each polygon
+            for (k = 0; k < CellsByElement[elementType].size(); k++)
+            {
+              int CellId = CellsByElement[elementType][k];
+              vtkIdList* PointIds = input->GetCell(CellId)->GetPointIds();
+              for (int m = 0; m < PointIds->GetNumberOfIds(); m++)
+              {
+                int PointId = PointIds->GetId(m);
+                this->WriteIntToFile(NodeIdToOrder[PointId], fd);
+              }
+            }
+          }
+          else if (elementTypeWithoutGhostLevel == VTK_POLYHEDRON)
+          {
+            // VTK_POLYHEDRON is represented as "nfaced" EnSight element (which has special
+            // representation), we will use vtkUnstructuredGrid Faces and FaceLocations arrays to
+            // write the connectivity.
+
+            vtkIdTypeArray* Faces = input->GetFaces();
+            vtkIdTypeArray* FaceLocations = input->GetFaceLocations();
+
+            // write number of faces per polyhedron
+            for (k = 0; k < CellsByElement[elementType].size(); k++)
+            {
+              int CellId = CellsByElement[elementType][k];
+              int FacesIdx = FaceLocations->GetValue(CellId);
+              assert(FacesIdx >= 0);
+              int NumberOfFaces = Faces->GetValue(FacesIdx++);
+              this->WriteIntToFile(NumberOfFaces, fd);
+            }
+
+            // write number of nodes per face
+            for (k = 0; k < CellsByElement[elementType].size(); k++)
+            {
+              int CellId = CellsByElement[elementType][k];
+              int FacesIdx = FaceLocations->GetValue(CellId);
+              int NumberOfFaces = Faces->GetValue(FacesIdx++);
+              for (int m = 0; m < NumberOfFaces; m++)
+              {
+                int NumberOfNodes = Faces->GetValue(FacesIdx++);
+                FacesIdx += NumberOfNodes; // skip point IDs for the face
+                this->WriteIntToFile(NumberOfNodes, fd);
+              }
+            }
+
+            // write nodes for each face
+            for (k = 0; k < CellsByElement[elementType].size(); k++)
+            {
+              int CellId = CellsByElement[elementType][k];
+              int FacesIdx = FaceLocations->GetValue(CellId);
+              int NumberOfFaces = Faces->GetValue(FacesIdx++);
+              for (int m = 0; m < NumberOfFaces; m++)
+              {
+                int NumberOfNodes = Faces->GetValue(FacesIdx++);
+                for (int n = 0; n < NumberOfNodes; n++)
+                {
+                  int PointId = Faces->GetValue(FacesIdx++);
+                  this->WriteIntToFile(NodeIdToOrder[PointId], fd);
+                }
+              }
+            }
+          }
+          else if (elementTypeWithoutGhostLevel == VTK_CONVEX_POINT_SET)
+          {
+            // VTK_CONVEX_POINT_SET is represented as "nfaced" EnSight element (which has special
+            // representation) and unlike VTK_POLYHEDRON we have to compute its boundary faces since
+            // they are implicit.
+
+            std::vector<int> faceCountPerPolyhedron;
+            std::vector<int> nodeCountPerFace;
+            std::vector<int> pointIds;
+
+            for (k = 0; k < CellsByElement[elementType].size(); k++)
+            {
+              int CellId = CellsByElement[elementType][k];
+              vtkCell* cell = input->GetCell(CellId);
+              int NumberOfFaces = cell->GetNumberOfFaces();
+              faceCountPerPolyhedron.push_back(NumberOfFaces);
+
+              for (int m = 0; m < NumberOfFaces; m++)
+              {
+                vtkCell* cellFace = cell->GetFace(m);
+                int NumberOfNodes = cellFace->GetNumberOfPoints();
+                nodeCountPerFace.push_back(NumberOfNodes);
+                for (int n = 0; n < NumberOfNodes; n++)
+                {
+                  int PointId = cellFace->GetPointId(n);
+                  pointIds.push_back(PointId);
+                }
+              }
+            }
+
+            // write number of faces per polyhedron
+            for (int NumberOfFaces : faceCountPerPolyhedron)
+            {
+              this->WriteIntToFile(NumberOfFaces, fd);
+            }
+
+            // write number of nodes per face
+            for (int NumberOfNodes : nodeCountPerFace)
+            {
+              this->WriteIntToFile(NumberOfNodes, fd);
+            }
+
+            // write nodes for each face
+            for (int PointId : pointIds)
+            {
               this->WriteIntToFile(NodeIdToOrder[PointId], fd);
+            }
+          }
+          else
+          {
+            // VTK cell types with fixed number of nodes are represented with corresponding
+            // EnSight element types which all use the simple representation. VTK and EnSight
+            // mostly agree on implicit ordering of nodes, except for the following:
+            // - "bar3" (VTK_QUADRATIC_EDGE)
+            // - "penta6" (VTK_WEDGE)
+            // - "penta15" (VTK_QUADRATIC_WEDGE)
+            // See the code in vtkEnSightGoldBinaryReader::CreateUnstructuredGridOutput.
+            for (k = 0; k < CellsByElement[elementType].size(); k++)
+            {
+              int CellId = CellsByElement[elementType][k];
+              vtkIdList* PointIds = input->GetCell(CellId)->GetPointIds();
+
+              const unsigned char bar3Map[3] = { 0, 2, 1 };
+              const unsigned char penta6Map[6] = { 0, 2, 1, 3, 5, 4 };
+              const unsigned char penta15Map[15] = { 0, 2, 1, 3, 5, 4, 8, 7, 6, 11, 10, 9, 12, 14,
+                13 };
+
+              // write nodes for each cell, converting to EnSight ordering where necessary
+              for (int m = 0; m < PointIds->GetNumberOfIds(); m++)
+              {
+                int n = m;
+                switch (elementType)
+                {
+                  case VTK_QUADRATIC_EDGE:
+                    n = bar3Map[m];
+                    break;
+                  case VTK_WEDGE:
+                    n = penta6Map[m];
+                    break;
+                  case VTK_QUADRATIC_WEDGE:
+                    n = penta15Map[m];
+                    break;
+                  default:
+                    break;
+                }
+                int PointId = PointIds->GetId(n);
+                this->WriteIntToFile(NodeIdToOrder[PointId], fd);
+              }
             }
           }
         }
@@ -578,12 +811,13 @@ void vtkEnSightWriter::WriteData()
         if (!CellsByElement[elementTypes[k]].empty())
         {
           this->WriteElementTypeToFile(elementTypes[k], cellArrayFiles[j]);
-          for (unsigned int m = 0; m < CellsByElement[elementTypes[k]].size(); m++)
+          for (int CurrentDimension = 0; CurrentDimension < DataSize; CurrentDimension++)
           {
-            for (int CurrentDimension = 0; CurrentDimension < DataSize; CurrentDimension++)
+            int OutputComponent = this->GetDestinationComponent(CurrentDimension, DataSize);
+            for (unsigned int m = 0; m < CellsByElement[elementTypes[k]].size(); m++)
             {
               this->WriteFloatToFile(
-                (float)(DataArray->GetTuple(CellsByElement[elementTypes[k]][m])[CurrentDimension]),
+                (float)(DataArray->GetTuple(CellsByElement[elementTypes[k]][m])[OutputComponent]),
                 cellArrayFiles[j]);
             }
           }
@@ -748,10 +982,10 @@ void vtkEnSightWriter::WriteCaseFile(int TotalTimeSteps)
         strcpy(SmallBuffer, "vector");
         break;
       case (6):
-        strcpy(SmallBuffer, "tensor");
+        strcpy(SmallBuffer, "tensor symm");
         break;
       case (9):
-        strcpy(SmallBuffer, "tensor9");
+        strcpy(SmallBuffer, "tensor asym");
         break;
     }
     if (TotalTimeSteps <= 1)
@@ -797,10 +1031,10 @@ void vtkEnSightWriter::WriteCaseFile(int TotalTimeSteps)
         strcpy(SmallBuffer, "vector");
         break;
       case (6):
-        strcpy(SmallBuffer, "tensor");
+        strcpy(SmallBuffer, "tensor symm");
         break;
       case (9):
-        strcpy(SmallBuffer, "tensor9");
+        strcpy(SmallBuffer, "tensor asym");
         break;
     }
     if (TotalTimeSteps <= 1)
@@ -837,6 +1071,11 @@ void vtkEnSightWriter::WriteCaseFile(int TotalTimeSteps)
         this->WriteTerminatedStringToFile("\n", fd);
       }
     }
+  }
+
+  if (fd)
+  {
+    fclose(fd);
   }
 }
 
@@ -883,6 +1122,11 @@ void vtkEnSightWriter::WriteSOSCaseFile(int numProcs)
     this->WriteTerminatedStringToFile(charBuffer, fd);
     snprintf(charBuffer, sizeof(charBuffer), "casefile: %s.%d.case\n\n", this->BaseName, i);
     this->WriteTerminatedStringToFile(charBuffer, fd);
+  }
+
+  if (fd)
+  {
+    fclose(fd);
   }
 }
 
@@ -956,6 +1200,7 @@ void vtkEnSightWriter::WriteElementTypeToFile(int elementType, FILE* fd)
         this->WriteStringToFile("pyramid5", fd);
         break;
       case (VTK_CONVEX_POINT_SET):
+      case (VTK_POLYHEDRON):
         this->WriteStringToFile("nfaced", fd);
         break;
       case (VTK_QUADRATIC_EDGE):
@@ -1013,6 +1258,7 @@ void vtkEnSightWriter::WriteElementTypeToFile(int elementType, FILE* fd)
         this->WriteStringToFile("g_pyramid5", fd);
         break;
       case (VTK_CONVEX_POINT_SET):
+      case (VTK_POLYHEDRON):
         this->WriteStringToFile("g_nfaced", fd);
         break;
       case (VTK_QUADRATIC_EDGE):
@@ -1170,4 +1416,26 @@ void vtkEnSightWriter::ComputeNames()
 
   delete[] buf;
 }
+
+//------------------------------------------------------------------------------
+// Copied from vtkEnSightGoldBinaryReader::vtkUtilities::GetDestinationComponent
+int vtkEnSightWriter::GetDestinationComponent(int srcComponent, int numComponents)
+{
+  if (numComponents == 6)
+  {
+    // for 6 component tensors, the symmetric tensor components XZ and YZ are interchanged
+    // see Paraview issue #10637.
+    switch (srcComponent)
+    {
+      case 4:
+        return 5;
+
+      case 5:
+        return 4;
+    }
+  }
+
+  return srcComponent;
+}
+
 VTK_ABI_NAMESPACE_END

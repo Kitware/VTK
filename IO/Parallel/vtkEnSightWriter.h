@@ -118,6 +118,34 @@ public:
 
   ///@{
   /**
+   * Turn on/off writing node IDs (default: on).
+   * If this is on, geometry files will contain node IDs for each part
+   * (<code>node id given</code>), otherwise node IDs are omitted
+   * (<code>node id off</code>).
+   *
+   * The EnSight node IDs correspond to VTK point IDs in the input dataset.
+   */
+  vtkBooleanMacro(WriteNodeIDs, bool);
+  vtkSetMacro(WriteNodeIDs, bool);
+  vtkGetMacro(WriteNodeIDs, bool);
+  ///@}
+
+  ///@{
+  /**
+   * Turn on/off writing element IDs (default: on).
+   * If this is on, geometry files will contain element IDs for each part
+   * (<code>element id given</code>), otherwise element IDs are omitted
+   * (<code>element id off</code>).
+   *
+   * The EnSight element IDs correspond to VTK cell IDs in the input dataset.
+   */
+  vtkBooleanMacro(WriteElementIDs, bool);
+  vtkSetMacro(WriteElementIDs, bool);
+  vtkGetMacro(WriteElementIDs, bool);
+  ///@}
+
+  ///@{
+  /**
    * set the array of Block ID's
    * this class keeps a reference to the array and will not delete it
    */
@@ -170,6 +198,8 @@ protected:
 
   int GetExodusModelIndex(int* ElementArray, int NumberElements, int PartID);
 
+  static int GetDestinationComponent(int srcComponent, int numComponents);
+
   char* Path;
   char* BaseName;
   char* FileName;
@@ -181,6 +211,8 @@ protected:
   int* BlockIDs;
   bool TransientGeometry;
   int GhostLevel;
+  bool WriteNodeIDs;
+  bool WriteElementIDs;
   vtkUnstructuredGrid* TmpInput;
 
   vtkEnSightWriter(const vtkEnSightWriter&) = delete;

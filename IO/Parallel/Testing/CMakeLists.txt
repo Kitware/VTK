@@ -26,7 +26,9 @@ if (VTK_WRAP_PYTHON)
     Data/combq.bin
     Data/combxyz.bin
     Data/multicomb_0.vts
-    Data/nek5000/eddy_uv/,REGEX:.*)
+    Data/nek5000/eddy_uv/,REGEX:.*
+    Data/EnSight/elementTypesTest.case
+    Data/EnSight/elementTypesTest.geo)
 
   add_subdirectory(Python)
 endif ()
