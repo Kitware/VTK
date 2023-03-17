@@ -194,6 +194,51 @@ struct has_map_tuple_trait<void(ArgIdx, ArgTup*)>
 };
 ///@}
 
+///@{
+/**
+ * \struct has_map_component_trait
+ * \brief used to check whether the template type has a method named mapComponent
+ */
+template <typename, typename = void>
+struct has_map_component_trait : std::false_type
+{
+};
+
+template <typename T>
+struct has_map_component_trait<T, void_t<decltype(&std::remove_reference<T>::type::mapComponent)>>
+  : public has_map_component_trait<decltype(&std::remove_reference<T>::type::mapComponent)>
+{
+  using type = T;
+};
+
+template <typename T>
+struct has_map_component_trait<T*> : public has_map_component_trait<T>
+{
+};
+
+template <typename T>
+struct has_map_component_trait<const T> : public has_map_component_trait<T>
+{
+};
+
+template <typename R, typename T, typename ArgTupIdx, typename ArgCompIdx>
+struct has_map_component_trait<R (T::*)(ArgTupIdx, ArgCompIdx) const>
+  : public has_map_component_trait<R(ArgTupIdx, ArgCompIdx)>
+{
+};
+
+template <typename R, typename ArgTupIdx, typename ArgCompIdx>
+struct has_map_component_trait<R(ArgTupIdx, ArgCompIdx)>
+{
+  static_assert(
+    std::is_integral<ArgTupIdx>::value, "1st Argument to mapComponent must be integral type");
+  static_assert(
+    std::is_integral<ArgCompIdx>::value, "2nd Argument to mapComponent must be integral type");
+  static constexpr bool value = true;
+  using rtype = R;
+};
+///@}
+
 namespace iarrays
 {
 /**
@@ -279,6 +324,28 @@ struct can_map_tuple_trait<T, void_t<typename has_map_tuple_trait<T>::rtype>>
 };
 ///@}
 
+///@{
+/**
+ * \struct can_map_component_trait
+ * \brief An intermediate trait for exposing a unified trait interface
+ */
+template <typename T, typename = void>
+struct can_map_component_trait
+{
+  using type = T;
+  static constexpr bool value = false;
+  using rtype = void;
+};
+
+template <typename T>
+struct can_map_component_trait<T, void_t<typename has_map_component_trait<T>::rtype>>
+{
+  using type = T;
+  static constexpr bool value = true;
+  using rtype = typename has_map_component_trait<T>::rtype;
+};
+///@}
+
 /**
  * \struct implicit_array_traits
  * \brief A composite trait for handling all the different capabilities a "backend" to an
@@ -295,6 +362,7 @@ struct implicit_array_traits
   static constexpr iarrays::ReadOperatorCodes code = trait::code;
   static constexpr bool default_constructible = std::is_default_constructible<T>::value;
   static constexpr bool can_direct_read_tuple = can_map_tuple_trait<T>::value;
+  static constexpr bool can_direct_read_component = can_map_component_trait<T>::value;
 };
 
 VTK_ABI_NAMESPACE_END

@@ -33,7 +33,9 @@
  * method that takes integers to any VTK value type. It can also be any type of Closure/Functor that
  * implements a const operator() method from integers to the value type of the array. If a void
  * mapTuple(vtkIdType, TupleType*) const method is also present, the array will use this method to
- * to populate the tuple instead of the map method.
+ * to populate the tuple instead of the map method. If a
+ * ValueType mapComponent(vtkIdType, int) const method is also present, the array will use this
+ * method to populate the GetTypedComponent function instead of the map method.
  *
  * The ordering of the array for tuples and components is implicitly AOS.
  *
@@ -102,9 +104,25 @@
  * };
  * @endcode
  *
+ * example for array that implements map and mapComponent
+ * @code
+ * struct ConstComponentStruct
+ * {
+ *   int Tuple[3] = { 0, 0, 0 };
  *
- * > WARNING: The CommonImplicitArrays module does not currently compile with gcc4.8.5 due to its
- * partial > c++11 support
+ * ConstComponentStruct(int tuple[3])
+ * {
+ *   this->Tuple[0] = tuple[0];
+ *   this->Tuple[1] = tuple[1];
+ *   this->Tuple[2] = tuple[2];
+ * }
+ *
+ * // used for GetValue
+ * int map(int idx) const { return this->mapComponent(idx / 3, idx % 3); }
+ * // used for GetTypedComponent
+ * int mapComponent(int vtkNotUsed(idx), int comp) const { return this->Tuple[comp]; }
+ * };
+ * @endcode
  *
  * @sa
  * vtkGenericDataArray vtkImplicitArrayTraits vtkDataArray
@@ -137,7 +155,7 @@ public:
   /**
    * Get the value at @a idx. @a idx assumes AOS ordering.
    */
-  inline ValueType GetValue(vtkIdType idx) const { return this->GetValue<BackendT>(idx); }
+  inline ValueType GetValue(vtkIdType idx) const { return this->GetValueImpl<BackendT>(idx); }
 
   /**
    * Will not do anything for these read only arrays!
@@ -162,7 +180,7 @@ public:
    */
   inline ValueType GetTypedComponent(vtkIdType idx, int comp) const
   {
-    return this->GetValue(idx * this->NumberOfComponents + comp);
+    return this->GetTypedComponentImpl<BackendT>(idx, comp);
   }
 
   /**
@@ -278,7 +296,7 @@ private:
    * Methods for static dispatch towards map trait
    */
   template <typename U>
-  typename std::enable_if<vtk::detail::has_map_trait<U>::value, ValueType>::type GetValue(
+  typename std::enable_if<vtk::detail::has_map_trait<U>::value, ValueType>::type GetValueImpl(
     vtkIdType idx) const
   {
     return this->Backend->map(idx);
@@ -290,7 +308,7 @@ private:
    * Methods for static dispatch towards closure trait
    */
   template <typename U>
-  typename std::enable_if<vtk::detail::is_closure_trait<U>::value, ValueType>::type GetValue(
+  typename std::enable_if<vtk::detail::is_closure_trait<U>::value, ValueType>::type GetValueImpl(
     vtkIdType idx) const
   {
     return (*this->Backend)(idx);
@@ -338,10 +356,27 @@ private:
 
   ///@{
   /**
+   * Static dispatch tuple mapping using component mapping for compatible backends
+   */
+  template <typename U>
+  typename std::enable_if<!vtk::detail::implicit_array_traits<U>::can_direct_read_tuple &&
+      vtk::detail::implicit_array_traits<U>::can_direct_read_component,
+    void>::type
+  GetTypedTupleImpl(vtkIdType idx, ValueType* tuple) const
+  {
+    for (vtkIdType comp = 0; comp < this->NumberOfComponents; comp++)
+    {
+      tuple[comp] = this->GetTypedComponent(idx, comp);
+    }
+  }
+
+  /**
    * Static dispatch tuple mapping for incompatible backends
    */
   template <typename U>
-  typename std::enable_if<!vtk::detail::implicit_array_traits<U>::can_direct_read_tuple, void>::type
+  typename std::enable_if<!vtk::detail::implicit_array_traits<U>::can_direct_read_tuple &&
+      !vtk::detail::implicit_array_traits<U>::can_direct_read_component,
+    void>::type
   GetTypedTupleImpl(vtkIdType idx, ValueType* tuple) const
   {
     const vtkIdType tupIdx = idx * this->NumberOfComponents;
@@ -349,6 +384,35 @@ private:
     {
       tuple[comp] = this->GetValue(tupIdx + comp);
     }
+  }
+  ///@}
+
+  ///@{
+  /**
+   * Static dispatch component mapping for compatible backends
+   */
+  template <typename U>
+  typename std::enable_if<vtk::detail::implicit_array_traits<U>::can_direct_read_component,
+    ValueType>::type
+  GetTypedComponentImpl(vtkIdType idx, int comp) const
+  {
+    static_assert(
+      std::is_same<typename vtk::detail::can_map_component_trait<U>::rtype, ValueType>::value,
+      "Component return type should be the same as the return type of the mapComponent");
+    return this->Backend->mapComponent(idx, comp);
+  }
+  ///@}
+
+  ///@{
+  /**
+   * Static dispatch component mapping for incompatible backends
+   */
+  template <typename U>
+  typename std::enable_if<!vtk::detail::implicit_array_traits<U>::can_direct_read_component,
+    ValueType>::type
+  GetTypedComponentImpl(vtkIdType idx, int comp) const
+  {
+    return this->GetValue(idx * this->NumberOfComponents + comp);
   }
   ///@}
 
