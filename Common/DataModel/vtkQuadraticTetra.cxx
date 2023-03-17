@@ -549,13 +549,13 @@ bool vtkQuadraticTetra::StableClip(double value, vtkDataArray* cellScalars,
     for (int j = 0; j < 4; j++) // for each of the four vertices of the tetra
     {
       const double scalar = cellScalars->GetTuple1(LinearTetras[dir][i][j]);
-      totallyInside = totallyInside && (scalar < value);
-      totallyOutside = totallyOutside && (scalar > value);
+      totallyInside = totallyInside && (scalar > value);
+      totallyOutside = totallyOutside && (scalar < value);
     }
   }
 
   // if we can pass the whole cell, pass the whole cell
-  if ((totallyInside && insideOut) || (totallyOutside && !insideOut))
+  if ((totallyOutside && insideOut) || (totallyInside && !insideOut))
   {
     vtkIdType newPntIds[10] = { 0 };
     double pntPos[3] = { 0 };

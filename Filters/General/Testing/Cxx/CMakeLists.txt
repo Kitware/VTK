@@ -29,6 +29,7 @@ vtk_add_test_cxx(vtkFiltersGeneralCxxTests tests
   TestExtractGhostCells.cxx,NO_VALID
   TestGraphWeightEuclideanDistanceFilter.cxx,NO_VALID
   TestGroupDataSetsFilter.cxx,NO_VALID
+  TestHOStableClip.cxx,NO_VALID
   TestImageDataToPointSet.cxx,NO_VALID
   TestIntersectionPolyDataFilter.cxx
   TestIntersectionPolyDataFilter2.cxx,NO_VALID
