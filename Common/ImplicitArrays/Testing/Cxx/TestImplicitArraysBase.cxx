@@ -64,6 +64,23 @@ struct ConstTupleStruct
   }
 };
 
+struct ConstComponentStruct
+{
+  int Tuple[3] = { 0, 0, 0 };
+
+  ConstComponentStruct(int tuple[3])
+  {
+    this->Tuple[0] = tuple[0];
+    this->Tuple[1] = tuple[1];
+    this->Tuple[2] = tuple[2];
+  }
+
+  // used for GetValue
+  int map(int idx) const { return this->mapComponent(idx / 3, idx % 3); }
+  // used for GetTypedComponent
+  int mapComponent(int vtkNotUsed(idx), int comp) const { return this->Tuple[comp]; }
+};
+
 };
 
 int TestImplicitArraysBase(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
@@ -205,6 +222,40 @@ int TestImplicitArraysBase(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
     {
       res = EXIT_FAILURE;
       std::cout << iArr << " generic ConstTupleStruct tuple entry is not equal to constant 1, 2, 3!"
+                << std::endl;
+    }
+  }
+
+  // test backend with mapComponent
+  vtkNew<vtkImplicitArray<::ConstComponentStruct>> genericComponentConstArr;
+  genericComponentConstArr->ConstructBackend(tuple);
+  genericComponentConstArr->SetNumberOfComponents(3);
+  genericComponentConstArr->SetNumberOfTuples(50);
+
+  // test GetValue
+  for (iArr = 0; iArr < 150; iArr += 3)
+  {
+    if (genericComponentConstArr->GetValue(iArr + 0) != 1 ||
+      genericComponentConstArr->GetValue(iArr + 1) != 2 ||
+      genericComponentConstArr->GetValue(iArr + 2) != 3)
+    {
+      res = EXIT_FAILURE;
+      std::cout << iArr
+                << " generic ConstComponentStruct component entry is not equal to constant 1, 2, 3!"
+                << std::endl;
+    }
+  }
+
+  // test GetTypedComponent
+  for (iArr = 0; iArr < 150; iArr++)
+  {
+    if (genericComponentConstArr->GetTypedComponent(iArr, 0) != 1 ||
+      genericComponentConstArr->GetTypedComponent(iArr, 1) != 2 ||
+      genericComponentConstArr->GetTypedComponent(iArr, 2) != 3)
+    {
+      res = EXIT_FAILURE;
+      std::cout << iArr
+                << " generic ConstComponentStruct component entry is not equal to constant 1, 2, 3!"
                 << std::endl;
     }
   }
