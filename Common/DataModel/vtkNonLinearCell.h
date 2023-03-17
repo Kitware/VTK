@@ -57,7 +57,7 @@ public:
    * that it tells more information about how the clipped cell was
    * handled. For 2D cells vtkCell::Clip is expected to return either
    * triangles, quads or polygon, and for 3D cells either tetras or
-   * wedges. However it is intersting (especially for non linear cells)
+   * wedges. However, it is interesting (especially for non linear cells)
    * to be able to return the same cell type when the cell is totally
    * inside or outside the clipping function. This Clip function
    * resolves exactly this issue by returning a bool : if StableClip
@@ -65,7 +65,7 @@ public:
    * current cell, otherwise it will be one of the "expected" types
    * as returned by vtkCell::Clip.
    *
-   * XXX: This function could also benefits being moved to vtkCell but
+   * Note: This function could also benefit being moved to vtkCell but
    * requires much more work to be supported by all cell types.
    *
    * @see vtkCell::Clip

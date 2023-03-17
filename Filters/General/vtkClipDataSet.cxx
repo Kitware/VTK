@@ -167,8 +167,8 @@ int vtkClipDataSet::RequestData(vtkInformation* vtkNotUsed(request),
   vtkPointData *inPD = input->GetPointData(), *outPD = output->GetPointData();
   vtkCellData* inCD = input->GetCellData();
   vtkCellData* outCD[2];
-  vtkPoints* newPoints;
-  vtkFloatArray* cellScalars;
+  vtkSmartPointer<vtkPoints> newPoints;
+  vtkSmartPointer<vtkFloatArray> cellScalars;
   vtkDataArray* clipScalars;
   vtkPoints* cellPts;
   vtkIdList* cellIds;
@@ -178,7 +178,7 @@ int vtkClipDataSet::RequestData(vtkInformation* vtkNotUsed(request),
   vtkIdType i;
   int j;
   vtkIdType estimatedSize;
-  vtkUnsignedCharArray* types[2];
+  vtkSmartPointer<vtkUnsignedCharArray> types[2];
   types[0] = types[1] = nullptr;
   int numOutputs = 1;
 
@@ -234,25 +234,25 @@ int vtkClipDataSet::RequestData(vtkInformation* vtkNotUsed(request),
   {
     estimatedSize = 1024;
   }
-  cellScalars = vtkFloatArray::New();
+  cellScalars = vtkSmartPointer<vtkFloatArray>::New();
   cellScalars->Allocate(VTK_CELL_SIZE);
-  vtkCellArray* conn[2];
+  vtkSmartPointer<vtkCellArray> conn[2];
   conn[0] = conn[1] = nullptr;
-  conn[0] = vtkCellArray::New();
+  conn[0] = vtkSmartPointer<vtkCellArray>::New();
   conn[0]->AllocateEstimate(estimatedSize, 1);
   conn[0]->InitTraversal();
-  types[0] = vtkUnsignedCharArray::New();
+  types[0] = vtkSmartPointer<vtkUnsignedCharArray>::New();
   types[0]->Allocate(estimatedSize, estimatedSize / 2);
   if (this->GenerateClippedOutput)
   {
     numOutputs = 2;
-    conn[1] = vtkCellArray::New();
+    conn[1] = vtkSmartPointer<vtkCellArray>::New();
     conn[1]->AllocateEstimate(estimatedSize, 1);
     conn[1]->InitTraversal();
-    types[1] = vtkUnsignedCharArray::New();
+    types[1] = vtkSmartPointer<vtkUnsignedCharArray>::New();
     types[1]->Allocate(estimatedSize, estimatedSize / 2);
   }
-  newPoints = vtkPoints::New();
+  newPoints = vtkSmartPointer<vtkPoints>::New();
 
   // set precision for the points in the output
   if (this->OutputPointsPrecision == vtkAlgorithm::DEFAULT_PRECISION)
@@ -311,19 +311,6 @@ int vtkClipDataSet::RequestData(vtkInformation* vtkNotUsed(request),
     clipScalars = this->GetInputArrayToProcess(0, inputVector);
     if (!clipScalars)
     {
-      for (i = 0; i < 2; i++)
-      {
-        if (conn[i])
-        {
-          conn[i]->Delete();
-        }
-        if (types[i])
-        {
-          types[i]->Delete();
-        }
-      }
-      cellScalars->Delete();
-      newPoints->Delete();
       // When processing composite datasets with partial arrays, this warning is
       // not applicable, hence disabling it.
       // vtkErrorMacro(<<"Cannot clip without clip function or input scalars");
@@ -363,7 +350,7 @@ int vtkClipDataSet::RequestData(vtkInformation* vtkNotUsed(request),
   //
   bool abort = false;
   vtkIdType updateTime = numCells / 20 + 1; // update roughly every 5%
-  vtkGenericCell* cell = vtkGenericCell::New();
+  vtkSmartPointer<vtkGenericCell> cell = vtkSmartPointer<vtkGenericCell>::New();
   int num[2];
   num[0] = num[1] = 0;
   int numNew[2];
@@ -461,29 +448,20 @@ int vtkClipDataSet::RequestData(vtkInformation* vtkNotUsed(request),
     }
   }
 
-  cell->Delete();
-  cellScalars->Delete();
-
   if (this->ClipFunction)
   {
     clipScalars->Delete();
     inPD->Delete();
   }
-
   output->SetPoints(newPoints);
   output->SetCells(types[0], conn[0]);
-  conn[0]->Delete();
-  types[0]->Delete();
 
   if (this->GenerateClippedOutput)
   {
     clippedOutput->SetPoints(newPoints);
     clippedOutput->SetCells(types[1], conn[1]);
-    conn[1]->Delete();
-    types[1]->Delete();
   }
 
-  newPoints->Delete();
   this->Locator->Initialize(); // release any extra memory
   output->Squeeze();
 
