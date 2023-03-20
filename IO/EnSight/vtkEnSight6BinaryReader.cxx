@@ -2741,16 +2741,24 @@ int vtkEnSight6BinaryReader::ReadIntNumber(int* result)
     vtkByteSwap::Swap4BE(&tmpBE);
 
     // Compare to file size, being careful not to overflow the
-    // multiplication (by doing 64 bit math).
+    // multiplication (by doing 64 bit math). Also check for overflow errors.
     // Use negative value as an indication of bad number.
-    if (tmpLE < 0 || static_cast<unsigned int>(tmpLE * sizeof(int)) > this->FileSize)
-    {
-      tmpLE = -1;
-    }
-    if (tmpBE < 0 || static_cast<unsigned int>(tmpBE * sizeof(int)) > this->FileSize)
-    {
-      tmpBE = -1;
-    }
+    auto checkByteOrderConsistency = [&](int& temporarySize) {
+      if (temporarySize < 0)
+      {
+        temporarySize = -1;
+        return;
+      }
+      unsigned int castedSize = static_cast<unsigned int>(temporarySize);
+      unsigned int orderOfFileSize = castedSize * sizeof(int);
+      if (castedSize > this->FileSize || orderOfFileSize > this->FileSize ||
+        orderOfFileSize < castedSize)
+      {
+        temporarySize = -1;
+      }
+    };
+    checkByteOrderConsistency(tmpLE);
+    checkByteOrderConsistency(tmpBE);
 
     // Just a sanity check. (0, 0 occurs often).
     // This condition would only occur for some really large files.
