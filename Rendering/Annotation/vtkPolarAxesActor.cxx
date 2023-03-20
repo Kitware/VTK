@@ -145,6 +145,7 @@ void vtkPolarAxesActor::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "TickLocation: " << this->TickLocation << endl;
 
   os << indent << "Ticks overall enabled: " << (this->PolarTickVisibility ? "On" : "Off") << endl;
+  os << indent << "Ratio maximum radius / major tick size: " << this->TickRatioRadiusSize << endl;
   os << indent
      << "Draw Arc Ticks From Polar Axis: " << (this->ArcTicksOriginToPolarAxis ? "On" : "Off")
      << endl;
@@ -392,6 +393,8 @@ vtkPolarAxesActor::vtkPolarAxesActor()
   this->ArcMinorTickVisibility = 0;
 
   // tick size
+  this->TickRatioRadiusSize = 0.02;
+
   this->PolarAxisMajorTickSize = 0;
   this->PolarAxisTickRatioSize = 0.3;
 
@@ -943,15 +946,21 @@ bool vtkPolarAxesActor::CheckMembersConsistency()
     this->LastAxisTickRatioSize < (1.0 / VTK_MAXIMUM_RATIO) ||
     this->LastAxisTickRatioSize > VTK_MAXIMUM_RATIO ||
     this->ArcTickRatioSize < (1.0 / VTK_MAXIMUM_RATIO) ||
-    this->ArcTickRatioSize > VTK_MAXIMUM_RATIO)
+    this->ArcTickRatioSize > VTK_MAXIMUM_RATIO ||
+    this->TickRatioRadiusSize < (1.0 / VTK_MAXIMUM_RATIO) ||
+    this->TickRatioRadiusSize > VTK_MAXIMUM_RATIO)
   {
-    vtkWarningMacro(<< "A size/thickness ratio between major and minor ticks is way too large: "
-                    << "PolarAxisTickRatioThickness: " << this->PolarAxisTickRatioThickness
-                    << "LastAxisTickRatioThickness: " << this->LastAxisTickRatioThickness
-                    << "ArcTickRatioThickness: " << this->ArcTickRatioThickness
-                    << "PolarAxisTickRatioSize: " << this->PolarAxisTickRatioSize
-                    << "LastAxisTickRatioSize: " << this->LastAxisTickRatioSize
-                    << "ArcTickRatioSize: " << this->ArcTickRatioSize);
+    // clang-format off
+    vtkWarningMacro(
+      << "A size/thickness ratio between major and minor ticks is way too large/thin: "
+      << "PolarAxisTickRatioThickness: " << this->PolarAxisTickRatioThickness << "\n"
+      << "LastAxisTickRatioThickness: " << this->LastAxisTickRatioThickness << "\n"
+      << "ArcTickRatioThickness: " << this->ArcTickRatioThickness << "\n"
+      << "PolarAxisTickRatioSize: " << this->PolarAxisTickRatioSize << "\n"
+      << "LastAxisTickRatioSize: " << this->LastAxisTickRatioSize << "\n"
+      << "ArcTickRatioSize: " << this->ArcTickRatioSize << "\n"
+      << "TickRatioRadiusSize: " << this->TickRatioRadiusSize);
+    // clang-format on
     return false;
   }
   return true;
@@ -1207,34 +1216,18 @@ void vtkPolarAxesActor::SetPolarAxisAttributes(vtkAxisActor* axis)
   axis->SetLabelVisibility(this->PolarLabelVisibility);
   axis->SetLabelTextProperty(this->PolarAxisLabelTextProperty);
 
-  // set major tick size as 0.02 * majorRadius
-  double tickSize = 0.02 * this->MaximumRadius;
-
-  // Use computed tick length if not specified
-  if (this->PolarAxisMajorTickSize == 0)
-  {
-    this->PolarAxisMajorTickSize = tickSize;
-  }
-
-  if (this->LastRadialAxisMajorTickSize == 0)
-  {
-    this->LastRadialAxisMajorTickSize = tickSize;
-  }
-
-  if (this->ArcMajorTickSize == 0)
-  {
-    this->ArcMajorTickSize = tickSize;
-  }
-
   // Compute delta Range values (if log == 1, deltaRange properties will be overwritten)
   if (this->AutoSubdividePolarAxis)
   {
     this->AutoComputeTicksProperties();
   }
 
-  axis->SetMajorTickSize(this->PolarAxisMajorTickSize);
+  double tickSize = this->PolarAxisMajorTickSize == 0.0
+    ? this->TickRatioRadiusSize * this->MaximumRadius
+    : this->PolarAxisMajorTickSize;
 
-  axis->SetMinorTickSize(this->PolarAxisTickRatioSize * this->PolarAxisMajorTickSize);
+  axis->SetMajorTickSize(tickSize);
+  axis->SetMinorTickSize(this->PolarAxisTickRatioSize * tickSize);
 
   // Set the value between two ticks
   axis->SetDeltaRangeMajor(this->DeltaRangeMajor);
@@ -1481,12 +1474,16 @@ void vtkPolarAxesActor::BuildRadialAxes(vtkViewport* viewport)
         axis->SetAxisTypeToX();
 
       // Set polar axis ticks
+      double tickSize = this->LastRadialAxisMajorTickSize == 0.0
+        ? this->TickRatioRadiusSize * this->MaximumRadius
+        : this->LastRadialAxisMajorTickSize;
+
       axis->SetTickVisibility(this->AxisTickVisibility && this->PolarTickVisibility);
-      axis->SetMajorTickSize(this->LastRadialAxisMajorTickSize);
+      axis->SetMajorTickSize(tickSize);
 
       // Set polar axis minor ticks
       axis->SetMinorTicksVisible(this->AxisMinorTickVisibility && this->PolarTickVisibility);
-      axis->SetMinorTickSize(this->LastAxisTickRatioSize * this->LastRadialAxisMajorTickSize);
+      axis->SetMinorTickSize(this->LastAxisTickRatioSize * tickSize);
 
       // Set the tick orientation
       axis->SetTickLocation(this->TickLocation);
@@ -1533,6 +1530,10 @@ void vtkPolarAxesActor::BuildArcTicks()
   this->ArcMajorTickPts->Reset();
   this->ArcMinorTickPts->Reset();
 
+  // Arc tick actual size
+  double tickSize = this->ArcMajorTickSize == 0.0 ? this->TickRatioRadiusSize * this->MaximumRadius
+                                                  : this->ArcMajorTickSize;
+
   double dAlpha =
     this->ArcTickMatchesRadialAxes ? this->DeltaAngleRadialAxes : this->DeltaAngleMajor;
   double alphaStart;
@@ -1543,7 +1544,7 @@ void vtkPolarAxesActor::BuildArcTicks()
   {
     double thetaEllipse = ComputeEllipseAngle(alphaDeg, this->Ratio);
     this->StoreTicksPtsFromParamEllipse(
-      this->MaximumRadius, thetaEllipse, this->ArcMajorTickSize, this->ArcMajorTickPts);
+      this->MaximumRadius, thetaEllipse, tickSize, this->ArcMajorTickPts);
   }
 
   // Copy/paste should be replaced with a python-like generator to provide parameters to
@@ -1558,8 +1559,8 @@ void vtkPolarAxesActor::BuildArcTicks()
        alphaDeg += dAlpha)
   {
     double thetaEllipse = ComputeEllipseAngle(alphaDeg, this->Ratio);
-    this->StoreTicksPtsFromParamEllipse(this->MaximumRadius, thetaEllipse,
-      this->ArcTickRatioSize * this->ArcMajorTickSize, this->ArcMinorTickPts);
+    this->StoreTicksPtsFromParamEllipse(
+      this->MaximumRadius, thetaEllipse, this->ArcTickRatioSize * tickSize, this->ArcMinorTickPts);
   }
 
   // set vtk object to draw the ticks

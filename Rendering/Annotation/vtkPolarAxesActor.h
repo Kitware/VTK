@@ -486,6 +486,14 @@ public:
 
   ///@{
   /**
+   * Set/Get the ratio between maximum radius and major ticks size
+   */
+  vtkSetMacro(TickRatioRadiusSize, double);
+  vtkGetMacro(TickRatioRadiusSize, double);
+  ///@}
+
+  ///@{
+  /**
    * Set/Get the size of the thickness of polar axis ticks
    */
   vtkSetMacro(PolarAxisMajorTickThickness, double);
@@ -1056,9 +1064,14 @@ protected:
   double PolarAxisMajorTickSize, LastRadialAxisMajorTickSize, ArcMajorTickSize;
 
   /**
-   * Set the ratios between major tick Size for each ticks location
+   * Set the ratios between major and minor tick Size for each ticks location
    */
   double PolarAxisTickRatioSize, LastAxisTickRatioSize, ArcTickRatioSize;
+
+  /**
+   * Set the ratio between maximum radius and major tick size
+   */
+  double TickRatioRadiusSize;
 
   /**
    * Defines the thickness of the major ticks.
