@@ -711,6 +711,32 @@ int TestMath(int, char*[])
     return 1;
   }
 
+  // Test GetPointAlongLine
+  double p1[3] = { 1.0, 1.0, 1.0 };
+  double p2[3] = { 2.0, 2.0, 2.0 };
+  double result[3] = { 0.0 };
+
+  auto roundTo3 = [](double value) { return (double)(round(value * 1000)) / 1000; };
+
+  double expectedForward[3] = { 3.0, 3.0, 3.0 };
+  vtkMath::GetPointAlongLine(result, p1, p2, sqrt(3.0));
+  if (roundTo3(result[0]) != expectedForward[0] && roundTo3(result[1]) != expectedForward[1] &&
+    roundTo3(result[2]) != expectedForward[2])
+  {
+    vtkGenericWarningMacro(<< "GetPointAlongLine test failed in forward direction.");
+    return 1;
+  }
+
+  // Without roundTo3, result is -1.0000000000000004 in each dimension.
+  double expectedBackward[3] = { -1.0, -1.0, -1.0 };
+  vtkMath::GetPointAlongLine(result, p1, p2, -3 * sqrt(3.0));
+  if (roundTo3(result[0]) != expectedBackward[0] && roundTo3(result[1]) != expectedBackward[1] &&
+    roundTo3(result[2]) != expectedBackward[2])
+  {
+    vtkGenericWarningMacro(<< "GetPointAlongLine test failed in backward direction.");
+    return 1;
+  }
+
   return 0;
 }
 
