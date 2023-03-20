@@ -23,6 +23,7 @@
 
 #include "vtkDataObjectAlgorithm.h"
 #include "vtkIOHDFModule.h" // For export macro
+#include <array>            // For storing the time range
 #include <vector>           // For storing list of values
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -106,6 +107,23 @@ public:
   const char* GetCellArrayName(int index);
   ///@}
 
+  ///@{
+  /**
+   * Getters and setters for transient data
+   * - HasTransientData is a boolean that flags whether the file has temporal data
+   * - NumberOfSteps is the number of time steps contained in the file
+   * - Step is the time step to be read or last read by the reader
+   * - TimeValue is the value corresponding to the Step property
+   * - TimeRange is an array with the {min, max} values of time for the data
+   */
+  vtkGetMacro(HasTransientData, bool);
+  vtkGetMacro(NumberOfSteps, vtkIdType);
+  vtkGetMacro(Step, vtkIdType);
+  vtkSetMacro(Step, vtkIdType);
+  vtkGetMacro(TimeValue, double);
+  const std::array<double, 2>& GetTimeRange() const { return this->TimeRange; }
+  ///@}
+
   vtkSetMacro(MaximumLevelsToReadByDefaultForAMR, unsigned int);
   vtkGetMacro(MaximumLevelsToReadByDefaultForAMR, unsigned int);
 
@@ -140,8 +158,9 @@ protected:
    */
   int Read(const std::vector<vtkIdType>& numberOfPoints,
     const std::vector<vtkIdType>& numberOfCells,
-    const std::vector<vtkIdType>& numberOfConnectivityIds, int filePiece,
-    vtkUnstructuredGrid* pieceData);
+    const std::vector<vtkIdType>& numberOfConnectivityIds, vtkIdType partOffset,
+    vtkIdType startingPointOffset, vtkIdType startingCellOffset,
+    vtkIdType startingConnectctivityIdOffset, int filePiece, vtkUnstructuredGrid* pieceData);
   /**
    * Read the field arrays from the file and add them to the dataset.
    */
@@ -199,6 +218,17 @@ protected:
   int WholeExtent[6];
   double Origin[3];
   double Spacing[3];
+  ///@}
+
+  ///@{
+  /**
+   * Transient data properties
+   */
+  bool HasTransientData = false;
+  vtkIdType Step = 0;
+  vtkIdType NumberOfSteps = 1;
+  double TimeValue = 0.0;
+  std::array<double, 2> TimeRange;
   ///@}
 
   unsigned int MaximumLevelsToReadByDefaultForAMR = 0;

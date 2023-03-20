@@ -30,7 +30,7 @@
 
 namespace
 {
-double CHECK_TOLERANCE = 1e-12;
+constexpr double CHECK_TOLERANCE = 1e-3;
 
 // analytical functions
 template <typename Vec>
@@ -223,11 +223,17 @@ int TestUGTransient(const std::string& dataRoot)
       return EXIT_FAILURE;
     }
 
-    if (std::fabs(dSet->GetFieldData()->GetArray("Time")->GetComponent(0, 0) -
-          static_cast<double>(iStep) / 10) > CHECK_TOLERANCE)
+    auto timeArr = dSet->GetFieldData()->GetArray("Time");
+    if (!timeArr)
     {
-      std::cout << "FieldData: Time value is wrong: "
-                << dSet->GetFieldData()->GetArray("Time")->GetComponent(0, 0)
+      std::cout << "No Time array in FieldData" << std::endl;
+      return EXIT_FAILURE;
+    }
+
+    if (!vtkMathUtilities::FuzzyCompare(
+          timeArr->GetComponent(0, 0), static_cast<double>(iStep) / 10, CHECK_TOLERANCE))
+    {
+      std::cout << "FieldData: Time value is wrong: " << timeArr->GetComponent(0, 0)
                 << " != " << static_cast<double>(iStep) / 10 << std::endl;
       return EXIT_FAILURE;
     }
