@@ -39,7 +39,7 @@
 #include "vtkNew.h"          // for internal fields
 #include "vtkSmartPointer.h" // for internal fields
 
-#include <string> // for internal fields
+#include <cstring> // for strdup, to initialize char*
 
 VTK_ABI_NAMESPACE_BEGIN
 
@@ -75,12 +75,12 @@ public:
   /**
    * Set/Get the name of gradient vector array.
    */
-  vtkSetMacro(GradientArrayName, std::string);
-  vtkGetMacro(GradientArrayName, std::string);
+  vtkSetStringMacro(GradientArrayName);
+  vtkGetStringMacro(GradientArrayName);
   VTK_DEPRECATED_IN_9_3_0("Please use unambiguous SetGradientArrayName method instead.")
-  void SetResultArrayName(std::string name) { this->SetGradientArrayName(name); }
+  void SetResultArrayName(std::string name) { this->SetGradientArrayName(name.c_str()); }
   VTK_DEPRECATED_IN_9_3_0("Please use unambiguous GetGradientArrayName method instead.")
-  std::string GetResultArrayName() { return this->GetGradientArrayName(); }
+  std::string GetResultArrayName() { return std::string(this->GetGradientArrayName()); }
   ///@}
 
   ///@{
@@ -119,8 +119,8 @@ public:
   /**
    * Set/Get the name of divergence vector array.
    */
-  vtkSetMacro(DivergenceArrayName, std::string);
-  vtkGetMacro(DivergenceArrayName, std::string);
+  vtkSetStringMacro(DivergenceArrayName);
+  vtkGetStringMacro(DivergenceArrayName);
   ///@}
 
   ///@{
@@ -137,8 +137,8 @@ public:
   /**
    * Set/Get the name of vorticity array.
    */
-  vtkSetMacro(VorticityArrayName, std::string);
-  vtkGetMacro(VorticityArrayName, std::string);
+  vtkSetStringMacro(VorticityArrayName);
+  vtkGetStringMacro(VorticityArrayName);
   ///@}
 
   ///@{
@@ -155,8 +155,8 @@ public:
   /**
    * Set/Get the name of q-criterion array.
    */
-  vtkSetMacro(QCriterionArrayName, std::string);
-  vtkGetMacro(QCriterionArrayName, std::string);
+  vtkSetStringMacro(QCriterionArrayName);
+  vtkGetStringMacro(QCriterionArrayName);
   ///@}
 
 protected:
@@ -188,24 +188,24 @@ protected:
   // Gradient
   bool ComputeGradient = true;
   vtkNew<vtkDoubleArray> OutGradArray;
-  std::string GradientArrayName = "Gradient";
+  char* GradientArrayName = strdup("Gradient");
   int Mode = ComputeMode::UNLIMITED;
   bool ExtensiveComputation = false;
 
   // Divergence
   bool ComputeDivergence = false;
   vtkNew<vtkDoubleArray> OutDivArray;
-  std::string DivergenceArrayName = "Divergence";
+  char* DivergenceArrayName = strdup("Divergence");
 
   // Vorticity
   bool ComputeVorticity = false;
   vtkNew<vtkDoubleArray> OutVortArray;
-  std::string VorticityArrayName = "Vorticity";
+  char* VorticityArrayName = strdup("Vorticity");
 
   // QCriterion
   bool ComputeQCriterion = false;
   vtkNew<vtkDoubleArray> OutQCritArray;
-  std::string QCriterionArrayName = "QCriterion";
+  char* QCriterionArrayName = strdup("QCriterion");
 
   /**
    * Keep track of selected input scalars / vectors
