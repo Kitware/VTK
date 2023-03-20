@@ -33,6 +33,7 @@
 #include "vtkmlib/PolyDataConverter.h"
 
 #include <vtkm/cont/ErrorFilterExecution.h>
+#include <vtkm/cont/ErrorUserAbort.h>
 #include <vtkm/filter/contour/Contour.h>
 #include <vtkm/worklet/WorkletMapField.h>
 
@@ -185,6 +186,8 @@ int vtkmContour::RequestData(
 
   try
   {
+    vtkm::cont::ScopedRuntimeDeviceTracker rtdt([&]() { return this->CheckAbort(); });
+
     if (!this->CanProcessInput(input))
     {
       throw vtkm::cont::ErrorFilterExecution(
@@ -235,6 +238,11 @@ int vtkmContour::RequestData(
       output->GetPointData()->SetActiveAttribute(
         filter.GetNormalArrayName().c_str(), vtkDataSetAttributes::NORMALS);
     }
+  }
+  catch (const vtkm::cont::ErrorUserAbort&)
+  {
+    // vtkm detected an abort request, clear the output
+    output->Initialize();
   }
   catch (const vtkm::cont::Error& e)
   {

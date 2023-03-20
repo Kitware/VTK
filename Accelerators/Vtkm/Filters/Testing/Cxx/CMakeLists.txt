@@ -1,5 +1,6 @@
 
 vtk_add_test_cxx(vtkAcceleratorsVTKmFiltersCxxTests tests
+  TestVTKMAbort.cxx,NO_VALID
   TestVTKMCleanGrid.cxx
   TestVTKMCoordinateSystemTransform.cxx,NO_VALID
   TestVTKMClip.cxx
