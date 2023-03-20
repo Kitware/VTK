@@ -21,392 +21,677 @@
 #define vtkmDataArray_hxx
 
 #include "vtkObjectFactory.h"
-#include "vtkSmartPointer.h"
 
 #include <vtkm/cont/Algorithm.h>
 #include <vtkm/cont/ArrayHandleCounting.h>
+#include <vtkm/cont/ArrayHandleDecorator.h>
 #include <vtkm/cont/ArrayHandleGroupVecVariable.h>
-#include <vtkm/cont/ArrayHandleTransform.h>
-#include <vtkm/cont/ArrayRangeCompute.h>
+
+#include <atomic>
+#include <cassert>
+#include <mutex>
+#include <type_traits>
 
 namespace internal
 {
 VTK_ABI_NAMESPACE_BEGIN
-//=============================================================================
-template <typename T>
-class ArrayHandleWrapperBase
+
+///----------------------------------------------------------------------------
+template <typename VecType,
+  bool IsScalarType =
+    std::is_same<VecType, typename vtkm::VecTraits<VecType>::ComponentType>::value>
+struct VecFlatAccessImpl;
+
+template <typename VecType>
+struct VecFlatAccessImpl<VecType, true>
+{
+  using ValueType = VecType;
+
+  static constexpr vtkm::IdComponent NUM_COMPONENTS = 1;
+
+  VTKM_EXEC_CONT
+  static vtkm::IdComponent GetNumberOfComponents(const VecType&) { return NUM_COMPONENTS; }
+
+  VTKM_EXEC_CONT
+  static ValueType GetComponent(const VecType& vec, vtkm::IdComponent) { return vec; }
+
+  VTKM_EXEC_CONT
+  static void SetComponent(VecType& vec, vtkm::IdComponent, const ValueType& val) { vec = val; }
+
+  VTKM_EXEC_CONT
+  static void CopyTo(const VecType& vec, ValueType* dest) { *dest = vec; }
+
+  VTKM_EXEC_CONT
+  static void CopyFrom(VecType& vec, const ValueType* src) { vec = *src; }
+};
+
+template <typename VecType, typename SizeTag = typename vtkm::VecTraits<VecType>::IsSizeStatic>
+struct VecNumStaticComponents;
+
+template <typename V>
+struct VecNumStaticComponents<V, vtkm::VecTraitsTagSizeStatic>
+{
+  static constexpr vtkm::IdComponent Value = vtkm::VecTraits<V>::NUM_COMPONENTS;
+};
+
+template <typename V>
+struct VecNumStaticComponents<V, vtkm::VecTraitsTagSizeVariable>
+{
+  static constexpr vtkm::IdComponent Value = 0;
+};
+
+/// Note that `NUM_COMPONENTS` will be 0 for vectors with non-static size.
+/// Bellow, it is assumed that only the top level Vector will be a non-static-size type.
+/// The code will need to be changed in the future if that assumption no longer holds true.
+///
+template <typename VecType>
+struct VecFlatAccessImpl<VecType, false>
+{
+  using VecTraits = vtkm::VecTraits<VecType>;
+  using SubVecFlatAccess = VecFlatAccessImpl<typename VecTraits::ComponentType>;
+  using ValueType = typename SubVecFlatAccess::ValueType;
+
+  static constexpr vtkm::IdComponent NUM_COMPONENTS =
+    VecNumStaticComponents<VecType>::Value * SubVecFlatAccess::NUM_COMPONENTS;
+
+  VTKM_EXEC_CONT
+  static vtkm::IdComponent GetNumberOfComponents(const VecType& vec)
+  {
+    return VecTraits::GetNumberOfComponents(vec) * SubVecFlatAccess::NUM_COMPONENTS;
+  }
+
+  VTKM_EXEC_CONT
+  static ValueType GetComponent(const VecType& vec, vtkm::IdComponent flatCompIdx)
+  {
+    auto compIdxThis = flatCompIdx / SubVecFlatAccess::NUM_COMPONENTS;
+    auto compIdxSub = flatCompIdx % SubVecFlatAccess::NUM_COMPONENTS;
+    return SubVecFlatAccess::GetComponent(VecTraits::GetComponent(vec, compIdxThis), compIdxSub);
+  }
+
+  VTKM_EXEC_CONT
+  static void SetComponent(VecType& vec, vtkm::IdComponent flatCompIdx, const ValueType& val)
+  {
+    auto compIdxThis = flatCompIdx / SubVecFlatAccess::NUM_COMPONENTS;
+    auto compIdxSub = flatCompIdx % SubVecFlatAccess::NUM_COMPONENTS;
+    SubVecFlatAccess::SetComponent(VecTraits::GetComponent(vec, compIdxThis), compIdxSub, val);
+  }
+
+  VTKM_EXEC_CONT
+  static void CopyTo(const VecType& vec, ValueType* dest)
+  {
+    for (vtkm::IdComponent i = 0; i < vtkm::VecTraits<VecType>::GetNumberOfComponents(vec); ++i)
+    {
+      SubVecFlatAccess::CopyTo(
+        VecTraits::GetComponent(vec, i), dest + (i * SubVecFlatAccess::NUM_COMPONENTS));
+    }
+  }
+
+  VTKM_EXEC_CONT
+  static void CopyFrom(VecType& vec, const ValueType* src)
+  {
+    for (vtkm::IdComponent i = 0; i < vtkm::VecTraits<VecType>::GetNumberOfComponents(vec); ++i)
+    {
+      SubVecFlatAccess::CopyFrom(
+        VecTraits::GetComponent(vec, i), src + (i * SubVecFlatAccess::NUM_COMPONENTS));
+    }
+  }
+};
+
+//-----------------------------------------------------------------------------
+/// A single API to access a Scalar, Vector or a Nested-Vector as a Flat-Vector, with depth-first
+/// ordering. This is also intended to work for vectors that do not have a compile time static
+/// number of components. Note that `NUM_COMPONENTS` will be 0 for such vectors, use the
+/// `GetNumberOfComponents` method instead. Also, it is assumed that only the top level Vector
+/// can be a non-static-size type.
+///
+struct VecFlatAccess
+{
+  template <typename VecType>
+  static constexpr vtkm::IdComponent NumberOfComponents =
+    VecFlatAccessImpl<VecType>::NUM_COMPONENTS;
+
+  template <typename VecType>
+  VTKM_EXEC_CONT static vtkm::IdComponent GetNumberOfComponents(const VecType& vec)
+  {
+    return VecFlatAccessImpl<VecType>::GetNumberOfComponents(vec);
+  }
+
+  template <typename VecType>
+  VTKM_EXEC_CONT static auto GetComponent(const VecType& vec, vtkm::IdComponent flatCompIdx)
+  {
+    return VecFlatAccessImpl<VecType>::GetComponent(vec, flatCompIdx);
+  }
+
+  template <typename VecType>
+  VTKM_EXEC_CONT static void SetComponent(VecType& vec, vtkm::IdComponent flatCompIdx,
+    const typename VecFlatAccessImpl<VecType>::ValueType& val)
+  {
+    VecFlatAccessImpl<VecType>::SetComponent(vec, flatCompIdx, val);
+  }
+
+  template <typename PortalType>
+  VTKM_EXEC_CONT static void SetComponent(vtkm::VecFromPortal<PortalType>& vec,
+    vtkm::IdComponent flatCompIdx,
+    const typename VecFlatAccessImpl<vtkm::VecFromPortal<PortalType>>::ValueType& val)
+  {
+    using SubVecType = typename vtkm::VecFromPortal<PortalType>::ComponentType;
+
+    auto compIdxThis = flatCompIdx / VecFlatAccessImpl<SubVecType>::NUM_COMPONENTS;
+    auto compIdxSub = flatCompIdx % VecFlatAccessImpl<SubVecType>::NUM_COMPONENTS;
+
+    SubVecType subVec = vec[compIdxThis];
+    SetComponent(subVec, compIdxSub, val);
+    vec[compIdxThis] = subVec;
+  }
+
+  template <typename VecType>
+  VTKM_EXEC_CONT static void CopyTo(
+    const VecType& vec, typename VecFlatAccessImpl<VecType>::ValueType* dest)
+  {
+    VecFlatAccessImpl<VecType>::CopyTo(vec, dest);
+  }
+
+  template <typename VecType>
+  VTKM_EXEC_CONT static void CopyFrom(
+    VecType& vec, const typename VecFlatAccessImpl<VecType>::ValueType* src)
+  {
+    VecFlatAccessImpl<VecType>::CopyFrom(vec, src);
+  }
+
+  template <typename PortalType>
+  VTKM_EXEC_CONT static void CopyFrom(vtkm::VecFromPortal<PortalType>& vec,
+    const typename VecFlatAccessImpl<vtkm::VecFromPortal<PortalType>>::ValueType* src)
+  {
+    using VecType = vtkm::VecFromPortal<PortalType>;
+    using SubVecType = typename VecType::ComponentType;
+
+    for (vtkm::IdComponent i = 0; i < vtkm::VecTraits<VecType>::GetNumberOfComponents(vec); ++i)
+    {
+      SubVecType subVec{};
+      CopyFrom(subVec, src + (i * VecFlatAccessImpl<SubVecType>::NUM_COMPONENTS));
+      vec[i] = subVec;
+    }
+  }
+};
+
+//-----------------------------------------------------------------------------
+template <vtkm::IdComponent NUM_COMPONENTS>
+struct MinMaxHelper
+{
+  using ValueType = vtkm::Vec<vtkm::Float64, NUM_COMPONENTS>;
+  using Operator = vtkm::MinAndMax<ValueType>;
+  using ResultType = vtkm::Vec<ValueType, 2>;
+
+  VTKM_EXEC_CONT
+  static ResultType Identity() { return { { VTK_DOUBLE_MAX }, { VTK_DOUBLE_MIN } }; }
+};
+
+/// Decorator classes for `ArrayHandleDecorator` to be used to wrap an array for computing its
+/// range using `Reduce` while ignoring ghost and non-finite values. This is achieved by returning
+/// the reduce identiy for such values.
+///
+/// These decorators Wrap an array to be processed, `Src`, and a (possibly empty) `Ghosts` array.
+/// They test the values of the `Src` and `Ghosts` arrays and return the identity value when a
+/// specific condition is met based on the other parameters.
+/// `GhostValueToSkip`: Only used if the ghost array is not empty. Return identity if the
+///                     bitwise-and of the value in the `Ghosts` array and this value is not zero.
+/// `FinitesOnly`     : Return identiy if the value in the Src array is not a finite value.
+///
+/// Note that `DecoratorForScalarRanage` only works for static length Vec values.
+///
+struct DecoratorParameters
+{
+  vtkm::UInt8 GhostValueToSkip;
+  bool FinitesOnly;
+};
+
+struct DecoratorForScalarRanage
 {
 public:
-  virtual ~ArrayHandleWrapperBase() = default;
+  DecoratorParameters Params;
 
-  virtual vtkIdType GetNumberOfTuples() const = 0;
-  virtual int GetNumberOfComponents() const = 0;
-
-  virtual void SetTuple(vtkIdType idx, const T* value) = 0;
-  virtual void GetTuple(vtkIdType idx, T* value) const = 0;
-
-  virtual void SetComponent(vtkIdType tuple, int comp, const T& value) = 0;
-  virtual T GetComponent(vtkIdType tuple, int comp) const = 0;
-
-  virtual void Allocate(vtkIdType numTuples) = 0;
-  virtual void Reallocate(vtkIdType numTuples) = 0;
-
-  virtual vtkm::cont::UnknownArrayHandle GetVtkmUnknownArrayHandle() const = 0;
-};
-
-//-----------------------------------------------------------------------------
-template <typename T,
-  typename NumComponentsTags = typename vtkm::VecTraits<T>::HasMultipleComponents>
-struct FlattenVec;
-
-template <typename T>
-struct FlattenVec<T, vtkm::VecTraitsTagMultipleComponents>
-{
-  using SubVec = FlattenVec<typename vtkm::VecTraits<T>::ComponentType>;
-  using ComponentType = typename SubVec::ComponentType;
-
-  static VTKM_EXEC_CONT vtkm::IdComponent GetNumberOfComponents(const T& vec)
+  template <typename SrcPortal, typename GhostPortal>
+  struct Functor
   {
-    return vtkm::VecTraits<T>::GetNumberOfComponents(vec) *
-      SubVec::GetNumberOfComponents(vtkm::VecTraits<T>::GetComponent(vec, 0));
-  }
+    using InValueType = typename SrcPortal::ValueType;
+    static constexpr auto NumComponents = VecFlatAccess::NumberOfComponents<InValueType>;
+    using Helper = MinMaxHelper<NumComponents>;
 
-  static VTKM_EXEC_CONT const ComponentType& GetComponent(const T& vec, vtkm::IdComponent comp)
+    SrcPortal Src;
+    GhostPortal Ghosts;
+    DecoratorParameters Params;
+
+    VTKM_EXEC_CONT
+    typename Helper::ResultType operator()(vtkm::Id idx) const
+    {
+      if ((this->Ghosts.GetNumberOfValues() != 0) &&
+        (this->Ghosts.Get(idx) & this->Params.GhostValueToSkip))
+      {
+        return Helper::Identity();
+      }
+
+      typename Helper::ResultType outVal;
+      const auto& inVal = this->Src.Get(idx);
+      for (vtkm::IdComponent i = 0; i < NumComponents; ++i)
+      {
+        auto val = static_cast<vtkm::Float64>(VecFlatAccess::GetComponent(inVal, i));
+        if (this->Params.FinitesOnly && !vtkm::IsFinite(val))
+        {
+          outVal[0][i] = VTK_DOUBLE_MAX;
+          outVal[1][i] = VTK_DOUBLE_MIN;
+        }
+        else
+        {
+          outVal[0][i] = outVal[1][i] = val;
+        }
+      }
+
+      return outVal;
+    }
+  };
+
+  template <typename SrcPortal, typename GhostPortal>
+  Functor<SrcPortal, GhostPortal> CreateFunctor(const SrcPortal& sp, const GhostPortal& gp) const
   {
-    auto ncomps = SubVec::GetNumberOfComponents(vtkm::VecTraits<T>::GetComponent(vec, 0));
-    return SubVec::GetComponent(
-      vtkm::VecTraits<T>::GetComponent(vec, comp / ncomps), comp % ncomps);
-  }
-
-  static VTKM_EXEC_CONT ComponentType& GetComponent(T& vec, vtkm::IdComponent comp)
-  {
-    auto ncomps = SubVec::GetNumberOfComponents(vtkm::VecTraits<T>::GetComponent(vec, 0));
-    return SubVec::GetComponent(
-      vtkm::VecTraits<T>::GetComponent(vec, comp / ncomps), comp % ncomps);
-  }
-};
-
-template <typename T>
-struct FlattenVec<T, vtkm::VecTraitsTagSingleComponent>
-{
-  using ComponentType = typename vtkm::VecTraits<T>::ComponentType;
-
-  static constexpr VTKM_EXEC_CONT vtkm::IdComponent GetNumberOfComponents(const T&) { return 1; }
-
-  static VTKM_EXEC_CONT const ComponentType& GetComponent(const T& vec, vtkm::IdComponent)
-  {
-    return vtkm::VecTraits<T>::GetComponent(vec, 0);
-  }
-
-  static VTKM_EXEC_CONT ComponentType& GetComponent(T& vec, vtkm::IdComponent)
-  {
-    return vtkm::VecTraits<T>::GetComponent(vec, 0);
+    return { sp, gp, this->Params };
   }
 };
 
-//-----------------------------------------------------------------------------
-template <typename ValueType, typename StorageTag>
-class ArrayHandleWrapper
-  : public ArrayHandleWrapperBase<typename FlattenVec<ValueType>::ComponentType>
+class DecoratorForVectorRanage
 {
-private:
-  using ArrayHandleType = vtkm::cont::ArrayHandle<ValueType, StorageTag>;
-  using ComponentType = typename FlattenVec<ValueType>::ComponentType;
-  using PortalType = typename ArrayHandleType::WritePortalType;
-
 public:
-  explicit ArrayHandleWrapper(const ArrayHandleType& handle)
-    : Handle(handle)
+  DecoratorParameters Params;
+
+  template <typename SrcPortal, typename GhostPortal>
+  struct Functor
   {
-    this->Portal = this->Handle.WritePortal();
-    this->NumberOfComponents = (this->Portal.GetNumberOfValues() == 0)
-      ? 1
-      : FlattenVec<ValueType>::GetNumberOfComponents(this->Portal.Get(0));
-  }
+    using Helper = MinMaxHelper<1>;
 
-  vtkIdType GetNumberOfTuples() const override { return this->Portal.GetNumberOfValues(); }
+    SrcPortal Src;
+    GhostPortal Ghosts;
+    DecoratorParameters Params;
 
-  int GetNumberOfComponents() const override { return this->NumberOfComponents; }
-
-  void SetTuple(vtkIdType idx, const ComponentType* value) override
-  {
-    // some vector types are not default constructible...
-    auto v = this->Portal.Get(idx);
-    for (vtkm::IdComponent i = 0; i < this->NumberOfComponents; ++i)
+    VTKM_EXEC_CONT
+    typename Helper::ResultType operator()(vtkm::Id idx) const
     {
-      FlattenVec<ValueType>::GetComponent(v, i) = value[i];
+      if ((this->Ghosts.GetNumberOfValues() != 0) &&
+        (this->Ghosts.Get(idx) & this->Params.GhostValueToSkip))
+      {
+        return Helper::Identity();
+      }
+
+      vtkm::Float64 outVal{};
+      const auto& inVal = this->Src.Get(idx);
+      for (vtkm::IdComponent i = 0; i < VecFlatAccess::GetNumberOfComponents(inVal); ++i)
+      {
+        auto comp = static_cast<vtkm::Float64>(VecFlatAccess::GetComponent(inVal, i));
+        outVal += comp * comp;
+        if (this->Params.FinitesOnly && !vtkm::IsFinite(outVal))
+        {
+          return Helper::Identity();
+        }
+      }
+
+      return { outVal, outVal };
     }
-    this->Portal.Set(idx, v);
-  }
+  };
 
-  void GetTuple(vtkIdType idx, ComponentType* value) const override
+  template <typename SrcPortal, typename GhostPortal>
+  Functor<SrcPortal, GhostPortal> CreateFunctor(const SrcPortal& sp, const GhostPortal& gp) const
   {
-    auto v = this->Portal.Get(idx);
-    for (vtkm::IdComponent i = 0; i < this->NumberOfComponents; ++i)
-    {
-      value[i] = FlattenVec<ValueType>::GetComponent(v, i);
-    }
+    return { sp, gp, this->Params };
   }
-
-  void SetComponent(vtkIdType tuple, int comp, const ComponentType& value) override
-  {
-    auto v = this->Portal.Get(tuple);
-    FlattenVec<ValueType>::GetComponent(v, comp) = value;
-    this->Portal.Set(tuple, v);
-  }
-
-  ComponentType GetComponent(vtkIdType tuple, int comp) const override
-  {
-    return FlattenVec<ValueType>::GetComponent(this->Portal.Get(tuple), comp);
-  }
-
-  void Allocate(vtkIdType numTuples) override
-  {
-    this->Handle.Allocate(numTuples);
-    this->Portal = this->Handle.WritePortal();
-  }
-
-  void Reallocate(vtkIdType numTuples) override
-  {
-    ArrayHandleType newHandle;
-    newHandle.Allocate(numTuples);
-    vtkm::cont::Algorithm::CopySubRange(this->Handle, 0,
-      std::min(this->Handle.GetNumberOfValues(), newHandle.GetNumberOfValues()), newHandle, 0);
-    this->Handle = std::move(newHandle);
-    this->Portal = this->Handle.WritePortal();
-  }
-
-  vtkm::cont::UnknownArrayHandle GetVtkmUnknownArrayHandle() const override
-  {
-    return vtkm::cont::UnknownArrayHandle{ this->Handle };
-  }
-
-private:
-  ArrayHandleType Handle;
-  PortalType Portal;
-  vtkm::IdComponent NumberOfComponents;
 };
 
-//-----------------------------------------------------------------------------
-template <typename ValueType, typename StorageTag>
-class ArrayHandleWrapperReadOnly
-  : public ArrayHandleWrapperBase<typename FlattenVec<ValueType>::ComponentType>
-{
-private:
-  using ArrayHandleType = vtkm::cont::ArrayHandle<ValueType, StorageTag>;
-  using ComponentType = typename FlattenVec<ValueType>::ComponentType;
-  using PortalType = typename ArrayHandleType::ReadPortalType;
-
-public:
-  explicit ArrayHandleWrapperReadOnly(const ArrayHandleType& handle)
-    : Handle(handle)
-  {
-    this->Portal = this->Handle.ReadPortal();
-    this->NumberOfComponents = (this->Portal.GetNumberOfValues() == 0)
-      ? 1
-      : FlattenVec<ValueType>::GetNumberOfComponents(this->Portal.Get(0));
-  }
-
-  vtkIdType GetNumberOfTuples() const override { return this->Portal.GetNumberOfValues(); }
-
-  int GetNumberOfComponents() const override { return this->NumberOfComponents; }
-
-  void SetTuple(vtkIdType, const ComponentType*) override
-  {
-    vtkGenericWarningMacro(<< "SetTuple called on read-only vtkmDataArray");
-  }
-
-  void GetTuple(vtkIdType idx, ComponentType* value) const override
-  {
-    auto v = this->Portal.Get(idx);
-    for (vtkm::IdComponent i = 0; i < this->NumberOfComponents; ++i)
-    {
-      value[i] = FlattenVec<ValueType>::GetComponent(v, i);
-    }
-  }
-
-  void SetComponent(vtkIdType, int, const ComponentType&) override
-  {
-    vtkGenericWarningMacro(<< "SetComponent called on read-only vtkmDataArray");
-  }
-
-  ComponentType GetComponent(vtkIdType tuple, int comp) const override
-  {
-    return FlattenVec<ValueType>::GetComponent(this->Portal.Get(tuple), comp);
-  }
-
-  void Allocate(vtkIdType) override
-  {
-    vtkGenericWarningMacro(<< "Allocate called on read-only vtkmDataArray");
-  }
-
-  void Reallocate(vtkIdType) override
-  {
-    vtkGenericWarningMacro(<< "Reallocate called on read-only vtkmDataArray");
-  }
-
-  vtkm::cont::UnknownArrayHandle GetVtkmUnknownArrayHandle() const override
-  {
-    return vtkm::cont::UnknownArrayHandle{ this->Handle };
-  }
-
-private:
-  ArrayHandleType Handle;
-  PortalType Portal;
-  vtkm::IdComponent NumberOfComponents;
-};
-
-//-----------------------------------------------------------------------------
-template <typename T>
-class ArrayHandleWrapperFlatSOA : public ArrayHandleWrapperBase<T>
-{
-private:
-  using ArrayHandleType = vtkm::cont::ArrayHandle<T>;
-  using PortalType = typename ArrayHandleType::WritePortalType;
-  using VtkmArrayType = vtkm::cont::ArrayHandleGroupVecVariable<ArrayHandleType,
-    vtkm::cont::ArrayHandleCounting<vtkm::Id>>;
-
-public:
-  explicit ArrayHandleWrapperFlatSOA(const ArrayHandleType& handle, int numberOfComponents)
-    : Handle(handle)
-    , NumberOfComponents(numberOfComponents)
-  {
-    this->Portal = this->Handle.WritePortal();
-  }
-
-  vtkIdType GetNumberOfTuples() const override
-  {
-    return this->Portal.GetNumberOfValues() / this->NumberOfComponents;
-  }
-
-  int GetNumberOfComponents() const override { return this->NumberOfComponents; }
-
-  void SetTuple(vtkIdType idx, const T* value) override
-  {
-    vtkm::Id start = idx * this->NumberOfComponents;
-    vtkm::Id end = start + this->NumberOfComponents;
-    for (auto i = start; i < end; ++i)
-    {
-      this->Portal.Set(i, *value++);
-    }
-  }
-
-  void GetTuple(vtkIdType idx, T* value) const override
-  {
-    vtkm::Id start = idx * this->NumberOfComponents;
-    vtkm::Id end = start + this->NumberOfComponents;
-    for (auto i = start; i < end; ++i)
-    {
-      *value++ = this->Portal.Get(i);
-    }
-  }
-
-  void SetComponent(vtkIdType tuple, int comp, const T& value) override
-  {
-    this->Portal.Set((tuple * this->NumberOfComponents) + comp, value);
-  }
-
-  T GetComponent(vtkIdType tuple, int comp) const override
-  {
-    return this->Portal.Get((tuple * this->NumberOfComponents) + comp);
-  }
-
-  void Allocate(vtkIdType numTuples) override
-  {
-    this->Handle.Allocate(numTuples * this->NumberOfComponents);
-    this->Portal = this->Handle.WritePortal();
-  }
-
-  void Reallocate(vtkIdType numTuples) override
-  {
-    ArrayHandleType newHandle;
-    newHandle.Allocate(numTuples * this->NumberOfComponents);
-    vtkm::cont::Algorithm::CopySubRange(this->Handle, 0,
-      std::min(this->Handle.GetNumberOfValues(), newHandle.GetNumberOfValues()), newHandle, 0);
-    this->Handle = std::move(newHandle);
-    this->Portal = this->Handle.WritePortal();
-  }
-
-  vtkm::cont::UnknownArrayHandle GetVtkmUnknownArrayHandle() const override
-  {
-    return vtkm::cont::UnknownArrayHandle{ this->GetVtkmArray() };
-  }
-
-private:
-  VtkmArrayType GetVtkmArray() const
-  {
-    auto length = this->Handle.GetNumberOfValues() / this->NumberOfComponents;
-    auto offsets = vtkm::cont::ArrayHandleCounting<vtkm::Id>(0, this->NumberOfComponents, length);
-    return VtkmArrayType{ this->Handle, offsets };
-  }
-
-  ArrayHandleType Handle;
-  PortalType Portal;
-  vtkm::IdComponent NumberOfComponents;
-};
-
-//-----------------------------------------------------------------------------
 template <typename ArrayHandleType>
-using IsReadOnly = std::integral_constant<bool,
-  !vtkm::cont::internal::IsWritableArrayHandle<ArrayHandleType>::value>;
-
-template <typename T, typename S>
-ArrayHandleWrapperBase<typename FlattenVec<T>::ComponentType>* WrapArrayHandle(
-  const vtkm::cont::ArrayHandle<T, S>& ah, std::false_type)
+auto TransformForScalarRange(const ArrayHandleType& src,
+  const vtkm::cont::ArrayHandle<vtkm::UInt8>& ghost, vtkm::UInt8 ghostValueToSkip, bool finitesOnly)
 {
-  return new ArrayHandleWrapper<T, S>{ ah };
+  DecoratorForScalarRanage decorator{ ghostValueToSkip, finitesOnly };
+  return vtkm::cont::make_ArrayHandleDecorator(src.GetNumberOfValues(), decorator, src, ghost);
 }
 
-template <typename T, typename S>
-ArrayHandleWrapperBase<typename FlattenVec<T>::ComponentType>* WrapArrayHandle(
-  const vtkm::cont::ArrayHandle<T, S>& ah, std::true_type)
+template <typename ArrayHandleType>
+auto TransformForVectorRange(const ArrayHandleType& src,
+  const vtkm::cont::ArrayHandle<vtkm::UInt8>& ghost, vtkm::UInt8 ghostValueToSkip, bool finitesOnly)
 {
-  return new ArrayHandleWrapperReadOnly<T, S>{ ah };
+  DecoratorForVectorRanage decorator{ ghostValueToSkip, finitesOnly };
+  return vtkm::cont::make_ArrayHandleDecorator(src.GetNumberOfValues(), decorator, src, ghost);
 }
 
-template <typename T, typename S>
-ArrayHandleWrapperBase<typename FlattenVec<T>::ComponentType>* MakeArrayHandleWrapper(
-  const vtkm::cont::ArrayHandle<T, S>& ah)
+template <typename ArrayHandleType>
+void ComputeArrayHandleScalarRange(const ArrayHandleType& values,
+  const vtkm::cont::ArrayHandle<vtkm::UInt8> ghosts, vtkm::UInt8 ghostValueToSkip, bool finitesOnly,
+  vtkm::Float64* ranges)
 {
-  return WrapArrayHandle(ah, typename IsReadOnly<vtkm::cont::ArrayHandle<T, S>>::type{});
-}
+  static constexpr auto NumComponents =
+    VecFlatAccess::NumberOfComponents<typename ArrayHandleType::ValueType>;
+  using Helper = MinMaxHelper<NumComponents>;
 
-template <typename T>
-ArrayHandleWrapperBase<T>* MakeArrayHandleWrapper(vtkIdType numberOfTuples, int numberOfComponents)
-{
-  switch (numberOfComponents)
+  auto input = TransformForScalarRange(values, ghosts, ghostValueToSkip, finitesOnly);
+  auto result =
+    vtkm::cont::Algorithm::Reduce(input, Helper::Identity(), typename Helper::Operator());
+
+  for (vtkm::IdComponent i = 0; i < NumComponents; ++i)
   {
-    case 1:
+    ranges[2 * i] = result[0][i];
+    ranges[(2 * i) + 1] = result[1][i];
+  }
+}
+
+template <typename ArrayHandleType>
+void ComputeArrayHandleVectorRange(const ArrayHandleType& values,
+  const vtkm::cont::ArrayHandle<vtkm::UInt8> ghosts, vtkm::UInt8 ghostValueToSkip, bool finitesOnly,
+  vtkm::Float64 range[2])
+{
+  using Helper = MinMaxHelper<1>;
+
+  auto input = TransformForVectorRange(values, ghosts, ghostValueToSkip, finitesOnly);
+  auto result =
+    vtkm::cont::Algorithm::Reduce(input, Helper::Identity(), typename Helper::Operator());
+
+  range[0] = vtkm::Sqrt(result[0][0]);
+  range[1] = vtkm::Sqrt(result[1][0]);
+}
+
+//-----------------------------------------------------------------------------
+
+/// vtkmDataArray only supports array handles which store elements with a compile-time
+/// constant Vec size. The only exception is a specialization of ArrayHandleGroupVecVariable
+/// which is used to store arrays with elements with uncommon number of
+/// components (i.e Vecs with number of components other than 2, 3 and 4).
+///
+template <typename T>
+using ArrayHandleRuntimeVec = vtkm::cont::ArrayHandleGroupVecVariable<vtkm::cont::ArrayHandle<T>,
+  vtkm::cont::ArrayHandleCounting<vtkm::Id>>;
+template <typename T>
+using ArrayHandleRuntimeVecBase = typename ArrayHandleRuntimeVec<T>::Superclass;
+
+//-----------------------------------------------------------------------------
+template <typename T>
+class ArrayHandleHelperInterface
+{
+public:
+  using ValueType = T;
+
+  virtual ~ArrayHandleHelperInterface() = default;
+
+  virtual bool IsReadOnly() const = 0;
+  virtual vtkm::IdComponent GetNumberOfComponents() const = 0;
+  virtual void GetTuple(vtkm::Id valIdx, ValueType* values) const = 0;
+  virtual void SetTuple(vtkm::Id valIdx, const ValueType* values) = 0;
+  virtual ValueType GetComponent(vtkm::Id valIdx, vtkm::IdComponent compIdx) const = 0;
+  virtual void SetComponent(vtkm::Id valIdx, vtkm::IdComponent compIdx, const ValueType& value) = 0;
+  virtual bool Reallocate(vtkm::Id numberOfValues) = 0;
+  virtual bool ComputeScalarRange(double* ranges, const unsigned char* ghosts,
+    vtkm::UInt8 ghostValueToSkip, bool finitesOnly) = 0;
+  virtual bool ComputeVectorRange(double range[2], const unsigned char* ghosts,
+    vtkm::UInt8 ghostValueToSkip, bool finitesOnly) = 0;
+  virtual vtkm::cont::UnknownArrayHandle GetArrayHandle() const = 0;
+};
+
+template <typename ArrayHandleType>
+class ArrayHandleHelper
+  : public ArrayHandleHelperInterface<
+      typename vtkm::VecTraits<typename ArrayHandleType::ValueType>::BaseComponentType>
+{
+private:
+  using VecType = typename ArrayHandleType::ValueType;
+  using ValueType = typename vtkm::VecTraits<VecType>::BaseComponentType;
+  using WritableTag = typename vtkm::cont::internal::IsWritableArrayHandle<ArrayHandleType>::type;
+
+public:
+  explicit ArrayHandleHelper(const ArrayHandleType& arrayHandle)
+    : Array(arrayHandle)
+    , ReadPortalValid(false)
+    , WritePortalValid(false)
+  {
+  }
+
+  bool IsReadOnly() const override { return !WritableTag::value; }
+
+private:
+  template <typename AH>
+  static vtkm::IdComponent GetNumberOfComponentsImpl(const AH&)
+  {
+    return VecFlatAccess::NumberOfComponents<typename AH::ValueType>;
+  }
+
+  static vtkm::IdComponent GetNumberOfComponentsImpl(
+    const ArrayHandleRuntimeVecBase<typename vtkm::VecTraits<VecType>::ComponentType>& ah)
+  {
+    using ComponentType = typename vtkm::VecTraits<VecType>::ComponentType;
+
+    const auto& sub = static_cast<const ArrayHandleRuntimeVec<ComponentType>&>(ah);
+    return sub.GetOffsetsArray().GetStep() * VecFlatAccess::NumberOfComponents<ComponentType>;
+  }
+
+public:
+  vtkm::IdComponent GetNumberOfComponents() const override
+  {
+    return this->GetNumberOfComponentsImpl(this->Array);
+  }
+
+  void GetTuple(vtkm::Id valIdx, ValueType* values) const override
+  {
+    assert(valIdx < this->Array.GetNumberOfValues());
+
+    auto portal = this->GetReadPortal();
+    VecFlatAccess::CopyTo(portal.Get(valIdx), values);
+  }
+
+private:
+  void SetTupleImpl(vtkm::Id valIdx, const ValueType* values, std::true_type)
+  {
+    assert(valIdx < this->Array.GetNumberOfValues());
+
+    auto portal = this->GetWritePortal();
+    // this line is needed for this to work for ArrayHandleGroupVecVariable
+    auto toSet = portal.Get(valIdx);
+    VecFlatAccess::CopyFrom(toSet, values);
+    portal.Set(valIdx, toSet);
+  }
+
+  void SetTupleImpl(vtkm::Id, const ValueType*, std::false_type) const {}
+
+public:
+  void SetTuple(vtkm::Id valIdx, const ValueType* values) override
+  {
+    this->SetTupleImpl(valIdx, values, WritableTag{});
+  }
+
+  ValueType GetComponent(vtkm::Id valIdx, vtkm::IdComponent compIdx) const override
+  {
+    assert(compIdx < this->GetNumberOfComponents());
+    assert(valIdx < this->Array.GetNumberOfValues());
+
+    auto portal = this->GetReadPortal();
+    return VecFlatAccess::GetComponent(portal.Get(valIdx), compIdx);
+  }
+
+private:
+  void SetComponentImpl(
+    vtkm::Id valIdx, vtkm::IdComponent compIdx, const ValueType& value, std::true_type)
+  {
+    assert(compIdx < this->GetNumberOfComponents());
+    assert(valIdx < this->Array.GetNumberOfValues());
+
+    auto portal = this->GetWritePortal();
+    auto toSet = portal.Get(valIdx);
+    VecFlatAccess::SetComponent(toSet, compIdx, value);
+    portal.Set(valIdx, toSet);
+  }
+
+  void SetComponentImpl(vtkm::Id, vtkm::IdComponent, const ValueType&, std::false_type) const {}
+
+public:
+  void SetComponent(vtkm::Id valIdx, vtkm::IdComponent compIdx, const ValueType& value) override
+  {
+    this->SetComponentImpl(valIdx, compIdx, value, WritableTag{});
+  }
+
+  bool Reallocate(vtkm::Id numberOfValues) override
+  try
+  {
+    this->Array.Allocate(numberOfValues, vtkm::CopyFlag::On);
+    this->ReadPortalValid = false;
+    this->WritePortalValid = false;
+    return true;
+  }
+  catch (const vtkm::cont::Error& e)
+  {
+    vtkGenericWarningMacro(<< "Warning: ReallocateTuples: " << e.GetMessage());
+    return false;
+  }
+
+private:
+  template <typename AH>
+  static void ComputeScalarRangeImpl(const AH& array,
+    const vtkm::cont::ArrayHandle<vtkm::UInt8>& ghostsArrayHandle, vtkm::UInt8 ghostValueToSkip,
+    bool finitesOnly, double* ranges)
+  {
+    ComputeArrayHandleScalarRange(array, ghostsArrayHandle, ghostValueToSkip, finitesOnly, ranges);
+  }
+
+  static void ComputeScalarRangeImpl(
+    const ArrayHandleRuntimeVecBase<typename vtkm::VecTraits<VecType>::ComponentType>& array,
+    const vtkm::cont::ArrayHandle<vtkm::UInt8>& ghostsArrayHandle, vtkm::UInt8 ghostValueToSkip,
+    bool finitesOnly, double* ranges)
+  {
+    using ComponentType = typename vtkm::VecTraits<VecType>::ComponentType;
+
+    const auto& sub = static_cast<const ArrayHandleRuntimeVec<ComponentType>&>(array);
+    auto components = sub.GetComponentsArray();
+    auto offsets = sub.GetOffsetsArray();
+
+    for (vtkm::Id i = 0; i < offsets.GetStep(); ++i)
     {
-      vtkm::cont::ArrayHandle<T> ah;
-      ah.Allocate(numberOfTuples);
-      return MakeArrayHandleWrapper(ah);
-    }
-    case 2:
-    {
-      vtkm::cont::ArrayHandle<vtkm::Vec<T, 2>> ah;
-      ah.Allocate(numberOfTuples);
-      return MakeArrayHandleWrapper(ah);
-    }
-    case 3:
-    {
-      vtkm::cont::ArrayHandle<vtkm::Vec<T, 3>> ah;
-      ah.Allocate(numberOfTuples);
-      return MakeArrayHandleWrapper(ah);
-    }
-    case 4:
-    {
-      vtkm::cont::ArrayHandle<vtkm::Vec<T, 4>> ah;
-      ah.Allocate(numberOfTuples);
-      return MakeArrayHandleWrapper(ah);
-    }
-    default:
-    {
-      vtkm::cont::ArrayHandle<T> ah;
-      ah.Allocate(numberOfTuples * numberOfComponents);
-      return new ArrayHandleWrapperFlatSOA<T>{ ah, numberOfComponents };
+      vtkm::cont::ArrayHandleStride<ComponentType> compArray(
+        components, sub.GetNumberOfValues(), offsets.GetStep(), i);
+
+      ComputeArrayHandleScalarRange(
+        static_cast<typename vtkm::cont::ArrayHandleStride<ComponentType>::Superclass>(compArray),
+        ghostsArrayHandle, ghostValueToSkip, finitesOnly,
+        ranges + (i * 2 * VecFlatAccess::NumberOfComponents<ComponentType>));
     }
   }
+
+public:
+  bool ComputeScalarRange(double* ranges, const unsigned char* ghosts, vtkm::UInt8 ghostValueToSkip,
+    bool finitesOnly) override
+  {
+    if (this->Array.GetNumberOfValues() == 0)
+    {
+      for (int i = 0; i < this->GetNumberOfComponents(); ++i)
+      {
+        ranges[2 * i] = VTK_DOUBLE_MAX;
+        ranges[(2 * i) + 1] = VTK_DOUBLE_MIN;
+      }
+      return false;
+    }
+
+    vtkm::cont::ArrayHandle<vtkm::UInt8> ghostsArrayHandle;
+    if (ghosts)
+    {
+      ghostsArrayHandle =
+        vtkm::cont::make_ArrayHandle(ghosts, this->Array.GetNumberOfValues(), vtkm::CopyFlag::Off);
+    }
+
+    this->ComputeScalarRangeImpl(
+      this->Array, ghostsArrayHandle, ghostValueToSkip, finitesOnly, ranges);
+
+    // Invalidate the write portal, so that a new write portal is created for further writes which
+    // will appropriately signal the need to update the device side buffers
+    this->WritePortalValid = false;
+
+    return true;
+  }
+
+  bool ComputeVectorRange(double range[2], const unsigned char* ghosts,
+    vtkm::UInt8 ghostValueToSkip, bool finitesOnly) override
+  {
+    // Faster path for 1 component arrays
+    if (this->GetNumberOfComponents() == 1)
+    {
+      return this->ComputeScalarRange(range, ghosts, ghostValueToSkip, finitesOnly);
+    }
+
+    if (this->Array.GetNumberOfValues() == 0)
+    {
+      range[0] = VTK_DOUBLE_MAX;
+      range[1] = VTK_DOUBLE_MIN;
+      return false;
+    }
+
+    vtkm::cont::ArrayHandle<vtkm::UInt8> ghostsArrayHandle;
+    if (ghosts)
+    {
+      ghostsArrayHandle =
+        vtkm::cont::make_ArrayHandle(ghosts, this->Array.GetNumberOfValues(), vtkm::CopyFlag::Off);
+    }
+
+    ComputeArrayHandleVectorRange(
+      this->Array, ghostsArrayHandle, ghostValueToSkip, finitesOnly, range);
+
+    // Invalidate the write portal, so that a new write portal is created for further writes which
+    // will appropriately signal the need to update the device side buffers
+    this->WritePortalValid = false;
+
+    return true;
+  }
+
+  vtkm::cont::UnknownArrayHandle GetArrayHandle() const override
+  {
+    this->ReadPortalValid = false;
+    this->WritePortalValid = false;
+    return this->Array;
+  }
+
+protected:
+  ArrayHandleType Array;
+
+  typename ArrayHandleType::ReadPortalType GetReadPortal() const
+  {
+    if (!this->ReadPortalValid)
+    {
+      std::lock_guard<std::mutex> lock(this->PortalCreationLock);
+      if (!this->ReadPortalValid)
+      {
+        this->ReadPortal = this->Array.ReadPortal();
+        this->ReadPortalValid = true;
+      }
+    }
+    return this->ReadPortal;
+  }
+
+  typename ArrayHandleType::WritePortalType GetWritePortal() const
+  {
+    if (!this->WritePortalValid)
+    {
+      std::lock_guard<std::mutex> lock(this->PortalCreationLock);
+      if (!this->WritePortalValid)
+      {
+        this->WritePortal = this->Array.WritePortal();
+        this->WritePortalValid = true;
+      }
+    }
+    return this->WritePortal;
+  }
+
+private:
+  mutable std::mutex PortalCreationLock;
+
+  mutable std::atomic_bool ReadPortalValid;
+  mutable typename ArrayHandleType::ReadPortalType ReadPortal;
+
+  mutable std::atomic_bool WritePortalValid;
+  mutable typename ArrayHandleType::WritePortalType WritePortal;
+};
+
+template <typename T, typename S>
+inline auto NewArrayHandleHelper(const vtkm::cont::ArrayHandle<T, S>& ah)
+{
+  return new ArrayHandleHelper<vtkm::cont::ArrayHandle<T, S>>(ah);
 }
 
 VTK_ABI_NAMESPACE_END
@@ -430,81 +715,203 @@ template <typename T>
 template <typename V, typename S>
 void vtkmDataArray<T>::SetVtkmArrayHandle(const vtkm::cont::ArrayHandle<V, S>& ah)
 {
-  static_assert(std::is_same<T, typename internal::FlattenVec<V>::ComponentType>::value,
-    "Component type of the arrays don't match");
+  static_assert(std::is_same<T, typename vtkm::VecTraits<V>::BaseComponentType>::value,
+    "Base Component types of the arrays don't match");
+  static_assert(
+    std::is_same<typename vtkm::VecTraits<V>::IsSizeStatic, vtkm::VecTraitsTagSizeStatic>::value ||
+      std::is_same<vtkm::cont::ArrayHandle<V, S>,
+        internal::ArrayHandleRuntimeVecBase<typename vtkm::VecTraits<V>::ComponentType>>::value,
+    "Unsupported ArrayHandle type");
 
-  this->VtkmArray.reset(internal::MakeArrayHandleWrapper(ah));
+  this->Helper.reset(internal::NewArrayHandleHelper(ah));
 
-  this->Size = this->VtkmArray->GetNumberOfTuples() * this->VtkmArray->GetNumberOfComponents();
+  this->SetNumberOfComponents(this->Helper->GetNumberOfComponents());
+  this->Size = ah.GetNumberOfValues() * this->GetNumberOfComponents();
   this->MaxId = this->Size - 1;
-  this->SetNumberOfComponents(this->VtkmArray->GetNumberOfComponents());
 }
 
 template <typename T>
 vtkm::cont::UnknownArrayHandle vtkmDataArray<T>::GetVtkmUnknownArrayHandle() const
 {
-  return this->VtkmArray->GetVtkmUnknownArrayHandle();
+  if (this->Helper)
+  {
+    return this->Helper->GetArrayHandle();
+  }
+  return {};
 }
 
+//-----------------------------------------------------------------------------
 template <typename T>
 auto vtkmDataArray<T>::GetValue(vtkIdType valueIdx) const -> ValueType
 {
-  auto idx = valueIdx / this->NumberOfComponents;
-  auto comp = valueIdx % this->NumberOfComponents;
-  return this->VtkmArray->GetComponent(idx, comp);
+  assert(this->Helper);
+  auto idx = valueIdx / this->GetNumberOfComponents();
+  auto comp = valueIdx % this->GetNumberOfComponents();
+  return this->Helper->GetComponent(idx, comp);
 }
 
 template <typename T>
 void vtkmDataArray<T>::SetValue(vtkIdType valueIdx, ValueType value)
 {
-  auto idx = valueIdx / this->NumberOfComponents;
-  auto comp = valueIdx % this->NumberOfComponents;
-  this->VtkmArray->SetComponent(idx, comp, value);
+  assert(this->Helper);
+  if (this->Helper->IsReadOnly())
+  {
+    vtkErrorMacro(<< "Underlying ArrayHandle (" << this->Helper->GetArrayHandle().GetArrayTypeName()
+                  << ") does not support writes through vtkmDataArray");
+    return;
+  }
+
+  auto idx = valueIdx / this->GetNumberOfComponents();
+  auto comp = valueIdx % this->GetNumberOfComponents();
+  this->Helper->SetComponent(idx, comp, value);
 }
 
 template <typename T>
 void vtkmDataArray<T>::GetTypedTuple(vtkIdType tupleIdx, ValueType* tuple) const
 {
-  this->VtkmArray->GetTuple(tupleIdx, tuple);
+  assert(this->Helper);
+  this->Helper->GetTuple(tupleIdx, tuple);
 }
 
 template <typename T>
 void vtkmDataArray<T>::SetTypedTuple(vtkIdType tupleIdx, const ValueType* tuple)
 {
-  this->VtkmArray->SetTuple(tupleIdx, tuple);
+  assert(this->Helper);
+  if (this->Helper->IsReadOnly())
+  {
+    vtkErrorMacro(<< "Underlying ArrayHandle (" << this->Helper->GetArrayHandle().GetArrayTypeName()
+                  << ") is read-only");
+    return;
+  }
+
+  this->Helper->SetTuple(tupleIdx, tuple);
 }
 
 template <typename T>
 auto vtkmDataArray<T>::GetTypedComponent(vtkIdType tupleIdx, int compIdx) const -> ValueType
 {
-  return this->VtkmArray->GetComponent(tupleIdx, compIdx);
+  assert(this->Helper);
+  return this->Helper->GetComponent(tupleIdx, compIdx);
 }
 
 template <typename T>
 void vtkmDataArray<T>::SetTypedComponent(vtkIdType tupleIdx, int compIdx, ValueType value)
 {
-  this->VtkmArray->SetComponent(tupleIdx, compIdx, value);
+  assert(this->Helper);
+  if (this->Helper->IsReadOnly())
+  {
+    vtkErrorMacro(<< "Underlying ArrayHandle (" << this->Helper->GetArrayHandle().GetArrayTypeName()
+                  << ") is read-only");
+    return;
+  }
+
+  this->Helper->SetComponent(tupleIdx, compIdx, value);
+}
+
+//-----------------------------------------------------------------------------
+template <typename T>
+bool vtkmDataArray<T>::ComputeScalarRange(
+  double* ranges, const unsigned char* ghosts, unsigned char ghostsToSkip)
+{
+  if (this->Helper)
+  {
+    return this->Helper->ComputeScalarRange(ranges, ghosts, ghostsToSkip, false);
+  }
+  return false;
 }
 
 template <typename T>
-bool vtkmDataArray<T>::AllocateTuples(vtkIdType numTuples)
+bool vtkmDataArray<T>::ComputeVectorRange(
+  double range[2], const unsigned char* ghosts, unsigned char ghostsToSkip)
 {
-  if (this->VtkmArray && this->VtkmArray->GetNumberOfComponents() == this->NumberOfComponents)
+  if (this->Helper)
   {
-    this->VtkmArray->Allocate(numTuples);
+    return this->Helper->ComputeVectorRange(range, ghosts, ghostsToSkip, false);
   }
-  else
+  return false;
+}
+
+template <typename T>
+bool vtkmDataArray<T>::ComputeFiniteScalarRange(
+  double* ranges, const unsigned char* ghosts, unsigned char ghostsToSkip)
+{
+  if (this->Helper)
   {
-    this->VtkmArray.reset(internal::MakeArrayHandleWrapper<T>(numTuples, this->NumberOfComponents));
+    return this->Helper->ComputeScalarRange(ranges, ghosts, ghostsToSkip, true);
   }
+  return false;
+}
+
+template <typename T>
+bool vtkmDataArray<T>::ComputeFiniteVectorRange(
+  double range[2], const unsigned char* ghosts, unsigned char ghostsToSkip)
+{
+  if (this->Helper)
+  {
+    return this->Helper->ComputeVectorRange(range, ghosts, ghostsToSkip, true);
+  }
+  return false;
+}
+
+//-----------------------------------------------------------------------------
+template <typename T>
+bool vtkmDataArray<T>::AllocateTuples(vtkIdType numberOfTuples)
+{
+  switch (this->NumberOfComponents)
+  {
+    case 1:
+    {
+      vtkm::cont::ArrayHandle<T> ah;
+      ah.Allocate(numberOfTuples);
+      this->Helper.reset(internal::NewArrayHandleHelper(ah));
+      break;
+    }
+    case 2:
+    {
+      vtkm::cont::ArrayHandle<vtkm::Vec<T, 2>> ah;
+      ah.Allocate(numberOfTuples);
+      this->Helper.reset(internal::NewArrayHandleHelper(ah));
+      break;
+    }
+    case 3:
+    {
+      vtkm::cont::ArrayHandle<vtkm::Vec<T, 3>> ah;
+      ah.Allocate(numberOfTuples);
+      this->Helper.reset(internal::NewArrayHandleHelper(ah));
+      break;
+    }
+    case 4:
+    {
+      vtkm::cont::ArrayHandle<vtkm::Vec<T, 4>> ah;
+      ah.Allocate(numberOfTuples);
+      this->Helper.reset(internal::NewArrayHandleHelper(ah));
+      break;
+    }
+    default:
+    {
+      vtkm::cont::ArrayHandle<T> ah;
+      ah.Allocate(numberOfTuples * this->NumberOfComponents);
+      vtkm::cont::ArrayHandleCounting<vtkm::Id> offsets(
+        0, this->NumberOfComponents, numberOfTuples + 1);
+      auto aosArray = vtkm::cont::make_ArrayHandleGroupVecVariable(ah, offsets);
+      this->Helper.reset(internal::NewArrayHandleHelper(aosArray));
+      break;
+    }
+  }
+
+  // Size and MaxId are updated by the caller
   return true;
 }
 
 template <typename T>
-bool vtkmDataArray<T>::ReallocateTuples(vtkIdType numTuples)
+bool vtkmDataArray<T>::ReallocateTuples(vtkIdType numberOfTuples)
 {
-  this->VtkmArray->Reallocate(numTuples);
-  return true;
+  if (this->Helper)
+  {
+    // Size and MaxId are updated by the caller
+    return this->Helper->Reallocate(numberOfTuples);
+  }
+  return false;
 }
 
 VTK_ABI_NAMESPACE_END

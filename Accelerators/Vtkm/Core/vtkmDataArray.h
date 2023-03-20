@@ -17,6 +17,28 @@
 //  Laboratory (LANL), the U.S. Government retains certain rights in
 //  this software.
 //============================================================================
+/**
+ * @class   vtkmDataArray
+ * @brief   Wraps a VTK-m `ArrayHandle` inside a sub-class of `vtkGenericDataArray`.
+ *
+ * vtkmDataArray<T> can be used to wrap an ArrayHandle with base component type of T. It is mainly
+ * intended as a way to pass a VTK-m ArrayHandle through a VTK pipeline in a zero-copy manner. This
+ * is useful for implicit ArrayHandles or when unified memory is not being used.
+ * As long as the underlying data is not accessed, device to host copying of the data is avoided.
+ * The ComputeRange and ComputeFiniteRange functions have been overloaded to do the computation on
+ * the device side using VTK-m. This also avoids device-to-host memory transfers for this commonly
+ * used operation.
+ * Individual elements of the underlying data can be accessed via the `vtkGenericDataArray` API,
+ * but there are some limitations to keep in mind:
+ * 1. Access can be quite slow compared to direct memory access and thus, should be avoided.
+ * 2. Once the underlying data is accessed though this class, any modifications via the ArrayHandle
+ *    interface would result in undefined behaviour.
+ * 3. Any modifications made through this class' API is not guarenteed to be reflected via the
+ *    ArrayHandle interface.
+ *
+ * @sa vtkGenericDataArray
+ */
+
 #ifndef vtkmDataArray_h
 #define vtkmDataArray_h
 
@@ -24,20 +46,18 @@
 #include "vtkGenericDataArray.h"
 #include "vtkmConfigCore.h" // For template export
 
-#include <vtkm/List.h>                    // For vtkm::List
-#include <vtkm/VecFromPortal.h>           // For vtkm::VecFromPortal
 #include <vtkm/VecTraits.h>               // For vtkm::VecTraits
 #include <vtkm/cont/ArrayHandle.h>        // For vtkm::cont::ArrayHandle
 #include <vtkm/cont/UnknownArrayHandle.h> // For vtkm::cont::UnknownArrayHandle
 
-#include <memory> // For unique_ptr
+#include <memory> // For std::unique_ptr<>
 
 namespace internal
 {
 VTK_ABI_NAMESPACE_BEGIN
 
 template <typename T>
-class ArrayHandleWrapperBase;
+class ArrayHandleHelperInterface;
 
 VTK_ABI_NAMESPACE_END
 } // internal
@@ -49,22 +69,45 @@ class vtkmDataArray : public vtkGenericDataArray<vtkmDataArray<T>, T>
   static_assert(std::is_arithmetic<T>::value, "T must be an integral or floating-point type");
 
   using GenericDataArrayType = vtkGenericDataArray<vtkmDataArray<T>, T>;
-
-public:
   using SelfType = vtkmDataArray<T>;
   vtkTemplateTypeMacro(SelfType, GenericDataArrayType);
 
+public:
   using typename Superclass::ValueType;
-
-  using VtkmTypesList = vtkm::List<T, vtkm::Vec<T, 2>, vtkm::Vec<T, 3>, vtkm::Vec<T, 4>,
-    vtkm::VecFromPortal<typename vtkm::cont::ArrayHandle<T>::WritePortalType>>;
 
   static vtkmDataArray* New();
 
+  /// @brief Set the VTK-m ArrayHandle to be wrapped
+  ///
   template <typename V, typename S>
   void SetVtkmArrayHandle(const vtkm::cont::ArrayHandle<V, S>& ah);
 
+  /// @brief Get the underlying ArrayHandle.
+  ///
   vtkm::cont::UnknownArrayHandle GetVtkmUnknownArrayHandle() const;
+
+protected:
+  vtkmDataArray();
+  ~vtkmDataArray() override;
+
+  /// Overrides for range computation. These use VTK-m to perform the computations to avoid
+  /// memory transfers
+  using Superclass::ComputeScalarRange;
+  bool ComputeScalarRange(
+    double* ranges, const unsigned char* ghosts, unsigned char ghostsToSkip = 0xff) override;
+  using Superclass::ComputeVectorRange;
+  bool ComputeVectorRange(
+    double range[2], const unsigned char* ghosts, unsigned char ghostsToSkip = 0xff) override;
+  using Superclass::ComputeFiniteScalarRange;
+  bool ComputeFiniteScalarRange(
+    double* ranges, const unsigned char* ghosts, unsigned char ghostsToSkip = 0xff) override;
+  using Superclass::ComputeFiniteVectorRange;
+  bool ComputeFiniteVectorRange(
+    double range[2], const unsigned char* ghosts, unsigned char ghostsToSkip = 0xff) override;
+
+private:
+  // To access concept methods
+  friend Superclass;
 
   /// concept methods for \c vtkGenericDataArray
   ValueType GetValue(vtkIdType valueIdx) const;
@@ -73,23 +116,14 @@ public:
   void SetTypedTuple(vtkIdType tupleIdx, const ValueType* tuple);
   ValueType GetTypedComponent(vtkIdType tupleIdx, int compIdx) const;
   void SetTypedComponent(vtkIdType tupleIdx, int compIdx, ValueType value);
+  bool AllocateTuples(vtkIdType numberOfTuples);
+  bool ReallocateTuples(vtkIdType numberOfTuples);
 
-protected:
-  vtkmDataArray();
-  ~vtkmDataArray() override;
-
-  /// concept methods for \c vtkGenericDataArray
-  bool AllocateTuples(vtkIdType numTuples);
-  bool ReallocateTuples(vtkIdType numTuples);
+  std::unique_ptr<internal::ArrayHandleHelperInterface<T>> Helper;
 
 private:
   vtkmDataArray(const vtkmDataArray&) = delete;
   void operator=(const vtkmDataArray&) = delete;
-
-  // To access AllocateTuples and ReallocateTuples
-  friend Superclass;
-
-  std::unique_ptr<internal::ArrayHandleWrapperBase<T>> VtkmArray;
 };
 
 //=============================================================================

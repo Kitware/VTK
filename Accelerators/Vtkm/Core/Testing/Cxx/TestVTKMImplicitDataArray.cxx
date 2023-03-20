@@ -11,59 +11,43 @@
 
 #include <vtkmDataArray.h>
 
-#include <vtkm/cont/ArrayHandleImplicit.h>
+#include <vtkm/VectorAnalysis.h>
+#include <vtkm/cont/ArrayHandleTransform.h>
+#include <vtkm/cont/ArrayHandleUniformPointCoordinates.h>
 
 #include <array>
 #include <functional>
 
+namespace
+{
+
+struct TransformFnctr
+{
+  VTKM_EXEC_CONT
+  double operator()(const vtkm::Vec3f& point) const { return vtkm::Magnitude(point); }
+};
+
+} // namespace
+
 //------------------------------------------------------------------------------
 int TestVTKMImplicitDataArray(int, char*[])
 {
-  // typedef std::function<double(const std::array<double, 3>&)> ScalarFunction;
-  using ScalarFunction = double(const std::array<double, 3>&);
-
-  ScalarFunction* function = [](const std::array<double, 3>& p) {
-    return sqrt(p[0] * p[0] + p[1] * p[1] + p[2] * p[2]);
-  };
-
-  std::size_t dimension = 10;
+  vtkm::Id dimension = 10;
+  vtkm::Vec3f boundsMin(0.0f);
+  vtkm::Vec3f boundsMax(3.0f, 3.0f, 2.0f);
+  vtkm::Id3 dim3(dimension);
+  vtkm::Vec3f origin = boundsMin;
+  vtkm::Vec3f spacing =
+    (boundsMax - boundsMin) / vtkm::Vec3f(static_cast<vtkm::FloatDefault>(dimension));
 
   vtkNew<vtkImageData> imageData;
-  {
-    std::array<double, 6> boundingBox = { 0, 3, 0, 3, 0, 2 };
-    imageData->SetDimensions(
-      static_cast<int>(dimension), static_cast<int>(dimension), static_cast<int>(dimension));
-    imageData->SetSpacing((boundingBox[1] - boundingBox[0]) / dimension,
-      (boundingBox[3] - boundingBox[2]) / dimension, (boundingBox[5] - boundingBox[4]) / dimension);
-    imageData->SetOrigin(boundingBox[0], boundingBox[2], boundingBox[4]);
-  }
-
-  vtkImageData* imageDataPtr = imageData.Get();
-
-  struct Shim
-  {
-    Shim() = default;
-    Shim(ScalarFunction* f, vtkImageData* i)
-      : function(f)
-      , imageDataPtr(i)
-    {
-    }
-
-    ScalarFunction* function = nullptr;
-    vtkImageData* imageDataPtr = nullptr;
-
-    double operator()(vtkm::Id i) const
-    {
-      std::array<double, 3> p;
-      imageDataPtr->GetPoint(i, p.data());
-      return function(p);
-    }
-  };
+  imageData->SetDimensions(dim3[0], dim3[1], dim3[2]);
+  imageData->SetSpacing(spacing[0], spacing[1], spacing[2]);
+  imageData->SetOrigin(origin[0], origin[1], origin[2]);
 
   vtkNew<vtkmDataArray<double>> array;
-  array->SetVtkmArrayHandle(
-    vtkm::cont::make_ArrayHandleImplicit(Shim(function, imageDataPtr), std::pow(dimension, 3)));
-
+  array->SetVtkmArrayHandle(vtkm::cont::make_ArrayHandleTransform(
+    vtkm::cont::ArrayHandleUniformPointCoordinates(dim3, origin, spacing), TransformFnctr{}));
   imageData->GetPointData()->SetScalars(array);
 
   vtkNew<vtkRenderWindow> renderWindow;
