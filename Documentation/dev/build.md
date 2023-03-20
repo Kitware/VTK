@@ -204,6 +204,9 @@ Less common, but variables which may be of interest to some:
     added as tests to the VTK test suite.
   * `VTK_ENABLE_LOGGING` (default `ON`): If set, enhanced logging will be
     enabled.
+  * `VTK_LOGGING_TIME_PRECISION` (default `3`; requires `VTK_ENABLE_LOGGING`):
+    Change the precision of times output when `VTK_ENABLE_LOGGING` is on.
+    Possible values are 3 for ms, 6 for us, 9 for ns.
   * `VTK_BUILD_TESTING` (default `OFF`): Whether to build tests or not. Valid
     values are `OFF` (no testing), `WANT` (enable tests as possible), and `ON`
     (enable all tests; may error out if features otherwise disabled are
