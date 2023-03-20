@@ -37,7 +37,8 @@ All rights reserve
 #define VTK_DEFAULT_NUMBER_OF_RADIAL_AXES 5
 #define VTK_MAXIMUM_NUMBER_OF_POLAR_AXIS_TICKS 200
 #define VTK_MAXIMUM_RATIO 1000.0
-#define VTK_POLAR_ARC_RESOLUTION_PER_DEG 0.2
+#define VTK_MINIMUM_POLAR_ARC_RESOLUTION_PER_DEG 0.05
+#define VTK_MAXIMUM_POLAR_ARC_RESOLUTION_PER_DEG 100.0
 
 #include "vtkActor.h"
 #include "vtkAxisActor.h"                 // access to enum values
@@ -711,6 +712,15 @@ public:
   vtkGetMacro(Ratio, double);
   ///@}
 
+  ///@{
+  /**
+   * Set/Get the number of line per degree to draw polar arc.
+   */
+  vtkSetClampMacro(PolarArcResolutionPerDegree, double, VTK_MINIMUM_POLAR_ARC_RESOLUTION_PER_DEG,
+    VTK_MAXIMUM_POLAR_ARC_RESOLUTION_PER_DEG);
+  vtkGetMacro(PolarArcResolutionPerDegree, double);
+  ///@}
+
 protected:
   vtkPolarAxesActor();
   ~vtkPolarAxesActor() override;
@@ -855,6 +865,11 @@ protected:
    * Ratio for elliptical representation of the polar axes actor.
    */
   double Ratio;
+
+  /**
+   * Polar arc resolution (number of line) per degree.
+   */
+  double PolarArcResolutionPerDegree;
 
   /**
    * Define the range values displayed on the polar Axis.

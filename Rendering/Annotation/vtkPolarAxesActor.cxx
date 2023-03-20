@@ -62,6 +62,7 @@ void vtkPolarAxesActor::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Maximum Radius: " << this->MaximumRadius << endl;
   os << indent << "Log Scale: " << (this->Log ? "On" : "Off") << endl;
   os << indent << "Ratio: " << this->Ratio << endl;
+  os << indent << "Polar Arc Resolution per Degree: " << this->PolarArcResolutionPerDegree << endl;
   os << indent << "Minimum Angle: " << this->MinimumAngle << endl;
   os << indent << "Maximum Angle: " << this->MaximumAngle << endl;
   os << indent << "Smallest Visible Polar Angle: " << this->SmallestVisiblePolarAngle << endl;
@@ -235,6 +236,9 @@ vtkPolarAxesActor::vtkPolarAxesActor()
 
   // Ratio of the ellipse arc
   this->Ratio = 1.0;
+
+  // Arc Resolution per degree
+  this->PolarArcResolutionPerDegree = 0.2;
 
   // Polar Axis scale type
   this->Log = false;
@@ -1703,7 +1707,7 @@ void vtkPolarAxesActor::BuildPolarAxisLabelsArcs()
 
   // Prepare trigonometric quantities
   vtkIdType arcResolution =
-    static_cast<vtkIdType>(angleSection * (VTK_POLAR_ARC_RESOLUTION_PER_DEG / this->Ratio));
+    static_cast<vtkIdType>(angleSection * this->PolarArcResolutionPerDegree * this->Ratio);
 
   // Principal Arc points
   vtkNew<vtkPoints> polarArcsPoints;
@@ -1867,7 +1871,7 @@ void vtkPolarAxesActor::BuildPolarArcsLog()
   }
 
   vtkIdType arcResolution =
-    static_cast<vtkIdType>(angleSection * (VTK_POLAR_ARC_RESOLUTION_PER_DEG / this->Ratio));
+    static_cast<vtkIdType>(angleSection * this->PolarArcResolutionPerDegree * this->Ratio);
 
   // Principal Arc points
   vtkNew<vtkPoints> polarArcsPoints;
