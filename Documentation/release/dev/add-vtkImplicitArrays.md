@@ -6,7 +6,7 @@ VTK now offers new flexible `vtkImplicitArray` template class that implements a 
 
 ### Philosophy
 
-In order to reduce the overhead of these containers as much as possible, `vtkImplicitArray`s are templated on a "Backend" type. This backend is "duck typed" so that it can be any const functor/closure object or anything that has a `map(int) const` method to provide a certain degree of flexibility and compute performance that is easily obtained through the static dispatching native to templates. If a `void mapTuple(vtkIdType, TupleType*) const` method is also present, the array will use this method to populate the tuple instead of the map method. As such, developers can use tried and tested backends in the VTK framework when it fits their needs and also develop their own backends on the fly for specific use cases. `vtkImplicitArray`s can then be packed into data sets to be transmitted through the data treatment pipeline with the idea that calls to the "read-only" API of `vtkGenericDataArray` should be inlined through the implicit array and generate close to zero overhead with respect to calling the backend itself.
+In order to reduce the overhead of these containers as much as possible, `vtkImplicitArray`s are templated on a "Backend" type. This backend is "duck typed" so that it can be any const functor/closure object or anything that has a `map(int) const` method to provide a certain degree of flexibility and compute performance that is easily obtained through the static dispatching native to templates. If a `void mapTuple(vtkIdType, TupleType*) const` method is also present, the array will use this method to populate the tuple instead of the map method. If a `ValueType mapComponent(vtkIdType, int) const` method is also present, the array will use this method to populate the GetTypedComponent function instead of the map method. As such, developers can use tried and tested backends in the VTK framework when it fits their needs and also develop their own backends on the fly for specific use cases. `vtkImplicitArray`s can then be packed into data sets to be transmitted through the data treatment pipeline with the idea that calls to the "read-only" API of `vtkGenericDataArray` should be inlined through the implicit array and generate close to zero overhead with respect to calling the backend itself.
 
 ### Usage
 
@@ -62,6 +62,34 @@ mapTupleArr->SetNumberOfTuples(100);
 int tuple[3] = { 0, 0, 0 };
 mapTupleArr->GetTypedTuple(77, tuple);
 CHECK(tuple[0] == 1 && tuple[1] == 2 && tuple[2] == 3); // always true
+```
+
+Here is a small example using map and mapComponent methods in an implicit array:
+
+```
+struct ConstComponentStruct
+{
+  int Tuple[3] = { 0, 0, 0 };
+
+  ConstComponentStruct(int tuple[3])
+  {
+    this->Tuple[0] = tuple[0];
+    this->Tuple[1] = tuple[1];
+    this->Tuple[2] = tuple[2];
+  }
+
+  // used for GetValue
+  int map(int idx) const { return this->mapComponent(idx / 3, idx % 3); }
+  // used for GetTypedComponent
+  int mapComponent(int vtkNotUsed(idx), int comp) const { return this->Tuple[comp]; }
+};
+
+vtkNew<vtkImplicitArray<::ConstComponentStruct>> genericComponentConstArr;
+int tuple[3] = { 1, 2, 3 };
+genericComponentConstArr->ConstructBackend(tuple);
+genericComponentConstArr->SetNumberOfComponents(3);
+genericComponentConstArr->SetNumberOfTuples(50);
+CHECK(genericComponentConstArr->GetTypeComponent(0, 0) == 1 && genericComponentConstArr->GetTypeComponent(0, 1) == 2 && genericComponentConstArr->GetTypeComponent(0, 2) == 3); // always true
 ```
 
 For convenience, a number of backends have been pre-packed into the `vtkImplicitArray` framework. They are, in alphabetical order:
@@ -173,7 +201,3 @@ The following strategies (in order of complexity) have been implemented so far:
 - `vtkToAffineArrayStrategy`: transform an explicit array that follows an affine dependence on its indexes into a `vtkAffineArray`
 - `vtkToImplicitTypeErasureStrategy`: transform an explicit integral array (with more range in its value type than necessary for describing it) into a reduced memory explicit integral array wrapped in an implicit array.
 - `vtkToImplicitRamerDouglasPeuckerStrategy`: transform an explicit memory array into a `vtkCompositeArray` with constant (`vtkConstantArray`) and affine (`vtkAffineArray`) parts following a Ramer-Douglas-Peucker algorithm.
-
-> **WARNINGS**
->
->   * The CommonImplicitArrays module does not currently compile with gcc4.8.5 due to its partial c++11 support.
