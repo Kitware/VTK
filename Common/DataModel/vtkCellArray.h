@@ -380,7 +380,6 @@ public:
    */
   VTK_NEWINSTANCE vtkCellArrayIterator* NewIterator();
 
-#ifndef __VTK_WRAP__ // The wrappers have issues with some of these templates
   /**
    * Set the internal data arrays to the supplied offsets and connectivity
    * arrays.
@@ -391,15 +390,14 @@ public:
    *
    * @{
    */
-  void SetData(vtkTypeInt32Array* offsets, vtkTypeInt32Array* connectivity);
-  void SetData(vtkTypeInt64Array* offsets, vtkTypeInt64Array* connectivity);
   void SetData(vtkIdTypeArray* offsets, vtkIdTypeArray* connectivity);
   void SetData(vtkAOSDataArrayTemplate<int>* offsets, vtkAOSDataArrayTemplate<int>* connectivity);
   void SetData(vtkAOSDataArrayTemplate<long>* offsets, vtkAOSDataArrayTemplate<long>* connectivity);
   void SetData(
     vtkAOSDataArrayTemplate<long long>* offsets, vtkAOSDataArrayTemplate<long long>* connectivity);
+  void SetData(vtkTypeInt32Array* offsets, vtkTypeInt32Array* connectivity);
+  void SetData(vtkTypeInt64Array* offsets, vtkTypeInt64Array* connectivity);
   /**@}*/
-#endif // __VTK_WRAP__
 
   /**
    * Sets the internal arrays to the supplied offsets and connectivity arrays.
