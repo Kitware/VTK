@@ -470,7 +470,7 @@ int vtkHyperTreeGridGradient::ProcessTrees(vtkHyperTreeGrid* input, vtkDataObjec
 
   // Gradient is always computed
 
-  this->OutGradArray->SetName(this->GradientArrayName.c_str());
+  this->OutGradArray->SetName(this->GradientArrayName);
   this->OutGradArray->SetNumberOfComponents(this->InArray->GetNumberOfComponents() * 3);
   this->OutGradArray->SetNumberOfTuples(this->InArray->GetNumberOfTuples());
   GradientWorker gradientWorker(this->InArray, this->OutGradArray, this->ExtensiveComputation);
@@ -523,21 +523,21 @@ int vtkHyperTreeGridGradient::ProcessTrees(vtkHyperTreeGrid* input, vtkDataObjec
     FieldsWorker fieldsWorker(this->OutGradArray);
     if (this->ComputeDivergence)
     {
-      this->OutDivArray->SetName(this->DivergenceArrayName.c_str());
+      this->OutDivArray->SetName(this->DivergenceArrayName);
       this->OutDivArray->SetNumberOfComponents(1);
       this->OutDivArray->SetNumberOfTuples(this->InArray->GetNumberOfTuples());
       fieldsWorker.InitDivergenceArray(this->OutDivArray);
     }
     if (this->ComputeVorticity)
     {
-      this->OutVortArray->SetName(this->VorticityArrayName.c_str());
+      this->OutVortArray->SetName(this->VorticityArrayName);
       this->OutVortArray->SetNumberOfComponents(3);
       this->OutVortArray->SetNumberOfTuples(this->InArray->GetNumberOfTuples());
       fieldsWorker.InitVorticityArray(this->OutVortArray);
     }
     if (this->ComputeQCriterion)
     {
-      this->OutQCritArray->SetName(this->QCriterionArrayName.c_str());
+      this->OutQCritArray->SetName(this->QCriterionArrayName);
       this->OutQCritArray->SetNumberOfComponents(1);
       this->OutQCritArray->SetNumberOfTuples(this->InArray->GetNumberOfTuples());
       fieldsWorker.InitQCriterionArray(this->OutQCritArray);
