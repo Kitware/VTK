@@ -175,6 +175,8 @@ public:
    */
   BCInformation(int cgioNum, double nodeId)
   {
+    this->Location = CGNS_ENUMV(GridLocationNull);
+
     CGIOErrorSafe(cgio_get_name(cgioNum, nodeId, this->Name));
 
     char dtype[CGIO_MAX_DATATYPE_LENGTH + 1];
