@@ -51,6 +51,7 @@ PURPOSE.  See the above copyright notice for more information.
 #define vtkAxisActor_h
 
 #include "vtkActor.h"
+#include "vtkDeprecation.h"               // For deprecation macro
 #include "vtkRenderingAnnotationModule.h" // For export macro
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -667,16 +668,36 @@ public:
 
   ///@{
   /**
-   * Set/Get the offsets used to position texts.
+   * Set/Get size factor for text, used for offsets
+   */
+  vtkSetMacro(ScreenSize, double);
+  vtkGetMacro(ScreenSize, double);
+  ///@}
+
+  ///@{
+  /**
+   * Set/Get the Y-offsets used to position texts.
    */
   vtkSetMacro(LabelOffset, double);
   vtkGetMacro(LabelOffset, double);
-  vtkSetMacro(TitleOffset, double);
-  vtkGetMacro(TitleOffset, double);
   vtkSetMacro(ExponentOffset, double);
   vtkGetMacro(ExponentOffset, double);
-  vtkSetMacro(ScreenSize, double);
-  vtkGetMacro(ScreenSize, double);
+  ///@}
+
+  ///@{
+  /**
+   * Set/Get the 2D-offsets used to position title texts.
+   * X-component is applied only when not center aligned
+   * Center aligned <=> VTK_ALIGN_TOP and VTK_ALIGN_BOTTOM
+   * Y-component is the same than other offsets
+   */
+  VTK_DEPRECATED_IN_9_3_0("Use SetTitleOffset(double, double) as it's now a 2d vector")
+  void SetTitleOffset(double titleOffsetY);
+  VTK_DEPRECATED_IN_9_3_0("Use GetTitleOffset(double&, double&) as it's now a 2d vector")
+  double GetTitleOffset();
+  vtkSetVector2Macro(TitleOffset, double);
+  // TODO: Replace getter with macro once deprecated one is removed
+  void GetTitleOffset(double& titleOffsetX, double& titleOffsetY);
   ///@}
 
 protected:
@@ -953,13 +974,17 @@ private:
   double LastMaxDisplayCoordinate[3];
   double TickVector[3];
 
+  /**
+   * Size factor for text.
+   */
+  double ScreenSize;
+
   ///@{
   /**
    * Offsets used to position text.
    */
-  double ScreenSize;
   double LabelOffset;
-  double TitleOffset;
+  double TitleOffset[2];
   double ExponentOffset;
   ///@}
 };

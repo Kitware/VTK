@@ -57,6 +57,7 @@ All rights reserve
 #define vtkCubeAxesActor_h
 
 #include "vtkActor.h"
+#include "vtkDeprecation.h"               // For deprecation macro
 #include "vtkRenderingAnnotationModule.h" // For export macro
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -155,7 +156,7 @@ public:
 
   ///@{
   /**
-   * Explicitly specify the distance between labels and the axis.
+   * Explicitly specify the offset between labels and the axis.
    * Default is 20.0.
    */
   void SetLabelOffset(double offset);
@@ -164,11 +165,16 @@ public:
 
   ///@{
   /**
-   * Explicitly specify the distance between title and labels.
-   * Default is 20.0.
+   * Explicitly specify the offset between title and labels.
+   * Default is (20.0, 20.0).
    */
-  void SetTitleOffset(double offset);
-  vtkGetMacro(TitleOffset, double);
+  VTK_DEPRECATED_IN_9_3_0("Use the new setters as it's now a 2d vector")
+  void SetTitleOffset(double titleOffsetY);
+  VTK_DEPRECATED_IN_9_3_0("Use the new getter as it's now a 2d vector")
+  double GetTitleOffset();
+  void SetTitleOffset(double titleOffset[2]);
+  // TODO: Replace getter with macro once deprecated one is removed
+  void GetTitleOffset(double& titleOffsetX, double& titleOffsetY);
   ///@}
 
   ///@{
@@ -855,7 +861,7 @@ private:
 
   double ScreenSize;
   double LabelOffset;
-  double TitleOffset;
+  double TitleOffset[2];
 
   ///@{
   /**

@@ -89,6 +89,12 @@ void vtkPolarAxesActor::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Polar Label Format: " << this->PolarLabelFormat << "\n";
   os << indent << "Title Scale: " << this->TitleScale << "\n";
   os << indent << "Label Scale: " << this->LabelScale << "\n";
+  os << indent << "Polar title offset: " << this->PolarTitleOffset[0] << ", "
+     << this->PolarTitleOffset[1] << "\n";
+  os << indent << "Radial title offset: " << this->RadialTitleOffset[0] << ", "
+     << this->RadialTitleOffset[1] << "\n";
+  os << indent << "Polar label Y-offset: " << this->PolarLabelOffset << "\n";
+  os << indent << "Polar exponent Y-offset: " << this->PolarExponentOffset << "\n";
   os << indent << "Radial Angle Format: " << this->RadialAngleFormat << "\n";
   os << indent << "PolarAxisLabelTextProperty: " << this->PolarAxisLabelTextProperty << endl;
   os << indent << "PolarAxisTitleTextProperty: " << this->PolarAxisTitleTextProperty << endl;
@@ -272,6 +278,14 @@ vtkPolarAxesActor::vtkPolarAxesActor()
   // Default text screen size
   this->ScreenSize = 10.0;
 
+  // Default text offsets for axes
+  this->RadialTitleOffset[0] = 20.0;
+  this->RadialTitleOffset[1] = 0.0;
+  this->PolarTitleOffset[0] = 20.0;
+  this->PolarTitleOffset[1] = 10.0;
+  this->PolarLabelOffset = 10.0;
+  this->PolarExponentOffset = 5.0;
+
   // Text properties of polar axis title and labels, with default color white
   // Properties of the radial axes, with default color black
   this->PolarAxisProperty = vtkProperty::New();
@@ -290,9 +304,6 @@ vtkPolarAxesActor::vtkPolarAxesActor()
 
   this->PolarAxis->SetCalculateTitleOffset(0);
   this->PolarAxis->SetCalculateLabelOffset(0);
-  this->PolarAxis->SetTitleOffset(10);
-  this->PolarAxis->SetLabelOffset(2);
-  this->PolarAxis->SetExponentOffset(5);
   this->PolarAxis->LastMajorTickPointCorrectionOn();
 
   // Default distance LOD settings
@@ -1199,8 +1210,10 @@ void vtkPolarAxesActor::SetPolarAxisAttributes(vtkAxisActor* axis)
   axis->SetTitleVisibility(this->PolarTitleVisibility);
   axis->SetTitle(this->PolarAxisTitle);
   axis->SetTitleTextProperty(this->PolarAxisTitleTextProperty);
+  axis->SetTitleOffset(this->PolarTitleOffset);
 
   // Set Labels exponent value
+  axis->SetExponentOffset(this->PolarExponentOffset);
   if (this->ExponentLocation == VTK_EXPONENT_BOTTOM)
   {
     axis->SetExponentLocation(vtkAxisActor::VTK_ALIGN_BOTTOM);
@@ -1219,6 +1232,7 @@ void vtkPolarAxesActor::SetPolarAxisAttributes(vtkAxisActor* axis)
   // Set polar axis labels
   axis->SetLabelVisibility(this->PolarLabelVisibility);
   axis->SetLabelTextProperty(this->PolarAxisLabelTextProperty);
+  axis->SetLabelOffset(this->PolarLabelOffset);
 
   // Compute delta Range values (if log == 1, deltaRange properties will be overwritten)
   if (this->AutoSubdividePolarAxis)
@@ -1292,8 +1306,6 @@ void vtkPolarAxesActor::CreateRadialAxes(int axisCount)
     axis->SetAxisTypeToX();
     axis->SetCalculateTitleOffset(0);
     axis->SetCalculateLabelOffset(0);
-    axis->SetLabelOffset(0);
-    axis->SetTitleOffset(2);
     axis->SetLabelVisibility(0);
     axis->SetUse2DMode(this->PolarAxis->GetUse2DMode());
     axis->LastMajorTickPointCorrectionOn();
@@ -1424,6 +1436,9 @@ void vtkPolarAxesActor::BuildRadialAxes(vtkViewport* viewport)
 
     // Set radial axis lines
     axis->SetAxisVisibility(this->RadialAxesVisibility);
+
+    // Set radial axis title offset
+    axis->SetTitleOffset(this->RadialTitleOffset);
 
     // Set title relative location from the axis
     if (this->RadialAxisTitleLocation == VTK_TITLE_BOTTOM)

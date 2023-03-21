@@ -73,7 +73,8 @@ vtkAxisActor::vtkAxisActor()
   this->Range[1] = 1.0;
   this->ScreenSize = 10.;
   this->LabelOffset = 30.;
-  this->TitleOffset = 20.;
+  this->TitleOffset[0] = 20.;
+  this->TitleOffset[1] = 20.;
   this->ExponentOffset = 20.;
   this->TitleAlignLocation = VTK_ALIGN_BOTTOM;
   this->ExponentLocation = VTK_ALIGN_POINT2;
@@ -1368,7 +1369,13 @@ void vtkAxisActor::BuildTitle(bool force)
   double labelAngle = vtkMath::RadiansFromDegrees(this->LabelTextProperty->GetOrientation());
   double labelCos = fabs(cos(labelAngle)), labelSin = fabs(sin(labelAngle));
   double labBounds[6];
-  double offset[2] = { 0, this->TitleOffset };
+  double offset[2] = { 0, this->TitleOffset[1] };
+
+  // Side offset when not centered
+  if (this->TitleAlignLocation == VTK_ALIGN_POINT1 || this->TitleAlignLocation == VTK_ALIGN_POINT2)
+  {
+    offset[0] += this->TitleOffset[0];
+  }
 
   // find max height label (with the label text property considered)
   // only when title is on bottom
@@ -1395,7 +1402,6 @@ void vtkAxisActor::BuildTitle(bool force)
   this->TitleActor->GetMapper()->GetBounds(titleBounds);
   double halfTitleHeight = (titleBounds[3] - titleBounds[2]) * 0.5;
   double halfTitleWidth = (titleBounds[1] - titleBounds[0]) * 0.5;
-  offset[1] += this->ScreenSize * halfTitleHeight;
 
   double* p1 = this->Point1Coordinate->GetValue();
   double* p2 = this->Point2Coordinate->GetValue();
@@ -1417,6 +1423,7 @@ void vtkAxisActor::BuildTitle(bool force)
       {
         pos[i] = p1[i] + (p2[i] - p1[i]) / 2.0;
       }
+      offset[1] += this->ScreenSize * halfTitleHeight;
       break;
     case (VTK_ALIGN_POINT1):
       // Position to p1
@@ -1424,7 +1431,8 @@ void vtkAxisActor::BuildTitle(bool force)
       {
         pos[i] = p1[i];
       }
-      offset[0] += this->ScreenSize * halfTitleWidth + 3;
+      offset[0] += this->ScreenSize * halfTitleWidth;
+      offset[1] += this->ScreenSize * halfTitleHeight;
       break;
     case (VTK_ALIGN_POINT2):
       // Position to p2
@@ -1432,7 +1440,7 @@ void vtkAxisActor::BuildTitle(bool force)
       {
         pos[i] = p2[i];
       }
-      offset[0] += this->ScreenSize * halfTitleWidth + 3;
+      offset[0] += this->ScreenSize * halfTitleWidth;
       break;
     default:
       // shouldn't get there
@@ -1519,7 +1527,7 @@ void vtkAxisActor::BuildExponent(bool force)
   this->TitleActor->GetMapper()->GetBounds(titleBounds);
   if (this->TitleVisibility && this->TitleAlignLocation == this->ExponentLocation)
   {
-    offset[1] += this->TitleOffset + this->ScreenSize * titleBounds[3] - titleBounds[2];
+    offset[1] += this->TitleOffset[1] + this->ScreenSize * titleBounds[3] - titleBounds[2];
   }
 
   // ---------- exponent size ----------
@@ -1527,7 +1535,6 @@ void vtkAxisActor::BuildExponent(bool force)
   this->ExponentActor->GetMapper()->GetBounds(exponentBounds);
   double halfExponentHeight = (exponentBounds[3] - exponentBounds[2]) * 0.5;
   double halfExponentWidth = (exponentBounds[1] - exponentBounds[0]) * 0.5;
-  offset[1] += this->ScreenSize * halfExponentHeight;
 
   double* p1 = this->Point1Coordinate->GetValue();
   double* p2 = this->Point2Coordinate->GetValue();
@@ -1546,6 +1553,7 @@ void vtkAxisActor::BuildExponent(bool force)
       {
         pos[i] = p1[i] + (p2[i] - p1[i]) / 2.0;
       }
+      offset[1] += this->ScreenSize * halfExponentHeight;
       break;
     case (VTK_ALIGN_POINT1):
       // Position to p1
@@ -1553,7 +1561,8 @@ void vtkAxisActor::BuildExponent(bool force)
       {
         pos[i] = p1[i];
       }
-      offset[0] += this->ScreenSize * halfExponentWidth + 3;
+      offset[0] += this->ScreenSize * halfExponentWidth;
+      offset[1] += this->ScreenSize * halfExponentHeight;
       break;
     case (VTK_ALIGN_POINT2):
       // Position to p2
@@ -1561,7 +1570,7 @@ void vtkAxisActor::BuildExponent(bool force)
       {
         pos[i] = p2[i];
       }
-      offset[0] += this->ScreenSize * halfExponentWidth + 3;
+      offset[0] += this->ScreenSize * halfExponentWidth;
       break;
     default:
       // shouldn't get there
@@ -1805,6 +1814,10 @@ void vtkAxisActor::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Point2 Coordinate: " << this->Point2Coordinate << "\n";
   this->Point2Coordinate->PrintSelf(os, indent.GetNextIndent());
+
+  os << indent << "Title offset: " << this->TitleOffset[0] << ", " << this->TitleOffset[1] << "\n";
+  os << indent << "Label Y-offset: " << this->LabelOffset << "\n";
+  os << indent << "Exponent Y-offset: " << this->ExponentOffset << "\n";
 
   os << indent << "AxisType: ";
   switch (this->AxisType)
@@ -2512,6 +2525,25 @@ void vtkAxisActor::SetMajorStart(int axis, double value)
   {
     this->MajorStart[axis] = value;
   }
+}
+
+//------------------------------------------------------------------------------
+void vtkAxisActor::SetTitleOffset(double titleOffsetY)
+{
+  this->SetTitleOffset(this->TitleOffset[0], titleOffsetY);
+}
+
+//------------------------------------------------------------------------------
+double vtkAxisActor::GetTitleOffset()
+{
+  return this->TitleOffset[1];
+}
+
+//------------------------------------------------------------------------------
+void vtkAxisActor::GetTitleOffset(double& titleOffsetX, double& titleOffsetY)
+{
+  titleOffsetX = this->TitleOffset[0];
+  titleOffsetY = this->TitleOffset[1];
 }
 
 //------------------------------------------------------------------------------

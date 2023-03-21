@@ -140,7 +140,8 @@ vtkCubeAxesActor::vtkCubeAxesActor()
 
   this->ScreenSize = 10.;
   this->LabelOffset = 20.;
-  this->TitleOffset = 20.;
+  this->TitleOffset[0] = 20.;
+  this->TitleOffset[1] = 20.;
 
   for (int i = 0; i < NUMBER_OF_ALIGNED_AXIS; i++)
   {
@@ -722,17 +723,51 @@ void vtkCubeAxesActor::SetLabelOffset(double offset)
 // *************************************************************************
 // Offset between title and labels.
 // *************************************************************************
-void vtkCubeAxesActor::SetTitleOffset(double offset)
+void vtkCubeAxesActor::SetTitleOffset(double titleOffsetY)
 {
-  this->TitleOffset = offset;
-  for (int i = 0; i < NUMBER_OF_ALIGNED_AXIS; i++)
+  if (this->TitleOffset[1] != titleOffsetY)
   {
-    this->XAxes[i]->SetTitleOffset(offset);
-    this->YAxes[i]->SetTitleOffset(offset);
-    this->ZAxes[i]->SetTitleOffset(offset);
-  }
+    this->TitleOffset[1] = titleOffsetY;
+    this->Modified();
 
-  this->Modified();
+    for (int i = 0; i < NUMBER_OF_ALIGNED_AXIS; i++)
+    {
+      this->XAxes[i]->SetTitleOffset(this->TitleOffset[0], titleOffsetY);
+      this->YAxes[i]->SetTitleOffset(this->TitleOffset[0], titleOffsetY);
+      this->ZAxes[i]->SetTitleOffset(this->TitleOffset[0], titleOffsetY);
+    }
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkCubeAxesActor::SetTitleOffset(double titleOffset[2])
+{
+  if (this->TitleOffset[0] != titleOffset[0] || this->TitleOffset[1] != titleOffset[1])
+  {
+    this->TitleOffset[0] = titleOffset[0];
+    this->TitleOffset[1] = titleOffset[1];
+    this->Modified();
+
+    for (int i = 0; i < NUMBER_OF_ALIGNED_AXIS; i++)
+    {
+      this->XAxes[i]->SetTitleOffset(titleOffset);
+      this->YAxes[i]->SetTitleOffset(titleOffset);
+      this->ZAxes[i]->SetTitleOffset(titleOffset);
+    }
+  }
+}
+
+//------------------------------------------------------------------------------
+double vtkCubeAxesActor::GetTitleOffset()
+{
+  return this->TitleOffset[1];
+}
+
+//------------------------------------------------------------------------------
+void vtkCubeAxesActor::GetTitleOffset(double& titleOffsetX, double& titleOffsetY)
+{
+  titleOffsetX = this->TitleOffset[0];
+  titleOffsetY = this->TitleOffset[1];
 }
 
 // *************************************************************************
@@ -821,6 +856,8 @@ void vtkCubeAxesActor::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Z Axis Label Format: " << this->ZLabelFormat << "\n";
   os << indent << "Inertia: " << this->Inertia << "\n";
   os << indent << "Corner Offset: " << this->CornerOffset << "\n";
+  os << indent << "Title offset: " << this->TitleOffset[0] << ", " << this->TitleOffset[1] << "\n";
+  os << indent << "Label Y-offset: " << this->LabelOffset << "\n";
 
   os << indent << "XAxisTickVisibility: " << (this->XAxisTickVisibility ? "On" : "Off") << endl;
   os << indent << "YAxisTickVisibility: " << (this->YAxisTickVisibility ? "On" : "Off") << endl;

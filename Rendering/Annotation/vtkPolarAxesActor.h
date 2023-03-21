@@ -202,6 +202,20 @@ public:
 
   ///@{
   /**
+   * Set/Get the offsets used to position texts.
+   */
+  vtkSetVector2Macro(PolarTitleOffset, double);
+  vtkGetVectorMacro(PolarTitleOffset, double, 2);
+  vtkSetVector2Macro(RadialTitleOffset, double);
+  vtkGetVectorMacro(RadialTitleOffset, double, 2);
+  vtkGetMacro(PolarLabelOffset, double);
+  vtkSetMacro(PolarLabelOffset, double);
+  vtkGetMacro(PolarExponentOffset, double);
+  vtkSetMacro(PolarExponentOffset, double);
+  ///@}
+
+  ///@{
+  /**
    * Set/Get the camera to perform scaling and translation of the
    * vtkPolarAxesActor.
    */
@@ -1209,6 +1223,14 @@ protected:
    * Text screen size
    */
   double ScreenSize;
+
+  ///@{
+  /**
+   * Handles title (x,y), label (y) and exponent (y) available offsets.
+   */
+  double PolarTitleOffset[2], RadialTitleOffset[2];
+  double PolarLabelOffset, PolarExponentOffset;
+  ///@}
 
 private:
   vtkPolarAxesActor(const vtkPolarAxesActor&) = delete;
