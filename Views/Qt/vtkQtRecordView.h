@@ -42,7 +42,7 @@
 class QTextEdit;
 
 VTK_ABI_NAMESPACE_BEGIN
-class vtkDataObjectToTable;
+class vtkAttributeDataToTableFilter;
 
 class VTKVIEWSQT_EXPORT vtkQtRecordView : public vtkQtView
 {
@@ -95,7 +95,7 @@ protected:
   void AddRepresentationInternal(vtkDataRepresentation* rep) override;
   void RemoveRepresentationInternal(vtkDataRepresentation* rep) override;
 
-  vtkSmartPointer<vtkDataObjectToTable> DataObjectToTable;
+  vtkSmartPointer<vtkAttributeDataToTableFilter> DataObjectToTable;
 
   QPointer<QTextEdit> TextWidget;
 

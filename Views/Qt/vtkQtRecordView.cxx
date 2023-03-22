@@ -25,9 +25,9 @@
 #include "vtkAlgorithm.h"
 #include "vtkAlgorithmOutput.h"
 #include "vtkAnnotationLink.h"
+#include "vtkAttributeDataToTableFilter.h"
 #include "vtkCommand.h"
 #include "vtkConvertSelection.h"
-#include "vtkDataObjectToTable.h"
 #include "vtkDataRepresentation.h"
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
@@ -37,6 +37,17 @@
 #include "vtkSmartPointer.h"
 #include "vtkTable.h"
 
+namespace
+{
+const std::map<int, int> FIELD_ASSOCIATION_MAP = { { vtkQtRecordView::FIELD_DATA,
+                                                     vtkDataObject::FIELD_ASSOCIATION_NONE },
+  { vtkQtRecordView::POINT_DATA, vtkDataObject::FIELD_ASSOCIATION_POINTS },
+  { vtkQtRecordView::CELL_DATA, vtkDataObject::FIELD_ASSOCIATION_CELLS },
+  { vtkQtRecordView::VERTEX_DATA, vtkDataObject::FIELD_ASSOCIATION_VERTICES },
+  { vtkQtRecordView::EDGE_DATA, vtkDataObject::FIELD_ASSOCIATION_EDGES },
+  { vtkQtRecordView::ROW_DATA, vtkDataObject::FIELD_ASSOCIATION_ROWS } };
+}
+
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkQtRecordView);
 
@@ -44,8 +55,8 @@ vtkStandardNewMacro(vtkQtRecordView);
 vtkQtRecordView::vtkQtRecordView()
 {
   this->TextWidget = new QTextEdit();
-  this->DataObjectToTable = vtkSmartPointer<vtkDataObjectToTable>::New();
-  this->DataObjectToTable->SetFieldType(vtkDataObjectToTable::VERTEX_DATA);
+  this->DataObjectToTable = vtkSmartPointer<vtkAttributeDataToTableFilter>::New();
+  this->DataObjectToTable->SetFieldAssociation(vtkDataObject::FIELD_ASSOCIATION_VERTICES);
   this->FieldType = vtkQtRecordView::VERTEX_DATA;
   this->Text = nullptr;
   this->CurrentSelectionMTime = 0;
@@ -68,7 +79,7 @@ QWidget* vtkQtRecordView::GetWidget()
 //------------------------------------------------------------------------------
 void vtkQtRecordView::SetFieldType(int type)
 {
-  this->DataObjectToTable->SetFieldType(type);
+  this->DataObjectToTable->SetFieldAssociation(::FIELD_ASSOCIATION_MAP.at(type));
   if (this->FieldType != type)
   {
     this->FieldType = type;
