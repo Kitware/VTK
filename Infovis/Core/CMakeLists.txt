@@ -3,6 +3,7 @@ set(classes
   vtkAdjacencyMatrixToEdgeTable
   vtkArrayNorm
   vtkArrayToTable
+  vtkAttributeDataToTableFilter
   vtkCollapseGraph
   vtkCollapseVerticesByArray
   vtkContinuousScatterplot
