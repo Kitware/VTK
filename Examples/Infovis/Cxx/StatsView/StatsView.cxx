@@ -22,7 +22,6 @@
 #include "vtkOrderStatistics.h"
 
 // QT includes
-#include <vtkDataObjectToTable.h>
 #include <vtkDataRepresentation.h>
 #include <vtkQtTableModelAdapter.h>
 #include <vtkQtTableView.h>
