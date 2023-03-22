@@ -24,6 +24,7 @@ vtk_add_test_cxx(vtkInfovisCoreCxxTests tests
   TestRemoveIsolatedVertices.cxx,NO_VALID
   TestStreamGraph.cxx,NO_VALID
   TestTableToArray.cxx,NO_VALID
+  TestTableToGraph.cxx
   TestThresholdTable.cxx,NO_VALID
   TestTreeDifferenceFilter.cxx,NO_VALID
   )

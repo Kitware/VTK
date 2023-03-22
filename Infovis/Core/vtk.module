@@ -23,5 +23,7 @@ TEST_DEPENDS
   VTK::InfovisLayout
   VTK::InteractionImage
   VTK::InteractionStyle
+  VTK::RenderingLabel
   VTK::RenderingOpenGL2
   VTK::TestingRendering
+  VTK::ViewsCore

@@ -20,9 +20,9 @@
 
 #include "vtkActor.h"
 #include "vtkActor2D.h"
+#include "vtkAttributeDataToTableFilter.h"
 #include "vtkBitArray.h"
 #include "vtkCircularLayoutStrategy.h"
-#include "vtkDataObjectToTable.h"
 #include "vtkDataRepresentation.h"
 #include "vtkDelimitedTextReader.h"
 #include "vtkGlyph3D.h"
@@ -334,17 +334,17 @@ int TestTableToGraph(int argc, char* argv[])
   mergeView->SetRepresentationFromInputConnection(merge->GetOutputPort());
   mergeView->GetWidget()->show();
 
-  VTK_CREATE(vtkDataObjectToTable, vertToTable);
+  VTK_CREATE(vtkAttributeDataToTableFilter, vertToTable);
   vertToTable->SetInputConnection(tableToGraph->GetOutputPort());
-  vertToTable->SetFieldType(vtkDataObjectToTable::POINT_DATA);
+  vertToTable->SetFieldAssociation(vtkDataObject::FIELD_ASSOCIATION_POINTS);
   VTK_CREATE(vtkQtTableView, vertView);
   vertView->SetRepresentationFromInputConnection(vertToTable->GetOutputPort());
   vertView->GetWidget()->show();
   vertView->Update();
 
-  VTK_CREATE(vtkDataObjectToTable, edgeToTable);
+  VTK_CREATE(vtkAttributeDataToTableFilter, edgeToTable);
   edgeToTable->SetInputConnection(tableToGraph->GetOutputPort());
-  edgeToTable->SetFieldType(vtkDataObjectToTable::CELL_DATA);
+  edgeToTable->SetFieldAssocitation(vtkDataObject::FIELD_ASSOCIATION_CELLS);
   VTK_CREATE(vtkQtTableView, edgeView);
   edgeView->SetRepresentationFromInputConnection(edgeToTable->GetOutputPort());
   edgeView->GetWidget()->show();
