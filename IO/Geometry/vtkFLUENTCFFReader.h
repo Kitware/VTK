@@ -129,28 +129,106 @@ protected:
   int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
+  //@{
+  /**
+   * Open the HDF5 file structure
+   */
   virtual bool OpenCaseFile(const char* filename);
   virtual bool OpenDataFile(const char* filename);
+  //@}
+
+  /**
+   * Retrieve the number of cell zones
+   */
   virtual void GetNumberOfCellZones();
 
+  /**
+   * Reads necessary information from the .cas file
+   */
   virtual void ParseCaseFile();
+
+  /**
+   * Get the dimension of the file (2D/3D)
+   */
   virtual int GetDimension();
+
+  //@{
+  /**
+   * Get the total number of nodes/cells/faces
+   */
   virtual void GetNodesGlobal();
   virtual void GetCellsGlobal();
   virtual void GetFacesGlobal();
+  //@}
+
+  /**
+   * Get the size and index of node per zone
+   */
   virtual void GetNodes();
+
+  /**
+   * Get the topology of cell per zone
+   */
   virtual void GetCells();
+
+  /**
+   * Get the topology of face per zone
+   */
   virtual void GetFaces();
+
+  /**
+   * Get the periodic shadown faces information
+   */
   virtual void GetPeriodicShadowFaces();
+
+  /**
+   * Get the overset cells information
+   */
   virtual void GetCellOverset();
+
+  /**
+   * Get the tree (AMR) cell topology
+   */
   virtual void GetCellTree();
+
+  /**
+   * Get the tree (AMR) face topology
+   */
   virtual void GetFaceTree();
+
+  /**
+   * Get the interface id of parent faces
+   */
   virtual void GetInterfaceFaceParents();
+
+  /**
+   * Get the non conformal grid interface information
+   */
   virtual void GetNonconformalGridInterfaceFaceInformation();
+
+  /**
+   * Get the parallel partition information
+   */
   virtual void GetPartitionInfo() {}
+
+  /**
+   * Removes unnecessary faces from the cells
+   */
   virtual void CleanCells();
+
+  //@{
+  /**
+   * Reconstruct and convert the Fluent data format
+   * to the VTK format
+   */
   virtual void PopulateCellNodes();
   virtual void PopulateCellTree();
+  //@}
+
+  //@{
+  /**
+   * Reconstruct VTK cell topology from Fluent format
+   */
   virtual void PopulateTriangleCell(int i);
   virtual void PopulateTetraCell(int i);
   virtual void PopulateQuadCell(int i);
@@ -158,9 +236,12 @@ protected:
   virtual void PopulatePyramidCell(int i);
   virtual void PopulateWedgeCell(int i);
   virtual void PopulatePolyhedronCell(int i);
+  //@}
 
+  /**
+   * Read and reconstruct data from .dat.h5 file
+   */
   virtual void GetData();
-  virtual bool ParallelCheckCell(int vtkNotUsed(i)) { return true; }
 
   //
   //  Variables

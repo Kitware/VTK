@@ -26,6 +26,7 @@
 #define VTK_DEPRECATION_LEVEL 0
 
 #include "vtkFLUENTCFFReader.h"
+#include "fstream"
 #include "vtkByteSwap.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
@@ -54,17 +55,14 @@
 #include "vtkWedge.h"
 #include "vtksys/Encoding.hxx"
 #include "vtksys/FStream.hxx"
-
-#include "fstream"
 #include <algorithm>
+#include <cctype>
 #include <map>
 #include <set>
 #include <sstream>
 #include <string>
-#include <vector>
-
-#include <cctype>
 #include <sys/stat.h>
+#include <vector>
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkFLUENTCFFReader);
@@ -232,10 +230,38 @@ int vtkFLUENTCFFReader::RequestData(vtkInformation* vtkNotUsed(request),
     return 0;
   }
 
+  if (this->FluentCaseFile < 0)
+  {
+    vtkErrorMacro("HDF5 file not opened!");
+    return 0;
+  }
+
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
   vtkMultiBlockDataSet* output =
     vtkMultiBlockDataSet::SafeDownCast(outInfo->Get(vtkMultiBlockDataSet::DATA_OBJECT()));
+
+  // Read data
+  this->ParseCaseFile();
+  this->CleanCells();
+  this->PopulateCellNodes();
+  this->GetNumberOfCellZones();
+  this->NumberOfScalars = 0;
+  this->NumberOfVectors = 0;
+  if (this->DataPass == 1)
+  {
+    this->GetData();
+    this->PopulateCellTree();
+  }
+  for (size_t i = 0; i < this->ScalarDataChunks->value.size(); i++)
+  {
+    this->CellDataArraySelection->AddArray(this->ScalarDataChunks->value[i].variableName.c_str());
+  }
+  for (size_t i = 0; i < this->VectorDataChunks->value.size(); i++)
+  {
+    this->CellDataArraySelection->AddArray(this->VectorDataChunks->value[i].variableName.c_str());
+  }
+  this->NumberOfCells = static_cast<vtkIdType>(this->Cells->value.size());
 
   output->SetNumberOfBlocks(static_cast<unsigned int>(this->CellZones->value.size()));
   // vtkUnstructuredGrid *Grid[CellZones.size()];
@@ -392,6 +418,30 @@ void vtkFLUENTCFFReader::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
   os << indent << "File Name: " << (this->FileName ? this->FileName : "(none)") << endl;
   os << indent << "Number Of Cells: " << this->NumberOfCells << endl;
+  os << indent << "Number Of Cell Zone: " << this->CellZones->value.size() << endl;
+  if (this->DataPass == 1)
+  {
+    os << indent << "List Of Scalar Value : " << this->ScalarDataChunks->value.size() << endl;
+    if (this->ScalarDataChunks->value.size() != 0)
+    {
+      os << indent;
+      for (size_t i = 0; i < this->ScalarDataChunks->value.size(); i++)
+      {
+        os << this->ScalarDataChunks->value[i].variableName;
+      }
+      os << endl;
+    }
+    os << indent << "List Of Vector Value : " << this->VectorDataChunks->value.size() << endl;
+    if (this->VectorDataChunks->value.size() != 0)
+    {
+      os << indent;
+      for (size_t i = 0; i < this->VectorDataChunks->value.size(); i++)
+      {
+        os << this->VectorDataChunks->value[i].variableName;
+      }
+      os << endl;
+    }
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -410,33 +460,15 @@ int vtkFLUENTCFFReader::RequestInformation(vtkInformation* vtkNotUsed(request),
     return 0;
   }
 
-  int dat_file_opened = this->OpenDataFile(this->FileName);
-  if (!dat_file_opened)
+  this->DataPass = this->OpenDataFile(this->FileName);
+  if (this->DataPass == 0)
   {
     vtkWarningMacro("Unable to open dat file.");
   }
 
-  this->ParseCaseFile(); // Reads Necessary Information from the .cas file.
+  this->GridDimension = this->GetDimension();
+  vtkDebugMacro(<< "\nDimension of file " << this->GridDimension);
 
-  this->CleanCells(); //  Removes unnecessary faces from the cells.
-  this->PopulateCellNodes();
-  this->GetNumberOfCellZones();
-  this->NumberOfScalars = 0;
-  this->NumberOfVectors = 0;
-  if (dat_file_opened)
-  {
-    this->GetData();
-    this->PopulateCellTree();
-  }
-  for (size_t i = 0; i < this->ScalarDataChunks->value.size(); i++)
-  {
-    this->CellDataArraySelection->AddArray(this->ScalarDataChunks->value[i].variableName.c_str());
-  }
-  for (size_t i = 0; i < this->VectorDataChunks->value.size(); i++)
-  {
-    this->CellDataArraySelection->AddArray(this->VectorDataChunks->value[i].variableName.c_str());
-  }
-  this->NumberOfCells = static_cast<vtkIdType>(this->Cells->value.size());
   return 1;
 }
 
@@ -453,7 +485,6 @@ bool vtkFLUENTCFFReader::OpenCaseFile(const char* filename)
   // Open file with default properties access
   this->FluentCaseFile = H5Fopen(filename, H5F_ACC_RDONLY, H5P_DEFAULT);
   // Check if file is CFF Format like
-  // status = H5Eset_auto(NULL, NULL);
   herr_t s1 = H5Gget_objinfo(this->FluentCaseFile, "/meshes", false, nullptr);
   herr_t s2 = H5Gget_objinfo(this->FluentCaseFile, "/settings", false, nullptr);
   if (s1 == 0 && s2 == 0)
@@ -534,8 +565,6 @@ bool vtkFLUENTCFFReader::OpenDataFile(const char* filename)
 //------------------------------------------------------------------------------
 void vtkFLUENTCFFReader::GetNumberOfCellZones()
 {
-  int match;
-
   for (size_t i = 0; i < this->Cells->value.size(); i++)
   {
     if (this->CellZones->value.empty())
@@ -544,7 +573,7 @@ void vtkFLUENTCFFReader::GetNumberOfCellZones()
     }
     else
     {
-      match = 0;
+      int match = 0;
       for (size_t j = 0; j < this->CellZones->value.size(); j++)
       {
         if (this->CellZones->value[j] == this->Cells->value[i].zone)
@@ -563,7 +592,6 @@ void vtkFLUENTCFFReader::GetNumberOfCellZones()
 //------------------------------------------------------------------------------
 void vtkFLUENTCFFReader::ParseCaseFile()
 {
-  this->GridDimension = this->GetDimension();
   this->GetNodesGlobal();
   this->GetCellsGlobal();
   this->GetFacesGlobal();
@@ -1058,7 +1086,9 @@ void vtkFLUENTCFFReader::GetFaces()
   status = H5Aread(attr, H5T_NATIVE_UINT64, &nSections);
   status = H5Aclose(attr);
   for (size_t i = 0; i < this->Faces->value.size(); i++)
+  {
     this->Faces->value[i].c1 = -1;
+  }
   for (uint64_t iSection = 0; iSection < nSections; iSection++)
   {
     uint32_t* c1;
@@ -1096,26 +1126,7 @@ void vtkFLUENTCFFReader::GetFaces()
 //------------------------------------------------------------------------------
 void vtkFLUENTCFFReader::GetPeriodicShadowFaces()
 {
-  // TODO: ??
-  /*size_t start = this->CaseBuffer->value.find('(', 1);
-  size_t end = this->CaseBuffer->value.find(')', 1);
-  std::string info = this->CaseBuffer->value.substr(start + 1, end - start - 1);
-  unsigned int firstIndex, lastIndex, periodicZone, shadowZone;
-  sscanf(info.c_str(), "%x %x %x %x", &firstIndex, &lastIndex, &periodicZone, &shadowZone);
-
-  size_t dstart = this->CaseBuffer->value.find('(', 7);
-  size_t ptr = dstart + 1;
-
-  // int faceIndex1, faceIndex2;
-  for (unsigned int i = firstIndex; i <= lastIndex; i++)
-  {
-    // faceIndex1 = this->GetCaseBufferInt(ptr);
-    this->GetCaseBufferInt(static_cast<int>(ptr));
-    ptr = ptr + 4;
-    // faceIndex2 = this->GetCaseBufferInt(ptr);
-    this->GetCaseBufferInt(static_cast<int>(ptr));
-    ptr = ptr + 4;
-  }*/
+  // TODO: Periodic shadow faces has not been tested because no test file available
 }
 
 //------------------------------------------------------------------------------
@@ -1125,6 +1136,7 @@ void vtkFLUENTCFFReader::GetCellOverset()
   if (s1 == 0)
   {
     vtkWarningMacro("The overset layout of this CFF file cannot be displayed by this reader.");
+    // TODO: Overset has not been tested because no test file available
     // This function can read the overset structure but Ansys Fluent does not
     // give any explanation about the structure of the overset data.
     /*herr_t status;
@@ -1361,26 +1373,7 @@ void vtkFLUENTCFFReader::GetInterfaceFaceParents()
 //------------------------------------------------------------------------------
 void vtkFLUENTCFFReader::GetNonconformalGridInterfaceFaceInformation()
 {
-  // TODO: ??
-  /*size_t start = this->CaseBuffer->value.find('(', 1);
-  size_t end = this->CaseBuffer->value.find(')', 1);
-  std::string info = CaseBuffer->value.substr(start + 1, end - start - 1);
-  int kidId, parentId, numberOfFaces;
-  sscanf(info.c_str(), "%d %d %d", &kidId, &parentId, &numberOfFaces);
-
-  size_t dstart = this->CaseBuffer->value.find('(', 7);
-  size_t ptr = dstart + 1;
-
-  int child, parent;
-  for (int i = 0; i < numberOfFaces; i++)
-  {
-    child = this->GetCaseBufferInt(static_cast<int>(ptr));
-    ptr = ptr + 4;
-    parent = this->GetCaseBufferInt(static_cast<int>(ptr));
-    ptr = ptr + 4;
-    this->Faces->value[child - 1].ncgChild = 1;
-    this->Faces->value[parent - 1].ncgParent = 1;
-  }*/
+  // TODO: Non conformal grid interace faces has not been tested because no test file available
 }
 
 //------------------------------------------------------------------------------
@@ -2065,12 +2058,9 @@ void vtkFLUENTCFFReader::PopulatePolyhedronCell(int i)
   //  nodes std::vector within the cell.  All we have to check for is
   //  duplicate nodes.
   //
-  // cout << "number of faces in cell = " << Cells[i].faces.size() << endl;
 
   for (size_t j = 0; j < this->Cells->value[i].faces.size(); j++)
   {
-    // cout << "number of nodes in face = " <<
-    // Faces[Cells[i].faces[j]].nodes.size() << endl;
     for (size_t k = 0; k < this->Faces->value[this->Cells->value[i].faces[j]].nodes.size(); k++)
     {
       int flag;
