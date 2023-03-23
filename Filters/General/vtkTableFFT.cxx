@@ -55,7 +55,7 @@ typename std::iterator_traits<InputIt>::value_type WindowEnergy(InputIt begin, I
 
 // Easy access to the right windowing function using vtkTableFFT enumeration.
 // clang-format off
-constexpr static std::array<vtkFFT::WindowGenerator, vtkTableFFT::MAX_WINDOWING_FUNCTION> WindowingFunctionsList =
+static const std::array<vtkFFT::WindowGenerator, vtkTableFFT::MAX_WINDOWING_FUNCTION> WindowingFunctionsList =
 {
   vtkFFT::HanningGenerator,
   vtkFFT::BartlettGenerator,
