@@ -1,10 +1,10 @@
 Develop VTK
 ===========
 
-This page documents how to develop VTK using [gitlab][] and [Git][].
+This page documents how to develop VTK using [GitLab][] and [Git][].
 See the [README](README.md) for more information.
 
-[gitlab]: https://gitlab.kitware.com
+[GitLab]: https://gitlab.kitware.com
 [Git]: https://git-scm.com
 
 Git is an extremely powerful version control tool that supports many
@@ -25,15 +25,15 @@ Before you begin, perform your initial setup using the following steps:
 3.  Follow the [download instructions](download.md#clone) to create a
     local clone of the main VTK repository:
 
-        $ git clone https://gitlab.kitware.com/vtk/vtk.git VTK
-        $ cd VTK
-        $ git submodule update --init --recursive
+        $ git clone --recursive https://gitlab.kitware.com/vtk/vtk.git VTK
+
     The main repository will be configured as your `origin` remote.
 
 4.  Run the [developer setup script][] to prepare your VTK work tree and
     create Git command aliases used below:
 
         $ ./Utilities/SetupForDevelopment.sh
+
     This will prompt you for your GitLab username and configure a remote
     called `gitlab` to refer to your fork. It will also setup a data directory for you.
     No need to do anything else.
@@ -72,6 +72,7 @@ of the module you are making changes in to see how the tests are currently built
 Run your test locally from your build directory and check that they pass:
 
 ```
+cmake . && cmake --build .
 ctest -VV -R yourTest
 ```
 
@@ -90,7 +91,7 @@ For data, add the file names to the list in your module `yourModule/Testing/CMak
 For baselines, just drop the file in `yourModule/Testing/Data/Baselines` and run the following commands from your build directory:
 
 ```
-cmake ./ && cmake --build .
+cmake . && cmake --build .
 ```
 
 This will transform your files into .sha512 files. Check your test is passing by running from your build directory:
@@ -159,12 +160,12 @@ Once a reviewer is happy with your changes, they will add a `+X` comment. You ne
 merging the MR. Two `+1`s do not equal a `+2`. If a reviewer leave a `-1` comment, please discuss with them to understand what is the issue and how it could be fixed.
 
 Once you have pushed new changes, please tag reviewers again so that they can take a look.
-If you do not tag reviewers, they may not look. _Do not hesitate to tag them and ask for help_.
+If you do not tag reviewers, they may not know to revisit your changes. _Do not hesitate to tag them and ask for help_.
 
 ### Continuous Integration
 
 Before merging a MR, the VTK continuous integration (CI) needs to run and be green.
-For CI to be functionnal, please read and follow this [guide](https://discourse.vtk.org/t/the-ultimate-how-to-make-ci-work-with-my-fork-guide/7581).
+For CI to be functional, please read and follow this [guide](https://discourse.vtk.org/t/the-ultimate-how-to-make-ci-work-with-my-fork-guide/7581).
 
 To run the CI:
  - Click on the Pipelines Tab
@@ -175,7 +176,7 @@ Do not hesitate to tag a VTK developer for help if needed.
 
 You then need to wait for CI to run, it can take a while, up to a full day.
 
-A sucessfull CI should be fully green. If that is so, then your MR is ready !
+A successful CI should be fully green. If that is so, then your MR is ready !
 
 If not, you need to analyse the issues and fix them. Recover the failure information this way:
 
@@ -183,7 +184,7 @@ Click on the pipelines tab, then on the last status badge, then on the `cdash-co
 It will take you to the related CDash report where you will find all information.
 
 Everything in the CDash report should be green except the `NotRun` and `Time` column. Take a look into each issue and fix them locally.
-If there are issue in the pipeline but nothing is visible in the CDash, please ask a maintainer for help to figure out if anything should be done.
+If there are issues in the pipeline but nothing is visible in the CDash, please ask a maintainer for help to figure out if anything should be done.
 You can always try to rerun the failed job by clicking on the arrow of the job in the pipeline.
 
 Once you have fixed some issues locally, commit and push them to gitlab, run the CI again and tag reviewers again for follow-up reviews.
