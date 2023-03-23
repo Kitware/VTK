@@ -38,7 +38,9 @@
 #define vtkFLUENTCFFReader_h
 
 #include "vtkIOGeometryModule.h" // For export macro
+
 #include "vtkMultiBlockDataSetAlgorithm.h"
+#include "vtkNew.h"   // For vtkNew
 #include "vtk_hdf5.h" // For hdf5 library (hid_t type)
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -63,8 +65,8 @@ public:
   /**
    * Specify the file name of the Fluent case file to read.
    */
-  vtkSetStringMacro(FileName);
-  vtkGetStringMacro(FileName);
+  vtkSetMacro(FileName, std::string);
+  vtkGetMacro(FileName, std::string);
   //@}
 
   //@{
@@ -107,20 +109,45 @@ public:
   //
   //  Structures
   //
-  struct Cell;
-  struct Face;
-  struct ScalarDataChunk;
-  struct VectorDataChunk;
-  struct stdString;
-  struct intVector;
-  struct doubleVector;
-  struct stringVector;
-  struct cellVector;
-  struct faceVector;
-  struct stdMap;
-  struct scalarDataVector;
-  struct vectorDataVector;
-  struct intVectorVector;
+  struct Cell
+  {
+    int type;
+    int zone;
+    std::vector<int> faces;
+    int parent;
+    int child;
+    std::vector<int> nodes;
+    std::vector<int> childId;
+  };
+  struct Face
+  {
+    int type;
+    unsigned int zone;
+    std::vector<int> nodes;
+    int c0;
+    int c1;
+    int periodicShadow;
+    int parent;
+    int child;
+    int interfaceFaceParent;
+    int interfaceFaceChild;
+    int ncgParent;
+    int ncgChild;
+  };
+  struct ScalarDataChunk
+  {
+    std::string variableName;
+    vtkIdType zoneId;
+    std::vector<double> scalarData;
+  };
+  struct VectorDataChunk
+  {
+    std::string variableName;
+    vtkIdType zoneId;
+    std::vector<double> iComponentData;
+    std::vector<double> jComponentData;
+    std::vector<double> kComponentData;
+  };
   //@}
 
 protected:
@@ -133,8 +160,8 @@ protected:
   /**
    * Open the HDF5 file structure
    */
-  virtual bool OpenCaseFile(const char* filename);
-  virtual bool OpenDataFile(const char* filename);
+  virtual bool OpenCaseFile(const std::string filename);
+  virtual bool OpenDataFile(const std::string filename);
   //@}
 
   /**
@@ -246,8 +273,8 @@ protected:
   //
   //  Variables
   //
-  vtkDataArraySelection* CellDataArraySelection;
-  char* FileName;
+  vtkNew<vtkDataArraySelection> CellDataArraySelection;
+  std::string FileName;
   vtkIdType NumberOfCells;
   int NumberOfCellArrays;
 
@@ -255,20 +282,20 @@ protected:
   hid_t FluentDataFile;
   herr_t status;
 
-  vtkPoints* Points;
-  vtkTriangle* Triangle;
-  vtkTetra* Tetra;
-  vtkQuad* Quad;
-  vtkHexahedron* Hexahedron;
-  vtkPyramid* Pyramid;
-  vtkWedge* Wedge;
-  vtkConvexPointSet* ConvexPointSet;
+  vtkNew<vtkPoints> Points;
+  vtkNew<vtkTriangle> Triangle;
+  vtkNew<vtkTetra> Tetra;
+  vtkNew<vtkQuad> Quad;
+  vtkNew<vtkHexahedron> Hexahedron;
+  vtkNew<vtkPyramid> Pyramid;
+  vtkNew<vtkWedge> Wedge;
+  vtkNew<vtkConvexPointSet> ConvexPointSet;
 
-  cellVector* Cells;
-  faceVector* Faces;
-  intVector* CellZones;
-  scalarDataVector* ScalarDataChunks;
-  vectorDataVector* VectorDataChunks;
+  std::vector<Cell> Cells;
+  std::vector<Face> Faces;
+  std::vector<int> CellZones;
+  std::vector<ScalarDataChunk> ScalarDataChunks;
+  std::vector<VectorDataChunk> VectorDataChunks;
 
   vtkTypeBool SwapBytes;
   int GridDimension;
