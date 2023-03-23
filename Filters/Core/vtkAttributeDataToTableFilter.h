@@ -35,7 +35,7 @@ All rights reserved.
 #ifndef vtkAttributeDataToTableFilter_h
 #define vtkAttributeDataToTableFilter_h
 
-#include "vtkInfovisCoreModule.h" // needed for export macro
+#include "vtkFiltersCoreModule.h" // needed for export macro
 #include "vtkTableAlgorithm.h"
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -43,7 +43,7 @@ class vtkDataSet;
 class vtkFieldData;
 class vtkIdTypeArray;
 
-class VTKINFOVISCORE_EXPORT vtkAttributeDataToTableFilter : public vtkTableAlgorithm
+class VTKFILTERSCORE_EXPORT vtkAttributeDataToTableFilter : public vtkTableAlgorithm
 {
 public:
   static vtkAttributeDataToTableFilter* New();

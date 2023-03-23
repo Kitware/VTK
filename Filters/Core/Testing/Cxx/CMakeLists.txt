@@ -16,6 +16,8 @@ vtk_add_test_cxx(vtkFiltersCoreCxxTests tests
   TestArrayCalculator.cxx,NO_VALID
   TestArrayRename.cxx,NO_VALID
   TestAssignAttribute.cxx,NO_VALID
+  TestAttributeDataToTableFilter.cxx,NO_VALID
+  TestAttributeDataToTableHyperTreeGrid.cxx,NO_VALID
   TestBinCellDataFilter.cxx,NO_VALID
   TestCategoricalPointDataToCellData.cxx,NO_VALID
   TestCategoricalResampleWithDataSet.cxx,NO_VALID

@@ -11,6 +11,7 @@ set(classes
   vtkArrayRename
   vtkAssignAttribute
   vtkAttributeDataToFieldDataFilter
+  vtkAttributeDataToTableFilter
   vtkBinCellDataFilter
   vtkBinnedDecimation
   vtkCellCenters

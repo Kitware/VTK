@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkAttributeDataToTableFilter.cxx"
+#include "vtkAttributeDataToTableFilter.h"
 
 #include "vtkCellData.h"
 #include "vtkDataArrayRange.h"
