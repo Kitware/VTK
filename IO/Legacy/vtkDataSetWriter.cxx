@@ -95,6 +95,7 @@ void vtkDataSetWriter::WriteData()
   writer->SetFileType(this->FileType);
   writer->SetDebug(this->Debug);
   writer->SetWriteToOutputString(this->WriteToOutputString);
+  writer->SetFileVersion(this->FileVersion);
   writer->Write();
   if (writer->GetErrorCode() == vtkErrorCode::OutOfDiskSpaceError)
   {
