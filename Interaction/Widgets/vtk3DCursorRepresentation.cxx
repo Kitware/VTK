@@ -47,6 +47,9 @@ vtk3DCursorRepresentation::vtk3DCursorRepresentation()
   vtkNew<vtkPolyDataMapper> mapper;
   mapper->SetInputConnection(cross->GetOutputPort());
   mapper->Update();
+  // We disable this option because it do not give good
+  // results when zooming close to the actors in the scene
+  mapper->SetResolveCoincidentTopologyToOff();
 
   this->Cursor = vtkSmartPointer<vtkActor>::New();
   this->Cursor->SetMapper(mapper);
