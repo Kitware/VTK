@@ -17,6 +17,8 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
+// VTK_DEPRECATED_IN_9_3_0() warnings for this class.
+#define VTK_DEPRECATION_LEVEL 0
 
 #include "vtkDataObjectToTable.h"
 
