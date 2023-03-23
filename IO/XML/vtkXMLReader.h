@@ -206,33 +206,51 @@ protected:
   vtkXMLReader();
   ~vtkXMLReader() override;
 
-  // Pipeline execution methods to be defined by subclass.  Called by
-  // corresponding RequestData methods after appropriate setup has been
-  // done.
+  ///@{
+  /**
+   * Pipeline execution methods to be defined by subclass.  Called by
+   * corresponding RequestData methods after appropriate setup has been
+   * done.
+   */
   virtual int ReadXMLInformation();
   virtual void ReadXMLData();
+  ///@}
 
-  // Get the name of the data set being read.
+  /**
+   * Get the name of the data set being read.
+   */
   virtual const char* GetDataSetName() = 0;
 
-  // Test if the reader can read a file with the given version number.
+  /**
+   * Test if the reader can read a file with the given version number.
+   */
   virtual int CanReadFileVersion(int major, int minor);
 
-  // Setup the output with no data available.  Used in error cases.
+  /**
+   * Setup the output with no data available. Used in error cases.
+   */
   virtual void SetupEmptyOutput() = 0;
 
-  // Setup the output's information.
+  /**
+   * Setup the output's information.
+   */
   virtual void SetupOutputInformation(vtkInformation* vtkNotUsed(outInfo)) {}
 
-  // Setup the output's data with allocation.
+  /**
+   * Setup the output's data with allocation.
+   */
   virtual void SetupOutputData();
 
-  // Read the primary element from the file.  This is the element
-  // whose name is the value returned by GetDataSetName().
+  /**
+   * Read the primary element from the file. This is the element
+   * whose name is the value returned by GetDataSetName().
+   */
   virtual int ReadPrimaryElement(vtkXMLDataElement* ePrimary);
 
-  // Read the top-level element from the file.  This is always the
-  // VTKFile element.
+  /**
+   * Read the top-level element from the file. This is always the
+   * VTKFile element.
+   */
   virtual int ReadVTKFile(vtkXMLDataElement* eVTKFile);
 
   /**
@@ -242,19 +260,28 @@ protected:
    */
   int GetLocalDataType(vtkXMLDataElement* da, int datatype);
 
-  // Create a vtkAbstractArray from its corresponding XML representation.
-  // Does not allocate.
+  /**
+   * Create a vtkAbstractArray from its corresponding XML representation.
+   * Does not allocate.
+   */
   vtkAbstractArray* CreateArray(vtkXMLDataElement* da);
 
-  // Create a vtkInformationKey from its corresponding XML representation.
-  // Stores it in the instance of vtkInformationProvided. Does not allocate.
+  /**
+   * Create a vtkInformationKey from its corresponding XML representation.
+   * Stores it in the instance of vtkInformationProvided. Does not allocate.
+   */
   int CreateInformationKey(vtkXMLDataElement* eInfoKey, vtkInformation* info);
 
-  // Populates the info object with the InformationKey children in infoRoot.
-  // Returns false if errors occur.
+  /**
+   * Populates the info object with the InformationKey children in infoRoot.
+   * Returns false if errors occur.
+   */
   bool ReadInformation(vtkXMLDataElement* infoRoot, vtkInformation* info);
 
-  // Internal utility methods.
+  ///@{
+  /**
+   * Internal utility methods.
+   */
   virtual int OpenStream();
   virtual void CloseStream();
   virtual int OpenVTKFile();
@@ -265,6 +292,7 @@ protected:
   virtual void DestroyXMLParser();
   void SetupCompressor(const char* type);
   int CanReadFileVersionString(const char* version);
+  ///@}
 
   /**
    * This method is used by CanReadFile() to check if the reader can read an XML
@@ -273,13 +301,20 @@ protected:
    */
   virtual int CanReadFileWithDataType(const char* dsname);
 
-  // Returns the major version for the file being read. -1 when invalid.
+  /**
+   * Returns the major version for the file being read. -1 when invalid.
+   */
   vtkGetMacro(FileMajorVersion, int);
 
-  // Returns the minor version for the file being read. -1 when invalid.
+  /**
+   * Returns the minor version for the file being read. -1 when invalid.
+   */
   vtkGetMacro(FileMinorVersion, int);
 
-  // Utility methods for subclasses.
+  ///@{
+  /**
+   * Utility methods for subclasses.
+   */
   int IntersectExtents(int* extent1, int* extent2, int* result);
   int Min(int a, int b);
   int Max(int a, int b);
@@ -291,40 +326,55 @@ protected:
   void ReadAttributeIndices(vtkXMLDataElement* eDSA, vtkDataSetAttributes* dsa);
   char** CreateStringArray(int numStrings);
   void DestroyStringArray(int numStrings, char** strings);
+  ///@}
 
-  // Read an Array values starting at the given index and up to numValues.
-  // This method assumes that the array is of correct size to
-  // accommodate all numValues values. arrayIndex is the value index at which the read
-  // values will be put in the array.
+  /**
+   * Read an Array values starting at the given index and up to numValues.
+   * This method assumes that the array is of correct size to
+   * accommodate all numValues values. arrayIndex is the value index at which the read
+   * values will be put in the array.
+   */
   virtual int ReadArrayValues(vtkXMLDataElement* da, vtkIdType arrayIndex, vtkAbstractArray* array,
     vtkIdType startIndex, vtkIdType numValues, FieldType type = OTHER);
 
-  // Read an Array values starting at the given tuple index and up to numTuples
-  // taking into account the number of components declared in array.
-  // This method assumes that the array is of correct size to
-  // accommodate all numTuples multiplied by number of components.
-  // arrayTupleIndex is the tuple index at which the read
-  // values will be put in the array.
+  /**
+   * Read an Array values starting at the given tuple index and up to numTuples
+   * taking into account the number of components declared in array.
+   * This method assumes that the array is of correct size to
+   * accommodate all numTuples multiplied by number of components.
+   * arrayTupleIndex is the tuple index at which the read
+   * values will be put in the array.
+   */
   virtual int ReadArrayTuples(vtkXMLDataElement* da, vtkIdType arrayTupleIndex,
     vtkAbstractArray* array, vtkIdType startTupleIndex, vtkIdType numTuples,
     FieldType type = OTHER);
 
-  // Setup the data array selections for the input's set of arrays.
+  /**
+   * Setup the data array selections for the input's set of arrays.
+   */
   void SetDataArraySelections(vtkXMLDataElement* eDSA, vtkDataArraySelection* sel);
 
   int SetFieldDataInfo(vtkXMLDataElement* eDSA, int association, vtkIdType numTuples,
     vtkInformationVector*(&infoVector));
 
-  // Check whether the given array element is an enabled array.
+  ///@{
+  /**
+   * Check whether the given array element is an enabled array.
+   */
   int PointDataArrayIsEnabled(vtkXMLDataElement* ePDA);
   int CellDataArrayIsEnabled(vtkXMLDataElement* eCDA);
+  ///@}
 
-  // Callback registered with the SelectionObserver.
+  /**
+   * Callback registered with the SelectionObserver.
+   */
   static void SelectionModifiedCallback(
     vtkObject* caller, unsigned long eid, void* clientdata, void* calldata);
 
-  // Give concrete classes an option to squeeze any output arrays
-  // at the end of RequestData.
+  /**
+   * Give concrete classes an option to squeeze any output arrays
+   * at the end of RequestData.
+   */
   virtual void SqueezeOutputArrays(vtkDataObject*) {}
 
   /**
