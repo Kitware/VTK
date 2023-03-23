@@ -347,7 +347,7 @@ int TestXMLHyperTreeGridIO2(int argc, char* argv[])
 
   if (!AreHTGSame(htgWrite, htgRead))
   {
-    vtkLog(ERROR, "Masked Appended Write and Read version 1 failed");
+    vtkLog(ERROR, "Masked Appended Write and Read version 2 failed");
     return EXIT_FAILURE;
   }
 
@@ -399,7 +399,7 @@ int TestXMLHyperTreeGridIO2(int argc, char* argv[])
 
   if (!AreHTGSame(htgWrite, htgRead))
   {
-    vtkLog(ERROR, "Masked Binary Write and Read version 1 failed");
+    vtkLog(ERROR, "Masked Binary Write and Read version 2 failed");
     return EXIT_FAILURE;
   }
 
@@ -425,7 +425,7 @@ int TestXMLHyperTreeGridIO2(int argc, char* argv[])
   htgRead = vtkHyperTreeGrid::SafeDownCast(reader->GetOutputDataObject(0));
   if (!AreHTGSame(htgWrite, htgRead, maxDepth))
   {
-    vtkLog(ERROR, "Masked Appended Write and Read version 1 failed");
+    vtkLog(ERROR, "Masked Appended Write and Read version 2 failed");
     return EXIT_FAILURE;
   }
 
@@ -441,13 +441,13 @@ int TestXMLHyperTreeGridIO2(int argc, char* argv[])
   }
 
   vtkLog(INFO, "Reading TestXMLHyperTreeGridIO2_MaskedBinaryv2.htg with depth limiter");
-  fname = tdir + std::string("/TestXMLHyperTreeGridIO2_MaskedBinaryv1.htg");
+  fname = tdir + std::string("/TestXMLHyperTreeGridIO2_MaskedBinaryv2.htg");
   reader->SetFileName(fname.c_str());
   reader->Update();
   htgRead = vtkHyperTreeGrid::SafeDownCast(reader->GetOutputDataObject(0));
   if (!AreHTGSame(htgWrite, htgRead, maxDepth))
   {
-    vtkLog(ERROR, "Masked Binary Write and Read version 1 failed");
+    vtkLog(ERROR, "Masked Binary Write and Read version 2 failed");
     return EXIT_FAILURE;
   }
 
