@@ -29,6 +29,7 @@
 
 #include "vtkmlib/ArrayConverters.h"
 #include "vtkmlib/DataSetConverters.h"
+#include "vtkmlib/DataSetUtils.h"
 
 #include <vtkm/cont/ErrorFilterExecution.h>
 #include <vtkm/filter/field_conversion/PointAverage.h>
@@ -113,7 +114,8 @@ int vtkmAverageToPoints::RequestData(
       }
     }
 
-    if (in.GetNumberOfFields() < 1) // `in` should only have cell fields, if any
+    // At this point, `in` should only have cell fields and coordinates
+    if (in.GetNumberOfFields() <= in.GetNumberOfCoordinateSystems())
     {
       vtkWarningMacro(<< "No cell arrays to process.");
       return 1;
@@ -144,13 +146,13 @@ int vtkmAverageToPoints::RequestData(
 
     // Execute the vtk-m filter
     vtkm::filter::field_conversion::PointAverage filter;
-    for (int i = 0; i < in.GetNumberOfFields(); ++i)
+    for (auto i : GetFieldsIndicesWithoutCoords(in))
     {
       const auto& name = in.GetField(i).GetName();
       filter.SetActiveField(name, vtkm::cont::Field::Association::Cells);
       auto result = filter.Execute(in);
 
-      // convert back the dataset to VTK, and add the field as a point field
+      // convert back to VTK, and add the field as a point field
       vtkDataArray* resultingArray = fromvtkm::Convert(result.GetPointField(name));
       if (resultingArray == nullptr)
       {
