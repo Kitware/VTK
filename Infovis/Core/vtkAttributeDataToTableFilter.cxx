@@ -26,6 +26,7 @@ All rights reserved.
 #include "vtkCellData.h"
 #include "vtkCharArray.h"
 #include "vtkCompositeDataPipeline.h"
+#include "vtkDataArrayRange.h"
 #include "vtkDataSet.h"
 #include "vtkIdList.h"
 #include "vtkIdTypeArray.h"
@@ -36,6 +37,9 @@ All rights reserved.
 #include "vtkPointData.h"
 #include "vtkPointSet.h"
 #include "vtkRectilinearGrid.h"
+#include "vtkSMPThreadLocal.h"
+#include "vtkSMPThreadLocalObject.h"
+#include "vtkSMPTools.h"
 #include "vtkSmartPointer.h"
 #include "vtkStructuredGrid.h"
 #include "vtkTable.h"
@@ -52,6 +56,39 @@ namespace
 {
 
 const std::string VALID_MASK_PREFIX = "__vtkValidMask__";
+
+struct MaxCellSizeWorker
+{
+  vtkDataSet* Data;
+  vtkSMPThreadLocalObject<vtkIdList> Points;
+  vtkSMPThreadLocal<vtkIdType> MaxCellSize;
+  vtkIdType ReducedMaxCellSize = 0;
+
+  MaxCellSizeWorker(vtkDataSet* data)
+    : Data(data)
+  {
+  }
+
+  void Initialize() {} // do nothing
+
+  void operator()(vtkIdType begin, vtkIdType end)
+  {
+    for (vtkIdType idx = begin; idx < end; ++idx)
+    {
+      this->Data->GetCellPoints(idx, this->Points.Local());
+      this->MaxCellSize.Local() =
+        std::max(this->MaxCellSize.Local(), this->Points.Local()->GetNumberOfIds());
+    }
+  }
+
+  void Reduce()
+  {
+    for (auto iter = this->MaxCellSize.begin(); iter != this->MaxCellSize.end(); ++iter)
+    {
+      this->ReducedMaxCellSize = std::max(this->ReducedMaxCellSize, *iter);
+    }
+  };
+};
 
 }
 
@@ -125,17 +162,26 @@ void vtkAttributeDataToTableFilter::AddCellTypeAndConnectivity(vtkTable* output,
   vtkNew<vtkCharArray> celltypes;
   celltypes->SetName("Cell Type");
   const vtkIdType numcells = ds->GetNumberOfCells();
+  celltypes->SetNumberOfComponents(1);
   celltypes->SetNumberOfTuples(numcells);
-  char* ptr = celltypes->GetPointer(0);
-  vtkNew<vtkIdList> points;
-  vtkIdType maxpoints = 0;
-  for (vtkIdType cc = 0; cc < numcells; cc++)
+  if (numcells != 0)
   {
-    ptr[cc] = static_cast<char>(ds->GetCellType(cc));
-    ds->GetCellPoints(cc, points);
-    maxpoints = maxpoints > points->GetNumberOfIds() ? maxpoints : points->GetNumberOfIds();
+    // for thread safety after
+    ds->GetCellType(0);
   }
+  vtkSMPTools::For(0, numcells, [&ds, &celltypes](vtkIdType begin, vtkIdType end) {
+    for (auto idx = begin; idx < end; ++idx)
+    {
+      celltypes->SetValue(idx, static_cast<char>(ds->GetCellType(idx)));
+    }
+  });
   output->GetRowData()->AddArray(celltypes);
+  vtkIdType maxpoints = 0;
+  {
+    ::MaxCellSizeWorker worker(ds);
+    vtkSMPTools::For(0, numcells, worker);
+    maxpoints = worker.ReducedMaxCellSize;
+  }
 
   if (this->GenerateCellConnectivity)
   {
@@ -151,21 +197,24 @@ void vtkAttributeDataToTableFilter::AddCellTypeAndConnectivity(vtkTable* output,
       indices[i] = idarray;
     }
 
-    for (vtkIdType cc = 0; cc < numcells; cc++)
-    {
-      ds->GetCellPoints(cc, points);
-      for (vtkIdType pt = 0; pt < maxpoints; pt++)
+    vtkSMPTools::For(0, numcells, [&](vtkIdType begin, vtkIdType end) {
+      vtkNew<vtkIdList> locPoints;
+      for (vtkIdType cc = begin; cc < end; cc++)
       {
-        if (pt < points->GetNumberOfIds())
+        ds->GetCellPoints(cc, locPoints);
+        for (vtkIdType pt = 0; pt < maxpoints; pt++)
         {
-          indices[pt]->SetValue(cc, points->GetId(pt));
-        }
-        else
-        {
-          indices[pt]->SetValue(cc, -1);
+          if (pt < locPoints->GetNumberOfIds())
+          {
+            indices[pt]->SetValue(cc, locPoints->GetId(pt));
+          }
+          else
+          {
+            indices[pt]->SetValue(cc, -1);
+          }
         }
       }
-    }
+    });
     for (int i = 0; i < maxpoints; i++)
     {
       this->ConvertToOriginalIds(ds, indices[i]);
@@ -213,11 +262,14 @@ void vtkAttributeDataToTableFilter::PassFieldData(vtkFieldData* output, vtkField
       if (da != nullptr && num_comps > 0)
       {
         std::vector<double> tuple(num_comps, 0.0);
-        for (vtkIdType jj = current_count; jj < max_count; ++jj)
-        {
-          da->SetTuple(jj, &tuple[0]);
-          maskArray->SetTypedComponent(jj, 0, static_cast<unsigned char>(0));
-        }
+        vtkSMPTools::For(
+          current_count, max_count, [&da, &maskArray, &tuple](vtkIdType begin, vtkIdType end) {
+            for (auto idx = begin; idx < end; ++idx)
+            {
+              da->SetTuple(idx, tuple.data());
+              maskArray->SetTypedComponent(idx, 0, static_cast<unsigned char>(0));
+            }
+          });
       }
     }
   }
@@ -292,10 +344,12 @@ void vtkAttributeDataToTableFilter::Decorate(vtkTable* output, vtkDataObject* in
     indicesArray->SetNumberOfComponents(1);
     vtkIdType numElements = input->GetNumberOfElements(this->FieldAssociation);
     indicesArray->SetNumberOfTuples(numElements);
-    for (vtkIdType cc = 0; cc < numElements; cc++)
-    {
-      indicesArray->SetValue(cc, cc);
-    }
+    vtkSMPTools::For(0, numElements, [&indicesArray](vtkIdType begin, vtkIdType end) {
+      for (vtkIdType idx = begin; idx < end; ++idx)
+      {
+        indicesArray->SetValue(idx, idx);
+      }
+    });
     output->GetRowData()->AddArray(indicesArray);
     indicesArray->FastDelete();
   }
@@ -318,15 +372,16 @@ void vtkAttributeDataToTableFilter::ConvertToOriginalIds(
   }
   if (originalIds)
   {
-    for (vtkIdType i = 0; i < indices->GetNumberOfValues(); ++i)
-    {
-      vtkIdType id = indices->GetValue(i);
-      if (id >= 0 && id < originalIds->GetNumberOfTuples())
-      {
-        vtkIdType origId = originalIds->GetComponent(id, 0);
-        indices->SetValue(i, origId);
-      }
-    }
+    auto indexRange = vtk::DataArrayValueRange<1>(indices);
+    auto originalRange = vtk::DataArrayValueRange<1>(originalIds);
+    vtkSMPTools::Transform(
+      indexRange.begin(), indexRange.end(), indexRange.begin(), [&originalRange](vtkIdType idx) {
+        if (idx >= 0 && idx < originalRange.size())
+        {
+          return static_cast<vtkIdType>(originalRange[idx]);
+        }
+        return idx;
+      });
   }
 }
 
