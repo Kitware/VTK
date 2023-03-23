@@ -33,6 +33,7 @@ All rights reserve
 #ifndef vtkPolarAxesActor_h
 #define vtkPolarAxesActor_h
 
+#define VTK_MAXIMUM_NUMBER_OF_POLAR_AXES 20
 #define VTK_MAXIMUM_NUMBER_OF_RADIAL_AXES 50
 #define VTK_DEFAULT_NUMBER_OF_RADIAL_AXES 5
 #define VTK_MAXIMUM_NUMBER_OF_POLAR_AXIS_TICKS 200
@@ -42,6 +43,7 @@ All rights reserve
 
 #include "vtkActor.h"
 #include "vtkAxisActor.h"                 // access to enum values
+#include "vtkDeprecation.h"               // For deprecation macro
 #include "vtkRenderingAnnotationModule.h" // For export macro
 #include <list>                           // To process exponent list as reference
 #include <string>                         // used for ivar
@@ -104,21 +106,20 @@ public:
 
   ///@{
   /**
-   * Set/Get a number of ticks that one would like to display along polar axis
-   * NB: it modifies DeltaRangeMajor to correspond to this number
+   * Gets/Sets the number of polar axes
    */
-  virtual void SetNumberOfPolarAxisTicks(int);
-  int GetNumberOfPolarAxisTicks();
+  vtkSetClampMacro(RequestedNumberOfPolarAxes, vtkIdType, 0, VTK_MAXIMUM_NUMBER_OF_POLAR_AXES);
+  vtkGetMacro(RequestedNumberOfPolarAxes, vtkIdType);
   ///@}
 
   ///@{
   /**
-   * Set/Get whether the number of polar axis ticks and arcs should be automatically calculated
-   * Default: true
+   * Set/Get a number of ticks that one would like to display along polar axis
+   * NB: it modifies DeltaRangeMajor to correspond to this number
    */
-  vtkSetMacro(AutoSubdividePolarAxis, bool);
-  vtkGetMacro(AutoSubdividePolarAxis, bool);
-  vtkBooleanMacro(AutoSubdividePolarAxis, bool);
+  VTK_DEPRECATED_IN_9_3_0("Use SetDeltaRangeMajor instead or enable AxisTickMatchesPolarAxes")
+  virtual void SetNumberOfPolarAxisTicks(int);
+  int GetNumberOfPolarAxisTicks();
   ///@}
 
   ///@{
@@ -426,6 +427,15 @@ public:
 
   ///@{
   /**
+   * Turn on and off the use of polar axes range for axis major ticks.
+   */
+  vtkSetMacro(AxisTickMatchesPolarAxes, vtkTypeBool);
+  vtkGetMacro(AxisTickMatchesPolarAxes, vtkTypeBool);
+  vtkBooleanMacro(AxisTickMatchesPolarAxes, vtkTypeBool);
+  ///@}
+
+  ///@{
+  /**
    * Turn on and off the visibility of major ticks on the last arc.
    */
   vtkSetMacro(ArcTickVisibility, vtkTypeBool);
@@ -557,7 +567,7 @@ public:
 
   ///@{
   /**
-   * Set/Get the step between 2 major ticks, in range value (values displayed on the axis).
+   * Set/Get the range between 2 major ticks (values displayed on the axis).
    */
   vtkSetMacro(DeltaRangeMajor, double);
   vtkGetMacro(DeltaRangeMajor, double);
@@ -565,10 +575,18 @@ public:
 
   ///@{
   /**
-   * Set/Get the step between 2 minor ticks, in range value (values displayed on the axis).
+   * Set/Get the range between 2 minor ticks.
    */
   vtkSetMacro(DeltaRangeMinor, double);
   vtkGetMacro(DeltaRangeMinor, double);
+  ///@}
+
+  ///@{
+  /**
+   * Set/Get requested delta range for polar axes.
+   */
+  vtkSetMacro(RequestedDeltaRangePolarAxes, double);
+  vtkGetMacro(RequestedDeltaRangePolarAxes, double);
   ///@}
 
   ///@{
@@ -783,6 +801,7 @@ protected:
    * attributes
    * then PolarAxis itself is in charge of ticks drawing
    */
+  VTK_DEPRECATED_IN_9_3_0("Use SetDeltaRangeMajor instead or enable AxisTickMatchesPolarAxes")
   void AutoComputeTicksProperties();
 
   /**
@@ -850,6 +869,11 @@ protected:
   static double ComputeEllipseAngle(double angleInDegrees, double ratio);
 
   /**
+   * Compute delta range of polar axes.
+   */
+  virtual void ComputeDeltaRangePolarAxes(vtkIdType);
+
+  /**
    * Compute delta angle of radial axes.
    */
   virtual void ComputeDeltaAngleRadialAxes(vtkIdType);
@@ -870,10 +894,14 @@ protected:
   int RequestedNumberOfRadialAxes;
 
   /**
-   * Whether the number of polar axis ticks and arcs should be automatically calculated.
-   * Default: TRUE
+   * Number of polar axes
    */
-  bool AutoSubdividePolarAxis;
+  int NumberOfPolarAxes;
+
+  /**
+   * Requested Number of polar axes
+   */
+  int RequestedNumberOfPolarAxes;
 
   /**
    * Ratio for elliptical representation of the polar axes actor.
@@ -891,14 +919,24 @@ protected:
   double Range[2];
 
   /**
-   * Step between 2 minor ticks, in range value (values displayed on the axis).
+   * Range between 2 minor ticks.
    */
   double DeltaRangeMinor;
 
   /**
-   * Step between 2 major ticks, in range value (values displayed on the axis).
+   * Range between 2 major ticks (values displayed on the axis).
    */
   double DeltaRangeMajor;
+
+  /**
+   * Range between 2 polar axes.
+   */
+  double DeltaRangePolarAxes;
+
+  /**
+   * Requested delta range for polar axes.
+   */
+  double RequestedDeltaRangePolarAxes;
 
   /**
    * Angle between 2 minor ticks on the last arc.
@@ -1076,6 +1114,11 @@ protected:
    * Hold visibility of major/minor ticks for the polar axis and the last radial axis
    */
   vtkTypeBool AxisTickVisibility, AxisMinorTickVisibility;
+
+  /**
+   * Enable / Disable major ticks matching polar axes range (and minor half angle)
+   */
+  vtkTypeBool AxisTickMatchesPolarAxes;
 
   /**
    * Enable / Disable major/minor tick visibility on the last arc displayed

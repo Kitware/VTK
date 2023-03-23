@@ -56,8 +56,9 @@ void vtkPolarAxesActor::PrintSelf(ostream& os, vtkIndent indent)
      << ")\n";
 
   os << indent << "Number of radial axes: " << this->NumberOfRadialAxes << endl;
-  os << indent << "Auto Subdivide Polar Axis: " << this->AutoSubdividePolarAxis << endl;
-  os << indent << "Abgle between two radial axes: " << this->DeltaAngleRadialAxes << endl;
+  os << indent << "Number of polar axes: " << this->NumberOfPolarAxes << endl;
+  os << indent << "Angle between two radial axes: " << this->DeltaAngleRadialAxes << endl;
+  os << indent << "Range between two polar axes: " << this->DeltaRangePolarAxes << endl;
   os << indent << "Minimum Radius: " << this->MinimumRadius << endl;
   os << indent << "Maximum Radius: " << this->MaximumRadius << endl;
   os << indent << "Log Scale: " << (this->Log ? "On" : "Off") << endl;
@@ -163,6 +164,9 @@ void vtkPolarAxesActor::PrintSelf(ostream& os, vtkIndent indent)
      << endl;
   if (this->AxisTickVisibility && this->PolarTickVisibility)
   {
+    os << indent
+       << "Axes Major Ticks Matches Polar Axes: " << (this->AxisTickMatchesPolarAxes ? "On" : "Off")
+       << endl;
     os << indent << "Axes Major Tick Step: " << this->DeltaRangeMajor << endl;
     os << indent << "PolarAxis Major Tick Size: " << this->PolarAxisMajorTickSize << endl;
     os << indent << "PolarAxis Major Tick Thickness: " << this->PolarAxisMajorTickThickness << endl;
@@ -237,8 +241,11 @@ vtkPolarAxesActor::vtkPolarAxesActor()
   this->Pole[1] = 0.;
   this->Pole[2] = 0.;
 
-  // Invalid default number of polar arcs, and auto-calculate by default
-  this->AutoSubdividePolarAxis = true;
+  // Default number of polar axes
+  this->NumberOfPolarAxes = 5;
+  this->RequestedNumberOfPolarAxes = 5;
+  this->DeltaRangePolarAxes = 0.0;
+  this->RequestedDeltaRangePolarAxes = 0.0;
 
   // Ratio of the ellipse arc
   this->Ratio = 1.0;
@@ -304,7 +311,6 @@ vtkPolarAxesActor::vtkPolarAxesActor()
 
   this->PolarAxis->SetCalculateTitleOffset(0);
   this->PolarAxis->SetCalculateLabelOffset(0);
-  this->PolarAxis->LastMajorTickPointCorrectionOn();
 
   // Default distance LOD settings
   this->EnableDistanceLOD = 1;
@@ -429,11 +435,14 @@ vtkPolarAxesActor::vtkPolarAxesActor()
   this->ArcMajorTickThickness = 1.0;
   this->ArcTickRatioThickness = 0.5;
 
-  // Step between 2 major ticks, in range value (values displayed on the axis).
+  // Range between 2 major ticks, in range value.
   this->DeltaRangeMajor = 1.0;
 
-  // Step between 2 minor ticks, in range value (values displayed on the axis).
+  // Range between 2 minor ticks, in range value.
   this->DeltaRangeMinor = 0.5 * this->DeltaRangeMajor;
+
+  // Range between 2 major ticks on axes should match polar axes.
+  this->AxisTickMatchesPolarAxes = true;
 
   // Angle between 2 major ticks on the last arc.
   this->DeltaAngleMajor = 10.0;
@@ -910,24 +919,25 @@ bool vtkPolarAxesActor::CheckMembersConsistency()
   }
 
   // Range Step
-  if (this->DeltaRangeMajor <= 0.0 ||
-    (this->DeltaRangeMajor > fabs(this->Range[1] - this->Range[0]) && !AutoSubdividePolarAxis))
+  if (this->RequestedNumberOfPolarAxes == 0 && this->RequestedDeltaRangePolarAxes == 0.0)
   {
-    vtkWarningMacro(
-      << "Axis Major Step or Range length invalid: "
-      << "DeltaRangeMajor: " << this->DeltaRangeMajor
-      << "_ Range length: " << fabs(this->Range[1] - this->Range[0])
-      << " _ Enable AutoSubdividePolarAxis to get a proper DeltaRangeMajor or set it yourself");
+    vtkWarningMacro(<< "Either NumberOfPolarAxes or DeltaRangePolarAxes must be set. "
+                    << "Both values equal 0: can't perform automatic computation.");
     return false;
   }
-  if (this->DeltaRangeMinor <= 0.0 ||
-    (this->DeltaRangeMinor > fabs(this->Range[1] - this->Range[0]) && !AutoSubdividePolarAxis))
+
+  if (this->DeltaRangeMajor <= 0.0 || this->DeltaRangeMinor > fabs(this->Range[1] - this->Range[0]))
   {
-    vtkWarningMacro(
-      << "Axis Minor Step or range length invalid: "
-      << "DeltaRangeMinor: " << this->DeltaRangeMinor
-      << "_ Range length: " << fabs(this->Range[1] - this->Range[0])
-      << " _ Enable AutoSubdividePolarAxis to get a proper DeltaRangeMinor or set it yourself");
+    vtkWarningMacro(<< "Axis Major Step invalid or range length invalid: "
+                    << "DeltaRangeMajor: " << this->DeltaRangeMajor
+                    << "_ Range length: " << fabs(this->Range[1] - this->Range[0]));
+    return false;
+  }
+  if (this->DeltaRangeMinor <= 0.0 || this->DeltaRangeMinor > fabs(this->Range[1] - this->Range[0]))
+  {
+    vtkWarningMacro(<< "Axis Minor Step or range length invalid: "
+                    << "DeltaRangeMinor: " << this->DeltaRangeMinor
+                    << "_ Range length: " << fabs(this->Range[1] - this->Range[0]));
     return false;
   }
 
@@ -1145,6 +1155,7 @@ void vtkPolarAxesActor::BuildAxes(vtkViewport* viewport)
   this->BuildTime.Modified();
 }
 
+//------------------------------------------------------------------------------
 void vtkPolarAxesActor::AutoComputeTicksProperties()
 {
   // set DeltaRangeMajor according to Range[1] magnitude
@@ -1158,9 +1169,17 @@ void vtkPolarAxesActor::AutoComputeTicksProperties()
     ? std::floor(log10RangeLength) - 1.0
     : std::floor(log10RangeLength);
 
-  this->DeltaRangeMajor = std::pow(10.0, stepPow10);
-  this->DeltaRangeMinor = this->DeltaRangeMajor / 2.0;
+  double deltaRangeMajor = std::pow(10.0, stepPow10);
+  double deltaRangeMinor = deltaRangeMajor / 2.0;
+
+  if (this->DeltaRangeMajor != deltaRangeMajor || this->DeltaRangeMinor != deltaRangeMinor)
+  {
+    this->DeltaRangeMajor = deltaRangeMajor;
+    this->DeltaRangeMinor = deltaRangeMinor;
+    this->Modified();
+  }
 }
+
 //------------------------------------------------------------------------------
 void vtkPolarAxesActor::SetCommonAxisAttributes(vtkAxisActor* axis)
 {
@@ -1234,22 +1253,12 @@ void vtkPolarAxesActor::SetPolarAxisAttributes(vtkAxisActor* axis)
   axis->SetLabelTextProperty(this->PolarAxisLabelTextProperty);
   axis->SetLabelOffset(this->PolarLabelOffset);
 
-  // Compute delta Range values (if log == 1, deltaRange properties will be overwritten)
-  if (this->AutoSubdividePolarAxis)
-  {
-    this->AutoComputeTicksProperties();
-  }
-
   double tickSize = this->PolarAxisMajorTickSize == 0.0
     ? this->TickRatioRadiusSize * this->MaximumRadius
     : this->PolarAxisMajorTickSize;
 
   axis->SetMajorTickSize(tickSize);
   axis->SetMinorTickSize(this->PolarAxisTickRatioSize * tickSize);
-
-  // Set the value between two ticks
-  axis->SetDeltaRangeMajor(this->DeltaRangeMajor);
-  axis->SetDeltaRangeMinor(this->DeltaRangeMinor);
 }
 
 //------------------------------------------------------------------------------
@@ -1747,31 +1756,55 @@ void vtkPolarAxesActor::BuildPolarAxisLabelsArcs()
   double rangeLength = axis->GetRange()[1] - axis->GetRange()[0];
   double rangeScale = axisLength / rangeLength;
 
+  // Update delta range of polar axes
+  if (this->RequestedDeltaRangePolarAxes > 0.0)
+  {
+    if (this->DeltaRangePolarAxes != this->RequestedDeltaRangePolarAxes)
+    {
+      this->DeltaRangePolarAxes = this->RequestedDeltaRangePolarAxes;
+    }
+  }
+  else if (this->RequestedNumberOfPolarAxes > 1)
+  {
+    this->ComputeDeltaRangePolarAxes(this->RequestedNumberOfPolarAxes);
+  }
+
+  int nAxes;
+  // If range too big, only first and last arcs
+  if (this->DeltaRangePolarAxes >= rangeLength)
+  {
+    nAxes = 2;
+  }
+  else if (this->RequestedNumberOfPolarAxes == 0)
+  {
+    nAxes = std::ceil(rangeLength / this->DeltaRangePolarAxes) + 1;
+  }
+  else
+  {
+    nAxes = std::min(this->RequestedNumberOfPolarAxes,
+      static_cast<int>(std::ceil(rangeLength / this->DeltaRangePolarAxes)) + 1);
+  }
+
+  if (this->NumberOfPolarAxes != nAxes)
+  {
+    this->NumberOfPolarAxes = nAxes;
+  }
+
   // Label values refers to range values
   double valueRange = axis->GetRange()[0];
-  double currentValue;
-  double deltaRange = axis->GetDeltaRangeMajor();
+  double deltaRange = this->DeltaRangePolarAxes;
   double deltaArc;
 
-  // Prepare storage for polar axis labels
-  std::list<double> labelValList;
-
   vtkIdType pointIdOffset = 0;
-  bool isInnerArc, isArcVisible, isLastArc;
+  bool isOuterArc, isArcVisible, isLastArc;
 
-  currentValue = axis->GetRange()[0];
-  while (currentValue < axis->GetRange()[1])
+  for (int i = 0; i < this->NumberOfPolarAxes; ++i)
   {
-    currentValue =
-      (valueRange + (deltaRange / 2) > axis->GetRange()[1]) ? axis->GetRange()[1] : valueRange;
-    deltaArc = (currentValue - axis->GetRange()[0]) * rangeScale;
+    deltaArc = (valueRange - axis->GetRange()[0]) * rangeScale;
 
-    isInnerArc = currentValue > axis->GetRange()[0] && currentValue < axis->GetRange()[1];
-    isArcVisible = !isInnerArc || this->DrawPolarArcsGridlines;
-    isLastArc = currentValue == axis->GetRange()[1];
-
-    // Store value
-    labelValList.push_back(currentValue);
+    isLastArc = i == this->NumberOfPolarAxes - 1;
+    isOuterArc = i == 0 || isLastArc;
+    isArcVisible = isOuterArc || this->DrawPolarArcsGridlines;
 
     // Build polar arcs for non-zero values
     if (deltaArc + this->MinimumRadius > 0. && isArcVisible)
@@ -1838,7 +1871,29 @@ void vtkPolarAxesActor::BuildPolarAxisLabelsArcs()
     }
 
     // Move to next value
-    valueRange += deltaRange;
+    valueRange = std::min(valueRange + deltaRange, axis->GetRange()[1]);
+  }
+
+  // Update polar axis there because DeltaRange might be needed
+  // And we use the range for labels
+  axis->SetDeltaRangeMajor(
+    this->AxisTickMatchesPolarAxes ? this->DeltaRangePolarAxes : this->DeltaRangeMajor);
+  axis->SetDeltaRangeMinor(
+    this->AxisTickMatchesPolarAxes ? this->DeltaRangePolarAxes / 2.0 : this->DeltaRangeMinor);
+
+  // Prepare storage for polar axis labels
+  std::list<double> labelValList;
+  int nTicks = this->AxisTickMatchesPolarAxes
+    ? this->NumberOfPolarAxes
+    : std::ceil(rangeLength / axis->GetDeltaRangeMajor()) + 1;
+  valueRange = axis->GetRange()[0];
+  for (int i = 0; i < nTicks; ++i)
+  {
+    // Store value
+    labelValList.push_back(valueRange);
+
+    // Move to next value
+    valueRange = std::min(valueRange + axis->GetDeltaRangeMajor(), axis->GetRange()[1]);
   }
 
   // set up vtk collection to store labels
@@ -2435,16 +2490,30 @@ vtkProperty* vtkPolarAxesActor::GetSecondaryPolarArcsProperty()
 //------------------------------------------------------------------------------
 void vtkPolarAxesActor::SetNumberOfPolarAxisTicks(int tickCountRequired)
 {
+  if (tickCountRequired <= 1)
+  {
+    return;
+  }
   double rangeLength = fabs(this->Range[1] - this->Range[0]);
-  double step = this->ComputeIdealStep(
-    tickCountRequired - 1, rangeLength, VTK_MAXIMUM_NUMBER_OF_POLAR_AXIS_TICKS - 1);
-  double tmpRangeMajor = this->DeltaRangeMajor;
-  double tmpRangeMinor = this->DeltaRangeMinor;
-  this->DeltaRangeMajor = (step == 0.0) ? rangeLength / 10.0 : step;
-  this->DeltaRangeMinor = (step == 0.0) ? (this->DeltaRangeMajor / 2.0) : (step / 2.0);
+  double tmpRangeMajor = rangeLength / (tickCountRequired - 1);
+  double tmpRangeMinor = tmpRangeMajor / 2.0;
   if (tmpRangeMajor != this->DeltaRangeMajor || tmpRangeMinor != this->DeltaRangeMinor)
   {
+    this->DeltaRangeMajor = tmpRangeMajor;
+    this->DeltaRangeMinor = tmpRangeMinor;
     this->Modified();
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkPolarAxesActor::ComputeDeltaRangePolarAxes(vtkIdType n)
+{
+  double rangeLength = fabs(this->Range[1] - this->Range[0]);
+  double step = rangeLength / (n - 1);
+
+  if (this->DeltaRangePolarAxes != step)
+  {
+    this->DeltaRangePolarAxes = step;
   }
 }
 
@@ -2572,7 +2641,7 @@ double vtkPolarAxesActor::ComputeIdealStep(int subDivsRequired, double rangeLeng
 int vtkPolarAxesActor::GetNumberOfPolarAxisTicks()
 {
   double rangeLength = fabs(this->Range[1] - this->Range[0]);
-  return static_cast<int>((rangeLength / this->DeltaRangeMajor) + 1);
+  return static_cast<int>(std::ceil(rangeLength / this->DeltaRangeMajor) + 1);
 }
 
 double vtkPolarAxesActor::ComputeEllipseAngle(double angleInDegrees, double ratio)
