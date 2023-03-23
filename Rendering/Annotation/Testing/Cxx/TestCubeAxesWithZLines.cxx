@@ -105,7 +105,7 @@ int TestCubeAxesWithZLines(int argc, char* argv[])
   axes2->SetCornerOffset(0.0);
 
   // Draw Z (outer) grid lines
-  axes2->SetDrawZGridlines(1);
+  axes2->SetDrawZGridlines(true);
 
   // Use bluee color for Z axis lines, gridlines, title, and labels
   axes2->GetTitleTextProperty(2)->SetColor(0., 0., 1.);

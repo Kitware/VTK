@@ -105,7 +105,7 @@ int TestCubeAxesWithYLines(int argc, char* argv[])
   axes2->SetCornerOffset(0.0);
 
   // Draw YY(outer) grid lines
-  axes2->SetDrawYGridlines(1);
+  axes2->SetDrawYGridlines(true);
 
   // Use green color for Y axis lines, gridlines, title, and labels
   axes2->GetTitleTextProperty(1)->SetColor(0., 1., 0.);

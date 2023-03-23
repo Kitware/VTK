@@ -99,7 +99,7 @@ int TestCubeAxesWithZInnerPolys(int argc, char* argv[])
   axes2->SetScreenSize(15.0);
   axes2->SetFlyModeToClosestTriad();
   axes2->SetCornerOffset(0.0);
-  axes2->SetDrawZGridpolys(1);
+  axes2->SetDrawZGridpolys(true);
   axes2->GetZAxesGridpolysProperty()->SetColor(.2, .2, .2);
   axes2->GetZAxesGridpolysProperty()->SetOpacity(.3);
 
