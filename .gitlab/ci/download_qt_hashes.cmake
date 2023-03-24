@@ -24,3 +24,13 @@ set("5.15.2-0-202011130601qtbase-MacOS-MacOS_10_13-Clang-MacOS-MacOS_10_13-X86_6
 set("5.15.2-0-202011130601qtdeclarative-MacOS-MacOS_10_13-Clang-MacOS-MacOS_10_13-X86_64.7z_hash" 4612ff09785bce40ac24f8a1ca699b2c159494dd016ae2bea60dee37af07913c)
 set("5.15.2-0-202011130601qtquickcontrols2-MacOS-MacOS_10_13-Clang-MacOS-MacOS_10_13-X86_64.7z_hash" 1286a0a33d53988039700caeb20cd7dfeb7b1fc3cd1494e5a34c701cece508af)
 set("5.15.2-0-202011130601qttools-MacOS-MacOS_10_13-Clang-MacOS-MacOS_10_13-X86_64.7z_hash" 96f46f690845184ea5a99010c7b59e14443ca0fa4b91f0ea37a2d25af1a3de55)
+
+set("6.5.0-0-202303161324qtbase-MacOS-MacOS_12-Clang-MacOS-MacOS_12-X86_64-ARM64.7z_hash" e06f7a44ec7dc45af409ef31980b553a97c7bd40e7a081fa7f7cde7ec1d66d8e)
+set("6.5.0-0-202303161324qtdeclarative-MacOS-MacOS_12-Clang-MacOS-MacOS_12-X86_64-ARM64.7z_hash" f226236f352299acaa0776790cb7e4f6c6f880b640463dd0dc95b7e72a3a40d8)
+set("6.5.0-0-202303161324qttools-MacOS-MacOS_12-Clang-MacOS-MacOS_12-X86_64-ARM64.7z_hash" 16a0a229ce48cd9e9e07b19062bc9907bc2684436a3ad1234031d078365aa921)
+
+set("6.5.0-0-202303161324d3dcompiler_47-x64.7z_hash" cb57f81bbd66f149ce7b6bc3017ce86a7e1dfd5a9155ed13ab2ef9b20b97e50c)
+set("6.5.0-0-202303161324opengl32sw-64-mesa_11_2_2-signed.7z_hash" 51fccfc8cbbf91fad56cc0803dbdab9d0684de42af031a73ae372dcf037281c1)
+set("6.5.0-0-202303161324qtbase-Windows-Windows_10_22H2-MSVC2019-Windows-Windows_10_22H2-X86_64.7z_hash" 99efea6cac1495c463c0e5dfb4fdf0217bee9d9179287e950901776756b09f09)
+set("6.5.0-0-202303161324qtdeclarative-Windows-Windows_10_22H2-MSVC2019-Windows-Windows_10_22H2-X86_64.7z_hash" 902a29daf03e6ec3939f0fe742ca5deb551592e9a8dc9ac291808a16afcb38eb)
+set("6.5.0-0-202303161324qttools-Windows-Windows_10_22H2-MSVC2019-Windows-Windows_10_22H2-X86_64.7z_hash" 5a5e3f2277459c6d1c168c1593bc806b8bc0d3c5d9e7dff4a9fb7f9e204b7077)

@@ -6,9 +6,15 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "wheel")
 endif ()
 
 # Input variables.
-set(qt_version_major "5")
-set(qt_version_minor "15")
-set(qt_version_patch "2")
+if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "qt5")
+  set(qt_version_major "5")
+  set(qt_version_minor "15")
+  set(qt_version_patch "2")
+else ()
+  set(qt_version_major "6")
+  set(qt_version_minor "5")
+  set(qt_version_patch "0")
+endif ()
 # This URL is only visible inside of Kitware's network. Please use your own Qt
 # Account to obtain these files.
 set(qt_url_root "https://paraview.org/files/dependencies/internal/qt")
@@ -24,6 +30,10 @@ elseif ("$ENV{CMAKE_CONFIGURATION}" MATCHES "vs2017" OR
   set(qt_platform "windows_x86")
   set(msvc_year "2019")
   set(qt_abi "win64_msvc${msvc_year}_64")
+elseif (NOT "$ENV{CMAKE_CONFIGURATION}" MATCHES "qt5" AND
+        "$ENV{CMAKE_CONFIGURATION}" MATCHES "macos")
+  set(qt_platform "mac_x64")
+  set(qt_abi "clang_64")
 elseif ("$ENV{CMAKE_CONFIGURATION}" MATCHES "macos_arm64")
   set(qt_platform "mac_arm64")
 elseif ("$ENV{CMAKE_CONFIGURATION}" MATCHES "macos_x86_64")
@@ -41,18 +51,37 @@ set(qt_version_nodot "${qt_version_major}${qt_version_minor}${qt_version_patch}"
 set(qt_components
   qtbase
   qttools
-  qtdeclarative
-  qtquickcontrols2)
+  qtdeclarative)
+if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "qt5")
+  list(APPEND qt_components
+    qtquickcontrols2)
+endif ()
 
 # Files needed to download.
 set(qt_files)
 if (qt_platform STREQUAL "windows_x86")
-  set(qt_build_stamp "202011130602")
+  if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "qt5")
+    set(qt_build_stamp "202011130602")
+  else ()
+    set(qt_build_stamp "202303161324")
+  endif ()
   set(qt_file_name_prefix "${qt_version}-0-${qt_build_stamp}")
   list(APPEND qt_files
-    "${qt_file_name_prefix}d3dcompiler_47-x64.7z"
-    "${qt_file_name_prefix}opengl32sw-64-mesa_12_0_rc2.7z")
-  set(qt_target_platform "Windows_10")
+    "${qt_file_name_prefix}d3dcompiler_47-x64.7z")
+
+  if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "qt5")
+    list(APPEND qt_files
+      "${qt_file_name_prefix}opengl32sw-64-mesa_12_0_rc2.7z")
+  else ()
+    list(APPEND qt_files
+      "${qt_file_name_prefix}opengl32sw-64-mesa_11_2_2-signed.7z")
+  endif ()
+
+  if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "qt5")
+    set(qt_target_platform "Windows_10")
+  else ()
+    set(qt_target_platform "Windows_10_22H2")
+  endif ()
 
   foreach (qt_component IN LISTS qt_components)
     list(APPEND qt_files
@@ -61,9 +90,15 @@ if (qt_platform STREQUAL "windows_x86")
 
   set(qt_subdir "${qt_version}/msvc${msvc_year}_64")
 elseif (qt_platform STREQUAL "mac_x64")
-  set(qt_build_stamp "202011130601")
-  set(qt_target_platform "MacOS_10_13")
-  set(qt_target_arch "X86_64")
+  if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "qt5")
+    set(qt_build_stamp "202011130601")
+    set(qt_target_platform "MacOS_10_13")
+    set(qt_target_arch "X86_64")
+  else ()
+    set(qt_build_stamp "202303161324")
+    set(qt_target_platform "MacOS_12")
+    set(qt_target_arch "X86_64-ARM64")
+  endif ()
   set(qt_file_name_prefix "${qt_version}-0-${qt_build_stamp}")
 
   foreach (qt_component IN LISTS qt_components)
@@ -71,7 +106,11 @@ elseif (qt_platform STREQUAL "mac_x64")
       "${qt_file_name_prefix}${qt_component}-MacOS-${qt_target_platform}-Clang-MacOS-${qt_target_platform}-${qt_target_arch}.7z")
   endforeach ()
 
-  set(qt_subdir "${qt_version}/clang_64")
+  if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "qt5")
+    set(qt_subdir "${qt_version}/clang_64")
+  else ()
+    set(qt_subdir "${qt_version}/macos")
+  endif ()
 elseif (qt_platform STREQUAL "mac_arm64")
   set(qt_subdir "qt-${qt_version}-macosx11.0-arm64")
   set(qt_files "${qt_subdir}.tar.xz")
