@@ -52,20 +52,23 @@ if (qt_platform STREQUAL "windows_x86")
   list(APPEND qt_files
     "${qt_file_name_prefix}d3dcompiler_47-x64.7z"
     "${qt_file_name_prefix}opengl32sw-64-mesa_12_0_rc2.7z")
+  set(qt_target_platform "Windows_10")
 
   foreach (qt_component IN LISTS qt_components)
     list(APPEND qt_files
-      "${qt_file_name_prefix}${qt_component}-Windows-Windows_10-MSVC${msvc_year}-Windows-Windows_10-X86_64.7z")
+      "${qt_file_name_prefix}${qt_component}-Windows-${qt_target_platform}-MSVC${msvc_year}-Windows-${qt_target_platform}-X86_64.7z")
   endforeach ()
 
   set(qt_subdir "${qt_version}/msvc${msvc_year}_64")
 elseif (qt_platform STREQUAL "mac_x64")
   set(qt_build_stamp "202011130601")
+  set(qt_target_platform "MacOS_10_13")
+  set(qt_target_arch "X86_64")
   set(qt_file_name_prefix "${qt_version}-0-${qt_build_stamp}")
 
   foreach (qt_component IN LISTS qt_components)
     list(APPEND qt_files
-      "${qt_file_name_prefix}${qt_component}-MacOS-MacOS_10_13-Clang-MacOS-MacOS_10_13-X86_64.7z")
+      "${qt_file_name_prefix}${qt_component}-MacOS-${qt_target_platform}-Clang-MacOS-${qt_target_platform}-${qt_target_arch}.7z")
   endforeach ()
 
   set(qt_subdir "${qt_version}/clang_64")
