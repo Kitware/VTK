@@ -94,7 +94,7 @@
 
 .fedora34:
     extends: .linux
-    image: "kitware/vtk:ci-fedora34-20230105"
+    image: "kitware/vtk:ci-fedora34-20230324"
 
 .el7_mindeps:
     extends: .linux
@@ -129,12 +129,12 @@
         OMPI_ALLOW_RUN_AS_ROOT_CONFIRM: 1
         MODULES: mpi/openmpi-x86_64
 
-.el7_mindeps_python_qt:
+.el7_mindeps_python_qt5:
     extends:
         - .el7_mindeps
 
     variables:
-        CMAKE_CONFIGURATION: el7_mindeps_python_qt
+        CMAKE_CONFIGURATION: el7_mindeps_python_qt5
 
 .el8_icc_python:
     extends:

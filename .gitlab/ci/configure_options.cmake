@@ -47,6 +47,9 @@ configuration_flag(VTK_WRAP_JAVA "java")
 
 # qt
 configuration_flag_module(VTK_GROUP_ENABLE_Qt "qt")
+if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "qt5")
+  set(VTK_QT_VERSION 5 CACHE STRING "")
+endif ()
 
 # "nogl" builds
 if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "renderless")
