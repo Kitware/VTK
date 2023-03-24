@@ -81,7 +81,7 @@ endif ()
 
 # Build up the path to the file to download.
 if (NOT qt_url_prefix) # XXX: Replace this when Qt ships official arm64 binaries.
-  set(qt_url_path "${qt_platform}/desktop/qt5_${qt_version_nodot}/qt.qt5.${qt_version_nodot}.${qt_abi}")
+  set(qt_url_path "${qt_platform}/desktop/qt${qt_version_major}_${qt_version_nodot}/qt.qt${qt_version_major}.${qt_version_nodot}.${qt_abi}")
   set(qt_url_prefix "${qt_url_root}/${qt_url_path}")
 endif ()
 
