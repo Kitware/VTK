@@ -149,7 +149,7 @@ int TestTableToGraph(int argc, char* argv[])
   QApplication app(argc, argv);
 #endif
 
-  const char* label = 0;
+  const char* label = nullptr;
   bool circular = true;
   for (int a = 1; a < argc; a++)
   {
