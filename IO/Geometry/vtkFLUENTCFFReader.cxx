@@ -92,7 +92,7 @@ vtkFLUENTCFFReader::~vtkFLUENTCFFReader()
 int vtkFLUENTCFFReader::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
-  if (this->FileName == "")
+  if (this->FileName.empty())
   {
     vtkErrorMacro("FileName has to be specified!");
     return 0;
@@ -286,7 +286,7 @@ void vtkFLUENTCFFReader::PrintSelf(ostream& os, vtkIndent indent)
   if (this->DataPass == 1)
   {
     os << indent << "List Of Scalar Value : " << this->ScalarDataChunks.size() << endl;
-    if (this->ScalarDataChunks.size() != 0)
+    if (!this->ScalarDataChunks.empty())
     {
       os << indent;
       for (size_t i = 0; i < this->ScalarDataChunks.size(); i++)
@@ -296,7 +296,7 @@ void vtkFLUENTCFFReader::PrintSelf(ostream& os, vtkIndent indent)
       os << endl;
     }
     os << indent << "List Of Vector Value : " << this->VectorDataChunks.size() << endl;
-    if (this->VectorDataChunks.size() != 0)
+    if (!this->VectorDataChunks.empty())
     {
       os << indent;
       for (size_t i = 0; i < this->VectorDataChunks.size(); i++)
@@ -312,7 +312,7 @@ void vtkFLUENTCFFReader::PrintSelf(ostream& os, vtkIndent indent)
 int vtkFLUENTCFFReader::RequestInformation(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* vtkNotUsed(outputVector))
 {
-  if (this->FileName == "")
+  if (this->FileName.empty())
   {
     vtkErrorMacro("FileName has to be specified!");
     return 0;
@@ -1948,7 +1948,7 @@ void vtkFLUENTCFFReader::GetData()
           if (ndims == 1)
           {
             this->NumberOfScalars++;
-            this->ScalarDataChunks.push_back(ScalarDataChunk());
+            this->ScalarDataChunks.emplace_back();
             this->ScalarDataChunks.back().variableName = strSectionName;
             for (size_t j = minId; j <= maxId; j++)
             {
@@ -1958,7 +1958,7 @@ void vtkFLUENTCFFReader::GetData()
           else
           {
             this->NumberOfVectors++;
-            this->VectorDataChunks.push_back(VectorDataChunk());
+            this->VectorDataChunks.emplace_back();
             this->VectorDataChunks.back().variableName = strSectionName;
             for (size_t j = minId; j <= maxId; j++)
             {

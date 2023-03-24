@@ -276,7 +276,7 @@ protected:
   //  Variables
   //
   vtkNew<vtkDataArraySelection> CellDataArraySelection;
-  std::string FileName = "";
+  std::string FileName;
   vtkIdType NumberOfCells = 0;
   int NumberOfCellArrays = 0;
 
