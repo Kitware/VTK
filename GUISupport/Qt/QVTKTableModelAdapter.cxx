@@ -9,6 +9,16 @@
 #include <vtkUnsignedIntArray.h>
 #include <vtkUnsignedLongLongArray.h>
 
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+#define vtk_qVariantType(variant) variant.type()
+#define vtk_qMetaType(name) QVariant::name
+#define vtk_qMetaType_Q(name) vtk_qMetaType(name)
+#else
+#define vtk_qVariantType(variant) variant.typeId()
+#define vtk_qMetaType(name) QMetaType::name
+#define vtk_qMetaType_Q(name) vtk_qMetaType(Q##name)
+#endif
+
 //------------------------------------------------------------------------------
 VTK_ABI_NAMESPACE_BEGIN
 QVTKTableModelAdapter::QVTKTableModelAdapter(QObject* parent)
@@ -38,21 +48,21 @@ vtkAbstractArray* QVTKTableModelAdapter::NewArray(const QVariant& type)
     return vtkDoubleArray::New();
   }
 
-  switch (type.type())
+  switch (vtk_qVariantType(type))
   {
-    case QVariant::Double:
+    case vtk_qMetaType(Double):
       return vtkDoubleArray::New();
-    case QVariant::Char:
+    case vtk_qMetaType(Char):
       return vtkCharArray::New();
-    case QVariant::Int:
+    case vtk_qMetaType(Int):
       return vtkIntArray::New();
-    case QVariant::UInt:
+    case vtk_qMetaType(UInt):
       return vtkUnsignedIntArray::New();
-    case QVariant::LongLong:
+    case vtk_qMetaType(LongLong):
       return vtkLongLongArray::New();
-    case QVariant::ULongLong:
+    case vtk_qMetaType(ULongLong):
       return vtkUnsignedLongLongArray::New();
-    case QVariant::String:
+    case vtk_qMetaType_Q(String):
       return vtkStringArray::New();
     default:
       // default: return a vtkDoubleArray for unsupported types
@@ -78,27 +88,27 @@ bool QVTKTableModelAdapter::HasCorrectColumnArrays()
   {
     QVariant t = this->modelData(0, c);
     vtkAbstractArray* arr = this->Table->GetColumn(c);
-    switch (t.type())
+    switch (vtk_qVariantType(t))
     {
-      case QVariant::Double:
+      case vtk_qMetaType(Double):
         correct = correct && vtkDoubleArray::SafeDownCast(arr);
         break;
-      case QVariant::Char:
+      case vtk_qMetaType(Char):
         correct = correct && vtkCharArray::SafeDownCast(arr);
         break;
-      case QVariant::Int:
+      case vtk_qMetaType(Int):
         correct = correct && vtkIntArray::SafeDownCast(arr);
         break;
-      case QVariant::UInt:
+      case vtk_qMetaType(UInt):
         correct = correct && vtkUnsignedIntArray::SafeDownCast(arr);
         break;
-      case QVariant::LongLong:
+      case vtk_qMetaType(LongLong):
         correct = correct && vtkLongLongArray::SafeDownCast(arr);
         break;
-      case QVariant::ULongLong:
+      case vtk_qMetaType(ULongLong):
         correct = correct && vtkUnsignedLongLongArray::SafeDownCast(arr);
         break;
-      case QVariant::String:
+      case vtk_qMetaType_Q(String):
         correct = correct && vtkStringArray::SafeDownCast(arr);
         break;
       default:
@@ -127,24 +137,24 @@ void QVTKTableModelAdapter::SetCellValue(int row, int column, const QVariant& da
   vtkDataArray* data_arr = vtkDataArray::SafeDownCast(this->Table->GetColumn(column));
   if (data_arr)
   {
-    switch (data.type())
+    switch (vtk_qVariantType(data))
     {
-      case QVariant::Double:
+      case vtk_qMetaType(Double):
         data_arr->SetTuple1(row, data.toDouble());
         break;
-      case QVariant::Char:
+      case vtk_qMetaType(Char):
         data_arr->SetTuple1(row, data.toInt());
         break;
-      case QVariant::Int:
+      case vtk_qMetaType(Int):
         data_arr->SetTuple1(row, data.toInt());
         break;
-      case QVariant::UInt:
+      case vtk_qMetaType(UInt):
         data_arr->SetTuple1(row, data.toUInt());
         break;
-      case QVariant::LongLong:
+      case vtk_qMetaType(LongLong):
         data_arr->SetTuple1(row, data.toLongLong());
         break;
-      case QVariant::ULongLong:
+      case vtk_qMetaType(ULongLong):
         data_arr->SetTuple1(row, data.toULongLong());
         break;
       default:
