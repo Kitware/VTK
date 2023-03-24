@@ -412,7 +412,15 @@ int vtkHDFReader::Read(vtkInformation* outInfo, vtkImageData* data)
       {
         vtkSmartPointer<vtkDataArray> array;
         std::vector<hsize_t> fileExtent = ::ReduceDimension(updateExtent.data(), this->WholeExtent);
-        std::copy(updateExtent.begin(), updateExtent.end(), fileExtent.begin());
+        // Create the memory space, reverse axis order for VTK fortran order,
+        // because VTK stores 2D/3D arrays in memory along columns (fortran order) rather
+        // than along rows (C order)
+        for (std::size_t iDim = 0; iDim < fileExtent.size() / 2; ++iDim)
+        {
+          std::size_t rIDim = fileExtent.size() / 2 - 1 - iDim;
+          fileExtent[iDim * 2] = updateExtent[rIDim * 2];
+          fileExtent[iDim * 2 + 1] = updateExtent[rIDim * 2 + 1];
+        }
         if ((array = vtk::TakeSmartPointer(
                this->Impl->NewArray(attributeType, name.c_str(), fileExtent))) == nullptr)
         {

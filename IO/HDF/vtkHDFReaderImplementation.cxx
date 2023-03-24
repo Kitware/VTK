@@ -964,16 +964,11 @@ bool vtkHDFReader::Implementation::NewArray(
   hid_t dataset, const std::vector<hsize_t>& fileExtent, hsize_t numberOfComponents, T* data)
 {
   hid_t nativeType = TemplateTypeToHdfNativeType<T>();
-
-  // Create the memory space, reverse axis order for VTK fortran order,
-  // because VTK stores 2D/3D arrays in memory along columns (fortran order) rather
-  // than along rows (C order).
   std::vector<hsize_t> count(fileExtent.size() >> 1), start(fileExtent.size() >> 1);
   for (size_t i = 0; i < count.size(); ++i)
   {
-    size_t j = (count.size() - 1 - i) << 1;
-    count[i] = fileExtent[j + 1] - fileExtent[j] + 1;
-    start[i] = fileExtent[j];
+    count[i] = fileExtent[i * 2 + 1] - fileExtent[i * 2] + 1;
+    start[i] = fileExtent[i * 2];
   }
   if (numberOfComponents > 1)
   {
