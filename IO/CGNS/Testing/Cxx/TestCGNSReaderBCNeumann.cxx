@@ -89,9 +89,9 @@ int TestCGNSReaderBCNeumann(int argc, char* argv[])
   vtkDoubleArray* array =
     vtkDoubleArray::SafeDownCast(patch->GetCellData()->GetArray("NeumannValues"));
 
-  if (array->GetTuple1(0) != 1.1)
+  if (array->GetTuple1(0) != 2.5)
   {
-    std::cerr << "Wrong value for 'NeumannValues' array. Expected 1.1 but got "
+    std::cerr << "Wrong value for 'NeumannValues' array. Expected 2.5 but got "
               << array->GetTuple1(0) << "." << std::endl;
     return EXIT_FAILURE;
   }
@@ -112,9 +112,9 @@ int TestCGNSReaderBCNeumann(int argc, char* argv[])
 
   array = vtkDoubleArray::SafeDownCast(patch->GetCellData()->GetArray("NeumannValues"));
 
-  if (array->GetTuple1(0) != 2.5)
+  if (array->GetTuple1(0) != 1.1)
   {
-    std::cerr << "Wrong value for 'NeumannValues' array. Expected 2.5 but got "
+    std::cerr << "Wrong value for 'NeumannValues' array. Expected 1.1 but got "
               << array->GetTuple1(0) << "." << std::endl;
     return EXIT_FAILURE;
   }

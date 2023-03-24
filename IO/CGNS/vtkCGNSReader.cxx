@@ -3507,10 +3507,6 @@ int vtkCGNSReader::GetUnstructuredZone(
 
                     for (std::size_t idx = 0; idx < BCElementRead.size(); idx++)
                     {
-                      if (BCElementRead[idx])
-                      {
-                        continue;
-                      }
                       if (binfo.BCElementList[idx] >= sectionInfoList[curSec].range[0] &&
                         binfo.BCElementList[idx] <= sectionInfoList[curSec].range[1])
                       {
@@ -3632,6 +3628,8 @@ int vtkCGNSReader::GetUnstructuredZone(
                 {
                   if (binfo.BCElementRange.size() == 2)
                   {
+                    vtkIdType bcStartFaceId = binfo.BCElementRange[0];
+
                     // Compute range intersection with current section
                     //------------------------------------------------
                     cgsize_t startBndElemId = std::max(sectionInfoList[curSec].range[0],
@@ -3780,8 +3778,6 @@ int vtkCGNSReader::GetUnstructuredZone(
 
                     memset(bcGlobalElements, 0, sizeof(vtkIdType) * sizeAlloc);
                     vtkIdType* localBndElements = &(bcGlobalElements[0]);
-                    cgsize_t startIdBndSec =
-                      sectionInfoList[curSec].range[0] - binfo.BCElementRange[0];
 
                     if (elemType != CGNS_ENUMV(MIXED))
                     {
@@ -3802,7 +3798,7 @@ int vtkCGNSReader::GetUnstructuredZone(
 
                       for (cgsize_t ii = 0; ii < numBndElemToRead; ++ii)
                       {
-                        bcCellsTypes[ii + startIdBndSec] = cellType;
+                        bcCellsTypes[ii + startBndElemId - bcStartFaceId] = cellType;
                       }
 
                       cg_npe(elemType, &numPointsPerCell);
@@ -3834,8 +3830,7 @@ int vtkCGNSReader::GetUnstructuredZone(
                       {
                         vtkIdType pos = icell * (npe + 1);
                         localBndElements[pos] = static_cast<vtkIdType>(npe);
-
-                        vtkIdList* nodes = bcCellsPointIds[icell + startIdBndSec];
+                        vtkIdList* nodes = bcCellsPointIds[icell + startBndElemId - bcStartFaceId];
                         nodes->SetNumberOfIds(npe);
 
                         for (vtkIdType ip = 0; ip < npe; ip++)
@@ -3878,12 +3873,12 @@ int vtkCGNSReader::GetUnstructuredZone(
                         cg_npe(elemType, &numPointsPerCell);
                         cellType =
                           CGNSRead::GetVTKElemType(elemType, higherOrderWarning, reOrderElements);
-                        bcCellsTypes[icell + startIdBndSec] = cellType;
+                        bcCellsTypes[icell + startBndElemId - bcStartFaceId] = cellType;
 
                         localBndElements[pos] = static_cast<vtkIdType>(numPointsPerCell);
                         pos++;
 
-                        vtkIdList* nodes = bcCellsPointIds[icell + startIdBndSec];
+                        vtkIdList* nodes = bcCellsPointIds[icell + startBndElemId - bcStartFaceId];
                         nodes->SetNumberOfIds(numPointsPerCell);
 
                         for (vtkIdType ip = 0; ip < numPointsPerCell; ip++)
@@ -3924,10 +3919,6 @@ int vtkCGNSReader::GetUnstructuredZone(
 
                     for (std::size_t idx = 0; idx < BCElementRead.size(); idx++)
                     {
-                      if (BCElementRead[idx])
-                      {
-                        continue;
-                      }
                       if (binfo.BCElementList[idx] >= sectionInfoList[curSec].range[0] &&
                         binfo.BCElementList[idx] <= sectionInfoList[curSec].range[1])
                       {
