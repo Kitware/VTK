@@ -164,8 +164,8 @@ protected:
   /**
    * Open the HDF5 file structure
    */
-  virtual bool OpenCaseFile(const std::string filename);
-  virtual bool OpenDataFile(const std::string filename);
+  virtual bool OpenCaseFile(const std::string& filename);
+  virtual bool OpenDataFile(const std::string& filename);
   //@}
 
   /**
@@ -282,7 +282,7 @@ protected:
 
   hid_t FluentCaseFile = -1;
   hid_t FluentDataFile = -1;
-  herr_t status = -1;
+  herr_t Status = -1;
 
   vtkNew<vtkPoints> Points;
   vtkNew<vtkTriangle> Triangle;
