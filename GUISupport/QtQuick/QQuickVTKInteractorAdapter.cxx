@@ -58,7 +58,12 @@ QPointF QQuickVTKInteractorAdapter::mapEventPositionFlipY(QQuickItem* item, cons
 //-------------------------------------------------------------------------------------------------
 void QQuickVTKInteractorAdapter::QueueHoverEvent(QQuickItem* item, QHoverEvent* e)
 {
-  QHoverEvent* newEvent = new QHoverEvent(e->type(), this->mapEventPosition(item, e->posF()),
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+  QPointF posf = e->posF();
+#else
+  QPointF posf = e->position();
+#endif
+  QHoverEvent* newEvent = new QHoverEvent(e->type(), this->mapEventPosition(item, posf),
     this->mapEventPosition(item, e->oldPosF()), e->modifiers());
   QueueEvent(newEvent);
 }
@@ -83,9 +88,18 @@ void QQuickVTKInteractorAdapter::QueueFocusEvent(QQuickItem* item, QFocusEvent* 
 //-------------------------------------------------------------------------------------------------
 void QQuickVTKInteractorAdapter::QueueMouseEvent(QQuickItem* item, QMouseEvent* e)
 {
-  QMouseEvent* newEvent = new QMouseEvent(e->type(), this->mapEventPosition(item, e->localPos()),
-    this->mapEventPosition(item, e->windowPos()), this->mapEventPosition(item, e->screenPos()),
-    e->button(), e->buttons(), e->modifiers());
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+  QPointF localpos = e->localPos();
+  QPointF windowpos = e->windowPos();
+  QPointF screenpos = e->screenPos();
+#else
+  QPointF localpos = e->position();
+  QPointF windowpos = e->scenePosition();
+  QPointF screenpos = e->globalPosition();
+#endif
+  QMouseEvent* newEvent = new QMouseEvent(e->type(), this->mapEventPosition(item, localpos),
+    this->mapEventPosition(item, windowpos), this->mapEventPosition(item, screenpos), e->button(),
+    e->buttons(), e->modifiers());
   QueueEvent(newEvent);
 }
 
