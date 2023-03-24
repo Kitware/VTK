@@ -209,11 +209,13 @@ protected:
 
   /**
    * Get the periodic shadown faces information
+   * !!! NOT IMPLEMENTED YET !!!
    */
   virtual void GetPeriodicShadowFaces();
 
   /**
    * Get the overset cells information
+   * !!! NOT IMPLEMENTED YET !!!
    */
   virtual void GetCellOverset();
 
@@ -234,13 +236,9 @@ protected:
 
   /**
    * Get the non conformal grid interface information
+   * !!! NOT IMPLEMENTED YET !!!
    */
   virtual void GetNonconformalGridInterfaceFaceInformation();
-
-  /**
-   * Get the parallel partition information
-   */
-  virtual void GetPartitionInfo() {}
 
   /**
    * Removes unnecessary faces from the cells

@@ -23,7 +23,6 @@
 // will need to rewrite entirely the structure of the class.
 
 #include "vtkFLUENTCFFReader.h"
-#include "fstream"
 #include "vtkByteSwap.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
@@ -52,8 +51,10 @@
 #include "vtkWedge.h"
 #include "vtksys/Encoding.hxx"
 #include "vtksys/FStream.hxx"
+
 #include <algorithm>
 #include <cctype>
+#include <fstream>
 #include <map>
 #include <set>
 #include <sstream>
@@ -64,15 +65,14 @@
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkFLUENTCFFReader);
 
-#define VTK_FILE_BYTE_ORDER_BIG_ENDIAN 0
-#define VTK_FILE_BYTE_ORDER_LITTLE_ENDIAN 1
-
 //------------------------------------------------------------------------------
 vtkFLUENTCFFReader::vtkFLUENTCFFReader()
 {
   this->status = H5open();
   if (this->status < 0)
+  {
     vtkErrorMacro("HDF5 library initialisation error");
+  }
   this->status = H5Eset_auto(H5E_DEFAULT, nullptr, nullptr);
   this->SetNumberOfInputPorts(0);
 }
@@ -82,7 +82,9 @@ vtkFLUENTCFFReader::~vtkFLUENTCFFReader()
 {
   status = H5close();
   if (status < 0)
+  {
     vtkWarningMacro("HDF5 library closing error");
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -405,6 +407,9 @@ void vtkFLUENTCFFReader::DisableAllCellArrays()
 //------------------------------------------------------------------------------
 bool vtkFLUENTCFFReader::OpenDataFile(const std::string filename)
 {
+  // dfilename represent the dat file name (extension .dat.h5)
+  // when opening a .cas.h5, it will automatically open the associated .dat.h5 (if exist)
+  // filename.cas.h5 -> filename.dat.h5
   std::string dfilename = filename;
   dfilename.erase(dfilename.length() - 6, 6);
   dfilename.append("dat.h5");
