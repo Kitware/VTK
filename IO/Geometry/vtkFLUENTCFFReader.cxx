@@ -70,23 +70,10 @@ vtkStandardNewMacro(vtkFLUENTCFFReader);
 //------------------------------------------------------------------------------
 vtkFLUENTCFFReader::vtkFLUENTCFFReader()
 {
-  this->FileName = "";
-  this->NumberOfCells = 0;
-  this->NumberOfCellArrays = 0;
-
-  status = H5open();
-  if (status < 0)
+  this->status = H5open();
+  if (this->status < 0)
     vtkErrorMacro("HDF5 library initialisation error");
-  status = H5Eset_auto(H5E_DEFAULT, nullptr, nullptr);
-  this->FluentCaseFile = static_cast<hid_t>(-1);
-  this->FluentDataFile = static_cast<hid_t>(-1);
-
-  this->SwapBytes = 0;
-  this->GridDimension = 0;
-  this->DataPass = 0;
-  this->NumberOfScalars = 0;
-  this->NumberOfVectors = 0;
-
+  this->status = H5Eset_auto(H5E_DEFAULT, nullptr, nullptr);
   this->SetNumberOfInputPorts(0);
 }
 
@@ -119,7 +106,7 @@ int vtkFLUENTCFFReader::RequestData(vtkInformation* vtkNotUsed(request),
   vtkMultiBlockDataSet* output =
     vtkMultiBlockDataSet::SafeDownCast(outInfo->Get(vtkMultiBlockDataSet::DATA_OBJECT()));
 
-  // Read data
+  // Read data (Fluent Format)
   this->ParseCaseFile();
   this->CleanCells();
   this->PopulateCellNodes();
@@ -131,6 +118,7 @@ int vtkFLUENTCFFReader::RequestData(vtkInformation* vtkNotUsed(request),
     this->GetData();
     this->PopulateCellTree();
   }
+  // Convert Fluent format to VTK
   for (size_t i = 0; i < this->ScalarDataChunks.size(); i++)
   {
     this->CellDataArraySelection->AddArray(this->ScalarDataChunks[i].variableName.c_str());

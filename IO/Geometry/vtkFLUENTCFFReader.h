@@ -26,8 +26,12 @@
  * Terry E. Jordan (Department of Energy, National Energy Technology
  * Laboratory) & Douglas McCorkle (Iowa State University)
  *
+ * This class reads the HDF5 data in Fluent Format (face type structure)
+ * and converts it to VTK Format (cell type structure).
  * This class could be improved for memory performance but the developper
  * will need to rewrite entirely the structure of the class.
+ * Some piece of fonctionnality lack in the HDF reading (overset, AMR tree,
+ * interface), no file available in order to code/test the structure.
  *
  *
  * @sa
@@ -274,13 +278,13 @@ protected:
   //  Variables
   //
   vtkNew<vtkDataArraySelection> CellDataArraySelection;
-  std::string FileName;
-  vtkIdType NumberOfCells;
-  int NumberOfCellArrays;
+  std::string FileName = "";
+  vtkIdType NumberOfCells = 0;
+  int NumberOfCellArrays = 0;
 
-  hid_t FluentCaseFile;
-  hid_t FluentDataFile;
-  herr_t status;
+  hid_t FluentCaseFile = -1;
+  hid_t FluentDataFile = -1;
+  herr_t status = -1;
 
   vtkNew<vtkPoints> Points;
   vtkNew<vtkTriangle> Triangle;
@@ -297,11 +301,11 @@ protected:
   std::vector<ScalarDataChunk> ScalarDataChunks;
   std::vector<VectorDataChunk> VectorDataChunks;
 
-  vtkTypeBool SwapBytes;
-  int GridDimension;
-  int DataPass;
-  int NumberOfScalars;
-  int NumberOfVectors;
+  vtkTypeBool SwapBytes = 0;
+  int GridDimension = 0;
+  int DataPass = 0;
+  int NumberOfScalars = 0;
+  int NumberOfVectors = 0;
 
 private:
   vtkFLUENTCFFReader(const vtkFLUENTCFFReader&) = delete;
