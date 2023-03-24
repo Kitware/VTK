@@ -17,6 +17,8 @@ PURPOSE.  See the above copyright notice for more information.
  *
  * Class handling the interactions between the zSpace plugin
  * and the zSpace Core Compatibility SDK.
+ * This class is private and should not be used directly. Please
+ * use vtkZSpaceSDKManager instead.
  *
  * @see vtkZSpaceSDKManager
  */
@@ -24,12 +26,15 @@ PURPOSE.  See the above copyright notice for more information.
 #ifndef vtkZSpaceCoreCompatibilitySDKManager_h
 #define vtkZSpaceCoreCompatibilitySDKManager_h
 
-#include "vtkRenderingZSpaceModule.h" // for export macro
 #include "vtkZSpaceSDKManager.h"
 
-#include <Windows.h>                 // for HMODULE
-#include <vector>                    // for std::vector
-#include <zSpaceCoreCompatibility.h> // zspace header
+// Disable "anonymous struct/union" warning on zSpace compat headers
+#pragma warning(disable : 4201)
+#include "zSpaceCoreCompatibility.h" // zSpace header
+#pragma warning(default : 4201)
+
+#include <vector>    // for std::vector
+#include <windows.h> // for HMODULE
 
 VTK_ABI_NAMESPACE_BEGIN
 
@@ -53,7 +58,7 @@ struct zSpaceCoreCompatEntryPoints
 class vtkRenderWindow;
 class vtkMatrix4x4;
 
-class VTKRENDERINGZSPACE_EXPORT vtkZSpaceCoreCompatibilitySDKManager : public vtkZSpaceSDKManager
+class vtkZSpaceCoreCompatibilitySDKManager : public vtkZSpaceSDKManager
 {
 public:
   static vtkZSpaceCoreCompatibilitySDKManager* New();

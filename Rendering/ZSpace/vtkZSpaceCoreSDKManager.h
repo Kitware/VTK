@@ -17,6 +17,8 @@ PURPOSE.  See the above copyright notice for more information.
  *
  * Class handling the interactions between the zSpace plugin
  * and the zSpace Core SDK.
+ * This class is private and should not be used directly. Please
+ * use vtkZSpaceSDKManager instead.
  *
  * @see vtkZSpaceSDKManager
  */
@@ -24,7 +26,6 @@ PURPOSE.  See the above copyright notice for more information.
 #ifndef vtkZSpaceCoreSDKManager_h
 #define vtkZSpaceCoreSDKManager_h
 
-#include "vtkRenderingZSpaceModule.h" // for export macro
 #include "vtkZSpaceSDKManager.h"
 
 #include <vector>   // for std::vector
@@ -35,7 +36,7 @@ VTK_ABI_NAMESPACE_BEGIN
 class vtkRenderWindow;
 class vtkMatrix4x4;
 
-class VTKRENDERINGZSPACE_EXPORT vtkZSpaceCoreSDKManager : public vtkZSpaceSDKManager
+class vtkZSpaceCoreSDKManager : public vtkZSpaceSDKManager
 {
 public:
   static vtkZSpaceCoreSDKManager* New();

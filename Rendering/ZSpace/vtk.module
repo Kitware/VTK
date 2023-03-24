@@ -2,6 +2,8 @@ NAME
   VTK::RenderingZSpace
 LIBRARY_NAME
   vtkRenderingZSpace
+LICENSE_FILES
+  ThirdParty/LICENSE
 DEPENDS
   VTK::CommonCore
   VTK::CommonDataModel
