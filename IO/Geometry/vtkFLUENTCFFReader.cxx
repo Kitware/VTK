@@ -1843,10 +1843,9 @@ void vtkFLUENTCFFReader::PopulatePolyhedronCell(int i)
   {
     for (size_t k = 0; k < this->Faces[this->Cells[i].faces[j]].nodes.size(); k++)
     {
-      int flag;
-      flag = 0;
+      int flag = 0;
       // Is the node already in the cell?
-      for (size_t n = 0; n < Cells[i].nodes.size(); n++)
+      for (size_t n = 0; n < this->Cells[i].nodes.size(); n++)
       {
         if (this->Cells[i].nodes[n] == this->Faces[this->Cells[i].faces[j]].nodes[k])
         {
