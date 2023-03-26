@@ -287,9 +287,9 @@ void vtkFLUENTCFFReader::PrintSelf(ostream& os, vtkIndent indent)
     if (!this->ScalarDataChunks.empty())
     {
       os << indent;
-      for (size_t i = 0; i < this->ScalarDataChunks.size(); i++)
+      for (const auto& DataChunk : this->ScalarDataChunks)
       {
-        os << this->ScalarDataChunks[i].variableName;
+        os << DataChunk.variableName;
       }
       os << endl;
     }
@@ -297,9 +297,9 @@ void vtkFLUENTCFFReader::PrintSelf(ostream& os, vtkIndent indent)
     if (!this->VectorDataChunks.empty())
     {
       os << indent;
-      for (size_t i = 0; i < this->VectorDataChunks.size(); i++)
+      for (const auto& DataChunk : this->VectorDataChunks)
       {
-        os << this->VectorDataChunks[i].variableName;
+        os << DataChunk.variableName;
       }
       os << endl;
     }
