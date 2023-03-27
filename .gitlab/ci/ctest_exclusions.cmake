@@ -71,6 +71,9 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora" OR
 
     # Font rendering differences (new baseline?)
     "^VTK::RenderingFreeTypeCxx-TestFreeTypeTextMapperWithColumns$"
+
+    # Flaky timeouts https://gitlab.kitware.com/vtk/vtk/-/issues/18861
+    "^VTK::InteractionWidgetsCxx-TestPickingManagerSeedWidget$"
     )
 endif ()
 
@@ -266,7 +269,6 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "stdthread")
   if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "windows")
     list(APPEND test_exclusions
       # See #18641
-      "^VTK::InteractionWidgetsCxx-TestPickingManagerSeedWidget$"
       "^VTK::InteractionWidgetsCxx-TestImplicitPlaneWidget$"
       "^VTK::InteractionWidgetsCxx-TestCompassWidget$"
       "^VTK::InteractionWidgetsCxx-BoxWidget$"
