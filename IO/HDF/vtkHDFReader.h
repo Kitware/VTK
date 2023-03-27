@@ -47,6 +47,10 @@ class vtkUnstructuredGrid;
  * vtkDataSet types (image data and unstructured grid are currently
  * implemented) and serial as well as parallel processing.
  *
+ * Can also read transient data with directions and offsets present
+ * in a supplemental 'VTKHDF/Steps' group for vtkUnstructuredGrid and
+ * vtkImageData.
+ *
  */
 class VTKIOHDF_EXPORT vtkHDFReader : public vtkDataObjectAlgorithm
 {
