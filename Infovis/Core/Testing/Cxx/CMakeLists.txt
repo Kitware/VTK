@@ -13,7 +13,6 @@ vtk_add_test_cxx(vtkInfovisCoreCxxTests tests
   TestArrayNorm.cxx,NO_VALID,NO_DATA
   TestCollapseVerticesByArray.cxx,NO_VALID
   TestContinuousScatterPlot.cxx,NO_VALID
-  TestDataObjectToTable.cxx,NO_VALID
   TestExtractSelectedTree.cxx,NO_VALID
   TestExtractSelectedGraph.cxx,NO_VALID
   TestGraphAlgorithms.cxx
@@ -24,6 +23,7 @@ vtk_add_test_cxx(vtkInfovisCoreCxxTests tests
   TestRemoveIsolatedVertices.cxx,NO_VALID
   TestStreamGraph.cxx,NO_VALID
   TestTableToArray.cxx,NO_VALID
+  TestTableToGraph.cxx
   TestThresholdTable.cxx,NO_VALID
   TestTreeDifferenceFilter.cxx,NO_VALID
   )

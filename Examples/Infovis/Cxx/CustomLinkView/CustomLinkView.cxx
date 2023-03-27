@@ -9,8 +9,8 @@
 
 #include "vtkGenericOpenGLRenderWindow.h"
 #include <vtkAnnotationLink.h>
+#include <vtkAttributeDataToTableFilter.h>
 #include <vtkCommand.h>
-#include <vtkDataObjectToTable.h>
 #include <vtkDataRepresentation.h>
 #include <vtkEventQtSlotConnect.h>
 #include <vtkGraphLayoutView.h>
@@ -166,9 +166,9 @@ void CustomLinkView::slotOpenXMLFile()
   this->ColumnView->SetRepresentationFromInputConnection(this->XMLReader->GetOutputPort());
 
   // Extract a table and give to table view
-  VTK_CREATE(vtkDataObjectToTable, toTable);
+  VTK_CREATE(vtkAttributeDataToTableFilter, toTable);
   toTable->SetInputConnection(this->XMLReader->GetOutputPort());
-  toTable->SetFieldType(vtkDataObjectToTable::VERTEX_DATA);
+  toTable->SetFieldAssociation(vtkDataObject::FIELD_ASSOCIATION_VERTICES);
   this->TableView->SetRepresentationFromInputConnection(toTable->GetOutputPort());
 
   this->SetupCustomLink();

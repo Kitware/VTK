@@ -45,7 +45,7 @@ class QTableView;
 VTK_ABI_NAMESPACE_BEGIN
 class vtkAddMembershipArray;
 class vtkApplyColors;
-class vtkDataObjectToTable;
+class vtkAttributeDataToTableFilter;
 class vtkIdTypeArray;
 class vtkQtTableModelAdapter;
 
@@ -245,7 +245,7 @@ private:
   char* ColorArrayNameInternal;
 
   vtkSmartPointer<vtkAddMembershipArray> AddSelectedColumn;
-  vtkSmartPointer<vtkDataObjectToTable> DataObjectToTable;
+  vtkSmartPointer<vtkAttributeDataToTableFilter> DataObjectToTable;
   vtkSmartPointer<vtkApplyColors> ApplyColors;
 
   vtkQtTableView(const vtkQtTableView&) = delete;

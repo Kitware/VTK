@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    TestDataObjectToTable.cxx
+  Module:    TestAttributeDataToTableFilter.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -17,7 +17,7 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
-#include "vtkDataObjectToTable.h"
+#include "vtkAttributeDataToTableFilter.h"
 
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
@@ -31,9 +31,17 @@
 #include "vtkSmartPointer.h"
 #define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-int TestDataObjectToTable(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
+namespace
 {
-  VTK_CREATE(vtkDataObjectToTable, toTable);
+const std::map<int, int> FIELD_ASSOCIATION_MAP = { { 0, vtkDataObject::FIELD_ASSOCIATION_NONE },
+  { 1, vtkDataObject::FIELD_ASSOCIATION_POINTS }, { 2, vtkDataObject::FIELD_ASSOCIATION_CELLS },
+  { 3, vtkDataObject::FIELD_ASSOCIATION_VERTICES }, { 4, vtkDataObject::FIELD_ASSOCIATION_EDGES },
+  { 5, vtkDataObject::FIELD_ASSOCIATION_ROWS } };
+}
+
+int TestAttributeDataToTableFilter(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
+{
+  VTK_CREATE(vtkAttributeDataToTableFilter, toTable);
 
   cerr << "Creating a simple polydata ..." << endl;
   VTK_CREATE(vtkPolyData, pd);
@@ -81,7 +89,7 @@ int TestDataObjectToTable(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
         break;
     }
     cerr << " to a table ..." << endl;
-    toTable->SetFieldType(type);
+    toTable->SetFieldAssociation(::FIELD_ASSOCIATION_MAP.at(type));
     toTable->Update();
     vtkTable* table = toTable->GetOutput();
     cerr << "... done" << endl;

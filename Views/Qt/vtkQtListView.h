@@ -44,8 +44,8 @@ class QSortFilterProxyModel;
 class QListView;
 
 VTK_ABI_NAMESPACE_BEGIN
+class vtkAttributeDataToTableFilter;
 class vtkApplyColors;
-class vtkDataObjectToTable;
 class vtkQtTableModelAdapter;
 
 class VTKVIEWSQT_EXPORT vtkQtListView : public vtkQtView
@@ -183,7 +183,7 @@ private:
   int FieldType;
   int VisibleColumn;
 
-  vtkSmartPointer<vtkDataObjectToTable> DataObjectToTable;
+  vtkSmartPointer<vtkAttributeDataToTableFilter> DataObjectToTable;
   vtkSmartPointer<vtkApplyColors> ApplyColors;
 
   vtkQtListView(const vtkQtListView&) = delete;
