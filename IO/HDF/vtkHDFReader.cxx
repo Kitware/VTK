@@ -412,14 +412,38 @@ int vtkHDFReader::Read(vtkInformation* outInfo, vtkImageData* data)
       {
         vtkSmartPointer<vtkDataArray> array;
         std::vector<hsize_t> fileExtent = ::ReduceDimension(updateExtent.data(), this->WholeExtent);
+        std::vector<int> extentBuffer(fileExtent.size(), 0);
+        std::copy(
+          updateExtent.begin(), updateExtent.begin() + extentBuffer.size(), extentBuffer.begin());
+        if (this->HasTransientData)
+        {
+          vtkIdType offset = this->Impl->GetArrayOffset(this->Step, attributeType, name);
+          if (offset >= 0)
+          {
+            extentBuffer.emplace_back(offset);
+            extentBuffer.emplace_back(offset);
+          }
+          else
+          {
+            extentBuffer.emplace_back(this->Step);
+            extentBuffer.emplace_back(this->Step);
+          }
+          fileExtent.resize(extentBuffer.size(), 0);
+        }
         // Create the memory space, reverse axis order for VTK fortran order,
         // because VTK stores 2D/3D arrays in memory along columns (fortran order) rather
         // than along rows (C order)
         for (std::size_t iDim = 0; iDim < fileExtent.size() / 2; ++iDim)
         {
-          std::size_t rIDim = fileExtent.size() / 2 - 1 - iDim;
-          fileExtent[iDim * 2] = updateExtent[rIDim * 2];
-          fileExtent[iDim * 2 + 1] = updateExtent[rIDim * 2 + 1];
+          std::size_t rIDim = (fileExtent.size() / 2) - 1 - iDim;
+          // if an extent value is negative it won't go into an hsize_t
+          if (extentBuffer[rIDim * 2] < 0)
+          {
+            extentBuffer[rIDim * 2 + 1] -= extentBuffer[rIDim * 2];
+            extentBuffer[rIDim * 2] = 0;
+          }
+          fileExtent[iDim * 2] = extentBuffer[rIDim * 2];
+          fileExtent[iDim * 2 + 1] = extentBuffer[rIDim * 2 + 1];
         }
         if ((array = vtk::TakeSmartPointer(
                this->Impl->NewArray(attributeType, name.c_str(), fileExtent))) == nullptr)
