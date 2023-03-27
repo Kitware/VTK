@@ -59,10 +59,11 @@ git checkout -b your_branch
 
 Make the needed changes in VTK and use git locally to create logically separated commits.
 There is no strict requirements regarding git commit messages syntax but a good rule of
-thumb to follow is: `Location of Change: reason for change`:
+thumb to follow is: `General domain: reason for change`, General domain being a class, a module
+, a specific system like build or CI.
 
 ```
-git commit -m "Location of change: Short yet informative reason for the change"
+git commit -m "General domain: Short yet informative reason for the change"
 ```
 
 Build VTK following the [guide](Documentation/dev/build.md#) and fix any build warnings or issues that arise and seems related to your changes.
