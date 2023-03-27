@@ -234,9 +234,10 @@ GLXFBConfig vtkXOpenGLRenderWindowGetDesiredFBConfig(Display* DisplayId, vtkType
 }
 
 template <int EventType>
-int XEventTypeEquals(Display*, XEvent* event, XPointer)
+int XEventTypeEquals(Display*, XEvent* event, XPointer winptr)
 {
-  return event->type == EventType;
+  return (event->type == EventType &&
+    *(reinterpret_cast<Window*>(winptr)) == reinterpret_cast<XAnyEvent*>(event)->window);
 }
 
 vtkXVisualInfo* vtkXOpenGLRenderWindow::GetDesiredVisualInfo()
@@ -407,7 +408,8 @@ void vtkXOpenGLRenderWindow::SetShowWindow(bool val)
       if (winattr.map_state == IsUnmapped)
       {
         XEvent e;
-        XIfEvent(this->DisplayId, &e, XEventTypeEquals<MapNotify>, nullptr);
+        XIfEvent(this->DisplayId, &e, XEventTypeEquals<MapNotify>,
+          reinterpret_cast<XPointer>(&this->WindowId));
       }
       this->Mapped = 1;
     }
@@ -422,7 +424,8 @@ void vtkXOpenGLRenderWindow::SetShowWindow(bool val)
       if (winattr.map_state != IsUnmapped)
       {
         XEvent e;
-        XIfEvent(this->DisplayId, &e, XEventTypeEquals<UnmapNotify>, nullptr);
+        XIfEvent(this->DisplayId, &e, XEventTypeEquals<UnmapNotify>,
+          reinterpret_cast<XPointer>(&this->WindowId));
       }
       this->Mapped = 0;
     }
@@ -666,7 +669,8 @@ void vtkXOpenGLRenderWindow::CreateAWindow()
     XMapWindow(this->DisplayId, this->WindowId);
     XSync(this->DisplayId, False);
     XEvent e;
-    XIfEvent(this->DisplayId, &e, XEventTypeEquals<MapNotify>, nullptr);
+    XIfEvent(this->DisplayId, &e, XEventTypeEquals<MapNotify>,
+      reinterpret_cast<XPointer>(&this->WindowId));
     XGetWindowAttributes(this->DisplayId, this->WindowId, &winattr);
     // if the specified window size is bigger than the screen size,
     // we have to reset the window size to the screen size
@@ -972,7 +976,8 @@ void vtkXOpenGLRenderWindow::SetSize(int width, int height)
       if (attribs.width != width || attribs.height != height)
       {
         XEvent e;
-        XIfEvent(this->DisplayId, &e, XEventTypeEquals<ConfigureNotify>, nullptr);
+        XIfEvent(this->DisplayId, &e, XEventTypeEquals<ConfigureNotify>,
+          reinterpret_cast<XPointer>(&this->WindowId));
       }
     }
 
