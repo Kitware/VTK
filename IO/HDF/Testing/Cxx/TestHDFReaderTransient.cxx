@@ -19,9 +19,11 @@
 #include "vtkDataArray.h"
 #include "vtkDataSet.h"
 #include "vtkFieldData.h"
+#include "vtkImageData.h"
 #include "vtkMath.h"
 #include "vtkMathUtilities.h"
 #include "vtkPointData.h"
+#include "vtkRTAnalyticSource.h"
 #include "vtkSphereSource.h"
 #include "vtkTesting.h"
 #include "vtkUnstructuredGrid.h"
@@ -42,6 +44,7 @@ struct CheckerWorklet;
 
 // assemblies
 int TestUGTransient(const std::string& dataRoot);
+int TestImageDataTransient(const std::string& dataRoot);
 }
 
 int TestHDFReaderTransient(int argc, char* argv[])
@@ -50,6 +53,7 @@ int TestHDFReaderTransient(int argc, char* argv[])
   testUtils->AddArguments(argc, argv);
   std::string dataRoot = testUtils->GetDataRoot();
   int res = ::TestUGTransient(dataRoot);
+  res |= ::TestImageDataTransient(dataRoot);
   return res;
 }
 
@@ -168,6 +172,33 @@ public:
     return true;
   }
 
+  template <>
+  bool operator()(vtkImageData* lhs, vtkImageData* rhs)
+  {
+    const auto lExtent = lhs->GetExtent();
+    const auto rExtent = rhs->GetExtent();
+    for (vtkIdType iE = 0; iE < 6; ++iE)
+    {
+      if (lExtent[iE] - rExtent[iE] > this->Tolerance)
+      {
+        std::cout << "Extents: Failed extent geometry checks" << std::endl;
+        return false;
+      }
+    }
+
+    const auto lSpacing = lhs->GetSpacing();
+    const auto rSpacing = rhs->GetSpacing();
+    for (vtkIdType iS = 0; iS < 3; ++iS)
+    {
+      if (lSpacing[iS] - rSpacing[iS] > this->Tolerance)
+      {
+        std::cout << "Spacing: Failed spacing geometry checks" << std::endl;
+        return false;
+      }
+    }
+    return true;
+  }
+
 private:
   double Tolerance = CHECK_TOLERANCE;
 };
@@ -253,6 +284,88 @@ int TestUGTransient(const std::string& dataRoot)
       std::array<double, 3> point = { 0 };
       dSet->GetPoint(iP, point.data());
       return ::Sin11T(dSet->GetFieldData()->GetArray("Time")->GetComponent(0, 0), point);
+    };
+    auto getRHSData = [&](vtkIdType iP) {
+      return dSet->GetPointData()->GetArray("Modulator")->GetComponent(iP, 0);
+    };
+
+    if (!checks(0, dSet->GetNumberOfPoints(), getLHSData, getRHSData))
+    {
+      std::cout << "PointData: Failed array checks" << std::endl;
+      return EXIT_FAILURE;
+    }
+  }
+
+  return EXIT_SUCCESS;
+}
+
+int TestImageDataTransient(const std::string& dataRoot)
+{
+  OpenerWorklet opener(dataRoot + "/Data/transient_wavelet.hdf");
+
+  // Generic Time data checks
+  if (opener.GetReader()->GetNumberOfSteps() != 10)
+  {
+    std::cout << "Number of time steps is not correct: " << opener.GetReader()->GetNumberOfSteps()
+              << " != " << 10 << std::endl;
+    return EXIT_FAILURE;
+  }
+
+  auto tRange = opener.GetReader()->GetTimeRange();
+  if (tRange[0] != 0.0 && tRange[1] != 1.0)
+  {
+    std::cout << "Time range is incorrect: (0.0, 1.0) != (" << tRange[0] << ", " << tRange[1] << ")"
+              << std::endl;
+    return EXIT_FAILURE;
+  }
+
+  // Reference Geometry
+  vtkNew<vtkRTAnalyticSource> wavelet;
+  wavelet->Update();
+  vtkDataSet* refGeometry = vtkDataSet::SafeDownCast(wavelet->GetOutputDataObject(0));
+
+  for (std::size_t iStep = 0; iStep < 10; ++iStep)
+  {
+    // Open data at right time
+    vtkSmartPointer<vtkDataSet> dSet = opener(iStep);
+
+    // Local Time Checks
+    if (!vtkMathUtilities::FuzzyCompare(
+          opener.GetReader()->GetTimeValue(), static_cast<double>(iStep) / 10, CHECK_TOLERANCE))
+    {
+      std::cout << "Property: Time Value is wrong: " << opener.GetReader()->GetTimeValue()
+                << " != " << static_cast<double>(iStep) / 10 << std::endl;
+      return EXIT_FAILURE;
+    }
+
+    auto timeArr = dSet->GetFieldData()->GetArray("Time");
+    if (!timeArr)
+    {
+      std::cout << "No Time array in FieldData" << std::endl;
+      return EXIT_FAILURE;
+    }
+
+    if (!vtkMathUtilities::FuzzyCompare(
+          timeArr->GetComponent(0, 0), static_cast<double>(iStep) / 10, CHECK_TOLERANCE))
+    {
+      std::cout << "FieldData: Time value is wrong: " << timeArr->GetComponent(0, 0)
+                << " != " << static_cast<double>(iStep) / 10 << std::endl;
+      return EXIT_FAILURE;
+    }
+
+    GeometryCheckerWorklet gChecker(CHECK_TOLERANCE);
+    if (!gChecker(vtkImageData::SafeDownCast(refGeometry), vtkImageData::SafeDownCast(dSet)))
+    {
+      std::cout << "Geometry: Failed geometry checks." << std::endl;
+      return EXIT_FAILURE;
+    }
+
+    CheckerWorklet checks(CHECK_TOLERANCE);
+
+    // Point Data checks
+    auto getLHSData = [&](vtkIdType iP) {
+      auto wave = refGeometry->GetPointData()->GetArray("RTData");
+      return dSet->GetFieldData()->GetArray("Time")->GetComponent(0, 0) * wave->GetComponent(iP, 0);
     };
     auto getRHSData = [&](vtkIdType iP) {
       return dSet->GetPointData()->GetArray("Modulator")->GetComponent(iP, 0);

@@ -18,6 +18,7 @@ PRIVATE_DEPENDS
   VTK::vtksys
 TEST_DEPENDS
   VTK::FiltersSources
+  VTK::ImagingCore
   VTK::IOGeometry
   VTK::IOXML
   VTK::TestingCore
