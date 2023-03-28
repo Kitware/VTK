@@ -249,6 +249,7 @@ void vtkWrapPython_ClassDoc(
     {
       written +=
         snprintf(cp + written, n - written, ".SECTION See Also\n\n%s\n\n", file_info->SeeAlso);
+      (void)written;
     }
 
     ccp = vtkWrapText_FormatComment(comment, 70);

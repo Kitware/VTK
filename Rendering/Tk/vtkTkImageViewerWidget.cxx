@@ -54,7 +54,7 @@ static Tk_ConfigSpec vtkTkImageViewerWidgetConfigSpecs[] = {
   { TK_CONFIG_STRING, (char*)"-iv", (char*)"iv", (char*)"IV", (char*)"",
     Tk_Offset(struct vtkTkImageViewerWidget, IV), 0, nullptr },
 
-  { TK_CONFIG_END, (char*)nullptr, (char*)nullptr, (char*)nullptr, (char*)nullptr, 0, 0, nullptr }
+  { TK_CONFIG_END, nullptr, nullptr, nullptr, nullptr, 0, 0, nullptr }
 };
 
 // Forward prototypes
@@ -139,7 +139,7 @@ extern "C"
       {
         /* Return list of all configuration parameters */
         result = Tk_ConfigureInfo(
-          interp, self->TkWin, vtkTkImageViewerWidgetConfigSpecs, (char*)self, (char*)nullptr, 0);
+          interp, self->TkWin, vtkTkImageViewerWidgetConfigSpecs, (char*)self, nullptr, 0);
       }
       else if (argc == 3)
       {
@@ -219,7 +219,7 @@ extern "C"
     // Create the window.
     name = argv[1];
     // Possibly X dependent
-    tkwin = Tk_CreateWindowFromPath(interp, main, name, (char*)nullptr);
+    tkwin = Tk_CreateWindowFromPath(interp, main, name, nullptr);
     if (tkwin == nullptr)
     {
       return TCL_ERROR;
@@ -307,7 +307,7 @@ extern "C"
         return;
       }
       // Squash the ImageViewer's WindowID
-      self->ImageViewer->SetWindowId((void*)nullptr);
+      self->ImageViewer->SetWindowId(nullptr);
       self->ImageViewer->UnRegister(nullptr);
       self->ImageViewer = nullptr;
       ckfree(self->IV);
@@ -426,15 +426,15 @@ extern "C"
 int Vtktkimageviewerwidget_Init(Tcl_Interp* interp)
 {
   // This widget requires Tk to function.
-  Tcl_PkgRequire(interp, (char*)"Tk", (char*)TK_VERSION, 0);
-  if (Tcl_PkgPresent(interp, (char*)"Tk", (char*)TK_VERSION, 0))
+  Tcl_PkgRequire(interp, "Tk", TK_VERSION, 0);
+  if (Tcl_PkgPresent(interp, "Tk", TK_VERSION, 0))
   {
     // Register the commands for this package.
-    Tcl_CreateCommand(interp, (char*)"vtkTkImageViewerWidget", vtkTkImageViewerWidget_Cmd,
-      Tk_MainWindow(interp), nullptr);
+    Tcl_CreateCommand(
+      interp, "vtkTkImageViewerWidget", vtkTkImageViewerWidget_Cmd, Tk_MainWindow(interp), nullptr);
 
     // Report that the package is provided.
-    return Tcl_PkgProvide(interp, (char*)"Vtktkimageviewerwidget", (char*)VTKTK_VERSION);
+    return Tcl_PkgProvide(interp, "Vtktkimageviewerwidget", VTKTK_VERSION);
   }
   else
   {

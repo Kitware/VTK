@@ -13,7 +13,7 @@
 //=========================================================================
 
 // This file contains enough suppressions to result in no cppcheck warnings,
-// at least on macOS with cppcheck 2.7 with the flags below.
+// at least on macOS with cppcheck 2.10 with the flags below.
 
 // To run:
 // cd /path/to/VTK/
@@ -24,6 +24,7 @@
 
 // Suppress everything from ThirdParty.
 *:*/ThirdParty/*
+*:*H5*
 
 // Similarly, these aren't really part of VTK proper.
 *:*/Utilities/KWSys/*
@@ -66,9 +67,6 @@ strtokCalled
 // VTK assumes IEEE 754 floats, so this warning isn't useful.
 memsetClassFloat
 
-// Gives too many false positives with << stream operator.
-shiftNegative
-
 // These are too stylistic
 useStlAlgorithm
 
@@ -76,8 +74,31 @@ useStlAlgorithm
 assertWithSideEffect
 argumentSize
 
-// There are *thousands* of these, too much to manage, so suppress all.
-variableScope
+// There are many of these.  Can we assume C99 now?
+variableScope:*/Wrapping/Tools/lex.yy.c
+variableScope:*/Wrapping/Tools/vtkParse.tab.c
+variableScope:*/Wrapping/Tools/vtkParseData.c
+variableScope:*/Wrapping/Tools/vtkParseExtras.c
+variableScope:*/Wrapping/Tools/vtkParseHierarchy.c
+variableScope:*/Wrapping/Tools/vtkParseJava.c
+variableScope:*/Wrapping/Tools/vtkParseMain.c
+variableScope:*/Wrapping/Tools/vtkParseMangle.c
+variableScope:*/Wrapping/Tools/vtkParseMerge.c
+variableScope:*/Wrapping/Tools/vtkParsePreprocess.c
+variableScope:*/Wrapping/Tools/vtkParseString.c
+variableScope:*/Wrapping/Tools/vtkParseSystem.c
+variableScope:*/Wrapping/Tools/vtkWrap.c
+variableScope:*/Wrapping/Tools/vtkWrapHierarchy.c
+variableScope:*/Wrapping/Tools/vtkWrapJava.c
+variableScope:*/Wrapping/Tools/vtkWrapPython.c
+variableScope:*/Wrapping/Tools/vtkWrapPythonClass.c
+variableScope:*/Wrapping/Tools/vtkWrapPythonEnum.c
+variableScope:*/Wrapping/Tools/vtkWrapPythonMethod.c
+variableScope:*/Wrapping/Tools/vtkWrapPythonMethodDef.c
+variableScope:*/Wrapping/Tools/vtkWrapPythonOverload.c
+variableScope:*/Wrapping/Tools/vtkWrapPythonTemplate.c
+variableScope:*/Wrapping/Tools/vtkWrapPythonType.c
+variableScope:*/Wrapping/Tools/vtkWrapText.c
 
 // Many warnings
 uninitMemberVar:*/Charts/Core/vtkChart.cxx
@@ -383,89 +404,9 @@ uninitMemberVar:*/Web/WebGLExporter/vtkWebGLObject.cxx
 uninitMemberVar:*/Web/WebGLExporter/vtkWebGLWidget.cxx
 uninitMemberVar:*/Wrapping/PythonCore/vtkPythonOverload.cxx
 
-// Many warnings, these could be fixed automatically with clang-tidy
-cstyleCast:*/Common/Core/vtkTypeFloat32ArrayJava.cxx
-cstyleCast:*/Common/Core/vtkTypeFloat64ArrayJava.cxx
-cstyleCast:*/Common/Core/vtkTypeInt16ArrayJava.cxx
-cstyleCast:*/Common/Core/vtkTypeInt32ArrayJava.cxx
-cstyleCast:*/Common/Core/vtkTypeInt64ArrayJava.cxx
-cstyleCast:*/Common/Core/vtkTypeInt8ArrayJava.cxx
-cstyleCast:*/Common/Core/vtkTypeUInt16ArrayJava.cxx
-cstyleCast:*/Common/Core/vtkTypeUInt32ArrayJava.cxx
-cstyleCast:*/Common/Core/vtkTypeUInt64ArrayJava.cxx
-cstyleCast:*/Common/Core/vtkTypeUInt8ArrayJava.cxx
-cstyleCast:*/Common/DataModel/vtkIterativeClosestPointTransform.cxx
-cstyleCast:*/Common/DataModel/vtkReebGraph.cxx
-cstyleCast:*/Common/Transforms/vtkLandmarkTransform.cxx
-cstyleCast:*/Common/Transforms/vtkThinPlateSplineTransform.cxx
-cstyleCast:*/Domains/ChemistryOpenGL2/vtkDomainsChemistryOpenGL2ObjectFactoryJava.cxx
-cstyleCast:*/Examples/Android/JavaVTK/jni/main.cxx
-cstyleCast:*/Examples/Android/VolumeRender/jni/main.cxx
-cstyleCast:*/Examples/GUI/Win32/SampleMFC/SampleView.h
-cstyleCast:*/Examples/GUI/Win32/SampleMFC/vtkMFCView.h
-cstyleCast:*/Examples/GUI/Win32/vtkMFC/vtkSDI/vtkSDIDoc.cpp
-cstyleCast:*/Examples/ParallelProcessing/Generic/Cxx/ParallelIso.cxx
-cstyleCast:*/Filters/General/vtkMarchingContourFilter.cxx
-cstyleCast:*/Filters/General/vtkTessellatorFilter.cxx
-cstyleCast:*/Filters/General/vtkYoungsMaterialInterface.cxx
-cstyleCast:*/Filters/Hybrid/vtkBSplineTransform.cxx
-cstyleCast:*/Filters/Hybrid/vtkGridTransform.cxx
-cstyleCast:*/Filters/Parallel/vtkPMaskPoints.cxx
-cstyleCast:*/Filters/ParallelImaging/vtkExtractPiece.cxx
-cstyleCast:*/Interaction/Style/vtkInteractionStyleObjectFactoryJava.cxx
-cstyleCast:*/IO/Exodus/vtkExodusIIReader.cxx
-cstyleCast:*/IO/Export/vtkRIBExporter.cxx
-cstyleCast:*/IO/ExportOpenGL2/vtkIOExportOpenGL2ObjectFactoryJava.cxx
-cstyleCast:*/IO/ExportPDF/vtkIOExportPDFObjectFactoryJava.cxx
-cstyleCast:*/IO/Legacy/vtkDataReader.cxx
-cstyleCast:*/IO/MINC/vtkMINCImageWriter.cxx
-cstyleCast:*/IO/MINC/vtkMNITransformReader.cxx
-cstyleCast:*/IO/MINC/vtkMNITransformWriter.cxx
-cstyleCast:*/IO/MPIImage/Testing/Cxx/ParallelIso.cxx
-cstyleCast:*/IO/MPIImage/Testing/Cxx/ParallelIso2.cxx
-cstyleCast:*/IO/Parallel/vtkEnSightWriter.cxx
-cstyleCast:*/IO/Parallel/vtkPDataSetWriter.cxx
-cstyleCast:*/IO/Video/vtkMILVideoSource.cxx
-cstyleCast:*/IO/Video/vtkVideoSource.cxx
-cstyleCast:*/IO/Video/vtkWin32VideoSource.cxx
-cstyleCast:*/IO/Xdmf2/vtkXdmfWriter.cxx
-cstyleCast:*/Parallel/Core/vtkMultiProcessController.cxx
-cstyleCast:*/Parallel/MPI/vtkMPIController.cxx
-cstyleCast:*/Parallel/MPI/vtkMPIController.h
-cstyleCast:*/Rendering/ContextOpenGL2/vtkRenderingContextOpenGL2ObjectFactoryJava.cxx
-cstyleCast:*/Rendering/FreeType/vtkRenderingFreeTypeObjectFactoryJava.cxx
-cstyleCast:*/Rendering/GL2PSOpenGL2/vtkRenderingGL2PSOpenGL2ObjectFactoryJava.cxx
-cstyleCast:*/Rendering/OpenGL2/vtkAndroidRenderWindowInteractor.cxx
-cstyleCast:*/Rendering/OpenGL2/vtkOpenGLGlyph3DMapper.cxx
-cstyleCast:*/Rendering/OpenGL2/vtkOpenGLLabeledContourMapper.cxx
-cstyleCast:*/Rendering/OpenGL2/vtkOpenGLPointGaussianMapper.cxx
-cstyleCast:*/Rendering/OpenGL2/vtkOpenGLPolyDataMapper.cxx
-cstyleCast:*/Rendering/OpenGL2/vtkOpenGLSphereMapper.cxx
-cstyleCast:*/Rendering/OpenGL2/vtkOpenGLStickMapper.cxx
-cstyleCast:*/Rendering/OpenGL2/vtkRenderingOpenGL2ObjectFactoryJava.cxx
-cstyleCast:*/Rendering/OpenGL2/vtkWin32OpenGLRenderWindow.cxx
-cstyleCast:*/Rendering/OpenGL2/vtkWin32RenderWindowInteractor.cxx
-cstyleCast:*/Rendering/OptiX/vtkOptiXActorNode.cxx
-cstyleCast:*/Rendering/OptiX/vtkOptiXPolyDataMapperNode.cxx
-cstyleCast:*/Rendering/OSPRay/vtkOSPRayActorNode.cxx
-cstyleCast:*/Rendering/OSPRay/vtkOSPRayPolyDataMapperNode.cxx
-cstyleCast:*/Rendering/OSPRay/vtkOSPRayVolumeNode.cxx
-cstyleCast:*/Rendering/Parallel/vtkParallelRenderManager.cxx
-cstyleCast:*/Rendering/Volume/vtkUnstructuredGridBunykRayCastFunction.cxx
-cstyleCast:*/Rendering/VolumeOpenGL2/vtkRenderingVolumeOpenGL2ObjectFactoryJava.cxx
-cstyleCast:*/Web/WebGLExporter/vtkWebGLExporter.cxx
-cstyleCast:*/Wrapping/Java/vtkJavaUtil.cxx
-cstyleCast:*/Wrapping/PythonCore/PyVTKObject.cxx
-cstyleCast:*/Wrapping/PythonCore/PyVTKReference.cxx
-cstyleCast:*/Wrapping/PythonCore/PyVTKSpecialObject.cxx
-cstyleCast:*/Wrapping/PythonCore/vtkPythonArgs.h
-cstyleCast:*/Wrapping/PythonCore/vtkPythonUtil.cxx
-
-// 182 warnings
-noExplicitConstructor
-
-// 169 warnings
-invalidscanf
+// 2 warnings
+noExplicitConstructor:*/Utilities/Python/vtkPython.h
+noExplicitConstructor:*/Wrapping/PythonCore/vtkSmartPyObject.h
 
 // Many warnings
 unreadVariable:*/Charts/Core/Testing/Cxx/TestFreeTypeRender.cxx
@@ -551,58 +492,16 @@ unreadVariable:*/Wrapping/PythonCore/vtkPythonOverload.cxx
 // 48 warnings
 noOperatorEq
 
-// Many warnings
-noCopyConstructor:*/Common/Core/Testing/Cxx/TestCxxFeatures.cxx
-noCopyConstructor:*/Common/DataModel/vtkDataObjectTreeIterator.cxx
-noCopyConstructor:*/Common/DataModel/vtkPolygon.cxx
-noCopyConstructor:*/Common/DataModel/vtkStaticCellLocator.cxx
-noCopyConstructor:*/Common/DataModel/vtkStaticPointLocator.cxx
-noCopyConstructor:*/Common/DataModel/vtkStaticPointLocator.cxx
-noCopyConstructor:*/Common/DataModel/vtkStaticPointLocator.cxx
-noCopyConstructor:*/Common/DataModel/vtkStaticPointLocator2D.cxx
-noCopyConstructor:*/Common/DataModel/vtkStaticPointLocator2D.cxx
-noCopyConstructor:*/Common/DataModel/vtkStaticPointLocator2D.cxx
-noCopyConstructor:*/Common/ExecutionModel/vtkSpanSpace.cxx
-noCopyConstructor:*/Common/ExecutionModel/vtkSphereTree.cxx
-noCopyConstructor:*/Common/Misc/vtkHeap.cxx
-noCopyConstructor:*/Filters/Core/vtkDecimatePolylineFilter.cxx
-noCopyConstructor:*/Filters/Core/vtkDecimatePro.h
-noCopyConstructor:*/Filters/Core/vtkDelaunay3D.cxx
-noCopyConstructor:*/Filters/Core/vtkPlaneCutter.cxx
-noCopyConstructor:*/Filters/Core/vtkSmoothPolyDataFilter.cxx
-noCopyConstructor:*/Filters/FlowPaths/vtkLagrangianBasicIntegrationModel.cxx
-noCopyConstructor:*/Filters/General/vtkHyperStreamline.cxx
-noCopyConstructor:*/Filters/General/vtkIntersectionPolyDataFilter.cxx
-noCopyConstructor:*/Filters/General/vtkTableBasedClipDataSet.cxx
-noCopyConstructor:*/Filters/General/vtkUncertaintyTubeFilter.cxx
-noCopyConstructor:*/Filters/ParallelFlowPaths/vtkPLagrangianParticleTracker.cxx
-noCopyConstructor:*/Filters/Points/vtkHierarchicalBinningFilter.cxx
-noCopyConstructor:*/Filters/Points/vtkHierarchicalBinningFilter.cxx
-noCopyConstructor:*/Filters/Points/vtkHierarchicalBinningFilter.cxx
-noCopyConstructor:*/GUISupport/Qt/Testing/Cxx/QTestApp.cxx
-noCopyConstructor:*/GUISupport/Qt/Testing/Cxx/QTestApp.h
-noCopyConstructor:*/IO/Export/vtkPOVExporter.cxx
-noCopyConstructor:*/IO/GeoJSON/vtkGeoJSONWriter.cxx
-noCopyConstructor:*/IO/Geometry/vtkCGMWriter.cxx
-noCopyConstructor:*/IO/LSDyna/LSDynaFamily.cxx
-noCopyConstructor:*/IO/LSDyna/LSDynaFamily.h
-noCopyConstructor:*/IO/LSDyna/vtkLSDynaPart.cxx
-noCopyConstructor:*/IO/LSDyna/vtkLSDynaPartCollection.cxx
-noCopyConstructor:*/IO/SegY/vtkSegYReader.h
-noCopyConstructor:*/IO/Xdmf2/vtkXdmfWriter.cxx
-noCopyConstructor:*/IO/Xdmf3/vtkXdmf3Reader.cxx
-noCopyConstructor:*/Rendering/LICOpenGL2/vtkSurfaceLICHelper.cxx
-noCopyConstructor:*/Rendering/LICOpenGL2/vtkSurfaceLICHelper.h
-noCopyConstructor:*/Rendering/Volume/vtkUnstructuredGridVolumeZSweepMapper.cxx
-
 // This is a generated file.
-constParameter:*/vtkParse.tab.c
+constParameter:*/Wrapping/Tools/vtkParse.tab.c
+redundantContinue:*/Wrapping/Tools/vtkParse.tab.c
+uselessAssignmentPtrArg:*/Wrapping/Tools/vtkParse.tab.c
+duplicateCondition:*/Wrapping/Tools/vtkParse.tab.c
+unreadVariable:*/Wrapping/Tools/vtkParse.tab.c
+unreachableCode:*/Wrapping/Tools/vtkParse.tab.c
 
 // 18 warnings
 redundantAssignment:*/Filters/General/vtkBoxClipDataSet.cxx
-
-// 13 warnings
-useInitializationList
 
 // intentional use of std::move for Testing
 knownConditionTrueFalse:*/Common/Core/Testing/Cxx/TestNew.cxx
@@ -620,45 +519,25 @@ mismatchingContainerExpression:*/Common/Core/Testing/Cxx/TestDataArrayTupleRange
 // lots of placeholder code for future tests
 knownConditionTrueFalse:*/Common/Core/Testing/Cxx/UnitTestMath.cxx
 
-// False positive: Assignment of function parameter has no effect outside the function. Did you forget dereferencing it?
-uselessAssignmentPtrArg:*/Wrapping/Tools/vtkParse.tab.c
-
-// False positives, first condition may change outcome of the second
-duplicateCondition:*/Common/ExecutionModel/vtkSimpleScalarTree.cxx
-duplicateCondition:*/Common/ExecutionModel/vtkSpanSpace.cxx
-
 // true useless assignments but kept for code clarity
-// and preventing bugs should the vars be used in future
-// changes
+// and preventing bugs should the vars be used in future changes
 uselessAssignmentArg:*/Common/DataModel/vtkReebGraph.cxx
 
-// False positive: Condition '*((unsigned char*)&a)==18' is always false
+// False positive: Condition '*((unsigned char*)&a)==18' is always false.
 knownConditionTrueFalse:*/IO/SegY/vtkSegYIOUtils.h
 
 // False positive: Either the condition 'm+1>outputsize' is redundant or the array 'output[16]' is accessed at index 16, which is out of bounds.
 arrayIndexOutOfBoundsCond:*/Wrapping/Tools/vtkParsePreprocess.c
 
 // False positives
-knownConditionTrueFalse:*/Wrapping/Tools/vtkWrapJava.c
-knownConditionTrueFalse:*/Wrapping/Tools/vtkParseJava.c
-uninitvar:*/Wrapping/Tools/vtkWrapPythonClass.c
 nullPointer:*/Wrapping/Tools/lex.yy.c
+uninitvar:*/Wrapping/Tools/vtkParseHierarchy.c
 
 // Not technically false positives, but there's no bug here and no clear way to rework the code in a better way
-constParameter:*/Wrapping/Tools/vtkWrapPythonOverload.c
-duplicateCondition:*/Wrapping/Tools/vtkParse.tab.c
-knownConditionTrueFalse:*/Utilities/KWIML/vtkkwiml/test/test.c
-knownConditionTrueFalse:*/Wrapping/Tools/vtkParsePreprocess.c
-redundantAssignment:*/Wrapping/Tools/lex.yy.c
-redundantAssignment:*/Wrapping/Tools/vtkParsePreprocess.c
 redundantInitialization:*/Wrapping/Tools/lex.yy.c
-syntaxError:*/CMake/patches/3.10/FindMPI/test_mpi.c
-unreachableCode:*/Wrapping/Tools/vtkParse.tab.c
 unreadVariable:*/Wrapping/Tools/lex.yy.c
-unreadVariable:*/Wrapping/Tools/vtkParse.tab.c
 unreadVariable:*/Wrapping/Tools/vtkParseExtras.c
 unreadVariable:*/Wrapping/Tools/vtkParseHierarchy.c
-unreadVariable:*/Wrapping/Tools/vtkParseJavaBeans.c
 unreadVariable:*/Wrapping/Tools/vtkParseMain.c
 unreadVariable:*/Wrapping/Tools/vtkParseMerge.c
 unreadVariable:*/Wrapping/Tools/vtkParsePreprocess.c
@@ -667,30 +546,3 @@ unreadVariable:*/Wrapping/Tools/vtkWrapHierarchy.c
 unreadVariable:*/Wrapping/Tools/vtkWrapJava.c
 unreadVariable:*/Wrapping/Tools/vtkWrapPythonMethodDef.c
 unreadVariable:*/Wrapping/Tools/vtkWrapText.c
-
-// 4 warnings, should fix!
-invalidPointerCast:*/Rendering/GL2PSOpenGL2/vtkOpenGLGL2PSHelperImpl.cxx
-invalidPointerCast:*/Rendering/OSPRay/vtkOSPRayPolyDataMapperNode.cxx
-
-// 16 warnings
-copyCtorAndEqOperator:*/Filters/General/vtkCoincidentPoints.cxx
-copyCtorAndEqOperator:*/Filters/General/vtkHyperStreamline.cxx
-copyCtorAndEqOperator:*/Filters/General/vtkUncertaintyTubeFilter.cxx
-copyCtorAndEqOperator:*/Filters/ParallelFlowPaths/vtkPLagrangianParticleTracker.cxx
-copyCtorAndEqOperator:*/Filters/ParallelFlowPaths/vtkPStreamTracer.cxx
-copyCtorAndEqOperator:*/Filters/ParallelGeometry/vtkPUnstructuredGridGhostCellsGenerator.cxx
-copyCtorAndEqOperator:*/Imaging/Morphological/vtkImageConnectivityFilter.cxx
-copyCtorAndEqOperator:*/Interaction/Widgets/vtkWidgetEventTranslator.cxx
-copyCtorAndEqOperator:*/IO/Exodus/vtkExodusIICache.h
-copyCtorAndEqOperator:*/IO/Export/vtkSVGContextDevice2D.cxx
-copyCtorAndEqOperator:*/IO/Geometry/vtkOpenFOAMReader.cxx
-copyCtorAndEqOperator:*/Rendering/Context2D/vtkContextActor.cxx
-
-// 6 warnings
-noConstructor:*/Common/Core/Testing/Cxx/TestCxxFeatures.cxx
-noConstructor:*/Common/Core/Testing/Cxx/TestDataArrayIterators.cxx
-noConstructor:*/Common/Core/vtkTypeList.txx
-noConstructor:*/Examples/GUI/Win32/vtkMFC/vtkSDI/vtkSDIView.h
-noConstructor:*/Filters/ParallelDIY2/vtkPResampleToImage.cxx
-noConstructor:*/Filters/ParallelDIY2/vtkPResampleWithDataSet.cxx
-noConstructor:*/Rendering/Core/Testing/Cxx/TestInteractorTimers.cxx

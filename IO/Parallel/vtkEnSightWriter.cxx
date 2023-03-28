@@ -34,6 +34,7 @@
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkCharArray.h"
+#include "vtkCommand.h"
 #include "vtkDataSet.h"
 #include "vtkDoubleArray.h"
 #include "vtkErrorCode.h"
@@ -128,6 +129,39 @@ void vtkEnSightWriter::PrintSelf(ostream& os, vtkIndent indent)
 int vtkEnSightWriter::FillInputPortInformation(int vtkNotUsed(port), vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkUnstructuredGrid");
+  return 1;
+}
+
+//------------------------------------------------------------------------------
+int vtkEnSightWriter::RequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* vtkNotUsed(outputVector))
+{
+  this->SetErrorCode(vtkErrorCode::NoError);
+
+  vtkDataObject* input = this->GetInput();
+
+  // make sure input is available
+  if (!input)
+  {
+    vtkErrorMacro(<< "No input!");
+    return 0;
+  }
+
+  this->InvokeEvent(vtkCommand::StartEvent, nullptr);
+
+  this->WriteData();      // write geometry and variable files
+  this->WriteCaseFile(1); // write .case file with one timestep (0)
+
+  if (this->NumberOfProcesses > 1 && this->ProcessNumber == 0)
+  {
+    // write .sos file that contains paths to the .case pieces
+    this->WriteSOSCaseFile(this->NumberOfProcesses);
+  }
+
+  this->InvokeEvent(vtkCommand::EndEvent, nullptr);
+
+  this->WriteTime.Modified();
+
   return 1;
 }
 

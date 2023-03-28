@@ -1038,7 +1038,7 @@ void vtkXMLHyperTreeGridReader::ReadTrees_2(vtkXMLDataElement* element)
 
     for (std::size_t arrayId = 0; arrayId < arrays.size(); ++arrayId)
     {
-      if (!this->ReadArrayValues(
+      if (!this->ReadArrayTuples(
             arrayElements[arrayId], outputOffset, arrays[arrayId], inputOffset, readableTreeSize))
       {
         vtkErrorMacro(<< "Failed reading array " << arrayId << ". Aborting.");

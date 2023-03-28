@@ -219,7 +219,7 @@ void vtkConstrainedPointHandleRepresentation::SetActiveCursorShape(vtkPolyData* 
       this->ActiveCursorShape->Delete();
     }
     this->ActiveCursorShape = shape;
-    if (this->CursorShape)
+    if (this->ActiveCursorShape)
     {
       this->ActiveCursorShape->Register(this);
     }

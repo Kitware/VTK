@@ -4959,7 +4959,7 @@ int vtkParse_ReadHints(FileInfo* file_info, FILE* hfile, FILE* errfile)
   contents = file_info->Contents;
 
   /* read each hint line in succession */
-  while ((n = fscanf(hfile, "%s %s %x %i", h_cls, h_func, &h_type, &h_value)) != EOF)
+  while ((n = fscanf(hfile, "%511s %511s %x %i", h_cls, h_func, &h_type, &h_value)) != EOF)
   {
     lineno++;
     if (n < 4)

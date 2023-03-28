@@ -730,8 +730,10 @@ protected:
 
   /**
    * Build requested number of radial axes with respect to specified pole.
+   * Call without viewport will delay some parameter correct initialization to next frame update
+   * (scale for example).
    */
-  void BuildRadialAxes();
+  void BuildRadialAxes(vtkViewport* viewport = nullptr);
 
   /**
    * Set Range and PolarAxis members value to build axis ticks

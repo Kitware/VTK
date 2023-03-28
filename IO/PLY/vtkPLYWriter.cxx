@@ -90,7 +90,7 @@ void vtkPLYWriter::WriteData()
   vtkSmartPointer<vtkUnsignedCharArray> cellColors, pointColors;
   PlyFile* ply;
   static const char* elemNames[] = { "vertex", "face" };
-  static PlyProperty vertProps[] = {
+  PlyProperty vertProps[] = {
     // property information for a vertex
     { "x", PLY_FLOAT, PLY_FLOAT, static_cast<int>(offsetof(plyVertex, x)), 0, 0, 0, 0 },
     { "y", PLY_FLOAT, PLY_FLOAT, static_cast<int>(offsetof(plyVertex, x) + sizeof(float)), 0, 0, 0,
