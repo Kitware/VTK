@@ -1688,8 +1688,15 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderTCoord(
          << tcoordname << "VCVSOutput" << tCoordImpFSPost << "); // Read texture color\n";
     }
 
+    vtkTextureObject* textureObject = vtkOpenGLTexture::SafeDownCast(texture)->GetTextureObject();
+    if (!textureObject)
+    {
+      vtkErrorMacro("Could not find the vtkTextureObject");
+      return;
+    }
+
     // Update color based on texture number of components
-    int tNumComp = vtkOpenGLTexture::SafeDownCast(texture)->GetTextureObject()->GetComponents();
+    int tNumComp = textureObject->GetComponents();
     switch (tNumComp)
     {
       case 1:
