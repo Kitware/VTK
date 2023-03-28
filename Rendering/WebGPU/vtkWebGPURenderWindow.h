@@ -18,6 +18,7 @@
 #include "vtkRenderWindow.h"
 
 #include "vtkRenderingWebGPUModule.h" // for export macro
+#include "vtkTypeUInt8Array.h"        // for ivar
 #include "vtk_wgpu.h"                 // for webgpu
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -72,6 +73,11 @@ public:
   void Frame() override;
 
   const char* GetRenderingBackend() override;
+
+  /**
+   * Reads pixels into the `CachedPixelBytes` variable.
+   */
+  void ReadPixels();
 
   ///@{
   /**
@@ -185,6 +191,8 @@ protected:
   void CreateFSQGraphicsPipeline();
   void DestroyFSQGraphicsPipeline();
 
+  void RenderOffscreenTexture();
+
   void FlushCommandBuffers(vtkTypeUInt32 count, wgpu::CommandBuffer* buffers);
 
   bool WGPUInitialized = false;
@@ -192,7 +200,6 @@ protected:
   wgpu::Adapter Adapter;
   wgpu::Device Device;
   wgpu::Surface Surface;
-  wgpu::Instance Instance;
   wgpu::CommandEncoder CommandEncoder;
 
   struct vtkWGPUSwapChain
@@ -224,12 +231,30 @@ protected:
   };
   vtkWGPUColorAttachment ColorAttachment;
 
+  struct vtkWGPUUserStagingPixelData
+  {
+    wgpu::Origin3D Origin;
+    wgpu::Extent3D Extent;
+    wgpu::TextureDataLayout Layout;
+    wgpu::Buffer Buffer; // for SetPixelData
+  };
+  vtkWGPUUserStagingPixelData StagingPixelData;
+
   struct vtkWGPUFullScreenQuad
   {
     wgpu::RenderPipeline Pipeline;
     wgpu::BindGroup BindGroup;
   };
   vtkWGPUFullScreenQuad FSQ;
+
+  struct MappingContext
+  {
+    vtkSmartPointer<vtkTypeUInt8Array> dst;
+    wgpu::Buffer src;
+    unsigned long size;
+  } BufferMapReadContext;
+
+  vtkNew<vtkTypeUInt8Array> CachedPixelBytes;
 
 private:
   vtkWebGPURenderWindow(const vtkWebGPURenderWindow&) = delete;
