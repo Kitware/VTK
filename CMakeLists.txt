@@ -16,7 +16,7 @@ target_compile_definitions(glew
     GLEW_NO_GLU)
 
 
-if(VTK_OPENGL_HAS_OSMESA AND UNIX)
+if(VTK_OPENGL_HAS_OSMESA)
   target_compile_definitions(glew
     PRIVATE
       GLEW_OSMESA)
