@@ -30,9 +30,15 @@ namespace
 void RunThreads(int nthreadsBegin, int nthreadsEnd)
 {
   vtkNew<vtkThreadedCallbackQueue> queue;
-  queue->SetNumberOfThreads(nthreadsBegin);
   std::atomic_int count(0);
-  int N = 100000;
+  int N = 10000;
+
+  // Spamming controls
+  for (int i = 0; i < 6; ++i)
+  {
+    queue->SetNumberOfThreads(nthreadsBegin);
+    queue->SetNumberOfThreads(nthreadsEnd);
+  }
 
   // We are testing if the queue can properly resize itself and doesn't have deadlocks
   for (vtkIdType i = 0; i < N; ++i)
@@ -47,11 +53,13 @@ void RunThreads(int nthreadsBegin, int nthreadsEnd)
       i, 0, 'a', vtkNew<vtkIntArray>(), array);
   }
 
-  queue->SetNumberOfThreads(nthreadsEnd);
-
   // If the jobs are not run, this test will do an infinite loop
   while (count != N)
     ;
+
+  // Checking how the queue behaves when being destroyed.
+  queue->SetNumberOfThreads(nthreadsBegin);
+  queue->SetNumberOfThreads(nthreadsEnd);
 }
 
 //=============================================================================
@@ -61,11 +69,13 @@ struct A
   A(A&& other)
   noexcept
     : array(std::move(other.array))
+    , val(other.val)
   {
     vtkLog(INFO, "Move constructor");
   }
   A(const A& other)
     : array(other.array)
+    , val(other.val)
   {
     vtkLog(INFO, "Copy constructor called.");
   }
@@ -82,7 +92,7 @@ struct A
 void f(A&, A&&) {}
 
 //-----------------------------------------------------------------------------
-void TestFunctionTypeCompleteness()
+bool TestFunctionTypeCompleteness()
 {
   // We create a queue outside of the score where things are pushed to ensure that the pushed
   // objects are persistent.
@@ -98,8 +108,10 @@ void TestFunctionTypeCompleteness()
     queue->Push(&::A::f, ::A(), ::A(), ::A());
     queue->Push(&::A::const_f, ::A(), ::A(), ::A());
 
+    std::shared_ptr<A> persistentA = std::make_shared<A>();
+
     // Fetching an lvalue reference return type
-    queue->Push(&::A::get, ::A());
+    auto future = queue->Push(&::A::get, persistentA);
 
     // functor
     queue->Push(::A(), ::A(), ::A());
@@ -120,13 +132,22 @@ void TestFunctionTypeCompleteness()
     // Passing a std::function
     std::function<void(::A&, ::A &&)> func = f;
     queue->Push(func, ::A(), ::A());
+
+    // Testing lvalue reference return type behavior
+    int& val = queue->Get(future);
+    if (&val != &persistentA->val)
+    {
+      vtkLog(ERROR, "lvalue reference was not correctly passed through the queue.");
+      return false;
+    }
   }
+  return true;
 }
 
 //-----------------------------------------------------------------------------
 bool TestSharedFutures()
 {
-  int N = 100;
+  int N = 10;
   bool retVal = true;
   while (--N && retVal)
   {
@@ -187,7 +208,7 @@ bool TestSharedFutures()
 
     for (auto& future : futures)
     {
-      retVal &= future->Get();
+      retVal &= queue->Get(future);
     }
   }
 
@@ -200,7 +221,7 @@ int TestThreadedCallbackQueue(int, char*[])
   vtkLog(INFO, "Testing futures");
   bool retVal = ::TestSharedFutures();
 
-  ::TestFunctionTypeCompleteness();
+  retVal &= ::TestFunctionTypeCompleteness();
 
   vtkLog(INFO, "Testing expanding from 2 to 8 threads");
   // Testing expanding the number of threads

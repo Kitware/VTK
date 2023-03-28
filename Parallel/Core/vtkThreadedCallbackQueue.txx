@@ -15,6 +15,7 @@
 
 #include "vtkObjectFactory.h"
 
+#include <array>
 #include <cassert>
 #include <stdexcept>
 #include <tuple>
@@ -22,90 +23,44 @@
 
 VTK_ABI_NAMESPACE_BEGIN
 
-//=============================================================================
-struct vtkThreadedCallbackQueue::InvokerFutureSharedStateBase
+//-----------------------------------------------------------------------------
+vtkThreadedCallbackQueue::vtkSharedFutureBase::vtkSharedFutureBase()
+  : NumberOfPriorSharedFuturesRemaining(0)
+  , Status(CONSTRUCTING)
 {
-  InvokerFutureSharedStateBase()
-    : NumberOfPriorSharedFuturesRemaining(0)
-    , Status(0)
+}
+
+//-----------------------------------------------------------------------------
+void vtkThreadedCallbackQueue::vtkSharedFutureBase::Wait() const
+{
+  if (this->Status == READY)
   {
+    return;
   }
-
-  template <class ReturnT, bool IsLValueReference = std::is_lvalue_reference<ReturnT>::value>
-  struct ReturnValueWrapper;
-
-  /**
-   * Waits until the return value can be retrieved.
-   */
-  void Wait() const
+  std::unique_lock<std::mutex> lock(this->Mutex);
+  if (this->Status != READY)
   {
-    if (this->Status & READY)
-    {
-      return;
-    }
-    std::unique_lock<std::mutex> lock(this->Mutex);
-    if (!(this->Status & READY))
-    {
-      this->ConditionVariable.wait(lock, [this] { return this->Status & READY; });
-    }
+    this->ConditionVariable.wait(lock, [this] { return this->Status == READY; });
   }
+}
 
-  /**
-   * Number of futures that need to terminate before we can run.
-   */
-  std::atomic_int NumberOfPriorSharedFuturesRemaining;
-
-  /**
-   * Exclusive binary mask giving the status of the current invoker sharing this state.
-   * Status can be READY, RUNNING, ON_HOLD, CONSTRUCTING, ENQUEUED.
-   * See vtkThreadedCallbackQueue::SharedStatus for more detail.
-   */
-  std::atomic_int Status;
-
-  /**
-   * Index that is set by the invoker to this shared state.
-   * The position of this invoker in the InvokerQueue can be found by subtracting this InvokerIndex
-   * with the one of the front invoker.
-   */
-  vtkIdType InvokerIndex;
-
-  /**
-   * List of futures which are depending on us. This is filled by them as they get pushed if we are
-   * not done with our task.
-   */
-  std::vector<SharedFutureBasePointer> DependentSharedFutures;
-
-  mutable std::mutex Mutex;
-  mutable std::condition_variable ConditionVariable;
-};
-
-//=============================================================================
+//-----------------------------------------------------------------------------
 template <>
-struct vtkThreadedCallbackQueue::InvokerFutureSharedState<void>
-  : public vtkThreadedCallbackQueue::InvokerFutureSharedStateBase
+struct vtkThreadedCallbackQueue::ReturnValueWrapper<void, false>
 {
   using ReturnLValueRef = void;
   using ReturnConstLValueRef = void;
 
-  void Set()
-  {
-    if (this->Status & READY)
-    {
-      throw std::logic_error("Result already set.");
-    }
-    this->Status = READY;
-    this->ConditionVariable.notify_all();
-  }
-
-  void Get() const { this->Wait(); }
+  void Get() const {}
 };
 
 //=============================================================================
 template <class ReturnT>
-struct vtkThreadedCallbackQueue::InvokerFutureSharedStateBase ::ReturnValueWrapper<ReturnT,
-  true /* IsLValueReference */>
+struct vtkThreadedCallbackQueue::ReturnValueWrapper<ReturnT, true /* IsLValueReference */>
 {
   using ReturnValueImpl = ReturnValueWrapper<ReturnT, false>;
+  using ReturnLValueRef = ReturnT&;
+  using ReturnConstLValueRef = const ReturnT&;
 
   ReturnValueWrapper() = default;
   ReturnValueWrapper(ReturnT& value)
@@ -122,9 +77,11 @@ struct vtkThreadedCallbackQueue::InvokerFutureSharedStateBase ::ReturnValueWrapp
 
 //=============================================================================
 template <class ReturnT>
-struct vtkThreadedCallbackQueue::InvokerFutureSharedStateBase ::ReturnValueWrapper<ReturnT,
-  false /* IsLValueReference */>
+struct vtkThreadedCallbackQueue::ReturnValueWrapper<ReturnT, false /* IsLValueReference */>
 {
+  using ReturnLValueRef = ReturnT&;
+  using ReturnConstLValueRef = const ReturnT&;
+
   ReturnValueWrapper() = default;
   template <class ReturnTT>
   ReturnValueWrapper(ReturnTT&& value)
@@ -139,43 +96,23 @@ struct vtkThreadedCallbackQueue::InvokerFutureSharedStateBase ::ReturnValueWrapp
   ReturnT Value;
 };
 
-//=============================================================================
+//-----------------------------------------------------------------------------
 template <class ReturnT>
-struct vtkThreadedCallbackQueue::InvokerFutureSharedState<ReturnT>
-  : public vtkThreadedCallbackQueue::InvokerFutureSharedStateBase
+typename vtkThreadedCallbackQueue::vtkSharedFuture<ReturnT>::ReturnLValueRef
+vtkThreadedCallbackQueue::vtkSharedFuture<ReturnT>::Get()
 {
-  using ReturnLValueRef = ReturnT&;
-  using ReturnConstLValueRef = const ReturnT&;
+  this->Wait();
+  return this->ReturnValue.Get();
+}
 
-  ReturnT& Get()
-  {
-    this->Wait();
-    return this->ReturnValue.Get();
-  }
-
-  const ReturnT& Get() const
-  {
-    this->Wait();
-    return this->ReturnValue.Get();
-  }
-
-  template <class ReturnTT>
-  void Set(ReturnTT&& val)
-  {
-    if (this->Status & READY)
-    {
-      throw std::logic_error("Result already set.");
-    }
-    {
-      std::lock_guard<std::mutex> lock(this->Mutex);
-      this->Status = READY;
-      this->ReturnValue = ReturnValueWrapper<ReturnT>(std::forward<ReturnTT>(val));
-    }
-    this->ConditionVariable.notify_all();
-  }
-
-  ReturnValueWrapper<ReturnT> ReturnValue;
-};
+//-----------------------------------------------------------------------------
+template <class ReturnT>
+typename vtkThreadedCallbackQueue::vtkSharedFuture<ReturnT>::ReturnConstLValueRef
+vtkThreadedCallbackQueue::vtkSharedFuture<ReturnT>::Get() const
+{
+  this->Wait();
+  return this->ReturnValue.Get();
+}
 
 //=============================================================================
 struct vtkThreadedCallbackQueue::InvokerImpl
@@ -265,9 +202,11 @@ struct vtkThreadedCallbackQueue::InvokerImpl
   struct InvokerHelper
   {
     template <class InvokerT>
-    static void Invoke(InvokerT&& invoker, InvokerFutureSharedState<ReturnT>* state)
+    static void Invoke(InvokerT&& invoker, vtkSharedFuture<ReturnT>* future)
     {
-      state->Set(invoker());
+      future->ReturnValue = ReturnValueWrapper<ReturnT>(invoker());
+      future->Status = READY;
+      future->ConditionVariable.notify_all();
     }
   };
 };
@@ -277,10 +216,11 @@ template <>
 struct vtkThreadedCallbackQueue::InvokerImpl::InvokerHelper<void>
 {
   template <class InvokerT>
-  static void Invoke(InvokerT&& invoker, InvokerFutureSharedState<void>* state)
+  static void Invoke(InvokerT&& invoker, vtkSharedFuture<void>* future)
   {
     invoker();
-    state->Set();
+    future->Status = READY;
+    future->ConditionVariable.notify_all();
   }
 };
 
@@ -318,6 +258,16 @@ struct vtkThreadedCallbackQueue::Signature<ReturnT (ClassT::*)(ArgsT...) const>
 // For function pointers
 template <class ReturnT, class... ArgsT>
 struct vtkThreadedCallbackQueue::Signature<ReturnT (*)(ArgsT...)>
+{
+  using ArgsTuple = std::tuple<ArgsT...>;
+  using InvokeResult = ReturnT;
+  static constexpr std::size_t ArgsSize = sizeof...(ArgsT);
+};
+
+//=============================================================================
+// For function pointers
+template <class ReturnT, class... ArgsT>
+struct vtkThreadedCallbackQueue::Signature<ReturnT (&)(ArgsT...)>
 {
   using ArgsTuple = std::tuple<ArgsT...>;
   using InvokeResult = ReturnT;
@@ -469,130 +419,56 @@ private:
 };
 
 //=============================================================================
-struct vtkThreadedCallbackQueue::InvokerBase
-{
-  virtual ~InvokerBase() = default;
-  virtual void operator()() = 0;
-
-  virtual InvokerFutureSharedStateBase* GetSharedState() = 0;
-  virtual const InvokerFutureSharedStateBase* GetSharedState() const = 0;
-
-  bool IsHighPriority = false;
-};
-
-//=============================================================================
 template <class FT, class... ArgsT>
-struct vtkThreadedCallbackQueue::Invoker : public vtkThreadedCallbackQueue::InvokerBase
+class vtkThreadedCallbackQueue::vtkInvoker
+  : public vtkThreadedCallbackQueue::vtkSharedFuture<vtkThreadedCallbackQueue::InvokeResult<FT>>
 {
+public:
   template <class... ArgsTT>
-  Invoker(SharedFuturePointer<InvokeResult<FT>>& future, ArgsTT&&... args)
-    : SharedState(future->SharedState)
-    , Impl(std::forward<ArgsTT>(args)...)
+  static vtkInvoker<FT, ArgsT...>* New(ArgsTT&&... args)
+  {
+    auto result = new vtkInvoker<FT, ArgsT...>(std::forward<ArgsTT>(args)...);
+    result->InitializeObjectBase();
+    return result;
+  }
+
+  template <class... ArgsTT>
+  vtkInvoker(ArgsTT&&... args)
+    : Impl(std::forward<ArgsTT>(args)...)
   {
   }
 
   void operator()() override
   {
-    assert(this->SharedState->Status & RUNNING && "Status should be RUNNING");
-    InvokerImpl::InvokerHelper<InvokeResult<FT>>::Invoke(this->Impl, this->SharedState.get());
+    assert(this->Status == RUNNING && "Status should be RUNNING");
+    InvokerImpl::InvokerHelper<InvokeResult<FT>>::Invoke(this->Impl, this);
   }
 
-  InvokerFutureSharedStateBase* GetSharedState() override { return this->SharedState.get(); }
+  friend class vtkThreadedCallbackQueue;
 
-  const InvokerFutureSharedStateBase* GetSharedState() const override
-  {
-    return this->SharedState.get();
-  }
-
-  std::shared_ptr<InvokerFutureSharedState<InvokeResult<FT>>> SharedState;
+private:
   InvokerImpl::InvokerHandle<std::is_member_function_pointer<FT>::value, FT, ArgsT...> Impl;
+
+  vtkInvoker(const vtkInvoker<FT, ArgsT...>& other) = delete;
+  void operator=(const vtkInvoker<FT, ArgsT...>& other) = delete;
 };
 
 //-----------------------------------------------------------------------------
-template <class ReturnT>
-vtkThreadedCallbackQueue::vtkSharedFuture<ReturnT>*
-vtkThreadedCallbackQueue::vtkSharedFuture<ReturnT>::New()
-{
-  auto result = new vtkSharedFuture<ReturnT>();
-  result->InitializeObjectBase();
-  return result;
-}
-
-//-----------------------------------------------------------------------------
-template <class ReturnT>
-void vtkThreadedCallbackQueue::vtkSharedFuture<ReturnT>::Wait() const
-{
-  this->SharedState->Wait();
-}
-
-//-----------------------------------------------------------------------------
-template <class ReturnT>
-vtkThreadedCallbackQueue::InvokerFutureSharedStateBase*
-vtkThreadedCallbackQueue::vtkSharedFuture<ReturnT>::GetSharedState()
-{
-  return this->SharedState.get();
-}
-
-//-----------------------------------------------------------------------------
-template <class ReturnT>
-const vtkThreadedCallbackQueue::InvokerFutureSharedStateBase*
-vtkThreadedCallbackQueue::vtkSharedFuture<ReturnT>::GetSharedState() const
-{
-  return this->SharedState.get();
-}
-
-//-----------------------------------------------------------------------------
-template <class ReturnT>
-typename vtkThreadedCallbackQueue::InvokerFutureSharedState<ReturnT>::ReturnLValueRef
-vtkThreadedCallbackQueue::vtkSharedFuture<ReturnT>::Get()
-{
-  return this->SharedState->Get();
-}
-
-//-----------------------------------------------------------------------------
-template <class ReturnT>
-typename vtkThreadedCallbackQueue::InvokerFutureSharedState<ReturnT>::ReturnConstLValueRef
-vtkThreadedCallbackQueue::vtkSharedFuture<ReturnT>::Get() const
-{
-  return this->SharedState->Get();
-}
-
-//-----------------------------------------------------------------------------
-template <class FT, class... ArgsT>
-std::pair<vtkThreadedCallbackQueue::InvokerPointer<FT, ArgsT...>,
-  vtkThreadedCallbackQueue::SharedFuturePointer<vtkThreadedCallbackQueue::InvokeResult<FT>>>
-vtkThreadedCallbackQueue::CreateInvokerAndSharedFuture(int status, FT&& f, ArgsT&&... args)
-{
-  auto future = SharedFuturePointer<InvokeResult<FT>>::New();
-  auto invoker = InvokerPointer<FT, ArgsT...>(
-    new Invoker<FT, ArgsT...>(future, std::forward<FT>(f), std::forward<ArgsT>(args)...));
-  future->SharedState->Status = status;
-
-  return std::make_pair(std::move(invoker), std::move(future));
-}
-
-//-----------------------------------------------------------------------------
-template <class SharedFutureContainerT, class InvokerT, class SharedFutureT>
+template <class SharedFutureContainerT, class InvokerT>
 void vtkThreadedCallbackQueue::HandleDependentInvoker(
-  SharedFutureContainerT&& priorSharedFutures, InvokerT&& invoker, SharedFutureT&& future)
+  SharedFutureContainerT&& priorSharedFutures, InvokerT&& invoker)
 {
-  auto& futureState = future->SharedState;
-
   // We look at all the dependent futures. Each time we find one, we notify the corresponding
-  // invoker that we are waiting on it through its SharedState.
-  // We count the number of dependents that are not done yet, and we put this counter bundled
-  // with the new invoker inside InvokersOnHold.
+  // invoker that we are waiting.
   // When the signaled invokers terminate, the counter will be decreased, and when it reaches
   // zero, this invoker will be ready to run.
   if (!priorSharedFutures.empty())
   {
     for (const auto& prior : priorSharedFutures)
     {
-      auto state = prior->GetSharedState();
-
       // We can do a quick check to avoid locking if possible. If the prior shared future is ready,
       // we can just move on.
-      if (state->Status & READY)
+      if (prior->Status == READY)
       {
         continue;
       }
@@ -600,11 +476,11 @@ void vtkThreadedCallbackQueue::HandleDependentInvoker(
       // We need to lock the shared state (so we block the invoker side).
       // This way, we can make sure that if the invoker is still running, we notify it that we
       // depend on it before it checks its dependents in SignalDependentSharedFutures
-      std::unique_lock<std::mutex> lock(state->Mutex);
-      if (!(state->Status & READY))
+      std::unique_lock<std::mutex> lock(prior->Mutex);
+      if (prior->Status != READY)
       {
         // We notify the invoker we depend on by adding ourselves in DependentSharedFutures.
-        state->DependentSharedFutures.emplace_back(future);
+        prior->Dependents.emplace_back(invoker);
 
         // This does not need to be locked because the shared state of this future is not done
         // constructing yet, so the invoker in SignalDependentSharedFutures will never try do
@@ -612,22 +488,15 @@ void vtkThreadedCallbackQueue::HandleDependentInvoker(
         // invoker decrements, and if we end up with 0 remaining prior futures, we execute the
         // invoker anyway, so the invoker side has nothing to do.
         lock.unlock();
-        ++futureState->NumberOfPriorSharedFuturesRemaining;
+        ++invoker->NumberOfPriorSharedFuturesRemaining;
       }
     }
   }
-  // We notify every invokers we depend on that our SharedState is done constructing. This means
-  // that we inserted ourselves in InvokersOnHold if necessary and that if the invoker finds no
-  // remaining prior futures in this dependent, it can move the invoker associated with us to the
-  // running queue.
-  std::unique_lock<std::mutex> lock(futureState->Mutex);
-  if (futureState->NumberOfPriorSharedFuturesRemaining)
+  // We notify every invokers we depend on that we are done constructing.
+  std::unique_lock<std::mutex> lock(invoker->Mutex);
+  if (invoker->NumberOfPriorSharedFuturesRemaining)
   {
-    {
-      std::lock_guard<std::mutex> onHoldLock(this->OnHoldMutex);
-      this->InvokersOnHold.emplace(future, std::move(invoker));
-    }
-    futureState->Status = ON_HOLD;
+    invoker->Status = ON_HOLD;
   }
   else
   {
@@ -641,7 +510,7 @@ bool vtkThreadedCallbackQueue::MustWait(SharedFutureContainerT&& priorSharedFutu
 {
   for (const vtkSharedFutureBase* prior : priorSharedFutures)
   {
-    if (!(prior->GetSharedState()->Status & READY))
+    if (prior->Status != READY)
     {
       return true;
     }
@@ -661,103 +530,59 @@ void vtkThreadedCallbackQueue::Wait(SharedFutureContainerT&& priorSharedFutures)
   // and save time instead of waiting.
   for (vtkSharedFutureBase* prior : priorSharedFutures)
   {
-    constexpr int CANNOT_RUN = RUNNING | ON_HOLD | CONSTRUCTING | READY;
-    auto state = prior->GetSharedState();
-
-    if (state->Status & READY)
+    switch (prior->Status.load())
     {
-      continue;
-    }
-    else if (state->Status & CANNOT_RUN)
-    {
-      mustWait = true;
-      continue;
-    }
-
-    // We need to lock our state.
-    std::unique_lock<std::mutex> stateLock(state->Mutex);
-    if (state->Status & ENQUEUED)
-    {
-      InvokerBasePointer invoker = [this, &state] {
-        std::lock_guard<std::mutex> lock(this->Mutex);
-
-        // We need to check again if we cannot run in case the thread worker just popped this
-        // invoker. We are guarded by this->Mutex so there cannot be a conflict here.
-        if (state->Status & (RUNNING | READY))
-        {
-          // Someone picked up the invoker right before us, we can abort.
-          return InvokerBasePointer(nullptr);
-        }
-        // There has to be a front if we are here.
-        vtkIdType index =
-          state->InvokerIndex - this->InvokerQueue.front()->GetSharedState()->InvokerIndex;
-        InvokerBasePointer result = std::move(this->InvokerQueue[index]);
-
-        // If we just picked the front invoker, let's pop the queue.
-        if (index == 0)
-        {
-          this->PopFrontNullptr();
-        }
-        return result;
-      }();
-      if (!invoker)
-      {
-        // Someone else picked up the invoker, we can continue.
-        continue;
-      }
-
-      this->Invoke(std::move(invoker), stateLock);
+      case RUNNING:
+      case ON_HOLD:
+      case CONSTRUCTING:
+        mustWait = true;
+        break;
+      case ENQUEUED:
+        mustWait |= !this->TryInvoke(prior);
+        break;
     }
   }
 
-  if (!mustWait)
+  if (!mustWait || !this->MustWait(std::forward<SharedFutureContainerT>(priorSharedFutures)))
   {
     return;
   }
 
-  // Second pass: check if we have at most one prior we are waiting on.
-  // In this the case, we just wait on it or return.
-  vtkIdType count = 0;
-  SharedFutureBasePointer prior = [&count, &priorSharedFutures] {
-    SharedFutureBasePointer result = nullptr;
-    for (vtkSharedFutureBase* future : priorSharedFutures)
-    {
-      if (!(future->GetSharedState()->Status & READY))
-      {
-        ++count;
-        result = future;
-      }
-    }
-    return result;
-  }();
-
-  if (prior && count == 1)
-  {
-    prior->Wait();
-    return;
-  }
-  else if (!prior)
-  {
-    return;
-  }
-
-  // Third pass:
+  // Second pass:
   // Some priors are not ready...
   // We create an invoker and a future with an empty lambda.
   // The idea is to pass the prior shared futures to the routine HandleDependentInvoker.
   // If any prior is not done, the created invoker will be placed in InvokersOnHold and launched
   // automatically when it is ready.
   // We can just wait on the shared future we just created
-  auto pair = this->CreateInvokerAndSharedFuture(CONSTRUCTING, [] {});
+  auto emptyLambda = [] {};
+  auto invoker = InvokerPointer<decltype(emptyLambda)>::New(std::move(emptyLambda));
 
   // We notify whoever harvests this invoker that we want to be run right away and not pushed in the
   // InvokerQueue.
-  pair.first->IsHighPriority = true;
+  invoker->IsHighPriority = true;
 
-  this->HandleDependentInvoker(
-    std::forward<SharedFutureContainerT>(priorSharedFutures), std::move(pair.first), pair.second);
+  this->HandleDependentInvoker(std::forward<SharedFutureContainerT>(priorSharedFutures), invoker);
 
-  pair.second->Wait();
+  invoker->Wait();
+}
+
+//-----------------------------------------------------------------------------
+template <class ReturnT>
+typename vtkThreadedCallbackQueue::vtkSharedFuture<ReturnT>::ReturnLValueRef
+vtkThreadedCallbackQueue::Get(SharedFuturePointer<ReturnT>& future)
+{
+  this->Wait(std::array<vtkSharedFuture<ReturnT>*, 1>{ future });
+  return future->Get();
+}
+
+//-----------------------------------------------------------------------------
+template <class ReturnT>
+typename vtkThreadedCallbackQueue::vtkSharedFuture<ReturnT>::ReturnConstLValueRef
+vtkThreadedCallbackQueue::Get(const SharedFuturePointer<ReturnT>& future)
+{
+  this->Wait(std::array<vtkSharedFuture<ReturnT>*, 1>{ future });
+  return future->Get();
 }
 
 //-----------------------------------------------------------------------------
@@ -773,17 +598,85 @@ vtkThreadedCallbackQueue::PushDependent(
   }
 
   using InvokerPointerType = InvokerPointer<FT, ArgsT...>;
-  using SharedFuturePointerType = SharedFuturePointer<InvokeResult<FT>>;
 
-  auto pair = this->CreateInvokerAndSharedFuture(
-    CONSTRUCTING, std::forward<FT>(f), std::forward<ArgsT>(args)...);
+  auto invoker = InvokerPointerType::New(std::forward<FT>(f), std::forward<ArgsT>(args)...);
 
-  this->Push(&vtkThreadedCallbackQueue::HandleDependentInvoker<SharedFutureContainerT,
-               InvokerPointerType, SharedFuturePointerType>,
-    this, std::forward<SharedFutureContainerT>(priorSharedFutures), std::move(pair.first),
-    pair.second);
+  this->Push(
+    &vtkThreadedCallbackQueue::HandleDependentInvoker<SharedFutureContainerT, InvokerPointerType>,
+    this, std::forward<SharedFutureContainerT>(priorSharedFutures), invoker);
 
-  return pair.second;
+  return invoker;
+}
+
+//-----------------------------------------------------------------------------
+template <class FT, class... ArgsT>
+void vtkThreadedCallbackQueue::PushControl(FT&& f, ArgsT&&... args)
+{
+  struct Worker
+  {
+    void operator()(vtkThreadedCallbackQueue* self, FT&& _f, ArgsT&&... _args)
+    {
+      _f(std::forward<ArgsT>(_args)...);
+      std::lock_guard<std::mutex> lock(self->ControlMutex);
+      self->ControlFutures.erase(this->Future);
+    }
+
+    SharedFutureBasePointer Future;
+  };
+
+  Worker worker;
+
+  using InvokerPointerType = InvokerPointer<Worker, vtkThreadedCallbackQueue*, FT, ArgsT...>;
+
+  auto invoker =
+    InvokerPointerType::New(worker, this, std::forward<FT>(f), std::forward<ArgsT>(args)...);
+  worker.Future = invoker;
+
+  // We want the setting of ControlFutures to be strictly sequential. We don't want race conditions
+  // on this container with 2 `PushControl` that are called almost simultaneously and have invokers
+  // depend on flaky futures.
+  auto localControlFutures = [this, &invoker] {
+    std::lock_guard<std::mutex> lock(this->ControlMutex);
+
+    // We create a copy of the control futures that doesn't have ourselves in yet.
+    auto result = this->ControlFutures;
+    this->ControlFutures.emplace(invoker);
+    return result;
+  }();
+
+  // If we can avoid doing tricks with dependent shared futures, let's do it.
+  if (!this->MustWait(localControlFutures))
+  {
+    // The queue is not running yet, we need to invoke by hand.
+    if (this->Threads.empty())
+    {
+      // No need to lock anything here. We are the only invoker that is allowed to run here.
+      invoker->Status = RUNNING;
+      (*invoker)();
+      return;
+    }
+
+    {
+      std::lock_guard<std::mutex> invokerLock(invoker->Mutex);
+      invoker->Status = ENQUEUED;
+
+      std::lock_guard<std::mutex> lock(this->Mutex);
+      invoker->InvokerIndex =
+        this->InvokerQueue.empty() ? 0 : this->InvokerQueue.front()->InvokerIndex - 1;
+
+      // We give some priority to controls, we push them in the front.
+      this->InvokerQueue.emplace_front(invoker);
+    }
+    this->ConditionVariable.notify_one();
+    return;
+  }
+
+  // Controls must be run ASAP
+  invoker->IsHighPriority = true;
+
+  // Invoker will probably end up on hold and be ran automatically when prior controls have
+  // terminated.
+  this->HandleDependentInvoker(localControlFutures, invoker);
 }
 
 //-----------------------------------------------------------------------------
@@ -791,21 +684,21 @@ template <class FT, class... ArgsT>
 vtkThreadedCallbackQueue::SharedFuturePointer<vtkThreadedCallbackQueue::InvokeResult<FT>>
 vtkThreadedCallbackQueue::Push(FT&& f, ArgsT&&... args)
 {
-  auto pair =
-    this->CreateInvokerAndSharedFuture(ENQUEUED, std::forward<FT>(f), std::forward<ArgsT>(args)...);
+  auto invoker =
+    InvokerPointer<FT, ArgsT...>::New(std::forward<FT>(f), std::forward<ArgsT>(args)...);
+  invoker->Status = ENQUEUED;
 
   {
     std::lock_guard<std::mutex> lock(this->Mutex);
-    pair.second->SharedState->InvokerIndex = this->InvokerQueue.empty()
-      ? 0
-      : this->InvokerQueue.front()->GetSharedState()->InvokerIndex +
+    invoker->InvokerIndex = this->InvokerQueue.empty() ? 0
+                                                       : this->InvokerQueue.front()->InvokerIndex +
         static_cast<vtkIdType>(this->InvokerQueue.size());
-    this->InvokerQueue.emplace_back(std::move(pair.first));
+    this->InvokerQueue.emplace_back(invoker);
   }
 
   this->ConditionVariable.notify_one();
 
-  return pair.second;
+  return invoker;
 }
 
 VTK_ABI_NAMESPACE_END
