@@ -15,9 +15,13 @@
 
 #include "vtkQuadraticTetra.h"
 
+#include "vtkCellArray.h"
+#include "vtkCellData.h"
 #include "vtkDoubleArray.h"
+#include "vtkIncrementalPointLocator.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 #include "vtkPoints.h"
 #include "vtkQuadraticEdge.h"
 #include "vtkQuadraticTriangle.h"
@@ -521,6 +525,57 @@ void vtkQuadraticTetra::Clip(double value, vtkDataArray* cellScalars,
     }
     this->Tetra->Clip(
       value, this->Scalars, locator, tetras, inPd, outPd, inCd, cellId, outCd, insideOut);
+  }
+}
+
+//------------------------------------------------------------------------------
+bool vtkQuadraticTetra::StableClip(double value, vtkDataArray* cellScalars,
+  vtkIncrementalPointLocator* locator, vtkCellArray* tetras, vtkPointData* inPd,
+  vtkPointData* outPd, vtkCellData* inCd, vtkIdType cellId, vtkCellData* outCd, int insideOut)
+{
+  // Determine how to tessellate. This will depend on the scalars (to try and minimize
+  // artifacts).
+  const double sDiff0 = fabs(cellScalars->GetTuple1(8) - cellScalars->GetTuple1(6));
+  const double sDiff1 = fabs(cellScalars->GetTuple1(9) - cellScalars->GetTuple1(4));
+  const double sDiff2 = fabs(cellScalars->GetTuple1(7) - cellScalars->GetTuple1(5));
+  const int dir = ((sDiff0 < sDiff1 ? (sDiff0 < sDiff2 ? 0 : 2) : (sDiff1 < sDiff2 ? 1 : 2)));
+
+  // check if totally inside or outside. If it is then no need to tessalate, we can
+  // return the cell as is
+  bool totallyInside = true;
+  bool totallyOutside = true;
+  for (int i = 0; i < 8; i++) // for each subdivided tetra
+  {
+    for (int j = 0; j < 4; j++) // for each of the four vertices of the tetra
+    {
+      const double scalar = cellScalars->GetTuple1(LinearTetras[dir][i][j]);
+      totallyInside = totallyInside && (scalar > value);
+      totallyOutside = totallyOutside && (scalar < value);
+    }
+  }
+
+  // if we can pass the whole cell, pass the whole cell
+  if ((totallyOutside && insideOut) || (totallyInside && !insideOut))
+  {
+    vtkIdType newPntIds[10] = { 0 };
+    double pntPos[3] = { 0 };
+    for (vtkIdType i = 0; i < 10; ++i)
+    {
+      this->Points->GetPoint(i, pntPos);
+      locator->InsertUniquePoint(pntPos, newPntIds[i]);
+      outPd->InsertTuple(newPntIds[i], this->PointIds->GetId(i), inPd);
+    }
+
+    vtkIdType newCellId = tetras->InsertNextCell(10, newPntIds);
+    outCd->CopyData(inCd, newCellId, 1, cellId);
+
+    return true;
+  }
+  // else we tessalate and return the clip of the tesselation
+  else
+  {
+    this->Clip(value, cellScalars, locator, tetras, inPd, outPd, inCd, cellId, outCd, insideOut);
+    return false;
   }
 }
 

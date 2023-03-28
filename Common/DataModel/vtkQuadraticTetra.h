@@ -87,6 +87,18 @@ public:
     vtkIdType cellId, vtkCellData* outCd, int insideOut) override;
 
   /**
+   * Clip this edge using scalar value provided. Like contouring, except
+   * that it cuts the tetra to produce new tetras.
+   *
+   * Returns true if newly inserted cell is a quadratic tetra, false otherwise.
+   *
+   * @see vtkNonLinearCell::StableClip
+   */
+  bool StableClip(double value, vtkDataArray* cellScalars, vtkIncrementalPointLocator* locator,
+    vtkCellArray* tetras, vtkPointData* inPd, vtkPointData* outPd, vtkCellData* inCd,
+    vtkIdType cellId, vtkCellData* outCd, int insideOut) override;
+
+  /**
    * Line-edge intersection. Intersection has to occur within [0,1] parametric
    * coordinates and with specified tolerance.
    */
