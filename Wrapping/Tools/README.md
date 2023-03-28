@@ -212,8 +212,9 @@ used to generate the file vtkParse.tab.c, which contains the parser.
 5. remove `YY_ATTRIBUTE_UNUSED` from `yyfillin`, `yyfill`, and `yynormal`
 6. comment out the `break;` after `return yyreportAmbiguity`
 7. replace `(1-yyrhslen)` with `(1-(int)yyrhslen)`
-8. replace `sizeof yynewStates[0]` with `sizeof (yyGLRState*)`
-9. replace `sizeof yynewLookaheadNeeds[0]` with `sizeof (yybool)`
+8. replace `sizeof yynewStates[0]` and `sizeof yyset->yystates[0]` with `sizeof (yyGLRState*)`
+9. replace `sizeof yynewLookaheadNeeds[0]` and `sizeof yyset->yylookaheadNeeds[0]` with `sizeof (yybool)`
+10. replace `sizeof yynewItems[0]` and `sizeof yystackp->yynextFree[0]` with `sizeof (yyGLRStackItem)`
 
 If you are familiar with "diff" and "patch" and if you have clang-format,
 you can automate these code changes as follows.  For this, you must use

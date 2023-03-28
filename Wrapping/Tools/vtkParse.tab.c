@@ -7471,11 +7471,11 @@ static yybool yyinitStateSet(yyGLRStateSet* yyset)
 {
   yyset->yysize = 1;
   yyset->yycapacity = 16;
-  yyset->yystates = (yyGLRState**)YYMALLOC(16 * sizeof yyset->yystates[0]);
+  yyset->yystates = (yyGLRState**)YYMALLOC(16 * sizeof (yyGLRState*));
   if (!yyset->yystates)
     return yyfalse;
   yyset->yystates[0] = YY_NULLPTR;
-  yyset->yylookaheadNeeds = (yybool*)YYMALLOC(16 * sizeof yyset->yylookaheadNeeds[0]);
+  yyset->yylookaheadNeeds = (yybool*)YYMALLOC(16 * sizeof (yybool));
   if (!yyset->yylookaheadNeeds)
   {
     YYFREE(yyset->yystates);
@@ -7497,7 +7497,7 @@ static yybool yyinitGLRStack(yyGLRStack* yystackp, size_t yysize)
   yystackp->yyerrState = 0;
   yynerrs = 0;
   yystackp->yyspaceLeft = yysize;
-  yystackp->yyitems = (yyGLRStackItem*)YYMALLOC(yysize * sizeof yystackp->yynextFree[0]);
+  yystackp->yyitems = (yyGLRStackItem*)YYMALLOC(yysize * sizeof (yyGLRStackItem));
   if (!yystackp->yyitems)
     return yyfalse;
   yystackp->yynextFree = yystackp->yyitems;
@@ -7527,7 +7527,7 @@ static void yyexpandGLRStack(yyGLRStack* yystackp)
   yynewSize = 2 * yysize;
   if (YYMAXDEPTH < yynewSize)
     yynewSize = YYMAXDEPTH;
-  yynewItems = (yyGLRStackItem*)YYMALLOC(yynewSize * sizeof yynewItems[0]);
+  yynewItems = (yyGLRStackItem*)YYMALLOC(yynewSize * sizeof (yyGLRStackItem));
   if (!yynewItems)
     yyMemoryExhausted(yystackp);
   for (yyp0 = yystackp->yyitems, yyp1 = yynewItems, yyn = yysize; 0 < yyn;
