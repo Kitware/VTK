@@ -33,18 +33,13 @@
 #include <vtkm/worklet/WorkletMapField.h>
 
 #include <vtkm/BinaryPredicates.h>
+#include <vtkm/Swap.h>
 
 #include "vtkCellArray.h"
 #include "vtkCellType.h"
 #include "vtkIdTypeArray.h"
 #include "vtkNew.h"
 #include "vtkUnsignedCharArray.h"
-
-#if defined(VTKM_CUDA)
-#define FUNC_SCOPE __device__
-#else
-#define FUNC_SCOPE
-#endif
 
 namespace tovtkm
 {
@@ -57,16 +52,10 @@ struct ReorderHex : vtkm::worklet::WorkletMapField
 {
   using ControlSignature = void(FieldInOut);
 
-  FUNC_SCOPE void operator()(vtkm::Vec<vtkm::Id, 8>& indices) const
+  VTKM_EXEC void operator()(vtkm::Vec<vtkm::Id, 8>& indices) const
   {
-    auto doSwap = [&](vtkm::IdComponent id1, vtkm::IdComponent id2) {
-      const auto t = indices[id1];
-      indices[id1] = indices[id2];
-      indices[id2] = t;
-    };
-
-    doSwap(2, 3);
-    doSwap(6, 7);
+    vtkm::Swap(indices[2], indices[3]);
+    vtkm::Swap(indices[6], indices[7]);
   }
 };
 
@@ -111,14 +100,7 @@ struct BuildSingleTypeVoxelCellSetVisitor
       vtkm::cont::ArrayCopy(
         vtkm::cont::make_ArrayHandle(origData, numIds, vtkm::CopyFlag::Off), connHandle);
 
-      // reorder cells from voxel->hex: which only can run on
-      // devices that have shared memory / vtable with the CPU
-      vtkm::cont::ScopedRuntimeDeviceTracker tracker(
-        vtkm::cont::DeviceAdapterTagAny{}, vtkm::cont::RuntimeDeviceTrackerMode::Disable);
-      tracker.ResetDevice(vtkm::cont::DeviceAdapterTagTBB{});
-      tracker.ResetDevice(vtkm::cont::DeviceAdapterTagOpenMP{});
-      tracker.ResetDevice(vtkm::cont::DeviceAdapterTagSerial{});
-
+      // reorder cells from voxel->hex
       vtkm::cont::Invoker invoke;
       invoke(ReorderHex{}, vtkm::cont::make_ArrayHandleGroupVec<8>(connHandle));
     }
