@@ -23,6 +23,7 @@
 #include "vtkRenderer.h"
 #include "vtkTransform.h"
 #include "vtkType.h"
+#include "vtkWGPUContext.h"
 #include "vtkWebGPUActor.h"
 #include "vtkWebGPUCamera.h"
 #include "vtkWebGPUClearPass.h"
@@ -30,6 +31,7 @@
 #include "vtkWebGPUInternalsBindGroupLayout.h"
 #include "vtkWebGPULight.h"
 #include "vtkWebGPURenderWindow.h"
+
 #include <cstring>
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -261,7 +263,7 @@ int vtkWebGPURenderer::UpdateLights()
   vtkTypeUInt32 count = lightInfos.size();
   wgpu::BufferDescriptor desc;
   desc.size = count + lightInfos.size() * sizeof(lightInfos[0]);
-  desc.size = (desc.size + 31) & (-32);
+  desc.size = vtkWGPUContext::Align(desc.size, 32);
   desc.label = "LightsInfoBuffer";
   desc.usage = wgpu::BufferUsage::Storage | wgpu::BufferUsage::CopyDst;
   desc.nextInChain = nullptr;

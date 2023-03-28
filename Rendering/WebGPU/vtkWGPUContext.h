@@ -29,6 +29,7 @@ public:
   static wgpu::Device RequestDevice(
     const wgpu::Adapter& adapter, const wgpu::DeviceDescriptor& deviceDescriptor);
   static wgpu::Surface CreateSurface(const wgpu::ChainedStruct& surfaceDescriptor);
+  static std::size_t Align(std::size_t value, int alignment);
 };
 
 VTK_ABI_NAMESPACE_END

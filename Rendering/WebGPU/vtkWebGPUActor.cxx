@@ -92,7 +92,7 @@ int vtkWebGPUActor::Update(vtkRenderer* ren, vtkMapper* mapper)
 void vtkWebGPUActor::Render(vtkRenderer* ren, vtkMapper* mapper)
 {
   auto passEncoder = reinterpret_cast<vtkWebGPURenderer*>(ren)->GetRenderPassEncoder();
-  passEncoder.PushDebugGroup("Actor::Render");
+  passEncoder.PushDebugGroup("vtkWebGPUActor::Render");
   passEncoder.SetBindGroup(1, this->ActorBindGroup);
   this->CurrentMapperRenderType = MapperRenderType::RenderPassEncode;
   mapper->Render(ren, this);

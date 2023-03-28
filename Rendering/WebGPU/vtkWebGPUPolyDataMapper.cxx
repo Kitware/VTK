@@ -34,6 +34,7 @@
 #include "vtkTypeFloat32Array.h"
 #include "vtkTypeUInt32Array.h"
 #include "vtkUnsignedCharArray.h"
+#include "vtkWGPUContext.h"
 #include "vtkWebGPUActor.h"
 #include "vtkWebGPUCamera.h"
 #include "vtkWebGPUInternalsBindGroup.h"
@@ -113,7 +114,7 @@ void vtkWebGPUPolyDataMapper::EncodeRenderCommands(vtkRenderer* renderer, vtkAct
   auto wgpuRenderer = reinterpret_cast<vtkWebGPURenderer*>(renderer);
 
   wgpu::RenderPassEncoder passEncoder = wgpuRenderer->GetRenderPassEncoder();
-  passEncoder.PushDebugGroup("Mapper::EncodeRenderCommands");
+  passEncoder.PushDebugGroup("vtkWebGPUPolyDataMapper::EncodeRenderCommands");
   passEncoder.SetBindGroup(2, this->MeshAttributeBindGroup);
 
   {
@@ -143,31 +144,32 @@ void vtkWebGPUPolyDataMapper::EncodeRenderCommands(vtkRenderer* renderer, vtkAct
       break;
         // clang-format on
     }
-    passEncoder.PushDebugGroup(actor->GetProperty()->GetRepresentationAsString());
     if (this->PointPrimitiveBGInfo.PipelineID == wgpuRenderer->GetCurrentPipelineID() &&
       this->PointPrimitiveBGInfo.VertexCount > 0)
     {
-      // VTK_POINT primitives
+      passEncoder.PushDebugGroup("VTK_POINT");
       passEncoder.SetBindGroup(3, this->PointPrimitiveBGInfo.BindGroup);
       passEncoder.Draw(this->PointPrimitiveBGInfo.VertexCount * vcFactor[0], instanceCount[0]);
+      passEncoder.PopDebugGroup();
     }
     else if (this->LinePrimitiveBGInfo.PipelineID == wgpuRenderer->GetCurrentPipelineID() &&
       this->LinePrimitiveBGInfo.VertexCount > 0)
     {
-      // VTK_LINE primitives
+      passEncoder.PushDebugGroup("VTK_LINE");
       wgpu::RenderPassEncoder passEncoder = wgpuRenderer->GetRenderPassEncoder();
       passEncoder.SetBindGroup(3, this->LinePrimitiveBGInfo.BindGroup);
       passEncoder.Draw(this->LinePrimitiveBGInfo.VertexCount * vcFactor[1], instanceCount[1]);
+      passEncoder.PopDebugGroup();
     }
     else if (this->TrianglePrimitiveBGInfo.PipelineID == wgpuRenderer->GetCurrentPipelineID() &&
       this->TrianglePrimitiveBGInfo.VertexCount > 0)
     {
-      // VTK_TRIANGLE primitives
+      passEncoder.PushDebugGroup("VTK_TRIANGLE");
       wgpu::RenderPassEncoder passEncoder = wgpuRenderer->GetRenderPassEncoder();
       passEncoder.SetBindGroup(3, this->TrianglePrimitiveBGInfo.BindGroup);
       passEncoder.Draw(this->TrianglePrimitiveBGInfo.VertexCount * vcFactor[2], instanceCount[2]);
+      passEncoder.PopDebugGroup();
     }
-    passEncoder.PopDebugGroup();
   }
   passEncoder.PopDebugGroup();
 }
@@ -309,7 +311,7 @@ unsigned long vtkWebGPUPolyDataMapper::GetExactPointBufferSize()
   result += this->HasPointUVs
     ? this->CurrentInput->GetPointData()->GetTCoords()->GetNumberOfValues() * sizeof(vtkTypeFloat32)
     : 0;
-  result = (result + 31) & (-32);
+  result = vtkWGPUContext::Align(result, 32);
   vtkDebugMacro(<< __func__ << "=" << result);
   return result;
 }
@@ -340,7 +342,7 @@ unsigned long vtkWebGPUPolyDataMapper::GetExactCellBufferSize()
   {
     result += sizeof(vtkTypeFloat32);
   }
-  result = (result + 31) & (-32);
+  result = vtkWGPUContext::Align(result, 32);
   vtkDebugMacro(<< __func__ << "=" << result);
   return result;
 }

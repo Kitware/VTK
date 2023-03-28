@@ -327,4 +327,9 @@ wgpu::Surface vtkWGPUContext::CreateSurface(const wgpu::ChainedStruct& surfaceDe
   return vtkWGPUImpl::CreateSurface(surfaceDescriptor);
 }
 
+//------------------------------------------------------------------------------
+std::size_t vtkWGPUContext::Align(std::size_t value, int alignment)
+{
+  return (value + alignment - 1) & ~(alignment - 1);
+}
 VTK_ABI_NAMESPACE_END
