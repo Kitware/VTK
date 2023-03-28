@@ -3,21 +3,21 @@
 set -e
 
 readonly mindeps_version="3.12.4"
-readonly latest_version="3.21.1"
+readonly latest_version="3.26.3"
 
 case "$( uname -s )" in
     Linux)
         shatool="sha256sum"
         mindeps_sha256sum="486edd6710b5250946b4b199406ccbf8f567ef0e23cfe38f7938b8c78a2ffa5f"
         mindeps_platform="Linux-x86_64"
-        latest_sha256sum="bf496ce869d0aa8c1f57e4d1a2e50c8f2fb12a6cd7ccb37ad743bb88f6b76a1e"
+        latest_sha256sum="28d4d1d0db94b47d8dfd4f7dec969a3c747304f4a28ddd6fd340f553f2384dc2"
         latest_platform="linux-x86_64"
         ;;
     Darwin)
         shatool="shasum -a 256"
         mindeps_sha256sum="95d76c00ccb9ecb5cb51de137de00965c5e8d34b2cf71556cf8ba40577d1cff3"
         mindeps_platform="Darwin-x86_64"
-        latest_sha256sum="9dc2978c4d94a44f71336fa88c15bb0eee47cf44b6ece51b10d1dfae95f82279"
+        latest_sha256sum="2b44cc892dc68b42123b9517c5d903690785b7ef489af26abf2fe3f3a6f2a112"
         latest_platform="macos-universal"
         ;;
     *)
