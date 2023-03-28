@@ -26,8 +26,12 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkRenderingOpenGL2Module.h" // For export macro
-#include <SDL2/SDL.h>                  // for ivars
-#include <stack>                       // for ivar
+#ifdef __EMSCRIPTEN__
+#include "SDL.h"
+#else
+#include "SDL2/SDL.h"
+#endif
+#include <stack> // for ivar
 
 VTK_ABI_NAMESPACE_BEGIN
 class VTKRENDERINGOPENGL2_EXPORT vtkSDL2OpenGLRenderWindow : public vtkOpenGLRenderWindow
