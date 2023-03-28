@@ -473,6 +473,11 @@ void vtkWebGPURenderWindow::End()
   this->CommandEncoder.Release();
 
   this->FlushCommandBuffers(1, &cmdBuffer);
+#ifndef NDEBUG
+  // This lets the implementation execute all callbacks so that validation errors are output in the
+  // console.
+  vtkWGPUContext::WaitABit();
+#endif
 }
 
 //------------------------------------------------------------------------------
@@ -605,7 +610,17 @@ int vtkWebGPURenderWindow::SetZbufferData(int x1, int y1, int x2, int y2, vtkFlo
 int vtkWebGPURenderWindow::GetColorBufferSizes(int* rgba) {}
 
 //------------------------------------------------------------------------------
-void vtkWebGPURenderWindow::WaitForCompletion() {}
+void vtkWebGPURenderWindow::WaitForCompletion()
+{
+  bool done = false;
+  this->Device.GetQueue().OnSubmittedWorkDone(
+    0u, [](WGPUQueueWorkDoneStatus, void* userdata) { *static_cast<bool*>(userdata) = true; },
+    &done);
+  while (!done)
+  {
+    vtkWGPUContext::WaitABit();
+  }
+}
 
 //------------------------------------------------------------------------------
 int vtkWebGPURenderWindow::SupportsOpenGL() {}

@@ -74,6 +74,14 @@ static wgpu::Surface CreateSurface(const wgpu::ChainedStruct& surfaceDescriptor)
   wgpu::Instance instance = {};
   return instance.CreateSurface(&descriptor);
 }
+
+//------------------------------------------------------------------------------
+static void WaitABit()
+{
+  // already handled?
+  return;
+}
+
 }
 namespace vtkWGPUImpl = vtkWGPUEmscriptenImpl;
 #elif VTK_USE_DAWN_NATIVE
@@ -141,6 +149,12 @@ static void Initialize()
 #endif
   GPUContext.Adapter.Handle = nullptr;
   GPUContext.Initialized = true;
+}
+
+//------------------------------------------------------------------------------
+static void WaitABit()
+{
+  wgpuInstanceProcessEvents(GPUContext.DawnNativeEntryPoint.Instance->Get());
 }
 
 //------------------------------------------------------------------------------
@@ -332,4 +346,11 @@ std::size_t vtkWGPUContext::Align(std::size_t value, int alignment)
 {
   return (value + alignment - 1) & ~(alignment - 1);
 }
+
+//------------------------------------------------------------------------------
+void vtkWGPUContext::WaitABit()
+{
+  vtkWGPUImpl::WaitABit();
+}
+
 VTK_ABI_NAMESPACE_END
