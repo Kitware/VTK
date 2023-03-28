@@ -48,7 +48,7 @@ VTK_ABI_NAMESPACE_BEGIN
 class vtkOSOpenGLRenderWindow;
 class vtkRenderWindow;
 
-typedef OSMesaContext GLAPIENTRY (*OSMesaCreateContextAttribs_func)(
+typedef OSMesaContext(GLAPIENTRY* OSMesaCreateContextAttribs_func)(
   const int* attribList, OSMesaContext sharelist);
 
 class vtkOSOpenGLRenderWindowInternal
