@@ -102,7 +102,8 @@ int vtkmAverageToCells::RequestData(
       }
     }
 
-    if (in.GetNumberOfFields() < 1) // `in` should only have point fields, if any
+    // At this point, `in` should only have point fields and coordinates
+    if (in.GetNumberOfFields() <= in.GetNumberOfCoordinateSystems())
     {
       vtkWarningMacro(<< "No point arrays to process.");
       return 1;
@@ -139,7 +140,7 @@ int vtkmAverageToCells::RequestData(
       filter.SetActiveField(name, vtkm::cont::Field::Association::Points);
       auto result = filter.Execute(in);
 
-      // convert back the dataset to VTK, and add the field as a point field
+      // convert back to VTK, and add the field as a cell field
       vtkDataArray* resultingArray = fromvtkm::Convert(result.GetCellField(name));
       if (resultingArray == nullptr)
       {
