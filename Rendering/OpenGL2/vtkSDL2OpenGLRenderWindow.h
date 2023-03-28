@@ -27,9 +27,9 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #ifdef __EMSCRIPTEN__
-#include "SDL.h"
+#include "SDL.h" // for ivars
 #else
-#include "SDL2/SDL.h"
+#include "SDL2/SDL.h" // for ivars
 #endif
 #include <stack> // for ivar
 
