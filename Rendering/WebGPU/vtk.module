@@ -1,0 +1,23 @@
+NAME
+  VTK::RenderingWebGPU
+LIBRARY_NAME
+  vtkRenderingWebGPU
+GROUPS
+  Rendering
+IMPLEMENTS
+  VTK::RenderingCore
+CONDITION
+  VTK_ENABLE_WEBGPU
+DEPENDS
+  VTK::CommonCore
+  VTK::RenderingCore
+PRIVATE_DEPENDS
+  VTK::CommonDataModel
+  VTK::CommonSystem
+  VTK::fmt
+TEST_DEPENDS
+  VTK::FiltersSources
+  VTK::RenderingUI
+  VTK::InteractionStyle
+  VTK::TestingCore
+  VTK::TestingRendering

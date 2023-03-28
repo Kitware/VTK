@@ -38,5 +38,7 @@ TEST_DEPENDS
   VTK::IOXML
   VTK::RenderingAnnotation
   VTK::RenderingOpenGL2
+  # VTK::RenderingUI Enable for webgpu tests
+  # VTK::RenderingWebGPU Enable for webgpu tests
   VTK::TestingCore
   VTK::TestingRendering
