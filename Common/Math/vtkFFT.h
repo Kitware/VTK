@@ -46,6 +46,7 @@
 #include VTK_KISSFFT_HEADER(tools/kiss_fftr.h)
 // clang-format on
 
+#include <array>       // std::array
 #include <cmath>       // std::sin, std::cos, std::sqrt
 #include <numeric>     // std::accumulate, std::inner_product
 #include <type_traits> // std::enable_if, std::iterator_traits
@@ -89,6 +90,38 @@ public:
   {
   };
   ///@}
+
+  /**
+   * Enum containing octave band numbers, named upon their nominal midband frequency.
+   * Value multiplied by 3 should be a one-third-octave band number matching an octave band.
+   */
+  enum Octave
+  {
+    Hz_31_5 = 5,
+    Hz_63 = 6,
+    Hz_125 = 7,
+    Hz_250 = 8,
+    Hz_500 = 9,
+    kHz_1 = 10,
+    kHz_2 = 11,
+    kHz_4 = 12,
+    kHz_8 = 13,
+    kHz_16 = 14
+  };
+
+  /**
+   * Enum specifying which octave band we want to compute.
+   * Could be a full octave range, or a one-third-octave one for instance.
+   */
+  enum OctaveSubdivision
+  {
+    Full,
+    FirstHalf,
+    SecondHalf,
+    FirstThird,
+    SecondThird,
+    ThirdThird
+  };
 
   ///@{
   /**
@@ -168,6 +201,16 @@ public:
    * Output has @c (windowLength / 2) + 1 size.
    */
   static std::vector<ScalarNumber> RFftFreq(int windowLength, double sampleSpacing);
+
+  /**
+   * Return lower and upper frequency from a octave band number / nominal midband frequency.
+   * @param[in] octave octave band number associated to nominal midband frequency
+   * @param[in] octaveSubdivision (optional) which subdivision of octave wanted (default: Full)
+   * @param[in] baseTwo (optional) whether to compute it using base-2 or base-10 (default: base-2)
+   * cf. "ANSI S1.11: Specification for Octave, Half-Octave, and Third Octave Band Filter Sets".
+   */
+  static std::array<double, 2> GetOctaveFrequencyRange(Octave octave,
+    OctaveSubdivision octaveSubdivision = OctaveSubdivision::Full, bool baseTwo = true);
 
   ///@{
   /**

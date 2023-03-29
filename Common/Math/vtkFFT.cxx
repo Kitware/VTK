@@ -306,6 +306,47 @@ std::vector<vtkFFT::ScalarNumber> vtkFFT::RFftFreq(int windowLength, double samp
   return res;
 }
 
+std::array<double, 2> vtkFFT::GetOctaveFrequencyRange(
+  Octave octave, OctaveSubdivision octaveSubdivision, bool baseTwo)
+{
+  int bandNumber = static_cast<int>(octave) * 3; // Use one-third-octave band number
+  double factor = 0.0;
+  if (octaveSubdivision == OctaveSubdivision::FirstThird ||
+    octaveSubdivision == OctaveSubdivision::SecondThird ||
+    octaveSubdivision == OctaveSubdivision::ThirdThird)
+  {
+    factor = baseTwo ? std::pow(2.0, 1.0 / 6.0) : std::pow(10.0, 0.05);
+    if (octaveSubdivision == OctaveSubdivision::FirstThird)
+    {
+      --bandNumber;
+    }
+    if (octaveSubdivision == OctaveSubdivision::ThirdThird)
+    {
+      ++bandNumber;
+    }
+  }
+  else
+  {
+    factor = baseTwo ? std::sqrt(2.0) : std::pow(10.0, 0.15);
+  }
+
+  const double midbandFrequency =
+    baseTwo ? 1000.0 * std::pow(2.0, (bandNumber - 30) / 3.0) : std::pow(10.0, bandNumber / 10.0);
+  double lowerFrequency = midbandFrequency / factor;
+  double upperFrequency = midbandFrequency * factor;
+
+  if (octaveSubdivision == OctaveSubdivision::FirstHalf)
+  {
+    upperFrequency = midbandFrequency;
+  }
+  else if (octaveSubdivision == OctaveSubdivision::SecondHalf)
+  {
+    lowerFrequency = midbandFrequency;
+  }
+
+  return { lowerFrequency, upperFrequency };
+}
+
 //------------------------------------------------------------------------------
 void vtkFFT::PrintSelf(ostream& os, vtkIndent indent)
 {
