@@ -132,7 +132,9 @@ if (VTK_WRAP_PYTHON)
     Data/test.p3d
     Data/texThres2.vtk
     Data/vwgt.coords
-    Data/vwgt.graph)
+    Data/vwgt.graph
+    Data/room.dat.h5
+    Data/room.cas.h5)
 
   add_subdirectory(Python)
 endif ()
