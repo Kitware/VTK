@@ -164,7 +164,7 @@ check_mode() {
 size_max_KiB=$(git config hooks.MaxObjectKiB)
 test -n "$size_max_KiB" || size_max_KiB=1024
 size_max_bytes=$(git config hooks.max-size)
-test -n "$size_max_bytes" || size_max_bytes=$(("${size_max_KiB}" * 1024))
+test -n "$size_max_bytes" || size_max_bytes=$((${size_max_KiB} * 1024))
 size_too_large_once=""
 size_too_large_once() {
 	test -z "$size_too_large_once" || return ; size_too_large_once=done
