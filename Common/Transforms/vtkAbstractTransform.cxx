@@ -16,27 +16,60 @@
 
 #include "vtkDataArray.h"
 #include "vtkDebugLeaks.h"
+#include "vtkIndent.h"
 #include "vtkLinearTransform.h"
 #include "vtkMath.h"
 #include "vtkMatrix4x4.h"
 #include "vtkObjectFactory.h"
 #include "vtkPoints.h"
 
-//------------------------------------------------------------------------------
+#include <mutex> // for std::mutex
+
 VTK_ABI_NAMESPACE_BEGIN
+
+class vtkAbstractTransform::vtkInternals
+{
+public:
+  // We need to record the time of the last update, and we also need
+  // to do mutex locking so updates don't collide.  These are private
+  // because Update() is not virtual.
+  // If DependsOnInverse is set, then this transform object will
+  // check its inverse on every update, and update itself accordingly
+  // if necessary.
+
+  vtkTimeStamp UpdateTime;
+  std::mutex UpdateMutex;
+  std::mutex InverseMutex;
+  int DependsOnInverse;
+
+  // MyInverse is a transform which is the inverse of this one.
+
+  vtkAbstractTransform* MyInverse;
+
+  int InUnRegister;
+};
+
+//------------------------------------------------------------------------------
 vtkAbstractTransform::vtkAbstractTransform()
 {
-  this->MyInverse = nullptr;
-  this->DependsOnInverse = 0;
-  this->InUnRegister = 0;
+  this->Internals = new vtkInternals;
+  this->Internals->MyInverse = nullptr;
+  this->Internals->DependsOnInverse = 0;
+  this->Internals->InUnRegister = 0;
 }
 
 //------------------------------------------------------------------------------
 vtkAbstractTransform::~vtkAbstractTransform()
 {
-  if (this->MyInverse)
+  if (this->Internals->MyInverse)
   {
-    this->MyInverse->Delete();
+    this->Internals->MyInverse->Delete();
+  }
+
+  if (this->Internals)
+  {
+    delete this->Internals;
+    this->Internals = nullptr;
   }
 }
 
@@ -44,7 +77,7 @@ vtkAbstractTransform::~vtkAbstractTransform()
 void vtkAbstractTransform::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  os << indent << "Inverse: (" << this->MyInverse << ")\n";
+  os << indent << "Inverse: (" << this->Internals->MyInverse << ")\n";
 }
 
 //------------------------------------------------------------------------------
@@ -190,21 +223,23 @@ void vtkAbstractTransform::TransformPointsNormalsVectors(vtkPoints* inPts, vtkPo
 //------------------------------------------------------------------------------
 vtkAbstractTransform* vtkAbstractTransform::GetInverse()
 {
-  this->InverseMutex.lock();
-  if (this->MyInverse == nullptr)
+  auto& internals = *(this->Internals);
+  internals.InverseMutex.lock();
+  if (internals.MyInverse == nullptr)
   {
     // we create a circular reference here, it is dealt with in UnRegister
-    this->MyInverse = this->MakeTransform();
-    this->MyInverse->SetInverse(this);
+    internals.MyInverse = this->MakeTransform();
+    internals.MyInverse->SetInverse(this);
   }
-  this->InverseMutex.unlock();
-  return this->MyInverse;
+  internals.InverseMutex.unlock();
+  return internals.MyInverse;
 }
 
 //------------------------------------------------------------------------------
 void vtkAbstractTransform::SetInverse(vtkAbstractTransform* transform)
 {
-  if (this->MyInverse == transform)
+  auto& internals = *(this->Internals);
+  if (internals.MyInverse == transform)
   {
     return;
   }
@@ -223,16 +258,16 @@ void vtkAbstractTransform::SetInverse(vtkAbstractTransform* transform)
     return;
   }
 
-  if (this->MyInverse)
+  if (internals.MyInverse)
   {
-    this->MyInverse->Delete();
+    internals.MyInverse->Delete();
   }
 
   transform->Register(this);
-  this->MyInverse = transform;
+  internals.MyInverse = transform;
 
   // we are now a special 'inverse transform'
-  this->DependsOnInverse = (transform != nullptr);
+  internals.DependsOnInverse = (transform != nullptr);
 
   this->Modified();
 }
@@ -269,45 +304,49 @@ void vtkAbstractTransform::DeepCopy(vtkAbstractTransform* transform)
 //------------------------------------------------------------------------------
 void vtkAbstractTransform::Update()
 {
+  auto& internals = *(this->Internals);
   // locking is required to ensure that the class is thread-safe
-  this->UpdateMutex.lock();
+  internals.UpdateMutex.lock();
 
   // check to see if we are a special 'inverse' transform
-  if (this->DependsOnInverse && this->MyInverse->GetMTime() >= this->UpdateTime.GetMTime())
+  if (internals.DependsOnInverse &&
+    internals.MyInverse->GetMTime() >= internals.UpdateTime.GetMTime())
   {
     vtkDebugMacro("Updating transformation from its inverse");
-    this->InternalDeepCopy(this->MyInverse);
+    this->InternalDeepCopy(internals.MyInverse);
     this->Inverse();
     vtkDebugMacro("Calling InternalUpdate on the transformation");
     this->InternalUpdate();
   }
   // otherwise just check our MTime against our last update
-  else if (this->GetMTime() >= this->UpdateTime.GetMTime())
+  else if (this->GetMTime() >= internals.UpdateTime.GetMTime())
   {
     // do internal update for subclass
     vtkDebugMacro("Calling InternalUpdate on the transformation");
     this->InternalUpdate();
   }
 
-  this->UpdateTime.Modified();
-  this->UpdateMutex.unlock();
+  internals.UpdateTime.Modified();
+  internals.UpdateMutex.unlock();
 }
 
 //------------------------------------------------------------------------------
 int vtkAbstractTransform::CircuitCheck(vtkAbstractTransform* transform)
 {
-  return (
-    transform == this || (this->DependsOnInverse && this->MyInverse->CircuitCheck(transform)));
+  auto& internals = *(this->Internals);
+  return (transform == this ||
+    (internals.DependsOnInverse && internals.MyInverse->CircuitCheck(transform)));
 }
 
 //------------------------------------------------------------------------------
 // Need to check inverse's MTime if we are an inverse transform
 vtkMTimeType vtkAbstractTransform::GetMTime()
 {
+  auto& internals = *(this->Internals);
   vtkMTimeType mtime = this->vtkObject::GetMTime();
-  if (this->DependsOnInverse)
+  if (internals.DependsOnInverse)
   {
-    vtkMTimeType inverseMTime = this->MyInverse->GetMTime();
+    vtkMTimeType inverseMTime = internals.MyInverse->GetMTime();
     if (inverseMTime > mtime)
     {
       return inverseMTime;
@@ -322,7 +361,8 @@ vtkMTimeType vtkAbstractTransform::GetMTime()
 // inverse.
 void vtkAbstractTransform::UnRegister(vtkObjectBase* o)
 {
-  if (this->InUnRegister)
+  auto& internals = *(this->Internals);
+  if (internals.InUnRegister)
   { // we don't want to go into infinite recursion...
     vtkDebugMacro(<< "UnRegister: circular reference eliminated");
     --this->ReferenceCount;
@@ -331,14 +371,14 @@ void vtkAbstractTransform::UnRegister(vtkObjectBase* o)
 
   // check to see if the only reason our reference count is not 1
   // is the circular reference from MyInverse
-  if (this->MyInverse && this->ReferenceCount == 2 && this->MyInverse->MyInverse == this &&
-    this->MyInverse->ReferenceCount == 1)
+  if (internals.MyInverse && this->ReferenceCount == 2 &&
+    internals.MyInverse->Internals->MyInverse == this && internals.MyInverse->ReferenceCount == 1)
   { // break the cycle
     vtkDebugMacro(<< "UnRegister: eliminating circular reference");
-    this->InUnRegister = 1;
-    this->MyInverse->UnRegister(this);
-    this->MyInverse = nullptr;
-    this->InUnRegister = 0;
+    internals.InUnRegister = 1;
+    internals.MyInverse->UnRegister(this);
+    internals.MyInverse = nullptr;
+    internals.InUnRegister = 0;
   }
 
   this->vtkObject::UnRegister(o);

@@ -327,23 +327,9 @@ protected:
   double InternalDoublePoint[3];
 
 private:
-  // We need to record the time of the last update, and we also need
-  // to do mutex locking so updates don't collide.  These are private
-  // because Update() is not virtual.
-  // If DependsOnInverse is set, then this transform object will
-  // check its inverse on every update, and update itself accordingly
-  // if necessary.
+  class vtkInternals;
 
-  vtkTimeStamp UpdateTime;
-  std::mutex UpdateMutex;
-  std::mutex InverseMutex;
-  int DependsOnInverse;
-
-  // MyInverse is a transform which is the inverse of this one.
-
-  vtkAbstractTransform* MyInverse;
-
-  int InUnRegister;
+  vtkInternals* Internals;
 
   vtkAbstractTransform(const vtkAbstractTransform&) = delete;
   void operator=(const vtkAbstractTransform&) = delete;
