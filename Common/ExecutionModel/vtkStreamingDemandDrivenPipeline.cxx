@@ -54,6 +54,8 @@ vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, TIME_RANGE, DoubleVecto
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, BOUNDS, DoubleVector);
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, TIME_DEPENDENT_INFORMATION, Integer);
 
+vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, INCOMPLETE_TIME_STEPS, Integer);
+
 //------------------------------------------------------------------------------
 class vtkStreamingDemandDrivenPipelineToDataObjectFriendship
 {
@@ -148,11 +150,13 @@ vtkTypeBool vtkStreamingDemandDrivenPipeline ::ProcessRequest(
         N2E = 0;
       }
     }
+
     if (N2E)
     {
       vtkLogF(TRACE, "%s execute-update-time", vtkLogIdentifier(this->Algorithm));
       result = this->CallAlgorithm(request, vtkExecutive::RequestUpstream, inInfoVec, outInfoVec);
-      // Propagate the update extent to all inputs.
+
+      // Propagate the update time to all inputs.
       if (result)
       {
         result = this->ForwardUpstream(request);
@@ -506,6 +510,7 @@ void vtkStreamingDemandDrivenPipeline ::CopyDefaultInformation(vtkInformation* r
           outInfo->CopyEntry(inInfo, vtkDataObject::DIRECTION());
           outInfo->CopyEntry(inInfo, vtkDataObject::SPACING());
           outInfo->CopyEntry(inInfo, TIME_DEPENDENT_INFORMATION());
+          outInfo->CopyEntry(inInfo, INCOMPLETE_TIME_STEPS());
           if (scalarInfo)
           {
             int scalarType = VTK_DOUBLE;
