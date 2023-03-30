@@ -32,9 +32,6 @@ int main(int argc, char* argv[])
   rwin->AddRenderer(renderer);
   vtkNew<vtkRenderWindowInteractor> iren;
   iren->SetRenderWindow(rwin);
-  renderer->Print(std::cout);
-  rwin->Print(std::cout);
-  iren->Print(std::cout);
 
   vtkNew<vtkInteractorStyleTrackballCamera> style;
   iren->SetInteractorStyle(style);
