@@ -25,11 +25,11 @@ int TestConesBenchmark(int argc, char* argv[])
 
   double x = 0.0, y = 0.0, z = 0.0;
   double spacingX = 2.0, spacingY = 2.0, spacingZ = 2.0;
-  for (int k = 0; k < 2; ++k)
+  for (int k = 0; k < 1; ++k)
   {
-    for (int j = 0; j < 2; ++j)
+    for (int j = 0; j < 8; ++j)
     {
-      for (int i = 0; i < 2; ++i)
+      for (int i = 0; i < 8; ++i)
       {
         vtkNew<vtkConeSource> cone;
         cone->SetCenter(x, y, z);
@@ -40,10 +40,12 @@ int TestConesBenchmark(int argc, char* argv[])
         mapper->SetInputConnection(cone->GetOutputPort());
         vtkNew<vtkActor> actor;
         actor->SetMapper(mapper);
-        mapper->DebugOn();
+        // mapper->DebugOn();
         // actor->GetProperty()->SetPointSize(6.0);
         // actor->GetProperty()->SetRepresentationToPoints();
         mapper->Update();
+        actor->SetOrigin(x, y, z);
+        actor->RotateZ(i * j);
         renderer->AddActor(actor);
       }
       x = 0.0;
