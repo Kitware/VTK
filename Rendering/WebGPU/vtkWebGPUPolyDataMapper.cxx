@@ -477,6 +477,18 @@ bool vtkWebGPUPolyDataMapper::UpdateMeshGeometryBuffers(const wgpu::Device& devi
     return false;
   }
 
+  bool updateGeometry =
+    this->CurrentInput->GetPoints()->GetMTime() > this->PointCellAttributesBuildTimestamp ||
+    this->CurrentInput->GetPointData()->GetMTime() > this->PointCellAttributesBuildTimestamp ||
+    this->CurrentInput->GetCellData()->GetMTime() > this->PointCellAttributesBuildTimestamp ||
+    this->LastScalarVisibility != this->ScalarVisibility ||
+    this->LastScalarMode != this->ScalarMode || this->LastColors != this->Colors;
+
+  if (!updateGeometry)
+  {
+    return false;
+  }
+
   this->HasCellNormals = this->CurrentInput->GetCellData()->GetNormals() != nullptr;
   this->HasPointNormals = this->CurrentInput->GetPointData()->GetNormals() != nullptr;
   this->HasPointTangents = this->CurrentInput->GetPointData()->GetTangents();
@@ -509,6 +521,11 @@ bool vtkWebGPUPolyDataMapper::UpdateMeshGeometryBuffers(const wgpu::Device& devi
       this->HasCellColors = true;
     }
   }
+  auto wgpuActor = reinterpret_cast<vtkWebGPUActor*>(actor);
+  wgpuActor->SetShadingType(shadeType);
+  this->LastColors = this->Colors;
+  this->LastScalarMode = this->ScalarMode;
+  this->LastScalarVisibility = this->ScalarVisibility;
   ///@{ TODO:
   // // If we are coloring by texture, then load the texture map.
   // if (this->ColorTextureMap)
@@ -521,18 +538,6 @@ bool vtkWebGPUPolyDataMapper::UpdateMeshGeometryBuffers(const wgpu::Device& devi
   //   this->InternalColorTexture->SetInputData(this->ColorTextureMap);
   // }
   ///@}
-  auto wgpuActor = reinterpret_cast<vtkWebGPUActor*>(actor);
-  wgpuActor->SetShadingType(shadeType, device);
-
-  bool updateGeometry =
-    this->CurrentInput->GetPoints()->GetMTime() > this->PointCellAttributesBuildTimestamp ||
-    this->CurrentInput->GetPointData()->GetMTime() > this->PointCellAttributesBuildTimestamp ||
-    this->CurrentInput->GetCellData()->GetMTime() > this->PointCellAttributesBuildTimestamp;
-
-  if (!updateGeometry)
-  {
-    return false;
-  }
 
   MeshAttributeDescriptor meshAttrDescriptor;
 

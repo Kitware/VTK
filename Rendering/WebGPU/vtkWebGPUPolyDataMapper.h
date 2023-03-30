@@ -220,6 +220,12 @@ protected:
   PrimitiveBindGroupInfo TrianglePrimitiveBGInfo;
   unsigned long EdgeArrayCount = 0;
 
+  // Cache these so that subsequent arrivals to UpdateMeshGeometry do not unnecessarily invoke
+  // MapScalars().
+  int LastScalarMode;
+  bool LastScalarVisibility;
+  vtkDataArray* LastColors = nullptr;
+
 private:
   vtkWebGPUPolyDataMapper(const vtkWebGPUPolyDataMapper&) = delete;
   void operator=(const vtkWebGPUPolyDataMapper&) = delete;
