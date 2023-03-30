@@ -554,6 +554,7 @@ fn fragmentMain(fragment: FragmentInput) -> FragmentOutput {
   ///------------------------///
     if !fragment.is_front_facing {
         normal_vc = -fragment.normal_vc;
+        normal_vc = normalize(normal_vc);
     } else if normal_vc.z < 0.0 {
         normal_vc.z = -normal_vc.z;
     }
