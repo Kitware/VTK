@@ -63,8 +63,13 @@ void QQuickVTKInteractorAdapter::QueueHoverEvent(QQuickItem* item, QHoverEvent* 
 #else
   QPointF posf = e->position();
 #endif
+#if QT_VERSION < QT_VERSION_CHECK(6, 3, 0)
   QHoverEvent* newEvent = new QHoverEvent(e->type(), this->mapEventPosition(item, posf),
     this->mapEventPosition(item, e->oldPosF()), e->modifiers());
+#else
+  QHoverEvent* newEvent = new QHoverEvent(e->type(), this->mapEventPosition(item, posf),
+    e->globalPosition(), this->mapEventPosition(item, e->oldPosF()), e->modifiers());
+#endif
   QueueEvent(newEvent);
 }
 
