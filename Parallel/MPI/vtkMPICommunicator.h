@@ -195,21 +195,21 @@ public:
    * Given the request objects of a set of non-blocking operations
    * (send and/or receive) this method blocks until all requests are complete.
    */
-  int WaitAll(const int count, Request requests[]);
+  int WaitAll(int count, Request requests[]);
 
   /**
    * Blocks until *one* of the specified requests in the given request array
    * completes. Upon return, the index in the array of the completed request
    * object is returned through the argument list.
    */
-  int WaitAny(const int count, Request requests[], int& idx) VTK_SIZEHINT(requests, count);
+  int WaitAny(int count, Request requests[], int& idx) VTK_SIZEHINT(requests, count);
 
   /**
    * Blocks until *one or more* of the specified requests in the given request
    * request array completes. Upon return, the list of handles that have
    * completed is stored in the completed vtkIntArray.
    */
-  int WaitSome(const int count, Request requests[], int& NCompleted, int* completed)
+  int WaitSome(int count, Request requests[], int& NCompleted, int* completed)
     VTK_SIZEHINT(requests, count);
 
   /**
@@ -217,13 +217,12 @@ public:
    * return, flag evaluates to true iff *all* of the communication request
    * objects are complete.
    */
-  int TestAll(const int count, Request requests[], int& flag) VTK_SIZEHINT(requests, count);
+  int TestAll(int count, Request requests[], int& flag) VTK_SIZEHINT(requests, count);
 
   /**
    * Check if at least *one* of the specified requests has completed.
    */
-  int TestAny(const int count, Request requests[], int& idx, int& flag)
-    VTK_SIZEHINT(requests, count);
+  int TestAny(int count, Request requests[], int& idx, int& flag) VTK_SIZEHINT(requests, count);
 
   /**
    * Checks the status of *all* the given request communication object handles.
@@ -231,7 +230,7 @@ public:
    * and the indices of the completed requests, w.r.t. the requests array is
    * given the by the pre-allocated completed array.
    */
-  int TestSome(const int count, Request requests[], int& NCompleted, int* completed)
+  int TestSome(int count, Request requests[], int& NCompleted, int* completed)
     VTK_SIZEHINT(requests, count);
 
   friend class vtkMPIController;

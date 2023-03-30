@@ -279,7 +279,6 @@ private:
   // Internal method used by DeepCopy and ShallowCopy.
   void InternalStructuredGridCopy(vtkStructuredGrid* src);
 
-private:
   vtkStructuredGrid(const vtkStructuredGrid&) = delete;
   void operator=(const vtkStructuredGrid&) = delete;
 };

@@ -53,7 +53,7 @@ VTXvtkVTI::VTXvtkVTI(const std::string& schema, adios2::IO& io, adios2::Engine& 
 VTXvtkVTI::~VTXvtkVTI() = default;
 
 // PRIVATE
-void VTXvtkVTI::DoFill(vtkMultiBlockDataSet* multiBlock, const size_t step)
+void VTXvtkVTI::DoFill(vtkMultiBlockDataSet* multiBlock, size_t step)
 {
   ReadPiece(step, 0); // just read piece 0 for now
 
@@ -64,7 +64,7 @@ void VTXvtkVTI::DoFill(vtkMultiBlockDataSet* multiBlock, const size_t step)
   multiBlock->SetBlock(0, pieces);
 }
 
-void VTXvtkVTI::ReadPiece(const size_t step, const size_t pieceID)
+void VTXvtkVTI::ReadPiece(size_t step, size_t pieceID)
 {
   const bool hasCellData = ReadDataSets(types::DataSetType::CellData, step, pieceID);
   const bool hasPointData = ReadDataSets(types::DataSetType::PointData, step, pieceID);
@@ -210,7 +210,7 @@ void VTXvtkVTI::Init()
   }
 }
 
-adios2::Dims VTXvtkVTI::GetShape(const types::DataSetType type)
+adios2::Dims VTXvtkVTI::GetShape(types::DataSetType type)
 {
   adios2::Dims shape(3);
   size_t add = 0;
@@ -231,7 +231,7 @@ adios2::Dims VTXvtkVTI::GetShape(const types::DataSetType type)
   return shape;
 }
 
-adios2::Box<adios2::Dims> VTXvtkVTI::GetSelection(const types::DataSetType type)
+adios2::Box<adios2::Dims> VTXvtkVTI::GetSelection(types::DataSetType type)
 {
   // partition is always cell data based
   const adios2::Dims shape = GetShape(types::DataSetType::CellData);
@@ -251,7 +251,7 @@ adios2::Box<adios2::Dims> VTXvtkVTI::GetSelection(const types::DataSetType type)
 
 #define declare_type(T)                                                                            \
   void VTXvtkVTI::SetDimensions(                                                                   \
-    adios2::Variable<T> variable, const types::DataArray& dataArray, const size_t step)            \
+    adios2::Variable<T> variable, const types::DataArray& dataArray, size_t step)                  \
   {                                                                                                \
     SetDimensionsCommon(variable, dataArray, step);                                                \
   }

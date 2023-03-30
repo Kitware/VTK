@@ -80,7 +80,6 @@ private:
   void GenerateBoundaryStencil(
     vtkIdType p1, vtkIdType p2, vtkPolyData* polys, vtkIdList* stencilIds, double* weights);
 
-private:
   vtkButterflySubdivisionFilter(const vtkButterflySubdivisionFilter&) = delete;
   void operator=(const vtkButterflySubdivisionFilter&) = delete;
 };

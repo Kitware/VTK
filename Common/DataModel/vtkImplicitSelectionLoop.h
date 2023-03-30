@@ -138,7 +138,6 @@ private:
 
   vtkTimeStamp InitializationTime;
 
-private:
   vtkImplicitSelectionLoop(const vtkImplicitSelectionLoop&) = delete;
   void operator=(const vtkImplicitSelectionLoop&) = delete;
 };

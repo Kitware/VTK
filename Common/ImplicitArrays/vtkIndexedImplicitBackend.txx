@@ -191,9 +191,7 @@ vtkIndexedImplicitBackend<ValueType>::vtkIndexedImplicitBackend(
 
 //-----------------------------------------------------------------------
 template <typename ValueType>
-vtkIndexedImplicitBackend<ValueType>::~vtkIndexedImplicitBackend()
-{
-}
+vtkIndexedImplicitBackend<ValueType>::~vtkIndexedImplicitBackend() = default;
 
 //-----------------------------------------------------------------------
 template <typename ValueType>

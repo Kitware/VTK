@@ -438,7 +438,7 @@ vtkDIYGhostUtilities::LinkMap vtkDIYGhostUtilities::ComputeLinkMapUsingBoundingB
     BlockT* block = master.block<BlockT>(localId);
     vtkBoundingBox& localbb = block->BoundingBox;
     BlockMapType<vtkBoundingBox>& bb = block->NeighborBoundingBoxes;
-    for (auto item : bb)
+    for (auto const& item : bb)
     {
       if (localbb.Intersects(item.second))
       {

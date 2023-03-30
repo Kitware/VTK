@@ -573,7 +573,7 @@ bool vtkHigherOrderQuadrilateral::TransformApproxToCellParams(int subCell, doubl
 /**\brief Set the degree  of the cell, given a vtkDataSet and cellId
  */
 void vtkHigherOrderQuadrilateral::SetOrderFromCellData(
-  vtkCellData* cell_data, const vtkIdType numPts, const vtkIdType cell_id)
+  vtkCellData* cell_data, vtkIdType numPts, vtkIdType cell_id)
 {
   vtkDataArray* v = cell_data->GetHigherOrderDegrees();
   if (v)
@@ -590,7 +590,7 @@ void vtkHigherOrderQuadrilateral::SetOrderFromCellData(
   }
 }
 
-void vtkHigherOrderQuadrilateral::SetUniformOrderFromNumPoints(const vtkIdType numPts)
+void vtkHigherOrderQuadrilateral::SetUniformOrderFromNumPoints(vtkIdType numPts)
 {
   int deg = static_cast<int>(round(std::sqrt(static_cast<int>(numPts)))) - 1;
   this->SetOrder(deg, deg);
@@ -598,7 +598,7 @@ void vtkHigherOrderQuadrilateral::SetUniformOrderFromNumPoints(const vtkIdType n
     vtkErrorMacro("The degrees are direction dependents, and should be set in the input file.");
 }
 
-void vtkHigherOrderQuadrilateral::SetOrder(const int s, const int t)
+void vtkHigherOrderQuadrilateral::SetOrder(int s, int t)
 {
   if (this->PointParametricCoordinates && (Order[0] != s || Order[1] != t))
     this->PointParametricCoordinates->Reset();

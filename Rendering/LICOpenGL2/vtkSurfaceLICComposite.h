@@ -233,7 +233,6 @@ protected:
    */
   float GetFudgeFactor(int nx[2]);
 
-protected:
   int Pass; // id for mpi tagging
 
   vtkPixelExtent WindowExt;             // screen extent (screen size)

@@ -432,28 +432,28 @@ inline bool isACGNSVariable(const std::vector<CGNSVariable>& varList, const char
 
 //------------------------------------------------------------------------------
 void fillVectorsFromVars(std::vector<CGNSRead::CGNSVariable>& vars,
-  std::vector<CGNSRead::CGNSVector>& vectors, const int physicalDim);
+  std::vector<CGNSRead::CGNSVector>& vectors, int physicalDim);
 //------------------------------------------------------------------------------
-int setUpRind(const int cgioNum, const double rindId, int* rind);
+int setUpRind(int cgioNum, double rindId, int* rind);
 //------------------------------------------------------------------------------
 /**
  * Find the first node with the given `label`. If `name` is non-NULL, then the
  * first node with given `label` that has the given `name` as well.
  */
-int getFirstNodeId(const int cgioNum, const double parentId, const char* label, double* id,
-  const char* name = nullptr);
+int getFirstNodeId(
+  int cgioNum, double parentId, const char* label, double* id, const char* name = nullptr);
 //------------------------------------------------------------------------------
-int get_section_connectivity(const int cgioNum, const double cgioSectionId, const int dim,
-  const cgsize_t* srcStart, const cgsize_t* srcEnd, const cgsize_t* srcStride,
-  const cgsize_t* memStart, const cgsize_t* memEnd, const cgsize_t* memStride,
-  const cgsize_t* memDim, vtkIdType* localElements);
+int get_section_connectivity(int cgioNum, double cgioSectionId, int dim, const cgsize_t* srcStart,
+  const cgsize_t* srcEnd, const cgsize_t* srcStride, const cgsize_t* memStart,
+  const cgsize_t* memEnd, const cgsize_t* memStride, const cgsize_t* memDim,
+  vtkIdType* localElements);
 //------------------------------------------------------------------------------
-int get_section_start_offset(const int cgioNum, const double cgioSectionId, const int dim,
-  const cgsize_t* srcStart, const cgsize_t* srcEnd, const cgsize_t* srcStride,
-  const cgsize_t* memStart, const cgsize_t* memEnd, const cgsize_t* memStride,
-  const cgsize_t* memDim, vtkIdType* localElementsIdx);
+int get_section_start_offset(int cgioNum, double cgioSectionId, int dim, const cgsize_t* srcStart,
+  const cgsize_t* srcEnd, const cgsize_t* srcStride, const cgsize_t* memStart,
+  const cgsize_t* memEnd, const cgsize_t* memStride, const cgsize_t* memDim,
+  vtkIdType* localElementsIdx);
 //------------------------------------------------------------------------------
-int get_section_parent_elements(const int cgioNum, const double cgioSectionId, const int dim,
+int get_section_parent_elements(int cgioNum, double cgioSectionId, int dim,
   const cgsize_t* srcStart, const cgsize_t* srcEnd, const cgsize_t* srcStride,
   const cgsize_t* memStart, const cgsize_t* memEnd, const cgsize_t* memStride,
   const cgsize_t* memDim, vtkIdType* localElementsIdx);
@@ -461,17 +461,16 @@ int get_section_parent_elements(const int cgioNum, const double cgioSectionId, c
 int GetVTKElemType(
   CGNS_ENUMT(ElementType_t) elemType, bool& higherOrderWarning, bool& cgnsOrderFlag);
 //------------------------------------------------------------------------------
-void CGNS2VTKorder(const vtkIdType size, const int* cells_types, vtkIdType* elements);
+void CGNS2VTKorder(vtkIdType size, const int* cells_types, vtkIdType* elements);
 //------------------------------------------------------------------------------
 void ReorderMonoCellPointsCGNS2VTK(
-  const vtkIdType size, const int cell_type, const vtkIdType numPointsPerCell, vtkIdType* elements);
+  vtkIdType size, int cell_type, vtkIdType numPointsPerCell, vtkIdType* elements);
 //------------------------------------------------------------------------------
 template <typename T, typename Y>
-int get_XYZ_mesh(const int cgioNum, const std::vector<double>& gridChildId,
-  const std::size_t& nCoordsArray, const int cellDim, const vtkIdType nPts,
-  const cgsize_t* srcStart, const cgsize_t* srcEnd, const cgsize_t* srcStride,
-  const cgsize_t* memStart, const cgsize_t* memEnd, const cgsize_t* memStride,
-  const cgsize_t* memDims, vtkPoints* points)
+int get_XYZ_mesh(int cgioNum, const std::vector<double>& gridChildId,
+  const std::size_t& nCoordsArray, int cellDim, vtkIdType nPts, const cgsize_t* srcStart,
+  const cgsize_t* srcEnd, const cgsize_t* srcStride, const cgsize_t* memStart,
+  const cgsize_t* memEnd, const cgsize_t* memStride, const cgsize_t* memDims, vtkPoints* points)
 {
   T* coords = static_cast<T*>(points->GetVoidPointer(0));
   T* currentCoord = static_cast<T*>(&(coords[0]));

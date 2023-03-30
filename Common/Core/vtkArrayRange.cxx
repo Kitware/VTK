@@ -56,7 +56,7 @@ bool vtkArrayRange::Contains(const vtkArrayRange& range) const
   return this->Begin <= range.Begin && range.End <= this->End;
 }
 
-bool vtkArrayRange::Contains(const CoordinateT coordinate) const
+bool vtkArrayRange::Contains(CoordinateT coordinate) const
 {
   return this->Begin <= coordinate && coordinate < this->End;
 }

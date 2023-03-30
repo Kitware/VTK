@@ -977,7 +977,7 @@ public:
   VTK_ITER_INLINE
   TupleReference(const TupleReference&) = default;
   VTK_ITER_INLINE
-  TupleReference(TupleReference&&) = default;
+  TupleReference(TupleReference&&) noexcept = default;
 
   // Allow this type to masquerade as a pointer, so that tupleIiter->foo works.
   VTK_ITER_INLINE

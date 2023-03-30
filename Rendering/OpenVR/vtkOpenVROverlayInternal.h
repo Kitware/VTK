@@ -76,7 +76,7 @@ public:
     this->ymin = in.ymin;
     this->ymax = in.ymax;
     this->Callback = in.Callback;
-    this->Callback->Register(0);
+    this->Callback->Register(nullptr);
     this->Active = in.Active;
     this->Group = in.Group;
     this->GroupId = in.GroupId;

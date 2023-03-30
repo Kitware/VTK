@@ -49,10 +49,7 @@ public:
   typedef StdString::reverse_iterator reverse_iterator;
   typedef StdString::const_reverse_iterator const_reverse_iterator;
 
-  vtkStdString()
-    : std::string()
-  {
-  }
+  vtkStdString() = default;
   vtkStdString(const value_type* s)
     : std::string(s)
   {

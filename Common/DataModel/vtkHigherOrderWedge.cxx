@@ -1206,7 +1206,7 @@ void vtkHigherOrderWedge::GetQuadrilateralFace(vtkHigherOrderQuadrilateral* resu
 /**\brief Set the degree  of the cell, given a vtkDataSet and cellId
  */
 void vtkHigherOrderWedge::SetOrderFromCellData(
-  vtkCellData* cell_data, const vtkIdType numPts, const vtkIdType cell_id)
+  vtkCellData* cell_data, vtkIdType numPts, vtkIdType cell_id)
 {
   vtkDataArray* v = cell_data->GetHigherOrderDegrees();
   if (v)
@@ -1221,7 +1221,7 @@ void vtkHigherOrderWedge::SetOrderFromCellData(
   }
 }
 
-void vtkHigherOrderWedge::SetUniformOrderFromNumPoints(const vtkIdType numPts)
+void vtkHigherOrderWedge::SetUniformOrderFromNumPoints(vtkIdType numPts)
 {
   const double n = static_cast<double>(numPts);
   static const double third(1. / 3.);
@@ -1241,7 +1241,7 @@ void vtkHigherOrderWedge::SetUniformOrderFromNumPoints(const vtkIdType numPts)
   this->SetOrder(deg, deg, deg, numPts);
 }
 
-void vtkHigherOrderWedge::SetOrder(const int s, const int t, const int u, const vtkIdType numPts)
+void vtkHigherOrderWedge::SetOrder(int s, int t, int u, vtkIdType numPts)
 {
   if (s != t)
     vtkErrorMacro("For wedges, the first two degrees should be equals.");

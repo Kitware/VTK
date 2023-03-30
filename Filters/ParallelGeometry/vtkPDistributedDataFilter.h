@@ -385,7 +385,6 @@ private:
   static vtkUnstructuredGrid* MergeGrids(vtkDataSet** sets, int nsets, int deleteDataSets,
     int useGlobalNodeIds, float pointMergeTolerance, int useGlobalCellIds);
 
-private:
   vtkPDistributedDataFilter(const vtkPDistributedDataFilter&) = delete;
   void operator=(const vtkPDistributedDataFilter&) = delete;
 };

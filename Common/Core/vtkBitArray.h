@@ -371,7 +371,6 @@ private:
   // hide superclass' DeepCopy() from the user and the compiler
   void DeepCopy(vtkDataArray& da) { this->vtkDataArray::DeepCopy(&da); }
 
-private:
   vtkBitArray(const vtkBitArray&) = delete;
   void operator=(const vtkBitArray&) = delete;
 

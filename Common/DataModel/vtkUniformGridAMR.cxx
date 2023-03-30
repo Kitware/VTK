@@ -129,7 +129,7 @@ unsigned int vtkUniformGridAMR::GetTotalNumberOfBlocks()
 }
 
 //------------------------------------------------------------------------------
-unsigned int vtkUniformGridAMR::GetNumberOfDataSets(const unsigned int level)
+unsigned int vtkUniformGridAMR::GetNumberOfDataSets(unsigned int level)
 {
   unsigned int ndata = 0;
   if (this->AMRInfo)
@@ -222,7 +222,7 @@ vtkDataObject* vtkUniformGridAMR::GetDataSet(vtkCompositeDataIterator* composite
 }
 
 //------------------------------------------------------------------------------
-int vtkUniformGridAMR::GetCompositeIndex(const unsigned int level, const unsigned int index)
+int vtkUniformGridAMR::GetCompositeIndex(unsigned int level, unsigned int index)
 {
 
   if (level >= this->GetNumberOfLevels() || index >= this->GetNumberOfDataSets(level))

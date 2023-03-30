@@ -188,7 +188,7 @@ public:
   /**
    * The size of the font used for area labeling
    */
-  virtual void SetAreaLabelFontSize(const int size);
+  virtual void SetAreaLabelFontSize(int size);
   virtual int GetAreaLabelFontSize();
   ///@}
 
@@ -196,7 +196,7 @@ public:
   /**
    * The size of the font used for edge labeling
    */
-  virtual void SetEdgeLabelFontSize(const int size);
+  virtual void SetEdgeLabelFontSize(int size);
   virtual int GetEdgeLabelFontSize();
   ///@}
 

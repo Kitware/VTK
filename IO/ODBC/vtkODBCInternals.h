@@ -41,8 +41,8 @@ class vtkODBCInternals
 
 public:
   vtkODBCInternals()
-    : Environment(0)
-    , Connection(0)
+    : Environment(nullptr)
+    , Connection(nullptr)
   {
   }
 

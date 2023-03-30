@@ -56,7 +56,7 @@ public:
   /**
    * Return the number of encoded directions
    */
-  int GetNumberOfEncodedDirections(void) override { return 65536; }
+  int GetNumberOfEncodedDirections() override { return 65536; }
 
   /**
    * Get the decoded gradient table. There are
@@ -64,7 +64,10 @@ public:
    * containing a normal (direction) vector. This is a flat structure -
    * 3 times the number of directions floats in an array.
    */
-  float* GetDecodedGradientTable(void) override { return &(this->DecodedGradientTable[0]); }
+  float* GetDecodedGradientTable() override
+  {
+    return &(vtkSphericalDirectionEncoder::DecodedGradientTable[0]);
+  }
 
 protected:
   vtkSphericalDirectionEncoder();

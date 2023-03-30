@@ -220,12 +220,11 @@ protected Q_SLOTS:
 
   void updateSize();
 
-protected:
+protected: // NOLINT(readability-redundant-access-specifiers)
   bool event(QEvent* evt) override;
   void initializeGL() override;
   void paintGL() override;
 
-protected:
   vtkSmartPointer<vtkGenericOpenGLRenderWindow> RenderWindow;
   QScopedPointer<QVTKRenderWindowAdapter> RenderWindowAdapter;
 

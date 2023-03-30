@@ -269,7 +269,6 @@ private:
   // edgePointIds (as direct neighbors).
   static bool IsBoundaryEdge(vtkIdType pointId1, vtkIdType pointId2, vtkIdList* edgePointIds);
 
-private:
   vtkSelectPolyData(const vtkSelectPolyData&) = delete;
   void operator=(const vtkSelectPolyData&) = delete;
 };

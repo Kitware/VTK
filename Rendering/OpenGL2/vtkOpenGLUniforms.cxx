@@ -792,37 +792,37 @@ void vtkOpenGLUniforms::SetUniformMatrix4x4(const char* name, float* v)
   this->Internals->SetUniformValue<std::vector<float>, UniformMat4f>(name, sv);
 }
 
-void vtkOpenGLUniforms::SetUniform1iv(const char* name, const int count, const int* v)
+void vtkOpenGLUniforms::SetUniform1iv(const char* name, int count, const int* v)
 {
   std::vector<int> sv = arrayToVec(v, count);
   this->Internals->SetUniformValue<std::vector<int>, Uniform1iv>(name, sv);
 }
 
-void vtkOpenGLUniforms::SetUniform1fv(const char* name, const int count, const float* v)
+void vtkOpenGLUniforms::SetUniform1fv(const char* name, int count, const float* v)
 {
   std::vector<float> sv = arrayToVec(v, count);
   this->Internals->SetUniformValue<std::vector<float>, Uniform1fv>(name, sv);
 }
 
-void vtkOpenGLUniforms::SetUniform2fv(const char* name, const int count, const float (*v)[2])
+void vtkOpenGLUniforms::SetUniform2fv(const char* name, int count, const float (*v)[2])
 {
   std::vector<float> sv = arrayToVec(reinterpret_cast<const float*>(v), count * 2);
   this->Internals->SetUniformValue<std::vector<float>, Uniform2fv>(name, sv);
 }
 
-void vtkOpenGLUniforms::SetUniform3fv(const char* name, const int count, const float (*v)[3])
+void vtkOpenGLUniforms::SetUniform3fv(const char* name, int count, const float (*v)[3])
 {
   std::vector<float> sv = arrayToVec(reinterpret_cast<const float*>(v), count * 3);
   this->Internals->SetUniformValue<std::vector<float>, Uniform3fv>(name, sv);
 }
 
-void vtkOpenGLUniforms::SetUniform4fv(const char* name, const int count, const float (*v)[4])
+void vtkOpenGLUniforms::SetUniform4fv(const char* name, int count, const float (*v)[4])
 {
   std::vector<float> sv = arrayToVec(reinterpret_cast<const float*>(v), count * 4);
   this->Internals->SetUniformValue<std::vector<float>, Uniform4fv>(name, sv);
 }
 
-void vtkOpenGLUniforms::SetUniformMatrix4x4v(const char* name, const int count, float* v)
+void vtkOpenGLUniforms::SetUniformMatrix4x4v(const char* name, int count, float* v)
 {
   std::vector<float> sv = arrayToVec(v, count * 16);
   this->Internals->SetUniformValue<std::vector<float>, UniformMat4fv>(name, sv);

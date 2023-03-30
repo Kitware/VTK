@@ -197,7 +197,7 @@ protected:
   /**
    * Test if the internal cache requires an update.
    */
-  virtual bool CacheRequiresUpdate() override;
+  bool CacheRequiresUpdate() override;
 
   /**
    * Calculate the unscaled input bounds from the input arrays.

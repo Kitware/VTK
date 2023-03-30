@@ -121,7 +121,7 @@ protected:
   // Specialized methods to access handles
   vtkActor* GetHandleActor(int index) override;
   vtkHandleSource* GetHandleSource(int index) override;
-  virtual int GetHandleIndex(vtkProp* prop) override;
+  int GetHandleIndex(vtkProp* prop) override;
 
 private:
   vtkPolyLineRepresentation(const vtkPolyLineRepresentation&) = delete;

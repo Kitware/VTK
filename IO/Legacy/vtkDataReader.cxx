@@ -3421,7 +3421,7 @@ vtkFieldData* vtkDataReader::ReadFieldData(FieldType fieldType)
 }
 
 //------------------------------------------------------------------------------
-char* vtkDataReader::LowerCase(char* str, const size_t len)
+char* vtkDataReader::LowerCase(char* str, size_t len)
 {
   size_t i;
   char* s;

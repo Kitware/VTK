@@ -98,7 +98,7 @@ public:
 
 protected:
   vtkHandleSource();
-  virtual ~vtkHandleSource() override = default;
+  ~vtkHandleSource() override = default;
 
   // Flag to indicate if the handle should be aware of any direction.
   bool Directional = false;

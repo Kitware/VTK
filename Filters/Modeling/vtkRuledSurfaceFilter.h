@@ -192,7 +192,6 @@ private:
   void PointWalk(vtkPolyData* output, vtkPoints* inPts, int npts, const vtkIdType* pts, int npts2,
     const vtkIdType* pts2);
 
-private:
   vtkRuledSurfaceFilter(const vtkRuledSurfaceFilter&) = delete;
   void operator=(const vtkRuledSurfaceFilter&) = delete;
 };

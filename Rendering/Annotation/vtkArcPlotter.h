@@ -192,7 +192,6 @@ private:
   int StartComp;
   int EndComp;
 
-private:
   vtkArcPlotter(const vtkArcPlotter&) = delete;
   void operator=(const vtkArcPlotter&) = delete;
 };

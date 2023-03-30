@@ -55,7 +55,7 @@ public:
   /**
    * Concrete open gl render method.
    */
-  void DeviceRender(void) override;
+  void DeviceRender() override;
 
   /**
    * Overridden to support hidden line removal.
@@ -70,12 +70,12 @@ public:
    */
   void DeviceRenderTranslucentPolygonalGeometry(vtkFrameBufferObjectBase* fbo = nullptr) override;
 
-  void Clear(void) override;
+  void Clear() override;
 
   /**
    * Ask lights to load themselves into graphics pipeline.
    */
-  int UpdateLights(void) override;
+  int UpdateLights() override;
 
   /**
    * Is rendering at translucent geometry stage using depth peeling and

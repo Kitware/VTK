@@ -1005,7 +1005,7 @@ static void ${_vtk_python_TARGET_NAME}_load() {\n")
     NULL  // m_free
   };
 
-  PyMODINIT_FUNC PyInit_${_vtk_python_static_importer_name}(void)
+  PyMODINIT_FUNC PyInit_${_vtk_python_static_importer_name}()
   {
     // since this gets called after `Py_Initialize`, this will import the static
     // modules and not just update the init table.

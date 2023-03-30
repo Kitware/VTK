@@ -1229,7 +1229,7 @@ struct IntersectionInfo
 };
 
 //------------------------------------------------------------------------------
-int vtkCellLocator::IntersectWithLine(const double p1[3], const double p2[3], const double tol,
+int vtkCellLocator::IntersectWithLine(const double p1[3], const double p2[3], double tol,
   vtkPoints* points, vtkIdList* cellIds, vtkGenericCell* cell)
 {
   this->BuildLocator();

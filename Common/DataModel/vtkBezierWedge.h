@@ -68,7 +68,7 @@ public:
   void InterpolateFunctions(const double pcoords[3], double* weights) override;
   void InterpolateDerivs(const double pcoords[3], double* derivs) override;
 
-  void SetRationalWeightsFromPointData(vtkPointData* point_data, const vtkIdType numPts);
+  void SetRationalWeightsFromPointData(vtkPointData* point_data, vtkIdType numPts);
 
   vtkHigherOrderQuadrilateral* GetBoundaryQuad() override;
   vtkHigherOrderTriangle* GetBoundaryTri() override;

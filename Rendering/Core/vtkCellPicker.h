@@ -344,7 +344,6 @@ private:
   vtkIdList* PointIds;       // used to accelerate picking
   vtkDoubleArray* Gradients; // used in volume picking
 
-private:
   vtkCellPicker(const vtkCellPicker&) = delete;
   void operator=(const vtkCellPicker&) = delete;
 };

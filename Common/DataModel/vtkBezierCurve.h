@@ -44,7 +44,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   int GetCellType() override { return VTK_BEZIER_CURVE; }
-  void SetRationalWeightsFromPointData(vtkPointData* point_data, const vtkIdType numPts);
+  void SetRationalWeightsFromPointData(vtkPointData* point_data, vtkIdType numPts);
   void InterpolateFunctions(const double pcoords[3], double* weights) override;
   void InterpolateDerivs(const double pcoords[3], double* derivs) override;
 

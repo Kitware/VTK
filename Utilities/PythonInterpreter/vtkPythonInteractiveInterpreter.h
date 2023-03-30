@@ -57,7 +57,7 @@ public:
    * return value is True if more input is required, False if the line was dealt
    * with in some way.
    */
-  bool Push(const char* const code);
+  bool Push(const char* code);
 
   /**
    * This destroys the internal code.InteractiveConsole instance. Hence, next

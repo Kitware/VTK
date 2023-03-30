@@ -190,7 +190,7 @@ bool vtkInteractiveArea::MouseButtonPressEvent(const vtkContextMouseEvent& mouse
 }
 
 //------------------------------------------------------------------------------
-void vtkInteractiveArea::RecalculateTickSpacing(vtkAxis* axis, int const numClicks)
+void vtkInteractiveArea::RecalculateTickSpacing(vtkAxis* axis, int numClicks)
 {
   double min = axis->GetMinimum();
   double max = axis->GetMaximum();

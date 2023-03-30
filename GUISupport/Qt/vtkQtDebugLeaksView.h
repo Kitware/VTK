@@ -69,7 +69,7 @@ protected:
   virtual void onObjectDoubleClicked(vtkObjectBase* object);
   virtual void onClassNameDoubleClicked(const QString& className);
 
-protected Q_SLOTS:
+protected Q_SLOTS: // NOLINT(readability-redundant-access-specifiers)
 
   void onCurrentRowChanged(const QModelIndex& current);
   void onRowDoubleClicked(const QModelIndex&);

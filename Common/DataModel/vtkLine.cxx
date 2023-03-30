@@ -97,7 +97,7 @@ void vtkLine::EvaluateLocation(
 // The parameters (u,v) are the parametric coordinates of the lines at the
 // position of closest approach.
 int vtkLine::Intersection(const double a1[3], const double a2[3], const double b1[3],
-  const double b2[3], double& u, double& v, const double tolerance, int tolType)
+  const double b2[3], double& u, double& v, double tolerance, int tolType)
 {
   double a21[3], b21[3], b1a1[3];
   double c[2];

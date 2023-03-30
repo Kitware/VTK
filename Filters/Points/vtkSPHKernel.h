@@ -161,13 +161,13 @@ public:
   /**
    * Compute weighting factor given a normalized distance from a sample point.
    */
-  virtual double ComputeFunctionWeight(const double d) = 0;
+  virtual double ComputeFunctionWeight(double d) = 0;
 
   /**
    * Compute weighting factor for derivative quantities given a normalized
    * distance from a sample point.
    */
-  virtual double ComputeDerivWeight(const double d) = 0;
+  virtual double ComputeDerivWeight(double d) = 0;
 
   ///@{
   /**

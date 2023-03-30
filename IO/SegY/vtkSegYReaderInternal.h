@@ -39,7 +39,6 @@ public:
   vtkSegYReaderInternal& operator=(const vtkSegYReaderInternal& other) = delete;
   ~vtkSegYReaderInternal();
 
-public:
   bool Is3DComputeParameters(
     int* extent, double origin[3], double spacing[3][3], int* spacingSign, bool force2D);
   void LoadTraces(int* extent);

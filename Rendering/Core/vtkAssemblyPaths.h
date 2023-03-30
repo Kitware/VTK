@@ -89,7 +89,6 @@ private:
   void RemoveItem(int i) { this->vtkCollection::RemoveItem(i); }
   int IsItemPresent(vtkObject* o) { return this->vtkCollection::IsItemPresent(o); }
 
-private:
   vtkAssemblyPaths(const vtkAssemblyPaths&) = delete;
   void operator=(const vtkAssemblyPaths&) = delete;
 };

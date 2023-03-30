@@ -864,9 +864,9 @@ bool vtkMatplotlibMathTextUtilities::SetMathTextFont(vtkTextProperty* tprop)
 
 //------------------------------------------------------------------------------
 bool vtkMatplotlibMathTextUtilities::RenderOneCell(vtkImageData* image, int bbox[4],
-  const std::int64_t rowStart, const std::int64_t colStart, vtkSmartPyObject& pythonData,
-  const std::uint64_t pythonRows, const std::uint64_t pythonCols, const std::uint64_t cellRows,
-  const std::uint64_t cellCols, vtkTextProperty* tprop, const TextColors& tcolors)
+  std::int64_t rowStart, std::int64_t colStart, vtkSmartPyObject& pythonData,
+  std::uint64_t pythonRows, std::uint64_t pythonCols, std::uint64_t cellRows,
+  std::uint64_t cellCols, vtkTextProperty* tprop, const TextColors& tcolors)
 {
   vtkDebugMacro("RenderOneCell start = ("
     << rowStart << "," << colStart << "). Drawing python data of size (" << pythonRows << ","

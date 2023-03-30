@@ -133,7 +133,6 @@ protected:
   vtkBlueObeliskData();
   ~vtkBlueObeliskData() override;
 
-protected:
   bool Initialized;
 
   /**

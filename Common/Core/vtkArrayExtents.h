@@ -82,7 +82,7 @@ public:
    * Create zero-based one-dimensional extents.  This constructor is shorthand for
    * vtkArrayExtents(vtkArrayRange(0, i)).
    */
-  explicit vtkArrayExtents(const CoordinateT i);
+  explicit vtkArrayExtents(CoordinateT i);
   /**
    * Create one-dimensional extents.
    */
@@ -92,7 +92,7 @@ public:
    * Create zero-based two-dimensional extents.  This constructor is shorthand for
    * vtkArrayExtents(vtkArrayRange(0, i), vtkArrayRange(0, j)).
    */
-  vtkArrayExtents(const CoordinateT i, const CoordinateT j);
+  vtkArrayExtents(CoordinateT i, CoordinateT j);
   /**
    * Create two-dimensional extents.
    */
@@ -103,7 +103,7 @@ public:
    * vtkArrayExtents(vtkArrayRange(0, i), vtkArrayRange(0, j),
    * vtkArrayRange(0, k)).
    */
-  vtkArrayExtents(const CoordinateT i, const CoordinateT j, const CoordinateT k);
+  vtkArrayExtents(CoordinateT i, CoordinateT j, CoordinateT k);
   /**
    * Create three-dimensional extents.
    */

@@ -794,7 +794,7 @@ struct vtkProbeLineFilter::vtkInternals
   std::map<vtkDataSet*, vtkSmartPointer<vtkFindCellStrategy>> Strategies;
   std::map<vtkHyperTreeGrid*, vtkSmartPointer<vtkHyperTreeGridLocator>> HTGLocators;
 
-  void UpdateLocators(vtkDataObject* input, const double tolerance)
+  void UpdateLocators(vtkDataObject* input, double tolerance)
   {
     vtkMTimeType inputTime = input->GetMTime();
     if (inputTime == this->PreviousInputTime)

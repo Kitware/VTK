@@ -496,8 +496,8 @@ protected:
    * Computed points are stored in the vtkPoints 'points' and
    * inserted in the vtkCellArray 'polys'
    */
-  void ComputeOneRoundCorner(vtkCellArray* polys, vtkPoints* points, const double radius,
-    vtkIdType xPt, vtkIdType yPt, const double startAngle);
+  void ComputeOneRoundCorner(vtkCellArray* polys, vtkPoints* points, double radius, vtkIdType xPt,
+    vtkIdType yPt, double startAngle);
 
 private:
   vtkBorderRepresentation(const vtkBorderRepresentation&) = delete;

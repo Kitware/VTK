@@ -98,7 +98,7 @@ public:
   /**
    * Sets the min location
    */
-  inline void SetMinLocation(const double minx, const double miny, const double minz)
+  inline void SetMinLocation(double minx, double miny, double minz)
   {
     this->MinLocation[0] = minx;
     this->MinLocation[1] = miny;
@@ -110,7 +110,7 @@ public:
   /**
    * Sets the max location
    */
-  inline void SetMaxLocation(const double maxx, const double maxy, const double maxz)
+  inline void SetMaxLocation(double maxx, double maxy, double maxz)
   {
     this->MaxLocation[0] = maxx;
     this->MaxLocation[1] = maxy;
@@ -139,7 +139,7 @@ protected:
    * Reads the particles corresponding to the block associated with the
    * given supplied block index.
    */
-  virtual vtkPolyData* ReadParticles(const int blkIdx) = 0;
+  virtual vtkPolyData* ReadParticles(int blkIdx) = 0;
 
   /**
    * Filters particles by their location. If FilterLocation is ON, this
@@ -147,7 +147,7 @@ protected:
    * coordinates class within the bounding box specified by the user using
    * the SetMinLocation & SetMaxLocation.
    */
-  bool CheckLocation(const double x, const double y, const double z);
+  bool CheckLocation(double x, double y, double z);
 
   /**
    * Determines whether this reader instance is running in parallel or not.
@@ -158,7 +158,7 @@ protected:
    * Determines if the block associated with the given block index belongs
    * to the process that executes the current instance of the reader.
    */
-  bool IsBlockMine(const int blkIdx);
+  bool IsBlockMine(int blkIdx);
 
   /**
    * Given the block index, this method determines the process Id.
@@ -167,7 +167,7 @@ protected:
    * block is assigned to a process according to blkIdx%N, where N is
    * the total number of processes.
    */
-  int GetBlockProcessId(const int blkIdx);
+  int GetBlockProcessId(int blkIdx);
 
   /**
    * Initializes the AMR Particles reader

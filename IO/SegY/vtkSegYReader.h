@@ -142,7 +142,6 @@ protected:
   int RequestDataObject(vtkInformation* request, vtkInformationVector** inputVector,
     vtkInformationVector* outputVector) override;
 
-protected:
   vtkSegYReaderInternal* Reader;
   char* FileName;
   bool Is3D;

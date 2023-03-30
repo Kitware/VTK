@@ -220,7 +220,7 @@ protected:
   vtkGreedyTerrainDecimationPointInfoType* PointInfo;     // map mesh pt id to input pt id
 
   // Make a guess at initial allocation
-  void EstimateOutputSize(const vtkIdType numInputPts, vtkIdType& numPts, vtkIdType& numTris);
+  void EstimateOutputSize(vtkIdType numInputPts, vtkIdType& numPts, vtkIdType& numTris);
 
   // Returns non-zero if the error measure is satisfied.
   virtual int SatisfiesErrorMeasure(double error);

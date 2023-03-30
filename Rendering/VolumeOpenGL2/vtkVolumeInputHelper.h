@@ -54,11 +54,11 @@ public:
   vtkVolumeInputHelper(vtkSmartPointer<vtkVolumeTexture> tex, vtkVolume* vol);
 
   void RefreshTransferFunction(
-    vtkRenderer* ren, const int uniformIndex, const int blendMode, const float samplingDist);
+    vtkRenderer* ren, int uniformIndex, int blendMode, float samplingDist);
   void ForceTransferInit();
 
-  void ActivateTransferFunction(vtkShaderProgram* prog, const int blendMode);
-  void DeactivateTransferFunction(const int blendMode);
+  void ActivateTransferFunction(vtkShaderProgram* prog, int blendMode);
+  void DeactivateTransferFunction(int blendMode);
 
   void ReleaseGraphicsResources(vtkWindow* window);
 
@@ -112,17 +112,17 @@ public:
   std::string GradientCacheName;
 
 protected:
-  void InitializeTransferFunction(vtkRenderer* ren, const int index);
+  void InitializeTransferFunction(vtkRenderer* ren, int index);
 
-  void CreateTransferFunction1D(vtkRenderer* ren, const int index);
-  void CreateTransferFunction2D(vtkRenderer* ren, const int index);
+  void CreateTransferFunction1D(vtkRenderer* ren, int index);
+  void CreateTransferFunction2D(vtkRenderer* ren, int index);
 
-  void UpdateTransferFunctions(vtkRenderer* ren, const int blendMode, const float samplingDist);
-  int UpdateOpacityTransferFunction(vtkRenderer* ren, vtkVolume* vol, unsigned int component,
-    const int blendMode, const float samplingDist);
+  void UpdateTransferFunctions(vtkRenderer* ren, int blendMode, float samplingDist);
+  int UpdateOpacityTransferFunction(
+    vtkRenderer* ren, vtkVolume* vol, unsigned int component, int blendMode, float samplingDist);
   int UpdateColorTransferFunction(vtkRenderer* ren, vtkVolume* vol, unsigned int component);
   int UpdateGradientOpacityTransferFunction(
-    vtkRenderer* ren, vtkVolume* vol, unsigned int component, const float samplingDist);
+    vtkRenderer* ren, vtkVolume* vol, unsigned int component, float samplingDist);
   void UpdateTransferFunction2D(vtkRenderer* ren, unsigned int component);
 
   void ReleaseGraphicsTransfer1D(vtkWindow* window);

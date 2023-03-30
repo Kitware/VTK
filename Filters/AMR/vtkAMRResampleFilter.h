@@ -192,18 +192,18 @@ protected:
    * Given the Region ID this function returns whether or not the region
    * belongs to this process or not.
    */
-  bool IsRegionMine(const int regionIdx);
+  bool IsRegionMine(int regionIdx);
 
   /**
    * Given the Region ID, this method computes the corresponding process ID
    * that owns the region based on static block-cyclic distribution.
    */
-  int GetRegionProcessId(const int regionIdx);
+  int GetRegionProcessId(int regionIdx);
 
   /**
    * Given a cell index and a grid, this method computes the cell centroid.
    */
-  void ComputeCellCentroid(vtkUniformGrid* g, const vtkIdType cellIdx, double c[3]);
+  void ComputeCellCentroid(vtkUniformGrid* g, vtkIdType cellIdx, double c[3]);
 
   /**
    * Given the source cell data of an AMR grid, this method initializes the
@@ -315,8 +315,7 @@ protected:
    * samples requested, N, the root level spacing h0, the length of the box,
    * L (actual length after snapping) and the refinement ratio.
    */
-  void ComputeLevelOfResolution(
-    const int N[3], const double h0[3], const double L[3], const double rf);
+  void ComputeLevelOfResolution(const int N[3], const double h0[3], const double L[3], double rf);
 
   /**
    * This method snaps the bounds s.t. they are within the interior of the

@@ -172,7 +172,7 @@ protected:
    * Recursive helper for the BALANCED architecture
    */
   void RecurseBalanced(
-    vtkHyperTreeGridNonOrientedCursor* cursor, vtkDoubleArray* levels, const int maxDepth);
+    vtkHyperTreeGridNonOrientedCursor* cursor, vtkDoubleArray* levels, int maxDepth);
   ///@}
 
   ///@{

@@ -143,7 +143,7 @@ public:
    * Specify the names for each piece of pie.  not specified, then an integer
    * number is automatically generated.
    */
-  void SetPieceLabel(const int i, const char*);
+  void SetPieceLabel(int i, const char*);
   const char* GetPieceLabel(int i);
   ///@}
 
@@ -239,7 +239,6 @@ private:
   int PlaceAxes(vtkViewport* viewport, const int* size);
   int BuildPlot(vtkViewport*);
 
-private:
   vtkPieChartActor(const vtkPieChartActor&) = delete;
   void operator=(const vtkPieChartActor&) = delete;
 };

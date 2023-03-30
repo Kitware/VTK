@@ -284,7 +284,7 @@ public:
    * (send and/or receive) this method blocks until all requests are complete.
    * Note: This method delegates to the communicator
    */
-  int WaitAll(const int count, vtkMPICommunicator::Request requests[])
+  int WaitAll(int count, vtkMPICommunicator::Request requests[])
   {
     return ((vtkMPICommunicator*)this->Communicator)->WaitAll(count, requests);
   }
@@ -295,7 +295,7 @@ public:
    * object is returned through the argument list.
    * Note: this method delegates to the communicator
    */
-  int WaitAny(const int count, vtkMPICommunicator::Request requests[], int& idx)
+  int WaitAny(int count, vtkMPICommunicator::Request requests[], int& idx)
     VTK_SIZEHINT(requests, count)
   {
     return ((vtkMPICommunicator*)this->Communicator)->WaitAny(count, requests, idx);
@@ -306,13 +306,13 @@ public:
    * request array completes. Upon return, the list of handles that have
    * completed is stored in the completed vtkIntArray.
    */
-  int WaitSome(const int count, vtkMPICommunicator::Request requests[], vtkIntArray* completed)
+  int WaitSome(int count, vtkMPICommunicator::Request requests[], vtkIntArray* completed)
     VTK_SIZEHINT(requests, count);
 
   /**
    * Returns true iff *all* of the communication request objects are complete.
    */
-  bool TestAll(const int count, vtkMPICommunicator::Request requests[]);
+  bool TestAll(int count, vtkMPICommunicator::Request requests[]);
 
   /**
    * Returns true iff at least *one* of the communication request objects is
@@ -320,7 +320,7 @@ public:
    * reflected in the out parameter idx. Otherwise, if none of the communication
    * requests are complete false is returned.
    */
-  bool TestAny(const int count, vtkMPICommunicator::Request requests[], int& idx)
+  bool TestAny(int count, vtkMPICommunicator::Request requests[], int& idx)
     VTK_SIZEHINT(requests, count);
 
   /**
@@ -328,7 +328,7 @@ public:
    * complete. The indices of the completed requests, w.r.t. the requests array,
    * are given in the completed user-supplied vtkIntArray.
    */
-  bool TestSome(const int count, vtkMPICommunicator::Request requests[], vtkIntArray* completed)
+  bool TestSome(int count, vtkMPICommunicator::Request requests[], vtkIntArray* completed)
     VTK_SIZEHINT(requests, count);
 
   static const char* GetProcessorName();

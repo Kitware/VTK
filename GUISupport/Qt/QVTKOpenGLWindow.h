@@ -176,13 +176,12 @@ protected Q_SLOTS:
    */
   friend class QVTKOpenGLStereoWidget;
 
-protected:
+protected: // NOLINT(readability-redundant-access-specifiers)
   bool event(QEvent* evt) override;
   void initializeGL() override;
   void paintGL() override;
   void resizeGL(int w, int h) override;
 
-protected:
   vtkSmartPointer<vtkGenericOpenGLRenderWindow> RenderWindow;
   QScopedPointer<QVTKRenderWindowAdapter> RenderWindowAdapter;
 

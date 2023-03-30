@@ -90,7 +90,6 @@ void vtkMappedDataArray<Scalar>::SetVoidArray(void*, vtkIdType, int)
 {
   vtkErrorMacro(<< "SetVoidArray not supported for vtkMappedDataArray "
                    "subclasses.");
-  return;
 }
 
 //------------------------------------------------------------------------------
@@ -99,7 +98,6 @@ void vtkMappedDataArray<Scalar>::SetVoidArray(void*, vtkIdType, int, int)
 {
   vtkErrorMacro(<< "SetVoidArray not supported for vtkMappedDataArray "
                    "subclasses.");
-  return;
 }
 
 //------------------------------------------------------------------------------

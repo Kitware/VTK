@@ -279,7 +279,7 @@ public:
   void Render(vtkRenderer*, vtkActor*) override;
   void ReleaseGraphicsResources(vtkWindow*) override;
   double* GetBounds() override;
-  void GetBounds(double bounds[6]) override { vtkAbstractMapper3D::GetBounds(bounds); }
+  void GetBounds(double bounds[6]) override { Superclass::GetBounds(bounds); }
   int FillInputPortInformation(int port, vtkInformation* info) override;
   bool GetSupportsSelection() override { return true; }
   ///@}

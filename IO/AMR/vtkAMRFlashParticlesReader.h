@@ -60,12 +60,12 @@ protected:
   /**
    * See vtkAMRBaseParticlesReader::ReadParticles
    */
-  vtkPolyData* ReadParticles(const int blkidx) override;
+  vtkPolyData* ReadParticles(int blkidx) override;
 
   /**
    * Reads the particlles of the given block from the given file.
    */
-  vtkPolyData* GetParticles(const char* file, const int blkidx);
+  vtkPolyData* GetParticles(const char* file, int blkidx);
 
   vtkFlashReaderInternal* Internal;
 

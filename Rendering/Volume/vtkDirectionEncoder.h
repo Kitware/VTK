@@ -61,7 +61,7 @@ public:
   /**
    * Return the number of encoded directions
    */
-  virtual int GetNumberOfEncodedDirections(void) = 0;
+  virtual int GetNumberOfEncodedDirections() = 0;
 
   /**
    * Get the decoded gradient table. There are
@@ -69,7 +69,7 @@ public:
    * containing a normal (direction) vector. This is a flat structure -
    * 3 times the number of directions floats in an array.
    */
-  virtual float* GetDecodedGradientTable(void) = 0;
+  virtual float* GetDecodedGradientTable() = 0;
 
 protected:
   vtkDirectionEncoder() = default;

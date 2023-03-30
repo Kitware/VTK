@@ -824,7 +824,6 @@ private:
   int* ElementVariableTruthTable; // (G) NumBlocks*OrigNumberOfElementVariables
   vtkTypeBool AllVariablesDefinedInAllBlocks;
 
-private:
   vtkModelMetadata(const vtkModelMetadata&) = delete;
   void operator=(const vtkModelMetadata&) = delete;
 };

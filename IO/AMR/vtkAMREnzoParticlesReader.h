@@ -63,7 +63,7 @@ protected:
    * Read the particles from the given particles file for the block
    * corresponding to the given block index.
    */
-  vtkPolyData* GetParticles(const char* file, const int blockIdx);
+  vtkPolyData* GetParticles(const char* file, int blockIdx);
 
   /**
    * See vtkAMRBaseParticlesReader::ReadMetaData()
@@ -79,17 +79,17 @@ protected:
    * Filter's by particle type, iff particle_type is included in
    * the given file.
    */
-  bool CheckParticleType(const int pIdx, vtkIntArray* ptypes);
+  bool CheckParticleType(int pIdx, vtkIntArray* ptypes);
 
   /**
    * Returns the ParticlesType Array
    */
-  vtkDataArray* GetParticlesTypeArray(const int blockIdx);
+  vtkDataArray* GetParticlesTypeArray(int blockIdx);
 
   /**
    * Reads the particles.
    */
-  vtkPolyData* ReadParticles(const int blkidx) override;
+  vtkPolyData* ReadParticles(int blkidx) override;
 
   int ParticleType;
 

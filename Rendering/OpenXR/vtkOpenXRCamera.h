@@ -44,7 +44,7 @@ public:
 
 protected:
   vtkOpenXRCamera();
-  ~vtkOpenXRCamera();
+  ~vtkOpenXRCamera() override;
 
   // gets the pose and projections for the left and right eyes from
   // the openvr library

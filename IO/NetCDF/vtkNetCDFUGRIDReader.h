@@ -103,7 +103,7 @@ public:
 
 protected:
   vtkNetCDFUGRIDReader();
-  virtual ~vtkNetCDFUGRIDReader() override;
+  ~vtkNetCDFUGRIDReader() override;
 
   int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;

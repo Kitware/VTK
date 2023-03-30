@@ -355,7 +355,7 @@ void vtkPlotRangeHandlesItem::GetAxesUnscaledRange(double* abcissaRange, double*
 
 //------------------------------------------------------------------------------
 void vtkPlotRangeHandlesItem::TransformScreenToData(
-  const double inX, const double inY, double& outX, double& outY)
+  double inX, double inY, double& outX, double& outY)
 {
   if (this->HandleOrientation == vtkPlotRangeHandlesItem::VERTICAL)
   {
@@ -369,7 +369,7 @@ void vtkPlotRangeHandlesItem::TransformScreenToData(
 
 //------------------------------------------------------------------------------
 void vtkPlotRangeHandlesItem::TransformDataToScreen(
-  const double inX, const double inY, double& outX, double& outY)
+  double inX, double inY, double& outX, double& outY)
 {
   if (this->HandleOrientation == vtkPlotRangeHandlesItem::VERTICAL)
   {

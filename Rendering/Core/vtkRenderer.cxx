@@ -1462,7 +1462,7 @@ vtkVector3d vtkRenderer::DisplayToWorld(const vtkVector3d& display)
   return vtkVector3d(world4.GetData());
 }
 
-void vtkRenderer::ZoomToBoxUsingViewAngle(const vtkRecti& box, const double offsetRatio)
+void vtkRenderer::ZoomToBoxUsingViewAngle(const vtkRecti& box, double offsetRatio)
 {
   const int* size = this->GetSize();
   double zf1 = size[0] / static_cast<double>(box.GetWidth());

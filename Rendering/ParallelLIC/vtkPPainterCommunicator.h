@@ -84,8 +84,8 @@ public:
   /**
    * Query MPI state.
    */
-  bool GetMPIInitialized() override { return this->MPIInitialized(); }
-  bool GetMPIFinalized() override { return this->MPIFinalized(); }
+  bool GetMPIInitialized() override { return vtkPPainterCommunicator::MPIInitialized(); }
+  bool GetMPIFinalized() override { return vtkPPainterCommunicator::MPIFinalized(); }
 
   static bool MPIInitialized();
   static bool MPIFinalized();

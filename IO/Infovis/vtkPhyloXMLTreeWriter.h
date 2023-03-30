@@ -110,13 +110,12 @@ protected:
    * Convert one vertex to PhyloXML.  This function calls itself recursively
    * for any children of the input vertex.
    */
-  void WriteCladeElement(vtkTree* const input, vtkIdType vertex, vtkXMLDataElement* parentElement);
+  void WriteCladeElement(vtkTree* input, vtkIdType vertex, vtkXMLDataElement* parentElement);
 
   /**
    * Write the branch length attribute for the specified vertex.
    */
-  void WriteBranchLengthAttribute(
-    vtkTree* const input, vtkIdType vertex, vtkXMLDataElement* element);
+  void WriteBranchLengthAttribute(vtkTree* input, vtkIdType vertex, vtkXMLDataElement* element);
 
   /**
    * Write the name element for the specified vertex.
@@ -126,13 +125,13 @@ protected:
   /**
    * Write the confidence element for the specified vertex.
    */
-  void WriteConfidenceElement(vtkTree* const input, vtkIdType vertex, vtkXMLDataElement* element);
+  void WriteConfidenceElement(vtkTree* input, vtkIdType vertex, vtkXMLDataElement* element);
 
   /**
    * Write the color element and its subelements (red, green, blue)
    * for the specified vertex.
    */
-  void WriteColorElement(vtkTree* const input, vtkIdType vertex, vtkXMLDataElement* element);
+  void WriteColorElement(vtkTree* input, vtkIdType vertex, vtkXMLDataElement* element);
 
   /**
    * Write a property element as a child of the specified vtkXMLDataElement.

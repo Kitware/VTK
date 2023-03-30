@@ -286,7 +286,7 @@ protected:
   /**
    * Test if the internal cache requires an update.
    */
-  virtual bool CacheRequiresUpdate() override;
+  bool CacheRequiresUpdate() override;
 
   /**
    * Store a well packed set of XY coordinates for this data series.

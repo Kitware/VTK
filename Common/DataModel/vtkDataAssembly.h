@@ -168,8 +168,11 @@ public:
   /**
    * Get/Set root node name. Defaults to DataAssembly.
    */
-  void SetRootNodeName(const char* name) { this->SetNodeName(this->GetRootNode(), name); }
-  const char* GetRootNodeName() const { return this->GetNodeName(this->GetRootNode()); }
+  void SetRootNodeName(const char* name)
+  {
+    this->SetNodeName(vtkDataAssembly::GetRootNode(), name);
+  }
+  const char* GetRootNodeName() const { return this->GetNodeName(vtkDataAssembly::GetRootNode()); }
   ///@}
 
   /**

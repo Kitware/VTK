@@ -76,7 +76,7 @@ void vtkContourValues::GetValues(double* contourValues)
 // Set the number of contours to place into the list. You only really
 // need to use this method to reduce list size. The method SetValue()
 // will automatically increase list size as needed.
-void vtkContourValues::SetNumberOfContours(const int number)
+void vtkContourValues::SetNumberOfContours(int number)
 {
   vtkIdType currentNumber = this->Contours->GetMaxId() + 1;
   vtkIdType n = (number < 0 ? 0 : number);

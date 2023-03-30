@@ -3046,27 +3046,27 @@ double vtkMath::SignedAngleBetweenVectors(
 }
 
 //------------------------------------------------------------------------------
-double vtkMath::GaussianAmplitude(const double variance, const double distanceFromMean)
+double vtkMath::GaussianAmplitude(double variance, double distanceFromMean)
 {
   return 1. / (std::sqrt(2. * vtkMath::Pi() * variance)) *
     exp(-(pow(distanceFromMean, 2)) / (2. * variance));
 }
 
 //------------------------------------------------------------------------------
-double vtkMath::GaussianAmplitude(const double mean, const double variance, const double position)
+double vtkMath::GaussianAmplitude(double mean, double variance, double position)
 {
   double distanceToMean = std::abs(mean - position);
   return GaussianAmplitude(variance, distanceToMean);
 }
 
 //------------------------------------------------------------------------------
-double vtkMath::GaussianWeight(const double variance, const double distanceFromMean)
+double vtkMath::GaussianWeight(double variance, double distanceFromMean)
 {
   return exp(-(pow(distanceFromMean, 2)) / (2. * variance));
 }
 
 //------------------------------------------------------------------------------
-double vtkMath::GaussianWeight(const double mean, const double variance, const double position)
+double vtkMath::GaussianWeight(double mean, double variance, double position)
 {
   double distanceToMean = std::abs(mean - position);
   return GaussianWeight(variance, distanceToMean);

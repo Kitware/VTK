@@ -49,8 +49,7 @@ VTXvtkBase::VTXvtkBase(
 
 VTXvtkBase::~VTXvtkBase() = default;
 
-bool VTXvtkBase::ReadDataSets(
-  const types::DataSetType type, const size_t step, const size_t pieceID)
+bool VTXvtkBase::ReadDataSets(const types::DataSetType type, size_t step, size_t pieceID)
 {
   types::Piece& piece = this->Pieces.at(pieceID);
   types::DataSet& dataSet = piece.at(type);

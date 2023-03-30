@@ -79,7 +79,7 @@ protected:
    * Write one vertex.  This function calls itself recursively for
    * any children of the input vertex.
    */
-  void WriteVertex(ostream* fp, vtkTree* const input, vtkIdType vertex);
+  void WriteVertex(ostream* fp, vtkTree* input, vtkIdType vertex);
 
   int FillInputPortInformation(int port, vtkInformation* info) override;
 

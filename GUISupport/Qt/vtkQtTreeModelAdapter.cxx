@@ -178,8 +178,7 @@ void vtkQtTreeModelAdapter::treeModified()
 
 // Description:
 // Selection conversion from VTK land to Qt land
-vtkSelection* vtkQtTreeModelAdapter::QModelIndexListToVTKIndexSelection(
-  const QModelIndexList qmil) const
+vtkSelection* vtkQtTreeModelAdapter::QModelIndexListToVTKIndexSelection(QModelIndexList qmil) const
 {
   // Create vtk index selection
   vtkSelection* IndexSelection = vtkSelection::New(); // Caller needs to delete

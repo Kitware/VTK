@@ -180,7 +180,7 @@ struct CountPoints
   template <typename CellStateT, typename TIds>
   void operator()(CellStateT& state,
     TIds* linkOffsets, // May be std::atomic<...>
-    const vtkIdType beginCellId, const vtkIdType endCellId, const vtkIdType idOffset = 0)
+    vtkIdType beginCellId, vtkIdType endCellId, vtkIdType idOffset = 0)
   {
     using ValueType = typename CellStateT::ValueType;
     const vtkIdType connBeginId = state.GetBeginOffset(beginCellId);
@@ -200,7 +200,7 @@ struct CountPoints
 struct BuildLinks
 {
   template <typename CellStateT, typename TIds>
-  void operator()(CellStateT& state, TIds* linkOffsets, TIds* links, const vtkIdType idOffset = 0)
+  void operator()(CellStateT& state, TIds* linkOffsets, TIds* links, vtkIdType idOffset = 0)
   {
     using ValueType = typename CellStateT::ValueType;
 
@@ -231,7 +231,7 @@ struct BuildLinksThreaded
 {
   template <typename CellStateT, typename TIds>
   void operator()(CellStateT& state, const TIds* offsets, std::atomic<TIds>* counts, TIds* links,
-    const vtkIdType beginCellId, const vtkIdType endCellId, const TIds idOffset = 0)
+    vtkIdType beginCellId, vtkIdType endCellId, const TIds idOffset = 0)
   {
     using ValueType = typename CellStateT::ValueType;
 
@@ -268,7 +268,7 @@ VTK_ABI_NAMESPACE_BEGIN
 // faster.
 template <typename TIds>
 void vtkStaticCellLinksTemplate<TIds>::SerialBuildLinks(
-  const vtkIdType numPts, const vtkIdType numCells, vtkCellArray* cellArray)
+  vtkIdType numPts, vtkIdType numCells, vtkCellArray* cellArray)
 {
   // Basic information about the grid
   this->NumPts = numPts;
@@ -354,7 +354,7 @@ VTK_ABI_NAMESPACE_BEGIN
 // implementation: it uses SMPTools and atomics to prevent race situations.
 template <typename TIds>
 void vtkStaticCellLinksTemplate<TIds>::ThreadedBuildLinks(
-  const vtkIdType numPts, const vtkIdType numCells, vtkCellArray* cellArray)
+  vtkIdType numPts, vtkIdType numCells, vtkCellArray* cellArray)
 {
   // Basic information about the grid
   this->NumPts = numPts;
@@ -641,17 +641,11 @@ void vtkStaticCellLinksTemplate<TIds>::DeepCopy(vtkAbstractCellLinks* src)
     this->NumPts = links->NumPts;
     this->NumCells = links->NumCells;
 
-    if (this->Links != nullptr)
-    {
-      delete[] this->Links;
-    }
+    delete[] this->Links;
     this->Links = new TIds[this->LinksSize + 1];
     std::copy(links->Links, links->Links + (this->LinksSize + 1), this->Links);
 
-    if (this->Offsets != nullptr)
-    {
-      delete[] this->Offsets;
-    }
+    delete[] this->Offsets;
     this->Offsets = new TIds[this->NumPts + 1];
     std::copy(links->Offsets, links->Offsets + (this->NumPts + 1), this->Offsets);
   }

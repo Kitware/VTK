@@ -159,7 +159,7 @@ protected:
   bool CreateFramebuffers(uint32_t viewCount = 2) override;
 
   bool BindTextureToFramebuffer(FramebufferDesc& framebufferDesc);
-  void RenderFramebuffer(FramebufferDesc& framebufferDesc);
+  void RenderFramebuffer(FramebufferDesc& framebufferDesc) override;
 
   virtual void RenderOneEye(uint32_t eye);
 

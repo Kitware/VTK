@@ -111,9 +111,9 @@ public:
    * dimension-labels will be undefined, dense array values will be
    * undefined, and sparse arrays will be empty.
    */
-  void Resize(const CoordinateT i);
-  void Resize(const CoordinateT i, const CoordinateT j);
-  void Resize(const CoordinateT i, const CoordinateT j, const CoordinateT k);
+  void Resize(CoordinateT i);
+  void Resize(CoordinateT i, CoordinateT j);
+  void Resize(CoordinateT i, CoordinateT j, CoordinateT k);
   void Resize(const vtkArrayRange& i);
   void Resize(const vtkArrayRange& i, const vtkArrayRange& j);
   void Resize(const vtkArrayRange& i, const vtkArrayRange& j, const vtkArrayRange& k);
@@ -180,7 +180,7 @@ public:
    * order in which values are visited using vtkTypedArray::GetValueN()
    * and vtkTypedArray::SetValueN().
    */
-  virtual void GetCoordinatesN(const SizeT n, vtkArrayCoordinates& coordinates) = 0;
+  virtual void GetCoordinatesN(SizeT n, vtkArrayCoordinates& coordinates) = 0;
 
   ///@{
   /**
@@ -201,7 +201,7 @@ public:
    * values are visited is undefined, but is guaranteed to match the
    * order used by vtkArray::GetCoordinatesN().
    */
-  virtual vtkVariant GetVariantValueN(const SizeT n) = 0;
+  virtual vtkVariant GetVariantValueN(SizeT n) = 0;
 
   ///@{
   /**
@@ -222,7 +222,7 @@ public:
    * values are visited is undefined, but is guaranteed to match the
    * order used by vtkArray::GetCoordinatesN().
    */
-  virtual void SetVariantValueN(const SizeT n, const vtkVariant& value) = 0;
+  virtual void SetVariantValueN(SizeT n, const vtkVariant& value) = 0;
 
   ///@{
   /**
@@ -232,9 +232,9 @@ public:
   virtual void CopyValue(vtkArray* source, const vtkArrayCoordinates& source_coordinates,
     const vtkArrayCoordinates& target_coordinates) = 0;
   virtual void CopyValue(
-    vtkArray* source, const SizeT source_index, const vtkArrayCoordinates& target_coordinates) = 0;
+    vtkArray* source, SizeT source_index, const vtkArrayCoordinates& target_coordinates) = 0;
   virtual void CopyValue(
-    vtkArray* source, const vtkArrayCoordinates& source_coordinates, const SizeT target_index) = 0;
+    vtkArray* source, const vtkArrayCoordinates& source_coordinates, SizeT target_index) = 0;
   ///@}
 
   /**

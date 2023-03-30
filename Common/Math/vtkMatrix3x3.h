@@ -71,7 +71,7 @@ public:
    */
   void DeepCopy(const double elements[9])
   {
-    this->DeepCopy(*this->Element, elements);
+    vtkMatrix3x3::DeepCopy(*this->Element, elements);
     this->Modified();
   }
 

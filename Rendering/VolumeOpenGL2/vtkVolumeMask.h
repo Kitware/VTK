@@ -280,7 +280,7 @@ public:
 
   // Get the texture unit
   //--------------------------------------------------------------------------
-  int GetTextureUnit(void)
+  int GetTextureUnit()
   {
     if (!this->Texture)
     {

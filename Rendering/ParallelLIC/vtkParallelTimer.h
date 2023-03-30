@@ -209,7 +209,7 @@ private:
   {
   public:
     vtkParallelTimerDestructor()
-      : Log(0)
+      : Log(nullptr)
     {
     }
     ~vtkParallelTimerDestructor();
@@ -220,7 +220,6 @@ private:
     vtkParallelTimer* Log;
   };
 
-private:
   int GlobalLevel;
   int Initialized;
   int WorldRank;

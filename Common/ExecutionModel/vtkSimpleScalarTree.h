@@ -169,7 +169,6 @@ private:
   vtkIdType* CandidateCells; // to support parallel computing
   vtkIdType NumCandidates;
 
-private:
   vtkSimpleScalarTree(const vtkSimpleScalarTree&) = delete;
   void operator=(const vtkSimpleScalarTree&) = delete;
 };

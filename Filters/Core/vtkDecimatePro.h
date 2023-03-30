@@ -425,7 +425,6 @@ private:
   int SplitState;                  // State of the splitting process
   double Error;                    // Maximum allowable surface error
 
-private:
   vtkDecimatePro(const vtkDecimatePro&) = delete;
   void operator=(const vtkDecimatePro&) = delete;
 };

@@ -206,12 +206,12 @@ protected:
   /**
    * Execute the calculations required by the Test option.
    */
-  void Test(vtkTable*, vtkMultiBlockDataSet*, vtkTable*) override { return; }
+  void Test(vtkTable*, vtkMultiBlockDataSet*, vtkTable*) override {}
 
   /**
    * Execute the calculations required by the Assess option.
    */
-  void Assess(vtkTable*, vtkMultiBlockDataSet*, vtkTable*) override { return; }
+  void Assess(vtkTable*, vtkMultiBlockDataSet*, vtkTable*) override {}
 
   /**
    * Provide the appropriate assessment functor. Not used.

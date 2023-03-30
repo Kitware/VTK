@@ -171,8 +171,8 @@ public:
    *
    * THIS FUNCTION IS NOT THREAD SAFE.
    */
-  virtual int IntersectWithLine(const double p1[3], const double p2[3], const double tol,
-    vtkPoints* points, vtkIdList* cellIds);
+  virtual int IntersectWithLine(
+    const double p1[3], const double p2[3], double tol, vtkPoints* points, vtkIdList* cellIds);
 
   /**
    * Take the passed line segment and intersect it with the data set.
@@ -185,7 +185,7 @@ public:
    *
    * THIS FUNCTION IS THREAD SAFE.
    */
-  virtual int IntersectWithLine(const double p1[3], const double p2[3], const double tol,
+  virtual int IntersectWithLine(const double p1[3], const double p2[3], double tol,
     vtkPoints* points, vtkIdList* cellIds, vtkGenericCell* cell);
 
   /**
@@ -363,7 +363,7 @@ protected:
    */
   vtkTimeStamp WeightsTime;
 
-  static bool IsInBounds(const double bounds[6], const double x[3], const double tol = 0.0);
+  static bool IsInBounds(const double bounds[6], const double x[3], double tol = 0.0);
 
   /*
    *  This function should be used ONLY after the locator is built.

@@ -169,7 +169,7 @@ public:
    * Specify the names of the radial spokes (i.e., the radial axes). If
    * not specified, then an integer number is automatically generated.
    */
-  void SetAxisLabel(const int i, const char*);
+  void SetAxisLabel(int i, const char*);
   const char* GetAxisLabel(int i);
   ///@}
 
@@ -289,7 +289,6 @@ private:
   int PlaceAxes(vtkViewport* viewport, const int* size);
   int BuildPlot(vtkViewport*);
 
-private:
   vtkSpiderPlotActor(const vtkSpiderPlotActor&) = delete;
   void operator=(const vtkSpiderPlotActor&) = delete;
 };

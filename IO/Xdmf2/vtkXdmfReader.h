@@ -186,8 +186,6 @@ public:
   public:
     XdmfDataSetTopoGeoPath()
       : dataset(nullptr)
-      , topologyPath()
-      , geometryPath()
     {
     }
     vtkDataSet* dataset;
@@ -308,7 +306,6 @@ private:
    */
   int ChooseTimeStep(vtkInformation* outInfo);
 
-private:
   vtkXdmfReader(const vtkXdmfReader&) = delete;
   void operator=(const vtkXdmfReader&) = delete;
 };

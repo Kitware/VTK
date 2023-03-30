@@ -1046,7 +1046,7 @@ vtkIdType vtkFieldData::GetNumberOfTuples()
 
 //------------------------------------------------------------------------------
 // Set the number of tuples for each data array in the field.
-void vtkFieldData::SetNumberOfTuples(const vtkIdType number)
+void vtkFieldData::SetNumberOfTuples(vtkIdType number)
 {
   for (int i = 0; i < this->GetNumberOfArrays(); ++i)
   {
@@ -1058,7 +1058,7 @@ void vtkFieldData::SetNumberOfTuples(const vtkIdType number)
 // Set the jth tuple in source field data at the ith location.
 // Set operations
 // means that no range checking is performed, so they're faster.
-void vtkFieldData::SetTuple(const vtkIdType i, const vtkIdType j, vtkFieldData* source)
+void vtkFieldData::SetTuple(vtkIdType i, vtkIdType j, vtkFieldData* source)
 {
   for (int k = 0; k < this->GetNumberOfArrays(); ++k)
   {
@@ -1069,7 +1069,7 @@ void vtkFieldData::SetTuple(const vtkIdType i, const vtkIdType j, vtkFieldData* 
 //------------------------------------------------------------------------------
 // Insert the tuple value at the ith location. Range checking is
 // performed and memory allocates as necessary.
-void vtkFieldData::InsertTuple(const vtkIdType i, const vtkIdType j, vtkFieldData* source)
+void vtkFieldData::InsertTuple(vtkIdType i, vtkIdType j, vtkFieldData* source)
 {
   for (int k = 0; k < this->GetNumberOfArrays(); ++k)
   {
@@ -1080,7 +1080,7 @@ void vtkFieldData::InsertTuple(const vtkIdType i, const vtkIdType j, vtkFieldDat
 //------------------------------------------------------------------------------
 // Insert the tuple value at the end of the tuple matrix. Range
 // checking is performed and memory is allocated as necessary.
-vtkIdType vtkFieldData::InsertNextTuple(const vtkIdType j, vtkFieldData* source)
+vtkIdType vtkFieldData::InsertNextTuple(vtkIdType j, vtkFieldData* source)
 {
   vtkIdType id = this->GetNumberOfTuples();
   this->InsertTuple(id, j, source);

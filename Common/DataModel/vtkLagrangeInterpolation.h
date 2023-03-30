@@ -39,9 +39,8 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
   vtkTypeMacro(vtkLagrangeInterpolation, vtkHigherOrderInterpolation);
 
-  static void EvaluateShapeFunctions(const int order, const double pcoord, double* shape);
-  static void EvaluateShapeAndGradient(
-    const int order, const double pcoord, double* shape, double* grad);
+  static void EvaluateShapeFunctions(int order, double pcoord, double* shape);
+  static void EvaluateShapeAndGradient(int order, double pcoord, double* shape, double* grad);
 
   static int Tensor1ShapeFunctions(const int order[1], const double* pcoords, double* shape);
   static int Tensor1ShapeDerivatives(const int order[1], const double* pcoords, double* derivs);
@@ -56,11 +55,11 @@ public:
     const double* fieldVals, int fieldDim, double* fieldDerivs) override;
 
   static void WedgeShapeFunctions(
-    const int order[3], const vtkIdType numberOfPoints, const double* pcoords, double* shape);
+    const int order[3], vtkIdType numberOfPoints, const double* pcoords, double* shape);
   static void WedgeShapeDerivatives(
-    const int order[3], const vtkIdType numberOfPoints, const double* pcoords, double* derivs);
+    const int order[3], vtkIdType numberOfPoints, const double* pcoords, double* derivs);
 
-  void WedgeEvaluate(const int order[3], const vtkIdType numberOfPoints, const double* pcoords,
+  void WedgeEvaluate(const int order[3], vtkIdType numberOfPoints, const double* pcoords,
     double* fieldVals, int fieldDim, double* fieldAtPCoords) override;
 
   void WedgeEvaluateDerivative(const int order[3], const double* pcoords, vtkPoints* points,

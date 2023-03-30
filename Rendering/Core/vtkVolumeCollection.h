@@ -76,7 +76,6 @@ private:
   void AddItem(vtkObject* o) { this->vtkCollection::AddItem(o); }
   void AddItem(vtkProp* o) { this->vtkPropCollection::AddItem(o); }
 
-private:
   vtkVolumeCollection(const vtkVolumeCollection&) = delete;
   void operator=(const vtkVolumeCollection&) = delete;
 };

@@ -152,7 +152,6 @@ private:
 
   vtkTypeBool UserManagedInputs;
 
-private:
   vtkAppendPolyData(const vtkAppendPolyData&) = delete;
   void operator=(const vtkAppendPolyData&) = delete;
 };

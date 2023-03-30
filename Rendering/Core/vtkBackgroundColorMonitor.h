@@ -70,7 +70,6 @@ private:
   double Color1[3];
   double Color2[3];
 
-private:
   vtkBackgroundColorMonitor(const vtkBackgroundColorMonitor&) = delete;
   void operator=(const vtkBackgroundColorMonitor&) = delete;
 };

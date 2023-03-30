@@ -199,7 +199,7 @@ void vtkBezierHexahedron::InterpolateDerivs(const double pcoords[3], double* der
 /**\brief Set the rational weight of the cell, given a vtkDataSet
  */
 void vtkBezierHexahedron::SetRationalWeightsFromPointData(
-  vtkPointData* point_data, const vtkIdType numPts)
+  vtkPointData* point_data, vtkIdType numPts)
 {
   vtkDataArray* v = point_data->GetRationalWeights();
   if (v)

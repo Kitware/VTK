@@ -58,7 +58,7 @@ public:
   /**
    * Begin the rendering process.
    */
-  void Start(void) override;
+  void Start() override;
 
   /**
    * A termination method performed at the end of the rendering process
@@ -286,7 +286,7 @@ public:
    * should be possible to call them multiple times, even changing WindowId
    * in-between.  This is what WindowRemap does.
    */
-  virtual void Initialize(void) {}
+  virtual void Initialize() {}
 
   std::set<vtkGenericOpenGLResourceFreeCallback*> Resources;
 

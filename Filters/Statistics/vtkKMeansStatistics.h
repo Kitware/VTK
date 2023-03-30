@@ -160,7 +160,7 @@ public:
    * Given a collection of models, calculate aggregate model
    * NB: not implemented
    */
-  void Aggregate(vtkDataObjectCollection*, vtkMultiBlockDataSet*) override { return; }
+  void Aggregate(vtkDataObjectCollection*, vtkMultiBlockDataSet*) override {}
 
   /**
    * A convenience method for setting properties by name.
@@ -206,7 +206,7 @@ protected:
   /**
    * Execute the calculations required by the Test option.
    */
-  void Test(vtkTable*, vtkMultiBlockDataSet*, vtkTable*) override { return; }
+  void Test(vtkTable*, vtkMultiBlockDataSet*, vtkTable*) override {}
 
   /**
    * Provide the appropriate assessment functor.

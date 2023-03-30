@@ -72,7 +72,6 @@ private:
   // hide the standard AddItem from the user and the compiler.
   void AddItem(vtkObject* o);
 
-private:
   vtkTextPropertyCollection(const vtkTextPropertyCollection&) = delete;
   void operator=(const vtkTextPropertyCollection&) = delete;
 };

@@ -121,7 +121,6 @@ private:
 
   std::unique_ptr<internal::ArrayHandleHelperInterface<T>> Helper;
 
-private:
   vtkmDataArray(const vtkmDataArray&) = delete;
   void operator=(const vtkmDataArray&) = delete;
 };

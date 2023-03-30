@@ -508,7 +508,7 @@ double vtkFFT::RectangularGenerator(std::size_t, std::size_t)
 template <typename T>
 void vtkFFT::GenerateKernel1D(T* kernel, std::size_t n, WindowGenerator generator)
 {
-  const std::size_t half = (n / 2) + (n % 2);
+  std::size_t half = (n / 2) + (n % 2);
   for (std::size_t i = 0; i < half; ++i)
   {
     kernel[i] = kernel[n - 1 - i] = generator(i, n);

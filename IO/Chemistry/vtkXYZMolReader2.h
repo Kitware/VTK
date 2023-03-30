@@ -65,7 +65,7 @@ protected:
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
-  std::string FileName = "";
+  std::string FileName;
   std::vector<istream::pos_type> FilePositions; // to store beginning of each step
   std::vector<double> TimeSteps;
 

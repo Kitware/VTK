@@ -944,7 +944,6 @@ private:
   static void ConnectionRemoveAllInput(vtkAlgorithm* consumer, int port);
   static void ConnectionRemoveAllOutput(vtkAlgorithm* producer, int port);
 
-private:
   vtkAlgorithm(const vtkAlgorithm&) = delete;
   void operator=(const vtkAlgorithm&) = delete;
 

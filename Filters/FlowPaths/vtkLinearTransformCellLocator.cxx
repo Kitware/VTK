@@ -426,7 +426,7 @@ int vtkLinearTransformCellLocator::IntersectWithLine(const double p1[3], const d
 
 //------------------------------------------------------------------------------
 int vtkLinearTransformCellLocator::IntersectWithLine(const double p1[3], const double p2[3],
-  const double tol, vtkPoints* points, vtkIdList* cellIds, vtkGenericCell* cell)
+  double tol, vtkPoints* points, vtkIdList* cellIds, vtkGenericCell* cell)
 {
   if (!this->CellLocator)
   {

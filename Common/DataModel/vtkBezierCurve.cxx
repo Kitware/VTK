@@ -41,8 +41,7 @@ void vtkBezierCurve::PrintSelf(ostream& os, vtkIndent indent)
 
 /**\brief Set the rational weight of the cell, given a vtkDataSet
  */
-void vtkBezierCurve::SetRationalWeightsFromPointData(
-  vtkPointData* point_data, const vtkIdType numPts)
+void vtkBezierCurve::SetRationalWeightsFromPointData(vtkPointData* point_data, vtkIdType numPts)
 {
   vtkDataArray* v = point_data->GetRationalWeights();
   if (v)

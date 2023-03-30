@@ -69,7 +69,6 @@ private:
   // hide the standard AddItem from the user and the compiler.
   void AddItem(vtkObject* o);
 
-private:
   vtkRenderPassCollection(const vtkRenderPassCollection&) = delete;
   void operator=(const vtkRenderPassCollection&) = delete;
 };

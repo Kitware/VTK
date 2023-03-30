@@ -258,7 +258,7 @@ private:
 
   bool HasValidOrigin();
   bool HasValidBounds();
-  void UpdateBounds(const int level, const int id);
+  void UpdateBounds(int level, int id);
   void AllocateBoxes(unsigned int n);
   void GenerateBlockLevel();
   void CalculateParentChildRelationShip(unsigned int level,

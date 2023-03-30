@@ -196,7 +196,8 @@ public:
   std::vector<std::pair<vtkTypeUInt64, vtkTypeUInt64>> GetChunksToRead(
     vtkTypeUInt64 start, vtkTypeUInt64 length) const
   {
-    return this->GetChunksToRead(start, length, this->GetSubRecordSeparators(start, length));
+    return vtkMultiBlockPLOT3DReaderRecord::GetChunksToRead(
+      start, length, this->GetSubRecordSeparators(start, length));
   }
 };
 

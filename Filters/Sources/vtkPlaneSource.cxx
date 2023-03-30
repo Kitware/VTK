@@ -61,7 +61,7 @@ vtkPlaneSource::vtkPlaneSource()
 
 //------------------------------------------------------------------------------
 // Set the number of x-y subdivisions in the plane.
-void vtkPlaneSource::SetResolution(const int xR, const int yR)
+void vtkPlaneSource::SetResolution(int xR, int yR)
 {
   if (xR != this->XResolution || yR != this->YResolution)
   {

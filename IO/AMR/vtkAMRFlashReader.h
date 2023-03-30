@@ -62,7 +62,7 @@ protected:
   /**
    * See vtkAMRBaseReader::GetBlockLevel
    */
-  int GetBlockLevel(const int blockIdx) override;
+  int GetBlockLevel(int blockIdx) override;
 
   /**
    * See vtkAMRBaseReader::FillMetaData
@@ -72,17 +72,17 @@ protected:
   /**
    * See vtkAMRBaseReader::GetAMRGrid
    */
-  vtkUniformGrid* GetAMRGrid(const int blockIdx) override;
+  vtkUniformGrid* GetAMRGrid(int blockIdx) override;
 
   /**
    * See vtkAMRBaseReader::GetAMRGridData
    */
-  void GetAMRGridData(const int blockIdx, vtkUniformGrid* block, const char* field) override;
+  void GetAMRGridData(int blockIdx, vtkUniformGrid* block, const char* field) override;
 
   /**
    * See vtkAMRBaseReader::GetAMRGridData
    */
-  void GetAMRGridPointData(const int vtkNotUsed(blockIdx), vtkUniformGrid* vtkNotUsed(block),
+  void GetAMRGridPointData(int vtkNotUsed(blockIdx), vtkUniformGrid* vtkNotUsed(block),
     const char* vtkNotUsed(field)) override
   {
   }

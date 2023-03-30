@@ -382,7 +382,7 @@ void vtkPOpenFOAMReader::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //------------------------------------------------------------------------------
-void vtkPOpenFOAMReader::SetCaseType(const int t)
+void vtkPOpenFOAMReader::SetCaseType(int t)
 {
   if (this->CaseType != t)
   {

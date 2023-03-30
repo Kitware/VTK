@@ -209,7 +209,7 @@ public:
    *
    * For other IntersectWithLine signatures, see vtkAbstractCellLocator.
    */
-  int IntersectWithLine(const double p1[3], const double p2[3], const double tol, vtkPoints* points,
+  int IntersectWithLine(const double p1[3], const double p2[3], double tol, vtkPoints* points,
     vtkIdList* cellIds, vtkGenericCell* cell) override;
 
   /**
@@ -292,7 +292,7 @@ class BSPNode
 {
 public:
   // Constructor
-  BSPNode(void)
+  BSPNode()
   {
     mChild[0] = mChild[1] = mChild[2] = nullptr;
     for (int i = 0; i < 6; i++)
@@ -304,7 +304,7 @@ public:
     }
   }
   // Destructor
-  ~BSPNode(void)
+  ~BSPNode()
   {
     for (int i = 0; i < 3; i++)
       delete mChild[i];

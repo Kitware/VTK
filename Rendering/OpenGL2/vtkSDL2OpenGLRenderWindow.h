@@ -43,14 +43,14 @@ public:
    * should be possible to call them multiple times, even changing WindowId
    * in-between.  This is what WindowRemap does.
    */
-  void Initialize(void) override;
+  void Initialize() override;
 
   /**
    * Finalize the rendering window.  This will shutdown all system-specific
    * resources.  After having called this, it should be possible to destroy
    * a window that was used for a SetWindowId() call without any ill effects.
    */
-  void Finalize(void) override;
+  void Finalize() override;
 
   /**
    * Change the window to fill the entire screen.

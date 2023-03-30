@@ -103,7 +103,7 @@ void vtkAMRFlashReader::ReadMetaData()
 }
 
 //------------------------------------------------------------------------------
-int vtkAMRFlashReader::GetBlockLevel(const int blockIdx)
+int vtkAMRFlashReader::GetBlockLevel(int blockIdx)
 {
   assert("pre: Internal Flash Reader is nullptr" && (this->Internal != nullptr));
   if (!this->IsReady)
@@ -224,7 +224,7 @@ int vtkAMRFlashReader::FillMetaData()
 }
 
 //------------------------------------------------------------------------------
-vtkUniformGrid* vtkAMRFlashReader::GetAMRGrid(const int blockIdx)
+vtkUniformGrid* vtkAMRFlashReader::GetAMRGrid(int blockIdx)
 {
   if (!this->IsReady)
   {
@@ -252,7 +252,7 @@ vtkUniformGrid* vtkAMRFlashReader::GetAMRGrid(const int blockIdx)
 }
 
 //------------------------------------------------------------------------------
-void vtkAMRFlashReader::GetAMRGridData(const int blockIdx, vtkUniformGrid* block, const char* field)
+void vtkAMRFlashReader::GetAMRGridData(int blockIdx, vtkUniformGrid* block, const char* field)
 {
   assert("pre: AMR block is nullptr" && (block != nullptr));
   this->Internal->GetBlockAttribute(field, blockIdx, block);

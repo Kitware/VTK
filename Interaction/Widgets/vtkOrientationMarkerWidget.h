@@ -181,7 +181,7 @@ public:
    * Set/get whether the widget should constrain the size to be within the min and max limits.
    * Default is off (unconstrained).
    */
-  void SetShouldConstrainSize(const vtkTypeBool shouldConstrainSize);
+  void SetShouldConstrainSize(vtkTypeBool shouldConstrainSize);
   vtkGetMacro(ShouldConstrainSize, vtkTypeBool);
   ///@}
 
@@ -192,7 +192,7 @@ public:
    * Default is 20, 500.
    * Returns whether the sizes are valid and correctly set (true), or invalid (false).
    */
-  bool SetSizeConstraintDimensionSizes(const int minDimensionSize, const int maxDimensionSize);
+  bool SetSizeConstraintDimensionSizes(int minDimensionSize, int maxDimensionSize);
   ///@}
 
   ///@{

@@ -22,7 +22,7 @@ VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkGraphWeightEuclideanDistanceFilter);
 
 float vtkGraphWeightEuclideanDistanceFilter::ComputeWeight(
-  vtkGraph* const graph, const vtkEdgeType& edge) const
+  vtkGraph* graph, const vtkEdgeType& edge) const
 {
   double p1[3];
   graph->GetPoint(edge.Source, p1);
@@ -35,7 +35,7 @@ float vtkGraphWeightEuclideanDistanceFilter::ComputeWeight(
   return w;
 }
 
-bool vtkGraphWeightEuclideanDistanceFilter::CheckRequirements(vtkGraph* const graph) const
+bool vtkGraphWeightEuclideanDistanceFilter::CheckRequirements(vtkGraph* graph) const
 {
   vtkPoints* points = graph->GetPoints();
   if (!points)

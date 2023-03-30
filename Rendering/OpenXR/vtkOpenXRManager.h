@@ -323,7 +323,7 @@ public:
    *    using the PredictedDisplayTime
    *  - we can store its pose velocity if StorePoseVelocities is true.
    */
-  bool UpdateActionData(Action_t& action_t, const int hand);
+  bool UpdateActionData(Action_t& action_t, int hand);
   ///@}
 
   /**
@@ -331,8 +331,8 @@ public:
    * \p action to emit vibration on \p hand to emit on \p amplitude 0.0 to 1.0.
    * \p duration nanoseconds, default 25ms \p frequency (hz)
    */
-  bool ApplyVibration(const Action_t& actionT, const int hand, const float amplitude = 0.5f,
-    const float duration = 25000000.0f, const float frequency = XR_FREQUENCY_UNSPECIFIED);
+  bool ApplyVibration(const Action_t& actionT, int hand, float amplitude = 0.5f,
+    float duration = 25000000.0f, float frequency = XR_FREQUENCY_UNSPECIFIED);
 
   enum ControllerIndex
   {

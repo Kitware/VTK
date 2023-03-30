@@ -194,7 +194,7 @@ public:
    * xyz-coordinates. The xyz coordinates are stored in the user-supplied
    * array p.
    */
-  void GetPoint(const int i, const int j, const int k, double p[3]);
+  void GetPoint(int i, int j, int k, double p[3]);
 
   ///@{
   /**
@@ -316,7 +316,6 @@ protected:
 private:
   void Cleanup();
 
-private:
   vtkRectilinearGrid(const vtkRectilinearGrid&) = delete;
   void operator=(const vtkRectilinearGrid&) = delete;
 };

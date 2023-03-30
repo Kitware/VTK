@@ -117,7 +117,7 @@ public:
    * as a result of this, but no memory will be released. Existing data is preserved if the table is
    * expanding.
    */
-  void SetNumberOfRows(const vtkIdType);
+  void SetNumberOfRows(vtkIdType);
 
   /**
    * Release previously allocated and now unused memory after performing resizing operations.

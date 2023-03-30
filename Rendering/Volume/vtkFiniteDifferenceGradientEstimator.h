@@ -75,7 +75,7 @@ protected:
   /**
    * Recompute the encoded normals and gradient magnitudes.
    */
-  void UpdateNormals(void) override;
+  void UpdateNormals() override;
 
 private:
   vtkFiniteDifferenceGradientEstimator(const vtkFiniteDifferenceGradientEstimator&) = delete;

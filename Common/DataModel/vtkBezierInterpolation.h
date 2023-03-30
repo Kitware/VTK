@@ -44,17 +44,15 @@ public:
   // Elements https://scholar.colorado.edu/cgi/viewcontent.cgi?article=1170&context=mcen_gradetds
   // Chapter 3, pg 25. given a dimension ( 2 triangle, 3 tetrahedron ) and the degree of the
   // simplex flatten a simplicial bezier function's coordinate to an integer
-  static int FlattenSimplex(const int dim, const int deg, const vtkVector3i coord);
+  static int FlattenSimplex(int dim, int deg, vtkVector3i coord);
 
   // given a dimension ( 2 triangle, 3 tetrahedron ) and the degree of the simplex,
   // unflatten a simplicial bezier function integer to a simplicial coordinate
-  static vtkVector3i UnFlattenSimplex(const int dim, const int deg, const vtkIdType flat);
+  static vtkVector3i UnFlattenSimplex(int dim, int deg, vtkIdType flat);
 
   // simplicial version of deCasteljau
-  static void DeCasteljauSimplex(
-    const int dim, const int deg, const double* pcoords, double* weights);
-  static void DeCasteljauSimplexDeriv(
-    const int dim, const int deg, const double* pcoords, double* weights);
+  static void DeCasteljauSimplex(int dim, int deg, const double* pcoords, double* weights);
+  static void DeCasteljauSimplexDeriv(int dim, int deg, const double* pcoords, double* weights);
 
   static void EvaluateShapeFunctions(int order, double pcoord, double* shape);
   static void EvaluateShapeAndGradient(int order, double pcoord, double* shape, double* grad);
@@ -72,11 +70,11 @@ public:
     const double* fieldVals, int fieldDim, double* fieldDerivs) override;
 
   static void WedgeShapeFunctions(
-    const int order[3], const vtkIdType numberOfPoints, const double* pcoords, double* shape);
+    const int order[3], vtkIdType numberOfPoints, const double* pcoords, double* shape);
   static void WedgeShapeDerivatives(
-    const int order[3], const vtkIdType numberOfPoints, const double* pcoords, double* derivs);
+    const int order[3], vtkIdType numberOfPoints, const double* pcoords, double* derivs);
 
-  void WedgeEvaluate(const int order[3], const vtkIdType numberOfPoints, const double* pcoords,
+  void WedgeEvaluate(const int order[3], vtkIdType numberOfPoints, const double* pcoords,
     double* fieldVals, int fieldDim, double* fieldAtPCoords) override;
 
   void WedgeEvaluateDerivative(const int order[3], const double* pcoords, vtkPoints* points,

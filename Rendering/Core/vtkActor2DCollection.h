@@ -105,7 +105,6 @@ private:
   void AddItem(vtkProp* o) { this->vtkPropCollection::AddItem(o); }
   int IsItemPresent(vtkObject* o) { return this->vtkCollection::IsItemPresent(o); }
 
-private:
   vtkActor2DCollection(const vtkActor2DCollection&) = delete;
   void operator=(const vtkActor2DCollection&) = delete;
 };

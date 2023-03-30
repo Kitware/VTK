@@ -474,7 +474,7 @@ public:
   /**
    * Helper method for reading in data.
    */
-  char* LowerCase(char* str, const size_t len = 256);
+  char* LowerCase(char* str, size_t len = 256);
 
   /**
    * Return the istream being used to read in the data.

@@ -20,6 +20,7 @@
 #include <stdexcept>
 #include <tuple>
 #include <type_traits>
+#include <utility>
 
 VTK_ABI_NAMESPACE_BEGIN
 
@@ -84,7 +85,7 @@ struct vtkThreadedCallbackQueue::ReturnValueWrapper<ReturnT, false /* IsLValueRe
 
   ReturnValueWrapper() = default;
   template <class ReturnTT>
-  ReturnValueWrapper(ReturnTT&& value)
+  ReturnValueWrapper(ReturnTT&& value) // NOLINT(bugprone-forwarding-reference-overload)
     : Value(std::forward<ReturnTT>(value))
   {
   }
@@ -500,7 +501,7 @@ void vtkThreadedCallbackQueue::HandleDependentInvoker(
   }
   else
   {
-    this->Invoke(std::move(invoker), lock);
+    this->Invoke(std::forward<InvokerT>(invoker), lock);
   }
 }
 

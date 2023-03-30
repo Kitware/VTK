@@ -41,7 +41,7 @@ public:
   /**
    * Initialize the event handler
    */
-  virtual void Initialize() override;
+  void Initialize() override;
 
   /**
    * Run the event loop and return. This is provided so that you can
@@ -55,7 +55,7 @@ public:
    * calls PostQuitMessage(0) to terminate the application. An application can Specify
    * ExitMethod for alternative behavior (i.e. suppression of keyboard exit)
    */
-  void TerminateApp(void) override;
+  void TerminateApp() override;
 
   /**
    * These methods correspond to the Exit, User and Pick

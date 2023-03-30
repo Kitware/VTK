@@ -142,7 +142,7 @@ protected:
   /**
    * Test if the internal cache requires an update.
    */
-  virtual bool CacheRequiresUpdate() override;
+  bool CacheRequiresUpdate() override;
 
   /**
    * Lookup Table for coloring points by scalar value

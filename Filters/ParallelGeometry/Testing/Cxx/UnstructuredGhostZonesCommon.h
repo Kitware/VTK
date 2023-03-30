@@ -39,10 +39,10 @@ struct global
   static vtkUnstructuredGrid* Grid;
 };
 
-int CheckGrid(vtkUnstructuredGrid* ghostGrid, const int iteration);
+int CheckGrid(vtkUnstructuredGrid* ghostGrid, int iteration);
 
 //------------------------------------------------------------------------------
-void UpdateGrid(const int iteration);
+void UpdateGrid(int iteration);
 
 //------------------------------------------------------------------------------
 void SetXYZCellField();
@@ -54,7 +54,7 @@ void SetXYZNodeField();
 void WriteDataSet(vtkUnstructuredGrid* grid, const std::string& file);
 
 //------------------------------------------------------------------------------
-void GetPoint(const int i, const int j, const int k, double pnt[3]);
+void GetPoint(int i, int j, int k, double pnt[3]);
 
 void GenerateDataSet();
 
