@@ -311,13 +311,11 @@
         - pip install wheel
         - python setup.py bdist_wheel
         - python "$env:GIT_CLONE_PATH\.gitlab\ci\create_wheel_sdk_archive.py"
-        # XXX(delvewheel): It is finding 32bit Visual Studio libraries and
-        # bailing instead of continuing to search for 64bit versions of the
-        # DLL.
-        # See https://github.com/adang1345/delvewheel/issues/12
-        # - pip install delvewheel
-        # - delvewheel show (Get-ChildItem dist\*.whl | % FullName) | Out-File -FilePath "$env:GIT_CLONE_PATH\wheel_output.log"
-        # - delvewheel repair (Get-ChildItem dist\*.whl | % FullName) | Out-File -Append -FilePath "$env:GIT_CLONE_PATH\wheel_output.log"
+        - pip install delvewheel
+        - delvewheel show (Get-ChildItem dist\*.whl | % FullName) | Out-File -FilePath "$env:GIT_CLONE_PATH\wheel_output.log"
+        - delvewheel repair (Get-ChildItem dist\*.whl | % FullName) | Out-File -Append -FilePath "$env:GIT_CLONE_PATH\wheel_output.log"
+        - Rename-Item -Path dist -NewName dist-orig
+        - Rename-Item -Path wheelhouse -NewName dist
         - cd ..
         - .gitlab\ci\check_warnings.ps1 -BuildPath . # This will call exit in case of warnings
     interruptible: true
