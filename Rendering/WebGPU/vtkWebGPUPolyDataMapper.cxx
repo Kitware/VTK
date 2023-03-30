@@ -27,13 +27,6 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkProperty.h"
-#include "vtkRenderWindow.h"
-#include "vtkRenderer.h"
-#include "vtkSetGet.h"
-#include "vtkType.h"
-#include "vtkTypeFloat32Array.h"
-#include "vtkTypeUInt32Array.h"
-#include "vtkUnsignedCharArray.h"
 #include "vtkWGPUContext.h"
 #include "vtkWebGPUActor.h"
 #include "vtkWebGPUCamera.h"
@@ -89,43 +82,51 @@ void vtkWebGPUPolyDataMapper::RenderPiece(vtkRenderer* renderer, vtkActor* actor
   {
     case RenderType::UpdateBuffers:
     {
+      // update (i.e, create and write) GPU buffers if the data is outdated.
+      bool buffersRecreated = false;
+      buffersRecreated |= this->UpdateMeshGeometryBuffers(device, actor);
+      buffersRecreated |= this->UpdateMeshIndexBuffers(device);
+      // setup pipeline
       if (!this->InitializedPipeline)
       {
         this->SetupPipelineLayout(device, renderer, actor);
         this->SetupGraphicsPipeline(device, renderer, actor);
         this->InitializedPipeline = true;
       }
-      this->UpdateMeshGeometryBuffers(device, actor);
-      this->UpdateMeshIndexBuffers(device);
-      this->SetupBindGroups(device, renderer);
+      // bind groups must be recreated if any of the buffers at the bindpoints were recreated.
+      if (buffersRecreated)
+      {
+        this->SetupBindGroups(device, renderer);
+      }
+      // any previously built command buffer is no longer valid, since bind groups were re-created
+      wgpuActor->SetMapperRenderPipelineOutdated(buffersRecreated);
       break;
     }
     case RenderType::RenderPassEncode:
-    {
-      this->EncodeRenderCommands(renderer, actor);
-    }
+      this->EncodeRenderCommands(renderer, actor, wgpuRenderer->GetRenderPassEncoder());
+      break;
+    case RenderType::RenderBundleEncode:
+      this->EncodeRenderCommands(renderer, actor, wgpuActor->GetRenderBundleEncoder());
+      break;
     case RenderType::None:
     default:
       break;
   }
 }
 
-void vtkWebGPUPolyDataMapper::EncodeRenderCommands(vtkRenderer* renderer, vtkActor* actor)
+//------------------------------------------------------------------------------
+void vtkWebGPUPolyDataMapper::EncodeRenderCommands(
+  vtkRenderer* renderer, vtkActor* actor, const wgpu::RenderPassEncoder& passEncoder)
 {
-  auto wgpuRenderer = reinterpret_cast<vtkWebGPURenderer*>(renderer);
-
-  wgpu::RenderPassEncoder passEncoder = wgpuRenderer->GetRenderPassEncoder();
-  passEncoder.PushDebugGroup("vtkWebGPUPolyDataMapper::EncodeRenderCommands");
   passEncoder.SetBindGroup(2, this->MeshAttributeBindGroup);
 
+  uint32_t vcFactor[3] = { 1, 1, 1 };
+  uint32_t instanceCount[3] = { 1, 1, 1 };
+  const int representation = actor->GetProperty()->GetRepresentation();
+  switch (representation)
   {
-    uint32_t vcFactor[3] = { 1, 1, 1 };
-    uint32_t instanceCount[3] = { 1, 1, 1 };
-    const int representation = actor->GetProperty()->GetRepresentation();
-    switch (representation)
-    {
-      case VTK_POINTS:
-        // clang-format off
+    case VTK_POINTS:
+      // clang-format off
       vcFactor[0] = 6; // A VTK_POINT is represented as a point using 2 triangles.
       vcFactor[1] = 6; // A VTK_LINE is represented as 2 vertices using 2 triangles for each vertex of the line, overall 2*2=4 triangles are used
       vcFactor[2] = 6; // A VTK_TRIANGLE is represented as 3 vertces using 2 triangles for each vertex of the triangle, overall 3*2=6 triangles are used.
@@ -143,44 +144,119 @@ void vtkWebGPUPolyDataMapper::EncodeRenderCommands(vtkRenderer* renderer, vtkAct
       instanceCount[1] = 2 * vtkMath::Ceil(actor->GetProperty()->GetLineWidth());
       vcFactor[2] = 1; // A VTK_TRIANGLE is represented as a surface using 1 triangle.
       break;
-        // clang-format on
-    }
-    if (this->PointPrimitiveBGInfo.PipelineID != wgpuRenderer->GetCurrentPipelineID() &&
-      this->PointPrimitiveBGInfo.VertexCount > 0)
-    {
+      // clang-format on
+  }
+  if (this->PointPrimitiveBGInfo.Pipeline.Get() != nullptr &&
+    this->PointPrimitiveBGInfo.VertexCount > 0)
+  {
 #ifndef NDEBUG
-      passEncoder.PushDebugGroup("VTK_POINT");
+    passEncoder.PushDebugGroup("VTK_POINT");
 #endif
-      passEncoder.SetBindGroup(3, this->PointPrimitiveBGInfo.BindGroup);
-      passEncoder.Draw(this->PointPrimitiveBGInfo.VertexCount * vcFactor[0], instanceCount[0]);
+    passEncoder.SetPipeline(this->PointPrimitiveBGInfo.Pipeline);
+    passEncoder.SetBindGroup(3, this->PointPrimitiveBGInfo.BindGroup);
+    passEncoder.Draw(this->PointPrimitiveBGInfo.VertexCount * vcFactor[0], instanceCount[0]);
 #ifndef NDEBUG
-      passEncoder.PopDebugGroup();
+    passEncoder.PopDebugGroup();
 #endif
-    }
-    else if (this->LinePrimitiveBGInfo.PipelineID != wgpuRenderer->GetCurrentPipelineID() &&
-      this->LinePrimitiveBGInfo.VertexCount > 0)
-    {
+  }
+  else if (this->LinePrimitiveBGInfo.Pipeline.Get() != nullptr &&
+    this->LinePrimitiveBGInfo.VertexCount > 0)
+  {
 #ifndef NDEBUG
-      passEncoder.PushDebugGroup("VTK_LINE");
+    passEncoder.PushDebugGroup("VTK_LINE");
 #endif
-      passEncoder.SetBindGroup(3, this->LinePrimitiveBGInfo.BindGroup);
-      passEncoder.Draw(this->LinePrimitiveBGInfo.VertexCount * vcFactor[1], instanceCount[1]);
+    passEncoder.SetPipeline(this->LinePrimitiveBGInfo.Pipeline);
+    passEncoder.SetBindGroup(3, this->LinePrimitiveBGInfo.BindGroup);
+    passEncoder.Draw(this->LinePrimitiveBGInfo.VertexCount * vcFactor[1], instanceCount[1]);
 #ifndef NDEBUG
-      passEncoder.PopDebugGroup();
+    passEncoder.PopDebugGroup();
 #endif
-    }
-    else if (this->TrianglePrimitiveBGInfo.PipelineID != wgpuRenderer->GetCurrentPipelineID() &&
-      this->TrianglePrimitiveBGInfo.VertexCount > 0)
-    {
+  }
+  else if (this->TrianglePrimitiveBGInfo.Pipeline.Get() != nullptr &&
+    this->TrianglePrimitiveBGInfo.VertexCount > 0)
+  {
 #ifndef NDEBUG
-      passEncoder.PushDebugGroup("VTK_TRIANGLE");
+    passEncoder.PushDebugGroup("VTK_TRIANGLE");
 #endif
-      passEncoder.SetBindGroup(3, this->TrianglePrimitiveBGInfo.BindGroup);
-      passEncoder.Draw(this->TrianglePrimitiveBGInfo.VertexCount * vcFactor[2], instanceCount[2]);
+    passEncoder.SetPipeline(this->TrianglePrimitiveBGInfo.Pipeline);
+    passEncoder.SetBindGroup(3, this->TrianglePrimitiveBGInfo.BindGroup);
+    passEncoder.Draw(this->TrianglePrimitiveBGInfo.VertexCount * vcFactor[2], instanceCount[2]);
 #ifndef NDEBUG
-      passEncoder.PopDebugGroup();
+    passEncoder.PopDebugGroup();
 #endif
-    }
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPUPolyDataMapper::EncodeRenderCommands(
+  vtkRenderer* renderer, vtkActor* actor, const wgpu::RenderBundleEncoder& bundleEncoder)
+{
+  bundleEncoder.SetBindGroup(2, this->MeshAttributeBindGroup);
+
+  uint32_t vcFactor[3] = { 1, 1, 1 };
+  uint32_t instanceCount[3] = { 1, 1, 1 };
+  const int representation = actor->GetProperty()->GetRepresentation();
+  switch (representation)
+  {
+    case VTK_POINTS:
+      // clang-format off
+      vcFactor[0] = 6; // A VTK_POINT is represented as a point using 2 triangles.
+      vcFactor[1] = 6; // A VTK_LINE is represented as 2 vertices using 2 triangles for each vertex of the line, overall 2*2=4 triangles are used
+      vcFactor[2] = 6; // A VTK_TRIANGLE is represented as 3 vertces using 2 triangles for each vertex of the triangle, overall 3*2=6 triangles are used.
+      break;
+    case VTK_WIREFRAME:
+      vcFactor[0] = 0; // A VTK_POINT cannot be represented as a wireframe!
+      vcFactor[1] = 1; // A VTK_LINE is represented with wireframe using 1 line and some number of instances.
+      instanceCount[1] = 2 * vtkMath::Ceil(actor->GetProperty()->GetLineWidth());
+      vcFactor[2] = 1; // A VTK_TRIANGLE is represented with wireframe using 1 triangle without the interior region. shader discards interior fragments.
+      break;
+    case VTK_SURFACE:
+    default:
+      vcFactor[0] = 6; // A VTK_POINT is represented as a surface using 2 triangles.
+      vcFactor[1] = 1; // A VTK_LINE is represented with wireframe using 1 line and some number of instances.
+      instanceCount[1] = 2 * vtkMath::Ceil(actor->GetProperty()->GetLineWidth());
+      vcFactor[2] = 1; // A VTK_TRIANGLE is represented as a surface using 1 triangle.
+      break;
+      // clang-format on
+  }
+  if (this->PointPrimitiveBGInfo.Pipeline.Get() != nullptr &&
+    this->PointPrimitiveBGInfo.VertexCount > 0)
+  {
+#ifndef NDEBUG
+    bundleEncoder.PushDebugGroup("VTK_POINT");
+#endif
+    bundleEncoder.SetPipeline(this->PointPrimitiveBGInfo.Pipeline);
+    bundleEncoder.SetBindGroup(3, this->PointPrimitiveBGInfo.BindGroup);
+    bundleEncoder.Draw(this->PointPrimitiveBGInfo.VertexCount * vcFactor[0], instanceCount[0]);
+#ifndef NDEBUG
+    bundleEncoder.PopDebugGroup();
+#endif
+  }
+  else if (this->LinePrimitiveBGInfo.Pipeline.Get() != nullptr &&
+    this->LinePrimitiveBGInfo.VertexCount > 0)
+  {
+#ifndef NDEBUG
+    bundleEncoder.PushDebugGroup("VTK_LINE");
+#endif
+    bundleEncoder.SetPipeline(this->LinePrimitiveBGInfo.Pipeline);
+    bundleEncoder.SetBindGroup(3, this->LinePrimitiveBGInfo.BindGroup);
+    bundleEncoder.Draw(this->LinePrimitiveBGInfo.VertexCount * vcFactor[1], instanceCount[1]);
+#ifndef NDEBUG
+    bundleEncoder.PopDebugGroup();
+#endif
+  }
+  else if (this->TrianglePrimitiveBGInfo.Pipeline.Get() != nullptr &&
+    this->TrianglePrimitiveBGInfo.VertexCount > 0)
+  {
+#ifndef NDEBUG
+    bundleEncoder.PushDebugGroup("VTK_TRIANGLE");
+#endif
+    bundleEncoder.SetPipeline(this->TrianglePrimitiveBGInfo.Pipeline);
+    bundleEncoder.SetBindGroup(3, this->TrianglePrimitiveBGInfo.BindGroup);
+    bundleEncoder.Draw(this->TrianglePrimitiveBGInfo.VertexCount * vcFactor[2], instanceCount[2]);
+#ifndef NDEBUG
+    bundleEncoder.PopDebugGroup();
+#endif
   }
 }
 
@@ -890,11 +966,14 @@ bool vtkWebGPUPolyDataMapper::UpdateMeshIndexBuffers(const wgpu::Device& device)
 void vtkWebGPUPolyDataMapper::SetupGraphicsPipeline(
   const wgpu::Device& device, vtkRenderer* renderer, vtkActor* actor)
 {
-  // build shaders if needed.
-  wgpu::ShaderModule shaderModule =
-    vtkWebGPUInternalsShaderModule::CreateFromWGSL(device, PolyData);
   auto wgpuRenWin = vtkWebGPURenderWindow::SafeDownCast(renderer->GetRenderWindow());
   auto wgpuRenderer = reinterpret_cast<vtkWebGPURenderer*>(renderer);
+  // build shaders if needed.
+  wgpu::ShaderModule shaderModule;
+  if (!(shaderModule = wgpuRenderer->HasShaderCache(PolyData)))
+  {
+    shaderModule = vtkWebGPUInternalsShaderModule::CreateFromWGSL(device, PolyData);
+  }
 
   vtkWebGPUInternalsRenderPipelineDescriptor descriptor;
   descriptor.layout = this->PipelineLayout;
@@ -912,28 +991,25 @@ void vtkWebGPUPolyDataMapper::SetupGraphicsPipeline(
   const int representation = actor->GetProperty()->GetRepresentation();
   const std::string reprAsStr = actor->GetProperty()->GetRepresentationAsString();
   ///@}
-  // create pipeline for VTK_POINT primitive
+  if (this->PointPrimitiveBGInfo.VertexCount > 0)
   {
     std::string info = "primitive=VTK_POINT;representation=" + reprAsStr;
     descriptor.primitive.topology = wgpu::PrimitiveTopology::TriangleList;
-    this->PointPrimitiveBGInfo.PipelineID =
-      wgpuRenderer->InsertRenderPipeline(this, actor, descriptor, info);
+    this->PointPrimitiveBGInfo.Pipeline = device.CreateRenderPipeline(&descriptor);
   }
-  // create pipeline for VTK_LINE primitive
+  if (this->LinePrimitiveBGInfo.VertexCount > 0)
   {
     std::string info = "primitive=VTK_LINE;representation=" + reprAsStr;
     descriptor.primitive.topology = representation == VTK_POINTS
       ? wgpu::PrimitiveTopology::TriangleList
       : wgpu::PrimitiveTopology::LineList;
-    this->LinePrimitiveBGInfo.PipelineID =
-      wgpuRenderer->InsertRenderPipeline(this, actor, descriptor, info);
+    this->LinePrimitiveBGInfo.Pipeline = device.CreateRenderPipeline(&descriptor);
   }
-  // create pipeline for VTK_TRIANGLE primitive
+  if (this->TrianglePrimitiveBGInfo.VertexCount > 0)
   {
     std::string info = "primitive=VTK_TRIANGLE;representation=" + reprAsStr;
     descriptor.primitive.topology = wgpu::PrimitiveTopology::TriangleList;
-    this->TrianglePrimitiveBGInfo.PipelineID =
-      wgpuRenderer->InsertRenderPipeline(this, actor, descriptor, info);
+    this->TrianglePrimitiveBGInfo.Pipeline = device.CreateRenderPipeline(&descriptor);
   }
 }
 

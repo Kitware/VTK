@@ -14,6 +14,7 @@
 =========================================================================*/
 
 #include "vtkWebGPUActor.h"
+
 #include "vtkMapper.h"
 #include "vtkMatrix3x3.h"
 #include "vtkObjectFactory.h"
@@ -49,7 +50,7 @@ int vtkWebGPUActor::Update(vtkRenderer* ren, vtkMapper* mapper)
   this->CurrentMapperRenderType = MapperRenderType::UpdateBuffers;
   mapper->Render(ren, this);
   this->CurrentMapperRenderType = MapperRenderType::None;
-  return 1;
+  return this->MapperRenderPipelineOutdated;
 }
 
 //------------------------------------------------------------------------------
@@ -72,6 +73,49 @@ void vtkWebGPUActor::Render(vtkRenderer* ren, vtkMapper* mapper)
   passEncoder.PopDebugGroup();
 #endif
   this->CurrentMapperRenderType = MapperRenderType::None;
+}
+
+//------------------------------------------------------------------------------
+wgpu::RenderBundle vtkWebGPUActor::RenderToBundle(vtkRenderer* ren, vtkMapper* mapper)
+{
+  auto wgpuRenderer = reinterpret_cast<vtkWebGPURenderer*>(ren);
+  auto wgpuRenWin = reinterpret_cast<vtkWebGPURenderWindow*>(wgpuRenderer->GetRenderWindow());
+  auto sceneBindGroup = wgpuRenderer->GetSceneBindGroup();
+  auto actorBindGroup = wgpuRenderer->GetActorBindGroup();
+
+  {
+    const auto colorFormat = wgpuRenWin->GetPreferredSwapChainTextureFormat();
+    const int sampleCount = wgpuRenWin->GetMultiSamples() ? wgpuRenWin->GetMultiSamples() : 1;
+
+    wgpu::RenderBundleEncoderDescriptor bundleEncDesc;
+    bundleEncDesc.colorFormatsCount = 1;
+    bundleEncDesc.colorFormats = &colorFormat;
+    bundleEncDesc.depthStencilFormat = wgpuRenWin->GetDepthStencilFormat();
+    bundleEncDesc.sampleCount = sampleCount;
+    bundleEncDesc.depthReadOnly = false;
+    bundleEncDesc.stencilReadOnly = false;
+    bundleEncDesc.label = "Render bundle for vtkWebGPUActor";
+    bundleEncDesc.nextInChain = nullptr;
+    this->CurrentBundler = wgpuRenWin->NewRenderBundleEncoder(bundleEncDesc);
+  }
+
+  this->CurrentBundler.SetBindGroup(0, sceneBindGroup);
+  this->CurrentBundler.SetBindGroup(1, actorBindGroup,
+    /*dynamicOffsetCount=*/this->DynamicOffsets->GetNumberOfValues(),
+    /*dynamicOffsets=*/this->DynamicOffsets->GetPointer(0));
+#ifndef NDEBUG
+  this->CurrentBundler.PushDebugGroup("vtkWebGPUActor::Render");
+#endif
+  this->CurrentMapperRenderType = MapperRenderType::RenderBundleEncode;
+  mapper->Render(ren, this);
+#ifndef NDEBUG
+  this->CurrentBundler.PopDebugGroup();
+#endif
+  this->CurrentMapperRenderType = MapperRenderType::None;
+
+  auto bundle = this->CurrentBundler.Finish();
+  this->CurrentBundler.Release();
+  return bundle;
 }
 
 //------------------------------------------------------------------------------

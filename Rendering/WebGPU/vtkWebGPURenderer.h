@@ -89,13 +89,8 @@ public:
     layouts.emplace_back(this->ActorBindGroupLayout);
   }
 
-  bool HasRenderPipeline(vtkAbstractMapper* mapper, const std::string& additionalInfo = "");
-
-  std::size_t InsertRenderPipeline(vtkAbstractMapper* mapper, vtkProp* prop,
-    const wgpu::RenderPipelineDescriptor& pipelineDescriptor,
-    const std::string& additionalInfo = "");
-
-  std::size_t GetCurrentPipelineID() { return this->CurrentPipelineID; }
+  wgpu::ShaderModule HasShaderCache(const std::string& source);
+  void InsertShader(const std::string& source, wgpu::ShaderModule shader);
 
   ///@{
   /**
@@ -104,6 +99,16 @@ public:
    */
   void SetUserLightTransform(vtkTransform* transform);
   vtkTransform* GetUserLightTransform();
+  ///@}
+
+  ///@{
+  /**
+   * Set the usage of render bundles. This speeds up rendering in wasm.
+   * @warning LEAKS MEMORY. See vtkWebGPURenderer::DeviceRender
+   */
+  vtkSetMacro(UseRenderBundles, bool);
+  vtkBooleanMacro(UseRenderBundles, bool);
+  vtkGetMacro(UseRenderBundles, bool);
   ///@}
 
 protected:
@@ -153,6 +158,13 @@ protected:
   wgpu::BindGroup ActorBindGroup;
   wgpu::BindGroupLayout ActorBindGroupLayout;
 
+  bool UseRenderBundles = false;
+  // one bundle per actor. bundle gets reused every frame.
+  // these bundles can be built in parallel with vtkSMPTools. holding off because not
+  // sure how to get emscripten to thread.
+  std::vector<wgpu::RenderBundle> Bundles;
+  std::vector<int> ReBundleProps;
+  std::unordered_map<std::string, wgpu::ShaderModule> ShaderCache;
   std::size_t NumberOfPropsUpdated = 0;
   int LightingComplexity = 0;
   std::size_t NumberOfLightsUsed = 0;
@@ -160,6 +172,13 @@ protected:
 
   vtkMTimeType LightingUpdateTime;
   vtkTimeStamp LightingUploadTimestamp;
+
+  struct
+  {
+    uint32_t Hits = 0;
+    uint32_t Misses = 0;
+    uint32_t TotalRequests = 0;
+  } BundleCacheStats;
 
   /**
    * Optional user transform for lights

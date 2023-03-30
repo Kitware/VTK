@@ -41,6 +41,7 @@ public:
    * Actual actor render method.
    */
   void Render(vtkRenderer* ren, vtkMapper* mapper) override;
+  wgpu::RenderBundle RenderToBundle(vtkRenderer* ren, vtkMapper* mapper);
 
   /**
    * Request mapper to run the vtkAlgorithm pipeline (if needed)
@@ -67,7 +68,8 @@ public:
   {
     None,
     UpdateBuffers,
-    RenderPassEncode
+    RenderPassEncode,
+    RenderBundleEncode
   };
 
   // mapper figures this out when updating mesh geometry.
@@ -95,7 +97,13 @@ public:
 
   void SetShadingType(ShadingTypeEnum shadeType);
   void SetDirectionalMaskType(vtkTypeUInt32 directionalMask);
+  inline void SetMapperRenderPipelineOutdated(bool value)
+  {
+    this->MapperRenderPipelineOutdated = value;
+  }
+
   inline MapperRenderType GetMapperRenderType() { return this->CurrentMapperRenderType; }
+  inline wgpu::RenderBundleEncoder GetRenderBundleEncoder() { return this->CurrentBundler; }
   inline void SetDynamicOffsets(vtkTypeUInt32Array* offsets) { this->DynamicOffsets = offsets; }
 
 protected:
@@ -171,6 +179,8 @@ protected:
   vtkTimeStamp ShadingOptionsBuildTimestamp;
   vtkTimeStamp RenderOptionsBuildTimestamp;
 
+  bool MapperRenderPipelineOutdated = false;
+  wgpu::RenderBundleEncoder CurrentBundler;
   vtkSmartPointer<vtkTypeUInt32Array> DynamicOffsets;
 
 private:

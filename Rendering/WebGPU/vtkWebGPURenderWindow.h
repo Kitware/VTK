@@ -159,10 +159,17 @@ public:
    */
   void ReleaseGraphicsResources(vtkWindow*) override;
 
-  inline wgpu::RenderPassEncoder NewRenderPass(wgpu::RenderPassDescriptor& rpassDescriptor)
+  inline wgpu::RenderPassEncoder NewRenderPass(wgpu::RenderPassDescriptor& descriptor)
   {
-    return this->CommandEncoder.BeginRenderPass(&rpassDescriptor);
+    return this->CommandEncoder.BeginRenderPass(&descriptor);
   }
+
+  inline wgpu::RenderBundleEncoder NewRenderBundleEncoder(
+    wgpu::RenderBundleEncoderDescriptor& descriptor)
+  {
+    return this->Device.CreateRenderBundleEncoder(&descriptor);
+  }
+
   inline wgpu::CommandEncoder GetCommandEncoder() { return this->CommandEncoder; }
   inline wgpu::TextureView GetOffscreenColorAttachmentView() { return this->ColorAttachment.View; }
   inline wgpu::TextureView GetDepthStencilView() { return this->DepthStencil.View; }

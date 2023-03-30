@@ -35,7 +35,10 @@ public:
    * Implemented by sub classes. Actual rendering is done here.
    */
   void RenderPiece(vtkRenderer* ren, vtkActor* act) override;
-  void EncodeRenderCommands(vtkRenderer* renderer, vtkActor* act);
+  void EncodeRenderCommands(
+    vtkRenderer* renderer, vtkActor* act, const wgpu::RenderPassEncoder& passEncoder);
+  void EncodeRenderCommands(
+    vtkRenderer* renderer, vtkActor* act, const wgpu::RenderBundleEncoder& bundleEncoder);
 
   /**
    * Release any graphics resources that are being consumed by this mapper.
@@ -207,8 +210,8 @@ protected:
     wgpu::Buffer Buffer;
     // 1 bind group for the primitive size uniform.
     wgpu::BindGroup BindGroup;
-    // each primitive-type gets a pipeline, pipelines may be shared.
-    std::size_t PipelineID;
+    // each primitive-type gets a pipeline.
+    wgpu::RenderPipeline Pipeline;
     // vertexCount for draw call.
     vtkTypeUInt32 VertexCount = 0;
   };

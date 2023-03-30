@@ -218,21 +218,46 @@ void vtkWebGPURenderer::DeviceRender()
   this->BeginEncoding(); // all pipelines execute in single render pass, for now.
   this->ActiveCamera->UpdateViewport(this);
 
-  auto wgpuCamera = vtkWebGPUCamera::SafeDownCast(this->ActiveCamera);
-  assert(wgpuCamera != nullptr);
-
-  this->SetupBindGroups(); // provides shader modules with scene transform and lights.
-  this->UpdateGeometry();  // mappers prepare geometry SSBO and pipeline layout.
-  this->BeginEncoding();   // all pipelines execute in single render pass, for now.
-  this->WGPURenderEncoder.SetBindGroup(0, this->SceneBindGroup);
-  wgpuCamera->UpdateViewport(this, this->WGPURenderEncoder);
-  // encode draw commands for each unique pipeline.
-  for (this->CurrentPipelineID = 0; this->CurrentPipelineID < this->RenderPipelineBatches.size();
-       ++this->CurrentPipelineID)
+  ///@{ FIXME: Leaks memory when we recreate them.
+  if (this->PropArrayCount != this->Bundles.size())
   {
-    const auto& batch = this->RenderPipelineBatches[this->CurrentPipelineID];
-    this->WGPURenderEncoder.SetPipeline(batch.Pipeline);
+    // FIXME: Re-use bundles that don't need to be re-built.
+    this->Bundles.clear();
+    // All props must re-bundle their commands.
+    std::fill(this->ReBundleProps.begin(), this->ReBundleProps.end(), 1);
+  }
+  ///@}
+
+  if (!this->UseRenderBundles)
+  {
+    this->WGPURenderEncoder.SetBindGroup(0, this->SceneBindGroup);
     this->RenderGeometry();
+  }
+  else
+  {
+    this->BundleCacheStats.TotalRequests = 0;
+    this->BundleCacheStats.Hits = 0;
+    this->BundleCacheStats.Misses = 0;
+    if (this->Bundles.empty())
+    {
+      this->Bundles.resize(this->ReBundleProps.size());
+      this->RenderGeometry();
+    }
+    else
+    {
+      this->RenderGeometry();
+    }
+    vtkDebugMacro(<< "Bundle cache summary:\n"
+                  << "Total requests: " << this->BundleCacheStats.TotalRequests << "\n"
+                  << "Hit ratio: "
+                  << (this->BundleCacheStats.Hits / this->BundleCacheStats.TotalRequests) * 100
+                  << "%\n"
+                  << "Miss ratio: "
+                  << (this->BundleCacheStats.Misses / this->BundleCacheStats.TotalRequests) * 100
+                  << "%\n"
+                  << "Hit: " << this->BundleCacheStats.Hits << "\n"
+                  << "Miss: " << this->BundleCacheStats.Misses << "\n");
+    this->WGPURenderEncoder.ExecuteBundles(this->Bundles.size(), this->Bundles.data());
   }
   this->EndEncoding();
 }
@@ -266,6 +291,7 @@ int vtkWebGPURenderer::UpdateGeometry(vtkFrameBufferObjectBase* fbo /*=nullptr*/
   {
     return 0;
   }
+  this->ReBundleProps.resize(this->PropArrayCount, 0);
   return this->UpdateOpaquePolygonalGeometry();
 }
 
@@ -279,6 +305,7 @@ int vtkWebGPURenderer::UpdateOpaquePolygonalGeometry()
     wgpuActor->CacheActorRenderOptions();
     wgpuActor->CacheActorShadeOptions();
     wgpuActor->CacheActorTransforms();
+    this->ReBundleProps[i] = wgpuActor->Update(this, wgpuActor->GetMapper());
   }
   this->NumberOfPropsUpdated += result;
   return result;
@@ -296,10 +323,30 @@ void vtkWebGPURenderer::DeviceRenderOpaqueGeometry(vtkFrameBufferObjectBase* vtk
 
   for (int i = 0; i < this->PropArrayCount; i++)
   {
-    auto wgpuActor = reinterpret_cast<vtkWebGPUActor*>(this->PropArray[i]);
-    offsets->SetValue(0, i * uboOffset);
-    wgpuActor->SetDynamicOffsets(offsets);
-    wgpuActor->Render(this, wgpuActor->GetMapper());
+    if (this->UseRenderBundles)
+    {
+      this->BundleCacheStats.TotalRequests++;
+      if (this->ReBundleProps[i])
+      {
+        auto wgpuActor = reinterpret_cast<vtkWebGPUActor*>(this->PropArray[i]);
+        offsets->SetValue(0, i * uboOffset);
+        wgpuActor->SetDynamicOffsets(offsets);
+        this->Bundles[i] = wgpuActor->RenderToBundle(this, wgpuActor->GetMapper());
+        this->BundleCacheStats.Misses++;
+      }
+      else
+      {
+        // do nothing. reuse bundle for this prop.
+        this->BundleCacheStats.Hits++;
+      }
+    }
+    else
+    {
+      auto wgpuActor = reinterpret_cast<vtkWebGPUActor*>(this->PropArray[i]);
+      offsets->SetValue(0, i * uboOffset);
+      wgpuActor->SetDynamicOffsets(offsets);
+      wgpuActor->Render(this, wgpuActor->GetMapper());
+    }
     result += 1;
   }
   this->NumberOfPropsRendered += result;
@@ -424,7 +471,10 @@ vtkTransform* vtkWebGPURenderer::GetUserLightTransform()
 void vtkWebGPURenderer::SetEnvironmentTexture(vtkTexture* texture, bool isSRGB /*=false*/) {}
 
 //------------------------------------------------------------------------------
-void vtkWebGPURenderer::ReleaseGraphicsResources(vtkWindow* w) {}
+void vtkWebGPURenderer::ReleaseGraphicsResources(vtkWindow* w)
+{
+  this->Bundles.clear();
+}
 
 //------------------------------------------------------------------------------
 void vtkWebGPURenderer::BeginEncoding()
@@ -520,49 +570,15 @@ void vtkWebGPURenderer::EndEncoding()
 }
 
 //------------------------------------------------------------------------------
-bool vtkWebGPURenderer::HasRenderPipeline(
-  vtkAbstractMapper* mapper, const std::string& additionalInfo /*=""*/)
+wgpu::ShaderModule vtkWebGPURenderer::HasShaderCache(const std::string& source)
 {
-  const std::string key = mapper->GetClassName() + additionalInfo;
-  return this->MapperPipelineTable.count(key) > 0;
+  return this->ShaderCache.count(source) > 0 ? this->ShaderCache.at(source) : nullptr;
 }
 
 //------------------------------------------------------------------------------
-std::size_t vtkWebGPURenderer::InsertRenderPipeline(vtkAbstractMapper* mapper, vtkProp* prop,
-  const wgpu::RenderPipelineDescriptor& pipelineDescriptor,
-  const std::string& additionalInfo /*=""*/)
+void vtkWebGPURenderer::InsertShader(const std::string& source, wgpu::ShaderModule shader)
 {
-  const std::string key = mapper->GetClassName() + additionalInfo;
-  auto iter = this->MapperPipelineTable.find(key);
-  if (iter != this->MapperPipelineTable.end())
-  {
-    // reuse cached pipeline instance.
-    const auto& pipelineID = iter->second;
-    const auto& batch = this->RenderPipelineBatches[pipelineID];
-    // add prop to pipeline's collection of props.
-    batch.Props->AddItem(prop);
-    vtkDebugMacro(<< "Using cached pipeline (" << pipelineID << ") for key - " << key
-                  << ", batch_size=" << batch.Props->GetNumberOfItems());
-    return pipelineID;
-  }
-  else
-  {
-    auto wgpuRenWin = vtkWebGPURenderWindow::SafeDownCast(this->GetRenderWindow());
-    const wgpu::Device device = wgpuRenWin->GetDevice();
-    // create a new render pipeline.
-    RenderPipelineBatch batch;
-    batch.Pipeline = device.CreateRenderPipeline(&pipelineDescriptor);
-    batch.Props = vtk::TakeSmartPointer(vtkPropCollection::New());
-    // add prop to pipeline's collection of props.
-    batch.Props->AddItem(prop);
-    this->RenderPipelineBatches.emplace_back(batch);
-    // keep track of pipelineID in the mapper pipeline table.
-    const auto& pipelineID = this->RenderPipelineBatches.size() - 1;
-    this->MapperPipelineTable.emplace(key, pipelineID);
-    vtkDebugMacro(<< "Inserted new render pipeline batch (" << this->RenderPipelineBatches.size()
-                  << ") for key - " << key << ", batch_size=" << batch.Props->GetNumberOfItems());
-    return pipelineID;
-  }
+  this->ShaderCache.emplace(source, shader);
 }
 
 VTK_ABI_NAMESPACE_END
