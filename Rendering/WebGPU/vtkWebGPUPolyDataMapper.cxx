@@ -548,6 +548,15 @@ bool vtkWebGPUPolyDataMapper::UpdateMeshGeometryBuffers(const wgpu::Device& devi
   vtkDataArray* tangents = pointData->GetTangents();
   vtkDataArray* uvs = pointData->GetTCoords();
 
+  if (this->MeshSSBO.Point.Buffer.Get() != nullptr)
+  {
+    this->MeshSSBO.Point.Buffer.Destroy();
+  }
+  if (this->MeshSSBO.Cell.Buffer.Get() != nullptr)
+  {
+    this->MeshSSBO.Cell.Buffer.Destroy();
+  }
+
   wgpu::BufferDescriptor pointBufDescriptor;
   pointBufDescriptor.size = this->GetExactPointBufferSize();
   pointBufDescriptor.label = "Upload point buffer";
@@ -562,7 +571,8 @@ bool vtkWebGPUPolyDataMapper::UpdateMeshGeometryBuffers(const wgpu::Device& devi
   using DispatchT = vtkArrayDispatch::DispatchByValueType<vtkArrayDispatch::AllTypes>;
 
   meshAttrDescriptor.Positions.Start = 0;
-  void* mapped = this->MeshSSBO.Point.Buffer.GetMappedRange(f32Writer.Offset, WGPU_WHOLE_MAP_SIZE);
+  void* mapped =
+    this->MeshSSBO.Point.Buffer.GetMappedRange(f32Writer.Offset, pointBufDescriptor.size);
   assert(mapped != nullptr);
   f32Writer.Dst = mapped;
   if (!DispatchT::Execute(points, f32Writer))
@@ -624,9 +634,9 @@ bool vtkWebGPUPolyDataMapper::UpdateMeshGeometryBuffers(const wgpu::Device& devi
     vtkDebugMacro(<< "[UVs] "
                   << "+ " << f32Writer.Offset << " bytes ");
   }
-  this->MeshSSBO.Point.Buffer.Unmap();
-  f32Writer.Dst = nullptr;
   mapped = nullptr;
+  f32Writer.Dst = nullptr;
+  this->MeshSSBO.Point.Buffer.Unmap();
 
   wgpu::BufferDescriptor cellBufDescriptor;
   cellBufDescriptor.size = this->GetExactCellBufferSize();
@@ -644,8 +654,7 @@ bool vtkWebGPUPolyDataMapper::UpdateMeshGeometryBuffers(const wgpu::Device& devi
   vtkDataArray* cellNormals = this->HasCellNormals ? cellData->GetNormals() : nullptr;
 
   meshAttrDescriptor.CellEdgeArray.Start = f32Writer.Offset / sizeof(vtkTypeFloat32);
-  mapped = this->MeshSSBO.Cell.Buffer.GetMappedRange(
-    f32Writer.Offset, this->EdgeArrayCount * sizeof(vtkTypeFloat32));
+  mapped = this->MeshSSBO.Cell.Buffer.GetMappedRange(f32Writer.Offset, cellBufDescriptor.size);
   assert(mapped != nullptr);
   // edge array
   auto polysIter = vtk::TakeSmartPointer(this->CurrentInput->GetPolys()->NewIterator());
@@ -708,7 +717,7 @@ bool vtkWebGPUPolyDataMapper::UpdateMeshGeometryBuffers(const wgpu::Device& devi
   {
     dirMask = DMEnum::NoNormals;
   }
-  wgpuActor->SetDirectionalMaskType(static_cast<DMEnum>(dirMask), device);
+  wgpuActor->SetDirectionalMaskType(dirMask);
 
   this->PointCellAttributesBuildTimestamp.Modified();
   vtkDebugMacro(<< __func__ << " bufferModifiedTime=" << this->PointCellAttributesBuildTimestamp);
@@ -734,6 +743,10 @@ bool vtkWebGPUPolyDataMapper::UpdateMeshIndexBuffers(const wgpu::Device& device)
     vtkCellArray* verts = this->CurrentInput->GetVerts();
     if (verts->GetNumberOfCells() > 0)
     {
+      if (this->PointPrimitiveBGInfo.Buffer.Get() != nullptr)
+      {
+        this->PointPrimitiveBGInfo.Buffer.Destroy();
+      }
       // point primitives.
       wgpu::BufferDescriptor topoBufDescriptor;
       topoBufDescriptor.size = sizes[0];
@@ -764,6 +777,10 @@ bool vtkWebGPUPolyDataMapper::UpdateMeshIndexBuffers(const wgpu::Device& device)
     vtkCellArray* lines = this->CurrentInput->GetLines();
     if (lines->GetNumberOfCells() > 0)
     {
+      if (this->LinePrimitiveBGInfo.Buffer.Get() != nullptr)
+      {
+        this->LinePrimitiveBGInfo.Buffer.Destroy();
+      }
       // line primitives.
       wgpu::BufferDescriptor topoBufDescriptor;
       topoBufDescriptor.size = sizes[1];
@@ -798,6 +815,10 @@ bool vtkWebGPUPolyDataMapper::UpdateMeshIndexBuffers(const wgpu::Device& device)
     vtkCellArray* strips = this->CurrentInput->GetStrips();
     if (polys->GetNumberOfCells() + strips->GetNumberOfCells() > 0)
     {
+      if (this->TrianglePrimitiveBGInfo.Buffer.Get() != nullptr)
+      {
+        this->TrianglePrimitiveBGInfo.Buffer.Destroy();
+      }
       // triangle primitives.
       wgpu::BufferDescriptor topoBufDescriptor;
       topoBufDescriptor.size = sizes[2];
