@@ -73,6 +73,7 @@ int TestAttributeDataToTableFilter(int vtkNotUsed(argc), char* vtkNotUsed(argv)[
 
   int errors = 0;
   toTable->SetInputData(pd);
+  toTable->SetGenerateCellConnectivity(true);
   for (int type = 0; type < 3; type++)
   {
     cerr << "Converting ";
