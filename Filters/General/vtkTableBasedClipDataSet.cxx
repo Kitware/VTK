@@ -382,32 +382,35 @@ struct EvaluatePointsWithImplicitFunction
 
   void operator()(vtkIdType beginPointId, vtkIdType endPointId)
   {
-    const auto& points = vtk::DataArrayTupleRange<3>(this->Points, beginPointId, endPointId);
-    auto pointsMap = vtk::DataArrayValueRange<1>(this->PointsMap, beginPointId, endPointId);
-    auto clipArray = vtk::DataArrayValueRange<1>(this->ClipArray, beginPointId, endPointId);
+    const auto& points = vtk::DataArrayTupleRange<3>(this->Points);
+    auto pointsMap = vtk::DataArrayValueRange<1>(this->PointsMap);
+    auto clipArray = vtk::DataArrayValueRange<1>(this->ClipArray);
 
     double pointCopy[3];
-    auto clipArrayIter = clipArray.begin();
-    auto pointsMapIter = pointsMap.begin();
     bool isFirst = vtkSMPTools::GetSingleThread();
-    for (const auto& point : points)
+    const auto checkAbortInterval = std::min((endPointId - beginPointId) / 10 + 1, (vtkIdType)1000);
+    for (vtkIdType pointId = beginPointId; pointId < endPointId; ++pointId)
     {
-      if (isFirst)
+      if (pointId % checkAbortInterval == 0)
       {
-        this->Filter->CheckAbort();
+        if (isFirst)
+        {
+          this->Filter->CheckAbort();
+        }
+        if (this->Filter->GetAbortOutput())
+        {
+          break;
+        }
       }
-      if (this->Filter->GetAbortOutput())
-      {
-        break;
-      }
+      const auto& point = points[pointId];
       pointCopy[0] = point[0];
       pointCopy[1] = point[1];
       pointCopy[2] = point[2];
 
       // Outside points are marked with number < 0.
-      *clipArrayIter = this->ImplicitFunction->FunctionValue(pointCopy);
-      *pointsMapIter++ = this->InsideOut ? (*clipArrayIter++ - this->IsoValue >= 0.0 ? -1 : 1)
-                                         : (*clipArrayIter++ - this->IsoValue >= 0.0 ? 1 : -1);
+      clipArray[pointId] = this->ImplicitFunction->FunctionValue(pointCopy);
+      pointsMap[pointId] = this->InsideOut ? (clipArray[pointId] - this->IsoValue >= 0.0 ? -1 : 1)
+                                           : (clipArray[pointId] - this->IsoValue >= 0.0 ? 1 : -1);
     }
   }
 
@@ -454,25 +457,27 @@ struct EvaluatePointsWithScalarArray
 
   void operator()(vtkIdType beginPointId, vtkIdType endPointId)
   {
-    const auto& scalars = vtk::DataArrayValueRange<1>(this->Scalars, beginPointId, endPointId);
-    auto pointsMap = vtk::DataArrayValueRange<1>(this->PointsMap, beginPointId, endPointId);
+    const auto& scalars = vtk::DataArrayValueRange<1>(this->Scalars);
+    auto pointsMap = vtk::DataArrayValueRange<1>(this->PointsMap);
 
     bool isFirst = vtkSMPTools::GetSingleThread();
-
-    auto pointsMapIter = pointsMap.begin();
-    for (const auto& scalar : scalars)
+    const auto checkAbortInterval = std::min((endPointId - beginPointId) / 10 + 1, (vtkIdType)1000);
+    for (vtkIdType pointId = beginPointId; pointId < endPointId; ++pointId)
     {
-      if (isFirst)
+      if (pointId % checkAbortInterval == 0)
       {
-        this->Filter->CheckAbort();
-      }
-      if (this->Filter->GetAbortOutput())
-      {
-        break;
+        if (isFirst)
+        {
+          this->Filter->CheckAbort();
+        }
+        if (this->Filter->GetAbortOutput())
+        {
+          break;
+        }
       }
       // Outside points are marked with number < 0.
-      *pointsMapIter++ = this->InsideOut ? (scalar - this->IsoValue >= 0.0 ? -1 : 1)
-                                         : (scalar - this->IsoValue >= 0.0 ? 1 : -1);
+      pointsMap[pointId] = this->InsideOut ? (scalars[pointId] - this->IsoValue >= 0.0 ? -1 : 1)
+                                           : (scalars[pointId] - this->IsoValue >= 0.0 ? 1 : -1);
     }
   }
 
@@ -668,15 +673,20 @@ struct EvaluateCellsUnstructured
       batch.EndCellId =
         (batch.BeginCellId + batchSize > this->NumberOfInputCells ? this->NumberOfInputCells
                                                                   : batch.BeginCellId + batchSize);
+      const auto checkAbortInterval =
+        std::min((batch.EndCellId - batch.BeginCellId) / 10 + 1, (vtkIdType)1000);
       for (cellId = batch.BeginCellId; cellId < batch.EndCellId; ++cellId)
       {
-        if (isFirst)
+        if (cellId % checkAbortInterval == 0)
         {
-          this->Filter->CheckAbort();
-        }
-        if (this->Filter->GetAbortOutput())
-        {
-          break;
+          if (isFirst)
+          {
+            this->Filter->CheckAbort();
+          }
+          if (this->Filter->GetAbortOutput())
+          {
+            break;
+          }
         }
         cellType = this->Input->GetCellType(cellId);
         this->Input->GetCellPoints(cellId, numberOfPoints, pointIndices, idList);
@@ -1132,15 +1142,20 @@ struct EvaluateCellsStructured
       batch.EndCellId =
         (batch.BeginCellId + batchSize > this->NumberOfInputCells ? this->NumberOfInputCells
                                                                   : batch.BeginCellId + batchSize);
+      const auto checkAbortInterval =
+        std::min((batch.EndCellId - batch.BeginCellId) / 10 + 1, (vtkIdType)1000);
       for (cellId = batch.BeginCellId; cellId < batch.EndCellId; ++cellId)
       {
-        if (isFirst)
+        if (cellId % checkAbortInterval == 0)
         {
-          this->Filter->CheckAbort();
-        }
-        if (this->Filter->GetAbortOutput())
-        {
-          break;
+          if (isFirst)
+          {
+            this->Filter->CheckAbort();
+          }
+          if (this->Filter->GetAbortOutput())
+          {
+            break;
+          }
         }
         theCellI = (this->CellDims[0] > 0 ? cellId % this->CellDims[0] : 0);
         theCellJ = (this->CellDims[1] > 0 ? (cellId / this->CyStride) % this->CellDims[1] : 0);
@@ -1521,15 +1536,20 @@ struct ExtractCellsUnstructured
       offset = batch.BeginCellsConnectivity;
       outputCentroidId = batch.BeginCentroid;
 
+      const auto checkAbortInterval =
+        std::min((batch.EndCellId - batch.BeginCellId) / 10 + 1, (vtkIdType)1000);
       for (cellId = batch.BeginCellId; cellId < batch.EndCellId; ++cellId)
       {
-        if (isFirst)
+        if (cellId % checkAbortInterval == 0)
         {
-          this->Filter->CheckAbort();
-        }
-        if (this->Filter->GetAbortOutput())
-        {
-          break;
+          if (isFirst)
+          {
+            this->Filter->CheckAbort();
+          }
+          if (this->Filter->GetAbortOutput())
+          {
+            break;
+          }
         }
         // process cells that has output cells (either itself or at least because it's clipped)
         const auto& caseIndex = cellsCase[cellId];
@@ -1976,15 +1996,20 @@ struct ExtractCellsStructured
       offset = batch.BeginCellsConnectivity;
       outputCentroidId = batch.BeginCentroid;
 
+      const auto checkAbortInterval =
+        std::min((batch.EndCellId - batch.BeginCellId) / 10 + 1, (vtkIdType)1000);
       for (cellId = batch.BeginCellId; cellId < batch.EndCellId; ++cellId)
       {
-        if (isFirst)
+        if (cellId % checkAbortInterval == 0)
         {
-          this->Filter->CheckAbort();
-        }
-        if (this->Filter->GetAbortOutput())
-        {
-          break;
+          if (isFirst)
+          {
+            this->Filter->CheckAbort();
+          }
+          if (this->Filter->GetAbortOutput())
+          {
+            break;
+          }
         }
         // process cells that has output cells (either itself or at least because it's clipped)
         const auto& caseIndex = cellsCase[cellId];
@@ -2243,15 +2268,20 @@ struct ExtractPointsWorker
 
       TInputIdType keptPointId;
       bool isFirst = vtkSMPTools::GetSingleThread();
+      const auto checkAbortInterval =
+        std::min((endPointId - beginPointId) / 10 + 1, (vtkIdType)1000);
       for (vtkIdType pointId = beginPointId; pointId < endPointId; ++pointId)
       {
-        if (isFirst)
+        if (pointId % checkAbortInterval == 0)
         {
-          filter->CheckAbort();
-        }
-        if (filter->GetAbortOutput())
-        {
-          break;
+          if (isFirst)
+          {
+            filter->CheckAbort();
+          }
+          if (filter->GetAbortOutput())
+          {
+            break;
+          }
         }
         if (ptsMap[pointId] >= 0)
         {
@@ -2274,15 +2304,19 @@ struct ExtractPointsWorker
       vtkIdType outputMidEdgePointId;
 
       bool isFirst = vtkSMPTools::GetSingleThread();
+      const auto checkAbortInterval = std::min((endEdgeId - beginEdgeId) / 10 + 1, (vtkIdType)1000);
       for (vtkIdType edgeId = beginEdgeId; edgeId < endEdgeId; ++edgeId)
       {
-        if (isFirst)
+        if (edgeId % checkAbortInterval == 0)
         {
-          filter->CheckAbort();
-        }
-        if (filter->GetAbortOutput())
-        {
-          break;
+          if (isFirst)
+          {
+            filter->CheckAbort();
+          }
+          if (filter->GetAbortOutput())
+          {
+            break;
+          }
         }
         const TEdge& edge = edges[edgeId];
         const auto edgePoint1 = inPts[edge.V0];
@@ -2309,15 +2343,20 @@ struct ExtractPointsWorker
       uint8_t i;
 
       bool isFirst = vtkSMPTools::GetSingleThread();
+      const auto checkAbortInterval =
+        std::min((endCentroid - beginCentroid) / 10 + 1, (vtkIdType)1000);
       for (vtkIdType centroidId = beginCentroid; centroidId < endCentroid; ++centroidId)
       {
-        if (isFirst)
+        if (centroidId % checkAbortInterval == 0)
         {
-          filter->CheckAbort();
-        }
-        if (filter->GetAbortOutput())
-        {
-          break;
+          if (isFirst)
+          {
+            filter->CheckAbort();
+          }
+          if (filter->GetAbortOutput())
+          {
+            break;
+          }
         }
         const Centroid& centroid = centroids[centroidId];
         outputCentroidPointId = numberOfKeptPoints + numberOfEdges + centroidId;
