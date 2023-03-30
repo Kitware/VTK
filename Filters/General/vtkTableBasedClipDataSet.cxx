@@ -341,7 +341,7 @@ namespace // begin anonymous namespace
 //    and calculate numberOfKeptPoints, pointsMap, clipArray.
 //    1) Step 1 can be executed either with an implicit function or with scalars
 // 2) Evaluate the input cells and calculate connectivitySize, numberOfOutputCells
-//    numberOfCentroids, batchInfo, cellsMap, edges
+//    numberOfCentroids, batchInfo, cellsCase, edges
 // 3) Extract cells and calculate centroids, types, cell array, cell data
 // 4) Extract points and point data
 
@@ -584,7 +584,7 @@ using EdgeLocatorType = vtkStaticEdgeLocatorTemplate<TInputIdType, double>;
 
 //-----------------------------------------------------------------------------
 // Evaluate unstructured cells and calculate connectivitySize, numberOfOutputCells,
-// numberOfCentroids, batchInfo, cellsMap, edges
+// numberOfCentroids, batchInfo, cellsCase, edges
 template <typename TGrid, typename TInputIdType>
 struct EvaluateCellsUnstructured
 {
@@ -600,7 +600,7 @@ struct EvaluateCellsUnstructured
   vtkSMPThreadLocal<std::vector<TEdge>> TLEdges;
 
   TableBasedBatchInfo BatchInfo;
-  vtkSmartPointer<vtkUnsignedCharArray> CellsMap;
+  vtkSmartPointer<vtkUnsignedCharArray> CellsCase;
   std::vector<TEdge> Edges;
   vtkIdType ConnectivitySize;
   vtkIdType NumberOfOutputCells;
@@ -623,9 +623,9 @@ struct EvaluateCellsUnstructured
     this->BatchInfo.BatchSize = batchSize;
     size_t numberOfBatches = static_cast<size_t>(((this->NumberOfInputCells - 1) / batchSize) + 1);
     this->BatchInfo.Batches.resize(numberOfBatches);
-    // initialize cellsMap
-    this->CellsMap = vtkSmartPointer<vtkUnsignedCharArray>::New();
-    this->CellsMap->SetNumberOfValues(this->NumberOfInputCells);
+    // initialize cellsCase
+    this->CellsCase = vtkSmartPointer<vtkUnsignedCharArray>::New();
+    this->CellsCase->SetNumberOfValues(this->NumberOfInputCells);
     // build cells for polydata so that you can use GetCellPoints()
     vtkNew<vtkGenericCell> cell;
     this->Input->GetCell(0, cell);
@@ -644,7 +644,7 @@ struct EvaluateCellsUnstructured
     vtkIdList* idList = this->TLIdList.Local();
     auto& edges = this->TLEdges.Local();
     const auto& clipArray = vtk::DataArrayValueRange<1>(this->ClipArray);
-    auto cellsMap = vtk::DataArrayValueRange<1>(this->CellsMap);
+    auto cellsCase = vtk::DataArrayValueRange<1>(this->CellsCase);
     const vtkIdType* pointIndices;
     vtkIdType numberOfPoints, j, cellId, batchSize, numberOfCells, numberOfCentroids,
       cellsConnectivitySize;
@@ -911,7 +911,8 @@ struct EvaluateCellsUnstructured
         batch.NumberOfCells += numberOfCells;
         batch.NumberOfCentroids += numberOfCentroids;
         batch.CellsConnectivitySize += cellsConnectivitySize;
-        cellsMap[cellId] = numberOfCells > 0 ? 1 : 0;
+        cellsCase[cellId] = static_cast<unsigned char>(
+          this->InsideOut ? (numberOfCells == 0 ? 255 : caseIndex) : caseIndex);
       }
     }
   }
@@ -993,7 +994,7 @@ public:
 
 //-----------------------------------------------------------------------------
 // Evaluate structured cells and calculate connectivitySize, numberOfOutputCells,
-// numberOfCentroids, batchInfo, cellsMap, edges
+// numberOfCentroids, batchInfo, cellsCase, edges
 template <typename TGrid, typename TInputIdType>
 struct EvaluateCellsStructured
 {
@@ -1024,7 +1025,7 @@ struct EvaluateCellsStructured
   vtkSMPThreadLocal<std::vector<TEdge>> TLEdges;
 
   TableBasedBatchInfo BatchInfo;
-  vtkSmartPointer<vtkUnsignedCharArray> CellsMap;
+  vtkSmartPointer<vtkUnsignedCharArray> CellsCase;
   std::vector<TEdge> Edges;
   vtkIdType ConnectivitySize;
   vtkIdType NumberOfOutputCells;
@@ -1047,9 +1048,9 @@ struct EvaluateCellsStructured
     this->BatchInfo.BatchSize = batchSize;
     size_t numberOfBatches = static_cast<size_t>(((this->NumberOfInputCells - 1) / batchSize) + 1);
     this->BatchInfo.Batches.resize(numberOfBatches);
-    // initialize cellsMap
-    this->CellsMap = vtkSmartPointer<vtkUnsignedCharArray>::New();
-    this->CellsMap->SetNumberOfValues(this->NumberOfInputCells);
+    // initialize cellsCase
+    this->CellsCase = vtkSmartPointer<vtkUnsignedCharArray>::New();
+    this->CellsCase->SetNumberOfValues(this->NumberOfInputCells);
 
     int gridDims[3];
     this->Input->GetDimensions(gridDims);
@@ -1108,7 +1109,7 @@ struct EvaluateCellsStructured
   {
     auto& edges = this->TLEdges.Local();
     const auto& clipArray = vtk::DataArrayValueRange<1>(this->ClipArray);
-    auto cellsMap = vtk::DataArrayValueRange<1>(this->CellsMap);
+    auto cellsCase = vtk::DataArrayValueRange<1>(this->CellsCase);
     double grdDiffs[8], point1ToPoint2, point1ToIso, point1Weight;
     vtkIdType cellPointIndex, j, cellId, batchSize, numberOfCells, numberOfCentroids,
       cellsConnectivitySize;
@@ -1322,7 +1323,8 @@ struct EvaluateCellsStructured
         batch.NumberOfCells += numberOfCells;
         batch.NumberOfCentroids += numberOfCentroids;
         batch.CellsConnectivitySize += cellsConnectivitySize;
-        cellsMap[cellId] = numberOfCells > 0 ? 1 : 0;
+        cellsCase[cellId] = static_cast<unsigned char>(
+          this->InsideOut ? (numberOfCells == 0 ? 255 : caseIndex) : caseIndex);
       }
     }
   }
@@ -1427,11 +1429,9 @@ struct ExtractCellsUnstructured
   using TOutputIdTypeArray = vtkAOSDataArrayTemplate<TOutputIdType>;
 
   TGrid* Input;
-  vtkDoubleArray* ClipArray;
-  double IsoValue;
   bool InsideOut;
   vtkAOSDataArrayTemplate<TInputIdType>* PointsMap;
-  vtkUnsignedCharArray* CellsMap;
+  vtkUnsignedCharArray* CellsCase;
   const TableBasedBatchInfo& BatchInfo;
   ArrayList& CellDataArrays;
   const TEdgeLocator& EdgeLocator;
@@ -1452,18 +1452,16 @@ struct ExtractCellsUnstructured
   vtkSmartPointer<vtkUnsignedCharArray> OutputCellTypes;
   vtkSmartPointer<vtkCellArray> OutputCellArray;
 
-  ExtractCellsUnstructured(TGrid* input, vtkDoubleArray* clipArray, double isoValue, bool insideOut,
-    vtkAOSDataArrayTemplate<TInputIdType>* pointsMap, vtkUnsignedCharArray* cellsMap,
+  ExtractCellsUnstructured(TGrid* input, bool insideOut,
+    vtkAOSDataArrayTemplate<TInputIdType>* pointsMap, vtkUnsignedCharArray* cellsCase,
     const TableBasedBatchInfo& batchInfo, ArrayList& cellDataArrays,
     const TEdgeLocator& edgeLocator, vtkIdType connectivitySize, vtkIdType numberOfOutputCells,
     vtkIdType numberOfKeptPoints, vtkIdType numberOfEdges, vtkIdType numberOfCentroids,
     vtkTableBasedClipDataSet* filter)
     : Input(input)
-    , ClipArray(clipArray)
-    , IsoValue(isoValue)
     , InsideOut(insideOut)
     , PointsMap(pointsMap)
-    , CellsMap(cellsMap)
+    , CellsCase(cellsCase)
     , BatchInfo(batchInfo)
     , CellDataArrays(cellDataArrays)
     , EdgeLocator(edgeLocator)
@@ -1496,9 +1494,8 @@ struct ExtractCellsUnstructured
   void operator()(vtkIdType beginBatchId, vtkIdType endBatchId)
   {
     vtkIdList*& idList = this->TLIdList.Local();
-    const auto& clipArray = vtk::DataArrayValueRange<1>(this->ClipArray);
     const auto& pointsMap = vtk::DataArrayValueRange<1>(this->PointsMap);
-    const auto& cellsMap = vtk::DataArrayValueRange<1>(this->CellsMap);
+    const auto& cellsCase = vtk::DataArrayValueRange<1>(this->CellsCase);
     auto connectivity = vtk::DataArrayValueRange<1>(this->Connectivity);
     auto offsets = vtk::DataArrayValueRange<1>(this->Offsets);
     auto types = vtk::DataArrayValueRange<1>(this->OutputCellTypes);
@@ -1506,13 +1503,13 @@ struct ExtractCellsUnstructured
     vtkIdType numberOfPoints, j, outputCellId, offset, outputCentroidId, cellId;
     vtkIdType centroidIds[4], shapeIds[MAX_CELL_SIZE];
     TInputIdType pointIndex1, pointIndex2;
-    double grdDiffs[8];
-    int caseIndex, cellType;
+    int cellType;
     int16_t centroidIndex, color;
     uint16_t startIndex;
     uint8_t numberOfOutputs, shape, numberOfCellPoints, p, pointIndex, point1Index, point2Index;
     uint8_t* thisCase = nullptr;
     const EDGEIDXS* edgeVertices = nullptr;
+    bool keepCell;
 
     bool isFirst = vtkSMPTools::GetSingleThread();
 
@@ -1535,17 +1532,11 @@ struct ExtractCellsUnstructured
           break;
         }
         // process cells that has output cells (either itself or at least because it's clipped)
-        if (cellsMap[cellId] == 1)
+        const auto& caseIndex = cellsCase[cellId];
+        keepCell = this->InsideOut ? caseIndex != 255 : caseIndex != 0;
+        if (keepCell)
         {
           this->Input->GetCellPoints(cellId, numberOfPoints, pointIndices, idList);
-
-          caseIndex = 0;
-          for (j = numberOfPoints - 1; j >= 0; --j)
-          {
-            grdDiffs[j] = clipArray[pointIndices[j]] - this->IsoValue;
-            caseIndex += ((grdDiffs[j] >= 0.0) ? 1 : 0);
-            caseIndex <<= (1 - (!j));
-          }
 
           // start index, split case, number of output, and vertices from edges
           cellType = this->Input->GetCellType(cellId);
@@ -1839,11 +1830,9 @@ struct ExtractCellsStructured
   using TOutputIdTypeArray = vtkAOSDataArrayTemplate<TOutputIdType>;
 
   TGrid* Input;
-  vtkDoubleArray* ClipArray;
-  double IsoValue;
   bool InsideOut;
   vtkAOSDataArrayTemplate<TInputIdType>* PointsMap;
-  vtkUnsignedCharArray* CellsMap;
+  vtkUnsignedCharArray* CellsCase;
   const TableBasedBatchInfo& BatchInfo;
   ArrayList& CellDataArrays;
   const TEdgeLocator& EdgeLocator;
@@ -1878,18 +1867,16 @@ struct ExtractCellsStructured
   vtkSmartPointer<vtkUnsignedCharArray> OutputCellTypes;
   vtkSmartPointer<vtkCellArray> OutputCellArray;
 
-  ExtractCellsStructured(TGrid* input, vtkDoubleArray* clipArray, double isoValue, bool insideOut,
-    vtkAOSDataArrayTemplate<TInputIdType>* pointsMap, vtkUnsignedCharArray* cellsMap,
+  ExtractCellsStructured(TGrid* input, bool insideOut,
+    vtkAOSDataArrayTemplate<TInputIdType>* pointsMap, vtkUnsignedCharArray* cellsCase,
     const TableBasedBatchInfo& batchInfo, ArrayList& cellDataArrays,
     const TEdgeLocator& edgeLocator, vtkIdType connectivitySize, vtkIdType numberOfOutputCells,
     vtkIdType numberOfKeptPoints, vtkIdType numberOfEdges, vtkIdType numberOfCentroids,
     vtkTableBasedClipDataSet* filter)
     : Input(input)
-    , ClipArray(clipArray)
-    , IsoValue(isoValue)
     , InsideOut(insideOut)
     , PointsMap(pointsMap)
-    , CellsMap(cellsMap)
+    , CellsCase(cellsCase)
     , BatchInfo(batchInfo)
     , CellDataArrays(cellDataArrays)
     , EdgeLocator(edgeLocator)
@@ -1963,23 +1950,21 @@ struct ExtractCellsStructured
 
   void operator()(vtkIdType beginBatchId, vtkIdType endBatchId)
   {
-    const auto& clipArray = vtk::DataArrayValueRange<1>(this->ClipArray);
     const auto& pointsMap = vtk::DataArrayValueRange<1>(this->PointsMap);
-    const auto& cellsMap = vtk::DataArrayValueRange<1>(this->CellsMap);
+    const auto& cellsCase = vtk::DataArrayValueRange<1>(this->CellsCase);
     auto connectivity = vtk::DataArrayValueRange<1>(this->Connectivity);
     auto offsets = vtk::DataArrayValueRange<1>(this->Offsets);
     auto types = vtk::DataArrayValueRange<1>(this->OutputCellTypes);
-    vtkIdType cellPointIndex, j, outputCellId, offset, outputCentroidId, cellId;
+    vtkIdType j, outputCellId, offset, outputCentroidId, cellId;
     vtkIdType centroidIds[4], shapeIds[MAX_CELL_SIZE];
     TInputIdType pointIndex1, pointIndex2;
-    double grdDiffs[8];
-    int caseIndex, theCellI, theCellJ, theCellK;
+    int theCellI, theCellJ, theCellK;
     int16_t color, centroidIndex;
-    const int8_t numberOfPoints = this->IsTwoDim ? 4 : 8;
     uint16_t startIndex;
     uint8_t numberOfOutputs, shape, numberOfCellPoints, p, pointIndex, point1Index, point2Index;
     uint8_t* thisCase = nullptr;
     const EDGEIDXS* edgeVertices = nullptr;
+    bool keepCell;
 
     bool isFirst = vtkSMPTools::GetSingleThread();
 
@@ -2002,23 +1987,13 @@ struct ExtractCellsStructured
           break;
         }
         // process cells that has output cells (either itself or at least because it's clipped)
-        if (cellsMap[cellId] == 1)
+        const auto& caseIndex = cellsCase[cellId];
+        keepCell = this->InsideOut ? caseIndex != 255 : caseIndex != 0;
+        if (keepCell)
         {
           theCellI = (this->CellDims[0] > 0 ? cellId % this->CellDims[0] : 0);
           theCellJ = (this->CellDims[1] > 0 ? (cellId / this->CyStride) % this->CellDims[1] : 0);
           theCellK = (this->CellDims[2] > 0 ? (cellId / this->CzStride) : 0);
-
-          caseIndex = 0;
-          for (j = numberOfPoints - 1; j >= 0; --j)
-          {
-            cellPointIndex = (theCellI + this->ShiftLUT[0][j]) +
-              (theCellJ + this->ShiftLUT[1][j]) * this->PyStride +
-              (theCellK + this->ShiftLUT[2][j]) * this->PzStride;
-
-            grdDiffs[j] = clipArray[cellPointIndex] - this->IsoValue;
-            caseIndex += ((grdDiffs[j] >= 0.0) ? 1 : 0);
-            caseIndex <<= (1 - (!j));
-          }
 
           // start index, split case, number of output, and vertices from edges
           if (this->IsTwoDim)
@@ -2407,7 +2382,7 @@ vtkSmartPointer<vtkUnstructuredGrid> ClipUnstructuredData(TGrid* input, vtkPoint
   }
 
   // Evaluate cells and calculate connectivitySize, numberOfOutputCells, numberOfCentroids,
-  // batchInfo, cellsMap, edges
+  // batchInfo, cellsCase, edges
   using TEdge = EdgeType<TInputIdType>;
   EvaluateCellsUnstructured<TGrid, TInputIdType> evaluateCellsUnstructured(
     input, clipArray.Get(), isoValue, insideOut, batchSize, filter);
@@ -2416,7 +2391,7 @@ vtkSmartPointer<vtkUnstructuredGrid> ClipUnstructuredData(TGrid* input, vtkPoint
   const vtkIdType numberOfOutputCells = evaluateCellsUnstructured.NumberOfOutputCells;
   const vtkIdType numberOfCentroids = evaluateCellsUnstructured.NumberOfCentroids;
   const TableBasedBatchInfo& batchInfo = evaluateCellsUnstructured.BatchInfo;
-  vtkSmartPointer<vtkUnsignedCharArray> cellsMap = evaluateCellsUnstructured.CellsMap;
+  vtkSmartPointer<vtkUnsignedCharArray> cellsCase = evaluateCellsUnstructured.CellsCase;
   std::vector<TEdge> edges = std::move(evaluateCellsUnstructured.Edges);
 
   // Create Edge locator which will be used to define the connectivity of cells
@@ -2472,9 +2447,9 @@ vtkSmartPointer<vtkUnstructuredGrid> ClipUnstructuredData(TGrid* input, vtkPoint
     using TOutputIdType = vtkTypeInt64;
     // Extract cells and calculate centroids, types, cell array, cell data
     ExtractCellsUnstructured<TGrid, TInputIdType, TOutputIdType> extractCellsUnstructured(input,
-      clipArray, isoValue, insideOut, pointsMap.Get(), cellsMap.Get(), batchInfo, cellDataArrays,
-      edgeLocator, connectivitySize, numberOfOutputCells, numberOfKeptPoints, numberOfEdges,
-      numberOfCentroids, filter);
+      insideOut, pointsMap.Get(), cellsCase.Get(), batchInfo, cellDataArrays, edgeLocator,
+      connectivitySize, numberOfOutputCells, numberOfKeptPoints, numberOfEdges, numberOfCentroids,
+      filter);
     extractCellsUnstructured.Execute();
     centroids = std::move(extractCellsUnstructured.Centroids);
     outputCellTypes = extractCellsUnstructured.OutputCellTypes;
@@ -2486,9 +2461,9 @@ vtkSmartPointer<vtkUnstructuredGrid> ClipUnstructuredData(TGrid* input, vtkPoint
     using TOutputIdType = vtkTypeInt32;
     // Extract cells and calculate centroids, types, cell array, cell data
     ExtractCellsUnstructured<TGrid, TInputIdType, TOutputIdType> extractCellsUnstructured(input,
-      clipArray, isoValue, insideOut, pointsMap.Get(), cellsMap.Get(), batchInfo, cellDataArrays,
-      edgeLocator, connectivitySize, numberOfOutputCells, numberOfKeptPoints, numberOfEdges,
-      numberOfCentroids, filter);
+      insideOut, pointsMap.Get(), cellsCase.Get(), batchInfo, cellDataArrays, edgeLocator,
+      connectivitySize, numberOfOutputCells, numberOfKeptPoints, numberOfEdges, numberOfCentroids,
+      filter);
     extractCellsUnstructured.Execute();
     centroids = std::move(extractCellsUnstructured.Centroids);
     outputCellTypes = extractCellsUnstructured.OutputCellTypes;
@@ -2553,7 +2528,7 @@ vtkSmartPointer<vtkUnstructuredGrid> ClipStructuredData(TGrid* input, vtkPoints*
   }
 
   // Evaluate cells and calculate connectivitySize, numberOfOutputCells, numberOfCentroids,
-  // batchInfo, cellsMap, edges
+  // batchInfo, cellsCase, edges
   using TEdge = EdgeType<TInputIdType>;
   EvaluateCellsStructured<TGrid, TInputIdType> evaluateCellsStructured(
     input, clipArray.Get(), isoValue, insideOut, batchSize, filter);
@@ -2562,7 +2537,7 @@ vtkSmartPointer<vtkUnstructuredGrid> ClipStructuredData(TGrid* input, vtkPoints*
   const vtkIdType numberOfOutputCells = evaluateCellsStructured.NumberOfOutputCells;
   const vtkIdType numberOfCentroids = evaluateCellsStructured.NumberOfCentroids;
   const TableBasedBatchInfo& batchInfo = evaluateCellsStructured.BatchInfo;
-  vtkSmartPointer<vtkUnsignedCharArray> cellsMap = evaluateCellsStructured.CellsMap;
+  vtkSmartPointer<vtkUnsignedCharArray> cellsCase = evaluateCellsStructured.CellsCase;
   std::vector<TEdge> edges = std::move(evaluateCellsStructured.Edges);
 
   // Create Edge locator which will be used to define the connectivity of cells
@@ -2618,9 +2593,9 @@ vtkSmartPointer<vtkUnstructuredGrid> ClipStructuredData(TGrid* input, vtkPoints*
     using TOutputIdType = vtkTypeInt64;
     // Extract cells and calculate centroids, types, cell array, cell data
     ExtractCellsStructured<TGrid, TInputIdType, TOutputIdType> extractCellsStructured(input,
-      clipArray, isoValue, insideOut, pointsMap.Get(), cellsMap.Get(), batchInfo, cellDataArrays,
-      edgeLocator, connectivitySize, numberOfOutputCells, numberOfKeptPoints, numberOfEdges,
-      numberOfCentroids, filter);
+      insideOut, pointsMap.Get(), cellsCase.Get(), batchInfo, cellDataArrays, edgeLocator,
+      connectivitySize, numberOfOutputCells, numberOfKeptPoints, numberOfEdges, numberOfCentroids,
+      filter);
     extractCellsStructured.Execute();
     centroids = std::move(extractCellsStructured.Centroids);
     outputCellTypes = extractCellsStructured.OutputCellTypes;
@@ -2632,9 +2607,9 @@ vtkSmartPointer<vtkUnstructuredGrid> ClipStructuredData(TGrid* input, vtkPoints*
     using TOutputIdType = vtkTypeInt32;
     // Extract cells and calculate centroids, types, cell array, cell data
     ExtractCellsStructured<TGrid, TInputIdType, TOutputIdType> extractCellsStructured(input,
-      clipArray, isoValue, insideOut, pointsMap.Get(), cellsMap.Get(), batchInfo, cellDataArrays,
-      edgeLocator, connectivitySize, numberOfOutputCells, numberOfKeptPoints, numberOfEdges,
-      numberOfCentroids, filter);
+      insideOut, pointsMap.Get(), cellsCase.Get(), batchInfo, cellDataArrays, edgeLocator,
+      connectivitySize, numberOfOutputCells, numberOfKeptPoints, numberOfEdges, numberOfCentroids,
+      filter);
     extractCellsStructured.Execute();
     centroids = std::move(extractCellsStructured.Centroids);
     outputCellTypes = extractCellsStructured.OutputCellTypes;
