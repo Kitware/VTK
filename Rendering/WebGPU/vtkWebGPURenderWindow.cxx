@@ -413,13 +413,17 @@ void vtkWebGPURenderWindow::RenderOffscreenTexture()
   encoder.SetViewport(0, 0, this->SwapChain.Width, this->SwapChain.Height, 0.0, 1.0);
   encoder.SetScissorRect(0, 0, this->SwapChain.Width, this->SwapChain.Height);
   // set fsq pipeline
+#ifndef NDEBUG
   encoder.PushDebugGroup("FSQ Render");
+#endif
   encoder.SetPipeline(this->FSQ.Pipeline);
   // bind fsq group
   encoder.SetBindGroup(0, this->FSQ.BindGroup);
   // draw triangle strip
   encoder.Draw(4);
+#ifndef NDEBUG
   encoder.PopDebugGroup();
+#endif
   encoder.End();
 
   wgpu::Origin3D srcOrigin;
@@ -448,9 +452,13 @@ void vtkWebGPURenderWindow::RenderOffscreenTexture()
   copyDst.buffer = this->ColorAttachment.OffscreenBuffer;
   copyDst.layout = textureDataLayout;
 
+#ifndef NDEBUG
   this->CommandEncoder.PushDebugGroup("Copy color attachment to offscreen buffer");
+#endif
   this->CommandEncoder.CopyTextureToBuffer(&copySrc, &copyDst, &srcExtent);
+#ifndef NDEBUG
   this->CommandEncoder.PopDebugGroup();
+#endif
 }
 
 //------------------------------------------------------------------------------
@@ -555,10 +563,14 @@ void vtkWebGPURenderWindow::End()
     source.buffer = this->StagingPixelData.Buffer;
     source.layout = this->StagingPixelData.Layout;
     this->Start();
+#ifndef NDEBUG
     this->CommandEncoder.PushDebugGroup("Copy staging RGBA pixel buffer to texture");
+#endif
     this->CommandEncoder.CopyBufferToTexture(
       &source, &destination, &(this->StagingPixelData.Extent));
+#ifndef NDEBUG
     this->CommandEncoder.PopDebugGroup();
+#endif
   }
 }
 

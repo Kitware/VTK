@@ -78,8 +78,7 @@ static wgpu::Surface CreateSurface(const wgpu::ChainedStruct& surfaceDescriptor)
 //------------------------------------------------------------------------------
 static void WaitABit()
 {
-  // already handled?
-  return;
+  // not supported yet. emscripten suggests we `requestAnimationFrame`, doesn't seem to work.
 }
 
 }

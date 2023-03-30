@@ -64,7 +64,6 @@ wgpu::RenderPassEncoder vtkWebGPUClearPass::Begin(const vtkRenderState* state)
 void vtkWebGPUClearPass::Render(const vtkRenderState* state)
 {
   auto renderer = state->GetRenderer();
-  auto wgpuRenWin = vtkWebGPURenderWindow::SafeDownCast(state->GetRenderer()->GetRenderWindow());
   if (!state->IsValid())
   {
     return;

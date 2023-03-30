@@ -133,8 +133,7 @@ public:
    */
   int GetColorBufferSizes(int* rgba) override;
   /**
-   * Block the thread until the actual rendering is finished().
-   * Useful for measurement only.
+   * Block the thread until work queue completes all submitted work.
    */
   void WaitForCompletion() override;
 
