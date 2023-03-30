@@ -20,7 +20,6 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkMatrix4x4.h"             // for ivar
 #include "vtkNew.h"                   // for ivar
 #include "vtkRenderingWebGPUModule.h" // for export macro
-#include "vtk_wgpu.h"                 // for ivar
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkActor;
@@ -32,6 +31,10 @@ public:
   static vtkWebGPUCamera* New();
   vtkTypeMacro(vtkWebGPUCamera, vtkCamera);
   void PrintSelf(ostream& os, vtkIndent indent) override;
+
+  void CacheSceneTransforms(vtkRenderer* renderer);
+  inline void* GetCachedSceneTransforms() { return &(this->CachedSceneTransforms); }
+  static std::size_t GetCacheSizeBytes() { return sizeof(SceneTransforms); }
 
   /**
    * Implement base class method. This function does not actually 'render' anything.
@@ -46,10 +49,6 @@ public:
    * The WebGPU renderer will invoke this method prior to rendering it's props.
    */
   void UpdateViewport(vtkRenderer* renderer) override;
-  void UpdateViewport(vtkRenderer* renderer, wgpu::RenderPassEncoder rpassEncoder);
-
-  wgpu::Buffer GetSceneTransformBuffer() { return this->SceneTransformBuffer; }
-  void PopulateBindgroupLayouts(std::vector<wgpu::BindGroupLayout>& layouts);
 
 protected:
   vtkWebGPUCamera();
@@ -73,9 +72,7 @@ protected:
     // Clipped space -> Camera space
     vtkTypeFloat32 InvertedProjectionMatrix[4][4] = {};
   };
-  // a gpu buffer that holds the above information.
-  wgpu::Buffer SceneTransformBuffer;
-  void UpdateBuffers(vtkRenderer* renderer);
+  SceneTransforms CachedSceneTransforms;
 
 private:
   vtkWebGPUCamera(const vtkWebGPUCamera&) = delete;

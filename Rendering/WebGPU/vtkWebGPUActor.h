@@ -18,7 +18,8 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkActor.h"
 
 #include "vtkRenderingWebGPUModule.h" // for export macro
-#include "vtk_wgpu.h"                 // for webgpu
+#include "vtkTypeUInt32Array.h"       // for ivar
+#include "vtk_wgpu.h"                 // for return
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkMatrix3x3;
@@ -29,6 +30,12 @@ public:
   static vtkWebGPUActor* New();
   vtkTypeMacro(vtkWebGPUActor, vtkActor);
   void PrintSelf(ostream& os, vtkIndent indent) override;
+
+  void CacheActorTransforms();
+  void CacheActorRenderOptions();
+  void CacheActorShadeOptions();
+  inline const void* GetCachedActorInformation() { return &(this->CachedActorInfo); }
+  static std::size_t GetCacheSizeBytes() { return sizeof(ActorBlock); }
 
   /**
    * Actual actor render method.
@@ -68,7 +75,7 @@ public:
   // this variable is assigned a value of ShadingTypeEnum::Smooth.
   // if there are cell scalars and we're coloring by cell scalar mapped colors,
   // this variable is assigned a value of ShadingTypeEnum::Flat.
-  enum class ShadingTypeEnum : vtkTypeUInt32
+  enum ShadingTypeEnum : vtkTypeUInt32
   {
     Global = 0,
     Smooth,
@@ -85,6 +92,20 @@ public:
     PointTangents = 1 << 2,
     CellNormals = 1 << 3
   };
+
+  void SetShadingType(ShadingTypeEnum shadeType);
+  void SetDirectionalMaskType(vtkTypeUInt32 directionalMask);
+  inline MapperRenderType GetMapperRenderType() { return this->CurrentMapperRenderType; }
+  inline void SetDynamicOffsets(vtkTypeUInt32Array* offsets) { this->DynamicOffsets = offsets; }
+
+protected:
+  vtkWebGPUActor();
+  ~vtkWebGPUActor() override;
+
+  bool CachedMapperHasOpaqueGeometry = false;
+  bool CachedMapperHasTranslucentPolygonalGeometry = false;
+
+  MapperRenderType CurrentMapperRenderType = MapperRenderType::None;
 
   struct ActorBlock
   {
@@ -140,27 +161,6 @@ public:
     } ShadeOpts;
   };
 
-  void SetShadingType(ShadingTypeEnum shadeType, const wgpu::Device& device);
-  void SetDirectionalMaskType(vtkTypeUInt32 directionalMask, const wgpu::Device& device);
-  inline MapperRenderType GetMapperRenderType() { return this->CurrentMapperRenderType; }
-  inline void PopulateBindgroupLayouts(std::vector<wgpu::BindGroupLayout>& layouts)
-  {
-    layouts.emplace_back(this->ActorBindGroupLayout);
-  }
-
-protected:
-  vtkWebGPUActor();
-  ~vtkWebGPUActor() override;
-
-  void UploadActorTransforms(const wgpu::Device& device);
-  void UploadActorRenderOptions(const wgpu::Device& device);
-  void UploadActorShadeOptions(const wgpu::Device& device);
-
-  bool CachedMapperHasOpaqueGeometry = false;
-  bool CachedMapperHasTranslucentPolygonalGeometry = false;
-
-  MapperRenderType CurrentMapperRenderType = MapperRenderType::None;
-
   ActorBlock CachedActorInfo;
 
   vtkNew<vtkMatrix4x4> MCWCMatrix;
@@ -171,10 +171,7 @@ protected:
   vtkTimeStamp ShadingOptionsBuildTimestamp;
   vtkTimeStamp RenderOptionsBuildTimestamp;
 
-  wgpu::BindGroup ActorBindGroup;
-  wgpu::BindGroupLayout ActorBindGroupLayout;
-  // these buffers are available to the shader code of mappers who render through this actor.
-  wgpu::Buffer ActorBuffer;
+  vtkSmartPointer<vtkTypeUInt32Array> DynamicOffsets;
 
 private:
   vtkWebGPUActor(const vtkWebGPUActor&) = delete;

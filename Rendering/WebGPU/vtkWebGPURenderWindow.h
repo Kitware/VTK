@@ -163,6 +163,7 @@ public:
   {
     return this->CommandEncoder.BeginRenderPass(&rpassDescriptor);
   }
+  inline wgpu::CommandEncoder GetCommandEncoder() { return this->CommandEncoder; }
   inline wgpu::TextureView GetOffscreenColorAttachmentView() { return this->ColorAttachment.View; }
   inline wgpu::TextureView GetDepthStencilView() { return this->DepthStencil.View; }
   inline wgpu::TextureFormat GetDepthStencilFormat() { return this->DepthStencil.Format; }

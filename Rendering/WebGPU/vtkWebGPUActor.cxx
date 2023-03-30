@@ -20,17 +20,11 @@
 #include "vtkProperty.h"
 #include "vtkTexture.h"
 #include "vtkTransform.h"
-#include "vtkWebGPUInternalsBindGroup.h"
-#include "vtkWebGPUInternalsBindGroupLayout.h"
-#include "vtkWebGPUInternalsBuffer.h"
-#include "vtkWebGPUPolyDataMapper.h"
 #include "vtkWebGPURenderWindow.h"
 #include "vtkWebGPURenderer.h"
 #include "vtkWindow.h"
 
 #include <algorithm>
-#include <cstddef>     // for offsetof
-#include <type_traits> // for underlying_type
 
 VTK_ABI_NAMESPACE_BEGIN
 
@@ -49,36 +43,6 @@ void vtkWebGPUActor::PrintSelf(ostream& os, vtkIndent indent) {}
 //------------------------------------------------------------------------------
 int vtkWebGPUActor::Update(vtkRenderer* ren, vtkMapper* mapper)
 {
-  auto wgpuRenWin = reinterpret_cast<vtkWebGPURenderWindow*>(ren->GetRenderWindow());
-  const char* label = "ActorBuffer";
-  wgpu::Device device = wgpuRenWin->GetDevice();
-  if (this->ActorBuffer.Get() == nullptr)
-  {
-    // Create a blank buffer.
-    ActorBlock actorBlock;
-    this->ActorBuffer = vtkWebGPUInternalsBuffer::Upload(
-      device, 0, &actorBlock, sizeof(actorBlock), wgpu::BufferUsage::Uniform, label);
-    this->ActorBindGroupLayout = vtkWebGPUInternalsBindGroupLayout::MakeBindGroupLayout(device,
-      {
-        // clang-format off
-        // actor
-        { 0, wgpu::ShaderStage::Vertex | wgpu::ShaderStage::Fragment, wgpu::BufferBindingType::Uniform },
-        // clang-format on
-      });
-    this->ActorBindGroupLayout.SetLabel("ActorBindGroupLayout");
-    this->ActorBindGroup =
-      vtkWebGPUInternalsBindGroup::MakeBindGroup(device, this->ActorBindGroupLayout,
-        {
-          // clang-format off
-          { 0, this->ActorBuffer, 0}
-          // clang-format on
-        });
-    this->ActorBindGroup.SetLabel("ActorBindGroup");
-  }
-  this->UploadActorTransforms(device);
-  this->UploadActorRenderOptions(device);
-  this->UploadActorShadeOptions(device);
-
   // Enter the UpdateBuffers mapper render type.
   // WebGPU Mappers are required to query the current render type and
   // take necessary action.
@@ -91,12 +55,22 @@ int vtkWebGPUActor::Update(vtkRenderer* ren, vtkMapper* mapper)
 //------------------------------------------------------------------------------
 void vtkWebGPUActor::Render(vtkRenderer* ren, vtkMapper* mapper)
 {
-  auto passEncoder = reinterpret_cast<vtkWebGPURenderer*>(ren)->GetRenderPassEncoder();
+  auto wgpuRenderer = reinterpret_cast<vtkWebGPURenderer*>(ren);
+  auto passEncoder = wgpuRenderer->GetRenderPassEncoder();
+  auto bindGroup = wgpuRenderer->GetActorBindGroup();
+
+  passEncoder.SetBindGroup(1, bindGroup,
+    /*dynamicOffsetCount=*/this->DynamicOffsets->GetNumberOfValues(),
+    /*dynamicOffsets=*/this->DynamicOffsets->GetPointer(0));
+
+#ifndef NDEBUG
   passEncoder.PushDebugGroup("vtkWebGPUActor::Render");
-  passEncoder.SetBindGroup(1, this->ActorBindGroup);
+#endif
   this->CurrentMapperRenderType = MapperRenderType::RenderPassEncode;
   mapper->Render(ren, this);
+#ifndef NDEBUG
   passEncoder.PopDebugGroup();
+#endif
   this->CurrentMapperRenderType = MapperRenderType::None;
 }
 
@@ -195,25 +169,19 @@ bool vtkWebGPUActor::UpdateKeyMatrices()
 }
 
 //------------------------------------------------------------------------------
-void vtkWebGPUActor::SetShadingType(ShadingTypeEnum shadeType, const wgpu::Device& device)
+void vtkWebGPUActor::SetShadingType(ShadingTypeEnum shadeType)
 {
-  // upload
-  device.GetQueue().WriteBuffer(this->ActorBuffer,
-    offsetof(ActorBlock, ShadeOpts) + offsetof(ActorBlock::ShadeOptions, ShadingType), &shadeType,
-    sizeof(shadeType));
+  this->CachedActorInfo.ShadeOpts.ShadingType = shadeType;
 }
 
 //------------------------------------------------------------------------------
-void vtkWebGPUActor::SetDirectionalMaskType(
-  vtkTypeUInt32 directionalMask, const wgpu::Device& device)
+void vtkWebGPUActor::SetDirectionalMaskType(vtkTypeUInt32 directionalMask)
 {
-  device.GetQueue().WriteBuffer(this->ActorBuffer,
-    offsetof(ActorBlock, ShadeOpts) + offsetof(ActorBlock::ShadeOptions, DirectionalMaskType),
-    &directionalMask, sizeof(directionalMask));
+  this->CachedActorInfo.ShadeOpts.DirectionalMaskType = directionalMask;
 }
 
 //------------------------------------------------------------------------------
-void vtkWebGPUActor::UploadActorTransforms(const wgpu::Device& device)
+void vtkWebGPUActor::CacheActorTransforms()
 {
   if (this->UpdateKeyMatrices())
   {
@@ -229,14 +197,11 @@ void vtkWebGPUActor::UploadActorTransforms(const wgpu::Device& device)
         transform.Normal[i][j] = this->NormalMatrix->GetElement(i, j);
       }
     }
-    const char* label = "ActorBuffer.Transform";
-    device.GetQueue().WriteBuffer(
-      this->ActorBuffer, 0, &transform, sizeof(ActorBlock::TransformInfo));
   }
 }
 
 //------------------------------------------------------------------------------
-void vtkWebGPUActor::UploadActorRenderOptions(const wgpu::Device& device)
+void vtkWebGPUActor::CacheActorRenderOptions()
 {
   if (this->GetProperty()->GetMTime() > this->RenderOptionsBuildTimestamp ||
     this->GetMTime() > this->RenderOptionsBuildTimestamp)
@@ -247,15 +212,11 @@ void vtkWebGPUActor::UploadActorRenderOptions(const wgpu::Device& device)
     ro.PointSize = this->GetProperty()->GetPointSize();
     ro.LineWidth = this->GetProperty()->GetLineWidth();
     ro.EdgeVisibility = this->GetProperty()->GetEdgeVisibility();
-    const char* label = "ActorBuffer.RenderOpts";
-    device.GetQueue().WriteBuffer(
-      this->ActorBuffer, offsetof(ActorBlock, RenderOpts), &ro, sizeof(ro));
-    this->RenderOptionsBuildTimestamp.Modified();
   }
 }
 
 //------------------------------------------------------------------------------
-void vtkWebGPUActor::UploadActorShadeOptions(const wgpu::Device& device)
+void vtkWebGPUActor::CacheActorShadeOptions()
 {
   if (this->GetProperty()->GetMTime() > this->ShadingOptionsBuildTimestamp ||
     this->GetMTime() > this->ShadingOptionsBuildTimestamp)
@@ -266,10 +227,6 @@ void vtkWebGPUActor::UploadActorShadeOptions(const wgpu::Device& device)
     so.SpecularIntensity = this->GetProperty()->GetSpecular();
     so.SpecularPower = this->GetProperty()->GetSpecularPower();
     so.Opacity = this->GetProperty()->GetOpacity();
-    // mapper will update this when it finds out whether cell colors/point colors are available
-    so.ShadingType = 0;
-    // mapper will update this when it finds out what kind (point or cell) of normals are available.
-    so.DirectionalMaskType = 0;
     for (int i = 0; i < 3; ++i)
     {
       so.AmbientColor[i] = this->GetProperty()->GetAmbientColor()[i];
@@ -277,10 +234,6 @@ void vtkWebGPUActor::UploadActorShadeOptions(const wgpu::Device& device)
       so.SpecularColor[i] = this->GetProperty()->GetSpecularColor()[i];
       so.EdgeColor[i] = this->GetProperty()->GetEdgeColor()[i];
     }
-    const char* label = "ActorBuffer.ShadeOpts";
-    device.GetQueue().WriteBuffer(
-      this->ActorBuffer, offsetof(ActorBlock, ShadeOpts), &so, sizeof(so));
-    this->ShadingOptionsBuildTimestamp.Modified();
   }
 }
 VTK_ABI_NAMESPACE_END

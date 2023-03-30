@@ -29,6 +29,9 @@ public:
    */
   static wgpu::Buffer Upload(const wgpu::Device& device, unsigned long offset, void* data,
     unsigned long sizeBytes, wgpu::BufferUsage usage, const char* label = nullptr);
+
+  static wgpu::Buffer CreateABuffer(const wgpu::Device& device, unsigned long sizeBytes,
+    wgpu::BufferUsage usage, bool mappedAtCreation = false, const char* label = nullptr);
 };
 VTK_ABI_NAMESPACE_END
 

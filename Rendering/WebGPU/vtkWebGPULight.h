@@ -26,8 +26,6 @@
 #include "vtkLight.h"
 
 #include "vtkRenderingWebGPUModule.h" // For export macro
-#include "vtkType.h"                  // for types
-#include "vtk_wgpu.h"                 // for webgpu
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkRenderer;
@@ -40,26 +38,32 @@ public:
   vtkTypeMacro(vtkWebGPULight, vtkLight);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  void Render(vtkRenderer*, int) override{};
+  void CacheLightInformation(vtkRenderer* renderer, vtkCamera* camera);
+  inline const void* GetCachedLightInformation() { return &(this->CachedLightInfo); }
+  static std::size_t GetCacheSizeBytes() { return sizeof(LightInfo); }
+
+  void Render(vtkRenderer*, int) override;
+
+protected:
+  vtkWebGPULight() = default;
+  ~vtkWebGPULight() override = default;
 
   struct LightInfo
   {
+    vtkTypeUInt8 Pad[12] = {}; // so that Type begins at n module 16 byte. LightCount
+                               // a 4-byte integer is the first element in lights ssbo.
     // 0 : deferred, 1 : headlight, 2 : lightkit, 3 : positional
     vtkTypeUInt32 Type = 0;
     // 0 : not positional, 1 : positional
     vtkTypeUInt32 Positional = 0;
     vtkTypeFloat32 ConeAngle = 0;
     vtkTypeFloat32 Exponent = 0;
-    vtkTypeFloat32 Color[3] = {};
-    vtkTypeFloat32 DirectionVC[3] = {}; // normalized
-    vtkTypeFloat32 PositionVC[3] = {};
-    vtkTypeFloat32 Attenuation[3] = {};
+    vtkTypeFloat32 Color[4] = {};
+    vtkTypeFloat32 DirectionVC[4] = {}; // normalized
+    vtkTypeFloat32 PositionVC[4] = {};
+    vtkTypeFloat32 Attenuation[4] = {};
   };
-  LightInfo GetLightInfo(vtkRenderer* renderer, vtkCamera* camera);
-
-protected:
-  vtkWebGPULight() = default;
-  ~vtkWebGPULight() override = default;
+  LightInfo CachedLightInfo;
 
 private:
   vtkWebGPULight(const vtkWebGPULight&) = delete;

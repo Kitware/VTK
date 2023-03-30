@@ -23,12 +23,14 @@
 #include "vtkRenderer.h"
 #include "vtkTransform.h"
 #include "vtkType.h"
+#include "vtkTypeUInt32Array.h"
 #include "vtkWGPUContext.h"
 #include "vtkWebGPUActor.h"
 #include "vtkWebGPUCamera.h"
 #include "vtkWebGPUClearPass.h"
 #include "vtkWebGPUInternalsBindGroup.h"
 #include "vtkWebGPUInternalsBindGroupLayout.h"
+#include "vtkWebGPUInternalsBuffer.h"
 #include "vtkWebGPULight.h"
 #include "vtkWebGPURenderWindow.h"
 
@@ -49,13 +51,172 @@ vtkWebGPURenderer::~vtkWebGPURenderer() = default;
 void vtkWebGPURenderer::PrintSelf(ostream& os, vtkIndent indent) {}
 
 //------------------------------------------------------------------------------
+std::size_t vtkWebGPURenderer::WriteSceneTransformsBuffer(std::size_t offset /*=0*/)
+{
+  std::size_t wroteBytes = 0;
+  auto wgpuRenWin = vtkWebGPURenderWindow::SafeDownCast(this->GetRenderWindow());
+  const wgpu::Device& device = wgpuRenWin->GetDevice();
+  const wgpu::Queue& queue = device.GetQueue();
+  const auto size = vtkWebGPUCamera::GetCacheSizeBytes();
+  const auto data =
+    reinterpret_cast<vtkWebGPUCamera*>(this->ActiveCamera)->GetCachedSceneTransforms();
+  queue.WriteBuffer(this->SceneTransformBuffer, offset, data, size);
+  wroteBytes += size;
+  return wroteBytes;
+}
+
+//------------------------------------------------------------------------------
+std::size_t vtkWebGPURenderer::WriteLightsBuffer(std::size_t offset /*=0*/)
+{
+  std::size_t wroteBytes = 0;
+  auto wgpuRenWin = vtkWebGPURenderWindow::SafeDownCast(this->GetRenderWindow());
+  const wgpu::Device& device = wgpuRenWin->GetDevice();
+  const wgpu::Queue& queue = device.GetQueue();
+
+  const vtkTypeUInt32 count = this->LightIDs.size();
+  const auto size = vtkWebGPULight::GetCacheSizeBytes();
+  std::vector<uint8_t> stage;
+  stage.resize(sizeof(vtkTypeUInt32) + count * size);
+
+  // number of lights.
+  const uint8_t* countu8 = reinterpret_cast<const uint8_t*>(&count);
+  std::memcpy(&stage[wroteBytes], countu8, sizeof(vtkTypeUInt32));
+  wroteBytes += sizeof(vtkTypeUInt32);
+
+  // the lights themselves.
+  for (const auto& lightID : this->LightIDs)
+  {
+    vtkWebGPULight* wgpuLight =
+      reinterpret_cast<vtkWebGPULight*>(this->Lights->GetItemAsObject(lightID));
+    assert(wgpuLight != nullptr);
+
+    const auto data = wgpuLight->GetCachedLightInformation();
+    std::memcpy(&stage[wroteBytes], data, size);
+    wroteBytes += size;
+  }
+  queue.WriteBuffer(this->SceneLightsBuffer, offset, stage.data(), wroteBytes);
+  return wroteBytes;
+}
+
+//------------------------------------------------------------------------------
+std::size_t vtkWebGPURenderer::WriteActorBlocksBuffer(std::size_t offset /*=0*/)
+{
+  std::size_t wroteBytes = 0;
+  auto wgpuRenWin = vtkWebGPURenderWindow::SafeDownCast(this->GetRenderWindow());
+  const wgpu::Device& device = wgpuRenWin->GetDevice();
+  const wgpu::Queue& queue = device.GetQueue();
+
+  const auto size = vtkWGPUContext::Align(vtkWebGPUActor::GetCacheSizeBytes(), 256);
+  std::vector<uint8_t> stage;
+  stage.resize(this->PropArrayCount * size);
+  for (int i = 0; i < this->PropArrayCount; ++i)
+  {
+    vtkWebGPUActor* wgpuActor = reinterpret_cast<vtkWebGPUActor*>(this->PropArray[i]);
+    assert(wgpuActor != nullptr);
+
+    const auto data = wgpuActor->GetCachedActorInformation();
+    std::memcpy(&stage[wroteBytes], data, size);
+    wroteBytes += size;
+  }
+  queue.WriteBuffer(this->ActorBlocksBuffer, offset, stage.data(), wroteBytes);
+  return wroteBytes;
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPURenderer::CreateBuffers()
+{
+  const auto transformSize = vtkWebGPUCamera::GetCacheSizeBytes();
+  const auto transformSizePadded = vtkWGPUContext::Align(transformSize, 32);
+
+  const auto lightSize = sizeof(vtkTypeUInt32) // light count
+    + this->LightIDs.size() * vtkWebGPULight::GetCacheSizeBytes();
+  const auto lightSizePadded = vtkWGPUContext::Align(lightSize, 32);
+
+  // use padded for actor because dynamic offsets are used.
+  const auto actorBlkSize =
+    this->PropArrayCount * vtkWGPUContext::Align(vtkWebGPUActor::GetCacheSizeBytes(), 256);
+
+  auto wgpuRenWin = vtkWebGPURenderWindow::SafeDownCast(this->GetRenderWindow());
+  const wgpu::Device& device = wgpuRenWin->GetDevice();
+  bool createSceneBindGroup = false;
+  bool createActorBindGroup = false;
+
+  if (this->SceneTransformBuffer.Get() == nullptr ||
+    (this->SceneTransformBuffer.GetSize() != transformSizePadded))
+  {
+    if (this->SceneTransformBuffer.Get() != nullptr)
+    {
+      this->SceneTransformBuffer.Destroy();
+    }
+    this->SceneTransformBuffer = vtkWebGPUInternalsBuffer::CreateABuffer(device,
+      transformSizePadded, wgpu::BufferUsage::Uniform | wgpu::BufferUsage::CopyDst, false,
+      "Transform uniform buffer for vtkRenderer");
+    createSceneBindGroup = true;
+  }
+
+  if (this->SceneLightsBuffer.Get() == nullptr ||
+    (this->SceneLightsBuffer.GetSize() != lightSizePadded))
+  {
+    if (this->SceneLightsBuffer.Get() != nullptr)
+    {
+      this->SceneLightsBuffer.Destroy();
+    }
+    this->SceneLightsBuffer = vtkWebGPUInternalsBuffer::CreateABuffer(device, lightSizePadded,
+      wgpu::BufferUsage::Storage | wgpu::BufferUsage::CopyDst, false,
+      "Lights uniform buffer for vtkRenderer");
+    createSceneBindGroup = true;
+  }
+
+  if (this->ActorBlocksBuffer.Get() == nullptr ||
+    (this->ActorBlocksBuffer.GetSize() != actorBlkSize))
+  {
+    if (this->ActorBlocksBuffer.Get() != nullptr)
+    {
+      this->ActorBlocksBuffer.Destroy();
+    }
+    this->ActorBlocksBuffer = vtkWebGPUInternalsBuffer::CreateABuffer(device, actorBlkSize,
+      wgpu::BufferUsage::Uniform | wgpu::BufferUsage::CopyDst, false,
+      "Uniform buffer for all vtkActors in vtkRenderer");
+    createActorBindGroup = true;
+  }
+
+  if (createSceneBindGroup)
+  {
+    this->SetupSceneBindGroup();
+  }
+
+  if (createActorBindGroup)
+  {
+    this->SetupActorBindGroup();
+  }
+}
+
+//------------------------------------------------------------------------------
+std::size_t vtkWebGPURenderer::UpdateBufferData()
+{
+  std::size_t wroteBytes = this->WriteActorBlocksBuffer();
+  wroteBytes = this->WriteLightsBuffer();
+  wroteBytes = this->WriteSceneTransformsBuffer();
+  return wroteBytes;
+}
+
+//------------------------------------------------------------------------------
 void vtkWebGPURenderer::DeviceRender()
 {
   vtkDebugMacro(<< __func__);
   auto wgpuRenWin = vtkWebGPURenderWindow::SafeDownCast(this->GetRenderWindow());
-  this->UpdateCamera(); // sets up scene transform buffer.
+
+  this->SetupBindGroupLayouts();
+  this->UpdateCamera(); // brings the camera's transform matrices up-to-date.
   this->UpdateLightGeometry();
-  this->UpdateLights(); // peeks at the collection of lights in the renderer.
+  this->UpdateLights();
+  this->UpdateGeometry(); // mappers prepare geometry SSBO and pipeline layout.
+
+  this->CreateBuffers();
+  this->UpdateBufferData();
+
+  this->BeginEncoding(); // all pipelines execute in single render pass, for now.
+  this->ActiveCamera->UpdateViewport(this);
 
   auto wgpuCamera = vtkWebGPUCamera::SafeDownCast(this->ActiveCamera);
   assert(wgpuCamera != nullptr);
@@ -115,7 +276,9 @@ int vtkWebGPURenderer::UpdateOpaquePolygonalGeometry()
   for (int i = 0; i < this->PropArrayCount; i++)
   {
     auto wgpuActor = reinterpret_cast<vtkWebGPUActor*>(this->PropArray[i]);
-    result += wgpuActor->Update(this, wgpuActor->GetMapper());
+    wgpuActor->CacheActorRenderOptions();
+    wgpuActor->CacheActorShadeOptions();
+    wgpuActor->CacheActorTransforms();
   }
   this->NumberOfPropsUpdated += result;
   return result;
@@ -125,9 +288,17 @@ int vtkWebGPURenderer::UpdateOpaquePolygonalGeometry()
 void vtkWebGPURenderer::DeviceRenderOpaqueGeometry(vtkFrameBufferObjectBase* vtkNotUsed(fbo))
 {
   int result = 0;
+  vtkNew<vtkTypeUInt32Array> offsets;
+  // currently supports only bind group with dynamic offsets. (ActorBindGroup)
+  offsets->SetNumberOfValues(1);
+
+  std::size_t uboOffset = vtkWGPUContext::Align(vtkWebGPUActor::GetCacheSizeBytes(), 256);
+
   for (int i = 0; i < this->PropArrayCount; i++)
   {
     auto wgpuActor = reinterpret_cast<vtkWebGPUActor*>(this->PropArray[i]);
+    offsets->SetValue(0, i * uboOffset);
+    wgpuActor->SetDynamicOffsets(offsets);
     wgpuActor->Render(this, wgpuActor->GetMapper());
     result += 1;
   }
@@ -159,7 +330,7 @@ int vtkWebGPURenderer::UpdateLights()
   int lightsUsed = 0;
 
   vtkMTimeType ltime = lc->GetMTime();
-  std::vector<int> lightIDs;
+  this->LightIDs.clear();
 
   vtkCollectionSimpleIterator sit;
   int lightID = 0;
@@ -169,7 +340,8 @@ int vtkWebGPURenderer::UpdateLights()
     if (on)
     {
       ltime = vtkMath::Max(ltime, light->GetMTime());
-      lightIDs.emplace_back(lightID);
+      this->LightIDs.emplace_back(lightID);
+      light->Render(this, 0);
       lightsUsed++;
       if (lightingComplexity == LightingComplexityEnum::NoLighting)
       {
@@ -203,8 +375,9 @@ int vtkWebGPURenderer::UpdateLights()
       lc->InitTraversal(sit);
       light = lc->GetNextLight(sit);
       ltime = lc->GetMTime();
+      light->Render(this, 0);
       lightsUsed = 1;
-      lightIDs.emplace_back(0);
+      this->LightIDs.emplace_back(0);
       lightingComplexity = light->GetLightType() == VTK_LIGHT_TYPE_HEADLIGHT
         ? LightingComplexityEnum::Headlight
         : LightingComplexityEnum::Directional;
@@ -232,50 +405,6 @@ int vtkWebGPURenderer::UpdateLights()
   }
 
   this->LightingUpdateTime = ltime;
-  auto wgpuRenWin = reinterpret_cast<vtkWebGPURenderWindow*>(this->GetRenderWindow());
-  wgpu::Device device = wgpuRenWin->GetDevice();
-
-  std::vector<vtkWebGPULight::LightInfo> lightInfos;
-  switch (this->LightingComplexity)
-  {
-    case NoLighting:
-      break;
-    case Headlight:
-    {
-      vtkWebGPULight* wgpuLight = reinterpret_cast<vtkWebGPULight*>(lc->GetItemAsObject(0));
-      assert(wgpuLight != nullptr);
-      assert(this->ActiveCamera != nullptr);
-      lightInfos.emplace_back(wgpuLight->GetLightInfo(this, this->ActiveCamera));
-      break;
-    }
-    case Directional:
-    case Positional:
-      for (const auto& lightID : lightIDs)
-      {
-        vtkWebGPULight* wgpuLight = reinterpret_cast<vtkWebGPULight*>(lc->GetItemAsObject(lightID));
-        assert(wgpuLight != nullptr);
-        assert(this->ActiveCamera != nullptr);
-        lightInfos.emplace_back(wgpuLight->GetLightInfo(this, this->ActiveCamera));
-      }
-      break;
-  }
-
-  vtkTypeUInt32 count = lightInfos.size();
-  wgpu::BufferDescriptor desc;
-  desc.size = count + lightInfos.size() * sizeof(lightInfos[0]);
-  desc.size = vtkWGPUContext::Align(desc.size, 32);
-  desc.label = "LightsInfoBuffer";
-  desc.usage = wgpu::BufferUsage::Storage | wgpu::BufferUsage::CopyDst;
-  desc.nextInChain = nullptr;
-  desc.mappedAtCreation = false;
-  this->LightsInfoBuffer = device.CreateBuffer(&desc);
-  // upload number of lights.
-  device.GetQueue().WriteBuffer(this->LightsInfoBuffer, 0, &count, sizeof(count));
-  // upload lights.
-  device.GetQueue().WriteBuffer(
-    this->LightsInfoBuffer, 16, lightInfos.data(), count * sizeof(lightInfos[0]));
-  this->LightingUploadTimestamp.Modified();
-
   return this->NumberOfLightsUsed;
 }
 
@@ -306,54 +435,84 @@ void vtkWebGPURenderer::BeginEncoding()
   state.SetFrameBuffer(nullptr);
   this->Pass = vtkWebGPUClearPass::New();
   this->WGPURenderEncoder = vtkWebGPURenderPass::SafeDownCast(this->Pass)->Begin(&state);
+#ifndef NDEBUG
   this->WGPURenderEncoder.PushDebugGroup("Renderer start encoding");
+#endif
 }
 
 //------------------------------------------------------------------------------
-void vtkWebGPURenderer::SetupBindGroups()
+void vtkWebGPURenderer::SetupBindGroupLayouts()
 {
-  if (this->SceneBindGroup.Get() != nullptr)
-  {
-    // already setup.
-    return;
-  }
-
   auto wgpuRenWin = vtkWebGPURenderWindow::SafeDownCast(this->GetRenderWindow());
   wgpu::Device device = wgpuRenWin->GetDevice();
-  // scene transform includes a view and projection matrix.
-  auto sceneTransformBuffer =
-    reinterpret_cast<vtkWebGPUCamera*>(this->ActiveCamera)->GetSceneTransformBuffer();
-  assert(sceneTransformBuffer != nullptr);
-
-  this->SceneBindGroupLayout = vtkWebGPUInternalsBindGroupLayout::MakeBindGroupLayout(device,
-    {
-      // clang-format off
+  if (this->SceneBindGroupLayout.Get() == nullptr)
+  {
+    this->SceneBindGroupLayout = vtkWebGPUInternalsBindGroupLayout::MakeBindGroupLayout(device,
+      {
+        // clang-format off
       // SceneTransforms
       { 0, wgpu::ShaderStage::Vertex, wgpu::BufferBindingType::Uniform },
       // SceneLights
       { 1, wgpu::ShaderStage::Fragment, wgpu::BufferBindingType::ReadOnlyStorage }
-      // clang-format on
-    });
+        // clang-format on
+      });
 
-  this->SceneBindGroupLayout.SetLabel("SceneBindGroupLayout");
+    this->SceneBindGroupLayout.SetLabel("SceneBindGroupLayout");
+  }
+
+  if (this->ActorBindGroupLayout.Get() == nullptr)
+  {
+    this->ActorBindGroupLayout = vtkWebGPUInternalsBindGroupLayout::MakeBindGroupLayout(device,
+      {
+        // clang-format off
+      // ActorBlocks
+      { 0, wgpu::ShaderStage::Vertex | wgpu::ShaderStage::Fragment, wgpu::BufferBindingType::Uniform, /*hasDynamicOffsets=*/true },
+        // clang-format on
+      });
+
+    this->ActorBindGroupLayout.SetLabel("ActorBindGroupLayout");
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPURenderer::SetupSceneBindGroup()
+{
+  auto wgpuRenWin = vtkWebGPURenderWindow::SafeDownCast(this->GetRenderWindow());
+  wgpu::Device device = wgpuRenWin->GetDevice();
 
   this->SceneBindGroup =
     vtkWebGPUInternalsBindGroup::MakeBindGroup(device, this->SceneBindGroupLayout,
       {
         // clang-format off
-      // SceneTransforms
-      { 0, sceneTransformBuffer, 0 },
-      // SceneLights
-      { 1, this->LightsInfoBuffer, 0 }
+        { 0, this->SceneTransformBuffer },
+        { 1, this->SceneLightsBuffer }
         // clang-format on
       });
+  this->SceneBindGroup.SetLabel("SceneBindGroup");
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPURenderer::SetupActorBindGroup()
+{
+  auto wgpuRenWin = vtkWebGPURenderWindow::SafeDownCast(this->GetRenderWindow());
+  wgpu::Device device = wgpuRenWin->GetDevice();
+  this->ActorBindGroup =
+    vtkWebGPUInternalsBindGroup::MakeBindGroup(device, this->ActorBindGroupLayout,
+      {
+        // clang-format off
+        { 0, this->ActorBlocksBuffer, 0, vtkWGPUContext::Align(vtkWebGPUActor::GetCacheSizeBytes(), 256) },
+        // clang-format on
+      });
+  this->ActorBindGroup.SetLabel("ActorBindGroup");
 }
 
 //------------------------------------------------------------------------------
 void vtkWebGPURenderer::EndEncoding()
 {
   vtkDebugMacro(<< __func__);
+#ifndef NDEBUG
   this->WGPURenderEncoder.PopDebugGroup();
+#endif
   this->WGPURenderEncoder.End();
   this->WGPURenderEncoder.Release();
   this->Pass->Delete();

@@ -19,13 +19,23 @@
 #include "vtkTransform.h"
 #include "vtkWebGPURenderer.h"
 
+#include <cstring>
+
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkWebGPULight);
 
 //------------------------------------------------------------------------------
-vtkWebGPULight::LightInfo vtkWebGPULight::GetLightInfo(vtkRenderer* renderer, vtkCamera* camera)
+void vtkWebGPULight::Render(vtkRenderer* renderer, int)
 {
-  LightInfo li;
+  this->CacheLightInformation(renderer, renderer->GetActiveCamera());
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPULight::CacheLightInformation(vtkRenderer* renderer, vtkCamera* camera)
+{
+  LightInfo& li = this->CachedLightInfo;
+  std::memset(&li, 0, sizeof(li));
+
   li.Type = this->LightType;
   li.Color[0] = { static_cast<vtkTypeFloat32>(this->DiffuseColor[0] * this->Intensity) };
   li.Color[1] = { static_cast<vtkTypeFloat32>(this->DiffuseColor[1] * this->Intensity) };
@@ -90,7 +100,6 @@ vtkWebGPULight::LightInfo vtkWebGPULight::GetLightInfo(vtkRenderer* renderer, vt
       li.Positional = this->Positional;
     }
   }
-  return li;
 }
 
 //------------------------------------------------------------------------------

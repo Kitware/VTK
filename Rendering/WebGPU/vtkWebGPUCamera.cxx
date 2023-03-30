@@ -16,14 +16,8 @@
 
 #include "vtkMatrix3x3.h"
 #include "vtkMatrix4x4.h"
-#include "vtkNew.h"
 #include "vtkObjectFactory.h"
-#include "vtkRenderState.h"
 #include "vtkRenderer.h"
-#include "vtkWebGPUActor.h"
-#include "vtkWebGPUClearPass.h"
-#include "vtkWebGPUInternalsBuffer.h"
-#include "vtkWebGPURenderWindow.h"
 #include "vtkWebGPURenderer.h"
 
 #include <cstdint> // for uint32_t
@@ -42,20 +36,19 @@ vtkWebGPUCamera::~vtkWebGPUCamera() = default;
 //------------------------------------------------------------------------------
 void vtkWebGPUCamera::Render(vtkRenderer* renderer)
 {
-  this->UpdateBuffers(renderer);
+  this->CacheSceneTransforms(renderer);
 }
 
 //------------------------------------------------------------------------------
-void vtkWebGPUCamera::UpdateBuffers(vtkRenderer* renderer)
+void vtkWebGPUCamera::CacheSceneTransforms(vtkRenderer* renderer)
 {
   // has the camera changed?
   if (renderer != this->LastRenderer || this->MTime > this->KeyMatrixTime ||
     renderer->GetMTime() > this->KeyMatrixTime)
   {
-    auto wgpuRenWin = vtkWebGPURenderWindow::SafeDownCast(renderer->GetRenderWindow());
-    wgpu::Device device = wgpuRenWin->GetDevice();
     vtkMatrix4x4* view = this->GetModelViewTransformMatrix();
-    SceneTransforms st;
+    SceneTransforms& st = this->CachedSceneTransforms;
+
     int idx = 0;
     for (int i = 0; i < 4; ++i)
     {
@@ -112,42 +105,17 @@ void vtkWebGPUCamera::UpdateBuffers(vtkRenderer* renderer)
     st.Viewport[2] = width;
     st.Viewport[3] = height;
 
-    if (this->SceneTransformBuffer.Get() == nullptr)
-    {
-      this->SceneTransformBuffer = vtkWebGPUInternalsBuffer::Upload(
-        device, 0, &st, sizeof(st), wgpu::BufferUsage::Uniform, "Renderer transform matrices");
-    }
-    else
-    {
-      device.GetQueue().WriteBuffer(this->SceneTransformBuffer, 0, &st, sizeof(st));
-    }
-
     this->KeyMatrixTime.Modified();
     this->LastRenderer = renderer;
   }
 }
-
 //------------------------------------------------------------------------------
 void vtkWebGPUCamera::UpdateViewport(vtkRenderer* renderer)
-{
-  auto wgpuRenWin = vtkWebGPURenderWindow::SafeDownCast(renderer->GetRenderWindow());
-
-  vtkRenderState state(renderer);
-  // create a simple pass which clears the rectangle defined by viewport.
-  vtkNew<vtkWebGPUClearPass> clearPass;
-  auto rpassEnc = clearPass->Begin(&state);
-  // enqueue command that sets viewport and scissor
-  this->UpdateViewport(renderer, rpassEnc);
-  // finish
-  clearPass->End(&state, std::move(rpassEnc));
-}
-
-//------------------------------------------------------------------------------
-void vtkWebGPUCamera::UpdateViewport(vtkRenderer* renderer, wgpu::RenderPassEncoder rpassEncoder)
 {
   int lowerLeft[2];
   int width, height;
   renderer->GetTiledSizeAndOrigin(&width, &height, &lowerLeft[0], &lowerLeft[1]);
+  auto rpassEncoder = reinterpret_cast<vtkWebGPURenderer*>(renderer)->GetRenderPassEncoder();
 
   // Set viewport frustum
   rpassEncoder.SetViewport(

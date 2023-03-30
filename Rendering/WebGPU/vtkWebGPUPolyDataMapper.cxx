@@ -80,10 +80,11 @@ void vtkWebGPUPolyDataMapper::RenderPiece(vtkRenderer* renderer, vtkActor* actor
   }
 
   const auto device = wgpuRenWin->GetDevice();
-  auto wgpuActor = vtkWebGPUActor::SafeDownCast(actor);
+  auto wgpuActor = reinterpret_cast<vtkWebGPUActor*>(actor);
+  auto wgpuRenderer = reinterpret_cast<vtkWebGPURenderer*>(renderer);
+
   using RenderType = vtkWebGPUActor::MapperRenderType;
   auto renderType = wgpuActor->GetMapperRenderType();
-
   switch (renderType)
   {
     case RenderType::UpdateBuffers:
@@ -144,34 +145,43 @@ void vtkWebGPUPolyDataMapper::EncodeRenderCommands(vtkRenderer* renderer, vtkAct
       break;
         // clang-format on
     }
-    if (this->PointPrimitiveBGInfo.PipelineID == wgpuRenderer->GetCurrentPipelineID() &&
+    if (this->PointPrimitiveBGInfo.PipelineID != wgpuRenderer->GetCurrentPipelineID() &&
       this->PointPrimitiveBGInfo.VertexCount > 0)
     {
+#ifndef NDEBUG
       passEncoder.PushDebugGroup("VTK_POINT");
+#endif
       passEncoder.SetBindGroup(3, this->PointPrimitiveBGInfo.BindGroup);
       passEncoder.Draw(this->PointPrimitiveBGInfo.VertexCount * vcFactor[0], instanceCount[0]);
+#ifndef NDEBUG
       passEncoder.PopDebugGroup();
+#endif
     }
-    else if (this->LinePrimitiveBGInfo.PipelineID == wgpuRenderer->GetCurrentPipelineID() &&
+    else if (this->LinePrimitiveBGInfo.PipelineID != wgpuRenderer->GetCurrentPipelineID() &&
       this->LinePrimitiveBGInfo.VertexCount > 0)
     {
+#ifndef NDEBUG
       passEncoder.PushDebugGroup("VTK_LINE");
-      wgpu::RenderPassEncoder passEncoder = wgpuRenderer->GetRenderPassEncoder();
+#endif
       passEncoder.SetBindGroup(3, this->LinePrimitiveBGInfo.BindGroup);
       passEncoder.Draw(this->LinePrimitiveBGInfo.VertexCount * vcFactor[1], instanceCount[1]);
+#ifndef NDEBUG
       passEncoder.PopDebugGroup();
+#endif
     }
-    else if (this->TrianglePrimitiveBGInfo.PipelineID == wgpuRenderer->GetCurrentPipelineID() &&
+    else if (this->TrianglePrimitiveBGInfo.PipelineID != wgpuRenderer->GetCurrentPipelineID() &&
       this->TrianglePrimitiveBGInfo.VertexCount > 0)
     {
+#ifndef NDEBUG
       passEncoder.PushDebugGroup("VTK_TRIANGLE");
-      wgpu::RenderPassEncoder passEncoder = wgpuRenderer->GetRenderPassEncoder();
+#endif
       passEncoder.SetBindGroup(3, this->TrianglePrimitiveBGInfo.BindGroup);
       passEncoder.Draw(this->TrianglePrimitiveBGInfo.VertexCount * vcFactor[2], instanceCount[2]);
+#ifndef NDEBUG
       passEncoder.PopDebugGroup();
+#endif
     }
   }
-  passEncoder.PopDebugGroup();
 }
 
 //------------------------------------------------------------------------------
@@ -212,7 +222,6 @@ void vtkWebGPUPolyDataMapper::SetupPipelineLayout(
   assert(wgpuActor != nullptr);
   std::vector<wgpu::BindGroupLayout> bgls;
   wgpuRenderer->PopulateBindgroupLayouts(bgls);
-  wgpuActor->PopulateBindgroupLayouts(bgls);
   bgls.emplace_back(this->MeshAttributeBindGroupLayout);
   bgls.emplace_back(this->PrimitiveBindGroupLayout);
   this->PipelineLayout = vtkWebGPUInternalsPipelineLayout::MakePipelineLayout(device, bgls);

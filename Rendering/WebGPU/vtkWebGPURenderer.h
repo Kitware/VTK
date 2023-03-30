@@ -79,10 +79,14 @@ public:
 
   void ReleaseGraphicsResources(vtkWindow* w) override;
 
-  wgpu::RenderPassEncoder GetRenderPassEncoder() { return this->WGPURenderEncoder; }
+  inline wgpu::RenderPassEncoder GetRenderPassEncoder() { return this->WGPURenderEncoder; }
+  inline wgpu::BindGroup GetActorBindGroup() { return this->ActorBindGroup; }
+  inline wgpu::BindGroup GetSceneBindGroup() { return this->SceneBindGroup; }
+
   inline void PopulateBindgroupLayouts(std::vector<wgpu::BindGroupLayout>& layouts)
   {
     layouts.emplace_back(this->SceneBindGroupLayout);
+    layouts.emplace_back(this->ActorBindGroupLayout);
   }
 
   bool HasRenderPipeline(vtkAbstractMapper* mapper, const std::string& additionalInfo = "");
@@ -120,22 +124,40 @@ protected:
   void DeviceRenderOpaqueGeometry(vtkFrameBufferObjectBase* fbo) override;
   void DeviceRenderTranslucentPolygonalGeometry(vtkFrameBufferObjectBase* fbo) override;
 
-  void SetupBindGroups();
+  // Setup scene and actor bindgroups. Actor has dynamic offsets.
+  void SetupBindGroupLayouts();
+  // Creates buffers for the bind groups.
+  void CreateBuffers();
+  // Updates the bound buffers with data.
+  std::size_t UpdateBufferData();
+  // Creates scene bind group.
+  void SetupSceneBindGroup();
+  // Creates actor bind group.
+  void SetupActorBindGroup();
+
+  // Start, finish recording commands with render pass encoder
   void BeginEncoding();
   void EndEncoding();
 
+  std::size_t WriteLightsBuffer(std::size_t offset = 0);
+  std::size_t WriteSceneTransformsBuffer(std::size_t offset = 0);
+  std::size_t WriteActorBlocksBuffer(std::size_t offset = 0);
+
   wgpu::RenderPassEncoder WGPURenderEncoder;
-  wgpu::Buffer LightsInfoBuffer;
+  wgpu::Buffer SceneTransformBuffer;
+  wgpu::Buffer SceneLightsBuffer;
+  wgpu::Buffer ActorBlocksBuffer;
   wgpu::BindGroup SceneBindGroup;
   wgpu::BindGroupLayout SceneBindGroupLayout;
 
-  std::vector<RenderPipelineBatch> RenderPipelineBatches;
-  std::unordered_map<std::string, std::size_t> MapperPipelineTable;
-  std::size_t CurrentPipelineID = 0;
+  wgpu::BindGroup ActorBindGroup;
+  wgpu::BindGroupLayout ActorBindGroupLayout;
 
-  int NumberOfPropsUpdated = 0;
+  std::size_t NumberOfPropsUpdated = 0;
   int LightingComplexity = 0;
-  int NumberOfLightsUsed = 0;
+  std::size_t NumberOfLightsUsed = 0;
+  std::vector<std::size_t> LightIDs;
+
   vtkMTimeType LightingUpdateTime;
   vtkTimeStamp LightingUploadTimestamp;
 
