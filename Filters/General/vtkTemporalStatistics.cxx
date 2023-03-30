@@ -149,9 +149,9 @@ struct FinishStdDev
     }
   }
 };
+} // anonymous namespace
 
-} // end anon namespace
-
+//------------------------------------------------------------------------------
 struct vtkTemporalStatisticsInternal
 {
   std::vector<double> TimeSteps;
@@ -177,8 +177,6 @@ vtkTemporalStatistics::vtkTemporalStatistics()
   this->ComputeMinimum = 1;
   this->ComputeMaximum = 1;
   this->ComputeStandardDeviation = 1;
-
-  this->StreamTimeSteps = true;
 
   this->CurrentTimeIndex = 0;
   this->GeneratedChangingTopologyWarning = false;
@@ -212,9 +210,10 @@ int vtkTemporalStatistics::FillInputPortInformation(int vtkNotUsed(port), vtkInf
 
 //------------------------------------------------------------------------------
 int vtkTemporalStatistics::RequestInformation(vtkInformation* vtkNotUsed(request),
-  vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
-  if (!this->StreamTimeSteps)
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  if (inInfo->Get(vtkStreamingDemandDrivenPipeline::INCOMPLETE_TIME_STEPS()))
   {
     return 1;
   }
@@ -264,12 +263,35 @@ int vtkTemporalStatistics::RequestDataObject(vtkInformation* vtkNotUsed(request)
 int vtkTemporalStatistics::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* vtkNotUsed(outputVector))
 {
-  if (!this->StreamTimeSteps)
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  if (inInfo->Get(vtkStreamingDemandDrivenPipeline::INCOMPLETE_TIME_STEPS()))
   {
     return 1;
   }
 
+  // The RequestData method will tell the pipeline executive to iterate the
+  // upstream pipeline to get each time step in order.  The executive in turn
+  // will call this method to get the extent request for each iteration (in this
+  // case the time step).
+  double* inTimes = inInfo->Get(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
+  if (inTimes)
+  {
+    inInfo->Set(
+      vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP(), inTimes[this->CurrentTimeIndex]);
+  }
+
+  return 1;
+}
+
+//------------------------------------------------------------------------------
+int vtkTemporalStatistics::RequestUpdateTime(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* vtkNotUsed(outputVector))
+{
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  if (inInfo->Get(vtkStreamingDemandDrivenPipeline::INCOMPLETE_TIME_STEPS()))
+  {
+    return 1;
+  }
 
   // The RequestData method will tell the pipeline executive to iterate the
   // upstream pipeline to get each time step in order.  The executive in turn
@@ -289,7 +311,8 @@ int vtkTemporalStatistics::RequestUpdateExtent(vtkInformation* vtkNotUsed(reques
 int vtkTemporalStatistics::RequestData(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
-  if (this->StreamTimeSteps)
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  if (!inInfo->Has(vtkStreamingDemandDrivenPipeline::INCOMPLETE_TIME_STEPS()))
   {
     return this->ExecuteStreaming(request, inputVector, outputVector);
   }
@@ -338,36 +361,38 @@ int vtkTemporalStatistics::ExecuteStreaming(
 
 //------------------------------------------------------------------------------
 int vtkTemporalStatistics::Execute(
-  vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
+  vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
+  using vtkSDDP = vtkStreamingDemandDrivenPipeline;
+
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
   vtkDataObject* input = vtkDataObject::GetData(inInfo);
   vtkDataObject* output = vtkDataObject::GetData(outInfo);
 
-  if (outInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP()))
+  if (outInfo->Get(vtkSDDP::INCOMPLETE_TIME_STEPS()) == vtkSDDP::INCOMPLETE_TIME_STEPS_RESET)
   {
-    bool first = false;
+    this->Internal->TimeSteps.clear();
+  }
+
+  if (outInfo->Has(vtkSDDP::UPDATE_TIME_STEP()))
+  {
     if (this->Internal->TimeSteps.empty())
-    {
-      first = true;
-    }
-    if (first)
     {
       this->Internal->StatisticsOutput->Initialize();
       this->InitializeStatistics(input, this->Internal->StatisticsOutput);
     }
-    if (!first)
+    else
     {
-      this->AccumulateStatistics(
-        input, this->Internal->StatisticsOutput, this->Internal->TimeSteps.size());
+      this->AccumulateStatistics(input, this->Internal->StatisticsOutput,
+        static_cast<int>(this->Internal->TimeSteps.size()));
     }
     this->Internal->TimeSteps.push_back(
       outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP()));
   }
   output->DeepCopy(this->Internal->StatisticsOutput);
-  this->PostExecute(input, output, this->Internal->TimeSteps.size());
+  this->PostExecute(input, output, static_cast<int>(this->Internal->TimeSteps.size()));
   if (!this->Internal->TimeSteps.empty())
   {
     vtkNew<vtkDoubleArray> tsteps;

@@ -13,18 +13,16 @@
  * point or cell variable changes over time.  For example, vtkTemporalStatistics
  * can compute the average value of "pressure" over time of each point.
  *
- * This filter has two modes. In the default mode (StreamTimeStepsOn), the filter
- * will iterate over all of the input time steps and generate statistics for
- * them. This is achieved by repeating the execution phase of the filter for
- * each time step (by setting the vtkStreamingDemandDrivenPipeline::CONTINUE_EXECUTING()
- * key). When StreamTimeSteps is set to off, the filter will continue accumulating
- * statistics information each time that it is executed. Generating statistics over
- * multiple timesteps then requires causing the execution of the filter multiple times
- * externally. For example, by calling UpdateTimeStep() in a loop or using another
- * filter that iterates over time downstream. Each time the filter is executed, it
- * will produce the statistics information for all the timesteps that were process
- * so far. It will also produce at time_steps data array in the field data that
- * contains all the time steps that have been processed so far.
+ * If the key `vtkStreamingDemandDrivenPipeline::INCOMPLETE_TIME_STEPS()` is set, typically
+ * when running this filter in situ,
+ * then the filter runs the time steps one at a time. It requires causing the execution
+ * of the filter multiple times externally, by calling `UpdateTimeStep()` in a loop
+ * or using another filter that iterates over time downstream, for example.
+ * When the key is not set, the filter will execute itself by setting the key
+ * `vtkStreamingDemandDrivenPipeline::CONTINUE_EXECUTING()`.
+ *
+ * This filter will produce an array called `"time_steps"` in the output's `FieldData`.
+ * It contains all the time steps ahta have been processed so far.
  *
  * vtkTemporalStatistics ignores the temporal spacing.  Each timestep will be
  * weighted the same regardless of how long of an interval it is to the next
@@ -103,20 +101,6 @@ public:
   vtkBooleanMacro(ComputeStandardDeviation, vtkTypeBool);
   ///@}
 
-  ///@{
-  /**
-   * Turn on/off the streaming of input timesteps by the filter. When StreamTimeSteps
-   * is on, the filter will loop over all input timesteps and generate statistics
-   * for them. When it is off, the filter will generate statistics for all of the
-   * input timesteps that it has been executed on so far. In the mode, processing
-   * multiple steps requires externally looping the filter over multiple timesteps,
-   * for example by using UpdateTimeStep().
-   * Default is on.
-   */
-  vtkGetMacro(StreamTimeSteps, vtkTypeBool);
-  vtkSetMacro(StreamTimeSteps, vtkTypeBool);
-  vtkBooleanMacro(StreamTimeSteps, vtkTypeBool);
-
 protected:
   vtkTemporalStatistics();
   ~vtkTemporalStatistics() override;
@@ -125,7 +109,6 @@ protected:
   vtkTypeBool ComputeMaximum;
   vtkTypeBool ComputeMinimum;
   vtkTypeBool ComputeStandardDeviation;
-  vtkTypeBool StreamTimeSteps;
 
   // Used when iterating the pipeline to keep track of which timestep we are on.
   int CurrentTimeIndex;
@@ -135,6 +118,8 @@ protected:
   int RequestDataObject(vtkInformation* request, vtkInformationVector** inputVector,
     vtkInformationVector* outputVector) override;
   int RequestInformation(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
+  int RequestUpdateTime(vtkInformation* request, vtkInformationVector** inputVector,
     vtkInformationVector* outputVector) override;
   int RequestUpdateExtent(vtkInformation* request, vtkInformationVector** inputVector,
     vtkInformationVector* outputVector) override;
