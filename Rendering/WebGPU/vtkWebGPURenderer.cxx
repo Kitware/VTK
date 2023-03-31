@@ -48,7 +48,10 @@ vtkWebGPURenderer::vtkWebGPURenderer() = default;
 vtkWebGPURenderer::~vtkWebGPURenderer() = default;
 
 //------------------------------------------------------------------------------
-void vtkWebGPURenderer::PrintSelf(ostream& os, vtkIndent indent) {}
+void vtkWebGPURenderer::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os, indent);
+}
 
 //------------------------------------------------------------------------------
 std::size_t vtkWebGPURenderer::WriteSceneTransformsBuffer(std::size_t offset /*=0*/)
@@ -204,7 +207,6 @@ std::size_t vtkWebGPURenderer::UpdateBufferData()
 void vtkWebGPURenderer::DeviceRender()
 {
   vtkDebugMacro(<< __func__);
-  auto wgpuRenWin = vtkWebGPURenderWindow::SafeDownCast(this->GetRenderWindow());
 
   this->SetupBindGroupLayouts();
   this->UpdateCamera(); // brings the camera's transform matrices up-to-date.
@@ -219,7 +221,7 @@ void vtkWebGPURenderer::DeviceRender()
   this->ActiveCamera->UpdateViewport(this);
 
   ///@{ FIXME: Leaks memory when we recreate them.
-  if (this->PropArrayCount != this->Bundles.size())
+  if (this->PropArrayCount != static_cast<int>(this->Bundles.size()))
   {
     // FIXME: Re-use bundles that don't need to be re-built.
     this->Bundles.clear();
@@ -284,7 +286,7 @@ int vtkWebGPURenderer::RenderGeometry()
 }
 
 //------------------------------------------------------------------------------
-int vtkWebGPURenderer::UpdateGeometry(vtkFrameBufferObjectBase* fbo /*=nullptr*/)
+int vtkWebGPURenderer::UpdateGeometry(vtkFrameBufferObjectBase* vtkNotUsed(fbo) /*=nullptr*/)
 {
   this->NumberOfPropsUpdated = 0;
   if (this->PropArrayCount == 0)
@@ -374,7 +376,7 @@ int vtkWebGPURenderer::UpdateLights()
   vtkLight* light;
 
   int lightingComplexity = LightingComplexityEnum::NoLighting;
-  int lightsUsed = 0;
+  std::size_t lightsUsed = 0;
 
   vtkMTimeType ltime = lc->GetMTime();
   this->LightIDs.clear();
@@ -468,10 +470,10 @@ vtkTransform* vtkWebGPURenderer::GetUserLightTransform()
 }
 
 //------------------------------------------------------------------------------
-void vtkWebGPURenderer::SetEnvironmentTexture(vtkTexture* texture, bool isSRGB /*=false*/) {}
+void vtkWebGPURenderer::SetEnvironmentTexture(vtkTexture*, bool vtkNotUsed(isSRGB) /*=false*/) {}
 
 //------------------------------------------------------------------------------
-void vtkWebGPURenderer::ReleaseGraphicsResources(vtkWindow* w)
+void vtkWebGPURenderer::ReleaseGraphicsResources(vtkWindow* vtkNotUsed(w))
 {
   this->Bundles.clear();
 }

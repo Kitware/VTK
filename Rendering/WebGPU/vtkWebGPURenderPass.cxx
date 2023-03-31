@@ -25,7 +25,10 @@ vtkWebGPURenderPass::vtkWebGPURenderPass() = default;
 vtkWebGPURenderPass::~vtkWebGPURenderPass() = default;
 
 //------------------------------------------------------------------------------
-void vtkWebGPURenderPass::PrintSelf(ostream& os, vtkIndent indent) {}
+void vtkWebGPURenderPass::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os, indent);
+}
 
 //------------------------------------------------------------------------------
 void vtkWebGPURenderPass::End(const vtkRenderState*, wgpu::RenderPassEncoder&& pass)
@@ -35,5 +38,5 @@ void vtkWebGPURenderPass::End(const vtkRenderState*, wgpu::RenderPassEncoder&& p
 }
 
 //------------------------------------------------------------------------------
-void vtkWebGPURenderPass::Render(const vtkRenderState* state) {}
+void vtkWebGPURenderPass::Render(const vtkRenderState*) {}
 VTK_ABI_NAMESPACE_END

@@ -33,7 +33,10 @@ vtkWebGPUClearPass::vtkWebGPUClearPass() = default;
 vtkWebGPUClearPass::~vtkWebGPUClearPass() = default;
 
 //------------------------------------------------------------------------------
-void vtkWebGPUClearPass::PrintSelf(ostream& os, vtkIndent indent) {}
+void vtkWebGPUClearPass::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os, indent);
+}
 
 //------------------------------------------------------------------------------
 wgpu::RenderPassEncoder vtkWebGPUClearPass::Begin(const vtkRenderState* state)
@@ -63,7 +66,6 @@ wgpu::RenderPassEncoder vtkWebGPUClearPass::Begin(const vtkRenderState* state)
 //------------------------------------------------------------------------------
 void vtkWebGPUClearPass::Render(const vtkRenderState* state)
 {
-  auto renderer = state->GetRenderer();
   if (!state->IsValid())
   {
     return;

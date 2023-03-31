@@ -51,17 +51,19 @@ namespace vtkWGPUEmscriptenImpl
 static void LogAvailableAdapters() {}
 
 //------------------------------------------------------------------------------
-static void GetAdapterInfo(char (*adapter_info)[256]) {}
+static void GetAdapterInfo(char (*adapter_info)[256])
+{
+  (void)adapter_info;
+}
 
 //------------------------------------------------------------------------------
-static wgpu::Adapter RequestAdapter(const wgpu::RequestAdapterOptions& options)
+static wgpu::Adapter RequestAdapter(const wgpu::RequestAdapterOptions&)
 {
   return nullptr;
 }
 
 //------------------------------------------------------------------------------
-static wgpu::Device RequestDevice(
-  const wgpu::Adapter& adapter, const wgpu::DeviceDescriptor& deviceDescriptor)
+static wgpu::Device RequestDevice(const wgpu::Adapter&, const wgpu::DeviceDescriptor&)
 {
   return wgpu::Device(emscripten_webgpu_get_device());
 }

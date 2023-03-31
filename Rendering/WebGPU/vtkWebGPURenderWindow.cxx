@@ -73,8 +73,8 @@ void device_lost_callback(WGPUDeviceLostReason reason, char const* message, void
     default:
       reason_type_lbl = "Unknown";
   }
-  vtkErrorWithObjectMacro(
-    reinterpret_cast<vtkObject*>(self), << "Device lost! Reason : " << message);
+  vtkErrorWithObjectMacro(reinterpret_cast<vtkObject*>(self),
+    << "Device lost! Reason : " << message << " Reason Type: " << reason_type_lbl);
 }
 
 struct PixelReadDescriptor
@@ -131,7 +131,10 @@ vtkWebGPURenderWindow::vtkWebGPURenderWindow() = default;
 vtkWebGPURenderWindow::~vtkWebGPURenderWindow() = default;
 
 //------------------------------------------------------------------------------
-void vtkWebGPURenderWindow::PrintSelf(ostream& os, vtkIndent indent) {}
+void vtkWebGPURenderWindow::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os, indent);
+}
 
 //------------------------------------------------------------------------------
 bool vtkWebGPURenderWindow::WGPUInit()
@@ -631,6 +634,8 @@ void vtkWebGPURenderWindow::ReadPixels()
 unsigned char* vtkWebGPURenderWindow::GetPixelData(
   int x, int y, int x2, int y2, int front, int right)
 {
+  (void)front;
+  (void)right;
   this->ReadPixels();
 
   PixelReadDescriptor desc = ::GetPixelReadDesriptor(this->ColorAttachment.Texture, x, y, x2, y2);
@@ -656,14 +661,14 @@ unsigned char* vtkWebGPURenderWindow::GetPixelData(
   }
 
   vtkIdType dstIdx = 0;
-  for (int y = desc.Rect.GetY(); y < desc.Rect.GetTop(); ++y)
+  for (int j = desc.Rect.GetY(); j < desc.Rect.GetTop(); ++j)
   {
-    for (int x = desc.Rect.GetX(); x < desc.Rect.GetRight(); ++x)
+    for (int i = desc.Rect.GetX(); i < desc.Rect.GetRight(); ++i)
     {
       for (auto& comp : componentMap)
       {
         pixels[dstIdx++] = this->CachedPixelBytes->GetValue(
-          y * desc.NumBytesPerRow + x * desc.NumColorComponents + comp);
+          j * desc.NumBytesPerRow + i * desc.NumColorComponents + comp);
       }
     }
   }
@@ -687,6 +692,8 @@ int vtkWebGPURenderWindow::GetPixelData(
 int vtkWebGPURenderWindow::SetPixelData(
   int x, int y, int x2, int y2, unsigned char* data, int front, int right)
 {
+  (void)front;
+  (void)right;
   const int nComp = 3;
   int width = (x2 - x) + 1;
   int height = (y2 - y) + 1;
@@ -759,6 +766,8 @@ int vtkWebGPURenderWindow::SetPixelData(
 float* vtkWebGPURenderWindow::GetRGBAPixelData(
   int x, int y, int x2, int y2, int front, int right /*=0*/)
 {
+  (void)front;
+  (void)right;
   this->ReadPixels();
 
   PixelReadDescriptor desc = ::GetPixelReadDesriptor(this->ColorAttachment.Texture, x, y, x2, y2);
@@ -786,14 +795,14 @@ float* vtkWebGPURenderWindow::GetRGBAPixelData(
   }
 
   vtkIdType dstIdx = 0;
-  for (int y = desc.Rect.GetY(); y < desc.Rect.GetTop(); ++y)
+  for (int j = desc.Rect.GetY(); j < desc.Rect.GetTop(); ++j)
   {
-    for (int x = desc.Rect.GetX(); x < desc.Rect.GetRight(); ++x)
+    for (int i = desc.Rect.GetX(); i < desc.Rect.GetRight(); ++i)
     {
       for (auto& comp : componentMap)
       {
         pixels[dstIdx++] = this->CachedPixelBytes->GetValue(
-                             y * desc.NumBytesPerRow + x * desc.NumColorComponents + comp) /
+                             j * desc.NumBytesPerRow + i * desc.NumColorComponents + comp) /
           255.0;
       }
     }
@@ -818,6 +827,9 @@ int vtkWebGPURenderWindow::GetRGBAPixelData(
 int vtkWebGPURenderWindow::SetRGBAPixelData(
   int x, int y, int x2, int y2, float* data, int front, int blend /*=0*/, int right /*=0*/)
 {
+  (void)front;
+  (void)blend;
+  (void)right;
   const int nComp = 4;
   int width = (x2 - x) + 1;
   int height = (y2 - y) + 1;
@@ -888,12 +900,13 @@ int vtkWebGPURenderWindow::SetRGBAPixelData(
 int vtkWebGPURenderWindow::SetRGBAPixelData(
   int x, int y, int x2, int y2, vtkFloatArray* data, int front, int blend /*=0*/, int right /*=0*/)
 {
-  return this->SetRGBAPixelData(x, y, x2, y2, data->GetPointer(0), front, right);
+  return this->SetRGBAPixelData(x, y, x2, y2, data->GetPointer(0), front, blend, right);
 }
 
 //------------------------------------------------------------------------------
 void vtkWebGPURenderWindow::ReleaseRGBAPixelData(float* data)
 {
+  (void)data;
   // reset cache
   this->CachedPixelBytes->SetNumberOfValues(0);
 }
@@ -901,6 +914,8 @@ void vtkWebGPURenderWindow::ReleaseRGBAPixelData(float* data)
 unsigned char* vtkWebGPURenderWindow::GetRGBACharPixelData(
   int x, int y, int x2, int y2, int front, int right /*=0*/)
 {
+  (void)front;
+  (void)right;
   this->ReadPixels();
 
   PixelReadDescriptor desc = ::GetPixelReadDesriptor(this->ColorAttachment.Texture, x, y, x2, y2);
@@ -928,14 +943,14 @@ unsigned char* vtkWebGPURenderWindow::GetRGBACharPixelData(
   }
 
   vtkIdType dstIdx = 0;
-  for (int y = desc.Rect.GetY(); y < desc.Rect.GetTop(); ++y)
+  for (int j = desc.Rect.GetY(); j < desc.Rect.GetTop(); ++j)
   {
-    for (int x = desc.Rect.GetX(); x < desc.Rect.GetRight(); ++x)
+    for (int i = desc.Rect.GetX(); i < desc.Rect.GetRight(); ++i)
     {
       for (auto& comp : componentMap)
       {
         pixels[dstIdx++] = this->CachedPixelBytes->GetValue(
-          y * desc.NumBytesPerRow + x * desc.NumColorComponents + comp);
+          j * desc.NumBytesPerRow + i * desc.NumColorComponents + comp);
       }
     }
   }
@@ -959,6 +974,9 @@ int vtkWebGPURenderWindow::GetRGBACharPixelData(
 int vtkWebGPURenderWindow::SetRGBACharPixelData(
   int x, int y, int x2, int y2, unsigned char* data, int front, int blend /*=0*/, int right /*=0*/)
 {
+  (void)front;
+  (void)blend;
+  (void)right;
   const int nComp = 4;
   int width = (x2 - x) + 1;
   int height = (y2 - y) + 1;
@@ -1038,19 +1056,34 @@ int vtkWebGPURenderWindow::SetRGBACharPixelData(int x, int y, int x2, int y2,
 }
 
 //------------------------------------------------------------------------------
-float* vtkWebGPURenderWindow::GetZbufferData(int x1, int y1, int x2, int y2) {}
+float* vtkWebGPURenderWindow::GetZbufferData(int, int, int, int)
+{
+  return nullptr;
+}
 
 //------------------------------------------------------------------------------
-int vtkWebGPURenderWindow::GetZbufferData(int x1, int y1, int x2, int y2, float* z) {}
+int vtkWebGPURenderWindow::GetZbufferData(int, int, int, int, float*)
+{
+  return 0;
+}
 
 //------------------------------------------------------------------------------
-int vtkWebGPURenderWindow::GetZbufferData(int x1, int y1, int x2, int y2, vtkFloatArray* buffer) {}
+int vtkWebGPURenderWindow::GetZbufferData(int, int, int, int, vtkFloatArray*)
+{
+  return 0;
+}
 
 //------------------------------------------------------------------------------
-int vtkWebGPURenderWindow::SetZbufferData(int x1, int y1, int x2, int y2, float* buffer) {}
+int vtkWebGPURenderWindow::SetZbufferData(int, int, int, int, float*)
+{
+  return 0;
+}
 
 //------------------------------------------------------------------------------
-int vtkWebGPURenderWindow::SetZbufferData(int x1, int y1, int x2, int y2, vtkFloatArray* buffer) {}
+int vtkWebGPURenderWindow::SetZbufferData(int, int, int, int, vtkFloatArray*)
+{
+  return 0;
+}
 
 //------------------------------------------------------------------------------
 int vtkWebGPURenderWindow::GetColorBufferSizes(int* rgba)
@@ -1059,7 +1092,7 @@ int vtkWebGPURenderWindow::GetColorBufferSizes(int* rgba)
   rgba[1] = 8;
   rgba[2] = 8;
   rgba[3] = 8;
-  return 24;
+  return 32;
 }
 
 //------------------------------------------------------------------------------

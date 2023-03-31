@@ -18,27 +18,27 @@
 VTK_ABI_NAMESPACE_BEGIN
 //------------------------------------------------------------------------------
 vtkWebGPUInternalsBindGroup::BindingInitializationHelper::BindingInitializationHelper(
-  uint32_t binding, const wgpu::Sampler& sampler)
-  : binding(binding)
-  , sampler(sampler)
+  uint32_t _binding, const wgpu::Sampler& _sampler)
+  : binding(_binding)
+  , sampler(_sampler)
 {
 }
 
 //------------------------------------------------------------------------------
 vtkWebGPUInternalsBindGroup::BindingInitializationHelper::BindingInitializationHelper(
-  uint32_t binding, const wgpu::TextureView& textureView)
-  : binding(binding)
-  , textureView(textureView)
+  uint32_t _binding, const wgpu::TextureView& _textureView)
+  : binding(_binding)
+  , textureView(_textureView)
 {
 }
 
 //------------------------------------------------------------------------------
 vtkWebGPUInternalsBindGroup::BindingInitializationHelper::BindingInitializationHelper(
-  uint32_t binding, const wgpu::Buffer& buffer, uint64_t offset, uint64_t size)
-  : binding(binding)
-  , buffer(buffer)
-  , offset(offset)
-  , size(size)
+  uint32_t _binding, const wgpu::Buffer& _buffer, uint64_t _offset, uint64_t _size)
+  : binding(_binding)
+  , buffer(_buffer)
+  , offset(_offset)
+  , size(_size)
 {
 }
 

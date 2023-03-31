@@ -20,13 +20,27 @@
 #include "vtkRenderer.h"
 #include "vtkRendererCollection.h"
 #include "vtkWGPUContext.h"
-
+// Ignore reserved-identifier warnings from
+// 1. SDL2/SDL_stdinc.h: warning: identifier '_SDL_size_mul_overflow_builtin'
+// 2. SDL2/SDL_stdinc.h: warning: identifier '_SDL_size_add_overflow_builtin'
+// 3. SDL2/SDL_audio.h: warning: identifier '_SDL_AudioStream'
+// 4. SDL2/SDL_joystick.h: warning: identifier '_SDL_Joystick'
+// 5. SDL2/SDL_sensor.h: warning: identifier '_SDL_Sensor'
+// 6. SDL2/SDL_gamecontroller.h: warning: identifier '_SDL_GameController'
+// 7. SDL2/SDL_haptic.h: warning: identifier '_SDL_Haptic'
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wreserved-identifier"
+#endif
 #ifdef __EMSCRIPTEN__
 #include "SDL.h"
 #include "SDL_syswm.h"
 #else
 #include "SDL2/SDL.h"
 #include "SDL2/SDL_syswm.h"
+#endif
+#ifdef __clang__
+#pragma clang diagnostic pop
 #endif
 
 #ifdef VTK_DAWN_ENABLE_BACKEND_METAL

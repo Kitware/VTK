@@ -39,7 +39,10 @@ vtkWebGPUActor::vtkWebGPUActor() = default;
 vtkWebGPUActor::~vtkWebGPUActor() = default;
 
 //------------------------------------------------------------------------------
-void vtkWebGPUActor::PrintSelf(ostream& os, vtkIndent indent) {}
+void vtkWebGPUActor::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os, indent);
+}
 
 //------------------------------------------------------------------------------
 int vtkWebGPUActor::Update(vtkRenderer* ren, vtkMapper* mapper)

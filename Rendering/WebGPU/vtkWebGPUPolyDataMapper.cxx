@@ -57,7 +57,10 @@ vtkWebGPUPolyDataMapper::vtkWebGPUPolyDataMapper() = default;
 vtkWebGPUPolyDataMapper::~vtkWebGPUPolyDataMapper() = default;
 
 //------------------------------------------------------------------------------
-void vtkWebGPUPolyDataMapper::PrintSelf(ostream& os, vtkIndent indent) {}
+void vtkWebGPUPolyDataMapper::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os, indent);
+}
 
 //------------------------------------------------------------------------------
 void vtkWebGPUPolyDataMapper::RenderPiece(vtkRenderer* renderer, vtkActor* actor)
@@ -116,7 +119,7 @@ void vtkWebGPUPolyDataMapper::RenderPiece(vtkRenderer* renderer, vtkActor* actor
 
 //------------------------------------------------------------------------------
 void vtkWebGPUPolyDataMapper::EncodeRenderCommands(
-  vtkRenderer* renderer, vtkActor* actor, const wgpu::RenderPassEncoder& passEncoder)
+  vtkRenderer*, vtkActor* actor, const wgpu::RenderPassEncoder& passEncoder)
 {
   passEncoder.SetBindGroup(2, this->MeshAttributeBindGroup);
 
@@ -189,7 +192,7 @@ void vtkWebGPUPolyDataMapper::EncodeRenderCommands(
 
 //------------------------------------------------------------------------------
 void vtkWebGPUPolyDataMapper::EncodeRenderCommands(
-  vtkRenderer* renderer, vtkActor* actor, const wgpu::RenderBundleEncoder& bundleEncoder)
+  vtkRenderer*, vtkActor* actor, const wgpu::RenderBundleEncoder& bundleEncoder)
 {
   bundleEncoder.SetBindGroup(2, this->MeshAttributeBindGroup);
 
@@ -262,7 +265,7 @@ void vtkWebGPUPolyDataMapper::EncodeRenderCommands(
 
 //------------------------------------------------------------------------------
 void vtkWebGPUPolyDataMapper::SetupPipelineLayout(
-  const wgpu::Device& device, vtkRenderer* renderer, vtkActor* actor)
+  const wgpu::Device& device, vtkRenderer* renderer, vtkActor*)
 {
   this->MeshAttributeBindGroupLayout =
     vtkWebGPUInternalsBindGroupLayout::MakeBindGroupLayout(device,
@@ -294,8 +297,6 @@ void vtkWebGPUPolyDataMapper::SetupPipelineLayout(
   /// per-mapper pipeline creation?
   auto wgpuRenderer = reinterpret_cast<vtkWebGPURenderer*>(renderer);
   assert(wgpuRenderer != nullptr);
-  auto wgpuActor = reinterpret_cast<vtkWebGPUActor*>(actor);
-  assert(wgpuActor != nullptr);
   std::vector<wgpu::BindGroupLayout> bgls;
   wgpuRenderer->PopulateBindgroupLayouts(bgls);
   bgls.emplace_back(this->MeshAttributeBindGroupLayout);
@@ -305,7 +306,7 @@ void vtkWebGPUPolyDataMapper::SetupPipelineLayout(
 }
 
 //------------------------------------------------------------------------------
-void vtkWebGPUPolyDataMapper::SetupBindGroups(const wgpu::Device& device, vtkRenderer* renderer)
+void vtkWebGPUPolyDataMapper::SetupBindGroups(const wgpu::Device& device, vtkRenderer*)
 {
   if (!this->MeshAttributeBindGroup.Get())
   {
@@ -494,10 +495,6 @@ std::vector<unsigned long> vtkWebGPUPolyDataMapper::GetExactConnecitivityBufferS
     results.emplace_back(result);
   }
 
-  for (auto& result : results)
-  {
-    vtkDebugMacro(<< __func__ << "=" << result);
-  }
   vtkDebugMacro(<< __func__ << "=" << this->PointPrimitiveBGInfo.VertexCount);
   vtkDebugMacro(<< __func__ << "=" << this->LinePrimitiveBGInfo.VertexCount);
   vtkDebugMacro(<< __func__ << "=" << this->TrianglePrimitiveBGInfo.VertexCount);
@@ -535,7 +532,6 @@ struct WriteTypedArray
 //------------------------------------------------------------------------------
 bool vtkWebGPUPolyDataMapper::UpdateMeshGeometryBuffers(const wgpu::Device& device, vtkActor* actor)
 {
-  bool bufferModified = false;
   if (this->CachedInput == nullptr)
   {
     vtkDebugMacro(<< "No cached input.");
@@ -1017,29 +1013,26 @@ void vtkWebGPUPolyDataMapper::SetupGraphicsPipeline(
 void vtkWebGPUPolyDataMapper::ReleaseGraphicsResources(vtkWindow*) {}
 
 //------------------------------------------------------------------------------
-void vtkWebGPUPolyDataMapper::ShallowCopy(vtkAbstractMapper* m) {}
+void vtkWebGPUPolyDataMapper::ShallowCopy(vtkAbstractMapper*) {}
 
 //------------------------------------------------------------------------------
-void vtkWebGPUPolyDataMapper::MapDataArrayToVertexAttribute(const char* vertexAttributeName,
-  const char* dataArrayName, int fieldAssociation, int componentno /*=-1*/)
-{
-}
+void vtkWebGPUPolyDataMapper::MapDataArrayToVertexAttribute(const char*, const char*, int, int) {}
 
 //------------------------------------------------------------------------------
 void vtkWebGPUPolyDataMapper::MapDataArrayToMultiTextureAttribute(
-  const char* tname, const char* dataArrayName, int fieldAssociation, int componentno /*=-1*/)
+  const char*, const char*, int, int)
 {
 }
 
 //------------------------------------------------------------------------------
-void vtkWebGPUPolyDataMapper::RemoveVertexAttributeMapping(const char* vertexAttributeName) {}
+void vtkWebGPUPolyDataMapper::RemoveVertexAttributeMapping(const char*) {}
 
 //------------------------------------------------------------------------------
 void vtkWebGPUPolyDataMapper::RemoveAllVertexAttributeMappings() {}
 
 //------------------------------------------------------------------------------
 void vtkWebGPUPolyDataMapper::ProcessSelectorPixelBuffers(
-  vtkHardwareSelector* sel, std::vector<unsigned int>& pixeloffsets, vtkProp* prop)
+  vtkHardwareSelector*, std::vector<unsigned int>&, vtkProp*)
 {
 }
 

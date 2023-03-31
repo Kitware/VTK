@@ -29,13 +29,16 @@ vtkWebGPUProperty::~vtkWebGPUProperty() = default;
 
 //------------------------------------------------------------------------------
 // Implement base class method.
-void vtkWebGPUProperty::Render(vtkActor* anActor, vtkRenderer* ren) {}
+void vtkWebGPUProperty::Render(vtkActor*, vtkRenderer*) {}
 
 //------------------------------------------------------------------------------
-bool vtkWebGPUProperty::RenderTextures(vtkActor*, vtkRenderer* ren) {}
+bool vtkWebGPUProperty::RenderTextures(vtkActor*, vtkRenderer*)
+{
+  return false;
+}
 
 //------------------------------------------------------------------------------
-void vtkWebGPUProperty::PostRender(vtkActor* actor, vtkRenderer* renderer) {}
+void vtkWebGPUProperty::PostRender(vtkActor*, vtkRenderer*) {}
 
 //------------------------------------------------------------------------------
 // Implement base class method.
@@ -44,8 +47,11 @@ void vtkWebGPUProperty::BackfaceRender(vtkActor* vtkNotUsed(anActor), vtkRendere
 }
 
 //------------------------------------------------------------------------------
-void vtkWebGPUProperty::ReleaseGraphicsResources(vtkWindow* win) {}
+void vtkWebGPUProperty::ReleaseGraphicsResources(vtkWindow*) {}
 
 //------------------------------------------------------------------------------
-void vtkWebGPUProperty::PrintSelf(ostream& os, vtkIndent indent) {}
+void vtkWebGPUProperty::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os, indent);
+}
 VTK_ABI_NAMESPACE_END

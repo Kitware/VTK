@@ -37,10 +37,10 @@ vtkWebGPUHardwareSelector::vtkWebGPUHardwareSelector() = default;
 vtkWebGPUHardwareSelector::~vtkWebGPUHardwareSelector() = default;
 
 //------------------------------------------------------------------------------
-void vtkWebGPUHardwareSelector::PreCapturePass(int pass) {}
+void vtkWebGPUHardwareSelector::PreCapturePass(int) {}
 
 //------------------------------------------------------------------------------
-void vtkWebGPUHardwareSelector::PostCapturePass(int pass) {}
+void vtkWebGPUHardwareSelector::PostCapturePass(int) {}
 
 //------------------------------------------------------------------------------
 void vtkWebGPUHardwareSelector::BeginSelection() {}
@@ -50,7 +50,7 @@ void vtkWebGPUHardwareSelector::EndSelection() {}
 
 //------------------------------------------------------------------------------
 // just add debug output if compiled with vtkWebGPUHardwareSelectorDEBUG
-void vtkWebGPUHardwareSelector::SavePixelBuffer(int passNo) {}
+void vtkWebGPUHardwareSelector::SavePixelBuffer(int) {}
 
 //------------------------------------------------------------------------------
 void vtkWebGPUHardwareSelector::BeginRenderProp(vtkRenderWindow*) {}
@@ -65,11 +65,11 @@ void vtkWebGPUHardwareSelector::EndRenderProp(vtkRenderWindow*) {}
 void vtkWebGPUHardwareSelector::EndRenderProp() {}
 
 //------------------------------------------------------------------------------
-void vtkWebGPUHardwareSelector::RenderCompositeIndex(unsigned int index) {}
+void vtkWebGPUHardwareSelector::RenderCompositeIndex(unsigned int) {}
 
 //------------------------------------------------------------------------------
-void vtkWebGPUHardwareSelector::RenderProcessId(unsigned int processid) {}
+void vtkWebGPUHardwareSelector::RenderProcessId(unsigned int) {}
 
 //------------------------------------------------------------------------------
-void vtkWebGPUHardwareSelector::PrintSelf(ostream& os, vtkIndent indent) {}
+void vtkWebGPUHardwareSelector::PrintSelf(ostream&, vtkIndent) {}
 VTK_ABI_NAMESPACE_END

@@ -49,7 +49,6 @@ void vtkWebGPUCamera::CacheSceneTransforms(vtkRenderer* renderer)
     vtkMatrix4x4* view = this->GetModelViewTransformMatrix();
     SceneTransforms& st = this->CachedSceneTransforms;
 
-    int idx = 0;
     for (int i = 0; i < 4; ++i)
     {
       for (int j = 0; j < 4; ++j)

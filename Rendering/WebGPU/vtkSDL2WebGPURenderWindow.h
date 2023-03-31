@@ -66,7 +66,7 @@ public:
    * Set the size of the window in pixels.
    */
   void SetSize(int, int) override;
-  void SetSize(int a[2]) override { this->SetSize(a); }
+  void SetSize(int a[2]) override { this->SetSize(a[0], a[1]); }
   ///@}
 
   /**
@@ -79,7 +79,7 @@ public:
    * Set the position of the window.
    */
   void SetPosition(int, int) override;
-  void SetPosition(int a[2]) override { this->SetPosition(a); }
+  void SetPosition(int a[2]) override { this->SetPosition(a[0], a[1]); }
   ///@}
 
   /**
