@@ -181,7 +181,7 @@ int Test_fft_cplx()
     auto is_equal = std::equal(expected.begin(), expected.end(), res.begin(), comparator);
     if (!is_equal)
     {
-      std::cout << "..Error when doing FFT with 1 freq with C API..";
+      std::cerr << "..Error when doing FFT with 1 freq with C API..";
       status++;
     }
   }
@@ -204,12 +204,12 @@ int Test_fft_cplx()
 
     if (res->GetNumberOfComponents() != 2)
     {
-      std::cout << ".vtkFFT::Fft(vtkScalarNumberArray*) wrong number of components.";
+      std::cerr << ".vtkFFT::Fft(vtkScalarNumberArray*) wrong number of components.";
       status++;
     }
     else if (res->GetNumberOfTuples() != countOut)
     {
-      std::cout << ".vtkFFT::Fft(vtkScalarNumberArray*) wrong number of tuples.";
+      std::cerr << ".vtkFFT::Fft(vtkScalarNumberArray*) wrong number of tuples.";
       status++;
     }
     else
@@ -221,20 +221,13 @@ int Test_fft_cplx()
         });
       if (!is_equal)
       {
-        std::cout << "..Error when using vtkDataArrays API..";
+        std::cerr << "..Error when using vtkDataArrays API..";
         status++;
       }
     }
   }
 
-  if (status)
-  {
-    std::cout << "..FAILED" << std::endl;
-  }
-  else
-  {
-    std::cout << ".PASSED" << std::endl;
-  }
+  std::cout << (status ? "..FAILED" : ".PASSED") << std::endl;
   return status;
 }
 
@@ -278,12 +271,12 @@ int Test_fft_direct()
   auto resultVtkOnes = vtkFFT::RFft(vtkOnes);
   if (resultVtkOnes->GetNumberOfComponents() != 2)
   {
-    std::cout << ".vtkFFT::RFft(vtkOnes) wrong number of components." << std::endl;
+    std::cerr << ".vtkFFT::RFft(vtkOnes) wrong number of components." << std::endl;
     status++;
   }
   else if (resultVtkOnes->GetNumberOfTuples() != countOut)
   {
-    std::cout << ".vtkFFT::RFft(vtkOnes) wrong number of tuples." << std::endl;
+    std::cerr << ".vtkFFT::RFft(vtkOnes) wrong number of tuples." << std::endl;
     status++;
   }
   else
@@ -293,7 +286,7 @@ int Test_fft_direct()
     if (!vtkMathUtilities::FuzzyCompare((*iter)[0], 16.0) ||
       !vtkMathUtilities::FuzzyCompare((*iter)[1], 0.0))
     {
-      std::cout << ".vtkFFT::RFft(vtkOnes) wrong first value." << std::endl;
+      std::cerr << ".vtkFFT::RFft(vtkOnes) wrong first value." << std::endl;
       status++;
     }
     for (iter++; iter != resRange.cend(); ++iter)
@@ -301,20 +294,13 @@ int Test_fft_direct()
       if (!vtkMathUtilities::FuzzyCompare((*iter)[0], 0.0) ||
         !vtkMathUtilities::FuzzyCompare((*iter)[1], 0.0))
       {
-        std::cout << ".vtkFFT::RFft(vtkOnes) wrong values." << std::endl;
+        std::cerr << ".vtkFFT::RFft(vtkOnes) wrong values." << std::endl;
         status++;
       }
     }
   }
 
-  if (status)
-  {
-    std::cout << "..FAILED" << std::endl;
-  }
-  else
-  {
-    std::cout << ".PASSED" << std::endl;
-  }
+  std::cout << (status ? "..FAILED" : ".PASSED") << std::endl;
   return status;
 }
 
@@ -359,14 +345,7 @@ int Test_fft_inverse()
     status++;
   }
 
-  if (status)
-  {
-    std::cout << "..FAILED" << std::endl;
-  }
-  else
-  {
-    std::cout << ".PASSED" << std::endl;
-  }
+  std::cout << (status ? "..FAILED" : ".PASSED") << std::endl;
   return status;
 }
 
@@ -414,19 +393,12 @@ int Test_complex_module()
   double test1 = 5;
   if (!vtkMathUtilities::FuzzyCompare(module1, test1, std::numeric_limits<double>::epsilon()))
   {
-    std::cout << "Expected " << test1 << " but got " << module1 << " difference is "
+    std::cerr << "Expected " << test1 << " but got " << module1 << " difference is "
               << module1 - test1 << std::endl;
     status++;
   }
 
-  if (status)
-  {
-    std::cout << "..FAILED" << std::endl;
-  }
-  else
-  {
-    std::cout << ".PASSED" << std::endl;
-  }
+  std::cout << (status ? "..FAILED" : ".PASSED") << std::endl;
   return status;
 }
 
@@ -441,7 +413,7 @@ int Test_fftfreq()
 
   if (!(frequencies.size() == expected1.size()))
   {
-    std::cout << "Difference size: expected " << expected1.size() << " but got "
+    std::cerr << "Difference size: expected " << expected1.size() << " but got "
               << frequencies.size() << std::endl;
     status++;
   }
@@ -453,7 +425,7 @@ int Test_fftfreq()
 
     if (!vtkMathUtilities::FuzzyCompare(real, expected, std::numeric_limits<double>::epsilon()))
     {
-      std::cout << "Expected " << expected << " but got " << real << " difference is "
+      std::cerr << "Expected " << expected << " but got " << real << " difference is "
                 << expected - real << std::endl;
       status++;
     }
@@ -464,7 +436,7 @@ int Test_fftfreq()
     -0.444444444, -0.333333333, -0.222222222, -0.111111111 };
   if (!(frequencies.size() == expected2.size()))
   {
-    std::cout << "Difference size: expected " << expected2.size() << " but got "
+    std::cerr << "Difference size: expected " << expected2.size() << " but got "
               << frequencies.size() << std::endl;
     status++;
   }
@@ -476,20 +448,13 @@ int Test_fftfreq()
 
     if (!vtkMathUtilities::FuzzyCompare(real, expected, 1.0e-6))
     {
-      std::cout << "Expected " << expected << " but got " << real << " difference is "
+      std::cerr << "Expected " << expected << " but got " << real << " difference is "
                 << expected - real << std::endl;
       status++;
     }
   }
 
-  if (status)
-  {
-    std::cout << "..FAILED" << std::endl;
-  }
-  else
-  {
-    std::cout << ".PASSED" << std::endl;
-  }
+  std::cout << (status ? "..FAILED" : ".PASSED") << std::endl;
   return status;
 }
 
@@ -508,7 +473,7 @@ int Test_rfftfreq()
 
   if (!(frequencies.size() == test1.size()))
   {
-    std::cout << "Difference size: expected " << test1.size() << " but got " << frequencies.size()
+    std::cerr << "Difference size: expected " << test1.size() << " but got " << frequencies.size()
               << std::endl;
     status++;
   }
@@ -520,20 +485,13 @@ int Test_rfftfreq()
 
     if (!vtkMathUtilities::FuzzyCompare(real, expected, std::numeric_limits<double>::epsilon()))
     {
-      std::cout << "Expected " << expected << " but got " << real << " difference is "
+      std::cerr << "Expected " << expected << " but got " << real << " difference is "
                 << expected - real << std::endl;
       status++;
     }
   }
 
-  if (status)
-  {
-    std::cout << "..FAILED" << std::endl;
-  }
-  else
-  {
-    std::cout << ".PASSED" << std::endl;
-  }
+  std::cout << (status ? "..FAILED" : ".PASSED") << std::endl;
   return status;
 }
 
@@ -555,20 +513,13 @@ int Test_fft_direct_inverse()
   {
     if (!vtkMathUtilities::FuzzyCompare(input[i], result[i], 1e-06))
     {
-      std::cout << "Expected " << input[i] << " but got " << result[i] << " difference is "
+      std::cerr << "Expected " << input[i] << " but got " << result[i] << " difference is "
                 << input[i] - result[i] << std::endl;
       status++;
     }
   }
 
-  if (status)
-  {
-    std::cout << "..FAILED" << std::endl;
-  }
-  else
-  {
-    std::cout << ".PASSED" << std::endl;
-  }
+  std::cout << (status ? "..FAILED" : ".PASSED") << std::endl;
   return status;
 }
 
@@ -588,7 +539,7 @@ int Test_kernel_generation()
   vtkFFT::GenerateKernel1D(kernel.data(), 10, vtkFFT::BartlettGenerator);
   if (!FuzzyCompare(kernel, result, epsilon))
   {
-    std::cout << std::endl << " - Wrong Bartlett kernel";
+    std::cerr << std::endl << " - Wrong Bartlett kernel";
     status += 1;
   }
 
@@ -598,7 +549,7 @@ int Test_kernel_generation()
   vtkFFT::GenerateKernel1D(kernel.data(), 10, vtkFFT::BlackmanGenerator);
   if (!FuzzyCompare(kernel, result, epsilon))
   {
-    std::cout << std::endl << " - Wrong Blackman kernel";
+    std::cerr << std::endl << " - Wrong Blackman kernel";
     status += 1;
   }
 
@@ -608,7 +559,7 @@ int Test_kernel_generation()
   vtkFFT::GenerateKernel1D(kernel.data(), 10, vtkFFT::HanningGenerator);
   if (!FuzzyCompare(kernel, result, epsilon))
   {
-    std::cout << std::endl << " - Wrong Hanning kernel";
+    std::cerr << std::endl << " - Wrong Hanning kernel";
     status += 1;
   }
 
@@ -617,7 +568,7 @@ int Test_kernel_generation()
   vtkFFT::GenerateKernel1D(kernel.data(), 10, vtkFFT::SineGenerator);
   if (!FuzzyCompare(kernel, result, epsilon))
   {
-    std::cout << std::endl << " - Wrong Sine kernel";
+    std::cerr << std::endl << " - Wrong Sine kernel";
     status += 1;
   }
 
@@ -626,26 +577,18 @@ int Test_kernel_generation()
   vtkFFT::GenerateKernel1D(kernel.data(), 10, vtkFFT::RectangularGenerator);
   if (!FuzzyCompare(kernel, result, epsilon))
   {
-    std::cout << std::endl << " - Wrong Rectangular kernel";
+    std::cerr << std::endl << " - Wrong Rectangular kernel";
     status += 1;
   }
 
-  // ---
-  if (status)
-  {
-    std::cout << "..FAILED" << std::endl;
-  }
-  else
-  {
-    std::cout << "..PASSED" << std::endl;
-  }
+  std::cout << (status ? "..FAILED" : ".PASSED") << std::endl;
   return status;
 }
 
 int Test_csd()
 {
   int status = 0;
-  std::cerr << "Test_csd..";
+  std::cout << "Test_csd..";
 
   constexpr double sample_rate = 500.0e6;
   constexpr double time_step = 1 / sample_rate;
@@ -729,17 +672,13 @@ int Test_csd()
     }
   }
 
-  if (status == 0)
-  {
-    std::cerr << "..PASSED" << std::endl;
-  }
-
+  std::cout << (status ? "..FAILED" : ".PASSED") << std::endl;
   return status;
 }
 
 int Test_transpose()
 {
-  std::cerr << "Test_transpose..";
+  std::cout << "Test_transpose..";
   unsigned int shape[2] = { 4, 3 };
   std::vector<int> input(shape[0] * shape[1]);
   std::iota(input.begin(), input.end(), 0);
@@ -771,11 +710,7 @@ int Test_transpose()
     status++;
   }
 
-  if (status == 0)
-  {
-    std::cerr << "..PASSED" << std::endl;
-  }
-
+  std::cout << (status ? "..FAILED" : ".PASSED") << std::endl;
   return status;
 }
 
@@ -806,8 +741,8 @@ int Test_octave()
     !vtkMathUtilities::FuzzyCompare(
       freq500HzOctaveBaseTwo[1], TestResults::Expected_freq500HzOctaveBaseTwo[1], 0.001))
   {
-    std::cerr << "..Octave frequencies base-two FAILED" << std::endl;
-    std::cerr << "Expected (" << TestResults::Expected_freq500HzOctaveBaseTwo[0] << ", "
+    std::cerr << "..Octave frequencies base-two FAILED" << std::endl
+              << "Expected (" << TestResults::Expected_freq500HzOctaveBaseTwo[0] << ", "
               << TestResults::Expected_freq500HzOctaveBaseTwo[1] << ") but got ("
               << freq500HzOctaveBaseTwo[0] << ", " << freq500HzOctaveBaseTwo[1] << ")" << std::endl;
     status++;
@@ -817,8 +752,8 @@ int Test_octave()
     !vtkMathUtilities::FuzzyCompare(
       freq500HzThirdOctaveBaseTen[1], TestResults::Expected_freq500HzThirdOctaveBaseTen[1], 0.001))
   {
-    std::cerr << "..Third-octave frequencies base-ten FAILED" << std::endl;
-    std::cerr << "Expected (" << TestResults::Expected_freq500HzThirdOctaveBaseTen[0] << ", "
+    std::cerr << "..Third-octave frequencies base-ten FAILED" << std::endl
+              << "Expected (" << TestResults::Expected_freq500HzThirdOctaveBaseTen[0] << ", "
               << TestResults::Expected_freq500HzThirdOctaveBaseTen[1] << ") but got ("
               << freq500HzThirdOctaveBaseTen[0] << ", " << freq500HzThirdOctaveBaseTen[1] << ")"
               << std::endl;
@@ -829,15 +764,15 @@ int Test_octave()
     !vtkMathUtilities::FuzzyCompare(
       freq8kHzHalfOctaveBaseTwo[1], TestResults::Expected_freq8kHzHalfOctaveBaseTwo[1], 0.001))
   {
-    std::cerr << "..Half-octave frequencies base-two FAILED" << std::endl;
-    std::cerr << "Expected (" << TestResults::Expected_freq8kHzHalfOctaveBaseTwo[0] << ", "
+    std::cerr << "..Half-octave frequencies base-two FAILED" << std::endl
+              << "Expected (" << TestResults::Expected_freq8kHzHalfOctaveBaseTwo[0] << ", "
               << TestResults::Expected_freq8kHzHalfOctaveBaseTwo[1] << ") but got ("
               << freq8kHzHalfOctaveBaseTwo[0] << ", " << freq8kHzHalfOctaveBaseTwo[1] << ")"
               << std::endl;
     status++;
   }
 
-  std::cout << (status == 0 ? "..PASSED" : "..FAILED") << std::endl;
+  std::cout << (status ? "..FAILED" : ".PASSED") << std::endl;
   return status;
 }
 
