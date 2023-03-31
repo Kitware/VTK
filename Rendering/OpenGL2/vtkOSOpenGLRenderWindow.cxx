@@ -439,7 +439,7 @@ const char* vtkOSOpenGLRenderWindow::ReportCapabilities()
   strm << "OpenGL vendor string:  " << glVendor << endl;
   strm << "OpenGL renderer string:  " << glRenderer << endl;
   strm << "OpenGL version string:  " << glVersion << endl;
-  strm << "OpenGL extensions:  " << glExtensions << endl;
+  strm << "OpenGL extensions:  " << (glExtensions ? glExtensions : "(none)") << endl;
   delete[] this->Capabilities;
   size_t len = strm.str().length();
   this->Capabilities = new char[len + 1];
