@@ -72,6 +72,10 @@ struct TestResults
   // 'density', mode='complex')
   // print(np.transpose(result)[1])
   static const std::vector<vtkFFT::ComplexNumber> ExpectedStft;
+
+  static const std::array<double, 2> Expected_freq500HzOctaveBaseTwo;
+  static const std::array<double, 2> Expected_freq500HzThirdOctaveBaseTen;
+  static const std::array<double, 2> Expected_freq8kHzHalfOctaveBaseTwo;
 };
 
 static int Test_fft_cplx();
@@ -85,6 +89,7 @@ static int Test_fft_direct_inverse();
 static int Test_kernel_generation();
 static int Test_csd();
 static int Test_transpose();
+static int Test_octave();
 
 int UnitTestFFT(int, char*[])
 {
@@ -101,6 +106,7 @@ int UnitTestFFT(int, char*[])
   status += Test_kernel_generation();
   status += Test_csd();
   status += Test_transpose();
+  status += Test_octave();
 
   if (status != 0)
   {
@@ -773,6 +779,68 @@ int Test_transpose()
   return status;
 }
 
+int Test_octave()
+{
+  int status = 0;
+  std::cout << "Test_octave..";
+
+  const std::array<double, 2> freq500HzOctaveBaseTwo =
+    vtkFFT::GetOctaveFrequencyRange(vtkFFT::Octave::Hz_500, /* Octave */
+      vtkFFT::OctaveSubdivision::Full,                      /* OctaveSubdivision -> octave */
+      true                                                  /* BaseTwoOctave -> base-two */
+    );
+
+  const std::array<double, 2> freq500HzThirdOctaveBaseTen =
+    vtkFFT::GetOctaveFrequencyRange(vtkFFT::Octave::Hz_500, /* Octave */
+      vtkFFT::OctaveSubdivision::SecondThird, /* OctaveSubdivision -> second third-octave */
+      false                                   /* BaseTwoOctave -> base-ten */
+    );
+  const std::array<double, 2> freq8kHzHalfOctaveBaseTwo =
+    vtkFFT::GetOctaveFrequencyRange(vtkFFT::Octave::kHz_8, /* Octave */
+      vtkFFT::OctaveSubdivision::FirstHalf, /* OctaveSubdivision -> first half-octave */
+      true                                  /* BaseTwoOctave -> base-two */
+    );
+
+  if (!vtkMathUtilities::FuzzyCompare(
+        freq500HzOctaveBaseTwo[0], TestResults::Expected_freq500HzOctaveBaseTwo[0], 0.001) ||
+    !vtkMathUtilities::FuzzyCompare(
+      freq500HzOctaveBaseTwo[1], TestResults::Expected_freq500HzOctaveBaseTwo[1], 0.001))
+  {
+    std::cerr << "..Octave frequencies base-two FAILED" << std::endl;
+    std::cerr << "Expected (" << TestResults::Expected_freq500HzOctaveBaseTwo[0] << ", "
+              << TestResults::Expected_freq500HzOctaveBaseTwo[1] << ") but got ("
+              << freq500HzOctaveBaseTwo[0] << ", " << freq500HzOctaveBaseTwo[1] << ")" << std::endl;
+    status++;
+  }
+  if (!vtkMathUtilities::FuzzyCompare(freq500HzThirdOctaveBaseTen[0],
+        TestResults::Expected_freq500HzThirdOctaveBaseTen[0], 0.001) ||
+    !vtkMathUtilities::FuzzyCompare(
+      freq500HzThirdOctaveBaseTen[1], TestResults::Expected_freq500HzThirdOctaveBaseTen[1], 0.001))
+  {
+    std::cerr << "..Third-octave frequencies base-ten FAILED" << std::endl;
+    std::cerr << "Expected (" << TestResults::Expected_freq500HzThirdOctaveBaseTen[0] << ", "
+              << TestResults::Expected_freq500HzThirdOctaveBaseTen[1] << ") but got ("
+              << freq500HzThirdOctaveBaseTen[0] << ", " << freq500HzThirdOctaveBaseTen[1] << ")"
+              << std::endl;
+    status++;
+  }
+  if (!vtkMathUtilities::FuzzyCompare(
+        freq8kHzHalfOctaveBaseTwo[0], TestResults::Expected_freq8kHzHalfOctaveBaseTwo[0], 0.001) ||
+    !vtkMathUtilities::FuzzyCompare(
+      freq8kHzHalfOctaveBaseTwo[1], TestResults::Expected_freq8kHzHalfOctaveBaseTwo[1], 0.001))
+  {
+    std::cerr << "..Half-octave frequencies base-two FAILED" << std::endl;
+    std::cerr << "Expected (" << TestResults::Expected_freq8kHzHalfOctaveBaseTwo[0] << ", "
+              << TestResults::Expected_freq8kHzHalfOctaveBaseTwo[1] << ") but got ("
+              << freq8kHzHalfOctaveBaseTwo[0] << ", " << freq8kHzHalfOctaveBaseTwo[1] << ")"
+              << std::endl;
+    status++;
+  }
+
+  std::cout << (status == 0 ? "..PASSED" : "..FAILED") << std::endl;
+  return status;
+}
+
 // ----------------------------------------------------------------------------
 // Raw test data
 
@@ -955,3 +1023,8 @@ const std::vector<vtkFFT::ComplexNumber> TestResults::ExpectedStft = { { -1.0445
   { 7.94546889e-07, -4.62643224e-08 }, { 7.94486338e-07, -3.69945167e-08 },
   { 7.94439319e-07, -2.77360148e-08 }, { 7.94405774e-07, -1.84859787e-08 },
   { 7.94385664e-07, -9.24158072e-09 }, { 7.94378963e-07, +0.00000000e+00 } };
+
+const std::array<double, 2> TestResults::Expected_freq500HzOctaveBaseTwo = { 353.553, 707.107 };
+const std::array<double, 2> TestResults::Expected_freq500HzThirdOctaveBaseTen = { 446.684,
+  562.341 };
+const std::array<double, 2> TestResults::Expected_freq8kHzHalfOctaveBaseTwo = { 5656.854, 8000.0 };
