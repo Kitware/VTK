@@ -173,7 +173,8 @@ void vtkWebGPURenderWindow::WGPUFinalize()
   vtkDebugMacro(<< __func__ << " WGPUInitialized=" << this->WGPUInitialized);
   this->DestroyDepthStencilTexture();
   this->DestroySwapChain();
-  this->Device.Release();
+  this->Device.SetDeviceLostCallback(nullptr, nullptr);
+  this->Device = nullptr;
 }
 
 //------------------------------------------------------------------------------
@@ -215,7 +216,7 @@ void vtkWebGPURenderWindow::CreateSwapChain()
 void vtkWebGPURenderWindow::DestroySwapChain()
 {
   vtkDebugMacro(<< __func__);
-  this->SwapChain.Instance.Release();
+  this->SwapChain.Instance = nullptr;
 }
 
 //------------------------------------------------------------------------------
@@ -256,8 +257,8 @@ void vtkWebGPURenderWindow::CreateDepthStencilTexture()
 void vtkWebGPURenderWindow::DestroyDepthStencilTexture()
 {
   vtkDebugMacro(<< __func__);
-  this->DepthStencil.View.Release();
-  this->DepthStencil.Texture.Release();
+  this->DepthStencil.View = nullptr;
+  this->DepthStencil.Texture = nullptr;
 }
 
 //------------------------------------------------------------------------------
@@ -311,9 +312,9 @@ void vtkWebGPURenderWindow::CreateOffscreenColorAttachments()
 void vtkWebGPURenderWindow::DestroyOffscreenColorAttachments()
 {
   this->ColorAttachment.OffscreenBuffer.Destroy();
-  this->ColorAttachment.OffscreenBuffer.Release();
-  this->ColorAttachment.View.Release();
-  this->ColorAttachment.Texture.Release();
+  this->ColorAttachment.OffscreenBuffer = nullptr;
+  this->ColorAttachment.View = nullptr;
+  this->ColorAttachment.Texture = nullptr;
 }
 
 //------------------------------------------------------------------------------
@@ -391,8 +392,8 @@ void vtkWebGPURenderWindow::CreateFSQGraphicsPipeline()
 //------------------------------------------------------------------------------
 void vtkWebGPURenderWindow::DestroyFSQGraphicsPipeline()
 {
-  this->FSQ.BindGroup.Release();
-  this->FSQ.Pipeline.Release();
+  this->FSQ.BindGroup = nullptr;
+  this->FSQ.Pipeline = nullptr;
 }
 
 //------------------------------------------------------------------------------
@@ -524,20 +525,20 @@ void vtkWebGPURenderWindow::Frame()
   wgpu::CommandBufferDescriptor cmdBufDesc = {};
   wgpu::CommandBuffer cmdBuffer = this->CommandEncoder.Finish(&cmdBufDesc);
 
-  this->CommandEncoder.Release();
+  this->CommandEncoder = nullptr;
   this->FlushCommandBuffers(1, &cmdBuffer);
 
   // On web, html5 `requestAnimateFrame` takes care of presentation.
 #ifndef __EMSCRIPTEN__
   this->SwapChain.Instance.Present();
 #endif
-  this->SwapChain.Framebuffer.Release();
+  this->SwapChain.Framebuffer = nullptr;
 
   // Clean up staging buffer for SetPixelData.
   if (this->StagingPixelData.Buffer.Get() != nullptr)
   {
     this->StagingPixelData.Buffer.Destroy();
-    this->StagingPixelData.Buffer.Release();
+    this->StagingPixelData.Buffer = nullptr;
   }
 
 #ifndef NDEBUG

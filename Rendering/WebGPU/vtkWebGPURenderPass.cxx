@@ -34,7 +34,7 @@ void vtkWebGPURenderPass::PrintSelf(ostream& os, vtkIndent indent)
 void vtkWebGPURenderPass::End(const vtkRenderState*, wgpu::RenderPassEncoder&& pass)
 {
   pass.End();
-  pass.Release();
+  pass = nullptr;
 }
 
 //------------------------------------------------------------------------------
