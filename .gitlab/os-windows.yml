@@ -312,8 +312,8 @@
         - python setup.py bdist_wheel
         - python "$env:GIT_CLONE_PATH\.gitlab\ci\create_wheel_sdk_archive.py"
         - pip install delvewheel
-        - delvewheel show (Get-ChildItem dist\*.whl | % FullName) | Out-File -FilePath "$env:GIT_CLONE_PATH\wheel_output.log"
-        - delvewheel repair (Get-ChildItem dist\*.whl | % FullName) | Out-File -Append -FilePath "$env:GIT_CLONE_PATH\wheel_output.log"
+        - delvewheel show --add-path "bin;$env:CI_PROJECT_DIR\.gitlab\osmesa\bin" (Get-ChildItem dist\*.whl | % FullName) | Out-File -FilePath "$env:GIT_CLONE_PATH\wheel_output.log"
+        - delvewheel repair --add-path "bin;$env:CI_PROJECT_DIR\.gitlab\osmesa\bin" (Get-ChildItem dist\*.whl | % FullName) | Out-File -Append -FilePath "$env:GIT_CLONE_PATH\wheel_output.log"
         - Rename-Item -Path dist -NewName dist-orig
         - Rename-Item -Path wheelhouse -NewName dist
         - cd ..
