@@ -138,8 +138,9 @@ void vtkWebGPURenderer::CreateBuffers()
   const auto lightSizePadded = vtkWGPUContext::Align(lightSize, 32);
 
   // use padded for actor because dynamic offsets are used.
-  const auto actorBlkSize = this->Props->GetNumberOfItems() *
-    vtkWGPUContext::Align(vtkWebGPUActor::GetCacheSizeBytes(), 256);
+  const auto actorBlkSize = vtkMath::Max<std::size_t>(this->Props->GetNumberOfItems() *
+      vtkWGPUContext::Align(vtkWebGPUActor::GetCacheSizeBytes(), 256),
+    256);
 
   auto wgpuRenWin = vtkWebGPURenderWindow::SafeDownCast(this->GetRenderWindow());
   const wgpu::Device& device = wgpuRenWin->GetDevice();
