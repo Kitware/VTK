@@ -13,3 +13,4 @@ PRIVATE_DEPENDS
   VTK::WrappingPythonCore
 TEST_DEPENDS
   VTK::TestingCore
+  VTK::TestingRendering
