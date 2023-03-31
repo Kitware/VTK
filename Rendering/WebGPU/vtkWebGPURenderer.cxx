@@ -111,10 +111,12 @@ std::size_t vtkWebGPURenderer::WriteActorBlocksBuffer(std::size_t offset /*=0*/)
 
   const auto size = vtkWGPUContext::Align(vtkWebGPUActor::GetCacheSizeBytes(), 256);
   std::vector<uint8_t> stage;
-  stage.resize(this->PropArrayCount * size);
-  for (int i = 0; i < this->PropArrayCount; ++i)
+  stage.resize(this->Props->GetNumberOfItems() * size);
+  vtkProp* aProp = nullptr;
+  vtkCollectionSimpleIterator piter;
+  for (this->Props->InitTraversal(piter); (aProp = this->Props->GetNextProp(piter));)
   {
-    vtkWebGPUActor* wgpuActor = reinterpret_cast<vtkWebGPUActor*>(this->PropArray[i]);
+    vtkWebGPUActor* wgpuActor = reinterpret_cast<vtkWebGPUActor*>(aProp);
     assert(wgpuActor != nullptr);
 
     const auto data = wgpuActor->GetCachedActorInformation();
@@ -136,8 +138,8 @@ void vtkWebGPURenderer::CreateBuffers()
   const auto lightSizePadded = vtkWGPUContext::Align(lightSize, 32);
 
   // use padded for actor because dynamic offsets are used.
-  const auto actorBlkSize =
-    this->PropArrayCount * vtkWGPUContext::Align(vtkWebGPUActor::GetCacheSizeBytes(), 256);
+  const auto actorBlkSize = this->Props->GetNumberOfItems() *
+    vtkWGPUContext::Align(vtkWebGPUActor::GetCacheSizeBytes(), 256);
 
   auto wgpuRenWin = vtkWebGPURenderWindow::SafeDownCast(this->GetRenderWindow());
   const wgpu::Device& device = wgpuRenWin->GetDevice();
@@ -190,7 +192,22 @@ void vtkWebGPURenderer::CreateBuffers()
 
   if (createActorBindGroup)
   {
+    // delete outdated info.
+    this->PropWGPUItems.clear();
     this->SetupActorBindGroup();
+    // build new cache for bundles and dynamic offsets.
+    vtkProp* aProp = nullptr;
+    vtkCollectionSimpleIterator piter;
+    const auto size = vtkWGPUContext::Align(vtkWebGPUActor::GetCacheSizeBytes(), 256);
+    int i = 0;
+    for (this->Props->InitTraversal(piter); (aProp = this->Props->GetNextProp(piter)); i++)
+    {
+      vtkWGPUPropItem item;
+      item.Bundle = nullptr;
+      item.DynamicOffsets = vtk::TakeSmartPointer(vtkTypeUInt32Array::New());
+      item.DynamicOffsets->InsertNextValue(i * size);
+      this->PropWGPUItems.emplace(aProp, item);
+    }
   }
 }
 
@@ -220,16 +237,6 @@ void vtkWebGPURenderer::DeviceRender()
   this->BeginEncoding(); // all pipelines execute in single render pass, for now.
   this->ActiveCamera->UpdateViewport(this);
 
-  ///@{ FIXME: Leaks memory when we recreate them.
-  if (this->PropArrayCount != static_cast<int>(this->Bundles.size()))
-  {
-    // FIXME: Re-use bundles that don't need to be re-built.
-    this->Bundles.clear();
-    // All props must re-bundle their commands.
-    std::fill(this->ReBundleProps.begin(), this->ReBundleProps.end(), 1);
-  }
-  ///@}
-
   if (!this->UseRenderBundles)
   {
     this->WGPURenderEncoder.SetBindGroup(0, this->SceneBindGroup);
@@ -240,26 +247,22 @@ void vtkWebGPURenderer::DeviceRender()
     this->BundleCacheStats.TotalRequests = 0;
     this->BundleCacheStats.Hits = 0;
     this->BundleCacheStats.Misses = 0;
-    if (this->Bundles.empty())
+    this->RenderGeometry();
+    if (!this->Bundles.empty())
     {
-      this->Bundles.resize(this->ReBundleProps.size());
-      this->RenderGeometry();
+      vtkDebugMacro(<< "Bundle cache summary:\n"
+                    << "Total requests: " << this->BundleCacheStats.TotalRequests << "\n"
+                    << "Hit ratio: "
+                    << (this->BundleCacheStats.Hits / this->BundleCacheStats.TotalRequests) * 100
+                    << "%\n"
+                    << "Miss ratio: "
+                    << (this->BundleCacheStats.Misses / this->BundleCacheStats.TotalRequests) * 100
+                    << "%\n"
+                    << "Hit: " << this->BundleCacheStats.Hits << "\n"
+                    << "Miss: " << this->BundleCacheStats.Misses << "\n");
+      this->WGPURenderEncoder.ExecuteBundles(this->Bundles.size(), this->Bundles.data());
     }
-    else
-    {
-      this->RenderGeometry();
-    }
-    vtkDebugMacro(<< "Bundle cache summary:\n"
-                  << "Total requests: " << this->BundleCacheStats.TotalRequests << "\n"
-                  << "Hit ratio: "
-                  << (this->BundleCacheStats.Hits / this->BundleCacheStats.TotalRequests) * 100
-                  << "%\n"
-                  << "Miss ratio: "
-                  << (this->BundleCacheStats.Misses / this->BundleCacheStats.TotalRequests) * 100
-                  << "%\n"
-                  << "Hit: " << this->BundleCacheStats.Hits << "\n"
-                  << "Miss: " << this->BundleCacheStats.Misses << "\n");
-    this->WGPURenderEncoder.ExecuteBundles(this->Bundles.size(), this->Bundles.data());
+    this->Bundles.clear();
   }
   this->EndEncoding();
 }
@@ -293,7 +296,6 @@ int vtkWebGPURenderer::UpdateGeometry(vtkFrameBufferObjectBase* vtkNotUsed(fbo) 
   {
     return 0;
   }
-  this->ReBundleProps.resize(this->PropArrayCount, 0);
   return this->UpdateOpaquePolygonalGeometry();
 }
 
@@ -307,7 +309,12 @@ int vtkWebGPURenderer::UpdateOpaquePolygonalGeometry()
     wgpuActor->CacheActorRenderOptions();
     wgpuActor->CacheActorShadeOptions();
     wgpuActor->CacheActorTransforms();
-    this->ReBundleProps[i] = wgpuActor->Update(this, wgpuActor->GetMapper());
+    if (wgpuActor->Update(this, wgpuActor->GetMapper()))
+    {
+      // mapper's buffers and bind points have changed. bundle is outdated.
+      auto& wgpuPropItem = this->PropWGPUItems[this->PropArray[i]];
+      wgpuPropItem.Bundle = nullptr;
+    }
   }
   this->NumberOfPropsUpdated += result;
   return result;
@@ -317,36 +324,31 @@ int vtkWebGPURenderer::UpdateOpaquePolygonalGeometry()
 void vtkWebGPURenderer::DeviceRenderOpaqueGeometry(vtkFrameBufferObjectBase* vtkNotUsed(fbo))
 {
   int result = 0;
-  vtkNew<vtkTypeUInt32Array> offsets;
-  // currently supports only bind group with dynamic offsets. (ActorBindGroup)
-  offsets->SetNumberOfValues(1);
-
-  std::size_t uboOffset = vtkWGPUContext::Align(vtkWebGPUActor::GetCacheSizeBytes(), 256);
 
   for (int i = 0; i < this->PropArrayCount; i++)
   {
+    auto& wgpuPropItem = this->PropWGPUItems[this->PropArray[i]];
+    auto wgpuActor = reinterpret_cast<vtkWebGPUActor*>(this->PropArray[i]);
     if (this->UseRenderBundles)
     {
       this->BundleCacheStats.TotalRequests++;
-      if (this->ReBundleProps[i])
+      if (wgpuPropItem.Bundle == nullptr)
       {
-        auto wgpuActor = reinterpret_cast<vtkWebGPUActor*>(this->PropArray[i]);
-        offsets->SetValue(0, i * uboOffset);
-        wgpuActor->SetDynamicOffsets(offsets);
-        this->Bundles[i] = wgpuActor->RenderToBundle(this, wgpuActor->GetMapper());
+        wgpuActor->SetDynamicOffsets(wgpuPropItem.DynamicOffsets);
+        wgpuPropItem.Bundle = wgpuActor->RenderToBundle(this, wgpuActor->GetMapper());
+        this->Bundles.emplace_back(wgpuPropItem.Bundle);
         this->BundleCacheStats.Misses++;
       }
       else
       {
-        // do nothing. reuse bundle for this prop.
+        // bundle gets reused for this prop.
+        this->Bundles.emplace_back(wgpuPropItem.Bundle);
         this->BundleCacheStats.Hits++;
       }
     }
     else
     {
-      auto wgpuActor = reinterpret_cast<vtkWebGPUActor*>(this->PropArray[i]);
-      offsets->SetValue(0, i * uboOffset);
-      wgpuActor->SetDynamicOffsets(offsets);
+      wgpuActor->SetDynamicOffsets(wgpuPropItem.DynamicOffsets);
       wgpuActor->Render(this, wgpuActor->GetMapper());
     }
     result += 1;
@@ -475,6 +477,7 @@ void vtkWebGPURenderer::SetEnvironmentTexture(vtkTexture*, bool vtkNotUsed(isSRG
 //------------------------------------------------------------------------------
 void vtkWebGPURenderer::ReleaseGraphicsResources(vtkWindow* vtkNotUsed(w))
 {
+  this->PropWGPUItems.clear();
   this->Bundles.clear();
 }
 
@@ -566,7 +569,7 @@ void vtkWebGPURenderer::EndEncoding()
   this->WGPURenderEncoder.PopDebugGroup();
 #endif
   this->WGPURenderEncoder.End();
-  this->WGPURenderEncoder.Release();
+  this->WGPURenderEncoder = nullptr;
   this->Pass->Delete();
   this->Pass = nullptr;
 }
