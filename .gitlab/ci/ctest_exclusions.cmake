@@ -294,7 +294,8 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "wheel")
     # https://gitlab.kitware.com/vtk/vtk/-/issues/18750
     "^VTK::GeovisCorePython-TestGeoProjection$")
 
-  if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "linux")
+  if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "linux" OR
+      "$ENV{CMAKE_CONFIGURATION}" MATCHES "osmesa")
     list(APPEND test_exclusions
       # Line rendering differences.
       # https://gitlab.kitware.com/vtk/vtk/-/issues/18098
